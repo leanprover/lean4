@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.Omega.OmegaM
-// Imports: public import Lean.Meta.AppBuilder public import Lean.Meta.Canonicalizer
+// Imports: public import Lean.Meta.AppBuilder public import Lean.Meta.Canonicalizer public import Init.Omega
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -906,14 +906,14 @@ goto block_9;
 block_21:
 {
 uint8_t x_20; 
-x_20 = lean_nat_dec_le(x_19, x_18);
+x_20 = lean_nat_dec_le(x_19, x_17);
 if (x_20 == 0)
 {
-lean_dec(x_18);
+lean_dec(x_17);
 lean_inc(x_19);
 x_10 = x_16;
 x_11 = x_19;
-x_12 = x_17;
+x_12 = x_18;
 x_13 = x_19;
 goto block_15;
 }
@@ -921,8 +921,8 @@ else
 {
 x_10 = x_16;
 x_11 = x_19;
-x_12 = x_17;
-x_13 = x_18;
+x_12 = x_18;
+x_13 = x_17;
 goto block_15;
 }
 }
@@ -942,16 +942,16 @@ if (x_28 == 0)
 {
 lean_inc(x_27);
 x_16 = x_22;
-x_17 = x_23;
-x_18 = x_27;
+x_17 = x_27;
+x_18 = x_23;
 x_19 = x_27;
 goto block_21;
 }
 else
 {
 x_16 = x_22;
-x_17 = x_23;
-x_18 = x_27;
+x_17 = x_27;
+x_18 = x_23;
 x_19 = x_24;
 goto block_21;
 }
@@ -7561,6 +7561,7 @@ return x_4;
 }
 lean_object* initialize_Lean_Meta_AppBuilder(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Canonicalizer(uint8_t builtin);
+lean_object* initialize_Init_Omega(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_Tactic_Omega_OmegaM(uint8_t builtin) {
 lean_object * res;
@@ -7570,6 +7571,9 @@ res = initialize_Lean_Meta_AppBuilder(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Canonicalizer(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Elab_Tactic_Omega_OmegaM_run___redArg___closed__0 = _init_l_Lean_Elab_Tactic_Omega_OmegaM_run___redArg___closed__0();

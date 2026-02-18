@@ -6,9 +6,13 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Data.List.Nat.Perm
 import all Init.Data.Array.Basic
-public import Init.Data.Array.Lemmas
+public import Init.Data.Array.Basic
+import Init.Data.Array.Lemmas
+import Init.Data.List.Nat.Perm
+import Init.Data.List.Nat.TakeDrop
+import Init.Data.List.Perm
+import Init.Omega
 
 public section
 
@@ -131,7 +135,7 @@ theorem extract {xs ys : Array α} (h : xs ~ ys) {lo hi : Nat}
   rcases xs with ⟨xs⟩
   rcases ys with ⟨ys⟩
   simp_all only [perm_iff_toList_perm, List.getElem?_toArray, List.extract_toArray,
-    List.extract_eq_drop_take]
+    List.extract_eq_take_drop]
   apply List.Perm.take_of_getElem? (w := fun i h => by simpa using whi (lo + i) (by omega))
   apply List.Perm.drop_of_getElem? (w := wlo)
   exact h

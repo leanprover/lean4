@@ -7,6 +7,11 @@ module
 
 prelude
 public import Init.Data.ByteArray.Basic
+import Init.ByCases
+import Init.Data.Array.Bootstrap
+import Init.Data.Array.Extract
+import Init.Data.Array.Lemmas
+import Init.Omega
 
 public section
 
@@ -106,13 +111,13 @@ theorem getElem_eq_getElem_data {a : ByteArray} {i : Nat} {h : i < a.size} :
 theorem getElem_append_left {i : Nat} {a b : ByteArray} {h : i < (a ++ b).size}
     (hlt : i < a.size) : (a ++ b)[i] = a[i] := by
   simp only [getElem_eq_getElem_data, data_append]
-  rw [Array.getElem_append_left (by simpa)]
+  rw [Array.getElem_append_left (by simpa)]; rfl
 
 theorem getElem_append_right {i : Nat} {a b : ByteArray} {h : i < (a ++ b).size}
     (hle : a.size ≤ i) : (a ++ b)[i] = b[i - a.size]'(by simp_all; omega) := by
   simp only [getElem_eq_getElem_data, data_append]
   rw [Array.getElem_append_right (by simpa)]
-  simp
+  simp; rfl
 
 @[simp]
 theorem _root_.List.getElem_toByteArray {l : List UInt8} {i : Nat} {h : i < l.toByteArray.size} :
@@ -218,7 +223,7 @@ theorem getElem_extract_aux {xs : ByteArray} {start stop : Nat} (h : i < (xs.ext
 
 theorem getElem_extract {i : Nat} {b : ByteArray} {start stop : Nat}
     (h) : (b.extract start stop)[i]'h = b[start + i]'(getElem_extract_aux h) := by
-  simp [getElem_eq_getElem_data]
+  simp [getElem_eq_getElem_data]; rfl
 
 theorem extract_eq_extract_left {a : ByteArray} {i i' j : Nat} :
     a.extract i j = a.extract i' j ↔ min j a.size - i = min j a.size - i' := by
@@ -231,25 +236,25 @@ theorem extract_add_one {a : ByteArray} {i : Nat} (ha : i + 1 ≤ a.size) :
     omega
   · rename_i j hj hj'
     obtain rfl : j = 0 := by simpa using hj'
-    simp [ByteArray.getElem_eq_getElem_data]
+    simp [ByteArray.getElem_eq_getElem_data]; rfl
 
 theorem extract_add_two {a : ByteArray} {i : Nat} (ha : i + 2 ≤ a.size) :
     a.extract i (i + 2) = [a[i], a[i + 1]].toByteArray := by
   rw [extract_eq_extract_append_extract (i + 1) (by simp) (by omega),
     extract_add_one (by omega), extract_add_one (by omega)]
-  simp [← List.toByteArray_append]
+  simp [← List.toByteArray_append]; rfl
 
 theorem extract_add_three {a : ByteArray} {i : Nat} (ha : i + 3 ≤ a.size) :
     a.extract i (i + 3) = [a[i], a[i + 1], a[i + 2]].toByteArray := by
   rw [extract_eq_extract_append_extract (i + 1) (by simp) (by omega),
     extract_add_one (by omega), extract_add_two (by omega)]
-  simp [← List.toByteArray_append]
+  simp [← List.toByteArray_append]; rfl
 
 theorem extract_add_four {a : ByteArray} {i : Nat} (ha : i + 4 ≤ a.size) :
     a.extract i (i + 4) = [a[i], a[i + 1], a[i + 2], a[i + 3]].toByteArray := by
   rw [extract_eq_extract_append_extract (i + 1) (by simp) (by omega),
     extract_add_one (by omega), extract_add_three (by omega)]
-  simp [← List.toByteArray_append]
+  simp [← List.toByteArray_append]; rfl
 
 theorem append_assoc {a b c : ByteArray} : a ++ b ++ c = a ++ (b ++ c) := by
   ext1
@@ -302,5 +307,25 @@ theorem ext_getElem {a b : ByteArray} (h₀ : a.size = b.size) (h : ∀ (i : Nat
   rw [ByteArray.ext_iff]
   apply Array.ext (by simpa using h₀)
   simpa [← ByteArray.getElem_eq_getElem_data]
+
+@[simp]
+theorem _root_.List.toByteArray_inj {l l' : List UInt8} : l.toByteArray = l'.toByteArray ↔ l = l' := by
+  simp [ByteArray.ext_iff]
+
+theorem extract_eq_extract_iff_getElem {as bs : ByteArray} {i j len : Nat}
+    (hi : i + len ≤ as.size) (hj : j + len ≤ bs.size) :
+    as.extract i (i + len) = bs.extract j (j + len) ↔ ∀ k, (hk : k < len) → as[i + k] = bs[j + k] := by
+  induction len with
+  | zero => simp
+  | succ len ih =>
+    rw [← Nat.add_assoc, ← Nat.add_assoc, ByteArray.extract_eq_extract_append_extract (i + len) (by omega) (by omega),
+      ByteArray.extract_eq_extract_append_extract (a := bs) (j + len) (by omega) (by omega),
+      ByteArray.append_eq_append_iff_of_size_eq_left (by simp; omega), ih (by omega) (by omega),
+      ByteArray.extract_add_one (by omega), ByteArray.extract_add_one (by omega)]
+    simp only [List.toByteArray_inj, List.cons.injEq, and_true]
+    refine ⟨fun ⟨h, h'⟩ k hk => ?_, fun h => ⟨fun k hk => h k (by omega), h len (by omega)⟩⟩
+    by_cases hk' : k < len
+    · exact h k hk'
+    · exact (by omega : k = len) ▸ h'
 
 end ByteArray

@@ -536,8 +536,99 @@ Less than {name}`seven`.
 -/
 add_decl_doc four
 
-/-
-TODO test:
-* Scope rules for all operators
-
+/-!
+When a builtin role name like {name}`lit` is shadowed by a user definition,
+the suggestion should use the qualified name {name}`Lean.Doc.lit`.
 -/
+namespace ShadowedBuiltin
+def lit := Nat  -- Shadow the builtin 'lit' role
+
+/--
+warning: Code element could be more specific.
+
+Hint: Insert a role to document it:
+  • {̲g̲i̲v̲e̲n̲}̲`test`
+  • Use the `lit` role:
+    {̲L̲e̲a̲n̲.̲D̲o̲c̲.̲l̲i̲t̲}̲`test`
+    to mark the code as literal text and disable suggestions
+-/
+#guard_msgs in
+/--
+`test`
+-/
+def testShadowedLit := 0
+
+/-! Verify that {Lean.Doc.lit}`{Lean.Doc.lit}` works when {name}`lit` is shadowed -/
+#guard_msgs in
+/-- {Lean.Doc.lit}`qualified works` -/
+def testQualifiedLit := 1
+
+-- {lit} fails when shadowed
+/--
+error: `lit : Type` is not registered as a a role
+
+Hint: `lit` shadows a role. Use the full name of the shadowed role:
+  L̲e̲a̲n̲.̲D̲o̲c̲.̲lit
+-/
+#guard_msgs in
+/-- {lit}`broken` -/
+def testBrokenLit := 0
+
+end ShadowedBuiltin
+
+/-! Verify that this also works for non-builtin documentation roles -/
+
+/-- error: Unknown role `r` -/
+#guard_msgs in
+/-! {r}`foo` -/
+
+open Lean in
+@[doc_role]
+def r (_ : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
+  return .empty
+
+/-! {r}`foo` -/
+
+namespace ShadowedNonBuiltin
+def r := 15
+
+/--
+error: `r : Nat` is not registered as a a role
+
+Hint: `r` shadows a role. Use the full name of the shadowed role:
+  _̲ro̲o̲t̲_̲.̲r̲
+-/
+#guard_msgs in
+/-! {r}`foo` -/
+
+end ShadowedNonBuiltin
+
+namespace DoubleShadowed
+
+@[doc_role]
+def lit (_ : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
+  return .empty
+
+namespace Inner
+
+def lit := 5
+
+/--
+error: `lit : Nat` is not registered as a a role
+
+Hint: `lit` shadows a role. Use the full name of the shadowed role:
+  • l̵i̵t̵D̲o̲u̲b̲l̲e̲S̲h̲a̲d̲o̲w̲e̲d̲.̲l̲i̲t̲
+  • L̲e̲a̲n̲.̲D̲o̲c̲.̲lit
+-/
+#guard_msgs in
+/-! {lit}`abc` -/
+
+end Inner
+
+end DoubleShadowed
+
+/-!
+Self-module references should work without `-checked`.
+-/
+
+/-! {module}`lean.run.versoDocs` -/

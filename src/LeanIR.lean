@@ -15,6 +15,7 @@ import Lean.Compiler.IR.CompilerM
 import all Lean.Compiler.CSimpAttr
 import Lean.Compiler.IR.EmitC
 import Lean.Language.Lean
+import Lean.Compiler.LCNF.PhaseExt
 
 open Lean
 

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Simp.BuiltinSimprocs.UInt
-// Imports: public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Nat
+// Imports: public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Nat import Init.Data.UInt.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -33992,7 +33992,7 @@ lean_object* x_24; lean_object* x_25; uint64_t x_26; lean_object* x_27; lean_obj
 x_24 = lean_ctor_get(x_22, 0);
 x_25 = lean_apply_2(x_3, x_18, x_24);
 x_26 = lean_unbox_uint64(x_25);
-lean_dec(x_25);
+lean_dec_ref(x_25);
 x_27 = lean_uint64_to_nat(x_26);
 x_28 = l_Lean_mkRawNatLit(x_27);
 x_29 = l_UInt8_reduceBin___redArg___closed__3_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_UInt_781669616____hygCtx___hyg_3_;
@@ -34013,7 +34013,7 @@ lean_inc(x_34);
 lean_dec(x_22);
 x_35 = lean_apply_2(x_3, x_18, x_34);
 x_36 = lean_unbox_uint64(x_35);
-lean_dec(x_35);
+lean_dec_ref(x_35);
 x_37 = lean_uint64_to_nat(x_36);
 x_38 = l_Lean_mkRawNatLit(x_37);
 x_39 = l_UInt8_reduceBin___redArg___closed__3_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_UInt_781669616____hygCtx___hyg_3_;
@@ -34059,7 +34059,7 @@ if (lean_is_exclusive(x_46)) {
 }
 x_49 = lean_apply_2(x_3, x_18, x_47);
 x_50 = lean_unbox_uint64(x_49);
-lean_dec(x_49);
+lean_dec_ref(x_49);
 x_51 = lean_uint64_to_nat(x_50);
 x_52 = l_Lean_mkRawNatLit(x_51);
 x_53 = l_UInt8_reduceBin___redArg___closed__3_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_UInt_781669616____hygCtx___hyg_3_;
@@ -34168,7 +34168,7 @@ if (lean_is_exclusive(x_70)) {
 }
 x_74 = lean_apply_2(x_3, x_67, x_72);
 x_75 = lean_unbox_uint64(x_74);
-lean_dec(x_74);
+lean_dec_ref(x_74);
 x_76 = lean_uint64_to_nat(x_75);
 x_77 = l_Lean_mkRawNatLit(x_76);
 x_78 = l_UInt8_reduceBin___redArg___closed__3_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_UInt_781669616____hygCtx___hyg_3_;
@@ -34348,7 +34348,7 @@ lean_object* x_27; lean_object* x_28; uint64_t x_29; lean_object* x_30; lean_obj
 x_27 = lean_ctor_get(x_25, 0);
 x_28 = lean_apply_2(x_3, x_21, x_27);
 x_29 = lean_unbox_uint64(x_28);
-lean_dec(x_28);
+lean_dec_ref(x_28);
 x_30 = lean_uint64_to_nat(x_29);
 x_31 = l_Lean_mkRawNatLit(x_30);
 x_32 = l_UInt8_reduceBin___redArg___closed__3_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_UInt_781669616____hygCtx___hyg_3_;
@@ -34369,7 +34369,7 @@ lean_inc(x_37);
 lean_dec(x_25);
 x_38 = lean_apply_2(x_3, x_21, x_37);
 x_39 = lean_unbox_uint64(x_38);
-lean_dec(x_38);
+lean_dec_ref(x_38);
 x_40 = lean_uint64_to_nat(x_39);
 x_41 = l_Lean_mkRawNatLit(x_40);
 x_42 = l_UInt8_reduceBin___redArg___closed__3_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_UInt_781669616____hygCtx___hyg_3_;
@@ -34415,7 +34415,7 @@ if (lean_is_exclusive(x_49)) {
 }
 x_52 = lean_apply_2(x_3, x_21, x_50);
 x_53 = lean_unbox_uint64(x_52);
-lean_dec(x_52);
+lean_dec_ref(x_52);
 x_54 = lean_uint64_to_nat(x_53);
 x_55 = l_Lean_mkRawNatLit(x_54);
 x_56 = l_UInt8_reduceBin___redArg___closed__3_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_UInt_781669616____hygCtx___hyg_3_;
@@ -34524,7 +34524,7 @@ if (lean_is_exclusive(x_73)) {
 }
 x_77 = lean_apply_2(x_3, x_70, x_75);
 x_78 = lean_unbox_uint64(x_77);
-lean_dec(x_77);
+lean_dec_ref(x_77);
 x_79 = lean_uint64_to_nat(x_78);
 x_80 = l_Lean_mkRawNatLit(x_79);
 x_81 = l_UInt8_reduceBin___redArg___closed__3_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_UInt_781669616____hygCtx___hyg_3_;
@@ -43876,12 +43876,16 @@ return x_2;
 }
 }
 lean_object* initialize_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Nat(uint8_t builtin);
+lean_object* initialize_Init_Data_UInt_Lemmas(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Simp_BuiltinSimprocs_UInt(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Nat(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_UInt_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UInt______macroRules__commandDeclare__uint__simprocs____1___closed__8 = _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UInt______macroRules__commandDeclare__uint__simprocs____1___closed__8();

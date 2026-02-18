@@ -7,7 +7,13 @@ module
 
 prelude
 import all Init.Data.List.Basic
-public import Init.Data.List.Lemmas
+public import Init.BinderPredicates
+public import Init.Ext
+import Init.ByCases
+import Init.Data.Bool
+import Init.Data.List.Lemmas
+import Init.Data.Nat.Div.Basic
+import Init.Data.Option.Lemmas
 
 public section
 
@@ -262,7 +268,7 @@ theorem drop_eq_extract {l : List α} {k : Nat} :
     | 0 => simp
     | _ + 1 =>
       simp only [List.drop_succ_cons, List.length_cons, ih]
-      simp only [List.extract_eq_drop_take, List.drop_succ_cons, Nat.succ_sub_succ]
+      simp only [List.extract_eq_take_drop, List.drop_succ_cons, Nat.succ_sub_succ]
 
 /-! ### takeWhile and dropWhile -/
 

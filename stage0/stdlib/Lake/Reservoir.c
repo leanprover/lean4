@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Reservoir
-// Imports: public import Lake.Util.JsonObject public import Lake.Util.Version public import Lake.Config.Env public import Lake.Util.Reservoir import Lake.Util.Proc import Lake.Util.Url
+// Imports: public import Lake.Util.JsonObject public import Lake.Util.Version public import Lake.Config.Env public import Lake.Util.Reservoir import Lake.Util.Url
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -4511,7 +4511,6 @@ lean_object* initialize_Lake_Util_JsonObject(uint8_t builtin);
 lean_object* initialize_Lake_Util_Version(uint8_t builtin);
 lean_object* initialize_Lake_Config_Env(uint8_t builtin);
 lean_object* initialize_Lake_Util_Reservoir(uint8_t builtin);
-lean_object* initialize_Lake_Util_Proc(uint8_t builtin);
 lean_object* initialize_Lake_Util_Url(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lake_Reservoir(uint8_t builtin) {
@@ -4528,9 +4527,6 @@ res = initialize_Lake_Config_Env(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lake_Util_Reservoir(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lake_Util_Proc(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lake_Util_Url(builtin);

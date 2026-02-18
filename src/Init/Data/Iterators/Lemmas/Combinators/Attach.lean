@@ -9,10 +9,11 @@ prelude
 public import Init.Data.Iterators.Combinators.Attach
 import all Init.Data.Iterators.Combinators.Attach
 import all Init.Data.Iterators.Combinators.Monadic.Attach
-public import Init.Data.Iterators.Lemmas.Combinators.Monadic.Attach
 public import Init.Data.Iterators.Lemmas.Consumers.Collect
-public import Init.Data.Iterators.Lemmas.Consumers.Loop
 public import Init.Data.Array.Attach
+public import Init.Data.Iterators.Consumers.Loop
+import Init.Data.Iterators.Lemmas.Combinators.Monadic.Attach
+import Init.Data.Iterators.Lemmas.Consumers.Loop
 
 public section
 

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.Arith.CommRing.Types
-// Imports: public import Init.Grind.Ring.CommSemiringAdapter public import Lean.Meta.Tactic.Grind.Types import Lean.Meta.Tactic.Grind.Arith.CommRing.Poly import Lean.Data.PersistentArray
+// Imports: public import Init.Grind.Ring.CommSemiringAdapter public import Lean.Meta.Tactic.Grind.Types import Lean.Meta.Tactic.Grind.Arith.CommRing.Poly
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1216,7 +1216,6 @@ return x_13;
 lean_object* initialize_Init_Grind_Ring_CommSemiringAdapter(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Types(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_CommRing_Poly(uint8_t builtin);
-lean_object* initialize_Lean_Data_PersistentArray(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_CommRing_Types(uint8_t builtin) {
 lean_object * res;
@@ -1229,9 +1228,6 @@ res = initialize_Lean_Meta_Tactic_Grind_Types(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Grind_Arith_CommRing_Poly(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Data_PersistentArray(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Meta_Grind_Arith_CommRing_instInhabitedEqCnstrProof___closed__2 = _init_l_Lean_Meta_Grind_Arith_CommRing_instInhabitedEqCnstrProof___closed__2();

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Sym.Simp.Simproc
-// Imports: public import Lean.Meta.Sym.Simp.SimpM public import Lean.Meta.Sym.Simp.Result
+// Imports: public import Lean.Meta.Sym.Simp.Result
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1210,16 +1210,12 @@ x_14 = l_Lean_Meta_Sym_Simp_instOrElseSimproc___lam__0(x_1, x_2, x_3, x_4, x_5, 
 return x_14;
 }
 }
-lean_object* initialize_Lean_Meta_Sym_Simp_SimpM(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Sym_Simp_Result(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Sym_Simp_Simproc(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Meta_Sym_Simp_SimpM(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Meta_Sym_Simp_Result(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

@@ -8,9 +8,23 @@ module
 prelude
 import all Init.Data.List.Control
 public import Init.Data.List.Monadic
-public import Init.Data.List.Nat.InsertIdx
 import all Init.Data.Array.Basic
 import all Init.Data.Array.Set
+import Init.ByCases
+import Init.Data.Array.Bootstrap
+import Init.Data.Bool
+import Init.Data.List.Erase
+import Init.Data.List.Find
+import Init.Data.List.Nat.Erase
+import Init.Data.List.Nat.InsertIdx
+import Init.Data.List.Nat.TakeDrop
+import Init.Data.List.Sublist
+import Init.Data.List.TakeDrop
+import Init.Data.List.Zip
+import Init.Data.Nat.Lemmas
+import Init.Data.Option.Lemmas
+import Init.Omega
+import Init.TacticsExtra
 
 public section
 
@@ -266,6 +280,7 @@ theorem findRevM?_toArray [Monad m] [LawfulMonad m] (f : α → m Bool) (l : Lis
     simp only [forIn_cons, find?]
     by_cases f a <;> simp_all
 
+set_option backward.isDefEq.respectTransparency false in
 private theorem findFinIdx?_loop_toArray (w : l' = l.drop j) :
     Array.findFinIdx?.loop p l.toArray j = List.findFinIdx?.go p l l' j h := by
   unfold findFinIdx?.loop
@@ -302,6 +317,7 @@ termination_by l.length - j
   rw [Array.findIdx?_eq_map_findFinIdx?_val, findIdx?_eq_map_findFinIdx?_val]
   simp [Array.size]
 
+set_option backward.isDefEq.respectTransparency false in
 private theorem idxAuxOf_toArray [BEq α] (a : α) (l : List α) (j : Nat) (w : l' = l.drop j) (h) :
     l.toArray.idxOfAux a j = findFinIdx?.go (fun x => x == a) l l' j h := by
   unfold idxOfAux
@@ -347,6 +363,7 @@ termination_by l.length - j
     as.toArray.idxOf a = as.idxOf a := by
   rw [Array.idxOf, findIdx_toArray, idxOf]
 
+set_option backward.isDefEq.respectTransparency false in
 theorem isPrefixOfAux_toArray_succ [BEq α] (l₁ l₂ : List α) (hle : l₁.length ≤ l₂.length) (i : Nat) :
     Array.isPrefixOfAux l₁.toArray l₂.toArray hle (i + 1) =
       Array.isPrefixOfAux l₁.tail.toArray l₂.tail.toArray (by simp; omega) i := by
@@ -572,7 +589,7 @@ theorem flatMap_toArray_cons {β} (f : α → Array β) (a : α) (as : List α) 
 @[simp, grind =] theorem swap_toArray (l : List α) (i j : Nat) {hi hj}:
     l.toArray.swap i j hi hj = ((l.set i l[j]).set j l[i]).toArray := by
   apply ext'
-  simp
+  simp; rfl
 
 @[simp, grind =] theorem eraseIdx_toArray (l : List α) (i : Nat) (h : i < l.toArray.size) :
     l.toArray.eraseIdx i h = (l.eraseIdx i).toArray := by
@@ -602,13 +619,13 @@ decreasing_by
 @[simp, grind =] theorem eraseP_toArray {as : List α} {p : α → Bool} :
     as.toArray.eraseP p = (as.eraseP p).toArray := by
   rw [Array.eraseP, List.eraseP_eq_eraseIdx, findFinIdx?_toArray]
-  split <;> simp [*, findIdx?_eq_map_findFinIdx?_val]
+  split <;> simp [*, findIdx?_eq_map_findFinIdx?_val] <;> rfl
 
 @[simp, grind =] theorem erase_toArray [BEq α] {as : List α} {a : α} :
     as.toArray.erase a = (as.erase a).toArray := by
   rw [Array.erase, finIdxOf?_toArray, List.erase_eq_eraseIdx]
   rw [idxOf?_eq_map_finIdxOf?_val]
-  split <;> simp_all
+  split <;> simp_all <;> rfl
 
 private theorem insertIdx_loop_toArray (i : Nat) (l : List α) (j : Nat) (hj : j < l.toArray.size) (h : i ≤ j) :
     insertIdx.loop i l.toArray ⟨j, hj⟩ = (l.take i ++ l[j] :: (l.take j).drop i ++ l.drop (j + 1)).toArray := by
@@ -625,10 +642,10 @@ private theorem insertIdx_loop_toArray (i : Nat) (l : List α) (j : Nat) (hj : j
       getElem_set_self, take_set_of_le (j := j - 1) (by omega),
       take_set_of_le (j := j - 1) (by omega), take_eq_append_getElem_of_pos (by omega) hj,
       drop_append_of_le_length (by simp; omega)]
-    simp only [append_assoc, cons_append, nil_append, append_cancel_right_eq]
+    simp only [append_assoc, cons_append, nil_append]
     cases i with
-    | zero => simp
-    | succ i => rw [take_set_of_le (by omega)]
+    | zero => simp; rfl
+    | succ i => rw [take_set_of_le (by omega)]; rfl
   · simp only [Nat.not_lt] at h'
     have : i = j := by omega
     subst this

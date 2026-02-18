@@ -1,5 +1,6 @@
 leanchecker found a problem in LeanCheckerTests.ReplaceAxiom
-uncaught exception: (kernel) application type mismatch
+uncaught exception: while replaying declaration 'efsq':
+(kernel) application type mismatch
   False.elim @propext
 argument has type
   ∀ {a b : Prop}, Iff a b → Eq a b

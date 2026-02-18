@@ -6,9 +6,7 @@ Authors: Mac Malone
 module
 
 prelude
-import Init.Data.Array.Basic
 public import Init.Data.String.TakeDrop
-import Init.Data.String.Slice
 public import Init.Data.String.Search
 
 namespace Lake
@@ -19,8 +17,7 @@ Defines the abstract CLI interface for Lake.
 
 /-! # Types -/
 
-@[expose]  -- for codegen
-public def ArgList := List String
+public abbrev ArgList := List String
 
 @[inline] public def ArgList.mk (args : List String) : ArgList :=
   args

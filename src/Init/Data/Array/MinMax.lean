@@ -6,11 +6,13 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Array.Bootstrap
 public import Init.Data.Array.Lemmas
-public import Init.Data.Array.DecidableEq
 import Init.Data.List.MinMax
-import Init.Data.List.ToArray
+public import Init.Data.Order.Classes
+import Init.Data.Array.Bootstrap
+import Init.Data.Array.DecidableEq
+import Init.Data.List.TakeDrop
+import Init.Data.Order.Lemmas
 
 namespace Array
 
@@ -87,7 +89,7 @@ public theorem _root_.List.min_toArray [Min α] {l : List α} {h} :
     · rename_i x xs
       simp only [List.getElem_toArray, List.getElem_cons_zero, List.size_toArray, List.length_cons]
       rw [List.toArray_cons, foldl_eq_foldl_extract]
-      rw [← Array.foldl_toList, Array.toList_extract, List.extract_eq_drop_take]
+      rw [← Array.foldl_toList, Array.toList_extract, List.extract_eq_take_drop]
       simp [List.min]
 
 public theorem _root_.List.min_eq_min_toArray [Min α] {l : List α} {h} :
@@ -127,7 +129,7 @@ public theorem _root_.List.max_toArray [Max α] {l : List α} {h} :
     · rename_i x xs
       simp only [List.getElem_toArray, List.getElem_cons_zero, List.size_toArray, List.length_cons]
       rw [List.toArray_cons, foldl_eq_foldl_extract]
-      rw [← Array.foldl_toList, Array.toList_extract, List.extract_eq_drop_take]
+      rw [← Array.foldl_toList, Array.toList_extract, List.extract_eq_take_drop]
       simp [List.max]
 
 public theorem _root_.List.max_eq_max_toArray [Max α] {l : List α} {h} :

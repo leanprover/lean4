@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.DHashMap.Internal.Index
-// Imports: public import Init.Data.UInt.Bitwise
+// Imports: public import Init.Data.UInt.Bitwise import Init.ByCases import Init.Data.UInt.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -43,7 +43,7 @@ _start:
 {
 uint64_t x_2; uint64_t x_3; lean_object* x_4; 
 x_2 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = l_Std_DHashMap_Internal_scrambleHash(x_2);
 x_4 = lean_box_uint64(x_3);
 return x_4;
@@ -72,7 +72,7 @@ _start:
 {
 uint64_t x_3; size_t x_4; lean_object* x_5; 
 x_3 = lean_unbox_uint64(x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_4 = l_Std_DHashMap_Internal_mkIdx___redArg(x_1, x_3);
 lean_dec(x_1);
 x_5 = lean_box_usize(x_4);
@@ -102,7 +102,7 @@ _start:
 {
 uint64_t x_4; size_t x_5; lean_object* x_6; 
 x_4 = lean_unbox_uint64(x_3);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_5 = l_Std_DHashMap_Internal_mkIdx(x_1, x_2, x_4);
 lean_dec(x_1);
 x_6 = lean_box_usize(x_5);
@@ -110,12 +110,20 @@ return x_6;
 }
 }
 lean_object* initialize_Init_Data_UInt_Bitwise(uint8_t builtin);
+lean_object* initialize_Init_ByCases(uint8_t builtin);
+lean_object* initialize_Init_Data_UInt_Lemmas(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Data_DHashMap_Internal_Index(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Init_Data_UInt_Bitwise(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_ByCases(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_UInt_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

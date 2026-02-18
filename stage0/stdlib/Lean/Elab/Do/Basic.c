@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Do.Basic
-// Imports: public import Lean.Elab.Term.TermElabM public import Lean.Elab.Binders import Lean.Meta.ProdN meta import Lean.Parser.Do
+// Imports: public import Lean.Elab.Binders import Lean.Meta.ProdN import Init.Omega
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -826,15 +826,15 @@ static const lean_object* l_Lean_Elab_Do_doElemElabAttribute___regBuiltin_Lean_E
 lean_object* l_Lean_addBuiltinDocString(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Do_doElemElabAttribute___regBuiltin_Lean_Elab_Do_doElemElabAttribute_docString__1();
 LEAN_EXPORT lean_object* l_Lean_Elab_Do_doElemElabAttribute___regBuiltin_Lean_Elab_Do_doElemElabAttribute_docString__1___boxed(lean_object*);
-static const lean_ctor_object l_Lean_Elab_Do_doElemElabAttribute___regBuiltin_Lean_Elab_Do_doElemElabAttribute_declRange__3___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 0, .m_other = 2, .m_tag = 0}, .m_objs = {((lean_object*)(((size_t)(660) << 1) | 1)),((lean_object*)(((size_t)(0) << 1) | 1))}};
+static const lean_ctor_object l_Lean_Elab_Do_doElemElabAttribute___regBuiltin_Lean_Elab_Do_doElemElabAttribute_declRange__3___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 0, .m_other = 2, .m_tag = 0}, .m_objs = {((lean_object*)(((size_t)(659) << 1) | 1)),((lean_object*)(((size_t)(0) << 1) | 1))}};
 static const lean_object* l_Lean_Elab_Do_doElemElabAttribute___regBuiltin_Lean_Elab_Do_doElemElabAttribute_declRange__3___closed__0 = (const lean_object*)&l_Lean_Elab_Do_doElemElabAttribute___regBuiltin_Lean_Elab_Do_doElemElabAttribute_declRange__3___closed__0_value;
-static const lean_ctor_object l_Lean_Elab_Do_doElemElabAttribute___regBuiltin_Lean_Elab_Do_doElemElabAttribute_declRange__3___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 0, .m_other = 2, .m_tag = 0}, .m_objs = {((lean_object*)(((size_t)(674) << 1) | 1)),((lean_object*)(((size_t)(102) << 1) | 1))}};
+static const lean_ctor_object l_Lean_Elab_Do_doElemElabAttribute___regBuiltin_Lean_Elab_Do_doElemElabAttribute_declRange__3___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 0, .m_other = 2, .m_tag = 0}, .m_objs = {((lean_object*)(((size_t)(673) << 1) | 1)),((lean_object*)(((size_t)(102) << 1) | 1))}};
 static const lean_object* l_Lean_Elab_Do_doElemElabAttribute___regBuiltin_Lean_Elab_Do_doElemElabAttribute_declRange__3___closed__1 = (const lean_object*)&l_Lean_Elab_Do_doElemElabAttribute___regBuiltin_Lean_Elab_Do_doElemElabAttribute_declRange__3___closed__1_value;
 static const lean_ctor_object l_Lean_Elab_Do_doElemElabAttribute___regBuiltin_Lean_Elab_Do_doElemElabAttribute_declRange__3___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*4 + 0, .m_other = 4, .m_tag = 0}, .m_objs = {((lean_object*)&l_Lean_Elab_Do_doElemElabAttribute___regBuiltin_Lean_Elab_Do_doElemElabAttribute_declRange__3___closed__0_value),((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_Lean_Elab_Do_doElemElabAttribute___regBuiltin_Lean_Elab_Do_doElemElabAttribute_declRange__3___closed__1_value),((lean_object*)(((size_t)(102) << 1) | 1))}};
 static const lean_object* l_Lean_Elab_Do_doElemElabAttribute___regBuiltin_Lean_Elab_Do_doElemElabAttribute_declRange__3___closed__2 = (const lean_object*)&l_Lean_Elab_Do_doElemElabAttribute___regBuiltin_Lean_Elab_Do_doElemElabAttribute_declRange__3___closed__2_value;
-static const lean_ctor_object l_Lean_Elab_Do_doElemElabAttribute___regBuiltin_Lean_Elab_Do_doElemElabAttribute_declRange__3___closed__3_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 0, .m_other = 2, .m_tag = 0}, .m_objs = {((lean_object*)(((size_t)(674) << 1) | 1)),((lean_object*)(((size_t)(19) << 1) | 1))}};
+static const lean_ctor_object l_Lean_Elab_Do_doElemElabAttribute___regBuiltin_Lean_Elab_Do_doElemElabAttribute_declRange__3___closed__3_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 0, .m_other = 2, .m_tag = 0}, .m_objs = {((lean_object*)(((size_t)(673) << 1) | 1)),((lean_object*)(((size_t)(19) << 1) | 1))}};
 static const lean_object* l_Lean_Elab_Do_doElemElabAttribute___regBuiltin_Lean_Elab_Do_doElemElabAttribute_declRange__3___closed__3 = (const lean_object*)&l_Lean_Elab_Do_doElemElabAttribute___regBuiltin_Lean_Elab_Do_doElemElabAttribute_declRange__3___closed__3_value;
-static const lean_ctor_object l_Lean_Elab_Do_doElemElabAttribute___regBuiltin_Lean_Elab_Do_doElemElabAttribute_declRange__3___closed__4_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 0, .m_other = 2, .m_tag = 0}, .m_objs = {((lean_object*)(((size_t)(674) << 1) | 1)),((lean_object*)(((size_t)(38) << 1) | 1))}};
+static const lean_ctor_object l_Lean_Elab_Do_doElemElabAttribute___regBuiltin_Lean_Elab_Do_doElemElabAttribute_declRange__3___closed__4_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 0, .m_other = 2, .m_tag = 0}, .m_objs = {((lean_object*)(((size_t)(673) << 1) | 1)),((lean_object*)(((size_t)(38) << 1) | 1))}};
 static const lean_object* l_Lean_Elab_Do_doElemElabAttribute___regBuiltin_Lean_Elab_Do_doElemElabAttribute_declRange__3___closed__4 = (const lean_object*)&l_Lean_Elab_Do_doElemElabAttribute___regBuiltin_Lean_Elab_Do_doElemElabAttribute_declRange__3___closed__4_value;
 static const lean_ctor_object l_Lean_Elab_Do_doElemElabAttribute___regBuiltin_Lean_Elab_Do_doElemElabAttribute_declRange__3___closed__5_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*4 + 0, .m_other = 4, .m_tag = 0}, .m_objs = {((lean_object*)&l_Lean_Elab_Do_doElemElabAttribute___regBuiltin_Lean_Elab_Do_doElemElabAttribute_declRange__3___closed__3_value),((lean_object*)(((size_t)(19) << 1) | 1)),((lean_object*)&l_Lean_Elab_Do_doElemElabAttribute___regBuiltin_Lean_Elab_Do_doElemElabAttribute_declRange__3___closed__4_value),((lean_object*)(((size_t)(38) << 1) | 1))}};
 static const lean_object* l_Lean_Elab_Do_doElemElabAttribute___regBuiltin_Lean_Elab_Do_doElemElabAttribute_declRange__3___closed__5 = (const lean_object*)&l_Lean_Elab_Do_doElemElabAttribute___regBuiltin_Lean_Elab_Do_doElemElabAttribute_declRange__3___closed__5_value;
@@ -26189,25 +26189,21 @@ x_10 = l_Lean_Elab_Do_elabDo(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 return x_10;
 }
 }
-lean_object* initialize_Lean_Elab_Term_TermElabM(uint8_t builtin);
 lean_object* initialize_Lean_Elab_Binders(uint8_t builtin);
 lean_object* initialize_Lean_Meta_ProdN(uint8_t builtin);
-lean_object* initialize_Lean_Parser_Do(uint8_t builtin);
+lean_object* initialize_Init_Omega(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_Do_Basic(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Elab_Term_TermElabM(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Elab_Binders(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_ProdN(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Parser_Do(builtin);
+res = initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 if (builtin) {res = l___private_Lean_Elab_Do_Basic_0__Lean_Elab_Do_initFn_00___x40_Lean_Elab_Do_Basic_14640500____hygCtx___hyg_2_();

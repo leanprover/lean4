@@ -6,12 +6,11 @@ Authors: Mario Carneiro, Sebastian Ullrich
 module
 
 prelude
-public import Init.Prelude
-public import Init.System.IO
 public import Lean.Util.Path
-import Lean.Environment
 import Lean.ExtraModUses
 import Lean.Parser.Module
+import Init.Data.Range.Polymorphic.Iterators
+meta import Lean.Parser.Module
 
 /-! # Shake: A Lean import minimizer
 
@@ -258,7 +257,7 @@ def calcNeeds (s : State) (i : ModuleIdx) : Needs := Id.run do
       needs := visitExpr k e needs
 
   for use in getExtraModUses env i do
-    let j := env.getModuleIdx? use.module |>.get!
+    let j : Nat := env.getModuleIdx? use.module |>.get!
     needs := needs.union { use with } {j}
 
   return needs
@@ -269,11 +268,11 @@ where
     Lean.Expr.foldConsts e deps fun c deps => Id.run do
       let mut deps := deps
       if let some c := getDepConstName? s c then
-        if let some j := env.getModuleIdxFor? c then
+        if let some (j : Nat) := env.getModuleIdxFor? c then
           let k := { k with isMeta := k.isMeta && !isDeclMeta' env c }
           if j != i then
             deps := deps.union k {j}
-            for indMod in s.indirectModUses[c]?.getD #[] do
+            for (indMod : Nat) in s.indirectModUses[c]?.getD #[] do
               if s.transDeps[i]!.has k indMod then
                 deps := deps.union k {indMod}
       return deps
@@ -396,23 +395,24 @@ def decodeImport : TSyntax ``Parser.Module.import → Import
 
 /-- Analyze and report issues from module `i`. Arguments:
 
-* `pkg`: the first component of the module name
+* `pkgs`: the first components of the input modules
 * `srcSearchPath`: Used to find the path for error reporting purposes
 * `i`: the module index
 * `needs`: the module's calculated needs
 * `addOnly`: if true, only add missing imports, do not remove unused ones
 -/
-def visitModule (pkg : Name) (srcSearchPath : SearchPath)
+def visitModule (pkgs : Array Name) (srcSearchPath : SearchPath)
     (i : Nat) (needs : Needs) (headerStx : TSyntax ``Parser.Module.header) (args : Args)
     (addOnly := false) : StateT State IO Unit := do
+  let modName := (← get).modNames[i]!
   if isExtraRevModUse (← get).env i then
     modify fun s => { s with preserve := s.preserve.union (if args.addPublic then .pub else .priv) {i} }
     if args.trace then
-      IO.eprintln s!"Preserving `{(← get).modNames[i]!}` because of recorded extra rev use"
+      IO.eprintln s!"Preserving `{modName}` because of recorded extra rev use"
 
-  -- only process modules in the selected package
+  -- only process modules in the selected packages
   -- TODO: should be after `keep-downstream` but core headers are not found yet?
-  if !pkg.isPrefixOf (← get).modNames[i]! then
+  if !pkgs.any (·.isPrefixOf modName) then
     return
 
   let (module?, prelude?, imports) := decodeHeader headerStx
@@ -427,10 +427,11 @@ def visitModule (pkg : Name) (srcSearchPath : SearchPath)
   -- Add additional preserved imports
   for impStx in imports do
     let imp := decodeImport impStx
-    let j := s.env.getModuleIdx? imp.module |>.get!
+    let j : Nat := s.env.getModuleIdx? imp.module |>.get!
     let k := NeedsKind.ofImport imp
     if addOnly ||
-        args.keepPublic && imp.isExported ||
+        -- TODO: allow per-library configuration instead of hardcoding `Init`
+        args.keepPublic && imp.isExported && !(`Init).isPrefixOf modName ||
         impStx.raw.getTrailing?.any (·.toString.contains "shake: keep") then
       deps := deps.union k {j}
       if args.trace then
@@ -455,19 +456,20 @@ def visitModule (pkg : Name) (srcSearchPath : SearchPath)
             deps := deps.sub k' (transDeps.sub k' {j} |>.get k')
 
   if prelude?.isNone then
-    deps := deps.union .pub {s.env.getModuleIdx? `Init |>.get!}
+    let j : Nat := s.env.getModuleIdx? `Init |>.get!
+    deps := deps.union .pub {j}
 
   -- Accumulate `transDeps` which is the non-reflexive transitive closure of the still-live imports
   let mut transDeps := Needs.empty
   let mut alwaysAdd : Array Import := #[]  -- to be added even if implied by other imports
   for imp in s.mods[i]!.imports do
-    let j := s.env.getModuleIdx? imp.module |>.get!
+    let j : Nat := s.env.getModuleIdx? imp.module |>.get!
     let k := NeedsKind.ofImport imp
     if deps.has k j || imp.importAll then
       transDeps := addTransitiveImps transDeps imp j s.transDeps[j]!
       deps := deps.union k {j}
     -- skip folder-nested `public (meta)? import`s but remove `meta`
-    else if s.modNames[i]!.isPrefixOf imp.module then
+    else if modName.isPrefixOf imp.module then
       let imp := { imp with isMeta := false }
       let k := { k with isMeta := false }
       if args.trace then
@@ -506,8 +508,8 @@ def visitModule (pkg : Name) (srcSearchPath : SearchPath)
               -- `j'` must be reachable from `i` (allow downgrading from `meta`)
               guard <| s.transDepsOrig[i]!.has k j' || s.transDepsOrig[i]!.has { k with isMeta := true } j'
               let j'transDeps := addTransitiveImps .empty p j' s.transDeps[j']!
-              -- `j` must be reachable from `j'` (now downgrading must be done in the other direction)
-              guard <| j'transDeps.has k j || j'transDeps.has { k with isMeta := false } j
+              -- `j` must be publicly reachable from `j'` (now downgrading must be done in the other direction)
+              guard <| j'transDeps.has { k with isExported := true } j || j'transDeps.has { k with isExported := true, isMeta := false } j
               return j')
             | _ => none
           if let some j' := tryPrefix imp.module then
@@ -561,7 +563,7 @@ def visitModule (pkg : Name) (srcSearchPath : SearchPath)
   -- mark and report the removals
   modify fun s => { s with
     edits := toRemove.foldl (init := s.edits) fun edits imp =>
-      edits.remove s.modNames[i]! imp }
+      edits.remove modName imp }
 
   if !toAdd.isEmpty || !toRemove.isEmpty || args.explain then
     if let some path ← srcSearchPath.findModuleWithExt "lean" s.modNames[i]! then
@@ -635,13 +637,12 @@ Run the shake analysis with the given arguments.
 
 Assumes Lean's search path has already been properly configured.
 -/
-public def run (args : Args) (h : 0 < args.mods.size)
-    (srcSearchPath : SearchPath := {}) : IO UInt32 := do
+public def run (args : Args) (srcSearchPath : SearchPath := {}) : IO UInt32 := do
 
   -- the list of root modules
   let mods := args.mods
-  -- Only submodules of `pkg` will be edited or have info reported on them
-  let pkg := mods[0].getRoot
+  -- Only submodules of `pkgs` will be edited or have info reported on them
+  let pkgs := mods.map (·.getRoot)
 
   -- Load all the modules
   let imps := mods.map ({ module := · })
@@ -664,7 +665,7 @@ public def run (args : Args) (h : 0 < args.mods.size)
 
   -- Parse headers in parallel
   let headers ← s.mods.mapIdxM fun i _ =>
-    if !pkg.isPrefixOf s.modNames[i]! then
+    if !pkgs.any (·.isPrefixOf s.modNames[i]!) then
       pure <| Task.pure <| .ok ⟨default, default, default, default⟩
     else
       BaseIO.asTask (parseHeader srcSearchPath s.modNames[i]! |>.toBaseIO)
@@ -676,7 +677,7 @@ public def run (args : Args) (h : 0 < args.mods.size)
   for i in [0:s.mods.size], t in needs, header in headers do
     match header.get with
     | .ok ⟨_, _, stx, _⟩ =>
-      visitModule pkg srcSearchPath i t.get stx args
+      visitModule pkgs srcSearchPath i t.get stx args
     | .error e =>
       println! e.toString
 

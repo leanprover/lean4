@@ -1032,9 +1032,9 @@ goto block_154;
 block_147:
 {
 lean_object* x_144; lean_object* x_145; lean_object* x_146; 
-x_144 = lean_nat_add(x_142, x_143);
+x_144 = lean_nat_add(x_141, x_143);
 lean_dec(x_143);
-lean_dec(x_142);
+lean_dec(x_141);
 if (lean_is_scalar(x_138)) {
  x_145 = lean_alloc_ctor(0, 5, 0);
 } else {
@@ -1053,7 +1053,7 @@ if (lean_is_scalar(x_128)) {
 lean_ctor_set(x_146, 0, x_140);
 lean_ctor_set(x_146, 1, x_130);
 lean_ctor_set(x_146, 2, x_131);
-lean_ctor_set(x_146, 3, x_141);
+lean_ctor_set(x_146, 3, x_142);
 lean_ctor_set(x_146, 4, x_145);
 return x_146;
 }
@@ -1079,8 +1079,8 @@ if (lean_obj_tag(x_133) == 0)
 lean_object* x_152; 
 x_152 = lean_ctor_get(x_133, 0);
 lean_inc(x_152);
-x_141 = x_150;
-x_142 = x_151;
+x_141 = x_151;
+x_142 = x_150;
 x_143 = x_152;
 goto block_147;
 }
@@ -1088,8 +1088,8 @@ else
 {
 lean_object* x_153; 
 x_153 = lean_unsigned_to_nat(0u);
-x_141 = x_150;
-x_142 = x_151;
+x_141 = x_151;
+x_142 = x_150;
 x_143 = x_153;
 goto block_147;
 }
@@ -1489,24 +1489,24 @@ lean_dec(x_9);
 if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; 
-x_12 = lean_array_push(x_8, x_7);
+x_12 = lean_array_push(x_6, x_8);
 x_13 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_13, 0, x_10);
 lean_ctor_set(x_13, 1, x_12);
 x_1 = x_5;
-x_2 = x_6;
+x_2 = x_7;
 x_3 = x_13;
 goto _start;
 }
 else
 {
 lean_object* x_15; 
-lean_dec(x_7);
+lean_dec(x_8);
 x_15 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_15, 0, x_10);
-lean_ctor_set(x_15, 1, x_8);
+lean_ctor_set(x_15, 1, x_6);
 x_1 = x_5;
-x_2 = x_6;
+x_2 = x_7;
 x_3 = x_15;
 goto _start;
 }
@@ -1527,9 +1527,9 @@ x_24 = lean_box(0);
 lean_inc(x_18);
 x_25 = l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_IR_CollectUsedDecls_collectFnBody_spec__1___redArg(x_18, x_24, x_21);
 x_26 = lean_box(x_23);
-x_6 = x_19;
-x_7 = x_18;
-x_8 = x_22;
+x_6 = x_22;
+x_7 = x_19;
+x_8 = x_18;
 x_9 = x_26;
 x_10 = x_25;
 goto block_17;
@@ -1538,9 +1538,9 @@ else
 {
 lean_object* x_27; 
 x_27 = lean_box(x_23);
-x_6 = x_19;
-x_7 = x_18;
-x_8 = x_22;
+x_6 = x_22;
+x_7 = x_19;
+x_8 = x_18;
 x_9 = x_27;
 x_10 = x_21;
 goto block_17;

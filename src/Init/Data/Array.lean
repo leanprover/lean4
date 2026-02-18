@@ -33,3 +33,4 @@ public import Init.Data.Array.Extract
 public import Init.Data.Array.MinMax
 public import Init.Data.Array.Nat
 public import Init.Data.Array.Int
+public import Init.Data.Array.Count

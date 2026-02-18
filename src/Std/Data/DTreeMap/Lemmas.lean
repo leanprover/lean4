@@ -8,6 +8,8 @@ module
 prelude
 import Std.Data.DTreeMap.Internal.Lemmas
 public import Std.Data.DTreeMap.AdditionalOperations
+import Init.Data.List.Pairwise
+import Init.Data.Prod
 
 @[expose] public section
 
@@ -2138,6 +2140,9 @@ theorem unitOfList_cons {hd : α} {tl : List α} :
       insertManyIfNewUnit ((∅ : DTreeMap α Unit cmp).insertIfNew hd ()) tl :=
   ext Impl.Const.insertManyIfNewUnit_empty_list_cons
 
+theorem unitOfList_eq_insertManyIfNewUnit_empty {l : List α} :
+    unitOfList l cmp = insertManyIfNewUnit ∅ l := rfl
+
 @[simp]
 theorem contains_unitOfList [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp] {l : List α} {k : α} :
     (unitOfList l cmp).contains k = l.contains k :=
@@ -2900,6 +2905,9 @@ theorem Equiv.beq [∀ k, ReflBEq (β k)] (h : m₁ ~m m₂) : m₁ == m₂ :=
 theorem equiv_of_beq [∀ k, LawfulBEq (β k)] (h : m₁ == m₂) : m₁ ~m m₂ :=
   ⟨Impl.equiv_of_beq m₁.2 m₂.2 h⟩
 
+theorem beq_iff_equiv [∀ k, LawfulBEq (β k)] : m₁ == m₂ ↔ m₁ ~m m₂ :=
+  ⟨equiv_of_beq, Equiv.beq⟩
+
 theorem Equiv.beq_congr {m₃ m₄ : DTreeMap α β cmp} (w₁ : m₁ ~m m₃) (w₂ : m₂ ~m m₄) : (m₁ == m₂) = (m₃ == m₄) :=
   Impl.Equiv.beq_congr m₁.2 m₂.2 m₃.2 m₄.2 w₁.1 w₂.1
 
@@ -2914,6 +2922,9 @@ theorem Const.Equiv.beq [TransCmp cmp] [ReflBEq β] (h : m₁ ~m m₂) : DTreeMa
 
 theorem Const.equiv_of_beq [TransCmp cmp] [LawfulEqCmp cmp] [LawfulBEq β] (h : Const.beq m₁ m₂) : m₁ ~m m₂ :=
   ⟨Impl.Const.equiv_of_beq m₁.2 m₂.2 h⟩
+
+theorem Const.beq_iff_equiv [TransCmp cmp] [LawfulEqCmp cmp] [LawfulBEq β] : Const.beq m₁ m₂ ↔ m₁ ~m m₂ :=
+  ⟨equiv_of_beq, Equiv.beq⟩
 
 theorem Const.Equiv.beq_congr [TransCmp cmp] {m₃ m₄ : DTreeMap α (fun _ => β) cmp} (w₁ : m₁ ~m m₃) (w₂ : m₂ ~m m₄) : Const.beq m₁ m₂ = Const.beq m₃ m₄ :=
   Impl.Const.Equiv.beq_congr m₁.2 m₂.2 m₃.2 m₄.2 w₁.1 w₂.1
@@ -5902,6 +5913,26 @@ theorem equiv_iff_toList_eq [TransCmp cmp] :
     t₁ ~m t₂ ↔ t₁.toList = t₂.toList :=
   equiv_iff_equiv.trans (Impl.equiv_iff_toList_eq t₁.2 t₂.2)
 
+theorem insertMany_list_equiv_foldl {l : List ((a : α) × β a)} :
+    t₁.insertMany l ~m l.foldl (init := t₁) fun acc p => acc.insert p.1 p.2 := by
+  constructor
+  let : Ord α := ⟨cmp⟩
+  rw [← List.foldl_hom inner (g₂ := fun acc p => acc.insert! p.1 p.2)]
+  · exact Impl.insertMany_list_equiv_foldl t₁.wf
+  · exact fun _ _ => Impl.insert_eq_insert!.symm
+
+theorem ofList_equiv_foldl {l : List ((a : α) × β a)} :
+    ofList l cmp ~m l.foldl (init := ∅) fun acc p => acc.insert p.1 p.2 := by
+  simpa only [ofList_eq_insertMany_empty] using insertMany_list_equiv_foldl
+
+theorem insertManyIfNew_list_equiv_foldl {l : List ((a : α) × β a)} :
+    t₁.insertManyIfNew l ~m l.foldl (init := t₁) fun acc p => acc.insertIfNew p.1 p.2 := by
+  constructor
+  let : Ord α := ⟨cmp⟩
+  rw [← List.foldl_hom inner (g₂ := fun acc p => acc.insertIfNew! p.1 p.2)]
+  · exact Impl.insertManyIfNew_list_equiv_foldl t₁.wf
+  · exact fun _ _ => Impl.insertIfNew_eq_insertIfNew!.symm
+
 section Const
 
 variable {β : Type v} {t₁ t₂ : DTreeMap α β cmp}
@@ -5924,6 +5955,30 @@ theorem Equiv.of_constToList_perm : (Const.toList t₁).Perm (Const.toList t₂)
 
 theorem Equiv.of_keys_unit_perm {t₁ t₂ : DTreeMap α Unit cmp} : t₁.keys.Perm t₂.keys → t₁ ~m t₂ :=
   Const.equiv_iff_keys_unit_perm.mpr
+
+theorem Const.insertMany_list_equiv_foldl {l : List (α × β)} :
+    insertMany t₁ l ~m l.foldl (init := t₁) (fun acc p => acc.insert p.1 p.2) := by
+  constructor
+  let : Ord α := ⟨cmp⟩
+  rw [← List.foldl_hom inner (g₂ := fun acc p => acc.insert! p.1 p.2)]
+  · exact Impl.Const.insertMany_list_equiv_foldl t₁.wf
+  · exact fun _ _ => Impl.insert_eq_insert!.symm
+
+theorem Const.ofList_equiv_foldl {l : List (α × β)} :
+    ofList l cmp ~m l.foldl (init := ∅) (fun acc p => acc.insert p.1 p.2) := by
+  simpa only [ofList_eq_insertMany_empty] using insertMany_list_equiv_foldl
+
+theorem Const.insertManyIfNewUnit_list_equiv_foldl {t₁ : DTreeMap α Unit cmp} {l : List α} :
+    insertManyIfNewUnit t₁ l ~m l.foldl (init := t₁) (fun acc a => acc.insertIfNew a ()) := by
+  constructor
+  let : Ord α := ⟨cmp⟩
+  rw [← List.foldl_hom inner (g₂ := fun acc a => acc.insertIfNew! a ())]
+  · exact Impl.Const.insertManyIfNewUnit_list_equiv_foldl t₁.wf
+  · exact fun _ _ => Impl.insertIfNew_eq_insertIfNew!.symm
+
+theorem Const.unitOfList_equiv_foldl {l : List α} :
+    unitOfList l cmp ~m l.foldl (init := ∅) (fun acc a => acc.insertIfNew a ()) := by
+  simpa only [unitOfList_eq_insertManyIfNewUnit_empty] using insertManyIfNewUnit_list_equiv_foldl
 
 end Const
 

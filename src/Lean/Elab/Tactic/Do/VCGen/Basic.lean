@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Elab.Tactic.Simp
 public import Lean.Elab.Tactic.Do.Attr
+import Init.Omega
 
 public section
 
@@ -215,7 +216,7 @@ def mkSpecContext (optConfig : Syntax) (lemmas : Syntax) (ignoreStarArg := false
               mkSpecTheoremFromConst declName
             else
               withRef id <| throwUnknownConstant id.getId.eraseMacroScopes
-        specThms := specThms.eraseCore specThm.proof
+        specThms := specThms.erase specThm.proof
       catch _ =>
         simpStuff := simpStuff.push ⟨arg⟩ -- simp tracks its own erase stuff
     else if arg.getKind == ``simpLemma then
@@ -229,17 +230,17 @@ def mkSpecContext (optConfig : Syntax) (lemmas : Syntax) (ignoreStarArg := false
         let info ← getConstInfo declName
         try
           let thm ← mkSpecTheoremFromConst declName
-          specThms := addSpecTheoremEntry specThms thm
+          specThms := specThms.add thm
         catch _ =>
           simpStuff := simpStuff.push ⟨arg⟩
       | some (.fvar fvar) =>
         let decl ← getFVarLocalDecl (.fvar fvar)
         try
           let thm ← mkSpecTheoremFromLocal fvar
-          specThms := addSpecTheoremEntry specThms thm
+          specThms := specThms.add thm
         catch _ =>
           simpStuff := simpStuff.push ⟨arg⟩
-      | _ => withRef term <| throwError "Could not resolve {repr term}"
+      | _ => withRef term <| throwError "Could not resolve spec theorem `{term}`"
     else if arg.getKind == ``simpStar then
       starArg := true
       simpStuff := simpStuff.push ⟨arg⟩
@@ -259,7 +260,7 @@ def mkSpecContext (optConfig : Syntax) (lemmas : Syntax) (ignoreStarArg := false
       unless specThms.isErased (.local fvar) do
         try
           let thm ← mkSpecTheoremFromLocal fvar
-          specThms := addSpecTheoremEntry specThms thm
+          specThms := specThms.add thm
         catch _ => continue
   return {
     config,
@@ -268,3 +269,20 @@ def mkSpecContext (optConfig : Syntax) (lemmas : Syntax) (ignoreStarArg := false
     simprocs := res.simprocs
     initialCtxSize := (← getLCtx).numIndices
   }
+
+def withLocalSpecs [Monad m] [MonadControlT VCGenM m] (xs : Array Expr) (k : m α) : m α :=
+  controlAt VCGenM fun runInBase => do
+    let rec loop i : VCGenM _ := do
+      if h : i < xs.size then
+        let x := xs[i]
+        try
+          let thm ← mkSpecTheoremFromLocal x.fvarId! (eval_prio low)
+          trace[Elab.Tactic.Do.vcgen] "adding {thm.proof}"
+          withReader (fun ctx => { ctx with specThms := ctx.specThms.add thm }) (loop (i + 1))
+        catch ex =>
+          match ex with
+          | .internal .. => throw ex
+          | .error ..    => loop (i + 1)
+      else
+        runInBase k
+    loop 0

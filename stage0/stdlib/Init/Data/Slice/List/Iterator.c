@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Slice.List.Iterator
-// Imports: public import Init.Data.Slice.List.Basic public import Init.Data.Iterators.Producers.List public import Init.Data.Iterators.Combinators.Take import all Init.Data.Range.Polymorphic.Basic public import Init.Data.Range.Polymorphic.Iterators public import Init.Data.Slice.Operations import Init.Omega
+// Imports: public import Init.Data.Slice.List.Basic public import Init.Data.Iterators.Producers.List public import Init.Data.Iterators.Combinators.Take import all Init.Data.Range.Polymorphic.Basic public import Init.Data.Slice.Operations
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -803,11 +803,11 @@ goto block_37;
 block_14:
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-x_9 = l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___redArg(x_1, x_8, x_7);
+x_9 = l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___redArg(x_1, x_8, x_5);
 x_10 = lean_array_to_list(x_9);
 x_11 = l_List_appendTR___redArg(x_6, x_10);
 x_12 = l_List_lengthTR___redArg(x_11);
-x_13 = l_List_toSlice___redArg(x_11, x_5, x_12);
+x_13 = l_List_toSlice___redArg(x_11, x_7, x_12);
 lean_dec(x_12);
 lean_dec(x_11);
 return x_13;
@@ -829,9 +829,9 @@ if (lean_obj_tag(x_18) == 0)
 {
 lean_ctor_set(x_4, 1, x_17);
 lean_ctor_set(x_4, 0, x_19);
-x_5 = x_19;
+x_5 = x_20;
 x_6 = x_22;
-x_7 = x_20;
+x_7 = x_19;
 x_8 = x_4;
 goto block_14;
 }
@@ -846,9 +846,9 @@ x_25 = lean_nat_add(x_23, x_24);
 lean_dec(x_23);
 lean_ctor_set(x_4, 1, x_17);
 lean_ctor_set(x_4, 0, x_25);
-x_5 = x_19;
+x_5 = x_20;
 x_6 = x_22;
-x_7 = x_20;
+x_7 = x_19;
 x_8 = x_4;
 goto block_14;
 }
@@ -871,9 +871,9 @@ lean_object* x_32;
 x_32 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_32, 0, x_28);
 lean_ctor_set(x_32, 1, x_26);
-x_5 = x_28;
+x_5 = x_29;
 x_6 = x_31;
-x_7 = x_29;
+x_7 = x_28;
 x_8 = x_32;
 goto block_14;
 }
@@ -889,9 +889,9 @@ lean_dec(x_33);
 x_36 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_36, 0, x_35);
 lean_ctor_set(x_36, 1, x_26);
-x_5 = x_28;
+x_5 = x_29;
 x_6 = x_31;
-x_7 = x_29;
+x_7 = x_28;
 x_8 = x_36;
 goto block_14;
 }
@@ -1145,9 +1145,7 @@ lean_object* initialize_Init_Data_Slice_List_Basic(uint8_t builtin);
 lean_object* initialize_Init_Data_Iterators_Producers_List(uint8_t builtin);
 lean_object* initialize_Init_Data_Iterators_Combinators_Take(uint8_t builtin);
 lean_object* initialize_Init_Data_Range_Polymorphic_Basic(uint8_t builtin);
-lean_object* initialize_Init_Data_Range_Polymorphic_Iterators(uint8_t builtin);
 lean_object* initialize_Init_Data_Slice_Operations(uint8_t builtin);
-lean_object* initialize_Init_Omega(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Slice_List_Iterator(uint8_t builtin) {
 lean_object * res;
@@ -1165,13 +1163,7 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Range_Polymorphic_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Range_Polymorphic_Iterators(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Init_Data_Slice_Operations(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_List_instAppendListSlice___lam__2___closed__0 = _init_l_List_instAppendListSlice___lam__2___closed__0();

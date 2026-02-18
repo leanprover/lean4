@@ -4,12 +4,21 @@ open System Lake DSL
 package mvcgen_bench where
   precompileModules := true
 
--- VCGen library (lib/VCGen.lean), built first and used by benchmarks
 lean_lib VCGen where
   srcDir := "lib"
 
--- Individual benchmark modules in the package root; each can `import VCGen`
+lean_lib Baseline where
+  srcDir := "lib"
+
+lean_lib Driver where
+  srcDir := "lib"
+
 @[default_target]
-lean_lib MvcgenBench where
-  roots := #[`add_sub_cancel]
+lean_lib VCGenBench where
+  roots := #[`vcgen_add_sub_cancel, `vcgen_deep_add_sub_cancel, `vcgen_get_throw_set]
+  moreLeanArgs := #["--tstack=100000000"]
+
+@[default_target]
+lean_lib BaselineBench where
+  roots := #[`baseline_add_sub_cancel]
   moreLeanArgs := #["--tstack=100000000"]

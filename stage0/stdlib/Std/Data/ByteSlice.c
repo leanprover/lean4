@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.ByteSlice
-// Imports: public import Init.Data.ByteArray public import Init.Data.Slice.Basic public import Init.Data.Slice.Notation public import Init.Data.Range.Polymorphic.Nat
+// Imports: public import Init.Data.ByteArray public import Init.Data.Slice.Basic public import Init.Data.Slice.Notation public import Init.Data.Range.Polymorphic.Nat import Init.Omega
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1598,6 +1598,7 @@ lean_object* initialize_Init_Data_ByteArray(uint8_t builtin);
 lean_object* initialize_Init_Data_Slice_Basic(uint8_t builtin);
 lean_object* initialize_Init_Data_Slice_Notation(uint8_t builtin);
 lean_object* initialize_Init_Data_Range_Polymorphic_Nat(uint8_t builtin);
+lean_object* initialize_Init_Omega(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Data_ByteSlice(uint8_t builtin) {
 lean_object * res;
@@ -1613,6 +1614,9 @@ res = initialize_Init_Data_Slice_Notation(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Range_Polymorphic_Nat(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_ByteSlice_empty___closed__0 = _init_l_ByteSlice_empty___closed__0();

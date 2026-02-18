@@ -564,25 +564,37 @@ instance : LawfulMonad Result :=
     (by dsimp only [bind]; grind)
     (by dsimp only [bind]; grind)
 
-instance Result.instWP : WP Result (.except Error .pure) where
-  wp x := match x with
-  | .ok v => wp (pure v : Except Error _)
-  | .fail e => wp (throw e : Except Error _)
+abbrev _root_.Std.Do.PredTrans.pushResult (x : Result α) : PredTrans (.except Error .pure) α :=
+  match x with
+  | .ok v => PredTrans.pure v
+  | .fail e => PredTrans.throw e
   | .div => PredTrans.const ⌜False⌝
 
+@[simp]
+theorem Result.apply_pushResult_pure {α} {a : α} {Q : PostCond α (.except Error .pure)} :
+  (PredTrans.pushResult (pure a)).apply Q = Q.1 a := by rfl
+
+@[simp]
+theorem Result.apply_pushResult_bind {α β} {x : Result α} {f : α → Result β} {Q : PostCond β (.except Error .pure)} :
+  (PredTrans.pushResult (do let a ← x; f a)).apply Q =
+    (PredTrans.pushResult x).apply (fun a => (PredTrans.pushResult (f a)).apply Q, Q.2) := by
+  simp only [PredTrans.pushResult, bind]
+  grind
+
+instance Result.instWP : WP Result (.except Error .pure) where
+  wp := PredTrans.pushResult
+
 instance Result.instWPMonad : WPMonad Result (.except Error .pure) where
-  wp_pure := by intros; ext Q; simp only [wp, ExceptT.run_pure, Id.run_pure,
-    PredTrans.pushExcept_apply, PredTrans.pure_apply]
-  wp_bind x f := by
-    simp only [wp, ExceptT.run_pure, Id.run_pure, ExceptT.run_throw, bind]
-    ext Q
-    cases x <;> simp
+  wp_pure _ := by ext Q; simp [wp]
+  wp_bind x f := by ext Q; simp [wp]
 
 theorem Result.of_wp {α} {x : Result α} (P : Result α → Prop) :
   (⊢ₛ wp⟦x⟧ post⟨fun a => ⌜P (.ok a)⌝, fun e => ⌜P (.fail e)⌝⟩) → P x := by
     intro hspec
-    simp only [wp] at hspec
-    split at hspec <;> simp_all
+    match x with
+    | .ok a => simpa [wp] using hspec
+    | .fail e => simpa [wp] using hspec
+    | .div => simp [wp] at hspec
 
 /-- Kinds of unsigned integers -/
 inductive UScalarTy where

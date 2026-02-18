@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Widget.TaggedText
-// Imports: public import Lean.Server.Rpc.Basic
+// Imports: public import Lean.Server.Rpc.Basic import Init.Data.Array.GetLit
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -69,7 +69,7 @@ LEAN_EXPORT lean_object* l_Lean_Widget_instReprTaggedText_repr___redArg___boxed(
 lean_object* l_String_quote(lean_object*);
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
-lean_object* l_Array_Array_repr___redArg(lean_object*, lean_object*);
+lean_object* l_Array_repr___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_instReprTaggedText_repr(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_instReprTaggedText_repr___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_instReprTaggedText___redArg(lean_object*);
@@ -768,7 +768,7 @@ block_30:
 {
 lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; uint8_t x_27; lean_object* x_28; lean_object* x_29; 
 x_23 = ((lean_object*)(l_Lean_Widget_instReprTaggedText_repr___redArg___closed__7));
-x_24 = l_Array_Array_repr___redArg(x_21, x_20);
+x_24 = l_Array_repr___redArg(x_21, x_20);
 x_25 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_25, 0, x_23);
 lean_ctor_set(x_25, 1, x_24);
@@ -7264,12 +7264,16 @@ return x_3;
 }
 }
 lean_object* initialize_Lean_Server_Rpc_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_Array_GetLit(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Widget_TaggedText(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Lean_Server_Rpc_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Array_GetLit(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Widget_instInhabitedTaggedText___closed__0 = _init_l_Lean_Widget_instInhabitedTaggedText___closed__0();

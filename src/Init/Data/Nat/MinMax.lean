@@ -6,7 +6,9 @@ Authors: Leonardo de Moura, Jeremy Avigad, Mario Carneiro
 module
 
 prelude
-public import Init.ByCases
+public import Init.Data.Nat.Basic
+import Init.ByCases
+import Init.PropLemmas
 
 public section
 

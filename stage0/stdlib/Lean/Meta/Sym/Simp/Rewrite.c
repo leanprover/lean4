@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Sym.Simp.Rewrite
-// Imports: public import Lean.Meta.Sym.Simp.SimpM public import Lean.Meta.Sym.Simp.Simproc public import Lean.Meta.Sym.Simp.Theorems public import Lean.Meta.Sym.Simp.App public import Lean.Meta.Sym.Simp.Discharger import Lean.Meta.Sym.InstantiateS import Lean.Meta.Sym.InstantiateMVarsS import Lean.Meta.Sym.Simp.DiscrTree
+// Imports: public import Lean.Meta.Sym.Simp.Simproc public import Lean.Meta.Sym.Simp.Theorems public import Lean.Meta.Sym.Simp.App public import Lean.Meta.Sym.Simp.Discharger import Lean.Meta.Sym.InstantiateS import Lean.Meta.Sym.InstantiateMVarsS import Init.Data.Range.Polymorphic.Iterators
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -3580,7 +3580,7 @@ block_29:
 {
 lean_object* x_26; lean_object* x_27; lean_object* x_28; 
 x_26 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_26, 0, x_25);
+lean_ctor_set(x_26, 0, x_24);
 if (lean_is_scalar(x_22)) {
  x_27 = lean_alloc_ctor(0, 2, 0);
 } else {
@@ -3622,8 +3622,8 @@ lean_dec_ref(x_8);
 lean_dec(x_7);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
-x_24 = lean_box(0);
-x_25 = x_31;
+x_24 = x_31;
+x_25 = lean_box(0);
 goto block_29;
 }
 }
@@ -3640,8 +3640,8 @@ lean_dec_ref(x_8);
 lean_dec(x_7);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
-x_24 = lean_box(0);
-x_25 = x_31;
+x_24 = x_31;
+x_25 = lean_box(0);
 goto block_29;
 }
 }
@@ -3758,22 +3758,18 @@ x_14 = l_Lean_Meta_Sym_Simp_Theorems_rewrite(x_1, x_2, x_3, x_4, x_5, x_6, x_7, 
 return x_14;
 }
 }
-lean_object* initialize_Lean_Meta_Sym_Simp_SimpM(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Sym_Simp_Simproc(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Sym_Simp_Theorems(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Sym_Simp_App(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Sym_Simp_Discharger(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Sym_InstantiateS(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Sym_InstantiateMVarsS(uint8_t builtin);
-lean_object* initialize_Lean_Meta_Sym_Simp_DiscrTree(uint8_t builtin);
+lean_object* initialize_Init_Data_Range_Polymorphic_Iterators(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Sym_Simp_Rewrite(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Meta_Sym_Simp_SimpM(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Meta_Sym_Simp_Simproc(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -3792,7 +3788,7 @@ lean_dec_ref(res);
 res = initialize_Lean_Meta_Sym_InstantiateMVarsS(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Sym_Simp_DiscrTree(builtin);
+res = initialize_Init_Data_Range_Polymorphic_Iterators(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00Lean_MVarId_assign___at___00Lean_Meta_Sym_Simp_Theorem_rewrite_spec__3_spec__4_spec__7___redArg___closed__0 = _init_l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00Lean_MVarId_assign___at___00Lean_Meta_Sym_Simp_Theorem_rewrite_spec__3_spec__4_spec__7___redArg___closed__0();

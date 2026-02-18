@@ -31,6 +31,7 @@ Author: Leonardo de Moura
 #if LEAN_SUPPORTS_BACKTRACE
 #include <execinfo.h>
 #include <unistd.h>
+#include "runtime/demangle.h"
 #endif
 
 // HACK: for unknown reasons, std::isnan(x) fails on msys64 because math.h
@@ -134,8 +135,15 @@ static void print_backtrace(bool force_stderr) {
     void * bt_buf[100];
     int nptrs = backtrace(bt_buf, sizeof(bt_buf) / sizeof(void *));
     if (char ** symbols = backtrace_symbols(bt_buf, nptrs)) {
+        bool raw = getenv("LEAN_BACKTRACE_RAW");
         for (int i = 0; i < nptrs; i++) {
-            panic_eprintln(symbols[i], force_stderr);
+            char * demangled = raw ? nullptr : lean_demangle_bt_line(symbols[i]);
+            if (demangled) {
+                panic_eprintln(demangled, force_stderr);
+                free(demangled);
+            } else {
+                panic_eprintln(symbols[i], force_stderr);
+            }
         }
         // According to `man backtrace`, each `symbols[i]` should NOT be freed
         free(symbols);

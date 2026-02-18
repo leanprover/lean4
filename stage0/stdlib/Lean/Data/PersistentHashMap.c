@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.PersistentHashMap
-// Imports: public import Init.Data.Array.BasicAux public import Init.Data.UInt.Basic import Init.Data.String.Basic
+// Imports: public import Init.Data.Array.BasicAux public import Init.Data.UInt.Basic public import Init.Control.Except public import Init.Data.Array.Basic import Init.Data.String.Defs import Init.Data.ToString.Macro
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1544,7 +1544,7 @@ lean_inc_ref(x_2);
 lean_inc(x_10);
 x_12 = lean_apply_1(x_2, x_10);
 x_13 = lean_unbox_uint64(x_12);
-lean_dec(x_12);
+lean_dec_ref(x_12);
 x_14 = lean_uint64_to_usize(x_13);
 x_15 = 5;
 x_16 = lean_unsigned_to_nat(1u);
@@ -1637,7 +1637,7 @@ lean_inc_ref(x_2);
 lean_inc(x_4);
 x_6 = lean_apply_1(x_2, x_4);
 x_7 = lean_unbox_uint64(x_6);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 x_8 = lean_uint64_to_usize(x_7);
 x_9 = 1;
 x_10 = l_Lean_PersistentHashMap_insertAux___redArg(x_1, x_2, x_3, x_8, x_9, x_4, x_5);
@@ -1909,7 +1909,7 @@ lean_object* x_5; uint64_t x_6; size_t x_7; lean_object* x_8;
 lean_inc(x_4);
 x_5 = lean_apply_1(x_2, x_4);
 x_6 = lean_unbox_uint64(x_5);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 x_7 = lean_uint64_to_usize(x_6);
 x_8 = l_Lean_PersistentHashMap_findAux___redArg(x_1, x_3, x_7, x_4);
 return x_8;
@@ -2015,7 +2015,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l_Lean_PersistentHashMap_find_x21___redArg___closed__2));
 x_2 = lean_unsigned_to_nat(14u);
-x_3 = lean_unsigned_to_nat(174u);
+x_3 = lean_unsigned_to_nat(177u);
 x_4 = ((lean_object*)(l_Lean_PersistentHashMap_find_x21___redArg___closed__1));
 x_5 = ((lean_object*)(l_Lean_PersistentHashMap_find_x21___redArg___closed__0));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -2382,7 +2382,7 @@ lean_object* x_5; uint64_t x_6; size_t x_7; lean_object* x_8;
 lean_inc(x_4);
 x_5 = lean_apply_1(x_2, x_4);
 x_6 = lean_unbox_uint64(x_5);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 x_7 = lean_uint64_to_usize(x_6);
 x_8 = l_Lean_PersistentHashMap_findEntryAux___redArg(x_1, x_3, x_7, x_4);
 return x_8;
@@ -2576,7 +2576,7 @@ lean_object* x_6; uint64_t x_7; size_t x_8; lean_object* x_9;
 lean_inc(x_4);
 x_6 = lean_apply_1(x_2, x_4);
 x_7 = lean_unbox_uint64(x_6);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 x_8 = lean_uint64_to_usize(x_7);
 x_9 = l_Lean_PersistentHashMap_findKeyDAux___redArg(x_1, x_3, x_8, x_4, x_5);
 return x_9;
@@ -2598,7 +2598,7 @@ lean_object* x_8; uint64_t x_9; size_t x_10; lean_object* x_11;
 lean_inc(x_6);
 x_8 = lean_apply_1(x_4, x_6);
 x_9 = lean_unbox_uint64(x_8);
-lean_dec(x_8);
+lean_dec_ref(x_8);
 x_10 = lean_uint64_to_usize(x_9);
 x_11 = l_Lean_PersistentHashMap_findKeyDAux___redArg(x_3, x_5, x_10, x_6, x_7);
 return x_11;
@@ -2784,7 +2784,7 @@ lean_object* x_5; uint64_t x_6; size_t x_7; uint8_t x_8;
 lean_inc(x_4);
 x_5 = lean_apply_1(x_2, x_4);
 x_6 = lean_unbox_uint64(x_5);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 x_7 = lean_uint64_to_usize(x_6);
 x_8 = l_Lean_PersistentHashMap_containsAux___redArg(x_1, x_3, x_7, x_4);
 return x_8;
@@ -3374,7 +3374,7 @@ lean_object* x_5; uint64_t x_6; size_t x_7; lean_object* x_8;
 lean_inc(x_4);
 x_5 = lean_apply_1(x_2, x_4);
 x_6 = lean_unbox_uint64(x_5);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 x_7 = lean_uint64_to_usize(x_6);
 x_8 = l_Lean_PersistentHashMap_eraseAux___redArg(x_1, x_3, x_7, x_4);
 return x_8;
@@ -4611,7 +4611,10 @@ return x_22;
 }
 lean_object* initialize_Init_Data_Array_BasicAux(uint8_t builtin);
 lean_object* initialize_Init_Data_UInt_Basic(uint8_t builtin);
-lean_object* initialize_Init_Data_String_Basic(uint8_t builtin);
+lean_object* initialize_Init_Control_Except(uint8_t builtin);
+lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_String_Defs(uint8_t builtin);
+lean_object* initialize_Init_Data_ToString_Macro(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Data_PersistentHashMap(uint8_t builtin) {
 lean_object * res;
@@ -4623,7 +4626,16 @@ lean_dec_ref(res);
 res = initialize_Init_Data_UInt_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_String_Basic(builtin);
+res = initialize_Init_Control_Except(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Array_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_String_Defs(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_ToString_Macro(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_PersistentHashMap_instInhabitedNode___closed__0 = _init_l_Lean_PersistentHashMap_instInhabitedNode___closed__0();

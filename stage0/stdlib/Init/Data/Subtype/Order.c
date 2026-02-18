@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Subtype.Order
-// Imports: public import Init.Data.Order.Lemmas import Init.Data.Order.Factories import Init.Data.Subtype.Basic
+// Imports: public import Init.Data.Order.Classes import Init.Data.Order.Lemmas import Init.Ext
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -87,21 +87,21 @@ _start:
 return lean_box(0);
 }
 }
+lean_object* initialize_Init_Data_Order_Classes(uint8_t builtin);
 lean_object* initialize_Init_Data_Order_Lemmas(uint8_t builtin);
-lean_object* initialize_Init_Data_Order_Factories(uint8_t builtin);
-lean_object* initialize_Init_Data_Subtype_Basic(uint8_t builtin);
+lean_object* initialize_Init_Ext(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Subtype_Order(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
+res = initialize_Init_Data_Order_Classes(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Init_Data_Order_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Order_Factories(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Subtype_Basic(builtin);
+res = initialize_Init_Ext(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

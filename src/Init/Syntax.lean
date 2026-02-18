@@ -5,7 +5,8 @@ Authors: Leonardo de Moura, Mario Carneiro
 -/
 module
 prelude
-public import Init.Data.Array.Set
+public import Init.Prelude
+import Init.Data.Array.Set
 public section
 
 /-!

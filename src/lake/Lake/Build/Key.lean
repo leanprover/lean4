@@ -8,9 +8,8 @@ module
 prelude
 public import Init.Data.Order
 import Lake.Util.Name
-import Lake.Config.Kinds
-import Init.Data.String.TakeDrop
 import Init.Data.String.Search
+import Init.Data.Iterators.Consumers
 
 namespace Lake
 open Lean (Name)

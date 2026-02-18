@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Server.FileWorker.WidgetRequests
-// Imports: public import Lean.Server.Rpc.RequestHandling public import Lean.Server.FileWorker.RequestHandling import Lean.PrettyPrinter.Delaborator.Builtins
+// Imports: public import Lean.Server.Rpc.RequestHandling public import Lean.Server.FileWorker.RequestHandling import Lean.PrettyPrinter.Delaborator.Builtins import Init.Omega
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1529,7 +1529,7 @@ _start:
 {
 uint64_t x_3; lean_object* x_4; 
 x_3 = lean_unbox_uint64(x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_4 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___00Lean_Server_wrapRpcProcedure___at___00Lean_Server_registerBuiltinRpcProcedure___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn_00___x40_Lean_Server_FileWorker_WidgetRequests_1264552272____hygCtx___hyg_2__spec__0_spec__1_spec__3___redArg(x_1, x_3);
 lean_dec(x_1);
 return x_4;
@@ -2248,7 +2248,7 @@ _start:
 {
 uint64_t x_8; lean_object* x_9; 
 x_8 = lean_unbox_uint64(x_4);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_9 = l_Lean_Server_wrapRpcProcedure___at___00Lean_Server_registerBuiltinRpcProcedure___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn_00___x40_Lean_Server_FileWorker_WidgetRequests_1264552272____hygCtx___hyg_2__spec__0_spec__1___lam__3(x_1, x_2, x_3, x_8, x_5, x_6);
 return x_9;
 }
@@ -3118,7 +3118,7 @@ _start:
 {
 uint64_t x_4; lean_object* x_5; 
 x_4 = lean_unbox_uint64(x_3);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_5 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___00Lean_Server_wrapRpcProcedure___at___00Lean_Server_registerBuiltinRpcProcedure___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn_00___x40_Lean_Server_FileWorker_WidgetRequests_1264552272____hygCtx___hyg_2__spec__0_spec__1_spec__3(x_1, x_2, x_4);
 lean_dec(x_2);
 return x_5;
@@ -3424,8 +3424,8 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10;
 x_7 = l_Option_toJson___at___00Lean_Widget_instRpcEncodableInfoPopup_enc_00___x40_Lean_Server_FileWorker_WidgetRequests_2734021171____hygCtx___hyg_1__spec__0(x_5);
 lean_dec(x_5);
 x_8 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_8, 0, x_3);
-lean_ctor_set(x_8, 1, x_4);
+lean_ctor_set(x_8, 0, x_4);
+lean_ctor_set(x_8, 1, x_3);
 lean_ctor_set(x_8, 2, x_7);
 x_9 = l_Lean_Widget_instToJsonRpcEncodablePacket_toJson_00___x40_Lean_Server_FileWorker_WidgetRequests_1691946469____hygCtx___hyg_32_(x_8);
 lean_dec_ref(x_8);
@@ -3443,8 +3443,8 @@ if (lean_obj_tag(x_14) == 0)
 {
 lean_object* x_19; 
 x_19 = lean_box(0);
-x_3 = x_15;
-x_4 = x_18;
+x_3 = x_18;
+x_4 = x_15;
 x_5 = x_19;
 x_6 = x_17;
 goto block_11;
@@ -3460,8 +3460,8 @@ x_21 = lean_ctor_get(x_14, 0);
 x_22 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_22, 0, x_21);
 lean_ctor_set(x_14, 0, x_22);
-x_3 = x_15;
-x_4 = x_18;
+x_3 = x_18;
+x_4 = x_15;
 x_5 = x_14;
 x_6 = x_17;
 goto block_11;
@@ -3476,8 +3476,8 @@ x_24 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_24, 0, x_23);
 x_25 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_25, 0, x_24);
-x_3 = x_15;
-x_4 = x_18;
+x_3 = x_18;
+x_4 = x_15;
 x_5 = x_25;
 x_6 = x_17;
 goto block_11;
@@ -4789,8 +4789,8 @@ if (lean_obj_tag(x_20) == 0)
 {
 lean_object* x_21; 
 x_21 = lean_box(0);
-x_3 = x_17;
-x_4 = x_18;
+x_3 = x_18;
+x_4 = x_17;
 x_5 = x_21;
 goto block_8;
 }
@@ -4832,8 +4832,8 @@ x_28 = lean_ctor_get(x_24, 0);
 lean_inc(x_28);
 lean_dec_ref(x_24);
 lean_ctor_set(x_20, 0, x_28);
-x_3 = x_17;
-x_4 = x_18;
+x_3 = x_18;
+x_4 = x_17;
 x_5 = x_20;
 goto block_8;
 }
@@ -4875,8 +4875,8 @@ lean_inc(x_34);
 lean_dec_ref(x_30);
 x_35 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_35, 0, x_34);
-x_3 = x_17;
-x_4 = x_18;
+x_3 = x_18;
+x_4 = x_17;
 x_5 = x_35;
 goto block_8;
 }
@@ -5055,8 +5055,8 @@ block_8:
 {
 lean_object* x_6; lean_object* x_7; 
 x_6 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_6, 0, x_3);
-lean_ctor_set(x_6, 1, x_4);
+lean_ctor_set(x_6, 0, x_4);
+lean_ctor_set(x_6, 1, x_3);
 lean_ctor_set(x_6, 2, x_5);
 x_7 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_7, 0, x_6);
@@ -6070,7 +6070,7 @@ _start:
 {
 uint64_t x_9; lean_object* x_10; 
 x_9 = lean_unbox_uint64(x_5);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 x_10 = l_Lean_Server_wrapRpcProcedure___at___00Lean_Server_registerBuiltinRpcProcedure___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn_00___x40_Lean_Server_FileWorker_WidgetRequests_1454953308____hygCtx___hyg_2__spec__0_spec__0___lam__0(x_1, x_2, x_3, x_4, x_9, x_6, x_7);
 return x_10;
 }
@@ -6551,7 +6551,7 @@ _start:
 {
 uint64_t x_8; lean_object* x_9; 
 x_8 = lean_unbox_uint64(x_4);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_9 = l_Lean_Server_wrapRpcProcedure___at___00Lean_Server_registerBuiltinRpcProcedure___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn_00___x40_Lean_Server_FileWorker_WidgetRequests_616148837____hygCtx___hyg_2__spec__0_spec__0___lam__0(x_1, x_2, x_3, x_8, x_5, x_6);
 return x_9;
 }
@@ -7030,7 +7030,7 @@ _start:
 {
 uint64_t x_8; lean_object* x_9; 
 x_8 = lean_unbox_uint64(x_4);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_9 = l_Lean_Server_wrapRpcProcedure___at___00Lean_Server_registerBuiltinRpcProcedure___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn_00___x40_Lean_Server_FileWorker_WidgetRequests_3220324137____hygCtx___hyg_2__spec__0_spec__0___lam__0(x_1, x_2, x_3, x_8, x_5, x_6);
 return x_9;
 }
@@ -8654,7 +8654,7 @@ _start:
 {
 uint64_t x_8; lean_object* x_9; 
 x_8 = lean_unbox_uint64(x_4);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_9 = l_Lean_Server_wrapRpcProcedure___at___00Lean_Server_registerBuiltinRpcProcedure___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn_00___x40_Lean_Server_FileWorker_WidgetRequests_4152489880____hygCtx___hyg_2__spec__1_spec__1___lam__0(x_1, x_2, x_3, x_8, x_5, x_6);
 return x_9;
 }
@@ -9339,7 +9339,7 @@ _start:
 {
 uint64_t x_9; lean_object* x_10; 
 x_9 = lean_unbox_uint64(x_5);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 x_10 = l_Lean_Server_wrapRpcProcedure___at___00Lean_Server_registerBuiltinRpcProcedure___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn_00___x40_Lean_Server_FileWorker_WidgetRequests_2425369468____hygCtx___hyg_2__spec__0_spec__0___lam__0(x_1, x_2, x_3, x_4, x_9, x_6, x_7);
 return x_10;
 }
@@ -18587,7 +18587,7 @@ _start:
 {
 uint64_t x_8; lean_object* x_9; 
 x_8 = lean_unbox_uint64(x_4);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_9 = l_Lean_Server_wrapRpcProcedure___at___00Lean_Server_registerBuiltinRpcProcedure___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn_00___x40_Lean_Server_FileWorker_WidgetRequests_2782638367____hygCtx___hyg_2__spec__0_spec__0___lam__0(x_1, x_2, x_3, x_8, x_5, x_6);
 return x_9;
 }
@@ -18785,6 +18785,7 @@ return x_2;
 lean_object* initialize_Lean_Server_Rpc_RequestHandling(uint8_t builtin);
 lean_object* initialize_Lean_Server_FileWorker_RequestHandling(uint8_t builtin);
 lean_object* initialize_Lean_PrettyPrinter_Delaborator_Builtins(uint8_t builtin);
+lean_object* initialize_Init_Omega(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Server_FileWorker_WidgetRequests(uint8_t builtin) {
 lean_object * res;
@@ -18797,6 +18798,9 @@ res = initialize_Lean_Server_FileWorker_RequestHandling(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_PrettyPrinter_Delaborator_Builtins(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Widget_instInhabitedMsgToInteractive_default___closed__0 = _init_l_Lean_Widget_instInhabitedMsgToInteractive_default___closed__0();

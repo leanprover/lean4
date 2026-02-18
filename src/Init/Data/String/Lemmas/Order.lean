@@ -9,6 +9,7 @@ prelude
 public import Init.Data.String.Basic
 import Init.Data.String.OrderInstances
 import Init.Data.String.Lemmas.Basic
+import Init.Data.Order.Lemmas
 
 public section
 
@@ -22,10 +23,22 @@ theorem Slice.Pos.next_le_iff_lt {s : Slice} {p q : s.Pos} {h} : p.next h ≤ q 
 theorem Slice.Pos.lt_next_iff_le {s : Slice} {p q : s.Pos} {h} : p < q.next h ↔ p ≤ q := by
   rw [← Decidable.not_iff_not, Std.not_lt, next_le_iff_lt, Std.not_le]
 
+theorem Slice.Pos.next_eq_iff {s : Slice} {p q : s.Pos} {h} :
+    p.next h = q ↔ p < q ∧ ∀ (q' : s.Pos), p < q' → q ≤ q' :=
+  ⟨by rintro rfl; simp, fun ⟨h₁, h₂⟩ => Std.le_antisymm (by simpa) (h₂ _ (by simp))⟩
+
 @[simp]
 theorem Pos.next_le_iff_lt {s : String} {p q : s.Pos} {h} : p.next h ≤ q ↔ p < q := by
   rw [next, Pos.ofToSlice_le_iff, ← Pos.toSlice_lt_toSlice_iff]
   exact Slice.Pos.next_le_iff_lt
+
+@[simp]
+theorem Pos.lt_next_iff_le {s : String} {p q : s.Pos} {h} : p < q.next h ↔ p ≤ q := by
+  rw [← Std.not_le, next_le_iff_lt, Std.not_lt]
+
+theorem Pos.next_eq_iff {s : String} {p q : s.Pos} {h} :
+    p.next h = q ↔ p < q ∧ ∀ (q' : s.Pos), p < q' → q ≤ q' :=
+  ⟨by rintro rfl; simp, fun ⟨h₁, h₂⟩ => Std.le_antisymm (by simpa) (h₂ _ (by simp))⟩
 
 @[simp]
 theorem Slice.Pos.le_startPos {s : Slice} (p : s.Pos) : p ≤ s.startPos ↔ p = s.startPos :=
@@ -48,6 +61,10 @@ theorem Pos.le_startPos {s : String} (p : s.Pos) : p ≤ s.startPos ↔ p = s.st
   ⟨fun h => Std.le_antisymm h (startPos_le _), by simp +contextual⟩
 
 @[simp]
+theorem Pos.startPos_lt_iff {s : String} {p : s.Pos} : s.startPos < p ↔ p ≠ s.startPos := by
+  simp [← le_startPos, Std.not_le]
+
+@[simp]
 theorem Pos.endPos_le {s : String} (p : s.Pos) : s.endPos ≤ p ↔ p = s.endPos :=
   ⟨fun h => Std.le_antisymm (le_endPos _) h, by simp +contextual [Std.le_refl]⟩
 
@@ -60,17 +77,33 @@ theorem Slice.Pos.ne_startPos_of_lt {s : Slice} {p q : s.Pos} : p < q → q ≠ 
   simp at h
 
 @[simp]
+theorem Pos.not_lt_startPos {s : String} {p : s.Pos} : ¬ p < s.startPos :=
+  fun h => Std.lt_irrefl (Std.lt_of_lt_of_le h (Pos.startPos_le _))
+
+@[simp]
+theorem Slice.Pos.not_endPos_lt {s : Slice} {p : s.Pos} : ¬ s.endPos < p :=
+  fun h => Std.lt_irrefl (Std.lt_of_le_of_lt (Slice.Pos.le_endPos _) h)
+
+@[simp]
+theorem Pos.not_endPos_lt {s : String} {p : s.Pos} : ¬ s.endPos < p :=
+  fun h => Std.lt_irrefl (Std.lt_of_le_of_lt (Pos.le_endPos _) h)
+
+theorem Pos.ne_endPos_of_lt {s : String} {p q : s.Pos} : p < q → p ≠ s.endPos := by
+  rintro h rfl
+  simp at h
+
+@[simp]
+theorem Slice.Pos.le_next {s : Slice} {p : s.Pos} {h} : p ≤ p.next h :=
+  Std.le_of_lt (by simp)
+
+@[simp]
+theorem Pos.le_next {s : String} {p : s.Pos} {h} : p ≤ p.next h :=
+  Std.le_of_lt (by simp)
+
+@[simp]
 theorem Slice.Pos.next_ne_startPos {s : Slice} {p : s.Pos} {h} :
     p.next h ≠ s.startPos :=
   ne_startPos_of_lt lt_next
-
-theorem Slice.Pos.ofSliceFrom_lt_ofSliceFrom_iff {s : Slice} {p : s.Pos}
-    {q r : (s.sliceFrom p).Pos} : Slice.Pos.ofSliceFrom q < Slice.Pos.ofSliceFrom r ↔ q < r := by
-  simp [Slice.Pos.lt_iff, Pos.Raw.lt_iff]
-
-theorem Slice.Pos.ofSliceFrom_le_ofSliceFrom_iff {s : Slice} {p : s.Pos}
-    {q r : (s.sliceFrom p).Pos} : Slice.Pos.ofSliceFrom q ≤ Slice.Pos.ofSliceFrom r ↔ q ≤ r := by
-  simp [Slice.Pos.le_iff, Pos.Raw.le_iff]
 
 theorem Slice.Pos.ofSliceTo_lt_ofSliceTo_iff {s : Slice} {p : s.Pos}
     {q r : (s.sliceTo p).Pos} : Slice.Pos.ofSliceTo q < Slice.Pos.ofSliceTo r ↔ q < r := by
@@ -89,6 +122,16 @@ theorem Slice.Pos.offset_le_rawEndPos {s : Slice} {p : s.Pos} :
 theorem Pos.offset_le_rawEndPos {s : String} {p : s.Pos} :
     p.offset ≤ s.rawEndPos :=
   p.isValid.le_rawEndPos
+
+@[simp]
+theorem Slice.Pos.byteIdx_offset_le_utf8ByteSize {s : Slice} {p : s.Pos} :
+    p.offset.byteIdx ≤ s.utf8ByteSize := by
+  simp [← byteIdx_rawEndPos, ← Pos.Raw.le_iff]
+
+@[simp]
+theorem Pos.byteIdx_offset_le_utf8ByteSize {s : String} {p : s.Pos} :
+    p.offset.byteIdx ≤ s.utf8ByteSize := by
+  simp [← byteIdx_rawEndPos, ← Pos.Raw.le_iff]
 
 @[simp]
 theorem Slice.Pos.offset_lt_rawEndPos_iff {s : Slice} {p : s.Pos} :

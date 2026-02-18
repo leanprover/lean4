@@ -1349,7 +1349,7 @@ block_21:
 if (x_17 == 0)
 {
 lean_object* x_18; lean_object* x_19; 
-lean_dec_ref(x_16);
+lean_dec_ref(x_15);
 x_18 = lean_unsigned_to_nat(1u);
 x_19 = lean_nat_add(x_3, x_18);
 lean_dec(x_3);
@@ -1369,7 +1369,7 @@ lean_dec_ref(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec_ref(x_1);
-return x_16;
+return x_15;
 }
 }
 block_27:
@@ -1380,16 +1380,16 @@ if (x_25 == 0)
 {
 uint8_t x_26; 
 x_26 = l_Lean_Exception_isRuntime(x_23);
-x_15 = lean_box(0);
-x_16 = x_22;
+x_15 = x_22;
+x_16 = lean_box(0);
 x_17 = x_26;
 goto block_21;
 }
 else
 {
 lean_dec_ref(x_23);
-x_15 = lean_box(0);
-x_16 = x_22;
+x_15 = x_22;
+x_16 = lean_box(0);
 x_17 = x_25;
 goto block_21;
 }
@@ -3273,13 +3273,13 @@ return x_45;
 block_15:
 {
 lean_object* x_13; 
-lean_inc(x_9);
+lean_inc(x_8);
 lean_inc_ref(x_2);
 lean_inc_ref(x_1);
-x_13 = l___private_Lean_Util_ForEachExprWhere_0__Lean_ForEachExprWhere_visit_go___at___00Lean_ForEachExprWhere_visit___at___00__private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_Deriving_mkInhabitedInstanceUsing_collectUsedLocalsInsts_spec__3_spec__3___redArg(x_1, x_2, x_3, x_10, x_12, x_9);
+x_13 = l___private_Lean_Util_ForEachExprWhere_0__Lean_ForEachExprWhere_visit_go___at___00Lean_ForEachExprWhere_visit___at___00__private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_Deriving_mkInhabitedInstanceUsing_collectUsedLocalsInsts_spec__3_spec__3___redArg(x_1, x_2, x_3, x_10, x_12, x_8);
 x_4 = x_11;
 x_5 = x_12;
-x_6 = x_9;
+x_6 = x_8;
 goto _start;
 }
 block_38:
@@ -3293,8 +3293,8 @@ lean_inc_ref(x_19);
 x_20 = lean_ctor_get(x_4, 2);
 lean_inc_ref(x_20);
 lean_dec_ref(x_4);
-x_8 = lean_box(0);
-x_9 = x_17;
+x_8 = x_17;
+x_9 = lean_box(0);
 x_10 = x_19;
 x_11 = x_20;
 x_12 = x_16;
@@ -3308,8 +3308,8 @@ lean_inc_ref(x_21);
 x_22 = lean_ctor_get(x_4, 2);
 lean_inc_ref(x_22);
 lean_dec_ref(x_4);
-x_8 = lean_box(0);
-x_9 = x_17;
+x_8 = x_17;
+x_9 = lean_box(0);
 x_10 = x_21;
 x_11 = x_22;
 x_12 = x_16;

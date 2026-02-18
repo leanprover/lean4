@@ -10,6 +10,7 @@ public import Init.Data.Nat.Fold
 public import Std.Tactic.BVDecide.LRAT.Actions
 public import Std.Data.HashMap
 import Init.Data.Range.Polymorphic
+import Init.Omega
 
 public section
 
@@ -55,6 +56,11 @@ structure State where
   gaps.
   -/
   mapped : Array Nat
+  /--
+  Maps each clause id to the latest proof step id that references it or -1. Used to determine
+  when a clause can be deleted.
+  -/
+  lastUse : Array Int
 
 abbrev M : Type → Type := ReaderT Context <| StateM State
 
@@ -82,8 +88,9 @@ def run (proof : Array IntAction) (x : M α) : Except String α := do
     | .del .. => acc
   let proof := proof.foldl (init := {}) folder
   let used := Nat.fold proof.size (init := ByteArray.emptyWithCapacity proof.size) (fun _ _ acc => acc.push 0)
+  let lastUse := Array.replicate (initialId + proof.size) (-1)
   let mapped := Array.replicate proof.size 0
-  return ReaderT.run x { proof, initialId, addEmptyId } |>.run' { used, mapped }
+  return ReaderT.run x { proof, initialId, addEmptyId } |>.run' { used, mapped, lastUse }
 
 @[inline]
 def getInitialId : M Nat := do
@@ -122,6 +129,21 @@ def registerIdMap (oldId : Nat) (newId : Nat) : M Unit := do
   let idx ← idIndex oldId
   modify (fun s => { s with mapped := s.mapped.set! idx newId })
 
+@[inline]
+def updateLastUse (hint : Nat) (user : Nat) : M Unit := do
+  modify fun s =>
+    let prev := s.lastUse[hint]!
+    { s with lastUse := s.lastUse.set! hint (max prev user) }
+
+@[inline]
+def mapIdent (ident : Nat) : M Nat := do
+  if ident < (← getInitialId) then
+    return ident
+  else
+    let s ← get
+    let newId := s.mapped[← idIndex ident]!
+    return newId
+
 def mapStep (step : IntAction) : M IntAction := do
   match step with
   | .addEmpty id hints =>
@@ -141,17 +163,7 @@ def mapStep (step : IntAction) : M IntAction := do
       return (newHint, newHints)
     let newRatHints ← ratHints.mapM mapper
     return .addRat newId c pivot newRupHints newRatHints
-  | .del ids =>
-    return .del (← ids.mapM mapIdent)
-where
-  @[inline]
-  mapIdent (ident : Nat) : M Nat := do
-    if ident < (← getInitialId) then
-      return ident
-    else
-      let s ← get
-      let newId := s.mapped[← idIndex ident]!
-      return newId
+  | .del .. => unreachable!
 
 end M
 
@@ -179,22 +191,40 @@ where
         | some step =>
           match step with
           | .addEmpty _ hints =>
+            hints.forM (M.updateLastUse · id)
             worklist := worklist ++ hints
             go worklist
           | .addRup _ _ hints =>
+            hints.forM (M.updateLastUse · id)
             worklist := worklist ++ hints
             go worklist
           | .addRat _ _ _ rupHints ratHints =>
+            rupHints.forM (M.updateLastUse · id)
+            for h in rupHints do M.updateLastUse h id
             let folder acc a := acc.push a.fst ++ a.snd
             let ratHints := ratHints.foldl (init := Array.mkEmpty ratHints.size) folder
+            ratHints.forM (M.updateLastUse · id)
             worklist := worklist ++ ratHints ++ rupHints
             go worklist
           | .del .. => go worklist
         | none => go worklist
 
+def computeToDelete : M (Std.HashMap Nat (Array Nat)) := do
+  let s ← get
+  let mut toDelete : Std.HashMap Nat (Array Nat) := {}
+  for h : clauseId in 0...s.lastUse.size do
+    let stepId := s.lastUse[clauseId]
+    if stepId == -1 then continue
+    let stepId := stepId.natAbs
+    toDelete := toDelete.alter stepId
+      fun
+        | none => some #[clauseId]
+        | some arr => some <| arr.push clauseId
+  return toDelete
+
 /--
 Map the set of used proof steps to a new LRAT proof that has no holes in the sequence of proof
-identifiers.
+identifiers. Inserts `.del` actions immediately after a clause's last use.
 -/
 def mapping : M (Array IntAction) := do
   let emptyId ← M.getEmptyId
@@ -207,8 +237,31 @@ def mapping : M (Array IntAction) := do
       -- This should never panic as the use def analysis has already marked this step as being used
       -- so it must exist.
       let step := (← M.getProofStep id).get!
+      let mut deletions := #[]
+
+      if id != emptyId then
+        match step with
+        | .addRup _ _ hints =>
+          for hint in hints do
+            if (← get).lastUse[hint]! == id then
+              deletions := deletions.push hint
+        | .addRat _ _ _ rupHints ratHints =>
+          for hint in rupHints do
+            if (← get).lastUse[hint]! == id then
+              deletions := deletions.push hint
+          for (hintA, hintB) in ratHints do
+            if (← get).lastUse[hintA]! == id then
+              deletions := deletions.push hintA
+            for hint in hintB do
+              if (← get).lastUse[hint]! == id then
+                deletions := deletions.push hint
+        | _ => pure ()
+
       let newStep ← M.mapStep step
+      deletions ← deletions.mapM M.mapIdent
       newProof := newProof.push newStep
+      if !deletions.isEmpty then
+        newProof := newProof.push <| .del deletions
       nextMapped := nextMapped + 1
   return newProof
 

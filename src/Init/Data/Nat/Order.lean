@@ -8,7 +8,9 @@ module
 prelude
 public import Init.Data.Nat.Basic
 import Init.Data.Nat.MinMax
-public import Init.Data.Order.Factories
+public import Init.Data.Order.Classes
+import Init.Data.Order.Factories
+import Init.NotationExtra
 
 open Std
 

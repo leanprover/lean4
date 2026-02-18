@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.Arith.Simproc
-// Imports: public import Init.Grind.Ring.Basic public import Init.Simproc public import Lean.Meta.Tactic.Simp.Simproc public import Lean.Meta.Tactic.Grind.SynthInstance import Init.Grind.Ring.Field import Init.Grind.FieldNormNum import Lean.Meta.Tactic.Grind.Arith.FieldNormNum
+// Imports: public import Init.Grind.Ring.Basic public import Init.Simproc public import Lean.Meta.Tactic.Grind.SynthInstance import Init.Grind.Ring.Field import Lean.Meta.Tactic.Grind.Arith.FieldNormNum
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -14006,10 +14006,8 @@ return x_5;
 }
 lean_object* initialize_Init_Grind_Ring_Basic(uint8_t builtin);
 lean_object* initialize_Init_Simproc(uint8_t builtin);
-lean_object* initialize_Lean_Meta_Tactic_Simp_Simproc(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Grind_SynthInstance(uint8_t builtin);
 lean_object* initialize_Init_Grind_Ring_Field(uint8_t builtin);
-lean_object* initialize_Init_Grind_FieldNormNum(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_FieldNormNum(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_Simproc(uint8_t builtin) {
@@ -14022,16 +14020,10 @@ lean_dec_ref(res);
 res = initialize_Init_Simproc(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Simp_Simproc(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Grind_SynthInstance(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Grind_Ring_Field(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Grind_FieldNormNum(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Grind_Arith_FieldNormNum(builtin);

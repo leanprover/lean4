@@ -858,7 +858,7 @@ _start:
 {
 uint64_t x_4; lean_object* x_5; 
 x_4 = lean_unbox_uint64(x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_5 = l_Std_Internal_IO_Async_UDP_Socket_recv(x_1, x_4);
 lean_dec(x_1);
 return x_5;
@@ -1124,7 +1124,7 @@ _start:
 {
 uint64_t x_5; lean_object* x_6; 
 x_5 = lean_unbox_uint64(x_3);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_6 = l_Std_Internal_IO_Async_Waiter_race___at___00Std_Internal_IO_Async_UDP_Socket_recvSelector_spec__1___lam__1(x_1, x_2, x_5);
 lean_dec(x_2);
 return x_6;
@@ -1251,7 +1251,7 @@ _start:
 {
 uint64_t x_7; lean_object* x_8; 
 x_7 = lean_unbox_uint64(x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_8 = l_Std_Internal_IO_Async_Waiter_race___at___00Std_Internal_IO_Async_UDP_Socket_recvSelector_spec__1(x_1, x_7, x_3, x_4, x_5);
 lean_dec_ref(x_4);
 return x_8;
@@ -1522,7 +1522,7 @@ _start:
 {
 uint64_t x_6; lean_object* x_7; 
 x_6 = lean_unbox_uint64(x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_7 = l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__4(x_1, x_6, x_3, x_4);
 lean_dec_ref(x_3);
 return x_7;
@@ -1660,7 +1660,7 @@ _start:
 {
 uint64_t x_5; lean_object* x_6; 
 x_5 = lean_unbox_uint64(x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_6 = l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__6(x_1, x_5, x_3);
 return x_6;
 }
@@ -1850,7 +1850,7 @@ _start:
 {
 uint64_t x_8; lean_object* x_9; 
 x_8 = lean_unbox_uint64(x_3);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_9 = l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__10(x_1, x_2, x_8, x_4, x_5, x_6);
 return x_9;
 }
@@ -2045,7 +2045,7 @@ _start:
 {
 uint64_t x_3; lean_object* x_4; 
 x_3 = lean_unbox_uint64(x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_4 = l_Std_Internal_IO_Async_UDP_Socket_recvSelector(x_1, x_3);
 return x_4;
 }

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.PP
-// Imports: public import Lean.Meta.Tactic.Grind.Types import Init.Grind.Util import Init.Grind.Injective import Init.Grind.PP import Lean.Meta.Tactic.Grind.Arith.Model import Lean.Meta.Tactic.Grind.Arith.CommRing.PP import Lean.Meta.Tactic.Grind.Arith.Linear.PP import Lean.Meta.Tactic.Grind.AC.PP import Lean.Meta.Tactic.Grind.CastLike import Lean.PrettyPrinter
+// Imports: public import Lean.Meta.Tactic.Grind.Types import Init.Grind.Util import Init.Grind.Injective import Init.Grind.PP import Lean.Meta.Tactic.Grind.Arith.CommRing.PP import Lean.Meta.Tactic.Grind.Arith.Linear.PP import Lean.Meta.Tactic.Grind.AC.PP import Lean.Meta.Tactic.Grind.CastLike import Lean.Meta.Tactic.Grind.Arith.Cutsat.Model
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -10140,12 +10140,11 @@ lean_object* initialize_Lean_Meta_Tactic_Grind_Types(uint8_t builtin);
 lean_object* initialize_Init_Grind_Util(uint8_t builtin);
 lean_object* initialize_Init_Grind_Injective(uint8_t builtin);
 lean_object* initialize_Init_Grind_PP(uint8_t builtin);
-lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_Model(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_CommRing_PP(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_Linear_PP(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Grind_AC_PP(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Grind_CastLike(uint8_t builtin);
-lean_object* initialize_Lean_PrettyPrinter(uint8_t builtin);
+lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_Cutsat_Model(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Grind_PP(uint8_t builtin) {
 lean_object * res;
@@ -10163,9 +10162,6 @@ lean_dec_ref(res);
 res = initialize_Init_Grind_PP(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Grind_Arith_Model(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Grind_Arith_CommRing_PP(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -10178,7 +10174,7 @@ lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Grind_CastLike(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_PrettyPrinter(builtin);
+res = initialize_Lean_Meta_Tactic_Grind_Arith_Cutsat_Model(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Meta_Grind_Goal_ppENodeRef___closed__6 = _init_l_Lean_Meta_Grind_Goal_ppENodeRef___closed__6();

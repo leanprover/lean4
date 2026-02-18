@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Syntax
-// Imports: public import Init.Data.Slice public import Init.Data.Hashable public import Lean.Data.Format public import Init.Data.Option.Coe
+// Imports: public import Init.Data.Slice public import Init.Data.Hashable public import Lean.Data.Format public import Init.Data.Option.Coe import Init.Data.Range.Polymorphic.Iterators import Init.Data.ToString.Macro import Init.Omega import Init.Syntax
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -4781,7 +4781,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l_Lean_Syntax_identComponents___closed__4));
 x_2 = lean_unsigned_to_nat(9u);
-x_3 = lean_unsigned_to_nat(350u);
+x_3 = lean_unsigned_to_nat(354u);
 x_4 = ((lean_object*)(l_Lean_Syntax_identComponents___closed__3));
 x_5 = ((lean_object*)(l_Lean_Syntax_identComponents___closed__2));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -7530,8 +7530,8 @@ x_15 = ((lean_object*)(l_Lean_Syntax_mkAntiquotNode___closed__2));
 x_16 = l_Lean_Name_append(x_14, x_15);
 x_17 = l_Lean_Syntax_mkAntiquotNode___closed__4;
 x_18 = lean_array_push(x_17, x_10);
-x_19 = lean_array_push(x_18, x_12);
-x_20 = lean_array_push(x_19, x_11);
+x_19 = lean_array_push(x_18, x_11);
+x_20 = lean_array_push(x_19, x_12);
 x_21 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_21, 0, x_9);
 lean_ctor_set(x_21, 1, x_16);
@@ -7544,8 +7544,8 @@ if (x_5 == 0)
 {
 lean_object* x_25; 
 x_25 = lean_box(0);
-x_11 = x_24;
-x_12 = x_23;
+x_11 = x_23;
+x_12 = x_24;
 x_13 = x_25;
 goto block_22;
 }
@@ -7553,8 +7553,8 @@ else
 {
 lean_object* x_26; 
 x_26 = ((lean_object*)(l_Lean_Syntax_mkAntiquotNode___closed__6));
-x_11 = x_24;
-x_12 = x_23;
+x_11 = x_23;
+x_12 = x_24;
 x_13 = x_26;
 goto block_22;
 }
@@ -8689,6 +8689,10 @@ lean_object* initialize_Init_Data_Slice(uint8_t builtin);
 lean_object* initialize_Init_Data_Hashable(uint8_t builtin);
 lean_object* initialize_Lean_Data_Format(uint8_t builtin);
 lean_object* initialize_Init_Data_Option_Coe(uint8_t builtin);
+lean_object* initialize_Init_Data_Range_Polymorphic_Iterators(uint8_t builtin);
+lean_object* initialize_Init_Data_ToString_Macro(uint8_t builtin);
+lean_object* initialize_Init_Omega(uint8_t builtin);
+lean_object* initialize_Init_Syntax(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Syntax(uint8_t builtin) {
 lean_object * res;
@@ -8704,6 +8708,18 @@ res = initialize_Lean_Data_Format(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Option_Coe(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Range_Polymorphic_Iterators(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_ToString_Macro(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Omega(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Syntax(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Syntax_instReprRange_repr___redArg___closed__7 = _init_l_Lean_Syntax_instReprRange_repr___redArg___closed__7();

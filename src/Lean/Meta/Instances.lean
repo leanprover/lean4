@@ -8,9 +8,9 @@ prelude
 public import Init.Data.Range.Polymorphic.Stream
 public import Lean.Meta.DiscrTree.Main
 public import Lean.Meta.CollectMVars
-import Lean.ReducibilityAttrs
-import Lean.Meta.WHNF
-import Lean.AddDecl
+import Init.While
+import Lean.OriginalConstKind
+import Lean.ProjFns
 public section
 namespace Lean.Meta
 

@@ -10,11 +10,19 @@ public import Std.Do.Triple.Basic
 public import Init.Data.Range.Polymorphic.Iterators
 import Init.Data.Range.Polymorphic
 public import Init.Data.Slice.Array
-public import Init.Data.Iterators.ToIterator
 
 -- This public import is a workaround for #10652.
 -- Without it, adding the `spec` attribute for `instMonadLiftTOfMonadLift` will fail.
 public import Init.Data.Iterators.Lemmas.Combinators.FilterMap
+public import Init.Data.Range
+import Init.Data.Iterators.Lemmas
+import Init.Data.List.Nat.Range
+import Init.Data.List.Nat.TakeDrop
+import Init.Data.List.Range
+import Init.Data.List.TakeDrop
+import Init.Data.Nat.Mod
+import Init.Data.Slice.Lemmas
+import Init.Omega
 
 set_option linter.missingDocs true
 
@@ -326,7 +334,7 @@ theorem Spec.liftWith_OptionT [Monad m] [WPMonad m ps]
 @[spec]
 theorem Spec.restoreM_StateT [Monad m] [WPMonad m ps] (x : m (α × σ)) :
     Triple
-      (MonadControl.restoreM x : StateT σ m α)
+      (MonadControl.restoreM (m := m) x : StateT σ m α)
       (fun _ => wp⟦x⟧ (fun (a, s) => Q.1 a s, Q.2))
       Q := by simp [Triple.iff]
 
@@ -340,14 +348,14 @@ theorem Spec.restoreM_ReaderT [Monad m] [WPMonad m ps] (x : m α) :
 @[spec]
 theorem Spec.restoreM_ExceptT [Monad m] [WPMonad m ps] (x : m (Except ε α)) :
     Triple (ps := .except ε ps)
-      (MonadControl.restoreM x : ExceptT ε m α)
+      (MonadControl.restoreM (m := m) x : ExceptT ε m α)
       (wp⟦x⟧ (fun e => e.casesOn Q.2.1 Q.1, Q.2.2))
       Q := by simp [Triple.iff]
 
 @[spec]
 theorem Spec.restoreM_OptionT [Monad m] [WPMonad m ps] (x : m (Option α)) :
     Triple (ps := .except PUnit ps)
-      (MonadControl.restoreM x : OptionT m α)
+      (MonadControl.restoreM (m := m) x : OptionT m α)
       (wp⟦x⟧ (fun e => e.casesOn (Q.2.1 ⟨⟩) Q.1, Q.2.2))
       Q := by simp [Triple.iff]
 

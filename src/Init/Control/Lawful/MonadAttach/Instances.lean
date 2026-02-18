@@ -6,14 +6,17 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Control.Reader
-public import Init.Control.Lawful.Instances
 import Init.Control.Lawful.MonadAttach.Lemmas
+public import Init.Control.Lawful.Basic
+public import Init.Control.State
+public import Init.Control.StateRef
+public import Init.Ext
 
 public instance [Monad m] [LawfulMonad m] [MonadAttach m] [WeaklyLawfulMonadAttach m] :
     WeaklyLawfulMonadAttach (ReaderT ρ m) where
   map_attach := by
-    simp only [Functor.map, MonadAttach.attach, Functor.map_map, WeaklyLawfulMonadAttach.map_attach]
+    simp only [Functor.map, MonadAttach.attach, Functor.map_map, WeaklyLawfulMonadAttach.map_attach,
+      MonadAttach.CanReturn]
     intros; rfl
 
 public instance [Monad m] [LawfulMonad m] [MonadAttach m] [LawfulMonadAttach m] :
@@ -28,7 +31,7 @@ public instance [Monad m] [LawfulMonad m] [MonadAttach m] [WeaklyLawfulMonadAtta
   map_attach := by
     intro α x
     simp only [Functor.map, StateT, funext_iff, StateT.map, bind_pure_comp, MonadAttach.attach,
-      Functor.map_map]
+      Functor.map_map, MonadAttach.CanReturn]
     exact fun s => WeaklyLawfulMonadAttach.map_attach
 
 public instance [Monad m] [LawfulMonad m] [MonadAttach m] [LawfulMonadAttach m] :
@@ -43,7 +46,7 @@ public instance [Monad m] [LawfulMonad m] [MonadAttach m] [LawfulMonadAttach m] 
 public instance [Monad m] [LawfulMonad m] [MonadAttach m] [WeaklyLawfulMonadAttach m] :
     WeaklyLawfulMonadAttach (ExceptT ε m) where
   map_attach {α} x := by
-    simp only [Functor.map, MonadAttach.attach, ExceptT.map]
+    simp only [Functor.map, MonadAttach.attach, ExceptT.map, MonadAttach.CanReturn]
     simp
     conv => rhs; rw [← WeaklyLawfulMonadAttach.map_attach (m := m) (x := x)]
     simp only [map_eq_pure_bind]
@@ -81,6 +84,6 @@ attribute [local instance] MonadAttach.trivial
 
 public instance [Monad m] [LawfulMonad m] :
     WeaklyLawfulMonadAttach m where
-  map_attach := by simp [MonadAttach.attach]
+  map_attach := by simp [MonadAttach.attach, MonadAttach.CanReturn]
 
 end

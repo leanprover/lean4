@@ -6,7 +6,17 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 module
 
 prelude
-public import Init.Data.List.Find
+public import Init.Data.List.Lemmas
+public import Init.Data.Nat.MinMax
+import Init.ByCases
+import Init.Data.Bool
+import Init.Data.List.Find
+import Init.Data.List.Sublist
+import Init.Data.List.TakeDrop
+import Init.Data.List.Zip
+import Init.Data.Nat.Lemmas
+import Init.Data.Option.Lemmas
+import Init.Omega
 
 public section
 
@@ -376,6 +386,22 @@ theorem drop_take : ∀ {i j : Nat} {l : List α}, drop i (take j l) = take (j -
 @[simp, grind =] theorem drop_take_self : drop i (take i l) = [] := by
   rw [drop_take]
   simp
+
+set_option doc.verso true in
+/--
+This lemma will be renamed to {lit}`List.extract_eq_drop_take` as soon as the current deprecated
+lemma {name}`List.extract_eq_drop_take` has been removed.
+-/
+theorem extract_eq_drop_take' {l : List α} {start stop : Nat} :
+    l.extract start stop = (l.take stop).drop start := by
+  simp only [take_drop]
+  by_cases start ≤ stop
+  · rw [add_sub_of_le ‹_›]
+  · have h₁ : stop - start = 0 := by omega
+    have h₂ : min stop l.length ≤ stop := by omega
+    simp only [Nat.add_zero, List.drop_take_self, List.nil_eq, List.drop_eq_nil_iff,
+      List.length_take, ge_iff_le, h₁]
+    omega
 
 @[simp]
 theorem drop_eq_drop_iff :

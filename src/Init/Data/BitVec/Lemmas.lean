@@ -9,11 +9,20 @@ prelude
 import all Init.Data.BitVec.Basic
 import all Init.Data.BitVec.BasicAux
 public import Init.Data.Fin.Lemmas
-public import Init.Data.Int.Bitwise.Lemmas
-public import Init.Data.Int.LemmasAux
-public import Init.Data.BitVec.Bootstrap
 public import Init.Data.List.BasicAux
 import Init.Data.List.Lemmas
+public import Init.Data.BitVec.Basic
+import Init.ByCases
+import Init.Data.BitVec.Bootstrap
+import Init.Data.Int.Bitwise.Lemmas
+import Init.Data.Int.DivMod.Lemmas
+import Init.Data.Int.LemmasAux
+import Init.Data.Int.Pow
+import Init.Data.Nat.Div.Lemmas
+import Init.Data.Nat.MinMax
+import Init.Data.Nat.Mod
+import Init.Data.Nat.Simproc
+import Init.TacticsExtra
 
 public section
 
@@ -1189,7 +1198,7 @@ let x' = x.extractLsb' 7 5  =   _ _ 9 8 7
       (decide (0 < len) &&
       (decide (start + len ≤ w) &&
       x.getMsbD (w - (start + len)))) := by
-  simp [BitVec.msb, getMsbD_extractLsb']
+  simp [BitVec.msb, getMsbD_extractLsb']; rfl
 
 @[simp, grind =] theorem getElem_extract {hi lo : Nat} {x : BitVec n} {i : Nat} (h : i < hi - lo + 1) :
     (extractLsb hi lo x)[i] = getLsbD x (lo+i) := by
@@ -1225,7 +1234,7 @@ let x' = x.extractLsb' 7 5  =   _ _ 9 8 7
 
 @[simp, grind =] theorem msb_extractLsb {hi lo : Nat} {x : BitVec w} :
     (extractLsb hi lo x).msb = (decide (max hi lo < w) && x.getMsbD (w - 1 - max hi lo)) := by
-  simp [BitVec.msb]
+  simp [BitVec.msb]; rfl
 
 theorem extractLsb'_eq_extractLsb {w : Nat} (x : BitVec w) (start len : Nat) (h : len > 0) :
     x.extractLsb' start len = (x.extractLsb (len - 1 + start) start).cast (by omega) := by
@@ -2572,6 +2581,19 @@ theorem msb_signExtend {x : BitVec w} :
   · simp [h, BitVec.msb, getMsbD_signExtend, show v - w = 0 by omega]
   · simp [h, BitVec.msb, getMsbD_signExtend, show ¬ (v - w = 0) by omega]
 
+/-- Sign-extending to `w + n` bits, extracting bits `[w - 1 + n..n]`, and setting width
+back to `w` is equivalent to arithmetic right shift by `n`, since both sides discard the `n`
+least significant bits and replicate the sign bit into the upper bits. -/
+@[simp]
+theorem signExtend_extractLsb_setWidth {x : BitVec w} {n : Nat} :
+    ((x.signExtend (w + n)).extractLsb (w - 1 + n) n).setWidth w = x.sshiftRight n := by
+  ext i hi
+  simp only [getElem_sshiftRight, getElem_setWidth, getLsbD_extract,
+    Nat.add_sub_cancel, show i ≤ w - 1 by omega, decide_true, getLsbD_signExtend,
+    Bool.true_and]
+  by_cases hni : n + i < w
+  <;> (simp [hni]; omega)
+
 /-- Sign extending to a width smaller than the starting width is a truncation. -/
 theorem signExtend_eq_setWidth_of_le (x : BitVec w) {v : Nat} (hv : v ≤ w) :
   x.signExtend v = x.setWidth v := by
@@ -2762,8 +2784,9 @@ theorem msb_append {x : BitVec w} {y : BitVec v} :
 @[simp] theorem append_zero_width (x : BitVec w) (y : BitVec 0) : x ++ y = x := by
   ext i ih
   rw [getElem_append] -- Why does this not work with `simp [getElem_append]`?
-  simp
+  simp; rfl
 
+set_option backward.isDefEq.respectTransparency false in
 @[grind =]
 theorem toInt_append {x : BitVec n} {y : BitVec m} :
     (x ++ y).toInt = if n == 0 then y.toInt else (2 ^ m) * x.toInt + y.toNat := by
@@ -5269,6 +5292,7 @@ theorem and_one_eq_setWidth_ofBool_getLsbD {x : BitVec w} :
 theorem replicate_zero {x : BitVec w} : x.replicate 0 = 0#0 := by
   simp [replicate]
 
+set_option backward.isDefEq.respectTransparency false in
 @[simp, grind =]
 theorem replicate_one {w : Nat} {x : BitVec w} :
     (x.replicate 1) = x.cast (by rw [Nat.mul_one]) := by
@@ -5320,6 +5344,7 @@ theorem append_assoc {x₁ : BitVec w₁} {x₂ : BitVec w₂} {x₃ : BitVec w�
 theorem append_assoc' {x₁ : BitVec w₁} {x₂ : BitVec w₂} {x₃ : BitVec w₃} :
     (x₁ ++ (x₂ ++ x₃)) = ((x₁ ++ x₂) ++ x₃).cast (by omega) := by simp [append_assoc]
 
+set_option backward.isDefEq.respectTransparency false in
 theorem replicate_append_self {x : BitVec w} :
     x ++ x.replicate n = (x.replicate n ++ x).cast (by omega) := by
   induction n with

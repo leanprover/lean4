@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.HashMap.Basic
-// Imports: public import Std.Data.DHashMap.Basic
+// Imports: public import Std.Data.DHashMap.Basic public import Init.Data.List.Impl
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -842,7 +842,7 @@ x_11 = 32;
 x_12 = lean_unbox_uint64(x_10);
 x_13 = lean_uint64_shift_right(x_12, x_11);
 x_14 = lean_unbox_uint64(x_10);
-lean_dec(x_10);
+lean_dec_ref(x_10);
 x_15 = lean_uint64_xor(x_14, x_13);
 x_16 = 16;
 x_17 = lean_uint64_shift_right(x_15, x_16);
@@ -934,7 +934,7 @@ x_51 = 32;
 x_52 = lean_unbox_uint64(x_50);
 x_53 = lean_uint64_shift_right(x_52, x_51);
 x_54 = lean_unbox_uint64(x_50);
-lean_dec(x_50);
+lean_dec_ref(x_50);
 x_55 = lean_uint64_xor(x_54, x_53);
 x_56 = 16;
 x_57 = lean_uint64_shift_right(x_55, x_56);
@@ -1034,7 +1034,7 @@ x_13 = 32;
 x_14 = lean_unbox_uint64(x_12);
 x_15 = lean_uint64_shift_right(x_14, x_13);
 x_16 = lean_unbox_uint64(x_12);
-lean_dec(x_12);
+lean_dec_ref(x_12);
 x_17 = lean_uint64_xor(x_16, x_15);
 x_18 = 16;
 x_19 = lean_uint64_shift_right(x_17, x_18);
@@ -1126,7 +1126,7 @@ x_53 = 32;
 x_54 = lean_unbox_uint64(x_52);
 x_55 = lean_uint64_shift_right(x_54, x_53);
 x_56 = lean_unbox_uint64(x_52);
-lean_dec(x_52);
+lean_dec_ref(x_52);
 x_57 = lean_uint64_xor(x_56, x_55);
 x_58 = 16;
 x_59 = lean_uint64_shift_right(x_57, x_58);
@@ -1222,7 +1222,7 @@ x_10 = 32;
 x_11 = lean_unbox_uint64(x_9);
 x_12 = lean_uint64_shift_right(x_11, x_10);
 x_13 = lean_unbox_uint64(x_9);
-lean_dec(x_9);
+lean_dec_ref(x_9);
 x_14 = lean_uint64_xor(x_13, x_12);
 x_15 = 16;
 x_16 = lean_uint64_shift_right(x_14, x_15);
@@ -1367,7 +1367,7 @@ x_12 = 32;
 x_13 = lean_unbox_uint64(x_11);
 x_14 = lean_uint64_shift_right(x_13, x_12);
 x_15 = lean_unbox_uint64(x_11);
-lean_dec(x_11);
+lean_dec_ref(x_11);
 x_16 = lean_uint64_xor(x_15, x_14);
 x_17 = 16;
 x_18 = lean_uint64_shift_right(x_16, x_17);
@@ -1512,7 +1512,7 @@ x_10 = 32;
 x_11 = lean_unbox_uint64(x_9);
 x_12 = lean_uint64_shift_right(x_11, x_10);
 x_13 = lean_unbox_uint64(x_9);
-lean_dec(x_9);
+lean_dec_ref(x_9);
 x_14 = lean_uint64_xor(x_13, x_12);
 x_15 = 16;
 x_16 = lean_uint64_shift_right(x_14, x_15);
@@ -1652,7 +1652,7 @@ x_12 = 32;
 x_13 = lean_unbox_uint64(x_11);
 x_14 = lean_uint64_shift_right(x_13, x_12);
 x_15 = lean_unbox_uint64(x_11);
-lean_dec(x_11);
+lean_dec_ref(x_11);
 x_16 = lean_uint64_xor(x_15, x_14);
 x_17 = 16;
 x_18 = lean_uint64_shift_right(x_16, x_17);
@@ -4978,12 +4978,16 @@ return x_7;
 }
 }
 lean_object* initialize_Std_Data_DHashMap_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_List_Impl(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Data_HashMap_Basic(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Std_Data_DHashMap_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_Impl(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_HashMap_instEmptyCollection___closed__0 = _init_l_Std_HashMap_instEmptyCollection___closed__0();

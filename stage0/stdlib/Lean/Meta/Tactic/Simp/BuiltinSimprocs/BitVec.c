@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Simp.BuiltinSimprocs.BitVec
-// Imports: public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Int
+// Imports: public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Int import Init.Data.BitVec.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -54,7 +54,7 @@ static const lean_object* l_BitVec_instReprLiteral_repr___redArg___closed__16 = 
 static const lean_ctor_object l_BitVec_instReprLiteral_repr___redArg___closed__17_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 3}, .m_objs = {((lean_object*)&l_BitVec_instReprLiteral_repr___redArg___closed__13_value)}};
 static const lean_object* l_BitVec_instReprLiteral_repr___redArg___closed__17 = (const lean_object*)&l_BitVec_instReprLiteral_repr___redArg___closed__17_value;
 lean_object* l_Nat_reprFast(lean_object*);
-lean_object* l_BitVec_BitVec_repr(lean_object*, lean_object*);
+lean_object* l_BitVec_repr(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_instReprLiteral_repr___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_instReprLiteral_repr(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_instReprLiteral_repr___boxed(lean_object*, lean_object*);
@@ -2149,7 +2149,7 @@ x_19 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_19, 0, x_18);
 lean_ctor_set(x_19, 1, x_5);
 x_20 = l_BitVec_instReprLiteral_repr___redArg___closed__12;
-x_21 = l_BitVec_BitVec_repr(x_3, x_4);
+x_21 = l_BitVec_repr(x_3, x_4);
 x_22 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_22, 0, x_20);
 lean_ctor_set(x_22, 1, x_21);
@@ -2217,7 +2217,7 @@ x_49 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_49, 0, x_48);
 lean_ctor_set(x_49, 1, x_34);
 x_50 = l_BitVec_instReprLiteral_repr___redArg___closed__12;
-x_51 = l_BitVec_BitVec_repr(x_32, x_33);
+x_51 = l_BitVec_repr(x_32, x_33);
 x_52 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_52, 0, x_50);
 lean_ctor_set(x_52, 1, x_51);
@@ -52964,12 +52964,16 @@ return x_2;
 }
 }
 lean_object* initialize_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Int(uint8_t builtin);
+lean_object* initialize_Init_Data_BitVec_Lemmas(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Int(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_BitVec_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_BitVec_instReprLiteral_repr___redArg___closed__7 = _init_l_BitVec_instReprLiteral_repr___redArg___closed__7();

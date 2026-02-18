@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.WFComputable
-// Imports: public import Init.WF import Init.NotationExtra
+// Imports: public import Init.WF import Init.NotationExtra import Init.WFTactics
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -151,6 +151,7 @@ return x_7;
 }
 lean_object* initialize_Init_WF(uint8_t builtin);
 lean_object* initialize_Init_NotationExtra(uint8_t builtin);
+lean_object* initialize_Init_WFTactics(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_WFComputable(uint8_t builtin) {
 lean_object * res;
@@ -160,6 +161,9 @@ res = initialize_Init_WF(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_NotationExtra(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_WFTactics(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

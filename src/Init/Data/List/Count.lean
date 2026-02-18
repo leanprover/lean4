@@ -6,8 +6,16 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 module
 
 prelude
-public import Init.Data.List.Sublist
-import Init.Grind.Util
+import Init.Grind.Util  -- shake: keep (`@[grind]` dependency)
+public import Init.BinderPredicates
+public import Init.Ext
+public import Init.NotationExtra
+import Init.ByCases
+import Init.Data.Bool
+import Init.Data.List.Lemmas
+import Init.Data.List.Sublist
+import Init.Data.Option.Lemmas
+import Init.TacticsExtra
 
 public section
 
@@ -124,7 +132,9 @@ theorem boole_getElem_le_countP {p : α → Bool} {l : List α} {i : Nat} (h : i
   | nil => simp at h
   | cons x l ih =>
     cases i with
-    | zero => simp [countP_cons]
+    | zero =>
+      set_option backward.isDefEq.respectTransparency false in
+      simp [countP_cons]
     | succ i =>
       simp only [length_cons, add_one_lt_add_one_iff] at h
       simp only [getElem_cons_succ, countP_cons]
@@ -255,7 +265,9 @@ theorem count_eq_length_filter {a : α} {l : List α} : count a l = (filter (· 
 theorem count_tail : ∀ {l : List α} {a : α},
       l.tail.count a = l.count a - if l.head? == some a then 1 else 0
   | [], a => by simp
-  | _ :: _, a => by simp [count_cons]
+  | _ :: _, a => by
+    set_option backward.isDefEq.respectTransparency false in
+    simp [count_cons]
 
 theorem count_le_length {a : α} {l : List α} : count a l ≤ l.length := countP_le_length
 

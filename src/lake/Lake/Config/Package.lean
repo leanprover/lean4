@@ -15,6 +15,8 @@ public import Lake.Util.FilePath -- use scoped instance downstream
 public import Lake.Util.OrdHashSet
 public import Lake.Util.Name
 meta import all Lake.Util.OpaqueType
+import Lake.Util.OpaqueType
+import Lake.Util.IO
 
 open System Lean
 
@@ -406,5 +408,4 @@ public def isBuildableModule (mod : Name) (self : Package) : Bool :=
 
 /-- Remove the package's build outputs (i.e., delete its build directory). -/
 public def clean (self : Package) : IO PUnit := do
-  if (← self.buildDir.pathExists) then
-    IO.FS.removeDirAll self.buildDir
+  removeDirAllIfExists self.buildDir

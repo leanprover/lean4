@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.Grind.Config
-// Imports: public import Lean.Elab.Tactic.Grind.Basic meta import Lean.Elab.Tactic.ConfigSetter
+// Imports: public import Lean.Elab.Tactic.Grind.Basic import Lean.Elab.Tactic.ConfigSetter
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

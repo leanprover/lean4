@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.DiscrTree.Basic
-// Imports: public import Lean.Meta.DiscrTree.Types public import Lean.ToExpr public import Lean.CoreM
+// Imports: public import Lean.Meta.DiscrTree.Types public import Lean.CoreM import Init.Data.Range.Polymorphic.Iterators import Init.Omega
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -4058,7 +4058,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l_Lean_Meta_DiscrTree_insertKeyValue___redArg___closed__5));
 x_2 = lean_unsigned_to_nat(23u);
-x_3 = lean_unsigned_to_nat(165u);
+x_3 = lean_unsigned_to_nat(166u);
 x_4 = ((lean_object*)(l_Lean_Meta_DiscrTree_insertKeyValue___redArg___closed__4));
 x_5 = ((lean_object*)(l_Lean_Meta_DiscrTree_insertKeyValue___redArg___closed__3));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -4142,8 +4142,9 @@ return x_6;
 }
 }
 lean_object* initialize_Lean_Meta_DiscrTree_Types(uint8_t builtin);
-lean_object* initialize_Lean_ToExpr(uint8_t builtin);
 lean_object* initialize_Lean_CoreM(uint8_t builtin);
+lean_object* initialize_Init_Data_Range_Polymorphic_Iterators(uint8_t builtin);
+lean_object* initialize_Init_Omega(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_DiscrTree_Basic(uint8_t builtin) {
 lean_object * res;
@@ -4152,10 +4153,13 @@ _G_initialized = true;
 res = initialize_Lean_Meta_DiscrTree_Types(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_ToExpr(builtin);
+res = initialize_Lean_CoreM(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_CoreM(builtin);
+res = initialize_Init_Data_Range_Polymorphic_Iterators(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Meta_DiscrTree_instInhabitedTrie___closed__0 = _init_l_Lean_Meta_DiscrTree_instInhabitedTrie___closed__0();

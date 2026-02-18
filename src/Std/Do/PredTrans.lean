@@ -127,46 +127,54 @@ The predicate transformer that always returns the same precondition `P`; `(const
 def const (P : Assertion ps) : PredTrans ps α :=
   { trans := fun Q => P, conjunctiveRaw := by intro _ _; simp [SPred.and_self.to_eq] }
 
+/--
+The predicate transformer that asserts the first exception condition.
+-/
+def throw (e : ε) : PredTrans (.except ε ps) α :=
+  { trans := fun Q => Q.2.1 e, conjunctiveRaw := by intro _ _; simp }
+
 instance : Monad (PredTrans ps) where
   pure := pure
   bind := bind
 
-@[simp]
-theorem pure_eq_pure {ps} {α} (a : α) :
-    PredTrans.pure (ps := ps) a = Pure.pure a := by rfl
-
-@[simp]
-theorem bind_eq_bind {ps} {α β} (x : PredTrans ps α) (f : α → PredTrans ps β) :
-    PredTrans.bind (ps := ps) x f = Bind.bind x f := by rfl
-
-@[simp]
-theorem pure_apply (a : α) (Q : PostCond α ps) :
+@[simp, grind =]
+theorem apply_Pure_pure (a : α) (Q : PostCond α ps) :
   (Pure.pure a : PredTrans ps α).apply Q = Q.1 a := by rfl
 
-@[simp]
-theorem map_apply (f : α → β) (x : PredTrans ps α) (Q : PostCond β ps) :
+@[simp, grind =]
+theorem apply_pure (a : α) (Q : PostCond α ps) :
+  (PredTrans.pure a).apply Q = Q.1 a := by rfl
+
+@[simp, grind =]
+theorem apply_Functor_map (f : α → β) (x : PredTrans ps α) (Q : PostCond β ps) :
   (f <$> x).apply Q = x.apply (fun a => Q.1 (f a), Q.2) := by rfl
 
-@[simp]
-theorem bind_apply (x : PredTrans ps α) (f : α → PredTrans ps β) (Q : PostCond β ps) :
+@[simp, grind =]
+theorem apply_bind (x : PredTrans ps α) (f : α → PredTrans ps β) (Q : PostCond β ps) :
+  (PredTrans.bind x f).apply Q = x.apply (fun a => (f a).apply Q, Q.2) := by rfl
+
+@[simp, grind =]
+theorem apply_Bind_bind (x : PredTrans ps α) (f : α → PredTrans ps β) (Q : PostCond β ps) :
   (x >>= f).apply Q = x.apply (fun a => (f a).apply Q, Q.2) := by rfl
 
 @[simp]
-theorem seq_apply (f : PredTrans ps (α → β)) (x : PredTrans ps α) (Q : PostCond β ps) :
+theorem apply_Seq_seq (f : PredTrans ps (α → β)) (x : PredTrans ps α) (Q : PostCond β ps) :
   (f <*> x).apply Q = f.apply (fun g => x.apply (fun a => Q.1 (g a), Q.2), Q.2) := by rfl
 
-@[simp]
-theorem const_apply (p : Assertion ps) (Q : PostCond α ps) :
+@[simp, grind =]
+theorem apply_const (p : Assertion ps) (Q : PostCond α ps) :
   (PredTrans.const p : PredTrans ps α).apply Q = p := by rfl
+
+@[simp, grind =]
+theorem apply_throw (e : ε) (Q : PostCond α (.except ε ps)) :
+  (PredTrans.throw e).apply Q = Q.2.1 e := by rfl
 
 theorem bind_mono {x y : PredTrans ps α} {f : α → PredTrans ps β}
   (h : x ≤ y) : x >>= f ≤ y >>= f := by intro Q; exact (h (_, Q.2))
 
-instance instLawfulMonad : LawfulMonad (PredTrans ps) :=
-  LawfulMonad.mk' (PredTrans ps)
-    (id_map := by simp +unfoldPartialApp [Functor.map, bind, pure, apply])
-    (pure_bind := by simp +unfoldPartialApp [Bind.bind, bind, Pure.pure, pure, apply])
-    (bind_assoc := by simp +unfoldPartialApp [Bind.bind, bind, apply])
+instance instLawfulMonad : LawfulMonad (PredTrans ps) := by
+  apply LawfulMonad.mk' _
+  all_goals (intros; ext Q; simp)
 
 /--
 Adds the ability to make assertions about a state of type `σ` to a predicate transformer with
@@ -222,20 +230,22 @@ def pushOption {ps : PostShape} {α} (x : OptionT (PredTrans ps) α) : PredTrans
     ext x
     cases x <;> simp
 
-@[simp]
-theorem pushArg_apply {ps} {α σ : Type u} {Q : PostCond α (.arg σ ps)} (f : σ → PredTrans ps (α × σ)) :
+@[simp, grind =]
+theorem apply_pushArg {ps} {α σ : Type u} {Q : PostCond α (.arg σ ps)} (f : σ → PredTrans ps (α × σ)) :
   (pushArg f).apply Q = fun s => (f s).apply (fun ⟨a, s⟩ => Q.1 a s, Q.2) := rfl
 
-@[simp]
-theorem pushExcept_apply {ps} {α ε : Type u} {Q : PostCond α (.except ε ps)} (x : PredTrans ps (Except ε α)) :
+@[simp, grind =]
+theorem apply_pushExcept {ps} {α ε : Type u} {Q : PostCond α (.except ε ps)} (x : PredTrans ps (Except ε α)) :
   (pushExcept x).apply Q = x.apply (fun | .ok a => Q.1 a | .error e => Q.2.1 e, Q.2.2) := rfl
 
-@[simp]
-theorem pushOption_apply {ps} {α : Type u} {Q : PostCond α (.except PUnit ps)} (x : PredTrans ps (Option α)) :
+@[simp, grind =]
+theorem apply_pushOption {ps} {α : Type u} {Q : PostCond α (.except PUnit ps)} (x : PredTrans ps (Option α)) :
   (pushOption x).apply Q = x.apply (fun | .some a => Q.1 a | .none => Q.2.1 ⟨⟩, Q.2.2) := rfl
 
-theorem dite_apply {ps} {Q : PostCond α ps} (c : Prop) [Decidable c] (t : c → PredTrans ps α) (e : ¬ c → PredTrans ps α) :
+@[simp]
+theorem apply_dite {ps} {Q : PostCond α ps} (c : Prop) [Decidable c] (t : c → PredTrans ps α) (e : ¬ c → PredTrans ps α) :
   (if h : c then t h else e h).apply Q = if h : c then (t h).apply Q else (e h).apply Q := by split <;> rfl
 
-theorem ite_apply {ps} {Q : PostCond α ps} (c : Prop) [Decidable c] (t : PredTrans ps α) (e : PredTrans ps α) :
+@[simp]
+theorem apply_ite {ps} {Q : PostCond α ps} (c : Prop) [Decidable c] (t : PredTrans ps α) (e : PredTrans ps α) :
   (if c then t else e).apply Q = if c then t.apply Q else e.apply Q := by split <;> rfl

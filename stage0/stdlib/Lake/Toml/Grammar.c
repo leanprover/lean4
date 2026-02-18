@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Toml.Grammar
-// Imports: public import Lean.Parser.Types import Lake.Toml.ParserUtil import Lean.Parser
+// Imports: import Lake.Toml.ParserUtil import Lean.Parser public import Lean.PrettyPrinter.Formatter public import Lean.PrettyPrinter.Parenthesizer
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -743,7 +743,6 @@ LEAN_EXPORT lean_object* l___private_Lake_Toml_Grammar_0__Lake_Toml_keyvalCore_f
 LEAN_EXPORT lean_object* l___private_Lake_Toml_Grammar_0__Lake_Toml_keyvalCore_formatter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_stdTable_formatter___closed__0___boxed__const__1;
 static lean_object* l_Lake_Toml_stdTable_formatter___closed__0;
-LEAN_EXPORT lean_object* l_Lake_Toml_stdTable_formatter___closed__1___boxed__const__1;
 static lean_object* l_Lake_Toml_stdTable_formatter___closed__1;
 lean_object* l_Lean_PrettyPrinter_Formatter_notFollowedBy_formatter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Toml_stdTable_formatter___closed__2;
@@ -807,7 +806,6 @@ LEAN_EXPORT lean_object* l_Lake_Toml_trailingWs_parenthesizer___redArg();
 LEAN_EXPORT lean_object* l_Lake_Toml_trailingWs_parenthesizer___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_trailingWs_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_trailingWs_parenthesizer___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Toml_key_parenthesizer___closed__0___boxed__const__1;
 lean_object* l_Lake_Toml_chAtom_parenthesizer___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Toml_key_parenthesizer___closed__0;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_andthen_parenthesizer___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -819,21 +817,17 @@ lean_object* l_Lean_Parser_setExpected_parenthesizer___boxed(lean_object*, lean_
 static lean_object* l_Lake_Toml_key_parenthesizer___closed__4;
 LEAN_EXPORT lean_object* l_Lake_Toml_key_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_key_parenthesizer___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lake_Toml_Grammar_0__Lake_Toml_keyvalCore_parenthesizer___closed__0___boxed__const__1;
 static lean_object* l___private_Lake_Toml_Grammar_0__Lake_Toml_keyvalCore_parenthesizer___closed__0;
 LEAN_EXPORT lean_object* l___private_Lake_Toml_Grammar_0__Lake_Toml_keyvalCore_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Toml_Grammar_0__Lake_Toml_keyvalCore_parenthesizer___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_andthen_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_stdTable_parenthesizer___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_stdTable_parenthesizer___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Toml_stdTable_parenthesizer___closed__0___boxed__const__1;
 static lean_object* l_Lake_Toml_stdTable_parenthesizer___closed__0;
-LEAN_EXPORT lean_object* l_Lake_Toml_stdTable_parenthesizer___closed__1___boxed__const__1;
 static lean_object* l_Lake_Toml_stdTable_parenthesizer___closed__1;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_notFollowedBy_parenthesizer___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Toml_stdTable_parenthesizer___closed__2;
 static lean_object* l_Lake_Toml_stdTable_parenthesizer___closed__3;
-LEAN_EXPORT lean_object* l_Lake_Toml_stdTable_parenthesizer___closed__4___boxed__const__1;
 static lean_object* l_Lake_Toml_stdTable_parenthesizer___closed__4;
 static lean_object* l_Lake_Toml_stdTable_parenthesizer___closed__5;
 static lean_object* l_Lake_Toml_stdTable_parenthesizer___closed__6;
@@ -4044,7 +4038,7 @@ x_25 = lean_ctor_get(x_3, 2);
 x_26 = l_Lean_Parser_InputContext_atEnd(x_24, x_25);
 if (x_26 == 0)
 {
-lean_object* x_27; lean_object* x_28; uint32_t x_29; lean_object* x_30; uint8_t x_31; uint32_t x_53; lean_object* x_54; lean_object* x_55; uint8_t x_56; uint32_t x_71; lean_object* x_72; uint8_t x_73; uint32_t x_95; uint8_t x_96; 
+lean_object* x_27; lean_object* x_28; lean_object* x_29; uint32_t x_30; uint8_t x_31; lean_object* x_53; uint32_t x_54; lean_object* x_55; uint8_t x_56; uint32_t x_71; lean_object* x_72; uint8_t x_73; uint32_t x_95; uint8_t x_96; 
 x_27 = lean_ctor_get(x_24, 0);
 x_71 = lean_string_utf8_get_fast(x_27, x_25);
 x_72 = lean_string_utf8_next_fast(x_27, x_25);
@@ -4068,16 +4062,16 @@ block_52:
 if (x_31 == 0)
 {
 lean_object* x_32; 
-x_32 = l___private_Lake_Toml_Grammar_0__Lake_Toml_decNumberSepFn(x_1, x_29, x_30, x_2, x_28);
+x_32 = l___private_Lake_Toml_Grammar_0__Lake_Toml_decNumberSepFn(x_1, x_30, x_28, x_2, x_29);
 return x_32;
 }
 else
 {
 lean_object* x_33; uint8_t x_34; 
-lean_inc(x_30);
-x_33 = l_Lean_Parser_ParserState_setPos(x_28, x_30);
-x_34 = l_Lean_Parser_InputContext_atEnd(x_24, x_30);
-lean_dec(x_30);
+lean_inc(x_28);
+x_33 = l_Lean_Parser_ParserState_setPos(x_29, x_28);
+x_34 = l_Lean_Parser_InputContext_atEnd(x_24, x_28);
+lean_dec(x_28);
 if (x_34 == 0)
 {
 lean_object* x_35; uint32_t x_36; lean_object* x_37; uint32_t x_38; uint8_t x_39; 
@@ -4095,8 +4089,8 @@ x_40 = 48;
 x_41 = lean_uint32_dec_le(x_40, x_36);
 if (x_41 == 0)
 {
-x_4 = x_33;
-x_5 = x_37;
+x_4 = x_37;
+x_5 = x_33;
 x_6 = x_36;
 x_7 = x_41;
 goto block_11;
@@ -4106,8 +4100,8 @@ else
 uint32_t x_42; uint8_t x_43; 
 x_42 = 57;
 x_43 = lean_uint32_dec_le(x_36, x_42);
-x_4 = x_33;
-x_5 = x_37;
+x_4 = x_37;
+x_5 = x_33;
 x_6 = x_36;
 x_7 = x_43;
 goto block_11;
@@ -4151,13 +4145,13 @@ block_70:
 if (x_56 == 0)
 {
 lean_object* x_57; 
-x_57 = l___private_Lake_Toml_Grammar_0__Lake_Toml_decNumberSepFn(x_1, x_53, x_55, x_2, x_54);
+x_57 = l___private_Lake_Toml_Grammar_0__Lake_Toml_decNumberSepFn(x_1, x_54, x_53, x_2, x_55);
 return x_57;
 }
 else
 {
 lean_object* x_58; lean_object* x_59; uint8_t x_60; 
-x_58 = l_Lean_Parser_ParserState_setPos(x_54, x_55);
+x_58 = l_Lean_Parser_ParserState_setPos(x_55, x_53);
 x_59 = lean_ctor_get(x_58, 2);
 lean_inc(x_59);
 x_60 = l_Lean_Parser_InputContext_atEnd(x_24, x_59);
@@ -4171,9 +4165,9 @@ x_63 = 48;
 x_64 = lean_uint32_dec_le(x_63, x_61);
 if (x_64 == 0)
 {
-x_28 = x_58;
-x_29 = x_61;
-x_30 = x_62;
+x_28 = x_62;
+x_29 = x_58;
+x_30 = x_61;
 x_31 = x_64;
 goto block_52;
 }
@@ -4182,9 +4176,9 @@ else
 uint32_t x_65; uint8_t x_66; 
 x_65 = 57;
 x_66 = lean_uint32_dec_le(x_61, x_65);
-x_28 = x_58;
-x_29 = x_61;
-x_30 = x_62;
+x_28 = x_62;
+x_29 = x_58;
+x_30 = x_61;
 x_31 = x_66;
 goto block_52;
 }
@@ -4230,9 +4224,9 @@ x_82 = 48;
 x_83 = lean_uint32_dec_le(x_82, x_78);
 if (x_83 == 0)
 {
-x_53 = x_78;
-x_54 = x_75;
-x_55 = x_79;
+x_53 = x_79;
+x_54 = x_78;
+x_55 = x_75;
 x_56 = x_83;
 goto block_70;
 }
@@ -4241,9 +4235,9 @@ else
 uint32_t x_84; uint8_t x_85; 
 x_84 = 57;
 x_85 = lean_uint32_dec_le(x_78, x_84);
-x_53 = x_78;
-x_54 = x_75;
-x_55 = x_79;
+x_53 = x_79;
+x_54 = x_78;
+x_55 = x_75;
 x_56 = x_85;
 goto block_70;
 }
@@ -4297,13 +4291,13 @@ block_11:
 if (x_7 == 0)
 {
 lean_object* x_8; 
-x_8 = l___private_Lake_Toml_Grammar_0__Lake_Toml_decNumberSepFn(x_1, x_6, x_5, x_2, x_4);
+x_8 = l___private_Lake_Toml_Grammar_0__Lake_Toml_decNumberSepFn(x_1, x_6, x_4, x_2, x_5);
 return x_8;
 }
 else
 {
 lean_object* x_9; lean_object* x_10; 
-x_9 = l_Lean_Parser_ParserState_setPos(x_4, x_5);
+x_9 = l_Lean_Parser_ParserState_setPos(x_5, x_4);
 x_10 = l___private_Lake_Toml_Grammar_0__Lake_Toml_decNumberAuxFn(x_1, x_2, x_9);
 return x_10;
 }
@@ -6696,22 +6690,13 @@ lean_closure_set(x_4, 2, x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_Lake_Toml_stdTable_formatter___closed__1___boxed__const__1() {
-_start:
-{
-uint32_t x_1; lean_object* x_2; 
-x_1 = 91;
-x_2 = lean_box_uint32(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Lake_Toml_stdTable_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = ((lean_object*)(l___private_Lake_Toml_Grammar_0__Lake_Toml_decNumberTailAuxFn___closed__4));
 x_2 = l_Lake_Toml_stdTable___closed__8;
-x_3 = l_Lake_Toml_stdTable_formatter___closed__1___boxed__const__1;
+x_3 = l_Lake_Toml_stdTable_formatter___closed__0___boxed__const__1;
 x_4 = lean_alloc_closure((void*)(l_Lake_Toml_chAtom_formatter___boxed), 8, 3);
 lean_closure_set(x_4, 0, x_3);
 lean_closure_set(x_4, 1, x_2);
@@ -7269,22 +7254,13 @@ lean_dec_ref(x_1);
 return x_6;
 }
 }
-static lean_object* _init_l_Lake_Toml_key_parenthesizer___closed__0___boxed__const__1() {
-_start:
-{
-uint32_t x_1; lean_object* x_2; 
-x_1 = 46;
-x_2 = lean_box_uint32(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Lake_Toml_key_parenthesizer___closed__0() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = ((lean_object*)(l___private_Lake_Toml_Grammar_0__Lake_Toml_decNumberTailAuxFn___closed__4));
 x_2 = l_Lake_Toml_key___closed__7;
-x_3 = l_Lake_Toml_key_parenthesizer___closed__0___boxed__const__1;
+x_3 = l_Lake_Toml_key_formatter___closed__0___boxed__const__1;
 x_4 = lean_alloc_closure((void*)(l_Lake_Toml_chAtom_parenthesizer___boxed), 8, 3);
 lean_closure_set(x_4, 0, x_3);
 lean_closure_set(x_4, 1, x_2);
@@ -7365,22 +7341,13 @@ x_6 = l_Lake_Toml_key_parenthesizer(x_1, x_2, x_3, x_4);
 return x_6;
 }
 }
-static lean_object* _init_l___private_Lake_Toml_Grammar_0__Lake_Toml_keyvalCore_parenthesizer___closed__0___boxed__const__1() {
-_start:
-{
-uint32_t x_1; lean_object* x_2; 
-x_1 = 61;
-x_2 = lean_box_uint32(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l___private_Lake_Toml_Grammar_0__Lake_Toml_keyvalCore_parenthesizer___closed__0() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = ((lean_object*)(l___private_Lake_Toml_Grammar_0__Lake_Toml_decNumberTailAuxFn___closed__4));
 x_2 = l___private_Lake_Toml_Grammar_0__Lake_Toml_keyvalCore___closed__5;
-x_3 = l___private_Lake_Toml_Grammar_0__Lake_Toml_keyvalCore_parenthesizer___closed__0___boxed__const__1;
+x_3 = l___private_Lake_Toml_Grammar_0__Lake_Toml_keyvalCore_formatter___closed__0___boxed__const__1;
 x_4 = lean_alloc_closure((void*)(l_Lake_Toml_chAtom_parenthesizer___boxed), 8, 3);
 lean_closure_set(x_4, 0, x_3);
 lean_closure_set(x_4, 1, x_2);
@@ -7439,36 +7406,18 @@ x_8 = l_Lake_Toml_stdTable_parenthesizer___lam__0(x_1, x_2, x_3, x_4, x_5, x_6);
 return x_8;
 }
 }
-static lean_object* _init_l_Lake_Toml_stdTable_parenthesizer___closed__0___boxed__const__1() {
-_start:
-{
-uint32_t x_1; lean_object* x_2; 
-x_1 = 91;
-x_2 = lean_box_uint32(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Lake_Toml_stdTable_parenthesizer___closed__0() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = ((lean_object*)(l___private_Lake_Toml_Grammar_0__Lake_Toml_decNumberTailAuxFn___closed__4));
 x_2 = ((lean_object*)(l_Lake_Toml_stdTable___closed__3));
-x_3 = l_Lake_Toml_stdTable_parenthesizer___closed__0___boxed__const__1;
+x_3 = l_Lake_Toml_stdTable_formatter___closed__0___boxed__const__1;
 x_4 = lean_alloc_closure((void*)(l_Lake_Toml_chAtom_parenthesizer___boxed), 8, 3);
 lean_closure_set(x_4, 0, x_3);
 lean_closure_set(x_4, 1, x_2);
 lean_closure_set(x_4, 2, x_1);
 return x_4;
-}
-}
-static lean_object* _init_l_Lake_Toml_stdTable_parenthesizer___closed__1___boxed__const__1() {
-_start:
-{
-uint32_t x_1; lean_object* x_2; 
-x_1 = 91;
-x_2 = lean_box_uint32(x_1);
-return x_2;
 }
 }
 static lean_object* _init_l_Lake_Toml_stdTable_parenthesizer___closed__1() {
@@ -7477,7 +7426,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = ((lean_object*)(l___private_Lake_Toml_Grammar_0__Lake_Toml_decNumberTailAuxFn___closed__4));
 x_2 = l_Lake_Toml_stdTable___closed__8;
-x_3 = l_Lake_Toml_stdTable_parenthesizer___closed__1___boxed__const__1;
+x_3 = l_Lake_Toml_stdTable_formatter___closed__0___boxed__const__1;
 x_4 = lean_alloc_closure((void*)(l_Lake_Toml_chAtom_parenthesizer___boxed), 8, 3);
 lean_closure_set(x_4, 0, x_3);
 lean_closure_set(x_4, 1, x_2);
@@ -7507,22 +7456,13 @@ lean_closure_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lake_Toml_stdTable_parenthesizer___closed__4___boxed__const__1() {
-_start:
-{
-uint32_t x_1; lean_object* x_2; 
-x_1 = 93;
-x_2 = lean_box_uint32(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Lake_Toml_stdTable_parenthesizer___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = ((lean_object*)(l___private_Lake_Toml_Grammar_0__Lake_Toml_decNumberTailAuxFn___closed__4));
 x_2 = l_Lake_Toml_stdTable___closed__17;
-x_3 = l_Lake_Toml_stdTable_parenthesizer___closed__4___boxed__const__1;
+x_3 = l_Lake_Toml_stdTable_formatter___closed__5___boxed__const__1;
 x_4 = lean_alloc_closure((void*)(l_Lake_Toml_chAtom_parenthesizer___boxed), 8, 3);
 lean_closure_set(x_4, 0, x_3);
 lean_closure_set(x_4, 1, x_2);
@@ -7880,21 +7820,25 @@ x_1 = l_Lake_Toml_toml___closed__1;
 return x_1;
 }
 }
-lean_object* initialize_Lean_Parser_Types(uint8_t builtin);
 lean_object* initialize_Lake_Toml_ParserUtil(uint8_t builtin);
 lean_object* initialize_Lean_Parser(uint8_t builtin);
+lean_object* initialize_Lean_PrettyPrinter_Formatter(uint8_t builtin);
+lean_object* initialize_Lean_PrettyPrinter_Parenthesizer(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lake_Toml_Grammar(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Parser_Types(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lake_Toml_ParserUtil(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Parser(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_PrettyPrinter_Formatter(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_PrettyPrinter_Parenthesizer(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___private_Lake_Toml_Grammar_0__Lake_Toml_hourMinFn___closed__4 = _init_l___private_Lake_Toml_Grammar_0__Lake_Toml_hourMinFn___closed__4();
@@ -8209,8 +8153,6 @@ l_Lake_Toml_stdTable_formatter___closed__0___boxed__const__1 = _init_l_Lake_Toml
 lean_mark_persistent(l_Lake_Toml_stdTable_formatter___closed__0___boxed__const__1);
 l_Lake_Toml_stdTable_formatter___closed__0 = _init_l_Lake_Toml_stdTable_formatter___closed__0();
 lean_mark_persistent(l_Lake_Toml_stdTable_formatter___closed__0);
-l_Lake_Toml_stdTable_formatter___closed__1___boxed__const__1 = _init_l_Lake_Toml_stdTable_formatter___closed__1___boxed__const__1();
-lean_mark_persistent(l_Lake_Toml_stdTable_formatter___closed__1___boxed__const__1);
 l_Lake_Toml_stdTable_formatter___closed__1 = _init_l_Lake_Toml_stdTable_formatter___closed__1();
 lean_mark_persistent(l_Lake_Toml_stdTable_formatter___closed__1);
 l_Lake_Toml_stdTable_formatter___closed__2 = _init_l_Lake_Toml_stdTable_formatter___closed__2();
@@ -8249,8 +8191,6 @@ l___private_Lake_Toml_Grammar_0__Lake_Toml_expressionCore_formatter___closed__0 
 lean_mark_persistent(l___private_Lake_Toml_Grammar_0__Lake_Toml_expressionCore_formatter___closed__0);
 l_Lake_Toml_simpleKey_parenthesizer___closed__0 = _init_l_Lake_Toml_simpleKey_parenthesizer___closed__0();
 lean_mark_persistent(l_Lake_Toml_simpleKey_parenthesizer___closed__0);
-l_Lake_Toml_key_parenthesizer___closed__0___boxed__const__1 = _init_l_Lake_Toml_key_parenthesizer___closed__0___boxed__const__1();
-lean_mark_persistent(l_Lake_Toml_key_parenthesizer___closed__0___boxed__const__1);
 l_Lake_Toml_key_parenthesizer___closed__0 = _init_l_Lake_Toml_key_parenthesizer___closed__0();
 lean_mark_persistent(l_Lake_Toml_key_parenthesizer___closed__0);
 l_Lake_Toml_key_parenthesizer___closed__1 = _init_l_Lake_Toml_key_parenthesizer___closed__1();
@@ -8261,24 +8201,16 @@ l_Lake_Toml_key_parenthesizer___closed__3 = _init_l_Lake_Toml_key_parenthesizer_
 lean_mark_persistent(l_Lake_Toml_key_parenthesizer___closed__3);
 l_Lake_Toml_key_parenthesizer___closed__4 = _init_l_Lake_Toml_key_parenthesizer___closed__4();
 lean_mark_persistent(l_Lake_Toml_key_parenthesizer___closed__4);
-l___private_Lake_Toml_Grammar_0__Lake_Toml_keyvalCore_parenthesizer___closed__0___boxed__const__1 = _init_l___private_Lake_Toml_Grammar_0__Lake_Toml_keyvalCore_parenthesizer___closed__0___boxed__const__1();
-lean_mark_persistent(l___private_Lake_Toml_Grammar_0__Lake_Toml_keyvalCore_parenthesizer___closed__0___boxed__const__1);
 l___private_Lake_Toml_Grammar_0__Lake_Toml_keyvalCore_parenthesizer___closed__0 = _init_l___private_Lake_Toml_Grammar_0__Lake_Toml_keyvalCore_parenthesizer___closed__0();
 lean_mark_persistent(l___private_Lake_Toml_Grammar_0__Lake_Toml_keyvalCore_parenthesizer___closed__0);
-l_Lake_Toml_stdTable_parenthesizer___closed__0___boxed__const__1 = _init_l_Lake_Toml_stdTable_parenthesizer___closed__0___boxed__const__1();
-lean_mark_persistent(l_Lake_Toml_stdTable_parenthesizer___closed__0___boxed__const__1);
 l_Lake_Toml_stdTable_parenthesizer___closed__0 = _init_l_Lake_Toml_stdTable_parenthesizer___closed__0();
 lean_mark_persistent(l_Lake_Toml_stdTable_parenthesizer___closed__0);
-l_Lake_Toml_stdTable_parenthesizer___closed__1___boxed__const__1 = _init_l_Lake_Toml_stdTable_parenthesizer___closed__1___boxed__const__1();
-lean_mark_persistent(l_Lake_Toml_stdTable_parenthesizer___closed__1___boxed__const__1);
 l_Lake_Toml_stdTable_parenthesizer___closed__1 = _init_l_Lake_Toml_stdTable_parenthesizer___closed__1();
 lean_mark_persistent(l_Lake_Toml_stdTable_parenthesizer___closed__1);
 l_Lake_Toml_stdTable_parenthesizer___closed__2 = _init_l_Lake_Toml_stdTable_parenthesizer___closed__2();
 lean_mark_persistent(l_Lake_Toml_stdTable_parenthesizer___closed__2);
 l_Lake_Toml_stdTable_parenthesizer___closed__3 = _init_l_Lake_Toml_stdTable_parenthesizer___closed__3();
 lean_mark_persistent(l_Lake_Toml_stdTable_parenthesizer___closed__3);
-l_Lake_Toml_stdTable_parenthesizer___closed__4___boxed__const__1 = _init_l_Lake_Toml_stdTable_parenthesizer___closed__4___boxed__const__1();
-lean_mark_persistent(l_Lake_Toml_stdTable_parenthesizer___closed__4___boxed__const__1);
 l_Lake_Toml_stdTable_parenthesizer___closed__4 = _init_l_Lake_Toml_stdTable_parenthesizer___closed__4();
 lean_mark_persistent(l_Lake_Toml_stdTable_parenthesizer___closed__4);
 l_Lake_Toml_stdTable_parenthesizer___closed__5 = _init_l_Lake_Toml_stdTable_parenthesizer___closed__5();

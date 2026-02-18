@@ -7,9 +7,9 @@ module
 
 prelude
 import all Init.Data.Array.Basic
-public import Init.Data.Array.OfFn
 public import Init.Data.List.MapIdx
 import all Init.Data.List.MapIdx
+import Init.Data.Array.OfFn
 
 public section
 
@@ -72,6 +72,7 @@ theorem mapFinIdx_spec {xs : Array α} {f : (i : Nat) → α → (h : i < xs.siz
   simp only [getElem?_def, size_mapFinIdx, getElem_mapFinIdx]
   split <;> simp_all
 
+set_option backward.isDefEq.respectTransparency false in
 @[simp, grind =] theorem toList_mapFinIdx {xs : Array α} {f : (i : Nat) → α → (h : i < xs.size) → β} :
     (xs.mapFinIdx f).toList = xs.toList.mapFinIdx (fun i a h => f i a (by simpa)) := by
   apply List.ext_getElem <;> simp
@@ -105,6 +106,7 @@ theorem mapIdx_spec {f : Nat → α → β} {xs : Array α}
       xs[i]?.map (f i) := by
   simp [getElem?_def, size_mapIdx, getElem_mapIdx]
 
+set_option backward.isDefEq.respectTransparency false in
 @[simp, grind =] theorem toList_mapIdx {f : Nat → α → β} {xs : Array α} :
     (xs.mapIdx f).toList = xs.toList.mapIdx (fun i a => f i a) := by
   apply List.ext_getElem <;> simp

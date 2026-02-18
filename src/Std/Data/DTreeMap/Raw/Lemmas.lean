@@ -8,6 +8,9 @@ module
 prelude
 import Std.Data.DTreeMap.Internal.Lemmas
 public import Std.Data.DTreeMap.Raw.AdditionalOperations
+import Init.Data.List.Find
+import Init.Data.List.Pairwise
+import Init.Data.Prod
 
 @[expose] public section
 
@@ -1891,9 +1894,7 @@ theorem ofList_cons {k : α} {v : β k} {tl : List ((a : α) × (β a))} :
 
 theorem ofList_eq_insertMany_empty {l : List ((a : α) × (β a))} :
     ofList l cmp = insertMany (∅ : Raw α β cmp) l :=
-  match l with
-  | [] => by simp
-  | ⟨k, v⟩ :: tl => by simp [ofList_cons, insertMany_cons]
+  ext Impl.ofList_eq_insertMany!
 
 @[simp, grind =]
 theorem contains_ofList [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp]
@@ -2186,6 +2187,10 @@ theorem unitOfList_cons {hd : α} {tl : List α} :
     unitOfList (hd :: tl) cmp =
       insertManyIfNewUnit ((∅ : Raw α Unit cmp).insertIfNew hd ()) tl :=
   ext Impl.Const.insertManyIfNewUnit_empty_list_cons_eq_insertManyIfNewUnit!
+
+theorem unitOfList_eq_insertManyIfNewUnit_empty {l : List α} :
+    unitOfList l cmp = insertManyIfNewUnit ∅ l :=
+  ext Impl.Const.unitOfList_eq_insertManyIfNewUnit!
 
 @[simp]
 theorem contains_unitOfList [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp] {l : List α} {k : α} :
@@ -3065,6 +3070,9 @@ theorem Equiv.beq [∀ k, ReflBEq (β k)] (h₁ : m₁.WF) (h₂ : m₂.WF) (h :
 theorem equiv_of_beq [∀ k, LawfulBEq (β k)] (h₁ : m₁.WF) (h₂ : m₂.WF) : beq m₁ m₂ = true → m₁ ~m m₂ := fun hyp =>
   let : Ord α := ⟨cmp⟩; ⟨Impl.equiv_of_beq h₁.1 h₂.1 hyp⟩
 
+theorem beq_iff_equiv [∀ k, LawfulBEq (β k)] (h₁ : m₁.WF) (h₂ : m₂.WF) : beq m₁ m₂ = true ↔ m₁ ~m m₂ :=
+  ⟨equiv_of_beq h₁ h₂, Equiv.beq h₁ h₂⟩
+
 theorem Equiv.beq_congr {m₃ m₄ : Raw α β cmp} (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (h₄ : m₄.WF) :
     m₁ ~m m₃ → m₂ ~m m₄ → Raw.beq m₁ m₂ = Raw.beq m₃ m₄ :=
   fun w1 w2 => Impl.Equiv.beq_congr h₁ h₂ h₃ h₄ w1.1 w2.1
@@ -3079,6 +3087,9 @@ theorem Const.Equiv.beq [TransCmp cmp] [BEq β] [ReflBEq β] (h₁ : m₁.WF) (h
 
 theorem Const.equiv_of_beq [TransCmp cmp] [LawfulEqCmp cmp] [BEq β] [LawfulBEq β] (h₁ : m₁.WF) (h₂ : m₂.WF) : beq m₁ m₂ = true → m₁ ~m m₂ :=
   fun hyp => let : Ord α := ⟨cmp⟩; ⟨Impl.Const.equiv_of_beq h₁.1 h₂.1 hyp⟩
+
+theorem Const.beq_iff_equiv [TransCmp cmp] [LawfulEqCmp cmp] [BEq β] [LawfulBEq β] (h₁ : m₁.WF) (h₂ : m₂.WF) : beq m₁ m₂ = true ↔ m₁ ~m m₂ :=
+  ⟨equiv_of_beq h₁ h₂, Equiv.beq h₁ h₂⟩
 
 theorem Const.Equiv.beq_congr [TransCmp cmp] [BEq β] {m₃ m₄ : Raw α (fun _ => β) cmp} (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (h₄ : m₄.WF) :
     m₁ ~m m₃ → m₂ ~m m₄ → Raw.Const.beq m₁ m₂ = Raw.Const.beq m₃ m₄ :=
@@ -5757,6 +5768,18 @@ theorem equiv_iff_toList_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) :
     t₁ ~m t₂ ↔ t₁.toList = t₂.toList :=
   equiv_iff.trans (Impl.equiv_iff_toList_eq h₁.1 h₂.1)
 
+theorem insertMany_list_equiv_foldl {l : List ((a : α) × β a)} :
+    t₁.insertMany l ~m l.foldl (init := t₁) fun acc p => acc.insert p.1 p.2 := by
+  constructor
+  let : Ord α := ⟨cmp⟩
+  rw [← List.foldl_hom inner (g₂ := fun acc p => acc.insert! p.1 p.2)]
+  · exact Impl.insertMany!_list_equiv_foldl
+  · exact fun _ _ => rfl
+
+theorem ofList_equiv_foldl {l : List ((a : α) × β a)} :
+    ofList l cmp ~m l.foldl (init := ∅) (fun acc p => acc.insert p.1 p.2) := by
+  simpa only [ofList_eq_insertMany_empty] using insertMany_list_equiv_foldl
+
 section Const
 
 variable {β : Type v} {t₁ t₂ : Raw α β cmp}
@@ -5781,6 +5804,30 @@ theorem Equiv.of_constToList_perm : (Const.toList t₁).Perm (Const.toList t₂)
 
 theorem Equiv.of_keys_unit_perm {t₁ t₂ : Raw α Unit cmp} : t₁.keys.Perm t₂.keys → t₁ ~m t₂ :=
   Const.equiv_iff_keys_unit_perm.mpr
+
+theorem Const.insertMany_list_equiv_foldl {l : List (α × β)} :
+    insertMany t₁ l ~m l.foldl (init := t₁) (fun acc p => acc.insert p.1 p.2) := by
+  constructor
+  let : Ord α := ⟨cmp⟩
+  rw [← List.foldl_hom inner (g₂ := fun acc p => acc.insert! p.1 p.2)]
+  · exact Impl.Const.insertMany!_list_equiv_foldl
+  · exact fun _ _ => rfl
+
+theorem Const.ofList_equiv_foldl {l : List (α × β)} :
+    ofList l cmp ~m l.foldl (init := ∅) (fun acc p => acc.insert p.1 p.2) := by
+  simpa only [ofList_eq_insertMany_empty] using insertMany_list_equiv_foldl
+
+theorem Const.insertManyIfNewUnit_list_equiv_foldl {t₁ : Raw α Unit cmp} {l : List α} :
+    insertManyIfNewUnit t₁ l ~m l.foldl (init := t₁) fun acc a => acc.insertIfNew a () := by
+  constructor
+  let : Ord α := ⟨cmp⟩
+  rw [← List.foldl_hom inner (g₂ := fun acc a => acc.insertIfNew! a ())]
+  · exact Impl.Const.insertManyIfNewUnit!_list_equiv_foldl
+  · exact fun _ _ => rfl
+
+theorem Const.unitOfList_equiv_foldl {l : List α} :
+    unitOfList l cmp ~m l.foldl (init := ∅) fun acc a => acc.insertIfNew a () := by
+  simpa only [unitOfList_eq_insertManyIfNewUnit_empty] using insertManyIfNewUnit_list_equiv_foldl
 
 end Const
 

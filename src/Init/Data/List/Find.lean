@@ -7,10 +7,16 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 module
 
 prelude
-public import Init.Data.List.Range
-public import Init.Data.List.Impl
 import all Init.Data.List.Attach
-public import Init.Data.Fin.Lemmas
+public import Init.Data.List.Attach
+import Init.Data.Fin.Lemmas
+import Init.Data.List.Impl
+import Init.Data.List.Range
+import Init.Data.List.Sublist
+import Init.Data.List.TakeDrop
+import Init.Data.Nat.Lemmas
+import Init.Data.Prod
+import Init.Omega
 
 public section
 
@@ -90,6 +96,12 @@ theorem findSome?_eq_some_iff {f : α → Option β} {l : List α} {b : β} :
         · simp only [cons_append, cons.injEq] at h₁
           obtain ⟨⟨rfl, rfl⟩, rfl⟩ := h₁
           exact ⟨l₁, a, l₂, rfl, h₂, fun a' w => h₃ a' (mem_cons_of_mem p w)⟩
+
+theorem isSome_findSome? {xs : List α} {f : α → Option β} :
+    (xs.findSome? f).isSome = xs.any (f · |>.isSome) := by
+  rw [Bool.eq_iff_iff]
+  simp only [Option.isSome_iff_ne_none, ne_eq, findSome?_eq_none_iff, Classical.not_forall]
+  simp [← Option.isSome_iff_ne_none]
 
 @[simp, grind =] theorem findSome?_guard {l : List α} : findSome? (Option.guard p) l = find? p l := by
   induction l with
@@ -263,6 +275,11 @@ theorem find?_eq_some_iff_append :
           refine ⟨as, ⟨⟨bs, ?_⟩, fun a m => h₂ a (mem_cons_of_mem _ m)⟩⟩
           cases h₁
           simp
+
+theorem isSome_find? {xs : List α} {f : α → Bool} :
+    (xs.find? f).isSome = xs.any (f ·) := by
+  rw [Bool.eq_iff_iff]
+  simp [Option.isSome_iff_ne_none, ne_eq, find?_eq_none, Classical.not_forall]
 
 @[simp]
 theorem find?_cons_eq_some : (a :: xs).find? p = some b ↔ (p a ∧ a = b) ∨ (!p a ∧ xs.find? p = some b) := by
@@ -648,6 +665,7 @@ theorem lt_findIdx_of_not {p : α → Bool} {xs : List α} {i : Nat} (h : i < xs
   simp only [Nat.not_lt] at f
   exact absurd (@findIdx_getElem _ p xs (Nat.lt_of_le_of_lt f h)) (h2 (xs.findIdx p) f)
 
+set_option backward.isDefEq.respectTransparency false in
 /-- `xs.findIdx p = i` iff `p xs[i]` and `¬ p xs [j]` for all `j < i`. -/
 theorem findIdx_eq {p : α → Bool} {xs : List α} {i : Nat} (h : i < xs.length) :
     xs.findIdx p = i ↔ p xs[i] ∧ ∀ j (hji : j < i), p (xs[j]'(Nat.lt_trans hji h)) = false := by
@@ -1032,7 +1050,7 @@ theorem findFinIdx?_append {xs ys : List α} {p : α → Bool} :
 
 @[simp, grind =] theorem findFinIdx?_singleton {a : α} {p : α → Bool} :
     [a].findFinIdx? p = if p a then some ⟨0, by simp⟩ else none := by
-  simp [findFinIdx?_cons, findFinIdx?_nil]
+  simp [findFinIdx?_cons, findFinIdx?_nil]; rfl
 
 @[simp, grind =] theorem findFinIdx?_eq_none_iff {l : List α} {p : α → Bool} :
     l.findFinIdx? p = none ↔ ∀ x ∈ l, ¬ p x := by
@@ -1074,6 +1092,7 @@ theorem isNone_findFinIdx? {l : List α} {p : α → Bool} :
   induction l with
   | nil => simp
   | cons a l ih =>
+    set_option backward.isDefEq.respectTransparency false in
     simp [hf, findFinIdx?_cons]
     split <;> simp [ih, Function.comp_def]
 

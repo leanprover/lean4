@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.IR.CompilerM
-// Imports: public import Lean.Compiler.IR.Format public import Lean.Compiler.ExportAttr public import Lean.Compiler.LCNF.PhaseExt import Lean.Compiler.InitAttr
+// Imports: public import Lean.Compiler.IR.Format public import Lean.Compiler.ExportAttr public import Lean.Compiler.LCNF.PublicDeclsExt import Lean.Compiler.InitAttr import Init.Data.Format.Macro import Lean.Compiler.LCNF.Types
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -301,13 +301,7 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at___00Lean_Persiste
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAtAux___at___00Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00Lean_IR_findEnvDecl_spec__0_spec__0_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAtAux___at___00Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00Lean_IR_findEnvDecl_spec__0_spec__0_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lean_ir_find_env_decl(lean_object*, lean_object*);
-static const lean_string_object l_Lean_IR_ExplicitBoxing_mkBoxedName___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 7, .m_capacity = 7, .m_length = 6, .m_data = "_boxed"};
-static const lean_object* l_Lean_IR_ExplicitBoxing_mkBoxedName___closed__0 = (const lean_object*)&l_Lean_IR_ExplicitBoxing_mkBoxedName___closed__0_value;
-lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_IR_ExplicitBoxing_mkBoxedName(lean_object*);
-uint8_t lean_string_dec_eq(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Lean_IR_ExplicitBoxing_isBoxedName(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_IR_ExplicitBoxing_isBoxedName___boxed(lean_object*);
+lean_object* l_Lean_Compiler_LCNF_mkBoxedName(lean_object*);
 LEAN_EXPORT lean_object* lean_ir_find_env_decl_boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t lean_has_compile_error(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_CompilerM_0__Lean_IR_hasCompileError___boxed(lean_object*, lean_object*);
@@ -3656,51 +3650,13 @@ x_4 = l_Lean_IR_findEnvDecl(x_1, x_2, x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_IR_ExplicitBoxing_mkBoxedName(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; lean_object* x_3; 
-x_2 = ((lean_object*)(l_Lean_IR_ExplicitBoxing_mkBoxedName___closed__0));
-x_3 = l_Lean_Name_str___override(x_1, x_2);
-return x_3;
-}
-}
-LEAN_EXPORT uint8_t l_Lean_IR_ExplicitBoxing_isBoxedName(lean_object* x_1) {
-_start:
-{
-if (lean_obj_tag(x_1) == 1)
-{
-lean_object* x_2; lean_object* x_3; uint8_t x_4; 
-x_2 = lean_ctor_get(x_1, 1);
-x_3 = ((lean_object*)(l_Lean_IR_ExplicitBoxing_mkBoxedName___closed__0));
-x_4 = lean_string_dec_eq(x_2, x_3);
-return x_4;
-}
-else
-{
-uint8_t x_5; 
-x_5 = 0;
-return x_5;
-}
-}
-}
-LEAN_EXPORT lean_object* l_Lean_IR_ExplicitBoxing_isBoxedName___boxed(lean_object* x_1) {
-_start:
-{
-uint8_t x_2; lean_object* x_3; 
-x_2 = l_Lean_IR_ExplicitBoxing_isBoxedName(x_1);
-lean_dec(x_1);
-x_3 = lean_box(x_2);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* lean_ir_find_env_decl_boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_3 = l___private_Lean_Compiler_IR_CompilerM_0__Lean_IR_exportIREntries___closed__2;
 lean_inc(x_2);
-x_4 = l_Lean_IR_ExplicitBoxing_mkBoxedName(x_2);
+x_4 = l_Lean_Compiler_LCNF_mkBoxedName(x_2);
 x_5 = l_Lean_Environment_getModuleIdxFor_x3f(x_1, x_2);
 lean_dec(x_2);
 if (lean_obj_tag(x_5) == 0)
@@ -5127,8 +5083,10 @@ return x_6;
 }
 lean_object* initialize_Lean_Compiler_IR_Format(uint8_t builtin);
 lean_object* initialize_Lean_Compiler_ExportAttr(uint8_t builtin);
-lean_object* initialize_Lean_Compiler_LCNF_PhaseExt(uint8_t builtin);
+lean_object* initialize_Lean_Compiler_LCNF_PublicDeclsExt(uint8_t builtin);
 lean_object* initialize_Lean_Compiler_InitAttr(uint8_t builtin);
+lean_object* initialize_Init_Data_Format_Macro(uint8_t builtin);
+lean_object* initialize_Lean_Compiler_LCNF_Types(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Compiler_IR_CompilerM(uint8_t builtin) {
 lean_object * res;
@@ -5140,10 +5098,16 @@ lean_dec_ref(res);
 res = initialize_Lean_Compiler_ExportAttr(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Compiler_LCNF_PhaseExt(builtin);
+res = initialize_Lean_Compiler_LCNF_PublicDeclsExt(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Compiler_InitAttr(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Format_Macro(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Compiler_LCNF_Types(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_IR_LogEntry_fmt___closed__2 = _init_l_Lean_IR_LogEntry_fmt___closed__2();

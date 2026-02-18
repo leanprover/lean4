@@ -7,8 +7,17 @@ Authors: Kim Morrison, Mario Carneiro
 module
 
 prelude
-public import Init.Data.List.Nat.Range
 public import Init.Data.Option.Attach
+public import Init.Data.List.OfFn
+import Init.ByCases
+import Init.Data.Array.Bootstrap
+import Init.Data.List.Nat.Range
+import Init.Data.List.Nat.TakeDrop
+import Init.Data.List.Range
+import Init.Data.List.TakeDrop
+import Init.Data.Prod
+import Init.Data.Subtype.Basic
+import Init.Omega
 
 public section
 
@@ -341,6 +350,7 @@ theorem getElem?_mapIdx_go : ∀ {l : List α} {acc : Array β} {i : Nat},
   | [], acc, i => by
     simp only [mapIdx.go, getElem?_def, Array.length_toList,
       ← Array.getElem_toList, length_nil, Nat.not_lt_zero, ↓reduceDIte, Option.map_none]
+    rfl
   | a :: l, acc, i => by
     rw [mapIdx.go, getElem?_mapIdx_go]
     simp only [Array.size_push]

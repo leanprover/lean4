@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Util.Path
-// Imports: public import Init.System.IO import Init.Data.ToString.Name import Init.Data.String.TakeDrop
+// Imports: public import Init.System.IO import Init.Data.ToString.Name import Init.Data.String.TakeDrop import Init.Data.List.Monadic import Init.Data.Option.BasicAux import Init.Data.ToString.Macro
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -487,7 +487,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l___private_Lean_Util_Path_0__Lean_modToFilePath_go___closed__2));
 x_2 = lean_unsigned_to_nat(20u);
-x_3 = lean_unsigned_to_nat(46u);
+x_3 = lean_unsigned_to_nat(49u);
 x_4 = ((lean_object*)(l___private_Lean_Util_Path_0__Lean_modToFilePath_go___closed__1));
 x_5 = ((lean_object*)(l___private_Lean_Util_Path_0__Lean_modToFilePath_go___closed__0));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -1943,8 +1943,8 @@ x_10 = lean_string_append(x_9, x_5);
 lean_dec(x_5);
 x_11 = ((lean_object*)(l_Lean_moduleNameOfFileName___closed__1));
 x_12 = lean_string_append(x_10, x_11);
-x_13 = lean_string_append(x_12, x_8);
-lean_dec_ref(x_8);
+x_13 = lean_string_append(x_12, x_7);
+lean_dec_ref(x_7);
 x_14 = ((lean_object*)(l_Lean_moduleNameOfFileName___closed__2));
 x_15 = lean_string_append(x_13, x_14);
 x_16 = lean_mk_io_user_error(x_15);
@@ -1968,8 +1968,8 @@ x_24 = lean_nat_dec_le(x_23, x_22);
 if (x_24 == 0)
 {
 lean_dec_ref(x_21);
-x_7 = lean_box(0);
-x_8 = x_19;
+x_7 = x_19;
+x_8 = lean_box(0);
 goto block_18;
 }
 else
@@ -1980,8 +1980,8 @@ x_26 = lean_string_memcmp(x_21, x_19, x_25, x_25, x_23);
 lean_dec_ref(x_21);
 if (x_26 == 0)
 {
-x_7 = lean_box(0);
-x_8 = x_19;
+x_7 = x_19;
+x_8 = lean_box(0);
 goto block_18;
 }
 else
@@ -2015,7 +2015,7 @@ return x_37;
 block_43:
 {
 lean_object* x_42; 
-x_42 = lean_string_append(x_39, x_41);
+x_42 = lean_string_append(x_40, x_41);
 lean_dec_ref(x_41);
 x_19 = x_42;
 x_20 = lean_box(0);
@@ -2037,8 +2037,8 @@ x_50 = l_Lean_moduleNameOfFileName___closed__4;
 x_51 = lean_nat_dec_le(x_50, x_49);
 if (x_51 == 0)
 {
-x_39 = x_47;
-x_40 = lean_box(0);
+x_39 = lean_box(0);
+x_40 = x_47;
 x_41 = x_48;
 goto block_43;
 }
@@ -2051,8 +2051,8 @@ x_54 = lean_string_memcmp(x_47, x_48, x_53, x_52, x_50);
 lean_dec(x_53);
 if (x_54 == 0)
 {
-x_39 = x_47;
-x_40 = lean_box(0);
+x_39 = lean_box(0);
+x_40 = x_47;
 x_41 = x_48;
 goto block_43;
 }
@@ -2505,6 +2505,9 @@ return x_3;
 lean_object* initialize_Init_System_IO(uint8_t builtin);
 lean_object* initialize_Init_Data_ToString_Name(uint8_t builtin);
 lean_object* initialize_Init_Data_String_TakeDrop(uint8_t builtin);
+lean_object* initialize_Init_Data_List_Monadic(uint8_t builtin);
+lean_object* initialize_Init_Data_Option_BasicAux(uint8_t builtin);
+lean_object* initialize_Init_Data_ToString_Macro(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Util_Path(uint8_t builtin) {
 lean_object * res;
@@ -2517,6 +2520,15 @@ res = initialize_Init_Data_ToString_Name(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_String_TakeDrop(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_Monadic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Option_BasicAux(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_ToString_Macro(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_forEachModuleInDir___redArg___lam__2___closed__0 = _init_l_Lean_forEachModuleInDir___redArg___lam__2___closed__0();

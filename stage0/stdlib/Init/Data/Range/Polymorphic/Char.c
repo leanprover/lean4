@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Range.Polymorphic.Char
-// Imports: public import Init.Data.Char.Ordinal public import Init.Data.Range.Polymorphic.Fin import Init.Data.Range.Polymorphic.Lemmas import Init.Data.Range.Polymorphic.Map import Init.Data.Char.Order
+// Imports: public import Init.Data.Char.Ordinal public import Init.Data.Range.Polymorphic.Fin import Init.Data.Range.Polymorphic.Map import Init.Data.Char.Order import Init.Data.Fin.Lemmas import Init.Data.Option.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -153,9 +153,10 @@ return x_1;
 }
 lean_object* initialize_Init_Data_Char_Ordinal(uint8_t builtin);
 lean_object* initialize_Init_Data_Range_Polymorphic_Fin(uint8_t builtin);
-lean_object* initialize_Init_Data_Range_Polymorphic_Lemmas(uint8_t builtin);
 lean_object* initialize_Init_Data_Range_Polymorphic_Map(uint8_t builtin);
 lean_object* initialize_Init_Data_Char_Order(uint8_t builtin);
+lean_object* initialize_Init_Data_Fin_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_Data_Option_Lemmas(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Range_Polymorphic_Char(uint8_t builtin) {
 lean_object * res;
@@ -167,13 +168,16 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Range_Polymorphic_Fin(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Range_Polymorphic_Lemmas(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Init_Data_Range_Polymorphic_Map(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Char_Order(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Fin_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Option_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Char_instLeast_x3f___closed__0___boxed__const__1 = _init_l_Char_instLeast_x3f___closed__0___boxed__const__1();

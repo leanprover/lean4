@@ -141,6 +141,13 @@ else
 	  -Wl,--whole-archive ${LIB}/temp/Lean.*o.export ${LIB}/temp/libleanshell.a -Wl,--no-whole-archive -Wl,--start-group -lInit -lStd -lLean -lleancpp -Wl,--end-group ${CMAKE_BINARY_DIR}/runtime/libleanrt_initial-exec.a ${LEANSHARED_LINKER_FLAGS} ${TOOLCHAIN_SHARED_LINKER_FLAGS} ${LEANC_OPTS}
 endif
 endif
+ifeq "${CMAKE_BUILD_TYPE}" "Release"
+ifeq "${CMAKE_SYSTEM_NAME}" "Linux"
+# We only strip like this on Linux for now as our other platforms already seem to exclude the
+# unexported symbols by default
+	strip --strip-unneeded $@
+endif
+endif
 
 leanshared: ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared${CMAKE_SHARED_LIBRARY_SUFFIX}
 

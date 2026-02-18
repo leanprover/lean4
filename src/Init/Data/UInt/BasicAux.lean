@@ -7,6 +7,8 @@ module
 
 prelude
 public import Init.Data.BitVec.BasicAux
+public import Init.Data.Fin.Basic
+import Init.Data.Nat.Div.Basic
 
 public section
 

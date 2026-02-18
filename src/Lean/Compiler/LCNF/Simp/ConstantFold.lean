@@ -8,6 +8,7 @@ module
 prelude
 public import Init.Data.UInt.Log2
 public import Lean.Compiler.LCNF.InferType
+import Init.Data.UInt.Lemmas
 
 public section
 
@@ -433,6 +434,18 @@ def stringFolders : List (Name × Folder) := [
   (``String.push, Folder.mkBinary String.push)
 ]
 
+def foldTaskGet (args : Array (Arg .pure)) : FolderM (Option (LetValue .pure)) := do
+  let #[_, .fvar taskFVar] := args | return none
+  let some (.const ``Task.pure _ #[_, val]) ← findLetValue? (pu := .pure) taskFVar | return none
+  match val with
+  | .erased => return some .erased
+  | .fvar fvarId => return some (.fvar fvarId #[])
+  | _ => return none
+
+def taskFolders : List (Name × Folder) := [
+  (``Task.get, foldTaskGet)
+]
+
 /--
 Apply all known folders to `decl`.
 -/
@@ -456,7 +469,12 @@ private def getFolder (declName : Name) : CoreM Folder := do
   ofExcept <| getFolderCore (← getEnv) (← getOptions) declName
 
 def builtinFolders : SMap Name Folder :=
-  (arithmeticFolders ++ relationFolders ++ conversionFolders ++ higherOrderLiteralFolders ++ stringFolders).foldl (init := {}) fun s (declName, folder) =>
+  (arithmeticFolders
+    ++ relationFolders
+    ++ conversionFolders
+    ++ higherOrderLiteralFolders
+    ++ stringFolders
+    ++ taskFolders).foldl (init := {}) fun s (declName, folder) =>
     s.insert declName folder
 
 structure FolderOleanEntry where

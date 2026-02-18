@@ -6,7 +6,6 @@ Authors: Mac Malone
 module
 
 prelude
-public import Init.System.IO
 public import Lake.Util.Exit
 public import Lake.Load.Config
 public import Lake.CLI.Error
@@ -14,24 +13,20 @@ public import Lake.CLI.Shake
 import Lake.Version
 import Lake.Build.Run
 import Lake.Build.Targets
-import Lake.Build.Job.Monad
-import Lake.Build.Job.Register
 import Lake.Build.Target.Fetch
 import Lake.Load.Package
 import Lake.Load.Workspace
 import Lake.Util.IO
 import Lake.Util.Git
-import Lake.Util.Error
 import Lake.Util.MainM
 import Lake.Util.Cli
 import Lake.CLI.Init
 import Lake.CLI.Help
 import Lake.CLI.Build
-import Lake.CLI.Error
 import Lake.CLI.Actions
 import Lake.CLI.Translate
 import Lake.CLI.Serve
-import Init.Data.String.Search
+import Init.Data.String.Modify
 
 -- # CLI
 
@@ -68,6 +63,7 @@ public structure LakeOptions where
   offline : Bool := false
   outputsFile? : Option FilePath := none
   forceDownload : Bool := false
+  service? : Option String := none
   scope? : Option String := none
   /-- Was `scope?` set with `--repo` (and not `--scope`)? -/
   repoScope : Bool := false
@@ -253,6 +249,9 @@ def lakeLongOption : (opt : String) → CliM PUnit
 | "--wfail"       => modifyThe LakeOptions ({· with failLv := .warning})
 | "--iofail"      => modifyThe LakeOptions ({· with failLv := .info})
 | "--force-download" => modifyThe LakeOptions ({· with forceDownload := true})
+| "--service" => do
+  let service ← takeOptArg "--service" "service name"
+  modifyThe LakeOptions ({· with service? := some service})
 | "--scope" => do
   let scope ← takeOptArg "--scope" "cache scope"
   modifyThe LakeOptions ({· with scope? := some scope, repoScope := false})
@@ -401,7 +400,7 @@ protected def get : CliM PUnit := do
       | error "to use `cache get` with a mappings file, `--scope` or `--repo` must be set"
     let service : CacheService :=
       if let some artifactEndpoint := ws.lakeEnv.cacheArtifactEndpoint? then
-        .downloadArtsService artifactEndpoint
+        .downloadArtsService artifactEndpoint ws.lakeEnv.cacheService?
       else
         .reservoirService ws.lakeEnv.reservoirApiUrl
     let map ← CacheMap.load file
@@ -412,7 +411,7 @@ protected def get : CliM PUnit := do
     let service : CacheService ← id do
       match ws.lakeEnv.cacheArtifactEndpoint?, ws.lakeEnv.cacheRevisionEndpoint? with
       | some artifactEndpoint, some revisionEndpoint =>
-        return .downloadService artifactEndpoint revisionEndpoint
+        return .downloadService artifactEndpoint revisionEndpoint ws.lakeEnv.cacheService?
       | none, none =>
         return .reservoirService ws.lakeEnv.reservoirApiUrl
       | some artifactEndpoint, none =>
@@ -536,7 +535,21 @@ protected def add : CliM PUnit := do
     | _ => pure ws.root
   let scope := pkg.cacheScope
   let map ← CacheMap.load file
-  ws.lakeCache.writeMap scope map
+  ws.lakeCache.writeMap scope map opts.service?
+
+protected def clean : CliM PUnit := do
+  processOptions lakeOption
+  let opts ← getThe LakeOptions
+  noArgsRem do
+  let cfg ← mkLoadConfig opts
+  let dir ← id do
+    if (← configFileExists cfg.configFile) then
+      return (← loadWorkspaceRoot cfg).lakeCache.dir
+    else if let some cache := cfg.lakeEnv.lakeCache? then
+      return cache.dir
+    else
+      error "no cache to delete; no workspace configuration found and no system cache detected"
+  removeDirAllIfExists dir
 
 protected def help : CliM PUnit := do
   IO.println <| helpCache <| ← takeArgD ""
@@ -547,6 +560,7 @@ def cacheCli : (cmd : String) → CliM PUnit
 | "add"   => cache.add
 | "get"   => cache.get
 | "put"   => cache.put
+| "clean" => cache.clean
 | "help"  => cache.help
 | cmd     => throw <| CliError.unknownCommand cmd
 
@@ -777,20 +791,19 @@ protected def shake : CliM PUnit := do
   let mods := (← takeArgs).toArray.map (·.toName)
   -- Get default target modules from workspace if no modules specified
   let mods := if mods.isEmpty then ws.defaultTargetRoots else mods
-  if h : 0 < mods.size then
-    let args := {opts.shake with mods}
-    unless args.force do
-      let specs ← parseTargetSpecs ws []
-      let upToDate ← ws.checkNoBuild (buildSpecs specs)
-      unless upToDate do
-        error "there are out of date oleans; run `lake build` or fetch them from a cache first"
-    -- Run shake with workspace search paths
-    Lean.searchPathRef.set ws.augmentedLeanPath
-    let exitCode ← Shake.run args h ws.augmentedLeanSrcPath
-    if exitCode != 0 then
-      exit exitCode
-  else
+  if mods.isEmpty then
     error "no modules specified and there are no applicable default targets"
+  let args := {opts.shake with mods}
+  unless args.force do
+    let specs ← parseTargetSpecs ws []
+    let upToDate ← ws.checkNoBuild (buildSpecs specs)
+    unless upToDate do
+      error "there are out of date oleans; run `lake build` or fetch them from a cache first"
+  -- Run shake with workspace search paths
+  Lean.searchPathRef.set ws.augmentedLeanPath
+  let exitCode ← Shake.run args ws.augmentedLeanSrcPath
+  if exitCode != 0 then
+    exit exitCode
 
 protected def script : CliM PUnit := do
   if let some cmd ← takeArg? then

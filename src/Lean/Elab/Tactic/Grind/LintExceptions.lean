@@ -3,11 +3,11 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-module
+module  -- shake: keep-all (almost-terminal module, `#grind_lint` does not track extra deps)
 prelude
-import Init.Grind.Lint
-import Lean.Elab.Tactic.Grind.Lint
+import Init
 import Std
+import Lean.Elab.Tactic.Grind.Lint
 
 -- We allow these as grind lemmas even though they triggers >20 further instantiations.
 -- See tests/lean/run/grind_lint_*.lean for more details.
@@ -21,6 +21,7 @@ import Std
 #grind_lint skip List.getLast_attachWith
 #grind_lint skip List.head_attachWith
 #grind_lint skip List.drop_append_length
+#grind_lint skip List.getLast_scanr
 #grind_lint skip Array.back_singleton
 #grind_lint skip Array.count_singleton
 #grind_lint skip Array.foldl_empty

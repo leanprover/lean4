@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Compiler.LCNF.Basic
+import Init.Omega
 
 public section
 
@@ -118,6 +119,14 @@ partial def Code.toExprM (code : Code pu) : ToExprM Expr := do
   | .uset fvarId offset y k _ =>
     let value := mkApp3 (mkConst `uset) (.fvar fvarId) (toExpr offset) (.fvar y)
     let body ← withFVar fvarId k.toExprM
+    return .letE `dummy (mkConst ``Unit) value body true
+  | .inc fvarId n check persistent k _ =>
+    let value := mkApp4 (mkConst `inc) (.fvar fvarId) (toExpr n) (toExpr check) (toExpr persistent)
+    let body ← withFVar fvarId k.toExprM
+    return .letE `dummy (mkConst ``Unit) value body true
+  | .dec fvarId n check persistent k _ =>
+    let body ← withFVar fvarId k.toExprM
+    let value := mkApp4 (mkConst `dec) (.fvar fvarId) (toExpr n) (toExpr check) (toExpr persistent)
     return .letE `dummy (mkConst ``Unit) value body true
 end
 

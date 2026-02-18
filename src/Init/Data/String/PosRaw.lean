@@ -6,8 +6,9 @@ Author: Leonardo de Moura, Mario Carneiro
 module
 
 prelude
-public import Init.Data.String.Bootstrap
 public import Init.Data.ByteArray.Basic
+import Init.Data.Nat.Simproc
+import Init.Omega
 
 /-!
 # Arithmetic of `String.Pos.Raw`
@@ -269,6 +270,19 @@ theorem Pos.Raw.inc_le {p q : Pos.Raw} : p.inc ≤ q ↔ p < q := by simpa [lt_i
 @[simp]
 theorem Pos.Raw.lt_inc_iff {p q : Pos.Raw} : p < q.inc ↔ p ≤ q := by simpa [lt_iff, le_iff] using Nat.lt_add_one_iff
 
+theorem Pos.Raw.dec_lt {p : Pos.Raw} : p ≠ 0 → p.dec < p := by simpa [lt_iff] using Nat.sub_one_lt
+
+theorem Pos.Raw.le_dec {p q : Pos.Raw} : q ≠ 0 → (p ≤ q.dec ↔ p < q) := by
+  simp only [ne_eq, eq_zero_iff, le_iff, byteIdx_dec, lt_iff]
+  omega
+
+theorem Pos.Raw.dec_lt_iff {p q : Pos.Raw} : p ≠ 0 → (p.dec < q ↔ p ≤ q) := by
+  simp only [ne_eq, eq_zero_iff, lt_iff, byteIdx_dec, le_iff]
+  omega
+
+theorem Pos.Raw.pos_iff_ne_zero {p : Pos.Raw} : 0 < p ↔ p ≠ 0 := by
+  simpa [lt_iff] using Nat.pos_iff_ne_zero
+
 theorem Pos.Raw.lt_of_le_of_lt {a b c : Pos.Raw} : a ≤ b → b < c → a < c := by
   simpa [le_iff, lt_iff] using Nat.lt_of_le_of_lt
 
@@ -295,6 +309,10 @@ protected abbrev Pos.Raw.min (p₁ p₂ : Pos.Raw) : Pos.Raw :=
 @[export lean_string_pos_min]
 def Pos.Raw.Internal.minImpl (p₁ p₂ : Pos.Raw) : Pos.Raw :=
   Pos.Raw.min p₁ p₂
+
+theorem Pos.Raw.unoffsetBy_lt_unoffsetBy_of_le_of_lt {p₁ p₂ p₃ : Pos.Raw} :
+    p₁ < p₂ → p₁ < p₃ → p₂.unoffsetBy p₃ < p₂.unoffsetBy p₁ := by
+  simpa [Pos.Raw.lt_iff] using Nat.sub_lt_sub_left
 
 namespace Pos.Raw
 

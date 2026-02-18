@@ -7,7 +7,9 @@ module
 
 prelude
 public import Init.Data.Order.ClassesExtra
-public import Init.Data.Order.LemmasExtra
+public import Init.Data.Order.Classes
+import Init.Data.Order.FactoriesExtra
+import Init.Data.Order.Lemmas
 
 public section
 
@@ -50,7 +52,7 @@ def max' [LE α] [DecidableLE α] (a b : α) : α :=
 Without the `open scoped` command, Lean would not find the required {lit}`DecidableLE α`
 instance for the opposite order.
 -/
-def LE.opposite (le : LE α) : LE α where
+@[instance_reducible] def LE.opposite (le : LE α) : LE α where
   le a b := b ≤ a
 
 theorem LE.opposite_def {le : LE α} :
@@ -193,38 +195,30 @@ scoped instance (priority := low) instLEReflOpposite {i : LE α} [Refl (α := α
 scoped instance (priority := low) instLESymmOpposite {i : LE α} [Symm (α := α) (· ≤ ·)] :
     haveI := i.opposite
     Symm (α := α) (· ≤ ·) :=
-  letI := i.opposite
   { symm a b hab := by
-      simp +instances only [LE.opposite] at *
-      letI := i
+      simp [LE.le] at hab ⊢
       exact Symm.symm b a hab }
 
 scoped instance (priority := low) instLEAntisymmOpposite {i : LE α} [Antisymm (α := α) (· ≤ ·)] :
     haveI := i.opposite
     Antisymm (α := α) (· ≤ ·) :=
-  letI := i.opposite
   { antisymm a b hab hba := by
-      simp +instances only [LE.opposite] at *
-      letI := i
+      simp [LE.le] at hab hba
       exact le_antisymm hba hab }
 
 scoped instance (priority := low) instLEAsymmOpposite {i : LE α} [Asymm (α := α) (· ≤ ·)] :
     haveI := i.opposite
     Asymm (α := α) (· ≤ ·) :=
-  letI := i.opposite
   { asymm a b hab := by
-      simp +instances only [LE.opposite] at *
-      letI := i
+      simp [LE.le] at hab ⊢
       exact Asymm.asymm b a hab }
 
 scoped instance (priority := low) instLETransOpposite {i : LE α}
     [Trans (· ≤ ·) (· ≤ ·) (· ≤ · : α → α → Prop)] :
     haveI := i.opposite
     Trans (· ≤ ·) (· ≤ ·) (· ≤ · : α → α → Prop) :=
-  letI := i.opposite
   { trans hab hbc := by
-      simp +instances only [LE.opposite] at *
-      letI := i
+      simp [LE.le] at hab hbc ⊢
       exact Trans.trans hbc hab }
 
 scoped instance (priority := low) instLETotalOpposite {i : LE α} [Total (α := α) (· ≤ ·)] :
@@ -268,16 +262,15 @@ scoped instance (priority := low) instLawfulOrderOrdOpposite {il : LE α} {io : 
     haveI := il.opposite
     haveI := io.opposite
     LawfulOrderOrd α :=
-  letI := il.opposite
-  letI := io.opposite
-  { isLE_compare a b := by
-      simp +instances only [LE.opposite, Ord.opposite]
-      letI := il; letI := io
-      apply isLE_compare
-    isGE_compare a b := by
-      simp +instances only [LE.opposite, Ord.opposite]
-      letI := il; letI := io
-      apply isGE_compare }
+      @LawfulOrderOrd.mk α io.opposite il.opposite
+        (by intros a b
+            simp +instances only [LE.opposite, Ord.opposite]
+            try simp [compare, LE.le]
+            apply isLE_compare)
+        (by intros a b
+            simp +instances only [LE.opposite, Ord.opposite]
+            try simp [compare, LE.le]
+            apply isGE_compare)
 
 scoped instance (priority := low) instLawfulOrderLTOpposite {il : LE α} {it : LT α}
     [LawfulOrderLT α] :

@@ -860,7 +860,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l_List_foldl___at___00Lean_initFn_00___x40_Lean_Compiler_ClosedTermCache_3608529163____hygCtx___hyg_2__spec__3___closed__2));
 x_2 = lean_unsigned_to_nat(14u);
-x_3 = lean_unsigned_to_nat(174u);
+x_3 = lean_unsigned_to_nat(177u);
 x_4 = ((lean_object*)(l_List_foldl___at___00Lean_initFn_00___x40_Lean_Compiler_ClosedTermCache_3608529163____hygCtx___hyg_2__spec__3___closed__1));
 x_5 = ((lean_object*)(l_List_foldl___at___00Lean_initFn_00___x40_Lean_Compiler_ClosedTermCache_3608529163____hygCtx___hyg_2__spec__3___closed__0));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);

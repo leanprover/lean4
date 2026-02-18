@@ -8,7 +8,9 @@ module
 prelude
 public import Init.Data.Nat.Fold
 public import Init.Data.UInt.Basic
-import Init.Data.String.Basic
+import Init.Data.String.Defs
+import Init.Data.ToString.Macro
+import Init.Omega
 
 public section
 

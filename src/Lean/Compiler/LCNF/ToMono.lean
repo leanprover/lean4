@@ -9,8 +9,8 @@ prelude
 public import Lean.Compiler.ImplementedByAttr
 public import Lean.Compiler.LCNF.InferType
 public import Lean.Compiler.NoncomputableAttr
-import Lean.Compiler.LCNF.MonoTypes
-public import Lean.Compiler.LCNF.Irrelevant
+public import Lean.Compiler.LCNF.MonoTypes
+import Init.While
 
 public section
 

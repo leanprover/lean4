@@ -6,10 +6,9 @@ Authors: Sebastian Graf
 module
 
 prelude
-public import Lean.Elab.Term.TermElabM
 public import Lean.Elab.Binders
 import Lean.Meta.ProdN
-meta import Lean.Parser.Do
+import Init.Omega
 
 public section
 

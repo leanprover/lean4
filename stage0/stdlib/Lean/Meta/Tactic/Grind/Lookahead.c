@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.Lookahead
-// Imports: public import Lean.Meta.Tactic.Grind.Types import Lean.Meta.Tactic.Grind.Intro import Lean.Meta.Tactic.Grind.Action import Lean.Meta.Tactic.Grind.Split import Lean.Meta.Tactic.Grind.EMatch import Lean.Meta.Tactic.Grind.EMatchAction
+// Imports: public import Lean.Meta.Tactic.Grind.Types import Lean.Meta.Tactic.Grind.Split import Lean.Meta.Tactic.Grind.EMatchAction
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -7636,10 +7636,7 @@ return x_18;
 }
 }
 lean_object* initialize_Lean_Meta_Tactic_Grind_Types(uint8_t builtin);
-lean_object* initialize_Lean_Meta_Tactic_Grind_Intro(uint8_t builtin);
-lean_object* initialize_Lean_Meta_Tactic_Grind_Action(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Split(uint8_t builtin);
-lean_object* initialize_Lean_Meta_Tactic_Grind_EMatch(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Grind_EMatchAction(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Grind_Lookahead(uint8_t builtin) {
@@ -7649,16 +7646,7 @@ _G_initialized = true;
 res = initialize_Lean_Meta_Tactic_Grind_Types(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Grind_Intro(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Grind_Action(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Grind_Split(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Grind_EMatch(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Grind_EMatchAction(builtin);

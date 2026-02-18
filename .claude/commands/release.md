@@ -103,6 +103,15 @@ Every time you run `release_checklist.py`, you MUST:
 This summary should be provided EVERY time you run the checklist, not just after creating new PRs.
 The user needs to see the complete picture of what's waiting for review.
 
+## Checking PR Status When Asked
+
+When the user asks for "status" or you need to report on PRs between checklist runs:
+- **ALWAYS check actual PR state** using `gh pr view <number> --repo <repo> --json state,mergedAt`
+- Do NOT rely on cached CI results or previous checklist output
+- The user may have merged PRs since your last check
+- Report which PRs are MERGED, which are OPEN with CI status, and which are still pending
+- After discovering merged PRs, rerun `release_checklist.py` to advance the release process
+
 ## Nightly Infrastructure
 
 The nightly build system uses branches and tags across two repositories:

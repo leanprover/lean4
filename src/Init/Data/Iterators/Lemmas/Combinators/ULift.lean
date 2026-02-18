@@ -8,9 +8,12 @@ module
 prelude
 public import Init.Data.Iterators.Combinators.ULift
 import all Init.Data.Iterators.Combinators.ULift
-public import Init.Data.Iterators.Lemmas.Combinators.Monadic.ULift
-public import Init.Data.Iterators.Lemmas.Consumers.Collect
-public import Init.Data.Iterators.Lemmas.Consumers.Loop
+public import Init.Data.Iterators.Consumers.Collect
+public import Init.Data.Iterators.Consumers.Loop
+import Init.Data.Array.Lemmas
+import Init.Data.Iterators.Lemmas.Combinators.Monadic.ULift
+import Init.Data.Iterators.Lemmas.Consumers.Collect
+import Init.Data.Iterators.Lemmas.Consumers.Loop
 
 public section
 
@@ -23,6 +26,7 @@ theorem Iter.uLift_eq_toIter_uLift_toIterM {it : Iter (α := α) β} :
     it.uLift = (it.toIterM.uLift Id).toIter :=
   rfl
 
+set_option backward.isDefEq.respectTransparency false in
 theorem Iter.step_uLift [Iterator α Id β] {it : Iter (α := α) β} :
     it.uLift.step = match it.step with
       | .yield it' out h => .yield it'.uLift (.up out) ⟨_, h, rfl⟩
@@ -35,6 +39,7 @@ theorem Iter.step_uLift [Iterator α Id β] {it : Iter (α := α) β} :
     PlausibleIterStep.done, pure_bind]
   cases it.toIterM.step.run.inflate using PlausibleIterStep.casesOn <;> simp
 
+set_option backward.isDefEq.respectTransparency false in
 @[simp]
 theorem Iter.toList_uLift [Iterator α Id β] {it : Iter (α := α) β}
     [Finite α Id] :
@@ -56,6 +61,7 @@ theorem Iter.toArray_uLift [Iterator α Id β] {it : Iter (α := α) β}
   rw [← toArray_toList, ← toArray_toList, toList_uLift]
   simp [-toArray_toList]
 
+set_option backward.isDefEq.respectTransparency false in
 @[simp]
 theorem Iter.length_uLift [Iterator α Id β] {it : Iter (α := α) β}
     [Finite α Id] [IteratorLoop α Id Id] [LawfulIteratorLoop α Id Id] :

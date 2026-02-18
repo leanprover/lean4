@@ -235,6 +235,7 @@ theorem Iter.Equiv.trans {α₁ α₂ α₃ β : Type w}
     (hbc : Iter.Equiv itb itc) : Iter.Equiv ita itc :=
   BundledIterM.Equiv.trans hab hbc
 
+set_option backward.isDefEq.respectTransparency false in
 theorem IterM.Equiv.of_morphism {α₁ α₂} {m : Type w → Type w'} [Monad m] [LawfulMonad m]
     {β : Type w} [Iterator α₁ m β] [Iterator α₂ m β]
     (ita : IterM (α := α₁) m β)

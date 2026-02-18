@@ -8,13 +8,19 @@ module
 prelude
 public import Init.Data.Option.Attach
 public import Init.Data.List.Perm
-public import Init.Data.List.Monadic
 public import Std.Data.Internal.List.Defs
 import all Std.Data.Internal.List.Defs
-public import Init.Data.Order.Ord
-import Init.Data.Subtype.Order
-public import Init.Data.Order.ClassesExtra
 public import Init.Data.Order.LemmasExtra
+public import Init.Data.Bool
+import Init.ByCases
+import Init.Data.List.Count
+import Init.Data.List.Erase
+import Init.Data.List.Find
+import Init.Data.List.MinMax
+import Init.Data.List.Pairwise
+import Init.Data.List.Sublist
+import Init.Data.Prod
+import Init.Omega
 
 public section
 
@@ -7782,6 +7788,16 @@ theorem Const.perm_of_beqModel {β : Type v} [BEq α] [LawfulBEq α] [BEq β] [L
   rw [← beqModel_eq_constBeqModel]
   intro hyp
   apply List.perm_of_beqModel hl₁ hl₂ hyp
+
+theorem beqModel_iff_perm [BEq α] [LawfulBEq α] [∀ k, BEq (β k)] [∀ k, LawfulBEq (β k)]
+    {l₁ l₂ : List ((a : α) × β a)} (hl₁ : DistinctKeys l₁) (hl₂ : DistinctKeys l₂) :
+    beqModel l₁ l₂ ↔ l₁.Perm l₂ :=
+  ⟨perm_of_beqModel hl₁ hl₂, beqModel_eq_true_of_perm hl₁⟩
+
+theorem Const.beqModel_iff_perm {β : Type v} [BEq α] [LawfulBEq α] [BEq β] [LawfulBEq β]
+    {l₁ l₂ : List ((_ : α) × β)} (hl₁ : DistinctKeys l₁) (hl₂ : DistinctKeys l₂) :
+    beqModel l₁ l₂ ↔ l₁.Perm l₂ :=
+  ⟨perm_of_beqModel hl₁ hl₂, beqModel_eq_true_of_perm hl₁⟩
 
 namespace Const
 

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Clear
-// Imports: public import Lean.Meta.Tactic.Util
+// Imports: public import Lean.Meta.Tactic.Util import Init.Data.Nat.Order import Init.Data.Order.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -3232,14 +3232,14 @@ x_46 = l___private_Init_Data_Array_Basic_0__Array_findFinIdx_x3f_loop(lean_box(0
 if (lean_obj_tag(x_46) == 0)
 {
 x_10 = x_38;
-x_11 = x_35;
-x_12 = x_41;
+x_11 = lean_box(0);
+x_12 = x_35;
 x_13 = x_39;
-x_14 = x_40;
-x_15 = x_36;
-x_16 = lean_box(0);
-x_17 = x_37;
-x_18 = x_45;
+x_14 = x_36;
+x_15 = x_45;
+x_16 = x_41;
+x_17 = x_40;
+x_18 = x_37;
 x_19 = x_44;
 goto block_32;
 }
@@ -3251,14 +3251,14 @@ lean_inc(x_47);
 lean_dec_ref(x_46);
 x_48 = l_Array_eraseIdx___redArg(x_44, x_47);
 x_10 = x_38;
-x_11 = x_35;
-x_12 = x_41;
+x_11 = lean_box(0);
+x_12 = x_35;
 x_13 = x_39;
-x_14 = x_40;
-x_15 = x_36;
-x_16 = lean_box(0);
-x_17 = x_37;
-x_18 = x_45;
+x_14 = x_36;
+x_15 = x_45;
+x_16 = x_41;
+x_17 = x_40;
+x_18 = x_37;
 x_19 = x_48;
 goto block_32;
 }
@@ -3267,8 +3267,8 @@ else
 {
 uint8_t x_49; 
 lean_dec_ref(x_38);
-lean_dec_ref(x_37);
-lean_dec(x_36);
+lean_dec(x_37);
+lean_dec_ref(x_36);
 lean_dec(x_35);
 lean_dec_ref(x_34);
 lean_dec_ref(x_4);
@@ -3337,8 +3337,8 @@ if (x_68 == 0)
 lean_free_object(x_65);
 lean_dec(x_2);
 x_35 = x_60;
-x_36 = x_59;
-x_37 = x_64;
+x_36 = x_64;
+x_37 = x_59;
 x_38 = x_53;
 x_39 = x_54;
 x_40 = x_55;
@@ -3368,8 +3368,8 @@ if (lean_obj_tag(x_75) == 0)
 {
 lean_dec_ref(x_75);
 x_35 = x_60;
-x_36 = x_59;
-x_37 = x_64;
+x_36 = x_64;
+x_37 = x_59;
 x_38 = x_53;
 x_39 = x_54;
 x_40 = x_55;
@@ -3417,8 +3417,8 @@ if (x_80 == 0)
 {
 lean_dec(x_2);
 x_35 = x_60;
-x_36 = x_59;
-x_37 = x_64;
+x_36 = x_64;
+x_37 = x_59;
 x_38 = x_53;
 x_39 = x_54;
 x_40 = x_55;
@@ -3448,8 +3448,8 @@ if (lean_obj_tag(x_88) == 0)
 {
 lean_dec_ref(x_88);
 x_35 = x_60;
-x_36 = x_59;
-x_37 = x_64;
+x_36 = x_64;
+x_37 = x_59;
 x_38 = x_53;
 x_39 = x_54;
 x_40 = x_55;
@@ -3596,7 +3596,7 @@ block_32:
 {
 uint8_t x_20; lean_object* x_21; 
 x_20 = 2;
-x_21 = l_Lean_Meta_mkFreshExprMVarAt(x_18, x_19, x_17, x_20, x_15, x_11, x_10, x_13, x_14, x_12);
+x_21 = l_Lean_Meta_mkFreshExprMVarAt(x_15, x_19, x_14, x_20, x_18, x_12, x_10, x_13, x_17, x_16);
 lean_dec_ref(x_10);
 if (lean_obj_tag(x_21) == 0)
 {
@@ -4196,12 +4196,20 @@ return x_8;
 }
 }
 lean_object* initialize_Lean_Meta_Tactic_Util(uint8_t builtin);
+lean_object* initialize_Init_Data_Nat_Order(uint8_t builtin);
+lean_object* initialize_Init_Data_Order_Lemmas(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Clear(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Lean_Meta_Tactic_Util(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Nat_Order(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Order_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_localDeclDependsOn___at___00Lean_MVarId_clear_spec__0___redArg___closed__1 = _init_l_Lean_localDeclDependsOn___at___00Lean_MVarId_clear_spec__0___redArg___closed__1();

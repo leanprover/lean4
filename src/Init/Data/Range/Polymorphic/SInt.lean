@@ -8,12 +8,13 @@ module
 prelude
 
 public import Init.Data.Range.Polymorphic.Instances
-public import Init.Data.Order.Lemmas
 public import Init.Data.SInt
-import Init.Data.Range.Polymorphic.UInt
 import all Init.Data.SInt.Basic
 
 import all Init.Data.Range.Polymorphic.Internal.SignedBitVec
+import Init.ByCases
+import Init.Data.Int.LemmasAux
+import Init.System.Platform
 
 open Std Std.PRange
 

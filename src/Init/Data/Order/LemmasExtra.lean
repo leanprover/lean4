@@ -6,9 +6,14 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Order.FactoriesExtra
-public import Init.Data.Order.Lemmas
 import Init.ByCases
+public import Init.Classical
+public import Init.Data.Order.Classes
+public import Init.Data.Order.ClassesExtra
+public import Init.Data.Order.Ord
+import Init.Data.Bool
+import Init.Data.Order.FactoriesExtra
+import Init.Data.Order.Lemmas
 
 namespace Std
 

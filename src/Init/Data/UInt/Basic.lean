@@ -7,7 +7,6 @@ module
 
 prelude
 public import Init.Data.BitVec.Basic
-import Init.Data.Order.Factories
 
 @[expose] public section
 

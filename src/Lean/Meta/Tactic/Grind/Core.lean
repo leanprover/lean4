@@ -9,10 +9,10 @@ public import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Inv
 import Lean.Meta.Tactic.Grind.PP
 import Lean.Meta.Tactic.Grind.Ctor
-import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Tactic.Grind.Beta
 import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.Internalize
+import Init.Omega
 public section
 namespace Lean.Meta.Grind
 
@@ -73,7 +73,10 @@ private def closeGoalWithTrueEqFalse : GoalM Unit := do
     let falseProof := mkApp4 (mkConst ``Eq.mp [levelZero]) (← getTrueExpr) (← getFalseExpr) trueEqFalse (mkConst ``True.intro)
     closeGoal falseProof
 
-/-- Closes the goal when `lhs` and `rhs` are both literal values and belong to the same equivalence class. -/
+/--
+Closes the goal when `lhs` and `rhs` are both literal values and belong to the same equivalence class,
+and have the same type.
+-/
 private def closeGoalWithValuesEq (lhs rhs : Expr) : GoalM Unit := do
   let p ← mkEq lhs rhs
   let hp ← mkEqProof lhs rhs
@@ -168,7 +171,10 @@ private partial def addEqStep (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit
       markAsInconsistent
       trueEqFalse := true
     else
-      valueInconsistency := true
+      let hasHEq := isHEq || lhsRoot.heqProofs || rhsRoot.heqProofs
+      -- **Note**: We only have to check the types if there are heterogenous equalities.
+      if (← pure !hasHEq <||> hasSameType lhsRoot.self rhsRoot.self) then
+        valueInconsistency := true
   if    (lhsRoot.interpreted && !rhsRoot.interpreted)
      || (lhsRoot.ctor && !rhsRoot.ctor)
      || (lhsRoot.size > rhsRoot.size && !rhsRoot.interpreted && !rhsRoot.ctor) then

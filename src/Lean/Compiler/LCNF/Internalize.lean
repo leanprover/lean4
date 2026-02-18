@@ -104,6 +104,22 @@ private partial def internalizeLetValue (e : LetValue pu) : InternalizeM pu (Let
   | .fvar fvarId args => match (← normFVar fvarId) with
     | .fvar fvarId' => return e.updateFVar! fvarId' (← internalizeArgs args)
     | .erased => return .erased
+  | .reset n fvarId _ =>
+    match (← normFVar fvarId) with
+    | .fvar fvarId' => return e.updateReset! n fvarId'
+    | .erased => return .erased
+  | .reuse fvarId info updateHeader args _ =>
+    match (← normFVar fvarId) with
+    | .fvar fvarId' => return e.updateReuse! fvarId' info updateHeader (← internalizeArgs args)
+    | .erased => return .erased
+  | .unbox fvarId _ =>
+    match (← normFVar fvarId) with
+    | .fvar fvarId' => return e.updateUnbox! fvarId'
+    | .erased => return .erased
+  | .box ty fvarId _ =>
+    match (← normFVar fvarId) with
+    | .fvar fvarId' => return e.updateBox! ty fvarId'
+    | .erased => return .erased
 
 def internalizeLetDecl (decl : LetDecl pu) : InternalizeM pu (LetDecl pu) := do
   let binderName ← refreshBinderName decl.binderName
@@ -150,6 +166,12 @@ partial def internalizeCode (code : Code pu) : InternalizeM pu (Code pu) := do
     withNormFVarResult (← normFVar fvarId) fun fvarId => do
     withNormFVarResult (← normFVar y) fun y => do
       return .uset fvarId offset y (← internalizeCode k)
+  | .inc fvarId n check persistent k _ =>
+    withNormFVarResult (← normFVar fvarId) fun fvarId => do
+      return .inc fvarId n check persistent (← internalizeCode k)
+  | .dec fvarId n check persistent k _ =>
+    withNormFVarResult (← normFVar fvarId) fun fvarId => do
+      return .dec fvarId n check persistent (← internalizeCode k)
 
 end
 
@@ -168,6 +190,12 @@ partial def internalizeCodeDecl (decl : CodeDecl pu) : InternalizeM pu (CodeDecl
     let .fvar y ← normFVar y | unreachable!
     let ty ← normExpr ty
     return .sset var i offset y ty
+  | .inc fvarId n check offset _ =>
+    let .fvar fvarId ← normFVar fvarId | unreachable!
+    return .inc fvarId n check offset
+  | .dec fvarId n check offset _ =>
+    let .fvar fvarId ← normFVar fvarId | unreachable!
+    return .dec fvarId n check offset
 
 
 end Internalize

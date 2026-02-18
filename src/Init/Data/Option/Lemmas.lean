@@ -9,9 +9,12 @@ prelude
 import all Init.Data.Option.BasicAux
 public import Init.Data.Option.Instances
 import all Init.Data.Option.Instances
-public import Init.Data.BEq
-public import Init.Classical
 public import Init.Ext
+public import Init.Data.Option.BasicAux
+public import Init.PropLemmas
+import Init.Classical
+import Init.Data.BEq
+import Init.Data.Bool
 
 public section
 
@@ -741,7 +744,7 @@ theorem elim_guard : (guard p a).elim b f = if p a then f a else b := by
   cases h : p a <;> simp [*, guard]
 
 @[simp]
-theorem Option.elim_map {f : α → β} {g' : γ} {g : β → γ} (o : Option α) :
+theorem elim_map {f : α → β} {g' : γ} {g : β → γ} (o : Option α) :
     (o.map f).elim g' g = o.elim g' (g ∘ f) := by
   cases o <;> simp
 

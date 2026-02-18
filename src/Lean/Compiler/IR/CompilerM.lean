@@ -8,8 +8,10 @@ module
 prelude
 public import Lean.Compiler.IR.Format
 public import Lean.Compiler.ExportAttr
-public import Lean.Compiler.LCNF.PhaseExt
+public import Lean.Compiler.LCNF.PublicDeclsExt
 import Lean.Compiler.InitAttr
+import Init.Data.Format.Macro
+import Lean.Compiler.LCNF.Basic
 
 public section
 
@@ -111,7 +113,7 @@ private def exportIREntries (env : Environment) : Array (Name × Array EnvExtens
     (Lean.regularInitAttr.ext.name, initDecls)]
 
 def findEnvDecl (env : Environment) (declName : Name) : Option Decl :=
-  Lean.Compiler.LCNF.findExtEntry? env declMapExt declName findAtSorted? (·.2.find?)
+  Compiler.LCNF.findExtEntry? env declMapExt declName findAtSorted? (·.2.find?)
 
 @[export lean_ir_find_env_decl]
 private def findInterpDecl (env : Environment) (declName : Name) (includeServer := false) : Option Decl :=
@@ -124,20 +126,10 @@ private def findInterpDecl (env : Environment) (declName : Name) (includeServer 
     findAtSorted? (declMapExt.getModuleEntries env modIdx) declName
   | none => declMapExt.getState env |>.find? declName
 
-namespace ExplicitBoxing
-
-def mkBoxedName (n : Name) : Name :=
-  Name.mkStr n "_boxed"
-
-def isBoxedName (name : Name) : Bool :=
-  name matches .str _ "_boxed"
-
-end ExplicitBoxing
-
 /-- Like ``findInterpDecl env (declName ++ `_boxed)`` but with optimized negative lookup. -/
 @[export lean_ir_find_env_decl_boxed]
 private def findInterpDeclBoxed (env : Environment) (declName : Name) : Option Decl :=
-  let boxed := ExplicitBoxing.mkBoxedName declName
+  let boxed := Compiler.LCNF.mkBoxedName declName
   -- Important: get module index of base name, not boxed version. Usually the interpreter never
   -- does negative lookups except in the case of `call_boxed` which must check whether a boxed
   -- version exists. If `declName` exists as an imported declaration but `declName'` doesn't, the

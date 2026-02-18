@@ -8,6 +8,9 @@ module
 prelude
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Basic
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Replicate
+import Init.ByCases
+import Init.Data.Nat.Mod
+import Init.Omega
 
 @[expose] public section
 
@@ -49,6 +52,7 @@ theorem aux4 {a b c : Nat} (hidx : a < b * c) (h : c ≤ n) : a < b * n := by
   | inl h => apply aux3 <;> assumption
   | inr h => simp_all
 
+set_option backward.isDefEq.respectTransparency false in
 theorem go_get_aux (aig : AIG α) (n : Nat) (curr : Nat) (hcurr : curr ≤ n)
     (input : AIG.RefVec aig w) (s : AIG.RefVec aig (w * curr)) :
     ∀ (idx : Nat) (hidx : idx < w * curr),
@@ -69,6 +73,7 @@ theorem go_get_aux (aig : AIG α) (n : Nat) (curr : Nat) (hcurr : curr ≤ n)
     simp
 termination_by n - curr
 
+set_option backward.isDefEq.respectTransparency false in
 theorem go_get (aig : AIG α) (n : Nat) (curr : Nat) (hcurr : curr ≤ n)
     (input : AIG.RefVec aig w) (s : AIG.RefVec aig (w * curr)) :
     ∀ (idx : Nat) (hidx1 : idx < w * n),

@@ -8,9 +8,7 @@ module
 prelude
 public import Lean.Meta.Structure
 public import Lean.Elab.MutualInductive
-import Lean.Linter.Basic
-import Lean.DocString
-import Lean.DocString.Extension
+import Init.Omega
 
 public section
 
@@ -414,7 +412,8 @@ def structCtor           := leading_parser try (declModifiers >> ident >> " :: "
 def structureSyntaxToView (modifiers : Modifiers) (stx : Syntax) : TermElabM StructView := do
   checkValidInductiveModifier modifiers
   let isClass   := stx[0].getKind == ``Parser.Command.classTk
-  let modifiers := if isClass then modifiers.addAttr { name := `class } else modifiers
+  -- **Note**: We use `addFirstAttr` to make sure the `[class]` attribute is processed **before** `[univ_out_params]`
+  let modifiers := if isClass then modifiers.addFirstAttr { name := `class } else modifiers
   let declId    := stx[1]
   let ⟨name, declName, levelNames, docString?⟩ ← Term.expandDeclId (← getCurrNamespace) (← Term.getLevelNames) declId modifiers
   if modifiers.isMeta then
@@ -1538,25 +1537,6 @@ def elabStructureCommand : InductiveElabDescr where
                   mkRemainingProjections levelParams params view
               setStructureParents view.declName parentInfos
 
-              if let some (doc, isVerso) := view.docString? then
-                addDocStringOf isVerso view.declName view.binders doc
-              if let some (doc, isVerso) := view.ctor.modifiers.docString? then
-                addDocStringOf isVerso view.ctor.declName view.ctor.binders doc
-              for field in view.fields do
-                  -- may not exist if overriding inherited field
-                if (← getEnv).contains field.declName then
-                  if let some (doc, isVerso) := field.modifiers.docString? then
-                    addDocStringOf isVerso field.declName field.binders doc
-
-              withSaveInfoContext do  -- save new env
-                for field in view.fields do
-                  -- may not exist if overriding inherited field
-                  if (← getEnv).contains field.declName then
-                    Term.addTermInfo' field.ref (← mkConstWithLevelParams field.declName) (isBinder := true)
-                -- Add terminfo for parents now that all parent projections exist.
-                for parent in parents do
-                  if parent.addTermInfo then
-                    Term.addTermInfo' parent.ref (← mkConstWithLevelParams parent.declName) (isBinder := true)
               checkResolutionOrder view.declName
               return {
                 finalize := do
@@ -1567,6 +1547,23 @@ def elabStructureCommand : InductiveElabDescr where
                       enableRealizationsForConst fieldInfo.declName
                   if view.isClass then
                     addParentInstances parentInfos
+                  -- Add field docstrings here (after @[class] attribute is applied)
+                  -- so that Verso docstrings can use the class.
+                  for field in view.fields do
+                    -- may not exist if overriding inherited field
+                    if (← getEnv).contains field.declName then
+                      if let some (doc, isVerso) := field.modifiers.docString? then
+                        addDocStringOf isVerso field.declName field.binders doc
+                  -- Add terminfo after docstrings so hovers include the docstring.
+                  withSaveInfoContext do
+                    for field in view.fields do
+                      -- may not exist if overriding inherited field
+                      if (← getEnv).contains field.declName then
+                        Term.addTermInfo' field.ref (← mkConstWithLevelParams field.declName) (isBinder := true)
+                    -- Add terminfo for parents now that all parent projections exist.
+                    for parent in parents do
+                      if parent.addTermInfo then
+                        Term.addTermInfo' parent.ref (← mkConstWithLevelParams parent.declName) (isBinder := true)
               }
           }
     }

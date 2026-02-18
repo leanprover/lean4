@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.PrettyPrinter.Delaborator.Options
 public import Lean.Compiler.LCNF.Internalize
+import Init.Data.Format.Macro
 
 public section
 
@@ -88,6 +89,11 @@ def ppLetValue (e : LetValue pu) : M Format := do
   | .oproj i fvarId _ => return f!"proj[{i}] {← ppFVar fvarId}"
   | .uproj i fvarId _ => return f!"uproj[{i}] {← ppFVar fvarId}"
   | .sproj i offset fvarId _ => return f!"sproj[{i}, {offset}] {← ppFVar fvarId}"
+  | .reset n fvarId _ => return f!"reset[{n}] {← ppFVar fvarId}"
+  | .reuse fvarId info updateHeader args _ =>
+    return f!"reuse" ++ (if updateHeader then f!"!" else f!"") ++ f!" {← ppFVar fvarId} in {info}{← ppArgs args}"
+  | .box _ fvarId _ => return f!"box {← ppFVar fvarId}"
+  | .unbox fvarId _ => return f!"unbox {← ppFVar fvarId}"
 
 def ppParam (param : Param pu) : M Format := do
   let borrow := if param.borrow then "@&" else ""
@@ -143,6 +149,16 @@ mutual
         return f!"sset {← ppFVar fvarId} [{i}, {offset}] := {← ppFVar y} " ++ ";" ++ .line ++ (← ppCode k)
     | .uset fvarId i y k _ =>
       return f!"uset {← ppFVar fvarId} [{i}] := {← ppFVar y} " ++ ";" ++ .line ++ (← ppCode k)
+    | .inc fvarId n _ _ k _ =>
+      if n != 1 then
+        return f!"inc[{n}] {← ppFVar fvarId};" ++ .line ++ (← ppCode k)
+      else
+        return f!"inc {← ppFVar fvarId};" ++ .line ++ (← ppCode k)
+    | .dec fvarId n _ _ k _ =>
+      if n != 1 then
+        return f!"dec[{n}] {← ppFVar fvarId};" ++ .line ++ (← ppCode k)
+      else
+        return f!"dec {← ppFVar fvarId};" ++ .line ++ (← ppCode k)
 
 
   partial def ppDeclValue (b : DeclValue pu) : M Format := do

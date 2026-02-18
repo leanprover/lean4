@@ -4,11 +4,15 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: François G. Dorais
 -/
 module
-
 prelude
 public import Init.Control.Lawful.Basic
-public import Init.Data.Fin.Lemmas
-
+public import Init.Ext
+import Init.Data.Fin.Lemmas
+import Init.Data.Nat.Lemmas
+import Init.Omega
+import Init.TacticsExtra
+import Init.WFTactics
+import Init.Hints
 public section
 
 namespace Fin
@@ -160,7 +164,7 @@ theorem foldlM_add [Monad m] [LawfulMonad m] (f : α → Fin (n + k) → m α) :
     simp
   | succ k ih =>
     funext x
-    simp [foldlM_succ_last, ← Nat.add_assoc, ih]
+    simp [foldlM_succ_last, ← Nat.add_assoc, ih]; rfl
 
 /-! ### foldrM -/
 
@@ -218,7 +222,7 @@ theorem foldrM_add [Monad m] [LawfulMonad m] (f : Fin (n + k) → α → m α) :
     simp
   | succ k ih =>
     funext x
-    simp [foldrM_succ_last, ← Nat.add_assoc, ih]
+    simp [foldrM_succ_last, ← Nat.add_assoc, ih]; rfl
 
 /-! ### foldl -/
 
@@ -264,7 +268,7 @@ theorem foldl_add (f : α → Fin (n + m) → α) (x) :
         (foldl n (fun x i => f x (i.castLE (Nat.le_add_right n m))) x):= by
   induction m with
   | zero => simp
-  | succ m ih => simp [foldl_succ_last, ih, ← Nat.add_assoc]
+  | succ m ih => simp [foldl_succ_last, ih, ← Nat.add_assoc]; rfl
 
 theorem foldl_eq_foldlM (f : α → Fin n → α) (x) :
     foldl n f x = (foldlM (m := Id) n (pure <| f · ·) x).run := by
@@ -317,7 +321,7 @@ theorem foldr_add (f : Fin (n + m) → α → α) (x) :
         (foldr m (fun i => f (i.natAdd n)) x) := by
   induction m generalizing x with
   | zero => simp
-  | succ m ih => simp [foldr_succ_last, ih, ← Nat.add_assoc]
+  | succ m ih => simp [foldr_succ_last, ih, ← Nat.add_assoc]; rfl
 
 theorem foldr_eq_foldrM (f : Fin n → α → α) (x) :
     foldr n f x = (foldrM (m := Id) n (pure <| f · ·) x).run := by

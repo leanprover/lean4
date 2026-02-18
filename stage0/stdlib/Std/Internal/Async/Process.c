@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Internal.Async.Process
-// Imports: public import Std.Time public import Std.Internal.UV.System public import Std.Data.HashMap
+// Imports: public import Std.Time public import Std.Internal.UV.System public import Std.Data.HashMap import Init.Data.Ord.UInt
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -887,9 +887,9 @@ _start:
 {
 uint64_t x_3; uint64_t x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_4 = lean_unbox_uint64(x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_5 = l_Std_Internal_IO_Process_instDecidableEqPId_decEq(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
@@ -908,9 +908,9 @@ _start:
 {
 uint64_t x_3; uint64_t x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_4 = lean_unbox_uint64(x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_5 = l_Std_Internal_IO_Process_instDecidableEqPId(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
@@ -951,9 +951,9 @@ _start:
 {
 uint64_t x_3; uint64_t x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_4 = lean_unbox_uint64(x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_5 = l_Std_Internal_IO_Process_instOrdPId_ord(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
@@ -980,7 +980,7 @@ _start:
 {
 uint64_t x_3; lean_object* x_4; 
 x_3 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_4 = l_Std_Internal_IO_Process_instReprPId___lam__0(x_3, x_2);
 lean_dec(x_2);
 return x_4;
@@ -1208,7 +1208,7 @@ _start:
 {
 uint64_t x_3; lean_object* x_4; 
 x_3 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_4 = l_Std_Internal_IO_Process_getPriority(x_3);
 return x_4;
 }
@@ -1226,9 +1226,9 @@ _start:
 {
 uint64_t x_4; uint64_t x_5; lean_object* x_6; 
 x_4 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_5 = lean_unbox_uint64(x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_6 = l_Std_Internal_IO_Process_setPriority(x_4, x_5);
 return x_6;
 }
@@ -1439,6 +1439,7 @@ return x_2;
 lean_object* initialize_Std_Time(uint8_t builtin);
 lean_object* initialize_Std_Internal_UV_System(uint8_t builtin);
 lean_object* initialize_Std_Data_HashMap(uint8_t builtin);
+lean_object* initialize_Init_Data_Ord_UInt(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Internal_Async_Process(uint8_t builtin) {
 lean_object * res;
@@ -1451,6 +1452,9 @@ res = initialize_Std_Internal_UV_System(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Data_HashMap(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Ord_UInt(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__7 = _init_l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__7();

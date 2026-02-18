@@ -10,9 +10,7 @@ public import Init.Data.Slice.List.Basic
 public import Init.Data.Iterators.Producers.List
 public import Init.Data.Iterators.Combinators.Take
 import all Init.Data.Range.Polymorphic.Basic
-public import Init.Data.Range.Polymorphic.Iterators
 public import Init.Data.Slice.Operations
-import Init.Omega
 
 public section
 

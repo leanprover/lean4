@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.BinderPredicates
-// Imports: public import Init.NotationExtra
+// Imports: public meta import Init.Grind.Tactics public import Init.Notation import Init.Meta.Defs import Init.NotationExtra
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1812,12 +1812,24 @@ lean_dec_ref(x_2);
 return x_4;
 }
 }
+lean_object* initialize_Init_Grind_Tactics(uint8_t builtin);
+lean_object* initialize_Init_Notation(uint8_t builtin);
+lean_object* initialize_Init_Meta_Defs(uint8_t builtin);
 lean_object* initialize_Init_NotationExtra(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_BinderPredicates(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
+res = initialize_Init_Grind_Tactics(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Notation(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Meta_Defs(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Init_NotationExtra(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.Do.ProofMode.Have
-// Imports: public import Std.Tactic.Do.Syntax public import Lean.Elab.Tactic.Basic import Lean.Elab.Tactic.Do.ProofMode.Focus import Lean.Elab.Tactic.Do.ProofMode.Cases import Lean.Elab.Tactic.Do.ProofMode.Specialize
+// Imports: public import Std.Tactic.Do.Syntax public import Lean.Elab.Tactic.Basic import Lean.Elab.Tactic.Do.ProofMode.Focus import Lean.Elab.Tactic.ElabTerm
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -3851,8 +3851,7 @@ return x_2;
 lean_object* initialize_Std_Tactic_Do_Syntax(uint8_t builtin);
 lean_object* initialize_Lean_Elab_Tactic_Basic(uint8_t builtin);
 lean_object* initialize_Lean_Elab_Tactic_Do_ProofMode_Focus(uint8_t builtin);
-lean_object* initialize_Lean_Elab_Tactic_Do_ProofMode_Cases(uint8_t builtin);
-lean_object* initialize_Lean_Elab_Tactic_Do_ProofMode_Specialize(uint8_t builtin);
+lean_object* initialize_Lean_Elab_Tactic_ElabTerm(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_Tactic_Do_ProofMode_Have(uint8_t builtin) {
 lean_object * res;
@@ -3867,10 +3866,7 @@ lean_dec_ref(res);
 res = initialize_Lean_Elab_Tactic_Do_ProofMode_Focus(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_Do_ProofMode_Cases(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_Do_ProofMode_Specialize(builtin);
+res = initialize_Lean_Elab_Tactic_ElabTerm(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Elab_Tactic_Do_ProofMode_elabMDup_spec__0___redArg___closed__0 = _init_l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Elab_Tactic_Do_ProofMode_elabMDup_spec__0___redArg___closed__0();

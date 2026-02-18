@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.FuzzyMatching
-// Imports: public import Init.Data.Range.Polymorphic.Iterators public import Init.Data.Range.Polymorphic.Nat public import Init.Data.OfScientific public import Init.Data.Option.Coe public import Init.Data.Range import Init.Data.SInt.Basic import Init.Data.String.Basic import Lean.Server.Completion.CompletionUtils
+// Imports: public import Init.Data.Range.Polymorphic.Iterators public import Init.Data.Range.Polymorphic.Nat public import Init.Data.OfScientific public import Init.Data.Option.Coe public import Init.Data.Range import Lean.Server.Completion.CompletionUtils
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1847,7 +1847,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_Score_ofInt16_x21___closed__2));
 x_2 = lean_unsigned_to_nat(2u);
-x_3 = lean_unsigned_to_nat(126u);
+x_3 = lean_unsigned_to_nat(124u);
 x_4 = ((lean_object*)(l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_Score_ofInt16_x21___closed__1));
 x_5 = ((lean_object*)(l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_Score_ofInt16_x21___closed__0));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -2569,7 +2569,7 @@ return x_9;
 }
 else
 {
-lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_17; uint16_t x_18; lean_object* x_19; uint16_t x_20; uint16_t x_21; lean_object* x_22; lean_object* x_38; uint16_t x_39; uint16_t x_40; uint16_t x_43; uint8_t x_106; 
+lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_17; uint16_t x_18; lean_object* x_19; uint16_t x_20; uint16_t x_21; lean_object* x_22; uint16_t x_38; lean_object* x_39; uint16_t x_40; uint16_t x_43; uint8_t x_106; 
 x_14 = lean_ctor_get(x_9, 0);
 lean_inc(x_14);
 x_15 = lean_ctor_get(x_9, 1);
@@ -2667,9 +2667,9 @@ block_42:
 {
 uint16_t x_41; 
 x_41 = l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_Score_map___at___00__private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_fuzzyMatchCore_spec__2(x_7, x_10, x_40);
-x_20 = x_39;
+x_20 = x_38;
 x_21 = x_41;
-x_22 = x_38;
+x_22 = x_39;
 goto block_37;
 }
 block_105:
@@ -2782,15 +2782,15 @@ x_103 = l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_Score_map___at
 x_104 = lean_int16_dec_le(x_96, x_103);
 if (x_104 == 0)
 {
-x_38 = x_85;
-x_39 = x_43;
+x_38 = x_43;
+x_39 = x_85;
 x_40 = x_96;
 goto block_42;
 }
 else
 {
-x_38 = x_85;
-x_39 = x_43;
+x_38 = x_43;
+x_39 = x_85;
 x_40 = x_103;
 goto block_42;
 }
@@ -3737,8 +3737,6 @@ lean_object* initialize_Init_Data_Range_Polymorphic_Nat(uint8_t builtin);
 lean_object* initialize_Init_Data_OfScientific(uint8_t builtin);
 lean_object* initialize_Init_Data_Option_Coe(uint8_t builtin);
 lean_object* initialize_Init_Data_Range(uint8_t builtin);
-lean_object* initialize_Init_Data_SInt_Basic(uint8_t builtin);
-lean_object* initialize_Init_Data_String_Basic(uint8_t builtin);
 lean_object* initialize_Lean_Server_Completion_CompletionUtils(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Data_FuzzyMatching(uint8_t builtin) {
@@ -3758,12 +3756,6 @@ res = initialize_Init_Data_Option_Coe(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Range(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_SInt_Basic(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_String_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Server_Completion_CompletionUtils(builtin);

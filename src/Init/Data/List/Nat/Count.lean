@@ -6,8 +6,15 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Data.List.Count
-public import Init.Data.Nat.Lemmas
+public import Init.GetElem
+import Init.ByCases
+import Init.Data.Bool
+import Init.Data.List.Count
+import Init.Data.List.Lemmas
+import Init.Data.List.Sublist
+import Init.Data.Nat.Lemmas
+import Init.Data.Nat.MinMax
+import Init.Omega
 
 public section
 
@@ -18,6 +25,7 @@ namespace List
 
 open Nat
 
+set_option backward.isDefEq.respectTransparency false in
 @[grind =]
 theorem countP_set {p : α → Bool} {l : List α} {i : Nat} {a : α} (h : i < l.length) :
     (l.set i a).countP p = l.countP p - (if p l[i] then 1 else 0) + (if p a then 1 else 0) := by

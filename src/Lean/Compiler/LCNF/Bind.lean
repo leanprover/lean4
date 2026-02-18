@@ -68,8 +68,8 @@ where
       eraseCode k
       eraseParam auxParam
       return .unreach typeNew
-    | .sset fvarId i offset y ty k _ => return .sset fvarId i offset y ty (← go k)
-    | .uset fvarId offset y k _ => return .uset fvarId offset y (← go k)
+    | .sset (k := k) .. | .uset (k := k) .. | .inc (k := k) .. | .dec (k := k) .. =>
+      return c.updateCont! (← go k)
 
 instance : MonadCodeBind CompilerM where
   codeBind := CompilerM.codeBind

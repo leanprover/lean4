@@ -9,6 +9,7 @@ prelude
 public import Lean.Meta.Constructions.CasesOn
 public import Lean.Compiler.ImplementedByAttr
 public import Lean.Elab.PreDefinition.WF.Eqns
+import Lean.Compiler.ExternAttr
 
 public section
 

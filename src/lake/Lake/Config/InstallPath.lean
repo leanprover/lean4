@@ -11,6 +11,7 @@ public import Lake.Config.Dynlib
 public import Lake.Config.Defaults
 public import Lake.Util.NativeLib
 import Init.Data.String.Modify
+import Init.System.Platform
 
 open System Lean.Compiler.FFI
 

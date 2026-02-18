@@ -8,11 +8,11 @@ prelude
 public import Lean.Meta.DiscrTree.Main
 public import Lean.Meta.Tactic.AuxLemma
 public import Lean.DocString
-import Lean.ExtraModUses
-import Lean.ProjFns
 import Lean.Meta.AppBuilder
 import Lean.Meta.Eqns
 import Lean.Meta.WHNF
+public import Init.Data.Format.Macro
+import Lean.ExtraModUses
 public section
 
 /-!
@@ -678,8 +678,11 @@ abbrev SimpExtensionMap := Std.HashMap Name SimpExtension
 
 builtin_initialize simpExtensionMapRef : IO.Ref SimpExtensionMap ← IO.mkRef {}
 
-def getSimpExtension? (attrName : Name) : IO (Option SimpExtension) :=
-  return (← simpExtensionMapRef.get)[attrName]?
+def getSimpExtension? (attrName : Name) : CoreM (Option SimpExtension) := do
+  let ext? := (← simpExtensionMapRef.get)[attrName]?
+  if let some ext := ext? then
+    recordExtraModUseFromDecl (isMeta := true) ext.ext.name
+  return ext?
 
 def SimpTheorems.addDeclToUnfold (d : SimpTheorems) (declName : Name) : MetaM SimpTheorems := do
   let entries ← mkSimpEntryOfDeclToUnfold declName

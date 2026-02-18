@@ -6,8 +6,12 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Data.Option.Array
 public import Init.Data.Array.Attach
+public import Init.Data.Option.Lemmas
+import Init.Data.Bool
+import Init.Data.Option.Array
+import Init.Data.Option.List
+import Init.Data.Subtype.Basic
 
 public section
 
@@ -440,6 +444,7 @@ instance : MonadAttach Option where
   CanReturn x a := x = some a
   attach x := x.attach
 
+set_option backward.isDefEq.respectTransparency false in
 public instance : LawfulMonadAttach Option where
   map_attach {α} x := by simp [MonadAttach.attach]
   canReturn_map_imp {α P x a} := by
@@ -451,6 +456,7 @@ end Option
 
 namespace OptionT
 
+set_option backward.isDefEq.respectTransparency false in
 public instance [Monad m] [MonadAttach m] [LawfulMonad m] [WeaklyLawfulMonadAttach m] :
     WeaklyLawfulMonadAttach (OptionT m) where
   map_attach {α} x := by

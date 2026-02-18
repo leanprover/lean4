@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.LCNF.Util
-// Imports: public import Init.Data.FloatArray.Basic public import Lean.CoreM public import Lean.Util.Recognizers import Lean.Meta.Basic
+// Imports: public import Init.Data.FloatArray.Basic public import Lean.CoreM public import Lean.Util.Recognizers
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1514,7 +1514,6 @@ return x_3;
 lean_object* initialize_Init_Data_FloatArray_Basic(uint8_t builtin);
 lean_object* initialize_Lean_CoreM(uint8_t builtin);
 lean_object* initialize_Lean_Util_Recognizers(uint8_t builtin);
-lean_object* initialize_Lean_Meta_Basic(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Compiler_LCNF_Util(uint8_t builtin) {
 lean_object * res;
@@ -1527,9 +1526,6 @@ res = initialize_Lean_CoreM(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Util_Recognizers(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Meta_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_throwErrorAt___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00Lean_Compiler_LCNF_getCtorArity_x3f_spec__0_spec__0_spec__1_spec__2_spec__4_spec__6_spec__7___closed__0 = _init_l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_throwErrorAt___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00Lean_Compiler_LCNF_getCtorArity_x3f_spec__0_spec__0_spec__1_spec__2_spec__4_spec__6_spec__7___closed__0();

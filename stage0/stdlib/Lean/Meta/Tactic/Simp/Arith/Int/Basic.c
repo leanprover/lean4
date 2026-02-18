@@ -1540,7 +1540,7 @@ if (lean_is_scalar(x_110)) {
 } else {
  x_116 = x_110;
 }
-lean_ctor_set(x_116, 0, x_114);
+lean_ctor_set(x_116, 0, x_113);
 lean_ctor_set(x_116, 1, x_115);
 x_117 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_117, 0, x_116);
@@ -1550,7 +1550,7 @@ x_119 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_119, 0, x_117);
 lean_ctor_set(x_119, 1, x_118);
 x_120 = lean_alloc_ctor(4, 2, 0);
-lean_ctor_set(x_120, 0, x_113);
+lean_ctor_set(x_120, 0, x_114);
 lean_ctor_set(x_120, 1, x_119);
 x_121 = 0;
 x_122 = lean_alloc_ctor(6, 1, 1);
@@ -1574,8 +1574,8 @@ lean_dec(x_108);
 x_131 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_131, 0, x_130);
 x_112 = x_126;
-x_113 = x_125;
-x_114 = x_127;
+x_113 = x_127;
+x_114 = x_125;
 x_115 = x_131;
 goto block_124;
 }
@@ -1588,8 +1588,8 @@ x_133 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_133, 0, x_132);
 x_134 = l_Repr_addAppParen(x_133, x_111);
 x_112 = x_126;
-x_113 = x_125;
-x_114 = x_127;
+x_113 = x_127;
+x_114 = x_125;
 x_115 = x_134;
 goto block_124;
 }

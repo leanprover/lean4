@@ -5,7 +5,6 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Basic
 public import Lean.Meta.Sym.AlphaShareCommon
 public import Lean.Meta.CongrTheorems
 public section
@@ -132,6 +131,8 @@ structure State where
   -/
   getLevel : PHashMap ExprPtr Level := {}
   congrInfo : PHashMap ExprPtr CongrInfo := {}
+  /-- Cache for `isDefEqI` results -/
+  defEqI : PHashMap (ExprPtr × ExprPtr) Bool := {}
   debug : Bool := false
 
 abbrev SymM := ReaderT Context <| StateRefT State MetaM
@@ -165,8 +166,12 @@ def getFalseExpr : SymM Expr := return (← getSharedExprs).falseExpr
 def isFalseExpr (e : Expr) : SymM Bool := return isSameExpr e (← getFalseExpr)
 /-- Returns the internalized `Bool.true`.  -/
 def getBoolTrueExpr : SymM Expr := return (← getSharedExprs).btrueExpr
+/-- Returns `true` if `e` is the internalized `Bool.true` expression.  -/
+def isBoolTrueExpr (e : Expr) : SymM Bool := return isSameExpr e (← getBoolTrueExpr)
 /-- Returns the internalized `Bool.false`.  -/
 def getBoolFalseExpr : SymM Expr := return (← getSharedExprs).bfalseExpr
+/-- Returns `true` if `e` is the internalized `Bool.false` expression.  -/
+def isBoolFalseExpr (e : Expr) : SymM Bool := return isSameExpr e (← getBoolFalseExpr)
 /-- Returns the internalized `0 : Nat` numeral.  -/
 def getNatZeroExpr : SymM Expr := return (← getSharedExprs).natZExpr
 /-- Returns the internalized `Ordering.eq`.  -/
@@ -215,5 +220,14 @@ abbrev share (e : Expr) : SymM Expr :=
 /-- Returns `true` if `sym.debug` is set -/
 @[inline] def isDebugEnabled : SymM Bool :=
   return (← get).debug
+
+/-- Similar to `Meta.isDefEqI`, but the result is cache using pointer equality. -/
+def isDefEqI (s t : Expr) : SymM Bool := do
+  let key := (⟨s⟩, ⟨t⟩)
+  if let some result := (← get).defEqI.find? key then
+    return result
+  let result ← Meta.isDefEqI s t
+  modify fun s => { s with defEqI := s.defEqI.insert key result }
+  return result
 
 end Lean.Meta.Sym

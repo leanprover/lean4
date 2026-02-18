@@ -7,7 +7,6 @@ module
 prelude
 public import Lean.Elab.Tactic.Grind.Basic
 public import Lean.Meta.Tactic.Grind.Filter
-import Init.Grind.Interactive
 namespace Lean.Elab.Tactic.Grind
 open Meta Grind
 

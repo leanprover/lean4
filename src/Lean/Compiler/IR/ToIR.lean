@@ -7,14 +7,14 @@ module
 
 prelude
 public import Lean.Compiler.IR.CompilerM
-import Lean.Compiler.IR.ToIRType
+public import Lean.Compiler.IR.ToIRType
 
 public section
 
 namespace Lean.IR
 
 open Lean.Compiler (LCNF.Alt LCNF.Arg LCNF.Code LCNF.Decl LCNF.DeclValue LCNF.LCtx LCNF.LetDecl
-  LCNF.LetValue LCNF.LitValue LCNF.Param LCNF.getMonoDecl? LCNF.FVarSubst LCNF.MonadFVarSubst
+  LCNF.LetValue LCNF.LitValue LCNF.Param LCNF.FVarSubst LCNF.MonadFVarSubst
   LCNF.MonadFVarSubstState LCNF.addSubst LCNF.normLetValue LCNF.normFVar LCNF.getType LCNF.CtorInfo)
 
 namespace ToIR
@@ -109,6 +109,12 @@ partial def lowerCode (c : LCNF.Code .impure) : M FnBody := do
     let .var y ← getFVarValue y | unreachable!
     let .var var ← getFVarValue var | unreachable!
     return .uset var i y (← lowerCode k)
+  | .inc fvarId n check persistent k _ =>
+    let .var var ← getFVarValue fvarId | unreachable!
+    return .inc var n check persistent (← lowerCode k)
+  | .dec fvarId n check persistent k _ =>
+    let .var var ← getFVarValue fvarId | unreachable!
+    return .dec var n check persistent (← lowerCode k)
   | .fun .. => panic! "all local functions should be λ-lifted"
 
 partial def lowerLet (decl : LCNF.LetDecl .impure) (k : LCNF.Code .impure) : M FnBody := do
@@ -136,6 +142,19 @@ partial def lowerLet (decl : LCNF.LetDecl .impure) (k : LCNF.Code .impure) : M F
     withGetFVarValue fvarId fun id => do
       let irArgs ← args.mapM lowerArg
       continueLet (.ap id irArgs)
+  | .reset n var _ =>
+    withGetFVarValue var fun var => do
+      continueLet (.reset n var)
+  | .reuse var i updateHeader args _ =>
+    withGetFVarValue var fun var => do
+      let irArgs ← args.mapM lowerArg
+      continueLet (.reuse var (lowerCtorInfo i) updateHeader irArgs)
+  | .box ty var =>
+    withGetFVarValue var fun var => do
+      continueLet (.box (toIRType ty) var)
+  | .unbox var =>
+    withGetFVarValue var fun var => do
+      continueLet (.unbox var)
   | .erased => mkErased ()
 where
   mkErased (_ : Unit) : M FnBody := do

@@ -9,6 +9,7 @@ prelude
 public import Lean.Util.RecDepth
 public import Lean.ResolveName
 public import Lean.Language.Basic
+import Init.While
 import Lean.Compiler.MetaAttr
 import Lean.Util.ForEachExpr
 
@@ -545,10 +546,12 @@ def logSnapshotTask (task : Language.SnapshotTask Language.SnapshotTree) : CoreM
 /-- Wraps the given action for use in `EIO.asTask` etc., discarding its final monadic state. -/
 def wrapAsync {α : Type} (act : α → CoreM β) (cancelTk? : Option IO.CancelToken) :
     CoreM (α → EIO Exception β) := do
-  let (childNGen, parentNGen) := (← getDeclNGen).mkChild
-  setDeclNGen parentNGen
+  let (childNGen, parentNGen) := (← getNGen).mkChild
+  setNGen parentNGen
+  let (childDeclNGen, parentDeclNGen) := (← getDeclNGen).mkChild
+  setDeclNGen parentDeclNGen
   let st ← get
-  let st := { st with auxDeclNGen := childNGen }
+  let st := { st with auxDeclNGen := childDeclNGen, ngen := childNGen }
   let ctx ← read
   let ctx := { ctx with cancelTk? }
   let heartbeats := (← IO.getNumHeartbeats) - ctx.initHeartbeats

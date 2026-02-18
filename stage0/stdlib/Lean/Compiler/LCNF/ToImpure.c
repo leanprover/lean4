@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.LCNF.ToImpure
-// Imports: public import Lean.Compiler.LCNF.CompilerM import Lean.Compiler.LCNF.ToImpureType public import Lean.Compiler.LCNF.PassManager import Lean.Compiler.LCNF.PhaseExt
+// Imports: import Lean.Compiler.LCNF.ToImpureType public import Lean.Compiler.LCNF.PassManager import Lean.Compiler.LCNF.PhaseExt import Init.Data.Format.Macro
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -4658,6 +4658,7 @@ lean_object* x_175; lean_object* x_176;
 x_175 = lean_ctor_get(x_174, 0);
 lean_inc(x_175);
 lean_dec_ref(x_174);
+lean_inc(x_170);
 x_176 = l_Lean_Compiler_LCNF_getImpureSignature_x3f___redArg(x_170, x_7);
 if (lean_obj_tag(x_176) == 0)
 {
@@ -10536,18 +10537,15 @@ x_2 = l___private_Lean_Compiler_LCNF_ToImpure_0__Lean_Compiler_LCNF_initFn_00___
 return x_2;
 }
 }
-lean_object* initialize_Lean_Compiler_LCNF_CompilerM(uint8_t builtin);
 lean_object* initialize_Lean_Compiler_LCNF_ToImpureType(uint8_t builtin);
 lean_object* initialize_Lean_Compiler_LCNF_PassManager(uint8_t builtin);
 lean_object* initialize_Lean_Compiler_LCNF_PhaseExt(uint8_t builtin);
+lean_object* initialize_Init_Data_Format_Macro(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Compiler_LCNF_ToImpure(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Compiler_LCNF_CompilerM(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Compiler_LCNF_ToImpureType(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -10555,6 +10553,9 @@ res = initialize_Lean_Compiler_LCNF_PassManager(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Compiler_LCNF_PhaseExt(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Format_Macro(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 if (builtin) {res = l_Lean_Compiler_LCNF_initFn_00___x40_Lean_Compiler_LCNF_ToImpure_1721792695____hygCtx___hyg_2_();

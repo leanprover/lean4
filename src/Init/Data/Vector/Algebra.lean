@@ -6,8 +6,9 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Data.Vector.Lemmas
 public import Init.Grind
+public import Init.Data.Vector.Basic
+import Init.Data.Vector.Lemmas
 
 /-!
 # Componentwise algebraic structures on `Vector α n`.

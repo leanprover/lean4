@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.Arith.Cutsat.Var
-// Imports: public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Types import Lean.Meta.Tactic.Grind.Simp import Lean.Meta.Tactic.Grind.Arith.Cutsat.Nat import Lean.Meta.Tactic.Grind.Arith.Cutsat.ToInt
+// Imports: public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Types import Lean.Meta.Tactic.Grind.Arith.Cutsat.Nat import Lean.Meta.Tactic.Grind.Arith.Cutsat.ToInt import Lean.Meta.IntInstTesters
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1838,7 +1838,7 @@ block_27:
 uint8_t x_21; 
 lean_inc(x_20);
 lean_inc(x_2);
-x_21 = l_List_elem___redArg(x_19, x_2, x_20);
+x_21 = l_List_elem___redArg(x_18, x_2, x_20);
 if (x_21 == 0)
 {
 lean_object* x_22; lean_object* x_23; lean_object* x_24; 
@@ -1848,15 +1848,15 @@ lean_closure_set(x_22, 0, x_2);
 lean_closure_set(x_22, 1, x_20);
 lean_closure_set(x_22, 2, x_15);
 x_23 = l_Lean_Meta_Grind_Arith_Cutsat_cutsatExt;
-x_24 = l___private_Lean_Meta_Tactic_Grind_Types_0__Lean_Meta_Grind_SolverExtension_modifyStateImpl___redArg(x_23, x_22, x_18);
-lean_dec(x_18);
+x_24 = l___private_Lean_Meta_Tactic_Grind_Types_0__Lean_Meta_Grind_SolverExtension_modifyStateImpl___redArg(x_23, x_22, x_19);
+lean_dec(x_19);
 return x_24;
 }
 else
 {
 lean_object* x_25; lean_object* x_26; 
 lean_dec(x_20);
-lean_dec(x_18);
+lean_dec(x_19);
 lean_dec(x_15);
 lean_dec(x_2);
 x_25 = lean_box(0);
@@ -1890,8 +1890,8 @@ if (lean_obj_tag(x_35) == 0)
 lean_object* x_36; 
 x_36 = lean_box(0);
 x_17 = lean_box(0);
-x_18 = x_28;
-x_19 = x_34;
+x_18 = x_34;
+x_19 = x_28;
 x_20 = x_36;
 goto block_27;
 }
@@ -1902,8 +1902,8 @@ x_37 = lean_ctor_get(x_35, 0);
 lean_inc(x_37);
 lean_dec_ref(x_35);
 x_17 = lean_box(0);
-x_18 = x_28;
-x_19 = x_34;
+x_18 = x_34;
+x_19 = x_28;
 x_20 = x_37;
 goto block_27;
 }
@@ -8424,9 +8424,9 @@ return x_13;
 }
 }
 lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_Cutsat_Types(uint8_t builtin);
-lean_object* initialize_Lean_Meta_Tactic_Grind_Simp(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_Cutsat_Nat(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_Cutsat_ToInt(uint8_t builtin);
+lean_object* initialize_Lean_Meta_IntInstTesters(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_Cutsat_Var(uint8_t builtin) {
 lean_object * res;
@@ -8435,13 +8435,13 @@ _G_initialized = true;
 res = initialize_Lean_Meta_Tactic_Grind_Arith_Cutsat_Types(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Grind_Simp(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Grind_Arith_Cutsat_Nat(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Grind_Arith_Cutsat_ToInt(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_IntInstTesters(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00__private_Lean_Meta_Tactic_Grind_Arith_Cutsat_Var_0__Lean_Meta_Grind_Arith_Cutsat_registerNonlinearOcc_spec__0_spec__0___redArg___closed__0 = _init_l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00__private_Lean_Meta_Tactic_Grind_Arith_Cutsat_Var_0__Lean_Meta_Grind_Arith_Cutsat_registerNonlinearOcc_spec__0_spec__0___redArg___closed__0();

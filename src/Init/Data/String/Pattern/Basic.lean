@@ -6,9 +6,13 @@ Authors: Henrik Böving, Markus Himmel
 module
 
 prelude
+public import Init.Data.Iterators.Consumers.Monadic.Loop
+public import Init.Data.String.Defs
 public import Init.Data.String.Basic
-public import Init.Data.Iterators.Basic
-public import Init.Data.Iterators.Consumers.Loop
+public import Init.Data.String.FindPos
+import Init.Data.String.Lemmas.FindPos
+import Init.Data.Iterators.Consumers.Loop
+import Init.Omega
 import Init.Data.String.Lemmas.IsEmpty
 import Init.Data.String.Termination
 import Init.Data.String.OrderInstances
@@ -288,12 +292,14 @@ def memcmpSlice (lhs rhs : Slice) (lstart : String.Pos.Raw) (rstart : String.Pos
     (by
       have := lhs.startInclusive_le_endExclusive
       have := lhs.endExclusive.isValid.le_utf8ByteSize
-      simp [String.Pos.le_iff, Pos.Raw.le_iff, Slice.utf8ByteSize_eq] at *
+      simp [String.Pos.le_iff, Pos.Raw.le_iff, Slice.utf8ByteSize_eq,
+        -String.Pos.byteIdx_offset_le_utf8ByteSize] at *
       omega)
     (by
       have := rhs.startInclusive_le_endExclusive
       have := rhs.endExclusive.isValid.le_utf8ByteSize
-      simp [String.Pos.le_iff, Pos.Raw.le_iff, Slice.utf8ByteSize_eq] at *
+      simp [String.Pos.le_iff, Pos.Raw.le_iff, Slice.utf8ByteSize_eq,
+        -String.Pos.byteIdx_offset_le_utf8ByteSize] at *
       omega)
 
 end Internal

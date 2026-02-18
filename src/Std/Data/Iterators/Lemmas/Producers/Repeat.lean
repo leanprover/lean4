@@ -8,6 +8,9 @@ module
 prelude
 public import Std.Data.Iterators.Producers.Repeat
 public import Init.Data.Iterators.Lemmas.Combinators.Take
+import Init.Data.Iterators.Lemmas.Consumers.Access
+import Init.Data.Iterators.Lemmas.Consumers.Collect
+import Init.Data.Option.Lemmas
 
 @[expose] public section
 
@@ -16,6 +19,7 @@ open Std.Iterators
 
 variable {α : Type w} {f : α → α} {init : α}
 
+set_option backward.isDefEq.respectTransparency false in
 theorem Iter.step_repeat :
     (Iter.repeat f init).step = .yield (Iter.repeat f (f init)) init ⟨rfl, rfl⟩ := by
   simp [Iter.«repeat», Iter.step, Iter.toIterM, IterM.step, Iterator.step, IterM.toIter]

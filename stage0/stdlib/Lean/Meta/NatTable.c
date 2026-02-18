@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.NatTable
-// Imports: public import Lean.Meta.Basic import Lean.Meta.InferType
+// Imports: public import Lean.Meta.Basic import Lean.Meta.InferType import Init.Omega
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -444,7 +444,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l_mkNatLookupTable___closed__2));
 x_2 = lean_unsigned_to_nat(4u);
-x_3 = lean_unsigned_to_nat(24u);
+x_3 = lean_unsigned_to_nat(25u);
 x_4 = ((lean_object*)(l_mkNatLookupTable___closed__1));
 x_5 = ((lean_object*)(l_mkNatLookupTable___closed__0));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -516,6 +516,7 @@ return x_9;
 }
 lean_object* initialize_Lean_Meta_Basic(uint8_t builtin);
 lean_object* initialize_Lean_Meta_InferType(uint8_t builtin);
+lean_object* initialize_Init_Omega(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_NatTable(uint8_t builtin) {
 lean_object * res;
@@ -525,6 +526,9 @@ res = initialize_Lean_Meta_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_InferType(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___private_Lean_Meta_NatTable_0__mkNatLookupTable___auto__1___closed__5 = _init_l___private_Lean_Meta_NatTable_0__mkNatLookupTable___auto__1___closed__5();

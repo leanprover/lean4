@@ -6,10 +6,10 @@ Authors: Henrik Böving, Cameron Zwarich
 module
 
 prelude
-public import Lean.Compiler.LCNF.CompilerM
 import Lean.Compiler.LCNF.ToImpureType
 public import Lean.Compiler.LCNF.PassManager
 import Lean.Compiler.LCNF.PhaseExt
+import Init.Data.Format.Macro
 
 namespace Lean.Compiler.LCNF
 

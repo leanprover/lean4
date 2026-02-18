@@ -6,9 +6,9 @@ Author: Leonardo de Moura, Mario Carneiro
 module
 
 prelude
-public import Init.Data.ByteArray.Basic
 public import Init.Data.String.PosRaw
 import Init.Data.ByteArray.Lemmas
+import Init.Omega
 
 /-!
 # Preliminary developments for strings
@@ -177,6 +177,11 @@ theorem append_singleton {s : String} {c : Char} : s ++ singleton c = s.push c :
 @[simp]
 theorem append_left_inj {s₁ s₂ : String} (t : String) :
     s₁ ++ t = s₂ ++ t ↔ s₁ = s₂ := by
+  simp [← toByteArray_inj]
+
+@[simp]
+theorem append_right_inj (s : String) {t₁ t₂ : String} :
+    s ++ t₁ = s ++ t₂ ↔ t₁ = t₂ := by
   simp [← toByteArray_inj]
 
 theorem append_assoc {s₁ s₂ s₃ : String} : s₁ ++ s₂ ++ s₃ = s₁ ++ (s₂ ++ s₃) := by
@@ -398,6 +403,7 @@ achieved by tracking the bounds by hand, the slice API is much more convenient.
 `String.Slice` bundles proofs to ensure that the start and end positions always delineate a valid
 string. For this reason, it should be preferred over `Substring.Raw`.
 -/
+@[ext]
 structure Slice where
   /-- The underlying strings. -/
   str : String
@@ -641,6 +647,20 @@ Examples:
 -/
 @[inline]
 def Slice.isEmpty (s : Slice) : Bool := s.utf8ByteSize == 0
+
+@[simp]
+theorem Slice.Pos.le_refl {s : Slice} (p : s.Pos) : p ≤ p := by
+  simp [le_iff]
+
+theorem Slice.Pos.lt_trans {s : Slice} {p q r : s.Pos} : p < q → q < r → p < r := by
+  simpa [Pos.lt_iff, Pos.Raw.lt_iff] using Nat.lt_trans
+
+@[simp]
+theorem Pos.le_refl {s : String} (p : s.Pos) : p ≤ p := by
+  simp [Pos.le_iff]
+
+theorem Pos.lt_trans {s : String} {p q r : s.Pos} : p < q → q < r → p < r := by
+  simpa [Pos.lt_iff, Pos.Raw.lt_iff] using Nat.lt_trans
 
 @[deprecated String.toRawSubstring (since := "2025-11-18")]
 def toSubstring (s : String) : Substring.Raw :=

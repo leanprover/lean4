@@ -30,8 +30,9 @@ private def argDepOn (a : Arg pu) : M Bool := do
 private def letValueDepOn (e : LetValue pu) : M Bool :=
   match e with
   | .erased | .lit .. => return false
-  | .proj _ _ fvarId _ | .oproj _ fvarId _ | .uproj _ fvarId _ | .sproj _ _ fvarId _ => fvarDepOn fvarId
-  | .fvar fvarId args => fvarDepOn fvarId <||> args.anyM argDepOn
+  | .proj _ _ fvarId _ | .oproj _ fvarId _ | .uproj _ fvarId _ | .sproj _ _ fvarId _
+  | .reset _ fvarId  _ | .box _ fvarId _ | .unbox fvarId _ => fvarDepOn fvarId
+  | .fvar fvarId args | .reuse fvarId _ _ args _ => fvarDepOn fvarId <||> args.anyM argDepOn
   | .const _ _ args _ | .ctor _ args _ | .fap _ args _ | .pap _ args _ => args.anyM argDepOn
 
 private def LetDecl.depOn (decl : LetDecl pu) : M Bool :=
@@ -46,6 +47,14 @@ private partial def depOn (c : Code pu) : M Bool :=
   | .return fvarId => fvarDepOn fvarId
   | .unreach _ => return false
   | .sset fv1 _ _ fv2 _ k _ | .uset fv1 _ fv2 k _ => fvarDepOn fv1 <||> fvarDepOn fv2 <||> depOn k
+  | .inc (fvarId := fvarId) (k := k) .. | .dec (fvarId := fvarId) (k := k) .. =>
+    fvarDepOn fvarId <||> depOn k
+
+@[inline] def Arg.dependsOn (arg : Arg pu) (s : FVarIdSet) :  Bool :=
+  argDepOn arg s
+
+@[inline] def LetValue.dependsOn (value : LetValue pu) (s : FVarIdSet) :  Bool :=
+  letValueDepOn value s
 
 @[inline] def LetDecl.dependsOn (decl : LetDecl pu) (s : FVarIdSet) :  Bool :=
   decl.depOn s
@@ -57,8 +66,8 @@ def CodeDecl.dependsOn (decl : CodeDecl pu) (s : FVarIdSet) : Bool :=
   match decl with
   | .let decl => decl.dependsOn s
   | .jp decl | .fun decl _ => decl.dependsOn s
-  | .uset var _ y _ => s.contains var || s.contains y
-  | .sset var _ _ y ty _ => s.contains var || s.contains y || (typeDepOn ty s)
+  | .uset (var := var) (y := y) .. | .sset (var := var) (y := y) .. => s.contains var || s.contains y
+  | .inc (fvarId := fvarId) .. | .dec (fvarId := fvarId) .. => s.contains fvarId 
 
 /--
 Return `true` is `c` depends on a free variable in `s`.

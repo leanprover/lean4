@@ -202,7 +202,7 @@ static lean_object* l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Str
 static lean_object* l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Structures_0__Lean_Elab_Tactic_BVDecide_Frontend_Normalize_structuresPass_postprocess___lam__0___closed__4;
 lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_addDefaultTypeAnalysisLemmas(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getSimpCongrTheorems___redArg(lean_object*);
-lean_object* l_Lean_Meta_Simp_mkContext___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Simp_mkContext___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getPropHyps(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_simpGoal(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2739,7 +2739,7 @@ lean_ctor_set_uint8(x_27, sizeof(void*)*3 + 25, x_24);
 lean_ctor_set_uint8(x_27, sizeof(void*)*3 + 26, x_23);
 lean_ctor_set_uint8(x_27, sizeof(void*)*3 + 27, x_23);
 lean_ctor_set_uint8(x_27, sizeof(void*)*3 + 28, x_23);
-x_28 = l_Lean_Meta_Simp_mkContext___redArg(x_27, x_18, x_20, x_7, x_10);
+x_28 = l_Lean_Meta_Simp_mkContext___redArg(x_27, x_18, x_20, x_7, x_9, x_10);
 if (lean_obj_tag(x_28) == 0)
 {
 lean_object* x_29; lean_object* x_30; 
@@ -3078,7 +3078,7 @@ lean_ctor_set_uint8(x_86, sizeof(void*)*3 + 25, x_83);
 lean_ctor_set_uint8(x_86, sizeof(void*)*3 + 26, x_82);
 lean_ctor_set_uint8(x_86, sizeof(void*)*3 + 27, x_82);
 lean_ctor_set_uint8(x_86, sizeof(void*)*3 + 28, x_82);
-x_87 = l_Lean_Meta_Simp_mkContext___redArg(x_86, x_77, x_79, x_7, x_10);
+x_87 = l_Lean_Meta_Simp_mkContext___redArg(x_86, x_77, x_79, x_7, x_9, x_10);
 if (lean_obj_tag(x_87) == 0)
 {
 lean_object* x_88; lean_object* x_89; 

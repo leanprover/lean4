@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.SInt.Lemmas
-// Imports: import all Init.Data.Nat.Bitwise.Basic public import Init.Data.SInt.Basic import all Init.Data.SInt.Basic import all Init.Data.BitVec.Basic public import Init.Data.BitVec.Bitblast import all Init.Data.UInt.Basic public import Init.Data.UInt.Lemmas import Init.Data.Order.Lemmas
+// Imports: import all Init.Data.Nat.Bitwise.Basic public import Init.Data.SInt.Basic import all Init.Data.SInt.Basic import all Init.Data.BitVec.Basic import all Init.Data.UInt.Basic public import Init.Data.BitVec.Lemmas public import Init.Data.Int.Order import Init.ByCases import Init.Data.BitVec.Bitblast import Init.Data.BitVec.Bootstrap import Init.Data.Int.DivMod.Lemmas import Init.Data.Int.LemmasAux import Init.Data.Int.Pow import Init.Data.UInt.Lemmas import Init.System.Platform
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2460,10 +2460,17 @@ lean_object* initialize_Init_Data_Nat_Bitwise_Basic(uint8_t builtin);
 lean_object* initialize_Init_Data_SInt_Basic(uint8_t builtin);
 lean_object* initialize_Init_Data_SInt_Basic(uint8_t builtin);
 lean_object* initialize_Init_Data_BitVec_Basic(uint8_t builtin);
-lean_object* initialize_Init_Data_BitVec_Bitblast(uint8_t builtin);
 lean_object* initialize_Init_Data_UInt_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_BitVec_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_Data_Int_Order(uint8_t builtin);
+lean_object* initialize_Init_ByCases(uint8_t builtin);
+lean_object* initialize_Init_Data_BitVec_Bitblast(uint8_t builtin);
+lean_object* initialize_Init_Data_BitVec_Bootstrap(uint8_t builtin);
+lean_object* initialize_Init_Data_Int_DivMod_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_Data_Int_LemmasAux(uint8_t builtin);
+lean_object* initialize_Init_Data_Int_Pow(uint8_t builtin);
 lean_object* initialize_Init_Data_UInt_Lemmas(uint8_t builtin);
-lean_object* initialize_Init_Data_Order_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_System_Platform(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_SInt_Lemmas(uint8_t builtin) {
 lean_object * res;
@@ -2481,16 +2488,37 @@ lean_dec_ref(res);
 res = initialize_Init_Data_BitVec_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = initialize_Init_Data_UInt_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_BitVec_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Int_Order(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_ByCases(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Init_Data_BitVec_Bitblast(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_UInt_Basic(builtin);
+res = initialize_Init_Data_BitVec_Bootstrap(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Int_DivMod_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Int_LemmasAux(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Int_Pow(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_UInt_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Order_Lemmas(builtin);
+res = initialize_Init_System_Platform(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___aux__Init__Data__SInt__Lemmas______macroRules__commandDeclare__int__theorems______1___closed__11 = _init_l___aux__Init__Data__SInt__Lemmas______macroRules__commandDeclare__int__theorems______1___closed__11();

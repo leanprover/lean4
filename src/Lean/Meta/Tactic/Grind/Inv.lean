@@ -7,8 +7,6 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Types
 import Init.Grind.Util
-import Lean.Meta.Tactic.Grind.Proof
-import Lean.Meta.Tactic.Grind.MatchCond
 import Lean.Meta.Tactic.Grind.Util
 namespace Lean.Meta.Grind
 /-!

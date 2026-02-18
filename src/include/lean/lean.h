@@ -633,6 +633,10 @@ static inline void lean_ctor_release(b_lean_obj_arg o, unsigned i) {
     assert(i < lean_ctor_num_objs(o));
     lean_object ** objs = lean_ctor_obj_cptr(o);
     lean_dec(objs[i]);
+    // Note: This assignment is crucial. `lean_ctor_release` is called when we are preparing a
+    // `reset` for a unique object. However, in some control paths the object might not be able to
+    // be reused. In these paths we just call `dec` on the object. In this situation not having this
+    // write would cause a use-after free as we would try to `lean_dec(objs[i])` again.
     objs[i] = lean_box(0);
 }
 
@@ -1941,8 +1945,16 @@ static inline uint64_t lean_uint64_log2(uint64_t a) {
 static inline uint8_t lean_uint64_dec_eq(uint64_t a1, uint64_t a2) { return a1 == a2; }
 static inline uint8_t lean_uint64_dec_lt(uint64_t a1, uint64_t a2) { return a1 < a2; }
 static inline uint8_t lean_uint64_dec_le(uint64_t a1, uint64_t a2) { return a1 <= a2; }
-LEAN_EXPORT uint64_t lean_uint64_mix_hash(uint64_t a1, uint64_t a2);
-
+static inline uint64_t lean_uint64_mix_hash(uint64_t h, uint64_t k) {
+    uint64_t m = 0xc6a4a7935bd1e995;
+    uint64_t r = 47;
+    k *= m;
+    k ^= k >> r;
+    k ^= m;
+    h ^= k;
+    h *= m;
+    return h;
+}
 
 /* UInt64 -> other */
 static inline uint8_t lean_uint64_to_uint8(uint64_t a) { return ((uint8_t)a); }

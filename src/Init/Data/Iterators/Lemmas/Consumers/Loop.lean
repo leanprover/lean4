@@ -6,12 +6,17 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Iterators.Lemmas.Consumers.Collect
-public import Init.Data.Iterators.Lemmas.Consumers.Monadic.Loop
 import all Init.Data.Iterators.Lemmas.Consumers.Monadic.Loop
 import all Init.Data.Iterators.Consumers.Loop
 import all Init.Data.Iterators.Consumers.Monadic.Collect
 import Init.Data.Array.Monadic
+public import Init.Data.Iterators.Consumers.Collect
+public import Init.Data.Iterators.Consumers.Loop
+public import Init.Data.List.Monadic
+import Init.Data.Iterators.Lemmas.Basic
+import Init.Data.Iterators.Lemmas.Consumers.Collect
+import Init.Data.List.Find
+import Init.Data.Option.Lemmas
 
 public section
 
@@ -393,7 +398,7 @@ theorem Iter.fold_eq_fold_toIterM {α β : Type w} {γ : Type w} [Iterator α Id
     [Finite α Id] [IteratorLoop α Id Id]
     {f : γ → β → γ} {init : γ} {it : Iter (α := α) β} :
     it.fold (init := init) f = (it.toIterM.fold (init := init) f).run := by
-  rw [fold_eq_foldM, foldM_eq_foldM_toIterM, IterM.fold_eq_foldM]
+  rw [fold_eq_foldM, foldM_eq_foldM_toIterM, IterM.fold_eq_foldM]; rfl
 
 @[simp]
 theorem Iter.forIn_pure_yield_eq_fold {α β : Type w} {γ : Type x} [Iterator α Id β]

@@ -6,11 +6,7 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Elab.Tactic.Grind.Basic
-public import Lean.Meta.Tactic.Grind.Main
-import Lean.Meta.Tactic.Grind.Internalize
 import Lean.Meta.Tactic.Grind.ForallProp
-import Lean.Meta.Tactic.Grind.Main
-import Lean.Elab.Tactic.Grind.Basic
 import Lean.Elab.Tactic.Grind.Anchor
 import Lean.Elab.SyntheticMVars
 namespace Lean.Elab.Tactic

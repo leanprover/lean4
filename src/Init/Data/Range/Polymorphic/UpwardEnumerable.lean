@@ -6,8 +6,9 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Option.Lemmas
 public import Init.Data.Order.Classes
+public import Init.Classical
+import Init.Data.Option.Lemmas
 
 public section
 

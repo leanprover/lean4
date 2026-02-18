@@ -1671,7 +1671,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l_Lean_Meta_DiscrTree_insertKeyValue___at___00Lean_Meta_Symm_initFn_00___x40_Lean_Meta_Tactic_Symm_1414739777____hygCtx___hyg_2__spec__0___closed__2));
 x_2 = lean_unsigned_to_nat(23u);
-x_3 = lean_unsigned_to_nat(165u);
+x_3 = lean_unsigned_to_nat(166u);
 x_4 = ((lean_object*)(l_Lean_Meta_DiscrTree_insertKeyValue___at___00Lean_Meta_Symm_initFn_00___x40_Lean_Meta_Tactic_Symm_1414739777____hygCtx___hyg_2__spec__0___closed__1));
 x_5 = ((lean_object*)(l_Lean_Meta_DiscrTree_insertKeyValue___at___00Lean_Meta_Symm_initFn_00___x40_Lean_Meta_Tactic_Symm_1414739777____hygCtx___hyg_2__spec__0___closed__0));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -5037,7 +5037,7 @@ block_23:
 if (x_17 == 0)
 {
 lean_object* x_18; 
-lean_dec_ref(x_16);
+lean_dec_ref(x_15);
 x_18 = l_Lean_Meta_SavedState_restore___redArg(x_14, x_5, x_7);
 lean_dec(x_14);
 if (lean_obj_tag(x_18) == 0)
@@ -5081,7 +5081,7 @@ lean_dec_ref(x_6);
 lean_dec(x_5);
 lean_dec_ref(x_4);
 lean_dec_ref(x_2);
-return x_16;
+return x_15;
 }
 }
 block_29:
@@ -5092,16 +5092,16 @@ if (x_27 == 0)
 {
 uint8_t x_28; 
 x_28 = l_Lean_Exception_isRuntime(x_25);
-x_15 = lean_box(0);
-x_16 = x_24;
+x_15 = x_24;
+x_16 = lean_box(0);
 x_17 = x_28;
 goto block_23;
 }
 else
 {
 lean_dec_ref(x_25);
-x_15 = lean_box(0);
-x_16 = x_24;
+x_15 = x_24;
+x_16 = lean_box(0);
 x_17 = x_27;
 goto block_23;
 }

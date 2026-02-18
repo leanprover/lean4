@@ -7,10 +7,8 @@ module
 prelude
 public import Lean.Meta.Sym.Simp.SimpM
 import Lean.Meta.Sym.AlphaShareBuilder
-import Lean.Meta.Sym.InstantiateS
 import Lean.Meta.Sym.InferType
 import Lean.Meta.Sym.Simp.App
-import Lean.Meta.SynthInstance
 import Lean.Meta.WHNF
 import Lean.Meta.AppBuilder
 import Init.Sym.Lemmas
@@ -87,7 +85,7 @@ def simpDIte : Simproc := fun e => do
 /--
 Simplifies a `cond` expression (aka Boolean `if-then-else`).
 -/
-def simpCond : Simproc := fun e => do
+public def simpCond : Simproc := fun e => do
   let numArgs := e.getAppNumArgs
   if numArgs < 4 then return .rfl (done := true)
   propagateOverApplied e (numArgs - 4) fun e => do

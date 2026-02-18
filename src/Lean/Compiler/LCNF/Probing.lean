@@ -58,7 +58,7 @@ where
       go k
     | .cases cs => cs.alts.forM (go ·.getCode)
     | .jmp .. | .return .. | .unreach .. => return ()
-    | .sset _ _ _ _ _ k _ | .uset _ _ _ k _ => go k
+    | .sset (k := k) .. | .uset (k := k) .. | .inc (k := k) .. | .dec (k := k) .. => go k
   start (decls : Array (Decl pu)) : StateRefT (Array (LetValue pu)) CompilerM Unit :=
     decls.forM (·.value.forCodeM go)
 
@@ -73,7 +73,7 @@ where
     | .jp decl k => modify (·.push decl); go decl.value; go k
     | .cases cs => cs.alts.forM (go ·.getCode)
     | .jmp .. | .return .. | .unreach .. => return ()
-    | .sset _ _ _ _ _ k _ | .uset _ _ _ k _ => go k
+    | .sset (k := k) .. | .uset (k := k) .. | .inc (k := k) .. | .dec (k := k) .. => go k
 
   start (decls : Array (Decl pu)) : StateRefT (Array (FunDecl pu)) CompilerM Unit :=
     decls.forM (·.value.forCodeM go)
@@ -86,7 +86,7 @@ where
   | .fun decl k _ | .jp decl k => go decl.value <||> go k
   | .cases cs => cs.alts.anyM (go ·.getCode)
   | .jmp .. | .return .. | .unreach .. => return false
-  | .sset _ _ _ _ _ k _ | .uset _ _ _ k _ => go k
+  | .sset (k := k) .. | .uset (k := k) .. | .inc (k := k) .. | .dec (k := k) .. => go k
 
 partial def filterByFun (pu : Purity) (f : FunDecl pu → CompilerM Bool) : Probe (Decl pu) (Decl pu) :=
   filter (·.value.isCodeAndM go)
@@ -96,7 +96,7 @@ where
   | .fun decl k _ => do if (← f decl) then return true else go decl.value <||> go k
   | .cases cs => cs.alts.anyM (go ·.getCode)
   | .jmp .. | .return .. | .unreach .. => return false
-  | .sset _ _ _ _ _ k _ | .uset _ _ _ k _ => go k
+  | .sset (k := k) .. | .uset (k := k) .. | .inc (k := k) .. | .dec (k := k) .. => go k
 
 partial def filterByJp (pu : Purity) (f : FunDecl pu → CompilerM Bool) : Probe (Decl pu) (Decl pu) :=
   filter (·.value.isCodeAndM go)
@@ -107,7 +107,7 @@ where
   | .jp decl k => do if (← f decl) then return true else go decl.value <||> go k
   | .cases cs => cs.alts.anyM (go ·.getCode)
   | .jmp .. | .return .. | .unreach .. => return false
-  | .sset _ _ _ _ _ k _ | .uset _ _ _ k _ => go k
+  | .sset (k := k) .. | .uset (k := k) .. | .inc (k := k) .. | .dec (k := k) .. => go k
 
 partial def filterByFunDecl (pu : Purity) (f : FunDecl pu → CompilerM Bool) :
     Probe (Decl pu) (Decl pu):=
@@ -118,7 +118,7 @@ where
   | .fun decl k _ | .jp decl k => do if (← f decl) then return true else go decl.value <||> go k
   | .cases cs => cs.alts.anyM (go ·.getCode)
   | .jmp .. | .return .. | .unreach .. => return false
-  | .sset _ _ _ _ _ k _ | .uset _ _ _ k _ => go k
+  | .sset (k := k) .. | .uset (k := k) .. | .inc (k := k) .. | .dec (k := k) .. => go k
 
 partial def filterByCases (pu : Purity) (f : Cases pu → CompilerM Bool) : Probe (Decl pu) (Decl pu) :=
   filter (·.value.isCodeAndM go)
@@ -128,7 +128,7 @@ where
   | .fun decl k _ | .jp decl k => go decl.value <||> go k
   | .cases cs => do if (← f cs) then return true else cs.alts.anyM (go ·.getCode)
   | .jmp .. | .return .. | .unreach .. => return false
-  | .sset _ _ _ _ _ k _ | .uset _ _ _ k _ => go k
+  | .sset (k := k) .. | .uset (k := k) .. | .inc (k := k) .. | .dec (k := k) .. => go k
 
 partial def filterByJmp (pu : Purity) (f : FVarId → Array (Arg pu) → CompilerM Bool) :
     Probe (Decl pu) (Decl pu) :=
@@ -140,7 +140,7 @@ where
   | .cases cs => cs.alts.anyM (go ·.getCode)
   | .jmp fn var => f fn var
   | .return .. | .unreach .. => return false
-  | .sset _ _ _ _ _ k _ | .uset _ _ _ k _ => go k
+  | .sset (k := k) .. | .uset (k := k) .. | .inc (k := k) .. | .dec (k := k) .. => go k
 
 partial def filterByReturn (pu : Purity) (f : FVarId → CompilerM Bool) : Probe (Decl pu) (Decl pu) :=
   filter (·.value.isCodeAndM go)
@@ -151,7 +151,7 @@ where
   | .cases cs => cs.alts.anyM (go ·.getCode)
   | .jmp .. | .unreach .. => return false
   | .return var  => f var
-  | .sset _ _ _ _ _ k _ | .uset _ _ _ k _ => go k
+  | .sset (k := k) .. | .uset (k := k) .. | .inc (k := k) .. | .dec (k := k) .. => go k
 
 partial def filterByUnreach (pu : Purity) (f : Expr → CompilerM Bool) : Probe (Decl pu) (Decl pu) :=
   filter (·.value.isCodeAndM go)
@@ -162,7 +162,7 @@ where
   | .cases cs => cs.alts.anyM (go ·.getCode)
   | .jmp .. | .return .. => return false
   | .unreach typ  => f typ
-  | .sset _ _ _ _ _ k _ | .uset _ _ _ k _ => go k
+  | .sset (k := k) .. | .uset (k := k) .. | .inc (k := k) .. | .dec (k := k) .. => go k
 
 @[inline]
 def declNames (pu : Purity) : Probe (Decl pu) Name :=

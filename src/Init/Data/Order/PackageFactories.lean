@@ -6,7 +6,10 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Order.LemmasExtra
+public import Init.Data.Order.LemmasExtra  -- shake: keep (instance inlined by `haveI`)
+public import Init.Data.Order.FactoriesExtra
+import Init.Data.Bool
+import Init.Data.Order.Lemmas
 
 namespace Std
 
@@ -166,7 +169,7 @@ automatically. If it fails, it is necessary to provide some of the fields manual
 * Other proof obligations, namely `le_refl` and `le_trans`, can be omitted if `Refl` and `Trans`
   instances can be synthesized.
 -/
-@[expose]
+@[expose, instance_reducible]
 public def PreorderPackage.ofLE (α : Type u)
     (args : Packages.PreorderOfLEArgs α := by exact {}) : PreorderPackage α where
   toLE := args.le
@@ -251,7 +254,7 @@ automatically. If it fails, it is necessary to provide some of the fields manual
 * Other proof obligations, namely `le_refl`, `le_trans` and `le_antisymm`, can be omitted if `Refl`,
   `Trans` and `Antisymm` instances can be synthesized.
 -/
-@[expose]
+@[expose, instance_reducible]
 public def PartialOrderPackage.ofLE (α : Type u)
     (args : Packages.PartialOrderOfLEArgs α := by exact {}) : PartialOrderPackage α where
   toPreorderPackage := .ofLE α args.toPreorderOfLEArgs
@@ -380,7 +383,7 @@ automatically. If it fails, it is necessary to provide some of the fields manual
 * Other proof obligations, namely `le_total` and `le_trans`, can be omitted if `Total` and `Trans`
   instances can be synthesized.
 -/
-@[expose]
+@[expose, instance_reducible]
 public def LinearPreorderPackage.ofLE (α : Type u)
     (args : Packages.LinearPreorderOfLEArgs α := by exact {}) : LinearPreorderPackage α where
   toPreorderPackage := .ofLE α args.toPreorderOfLEArgs
@@ -482,7 +485,7 @@ automatically. If it fails, it is necessary to provide some of the fields manual
 * Other proof obligations, namely `le_total`, `le_trans` and `le_antisymm`, can be omitted if
   `Total`, `Trans` and `Antisymm` instances can be synthesized.
 -/
-@[expose]
+@[expose, instance_reducible]
 public def LinearOrderPackage.ofLE (α : Type u)
     (args : Packages.LinearOrderOfLEArgs α := by exact {}) : LinearOrderPackage α where
   toLinearPreorderPackage := .ofLE α args.toLinearPreorderOfLEArgs
@@ -791,6 +794,7 @@ automatically. If it fails, it is necessary to provide some of the fields manual
 @[expose]
 public def LinearOrderPackage.ofOrd (α : Type u)
     (args : Packages.LinearOrderOfOrdArgs α := by exact {}) : LinearOrderPackage α :=
+  set_option backward.isDefEq.respectTransparency false in
   letI := LinearPreorderPackage.ofOrd α args.toLinearPreorderOfOrdArgs
   haveI : LawfulEqOrd α := ⟨args.eq_of_compare _ _⟩
   letI : Min α := args.min

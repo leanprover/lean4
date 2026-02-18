@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.GrindInstances.ToInt
-// Imports: import all Init.Grind.ToInt public import Init.Grind.Ring.ToInt public import Init.Data.SInt.Lemmas
+// Imports: import all Init.Grind.ToInt public import Init.Data.SInt.Basic public import Init.Grind.ToInt import Init.Data.BitVec.Bootstrap import Init.Data.Int.LemmasAux import Init.Data.Int.Pow import Init.Data.SInt.Lemmas import Init.Data.UInt.Lemmas import Init.System.Platform
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -181,7 +181,7 @@ _start:
 {
 uint64_t x_2; lean_object* x_3; 
 x_2 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = l_Lean_Grind_instToIntUInt64UintOfNatNat___lam__0(x_2);
 return x_3;
 }
@@ -223,8 +223,14 @@ return x_2;
 }
 }
 lean_object* initialize_Init_Grind_ToInt(uint8_t builtin);
-lean_object* initialize_Init_Grind_Ring_ToInt(uint8_t builtin);
+lean_object* initialize_Init_Data_SInt_Basic(uint8_t builtin);
+lean_object* initialize_Init_Grind_ToInt(uint8_t builtin);
+lean_object* initialize_Init_Data_BitVec_Bootstrap(uint8_t builtin);
+lean_object* initialize_Init_Data_Int_LemmasAux(uint8_t builtin);
+lean_object* initialize_Init_Data_Int_Pow(uint8_t builtin);
 lean_object* initialize_Init_Data_SInt_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_Data_UInt_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_System_Platform(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_GrindInstances_ToInt(uint8_t builtin) {
 lean_object * res;
@@ -233,10 +239,28 @@ _G_initialized = true;
 res = initialize_Init_Grind_ToInt(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Grind_Ring_ToInt(builtin);
+res = initialize_Init_Data_SInt_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Grind_ToInt(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_BitVec_Bootstrap(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Int_LemmasAux(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Int_Pow(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_SInt_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_UInt_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_System_Platform(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Grind_instToIntNatCiOfNatInt___closed__0 = _init_l_Lean_Grind_instToIntNatCiOfNatInt___closed__0();

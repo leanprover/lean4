@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.SetOption
-// Imports: public import Lean.Elab.InfoTree
+// Imports: public import Lean.Elab.InfoTree public import Init.Syntax
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1128,12 +1128,16 @@ return x_9;
 }
 }
 lean_object* initialize_Lean_Elab_InfoTree(uint8_t builtin);
+lean_object* initialize_Init_Syntax(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_SetOption(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Lean_Elab_InfoTree(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Syntax(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___private_Lean_Elab_SetOption_0__Lean_Elab_throwUnconfigurable___redArg___closed__1 = _init_l___private_Lean_Elab_SetOption_0__Lean_Elab_throwUnconfigurable___redArg___closed__1();

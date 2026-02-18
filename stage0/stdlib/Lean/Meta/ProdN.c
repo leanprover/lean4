@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.ProdN
-// Imports: public import Lean.Meta.InferType import Lean.Meta.DecLevel
+// Imports: public import Lean.Meta.InferType import Lean.Meta.DecLevel import Init.Data.Range.Polymorphic.Iterators
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1660,6 +1660,7 @@ return x_8;
 }
 lean_object* initialize_Lean_Meta_InferType(uint8_t builtin);
 lean_object* initialize_Lean_Meta_DecLevel(uint8_t builtin);
+lean_object* initialize_Init_Data_Range_Polymorphic_Iterators(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_ProdN(uint8_t builtin) {
 lean_object * res;
@@ -1669,6 +1670,9 @@ res = initialize_Lean_Meta_InferType(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_DecLevel(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Range_Polymorphic_Iterators(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Meta_getProdFields___closed__1 = _init_l_Lean_Meta_getProdFields___closed__1();

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.String.OrderInstances
-// Imports: public import Init.Data.String.Defs public import Init.Grind.ToInt
+// Imports: public import Init.Data.String.Defs public import Init.Grind.ToInt public import Init.Data.Order.Classes import Init.Omega
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -726,6 +726,8 @@ return x_2;
 }
 lean_object* initialize_Init_Data_String_Defs(uint8_t builtin);
 lean_object* initialize_Init_Grind_ToInt(uint8_t builtin);
+lean_object* initialize_Init_Data_Order_Classes(uint8_t builtin);
+lean_object* initialize_Init_Omega(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_String_OrderInstances(uint8_t builtin) {
 lean_object * res;
@@ -735,6 +737,12 @@ res = initialize_Init_Data_String_Defs(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Grind_ToInt(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Order_Classes(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_String_Internal___aux__Init__Data__String__OrderInstances______macroRules__String__Internal__tacticOrder__1___closed__12 = _init_l_String_Internal___aux__Init__Data__String__OrderInstances______macroRules__String__Internal__tacticOrder__1___closed__12();

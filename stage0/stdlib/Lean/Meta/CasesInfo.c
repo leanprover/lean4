@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.CasesInfo
-// Imports: public import Lean.Meta.Basic import Lean.AuxRecursor
+// Imports: public import Lean.Meta.Basic import Init.Data.Range.Polymorphic.Iterators
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -3327,7 +3327,7 @@ return x_6;
 }
 }
 lean_object* initialize_Lean_Meta_Basic(uint8_t builtin);
-lean_object* initialize_Lean_AuxRecursor(uint8_t builtin);
+lean_object* initialize_Init_Data_Range_Polymorphic_Iterators(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_CasesInfo(uint8_t builtin) {
 lean_object * res;
@@ -3336,7 +3336,7 @@ _G_initialized = true;
 res = initialize_Lean_Meta_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_AuxRecursor(builtin);
+res = initialize_Init_Data_Range_Polymorphic_Iterators(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_panic___at___00Lean_getConstInfoCtor___at___00getCasesInfo_x3f_spec__3_spec__5___closed__0 = _init_l_panic___at___00Lean_getConstInfoCtor___at___00getCasesInfo_x3f_spec__3_spec__5___closed__0();

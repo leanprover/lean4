@@ -8,8 +8,6 @@ module
 prelude
 public import Lean.Meta.Basic
 import Lean.Util.CollectLevelParams
-import Lean.AddDecl
-import Lean.Meta.AppBuilder
 import Lean.Elab.DeclarationRange
 
 open Lean Meta

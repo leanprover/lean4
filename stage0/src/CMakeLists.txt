@@ -10,7 +10,7 @@ endif()
 include(ExternalProject)
 project(LEAN CXX C)
 set(LEAN_VERSION_MAJOR 4)
-set(LEAN_VERSION_MINOR 29)
+set(LEAN_VERSION_MINOR 30)
 set(LEAN_VERSION_PATCH 0)
 set(LEAN_VERSION_IS_RELEASE 0) # This number is 1 in the release revision, and 0 otherwise.
 set(LEAN_SPECIAL_VERSION_DESC "" CACHE STRING "Additional version description like 'nightly-2018-03-11'")
@@ -250,7 +250,7 @@ else()
 endif()
 
 if(NOT MSVC)
-  set(CMAKE_CXX_FLAGS "-Wall -Wextra -std=c++14 ${CMAKE_CXX_FLAGS}")
+  set(CMAKE_CXX_FLAGS "-Wall -Wextra -std=c++20 ${CMAKE_CXX_FLAGS}")
   set(CMAKE_CXX_FLAGS_DEBUG "-g3 ${CMAKE_CXX_FLAGS_DEBUG}")
   if(CMAKE_SYSTEM_NAME MATCHES "Emscripten")
     # smallest+slower | -Oz .. -Os .. -O3 | largest+faster

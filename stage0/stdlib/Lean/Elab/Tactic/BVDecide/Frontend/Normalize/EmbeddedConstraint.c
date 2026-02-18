@@ -96,7 +96,7 @@ size_t lean_array_size(lean_object*);
 lean_object* l_Lean_MVarId_tryClearMany(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Array_isEmpty___redArg(lean_object*);
 lean_object* l_Lean_Meta_getSimpCongrTheorems___redArg(lean_object*);
-lean_object* l_Lean_Meta_Simp_mkContext___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Simp_mkContext___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_simpGoal(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_embeddedConstraintPass___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_embeddedConstraintPass___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1103,8 +1103,8 @@ lean_ctor_set_uint8(x_34, sizeof(void*)*3 + 24, x_31);
 lean_ctor_set_uint8(x_34, sizeof(void*)*3 + 25, x_31);
 lean_ctor_set_uint8(x_34, sizeof(void*)*3 + 26, x_24);
 lean_ctor_set_uint8(x_34, sizeof(void*)*3 + 27, x_24);
-lean_ctor_set_uint8(x_34, sizeof(void*)*3 + 28, x_24);
-x_35 = l_Lean_Meta_Simp_mkContext___redArg(x_34, x_20, x_28, x_5, x_8);
+lean_ctor_set_uint8(x_34, sizeof(void*)*3 + 28, x_31);
+x_35 = l_Lean_Meta_Simp_mkContext___redArg(x_34, x_20, x_28, x_5, x_7, x_8);
 if (lean_obj_tag(x_35) == 0)
 {
 lean_object* x_36; lean_object* x_37; lean_object* x_38; 
@@ -1392,8 +1392,8 @@ lean_ctor_set_uint8(x_80, sizeof(void*)*3 + 24, x_77);
 lean_ctor_set_uint8(x_80, sizeof(void*)*3 + 25, x_77);
 lean_ctor_set_uint8(x_80, sizeof(void*)*3 + 26, x_70);
 lean_ctor_set_uint8(x_80, sizeof(void*)*3 + 27, x_70);
-lean_ctor_set_uint8(x_80, sizeof(void*)*3 + 28, x_70);
-x_81 = l_Lean_Meta_Simp_mkContext___redArg(x_80, x_20, x_74, x_5, x_8);
+lean_ctor_set_uint8(x_80, sizeof(void*)*3 + 28, x_77);
+x_81 = l_Lean_Meta_Simp_mkContext___redArg(x_80, x_20, x_74, x_5, x_7, x_8);
 if (lean_obj_tag(x_81) == 0)
 {
 lean_object* x_82; lean_object* x_83; lean_object* x_84; 

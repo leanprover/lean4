@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.Anchor
-// Imports: public import Lean.Meta.Tactic.Grind.Types import Lean.Meta.Tactic.Grind.MarkNestedSubsingletons
+// Imports: public import Lean.Meta.Tactic.Grind.Types import Lean.Meta.Tactic.Grind.MarkNestedSubsingletons import Init.Omega
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -322,9 +322,9 @@ _start:
 {
 uint64_t x_3; uint64_t x_4; uint64_t x_5; lean_object* x_6; 
 x_3 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_4 = lean_unbox_uint64(x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_5 = l___private_Lean_Meta_Tactic_Grind_Anchor_0__Lean_Meta_Grind_mix(x_3, x_4);
 x_6 = lean_box_uint64(x_5);
 return x_6;
@@ -1887,7 +1887,7 @@ _start:
 {
 uint64_t x_16; lean_object* x_17; 
 x_16 = lean_unbox_uint64(x_5);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 x_17 = l_WellFounded_opaqueFix_u2083___at___00Lean_Meta_Grind_getAnchor_spec__0___redArg(x_1, x_2, x_3, x_4, x_16, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14);
 lean_dec(x_10);
 lean_dec_ref(x_9);
@@ -1957,7 +1957,7 @@ _start:
 {
 uint64_t x_19; lean_object* x_20; 
 x_19 = lean_unbox_uint64(x_7);
-lean_dec(x_7);
+lean_dec_ref(x_7);
 x_20 = l_WellFounded_opaqueFix_u2083___at___00Lean_Meta_Grind_getAnchor_spec__0(x_1, x_2, x_3, x_4, x_5, x_6, x_19, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17);
 lean_dec(x_13);
 lean_dec_ref(x_12);
@@ -2110,7 +2110,7 @@ _start:
 {
 uint64_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox_uint64(x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_4 = l_Lean_Meta_Grind_AnchorRef_matches(x_1, x_3);
 lean_dec_ref(x_1);
 x_5 = lean_box(x_4);
@@ -2243,7 +2243,7 @@ lean_inc_ref(x_1);
 x_14 = lean_apply_1(x_1, x_8);
 x_15 = lean_uint64_of_nat(x_2);
 x_16 = lean_unbox_uint64(x_14);
-lean_dec(x_14);
+lean_dec_ref(x_14);
 x_17 = lean_uint64_shift_right(x_16, x_15);
 x_18 = lean_box_uint64(x_17);
 lean_inc_ref(x_4);
@@ -2290,7 +2290,7 @@ lean_inc_ref(x_1);
 x_30 = lean_apply_1(x_1, x_8);
 x_31 = lean_uint64_of_nat(x_2);
 x_32 = lean_unbox_uint64(x_30);
-lean_dec(x_30);
+lean_dec_ref(x_30);
 x_33 = lean_uint64_shift_right(x_32, x_31);
 x_34 = lean_box_uint64(x_33);
 lean_inc_ref(x_4);
@@ -2449,7 +2449,7 @@ _start:
 {
 uint64_t x_5; lean_object* x_6; 
 x_5 = lean_unbox_uint64(x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_6 = l_Lean_Meta_Grind_mkAnchorSyntaxFromPrefix___redArg(x_1, x_5, x_3);
 lean_dec_ref(x_3);
 lean_dec(x_1);
@@ -2469,7 +2469,7 @@ _start:
 {
 uint64_t x_6; lean_object* x_7; 
 x_6 = lean_unbox_uint64(x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_7 = l_Lean_Meta_Grind_mkAnchorSyntaxFromPrefix(x_1, x_6, x_3, x_4);
 lean_dec(x_4);
 lean_dec_ref(x_3);
@@ -2496,7 +2496,7 @@ _start:
 {
 uint64_t x_5; lean_object* x_6; 
 x_5 = lean_unbox_uint64(x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_6 = l_Lean_Meta_Grind_mkAnchorSyntax___redArg(x_1, x_5, x_3);
 lean_dec_ref(x_3);
 lean_dec(x_1);
@@ -2516,7 +2516,7 @@ _start:
 {
 uint64_t x_6; lean_object* x_7; 
 x_6 = lean_unbox_uint64(x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_7 = l_Lean_Meta_Grind_mkAnchorSyntax(x_1, x_6, x_3, x_4);
 lean_dec(x_4);
 lean_dec_ref(x_3);
@@ -2549,6 +2549,7 @@ return x_12;
 }
 lean_object* initialize_Lean_Meta_Tactic_Grind_Types(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Grind_MarkNestedSubsingletons(uint8_t builtin);
+lean_object* initialize_Init_Omega(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Grind_Anchor(uint8_t builtin) {
 lean_object * res;
@@ -2558,6 +2559,9 @@ res = initialize_Lean_Meta_Tactic_Grind_Types(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Grind_MarkNestedSubsingletons(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00Lean_Meta_Grind_getAnchor_spec__1_spec__1___redArg___closed__0 = _init_l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00Lean_Meta_Grind_getAnchor_spec__1_spec__1___redArg___closed__0();

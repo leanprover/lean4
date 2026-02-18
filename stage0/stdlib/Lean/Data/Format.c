@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.Format
-// Imports: public import Lean.Data.Options
+// Imports: public import Lean.Data.Options public import Init.Data.Format.Instances
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -3609,12 +3609,16 @@ return x_11;
 }
 }
 lean_object* initialize_Lean_Data_Options(uint8_t builtin);
+lean_object* initialize_Init_Data_Format_Instances(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Data_Format(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Lean_Data_Options(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Format_Instances(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_Format_initFn___closed__1_00___x40_Lean_Data_Format_3484694372____hygCtx___hyg_4_ = _init_l_Std_Format_initFn___closed__1_00___x40_Lean_Data_Format_3484694372____hygCtx___hyg_4_();

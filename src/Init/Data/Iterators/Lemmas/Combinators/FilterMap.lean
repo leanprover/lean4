@@ -6,10 +6,17 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Iterators.Lemmas.Consumers
-public import Init.Data.Iterators.Lemmas.Combinators.Monadic.FilterMap
 public import Init.Data.Iterators.Combinators.FilterMap
-import Init.Control.Lawful.MonadAttach.Lemmas
+public import Init.Data.Iterators.Consumers.Collect
+public import Init.Data.Iterators.Consumers.Loop
+public import Init.Data.List.Control
+import Init.Data.Array.Lemmas
+import Init.Data.Bool
+import Init.Data.Iterators.Lemmas.Basic
+import Init.Data.Iterators.Lemmas.Combinators.Monadic.FilterMap
+import Init.Data.Iterators.Lemmas.Consumers.Collect
+import Init.Data.Iterators.Lemmas.Consumers.Loop
+import Init.Data.Iterators.Lemmas.Consumers.Monadic.Loop
 
 public section
 
@@ -743,6 +750,7 @@ theorem Iter.anyM_filterMapM {α β β' : Type w} {m : Type w → Type w'}
   simp only [filterMapM_eq_toIter_filterMapM_toIterM, IterM.anyM_filterMapM]
   rfl
 
+set_option backward.isDefEq.respectTransparency false in
 -- There is hope to generalize the following theorem as soon there is a `Shrink` type.
 /--
 This lemma expresses `Iter.anyM` in terms of `IterM.anyM`.

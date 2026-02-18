@@ -7,28 +7,11 @@ module
 
 prelude
 public import Lean.Compiler.LCNF.PassManager
+public import Lean.Compiler.LCNF.PublicDeclsExt
 
 public section
 
 namespace Lean.Compiler.LCNF
-
-/-- Creates a replayable local environment extension holding a name set. -/
-private def mkDeclSetExt : IO (EnvExtension (List Name × NameSet)) :=
-  registerEnvExtension
-    (mkInitial := pure ([], {}))
-    (asyncMode := .sync)
-    (replay? := some <| fun oldState newState _ s =>
-      let newEntries := newState.1.take (newState.1.length - oldState.1.length)
-      newEntries.foldl (init := s) fun s n =>
-        if s.1.contains n then
-          s
-        else
-          (n :: s.1, if newState.2.contains n then s.2.insert n else s.2))
-
-/--
-Set of declarations to be exported to other modules; visibility shared by base/mono/IR phases.
--/
-private builtin_initialize publicDeclsExt : EnvExtension (List Name × NameSet) ← mkDeclSetExt
 
 -- The following extensions are per-phase as e.g. a declaration may be inlineable in the mono phase
 -- because it directly unfolds to a `_redArg` call, but making its body in the base phase available
@@ -55,23 +38,6 @@ private def getTransparencyExt : Phase → EnvExtension (List Name × NameSet)
   | .mono => monoTransparentDeclsExt
   | .impure => impureTransparentDeclsExt
 
-def isDeclPublic (env : Environment) (declName : Name) : Bool := Id.run do
-  if !env.header.isModule then
-    return true
-  -- The IR compiler may call the boxed variant it introduces after we do visibility inference, so
-  -- use same visibility as base decl.
-  let inferFor := match declName with
-    | .str n "_boxed" => n
-    | n               => n
-  let (_, map) := publicDeclsExt.getState env
-  map.contains inferFor
-
-def setDeclPublic (env : Environment) (declName : Name) : Environment :=
-  if isDeclPublic env declName then
-    env
-  else
-    publicDeclsExt.modifyState env fun s =>
-      (declName :: s.1, s.2.insert declName)
 
 def isDeclTransparent (env : Environment) (phase : Phase) (declName : Name) : Bool := Id.run do
   if !env.header.isModule then

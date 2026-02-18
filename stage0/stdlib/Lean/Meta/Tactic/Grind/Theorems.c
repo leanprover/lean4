@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.Theorems
-// Imports: public import Lean.HeadIndex public import Lean.Meta.Basic import Lean.Meta.Eqns
+// Imports: public import Lean.HeadIndex public import Lean.Meta.Basic import Lean.Meta.Eqns import Init.Data.Range.Polymorphic.Iterators
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1071,7 +1071,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l_Lean_Meta_Grind_Theorems_insert___redArg___closed__13));
 x_2 = lean_unsigned_to_nat(6u);
-x_3 = lean_unsigned_to_nat(81u);
+x_3 = lean_unsigned_to_nat(82u);
 x_4 = ((lean_object*)(l_Lean_Meta_Grind_Theorems_insert___redArg___closed__12));
 x_5 = ((lean_object*)(l_Lean_Meta_Grind_Theorems_insert___redArg___closed__11));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -7563,6 +7563,7 @@ return x_10;
 lean_object* initialize_Lean_HeadIndex(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Basic(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Eqns(uint8_t builtin);
+lean_object* initialize_Init_Data_Range_Polymorphic_Iterators(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Grind_Theorems(uint8_t builtin) {
 lean_object * res;
@@ -7575,6 +7576,9 @@ res = initialize_Lean_Meta_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Eqns(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Range_Polymorphic_Iterators(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Meta_Grind_instReprOrigin_repr___closed__3 = _init_l_Lean_Meta_Grind_instReprOrigin_repr___closed__3();

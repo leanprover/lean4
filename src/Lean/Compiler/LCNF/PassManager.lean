@@ -7,6 +7,8 @@ module
 
 prelude
 public import Lean.Compiler.LCNF.CompilerM
+import Init.Data.Fin.Lemmas
+import Init.Omega
 
 public section
 
@@ -99,9 +101,16 @@ The `PassManager` used to store all `Pass`es that will be run within
 pipeline.
 -/
 structure PassManager where
+  /-- Passes that happen during the LCNF base phase -/
   basePasses : Array Pass
+  /-- Passes that happen during the LCNF mono phase before lambda lifting -/
   monoPasses : Array Pass
+  /--
+  Passes that happen during the LCNF mono phase after lambda lifting. Note that lifted lambdas will
+  have been lifted out of the SCC they originated from if possible.
+  -/
   monoPassesNoLambda : Array Pass
+  /-- Passes that happen during the LCNF impure phase. -/
   impurePasses : Array Pass
   deriving Inhabited
 

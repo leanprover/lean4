@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Time.Zoned.Database.Windows
-// Imports: public import Init.Data.SInt.Basic public import Std.Time.Zoned.Database.Basic
+// Imports: public import Init.Data.SInt.Basic public import Std.Time.Zoned.Database.Basic import Init.While
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -61,7 +61,7 @@ _start:
 {
 uint64_t x_5; uint8_t x_6; lean_object* x_7; 
 x_5 = lean_unbox_uint64(x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_6 = lean_unbox(x_3);
 x_7 = lean_windows_get_next_transition(x_1, x_5, x_6);
 lean_dec_ref(x_1);
@@ -73,7 +73,7 @@ _start:
 {
 uint64_t x_3; lean_object* x_4; 
 x_3 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_4 = lean_get_windows_local_timezone_id_at(x_3);
 return x_4;
 }
@@ -742,6 +742,7 @@ return x_3;
 }
 lean_object* initialize_Init_Data_SInt_Basic(uint8_t builtin);
 lean_object* initialize_Std_Time_Zoned_Database_Basic(uint8_t builtin);
+lean_object* initialize_Init_While(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Time_Zoned_Database_Windows(uint8_t builtin) {
 lean_object * res;
@@ -751,6 +752,9 @@ res = initialize_Init_Data_SInt_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Time_Zoned_Database_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_While(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___private_Init_While_0__Lean_Loop_forIn_loop___at___00Std_Time_Database_Windows_getZoneRules_spec__1___closed__0 = _init_l___private_Init_While_0__Lean_Loop_forIn_loop___at___00Std_Time_Database_Windows_getZoneRules_spec__1___closed__0();

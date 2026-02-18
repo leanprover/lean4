@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Config.Package
-// Imports: public import Lake.Config.Cache public import Lake.Config.Script public import Lake.Config.ConfigDecl public import Lake.Config.Dependency public import Lake.Config.PackageConfig public import Lake.Util.FilePath public import Lake.Util.OrdHashSet public import Lake.Util.Name meta import all Lake.Util.OpaqueType
+// Imports: public import Lake.Config.Cache public import Lake.Config.Script public import Lake.Config.ConfigDecl public import Lake.Config.Dependency public import Lake.Config.PackageConfig public import Lake.Util.FilePath public import Lake.Util.OrdHashSet public import Lake.Util.Name meta import all Lake.Util.OpaqueType import Lake.Util.OpaqueType import Lake.Util.IO
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -269,8 +269,7 @@ uint8_t l_Lake_LeanLibConfig_isBuildableModule___redArg(lean_object*, lean_objec
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Lake_Package_isBuildableModule_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lake_Package_isBuildableModule(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_isBuildableModule___boxed(lean_object*, lean_object*);
-uint8_t l_System_FilePath_pathExists(lean_object*);
-lean_object* l_IO_FS_removeDirAll(lean_object*);
+lean_object* l_Lake_removeDirAllIfExists(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_clean(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_clean___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Config_Package_0__Lake_OpaquePostUpdateHook_nonemptyType(lean_object* x_1) {
@@ -2229,7 +2228,7 @@ return x_4;
 LEAN_EXPORT lean_object* l_Lake_Package_clean(lean_object* x_1) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; 
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_3 = lean_ctor_get(x_1, 6);
 lean_inc_ref(x_3);
 x_4 = lean_ctor_get(x_1, 4);
@@ -2240,23 +2239,9 @@ lean_inc_ref(x_5);
 lean_dec_ref(x_3);
 x_6 = l_System_FilePath_normalize(x_5);
 x_7 = l_Lake_joinRelative(x_4, x_6);
-x_8 = l_System_FilePath_pathExists(x_7);
-if (x_8 == 0)
-{
-lean_object* x_9; lean_object* x_10; 
+x_8 = l_Lake_removeDirAllIfExists(x_7);
 lean_dec_ref(x_7);
-x_9 = lean_box(0);
-x_10 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_10, 0, x_9);
-return x_10;
-}
-else
-{
-lean_object* x_11; 
-x_11 = l_IO_FS_removeDirAll(x_7);
-lean_dec_ref(x_7);
-return x_11;
-}
+return x_8;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_Package_clean___boxed(lean_object* x_1, lean_object* x_2) {
@@ -2276,6 +2261,8 @@ lean_object* initialize_Lake_Util_FilePath(uint8_t builtin);
 lean_object* initialize_Lake_Util_OrdHashSet(uint8_t builtin);
 lean_object* initialize_Lake_Util_Name(uint8_t builtin);
 lean_object* initialize_Lake_Util_OpaqueType(uint8_t builtin);
+lean_object* initialize_Lake_Util_OpaqueType(uint8_t builtin);
+lean_object* initialize_Lake_Util_IO(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lake_Config_Package(uint8_t builtin) {
 lean_object * res;
@@ -2306,6 +2293,12 @@ res = initialize_Lake_Util_Name(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lake_Util_OpaqueType(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lake_Util_OpaqueType(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lake_Util_IO(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lake_instInhabitedPackage_default___closed__0 = _init_l_Lake_instInhabitedPackage_default___closed__0();

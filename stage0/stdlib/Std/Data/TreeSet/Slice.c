@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.TreeSet.Slice
-// Imports: public import Std.Data.TreeSet.Raw.Slice public import Std.Data.TreeSet.Basic
+// Imports: public import Std.Data.TreeSet.Raw.Slice
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -682,16 +682,12 @@ return x_1;
 }
 }
 lean_object* initialize_Std_Data_TreeSet_Raw_Slice(uint8_t builtin);
-lean_object* initialize_Std_Data_TreeSet_Basic(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Data_TreeSet_Slice(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Std_Data_TreeSet_Raw_Slice(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Std_Data_TreeSet_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_TreeSet_instSliceableRiiSlice___auto__1___closed__5 = _init_l_Std_TreeSet_instSliceableRiiSlice___auto__1___closed__5();

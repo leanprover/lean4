@@ -359,7 +359,7 @@ theorem pmap_append' {p : α → Prop} {f : ∀ a : α, p a → β} {xs : Vector
       ys.attach.map (fun ⟨y, h⟩ => (⟨y, mem_append_right xs h⟩ : { y // y ∈ xs ++ ys })) := by
   rcases xs with ⟨xs, rfl⟩
   rcases ys with ⟨ys, rfl⟩
-  simp [Array.map_attach_eq_pmap]
+  simp [Array.map_attach_eq_pmap]; rfl
 
 @[simp] theorem attachWith_append {P : α → Prop} {xs : Vector α n} {ys : Vector α m}
     {H : ∀ (a : α), a ∈ xs ++ ys → P a} :

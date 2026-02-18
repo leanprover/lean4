@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Time.Date.ValidDate
-// Imports: public import Std.Time.Date.Unit.Month import all Std.Time.Date.Unit.Month
+// Imports: public import Std.Time.Date.Unit.Month import all Std.Time.Date.Unit.Month import Init.Data.Bool
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -594,6 +594,7 @@ return x_4;
 }
 lean_object* initialize_Std_Time_Date_Unit_Month(uint8_t builtin);
 lean_object* initialize_Std_Time_Date_Unit_Month(uint8_t builtin);
+lean_object* initialize_Init_Data_Bool(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Time_Date_ValidDate(uint8_t builtin) {
 lean_object * res;
@@ -603,6 +604,9 @@ res = initialize_Std_Time_Date_Unit_Month(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Time_Date_Unit_Month(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Bool(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_Time_instInhabitedValidDate___closed__0 = _init_l_Std_Time_instInhabitedValidDate___closed__0();

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.LawfulBEqTactics
-// Imports: public import Init.Core import Init.Data.Bool import Init.ByCases
+// Imports: public import Init.Core import Init.Data.Bool import Init.ByCases import Init.Classical
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2284,6 +2284,7 @@ return x_106;
 lean_object* initialize_Init_Core(uint8_t builtin);
 lean_object* initialize_Init_Data_Bool(uint8_t builtin);
 lean_object* initialize_Init_ByCases(uint8_t builtin);
+lean_object* initialize_Init_Classical(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_LawfulBEqTactics(uint8_t builtin) {
 lean_object * res;
@@ -2296,6 +2297,9 @@ res = initialize_Init_Data_Bool(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_ByCases(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Classical(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__15 = _init_l_DerivingHelpers___aux__Init__LawfulBEqTactics______macroRules__DerivingHelpers__tacticDeriving__ReflEq__tactic__1___closed__15();

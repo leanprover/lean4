@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.UnifyEq
-// Imports: public import Lean.Meta.Tactic.Injection
+// Imports: public import Lean.Meta.Tactic.Injection import Init.Data.Nat.Linear
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1602,7 +1602,7 @@ lean_inc(x_12);
 lean_inc_ref(x_11);
 lean_inc(x_10);
 lean_inc_ref(x_9);
-x_17 = l_Lean_Meta_mkEq(x_16, x_15, x_9, x_10, x_11, x_12);
+x_17 = l_Lean_Meta_mkEq(x_14, x_16, x_9, x_10, x_11, x_12);
 if (lean_obj_tag(x_17) == 0)
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
@@ -1777,9 +1777,9 @@ if (x_51 == 0)
 lean_dec(x_45);
 lean_dec_ref(x_8);
 lean_dec(x_4);
-x_14 = lean_box(0);
-x_15 = x_50;
-x_16 = x_48;
+x_14 = x_48;
+x_15 = lean_box(0);
+x_16 = x_50;
 goto block_43;
 }
 else
@@ -1791,9 +1791,9 @@ if (x_52 == 0)
 {
 lean_dec(x_45);
 lean_dec(x_4);
-x_14 = lean_box(0);
-x_15 = x_50;
-x_16 = x_48;
+x_14 = x_48;
+x_15 = lean_box(0);
+x_16 = x_50;
 goto block_43;
 }
 else
@@ -4576,12 +4576,16 @@ return x_6;
 }
 }
 lean_object* initialize_Lean_Meta_Tactic_Injection(uint8_t builtin);
+lean_object* initialize_Init_Data_Nat_Linear(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_UnifyEq(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Lean_Meta_Tactic_Injection(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Nat_Linear(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___private_Lean_Meta_Tactic_UnifyEq_0__Lean_Meta_toOffset_x3f___closed__0 = _init_l___private_Lean_Meta_Tactic_UnifyEq_0__Lean_Meta_toOffset_x3f___closed__0();

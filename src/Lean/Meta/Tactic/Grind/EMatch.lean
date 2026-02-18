@@ -7,12 +7,13 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Types
 import Lean.Util.CollectLevelMVars
-import Lean.Meta.Tactic.Grind.Core
 import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Tactic.Grind.MatchDiscrOnly
 import Lean.Meta.Tactic.Grind.ProveEq
 import Lean.Meta.Tactic.Grind.SynthInstance
 import Lean.Meta.Tactic.Grind.Simp
+import Init.Grind.Util
+import Init.Omega
 public section
 namespace Lean.Meta.Grind
 namespace EMatch
@@ -867,7 +868,8 @@ private def matchEqBwdPat (p : Expr) : M Unit := do
 
 def instantiateGroundTheorem (thm : EMatchTheorem) : M Unit := do
   if (← markTheoremInstance thm.proof #[]) then
-    addNewInstance thm thm.proof 0 []
+    let proof ← thm.getProofWithFreshMVarLevels
+    addNewInstance thm proof 0 []
 
 def ematchTheorem (thm : EMatchTheorem) : M Unit := do
   if (← checkMaxInstancesExceeded) then return ()

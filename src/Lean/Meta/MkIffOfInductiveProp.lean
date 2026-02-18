@@ -13,10 +13,8 @@ module
 prelude
 
 public import Lean.Meta.Basic
-import Lean.Elab.Term.TermElabM
 import Lean.Elab.Tactic.Basic
 import Lean.Meta.Tactic.Apply
-import Lean.Meta.Tactic.Intro
 import Lean.Meta.Tactic.Cases
 
 

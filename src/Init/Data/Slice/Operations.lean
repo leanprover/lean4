@@ -7,8 +7,9 @@ module
 
 prelude
 public import Init.Data.Slice.Basic
-public import Init.Data.Slice.Notation
 public import Init.Data.Iterators.ToIterator
+public import Init.Data.Iterators.Consumers.Loop
+import Init.Data.Iterators.Consumers.Collect
 
 public section
 
@@ -40,8 +41,6 @@ terminating.
 -/
 class LawfulSliceSize (γ : Type u) [SliceSize γ] [ToIterator (Slice γ) Id α β]
     [Iterator α Id β] where
-  /-- The iterator for every `Slice α` is finite. -/
-  [finite : Finite α Id]
   /-- The iterator of a slice `s` of type `Slice γ` emits exactly `SliceSize.size s` elements. -/
   lawful :
       letI : IteratorLoop α Id Id := .defaultImplementation
@@ -59,26 +58,23 @@ def size (s : Slice γ) [SliceSize γ] :=
 /-- Allocates a new array that contains the elements of the slice. -/
 @[always_inline, inline]
 def toArray [ToIterator (Slice γ) Id α β] [Iterator α Id β]
-    [Finite α Id] (s : Slice γ) : Array β :=
+    (s : Slice γ) : Array β :=
   Internal.iter s |>.toArray
 
 /-- Allocates a new list that contains the elements of the slice. -/
 @[always_inline, inline]
 def toList [ToIterator (Slice γ) Id α β] [Iterator α Id β]
-    [Finite α Id]
     (s : Slice γ) : List β :=
   Internal.iter s |>.toList
 
 /-- Allocates a new list that contains the elements of the slice in reverse order. -/
 @[always_inline, inline]
 def toListRev [ToIterator (Slice γ) Id α β] [Iterator α Id β]
-    [Finite α Id] (s : Slice γ) : List β :=
+    (s : Slice γ) : List β :=
   Internal.iter s |>.toListRev
 
 instance {γ : Type u} {β : Type v} [Monad m] [ToIterator (Slice γ) Id α β]
-    [Iterator α Id β]
-    [IteratorLoop α Id m]
-    [Finite α Id] :
+    [Iterator α Id β] [IteratorLoop α Id m] :
     ForIn m (Slice γ) β where
   forIn s init f :=
     forIn (Internal.iter s) init f
@@ -111,7 +107,7 @@ none
 def foldlM {γ : Type u} {β : Type v}
     {δ : Type w} {m : Type w → Type w'} [Monad m] (f : δ → β → m δ) (init : δ)
     [ToIterator (Slice γ) Id α β] [Iterator α Id β]
-    [IteratorLoop α Id m] [Finite α Id]
+    [IteratorLoop α Id m]
     (s : Slice γ) : m δ :=
   Internal.iter s |>.foldM f init
 
@@ -127,7 +123,7 @@ Examples for the special case of subarrays:
 def foldl {γ : Type u} {β : Type v}
     {δ : Type w} (f : δ → β → δ) (init : δ)
     [ToIterator (Slice γ) Id α β] [Iterator α Id β]
-    [IteratorLoop α Id Id] [Finite α Id]
+    [IteratorLoop α Id Id]
     (s : Slice γ) : δ :=
   Internal.iter s |>.fold f init
 

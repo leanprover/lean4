@@ -10,11 +10,11 @@ public import Lean.Structure
 public import Lean.Util.Recognizers
 public import Lean.Util.SafeExponentiation
 public import Lean.Meta.GetUnfoldableConst
-public import Lean.Meta.FunInfo
 public import Lean.Meta.CtorRecognizer
 public import Lean.Meta.Match.MatcherInfo
 public import Lean.Meta.Match.MatchPatternAttr
 public import Lean.Meta.Transform
+import Init.Data.Range.Polymorphic.Iterators
 
 public section
 
@@ -768,36 +768,81 @@ where
         failure
     | _ => failure
 
+/--
+Returns `true` if `declName` is the name of class field.
+-/
+private def isProjInst (declName : Name) : MetaM Bool := do
+  let some { fromClass := true, .. } ← getProjectionFnInfo? declName | return false
+  return true
+
+/--
+Auxiliary method for unfolding a class projection. Recall that class fields are not marked with
+`[reducible]`, but we want to reduce them when the transparency setting is `.instances`.
+For example, given `a b : Nat`, the term `a ≤ b` is `LE.le Nat instLENat a b`.
+Unfolding the class field `LE.le` gives `instLENat.1 a b`. This method goes further and
+reduces the instance projection to return `Nat.le a b`.
+-/
+partial def unfoldProjInst? (e : Expr) : MetaM (Option Expr) := do
+  let f := e.getAppFn
+  let .const declName us := f | return none
+  unless (← isProjInst declName) do return none
+  let some fInfo ← withDefault <| getUnfoldableConst? declName | return none
+  deltaBetaDefinition fInfo us e.getAppRevArgs (fun _ => pure none) fun e' => do
+  /-
+  Continuing the example: after delta-beta reducing `LE.le`, we get `e'` which is
+  `instLENat.1 a b`. We consider the unfolding successful if this instance projection
+  reduces to `Nat.le a b` using `.instances` reducibility.
+  -/
+  let some r ← withReducibleAndInstances <| reduceProj? e'.getAppFn | return none
+  recordUnfold declName
+  return some <| mkAppN r e'.getAppArgs |>.headBeta
+
+/--
+Auxiliary method for unfolding a class projection when transparency is set to `TransparencyMode.instances`.
+Recall that class instance projections are not marked with `[reducible]` because we want them to be
+in "reducible canonical form".
+See `unfoldProjInst?`
+-/
+partial def unfoldProjInstWhenInstances? (e : Expr) : MetaM (Option Expr) := do
+  if (← getTransparency) matches .instances then
+    unfoldProjInst? e
+  else
+    return none
+
+register_builtin_option backward.whnf.reducibleClassField : Bool := {
+  defValue := false
+  descr    := "enables better support for unfolding type class fields marked as `[reducible]`"
+}
+
+/--
+Default unfolding function. `e` is of the form `f.{us} a₁ ... aₙ`, and `fInfo` is the `ConstantInfo` for `f`.
+This function has special support for unfolding class fields.
+The support is particularly important when the user marks a class field as `[reducible]` and
+the transparency mode is `.reducible`. For example, suppose `e` is `a ≤ b` where `a b : Nat`,
+and `LE.le` is marked as `[reducible]`. Simply unfolding `LE.le` would give `instLENat.1 a b`,
+which would be stuck because `instLENat` has transparency `[instance_reducible]`. To avoid this, when we unfold
+a `[reducible]` class field, we also unfold the associated projection `instLENat.1` using
+`.instances` reducibility, ultimately returning `Nat.le a b`.
+-/
+private def unfoldDefault (fInfo : ConstantInfo) (us : List Level) (e : Expr) : MetaM (Option Expr) := do
+  if fInfo.hasValue then
+    recordUnfold fInfo.name
+    deltaBetaDefinition fInfo us e.getAppRevArgs (fun _ => pure none) fun e => do
+      if !backward.whnf.reducibleClassField.get (← getOptions) then
+        return some e
+      else if !(← getTransparency) matches .reducible then
+        return some e
+      else if (← isProjInst fInfo.name) then
+        let some r ← withReducibleAndInstances <| reduceProj? e.getAppFn | return some e
+        return mkAppN r e.getAppArgs |>.headBeta
+      else
+        return some e
+  else
+    if fInfo.isAxiom then
+      recordUnfoldAxiom fInfo.name
+    return none
+
 mutual
-
-  /--
-    Auxiliary method for unfolding a class projection.
-  -/
-  partial def unfoldProjInst? (e : Expr) : MetaM (Option Expr) := do
-    match e.getAppFn with
-    | .const declName .. =>
-      match (← getProjectionFnInfo? declName) with
-      | some { fromClass := true, .. } =>
-        match (← withDefault <| unfoldDefinition? e) with
-        | none   => return none
-        | some e =>
-          match (← withReducibleAndInstances <| reduceProj? e.getAppFn) with
-          | none   => return none
-          | some r => recordUnfold declName; return mkAppN r e.getAppArgs |>.headBeta
-      | _ => return none
-    | _ => return none
-
-  /--
-    Auxiliary method for unfolding a class projection when transparency is set to `TransparencyMode.instances`.
-    Recall that class instance projections are not marked with `[reducible]` because we want them to be
-    in "reducible canonical form".
-  -/
-  partial def unfoldProjInstWhenInstances? (e : Expr) : MetaM (Option Expr) := do
-    if (← getTransparency) != TransparencyMode.instances then
-      return none
-    else
-      unfoldProjInst? e
-
   /--
   Unfold definition using "smart unfolding" if possible.
   If `ignoreTransparency = true`, then the definition is unfolded even if the transparency setting does not allow it.
@@ -809,14 +854,8 @@ mutual
         if fInfo.levelParams.length != fLvls.length then
           return none
         else
-          let unfoldDefault (_ : Unit) : MetaM (Option Expr) := do
-            if fInfo.hasValue then
-              recordUnfold fInfo.name
-              deltaBetaDefinition fInfo fLvls e.getAppRevArgs (fun _ => pure none) (fun e => pure (some e))
-            else
-              if fInfo.isAxiom then
-                recordUnfoldAxiom fInfo.name
-              return none
+          let unfoldDefault (_ : Unit) : MetaM (Option Expr) :=
+            unfoldDefault fInfo fLvls e
           if smartUnfolding.get (← getOptions) then
             match ((← getEnv).find? (skipRealize := true) (mkSmartUnfoldingNameFor fInfo.name)) with
             | some fAuxInfo@(.defnInfo _) =>

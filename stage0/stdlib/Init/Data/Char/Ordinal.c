@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Char.Ordinal
-// Imports: public import Init.Data.Fin.OverflowAware public import Init.Data.UInt.Basic public import Init.Data.Function import Init.Data.Char.Lemmas import Init.Data.Char.Order import Init.Grind
+// Imports: public import Init.Data.Fin.OverflowAware public import Init.Data.Function import Init.Data.Char.Lemmas import Init.Data.Char.Order import Init.Grind public import Init.Data.Char.Basic import Init.ByCases import Init.Data.Fin.Lemmas import Init.Data.Int.OfNat import Init.Data.Nat.Linear import Init.Data.Nat.Simproc import Init.Data.Option.Lemmas import Init.Data.UInt.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -235,20 +235,24 @@ return x_4;
 }
 }
 lean_object* initialize_Init_Data_Fin_OverflowAware(uint8_t builtin);
-lean_object* initialize_Init_Data_UInt_Basic(uint8_t builtin);
 lean_object* initialize_Init_Data_Function(uint8_t builtin);
 lean_object* initialize_Init_Data_Char_Lemmas(uint8_t builtin);
 lean_object* initialize_Init_Data_Char_Order(uint8_t builtin);
 lean_object* initialize_Init_Grind(uint8_t builtin);
+lean_object* initialize_Init_Data_Char_Basic(uint8_t builtin);
+lean_object* initialize_Init_ByCases(uint8_t builtin);
+lean_object* initialize_Init_Data_Fin_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_Data_Int_OfNat(uint8_t builtin);
+lean_object* initialize_Init_Data_Nat_Linear(uint8_t builtin);
+lean_object* initialize_Init_Data_Nat_Simproc(uint8_t builtin);
+lean_object* initialize_Init_Data_Option_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_Data_UInt_Lemmas(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Char_Ordinal(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Init_Data_Fin_OverflowAware(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_UInt_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Function(builtin);
@@ -261,6 +265,30 @@ res = initialize_Init_Data_Char_Order(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Grind(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Char_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_ByCases(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Fin_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Int_OfNat(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Nat_Linear(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Nat_Simproc(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Option_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_UInt_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Char_numSurrogates = _init_l_Char_numSurrogates();

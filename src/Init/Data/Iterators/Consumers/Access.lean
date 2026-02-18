@@ -6,8 +6,11 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Iterators.Consumers.Loop
 public import Init.Data.Iterators.Consumers.Monadic.Access
+public import Init.Data.Iterators.Consumers.Partial
+public import Init.Data.Iterators.Consumers.Total
+public import Init.Ext
+public import Init.WFExtrinsicFix
 
 set_option linter.missingDocs true
 

@@ -8,6 +8,7 @@ module
 prelude
 public import Lake.Config.Cache
 public import Lake.Config.InstallPath
+import Init.System.Platform
 
 open System
 open Lean hiding SearchPath
@@ -63,6 +64,8 @@ public structure Env where
   cacheArtifactEndpoint? : Option String
   /-- The base URL for revision uploads and downloads from the cache (i.e., `LAKE_CACHE_REVISION_ENDPOINT`). -/
   cacheRevisionEndpoint? : Option String
+  /-- The name of the cache service (i.e., `LAKE_CACHE_SERVICE`). -/
+  cacheService? : Option String
   /-- The initial Lean library search path of the environment (i.e., `LEAN_PATH`). -/
   initLeanPath : SearchPath
   /-- The initial Lean source search path of the environment (i.e., `LEAN_SRC_PATH`). -/
@@ -162,6 +165,7 @@ public def compute
     cacheKey? := (← IO.getEnv "LAKE_CACHE_KEY").map (·.trimAscii.copy)
     cacheArtifactEndpoint? := (← IO.getEnv "LAKE_CACHE_ARTIFACT_ENDPOINT").map normalizeUrl
     cacheRevisionEndpoint? := (← IO.getEnv "LAKE_CACHE_REVISION_ENDPOINT").map normalizeUrl
+    cacheService? := (← IO.getEnv "LAKE_CACHE_SERVICE").map (·.trimAscii.copy)
     githashOverride := (← IO.getEnv "LEAN_GITHASH").getD ""
     toolchain
     initLeanPath := ← getSearchPath "LEAN_PATH",
@@ -272,6 +276,7 @@ public def baseVars (env : Env) : Array (String × Option String)  :=
     ("LAKE_CACHE_KEY", env.cacheKey?),
     ("LAKE_CACHE_ARTIFACT_ENDPOINT", env.cacheArtifactEndpoint?),
     ("LAKE_CACHE_REVISION_ENDPOINT", env.cacheRevisionEndpoint?),
+    ("LAKE_CACHE_SERVICE", env.cacheService?),
     ("LEAN", env.lean.lean.toString),
     ("LEAN_SYSROOT", env.lean.sysroot.toString),
     ("LEAN_AR", env.lean.ar.toString),

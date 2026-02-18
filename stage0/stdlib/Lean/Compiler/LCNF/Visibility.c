@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.LCNF.Visibility
-// Imports: public import Lean.Compiler.ImplementedByAttr import Lean.ExtraModUses import Lean.Compiler.Options import Lean.Compiler.NoncomputableAttr import Lean.AddDecl
+// Imports: public import Lean.Compiler.ImplementedByAttr import Lean.ExtraModUses import Lean.Compiler.Options import Lean.Compiler.LCNF.PhaseExt public import Lean.Compiler.LCNF.PassManager
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -3520,19 +3520,19 @@ block_52:
 if (x_27 == 0)
 {
 lean_dec_ref(x_26);
-lean_dec(x_24);
-lean_dec_ref(x_22);
-lean_dec(x_21);
+lean_dec(x_25);
+lean_dec_ref(x_24);
+lean_dec(x_22);
 lean_dec(x_13);
 x_5 = x_20;
 x_6 = x_15;
-x_7 = x_25;
+x_7 = x_21;
 goto _start;
 }
 else
 {
 lean_object* x_29; 
-x_29 = l_Lean_Compiler_LCNF_getPhase___redArg(x_22);
+x_29 = l_Lean_Compiler_LCNF_getPhase___redArg(x_26);
 if (lean_obj_tag(x_29) == 0)
 {
 lean_object* x_30; uint8_t x_31; lean_object* x_32; 
@@ -3540,7 +3540,7 @@ x_30 = lean_ctor_get(x_29, 0);
 lean_inc(x_30);
 lean_dec_ref(x_29);
 x_31 = lean_unbox(x_30);
-x_32 = l_Lean_Compiler_LCNF_getLocalDeclAt_x3f___redArg(x_13, x_31, x_21);
+x_32 = l_Lean_Compiler_LCNF_getLocalDeclAt_x3f___redArg(x_13, x_31, x_25);
 lean_dec(x_13);
 if (lean_obj_tag(x_32) == 0)
 {
@@ -3560,7 +3560,7 @@ x_36 = l_Lean_Compiler_LCNF_Phase_toPurity(x_35);
 x_37 = l_Lean_Compiler_LCNF_Decl_castPurity_x21(x_36, x_34, x_1);
 lean_dec(x_34);
 lean_inc_ref(x_2);
-x_38 = l___private_Lean_Compiler_LCNF_Visibility_0__Lean_Compiler_LCNF_checkMeta_go(x_1, x_2, x_3, x_4, x_37, x_25, x_22, x_24, x_26, x_21);
+x_38 = l___private_Lean_Compiler_LCNF_Visibility_0__Lean_Compiler_LCNF_checkMeta_go(x_1, x_2, x_3, x_4, x_37, x_21, x_26, x_22, x_24, x_25);
 if (lean_obj_tag(x_38) == 0)
 {
 lean_object* x_39; lean_object* x_40; 
@@ -3606,12 +3606,12 @@ else
 lean_dec(x_33);
 lean_dec(x_30);
 lean_dec_ref(x_26);
-lean_dec(x_24);
-lean_dec_ref(x_22);
-lean_dec(x_21);
+lean_dec(x_25);
+lean_dec_ref(x_24);
+lean_dec(x_22);
 x_5 = x_20;
 x_6 = x_15;
-x_7 = x_25;
+x_7 = x_21;
 goto _start;
 }
 }
@@ -3621,8 +3621,8 @@ uint8_t x_46;
 lean_dec(x_30);
 lean_dec_ref(x_26);
 lean_dec(x_25);
-lean_dec(x_24);
-lean_dec_ref(x_22);
+lean_dec_ref(x_24);
+lean_dec(x_22);
 lean_dec(x_21);
 lean_dec(x_15);
 lean_dec(x_11);
@@ -3652,8 +3652,8 @@ else
 uint8_t x_49; 
 lean_dec_ref(x_26);
 lean_dec(x_25);
-lean_dec(x_24);
-lean_dec_ref(x_22);
+lean_dec_ref(x_24);
+lean_dec(x_22);
 lean_dec(x_21);
 lean_dec(x_15);
 lean_dec(x_13);
@@ -3703,24 +3703,24 @@ else
 {
 uint8_t x_63; 
 x_63 = l_Lean_isPrivateName(x_13);
-x_21 = x_58;
-x_22 = x_55;
+x_21 = x_54;
+x_22 = x_56;
 x_23 = lean_box(0);
-x_24 = x_56;
-x_25 = x_54;
-x_26 = x_57;
+x_24 = x_57;
+x_25 = x_58;
+x_26 = x_55;
 x_27 = x_63;
 goto block_52;
 }
 }
 else
 {
-x_21 = x_58;
-x_22 = x_55;
+x_21 = x_54;
+x_22 = x_56;
 x_23 = lean_box(0);
-x_24 = x_56;
-x_25 = x_54;
-x_26 = x_57;
+x_24 = x_57;
+x_25 = x_58;
+x_26 = x_55;
 x_27 = x_61;
 goto block_52;
 }
@@ -6061,8 +6061,8 @@ if (lean_obj_tag(x_54) == 0)
 {
 lean_object* x_55; 
 x_55 = l_Lean_recordExtraModUseFromDecl___at___00__private_Lean_Compiler_LCNF_Visibility_0__Lean_Compiler_LCNF_checkTemplateVisibility_go_spec__1___closed__3;
-x_15 = x_49;
-x_16 = lean_box(0);
+x_15 = lean_box(0);
+x_16 = x_49;
 x_17 = x_55;
 goto block_33;
 }
@@ -6072,8 +6072,8 @@ lean_object* x_56;
 x_56 = lean_ctor_get(x_54, 0);
 lean_inc(x_56);
 lean_dec_ref(x_54);
-x_15 = x_49;
-x_16 = lean_box(0);
+x_15 = lean_box(0);
+x_16 = x_49;
 x_17 = x_56;
 goto block_33;
 }
@@ -6104,7 +6104,7 @@ lean_object* x_18; size_t x_19; size_t x_20; lean_object* x_21;
 x_18 = lean_box(0);
 x_19 = lean_array_size(x_17);
 x_20 = 0;
-x_21 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_recordExtraModUseFromDecl___at___00__private_Lean_Compiler_LCNF_Visibility_0__Lean_Compiler_LCNF_checkTemplateVisibility_go_spec__1_spec__3(x_14, x_1, x_17, x_19, x_20, x_18, x_15, x_4, x_5, x_6, x_7);
+x_21 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_recordExtraModUseFromDecl___at___00__private_Lean_Compiler_LCNF_Visibility_0__Lean_Compiler_LCNF_checkTemplateVisibility_go_spec__1_spec__3(x_14, x_1, x_17, x_19, x_20, x_18, x_16, x_4, x_5, x_6, x_7);
 lean_dec_ref(x_17);
 lean_dec_ref(x_14);
 if (lean_obj_tag(x_21) == 0)
@@ -7776,8 +7776,8 @@ return x_2;
 lean_object* initialize_Lean_Compiler_ImplementedByAttr(uint8_t builtin);
 lean_object* initialize_Lean_ExtraModUses(uint8_t builtin);
 lean_object* initialize_Lean_Compiler_Options(uint8_t builtin);
-lean_object* initialize_Lean_Compiler_NoncomputableAttr(uint8_t builtin);
-lean_object* initialize_Lean_AddDecl(uint8_t builtin);
+lean_object* initialize_Lean_Compiler_LCNF_PhaseExt(uint8_t builtin);
+lean_object* initialize_Lean_Compiler_LCNF_PassManager(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Compiler_LCNF_Visibility(uint8_t builtin) {
 lean_object * res;
@@ -7792,10 +7792,10 @@ lean_dec_ref(res);
 res = initialize_Lean_Compiler_Options(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Compiler_NoncomputableAttr(builtin);
+res = initialize_Lean_Compiler_LCNF_PhaseExt(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_AddDecl(builtin);
+res = initialize_Lean_Compiler_LCNF_PassManager(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_addTrace___at___00Lean_Compiler_LCNF_markDeclPublicRec_spec__1___closed__0 = _init_l_Lean_addTrace___at___00Lean_Compiler_LCNF_markDeclPublicRec_spec__1___closed__0();

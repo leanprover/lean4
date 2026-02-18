@@ -7,7 +7,10 @@ module
 
 prelude
 public import Init.Data.List.Notation
-public import Init.Data.Nat.Div.Basic
+public import Init.Data.Zero
+public import Init.Grind.Tactics
+public import Init.SimpLemmas
+import Init.Data.Nat.Basic
 
 public section
 
@@ -503,7 +506,7 @@ Example:
 [10, 14, 14]
 ```
 -/
-@[specialize] def filterMap (f : α → Option β) : List α → List β
+noncomputable def filterMap (f : α → Option β) : List α → List β
   | []   => []
   | a::as =>
     match f a with
@@ -734,12 +737,6 @@ Examples:
 @[simp, grind =]
 def rightpad (n : Nat) (a : α) (l : List α) : List α := l ++ replicate (n - length l) a
 
-/-! ### reduceOption -/
-
-/-- Drop `none`s from a list, and replace each remaining `some a` with `a`. -/
-@[inline] def reduceOption {α} : List (Option α) → List α :=
-  List.filterMap id
-
 /-! ## List membership
 
 * `L.contains a : Bool` determines, using a `[BEq α]` instance, whether `L` contains an element `· == a`.
@@ -958,8 +955,12 @@ Examples:
 abbrev extract (l : List α) (start : Nat := 0) (stop : Nat := l.length) : List α :=
   (l.drop start).take (stop - start)
 
-@[simp] theorem extract_eq_drop_take {l : List α} {start stop : Nat} :
+@[simp] theorem extract_eq_take_drop {l : List α} {start stop : Nat} :
     l.extract start stop = (l.drop start).take (stop - start) := rfl
+
+set_option linter.missingDocs false in
+@[deprecated extract_eq_take_drop (since := "2026-02-06")]
+def extract_eq_drop_take := @extract_eq_take_drop
 
 /-! ### takeWhile -/
 

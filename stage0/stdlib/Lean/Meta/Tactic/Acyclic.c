@@ -140,7 +140,7 @@ lean_object* l_Lean_Meta_mkAppM(lean_object*, lean_object*, lean_object*, lean_o
 lean_object* l_Lean_Meta_mkLT(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkFreshExprSyntheticOpaqueMVar(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getSimpTheorems___redArg(lean_object*);
-lean_object* l_Lean_Meta_Simp_mkContext___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Simp_mkContext___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_mvarId_x21(lean_object*);
 lean_object* l_Lean_Meta_simpTarget(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkEqSymm(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1527,7 +1527,7 @@ x_70 = lean_box(0);
 x_71 = ((lean_object*)(l___private_Lean_Meta_Tactic_Acyclic_0__Lean_MVarId_acyclic_go___closed__10));
 x_72 = lean_array_push(x_54, x_67);
 x_73 = l___private_Lean_Meta_Tactic_Acyclic_0__Lean_MVarId_acyclic_go___closed__15;
-x_74 = l_Lean_Meta_Simp_mkContext___redArg(x_71, x_72, x_73, x_5, x_8);
+x_74 = l_Lean_Meta_Simp_mkContext___redArg(x_71, x_72, x_73, x_5, x_7, x_8);
 if (lean_obj_tag(x_74) == 0)
 {
 lean_object* x_75; lean_object* x_76; lean_object* x_77; lean_object* x_78; lean_object* x_79; 
@@ -2590,7 +2590,7 @@ block_46:
 if (x_13 == 0)
 {
 lean_object* x_14; lean_object* x_15; uint8_t x_16; 
-lean_dec_ref(x_10);
+lean_dec_ref(x_11);
 x_14 = ((lean_object*)(l___private_Lean_Meta_Tactic_Acyclic_0__Lean_MVarId_acyclic_go___closed__3));
 x_15 = l_Lean_isTracingEnabledFor___at___00__private_Lean_Meta_Tactic_Acyclic_0__Lean_MVarId_acyclic_go_spec__0___redArg(x_14, x_7);
 x_16 = !lean_is_exclusive(x_15);
@@ -2603,7 +2603,7 @@ lean_dec(x_17);
 if (x_18 == 0)
 {
 lean_object* x_19; 
-lean_dec_ref(x_11);
+lean_dec_ref(x_12);
 lean_dec(x_8);
 lean_dec_ref(x_7);
 lean_dec(x_6);
@@ -2617,7 +2617,7 @@ else
 lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
 lean_free_object(x_15);
 x_20 = l___private_Lean_Meta_Tactic_Acyclic_0__Lean_MVarId_acyclic_go___closed__5;
-x_21 = l_Lean_Exception_toMessageData(x_11);
+x_21 = l_Lean_Exception_toMessageData(x_12);
 x_22 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_22, 0, x_20);
 lean_ctor_set(x_22, 1, x_21);
@@ -2681,7 +2681,7 @@ lean_dec(x_32);
 if (x_33 == 0)
 {
 lean_object* x_34; lean_object* x_35; 
-lean_dec_ref(x_11);
+lean_dec_ref(x_12);
 lean_dec(x_8);
 lean_dec_ref(x_7);
 lean_dec(x_6);
@@ -2695,7 +2695,7 @@ else
 {
 lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; 
 x_36 = l___private_Lean_Meta_Tactic_Acyclic_0__Lean_MVarId_acyclic_go___closed__5;
-x_37 = l_Lean_Exception_toMessageData(x_11);
+x_37 = l_Lean_Exception_toMessageData(x_12);
 x_38 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_38, 0, x_36);
 lean_ctor_set(x_38, 1, x_37);
@@ -2748,12 +2748,12 @@ return x_45;
 }
 else
 {
-lean_dec_ref(x_11);
+lean_dec_ref(x_12);
 lean_dec(x_8);
 lean_dec_ref(x_7);
 lean_dec(x_6);
 lean_dec_ref(x_5);
-return x_10;
+return x_11;
 }
 }
 block_52:
@@ -2765,17 +2765,17 @@ if (x_50 == 0)
 uint8_t x_51; 
 lean_inc_ref(x_48);
 x_51 = l_Lean_Exception_isRuntime(x_48);
-x_10 = x_47;
-x_11 = x_48;
-x_12 = lean_box(0);
+x_10 = lean_box(0);
+x_11 = x_47;
+x_12 = x_48;
 x_13 = x_51;
 goto block_46;
 }
 else
 {
-x_10 = x_47;
-x_11 = x_48;
-x_12 = lean_box(0);
+x_10 = lean_box(0);
+x_11 = x_47;
+x_12 = x_48;
 x_13 = x_50;
 goto block_46;
 }

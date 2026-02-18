@@ -7,7 +7,8 @@ module
 
 prelude
 public import Init.BinderNameHint
-public import Init.Data.Nat.Basic
+public import Init.Grind.Tactics
+import Init.Data.Nat.Basic
 
 public section
 
@@ -204,6 +205,12 @@ theorem Acc.transGen (h : Acc r a) : Acc (TransGen r) a := by
 
 theorem acc_transGen_iff : Acc (TransGen r) a ↔ Acc r a :=
   ⟨Subrelation.accessible TransGen.single, Acc.transGen⟩
+
+/--
+If `Acc r x` holds and `y` is transitively related to `x`, then `Acc r y` holds, too.
+-/
+theorem Acc.inv_of_transGen {x y : α} (h₁ : Acc r x) (h₂ : Relation.TransGen r y x) : Acc r y := by
+  simpa [acc_transGen_iff] using h₁.transGen.inv h₂
 
 theorem WellFounded.transGen (h : WellFounded r) : WellFounded (TransGen r) :=
   ⟨fun a ↦ (h.apply a).transGen⟩
@@ -486,7 +493,7 @@ def Nat.fix : (x : α) → motive x :=
   let rec go : ∀ (fuel : Nat) (x : α), (h x < fuel) → motive x :=
     Nat.rec
       (fun _ hfuel => (Nat.not_succ_le_zero _ hfuel).elim)
-      (fun _ ih x hfuel => F x (fun y hy => ih y (Nat.lt_of_lt_of_le hy (Nat.le_of_lt_add_one hfuel))))
+      (fun _ ih x hfuel => F x (fun y hy => ih y (by exact Nat.lt_of_lt_of_le hy (Nat.le_of_lt_add_one hfuel))))
   fun x => go (Nat.eager (h x + 1)) x (Nat.eager_eq _ ▸ Nat.lt_add_one _)
 
 protected theorem Nat.fix.go_congr (x : α) (fuel₁ fuel₂ : Nat) (h₁ : h x < fuel₁) (h₂ : h x < fuel₂) :

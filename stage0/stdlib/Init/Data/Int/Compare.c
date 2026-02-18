@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Int.Compare
-// Imports: public import Init.Data.Ord.Basic import all Init.Data.Ord.Basic public import Init.Data.Int.Order import Init.Omega
+// Imports: public import Init.Data.Ord.Basic public import Init.Data.Order.ClassesExtra import all Init.Data.Ord.Basic import Init.Omega
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -14,8 +14,8 @@
 extern "C" {
 #endif
 lean_object* initialize_Init_Data_Ord_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_Order_ClassesExtra(uint8_t builtin);
 lean_object* initialize_Init_Data_Ord_Basic(uint8_t builtin);
-lean_object* initialize_Init_Data_Int_Order(uint8_t builtin);
 lean_object* initialize_Init_Omega(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Int_Compare(uint8_t builtin) {
@@ -25,10 +25,10 @@ _G_initialized = true;
 res = initialize_Init_Data_Ord_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Ord_Basic(builtin);
+res = initialize_Init_Data_Order_ClassesExtra(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Int_Order(builtin);
+res = initialize_Init_Data_Ord_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Omega(builtin);

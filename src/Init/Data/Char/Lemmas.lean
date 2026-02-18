@@ -7,7 +7,9 @@ module
 
 prelude
 import all Init.Data.Char.Basic
-public import Init.Data.UInt.Lemmas
+public import Init.Data.Char.Basic
+public import Init.Ext
+import Init.Data.UInt.Lemmas
 
 public section
 
@@ -81,6 +83,7 @@ def notLTTotal : Std.Total (¬ · < · : Char → Char → Prop) where
 @[simp]
 theorem toUInt8_val {c : Char} : c.val.toUInt8 = c.toUInt8 := rfl
 
+@[simp]
 theorem toString_eq_singleton {c : Char} : c.toString = String.singleton c := rfl
 
 end Char

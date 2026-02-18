@@ -7,8 +7,10 @@ Authors: Mario Carneiro
 module
 
 prelude
-public import Init.Data.List.TakeDrop
 import all Init.Data.Array.Basic
+public import Init.Data.List.Control
+import Init.Data.List.Lemmas
+import Init.Data.List.TakeDrop
 
 public section
 
@@ -50,7 +52,9 @@ theorem foldrM_eq_reverse_foldlM_toList.aux [Monad m]
   unfold foldrM.fold
   match i with
   | 0 => simp
-  | i+1 => rw [← List.take_concat_get h]; simp [← aux]
+  | i+1 =>
+    set_option backward.isDefEq.respectTransparency false in
+    rw [← List.take_concat_get h]; simp [← aux]
 
 theorem foldrM_eq_reverse_foldlM_toList [Monad m] {f : α → β → m β} {init : β} {xs : Array α} :
     xs.foldrM f init = xs.toList.reverse.foldlM (fun x y => f y x) init := by

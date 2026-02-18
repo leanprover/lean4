@@ -412,8 +412,8 @@ block_7:
 {
 lean_object* x_5; lean_object* x_6; 
 x_5 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_5, 0, x_2);
-lean_ctor_set(x_5, 1, x_3);
+lean_ctor_set(x_5, 0, x_3);
+lean_ctor_set(x_5, 1, x_2);
 x_6 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_6, 0, x_4);
 lean_ctor_set(x_6, 1, x_5);
@@ -439,8 +439,8 @@ lean_dec(x_12);
 x_16 = lean_unsigned_to_nat(2147483562u);
 x_17 = lean_nat_mod(x_15, x_16);
 lean_dec(x_15);
-x_2 = x_8;
-x_3 = x_9;
+x_2 = x_9;
+x_3 = x_8;
 x_4 = x_17;
 goto block_7;
 }
@@ -452,8 +452,8 @@ x_19 = lean_int_add(x_12, x_18);
 lean_dec(x_12);
 x_20 = l_Int_toNat(x_19);
 lean_dec(x_19);
-x_2 = x_8;
-x_3 = x_9;
+x_2 = x_9;
+x_3 = x_8;
 x_4 = x_20;
 goto block_7;
 }

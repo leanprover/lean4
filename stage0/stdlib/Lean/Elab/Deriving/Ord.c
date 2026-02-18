@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Deriving.Ord
-// Imports: public import Lean.Data.Options import Lean.Elab.Deriving.Basic import Lean.Elab.Deriving.Util import Lean.Meta.Constructions.CtorIdx import Lean.Meta.Constructions.CasesOnSameCtor import Lean.Meta.SameCtorUtils
+// Imports: public import Lean.Data.Options import Lean.Elab.Deriving.Basic import Lean.Elab.Deriving.Util import Lean.Meta.Constructions.CtorIdx import Lean.Meta.Constructions.CasesOnSameCtor import Lean.Meta.SameCtorUtils import Init.Data.Array.OfFn
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -9018,7 +9018,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l___private_Lean_Elab_Deriving_Ord_0__Lean_Elab_Deriving_Ord_mkMatchNew___closed__2));
 x_2 = lean_unsigned_to_nat(2u);
-x_3 = lean_unsigned_to_nat(86u);
+x_3 = lean_unsigned_to_nat(87u);
 x_4 = ((lean_object*)(l___private_Lean_Elab_Deriving_Ord_0__Lean_Elab_Deriving_Ord_mkMatchNew___closed__1));
 x_5 = ((lean_object*)(l___private_Lean_Elab_Deriving_Ord_0__Lean_Elab_Deriving_Ord_mkMatchNew___closed__0));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -15370,6 +15370,7 @@ lean_object* initialize_Lean_Elab_Deriving_Util(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Constructions_CtorIdx(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Constructions_CasesOnSameCtor(uint8_t builtin);
 lean_object* initialize_Lean_Meta_SameCtorUtils(uint8_t builtin);
+lean_object* initialize_Init_Data_Array_OfFn(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_Deriving_Ord(uint8_t builtin) {
 lean_object * res;
@@ -15391,6 +15392,9 @@ res = initialize_Lean_Meta_Constructions_CasesOnSameCtor(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_SameCtorUtils(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Array_OfFn(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 if (builtin) {res = l_initFn_00___x40_Lean_Elab_Deriving_Ord_957574035____hygCtx___hyg_4_();

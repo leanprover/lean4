@@ -9,6 +9,7 @@ prelude
 public import Lean.Meta.Tactic.Refl
 public import Lean.Meta.Tactic.Simp.Main
 public import Lean.Elab.Tactic.Rewrite
+import Init.Omega
 
 public section
 

@@ -34,7 +34,8 @@ where
       goCode k
     | .cases cases => cases.alts.forM (·.forCodeM goCode)
     | .jmp .. | .return .. | .unreach .. => return ()
-    | .uset _ _ _ k _ | .sset _ _ _ _ _ k _ => goCode k
+    | .uset (k := k) .. | .sset (k := k) .. | .inc (k := k) .. | .dec (k := k) .. =>
+      goCode k
 
 end SplitScc
 

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.EMatchAction
-// Imports: public import Lean.Meta.Tactic.Grind.Action public import Lean.Meta.Tactic.Grind.Intro import Lean.Util.ParamMinimizer import Lean.Meta.Tactic.Grind.EMatch import Lean.Meta.Tactic.Grind.EMatchTheoremParam import Lean.Meta.Tactic.Grind.EMatchTheoremPtr import Lean.Meta.Tactic.Grind.MarkNestedSubsingletons
+// Imports: public import Lean.Meta.Tactic.Grind.Intro import Lean.Util.ParamMinimizer import Lean.Meta.Tactic.Grind.EMatch import Lean.Meta.Tactic.Grind.EMatchTheoremParam import Lean.Meta.Tactic.Grind.EMatchTheoremPtr import Lean.Meta.Tactic.Grind.MarkNestedSubsingletons
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -5289,8 +5289,8 @@ return x_12;
 block_19:
 {
 lean_object* x_18; 
-lean_dec(x_15);
-x_18 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00__private_Lean_Meta_Tactic_Grind_EMatchAction_0__Lean_Meta_Grind_Action_getAllTheorems_spec__3___redArg(x_14, x_16, x_17);
+lean_dec(x_16);
+x_18 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00__private_Lean_Meta_Tactic_Grind_EMatchAction_0__Lean_Meta_Grind_Action_getAllTheorems_spec__3___redArg(x_14, x_15, x_17);
 lean_dec(x_17);
 x_2 = x_18;
 goto block_13;
@@ -5304,16 +5304,16 @@ if (x_24 == 0)
 lean_dec(x_21);
 lean_inc(x_23);
 x_14 = x_20;
-x_15 = x_22;
-x_16 = x_23;
+x_15 = x_23;
+x_16 = x_22;
 x_17 = x_23;
 goto block_19;
 }
 else
 {
 x_14 = x_20;
-x_15 = x_22;
-x_16 = x_23;
+x_15 = x_23;
+x_16 = x_22;
 x_17 = x_21;
 goto block_19;
 }
@@ -10348,7 +10348,6 @@ x_14 = l_Lean_Meta_Grind_Action_instantiate(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x
 return x_14;
 }
 }
-lean_object* initialize_Lean_Meta_Tactic_Grind_Action(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Intro(uint8_t builtin);
 lean_object* initialize_Lean_Util_ParamMinimizer(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Grind_EMatch(uint8_t builtin);
@@ -10360,9 +10359,6 @@ LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Grind_EMatchAction(uint8_t 
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Meta_Tactic_Grind_Action(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Grind_Intro(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

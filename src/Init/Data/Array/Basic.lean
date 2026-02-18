@@ -11,6 +11,9 @@ public import Init.Data.List.ToArrayImpl
 import all Init.Data.List.ToArrayImpl
 public import Init.Data.Array.Set
 import all Init.Data.Array.Set
+public import Init.WF
+meta import Init.MetaTypes
+import Init.WFTactics
 
 public section
 
@@ -90,7 +93,7 @@ theorem ext' {xs ys : Array α} (h : xs.toList = ys.toList) : xs = ys := by
 
 @[simp, grind =] theorem getElem?_toList {xs : Array α} {i : Nat} : xs.toList[i]? = xs[i]? := by
   simp only [getElem?_def, getElem_toList]
-  simp only [Array.size]
+  simp only [Array.size]; rfl
 
 /-- `a ∈ as` is a predicate which asserts that `a` is in the array `as`. -/
 -- NB: This is defined as a structure rather than a plain def so that a lemma
@@ -2122,7 +2125,7 @@ Examples:
 
 /-! ### Repr and ToString -/
 
-protected def Array.repr {α : Type u} [Repr α] (xs : Array α) : Std.Format :=
+protected def repr {α : Type u} [Repr α] (xs : Array α) : Std.Format :=
   let _ : Std.ToFormat α := ⟨repr⟩
   if xs.size == 0 then
     "#[]"

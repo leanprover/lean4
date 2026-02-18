@@ -367,9 +367,10 @@ private def handle
 end Connection
 
 /--
-This is the entry point of the library. It is used to receive and send requests using an `Async`
-handler for a single connection. It can be used with a `TCP.Socket` or any other type that implements
-`Transport` to create a simple HTTP server capable of handling multiple connections concurrently.
+Handles request/response processing for a single connection using an `Async` handler.
+The library-level entry point for running a server is `Server.serve`.
+This function can be used with a `TCP.Socket` or any other type that implements
+`Transport` to build custom server loops.
 
 # Example
 

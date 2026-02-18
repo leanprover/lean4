@@ -66,12 +66,12 @@ inductive Error
   | invalidChunk
 
   /--
-  Connection Closed
+  Connection closed.
   -/
   | connectionClosed
 
   /--
-  Bad request/response
+  Bad request or response message.
   -/
   | badMessage
 

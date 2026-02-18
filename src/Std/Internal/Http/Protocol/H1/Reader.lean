@@ -283,8 +283,6 @@ def markNoMoreInput (reader : Reader dir) : Reader dir :=
 Checks if the connection should be kept alive for the next message.
 -/
 def shouldKeepAlive (reader : Reader dir) : Bool :=
-  match reader.messageHead.headers.get? .connection with
-  | some val => let s := val.value.toLower; s == "keep-alive"
-  | none => true
+  reader.messageHead.shouldKeepAlive
 
 end Reader

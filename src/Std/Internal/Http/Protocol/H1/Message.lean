@@ -109,8 +109,21 @@ Checks whether the message indicates that the connection should be kept alive.
 -/
 @[inline]
 def Message.Head.shouldKeepAlive (message : Message.Head dir) : Bool :=
-  ¬message.headers.hasEntry .connection (.mk "close")
-  ∧ message.version = .v11
+  if message.version ≠ .v11 then
+    false
+  else
+    match message.headers.getAll? .connection with
+    | none => true
+    | some values =>
+        let tokens? : Option (Array String) :=
+          values.foldl (fun acc raw => do
+            let acc ← acc
+            let parsed ← Header.Connection.parse raw
+            pure (acc ++ parsed.tokens)
+          ) (some #[])
+        match tokens? with
+        | none => false
+        | some tokens => !tokens.any (· == "close")
 
 instance : Repr (Message.Head dir) :=
   match dir with

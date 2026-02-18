@@ -115,11 +115,6 @@ structure Machine (dir : Direction) where
   forcedFlush : Bool := false
 
   /--
-  Host header.
-  -/
-  host : Option Header.Value := none
-
-  /--
   Set when a previous `pullBody` call could not make progress in `.readBody`.
   Cleared on new input or state reset.
   -/
@@ -319,7 +314,14 @@ private def parseWith (machine : Machine dir) (parser : Parser α) (limit : Opti
   let remaining := machine.reader.input.remainingBytes
   match parser machine.reader.input with
   | .success buffer result =>
-      ({ machine with reader := machine.reader.setInput buffer }, some result)
+      let usedBytes := remaining - buffer.remainingBytes
+      if let some limit := limit then
+        if usedBytes > limit then
+          (machine.setFailure .badMessage, none)
+        else
+          ({ machine with reader := machine.reader.setInput buffer }, some result)
+      else
+        ({ machine with reader := machine.reader.setInput buffer }, some result)
   | .error it .eof =>
       let usedBytesUntilFailure := remaining - it.remainingBytes
       if machine.reader.noMoreInput then
@@ -405,13 +407,7 @@ def setHeaders (messageHead : Message.Head dir.swap) (machine : Machine dir) : M
   let machine := machine.updateKeepAlive shouldKeepAlive
   let size := Writer.determineTransferMode machine.writer
 
-  let headers :=
-    if messageHead.headers.contains Header.Name.host then
-      messageHead.headers
-    else if let some host := machine.host then
-      messageHead.headers.insert Header.Name.host host
-    else
-      messageHead.headers
+  let headers := messageHead.headers
 
   -- Add identity header based on direction
   let headers :=
@@ -428,14 +424,12 @@ def setHeaders (messageHead : Message.Head dir.swap) (machine : Machine dir) : M
     else
       headers
 
-  -- Add Content-Length or Transfer-Encoding if needed
+  -- Normalize framing to a single authoritative header.
   let headers :=
-    if !(headers.contains Header.Name.contentLength ∨ headers.contains Header.Name.transferEncoding) then
-      match size with
-      | .fixed n => headers.insert Header.Name.contentLength (.ofString! <| toString n)
-      | .chunked => headers.insert Header.Name.transferEncoding Header.Value.chunked
-    else
-      headers
+    let headers := headers.erase Header.Name.contentLength |>.erase Header.Name.transferEncoding
+    match size with
+    | .fixed n => headers.insert Header.Name.contentLength (.ofString! <| toString n)
+    | .chunked => headers.insert Header.Name.transferEncoding Header.Value.chunked
 
   let state := Writer.State.writingBody size
 
@@ -463,41 +457,60 @@ def feed (machine : Machine ty) (data : ByteArray) : Machine ty :=
 def closeReader (machine : Machine dir) : Machine dir :=
   machine.modifyReader ({ · with noMoreInput := true })
 
-/--Signal that the writer cannot send more messages because the socket closed. -/
+/-- Signal that the writer cannot send more messages because the socket closed. -/
 @[inline]
 def closeWriter (machine : Machine dir) : Machine dir :=
   machine.modifyWriter ({ · with state := .closed, userClosedBody := true })
 
-/--Signal that the user is not sending data anymore. -/
+/-- Signal that the user is not sending data anymore. -/
 @[inline]
 def userClosedBody (machine : Machine dir) : Machine dir :=
   machine.modifyWriter ({ · with userClosedBody := true })
 
-/--Signal that the socket is not sending data anymore. -/
+/-- Signal that the socket is not sending data anymore. -/
 @[inline]
 def noMoreInput (machine : Machine dir) : Machine dir :=
   { machine.modifyReader ({ · with noMoreInput := true }) with pullBodyStalled := false }
 
-/--Set a known size for the message body. -/
+/-- Set a known size for the message body, replacing any previous value. -/
 @[inline]
 def setKnownSize (machine : Machine dir) (size : Body.Length) : Machine dir :=
-  machine.modifyWriter (fun w => { w with knownSize := w.knownSize.or (some size) })
+  machine.modifyWriter (fun w => { w with knownSize := some size })
 
-/--Send the head of a message to the machine. -/
+/-- Send the head of a message to the machine. -/
 @[inline]
 def send (machine : Machine dir) (message : Message.Head dir.swap) : Machine dir :=
   if machine.isWaitingMessage then
     let machine := machine.modifyWriter ({ · with messageHead := message, sentMessage := true })
+    let framingInHeaders :=
+      message.headers.contains Header.Name.contentLength ∨
+      message.headers.contains Header.Name.transferEncoding
+    let headerSize := message.getSize false
 
     let machine :=
-      if machine.writer.knownSize.isNone then
-        match message.getSize false with
-        | some size => machine.setKnownSize size
-        | none => machine
-      else
-        machine
+      match machine.writer.knownSize, headerSize with
+      | some explicit, some parsed =>
+          if explicit == parsed then
+            machine
+          else
+            machine.setFailure .badMessage
+      | some _, none =>
+          if framingInHeaders then
+            machine.setFailure .badMessage
+          else
+            machine
+      | none, some parsed =>
+          machine.setKnownSize parsed
+      | none, none =>
+          if framingInHeaders then
+            machine.setFailure .badMessage
+          else
+            machine
 
-    machine.setWriterState .waitingForFlush
+    if machine.failed then
+      machine
+    else
+      machine.setWriterState .waitingForFlush
   else
     machine
 
@@ -623,7 +636,15 @@ partial def processWrite (machine : Machine dir) : Machine dir :=
   | .closed =>
       machine
 
-/--Handle the failed state for the reader. -/
+/-- Handle the failed state for the reader. -/
+private def errorResponseStatus (error : H1.Error) : Status :=
+  match error with
+  | .unsupportedVersion => .httpVersionNotSupported
+  | .entityTooLarge => .payloadTooLarge
+  | .unsupportedMethod => .notImplemented
+  | _ => .badRequest
+
+/-- Handle the failed state for the reader. -/
 private def handleReaderFailed (machine : Machine dir) (error : H1.Error) : Machine dir :=
   let machine : Machine dir :=
     match dir with
@@ -632,7 +653,8 @@ private def handleReaderFailed (machine : Machine dir) (error : H1.Error) : Mach
         machine
        |>.setWriterState .waitingHeaders
        |>.disableKeepAlive
-       |>.send { status := .badRequest } |>.userClosedBody
+       |>.send { status := errorResponseStatus error }
+       |>.userClosedBody
       else
         machine
     | .sending => machine
@@ -671,10 +693,15 @@ private def parseBody (machine : Machine dir) (bodyState : Reader.BodyState) :
           (machine, none, false)
 
   | .chunkedSize =>
-      let (machine, result) := parseWith machine (parseChunkSize machine.config) (limit := some 128)
+      let (machine, result) := parseWith machine
+        (parseChunkSize machine.config)
+        (limit := some machine.config.maxChunkLineLength)
       match result with
       | some (size, ext) =>
-          (machine.setReaderState (.readBody (.chunkedBody ext size)), none, true)
+          if size > machine.config.maxChunkSize then
+            (machine.setFailure .entityTooLarge, none, false)
+          else
+            (machine.setReaderState (.readBody (.chunkedBody ext size)), none, true)
       | none =>
           (machine, none, false)
 
@@ -728,9 +755,11 @@ partial def processRead (machine : Machine dir) : Machine dir :=
       else
         match dir with
         | .receiving =>
-            let (machine, result) := parseWith machine (parseRequestLineRawVersion machine.config) (limit := some 8192)
-            if let some (method, uri, major, minor) := result then
-              if major == 1 ∧ minor == 1 then
+            let (machine, result) := parseWith machine
+              (parseRequestLineRawVersion machine.config)
+              (limit := some machine.config.maxStartLineLength)
+            if let some (method, uri, version) := result then
+              if version == some .v11 then
                 machine
                 |>.modifyReader (.setMessageHead ({ method, version := .v11, uri, headers := .empty } : Request.Head))
                 |>.setReaderState (.needHeader 0)
@@ -740,11 +769,18 @@ partial def processRead (machine : Machine dir) : Machine dir :=
             else
               machine
         | .sending =>
-            let (machine, result) := parseWith machine (parseStatusLineRawVersion machine.config) (limit := some 8192)
-            if let some (status, major, minor) := result then
-              if major == 1 ∧ minor == 1 then
+            let (machine, result) := parseWith machine
+              (parseStatusLineRawVersion machine.config)
+              (limit := some machine.config.maxStartLineLength)
+            if let some (status, reasonPhrase, version) := result then
+              if version == some .v11 then
                 machine
-                |>.modifyReader (.setMessageHead ({ status, version := .v11, headers := .empty } : Response.Head))
+                |>.modifyReader (.setMessageHead ({
+                  status,
+                  reasonPhrase := some reasonPhrase,
+                  version := .v11,
+                  headers := .empty
+                } : Response.Head))
                 |>.setReaderState (.needHeader 0)
                 |> processRead
               else

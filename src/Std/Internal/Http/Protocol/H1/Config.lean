@@ -26,7 +26,7 @@ open Std Internal Parsec ByteArray
 open Internal
 
 /--
-Connection limits configuration with validation.
+Connection limits and parser bounds configuration.
 -/
 structure Config where
   /--
@@ -55,6 +55,11 @@ structure Config where
   maxUriLength : Nat := 8192
 
   /--
+  Maximum number of bytes consumed while parsing request/status start-lines (default: 8192 bytes).
+  -/
+  maxStartLineLength : Nat := 8192
+
+  /--
   Maximum length of header field name (default: 256 bytes)
   -/
   maxHeaderNameLength : Nat := 256
@@ -78,6 +83,16 @@ structure Config where
   Maximum length of chunk extension value (default: 256 bytes)
   -/
   maxChunkExtValueLength : Nat := 256
+
+  /--
+  Maximum number of bytes consumed while parsing one chunk-size line with extensions (default: 8192 bytes).
+  -/
+  maxChunkLineLength : Nat := 8192
+
+  /--
+  Maximum allowed chunk payload size in bytes (default: 8 MiB).
+  -/
+  maxChunkSize : Nat := 8 * 1024 * 1024
 
   /--
   Maximum length of reason phrase (default: 512 bytes)

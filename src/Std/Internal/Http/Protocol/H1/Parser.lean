@@ -84,16 +84,11 @@ def crlf : Parser Unit := do
   skipByte '\n'.toUInt8
 
 @[inline]
-def rsp (limits : H1.Config) : Parser Unit := do
-  discard <| takeWhileUpTo1 (· == ' '.toUInt8) limits.maxSpaceSequence
-
-  if (← peekWhen? (· == ' '.toUInt8)) |>.isSome then
-    fail "invalid space sequence"
-  else
-    pure ()
+def sp : Parser Unit :=
+  skipByte ' '.toUInt8
 
 @[inline]
-def osp (limits : H1.Config) : Parser Unit := do
+def ows (limits : H1.Config) : Parser Unit := do
   discard <| takeWhileUpTo (· == ' '.toUInt8) limits.maxSpaceSequence
 
   if (← peekWhen? (· == ' '.toUInt8)) |>.isSome then
@@ -157,36 +152,39 @@ Parses a request line
 request-line   = method SP request-target SP HTTP-version
 -/
 public def parseRequestLine (limits : H1.Config) : Parser Request.Head := do
-  let method ← parseMethod <* rsp limits
-  let uri ← parseURI limits <* rsp limits
-
-  let uri ← match (Std.Http.URI.Parser.parseRequestTarget <* eof).run uri with
-  | .ok res => pure res
-  | .error res => fail res
-
-  let version ← parseHttpVersion <* crlf
-  return ⟨method, version, uri, .empty⟩
-
-/--
-Parses a request line and returns raw version numbers.
-
-request-line = method SP request-target SP HTTP-version
--/
-public def parseRequestLineRawVersion (limits : H1.Config) : Parser (Method × RequestTarget × Nat × Nat) := do
-  let method ← parseMethod <* rsp limits
-  let uri ← parseURI limits <* rsp limits
+  let method ← parseMethod <* sp
+  let uri ← parseURI limits <* sp
 
   let uri ← match (Std.Http.URI.Parser.parseRequestTarget <* eof).run uri with
   | .ok res => pure res
   | .error res => fail res
 
   let (major, minor) ← parseHttpVersionNumber <* crlf
-  return (method, uri, major, minor)
+  if major == 1 ∧ minor == 1 then
+    return ⟨method, .v11, uri, .empty⟩
+  else
+    fail "unsupported HTTP version"
+
+/--
+Parses a request line and returns the recognized HTTP version if present in `Version`.
+
+request-line = method SP request-target SP HTTP-version
+-/
+public def parseRequestLineRawVersion (limits : H1.Config) : Parser (Method × RequestTarget × Option Version) := do
+  let method ← parseMethod <* sp
+  let uri ← parseURI limits <* sp
+
+  let uri ← match (Std.Http.URI.Parser.parseRequestTarget <* eof).run uri with
+  | .ok res => pure res
+  | .error res => fail res
+
+  let (major, minor) ← parseHttpVersionNumber <* crlf
+  return (method, uri, Version.ofNumber? major minor)
 
 -- field-line   = field-name ":" OWS field-value OWS
 def parseFieldLine (limits : H1.Config) : Parser (String × String) := do
   let name ← token limits.maxHeaderNameLength
-  let value ← skipByte ':'.toUInt8 *> osp limits *> optional (takeWhileUpTo isFieldVChar limits.maxHeaderValueLength) <* osp limits
+  let value ← skipByte ':'.toUInt8 *> ows limits *> optional (takeWhileUpTo isFieldVChar limits.maxHeaderValueLength) <* ows limits
 
   let name ← opt <| String.fromUTF8? name.toByteArray
   let value ← opt <| String.fromUTF8? <| value.map (·.toByteArray) |>.getD .empty
@@ -248,15 +246,15 @@ partial def parseQuotedString (maxLength : Nat) : Parser String := do
 
 -- chunk-ext = *( BWS ";" BWS chunk-ext-name [ BWS "=" BWS chunk-ext-val] )
 def parseChunkExt (limits : H1.Config) : Parser (ExtensionName × Option String) := do
-  osp limits *> skipByte ';'.toUInt8 *> osp limits
-  let name ← (opt =<< String.fromUTF8? <$> ByteSlice.toByteArray <$> token limits.maxChunkExtNameLength) <* osp limits
+  ows limits *> skipByte ';'.toUInt8 *> ows limits
+  let name ← (opt =<< String.fromUTF8? <$> ByteSlice.toByteArray <$> token limits.maxChunkExtNameLength) <* ows limits
 
   let some name := ExtensionName.ofString? name
     | fail "invalid extension name"
 
   if (← peekWhen? (· == '='.toUInt8)) |>.isSome then
-    osp limits *> skipByte '='.toUInt8 *> osp limits
-    let value ← osp limits *> (parseQuotedString limits.maxChunkExtValueLength <|> opt =<< (String.fromUTF8? <$> ByteSlice.toByteArray <$> token limits.maxChunkExtValueLength))
+    ows limits *> skipByte '='.toUInt8 *> ows limits
+    let value ← ows limits *> (parseQuotedString limits.maxChunkExtValueLength <|> opt =<< (String.fromUTF8? <$> ByteSlice.toByteArray <$> token limits.maxChunkExtValueLength))
 
     return (name, some value)
 
@@ -290,7 +288,7 @@ public def parseChunk (limits : H1.Config) : Parser (Option (Nat × Array (Exten
     return some ⟨size, ext, data⟩
 
 /--
-Parses a fixed size data that can be incomplete.
+Parses fixed-size data that can be incomplete.
 -/
 public def parseFixedSizeData (size : Nat) : Parser TakeResult := fun it =>
   if it.remainingBytes = 0 then
@@ -301,7 +299,7 @@ public def parseFixedSizeData (size : Nat) : Parser TakeResult := fun it =>
     .success (it.forward size) (.complete (it.array[it.idx...(it.idx+size)]))
 
 /--
-Parses a fixed size data that can be incomplete.
+Parses fixed-size chunk data that can be incomplete.
 -/
 public def parseChunkSizedData (size : Nat) : Parser TakeResult := do
   match ← parseFixedSizeData size with
@@ -345,24 +343,32 @@ Parses a status line
 status-line = HTTP-version SP status-code SP [ reason-phrase ]
 -/
 public def parseStatusLine (limits : H1.Config) : Parser Response.Head := do
-  let version ← parseHttpVersion <* rsp limits
-  let status ← parseStatusCode <* rsp limits
-  discard <| parseReasonPhrase limits <* crlf
-  return ⟨status, version, .empty⟩
+  let (major, minor) ← parseHttpVersionNumber <* sp
+  let status ← parseStatusCode <* sp
+  let reasonPhrase ← parseReasonPhrase limits <* crlf
+  if major == 1 ∧ minor == 1 then
+    return {
+      status
+      reasonPhrase := some reasonPhrase
+      version := .v11
+      headers := .empty
+    }
+  else
+    fail "unsupported HTTP version"
 
 /--
-Parses a status line and returns raw version numbers.
+Parses a status line and returns its reason phrase plus the recognized HTTP version if present in `Version`.
 
 status-line = HTTP-version SP status-code SP [ reason-phrase ]
 -/
-public def parseStatusLineRawVersion (limits : H1.Config) : Parser (Status × Nat × Nat) := do
-  let (major, minor) ← parseHttpVersionNumber <* rsp limits
-  let status ← parseStatusCode <* rsp limits
-  discard <| parseReasonPhrase limits <* crlf
-  return (status, major, minor)
+public def parseStatusLineRawVersion (limits : H1.Config) : Parser (Status × String × Option Version) := do
+  let (major, minor) ← parseHttpVersionNumber <* sp
+  let status ← parseStatusCode <* sp
+  let reasonPhrase ← parseReasonPhrase limits <* crlf
+  return (status, reasonPhrase, Version.ofNumber? major minor)
 
 /--
-This function parses the body of the last chunk.
+Parses the trailer section that follows the last chunk size line (`0\r\n`).
 -/
 public def parseLastChunkBody (limits : H1.Config) : Parser Unit := do
   discard <| manyItems (parseTrailerHeader limits) limits.maxTrailerHeaders

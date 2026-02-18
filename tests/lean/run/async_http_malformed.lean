@@ -62,6 +62,9 @@ def bad505 : String :=
 def ok200 : String :=
   "HTTP/1.1 200 OK\x0d\nContent-Length: 2\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\nContent-Type: text/plain; charset=utf-8\x0d\n\x0d\nok"
 
+def notInmplemented : String :=
+  "HTTP/1.1 501 Not Implemented\x0d\nContent-Length: 0\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"
+
 -- =============================================================================
 -- Missing Host header (RFC 9112 §3.2 - Host is REQUIRED in HTTP/1.1)
 -- =============================================================================
@@ -163,7 +166,7 @@ def ok200 : String :=
   let (client, server) ← Mock.new
   let raw := "get / HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
   let response ← sendRaw client server raw okHandler
-  assertStatus "Lowercase method" response "HTTP/1.1 501"
+  assertStatus "Lowercase method" response "HTTP/1.1 400"
 
 -- =============================================================================
 -- Header without colon separator

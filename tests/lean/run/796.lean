@@ -11,7 +11,7 @@ end Ex1
 
 namespace Ex2
 class C where f : Sort u → Nat
-class D.{u} extends C.{u}
+class D extends C
 def a [C] := C.f Nat
 def b [D] := D.toC.f Nat
 def c [D] := C.f Nat
@@ -32,7 +32,7 @@ export Succ_Not_Zero (succ_not_zero)
 class Eq_Of_Succ_Eq_Succ [Succ N] where
   eq_of_succ_eq_succ {n m : N} (h : succ n = succ m) : n = m
 export Eq_Of_Succ_Eq_Succ (eq_of_succ_eq_succ)
-class Nat_Induction.{u} [Zero N] [Succ N] where
+class Nat_Induction [Zero N] [Succ N] where
   nat_induction {P : N → Sort u}
     (P0 : P zero)
     (ih : (k : N) → P k → P (succ k))
@@ -42,8 +42,8 @@ end
 
 section
 variable (N : Type _)
-class Natural.{u}
-extends Zero N, Succ N, Succ_Not_Zero N, Eq_Of_Succ_Eq_Succ N, Nat_Induction.{u} N
+class Natural
+extends Zero N, Succ N, Succ_Not_Zero N, Eq_Of_Succ_Eq_Succ N, Nat_Induction N
 end
 
 section

@@ -38,6 +38,11 @@ structure Response.Head where
   status : Status := .ok
 
   /--
+  Optional reason-phrase override for the status line.
+  -/
+  reasonPhrase : Option String := none
+
+  /--
   The HTTP protocol version used in the response, e.g. `HTTP/1.1`.
   -/
   version : Version := .v11
@@ -87,9 +92,10 @@ namespace Response
 
 instance : ToString Head where
   toString r :=
+    let reasonPhrase := r.reasonPhrase.getD r.status.reasonPhrase
     toString r.version ++ " " ++
     toString r.status.toCode ++ " " ++
-    toString r.status ++ "\r\n" ++
+    reasonPhrase ++ "\r\n" ++
     toString r.headers ++
     "\r\n"
 

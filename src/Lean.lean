@@ -7,6 +7,7 @@ module
 
 public import Lean.Data
 public import Lean.Compiler
+public import Lean.Compiler.NameDemangling
 public import Lean.Environment
 public import Lean.Modifiers
 public import Lean.ProjFns

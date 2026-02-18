@@ -2593,3 +2593,11 @@ class Trichotomous (r : α → α → Prop) : Prop where
   trichotomous (a b : α) : ¬ r a b → ¬ r b a → a = b
 
 end Std
+
+@[simp] theorem flip_flip {α : Sort u} {β : Sort v} {φ : Sort w} {f : α → β → φ} :
+    flip (flip f) = f := by
+  apply funext
+  intro a
+  apply funext
+  intro b
+  rw [flip, flip]

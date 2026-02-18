@@ -9,10 +9,9 @@ prelude
 public import Lean.PrettyPrinter.Delaborator.Basic
 public import Lean.Meta.CoeAttr
 public import Lean.Meta.Structure
-import Lean.Parser.Command
 public import Lean.PrettyPrinter.Formatter
 public import Lean.PrettyPrinter.Parenthesizer
-meta import Lean.Parser.Do
+meta import Lean.Parser.Command
 
 public section
 

@@ -91,6 +91,7 @@ where
     | .cases cs => cs.alts.forM (·.forCodeM (goCode declName))
     | .let _ k | .uset _ _ _ k _ | .sset _ _ _ _ _ k _ => goCode declName k
     | .return .. | .jmp .. | .unreach .. => return ()
+    | .inc .. | .dec .. => unreachable!
 
 /--
 Apply the inferred borrow annotations from `map` to a SCC.
@@ -120,6 +121,7 @@ where
     | .cases cs => return code.updateAlts! <| ← cs.alts.mapM (·.mapCodeM (go declName))
     | .let _ k | .uset _ _ _ k _ | .sset _ _ _ _ _ k _ => return code.updateCont! (← go declName k)
     | .return .. | .jmp .. | .unreach .. => return code
+    | .inc .. | .dec .. => unreachable!
 
 structure Ctx where
   /--
@@ -298,6 +300,7 @@ where
     | .cases cs => cs.alts.forM (·.forCodeM collectCode)
     | .uset _ _ _ k _ | .sset _ _ _ _ _ k _ => collectCode k
     | .return .. | .unreach .. => return ()
+    | .inc .. | .dec .. => unreachable!
 
 
 public def inferBorrow : Pass where

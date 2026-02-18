@@ -102,6 +102,10 @@ partial def Code.elimDead (code : Code pu) : M (Code pu) := do
       return code.updateCont! k
     else
       return k
+  | .inc (fvarId := fvarId) (k := k) .. | .dec (fvarId := fvarId) (k := k) .. =>
+    let k ← k.elimDead
+    collectFVarM fvarId
+    return code.updateCont! k
 
 end
 

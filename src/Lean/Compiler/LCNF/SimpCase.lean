@@ -107,7 +107,7 @@ partial def Code.simpCase (code : Code .impure) : CompilerM (Code .impure) := do
     let decl ← decl.updateValue (← decl.value.simpCase)
     return code.updateFun! decl (← k.simpCase)
   | .return .. | .jmp .. | .unreach .. => return code
-  | .let _ k | .uset _ _ _ k _ | .sset _ _ _ _ _ k _ =>
+  | .let _ k | .uset (k := k) .. | .sset (k := k) .. | .inc (k := k) .. | .dec (k := k) .. =>
     return code.updateCont! (← k.simpCase)
 
 def Decl.simpCase (decl : Decl .impure) : CompilerM (Decl .impure) := do

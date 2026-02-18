@@ -35,7 +35,7 @@ The state of the `Writer` state machine.
 -/
 inductive Writer.State
   /--
-  Initial state before any request headers have been received.
+  Initial state before any outgoing message has been prepared.
   -/
   | pending
 
@@ -56,7 +56,7 @@ inductive Writer.State
   | writingHeaders
 
   /--
-  Writing a fixed size body output.
+  Writing the body output (either fixed-length or chunked).
   -/
   | writingBody (mode : Body.Length)
 

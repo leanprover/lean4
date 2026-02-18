@@ -29,7 +29,7 @@ namespace Std.Http.Protocol.H1
 set_option linter.all true
 
 /--
-The state of the `Reader` state machine.
+The body-framing sub-state of the `Reader` state machine.
 -/
 inductive Reader.BodyState where
   /--
@@ -188,8 +188,7 @@ Adds a header to the current message head.
 @[inline]
 def addHeader (name : Header.Name) (value : Header.Value) (reader : Reader dir) : Reader dir :=
   match dir with
-  | .sending => { reader with messageHead := { reader.messageHead with headers := reader.messageHead.headers.insert name value } }
-  | .receiving => { reader with messageHead := { reader.messageHead with headers := reader.messageHead.headers.insert name value } }
+  | .sending | .receiving => { reader with messageHead := { reader.messageHead with headers := reader.messageHead.headers.insert name value } }
 
 /--
 Closes the reader, transitioning to the closed state.

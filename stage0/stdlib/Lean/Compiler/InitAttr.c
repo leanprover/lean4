@@ -334,7 +334,7 @@ static const lean_object* l_Lean_declareBuiltin___lam__0___closed__2 = (const le
 static lean_object* l_Lean_declareBuiltin___lam__0___closed__3;
 lean_object* l_Lean_Expr_app___override(lean_object*, lean_object*);
 static lean_object* l_Lean_declareBuiltin___lam__0___closed__4;
-lean_object* l_Lean_addAndCompile(lean_object*, uint8_t, lean_object*, lean_object*);
+lean_object* l_Lean_addAndCompile(lean_object*, uint8_t, uint8_t, lean_object*, lean_object*);
 lean_object* lean_io_error_to_string(lean_object*);
 lean_object* l_Lean_MessageData_ofFormat(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_declareBuiltin___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3225,7 +3225,7 @@ lean_ctor_set(x_6, 0, x_15);
 x_16 = 1;
 lean_inc(x_4);
 lean_inc_ref(x_3);
-x_17 = l_Lean_addAndCompile(x_6, x_16, x_3, x_4);
+x_17 = l_Lean_addAndCompile(x_6, x_16, x_16, x_3, x_4);
 if (lean_obj_tag(x_17) == 0)
 {
 uint8_t x_18; 
@@ -3391,7 +3391,7 @@ lean_ctor_set(x_62, 0, x_61);
 x_63 = 1;
 lean_inc(x_4);
 lean_inc_ref(x_3);
-x_64 = l_Lean_addAndCompile(x_62, x_63, x_3, x_4);
+x_64 = l_Lean_addAndCompile(x_62, x_63, x_63, x_3, x_4);
 if (lean_obj_tag(x_64) == 0)
 {
 lean_object* x_65; lean_object* x_66; lean_object* x_67; lean_object* x_68; lean_object* x_69; lean_object* x_70; 

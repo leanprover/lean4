@@ -270,7 +270,7 @@ static const lean_object* l_Lean_Elab_Term_declareTacticSyntax___lam__0___closed
 static lean_object* l_Lean_Elab_Term_declareTacticSyntax___lam__0___closed__7;
 lean_object* l_Lean_addDecl(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_markMeta(lean_object*, lean_object*);
-lean_object* l_Lean_compileDecl(lean_object*, uint8_t, lean_object*, lean_object*);
+lean_object* l_Lean_compileDecl(lean_object*, uint8_t, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofExpr(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_declareTacticSyntax___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_declareTacticSyntax___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3755,7 +3755,7 @@ x_33 = l_Lean_Elab_Term_declareTacticSyntax___lam__0___closed__3;
 lean_ctor_set(x_30, 1, x_33);
 x_34 = lean_st_ref_set(x_12, x_30);
 x_35 = 1;
-x_36 = l_Lean_compileDecl(x_20, x_35, x_6, x_7);
+x_36 = l_Lean_compileDecl(x_20, x_35, x_35, x_6, x_7);
 if (lean_obj_tag(x_36) == 0)
 {
 uint8_t x_37; 
@@ -3819,7 +3819,7 @@ lean_ctor_set(x_48, 3, x_45);
 lean_ctor_set(x_48, 4, x_46);
 x_49 = lean_st_ref_set(x_12, x_48);
 x_50 = 1;
-x_51 = l_Lean_compileDecl(x_20, x_50, x_6, x_7);
+x_51 = l_Lean_compileDecl(x_20, x_50, x_50, x_6, x_7);
 if (lean_obj_tag(x_51) == 0)
 {
 lean_object* x_52; lean_object* x_53; 
@@ -3928,7 +3928,7 @@ lean_ctor_set(x_76, 3, x_72);
 lean_ctor_set(x_76, 4, x_73);
 x_77 = lean_st_ref_set(x_12, x_76);
 x_78 = 1;
-x_79 = l_Lean_compileDecl(x_20, x_78, x_6, x_7);
+x_79 = l_Lean_compileDecl(x_20, x_78, x_78, x_6, x_7);
 if (lean_obj_tag(x_79) == 0)
 {
 lean_object* x_80; lean_object* x_81; 

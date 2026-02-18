@@ -78,6 +78,8 @@ LEAN_EXPORT lean_object* l_Lean_profileitM___redArg___lam__0(lean_object*, lean_
 LEAN_EXPORT lean_object* l_Lean_profileitM___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_profileitM___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_profileitM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_display_cumulative_profiling_times();
+LEAN_EXPORT lean_object* l_Lean_displayCumulativeProfilingTimes___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Option_register___at___00Lean_initFn_00___x40_Lean_Util_Profile_2256275618____hygCtx___hyg_4__spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -745,6 +747,14 @@ _start:
 lean_object* x_9; 
 x_9 = l_Lean_profileitM___redArg(x_3, x_5, x_6, x_7, x_8);
 return x_9;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_displayCumulativeProfilingTimes___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_display_cumulative_profiling_times();
+return x_2;
 }
 }
 lean_object* initialize_Init_Data_OfScientific(uint8_t builtin);

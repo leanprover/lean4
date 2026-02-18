@@ -34,7 +34,7 @@ ifeq "${STAGE}" "0"
 endif
 
 # These can be phony since the inner Makefile/Lake will have the correct dependencies and avoid rebuilds
-.PHONY: Init Std Lean leanshared Lake libLake_shared lake lean LeanChecker leanchecker
+.PHONY: Init Std Lean leanshared Lake libLake_shared lake lean LeanChecker leanchecker LeanIR
 
 ifeq "${USE_LAKE}" "ON"
 
@@ -42,7 +42,7 @@ ifeq "${USE_LAKE}" "ON"
 Init:
 	${PREV_STAGE}/bin/lake build -f ${CMAKE_BINARY_DIR}/lakefile.toml $(LAKE_EXTRA_ARGS)
 
-Std Lean Lake Leanc LeanChecker: Init
+Std Lean Lake Leanc LeanChecker LeanIR: Init
 
 else
 
@@ -51,7 +51,7 @@ Init:
 # Use `+` to use the Make jobserver with `leanmake` for parallelized builds
 # Build `.olean/.o`s of downstream libraries as well for better parallelism
 	+"${LEAN_BIN}/leanmake" objs lib lib.export PKG=Init $(LEANMAKE_OPTS) \
-	  EXTRA_SRC_ROOTS="Std Std.lean Lean Lean.lean"
+	  EXTRA_SRC_ROOTS="Std Std.lean Lean Lean.lean LeanIR.lean"
 
 Std: Init
 	+"${LEAN_BIN}/leanmake" lib lib.export PKG=Std $(LEANMAKE_OPTS)
@@ -70,6 +70,9 @@ Lake: Lean
 
 LeanChecker: Lake
 	+"${LEAN_BIN}/leanmake" lib PKG=LeanChecker $(LEANMAKE_OPTS) OUT="${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}" LIB_OUT="${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}" OLEAN_OUT="${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}"
+
+LeanIR: Lean
+	+"${LEAN_BIN}/leanmake" lib PKG=LeanIR $(LEANMAKE_OPTS) OUT="${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}" LIB_OUT="${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}" OLEAN_OUT="${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}"
 
 endif
 
@@ -172,6 +175,14 @@ ${CMAKE_BINARY_DIR}/bin/lean${CMAKE_EXECUTABLE_SUFFIX}: ${CMAKE_LIBRARY_OUTPUT_D
 	"${CMAKE_BINARY_DIR}/leanc.sh" ${LIB}/temp/libleanmain.a ${CMAKE_EXE_LINKER_FLAGS_MAKE} ${LEAN_EXE_LINKER_FLAGS} ${LEANC_OPTS} -o $@
 
 lean: ${CMAKE_BINARY_DIR}/bin/lean${CMAKE_EXECUTABLE_SUFFIX}
+
+${CMAKE_BINARY_DIR}/bin/leanir${CMAKE_EXECUTABLE_SUFFIX}: ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}/libLeanIR.a
+	@echo "[    ] Building $@"
+# on Windows, must remove file before writing a new one (since the old one may be in use)
+	@rm -f $@
+	"${CMAKE_BINARY_DIR}/leanc.sh" $< ${CMAKE_EXE_LINKER_FLAGS_MAKE} ${LEAN_EXE_LINKER_FLAGS} -o $@
+
+leanir: ${CMAKE_BINARY_DIR}/bin/leanir${CMAKE_EXECUTABLE_SUFFIX}
 
 ${CMAKE_BINARY_DIR}/bin/leanc${CMAKE_EXECUTABLE_SUFFIX}: ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}/libLeanc.a
 	@echo "[    ] Building $@"

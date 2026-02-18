@@ -20024,9 +20024,9 @@ goto block_45;
 block_45:
 {
 lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; 
-x_23 = lean_ctor_get(x_21, 12);
+x_23 = lean_ctor_get(x_21, 13);
 lean_inc_ref(x_23);
-x_24 = lean_ctor_get(x_21, 16);
+x_24 = lean_ctor_get(x_21, 17);
 lean_inc_ref(x_24);
 lean_dec_ref(x_21);
 x_25 = l_Lake_buildLeanO___lam__0___closed__2;
@@ -20475,7 +20475,7 @@ if (x_14 == 0)
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; 
 x_15 = lean_ctor_get(x_9, 0);
-x_16 = lean_ctor_get(x_13, 11);
+x_16 = lean_ctor_get(x_13, 12);
 lean_inc_ref(x_16);
 lean_dec_ref(x_13);
 x_17 = l_Lake_compileStaticLib(x_1, x_2, x_16, x_3, x_15);
@@ -20546,7 +20546,7 @@ lean_inc(x_32);
 lean_inc(x_31);
 lean_inc(x_28);
 lean_dec(x_9);
-x_33 = lean_ctor_get(x_13, 11);
+x_33 = lean_ctor_get(x_13, 12);
 lean_inc_ref(x_33);
 lean_dec_ref(x_13);
 x_34 = l_Lake_compileStaticLib(x_1, x_2, x_33, x_3, x_28);
@@ -23341,9 +23341,9 @@ block_66:
 lean_object* x_20; lean_object* x_21; lean_object* x_22; uint8_t x_23; 
 x_20 = lean_ctor_get(x_16, 3);
 lean_inc_ref(x_20);
-x_21 = lean_ctor_get(x_16, 12);
+x_21 = lean_ctor_get(x_16, 13);
 lean_inc_ref(x_21);
-x_22 = lean_ctor_get(x_16, 18);
+x_22 = lean_ctor_get(x_16, 19);
 lean_inc_ref(x_22);
 lean_dec_ref(x_16);
 x_23 = !lean_is_exclusive(x_18);
@@ -23806,7 +23806,7 @@ x_19 = lean_ctor_get(x_14, 0);
 lean_inc(x_19);
 lean_dec_ref(x_14);
 x_20 = lean_ctor_get(x_17, 3);
-x_21 = lean_ctor_get(x_17, 12);
+x_21 = lean_ctor_get(x_17, 13);
 lean_inc_ref(x_21);
 x_22 = !lean_is_exclusive(x_18);
 if (x_22 == 0)

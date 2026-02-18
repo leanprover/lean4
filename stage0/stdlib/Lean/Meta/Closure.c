@@ -526,7 +526,7 @@ lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 uint32_t l_Lean_getMaxHeight(lean_object*, lean_object*);
 uint32_t lean_uint32_add(uint32_t, uint32_t);
 lean_object* l_Lean_addDecl(lean_object*, uint8_t, lean_object*, lean_object*);
-lean_object* l_Lean_compileDecl(lean_object*, uint8_t, lean_object*, lean_object*);
+lean_object* l_Lean_compileDecl(lean_object*, uint8_t, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_mkAuxDefinition(lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_mkAuxDefinition___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_infer_type(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -15754,7 +15754,7 @@ goto block_26;
 else
 {
 lean_object* x_36; 
-x_36 = l_Lean_compileDecl(x_32, x_5, x_8, x_9);
+x_36 = l_Lean_compileDecl(x_32, x_5, x_5, x_8, x_9);
 if (lean_obj_tag(x_36) == 0)
 {
 lean_dec_ref(x_36);
@@ -15840,7 +15840,7 @@ goto block_26;
 else
 {
 lean_object* x_47; 
-x_47 = l_Lean_compileDecl(x_44, x_5, x_8, x_9);
+x_47 = l_Lean_compileDecl(x_44, x_5, x_5, x_8, x_9);
 if (lean_obj_tag(x_47) == 0)
 {
 lean_dec_ref(x_47);

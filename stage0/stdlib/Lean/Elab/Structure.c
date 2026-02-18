@@ -2448,7 +2448,7 @@ LEAN_EXPORT lean_object* l_Lean_setReducibleAttribute___at___00__private_Lean_El
 LEAN_EXPORT lean_object* l_Lean_setReducibleAttribute___at___00__private_Lean_Elab_Structure_0__Lean_Elab_Command_Structure_mkCoercionToCopiedParent_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isProp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_BinderInfo_isInstImplicit(uint8_t);
-lean_object* l_Lean_addAndCompile(lean_object*, uint8_t, lean_object*, lean_object*);
+lean_object* l_Lean_addAndCompile(lean_object*, uint8_t, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Structure_0__Lean_Elab_Command_Structure_mkCoercionToCopiedParent(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Structure_0__Lean_Elab_Command_Structure_mkCoercionToCopiedParent___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_getDeclarationRange_x3f___at___00Lean_Elab_addDeclarationRangesFromSyntax___at___00__private_Lean_Elab_Structure_0__Lean_Elab_Command_Structure_mkCoercionToCopiedParent_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -75577,7 +75577,7 @@ x_93 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_93, 0, x_92);
 lean_inc(x_78);
 lean_inc_ref(x_80);
-x_94 = l_Lean_addAndCompile(x_93, x_85, x_80, x_78);
+x_94 = l_Lean_addAndCompile(x_93, x_85, x_85, x_80, x_78);
 if (lean_obj_tag(x_94) == 0)
 {
 lean_dec_ref(x_94);

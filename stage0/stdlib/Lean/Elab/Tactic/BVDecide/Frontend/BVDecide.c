@@ -671,7 +671,7 @@ static lean_object* l___private_Lean_Elab_Tactic_BVDecide_Frontend_BVDecide_0__L
 static lean_object* l___private_Lean_Elab_Tactic_BVDecide_Frontend_BVDecide_0__Lean_Elab_Tactic_BVDecide_Frontend_LratCert_toReflectionProof_mkAuxDecl___closed__5;
 extern lean_object* l_Lean_diagnostics;
 extern lean_object* l_Lean_maxRecDepth;
-lean_object* l_Lean_addAndCompile(lean_object*, uint8_t, lean_object*, lean_object*);
+lean_object* l_Lean_addAndCompile(lean_object*, uint8_t, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Kernel_enableDiag(lean_object*, uint8_t);
 uint8_t l_Lean_Kernel_isDiagnosticsEnabled(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_BVDecide_Frontend_BVDecide_0__Lean_Elab_Tactic_BVDecide_Frontend_LratCert_toReflectionProof_mkAuxDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -10387,7 +10387,7 @@ lean_ctor_set(x_54, 12, x_47);
 lean_ctor_set(x_54, 13, x_49);
 lean_ctor_set_uint8(x_54, sizeof(void*)*14, x_36);
 lean_ctor_set_uint8(x_54, sizeof(void*)*14 + 1, x_48);
-x_55 = l_Lean_addAndCompile(x_30, x_31, x_54, x_50);
+x_55 = l_Lean_addAndCompile(x_30, x_31, x_31, x_54, x_50);
 return x_55;
 }
 block_77:

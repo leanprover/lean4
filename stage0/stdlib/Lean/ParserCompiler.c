@@ -268,7 +268,7 @@ lean_object* l_Lean_Name_append(lean_object*, lean_object*);
 lean_object* l_Lean_ConstantInfo_type(lean_object*);
 lean_object* lean_mk_syntax_ident(lean_object*);
 lean_object* l_Lean_Attribute_add(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
-lean_object* l_Lean_addAndCompile(lean_object*, uint8_t, lean_object*, lean_object*);
+lean_object* l_Lean_addAndCompile(lean_object*, uint8_t, uint8_t, lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_ParserCompiler_CombinatorAttribute_setDeclFor(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*);
@@ -3010,7 +3010,7 @@ block_172:
 lean_object* x_89; 
 lean_inc(x_87);
 lean_inc_ref(x_86);
-x_89 = l_Lean_addAndCompile(x_82, x_83, x_86, x_87);
+x_89 = l_Lean_addAndCompile(x_82, x_83, x_83, x_86, x_87);
 if (lean_obj_tag(x_89) == 0)
 {
 lean_object* x_90; uint8_t x_91; 

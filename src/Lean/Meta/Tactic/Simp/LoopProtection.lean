@@ -54,7 +54,7 @@ def mkLoopWarningMsg (thm : SimpTheorem) : SimpM MessageData := do
 def shouldCheckLoops (force : Bool) (ctxt : Simp.Context) : CoreM Bool := do
   if ctxt.config.singlePass then return false
   if force then return true
-  return linter.loopingSimpArgs.get (← getOptions)
+  return getLinterValue linter.loopingSimpArgs (← getLinterOptions)
 
 /--
 Main entry point to the loop protection mechanism: Checks if the given theorem is looping in the

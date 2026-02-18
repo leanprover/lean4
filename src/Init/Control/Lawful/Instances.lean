@@ -116,7 +116,6 @@ instance [Monad m] [LawfulMonad m] : LawfulMonad (ExceptT ε m) where
     ExceptT.run (liftWith f) = Except.ok <$> (f fun x => x.run) :=
   rfl
 
-set_option backward.isDefEq.respectTransparency false in
 @[simp] theorem run_controlAt [Monad m] [LawfulMonad m] (f : ({β : Type u} → ExceptT ε m β → m (stM m (ExceptT ε m) β)) → m (stM m (ExceptT ε m) α)) :
     ExceptT.run (controlAt m f) = f fun x => x.run := by
   simp [controlAt, run_bind, bind_map_left]
@@ -257,7 +256,6 @@ instance [Monad m] [LawfulMonad m] : LawfulMonad (OptionT m) where
   rw [← bind_pure_comp]
   rfl
 
-set_option backward.isDefEq.respectTransparency false in
 @[simp] theorem run_controlAt [Monad m] [LawfulMonad m] (f : ({β : Type u} → OptionT m β → m (stM m (OptionT m) β)) → m (stM m (OptionT m) α)) :
     OptionT.run (controlAt m f) = f fun x => x.run := by
   simp [controlAt, Option.elimM, Option.elim]
@@ -345,7 +343,6 @@ instance [Monad m] [LawfulMonad m] : LawfulMonad (ReaderT ρ m) where
     ReaderT.run (liftWith f) ctx = (f fun x => x.run ctx) :=
   rfl
 
-set_option backward.isDefEq.respectTransparency false in
 @[simp] theorem run_controlAt [Monad m] [LawfulMonad m] (f : ({β : Type u} → ReaderT ρ m β → m (stM m (ReaderT ρ m) β)) → m (stM m (ReaderT ρ m) α)) (ctx : ρ) :
     ReaderT.run (controlAt m f) ctx = f fun x => x.run ctx := by
   simp [controlAt]

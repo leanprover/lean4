@@ -331,7 +331,6 @@ theorem Spec.liftWith_OptionT [Monad m] [WPMonad m ps]
       (wp⟦f (fun x => x.run)⟧ (Q.1, Q.2.2))
       Q := by simp [Triple.iff]
 
-set_option backward.isDefEq.respectTransparency false in
 @[spec]
 theorem Spec.restoreM_StateT [Monad m] [WPMonad m ps] (x : m (α × σ)) :
     Triple
@@ -346,7 +345,6 @@ theorem Spec.restoreM_ReaderT [Monad m] [WPMonad m ps] (x : m α) :
       (fun s => wp⟦x⟧ (fun a => Q.1 a s, Q.2))
       Q := by simp [Triple.iff]
 
-set_option backward.isDefEq.respectTransparency false in
 @[spec]
 theorem Spec.restoreM_ExceptT [Monad m] [WPMonad m ps] (x : m (Except ε α)) :
     Triple (ps := .except ε ps)
@@ -354,7 +352,6 @@ theorem Spec.restoreM_ExceptT [Monad m] [WPMonad m ps] (x : m (Except ε α)) :
       (wp⟦x⟧ (fun e => e.casesOn Q.2.1 Q.1, Q.2.2))
       Q := by simp [Triple.iff]
 
-set_option backward.isDefEq.respectTransparency false in
 @[spec]
 theorem Spec.restoreM_OptionT [Monad m] [WPMonad m ps] (x : m (Option α)) :
     Triple (ps := .except PUnit ps)

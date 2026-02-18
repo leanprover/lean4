@@ -2512,7 +2512,7 @@ private theorem extractLsb'_extractAndExtendAux
           rw [extractLsb'_append_of_eq (by omega), this, extractAndExtendBit]
       · omega
 
-theorem extractLsb'_cpopLayer {w iter_num i old_length : Nat}
+private theorem extractLsb'_cpopLayer {w iter_num i old_length : Nat}
   (old_layer : BitVec (old_length * w)) (new_layer : BitVec (iter_num * w))
   (hold : 2 * (iter_num - 1) < old_length)
   (proof_addition : ∀ i (_hi: i < iter_num),

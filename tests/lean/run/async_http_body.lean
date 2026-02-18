@@ -6,7 +6,7 @@ open Std.Http.Body
 
 /-! ## Channel tests -/
 
--- Test send and recv on rendezvous channel
+-- Test send and recv on channel
 
 def channelSendRecv : Async Unit := do
   let (outgoing, incoming) ← Body.mkChannel
@@ -20,6 +20,24 @@ def channelSendRecv : Async Unit := do
   await sendTask
 
 #eval channelSendRecv.block
+
+-- Test sends are buffered when no consumer is waiting
+
+def channelBufferedSends : Async Unit := do
+  let (outgoing, incoming) ← Body.mkChannel
+
+  outgoing.send (Chunk.ofByteArray "one".toUTF8)
+  outgoing.send (Chunk.ofByteArray "two".toUTF8)
+
+  let first ← incoming.recv none
+  let second ← incoming.recv none
+
+  assert! first.isSome
+  assert! second.isSome
+  assert! first.get!.data == "one".toUTF8
+  assert! second.get!.data == "two".toUTF8
+
+#eval channelBufferedSends.block
 
 -- Test tryRecv on empty channel returns none
 
@@ -189,14 +207,8 @@ def channelKnownSizeDecreases : Async Unit := do
 -- Test only one blocked producer is allowed
 
 def channelSingleProducerRule : Async Unit := do
-  let (outgoing, incoming) ← Body.mkChannel
-
-  let send1 ← async (t := AsyncTask) <| do
-    try
-      outgoing.send (Chunk.ofByteArray "one".toUTF8)
-      return true
-    catch _ =>
-      return false
+  let (outgoing, incoming) ← Body.mkChannel (capacity := 1)
+  outgoing.send (Chunk.ofByteArray "one".toUTF8)
 
   let send2 ← async (t := AsyncTask) <| do
     try
@@ -205,15 +217,29 @@ def channelSingleProducerRule : Async Unit := do
     catch _ =>
       return false
 
+  -- Yield so `send2` can occupy the single blocked-producer slot.
+  let _ ← Selectable.one #[
+    .case (← Selector.sleep 5) pure
+  ]
+
+  let send3Failed ←
+    try
+      outgoing.send (Chunk.ofByteArray "three".toUTF8)
+      pure false
+    catch _ =>
+      pure true
+  assert! send3Failed
+
   let first ← incoming.recv none
   assert! first.isSome
+  assert! first.get!.data == "one".toUTF8
 
-  outgoing.close
-
-  let ok1 ← await send1
   let ok2 ← await send2
+  assert! ok2
 
-  assert! (ok1 && !ok2) || (!ok1 && ok2)
+  let second ← incoming.recv none
+  assert! second.isSome
+  assert! second.get!.data == "two".toUTF8
 
 #eval channelSingleProducerRule.block
 

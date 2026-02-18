@@ -1024,7 +1024,7 @@ and/or return data.
 partial def Handle.lines (h : Handle) : IO (Array String) := do
   let rec read (lines : Array String) := do
     let line ← h.getLine
-    if line.length == 0 then
+    if line.isEmpty then
       pure lines
     else if line.back == '\n' then
       let line := line.dropEnd 1 |>.copy
@@ -1809,7 +1809,7 @@ and/or return data.
 partial def lines (s : Stream) : IO (Array String) := do
   let rec read (lines : Array String) := do
     let line ← s.getLine
-    if line.length == 0 then
+    if line.isEmpty then
       pure lines
     else if line.back == '\n' then
       let line := line.dropEnd 1 |>.copy

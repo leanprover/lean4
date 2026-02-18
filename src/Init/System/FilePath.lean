@@ -11,6 +11,7 @@ import Init.Data.String.Search
 public import Init.Data.ToString.Basic
 import Init.Data.Iterators.Consumers.Collect
 import Init.System.Platform
+import Init.Data.Iterators.Combinators.Take
 
 public section
 
@@ -81,12 +82,21 @@ There is no guarantee that two equivalent paths normalize to the same path.
 def normalize (p : FilePath) : FilePath := Id.run do
   let mut p := p
   -- normalize drive letter
-  if isWindows && p.toString.length >= 2 && p.toString.front.isLower && String.Pos.Raw.get p.toString ⟨1⟩ == ':' then
-    p := ⟨p.toString.capitalize⟩
+  if let some withNormalizedDriveLetter := normalizeDriveLetter? p then
+    p := withNormalizedDriveLetter
   -- normalize separator
   unless pathSeparators.length == 1 do
     p := ⟨p.toString.map fun c => if pathSeparators.contains c then pathSeparator else c⟩
   return p
+where
+  normalizeDriveLetter? (p : FilePath) : Option FilePath :=
+    if isWindows then
+      match (p.toString.chars.take 2).toList with
+      | [c, ':'] => if c.isLower then some ⟨p.toString.capitalize⟩ else none
+      | _ => none
+    else
+      none
+
 
 -- the following functions follow the names and semantics from Rust's `std::path::Path`
 
@@ -95,7 +105,7 @@ An absolute path starts at the root directory or a drive letter. Accessing files
 path does not depend on the current working directory.
 -/
 def isAbsolute (p : FilePath) : Bool :=
-  pathSeparators.contains p.toString.front || (isWindows && p.toString.length > 1 && p.toString.startPos.next?.bind (·.get?) == some ':')
+  pathSeparators.contains p.toString.front || (isWindows && p.toString.startPos.next?.bind (·.get?) == some ':')
 
 /--
 A relative path is one that depends on the current working directory for interpretation. Relative
@@ -136,7 +146,7 @@ def parent (p : FilePath) : Option FilePath :=
   let extractParentPath := FilePath.mk <$> String.Pos.Raw.extract p.toString {} <$> posOfLastSep p
   if p.isAbsolute then
     let lengthOfRootDirectory := if pathSeparators.contains p.toString.front then 1 else 3
-    if p.toString.length == lengthOfRootDirectory then
+    if p.toString.chars.length == lengthOfRootDirectory then
       -- `p` is a root directory
       none
     else if posOfLastSep p == some (String.Pos.Raw.mk (lengthOfRootDirectory - 1)) then

@@ -486,11 +486,16 @@ partial def collectSyntaxBasedSemanticTokens (text : FileMap) : (stx : Syntax) �
         stx.getArgs.map (collectSyntaxBasedSemanticTokens text) |>.flatten
     let Syntax.atom _ val := stx
       | return tokens
-    let isRegularKeyword := val.length > 0 && isIdFirst val.front
-    let isHashKeyword := val.length > 1 && val.front == '#' && isIdFirst (String.Pos.Raw.get val ⟨1⟩)
+    let isRegularKeyword := !val.isEmpty && isIdFirst val.front
+    let isHashKeyword := isHashKeyword val
     if ! isRegularKeyword && ! isHashKeyword then
       return tokens
     return tokens.push { stx, type := keywordSemanticTokenMap.getD val .keyword }
+where
+  isHashKeyword (val : String) : Bool :=
+    match (val.chars.take 2).toList with
+    | ['#', c] => isIdFirst c
+    | _ => false
 
 /-- Collects all semantic tokens from the given `Elab.InfoTree`. -/
 def collectInfoBasedSemanticTokens (i : Elab.InfoTree) : Array LeanSemanticToken :=

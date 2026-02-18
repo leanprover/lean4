@@ -21,7 +21,7 @@ instance {p : Char → Bool} : ForwardPatternModel p where
     simp
 
 instance {p : Char → Bool} : NoPrefixForwardPatternModel p :=
-  .of_length_eq (by simp +contextual [ForwardPatternModel.Matches])
+  .of_length_toList_eq (by simp +contextual [ForwardPatternModel.Matches])
 
 theorem isMatch_iff {p : Char → Bool} {s : Slice} {pos : s.Pos} :
     IsMatch p pos ↔

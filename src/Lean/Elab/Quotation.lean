@@ -209,7 +209,7 @@ private partial def quoteSyntax : Syntax → TermElabM Term
 def addNamedQuotInfo (stx : Syntax) (k : SyntaxNodeKind) : TermElabM SyntaxNodeKind := do
   if stx.getNumArgs == 3 && stx[0].isAtom then
     let s := stx[0].getAtomVal
-    if s.length > 3 then
+    if s.chars.length > 3 then
       if let (some l, some r) := (stx[0].getPos? true, stx[0].getTailPos? true) then
         -- HACK: The atom is the string "`(foo|", so chop off the edges.
         let name := stx[0].setInfo <| .synthetic ⟨l.1 + 2⟩ ⟨r.1 - 1⟩ (canonical := true)

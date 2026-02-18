@@ -189,7 +189,7 @@ where
         (s ++ pre, post)
       else
         let s1 := s.takeWhile Char.isWhitespace |>.copy
-        let s2 := s.drop s1.length |>.copy
+        let s2 := s.dropWhile Char.isWhitespace |>.copy
         (s1, .text s2 ++ .concat more.toArray)
     | .concat xs :: more => go (xs.toList ++ more)
     | here :: more => ("", here ++ .concat more.toArray)
@@ -204,7 +204,7 @@ where
         (pre, post ++ s)
       else
         let s1 := s.takeEndWhile Char.isWhitespace |>.copy
-        let s2 := s.dropEnd s1.length |>.copy
+        let s2 := s.dropEndWhile Char.isWhitespace |>.copy
         (.concat more.toArray.reverse ++ .text s2, s1)
     | .concat xs :: more => go (xs.reverse.toList ++ more)
     | here :: more => (.concat more.toArray.reverse ++ here, "")
@@ -334,7 +334,7 @@ private partial def blockMarkdown [MarkdownInline i] [MarkdownBlock i b] : Block
   | .code str => do
     unless (← get).currentBlock.isEmpty || (← get).currentBlock.endsWith "\n" do
       push "\n"
-    push <| quoteCodeBlock (← read).linePrefix.length str
+    push <| quoteCodeBlock (← read).linePrefix.chars.length str
     endBlock
   | .other container content =>
     MarkdownBlock.toMarkdown (i := i) (b := b) inlineMarkdown blockMarkdown container content

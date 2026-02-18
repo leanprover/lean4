@@ -1277,7 +1277,7 @@ mutual
           s.mkError s!"Internal error - index {atDepth} wasn't the directive fence - it was {stx} in {s.stxStack.back}, {s.stxStack.pop.back}, {s.stxStack.pop.pop.back}, {s.stxStack.pop.pop.pop.back}"
 
     withFenceSize (atDepth : Nat) (p : Nat → ParserFn) : ParserFn :=
-      withFence atDepth fun _ str => p str.length
+      withFence atDepth fun _ str => p str.chars.length
 
     withFencePos (atDepth : Nat) (p : Position → ParserFn) : ParserFn :=
       withFence atDepth fun info _ c s => p (c.fileMap.toPosition info.getPos?.get!) c s

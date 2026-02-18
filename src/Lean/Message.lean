@@ -338,7 +338,7 @@ partial def arrayExpr.toMessageData (es : Array Expr) (i : Nat) (acc : MessageDa
 instance : Coe (Array Expr) MessageData := ⟨fun es => arrayExpr.toMessageData es 0 "#["⟩
 
 /-- Wrap the given message in `l` and `r`. See also `Format.bracket`.  -/
-def bracket (l : String) (f : MessageData) (r : String) : MessageData := group (nest l.length <| l ++ f ++ r)
+def bracket (l : String) (f : MessageData) (r : String) : MessageData := group (nest l.chars.length <| l ++ f ++ r)
 /-- Wrap the given message in parentheses `()`. -/
 def paren (f : MessageData) : MessageData := bracket "(" f ")"
 /-- Wrap the given message in square brackets `[]`. -/
@@ -665,7 +665,7 @@ def inlineExpr (e : Expr) (maxInlineLength := 30) : MessageData :=
     (fun ctx => do
       let msg := MessageData.ofExpr e
       let render ← msg.formatExpensively ctx
-      if render.length > maxInlineLength || render.any (· == '\n') then
+      if render.chars.length > maxInlineLength || render.any (· == '\n') then
         return indentD msg ++ "\n"
       else
         return " `" ++ msg ++ "` ")
@@ -681,7 +681,7 @@ def inlineExprTrailing (e : Expr) (maxInlineLength := 30) : MessageData :=
     (fun ctx => do
       let msg := MessageData.ofExpr e
       let render ← msg.formatExpensively ctx
-      if render.length > maxInlineLength || render.any (· == '\n') then
+      if render.chars.length > maxInlineLength || render.any (· == '\n') then
         return indentD msg
       else
         return " `" ++ msg ++ "`")

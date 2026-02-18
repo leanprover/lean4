@@ -449,7 +449,7 @@ def processEdit : RunnerM Unit := do
     contentChanges := #[
       TextDocumentContentChangeEvent.rangeChange {
         start := s.pos
-        «end» := { s.pos with character := s.pos.character + delete.length }
+        «end» := { s.pos with character := s.pos.character + delete.chars.length }
       } insert
     ]
   }

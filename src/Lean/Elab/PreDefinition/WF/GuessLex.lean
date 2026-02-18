@@ -637,18 +637,18 @@ def formatTable : Array (Array String) → String := fun xss => Id.run do
   let mut colWidths := xss[0]!.map (fun _ => 0)
   for hi : i in *...xss.size do
     for hj : j in *...xss[i].size do
-      if xss[i][j].length > colWidths[j]! then
-        colWidths := colWidths.set! j xss[i][j].length
+      if xss[i][j].chars.length > colWidths[j]! then
+        colWidths := colWidths.set! j xss[i][j].chars.length
   let mut str := ""
   for hi : i in *...xss.size do
     for hj : j in *...xss[i].size do
       let s := xss[i][j]
       if j > 0 then -- right-align
-        for _ in *...(colWidths[j]! - s.length) do
+        for _ in *...(colWidths[j]! - s.chars.length) do
           str := str ++ " "
       str := str ++ s
       if j = 0 then -- left-align
-        for _ in *...(colWidths[j]! - s.length) do
+        for _ in *...(colWidths[j]! - s.chars.length) do
           str := str ++ " "
       if j + 1 < xss[i].size then
         str := str ++ " "
@@ -675,7 +675,7 @@ def RecCallWithContext.posString (rcc : RecCallWithContext) : MetaM String := do
 /-- How to present the basic measure in the table header, possibly abbreviated. -/
 def measureHeader (measure : BasicMeasure) : StateT (Nat × String) MetaM String := do
   let s ← measure.toString
-  if s.length > 5 then
+  if s.chars.length > 5 then
     let (i, footer) ← get
     let i := i + 1
     let footer := footer ++ s!"#{i}: {s}\n"

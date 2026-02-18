@@ -790,7 +790,7 @@ def emitLit (builder : LLVM.Builder llvmctx)
                                 (← LLVM.opaquePointerTypeInContext llvmctx)
                                 str_global #[zero] ""
                  let nbytes ← constIntSizeT v.utf8ByteSize
-                 let nchars ← constIntSizeT v.length
+                 let nchars ← constIntSizeT v.chars.length
                  callLeanMkStringUncheckedFn builder strPtr nbytes nchars ""
   LLVM.buildStore builder zv zslot
   return zslot

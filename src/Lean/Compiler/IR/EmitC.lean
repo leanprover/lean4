@@ -155,7 +155,7 @@ where
       let leanStringTag := 249
       let header := mkHeader 0 0 leanStringTag
       let size := data.utf8ByteSize + 1 -- null byte
-      let length := data.length
+      let length := data.chars.length
       let data : String := quoteString data
       mkValueCLit
         "lean_string_object"
@@ -666,7 +666,7 @@ def emitLit (z : VarId) (t : IRType) (v : LitVal) : M Unit := do
     emit "lean_mk_string_unchecked(";
     emit (quoteString v); emit ", ";
     emit v.utf8ByteSize; emit ", ";
-    emit v.length; emitLn ");"
+    emit v.chars.length; emitLn ");"
 
 def emitVDecl (z : VarId) (t : IRType) (v : Expr) : M Unit :=
   match v with

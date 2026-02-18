@@ -47,7 +47,7 @@ instance : ToString Duration where
       else if s.nano.val < 0 then ("-", -s.second, -s.nano.val) else ("", s.second, s.nano.val)
     sign ++ toString secs ++ (if s.nano.val == 0 then "" else "." ++ (leftPad 9 <| toString nanos)) ++ "s"
   where
-    leftPad n s := "".pushn '0' (n - s.length) ++ s
+    leftPad n s := "".pushn '0' (n - s.utf8ByteSize) ++ s
 
 instance : Repr Duration where
   reprPrec s := reprPrec (toString s)

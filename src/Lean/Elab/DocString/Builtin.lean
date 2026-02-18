@@ -233,7 +233,7 @@ def name (full : Option Ident := none) (scope : DocScope := .local)
 
 private def similarNames (x : Name) (xs : Array Name) : Array Name := Id.run do
   let s := x.toString
-  let mut threshold := if s.length < 5 then 1 else if s.length < 8 then 2 else 3
+  let mut threshold := if s.chars.length < 5 then 1 else if s.chars.length < 8 then 2 else 3
   let mut candidates := #[]
   for x in xs do
     if let some d ← levenshtein s x.toString threshold then
@@ -439,7 +439,7 @@ where
       let attrName := stx[0].getId.eraseMacroScopes
       unless isAttribute (← getEnv) attrName do
         let nameStr := attrName.toString
-        let threshold := max 2 (nameStr.length / 3)
+        let threshold := max 2 (nameStr.chars.length / 3)
         let attrs := getAttributeNames (← getEnv) |>.toArray |>.filterMap fun x =>
           let x := x.toString
           levenshtein x nameStr threshold |>.map (x, ·)
@@ -1027,8 +1027,8 @@ where
 
   sortByDistance {α} (target : String) (strings : Array (α × String)) : Array (α × String) :=
     let withDistance := strings.map fun (x, s) =>
-      let d := levenshtein target s target.length
-      (x, s, d.getD target.length)
+      let d := levenshtein target s target.chars.length
+      (x, s, d.getD target.chars.length)
     withDistance.qsort (fun (_, _, d1) (_, _, d2) => d1 < d2) |>.map fun (x, s, _) => (x, s)
 
 /--

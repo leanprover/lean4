@@ -131,8 +131,8 @@ This implies that the notion of match and longest match coincide.
 class NoPrefixForwardPatternModel {ρ : Type} (pat : ρ) [ForwardPatternModel pat] : Prop where
   eq_empty (s t) : ForwardPatternModel.Matches pat s → ForwardPatternModel.Matches pat (s ++ t) → t = ""
 
-theorem NoPrefixForwardPatternModel.of_length_eq {ρ : Type} {pat : ρ} [ForwardPatternModel pat]
-    (h : ∀ s t, ForwardPatternModel.Matches pat s → ForwardPatternModel.Matches pat t → s.length = t.length) :
+theorem NoPrefixForwardPatternModel.of_length_toList_eq {ρ : Type} {pat : ρ} [ForwardPatternModel pat]
+    (h : ∀ s t, ForwardPatternModel.Matches pat s → ForwardPatternModel.Matches pat t → s.toList.length = t.toList.length) :
     NoPrefixForwardPatternModel pat where
   eq_empty s t hs ht := by simpa using h s _ hs ht
 

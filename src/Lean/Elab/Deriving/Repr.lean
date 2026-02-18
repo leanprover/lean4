@@ -41,7 +41,7 @@ def mkBodyForStruct (header : Header) (indVal : InductiveVal) : TermElabM Term :
       if (← isType x <||> isProof x) then
         fields ← `($fields ++ $fieldNameLit ++ " := " ++ "_")
       else
-        let indent := Syntax.mkNumLit <| toString ((toString fieldName |>.length) + " := ".length)
+        let indent := Syntax.mkNumLit <| toString ((toString fieldName |>.chars.length) + " := ".chars.length)
         fields ← `($fields ++ $fieldNameLit ++ " := " ++ (Format.group (Format.nest $indent (repr ($target.$(mkIdent fieldName):ident)))))
     `(Format.bracket "{ " $fields:term " }")
 

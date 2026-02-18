@@ -267,7 +267,7 @@ def guardMsgsCodeAction : CommandCodeAction := fun _ _ _ node => do
       let res := revealTrailingWhitespace res
       let newText := if res.isEmpty then
         ""
-      else if res.length ≤ 100-7 && !res.contains '\n' then -- TODO: configurable line length?
+      else if res.chars.length ≤ 100-7 && !res.contains '\n' then -- TODO: configurable line length?
         s!"/-- {res} -/\n"
       else
         s!"/--\n{res}\n-/\n"

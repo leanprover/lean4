@@ -36,7 +36,7 @@ public def filterUrl? (url : String) : Option String :=
     some url
 
 public def isFullObjectName (rev : String) : Bool :=
-  rev.length == 40 && rev.all fun c => c.isDigit || ('a' <= c && c <= 'f')
+  rev.chars.length == 40 && rev.all fun c => c.isDigit || ('a' <= c && c <= 'f')
 
 end Git
 

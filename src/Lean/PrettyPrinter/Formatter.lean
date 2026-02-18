@@ -616,7 +616,7 @@ instance : Std.Format.MonadPrettyFormat M where
       modify fun st => { st with line := st.line.append s }
       throw ()
     else
-      modify fun st => { st with line := st.line.append s, column := st.column + s.length }
+      modify fun st => { st with line := st.line.append s, column := st.column + s.chars.length }
   pushNewline _ := do
     modify fun st => { st with line := st.line.append continuation }
     throw ()

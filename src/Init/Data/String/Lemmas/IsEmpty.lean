@@ -159,10 +159,6 @@ theorem Slice.isEmpty_slice_eq_false_iff {s : Slice} {p₁ p₂ h} :
   rw [ne_eq, ← isEmpty_slice (h := h), Bool.not_eq_true]
 
 @[simp]
-theorem length_eq_zero_iff {s : String} : s.length = 0 ↔ s = "" := by
-  simp [← length_toList]
-
-@[simp]
 theorem toByteArray_eq_empty_iff {s : String} :
     s.toByteArray = ByteArray.empty ↔ s = "" := by
   simp [← toByteArray_inj]

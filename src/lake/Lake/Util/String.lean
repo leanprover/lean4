@@ -9,14 +9,15 @@ prelude
 public import Init.Data.ToString.Basic
 import Init.Data.String.Basic
 import Init.Data.Nat.Fold
+import Init.Data.String.Iterate
 
 namespace Lake
 
 public def lpad (s : String) (c : Char) (len : Nat) : String :=
-  "".pushn c (len - s.length) ++ s
+  "".pushn c (len - s.chars.length) ++ s
 
 public def rpad (s : String) (c : Char) (len : Nat) : String :=
-  s.pushn c (len - s.length)
+  s.pushn c (len - s.chars.length)
 
 public def zpad (n : Nat) (len : Nat) : String :=
   lpad (toString n) '0' len

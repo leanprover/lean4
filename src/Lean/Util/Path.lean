@@ -149,10 +149,11 @@ def moduleNameOfFileName (fname : FilePath) (rootDir : Option FilePath) : IO Nam
   let mut rootDir ← realPathNormalized rootDir
   if !rootDir.toString.endsWith System.FilePath.pathSeparator.toString then
     rootDir := ⟨rootDir.toString ++ System.FilePath.pathSeparator.toString⟩
+
   if !rootDir.toString.isPrefixOf fname.normalize.toString then
     throw $ IO.userError s!"input file '{fname}' must be contained in root directory ({rootDir})"
   -- NOTE: use `fname` instead of `fname.normalize` to preserve casing on all platforms
-  let fnameSuffix := fname.toString.drop rootDir.toString.length
+  let some fnameSuffix := fname.toString.dropPrefix? rootDir.toString | panic! "Just performed the same check up to casing"
   let modNameStr := FilePath.mk fnameSuffix.copy |>.withExtension ""
   let modName    := modNameStr.components.foldl Name.mkStr Name.anonymous
   pure modName

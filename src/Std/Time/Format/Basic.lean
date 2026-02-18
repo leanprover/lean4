@@ -442,7 +442,7 @@ inductive Modifier
 It takes a constructor function to build the `Modifier` and a classify function that maps the pattern length to a specific type.
 -/
 private def parseMod (constructor : α → Modifier) (classify : Nat → Option α) (p : String) : Parser Modifier :=
-  let len := p.length
+  let len := p.chars.length
   match classify len with
   | some res => pure (constructor res)
   | none => fail s!"invalid quantity of characters for '{p.front}'"
@@ -454,7 +454,7 @@ private def parseFraction (constructor : Fraction → Modifier) (p : String) : P
   parseMod constructor Fraction.classify p
 
 private def parseNumber (constructor : Number → Modifier) (p : String) : Parser Modifier :=
-  pure (constructor ⟨p.length⟩)
+  pure (constructor ⟨p.chars.length⟩)
 
 private def parseYear (constructor : Year → Modifier) (p : String) : Parser Modifier :=
   parseMod constructor Year.classify p
@@ -469,13 +469,13 @@ private def parseOffsetO (constructor : OffsetO → Modifier) (p : String) : Par
   parseMod constructor OffsetO.classify p
 
 private def parseZoneId (p : String) : Parser Modifier :=
-  if p.length = 2 then pure .V else fail s!"invalid quantity of characters for '{p.front}'"
+  if p.chars.length = 2 then pure .V else fail s!"invalid quantity of characters for '{p.front}'"
 
 private def parseNumberText (constructor : (Number ⊕ Text) → Modifier) (p : String) : Parser Modifier :=
   parseMod constructor classifyNumberText p
 
 private def parseZoneName (constructor : ZoneName → Modifier) (p : String) : Parser Modifier :=
-  let len := p.length
+  let len := p.chars.length
   match ZoneName.classify (p.front) len with
   | some res => pure (constructor res)
   | none => fail s!"invalid quantity of characters for '{p.front}'"
@@ -617,17 +617,17 @@ private def specParse (s : String) : Except String FormatString :=
 -- Pretty printer
 
 private def leftPad (n : Nat) (a : Char) (s : String) : String :=
-  "".pushn a (n -  s.length) ++ s
+  "".pushn a (n -  s.chars.length) ++ s
 
 private def rightPad (n : Nat) (a : Char) (s : String) : String :=
-  s ++ "".pushn a (n - s.length)
+  s ++ "".pushn a (n - s.chars.length)
 
 private def pad (size : Nat)  (n : Int) (cut : Bool := false) : String :=
   let (sign, n) := if n < 0 then ("-", -n) else ("", n)
 
   let numStr := toString n
-  if numStr.length > size then
-    sign ++ if cut then numStr.drop (numStr.length - size) |>.copy else numStr
+  if numStr.chars.length > size then
+    sign ++ if cut then numStr.drop (numStr.chars.length - size) |>.copy else numStr
   else
     sign ++ leftPad size '0' numStr
 
@@ -635,7 +635,7 @@ private def rightTruncate (size : Nat)  (n : Int) (cut : Bool := false) : String
   let (sign, n) := if n < 0 then ("-", -n) else ("", n)
 
   let numStr := toString n
-  if numStr.length > size then
+  if numStr.chars.length > size then
     sign ++ if cut then numStr.take size |>.copy else numStr
   else
     sign ++ rightPad size '0' numStr

@@ -50,10 +50,6 @@ theorem toList_map {f : Char → Char} {s : String} : (s.map f).toList = s.toLis
   simp [map, toList_mapAux s.splits_startPos]
 
 @[simp]
-theorem length_map {f : Char → Char} {s : String} : (s.map f).length = s.length := by
-  simp [← length_toList]
-
-@[simp]
 theorem map_eq_empty {f : Char → Char} {s : String} : s.map f = "" ↔ s = "" := by
   simp [← toList_eq_nil_iff]
 

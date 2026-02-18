@@ -12,6 +12,7 @@ import Init.Data.Nat.Order
 import Init.Data.Order.Lemmas
 import Init.Data.Range
 import Init.While
+import Init.Data.String.Iterate
 
 set_option linter.missingDocs true
 
@@ -25,8 +26,8 @@ returned `some` does not necessarily indicate that the edit distance is less tha
 cutoff.
 -/
 public def levenshtein (str1 str2 : String) (cutoff : Nat) : Option Nat := Id.run do
-  let len1 := str1.length
-  let len2 := str2.length
+  let len1 := str1.chars.length
+  let len2 := str2.chars.length
 
   -- The lower bound on the Levenshtein distance is the difference in lengths
   if max len1 len2 - min len1 len2 > cutoff then return none

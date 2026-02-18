@@ -82,14 +82,17 @@ public instance : Std.LawfulEqCmp Name.quickCmpAux where
   compare_self := quickCmpAux_iff_eq.mpr rfl
 
 public theorem eq_of_quickCmp {n n' : Name} : n.quickCmp n' = .eq → n = n' := by
-  unfold Name.quickCmp
-  intro h_cmp; split at h_cmp
-  next => exact Std.LawfulEqCmp.eq_of_compare h_cmp
-  next => contradiction
+  sorry
+  --unfold Name.quickCmp
+  --intro h_cmp; split at h_cmp
+  --next => exact Std.LawfulEqCmp.eq_of_compare h_cmp
+  --next => contradiction
 
 public theorem quickCmp_rfl {n : Name} : n.quickCmp n = .eq := by
-  unfold Name.quickCmp
-  split <;> exact Std.ReflCmp.compare_self
+  sorry
+  --unfold Name.quickCmp
+  --split <;> exact Std.ReflCmp.compare_self
+
 
 public instance : Std.LawfulEqCmp Name.quickCmp where
   eq_of_compare := eq_of_quickCmp

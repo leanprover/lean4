@@ -97,9 +97,12 @@ def quickCmpAux : Name → Name → Ordering
     | ord => ord
 
 def quickCmp (n₁ n₂ : Name) : Ordering :=
-  match compare n₁.hash n₂.hash with
-  | Ordering.eq => quickCmpAux n₁ n₂
-  | ord => ord
+  if unsafe ptrEq n₁ n₂ then
+    Ordering.eq
+  else
+    match compare n₁.hash n₂.hash with
+    | Ordering.eq => quickCmpAux n₁ n₂
+    | ord => ord
 
 def quickLt (n₁ n₂ : Name) : Bool :=
   quickCmp n₁ n₂ == Ordering.lt

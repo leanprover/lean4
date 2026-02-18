@@ -75,7 +75,7 @@ unsafe def fold {α : Type} (f : Name → α → MetaM α) (e : Expr) (acc : α)
         return acc
       else
         modify fun s => { s with visitedConsts := s.visitedConsts.insert c }
-        if ← isInstanceReducible c then
+        if ← isImplicitReducible c then
           return acc
         else
           f c acc
@@ -319,7 +319,7 @@ def isDeniedPremise (env : Environment) (name : Name) (allowPrivate : Bool := fa
   if name == ``sorryAx then return true
   -- Allow private names through if allowPrivate is set (e.g., for currentFile selector)
   if name.isInternalDetail && !(allowPrivate && isPrivateName name) then return true
-  if isInstanceReducibleCore env name then return true
+  if isImplicitReducibleCore env name then return true
   if Lean.Linter.isDeprecated env name then return true
   if (nameDenyListExt.getState env).any (fun p => name.anyS (· == p)) then return true
   if let some moduleIdx := env.getModuleIdxFor? name then

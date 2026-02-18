@@ -1,4 +1,4 @@
-@[instance_reducible] def D.toB : {α : Type} → [self : D α] → B α :=
+@[implicit_reducible] def D.toB : {α : Type} → [self : D α] → B α :=
 fun (α : Type) [self : D α] => self.1
-@[instance_reducible] def D.toC : {α : Type} → [self : D α] → C α :=
+@[implicit_reducible] def D.toC : {α : Type} → [self : D α] → C α :=
 fun (α : Type) (self : D α) => @C.mk α (@B.toA α (@D.toB α self)) (@D.mul α self)

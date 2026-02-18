@@ -17,9 +17,13 @@ See `TransparencyMode` for the full design rationale.
   appear in user-facing terms, but are eagerly unfolded when indexing terms into discrimination
   trees (`simp`, type class resolution) and in `grind`. Think of it as `[inline]` for indexing.
   Suitable for abbreviations and definitions that should be transparent to proof automation.
-- **`instanceReducible`**: Unfolded at `TransparencyMode.instances` or above. Used for type class
-  instances. Instances cannot be eagerly reduced (they expand into large terms), but must be
-  unfoldable to resolve instance diamonds (e.g., `Add Nat` via direct instance vs via `Semiring`).
+- **`implicitReducible`**: Unfolded at `TransparencyMode.instances` or above. Used for type class
+  instances and definitions that appear in types matched during implicit argument resolution
+  (e.g., `Nat.add`, `Array.size`). These definitions cannot be eagerly reduced (instances expand
+  into large terms, recursive definitions are problematic), but must be unfoldable when checking
+  implicit arguments and resolving instance diamonds (e.g., `Add Nat` via direct instance vs via
+  `Semiring`). The attribute `[implicit_reducible]` (or its alias `[instance_reducible]`) marks
+  a definition with this status.
 - **`semireducible`**: The default. Unfolded at `TransparencyMode.default` or above. Used for
   ordinary definitions. Suitable for user-written code where `isDefEq` should try hard during
   type checking, but not during speculative proof automation.
@@ -27,14 +31,14 @@ See `TransparencyMode` for the full design rationale.
   hidden from `isDefEq` in normal usage.
 -/
 inductive ReducibilityStatus where
-  | reducible | semireducible | irreducible | instanceReducible
+  | reducible | semireducible | irreducible | implicitReducible
   deriving Inhabited, Repr, BEq
 
 def ReducibilityStatus.toAttrString : ReducibilityStatus → String
   | .reducible => "[reducible]"
   | .irreducible => "[irreducible]"
   | .semireducible => "[semireducible]"
-  | .instanceReducible => "[instance_reducible]"
+  | .implicitReducible => "[implicit_reducible]"
 
 builtin_initialize reducibilityCoreExt : PersistentEnvExtension (Name × ReducibilityStatus) (Name × ReducibilityStatus) (NameMap ReducibilityStatus) ←
   registerPersistentEnvExtension {
@@ -137,11 +141,11 @@ private def validate (declName : Name) (status : ReducibilityStatus) (attrKind :
         unless statusOld matches .semireducible do
           throwError "failed to set `[reducible]`, `{.ofConstName declName}` is not currently `[semireducible]`, but `{statusOld.toAttrString}`{suffix}"
       | .irreducible =>
-        unless statusOld matches .semireducible | .instanceReducible do
-          throwError "failed to set `[irreducible]`, `{.ofConstName declName}` is not currently `[semireducible]` nor `[instance_reducible]`, but `{statusOld.toAttrString}`{suffix}"
-      | .instanceReducible =>
+        unless statusOld matches .semireducible | .implicitReducible do
+          throwError "failed to set `[irreducible]`, `{.ofConstName declName}` is not currently `[semireducible]` nor `[implicit_reducible]`, but `{statusOld.toAttrString}`{suffix}"
+      | .implicitReducible =>
         unless statusOld matches .semireducible do
-          throwError "failed to set `[instance_reducible]`, `{.ofConstName declName}` is not currently `[semireducible]`, but `{statusOld.toAttrString}`{suffix}"
+          throwError "failed to set `[implicit_reducible]`, `{.ofConstName declName}` is not currently `[semireducible]`, but `{statusOld.toAttrString}`{suffix}"
       | .semireducible =>
         throwError "failed to set `[semireducible]` for `{.ofConstName declName}`, declarations are `[semireducible]` by default{suffix}"
     | .local =>
@@ -149,11 +153,11 @@ private def validate (declName : Name) (status : ReducibilityStatus) (attrKind :
       | .reducible =>
         throwError "failed to set `[local reducible]` for `{.ofConstName declName}`, recall that `[reducible]` affects the term indexing datastructures used by `simp` and type class resolution{suffix}"
       | .irreducible =>
-        unless statusOld matches .semireducible | .instanceReducible do
-          throwError "failed to set `[local irreducible]`, `{.ofConstName declName}` is currently `{statusOld.toAttrString}`, `[semireducible]` nor `[instance_reducible]` expected{suffix}"
-      | .instanceReducible =>
+        unless statusOld matches .semireducible | .implicitReducible do
+          throwError "failed to set `[local irreducible]`, `{.ofConstName declName}` is currently `{statusOld.toAttrString}`, `[semireducible]` nor `[implicit_reducible]` expected{suffix}"
+      | .implicitReducible =>
         unless statusOld matches .semireducible do
-          throwError "failed to set `[local instance_reducible]`, `{.ofConstName declName}` is currently `{statusOld.toAttrString}`, `[semireducible]` expected{suffix}"
+          throwError "failed to set `[local implicit_reducible]`, `{.ofConstName declName}` is currently `{statusOld.toAttrString}`, `[semireducible]` expected{suffix}"
       | .semireducible =>
         unless statusOld matches .irreducible do
           throwError "failed to set `[local semireducible]`, `{.ofConstName declName}` is currently `{statusOld.toAttrString}`, `[irreducible]` expected{suffix}"
@@ -192,23 +196,36 @@ builtin_initialize
  }
 
 /--
-Marks a definition as `[instance_reducible]`, meaning it is unfolded at
+Marks a definition as `[implicit_reducible]`, meaning it is unfolded at
 `TransparencyMode.instances` or above but *not* at `TransparencyMode.reducible`.
 
-This attribute decouples whether a definition participates in type class resolution
-(the `[instance]` attribute) from its transparency. The `instance` command automatically
-adds both `[instance]` and `[instance_reducible]`.
+Use this attribute for:
+- **Type class instances**: The `instance` command automatically adds `[implicit_reducible]`.
+  Instance diamonds (e.g., `Add Nat` from a direct instance vs via `Semiring`) are definitionally
+  equal but structurally different, so `isDefEq` must unfold them. When using `attribute [instance]`
+  on an existing definition, you typically also need `attribute [implicit_reducible]`.
+- **Definitions used in types that appear in implicit arguments**: For example, `Nat.add`, `Array.size`.
+  When proof automation applies a lemma, implicit arguments are checked with increased transparency
+  so that type-level computations (e.g., `n + 0` vs `n`) are resolved.
 
-When using `attribute [instance]` on an existing definition, you typically also need
-`attribute [instance_reducible]` so that `isDefEq` can unfold the definition when resolving
-instance diamonds.
+`[instance_reducible]` is an alias for this attribute.
 -/
 builtin_initialize
   registerBuiltinAttribute {
     ref             := by exact decl_name%
+    name            := `implicit_reducible
+    descr           := "implicit reducible declaration"
+    add             := addAttr .implicitReducible
+    applicationTime := .afterTypeChecking
+ }
+
+/-- Alias for `[implicit_reducible]`. See `implicit_reducible` for documentation. -/
+builtin_initialize
+  registerBuiltinAttribute {
+    ref             := by exact decl_name%
     name            := `instance_reducible
-    descr           := "instance reducible declaration"
-    add             := addAttr .instanceReducible
+    descr           := "alias for implicit_reducible"
+    add             := addAttr .implicitReducible
     applicationTime := .afterTypeChecking
  }
 
@@ -232,12 +249,15 @@ def isReducible [Monad m] [MonadEnv m] (declName : Name) : m Bool := do
 def isIrreducible [Monad m] [MonadEnv m] (declName : Name) : m Bool := do
   return (← getReducibilityStatus declName) matches .irreducible
 
-def isInstanceReducibleCore (env : Environment) (declName : Name) : Bool :=
-  getReducibilityStatusCore env declName matches .instanceReducible
+def isImplicitReducibleCore (env : Environment) (declName : Name) : Bool :=
+  getReducibilityStatusCore env declName matches .implicitReducible
 
-/-- Return `true` if the given declaration has been marked as `[instance_reducible]`. -/
-def isInstanceReducible [Monad m] [MonadEnv m] (declName : Name) : m Bool :=
-  return isInstanceReducibleCore (← getEnv) declName
+/-- Return `true` if the given declaration has been marked as `[implicit_reducible]`. -/
+def isImplicitReducible [Monad m] [MonadEnv m] (declName : Name) : m Bool :=
+  return isImplicitReducibleCore (← getEnv) declName
+
+@[deprecated isImplicitReducibleCore (since := "2026-02-18")] abbrev isInstanceReducibleCore := isImplicitReducibleCore
+@[deprecated isImplicitReducible (since := "2026-02-18")] abbrev isInstanceReducible := @isImplicitReducible
 
 /-- Set the given declaration as `[irreducible]` -/
 def setIrreducibleAttribute [MonadEnv m] (declName : Name) : m Unit :=

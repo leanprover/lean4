@@ -27,7 +27,7 @@ namespace Std.Http
 
 set_option linter.all true
 
-open Internal
+open Internal Char
 
 namespace URI
 
@@ -681,7 +681,7 @@ Reference: https://www.rfc-editor.org/rfc/rfc7230.html#section-5.3
 inductive RequestTarget where
   /--
   Origin-form request target (most common for HTTP requests). Consists of a path and an optional query string.
-  Example: `/path/to/resource?key=value#section`
+  Example: `/path/to/resource?key=value`
   -/
   | originForm (path : URI.Path) (query : Option URI.Query)
 

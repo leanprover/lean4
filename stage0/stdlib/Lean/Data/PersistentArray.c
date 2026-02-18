@@ -192,8 +192,8 @@ LEAN_EXPORT lean_object* l_Lean_PersistentArray_findSomeMAux___redArg___lam__9__
 static const lean_ctor_object l_Lean_PersistentArray_findSomeMAux___redArg___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 0, .m_other = 2, .m_tag = 0}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)(((size_t)(0) << 1) | 1))}};
 static const lean_object* l_Lean_PersistentArray_findSomeMAux___redArg___closed__0 = (const lean_object*)&l_Lean_PersistentArray_findSomeMAux___redArg___closed__0_value;
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_findSomeMAux___redArg___lam__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_PersistentArray_findSomeMAux___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_findSomeMAux___redArg___lam__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_PersistentArray_findSomeMAux___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_findSomeMAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_findSomeM_x3f___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_findSomeM_x3f___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3849,6 +3849,15 @@ lean_dec_ref(x_6);
 return x_7;
 }
 }
+LEAN_EXPORT lean_object* l_Lean_PersistentArray_findSomeMAux___redArg___lam__4___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+_start:
+{
+lean_object* x_8; 
+x_8 = l_Lean_PersistentArray_findSomeMAux___redArg___lam__4(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
+lean_dec_ref(x_7);
+return x_8;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_findSomeMAux___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -3887,7 +3896,7 @@ lean_closure_set(x_13, 2, x_6);
 lean_closure_set(x_13, 3, x_12);
 lean_inc(x_6);
 lean_inc_ref(x_1);
-x_14 = lean_alloc_closure((void*)(l_Lean_PersistentArray_findSomeMAux___redArg___lam__4), 7, 4);
+x_14 = lean_alloc_closure((void*)(l_Lean_PersistentArray_findSomeMAux___redArg___lam__4___boxed), 7, 4);
 lean_closure_set(x_14, 0, x_1);
 lean_closure_set(x_14, 1, x_2);
 lean_closure_set(x_14, 2, x_6);
@@ -3951,15 +3960,6 @@ lean_object* x_8; lean_object* x_9;
 x_8 = l_Lean_PersistentArray_findSomeMAux___redArg(x_1, x_2, x_5);
 x_9 = lean_apply_4(x_3, lean_box(0), lean_box(0), x_8, x_4);
 return x_9;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_PersistentArray_findSomeMAux___redArg___lam__4___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
-_start:
-{
-lean_object* x_8; 
-x_8 = l_Lean_PersistentArray_findSomeMAux___redArg___lam__4(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
-lean_dec_ref(x_7);
-return x_8;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_findSomeMAux(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {

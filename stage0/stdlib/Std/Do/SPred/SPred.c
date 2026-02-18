@@ -14,8 +14,8 @@
 extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Std_Do_SPred_pure___redArg___lam__0(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Do_SPred_pure___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_SPred_pure___redArg___lam__0___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Do_SPred_pure___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_SPred_pure(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_SPred_and___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_SPred_and(lean_object*, lean_object*, lean_object*);
@@ -38,6 +38,15 @@ LEAN_EXPORT lean_object* l_Std_Do_SPred_conjunction(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Do_SPred_SPred_0__Std_Do_SPred_conjunction_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Do_SPred_SPred_0__Std_Do_SPred_conjunction_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Do_SPred_SPred_0__Std_Do_SPred_conjunction_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Do_SPred_pure___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Std_Do_SPred_pure___redArg___lam__0(x_1, x_2);
+lean_dec(x_2);
+return x_3;
+}
+}
 LEAN_EXPORT lean_object* l_Std_Do_SPred_pure___redArg(lean_object* x_1) {
 _start:
 {
@@ -51,7 +60,7 @@ lean_object* x_2; lean_object* x_3;
 x_2 = lean_ctor_get(x_1, 1);
 lean_inc(x_2);
 lean_dec_ref(x_1);
-x_3 = lean_alloc_closure((void*)(l_Std_Do_SPred_pure___redArg___lam__0), 2, 1);
+x_3 = lean_alloc_closure((void*)(l_Std_Do_SPred_pure___redArg___lam__0___boxed), 2, 1);
 lean_closure_set(x_3, 0, x_2);
 return x_3;
 }
@@ -62,15 +71,6 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Std_Do_SPred_pure___redArg(x_1);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Do_SPred_pure___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Std_Do_SPred_pure___redArg___lam__0(x_1, x_2);
-lean_dec(x_2);
 return x_3;
 }
 }

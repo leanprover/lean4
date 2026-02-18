@@ -213,16 +213,31 @@ private def updateRefUsingCtorInfo (ctx : Context) (x : VarId) (c : CtorInfo) : 
     | none => m
   }
 
-private def addDecForAlt (ctx : Context) (caseLiveVars altLiveVars : LiveVars) (b : FnBody) : FnBody :=
-  caseLiveVars.vars.foldl (init := b) fun b x =>
+private def addDecForAlt (ctx : Context) (caseLiveVars altLiveVars : LiveVars) (b : FnBody) :
+    FnBody := Id.run do
+  let mut incs := #[]
+  let mut decs := #[]
+  for x in caseLiveVars.vars do
     let info := getVarInfo ctx x
     if !altLiveVars.vars.contains x then
       if info.isPossibleRef && !caseLiveVars.borrows.contains x then
-        addDec ctx x b
-      else b
+        decs := decs.push x
     else if caseLiveVars.borrows.contains x && !altLiveVars.borrows.contains x then
-      addInc ctx x b
-    else b
+      incs := incs.push x
+
+  let b := decs.foldl (init := b) fun b x => addDec ctx x b
+  let b := incs.foldl (init := b) fun b x => addInc ctx x b
+  return b
+
+  --caseLiveVars.vars.foldl (init := b) fun b x =>
+  --  let info := getVarInfo ctx x
+  --  if !altLiveVars.vars.contains x then
+  --    if info.isPossibleRef && !caseLiveVars.borrows.contains x then
+  --      addDec ctx x b
+  --    else b
+  --  else if caseLiveVars.borrows.contains x && !altLiveVars.borrows.contains x then
+  --    addInc ctx x b
+  --  else b
 
 /-- `isFirstOcc xs x i = true` if `xs[i]` is the first occurrence of `xs[i]` in `xs` -/
 private def isFirstOcc (xs : Array Arg) (i : Nat) : Bool :=

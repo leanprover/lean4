@@ -35,7 +35,7 @@ The state of the `Writer` state machine.
 -/
 inductive Writer.State
   /--
-  It starts writing only when part of the request is received.
+  Initial state before any request headers have been received.
   -/
   | pending
 

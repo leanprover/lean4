@@ -118,6 +118,11 @@ structure Reader (dir : Direction) where
   messageCount : Nat := 0
 
   /--
+  Number of body bytes read for the current message.
+  -/
+  bodyBytesRead : Nat := 0
+
+  /--
   Flag that says that it cannot receive more input (the socket disconnected).
   -/
   noMoreInput : Bool := false
@@ -216,6 +221,7 @@ Resets the reader to parse a new message on the same connection.
 def reset (reader : Reader dir) : Reader dir :=
   { reader with
     state := .needStartLine
+    bodyBytesRead := 0
     messageHead := {} }
 
 /--
@@ -256,7 +262,14 @@ Transitions to the state for reading headers.
 -/
 @[inline]
 def startHeaders (reader : Reader dir) : Reader dir :=
-  { reader with state := .needHeader 0 }
+  { reader with state := .needHeader 0, bodyBytesRead := 0 }
+
+/--
+Adds body bytes parsed for the current message.
+-/
+@[inline]
+def addBodyBytes (n : Nat) (reader : Reader dir) : Reader dir :=
+  { reader with bodyBytesRead := reader.bodyBytesRead + n }
 
 /--
 Transitions to the state for reading a fixed-length body.

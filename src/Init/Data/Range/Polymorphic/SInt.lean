@@ -241,6 +241,7 @@ instance : LawfulUpwardEnumerableLeast? Int8 where
     · have := le_toInt x
       omega
 
+set_option backward.whnf.reducibleClassField false in
 instance : HasModel Int8 (BitVec 8) where
   encode x := x.toBitVec
   decode x := .ofBitVec x
@@ -249,6 +250,7 @@ instance : HasModel Int8 (BitVec 8) where
   le_iff_encode_le := by simp +instances [Int8.le_iff_toBitVec_sle, BitVec.Signed.instLE]
   lt_iff_encode_lt := by simp +instances [Int8.lt_iff_toBitVec_slt, BitVec.Signed.instLT]
 
+set_option backward.whnf.reducibleClassField false in
 theorem instUpwardEnumerable_eq :
     instUpwardEnumerable = HasModel.instUpwardEnumerable := by
   apply UpwardEnumerable.ext
@@ -258,6 +260,7 @@ theorem instUpwardEnumerable_eq :
   · ext
     simp +instances [HasModel.succMany?_eq, instUpwardEnumerable, HasModel.encode, HasModel.decode,
       ← toInt_toBitVec, toBitVec_maxValueSealed_eq_intMaxSealed, ofIntLE_eq_ofInt]
+
 
 instance : LawfulUpwardEnumerable Int8 := by
   simp +instances only [instUpwardEnumerable_eq]
@@ -335,6 +338,7 @@ instance : LawfulUpwardEnumerableLeast? Int16 where
     · have := le_toInt x
       omega
 
+set_option backward.whnf.reducibleClassField false in
 instance : HasModel Int16 (BitVec 16) where
   encode x := x.toBitVec
   decode x := .ofBitVec x
@@ -343,6 +347,7 @@ instance : HasModel Int16 (BitVec 16) where
   le_iff_encode_le := by simp +instances [Int16.le_iff_toBitVec_sle, BitVec.Signed.instLE]
   lt_iff_encode_lt := by simp +instances [Int16.lt_iff_toBitVec_slt, BitVec.Signed.instLT]
 
+set_option backward.whnf.reducibleClassField false in
 theorem instUpwardEnumerable_eq :
     instUpwardEnumerable = HasModel.instUpwardEnumerable := by
   apply UpwardEnumerable.ext
@@ -429,6 +434,7 @@ instance : LawfulUpwardEnumerableLeast? Int32 where
     · have := le_toInt x
       omega
 
+set_option backward.whnf.reducibleClassField false in
 instance : HasModel Int32 (BitVec 32) where
   encode x := x.toBitVec
   decode x := .ofBitVec x
@@ -437,6 +443,7 @@ instance : HasModel Int32 (BitVec 32) where
   le_iff_encode_le := by simp +instances [Int32.le_iff_toBitVec_sle, BitVec.Signed.instLE]
   lt_iff_encode_lt := by simp +instances [Int32.lt_iff_toBitVec_slt, BitVec.Signed.instLT]
 
+set_option backward.whnf.reducibleClassField false in
 theorem instUpwardEnumerable_eq :
     instUpwardEnumerable = HasModel.instUpwardEnumerable := by
   apply UpwardEnumerable.ext
@@ -523,6 +530,7 @@ instance : LawfulUpwardEnumerableLeast? Int64 where
     · have := le_toInt x
       omega
 
+set_option backward.whnf.reducibleClassField false in
 instance : HasModel Int64 (BitVec 64) where
   encode x := x.toBitVec
   decode x := .ofBitVec x
@@ -531,6 +539,7 @@ instance : HasModel Int64 (BitVec 64) where
   le_iff_encode_le := by simp +instances [Int64.le_iff_toBitVec_sle, BitVec.Signed.instLE]
   lt_iff_encode_lt := by simp +instances [Int64.lt_iff_toBitVec_slt, BitVec.Signed.instLT]
 
+set_option backward.whnf.reducibleClassField false in
 theorem instUpwardEnumerable_eq :
     instUpwardEnumerable = HasModel.instUpwardEnumerable := by
   apply UpwardEnumerable.ext
@@ -622,6 +631,7 @@ instance : LawfulUpwardEnumerableLeast? ISize where
     have := minValue_le_toInt x
     omega
 
+set_option backward.whnf.reducibleClassField false in
 instance : HasModel ISize (BitVec System.Platform.numBits) where
   encode x := x.toBitVec
   decode x := .ofBitVec x
@@ -630,6 +640,7 @@ instance : HasModel ISize (BitVec System.Platform.numBits) where
   le_iff_encode_le := by simp +instances [ISize.le_iff_toBitVec_sle, BitVec.Signed.instLE]
   lt_iff_encode_lt := by simp +instances [ISize.lt_iff_toBitVec_slt, BitVec.Signed.instLT]
 
+set_option backward.whnf.reducibleClassField false in
 theorem instUpwardEnumerable_eq :
     instUpwardEnumerable = HasModel.instUpwardEnumerable := by
   apply UpwardEnumerable.ext

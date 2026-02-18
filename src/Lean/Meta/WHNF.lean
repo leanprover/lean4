@@ -810,7 +810,7 @@ partial def unfoldProjInstWhenInstances? (e : Expr) : MetaM (Option Expr) := do
     return none
 
 register_builtin_option backward.whnf.reducibleClassField : Bool := {
-  defValue := false
+  defValue := true
   descr    := "enables better support for unfolding type class fields marked as `[reducible]`"
 }
 

@@ -440,13 +440,11 @@ instance [Monad m] [LawfulMonad m] : LawfulMonad (StateT σ m) where
 @[simp] theorem run_restoreM [Monad m] [LawfulMonad m] (x : stM m (StateT σ m) α) (s : σ) :
     StateT.run (restoreM x) s = pure x := by
   simp [restoreM, MonadControl.restoreM]
-  rfl
 
 @[simp] theorem run_liftWith [Monad m] [LawfulMonad m] (f : ({β : Type u} → StateT σ m β → m (stM m (StateT σ m) β)) → m α) (s : σ) :
     StateT.run (liftWith f) s = ((·, s) <$> f fun x => x.run s) := by
   simp [liftWith, MonadControl.liftWith, Function.comp_def]
 
-set_option backward.isDefEq.respectTransparency false in
 @[simp] theorem run_controlAt [Monad m] [LawfulMonad m] (f : ({β : Type u} → StateT σ m β → m (stM m (StateT σ m) β)) → m (stM m (StateT σ m) α)) (s : σ) :
     StateT.run (controlAt m f) s = f fun x => x.run s := by
   simp [controlAt]

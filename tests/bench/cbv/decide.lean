@@ -7,6 +7,14 @@ abbrev Nat.Prime (p : Nat) : Prop :=
 abbrev IsPrimePow (n : Nat) : Prop :=
   ∃ p ≤ n, ∃ k ≤ n, Nat.Prime p ∧ 0 < k ∧ p ^ k = n
 
+section
+
+set_option diagnostics true
+
+example : ¬ IsPrimePow 6 := by decide
+
+end
+
 def mkProblemInst (n : Nat) : Expr :=
   let n := mkNatLit n
   let f := mkApp (mkConst ``IsPrimePow) n

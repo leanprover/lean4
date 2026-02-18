@@ -25,7 +25,7 @@ public def simpIteCbv : Simproc := fun e => do
   let numArgs := e.getAppNumArgs
   if numArgs < 5 then return .rfl (done := true)
   propagateOverApplied e (numArgs - 5) fun e => do
-    let_expr f@ite α c _ a b := e | return .rfl
+    let_expr f@ite α c inst' a b := e | return .rfl
     match (← simp c) with
     | .rfl _ =>
       if (← isTrueExpr c) then
@@ -33,8 +33,6 @@ public def simpIteCbv : Simproc := fun e => do
       else if (← isFalseExpr  c) then
         return .step b <| mkApp3 (mkConst ``ite_false f.constLevels!) α a b
       else
-        let .some inst' ← trySynthInstance (mkApp (mkConst ``Decidable) c) | return .rfl
-        let inst' ← shareCommon inst'
         let toEval ← mkAppS₂ (mkConst ``Decidable.decide) c inst'
         let evalRes ← simp toEval
         match evalRes with
@@ -80,7 +78,7 @@ public def simpDIteCbv : Simproc := fun e => do
   let numArgs := e.getAppNumArgs
   if numArgs < 5 then return .rfl (done := true)
   propagateOverApplied e (numArgs - 5) fun e => do
-    let_expr f@dite α c _ a b := e | return .rfl
+    let_expr f@dite α c inst' a b := e | return .rfl
     match (← simp c) with
     | .rfl _ =>
       if (← isTrueExpr c) then
@@ -90,8 +88,6 @@ public def simpDIteCbv : Simproc := fun e => do
         let b' ← share <| b.betaRev #[mkConst ``not_false]
         return .step b' <| mkApp3 (mkConst ``dite_false f.constLevels!) α a b
       else
-        let .some inst' ← trySynthInstance (mkApp (mkConst ``Decidable) c) | return .rfl
-        let inst' ← shareCommon inst'
         let toEval ← mkAppS₂ (mkConst ``Decidable.decide) c inst'
         let evalRes ← simp toEval
         match evalRes with

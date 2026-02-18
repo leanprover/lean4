@@ -88,11 +88,14 @@ theorem denote_blastExtractAndExtend (assign : α → Bool)  (aig : AIG α) (cur
   split at hgen
   · case _ hlt =>
     rw [← hgen]
+    simp only [Lean.Elab.WF.paramLet]
     apply denote_blastExtractAndExtend
     · intros idx hidx
-      simp only [RefVec.get_append]
-      split
-      · rw [blastExtractAndExtendBit_denote_mem_prefix (xc := xc)]
+      generalize hgen' : ((acc.cast ⋯).append (blastExtractAndExtendBit aig xc currIdx).vec).get idx hidx = AA
+      rw [RefVec.get_append] at hgen'
+      split at hgen'
+      ·
+        rw [blastExtractAndExtendBit_denote_mem_prefix (xc := xc)]
         apply hacc
         simp only [RefVec.get_cast, Ref.cast_eq]
         apply acc.hrefs (i := idx)

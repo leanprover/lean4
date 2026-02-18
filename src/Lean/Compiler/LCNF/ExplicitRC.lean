@@ -126,14 +126,14 @@ structure VarInfo where
 abbrev VarMap := FVarIdMap VarInfo
 
 structure LiveVars where
-  vars : FVarIdSet := {}
-  borrows : FVarIdSet := {}
+  vars : Std.HashSet FVarId := {}
+  borrows : Std.HashSet FVarId := {}
   deriving Inhabited
 
 @[inline]
 def LiveVars.merge (liveVars1 liveVars2 : LiveVars) : LiveVars :=
-  let vars := liveVars1.vars.merge liveVars2.vars
-  let borrows := liveVars1.borrows.merge liveVars2.borrows
+  let vars := liveVars1.vars.union liveVars2.vars
+  let borrows := liveVars1.borrows.union liveVars2.borrows
   { vars, borrows }
 
 @[inline]
@@ -235,21 +235,22 @@ def withCtorAlt (discr : FVarId) (c : CtorInfo) (x : RcM α) : RcM α := do
         idx := ctx.idx + 1
       }) do x
 
+@[inline]
 def setLiveVars (liveVars : LiveVars) : RcM Unit :=
   modify fun s => { s with liveVars }
 
 @[inline]
 def withCollectLiveVars (x : RcM α) : RcM (α × LiveVars) := do
   let currentLiveVars := (← get).liveVars
-  modify fun s => { s with liveVars := {} }
+  setLiveVars {}
   let ret ← x
   let collected := (← get).liveVars
-  modify fun s => { s with liveVars := currentLiveVars }
+  setLiveVars currentLiveVars
   return (ret, collected)
 
 @[specialize]
-partial def addDescendants (fvarId : FVarId) (s : FVarIdSet)
-    (shouldAdd : FVarId → Bool := fun _ => true) : RcM FVarIdSet := do
+partial def addDescendants (fvarId : FVarId) (s : FVarIdHashSet)
+    (shouldAdd : FVarId → Bool := fun _ => true) : RcM FVarIdHashSet := do
   if let some info := (← read).derivedValMap.get? fvarId then
     info.children.foldM (init := s) fun s child =>
       let s := if shouldAdd child then s.insert child else s
@@ -296,6 +297,7 @@ def useLetValue (value : LetValue .impure) : RcM Unit := do
 def bindVar (fvarId : FVarId) : RcM Unit :=
   modify fun s => { s with liveVars := s.liveVars.erase fvarId }
 
+@[inline]
 def setRetLiveVars : RcM Unit := do
   let borrows ← (← read).borrowedParams.foldM (init := {}) fun borrows x =>
     addDescendants x (borrows.insert x)

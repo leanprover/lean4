@@ -413,14 +413,17 @@ private def checkTypesAndAssign (mvar : Expr) (v : Expr) : MetaM Bool :=
     else
       -- must check whether types are definitionally equal or not, before assigning and returning true
       let mvarType ← inferType mvar
-      -- **TODO**: avoid transparency bump. Let's fix other issues first
-      withInferTypeConfig do
+      let check := do
         let vType ← inferType v
         if (← Meta.isExprDefEqAux mvarType vType) then
           mvar.mvarId!.assign v
           pure true
         else
           pure false
+      if backward.isDefEq.respectTransparency.get (← getOptions) then
+        check
+      else
+        withInferTypeConfig check
 
 /--
 Auxiliary method for solving constraints of the form `?m xs := v`.

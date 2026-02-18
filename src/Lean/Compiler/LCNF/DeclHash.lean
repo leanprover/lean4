@@ -41,6 +41,10 @@ partial def hashCode (code : Code pu) : UInt64 :=
     mixHash (mixHash (hash fvarId) (hash i)) (mixHash (mixHash (hash offset) (hash y)) (mixHash (hash ty) (hashCode k)))
   | .uset fvarId offset y k _ =>
     mixHash (mixHash (hash fvarId) (hash offset)) (mixHash (hash y) (hashCode k))
+  | .inc fvarId n check persistent k _ =>
+    mixHash (mixHash (hash fvarId) (hash n)) (mixHash (mixHash (hash persistent) (hash check)) (hashCode k))
+  | .dec fvarId n check persistent k _ =>
+    mixHash (mixHash (hash fvarId) (hash n)) (mixHash (mixHash (hash persistent) (hash check)) (hashCode k))
 
 end
 

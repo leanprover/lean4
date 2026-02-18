@@ -47,6 +47,8 @@ private partial def depOn (c : Code pu) : M Bool :=
   | .return fvarId => fvarDepOn fvarId
   | .unreach _ => return false
   | .sset fv1 _ _ fv2 _ k _ | .uset fv1 _ fv2 k _ => fvarDepOn fv1 <||> fvarDepOn fv2 <||> depOn k
+  | .inc (fvarId := fvarId) (k := k) .. | .dec (fvarId := fvarId) (k := k) .. =>
+    fvarDepOn fvarId <||> depOn k
 
 @[inline] def Arg.dependsOn (arg : Arg pu) (s : FVarIdSet) :  Bool :=
   argDepOn arg s
@@ -64,8 +66,8 @@ def CodeDecl.dependsOn (decl : CodeDecl pu) (s : FVarIdSet) : Bool :=
   match decl with
   | .let decl => decl.dependsOn s
   | .jp decl | .fun decl _ => decl.dependsOn s
-  | .uset var _ y _ => s.contains var || s.contains y
-  | .sset var _ _ y ty _ => s.contains var || s.contains y || (typeDepOn ty s)
+  | .uset (var := var) (y := y) .. | .sset (var := var) (y := y) .. => s.contains var || s.contains y
+  | .inc (fvarId := fvarId) .. | .dec (fvarId := fvarId) .. => s.contains fvarId 
 
 /--
 Return `true` is `c` depends on a free variable in `s`.

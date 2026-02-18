@@ -137,6 +137,10 @@ where
       go k (decls.push (.uset var i y))
     | .sset var i offset y ty k _ =>
       go k (decls.push (.sset var i offset y ty))
+    | .inc fvarId n check persistent k _ =>
+      go k (decls.push (.inc fvarId n check persistent))
+    | .dec fvarId n check persistent k _ =>
+      go k (decls.push (.dec fvarId n check persistent))
     | .cases c => c.pushProjs decls
     | .jmp .. | .return .. | .unreach .. =>
       return attachCodeDecls decls c

@@ -120,6 +120,7 @@ where
     | .return .. | .jmp .. | .unreach .. => return (c, false)
     | .sset _ _ _ _ _ k _ | .uset _ _ _ k _ | .let _ k =>
       goK k
+    | .inc .. | .dec .. => unreachable!
 
 def isCtorUsing (instr : CodeDecl .impure) (x : FVarId) : Bool :=
   match instr with
@@ -241,6 +242,7 @@ where
             return (c.updateCont! k, false)
     | .return .. | .jmp .. | .unreach .. =>
       return (c, ← c.isFVarLiveIn x)
+    | .inc .. | .dec .. => unreachable!
 
 end
 
@@ -273,6 +275,7 @@ partial def Code.insertResetReuse (c : Code .impure) : ReuseM (Code .impure) := 
   | .let _ k | .uset _ _ _ k _ | .sset _ _ _ _ _ k _  =>
     return c.updateCont! (← k.insertResetReuse)
   | .return .. | .jmp .. | .unreach .. => return c
+  | .inc .. | .dec .. => unreachable!
 
 partial def Decl.insertResetReuseCore (decl : Decl .impure) : ReuseM (Decl .impure) := do
   let value ← decl.value.mapCodeM fun code => do
@@ -295,6 +298,7 @@ where
     | .jp decl k => collectResets decl.value; collectResets k
     | .cases c => c.alts.forM (collectResets ·.getCode)
     | .unreach .. | .return .. | .jmp .. => return ()
+    | .inc .. | .dec .. => unreachable!
 
 
 def Decl.insertResetReuse (decl : Decl .impure) : CompilerM (Decl .impure) := do

@@ -363,6 +363,8 @@ inductive Code (pu : Purity) where
   | unreach (type : Expr)
   | uset (var : FVarId) (i : Nat) (y : FVarId) (k : Code pu) (h : pu = .impure := by purity_tac)
   | sset (var : FVarId) (i : Nat) (offset : Nat) (y : FVarId) (ty : Expr) (k : Code pu) (h : pu = .impure := by purity_tac)
+  | inc (fvarId : FVarId) (n : Nat) (check : Bool) (persistent : Bool) (k : Code pu) (h : pu = .impure := by purity_tac)
+  | dec (fvarId : FVarId) (n : Nat) (check : Bool) (persistent : Bool) (k : Code pu) (h : pu = .impure := by purity_tac)
   deriving Inhabited
 
 end
@@ -440,11 +442,13 @@ inductive CodeDecl (pu : Purity) where
   | jp (decl : FunDecl pu)
   | uset (var : FVarId) (i : Nat) (y : FVarId) (h : pu = .impure := by purity_tac)
   | sset (var : FVarId) (i : Nat) (offset : Nat) (y : FVarId)  (ty : Expr) (h : pu = .impure := by purity_tac)
+  | inc (fvarId : FVarId) (n : Nat) (check : Bool) (persistent : Bool) (h : pu = .impure := by purity_tac)
+  | dec (fvarId : FVarId) (n : Nat) (check : Bool) (persistent : Bool) (h : pu = .impure := by purity_tac)
   deriving Inhabited
 
 def CodeDecl.fvarId : CodeDecl pu → FVarId
   | .let decl | .fun decl _ | .jp decl => decl.fvarId
-  | .uset var .. | .sset var .. => var
+  | .uset fvarId .. | .sset fvarId .. | .inc fvarId .. | .dec fvarId .. => fvarId
 
 def Code.toCodeDecl! : Code pu → CodeDecl pu
 | .let decl _ => .let decl
@@ -452,6 +456,8 @@ def Code.toCodeDecl! : Code pu → CodeDecl pu
 | .jp decl _ => .jp decl
 | .uset var i y _ _ => .uset var i y
 | .sset var i offset ty y _ _ => .sset var i offset ty y
+| .inc fvarId n check persistent _ _ => .inc fvarId n check persistent
+| .dec fvarId n check persistent _ _ => .dec fvarId n check persistent
 | _ => unreachable!
 
 def attachCodeDecls (decls : Array (CodeDecl pu)) (code : Code pu) : Code pu :=
@@ -465,6 +471,8 @@ where
       | .jp decl => go (i-1) (.jp decl code)
       | .uset var idx y _ => go (i-1) (.uset var idx y code)
       | .sset var idx offset y ty _ => go (i-1) (.sset var idx offset y ty code)
+      | .inc fvarId n check persistent _ => go (i-1) (.inc fvarId n check persistent code)
+      | .dec fvarId n check persistent _ => go (i-1) (.dec fvarId n check persistent code)
     else
       code
 
@@ -484,6 +492,10 @@ mutual
         v₁ == v₂ && i₁ == i₂ && y₁ == y₂ && eqImp k₁ k₂
       | .sset v₁ i₁ o₁ y₁ ty₁ k₁ _, .sset v₂ i₂ o₂ y₂ ty₂ k₂ _ =>
         v₁ == v₂ && i₁ == i₂ && o₁ == o₂ && y₁ == y₂ && ty₁ == ty₂ && eqImp k₁ k₂
+      | .inc v₁ n₁ c₁ p₁ k₁ _, .inc v₂ n₂ c₂ p₂ k₂ _ =>
+        v₁ == v₂ && n₁ == n₂ && c₁ == c₂ && p₁ == p₂ && eqImp k₁ k₂
+      | .dec v₁ n₁ c₁ p₁ k₁ _, .dec v₂ n₂ c₂ p₂ k₂ _ =>
+        v₁ == v₂ && n₁ == n₂ && c₁ == c₂ && p₁ == p₂ && eqImp k₁ k₂
       | _, _ => false
 
   private unsafe def eqFunDecl (d₁ d₂ : FunDecl pu) : Bool :=
@@ -578,6 +590,8 @@ private unsafe def updateAltImp (alt : Alt pu) (ps' : Array (Param pu)) (k' : Co
   | .jp decl k => if ptrEq k k' then c else .jp decl k'
   | .sset fvarId i offset y ty k _ => if ptrEq k k' then c else .sset fvarId i offset y ty k'
   | .uset fvarId offset y k _ => if ptrEq k k' then c else .uset fvarId offset y k'
+  | .inc fvarId n check persistent k _ => if ptrEq k k' then c else .inc fvarId n check persistent k'
+  | .dec fvarId n check persistent k _ => if ptrEq k k' then c else .dec fvarId n check persistent k'
   | _ => unreachable!
 
 @[implemented_by updateContImp] opaque Code.updateCont! (c : Code pu) (k' : Code pu) : Code pu
@@ -636,6 +650,40 @@ private unsafe def updateAltImp (alt : Alt pu) (ps' : Array (Param pu)) (k' : Co
 
 @[implemented_by updateUsetImp] opaque Code.updateUset! (c : Code pu) (fvarId' : FVarId)
     (i' : Nat) (y' : FVarId) (k' : Code pu) : Code pu
+
+@[inline] private unsafe def updateIncImp (c : Code pu) (fvarId' : FVarId) (n' : Nat)
+    (check' : Bool) (persistent' : Bool) (k' : Code pu) : Code pu :=
+  match c with
+  | .inc fvarId n check persistent k _ =>
+    if ptrEq fvarId fvarId'
+        && n == n'
+        && check == check'
+        && persistent == persistent'
+        && ptrEq k k' then
+      c
+    else
+      .inc fvarId' n' check' persistent' k'
+  | _ => unreachable!
+
+@[implemented_by updateIncImp] opaque Code.updateInc! (c : Code pu) (fvarId' : FVarId) (n' : Nat)
+    (check' : Bool) (persistent' : Bool) (k' : Code pu) : Code pu
+
+@[inline] private unsafe def updateDecImp (c : Code pu) (fvarId' : FVarId) (n' : Nat)
+    (check' : Bool) (persistent' : Bool) (k' : Code pu) : Code pu :=
+  match c with
+  | .dec fvarId n check persistent k _ =>
+    if ptrEq fvarId fvarId'
+        && n == n'
+        && check == check'
+        && persistent == persistent'
+        && ptrEq k k' then
+      c
+    else
+      .dec fvarId' n' check' persistent' k'
+  | _ => unreachable!
+
+@[implemented_by updateDecImp] opaque Code.updateDec! (c : Code pu) (fvarId' : FVarId) (n' : Nat)
+    (check' : Bool) (persistent' : Bool) (k' : Code pu) : Code pu
 
 private unsafe def updateParamCoreImp (p : Param pu) (type : Expr) : Param pu :=
   if ptrEq type p.type then
@@ -705,7 +753,8 @@ partial def Code.size (c : Code pu) : Nat :=
 where
   go (c : Code pu) (n : Nat) : Nat :=
     match c with
-    | .let _ k | .sset _ _ _ _ _ k _ | .uset _ _ _ k _ => go k (n + 1)
+    | .let (k := k) .. | .sset (k := k) .. | .uset (k := k) .. | .inc (k := k) ..
+    | .dec (k := k) .. => go k (n + 1)
     | .jp decl k | .fun decl k _ => go k <| go decl.value n
     | .cases c => c.alts.foldl (init := n+1) fun n alt => go alt.getCode (n+1)
     | .jmp .. => n+1
@@ -723,7 +772,8 @@ where
 
   go (c : Code pu) : EStateM Unit Nat Unit := do
     match c with
-    | .let _ k | .sset _ _ _ _ _ k _ | .uset _ _ _ k _ => inc; go k
+    | .let (k := k) .. | .sset (k := k) .. | .uset (k := k) .. | .inc (k := k) ..
+    | .dec (k := k) .. => inc; go k
     | .jp decl k | .fun decl k _ => inc; go decl.value; go k
     | .cases c => inc; c.alts.forM fun alt => go alt.getCode
     | .jmp .. => inc
@@ -735,7 +785,8 @@ where
   go (c : Code pu) : m Unit := do
     f c
     match c with
-    | .let _ k | .sset _ _ _ _ _ k _ | .uset _ _ _ k _ => go k
+    | .let (k := k) .. | .sset (k := k) .. | .uset (k := k) .. | .inc (k := k) ..
+    | .dec (k := k) .. => go k
     | .fun decl k _ | .jp decl k => go decl.value; go k
     | .cases c => c.alts.forM fun alt => go alt.getCode
     | .unreach .. | .return .. | .jmp .. => return ()
@@ -1031,6 +1082,8 @@ partial def Code.collectUsed (code : Code pu) (s : FVarIdHashSet := {}) : FVarId
     let s := s.insert var
     let s := s.insert y
     k.collectUsed s
+  | .inc (fvarId := fvarId) (k := k) .. | .dec (fvarId := fvarId) (k := k) .. =>
+    k.collectUsed <| s.insert fvarId
 end
 
 @[inline] def collectUsedAtExpr (s : FVarIdHashSet) (e : Expr) : FVarIdHashSet :=
@@ -1040,8 +1093,8 @@ def CodeDecl.collectUsed (codeDecl : CodeDecl pu) (s : FVarIdHashSet := ∅) : F
   match codeDecl with
   | .let decl => collectLetValue decl.value <| collectType decl.type s
   | .jp decl | .fun decl _ => decl.collectUsed s
-  | .sset var _ _ y ty _ => s.insert var |>.insert y |> collectType ty
-  | .uset var _ y _ => s.insert var |>.insert y
+  | .sset (var := var) (y := y) .. | .uset (var := var) (y := y) .. => s.insert var |>.insert y
+  | .inc (fvarId := fvarId) .. | .dec (fvarId := fvarId) .. => s.insert fvarId
 
 /--
 Traverse the given block of potentially mutually recursive functions
@@ -1071,7 +1124,7 @@ where
           modify fun s => s.insert declName
       | _ => pure ()
       visit k
-    | .uset _ _ _ k _ | .sset _ _ _ _ _ k _ => visit k
+    | .uset (k := k) .. | .sset (k := k) .. | .inc (k := k) .. | .dec (k := k) .. => visit k
 
   go : StateM NameSet Unit :=
     decls.forM (·.value.forCodeM visit)

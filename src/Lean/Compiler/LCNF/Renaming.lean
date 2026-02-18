@@ -53,10 +53,8 @@ partial def Code.applyRenaming (code : Code pu) (r : Renaming) : CompilerM (Code
       | .ctorAlt _ k _ => return alt.updateCode (← k.applyRenaming r)
     return code.updateAlts! alts
   | .jmp .. | .unreach .. | .return .. => return code
-  | .sset fvarId i offset y ty k _ =>
-    return code.updateSset! fvarId i offset y ty (← k.applyRenaming r)
-  | .uset fvarId offset y k _ =>
-    return code.updateUset! fvarId offset y (← k.applyRenaming r)
+  | .sset (k := k) .. | .uset (k := k) .. | .inc (k := k) .. | .dec (k := k) .. =>
+    return code.updateCont! (← k.applyRenaming r)
 end
 
 def Decl.applyRenaming (decl : Decl pu) (r : Renaming) : CompilerM (Decl pu) := do

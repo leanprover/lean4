@@ -304,7 +304,7 @@ private def handle
 
           if let some pulled := pulledChunk then
             try
-              requestOutgoing.send pulled.chunk
+              requestOutgoing.send pulled.chunk (incomplete := pulled.incomplete)
             catch _ =>
               pure ()
 

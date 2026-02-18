@@ -1,33 +1,37 @@
-univInference.lean:25:48-25:54: error: Resulting type is of the form
-  Type ?u
-but the universes of constructor arguments suggest that this could accidentally be a higher universe than necessary. Explicitly providing a resulting type will silence this error. Universe inference suggests using
+univInference.lean:25:48-25:54: warning: Inferred universe level for type may be unnecessarily high. The inferred resulting universe is
+  Type (max u v)
+but it possibly could be
   Sort (max (max 1 u) v)
-if the resulting universe level should be at the above universe level or higher.
+Explicitly providing a resulting universe with no metavariables will silence this warning.
 
-Explanation: At this point in elaboration, universe level unification has committed to using a resulting universe level of the form `?u+1`. Constructor argument universe levels must be no greater than the resulting universe level, and this condition implies the following constraint(s):
-  u ≤ ?u+1
+Note: The elaborated resulting universe after constructor elaboration is
+  Type ?u
+The inference algorithm attempts to compute the smallest level for `?u` such that all universe constraints for all constructor fields are satisfied, with some approximations. The following derived constraint(s) are the cause of this possible unnecessarily high universe:
   v ≤ ?u+1
-However, such constraint(s) usually indicate that the resulting universe level should have been in a different form. For example, if the resulting type is of the form `Sort (_ + 1)` and a constructor argument is in universe `Sort u`, then universe inference would yield `Sort (u + 1)`, but the resulting type `Sort (max 1 u)` would avoid being in a higher universe than necessary.
+  u ≤ ?u+1
+For example, if the resulting universe is of the form `Sort (?r + 1)` and a constructor field is in universe `Sort u`, the constraint `u ≤ ?r + 1` leads to the unnecessarily high resulting universe `Sort (u + 1)`. Using `Sort (max 1 u)` avoids this universe bump, if using it is possible.
 S6 : Sort (max w₁ w₂) → Type w₂ → Sort (max w₁ (w₂ + 1))
 univInference.lean:45:48-45:62: error: Invalid universe polymorphic resulting type: The resulting universe is not `Prop`, but it may be `Prop` for some parameter values:
   Sort (max u v)
 
 Hint: A possible solution is to use levels of the form `max 1 _` or `_ + 1` to ensure the universe is of the form `Type _`
-univInference.lean:64:48-64:54: error: Resulting type is of the form
-  Type ?u
-but the universes of constructor arguments suggest that this could accidentally be a higher universe than necessary. Explicitly providing a resulting type will silence this error. Universe inference suggests using
+univInference.lean:64:48-64:54: warning: Inferred universe level for type may be unnecessarily high. The inferred resulting universe is
+  Type (max u v)
+but it possibly could be
   Sort (max (max 1 u) v)
-if the resulting universe level should be at the above universe level or higher.
+Explicitly providing a resulting universe with no metavariables will silence this warning.
 
-Explanation: At this point in elaboration, universe level unification has committed to using a resulting universe level of the form `?u+1`. Constructor argument universe levels must be no greater than the resulting universe level, and this condition implies the following constraint(s):
-  u ≤ ?u+1
+Note: The elaborated resulting universe after constructor elaboration is
+  Type ?u
+The inference algorithm attempts to compute the smallest level for `?u` such that all universe constraints for all constructor fields are satisfied, with some approximations. The following derived constraint(s) are the cause of this possible unnecessarily high universe:
   v ≤ ?u+1
-However, such constraint(s) usually indicate that the resulting universe level should have been in a different form. For example, if the resulting type is of the form `Sort (_ + 1)` and a constructor argument is in universe `Sort u`, then universe inference would yield `Sort (u + 1)`, but the resulting type `Sort (max 1 u)` would avoid being in a higher universe than necessary.
+  u ≤ ?u+1
+For example, if the resulting universe is of the form `Sort (?r + 1)` and a constructor field is in universe `Sort u`, the constraint `u ≤ ?r + 1` leads to the unnecessarily high resulting universe `Sort (u + 1)`. Using `Sort (max 1 u)` avoids this universe bump, if using it is possible.
 univInference.lean:73:48-73:62: error: Invalid universe polymorphic resulting type: The resulting universe is not `Prop`, but it may be `Prop` for some parameter values:
   Sort (max u v)
 
 Hint: A possible solution is to use levels of the form `max 1 _` or `_ + 1` to ensure the universe is of the form `Type _`
-univInference.lean:81:48-81:62: error: Invalid universe polymorphic resulting type: The resulting universe is not `Prop`, but it may be `Prop` for some parameter values:
-  Sort (max u v)
-
-Hint: A possible solution is to use levels of the form `max 1 _` or `_ + 1` to ensure the universe is of the form `Type _`
+univInference.lean:94:7-94:13: error: Failed to infer universe levels in type of field `t1`
+  Sort ?u
+univInference.lean:136:7-136:8: error: Failed to infer universe levels in type of binder `b`
+  sorry

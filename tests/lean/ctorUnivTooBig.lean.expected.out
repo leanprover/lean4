@@ -10,26 +10,30 @@ at universe level
   2
 which is not less than or equal to the inductive type's resulting universe level
   1
-ctorUnivTooBig.lean:12:2-12:34: error: Invalid universe level in constructor `Foo'.mk`: Parameter has type
+ctorUnivTooBig.lean:12:2-12:47: error: Invalid universe level in constructor `Foo'.mk`: Parameter has type
   Sort (max u v)
 at universe level
   max (u+1) (v+1)
 which is not less than or equal to the inductive type's resulting universe level
   u+1
+ctorUnivTooBig.lean:17:2-17:35: error: Constructor field `a` of `Foo''.mk` contains universe level metavariables at the expression
+  Sort ?u
+in its type
+  Sort ?u
 Ex1.Member.head.{u} {α : Type u} {a : α} {as : List α} : Member a (a :: as)
-ctorUnivTooBig.lean:35:2-35:27: error: Invalid universe level in constructor `Ex3.Member.head`: Parameter `as` has type
+ctorUnivTooBig.lean:40:2-40:27: error: Invalid universe level in constructor `Ex3.Member.head`: Parameter `as` has type
   List α
 at universe level
   u_1+1
 which is not less than or equal to the inductive type's resulting universe level
   max (u+1) (v+1)
-ctorUnivTooBig.lean:41:2-41:27: error: Invalid universe level in constructor `Ex4.Member.head`: Parameter `as` has type
+ctorUnivTooBig.lean:46:2-46:27: error: Invalid universe level in constructor `Ex4.Member.head`: Parameter `as` has type
   List α
 at universe level
   u_1+1
 which is not less than or equal to the inductive type's resulting universe level
   u+2
-ctorUnivTooBig.lean:47:2-47:27: error: Invalid universe level in constructor `Ex5.Member.head`: Parameter `as` has type
+ctorUnivTooBig.lean:52:2-52:27: error: Invalid universe level in constructor `Ex5.Member.head`: Parameter `as` has type
   List α
 at universe level
   u_1+1

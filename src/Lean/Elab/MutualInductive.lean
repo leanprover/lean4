@@ -306,6 +306,7 @@ private def elabHeadersAux (views : Array InductiveView) (i : Nat) (acc : Array 
           let typeStx ← view.type?.getDM `(Sort _)
           let type ← Term.elabType typeStx
           Term.synthesizeSyntheticMVarsNoPostponing
+          let type ← instantiateMVars type
           let inlayHintPos? := view.binders.getTailPos? (canonicalOnly := true)
             <|> view.declId.getTailPos? (canonicalOnly := true)
           let indices ← Term.addAutoBoundImplicits #[] inlayHintPos?

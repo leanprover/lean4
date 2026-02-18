@@ -329,7 +329,7 @@ theorem eraseIdx_eq_take_drop_succ {xs : Array α} {i : Nat} (h) :
   rcases xs with ⟨xs⟩
   simp only [List.size_toArray] at h
   simp only [List.eraseIdx_toArray, List.eraseIdx_eq_take_drop_succ, take_eq_extract,
-    List.extract_toArray, List.extract_eq_drop_take, Nat.sub_zero, List.drop_zero, drop_eq_extract,
+    List.extract_toArray, List.extract_eq_take_drop, Nat.sub_zero, List.drop_zero, drop_eq_extract,
     List.size_toArray, List.append_toArray, mk.injEq, List.append_cancel_left_eq]
   rw [List.take_of_length_le]
   simp

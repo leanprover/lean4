@@ -97,6 +97,12 @@ theorem findSome?_eq_some_iff {f : α → Option β} {l : List α} {b : β} :
           obtain ⟨⟨rfl, rfl⟩, rfl⟩ := h₁
           exact ⟨l₁, a, l₂, rfl, h₂, fun a' w => h₃ a' (mem_cons_of_mem p w)⟩
 
+theorem isSome_findSome? {xs : List α} {f : α → Option β} :
+    (xs.findSome? f).isSome = xs.any (f · |>.isSome) := by
+  rw [Bool.eq_iff_iff]
+  simp only [Option.isSome_iff_ne_none, ne_eq, findSome?_eq_none_iff, Classical.not_forall]
+  simp [← Option.isSome_iff_ne_none]
+
 @[simp, grind =] theorem findSome?_guard {l : List α} : findSome? (Option.guard p) l = find? p l := by
   induction l with
   | nil => simp
@@ -269,6 +275,11 @@ theorem find?_eq_some_iff_append :
           refine ⟨as, ⟨⟨bs, ?_⟩, fun a m => h₂ a (mem_cons_of_mem _ m)⟩⟩
           cases h₁
           simp
+
+theorem isSome_find? {xs : List α} {f : α → Bool} :
+    (xs.find? f).isSome = xs.any (f ·) := by
+  rw [Bool.eq_iff_iff]
+  simp [Option.isSome_iff_ne_none, ne_eq, find?_eq_none, Classical.not_forall]
 
 @[simp]
 theorem find?_cons_eq_some : (a :: xs).find? p = some b ↔ (p a ∧ a = b) ∨ (!p a ∧ xs.find? p = some b) := by

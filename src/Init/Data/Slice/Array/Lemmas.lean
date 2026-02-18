@@ -348,7 +348,7 @@ public theorem toList_mkSlice_rco {xs : Array α} {lo hi : Nat} :
 public theorem toArray_mkSlice_rco {xs : Array α} {lo hi : Nat} :
     xs[lo...hi].toArray = xs.extract lo hi := by
   simp only [← Subarray.toArray_toList, toList_mkSlice_rco]
-  rw [show xs = xs.toList.toArray by simp, List.extract_toArray, List.extract_eq_drop_take]
+  rw [show xs = xs.toList.toArray by simp, List.extract_toArray, List.extract_eq_take_drop]
   simp only [List.take_drop, mk.injEq]
   by_cases h : lo ≤ hi
   · congr 1

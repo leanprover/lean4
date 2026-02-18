@@ -65,7 +65,14 @@ We'll use `v4.6.0` as the intended release version as a running example.
       - The `lakefile.toml` should always refer to dependencies via their `main` or `master` branch,
         not a toolchain tag
         (with the exception of `ProofWidgets4`, which *must* use a sequential version tag).
+      - **Important:** After creating and pushing the ProofWidgets4 tag (see above),
+        the mathlib4 lakefile must be updated to reference the new tag (e.g. `v0.0.87`).
+        The `release_steps.py` script handles this automatically by looking up the latest
+        ProofWidgets4 tag compatible with the target toolchain.
       - Push the PR branch to the main Mathlib repository rather than a fork, or CI may not work reliably
+      - The "Verify Transient and Automated Commits" CI check on toolchain bump PRs can be ignored —
+        it often fails on automated commits (`x:` prefixed) from the nightly-testing history that can't be
+        reproduced in CI. This does not block merging.
     - `repl`:
       There are two copies of `lean-toolchain`/`lakefile.lean`:
       in the root, and in `test/Mathlib/`. Edit both, and run `lake update` in both directories.
@@ -146,6 +153,9 @@ We'll use `v4.7.0-rc1` as the intended release version in this example.
     * The repository does not need any changes to move to the new version.
     * Note that sometimes there are *unreviewed* but necessary changes on the `nightly-testing` branch of the repository.
       If so, you will need to merge these into the `bump_to_v4.7.0-rc1` branch manually.
+    * The `nightly-testing` branch may also contain temporary fix scripts (e.g. `fix_backward_defeq.py`,
+      `fix_deprecations.py`) that were used to adapt to breaking changes during the nightly cycle.
+      These should be reviewed and removed if no longer needed, as they can interfere with CI checks.
   - For each of the repositories listed in `script/release_repos.yml`,
     - Run `script/release_steps.py v4.7.0-rc1 <repo>` (e.g. replacing `<repo>` with `batteries`), which will walk you through the following steps:
       - Create a new branch off `master`/`main` (as specified in the `branch` field), called `bump_to_v4.7.0-rc1`.

@@ -640,6 +640,6 @@ def hasUri (req : Request Body.Incoming) (uri : String) : Bool :=
       return Response.badRequest
         |>.body stream
 
-  expected := "HTTP/1.1 200 OK\x0d\nContent-Length: 18\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\nresponse0response1"
+  expected := "HTTP/1.1 400 Bad Request\x0d\nContent-Length: 0\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"
   chunked := true
 }

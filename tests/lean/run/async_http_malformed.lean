@@ -56,6 +56,9 @@ def okHandler : Request Body.Incoming → ContextAsync (Response Body.Outgoing) 
 def bad400 : String :=
   "HTTP/1.1 400 Bad Request\x0d\nContent-Length: 0\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"
 
+def bad505 : String :=
+  "HTTP/1.1 505 HTTP Version Not Supported\x0d\nContent-Length: 0\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"
+
 def ok200 : String :=
   "HTTP/1.1 200 OK\x0d\nContent-Length: 2\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\nContent-Type: text/plain; charset=utf-8\x0d\n\x0d\nok"
 
@@ -87,19 +90,19 @@ def ok200 : String :=
   let (client, server) ← Mock.new
   let raw := "GET / HTTP/2.0\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
   let response ← sendRaw client server raw okHandler
-  assertExact "Invalid HTTP version HTTP/2.0" response bad400
+  assertExact "Invalid HTTP version HTTP/2.0" response bad505
 
 #eval show IO _ from do
   let (client, server) ← Mock.new
   let raw := "GET / HTTP/0.9\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
   let response ← sendRaw client server raw okHandler
-  assertExact "Invalid HTTP version HTTP/0.9" response bad400
+  assertExact "Invalid HTTP version HTTP/0.9" response bad505
 
 #eval show IO _ from do
   let (client, server) ← Mock.new
   let raw := "GET / HTTP/1.0\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
   let response ← sendRaw client server raw okHandler
-  assertExact "Invalid HTTP version HTTP/1.0" response bad400
+  assertExact "Invalid HTTP version HTTP/1.0" response bad505
 
 -- =============================================================================
 -- Malformed request line - missing version

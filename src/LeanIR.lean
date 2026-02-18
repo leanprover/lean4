@@ -25,7 +25,8 @@ opaque exportIREntries (env : Environment) : Array (Name × Array EnvExtensionEn
 def mkIRData (env : Environment) : IO ModuleData :=
   -- TODO: should we use a more specific/efficient data format for IR?
   return { env.header with
-    entries := exportIREntries env ++ (← mkModuleData env .exported).entries
+    -- TODO: `.private` because `import all` may require otherwise unreachable IR entries
+    entries := exportIREntries env ++ (← mkModuleData env .private).entries
     constants := default
     constNames := default
     -- make sure to include all names in case only `.ir` is loaded
@@ -63,7 +64,9 @@ public def main (args : List String) : IO UInt32 := do
   -- Provide access to private scope of target module but no others; provide all IR
   let env ← profileitIO "import" opts <| withImporting do
     let imports := #[{ module := mod, importAll := true, isMeta := true }]
-    let (_, s) ← importModulesCore (globalLevel := .exported) (arts := setup.importArts) imports |>.run
+    -- `private` because inlining may make ext data from private imports transitively required
+    -- no `arts` yet because they are for `exported`
+    let (_, s) ← importModulesCore (globalLevel := .private) /-(arts := setup.importArts)-/ imports |>.run
     let s := { s with moduleNameMap := s.moduleNameMap.modify mod fun m => if m.module == mod then { m with irPhases := .runtime } else { m with irPhases := .all } }
     finalizeImport (leakEnv := true) (loadExts := false) (level := .exported) s imports opts
   let env := env.setMainModule mod

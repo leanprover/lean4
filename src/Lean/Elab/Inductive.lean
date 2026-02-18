@@ -218,10 +218,11 @@ private def elabCtors (indFVars : Array Expr) (params : Array Expr) (r : ElabHea
             return mkAppN indFVar params
           | some ctorType =>
             let type ← Term.elabType ctorType
-            trace[Elab.inductive] "elabType {ctorView.declName} : {type} "
+            trace[Elab.inductive] "elabType {ctorView.declName} : {type}"
             Term.synthesizeSyntheticMVars (postpone := .yes)
             let type ← instantiateMVars type
             let type ← checkParamOccs type
+            trace[Elab.inductive] "checkParamOccs {ctorView.declName} : {type}"
             forallTelescopeReducing type fun _ resultingType => do
               unless resultingType.getAppFn == indFVar do
                 throwUnexpectedResultingTypeMismatch resultingType indFVar ctorView.declName ctorType

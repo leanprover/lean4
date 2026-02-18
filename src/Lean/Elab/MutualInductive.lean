@@ -137,9 +137,12 @@ structure InductiveElabStep2 where
   /-- Function to collect additional fvars that might be missed by the constructors.
   It is permissible to include fvars that do not exist in the local context (`structure` for example includes its field fvars). -/
   collectUsedFVars : StateRefT CollectFVars.State MetaM Unit := pure ()
+  /-- Function to collect additional level metavariables that are header-like (e.g. in `extends` clauses in `structure`).
+  Header-like level metavariables can be promoted to be level parameters. -/
+  collectExtraHeaderLMVars : StateRefT CollectLevelMVars.State MetaM Unit := pure ()
   /-- Function to check universes and provide a custom error. (`structure` uses this to do checks per field to give nicer messages.) -/
   checkUniverses (numParams : Nat) (u : Level) : TermElabM Unit := pure ()
-  /-- Step to finalize term elaboration, done immediately after universe level processing is complete. -/
+  /-- Step to do final term elaboration error reporting, done immediately after universe levels are fully elaborated, but before the final level checks. -/
   finalizeTermElab : TermElabM Unit := pure ()
   /-- Like `finalize`, but occurs before `afterTypeChecking` attributes. -/
   prefinalize (levelParams : List Name) (params : Array Expr) (replaceIndFVars : Expr → MetaM Expr) : TermElabM InductiveElabStep3 := fun _ _ _ => pure {}
@@ -163,8 +166,8 @@ Elaboration occurs in the following steps:
   (all recorded in `InductiveElabStep2`).
 - Fvars are collected from the constructors and from the `InductiveStep2.collectUsedFVars` callbacks.
   This is used to compute the final set of scoped variables that should be used as additional parameters.
-- Universe levels are checked. Commands can give custom errors using `InductiveStep2.collectUniverses`.
-- Elaboration of constructors is finalized, with additional tasks done by each `InductiveStep2.collectUniverses`.
+- Universe levels are checked. Commands can give custom errors using `InductiveStep2.checkUniverses`.
+- Elaboration of constructors is finalized, with additional tasks done by each `InductiveStep2.finalizeTermElab`.
 - The inductive family is added to the environment and is checked by the kernel.
 - Attributes and other finalization activities are performed, including those defined
   by `InductiveStep2.prefinalize` and `InductiveStep3.finalize`.
@@ -249,6 +252,26 @@ private def checkNumParams (rs : Array PreElabHeaderResult) : TermElabM Nat := d
         parameter(s), but the preceding type `{rs[0]!.view.shortDeclName}` has {numParams}"
         ++ .note m!"All inductive types declared in the same `mutual` block must have the same parameters"
   return numParams
+
+/--
+Executes `k` using the `Syntax` reference associated with constructor `ctorName`.
+-/
+def withCtorRef [Monad m] [MonadRef m] (views : Array InductiveView) (ctorName : Name) (k : m α) : m α := do
+  for view in views do
+    for ctor in view.ctors do
+      if ctor.declName == ctorName then
+        return (← withRef ctor.ref k)
+  k
+
+/-- Runs `k` with the resulting type as the ref or, if that's not available, with the view's ref. -/
+def InductiveView.withTypeRef [Monad m] [MonadRef m] (view : InductiveView) (k : m α) : m α := do
+  withRef view.ref <| withRef? view.type? k
+
+def withViewTypeRef [Monad m] [MonadRef m] (views : Array InductiveView) (k : m α) : m α := do
+  for view in views do
+    if let some type := view.type? then
+      return (← withRef type k)
+  withRef views[0]!.ref k
 
 /--
 Execute `k` with updated binder information for `xs`. Any `x` that is explicit becomes implicit.
@@ -385,6 +408,51 @@ private def ElabHeaderResult.checkLevelNames (rs : Array PreElabHeaderResult) : 
       unless r.levelNames == levelNames do
         throwLevelNameMismatch r.levelNames levelNames r.view.declName rs[0].view.shortDeclName
 
+private def getResultingUniverse : List InductiveType → TermElabM Level
+  | []           => throwError "Unexpected empty inductive declaration"
+  | indType :: _ => forallTelescopeReducing indType.type fun _ r => do
+    let r ← whnfD r
+    match r with
+    | Expr.sort u => return u
+    | _           => throwError "Unexpected inductive type resulting type{indentExpr r}"
+
+private def instantiateMVarsAtInductive (indType : InductiveType) : TermElabM InductiveType := do
+  let type ← instantiateMVars indType.type
+  let ctors ← indType.ctors.mapM fun ctor => return { ctor with type := (← instantiateMVars ctor.type) }
+  return { indType with type, ctors }
+
+section IndexPromotion
+/-!
+## Index-to-parameter promotion
+
+The basic convention for `inductive` is that the binders before the colon in a type former
+correspond to the type parameters, and the pi types after the colon correspond to the indices.
+
+Indices that are fixed across all occurrences of the type former can potentially be promoted
+to be parameters instead. Motivations:
+- The recursor is more efficient (though the induction principle might be more rigid than expected;
+  this is solved by generalizing variables)
+- The inferred universe level of the inductive type might decrease.
+
+Recall that when an inductive type declaration `Declaration.inductDecl` is sent to the kernel,
+every constructor is provided its full type, including the inductive parameters.
+The `inductDecl` declaration itself specifies how many parameters there are (`nparams`),
+and the first `nparams` parameters of a constructor are the parameters for the inductive type.
+
+The function `fixedIndicesToParams` determines by how much `nparams` can be increased
+without resulting in an invalid inductive type declaration.
+We say the indices that become parameters this way are *promoted*.
+Only a prefix of indices can be promoted because of this.
+
+Note that it currently does not do any constructor parameter reordering.
+If the parameter for an index does not appear in the correct position in a constructor for it to be
+an inductive type parameter, it is not promoted.
+That said, the `inductive` command itself has some capacity for reordering
+in `Lean.Elab.Command.reorderCtorArgs`.
+
+Promotion can be disabled with `set_option inductive.autoPromoteIndices false`.
+-/
+
 private def getArity (indType : InductiveType) : MetaM Nat :=
   forallTelescopeReducing indType.type fun xs _ => return xs.size
 
@@ -456,9 +524,16 @@ private def isDomainDefEq (arrowType : Expr) (type : Expr) : MetaM Bool := do
     isDefEq arrowType.bindingDomain! type
 
 /--
-Convert fixed indices to parameters.
+Promote fixed indices to parameters.
+
+The requirement for promotion is relatively strict. Given a constructor
+```
+Iᵢ.ctor p₁ … pₙ f₁ … fₘ : I p₁ … pₙ f₁ … fⱼ e₁ … eₖ
+```
+then the first `j` indices are potentially eligible for promotion to parameters.
+Additionally, the fields must be definitionally equal across all constructors to be eligible for promotion.
 -/
-private def fixedIndicesToParams (numParams : Nat) (indTypes : Array InductiveType) (indFVars : Array Expr) : MetaM Nat := do
+private def fixedIndicesToParams (numParams : Nat) (indTypes : List InductiveType) (indFVars : Array Expr) : MetaM Nat := do
   if !inductive.autoPromoteIndices.get (← getOptions) then
     return numParams
   let masks ← indTypes.mapM (computeFixedIndexBitMask numParams · indFVars)
@@ -469,10 +544,10 @@ private def fixedIndicesToParams (numParams : Nat) (indTypes : Array InductiveTy
   -- TODO: extend it in the future. For example, it should be reasonable to change
   -- the order of indices generated by the auto implicit feature.
   let mask := masks[0]!
-  forallBoundedTelescope indTypes[0]!.type numParams fun params type => do
-    let otherTypes ← indTypes[1...*].toArray.mapM fun indType => do whnfD (← instantiateForall indType.type params)
-    let ctorTypes ← indTypes.toList.mapM fun indType => indType.ctors.mapM fun ctor => do whnfD (← instantiateForall ctor.type params)
-    let typesToCheck := otherTypes.toList ++ ctorTypes.flatten
+  forallBoundedTelescope indTypes.head!.type numParams fun params type => do
+    let otherTypes ← indTypes.tail.mapM fun indType => do whnfD (← instantiateForall indType.type params)
+    let ctorTypes ← indTypes.mapM fun indType => indType.ctors.mapM fun ctor => do whnfD (← instantiateForall ctor.type params)
+    let typesToCheck := otherTypes ++ ctorTypes.flatten
     let rec go (i : Nat) (type : Expr) (typesToCheck : List Expr) : MetaM Nat := do
       if i < mask.size then
         if !masks.all fun mask => i < mask.size && mask[i]! then
@@ -490,219 +565,514 @@ private def fixedIndicesToParams (numParams : Nat) (indTypes : Array InductiveTy
         return i
     go numParams type typesToCheck
 
-private def getResultingUniverse : List InductiveType → TermElabM Level
-  | []           => throwError "Unexpected empty inductive declaration"
-  | indType :: _ => forallTelescopeReducing indType.type fun _ r => do
-    let r ← whnfD r
-    match r with
-    | Expr.sort u => return u
-    | _           => throwError "Unexpected inductive type resulting type{indentExpr r}"
+end IndexPromotion
+
+
+section LevelInference
+/-!
+## Level metavariable inference
+
+Terminology: Given the inductive type former `I : ... -> Sort u`,
+we call `Sort u` the *resulting universe* of `I` and `u` the *resulting universe level* of `I`.
+
+After constructor elaboration, inductive type declarations still often have universe level metavariables.
+They may appear anywhere:
+- in types of inductive parameters/indices
+- in the resulting universe level of the type former
+- and in constructor fields (i.e. those parameters after inductive parameters).
+
+The resulting universe has a strong bearing on what sort of inference we can do:
+- If it is `Prop`, the type is an *inductive predicate*,
+  and it is *impredicative*, meaning fields can come from any universe.
+- Otherwise, fields are subject to the universe level inequality (described further below).
+
+There are certain cases where we choose to infer `Prop` for the resulting universe.
+Recall that an inductive type is a *syntactic subsingleton* if any two terms of that type
+are definitionally equal. Syntactic subsingletons can eliminate into `Type`, hence can be pattern matched.
+This justifies setting the resulting universe `Prop` if a type is "obviously" meant to be an inductive predicate.
+Roughly, we say an inductive type is "obviously" meant to be an inductive predicate if the type
+is not recursive, has exactly one constructor, the constructor has at least one field, and every field is `Prop`.
+See `isPropCandidate` for further explanation.
+
+From now on, we will talk only about inductive types in `Type` or above.
+
+There are a number of considerations for inference:
+- **The universe level inequality.** If `u` is the resulting universe level,
+  then for every field `f : fty` of every constructor, we must have `v ≤ u`, where `fty : Sort v`.
+- **Avoiding `Sort` polymorphism.**
+  We say a type is `Sort`-polymorphic if, depending on the values of level parameters,
+  the resulting universe can be both `Prop` and `Type _`.
+  These usually cannot eliminate into `Prop` unless they are syntactic subsingletons,
+  so we wish to avoid `Sort` polymorphism to avoid users' unpleasant surprises.
+  We do this by adding the constraint `1 ≤ u`.
+- **Using the minimal resulting universe** if it exists.
+  If `u` has metavariables, then we do not want `u` to be unnecessarily large.
+  We want to find the minimal levels to assign to the metavariables subject to the above constraints.
+  However: we only entertain **unique** solutions. We report ambiguous situations to the user.
+  Furthermore, this is **best-effort**. Users can always provide an explicit resulting universe.
+  (We can also detect certain situations where this procedure computes a universe that is likely
+  larger than what could be if it had been explicitly provided *before* constructor elaboration.)
+- **Avoiding inferring proof fields**. If `v` is the universe level for a constructor field,
+  then we avoid assigning metavariable in `v` to anything that could potentially give `Prop` fields
+  or `Sort` polymorphism. To do this, we use the *weak* constraint `1 ≤w v`. Definition:
+  - `1 ≤w p` and `1 ≤w k` for all parameters `p` and constants `k`.
+  - `1 ≤w succ v` for all levels `v`
+  - `1 ≤w max a b` and `1 ≤w imax a b` iff `1 ≤w a` and `1 ≤w b`
+  - `1 ≤w ?v` iff `1 ≤ ?v`.
+  The effect is that `1 ≤w v` resolves to a set of `1 ≤ ?v` metavariable constraints.
+  This is more conservative than it needs to be, but it is uniform and avoids SAT-like reasoning;
+  *effectively, inference analyzes each metavariable, independently from one another.*
+- **Using the unique universe for fields** if it exists, preferring non-constant solutions.
+  Uniqueness is with respect to the set of universe level expressions, not universe levels.
+  Examples:
+  - `?a ≤ 0` ~~~> `?a = 0` is the **unique solution**.
+    (Note: this can lead to unpleasant surprises, where a field unexpectedly becomes a proof.
+    We currently do nothing about this. It would require more careful global analysis.)
+  - `?a ≤ 1` ~~~> either `?a = 0` or `?a = 1`, so **underconstrained** unless we have `1 ≤ ?a`,
+    in which case `?a = 1` is the **unique solution**.
+  - `?a ≤ v` with `v` a level parameter ~~~> syntactically have `?a = 0` and `?a = v` as solutions,
+    but prefer `?a = v` since it is non-constant, and is the **unique solution**.
+  - `?a ≤ v + 1` with `v` a level parameter ~~~> syntactically have `?a = 0`, `?a = 1`, `?a = v`, and `?a = v + 1`
+    as solutions, with `?a = v` and `?a = v + 1` preferred. This is **underconstrained**,
+    unless we have `1 ≤ ?a`, in which case `?a = v + 1` is the **unique solution**.
+  - `?a ≤ max v₁ v₂` with `v₁` and `v₂` level parameters ~~~> syntactically have `?a = 0`, `?a = v₁`,
+    `?a = v₂`, and `?a = max v₁ v₂` as solutions, with the latter three preferred. This is **underconstrained**.
+
+  The heuristic for preferring non-constant solutions comes from user examples.
+
+Collecting the constraints, these rules imply the only assignments considered are:
+
+- if `0 ≤ ?a ≤ k`      and `k = 0` then assign `?a := 0`
+- if `0 ≤ ?a ≤ p + k`  and `k = 0` then assign `?a := p`
+- if `1 ≤ ?a ≤ k`      and `k = 1` then assign `?a := 1`
+- if `1 ≤ ?a ≤ p + k`  and `k = 1` then assign `?a := p + 1`
+
+Otherwise we do not assign `?a`, and we leave it to the "declaration has metavariables" error to report it.
+
+There are also other considerations to make the inference more effective.
+If the resulting universe is of the form `max ?m 1`, we want to isolate `?m` as
+the metavariable to solve for.
+The `simplifyResultingUniverse u` procedure is a heavy hammer to reliably extract
+the "generic part" of the resulting universe level that is suitable for the inference procedures,
+without the fragility of matching on specific patterns.
+It gives a universe level `u' ≤ u` such that `u'` and `u` are equivalent "at infinity",
+which means `u' = u` for all sufficiently high assignments of the parameters or metavariables.
+In general, we only attempt solving for any universe levels at each stage
+if `u'` is of the form `r + k` where `r` is a parameter, metavariable, or zero,
+since in other cases solutions are not unique.
+
+**High-level inference algorithm:**
+- Solve for the metavariable in the resulting universe level.
+- Solve for metavariables in constructor fields, if possible.
+- Turn level metavariables in the type former (and from `collectExtraHeaderLMVars`) into level parameters.
+- Report unsolved level metavariables.
+
+Examples are in `tests/lean/run/inductive_univ.lean`.
+
+-/
+
+private def throwCannotInferResultingUniverse {α} (u : Level) (reason : MessageData) : TermElabM α :=
+  throwError m!"\
+    Cannot infer resulting universe level of inductive datatype: \
+    {reason}{indentExpr <| mkSort u}"
+    ++ .hint' "Provide the uninferred universe explicitly"
 
 /--
-Returns `some ?m` if `u` is of the form `?m + k`.
-Returns none if `u` does not contain universe metavariables.
-Throw exception otherwise.
+Given a universe level `u`, computes a simplified representative `u' ≤ u` such that
+`u` and `u'` are equivalent *at infinity*. This means that `u = u'` for all
+sufficiently large assignments of parameters or metavariables in `u` and `u'`.
+If `u` is non-constant, this procedure effectively removes the constant part.
+
+The primary example is `max a b ≈ a` if `a` has variables and `b` is constant.
+For example, `max ?u 1` and `?u` are equivalent at infinity, since they are equal for all `?u ≥ 1`.
+
+Options:
+- If `paramConst = true`, then parameters are treated like constants (only metavariables
+  are considered to be varying).
 -/
-def shouldInferResultUniverse (u : Level) : TermElabM (Option LMVarId) := do
-  let u ← instantiateLevelMVars u
+private partial def simplifyResultingUniverse (u : Level) (paramConst := false) : Level :=
+  let varies (l : Level) := l.hasMVar || (!paramConst && l.hasParam)
+  let simpAcc (acc : LevelMap Nat) : LevelMap Nat :=
+    -- If there's a variable, then these dominate at infinity; constants can be eliminated
+    if (acc.any fun l _ => varies l) then acc.filter (fun l _ => varies l) else acc
+  let germMax (acc : LevelMap Nat) : Level :=
+    (simpAcc acc).fold (init := levelZero) fun u l offset => mkLevelMax' u (l.addOffset offset)
+  let accInsert (acc : LevelMap Nat) (u : Level) (offset : Nat) : LevelMap Nat :=
+    acc.alter u (fun offset? => some (max (offset?.getD 0) offset))
+  -- Simplifies `u+offset`, accumulating `max` arguments in `acc`.
+  let rec simp (u : Level) (offset : Nat) (acc : LevelMap Nat) : LevelMap Nat :=
+    match u with
+    | .zero | .mvar _ | .param _ => accInsert acc u offset
+    | .succ _ => simp u.getLevelOffset (offset + u.getOffset) acc
+    | .max a b => simp b offset (simp a offset acc)
+    | .imax a b =>
+      if b.isAlwaysZero then
+        accInsert acc levelZero offset
+      else if a.isAlwaysZero || b.isNeverZero then
+        simp b offset (simp a offset acc)
+      else
+        /- The remaining simplification we consider is when `a ≤ b` then `imax a b = b`.
+        We can compute `a ≤ b` by checking `max a b = b`.
+        We only need `max a b ≈ b` for this,
+        since `b ≤ imax a b ≤ max a b ≈ b` implies `imax a b ≈ b`. -/
+        let acca := simp a 0 {}
+        let accb := simp b 0 {}
+        let accab := simpAcc (acca.fold (init := accb) accInsert)
+        if accab.all (fun l n => if let some m := accb[l]? then n ≤ m else false) then
+          accb.fold (init := acc) fun acc l n => accInsert acc l (n + offset)
+        else
+          accInsert acc (Level.imax (germMax acca) (germMax accb)) offset
+  germMax (simp u 0 {})
+
+/--
+Checks that `u` has at most one universe level metavariable.
+If it has a level metavariable, then applies the `simplifyResultingUniverse`
+procedure to it and checks that the result is of the form `?m + k`.
+Returns the simplified universe — this is used as an upper bound when collecting constraints
+to solve for a least `?m`.
+
+Throws an exception if `u` has metavariables and isn't of the right form for inference.
+-/
+private def processResultingUniverseForInference (u : Level) : TermElabM Level := do
   if u.hasMVar then
-    match u.getLevelOffset with
-    | Level.mvar mvarId => return some mvarId
-    | _ =>
-      throwError m!"\
-        Cannot infer resulting universe level of inductive datatype: \
-        The given resulting type contains metavariables{indentExpr <| mkSort u}"
-        ++ .hint' "Provide the uninferred universe(s) explicitly"
+    unless u.collectMVars.size == 1 do
+      throwCannotInferResultingUniverse u m!"The resulting universe contains more than one metavariable"
+    -- Simplify the universe level and see if we get `?m + k`.
+    -- We treat parameters is constants since, for example, simplifying `(max u ?m) + k` to `?m + k`
+    -- does not change the solvability of the constraints.
+    let u' := simplifyResultingUniverse u.normalize (paramConst := true)
+    if u'.getLevelOffset.isMVar then
+      trace[Elab.inductive] "resulting universe: {u}, simplified universe: {u'}"
+      return u'
+    else
+      throwCannotInferResultingUniverse u m!"\
+        The resulting universe contains a level metavariable but is not in a form suitable for inference"
   else
-    return none
+    return u
 
-/--
-Converts universe metavariables into new parameters. It skips `univToInfer?` (the inductive datatype resulting universe) because
-it should be inferred later using `inferResultingUniverse`.
--/
-private def levelMVarToParam (indTypes : List InductiveType) (univToInfer? : Option LMVarId) : TermElabM (List InductiveType) :=
-  indTypes.mapM fun indType => do
-    let type  ← levelMVarToParam' indType.type
-    let ctors ← indType.ctors.mapM fun ctor => do
-      let ctorType ← levelMVarToParam' ctor.type
-      return { ctor with type := ctorType }
-    return { indType with ctors, type }
-where
-  levelMVarToParam' (type : Expr) : TermElabM Expr := do
-    Term.levelMVarToParam type (except := fun mvarId => univToInfer? == some mvarId)
 
 private structure AccLevelState where
-  levels : Array Level := #[]
-  /-- When we encounter `u ≤ ?r + k` with `k > 0`, we add `(u, k)` to the "bad levels".
-  We use this to compute what the universe "should" have been. -/
-  badLevels : Array (Level × Nat) := #[]
+  /--
+  The constraint `u ≤ ?r + k` is represented by `levels[u] := k`.
+  When `k` is negative, this represents `u + (-k) ≤ ?r`.
+  The level `u` is either a parameter, metavariable, or `levelZero`.
 
-private def AccLevelState.push (acc : AccLevelState) (u : Level) (offset : Nat) : AccLevelState :=
-  if offset == 0 then
-    { acc with levels := if acc.levels.contains u then acc.levels else acc.levels.push u }
-  else
-    let p := (u, offset)
-    { acc with badLevels := if acc.badLevels.contains p then acc.badLevels else acc.badLevels.push p }
+  When `k ≥ 0`, this is potentially a "bad" level constraint.
+  -/
+  levels : LevelMap Int := {}
+
+private def AccLevelState.push (acc : AccLevelState) (u : Level) (offset : Int) : AccLevelState :=
+  let offset := min (acc.levels.getD u offset) offset
+  { acc with levels := acc.levels.insert u offset }
 
 /--
-Auxiliary function for `updateResultingUniverse`.
-Consider the constraint `u ≤ ?r + rOffset` where `u` has no metavariables except for perhaps `?r`.
-This function attempts to find a unique minimal solution of the form `?r := max l₁ ... lₙ` where each `lᵢ` is normalized and not a `max`/`imax`.
+Auxiliary function for `inferResultingUniverse`.
+Consider the constraint `u ≤ ?r + rOffset`.
+This function simplifies the constraints in an attempt to find a minimal solution
+of the form `?r := max l₁ ... lₙ` where each `lᵢ` is normalized and not a `max`/`imax`.
 
-It also records information about how "too big" `rOffset` is. Consider `u ≤ ?r + 1`, from for example
+In the calculation, we allow negative values of `rOffset`. For example, `u ≤ ?r - 4` means `u + 4 ≤ ?r`.
+
+The `typeLMVarIds` array is all the level mvars that appear in all the type formers in an inductive family.
+All other level mvars are ignored — the idea is that type former level mvars can become level parameters,
+but constructor level mvars need to be inferred separately.
+
+Positive values of `rOffset` tend to correspond to "too big" of an inferred universe.
+Consider `u ≤ ?r + 1`, which is a constraint that comes from the example
 ```lean
 inductive I (α : Sort u) : Type _ where
   | mk (x : α)
 ```
-This is likely a mistake. The correct solution would be `Type (max u 1)` rather than `Type (u + 1)`,
-but by this point it is impossible to rectify. So, for `u ≤ ?r + 1` we record the pair of `u` and `1`
-so that we can inform the user what they should have probably used instead.
+This is likely a mistake. The best solution would be `Sort (max u 1)` rather than `Type (u + 1)`,
+but by this point in elaboration it is impossible to rectify.
+So, for `u ≤ ?r + 1` we record both `u` and `1`
+to be able to inform the user what they should have probably used instead.
 -/
-private def accLevel (u : Level) (r : Level) (rOffset : Nat) : ExceptT MessageData (StateT AccLevelState Id) Unit := do
-  go u rOffset
+private def accLevel (u : Level) (r : Level) (rOffset : Nat) (typeLMVarIds : Array LMVarId) :
+    ExceptT MessageData (StateT AccLevelState Id) Unit := do
+  go u.normalize rOffset
 where
-  go (u : Level) (rOffset : Nat) : ExceptT MessageData (StateT AccLevelState Id) Unit := do
-    match u, rOffset with
-    | .max u v,  rOffset   => go u rOffset; go v rOffset
-    | .imax u v, rOffset   => go u rOffset; go v rOffset
-    | .zero,     _         => return ()
-    | .succ u,   rOffset+1 => go u rOffset
-    | u,         rOffset   =>
-      if u == r && rOffset == 0 then
-        pure ()
-      else if r.occurs u then
-        /- `f(?r) = ?r + k`. -/
-        throw m!"In the constraint `{u} ≤ {Level.addOffset r rOffset}`, the level metavariable `{r}` appears in both sides"
-      else
+  /-- `u ≤ ?r + rOffset` -/
+  go (u : Level) (rOffset : Int) : ExceptT MessageData (StateT AccLevelState Id) Unit := do
+    match u with
+    | .max u v          => go u rOffset; go v rOffset
+    | .imax u v         => go u rOffset; go v rOffset
+    | .param ..         => modify fun acc => acc.push u rOffset
+    | .succ u           => go u (rOffset - 1)
+    | .zero =>
+      /- `0 ≤ ?r + rOffset` always holds for non-negative `rOffset` values. -/
+      if rOffset < 0 then
+        modify fun acc => acc.push .zero rOffset
+    | .mvar lmvarId =>
+      if u == r then
+        /- `?r ≤ ?r + rOffset` always holds for non-negative `rOffset` values,
+        but `?r + (-rOffset) ≤ ?r` is impossible. -/
+        if rOffset < 0 then
+          throw m!"Level inequality `{Level.addOffset r rOffset.natAbs} ≤ {r}` is inconsistent."
+      else if typeLMVarIds.contains lmvarId then
         modify fun acc => acc.push u rOffset
+      else if rOffset < 0 then
+        modify fun acc => acc.push .zero rOffset
 
 /--
-Auxiliary function for `updateResultingUniverse`. Applies `accLevel` to the given constructor parameter.
+Auxiliary function for `inferResultingUniverse`. Applies `accLevel` to the given constructor parameter.
 -/
-private def accLevelAtCtor (ctorParam : Expr) (r : Level) (rOffset : Nat) : StateT AccLevelState TermElabM Unit := do
+private def accLevelAtCtor (ctorParam : Expr) (r : Level) (rOffset : Nat) (typeLMVarIds : Array LMVarId) :
+    StateT AccLevelState TermElabM Unit := do
   let type ← inferType ctorParam
   let u ← instantiateLevelMVars (← getLevel type)
-  match (← modifyGet fun s => accLevel u r rOffset |>.run |>.run s) with
+  match (← modifyGet fun s => accLevel u r rOffset typeLMVarIds |>.run |>.run s) with
   | .ok _ => pure ()
   | .error msg =>
     throwError "Failed to infer universe level for resulting type due to the constructor argument `{ctorParam}`: {msg}"
 
 /--
-Executes `k` using the `Syntax` reference associated with constructor `ctorName`.
+Auxiliary function for `inferResultingUniverse`. Applies `accLevelAtCtor` to each constructor.
 -/
-def withCtorRef [Monad m] [MonadRef m] (views : Array InductiveView) (ctorName : Name) (k : m α) : m α := do
-  for view in views do
-    for ctor in view.ctors do
-      if ctor.declName == ctorName then
-        return (← withRef ctor.ref k)
-  k
-
-/-- Runs `k` with the resulting type as the ref or, if that's not available, with the view's ref. -/
-def InductiveView.withTypeRef [Monad m] [MonadRef m] (view : InductiveView) (k : m α) : m α := do
-  withRef view.ref do
-    match view.type? with
-    | some type => withRef type k
-    | none      => k
-
-def withViewTypeRef [Monad m] [MonadRef m] (views : Array InductiveView) (k : m α) : m α := do
-  for view in views do
-    if let some type := view.type? then
-      return (← withRef type k)
-  withRef views[0]!.ref k
-
-/--
-Auxiliary function for `updateResultingUniverse`. Computes a list of levels `l₁ ... lₙ` such that `r := max l₁ ... lₙ` can be a solution to the constraint problem.
--/
-private def collectUniverses (views : Array InductiveView) (r : Level) (rOffset : Nat) (numParams : Nat) (indTypes : List InductiveType) : TermElabM (Array Level) := do
+private def collectUniverseConstraints (views : Array InductiveView) (r : Level) (rOffset : Nat)
+      (numParams : Nat) (indTypes : List InductiveType) (typeLMVarIds : Array LMVarId) :
+    TermElabM AccLevelState := do
   let (_, acc) ← go |>.run {}
-  if !acc.badLevels.isEmpty then
-    withViewTypeRef views do
-      let goodPart := Level.addOffset (Level.mkNaryMax acc.levels.toList) rOffset
-      let badPart := Level.mkNaryMax (acc.badLevels.toList.map fun (u, k) => Level.max (Level.ofNat rOffset) (Level.addOffset u (rOffset - k)))
-      let inferred := (Level.max goodPart badPart).normalize
-      let badConstraints := acc.badLevels.map fun (u, k) => indentD m!"{u} ≤ {Level.addOffset r k}"
-      throwError "Resulting type is of the form{indentD <| mkSort (Level.addOffset r rOffset)}\n\
-        but the universes of constructor arguments suggest that this could accidentally be a higher universe than necessary. \
-        Explicitly providing a resulting type will silence this error. \
-        Universe inference suggests using{indentD <| mkSort inferred}\n\
-        if the resulting universe level should be at the above universe level or higher.\n\n\
-        Explanation: At this point in elaboration, universe level unification has committed to using a \
-        resulting universe level of the form `{Level.addOffset r rOffset}`. \
-        Constructor argument universe levels must be no greater than the resulting universe level, and this condition implies the following constraint(s):\
-        {MessageData.joinSep badConstraints.toList ""}\n\
-        However, such constraint(s) usually indicate that the resulting universe level should have been in a different form. \
-        For example, if the resulting type is of the form `Sort (_ + 1)` and a constructor argument is in universe `Sort u`, \
-        then universe inference would yield `Sort (u + 1)`, \
-        but the resulting type `Sort (max 1 u)` would avoid being in a higher universe than necessary."
-  return acc.levels
+  return acc
 where
   go : StateT AccLevelState TermElabM Unit :=
     indTypes.forM fun indType => indType.ctors.forM fun ctor =>
       withCtorRef views ctor.name do
         forallTelescopeReducing ctor.type fun ctorParams _ =>
           for ctorParam in ctorParams[numParams...*] do
-            accLevelAtCtor ctorParam r rOffset
+            accLevelAtCtor ctorParam r rOffset typeLMVarIds
 
 /--
-Decides whether the inductive type should be `Prop`-valued when the universe is not given
-and when the universe inference algorithm `collectUniverses` determines
-that the inductive type could naturally be `Prop`-valued.
-Recall: the natural universe level is the minimum universe level for all the types of all the constructor parameters.
+Decides whether the inductive type should be `Prop`-valued when the universe is not given.
 
 Heuristic:
-- We want `Prop` when each inductive type is a syntactic subsingleton.
-  That's to say, when each inductive type has at most one constructor.
+- We want `Prop` when each inductive type is obviously a syntactic subsingleton.
+  That's to say, when each inductive type has at most one constructor, and each field is a `Prop`.
   Such types carry no data anyway.
 - Exception: if no inductive type has any constructors, these are likely stubbed-out declarations,
   so we prefer `Type` instead.
 - Exception: if each constructor has no parameters, then these are likely partially-written enumerations,
   so we prefer `Type` instead.
 
-Specialized to structures, the heuristic is that we prefer a `Prop` instead of a `Type` structure
+When ppecialized to structures, the heuristic is that we prefer a `Prop` instead of a `Type` structure
 when it could be a syntactic subsingleton.
 Exception: no-field structures are `Type` since they are likely stubbed-out declarations.
 -/
-private def isPropCandidate (numParams : Nat) (indTypes : List InductiveType) : MetaM Bool := do
-  unless indTypes.foldl (fun n indType => max n indType.ctors.length) 0 == 1 do
+private def isPropCandidate (numParams : Nat) (indTypes : List InductiveType) (indFVars : Array Expr) : MetaM Bool := do
+  -- Every inductive type has at most one constructor, and there's at least one constructor among them:
+  unless (indTypes |>.map (·.ctors.length) |>.foldl max 0) == 1 do
     return false
+  let mut hasCtorField := false
   for indType in indTypes do
     for ctor in indType.ctors do
-      let cparams ← forallTelescopeReducing ctor.type fun ctorParams _ => pure (ctorParams.size - numParams)
-      unless cparams == 0 do
-        return true
-  return false
-
-private def mkResultUniverse (us : Array Level) (rOffset : Nat) (preferProp : Bool) : Level :=
-  if us.isEmpty && rOffset == 0 then
-    if preferProp then levelZero else levelOne
-  else
-    let r := Level.mkNaryMax us.toList
-    if rOffset == 0 && !r.isZero && !r.isNeverZero then
-      mkLevelMax r levelOne |>.normalize
-    else
-      r.normalize
+      -- `fields` is an array capturing the suitability of each field
+      -- 1. they must be proofs
+      -- 2. they must not refer to any of the inductive types being defined
+      let fields ← forallTelescopeReducing ctor.type fun ctorParams _ => do
+        ctorParams[numParams...*].toArray.mapM fun field => do
+          let fieldTy ← inferType field >>= instantiateMVars
+          Meta.isProof field <&&> pure (not <| fieldTy.hasAnyFVar (indFVars.contains <| .fvar ·))
+      unless fields.all id do
+        return false
+      hasCtorField := hasCtorField || fields.size > 0
+  return hasCtorField
 
 /--
-Given that the resulting type is of the form `Sort (?r + k)` with `?r` a metavariable,
-try to infer the unique `?r` such that `?r + k` is the supremum of the constructor arguments' universe levels, if one exists.
-
-Usually, we also throw in the constraint that `1 ≤ ?r + k`, but if `isPropCandidate` is true we allow the solution `?r + k = 0`.
+We don't assign the metavariable in the resulting universe right away in `inferResultingUniverse`.
+The issue is that there may be level metavariables in the assignment that will eventually become
+parameters, and we want to be sure we assign once we can normalize the level being assigned.
 -/
-private def updateResultingUniverse (views : Array InductiveView) (numParams : Nat) (indTypes : List InductiveType) : TermElabM (List InductiveType) := do
-  let r₀ ← getResultingUniverse indTypes
-  let rOffset : Nat   := r₀.getOffset
-  let r       : Level := r₀.getLevelOffset
-  unless r.isMVar do
-    throwError m!"Failed to compute resulting universe level of inductive datatype: {r₀}"
-      ++ .hint' "Provide this universe explicitly"
-  let us ← collectUniverses views r rOffset numParams indTypes
-  trace[Elab.inductive] "updateResultingUniverse us: {us}, r: {r}, rOffset: {rOffset}"
-  let rNew := mkResultUniverse us rOffset (← isPropCandidate numParams indTypes)
-  assignLevelMVar r.mvarId! rNew
-  indTypes.mapM fun indType => do
-    let type ← instantiateMVars indType.type
-    let ctors ← indType.ctors.mapM fun ctor => return { ctor with type := (← instantiateMVars ctor.type) }
-    return { indType with type, ctors }
+private structure ResultingUniverseResult where
+  /-- Inferred resulting universe -/
+  u : Level
+  /-- Assignment to do once all level metavariables in `Level` are converted to parameters. -/
+  assign? : Option (LMVarId × Level)
+
+/-- Performs the assignment that may be recorded in the result, while normalizing the level. -/
+private def ResultingUniverseResult.assign (res : ResultingUniverseResult) : MetaM Unit := do
+  match res.assign? with
+  | some (mvarId, level) =>
+    assignLevelMVar mvarId (← instantiateLevelMVars level).normalize
+  | none =>
+    pure ()
+
+/--
+Given that the resulting type is of the form `Sort u` where `u` contains a single metavariable `?r`,
+and if `univForInfer` is the result of `processResultingUniverseForInference` and is of the form `?r + k`,
+then try to infer the minimal `?r` such that `?r + k` is the supremum of the constructor arguments' universe levels, if one exists.
+
+Usually, we also throw in the constraint that `1 ≤ ?r + k`, but if `isPropCandidate` is true we allow the solution `u = 0`.
+-/
+private def inferResultingUniverse (views : Array InductiveView)
+    (numParams : Nat) (indTypes : List InductiveType) (indFVars : Array Expr) (typeLMVarIds : Array LMVarId) :
+    TermElabM ResultingUniverseResult := do
+  let u ← getResultingUniverse indTypes >>= instantiateLevelMVars
+  -- For `Prop` candidates, need to examine `u` itself, rather than `univForInfer` (which has been simplified).
+  if let Level.mvar mvarId := u.normalize then
+    if ← isPropCandidate numParams indTypes indFVars then
+      -- May as well assign now, since `levelZero` is already normalized.
+      assignLevelMVar mvarId levelZero
+      return { u := u, assign? := none }
+  -- Proceed with non-`Prop`-candidate case.
+  let univForInfer ← withViewTypeRef views <| processResultingUniverseForInference u
+  let r@(Level.mvar mvarId) := univForInfer.getLevelOffset | return { u := u, assign? := none }
+  let rOffset := univForInfer.getOffset
+  /- Collect universe level constraints -/
+  let acc ← collectUniverseConstraints views r rOffset numParams indTypes typeLMVarIds
+  -- Add `1 ≤ ?r + rOffset` if `rOffset = 0`.
+  let acc := if rOffset == 0 then acc.push .zero (-1) else acc
+  -- Filter the accumulated constraints for the ones that are not already satisfied.
+  let rConstraints := acc.levels.fold (init := []) fun parts l k =>
+    /-
+    The constraint is `l ≤ ?r + k`, where `k` might be negative.
+    Adding `rOffset - k` to both sides gets the "ideal" constraint `l + (rOffset - k) ≤ ?r + rOffset`.
+    If `l + (rOffset - k) ≤ u` already, we do not need to incorporate it.
+    -/
+    if u.geq (l.addOffset (rOffset - k).toNat) then
+      parts
+    else
+      (l, k) :: parts
+  trace[Elab.inductive] "inferResultingUniverse r: {r}, rOffset: {rOffset}, rConstraints: {rConstraints}"
+  /- Compute the inferred `r` -/
+  let rInferred := Level.normalize <| rConstraints.foldl (init := levelZero) fun u' (level, k) =>
+    -- If `k ≤ 0`, then add `level + (-k) ≤ ?r` constraint, otherwise add `level ≤ ?r`.
+    mkLevelMax' u' <| level.addOffset (-k).toNat
+  let uInferred := (u.replace fun v => if v == r then some rInferred else none).normalize
+  /- Analyze "bad" constraints if there are any, and report an error if needed. -/
+  if rConstraints.any (fun (_, k) => k > 0) then
+    let uAtZero := u.replace fun v => if v == r then some levelZero else none
+    /- For "bad" level constraints (those of the form `l ≤ ?r + k` where `k > 0`),
+    we add `rOffset - k` to both sides to get the ideal constraint. -/
+    let uIdeal := Level.normalize <| rConstraints.foldl (init := uAtZero) fun u' (level, k) =>
+      mkLevelMax' u' <| level.addOffset (rOffset - k).toNat
+    unless uIdeal.geq uInferred do
+      withViewTypeRef views do
+        let badConstraints := rConstraints.foldl (init := []) fun msgs (level, k) =>
+          if k <= 0 then
+            msgs
+          else
+            indentD m!"{level} ≤ {Level.addOffset r k.toNat}" :: msgs
+        logWarning <| m!"Inferred universe level for type may be unnecessarily high. \
+          The inferred resulting universe is{indentD <| mkSort uInferred}\n\
+          but it possibly could be{indentD <| mkSort uIdeal}\n\
+          Explicitly providing a resulting universe with no metavariables will silence this warning."
+          ++ .note m!"The elaborated resulting universe after constructor elaboration is{indentD <| mkSort u}\n\
+            The inference algorithm attempts to compute the smallest level for `{r}` such that all universe constraints for all \
+            constructor fields are satisfied, with some approximations. \
+            The following derived constraint(s) are the cause of this possible unnecessarily high universe:\
+            {MessageData.joinSep badConstraints ""}\n\
+            For example, if the resulting universe is of the form `Sort (?r + 1)` and a constructor field is in universe `Sort u`, \
+            the constraint `u ≤ ?r + 1` leads to the unnecessarily high resulting universe `Sort (u + 1)`. \
+            Using `Sort (max 1 u)` avoids this universe bump, if using it is possible."
+  trace[Elab.inductive] "inferred r: {rInferred}"
+  return { u := uInferred, assign? := some (mvarId, rInferred) }
+
+/--
+Solves for level metavariables in constructor argument types that are completely determined by the resulting type.
+The `simplifyResultingUniverse` of the resulting universe level `u` must be of the form `r+k`, where `r` is a parameter or zero,
+otherwise inference is ambiguous.
+Ambiguity example: `?v ≤ max a b` could be satisfied by either constraint `?v ≤ a` or `?v ≤ b`.
+Possibly `r` is a metavariable -- in that case, since it will eventually be turned into a parameter
+in `levelMVarToParamAtInductives`, we work with it as if it is a parameter here.
+
+This only assigns if there is a *unique* solution, though we will take a non-constant solution over
+a constant one. This function does not throw errors. For underconstrained metavariables it simply
+doesn't assign to them. Even constraint issues are ignored, since these will be reported later.
+We also assume that `imax` is effectively `max`.
+
+The rules imply that the only assignments we will ever consider are `?v = 0` or `?v = r`.
+From each universe constraint, we get simple constraints of the form `?v ≤ r + k'`,
+with `k' : Int` like in `inferResultingUniverse`.
+Consider the cases:
+- if `r=0`, then we must have `k'≥0` to have a solution, and `k'≤0` to have a unique solution.
+- if `r` is a parameter, then if `k'>0` there are multiple non-constant solutions, and if
+  `k'<0` then there are no solutions that work for all values of `r`. We must have `k'=0`.
+Thus, the solution to such simple constraints is always `?v = r` if `k' = 0`.
+
+One wrinkle to this is that we wish to avoid assigning `?u = 0` in some cases due examples like the following
+that lead to counterintuitive behavior:
+```
+inductive Bar : Type
+| foobar {Foo} : Foo → Bar
+```
+Since `Foo : Sort ?u : Type ?u`, propagation causes `?u = 0`, and so `Foo : Prop`.
+We avoid assigning level metavariables to `0` if it could cause a field to become a `Prop`.
+-/
+private partial def propagateUniversesToConstructors
+    (numParams : Nat) (indTypes : List InductiveType) (inferResult : ResultingUniverseResult):
+    TermElabM Unit := do
+  let u := (← instantiateLevelMVars inferResult.u).normalize
+  if u.isZero then
+    return
+  let u' := simplifyResultingUniverse u
+  let r := u'.getLevelOffset
+  let k := u'.getOffset
+  unless r matches .param .. | .mvar .. | .zero do
+    trace[Elab.inductive] "skipping propagating universe levels to constructors, simplified resulting type {u'} is not of form u+k or k"
+    return
+  trace[Elab.inductive] "propagating universe levels to constructors using simplified resulting type {u'}"
+  let (_, constraints, loConstraint) ← collectConstraints r k |>.run ({}, {})
+  trace[Elab.inductive] "collected constraints: {constraints.levels.toList}; positive: {loConstraint.toList.map Level.mvar}"
+  for (v, k') in constraints.levels do
+    -- `v ≤ r + k'` has solutions `v ∈ {r, r + 1, ..., r + k'}`,
+    -- excluding the constant solutions when `r` is a parameter.
+    -- If `hasLo` is true, then we want `1 ≤ v` as well.
+    -- There's a unique solution if `k'=0` or `k'=1`, depending on the value of `hasLo`.
+    let hasLo := loConstraint.contains v.mvarId!
+    if k' == (if hasLo then 1 else 0) then
+      assignLevelMVar v.mvarId! (r.addOffset k'.toNat)
+where
+  collectConstraints (r : Level) (k : Int) :
+      StateT (AccLevelState × LMVarIdSet) MetaM Unit := do
+    indTypes.forM fun indType => indType.ctors.forM fun ctor =>
+      forallTelescopeReducing ctor.type fun ctorArgs _ => do
+        for ctorArg in ctorArgs[numParams...*] do
+          let v := (← instantiateLevelMVars (← getLevel (← inferType ctorArg))).normalize
+          extractConstraints v r k 1
+  /--
+  Extract level constraints from `v ≤ r + k` for metavariables in `v`.
+  `Level.imax` can repush itself onto the `LevelConstraintForPropagate` work list.
+  -/
+  extractConstraints (v : Level) (r : Level) (k : Int) (lo : Nat) :
+      StateT (AccLevelState × LMVarIdSet) MetaM Unit := do
+    if v.hasMVar then
+      match v with
+      | .zero | .param .. => pure ()
+      | .succ _ => extractConstraints v.getLevelOffset r (k - v.getOffset) 0
+      | .max a b => extractConstraints a r k lo; extractConstraints b r k lo
+      /-
+      Given `imax a b ≤ r + k`, then certainly `b ≤ r + k`.
+      We only get the additional constraint `a ≤ r + k` when `b > 0`.
+      However, for our simple constraint propagation system, we do not want to be
+      responsible for deciding whether or not we need `b = 0` for the purpose of satisfying constraints.
+      Heuristic: Since we're aiming for `b ≥ lo`, if `lo > 0` then we assume the `imax` will simplify to `max`.
+      -/
+      | .imax a b =>
+        if lo > 0 then
+          extractConstraints a r k lo
+        extractConstraints b r k lo
+      | .mvar mvarId =>
+        if v != r then
+          modify fun (acc, los) => (acc.push v k, if lo > 0 then los.insert mvarId else los)
+
+/--
+Converts universe metavariables in the type (not the constructors) into new parameters.
+The additional level parameters in `typeLMVarIds` can be promoted to level metavariables
+if they appear among the constructors.
+-/
+private def levelMVarToParamAtInductives
+    (indTypes : List InductiveType) (typeLMVarIds : Array LMVarId) (resultUniv : ResultingUniverseResult) :
+    TermElabM Unit := do
+  let rmvarId? := resultUniv.assign?.map (fun (mvarId, _) => mvarId)
+  indTypes.forM fun indType => do
+    discard <| Term.levelMVarToParam indType.type (except := fun mvar => rmvarId? == some mvar)
+    if rmvarId?.isSome then
+      -- Hasn't been assigned, so be sure to visit full resulting universe level
+      discard <| Term.levelMVarToParam (mkSort resultUniv.u)
+    indType.ctors.forM fun ctor => do
+      discard <| Term.levelMVarToParam ctor.type (except := fun mvar => rmvarId? == some mvar || !typeLMVarIds.contains mvar)
+
+end LevelInference
 
 /--
 Heuristic: users don't tend to want types that are universe polymorphic across both `Prop` and `Type _`.
@@ -722,62 +1092,6 @@ private def checkResultingUniversePolymorphism (views : Array InductiveView) (u 
     if bootstrap.inductiveCheckResultingUniverse.get (← getOptions) then
       -- TODO: heuristic for allowing `Sort` polymorphism?
       doErrFor views[0]!
-
-/--
-Solves for level metavariables in constructor argument types that are completely determined by the resulting type.
--/
-private partial def propagateUniversesToConstructors (numParams : Nat) (indTypes : List InductiveType) : TermElabM Unit := do
-  let u := (← instantiateLevelMVars (← getResultingUniverse indTypes)).normalize
-  unless u.isZero do
-    let r := u.getLevelOffset
-    let k := u.getOffset
-    indTypes.forM fun indType => indType.ctors.forM fun ctor =>
-      forallTelescopeReducing ctor.type fun ctorArgs _ => do
-        for ctorArg in ctorArgs[numParams...*] do
-          let type ← inferType ctorArg
-          let v := (← instantiateLevelMVars (← getLevel type)).normalize
-          if v.hasMVar then
-            if r matches .param .. | .zero then
-              discard <| observing? <| propagateConstraint v r k
-where
-  /--
-  Solves for metavariables in `v` that are fully determined by the constraint `v ≤ r + k`,
-  *assuming that `v` is either a parameter or zero* and assuming that `v` is normalized.
-  Fails if we detect the constraint cannot be satisfied, letting the caller backtrack the assignments.
-
-  If `r` isn't a parameter or zero, then there is nothing we can say.
-  For example, `v ≤ max a b` could be satisfied by either constraint `v ≤ a` or `v ≤ b`.
-  We do not need to handle the case where `r` is a metavariable, which is instead `updateResultingUniverse`.
-  -/
-  propagateConstraint (v : Level) (r : Level) (k : Nat) : MetaM Unit := do
-    match v, k with
-    | .zero,     _   => pure ()
-    | .succ _,   0   => throwError "Internal error: Generated an impossible universe constraint `{v} ≤ 0`"
-    | .succ u,   k+1 => propagateConstraint u r k
-    | .max u v,  k   => propagateConstraint u r k; propagateConstraint v r k
-    /-
-    Given `imax u v ≤ r + k`, then certainly `v ≤ r + k`.
-    If this then implies `v` is never zero, then we can also impose `u ≤ r + k`,
-    however, this never happens since the metavariable assignments are all of the form `?m := p` or `?m := 0`,
-    and so `v` cannot become never zero.
-    -/
-    | .imax _ v, k   => propagateConstraint v r k
-    /-
-    `p ≤ r + k` is satisfied iff `r` is also a parameter and it is equal to `p`.
-    -/
-    | .param _,  _   => guard <| v == r
-    /-
-    `?v ≤ r + k` is uniquely solved iff `k = 0`, since otherwise there are solutions `?v := r`, `?v := r + 1`, ... `?v := r + (k - 1)`.
-    -/
-    | .mvar id,  k   =>
-      if let some v' ← getLevelMVarAssignment? id then
-        propagateConstraint v'.normalize r k
-      else if k == 0 then
-        /- Constrained, so assign. -/
-        assignLevelMVar id r
-      else
-        /- Underconstrained, but not an error. -/
-        pure ()
 
 /-- Checks the universe constraints for each constructor. -/
 private def checkResultingUniverses (views : Array InductiveView) (elabs' : Array InductiveElabStep2)
@@ -936,6 +1250,56 @@ def replaceIndFVars (numParams : Nat) (oldFVars : Array Expr) (calls : Array Exp
       .none
     )
 
+private def ensureNoUnassignedMVarsAtInductives (indTypes : List InductiveType) :
+    TermElabM Unit := do
+  let mut mvars := {}
+  for indType in indTypes do
+    mvars := indType.type.collectMVars mvars
+    for ctor in indType.ctors do
+      mvars := ctor.type.collectMVars mvars
+  let pendingMVarIds := mvars.result
+  if (← Term.logUnassignedUsingErrorInfos pendingMVarIds) then
+    throwAbortCommand
+
+private def ensureNoUnassignedLevelMVarsAtInductives
+    (views : Array InductiveView) (indTypes : List InductiveType) :
+    TermElabM Unit := do
+  let mut lmvars := {}
+  for indType in indTypes do
+    lmvars := collectLevelMVars lmvars indType.type
+    for ctor in indType.ctors do
+      lmvars := collectLevelMVars lmvars ctor.type
+  let pendingLevelMVars := lmvars.result
+  unless pendingLevelMVars.isEmpty do
+    if (← Term.logUnassignedLevelMVarsUsingErrorInfos pendingLevelMVars) then
+      throwAbortCommand
+    else if (← MonadLog.hasErrors) then
+      throwAbortCommand
+    else
+      -- This is a fallback in case we don't have an error info available for the universe level metavariables.
+      -- We try to produce an error message containing an expression with one of the universe level metavariables.
+      for view in views, indType in indTypes do
+        withRef view.ref do
+          Term.forEachExprWithExposedLevelMVars indType.type fun e => do
+            throwError "\
+              Inductive type declaration `{view.declName}` contains universe level metavariables at the expression\
+              {indentExpr e}\n\
+              in the type{indentExpr <| ← Term.exposeLevelMVars indType.type}"
+          for ctorView in view.ctors, ctor in indType.ctors do
+            withRef ctorView.ref <| forallTelescope ctor.type fun args ctype => do
+              for arg in args do
+                let argTy ← inferType arg
+                Term.forEachExprWithExposedLevelMVars argTy fun e => do
+                  throwError "\
+                    Constructor field `{arg}` of `{ctorView.declName}` contains universe level metavariables at the expression\
+                    {indentExpr e}\n\
+                    in its type{indentExpr <| ← Term.exposeLevelMVars argTy}"
+              Term.forEachExprWithExposedLevelMVars ctype fun e => do
+                throwError "\
+                  Constructor `{ctorView.declName}` contains universe level metavariables at the expression\
+                  {indentExpr e}\n\
+                  in the type{indentExpr <| ← Term.exposeLevelMVars ctype}"
+
 /--
   Given a list of `InductiveType` structures and some local variables of `mkInductiveDecl`,
   rewrites the inductive types and their constructors in a way that signature contains parameters
@@ -1044,57 +1408,73 @@ private def mkInductiveDeclCore
       throwErrorAt views[i]!.declId "`coinductive` keyword can only be used to define predicates"
   let allUserLevelNames := rs[0]!.levelNames
   let isUnsafe          := view0.modifiers.isUnsafe
-  let res ← withInductiveLocalDecls rs fun params indFVars => do
-        trace[Elab.inductive] "indFVars: {indFVars}"
-        let rs := Array.zipWith (fun r indFVar => { r with indFVar : ElabHeaderResult }) rs indFVars
-        let mut indTypesArray : Array InductiveType := #[]
-        let mut elabs' := #[]
-        for h : i in *...views.size do
-          Term.addLocalVarInfo views[i].declId indFVars[i]!
-          let r     := rs[i]!
-          let elab' ← elabs[i]!.elabCtors rs r params
-          elabs'    := elabs'.push elab'
-          indTypesArray := indTypesArray.push { name := r.view.declName, type := r.type, ctors := elab'.ctors }
-        Term.synthesizeSyntheticMVarsNoPostponing
-        let numExplicitParams ← fixedIndicesToParams params.size indTypesArray indFVars
-        trace[Elab.inductive] "numExplicitParams: {numExplicitParams}"
-        let indTypes := indTypesArray.toList
-        let u ← getResultingUniverse indTypes
-        let univToInfer? ← shouldInferResultUniverse u
-        withUsed elabs' vars indTypes fun vars => do
-          let numVars   := vars.size
-          let numParams := numVars + numExplicitParams
-          let indTypes ← updateParams vars indTypes
-          -- allow general access to private data for steps that do no elaboration
-          let indTypes ←
-            withoutExporting do
-              if let some univToInfer := univToInfer? then
-                updateResultingUniverse views numParams (← levelMVarToParam indTypes univToInfer)
-              else
-                propagateUniversesToConstructors numParams indTypes
-                levelMVarToParam indTypes none
-          withoutExporting do
-            checkResultingUniverses views elabs' numParams indTypes
-          elabs'.forM fun elab' => elab'.finalizeTermElab
-          let usedLevelNames := collectLevelParamsInInductive indTypes
-          match sortDeclLevelParams scopeLevelNames allUserLevelNames usedLevelNames with
-          | .error msg      => throwErrorAt view0.declId msg
-          | .ok levelParams =>
-            callback {
-              views := views
-              elabs' := elabs'
-              indFVars := indFVars
-              vars := vars
-              levelParams := levelParams
-              indTypes := indTypes
-              isUnsafe := isUnsafe
-              rs := rs
-              params := params
-              isCoinductive := isCoinductive
-              numVars := numVars
-              numParams := numParams
-            }
-  return res
+  withInductiveLocalDecls rs fun params indFVars => do
+    trace[Elab.inductive] "indFVars: {indFVars}"
+    /- Start elaborating constructors: -/
+    let rs := Array.zipWith (fun r indFVar => { r with indFVar : ElabHeaderResult }) rs indFVars
+    let mut indTypesArray : Array InductiveType := #[]
+    let mut elabs' := #[]
+    for h : i in *...views.size do
+      Term.addLocalVarInfo views[i].declId indFVars[i]!
+      let r     := rs[i]!
+      let elab' ← elabs[i]!.elabCtors rs r params
+      elabs'    := elabs'.push elab'
+      indTypesArray := indTypesArray.push { name := r.view.declName, type := r.type, ctors := elab'.ctors }
+    Term.synthesizeSyntheticMVarsNoPostponing
+    let indTypes ← indTypesArray.toList.mapM instantiateMVarsAtInductive
+    /- Constructor elaboration complete. -/
+    /- Start parameter analysis:
+       Every used section variable becomes a parameter,
+       and the largest prefix of indices that are used like parameters are promoted to parameters. -/
+    let numExplicitParams ← fixedIndicesToParams params.size indTypes indFVars
+    trace[Elab.inductive] "numExplicitParams: {numExplicitParams}"
+    withUsed elabs' vars indTypes fun vars => do
+      let numVars   := vars.size
+      let numParams := numVars + numExplicitParams
+      let indTypes ← updateParams vars indTypes
+      let indTypes ← indTypes.mapM instantiateMVarsAtInductive
+      /- Parameter analysis complete. -/
+      -- If there are expression metavariables, we should raise an error before attempting to infer universes.
+      ensureNoUnassignedMVarsAtInductives indTypes
+      /- Start universe inference. -/
+      -- allow general access to private data with `withoutExporting` to compute universe levels;
+      -- even though we are elaborating here, this can only leak universe level information
+      let indTypes ← withoutExporting do
+        let typeLMVarIds ← do
+          let mut lmvars := {}
+          for indType in indTypes do
+            lmvars := collectLevelMVars lmvars indType.type
+          lmvars ← Prod.snd <$> (elabs'.forM InductiveElabStep2.collectExtraHeaderLMVars).run lmvars
+          pure lmvars.result
+        let inferResult ← inferResultingUniverse views numParams indTypes indFVars typeLMVarIds
+        propagateUniversesToConstructors numParams indTypes inferResult
+        levelMVarToParamAtInductives indTypes typeLMVarIds inferResult
+        inferResult.assign
+        indTypes.mapM instantiateMVarsAtInductive
+      /- Universe inference complete. -/
+      -- allow general access to private data with `withoutExporting` while we do last universe checks
+      withoutExporting do
+        elabs'.forM fun elab' => elab'.finalizeTermElab
+        ensureNoUnassignedLevelMVarsAtInductives views indTypes
+        checkResultingUniverses views elabs' numParams indTypes
+      let usedLevelNames := collectLevelParamsInInductive indTypes
+      match sortDeclLevelParams scopeLevelNames allUserLevelNames usedLevelNames with
+      | .error msg      => throwErrorAt view0.declId msg
+      | .ok levelParams =>
+        callback {
+          views := views
+          elabs' := elabs'
+          indFVars := indFVars
+          vars := vars
+          levelParams := levelParams
+          indTypes := indTypes
+          isUnsafe := isUnsafe
+          rs := rs
+          params := params
+          isCoinductive := isCoinductive
+          numVars := numVars
+          numParams := numParams
+        }
 
 private def withElaboratedHeaders (vars : Array Expr) (elabs : Array InductiveElabStep1)
   (k : Array Expr → Array InductiveElabStep1 → Array PreElabHeaderResult → List Name → TermElabM α ) : TermElabM α :=

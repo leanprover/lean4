@@ -517,7 +517,7 @@ end Level
   else
     elseK ()
 
-/- Similar to `mkLevelMax`, but applies cheap simplifications -/
+/-- Similar to `mkLevelMax`, but applies cheap simplifications -/
 def mkLevelMax' (u v : Level) : Level :=
   mkLevelMaxCore u v fun _ => mkLevelMax u v
 
@@ -531,7 +531,7 @@ def simpLevelMax' (u v : Level) (d : Level) : Level :=
   else if u == v then u
   else elseK ()
 
-/- Similar to `mkLevelIMax`, but applies cheap simplifications -/
+/-- Similar to `mkLevelIMax`, but applies cheap simplifications -/
 def mkLevelIMax' (u v : Level) : Level :=
   mkLevelIMaxCore u v fun _ => mkLevelIMax u v
 

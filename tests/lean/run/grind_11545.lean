@@ -13,8 +13,8 @@ structure Opposite (α : Sort _) where
 notation:max α "ᵒᵖ" => Opposite α
 
 -- Inline Quiver from Mathlib.Combinatorics.Quiver.Basic
-class Quiver (V : Type _) where
-  Hom : V → V → Sort _
+class Quiver.{u,v} (V : Type u) where
+  Hom : V → V → Sort v
 
 infixr:10 " ⟶ " => Quiver.Hom
 

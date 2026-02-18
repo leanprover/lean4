@@ -7,4 +7,4 @@ def Foo (F : α -> Prop) : Prop :=
   ∀ x , F x
 
 inductive Bad : Nat -> Prop :=
-  | bar e : Foo (fun _ => Bad e) -> Bad e
+  | bar e : Foo (fun _ : Nat => Bad e) -> Bad e

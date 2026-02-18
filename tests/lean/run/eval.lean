@@ -24,13 +24,13 @@ Deciding a proposition
 /-!
 Can't evaluate proofs
 -/
-/-- error: cannot evaluate, proofs are not computationally relevant -/
+/-- error: Cannot evaluate, proofs are not computationally relevant -/
 #guard_msgs in #eval trivial
 
 /-!
 Can't evaluate types
 -/
-/-- error: cannot evaluate, types are not computationally relevant -/
+/-- error: Cannot evaluate, types are not computationally relevant -/
 #guard_msgs in #eval Nat
 
 
@@ -60,7 +60,7 @@ Custom monad
 
 abbrev MyMonad := ReaderT Nat IO
 /--
-error: unable to synthesize `MonadEval` instance to adapt
+error: Unable to synthesize `MonadEval` instance to adapt
   MyMonad Nat
 to `IO` or `Lean.Elab.Command.CommandElabM`.
 -/
@@ -68,7 +68,7 @@ to `IO` or `Lean.Elab.Command.CommandElabM`.
 
 -- Note that there is no "this is due to..." diagonostic in this case.
 /--
-error: could not synthesize a `ToExpr`, `Repr`, or `ToString` instance for type
+error: Could not synthesize a `ToExpr`, `Repr`, or `ToString` instance for type
   MyMonad (Nat → Nat)
 -/
 #guard_msgs in #eval (pure id : MyMonad (Nat → _))
@@ -81,7 +81,7 @@ instance : MonadEval MyMonad IO where
 
 -- Note that now we have a MonadEval instance, it doesn't mention MyMonad in the error.
 /--
-error: could not synthesize a `ToExpr`, `Repr`, or `ToString` instance for type
+error: Could not synthesize a `ToExpr`, `Repr`, or `ToString` instance for type
   Nat → Nat
 -/
 #guard_msgs in #eval (pure id : MyMonad (Nat → _))
@@ -193,3 +193,13 @@ Let rec support (issue #2374)
     | 0 => 1
     | n' + 1 => n * fact n'
   fact 5
+
+/-!
+Elaborate `variables` and have a specific error about referenced free variables,
+rather than give an "unknown identifier" error while elaborating.
+-/
+section
+variable (n : Nat)
+/-- error: Cannot evaluate, contains free variables: n -/
+#guard_msgs in #eval n
+end

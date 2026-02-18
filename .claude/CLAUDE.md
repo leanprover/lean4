@@ -90,6 +90,6 @@ When CI jobs fail, investigate immediately - don't wait for other jobs to comple
 
 ## Copyright Headers
 
-New files require a copyright header. To get the year right, always run `date +%Y` rather than relying on memory. The copyright holder should be the author or their current employer — check other recent files by the same author in the repository to determine the correct entity (e.g., "Lean FRO, LLC", "Amazon.com, Inc. or its affiliates"). Do not guess; match what the author uses elsewhere.
+New files require a copyright header. To get the year right, always run `date +%Y` rather than relying on memory. The copyright holder should be the author or their current employer — check other recent files by the same author in the repository to determine the correct entity (e.g., "Lean FRO, LLC", "Amazon.com, Inc. or its affiliates").
 
 Test files (in `tests/`) do not need copyright headers.

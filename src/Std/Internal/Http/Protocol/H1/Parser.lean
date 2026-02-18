@@ -46,16 +46,26 @@ def isQdText (c : UInt8) : Bool :=
 
 -- Parser blocks
 
+
 partial def manyItems {α : Type} (parser : Parser (Option α)) (maxCount : Nat) : Parser (Array α) := do
   let rec go (acc : Array α) : Parser (Array α) := do
-    match ← optional (attempt parser) with
-    | some (some x) =>
-        if acc.size + 1 > maxCount then
-          fail s!"Too many items: {acc.size + 1} > {maxCount}"
-        else
-          go (acc.push x)
-    | _ => return acc
+    let step ← optional <| attempt do
+      match ← parser with
+      | none => fail "end of items"
+      | some x => return x
+
+    match step with
+    | none =>
+      return acc
+    | some x =>
+      let acc := acc.push x
+
+      if acc.size > maxCount then
+        fail s!"Too many items: {acc.size} > {maxCount}"
+
+      go acc
   go #[]
+
 
 def liftOption (x : Option α) : Parser α :=
   if let some res := x then

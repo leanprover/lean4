@@ -374,8 +374,8 @@ private def resetForNextMessage (machine : Machine ty) : Machine ty :=
     |>.setWriterState .closed
     |>.setReaderState .closed
 
-/-
-This function processes the message we are receiving
+/--
+Processes the received message headers, determines body framing, and emits events.
 -/
 private def processHeaders (machine : Machine dir) : Machine dir :=
   let machine := machine.updateKeepAlive (machine.reader.messageCount + 1 < machine.config.maxMessages)

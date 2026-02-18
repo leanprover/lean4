@@ -75,6 +75,11 @@ structure Config where
   maxSpaceSequence : Nat := 256
 
   /--
+  Maximum number of extensions on a single chunk-size line (default: 16).
+  -/
+  maxChunkExtensions : Nat := 16
+
+  /--
   Maximum length of chunk extension name (default: 256 bytes)
   -/
   maxChunkExtNameLength : Nat := 256

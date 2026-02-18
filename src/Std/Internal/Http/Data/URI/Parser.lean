@@ -72,7 +72,7 @@ private def parsePortNumber : Parser UInt16 := do
   let portStr := String.fromUTF8! portBytes.toByteArray
 
   let some portNum := String.toNat? portStr
-    | fail s!"invalid port number:{portStr}"
+    | fail s!"invalid port number: {portStr}"
 
   if portNum > 65535 then
     fail s!"port number too large: {portNum}"

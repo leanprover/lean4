@@ -46,15 +46,18 @@ def isQdText (c : UInt8) : Bool :=
 
 -- Parser blocks
 
-def manyItems {α : Type} (parser : Parser (Option α)) (maxCount : Nat) : Parser (Array α) := do
-  let items ← many (attempt <| parser.bind (fun item => match item with
-    | some x => return x
-    | none => fail "end of items"))
-  if items.size > maxCount then
-    fail s!"Too many items: {items.size} > {maxCount}"
-  return items
+partial def manyItems {α : Type} (parser : Parser (Option α)) (maxCount : Nat) : Parser (Array α) := do
+  let rec go (acc : Array α) : Parser (Array α) := do
+    match ← optional (attempt parser) with
+    | some (some x) =>
+        if acc.size + 1 > maxCount then
+          fail s!"Too many items: {acc.size + 1} > {maxCount}"
+        else
+          go (acc.push x)
+    | _ => return acc
+  go #[]
 
-def opt (x : Option α) : Parser α :=
+def liftOption (x : Option α) : Parser α :=
   if let some res := x then
     return res
   else
@@ -75,9 +78,9 @@ def sp : Parser Unit :=
 
 @[inline]
 def ows (limits : H1.Config) : Parser Unit := do
-  discard <| takeWhileUpTo (· == ' '.toUInt8) limits.maxSpaceSequence
+  discard <| takeWhileUpTo (fun c => c == ' '.toUInt8 || c == '\t'.toUInt8) limits.maxSpaceSequence
 
-  if (← peekWhen? (· == ' '.toUInt8)) |>.isSome then
+  if (← peekWhen? (fun c => c == ' '.toUInt8 || c == '\t'.toUInt8)) |>.isSome then
     fail "invalid space sequence"
   else
     pure ()
@@ -94,10 +97,20 @@ def hexDigit : Parser UInt8 := do
   else if b ≥ 'a'.toUInt8 && b ≤ 'f'.toUInt8 then return b - 'a'.toUInt8 + 10
   else fail s!"Invalid hex digit {Char.ofUInt8 b |>.quote}"
 
-@[inline]
-def hex : Parser Nat := do
-  let hexDigits ← many1 (attempt hexDigit)
-  return (hexDigits.foldl (fun acc cur => acc * 16 + cur.toNat) 0)
+partial def hex : Parser Nat := do
+  let rec go (acc : Nat) (count : Nat) : Parser Nat := do
+    match ← optional (attempt hexDigit) with
+    | some d =>
+        if count + 1 > 16 then
+          fail "chunk size too large"
+        else
+          go (acc * 16 + d.toNat) (count + 1)
+    | none =>
+        if count = 0 then
+          fail "expected hex digit"
+        else
+          return acc
+  go 0 0
 
 -- Actual parsers
 
@@ -114,7 +127,7 @@ def parseHttpVersionNumber : Parser (Nat × Nat) := do
 -- HTTP-name     = %s"HTTP"
 def parseHttpVersion : Parser Version := do
   let (major, minor) ← parseHttpVersionNumber
-  opt <| Version.ofNumber? major minor
+  liftOption<| Version.ofNumber? major minor
 
 --   method         = token
 def parseMethod : Parser Method :=
@@ -134,7 +147,7 @@ Parses the method token as text.
 def parseMethodToken (limits : H1.Config) : Parser String := do
   let raw ← token limits.maxHeaderNameLength
 
-  let methodToken ← opt <| String.fromUTF8? raw.toByteArray
+  let methodToken ← liftOption<| String.fromUTF8? raw.toByteArray
   if methodToken.toList.any (fun c => c.toNat ≥ 'a'.toNat ∧ c.toNat ≤ 'z'.toNat) then
     fail "method token must be uppercase"
   else
@@ -184,8 +197,8 @@ def parseFieldLine (limits : H1.Config) : Parser (String × String) := do
   let name ← token limits.maxHeaderNameLength
   let value ← skipByte ':'.toUInt8 *> ows limits *> optional (takeWhileUpTo isFieldVChar limits.maxHeaderValueLength) <* ows limits
 
-  let name ← opt <| String.fromUTF8? name.toByteArray
-  let value ← opt <| String.fromUTF8? <| value.map (·.toByteArray) |>.getD .empty
+  let name ← liftOption<| String.fromUTF8? name.toByteArray
+  let value ← liftOption<| String.fromUTF8? <| value.map (·.toByteArray) |>.getD .empty
 
   return (name, value)
 
@@ -240,19 +253,19 @@ partial def parseQuotedString (maxLength : Nat) : Parser String := do
     else
       fail s!"invalid qdtext byte: {Char.ofUInt8 b |>.quote}"
 
-  opt <| String.fromUTF8? (← loop .empty 0)
+  liftOption <| String.fromUTF8? (← loop .empty 0)
 
 -- chunk-ext = *( BWS ";" BWS chunk-ext-name [ BWS "=" BWS chunk-ext-val] )
 def parseChunkExt (limits : H1.Config) : Parser (ExtensionName × Option String) := do
   ows limits *> skipByte ';'.toUInt8 *> ows limits
-  let name ← (opt =<< String.fromUTF8? <$> ByteSlice.toByteArray <$> token limits.maxChunkExtNameLength) <* ows limits
+  let name ← (liftOption =<< String.fromUTF8? <$> ByteSlice.toByteArray <$> token limits.maxChunkExtNameLength) <* ows limits
 
   let some name := ExtensionName.ofString? name
     | fail "invalid extension name"
 
   if (← peekWhen? (· == '='.toUInt8)) |>.isSome then
     ows limits *> skipByte '='.toUInt8 *> ows limits
-    let value ← ows limits *> (parseQuotedString limits.maxChunkExtValueLength <|> opt =<< (String.fromUTF8? <$> ByteSlice.toByteArray <$> token limits.maxChunkExtValueLength))
+    let value ← ows limits *> (parseQuotedString limits.maxChunkExtValueLength <|> liftOption =<< (String.fromUTF8? <$> ByteSlice.toByteArray <$> token limits.maxChunkExtValueLength))
 
     return (name, some value)
 
@@ -263,7 +276,7 @@ Parses the size and extensions of a chunk.
 -/
 public def parseChunkSize (limits : H1.Config) : Parser (Nat × Array (ExtensionName × Option String)) := do
   let size ← hex
-  let ext ← many (parseChunkExt limits)
+  let ext ← manyItems (optional (attempt (parseChunkExt limits))) limits.maxChunkExtensions
   crlf
   return (size, ext)
 
@@ -333,7 +346,7 @@ Parses reason phrase (text after status code)
 -/
 def parseReasonPhrase (limits : H1.Config) : Parser String := do
   let bytes ← takeWhileUpTo (fun c => c != '\r'.toUInt8) limits.maxReasonPhraseLength
-  opt <| String.fromUTF8? bytes.toByteArray
+  liftOption<| String.fromUTF8? bytes.toByteArray
 
 /--
 Parses a status line

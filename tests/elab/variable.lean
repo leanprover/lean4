@@ -1,5 +1,7 @@
 /-! # Basic section variable tests -/
 
+set_option linter.unusedSectionVars true
+
 /-! Directly referenced variables should be included. -/
 variable {n : Nat} in
 theorem t1 : n = n := by induction n <;> rfl

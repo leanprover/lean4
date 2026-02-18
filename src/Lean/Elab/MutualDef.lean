@@ -561,7 +561,7 @@ private def elabFunValues (headers : Array DefViewElabHeader) (vars : Array Expr
           withExporting do
             let type ← instantiateMVars type
             Meta.check type
-        if linter.unusedSectionVars.get (← getOptions) && !header.type.hasSorry && !val.hasSorry then
+        if Linter.getLinterValue linter.unusedSectionVars (← Linter.getLinterOptions) && !header.type.hasSorry && !val.hasSorry then
           let unusedVars ← vars.filterMapM fun var => do
             let varDecl ← var.fvarId!.getDecl
             return if sc.includedVars.contains varDecl.userName ||

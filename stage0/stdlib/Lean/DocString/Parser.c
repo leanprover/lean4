@@ -52,9 +52,9 @@ lean_object* l_Lean_Parser_takeWhileFn(lean_object*, lean_object*, lean_object*)
 LEAN_EXPORT lean_object* l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_eatSpaces(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_eatSpaces___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_repFn___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_repFn___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_andthenFn(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_repFn(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_repFn___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_repFn___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Parser_InputContext_atEnd(lean_object*, lean_object*);
 uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
@@ -1184,9 +1184,9 @@ LEAN_EXPORT lean_object* l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_co
 static const lean_closure_object l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_code_takeBackticksFn___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_code_takeBackticksFn___lam__0___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_code_takeBackticksFn___closed__0 = (const lean_object*)&l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_code_takeBackticksFn___closed__0_value;
 LEAN_EXPORT lean_object* l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_code_takeBackticksFn___lam__1(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_code_takeBackticksFn___lam__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_optionalFn(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_code_takeBackticksFn(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_code_takeBackticksFn___lam__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_code_takeBackticksFn___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_code_takeContentsFn___closed__0___boxed__const__1;
 static lean_object* l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_code_takeContentsFn___closed__0;
@@ -2373,6 +2373,15 @@ lean_dec_ref(x_1);
 return x_3;
 }
 }
+LEAN_EXPORT lean_object* l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_repFn___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_repFn___lam__0(x_1, x_2, x_3, x_4);
+lean_dec(x_1);
+return x_5;
+}
+}
 LEAN_EXPORT lean_object* l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_repFn(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -2391,7 +2400,7 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10;
 x_7 = lean_unsigned_to_nat(1u);
 x_8 = lean_nat_sub(x_1, x_7);
 lean_inc_ref(x_2);
-x_9 = lean_alloc_closure((void*)(l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_repFn___lam__0), 4, 2);
+x_9 = lean_alloc_closure((void*)(l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_repFn___lam__0___boxed), 4, 2);
 lean_closure_set(x_9, 0, x_8);
 lean_closure_set(x_9, 1, x_2);
 x_10 = l_Lean_Parser_andthenFn(x_2, x_9, x_3, x_4);
@@ -2404,15 +2413,6 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_repFn(x_1, x_2, x_3, x_4);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_repFn___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_repFn___lam__0(x_1, x_2, x_3, x_4);
-lean_dec(x_1);
 return x_5;
 }
 }
@@ -11872,6 +11872,15 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
+LEAN_EXPORT lean_object* l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_code_takeBackticksFn___lam__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_code_takeBackticksFn___lam__1(x_1, x_2, x_3);
+lean_dec(x_1);
+return x_4;
+}
+}
 LEAN_EXPORT lean_object* l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_code_takeBackticksFn(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -11892,7 +11901,7 @@ else
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
 x_9 = lean_unsigned_to_nat(1u);
 x_10 = lean_nat_sub(x_1, x_9);
-x_11 = lean_alloc_closure((void*)(l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_code_takeBackticksFn___lam__1), 3, 1);
+x_11 = lean_alloc_closure((void*)(l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_code_takeBackticksFn___lam__1___boxed), 3, 1);
 lean_closure_set(x_11, 0, x_10);
 x_12 = l_Lean_Doc_Parser_blockOpener___lam__3___boxed__const__1;
 x_13 = lean_box(x_5);
@@ -11912,15 +11921,6 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_code_takeBackticksFn(x_1, x_2, x_3);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_code_takeBackticksFn___lam__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_code_takeBackticksFn___lam__1(x_1, x_2, x_3);
-lean_dec(x_1);
 return x_4;
 }
 }

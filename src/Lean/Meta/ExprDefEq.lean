@@ -34,16 +34,39 @@ so that `isDefEq` would try harder and unfold semireducible definitions to make 
 **Why `true` is now the default:** The transparency bump meant that every speculative `isDefEq` call
 in proof automation could trigger expensive unfolding of semireducible definitions on implicit
 arguments — and most of these calls *fail*. This eventually became a performance bottleneck in
-Mathlib. With `true`, implicit arguments are checked at the caller's transparency, except
-instance-implicit arguments (`[..]`) which are checked at `TransparencyMode.instances` (to resolve
-instance diamonds).
+Mathlib. With `true`, instance-implicit arguments (`[..]`) are checked at
+`TransparencyMode.instances` (to resolve instance diamonds). Other implicit arguments are checked
+at the caller's transparency unless `backward.isDefEq.implicitBump` is also `true`, in which case
+all implicit arguments are bumped to `.instances`.
 
-See `isDefEqArgs` for the implementation and `TransparencyMode` for the overall design.
+See `isDefEqArgs` for the implementation, `backward.isDefEq.implicitBump` for the implicit
+argument bump, and `TransparencyMode` for the overall design.
 -/
 register_builtin_option backward.isDefEq.respectTransparency : Bool := {
   defValue := true
   descr    := "if true (the default), do not bump transparency to `.default` \
   when checking whether implicit arguments are definitionally equal"
+}
+
+/--
+Controls whether *all* implicit arguments (not just instance-implicit `[..]`) get their
+transparency bumped to `TransparencyMode.instances` during `isDefEq`.
+
+When `true`, all implicit arguments are checked at `.instances`, which unfolds
+`[implicit_reducible]` definitions (instances, `Nat.add`, `Array.size`, etc.). This is the
+intended behavior: users don't choose implicit arguments directly, so Lean should try harder
+to make them match. The `[implicit_reducible]` attribute provides guardrails — only explicitly
+marked definitions get unfolded, not arbitrary semireducible definitions.
+
+When `false` (current default for staging), only instance-implicit arguments (`[..]`) are bumped
+to `.instances`; other implicit arguments stay at the caller's transparency.
+
+This option only has an effect when `backward.isDefEq.respectTransparency` is `true`.
+-/
+register_builtin_option backward.isDefEq.implicitBump : Bool := {
+  defValue := false
+  descr    := "if true, bump transparency to `.instances` for all implicit arguments, \
+  not just instance-implicit ones"
 }
 
 /--
@@ -332,14 +355,17 @@ private partial def isDefEqArgs (f : Expr) (args₁ args₂ : Array Expr) : Meta
     unless (← Meta.isExprDefEqAux args₁[i]! args₂[i]!) do
       return false
   let respectTransparency := backward.isDefEq.respectTransparency.get (← getOptions)
+  let implicitBump := backward.isDefEq.implicitBump.get (← getOptions)
   for i in postponedImplicit do
     /- Second pass: unify implicit arguments.
        When `respectTransparency` is `false` (old behavior), we bump to `.default` so that
        semireducible definitions are unfolded — the rationale being that users don't think about
        implicit arguments and expect them to "just work."
-       When `respectTransparency` is `true` (new behavior), we respect the caller's transparency
-       for non-instance implicits, and use `.instances` for instance-implicit arguments to resolve
-       instance diamonds. See `backward.isDefEq.respectTransparency` for the motivation. -/
+       When `respectTransparency` is `true` and `implicitBump` is `true`, we bump all implicit
+       arguments to `.instances` so that `[implicit_reducible]` definitions are unfolded (instances,
+       `Nat.add`, `Array.size`, etc.) but not arbitrary semireducible definitions.
+       When `respectTransparency` is `true` and `implicitBump` is `false`, only instance-implicit
+       arguments (`[..]`) are bumped to `.instances`. -/
     let a₁   := args₁[i]!
     let a₂   := args₂[i]!
     let info := finfo.paramInfo[i]!
@@ -352,8 +378,10 @@ private partial def isDefEqArgs (f : Expr) (args₁ args₂ : Array Expr) : Meta
     if info.binderInfo.isInstImplicit then
       discard <| trySynthPending a₁
       discard <| trySynthPending a₂
-    if respectTransparency && info.isInstImplicit then -- **TODO**: replace with `isInstance`
-      -- It is an instance, then we must allow at least instances to be unfolded.
+    if respectTransparency && (implicitBump || info.isInstImplicit) then
+      -- Bump to `.instances` so that `[implicit_reducible]` definitions (instances, `Nat.add`,
+      -- `Array.size`, etc.) are unfolded. The user doesn't choose implicit arguments directly,
+      -- so Lean should try harder than the caller's transparency to make them match.
       unless (← withInstanceConfig <| Meta.isExprDefEqAux a₁ a₂) do return false
     else if respectTransparency then
       unless (← Meta.isExprDefEqAux a₁ a₂) do return false
@@ -363,13 +391,11 @@ private partial def isDefEqArgs (f : Expr) (args₁ args₂ : Array Expr) : Meta
   for i in postponedHO do
     let a₁   := args₁[i]!
     let a₂   := args₂[i]!
-    let info := finfo.paramInfo[i]!
-    if info.isInstance then
-      if respectTransparency then
-        unless (← withInstanceConfig <| Meta.isExprDefEqAux a₁ a₂) do return false
-      else
-        -- Old behavior
-        unless (← withInferTypeConfig <| Meta.isExprDefEqAux a₁ a₂) do return false
+    if respectTransparency && (implicitBump || finfo.paramInfo[i]!.isInstance) then
+      unless (← withInstanceConfig <| Meta.isExprDefEqAux a₁ a₂) do return false
+    else if !respectTransparency && finfo.paramInfo[i]!.isInstance then
+      -- Old behavior
+      unless (← withInferTypeConfig <| Meta.isExprDefEqAux a₁ a₂) do return false
     else
       unless (← Meta.isExprDefEqAux a₁ a₂) do return false
   return true

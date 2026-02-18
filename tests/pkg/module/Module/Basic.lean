@@ -423,7 +423,7 @@ meta structure Foo where
 deriving TypeName
 
 /--
-info: @[instance_reducible] private meta def instTypeNameFoo : TypeName Foo :=
+info: @[implicit_reducible] private meta def instTypeNameFoo : TypeName Foo :=
 inst✝
 -/
 #guard_msgs in

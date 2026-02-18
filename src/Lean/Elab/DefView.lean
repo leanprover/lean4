@@ -164,7 +164,7 @@ def mkDefViewOfInstance (modifiers : Modifiers) (stx : Syntax) : CommandElabM De
   -- leading_parser Term.attrKind >> "instance " >> optNamedPrio >> optional declId >> declSig >> declVal
   let attrKind        ← liftMacroM <| toAttributeKind stx[0]
   let prio            ← liftMacroM <| expandOptNamedPrio stx[2]
-  -- NOTE: `[instance_reducible]` is added conditionally in `elabMutualDef`
+  -- NOTE: `[implicit_reducible]` is added conditionally in `elabMutualDef`
   let attrStx         ← `(attr| instance $(quote prio):num)
   let modifiers       := modifiers.addAttr { kind := attrKind, name := `instance, stx := attrStx }
   let (binders, type) := expandDeclSig stx[4]

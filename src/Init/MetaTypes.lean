@@ -47,12 +47,13 @@ Each level unfolds everything the previous level does, plus more:
   (e.g., discrimination tree lookups in `simp`, type class resolution). Think of `[reducible]` as
   `[inline]` for type checking and indexing.
 
-- **`instances`**: Also unfolds `[instance_reducible]` definitions. Instance diamonds are common:
+- **`instances`**: Also unfolds `[implicit_reducible]` definitions. Instance diamonds are common:
   for example, `Add Nat` can come from a direct instance or via `Semiring`. These instances are all
   definitionally equal but structurally different, so `isDefEq` must unfold them to confirm equality.
-  However, instances must not be *eagerly* reduced (they become huge terms), and discrimination trees
-  do not index instances. This makes `.instances` safe for speculative checks involving instance
-  arguments without the performance cost of `.default`.
+  This level also handles definitions used in types that appear in implicit arguments (e.g.,
+  `Nat.add`, `Array.size`). However, these definitions must not be *eagerly* reduced (instances
+  become huge terms), and discrimination trees do not index them. This makes `.instances` safe for
+  speculative checks involving implicit arguments without the performance cost of `.default`.
 
 - **`default`**: Also unfolds `[semireducible]` definitions (anything not `[irreducible]`).
   Used for type checking user input where we want to try hard.
@@ -82,11 +83,11 @@ inductive TransparencyMode where
   `isDefEq` in proof automation (`simp`, `rw`, type class resolution) where most checks fail
   and we must not try too hard. -/
   | reducible
-  /-- Unfolds reducible constants and constants tagged with `@[instance_reducible]`.
-  Used for checking instance-implicit arguments during proof automation, and for unfolding
+  /-- Unfolds reducible constants and constants tagged with `@[implicit_reducible]`.
+  Used for checking implicit arguments during proof automation, and for unfolding
   class projections applied to instances. Instance diamonds (e.g., `Add Nat` from a direct instance
   vs from `Semiring`) are definitionally equal but structurally different, so `isDefEq` must unfold
-  them. -/
+  them. Also handles definitions used in types of implicit arguments (e.g., `Nat.add`, `Array.size`). -/
   | instances
   /-- Do not unfold anything. -/
   | none

@@ -423,7 +423,7 @@ def elabSimpLocals (thms : SimpTheorems) (kind : SimpKind) : MetaM SimpTheorems 
   for (name, ci) in env.constants.map₂.toList do
     -- Skip internal details, but allow private names (which are accessible from current module)
     if name.isInternalDetail && !isPrivateName name then continue
-    if (← isInstanceReducible name) then continue
+    if (← isImplicitReducible name) then continue
     match ci with
     | .defnInfo _ =>
       -- Definitions are added to unfold

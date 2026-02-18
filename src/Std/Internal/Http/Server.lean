@@ -9,6 +9,7 @@ prelude
 public import Std.Internal.Async
 public import Std.Internal.Async.TCP
 public import Std.Sync.CancellationToken
+public import Std.Sync.Semaphore
 public import Std.Internal.Http.Server.Config
 public import Std.Internal.Http.Server.Handler
 public import Std.Internal.Http.Server.Connection
@@ -50,6 +51,12 @@ structure Server where
   activeConnections : Std.Mutex UInt64
 
   /--
+  Semaphore used to enforce the maximum number of simultaneous active connections.
+  `none` means no connection limit.
+  -/
+  connectionLimit : Option Std.Semaphore
+
+  /--
   Indicates when the server has successfully shut down.
   -/
   shutdownPromise : Std.Channel Unit
@@ -67,9 +74,14 @@ Create a new `Server` structure with an optional configuration.
 def new (config : Std.Http.Config := {}) : IO Server := do
   let context ← Std.CancellationContext.new
   let activeConnections ← Std.Mutex.new 0
+  let connectionLimit ←
+    if config.maxConnections = 0 then
+      pure none
+    else
+      some <$> Std.Semaphore.new config.maxConnections
   let shutdownPromise ← Std.Channel.new
 
-  return { context, activeConnections, shutdownPromise, config }
+  return { context, activeConnections, connectionLimit, shutdownPromise, config }
 
 /--
 Triggers cancellation of all requests and the accept loop in the server. This function should be used
@@ -103,11 +115,16 @@ def shutdownAndWait (s : Server) : Async Unit := do
   s.waitShutdown
 
 @[inline]
-private def frameCancellation (s : Server) (action : ContextAsync α) : ContextAsync α := do
+private def frameCancellation (s : Server) (releaseConnectionPermit : Bool := false)
+    (action : ContextAsync α) : ContextAsync α := do
   s.activeConnections.atomically (modify (· + 1))
   try
     action
   finally
+    if releaseConnectionPermit then
+      if let some limit := s.connectionLimit then
+        limit.release
+
     s.activeConnections.atomically do
       modify (· - 1)
 
@@ -130,7 +147,7 @@ def serve {σ : Type} [Handler σ]
   server.listen backlog
 
   let runServer := do
-    frameCancellation httpServer do
+    frameCancellation httpServer (action := do
       while true do
         let result ← Selectable.one #[
           .case (server.acceptSelector) (fun x => pure <| some x),
@@ -139,12 +156,28 @@ def serve {σ : Type} [Handler σ]
 
         match result with
         | some client =>
-          let extensions : Extensions := match (← EIO.toBaseIO client.getPeerName) with
-            | .ok addr => Extensions.empty.insert (Server.RemoteAddr.mk addr)
-            | .error _ => Extensions.empty
+          if let some limit := httpServer.connectionLimit then
+            if ← limit.tryAcquire then
+              let extensions : Extensions := match (← EIO.toBaseIO client.getPeerName) with
+                | .ok addr => Extensions.empty.insert (Server.RemoteAddr.mk addr)
+                | .error _ => Extensions.empty
 
-          ContextAsync.background (frameCancellation httpServer (serveConnection client handler config extensions))
+              ContextAsync.background
+                (frameCancellation httpServer (releaseConnectionPermit := true)
+                  (action := serveConnection client handler config extensions))
+            else
+              -- Drop the connection immediately by shutting down the write side.
+              let _ ← client.shutdown
+          else
+            let extensions : Extensions := match (← EIO.toBaseIO client.getPeerName) with
+              | .ok addr => Extensions.empty.insert (Server.RemoteAddr.mk addr)
+              | .error _ => Extensions.empty
+
+            ContextAsync.background
+              (frameCancellation httpServer (releaseConnectionPermit := true)
+                (action := serveConnection client handler config extensions))
         | none => break
+    )
 
   background (runServer httpServer.context)
 

@@ -27,6 +27,12 @@ Connection limits configuration with validation.
 -/
 structure Config where
   /--
+  Maximum number of simultaneous active connections (default: 1024).
+  Set to 0 to disable the limit.
+  -/
+  maxConnections : Nat := 1024
+
+  /--
   Maximum number of requests per connection.
   -/
   maxRequests : Nat := 100

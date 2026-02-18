@@ -113,7 +113,8 @@ private def receiveWithTimeout {α}
   if let some socket := socket then
     baseSelectables := baseSelectables.push (.case (Transport.recvSelector socket expect) (Recv.bytes · |> pure))
 
-    -- Timeouts are only applied if we are not expecting data from the user.
+    -- Only apply an idle timeout when no active body stream or pending response is in
+    -- flight; during active data transfer the timeout is managed by the transfer itself.
     if responseBody.isNone ∧ requestBody.isNone ∧ response.isNone then
       if let some keepAliveTimeout := keepAliveTimeoutMs then
         baseSelectables := baseSelectables.push (.case (← Selector.sleep keepAliveTimeout) (fun _ => pure .timeout))
@@ -132,8 +133,9 @@ private def receiveWithTimeout {α}
   Selectable.one baseSelectables
 
 private def processNeedMoreData
-    [Transport α]
+    {σ : Type} [Transport α] [Handler σ]
     (config : Config)
+    (handler : σ)
     (socket : Option α)
     (expect : Option Nat)
     (response : Option (Std.Channel (Except Error (Response Body.Outgoing))))
@@ -149,7 +151,8 @@ private def processNeedMoreData
       |>.toUInt64
 
     receiveWithTimeout socket expectedBytes responseBody requestBody response timeout keepAliveTimeout connectionContext
-  catch _ =>
+  catch e =>
+    Handler.onFailure handler e
     pure .close
 
 private def handleError (machine : H1.Machine .receiving) (status : Status) (waitingResponse : Bool) : H1.Machine .receiving × Bool :=
@@ -276,7 +279,7 @@ private def handle
       requiresData := false
 
       let event ← processNeedMoreData
-        config socket expectData answer respStream requestBody currentTimeout keepAliveTimeout connectionContext
+        config handler socket expectData answer respStream requestBody currentTimeout keepAliveTimeout connectionContext
 
       match event with
       | .bytes (some bs) =>

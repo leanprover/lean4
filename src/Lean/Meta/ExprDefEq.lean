@@ -21,6 +21,25 @@ register_builtin_option backward.isDefEq.lazyWhnfCore : Bool := {
   descr    := "specifies transparency mode when normalizing constraints of the form `(f a).i =?= s`, if `true` only reducible definitions and instances are unfolded when reducing `f a`. Otherwise, the default setting is used"
 }
 
+/--
+Controls how implicit arguments are handled in `isDefEq` during proof automation.
+
+**Original behavior (`false`):** When `simp`, `rw`, or similar tactics apply a lemma, explicit
+arguments are matched at the caller's transparency (typically `.reducible`). But implicit arguments
+are "invisible" to the user — they don't choose them directly. If a lemma fails to apply because
+an implicit argument doesn't match at `.reducible`, the user sees a confusing failure with no
+obvious cause. To avoid this, we originally bumped transparency to `.default` for implicit arguments,
+so that `isDefEq` would try harder and unfold semireducible definitions to make them match.
+
+**Why `true` is now the default:** The transparency bump meant that every speculative `isDefEq` call
+in proof automation could trigger expensive unfolding of semireducible definitions on implicit
+arguments — and most of these calls *fail*. This eventually became a performance bottleneck in
+Mathlib. With `true`, implicit arguments are checked at the caller's transparency, except
+instance-implicit arguments (`[..]`) which are checked at `TransparencyMode.instances` (to resolve
+instance diamonds).
+
+See `isDefEqArgs` for the implementation and `TransparencyMode` for the overall design.
+-/
 register_builtin_option backward.isDefEq.respectTransparency : Bool := {
   defValue := true
   descr    := "if true (the default), do not bump transparency to `.default` \
@@ -315,8 +334,12 @@ private partial def isDefEqArgs (f : Expr) (args₁ args₂ : Array Expr) : Meta
   let respectTransparency := backward.isDefEq.respectTransparency.get (← getOptions)
   for i in postponedImplicit do
     /- Second pass: unify implicit arguments.
-       In the second pass, we make sure we are unfolding at
-       least non reducible definitions (default setting). -/
+       When `respectTransparency` is `false` (old behavior), we bump to `.default` so that
+       semireducible definitions are unfolded — the rationale being that users don't think about
+       implicit arguments and expect them to "just work."
+       When `respectTransparency` is `true` (new behavior), we respect the caller's transparency
+       for non-instance implicits, and use `.instances` for instance-implicit arguments to resolve
+       instance diamonds. See `backward.isDefEq.respectTransparency` for the motivation. -/
     let a₁   := args₁[i]!
     let a₂   := args₂[i]!
     let info := finfo.paramInfo[i]!

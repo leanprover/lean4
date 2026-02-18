@@ -10,7 +10,21 @@ public section
 namespace Lean
 
 /--
-Reducibility status for a definition.
+Reducibility status for a definition. Controls when `isDefEq` and `whnf` are allowed to unfold it.
+See `TransparencyMode` for the full design rationale.
+
+- **`reducible`**: Unfolded at `TransparencyMode.reducible` or above. Reducible definitions still
+  appear in user-facing terms, but are eagerly unfolded when indexing terms into discrimination
+  trees (`simp`, type class resolution) and in `grind`. Think of it as `[inline]` for indexing.
+  Suitable for abbreviations and definitions that should be transparent to proof automation.
+- **`instanceReducible`**: Unfolded at `TransparencyMode.instances` or above. Used for type class
+  instances. Instances cannot be eagerly reduced (they expand into large terms), but must be
+  unfoldable to resolve instance diamonds (e.g., `Add Nat` via direct instance vs via `Semiring`).
+- **`semireducible`**: The default. Unfolded at `TransparencyMode.default` or above. Used for
+  ordinary definitions. Suitable for user-written code where `isDefEq` should try hard during
+  type checking, but not during speculative proof automation.
+- **`irreducible`**: Only unfolded at `TransparencyMode.all`. The definition body is effectively
+  hidden from `isDefEq` in normal usage.
 -/
 inductive ReducibilityStatus where
   | reducible | semireducible | irreducible | instanceReducible
@@ -177,6 +191,18 @@ builtin_initialize
     applicationTime := .afterTypeChecking
  }
 
+/--
+Marks a definition as `[instance_reducible]`, meaning it is unfolded at
+`TransparencyMode.instances` or above but *not* at `TransparencyMode.reducible`.
+
+This attribute decouples whether a definition participates in type class resolution
+(the `[instance]` attribute) from its transparency. The `instance` command automatically
+adds both `[instance]` and `[instance_reducible]`.
+
+When using `attribute [instance]` on an existing definition, you typically also need
+`attribute [instance_reducible]` so that `isDefEq` can unfold the definition when resolving
+instance diamonds.
+-/
 builtin_initialize
   registerBuiltinAttribute {
     ref             := by exact decl_name%

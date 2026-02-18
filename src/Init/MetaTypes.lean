@@ -25,18 +25,70 @@ structure Module where
 namespace Meta
 
 /--
-Which constants should be unfolded?
+Controls which constants `isDefEq` (definitional equality) and `whnf` (weak head normal form)
+are allowed to unfold.
+
+## Background: "try-hard" vs "speculative" modes
+
+During **type checking of user input**, we assume the input is most likely correct, and we want
+Lean to try hard before reporting a failure. Here, it is fine to unfold `[semireducible]` definitions
+(the `.default` setting).
+
+During **proof automation** (`simp`, `rw`, type class resolution), we perform many speculative
+`isDefEq` calls — most of which *fail*. In this setting, we do *not* want to try hard: unfolding
+too many definitions is a performance footgun. This is why `.reducible` exists.
+
+## The transparency hierarchy
+
+The levels form a linear order: `none < reducible < instances < default < all`.
+Each level unfolds everything the previous level does, plus more:
+
+- **`reducible`**: Only unfolds `[reducible]` definitions. Used for speculative `isDefEq` checks
+  (e.g., discrimination tree lookups in `simp`, type class resolution). Think of `[reducible]` as
+  `[inline]` for type checking and indexing.
+
+- **`instances`**: Also unfolds `[instance_reducible]` definitions. Instance diamonds are common:
+  for example, `Add Nat` can come from a direct instance or via `Semiring`. These instances are all
+  definitionally equal but structurally different, so `isDefEq` must unfold them to confirm equality.
+  However, instances must not be *eagerly* reduced (they become huge terms), and discrimination trees
+  do not index instances. This makes `.instances` safe for speculative checks involving instance
+  arguments without the performance cost of `.default`.
+
+- **`default`**: Also unfolds `[semireducible]` definitions (anything not `[irreducible]`).
+  Used for type checking user input where we want to try hard.
+
+- **`all`**: Also unfolds `[irreducible]` definitions. Rarely used.
+
+## Implicit arguments and transparency
+
+When proof automation (e.g., `simp`, `rw`) applies a lemma, explicit arguments are checked at the
+caller's transparency (typically `.reducible`). But implicit arguments are often "invisible" to the
+user — if a lemma fails to apply because of an implicit argument mismatch, the user is confused.
+Historically, Lean bumped transparency to `.default` for implicit arguments, but this eventually
+became a performance bottleneck in Mathlib. The option `backward.isDefEq.respectTransparency`
+(default: `true`) disables this bump. Instead, instance-implicit arguments (`[..]`) are checked at
+`.instances`, and other implicit arguments are checked at the caller's transparency.
+
+See also: `ReducibilityStatus`, `backward.isDefEq.respectTransparency`,
+`backward.whnf.reducibleClassField`.
 -/
 inductive TransparencyMode where
   /-- Unfolds all constants, even those tagged as `@[irreducible]`. -/
   | all
-  /-- Unfolds all constants except those tagged as `@[irreducible]`. -/
+  /-- Unfolds all constants except those tagged as `@[irreducible]`. Used for type checking
+  user-written terms where we expect the input to be correct and want to try hard. -/
   | default
-  /-- Unfolds only constants tagged with the `@[reducible]` attribute. -/
+  /-- Unfolds only constants tagged with the `@[reducible]` attribute. Used for speculative
+  `isDefEq` in proof automation (`simp`, `rw`, type class resolution) where most checks fail
+  and we must not try too hard. -/
   | reducible
-  /-- Unfolds reducible constants and constants tagged with the `@[instance]` attribute. -/
+  /-- Unfolds reducible constants and constants tagged with `@[instance_reducible]`.
+  Used for checking instance-implicit arguments during proof automation, and for unfolding
+  class projections applied to instances. Instance diamonds (e.g., `Add Nat` from a direct instance
+  vs from `Semiring`) are definitionally equal but structurally different, so `isDefEq` must unfold
+  them. -/
   | instances
-  /-- Do not unfold anything -/
+  /-- Do not unfold anything. -/
   | none
   deriving Inhabited, BEq
 

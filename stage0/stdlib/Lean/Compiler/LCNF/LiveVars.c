@@ -1820,7 +1820,7 @@ lean_ctor_set(x_133, 0, x_132);
 return x_133;
 }
 }
-default: 
+case 8:
 {
 lean_object* x_134; lean_object* x_135; lean_object* x_136; uint8_t x_137; 
 x_134 = lean_ctor_get(x_2, 0);
@@ -1877,6 +1877,39 @@ lean_ctor_set(x_144, 1, x_4);
 x_145 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_145, 0, x_144);
 return x_145;
+}
+}
+default: 
+{
+lean_object* x_146; lean_object* x_147; uint8_t x_148; 
+x_146 = lean_ctor_get(x_2, 0);
+lean_inc(x_146);
+x_147 = lean_ctor_get(x_2, 2);
+lean_inc_ref(x_147);
+lean_dec_ref(x_2);
+x_148 = l_Lean_instBEqFVarId_beq(x_146, x_1);
+lean_dec(x_146);
+if (x_148 == 0)
+{
+x_2 = x_147;
+goto _start;
+}
+else
+{
+lean_object* x_150; lean_object* x_151; lean_object* x_152; 
+lean_dec_ref(x_147);
+lean_dec(x_8);
+lean_dec_ref(x_7);
+lean_dec(x_6);
+lean_dec_ref(x_5);
+lean_dec_ref(x_3);
+x_150 = lean_box(x_148);
+x_151 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_151, 0, x_150);
+lean_ctor_set(x_151, 1, x_4);
+x_152 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_152, 0, x_151);
+return x_152;
 }
 }
 }

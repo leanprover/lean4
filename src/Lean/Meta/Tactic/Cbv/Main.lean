@@ -24,23 +24,23 @@ public register_builtin_option cbv.warning : Bool := {
   descr    := "disable `cbv` usage warning"
 }
 
-def tryMatchEquations (appFn : Name) : Simproc := Simproc.tryCatch fun e => do
+def tryMatchEquations (appFn : Name) : Simproc := fun e => do
   let thms ← getMatchTheorems appFn
-  thms.rewrite (d := dischargeNone) e
+  Simproc.tryCatch (thms.rewrite (d := dischargeNone)) e
 
-def tryEquations : Simproc := Simproc.tryCatch fun e => do
+def tryEquations : Simproc := fun e => do
   unless e.isApp do
     return .rfl
   let some appFn := e.getAppFn.constName? | return .rfl
   let thms ← getEqnTheorems appFn
-  thms.rewrite (d := dischargeNone) e
+  Simproc.tryCatch (thms.rewrite (d := dischargeNone)) e
 
-def tryUnfold : Simproc := Simproc.tryCatch fun e => do
+def tryUnfold : Simproc := fun e => do
   unless e.isApp do
     return .rfl
   let some appFn := e.getAppFn.constName? | return .rfl
   let some thm ← getUnfoldTheorem appFn | return .rfl
-  Theorem.rewrite thm e
+  Simproc.tryCatch (fun e => Theorem.rewrite thm e) e
 
 def tryMatcher : Simproc := fun e => do
   unless e.isApp do
@@ -66,10 +66,10 @@ def betaReduce : Simproc := fun e => do
   let new ← Sym.share new
   return .step new (← Sym.mkEqRefl new)
 
-def tryCbvTheorems : Simproc := Simproc.tryCatch fun e => do
+def tryCbvTheorems : Simproc := fun e => do
   let some fnName := e.getAppFn.constName? | return .rfl
   let some evalLemmas ← getCbvEvalLemmas fnName | return .rfl
-  Theorems.rewrite evalLemmas (d := dischargeNone) e
+  Simproc.tryCatch (Theorems.rewrite evalLemmas (d := dischargeNone)) e
 
 def handleApp : Simproc := fun e => do
   unless e.isApp do return .rfl
@@ -160,7 +160,7 @@ def simplifyAppFn : Simproc := fun e => do
       let newProof ← mkCongrArg congrArgFun proof
       return .step newValue newProof
 
-def handleConst : Simproc := Simproc.tryCatch fun e => do
+def handleConst : Simproc := fun e => do
   let .const n _ := e | return .rfl
   let info ← getConstInfo n
   unless info.isDefinition do return .rfl
@@ -170,7 +170,7 @@ def handleConst : Simproc := Simproc.tryCatch fun e => do
     return .rfl
   -- TODO: Check if we need to look if we applied all the levels correctly
   let some thm ← getUnfoldTheorem n | return .rfl
-  Theorem.rewrite thm e
+  Simproc.tryCatch (fun e => Theorem.rewrite thm e) e
 
 def cbvPreStep : Simproc := fun e => do
   match e with

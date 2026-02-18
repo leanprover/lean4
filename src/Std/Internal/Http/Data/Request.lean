@@ -29,7 +29,7 @@ The main parts of a request containing the HTTP method, version, and request tar
 -/
 structure Request.Head where
   /--
-  The HTTP method (GET, POST, PUT, DELETE, etc.) for the request
+  The HTTP method (GET, POST, PUT, DELETE, etc.) for the request.
   -/
   method : Method := .get
 
@@ -39,27 +39,27 @@ structure Request.Head where
   version : Version := .v11
 
   /--
-  The request target/URI indicating the resource being requested
+  The request target/URI indicating the resource being requested.
   -/
   uri : String := "*"
 
   /--
-  Collection of HTTP headers for the request (Content-Type, Authorization, etc.)
+  Collection of HTTP headers for the request (Content-Type, Authorization, etc.).
   -/
   headers : Headers := .empty
 deriving Inhabited, Repr
 
 /--
-HTTP request structure parameterized by body type
+HTTP request structure parameterized by body type.
 -/
 structure Request (t : Type) where
   /--
-  The request headers and metadata
+  The request headers and metadata.
   -/
   head : Request.Head
 
   /--
-  The request body content of type t
+  The request body content of type t.
   -/
   body : t
 
@@ -70,11 +70,11 @@ structure Request (t : Type) where
 deriving Inhabited
 
 /--
-Builds an HTTP Request
+Builds an HTTP Request.
 -/
 structure Request.Builder where
   /--
-  The head of the request
+  The head of the request.
   -/
   head : Head := {}
 
@@ -121,37 +121,37 @@ Creates a new HTTP request builder with the default head
 def empty : Builder := { }
 
 /--
-Sets the HTTP method for the request being built
+Sets the HTTP method for the request being built.
 -/
 def method (builder : Builder) (method : Method) : Builder :=
   { builder with head := { builder.head with method := method } }
 
 /--
-Sets the HTTP version for the request being built
+Sets the HTTP version for the request being built.
 -/
 def version (builder : Builder) (version : Version) : Builder :=
   { builder with head := { builder.head with version := version } }
 
 /--
-Sets the request target/URI for the request being built
+Sets the request target/URI for the request being built.
 -/
 def uri (builder : Builder) (uri : String) : Builder :=
   { builder with head := { builder.head with uri := uri } }
 
 /--
-Sets the headers for the request being built
+Sets the headers for the request being built.
 -/
 def headers (builder : Builder) (headers : Headers) : Builder :=
   { builder with head := { builder.head with headers } }
 
 /--
-Adds a single header to the request being built
+Adds a single header to the request being built.
 -/
 def header (builder : Builder) (key : Header.Name) (value : Header.Value) : Builder :=
   { builder with head := { builder.head with headers := builder.head.headers.insert key value } }
 
 /--
-Adds a single header to the request being built, panics if the header is invalid
+Adds a single header to the request being built, panics if the header is invalid.
 -/
 def header! (builder : Builder) (key : String) (value : String) : Builder :=
   let key := Header.Name.ofString! key
@@ -168,7 +168,7 @@ def header? (builder : Builder) (key : String) (value : String) : Option Builder
   pure <| { builder with head := { builder.head with headers := builder.head.headers.insert key value } }
 
 /--
-Adds a header to the request being built only if the Option Header.Value is some
+Adds a header to the request being built only if the Option Header.Value is some.
 -/
 def headerOpt (builder : Builder) (key : Header.Name) (value : Option Header.Value) : Builder :=
   match value with
@@ -182,7 +182,7 @@ def extension (builder : Builder) [TypeName α] (data : α) : Builder :=
   { builder with extensions := builder.extensions.insert data }
 
 /--
-Builds and returns the final HTTP Request with the specified body
+Builds and returns the final HTTP Request with the specified body.
 -/
 def body (builder : Builder) (body : t) : Request t :=
   { head := builder.head, body := body, extensions := builder.extensions }
@@ -190,7 +190,7 @@ def body (builder : Builder) (body : t) : Request t :=
 end Builder
 
 /--
-Creates a new HTTP GET Request with the specified URI
+Creates a new HTTP GET Request with the specified URI.
 -/
 def get (uri : String) : Builder :=
   new
@@ -214,7 +214,7 @@ def put (uri : String) : Builder :=
   |>.uri uri
 
 /--
-Creates a new HTTP DELETE Request builder with the specified URI
+Creates a new HTTP DELETE Request builder with the specified URI.
 -/
 def delete (uri : String) : Builder :=
   new
@@ -222,7 +222,7 @@ def delete (uri : String) : Builder :=
   |>.uri uri
 
 /--
-Creates a new HTTP PATCH Request builder with the specified URI
+Creates a new HTTP PATCH Request builder with the specified URI.
 -/
 def patch (uri : String) : Builder :=
   new
@@ -257,7 +257,7 @@ def connect (uri : String) : Builder :=
   |>.uri uri
 
 /--
-Creates a new HTTP TRACE Request builder with the specified URI
+Creates a new HTTP TRACE Request builder with the specified URI.
 -/
 def trace (uri : String) : Builder :=
   new

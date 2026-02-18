@@ -49,12 +49,12 @@ structure Name where
   value : String
 
   /--
-  The proof that it's a valid header name
+  The proof that it's a valid header name.
   -/
   validHeaderName : IsValidHeaderName value := by decide
 
   /--
-  The proof that we stored the header name in normal form
+  The proof that we stored the header name in normal form.
   -/
   normalForm : IsLowerCase value := by decide
 deriving Repr, DecidableEq, BEq
@@ -115,57 +115,57 @@ instance : ToString Name where
   toString name := name.toCanonical
 
 /--
-Standard Content-Type header name
+Standard Content-Type header name.
 -/
 def contentType : Header.Name := .mk "content-type"
 
 /--
-Standard Content-Length header name
+Standard Content-Length header name.
 -/
 def contentLength : Header.Name := .mk "content-length"
 
 /--
-Standard Host header name
+Standard Host header name.
 -/
 def host : Header.Name := .mk "host"
 
 /--
-Standard Authorization header name
+Standard Authorization header name.
 -/
 def authorization : Header.Name := .mk "authorization"
 
 /--
-Standard User-Agent header name
+Standard User-Agent header name.
 -/
 def userAgent : Header.Name := .mk "user-agent"
 
 /--
-Standard Accept header name
+Standard Accept header name.
 -/
 def accept : Header.Name := .mk "accept"
 
 /--
-Standard Connection header name
+Standard Connection header name.
 -/
 def connection : Header.Name := .mk "connection"
 
 /--
-Standard Transfer-Encoding header name
+Standard Transfer-Encoding header name.
 -/
 def transferEncoding : Header.Name := .mk "transfer-encoding"
 
 /--
-Standard Server header name
+Standard Server header name.
 -/
 def server : Header.Name := .mk "server"
 
 /--
-Standard Date header name
+Standard Date header name.
 -/
 def date : Header.Name := .mk "date"
 
 /--
-Standard Expect header name
+Standard Expect header name.
 -/
 def expect : Header.Name := .mk "expect"
 

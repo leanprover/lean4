@@ -135,6 +135,8 @@ static void panic_eprintln(char const * line, bool force_stderr) {
     panic_eprintln(line, strlen(line), force_stderr);
 }
 
+static bool g_in_demangle = false;
+
 static void print_backtrace(bool force_stderr) {
 #if LEAN_SUPPORTS_BACKTRACE
     void * bt_buf[100];
@@ -142,10 +144,12 @@ static void print_backtrace(bool force_stderr) {
     if (char ** symbols = backtrace_symbols(bt_buf, nptrs)) {
         bool raw = getenv("LEAN_BACKTRACE_RAW");
         for (int i = 0; i < nptrs; i++) {
-            if (!raw) {
+            if (!raw && !g_in_demangle) {
+                g_in_demangle = true;
                 lean_object * line_obj = lean_mk_string(symbols[i]);
                 lean_object * result = lean_demangle_bt_line_cstr(line_obj);
                 char const * result_str = lean_string_cstr(result);
+                g_in_demangle = false;
                 if (result_str[0] != '\0') {
                     panic_eprintln(result_str, force_stderr);
                     lean_dec(result);

@@ -37,6 +37,6 @@ example : Goal 20 := by
   all_goals sorry
 -/
 
-#eval runBenchUsingTactic ``Goal [``loop, ``step] `(tactic| mvcgen' <;> sorry)
-  [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]
+#eval runBenchUsingTactic ``Goal [``loop, ``step] `(tactic| mvcgen') `(tactic| sorry)
+  [100, 500, 1000]
   -- [1000]

@@ -38,6 +38,9 @@ theorem cond_cond_eq_false {α : Sort u} (c : Bool) (a b : α) (h : c = false) :
 theorem cond_cond_congr {α : Sort u} (c : Bool) (a b : α) (c' : Bool) (h : c = c') : cond c a b = cond c' a b := by
   simp [*]
 
+theorem decide_eq_true {p : Prop} {_ : Decidable p} : p = True → decide p = true := by simp
+theorem decide_eq_false {p : Prop} {_ : Decidable p} : p = False → decide p = false := by simp
+
 theorem Nat.lt_eq_true (a b : Nat) (h : decide (a < b) = true) : (a < b) = True := by simp_all
 theorem Int.lt_eq_true (a b : Int) (h : decide (a < b) = true) : (a < b) = True := by simp_all
 theorem Rat.lt_eq_true (a b : Rat) (h : decide (a < b) = true) : (a < b) = True := by simp_all

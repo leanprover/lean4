@@ -21,6 +21,47 @@ import Lean.Meta.Tactic.Cbv.TheoremsLookup
 namespace Lean.Meta.Sym.Simp
 open Internal
 
+public def simpDecideCbv : Simproc := fun e => do
+  let numArgs := e.getAppNumArgs
+  if numArgs < 2 then return .rfl (done := true)
+  propagateOverApplied e (numArgs - 2) fun e => do
+    let_expr decide p h := e | return .rfl
+    match (← simp p) with
+    | .rfl _ =>
+      if (← isTrueExpr p) then
+        let proof := mkApp (mkConst ``decide_true) h
+        return .step (← getBoolTrueExpr) proof (done := true)
+      else if (← isFalseExpr p) then
+        let proof := mkApp (mkConst ``decide_false) h
+        return .step (← getBoolFalseExpr) proof (done := true)
+      else
+        return .rfl
+    | .step p' hp _ =>
+      if (← isTrueExpr p') then
+        let proof := mkApp3 (mkConst ``Sym.decide_eq_true) p h hp
+        return .step (← getBoolTrueExpr) proof (done := true)
+      else if (← isFalseExpr p') then
+        let proof := mkApp3 (mkConst ``Sym.decide_eq_false) p h hp
+        return .step (← getBoolFalseExpr) proof (done := true)
+      else
+        let newInst := mkApp4 (mkConst ``decidable_of_decidable_of_eq) p p' h hp
+        let proof := mkApp5 (mkConst ``Decidable.decide.congr_simp) p p' hp h newInst
+        match (← simp newInst) with
+        | .rfl _ => return .rfl
+        | .step reducedTerm _ _ =>
+          if (reducedTerm.isAppOf ``Decidable.isTrue) then
+            let hp := reducedTerm.getArg! 1
+            let newProof := mkApp3 (mkConst ``decide_eq_true) p' newInst hp
+            let newProof ← Meta.mkEqTrans proof newProof
+            return .step (← getBoolTrueExpr) newProof (done := true)
+          else if (reducedTerm.isAppOf ``Decidable.isFalse) then
+            let hp := reducedTerm.getArg! 1
+            let newProof := mkApp3 (mkConst ``decide_eq_false) p' newInst hp
+            let newProof ← Meta.mkEqTrans proof newProof
+            return .step (← getBoolFalseExpr) newProof (done := true)
+          else
+            return .rfl (done := true)
+
 public def simpIteCbv : Simproc := fun e => do
   let numArgs := e.getAppNumArgs
   if numArgs < 5 then return .rfl (done := true)
@@ -37,7 +78,7 @@ public def simpIteCbv : Simproc := fun e => do
         let evalRes ← simp toEval
         match evalRes with
         | .rfl _ =>
-          return .rfl (done := true)
+          return .rfl
         | .step v hv _ =>
           if (← isBoolTrueExpr v) then
             let h' := mkApp3 (mkConst ``eq_true_of_decide) c inst' hv
@@ -60,14 +101,15 @@ public def simpIteCbv : Simproc := fun e => do
             let hb ← mkEqTrans e e' h' b hb
             return .step b hb (done := false)
           else
-            return .rfl (done := true)
+            return .rfl
     | .step c' h _ =>
       if (← isTrueExpr c') then
         return .step a <| mkApp (e.replaceFn ``ite_cond_eq_true) h
       else if (← isFalseExpr c') then
         return .step b <| mkApp (e.replaceFn ``ite_cond_eq_false) h
       else
-        let .some inst' ← trySynthInstance (mkApp (mkConst ``Decidable) c') | return .rfl
+        throwError "Impossible"
+        let inst' := mkApp4 (mkConst ``decidable_of_decidable_of_eq) c c' inst' h
         let inst' ← shareCommon inst'
         let e' := e.getBoundedAppFn 4
         let e' ← mkAppS₄ e' c' inst' a b
@@ -133,7 +175,7 @@ public def simpDIteCbv : Simproc := fun e => do
         let b ← share <| b.betaRev #[h']
         return .step b <| mkApp (e.replaceFn ``dite_cond_eq_false) h
       else
-        let .some inst' ← trySynthInstance (mkApp (mkConst ``Decidable) c') | return .rfl
+        let inst' := mkApp4 (mkConst ``decidable_of_decidable_of_eq) c c' inst' h
         let inst' ← shareCommon inst'
         let e' := e.getBoundedAppFn 4
         let h ← shareCommon h
@@ -156,6 +198,7 @@ public def reduceRecMatcher : Simproc := fun e => do
   if let some e' ← reduceRecMatcher? e then
     return .step e' (← Sym.mkEqRefl e')
   else
+    trace[Meta.Tactic] "Could not reduce matcher application: {e}"
     return .rfl
 
 def tryMatcher : Simproc := fun e => do
@@ -181,6 +224,8 @@ public def simpControlCbv : Simproc := fun e => do
     simpCond e
   else if declName == ``dite then
     simpDIteCbv e
+  else if declName == ``decide then
+    simpDecideCbv <| e
   else if declName == ``Decidable.rec then
     -- We force the rewrite in the last argument, so that we can unfold the `Decidable` instance.
     (simpInterlaced · #[false,false,true,true,true]) >> reduceRecMatcher <| e

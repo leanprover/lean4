@@ -578,7 +578,7 @@ After constructor elaboration, inductive type declarations still often have univ
 They may appear anywhere:
 - in types of inductive parameters/indices
 - in the resulting universe level of the type former
-- and in constructor fields.
+- and in constructor fields (i.e. those parameters after inductive parameters).
 
 The resulting universe has a strong bearing on what sort of inference we can do:
 - If it is `Prop`, the type is an *inductive predicate*,
@@ -587,11 +587,11 @@ The resulting universe has a strong bearing on what sort of inference we can do:
 
 There are certain cases where we choose to infer `Prop` for the resulting universe.
 Recall that an inductive type is a *syntactic subsingleton* if any two terms of that type
-are definitionally equal. Syntactic subsingletons can eliminate into `Type`, so can be pattern matched.
+are definitionally equal. Syntactic subsingletons can eliminate into `Type`, hence can be pattern matched.
 This justifies setting the resulting universe `Prop` if a type is "obviously" meant to be an inductive predicate.
 Roughly, we say an inductive type is "obviously" meant to be an inductive predicate if the type
 is not recursive, has exactly one constructor, the constructor has at least one field, and every field is `Prop`.
-See `isPropCandidate`.
+See `isPropCandidate` for further explanation.
 
 From now on, we will talk only about inductive types in `Type` or above.
 
@@ -611,28 +611,59 @@ There are a number of considerations for inference:
   Furthermore, this is **best-effort**. Users can always provide an explicit resulting universe.
   (We can also detect certain situations where this procedure computes a universe that is likely
   larger than what could be if it had been explicitly provided *before* constructor elaboration.)
-- **Using the unique universes for fields** if they exist, preferring non-constant solutions.
+- **Avoiding inferring proof fields**. If `v` is the universe level for a constructor field,
+  then we avoid assigning metavariable in `v` to anything that could potentially give `Prop` fields
+  or `Sort` polymorphism. To do this, we use the *weak* constraint `1 ≤w v`. Definition:
+  - `1 ≤w p` and `1 ≤w k` for all parameters `p` and constants `k`.
+  - `1 ≤w succ v` for all levels `v`
+  - `1 ≤w max a b` and `1 ≤w imax a b` iff `1 ≤w a` and `1 ≤w b`
+  - `1 ≤w ?v` iff `1 ≤ ?v`.
+  The effect is that `1 ≤w v` resolves to a set of `1 ≤ ?v` metavariable constraints.
+  This is more conservative than it needs to be, but it is uniform and avoids SAT-like reasoning;
+  *effectively, inference analyzes each metavariable, independently from one another.*
+- **Using the unique universe for fields** if it exists, preferring non-constant solutions.
   Uniqueness is with respect to the set of universe level expressions, not universe levels.
   Examples:
   - `?a ≤ 0` ~~~> `?a = 0` is the **unique solution**.
     (Note: this can lead to unpleasant surprises, where a field unexpectedly becomes a proof.
     We currently do nothing about this. It would require more careful global analysis.)
-  - `?a ≤ 1` ~~~> either `?a = 0` or `?a = 1`, so **underconstrained**.
+  - `?a ≤ 1` ~~~> either `?a = 0` or `?a = 1`, so **underconstrained** unless we have `1 ≤ ?a`,
+    in which case `?a = 1` is the **unique solution**.
   - `?a ≤ v` with `v` a level parameter ~~~> syntactically have `?a = 0` and `?a = v` as solutions,
     but prefer `?a = v` since it is non-constant, and is the **unique solution**.
   - `?a ≤ v + 1` with `v` a level parameter ~~~> syntactically have `?a = 0`, `?a = 1`, `?a = v`, and `?a = v + 1`
-    as solutions, with `?a = v` and `?a = v + 1` preferred. This is **underconstrained**.
+    as solutions, with `?a = v` and `?a = v + 1` preferred. This is **underconstrained**,
+    unless we have `1 ≤ ?a`, in which case `?a = v + 1` is the **unique solution**.
   - `?a ≤ max v₁ v₂` with `v₁` and `v₂` level parameters ~~~> syntactically have `?a = 0`, `?a = v₁`,
     `?a = v₂`, and `?a = max v₁ v₂` as solutions, with the latter three preferred. This is **underconstrained**.
-  The heuristic for non-constant solutions comes from user examples.
-  Note: these rules imply the only assignments considered are `?a = 0` and `?a = v`.
-  There is an additional heuristic that fields ought to satisfy `1 ≤ ?a`. If such a constraint is used,
-  then the assignments are `?a = 1` and `?a = v + 1`.
 
-General inference algorithm:
+  The heuristic for preferring non-constant solutions comes from user examples.
+
+Collecting the constraints, these rules imply the only assignments considered are:
+
+- if `0 ≤ ?a ≤ k`      and `k = 0` then assign `?a := 0`
+- if `0 ≤ ?a ≤ p + k`  and `k = 0` then assign `?a := p`
+- if `1 ≤ ?a ≤ k`      and `k = 1` then assign `?a := 1`
+- if `1 ≤ ?a ≤ p + k`  and `k = 1` then assign `?a := p + 1`
+
+Otherwise we do not assign `?a`, and we leave it to the "declaration has metavariables" error to report it.
+
+There are also other considerations to make the inference more effective.
+If the resulting universe is of the form `max ?m 1`, we want to isolate `?m` as
+the metavariable to solve for.
+The `simplifyResultingUniverse u` procedure is a heavy hammer to reliably extract
+the "generic part" of the resulting universe level that is suitable for the inference procedures,
+without the fragility of matching on specific patterns.
+It gives a universe level `u' ≤ u` such that `u'` and `u` are equivalent "at infinity",
+which means `u' = u` for all sufficiently high assignments of the parameters or metavariables.
+In general, we only attempt solving for any universe levels at each stage
+if `u'` is of the form `r + k` where `r` is a parameter, metavariable, or zero,
+since in other cases solutions are not unique.
+
+**High-level inference algorithm:**
 - Solve for the metavariable in the resulting universe level.
 - Solve for metavariables in constructor fields, if possible.
-- Turn level metavariables in the type former into level parameters.
+- Turn level metavariables in the type former (and from `collectExtraHeaderLMVars`) into level parameters.
 - Report unsolved level metavariables.
 
 Examples are in `tests/lean/run/inductive_univ.lean`.
@@ -646,38 +677,51 @@ private def throwCannotInferResultingUniverse {α} (u : Level) (reason : Message
     ++ .hint' "Provide the uninferred universe explicitly"
 
 /--
-Given a normalized universe level `u` with a *single* level metavariable `?m`,
-simplifies the universe under the assumption that the level metavariable is sufficiently
-large to make the simplification.
-For example, `max ?m 1` simplifies to `?m`.
-In general, `u` is simplified to the form `?m + k` where `k` is a constant,
-and `?m + k ≤ u` (under the assumption `?m` is large enough to guarantee `u > 0`, the rationale
-being that we do not allow Prop/Type polymorphism without enabling a secret `bootstrap` option).
-We also assume `imax a b = max a b`, by assuming level parameters are sufficiently large.
+Given a universe level `u`, computes a simplified representative `u' ≤ u` such that
+`u` and `u'` are equivalent *at infinity*. This means that `u = u'` for all
+sufficiently large assignments of parameters or metavariables in `u` and `u'`.
+If `u` is non-constant, this procedure effectively removes the constant part.
 
-We use the simplified resulting universe when inferring `?m`.
-The key ideas are:
-1. This procedure does not result in larger levels, so if inference succeeds using `?m + k`
-   for the universe then it will succeed for `u` (under the assumption `?m` is large enough).
-2. Even if we have later constraints such as `max ?m 1 ≤ ?m`, our inference algorithm collects the
-   constraint `1 ≤ ?m` just the same. Worst case, the inferred universe is `max (max 1 ...) 1`,
-   if we don't do additional simplification.
+The primary example is `max a b ≈ a` if `a` has variables and `b` is constant.
+For example, `max ?u 1` and `?u` are equivalent at infinity, since they are equal for all `?u ≥ 1`.
+
+Options:
+- If `paramConst = true`, then parameters are treated like constants (only metavariables
+  are considered to be varying).
 -/
-private partial def simplifyResultingUniverse (u : Level) : Level :=
-  if u.hasMVar then
+private partial def simplifyResultingUniverse (u : Level) (paramConst := false) : Level :=
+  let varies (l : Level) := l.hasMVar || (!paramConst && l.hasParam)
+  let simpAcc (acc : LevelMap Nat) : LevelMap Nat :=
+    -- If there's a variable, then these dominate at infinity; constants can be eliminated
+    if (acc.any fun l _ => varies l) then acc.filter (fun l _ => varies l) else acc
+  let germMax (acc : LevelMap Nat) : Level :=
+    (simpAcc acc).fold (init := levelZero) fun u l offset => mkLevelMax' u (l.addOffset offset)
+  let accInsert (acc : LevelMap Nat) (u : Level) (offset : Nat) : LevelMap Nat :=
+    acc.alter u (fun offset? => some (max (offset?.getD 0) offset))
+  -- Simplifies `u+offset`, accumulating `max` arguments in `acc`.
+  let rec simp (u : Level) (offset : Nat) (acc : LevelMap Nat) : LevelMap Nat :=
     match u with
-    | .mvar _ | .param _ | .zero => u
-    | .succ _ => (simplifyResultingUniverse u.getLevelOffset).addOffset u.getOffset
-    | .max a b | .imax a b =>
-      let a := simplifyResultingUniverse a
-      let b := simplifyResultingUniverse b
-      match a.getLevelOffset, b.getLevelOffset with
-      | .mvar mvarId, .mvar _ => (Level.mvar mvarId).addOffset (max a.getOffset b.getOffset)
-      | .mvar _,      _       => a
-      | _,            .mvar _ => b
-      | _,            _       => u
-  else
-    u
+    | .zero | .mvar _ | .param _ => accInsert acc u offset
+    | .succ _ => simp u.getLevelOffset (offset + u.getOffset) acc
+    | .max a b => simp b offset (simp a offset acc)
+    | .imax a b =>
+      if b.isAlwaysZero then
+        accInsert acc levelZero offset
+      else if a.isAlwaysZero || b.isNeverZero then
+        simp b offset (simp a offset acc)
+      else
+        /- The remaining simplification we consider is when `a ≤ b` then `imax a b = b`.
+        We can compute `a ≤ b` by checking `max a b = b`.
+        We only need `max a b ≈ b` for this,
+        since `b ≤ imax a b ≤ max a b ≈ b` implies `imax a b ≈ b`. -/
+        let acca := simp a 0 {}
+        let accb := simp b 0 {}
+        let accab := simpAcc (acca.fold (init := accb) accInsert)
+        if accab.all (fun l n => if let some m := accb[l]? then n ≤ m else false) then
+          accb.fold (init := acc) fun acc l n => accInsert acc l (n + offset)
+        else
+          accInsert acc (Level.imax (germMax acca) (germMax accb)) offset
+  germMax (simp u 0 {})
 
 /--
 Checks that `u` has at most one universe level metavariable.
@@ -692,7 +736,10 @@ private def processResultingUniverseForInference (u : Level) : TermElabM Level :
   if u.hasMVar then
     unless u.collectMVars.size == 1 do
       throwCannotInferResultingUniverse u m!"The resulting universe contains more than one metavariable"
-    let u' := simplifyResultingUniverse u.normalize
+    -- Simplify the universe level and see if we get `?m + k`.
+    -- We treat parameters is constants since, for example, simplifying `(max u ?m) + k` to `?m + k`
+    -- does not change the solvability of the constraints.
+    let u' := simplifyResultingUniverse u.normalize (paramConst := true)
     if u'.getLevelOffset.isMVar then
       trace[Elab.inductive] "resulting universe: {u}, simplified universe: {u'}"
       return u'
@@ -752,9 +799,9 @@ where
     | .param ..         => modify fun acc => acc.push u rOffset
     | .succ u           => go u (rOffset - 1)
     | .zero =>
-      /- If `0 ≤ ?r + rOffset` always holds for non-negative `rOffset` values. -/
+      /- `0 ≤ ?r + rOffset` always holds for non-negative `rOffset` values. -/
       if rOffset < 0 then
-        modify fun acc => acc.push u rOffset
+        modify fun acc => acc.push .zero rOffset
     | .mvar lmvarId =>
       if u == r then
         /- `?r ≤ ?r + rOffset` always holds for non-negative `rOffset` values,
@@ -763,7 +810,7 @@ where
           throw m!"Level inequality `{Level.addOffset r rOffset.natAbs} ≤ {r}` is inconsistent."
       else if typeLMVarIds.contains lmvarId then
         modify fun acc => acc.push u rOffset
-      else
+      else if rOffset < 0 then
         modify fun acc => acc.push .zero rOffset
 
 /--
@@ -886,20 +933,17 @@ private def inferResultingUniverse (views : Array InductiveView)
       (l, k) :: parts
   trace[Elab.inductive] "inferResultingUniverse r: {r}, rOffset: {rOffset}, rConstraints: {rConstraints}"
   /- Compute the inferred `r` -/
-  let rInferred := Level.normalize <| Level.mkNaryMax <| rConstraints.foldl (init := []) fun us' (level, k) =>
+  let rInferred := Level.normalize <| rConstraints.foldl (init := levelZero) fun u' (level, k) =>
     -- If `k ≤ 0`, then add `level + (-k) ≤ ?r` constraint, otherwise add `level ≤ ?r`.
-    us'.cons <| level.addOffset (-k).toNat
+    mkLevelMax' u' <| level.addOffset (-k).toNat
   let uInferred := (u.replace fun v => if v == r then some rInferred else none).normalize
   /- Analyze "bad" constraints if there are any, and report an error if needed. -/
   if rConstraints.any (fun (_, k) => k > 0) then
-    /-
-    For "bad" level constraints (those of the form `l ≤ ?r + k` where `k > 0`),
-    we add `rOffset - k` to both sides to get the ideal constraint
-    -/
-
     let uAtZero := u.replace fun v => if v == r then some levelZero else none
-    let uIdeal := Level.normalize <| Level.mkNaryMax <| rConstraints.foldl (init := [uAtZero]) fun us' (level, k) =>
-      us'.cons <| level.addOffset (rOffset - k).toNat
+    /- For "bad" level constraints (those of the form `l ≤ ?r + k` where `k > 0`),
+    we add `rOffset - k` to both sides to get the ideal constraint. -/
+    let uIdeal := Level.normalize <| rConstraints.foldl (init := uAtZero) fun u' (level, k) =>
+      mkLevelMax' u' <| level.addOffset (rOffset - k).toNat
     unless uIdeal.geq uInferred do
       withViewTypeRef views do
         let badConstraints := rConstraints.foldl (init := []) fun msgs (level, k) =>
@@ -923,32 +967,8 @@ private def inferResultingUniverse (views : Array InductiveView)
   return { u := uInferred, assign? := some (mvarId, rInferred) }
 
 /--
-Similar to `simplifyResultingUniverse` but for parameters and metavariables together.
-Extracts the "germ" of a level at infinity.
-The result is a universe level `≤ u` (when `u ≥ 1`) that for sufficiently large
-parameter/metavariable values is equal to `u`.
-
-Example: germ of `max 1 u` is `u`.
--/
-private partial def universeGerm (u : Level) : Level :=
-  let rec collect (u : Level) (offset : Nat) (acc : LevelMap Nat) : Nat × LevelMap Nat :=
-    match u with
-    | .mvar _ | .param _ => (0, acc.insert u (max offset (acc[u]?.getD offset)))
-    | .zero => (offset, acc)
-    | .succ _ => collect u.getLevelOffset (offset + u.getOffset) acc
-    | .max a b | .imax a b =>
-      let (na, acc) := collect a offset acc
-      let (nb, acc) := collect b offset acc
-      (max na nb, acc)
-  let (n, acc) := collect u.normalize 0 {}
-  if acc.isEmpty then
-    Level.ofNat n
-  else
-    Level.normalize <| Level.mkNaryMax <| acc.fold (init := []) fun us level offset => us.cons (level.addOffset offset)
-
-/--
 Solves for level metavariables in constructor argument types that are completely determined by the resulting type.
-The `universeGerm` of the resulting universe level `u` must be of the form `r+k`, where `r` is a parameter or zero,
+The `simplifyResultingUniverse` of the resulting universe level `u` must be of the form `r+k`, where `r` is a parameter or zero,
 otherwise inference is ambiguous.
 Ambiguity example: `?v ≤ max a b` could be satisfied by either constraint `?v ≤ a` or `?v ≤ b`.
 Possibly `r` is a metavariable -- in that case, since it will eventually be turned into a parameter
@@ -983,14 +1003,15 @@ private partial def propagateUniversesToConstructors
   let u := (← instantiateLevelMVars inferResult.u).normalize
   if u.isZero then
     return
-  let u' := universeGerm u
+  let u' := simplifyResultingUniverse u
   let r := u'.getLevelOffset
   let k := u'.getOffset
   unless r matches .param .. | .mvar .. | .zero do
-    trace[Elab.inductive] "skipping propagating universe levels to constructors, germ {u'} is not of form u+k or k"
+    trace[Elab.inductive] "skipping propagating universe levels to constructors, simplified resulting type {u'} is not of form u+k or k"
     return
-  trace[Elab.inductive] "propagating universe levels to constructors using germ {u'}"
+  trace[Elab.inductive] "propagating universe levels to constructors using simplified resulting type {u'}"
   let (_, constraints, loConstraint) ← collectConstraints r k |>.run ({}, {})
+  trace[Elab.inductive] "collected constraints: {constraints.levels.toList}; positive: {loConstraint.toList.map Level.mvar}"
   for (v, k') in constraints.levels do
     -- `v ≤ r + k'` has solutions `v ∈ {r, r + 1, ..., r + k'}`,
     -- excluding the constant solutions when `r` is a parameter.

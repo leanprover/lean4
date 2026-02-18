@@ -366,3 +366,19 @@ inductive Bar9 : Type (u + 1) where
 | somelist : List Bar9 → Bar9
 /-- info: Bar9.foobar.{u} {Foo : Type u} (x : Foo) : Bar9.{u} -/
 #guard_msgs in #check Bar9.foobar
+
+/-!
+Can infer imax field, constant resulting type.
+-/
+inductive Bar10 : Type 1 where
+  | mk (f : α → β)
+/-- info: Bar10.mk {α β : Type} (f : α → β) : Bar10 -/
+#guard_msgs in #check Bar10.mk
+
+/-!
+Can infer imax field, non-constant resulting type.
+-/
+inductive Bar11 : Type (u + 1) where
+  | mk (f : α → β)
+/-- info: Bar11.mk.{u} {α β : Type u} (f : α → β) : Bar11.{u} -/
+#guard_msgs in #check Bar11.mk

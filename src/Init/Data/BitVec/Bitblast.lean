@@ -2504,15 +2504,16 @@ private theorem extractLsb'_extractAndExtendAux
     · intros j
       apply ihn'
       · intros i hi
+        have hcast : len + k * len = (k + 1) * len := by
+            simp [Nat.mul_comm, Nat.mul_add, Nat.add_comm]
         by_cases hi' : i < k
-        · rw [extractLsb'_append_of_lt (by omega)]
+        · rw [extractLsb'_append_of_lt (hcast := hcast) hi']
           apply hacc
           exact hi'
-        · have : i = k := by omega
-          rw [extractLsb'_append_of_eq (by omega), this, extractAndExtendBit]
+        · simp [show i = k by omega, extractLsb'_append_of_eq (hcast := hcast), extractAndExtendBit]
       · omega
 
-private theorem extractLsb'_cpopLayer {w iter_num i old_length : Nat}
+theorem extractLsb'_cpopLayer {w iter_num i old_length : Nat}
   (old_layer : BitVec (old_length * w)) (new_layer : BitVec (iter_num * w))
   (hold : 2 * (iter_num - 1) < old_length)
   (proof_addition : ∀ i (_hi: i < iter_num),
@@ -2620,11 +2621,10 @@ private theorem extractLsb'_extractAndExtend_eq (i len : Nat) (x : BitVec w) :
     · omega
     · omega
 
-private theorem addRecAux_append_extractLsb' {x : BitVec (x_len * w)} (ha : 0 < x_len)
-    (hcast : w + (x_len - 1) * w = x_len * w) :
-    ((x.extractLsb' ((x_len - 1) * w) w ++ x.extractLsb' 0 ((x_len - 1) * w)).cast hcast).addRecAux x_len 0#w =
+private theorem addRecAux_append_extractLsb' {x : BitVec (x_len * w)} (ha : 0 < x_len) :
+    ((x.extractLsb' ((x_len - 1) * w) w ++ x.extractLsb' 0 ((x_len - 1) * w)).cast (m := x_len * w) hcast).addRecAux x_len 0#w =
     x.extractLsb' ((x_len - 1) * w) w + (x.extractLsb' 0 ((x_len - 1) * w)).addRecAux (x_len - 1) 0#w := by
-  simp only [extractLsb'_addRecAux_of_le (k := x_len - 1) (r := x_len - 1) (by omega), BitVec.append_extractLsb'_of_lt hcast]
+  simp only [extractLsb'_addRecAux_of_le (k := x_len - 1) (r := x_len - 1) (by omega), BitVec.append_extractLsb'_of_lt (hcast := hcast)]
   have hsucc := addRecAux_succ (x := x) (acc := 0#w) (n := x_len - 1)
   rw [BitVec.zero_add, Nat.sub_one_add_one (by omega)] at hsucc
   rw [hsucc, addRecAux_eq, BitVec.add_comm]
@@ -2651,9 +2651,13 @@ private theorem addRecAux_eq_of
   · case zero =>
     simp [show y_len = 0 by omega]
   · case succ x_len' ih =>
-    rw [addRecAux_succ, ← BitVec.append_extractLsb'_of_lt (x := x)
-          (by simp only [Nat.add_one_sub_one, Nat.succ_mul]; omega)]
-    have happ := addRecAux_append_extractLsb' (x_len := x_len' + 1) (x := x) (by omega)
+    have hcast : w + (x_len' + 1 - 1) * w = (x_len' + 1) * w := by
+      simp [Nat.add_mul, Nat.add_comm]
+    have hcast' :  w + (y_len - 1) * w = y_len * w := by
+      rw [Nat.sub_mul, Nat.one_mul, ← Nat.add_sub_assoc (by refine Nat.le_mul_of_pos_left w (by omega)), Nat.add_comm]
+      simp
+    rw [addRecAux_succ, ← BitVec.append_extractLsb'_of_lt (x := x) (hcast := hcast)]
+    have happ := addRecAux_append_extractLsb' (x_len := x_len' + 1) (x := x) (hcast := hcast) (by omega)
     simp only [Nat.add_one_sub_one, addRecAux_succ, BitVec.zero_add] at happ
     simp only [Nat.add_one_sub_one, BitVec.zero_add, happ]
     have := Nat.succ_mul (n := y_len - 1) (m := w)
@@ -2663,8 +2667,8 @@ private theorem addRecAux_eq_of
       have := Nat.mul_le_mul_right (n := y_len - 1 - 1) (m := y_len - 1) (k := w) (by omega)
       have := Nat.succ_mul (n := y_len - 1 - 1) (m := w)
       rw [succ_eq_add_one, Nat.sub_one_add_one (by omega)] at this
-      rw [← BitVec.append_extractLsb'_of_lt (x := y) (by omega), addRecAux_append_extractLsb' (by omega),
-          ← BitVec.append_extractLsb'_of_lt (x := extractLsb' 0 ((y_len - 1) * w) y) (by omega),
+      rw [← BitVec.append_extractLsb'_of_lt (x := y) (hcast := hcast'), addRecAux_append_extractLsb' (by omega),
+          ← BitVec.append_extractLsb'_of_lt (x := extractLsb' 0 ((y_len - 1) * w) y),
           addRecAux_append_extractLsb' (by omega), extractLsb'_extractLsb'_of_le (by exact Nat.mul_add_le_mul_of_succ_le (by omega)),
           extractLsb'_extractLsb'_of_le (by omega), ← BitVec.add_assoc, hadd (_h := by omega)]
       congr 1
@@ -2676,9 +2680,10 @@ private theorem addRecAux_eq_of
             extractLsb'_extractLsb'_of_le (by exact Nat.mul_add_le_mul_of_succ_le (by omega)),
             extractLsb'_extractLsb'_of_le (by exact Nat.mul_add_le_mul_of_succ_le (by omega)), hadd (_h := by omega)]
         · omega
+      · sorry
     · /- `sum` results from the addition of the last elements in `y` with `0#w` -/
       have : y_len * w ≤ (y_len - 1 + 1) * w := by exact mul_le_mul_right w (by omega)
-      rw [← BitVec.append_extractLsb'_of_lt (x := y) (by omega), addRecAux_append_extractLsb' (by omega),
+      rw [← BitVec.append_extractLsb'_of_lt (x := y) (hcast := hcast'), addRecAux_append_extractLsb' (by omega),
         hadd (_h := by omega), show 2 * x_len' = y_len - 1 by omega]
       congr 1
       · rw [BitVec.add_right_eq_self]

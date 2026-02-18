@@ -197,6 +197,8 @@ def overrideComputedFields : M Unit := do
       safety := .unsafe
       hints := .opaque
     }
+    if Compiler.hasInlineAttribute (← getEnv) cfn then
+      setInlineAttribute (cfn ++ `_override)
     setImplementedBy cfn (cfn ++ `_override)
 
 def mkComputedFieldOverrides (declName : Name) (compFields : Array Name) : MetaM Unit := do

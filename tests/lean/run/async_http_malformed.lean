@@ -153,7 +153,7 @@ def ok200 : String :=
   let (client, server) ← Mock.new
   let raw := "FOOBAR / HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
   let response ← sendRaw client server raw okHandler
-  assertStatus "Invalid method FOOBAR" response "HTTP/1.1 400"
+  assertStatus "Invalid method FOOBAR" response "HTTP/1.1 501"
 
 -- =============================================================================
 -- Method with lowercase (HTTP methods are case-sensitive)
@@ -163,7 +163,7 @@ def ok200 : String :=
   let (client, server) ← Mock.new
   let raw := "get / HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
   let response ← sendRaw client server raw okHandler
-  assertStatus "Lowercase method" response "HTTP/1.1 400"
+  assertStatus "Lowercase method" response "HTTP/1.1 501"
 
 -- =============================================================================
 -- Header without colon separator

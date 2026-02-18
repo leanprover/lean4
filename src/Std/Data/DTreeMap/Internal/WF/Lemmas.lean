@@ -2451,12 +2451,11 @@ theorem getEntryGT?_eq_find? [Ord α] [TransOrd α] {t : Impl α β} (hto : t.Or
   congr; funext x; rw [Bool.eq_iff_iff, beq_iff_eq, Ordering.isGT_iff_eq_gt]
   simp [OrientedCmp.eq_swap (a := k), Ordering.then_eq_lt]
 
-set_option backward.whnf.reducibleClassField false in
 theorem getEntryLE?_eq_findRev? [Ord α] [TransOrd α] {t : Impl α β} (hto : t.Ordered) {k : α} :
     getEntryLE? k t = t.toListModel.findRev? (fun e => (compare e.1 k).isLE) := by
   rw [getEntryLE?_eq_getEntryGE?_reverse, @getEntryGE?_eq_find?, List.findRev?_eq_find?_reverse,
     toListModel_reverse]
-  · simp +instances only [Ord.opposite, Bool.coe_iff_coe.mp OrientedCmp.isGE_iff_isLE]
+  · simp only [Bool.coe_iff_coe.mp OrientedCmp.isGE_iff_isLE]; rfl
   · exact hto.reverse
 
 theorem getEntryLT?_eq_findRev? [Ord α] [TransOrd α] {t : Impl α β} (hto : t.Ordered) {k : α} :

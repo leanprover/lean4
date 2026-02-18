@@ -347,7 +347,7 @@ instance [Monad m] [LawfulMonad m] : LawfulMonad (ReaderT ρ m) where
 
 @[simp] theorem run_controlAt [Monad m] [LawfulMonad m] (f : ({β : Type u} → ReaderT ρ m β → m (stM m (ReaderT ρ m) β)) → m (stM m (ReaderT ρ m) α)) (ctx : ρ) :
     ReaderT.run (controlAt m f) ctx = f fun x => x.run ctx := by
-  simp [controlAt]; exact bind_pure _
+  simp [controlAt]
 
 @[simp] theorem run_control [Monad m] [LawfulMonad m] (f : ({β : Type u} → ReaderT ρ m β → m (stM m (ReaderT ρ m) β)) → m (stM m (ReaderT ρ m) α)) (ctx : ρ) :
     ReaderT.run (control f) ctx = f fun x => x.run ctx := run_controlAt f ctx

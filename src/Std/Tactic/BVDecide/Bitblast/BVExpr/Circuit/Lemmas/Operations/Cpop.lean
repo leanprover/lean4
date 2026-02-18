@@ -101,7 +101,7 @@ theorem denote_blastExtractAndExtend (assign : α → Bool)  (aig : AIG α) (cur
                   (by rw [Nat.mul_comm]; omega) (by rw [Nat.mul_comm]; omega)
         have h' := Nat.mod_eq_sub_mul_div (k := w) (x := idx)
         rw [h] at h'
-        simp [← h', ← Nat.div_eq_sub_mod_div (m := idx) (n := w), h]
+        simp only [← h', ← Nat.div_eq_sub_mod_div (m := idx) (n := w), h]
         apply denote_blastExtractAndExtendBit (start := currIdx) (hx := hx)
     · intros i hi
       rw [blastExtractAndExtendBit_denote_mem_prefix (xc := xc)]

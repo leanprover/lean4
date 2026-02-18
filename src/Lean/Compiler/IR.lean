@@ -38,8 +38,6 @@ def compile (decls : Array Decl) : CompilerM (Array Decl) := do
   logDecls `init decls
   checkDecls decls
   let mut decls := decls
-  decls ← explicitRC decls
-  logDecls `rc decls
   if Compiler.LCNF.compiler.reuse.get (← getOptions) then
     decls := decls.map Decl.expandResetReuse
     logDecls `expand_reset_reuse decls

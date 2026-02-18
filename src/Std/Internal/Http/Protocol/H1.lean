@@ -444,7 +444,9 @@ def setHeaders (messageHead : Message.Head dir.swap) (machine : Machine dir) : M
     state
   })
 
-/-- Feeds input bytes into the reader side of the machine. -/
+/--
+Feeds input bytes into the reader side of the machine.
+-/
 @[inline]
 def feed (machine : Machine ty) (data : ByteArray) : Machine ty :=
   if machine.isReaderClosed then
@@ -452,32 +454,44 @@ def feed (machine : Machine ty) (data : ByteArray) : Machine ty :=
   else
     { machine with reader := machine.reader.feed data, pullBodyStalled := false }
 
-/-- Signals that the reader will not receive any more input bytes. -/
+/--
+Signals that the reader will not receive any more input bytes.
+-/
 @[inline]
 def closeReader (machine : Machine dir) : Machine dir :=
   machine.modifyReader ({ · with noMoreInput := true })
 
-/-- Signal that the writer cannot send more messages because the socket closed. -/
+/--
+Signal that the writer cannot send more messages because the socket closed.
+-/
 @[inline]
 def closeWriter (machine : Machine dir) : Machine dir :=
   machine.modifyWriter ({ · with state := .closed, userClosedBody := true })
 
-/-- Signal that the user is not sending data anymore. -/
+/--
+Signal that the user is not sending data anymore.
+-/
 @[inline]
 def userClosedBody (machine : Machine dir) : Machine dir :=
   machine.modifyWriter ({ · with userClosedBody := true })
 
-/-- Signal that the socket is not sending data anymore. -/
+/--
+Signal that the socket is not sending data anymore.
+-/
 @[inline]
 def noMoreInput (machine : Machine dir) : Machine dir :=
   { machine.modifyReader ({ · with noMoreInput := true }) with pullBodyStalled := false }
 
-/-- Set a known size for the message body, replacing any previous value. -/
+/--
+Set a known size for the message body, replacing any previous value.
+-/
 @[inline]
 def setKnownSize (machine : Machine dir) (size : Body.Length) : Machine dir :=
   machine.modifyWriter (fun w => { w with knownSize := some size })
 
-/-- Send the head of a message to the machine. -/
+/--
+Send the head of a message to the machine.
+-/
 @[inline]
 def send (machine : Machine dir) (message : Message.Head dir.swap) : Machine dir :=
   if machine.isWaitingMessage then
@@ -688,7 +702,7 @@ private def parseBody (machine : Machine dir) (bodyState : Reader.BodyState) :
           (machine, mkPulledChunk? machine true false #[] body, true)
       | some (.incomplete body remaining) =>
           let machine := machine.setReaderState (.readBody (.fixed remaining))
-          (machine, mkPulledChunk? machine false true #[] body, true)
+          (machine, mkPulledChunk? machine false false #[] body, true) -- Its not an incomplete "chunk"
       | none =>
           (machine, none, false)
 

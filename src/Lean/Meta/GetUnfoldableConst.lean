@@ -9,6 +9,10 @@ public import Lean.Meta.Basic
 public section
 namespace Lean.Meta
 
+/--
+Implements the `TransparencyMode` hierarchy for unfolding decisions.
+See `TransparencyMode` and `ReducibilityStatus` for the design rationale.
+-/
 private def canUnfoldDefault (cfg : Config) (info : ConstantInfo) : CoreM Bool := do
   match cfg.transparency with
   | .none => return false

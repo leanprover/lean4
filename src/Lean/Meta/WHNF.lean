@@ -823,7 +823,7 @@ on class fields work as the user expects by temporarily bumping to `.instances` 
 See `unfoldDefault` for the implementation.
 -/
 register_builtin_option backward.whnf.reducibleClassField : Bool := {
-  defValue := false
+  defValue := true
   descr    := "enables better support for unfolding type class fields marked as `[reducible]`"
 }
 

@@ -241,7 +241,6 @@ private def handle
 
       | .failed _ =>
         pendingHead := none
-        waitingResponse := false
         requiresData := false
         if ¬(← requestOutgoing.isClosed) then
           requestOutgoing.close
@@ -335,18 +334,26 @@ private def handle
         waitingResponse := newWaitingResponse
 
       | .response (.ok res) =>
-        let head ← do
-          if config.generateDate ∧ ¬res.head.headers.contains Header.Name.date then
-            let now ← Std.Time.DateTime.now (tz := .UTC)
-            pure { res.head with headers := res.head.headers.insert Header.Name.date (Header.Value.ofString! now.toRFC822String) }
-          else
-            pure res.head
-        machine := machine.send head
-        waitingResponse := false
+        if machine.failed then
+          waitingResponse := false
+          let body := Body.Internal.outgoingToIncoming res.body
+          if ¬(← body.isClosed) then
+            body.close
+        else
+          let size ← res.body.getKnownSize
+          if let some knownSize := size then
+            machine := machine.setKnownSize knownSize
 
-        let size ← res.body.getKnownSize
-        machine := machine.setKnownSize (size.getD .chunked)
-        respStream := some (Body.Internal.outgoingToIncoming res.body)
+          let head ← do
+            if config.generateDate ∧ ¬res.head.headers.contains Header.Name.date then
+              let now ← Std.Time.DateTime.now (tz := .UTC)
+              pure { res.head with headers := res.head.headers.insert Header.Name.date (Header.Value.ofString! now.toRFC822String) }
+            else
+              pure res.head
+          machine := machine.send head
+          waitingResponse := false
+
+          respStream := some (Body.Internal.outgoingToIncoming res.body)
 
   if ¬ (← requestOutgoing.isClosed) then
     requestOutgoing.close

@@ -72,7 +72,7 @@ theorem blastExtractAndExtendBit_denote_mem_prefix (aig : AIG α) (curr : Nat)
   · intros
     apply extractAndExtendBit_le_size
 
-theorem append_denote (assign : α → Bool) (aig : AIG α) (currIdx w : Nat) (x : BitVec w)
+theorem denote_append (assign : α → Bool) (aig : AIG α) (currIdx w : Nat) (x : BitVec w)
     (xc : AIG.RefVec aig w) (acc : AIG.RefVec aig (w * currIdx)) (hidx : idx < w * currIdx + w)
     (hacc : ∀ (idx : Nat) (hidx : idx < w * currIdx),
                 ⟦aig, acc.get idx hidx, assign⟧ = (BitVec.extractAndExtend w x).getLsbD idx)
@@ -117,7 +117,7 @@ theorem denote_blastExtractAndExtend (assign : α → Bool) (aig : AIG α) (curr
     simp only [Lean.Elab.WF.paramLet]
     apply denote_blastExtractAndExtend
     · intros idx hidx
-      apply append_denote (hx := hx) (hacc := hacc)
+      apply denote_append (hx := hx) (hacc := hacc)
     · intros i hi
       rw [blastExtractAndExtendBit_denote_mem_prefix (xc := xc)]
       apply hx

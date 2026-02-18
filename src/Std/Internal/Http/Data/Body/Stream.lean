@@ -93,6 +93,18 @@ private structure State where
   Known size of the stream if available
   -/
   knownSize : Option Body.Length
+
+  /--
+  Buffered partial chunk data accumulated from `Outgoing.send ... (incomplete := true)`.
+  These partial pieces are collapsed and emitted as a single chunk on the next complete send.
+  -/
+  pendingIncompleteChunk : Option Chunk := none
+
+  /--
+  Optional background producer task used by `Body.stream`.
+  Keeping this handle alive prevents the detached producer from being dropped early.
+  -/
+  backgroundTask : Option (AsyncTask Unit) := none
 deriving Nonempty
 
 end Channel
@@ -133,6 +145,7 @@ def mkChannel : Async (Outgoing × Incoming) := do
     interestWaiter := none
     closed := false
     knownSize := none
+    backgroundTask := none
   }
   return ({ state }, { state })
 
@@ -142,6 +155,12 @@ private def decreaseKnownSize (knownSize : Option Body.Length) (chunk : Chunk) :
   match knownSize with
   | some (.fixed res) => some (Body.Length.fixed (res - chunk.data.size))
   | _ => knownSize
+
+private def mergeChunks (base : Chunk) (next : Chunk) : Chunk :=
+  {
+    data := base.data ++ next.data
+    extensions := if base.extensions.isEmpty then next.extensions else base.extensions
+  }
 
 private def pruneFinishedWaiters [Monad m] [MonadLiftT (ST IO.RealWorld) m] :
     AtomicT State m Unit := do
@@ -220,6 +239,7 @@ private def close' [Monad m] [MonadLiftT (ST IO.RealWorld) m] [MonadLiftT BaseIO
     pendingProducer := none
     pendingConsumer := none
     interestWaiter := none
+    pendingIncompleteChunk := none
     closed := true
   }
 
@@ -402,6 +422,28 @@ end Incoming
 
 namespace Outgoing
 
+private def collapseForSend
+    (outgoing : Outgoing)
+    (chunk : Chunk)
+    (incomplete : Bool) : BaseIO (Except IO.Error (Option Chunk)) := do
+  outgoing.state.atomically do
+    Channel.pruneFinishedWaiters
+    let st ← get
+
+    if st.closed then
+      return .error (.userError "channel closed")
+
+    let merged := match st.pendingIncompleteChunk with
+      | some pending => Channel.mergeChunks pending chunk
+      | none => chunk
+
+    if incomplete then
+      set { st with pendingIncompleteChunk := some merged }
+      return .ok none
+    else
+      set { st with pendingIncompleteChunk := none }
+      return .ok (some merged)
+
 private def send' (outgoing : Outgoing) (chunk : Chunk) : BaseIO (AsyncTask Unit) := do
   outgoing.state.atomically do
     Channel.pruneFinishedWaiters
@@ -435,14 +477,25 @@ private def send' (outgoing : Outgoing) (chunk : Chunk) : BaseIO (AsyncTask Unit
     return Task.pure (.error (IO.Error.userError "unreachable"))
 
 /--
-Sends a chunk. Blocks until a receiver is waiting.
+Sends a chunk.
+
+If `incomplete := true`, the chunk is buffered and collapsed with subsequent chunks, and is not
+delivered to the receiver yet.
+If `incomplete := false`, any buffered incomplete pieces are collapsed with this chunk and the
+single merged chunk is delivered (blocking until a receiver is waiting).
 -/
-def send (outgoing : Outgoing) (chunk : Chunk) : Async Unit := do
-  if chunk.data.isEmpty then
+def send (outgoing : Outgoing) (chunk : Chunk) (incomplete : Bool := false) : Async Unit := do
+  if chunk.data.isEmpty ∧ chunk.extensions.isEmpty then
     return
 
-  let res ← send' outgoing chunk
-  await res
+  match (← collapseForSend outgoing chunk incomplete) with
+  | .error err =>
+      throw err
+  | .ok none =>
+      pure ()
+  | .ok (some toSend) =>
+      let res ← send' outgoing toSend
+      await res
 
 /--
 Alias for `send`.
@@ -534,11 +587,23 @@ end Outgoing
 
 /--
 Creates a body from a producer function.
-Returns the receive-side handle; the producer writes via `Outgoing`.
+Returns the receive-side handle immediately and runs `gen` in a detached task.
+The channel is always closed when `gen` returns or throws.
+Errors from `gen` are not rethrown here; consumers observe end-of-stream via `recv = none`.
+The detached task handle is retained in channel state for the channel lifetime.
 -/
 def stream (gen : Outgoing → Async Unit) : Async Incoming := do
   let (outgoing, incoming) ← mkChannel
-  background (gen outgoing)
+  let task ← async (t := AsyncTask) <| do
+    try
+      gen outgoing
+    finally
+      outgoing.close
+
+  incoming.state.atomically do
+    let st ← get
+    set { st with backgroundTask := some task }
+
   return incoming
 
 /--
@@ -547,9 +612,8 @@ Creates a body from a fixed byte array.
 def fromBytes (content : ByteArray) : Async Incoming := do
   let (outgoing, incoming) ← mkChannel
   outgoing.setKnownSize (some (.fixed content.size))
-  background do
-    outgoing.send (Chunk.ofByteArray content)
-    outgoing.close
+  outgoing.send (Chunk.ofByteArray content)
+  outgoing.close
   return incoming
 
 /--

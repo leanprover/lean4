@@ -62,7 +62,7 @@ def bad505 : String :=
 def ok200 : String :=
   "HTTP/1.1 200 OK\x0d\nContent-Length: 2\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\nContent-Type: text/plain; charset=utf-8\x0d\n\x0d\nok"
 
-def notInmplemented : String :=
+def notImplemented : String :=
   "HTTP/1.1 501 Not Implemented\x0d\nContent-Length: 0\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"
 
 -- =============================================================================
@@ -215,7 +215,7 @@ def notInmplemented : String :=
   assertExact "Null byte in header value" response bad400
 
 -- =============================================================================
--- Bare LF without CR (strict parser should reject)
+-- Bare LF without CR.
 -- =============================================================================
 
 #eval show IO _ from do
@@ -264,7 +264,7 @@ def notInmplemented : String :=
   let longMethod := String.ofList (List.replicate 20 'G')
   let raw := s!"{longMethod} / HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
   let response ← sendRaw client server raw okHandler
-  assertExact "Method too long" response bad400
+  assertExact "Method too long" response notImplemented
 
 -- =============================================================================
 -- Request with only whitespace

@@ -138,51 +138,51 @@ lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__12;
 lean_object* lean_array_push(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__13;
-static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__14;
 extern lean_object* l_Lean_Compiler_LCNF_pullInstances;
+static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__14;
 static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__15;
 static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__16;
 static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__17;
 static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__18;
-static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__19;
 extern lean_object* l_Lean_Compiler_LCNF_pullFunDecls;
+static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__19;
 static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__20;
 static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__21;
-static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__22;
 extern lean_object* l_Lean_Compiler_LCNF_eagerLambdaLifting;
-static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__23;
+static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__22;
 extern lean_object* l_Lean_Compiler_LCNF_checkTemplateVisibility;
-static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__24;
+static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__23;
 extern lean_object* l_Lean_Compiler_LCNF_specialize;
+static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__24;
 static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__25;
 static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__26;
 static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__27;
 static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__28;
 static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__29;
-static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__30;
 extern lean_object* l_Lean_Compiler_LCNF_toMono;
+static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__30;
 static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__31;
 static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__32;
-static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__33;
 lean_object* l_Lean_Compiler_LCNF_extendJoinPointContext___redArg(lean_object*, uint8_t);
+static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__33;
 static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__34;
 static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__35;
 static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__36;
 static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__37;
 static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__38;
 static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__39;
-static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__40;
 extern lean_object* l_Lean_Compiler_LCNF_structProjCases;
+static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__40;
 static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__41;
 static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__42;
-static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__43;
 extern lean_object* l_Lean_Compiler_LCNF_reduceArity;
-static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__44;
+static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__43;
 extern lean_object* l_Lean_Compiler_LCNF_commonJoinPointArgs;
+static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__44;
 static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__45;
 static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__46;
-static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__47;
 extern lean_object* l_Lean_Compiler_LCNF_lambdaLifting;
+static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__47;
 static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__48;
 static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__49;
 static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__50;
@@ -190,34 +190,33 @@ static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__51;
 static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__52;
 static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__53;
 static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__54;
-static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__55;
 extern lean_object* l_Lean_Compiler_LCNF_elimDeadBranches;
+static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__55;
 static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__56;
 static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__57;
 static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__58;
-static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__59;
 extern lean_object* l_Lean_Compiler_LCNF_extractClosed;
-static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__60;
+static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__59;
 extern lean_object* l_Lean_Compiler_LCNF_toImpure;
-static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__61;
+static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__60;
 lean_object* l_Lean_Compiler_LCNF_pushProj(lean_object*);
-static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__62;
+static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__61;
 lean_object* l_Lean_Compiler_LCNF_elimDeadVars(uint8_t, lean_object*);
+static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__62;
 static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__63;
 static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__64;
-static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__65;
 extern lean_object* l_Lean_Compiler_LCNF_insertResetReuse;
+static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__65;
 static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__66;
-static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__67;
 extern lean_object* l_Lean_Compiler_LCNF_simpCase;
-static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__68;
+static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__67;
 extern lean_object* l_Lean_Compiler_LCNF_inferBorrow;
-static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__69;
+static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__68;
 extern lean_object* l_Lean_Compiler_LCNF_explicitBoxing;
+static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__69;
 static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__70;
 static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__71;
 static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__72;
-static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__73;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_builtinPassManager;
 lean_object* l_Lean_Compiler_LCNF_PassInstaller_runFromDecl(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Compiler_LCNF_runImportedDecls_spec__0(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
@@ -1529,7 +1528,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__12()
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(19u);
+x_1 = lean_unsigned_to_nat(18u);
 x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
@@ -1548,7 +1547,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__14()
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = ((lean_object*)(l_Lean_Compiler_LCNF_Pass_checkMeta));
+x_1 = l_Lean_Compiler_LCNF_pullInstances;
 x_2 = l_Lean_Compiler_LCNF_builtinPassManager___closed__13;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -1558,7 +1557,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__15()
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_pullInstances;
+x_1 = l_Lean_Compiler_LCNF_builtinPassManager___closed__0;
 x_2 = l_Lean_Compiler_LCNF_builtinPassManager___closed__14;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -1568,7 +1567,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__16()
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_builtinPassManager___closed__0;
+x_1 = l_Lean_Compiler_LCNF_builtinPassManager___closed__2;
 x_2 = l_Lean_Compiler_LCNF_builtinPassManager___closed__15;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -1578,7 +1577,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__17()
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_builtinPassManager___closed__2;
+x_1 = l_Lean_Compiler_LCNF_builtinPassManager___closed__3;
 x_2 = l_Lean_Compiler_LCNF_builtinPassManager___closed__16;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -1588,7 +1587,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__18()
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_builtinPassManager___closed__3;
+x_1 = l_Lean_Compiler_LCNF_builtinPassManager___closed__4;
 x_2 = l_Lean_Compiler_LCNF_builtinPassManager___closed__17;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -1598,7 +1597,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__19()
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_builtinPassManager___closed__4;
+x_1 = l_Lean_Compiler_LCNF_pullFunDecls;
 x_2 = l_Lean_Compiler_LCNF_builtinPassManager___closed__18;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -1608,7 +1607,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__20()
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_pullFunDecls;
+x_1 = l_Lean_Compiler_LCNF_builtinPassManager___closed__5;
 x_2 = l_Lean_Compiler_LCNF_builtinPassManager___closed__19;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -1618,7 +1617,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__21()
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_builtinPassManager___closed__5;
+x_1 = l_Lean_Compiler_LCNF_builtinPassManager___closed__7;
 x_2 = l_Lean_Compiler_LCNF_builtinPassManager___closed__20;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -1628,7 +1627,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__22()
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_builtinPassManager___closed__7;
+x_1 = l_Lean_Compiler_LCNF_eagerLambdaLifting;
 x_2 = l_Lean_Compiler_LCNF_builtinPassManager___closed__21;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -1638,7 +1637,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__23()
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_eagerLambdaLifting;
+x_1 = l_Lean_Compiler_LCNF_checkTemplateVisibility;
 x_2 = l_Lean_Compiler_LCNF_builtinPassManager___closed__22;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -1648,7 +1647,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__24()
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_checkTemplateVisibility;
+x_1 = l_Lean_Compiler_LCNF_specialize;
 x_2 = l_Lean_Compiler_LCNF_builtinPassManager___closed__23;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -1658,7 +1657,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__25()
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_specialize;
+x_1 = l_Lean_Compiler_LCNF_builtinPassManager___closed__8;
 x_2 = l_Lean_Compiler_LCNF_builtinPassManager___closed__24;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -1668,7 +1667,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__26()
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_builtinPassManager___closed__8;
+x_1 = l_Lean_Compiler_LCNF_builtinPassManager___closed__9;
 x_2 = l_Lean_Compiler_LCNF_builtinPassManager___closed__25;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -1678,7 +1677,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__27()
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_builtinPassManager___closed__9;
+x_1 = l_Lean_Compiler_LCNF_builtinPassManager___closed__10;
 x_2 = l_Lean_Compiler_LCNF_builtinPassManager___closed__26;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -1688,7 +1687,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__28()
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_builtinPassManager___closed__10;
+x_1 = ((lean_object*)(l_Lean_Compiler_LCNF_Pass_saveBase));
 x_2 = l_Lean_Compiler_LCNF_builtinPassManager___closed__27;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -1698,7 +1697,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__29()
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = ((lean_object*)(l_Lean_Compiler_LCNF_Pass_saveBase));
+x_1 = l_Lean_Compiler_LCNF_builtinPassManager___closed__11;
 x_2 = l_Lean_Compiler_LCNF_builtinPassManager___closed__28;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -1708,23 +1707,13 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__30()
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_builtinPassManager___closed__11;
+x_1 = l_Lean_Compiler_LCNF_toMono;
 x_2 = l_Lean_Compiler_LCNF_builtinPassManager___closed__29;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
 }
 static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__31() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_toMono;
-x_2 = l_Lean_Compiler_LCNF_builtinPassManager___closed__30;
-x_3 = lean_array_push(x_2, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__32() {
 _start:
 {
 uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -1735,7 +1724,7 @@ x_4 = l_Lean_Compiler_LCNF_simp(x_3, x_2, x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__33() {
+static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__32() {
 _start:
 {
 uint8_t x_1; lean_object* x_2; 
@@ -1744,7 +1733,7 @@ x_2 = l_Lean_Compiler_LCNF_reduceJpArity(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__34() {
+static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__33() {
 _start:
 {
 uint8_t x_1; lean_object* x_2; lean_object* x_3; 
@@ -1754,7 +1743,7 @@ x_3 = l_Lean_Compiler_LCNF_extendJoinPointContext___redArg(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__35() {
+static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__34() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; 
@@ -1764,7 +1753,7 @@ x_3 = l_Lean_Compiler_LCNF_floatLetIn(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__36() {
+static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__35() {
 _start:
 {
 uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -1775,7 +1764,7 @@ x_4 = l_Lean_Compiler_LCNF_simp(x_3, x_2, x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__37() {
+static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__36() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; 
@@ -1785,13 +1774,23 @@ x_3 = l_Lean_Compiler_LCNF_floatLetIn(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__38() {
+static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__37() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(10u);
 x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__38() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Compiler_LCNF_builtinPassManager___closed__31;
+x_2 = l_Lean_Compiler_LCNF_builtinPassManager___closed__37;
+x_3 = lean_array_push(x_2, x_1);
+return x_3;
 }
 }
 static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__39() {
@@ -1808,7 +1807,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__40()
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_builtinPassManager___closed__33;
+x_1 = l_Lean_Compiler_LCNF_structProjCases;
 x_2 = l_Lean_Compiler_LCNF_builtinPassManager___closed__39;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -1818,7 +1817,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__41()
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_structProjCases;
+x_1 = l_Lean_Compiler_LCNF_builtinPassManager___closed__33;
 x_2 = l_Lean_Compiler_LCNF_builtinPassManager___closed__40;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -1838,7 +1837,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__43()
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_builtinPassManager___closed__35;
+x_1 = l_Lean_Compiler_LCNF_reduceArity;
 x_2 = l_Lean_Compiler_LCNF_builtinPassManager___closed__42;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -1848,7 +1847,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__44()
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_reduceArity;
+x_1 = l_Lean_Compiler_LCNF_commonJoinPointArgs;
 x_2 = l_Lean_Compiler_LCNF_builtinPassManager___closed__43;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -1858,7 +1857,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__45()
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_commonJoinPointArgs;
+x_1 = l_Lean_Compiler_LCNF_builtinPassManager___closed__35;
 x_2 = l_Lean_Compiler_LCNF_builtinPassManager___closed__44;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -1878,23 +1877,13 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__47()
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_builtinPassManager___closed__37;
+x_1 = l_Lean_Compiler_LCNF_lambdaLifting;
 x_2 = l_Lean_Compiler_LCNF_builtinPassManager___closed__46;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
 }
 static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__48() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_lambdaLifting;
-x_2 = l_Lean_Compiler_LCNF_builtinPassManager___closed__47;
-x_3 = lean_array_push(x_2, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__49() {
 _start:
 {
 uint8_t x_1; lean_object* x_2; lean_object* x_3; 
@@ -1904,7 +1893,7 @@ x_3 = l_Lean_Compiler_LCNF_extendJoinPointContext___redArg(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__50() {
+static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__49() {
 _start:
 {
 uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -1915,7 +1904,7 @@ x_4 = l_Lean_Compiler_LCNF_simp(x_3, x_2, x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__51() {
+static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__50() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; uint8_t x_3; lean_object* x_4; 
@@ -1926,7 +1915,7 @@ x_4 = l_Lean_Compiler_LCNF_cse(x_3, x_2, x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__52() {
+static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__51() {
 _start:
 {
 uint8_t x_1; lean_object* x_2; 
@@ -1935,13 +1924,23 @@ x_2 = l_Lean_Compiler_LCNF_inferVisibility(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__53() {
+static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__52() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(8u);
 x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__53() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Compiler_LCNF_builtinPassManager___closed__48;
+x_2 = l_Lean_Compiler_LCNF_builtinPassManager___closed__52;
+x_3 = lean_array_push(x_2, x_1);
+return x_3;
 }
 }
 static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__54() {
@@ -1958,7 +1957,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__55()
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_builtinPassManager___closed__50;
+x_1 = l_Lean_Compiler_LCNF_elimDeadBranches;
 x_2 = l_Lean_Compiler_LCNF_builtinPassManager___closed__54;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -1968,7 +1967,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__56()
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_elimDeadBranches;
+x_1 = l_Lean_Compiler_LCNF_builtinPassManager___closed__50;
 x_2 = l_Lean_Compiler_LCNF_builtinPassManager___closed__55;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -1978,7 +1977,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__57()
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_builtinPassManager___closed__51;
+x_1 = ((lean_object*)(l_Lean_Compiler_LCNF_Pass_saveMono));
 x_2 = l_Lean_Compiler_LCNF_builtinPassManager___closed__56;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -1988,7 +1987,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__58()
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = ((lean_object*)(l_Lean_Compiler_LCNF_Pass_saveMono));
+x_1 = l_Lean_Compiler_LCNF_builtinPassManager___closed__51;
 x_2 = l_Lean_Compiler_LCNF_builtinPassManager___closed__57;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -1998,7 +1997,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__59()
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_builtinPassManager___closed__52;
+x_1 = l_Lean_Compiler_LCNF_extractClosed;
 x_2 = l_Lean_Compiler_LCNF_builtinPassManager___closed__58;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -2008,7 +2007,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__60()
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_extractClosed;
+x_1 = l_Lean_Compiler_LCNF_toImpure;
 x_2 = l_Lean_Compiler_LCNF_builtinPassManager___closed__59;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -2017,23 +2016,13 @@ return x_3;
 static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__61() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_toImpure;
-x_2 = l_Lean_Compiler_LCNF_builtinPassManager___closed__60;
-x_3 = lean_array_push(x_2, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__62() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
 x_2 = l_Lean_Compiler_LCNF_pushProj(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__63() {
+static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__62() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; 
@@ -2043,7 +2032,7 @@ x_3 = l_Lean_Compiler_LCNF_elimDeadVars(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__64() {
+static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__63() {
 _start:
 {
 uint8_t x_1; lean_object* x_2; 
@@ -2052,12 +2041,22 @@ x_2 = l_Lean_Compiler_LCNF_inferVisibility(x_1);
 return x_2;
 }
 }
+static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__64() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Compiler_LCNF_builtinPassManager___closed__61;
+x_2 = l_Lean_Compiler_LCNF_builtinPassManager___closed__52;
+x_3 = lean_array_push(x_2, x_1);
+return x_3;
+}
+}
 static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__65() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_builtinPassManager___closed__62;
-x_2 = l_Lean_Compiler_LCNF_builtinPassManager___closed__53;
+x_1 = l_Lean_Compiler_LCNF_insertResetReuse;
+x_2 = l_Lean_Compiler_LCNF_builtinPassManager___closed__64;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -2066,7 +2065,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__66()
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_insertResetReuse;
+x_1 = l_Lean_Compiler_LCNF_builtinPassManager___closed__62;
 x_2 = l_Lean_Compiler_LCNF_builtinPassManager___closed__65;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -2076,7 +2075,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__67()
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_builtinPassManager___closed__63;
+x_1 = l_Lean_Compiler_LCNF_simpCase;
 x_2 = l_Lean_Compiler_LCNF_builtinPassManager___closed__66;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -2086,7 +2085,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__68()
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_simpCase;
+x_1 = l_Lean_Compiler_LCNF_inferBorrow;
 x_2 = l_Lean_Compiler_LCNF_builtinPassManager___closed__67;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -2096,7 +2095,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__69()
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_inferBorrow;
+x_1 = l_Lean_Compiler_LCNF_explicitBoxing;
 x_2 = l_Lean_Compiler_LCNF_builtinPassManager___closed__68;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -2106,7 +2105,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__70()
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_explicitBoxing;
+x_1 = l_Lean_Compiler_LCNF_builtinPassManager___closed__63;
 x_2 = l_Lean_Compiler_LCNF_builtinPassManager___closed__69;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -2116,7 +2115,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__71()
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_builtinPassManager___closed__64;
+x_1 = ((lean_object*)(l_Lean_Compiler_LCNF_Pass_saveImpure));
 x_2 = l_Lean_Compiler_LCNF_builtinPassManager___closed__70;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -2125,21 +2124,11 @@ return x_3;
 static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__72() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = ((lean_object*)(l_Lean_Compiler_LCNF_Pass_saveImpure));
-x_2 = l_Lean_Compiler_LCNF_builtinPassManager___closed__71;
-x_3 = lean_array_push(x_2, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__73() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l_Lean_Compiler_LCNF_builtinPassManager___closed__72;
-x_2 = l_Lean_Compiler_LCNF_builtinPassManager___closed__61;
-x_3 = l_Lean_Compiler_LCNF_builtinPassManager___closed__48;
-x_4 = l_Lean_Compiler_LCNF_builtinPassManager___closed__31;
+x_1 = l_Lean_Compiler_LCNF_builtinPassManager___closed__71;
+x_2 = l_Lean_Compiler_LCNF_builtinPassManager___closed__60;
+x_3 = l_Lean_Compiler_LCNF_builtinPassManager___closed__47;
+x_4 = l_Lean_Compiler_LCNF_builtinPassManager___closed__30;
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_4);
 lean_ctor_set(x_5, 1, x_3);
@@ -2152,7 +2141,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtinPassManager() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Compiler_LCNF_builtinPassManager___closed__73;
+x_1 = l_Lean_Compiler_LCNF_builtinPassManager___closed__72;
 return x_1;
 }
 }
@@ -4649,8 +4638,6 @@ l_Lean_Compiler_LCNF_builtinPassManager___closed__71 = _init_l_Lean_Compiler_LCN
 lean_mark_persistent(l_Lean_Compiler_LCNF_builtinPassManager___closed__71);
 l_Lean_Compiler_LCNF_builtinPassManager___closed__72 = _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__72();
 lean_mark_persistent(l_Lean_Compiler_LCNF_builtinPassManager___closed__72);
-l_Lean_Compiler_LCNF_builtinPassManager___closed__73 = _init_l_Lean_Compiler_LCNF_builtinPassManager___closed__73();
-lean_mark_persistent(l_Lean_Compiler_LCNF_builtinPassManager___closed__73);
 l_Lean_Compiler_LCNF_builtinPassManager = _init_l_Lean_Compiler_LCNF_builtinPassManager();
 lean_mark_persistent(l_Lean_Compiler_LCNF_builtinPassManager);
 l_Lean_Compiler_LCNF_initFn___closed__10_00___x40_Lean_Compiler_LCNF_Passes_3698839830____hygCtx___hyg_2_ = _init_l_Lean_Compiler_LCNF_initFn___closed__10_00___x40_Lean_Compiler_LCNF_Passes_3698839830____hygCtx___hyg_2_();

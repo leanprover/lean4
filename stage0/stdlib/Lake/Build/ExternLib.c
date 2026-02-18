@@ -553,9 +553,9 @@ block_46:
 lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; 
 x_22 = lean_ctor_get(x_20, 3);
 lean_inc_ref(x_22);
-x_23 = lean_ctor_get(x_20, 12);
+x_23 = lean_ctor_get(x_20, 13);
 lean_inc_ref(x_23);
-x_24 = lean_ctor_get(x_20, 18);
+x_24 = lean_ctor_get(x_20, 19);
 lean_inc_ref(x_24);
 lean_dec_ref(x_20);
 x_25 = l_Array_append___redArg(x_21, x_1);

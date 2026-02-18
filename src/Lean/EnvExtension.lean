@@ -97,6 +97,8 @@ def mkTagDeclarationExtension (name : Name := by exact decl_name%)
     addEntryFn    := fun s n => s.insert n,
     toArrayFn     := fun es => es.toArray.qsort Name.quickLt
     asyncMode
+    replay?       := some <|
+      SimplePersistentEnvExtension.replayOfFilter (!·.contains ·) (fun s n => s.insert n)
   }
 
 namespace TagDeclarationExtension

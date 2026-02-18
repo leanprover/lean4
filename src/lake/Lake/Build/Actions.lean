@@ -30,6 +30,7 @@ public def compileLeanModule
   (leanArgs : Array String := #[])
   (leanPath : SearchPath := [])
   (lean : FilePath := "lean")
+  (leanir : FilePath := "leanir")
 : LogIO Unit := do
   let mut args := leanArgs.push leanFile.toString
   if let some oleanFile := arts.olean? then
@@ -38,9 +39,10 @@ public def compileLeanModule
   if let some ileanFile := arts.ilean? then
     createParentDirs ileanFile
     args := args ++ #["-i", ileanFile.toString]
-  if let some cFile := arts.c? then
-    createParentDirs cFile
-    args := args ++ #["-c", cFile.toString]
+  if arts.ir?.isNone then  -- TODO: module?
+    if let some cFile := arts.c? then
+      createParentDirs cFile
+      args := args ++ #["-c", cFile.toString]
   if let some bcFile := arts.bc? then
     createParentDirs bcFile
     args := args ++ #["-b", bcFile.toString]
@@ -75,6 +77,21 @@ public def compileLeanModule
     logInfo s!"stderr:\n{out.stderr.trimAscii}"
   if out.exitCode ≠ 0 then
     error s!"Lean exited with code {out.exitCode}"
+  if let (some irFile, some cFile) := (arts.ir?, arts.c?) then
+    createParentDirs irFile
+    createParentDirs cFile
+    try
+      proc {
+        cmd := leanir.toString
+        args := #[setupFile.toString, irFile.toString, cFile.toString]
+        env := #[
+          ("LEAN_PATH", leanPath.toString)
+        ]
+      }
+    catch e =>
+      if let some oleanFile := arts.olean? then
+        removeFileIfExists oleanFile
+      throw e
 
 public def compileO
   (oFile srcFile : FilePath)

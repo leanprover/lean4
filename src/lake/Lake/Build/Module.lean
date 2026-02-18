@@ -714,7 +714,7 @@ private def Module.buildLean
   let arts := mod.mkArtifacts srcFile setup.isModule
   mod.clearOutputArtifacts
   compileLeanModule srcFile relSrcFile setup mod.setupFile arts args
-    (← getLeanPath) (← getLean)
+    (← getLeanPath) (← getLean) (← getLeanir)
   mod.clearOutputHashes
   mod.computeArtifacts setup.isModule
 

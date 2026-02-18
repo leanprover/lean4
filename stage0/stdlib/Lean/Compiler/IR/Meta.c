@@ -144,7 +144,7 @@ uint8_t l_Lean_NameSet_contains(lean_object*, lean_object*);
 extern lean_object* l_Lean_IR_declMapExt;
 lean_object* l_Lean_SimplePersistentEnvExtension_getState___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at___00__private_Lean_Compiler_IR_Meta_0__Lean_IR_evalCheckMeta_go_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_IR_findEnvDecl(lean_object*, lean_object*, uint8_t);
+lean_object* l_Lean_IR_findEnvDecl(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_Meta_0__Lean_IR_evalCheckMeta_go(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at___00__private_Lean_Compiler_IR_Meta_0__Lean_IR_evalCheckMeta_go_spec__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at___00__private_Lean_Compiler_IR_Meta_0__Lean_IR_evalCheckMeta_go_spec__0___boxed(lean_object*, lean_object*, lean_object*);
@@ -1948,7 +1948,7 @@ else
 lean_object* x_44; 
 lean_dec(x_25);
 lean_inc(x_3);
-x_44 = l_Lean_IR_findEnvDecl(x_1, x_3, x_17);
+x_44 = l_Lean_IR_findEnvDecl(x_1, x_3);
 if (lean_obj_tag(x_44) == 0)
 {
 uint8_t x_45; 

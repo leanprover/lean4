@@ -308,6 +308,12 @@ static const lean_closure_object l_Lake_getLean___redArg___closed__0_value = {.m
 static const lean_object* l_Lake_getLean___redArg___closed__0 = (const lean_object*)&l_Lake_getLean___redArg___closed__0_value;
 LEAN_EXPORT lean_object* l_Lake_getLean___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getLean(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_getLeanir___redArg___lam__0(lean_object*);
+LEAN_EXPORT lean_object* l_Lake_getLeanir___redArg___lam__0___boxed(lean_object*);
+static const lean_closure_object l_Lake_getLeanir___redArg___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lake_getLeanir___redArg___lam__0___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Lake_getLeanir___redArg___closed__0 = (const lean_object*)&l_Lake_getLeanir___redArg___closed__0_value;
+LEAN_EXPORT lean_object* l_Lake_getLeanir___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_getLeanir(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getLeanc___redArg___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getLeanc___redArg___lam__0___boxed(lean_object*);
 static const lean_closure_object l_Lake_getLeanc___redArg___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lake_getLeanc___redArg___lam__0___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
@@ -2493,11 +2499,59 @@ x_8 = lean_apply_4(x_4, lean_box(0), lean_box(0), x_5, x_7);
 return x_8;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_getLeanc___redArg___lam__0(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lake_getLeanir___redArg___lam__0(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
 x_2 = lean_ctor_get(x_1, 8);
+lean_inc_ref(x_2);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_getLeanir___redArg___lam__0___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lake_getLeanir___redArg___lam__0(x_1);
+lean_dec_ref(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_getLeanir___redArg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+x_3 = lean_ctor_get(x_2, 0);
+lean_inc(x_3);
+lean_dec_ref(x_2);
+x_4 = ((lean_object*)(l_Lake_getLeanir___redArg___closed__0));
+x_5 = ((lean_object*)(l_Lake_getLeanInstall___redArg___closed__0));
+lean_inc(x_3);
+x_6 = lean_apply_4(x_3, lean_box(0), lean_box(0), x_5, x_1);
+x_7 = lean_apply_4(x_3, lean_box(0), lean_box(0), x_4, x_6);
+return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_getLeanir(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
+x_4 = lean_ctor_get(x_3, 0);
+lean_inc(x_4);
+lean_dec_ref(x_3);
+x_5 = ((lean_object*)(l_Lake_getLeanir___redArg___closed__0));
+x_6 = ((lean_object*)(l_Lake_getLeanInstall___redArg___closed__0));
+lean_inc(x_4);
+x_7 = lean_apply_4(x_4, lean_box(0), lean_box(0), x_6, x_2);
+x_8 = lean_apply_4(x_4, lean_box(0), lean_box(0), x_5, x_7);
+return x_8;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_getLeanc___redArg___lam__0(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_ctor_get(x_1, 9);
 lean_inc_ref(x_2);
 return x_2;
 }
@@ -2545,7 +2599,7 @@ LEAN_EXPORT lean_object* l_Lake_getLeanSharedLib___redArg___lam__0(lean_object* 
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_ctor_get(x_1, 9);
+x_2 = lean_ctor_get(x_1, 10);
 lean_inc_ref(x_2);
 return x_2;
 }
@@ -2593,7 +2647,7 @@ LEAN_EXPORT lean_object* l_Lake_getLeanAr___redArg___lam__0(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_ctor_get(x_1, 11);
+x_2 = lean_ctor_get(x_1, 12);
 lean_inc_ref(x_2);
 return x_2;
 }
@@ -2641,7 +2695,7 @@ LEAN_EXPORT lean_object* l_Lake_getLeanCc___redArg___lam__0(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_ctor_get(x_1, 12);
+x_2 = lean_ctor_get(x_1, 13);
 lean_inc_ref(x_2);
 return x_2;
 }
@@ -2719,7 +2773,7 @@ LEAN_EXPORT lean_object* l_Lake_getLeanLinkSharedFlags___redArg___lam__0(lean_ob
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_ctor_get(x_1, 18);
+x_2 = lean_ctor_get(x_1, 19);
 lean_inc_ref(x_2);
 return x_2;
 }

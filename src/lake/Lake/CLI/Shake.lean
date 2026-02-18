@@ -8,7 +8,7 @@ module
 prelude
 public import Lean.Util.Path
 import Lean.ExtraModUses
-import Lean.Parser.Module
+meta import Lean.Parser.Module
 import Init.Data.Range.Polymorphic.Iterators
 meta import Lean.Parser.Module
 

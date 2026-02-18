@@ -49,4 +49,8 @@ def profileitIO {ε α : Type} (category : String) (opts : Options) (act : EIO �
 def profileitM {m : Type → Type} (ε : Type) [MonadFunctorT (EIO ε) m] {α : Type} (category : String) (opts : Options) (act : m α) (decl := Name.anonymous) : m α :=
   monadMap (fun {β} => profileitIO (ε := ε) (α := β) (decl := decl) category opts) act
 
+/-- Print all profiling times (if any) to standard error. -/
+@[extern "lean_display_cumulative_profiling_times"]
+opaque displayCumulativeProfilingTimes : BaseIO Unit
+
 end Lean

@@ -114,17 +114,17 @@ partial def LetValue.toMono (e : LetValue .pure) : ToMonoM (LetValue .pure) := d
         ctorAppToMono ctorInfo args
     else
       let env ← getEnv
-      if let some monoDecl ← getMonoDecl? declName then
-        if args.size >= monoDecl.params.size then
-          if let .code (.let { fvarId := resultFVar, value := .const callName _ callArgs, .. }
-                             (.return retFVar)) := monoDecl.value then
-            let redArgDeclName := declName ++ `_redArg
-            if callName == redArgDeclName && retFVar == resultFVar then
-              let args ← argsToMonoRedArg args monoDecl.params callArgs
-              return .const redArgDeclName [] args
-        let args ← argsToMonoWithFnType args monoDecl.type
-        return .const declName [] args
-      else
+      --if let some monoDecl ← getMonoDecl? declName then
+      --  if args.size >= monoDecl.params.size then
+      --    if let .code (.let { fvarId := resultFVar, value := .const callName _ callArgs, .. }
+      --                       (.return retFVar)) := monoDecl.value then
+      --      let redArgDeclName := declName ++ `_redArg
+      --      if callName == redArgDeclName && retFVar == resultFVar then
+      --        let args ← argsToMonoRedArg args monoDecl.params callArgs
+      --        return .const redArgDeclName [] args
+      --  let args ← argsToMonoWithFnType args monoDecl.type
+      --  return .const declName [] args
+      --else
         let args ← args.mapM argToMono
         return .const declName [] args
   | .fvar fvarId args =>

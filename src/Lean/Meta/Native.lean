@@ -54,7 +54,7 @@ public def nativeEqTrue (tacticName : Name) (e : Expr) (axiomDeclRange? : Option
       -- disable async codegen so we can catch its exceptions; we don't want to report `evalConst`
       -- failures below when the actual reason was a codegen failure
       withOptions (Elab.async.set · false) do
-        addAndCompile decl
+        addAndCompile (mayPostPoneCompile := false) decl
     catch ex =>
       throwError m!"Tactic `{tacticName}` failed. Error: {ex.toMessageData}"
 

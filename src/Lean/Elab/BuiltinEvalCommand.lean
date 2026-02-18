@@ -95,6 +95,7 @@ private def addAndCompileExprForEval (declName : Name) (value : Expr) (allowSorr
   -- Allow access to both `meta` and non-`meta` declarations as the compilation result does not
   -- escape the current module.
   withOptions (Compiler.compiler.checkMeta.set · false) do
+  withOptions (compiler.postponeCompile.set · false) do
     Term.elabMutualDef #[] { header := "" } #[defView]
   assert! (← getEnv).contains declName
   unless allowSorry do

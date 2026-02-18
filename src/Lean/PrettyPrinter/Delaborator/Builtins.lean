@@ -9,10 +9,9 @@ prelude
 public import Lean.PrettyPrinter.Delaborator.Basic
 public import Lean.Meta.CoeAttr
 public import Lean.Meta.Structure
-import Lean.Parser.Command
 public import Lean.PrettyPrinter.Formatter
 public import Lean.PrettyPrinter.Parenthesizer
-meta import Lean.Parser.Do
+meta import Lean.Parser.Command
 
 public section
 
@@ -1500,6 +1499,7 @@ def delabSorry : Delab := whenPPOption getPPNotation <| whenNotPPOption getPPExp
   else
     withOverApp 2 `(sorry)
 
+set_option compiler.postponeCompile false in  -- TODO
 open Parser Command Term in
 @[run_builtin_parser_attribute_hooks]
 -- use `termParser` instead of `declId` so we can reuse `delabConst`

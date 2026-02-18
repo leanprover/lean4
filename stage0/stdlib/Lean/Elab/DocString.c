@@ -1268,7 +1268,7 @@ static const lean_object* l___private_Lean_Elab_DocString_0__Lean_Doc_genWrapper
 static lean_object* l___private_Lean_Elab_DocString_0__Lean_Doc_genWrapper___closed__11;
 lean_object* lean_infer_type(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Core_mkFreshUserName(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_addAndCompile(lean_object*, uint8_t, lean_object*, lean_object*);
+lean_object* l_Lean_addAndCompile(lean_object*, uint8_t, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_DocString_0__Lean_Doc_genWrapper(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_DocString_0__Lean_Doc_genWrapper___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Doc_initFn___lam__0_00___x40_Lean_Elab_DocString_4269191401____hygCtx___hyg_2_(uint8_t, lean_object*);
@@ -29628,7 +29628,7 @@ lean_ctor_set_uint8(x_29, sizeof(void*)*4, x_27);
 lean_ctor_set_tag(x_21, 1);
 lean_ctor_set(x_21, 0, x_29);
 x_30 = 1;
-x_31 = l_Lean_addAndCompile(x_21, x_30, x_14, x_15);
+x_31 = l_Lean_addAndCompile(x_21, x_30, x_30, x_14, x_15);
 if (lean_obj_tag(x_31) == 0)
 {
 uint8_t x_32; 
@@ -29696,7 +29696,7 @@ lean_ctor_set_uint8(x_43, sizeof(void*)*4, x_41);
 x_44 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_44, 0, x_43);
 x_45 = 1;
-x_46 = l_Lean_addAndCompile(x_44, x_45, x_14, x_15);
+x_46 = l_Lean_addAndCompile(x_44, x_45, x_45, x_14, x_15);
 if (lean_obj_tag(x_46) == 0)
 {
 lean_object* x_47; lean_object* x_48; 

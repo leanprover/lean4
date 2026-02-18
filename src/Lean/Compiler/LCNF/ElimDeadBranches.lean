@@ -309,9 +309,7 @@ def addFunctionSummary (env : Environment) (fid : Name) (v : Value) : Environmen
 Obtain the `Value` for a function name if possible.
 -/
 def getFunctionSummary? (env : Environment) (fid : Name) : Option Value :=
-  match env.getModuleIdxFor? fid with
-  | some modIdx => findAtSorted? (functionSummariesExt.getModuleEntries env modIdx) fid
-  | none        => functionSummariesExt.getState env |>.find? fid
+  findExtEntry? env functionSummariesExt fid findAtSorted? (·.2.find?)
 
 /--
 A map from variable identifiers to the `Value` produced by the abstract

@@ -880,7 +880,7 @@ lean_object* l_mkNatLookupTable(lean_object*, lean_object*, lean_object*, lean_o
 lean_object* l_Lean_Meta_mkLambdaFVars(lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkArrow(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
-lean_object* l_Lean_addAndCompile(lean_object*, uint8_t, lean_object*, lean_object*);
+lean_object* l_Lean_addAndCompile(lean_object*, uint8_t, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Deriving_DecEq_0__Lean_Elab_Deriving_DecEq_mkEnumOfNat___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Deriving_DecEq_0__Lean_Elab_Deriving_DecEq_mkEnumOfNat___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
@@ -12764,7 +12764,7 @@ lean_ctor_set(x_30, 3, x_29);
 lean_ctor_set_uint8(x_30, sizeof(void*)*4, x_27);
 x_31 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_31, 0, x_30);
-x_32 = l_Lean_addAndCompile(x_31, x_17, x_9, x_10);
+x_32 = l_Lean_addAndCompile(x_31, x_17, x_17, x_9, x_10);
 return x_32;
 }
 else
@@ -13391,7 +13391,7 @@ lean_ctor_set(x_42, 1, x_34);
 lean_ctor_set(x_42, 2, x_41);
 lean_ctor_set_tag(x_30, 2);
 lean_ctor_set(x_30, 0, x_42);
-x_43 = l_Lean_addAndCompile(x_30, x_21, x_12, x_13);
+x_43 = l_Lean_addAndCompile(x_30, x_21, x_21, x_12, x_13);
 return x_43;
 }
 else
@@ -13485,7 +13485,7 @@ lean_ctor_set(x_60, 1, x_52);
 lean_ctor_set(x_60, 2, x_59);
 x_61 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_61, 0, x_60);
-x_62 = l_Lean_addAndCompile(x_61, x_21, x_12, x_13);
+x_62 = l_Lean_addAndCompile(x_61, x_21, x_21, x_12, x_13);
 return x_62;
 }
 else

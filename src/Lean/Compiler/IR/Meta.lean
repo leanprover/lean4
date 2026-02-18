@@ -57,7 +57,11 @@ errors from the interpreter itself as those depend on whether we are running in 
 private partial def evalCheckMeta (env : Environment) (declName : Name) : Except String Unit := do
   if !env.header.isModule then
     return
+  --if let some localDecl := baseExt.getState env |>.find? declName then
   go declName |>.run' {}
+  --else
+  --  if getIRPhases env declName == .runtime then
+  --    throw s!"Cannot evaluate constant `{declName}` as it is neither marked nor imported as `meta`"
 where go (ref : Name) : StateT NameSet (Except String) Unit := do
   if (← get).contains ref then
     return

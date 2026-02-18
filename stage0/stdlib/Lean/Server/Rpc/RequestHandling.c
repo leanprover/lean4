@@ -365,7 +365,7 @@ static const lean_object* l_Lean_Server_registerRpcProcedure___closed__19 = (con
 static lean_object* l_Lean_Server_registerRpcProcedure___closed__20;
 lean_object* l_Lean_Elab_Term_TermElabM_run___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_append(lean_object*, lean_object*);
-lean_object* l_Lean_addAndCompile(lean_object*, uint8_t, lean_object*, lean_object*);
+lean_object* l_Lean_addAndCompile(lean_object*, uint8_t, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_MapDeclarationExtension_insert___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofName(lean_object*);
 uint8_t l_Lean_MapDeclarationExtension_contains___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -4317,7 +4317,7 @@ lean_ctor_set_uint8(x_38, sizeof(void*)*4, x_37);
 x_39 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_39, 0, x_38);
 lean_inc(x_10);
-x_40 = l_Lean_addAndCompile(x_39, x_13, x_9, x_10);
+x_40 = l_Lean_addAndCompile(x_39, x_13, x_13, x_9, x_10);
 if (lean_obj_tag(x_40) == 0)
 {
 lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; 
@@ -4369,7 +4369,7 @@ lean_ctor_set_uint8(x_53, sizeof(void*)*4, x_51);
 x_54 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_54, 0, x_53);
 lean_inc(x_10);
-x_55 = l_Lean_addAndCompile(x_54, x_13, x_9, x_10);
+x_55 = l_Lean_addAndCompile(x_54, x_13, x_13, x_9, x_10);
 if (lean_obj_tag(x_55) == 0)
 {
 lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; 

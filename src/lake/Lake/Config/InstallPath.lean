@@ -57,6 +57,10 @@ where
 public def leanExe (sysroot : FilePath) :=
   sysroot / "bin" / "lean" |>.addExtension FilePath.exeExtension
 
+/-- Standard path of `leanir` in a Lean installation. -/
+public def leanirExe (sysroot : FilePath) :=
+  sysroot / "bin" / "leanir" |>.addExtension FilePath.exeExtension
+
 /-- Standard path of `leanc` in a Lean installation. -/
 public def leancExe (sysroot : FilePath) :=
   sysroot / "bin" / "leanc" |>.addExtension FilePath.exeExtension
@@ -94,6 +98,7 @@ public structure LeanInstall where
   systemLibDir := sysroot / "lib"
   binDir := sysroot / "bin"
   lean := leanExe sysroot
+  leanir := leanirExe sysroot
   leanc := leancExe sysroot
   sharedLib := leanSharedLibDir sysroot / leanSharedLib
   initSharedLib := leanSharedLibDir sysroot / initSharedLib

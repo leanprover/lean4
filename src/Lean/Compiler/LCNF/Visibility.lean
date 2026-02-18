@@ -147,9 +147,7 @@ where go (origDecl decl : Decl .pure) : StateT NameSet CompilerM Unit := do
           go origDecl localDecl
       else if let some modIdx := (← getEnv).getModuleIdxFor? ref then
         if (← getEnv).header.modules[modIdx]?.any (!·.isExported) then
-          throwError "Cannot compile inline/specializing declaration `{.ofConstName origDecl.name}` as \
-            it uses `{.ofConstName ref}` of module `{(← getEnv).header.moduleNames[modIdx]!}` \
-            which must be imported publicly. This limitation may be lifted in the future."
+          pure ()
         else
           -- record as public meta use
           withExporting <| recordExtraModUseFromDecl (isMeta := getIRPhases (← getEnv) ref == .comptime) ref

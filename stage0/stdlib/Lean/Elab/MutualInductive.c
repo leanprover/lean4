@@ -47644,6 +47644,7 @@ lean_object* x_9;
 x_9 = l___private_Lean_Elab_MutualInductive_0__Lean_Elab_Command_applyComputedFields___lam__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
 lean_dec(x_3);
 lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 return x_9;
 }
 }

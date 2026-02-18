@@ -9,6 +9,7 @@ prelude
 public import Lean.Parser.Attr
 public import Lean.Parser.Level
 public import Lean.Parser.Term.Doc
+meta import Lean.Parser.Basic
 
 /-!
 This module contains the bare minimum of term syntax that's required to get documentation syntax to
@@ -181,6 +182,7 @@ def binderType (requireType := false) : Parser :=
 @[run_builtin_parser_attribute_hooks]
 def binderTactic  := leading_parser
   atomic (symbol " := " >> " by ") >> Tactic.tacticSeq
+set_option compiler.postponeCompile false in  -- TODO
 def binderDefault := leading_parser
   " := " >> termParser
 

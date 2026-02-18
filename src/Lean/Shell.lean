@@ -48,10 +48,6 @@ Before calling this function, the LLVM subsystem must first be successfully init
 @[extern "lean_emit_llvm"]
 opaque emitLLVM (env : Environment) (modName : Name) (filepath : FilePath) : IO Unit
 
-/-- Print all profiling times (if any) to standard error. -/
-@[extern "lean_display_cumulative_profiling_times"]
-opaque displayCumulativeProfilingTimes : BaseIO Unit
-
 /-- Whether Lean was built with an address sanitizer enabled. -/
 @[extern "lean_internal_has_address_sanitizer"]
 opaque Internal.hasAddressSanitizer (_ : Unit) : Bool

@@ -1141,4 +1141,13 @@ def instantiateRevRangeArgs (e : Expr) (beginIdx endIdx : Nat) (args : Array (Ar
   else
     e.instantiateRevRange beginIdx endIdx (args.map (·.toExpr))
 
+def findExtEntry? [Inhabited σ] (env : Environment) (ext : PersistentEnvExtension α β σ) (declName : Name)
+    (findAtSorted? : Array α → Name → Option α')
+    (findInState? : σ → Name → Option α') : Option α' :=
+  (env.getModuleIdxFor? declName).bind (fun modIdx =>
+    --findAtSorted? (ext.getModuleEntries env modIdx) declName <|>
+    -- When
+    guard (getIRPhases env declName != .runtime) *> findAtSorted? (ext.getModuleIREntries env modIdx) declName)
+  <|> findInState? (ext.getState env) declName
+
 end Lean.Compiler.LCNF

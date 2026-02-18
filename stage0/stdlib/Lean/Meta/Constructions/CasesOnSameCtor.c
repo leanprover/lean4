@@ -198,7 +198,7 @@ static const lean_ctor_object l_Lean_mkCasesOnSameCtorHet___lam__6___closed__0_v
 static const lean_object* l_Lean_mkCasesOnSameCtorHet___lam__6___closed__0 = (const lean_object*)&l_Lean_mkCasesOnSameCtorHet___lam__6___closed__0_value;
 LEAN_EXPORT lean_object* l_Lean_mkCasesOnSameCtorHet___lam__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkCasesOnSameCtorHet___lam__6___boxed(lean_object**);
-lean_object* l_Lean_addAndCompile(lean_object*, uint8_t, lean_object*, lean_object*);
+lean_object* l_Lean_addAndCompile(lean_object*, uint8_t, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkCasesOnSameCtorHet___lam__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkCasesOnSameCtorHet___lam__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_reverse___redArg(lean_object*);
@@ -408,7 +408,7 @@ static lean_object* l_Lean_mkCasesOnSameCtor___lam__3___closed__0;
 lean_object* l_Lean_Meta_inferArgumentTypesN(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_setInlineAttribute(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_enableRealizationsForConst(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_compileDecl(lean_object*, uint8_t, lean_object*, lean_object*);
+lean_object* l_Lean_compileDecl(lean_object*, uint8_t, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkCasesOnSameCtor___lam__3(lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkCasesOnSameCtor___lam__3___boxed(lean_object**);
 LEAN_EXPORT lean_object* l_Lean_mkCasesOnSameCtor___lam__4(lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -4303,7 +4303,7 @@ if (x_13 == 0)
 uint8_t x_14; lean_object* x_15; 
 lean_ctor_set_tag(x_12, 1);
 x_14 = 1;
-x_15 = l_Lean_addAndCompile(x_12, x_14, x_6, x_7);
+x_15 = l_Lean_addAndCompile(x_12, x_14, x_14, x_6, x_7);
 return x_15;
 }
 else
@@ -4315,7 +4315,7 @@ lean_dec(x_12);
 x_17 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_17, 0, x_16);
 x_18 = 1;
-x_19 = l_Lean_addAndCompile(x_17, x_18, x_6, x_7);
+x_19 = l_Lean_addAndCompile(x_17, x_18, x_18, x_6, x_7);
 return x_19;
 }
 }
@@ -8897,7 +8897,7 @@ if (lean_obj_tag(x_97) == 0)
 {
 lean_object* x_98; 
 lean_dec_ref(x_97);
-x_98 = l_Lean_compileDecl(x_77, x_4, x_33, x_34);
+x_98 = l_Lean_compileDecl(x_77, x_4, x_4, x_33, x_34);
 return x_98;
 }
 else
@@ -9022,7 +9022,7 @@ if (lean_obj_tag(x_121) == 0)
 {
 lean_object* x_122; 
 lean_dec_ref(x_121);
-x_122 = l_Lean_compileDecl(x_102, x_4, x_33, x_34);
+x_122 = l_Lean_compileDecl(x_102, x_4, x_4, x_33, x_34);
 return x_122;
 }
 else
@@ -9390,7 +9390,7 @@ if (lean_obj_tag(x_193) == 0)
 {
 lean_object* x_194; 
 lean_dec_ref(x_193);
-x_194 = l_Lean_compileDecl(x_173, x_4, x_33, x_34);
+x_194 = l_Lean_compileDecl(x_173, x_4, x_4, x_33, x_34);
 return x_194;
 }
 else

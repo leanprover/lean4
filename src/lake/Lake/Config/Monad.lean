@@ -282,6 +282,10 @@ variable [Functor m]
 @[inline] public def getLean : m FilePath :=
   (·.lean) <$> getLeanInstall
 
+/-- Get the path of the {lit}`leanir` binary in the detected Lean installation. -/
+@[inline] public def getLeanir : m FilePath :=
+  (·.leanir) <$> getLeanInstall
+
 /-- Returns the path of the {lit}`leanc` binary in the detected Lean installation. -/
 @[inline] public def getLeanc : m FilePath :=
   (·.leanc) <$> getLeanInstall

@@ -153,14 +153,10 @@ def mkSigDeclExt (phase : Phase) (name : Name := by exact decl_name%) :
 builtin_initialize impureSigExt : SigExt .impure ← mkSigDeclExt .impure
 
 def getDeclCore? (env : Environment) (ext : DeclExt pu) (declName : Name) : Option (Decl pu) :=
-  match env.getModuleIdxFor? declName with
-  | some modIdx => findDeclAtSorted? (ext.getModuleEntries env modIdx) declName
-  | none        => ext.getState env |>.find? declName
+  findExtEntry? env ext declName findDeclAtSorted? (·.find?)
 
 def getSigCore? (env : Environment) (ext : SigExt pu) (declName : Name) : Option (Signature pu) :=
-  match env.getModuleIdxFor? declName with
-  | some modIdx => findSigAtSorted? (ext.getModuleEntries env modIdx) declName
-  | none        => ext.getState env |>.find? declName
+  findExtEntry? env ext declName findSigAtSorted? (·.find?)
 
 def getBaseDecl? (declName : Name) : CoreM (Option (Decl .pure)) := do
   return getDeclCore? (← getEnv) baseExt declName

@@ -341,7 +341,7 @@ lean_object* l_Lean_addDocStringOf(uint8_t, lean_object*, lean_object*, lean_obj
 lean_object* l_Lean_Elab_Term_ensureNoUnassignedMVars(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addDecl(lean_object*, uint8_t, lean_object*, lean_object*);
 uint8_t l_Lean_isExtern(lean_object*, lean_object*);
-lean_object* l_Lean_compileDecl(lean_object*, uint8_t, lean_object*, lean_object*);
+lean_object* l_Lean_compileDecl(lean_object*, uint8_t, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofExpr(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_elabAxiom___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_elabAxiom___lam__2___boxed(lean_object**);
@@ -5925,7 +5925,7 @@ else
 lean_object* x_104; 
 lean_inc(x_95);
 lean_inc_ref(x_94);
-x_104 = l_Lean_compileDecl(x_58, x_26, x_94, x_95);
+x_104 = l_Lean_compileDecl(x_58, x_26, x_26, x_94, x_95);
 if (lean_obj_tag(x_104) == 0)
 {
 lean_dec_ref(x_104);
@@ -6259,7 +6259,7 @@ else
 lean_object* x_158; 
 lean_inc(x_149);
 lean_inc_ref(x_148);
-x_158 = l_Lean_compileDecl(x_143, x_26, x_148, x_149);
+x_158 = l_Lean_compileDecl(x_143, x_26, x_26, x_148, x_149);
 if (lean_obj_tag(x_158) == 0)
 {
 lean_dec_ref(x_158);
@@ -6655,7 +6655,7 @@ else
 lean_object* x_226; 
 lean_inc(x_217);
 lean_inc_ref(x_216);
-x_226 = l_Lean_compileDecl(x_211, x_26, x_216, x_217);
+x_226 = l_Lean_compileDecl(x_211, x_26, x_26, x_216, x_217);
 if (lean_obj_tag(x_226) == 0)
 {
 lean_dec_ref(x_226);

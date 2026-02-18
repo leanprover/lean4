@@ -8,8 +8,11 @@ module
 prelude
 public import Lean.Parser.Command
 import Init.While
+meta import Lean.Parser.Extra
 
 public section
+
+set_option compiler.postponeCompile false  -- TODO
 
 namespace Lean
 namespace Parser

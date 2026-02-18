@@ -55,7 +55,7 @@ structure Response.Head where
 deriving Inhabited, Repr
 
 /--
-HTTP response structure parameterized by body type
+HTTP response structure parameterized by body type.
 -/
 structure Response (t : Type) where
   /--
@@ -125,25 +125,25 @@ Creates a new HTTP Response builder with default head (status: 200 OK, version: 
 def empty : Builder := { }
 
 /--
-Sets the HTTP status code for the response being built
+Sets the HTTP status code for the response being built.
 -/
 def status (builder : Builder) (status : Status) : Builder :=
   { builder with head := { builder.head with status := status } }
 
 /--
-Sets the headers for the response being built
+Sets the headers for the response being built.
 -/
 def headers (builder : Builder) (headers : Headers) : Builder :=
   { builder with head := { builder.head with headers } }
 
 /--
-Adds a single header to the response being built
+Adds a single header to the response being built.
 -/
 def header (builder : Builder) (key : Header.Name) (value : Header.Value) : Builder :=
   { builder with head := { builder.head with headers := builder.head.headers.insert key value } }
 
 /--
-Adds a single header to the response being built, panics if the header is invalid
+Adds a single header to the response being built, panics if the header is invalid.
 -/
 def header! (builder : Builder) (key : String) (value : String) : Builder :=
   let key := Header.Name.ofString! key
@@ -166,7 +166,7 @@ def extension (builder : Builder) [TypeName α] (data : α) : Builder :=
   { builder with extensions := builder.extensions.insert data }
 
 /--
-Builds and returns the final HTTP Response with the specified body
+Builds and returns the final HTTP Response with the specified body.
 -/
 def body (builder : Builder) (body : t) : Response t :=
   { head := builder.head, body := body, extensions := builder.extensions }

@@ -538,7 +538,7 @@ Returns the receive-side handle; the producer writes via `Outgoing`.
 -/
 def stream (gen : Outgoing → Async Unit) : Async Incoming := do
   let (outgoing, incoming) ← mkChannel
-  background (gen outgoing)
+  try gen outgoing finally outgoing.close
   return incoming
 
 /--
@@ -547,9 +547,8 @@ Creates a body from a fixed byte array.
 def fromBytes (content : ByteArray) : Async Incoming := do
   let (outgoing, incoming) ← mkChannel
   outgoing.setKnownSize (some (.fixed content.size))
-  background do
-    outgoing.send (Chunk.ofByteArray content)
-    outgoing.close
+  outgoing.send (Chunk.ofByteArray content)
+  outgoing.close
   return incoming
 
 /--

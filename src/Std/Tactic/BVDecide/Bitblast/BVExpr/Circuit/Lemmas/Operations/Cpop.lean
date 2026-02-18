@@ -144,7 +144,7 @@ theorem denote_blastCpopLayer (aig : AIG α) (iter_num : Nat)
         apply LawfulVecOperator.lt_size_of_lt_aig_size
         apply Ref.hgate
     · intros idx hidx
-      simp [RefVec.cast_cast]
+      simp only [RefVec.cast_cast, denote_blastAppend, RefVec.get_cast, Ref.cast_eq]
       split
       · rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastAdd),
           AIG.LawfulVecOperator.denote_mem_prefix (f := blastExtract),
@@ -154,12 +154,11 @@ theorem denote_blastCpopLayer (aig : AIG α) (iter_num : Nat)
         all_goals
           apply LawfulVecOperator.lt_size_of_lt_aig_size
           apply Ref.hgate
-      · have heq : idx - idx / w * w = idx % w := Eq.symm Nat.mod_eq_sub_div_mul
-        have hiter : idx / w = iter_num := Nat.div_eq_of_lt_le (by omega) hidx
+      · have hiter : idx / w = iter_num := Nat.div_eq_of_lt_le (by omega) hidx
         subst hiter
         rw [BitVec.getLsbD_cpopLayer (old_layer := old_layer_bv) (proof_addition := by intros; omega),
           ← Nat.div_eq_sub_mod_div (m := idx) (n := w)]
-        simp only [heq]
+        simp only [show idx - idx / w * w = idx % w by exact Eq.symm Nat.mod_eq_sub_div_mul]
         apply denote_blastAdd
         · intros idx' hidx'
           simp only [RefVec.get_cast, Ref.cast_eq, hidx', BitVec.getLsbD_eq_getElem,

@@ -10,6 +10,7 @@ public import Lean.Meta.Inductive
 public import Lean.Elab.Deriving.Basic
 public import Lean.Elab.Deriving.Util
 import Lean.Compiler.IR.ToIRType
+import Lean.Compiler.LCNF.ToImpureType
 
 public section
 
@@ -23,7 +24,7 @@ def mkHashableHeader (indVal : InductiveVal) : TermElabM Header := do
 
 def mkMatch (ctx : Context) (header : Header) (indVal : InductiveVal) : TermElabM Term := do
   let discrs ← mkDiscrs header indVal
-  if let some trivialInfo ← IR.hasTrivialStructure? indVal.name then
+  if let some trivialInfo ← Compiler.LCNF.hasTrivialImpureStructure? indVal.name then
     let alt ← mkTrivialAlt trivialInfo
     `(match $[$discrs],* with $alt:matchAlt)
   else

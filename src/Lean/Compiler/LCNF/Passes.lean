@@ -152,7 +152,7 @@ def builtinPassManager : PassManager := {
     simpCase,
     inferBorrow,
     explicitBoxing,
-    --explicitRc,
+    explicitRc,
     inferVisibility (phase := .impure),
     saveImpure, -- End of impure phase
   ]

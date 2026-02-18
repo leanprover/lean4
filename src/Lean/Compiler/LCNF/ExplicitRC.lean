@@ -169,6 +169,11 @@ def isLive (fvarId : FVarId) : RcM Bool := return (← get).liveVars.vars.contai
 @[inline]
 def isBorrowed (fvarId : FVarId) : RcM Bool := return (← get).liveVars.borrows.contains fvarId
 
+def getDeclSig (declName : Name) : RcM (Option (Signature .impure)) := do
+  match (← read).decls.find? (·.name == declName) with
+  | some found => return some <| found.toSignature
+  | none => getImpureSignature? declName
+
 @[inline]
 def withParams (ps : Array (Param .impure)) (x : RcM α) : RcM α := do
   let update := fun ctx =>
@@ -451,7 +456,7 @@ def LetDecl.explicitRc (code : Code .impure) (decl : LetDecl .impure) (k : Code 
       let k ← addDecIfNeeded fvarId k
       pure <| code.updateLet! decl k
     | .fap f args =>
-      let ps := (← getImpureSignature? f).get!.params
+      let ps := (← getDeclSig f).get!.params
       let k ← addDecAfterFullApp args ps k
       let liveVars := (← get).liveVars
       let value ←

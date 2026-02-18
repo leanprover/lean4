@@ -208,7 +208,7 @@ theorem String.ofList_nil : String.ofList [] = "" :=
 theorem List.asString_nil : String.ofList  [] = "" :=
   String.ofList_nil
 
-@[simp]
+@[simp, grind =]
 theorem String.ofList_append {l₁ l₂ : List Char} :
     String.ofList (l₁ ++ l₂) = String.ofList l₁ ++ String.ofList l₂ := by
   simp [← String.toByteArray_inj]

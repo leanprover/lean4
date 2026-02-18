@@ -23,20 +23,13 @@ namespace Std.Http.Header
 
 set_option linter.all true
 
-open Internal
-
-/--
-Checks if a character is valid for use in an HTTP header name.
--/
-@[expose]
-def isValidHeaderNameChar (c : Char) : Bool :=
-  c.toNat < 128 && Nat.testBit 0x57ffffffc7fffffe03ff6cfa00000000 c.toNat
+open Internal Char
 
 /--
 Proposition that asserts all characters in a string are valid and that it is non-empty for HTTP header names.
 -/
 abbrev IsValidHeaderName (s : String) : Prop :=
-  s.toList.all isValidHeaderNameChar ∧ ¬s.isEmpty
+  s.toList.all isTokenCharacter ∧ ¬s.isEmpty
 
 /--
 A validated HTTP header name that ensures all characters conform to HTTP standards. Header names are

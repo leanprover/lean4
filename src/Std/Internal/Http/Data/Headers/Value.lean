@@ -42,12 +42,12 @@ A validated HTTP header value that ensures all characters conform to HTTP standa
 -/
 structure Value where
   /--
-  The string data
+  The string data.
   -/
   value : String
 
   /--
-  The proof that it's a valid header value
+  The proof that it's a valid header value.
   -/
   validHeaderValue : IsValidHeaderValue value := by decide
 deriving BEq, DecidableEq, Repr
@@ -93,12 +93,12 @@ instance : ToString Value where
   toString v := v.value
 
 /--
-Standard close header value
+Standard close header value.
 -/
 def close : Header.Value := .mk "close"
 
 /--
-Standard chunked header value
+Standard chunked header value.
 -/
 def chunked : Header.Value := .mk "chunked"
 

@@ -21,17 +21,9 @@ This module defines the `Chunk` type, which represents a chunk of data from a re
 -/
 
 namespace Std.Http
-
-open Internal
+open Internal Char
 
 set_option linter.all true
-
-/--
-Checks if a character is a valid HTTP token character per RFC 9110 §5.6.2.
-Token characters include alphanumerics and the following: `!#$%&'*+-.^_`|~`
--/
-def isTokenCharacter (c : Char) : Bool :=
-  c.toNat < 128 && Nat.testBit 0x57ffffffc7fffffe03ff6cfa00000000 c.toNat
 
 /--
 Proposition that asserts all characters in a string are valid token characters and that it is
@@ -62,7 +54,7 @@ instance : Hashable ExtensionName where
   hash x := Hashable.hash x.value
 
 instance : Inhabited ExtensionName where
-  default := ⟨"x", by native_decide⟩
+  default := ⟨"x", by decide⟩
 
 /--
 Attempts to create an `ExtensionName` from a `String`, returning `none` if the string contains

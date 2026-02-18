@@ -128,6 +128,13 @@ def parseMethod : Parser Method :=
   <|> (skipBytes "TRACE".toUTF8 <&> fun _ => Method.trace)
   <|> (skipBytes "PATCH".toUTF8 <&> fun _ => Method.patch)
 
+/--
+Parses the method token as text.
+-/
+def parseMethodToken (limits : H1.Config) : Parser String := do
+  let raw ← token limits.maxHeaderNameLength
+  opt <| String.fromUTF8? raw.toByteArray
+
 def parseURI (limits : H1.Config) : Parser ByteArray := do
   let uri ← takeUntilUpTo (· == ' '.toUInt8) limits.maxUriLength
   return uri.toByteArray
@@ -152,12 +159,12 @@ public def parseRequestLine (limits : H1.Config) : Parser Request.Head := do
     fail "unsupported HTTP version"
 
 /--
-Parses a request line and returns the recognized HTTP version if present in `Version`.
+Parses a request line and returns the recognized HTTP method and version when available.
 
 request-line = method SP request-target SP HTTP-version
 -/
-public def parseRequestLineRawVersion (limits : H1.Config) : Parser (Method × RequestTarget × Option Version) := do
-  let method ← parseMethod <* sp
+public def parseRequestLineRawVersion (limits : H1.Config) : Parser (Option Method × RequestTarget × Option Version) := do
+  let methodToken ← parseMethodToken limits <* sp
   let uri ← parseURI limits <* sp
 
   let uri ← match (Std.Http.URI.Parser.parseRequestTarget <* eof).run uri with
@@ -165,7 +172,7 @@ public def parseRequestLineRawVersion (limits : H1.Config) : Parser (Method × R
   | .error res => fail res
 
   let (major, minor) ← parseHttpVersionNumber <* crlf
-  return (method, uri, Version.ofNumber? major minor)
+  return (Method.ofString? methodToken, uri, Version.ofNumber? major minor)
 
 -- field-line   = field-name ":" OWS field-value OWS
 def parseFieldLine (limits : H1.Config) : Parser (String × String) := do

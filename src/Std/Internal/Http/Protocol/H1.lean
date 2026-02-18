@@ -236,6 +236,14 @@ private def mkPulledChunk? (machine : Machine dir)
       }
     }
 
+@[inline]
+private def fitsBodyLimit (machine : Machine dir) (extra : Nat) : Bool :=
+  machine.reader.bodyBytesRead + extra ≤ machine.config.maxBodySize
+
+@[inline]
+private def addBodyBytes (machine : Machine dir) (bytes : Nat) : Machine dir :=
+  machine.modifyReader (Reader.addBodyBytes bytes)
+
 -- State Checks
 
 /--
@@ -345,7 +353,8 @@ private def resetForNextMessage (machine : Machine ty) : Machine ty :=
         state := .needStartLine,
         input := machine.reader.input,
         messageHead := {},
-        messageCount := machine.reader.messageCount + 1
+        messageCount := machine.reader.messageCount + 1,
+        bodyBytesRead := 0
       },
       writer := {
         userData := .empty,
@@ -377,25 +386,34 @@ private def processHeaders (machine : Machine dir) : Machine dir :=
   match checkMessageHead machine.reader.messageHead with
   | none => machine.setFailure .badMessage
   | some mode =>
-      let (machine, state) : Machine dir × Reader.State dir := match mode with
-      | .fixed n => (machine, Reader.State.readBody (.fixed n))
-      | .chunked => (machine, Reader.State.readBody .chunkedSize)
-      | .eof => (machine.disableKeepAlive, Reader.State.readBody .closeDelimited)
+      let exceedsMaxBodySize : Bool :=
+        match mode with
+        | .fixed n => n > machine.config.maxBodySize
+        | .chunked => false
+        | .eof => false
 
-      let machine := machine.addEvent (.endHeaders machine.reader.messageHead)
+      if exceedsMaxBodySize then
+        machine.setFailure .entityTooLarge
+      else
+        let (machine, state) : Machine dir × Reader.State dir := match mode with
+        | .fixed n => (machine, Reader.State.readBody (.fixed n))
+        | .chunked => (machine, Reader.State.readBody .chunkedSize)
+        | .eof => (machine.disableKeepAlive, Reader.State.readBody .closeDelimited)
 
-      let waitingContinue : Bool :=
-        match dir with
-        | .receiving => hasExpectContinue machine.reader.messageHead
-        | .sending => false
+        let machine := machine.addEvent (.endHeaders machine.reader.messageHead)
 
-      let nextState : Reader.State dir := if waitingContinue then Reader.State.«continue» state else state
-      let machine := if waitingContinue then machine.addEvent .continue else machine
+        let waitingContinue : Bool :=
+          match dir with
+          | .receiving => hasExpectContinue machine.reader.messageHead
+          | .sending => false
 
-      let machine := machine.setReaderState nextState
-        |>.setWriterState .waitingHeaders
-        |>.addEvent .needAnswer
-      machine
+        let nextState : Reader.State dir := if waitingContinue then Reader.State.«continue» state else state
+        let machine := if waitingContinue then machine.addEvent .continue else machine
+
+        let machine := machine.setReaderState nextState
+          |>.setWriterState .waitingHeaders
+          |>.addEvent .needAnswer
+        machine
 
 /--
 Processes the message we are sending.
@@ -697,13 +715,24 @@ private def parseBody (machine : Machine dir) (bodyState : Reader.BodyState) :
       let (machine, result) := parseWith machine (parseFixedSizeData size) (limit := none) (some size)
       match result with
       | some (.complete body) =>
-          let machine := machine
-            |>.setReaderState .complete
-            |>.addEvent .closeBody
-          (machine, mkPulledChunk? machine true false #[] body, true)
+          let bodySize := body.size
+          if !fitsBodyLimit machine bodySize then
+            (machine.setFailure .entityTooLarge, none, false)
+          else
+            let machine := machine
+              |>.addBodyBytes bodySize
+              |>.setReaderState .complete
+              |>.addEvent .closeBody
+            (machine, mkPulledChunk? machine true false #[] body, true)
       | some (.incomplete body remaining) =>
-          let machine := machine.setReaderState (.readBody (.fixed remaining))
-          (machine, mkPulledChunk? machine false false #[] body, true) -- It's not an incomplete "chunk"
+          let bodySize := body.size
+          if !fitsBodyLimit machine bodySize then
+            (machine.setFailure .entityTooLarge, none, false)
+          else
+            let machine := machine
+              |>.addBodyBytes bodySize
+              |>.setReaderState (.readBody (.fixed remaining))
+            (machine, mkPulledChunk? machine false false #[] body, true) -- It's not an incomplete "chunk"
       | none =>
           (machine, none, false)
 
@@ -714,6 +743,8 @@ private def parseBody (machine : Machine dir) (bodyState : Reader.BodyState) :
       match result with
       | some (size, ext) =>
           if size > machine.config.maxChunkSize then
+            (machine.setFailure .entityTooLarge, none, false)
+          else if !fitsBodyLimit machine size then
             (machine.setFailure .entityTooLarge, none, false)
           else
             (machine.setReaderState (.readBody (.chunkedBody ext size)), none, true)
@@ -735,11 +766,23 @@ private def parseBody (machine : Machine dir) (bodyState : Reader.BodyState) :
       let (machine, result) := parseWith machine (parseChunkSizedData size) (limit := none) (some size)
       match result with
       | some (.complete body) =>
-          let machine := machine.setReaderState (.readBody .chunkedSize)
-          (machine, mkPulledChunk? machine false false ext body, true)
+          let bodySize := body.size
+          if !fitsBodyLimit machine bodySize then
+            (machine.setFailure .entityTooLarge, none, false)
+          else
+            let machine := machine
+              |>.addBodyBytes bodySize
+              |>.setReaderState (.readBody .chunkedSize)
+            (machine, mkPulledChunk? machine false false ext body, true)
       | some (.incomplete body remaining) =>
-          let machine := machine.setReaderState (.readBody (.chunkedBody ext remaining))
-          (machine, mkPulledChunk? machine false true ext body, true)
+          let bodySize := body.size
+          if !fitsBodyLimit machine bodySize then
+            (machine.setFailure .entityTooLarge, none, false)
+          else
+            let machine := machine
+              |>.addBodyBytes bodySize
+              |>.setReaderState (.readBody (.chunkedBody ext remaining))
+            (machine, mkPulledChunk? machine false true ext body, true)
       | none =>
           (machine, none, false)
 
@@ -754,10 +797,15 @@ private def parseBody (machine : Machine dir) (bodyState : Reader.BodyState) :
           (machine.addEvent (.needMoreData none), none, false)
       else
         let data := machine.reader.input.array[machine.reader.input.pos...machine.reader.input.array.size]
-        let machine := machine
-          |>.modifyReader (fun r => r.advance r.remainingBytes)
-          |>.setReaderState (.readBody .closeDelimited)
-        (machine, mkPulledChunk? machine false false #[] data, true)
+        let dataSize := data.size
+        if !fitsBodyLimit machine dataSize then
+          (machine.setFailure .entityTooLarge, none, false)
+        else
+          let machine := machine
+            |>.modifyReader (fun r => r.advance r.remainingBytes)
+            |>.addBodyBytes dataSize
+            |>.setReaderState (.readBody .closeDelimited)
+          (machine, mkPulledChunk? machine false false #[] data, true)
 
 /-- Processes the reader part of the machine. -/
 partial def processRead (machine : Machine dir) : Machine dir :=
@@ -773,12 +821,15 @@ partial def processRead (machine : Machine dir) : Machine dir :=
             let (machine, result) := parseWith machine
               (parseRequestLineRawVersion machine.config)
               (limit := some machine.config.maxStartLineLength)
-            if let some (method, uri, version) := result then
+            if let some (method?, uri, version) := result then
               if version == some .v11 then
-                machine
-                |>.modifyReader (.setMessageHead ({ method, version := .v11, uri, headers := .empty } : Request.Head))
-                |>.setReaderState (.needHeader 0)
-                |> processRead
+                if let some method := method? then
+                  machine
+                  |>.modifyReader (.setMessageHead ({ method, version := .v11, uri, headers := .empty } : Request.Head))
+                  |>.setReaderState (.needHeader 0)
+                  |> processRead
+                else
+                  machine.setFailure .unsupportedMethod
               else
                 machine.setFailure .unsupportedVersion
             else

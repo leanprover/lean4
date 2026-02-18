@@ -95,6 +95,12 @@ structure Config where
   maxChunkSize : Nat := 8 * 1024 * 1024
 
   /--
+  Maximum allowed total body size per message in bytes (default: 64 MiB).
+  This limit applies across all body framing modes.
+  -/
+  maxBodySize : Nat := 64 * 1024 * 1024
+
+  /--
   Maximum length of reason phrase (default: 512 bytes)
   -/
   maxReasonPhraseLength : Nat := 512

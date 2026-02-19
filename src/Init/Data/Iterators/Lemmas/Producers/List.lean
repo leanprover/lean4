@@ -23,7 +23,6 @@ open Std Std.Iterators
 
 variable {β : Type w}
 
-set_option backward.isDefEq.respectTransparency false in
 @[simp]
 theorem List.step_iter_nil :
     (([] : List β).iter).step = ⟨.done, rfl⟩ := by

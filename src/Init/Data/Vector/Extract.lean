@@ -132,7 +132,6 @@ theorem extract_append {xs : Vector α n} {ys : Vector α m} {i j : Nat} :
   rcases ys with ⟨ys, rfl⟩
   simp
 
-set_option backward.isDefEq.respectTransparency false in
 theorem extract_append_left {xs : Vector α n} {ys : Vector α m} :
     (xs ++ ys).extract 0 n = (xs.extract 0 n).cast (by omega) := by
   ext i h

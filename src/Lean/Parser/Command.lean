@@ -17,7 +17,7 @@ namespace Parser
 /-- Syntax quotation for terms. -/
 @[builtin_term_parser] def Term.quot := leading_parser
   "`(" >> withoutPosition (incQuotDepth termParser) >> ")"
-@[builtin_term_parser] def Term.precheckedQuot := leading_parser
+@[inherit_doc Term.quot, builtin_term_parser] def Term.precheckedQuot := leading_parser
   "`" >> Term.quot
 
 namespace Command
@@ -279,6 +279,7 @@ def «structure»          := leading_parser
   declModifiers false >>
   («abbrev» <|> definition <|> «theorem» <|> «opaque» <|> «instance» <|> «axiom» <|> «example» <|>
    «inductive» <|> «coinductive» <|> classInductive <|> «structure»)
+/-- `deriving instance` declares typeclass instances to be generated for a declaration. -/
 @[builtin_command_parser] def «deriving»     := leading_parser
   "deriving " >> "instance " >> derivingClasses >> " for " >> sepBy1 (recover termParser skip) ", "
 def sectionHeader := leading_parser
@@ -525,8 +526,10 @@ structure Pair (α : Type u) (β : Type v) : Type (max u v) where
 -/
 @[builtin_command_parser] def «universe»     := leading_parser
   "universe" >> many1 (ppSpace >> checkColGt >> ident)
+/-- `#check e` reports the type of `e`, printing `e : T`. -/
 @[builtin_command_parser] def check          := leading_parser
   "#check " >> termParser
+/-- Like `#check`, but succeeds only if `e` fails to type check. -/
 @[builtin_command_parser] def check_failure  := leading_parser
   "#check_failure " >> termParser -- Like `#check`, but succeeds only if term does not type check
 /--
@@ -582,16 +585,22 @@ See also: `#reduce e` for evaluation by term reduction.
   "#eval " >> termParser
 @[builtin_command_parser, inherit_doc eval] def evalBang := leading_parser
   "#eval! " >> termParser
+/-- `#synth T` tries to synthesize a typeclass instance of type `T` and prints the result. -/
 @[builtin_command_parser] def synth          := leading_parser
   "#synth " >> termParser
+/-- Debugging command that logs a warning and interrupts processing after this point. -/
 @[builtin_command_parser] def exit           := leading_parser
   "#exit"
+/-- `#print n` prints the declaration `n`; `#print "msg"` prints the string literal contents. -/
 @[builtin_command_parser] def print          := leading_parser
   "#print " >> (ident <|> strLit)
+/-- `#print sig n` prints only the signature of `n`. -/
 @[builtin_command_parser] def printSig       := leading_parser
   "#print " >> nonReservedSymbol "sig " >> ident
+/-- `#print axioms n` prints the axioms that `n` depends on. -/
 @[builtin_command_parser] def printAxioms    := leading_parser
   "#print " >> nonReservedSymbol "axioms " >> ident
+/-- `#print equations n` prints the definitional equations for `n`, if any. -/
 @[builtin_command_parser] def printEqns      := leading_parser
   "#print " >> (nonReservedSymbol "equations " <|> nonReservedSymbol "eqns ") >> ident
 /--
@@ -600,7 +609,7 @@ Displays all available tactic tags, with documentation.
 @[builtin_command_parser] def printTacTags   := leading_parser
   "#print " >> nonReservedSymbol "tactic " >> nonReservedSymbol "tags"
 /--
-`#where` gives a description of the state of the current scope scope.
+`#where` gives a description of the state of the current scope.
 This includes the current namespace, `open` namespaces, `universe` and `variable` commands,
 and options set with `set_option`.
 -/
@@ -646,6 +655,7 @@ only in a single term or tactic.
   "set_option " >> identWithPartialTrailingDot >> ppSpace >> optionValue
 def eraseAttr := leading_parser
   "-" >> rawIdent
+/-- Applies attributes to the listed declarations. -/
 @[builtin_command_parser] def «attribute»    := leading_parser
   "attribute " >> "[" >>
     withoutPosition (sepBy1 (eraseAttr <|> Term.attrInstance) ", ") >>
@@ -809,15 +819,18 @@ end
 @[builtin_command_parser] def «open»    := leading_parser
   withPosition ("open" >> openDecl)
 
+/-- Groups mutually recursive commands in a `mutual ... end` block. -/
 @[builtin_command_parser] def «mutual» := leading_parser
   "mutual" >> many1 (ppLine >> notSymbol "end" >> commandParser) >>
   ppDedent (ppLine >> "end")
 def initializeKeyword := leading_parser
   "initialize " <|> "builtin_initialize "
+/-- Declares initialization code to run when a module is loaded. -/
 @[builtin_command_parser] def «initialize» := leading_parser
   declModifiers false >> initializeKeyword >>
   optional (atomic (ident >> Term.typeSpec >> ppSpace >> Term.leftArrow)) >> Term.doSeq
 
+/-- Scopes a single command under a preceding `... in` construct. -/
 @[builtin_command_parser] def «in»  := trailing_parser
   withOpen (ppDedent (" in" >> ppLine >> commandParser))
 

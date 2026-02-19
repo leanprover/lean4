@@ -108,14 +108,42 @@ def mkNode (b : ArrayStxBuilder) (k : SyntaxNodeKind) : TermElabM Term := do
 
 end ArrayStxBuilder
 
+private def builtinSyntaxNodeKindDecl? (k : SyntaxNodeKind) : Option Name :=
+  match k with
+  | `choice => some ``Lean.choiceKind
+  | `null => some ``Lean.nullKind
+  | `group => some ``Lean.groupKind
+  | `ident => some ``Lean.identKind
+  | `str => some ``Lean.strLitKind
+  | `char => some ``Lean.charLitKind
+  | `num => some ``Lean.numLitKind
+  | `hexnum => some ``Lean.hexnumKind
+  | `scientific => some ``Lean.scientificLitKind
+  | `name => some ``Lean.nameLitKind
+  | `fieldIdx => some ``Lean.fieldIdxKind
+  | `hygieneInfo => some ``Lean.hygieneInfoKind
+  | `interpolatedStrLitKind => some ``Lean.interpolatedStrLitKind
+  | `interpolatedStrKind => some ``Lean.interpolatedStrKind
+  | _ => none
+
+private def antiquotKindName? (stx : Syntax) : Option Name :=
+  match stx with
+  | Syntax.ident _ _ val _ => some val
+  | Syntax.atom _ val => some (Name.mkSimple val)
+  | _ => none
+
 def tryAddSyntaxNodeKindInfo (stx : Syntax) (k : SyntaxNodeKind) : TermElabM Unit := do
-  if (← getEnv).contains k then
+  let env ← getEnv
+  if env.contains k then
     addTermInfo' stx (← mkConstWithFreshMVarLevels k)
   else
     -- HACK to support built in categories, which use a different naming convention
-    let k := ``Lean.Parser.Category ++ k
-    if (← getEnv).contains k then
-      addTermInfo' stx (← mkConstWithFreshMVarLevels k)
+    let catName := ``Lean.Parser.Category ++ k
+    if env.contains catName then
+      addTermInfo' stx (← mkConstWithFreshMVarLevels catName)
+    else if let some declName := builtinSyntaxNodeKindDecl? k then
+      if env.contains declName then
+        addTermInfo' stx (← mkConstWithFreshMVarLevels declName)
 
 instance : Quote Syntax.Preresolved where
   quote
@@ -145,7 +173,10 @@ private partial def quoteSyntax : Syntax → TermElabM Term
   | stx@(Syntax.node _ k _) => do
     if let some (k, _) := stx.antiquotKind? then
       if let some name := getAntiquotKindSpec? stx then
-        tryAddSyntaxNodeKindInfo name k
+        if let some kindName := antiquotKindName? name then
+          tryAddSyntaxNodeKindInfo name kindName
+        else
+          tryAddSyntaxNodeKindInfo name k
     if isAntiquots stx && !isEscapedAntiquot (getCanonicalAntiquot stx) then
       let ks := antiquotKinds stx
       `(@TSyntax.raw $(quote <| ks.map (·.1)) $(getAntiquotTerm (getCanonicalAntiquot stx)))
@@ -350,7 +381,10 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
     let quoted := getQuotContent pat
     if let some (k, _) := quoted.antiquotKind? then
       if let some name := getAntiquotKindSpec? quoted then
-        tryAddSyntaxNodeKindInfo name k
+        if let some kindName := antiquotKindName? name then
+          tryAddSyntaxNodeKindInfo name kindName
+        else
+          tryAddSyntaxNodeKindInfo name k
     if quoted.isAtom || quoted.isOfKind `patternIgnore then
       -- We assume that atoms are uniquely determined by the node kind and never have to be checked
       unconditionally pure

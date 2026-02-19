@@ -30,6 +30,7 @@ attribute [run_builtin_parser_attribute_hooks]
   priorityParser attrParser
 
 namespace Priority
+/-- Numeric literal for attribute priorities. -/
 @[builtin_prio_parser] def numPrio  := checkPrec maxPrec >> numLit
 attribute [run_builtin_parser_attribute_hooks] numPrio
 end Priority

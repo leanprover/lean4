@@ -121,15 +121,15 @@ def optSemicolon (p : Parser) : Parser :=
   ppDedent $ semicolonOrLinebreak >> ppLine >> p
 
 -- `checkPrec` necessary for the pretty printer
-@[builtin_term_parser] def ident :=
+@[inherit_doc Lean.Parser.ident, builtin_term_parser] def ident :=
   checkPrec maxPrec >> Parser.ident
-@[builtin_term_parser] def num : Parser :=
+@[inherit_doc Lean.Parser.numLit, builtin_term_parser] def num : Parser :=
   checkPrec maxPrec >> numLit
-@[builtin_term_parser] def scientific : Parser :=
+@[inherit_doc Lean.Parser.scientificLit, builtin_term_parser] def scientific : Parser :=
   checkPrec maxPrec >> scientificLit
-@[builtin_term_parser] def str : Parser :=
+@[inherit_doc Lean.Parser.strLit, builtin_term_parser] def str : Parser :=
   checkPrec maxPrec >> strLit
-@[builtin_term_parser] def char : Parser :=
+@[inherit_doc Lean.Parser.charLit, builtin_term_parser] def char : Parser :=
   checkPrec maxPrec >> charLit
 /-- A type universe. `Type ≡ Type 0`, `Type u ≡ Sort (u + 1)`. -/
 @[builtin_term_parser] def type := leading_parser

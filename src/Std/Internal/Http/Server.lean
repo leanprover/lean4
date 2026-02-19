@@ -114,6 +114,11 @@ def shutdownAndWait (s : Server) : Async Unit := do
   s.context.cancel .shutdown
   s.waitShutdown
 
+-- Shutdown invariant: `shutdownPromise` is resolved exactly once.
+-- Every concurrent task (the accept loop and each connection handler) calls `frameCancellation`,
+-- which atomically increments `activeConnections` on entry and decrements it on exit.
+-- The promise fires only when the count reaches 0 *and* the server context has been cancelled,
+-- so `waitShutdown` unblocks precisely when the last in-flight task completes after `shutdown`.
 @[inline]
 private def frameCancellation (s : Server) (releaseConnectionPermit : Bool := false)
     (action : ContextAsync α) : ContextAsync α := do

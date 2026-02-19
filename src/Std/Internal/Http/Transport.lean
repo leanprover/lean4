@@ -43,7 +43,9 @@ class Transport (α : Type) where
   recvSelector : α → UInt64 → Selector (Option ByteArray)
 
   /--
-  Close the transport connection. This is a no-op for socket-based transports.
+  Close the transport connection.
+  The default implementation is a no-op; override this for transports that require explicit teardown.
+  For `Socket.Client`, the runtime closes the file descriptor when the object is finalized.
   -/
   close : α → IO Unit := fun _ => pure ()
 

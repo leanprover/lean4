@@ -132,9 +132,9 @@ def realizeExtTheorem (structName : Name) (flat : Bool) : Elab.Command.CommandEl
   return extName
 
 /--
-Given an 'ext' theorem, ensures that there is an iff version of the theorem (if possible),
+Given an `ext` theorem, ensures that there is an iff version of the theorem (if possible),
 without validating any pre-existing theorems.
-Returns the name of the 'ext_iff' theorem.
+Returns the name of the `ext_iff` theorem.
 -/
 def realizeExtIffTheorem (extName : Name) : Elab.Command.CommandElabM Name := do
   let extIffName : Name :=

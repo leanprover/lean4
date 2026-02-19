@@ -30,6 +30,14 @@ def isVChar (c : UInt8) : Bool :=
 def isObsChar (c : UInt8) : Bool :=
   c ≥ 0x80 ∧ c ≤ 0xFF
 
+/--
+Checks if a byte may appear inside a field value.
+
+RFC 9110 §5.5 defines `field-vchar = VCHAR / obs-text`, but also permits embedded SP/HTAB
+between non-whitespace characters within a field value. This predicate covers all bytes that
+may appear anywhere inside a field value (including interior whitespace), so callers do not
+need to special-case them.
+-/
 @[inline]
 def isFieldVChar (c : UInt8) : Bool :=
   isVChar c ∨ isObsChar c ∨ c = ' '.toUInt8 ∨ c = '\t'.toUInt8
@@ -67,25 +75,45 @@ partial def manyItems {α : Type} (parser : Parser (Option α)) (maxCount : Nat)
   go #[]
 
 
+/--
+Lifts an `Option` into the parser monad, failing with a generic message if the value is `none`.
+-/
 def liftOption (x : Option α) : Parser α :=
   if let some res := x then
     return res
   else
     fail "expected value but got none"
 
+/--
+Parses an HTTP token (RFC 9110 §5.6.2): one or more token characters, up to `limit` bytes.
+Fails if the input starts with a non-token character or is empty.
+-/
 @[inline]
 def token (limit : Nat) : Parser ByteSlice :=
   takeWhileUpTo1 (fun c => isTokenCharacter (Char.ofUInt8 c)) limit
 
+/--
+Parses a line terminator. Accepts both CRLF and bare LF for robustness, as recommended by
+RFC 9112 §2.2 ("a server that receives bare CR ... ought to either reject the request or
+replace each bare CR with SP before processing").
+-/
 @[inline]
 def crlf : Parser Unit := do
   discard <| optional (skipByte '\r'.toUInt8)
   skipByte '\n'.toUInt8
 
+/--
+Parses a single space (SP, 0x20).
+-/
 @[inline]
 def sp : Parser Unit :=
   skipByte ' '.toUInt8
 
+/--
+Parses optional whitespace (OWS = *(SP / HTAB), RFC 9110 §5.6.3), bounded by
+`limits.maxSpaceSequence`. Fails if more whitespace follows the limit, so oversized
+padding is rejected rather than silently truncated.
+-/
 @[inline]
 def ows (limits : H1.Config) : Parser Unit := do
   discard <| takeWhileUpTo (fun c => c == ' '.toUInt8 || c == '\t'.toUInt8) limits.maxSpaceSequence
@@ -95,6 +123,9 @@ def ows (limits : H1.Config) : Parser Unit := do
   else
     pure ()
 
+/--
+Parses a single ASCII decimal digit and returns it as a `UInt8` (value 0–9 as raw byte).
+-/
 @[inline]
 def uint8 : Parser UInt8 := do
   let d ← digit
@@ -333,7 +364,10 @@ Parses a trailer header (used after a chunked body).
 def parseTrailerHeader (limits : H1.Config) : Parser (Option (String × String)) := parseSingleHeader limits
 
 /--
-Parses trailer headers after a chunked body.
+Parses trailer headers after a chunked body and returns them as an array of name-value pairs.
+
+This is exposed for callers that need the trailer values directly (e.g. clients). The
+internal protocol machine uses `parseLastChunkBody` instead, which discards trailer values.
 -/
 public def parseTrailers (limits : H1.Config) : Parser (Array (String × String)) := do
   let trailers ← manyItems (parseTrailerHeader limits) limits.maxTrailerHeaders

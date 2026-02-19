@@ -416,7 +416,13 @@ private def processHeaders (machine : Machine dir) : Machine dir :=
         machine
 
 /--
-Processes the message we are sending.
+Finalizes and encodes an outgoing message head into the writer's output buffer.
+
+Despite the name, this does more than set headers: it determines the transfer encoding
+(fixed-length or chunked), normalizes the `Content-Length`/`Transfer-Encoding` headers,
+appends `Connection: close` when keep-alive is disabled, injects the identity header
+(e.g. `Server`), and serializes the entire head to the output buffer. It is called
+automatically by `processWrite` once the machine is ready to flush.
 -/
 def setHeaders (messageHead : Message.Head dir.swap) (machine : Machine dir) : Machine dir :=
   let machine := machine.updateKeepAlive (machine.reader.messageCount + 1 < machine.config.maxMessages)

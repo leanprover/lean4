@@ -13,7 +13,6 @@ public import Lean.Compiler.IR.CompilerM
 public import Lean.Compiler.IR.PushProj
 public import Lean.Compiler.IR.NormIds
 public import Lean.Compiler.IR.Checker
-public import Lean.Compiler.IR.RC
 public import Lean.Compiler.IR.ExpandResetReuse
 public import Lean.Compiler.IR.UnboxResult
 public import Lean.Compiler.IR.EmitC

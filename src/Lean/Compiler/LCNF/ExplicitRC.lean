@@ -12,15 +12,29 @@ import Lean.Compiler.LCNF.PhaseExt
 import Lean.Runtime
 import Lean.Compiler.LCNF.PrettyPrinter
 
+/-!
+This pass inserts explicit reference counting instructions. It assumes the input does not yet
+contain `inc`, `dec` instructions or any lower level operations related to them. Like the other RC
+related passes, it is based on the "Immutable Beans Counting" paper with a few extensions.
+
+The pass traverses the program and performs a liveness analysis, inserting decrements at the first
+position where values need not be alive anymore. Furthermore, it inserts increments whenever values
+are used in an "owned" fashion (e.g. passed as an owned parameter) and continue being used later on.
+Finally, it has support for borrowed parameters, i.e. parameters where we know ahead of time that we
+are not allowed to free them. For these kinds of parameters it avoids performing the majority of
+reference counting. In addition the pass has supported for "derived borrows", i.e. it treats values
+that are projected from borrowed values as borrowed themselves. We can do this as we know the
+borrowed value is not going to be mutated and will thus keep its projectee alive.
+-/
+
 namespace Lean.Compiler.LCNF
 
 open ImpureType
 
-
 /-!
-The following section is the derived value analysis. It figures out parent values for variables that
-were created using various forms of projections (currently `oproj` and `Array` accesses). This
-information is later used to reduce reference counting pressure.
+The following section contains the derived value analysis. It figures out a dependency tree of
+values that were derived from other values through projections or `Array` accesses. This information
+is later used in the derived borrow analysis to reduce reference counting pressure.
 -/
 
 /--
@@ -48,6 +62,7 @@ structure State where
 
 abbrev M := StateRefT State CompilerM
 
+@[inline]
 def visitParam (p : Param .impure) : M Unit :=
   modify fun s => { s with
     varMap := s.varMap.insert p.fvarId {
@@ -61,20 +76,17 @@ def visitParam (p : Param .impure) : M Unit :=
         s.borrowedParams
   }
 
-partial def addDerivedValue (parent : FVarId) (child : FVarId) : M Unit := do
+@[inline]
+def addDerivedValue (parent : FVarId) (child : FVarId) : M Unit := do
   modify fun s => { s with
-    varMap := s.varMap.modify parent fun info =>
-      { info with children := info.children.insert child }
-  }
-  modify fun s => { s with
-    varMap := s.varMap.insert child {
-      parent? := some parent
-      children := {}
-    }
+    varMap :=
+      s.varMap
+        |>.modify parent (fun info => { info with children := info.children.insert child })
+        |>.insert child { parent? := some parent, children := {} }
   }
 
-partial def removeFromParent (child : FVarId) : M Unit := do
-  if let (some parent) := (← get).varMap.get? child |>.bind (·.parent?) then
+def removeFromParent (child : FVarId) : M Unit := do
+  if let some parent := (← get).varMap.get? child |>.bind (·.parent?) then
     modify fun s => { s with
       varMap := s.varMap.modify parent fun info =>
         { info with children := info.children.erase child }
@@ -105,6 +117,9 @@ partial def collectCode (code : Code .impure) : M Unit := do
   | .return .. | .jmp .. | .unreach .. => return ()
   | .inc .. | .dec .. => unreachable!
 
+/--
+Collect the derived value tree as well as the set of parameters that take objects and are borrowed.
+-/
 def collect (ps : Array (Param .impure)) (code : Code .impure) :
     CompilerM (DerivedValMap × FVarIdHashSet) := do
   let ⟨_, { varMap, borrowedParams }⟩ ← go |>.run {}
@@ -125,13 +140,23 @@ structure VarInfo where
 
 abbrev VarMap := FVarIdMap VarInfo
 
+/--
+The results of the liveness analysis.
+-/
 structure LiveVars where
+  /--
+  The set of variables that are live *and* can potentially be killed.
+  -/
   vars : Std.HashSet FVarId := {}
+  /--
+  The set of variables that are live because they are borrows and can thus never be killed to begin
+  with.
+  -/
   borrows : Std.HashSet FVarId := {}
   deriving Inhabited
 
 @[inline]
-def LiveVars.merge (liveVars1 liveVars2 : LiveVars) : LiveVars :=
+def LiveVars.union (liveVars1 liveVars2 : LiveVars) : LiveVars :=
   let vars := liveVars1.vars.union liveVars2.vars
   let borrows := liveVars1.borrows.union liveVars2.borrows
   { vars, borrows }
@@ -145,14 +170,38 @@ def LiveVars.erase (liveVars : LiveVars) (fvarId : FVarId) : LiveVars :=
 abbrev JPLiveVarMap := FVarIdMap LiveVars
 
 structure Context where
+  /--
+  The set of all parameters that are borrowed and take potential objects as arguments.
+  -/
   borrowedParams : FVarIdHashSet
+  /--
+  The derived value tree.
+  -/
   derivedValMap : DerivedValMap
+  /--
+  Information about the variables currently in scope.
+  -/
   varMap : VarMap := {}
+  /--
+  Information about the variables in all join points that are currently in scope.
+  -/
   jpLiveVarMap : JPLiveVarMap := {}
+  /--
+  An index that we count up as we encounter new variables. This is used to order them in a
+  reproducible fashion when required. The default ordering does not work as our variables are
+  `FVarId` based.
+  -/
   idx : Nat := 0
+  /--
+  The SCC of declarations that are currently being processed.
+  -/
   decls : Array (Decl .impure)
 
 structure State where
+  /--
+  Contains the result of the liveness dataflow analysis. This is a backward analysis so `liveVars`
+  always contains the variables that are still going to be live *after* the current program point.
+  -/
   liveVars : LiveVars := {}
 
 abbrev RcM := ReaderT Context <| StateRefT State CompilerM
@@ -168,6 +217,10 @@ def isLive (fvarId : FVarId) : RcM Bool := return (← get).liveVars.vars.contai
 
 @[inline]
 def isBorrowed (fvarId : FVarId) : RcM Bool := return (← get).liveVars.borrows.contains fvarId
+
+@[inline]
+def modifyLive (f : LiveVars → LiveVars) : RcM Unit :=
+  modify fun s => { s with liveVars := f s.liveVars }
 
 def getDeclSig (declName : Name) : RcM (Option (Signature .impure)) := do
   match (← read).decls.find? (·.name == declName) with
@@ -235,51 +288,61 @@ def withCtorAlt (discr : FVarId) (c : CtorInfo) (x : RcM α) : RcM α := do
         idx := ctx.idx + 1
       }) do x
 
-@[inline]
-def setLiveVars (liveVars : LiveVars) : RcM Unit :=
-  modify fun s => { s with liveVars }
-
+/--
+Reset the currently collected liveVars, run `x`, return the liveVars it collected and recover the
+original set.
+-/
 @[inline]
 def withCollectLiveVars (x : RcM α) : RcM (α × LiveVars) := do
   let currentLiveVars := (← get).liveVars
-  setLiveVars {}
+  modifyLive fun _ => {}
   let ret ← x
   let collected := (← get).liveVars
-  setLiveVars currentLiveVars
+  modifyLive fun _ => currentLiveVars
   return (ret, collected)
 
+/--
+Traverse the transitive closure of values derived from `fvarId` and add them to `s` if they pass
+`shouldAdd`.
+-/
 @[specialize]
-partial def addDescendants (fvarId : FVarId) (s : FVarIdHashSet)
-    (shouldAdd : FVarId → Bool := fun _ => true) : RcM FVarIdHashSet := do
-  if let some info := (← read).derivedValMap.get? fvarId then
-    info.children.foldM (init := s) fun s child =>
+partial def addDescendants (fvarId : FVarId) (derivedValMap : DerivedValMap) (s : FVarIdHashSet)
+    (shouldAdd : FVarId → Bool := fun _ => true) : FVarIdHashSet :=
+  if let some info := derivedValMap.get? fvarId then
+    info.children.fold (init := s) fun s child =>
       let s := if shouldAdd child then s.insert child else s
-      addDescendants child s shouldAdd
+      addDescendants child derivedValMap s shouldAdd
   else
-    return s
+    s
 
+/--
+Mark `fvarId` as live from here on out and if there are any derived values that are not live anymore
+and pass `shouldBorrow` mark them as still borrowed at this point (`fvarId` forces them to remain
+alive after all).
+-/
 @[specialize]
 def useVar (fvarId : FVarId) (shouldBorrow : FVarId → Bool := fun _ => true) : RcM Unit := do
   if !(← isLive fvarId) then
-    let liveVars := (← get).liveVars
-    let borrows ← addDescendants fvarId liveVars.borrows fun y =>
-      !liveVars.vars.contains y && shouldBorrow y
-    modify fun s => { s with liveVars := { s.liveVars with borrows := borrows }}
-  modify fun s => { s with liveVars := { s.liveVars with vars := s.liveVars.vars.insert fvarId }}
-
-@[inline]
-def useArg (args : Array (Arg .impure)) (arg : Arg .impure) : RcM Unit :=
-  match arg with
-  | .fvar fvarId =>
-    useVar fvarId fun y =>
-      args.all fun arg =>
-        match arg with
-        | .fvar z => y != z
-        | .erased => true
-  | .erased => return ()
+    let derivedValMap := (← read).derivedValMap
+    modifyLive fun liveVars =>
+      { liveVars with
+          borrows := addDescendants fvarId derivedValMap liveVars.borrows fun y =>
+            !liveVars.vars.contains y && shouldBorrow y
+          vars := liveVars.vars.insert fvarId
+      }
 
 def useArgs (args : Array (Arg .impure)) : RcM Unit := do
-  args.forM (useArg args)
+  args.forM fun arg =>
+    match arg with
+    | .fvar fvarId =>
+      useVar fvarId fun y =>
+        -- If a value is used as an argument we are going to mark it live anyways so don't mark it
+        -- as borrowed.
+        args.all fun arg =>
+          match arg with
+          | .fvar z => y != z
+          | .erased => true
+    | .erased => return ()
 
 def useLetValue (value : LetValue .impure) : RcM Unit := do
   match value with
@@ -295,13 +358,16 @@ def useLetValue (value : LetValue .impure) : RcM Unit := do
 
 @[inline]
 def bindVar (fvarId : FVarId) : RcM Unit :=
-  modify fun s => { s with liveVars := s.liveVars.erase fvarId }
+  modifyLive (·.erase fvarId)
 
 @[inline]
 def setRetLiveVars : RcM Unit := do
-  let borrows ← (← read).borrowedParams.foldM (init := {}) fun borrows x =>
-    addDescendants x (borrows.insert x)
-  set { liveVars := { vars := {}, borrows } : State }
+  let derivedValMap := (← read).derivedValMap
+  -- At the end of a function no values are live and all borrows derived from parameters will still
+  -- be around.
+  let borrows := (← read).borrowedParams.fold (init := {}) fun borrows x =>
+    addDescendants x derivedValMap (borrows.insert x)
+  modifyLive fun _ => { vars := {}, borrows }
 
 @[inline]
 def addInc (fvarId : FVarId) (k : Code .impure) (n : Nat := 1) : RcM (Code .impure) := do
@@ -316,8 +382,19 @@ def addDec (fvarId : FVarId) (k : Code .impure) : RcM (Code .impure) := do
   let info ← getVarInfo fvarId
   return .dec fvarId 1 (!info.isDefiniteRef) info.persistent k
 
+/--
+Insert the alternative specific prolog for the alternative contained in `k`. `altLiveVars` is the
+set of live variables in `k` and the state at this point contains the set of live variables for the
+entire `cases`.
+-/
 def addPrologForAlt (altLiveVars : LiveVars) (k : Code .impure) : RcM (Code .impure) := do
+  /-
+  These are derived values who are no longer kept alive by a (potentially transitive) parent value
+  in this alternative and must thus be incremented. It is crucial that these increments happen
+  before the decrements as the decrements might contain an operation that frees a parent.
+  -/
   let mut incs := #[]
+  -- The set of variables that need no longer be live in this cases arm but might be live in others
   let mut decs := #[]
   for fvarId in (← get).liveVars.vars do
     let info ← getVarInfo fvarId
@@ -327,31 +404,33 @@ def addPrologForAlt (altLiveVars : LiveVars) (k : Code .impure) : RcM (Code .imp
     else if (← isBorrowed fvarId) && !altLiveVars.borrows.contains fvarId then
       incs := incs.push (fvarId, info.idx)
 
+  -- We sort them by their consistent index as to avoid noise in generated C code by changing
+  -- `FVarId`s
   decs := decs.qsort (fun (_, i₁) (_, i₂) => i₁ < i₂)
   let k ← decs.foldlM (init := k) fun k (v, _) => addDec v k
   incs := incs.qsort (fun (_, i₁) (_, i₂) => i₁ < i₂)
   let k ← incs.foldlM (init := k) fun k (v, _) => addInc v k
   return k
 
-/-- `isFirstOcc xs x i = true` if `xs[i]` is the first occurrence of `xs[i]` in `xs` -/
-def isFirstOcc (xs : Array (Arg .impure)) (i : Nat) : Bool :=
-  let x := xs[i]!
-  i.all fun j _ => xs[j]! != x
+/-- `isFirstOcc args i = true` if `args[i]` is the first occurrence of `args[i]` in `args` -/
+def isFirstOcc (args : Array (Arg .impure)) (i : Nat) : Bool :=
+  let x := args[i]!
+  i.all fun j _ => args[j]! != x
+
+def isBorrowParamAux (arg : FVarId) (args : Array (Arg .impure)) (consumeParamPred : Nat → Bool) :
+    Bool :=
+  args.size.any fun i _ =>
+    let arg' := args[i]
+    match arg' with
+    | .erased => false
+    | .fvar arg' => arg == arg' && !consumeParamPred i
 
 /--
-Return true if `x` also occurs in `ys` in a position that is not consumed.
-That is, it is also passed as a borrow reference.
+Return true if `arg` also occurs in `args` in a position that is not consumed when they are passed
+to `ps`. That is, it is also passed as a borrow reference.
 -/
-def isBorrowParamAux (x : FVarId) (ys : Array (Arg .impure)) (consumeParamPred : Nat → Bool) :
-    Bool :=
-  ys.size.any fun i _ =>
-    let y := ys[i]
-    match y with
-    | .erased => false
-    | .fvar y  => x == y && !consumeParamPred i
-
-def isBorrowParam (x : FVarId) (ys : Array (Arg .impure)) (ps : Array (Param .impure)) : Bool :=
-  isBorrowParamAux x ys fun i => ! ps[i]!.borrow
+def isBorrowParam (arg : FVarId) (args : Array (Arg .impure)) (ps : Array (Param .impure)) : Bool :=
+  isBorrowParamAux arg args fun i => !ps[i]!.borrow
 
 /--
 Return `n`, the number of times `arg` is consumed.
@@ -379,7 +458,7 @@ def addIncBeforeAux (args : Array (Arg .impure)) (consumeParamPred : Nat → Boo
         continue
       let numConsumptions := getNumConsumptions fvarId args consumeParamPred
       let numIncs ←
-        if (← isLive fvarId)
+        if (← isLive fvarId) -- `fvarId` is live after executing the instruction
             || (← isBorrowed fvarId)
             || isBorrowParamAux fvarId args consumeParamPred then -- `fvarId` is used in a position that is passed as a borrow reference
           pure (numConsumptions)
@@ -388,14 +467,26 @@ def addIncBeforeAux (args : Array (Arg .impure)) (consumeParamPred : Nat → Boo
       k ← addInc fvarId k numIncs
   return k
 
+/--
+Insert the required increments for the variables used in `args` before passing them to a fully
+applied function with parameter set `ps`. This function also handles edge cases like passing the
+same value twice (potentially with different borrowing modes) etc.
+-/
 def addIncBefore (args : Array (Arg .impure)) (ps : Array (Param .impure)) (k : Code .impure) :
     RcM (Code .impure) :=
   addIncBeforeAux args (fun i => !ps[i]!.borrow) k
 
+/--
+Like `addIncBefore` but simply assumes all arguments will be consumed.
+-/
 def addIncBeforeConsumeAll (args : Array (Arg .impure)) (k : Code .impure) :
     RcM (Code .impure) := do
   addIncBeforeAux args (fun _ => true) k
 
+/--
+Insert the decrement operations we are allowed to perform after a full applications of `args`
+into a function with parameter set `ps`.
+-/
 def addDecAfterFullApp (args : Array (Arg .impure)) (ps : Array (Param .impure)) (k : Code .impure) :
     RcM (Code .impure) := do
   let mut k := k
@@ -460,7 +551,6 @@ def LetDecl.explicitRc (code : Code .impure) (decl : LetDecl .impure) (k : Code 
     | .fap f args =>
       let ps := (← getDeclSig f).get!.params
       let k ← addDecAfterFullApp args ps k
-      let liveVars := (← get).liveVars
       let value ←
         if f == ``Array.getInternal && (← isBorrowed decl.fvarId) then
           pure <| .fap ``Array.getInternalBorrowed args
@@ -498,6 +588,12 @@ partial def Code.explicitRc (code : Code .impure) : RcM (Code .impure) := do
       let k ← k.explicitRc
       return code.updateFun! decl k
   | .cases cs =>
+    /-
+    When visiting a cases we must make sure that all values used in any alternative do not get
+    released before the branch. So we collect the union of all live values and then insert an
+    alternative specific prolog that decrements values which are not used in the respective
+    alternative.
+    -/
     let alts ← cs.alts.mapM fun alt =>
       withCollectLiveVars do
         match alt with
@@ -508,8 +604,8 @@ partial def Code.explicitRc (code : Code .impure) : RcM (Code .impure) := do
         | .default k =>
           let k ← k.explicitRc
           return alt.updateCode k
-    let caseLiveVars := alts.foldl (init := {}) fun acc ⟨_, altLive⟩ => acc.merge altLive
-    setLiveVars caseLiveVars
+    let caseLiveVars := alts.foldl (init := {}) fun acc ⟨_, altLive⟩ => acc.union altLive
+    modifyLive fun _ => caseLiveVars
     useVar cs.discr
     let alts ← alts.mapM fun ⟨alt, altLiveVars⟩ => do
       match alt with
@@ -523,8 +619,9 @@ partial def Code.explicitRc (code : Code .impure) : RcM (Code .impure) := do
     return code.updateAlts! alts
   | .jmp fvarId args =>
     let jpLiveVars ← getJpLiveVars fvarId
+    -- When jumping to a jp we must ensure all the values it might want to use are still alive.
+    modifyLive fun _ => jpLiveVars
     let ps := (← findFunDecl? fvarId).get!.params
-    setLiveVars jpLiveVars
     let code ← addIncBefore args ps code
     useArgs args
     return code
@@ -538,7 +635,7 @@ partial def Code.explicitRc (code : Code .impure) : RcM (Code .impure) := do
       return code
   | .uset (var := var) (k := k) .. | .sset (var := var) (k := k) .. =>
     let k ← k.explicitRc
-    -- We don't need to insert `y` since we only need to track live variables that are references at runtime
+    -- We don't need to insert `var` since we only need to track live variables that are references at runtime
     useVar var
     return code.updateCont! k
   | .unreach .. =>
@@ -562,14 +659,14 @@ where
       let code ← code.explicitRc
       addDecForDeadParams decl.params code
 
-def run (decls : Array (Decl .impure)) : CompilerM (Array (Decl .impure)) := do
+public def runExplicitRc (decls : Array (Decl .impure)) : CompilerM (Array (Decl .impure)) := do
   decls.mapM (·.explicitRc decls)
 
 public def explicitRc : Pass where
   phase := .impure
   phaseOut := .impure
   name := `explicitRc
-  run := run
+  run := runExplicitRc
 
 builtin_initialize
   registerTraceClass `Compiler.explicitRc (inherited := true)

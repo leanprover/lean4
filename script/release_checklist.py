@@ -910,7 +910,7 @@ def main():
             if not branch_exists(bump_url, bump_branch, github_token):
                 if args.dry_run:
                     latest_nightly = get_latest_nightly_tag(github_token)
-                    nightly_note = f" (will set lean-toolchain to {latest_nightly})" if name in ["batteries", "mathlib4"] and latest_nightly else ""
+                    nightly_note = f" (will set lean-toolchain to {latest_nightly})" if latest_nightly else ""
                     print(f"  ❌ Bump branch {bump_branch} does not exist. Run `gh api -X POST /repos/{bump_org_repo}/git/refs -f ref=refs/heads/{bump_branch} -f sha=$(gh api /repos/{org_repo}/git/refs/heads/{branch} --jq .object.sha)` to create it{nightly_note}.")
                     repo_status[name] = False
                     continue

@@ -135,7 +135,7 @@ def simplifyAppFn : Simproc := fun e => do
       return .rfl
     else
     let res ← simp fn
-    match (← simp fn) with
+    match res with
     | .rfl _ => return res
     | .step e' proof _ =>
       let newType ← Sym.inferType e'

@@ -529,7 +529,7 @@ if(CMAKE_SYSTEM_NAME MATCHES "Linux")
     APPEND LAKESHARED_LINKER_FLAGS
     " -Wl,--whole-archive ${CMAKE_BINARY_DIR}/lib/lean/libLake.a.export -Wl,--no-whole-archive"
   )
-  string(APPEND CMAKE_EXE_LINKER_FLAGS " -Wl,-rpath=$ORIGIN/../lib:$ORIGIN/../lib/lean")
+  string(APPEND CMAKE_EXE_LINKER_FLAGS " -Wl,-rpath=\\$$ORIGIN/../lib:\\$$ORIGIN/../lib/lean")
 elseif(CMAKE_SYSTEM_NAME MATCHES "Darwin")
   string(APPEND CMAKE_CXX_FLAGS " -ftls-model=initial-exec")
   string(APPEND INIT_SHARED_LINKER_FLAGS " -install_name @rpath/libInit_shared.dylib")

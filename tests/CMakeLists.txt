@@ -3,7 +3,7 @@ string(REGEX REPLACE "^([a-zA-Z]):" "/\\1" LEAN_BIN "${CMAKE_BINARY_DIR}/bin")
 
 # Environment variables
 set(TEST_VARS "${LEAN_TEST_VARS}")
-string(APPEND TEST_VARS " PATH=${LEAN_BIN}:$PATH")
+string(APPEND TEST_VARS " PATH=${LEAN_BIN}:\$PATH")
 string(APPEND TEST_VARS " LEANC_OPTS='${LEANC_OPTS}'")
 # LEANC_OPTS in CXX is necessary for macOS c++ to find its headers
 string(APPEND TEST_VARS " CXX='${CMAKE_CXX_COMPILER} ${LEANC_OPTS}'")

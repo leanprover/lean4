@@ -183,3 +183,15 @@ theorem t1 : True := (by
     -- (should never print "blocked")
   wait_for_main_cancel_once_async
   trivial)
+
+-- RESET
+import Lean.Server.Test.Cancel
+open Lean.Server.Test.Cancel
+
+/-! Changes in a command should cancel non-incremental `elab_rules` elaboration. -/
+
+wait_for_cancel_once_command 1
+                           --^ waitFor: blocked
+                           --^ change: "1" "2"
+                           --^ collectDiagnostics
+                           -- (should print "cancelled!" exactly once)

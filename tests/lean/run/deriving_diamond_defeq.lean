@@ -81,7 +81,7 @@ set_option pp.all true in
 #check @instMyHigherMyAlias
 
 /--
-info: @[instance_reducible] def instMyHigherMyAlias : @MyHigher MyAlias instBaseMyAlias :=
+info: @[implicit_reducible] def instMyHigherMyAlias : @MyHigher MyAlias instBaseMyAlias :=
 instHigherNat
 -/
 #guard_msgs in

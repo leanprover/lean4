@@ -24,10 +24,6 @@ public register_builtin_option cbv.warning : Bool := {
   descr    := "disable `cbv` usage warning"
 }
 
-def tryMatchEquations (appFn : Name) : Simproc := fun e => do
-  let thms ← getMatchTheorems appFn
-  Simproc.tryCatch (thms.rewrite (d := dischargeNone)) e
-
 def tryEquations : Simproc := fun e => do
   unless e.isApp do
     return .rfl
@@ -41,18 +37,6 @@ def tryUnfold : Simproc := fun e => do
   let some appFn := e.getAppFn.constName? | return .rfl
   let some thm ← getUnfoldTheorem appFn | return .rfl
   Simproc.tryCatch (fun e => Theorem.rewrite thm e) e
-
-def tryMatcher : Simproc := fun e => do
-  unless e.isApp do
-    return .rfl
-  let some appFn := e.getAppFn.constName? | return .rfl
-  let some info ← getMatcherInfo? appFn | return .rfl
-  let start := info.numParams + 1
-  let stop  := start + info.numDiscrs
-  (simpAppArgRange · start stop)
-    >> tryMatchEquations appFn
-      <|> reduceRecMatcher
-        <| e
 
 def handleConstApp : Simproc := fun e => do
   if (← isCbvOpaque e.getAppFn.constName!) then

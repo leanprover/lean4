@@ -79,9 +79,9 @@ the def elaborator would turn all metavariables into parameters before this anal
 
 /--
 error: declaration `_example` contains universe level metavariables at the expression
-  Function.const ({α : Sort _} → α → α) 2 @id.{_}
+  Function.const.{1, imax (_ + 1) _} ({α : Sort _} → α → α) 2 @id.{_}
 in the declaration body
-  Function.const ({α : Sort _} → α → α) 2 @id.{_}
+  Function.const.{1, imax (_ + 1) _} ({α : Sort _} → α → α) 2 @id.{_}
 -/
 #guard_msgs in
 example : Nat := Function.const _ 2 @id

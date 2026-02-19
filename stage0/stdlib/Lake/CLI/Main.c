@@ -551,7 +551,7 @@ static const lean_string_object l___private_Lake_CLI_Main_0__Lake_lake_cache_cle
 static const lean_object* l___private_Lake_CLI_Main_0__Lake_lake_cache_clean___lam__0___closed__0 = (const lean_object*)&l___private_Lake_CLI_Main_0__Lake_lake_cache_clean___lam__0___closed__0_value;
 static const lean_ctor_object l___private_Lake_CLI_Main_0__Lake_lake_cache_clean___lam__0___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 8, .m_other = 1, .m_tag = 0}, .m_objs = {((lean_object*)&l___private_Lake_CLI_Main_0__Lake_lake_cache_clean___lam__0___closed__0_value),LEAN_SCALAR_PTR_LITERAL(3, 0, 0, 0, 0, 0, 0, 0)}};
 static const lean_object* l___private_Lake_CLI_Main_0__Lake_lake_cache_clean___lam__0___closed__1 = (const lean_object*)&l___private_Lake_CLI_Main_0__Lake_lake_cache_clean___lam__0___closed__1_value;
-lean_object* l_IO_FS_removeDirAll(lean_object*);
+lean_object* l_Lake_removeDirAllIfExists(lean_object*);
 uint8_t l_Lake_configFileExists(lean_object*);
 lean_object* l_Lake_loadWorkspaceRoot___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Main_0__Lake_lake_cache_clean___lam__0(lean_object*, lean_object*);
@@ -31192,7 +31192,7 @@ return x_89;
 block_36:
 {
 lean_object* x_7; 
-x_7 = l_IO_FS_removeDirAll(x_4);
+x_7 = l_Lake_removeDirAllIfExists(x_4);
 lean_dec_ref(x_4);
 if (lean_obj_tag(x_7) == 0)
 {

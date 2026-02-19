@@ -12,36 +12,43 @@ public meta import Lean.Elab
 public meta import Lean.Meta
 public meta import Lean.Meta.Match.Rewrite
 public meta import Lean.Elab.Tactic.Do.VCGen.Split
+meta import Lean.Meta.Sym.Pattern
+meta import Lean.Meta.Sym.Simp.DiscrTree
 
 open Lean Parser Meta Elab Tactic Sym
 open Lean.Elab.Tactic.Do.SpecAttr
 open Std.Do
 
--- The following spec is necessary because the VC gen currently has no support for unfolding spec
--- theorems, which is what we usually do for `MonadState.get`.
+-- Normally, we'd support the following two specs by unfolding:
+
+@[spec]
+theorem Spec.monadLift_trans [Monad o] [WPMonad o ps] [MonadLift n o] [MonadLiftT m n] (x : m α) :
+    ⦃wp⟦MonadLift.monadLift (m := n) (n := o) (monadLift x)⟧ Q⦄ (MonadLiftT.monadLift x : o α) ⦃Q⦄ := SPred.entails.rfl
+
+@[spec]
+theorem Spec.monadLift_refl [WP m ps] (x : m α) :
+    ⦃wp⟦x⟧ Q⦄ (monadLift (n := m) x) ⦃Q⦄ := SPred.entails.rfl
+
 @[spec]
 theorem Spec.MonadState_get_StateT {m ps} [Monad m] [WPMonad m ps] {σ} {Q : PostCond σ (.arg σ ps)} :
     ⦃fun s => Q.fst s s⦄ get (m := StateT σ m) ⦃Q⦄ := by
   simp only [Triple, WP.get_MonadState, WP.get_StateT, SPred.entails.refl]
-
--- Normally, we'd support the following two specs by unfolding:
-
--- TODO: Need to figure out why the trans rule does not apply.
--- @[spec]
--- theorem Spec.monadLift_trans [Monad o] [WPMonad o ps] [MonadLift n o] [MonadLiftT m n] (x : m α) :
---     ⦃wp⟦MonadLift.monadLift (m := n) (n := o) (monadLift x)⟧ Q⦄ (MonadLiftT.monadLift x : o α) ⦃Q⦄ := SPred.entails.rfl
---
--- @[spec]
--- theorem Spec.monadLift_refl [WP m ps] (x : m α) :
---     ⦃wp⟦x⟧ Q⦄ (MonadLiftT.monadLift (n := m) x) ⦃Q⦄ := SPred.entails.rfl
 
 @[spec]
 theorem Spec.MonadState_get_ExceptT [Monad m] [MonadStateOf σ m] [WP m ps] :
     ⦃wp⟦monadLift (n := ExceptT ε m) (get : m σ)⟧ Q⦄ (get : ExceptT ε m σ) ⦃Q⦄ := SPred.entails.rfl
 
 @[spec]
+theorem Spec.MonadState_get_ReaderT [Monad m] [MonadStateOf σ m] [WP m ps] :
+    ⦃wp⟦monadLift (n := ReaderT ε m) (get : m σ)⟧ Q⦄ (get : ReaderT ε m σ) ⦃Q⦄ := SPred.entails.rfl
+
+@[spec]
 theorem Spec.MonadStateOf_get_ExceptT [Monad m] [MonadStateOf σ m] [WP m ps] :
     ⦃wp⟦monadLift (n := ExceptT ε m) (get : m σ)⟧ Q⦄ (MonadStateOf.get : ExceptT ε m σ) ⦃Q⦄ := SPred.entails.rfl
+
+@[spec]
+theorem Spec.MonadStateOf_get_ReaderT [Monad m] [MonadStateOf σ m] [WP m ps] :
+    ⦃wp⟦monadLift (n := ReaderT ε m) (get : m σ)⟧ Q⦄ (MonadStateOf.get : ReaderT ε m σ) ⦃Q⦄ := SPred.entails.rfl
 
 @[spec]
 theorem Spec.MonadStateOf_get_StateT_lift {m ps} [Monad m] [MonadStateOf σ m] [WP m ps] {Q : PostCond σ (.arg σ' ps)} :
@@ -50,6 +57,10 @@ theorem Spec.MonadStateOf_get_StateT_lift {m ps} [Monad m] [MonadStateOf σ m] [
 @[spec]
 theorem Spec.MonadStateOf_set_ExceptT [Monad m] [MonadStateOf σ m] [WP m ps] {s : σ} :
     ⦃wp⟦monadLift (n := ExceptT ε m) (set (m := m) s)⟧ Q⦄ set (m := ExceptT ε m) s ⦃Q⦄ := SPred.entails.rfl
+
+@[spec]
+theorem Spec.MonadStateOf_set_ReaderT [Monad m] [MonadStateOf σ m] [WP m ps] {s : σ} :
+    ⦃wp⟦monadLift (n := ReaderT ε m) (set (m := m) s)⟧ Q⦄ set (m := ReaderT ε m) s ⦃Q⦄ := SPred.entails.rfl
 
 @[spec]
 theorem Spec.MonadStateOf_set_StateT_lift [Monad m] [MonadStateOf σ m] [WP m ps] {s : σ} :
@@ -61,19 +72,87 @@ Creating backward rules for registered specifications
 
 namespace Lean.Elab.Tactic.Do.SpecAttr
 
+public structure SpecTheoremNew where
+  /--
+  Pattern for the program expression.
+  This is the key used in the discrimination tree.
+  If the proof has type `∀ a b c, Triple prog P Q`, then the pattern is `prog[a:=#2, b:=#1, c:=#0]`.
+  -/
+  pattern : Sym.Pattern
+  /-- The proof for the theorem. -/
+  proof : SpecProof
+  /--
+  If `etaPotential` is non-zero, then the precondition contains meta variables that can be
+  instantiated after applying `mintro ∀s` `etaPotential` many times.
+  -/
+  etaPotential : Nat := 0
+  priority : Nat  := eval_prio default
+  deriving Inhabited
+
+meta instance : BEq SpecTheoremNew where
+  beq thm₁ thm₂ := thm₁.proof == thm₂.proof
+
+public structure SpecTheoremsNew where
+  specs : DiscrTree SpecTheoremNew := DiscrTree.empty
+  erased : PHashSet SpecProof := {}
+  deriving Inhabited
+
+meta def mkTriplePatternFromExpr (expr : Expr) (levelParams : List Name := []) : SymM Pattern := do
+  Prod.fst <$> Sym.mkPatternFromExprWithKey expr levelParams fun type => do
+    let_expr Triple _m _ps _inst _α prog _P _Q := type | throwError "conclusion is not a Triple {indentExpr type}"
+    return (prog, ())
+
+meta def mkSpecTheoremNew (proof : SpecProof) (prio : Nat) : SymM SpecTheoremNew := do
+  -- cf. mkSimpTheoremCore
+  let (levelParams, expr) ← proof.getProof
+  let type ← Sym.inferType expr
+  let type ← instantiateMVars type
+  unless (← isProp type) do
+    throwError "invalid 'spec', proposition expected{indentExpr type}"
+  let pattern ← mkTriplePatternFromExpr expr levelParams
+  withNewMCtxDepth do
+  let (xs, _, type) ← withSimpGlobalConfig (forallMetaTelescopeReducing type)
+  let type ← whnfR type
+  let_expr c@Triple _m ps _inst _α _prog P _Q := type
+    | throwError "unexpected kind of spec theorem; not a triple{indentExpr type}"
+  -- beta potential of `P` describes how many times we want to `mintro ∀s`, that is,
+  -- *eta*-expand the goal.
+  let σs := mkApp (mkConst ``PostShape.args [c.constLevels![0]!]) ps
+  let etaPotential ← computeMVarBetaPotentialForSPred xs σs P
+  -- logInfo m!"Beta potential {etaPotential} for {P}"
+  -- logInfo m!"mkSpecTheorem: {keys}, proof: {proof}"
+  return { pattern, proof, etaPotential, priority := prio }
+
+meta def migrateSpecTheoremsDatabase (database : SpecTheorems) : SymM SpecTheoremsNew := do
+  let mut specs : DiscrTree SpecTheoremNew := DiscrTree.empty
+  for spec in database.specs.values do
+    let newSpec ← mkSpecTheoremNew spec.proof spec.priority
+    specs := Sym.insertPattern specs newSpec.pattern newSpec
+  return { database with specs }
+
 /--
-Look up `SpecTheorem`s in the `@[spec]` database.
+Look up `SpecTheoremNew`s in the `@[spec]` database.
 Takes all specs that match the given program `e` and sorts by descending priority.
 -/
-meta def SpecTheorems.findSpecs (database : SpecTheorems) (e : Expr) : MetaM (Array SpecTheorem) := do
-  let candidates ← database.specs.getMatch e
-  let candidates := candidates.filter fun spec => !database.erased.contains spec.proof
+meta def SpecTheoremsNew.findSpecs (database : SpecTheoremsNew) (e : Expr) : SymM (Array SpecTheoremNew) := do
+  let e ← instantiateMVars e
+  let e ← shareCommon e
+  let mut candidates := Sym.getMatch database.specs e
+  candidates := candidates.filter fun spec => !database.erased.contains spec.proof
+  if candidates.size > 1 then
+    candidates ← candidates.filterM fun spec => do
+      let res ← spec.pattern.match? e
+      let some _ := res | return false
+      -- let (_xs, _bs, _prf, type) ← spec.proof.instantiate
+      -- let_expr Triple _m _ps _instWP _α prog _P _Q := type | throwError "Not a triple: {type}"
+      -- isDefEqS e prog -- (← shareCommon (← unfoldReducible prog))
+      return true
   return candidates.insertionSort fun s₁ s₂ => s₁.priority > s₂.priority
 
 end Lean.Elab.Tactic.Do.SpecAttr
 
 /--
-Create a backward rule for the `SpecTheorem` that was looked up in the database.
+Create a backward rule for the `SpecTheoremNew` that was looked up in the database.
 In order for the backward rule to apply, we need to instantiate both `m` and `ps` with the ones
 given by the use site, and perhaps emit verification conditions for spec lemmas that would not
 apply everywhere.
@@ -134,7 +213,7 @@ prf : ∀ (α : Type) (x : StateT Nat Id α) (β : Type) (f : α → StateT Nat 
 We are still investigating how to get rid of more unfolding overhead, such as for `wp` and
 `List.rec`.
 -/
-meta def mkBackwardRuleFromSpecs (specThms : Array SpecTheorem) (m σs ps instWP : Expr) (excessArgs : Array Expr) : SymM (Option (SpecTheorem × BackwardRule)) := do
+meta def mkBackwardRuleFromSpecs (specThms : Array SpecTheoremNew) (m σs ps instWP : Expr) (excessArgs : Array Expr) : SymM (Option (SpecTheoremNew × BackwardRule)) := do
   let preprocessExpr : Expr → SymM Expr := shareCommon <=< liftMetaM ∘ unfoldReducible
   for specThm in specThms do
     -- Create a backward rule for the spec we look up in the database.
@@ -284,7 +363,7 @@ VC generation
 -/
 
 public structure VCGen.Context where
-  specThms : SpecTheorems
+  specThms : SpecTheoremsNew
   /-- The backward rule for `SPred.entails_cons_intro`. -/
   entailsConsIntroRule : BackwardRule
 
@@ -294,7 +373,7 @@ public structure VCGen.State where
   The particular rule depends on the theorem name, the monad and the number of excess state
   arguments that the weakest precondition target is applied to.
   -/
-  specBackwardRuleCache : Std.HashMap (Array Name × Expr × Nat) (Option (SpecTheorem × BackwardRule)) := {}
+  specBackwardRuleCache : Std.HashMap (Array Name × Expr × Nat) (Option (SpecTheoremNew × BackwardRule)) := {}
   /--
   A cache mapping matchers to their splitting backward rule to apply.
   The particular rule depends on the matcher name, the monad and the number of excess state
@@ -322,20 +401,20 @@ meta def _root_.Std.HashMap.getDM [Monad m] [BEq α] [Hashable α]
   let b ← fallback
   return (b, cache.insert key b)
 
-meta def SpecTheorem.global? (specThm : SpecTheorem) : Option Name :=
+meta def SpecTheoremNew.global? (specThm : SpecTheoremNew) : Option Name :=
   match specThm.proof with | .global decl => some decl | _ => none
 
-/-- See the documentation for `SpecTheorem.mkBackwardRuleFromSpec` for more details. -/
-meta def mkBackwardRuleFromSpecsCached (specThms : Array SpecTheorem) (m σs ps instWP : Expr) (excessArgs : Array Expr) : VCGenM (Option (SpecTheorem × BackwardRule)) := do
+/-- See the documentation for `SpecTheoremNew.mkBackwardRuleFromSpec` for more details. -/
+meta def mkBackwardRuleFromSpecsCached (specThms : Array SpecTheoremNew) (m σs ps instWP : Expr) (excessArgs : Array Expr) : VCGenM (Option (SpecTheoremNew × BackwardRule)) := do
   let mkRuleSlow := mkBackwardRuleFromSpecs specThms m σs ps instWP excessArgs
   let s ← get
-  let some decls := specThms.mapM SpecTheorem.global? | mkRuleSlow
+  let some decls := specThms.mapM SpecTheoremNew.global? | mkRuleSlow
   let (res, specBackwardRuleCache) ← s.specBackwardRuleCache.getDM (decls, m, excessArgs.size) mkRuleSlow
   set { s with specBackwardRuleCache }
   return res
 
 open Lean.Elab.Tactic.Do in
-/-- See the documentation for `SpecTheorem.mkBackwardRuleForIte` for more details. -/
+/-- See the documentation for `SpecTheoremNew.mkBackwardRuleForIte` for more details. -/
 meta def mkBackwardRuleFromSplitInfoCached (splitInfo : SplitInfo) (m σs ps instWP : Expr) (excessArgs : Array Expr) : _root_.VCGenM BackwardRule := do
   unless splitInfo matches .ite .. do throwError "Only `ite` is currently supported for splitting."
   let mkRuleSlow := mkBackwardRuleForIte m σs ps instWP excessArgs
@@ -395,7 +474,7 @@ inductive SolveResult where
   Did not find a spec for the `e` in `H ⊢ₛ wp⟦e⟧ Q s₁ ... sₙ`.
   Candidates were `thms`, but none of them matched the monad.
   -/
-  | noSpecFoundForProgram (e : Expr) (monad : Expr) (thms : Array SpecTheorem)
+  | noSpecFoundForProgram (e : Expr) (monad : Expr) (thms : Array SpecTheoremNew)
   /-- Successfully discharged the goal. These are the subgoals. -/
   | goals (subgoals : List MVarId)
 
@@ -546,14 +625,14 @@ meta def mkSpecContext (lemmas : Syntax) (ignoreStarArg := false) : TacticM VCGe
         let info ← getConstInfo declName
         try
           let thm ← mkSpecTheoremFromConst declName
-          specThms := specThms.add thm
+          specThms := specThms.insert thm
         catch _ =>
           simpStuff := simpStuff.push ⟨arg⟩
       | some (.fvar fvar) =>
         let decl ← getFVarLocalDecl (.fvar fvar)
         try
           let thm ← mkSpecTheoremFromLocal fvar
-          specThms := specThms.add thm
+          specThms := specThms.insert thm
         catch _ =>
           simpStuff := simpStuff.push ⟨arg⟩
       | _ => withRef term <| throwError "Could not resolve {repr term}"
@@ -576,10 +655,11 @@ meta def mkSpecContext (lemmas : Syntax) (ignoreStarArg := false) : TacticM VCGe
       unless specThms.isErased (.local fvar) do
         try
           let thm ← mkSpecTheoremFromLocal fvar
-          specThms := specThms.add thm
+          specThms := specThms.insert thm
         catch _ => continue
   let entailsConsIntroRule ← mkBackwardRuleFromDecl ``SPred.entails_cons_intro
-  return { specThms, entailsConsIntroRule }
+  let specThmsNew ← SymM.run <| migrateSpecTheoremsDatabase specThms
+  return { specThms := specThmsNew, entailsConsIntroRule }
 
 end VCGen
 

@@ -836,14 +836,32 @@ lean_dec_ref(x_3);
 x_3 = x_62;
 goto _start;
 }
-default: 
+case 9:
 {
 lean_object* x_64; 
+x_64 = lean_ctor_get(x_3, 2);
+lean_inc_ref(x_64);
+lean_dec_ref(x_3);
+x_3 = x_64;
+goto _start;
+}
+case 10:
+{
+lean_object* x_66; 
+x_66 = lean_ctor_get(x_3, 2);
+lean_inc_ref(x_66);
+lean_dec_ref(x_3);
+x_3 = x_66;
+goto _start;
+}
+default: 
+{
+lean_object* x_68; 
 lean_dec(x_4);
 lean_dec_ref(x_3);
 lean_dec_ref(x_2);
-x_64 = lean_box(0);
-return x_64;
+x_68 = lean_box(0);
+return x_68;
 }
 }
 }

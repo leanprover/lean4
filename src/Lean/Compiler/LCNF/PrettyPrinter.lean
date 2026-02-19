@@ -149,6 +149,16 @@ mutual
         return f!"sset {← ppFVar fvarId} [{i}, {offset}] := {← ppFVar y} " ++ ";" ++ .line ++ (← ppCode k)
     | .uset fvarId i y k _ =>
       return f!"uset {← ppFVar fvarId} [{i}] := {← ppFVar y} " ++ ";" ++ .line ++ (← ppCode k)
+    | .inc fvarId n _ _ k _ =>
+      if n != 1 then
+        return f!"inc[{n}] {← ppFVar fvarId};" ++ .line ++ (← ppCode k)
+      else
+        return f!"inc {← ppFVar fvarId};" ++ .line ++ (← ppCode k)
+    | .dec fvarId n _ _ k _ =>
+      if n != 1 then
+        return f!"dec[{n}] {← ppFVar fvarId};" ++ .line ++ (← ppCode k)
+      else
+        return f!"dec {← ppFVar fvarId};" ++ .line ++ (← ppCode k)
 
 
   partial def ppDeclValue (b : DeclValue pu) : M Format := do

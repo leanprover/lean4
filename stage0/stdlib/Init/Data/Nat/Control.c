@@ -13,19 +13,19 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Control_0__Nat_forM_loop___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Control_0__Nat_forM_loop___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Control_0__Nat_forM_loop___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Control_0__Nat_forM_loop___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Control_0__Nat_forM_loop___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Control_0__Nat_forM_loop___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Control_0__Nat_forM_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Control_0__Nat_forM_loop___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_forM___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_forM(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Control_0__Nat_forRevM_loop___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Control_0__Nat_forRevM_loop___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Control_0__Nat_forRevM_loop___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Control_0__Nat_forRevM_loop___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Control_0__Nat_forRevM_loop___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Control_0__Nat_forRevM_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Control_0__Nat_forRevM_loop___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -63,6 +63,15 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Control_0__Nat_anyM_loop(lean
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Control_0__Nat_anyM_loop___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_anyM___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_anyM(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Control_0__Nat_forM_loop___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = l___private_Init_Data_Nat_Control_0__Nat_forM_loop___redArg___lam__0(x_1, x_2, x_3, x_4, x_5);
+lean_dec(x_4);
+return x_6;
+}
+}
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Control_0__Nat_forM_loop___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -93,7 +102,7 @@ x_13 = lean_nat_sub(x_4, x_12);
 lean_inc(x_13);
 lean_inc(x_3);
 lean_inc(x_2);
-x_14 = lean_alloc_closure((void*)(l___private_Init_Data_Nat_Control_0__Nat_forM_loop___redArg___lam__0), 5, 4);
+x_14 = lean_alloc_closure((void*)(l___private_Init_Data_Nat_Control_0__Nat_forM_loop___redArg___lam__0___boxed), 5, 4);
 lean_closure_set(x_14, 0, x_1);
 lean_closure_set(x_14, 1, x_2);
 lean_closure_set(x_14, 2, x_3);
@@ -114,15 +123,6 @@ _start:
 {
 lean_object* x_6; 
 x_6 = l___private_Init_Data_Nat_Control_0__Nat_forM_loop___redArg(x_1, x_2, x_3, x_4);
-return x_6;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Control_0__Nat_forM_loop___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-lean_object* x_6; 
-x_6 = l___private_Init_Data_Nat_Control_0__Nat_forM_loop___redArg___lam__0(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_4);
 return x_6;
 }
 }
@@ -172,6 +172,15 @@ lean_dec(x_3);
 return x_5;
 }
 }
+LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Control_0__Nat_forRevM_loop___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l___private_Init_Data_Nat_Control_0__Nat_forRevM_loop___redArg___lam__0(x_1, x_2, x_3, x_4);
+lean_dec(x_3);
+return x_5;
+}
+}
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Control_0__Nat_forRevM_loop___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -200,7 +209,7 @@ x_11 = lean_unsigned_to_nat(1u);
 x_12 = lean_nat_sub(x_3, x_11);
 lean_inc(x_12);
 lean_inc(x_2);
-x_13 = lean_alloc_closure((void*)(l___private_Init_Data_Nat_Control_0__Nat_forRevM_loop___redArg___lam__0), 4, 3);
+x_13 = lean_alloc_closure((void*)(l___private_Init_Data_Nat_Control_0__Nat_forRevM_loop___redArg___lam__0___boxed), 4, 3);
 lean_closure_set(x_13, 0, x_1);
 lean_closure_set(x_13, 1, x_2);
 lean_closure_set(x_13, 2, x_12);
@@ -215,15 +224,6 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l___private_Init_Data_Nat_Control_0__Nat_forRevM_loop___redArg(x_1, x_2, x_3);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Control_0__Nat_forRevM_loop___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l___private_Init_Data_Nat_Control_0__Nat_forRevM_loop___redArg___lam__0(x_1, x_2, x_3, x_4);
-lean_dec(x_3);
 return x_5;
 }
 }
@@ -288,6 +288,15 @@ lean_dec(x_3);
 return x_5;
 }
 }
+LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Control_0__Nat_foldM_loop___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = l___private_Init_Data_Nat_Control_0__Nat_foldM_loop___redArg(x_1, x_2, x_3, x_4, x_5);
+lean_dec(x_4);
+return x_6;
+}
+}
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Control_0__Nat_foldM_loop___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -319,7 +328,7 @@ x_15 = lean_nat_sub(x_14, x_12);
 lean_dec(x_14);
 lean_inc(x_3);
 x_16 = lean_apply_3(x_3, x_15, lean_box(0), x_5);
-x_17 = lean_alloc_closure((void*)(l___private_Init_Data_Nat_Control_0__Nat_foldM_loop___redArg), 5, 4);
+x_17 = lean_alloc_closure((void*)(l___private_Init_Data_Nat_Control_0__Nat_foldM_loop___redArg___boxed), 5, 4);
 lean_closure_set(x_17, 0, x_1);
 lean_closure_set(x_17, 1, x_2);
 lean_closure_set(x_17, 2, x_3);
@@ -327,15 +336,6 @@ lean_closure_set(x_17, 3, x_13);
 x_18 = lean_apply_4(x_7, lean_box(0), lean_box(0), x_16, x_17);
 return x_18;
 }
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Control_0__Nat_foldM_loop___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-lean_object* x_6; 
-x_6 = l___private_Init_Data_Nat_Control_0__Nat_foldM_loop___redArg(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_4);
-return x_6;
 }
 }
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Control_0__Nat_foldM_loop(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
@@ -375,6 +375,15 @@ lean_dec(x_4);
 return x_7;
 }
 }
+LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Control_0__Nat_foldRevM_loop___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l___private_Init_Data_Nat_Control_0__Nat_foldRevM_loop___redArg(x_1, x_2, x_3, x_4);
+lean_dec(x_3);
+return x_5;
+}
+}
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Control_0__Nat_foldRevM_loop___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -403,22 +412,13 @@ x_12 = lean_nat_sub(x_3, x_11);
 lean_inc(x_2);
 lean_inc(x_12);
 x_13 = lean_apply_3(x_2, x_12, lean_box(0), x_4);
-x_14 = lean_alloc_closure((void*)(l___private_Init_Data_Nat_Control_0__Nat_foldRevM_loop___redArg), 4, 3);
+x_14 = lean_alloc_closure((void*)(l___private_Init_Data_Nat_Control_0__Nat_foldRevM_loop___redArg___boxed), 4, 3);
 lean_closure_set(x_14, 0, x_1);
 lean_closure_set(x_14, 1, x_2);
 lean_closure_set(x_14, 2, x_12);
 x_15 = lean_apply_4(x_6, lean_box(0), lean_box(0), x_13, x_14);
 return x_15;
 }
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Control_0__Nat_foldRevM_loop___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l___private_Init_Data_Nat_Control_0__Nat_foldRevM_loop___redArg(x_1, x_2, x_3, x_4);
-lean_dec(x_3);
-return x_5;
 }
 }
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Control_0__Nat_foldRevM_loop(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {

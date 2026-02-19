@@ -787,6 +787,9 @@ theorem Equiv.beq [TransCmp cmp] (h : m₁ ~m m₂) : m₁ == m₂ :=
 theorem equiv_of_beq [TransCmp cmp] [LawfulEqCmp cmp] (h : m₁ == m₂) : m₁ ~m m₂ :=
   ⟨TreeMap.equiv_of_beq h⟩
 
+theorem beq_iff_equiv [TransCmp cmp] [LawfulEqCmp cmp] : (m₁ == m₂) ↔ m₁ ~m m₂ :=
+  ⟨equiv_of_beq, Equiv.beq⟩
+
 theorem Equiv.beq_congr [TransCmp cmp] {m₃ m₄ : TreeSet α cmp} (w₁ : m₁ ~m m₃) (w₂ : m₂ ~m m₄) : (m₁ == m₂) = (m₃ == m₄) :=
   TreeMap.Equiv.beq_congr w₁.1 w₂.1
 
@@ -2294,6 +2297,10 @@ theorem empty_equiv_iff_isEmpty : empty ~m t ↔ t.isEmpty :=
 
 theorem equiv_iff_toList_perm : t₁ ~m t₂ ↔ t₁.toList.Perm t₂.toList :=
   equiv_iff_equiv.trans TreeMap.equiv_iff_keys_unit_perm
+
+theorem equiv_iff_forall_mem_iff [TransCmp cmp] [LawfulEqCmp cmp] :
+    t₁ ~m t₂ ↔ (∀ k, k ∈ t₁ ↔ k ∈ t₂) :=
+  ⟨fun h _ => h.mem_iff, Equiv.of_forall_mem_iff⟩
 
 theorem Equiv.of_toList_perm (h : t₁.toList.Perm t₂.toList) : t₁ ~m t₂ :=
   ⟨.of_keys_unit_perm h⟩

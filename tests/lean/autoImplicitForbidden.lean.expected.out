@@ -4,4 +4,4 @@ autoImplicitForbidden.lean:13:24-13:27: error(lean.unknownIdentifier): Unknown i
 autoImplicitForbidden.lean:16:21-16:24: error(lean.unknownIdentifier): Unknown identifier `Foo`
 autoImplicitForbidden.lean:20:18-20:21: error(lean.unknownIdentifier): Unknown identifier `Ex2`
 autoImplicitForbidden.lean:28:14-28:20: error(lean.unknownIdentifier): Unknown identifier `foobar`
-constructor Bar.mk.{u_1} : ({Na : Sort u_1} → Na) → Nat → Bar
+autoImplicitForbidden.lean:30:7-30:13: error(lean.unknownIdentifier): Unknown constant `Bar.mk`

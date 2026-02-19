@@ -924,8 +924,8 @@ def main():
             
             print(f"  ✅ Bump branch {bump_branch} exists")
             
-            # For batteries and mathlib4, update the lean-toolchain to the latest nightly
-            if branch_created and name in ["batteries", "mathlib4"]:
+            # Update the lean-toolchain to the latest nightly for newly created bump branches
+            if branch_created:
                 latest_nightly = get_latest_nightly_tag(github_token)
                 if latest_nightly:
                     nightly_toolchain = f"leanprover/lean4:{latest_nightly}"

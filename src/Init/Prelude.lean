@@ -4685,7 +4685,7 @@ inductive Name where
 with
   /-- A hash function for names, which is stored inside the name itself as a
   computed field. -/
-  @[computed_field] hash : Name → UInt64
+  @[computed_field, inline] hash : Name → UInt64
     | .anonymous => .ofNatLT 1723 (of_decide_eq_true rfl)
     | .str p s => mixHash p.hash s.hash
     | .num p v => mixHash p.hash (dite (LT.lt v UInt64.size) (fun h => UInt64.ofNatLT v h) (fun _ => UInt64.ofNatLT 17 (of_decide_eq_true rfl)))

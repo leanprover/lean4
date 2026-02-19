@@ -59,7 +59,12 @@ private partial def mkErrorMessage (c : InputContext) (pos : String.Pos.Raw) (st
       endPos? := some r.stop
     let unexpected := match e.unexpectedTk with
       | .ident .. => "unexpected identifier"
-      | .atom _ v => s!"unexpected token '{v}'"
+      | .atom _ v =>
+        -- If expecting an identifier but got a keyword/token, suggest guillemets
+        if e.expected.contains "identifier" && !v.isEmpty && !v.any isIdEndEscape then
+          s!"unexpected token `{v}`; if you want to use it as an identifier, use `{idBeginEscape}{v}{idEndEscape}`"
+        else
+          s!"unexpected token `{v}`"
       | _         => "unexpected token"  -- TODO: categorize (custom?) literals as well?
     e := { e with unexpected }
     -- if there is an unexpected token, include preceding whitespace as well as the expected token could

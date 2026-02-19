@@ -1147,7 +1147,7 @@ variable [FunLike F α β]
 
 variable {_ : NonAssocSemiring α} {_ : NonAssocSemiring β} [RingHomClass F α β]
 
-@[instance_reducible]
+@[implicit_reducible]
 def RingHomClass.toRingHom (f : F) : α →+* β :=
   { (f : α →* β), (f : α →+ β) with }
 
@@ -1175,7 +1175,7 @@ end coe
 
 variable {_ : NonAssocSemiring α} {_ : NonAssocSemiring β} {_ : NonAssocSemiring γ}
 
-@[instance_reducible]
+@[implicit_reducible]
 def comp (g : β →+* γ) (f : α →+* β) : α →+* γ :=
   { g.toNonUnitalRingHom.comp f.toNonUnitalRingHom with
     toFun := g ∘ f
@@ -1194,41 +1194,41 @@ namespace Injective
 
 variable {M₁ : Type _} {M₂ : Type _} [Mul M₁]
 
-@[instance_reducible]
+@[implicit_reducible]
 protected def semigroup [Semigroup M₂] (f : M₁ → M₂) (hf : Injective f) : Semigroup M₁ :=
   { ‹Mul M₁› with mul_assoc := sorry }
 
-@[instance_reducible]
+@[implicit_reducible]
 protected def addSemigroup {M₁} [Add M₁] [AddSemigroup M₂] (f : M₁ → M₂) (hf : Injective f) : AddSemigroup M₁ :=
   { ‹Add M₁› with add_assoc := sorry }
 
-@[instance_reducible]
+@[implicit_reducible]
 protected def commMagma [CommMagma M₂] (f : M₁ → M₂) (hf : Injective f) : CommMagma M₁ where
   mul_comm x y := sorry
 
-@[instance_reducible]
+@[implicit_reducible]
 protected def addCommMagma {M₁} [Add M₁] [AddCommMagma M₂] (f : M₁ → M₂) (hf : Injective f) : AddCommMagma M₁ where
   add_comm x y := sorry
 
-@[instance_reducible]
+@[implicit_reducible]
 protected def commSemigroup [CommSemigroup M₂] (f : M₁ → M₂) (hf : Injective f) : CommSemigroup M₁ where
   toSemigroup := hf.semigroup f
   __ := hf.commMagma f
 
-@[instance_reducible]
+@[implicit_reducible]
 protected def addCommSemigroup {M₁} [Add M₁] [AddCommSemigroup M₂] (f : M₁ → M₂) (hf : Injective f) : AddCommSemigroup M₁ where
   toAddSemigroup := hf.addSemigroup f
   __ := hf.addCommMagma f
 
 variable [One M₁]
 
-@[instance_reducible]
+@[implicit_reducible]
 protected def mulOneClass [MulOneClass M₂] (f : M₁ → M₂) (hf : Injective f) : MulOneClass M₁ :=
   { ‹One M₁›, ‹Mul M₁› with
     one_mul := sorry,
     mul_one := sorry }
 
-@[instance_reducible]
+@[implicit_reducible]
 protected def addZeroClass {M₁} [Zero M₁] [Add M₁] [AddZeroClass M₂] (f : M₁ → M₂) (hf : Injective f) : AddZeroClass M₁ :=
   { ‹Zero M₁›, ‹Add M₁› with
     zero_add := sorry,
@@ -1236,21 +1236,21 @@ protected def addZeroClass {M₁} [Zero M₁] [Add M₁] [AddZeroClass M₂] (f 
 
 variable [Pow M₁ Nat]
 
-@[instance_reducible]
+@[implicit_reducible]
 protected def monoid [Monoid M₂] (f : M₁ → M₂) (hf : Injective f) : Monoid M₁ :=
   { hf.mulOneClass f, hf.semigroup f with
     npow := fun n x => x ^ n,
     npow_zero := sorry,
     npow_succ := sorry }
 
-@[instance_reducible]
+@[implicit_reducible]
 protected def addMonoid {M₁} [Zero M₁] [Add M₁] [SMul Nat M₁] [AddMonoid M₂] (f : M₁ → M₂) (hf : Injective f) : AddMonoid M₁ :=
   { hf.addZeroClass f, hf.addSemigroup f with
     nsmul := fun n x => n • x,
     nsmul_zero := sorry,
     nsmul_succ := sorry }
 
-@[instance_reducible]
+@[implicit_reducible]
 protected def addMonoidWithOne {M₁} [Zero M₁] [One M₁] [Add M₁] [SMul Nat M₁] [NatCast M₁]
     [AddMonoidWithOne M₂] (f : M₁ → M₂) (hf : Injective f) : AddMonoidWithOne M₁ :=
   { hf.addMonoid f with
@@ -1259,19 +1259,19 @@ protected def addMonoidWithOne {M₁} [Zero M₁] [One M₁] [Add M₁] [SMul Na
     natCast_succ := sorry,
     one := 1 }
 
-@[instance_reducible]
+@[implicit_reducible]
 protected def commMonoid [CommMonoid M₂] (f : M₁ → M₂) (hf : Injective f) :
     CommMonoid M₁ :=
   { hf.monoid f, hf.commSemigroup f with }
 
-@[instance_reducible]
+@[implicit_reducible]
 protected def addCommMonoid {M₁} [Zero M₁] [Add M₁] [SMul Nat M₁] [AddCommMonoid M₂] (f : M₁ → M₂) (hf : Injective f) :
     AddCommMonoid M₁ :=
   { hf.addMonoid f, hf.addCommSemigroup f with }
 
 variable [Inv M₁] [Div M₁] [Pow M₁ Int]
 
-@[instance_reducible]
+@[implicit_reducible]
 protected def divInvMonoid [DivInvMonoid M₂] (f : M₁ → M₂) (hf : Injective f) : DivInvMonoid M₁ :=
   { hf.monoid f, ‹Inv M₁›, ‹Div M₁› with
     zpow := fun n x => x ^ n,
@@ -1280,7 +1280,7 @@ protected def divInvMonoid [DivInvMonoid M₂] (f : M₁ → M₂) (hf : Injecti
     zpow_neg' := sorry,
     div_eq_mul_inv := sorry }
 
-@[instance_reducible]
+@[implicit_reducible]
 protected def subNegMonoid {M₁} [Zero M₁] [One M₁] [Add M₁] [SMul Nat M₁] [Neg M₁] [Sub M₁]
     [SMul Int M₁] [SubNegMonoid M₂] (f : M₁ → M₂) (hf : Injective f) : SubNegMonoid M₁ :=
   { hf.addMonoid f, ‹Neg M₁›, ‹Sub M₁› with
@@ -1290,18 +1290,18 @@ protected def subNegMonoid {M₁} [Zero M₁] [One M₁] [Add M₁] [SMul Nat M�
     zsmul_neg' := sorry,
     sub_eq_add_neg := sorry }
 
-@[instance_reducible]
+@[implicit_reducible]
 protected def group [Group M₂] (f : M₁ → M₂) (hf : Injective f) : Group M₁ :=
   { hf.divInvMonoid f with
     mul_left_inv := sorry }
 
-@[instance_reducible]
+@[implicit_reducible]
 protected def addGroup {M₁} [Zero M₁] [One M₁] [Add M₁] [SMul Nat M₁] [Neg M₁] [Sub M₁]
     [SMul Int M₁] [AddGroup M₂] (f : M₁ → M₂) (hf : Injective f) : AddGroup M₁ :=
   { hf.subNegMonoid f with
     add_left_neg := sorry }
 
-@[instance_reducible]
+@[implicit_reducible]
 protected def addGroupWithOne {M₁} [Zero M₁] [One M₁] [Add M₁] [SMul Nat M₁] [Neg M₁] [Sub M₁]
     [SMul Int M₁] [NatCast M₁] [IntCast M₁] [AddGroupWithOne M₂] (f : M₁ → M₂) (hf : Injective f) : AddGroupWithOne M₁ :=
   { hf.addGroup f,
@@ -1310,11 +1310,11 @@ protected def addGroupWithOne {M₁} [Zero M₁] [One M₁] [Add M₁] [SMul Nat
     intCast_ofNat := sorry,
     intCast_negSucc := sorry }
 
-@[instance_reducible]
+@[implicit_reducible]
 protected def commGroup [CommGroup M₂] (f : M₁ → M₂) (hf : Injective f) : CommGroup M₁ :=
   { hf.commMonoid f, hf.group f with }
 
-@[instance_reducible]
+@[implicit_reducible]
 protected def addCommGroup {M₁} [Zero M₁] [One M₁] [Add M₁] [SMul Nat M₁] [Neg M₁] [Sub M₁]
     [SMul Int M₁] [AddCommGroup M₂] (f : M₁ → M₂) (hf : Injective f) : AddCommGroup M₁ :=
   { hf.addCommMonoid f, hf.addGroup f with }
@@ -1334,7 +1334,7 @@ section MulZeroClass
 
 variable [MulZeroClass M₀] {a b : M₀}
 
-@[instance_reducible]
+@[implicit_reducible]
 protected def Function.Injective.mulZeroClass [Mul M₀'] [Zero M₀'] (f : M₀' → M₀) (hf : Injective f) : MulZeroClass M₀' where
   mul := (· * ·)
   zero := 0
@@ -1347,7 +1347,7 @@ section MulZeroOneClass
 
 variable [MulZeroOneClass M₀]
 
-@[instance_reducible]
+@[implicit_reducible]
 protected def Function.Injective.mulZeroOneClass [Mul M₀'] [Zero M₀'] [One M₀'] (f : M₀' → M₀)
     (hf : Injective f) :
     MulZeroOneClass M₀' :=
@@ -1357,7 +1357,7 @@ end MulZeroOneClass
 
 section SemigroupWithZero
 
-@[instance_reducible]
+@[implicit_reducible]
 protected def Function.Injective.semigroupWithZero [Zero M₀'] [Mul M₀'] [SemigroupWithZero M₀]
     (f : M₀' → M₀) (hf : Injective f) :
     SemigroupWithZero M₀' :=
@@ -1367,7 +1367,7 @@ end SemigroupWithZero
 
 section MonoidWithZero
 
-@[instance_reducible]
+@[implicit_reducible]
 protected def Function.Injective.monoidWithZero [Zero M₀'] [Mul M₀'] [One M₀'] [Pow M₀' Nat]
     [MonoidWithZero M₀] (f : M₀' → M₀) (hf : Injective f) :
     MonoidWithZero M₀' :=
@@ -1379,7 +1379,7 @@ section GroupWithZero
 
 variable [GroupWithZero G₀] {a b c g h x : G₀}
 
-@[instance_reducible]
+@[implicit_reducible]
 protected def Function.Injective.groupWithZero [Zero G₀'] [Mul G₀'] [One G₀'] [Inv G₀'] [Div G₀']
     [Pow G₀' Nat] [Pow G₀' Int] (f : G₀' → G₀) (hf : Injective f) : GroupWithZero G₀' :=
   { hf.monoidWithZero f,
@@ -1399,7 +1399,7 @@ universe u v x
 
 variable {α : Type u} {β : Type v} {R : Type x}
 
-@[instance_reducible]
+@[implicit_reducible]
 protected def Function.Injective.distrib {S} [Mul R] [Add R] [Distrib S] (f : R → S)
     (hf : Injective f) :
     Distrib R where
@@ -1409,33 +1409,33 @@ protected def Function.Injective.distrib {S} [Mul R] [Add R] [Distrib S] (f : R 
 variable [Zero β] [One β] [Add β] [Mul β] [Neg β] [Sub β] [SMul Nat β] [SMul Int β] [Pow β Nat]
   [NatCast β] [IntCast β]
 
-@[instance_reducible]
+@[implicit_reducible]
 protected def Function.Injective.nonUnitalNonAssocSemiring {α : Type u}
     [NonUnitalNonAssocSemiring α] (f : β → α) (hf : Injective f) : NonUnitalNonAssocSemiring β where
   toAddCommMonoid := hf.addCommMonoid f
   __ := hf.distrib f
   __ := hf.mulZeroClass f
 
-@[instance_reducible]
+@[implicit_reducible]
 protected def Function.Injective.nonUnitalSemiring {α : Type u} [NonUnitalSemiring α] (f : β → α)
     (hf : Injective f) :
     NonUnitalSemiring β where
   toNonUnitalNonAssocSemiring := hf.nonUnitalNonAssocSemiring f
   __ := hf.semigroupWithZero f
 
-@[instance_reducible]
+@[implicit_reducible]
 protected def Function.Injective.nonAssocSemiring {α : Type u} [NonAssocSemiring α] [NatCast β] (f : β → α) (hf : Injective f) : NonAssocSemiring β where
   toNonUnitalNonAssocSemiring := hf.nonUnitalNonAssocSemiring f
   __ := hf.mulZeroOneClass f
   __ := hf.addMonoidWithOne f
 
-@[instance_reducible]
+@[implicit_reducible]
 protected def Function.Injective.semiring {α : Type u} [Semiring α] [NatCast β] (f : β → α) (hf : Injective f) : Semiring β where
   toNonUnitalSemiring := hf.nonUnitalSemiring f
   __ := hf.nonAssocSemiring f
   __ := hf.monoidWithZero f
 
-@[instance_reducible]
+@[implicit_reducible]
 protected def Function.Injective.ring [Ring α] (f : β → α) (hf : Injective f) : Ring β where
   toSemiring := hf.semiring f
   __ := hf.addGroupWithOne f

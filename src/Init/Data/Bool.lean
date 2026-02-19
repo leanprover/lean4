@@ -636,7 +636,7 @@ def boolPredToPred : Coe (α → Bool) (α  → Prop) where
 This should not be turned on globally as an instance because it degrades performance in Mathlib,
 but may be used locally.
 -/
-@[expose, instance_reducible] def boolRelToRel : Coe (α → α → Bool) (α → α → Prop) where
+@[expose, implicit_reducible] def boolRelToRel : Coe (α → α → Bool) (α → α → Prop) where
   coe r := fun a b => Eq (r a b) true
 
 /-! ### subtypes -/

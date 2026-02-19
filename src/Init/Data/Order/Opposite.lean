@@ -52,7 +52,7 @@ def max' [LE α] [DecidableLE α] (a b : α) : α :=
 Without the `open scoped` command, Lean would not find the required {lit}`DecidableLE α`
 instance for the opposite order.
 -/
-@[instance_reducible] def LE.opposite (le : LE α) : LE α where
+@[implicit_reducible] def LE.opposite (le : LE α) : LE α where
   le a b := b ≤ a
 
 theorem LE.opposite_def {le : LE α} :

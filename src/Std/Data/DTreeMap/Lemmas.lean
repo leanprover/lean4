@@ -5882,7 +5882,7 @@ end Equiv
 section Equiv
 
 /-- Implementation detail of the tree map -/
-@[instance_reducible]
+@[implicit_reducible]
 def isSetoid (α : Type u) (β : α → Type v) (cmp : α → α → Ordering := by exact compare) :
     Setoid (Std.DTreeMap α β cmp) where
   r := Equiv

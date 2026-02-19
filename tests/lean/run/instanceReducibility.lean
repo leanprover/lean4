@@ -1,6 +1,6 @@
 module
 
-/-! Reducibility of instances should default to `[instance_reducible]` but be overridable. -/
+/-! Reducibility of instances should default to `[implicit_reducible]` but be overridable. -/
 
 instance i1 : Inhabited Nat := inferInstance
 

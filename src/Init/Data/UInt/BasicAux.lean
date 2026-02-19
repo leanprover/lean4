@@ -399,7 +399,7 @@ Examples:
  * `(if (5 : USize) < 5 then "yes" else "no") = "no"`
  * `show ¬((7 : USize) < 7) by decide`
 -/
-@[extern "lean_usize_dec_lt", instance_reducible]
+@[extern "lean_usize_dec_lt", implicit_reducible]
 def USize.decLt (a b : USize) : Decidable (a < b) :=
   inferInstanceAs (Decidable (a.toBitVec < b.toBitVec))
 
@@ -415,7 +415,7 @@ Examples:
  * `(if (5 : USize) ≤ 15 then "yes" else "no") = "yes"`
  * `show (7 : USize) ≤ 7 by decide`
 -/
-@[extern "lean_usize_dec_le", instance_reducible]
+@[extern "lean_usize_dec_le", implicit_reducible]
 def USize.decLe (a b : USize) : Decidable (a ≤ b) :=
   inferInstanceAs (Decidable (a.toBitVec ≤ b.toBitVec))
 

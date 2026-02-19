@@ -70,7 +70,7 @@ information to the return value, except a trivial proof of {name}`True`.
 This instance is used whenever no more useful {name}`MonadAttach` instance can be implemented.
 It always has a {name}`WeaklyLawfulMonadAttach`, but usually no {name}`LawfulMonadAttach` instance.
 -/
-@[expose, instance_reducible]
+@[expose, implicit_reducible]
 public protected def MonadAttach.trivial {m : Type u → Type v} [Monad m] : MonadAttach m where
   CanReturn _ _ := True
   attach x := (⟨·, .intro⟩) <$> x

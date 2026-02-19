@@ -33,6 +33,28 @@ def lt : TransparencyMode → TransparencyMode → Bool
   | default,   all       => true
   | _,         _         => false
 
+instance : LT TransparencyMode := ⟨fun a b => a.lt b⟩
+instance (a b : TransparencyMode) : Decidable (a < b) := inferInstanceAs (Decidable (a.lt b))
+
+instance : LE TransparencyMode := ⟨fun a b => a < b ∨ a = b⟩
+instance (a b : TransparencyMode) : Decidable (a ≤ b) := inferInstanceAs (Decidable (a < b ∨ a = b))
+
+protected def beq : TransparencyMode → TransparencyMode → Bool
+  | none,      none      => true
+  | reducible, reducible => true
+  | instances, instances => true
+  | default,   default   => true
+  | all,       all       => true
+  | _,         _         => false
+
+instance : BEq TransparencyMode := ⟨TransparencyMode.beq⟩
+
+protected def compare (a b : TransparencyMode) : Ordering :=
+  if a.lt b then .lt else if b.lt a then .gt else .eq
+
+instance : Ord TransparencyMode where
+  compare := TransparencyMode.compare
+
 end TransparencyMode
 
 example (a b c : TransparencyMode) : a.lt b → b.lt c → a.lt c := by

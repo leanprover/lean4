@@ -74,6 +74,8 @@ This satisfies `(s.append t).apply e = t.apply (s.apply e)`
 def append (s t : FVarSubst) : FVarSubst :=
   s.1.foldl (fun s' k v => s'.insert k (t.apply v)) t
 
+instance : Append FVarSubst := ⟨append⟩
+
 end FVarSubst
 end Meta
 

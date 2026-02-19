@@ -22,6 +22,19 @@ namespace Position
 protected def lt : Position → Position → Bool
   | ⟨l₁, c₁⟩, ⟨l₂, c₂⟩ => Prod.lexLt (l₁, c₁) (l₂, c₂)
 
+instance : LT Position := ⟨fun a b => a.lt b⟩
+instance (a b : Position) : Decidable (a < b) := inferInstanceAs (Decidable (a.lt b))
+
+protected def compare : Position → Position → Ordering
+  | ⟨l₁, c₁⟩, ⟨l₂, c₂⟩ =>
+    match Ord.compare l₁ l₂ with
+    | .eq => Ord.compare c₁ c₂
+    | ord => ord
+
+instance : Ord Position := ⟨Position.compare⟩
+
+instance : LE Position := leOfOrd
+
 instance : ToFormat Position :=
   ⟨fun ⟨l, c⟩ => "⟨" ++ format l ++ ", " ++ format c ++ "⟩"⟩
 

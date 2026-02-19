@@ -15,11 +15,8 @@ theorem isEven_double (x : Nat) : isEven (2 * x) = true := by
   | succ x ih =>
     unfold isEven
     trace_state
-    rw [Nat.mul_succ, Nat.add_succ]
-    simp
     unfold isOdd
     trace_state
-    simp
     exact ih
 
 theorem isEven_succ_succ (x : Nat) : isEven (x + 2) = isEven x := by

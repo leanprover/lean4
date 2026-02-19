@@ -3525,7 +3525,7 @@ theorem getElem?_insert_succ {l : List α} {a : α} {i : Nat} :
   · split
     · rfl
     · have h' : i - 1 < l.length := Nat.lt_of_le_of_lt (Nat.pred_le _) h
-      simp [h']; rfl
+      simp [h']
 
 theorem head?_insert {l : List α} {a : α} :
     (l.insert a).head? = some (if h : a ∈ l then l.head (ne_nil_of_mem h) else a) := by

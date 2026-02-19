@@ -1198,7 +1198,7 @@ let x' = x.extractLsb' 7 5  =   _ _ 9 8 7
       (decide (0 < len) &&
       (decide (start + len ≤ w) &&
       x.getMsbD (w - (start + len)))) := by
-  simp [BitVec.msb, getMsbD_extractLsb']; rfl
+  simp [BitVec.msb, getMsbD_extractLsb']
 
 @[simp, grind =] theorem getElem_extract {hi lo : Nat} {x : BitVec n} {i : Nat} (h : i < hi - lo + 1) :
     (extractLsb hi lo x)[i] = getLsbD x (lo+i) := by
@@ -1234,7 +1234,7 @@ let x' = x.extractLsb' 7 5  =   _ _ 9 8 7
 
 @[simp, grind =] theorem msb_extractLsb {hi lo : Nat} {x : BitVec w} :
     (extractLsb hi lo x).msb = (decide (max hi lo < w) && x.getMsbD (w - 1 - max hi lo)) := by
-  simp [BitVec.msb]; rfl
+  simp [BitVec.msb]
 
 theorem extractLsb'_eq_extractLsb {w : Nat} (x : BitVec w) (start len : Nat) (h : len > 0) :
     x.extractLsb' start len = (x.extractLsb (len - 1 + start) start).cast (by omega) := by
@@ -2784,7 +2784,7 @@ theorem msb_append {x : BitVec w} {y : BitVec v} :
 @[simp] theorem append_zero_width (x : BitVec w) (y : BitVec 0) : x ++ y = x := by
   ext i ih
   rw [getElem_append] -- Why does this not work with `simp [getElem_append]`?
-  simp; rfl
+  simp
 
 set_option backward.isDefEq.respectTransparency false in
 @[grind =]

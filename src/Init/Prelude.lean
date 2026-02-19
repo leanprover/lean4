@@ -1726,7 +1726,7 @@ Addition of natural numbers, typically used via the `+` operator.
 This function is overridden in both the kernel and the compiler to efficiently evaluate using the
 arbitrary-precision arithmetic library. The definition provided here is the logical model.
 -/
-@[extern "lean_nat_add"]
+@[extern "lean_nat_add", implicit_reducible]
 protected def Nat.add : (@& Nat) → (@& Nat) → Nat
   | a, Nat.zero   => a
   | a, Nat.succ b => Nat.succ (Nat.add a b)
@@ -1745,7 +1745,7 @@ Multiplication of natural numbers, usually accessed via the `*` operator.
 This function is overridden in both the kernel and the compiler to efficiently evaluate using the
 arbitrary-precision arithmetic library. The definition provided here is the logical model.
 -/
-@[extern "lean_nat_mul"]
+@[extern "lean_nat_mul", implicit_reducible]
 protected def Nat.mul : (@& Nat) → (@& Nat) → Nat
   | _, 0          => 0
   | a, Nat.succ b => Nat.add (Nat.mul a b) a
@@ -2076,7 +2076,7 @@ Examples:
 * `8 - 8 = 0`
 * `8 - 20 = 0`
 -/
-@[extern "lean_nat_sub"]
+@[extern "lean_nat_sub", implicit_reducible]
 protected def Nat.sub : (@& Nat) → (@& Nat) → Nat
   | a, 0      => a
   | a, succ b => pred (Nat.sub a b)
@@ -3208,7 +3208,7 @@ This is a cached value, so it is `O(1)` to access. The space allocated for an ar
 its _capacity_, is at least as large as its size, but may be larger. The capacity of an array is an
 internal detail that's not observable by Lean code.
 -/
-@[extern "lean_array_get_size", tagged_return]
+@[extern "lean_array_get_size", tagged_return, implicit_reducible]
 def Array.size {α : Type u} (a : @& Array α) : Nat :=
  a.toList.length
 

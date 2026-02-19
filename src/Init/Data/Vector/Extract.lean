@@ -179,7 +179,7 @@ theorem mem_extract_iff_getElem {xs : Vector α n} {a : α} {i j : Nat} :
 theorem set_eq_push_extract_append_extract {xs : Vector α n} {i : Nat} (h : i < n) {a : α} :
     xs.set i a = ((xs.extract 0 i).push a ++ (xs.extract (i + 1) n)).cast (by omega) := by
   rcases xs with ⟨as, rfl⟩
-  simp [Array.set_eq_push_extract_append_extract]; rfl
+  simp [Array.set_eq_push_extract_append_extract]
 
 theorem extract_reverse {xs : Vector α n} {i j : Nat} :
     xs.reverse.extract i j = (xs.extract (n - j) (n - i)).reverse.cast (by omega) := by

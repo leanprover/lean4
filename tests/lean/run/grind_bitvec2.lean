@@ -3960,7 +3960,7 @@ theorem replicate_zero {x : BitVec w} : x.replicate 0 = 0#0 := by grind
 
 theorem replicate_one {w : Nat} {x : BitVec w} :
     (x.replicate 1) = x.cast (by rw [Nat.mul_one]) := by
-  simp only [replicate]; rw [append_zero_width]; rfl
+  simp only [replicate]; rw [append_zero_width]
 
 theorem replicate_succ {x : BitVec w} :
     x.replicate (n + 1) =

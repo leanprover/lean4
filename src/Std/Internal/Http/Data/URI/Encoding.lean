@@ -35,7 +35,7 @@ Checks if a byte is a valid character in a percent-encoded URI component. Valid 
 unreserved characters or the percent sign (for escape sequences).
 -/
 def isEncodedChar (rule : UInt8 → Bool) (c : UInt8) : Bool :=
-  isAscii c ∧ (rule c ∨ isHexDigit c ∨  c = '%'.toUInt8)
+  isAscii c ∧ (rule c ∨ isHexDigit c ∨ c = '%'.toUInt8)
 
 /--
 Checks if a byte is valid in a percent-encoded query string component. Extends `isEncodedChar` to also

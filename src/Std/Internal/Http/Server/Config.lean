@@ -55,11 +55,6 @@ structure Config where
   keepAliveTimeout : { x : Time.Millisecond.Offset // 0 < x } :=  ⟨12000, by decide⟩
 
   /--
-  Maximum time for requesting more data.
-  -/
-  requestTimeout : { x : Time.Millisecond.Offset // 0 < x } := ⟨13000, by decide⟩
-
-  /--
   Whether to enable keep-alive connections by default.
   -/
   enableKeepAlive : Bool := true
@@ -144,6 +139,10 @@ structure Config where
   -/
   maxTrailerHeaders : Nat := 100
 
+  /--
+  Maximum number of extensions on a single chunk-size line (default: 16).
+  -/
+  maxChunkExtensions : Nat := 16
 namespace Config
 
 /--
@@ -166,5 +165,6 @@ def toH1Config (config : Config) : Protocol.H1.Config where
   maxTrailerHeaders := config.maxTrailerHeaders
   enableKeepAlive := config.enableKeepAlive
   identityHeader := config.serverName
+  maxChunkExtensions := config.maxChunkExtensions
 
 end Std.Http.Config

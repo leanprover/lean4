@@ -41,9 +41,9 @@ class Handler (σ : Type) where
   /--
   Called when a request includes an `Expect: 100-continue` header. Return `true` to send a
   `100 Continue` response and accept the body, or `false` to reject it. The default implementation
-  always accepts.
+  always rejects.
   -/
   onContinue (self : σ) (request : Request.Head) : Async Bool :=
-    pure true
+    pure false
 
 end Std.Http.Server

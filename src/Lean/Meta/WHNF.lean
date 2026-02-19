@@ -341,27 +341,36 @@ mutual
         | some <| .quotInfo recVal => isQuotRecStuck? recVal e.getAppArgs
         | _  =>
           unless e.hasExprMVar do return none
-          -- Projection function support
-          let some projInfo ← getProjectionFnInfo? fName | return none
-          -- This branch is relevant if `e` is a type class projection that is stuck because the instance has not been synthesized yet.
-          unless projInfo.fromClass do return none
           let args := e.getAppArgs
-          -- First check whether `e`s instance is stuck.
-          if let some major := args[projInfo.numParams]? then
-            if let some mvarId ← getStuckMVar? major then
-              return mvarId
-          /-
-          Then, recurse on the explicit arguments
-          We want to detect the stuck instance in terms such as
-          `HAdd.hAdd Nat Nat Nat (instHAdd Nat instAddNat) n (OfNat.ofNat Nat 2 ?m)`
-          See issue https://github.com/leanprover/lean4/issues/1408 for an example where this is needed.
-          -/
-          let info ← getFunInfo f
-          for pinfo in info.paramInfo, arg in args do
-            if pinfo.isExplicit then
-              if let some mvarId ← getStuckMVar? arg then
-                return some mvarId
-          return none
+          -- Projection function support
+          if let some projInfo ← getProjectionFnInfo? fName then
+            -- This branch is relevant if `e` is a type class projection that is stuck because the instance has not been synthesized yet.
+            unless projInfo.fromClass do return none
+            -- First check whether `e`s instance is stuck.
+            if let some major := args[projInfo.numParams]? then
+              if let some mvarId ← getStuckMVar? major then
+                return mvarId
+            /-
+            Then, recurse on the explicit arguments
+            We want to detect the stuck instance in terms such as
+            `HAdd.hAdd Nat Nat Nat (instHAdd Nat instAddNat) n (OfNat.ofNat Nat 2 ?m)`
+            See issue https://github.com/leanprover/lean4/issues/1408 for an example where this is needed.
+            -/
+            let info ← getFunInfo f
+            for pinfo in info.paramInfo, arg in args do
+              if pinfo.isExplicit then
+                if let some mvarId ← getStuckMVar? arg then
+                  return some mvarId
+            return none
+          -- Auxiliary parent projections created for diamond inheritance (not registered as projections).
+          else if let some auxInfo ← getAuxParentProjectionInfo? fName then
+            unless auxInfo.fromClass do return none
+            if let some major := args[auxInfo.numParams]? then
+              if let some mvarId ← getStuckMVar? major then
+                return mvarId
+            return none
+          else
+            return none
       | .proj _ _ e => getStuckMVar? (← whnf e)
       | _ => return none
     | _ => return none

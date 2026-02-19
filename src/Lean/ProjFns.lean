@@ -64,4 +64,32 @@ def isProjectionFn [MonadEnv m] [Monad m] (declName : Name) : m Bool :=
 def getProjectionFnInfo? [MonadEnv m] [Monad m] (declName : Name) : m (Option ProjectionFunctionInfo) :=
   return (← getEnv).getProjectionFnInfo? declName
 
+/--
+Auxiliary parent projection created when a parent structure cannot be represented as a subobject
+(e.g., due to diamond inheritance). Unlike regular projections, these construct the parent value
+from individual fields rather than extracting a single field.
+Example: `AddMonoid'.toAddZero'` when `AddZero'` cannot be a subobject of `AddMonoid'`.
+-/
+structure AuxParentProjectionInfo where
+  /-- Number of parameters in the child structure. -/
+  numParams : Nat
+  /-- `true` if the child structure is a class. -/
+  fromClass : Bool
+  deriving Inhabited, Repr
+
+builtin_initialize auxParentProjInfoExt : MapDeclarationExtension AuxParentProjectionInfo ← mkMapDeclarationExtension
+
+def addAuxParentProjectionInfo (env : Environment) (projName : Name) (numParams : Nat) (fromClass : Bool) : Environment :=
+  auxParentProjInfoExt.insert env projName { numParams, fromClass }
+
+namespace Environment
+
+def getAuxParentProjectionInfo? (env : Environment) (projName : Name) : Option AuxParentProjectionInfo :=
+  auxParentProjInfoExt.find? env projName
+
+end Environment
+
+def getAuxParentProjectionInfo? [MonadEnv m] [Monad m] (declName : Name) : m (Option AuxParentProjectionInfo) :=
+  return (← getEnv).getAuxParentProjectionInfo? declName
+
 end Lean

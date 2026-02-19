@@ -1445,6 +1445,7 @@ private partial def mkCoercionToCopiedParent (levelParams : List Name) (params :
   if !binfo.isInstImplicit && !(← Meta.isProp parentType) then
     setReducibleAttribute declName
   addDeclarationRangesFromSyntax declName view.ref parent.ref
+  modifyEnv fun env => addAuxParentProjectionInfo env declName params.size (view.isClass && isClass env parent.structName)
   return { structName := parent.structName, subobject := false, projFn := declName }
 
 /--

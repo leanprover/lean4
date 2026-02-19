@@ -57,6 +57,11 @@ partial def markDeclPublicRec (phase : Phase) (decl : Decl pu) : CompilerM Unit 
             trace[Compiler.inferVisibility] m!"Marking {ref} as opaque because it is used by transparent {decl.name}"
             markDeclPublicRec phase refDecl
 
+register_builtin_option compiler.relaxedMetaCheck : Bool := {
+  defValue := false
+  descr := "Allow mixed `meta`/non-`meta` references in the same module. References to imports are unaffected."
+}
+
 /-- Checks whether references in the given declaration adhere to phase distinction. -/
 partial def checkMeta (origDecl : Decl pu) : CompilerM Unit := do
   if !(← getEnv).header.isModule || !compiler.checkMeta.get (← getOptions) then

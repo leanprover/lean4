@@ -19,13 +19,15 @@ inductive DocScope where
   | import (mods : Array Name)
 
 private def imports := leading_parser sepBy1 ident ", "
+set_option compiler.relaxedMetaCheck true in
+private meta def importsM := imports
 
 instance : FromDocArg DocScope where
   fromDocArg v := private
     match v with
     | .str s => do
       let stx ← withRef s <| parseQuotedStrLit (whitespace >> imports.fn) s
-      let `(imports|$modNames,*) := stx
+      let `(importsM|$modNames,*) := stx
         | throwErrorAt stx "Expected comma-separated imports list, got `{stx}`"
       let modNames : Array Ident := modNames
       return .import (modNames.map (·.getId))

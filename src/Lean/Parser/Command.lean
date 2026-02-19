@@ -965,20 +965,6 @@ Note that the error name is not relativized to the current namespace.
 @[builtin_command_parser] def registerErrorExplanationStx := leading_parser
   optional docComment >> "register_error_explanation " >> ident >> termParser
 
-/--
-Returns syntax for `private` or `public` visibility depending on `isPublic`. This function should be
-used to generate visibility syntax for declarations that is independent of the presence of
-`public section`s.
--/
-def visibility.ofBool (isPublic : Bool) : TSyntax ``visibility :=
-  Unhygienic.run <| if isPublic then `(visibility| public) else `(visibility| private)
-
-/--
-Returns syntax for `private` if `attrKind` is `local` and `public` otherwise.
--/
-def visibility.ofAttrKind (attrKind : TSyntax ``Term.attrKind) : TSyntax ``visibility :=
-  visibility.ofBool <| !attrKind matches `(attrKind| local)
-
 end Command
 
 namespace Term

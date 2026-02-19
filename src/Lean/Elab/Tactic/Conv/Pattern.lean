@@ -132,11 +132,11 @@ private def pre (pattern : AbstractMVarsResult) (state : IO.Ref PatternMatchStat
     let (result, _) ← Simp.main lhs ctx (methods := { pre := pre patternA state })
     let subgoals ← match ← state.get with
     | .all #[] | .occs _ 0 _ =>
-      throwError "'pattern' conv tactic failed, pattern was not found{indentExpr patternA.expr}"
+      throwError "`pattern` conv tactic failed, pattern was not found{indentExpr patternA.expr}"
     | .all subgoals => pure subgoals
     | .occs subgoals idx remaining =>
       if let some (i, _) := remaining.getLast? then
-        throwError "'pattern' conv tactic failed, pattern was found only {idx} times but {i+1} expected"
+        throwError "`pattern` conv tactic failed, pattern was found only {idx} times but {i+1} expected"
       pure <| (subgoals.qsort (·.1 < ·.1)).map (·.2)
     (← getRhs).mvarId!.assign result.expr
     (← getMainGoal).assign (← result.getProof)

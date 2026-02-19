@@ -79,7 +79,7 @@ the main goal. -/
         let (tgt', mvars) ← withCollectingNewGoalsFrom (elabChange (← getMainTarget) newType) (← getMainTag) `change
         liftMetaTactic fun mvarId => do
           return (← mvarId.replaceTargetDefEq tgt') :: mvars)
-      (failed := fun _ => throwError "'change' tactic failed")
+      (failed := fun _ => throwError "`change` tactic failed")
   | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Tactic

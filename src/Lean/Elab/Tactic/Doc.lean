@@ -36,7 +36,7 @@ open Lean.Parser.Command
   | `(«register_tactic_tag»|$[$doc:docComment]? register_tactic_tag $tag:ident $user:str) => do
     let docstring ← doc.mapM getDocStringText
     modifyEnv (knownTacticTagExt.addEntry · (tag.getId, user.getString, docstring))
-  | _ => throwError "Malformed 'register_tactic_tag' command"
+  | _ => throwError "Malformed `register_tactic_tag` command"
 
 /--
 Computes a table that heuristically maps parser syntax kinds to their first tokens by inspecting the

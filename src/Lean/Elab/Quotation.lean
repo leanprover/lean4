@@ -226,7 +226,7 @@ def getQuotKind (stx : Syntax) : TermElabM SyntaxNodeKind := do
   | ``dynamicQuot =>
     let id := stx[1]
     -- local parser use, so skip meta check
-    match (← elabParserName id (checkMeta := false)) with
+    match (← withoutExporting <| elabParserName id (checkMeta := false)) with
     | .parser n _ => return n
     | .category c => return c
     | .alias _    => return (← Parser.getSyntaxKindOfParserAlias? id.getId.eraseMacroScopes).get!

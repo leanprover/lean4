@@ -24,4 +24,9 @@ register_builtin_option compiler.checkMeta : Bool := {
     intended only for debugging purposes."
 }
 
+register_builtin_option compiler.relaxedMetaCheck : Bool := {
+  defValue := false
+  descr := "Allow mixed `meta`/non-`meta` references in the same module. References to imports are unaffected."
+}
+
 end Lean.Compiler

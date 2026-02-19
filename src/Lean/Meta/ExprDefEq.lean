@@ -64,7 +64,7 @@ to `.instances`; other implicit arguments stay at the caller's transparency.
 This option only has an effect when `backward.isDefEq.respectTransparency` is `true`.
 -/
 register_builtin_option backward.isDefEq.implicitBump : Bool := {
-  defValue := false
+  defValue := true
   descr    := "if true, bump transparency to `.instances` for all implicit arguments, \
   not just instance-implicit ones"
 }

@@ -2001,8 +2001,7 @@ theorem toInt_append {x : BitVec n} {y : BitVec m} :
   · subst n0
     simp [BitVec.eq_nil x, BitVec.toInt]
   · by_cases m0 : m = 0
-    · subst m0
-      simp [BitVec.eq_nil y, n0]
+    · subst m0; rw [BitVec.eq_nil y, append_zero_width]; simp [n0]
     · simp only [n0, ↓reduceIte]
       by_cases x.msb
       case pos h =>
@@ -3961,7 +3960,7 @@ theorem replicate_zero {x : BitVec w} : x.replicate 0 = 0#0 := by grind
 
 theorem replicate_one {w : Nat} {x : BitVec w} :
     (x.replicate 1) = x.cast (by rw [Nat.mul_one]) := by
-  simp [replicate]
+  simp only [replicate]; rw [append_zero_width]; rfl
 
 theorem replicate_succ {x : BitVec w} :
     x.replicate (n + 1) =

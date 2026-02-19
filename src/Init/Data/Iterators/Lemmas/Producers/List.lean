@@ -32,7 +32,7 @@ theorem List.step_iter_nil :
 @[simp]
 theorem List.step_iter_cons {x : β} {xs : List β} :
     ((x :: xs).iter).step = ⟨.yield xs.iter x, rfl⟩ := by
-  simp [List.iter, List.iterM, IterM.toIter, Iter.step_eq]; rfl
+  simp [List.iter, List.iterM, IterM.toIter, Iter.step_eq]
 
 @[simp, grind =]
 theorem List.toArray_iter {l : List β} :

@@ -2057,6 +2057,35 @@ theorem Spec.forIn_string
       next b => simp [ih _ _ hsp.next]
   | endPos => simpa using Triple.pure _ (by simp)
 
+/--
+Helper definition for specifying loop invariants for loops with early return.
+
+`for ... in ...` loops with early return of type `γ` elaborate to a call like this:
+```lean
+forIn (β := MProd (Option γ) ...) (b := ⟨none, ...⟩) collection loopBody
+```
+Note that the first component of the `MProd` state tuple is the optional early return value.
+It is `none` as long as there was no early return and `some r` if the loop returned early with `r`.
+
+This function allows to specify different invariants for the loop body depending on whether the loop
+terminated early or not. When there was an early return, the loop has effectively finished, which is
+encoded by the additional `⌜pos = s.endPos⌝` assertion in the invariant. This assertion is vital for
+successfully proving the induction step, as it contradicts with the assumption that
+`pos ≠ s.endPos` of the inductive hypothesis at the start of the loop body, meaning that users
+won't need to prove anything about the bogus case where the loop has returned early yet takes
+another iteration of the loop body.
+-/
+abbrev StringSliceInvariant.withEarlyReturn {s : String.Slice}
+  (onContinue : s.Pos → β → Assertion ps)
+  (onReturn : γ → β → Assertion ps)
+  (onExcept : ExceptConds ps := ExceptConds.false) :
+    PostCond (s.Pos × MProd (Option γ) β) ps
+    :=
+  ⟨fun ⟨pos, x, b⟩ => spred(
+        (⌜x = none⌝ ∧ onContinue pos b)
+      ∨ (∃ r, ⌜x = some r⌝ ∧ ⌜pos = s.endPos⌝ ∧ onReturn r b)),
+   onExcept⟩
+
 @[spec]
 theorem Spec.forIn_stringSlice
     {s : String.Slice} {init : β} {f : Char → β → m (ForInStep β)}

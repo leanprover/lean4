@@ -25,7 +25,8 @@ LEAN_EXPORT lean_object* l_Lake_instToStringModule___lam__0(lean_object*);
 static const lean_closure_object l_Lake_instToStringModule___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lake_instToStringModule___lam__0, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_Lake_instToStringModule___closed__0 = (const lean_object*)&l_Lake_instToStringModule___closed__0_value;
 LEAN_EXPORT const lean_object* l_Lake_instToStringModule = (const lean_object*)&l_Lake_instToStringModule___closed__0_value;
-uint64_t l_Lean_Name_hash___override(lean_object*);
+uint64_t lean_uint64_of_nat(lean_object*);
+static uint64_t l_Lake_instHashableModule___lam__0___closed__0;
 LEAN_EXPORT uint64_t l_Lake_instHashableModule___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instHashableModule___lam__0___boxed(lean_object*);
 static const lean_closure_object l_Lake_instHashableModule___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lake_instHashableModule___lam__0___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
@@ -298,13 +299,32 @@ x_4 = l_Lean_Name_toString(x_2, x_3);
 return x_4;
 }
 }
+static uint64_t _init_l_Lake_instHashableModule___lam__0___closed__0() {
+_start:
+{
+lean_object* x_1; uint64_t x_2; 
+x_1 = lean_unsigned_to_nat(1723u);
+x_2 = lean_uint64_of_nat(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT uint64_t l_Lake_instHashableModule___lam__0(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; uint64_t x_3; 
+lean_object* x_2; 
 x_2 = lean_ctor_get(x_1, 1);
-x_3 = l_Lean_Name_hash___override(x_2);
+if (lean_obj_tag(x_2) == 0)
+{
+uint64_t x_3; 
+x_3 = l_Lake_instHashableModule___lam__0___closed__0;
 return x_3;
+}
+else
+{
+uint64_t x_4; 
+x_4 = lean_ctor_get_uint64(x_2, sizeof(void*)*2);
+return x_4;
+}
 }
 }
 LEAN_EXPORT lean_object* l_Lake_instHashableModule___lam__0___boxed(lean_object* x_1) {
@@ -3442,6 +3462,7 @@ _G_initialized = true;
 res = initialize_Lake_Config_LeanLib(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+l_Lake_instHashableModule___lam__0___closed__0 = _init_l_Lake_instHashableModule___lam__0___closed__0();
 l_Lake_ModuleSet_empty___closed__0 = _init_l_Lake_ModuleSet_empty___closed__0();
 lean_mark_persistent(l_Lake_ModuleSet_empty___closed__0);
 l_Lake_ModuleSet_empty___closed__1 = _init_l_Lake_ModuleSet_empty___closed__1();

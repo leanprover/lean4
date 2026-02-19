@@ -26,8 +26,10 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_FloatLetIn_Decision_dont_elim___re
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_FloatLetIn_Decision_dont_elim(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_FloatLetIn_Decision_unknown_elim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_FloatLetIn_Decision_unknown_elim(lean_object*, lean_object*, lean_object*, lean_object*);
-uint64_t l_Lean_Name_hash___override(lean_object*);
+uint64_t lean_uint64_of_nat(lean_object*);
+static uint64_t l_Lean_Compiler_LCNF_FloatLetIn_instHashableDecision_hash___closed__0;
 uint64_t lean_uint64_mix_hash(uint64_t, uint64_t);
+static uint64_t l_Lean_Compiler_LCNF_FloatLetIn_instHashableDecision_hash___closed__1;
 LEAN_EXPORT uint64_t l_Lean_Compiler_LCNF_FloatLetIn_instHashableDecision_hash(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_FloatLetIn_instHashableDecision_hash___boxed(lean_object*);
 static const lean_closure_object l_Lean_Compiler_LCNF_FloatLetIn_instHashableDecision___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lean_Compiler_LCNF_FloatLetIn_instHashableDecision_hash___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
@@ -621,36 +623,65 @@ x_5 = l_Lean_Compiler_LCNF_FloatLetIn_Decision_ctorElim___redArg(x_2, x_4);
 return x_5;
 }
 }
+static uint64_t _init_l_Lean_Compiler_LCNF_FloatLetIn_instHashableDecision_hash___closed__0() {
+_start:
+{
+lean_object* x_1; uint64_t x_2; 
+x_1 = lean_unsigned_to_nat(1723u);
+x_2 = lean_uint64_of_nat(x_1);
+return x_2;
+}
+}
+static uint64_t _init_l_Lean_Compiler_LCNF_FloatLetIn_instHashableDecision_hash___closed__1() {
+_start:
+{
+uint64_t x_1; uint64_t x_2; uint64_t x_3; 
+x_1 = l_Lean_Compiler_LCNF_FloatLetIn_instHashableDecision_hash___closed__0;
+x_2 = 0;
+x_3 = lean_uint64_mix_hash(x_2, x_1);
+return x_3;
+}
+}
 LEAN_EXPORT uint64_t l_Lean_Compiler_LCNF_FloatLetIn_instHashableDecision_hash(lean_object* x_1) {
 _start:
 {
 switch (lean_obj_tag(x_1)) {
 case 0:
 {
-lean_object* x_2; uint64_t x_3; uint64_t x_4; uint64_t x_5; 
+lean_object* x_2; uint64_t x_3; 
 x_2 = lean_ctor_get(x_1, 0);
 x_3 = 0;
-x_4 = l_Lean_Name_hash___override(x_2);
-x_5 = lean_uint64_mix_hash(x_3, x_4);
-return x_5;
+if (lean_obj_tag(x_2) == 0)
+{
+uint64_t x_4; 
+x_4 = l_Lean_Compiler_LCNF_FloatLetIn_instHashableDecision_hash___closed__1;
+return x_4;
+}
+else
+{
+uint64_t x_5; uint64_t x_6; 
+x_5 = lean_ctor_get_uint64(x_2, sizeof(void*)*2);
+x_6 = lean_uint64_mix_hash(x_3, x_5);
+return x_6;
+}
 }
 case 1:
 {
-uint64_t x_6; 
-x_6 = 1;
-return x_6;
+uint64_t x_7; 
+x_7 = 1;
+return x_7;
 }
 case 2:
 {
-uint64_t x_7; 
-x_7 = 2;
-return x_7;
+uint64_t x_8; 
+x_8 = 2;
+return x_8;
 }
 default: 
 {
-uint64_t x_8; 
-x_8 = 3;
-return x_8;
+uint64_t x_9; 
+x_9 = 3;
+return x_9;
 }
 }
 }
@@ -12465,11 +12496,11 @@ return x_69;
 block_40:
 {
 lean_object* x_28; lean_object* x_29; lean_object* x_30; 
-x_28 = l_Lean_Compiler_LCNF_attachCodeDecls(x_21, x_23, x_27);
-lean_dec_ref(x_23);
+x_28 = l_Lean_Compiler_LCNF_attachCodeDecls(x_21, x_24, x_27);
+lean_dec_ref(x_24);
 x_29 = lean_alloc_closure((void*)(l___private_Lean_Compiler_LCNF_FloatLetIn_0__Lean_Compiler_LCNF_FloatLetIn_floatLetIn_go___boxed), 7, 1);
 lean_closure_set(x_29, 0, x_28);
-x_30 = l_Lean_Compiler_LCNF_FloatLetIn_withNewScope___redArg(x_29, x_20, x_22, x_26, x_25);
+x_30 = l_Lean_Compiler_LCNF_FloatLetIn_withNewScope___redArg(x_29, x_25, x_22, x_26, x_20);
 if (lean_obj_tag(x_30) == 0)
 {
 lean_object* x_31; lean_object* x_32; size_t x_33; size_t x_34; lean_object* x_35; 
@@ -12521,12 +12552,12 @@ case 0:
 lean_object* x_50; 
 x_50 = lean_ctor_get(x_16, 2);
 lean_inc_ref(x_50);
-x_20 = x_43;
+x_20 = x_46;
 x_21 = x_48;
 x_22 = x_44;
-x_23 = x_49;
-x_24 = lean_box(0);
-x_25 = x_46;
+x_23 = lean_box(0);
+x_24 = x_49;
+x_25 = x_43;
 x_26 = x_45;
 x_27 = x_50;
 goto block_40;
@@ -12536,12 +12567,12 @@ case 1:
 lean_object* x_51; 
 x_51 = lean_ctor_get(x_16, 1);
 lean_inc_ref(x_51);
-x_20 = x_43;
+x_20 = x_46;
 x_21 = x_48;
 x_22 = x_44;
-x_23 = x_49;
-x_24 = lean_box(0);
-x_25 = x_46;
+x_23 = lean_box(0);
+x_24 = x_49;
+x_25 = x_43;
 x_26 = x_45;
 x_27 = x_51;
 goto block_40;
@@ -12551,12 +12582,12 @@ default:
 lean_object* x_52; 
 x_52 = lean_ctor_get(x_16, 0);
 lean_inc_ref(x_52);
-x_20 = x_43;
+x_20 = x_46;
 x_21 = x_48;
 x_22 = x_44;
-x_23 = x_49;
-x_24 = lean_box(0);
-x_25 = x_46;
+x_23 = lean_box(0);
+x_24 = x_49;
+x_25 = x_43;
 x_26 = x_45;
 x_27 = x_52;
 goto block_40;
@@ -13021,6 +13052,8 @@ lean_dec_ref(res);
 res = initialize_Lean_Compiler_LCNF_PhaseExt(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+l_Lean_Compiler_LCNF_FloatLetIn_instHashableDecision_hash___closed__0 = _init_l_Lean_Compiler_LCNF_FloatLetIn_instHashableDecision_hash___closed__0();
+l_Lean_Compiler_LCNF_FloatLetIn_instHashableDecision_hash___closed__1 = _init_l_Lean_Compiler_LCNF_FloatLetIn_instHashableDecision_hash___closed__1();
 l_Lean_Compiler_LCNF_FloatLetIn_instReprDecision_repr___closed__9 = _init_l_Lean_Compiler_LCNF_FloatLetIn_instReprDecision_repr___closed__9();
 lean_mark_persistent(l_Lean_Compiler_LCNF_FloatLetIn_instReprDecision_repr___closed__9);
 l_Lean_Compiler_LCNF_FloatLetIn_instReprDecision_repr___closed__10 = _init_l_Lean_Compiler_LCNF_FloatLetIn_instReprDecision_repr___closed__10();

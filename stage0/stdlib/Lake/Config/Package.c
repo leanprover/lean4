@@ -25,7 +25,8 @@ extern lean_object* l_System_instInhabitedFilePath_default;
 static lean_object* l_Lake_instInhabitedPackage_default___closed__3;
 LEAN_EXPORT lean_object* l_Lake_instInhabitedPackage_default;
 LEAN_EXPORT lean_object* l_Lake_instInhabitedPackage;
-uint64_t l_Lean_Name_hash___override(lean_object*);
+uint64_t lean_uint64_of_nat(lean_object*);
+static uint64_t l_Lake_Package_instHashable___lam__0___closed__0;
 LEAN_EXPORT uint64_t l_Lake_Package_instHashable___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_instHashable___lam__0___boxed(lean_object*);
 static const lean_closure_object l_Lake_Package_instHashable___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lake_Package_instHashable___lam__0___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
@@ -239,7 +240,7 @@ LEAN_EXPORT lean_object* l_Lake_Package_enableArtifactCache_x3f___boxed(lean_obj
 LEAN_EXPORT uint8_t l_Lake_Package_restoreAllArtifacts(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_restoreAllArtifacts___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_cacheScope(lean_object*);
-uint8_t l_Lean_Name_quickCmp(lean_object*, lean_object*);
+uint8_t l___private_Lean_Data_Name_0__Lean_Name_quickCmpImpl(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_get_x3f___at___00Lake_Package_findTargetDecl_x3f_spec__0___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_get_x3f___at___00Lake_Package_findTargetDecl_x3f_spec__0___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_findTargetDecl_x3f(lean_object*, lean_object*);
@@ -361,13 +362,32 @@ x_1 = l_Lake_instInhabitedPackage_default;
 return x_1;
 }
 }
+static uint64_t _init_l_Lake_Package_instHashable___lam__0___closed__0() {
+_start:
+{
+lean_object* x_1; uint64_t x_2; 
+x_1 = lean_unsigned_to_nat(1723u);
+x_2 = lean_uint64_of_nat(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT uint64_t l_Lake_Package_instHashable___lam__0(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; uint64_t x_3; 
+lean_object* x_2; 
 x_2 = lean_ctor_get(x_1, 2);
-x_3 = l_Lean_Name_hash___override(x_2);
+if (lean_obj_tag(x_2) == 0)
+{
+uint64_t x_3; 
+x_3 = l_Lake_Package_instHashable___lam__0___closed__0;
 return x_3;
+}
+else
+{
+uint64_t x_4; 
+x_4 = lean_ctor_get_uint64(x_2, sizeof(void*)*2);
+return x_4;
+}
 }
 }
 LEAN_EXPORT lean_object* l_Lake_Package_instHashable___lam__0___boxed(lean_object* x_1) {
@@ -1891,7 +1911,7 @@ x_3 = lean_ctor_get(x_1, 1);
 x_4 = lean_ctor_get(x_1, 2);
 x_5 = lean_ctor_get(x_1, 3);
 x_6 = lean_ctor_get(x_1, 4);
-x_7 = l_Lean_Name_quickCmp(x_2, x_3);
+x_7 = l___private_Lean_Data_Name_0__Lean_Name_quickCmpImpl(x_2, x_3);
 switch (x_7) {
 case 0:
 {
@@ -2311,6 +2331,7 @@ l_Lake_instInhabitedPackage_default = _init_l_Lake_instInhabitedPackage_default(
 lean_mark_persistent(l_Lake_instInhabitedPackage_default);
 l_Lake_instInhabitedPackage = _init_l_Lake_instInhabitedPackage();
 lean_mark_persistent(l_Lake_instInhabitedPackage);
+l_Lake_Package_instHashable___lam__0___closed__0 = _init_l_Lake_Package_instHashable___lam__0___closed__0();
 l_Lake_PackageSet_empty___closed__0 = _init_l_Lake_PackageSet_empty___closed__0();
 lean_mark_persistent(l_Lake_PackageSet_empty___closed__0);
 l_Lake_PackageSet_empty___closed__1 = _init_l_Lake_PackageSet_empty___closed__1();

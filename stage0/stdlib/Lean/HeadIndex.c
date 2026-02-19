@@ -103,10 +103,12 @@ LEAN_EXPORT lean_object* l_Lean_instReprHeadIndex_repr___boxed(lean_object*, lea
 static const lean_closure_object l_Lean_instReprHeadIndex___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lean_instReprHeadIndex_repr___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_Lean_instReprHeadIndex___closed__0 = (const lean_object*)&l_Lean_instReprHeadIndex___closed__0_value;
 LEAN_EXPORT const lean_object* l_Lean_instReprHeadIndex = (const lean_object*)&l_Lean_instReprHeadIndex___closed__0_value;
-uint64_t l_Lean_instHashableFVarId_hash(lean_object*);
+uint64_t lean_uint64_of_nat(lean_object*);
+static uint64_t l_Lean_HeadIndex_hash___closed__0;
 uint64_t lean_uint64_mix_hash(uint64_t, uint64_t);
+static uint64_t l_Lean_HeadIndex_hash___closed__1;
+uint64_t l_Lean_instHashableFVarId_hash(lean_object*);
 uint64_t l_Lean_instHashableMVarId_hash(lean_object*);
-uint64_t l_Lean_Name_hash___override(lean_object*);
 uint64_t lean_uint64_of_nat(lean_object*);
 uint64_t l_Lean_Literal_hash(lean_object*);
 LEAN_EXPORT uint64_t l_Lean_HeadIndex_hash(lean_object*);
@@ -964,6 +966,25 @@ lean_dec(x_2);
 return x_3;
 }
 }
+static uint64_t _init_l_Lean_HeadIndex_hash___closed__0() {
+_start:
+{
+lean_object* x_1; uint64_t x_2; 
+x_1 = lean_unsigned_to_nat(1723u);
+x_2 = lean_uint64_of_nat(x_1);
+return x_2;
+}
+}
+static uint64_t _init_l_Lean_HeadIndex_hash___closed__1() {
+_start:
+{
+uint64_t x_1; uint64_t x_2; uint64_t x_3; 
+x_1 = l_Lean_HeadIndex_hash___closed__0;
+x_2 = 17;
+x_3 = lean_uint64_mix_hash(x_2, x_1);
+return x_3;
+}
+}
 LEAN_EXPORT uint64_t l_Lean_HeadIndex_hash(lean_object* x_1) {
 _start:
 {
@@ -988,51 +1009,78 @@ return x_9;
 }
 case 2:
 {
-lean_object* x_10; uint64_t x_11; uint64_t x_12; uint64_t x_13; 
+lean_object* x_10; uint64_t x_11; 
 x_10 = lean_ctor_get(x_1, 0);
 x_11 = 17;
-x_12 = l_Lean_Name_hash___override(x_10);
-x_13 = lean_uint64_mix_hash(x_11, x_12);
-return x_13;
+if (lean_obj_tag(x_10) == 0)
+{
+uint64_t x_12; 
+x_12 = l_Lean_HeadIndex_hash___closed__1;
+return x_12;
+}
+else
+{
+uint64_t x_13; uint64_t x_14; 
+x_13 = lean_ctor_get_uint64(x_10, sizeof(void*)*2);
+x_14 = lean_uint64_mix_hash(x_11, x_13);
+return x_14;
+}
 }
 case 3:
 {
-lean_object* x_14; lean_object* x_15; uint64_t x_16; uint64_t x_17; uint64_t x_18; uint64_t x_19; uint64_t x_20; 
-x_14 = lean_ctor_get(x_1, 0);
-x_15 = lean_ctor_get(x_1, 1);
-x_16 = 19;
-x_17 = l_Lean_Name_hash___override(x_14);
-x_18 = lean_uint64_of_nat(x_15);
-x_19 = lean_uint64_mix_hash(x_17, x_18);
-x_20 = lean_uint64_mix_hash(x_16, x_19);
-return x_20;
+lean_object* x_15; lean_object* x_16; uint64_t x_17; uint64_t x_18; 
+x_15 = lean_ctor_get(x_1, 0);
+x_16 = lean_ctor_get(x_1, 1);
+x_17 = 19;
+if (lean_obj_tag(x_15) == 0)
+{
+uint64_t x_23; 
+x_23 = l_Lean_HeadIndex_hash___closed__0;
+x_18 = x_23;
+goto block_22;
+}
+else
+{
+uint64_t x_24; 
+x_24 = lean_ctor_get_uint64(x_15, sizeof(void*)*2);
+x_18 = x_24;
+goto block_22;
+}
+block_22:
+{
+uint64_t x_19; uint64_t x_20; uint64_t x_21; 
+x_19 = lean_uint64_of_nat(x_16);
+x_20 = lean_uint64_mix_hash(x_18, x_19);
+x_21 = lean_uint64_mix_hash(x_17, x_20);
+return x_21;
+}
 }
 case 4:
 {
-lean_object* x_21; uint64_t x_22; uint64_t x_23; uint64_t x_24; 
-x_21 = lean_ctor_get(x_1, 0);
-x_22 = 23;
-x_23 = l_Lean_Literal_hash(x_21);
-x_24 = lean_uint64_mix_hash(x_22, x_23);
-return x_24;
+lean_object* x_25; uint64_t x_26; uint64_t x_27; uint64_t x_28; 
+x_25 = lean_ctor_get(x_1, 0);
+x_26 = 23;
+x_27 = l_Lean_Literal_hash(x_25);
+x_28 = lean_uint64_mix_hash(x_26, x_27);
+return x_28;
 }
 case 5:
 {
-uint64_t x_25; 
-x_25 = 29;
-return x_25;
+uint64_t x_29; 
+x_29 = 29;
+return x_29;
 }
 case 6:
 {
-uint64_t x_26; 
-x_26 = 31;
-return x_26;
+uint64_t x_30; 
+x_30 = 31;
+return x_30;
 }
 default: 
 {
-uint64_t x_27; 
-x_27 = 37;
-return x_27;
+uint64_t x_31; 
+x_31 = 37;
+return x_31;
 }
 }
 }
@@ -1413,6 +1461,8 @@ l_Lean_instReprHeadIndex_repr___closed__9 = _init_l_Lean_instReprHeadIndex_repr_
 lean_mark_persistent(l_Lean_instReprHeadIndex_repr___closed__9);
 l_Lean_instReprHeadIndex_repr___closed__10 = _init_l_Lean_instReprHeadIndex_repr___closed__10();
 lean_mark_persistent(l_Lean_instReprHeadIndex_repr___closed__10);
+l_Lean_HeadIndex_hash___closed__0 = _init_l_Lean_HeadIndex_hash___closed__0();
+l_Lean_HeadIndex_hash___closed__1 = _init_l_Lean_HeadIndex_hash___closed__1();
 l___private_Lean_HeadIndex_0__Lean_Expr_toHeadIndexSlow___closed__3 = _init_l___private_Lean_HeadIndex_0__Lean_Expr_toHeadIndexSlow___closed__3();
 lean_mark_persistent(l___private_Lean_HeadIndex_0__Lean_Expr_toHeadIndexSlow___closed__3);
 return lean_io_result_mk_ok(lean_box(0));

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.IR.AddExtern
-// Imports: import Init.While import Lean.Compiler.IR.RC import Lean.Compiler.IR.ToIR import Lean.Compiler.LCNF.ToImpureType import Lean.Compiler.LCNF.ToImpure import Lean.Compiler.LCNF.ExplicitBoxing import Lean.Compiler.LCNF.Internalize public import Lean.Compiler.ExternAttr
+// Imports: import Init.While import Lean.Compiler.IR.ToIR import Lean.Compiler.LCNF.ToImpureType import Lean.Compiler.LCNF.ToImpure import Lean.Compiler.LCNF.ExplicitBoxing import Lean.Compiler.LCNF.Internalize public import Lean.Compiler.ExternAttr import Lean.Compiler.LCNF.ExplicitRC
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -39,6 +39,7 @@ static lean_object* l___private_Lean_Compiler_IR_AddExtern_0__Lean_IR_addExtern_
 lean_object* l_Lean_Compiler_LCNF_Decl_internalize(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_Decl_saveImpure___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_addBoxedVersions(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Compiler_LCNF_runExplicitRc(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_AddExtern_0__Lean_IR_addExtern_addImpure___lam__0(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_AddExtern_0__Lean_IR_addExtern_addImpure___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
@@ -68,7 +69,6 @@ extern lean_object* l_Lean_IR_tracePrefixOptionName;
 lean_object* l_Lean_Name_append(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_AddExtern_0__Lean_IR_addExtern_addIr___closed__2;
 lean_object* l_Lean_IR_toIR(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_IR_explicitRC___redArg(lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_IR_CompilerM_0__Lean_IR_logDeclsAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_addDecls(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_AddExtern_0__Lean_IR_addExtern_addIr(lean_object*, lean_object*, lean_object*);
@@ -653,58 +653,70 @@ lean_dec_ref(x_11);
 x_12 = l___private_Lean_Compiler_IR_AddExtern_0__Lean_IR_addExtern_addImpure___lam__0___closed__0;
 x_13 = lean_array_push(x_12, x_10);
 x_14 = l_Lean_Compiler_LCNF_addBoxedVersions(x_13, x_4, x_5, x_6, x_7);
+if (lean_obj_tag(x_14) == 0)
+{
+lean_object* x_15; lean_object* x_16; 
+x_15 = lean_ctor_get(x_14, 0);
+lean_inc(x_15);
+lean_dec_ref(x_14);
+x_16 = l_Lean_Compiler_LCNF_runExplicitRc(x_15, x_4, x_5, x_6, x_7);
+return x_16;
+}
+else
+{
 lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec(x_5);
 lean_dec_ref(x_4);
 return x_14;
 }
+}
 else
 {
-uint8_t x_15; 
+uint8_t x_17; 
 lean_dec(x_10);
 lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec(x_5);
 lean_dec_ref(x_4);
-x_15 = !lean_is_exclusive(x_11);
-if (x_15 == 0)
+x_17 = !lean_is_exclusive(x_11);
+if (x_17 == 0)
 {
 return x_11;
 }
 else
 {
-lean_object* x_16; lean_object* x_17; 
-x_16 = lean_ctor_get(x_11, 0);
-lean_inc(x_16);
+lean_object* x_18; lean_object* x_19; 
+x_18 = lean_ctor_get(x_11, 0);
+lean_inc(x_18);
 lean_dec(x_11);
-x_17 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_17, 0, x_16);
-return x_17;
+x_19 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_19, 0, x_18);
+return x_19;
 }
 }
 }
 else
 {
-uint8_t x_18; 
+uint8_t x_20; 
 lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec(x_5);
 lean_dec_ref(x_4);
-x_18 = !lean_is_exclusive(x_9);
-if (x_18 == 0)
+x_20 = !lean_is_exclusive(x_9);
+if (x_20 == 0)
 {
 return x_9;
 }
 else
 {
-lean_object* x_19; lean_object* x_20; 
-x_19 = lean_ctor_get(x_9, 0);
-lean_inc(x_19);
+lean_object* x_21; lean_object* x_22; 
+x_21 = lean_ctor_get(x_9, 0);
+lean_inc(x_21);
 lean_dec(x_9);
-x_20 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_20, 0, x_19);
-return x_20;
+x_22 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_22, 0, x_21);
+return x_22;
 }
 }
 }
@@ -1315,80 +1327,51 @@ lean_inc_ref(x_2);
 x_5 = l_Lean_IR_toIR(x_1, x_2, x_3);
 if (lean_obj_tag(x_5) == 0)
 {
-lean_object* x_6; lean_object* x_7; 
+lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc(x_6);
 lean_dec_ref(x_5);
-x_7 = l_Lean_IR_explicitRC___redArg(x_6, x_3);
-if (lean_obj_tag(x_7) == 0)
+x_7 = ((lean_object*)(l___private_Lean_Compiler_IR_AddExtern_0__Lean_IR_addExtern_addIr___closed__1));
+x_8 = l___private_Lean_Compiler_IR_AddExtern_0__Lean_IR_addExtern_addIr___closed__2;
+lean_inc(x_6);
+x_9 = l___private_Lean_Compiler_IR_CompilerM_0__Lean_IR_logDeclsAux(x_8, x_7, x_6, x_2, x_3);
+if (lean_obj_tag(x_9) == 0)
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-x_8 = lean_ctor_get(x_7, 0);
-lean_inc(x_8);
-lean_dec_ref(x_7);
-x_9 = ((lean_object*)(l___private_Lean_Compiler_IR_AddExtern_0__Lean_IR_addExtern_addIr___closed__1));
-x_10 = l___private_Lean_Compiler_IR_AddExtern_0__Lean_IR_addExtern_addIr___closed__2;
-lean_inc(x_8);
-x_11 = l___private_Lean_Compiler_IR_CompilerM_0__Lean_IR_logDeclsAux(x_10, x_9, x_8, x_2, x_3);
-if (lean_obj_tag(x_11) == 0)
-{
-lean_object* x_12; 
-lean_dec_ref(x_11);
-x_12 = l_Lean_IR_addDecls(x_8, x_2, x_3);
+lean_object* x_10; 
+lean_dec_ref(x_9);
+x_10 = l_Lean_IR_addDecls(x_6, x_2, x_3);
 lean_dec(x_3);
 lean_dec_ref(x_2);
-lean_dec(x_8);
-return x_12;
+lean_dec(x_6);
+return x_10;
 }
 else
 {
-lean_dec(x_8);
+lean_dec(x_6);
 lean_dec(x_3);
 lean_dec_ref(x_2);
-return x_11;
+return x_9;
 }
 }
 else
 {
-uint8_t x_13; 
+uint8_t x_11; 
 lean_dec(x_3);
 lean_dec_ref(x_2);
-x_13 = !lean_is_exclusive(x_7);
-if (x_13 == 0)
-{
-return x_7;
-}
-else
-{
-lean_object* x_14; lean_object* x_15; 
-x_14 = lean_ctor_get(x_7, 0);
-lean_inc(x_14);
-lean_dec(x_7);
-x_15 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_15, 0, x_14);
-return x_15;
-}
-}
-}
-else
-{
-uint8_t x_16; 
-lean_dec(x_3);
-lean_dec_ref(x_2);
-x_16 = !lean_is_exclusive(x_5);
-if (x_16 == 0)
+x_11 = !lean_is_exclusive(x_5);
+if (x_11 == 0)
 {
 return x_5;
 }
 else
 {
-lean_object* x_17; lean_object* x_18; 
-x_17 = lean_ctor_get(x_5, 0);
-lean_inc(x_17);
+lean_object* x_12; lean_object* x_13; 
+x_12 = lean_ctor_get(x_5, 0);
+lean_inc(x_12);
 lean_dec(x_5);
-x_18 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_18, 0, x_17);
-return x_18;
+x_13 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_13, 0, x_12);
+return x_13;
 }
 }
 }
@@ -1587,22 +1570,19 @@ return x_6;
 }
 }
 lean_object* initialize_Init_While(uint8_t builtin);
-lean_object* initialize_Lean_Compiler_IR_RC(uint8_t builtin);
 lean_object* initialize_Lean_Compiler_IR_ToIR(uint8_t builtin);
 lean_object* initialize_Lean_Compiler_LCNF_ToImpureType(uint8_t builtin);
 lean_object* initialize_Lean_Compiler_LCNF_ToImpure(uint8_t builtin);
 lean_object* initialize_Lean_Compiler_LCNF_ExplicitBoxing(uint8_t builtin);
 lean_object* initialize_Lean_Compiler_LCNF_Internalize(uint8_t builtin);
 lean_object* initialize_Lean_Compiler_ExternAttr(uint8_t builtin);
+lean_object* initialize_Lean_Compiler_LCNF_ExplicitRC(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Compiler_IR_AddExtern(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Init_While(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Compiler_IR_RC(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Compiler_IR_ToIR(builtin);
@@ -1621,6 +1601,9 @@ res = initialize_Lean_Compiler_LCNF_Internalize(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Compiler_ExternAttr(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Compiler_LCNF_ExplicitRC(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___private_Lean_Compiler_IR_AddExtern_0__Lean_IR_addExtern_addMono___closed__0 = _init_l___private_Lean_Compiler_IR_AddExtern_0__Lean_IR_addExtern_addMono___closed__0();

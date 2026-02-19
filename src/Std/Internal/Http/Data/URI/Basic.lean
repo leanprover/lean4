@@ -8,8 +8,8 @@ module
 prelude
 import Init.Data.ToString
 public import Std.Net
-public import Std.Internal.Http.Data.URI.Encoding
 public import Std.Internal.Http.Internal
+public import Std.Internal.Http.Data.URI.Encoding
 
 public section
 

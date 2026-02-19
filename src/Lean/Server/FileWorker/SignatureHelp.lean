@@ -8,7 +8,7 @@ module
 prelude
 public import Lean.Server.InfoUtils
 public import Lean.Data.Lsp
-public import Init.Data.Array.Sort.Basic
+public import Init.Data.List.Sort.Basic
 import Lean.PrettyPrinter.Delaborator
 
 public section
@@ -122,7 +122,7 @@ def findSignatureHelp? (text : FileMap) (ctx? : Option Lsp.SignatureHelpContext)
     if control matches .stop then
       break
   -- Uses a stable sort so that we prefer inner candidates over outer candidates.
-  candidates := candidates.mergeSort (fun c1 c2 => c1.kind.prio >= c2.kind.prio)
+  candidates := candidates.toList.mergeSort (fun c1 c2 => c1.kind.prio >= c2.kind.prio) |>.toArray
   -- Look through all candidates until we find a signature help.
   -- This helps in cases where the priority puts terms without `TermInfo` or ones that are not
   -- applications of a `forall` in front of ones that do.

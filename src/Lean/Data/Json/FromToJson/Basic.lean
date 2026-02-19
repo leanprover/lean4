@@ -193,7 +193,7 @@ protected def _root_.Float.fromJson? : Json → Except String Float
   | (Json.str "-Infinity") => Except.ok (-1.0 / 0.0)
   | (Json.str "NaN") => Except.ok (0.0 / 0.0)
   | (Json.num jn) => Except.ok jn.toFloat
-  | _ => Except.error "Expected a number or a string 'Infinity', '-Infinity', 'NaN'."
+  | _ => Except.error "Expected a number or a string `Infinity`, `-Infinity`, `NaN`."
 
 instance : FromJson Float where
   fromJson? := Float.fromJson?

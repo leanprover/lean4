@@ -202,11 +202,11 @@ Recall that all structures are inductive datatypes.
 -/
 def addClass (env : Environment) (clsName : Name) : Except MessageData Environment := do
   if isClass env clsName then
-    throw m!"class has already been declared '{.ofConstName clsName true}'"
+    throw m!"class has already been declared `{.ofConstName clsName true}`"
   let some decl := env.find? clsName
-    | throw m!"unknown declaration '{clsName}'"
+    | throw m!"unknown declaration `{clsName}`"
   unless decl matches .inductInfo .. | .axiomInfo .. do
-    throw m!"invalid 'class', declaration '{.ofConstName clsName}' must be inductive datatype, structure, or constant"
+    throw m!"invalid `class`, declaration `{.ofConstName clsName}` must be inductive datatype, structure, or constant"
   let outParams ← checkOutParam 0 #[] #[] decl.type
   let outLevelParams := computeOutLevelParams decl.type outParams decl.levelParams
   return classExtension.addEntry env { name := clsName, outParams, outLevelParams }

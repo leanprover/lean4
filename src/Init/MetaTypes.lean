@@ -448,7 +448,7 @@ structure ExtractLetsConfig where
   useContext : Bool := true
   /-- If true (default: false), then once `givenNames` is exhausted, stop extracting lets. Otherwise continue extracting lets. -/
   onlyGivenNames : Bool := false
-  /-- If true (default: false), then when no name is provided for a 'let' expression, the name is used as-is without making it be inaccessible.
+  /-- If true (default: false), then when no name is provided for a `let` expression, the name is used as-is without making it be inaccessible.
   The name still might be inaccessible if the binder name was. -/
   preserveBinderNames : Bool := false
   /-- If true (default: false), lift non-extractable `let`s as far out as possible. -/

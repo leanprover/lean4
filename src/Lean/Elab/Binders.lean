@@ -853,7 +853,7 @@ def elabLetDeclAux (id : Syntax) (binders : Array Syntax) (typeStx : Syntax) (va
       let valResult ← elabTermEnsuringType valStx type
       let valResult ← mkLambdaFVars xs valResult (usedLetOnly := false)
       unless (← isDefEq val valResult) do
-        throwError "unexpected error when elaborating 'let'"
+        throwError "unexpected error when elaborating `let`"
   pure result
 
 structure LetIdDeclView where

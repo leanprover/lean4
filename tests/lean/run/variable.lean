@@ -118,7 +118,7 @@ end
 
 /-! illegal `omit`s -/
 
-/-- error: invalid 'omit', `α` has not been declared in the current scope -/
+/-- error: invalid `omit`, `α` has not been declared in the current scope -/
 #guard_msgs in
 variable (a : α) in
 omit α in

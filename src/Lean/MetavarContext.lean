@@ -930,9 +930,9 @@ instance : ToString Exception where
   toString
     | Exception.revertFailure _ lctx toRevert varName =>
       "failed to revert "
-      ++ toString (toRevert.map (fun x => "'" ++ toString (lctx.getFVar! x).userName ++ "'"))
-      ++ ", '" ++ toString varName ++ "' depends on them, and it is an auxiliary declaration created by the elaborator"
-      ++ " (possible solution: use tactic 'clear' to remove '" ++ toString varName ++ "' from local context)"
+      ++ toString (toRevert.map (fun x => "`" ++ toString (lctx.getFVar! x).userName ++ "`"))
+      ++ ", `" ++ toString varName ++ "` depends on them, and it is an auxiliary declaration created by the elaborator"
+      ++ " (possible solution: use tactic `clear` to remove `" ++ toString varName ++ "` from local context)"
 
 /--
  `MkBinding` and `elimMVarDepsAux` are mutually recursive, but `cache` is only used at `elimMVarDepsAux`.

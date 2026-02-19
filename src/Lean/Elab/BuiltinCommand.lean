@@ -294,7 +294,7 @@ private partial def elabChoiceAux (cmds : Array Syntax) (i : Nat) : CommandElabM
   let `(export $ns ($ids*)) := stx | throwUnsupportedSyntax
   let nss ← resolveNamespace ns
   let currNamespace ← getCurrNamespace
-  if nss == [currNamespace] then throwError "invalid 'export', self export"
+  if nss == [currNamespace] then throwError "invalid `export`, self export"
   let mut aliases := #[]
   for idStx in ids do
     let id := idStx.getId
@@ -523,7 +523,7 @@ open Lean.Parser.Command.InternalSyntax in
   | `($doc:docComment add_decl_doc $id) =>
     let declName ← liftCoreM <| realizeGlobalConstNoOverloadWithInfo id
     unless ((← getEnv).getModuleIdxFor? declName).isNone do
-      throwError "invalid 'add_decl_doc', declaration is in an imported module"
+      throwError "invalid `add_decl_doc`, declaration is in an imported module"
     if let .none ← findDeclarationRangesCore? declName then
       -- this is only relevant for declarations added without a declaration range
       -- in particular `Quot.mk` et al which are added by `init_quot`
@@ -540,7 +540,7 @@ open Lean.Parser.Command.InternalSyntax in
       if let some idx := vars.findIdx? (· == id.getId) then
         uids := uids.push sc.varUIds[idx]!
       else
-        throwError "invalid 'include', variable `{id}` has not been declared in the current scope"
+        throwError "invalid `include`, variable `{id}` has not been declared in the current scope"
     modifyScope fun sc => { sc with
       includedVars := sc.includedVars ++ uids.toList
       omittedVars := sc.omittedVars.filter (!uids.contains ·) }
@@ -579,7 +579,7 @@ open Lean.Parser.Command.InternalSyntax in
             omittedVars := omittedVars.push uid
             omitsUsed := omitsUsed.set! idx true
           else
-            throwError "invalid 'omit', `{ldecl.userName}` has not been declared in the current scope"
+            throwError "invalid `omit`, `{ldecl.userName}` has not been declared in the current scope"
       for o in omits, used in omitsUsed do
         unless used do
           throwError "`{o}` did not match any variables in the current scope"
@@ -600,10 +600,10 @@ open Lean.Parser.Command.InternalSyntax in
   logInfo m!"Lean {Lean.versionString}\nTarget: {target}{String.join platforms}"
 
 @[builtin_command_elab Parser.Command.exit] def elabExit : CommandElab := fun _ =>
-  logWarning "using 'exit' to interrupt Lean"
+  logWarning "using `exit` to interrupt Lean"
 
 @[builtin_command_elab Parser.Command.import] def elabImport : CommandElab := fun _ =>
-  throwError "invalid 'import' command, it must be used in the beginning of the file"
+  throwError "invalid `import` command, it must be used in the beginning of the file"
 
 @[builtin_command_elab Parser.Command.eoi] def elabEoi : CommandElab := fun _ =>
   return

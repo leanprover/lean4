@@ -88,17 +88,17 @@ private def checkKinds (k₁ k₂ : DefKind) : TermElabM Unit := do
 
 private def check (prevHeaders : Array DefViewElabHeader) (newHeader : DefViewElabHeader) : TermElabM Unit := do
   if newHeader.kind.isTheorem && newHeader.modifiers.isUnsafe then
-    throwError "'unsafe' theorems are not allowed"
+    throwError "`unsafe` theorems are not allowed"
   if newHeader.kind.isTheorem && newHeader.modifiers.isPartial then
-    throwError "'partial' theorems are not allowed, 'partial' is a code generation directive"
+    throwError "`partial` theorems are not allowed, `partial` is a code generation directive"
   if newHeader.kind.isTheorem && newHeader.modifiers.isMeta then
-    throwError "'meta' theorems are not allowed, 'meta' is a code generation directive"
+    throwError "`meta` theorems are not allowed, `meta` is a code generation directive"
   if newHeader.kind.isTheorem && newHeader.modifiers.isNoncomputable then
-    throwError "'theorem' subsumes 'noncomputable', code is not generated for theorems"
+    throwError "`theorem` subsumes `noncomputable`, code is not generated for theorems"
   if newHeader.modifiers.isNoncomputable && newHeader.modifiers.isPartial then
-    throwError "'noncomputable partial' is not allowed"
+    throwError "`noncomputable partial` is not allowed"
   if newHeader.modifiers.isPartial && newHeader.modifiers.isUnsafe then
-    throwError "'unsafe' subsumes 'partial'"
+    throwError "`unsafe` subsumes `partial`"
   if h : 0 < prevHeaders.size then
     let firstHeader := prevHeaders[0]
     try
@@ -1489,7 +1489,7 @@ def elabMutualDef (ds : Array Syntax) : CommandElabM Unit := do
     let d := ds[i]
     let modifiers ← elabModifiers ⟨d[0]⟩
     if ds.size > 1 && modifiers.isNonrec then
-      throwErrorAt d "invalid use of 'nonrec' modifier in 'mutual' block"
+      throwErrorAt d "invalid use of `nonrec` modifier in `mutual` block"
     let mut view ←
       withExporting (isExporting := modifiers.visibility.isInferredPublic (← getEnv)) do
         mkDefView modifiers d[1]

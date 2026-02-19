@@ -1374,7 +1374,7 @@ Trying to prove a false proposition:
 ```lean
 example : 1 ≠ 1 := by decide
 /-
-tactic 'decide' proved that the proposition
+Tactic `decide` proved that the proposition
   1 ≠ 1
 is false
 -/
@@ -1387,11 +1387,11 @@ opaque unknownProp : Prop
 open scoped Classical in
 example : unknownProp := by decide
 /-
-tactic 'decide' failed for proposition
+Tactic `decide` failed for proposition
   unknownProp
-since its 'Decidable' instance reduced to
-  Classical.choice ⋯
-rather than to the 'isTrue' constructor.
+because its `Decidable` instance
+  ...
+did not reduce to `isTrue` or `isFalse`.
 -/
 ```
 

@@ -22,4 +22,4 @@ holeErrors.lean:19:13-19:19: error: don't know how to synthesize implicit argume
   @id ?m
 context:
 ⊢ Sort u
-holeErrors.lean:19:8-19:9: error: failed to infer 'let rec' declaration type
+holeErrors.lean:19:8-19:9: error: failed to infer `let rec` declaration type

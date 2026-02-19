@@ -847,7 +847,7 @@ By default, the command captures all messages, but the filter condition can be a
 For example, we can select only warnings:
 ```lean
 /--
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 -/
 #guard_msgs(warning) in
 example : α := sorry

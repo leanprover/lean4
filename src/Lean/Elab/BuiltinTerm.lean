@@ -165,7 +165,7 @@ private def getMVarFromUserName (ident : Syntax) : MetaM Expr := do
     mkTacticMVar expectedType stx .term (delayOnMVars := (← getEnv).isExporting && !(← backward.proofsInPublic.getM))
   | none =>
     tryPostpone
-    throwError ("invalid 'by' tactic, expected type has not been provided")
+    throwError ("invalid `by` tactic, expected type has not been provided")
 
 @[builtin_term_elab noImplicitLambda] def elabNoImplicitLambda : TermElab := fun stx expectedType? =>
   elabTerm stx[1] (mkNoImplicitLambdaAnnotation <$> expectedType?)

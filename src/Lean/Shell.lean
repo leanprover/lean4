@@ -148,7 +148,7 @@ def displayHelp (useStderr : Bool) : IO Unit := do
   out.putStrLn    "  -v, --version          display version information"
   out.putStrLn    "  -V, --short-version    display short version number"
   out.putStrLn    "  -g, --githash          display the git commit hash number used to build this binary"
-  out.putStrLn    "      --run <file>       call the 'main' definition in the given file with the remaining arguments"
+  out.putStrLn    "      --run <file>       call the `main` definition in the given file with the remaining arguments"
   out.putStrLn    "  -o, --o=oname          create olean file"
   out.putStrLn    "  -i, --i=iname          create ilean file"
   out.putStrLn    "  -c, --c=fname          name of the C output file"

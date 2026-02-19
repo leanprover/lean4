@@ -197,9 +197,8 @@ def parseURI (limits : H1.Config) : Parser ByteArray := do
   return uri.toByteArray
 
 /--
-Parses a request line
-
-request-line   = method SP request-target SP HTTP-version
+Parses a request line and returns a fully-typed `Request.Head`.
+`request-line = method SP request-target SP HTTP-version`
 -/
 public def parseRequestLine (limits : H1.Config) : Parser Request.Head := do
   let method ← parseMethod <* sp
@@ -304,6 +303,9 @@ def parseChunkExt (limits : H1.Config) : Parser (ExtensionName × Option String)
     | fail "invalid extension name"
 
   if (← peekWhen? (· == '='.toUInt8)) |>.isSome then
+    -- RFC 9112 §7.1.1: BWS is allowed around "=".
+    -- The `<* ows limits` after the name already consumed any trailing whitespace,
+    -- so these ows calls are no-ops in practice, but kept for explicit grammar correspondence.
     ows limits *> skipByte '='.toUInt8 *> ows limits
     let value ← ows limits *> (parseQuotedString limits.maxChunkExtValueLength <|> liftOption =<< (String.fromUTF8? <$> ByteSlice.toByteArray <$> token limits.maxChunkExtValueLength))
 
@@ -392,9 +394,10 @@ def parseReasonPhrase (limits : H1.Config) : Parser String := do
   liftOption<| String.fromUTF8? bytes.toByteArray
 
 /--
-Parses a status line
-
-status-line = HTTP-version SP status-code SP [ reason-phrase ]
+Parses a status line and returns a fully-typed `Response.Head`.
+`status-line = HTTP-version SP status-code SP [ reason-phrase ]`
+Accepts only HTTP/1.1. For parsing where the version may be unrecognized and must be
+mapped to an error event, use `parseStatusLineRawVersion`.
 -/
 public def parseStatusLine (limits : H1.Config) : Parser Response.Head := do
   let (major, minor) ← parseHttpVersionNumber <* sp

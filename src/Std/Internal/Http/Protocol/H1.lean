@@ -181,6 +181,8 @@ private def responseMustNotHaveBody (status : Status) : Bool :=
 private def checkMessageHead (message : Message.Head dir) : Option BodyMode := do
   match dir with
   | .receiving => do
+    -- RFC 9112 §3.2: an HTTP/1.1 request MUST contain exactly one Host header.
+    -- Both absence (getAll? = none) and duplicates (size ≠ 1) are rejected here.
     let headers ← message.headers.getAll? Header.Name.host
     guard (headers.size = 1)
     let size ← message.getSize true
@@ -212,6 +214,9 @@ private def hasExpectContinue (message : Message.Head dir) : Bool :=
         value.value.split (· == ',')
         |>.any (fun token => token.trimAscii.toString.toLower == "100-continue")
 
+/--
+Returns `true` when body chunks should be drained internally rather than surfaced to the caller.
+-/
 @[inline]
 private def shouldIgnoreBodyPull (machine : Machine dir) : Bool :=
   match dir with
@@ -416,15 +421,9 @@ private def processHeaders (machine : Machine dir) : Machine dir :=
         machine
 
 /--
-Finalizes and encodes an outgoing message head into the writer's output buffer.
-
-Despite the name, this does more than set headers: it determines the transfer encoding
-(fixed-length or chunked), normalizes the `Content-Length`/`Transfer-Encoding` headers,
-appends `Connection: close` when keep-alive is disabled, injects the identity header
-(e.g. `Server`), and serializes the entire head to the output buffer. It is called
-automatically by `processWrite` once the machine is ready to flush.
+Finalizes the outgoing message head and serializes it to the writer's output buffer.
 -/
-def setHeaders (messageHead : Message.Head dir.swap) (machine : Machine dir) : Machine dir :=
+private def writeHead (messageHead : Message.Head dir.swap) (machine : Machine dir) : Machine dir :=
   let machine := machine.updateKeepAlive (machine.reader.messageCount + 1 < machine.config.maxMessages)
 
   let shouldKeepAlive := messageHead.shouldKeepAlive
@@ -605,7 +604,7 @@ partial def processWrite (machine : Machine dir) : Machine dir :=
       machine.addEvent .needAnswer
   | .waitingForFlush =>
       if machine.shouldFlush then
-        machine.setHeaders machine.writer.messageHead
+        machine.writeHead machine.writer.messageHead
         |> processWrite
       else
         machine

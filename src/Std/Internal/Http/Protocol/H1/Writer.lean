@@ -45,8 +45,7 @@ inductive Writer.State
   | waitingHeaders
 
   /--
-  This is the state that we wait for a forced flush. This happens and causes the writer to
-  start actually writing to the outputData.
+  This is the state that the machine waits for a condition to send the response header.
   -/
   | waitingForFlush
 

@@ -94,7 +94,7 @@ inductive Level where
   | param  : Name → Level
   | mvar   : LMVarId → Level
 with
-  @[computed_field] data : Level → Data
+  @[computed_field, inline] data : Level → Data
     | .zero => mkData 2221 0 false false
     | .mvar mvarId => mkData (mixHash 2237 <| hash mvarId) 0 true false
     | .param name => mkData (mixHash 2239 <| hash name) 0 false true

@@ -296,12 +296,24 @@ theorem Pos.Splits.next {s : String} {p : s.Pos}
   obtain ⟨rfl, rfl, rfl⟩ := by simpa using h.eq (splits_next_right p hp)
   exact splits_next p hp
 
+/-- You might want to invoke `Pos.Splits.exists_eq_append_singleton` to be able to apply this. -/
+theorem Pos.Splits.of_next {s : String} {p : s.Pos} {hp}
+    (h : (p.next hp).Splits (t₁ ++ singleton c) t₂) : p.Splits t₁ (singleton c ++ t₂) := by
+  obtain ⟨⟨rfl, rfl⟩, rfl⟩ := by simpa using h.eq (splits_next p hp)
+  exact splits_next_right p hp
+
 /-- You might want to invoke `Slice.Pos.Splits.exists_eq_singleton_append` to be able to apply this. -/
 theorem Slice.Pos.Splits.next {s : Slice} {p : s.Pos}
     (h : p.Splits t₁ (singleton c ++ t₂)) : (p.next h.ne_endPos_of_singleton).Splits (t₁ ++ singleton c) t₂ := by
   generalize h.ne_endPos_of_singleton = hp
   obtain ⟨rfl, rfl, rfl⟩ := by simpa using h.eq (splits_next_right p hp)
   exact splits_next p hp
+
+/-- You might want to invoke `Slice.Pos.Splits.exists_eq_append_singleton` to be able to apply this. -/
+theorem Slice.Pos.Splits.of_next {s : Slice} {p : s.Pos} {hp}
+    (h : (p.next hp).Splits (t₁ ++ singleton c) t₂) : p.Splits t₁ (singleton c ++ t₂) := by
+  obtain ⟨⟨rfl, rfl⟩, rfl⟩ := by simpa using h.eq (splits_next p hp)
+  exact splits_next_right p hp
 
 /-- You might want to invoke `Pos.Splits.exists_eq_singleton_append_of_ne_startPos` to be able to apply this. -/
 theorem Pos.Splits.prev {s : String} {p : s.Pos}
@@ -310,12 +322,24 @@ theorem Pos.Splits.prev {s : String} {p : s.Pos}
   obtain ⟨⟨rfl, rfl⟩, rfl⟩ := by simpa using h.eq (splits_prev_right p hp)
   exact splits_prev p hp
 
+/-- You might want to invoke `Pos.Splits.exists_eq_append_singleton_of_ne_startPos` to be able to apply this. -/
+theorem Pos.Splits.of_prev {s : String} {p : s.Pos} {hp}
+    (h : (p.prev hp).Splits t₁ (singleton c ++ t₂)) : p.Splits (t₁ ++ singleton c) t₂ := by
+  obtain ⟨rfl, rfl, rfl⟩ := by simpa using h.eq (splits_prev p hp)
+  exact splits_prev_right p hp
+
 /-- You might want to invoke `Slice.Pos.Splits.exists_eq_singleton_append_of_ne_startPos` to be able to apply this. -/
 theorem Slice.Pos.Splits.prev {s : Slice} {p : s.Pos}
     (h : p.Splits (t₁ ++ singleton c) t₂) : (p.prev h.ne_startPos_of_singleton).Splits t₁ (singleton c ++ t₂) := by
   generalize h.ne_startPos_of_singleton = hp
   obtain ⟨⟨rfl, rfl⟩, rfl⟩ := by simpa using h.eq (splits_prev_right p hp)
   exact splits_prev p hp
+
+/-- You might want to invoke `Slice.Pos.Splits.exists_eq_append_singleton_of_ne_startPos` to be able to apply this. -/
+theorem Slice.Pos.Splits.of_prev {s : Slice} {p : s.Pos} {hp}
+    (h : (p.prev hp).Splits t₁ (singleton c ++ t₂)) : p.Splits (t₁ ++ singleton c) t₂ := by
+  obtain ⟨rfl, rfl, rfl⟩ := by simpa using h.eq (splits_prev p hp)
+  exact splits_prev_right p hp
 
 theorem Slice.sliceTo_copy_eq_iff_exists_splits {s : Slice} {p : s.Pos} {t₁ : String} :
     (s.sliceTo p).copy = t₁ ↔ ∃ t₂, p.Splits t₁ t₂ := by

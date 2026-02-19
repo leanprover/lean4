@@ -6,6 +6,7 @@ Authors: Sebastian Graf
 module
 public import Lean.Meta
 import Lean.Elab
+import Lean.Meta.Sym.Simp.Theorems
 
 open Lean Parser Meta Elab Tactic Sym
 
@@ -17,23 +18,28 @@ def timeItMs (k : MetaM α) : MetaM (α × UInt64) := do
   return (a, ms.toUInt64)
 
 /-- Helper function for executing a tactic `k` for solving `$(goal) n`. -/
-def driver (goal : Name) (unfold : List Name) (n : Nat) (discharge : MetaM (TSyntax `tactic)) (check := true) (k : MVarId → MetaM (List MVarId)) : MetaM Unit := do
+def driver (goal : Name) (unfold : List Name) (n : Nat) (discharge : MetaM (TSyntax `tactic)) (k : MVarId → MetaM (List MVarId)) : MetaM Unit := do
   let mvar ← mkFreshExprMVar (mkApp (mkConst goal) (mkNatLit n))
--- The following code uses `Sym.simp`, but it balloons in the kernel. TODO: Investigate with new semantic
--- foundations. Use regular simp for now.
---  let mvarId ← SymM.run do
---    let mvarId ← preprocessMVar mvar.mvarId!
---    match (← Sym.simpGoal mvarId (← Sym.mkMethods "equational theorems of names in unfold as array")) with
---    | .goal mvarId => return mvarId
---    | .noProgress => throwError "SIMP NO PROGRESS on {mvarId}!"
---    | .closed => throwError "SIMP CLOSED!"
---  let unfold := Syntax.SepArray.ofElems (unfold.toArray |>.map (Lean.mkIdent ·))
-  let lemmas ← unfold.toArray |>.push goal |>.mapM fun n => `(simpLemma| $(Lean.mkIdent n):term)
-  let unfold := Syntax.TSepArray.ofElems (sep := ",") lemmas
+  -- The following code uses `Sym.simp`, but it balloons in the kernel. TODO: Investigate with new semantic
+  -- foundations. Use regular simp for now.
+  let useSymSimpForUnfolding := false
   let (mvarId, _unfoldMs) ← timeItMs do
-    let ([mvarId], _) ← Lean.Elab.runTactic mvar.mvarId! (← `(tactic| simp only [$unfold,*])).raw {} {}
-      | throwError "FAILED!"
-    return mvarId
+    if useSymSimpForUnfolding then SymM.run do
+        let mvarId ← preprocessMVar mvar.mvarId!
+        let eqnss ← unfold.toArray
+          |>.push goal
+          |>.mapM fun n => getEqnsFor? n
+        let thms := eqnss.flatMap (fun o => o.getD #[])
+        match (← Sym.simpGoal mvarId (← Sym.mkMethods thms)) with
+        | .goal mvarId => return mvarId
+        | .noProgress => throwError "SIMP NO PROGRESS on {mvarId}!"
+        | .closed => throwError "SIMP CLOSED!"
+    else
+      let lemmas ← unfold.toArray |>.push goal |>.mapM fun n => `(simpLemma| $(Lean.mkIdent n):term)
+      let unfold := Syntax.TSepArray.ofElems (sep := ",") lemmas
+      let ([mvarId], _) ← Lean.Elab.runTactic mvar.mvarId! (← `(tactic| simp only [$unfold,*])).raw {} {}
+        | throwError "FAILED!"
+      return mvarId
   -- IO.println s!"time spent unfolding: {_unfoldMs} ms"
   let (mvarIds, ms) ← timeItMs do k mvarId
   let discharge ← discharge
@@ -56,8 +62,8 @@ def driver (goal : Name) (unfold : List Name) (n : Nat) (discharge : MetaM (TSyn
   msg := msg ++ s!", kernel: {kernelMs} ms"
   IO.println msg
 
-def solveUsingTactic (goal : Name) (unfold : List Name) (n : Nat) (solve : MetaM (TSyntax `tactic)) (discharge : MetaM (TSyntax `tactic)) (check := true) : MetaM Unit := do
-  driver goal unfold n discharge check fun mvarId => do
+def solveUsingTactic (goal : Name) (unfold : List Name) (n : Nat) (solve : MetaM (TSyntax `tactic)) (discharge : MetaM (TSyntax `tactic)) : MetaM Unit := do
+  driver goal unfold n discharge fun mvarId => do
     let (mvarIds, _) ← Lean.Elab.runTactic mvarId (← solve).raw {} {}
     return mvarIds
 
@@ -70,8 +76,8 @@ public def runBenchUsingTactic (goal : Name) (unfold : List Name) (solve : MetaM
   for n in sizes do
     solveUsingTactic goal unfold n solve discharge
 
-def solveUsingSym (goal : Name) (unfold : List Name) (n : Nat) (solve : MVarId → SymM (List MVarId)) (discharge : MetaM (TSyntax `tactic)) (check := true) : MetaM Unit := do
-  driver goal unfold n discharge check fun mvarId => SymM.run do solve mvarId
+def solveUsingSym (goal : Name) (unfold : List Name) (n : Nat) (solve : MVarId → SymM (List MVarId)) (discharge : MetaM (TSyntax `tactic)) : MetaM Unit := do
+  driver goal unfold n discharge fun mvarId => SymM.run do solve mvarId
 
 /--
 Solves a goal of the form `goal n` using a `SymM` procedure, where `n` ranges over `sizes`.

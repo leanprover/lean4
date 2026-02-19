@@ -478,6 +478,37 @@ inductive SolveResult where
   /-- Successfully discharged the goal. These are the subgoals. -/
   | goals (subgoals : List MVarId)
 
+open Sym Sym.Internal
+-- The following function is vendored until it is made public:
+/-- `mkAppRevRangeS f b e args == mkAppRev f (revArgs.extract b e)` -/
+meta def mkAppRevRangeS [Monad m] [Internal.MonadShareCommon m] (f : Expr) (beginIdx endIdx : Nat) (revArgs : Array Expr) : m Expr :=
+  loop revArgs beginIdx f endIdx
+where
+  loop (revArgs : Array Expr) (start : Nat) (b : Expr) (i : Nat) : m Expr := do
+  if i ≤ start then
+    return b
+  else
+    let i := i - 1
+    loop revArgs start (← mkAppS b revArgs[i]!) i
+
+open Sym Sym.Internal
+meta def mkAppRevS [Monad m] [Internal.MonadShareCommon m] (f : Expr) (revArgs : Array Expr) : m Expr :=
+  mkAppRevRangeS f 0 revArgs.size revArgs
+
+open Sym Sym.Internal
+meta def mkAppRangeS [Monad m] [Internal.MonadShareCommon m] (f : Expr) (beginIdx endIdx : Nat) (args : Array Expr) : m Expr :=
+  loop args endIdx f beginIdx
+where
+  loop (args : Array Expr) (end' : Nat) (b : Expr) (i : Nat) : m Expr := do
+  if end' ≤ i then
+    return b
+  else
+    loop args end' (← mkAppS b args[i]!) (i + 1)
+
+open Sym Sym.Internal
+meta def mkAppNS [Monad m] [Internal.MonadShareCommon m] (f : Expr) (args : Array Expr) : m Expr :=
+  mkAppRangeS f 0 args.size args
+
 /--
 The main VC generation function.
 Looks at a goal of the form `P ⊢ₛ T`. Then
@@ -516,6 +547,16 @@ meta def solve (goal : MVarId) : VCGenM SolveResult := goal.withContext do
   let excessArgs := args.drop 4
   let f := e.getAppFn
   withTraceNode `Elab.Tactic.Do.vcgen (msg := fun _ => return m!"Program: {e}") do
+
+  -- Zeta let-expressions
+  if let .letE _x _ty val body _nonDep := f then
+    let body' ← Sym.instantiateRevBetaS body #[val]
+    let e' ← mkAppRevS body' e.getAppRevArgs
+    let wp ← Sym.Internal.mkAppS₅ wpConst m ps instWP α e'
+    let T ← mkAppNS head (args.set! 2 wp)
+    let target ← mkAppS₃ ent σs H T
+    let goal ← goal.replaceTargetDefEq target
+    return .goals [goal]
 
   -- Hard-code match splitting for `ite` for now.
   if f.isAppOf ``ite then

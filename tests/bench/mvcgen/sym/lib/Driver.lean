@@ -20,26 +20,16 @@ def timeItMs (k : MetaM α) : MetaM (α × UInt64) := do
 /-- Helper function for executing a tactic `k` for solving `$(goal) n`. -/
 def driver (goal : Name) (unfold : List Name) (n : Nat) (discharge : MetaM (TSyntax `tactic)) (k : MVarId → MetaM (List MVarId)) : MetaM Unit := do
   let mvar ← mkFreshExprMVar (mkApp (mkConst goal) (mkNatLit n))
-  -- The following code uses `Sym.simp`, but it balloons in the kernel. TODO: Investigate with new semantic
-  -- foundations. Use regular simp for now.
-  let useSymSimpForUnfolding := false
-  let (mvarId, _unfoldMs) ← timeItMs do
-    if useSymSimpForUnfolding then SymM.run do
-        let mvarId ← preprocessMVar mvar.mvarId!
-        let eqnss ← unfold.toArray
-          |>.push goal
-          |>.mapM fun n => getEqnsFor? n
-        let thms := eqnss.flatMap (fun o => o.getD #[])
-        match (← Sym.simpGoal mvarId (← Sym.mkMethods thms)) with
-        | .goal mvarId => return mvarId
-        | .noProgress => throwError "SIMP NO PROGRESS on {mvarId}!"
-        | .closed => throwError "SIMP CLOSED!"
-    else
-      let lemmas ← unfold.toArray |>.push goal |>.mapM fun n => `(simpLemma| $(Lean.mkIdent n):term)
-      let unfold := Syntax.TSepArray.ofElems (sep := ",") lemmas
-      let ([mvarId], _) ← Lean.Elab.runTactic mvar.mvarId! (← `(tactic| simp only [$unfold,*])).raw {} {}
-        | throwError "FAILED!"
-      return mvarId
+  let (mvarId, _unfoldMs) ← timeItMs do SymM.run do
+    let mvarId ← preprocessMVar mvar.mvarId!
+    let eqnss ← unfold.toArray
+      |>.push goal
+      |>.mapM fun n => getEqnsFor? n
+    let thms := eqnss.flatMap (fun o => o.getD #[])
+    match (← Sym.simpGoal mvarId (← Sym.mkMethods thms)) with
+    | .goal mvarId => return mvarId
+    | .noProgress => throwError "No progress when simping {mvarId}!"
+    | .closed => throwError "Simp closed goal {mvarId}"
   -- IO.println s!"time spent unfolding: {_unfoldMs} ms"
   let (mvarIds, ms) ← timeItMs do k mvarId
   let discharge ← discharge
@@ -51,6 +41,9 @@ def driver (goal : Name) (unfold : List Name) (n : Nat) (discharge : MetaM (TSyn
         let ([], _) ← Lean.Elab.runTactic mvarId discharge.raw {} {}
           | throwError "{dischargePp} failed to solve {mvarId}"
   let (expr, instMs) ← timeItMs (instantiateMVars mvar)
+  -- Emulate the shareCommonPreDefs step before sending the term to the kernel.
+  -- If we don't do this, kernel checking time balloons.
+  let expr ← SymM.run (shareCommon expr)
   let (_, kernelMs) ← timeItMs (checkWithKernel expr)
   let mut msg := s!"goal_{n}: {ms} ms"
   if let some dischargeMs := dischargeMs? then

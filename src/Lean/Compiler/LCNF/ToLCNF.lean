@@ -543,12 +543,12 @@ where
     letValueToArg <| .const declName us args
 
   /-- Eta expand if under applied, otherwise apply k -/
-  etaIfUnderApplied (e : Expr) (arity : Nat) (k : M (Arg .pure)) : M (Arg .pure) := do
+  etaIfUnderApplied (e : Expr) (arity : Nat) (k : Unit → M (Arg .pure)) : M (Arg .pure) := do
     let numArgs := e.getAppNumArgs
     if numArgs < arity then
       visit (← etaExpandN e (arity - numArgs))
     else
-      k
+      k ()
 
   /--
   If `args.size == arity`, then just return `app`.
@@ -613,7 +613,7 @@ where
       return (altType, .alt ctorName ps c)
 
   visitCases (casesInfo : CasesInfo) (e : Expr) : M (Arg .pure) :=
-    etaIfUnderApplied e casesInfo.arity do
+    etaIfUnderApplied e casesInfo.arity fun _ => do
       let args := e.getAppArgs
       let overArgs ← (args.drop casesInfo.arity).mapM visitAppArg
       let mut resultType ← toLCNFType (← liftMetaM do Meta.inferType (mkAppN e.getAppFn args))
@@ -663,7 +663,7 @@ where
         return .fvar auxDecl.fvarId
 
   visitCtor (arity : Nat) (e : Expr) : M (Arg .pure) :=
-    etaIfUnderApplied e arity do
+    etaIfUnderApplied e arity fun _ => do
       let f := e.getAppFn
       let args := e.getAppArgs
       let env ← getEnv
@@ -679,24 +679,21 @@ where
         modify fun s => {s with shouldCache := false }
       letValueToArg <| .const declName us args
 
-  visitQuotLift (e : Expr) : M (Arg .pure) := do
+  visitQuotMk (e : Expr) : M (Arg .pure)  := do
+    let arity := 3
+    etaIfUnderApplied e arity fun _ => do
+      let args := e.getAppArgs
+      visit args[2]!
+
+  visitQuotLift (e : Expr) : M (Arg .pure)  := do
     let arity := 6
-    etaIfUnderApplied e arity do
-      let mut args := e.getAppArgs
-      let α ← visitAppArg args[0]!
-      let r ← visitAppArg args[1]!
-      let f ← visitAppArg args[3]!
-      let q ← visitAppArg args[5]!
-      let .const _ [u, _] := e.getAppFn | unreachable!
-      let invq ← mkAuxLetDecl (.const ``Quot.lcInv [u] #[α, r, q])
-      match f with
-      | .erased => return .erased
-      | .type _ => unreachable!
-      | .fvar fvarId => mkOverApplication (← letValueToArg <| .fvar fvarId #[.fvar invq]) args arity
+    etaIfUnderApplied e arity fun _ => do
+      let args := e.getAppArgs
+      visit (mkApp args[3]! args[5]!)
 
   visitEqRec (e : Expr) : M (Arg .pure) :=
     let arity := 6
-    etaIfUnderApplied e arity do
+    etaIfUnderApplied e arity fun _ => do
       let args := e.getAppArgs
       let minor := if e.isAppOf ``Eq.rec || e.isAppOf ``Eq.ndrec then args[3]! else args[5]!
       let minor ← visit minor
@@ -704,7 +701,7 @@ where
 
   visitHEqRec (e : Expr) : M (Arg .pure) :=
     let arity := 7
-    etaIfUnderApplied e arity do
+    etaIfUnderApplied e arity fun _ => do
       let args := e.getAppArgs
       let minor := if e.isAppOf ``HEq.rec || e.isAppOf ``HEq.ndrec then args[3]! else args[6]!
       let minor ← visit minor
@@ -712,19 +709,19 @@ where
 
   visitFalseRec (e : Expr) : M (Arg .pure) :=
     let arity := 2
-    etaIfUnderApplied e arity do
+    etaIfUnderApplied e arity fun _ => do
       let type ← toLCNFType (← liftMetaM do Meta.inferType e)
       mkUnreachable type
 
   visitLcUnreachable (e : Expr) : M (Arg .pure) :=
     let arity := 1
-    etaIfUnderApplied e arity do
+    etaIfUnderApplied e arity fun _ => do
       let type ← toLCNFType (← liftMetaM do Meta.inferType e)
       mkUnreachable type
 
   visitAndIffRecCore (e : Expr) (minorPos : Nat) : M (Arg .pure) :=
     let arity := 5
-    etaIfUnderApplied e arity do
+    etaIfUnderApplied e arity fun _ => do
       let args := e.getAppArgs
       let ha := mkLcProof args[0]! -- We should not use `lcErased` here since we use it to create a pre-LCNF Expr.
       let hb := mkLcProof args[1]!
@@ -736,10 +733,10 @@ where
     let .const declName _ := e.getAppFn | unreachable!
     let info := getNoConfusionInfo (← getEnv) declName
     let typeName := declName.getPrefix
-    etaIfUnderApplied e info.arity do
+    etaIfUnderApplied e info.arity fun _ => do
       let args := e.getAppArgs
       let visitMajor (numNonPropFields : Nat) := do
-        etaIfUnderApplied e (info.arity+1) do
+        etaIfUnderApplied e (info.arity+1) fun _ => do
           let major := args[info.arity]!
           let major ← expandNoConfusionMajor major numNonPropFields
           let major := mkAppN major args[(info.arity+1)...*]
@@ -798,7 +795,7 @@ where
       if declName == ``Quot.lift then
         visitQuotLift e
       else if declName == ``Quot.mk then
-        visitCtor 3 e
+        visitQuotMk e
       else if declName == ``Eq.rec || declName == ``Eq.recOn || declName == ``Eq.ndrec then
         visitEqRec e
       else if declName == ``HEq.rec || declName == ``HEq.ndrec then

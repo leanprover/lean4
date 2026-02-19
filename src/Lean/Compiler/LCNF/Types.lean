@@ -221,6 +221,8 @@ where
           -- This branch can happen under `backward.privateInPublic`; restore original behavior of
           -- failing here, which is caught and ignored above by `observing`.
           throwError "internal compiler error: private in public"
+        if declName == ``Quot then
+          return (← go args[0]!)
         let .inductInfo _ ← getConstInfo declName | return anyExpr
         pure <| .const declName us
       | .fvar .. => pure f

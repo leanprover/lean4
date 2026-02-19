@@ -218,7 +218,7 @@ private def handle
       | .«continue» =>
         if let some head := pendingHead then
           let canContinue ← Handler.onContinue handler head
-          let status := if canContinue then Status.«continue» else Status.unauthorized
+          let status := if canContinue then Status.«continue» else Status.expectationFailed
           machine := machine.canContinue status
           if ¬canContinue then
             pendingHead := none

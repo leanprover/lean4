@@ -25,6 +25,10 @@ set_option linter.all true
 /--
 Checks if a character is a valid HTTP token character per RFC 9110 §5.6.2.
 Token characters include alphanumerics and the following: `` !#$%&'*+-.^_`|~ ``
+
+The bitmask `0x57ffffffc7fffffe03ff6cfa00000000` encodes exactly the 128-bit set of
+allowed ASCII token characters: bit `i` is set iff ASCII code point `i` is a token
+character. `Nat.testBit` then performs an O(1) membership test.
 -/
 @[expose]
 def isTokenCharacter (c : Char) : Bool :=

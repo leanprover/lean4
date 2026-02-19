@@ -68,7 +68,7 @@ partial def manyItems {α : Type} (parser : Parser (Option α)) (maxCount : Nat)
     | some x =>
       let acc := acc.push x
 
-      if acc.size > maxCount then
+      if acc.size + 1 > maxCount then
         fail s!"Too many items: {acc.size} > {maxCount}"
 
       go acc
@@ -93,9 +93,7 @@ def token (limit : Nat) : Parser ByteSlice :=
   takeWhileUpTo1 (fun c => isTokenCharacter (Char.ofUInt8 c)) limit
 
 /--
-Parses a line terminator. Accepts both CRLF and bare LF for robustness, as recommended by
-RFC 9112 §2.2 ("a server that receives bare CR ... ought to either reject the request or
-replace each bare CR with SP before processing").
+Parses a line terminator.
 -/
 @[inline]
 def crlf : Parser Unit := do
@@ -185,8 +183,8 @@ def parseMethod : Parser Method :=
 /--
 Parses the method token as text.
 -/
-def parseMethodToken (limits : H1.Config) : Parser String := do
-  let raw ← token limits.maxHeaderNameLength
+def parseMethodToken : Parser String := do
+  let raw ← token 16
 
   let methodToken ← liftOption<| String.fromUTF8? raw.toByteArray
   if methodToken.toList.any (fun c => c.toNat ≥ 'a'.toNat ∧ c.toNat ≤ 'z'.toNat) then
@@ -199,9 +197,8 @@ def parseURI (limits : H1.Config) : Parser ByteArray := do
   return uri.toByteArray
 
 /--
-Parses a request line
-
-request-line   = method SP request-target SP HTTP-version
+Parses a request line and returns a fully-typed `Request.Head`.
+`request-line = method SP request-target SP HTTP-version`
 -/
 public def parseRequestLine (limits : H1.Config) : Parser Request.Head := do
   let method ← parseMethod <* sp
@@ -223,7 +220,7 @@ Parses a request line and returns the recognized HTTP method and version when av
 request-line = method SP request-target SP HTTP-version
 -/
 public def parseRequestLineRawVersion (limits : H1.Config) : Parser (Option Method × RequestTarget × Option Version) := do
-  let methodToken ← parseMethodToken limits <* sp
+  let methodToken ← parseMethodToken <* sp
   let uri ← parseURI limits <* sp
 
   let uri ← match (Std.Http.URI.Parser.parseRequestTarget <* eof).run uri with
@@ -238,8 +235,9 @@ def parseFieldLine (limits : H1.Config) : Parser (String × String) := do
   let name ← token limits.maxHeaderNameLength
   let value ← skipByte ':'.toUInt8 *> ows limits *> optional (takeWhileUpTo isFieldVChar limits.maxHeaderValueLength) <* ows limits
 
-  let name ← liftOption<| String.fromUTF8? name.toByteArray
-  let value ← liftOption<| String.fromUTF8? <| value.map (·.toByteArray) |>.getD .empty
+  let name ← liftOption <| String.fromUTF8? name.toByteArray
+  let value ← liftOption <| String.fromUTF8? <| value.map (·.toByteArray) |>.getD .empty
+  let value := value.trimAsciiEnd.toString
 
   return (name, value)
 
@@ -305,6 +303,9 @@ def parseChunkExt (limits : H1.Config) : Parser (ExtensionName × Option String)
     | fail "invalid extension name"
 
   if (← peekWhen? (· == '='.toUInt8)) |>.isSome then
+    -- RFC 9112 §7.1.1: BWS is allowed around "=".
+    -- The `<* ows limits` after the name already consumed any trailing whitespace,
+    -- so these ows calls are no-ops in practice, but kept for explicit grammar correspondence.
     ows limits *> skipByte '='.toUInt8 *> ows limits
     let value ← ows limits *> (parseQuotedString limits.maxChunkExtValueLength <|> liftOption =<< (String.fromUTF8? <$> ByteSlice.toByteArray <$> token limits.maxChunkExtValueLength))
 
@@ -389,13 +390,14 @@ def parseStatusCode : Parser Status := do
 Parses reason phrase (text after status code)
 -/
 def parseReasonPhrase (limits : H1.Config) : Parser String := do
-  let bytes ← takeWhileUpTo (fun c => c != '\r'.toUInt8) limits.maxReasonPhraseLength
+  let bytes ← takeWhileUpTo (fun c => c != '\r'.toUInt8 ∧ c != '\n'.toUInt8) limits.maxReasonPhraseLength
   liftOption<| String.fromUTF8? bytes.toByteArray
 
 /--
-Parses a status line
-
-status-line = HTTP-version SP status-code SP [ reason-phrase ]
+Parses a status line and returns a fully-typed `Response.Head`.
+`status-line = HTTP-version SP status-code SP [ reason-phrase ]`
+Accepts only HTTP/1.1. For parsing where the version may be unrecognized and must be
+mapped to an error event, use `parseStatusLineRawVersion`.
 -/
 public def parseStatusLine (limits : H1.Config) : Parser Response.Head := do
   let (major, minor) ← parseHttpVersionNumber <* sp

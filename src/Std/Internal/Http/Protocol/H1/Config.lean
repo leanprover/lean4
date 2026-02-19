@@ -47,7 +47,7 @@ structure Config where
   /--
   The server name (for sending responses) or user agent (for sending requests)
   -/
-  identityHeader : Option Header.Value := some (.mk "LeanServer")
+  identityHeader : Option Header.Value := none
 
   /--
   Maximum length of request URI (default: 8192 bytes)

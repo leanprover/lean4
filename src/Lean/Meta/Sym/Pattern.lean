@@ -19,6 +19,7 @@ import Lean.Meta.Sym.Offset
 import Lean.Meta.Sym.Eta
 import Init.Data.List.MapIdx
 import Init.Data.Nat.Linear
+import Std.Do.Triple.Basic
 namespace Lean.Meta.Sym
 open Internal
 
@@ -206,15 +207,42 @@ public def mkPatternFromExpr (e : Expr) (levelParams : List Name := []) (num? : 
   let (levelParams, type) ← preprocessExprPattern e levelParams
   mkPatternFromType levelParams type num?
 
-def mkEqPatternFromType (levelParams : List Name) (type : Expr) : MetaM (Pattern × Expr) := do
-  let rec go (pattern : Expr) (varTypes : Array Expr) : MetaM (Pattern × Expr) := do
+@[inline]
+def mkPatternFromTypeWithKey (levelParams : List Name) (type : Expr) (selectKey : Expr → MetaM (Expr × α)) : MetaM (Pattern × α) := do
+  let rec go (pattern : Expr) (varTypes : Array Expr) : MetaM (Pattern × α) := do
     if let .forallE _ d b _ := pattern then
       return (← go b (varTypes.push d))
     else
-      let_expr Eq _ lhs rhs := pattern | throwError "conclusion is not a equality{indentExpr type}"
-      let pattern ← mkPatternCore type levelParams varTypes lhs
-      return (pattern, rhs)
+      let (key, a) ← selectKey pattern
+      let pattern ← mkPatternCore type levelParams varTypes key
+      return (pattern, a)
   go type #[]
+
+/--
+Creates a `Pattern` from a theorem, using the supplied selection function to extract the key from
+the theorem's result type.
+
+This function is used to implement `mkEqPatternFromDecl`.
+Like `mkPatternFromDecl`, this strips all leading universal quantifiers, recording variable
+types and instance status. However, instead of using the entire resulting type as the pattern,
+it uses the selection function to extract the key.
+
+For a theorem `∀ x₁ ... xₙ, type`, returns a pattern matching the first component of `selectKey type`
+with `n` pattern variables.
+-/
+@[inline]
+public def mkPatternFromDeclWithKey (declName : Name) (selectKey : Expr → MetaM (Expr × α)) : MetaM (Pattern × α) := do
+  let (levelParams, type) ← preprocessDeclPattern declName
+  mkPatternFromTypeWithKey levelParams type selectKey
+
+/--
+Like `mkPatternFromDeclWithKey`, but for a complex proof expression instead of the declaration of a
+theorem.
+-/
+@[inline]
+public def mkPatternFromExprWithKey (e : Expr) (levelParams : List Name := []) (selectKey : Expr → MetaM (Expr × α)) : MetaM (Pattern × α) := do
+  let (levelParams, type) ← preprocessExprPattern e levelParams
+  mkPatternFromTypeWithKey levelParams type selectKey
 
 /--
 Creates a `Pattern` from an equational theorem, using the left-hand side of the equation.
@@ -228,8 +256,9 @@ For a theorem `∀ x₁ ... xₙ, lhs = rhs`, returns a pattern matching `lhs` w
 Throws an error if the theorem's conclusion is not an equality.
 -/
 public def mkEqPatternFromDecl (declName : Name) : MetaM (Pattern × Expr) := do
-  let (levelParams, type) ← preprocessDeclPattern declName
-  mkEqPatternFromType levelParams type
+  mkPatternFromDeclWithKey declName fun type => do
+    let_expr Eq _ lhs rhs := type | throwError "conclusion is not a equality{indentExpr type}"
+    return (lhs, rhs)
 
 structure UnifyM.Context where
   pattern   : Pattern

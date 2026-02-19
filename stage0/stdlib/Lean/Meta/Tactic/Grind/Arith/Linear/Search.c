@@ -419,7 +419,7 @@ LEAN_EXPORT lean_object* l_panic___at___00__private_Lean_Meta_Tactic_Grind_Arith
 LEAN_EXPORT lean_object* l_panic___at___00__private_Lean_Meta_Tactic_Grind_Arith_Linear_Search_0__Lean_Meta_Grind_Arith_Linear_findCase_spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___00__private_Lean_Meta_Tactic_Grind_Arith_Linear_Search_0__Lean_Meta_Grind_Arith_Linear_findCase_spec__1___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___00__private_Lean_Meta_Tactic_Grind_Arith_Linear_Search_0__Lean_Meta_Grind_Arith_Linear_findCase_spec__1___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_Name_quickCmp(lean_object*, lean_object*);
+uint8_t l___private_Lean_Data_Name_0__Lean_Name_quickCmpImpl(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_DTreeMap_Internal_Impl_contains___at___00__private_Lean_Meta_Tactic_Grind_Arith_Linear_Search_0__Lean_Meta_Grind_Arith_Linear_findCase_spec__0___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_contains___at___00__private_Lean_Meta_Tactic_Grind_Arith_Linear_Search_0__Lean_Meta_Grind_Arith_Linear_findCase_spec__0___redArg___boxed(lean_object*, lean_object*);
 static const lean_string_object l___private_Init_While_0__Lean_Loop_forIn_loop___at___00__private_Lean_Meta_Tactic_Grind_Arith_Linear_Search_0__Lean_Meta_Grind_Arith_Linear_findCase_spec__2___redArg___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 10, .m_capacity = 10, .m_length = 9, .m_data = "backtrack"};
@@ -17057,7 +17057,7 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6;
 x_3 = lean_ctor_get(x_2, 1);
 x_4 = lean_ctor_get(x_2, 3);
 x_5 = lean_ctor_get(x_2, 4);
-x_6 = l_Lean_Name_quickCmp(x_1, x_3);
+x_6 = l___private_Lean_Data_Name_0__Lean_Name_quickCmpImpl(x_1, x_3);
 switch (x_6) {
 case 0:
 {
@@ -17204,7 +17204,7 @@ lean_object* x_34; lean_object* x_35;
 lean_inc(x_32);
 lean_dec_ref(x_26);
 x_34 = ((lean_object*)(l___private_Init_While_0__Lean_Loop_forIn_loop___at___00__private_Lean_Meta_Tactic_Grind_Arith_Linear_Search_0__Lean_Meta_Grind_Arith_Linear_findCase_spec__2___redArg___closed__1));
-x_35 = l_Lean_isTracingEnabledFor___at___00Lean_Meta_Grind_Arith_Linear_DiseqCnstr_split_spec__1___redArg(x_34, x_21);
+x_35 = l_Lean_isTracingEnabledFor___at___00Lean_Meta_Grind_Arith_Linear_DiseqCnstr_split_spec__1___redArg(x_34, x_25);
 if (lean_obj_tag(x_35) == 0)
 {
 lean_object* x_36; uint8_t x_37; 
@@ -17232,7 +17232,7 @@ if (lean_is_scalar(x_17)) {
 }
 lean_ctor_set(x_41, 0, x_39);
 lean_ctor_set(x_41, 1, x_40);
-x_42 = l_Lean_addTrace___at___00Lean_Meta_Grind_Arith_Linear_DiseqCnstr_split_spec__3___redArg(x_34, x_41, x_20, x_23, x_21, x_25);
+x_42 = l_Lean_addTrace___at___00Lean_Meta_Grind_Arith_Linear_DiseqCnstr_split_spec__3___redArg(x_34, x_41, x_20, x_22, x_25, x_21);
 if (lean_obj_tag(x_42) == 0)
 {
 lean_dec_ref(x_42);
@@ -17319,7 +17319,7 @@ lean_object* x_60; lean_object* x_61;
 lean_inc(x_58);
 lean_dec_ref(x_26);
 x_60 = ((lean_object*)(l___private_Init_While_0__Lean_Loop_forIn_loop___at___00__private_Lean_Meta_Tactic_Grind_Arith_Linear_Search_0__Lean_Meta_Grind_Arith_Linear_findCase_spec__2___redArg___closed__1));
-x_61 = l_Lean_isTracingEnabledFor___at___00Lean_Meta_Grind_Arith_Linear_DiseqCnstr_split_spec__1___redArg(x_60, x_21);
+x_61 = l_Lean_isTracingEnabledFor___at___00Lean_Meta_Grind_Arith_Linear_DiseqCnstr_split_spec__1___redArg(x_60, x_25);
 if (lean_obj_tag(x_61) == 0)
 {
 lean_object* x_62; uint8_t x_63; 
@@ -17347,7 +17347,7 @@ if (lean_is_scalar(x_17)) {
 }
 lean_ctor_set(x_67, 0, x_65);
 lean_ctor_set(x_67, 1, x_66);
-x_68 = l_Lean_addTrace___at___00Lean_Meta_Grind_Arith_Linear_DiseqCnstr_split_spec__3___redArg(x_60, x_67, x_20, x_23, x_21, x_25);
+x_68 = l_Lean_addTrace___at___00Lean_Meta_Grind_Arith_Linear_DiseqCnstr_split_spec__3___redArg(x_60, x_67, x_20, x_22, x_25, x_21);
 if (lean_obj_tag(x_68) == 0)
 {
 lean_dec_ref(x_68);
@@ -17435,11 +17435,11 @@ lean_dec(x_91);
 lean_dec_ref(x_88);
 x_93 = l_outOfBounds___redArg(x_80);
 x_20 = x_82;
-x_21 = x_84;
-x_22 = lean_box(0);
-x_23 = x_83;
+x_21 = x_85;
+x_22 = x_83;
+x_23 = lean_box(0);
 x_24 = x_81;
-x_25 = x_85;
+x_25 = x_84;
 x_26 = x_93;
 goto block_79;
 }
@@ -17449,11 +17449,11 @@ lean_object* x_94;
 x_94 = l_Lean_PersistentArray_get_x21___redArg(x_80, x_88, x_91);
 lean_dec(x_91);
 x_20 = x_82;
-x_21 = x_84;
-x_22 = lean_box(0);
-x_23 = x_83;
+x_21 = x_85;
+x_22 = x_83;
+x_23 = lean_box(0);
 x_24 = x_81;
-x_25 = x_85;
+x_25 = x_84;
 x_26 = x_94;
 goto block_79;
 }
@@ -17937,7 +17937,7 @@ if (lean_is_exclusive(x_2)) {
  lean_dec_ref(x_2);
  x_7 = lean_box(0);
 }
-x_8 = l_Lean_Name_quickCmp(x_1, x_3);
+x_8 = l___private_Lean_Data_Name_0__Lean_Name_quickCmpImpl(x_1, x_3);
 switch (x_8) {
 case 0:
 {

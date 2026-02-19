@@ -141,7 +141,7 @@ static const lean_closure_object l_Lean_Compiler_LCNF_Decl_pullLetDecls___closed
 static const lean_object* l_Lean_Compiler_LCNF_Decl_pullLetDecls___closed__0 = (const lean_object*)&l_Lean_Compiler_LCNF_Decl_pullLetDecls___closed__0_value;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Decl_pullLetDecls(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Decl_pullLetDecls___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_Name_quickCmp(lean_object*, lean_object*);
+uint8_t l___private_Lean_Data_Name_0__Lean_Name_quickCmpImpl(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_DTreeMap_Internal_Impl_contains___at___00Lean_Compiler_LCNF_Decl_pullInstances_spec__0___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_contains___at___00Lean_Compiler_LCNF_Decl_pullInstances_spec__0___redArg___boxed(lean_object*, lean_object*);
 uint8_t l_Lean_Compiler_LCNF_instBEqArg_beq___redArg(lean_object*, lean_object*);
@@ -1273,7 +1273,7 @@ if (x_18 == 0)
 lean_object* x_19; lean_object* x_20; 
 lean_dec_ref(x_1);
 x_19 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_19, 0, x_16);
+lean_ctor_set(x_19, 0, x_15);
 lean_ctor_set(x_19, 1, x_17);
 x_20 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_20, 0, x_19);
@@ -1283,7 +1283,7 @@ else
 {
 lean_object* x_21; 
 lean_dec_ref(x_17);
-lean_dec_ref(x_16);
+lean_dec_ref(x_15);
 x_21 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_21, 0, x_1);
 return x_21;
@@ -1296,7 +1296,7 @@ if (x_26 == 0)
 lean_object* x_27; lean_object* x_28; 
 lean_dec_ref(x_1);
 x_27 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_27, 0, x_24);
+lean_ctor_set(x_27, 0, x_23);
 lean_ctor_set(x_27, 1, x_25);
 x_28 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_28, 0, x_27);
@@ -1306,7 +1306,7 @@ else
 {
 lean_object* x_29; 
 lean_dec_ref(x_25);
-lean_dec_ref(x_24);
+lean_dec_ref(x_23);
 x_29 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_29, 0, x_1);
 return x_29;
@@ -1350,8 +1350,8 @@ x_45 = lean_ptr_addr(x_41);
 x_46 = lean_usize_dec_eq(x_44, x_45);
 if (x_46 == 0)
 {
-x_15 = lean_box(0);
-x_16 = x_36;
+x_15 = x_36;
+x_16 = lean_box(0);
 x_17 = x_41;
 x_18 = x_46;
 goto block_22;
@@ -1362,8 +1362,8 @@ size_t x_47; size_t x_48; uint8_t x_49;
 x_47 = lean_ptr_addr(x_42);
 x_48 = lean_ptr_addr(x_36);
 x_49 = lean_usize_dec_eq(x_47, x_48);
-x_15 = lean_box(0);
-x_16 = x_36;
+x_15 = x_36;
+x_16 = lean_box(0);
 x_17 = x_41;
 x_18 = x_49;
 goto block_22;
@@ -1382,8 +1382,8 @@ x_54 = lean_ptr_addr(x_50);
 x_55 = lean_usize_dec_eq(x_53, x_54);
 if (x_55 == 0)
 {
-x_23 = lean_box(0);
-x_24 = x_36;
+x_23 = x_36;
+x_24 = lean_box(0);
 x_25 = x_50;
 x_26 = x_55;
 goto block_30;
@@ -1394,8 +1394,8 @@ size_t x_56; size_t x_57; uint8_t x_58;
 x_56 = lean_ptr_addr(x_51);
 x_57 = lean_ptr_addr(x_36);
 x_58 = lean_usize_dec_eq(x_56, x_57);
-x_23 = lean_box(0);
-x_24 = x_36;
+x_23 = x_36;
+x_24 = lean_box(0);
 x_25 = x_50;
 x_26 = x_58;
 goto block_30;
@@ -2876,7 +2876,7 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6;
 x_3 = lean_ctor_get(x_2, 1);
 x_4 = lean_ctor_get(x_2, 3);
 x_5 = lean_ctor_get(x_2, 4);
-x_6 = l_Lean_Name_quickCmp(x_1, x_3);
+x_6 = l___private_Lean_Data_Name_0__Lean_Name_quickCmpImpl(x_1, x_3);
 switch (x_6) {
 case 0:
 {

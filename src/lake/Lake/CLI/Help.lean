@@ -23,6 +23,7 @@ COMMANDS:
   build <targets>...    build targets
   query <targets>...    build targets and output results
   exe <exe> <args>...   build an exe and run it in Lake's environment
+  profile <exe>         profile an exe and demangle Lean names
   check-build           check if any default build targets are configured
   test                  test the package using the configured test driver
   check-test            check if there is a properly configured test driver
@@ -554,6 +555,29 @@ learn how to specify targets), builds it if it is out of date, and then runs
 it with the given `args` in Lake's environment (see `lake help env` for how
 the environment is set up)."
 
+def helpProfile :=
+"Profile an executable target and demangle Lean names
+
+USAGE:
+  lake profile [OPTIONS] <exe-target> [<args>...]
+
+Builds the executable target, records a CPU profile using samply, symbolicates
+the raw addresses, demangles Lean compiler names, and writes a Firefox Profiler
+JSON file.
+
+OPTIONS:
+  --rate N              sampling rate in Hz (default: 1000)
+  --output, -o FILE     output path (default: temp directory)
+  --raw                 skip symbolication and demangling
+
+REQUIREMENTS:
+  samply                cargo install samply
+  curl, gzip            standard on most systems
+
+Open the output file in Firefox Profiler at https://profiler.firefox.com/from-file/
+
+See script/PROFILER_README.md for details on reading demangled names."
+
 def helpLean :=
 "Elaborate a Lean file in the context of the Lake workspace
 
@@ -615,6 +639,7 @@ public def help : (cmd : String) → String
 | "serve"               => helpServe
 | "env"                 => helpEnv
 | "exe" | "exec"        => helpExe
+| "profile"             => helpProfile
 | "lean"                => helpLean
 | "translate-config"    => helpTranslateConfig
 | _                     => usage

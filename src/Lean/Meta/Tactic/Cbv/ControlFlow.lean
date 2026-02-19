@@ -25,7 +25,7 @@ public def simpIteCbv : Simproc := fun e => do
   let numArgs := e.getAppNumArgs
   if numArgs < 5 then return .rfl (done := true)
   propagateOverApplied e (numArgs - 5) fun e => do
-    let_expr f@ite α c _ a b := e | return .rfl
+    let_expr f@ite α c inst a b := e | return .rfl
     match (← simp c) with
     | .rfl _ =>
       if (← isTrueExpr c) then
@@ -33,16 +33,14 @@ public def simpIteCbv : Simproc := fun e => do
       else if (← isFalseExpr  c) then
         return .step b <| mkApp3 (mkConst ``ite_false f.constLevels!) α a b
       else
-        let .some inst' ← trySynthInstance (mkApp (mkConst ``Decidable) c) | return .rfl
-        let inst' ← shareCommon inst'
-        let toEval ← mkAppS₂ (mkConst ``Decidable.decide) c inst'
+        let toEval ← mkAppS₂ (mkConst ``Decidable.decide) c inst
         let evalRes ← simp toEval
         match evalRes with
         | .rfl _ =>
           return .rfl (done := true)
         | .step v hv _ =>
           if (← isBoolTrueExpr v) then
-            let h' := mkApp3 (mkConst ``eq_true_of_decide) c inst' hv
+            let h' := mkApp3 (mkConst ``eq_true_of_decide) c inst hv
             let inst' := mkConst ``instDecidableTrue
             let c' ← getTrueExpr
             let e' := e.getBoundedAppFn 4
@@ -52,7 +50,7 @@ public def simpIteCbv : Simproc := fun e => do
             let ha ← mkEqTrans e e' h' a ha
             return .step a ha (done := false)
           else if  (← isBoolFalseExpr v)  then
-            let h' := mkApp3 (mkConst ``eq_false_of_decide) c inst' hv
+            let h' := mkApp3 (mkConst ``eq_false_of_decide) c inst hv
             let inst' := mkConst ``instDecidableFalse
             let c' ← getFalseExpr
             let e' := e.getBoundedAppFn 4
@@ -69,8 +67,7 @@ public def simpIteCbv : Simproc := fun e => do
       else if (← isFalseExpr c') then
         return .step b <| mkApp (e.replaceFn ``ite_cond_eq_false) h
       else
-        let .some inst' ← trySynthInstance (mkApp (mkConst ``Decidable) c') | return .rfl
-        let inst' ← shareCommon inst'
+        let inst' := mkApp4 (mkConst ``decidable_of_decidable_of_eq) c c' inst h
         let e' := e.getBoundedAppFn 4
         let e' ← mkAppS₄ e' c' inst' a b
         let h' := mkApp3 (e.replaceFn ``Sym.ite_cond_congr) c' inst' h
@@ -80,7 +77,7 @@ public def simpDIteCbv : Simproc := fun e => do
   let numArgs := e.getAppNumArgs
   if numArgs < 5 then return .rfl (done := true)
   propagateOverApplied e (numArgs - 5) fun e => do
-    let_expr f@dite α c _ a b := e | return .rfl
+    let_expr f@dite α c inst a b := e | return .rfl
     match (← simp c) with
     | .rfl _ =>
       if (← isTrueExpr c) then
@@ -90,15 +87,13 @@ public def simpDIteCbv : Simproc := fun e => do
         let b' ← share <| b.betaRev #[mkConst ``not_false]
         return .step b' <| mkApp3 (mkConst ``dite_false f.constLevels!) α a b
       else
-        let .some inst' ← trySynthInstance (mkApp (mkConst ``Decidable) c) | return .rfl
-        let inst' ← shareCommon inst'
-        let toEval ← mkAppS₂ (mkConst ``Decidable.decide) c inst'
+        let toEval ← mkAppS₂ (mkConst ``Decidable.decide) c inst
         let evalRes ← simp toEval
         match evalRes with
         | .rfl _ => return .rfl (done := true)
         | .step v hv _ =>
           if  (← isBoolTrueExpr v) then
-            let h' := mkApp3 (mkConst ``eq_true_of_decide) c inst' hv
+            let h' := mkApp3 (mkConst ``eq_true_of_decide) c inst hv
             let inst' := mkConst ``instDecidableTrue
             let e' := e.getBoundedAppFn 4
             let h ← shareCommon h'
@@ -112,7 +107,7 @@ public def simpDIteCbv : Simproc := fun e => do
             let ha ← mkEqTrans e e' h' a' ha
             return .step a' ha
           else if  (← isBoolFalseExpr v)  then
-            let h' := mkApp3 (mkConst ``eq_false_of_decide) c inst' hv
+            let h' := mkApp3 (mkConst ``eq_false_of_decide) c inst hv
             let inst' := mkConst ``instDecidableFalse
             let e' := e.getBoundedAppFn 4
             let h ← shareCommon h'
@@ -137,8 +132,7 @@ public def simpDIteCbv : Simproc := fun e => do
         let b ← share <| b.betaRev #[h']
         return .step b <| mkApp (e.replaceFn ``dite_cond_eq_false) h
       else
-        let .some inst' ← trySynthInstance (mkApp (mkConst ``Decidable) c') | return .rfl
-        let inst' ← shareCommon inst'
+        let inst' := mkApp4 (mkConst ``decidable_of_decidable_of_eq) c c' inst h
         let e' := e.getBoundedAppFn 4
         let h ← shareCommon h
         let a ← share <| mkLambda `h .default c' (a.betaRev #[mkApp4 (mkConst ``Eq.mpr_prop) c c' h (mkBVar 0)])

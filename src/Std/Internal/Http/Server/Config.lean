@@ -43,7 +43,9 @@ structure Config where
   maxHeaders : Nat := 50
 
   /--
-  Maximum waiting time for more data.
+  Timeout (in milliseconds) for receiving additional data while a request is actively being
+  processed (e.g. reading the request body). Applies after the request headers have been parsed
+  and replaces the keep-alive timeout for the duration of the request.
   -/
   lingeringTimeout : Time.Millisecond.Offset := 10000
 

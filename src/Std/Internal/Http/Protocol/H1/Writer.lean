@@ -40,13 +40,13 @@ inductive Writer.State
   | pending
 
   /--
-  Ready to write the message
+  Ready to write the message.
   -/
   | waitingHeaders
 
   /--
   This is the state that we wait for a forced flush. This happens and causes the writer to
-  start actually writing to the outputData
+  start actually writing to the outputData.
   -/
   | waitingForFlush
 
@@ -66,7 +66,7 @@ inductive Writer.State
   | shuttingDown
 
   /--
-  State that it completed a single request and can go to the next one
+  State that it completed a single request and can go to the next one.
   -/
   | complete
 
@@ -97,17 +97,17 @@ structure Writer (dir : Direction) where
 
   /--
   When the user specifies the exact size upfront, we can use Content-Length
-  instead of chunked transfer encoding for streaming
+  instead of chunked transfer encoding for streaming.
   -/
   knownSize : Option Body.Length := none
 
   /--
-  The outgoing message that will be written to the output
+  The outgoing message that will be written to the output.
   -/
   messageHead : Message.Head dir.swap := {}
 
   /--
-  The user sent the message
+  The user sent the message.
   -/
   sentMessage : Bool := false
 
@@ -128,7 +128,7 @@ def isReadyToSend {dir} (writer : Writer dir) : Bool :=
   | _ => writer.userClosedBody
 
 /--
-Checks if the writer is closed (cannot process more data)
+Checks if the writer is closed (cannot process more data).
 -/
 @[inline]
 def isClosed (writer : Writer dir) : Bool :=
@@ -137,7 +137,7 @@ def isClosed (writer : Writer dir) : Bool :=
   | _ => false
 
 /--
-Checks if the writer has completed processing a request
+Checks if the writer has completed processing a request.
 -/
 @[inline]
 def isComplete (writer : Writer dir) : Bool :=
@@ -146,7 +146,7 @@ def isComplete (writer : Writer dir) : Bool :=
   | _ => false
 
 /--
-Checks if the writer can accept more data from the user
+Checks if the writer can accept more data from the user.
 -/
 @[inline]
 def canAcceptData (writer : Writer dir) : Bool :=
@@ -157,14 +157,14 @@ def canAcceptData (writer : Writer dir) : Bool :=
   | _ => false
 
 /--
-Marks the body as closed, indicating no more user data will be added
+Marks the body as closed, indicating no more user data will be added.
 -/
 @[inline]
 def closeBody (writer : Writer dir) : Writer dir :=
   { writer with userClosedBody := true }
 
 /--
-Determines the transfer encoding mode based on explicit setting, body closure state, or defaults to chunked
+Determines the transfer encoding mode based on explicit setting, body closure state, or defaults to chunked.
 -/
 def determineTransferMode (writer : Writer dir) : Body.Length :=
   if let some mode := writer.knownSize then
@@ -176,7 +176,7 @@ def determineTransferMode (writer : Writer dir) : Body.Length :=
     .chunked
 
 /--
-Adds user data chunks to the writer's buffer if the writer can accept data
+Adds user data chunks to the writer's buffer if the writer can accept data.
 -/
 @[inline]
 def addUserData (data : Array Chunk) (writer : Writer dir) : Writer dir :=
@@ -186,7 +186,7 @@ def addUserData (data : Array Chunk) (writer : Writer dir) : Writer dir :=
     writer
 
 /--
-Writes accumulated user data to output using fixed-size encoding
+Writes accumulated user data to output using fixed-size encoding.
 -/
 def writeFixedBody (writer : Writer dir) (limitSize : Nat) : Writer dir × Nat :=
   if writer.userData.size = 0 then
@@ -207,7 +207,7 @@ def writeFixedBody (writer : Writer dir) (limitSize : Nat) : Writer dir × Nat :
     ({ writer with userData := #[], outputData }, remaining)
 
 /--
-Writes accumulated user data to output using chunked transfer encoding
+Writes accumulated user data to output using chunked transfer encoding.
 -/
 def writeChunkedBody (writer : Writer dir) : Writer dir :=
   if writer.userData.size = 0 then
@@ -217,7 +217,7 @@ def writeChunkedBody (writer : Writer dir) : Writer dir :=
     { writer with userData := #[], outputData := data.foldl (Encode.encode .v11) writer.outputData }
 
 /--
-Writes the final chunk terminator (0\r\n\r\n) and transitions to complete state
+Writes the final chunk terminator (0\r\n\r\n) and transitions to complete state.
 -/
 def writeFinalChunk (writer : Writer dir) : Writer dir :=
   let writer := writer.writeChunkedBody
@@ -227,7 +227,7 @@ def writeFinalChunk (writer : Writer dir) : Writer dir :=
   }
 
 /--
-Extracts all accumulated output data and returns it with a cleared output buffer
+Extracts all accumulated output data and returns it with a cleared output buffer.
 -/
 @[inline]
 def takeOutput (writer : Writer dir) : Option (Writer dir × ByteArray) :=
@@ -235,20 +235,20 @@ def takeOutput (writer : Writer dir) : Option (Writer dir × ByteArray) :=
   some ({ writer with outputData := ChunkedBuffer.empty }, output)
 
 /--
-Updates the writer's state machine to a new state
+Updates the writer's state machine to a new state.
 -/
 @[inline]
 def setState (state : Writer.State) (writer : Writer dir) : Writer dir :=
   { writer with state }
 
 /--
-Writes the message headers to the output buffer
+Writes the message headers to the output buffer.
 -/
 private def writeHeaders (messageHead : Message.Head dir.swap) (writer : Writer dir) : Writer dir :=
   { writer with outputData := Internal.Encode.encode (v := .v11) writer.outputData messageHead }
 
 /--
-Checks if the connection should be kept alive based on the Connection header
+Checks if the connection should be kept alive based on the Connection header.
 -/
 def shouldKeepAlive (writer : Writer dir) : Bool :=
   writer.messageHead.headers.get? .connection

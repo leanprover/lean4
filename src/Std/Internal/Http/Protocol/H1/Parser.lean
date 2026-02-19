@@ -68,7 +68,7 @@ partial def manyItems {α : Type} (parser : Parser (Option α)) (maxCount : Nat)
     | some x =>
       let acc := acc.push x
 
-      if acc.size > maxCount then
+      if acc.size + 1 > maxCount then
         fail s!"Too many items: {acc.size} > {maxCount}"
 
       go acc
@@ -183,8 +183,8 @@ def parseMethod : Parser Method :=
 /--
 Parses the method token as text.
 -/
-def parseMethodToken (limits : H1.Config) : Parser String := do
-  let raw ← token limits.maxHeaderNameLength
+def parseMethodToken : Parser String := do
+  let raw ← token 16
 
   let methodToken ← liftOption<| String.fromUTF8? raw.toByteArray
   if methodToken.toList.any (fun c => c.toNat ≥ 'a'.toNat ∧ c.toNat ≤ 'z'.toNat) then
@@ -221,7 +221,7 @@ Parses a request line and returns the recognized HTTP method and version when av
 request-line = method SP request-target SP HTTP-version
 -/
 public def parseRequestLineRawVersion (limits : H1.Config) : Parser (Option Method × RequestTarget × Option Version) := do
-  let methodToken ← parseMethodToken limits <* sp
+  let methodToken ← parseMethodToken <* sp
   let uri ← parseURI limits <* sp
 
   let uri ← match (Std.Http.URI.Parser.parseRequestTarget <* eof).run uri with
@@ -236,8 +236,9 @@ def parseFieldLine (limits : H1.Config) : Parser (String × String) := do
   let name ← token limits.maxHeaderNameLength
   let value ← skipByte ':'.toUInt8 *> ows limits *> optional (takeWhileUpTo isFieldVChar limits.maxHeaderValueLength) <* ows limits
 
-  let name ← liftOption<| String.fromUTF8? name.toByteArray
-  let value ← liftOption<| String.fromUTF8? <| value.map (·.toByteArray) |>.getD .empty
+  let name ← liftOption <| String.fromUTF8? name.toByteArray
+  let value ← liftOption <| String.fromUTF8? <| value.map (·.toByteArray) |>.getD .empty
+  let value := value.trimAsciiEnd.toString
 
   return (name, value)
 

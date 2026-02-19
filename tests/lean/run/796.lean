@@ -33,7 +33,7 @@ class Eq_Of_Succ_Eq_Succ [Succ N] where
   eq_of_succ_eq_succ {n m : N} (h : succ n = succ m) : n = m
 export Eq_Of_Succ_Eq_Succ (eq_of_succ_eq_succ)
 class Nat_Induction [Zero N] [Succ N] where
-  nat_induction {P : N → Sort _}
+  nat_induction {P : N → Sort u}
     (P0 : P zero)
     (ih : (k : N) → P k → P (succ k))
     (n : N) : P n

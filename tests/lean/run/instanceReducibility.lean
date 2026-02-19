@@ -5,7 +5,7 @@ module
 instance i1 : Inhabited Nat := inferInstance
 
 /--
-info: @[instance_reducible] private def i1 : Inhabited Nat :=
+info: @[implicit_reducible] private def i1 : Inhabited Nat :=
 inferInstance
 -/
 #guard_msgs in
@@ -21,7 +21,7 @@ inferInstance
 #print i2
 
 /--
-warning: instance `_private.lean.run.instanceReducibility.0.i3` must be marked with `@[reducible]` or `@[instance_reducible]`
+warning: instance `_private.lean.run.instanceReducibility.0.i3` must be marked with `@[reducible]` or `@[implicit_reducible]`
 -/
 #guard_msgs in
 @[irreducible] instance i3 : Inhabited Nat := inferInstance

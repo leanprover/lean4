@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.List
-// Imports: public import Init.Data.List.Attach public import Init.Data.List.Basic public import Init.Data.List.BasicAux public import Init.Data.List.Control public import Init.Data.List.Count public import Init.Data.List.Erase public import Init.Data.List.Find public import Init.Data.List.Impl public import Init.Data.List.Lemmas public import Init.Data.List.MinMax public import Init.Data.List.MinMaxIdx public import Init.Data.List.MinMaxOn public import Init.Data.List.Monadic public import Init.Data.List.Nat public import Init.Data.List.Int public import Init.Data.List.Notation public import Init.Data.List.Pairwise public import Init.Data.List.Sublist public import Init.Data.List.TakeDrop public import Init.Data.List.Zip public import Init.Data.List.Perm public import Init.Data.List.Sort public import Init.Data.List.ToArray public import Init.Data.List.ToArrayImpl public import Init.Data.List.MapIdx public import Init.Data.List.OfFn public import Init.Data.List.FinRange public import Init.Data.List.Lex public import Init.Data.List.Range
+// Imports: public import Init.Data.List.Attach public import Init.Data.List.Basic public import Init.Data.List.BasicAux public import Init.Data.List.Control public import Init.Data.List.Count public import Init.Data.List.Erase public import Init.Data.List.Find public import Init.Data.List.Impl public import Init.Data.List.Lemmas public import Init.Data.List.MinMax public import Init.Data.List.MinMaxIdx public import Init.Data.List.MinMaxOn public import Init.Data.List.Monadic public import Init.Data.List.Nat public import Init.Data.List.Int public import Init.Data.List.Notation public import Init.Data.List.Pairwise public import Init.Data.List.Sublist public import Init.Data.List.TakeDrop public import Init.Data.List.Zip public import Init.Data.List.Perm public import Init.Data.List.Sort public import Init.Data.List.ToArray public import Init.Data.List.ToArrayImpl public import Init.Data.List.MapIdx public import Init.Data.List.OfFn public import Init.Data.List.FinRange public import Init.Data.List.Lex public import Init.Data.List.Range public import Init.Data.List.Scan
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -42,6 +42,7 @@ lean_object* initialize_Init_Data_List_OfFn(uint8_t builtin);
 lean_object* initialize_Init_Data_List_FinRange(uint8_t builtin);
 lean_object* initialize_Init_Data_List_Lex(uint8_t builtin);
 lean_object* initialize_Init_Data_List_Range(uint8_t builtin);
+lean_object* initialize_Init_Data_List_Scan(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_List(uint8_t builtin) {
 lean_object * res;
@@ -132,6 +133,9 @@ res = initialize_Init_Data_List_Lex(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_List_Range(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_Scan(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

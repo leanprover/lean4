@@ -155,7 +155,7 @@ static const lean_string_object l___private_Lean_Elab_Print_0__Lean_Elab_Command
 static const lean_object* l___private_Lean_Elab_Print_0__Lean_Elab_Command_mkHeader___closed__35 = (const lean_object*)&l___private_Lean_Elab_Print_0__Lean_Elab_Command_mkHeader___closed__35_value;
 static lean_object* l___private_Lean_Elab_Print_0__Lean_Elab_Command_mkHeader___closed__36;
 static lean_object* l___private_Lean_Elab_Print_0__Lean_Elab_Command_mkHeader___closed__37;
-static const lean_string_object l___private_Lean_Elab_Print_0__Lean_Elab_Command_mkHeader___closed__38_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 19, .m_capacity = 19, .m_length = 18, .m_data = "instance_reducible"};
+static const lean_string_object l___private_Lean_Elab_Print_0__Lean_Elab_Command_mkHeader___closed__38_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 19, .m_capacity = 19, .m_length = 18, .m_data = "implicit_reducible"};
 static const lean_object* l___private_Lean_Elab_Print_0__Lean_Elab_Command_mkHeader___closed__38 = (const lean_object*)&l___private_Lean_Elab_Print_0__Lean_Elab_Command_mkHeader___closed__38_value;
 static lean_object* l___private_Lean_Elab_Print_0__Lean_Elab_Command_mkHeader___closed__39;
 static lean_object* l___private_Lean_Elab_Print_0__Lean_Elab_Command_mkHeader___closed__40;

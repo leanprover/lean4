@@ -958,9 +958,25 @@ builtin_initialize
   register_parser_alias "optionValue" Command.optionValue
 
 /--
-Registers an error explanation.
+Registers an named error that can be referenced in `throwNamedError` commands. This will attach
+a link to an error explanation in reference documentation.
 
-Note that the error name is not relativized to the current namespace.
+The error name should have the form `domain.errorName`, and is not relativized to the current
+namespace.
+ and should have the form
+, where the `domain` is `lean` for .
+
+Example usage:
+
+```
+register_error_explanation lean.exampleError {
+  summary := "This sentence summarizes the error."
+  sinceVersion := "4.28.0"
+}
+```
+
+See https://github.com/leanprover/reference-manual/blob/main/Manual/ErrorExplanations/README.md for
+details of adding error explanations to the Lean reference manual.
 -/
 @[builtin_command_parser] def registerErrorExplanationStx := leading_parser
   optional docComment >> "register_error_explanation " >> ident >> termParser

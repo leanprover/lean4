@@ -95,7 +95,7 @@ def elabCheckedNamedError : TermElab := fun stx expType? => do
 
 open Command in
 @[builtin_command_elab registerErrorExplanationStx] def elabRegisterErrorExplanation : CommandElab
-| `(registerErrorExplanationStx| $_docStx register_error_explanation%$cmd $id:ident $t:term) => withRef cmd do
+| `(registerErrorExplanationStx| $[$_docStx]? register_error_explanation%$cmd $id:ident $t:term) => withRef cmd do
   unless (← getEnv).contains ``ErrorExplanation.Metadata do
     throwError "To use this command, add `import Lean.ErrorExplanation` to the header of this file"
   recordExtraModUseFromDecl ``ErrorExplanation.Metadata (isMeta := true)

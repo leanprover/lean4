@@ -168,7 +168,7 @@ public def Package.loadFromEnv
 
   -- Deprecation warnings
   unless self.config.manifestFile.isNone do
-    logWarning s!"{self.prettyName}: package configuration option 'manifestFile' is deprecated"
+    logWarning s!"{self.prettyName}: package configuration option `manifestFile` is deprecated"
 
   -- Fill in the Package
   return {self with

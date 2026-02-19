@@ -3,21 +3,22 @@
 Benchmark script for comparing List.mergeSort and Array.mergeSort performance.
 
 Runs benchmarks across different input sizes (100k to 1M elements),
-fits performance curves, and generates comparison plots.
+collects per-pattern results, and generates comparison plots.
 """
 
 import subprocess
 import re
 import numpy as np
-from scipy.optimize import curve_fit
 import matplotlib.pyplot as plt
+
+PATTERNS = ["Reversed", "Sorted", "Random", "Partially sorted"]
 
 def benchmark(i):
     """
-    Run the benchmark for size i * 10^5 and extract List and Array times.
+    Run the benchmark for size i * 10^5 and extract per-pattern times.
 
     Returns:
-        tuple: (list_time_ms, array_time_ms) in milliseconds
+        dict: { pattern: (list_ms, array_ms) }
     """
     result = subprocess.run(
         ['./.lake/build/bin/mergeSort', str(i)],
@@ -26,93 +27,118 @@ def benchmark(i):
         check=True
     )
 
-    # Parse output like:
-    # List.mergeSort:  34 ms total, 8 ms average
-    # Array.mergeSort: 60 ms total, 15 ms average
-    list_match = re.search(r'List\.mergeSort:\s+(\d+)\s+ms total', result.stdout)
-    array_match = re.search(r'Array\.mergeSort:\s+(\d+)\s+ms total', result.stdout)
+    results = {}
+    for pattern in PATTERNS:
+        m = re.search(
+            rf'{re.escape(pattern)}\s*:\s*List\s+(\d+)ms,\s*Array\s+(\d+)ms',
+            result.stdout
+        )
+        if not m:
+            raise ValueError(f"Failed to parse '{pattern}' from:\n{result.stdout}")
+        results[pattern] = (int(m.group(1)), int(m.group(2)))
 
-    if not list_match or not array_match:
-        raise ValueError(f"Failed to parse benchmark output:\n{result.stdout}")
+    return results
 
-    list_time = int(list_match.group(1))
-    array_time = int(array_match.group(1))
+# Benchmark for i = 1, 2, ..., 10 (100k to 1M elements) with 3 runs each
+sizes = list(range(1, 11))
+num_runs = 3
 
-    return list_time, array_time
-
-# Benchmark for i = 1, 2, ..., 10 (100k to 1M elements) with 5 runs each
-i_values = []
-list_times = []
-array_times = []
+# { pattern: { "list": [avg_per_size], "array": [avg_per_size] } }
+data = {p: {"list": [], "array": []} for p in PATTERNS}
 
 print("Running benchmarks...")
-for i in range(1, 11):
-    print(f"  Size: {i * 100_000} elements (5 runs)...", end=' ', flush=True)
+for i in sizes:
+    n = i * 100_000
+    print(f"  Size: {n:>10} elements ({num_runs} runs)...", end=' ', flush=True)
 
-    list_runs = []
-    array_runs = []
+    runs = {p: {"list": [], "array": []} for p in PATTERNS}
 
-    for _ in range(5):
-        list_time, array_time = benchmark(i)
-        list_runs.append(list_time)
-        array_runs.append(array_time)
+    for _ in range(num_runs):
+        results = benchmark(i)
+        for p in PATTERNS:
+            lt, at = results[p]
+            runs[p]["list"].append(lt)
+            runs[p]["array"].append(at)
 
-    # Take average of middle 3 times to reduce noise
-    list_middle_avg = np.mean(sorted(list_runs)[1:4])
-    array_middle_avg = np.mean(sorted(array_runs)[1:4])
+    parts = []
+    for p in PATTERNS:
+        list_avg = np.median(runs[p]["list"])
+        array_avg = np.median(runs[p]["array"])
+        data[p]["list"].append(list_avg)
+        data[p]["array"].append(array_avg)
+        parts.append(f"{p}: L={list_avg:.0f} A={array_avg:.0f}")
+    print(" | ".join(parts))
 
-    i_values.append(i / 10)  # Convert to units of 1M elements
-    list_times.append(list_middle_avg / 1000)  # Convert to seconds
-    array_times.append(array_middle_avg / 1000)  # Convert to seconds
+sizes_k = [i * 100 for i in sizes]  # in thousands
 
-    print(f"List: {list_middle_avg:.0f}ms, Array: {array_middle_avg:.0f}ms")
+# --- Plotting ---
+fig, axes = plt.subplots(2, 2, figsize=(14, 10))
+fig.suptitle('MergeSort: List vs Array by Data Pattern', fontsize=14, fontweight='bold')
 
-# Fit the data to A*i + B*i*log(i) (expected complexity for merge sort)
-def model(i, A, B):
-    return A * i + B * i * np.log(i)
+colors = {"list": "#2196F3", "array": "#F44336"}
 
-# Fit both curves
-list_popt, _ = curve_fit(model, i_values, list_times)
-array_popt, _ = curve_fit(model, i_values, array_times)
+for ax, pattern in zip(axes.flat, PATTERNS):
+    list_ms = np.array(data[pattern]["list"])
+    array_ms = np.array(data[pattern]["array"])
 
-A_list, B_list = list_popt
-A_array, B_array = array_popt
+    ax.plot(sizes_k, list_ms, 'o-', color=colors["list"], label='List.mergeSort', markersize=5)
+    ax.plot(sizes_k, array_ms, 's-', color=colors["array"], label='Array.mergeSort', markersize=5)
 
-print("\nBest fit parameters for A*i + B*i*log(i):")
-print(f"  List.mergeSort:  A = {A_list:.6f}, B = {B_list:.6f}")
-print(f"  Array.mergeSort: A = {A_array:.6f}, B = {B_array:.6f}")
+    ax.set_title(pattern, fontsize=12, fontweight='bold')
+    ax.set_xlabel('Size (thousands)')
+    ax.set_ylabel('Time (ms)')
+    ax.legend(fontsize=9)
+    ax.grid(True, alpha=0.3)
 
-# Calculate speedup
-speedups = [l / a for l, a in zip(list_times, array_times)]
-avg_speedup = np.mean(speedups)
-print(f"\nAverage speedup (Array vs List): {avg_speedup:.2f}x")
-
-# Plot the results
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
-
-# Plot 1: Absolute performance
-ax1.plot(i_values, list_times, 'o', label='List.mergeSort (data)', color='blue')
-ax1.plot(i_values, array_times, 's', label='Array.mergeSort (data)', color='red')
-ax1.plot(i_values, model(np.array(i_values), *list_popt), '-',
-         label=f'List fit: A={A_list:.3f}, B={B_list:.3f}', color='blue', alpha=0.5)
-ax1.plot(i_values, model(np.array(i_values), *array_popt), '-',
-         label=f'Array fit: A={A_array:.3f}, B={B_array:.3f}', color='red', alpha=0.5)
-ax1.set_xlabel('Input size (millions of elements)')
-ax1.set_ylabel('Time (seconds)')
-ax1.set_title('MergeSort Performance Comparison')
-ax1.legend()
-ax1.grid(True, alpha=0.3)
-
-# Plot 2: Speedup
-ax2.plot([iv * 1_000_000 for iv in i_values], speedups, 'o-', color='green')
-ax2.axhline(y=1.0, color='gray', linestyle='--', alpha=0.5, label='Equal performance')
-ax2.set_xlabel('Input size (elements)')
-ax2.set_ylabel('Speedup (List time / Array time)')
-ax2.set_title(f'Array.mergeSort Speedup (avg: {avg_speedup:.2f}x)')
-ax2.legend()
-ax2.grid(True, alpha=0.3)
+    # Annotate winner at largest size
+    if list_ms[-1] < array_ms[-1]:
+        ratio = array_ms[-1] / list_ms[-1]
+        ax.annotate(f'List {ratio:.1f}x faster', xy=(0.98, 0.95),
+                    xycoords='axes fraction', ha='right', va='top',
+                    fontsize=9, color=colors["list"], fontweight='bold')
+    else:
+        ratio = list_ms[-1] / array_ms[-1]
+        ax.annotate(f'Array {ratio:.1f}x faster', xy=(0.98, 0.95),
+                    xycoords='axes fraction', ha='right', va='top',
+                    fontsize=9, color=colors["array"], fontweight='bold')
 
 plt.tight_layout()
 plt.savefig('mergeSort_comparison.png', dpi=150)
 print(f"\nPlot saved to mergeSort_comparison.png")
+
+# --- Speedup summary plot ---
+fig2, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
+
+# Left: ratio per pattern across sizes
+for pattern in PATTERNS:
+    list_ms = np.array(data[pattern]["list"])
+    array_ms = np.array(data[pattern]["array"])
+    ratio = array_ms / np.maximum(list_ms, 1)
+    ax1.plot(sizes_k, ratio, 'o-', label=pattern, markersize=5)
+
+ax1.axhline(y=1.0, color='gray', linestyle='--', alpha=0.5)
+ax1.set_xlabel('Size (thousands)')
+ax1.set_ylabel('Array time / List time')
+ax1.set_title('Ratio by Pattern (< 1 = Array faster)')
+ax1.legend(fontsize=9)
+ax1.grid(True, alpha=0.3)
+
+# Right: aggregate
+list_total = np.zeros(len(sizes))
+array_total = np.zeros(len(sizes))
+for p in PATTERNS:
+    list_total += np.array(data[p]["list"])
+    array_total += np.array(data[p]["array"])
+
+ax2.plot(sizes_k, list_total, 'o-', color=colors["list"], label='List (aggregate)', markersize=5)
+ax2.plot(sizes_k, array_total, 's-', color=colors["array"], label='Array (aggregate)', markersize=5)
+ax2.set_xlabel('Size (thousands)')
+ax2.set_ylabel('Total time (ms, 4 patterns)')
+ax2.set_title('Aggregate Performance')
+ax2.legend(fontsize=9)
+ax2.grid(True, alpha=0.3)
+
+plt.tight_layout()
+plt.savefig('mergeSort_ratio.png', dpi=150)
+print(f"Plot saved to mergeSort_ratio.png")
 plt.show()

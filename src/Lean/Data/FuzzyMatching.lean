@@ -25,8 +25,7 @@ namespace FuzzyMatching
 
 section Utils
 
-@[specialize] private def iterateLookaround (f : Option Char → Char → Option Char → α) (string : String) : Array α :=
-  let len := string.chars.length
+@[specialize] private def iterateLookaround (f : Option Char → Char → Option Char → α) (string : String) (len : Nat) : Array α :=
   if string.isEmpty then
     #[]
   else if len == 1 then
@@ -91,8 +90,8 @@ inductive CharRole where
     CharRole.head
 
 /-- Add additional information to each character in a string. -/
-private def stringInfo (s : String) : Array CharRole :=
-  iterateLookaround (string := s) fun prev? curr next? =>
+private def stringInfo (s : String) (len : Nat) : Array CharRole :=
+  iterateLookaround (string := s) (len := len) fun prev? curr next? =>
     charRole (prev?.map charType) (charType curr) (next?.map charType)
 
 /-- Represents a fuzzy matching score where `Score.awful` is the worst score possible. -/
@@ -160,7 +159,7 @@ private def fuzzyMatchCore (pattern word : String) (patternLength wordLength : N
 
   -- TODO: the following code is assuming all characters are ASCII
   for patternIdx in [:patternLength] do
-    /- For this dynamic program to be correct, it's only necessary to populate a range ofLength
+    /- For this dynamic program to be correct, it's only necessary to populate a range of length
    `wordLength - patternLength` at each index (because at the very end, we can only consider fuzzy matches
     of `pattern` with a longer substring of `word`). -/
     for wordIdx in [patternIdx:(wordLength-(patternLength - patternIdx - 1))] do
@@ -276,7 +275,7 @@ def fuzzyMatchScore? (pattern word : String) : Option Float := Id.run do
   if !(pattern.charactersIn word) then
     return none
 
-  let some score := fuzzyMatchCore pattern word patternLength wordLength (stringInfo pattern) (stringInfo word)
+  let some score := fuzzyMatchCore pattern word patternLength wordLength (stringInfo pattern patternLength) (stringInfo word wordLength)
     | none
   let mut score := score
 

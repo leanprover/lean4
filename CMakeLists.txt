@@ -65,7 +65,7 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
       GIT_TAG rel-2.1.2
       CONFIGURE_COMMAND ""
       BUILD_COMMAND
-        ${CMAKE_MAKE_PROGRAM} -f ${CMAKE_SOURCE_DIR}/src/cadical.mk CMAKE_EXECUTABLE_SUFFIX=${CMAKE_EXECUTABLE_SUFFIX}
+        make -f ${CMAKE_SOURCE_DIR}/src/cadical.mk CMAKE_EXECUTABLE_SUFFIX=${CMAKE_EXECUTABLE_SUFFIX}
         CXX=${CADICAL_CXX} CXXFLAGS=${CADICAL_CXXFLAGS} LDFLAGS=${CADICAL_LDFLAGS}
       BUILD_IN_SOURCE ON
       INSTALL_COMMAND ""
@@ -157,13 +157,13 @@ ExternalProject_Add(
 
 # targets forwarded to appropriate stages
 
-add_custom_target(update-stage0 COMMAND ${CMAKE_MAKE_PROGRAM} -C stage1 update-stage0 DEPENDS stage1)
+add_custom_target(update-stage0 COMMAND make -C stage1 update-stage0 DEPENDS stage1)
 
-add_custom_target(update-stage0-commit COMMAND ${CMAKE_MAKE_PROGRAM} -C stage1 update-stage0-commit DEPENDS stage1)
+add_custom_target(update-stage0-commit COMMAND make -C stage1 update-stage0-commit DEPENDS stage1)
 
-add_custom_target(test COMMAND ${CMAKE_MAKE_PROGRAM} -C stage1 test DEPENDS stage1)
+add_custom_target(test COMMAND make -C stage1 test DEPENDS stage1)
 
-add_custom_target(clean-stdlib COMMAND ${CMAKE_MAKE_PROGRAM} -C stage1 clean-stdlib DEPENDS stage1)
+add_custom_target(clean-stdlib COMMAND make -C stage1 clean-stdlib DEPENDS stage1)
 
 install(CODE "execute_process(COMMAND make -C stage1 install)")
 

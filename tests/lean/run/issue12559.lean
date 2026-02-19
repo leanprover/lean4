@@ -1,3 +1,5 @@
+-- The `linter.all` option also controls the `linter.unusedSimpArgs` linter.
+
 /--
 warning: This simp argument is unused:
   False
@@ -11,6 +13,18 @@ Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
 set_option linter.all true in
 example : True := by simp [False]
 
--- The `linter.all` option also controls the `linter.unusedSimpArgs` linter.
+/--
+warning: This simp argument is unused:
+  False
+
+Hint: Omit it from the simp argument list.
+  simp ̵[̵F̵a̵l̵s̵e̵]̵
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+-/
+#guard_msgs in
+set_option linter.unusedSimpArgs true in
+example : True := by simp [False]
+
 set_option linter.all false in
 example : True := by simp [False]

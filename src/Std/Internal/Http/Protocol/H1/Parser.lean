@@ -93,9 +93,7 @@ def token (limit : Nat) : Parser ByteSlice :=
   takeWhileUpTo1 (fun c => isTokenCharacter (Char.ofUInt8 c)) limit
 
 /--
-Parses a line terminator. Accepts both CRLF and bare LF for robustness, as recommended by
-RFC 9112 §2.2 ("a server that receives bare CR ... ought to either reject the request or
-replace each bare CR with SP before processing").
+Parses a line terminator.
 -/
 @[inline]
 def crlf : Parser Unit := do
@@ -389,7 +387,7 @@ def parseStatusCode : Parser Status := do
 Parses reason phrase (text after status code)
 -/
 def parseReasonPhrase (limits : H1.Config) : Parser String := do
-  let bytes ← takeWhileUpTo (fun c => c != '\r'.toUInt8) limits.maxReasonPhraseLength
+  let bytes ← takeWhileUpTo (fun c => c != '\r'.toUInt8 ∧ c != '\n'.toUInt8) limits.maxReasonPhraseLength
   liftOption<| String.fromUTF8? bytes.toByteArray
 
 /--

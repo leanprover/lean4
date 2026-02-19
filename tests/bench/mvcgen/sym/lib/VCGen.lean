@@ -546,14 +546,14 @@ meta def mkSpecContext (lemmas : Syntax) (ignoreStarArg := false) : TacticM VCGe
         let info ← getConstInfo declName
         try
           let thm ← mkSpecTheoremFromConst declName
-          specThms := specThms.add thm
+          specThms := specThms.insert thm
         catch _ =>
           simpStuff := simpStuff.push ⟨arg⟩
       | some (.fvar fvar) =>
         let decl ← getFVarLocalDecl (.fvar fvar)
         try
           let thm ← mkSpecTheoremFromLocal fvar
-          specThms := specThms.add thm
+          specThms := specThms.insert thm
         catch _ =>
           simpStuff := simpStuff.push ⟨arg⟩
       | _ => withRef term <| throwError "Could not resolve {repr term}"
@@ -576,7 +576,7 @@ meta def mkSpecContext (lemmas : Syntax) (ignoreStarArg := false) : TacticM VCGe
       unless specThms.isErased (.local fvar) do
         try
           let thm ← mkSpecTheoremFromLocal fvar
-          specThms := specThms.add thm
+          specThms := specThms.insert thm
         catch _ => continue
   let entailsConsIntroRule ← mkBackwardRuleFromDecl ``SPred.entails_cons_intro
   return { specThms, entailsConsIntroRule }

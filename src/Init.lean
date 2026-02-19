@@ -30,6 +30,7 @@ public import Init.Hints
 public import Init.Conv
 public import Init.Guard
 public import Init.Simproc
+public import Init.CbvSimproc
 public import Init.SizeOfLemmas
 public import Init.BinderPredicates
 public import Init.Ext

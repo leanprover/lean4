@@ -1,4 +1,5 @@
 import Std
+set_option cbv.warning false
 
 example : 1 ∈ [1,2,3] := by decide_cbv
 

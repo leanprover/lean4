@@ -472,7 +472,7 @@ theorem msb_neg {w : Nat} {x : BitVec w} :
     case neg =>
       have w_pos : 0 < w := by
         cases w
-        · rw [@ofLength_zero x] at hzero
+        · rw [@of_length_zero x] at hzero
           contradiction
         · omega
       suffices ∃ j, j < w ∧ 0 < j ∧ x.getMsbD j = true
@@ -749,7 +749,7 @@ This can be unfolded in terms of `shiftLeftRec_zero`, `shiftLeftRec_succ` for bi
 theorem shiftLeft_eq_shiftLeftRec (x : BitVec w₁) (y : BitVec w₂) :
     x <<< y = shiftLeftRec x y (w₂ - 1) := by
   rcases w₂ with rfl | w₂
-  · simp [ofLength_zero]
+  · simp [of_length_zero]
   · simp [shiftLeftRec_eq]
 
 /-! # udiv/urem recurrence for bit blasting

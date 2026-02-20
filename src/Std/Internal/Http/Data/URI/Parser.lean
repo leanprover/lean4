@@ -64,7 +64,12 @@ private def parseScheme (config : URI.Config) : Parser URI.Scheme := do
       c = '+'.toUInt8 ∨ c = '-'.toUInt8 ∨ c = '.'.toUInt8)
     (config.maxSchemeLength - 1)
   let schemeBytes := first.toByteArray ++ rest.toByteArray
-  return ⟨String.fromUTF8! schemeBytes |>.toLower, .isLowerCase_toLower⟩
+  let str := String.fromUTF8! schemeBytes |>.toLower
+
+  if h: str.toList.all isValidSchemeChar ∧ ¬str.isEmpty then
+    return ⟨str, ⟨.isLowerCase_toLower, h⟩⟩
+  else
+    fail "invalid scheme"
 
 -- port = *DIGIT
 private def parsePortNumber : Parser UInt16 := do
@@ -156,7 +161,7 @@ private def parseHost (config : URI.Config) : Parser URI.Host := do
       | fail s!"invalid host"
 
     let lower := str.toLower
-    if h : URI.IsValidDomainName lower then
+    if h : URI.IsValidDomainName lower ∧ ¬lower.isEmpty then
       return .name ⟨lower, .isLowerCase_toLower, h⟩
     else
       fail s!"invalid domain name: {str}"

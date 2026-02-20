@@ -2329,7 +2329,7 @@ theorem fastUmulOverflow (x y : BitVec w) :
     umulOverflow x y = if hw : w ≤ 1 then false
       else (setWidth (w + 1) x * setWidth (w + 1) y)[w] || x.resRec y (w - 1) (by omega) (by omega) := by
   rcases w with _|_|w
-  · simp [ofLength_zero, umulOverflow]
+  · simp [of_length_zero, umulOverflow]
   · have hx : x.toNat ≤ 1 := by omega
     have hy : y.toNat ≤ 1 := by omega
     have := Nat.mul_le_mul (n₁ := x.toNat) (m₁ := y.toNat) (n₂ := 1) (m₂ := 1) hx hy
@@ -2781,6 +2781,6 @@ theorem cpop_eq_cpopRec {x : BitVec w} : BitVec.cpop x = BitVec.cpopRec x := by
       <;> simp [hx, cpop, ← getLsbD_eq_getElem, getLsbD_ofNat, show k = 0 by omega, show w = 1 by omega]
     · have hw : w = 0 := by omega
       subst hw
-      simp [ofLength_zero]
+      simp [of_length_zero]
 
 end BitVec

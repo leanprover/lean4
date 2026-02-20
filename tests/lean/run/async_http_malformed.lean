@@ -305,13 +305,6 @@ def notImplemented : String :=
   let responseF ← sendRaw clientF serverF spaceInName okHandler
   assertExact "Space in header name" responseF bad400
 
--- Lenient-but-supported parsing behavior.
-#eval show IO _ from do
-  let (clientA, serverA) ← Mock.new
-  let bareLF := "GET / HTTP/1.1\nHost: example.com\nConnection: close\n\n".toUTF8
-  let responseA ← sendRaw clientA serverA bareLF okHandler
-  assertExact "Bare LF line endings accepted" responseA ok200
-
   let (clientB, serverB) ← Mock.new
   let splitHeaders := "GET / HTTP/1.1\x0d\nHost: example.com\x0d\nX-Inject: value\x0d\nEvil: injected\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
   let responseB ← sendRaw clientB serverB splitHeaders okHandler

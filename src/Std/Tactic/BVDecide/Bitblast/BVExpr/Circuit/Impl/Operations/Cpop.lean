@@ -18,7 +18,7 @@ import Init.Omega
 @[expose] public section
 
 /-!
-This module contains the implementation of a bitblaster for `BitVec.hAdd`.
+This module contains the implementation of a bitblaster for `BitVec.cpop`.
 -/
 
 namespace Std.Tactic.BVDecide
@@ -33,13 +33,11 @@ namespace bitblast
 /-- We extract a single bit in position `start` and extend it to have width `w`-/
 def blastExtractAndExtendBit (aig : AIG α) (x : AIG.RefVec aig w) (start : Nat) : AIG.RefVecEntry α w :=
   -- extract 1 bit starting from start
-  let targetExtract : ExtractTarget aig 1 := {vec := x, start := start}
-  let res := blastExtract aig targetExtract
+  let res := blastExtract aig ⟨x, start⟩
   let aig := res.aig
   let extract := res.vec
   -- zero-extend the extracted portion to have
-  let targetExtend : AIG.ExtendTarget aig w := {vec := extract, w := 1}
-  let res := blastZeroExtend aig targetExtend
+  let res := blastZeroExtend aig (newWidth := w) ⟨1, extract⟩
   let aig := res.aig
   let extend := res.vec
   ⟨aig, extend⟩
@@ -77,12 +75,12 @@ def blastextractAndExtend (aig : AIG α) (idx : Nat) (x : AIG.RefVec aig w)
     let x := x.cast (aig2 := aigRes) this
     let acc := acc.append bv
     have hcast : w * (idx + 1) = w * idx + w := by simp [Nat.mul_add]
-    have acc := hcast▸acc
+    have acc := hcast ▸ acc
     blastextractAndExtend (aigRes) (idx + 1) (x := x) (acc := acc) (by omega)
   else
     have : idx = w := by omega
     have hcast : w * idx = w * w := by rw [this]
-    ⟨aig, hcast▸acc⟩
+    ⟨aig, hcast ▸ acc⟩
 
 theorem extractAndExtend_le_size (aig : AIG α) (idx : Nat) (x : AIG.RefVec aig w)
     (acc : AIG.RefVec aig (w * idx)) (hlt : idx ≤ w) :
@@ -117,19 +115,17 @@ def blastCpopLayer (aig : AIG α) (iterNum : Nat)
   (hold : 2 * (iterNum - 1) < len) : AIG.RefVecEntry α ((len + 1)/2 * w) :=
   if  hlen : 0 < len - (iterNum * 2) then
     -- lhs
-    let targetExtract : ExtractTarget aig w := {vec := oldLayer, start := 2 * iterNum * w}
-    let res := blastExtract aig targetExtract
+    let res := blastExtract aig ⟨oldLayer, 2 * iterNum * w⟩
     let aig := res.aig
     let op1 : aig.RefVec w := res.vec
     have := AIG.LawfulVecOperator.le_size (f := blastExtract) ..
     let oldLayer := oldLayer.cast (aig2 := aig) this
     let newLayer := newLayer.cast (aig2 := aig) this
     -- rhs
-    let targetExtract : ExtractTarget aig w := {vec := oldLayer, start := (2 * iterNum + 1) * w}
-    let res := blastExtract aig targetExtract
+    let res := blastExtract aig ⟨oldLayer, (2 * iterNum + 1) * w⟩
     let aig := res.aig
     let op2 : aig.RefVec w := res.vec
-    have := AIG.LawfulVecOperator.le_size (f := blastExtract) (input := targetExtract)
+    have := AIG.LawfulVecOperator.le_size (f := blastExtract) ..
     let oldLayer := oldLayer.cast this
     let newLayer := newLayer.cast this
     let op1 := op1.cast (aig2 := aig) this
@@ -142,10 +138,8 @@ def blastCpopLayer (aig : AIG α) (iterNum : Nat)
     let newLayer := newLayer.cast this
     let op1 := op1.cast this
     let op2 := op2.cast this
-    have hcast : w + iterNum * w = (iterNum + 1) * w:= by simp [Nat.add_mul]; omega
-    let targetAppend : AppendTarget aig ((iterNum + 1) * w ) :=
-        {lhs := add, rhs := newLayer, h := by omega}
-    let res := blastAppend (aig := aig) (target:= targetAppend)
+    have hcast : w + iterNum * w = (iterNum + 1) * w := by simp [Nat.add_mul]; omega
+    let res := blastAppend (aig := aig) ⟨add, newLayer, by omega⟩
     let aig := res.aig
     let newLayer' := res.vec
     have := AIG.LawfulVecOperator.le_size (f := blastAppend) ..
@@ -188,13 +182,13 @@ def blastCpopTree (aig : AIG α) (l : AIG.RefVec aig (len * w)) (h : 0 < len) :
   if hlt : 1 < len  then
     have hcastZero : 0 = 0 / 2 * w := by omega
     let initAcc := blastConst (aig := aig) (w := 0) (val := 0)
-    let res := blastCpopLayer aig 0 l (hcastZero▸initAcc) (by omega)
+    let res := blastCpopLayer aig 0 l (hcastZero ▸ initAcc) (by omega)
     let aig := res.aig
     let newLayer := res.vec
     blastCpopTree (aig := aig) (l := newLayer) (by omega)
   else
     have hcast : len * w = w := by simp [show len = 1 by omega]
-    ⟨aig, hcast▸l⟩
+    ⟨aig, hcast ▸ l⟩
 termination_by len
 
 theorem blastCpopTree_le_size (aig : AIG α) (oldLayer : AIG.RefVec aig (len * w))

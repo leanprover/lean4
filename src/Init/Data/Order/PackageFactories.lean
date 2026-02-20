@@ -46,7 +46,7 @@ public instance instLawfulOrderBEqOfDecidableLE {α : Type u} [LE α] [Decidable
   beq_iff_le_and_ge := by simp [BEq.beq]
 
 /-- If `LT` can be characterized in terms of a decidable `LE`, then `LT` is decidable either. -/
-@[expose]
+@[expose, instance_reducible]
 public def decidableLTOfLE {α : Type u} [LE α] {_ : LT α} [DecidableLE α] [LawfulOrderLT α] :
     DecidableLT α :=
   fun a b =>
@@ -645,7 +645,7 @@ automatically. If it fails, it is necessary to provide some of the fields manual
 * Other proof obligations, for example `transOrd`, can be omitted if a matching instance can be
   synthesized.
 -/
-@[expose]
+@[expose, instance_reducible]
 public def LinearPreorderPackage.ofOrd (α : Type u)
     (args : Packages.LinearPreorderOfOrdArgs α := by exact {}) : LinearPreorderPackage α :=
   letI := args.ord
@@ -791,10 +791,10 @@ automatically. If it fails, it is necessary to provide some of the fields manual
 * Other proof obligations, such as `transOrd`, can be omitted if matching instances can be
   synthesized.
 -/
-@[expose]
+@[expose, instance_reducible]
 public def LinearOrderPackage.ofOrd (α : Type u)
     (args : Packages.LinearOrderOfOrdArgs α := by exact {}) : LinearOrderPackage α :=
-  set_option backward.isDefEq.respectTransparency false in
+  -- set_option backward.isDefEq.respectTransparency false in
   letI := LinearPreorderPackage.ofOrd α args.toLinearPreorderOfOrdArgs
   haveI : LawfulEqOrd α := ⟨args.eq_of_compare _ _⟩
   letI : Min α := args.min

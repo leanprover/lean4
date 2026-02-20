@@ -53,6 +53,9 @@ def _root_.List.iterM {α : Type w} (l : List α) (m : Type w → Type w') [Pure
 
 namespace Iterators.Types
 
+set_option allowUnsafeReducibility true
+attribute [reducible] Iterator.IsPlausibleStep
+
 @[always_inline, inline]
 instance ListIterator.instIterator {α : Type w} [Pure m] : Iterator (ListIterator α) m α where
   IsPlausibleStep it
@@ -70,7 +73,7 @@ private def ListIterator.instFinitenessRelation [Pure m] :
   subrelation {it it'} h := by
     simp_wf
     obtain ⟨step, h, h'⟩ := h
-    cases step <;> simp_all [IterStep.successor, IterM.IsPlausibleStep, Iterator.IsPlausibleStep]
+    cases step <;> simp_all [IterStep.successor, IterM.IsPlausibleStep, Iterator.IsPlausibleStep, instIterator]
 
 instance ListIterator.instFinite [Pure m] : Finite (ListIterator α) m :=
   by exact Finite.of_finitenessRelation ListIterator.instFinitenessRelation

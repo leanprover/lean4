@@ -53,6 +53,7 @@ theorem Array.step_iterM {array : Array β} :
 
 section Equivalence
 
+-- TODO: make `Iterator.IsPlausibleStep` reducible
 set_option backward.isDefEq.respectTransparency false in
 theorem Std.Iterators.Types.ArrayIterator.stepAsHetT_iterFromIdxM [LawfulMonad m] {array : Array β}
     {pos : Nat} :

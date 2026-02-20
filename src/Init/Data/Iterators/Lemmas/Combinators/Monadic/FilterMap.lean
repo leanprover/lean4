@@ -361,8 +361,8 @@ theorem IterM.toList_map_eq_toList_mapM {α β γ : Type w}
       bind_map_left]
     conv => rhs; rhs; ext a; rw [← pure_bind (x := a.val) (f := fun _ => _ <$> _)]
     simp only [← bind_assoc, bind_pure_comp, WeaklyLawfulMonadAttach.map_attach]
-    simp [ihy ‹_›]
-  · simp [ihs ‹_›]
+    simpa using ihy ‹_›
+  · simpa using ihs ‹_›
   · simp
 
 theorem IterM.toList_map_eq_toList_filterMapM {α β γ : Type w} {m : Type w → Type w'}

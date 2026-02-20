@@ -535,6 +535,7 @@ private theorem Iterator.instIteratorLoop.loop_eq_wf [UpwardEnumerable α] [LE �
     · rw [WellFounded.fix_eq]
       simp_all
 
+-- TODO: make `Iterator.IsPlausibleStep` reducible
 set_option backward.isDefEq.respectTransparency false in
 private theorem Iterator.instIteratorLoop.loopWf_eq [UpwardEnumerable α] [LE α] [DecidableLE α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]

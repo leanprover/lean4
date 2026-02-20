@@ -754,7 +754,6 @@ theorem Iter.anyM_filterMapM {α β β' : Type w} {m : Type w → Type w'}
   simp only [filterMapM_eq_toIter_filterMapM_toIterM, IterM.anyM_filterMapM]
   rfl
 
-set_option backward.isDefEq.respectTransparency false in
 -- There is hope to generalize the following theorem as soon there is a `Shrink` type.
 /--
 This lemma expresses `Iter.anyM` in terms of `IterM.anyM`.
@@ -770,6 +769,7 @@ theorem Iter.anyM_eq_anyM_mapM_pure {α β : Type} {m : Type → Type w'} [Itera
   rw [forIn_eq_match_step, IterM.forIn_eq_match_step, bind_assoc, step_mapM]
   cases it.step using PlausibleIterStep.casesOn
   · rename_i out _
+    simp only
     simp only [bind_assoc, pure_bind, map_eq_pure_bind, Shrink.inflate_deflate,
       liftM, monadLift]
     have {x : m Bool} : x = MonadAttach.attach (pure out) >>= (fun _ => x) := by
@@ -782,7 +782,7 @@ theorem Iter.anyM_eq_anyM_mapM_pure {α β : Type} {m : Type → Type w'} [Itera
     apply bind_congr; intro px
     split
     · simp
-    · simp [ihy ‹_›]
+    · simp [ihy ‹_›, monadLift]
   · simp [ihs ‹_›]
   · simp
 

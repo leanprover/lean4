@@ -262,16 +262,16 @@ scoped instance (priority := low) instLawfulOrderOrdOpposite {il : LE α} {io : 
     haveI := il.opposite
     haveI := io.opposite
     LawfulOrderOrd α :=
-  letI := il.opposite
-  letI := io.opposite
+  letI i := il.opposite
+  letI j := io.opposite
   { isLE_compare a b := by
       unfold LE.opposite Ord.opposite
-      simp only
+      simp only [compare, LE.le]
       letI := il; letI := io
       apply isLE_compare
     isGE_compare a b := by
       unfold LE.opposite Ord.opposite
-      simp only
+      simp only [compare, LE.le]
       letI := il; letI := io
       apply isGE_compare }
 

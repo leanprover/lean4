@@ -2786,7 +2786,6 @@ theorem msb_append {x : BitVec w} {y : BitVec v} :
   rw [getElem_append] -- Why does this not work with `simp [getElem_append]`?
   simp
 
-<<<<<<< popcount-clean-frfr
 theorem append_of_zero_width (x : BitVec w) (y : BitVec v) (h : w = 0) :
     (x ++ y) = y.cast (by simp [h]) := by
   ext i ih
@@ -2795,8 +2794,6 @@ theorem append_of_zero_width (x : BitVec w) (y : BitVec v) (h : w = 0) :
   omega
 
 set_option backward.isDefEq.respectTransparency false in
-=======
->>>>>>> master
 @[grind =]
 theorem toInt_append {x : BitVec n} {y : BitVec m} :
     (x ++ y).toInt = if n == 0 then y.toInt else (2 ^ m) * x.toInt + y.toNat := by

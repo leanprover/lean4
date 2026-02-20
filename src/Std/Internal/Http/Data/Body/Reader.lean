@@ -54,4 +54,10 @@ instance : Reader Incoming where
   isClosed := Incoming.isClosed
   recvSelector := Incoming.recvSelector
 
+instance : Reader Outgoing where
+  recv body count := Reader.recv (Body.Internal.outgoingToIncoming body) count
+  close body := Reader.close (Body.Internal.outgoingToIncoming body)
+  isClosed body := Reader.isClosed (Body.Internal.outgoingToIncoming body)
+  recvSelector body := Reader.recvSelector (Body.Internal.outgoingToIncoming body)
+
 end Std.Http.Body

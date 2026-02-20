@@ -11,6 +11,7 @@ public import Std.Internal.Async
 public import Std.Internal.Http.Data.Request
 public import Std.Internal.Http.Data.Response
 public import Std.Internal.Http.Data.Body.Length
+public import Std.Internal.Http.Data.Body.Reader
 public import Std.Internal.Http.Data.Chunk
 public import Init.Data.ByteArray
 
@@ -48,6 +49,18 @@ deriving Nonempty
 
 namespace Full
 
+private def takeChunk [Monad m] [MonadLiftT (ST IO.RealWorld) m] :
+    AtomicT (Option ByteArray) m (Option Chunk) := do
+  match ← get with
+  | none =>
+    pure none
+  | some data =>
+    set (none : Option ByteArray)
+    if data.isEmpty then
+      pure none
+    else
+      pure (some (Chunk.ofByteArray data))
+
 /--
 Creates a `Full` body from a `ByteArray`.
 -/
@@ -68,12 +81,7 @@ Returns `none` if the data has already been consumed or the body is closed.
 -/
 def tryRecv (full : Full) : Async (Option Chunk) :=
   full.state.atomically do
-    match ← get with
-    | none => return none
-    | some data =>
-      set (none : Option ByteArray)
-      if data.isEmpty then return none
-      return some (Chunk.ofByteArray data)
+    takeChunk
 
 /--
 Receives the body data. Returns the full byte array on the first call as a single chunk,
@@ -141,7 +149,31 @@ def interestSelector (_ : Full) : Selector Bool where
     waiter.race lose win
   unregisterFn := pure ()
 
+open Internal.IO.Async in
+/--
+Selector that immediately resolves to the remaining chunk (or EOF).
+-/
+def recvSelector (full : Full) : Selector (Option Chunk) where
+  tryFn := do
+    let chunk ← full.state.atomically do
+      takeChunk
+    pure (some chunk)
+  registerFn waiter := do
+    let chunk ← full.state.atomically do
+      takeChunk
+    let lose := pure ()
+    let win promise := do
+      promise.resolve (.ok chunk)
+    waiter.race lose win
+  unregisterFn := pure ()
+
 end Full
+
+instance : Reader Full where
+  recv := Full.recv
+  close := Full.close
+  isClosed := Full.isClosed
+  recvSelector := Full.recvSelector
 
 end Std.Http.Body
 

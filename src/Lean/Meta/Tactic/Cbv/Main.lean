@@ -121,7 +121,7 @@ def handleProj : Simproc := fun e => do
         unless (← isDefEq struct e') do
           -- If we rewrote the projection body using something that holds up to propositional equality, then there is nothing we can do.
           -- TODO: Check if there is a need to report this to a user, or shall we fail silently.
-          return .rfl
+          return .rfl (done := true)
         let hcongr ← mkHCongr congrArgFun
         let newProof := mkApp3 (hcongr.proof) struct e' proof
         -- We have already checked if `struct` and `e'` are defEq, so we can skip the check.

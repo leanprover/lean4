@@ -95,6 +95,7 @@ private:
     lbool try_string_lit_expansion(expr const & t, expr const & s);
     bool is_def_eq_app(expr const & t, expr const & s);
     lbool is_def_eq_proof_irrel(expr const & t, expr const & s);
+    bool is_unit_like(expr const & t);
     bool is_def_eq_unit_like(expr const & t, expr const & s);
     bool failed_before(expr const & t, expr const & s) const;
     void cache_failure(expr const & t, expr const & s);

@@ -1042,17 +1042,50 @@ lbool type_checker::try_string_lit_expansion(expr const & t, expr const & s) {
     return try_string_lit_expansion_core(s, t);
 }
 
-/* Return `true` if the types of the given expressions is an inductive datatype with an inductive datatype with a single constructor with no fields. */
+bool type_checker::is_unit_like(expr const & t) {
+    buffer<expr> args;
+    buffer<expr> fvars;
+    flet<local_ctx> save_lctx(m_lctx, m_lctx);
+
+    expr I = whnf(t);
+    // If type is an arrow-type, we check if the final codomain is unit-like
+    while (is_pi(I)) {
+        expr hd = instantiate_rev(binding_domain(I), fvars.size(), fvars.data());
+        fvars.push_back(m_lctx.mk_local_decl(m_st->m_ngen, binding_name(I), hd, binding_info(I)));
+        I       = whnf(binding_body(I));
+    }
+    I = get_app_args(I,args);
+    if ( !is_constant(I) || !is_structure_like(env(), const_name(I))){
+        return false;
+    }
+    name ctor_name = head(env().get(const_name(I)).to_inductive_val().get_cnstrs());
+    I = env().get(ctor_name).to_constructor_val().to_constant_val().get_type();
+    for (unsigned i = 0; i < args.size(); i++) {
+        // Check the instantiated type of the fields for the according structure parameter
+        I = instantiate(binding_body(I),args[i]);
+    }
+    // Check that every field (read, every domain) of the constructor are themselves unit-like
+    while (is_pi(I)) {
+        expr hd = instantiate_rev(binding_domain(I), fvars.size(), fvars.data());
+        if (!is_unit_like(hd) && !is_prop(hd))
+            return false;
+        fvars.push_back(m_lctx.mk_local_decl(m_st->m_ngen, binding_name(I), hd, binding_info(I)));
+        I     = binding_body(I);
+    }
+    return true;
+}
+
+/*
+  Return `true` if the types of the given expressions is a structure-like inductive datatype
+  with a single constructor for which all fields are unit-like or Prop types,
+  or a dependent arrow for which the final codomain is unit-like. */
 bool type_checker::is_def_eq_unit_like(expr const & t, expr const & s) {
     expr t_type = whnf(infer_type(t));
-    expr I = get_app_fn(t_type);
-    if (!is_constant(I) || !is_structure_like(env(), const_name(I)))
+    if (!is_unit_like(t_type))
         return false;
-    name ctor_name = head(env().get(const_name(I)).to_inductive_val().get_cnstrs());
-    constructor_val ctor_val = env().get(ctor_name).to_constructor_val();
-    if (ctor_val.get_nfields() != 0)
-        return false;
-    return is_def_eq_core(t_type, infer_type(s));
+    if (is_def_eq_core(t_type, infer_type(s)))
+        return true;
+    return false;
 }
 
 bool type_checker::is_def_eq_core(expr const & t, expr const & s) {

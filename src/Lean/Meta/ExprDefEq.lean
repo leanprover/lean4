@@ -2088,16 +2088,31 @@ private def isDefEqApp (t s : Expr) : MetaM Bool := do
   else
     isDefEqOnFailure t s
 
-/-- Return `true` if the type of the given expression is an inductive datatype with a single constructor with no fields. -/
+private partial def isUnitLikeStruct (tType : Expr) : MetaM Bool := do
+  let hd := (← whnf tType).getAppFn
+  matchConstStructureLike hd (fun _ => pure false) fun _ _ ctorVal => do
+    let ctorType := ctorVal.type
+        |>.getForallBodyMaxDepth tType.getAppNumArgs
+        |>.instantiateRev tType.getAppArgs
+    forallTelescope ctorType fun xs _ =>
+      xs.allM fun e => do
+        let ty ← e.fvarId!.getType
+        isProp ty <||> forallTelescopeReducing ty fun _ => isUnitLikeStruct
+
+private def isUnitLikeType (e : Expr) : MetaM Bool := do
+  forallTelescopeReducing e fun _ e => isUnitLikeStruct e
+
+/--
+  Return `true` if the types of the given expressions is a non-recursive, non-indexed inductive datatype
+  with a single constructor for which all fields are unit-like or Prop types,
+  or a dependent arrow for which the codomain is unit-like.
+-/
 private def isDefEqUnitLike (t : Expr) (s : Expr) : MetaM Bool := do
-  let tType ← whnf (← inferType t)
-  matchConstStructureLike tType.getAppFn (fun _ => return false) fun _ _ ctorVal => do
-    if ctorVal.numFields != 0 then
+  let tType  ← inferType t
+  let isUnit ← isUnitLikeType tType
+  if !isUnit then
       return false
-    else if (← useEtaStruct ctorVal.induct) then
-      Meta.isExprDefEqAux tType (← inferType s)
-    else
-      return false
+  Meta.isExprDefEqAux tType (← inferType s)
 
 /--
   The `whnf` procedure has support for unfolding class projections when the
@@ -2283,5 +2298,7 @@ builtin_initialize
   registerTraceClass `Meta.isDefEq.assign.occursCheck (inherited := true)
   registerTraceClass `Meta.isDefEq.assign.readOnlyMVarWithBiggerLCtx (inherited := true)
   registerTraceClass `Meta.isDefEq.eta.struct
+  registerTraceClass `Meta.isDefEq.eta.unitLike
+
 
 end Lean.Meta

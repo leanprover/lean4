@@ -2452,11 +2452,10 @@ def cpopRec (x : BitVec w) : BitVec w :=
   if hw : 1 < w then
     let extendedBits := x.extractAndExtend w
     (cpopTree extendedBits).cast (by simp)
+  else if hw' : 0 < w then
+    x
   else
-    if hw' : 0 < w then
-      x
-    else
-      0#w
+    0#w
 
 /-- Recursive addition of the elements in a flattened bitvec, starting from the `rem`-th element. -/
 private def addRecAux (x : BitVec (l * w)) (rem : Nat) (acc : BitVec w) : BitVec w :=

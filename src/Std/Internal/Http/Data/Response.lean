@@ -27,38 +27,14 @@ set_option linter.all true
 
 open Std.Internal.IO.Async
 
-
-/--
-Returns `true` if `c` is a valid reason-phrase character per RFC 9110 §15.1:
-
-    reason-phrase = *( HTAB / SP / VCHAR / obs-text )
-
-  * HTAB     = %x09
-  * SP       = %x20
-  * VCHAR    = %x21–7E  (visible ASCII)
-  * obs-text = %x80–FF
-
-In particular, CR (`\r`) and LF (`\n`) return `false`, preventing CRLF injection
-into the HTTP response status line.
--/
-def isValidReasonPhraseChar (c : Char) : Bool :=
-  let n := c.toNat
-  n == 0x09 || (0x20 ≤ n && n ≤ 0x7E) || 0x80 ≤ n
-
 /--
 The main parts of a response.
 -/
 structure Response.Head where
   /--
   The HTTP status for the response.
-  The reason phrase defaults to `Status.reasonPhrase` unless `reasonPhrase` overrides it.
   -/
   status : Status := .ok
-
-  /--
-  Optional reason-phrase override for the status line.
-  -/
-  reasonPhrase : Option { x : String // x.toList.all isValidReasonPhraseChar } := none
 
   /--
   The HTTP protocol version used in the response, e.g. `HTTP/1.1`.
@@ -110,22 +86,20 @@ namespace Response
 
 instance : ToString Head where
   toString r :=
-    let reasonPhrase := r.reasonPhrase.map (·.val) |>.getD r.status.reasonPhrase
     toString r.version ++ " " ++
     toString r.status.toCode ++ " " ++
-    reasonPhrase ++ "\r\n" ++
+    r.status.reasonPhrase ++ "\r\n" ++
     toString r.headers ++
     "\r\n"
 
 open Internal in
 instance : Encode .v11 Head where
   encode buffer r :=
-    let reasonPhrase := r.reasonPhrase.map (·.val) |>.getD r.status.reasonPhrase
     let buffer := Encode.encode (v := .v11) buffer r.version
     let buffer := buffer.writeChar ' '
     let buffer := buffer.writeString (toString r.status.toCode)
     let buffer := buffer.writeChar ' '
-    let buffer := buffer.writeString reasonPhrase
+    let buffer := buffer.writeString r.status.reasonPhrase
     let buffer := buffer.writeString "\r\n"
     let buffer := Encode.encode (v := .v11) buffer r.headers
     buffer.writeString "\r\n"

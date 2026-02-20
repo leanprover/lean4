@@ -24,35 +24,19 @@ public register_builtin_option cbv.warning : Bool := {
   descr    := "disable `cbv` usage warning"
 }
 
-def tryMatchEquations (appFn : Name) : Simproc := fun e => do
-  let thms ← getMatchTheorems appFn
-  thms.rewrite (d := dischargeNone) e
-
 def tryEquations : Simproc := fun e => do
   unless e.isApp do
     return .rfl
   let some appFn := e.getAppFn.constName? | return .rfl
   let thms ← getEqnTheorems appFn
-  thms.rewrite (d := dischargeNone) e
+  Simproc.tryCatch (thms.rewrite (d := dischargeNone)) e
 
 def tryUnfold : Simproc := fun e => do
   unless e.isApp do
     return .rfl
   let some appFn := e.getAppFn.constName? | return .rfl
   let some thm ← getUnfoldTheorem appFn | return .rfl
-  Theorem.rewrite thm e
-
-def tryMatcher : Simproc := fun e => do
-  unless e.isApp do
-    return .rfl
-  let some appFn := e.getAppFn.constName? | return .rfl
-  let some info ← getMatcherInfo? appFn | return .rfl
-  let start := info.numParams + 1
-  let stop  := start + info.numDiscrs
-  (simpAppArgRange · start stop)
-    >> tryMatchEquations appFn
-      <|> reduceRecMatcher
-        <| e
+  Simproc.tryCatch (fun e => Theorem.rewrite thm e) e
 
 def handleConstApp : Simproc := fun e => do
   if (← isCbvOpaque e.getAppFn.constName!) then
@@ -69,7 +53,7 @@ def betaReduce : Simproc := fun e => do
 def tryCbvTheorems : Simproc := fun e => do
   let some fnName := e.getAppFn.constName? | return .rfl
   let some evalLemmas ← getCbvEvalLemmas fnName | return .rfl
-  Theorems.rewrite evalLemmas (d := dischargeNone) e
+  Simproc.tryCatch (Theorems.rewrite evalLemmas (d := dischargeNone)) e
 
 def handleApp : Simproc := fun e => do
   unless e.isApp do return .rfl
@@ -151,7 +135,7 @@ def simplifyAppFn : Simproc := fun e => do
       return .rfl
     else
     let res ← simp fn
-    match (← simp fn) with
+    match res with
     | .rfl _ => return res
     | .step e' proof _ =>
       let newType ← Sym.inferType e'
@@ -170,7 +154,7 @@ def handleConst : Simproc := fun e => do
     return .rfl
   -- TODO: Check if we need to look if we applied all the levels correctly
   let some thm ← getUnfoldTheorem n | return .rfl
-  Theorem.rewrite thm e
+  Simproc.tryCatch (fun e => Theorem.rewrite thm e) e
 
 def cbvPreStep : Simproc := fun e => do
   match e with

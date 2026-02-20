@@ -8794,12 +8794,12 @@ goto block_96;
 else
 {
 uint8_t x_114; 
+lean_dec_ref(x_4);
 lean_dec_ref(x_66);
 lean_dec(x_8);
 lean_dec_ref(x_7);
 lean_dec(x_6);
 lean_dec_ref(x_5);
-lean_dec_ref(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 x_114 = !lean_is_exclusive(x_100);

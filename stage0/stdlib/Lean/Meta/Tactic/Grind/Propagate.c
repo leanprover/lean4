@@ -6764,8 +6764,8 @@ x_41 = lean_ctor_get(x_39, 0);
 x_42 = lean_unbox(x_41);
 if (x_42 == 0)
 {
-lean_free_object(x_37);
 lean_dec_ref(x_39);
+lean_free_object(x_37);
 lean_free_object(x_35);
 x_27 = lean_box(0);
 goto block_33;
@@ -6874,8 +6874,8 @@ x_50 = lean_ctor_get(x_48, 0);
 x_51 = lean_unbox(x_50);
 if (x_51 == 0)
 {
-lean_dec(x_49);
 lean_dec_ref(x_48);
+lean_dec(x_49);
 x_27 = lean_box(0);
 goto block_33;
 }

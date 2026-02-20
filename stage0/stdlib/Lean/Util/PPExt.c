@@ -1185,8 +1185,8 @@ return x_50;
 else
 {
 lean_object* x_51; uint8_t x_52; 
-lean_dec_ref(x_6);
 lean_inc_ref(x_5);
+lean_dec_ref(x_6);
 lean_dec_ref(x_1);
 x_51 = l_Lean_instantiateMVarsCore(x_5, x_2);
 x_52 = !lean_is_exclusive(x_51);

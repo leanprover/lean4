@@ -212,8 +212,8 @@ lean_object* x_25;
 x_25 = lean_ctor_get(x_17, 0);
 if (lean_obj_tag(x_25) == 11)
 {
-lean_free_object(x_17);
 lean_dec_ref(x_25);
+lean_free_object(x_17);
 x_6 = x_14;
 x_7 = lean_box(0);
 goto block_11;

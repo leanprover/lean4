@@ -6521,9 +6521,9 @@ if (lean_obj_tag(x_39) == 0)
 lean_object* x_40; 
 lean_dec_ref(x_2);
 x_40 = lean_box(0);
-x_5 = x_38;
-x_6 = x_37;
-x_7 = lean_box(0);
+x_5 = lean_box(0);
+x_6 = x_38;
+x_7 = x_37;
 x_8 = x_40;
 goto block_16;
 }
@@ -6543,9 +6543,9 @@ lean_inc_ref(x_44);
 lean_dec_ref(x_41);
 x_45 = l_Lean_Syntax_Range_toLspRange(x_44, x_43);
 lean_ctor_set(x_39, 0, x_45);
-x_5 = x_38;
-x_6 = x_37;
-x_7 = lean_box(0);
+x_5 = lean_box(0);
+x_6 = x_38;
+x_7 = x_37;
 x_8 = x_39;
 goto block_16;
 }
@@ -6561,9 +6561,9 @@ lean_dec_ref(x_41);
 x_48 = l_Lean_Syntax_Range_toLspRange(x_47, x_46);
 x_49 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_49, 0, x_48);
-x_5 = x_38;
-x_6 = x_37;
-x_7 = lean_box(0);
+x_5 = lean_box(0);
+x_6 = x_38;
+x_7 = x_37;
 x_8 = x_49;
 goto block_16;
 }
@@ -6600,9 +6600,9 @@ if (lean_obj_tag(x_54) == 0)
 lean_object* x_55; 
 lean_dec_ref(x_2);
 x_55 = lean_box(0);
-x_5 = x_53;
-x_6 = x_52;
-x_7 = lean_box(0);
+x_5 = lean_box(0);
+x_6 = x_53;
+x_7 = x_52;
 x_8 = x_55;
 goto block_16;
 }
@@ -6631,9 +6631,9 @@ if (lean_is_scalar(x_58)) {
  x_61 = x_58;
 }
 lean_ctor_set(x_61, 0, x_60);
-x_5 = x_53;
-x_6 = x_52;
-x_7 = lean_box(0);
+x_5 = lean_box(0);
+x_6 = x_53;
+x_7 = x_52;
 x_8 = x_61;
 goto block_16;
 }
@@ -6823,12 +6823,12 @@ goto block_93;
 block_16:
 {
 lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
-lean_inc_ref(x_5);
+lean_inc_ref(x_6);
 x_9 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_9, 0, x_8);
-lean_ctor_set(x_9, 1, x_6);
-lean_ctor_set(x_9, 2, x_5);
-lean_ctor_set(x_9, 3, x_5);
+lean_ctor_set(x_9, 1, x_7);
+lean_ctor_set(x_9, 2, x_6);
+lean_ctor_set(x_9, 3, x_6);
 x_10 = lean_box(0);
 x_11 = 0;
 x_12 = lean_alloc_ctor(0, 2, 1);
@@ -8995,10 +8995,10 @@ return x_50;
 else
 {
 lean_object* x_61; 
+lean_inc_ref(x_12);
 lean_dec(x_17);
 lean_dec(x_16);
 lean_dec_ref(x_14);
-lean_inc_ref(x_12);
 lean_dec_ref(x_1);
 x_61 = l_Lean_Server_locationLinksFromTermInfo(x_12, x_2, x_3, x_4, x_5, x_6);
 return x_61;
@@ -9165,10 +9165,10 @@ return x_88;
 else
 {
 lean_object* x_99; 
+lean_inc_ref(x_72);
 lean_dec(x_77);
 lean_dec(x_76);
 lean_dec_ref(x_74);
-lean_inc_ref(x_72);
 lean_dec_ref(x_1);
 x_99 = l_Lean_Server_locationLinksFromTermInfo(x_72, x_2, x_3, x_4, x_5, x_6);
 return x_99;
@@ -9336,10 +9336,10 @@ return x_125;
 else
 {
 lean_object* x_136; 
+lean_inc_ref(x_108);
 lean_dec(x_114);
 lean_dec(x_113);
 lean_dec_ref(x_110);
-lean_inc_ref(x_108);
 lean_dec_ref(x_1);
 x_136 = l_Lean_Server_locationLinksFromTermInfo(x_108, x_2, x_3, x_4, x_5, x_6);
 return x_136;

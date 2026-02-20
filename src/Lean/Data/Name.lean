@@ -96,6 +96,15 @@ def quickCmpAux : Name → Name → Ordering
     | Ordering.eq => n.quickCmpAux n'
     | ord => ord
 
+private def quickCmpImpl (n₁ n₂ : Name) : Ordering :=
+  if unsafe ptrEq n₁ n₂ then
+    Ordering.eq
+  else
+    match compare n₁.hash n₂.hash with
+    | Ordering.eq => quickCmpAux n₁ n₂
+    | ord => ord
+
+@[implemented_by quickCmpImpl]
 def quickCmp (n₁ n₂ : Name) : Ordering :=
   match compare n₁.hash n₂.hash with
   | Ordering.eq => quickCmpAux n₁ n₂

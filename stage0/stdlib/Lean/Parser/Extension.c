@@ -83,6 +83,8 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAtCollisionNodeAux___at___00Lean_PersistentHashMap_insertAtCollisionNode___at___00Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00__private_Lean_Parser_Extension_0__Lean_Parser_addParserCategoryCore_spec__1_spec__2_spec__4_spec__5___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAtCollisionNode___at___00Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00__private_Lean_Parser_Extension_0__Lean_Parser_addParserCategoryCore_spec__1_spec__2_spec__4___redArg(lean_object*, lean_object*, lean_object*);
+uint64_t lean_uint64_of_nat(lean_object*);
+static uint64_t l___private_Lean_Data_PersistentHashMap_0__Lean_PersistentHashMap_insertAux_traverse___at___00Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00__private_Lean_Parser_Extension_0__Lean_Parser_addParserCategoryCore_spec__1_spec__2_spec__5___redArg___closed__0;
 size_t lean_usize_shift_left(size_t, size_t);
 static size_t l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00__private_Lean_Parser_Extension_0__Lean_Parser_addParserCategoryCore_spec__1_spec__2___redArg___closed__0;
 size_t lean_usize_sub(size_t, size_t);
@@ -99,7 +101,6 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux___at___00Lean_Persis
 LEAN_EXPORT lean_object* l___private_Lean_Data_PersistentHashMap_0__Lean_PersistentHashMap_insertAux_traverse___at___00Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00__private_Lean_Parser_Extension_0__Lean_Parser_addParserCategoryCore_spec__1_spec__2_spec__5___redArg(size_t, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_le(size_t, size_t);
 lean_object* l_Lean_PersistentHashMap_getCollisionNodeSize___redArg(lean_object*);
-uint64_t l_Lean_Name_hash___override(lean_object*);
 size_t lean_uint64_to_usize(uint64_t);
 size_t lean_usize_mul(size_t, size_t);
 LEAN_EXPORT lean_object* l___private_Lean_Data_PersistentHashMap_0__Lean_PersistentHashMap_insertAux_traverse___at___00Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00__private_Lean_Parser_Extension_0__Lean_Parser_addParserCategoryCore_spec__1_spec__2_spec__5___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -312,7 +313,7 @@ LEAN_EXPORT lean_object* l_Lean_Parser_parserAlias2kindRef;
 LEAN_EXPORT lean_object* l_Lean_Parser_initFn_00___x40_Lean_Parser_Extension_1856488369____hygCtx___hyg_2_();
 LEAN_EXPORT lean_object* l_Lean_Parser_initFn_00___x40_Lean_Parser_Extension_1856488369____hygCtx___hyg_2____boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_parserAliases2infoRef;
-uint8_t l_Lean_Name_quickCmp(lean_object*, lean_object*);
+uint8_t l___private_Lean_Data_Name_0__Lean_Name_quickCmpImpl(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_getD___at___00Lean_Parser_getParserAliasInfo_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_getD___at___00Lean_Parser_getParserAliasInfo_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*);
 static const lean_ctor_object l_Lean_Parser_getParserAliasInfo___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(1) << 1) | 1))}};
@@ -1469,6 +1470,15 @@ x_5 = l_Lean_PersistentHashMap_insertAtCollisionNodeAux___at___00Lean_Persistent
 return x_5;
 }
 }
+static uint64_t _init_l___private_Lean_Data_PersistentHashMap_0__Lean_PersistentHashMap_insertAux_traverse___at___00Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00__private_Lean_Parser_Extension_0__Lean_Parser_addParserCategoryCore_spec__1_spec__2_spec__5___redArg___closed__0() {
+_start:
+{
+lean_object* x_1; uint64_t x_2; 
+x_1 = lean_unsigned_to_nat(1723u);
+x_2 = lean_uint64_of_nat(x_1);
+return x_2;
+}
+}
 static size_t _init_l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00__private_Lean_Parser_Extension_0__Lean_Parser_addParserCategoryCore_spec__1_spec__2___redArg___closed__0() {
 _start:
 {
@@ -1765,10 +1775,26 @@ return x_5;
 }
 else
 {
-lean_object* x_8; lean_object* x_9; uint64_t x_10; size_t x_11; size_t x_12; lean_object* x_13; size_t x_14; size_t x_15; size_t x_16; size_t x_17; lean_object* x_18; lean_object* x_19; 
+lean_object* x_8; lean_object* x_9; uint64_t x_10; 
 x_8 = lean_array_fget_borrowed(x_2, x_4);
 x_9 = lean_array_fget_borrowed(x_3, x_4);
-x_10 = l_Lean_Name_hash___override(x_8);
+if (lean_obj_tag(x_8) == 0)
+{
+uint64_t x_22; 
+x_22 = l___private_Lean_Data_PersistentHashMap_0__Lean_PersistentHashMap_insertAux_traverse___at___00Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00__private_Lean_Parser_Extension_0__Lean_Parser_addParserCategoryCore_spec__1_spec__2_spec__5___redArg___closed__0;
+x_10 = x_22;
+goto block_21;
+}
+else
+{
+uint64_t x_23; 
+x_23 = lean_ctor_get_uint64(x_8, sizeof(void*)*2);
+x_10 = x_23;
+goto block_21;
+}
+block_21:
+{
+size_t x_11; size_t x_12; lean_object* x_13; size_t x_14; size_t x_15; size_t x_16; size_t x_17; lean_object* x_18; lean_object* x_19; 
 x_11 = lean_uint64_to_usize(x_10);
 x_12 = 5;
 x_13 = lean_unsigned_to_nat(1u);
@@ -1784,6 +1810,7 @@ x_19 = l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert
 x_4 = x_18;
 x_5 = x_19;
 goto _start;
+}
 }
 }
 }
@@ -1814,12 +1841,29 @@ return x_8;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insert___at___00__private_Lean_Parser_Extension_0__Lean_Parser_addParserCategoryCore_spec__1___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-uint64_t x_4; size_t x_5; size_t x_6; lean_object* x_7; 
-x_4 = l_Lean_Name_hash___override(x_2);
+uint64_t x_4; 
+if (lean_obj_tag(x_2) == 0)
+{
+uint64_t x_9; 
+x_9 = l___private_Lean_Data_PersistentHashMap_0__Lean_PersistentHashMap_insertAux_traverse___at___00Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00__private_Lean_Parser_Extension_0__Lean_Parser_addParserCategoryCore_spec__1_spec__2_spec__5___redArg___closed__0;
+x_4 = x_9;
+goto block_8;
+}
+else
+{
+uint64_t x_10; 
+x_10 = lean_ctor_get_uint64(x_2, sizeof(void*)*2);
+x_4 = x_10;
+goto block_8;
+}
+block_8:
+{
+size_t x_5; size_t x_6; lean_object* x_7; 
 x_5 = lean_uint64_to_usize(x_4);
 x_6 = 1;
 x_7 = l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00__private_Lean_Parser_Extension_0__Lean_Parser_addParserCategoryCore_spec__1_spec__2___redArg(x_1, x_5, x_6, x_2, x_3);
 return x_7;
+}
 }
 }
 LEAN_EXPORT uint8_t l_Lean_PersistentHashMap_containsAtAux___at___00Lean_PersistentHashMap_containsAux___at___00Lean_PersistentHashMap_contains___at___00__private_Lean_Parser_Extension_0__Lean_Parser_addParserCategoryCore_spec__0_spec__0_spec__1___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -1941,11 +1985,28 @@ return x_6;
 LEAN_EXPORT uint8_t l_Lean_PersistentHashMap_contains___at___00__private_Lean_Parser_Extension_0__Lean_Parser_addParserCategoryCore_spec__0___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-uint64_t x_3; size_t x_4; uint8_t x_5; 
-x_3 = l_Lean_Name_hash___override(x_2);
+uint64_t x_3; 
+if (lean_obj_tag(x_2) == 0)
+{
+uint64_t x_7; 
+x_7 = l___private_Lean_Data_PersistentHashMap_0__Lean_PersistentHashMap_insertAux_traverse___at___00Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00__private_Lean_Parser_Extension_0__Lean_Parser_addParserCategoryCore_spec__1_spec__2_spec__5___redArg___closed__0;
+x_3 = x_7;
+goto block_6;
+}
+else
+{
+uint64_t x_8; 
+x_8 = lean_ctor_get_uint64(x_2, sizeof(void*)*2);
+x_3 = x_8;
+goto block_6;
+}
+block_6:
+{
+size_t x_4; uint8_t x_5; 
 x_4 = lean_uint64_to_usize(x_3);
 x_5 = l_Lean_PersistentHashMap_containsAux___at___00Lean_PersistentHashMap_contains___at___00__private_Lean_Parser_Extension_0__Lean_Parser_addParserCategoryCore_spec__0_spec__0___redArg(x_1, x_4, x_2);
 return x_5;
+}
 }
 }
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_contains___at___00__private_Lean_Parser_Extension_0__Lean_Parser_addParserCategoryCore_spec__0___redArg___boxed(lean_object* x_1, lean_object* x_2) {
@@ -3151,11 +3212,28 @@ return x_5;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at___00Lean_Parser_addLeadingParser_spec__0___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-uint64_t x_3; size_t x_4; lean_object* x_5; 
-x_3 = l_Lean_Name_hash___override(x_2);
+uint64_t x_3; 
+if (lean_obj_tag(x_2) == 0)
+{
+uint64_t x_7; 
+x_7 = l___private_Lean_Data_PersistentHashMap_0__Lean_PersistentHashMap_insertAux_traverse___at___00Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00__private_Lean_Parser_Extension_0__Lean_Parser_addParserCategoryCore_spec__1_spec__2_spec__5___redArg___closed__0;
+x_3 = x_7;
+goto block_6;
+}
+else
+{
+uint64_t x_8; 
+x_8 = lean_ctor_get_uint64(x_2, sizeof(void*)*2);
+x_3 = x_8;
+goto block_6;
+}
+block_6:
+{
+size_t x_4; lean_object* x_5; 
 x_4 = lean_uint64_to_usize(x_3);
 x_5 = l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00Lean_Parser_addLeadingParser_spec__0_spec__0___redArg(x_1, x_4, x_2);
 return x_5;
+}
 }
 }
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at___00Lean_Parser_addLeadingParser_spec__0___redArg___boxed(lean_object* x_1, lean_object* x_2) {
@@ -5051,7 +5129,7 @@ x_4 = lean_ctor_get(x_1, 1);
 x_5 = lean_ctor_get(x_1, 2);
 x_6 = lean_ctor_get(x_1, 3);
 x_7 = lean_ctor_get(x_1, 4);
-x_8 = l_Lean_Name_quickCmp(x_2, x_4);
+x_8 = l___private_Lean_Data_Name_0__Lean_Name_quickCmpImpl(x_2, x_4);
 switch (x_8) {
 case 0:
 {
@@ -5748,8 +5826,8 @@ return x_67;
 }
 else
 {
-lean_free_object(x_3);
 lean_dec_ref(x_31);
+lean_free_object(x_3);
 lean_dec_ref(x_30);
 lean_dec_ref(x_29);
 lean_dec_ref(x_16);
@@ -11446,8 +11524,8 @@ x_18 = ((lean_object*)(l_Lean_Parser_mkParserOfConstantUnsafe___closed__3));
 x_19 = lean_string_dec_eq(x_17, x_18);
 if (x_19 == 0)
 {
-lean_dec(x_4);
 lean_dec_ref(x_2);
+lean_dec(x_4);
 lean_dec(x_1);
 x_6 = lean_box(0);
 goto block_9;
@@ -11459,8 +11537,8 @@ x_20 = ((lean_object*)(l_Lean_Parser_mkParserOfConstantUnsafe___closed__4));
 x_21 = lean_string_dec_eq(x_16, x_20);
 if (x_21 == 0)
 {
-lean_dec(x_4);
 lean_dec_ref(x_2);
+lean_dec(x_4);
 lean_dec(x_1);
 x_6 = lean_box(0);
 goto block_9;
@@ -11472,8 +11550,8 @@ x_22 = ((lean_object*)(l_Lean_Parser_registerBuiltinParserAttribute___closed__2)
 x_23 = lean_string_dec_eq(x_15, x_22);
 if (x_23 == 0)
 {
-lean_dec(x_4);
 lean_dec_ref(x_2);
+lean_dec(x_4);
 lean_dec(x_1);
 x_6 = lean_box(0);
 goto block_9;
@@ -11524,8 +11602,8 @@ return x_26;
 }
 else
 {
-lean_dec(x_4);
 lean_dec_ref(x_2);
+lean_dec(x_4);
 lean_dec(x_1);
 x_6 = lean_box(0);
 goto block_9;
@@ -11533,8 +11611,8 @@ goto block_9;
 }
 else
 {
-lean_dec(x_4);
 lean_dec_ref(x_2);
+lean_dec(x_4);
 lean_dec(x_1);
 x_6 = lean_box(0);
 goto block_9;
@@ -11542,8 +11620,8 @@ goto block_9;
 }
 else
 {
-lean_dec(x_4);
 lean_dec_ref(x_2);
+lean_dec(x_4);
 lean_dec(x_1);
 x_6 = lean_box(0);
 goto block_9;
@@ -11551,8 +11629,8 @@ goto block_9;
 }
 else
 {
-lean_dec(x_4);
 lean_dec_ref(x_2);
+lean_dec(x_4);
 lean_dec(x_1);
 x_6 = lean_box(0);
 goto block_9;
@@ -12736,16 +12814,16 @@ goto block_4;
 }
 else
 {
-lean_dec(x_6);
 lean_dec_ref(x_5);
+lean_dec(x_6);
 lean_dec(x_1);
 goto block_4;
 }
 }
 else
 {
-lean_dec(x_5);
 lean_dec_ref(x_2);
+lean_dec(x_5);
 lean_dec(x_1);
 goto block_4;
 }
@@ -14112,8 +14190,8 @@ return x_41;
 else
 {
 lean_object* x_42; 
-lean_dec(x_10);
 lean_dec_ref(x_9);
+lean_dec(x_10);
 lean_free_object(x_4);
 x_42 = lean_box(0);
 return x_42;
@@ -14314,8 +14392,8 @@ return x_81;
 else
 {
 lean_object* x_82; 
-lean_dec(x_48);
 lean_dec_ref(x_47);
+lean_dec(x_48);
 x_82 = lean_box(0);
 return x_82;
 }
@@ -14551,8 +14629,8 @@ goto _start;
 }
 else
 {
-lean_free_object(x_2);
 lean_dec_ref(x_5);
+lean_free_object(x_2);
 x_2 = x_6;
 x_3 = x_8;
 goto _start;
@@ -15206,9 +15284,9 @@ goto block_47;
 }
 else
 {
-lean_dec(x_36);
 lean_dec_ref(x_35);
 lean_dec_ref(x_34);
+lean_dec(x_36);
 lean_dec_ref(x_2);
 goto block_22;
 }
@@ -15233,9 +15311,9 @@ goto block_47;
 }
 else
 {
-lean_dec(x_36);
 lean_dec_ref(x_35);
 lean_dec_ref(x_34);
+lean_dec(x_36);
 lean_dec_ref(x_2);
 goto block_22;
 }
@@ -15286,9 +15364,9 @@ return x_70;
 }
 else
 {
-lean_dec(x_36);
 lean_dec_ref(x_35);
 lean_dec_ref(x_34);
+lean_dec(x_36);
 lean_dec_ref(x_2);
 goto block_22;
 }
@@ -15509,7 +15587,8 @@ if (lean_io_result_is_error(res)) return res;
 l_Lean_Parser_builtinParserCategoriesRef = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_Parser_builtinParserCategoriesRef);
 lean_dec_ref(res);
-}l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00__private_Lean_Parser_Extension_0__Lean_Parser_addParserCategoryCore_spec__1_spec__2___redArg___closed__0 = _init_l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00__private_Lean_Parser_Extension_0__Lean_Parser_addParserCategoryCore_spec__1_spec__2___redArg___closed__0();
+}l___private_Lean_Data_PersistentHashMap_0__Lean_PersistentHashMap_insertAux_traverse___at___00Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00__private_Lean_Parser_Extension_0__Lean_Parser_addParserCategoryCore_spec__1_spec__2_spec__5___redArg___closed__0 = _init_l___private_Lean_Data_PersistentHashMap_0__Lean_PersistentHashMap_insertAux_traverse___at___00Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00__private_Lean_Parser_Extension_0__Lean_Parser_addParserCategoryCore_spec__1_spec__2_spec__5___redArg___closed__0();
+l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00__private_Lean_Parser_Extension_0__Lean_Parser_addParserCategoryCore_spec__1_spec__2___redArg___closed__0 = _init_l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00__private_Lean_Parser_Extension_0__Lean_Parser_addParserCategoryCore_spec__1_spec__2___redArg___closed__0();
 l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00__private_Lean_Parser_Extension_0__Lean_Parser_addParserCategoryCore_spec__1_spec__2___redArg___closed__1 = _init_l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00__private_Lean_Parser_Extension_0__Lean_Parser_addParserCategoryCore_spec__1_spec__2___redArg___closed__1();
 l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00__private_Lean_Parser_Extension_0__Lean_Parser_addParserCategoryCore_spec__1_spec__2___redArg___closed__2 = _init_l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00__private_Lean_Parser_Extension_0__Lean_Parser_addParserCategoryCore_spec__1_spec__2___redArg___closed__2();
 lean_mark_persistent(l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00__private_Lean_Parser_Extension_0__Lean_Parser_addParserCategoryCore_spec__1_spec__2___redArg___closed__2);

@@ -350,6 +350,7 @@ def isTypeCorrect (e : Expr) : MetaM Bool := do
 /--
 Throw an exception if `e` cannot be type checked using the kernel.
 This function is used for debugging purposes only.
+Be sure to share common expressions in `e` before calling this function for good performance.
 -/
 def checkWithKernel (e : Expr) : MetaM Unit := do
   let e ← instantiateExprMVars e

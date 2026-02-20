@@ -491,7 +491,7 @@ def canUnfoldAtMatcher (cfg : Config) (info : ConstantInfo) : CoreM Bool := do
   | .default => return !(← isIrreducible info.name)
   | _ =>
     let status ← getReducibilityStatus info.name
-    if status matches .reducible | .instanceReducible then
+    if status matches .reducible | .implicitReducible then
       return true
     else if hasMatchPatternAttribute (← getEnv) info.name then
       return true
@@ -809,6 +809,19 @@ partial def unfoldProjInstWhenInstances? (e : Expr) : MetaM (Option Expr) := do
   else
     return none
 
+/--
+When `true`, unfolding a `[reducible]` class field at `TransparencyMode.reducible` also unfolds
+the associated instance projection at `TransparencyMode.instances`.
+
+**Motivation:** Consider `a ≤ b` where `a b : Nat` and `LE.le` is `[reducible]`. Unfolding `LE.le`
+gives `instLENat.1 a b`, which is stuck because `instLENat` is `[implicit_reducible]` (not
+`[reducible]`). Similarly, `stM m (ExceptT ε m) α` unfolds to an instance projection that is stuck
+at `.reducible`. Without this option, marking a class field as `[reducible]` is pointless when the
+instance providing it is only `[implicit_reducible]`. This option makes the `[reducible]` annotation
+on class fields work as the user expects by temporarily bumping to `.instances` for the projection.
+
+See `unfoldDefault` for the implementation.
+-/
 register_builtin_option backward.whnf.reducibleClassField : Bool := {
   defValue := false
   descr    := "enables better support for unfolding type class fields marked as `[reducible]`"
@@ -820,7 +833,7 @@ This function has special support for unfolding class fields.
 The support is particularly important when the user marks a class field as `[reducible]` and
 the transparency mode is `.reducible`. For example, suppose `e` is `a ≤ b` where `a b : Nat`,
 and `LE.le` is marked as `[reducible]`. Simply unfolding `LE.le` would give `instLENat.1 a b`,
-which would be stuck because `instLENat` has transparency `[instance_reducible]`. To avoid this, when we unfold
+which would be stuck because `instLENat` has transparency `[implicit_reducible]`. To avoid this, when we unfold
 a `[reducible]` class field, we also unfold the associated projection `instLENat.1` using
 `.instances` reducibility, ultimately returning `Nat.le a b`.
 -/

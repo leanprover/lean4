@@ -44,7 +44,7 @@ lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(lean_object*, lean
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* lean_infer_type(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_toSubarray___redArg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Subarray_toArray___redArg(lean_object*);
+lean_object* l_Subarray_copy___redArg(lean_object*);
 lean_object* l_Lean_mkAppN(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_WF_withAppN(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_WF_withAppN___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -747,7 +747,7 @@ x_30 = lean_unsigned_to_nat(0u);
 lean_inc(x_1);
 lean_inc_ref(x_14);
 x_31 = l_Array_toSubarray___redArg(x_14, x_30, x_1);
-x_32 = l_Subarray_toArray___redArg(x_31);
+x_32 = l_Subarray_copy___redArg(x_31);
 x_33 = lean_apply_6(x_3, x_32, x_4, x_5, x_6, x_7, lean_box(0));
 if (lean_obj_tag(x_33) == 0)
 {
@@ -779,7 +779,7 @@ block_42:
 {
 lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; 
 x_38 = l_Array_toSubarray___redArg(x_14, x_36, x_37);
-x_39 = l_Subarray_toArray___redArg(x_38);
+x_39 = l_Subarray_copy___redArg(x_38);
 x_40 = l_Lean_mkAppN(x_34, x_39);
 lean_dec_ref(x_39);
 if (lean_is_scalar(x_35)) {
@@ -5696,8 +5696,8 @@ return x_30;
 else
 {
 lean_object* x_31; 
-lean_dec(x_22);
 lean_inc(x_11);
+lean_dec(x_22);
 lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec(x_5);

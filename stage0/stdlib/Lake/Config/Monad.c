@@ -53,8 +53,8 @@ static const lean_closure_object l_Lake_getRootPackage___redArg___closed__0_valu
 static const lean_object* l_Lake_getRootPackage___redArg___closed__0 = (const lean_object*)&l_Lake_getRootPackage___redArg___closed__0_value;
 LEAN_EXPORT lean_object* l_Lake_getRootPackage___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getRootPackage(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Name_quickCmp___boxed(lean_object*, lean_object*);
-static const lean_closure_object l_Lake_findPackageByKey_x3f___redArg___lam__0___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lean_Name_quickCmp___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
+lean_object* l___private_Lean_Data_Name_0__Lean_Name_quickCmpImpl___boxed(lean_object*, lean_object*);
+static const lean_closure_object l_Lake_findPackageByKey_x3f___redArg___lam__0___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l___private_Lean_Data_Name_0__Lean_Name_quickCmpImpl___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_Lake_findPackageByKey_x3f___redArg___lam__0___closed__0 = (const lean_object*)&l_Lake_findPackageByKey_x3f___redArg___lam__0___closed__0_value;
 lean_object* l_Std_DTreeMap_Internal_Impl_get_x3f___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_findPackageByKey_x3f___redArg___lam__0(lean_object*, lean_object*);
@@ -661,7 +661,7 @@ LEAN_EXPORT lean_object* l_Lake_findPackageByKey_x3f___redArg___lam__0(lean_obje
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = lean_ctor_get(x_2, 5);
+x_3 = lean_ctor_get(x_2, 6);
 lean_inc(x_3);
 lean_dec_ref(x_2);
 x_4 = ((lean_object*)(l_Lake_findPackageByKey_x3f___redArg___lam__0___closed__0));
@@ -740,7 +740,7 @@ LEAN_EXPORT lean_object* l_Lake_findPackageByName_x3f___redArg___lam__1(lean_obj
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; size_t x_9; size_t x_10; lean_object* x_11; lean_object* x_12; 
-x_3 = lean_ctor_get(x_2, 4);
+x_3 = lean_ctor_get(x_2, 5);
 lean_inc_ref(x_3);
 lean_dec_ref(x_2);
 x_4 = ((lean_object*)(l_Lake_findPackageByName_x3f___redArg___lam__1___closed__9));
@@ -801,7 +801,7 @@ LEAN_EXPORT lean_object* l_Lake_findPackage_x3f___redArg___lam__0(lean_object* x
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = lean_ctor_get(x_2, 5);
+x_3 = lean_ctor_get(x_2, 6);
 lean_inc(x_3);
 lean_dec_ref(x_2);
 x_4 = ((lean_object*)(l_Lake_findPackageByKey_x3f___redArg___lam__0___closed__0));
@@ -1405,7 +1405,7 @@ LEAN_EXPORT lean_object* l_Lake_getLakeCache___redArg___lam__0(lean_object* x_1)
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_ctor_get(x_1, 2);
+x_2 = lean_ctor_get(x_1, 3);
 lean_inc_ref(x_2);
 return x_2;
 }
@@ -1718,7 +1718,7 @@ LEAN_EXPORT uint8_t l_Lake_getNoCache___redArg___lam__0(lean_object* x_1) {
 _start:
 {
 uint8_t x_2; 
-x_2 = lean_ctor_get_uint8(x_1, sizeof(void*)*18);
+x_2 = lean_ctor_get_uint8(x_1, sizeof(void*)*19);
 return x_2;
 }
 }
@@ -1769,7 +1769,7 @@ LEAN_EXPORT uint8_t l_Lake_getTryCache___redArg___lam__0(lean_object* x_1) {
 _start:
 {
 uint8_t x_2; 
-x_2 = lean_ctor_get_uint8(x_1, sizeof(void*)*18);
+x_2 = lean_ctor_get_uint8(x_1, sizeof(void*)*19);
 if (x_2 == 0)
 {
 uint8_t x_3; 
@@ -1873,7 +1873,7 @@ LEAN_EXPORT lean_object* l_Lake_getElanToolchain___redArg___lam__0(lean_object* 
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_ctor_get(x_1, 17);
+x_2 = lean_ctor_get(x_1, 18);
 lean_inc_ref(x_2);
 return x_2;
 }

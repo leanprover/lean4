@@ -26,7 +26,7 @@ size_t lean_usize_of_nat(lean_object*);
 extern lean_object* l_Lean_NameSet_empty;
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_alter___at___00__private_Lean_IdentifierSuggestion_0__Lean_mkExistingToIncorrect_spec__5___redArg___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_alter___at___00__private_Lean_IdentifierSuggestion_0__Lean_mkExistingToIncorrect_spec__5___redArg___lam__0___boxed(lean_object*, lean_object*);
-uint8_t l_Lean_Name_quickCmp(lean_object*, lean_object*);
+uint8_t l___private_Lean_Data_Name_0__Lean_Name_quickCmpImpl(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_alter___at___00__private_Lean_IdentifierSuggestion_0__Lean_mkExistingToIncorrect_spec__5___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_balance___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_alter___at___00__private_Lean_IdentifierSuggestion_0__Lean_mkExistingToIncorrect_spec__5___redArg___boxed(lean_object*, lean_object*, lean_object*);
@@ -579,7 +579,7 @@ x_6 = lean_ctor_get(x_3, 1);
 x_7 = lean_ctor_get(x_3, 2);
 x_8 = lean_ctor_get(x_3, 3);
 x_9 = lean_ctor_get(x_3, 4);
-x_10 = l_Lean_Name_quickCmp(x_2, x_6);
+x_10 = l___private_Lean_Data_Name_0__Lean_Name_quickCmpImpl(x_2, x_6);
 switch (x_10) {
 case 0:
 {
@@ -629,7 +629,7 @@ lean_inc(x_20);
 lean_inc(x_19);
 lean_inc(x_18);
 lean_dec(x_3);
-x_23 = l_Lean_Name_quickCmp(x_2, x_19);
+x_23 = l___private_Lean_Data_Name_0__Lean_Name_quickCmpImpl(x_2, x_19);
 switch (x_23) {
 case 0:
 {
@@ -1236,7 +1236,7 @@ x_6 = lean_ctor_get(x_3, 1);
 x_7 = lean_ctor_get(x_3, 2);
 x_8 = lean_ctor_get(x_3, 3);
 x_9 = lean_ctor_get(x_3, 4);
-x_10 = l_Lean_Name_quickCmp(x_2, x_6);
+x_10 = l___private_Lean_Data_Name_0__Lean_Name_quickCmpImpl(x_2, x_6);
 switch (x_10) {
 case 0:
 {
@@ -1286,7 +1286,7 @@ lean_inc(x_20);
 lean_inc(x_19);
 lean_inc(x_18);
 lean_dec(x_3);
-x_23 = l_Lean_Name_quickCmp(x_2, x_19);
+x_23 = l___private_Lean_Data_Name_0__Lean_Name_quickCmpImpl(x_2, x_19);
 switch (x_23) {
 case 0:
 {

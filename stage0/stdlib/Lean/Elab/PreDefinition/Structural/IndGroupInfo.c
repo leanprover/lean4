@@ -279,7 +279,7 @@ static lean_object* l_Lean_Elab_Structural_IndGroupInst_nestedTypeFormers___clos
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lean_Elab_Structural_IndGroupInst_nestedTypeFormers___closed__2;
 lean_object* l_Array_toSubarray___redArg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Subarray_toArray___redArg(lean_object*);
+lean_object* l_Subarray_copy___redArg(lean_object*);
 size_t lean_array_size(lean_object*);
 lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkRecName(lean_object*);
@@ -3158,16 +3158,16 @@ x_37 = lean_array_get_size(x_35);
 x_38 = lean_nat_dec_le(x_36, x_22);
 if (x_38 == 0)
 {
-x_7 = x_35;
-x_8 = lean_box(0);
+x_7 = lean_box(0);
+x_8 = x_35;
 x_9 = x_36;
 x_10 = x_37;
 goto block_16;
 }
 else
 {
-x_7 = x_35;
-x_8 = lean_box(0);
+x_7 = lean_box(0);
+x_8 = x_35;
 x_9 = x_22;
 x_10 = x_37;
 goto block_16;
@@ -3232,8 +3232,8 @@ return x_65;
 block_16:
 {
 lean_object* x_11; lean_object* x_12; size_t x_13; size_t x_14; lean_object* x_15; 
-x_11 = l_Array_toSubarray___redArg(x_7, x_9, x_10);
-x_12 = l_Subarray_toArray___redArg(x_11);
+x_11 = l_Array_toSubarray___redArg(x_8, x_9, x_10);
+x_12 = l_Subarray_copy___redArg(x_11);
 x_13 = lean_array_size(x_12);
 x_14 = 0;
 x_15 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_Structural_IndGroupInst_nestedTypeFormers_spec__3(x_13, x_14, x_12, x_2, x_3, x_4, x_5);

@@ -8,11 +8,10 @@ theorem f_eq : f (x + 1) = q (f x) := rfl
 
 /--
 trace: [diag] Diagnostics
-  [reduction] unfolded declarations (max: 15, num: 4):
+  [reduction] unfolded declarations (max: 15, num: 3):
     [reduction] Nat.rec ↦ 15
     [reduction] Add.add ↦ 10
     [reduction] HAdd.hAdd ↦ 10
-    [reduction] Nat.add ↦ 10
   [reduction] unfolded reducible declarations (max: 15, num: 1):
     [reduction] Nat.casesOn ↦ 15
   use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
@@ -25,11 +24,10 @@ example : f (x + 5) = q (q (q (q (q (f x))))) :=
 
 /--
 trace: [diag] Diagnostics
-  [reduction] unfolded declarations (max: 15, num: 4):
+  [reduction] unfolded declarations (max: 15, num: 3):
     [reduction] Nat.rec ↦ 15
     [reduction] Add.add ↦ 10
     [reduction] HAdd.hAdd ↦ 10
-    [reduction] Nat.add ↦ 10
   [reduction] unfolded reducible declarations (max: 15, num: 1):
     [reduction] Nat.casesOn ↦ 15
   use `set_option diagnostics.threshold <num>` to control threshold for reporting counters

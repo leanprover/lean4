@@ -1,3 +1,5 @@
+set_option cbv.warning false
+
 -- Success: proposition reduces to `Bool.true`
 example : 1 + 1 = 2 := by decide_cbv
 

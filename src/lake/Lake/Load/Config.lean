@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lake.Config.Env
+public import Lake.Config.LakeConfig
 public import Lake.Load.Manifest
 
 set_option doc.verso true

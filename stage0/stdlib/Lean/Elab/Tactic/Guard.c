@@ -3628,6 +3628,7 @@ else
 if (lean_obj_tag(x_4) == 0)
 {
 lean_object* x_41; 
+lean_dec_ref(x_3);
 lean_dec_ref(x_26);
 lean_dec(x_24);
 lean_dec_ref(x_23);
@@ -3638,7 +3639,6 @@ lean_dec_ref(x_19);
 lean_dec(x_18);
 lean_dec_ref(x_17);
 lean_dec_ref(x_16);
-lean_dec_ref(x_3);
 lean_dec(x_1);
 x_41 = l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Elab_Tactic_GuardExpr_evalGuardExpr_spec__0___redArg();
 return x_41;
@@ -4238,8 +4238,8 @@ return x_166;
 }
 else
 {
-lean_dec(x_6);
 lean_dec_ref(x_5);
+lean_dec(x_6);
 x_16 = x_125;
 x_17 = x_126;
 x_18 = x_127;
@@ -4476,6 +4476,7 @@ else
 if (lean_obj_tag(x_3) == 0)
 {
 lean_object* x_41; 
+lean_dec_ref(x_2);
 lean_dec_ref(x_26);
 lean_dec(x_23);
 lean_dec_ref(x_22);
@@ -4486,7 +4487,6 @@ lean_dec_ref(x_18);
 lean_dec(x_17);
 lean_dec_ref(x_16);
 lean_dec_ref(x_15);
-lean_dec_ref(x_2);
 lean_dec(x_1);
 x_41 = l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Elab_Tactic_GuardExpr_evalGuardExpr_spec__0___redArg();
 return x_41;
@@ -5087,8 +5087,8 @@ return x_167;
 }
 else
 {
-lean_dec(x_5);
 lean_dec_ref(x_4);
+lean_dec(x_5);
 x_15 = x_125;
 x_16 = x_126;
 x_17 = x_127;
@@ -5239,9 +5239,9 @@ lean_closure_set(x_33, 0, x_18);
 lean_closure_set(x_33, 1, x_32);
 lean_closure_set(x_33, 2, x_31);
 lean_closure_set(x_33, 3, x_30);
-lean_closure_set(x_33, 4, x_26);
-lean_closure_set(x_33, 5, x_29);
-x_34 = l_Lean_Elab_Tactic_withMainContext___redArg(x_33, x_25, x_24, x_27, x_22, x_20, x_21, x_23, x_19);
+lean_closure_set(x_33, 4, x_20);
+lean_closure_set(x_33, 5, x_21);
+x_34 = l_Lean_Elab_Tactic_withMainContext___redArg(x_33, x_25, x_22, x_24, x_28, x_19, x_27, x_29, x_23);
 return x_34;
 }
 block_58:
@@ -5284,17 +5284,17 @@ x_55 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_55, 0, x_53);
 x_56 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_56, 0, x_54);
-x_19 = x_46;
-x_20 = x_43;
-x_21 = x_44;
-x_22 = x_42;
-x_23 = x_45;
-x_24 = x_40;
+x_19 = x_43;
+x_20 = x_37;
+x_21 = x_38;
+x_22 = x_40;
+x_23 = x_46;
+x_24 = x_41;
 x_25 = x_39;
-x_26 = x_37;
-x_27 = x_41;
-x_28 = lean_box(0);
-x_29 = x_38;
+x_26 = lean_box(0);
+x_27 = x_44;
+x_28 = x_42;
+x_29 = x_45;
 x_30 = x_55;
 x_31 = x_56;
 goto block_35;
@@ -5305,17 +5305,17 @@ else
 lean_object* x_57; 
 lean_dec(x_49);
 x_57 = lean_box(0);
-x_19 = x_46;
-x_20 = x_43;
-x_21 = x_44;
-x_22 = x_42;
-x_23 = x_45;
-x_24 = x_40;
+x_19 = x_43;
+x_20 = x_37;
+x_21 = x_38;
+x_22 = x_40;
+x_23 = x_46;
+x_24 = x_41;
 x_25 = x_39;
-x_26 = x_37;
-x_27 = x_41;
-x_28 = lean_box(0);
-x_29 = x_38;
+x_26 = lean_box(0);
+x_27 = x_44;
+x_28 = x_42;
+x_29 = x_45;
 x_30 = x_57;
 x_31 = x_57;
 goto block_35;
@@ -5403,9 +5403,9 @@ x_84 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_GuardExpr_evalGuardHyp___la
 lean_closure_set(x_84, 0, x_70);
 lean_closure_set(x_84, 1, x_83);
 lean_closure_set(x_84, 2, x_82);
-lean_closure_set(x_84, 3, x_80);
-lean_closure_set(x_84, 4, x_72);
-x_85 = l_Lean_Elab_Tactic_withMainContext___redArg(x_84, x_73, x_76, x_79, x_71, x_78, x_74, x_77, x_81);
+lean_closure_set(x_84, 3, x_73);
+lean_closure_set(x_84, 4, x_78);
+x_85 = l_Lean_Elab_Tactic_withMainContext___redArg(x_84, x_72, x_75, x_79, x_81, x_77, x_76, x_80, x_74);
 return x_85;
 }
 block_109:
@@ -5448,17 +5448,17 @@ x_106 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_106, 0, x_104);
 x_107 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_107, 0, x_105);
-x_71 = x_93;
-x_72 = x_89;
-x_73 = x_90;
-x_74 = x_95;
-x_75 = lean_box(0);
-x_76 = x_91;
-x_77 = x_96;
-x_78 = x_94;
+x_71 = lean_box(0);
+x_72 = x_90;
+x_73 = x_88;
+x_74 = x_97;
+x_75 = x_91;
+x_76 = x_95;
+x_77 = x_94;
+x_78 = x_89;
 x_79 = x_92;
-x_80 = x_88;
-x_81 = x_97;
+x_80 = x_96;
+x_81 = x_93;
 x_82 = x_106;
 x_83 = x_107;
 goto block_86;
@@ -5469,17 +5469,17 @@ else
 lean_object* x_108; 
 lean_dec(x_100);
 x_108 = lean_box(0);
-x_71 = x_93;
-x_72 = x_89;
-x_73 = x_90;
-x_74 = x_95;
-x_75 = lean_box(0);
-x_76 = x_91;
-x_77 = x_96;
-x_78 = x_94;
+x_71 = lean_box(0);
+x_72 = x_90;
+x_73 = x_88;
+x_74 = x_97;
+x_75 = x_91;
+x_76 = x_95;
+x_77 = x_94;
+x_78 = x_89;
 x_79 = x_92;
-x_80 = x_88;
-x_81 = x_97;
+x_80 = x_96;
+x_81 = x_93;
 x_82 = x_108;
 x_83 = x_108;
 goto block_86;

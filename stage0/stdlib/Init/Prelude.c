@@ -855,12 +855,12 @@ LEAN_EXPORT lean_object* l_Lean_Name_casesOn___override___redArg___boxed(lean_ob
 LEAN_EXPORT lean_object* l_Lean_Name_casesOn___override(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_casesOn___override___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_anonymous___override;
-static uint64_t l_Lean_Name_hash___override___closed__0;
-LEAN_EXPORT uint64_t l_Lean_Name_hash___override(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Name_hash___override___boxed(lean_object*);
+static uint64_t l_Lean_Name_str___override___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 static uint64_t l_Lean_Name_num___override___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
+LEAN_EXPORT uint64_t l_Lean_Name_hash___override(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Name_hash___override___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instInhabitedName;
 static const lean_closure_object l_Lean_instHashableName___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lean_Name_hash___override___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_Lean_instHashableName___closed__0 = (const lean_object*)&l_Lean_instHashableName___closed__0_value;
@@ -9859,7 +9859,7 @@ x_1 = lean_box(0);
 return x_1;
 }
 }
-static uint64_t _init_l_Lean_Name_hash___override___closed__0() {
+static uint64_t _init_l_Lean_Name_str___override___closed__0() {
 _start:
 {
 lean_object* x_1; uint64_t x_2; 
@@ -9868,13 +9868,105 @@ x_2 = lean_uint64_of_nat(x_1);
 return x_2;
 }
 }
+LEAN_EXPORT lean_object* l_Lean_Name_str___override(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint64_t x_3; 
+if (lean_obj_tag(x_1) == 0)
+{
+uint64_t x_8; 
+x_8 = l_Lean_Name_str___override___closed__0;
+x_3 = x_8;
+goto block_7;
+}
+else
+{
+uint64_t x_9; 
+x_9 = lean_ctor_get_uint64(x_1, sizeof(void*)*2);
+x_3 = x_9;
+goto block_7;
+}
+block_7:
+{
+uint64_t x_4; uint64_t x_5; lean_object* x_6; 
+x_4 = lean_string_hash(x_2);
+x_5 = lean_uint64_mix_hash(x_3, x_4);
+x_6 = lean_alloc_ctor(1, 2, 8);
+lean_ctor_set(x_6, 0, x_1);
+lean_ctor_set(x_6, 1, x_2);
+lean_ctor_set_uint64(x_6, sizeof(void*)*2, x_5);
+return x_6;
+}
+}
+}
+static uint64_t _init_l_Lean_Name_num___override___closed__0() {
+_start:
+{
+lean_object* x_1; uint64_t x_2; 
+x_1 = lean_unsigned_to_nat(17u);
+x_2 = lean_uint64_of_nat(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Name_num___override(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint64_t x_3; uint64_t x_4; uint64_t x_8; 
+if (lean_obj_tag(x_1) == 0)
+{
+uint64_t x_14; 
+x_14 = l_Lean_Name_str___override___closed__0;
+x_8 = x_14;
+goto block_13;
+}
+else
+{
+uint64_t x_15; 
+x_15 = lean_ctor_get_uint64(x_1, sizeof(void*)*2);
+x_8 = x_15;
+goto block_13;
+}
+block_7:
+{
+uint64_t x_5; lean_object* x_6; 
+x_5 = lean_uint64_mix_hash(x_3, x_4);
+x_6 = lean_alloc_ctor(2, 2, 8);
+lean_ctor_set(x_6, 0, x_1);
+lean_ctor_set(x_6, 1, x_2);
+lean_ctor_set_uint64(x_6, sizeof(void*)*2, x_5);
+return x_6;
+}
+block_13:
+{
+lean_object* x_9; uint8_t x_10; 
+x_9 = l_UInt64_size___closed__0;
+x_10 = lean_nat_dec_lt(x_2, x_9);
+if (x_10 == 0)
+{
+uint64_t x_11; 
+x_11 = l_Lean_Name_num___override___closed__0;
+x_3 = x_8;
+x_4 = x_11;
+goto block_7;
+}
+else
+{
+uint64_t x_12; 
+x_12 = lean_uint64_of_nat(x_2);
+x_3 = x_8;
+x_4 = x_12;
+goto block_7;
+}
+}
+}
+}
 LEAN_EXPORT uint64_t l_Lean_Name_hash___override(lean_object* x_1) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
 {
 uint64_t x_2; 
-x_2 = l_Lean_Name_hash___override___closed__0;
+x_2 = l_Lean_Name_str___override___closed__0;
 return x_2;
 }
 else
@@ -9893,62 +9985,6 @@ x_2 = l_Lean_Name_hash___override(x_1);
 lean_dec(x_1);
 x_3 = lean_box_uint64(x_2);
 return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Name_str___override(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint64_t x_3; uint64_t x_4; uint64_t x_5; lean_object* x_6; 
-x_3 = l_Lean_Name_hash___override(x_1);
-x_4 = lean_string_hash(x_2);
-x_5 = lean_uint64_mix_hash(x_3, x_4);
-x_6 = lean_alloc_ctor(1, 2, 8);
-lean_ctor_set(x_6, 0, x_1);
-lean_ctor_set(x_6, 1, x_2);
-lean_ctor_set_uint64(x_6, sizeof(void*)*2, x_5);
-return x_6;
-}
-}
-static uint64_t _init_l_Lean_Name_num___override___closed__0() {
-_start:
-{
-lean_object* x_1; uint64_t x_2; 
-x_1 = lean_unsigned_to_nat(17u);
-x_2 = lean_uint64_of_nat(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Name_num___override(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint64_t x_3; uint64_t x_4; lean_object* x_8; uint8_t x_9; 
-x_3 = l_Lean_Name_hash___override(x_1);
-x_8 = l_UInt64_size___closed__0;
-x_9 = lean_nat_dec_lt(x_2, x_8);
-if (x_9 == 0)
-{
-uint64_t x_10; 
-x_10 = l_Lean_Name_num___override___closed__0;
-x_4 = x_10;
-goto block_7;
-}
-else
-{
-uint64_t x_11; 
-x_11 = lean_uint64_of_nat(x_2);
-x_4 = x_11;
-goto block_7;
-}
-block_7:
-{
-uint64_t x_5; lean_object* x_6; 
-x_5 = lean_uint64_mix_hash(x_3, x_4);
-x_6 = lean_alloc_ctor(2, 2, 8);
-lean_ctor_set(x_6, 0, x_1);
-lean_ctor_set(x_6, 1, x_2);
-lean_ctor_set_uint64(x_6, sizeof(void*)*2, x_5);
-return x_6;
-}
 }
 }
 static lean_object* _init_l_Lean_instInhabitedName() {
@@ -12988,8 +13024,8 @@ switch (lean_obj_tag(x_3)) {
 case 0:
 {
 lean_object* x_4; lean_object* x_5; 
-lean_dec(x_2);
 lean_dec_ref(x_1);
+lean_dec(x_2);
 x_4 = ((lean_object*)(l___private_Init_Prelude_0__Lean_assembleParts___closed__0));
 x_5 = l_panic___at___00__private_Init_Prelude_0__Lean_assembleParts_spec__0(x_4);
 return x_5;
@@ -14946,7 +14982,7 @@ l_instInhabitedRaw = _init_l_instInhabitedRaw();
 lean_mark_persistent(l_instInhabitedRaw);
 l_Lean_Name_anonymous___override = _init_l_Lean_Name_anonymous___override();
 lean_mark_persistent(l_Lean_Name_anonymous___override);
-l_Lean_Name_hash___override___closed__0 = _init_l_Lean_Name_hash___override___closed__0();
+l_Lean_Name_str___override___closed__0 = _init_l_Lean_Name_str___override___closed__0();
 l_Lean_Name_num___override___closed__0 = _init_l_Lean_Name_num___override___closed__0();
 l_Lean_instInhabitedName = _init_l_Lean_instInhabitedName();
 lean_mark_persistent(l_Lean_instInhabitedName);

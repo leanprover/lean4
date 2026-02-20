@@ -142,7 +142,7 @@ is classically true but not constructively. -/
 
 /-- Transfer decidability of `¬ p` to decidability of `p`. -/
 -- This can not be an instance as it would be tried everywhere.
-@[instance_reducible]
+@[implicit_reducible]
 def decidable_of_decidable_not (p : Prop) [h : Decidable (¬ p)] : Decidable p :=
   match h with
   | isFalse h => isTrue (Classical.not_not.mp h)

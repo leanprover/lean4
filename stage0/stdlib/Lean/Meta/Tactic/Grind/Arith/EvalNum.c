@@ -5378,8 +5378,8 @@ return x_270;
 else
 {
 lean_object* x_274; 
-lean_free_object(x_270);
 lean_dec_ref(x_272);
+lean_free_object(x_270);
 x_274 = l___private_Lean_Meta_Tactic_Grind_Arith_EvalNum_0__Lean_Meta_Grind_Arith_evalNatCore(x_32, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 if (lean_obj_tag(x_274) == 0)
 {
@@ -5665,8 +5665,8 @@ return x_314;
 else
 {
 lean_object* x_315; 
-lean_dec(x_312);
 lean_dec_ref(x_311);
+lean_dec(x_312);
 x_315 = l___private_Lean_Meta_Tactic_Grind_Arith_EvalNum_0__Lean_Meta_Grind_Arith_evalNatCore(x_32, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 if (lean_obj_tag(x_315) == 0)
 {
@@ -7253,8 +7253,8 @@ return x_549;
 else
 {
 lean_object* x_550; 
-lean_dec(x_547);
 lean_dec_ref(x_546);
+lean_dec(x_547);
 x_550 = l___private_Lean_Meta_Tactic_Grind_Arith_EvalNum_0__Lean_Meta_Grind_Arith_evalNatCore(x_411, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 if (lean_obj_tag(x_550) == 0)
 {

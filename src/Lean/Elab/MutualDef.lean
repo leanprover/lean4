@@ -1222,12 +1222,12 @@ where
     let headers ← elabHeaders views expandedDeclIds bodyPromises tacPromises
     let headers ← levelMVarToParamHeaders views headers
 
-    -- Now that we have elaborated types, default data instances to `[instance_reducible]`. This
+    -- Now that we have elaborated types, default data instances to `[implicit_reducible]`. This
     -- should happen before attribute application as `[instance]` will check for it.
     for header in headers do
       if header.kind == .instance && !header.modifiers.anyAttr (·.name matches `reducible | `irreducible) then
         if !(← isProp header.type) then
-          setReducibilityStatus header.declName .instanceReducible
+          setReducibilityStatus header.declName .implicitReducible
 
     if let (#[view], #[declId]) := (views, expandedDeclIds) then
       if Elab.async.get (← getOptions) && view.kind.isTheorem &&

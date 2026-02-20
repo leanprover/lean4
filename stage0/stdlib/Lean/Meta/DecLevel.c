@@ -1494,11 +1494,11 @@ goto block_11;
 case 4:
 {
 lean_object* x_39; lean_object* x_40; 
+lean_dec_ref(x_1);
 lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_4);
 lean_dec_ref(x_3);
-lean_dec_ref(x_1);
 x_39 = lean_box(0);
 x_40 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_40, 0, x_39);

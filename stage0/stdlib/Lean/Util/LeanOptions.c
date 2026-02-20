@@ -234,7 +234,7 @@ uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LeanOptions_ofArray(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LeanOptions_ofArray___boxed(lean_object*);
-uint8_t l_Lean_Name_quickCmp(lean_object*, lean_object*);
+uint8_t l___private_Lean_Data_Name_0__Lean_Name_quickCmpImpl(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_alter___at___00Lean_LeanOptions_append_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_balance___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at___00Std_DTreeMap_Internal_Impl_foldl___at___00Lean_LeanOptions_append_spec__1_spec__1(lean_object*, lean_object*);
@@ -1954,7 +1954,7 @@ x_6 = lean_ctor_get(x_3, 1);
 x_7 = lean_ctor_get(x_3, 2);
 x_8 = lean_ctor_get(x_3, 3);
 x_9 = lean_ctor_get(x_3, 4);
-x_10 = l_Lean_Name_quickCmp(x_2, x_6);
+x_10 = l___private_Lean_Data_Name_0__Lean_Name_quickCmpImpl(x_2, x_6);
 switch (x_10) {
 case 0:
 {
@@ -1998,7 +1998,7 @@ lean_inc(x_17);
 lean_inc(x_16);
 lean_inc(x_15);
 lean_dec(x_3);
-x_20 = l_Lean_Name_quickCmp(x_2, x_16);
+x_20 = l___private_Lean_Data_Name_0__Lean_Name_quickCmpImpl(x_2, x_16);
 switch (x_20) {
 case 0:
 {
@@ -2281,7 +2281,7 @@ if (lean_is_exclusive(x_3)) {
  lean_dec_ref(x_3);
  x_9 = lean_box(0);
 }
-x_10 = l_Lean_Name_quickCmp(x_1, x_5);
+x_10 = l___private_Lean_Data_Name_0__Lean_Name_quickCmpImpl(x_1, x_5);
 switch (x_10) {
 case 0:
 {

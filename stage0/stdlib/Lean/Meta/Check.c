@@ -326,7 +326,8 @@ lean_object* lean_usize_to_nat(size_t);
 size_t lean_usize_shift_right(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00Lean_Meta_mkUnfoldAxiomsNote_spec__0_spec__0___redArg(lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00Lean_Meta_mkUnfoldAxiomsNote_spec__0_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*);
-uint64_t l_Lean_Name_hash___override(lean_object*);
+uint64_t lean_uint64_of_nat(lean_object*);
+static uint64_t l_Lean_PersistentHashMap_find_x3f___at___00Lean_Meta_mkUnfoldAxiomsNote_spec__0___redArg___closed__0;
 size_t lean_uint64_to_usize(uint64_t);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at___00Lean_Meta_mkUnfoldAxiomsNote_spec__0___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at___00Lean_Meta_mkUnfoldAxiomsNote_spec__0___redArg___boxed(lean_object*, lean_object*);
@@ -4432,12 +4433,12 @@ lean_dec(x_164);
 lean_free_object(x_159);
 lean_dec_ref(x_109);
 lean_dec_ref(x_108);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_4);
 lean_dec_ref(x_3);
-lean_dec_ref(x_2);
-lean_dec_ref(x_1);
 x_232 = lean_ctor_get(x_188, 0);
 lean_inc(x_232);
 lean_dec_ref(x_188);
@@ -4835,12 +4836,12 @@ lean_dec_ref(x_244);
 lean_dec(x_239);
 lean_dec_ref(x_109);
 lean_dec_ref(x_108);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_4);
 lean_dec_ref(x_3);
-lean_dec_ref(x_2);
-lean_dec_ref(x_1);
 x_308 = lean_ctor_get(x_263, 0);
 lean_inc(x_308);
 lean_dec_ref(x_263);
@@ -6892,14 +6893,40 @@ lean_dec(x_3);
 return x_5;
 }
 }
+static uint64_t _init_l_Lean_PersistentHashMap_find_x3f___at___00Lean_Meta_mkUnfoldAxiomsNote_spec__0___redArg___closed__0() {
+_start:
+{
+lean_object* x_1; uint64_t x_2; 
+x_1 = lean_unsigned_to_nat(1723u);
+x_2 = lean_uint64_of_nat(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at___00Lean_Meta_mkUnfoldAxiomsNote_spec__0___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-uint64_t x_3; size_t x_4; lean_object* x_5; 
-x_3 = l_Lean_Name_hash___override(x_2);
+uint64_t x_3; 
+if (lean_obj_tag(x_2) == 0)
+{
+uint64_t x_7; 
+x_7 = l_Lean_PersistentHashMap_find_x3f___at___00Lean_Meta_mkUnfoldAxiomsNote_spec__0___redArg___closed__0;
+x_3 = x_7;
+goto block_6;
+}
+else
+{
+uint64_t x_8; 
+x_8 = lean_ctor_get_uint64(x_2, sizeof(void*)*2);
+x_3 = x_8;
+goto block_6;
+}
+block_6:
+{
+size_t x_4; lean_object* x_5; 
 x_4 = lean_uint64_to_usize(x_3);
 x_5 = l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00Lean_Meta_mkUnfoldAxiomsNote_spec__0_spec__0___redArg(x_1, x_4, x_2);
 return x_5;
+}
 }
 }
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at___00Lean_Meta_mkUnfoldAxiomsNote_spec__0___redArg___boxed(lean_object* x_1, lean_object* x_2) {
@@ -7501,8 +7528,8 @@ x_42 = lean_ctor_get(x_40, 0);
 lean_dec(x_42);
 if (lean_obj_tag(x_37) == 0)
 {
-lean_free_object(x_40);
 lean_dec_ref(x_37);
+lean_free_object(x_40);
 x_8 = lean_box(0);
 goto block_11;
 }
@@ -14311,6 +14338,7 @@ l_Lean_Meta_throwLetTypeMismatchMessage___redArg___closed__11 = _init_l_Lean_Met
 lean_mark_persistent(l_Lean_Meta_throwLetTypeMismatchMessage___redArg___closed__11);
 l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00Lean_Meta_mkUnfoldAxiomsNote_spec__0_spec__0___redArg___closed__0 = _init_l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00Lean_Meta_mkUnfoldAxiomsNote_spec__0_spec__0___redArg___closed__0();
 l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00Lean_Meta_mkUnfoldAxiomsNote_spec__0_spec__0___redArg___closed__1 = _init_l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00Lean_Meta_mkUnfoldAxiomsNote_spec__0_spec__0___redArg___closed__1();
+l_Lean_PersistentHashMap_find_x3f___at___00Lean_Meta_mkUnfoldAxiomsNote_spec__0___redArg___closed__0 = _init_l_Lean_PersistentHashMap_find_x3f___at___00Lean_Meta_mkUnfoldAxiomsNote_spec__0___redArg___closed__0();
 l_List_filterMapTR_go___at___00Lean_Meta_mkUnfoldAxiomsNote_spec__2___closed__1 = _init_l_List_filterMapTR_go___at___00Lean_Meta_mkUnfoldAxiomsNote_spec__2___closed__1();
 lean_mark_persistent(l_List_filterMapTR_go___at___00Lean_Meta_mkUnfoldAxiomsNote_spec__2___closed__1);
 l_Lean_Meta_mkUnfoldAxiomsNote___closed__0 = _init_l_Lean_Meta_mkUnfoldAxiomsNote___closed__0();

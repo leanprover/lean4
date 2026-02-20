@@ -689,3 +689,9 @@
   run_config:
     <<: *time
     cmd: lean ./cbv/decide.lean
+- attributes:
+    description: cbv tactic (evaluating List.mergeSort)
+    tags: [other]
+  run_config:
+    <<: *time
+    cmd: lean ./cbv/merge_sort.lean

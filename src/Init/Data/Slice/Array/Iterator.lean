@@ -55,15 +55,12 @@ instance SubarrayIterator.instFinite : Finite (SubarrayIterator α) Id :=
 
 instance [Monad m] : IteratorLoop (SubarrayIterator α) Id m := .defaultImplementation
 
-@[inline, expose, instance_reducible]
+@[inline, expose, implicit_reducible]
 def Subarray.instToIterator :=
   ToIterator.of (γ := Slice (Internal.SubarrayData α)) (β := α) (SubarrayIterator α) (⟨⟨·⟩⟩)
 attribute [instance] Subarray.instToIterator
 
 universe v w
-
-instance : SliceSize (Internal.SubarrayData α) where
-  size s := s.internalRepresentation.stop - s.internalRepresentation.start
 
 instance {α : Type u} {m : Type v → Type w} [Monad m] : ForIn m (Subarray α) α :=
   inferInstance
@@ -77,45 +74,6 @@ specific docstring.
 -/
 
 /--
-Folds a monadic operation from left to right over the elements in a subarray.
-An accumulator of type `β` is constructed by starting with `init` and monadically combining each
-element of the subarray with the current accumulator value in turn. The monad in question may permit
-early termination or repetition.
-Examples:
-```lean example
-#eval #["red", "green", "blue"].toSubarray.foldlM (init := "") fun acc x => do
-  let l ← Option.guard (· ≠ 0) x.length
-  return s!"{acc}({l}){x} "
-```
-```output
-some "(3)red (5)green (4)blue "
-```
-```lean example
-#eval #["red", "green", "blue"].toSubarray.foldlM (init := 0) fun acc x => do
-  let l ← Option.guard (· ≠ 5) x.length
-  return s!"{acc}({l}){x} "
-```
-```output
-none
-```
--/
-@[inline]
-def Subarray.foldlM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : β → α → m β) (init : β) (as : Subarray α) : m β :=
-  Slice.foldlM f (init := init) as
-
-/--
-Folds an operation from left to right over the elements in a subarray.
-An accumulator of type `β` is constructed by starting with `init` and combining each
-element of the subarray with the current accumulator value in turn.
-Examples:
- * `#["red", "green", "blue"].toSubarray.foldl (· + ·.length) 0 = 12`
- * `#["red", "green", "blue"].toSubarray.popFront.foldl (· + ·.length) 0 = 9`
--/
-@[inline]
-def Subarray.foldl {α : Type u} {β : Type v} (f : β → α → β) (init : β) (as : Subarray α) : β :=
-  Slice.foldl f (init := init) as
-
-/--
 The implementation of `ForIn.forIn` for `Subarray`, which allows it to be used with `for` loops in
 `do`-notation.
 -/
@@ -126,16 +84,12 @@ def Subarray.forIn {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m]
 /--
 Allocates a new array that contains the contents of the subarray.
 -/
-@[coe]
-def Subarray.toArray (s : Subarray α) : Array α :=
+@[expose, coe]
+def Subarray.copy (s : Subarray α) : Array α :=
   Slice.toArray s
 
 instance instCoeSubarrayArray : Coe (Subarray α) (Array α) :=
-  ⟨Subarray.toArray⟩
-
-@[inherit_doc Subarray.toArray]
-def Subarray.copy (s : Subarray α) : Array α :=
-  Slice.toArray s
+  ⟨Subarray.copy⟩
 
 @[simp]
 theorem Subarray.copy_eq_toArray {s : Subarray α} :
@@ -149,7 +103,7 @@ theorem Subarray.sliceToArray_eq_toArray {s : Subarray α} :
 
 namespace Array
 
-@[inherit_doc Subarray.toArray]
+@[inherit_doc Subarray.copy]
 def ofSubarray (s : Subarray α) : Array α :=
   Slice.toArray s
 

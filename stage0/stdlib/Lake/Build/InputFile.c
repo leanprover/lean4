@@ -39,7 +39,7 @@ static const lean_object* l_Lake_InputFile_defaultFacetConfig___closed__1 = (con
 extern lean_object* l_Lake_InputFile_keyword;
 static lean_object* l_Lake_InputFile_defaultFacetConfig___closed__2;
 LEAN_EXPORT lean_object* l_Lake_InputFile_defaultFacetConfig;
-uint8_t l_Lean_Name_quickCmp(lean_object*, lean_object*);
+uint8_t l___private_Lean_Data_Name_0__Lean_Name_quickCmpImpl(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___00Lake_InputFile_initFacetConfigs_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
@@ -364,7 +364,7 @@ if (lean_is_exclusive(x_3)) {
  lean_dec_ref(x_3);
  x_9 = lean_box(0);
 }
-x_10 = l_Lean_Name_quickCmp(x_1, x_5);
+x_10 = l___private_Lean_Data_Name_0__Lean_Name_quickCmpImpl(x_1, x_5);
 switch (x_10) {
 case 0:
 {

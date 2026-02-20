@@ -228,8 +228,8 @@ return x_12;
 else
 {
 uint8_t x_13; 
-lean_dec_ref(x_2);
 lean_dec_ref(x_1);
+lean_dec_ref(x_2);
 x_13 = 0;
 return x_13;
 }
@@ -291,8 +291,8 @@ return x_21;
 else
 {
 uint8_t x_25; 
-lean_dec_ref(x_2);
 lean_dec_ref(x_1);
+lean_dec_ref(x_2);
 x_25 = 0;
 return x_25;
 }
@@ -314,8 +314,8 @@ return x_28;
 else
 {
 uint8_t x_29; 
-lean_dec_ref(x_2);
 lean_dec_ref(x_1);
+lean_dec_ref(x_2);
 x_29 = 0;
 return x_29;
 }
@@ -337,8 +337,8 @@ return x_32;
 else
 {
 uint8_t x_33; 
-lean_dec_ref(x_2);
 lean_dec_ref(x_1);
+lean_dec_ref(x_2);
 x_33 = 0;
 return x_33;
 }
@@ -360,8 +360,8 @@ return x_36;
 else
 {
 uint8_t x_37; 
-lean_dec_ref(x_2);
 lean_dec_ref(x_1);
+lean_dec_ref(x_2);
 x_37 = 0;
 return x_37;
 }
@@ -383,8 +383,8 @@ return x_40;
 else
 {
 uint8_t x_41; 
-lean_dec_ref(x_2);
 lean_dec_ref(x_1);
+lean_dec_ref(x_2);
 x_41 = 0;
 return x_41;
 }
@@ -406,8 +406,8 @@ return x_44;
 else
 {
 uint8_t x_45; 
-lean_dec_ref(x_2);
 lean_dec_ref(x_1);
+lean_dec_ref(x_2);
 x_45 = 0;
 return x_45;
 }
@@ -767,8 +767,8 @@ lean_inc_ref(x_7);
 x_15 = l___private_Lean_Server_Completion_CompletionInfoSelection_0__Lean_Server_Completion_findCompletionInfosAt_containsHoverPos(x_2, x_7);
 if (x_15 == 0)
 {
-lean_dec_ref(x_7);
 lean_dec_ref(x_5);
+lean_dec_ref(x_7);
 lean_dec_ref(x_4);
 lean_dec_ref(x_1);
 return x_6;

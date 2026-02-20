@@ -848,8 +848,8 @@ return x_18;
 case 1:
 {
 lean_object* x_76; lean_object* x_77; 
-lean_dec_ref(x_2);
 lean_dec_ref(x_1);
+lean_dec_ref(x_2);
 x_76 = l_Lean_Meta_Grind_Arith_Cutsat_SymbolicIntInterval_wrap___closed__2;
 x_77 = l_Lean_throwError___at___00Lean_Meta_Grind_Arith_Cutsat_SymbolicIntInterval_wrap_spec__0___redArg(x_76, x_3, x_4, x_5, x_6);
 lean_dec(x_6);
@@ -861,8 +861,8 @@ return x_77;
 case 2:
 {
 lean_object* x_78; lean_object* x_79; 
-lean_dec_ref(x_2);
 lean_dec_ref(x_1);
+lean_dec_ref(x_2);
 x_78 = l_Lean_Meta_Grind_Arith_Cutsat_SymbolicIntInterval_wrap___closed__4;
 x_79 = l_Lean_throwError___at___00Lean_Meta_Grind_Arith_Cutsat_SymbolicIntInterval_wrap_spec__0___redArg(x_78, x_3, x_4, x_5, x_6);
 lean_dec(x_6);

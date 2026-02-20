@@ -133,8 +133,9 @@ LEAN_EXPORT lean_object* l_Lean_instBEqImport_beq___boxed(lean_object*, lean_obj
 static const lean_closure_object l_Lean_instBEqImport___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lean_instBEqImport_beq___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_Lean_instBEqImport___closed__0 = (const lean_object*)&l_Lean_instBEqImport___closed__0_value;
 LEAN_EXPORT const lean_object* l_Lean_instBEqImport = (const lean_object*)&l_Lean_instBEqImport___closed__0_value;
+uint64_t lean_uint64_of_nat(lean_object*);
+static uint64_t l_Lean_instHashableImport_hash___closed__0;
 uint64_t lean_uint64_mix_hash(uint64_t, uint64_t);
-uint64_t l_Lean_Name_hash___override(lean_object*);
 LEAN_EXPORT uint64_t l_Lean_instHashableImport_hash(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instHashableImport_hash___boxed(lean_object*);
 static const lean_closure_object l_Lean_instHashableImport___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lean_instHashableImport_hash___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
@@ -1539,30 +1540,37 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
+static uint64_t _init_l_Lean_instHashableImport_hash___closed__0() {
+_start:
+{
+lean_object* x_1; uint64_t x_2; 
+x_1 = lean_unsigned_to_nat(1723u);
+x_2 = lean_uint64_of_nat(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT uint64_t l_Lean_instHashableImport_hash(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; uint8_t x_3; uint8_t x_4; uint8_t x_5; uint64_t x_6; uint64_t x_7; uint64_t x_14; uint64_t x_15; uint64_t x_16; uint64_t x_17; 
+lean_object* x_2; uint8_t x_3; uint8_t x_4; uint8_t x_5; uint64_t x_6; uint64_t x_7; uint64_t x_14; uint64_t x_15; uint64_t x_20; uint64_t x_21; 
 x_2 = lean_ctor_get(x_1, 0);
 x_3 = lean_ctor_get_uint8(x_1, sizeof(void*)*1);
 x_4 = lean_ctor_get_uint8(x_1, sizeof(void*)*1 + 1);
 x_5 = lean_ctor_get_uint8(x_1, sizeof(void*)*1 + 2);
-x_14 = 0;
-x_15 = l_Lean_Name_hash___override(x_2);
-x_16 = lean_uint64_mix_hash(x_14, x_15);
-if (x_3 == 0)
+x_20 = 0;
+if (lean_obj_tag(x_2) == 0)
 {
-uint64_t x_22; 
-x_22 = 13;
-x_17 = x_22;
-goto block_21;
+uint64_t x_26; 
+x_26 = l_Lean_instHashableImport_hash___closed__0;
+x_21 = x_26;
+goto block_25;
 }
 else
 {
-uint64_t x_23; 
-x_23 = 11;
-x_17 = x_23;
-goto block_21;
+uint64_t x_27; 
+x_27 = lean_ctor_get_uint64(x_2, sizeof(void*)*2);
+x_21 = x_27;
+goto block_25;
 }
 block_13:
 {
@@ -1583,25 +1591,46 @@ x_12 = lean_uint64_mix_hash(x_8, x_11);
 return x_12;
 }
 }
-block_21:
+block_19:
 {
-uint64_t x_18; 
-x_18 = lean_uint64_mix_hash(x_16, x_17);
+uint64_t x_16; 
+x_16 = lean_uint64_mix_hash(x_14, x_15);
 if (x_4 == 0)
 {
-uint64_t x_19; 
-x_19 = 13;
-x_6 = x_18;
-x_7 = x_19;
+uint64_t x_17; 
+x_17 = 13;
+x_6 = x_16;
+x_7 = x_17;
 goto block_13;
 }
 else
 {
-uint64_t x_20; 
-x_20 = 11;
-x_6 = x_18;
-x_7 = x_20;
+uint64_t x_18; 
+x_18 = 11;
+x_6 = x_16;
+x_7 = x_18;
 goto block_13;
+}
+}
+block_25:
+{
+uint64_t x_22; 
+x_22 = lean_uint64_mix_hash(x_20, x_21);
+if (x_3 == 0)
+{
+uint64_t x_23; 
+x_23 = 13;
+x_14 = x_22;
+x_15 = x_23;
+goto block_19;
+}
+else
+{
+uint64_t x_24; 
+x_24 = 11;
+x_14 = x_22;
+x_15 = x_24;
+goto block_19;
 }
 }
 }
@@ -5870,13 +5899,13 @@ return x_67;
 else
 {
 lean_object* x_68; lean_object* x_69; 
-lean_dec(x_26);
 lean_dec_ref(x_17);
+lean_dec(x_26);
 lean_dec(x_16);
 lean_dec(x_15);
 lean_dec(x_14);
-lean_dec(x_9);
 lean_dec_ref(x_7);
+lean_dec(x_9);
 lean_dec(x_6);
 lean_dec(x_5);
 x_68 = l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_NameMap_toJson___at___00Lean_instToJsonModuleSetup_toJson_spec__2_spec__2___redArg___closed__3;
@@ -5892,8 +5921,8 @@ lean_dec(x_18);
 lean_dec(x_16);
 lean_dec(x_15);
 lean_dec(x_14);
-lean_dec(x_9);
 lean_dec_ref(x_7);
+lean_dec(x_9);
 lean_dec(x_6);
 lean_dec(x_5);
 x_70 = l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_NameMap_toJson___at___00Lean_instToJsonModuleSetup_toJson_spec__2_spec__2___redArg___closed__4;
@@ -6500,13 +6529,13 @@ return x_205;
 else
 {
 lean_object* x_206; lean_object* x_207; 
-lean_dec(x_162);
 lean_dec_ref(x_153);
+lean_dec(x_162);
 lean_dec(x_152);
 lean_dec(x_151);
 lean_dec(x_150);
-lean_dec(x_9);
 lean_dec_ref(x_8);
+lean_dec(x_9);
 lean_dec(x_6);
 lean_dec(x_5);
 x_206 = l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_NameMap_toJson___at___00Lean_instToJsonModuleSetup_toJson_spec__2_spec__2___redArg___closed__7;
@@ -6522,8 +6551,8 @@ lean_dec(x_154);
 lean_dec(x_152);
 lean_dec(x_151);
 lean_dec(x_150);
-lean_dec(x_9);
 lean_dec_ref(x_8);
+lean_dec(x_9);
 lean_dec(x_6);
 lean_dec(x_5);
 x_208 = l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_NameMap_toJson___at___00Lean_instToJsonModuleSetup_toJson_spec__2_spec__2___redArg___closed__8;
@@ -9584,6 +9613,7 @@ l_Lean_instFromJsonImport_fromJson___closed__21 = _init_l_Lean_instFromJsonImpor
 lean_mark_persistent(l_Lean_instFromJsonImport_fromJson___closed__21);
 l_Lean_instFromJsonImport_fromJson___closed__22 = _init_l_Lean_instFromJsonImport_fromJson___closed__22();
 lean_mark_persistent(l_Lean_instFromJsonImport_fromJson___closed__22);
+l_Lean_instHashableImport_hash___closed__0 = _init_l_Lean_instHashableImport_hash___closed__0();
 l_Array_repr___at___00Lean_instReprModuleHeader_repr_spec__0___closed__3 = _init_l_Array_repr___at___00Lean_instReprModuleHeader_repr_spec__0___closed__3();
 lean_mark_persistent(l_Array_repr___at___00Lean_instReprModuleHeader_repr_spec__0___closed__3);
 l_Array_repr___at___00Lean_instReprModuleHeader_repr_spec__0___closed__4 = _init_l_Array_repr___at___00Lean_instReprModuleHeader_repr_spec__0___closed__4();

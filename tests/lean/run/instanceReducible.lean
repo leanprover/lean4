@@ -8,22 +8,22 @@ public def unexposed : Inhabited Nat := inferInstance
 #guard_msgs in
 attribute [instance] unexposed
 
-/-- warning: instance `unexposed` must be marked with `@[reducible]` or `@[instance_reducible]` -/
+/-- warning: instance `unexposed` must be marked with `@[reducible]` or `@[implicit_reducible]` -/
 #guard_msgs in
 attribute [local instance] unexposed
 
 @[expose]
 public def exposed : Inhabited Nat := inferInstance
 
-/-- warning: instance `exposed` must be marked with `@[reducible]` or `@[instance_reducible]` -/
+/-- warning: instance `exposed` must be marked with `@[reducible]` or `@[implicit_reducible]` -/
 #guard_msgs in
 attribute [instance] exposed
 
-/-- warning: instance `exposed` must be marked with `@[reducible]` or `@[instance_reducible]` -/
+/-- warning: instance `exposed` must be marked with `@[reducible]` or `@[implicit_reducible]` -/
 #guard_msgs in
 attribute [local instance] exposed
 
-@[expose, instance_reducible]
+@[expose, implicit_reducible]
 public def exposedAndReducible : Inhabited Nat := inferInstance
 
 #guard_msgs in

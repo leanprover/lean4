@@ -245,7 +245,7 @@ theorem neg_zsmul (i : Int) (a : Q α) : zsmul (-i) a = neg (zsmul i a) := by
     · have : i = 0 := by omega
       simp [this]
 
-@[instance_reducible]
+@[implicit_reducible]
 def ofSemiring : Ring (Q α) := {
   nsmul := ⟨nsmul⟩
   zsmul := ⟨zsmul⟩
@@ -506,7 +506,7 @@ theorem mul_comm (a b : OfSemiring.Q α) : OfSemiring.mul a b = OfSemiring.mul b
   obtain ⟨⟨b₁, b₂⟩⟩ := b
   apply Quot.sound; refine ⟨0, ?_⟩; simp; ac_rfl
 
-@[instance_reducible]
+@[implicit_reducible]
 def ofCommSemiring : CommRing (OfSemiring.Q α) :=
   { OfSemiring.ofSemiring with
     mul_comm := mul_comm }

@@ -4463,6 +4463,7 @@ else
 {
 uint8_t x_41; 
 lean_dec_ref(x_30);
+lean_dec_ref(x_17);
 lean_dec_ref(x_29);
 lean_dec(x_27);
 lean_dec_ref(x_26);
@@ -4474,7 +4475,6 @@ lean_dec(x_21);
 lean_dec_ref(x_20);
 lean_dec(x_19);
 lean_dec(x_18);
-lean_dec_ref(x_17);
 lean_dec_ref(x_16);
 lean_dec(x_14);
 lean_dec_ref(x_13);

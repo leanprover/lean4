@@ -1459,11 +1459,11 @@ return x_110;
 }
 else
 {
-lean_dec(x_87);
 lean_inc(x_83);
 lean_inc(x_82);
-lean_dec(x_81);
 lean_inc_ref(x_80);
+lean_dec(x_87);
+lean_dec(x_81);
 lean_dec_ref(x_1);
 if (x_89 == 0)
 {
@@ -1530,8 +1530,8 @@ return x_121;
 else
 {
 lean_object* x_122; lean_object* x_123; lean_object* x_124; lean_object* x_125; lean_object* x_126; lean_object* x_127; uint8_t x_128; lean_object* x_129; lean_object* x_130; lean_object* x_131; lean_object* x_132; uint8_t x_133; lean_object* x_134; lean_object* x_135; lean_object* x_136; lean_object* x_137; 
-lean_dec(x_85);
 lean_inc(x_83);
+lean_dec(x_85);
 lean_dec_ref(x_6);
 lean_dec(x_5);
 lean_dec(x_4);

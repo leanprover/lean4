@@ -361,8 +361,8 @@ inductive Code (pu : Purity) where
   | cases (cases : Cases pu)
   | return (fvarId : FVarId)
   | unreach (type : Expr)
-  | uset (var : FVarId) (i : Nat) (y : FVarId) (k : Code pu) (h : pu = .impure := by purity_tac)
-  | sset (var : FVarId) (i : Nat) (offset : Nat) (y : FVarId) (ty : Expr) (k : Code pu) (h : pu = .impure := by purity_tac)
+  | uset (fvarId : FVarId) (i : Nat) (y : FVarId) (k : Code pu) (h : pu = .impure := by purity_tac)
+  | sset (fvarId : FVarId) (i : Nat) (offset : Nat) (y : FVarId) (ty : Expr) (k : Code pu) (h : pu = .impure := by purity_tac)
   | inc (fvarId : FVarId) (n : Nat) (check : Bool) (persistent : Bool) (k : Code pu) (h : pu = .impure := by purity_tac)
   | dec (fvarId : FVarId) (n : Nat) (check : Bool) (persistent : Bool) (k : Code pu) (h : pu = .impure := by purity_tac)
   deriving Inhabited
@@ -440,8 +440,8 @@ inductive CodeDecl (pu : Purity) where
   | let (decl : LetDecl pu)
   | fun (decl : FunDecl pu) (h : pu = .pure := by purity_tac)
   | jp (decl : FunDecl pu)
-  | uset (var : FVarId) (i : Nat) (y : FVarId) (h : pu = .impure := by purity_tac)
-  | sset (var : FVarId) (i : Nat) (offset : Nat) (y : FVarId)  (ty : Expr) (h : pu = .impure := by purity_tac)
+  | uset (fvarId : FVarId) (i : Nat) (y : FVarId) (h : pu = .impure := by purity_tac)
+  | sset (fvarId : FVarId) (i : Nat) (offset : Nat) (y : FVarId)  (ty : Expr) (h : pu = .impure := by purity_tac)
   | inc (fvarId : FVarId) (n : Nat) (check : Bool) (persistent : Bool) (h : pu = .impure := by purity_tac)
   | dec (fvarId : FVarId) (n : Nat) (check : Bool) (persistent : Bool) (h : pu = .impure := by purity_tac)
   deriving Inhabited
@@ -454,8 +454,8 @@ def Code.toCodeDecl! : Code pu → CodeDecl pu
 | .let decl _ => .let decl
 | .fun decl _ _ => .fun decl
 | .jp decl _ => .jp decl
-| .uset var i y _ _ => .uset var i y
-| .sset var i offset ty y _ _ => .sset var i offset ty y
+| .uset fvarId i y _ _ => .uset fvarId i y
+| .sset fvarId i offset ty y _ _ => .sset fvarId i offset ty y
 | .inc fvarId n check persistent _ _ => .inc fvarId n check persistent
 | .dec fvarId n check persistent _ _ => .dec fvarId n check persistent
 | _ => unreachable!
@@ -469,8 +469,8 @@ where
       | .let decl => go (i-1) (.let decl code)
       | .fun decl _ => go (i-1) (.fun decl code)
       | .jp decl => go (i-1) (.jp decl code)
-      | .uset var idx y _ => go (i-1) (.uset var idx y code)
-      | .sset var idx offset y ty _ => go (i-1) (.sset var idx offset y ty code)
+      | .uset fvarId idx y _ => go (i-1) (.uset fvarId idx y code)
+      | .sset fvarId idx offset y ty _ => go (i-1) (.sset fvarId idx offset y ty code)
       | .inc fvarId n check persistent _ => go (i-1) (.inc fvarId n check persistent code)
       | .dec fvarId n check persistent _ => go (i-1) (.dec fvarId n check persistent code)
     else
@@ -1019,7 +1019,7 @@ def Decl.isTemplateLike (decl : Decl pu) : CoreM Bool := do
   let env ← getEnv
   if ← hasLocalInst decl.type then
     return true -- `decl` applications will be specialized
-  else if (← isInstanceReducible decl.name) then
+  else if (← isImplicitReducible decl.name) then
     return true -- `decl` is "fuel" for code specialization
   else if decl.inlineable || hasSpecializeAttribute env decl.name then
     return true -- `decl` is going to be inlined or specialized
@@ -1078,8 +1078,8 @@ partial def Code.collectUsed (code : Code pu) (s : FVarIdHashSet := {}) : FVarId
   | .return fvarId => s.insert fvarId
   | .unreach type => collectType type s
   | .jmp fvarId args => collectArgs args <| s.insert fvarId
-  | .sset var _ _ y _ k _ | .uset var _ y k _ =>
-    let s := s.insert var
+  | .sset fvarId _ _ y _ k _ | .uset fvarId _ y k _ =>
+    let s := s.insert fvarId
     let s := s.insert y
     k.collectUsed s
   | .inc (fvarId := fvarId) (k := k) .. | .dec (fvarId := fvarId) (k := k) .. =>
@@ -1093,7 +1093,8 @@ def CodeDecl.collectUsed (codeDecl : CodeDecl pu) (s : FVarIdHashSet := ∅) : F
   match codeDecl with
   | .let decl => collectLetValue decl.value <| collectType decl.type s
   | .jp decl | .fun decl _ => decl.collectUsed s
-  | .sset (var := var) (y := y) .. | .uset (var := var) (y := y) .. => s.insert var |>.insert y
+  | .sset (fvarId := fvarId) (y := y) .. | .uset (fvarId := fvarId) (y := y) .. =>
+    s.insert fvarId |>.insert y
   | .inc (fvarId := fvarId) .. | .dec (fvarId := fvarId) .. => s.insert fvarId
 
 /--

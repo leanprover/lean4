@@ -661,7 +661,7 @@ static const lean_ctor_object l_Std_DTreeMap_Internal_Impl_Const_alter___at___00
 static const lean_object* l_Std_DTreeMap_Internal_Impl_Const_alter___at___00Lean_MessageLog_append_spec__0___redArg___lam__0___closed__0 = (const lean_object*)&l_Std_DTreeMap_Internal_Impl_Const_alter___at___00Lean_MessageLog_append_spec__0___redArg___lam__0___closed__0_value;
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_alter___at___00Lean_MessageLog_append_spec__0___redArg___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_alter___at___00Lean_MessageLog_append_spec__0___redArg___lam__0___boxed(lean_object*, lean_object*);
-uint8_t l_Lean_Name_quickCmp(lean_object*, lean_object*);
+uint8_t l___private_Lean_Data_Name_0__Lean_Name_quickCmpImpl(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_alter___at___00Lean_MessageLog_append_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_balance___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at___00Std_DTreeMap_Internal_Impl_foldl___at___00Lean_MessageLog_append_spec__1_spec__1(lean_object*, lean_object*);
@@ -7664,7 +7664,7 @@ return x_17;
 LEAN_EXPORT lean_object* l_Lean_SerialMessage_toString(lean_object* x_1, uint8_t x_2) {
 _start:
 {
-lean_object* x_3; uint8_t x_7; lean_object* x_8; uint32_t x_9; lean_object* x_13; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; uint8_t x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_43; 
+lean_object* x_3; lean_object* x_7; uint8_t x_8; uint32_t x_9; lean_object* x_13; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; uint8_t x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_43; 
 x_26 = lean_ctor_get(x_1, 0);
 lean_inc_ref(x_26);
 x_27 = lean_ctor_get(x_1, 1);
@@ -7709,18 +7709,18 @@ x_10 = 10;
 x_11 = lean_uint32_dec_eq(x_9, x_10);
 if (x_11 == 0)
 {
-x_3 = x_8;
+x_3 = x_7;
 goto block_6;
 }
 else
 {
-if (x_7 == 0)
+if (x_8 == 0)
 {
-return x_8;
+return x_7;
 }
 else
 {
-x_3 = x_8;
+x_3 = x_7;
 goto block_6;
 }
 }
@@ -7745,8 +7745,8 @@ if (lean_obj_tag(x_18) == 0)
 uint32_t x_19; 
 lean_dec_ref(x_17);
 x_19 = 65;
-x_7 = x_16;
-x_8 = x_13;
+x_7 = x_13;
+x_8 = x_16;
 x_9 = x_19;
 goto block_12;
 }
@@ -7763,8 +7763,8 @@ if (lean_obj_tag(x_21) == 0)
 {
 uint32_t x_22; 
 x_22 = 65;
-x_7 = x_16;
-x_8 = x_13;
+x_7 = x_13;
+x_8 = x_16;
 x_9 = x_22;
 goto block_12;
 }
@@ -7776,8 +7776,8 @@ lean_inc(x_23);
 lean_dec_ref(x_21);
 x_24 = lean_unbox_uint32(x_23);
 lean_dec(x_23);
-x_7 = x_16;
-x_8 = x_13;
+x_7 = x_13;
+x_8 = x_16;
 x_9 = x_24;
 goto block_12;
 }
@@ -8542,7 +8542,7 @@ x_6 = lean_ctor_get(x_3, 1);
 x_7 = lean_ctor_get(x_3, 2);
 x_8 = lean_ctor_get(x_3, 3);
 x_9 = lean_ctor_get(x_3, 4);
-x_10 = l_Lean_Name_quickCmp(x_2, x_6);
+x_10 = l___private_Lean_Data_Name_0__Lean_Name_quickCmpImpl(x_2, x_6);
 switch (x_10) {
 case 0:
 {
@@ -8593,7 +8593,7 @@ lean_inc(x_20);
 lean_inc(x_19);
 lean_inc(x_18);
 lean_dec(x_3);
-x_23 = l_Lean_Name_quickCmp(x_2, x_19);
+x_23 = l___private_Lean_Data_Name_0__Lean_Name_quickCmpImpl(x_2, x_19);
 switch (x_23) {
 case 0:
 {

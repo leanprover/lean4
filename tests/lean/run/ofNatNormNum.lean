@@ -26,7 +26,7 @@ instance [S α] : OfNat α n where
 instance [S α] : OfNatSound α where
   ofNat_add n m := by
     induction m with
-    | zero => simp; erw [S.add_zero]; rfl
+    | zero => simp [OfNat.ofNat, S.ofNat]; erw [S.add_zero]
     | succ m ih => simp [OfNat.ofNat, S.ofNat] at *; erw [← ih]; rw [S.add_assoc]
 
 theorem S.ofNat_mul [S α] (n m : Nat) : (OfNat.ofNat n : α) * OfNat.ofNat m = OfNat.ofNat (n * m) := by

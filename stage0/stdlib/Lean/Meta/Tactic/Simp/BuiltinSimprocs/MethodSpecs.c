@@ -581,8 +581,8 @@ x_25 = lean_ctor_get(x_23, 0);
 if (lean_obj_tag(x_25) == 1)
 {
 lean_object* x_26; lean_object* x_27; lean_object* x_28; 
-lean_free_object(x_23);
 lean_dec_ref(x_25);
+lean_free_object(x_23);
 x_26 = lean_unsigned_to_nat(2u);
 x_27 = lean_array_get(x_11, x_14, x_26);
 lean_dec_ref(x_14);
@@ -602,8 +602,8 @@ x_30 = lean_ctor_get(x_28, 0);
 if (lean_obj_tag(x_30) == 1)
 {
 lean_object* x_31; lean_object* x_32; 
-lean_free_object(x_28);
 lean_dec_ref(x_30);
+lean_free_object(x_28);
 x_31 = l_Lean_Expr_constName_x21(x_17);
 lean_dec_ref(x_17);
 lean_inc(x_9);
@@ -1126,8 +1126,8 @@ if (lean_is_exclusive(x_111)) {
 if (lean_obj_tag(x_112) == 1)
 {
 lean_object* x_114; lean_object* x_115; 
-lean_dec(x_113);
 lean_dec_ref(x_112);
+lean_dec(x_113);
 x_114 = l_Lean_Expr_constName_x21(x_17);
 lean_dec_ref(x_17);
 lean_inc(x_9);

@@ -923,10 +923,17 @@ def registerLevelMVarErrorExprInfo (expr : Expr) (ref : Syntax) (msgData? : Opti
 
 def exposeLevelMVars (e : Expr) : MetaM Expr :=
   Core.transform e
+    (pre := fun e => do
+      if e.isSorry then
+        -- (kmill) Exposing metavariables in a `sorry` exposes its encoding.
+        -- On balance, for now it seems better to see `sorry` than ``sorryAx.{?u + 1} (Name → Sort ?u) false `external...hygCtx._hyg.6``
+        return .done e
+      else
+        return .continue)
     (post := fun e => do
       match e with
-      | .const _ us     => return .done <| if us.any (·.isMVar) then e.setPPUniverses true else e
-      | .sort u         => return .done <| if u.isMVar then e.setPPUniverses true else e
+      | .const _ us     => return .done <| if us.any (·.hasMVar) then e.setPPUniverses true else e
+      | .sort u         => return .done <| if u.hasMVar then e.setPPUniverses true else e
       | .lam _ t _ _    => return .done <| if t.hasLevelMVar then e.setOption `pp.funBinderTypes true else e
       | .letE _ t _ _ _ => return .done <| if t.hasLevelMVar then e.setOption `pp.letVarTypes true else e
       | _               => return .done e)
@@ -962,6 +969,31 @@ def logUnassignedLevelMVarsUsingErrorInfos (pendingLevelMVarIds : Array LMVarId)
     for error in errors do
       error.logError
     return hasNewErrors
+
+/--
+Locates expressions that have level metavariables, calling `f` with the level metavariables exposed.
+Gives entire applications to `f`.
+-/
+partial def forEachExprWithExposedLevelMVars (e : Expr) (f : Expr → TermElabM Unit) : TermElabM Unit := do
+  let rec visitLevel (u : Level) (e : Expr) : TermElabM Unit := do
+    if u.hasMVar then
+      let e' ← exposeLevelMVars e
+      f e'
+  let withExpr (e : Expr) (m : ReaderT Expr (MonadCacheT ExprStructEq Unit TermElabM) Unit) :=
+    withReader (fun _ => e) m
+  let rec visit (e : Expr) (head := false) : ReaderT Expr (MonadCacheT ExprStructEq Unit TermElabM) Unit := do
+    if e.hasLevelMVar then
+      checkCache { val := e : ExprStructEq } fun _ => do
+        match e with
+        | .forallE n d b c | .lam n d b c => withExpr e do visit d; withLocalDecl n c d fun x => visit (b.instantiate1 x)
+        | .letE n t v b nondep => withExpr e do visit t; visit v; withLetDecl n t v (nondep := nondep) fun x => visit (b.instantiate1 x)
+        | .mdata _ b     => withExpr e do visit b
+        | .proj _ _ b    => withExpr e do visit b
+        | .sort u        => visitLevel u (← read)
+        | .const _ us    => (if head then id else withExpr e) <| us.forM (visitLevel · (← read))
+        | .app ..        => withExpr e do e.withApp fun f args => do visit f true; args.forM visit
+        | _              => pure ()
+  visit e |>.run e |>.run {}
 
 /-- Ensure metavariables registered using `registerMVarErrorInfos` (and used in the given declaration) have been assigned. -/
 def ensureNoUnassignedMVars (decl : Declaration) : TermElabM Unit := do

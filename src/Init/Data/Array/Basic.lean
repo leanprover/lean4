@@ -93,7 +93,7 @@ theorem ext' {xs ys : Array α} (h : xs.toList = ys.toList) : xs = ys := by
 
 @[simp, grind =] theorem getElem?_toList {xs : Array α} {i : Nat} : xs.toList[i]? = xs[i]? := by
   simp only [getElem?_def, getElem_toList]
-  simp only [Array.size]; rfl
+  simp only [Array.size]
 
 /-- `a ∈ as` is a predicate which asserts that `a` is in the array `as`. -/
 -- NB: This is defined as a structure rather than a plain def so that a lemma
@@ -169,6 +169,15 @@ This avoids overhead due to unboxing a `Nat` used as an index.
 @[extern "lean_array_uget", simp, expose]
 def uget (xs : @& Array α) (i : USize) (h : i.toNat < xs.size) : α :=
   xs[i.toNat]
+
+/--
+Version of `Array.uget` that does not increment the reference count of its result.
+
+This is only intended for direct use by the compiler.
+-/
+@[extern "lean_array_uget_borrowed"]
+unsafe opaque ugetBorrowed (xs : @& Array α) (i : USize) (h : i.toNat < xs.size) : α :=
+  xs.uget i h
 
 /--
 Low-level modification operator which is as fast as a C array write. The modification is performed

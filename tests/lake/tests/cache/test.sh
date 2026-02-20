@@ -15,6 +15,13 @@ export LAKE_CACHE_DIR="$CACHE_DIR"
 test_exp ! -d "$CACHE_DIR"
 test_run cache clean
 
+# Test `lake cache services`
+LAKE_CONFIG=services.toml test_out_diff <(cat << EOF
+cdn
+bogus
+EOF
+) cache services
+
 # Verify packages without `enableArtifactCache` do not use the cache by default
 test_run build -f unset.toml Test:static
 test_exp ! -d "$CACHE_DIR"

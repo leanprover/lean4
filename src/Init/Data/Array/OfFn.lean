@@ -41,7 +41,6 @@ theorem ofFn_succ {f : Fin (n+1) → α} :
     intro h₃
     simp only [show i = n by omega]
 
-set_option backward.isDefEq.respectTransparency false in
 theorem ofFn_add {n m} {f : Fin (n + m) → α} :
     ofFn f = (ofFn (fun i => f (i.castLE (Nat.le_add_right n m)))) ++ (ofFn (fun i => f (i.natAdd n))) := by
   induction m with
@@ -108,7 +107,6 @@ theorem ofFnM_succ {n} [Monad m] [LawfulMonad m] {f : Fin (n + 1) → m α} :
       pure (as.push a)) := by
   simp [ofFnM, Fin.foldlM_succ_last]
 
-set_option backward.isDefEq.respectTransparency false in
 theorem ofFnM_add {n m} [Monad m] [LawfulMonad m] {f : Fin (n + k) → m α} :
     ofFnM f = (do
       let as ← ofFnM fun i : Fin n => f (i.castLE (Nat.le_add_right n k))

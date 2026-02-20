@@ -17,8 +17,9 @@ uint64_t l_Lean_Meta_Sym_hashPtrExpr_unsafe__1(lean_object*);
 uint64_t l_Lean_Expr_hash(lean_object*);
 LEAN_EXPORT uint64_t l___private_Lean_Meta_Sym_AlphaShareCommon_0__Lean_Meta_Sym_hashChild(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Sym_AlphaShareCommon_0__Lean_Meta_Sym_hashChild___boxed(lean_object*);
+uint64_t lean_uint64_of_nat(lean_object*);
+static uint64_t l___private_Lean_Meta_Sym_AlphaShareCommon_0__Lean_Meta_Sym_alphaHash___closed__0;
 uint64_t lean_uint64_mix_hash(uint64_t, uint64_t);
-uint64_t l_Lean_Name_hash___override(lean_object*);
 uint64_t lean_uint64_of_nat(lean_object*);
 LEAN_EXPORT uint64_t l___private_Lean_Meta_Sym_AlphaShareCommon_0__Lean_Meta_Sym_alphaHash(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Sym_AlphaShareCommon_0__Lean_Meta_Sym_alphaHash___boxed(lean_object*);
@@ -220,6 +221,15 @@ x_3 = lean_box_uint64(x_2);
 return x_3;
 }
 }
+static uint64_t _init_l___private_Lean_Meta_Sym_AlphaShareCommon_0__Lean_Meta_Sym_alphaHash___closed__0() {
+_start:
+{
+lean_object* x_1; uint64_t x_2; 
+x_1 = lean_unsigned_to_nat(1723u);
+x_2 = lean_uint64_of_nat(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT uint64_t l___private_Lean_Meta_Sym_AlphaShareCommon_0__Lean_Meta_Sym_alphaHash(lean_object* x_1) {
 _start:
 {
@@ -274,22 +284,39 @@ return x_25;
 }
 case 11:
 {
-lean_object* x_26; lean_object* x_27; lean_object* x_28; uint64_t x_29; uint64_t x_30; uint64_t x_31; uint64_t x_32; uint64_t x_33; 
+lean_object* x_26; lean_object* x_27; lean_object* x_28; uint64_t x_29; 
 x_26 = lean_ctor_get(x_1, 0);
 x_27 = lean_ctor_get(x_1, 1);
 x_28 = lean_ctor_get(x_1, 2);
-x_29 = l_Lean_Name_hash___override(x_26);
+if (lean_obj_tag(x_26) == 0)
+{
+uint64_t x_35; 
+x_35 = l___private_Lean_Meta_Sym_AlphaShareCommon_0__Lean_Meta_Sym_alphaHash___closed__0;
+x_29 = x_35;
+goto block_34;
+}
+else
+{
+uint64_t x_36; 
+x_36 = lean_ctor_get_uint64(x_26, sizeof(void*)*2);
+x_29 = x_36;
+goto block_34;
+}
+block_34:
+{
+uint64_t x_30; uint64_t x_31; uint64_t x_32; uint64_t x_33; 
 x_30 = lean_uint64_of_nat(x_27);
 x_31 = lean_uint64_mix_hash(x_29, x_30);
 x_32 = l___private_Lean_Meta_Sym_AlphaShareCommon_0__Lean_Meta_Sym_hashChild(x_28);
 x_33 = lean_uint64_mix_hash(x_31, x_32);
 return x_33;
 }
+}
 default: 
 {
-uint64_t x_34; 
-x_34 = l_Lean_Expr_hash(x_1);
-return x_34;
+uint64_t x_37; 
+x_37 = l_Lean_Expr_hash(x_1);
+return x_37;
 }
 }
 block_7:
@@ -352,8 +379,8 @@ return x_8;
 else
 {
 uint8_t x_9; 
-lean_dec_ref(x_2);
 lean_dec_ref(x_1);
+lean_dec_ref(x_2);
 x_9 = 0;
 return x_9;
 }
@@ -394,8 +421,8 @@ return x_15;
 else
 {
 uint8_t x_16; 
-lean_dec_ref(x_2);
 lean_dec_ref(x_1);
+lean_dec_ref(x_2);
 x_16 = 0;
 return x_16;
 }
@@ -436,8 +463,8 @@ return x_22;
 else
 {
 uint8_t x_23; 
-lean_dec_ref(x_2);
 lean_dec_ref(x_1);
+lean_dec_ref(x_2);
 x_23 = 0;
 return x_23;
 }
@@ -478,8 +505,8 @@ return x_29;
 else
 {
 uint8_t x_30; 
-lean_dec_ref(x_2);
 lean_dec_ref(x_1);
+lean_dec_ref(x_2);
 x_30 = 0;
 return x_30;
 }
@@ -518,8 +545,8 @@ return x_36;
 else
 {
 uint8_t x_37; 
-lean_dec_ref(x_2);
 lean_dec_ref(x_1);
+lean_dec_ref(x_2);
 x_37 = 0;
 return x_37;
 }
@@ -583,8 +610,8 @@ return x_45;
 else
 {
 uint8_t x_49; 
-lean_dec_ref(x_2);
 lean_dec_ref(x_1);
+lean_dec_ref(x_2);
 x_49 = 0;
 return x_49;
 }
@@ -3733,6 +3760,7 @@ _G_initialized = true;
 res = initialize_Lean_Meta_Sym_ExprPtr(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+l___private_Lean_Meta_Sym_AlphaShareCommon_0__Lean_Meta_Sym_alphaHash___closed__0 = _init_l___private_Lean_Meta_Sym_AlphaShareCommon_0__Lean_Meta_Sym_alphaHash___closed__0();
 l___private_Lean_Meta_Sym_AlphaShareCommon_0__Lean_Meta_Sym_dummy___closed__2 = _init_l___private_Lean_Meta_Sym_AlphaShareCommon_0__Lean_Meta_Sym_dummy___closed__2();
 lean_mark_persistent(l___private_Lean_Meta_Sym_AlphaShareCommon_0__Lean_Meta_Sym_dummy___closed__2);
 l___private_Lean_Meta_Sym_AlphaShareCommon_0__Lean_Meta_Sym_dummy = _init_l___private_Lean_Meta_Sym_AlphaShareCommon_0__Lean_Meta_Sym_dummy();

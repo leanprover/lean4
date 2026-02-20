@@ -16,6 +16,7 @@ import Lake.Build.Targets
 import Lake.Build.Target.Fetch
 import Lake.Load.Package
 import Lake.Load.Workspace
+import Lake.Load.Toml
 import Lake.Util.IO
 import Lake.Util.Git
 import Lake.Util.MainM
@@ -377,11 +378,23 @@ namespace lake
 
 namespace cache
 
+def serviceNotFound (service : String) (configuredServices : Array CacheServiceConfig) : String :=
+  let msg := s!"service `{service}` not found in system configuration"
+  if configuredServices.isEmpty then
+    s!"{msg}; no services configured"
+  else
+    let msg := s!"{msg}; configured services:\n"
+    configuredServices.foldl (· ++ s!"  {·.name}") msg
+
 @[inline] private def cacheToolchain (pkg : Package) (toolchain : String) : String :=
   if pkg.bootstrap then "" else toolchain
 
 @[inline] private def cachePlatform (pkg : Package) (platform : String) : String :=
   if pkg.isPlatformIndependent then "" else platform
+
+-- since 2026-02-19
+private def endpointDeprecation : String :=
+   "configuring the cache service via environment variables is deprecated; use --service instead"
 
 protected def get : CliM PUnit := do
   processOptions lakeOption
@@ -409,15 +422,23 @@ protected def get : CliM PUnit := do
     let platform := opts.platform?.getD System.Platform.target
     let toolchain := opts.toolchain?.getD ws.lakeEnv.toolchain
     let service : CacheService ← id do
-      match ws.lakeEnv.cacheArtifactEndpoint?, ws.lakeEnv.cacheRevisionEndpoint? with
-      | some artifactEndpoint, some revisionEndpoint =>
-        return .downloadService artifactEndpoint revisionEndpoint ws.lakeEnv.cacheService?
-      | none, none =>
-        return .reservoirService ws.lakeEnv.reservoirApiUrl
-      | some artifactEndpoint, none =>
-        error (invalidEndpointConfig artifactEndpoint "")
-      | none, some revisionEndpoint =>
-        error (invalidEndpointConfig "" revisionEndpoint)
+      if let some service := opts.service? then
+        let some service := ws.findCacheService? service
+          | error (serviceNotFound service ws.lakeConfig.config.cache.services)
+        return service
+      else
+        match ws.lakeEnv.cacheArtifactEndpoint?, ws.lakeEnv.cacheRevisionEndpoint? with
+        | some artifactEndpoint, some revisionEndpoint =>
+          logWarning endpointDeprecation
+          return .downloadService artifactEndpoint revisionEndpoint ws.lakeEnv.cacheService?
+        | none, none =>
+            return ws.defaultCacheService
+        | some artifactEndpoint, none =>
+          logWarning endpointDeprecation
+          error (invalidEndpointConfig artifactEndpoint "")
+        | none, some revisionEndpoint =>
+          logWarning endpointDeprecation
+          error (invalidEndpointConfig "" revisionEndpoint)
     if let some remoteScope := opts.scope? then
       if !opts.repoScope && service.isReservoir then
         -- `--scope` with Reservoir would imply downloading artifacts for a different package.
@@ -494,11 +515,27 @@ protected def put : CliM PUnit := do
   let platform := cachePlatform pkg (opts.platform?.getD System.Platform.target)
   let toolchain := cacheToolchain pkg (opts.toolchain?.getD ws.lakeEnv.toolchain)
   let service : CacheService ← id do
-    match ws.lakeEnv.cacheKey?, ws.lakeEnv.cacheArtifactEndpoint?, ws.lakeEnv.cacheRevisionEndpoint? with
-    | some key, some artifactEndpoint, some revisionEndpoint =>
-      return .uploadService key artifactEndpoint revisionEndpoint
-    | key?, artifactEndpoint?, revisionEndpoint? =>
-      error (invalidEndpointConfig key? artifactEndpoint? revisionEndpoint?)
+    if let some service := opts.service? then
+      let some service := ws.findCacheService? service
+        | error (serviceNotFound service ws.lakeConfig.config.cache.services)
+      let some key := ws.lakeEnv.cacheKey?
+        | error "uploads require an authentication key configured through `LAKE_CACHE_KEY`"
+      return service.withKey key
+    else
+      match ws.lakeEnv.cacheKey?, ws.lakeEnv.cacheArtifactEndpoint?, ws.lakeEnv.cacheRevisionEndpoint? with
+      | some key, some artifactEndpoint, some revisionEndpoint =>
+        logWarning endpointDeprecation
+        return .uploadService key artifactEndpoint revisionEndpoint
+      | key?, none, none =>
+        if let some service := ws.defaultCacheUploadService? then
+          let some key := key?
+            | error "uploads require an authentication key configured through `LAKE_CACHE_KEY`"
+          return service.withKey key
+        else
+          error "the `--service` option must be set for `cache put`"
+      | key?, artifactEndpoint?, revisionEndpoint? =>
+        logWarning endpointDeprecation
+        error (invalidEndpointConfig key? artifactEndpoint? revisionEndpoint?)
   let service := service.withRepoScope opts.repoScope
   let repo := GitRepo.mk pkg.dir
   if (← repo.hasDiff) then
@@ -537,6 +574,14 @@ protected def add : CliM PUnit := do
   let map ← CacheMap.load file
   ws.lakeCache.writeMap scope map opts.service?
 
+protected def services : CliM PUnit := do
+  processOptions lakeOption
+  let opts ← getThe LakeOptions
+  noArgsRem do
+  let lakeEnv ← opts.computeEnv
+  let cfg  ← loadLakeConfig lakeEnv
+  cfg.config.cache.services.forM (IO.println ·.name)
+
 protected def clean : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
@@ -557,12 +602,13 @@ protected def help : CliM PUnit := do
 end cache
 
 def cacheCli : (cmd : String) → CliM PUnit
-| "add"   => cache.add
-| "get"   => cache.get
-| "put"   => cache.put
-| "clean" => cache.clean
-| "help"  => cache.help
-| cmd     => throw <| CliError.unknownCommand cmd
+| "add"      => cache.add
+| "get"      => cache.get
+| "put"      => cache.put
+| "clean"    => cache.clean
+| "services" => cache.services
+| "help"     => cache.help
+| cmd        => throw <| CliError.unknownCommand cmd
 
 /-! ### `lake script` CLI -/
 

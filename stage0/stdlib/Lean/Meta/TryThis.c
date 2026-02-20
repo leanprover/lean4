@@ -722,12 +722,12 @@ lean_ctor_set(x_9, 0, x_4);
 lean_ctor_set(x_9, 1, x_8);
 x_10 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_10, 0, x_9);
-lean_ctor_set(x_10, 1, x_5);
+lean_ctor_set(x_10, 1, x_3);
 x_11 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_11, 0, x_3);
+lean_ctor_set(x_11, 0, x_6);
 lean_ctor_set(x_11, 1, x_10);
 x_12 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_12, 0, x_6);
+lean_ctor_set(x_12, 0, x_5);
 lean_ctor_set(x_12, 1, x_11);
 x_13 = l_Lean_Json_mkObj(x_12);
 return x_13;
@@ -780,10 +780,10 @@ if (x_2 == 0)
 {
 lean_object* x_49; 
 x_49 = ((lean_object*)(l_Lean_Meta_Tactic_TryThis_SuggestionStyle_value___closed__8));
-x_3 = x_47;
+x_3 = x_44;
 x_4 = x_48;
-x_5 = x_44;
-x_6 = x_17;
+x_5 = x_17;
+x_6 = x_47;
 x_7 = x_49;
 goto block_14;
 }
@@ -796,10 +796,10 @@ x_52 = lean_string_append(x_50, x_51);
 lean_dec_ref(x_51);
 x_53 = ((lean_object*)(l_Lean_Meta_Tactic_TryThis_SuggestionStyle_value___closed__10));
 x_54 = lean_string_append(x_52, x_53);
-x_3 = x_47;
+x_3 = x_44;
 x_4 = x_48;
-x_5 = x_44;
-x_6 = x_17;
+x_5 = x_17;
+x_6 = x_47;
 x_7 = x_54;
 goto block_14;
 }

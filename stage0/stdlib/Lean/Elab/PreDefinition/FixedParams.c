@@ -703,7 +703,7 @@ static lean_object* l___private_Lean_Elab_PreDefinition_FixedParams_0__Lean_Elab
 static const lean_string_object l___private_Lean_Elab_PreDefinition_FixedParams_0__Lean_Elab_FixedParamPerm_buildArgs_go___redArg___closed__3_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 42, .m_capacity = 42, .m_length = 41, .m_data = "FixedParams.buildArgs: too few fixed args"};
 static const lean_object* l___private_Lean_Elab_PreDefinition_FixedParams_0__Lean_Elab_FixedParamPerm_buildArgs_go___redArg___closed__3 = (const lean_object*)&l___private_Lean_Elab_PreDefinition_FixedParams_0__Lean_Elab_FixedParamPerm_buildArgs_go___redArg___closed__3_value;
 static lean_object* l___private_Lean_Elab_PreDefinition_FixedParams_0__Lean_Elab_FixedParamPerm_buildArgs_go___redArg___closed__4;
-lean_object* l_Subarray_toArray___redArg(lean_object*);
+lean_object* l_Subarray_copy___redArg(lean_object*);
 lean_object* l_Array_append___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_FixedParams_0__Lean_Elab_FixedParamPerm_buildArgs_go___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_FixedParams_0__Lean_Elab_FixedParamPerm_buildArgs_go___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -15040,7 +15040,7 @@ block_12:
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_9 = l_Array_toSubarray___redArg(x_3, x_7, x_8);
-x_10 = l_Subarray_toArray___redArg(x_9);
+x_10 = l_Subarray_copy___redArg(x_9);
 x_11 = l_Array_append___redArg(x_6, x_10);
 lean_dec_ref(x_10);
 return x_11;
@@ -15048,23 +15048,23 @@ return x_11;
 block_22:
 {
 uint8_t x_16; 
-x_16 = lean_nat_dec_lt(x_14, x_15);
+x_16 = lean_nat_dec_lt(x_13, x_15);
 if (x_16 == 0)
 {
 lean_dec(x_15);
-lean_dec(x_14);
-lean_dec_ref(x_13);
+lean_dec_ref(x_14);
+lean_dec(x_13);
 return x_6;
 }
 else
 {
 size_t x_17; size_t x_18; uint8_t x_19; 
-x_17 = lean_usize_of_nat(x_14);
-lean_dec(x_14);
+x_17 = lean_usize_of_nat(x_13);
+lean_dec(x_13);
 x_18 = lean_usize_of_nat(x_15);
 lean_dec(x_15);
-x_19 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00__private_Lean_Elab_PreDefinition_FixedParams_0__Lean_Elab_FixedParamPerm_buildArgs_go_spec__0(x_13, x_17, x_18);
-lean_dec_ref(x_13);
+x_19 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00__private_Lean_Elab_PreDefinition_FixedParams_0__Lean_Elab_FixedParamPerm_buildArgs_go_spec__0(x_14, x_17, x_18);
+lean_dec_ref(x_14);
 if (x_19 == 0)
 {
 return x_6;
@@ -15106,15 +15106,15 @@ x_31 = lean_nat_dec_le(x_28, x_30);
 if (x_31 == 0)
 {
 lean_dec(x_28);
-x_13 = x_26;
-x_14 = x_27;
+x_13 = x_27;
+x_14 = x_26;
 x_15 = x_30;
 goto block_22;
 }
 else
 {
-x_13 = x_26;
-x_14 = x_27;
+x_13 = x_27;
+x_14 = x_26;
 x_15 = x_28;
 goto block_22;
 }

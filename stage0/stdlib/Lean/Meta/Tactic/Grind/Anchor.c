@@ -13,10 +13,11 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+uint64_t lean_uint64_of_nat(lean_object*);
+static uint64_t l___private_Lean_Meta_Tactic_Grind_Anchor_0__Lean_Meta_Grind_hashName___closed__0;
 uint8_t l_Lean_Name_isImplementationDetail(lean_object*);
 uint8_t l_Lean_isPrivateName(lean_object*);
 uint8_t l_Lean_Name_isInternal(lean_object*);
-uint64_t l_Lean_Name_hash___override(lean_object*);
 lean_object* l_Lean_privateToUserName(lean_object*);
 uint8_t l_Lean_Name_hasMacroScopes(lean_object*);
 uint8_t lean_is_inaccessible_user_name(lean_object*);
@@ -207,25 +208,34 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_mkAnchorSyntax___boxed(lean_object*, 
 lean_object* l_Lean_Meta_Grind_SplitInfo_getExpr(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_SplitInfo_getAnchor(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_SplitInfo_getAnchor___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static uint64_t _init_l___private_Lean_Meta_Tactic_Grind_Anchor_0__Lean_Meta_Grind_hashName___closed__0() {
+_start:
+{
+lean_object* x_1; uint64_t x_2; 
+x_1 = lean_unsigned_to_nat(1723u);
+x_2 = lean_uint64_of_nat(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT uint64_t l___private_Lean_Meta_Tactic_Grind_Anchor_0__Lean_Meta_Grind_hashName(lean_object* x_1) {
 _start:
 {
-uint8_t x_2; uint8_t x_13; 
-x_13 = l_Lean_Name_hasMacroScopes(x_1);
-if (x_13 == 0)
+uint8_t x_2; uint8_t x_15; 
+x_15 = l_Lean_Name_hasMacroScopes(x_1);
+if (x_15 == 0)
 {
-uint8_t x_14; 
+uint8_t x_16; 
 lean_inc(x_1);
-x_14 = lean_is_inaccessible_user_name(x_1);
-x_2 = x_14;
-goto block_12;
+x_16 = lean_is_inaccessible_user_name(x_1);
+x_2 = x_16;
+goto block_14;
 }
 else
 {
-x_2 = x_13;
-goto block_12;
+x_2 = x_15;
+goto block_14;
 }
-block_12:
+block_14:
 {
 if (x_2 == 0)
 {
@@ -241,42 +251,61 @@ uint8_t x_5;
 x_5 = l_Lean_Name_isInternal(x_1);
 if (x_5 == 0)
 {
+if (lean_obj_tag(x_1) == 0)
+{
 uint64_t x_6; 
-x_6 = l_Lean_Name_hash___override(x_1);
-lean_dec(x_1);
+x_6 = l___private_Lean_Meta_Tactic_Grind_Anchor_0__Lean_Meta_Grind_hashName___closed__0;
 return x_6;
 }
 else
 {
 uint64_t x_7; 
+x_7 = lean_ctor_get_uint64(x_1, sizeof(void*)*2);
 lean_dec(x_1);
-x_7 = 0;
 return x_7;
 }
 }
 else
 {
-lean_object* x_8; uint64_t x_9; 
-x_8 = l_Lean_privateToUserName(x_1);
-x_9 = l_Lean_Name_hash___override(x_8);
-lean_dec(x_8);
-return x_9;
+uint64_t x_8; 
+lean_dec(x_1);
+x_8 = 0;
+return x_8;
 }
 }
 else
 {
+lean_object* x_9; 
+x_9 = l_Lean_privateToUserName(x_1);
+if (lean_obj_tag(x_9) == 0)
+{
 uint64_t x_10; 
-lean_dec(x_1);
-x_10 = 0;
+x_10 = l___private_Lean_Meta_Tactic_Grind_Anchor_0__Lean_Meta_Grind_hashName___closed__0;
 return x_10;
-}
 }
 else
 {
 uint64_t x_11; 
-lean_dec(x_1);
-x_11 = 0;
+x_11 = lean_ctor_get_uint64(x_9, sizeof(void*)*2);
+lean_dec(x_9);
 return x_11;
+}
+}
+}
+else
+{
+uint64_t x_12; 
+lean_dec(x_1);
+x_12 = 0;
+return x_12;
+}
+}
+else
+{
+uint64_t x_13; 
+lean_dec(x_1);
+x_13 = 0;
+return x_13;
 }
 }
 }
@@ -1555,21 +1584,21 @@ return x_109;
 else
 {
 lean_dec(x_106);
+lean_dec_ref(x_1);
 lean_dec(x_10);
 lean_dec_ref(x_9);
 lean_dec(x_8);
 lean_dec_ref(x_7);
-lean_dec_ref(x_1);
 return x_107;
 }
 }
 else
 {
+lean_dec_ref(x_1);
 lean_dec(x_10);
 lean_dec_ref(x_9);
 lean_dec(x_8);
 lean_dec_ref(x_7);
-lean_dec_ref(x_1);
 return x_105;
 }
 }
@@ -2564,6 +2593,7 @@ lean_dec_ref(res);
 res = initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+l___private_Lean_Meta_Tactic_Grind_Anchor_0__Lean_Meta_Grind_hashName___closed__0 = _init_l___private_Lean_Meta_Tactic_Grind_Anchor_0__Lean_Meta_Grind_hashName___closed__0();
 l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00Lean_Meta_Grind_getAnchor_spec__1_spec__1___redArg___closed__0 = _init_l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00Lean_Meta_Grind_getAnchor_spec__1_spec__1___redArg___closed__0();
 l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00Lean_Meta_Grind_getAnchor_spec__1_spec__1___redArg___closed__1 = _init_l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00Lean_Meta_Grind_getAnchor_spec__1_spec__1___redArg___closed__1();
 l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00Lean_Meta_Grind_getAnchor_spec__1_spec__1___redArg___closed__2 = _init_l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00Lean_Meta_Grind_getAnchor_spec__1_spec__1___redArg___closed__2();

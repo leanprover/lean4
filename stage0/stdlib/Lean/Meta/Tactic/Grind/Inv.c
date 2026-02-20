@@ -1959,8 +1959,8 @@ x_17 = l_Lean_Expr_cleanupAnnotations(x_11);
 x_18 = l_Lean_Expr_isApp(x_17);
 if (x_18 == 0)
 {
-lean_dec_ref(x_17);
 lean_inc_ref(x_9);
+lean_dec_ref(x_17);
 lean_dec_ref(x_6);
 x_13 = lean_box(0);
 goto block_16;
@@ -1972,8 +1972,8 @@ x_19 = l_Lean_Expr_appFnCleanup___redArg(x_17);
 x_20 = l_Lean_Expr_isApp(x_19);
 if (x_20 == 0)
 {
-lean_dec_ref(x_19);
 lean_inc_ref(x_9);
+lean_dec_ref(x_19);
 lean_dec_ref(x_6);
 x_13 = lean_box(0);
 goto block_16;
@@ -1987,9 +1987,9 @@ x_22 = l_Lean_Expr_appFnCleanup___redArg(x_19);
 x_23 = l_Lean_Expr_isApp(x_22);
 if (x_23 == 0)
 {
+lean_inc_ref(x_9);
 lean_dec_ref(x_22);
 lean_dec_ref(x_21);
-lean_inc_ref(x_9);
 lean_dec_ref(x_6);
 x_13 = lean_box(0);
 goto block_16;
@@ -2009,9 +2009,9 @@ lean_dec_ref(x_21);
 x_28 = l_Lean_Expr_isApp(x_25);
 if (x_28 == 0)
 {
+lean_inc_ref(x_9);
 lean_dec_ref(x_25);
 lean_dec_ref(x_24);
-lean_inc_ref(x_9);
 lean_dec_ref(x_6);
 x_13 = lean_box(0);
 goto block_16;
@@ -2027,9 +2027,9 @@ x_32 = l_Lean_Expr_isConstOf(x_30, x_31);
 lean_dec_ref(x_30);
 if (x_32 == 0)
 {
+lean_inc_ref(x_9);
 lean_dec_ref(x_29);
 lean_dec_ref(x_24);
-lean_inc_ref(x_9);
 lean_dec_ref(x_6);
 x_13 = lean_box(0);
 goto block_16;
@@ -2083,8 +2083,8 @@ x_36 = lean_unbox(x_35);
 lean_dec(x_35);
 if (x_36 == 0)
 {
-lean_free_object(x_33);
 lean_inc_ref(x_9);
+lean_free_object(x_33);
 lean_dec_ref(x_6);
 x_13 = lean_box(0);
 goto block_16;
@@ -2137,8 +2137,8 @@ return x_45;
 else
 {
 uint8_t x_46; 
-lean_dec(x_7);
 lean_dec_ref(x_6);
+lean_dec(x_7);
 x_46 = !lean_is_exclusive(x_33);
 if (x_46 == 0)
 {
@@ -2177,8 +2177,8 @@ x_57 = lean_unbox(x_56);
 lean_dec(x_56);
 if (x_57 == 0)
 {
-lean_free_object(x_54);
 lean_inc_ref(x_9);
+lean_free_object(x_54);
 lean_dec_ref(x_6);
 x_13 = lean_box(0);
 goto block_16;
@@ -2231,8 +2231,8 @@ return x_66;
 else
 {
 uint8_t x_67; 
-lean_dec(x_7);
 lean_dec_ref(x_6);
+lean_dec(x_7);
 x_67 = !lean_is_exclusive(x_54);
 if (x_67 == 0)
 {
@@ -2270,8 +2270,8 @@ goto _start;
 else
 {
 uint8_t x_70; 
-lean_dec(x_7);
 lean_dec_ref(x_6);
+lean_dec(x_7);
 x_70 = !lean_is_exclusive(x_10);
 if (x_70 == 0)
 {
@@ -2953,8 +2953,8 @@ lean_dec(x_121);
 lean_dec_ref(x_120);
 lean_dec(x_119);
 lean_dec(x_118);
-lean_dec(x_19);
 lean_dec_ref(x_17);
+lean_dec(x_19);
 x_3 = x_18;
 x_4 = x_35;
 goto _start;

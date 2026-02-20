@@ -896,7 +896,7 @@ theorem all_push {xs : Array α} {a : α} {p : α → Bool} :
 @[simp] theorem getElem_set_ne {xs : Array α} {i : Nat} (h' : i < xs.size) {v : α} {j : Nat}
     (pj : j < xs.size) (h : i ≠ j) :
     (xs.set i v)[j]'(by simp [*]) = xs[j] := by
-  simp only [set, ← getElem_toList, List.getElem_set_ne h]; rfl
+  simp only [set, ← getElem_toList, List.getElem_set_ne h]
 
 @[simp] theorem getElem?_set_ne {xs : Array α} {i : Nat} (h : i < xs.size) {v : α} {j : Nat}
     (ne : i ≠ j) : (xs.set i v)[j]? = xs[j]? := by
@@ -2855,7 +2855,7 @@ theorem getElem?_extract {xs : Array α} {start stop : Nat} :
   · simp only [length_toList, size_extract, List.length_take, List.length_drop]
     omega
   · intro n h₁ h₂
-    simp; rfl
+    simp
 
 @[simp] theorem extract_size {xs : Array α} : xs.extract 0 xs.size = xs := by
   apply ext

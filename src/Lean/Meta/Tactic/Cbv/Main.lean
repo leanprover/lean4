@@ -150,8 +150,7 @@ def handleConst : Simproc := fun e => do
   unless info.isDefinition do return .rfl
   let eType ← Sym.inferType e
   let eType ← whnfD eType
-  -- We don't unfold bare constants that take arguments
-  if eType matches .forallE .. then
+  unless eType matches .forallE .. do
     return .rfl
   -- TODO: Check if we need to look if we applied all the levels correctly
   let some thm ← getUnfoldTheorem n | return .rfl

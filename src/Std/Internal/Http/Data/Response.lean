@@ -27,6 +27,24 @@ set_option linter.all true
 
 open Std.Internal.IO.Async
 
+
+/--
+Returns `true` if `c` is a valid reason-phrase character per RFC 9110 §15.1:
+
+    reason-phrase = *( HTAB / SP / VCHAR / obs-text )
+
+  * HTAB     = %x09
+  * SP       = %x20
+  * VCHAR    = %x21–7E  (visible ASCII)
+  * obs-text = %x80–FF
+
+In particular, CR (`\r`) and LF (`\n`) return `false`, preventing CRLF injection
+into the HTTP response status line.
+-/
+def isValidReasonPhraseChar (c : Char) : Bool :=
+  let n := c.toNat
+  n == 0x09 || (0x20 ≤ n && n ≤ 0x7E) || 0x80 ≤ n
+
 /--
 The main parts of a response.
 -/
@@ -40,7 +58,7 @@ structure Response.Head where
   /--
   Optional reason-phrase override for the status line.
   -/
-  reasonPhrase : Option String := none
+  reasonPhrase : Option { x : String // x.toList.all isValidReasonPhraseChar } := none
 
   /--
   The HTTP protocol version used in the response, e.g. `HTTP/1.1`.
@@ -92,7 +110,7 @@ namespace Response
 
 instance : ToString Head where
   toString r :=
-    let reasonPhrase := r.reasonPhrase.getD r.status.reasonPhrase
+    let reasonPhrase := r.reasonPhrase.map (·.val) |>.getD r.status.reasonPhrase
     toString r.version ++ " " ++
     toString r.status.toCode ++ " " ++
     reasonPhrase ++ "\r\n" ++
@@ -102,7 +120,7 @@ instance : ToString Head where
 open Internal in
 instance : Encode .v11 Head where
   encode buffer r :=
-    let reasonPhrase := r.reasonPhrase.getD r.status.reasonPhrase
+    let reasonPhrase := r.reasonPhrase.map (·.val) |>.getD r.status.reasonPhrase
     let buffer := Encode.encode (v := .v11) buffer r.version
     let buffer := buffer.writeChar ' '
     let buffer := buffer.writeString (toString r.status.toCode)

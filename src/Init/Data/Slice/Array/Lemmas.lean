@@ -36,11 +36,11 @@ theorem step_eq {it : Iter (α := SubarrayIterator α) α} :
         ⟨.yield ⟨⟨it.1.xs.array, it.1.xs.start + 1, it.1.xs.stop, by omega, by assumption⟩⟩
             (it.1.xs.array[it.1.xs.start]'(by omega)),
           (by
-            simp_all [Iter.IsPlausibleStep, IterM.IsPlausibleStep, Iterator.IsPlausibleStep,
+            simp_all [Iter.IsPlausibleStep, IterM.IsPlausibleStep, Iterator.IsPlausibleStep, instIteratorSubarrayIteratorId, -- TODO
               SubarrayIterator.step, Iter.toIterM])⟩
       else
         ⟨.done, (by
-            simpa [Iter.IsPlausibleStep, IterM.IsPlausibleStep, Iterator.IsPlausibleStep,
+            simpa [Iter.IsPlausibleStep, IterM.IsPlausibleStep, Iterator.IsPlausibleStep, instIteratorSubarrayIteratorId, -- TODO
               SubarrayIterator.step] using h)⟩ := by
   simp only [Iter.step, IterM.Step.toPure, Iter.toIter_toIterM, IterStep.mapIterator, IterM.step,
     Iterator.step, SubarrayIterator.step, Id.run_pure, Shrink.inflate_deflate]
@@ -83,7 +83,7 @@ theorem toList_eq {α : Type u} {it : Iter (α := SubarrayIterator α) α} :
         simp [it.internalState.xs.stop_le_array_size]
         exact h
       · simp [Subarray.array, Subarray.stop]
-    · simp only [Iter.IsPlausibleStep, IterM.IsPlausibleStep, Iterator.IsPlausibleStep,
+    · simp only [Iter.IsPlausibleStep, IterM.IsPlausibleStep, Iterator.IsPlausibleStep, instIteratorSubarrayIteratorId, -- TODO
       IterStep.mapIterator_yield, SubarrayIterator.step]
       rw [dif_pos]; rotate_left; exact h
       rfl

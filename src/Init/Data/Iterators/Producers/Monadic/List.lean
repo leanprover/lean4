@@ -53,9 +53,6 @@ def _root_.List.iterM {α : Type w} (l : List α) (m : Type w → Type w') [Pure
 
 namespace Iterators.Types
 
-set_option allowUnsafeReducibility true
-attribute [reducible] Iterator.IsPlausibleStep
-
 @[always_inline, inline]
 instance ListIterator.instIterator {α : Type w} [Pure m] : Iterator (ListIterator α) m α where
   IsPlausibleStep it

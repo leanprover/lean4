@@ -379,6 +379,8 @@ class Iterator (α : Type w) (m : Type w → Type w') (β : outParam (Type w)) w
   -/
   step : (it : IterM (α := α) m β) → m (Shrink <| PlausibleIterStep <| IsPlausibleStep it)
 
+attribute [reducible] Iterator.IsPlausibleStep
+
 section Monadic
 
 /-- The constructor has been renamed. -/

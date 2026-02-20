@@ -344,7 +344,7 @@ def Zipper.FinitenessRelation : FinitenessRelation (Zipper α β) Id where
     exact Nat.lt_wfRel.wf
   subrelation {it it'} h := by
     obtain ⟨w, h, h'⟩ := h
-    simp only [IterM.IsPlausibleStep, Iterator.IsPlausibleStep] at h'
+    simp only [IterM.IsPlausibleStep, Iterator.IsPlausibleStep, instIteratorZipperIdSigma] at h' -- TODO
     cases w
     case skip it'' =>
       cases h
@@ -453,7 +453,7 @@ def RxcIterator.FinitenessRelation [Ord α] : FinitenessRelation (RxcIterator α
     exact Nat.lt_wfRel.wf
   subrelation {it it'} h := by
     obtain ⟨w, h, h'⟩ := h
-    simp only [IterM.IsPlausibleStep, Iterator.IsPlausibleStep] at h'
+    simp only [IterM.IsPlausibleStep, Iterator.IsPlausibleStep, instIteratorRxcIteratorIdSigma] at h' -- TODO
     cases w
     case skip it'' =>
       cases h
@@ -584,7 +584,7 @@ def RxoIterator.instFinitenessRelation [Ord α] : FinitenessRelation (RxoIterato
     exact Nat.lt_wfRel.wf
   subrelation {it it'} h := by
     obtain ⟨w, h, h'⟩ := h
-    simp only [IterM.IsPlausibleStep, Iterator.IsPlausibleStep] at h'
+    simp only [IterM.IsPlausibleStep, Iterator.IsPlausibleStep, instIteratorRxoIteratorIdSigma] at h' -- TODO
     cases w
     case skip it'' =>
       cases h

@@ -43,7 +43,7 @@ private def SubarrayIterator.instFinitelessRelation : FinitenessRelation (Subarr
   Rel := InvImage WellFoundedRelation.rel (fun it => it.internalState.xs.stop - it.internalState.xs.start)
   wf := InvImage.wf _ WellFoundedRelation.wf
   subrelation {it it'} h := by
-    simp [IterM.IsPlausibleSuccessorOf, IterM.IsPlausibleStep, Iterator.IsPlausibleStep, step] at h
+    simp [IterM.IsPlausibleSuccessorOf, IterM.IsPlausibleStep, Iterator.IsPlausibleStep, step, instIteratorSubarrayIteratorId] at h -- TODO
     split at h
     · cases h
       simp only [InvImage, Subarray.stop, Subarray.start, WellFoundedRelation.rel, InvImage, sizeOf_nat]

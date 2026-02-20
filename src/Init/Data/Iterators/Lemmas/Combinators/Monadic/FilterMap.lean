@@ -182,11 +182,12 @@ theorem IterM.step_filterMap [Monad m] [LawfulMonad m] {f : β → Option β'} :
       pure <| .deflate <| .skip (it'.filterMap f) (.skip h)
     | .done h =>
       pure <| .deflate <| .done (.done h)) := by
-  simp only [IterM.filterMap, step_filterMapWithPostcondition, pure]
+  simp only [IterM.filterMap]
+  simp only [step_filterMapWithPostcondition, PostconditionT.operation_pure]
   apply bind_congr
   intro step
   split
-  · simp only [PostconditionT.pure, PlausibleIterStep.skip, PlausibleIterStep.yield, pure_bind]
+  · simp only [PlausibleIterStep.skip, PlausibleIterStep.yield, pure_bind]
     split <;> split <;> simp_all
   · simp
   · simp

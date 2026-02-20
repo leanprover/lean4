@@ -95,10 +95,6 @@ structure Ctx where
   The result type of the declaration we are currently operating on.
   -/
   currDeclResultType : Expr
-  /--
-  The SCC of declarations we are operating on.
-  -/
-  decls : Array (Decl .impure)
 
 structure State where
   /--
@@ -125,10 +121,6 @@ def getResultType : BoxM Expr := return (← read).currDeclResultType
 def typesEqvForBoxing (t₁ t₂ : Expr) : Bool :=
   (t₁.isScalar == t₂.isScalar) && (!t₁.isScalar || t₁ == t₂)
 
-def getDeclSig (declName : Name) : BoxM (Option (Signature .impure)) := do
-  match (← read).decls.find? (·.name == declName) with
-  | some found => return some <| found.toSignature
-  | none => getImpureSignature? declName
 
 /--
 If `x` declaration is of the form `x := .lit _` or `x := .fap c #[]`,
@@ -306,7 +298,7 @@ where
   tryCorrectLetDeclType (currentType : Expr) (value : LetValue .impure) : BoxM Expr := do
     match value with
     | .fap f .. =>
-      let some sig ← getDeclSig f | unreachable!
+      let some sig ← getImpureSignature? f | unreachable!
       return sig.type
     | .pap .. => return object
     | .uproj .. => return usize
@@ -333,12 +325,12 @@ where
         let decl ← decl.updateValue (decl.value.updateArgs! args)
         return code.updateLet! decl k
     | .fap f args =>
-      let some sig ← getDeclSig f | unreachable!
+      let some sig ← getImpureSignature? f | unreachable!
       castArgsIfNeeded args sig.params fun args => do
         let decl ← decl.updateValue (decl.value.updateArgs! args)
         castResultIfNeeded code decl sig.type k
     | .pap f args =>
-      let some sig ← getDeclSig f | unreachable!
+      let some sig ← getImpureSignature? f | unreachable!
       let f := if ← requiresBoxedVersion sig then mkBoxedName f else f
       boxArgsIfNeeded args fun args => do
         let decl ← decl.updateValue (decl.value.updatePap! f args)
@@ -356,7 +348,7 @@ def run (decls : Array (Decl .impure)) : CompilerM (Array (Decl .impure)) := do
   let decls ← decls.foldlM (init := #[]) fun newDecls decl => do
     match decl.value with
     | .code code =>
-      let s := { currDecl := decl.name, currDeclResultType := decl.type, decls }
+      let s := { currDecl := decl.name, currDeclResultType := decl.type }
       let (code, s) ← code.explicitBoxing |>.run s |>.run {}
       let newDecls := newDecls ++ s.auxDecls
       let newDecl := { decl with value := .code code }

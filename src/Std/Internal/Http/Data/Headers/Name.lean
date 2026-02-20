@@ -66,7 +66,7 @@ characters for HTTP header names or is empty.
 -/
 @[expose]
 def ofString? (s : String) : Option Name :=
-  let val := s.toLower
+  let val := s.trimAscii.toString.toLower
   if h : IsValidHeaderName val ∧ IsLowerCase val then
     some ⟨val, h.left, h.right⟩
   else
@@ -78,7 +78,7 @@ string contains invalid characters for HTTP header names or is empty.
 -/
 @[expose]
 def ofString! (s : String) : Name :=
-  let val := s.toLower
+  let val := s.trimAscii.toString.toLower
   if h : IsValidHeaderName val ∧ IsLowerCase val then
     ⟨val, h.left, h.right⟩
   else

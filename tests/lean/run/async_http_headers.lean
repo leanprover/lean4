@@ -11,8 +11,14 @@ open Std.Http.Header
 #guard (Name.ofString? "x-custom-header").isSome
 #guard (Name.ofString? "accept").isSome
 
+-- Trimming: leading/trailing whitespace is stripped
+#guard (Name.ofString? " content-type ").isSome
+#guard (Name.ofString? " content-type ") == Name.ofString? "content-type"
+#guard (Name.ofString? "  host  ").isSome
+
 -- Invalid header names (empty, spaces, control chars)
 #guard (Name.ofString? "").isNone
+#guard (Name.ofString? "   ").isNone
 #guard (Name.ofString? "invalid header").isNone
 #guard (Name.ofString? "bad\nname").isNone
 #guard (Name.ofString? "bad\x00name").isNone
@@ -81,6 +87,10 @@ info: "Host"
 #guard !(Name.ofString! "content-type" == Name.ofString! "host")
 
 /-! ## Header.Value tests -/
+
+-- Trimming: leading/trailing whitespace is stripped
+#guard (Value.ofString? " text/html ") == Value.ofString? "text/html"
+#guard (Value.ofString? "  value  ") == Value.ofString? "value"
 
 -- Valid header values (printable ASCII, tab, space)
 #guard (Value.ofString? "text/html").isSome

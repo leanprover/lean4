@@ -461,7 +461,7 @@ structure Builder where
   /--
   The URI scheme (e.g., "http", "https").
   -/
-  scheme : Option String := none
+  scheme : Option URI.Scheme := none
 
   /--
   User information (username and optional password).
@@ -507,7 +507,7 @@ Returns `none` if the scheme is not a valid RFC 3986 scheme.
 A scheme must start with an ASCII letter followed by alphanumeric, `+`, `-`, or `.` characters.
 -/
 def setScheme? (b : Builder) (scheme : String) : Option Builder :=
-  if IsLowerCase scheme ∧ scheme.toList.all isValidSchemeChar ∧ scheme.isEmpty then some { b with scheme := some scheme.toLower }
+  if h : IsLowerCase scheme ∧ scheme.toList.all isValidSchemeChar ∧ ¬scheme.isEmpty then some { b with scheme := some ⟨scheme, h⟩ }
   else none
 
 /--
@@ -617,12 +617,7 @@ Builds a complete URI from the builder state, encoding all components. Defaults 
 none is specified.
 -/
 def build (b : Builder) : URI :=
-  let schemeStr := (b.scheme.getD "https").toLower
-  let scheme : Scheme :=
-    if h : IsLowerCase schemeStr ∧ schemeStr.toList.all isValidSchemeChar ∧ ¬schemeStr.isEmpty then
-      ⟨schemeStr, h.1, h.2.1, h.2.2⟩
-    else
-      default
+  let scheme := (b.scheme.getD ⟨"https", by decide⟩)
 
   let authority :=
     if b.host.isSome then

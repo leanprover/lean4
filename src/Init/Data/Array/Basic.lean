@@ -171,6 +171,15 @@ def uget (xs : @& Array α) (i : USize) (h : i.toNat < xs.size) : α :=
   xs[i.toNat]
 
 /--
+Version of `Array.uget` that does not increment the reference count of its result.
+
+This is only intended for direct use by the compiler.
+-/
+@[extern "lean_array_uget_borrowed"]
+unsafe opaque ugetBorrowed (xs : @& Array α) (i : USize) (h : i.toNat < xs.size) : α :=
+  xs.uget i h
+
+/--
 Low-level modification operator which is as fast as a C array write. The modification is performed
 in-place when the reference to the array is unique.
 

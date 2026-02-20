@@ -841,14 +841,13 @@ partial def processRead (machine : Machine dir) : Machine dir :=
               machine
         | .sending =>
             let (machine, result) := parseWith machine
-              (parseStatusLineRawVersion machine.config)
+              parseStatusLineRawVersion
               (limit := some machine.config.maxStartLineLength)
-            if let some (status, reasonPhrase, version) := result then
+            if let some (status, version) := result then
               if version == some .v11 then
                 machine
                 |>.modifyReader (.setMessageHead ({
                   status,
-                  reasonPhrase := some reasonPhrase,
                   version := .v11,
                   headers := .empty
                 } : Response.Head))

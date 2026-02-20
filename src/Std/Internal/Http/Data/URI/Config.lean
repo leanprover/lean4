@@ -6,7 +6,7 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Init.Data
+public import Init.Data.Nat
 
 public section
 

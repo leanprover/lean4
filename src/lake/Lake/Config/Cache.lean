@@ -365,6 +365,21 @@ def uploadS3
   | .error e =>
     error s!"curl produced invalid JSON output: {e}; received:\n{out.stderr}"
 
+private structure CacheServiceImpl where
+  mk ::
+    name? : Option String := none
+    /- S3 Bucket -/
+    key : String := ""
+    artifactEndpoint : String := ""
+    revisionEndpoint : String := ""
+    /- Reservoir -/
+    /-- Is this a Reservoir cache service configuration? -/
+    isReservoir : Bool := false
+    apiEndpoint : String := ""
+    /-- Whether interpret the scope as a repository or not. -/
+    repoScope : Bool := false
+    deriving Nonempty
+
 /--
 Configuration of a remote cache service (e.g., Reservoir or an S3 bucket).
 
@@ -375,45 +390,44 @@ the desired functions by using `CacheService`'s smart constructors
 -/
 public structure CacheService where
   private mk ::
-    name? : Option String := none
-    /- S3 Bucket -/
-    private key : String := ""
-    private artifactEndpoint : String := ""
-    private revisionEndpoint : String := ""
-    /- Reservoir -/
-    /-- Is this a Reservoir cache service configuration? -/
-    isReservoir : Bool := false
-    private apiEndpoint : String := ""
-    /-- Whether interpret the scope as a repository or not. -/
-    private repoScope : Bool := false
+    private impl : CacheServiceImpl
+    deriving Nonempty
 
 namespace CacheService
+
+/-- Returns the name (if any) used to identifier the service in cached ouptuts. -/
+@[inline] public def name? (service : CacheService) : Option String :=
+  service.impl.name?
+
+/-- Returns whether this is a Reservoir cache service configuration. -/
+@[inline] public def isReservoir (service : CacheService) : Bool :=
+  service.impl.isReservoir
 
 /-! ### Constructors -/
 
 /-- Constructs a `CacheService` for a Reservoir endpoint. -/
 @[inline] public def reservoirService
-  (apiEndpoint : String) (repoScope := false) (name? : Option String := some "reservoir")
-: CacheService := {name?, isReservoir := true, apiEndpoint, repoScope}
+  (apiEndpoint : String) (name? : Option String := some "reservoir")
+: CacheService := .mk {name?, isReservoir := true, apiEndpoint}
 
 /-- Constructs a `CacheService` to upload artifacts and/or outputs to an S3 endpoint. -/
 @[inline] public def uploadService
   (key artifactEndpoint revisionEndpoint : String)
-: CacheService := {key, artifactEndpoint, revisionEndpoint}
+: CacheService := .mk  {key, artifactEndpoint, revisionEndpoint}
 
 /-- Constructs a `CacheService` to download artifacts and/or outputs from an S3 endpoint. -/
 @[inline] public def downloadService
   (artifactEndpoint revisionEndpoint : String) (name? : Option String := none)
-: CacheService := {name?, artifactEndpoint, revisionEndpoint}
+: CacheService := .mk {name?, artifactEndpoint, revisionEndpoint}
 
 /-- Constructs a `CacheService` to download just artifacts from an S3 endpoint. -/
 @[inline] public def downloadArtsService
   (artifactEndpoint : String) (name? : Option String := none)
-: CacheService := {name?, artifactEndpoint}
+: CacheService := .mk {name?, artifactEndpoint}
 
 /-- Reconfigures the cache service to use the provided key (for uploads).-/
 @[inline] public def withKey (service : CacheService) (key : String) : CacheService :=
-  {service with key}
+  .mk {service.impl with key}
 
 /--
 Reconfigures the cache service to interpret scopes as repositories (or not if `false`).
@@ -422,7 +436,7 @@ For custom endpoints, if `true`, Lake will augment the provided scope with
 toolchain and platform information in a manner similar to Reservoir.
 -/
 @[inline] public def withRepoScope (service : CacheService) (repoScope := true) : CacheService :=
-  {service with repoScope}
+  .mk {service.impl with repoScope}
 
 /-! ### Artifact Transfer -/
 
@@ -434,15 +448,15 @@ private def appendScope (endpoint : String) (scope : String) : String :=
     uriEncode component.copy s |>.push '/'
 
 private def s3ArtifactUrl (contentHash : Hash) (service : CacheService) (scope : String) : String :=
-  appendScope s!"{service.artifactEndpoint}/" scope ++ s!"{contentHash.hex}.art"
+  appendScope s!"{service.impl.artifactEndpoint}/" scope ++ s!"{contentHash.hex}.art"
 
 public def artifactUrl (contentHash : Hash) (service : CacheService) (scope : String) : String :=
   if service.isReservoir then
     let endpoint :=
-      if service.repoScope then
-        s!"{service.apiEndpoint}/repositories/"
+      if service.impl.repoScope then
+        s!"{service.impl.apiEndpoint}/repositories/"
       else
-        s!"{service.apiEndpoint}/packages/"
+        s!"{service.impl.apiEndpoint}/packages/"
     appendScope endpoint scope ++ s!"artifacts/{contentHash.hex}.art"
   else
     service.s3ArtifactUrl contentHash scope
@@ -495,7 +509,7 @@ public def uploadArtifact
     {scope}: uploading artifact {contentHash}\
     \n  local path: {art}\
     \n  remote URL: {url}"
-  uploadS3 art artifactContentType url service.key
+  uploadS3 art artifactContentType url service.impl.key
 
 public def uploadArtifacts
   (descrs : Vector ArtifactDescr n) (paths : Vector FilePath n)
@@ -511,8 +525,8 @@ private def s3RevisionUrl
   (rev : String) (service : CacheService) (scope : String)
   (platform : String := "") (toolchain : String := "")
 : String := Id.run do
-  let mut url := appendScope s!"{service.revisionEndpoint}/" scope
-  if service.repoScope then
+  let mut url := appendScope s!"{service.impl.revisionEndpoint}/" scope
+  if service.impl.repoScope then
     unless platform.isEmpty do
       url := uriEncode platform s!"{url}pt/" |>.push '/'
     unless toolchain.isEmpty do
@@ -524,8 +538,8 @@ public def revisionUrl
   (platform : String := "") (toolchain : String := "")
 : String :=
   if service.isReservoir then Id.run do
-    let mut url := service.apiEndpoint
-    if service.repoScope then
+    let mut url := service.impl.apiEndpoint
+    if service.impl.repoScope then
       url := url ++ "/repositories/"
     else
       url := url ++ "/packages/"
@@ -570,6 +584,6 @@ public def uploadRevisionOutputs
     {scope}: uploading build outputs for revision {rev}\
     \n  local path: {outputs}\
     \n  remote URL: {url}"
-  uploadS3 outputs mapContentType url service.key
+  uploadS3 outputs mapContentType url service.impl.key
 
 end CacheService

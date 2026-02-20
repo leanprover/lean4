@@ -142,7 +142,7 @@ public protected def BuildType.decodeToml (v : Value) : EDecodeM BuildType := do
   | some v => return v
   | none => throwDecodeErrorAt v.ref "expected one of 'debug', 'relWithDebInfo', 'minSizeRel', 'release'"
 
-public instance : DecodeToml BuildType := ⟨(BuildType.decodeToml ·)⟩
+public instance : DecodeToml BuildType := ⟨BuildType.decodeToml⟩
 
 public protected def Backend.decodeToml (v : Value) : EDecodeM Backend := do
   match Backend.ofString? (← v.decodeString) with
@@ -326,27 +326,14 @@ public protected def Dependency.decodeToml (t : Table) (ref := Syntax.missing) :
 
 public instance : DecodeToml Dependency := ⟨fun v => do Dependency.decodeToml (← v.decodeTable) v.ref⟩
 
-/-! ## Dependency Configuration Decoders -/
+/-! ## System Configuration Decoders -/
 
-public protected def CacheService.decodeToml (t : Table) (ref := Syntax.missing) : EDecodeM CacheService := do
-  let typeVal ← t.decodeValue `type
-  match (← typeVal.decodeString) with
-  | "reservoir" => ensureDecode do
-    let name ← t.tryDecode `name ref
-    let repoScope ← t.tryDecode `repoScope ref
-    let apiEndpoint ← normalizeUrl <$> t.tryDecode `apiEndpoint ref
-    return .reservoirService apiEndpoint repoScope (some name)
-  | "s3" => ensureDecode do
-    let name ← t.tryDecode `name ref
-    let artifactEndpoint ← normalizeUrl <$> t.tryDecode `artifactEndpoint ref
-    let revisionEndpoint ← normalizeUrl <$> t.tryDecode `revisionEndpoint ref
-    return .downloadService artifactEndpoint revisionEndpoint (some name)
-  | _ =>
-    throwDecodeErrorAt typeVal.ref "expected one of 'reservoir' or 's3'"
-where
-  normalizeUrl url := if url.back == '/' then url.dropEnd 1 |>.copy else url
+public protected def CacheServiceKind.decodeToml (v : Value) : EDecodeM CacheServiceKind := do
+  match CacheServiceKind.ofString? (← v.decodeString) with
+  | some v => return v
+  | none => throwDecodeErrorAt v.ref "expected one of 'reservoir' or 's3'"
 
-public instance : DecodeToml CacheService := ⟨fun v => do CacheService.decodeToml (← v.decodeTable) v.ref⟩
+public instance : DecodeToml CacheServiceKind := ⟨CacheServiceKind.decodeToml⟩
 
 /-! ## Package & Target Configuration Decoders -/
 
@@ -358,7 +345,7 @@ private abbrev TomlFieldInfos (σ : Type) :=
 
 private def TomlFieldInfos.empty : TomlFieldInfos σ := {}
 
-@[inline] def TomlFieldInfos.insert
+@[inline] private def TomlFieldInfos.insert
   (name : Name) [DecodeField σ name] (infos : TomlFieldInfos σ)
 : TomlFieldInfos σ :=
   NameMap.insert infos name ⟨decodeField name⟩
@@ -369,7 +356,7 @@ private class ConfigTomlInfo (α : Type) where
 private def decodeTomlConfig
   [EmptyCollection α] [ConfigTomlInfo α] (t : Table)
 : Toml.DecodeM α :=
-  t.foldM (init := {}) fun cfg key val => do
+  t.foldM (init := ∅) fun cfg key val => do
     if let some info := ConfigTomlInfo.fieldInfos.find? key then
       info.decodeAndSet t val cfg
     else
@@ -410,6 +397,7 @@ end
 local macro "gen_toml_decoders%" : command => do
   let cmds := #[]
   -- Lake
+  let cmds ← genDecodeToml cmds ``CacheServiceConfig
   let cmds ← genDecodeToml cmds ``CacheConfig
   let cmds ← genDecodeToml cmds ``LakeConfig
   -- Targets
@@ -498,18 +486,72 @@ public def loadTomlConfig (cfg: LoadConfig) : LogIO Package := do
 /-! ## System Configuration Loader -/
 
 /-- Load the system Lake configuration from a TOML file. -/
-public def loadLakeConfig (path : FilePath) : LogIO LakeConfig := do
+private def loadLakeConfigCore (path : FilePath) (lakeEnv : Lake.Env) : LogIO LoadedLakeConfig := do
   let input ← IO.FS.readFile path
   let ictx := mkInputContext input path.toString
   match (← loadToml ictx |>.toBaseIO) with
   | .ok table =>
-    let .ok pkg errs := EStateM.run (s := #[]) do
+    let .ok config errs := EStateM.run (s := #[]) do
       LakeConfig.decodeToml table
     if errs.isEmpty then
-      return pkg
+      let cacheServices ← config.cache.services.foldlM (init := {}) fun map cfg => do
+        let validateUrl name key url := do
+          if url.isEmpty then
+            error s!"cache service `{name}` is missing field `{key}`"
+          else
+            return if url.back == '/' then url.dropEnd 1 |>.copy else url
+        match cfg.kind with
+        | .reservoir => do
+          let apiEndpoint ← validateUrl cfg.name "apiEndpoint" cfg.apiEndpoint
+          let service := .reservoirService apiEndpoint (some cfg.name)
+          return map.insert (.mkSimple cfg.name) service
+        | .s3 => do
+          let artifactEndpoint ← validateUrl cfg.name "artifactEndpoint" cfg.artifactEndpoint
+          let revisionEndpoint ← validateUrl cfg.name "revisionEndpoint" cfg.revisionEndpoint
+          let service :=  .downloadService artifactEndpoint revisionEndpoint (some cfg.name)
+          return map.insert (.mkSimple cfg.name) service
+        | _ =>
+          error s!"cache service `{cfg.name}` is missing field `kind`"
+      let defaultCacheService ← id do
+        let name := config.cache.defaultService
+        if name.isEmpty then
+          return .reservoirService lakeEnv.reservoirApiUrl
+        else
+          let some service := cacheServices.get? (.mkSimple name)
+            | error s!"the configured default cache service `{name}` is not defined; \
+                please add a `cache.service` with that name"
+          return service
+      let defaultUploadCacheService? ← id do
+        let name := config.cache.defaultUploadService
+        if name.isEmpty then
+          return none
+        else
+          let some service := cacheServices.get? (.mkSimple name)
+            | error s!"the configured default cache upload service `{name}` is not defined; \
+                please add a `cache.service` with that name"
+          return some service
+      return {config, defaultCacheService, defaultUploadCacheService?, cacheServices}
     else
       errorWithLog <| errs.forM fun {ref, msg} =>
         let pos := ictx.fileMap.toPosition <| ref.getPos?.getD 0
         logError <| mkErrorStringWithPos ictx.fileName pos msg
   | .error log =>
     errorWithLog <| log.forM fun msg => do logError (← msg.toString)
+
+private def LoadedLakeConfig.mkDefault (lakeEnv : Lake.Env) : LoadedLakeConfig := {
+  config := ∅
+  defaultCacheService := .reservoirService lakeEnv.reservoirApiUrl
+  defaultUploadCacheService? := none
+  cacheServices := ∅
+}
+
+/--
+**For internal use only.**
+Load the system Lake configuration from tehe environment-configured TOML file.
+-/
+public def loadLakeConfig (lakeEnv : Lake.Env) : LogIO LoadedLakeConfig := do
+  if let some path := lakeEnv.lakeConfig? then
+    if (← path.pathExists) then
+      loadLakeConfigCore path lakeEnv
+    else return .mkDefault lakeEnv
+  else return .mkDefault lakeEnv

@@ -20,8 +20,6 @@ namespace Lake
 public structure LoadConfig where
   /-- The Lake environment of the load process. -/
   lakeEnv : Lake.Env
-  /-- The system Lake configuration. -/
-  lakeConfig : LakeConfig := ∅
   /--
   The CLI arguments Lake was run with.
   Used to perform a restart of Lake on a toolchain update.

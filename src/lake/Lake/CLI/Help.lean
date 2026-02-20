@@ -358,6 +358,7 @@ COMMANDS:
   get [<mappings>]      download artifacts into the local Lake cache
   put <mappings>        upload artifacts to a remote cache
   clean                 removes ALL froms the local Lake cache
+  services              print configured remote cache services
 
 See `lake cache help <command>` for more information on a specific command."
 
@@ -458,6 +459,15 @@ USAGE:
 Deletes the configured Lake cache directory. If a workspace configuration
 exists, this will delete the cache directory it uses. Otherwise, it will
 delete the default Lake cache directory for the system."
+
+def helpCacheServices :=
+"Print configured remote cache services
+
+USAGE:
+  lake cache services
+
+Prints the name of each configured remote cache services (one per line).
+Additional services can be added by modifying the system Lake configuration."
 
 def helpScriptCli :=
 "Manage Lake scripts
@@ -590,6 +600,7 @@ public def helpCache : (cmd : String) → String
 | "get"                 => helpCacheGet
 | "put"                 => helpCachePut
 | "clean"               => helpCacheClean
+| "services"            => helpCacheServices
 | _                     => helpCacheCli
 
 public def help : (cmd : String) → String

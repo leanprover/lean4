@@ -29,7 +29,7 @@ public structure Workspace : Type where
   /-- The detected {lean}`Lake.Env` of the workspace. -/
   lakeEnv : Lake.Env
   /-- The Lake configuration from the system configuration file. -/
-  lakeConfig : LakeConfig := ∅
+  lakeConfig : LoadedLakeConfig
   /-- The Lake cache. -/
   lakeCache : Cache :=
     if root.bootstrap then lakeEnv.lakeSystemCache?.getD ⟨root.lakeDir / "cache"⟩
@@ -51,8 +51,7 @@ public structure Workspace : Type where
   facetConfigs : DNameMap FacetConfig := {}
 
 public instance : Nonempty Workspace :=
-  have : Inhabited Package := Classical.inhabited_of_nonempty inferInstance
-  ⟨by constructor <;> exact default⟩
+  ⟨by constructor <;> exact Classical.ofNonempty⟩
 
 public hydrate_opaque_type OpaqueWorkspace Workspace
 
@@ -105,6 +104,31 @@ public def isRootArtifactCacheWritable (ws : Workspace) : Bool :=
 @[deprecated isRootArtifactCacheWritable (since := "2026-02-03")]
 public abbrev isRootArtifactCacheEnabled (ws : Workspace) : Bool :=
   ws.isRootArtifactCacheWritable
+
+/--
+Returns the cache service used by default for downloads (e.g., for {lit}`lake cache get`).
+
+This is configured through `cache.defaultService` in the system Lake configuration.
+If unconfigured, Lake defaults to using Reservoir.
+-/
+@[inline] public def defaultCacheService (ws : Workspace) : CacheService :=
+  ws.lakeConfig.defaultCacheService
+
+/--
+Returns the cache service (if any) used by default for uploads (e.g., for {lit}`lake cache put`).
+
+This is configured through {lit}`cache.defaultUploadService` in the system Lake configuration.
+-/
+@[inline] public def defaultCacheUploadService? (ws : Workspace) : Option CacheService :=
+  ws.lakeConfig.defaultUploadCacheService?
+
+/--
+Returns the configured cache service with the given name.
+
+This is configured through {lit}`cache.service` entries in the global Lake configuration.
+-/
+@[inline] public def findCacheService? (ws : Workspace) (service : String) : Option CacheService :=
+  ws.lakeConfig.cacheServices.find? (.mkSimple service)
 
 /-- The path to the workspace's remote packages directory relative to {lean}`dir`. -/
 @[inline] public def relPkgsDir (self : Workspace) : FilePath :=

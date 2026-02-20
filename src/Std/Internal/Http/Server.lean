@@ -161,27 +161,25 @@ def serve {σ : Type} [Handler σ]
 
         match result with
         | some client =>
-          let mkExtensions : BaseIO Extensions := do
+          let extensions ← do
             match (← EIO.toBaseIO client.getPeerName) with
             | .ok addr => pure <| Extensions.empty.insert (Server.RemoteAddr.mk addr)
             | .error _ => pure Extensions.empty
 
           if let some limit := httpServer.connectionLimit then
             if ← limit.tryAcquire then
-              let extensions ← mkExtensions
 
               ContextAsync.background
                 (frameCancellation httpServer (releaseConnectionPermit := true)
                   (action := serveConnection client handler config extensions))
             else
               -- Drop the connection immediately by shutting down the write side.
-              let _ ← client.shutdown
+              discard <| client.shutdown
           else
-            let extensions ← mkExtensions
-
             ContextAsync.background
               (frameCancellation httpServer (releaseConnectionPermit := true)
                 (action := serveConnection client handler config extensions))
+
         | none => break
     )
 

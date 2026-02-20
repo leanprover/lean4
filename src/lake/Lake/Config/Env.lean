@@ -58,6 +58,8 @@ public structure Env where
   If `none`, no suitable system directory for the cache exists.
   -/
   lakeSystemCache? : Option Cache := none
+  /-- The path to the sytem Lake configuration (i.e., `LAKE_CONFIG`). -/
+  lakeConfig? : Option FilePath
   /-- The authentication key for cache uploads (i.e., `LAKE_CACHE_KEY`). -/
   cacheKey? : Option String
   /-- The base URL for artifact uploads and downloads from the cache (i.e., `LAKE_CACHE_ARTIFACT_ENDPOINT`). -/
@@ -95,6 +97,14 @@ public def getUserHome? : BaseIO (Option FilePath) := do
   else
     return none
 
+def getSystemCacheHomeAux? (userHome? : Option FilePath) : BaseIO (Option FilePath) := do
+  if let some cacheHome ← IO.getEnv "XDG_CACHE_HOME" then
+    return FilePath.mk cacheHome
+  else if let some userHome := userHome? then
+    return userHome / ".cache"
+  else
+    return none
+
 /-- Returns the system directory that can be used to store caches (if one exists). -/
 public def getSystemCacheHome? : BaseIO (Option FilePath) := do
   if let some cacheHome ← IO.getEnv "XDG_CACHE_HOME" then
@@ -119,15 +129,15 @@ namespace Env
 public def computeToolchain : BaseIO String := do
   return (← IO.getEnv "ELAN_TOOLCHAIN").getD Lean.toolchain
 
-def computeEnvCache? : BaseIO (Option Cache) := OptionT.run do
+@[inline] def computeEnvCache? : BaseIO (Option Cache) := OptionT.run do
   let cacheDir ← IO.getEnv "LAKE_CACHE_DIR"
   guard cacheDir.isEmpty
   return ⟨cacheDir⟩
 
-def computeSystemCache? : BaseIO (Option Cache) := do
-  return (← getSystemCacheHome?).map (⟨· / "lake"⟩)
+@[inline] def cacheOfSystem? (cacheHome? : Option FilePath) : Option Cache :=
+  cacheHome?.map (⟨· / "lake"⟩)
 
-def computeToolchainCache? (elan? : Option ElanInstall) (toolchain : String) : Option Cache := do
+@[inline] def cacheOfToolchain? (elan? : Option ElanInstall) (toolchain : String) : Option Cache := do
   let elan ← elan?
   guard !toolchain.isEmpty
   return elan.lakeToolchainCache toolchain
@@ -139,9 +149,9 @@ If `none`, no system directory for workspace the cache exists.
 public def computeCache? (elan? : Option ElanInstall) (toolchain : String) : BaseIO (Option Cache) := do
   if let some cache ← computeEnvCache? then
     return some cache
-  else if let some cache := computeToolchainCache? elan? toolchain then
+  else if let some cache := cacheOfToolchain? elan? toolchain then
     return some cache
-  else if let some cache ← computeSystemCache? then
+  else if let some cache ← cacheOfSystem? <$> getSystemCacheHome? then
     return some cache
   else
     return none
@@ -156,12 +166,14 @@ public def compute
 : EIO String Env := do
   let reservoirBaseUrl ← getUrlD "RESERVOIR_API_BASE_URL" "https://reservoir.lean-lang.org/api"
   let toolchain ← computeToolchain
-  addCacheDirs toolchain {
+  let userHome? ← getUserHome?
+  addCacheDirs userHome? toolchain {
     lake, lean, elan?,
     pkgUrlMap := ← computePkgUrlMap
     reservoirApiUrl := ← getUrlD "RESERVOIR_API_URL" s!"{reservoirBaseUrl}/v1"
     noCache := (noCache <|> (← IO.getEnv "LAKE_NO_CACHE").bind envToBool?).getD false
     enableArtifactCache? := (← IO.getEnv "LAKE_ARTIFACT_CACHE").bind envToBool?
+    lakeConfig? := (← IO.getEnv "LAKE_CONFIG") <|> userHome?.map (· / ".lake" / "config.toml" |>.toString)
     cacheKey? := (← IO.getEnv "LAKE_CACHE_KEY").map (·.trimAscii.copy)
     cacheArtifactEndpoint? := (← IO.getEnv "LAKE_CACHE_ARTIFACT_ENDPOINT").map normalizeUrl
     cacheRevisionEndpoint? := (← IO.getEnv "LAKE_CACHE_REVISION_ENDPOINT").map normalizeUrl
@@ -174,15 +186,16 @@ public def compute
     initPath := ← getSearchPath "PATH"
   }
 where
-  addCacheDirs toolchain env := do
+  addCacheDirs userHome? toolchain env := do
     if let some dir ← IO.getEnv "LAKE_CACHE_DIR" then
       if dir.isEmpty then
         return {env with noSystemCache := true}
       else
         return {env with lakeCache? := some ⟨dir⟩, lakeSystemCache? := some ⟨dir⟩}
-    else if let some cache := computeToolchainCache? elan? toolchain then
-      return {env with lakeCache? := some cache, lakeSystemCache? := ← computeSystemCache?}
-    else if let some cache ← computeSystemCache? then
+    else if let some cache := cacheOfToolchain? elan? toolchain then
+      let lakeSystemCache? ← cacheOfSystem? <$> getSystemCacheHomeAux? userHome?
+      return {env with lakeCache? := some cache, lakeSystemCache?}
+    else if let some cache ← cacheOfSystem? <$> getSystemCacheHomeAux? userHome? then
       return {env with lakeCache? := some cache, lakeSystemCache? := some cache}
     else
       return env
@@ -271,6 +284,7 @@ public def baseVars (env : Env) : Array (String × Option String)  :=
     ("ELAN_TOOLCHAIN", if env.toolchain.isEmpty then none else env.toolchain),
     ("LAKE", env.lake.lake.toString),
     ("LAKE_HOME", env.lake.home.toString),
+    ("LAKE_CONFIG", if let some path := env.lakeConfig? then path.toString else ""),
     ("LAKE_PKG_URL_MAP", toJson env.pkgUrlMap |>.compress),
     ("LAKE_NO_CACHE", toString env.noCache),
     ("LAKE_CACHE_KEY", env.cacheKey?),

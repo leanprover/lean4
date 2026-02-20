@@ -826,6 +826,10 @@ static inline lean_object * lean_array_uget(b_lean_obj_arg a, size_t i) {
     return r;
 }
 
+static inline b_lean_obj_res lean_array_uget_borrowed(b_lean_obj_arg a, size_t i) {
+    return lean_array_get_core(a, i);
+}
+
 static inline lean_obj_res lean_array_fget(b_lean_obj_arg a, b_lean_obj_arg i) {
     return lean_array_uget(a, lean_unbox(i));
 }

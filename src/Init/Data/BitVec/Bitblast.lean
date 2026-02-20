@@ -2416,21 +2416,21 @@ def extractAndExtend (len : Nat) (x : BitVec w) : BitVec (w * len) :=
 
 /--
   Construct a layer of the parallel-prefix-sum tree by summing two-by-two all the
-  `w`-long words in `old_layer`, returning a bitvector containing `(oldLength + 1) / 2`
+  `w`-long words in `oldLayer`, returning a bitvector containing `(oldLength + 1) / 2`
   flattened `w`-long words, each resulting from an addition.
 -/
 def cpopLayer {w iterNum : Nat}
-  (old_layer : BitVec (oldLength * w)) (new_layer : BitVec (iterNum * w))
+  (oldLayer : BitVec (oldLength * w)) (newLayer : BitVec (iterNum * w))
   (hold : 2 * (iterNum - 1) < oldLength) : BitVec (((oldLength + 1)/2) * w) :=
   if hlen : oldLength - (iterNum * 2) = 0 then
     have : ((oldLength + 1)/2) = iterNum := by omega
-    new_layer.cast (by simp [this])
+    newLayer.cast (by simp [this])
   else
-    let op1 := old_layer.extractLsb' ((2 * iterNum) * w) w
-    let op2 := old_layer.extractLsb' ((2 * iterNum + 1) * w) w
-    let new_layer' := (op1 + op2) ++ new_layer
+    let op1 := oldLayer.extractLsb' ((2 * iterNum) * w) w
+    let op2 := oldLayer.extractLsb' ((2 * iterNum + 1) * w) w
+    let newLayer' := (op1 + op2) ++ newLayer
     have hcast : w + iterNum * w = (iterNum + 1) * w := by simp [Nat.add_mul]; omega
-    cpopLayer old_layer (new_layer'.cast hcast) (by omega)
+    cpopLayer oldLayer (newLayer'.cast hcast) (by omega)
 termination_by oldLength - (iterNum * 2)
 
 /--
@@ -2514,13 +2514,13 @@ private theorem extractLsb'_extractAndExtendAux
       · omega
 
 theorem extractLsb'_cpopLayer {w iterNum i oldLength : Nat}
-  (old_layer : BitVec (oldLength * w)) (new_layer : BitVec (iterNum * w))
+  (oldLayer : BitVec (oldLength * w)) (newLayer : BitVec (iterNum * w))
   (hold : 2 * (iterNum - 1) < oldLength)
   (proof_addition : ∀ i (_hi: i < iterNum),
-        new_layer.extractLsb' (i * w) w =
-        old_layer.extractLsb' ((2 * i) * w) w + (old_layer.extractLsb' ((2 * i + 1) * w) w)) :
-    extractLsb' (i * w) w (old_layer.cpopLayer new_layer hold) =
-      extractLsb' (2 * i * w) w old_layer + extractLsb' ((2 * i + 1) * w) w old_layer := by
+        newLayer.extractLsb' (i * w) w =
+        oldLayer.extractLsb' ((2 * i) * w) w + (oldLayer.extractLsb' ((2 * i + 1) * w) w)) :
+    extractLsb' (i * w) w (oldLayer.cpopLayer newLayer hold) =
+      extractLsb' (2 * i * w) w oldLayer + extractLsb' ((2 * i + 1) * w) w oldLayer := by
   rw [cpopLayer]
   split
   · by_cases hi : i < iterNum
@@ -2532,15 +2532,15 @@ theorem extractLsb'_cpopLayer {w iterNum i oldLength : Nat}
       have : oldLength * w ≤ (2 * i) * w := by refine mul_le_mul_right w (by omega)
       have : oldLength * w ≤ (2 * i + 1) * w := by refine mul_le_mul_right w (by omega)
       simp [show iterNum * w ≤ i * w + j by omega]
-      have hz : extractLsb' (2 * i * w) w old_layer = 0#w := by
+      have hz : extractLsb' (2 * i * w) w oldLayer = 0#w := by
         ext j hj
         simp [show oldLength * w ≤ 2 * i * w + j by omega]
-      have hz' : extractLsb' ((2 * i + 1) * w) w old_layer = 0#w := by
+      have hz' : extractLsb' ((2 * i + 1) * w) w oldLayer = 0#w := by
         ext j hj
         simp [show oldLength * w ≤ (2 * i + 1) * w + j by omega]
       simp [hz, hz']
-  · generalize hop1 : old_layer.extractLsb' ((2 * iterNum) * w) w = op1
-    generalize hop2 : old_layer.extractLsb' ((2 * iterNum + 1) * w) w = op2
+  · generalize hop1 : oldLayer.extractLsb' ((2 * iterNum) * w) w = op1
+    generalize hop2 : oldLayer.extractLsb' ((2 * iterNum + 1) * w) w = op2
     have hcast : w + iterNum * w = (iterNum + 1) * w := by simp [Nat.add_mul]; omega
     apply extractLsb'_cpopLayer
     intros i hi
@@ -2554,19 +2554,19 @@ theorem extractLsb'_cpopLayer {w iterNum i oldLength : Nat}
 termination_by oldLength - 2 * (iterNum + 1 - 1)
 
 theorem getLsbD_cpopLayer {w iterNum: Nat}
-  (old_layer : BitVec (oldLength * w)) (new_layer : BitVec (iterNum * w))
+  (oldLayer : BitVec (oldLength * w)) (newLayer : BitVec (iterNum * w))
   (hold : 2 * (iterNum - 1) < oldLength)
   (proof_addition : ∀ i (_hi: i < iterNum),
-        new_layer.extractLsb' (i * w) w =
-        old_layer.extractLsb' ((2 * i) * w) w + (old_layer.extractLsb' ((2 * i + 1) * w) w)) :
-    (old_layer.cpopLayer new_layer hold).getLsbD k =
-      (extractLsb' (2 * ((k - k % w) / w) * w) w old_layer +
-        extractLsb' ((2 * ((k - k % w) / w) + 1) * w) w old_layer).getLsbD (k % w) := by
+        newLayer.extractLsb' (i * w) w =
+        oldLayer.extractLsb' ((2 * i) * w) w + (oldLayer.extractLsb' ((2 * i + 1) * w) w)) :
+    (oldLayer.cpopLayer newLayer hold).getLsbD k =
+      (extractLsb' (2 * ((k - k % w) / w) * w) w oldLayer +
+        extractLsb' ((2 * ((k - k % w) / w) + 1) * w) w oldLayer).getLsbD (k % w) := by
   by_cases hw0 : w = 0
   · subst hw0
     simp
   · simp only [←
-      extractLsb'_cpopLayer (old_layer := old_layer) (new_layer := new_layer) (hold := by omega)
+      extractLsb'_cpopLayer (oldLayer := oldLayer) (newLayer := newLayer) (hold := by omega)
         (proof_addition := proof_addition),
     Nat.mod_lt (x := k) (y := w) (by omega), getLsbD_eq_getElem, getElem_extractLsb']
     congr

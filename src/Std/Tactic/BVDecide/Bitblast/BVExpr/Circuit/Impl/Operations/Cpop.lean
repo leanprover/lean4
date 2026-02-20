@@ -113,52 +113,52 @@ theorem extractAndExtend_decl_eq (aig : AIG α) (idx' : Nat) (x : AIG.RefVec aig
 /-- Given a vector of references belonging to the same AIG `oldParSum`,
   we create a node to add the `curr`-th couple of elements and push the add node to `newParSum` -/
 def blastCpopLayer (aig : AIG α) (iterNum : Nat)
-  (old_layer : AIG.RefVec aig (oldLength * w)) (new_layer : AIG.RefVec aig (iterNum * w))
+  (oldLayer : AIG.RefVec aig (oldLength * w)) (newLayer : AIG.RefVec aig (iterNum * w))
   (hold : 2 * (iterNum - 1) < oldLength) : AIG.RefVecEntry α ((oldLength + 1)/2 * w) :=
   if  hlen : 0 < oldLength - (iterNum * 2) then
     -- lhs
-    let targetExtract : ExtractTarget aig w := {vec := old_layer, start := 2 * iterNum * w}
+    let targetExtract : ExtractTarget aig w := {vec := oldLayer, start := 2 * iterNum * w}
     let res := blastExtract aig targetExtract
     let aig := res.aig
     let op1 : aig.RefVec w := res.vec
     have := AIG.LawfulVecOperator.le_size (f := blastExtract) ..
-    let old_layer := old_layer.cast (aig2 := aig) this
-    let new_layer := new_layer.cast (aig2 := aig) this
+    let oldLayer := oldLayer.cast (aig2 := aig) this
+    let newLayer := newLayer.cast (aig2 := aig) this
     -- rhs
-    let targetExtract : ExtractTarget aig w := {vec := old_layer, start := (2 * iterNum + 1) * w}
+    let targetExtract : ExtractTarget aig w := {vec := oldLayer, start := (2 * iterNum + 1) * w}
     let res := blastExtract aig targetExtract
     let aig := res.aig
     let op2 : aig.RefVec w := res.vec
     have := AIG.LawfulVecOperator.le_size (f := blastExtract) (input := targetExtract)
-    let old_layer := old_layer.cast this
-    let new_layer := new_layer.cast this
+    let oldLayer := oldLayer.cast this
+    let newLayer := newLayer.cast this
     let op1 := op1.cast (aig2 := aig) this
     -- add
     let res := blastAdd aig ⟨op1, op2⟩
     let aig := res.aig
     let add := res.vec
     have := AIG.LawfulVecOperator.le_size (f := blastAdd) ..
-    let old_layer := old_layer.cast this
-    let new_layer := new_layer.cast this
+    let oldLayer := oldLayer.cast this
+    let newLayer := newLayer.cast this
     let op1 := op1.cast this
     let op2 := op2.cast this
     have hcast : w + iterNum * w = (iterNum + 1) * w:= by simp [Nat.add_mul]; omega
     let targetAppend : AppendTarget aig ((iterNum + 1) * w ) :=
-        {lhs := add, rhs := new_layer, h := by omega}
+        {lhs := add, rhs := newLayer, h := by omega}
     let res := blastAppend (aig := aig) (target:= targetAppend)
     let aig := res.aig
-    let new_layer' := res.vec
+    let newLayer' := res.vec
     have := AIG.LawfulVecOperator.le_size (f := blastAppend) ..
-    let old_layer := old_layer.cast this
-    blastCpopLayer aig (iterNum + 1) old_layer new_layer' (by omega)
+    let oldLayer := oldLayer.cast this
+    blastCpopLayer aig (iterNum + 1) oldLayer newLayer' (by omega)
   else
     have h : iterNum = (oldLength + 1) / 2 := by omega
-    ⟨aig, h ▸ new_layer⟩
+    ⟨aig, h ▸ newLayer⟩
 termination_by oldLength - iterNum * 2
 
-theorem blastCpopLayer_le_size (aig : AIG α) (iterNum: Nat) (old_layer : AIG.RefVec aig (oldLength * w))
-    (new_layer : AIG.RefVec aig (iterNum * w)) (hold : 2 * (iterNum - 1) < oldLength) :
-    aig.decls.size ≤ (blastCpopLayer aig iterNum old_layer new_layer hold).aig.decls.size := by
+theorem blastCpopLayer_le_size (aig : AIG α) (iterNum: Nat) (oldLayer : AIG.RefVec aig (oldLength * w))
+    (newLayer : AIG.RefVec aig (iterNum * w)) (hold : 2 * (iterNum - 1) < oldLength) :
+    aig.decls.size ≤ (blastCpopLayer aig iterNum oldLayer newLayer hold).aig.decls.size := by
   unfold blastCpopLayer
   dsimp only
   split
@@ -166,11 +166,11 @@ theorem blastCpopLayer_le_size (aig : AIG α) (iterNum: Nat) (old_layer : AIG.Re
     <;> (refine Nat.le_trans ?_ (by apply blastCpopLayer_le_size); apply AIG.LawfulVecOperator.le_size)
   · simp
 
-theorem blastCpopLayer_decl_eq (aig : AIG α) (iterNum: Nat) (old_layer : AIG.RefVec aig (oldLength * w))
-    (new_layer : AIG.RefVec aig (iterNum * w)) (hold : 2 * (iterNum - 1) < oldLength) :
+theorem blastCpopLayer_decl_eq (aig : AIG α) (iterNum: Nat) (oldLayer : AIG.RefVec aig (oldLength * w))
+    (newLayer : AIG.RefVec aig (iterNum * w)) (hold : 2 * (iterNum - 1) < oldLength) :
     ∀ (idx : Nat) h1 h2,
-      (blastCpopLayer aig iterNum old_layer new_layer hold).aig.decls[idx]'h1 = aig.decls[idx]'h2 := by
-  generalize hres : blastCpopLayer aig iterNum old_layer new_layer hold= res
+      (blastCpopLayer aig iterNum oldLayer newLayer hold).aig.decls[idx]'h1 = aig.decls[idx]'h2 := by
+  generalize hres : blastCpopLayer aig iterNum oldLayer newLayer hold= res
   unfold blastCpopLayer at hres
   dsimp only at hres
   split at hres
@@ -190,16 +190,16 @@ def blastCpopTree (aig : AIG α) (l : AIG.RefVec aig (lLength * w)) (h : 0 < lLe
     let initAcc := blastConst (aig := aig) (w := 0) (val := 0)
     let res := blastCpopLayer aig 0 l (hcastZero▸initAcc) (by omega)
     let aig := res.aig
-    let new_layer := res.vec
-    blastCpopTree (aig := aig) (l := new_layer) (by omega)
+    let newLayer := res.vec
+    blastCpopTree (aig := aig) (l := newLayer) (by omega)
   else
     have hcast : lLength * w = w := by simp [show lLength = 1 by omega]
     ⟨aig, hcast▸l⟩
 termination_by lLength
 
-theorem blastCpopTree_le_size (aig : AIG α) (old_layer : AIG.RefVec aig (oldLength * w))
+theorem blastCpopTree_le_size (aig : AIG α) (oldLayer : AIG.RefVec aig (oldLength * w))
     (h : 0 < oldLength) :
-    aig.decls.size ≤ (blastCpopTree aig old_layer h).aig.decls.size := by
+    aig.decls.size ≤ (blastCpopTree aig oldLayer h).aig.decls.size := by
   unfold blastCpopTree
   dsimp only
   split
@@ -208,11 +208,11 @@ theorem blastCpopTree_le_size (aig : AIG α) (old_layer : AIG.RefVec aig (oldLen
     apply blastCpopLayer_le_size
   · simp
 
-theorem blastCpopTree_decl_eq (aig : AIG α) (old_layer : AIG.RefVec aig (oldLength * w))
+theorem blastCpopTree_decl_eq (aig : AIG α) (oldLayer : AIG.RefVec aig (oldLength * w))
     (h : 0 < oldLength) :
     ∀ (idx : Nat) h1 h2,
-      (blastCpopTree aig old_layer h).aig.decls[idx]'h1 = aig.decls[idx]'h2 := by
-  generalize hres : blastCpopTree aig old_layer h = res
+      (blastCpopTree aig oldLayer h).aig.decls[idx]'h1 = aig.decls[idx]'h2 := by
+  generalize hres : blastCpopTree aig oldLayer h = res
   unfold blastCpopTree at hres
   dsimp only at hres
   split at hres
@@ -251,7 +251,7 @@ theorem blastCpop_le_size (aig : AIG α) (input : AIG.RefVec aig w) :
   · let initAcc := blastConst (aig := aig) (w := 0) (val := 0)
     let res := blastextractAndExtend aig 0 input initAcc (by omega)
     have hext := extractAndExtend_le_size aig 0 input initAcc (by omega)
-    have htree := blastCpopTree_le_size (aig := res.aig) (old_layer := res.vec) (by omega)
+    have htree := blastCpopTree_le_size (aig := res.aig) (oldLayer := res.vec) (by omega)
     apply Nat.le_trans hext htree
   · split
     · simp
@@ -266,7 +266,7 @@ theorem blastCpop_decl_eq (aig : AIG α) (input : AIG.RefVec aig w) :
     let initAcc := blastConst (aig := aig) (w := 0) (val := 0)
     let res := blastextractAndExtend aig 0 input initAcc (by omega)
     have hext := extractAndExtend_decl_eq aig 0 input initAcc (by omega) (idx := idx)
-    have htree := blastCpopTree_decl_eq (aig := res.aig) (old_layer := res.vec) (by omega) (idx := idx)
+    have htree := blastCpopTree_decl_eq (aig := res.aig) (oldLayer := res.vec) (by omega) (idx := idx)
     simp only [BitVec.ofNat_eq_ofNat, res, initAcc] at htree hext
     rw [htree (by omega) (by apply Nat.lt_of_lt_of_le hidx' (by apply extractAndExtend_le_size)),
       hext (by omega) (by apply Nat.lt_of_lt_of_le hidx' (by apply extractAndExtend_le_size))]

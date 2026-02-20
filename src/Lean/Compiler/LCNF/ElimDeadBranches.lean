@@ -642,7 +642,7 @@ where
             eraseCode alt.getCode
             return alt.updateCode <| .unreach typ
         | .default body => return alt.updateCode (← go body)
-      return code.updateCases! cs.resultType cs.discr (← cs.alts.mapM <| processAlt cs.resultType)
+      return code.updateAlts! (← cs.alts.mapMonoM <| processAlt cs.resultType)
     | .jmp .. | .return .. | .unreach .. => return code
 
 end UnreachableBranches

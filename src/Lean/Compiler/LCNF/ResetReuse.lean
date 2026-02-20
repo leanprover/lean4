@@ -204,7 +204,7 @@ where
     | .cases cs =>
       if ← c.isFVarLiveIn x then
         /- If `x` is live in `c`, we recursively process each branch. -/
-        let alts ← cs.alts.mapM (·.mapCodeM (D x info))
+        let alts ← cs.alts.mapMonoM (·.mapCodeM (D x info))
         return (c.updateAlts! alts, true)
       else
         return (c, false)

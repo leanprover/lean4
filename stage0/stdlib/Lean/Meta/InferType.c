@@ -268,7 +268,7 @@ static lean_object* l___private_Lean_Meta_InferType_0__Lean_Meta_inferProjType__
 lean_object* l_Lean_Expr_getAppFn(lean_object*);
 lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_toSubarray___redArg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Subarray_toArray___redArg(lean_object*);
+lean_object* l_Subarray_copy___redArg(lean_object*);
 lean_object* lean_expr_consume_type_annotations(lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_InferType_0__Lean_Meta_inferProjType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -4145,7 +4145,7 @@ lean_dec_ref(x_52);
 x_54 = l_Lean_mkConst(x_53, x_15);
 x_55 = lean_unsigned_to_nat(0u);
 x_56 = l_Array_toSubarray___redArg(x_46, x_55, x_30);
-x_57 = l_Subarray_toArray___redArg(x_56);
+x_57 = l_Subarray_copy___redArg(x_56);
 lean_inc(x_39);
 lean_inc_ref(x_38);
 lean_inc(x_37);

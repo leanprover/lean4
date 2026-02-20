@@ -179,7 +179,7 @@ def handleProj : Simproc := fun e => do
   let res ← simp struct
   match res with
   | .rfl _ =>
-    let some reduced ← reduceProj? <| .proj typeName idx struct | do
+    let some reduced ← withCbvOpaqueGuard <| reduceProj? <| .proj typeName idx struct | do
       return .rfl (done := true)
 
     -- TODO: Figure if we can share this term incrementally
@@ -195,7 +195,7 @@ def handleProj : Simproc := fun e => do
       return .step (← Lean.Expr.updateProjS! e e') newProof
     else
       -- If the type of the projection function is dependent, we first try to reduce the projection
-      let reduced ← reduceProj? e
+      let reduced ← withCbvOpaqueGuard <| reduceProj? e
       match reduced with
       | .some reduced =>
         let reduced ← Sym.share reduced
@@ -205,7 +205,7 @@ def handleProj : Simproc := fun e => do
         unless (← isDefEq struct e') do
           -- If we rewrote the projection body using something that holds up to propositional equality, then there is nothing we can do.
           -- TODO: Check if there is a need to report this to a user, or shall we fail silently.
-          return .rfl
+          return .rfl (done := true)
         let hcongr ← mkHCongr congrArgFun
         let newProof := mkApp3 (hcongr.proof) struct e' proof
         -- We have already checked if `struct` and `e'` are defEq, so we can skip the check.
@@ -238,7 +238,8 @@ def handleConst : Simproc := fun e => do
   unless info.isDefinition do return .rfl
   let eType ← Sym.inferType e
   let eType ← whnfD eType
-  unless eType matches .forallE .. do
+  -- We don't unfold bare constants that take arguments
+  if eType matches .forallE .. then
     return .rfl
   -- TODO: Check if we need to look if we applied all the levels correctly
   let some thm ← getUnfoldTheorem n | return .rfl

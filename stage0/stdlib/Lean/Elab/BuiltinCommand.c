@@ -1709,7 +1709,7 @@ static const lean_string_object l_Lean_Elab_elabSetOption___at___00Lean_Elab_Com
 static const lean_object* l_Lean_Elab_elabSetOption___at___00Lean_Elab_Command_elabSetOption_spec__0___closed__2 = (const lean_object*)&l_Lean_Elab_elabSetOption___at___00Lean_Elab_Command_elabSetOption_spec__0___closed__2_value;
 static lean_object* l_Lean_Elab_elabSetOption___at___00Lean_Elab_Command_elabSetOption_spec__0___closed__3;
 lean_object* l_Array_toSubarray___redArg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Subarray_toArray___redArg(lean_object*);
+lean_object* l_Subarray_copy___redArg(lean_object*);
 lean_object* l_Lean_Syntax_setArgs(lean_object*, lean_object*);
 lean_object* lean_erase_macro_scopes(lean_object*);
 lean_object* l_Lean_getOptionDecl(lean_object*);
@@ -31163,7 +31163,7 @@ x_8 = l_Lean_Syntax_getArgs(x_7);
 x_9 = lean_unsigned_to_nat(3u);
 x_10 = lean_unsigned_to_nat(0u);
 x_11 = l_Array_toSubarray___redArg(x_8, x_10, x_9);
-x_12 = l_Subarray_toArray___redArg(x_11);
+x_12 = l_Subarray_copy___redArg(x_11);
 lean_inc(x_7);
 x_13 = l_Lean_Syntax_setArgs(x_7, x_12);
 x_14 = lean_alloc_ctor(5, 1, 0);

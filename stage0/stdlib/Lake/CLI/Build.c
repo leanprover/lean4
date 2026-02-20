@@ -1528,7 +1528,7 @@ x_8 = lean_nat_dec_eq(x_6, x_7);
 if (x_8 == 0)
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; size_t x_12; size_t x_13; lean_object* x_14; lean_object* x_15; 
-x_9 = lean_ctor_get(x_1, 4);
+x_9 = lean_ctor_get(x_1, 5);
 lean_inc_ref(x_2);
 x_10 = l_Lake_stringToLegalOrSimpleName(x_2);
 x_11 = ((lean_object*)(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lake_parsePackageSpec_spec__0___closed__0));
@@ -2481,7 +2481,7 @@ else
 {
 lean_object* x_26; lean_object* x_27; size_t x_28; size_t x_29; lean_object* x_30; lean_object* x_31; 
 lean_dec(x_21);
-x_26 = lean_ctor_get(x_1, 4);
+x_26 = lean_ctor_get(x_1, 5);
 x_27 = ((lean_object*)(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lake_parsePackageSpec_spec__0___closed__0));
 x_28 = lean_array_size(x_26);
 x_29 = 0;

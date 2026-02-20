@@ -226,7 +226,7 @@ lean_object* l_Lean_indentExpr(lean_object*);
 lean_object* l_Lean_Elab_FixedParamPerm_pickVarying___redArg(lean_object*, lean_object*);
 lean_object* lean_array_mk(lean_object*);
 lean_object* l_Lean_Elab_Structural_IndGroupInfo_ofInductiveVal(lean_object*);
-lean_object* l_Subarray_toArray___redArg(lean_object*);
+lean_object* l_Subarray_copy___redArg(lean_object*);
 lean_object* l_Lean_LocalDecl_type(lean_object*);
 lean_object* l_Lean_Meta_whnfD(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppFn(lean_object*);
@@ -4657,7 +4657,7 @@ block_215:
 {
 lean_object* x_199; lean_object* x_200; lean_object* x_201; uint8_t x_202; 
 x_199 = l_Array_toSubarray___redArg(x_190, x_197, x_198);
-x_200 = l_Subarray_toArray___redArg(x_199);
+x_200 = l_Subarray_copy___redArg(x_199);
 x_201 = lean_array_get_size(x_200);
 x_202 = lean_nat_dec_lt(x_196, x_201);
 lean_dec(x_196);
@@ -4829,7 +4829,7 @@ x_243 = lean_unsigned_to_nat(0u);
 lean_inc(x_235);
 lean_inc_ref(x_242);
 x_244 = l_Array_toSubarray___redArg(x_242, x_243, x_235);
-x_245 = l_Subarray_toArray___redArg(x_244);
+x_245 = l_Subarray_copy___redArg(x_244);
 x_246 = lean_array_get_size(x_242);
 x_247 = lean_nat_dec_le(x_235, x_243);
 if (x_247 == 0)

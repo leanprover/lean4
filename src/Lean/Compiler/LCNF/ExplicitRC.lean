@@ -9,7 +9,6 @@ prelude
 public import Lean.Compiler.LCNF.CompilerM
 public import Lean.Compiler.LCNF.PassManager
 import Lean.Compiler.LCNF.PhaseExt
-import Lean.Runtime
 import Lean.Compiler.LCNF.PrettyPrinter
 
 /-!
@@ -248,27 +247,12 @@ def LetValue.isPersistent (val : LetValue .impure) : Bool :=
   | .fap _ xs => xs.isEmpty -- all global constants are persistent
   | _ => false
 
--- TODO: This heuristic should never be necessary
-def refineTypeForExpr (value : LetValue .impure) (origt : Expr) : Expr :=
-  if origt.isScalar then
-    origt
-  else
-    match value with
-    | .ctor c _ => c.type
-    | .lit (.nat n) =>
-      if n ≤ maxSmallNat then
-        tagged
-      else
-        origt
-    | _ => origt
-
 @[inline]
 def withLetDecl (decl : LetDecl .impure) (x : RcM α) : RcM α := do
   let update := fun ctx =>
-    let type := refineTypeForExpr decl.value decl.type
     let varInfo := {
-      isPossibleRef := type.isPossibleRef
-      isDefiniteRef := type.isDefiniteRef
+      isPossibleRef := decl.type.isPossibleRef
+      isDefiniteRef := decl.type.isDefiniteRef
       persistent := decl.value.isPersistent
       idx := ctx.idx
     }
@@ -638,10 +622,10 @@ partial def Code.explicitRc (code : Code .impure) : RcM (Code .impure) := do
       addInc fvarId code
     else
       return code
-  | .uset (var := var) (k := k) .. | .sset (var := var) (k := k) .. =>
+  | .uset (fvarId := fvarId) (k := k) .. | .sset (fvarId := fvarId) (k := k) .. =>
     let k ← k.explicitRc
-    -- We don't need to insert `var` since we only need to track live variables that are references at runtime
-    useVar var
+    -- We don't need to insert `fvarId` since we only need to track live variables that are references at runtime
+    useVar fvarId
     return code.updateCont! k
   | .unreach .. =>
     setRetLiveVars

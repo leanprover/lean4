@@ -187,7 +187,8 @@ private unsafe def runInitAttrs (env : Environment) (opts : Options) : IO Unit :
         if !Elab.inServer.get opts && getIRPhases env decl == .runtime then
           continue
         if initDecl.isAnonymous then
-          let initFn ← IO.ofExcept <| env.evalConst (IO Unit) opts decl
+          -- Don't check `meta` again as it would not respect `Elab.inServer`
+          let initFn ← IO.ofExcept <| env.evalConst (checkMeta := false) (IO Unit) opts decl
           initFn
         else
           runInit env opts decl initDecl

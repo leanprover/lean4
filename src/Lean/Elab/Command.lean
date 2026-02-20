@@ -880,4 +880,22 @@ partial def withSetOptionIn (cmd : CommandElab) : CommandElab := fun stx => do
 
 export Elab.Command (Linter addLinter)
 
+namespace Parser.Command
+
+/--
+Returns syntax for `private` or `public` visibility depending on `isPublic`. This function should be
+used to generate visibility syntax for declarations that is independent of the presence of
+`public section`s.
+-/
+def visibility.ofBool (isPublic : Bool) : TSyntax ``visibility :=
+  Unhygienic.run <| if isPublic then `(visibility| public) else `(visibility| private)
+
+/--
+Returns syntax for `private` if `attrKind` is `local` and `public` otherwise.
+-/
+def visibility.ofAttrKind (attrKind : TSyntax ``Term.attrKind) : TSyntax ``visibility :=
+  visibility.ofBool <| !attrKind matches `(attrKind| local)
+
+end Parser.Command
+
 end Lean

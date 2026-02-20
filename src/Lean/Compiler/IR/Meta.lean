@@ -55,22 +55,8 @@ errors from the interpreter itself as those depend on whether we are running in 
 -/
 @[export lean_eval_check_meta]
 private partial def evalCheckMeta (env : Environment) (declName : Name) : Except String Unit := do
-  if !env.header.isModule then
-    return
-  go declName |>.run' {}
-where go (ref : Name) : StateT NameSet (Except String) Unit := do
-  if (← get).contains ref then
-    return
-  modify (·.insert ref)
-  if let some localDecl := declMapExt.getState env |>.find? ref then
-    for ref in collectUsedFDecls localDecl do
-      go ref
-  else
-    -- NOTE: We do not use `getIRPhases` here as it's intended for env decls, nor IR decls. We do
-    -- not set `includeServer` as we want this check to be independent of server mode. Server-only
-    -- users disable this check instead.
-    if findEnvDecl env ref |>.isNone then
-      throw s!"Cannot evaluate constant `{declName}` as it uses `{ref}` which is neither marked nor imported as `meta`"
+  if getIRPhases env declName == .runtime then
+      throw s!"Cannot evaluate constant `{declName}` as it is neither marked nor imported as `meta`"
 
 builtin_initialize
   registerTraceClass `compiler.ir.inferMeta

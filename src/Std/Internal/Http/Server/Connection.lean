@@ -339,8 +339,12 @@ private def handle
               pure res.head
           machine := machine.send head
           waitingResponse := false
-
-          respStream := some res.body
+          if machine.writer.omitBody then
+            if ¬(← Body.Reader.isClosed res.body) then
+              Body.Reader.close res.body
+            respStream := none
+          else
+            respStream := some res.body
 
   if ¬(← Body.Writer.isClosed requestOutgoing) then
     Body.Writer.close requestOutgoing

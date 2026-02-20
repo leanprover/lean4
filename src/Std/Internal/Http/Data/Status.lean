@@ -27,6 +27,13 @@ set_option linter.all true
 open Internal
 
 /--
+Returns `true` if `c` is a valid reason-phrase character.
+-/
+def isValidReasonPhraseChar (c : Char) : Bool :=
+  let n := c.toNat
+  n == 0x09 || (0x20 ≤ n && n ≤ 0x7E) || 0x80 ≤ n
+
+/--
 HTTP Status codes. Status codes are three-digit integer codes that describe the result of an
 HTTP request. This implementation includes common named statuses and supports custom codes through
 `Status.other`.
@@ -352,7 +359,7 @@ inductive Status where
   /--
   Other
   -/
-  | other (number : UInt16)
+  | other (number : UInt16) (s : String)
 deriving Repr, Inhabited, BEq
 
 namespace Status
@@ -424,7 +431,7 @@ def toCode : Status → UInt16
   | loopDetected => 508
   | notExtended => 510
   | networkAuthenticationRequired => 511
-  | other n => n
+  | other n _ => n
 
 /--
 Converts a `UInt16` to `Status`.
@@ -493,7 +500,7 @@ def ofCode : UInt16 → Status
   | 508 => .loopDetected
   | 510 => .notExtended
   | 511 => .networkAuthenticationRequired
-  | n => .other n
+  | n => .other n "Unknown"
 
 /--
 Checks if the type of the status code is informational, meaning that the request was received
@@ -621,7 +628,7 @@ def reasonPhrase : Status → String
   | .loopDetected => "Loop Detected"
   | .notExtended => "Not Extended"
   | .networkAuthenticationRequired => "Network Authentication Required"
-  | .other n => Nat.repr n.toNat
+  | .other _ s => s
 
 instance : ToString Status where
   toString := reasonPhrase

@@ -114,28 +114,26 @@ def rewriteManualLinksCore (s : String) : Id (Array (Lean.Syntax.Range × String
     let pre := iter
     iter := iter.next h
 
-    if !lookingAt scheme pre then
+    if let some start := lookingAt scheme pre then
+      let mut iter' := start
+      while h' : ¬iter'.IsAtEnd do
+        let c' := iter'.get h'
+        let pre' := iter'
+        iter' := iter'.next h'
+        if urlChar c' && ¬iter'.IsAtEnd then
+          continue
+        match rw (s.extract start pre') with
+        | .error err =>
+          errors := errors.push (⟨pre.offset, pre'.offset⟩, err)
+          out := out.push c
+          break
+        | .ok path =>
+          out := out ++ manualRoot ++ path
+          out := out.push c'
+          iter := iter'
+          break
+    else
       out := out.push c
-      continue
-
-    let start := pre.nextn scheme.length
-    let mut iter' := start
-    while h' : ¬iter'.IsAtEnd do
-      let c' := iter'.get h'
-      let pre' := iter'
-      iter' := iter'.next h'
-      if urlChar c' && ¬iter'.IsAtEnd then
-        continue
-      match rw (s.extract start pre') with
-      | .error err =>
-        errors := errors.push (⟨pre.offset, pre'.offset⟩, err)
-        out := out.push c
-        break
-      | .ok path =>
-        out := out ++ manualRoot ++ path
-        out := out.push c'
-        iter := iter'
-        break
 
   pure (errors, out)
 
@@ -155,10 +153,11 @@ where
     c == '+' || c == ',' || c == ';' || c == '='
 
   /--
-  Returns `true` if `goal` is a prefix of the string at the position pointed to by `iter`.
+  If `goal` is a prefix of the string at the position pointed to by `iter`, returns the position
+  after `goal`. Otherwise, returns `none`.
   -/
-  lookingAt (goal : String) {s : String} (iter : s.Pos) : Bool :=
-    String.Pos.Raw.substrEq s iter.offset goal 0 goal.rawEndPos.byteIdx
+  lookingAt (goal : String) {s : String} (iter : s.Pos) : Option s.Pos :=
+    (String.Slice.Pattern.ForwardPattern.dropPrefix? goal (s.sliceFrom iter)).map String.Pos.ofSliceFrom
 
 /--
 Rewrites Lean reference manual links in `docstring` to point at the reference manual.

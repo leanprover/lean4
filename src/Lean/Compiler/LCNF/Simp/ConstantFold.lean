@@ -9,6 +9,7 @@ prelude
 public import Init.Data.UInt.Log2
 public import Lean.Compiler.LCNF.InferType
 import Init.Data.UInt.Lemmas
+import Init.Data.String.Length
 
 public section
 

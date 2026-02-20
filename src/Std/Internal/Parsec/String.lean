@@ -9,6 +9,7 @@ prelude
 public import Std.Internal.Parsec.Basic
 public import Init.Data.String.Slice
 public import Init.Data.String.Termination
+import Init.Data.Range.Polymorphic
 
 public section
 
@@ -41,10 +42,9 @@ protected def Parser.run (p : Parser α) (s : String) : Except String α :=
 Parses the given string.
 -/
 def pstring (s : String) : Parser String := fun it =>
-  if (it.1.sliceFrom it.2).startsWith s then
-    .success ⟨_, it.2.nextn s.length⟩ s
-  else
-    .error it (.other s!"expected: {s}")
+  match String.Slice.Pattern.ForwardPattern.dropPrefix? s (it.1.sliceFrom it.2) with
+  | some p => .success ⟨_, String.Pos.ofSliceFrom p⟩ s
+  | none => .error it (.other s!"expected: {s}")
 
 /--
 Skips the given string.
@@ -148,13 +148,16 @@ def ws : Parser Unit := fun it =>
 /--
 Takes a fixed amount of chars from the iterator.
 -/
-def take (n : Nat) : Parser String := fun it =>
-  let right := it.2.nextn n
-  let substr := String.Slice.mk it.1 it.2 right String.Pos.le_nextn |>.copy
-  if substr.length != n then
-    .error it .eof
-  else
-    .success ⟨_, right⟩ substr
+def take (n : Nat) : Parser String := fun it => Id.run do
+  let mut pos := it.2
+  let mut substr := ""
+  for _ in 0...n do
+    if h : pos.IsAtEnd then
+      return .error it .eof
+    else
+      substr := substr.push (pos.get h)
+      pos := pos.next h
+  return .success ⟨_, pos⟩ substr
 
 end String
 end Parsec

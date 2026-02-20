@@ -181,7 +181,7 @@ section IdCompletionUtils
           (p', len)
         else
           let optDot := if p.isAnonymous then 0 else 1
-          let len'   := len + optDot + s.length
+          let len'   := len + optDot + s.chars.length
           if len' ≤ newLen then
             (id, len')
           else

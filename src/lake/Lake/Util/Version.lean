@@ -273,7 +273,7 @@ public def ofString (ver : String) : ToolchainVer := Id.run do
         let suffix ← (rest.drop 10).dropPrefix? "-rev"
         suffix.toString.toNat?
       -- Accept if no suffix (plain nightly) or valid -revK suffix
-      if rest.length ≤ 10 || rev?.isSome then
+      if rest.chars.length ≤ 10 || rev?.isSome then
         if noOrigin then
           return .nightly date rev?
         else if let some suffix := origin.dropPrefix? defaultOrigin then

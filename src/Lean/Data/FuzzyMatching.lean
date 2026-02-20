@@ -25,18 +25,18 @@ namespace FuzzyMatching
 
 section Utils
 
-@[specialize] private def iterateLookaround (f : Option Char → Char → Option Char → α) (string : String) : Array α :=
+@[specialize] private def iterateLookaround (f : Option Char → Char → Option Char → α) (string : String) (len : Nat) : Array α :=
   if string.isEmpty then
     #[]
-  else if string.length == 1 then
+  else if len == 1 then
     #[f none (String.Pos.Raw.get string 0) none]
   else Id.run do
-    let mut result := Array.mkEmpty string.length
+    let mut result := Array.mkEmpty len
     result := result.push <| f none (String.Pos.Raw.get string 0) (String.Pos.Raw.get string ⟨1⟩)
     -- TODO: the following code is assuming all characters are ASCII
-    for i in [2:string.length] do
+    for i in [2:len] do
       result := result.push <| f (String.Pos.Raw.get string ⟨i - 2⟩) (String.Pos.Raw.get string ⟨i - 1⟩) (String.Pos.Raw.get string ⟨i⟩)
-    result.push <| f (String.Pos.Raw.get string ⟨string.length - 2⟩) (String.Pos.Raw.get string ⟨string.length - 1⟩) none
+    result.push <| f (String.Pos.Raw.get string ⟨len - 2⟩) (String.Pos.Raw.get string ⟨len - 1⟩) none
 
 private partial def containsInOrderLower (a b : String) : Bool := Id.run do
   go ⟨0⟩ ⟨0⟩
@@ -90,8 +90,8 @@ inductive CharRole where
     CharRole.head
 
 /-- Add additional information to each character in a string. -/
-private def stringInfo (s : String) : Array CharRole :=
-  iterateLookaround (string := s) fun prev? curr next? =>
+private def stringInfo (s : String) (len : Nat) : Array CharRole :=
+  iterateLookaround (string := s) (len := len) fun prev? curr next? =>
     charRole (prev?.map charType) (charType curr) (next?.map charType)
 
 /-- Represents a fuzzy matching score where `Score.awful` is the worst score possible. -/
@@ -133,21 +133,21 @@ programming to find the best scores.
 In addition to the current characters in the pattern and the word, the
 algorithm uses different scores for the last operation (miss/match). This is
 necessary to give consecutive character matches a bonus. -/
-private def fuzzyMatchCore (pattern word : String) (patternRoles wordRoles : Array CharRole) : Option Int := Id.run do
+private def fuzzyMatchCore (pattern word : String) (patternLength wordLength : Nat) (patternRoles wordRoles : Array CharRole) : Option Int := Id.run do
   /- Flattened array where the value at index (i, j, k) represents the best possible score of a fuzzy match
   between the substrings pattern[*...=i] and word[*...j] assuming that pattern[i] misses at word[j] (k = 0, i.e.
   it was matched earlier), or matches at word[j] (k = 1). A value of `.awful` corresponds to a score of -∞, and is used
   where no such match/miss is possible or for unneeded parts of the table. -/
-  let mut result : Array Score := Array.replicate (pattern.length * word.length * 2) .awful
-  let mut runLengths : Array Int16 := Array.replicate (pattern.length * word.length) 0
+  let mut result : Array Score := Array.replicate (patternLength * wordLength * 2) .awful
+  let mut runLengths : Array Int16 := Array.replicate (patternLength * wordLength) 0
 
   -- penalty for starting a consecutive run at each index
-  let mut startPenalties : Array Int16 := Array.replicate word.length 0
+  let mut startPenalties : Array Int16 := Array.replicate wordLength 0
 
   let mut lastSepIdx := 0
   let mut penaltyNs : Int16 := 0
   let mut penaltySkip : Int16 := 0
-  for wordIdx in [:word.length] do
+  for wordIdx in [:wordLength] do
     if (wordIdx != 0) && wordRoles[wordIdx]! matches .separator then
       -- reset skip penalty at namespace separator
       penaltySkip := 0
@@ -158,67 +158,67 @@ private def fuzzyMatchCore (pattern word : String) (patternRoles wordRoles : Arr
     startPenalties := startPenalties.set! wordIdx $ penaltySkip + penaltyNs
 
   -- TODO: the following code is assuming all characters are ASCII
-  for patternIdx in [:pattern.length] do
+  for patternIdx in [:patternLength] do
     /- For this dynamic program to be correct, it's only necessary to populate a range of length
-   `word.length - pattern.length` at each index (because at the very end, we can only consider fuzzy matches
+   `wordLength - patternLength` at each index (because at the very end, we can only consider fuzzy matches
     of `pattern` with a longer substring of `word`). -/
-    for wordIdx in [patternIdx:(word.length-(pattern.length - patternIdx - 1))] do
+    for wordIdx in [patternIdx:(wordLength-(patternLength - patternIdx - 1))] do
       let missScore :=
         if wordIdx >= 1 then
           selectBest
-            (getMiss result patternIdx (wordIdx - 1))
-            (getMatch result patternIdx (wordIdx - 1))
+            (getMiss result patternIdx (wordIdx - 1) wordLength)
+            (getMatch result patternIdx (wordIdx - 1) wordLength)
         else .awful
 
       let mut matchScore := .awful
 
       if allowMatch (String.Pos.Raw.get pattern ⟨patternIdx⟩) (String.Pos.Raw.get word ⟨wordIdx⟩) patternRoles[patternIdx]! wordRoles[wordIdx]! then
         if patternIdx >= 1 then
-          let runLength := runLengths[getIdx (patternIdx - 1) (wordIdx - 1)]! + 1
-          runLengths := runLengths.set! (getIdx patternIdx wordIdx) runLength
+          let runLength := runLengths[getIdx (patternIdx - 1) (wordIdx - 1) wordLength]! + 1
+          runLengths := runLengths.set! (getIdx patternIdx wordIdx wordLength) runLength
 
           matchScore := selectBest
-            (getMiss result (patternIdx - 1) (wordIdx - 1) |>.map (· + matchResult
-              patternIdx wordIdx
+            (getMiss result (patternIdx - 1) (wordIdx - 1) wordLength |>.map (· + matchResult
+              patternIdx wordIdx patternLength wordLength
               patternRoles[patternIdx]! wordRoles[wordIdx]!
               .awful
             - startPenalties[wordIdx]!))
-            (getMatch result (patternIdx - 1) (wordIdx - 1) |>.map (· + matchResult
-              patternIdx wordIdx
+            (getMatch result (patternIdx - 1) (wordIdx - 1) wordLength |>.map (· + matchResult
+              patternIdx wordIdx patternLength wordLength
               patternRoles[patternIdx]! wordRoles[wordIdx]!
               (.ofInt16! runLength)
             )) |>.map fun score => if wordIdx >= lastSepIdx then score + 1 else score -- main identifier bonus
         else
-          runLengths := runLengths.set! (getIdx patternIdx wordIdx) 1
+          runLengths := runLengths.set! (getIdx patternIdx wordIdx wordLength) 1
           matchScore := .ofInt16! <| matchResult
-              patternIdx wordIdx
+              patternIdx wordIdx patternLength wordLength
               patternRoles[patternIdx]! wordRoles[wordIdx]!
               .awful
               - startPenalties[wordIdx]!
 
-      result := set result patternIdx wordIdx missScore matchScore
+      result := set result patternIdx wordIdx wordLength missScore matchScore
 
-  let best := selectBest (getMiss result (pattern.length - 1) (word.length - 1)) (getMatch result (pattern.length - 1) (word.length - 1))
+  let best := selectBest (getMiss result (patternLength - 1) (wordLength - 1) wordLength) (getMatch result (patternLength - 1) (wordLength - 1) wordLength)
   return best.toInt?
 
   where
     @[inline]
-    getDoubleIdx (patternIdx wordIdx : Nat) := patternIdx * word.length * 2 + wordIdx * 2
+    getDoubleIdx (patternIdx wordIdx wordLength : Nat) := patternIdx * wordLength * 2 + wordIdx * 2
 
     @[inline]
-    getIdx (patternIdx wordIdx : Nat) := patternIdx * word.length + wordIdx
+    getIdx (patternIdx wordIdx wordLength : Nat) := patternIdx * wordLength + wordIdx
 
     @[inline]
-    getMiss (result : Array Score) (patternIdx wordIdx : Nat) : Score :=
-      result[getDoubleIdx patternIdx wordIdx]!
+    getMiss (result : Array Score) (patternIdx wordIdx wordLength : Nat) : Score :=
+      result[getDoubleIdx patternIdx wordIdx wordLength]!
 
     @[inline]
-    getMatch (result : Array Score) (patternIdx wordIdx : Nat) : Score :=
-      result[getDoubleIdx patternIdx wordIdx + 1]!
+    getMatch (result : Array Score) (patternIdx wordIdx wordLength : Nat) : Score :=
+      result[getDoubleIdx patternIdx wordIdx wordLength + 1]!
 
     @[inline]
-    set (result : Array Score) (patternIdx wordIdx : Nat) (missValue matchValue : Score) : Array Score :=
-      let idx := getDoubleIdx patternIdx wordIdx
+    set (result : Array Score) (patternIdx wordIdx wordLength : Nat) (missValue matchValue : Score) : Array Score :=
+      let idx := getDoubleIdx patternIdx wordIdx wordLength
       result |>.set! idx missValue |>.set! (idx + 1) matchValue
 
     /-- Heuristic to penalize skipping characters in the word. -/
@@ -244,13 +244,13 @@ private def fuzzyMatchCore (pattern word : String) (patternRoles wordRoles : Arr
       return true
 
     /-- Heuristic to rate a match. -/
-    matchResult (patternIdx wordIdx : Nat) (patternRole wordRole : CharRole) (consecutive : Score) : Int16 := Id.run do
+    matchResult (patternIdx wordIdx patternLength wordLength : Nat) (patternRole wordRole : CharRole) (consecutive : Score) : Int16 := Id.run do
       let mut score : Int16 := 1
       /- Case-sensitive equality or beginning of a segment in pattern and word. -/
       if (String.Pos.Raw.get pattern ⟨patternIdx⟩) == (String.Pos.Raw.get word ⟨wordIdx⟩) || (patternRole matches CharRole.head && wordRole matches CharRole.head) then
         score := score + 1
       /- Matched end of word with end of pattern -/
-      if wordIdx == word.length - 1 && patternIdx == pattern.length - 1 then
+      if wordIdx == wordLength - 1 && patternIdx == patternLength - 1 then
         score := score + 2
       /- Matched beginning of the word. -/
       if (wordIdx == 0) then
@@ -265,27 +265,29 @@ private def fuzzyMatchCore (pattern word : String) (patternRoles wordRoles : Arr
 algorithm. The resulting scores are in the interval `[0, 1]` or `none` if no
 match was found. -/
 def fuzzyMatchScore? (pattern word : String) : Option Float := Id.run do
+  let patternLength := pattern.chars.length
+  let wordLength := word.chars.length
   /- Some fast and simple checks. -/
   if pattern.isEmpty then
     return some 1
-  if pattern.length > word.length then
+  if patternLength > wordLength then
     return none
   if !(pattern.charactersIn word) then
     return none
 
-  let some score := fuzzyMatchCore pattern word (stringInfo pattern) (stringInfo word)
+  let some score := fuzzyMatchCore pattern word patternLength wordLength (stringInfo pattern patternLength) (stringInfo word wordLength)
     | none
   let mut score := score
 
   /- Bonus if every character is matched. -/
-  if pattern.length == word.length then
+  if patternLength == wordLength then
     score := score * 2
 
   /- Perfect score per character. -/
   let perfect := 4
   /- Perfect score for full match given the heuristic in `matchResult`;
   the latter term represents the bonus of a perfect consecutive run. -/
-  let perfectMatch := (perfect * pattern.length + ((pattern.length * (pattern.length + 1) / 2) - 1))
+  let perfectMatch := (perfect * patternLength + ((patternLength * (patternLength + 1) / 2) - 1))
   let normScore := Float.ofInt score / Float.ofInt perfectMatch
 
   return some <| min 1 (max 0 normScore)

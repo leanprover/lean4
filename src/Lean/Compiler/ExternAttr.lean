@@ -99,7 +99,7 @@ def expandExternPatternAux (args : List String) : Nat → (pattern : String) →
         expandExternPatternAux args i pattern it (r ++ args.getD j "")
 
 def expandExternPattern (pattern : String) (args : List String) : String :=
-  expandExternPatternAux args pattern.length pattern pattern.startPos ""
+  expandExternPatternAux args pattern.chars.length pattern pattern.startPos ""
 
 def mkSimpleFnCall (fn : String) (args : List String) : String :=
   fn ++ "(" ++ ((args.intersperse ", ").foldl (·++·) "") ++ ")"

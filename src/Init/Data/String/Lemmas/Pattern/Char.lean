@@ -20,7 +20,7 @@ instance {c : Char} : ForwardPatternModel c where
   not_matches_empty := by simp
 
 instance {c : Char} : NoPrefixForwardPatternModel c :=
-  .of_length_eq (by simp +contextual [ForwardPatternModel.Matches])
+  .of_length_toList_eq (by simp +contextual [ForwardPatternModel.Matches])
 
 theorem isMatch_iff {c : Char} {s : Slice} {pos : s.Pos} :
     IsMatch c pos ↔

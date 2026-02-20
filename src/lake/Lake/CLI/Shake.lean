@@ -319,7 +319,7 @@ where
   addExplanation (j : ModuleIdx) (k : NeedsKind) (use def_ : Name) (deps : Explanations) : Explanations :=
     if
       if let some (some (name', _)) := deps[(j, k)]? then
-        decide (use.toString.length < name'.toString.length)
+        decide (use.toString.chars.length < name'.toString.chars.length)
       else true
     then
       deps.insert (j, k) (use, def_)

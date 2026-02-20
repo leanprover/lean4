@@ -263,12 +263,14 @@ partial def readableDiff (s s' : String) (granularity : DiffGranularity := .auto
   | .word => wordDiff
   | .all => maxDiff
   | .auto =>
-    let minLength := min s.length s'.length
+    let splitCharsS := splitChars s
+    let splitCharsS' := splitChars s'
+    let minLength := min splitCharsS.size splitCharsS'.size
     -- The coefficients on these values can be tuned:
     let maxCharDiffDistance := minLength / 5
-    let maxWordDiffDistance := minLength / 2 + (max s.length s'.length) / 2
+    let maxWordDiffDistance := minLength / 2 + (max splitCharsS.size splitCharsS'.size) / 2
 
-    let charDiffRaw := Diff.diff (splitChars s) (splitChars s')
+    let charDiffRaw := Diff.diff splitCharsS splitCharsS'
     -- Note: this is just a rough heuristic, since the diff has no notion of substitution
     let approxEditDistance := charDiffRaw.filter (·.1 != .skip) |>.size
     let charArrDiff := joinEdits charDiffRaw
@@ -387,7 +389,7 @@ where
       #[(.skip, newWs)]
 
   splitChars (s : String) : Array Char :=
-    s.toList.toArray
+    s.chars.toArray
 
   splitWords (s : String) : Array String × Array String :=
     splitWordsAux s 0 0 #[] #[]

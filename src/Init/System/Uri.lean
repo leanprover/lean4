@@ -13,6 +13,7 @@ import Init.Data.String.Search
 import Init.Omega
 import Init.System.Platform
 import Init.While
+import Init.Data.Iterators.Combinators.Take
 
 public section
 
@@ -98,29 +99,33 @@ def pathToUri (fname : System.FilePath) : String := Id.run do
   if System.Platform.isWindows then
     -- normalize drive letter
     -- lower-case drive letters seem to be preferred in URIs
-    if uri.length >= 2 && uri.front.isUpper && String.Pos.Raw.get uri ⟨1⟩ == ':' then
-      uri := uri.decapitalize
+    uri := decapitalizeIfNecessary uri
     uri := uri.map (fun c => if c == '\\' then '/' else c)
   uri := uri.foldl (fun s c => s ++ UriEscape.uriEscapeAsciiChar c) ""
   let result := if uri.startsWith "/" then "file://" ++ uri else "file:///" ++ uri
   result
+where
+  decapitalizeIfNecessary (uri : String) : String :=
+    match (uri.chars.take 2).toList with
+    | [c, ':'] => if c.isUpper then uri.decapitalize else uri
+    | _ => uri
 
 /-- Convert the given uri to a FilePath stripping the 'file://' prefix,
 ignoring the optional host name. -/
-def fileUriToPath? (uri : String) : Option System.FilePath := Id.run do
-  if !uri.startsWith "file://" then
-    none
-  else
-    let mut p := (unescapeUri uri).drop "file://".length |>.copy
-    p := p.dropWhile (λ c => c != '/') |>.copy -- drop the hostname.
+def fileUriToPath? (uri : String) : Option System.FilePath :=
+  match uri.dropPrefix? "file://" with
+  | none => none
+  | some p => Id.run do
+    let mut p := p.dropWhile (λ c => c != '/') -- drop the hostname.
     if System.Platform.isWindows then
       -- On Windows, the path "/c:/temp" needs to become "C:/temp"
-      if p.length >= 2 &&
-          p.front == '/' && (String.Pos.Raw.get p ⟨1⟩).isAlpha && String.Pos.Raw.get p ⟨2⟩ == ':' then
-        -- see also `pathToUri`
-        p := String.Pos.Raw.modify (p.drop 1).copy 0 .toUpper
-      p := p.map (fun c => if c == '/' then '\\' else c)
-    some p
+      match (p.chars.take 3).toList with
+      | ['/', c, ':'] =>
+        if c.isAlpha then
+          p := String.ofList [c.toUpper, ':'] ++ p.drop 3
+      | _ => ()
+      p := p.copy.map (fun c => if c == '/' then '\\' else c)
+    some p.copy
 
 end Uri
 end System

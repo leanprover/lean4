@@ -28,7 +28,7 @@ open Slice.Pattern
 Returns a {name}`String.Slice` obtained by removing the specified number of characters (Unicode code
 points) from the start of the string.
 
-If {name}`n` is greater than {lean}`s.length`, returns an empty slice.
+If {name}`n` is greater than {lean}`s.chars.length`, returns an empty slice.
 
 This is a cheap operation because it does not allocate a new string to hold the result.
 To convert the result into a string, use {name}`String.Slice.copy`.
@@ -50,7 +50,7 @@ def Internal.dropImpl (s : String) (n : Nat) : String :=
 Returns a {name}`String.Slice` obtained by removing the specified number of characters (Unicode code
 points) from the end of the string.
 
-If {name}`n` is greater than {lean}`s.length`, returns an empty slice.
+If {name}`n` is greater than {lean}`s.chars.length`, returns an empty slice.
 
 This is a cheap operation because it does not allocate a new string to hold the result.
 To convert the result into a string, use {name}`String.Slice.copy`.
@@ -80,7 +80,7 @@ def Internal.dropRightImpl (s : String) (n : Nat) : String :=
 Returns a {name}`String.Slice` that contains the first {name}`n` characters (Unicode code points) of
 {name}`s`.
 
-If {name}`n` is greater than {lean}`s.length`, returns {lean}`s.toSlice`.
+If {name}`n` is greater than {lean}`s.chars.length`, returns {lean}`s.toSlice`.
 
 This is a cheap operation because it does not allocate a new string to hold the result.
 To convert the result into a string, use {name}`String.Slice.copy`.
@@ -99,7 +99,7 @@ Examples:
 Returns a {name}`String.Slice` that contains the last {name}`n` characters (Unicode code points) of
 {name}`s`.
 
-If {name}`n` is greater than {lean}`s.length`, returns {lean}`s.toSlice`.
+If {name}`n` is greater than {lean}`s.chars.length`, returns {lean}`s.toSlice`.
 
 This is a cheap operation because it does not allocate a new string to hold the result.
 To convert the result into a string, use {name}`String.Slice.copy`.

@@ -32,7 +32,7 @@ instance {pat : Slice} : ForwardPatternModel pat where
   not_matches_empty := by simp
 
 instance {pat : Slice} : NoPrefixForwardPatternModel pat :=
-  .of_length_eq (by simp +contextual [ForwardPatternModel.Matches])
+  .of_length_toList_eq (by simp +contextual [ForwardPatternModel.Matches])
 
 theorem isMatch_iff {pat s : Slice} {pos : s.Pos} (h : pat.isEmpty = false) :
     IsMatch pat pos ↔ (s.sliceTo pos).copy = pat.copy := by

@@ -575,7 +575,7 @@ section ServerM
     if r != .eq then
       r
     else
-      Ord.compare s2.length s1.length
+      Ord.compare s2.utf8ByteSize s1.utf8ByteSize
 
   def ModuleQueryMatch.compare (m1 m2 : ModuleQueryMatch) : Ordering :=
     let d1 := m1.decl
@@ -1182,7 +1182,7 @@ def handleWorkspaceSymbol (p : WorkspaceSymbolParams) : ReaderT ReferenceRequest
     let (ident1, score1) := symbol1.ident
     let (ident2, score2) := symbol2.ident
     if score1 == score2 then
-      ident1.length < ident2.length
+      ident1.utf8ByteSize < ident2.utf8ByteSize
     else
       score1 > score2
   let symbols := symbols.toList.mergeSort ltSymbol

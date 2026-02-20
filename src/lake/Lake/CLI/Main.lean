@@ -222,9 +222,9 @@ def validateRepo? (repo : String) : Option String := Id.run do
     return "invalid characters in repository name"
   match repo.split '/' |>.toStringList with
   | [owner, name] =>
-    if owner.length > 39 then
-      return "invalid repository name; owner must be at most 390 characters long"
-    if name.length > 100 then
+    if owner.chars.length > 39 then
+      return "invalid repository name; owner must be at most 39 characters long"
+    if name.chars.length > 100 then
       return "invalid repository name; owner must be at most 100 characters long"
   | _ => return "invalid repository name; must contain exactly one '/'"
   return none
@@ -262,13 +262,13 @@ def lakeLongOption : (opt : String) → CliM PUnit
   modifyThe LakeOptions ({· with scope? := some repo, repoScope := true})
 | "--platform" => do
   let platform ← takeOptArg "--platform" "cache platform"
-  if platform.length > 100 then
+  if platform.chars.length > 100 then
     error "invalid platform; platform is expected to be at most 100 characters long"
   modifyThe LakeOptions ({· with platform? := some platform})
 | "--toolchain" => do
   let toolchain ← takeOptArg "--toolchain" "cache toolchain"
   let toolchain := if toolchain.isEmpty then toolchain else normalizeToolchain toolchain
-  if toolchain.length > 256 then
+  if toolchain.chars.length > 256 then
     error "invalid toolchain version; toolchain is expected to be at most 256 characters long"
   modifyThe LakeOptions ({· with toolchain? := some toolchain})
 | "--rev" => do

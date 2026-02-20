@@ -62,6 +62,9 @@ def bad505 : String :=
 def ok200 : String :=
   "HTTP/1.1 200 OK\x0d\nContent-Length: 2\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\nContent-Type: text/plain; charset=utf-8\x0d\n\x0d\nok"
 
+def ok200Head : String :=
+  "HTTP/1.1 200 OK\x0d\nContent-Length: 2\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\nContent-Type: text/plain; charset=utf-8\x0d\n\x0d\n"
+
 def notImplemented : String :=
   "HTTP/1.1 501 Not Implemented\x0d\nContent-Length: 0\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"
 
@@ -167,6 +170,32 @@ def notImplemented : String :=
   let raw := "get / HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
   let response ← sendRaw client server raw okHandler
   assertStatus "Lowercase method" response "HTTP/1.1 400"
+
+-- =============================================================================
+-- HEAD response must not include a message body
+-- =============================================================================
+
+#eval show IO _ from do
+  let (client, server) ← Mock.new
+  let raw := "HEAD / HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
+  let response ← sendRaw client server raw okHandler
+  assertExact "HEAD has no response body" response ok200Head
+
+-- =============================================================================
+-- authority-form request target is valid only for CONNECT
+-- =============================================================================
+
+#eval show IO _ from do
+  let (client, server) ← Mock.new
+  let raw := "GET example.com:443 HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
+  let response ← sendRaw client server raw okHandler
+  assertExact "authority-form with GET is rejected" response bad400
+
+#eval show IO _ from do
+  let (client, server) ← Mock.new
+  let raw := "CONNECT example.com:443 HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
+  let response ← sendRaw client server raw okHandler
+  assertExact "authority-form with CONNECT is accepted" response ok200
 
 -- =============================================================================
 -- Header without colon separator

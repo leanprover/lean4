@@ -208,8 +208,7 @@ theorem blastCpopTree_le_size (aig : AIG α) (oldLayer : AIG.RefVec aig (len * w
     apply blastCpopLayer_le_size
   · simp
 
-theorem blastCpopTree_decl_eq (aig : AIG α) (oldLayer : AIG.RefVec aig (len * w))
-    (h : 0 < oldLength) :
+theorem blastCpopTree_decl_eq (aig : AIG α) (oldLayer : AIG.RefVec aig (len * w)) (h : 0 < len) :
     ∀ (idx : Nat) h1 h2,
       (blastCpopTree aig oldLayer h).aig.decls[idx]'h1 = aig.decls[idx]'h2 := by
   generalize hres : blastCpopTree aig oldLayer h = res

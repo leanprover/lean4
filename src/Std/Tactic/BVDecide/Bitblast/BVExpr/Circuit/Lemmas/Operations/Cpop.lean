@@ -127,19 +127,19 @@ theorem denote_blastExtractAndExtend (assign : α → Bool) (aig : AIG α) (curr
     rw [← hgen, ← hacc idx hidx]
 
 theorem denote_blastCpopLayer (aig : AIG α) (iterNum : Nat)
-    (oldLayer : AIG.RefVec aig (oldLength * w)) (newLayer : AIG.RefVec aig (iterNum * w))
-    (oldLayer_bv : BitVec (oldLength * w)) (hold' : 2 * (iterNum - 1) < oldLength)
-    (hold : ∀ (idx : Nat) (hidx : idx < oldLength * w),
-            ⟦aig, oldLayer.get idx hidx, assign⟧ = oldLayer_bv.getLsbD idx)
+    (oldLayer : AIG.RefVec aig (len * w)) (newLayer : AIG.RefVec aig (iterNum * w))
+    (oldLayerBv : BitVec (len * w)) (hold' : 2 * (iterNum - 1) < len)
+    (hold : ∀ (idx : Nat) (hidx : idx < len * w),
+            ⟦aig, oldLayer.get idx hidx, assign⟧ = oldLayerBv.getLsbD idx)
     (hnew : ∀ (idx : Nat) (hidx : idx < iterNum * w),
             ⟦aig, newLayer.get idx hidx, assign⟧ =
-        (BitVec.cpopLayer (oldLayer := oldLayer_bv) 0#(0 * w) (by simp; omega)).getLsbD idx) :
-    ∀ (idx : Nat) (hidx : idx < (oldLength + 1) / 2 * w),
+        (BitVec.cpopLayer (oldLayer := oldLayerBv) 0#(0 * w) (by simp; omega)).getLsbD idx) :
+    ∀ (idx : Nat) (hidx : idx < (len + 1) / 2 * w),
       ⟦
         (blastCpopLayer aig iterNum oldLayer newLayer hold').aig,
         (blastCpopLayer aig iterNum oldLayer newLayer hold').vec.get idx hidx,
         assign
-      ⟧ = (BitVec.cpopLayer oldLayer_bv 0#(0 * w) (by omega)).getLsbD idx := by
+      ⟧ = (BitVec.cpopLayer oldLayerBv 0#(0 * w) (by omega)).getLsbD idx := by
   intros idx hidx
   generalize hgen : blastCpopLayer aig iterNum oldLayer newLayer hold' = res
   unfold blastCpopLayer at hgen
@@ -171,7 +171,7 @@ theorem denote_blastCpopLayer (aig : AIG α) (iterNum : Nat)
           apply Ref.hgate
       · have hiter : idx / w = iterNum := Nat.div_eq_of_lt_le (by omega) hidx
         subst hiter
-        rw [BitVec.getLsbD_cpopLayer (oldLayer := oldLayer_bv) (proof_addition := by intros; omega),
+        rw [BitVec.getLsbD_cpopLayer (oldLayer := oldLayerBv) (proof_addition := by intros; omega),
           ← Nat.div_eq_sub_mod_div (m := idx) (n := w)]
         simp only [show idx - idx / w * w = idx % w by exact Eq.symm Nat.mod_eq_sub_div_mul]
         apply denote_blastAdd
@@ -183,7 +183,7 @@ theorem denote_blastCpopLayer (aig : AIG α) (iterNum : Nat)
             · simp [hold]
             · case _ hnot =>
               simp only [Nat.not_lt] at hnot
-              exact Eq.symm (BitVec.getLsbD_of_ge oldLayer_bv (2 * (idx / w) * w + idx') hnot)
+              exact Eq.symm (BitVec.getLsbD_of_ge oldLayerBv (2 * (idx / w) * w + idx') hnot)
           · simp [Ref.hgate]
         · intros idx'' hidx''
           simp only [denote_blastExtract, RefVec.get_cast, Ref.cast_eq, BitVec.getLsbD_extractLsb']
@@ -194,14 +194,14 @@ theorem denote_blastCpopLayer (aig : AIG α) (iterNum : Nat)
           · case _ hnot =>
             simp only [hidx'', decide_true, Bool.true_and, Bool.false_eq]
             simp only [Nat.not_lt] at hnot
-            apply BitVec.getLsbD_of_ge oldLayer_bv (ge := hnot)
-  · have h : iterNum = (oldLength + 1) / 2 := by omega
+            apply BitVec.getLsbD_of_ge oldLayerBv (ge := hnot)
+  · have h : iterNum = (len + 1) / 2 := by omega
     subst h
     rw [← hgen, hnew]
 
 theorem blastCpopLayer_denote_mem_prefix (aig : AIG α) (iterNum : Nat)  (hstart : _)
-    (hold' : 2 * (iterNum - 1) < oldLength)
-    (oldLayer : AIG.RefVec aig (oldLength * w)) (newLayer : AIG.RefVec aig (iterNum * w)) :
+    (hold' : 2 * (iterNum - 1) < len)
+    (oldLayer : AIG.RefVec aig (len * w)) (newLayer : AIG.RefVec aig (iterNum * w)) :
     ⟦
       (blastCpopLayer aig iterNum oldLayer newLayer hold').aig,
       ⟨start, inv, by apply Nat.lt_of_lt_of_le; exact hstart; apply blastCpopLayer_le_size⟩,
@@ -214,15 +214,15 @@ theorem blastCpopLayer_denote_mem_prefix (aig : AIG α) (iterNum : Nat)  (hstart
   · intros
     apply blastCpopLayer_le_size
 
-theorem denote_blastCpopTree (aig : AIG α) (lLength : Nat)
-    (l : AIG.RefVec aig (lLength * w)) (h : 0 < lLength) (l_bv : BitVec (lLength * w))
-    (hpar : ∀ (idx : Nat) (hidx : idx < lLength * w), ⟦aig, l.get idx hidx, assign⟧ = l_bv.getLsbD idx) :
+theorem denote_blastCpopTree (aig : AIG α) (len : Nat)
+    (l : AIG.RefVec aig (len * w)) (h : 0 < len) (bv : BitVec (len * w))
+    (hpar : ∀ (idx : Nat) (hidx : idx < len * w), ⟦aig, l.get idx hidx, assign⟧ = bv.getLsbD idx) :
     ∀ (idx : Nat) (hidx : idx < w),
       ⟦
         (blastCpopTree aig l h).aig,
         (blastCpopTree aig l h).vec.get idx hidx,
         assign
-      ⟧ = (BitVec.cpopTree l_bv).getLsbD idx := by
+      ⟧ = (BitVec.cpopTree bv).getLsbD idx := by
   intros idx hidx
   generalize hgen : blastCpopTree aig l h = res
   unfold blastCpopTree at hgen
@@ -230,12 +230,12 @@ theorem denote_blastCpopTree (aig : AIG α) (lLength : Nat)
   · rw [← hgen]
     unfold BitVec.cpopTree
     simp only [Nat.reduceDiv, BitVec.ofNat_eq_ofNat, Lean.Elab.WF.paramLet,
-      show ¬lLength = 0 by omega, ↓reduceDIte, show ¬lLength = 1 by omega]
+      show ¬len = 0 by omega, ↓reduceDIte, show ¬len = 1 by omega]
     apply denote_blastCpopTree
     apply denote_blastCpopLayer
     · simp [hpar]
     · simp
-  · have : lLength = 1 := by omega
+  · have : len = 1 := by omega
     subst this
     rw [← hgen, BitVec.cpopTree]
     simp only [Lean.Elab.WF.paramLet, Nat.succ_ne_self, ↓reduceDIte, BitVec.cast_eq]

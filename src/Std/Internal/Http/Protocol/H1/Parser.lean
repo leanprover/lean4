@@ -417,11 +417,10 @@ Parses a status line and returns its reason phrase plus the recognized HTTP vers
 
 status-line = HTTP-version SP status-code SP [ reason-phrase ]
 -/
-public def parseStatusLineRawVersion (limits : H1.Config) : Parser (Status × String × Option Version) := do
+public def parseStatusLineRawVersion : Parser (Status × Option Version) := do
   let (major, minor) ← parseHttpVersionNumber <* sp
   let status ← parseStatusCode <* sp
-  let reasonPhrase ← parseReasonPhrase limits <* crlf
-  return (status, reasonPhrase, Version.ofNumber? major minor)
+  return (status, Version.ofNumber? major minor)
 
 /--
 Parses the trailer section that follows the last chunk size line (`0\r\n`).

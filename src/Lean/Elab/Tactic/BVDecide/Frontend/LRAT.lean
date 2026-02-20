@@ -34,6 +34,7 @@ structure TacticContext where
   solver : System.FilePath
   lratPath : System.FilePath
   config : BVDecideConfig
+  native : Bool
 
 def TacticContext.new (lratPath : System.FilePath) (config : BVDecideConfig) :
     TermElabM TacticContext := do
@@ -48,7 +49,8 @@ def TacticContext.new (lratPath : System.FilePath) (config : BVDecideConfig) :
     reflectionDef,
     solver,
     lratPath,
-    config
+    config,
+    native := config.native
   }
 where
   determineSolver : CoreM System.FilePath := do

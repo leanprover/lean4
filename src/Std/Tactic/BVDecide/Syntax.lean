@@ -95,6 +95,7 @@ structure BVDecideConfig where
   for `bv_decide`.
   -/
   solverMode : SolverMode := .proof
+  native : Bool := true
 
 end Lean.Elab.Tactic.BVDecide.Frontend
 

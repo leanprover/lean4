@@ -1132,7 +1132,7 @@ lean_object* l_Lean_Expr_getAppNumArgs(lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_toSubarray___redArg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Subarray_toArray___redArg(lean_object*);
+lean_object* l_Subarray_copy___redArg(lean_object*);
 lean_object* l_Lean_mkAppN(lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isAppOfArity(lean_object*, lean_object*, lean_object*);
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
@@ -20262,7 +20262,7 @@ block_77:
 {
 lean_object* x_71; lean_object* x_72; lean_object* x_73; lean_object* x_74; lean_object* x_75; lean_object* x_76; 
 x_71 = l_Array_toSubarray___redArg(x_65, x_69, x_70);
-x_72 = l_Subarray_toArray___redArg(x_71);
+x_72 = l_Subarray_copy___redArg(x_71);
 x_73 = l_Lean_mkAppN(x_68, x_72);
 lean_dec_ref(x_72);
 if (lean_is_scalar(x_59)) {

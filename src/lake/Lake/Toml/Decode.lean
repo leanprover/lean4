@@ -25,8 +25,10 @@ public structure Toml.DecodeError where
   ref : Syntax
   msg : String
 
+/-- Monad for decoders that do not abort. -/
 public abbrev Toml.DecodeM := EStateM Empty (Array DecodeError)
 
+/-- Monad for decoders that may abort. -/
 public abbrev Toml.EDecodeM := EStateM Unit (Array DecodeError)
 
 public class DecodeToml (α : Type) where

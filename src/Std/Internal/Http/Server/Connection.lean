@@ -116,7 +116,7 @@ private def receiveWithTimeout {α : Type} {β : Type}
   Selectable.one baseSelectables
 
 private def processNeedMoreData
-    {σ : Type} {β : Type} [Transport α] [Handler σ β] [Body.Reader β]
+    {σ : Type} {β : Type} [Transport α] [Handler σ] [Body.Reader β]
     (config : Config)
     (handler : σ)
     (socket : Option α)
@@ -149,11 +149,13 @@ private def handleError (machine : H1.Machine .receiving) (status : Status) (wai
     (machine.closeWriter.noMoreInput, waitingResponse)
 
 private def handle
-    {σ : Type} {β : Type} [Transport α] [Handler σ β] [Body.Reader β] [Body.Writer β]
+    {σ : Type} [Transport α] [h : Handler σ]
     (connection : Connection α)
     (config : Config)
     (connectionContext : CancellationContext)
     (handler : σ) : Async Unit := do
+  let _ : Body.Reader (Handler.ResponseBody σ) := Handler.responseBodyReader
+  let _ : Body.Writer (Handler.ResponseBody σ) := Handler.responseBodyWriter
 
   let mut machine := connection.machine
   let socket := connection.socket
@@ -164,8 +166,8 @@ private def handle
   let mut keepAliveTimeout := some config.keepAliveTimeout.val
   let mut currentTimeout := config.keepAliveTimeout.val
 
-  let mut response : Std.Channel (Except Error (Response β)) ← Std.Channel.new
-  let mut respStream : Option β := none
+  let mut response : Std.Channel (Except Error (Response (Handler.ResponseBody σ))) ← Std.Channel.new
+  let mut respStream : Option (Handler.ResponseBody σ) := none
   let mut requiresData := false
 
   let mut expectData := none
@@ -372,7 +374,7 @@ while true do
 ```
 -/
 def serveConnection
-    {σ : Type} {β : Type} [Transport t] [Handler σ β] [Body.Reader β] [Body.Writer β]
+    {σ : Type} [Transport t] [Handler σ]
     (client : t) (handler : σ)
     (config : Config) (extensions : Extensions := .empty) : ContextAsync Unit := do
   (Connection.mk client { config := config.toH1Config } extensions)

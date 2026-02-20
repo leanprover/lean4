@@ -18,16 +18,31 @@ open Std.Internal.IO.Async
 
 set_option linter.all true
 
-
 /--
 A type class for handling HTTP server events. Implement this class to define how the server
 responds to incoming requests, failures, and `Expect: 100-continue` headers.
 -/
-class Handler (σ : Type) (β : outParam Type) where
+class Handler (σ : Type) where
+  /--
+  Concrete body type produced by `onRequest`.
+  Defaults to `Body.AnyBody`, but handlers may override it with any reader/writer-compatible body.
+  -/
+  ResponseBody : Type := Body.AnyBody
+
+  /--
+  Reader instance required by the connection loop for sending response chunks.
+  -/
+  [responseBodyReader : Body.Reader ResponseBody]
+
+  /--
+  Writer instance used for known-size metadata and protocol integration.
+  -/
+  [responseBodyWriter : Body.Writer ResponseBody]
+
   /--
   Called for each incoming HTTP request.
   -/
-  onRequest (self : σ) (request : Request Body.Incoming) : ContextAsync (Response β)
+  onRequest (self : σ) (request : Request Body.Incoming) : ContextAsync (Response ResponseBody)
 
   /--
   Called when an error occurs while processing a request. The default implementation does nothing.

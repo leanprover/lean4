@@ -4,17 +4,17 @@ import Std.Internal.Async
 open Std.Internal.IO Async
 open Std Http
 
-abbrev TestHandler := Request Body.Incoming → ContextAsync (Response Body.Outgoing)
+abbrev TestHandler := Request Body.Incoming → ContextAsync (Response Body.AnyBody)
 
 instance : Std.Http.Server.Handler TestHandler where
   onRequest handler request := handler request
 
-instance : Coe (ContextAsync (Response Body.Incoming)) (ContextAsync (Response Body.Outgoing)) where
+instance : Coe (ContextAsync (Response Body.Incoming)) (ContextAsync (Response Body.AnyBody)) where
   coe action := do
     let response ← action
     pure { response with body := Body.Internal.incomingToOutgoing response.body }
 
-instance : Coe (Async (Response Body.Incoming)) (ContextAsync (Response Body.Outgoing)) where
+instance : Coe (Async (Response Body.Incoming)) (ContextAsync (Response Body.AnyBody)) where
   coe action := do
     let response ← action
     pure { response with body := Body.Internal.incomingToOutgoing response.body }
@@ -22,7 +22,7 @@ instance : Coe (Async (Response Body.Incoming)) (ContextAsync (Response Body.Out
 
 /-- Send raw bytes to the server and return the response. -/
 def sendRaw (client : Mock.Client) (server : Mock.Server) (raw : ByteArray)
-    (handler : Request Body.Incoming → ContextAsync (Response Body.Outgoing))
+    (handler : Request Body.Incoming → ContextAsync (Response Body.AnyBody))
     (config : Config := { lingeringTimeout := 3000 }) : IO ByteArray := Async.block do
   client.send raw
   Std.Http.Server.serveConnection server handler config
@@ -33,7 +33,7 @@ def sendRaw (client : Mock.Client) (server : Mock.Server) (raw : ByteArray)
 structure TestCase where
   name : String
   request : Request (Array Chunk)
-  handler : Request Body.Incoming → ContextAsync (Response Body.Outgoing)
+  handler : Request Body.Incoming → ContextAsync (Response Body.AnyBody)
   config : Config := { lingeringTimeout := 3000 }
   check : String → IO Unit
   chunked : Bool := false

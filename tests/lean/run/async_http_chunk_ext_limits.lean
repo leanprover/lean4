@@ -4,7 +4,7 @@ import Std.Internal.Async
 open Std.Internal.IO Async
 open Std Http
 
-abbrev TestHandler := Request Body.Incoming → ContextAsync (Response Body.Outgoing)
+abbrev TestHandler := Request Body.Incoming → ContextAsync (Response Body.AnyBody)
 
 instance : Std.Http.Server.Handler TestHandler where
   onRequest handler request := handler request

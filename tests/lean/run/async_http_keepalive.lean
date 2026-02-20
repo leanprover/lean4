@@ -5,17 +5,17 @@ import Std.Internal.Async.Timer
 open Std.Internal.IO Async
 open Std Http
 
-abbrev TestHandler := Request Body.Incoming → ContextAsync (Response Body.Outgoing)
+abbrev TestHandler := Request Body.Incoming → ContextAsync (Response Body.AnyBody)
 
 instance : Std.Http.Server.Handler TestHandler where
   onRequest handler request := handler request
 
-instance : Coe (ContextAsync (Response Body.Incoming)) (ContextAsync (Response Body.Outgoing)) where
+instance : Coe (ContextAsync (Response Body.Incoming)) (ContextAsync (Response Body.AnyBody)) where
   coe action := do
     let response ← action
     pure { response with body := Body.Internal.incomingToOutgoing response.body }
 
-instance : Coe (Async (Response Body.Incoming)) (ContextAsync (Response Body.Outgoing)) where
+instance : Coe (Async (Response Body.Incoming)) (ContextAsync (Response Body.AnyBody)) where
   coe action := do
     let response ← action
     pure { response with body := Body.Internal.incomingToOutgoing response.body }
@@ -30,7 +30,7 @@ on a single connection, and connection limits.
 
 /-- Send raw bytes to the server and return the response. -/
 def sendRaw (client : Mock.Client) (server : Mock.Server) (raw : ByteArray)
-    (handler : Request Body.Incoming → ContextAsync (Response Body.Outgoing))
+    (handler : Request Body.Incoming → ContextAsync (Response Body.AnyBody))
     (config : Config := { lingeringTimeout := 3000, generateDate := false }) : IO ByteArray := Async.block do
   client.send raw
   Std.Http.Server.serveConnection server handler config
@@ -67,7 +67,7 @@ partial def countOccurrences (haystack : String) (needle : String) : Nat :=
   go haystack.startPos 0
 
 
-def okHandler : Request Body.Incoming → ContextAsync (Response Body.Outgoing) :=
+def okHandler : Request Body.Incoming → ContextAsync (Response Body.AnyBody) :=
   fun _ => Response.ok |>.text "ok"
 
 -- =============================================================================

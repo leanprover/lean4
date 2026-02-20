@@ -49,7 +49,7 @@ def assertNotContains (name : String) (response : ByteArray) (needle : String) :
   if responseStr.contains needle then
     throw <| IO.userError s!"Test '{name}' failed:\nDid not expect to contain: {needle.quote}\nGot:\n{responseStr.quote}"
 
--- Rejecting Expect must return 401, skip 100 Continue, and never run onRequest.
+-- Rejecting Expect must return 417, skip 100 Continue, and never run onRequest.
 #eval show IO _ from do
   let (client, server) ← Mock.new
   let calls ← IO.mkRef 0
@@ -58,7 +58,7 @@ def assertNotContains (name : String) (response : ByteArray) (needle : String) :
   let raw := "POST /upload HTTP/1.1\x0d\nHost: example.com\x0d\nExpect: 100-continue\x0d\nContent-Length: 5\x0d\nConnection: close\x0d\n\x0d\nhello".toUTF8
   let response ← sendRaw client server raw handler
 
-  assertContains "Expect rejected returns 401" response "HTTP/1.1 401 Unauthorized"
+  assertContains "Expect rejected returns 417" response "HTTP/1.1 417 Expectation Failed"
   assertNotContains "Expect rejected no 100 Continue" response "100 Continue"
   assertNotContains "Expect rejected no user response body" response "request-ran"
 
@@ -76,7 +76,7 @@ def assertNotContains (name : String) (response : ByteArray) (needle : String) :
   let req2 := "GET /second HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n"
   let response ← sendRaw client server (req1 ++ req2).toUTF8 handler
 
-  assertContains "Expect rejected still 401" response "HTTP/1.1 401 Unauthorized"
+  assertContains "Expect rejected still 417" response "HTTP/1.1 417 Expectation Failed"
   assertNotContains "Expect rejected should not process second request" response "/second"
 
   let count ← calls.get

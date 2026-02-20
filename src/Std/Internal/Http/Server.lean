@@ -140,7 +140,7 @@ private def frameCancellation (s : Server) (releaseConnectionPermit : Bool := fa
 Start a new HTTP/1.1 server on the given socket address. This function uses `Async` to handle tasks
 and TCP connections, and returns a `Server` structure that can be used to cancel the server.
 -/
-def serve {σ : Type} {β : Type} [Handler σ β] [Body.Reader β] [Body.Writer β]
+def serve {σ : Type} [Handler σ]
     (addr : Net.SocketAddress)
     (handler : σ)
     (config : Config := {}) (backlog : UInt32 := 128) : Async Server := do

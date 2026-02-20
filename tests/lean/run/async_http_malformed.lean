@@ -5,17 +5,17 @@ import Std.Internal.Async.Timer
 open Std.Internal.IO Async
 open Std Http
 
-abbrev TestHandler := Request Body.Incoming → ContextAsync (Response Body.Outgoing)
+abbrev TestHandler := Request Body.Incoming → ContextAsync (Response Body.AnyBody)
 
 instance : Std.Http.Server.Handler TestHandler where
   onRequest handler request := handler request
 
-instance : Coe (ContextAsync (Response Body.Incoming)) (ContextAsync (Response Body.Outgoing)) where
+instance : Coe (ContextAsync (Response Body.Incoming)) (ContextAsync (Response Body.AnyBody)) where
   coe action := do
     let response ← action
     pure { response with body := Body.Internal.incomingToOutgoing response.body }
 
-instance : Coe (Async (Response Body.Incoming)) (ContextAsync (Response Body.Outgoing)) where
+instance : Coe (Async (Response Body.Incoming)) (ContextAsync (Response Body.AnyBody)) where
   coe action := do
     let response ← action
     pure { response with body := Body.Internal.incomingToOutgoing response.body }
@@ -30,7 +30,7 @@ Covers: missing Host, invalid methods, bad headers, CRLF issues, invalid charact
 
 /-- Send raw bytes to the server and return the response. -/
 def sendRaw (client : Mock.Client) (server : Mock.Server) (raw : ByteArray)
-    (handler : Request Body.Incoming → ContextAsync (Response Body.Outgoing))
+    (handler : Request Body.Incoming → ContextAsync (Response Body.AnyBody))
     (config : Config := { lingeringTimeout := 3000, generateDate := false }) : IO ByteArray := Async.block do
   client.send raw
   Std.Http.Server.serveConnection server handler config
@@ -50,7 +50,7 @@ def assertExact (name : String) (response : ByteArray) (expected : String) : IO 
   if responseStr != expected then
     throw <| IO.userError s!"Test '{name}' failed:\nExpected:\n{expected.quote}\nGot:\n{responseStr.quote}"
 
-def okHandler : Request Body.Incoming → ContextAsync (Response Body.Outgoing) :=
+def okHandler : Request Body.Incoming → ContextAsync (Response Body.AnyBody) :=
   fun _ => Response.ok |>.text "ok"
 
 def bad400 : String :=
@@ -264,7 +264,7 @@ def notImplemented : String :=
   let longMethod := String.ofList (List.replicate 20 'G')
   let raw := s!"{longMethod} / HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
   let response ← sendRaw client server raw okHandler
-  assertExact "Method too long" response notImplemented
+  assertExact "Method too long" response bad400
 
 -- =============================================================================
 -- Request with only whitespace

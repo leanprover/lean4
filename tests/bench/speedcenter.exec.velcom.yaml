@@ -695,3 +695,9 @@
   run_config:
     <<: *time
     cmd: lean ./cbv/merge_sort.lean
+- attributes:
+    description: cbv tactic (System F normalization)
+    tags: [other]
+  run_config:
+    <<: *time
+    cmd: lean ./cbv/system_f.lean

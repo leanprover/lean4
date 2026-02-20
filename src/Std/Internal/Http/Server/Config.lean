@@ -100,7 +100,7 @@ structure Config where
   maxHeaderValueLength : Nat := 8192
 
   /--
-  Maximum number of spaces in delimiter sequences (default: 256)
+  Maximum number of spaces in delimiter sequences (default: 16)
   -/
   maxSpaceSequence : Nat := 16
 

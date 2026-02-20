@@ -112,12 +112,12 @@ theorem extractAndExtend_decl_eq (aig : AIG α) (idx' : Nat) (x : AIG.RefVec aig
 
 /-- Given a vector of references belonging to the same AIG `oldParSum`,
   we create a node to add the `curr`-th couple of elements and push the add node to `newParSum` -/
-def blastCpopLayer (aig : AIG α) (iter_num : Nat)
-  (old_layer : AIG.RefVec aig (old_length * w)) (new_layer : AIG.RefVec aig (iter_num * w))
-  (hold : 2 * (iter_num - 1) < old_length) : AIG.RefVecEntry α ((old_length + 1)/2 * w) :=
-  if  hlen : 0 < old_length - (iter_num * 2) then
+def blastCpopLayer (aig : AIG α) (iterNum : Nat)
+  (old_layer : AIG.RefVec aig (oldLength * w)) (new_layer : AIG.RefVec aig (iterNum * w))
+  (hold : 2 * (iterNum - 1) < oldLength) : AIG.RefVecEntry α ((oldLength + 1)/2 * w) :=
+  if  hlen : 0 < oldLength - (iterNum * 2) then
     -- lhs
-    let targetExtract : ExtractTarget aig w := {vec := old_layer, start := 2 * iter_num * w}
+    let targetExtract : ExtractTarget aig w := {vec := old_layer, start := 2 * iterNum * w}
     let res := blastExtract aig targetExtract
     let aig := res.aig
     let op1 : aig.RefVec w := res.vec
@@ -125,7 +125,7 @@ def blastCpopLayer (aig : AIG α) (iter_num : Nat)
     let old_layer := old_layer.cast (aig2 := aig) this
     let new_layer := new_layer.cast (aig2 := aig) this
     -- rhs
-    let targetExtract : ExtractTarget aig w := {vec := old_layer, start := (2 * iter_num + 1) * w}
+    let targetExtract : ExtractTarget aig w := {vec := old_layer, start := (2 * iterNum + 1) * w}
     let res := blastExtract aig targetExtract
     let aig := res.aig
     let op2 : aig.RefVec w := res.vec
@@ -142,23 +142,23 @@ def blastCpopLayer (aig : AIG α) (iter_num : Nat)
     let new_layer := new_layer.cast this
     let op1 := op1.cast this
     let op2 := op2.cast this
-    have hcast : w + iter_num * w = (iter_num + 1) * w:= by simp [Nat.add_mul]; omega
-    let targetAppend : AppendTarget aig ((iter_num + 1) * w ) :=
+    have hcast : w + iterNum * w = (iterNum + 1) * w:= by simp [Nat.add_mul]; omega
+    let targetAppend : AppendTarget aig ((iterNum + 1) * w ) :=
         {lhs := add, rhs := new_layer, h := by omega}
     let res := blastAppend (aig := aig) (target:= targetAppend)
     let aig := res.aig
     let new_layer' := res.vec
     have := AIG.LawfulVecOperator.le_size (f := blastAppend) ..
     let old_layer := old_layer.cast this
-    blastCpopLayer aig (iter_num + 1) old_layer new_layer' (by omega)
+    blastCpopLayer aig (iterNum + 1) old_layer new_layer' (by omega)
   else
-    have h : iter_num = (old_length + 1) / 2 := by omega
+    have h : iterNum = (oldLength + 1) / 2 := by omega
     ⟨aig, h ▸ new_layer⟩
-termination_by old_length - iter_num * 2
+termination_by oldLength - iterNum * 2
 
-theorem blastCpopLayer_le_size (aig : AIG α) (iter_num: Nat) (old_layer : AIG.RefVec aig (old_length * w))
-    (new_layer : AIG.RefVec aig (iter_num * w)) (hold : 2 * (iter_num - 1) < old_length) :
-    aig.decls.size ≤ (blastCpopLayer aig iter_num old_layer new_layer hold).aig.decls.size := by
+theorem blastCpopLayer_le_size (aig : AIG α) (iterNum: Nat) (old_layer : AIG.RefVec aig (oldLength * w))
+    (new_layer : AIG.RefVec aig (iterNum * w)) (hold : 2 * (iterNum - 1) < oldLength) :
+    aig.decls.size ≤ (blastCpopLayer aig iterNum old_layer new_layer hold).aig.decls.size := by
   unfold blastCpopLayer
   dsimp only
   split
@@ -166,11 +166,11 @@ theorem blastCpopLayer_le_size (aig : AIG α) (iter_num: Nat) (old_layer : AIG.R
     <;> (refine Nat.le_trans ?_ (by apply blastCpopLayer_le_size); apply AIG.LawfulVecOperator.le_size)
   · simp
 
-theorem blastCpopLayer_decl_eq (aig : AIG α) (iter_num: Nat) (old_layer : AIG.RefVec aig (old_length * w))
-    (new_layer : AIG.RefVec aig (iter_num * w)) (hold : 2 * (iter_num - 1) < old_length) :
+theorem blastCpopLayer_decl_eq (aig : AIG α) (iterNum: Nat) (old_layer : AIG.RefVec aig (oldLength * w))
+    (new_layer : AIG.RefVec aig (iterNum * w)) (hold : 2 * (iterNum - 1) < oldLength) :
     ∀ (idx : Nat) h1 h2,
-      (blastCpopLayer aig iter_num old_layer new_layer hold).aig.decls[idx]'h1 = aig.decls[idx]'h2 := by
-  generalize hres : blastCpopLayer aig iter_num old_layer new_layer hold= res
+      (blastCpopLayer aig iterNum old_layer new_layer hold).aig.decls[idx]'h1 = aig.decls[idx]'h2 := by
+  generalize hres : blastCpopLayer aig iterNum old_layer new_layer hold= res
   unfold blastCpopLayer at hres
   dsimp only at hres
   split at hres
@@ -183,9 +183,9 @@ theorem blastCpopLayer_decl_eq (aig : AIG α) (iter_num: Nat) (old_layer : AIG.R
         assumption
   · simp [← hres]
 
-def blastCpopTree (aig : AIG α) (l : AIG.RefVec aig (l_length * w)) (h : 0 < l_length) :
+def blastCpopTree (aig : AIG α) (l : AIG.RefVec aig (lLength * w)) (h : 0 < lLength) :
     AIG.RefVecEntry α w :=
-  if hlt : 1 < l_length  then
+  if hlt : 1 < lLength  then
     have hcastZero : 0 = 0 / 2 * w := by omega
     let initAcc := blastConst (aig := aig) (w := 0) (val := 0)
     let res := blastCpopLayer aig 0 l (hcastZero▸initAcc) (by omega)
@@ -193,12 +193,12 @@ def blastCpopTree (aig : AIG α) (l : AIG.RefVec aig (l_length * w)) (h : 0 < l_
     let new_layer := res.vec
     blastCpopTree (aig := aig) (l := new_layer) (by omega)
   else
-    have hcast : l_length * w = w := by simp [show l_length = 1 by omega]
+    have hcast : lLength * w = w := by simp [show lLength = 1 by omega]
     ⟨aig, hcast▸l⟩
-termination_by l_length
+termination_by lLength
 
-theorem blastCpopTree_le_size (aig : AIG α) (old_layer : AIG.RefVec aig (old_length * w))
-    (h : 0 < old_length) :
+theorem blastCpopTree_le_size (aig : AIG α) (old_layer : AIG.RefVec aig (oldLength * w))
+    (h : 0 < oldLength) :
     aig.decls.size ≤ (blastCpopTree aig old_layer h).aig.decls.size := by
   unfold blastCpopTree
   dsimp only
@@ -208,8 +208,8 @@ theorem blastCpopTree_le_size (aig : AIG α) (old_layer : AIG.RefVec aig (old_le
     apply blastCpopLayer_le_size
   · simp
 
-theorem blastCpopTree_decl_eq (aig : AIG α) (old_layer : AIG.RefVec aig (old_length * w))
-    (h : 0 < old_length) :
+theorem blastCpopTree_decl_eq (aig : AIG α) (old_layer : AIG.RefVec aig (oldLength * w))
+    (h : 0 < oldLength) :
     ∀ (idx : Nat) h1 h2,
       (blastCpopTree aig old_layer h).aig.decls[idx]'h1 = aig.decls[idx]'h2 := by
   generalize hres : blastCpopTree aig old_layer h = res

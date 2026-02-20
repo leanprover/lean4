@@ -194,10 +194,6 @@ structure Context where
   `FVarId` based.
   -/
   idx : Nat := 0
-  /--
-  The SCC of declarations that are currently being processed.
-  -/
-  decls : Array (Decl .impure)
 
 structure State where
   /--
@@ -224,10 +220,6 @@ def isBorrowed (fvarId : FVarId) : RcM Bool := return (← get).liveVars.borrows
 def modifyLive (f : LiveVars → LiveVars) : RcM Unit :=
   modify fun s => { s with liveVars := f s.liveVars }
 
-def getDeclSig (declName : Name) : RcM (Option (Signature .impure)) := do
-  match (← read).decls.find? (·.name == declName) with
-  | some found => return some <| found.toSignature
-  | none => getImpureSignature? declName
 
 @[inline]
 def withParams (ps : Array (Param .impure)) (x : RcM α) : RcM α := do
@@ -536,7 +528,7 @@ def LetDecl.explicitRc (code : Code .impure) (decl : LetDecl .impure) (k : Code 
       let k ← addDecIfNeeded fvarId k
       pure <| code.updateLet! decl k
     | .fap f args =>
-      let ps := (← getDeclSig f).get!.params
+      let ps := (← getImpureSignature? f).get!.params
       let k ← addDecAfterFullApp args ps k
       let value ←
         if f == ``Array.getInternal && (← isBorrowed decl.fvarId) then
@@ -632,14 +624,13 @@ partial def Code.explicitRc (code : Code .impure) : RcM (Code .impure) := do
     return code
   | .inc .. | .dec .. => unreachable!
 
-def Decl.explicitRc (decl : Decl .impure) (decls : Array (Decl .impure)) :
+def Decl.explicitRc (decl : Decl .impure) :
     CompilerM (Decl .impure) := do
   let value ← decl.value.mapCodeM fun code => do
     let ⟨derivedValMap, borrowedParams⟩ ← CollectDerivedValInfo.collect decl.params code
     go code |>.run {
       borrowedParams,
       derivedValMap,
-      decls,
     } |>.run' {}
   return { decl with value }
 where
@@ -649,13 +640,10 @@ where
       addDecForDeadParams decl.params code
 
 public def runExplicitRc (decls : Array (Decl .impure)) : CompilerM (Array (Decl .impure)) := do
-  decls.mapM (·.explicitRc decls)
+  decls.mapM (·.explicitRc)
 
-public def explicitRc : Pass where
-  phase := .impure
-  phaseOut := .impure
-  name := `explicitRc
-  run := runExplicitRc
+public def explicitRc : Pass :=
+  .mkPerDeclaration `explicitRc .impure Decl.explicitRc
 
 builtin_initialize
   registerTraceClass `Compiler.explicitRc (inherited := true)

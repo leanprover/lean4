@@ -8,6 +8,7 @@ module
 prelude
 public import Std.Sync
 public import Std.Internal.Async
+public import Std.Internal.Http.Data.Extensions
 public import Std.Internal.Http.Data.Request
 public import Std.Internal.Http.Data.Response
 public import Std.Internal.Http.Data.Chunk
@@ -677,183 +678,29 @@ end Std.Http.Body
 namespace Std.Http.Request.Builder
 open Internal.IO.Async
 
-private def withContentLength
-    (builder : Request.Builder)
-    (size : Nat) :
-    Request.Builder :=
-  Request.Builder.header builder Header.Name.contentLength (Header.Value.ofString! (toString size))
-
 /--
 Builds a request with a streaming body generator.
 -/
 def stream
-    (builder : Request.Builder)
+    (builder : Builder)
     (gen : Body.Outgoing → Async Unit) :
     Async (Request Body.Outgoing) := do
   let incoming ← Body.stream gen
-  return Request.Builder.body builder (Body.Internal.incomingToOutgoing incoming)
-
-private def emptyBody (builder : Request.Builder) : Async (Request Body.Outgoing) := do
-  let incoming ← Body.empty
-  let builder := withContentLength builder 0
-  return Request.Builder.body builder (Body.Internal.incomingToOutgoing incoming)
-
-/--
-Builds a request with an empty body.
--/
-def blank (builder : Request.Builder) : Async (Request Body.Outgoing) :=
-  emptyBody builder
-
-private def fromBytesCore
-    (builder : Request.Builder)
-    (content : ByteArray) :
-    Async (Request Body.Outgoing) := do
-  let incoming ← Body.fromBytes content
-  let builder := withContentLength builder content.size
-  return Request.Builder.body builder (Body.Internal.incomingToOutgoing incoming)
-
-/--
-Builds a request from raw bytes.
--/
-def fromBytes (builder : Request.Builder) (content : ByteArray) : Async (Request Body.Outgoing) :=
-  fromBytesCore builder content
-
-/--
-Builds a request with a binary body.
--/
-def bytes (builder : Request.Builder) (content : ByteArray) : Async (Request Body.Outgoing) := do
-  let builder := Request.Builder.header
-    builder
-    Header.Name.contentType
-    (Header.Value.ofString! "application/octet-stream")
-  fromBytesCore builder content
-
-/--
-Builds a request with a text body.
--/
-def text (builder : Request.Builder) (content : String) : Async (Request Body.Outgoing) := do
-  let builder := Request.Builder.header
-    builder
-    Header.Name.contentType
-    (Header.Value.ofString! "text/plain; charset=utf-8")
-  fromBytesCore builder content.toUTF8
-
-/--
-Builds a request with a JSON body.
--/
-def json (builder : Request.Builder) (content : String) : Async (Request Body.Outgoing) := do
-  let builder := Request.Builder.header
-    builder
-    Header.Name.contentType
-    (Header.Value.ofString! "application/json")
-  fromBytesCore builder content.toUTF8
-
-/--
-Builds a request with an HTML body.
--/
-def html (builder : Request.Builder) (content : String) : Async (Request Body.Outgoing) := do
-  let builder := Request.Builder.header
-    builder
-    Header.Name.contentType
-    (Header.Value.ofString! "text/html; charset=utf-8")
-  fromBytesCore builder content.toUTF8
-
-/--
-Builds a request with no body.
--/
-def noBody (builder : Request.Builder) : Async (Request Body.Outgoing) :=
-  Request.Builder.blank builder
+  return builder.body (Body.Internal.incomingToOutgoing incoming)
 
 end Std.Http.Request.Builder
 
 namespace Std.Http.Response.Builder
 open Internal.IO.Async
 
-private def withContentLength
-    (builder : Response.Builder)
-    (size : Nat) :
-    Response.Builder :=
-  Response.Builder.header builder Header.Name.contentLength (Header.Value.ofString! (toString size))
-
 /--
 Builds a response with a streaming body generator.
 -/
 def stream
-    (builder : Response.Builder)
+    (builder : Builder)
     (gen : Body.Outgoing → Async Unit) :
     Async (Response Body.Outgoing) := do
   let incoming ← Body.stream gen
-  return Response.Builder.body builder (Body.Internal.incomingToOutgoing incoming)
-
-private def emptyBody (builder : Response.Builder) : Async (Response Body.Outgoing) := do
-  let incoming ← Body.empty
-  let builder := withContentLength builder 0
-  return Response.Builder.body builder (Body.Internal.incomingToOutgoing incoming)
-
-/--
-Builds a response with an empty body.
--/
-def blank (builder : Response.Builder) : Async (Response Body.Outgoing) :=
-  emptyBody builder
-
-private def fromBytesCore
-    (builder : Response.Builder)
-    (content : ByteArray) :
-    Async (Response Body.Outgoing) := do
-  let incoming ← Body.fromBytes content
-  let builder := withContentLength builder content.size
-  return Response.Builder.body builder (Body.Internal.incomingToOutgoing incoming)
-
-/--
-Builds a response from raw bytes.
--/
-def fromBytes (builder : Response.Builder) (content : ByteArray) : Async (Response Body.Outgoing) :=
-  fromBytesCore builder content
-
-/--
-Builds a response with a binary body.
--/
-def bytes (builder : Response.Builder) (content : ByteArray) : Async (Response Body.Outgoing) := do
-  let builder := Response.Builder.header
-    builder
-    Header.Name.contentType
-    (Header.Value.ofString! "application/octet-stream")
-  fromBytesCore builder content
-
-/--
-Builds a response with a text body.
--/
-def text (builder : Response.Builder) (content : String) : Async (Response Body.Outgoing) := do
-  let builder := Response.Builder.header
-    builder
-    Header.Name.contentType
-    (Header.Value.ofString! "text/plain; charset=utf-8")
-  fromBytesCore builder content.toUTF8
-
-/--
-Builds a response with a JSON body.
--/
-def json (builder : Response.Builder) (content : String) : Async (Response Body.Outgoing) := do
-  let builder := Response.Builder.header
-    builder
-    Header.Name.contentType
-    (Header.Value.ofString! "application/json")
-  fromBytesCore builder content.toUTF8
-
-/--
-Builds a response with an HTML body.
--/
-def html (builder : Response.Builder) (content : String) : Async (Response Body.Outgoing) := do
-  let builder := Response.Builder.header
-    builder
-    Header.Name.contentType
-    (Header.Value.ofString! "text/html; charset=utf-8")
-  fromBytesCore builder content.toUTF8
-
-/--
-Builds a response with no body.
--/
-def noBody (builder : Response.Builder) : Async (Response Body.Outgoing) :=
-  Response.Builder.blank builder
+  return builder.body (Body.Internal.incomingToOutgoing incoming)
 
 end Std.Http.Response.Builder

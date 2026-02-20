@@ -257,13 +257,100 @@ def channelInterestSelectorClose : Async Unit := do
 
 #eval channelInterestSelectorClose.block
 
+/-! ## Full tests -/
+
+-- Test Full.recv returns content once then EOF
+
+def fullRecvConsumesOnce : Async Unit := do
+  let full ← Body.Full.ofUTF8String "hello"
+  let first ← full.recv none
+  let second ← full.recv none
+
+  assert! first.isSome
+  assert! first.get!.data == "hello".toUTF8
+  assert! second.isNone
+
+#eval fullRecvConsumesOnce.block
+
+-- Test Full known-size metadata tracks consumption
+
+def fullKnownSizeLifecycle : Async Unit := do
+  let data := ByteArray.mk #[0x01, 0x02, 0x03, 0x04]
+  let full ← Body.Full.ofByteArray data
+
+  assert! (← full.getKnownSize) == some (.fixed 4)
+  let chunk ← full.tryRecv
+  assert! chunk.isSome
+  assert! chunk.get!.data == data
+  assert! (← full.getKnownSize) == some (.fixed 0)
+
+#eval fullKnownSizeLifecycle.block
+
+-- Test Full.close discards remaining content
+
+def fullClose : Async Unit := do
+  let full ← Body.Full.ofUTF8String "bye"
+  assert! !(← full.isClosed)
+  full.close
+  assert! (← full.isClosed)
+  assert! (← full.tryRecv).isNone
+
+#eval fullClose.block
+
+-- Test Full interest API always reports no consumer interest
+
+def fullInterest : Async Unit := do
+  let full ← Body.Full.ofUTF8String "x"
+  assert! !(← full.hasInterest)
+  let interested ← Selectable.one #[
+    .case full.interestSelector pure
+  ]
+  assert! interested == false
+
+#eval fullInterest.block
+
+/-! ## Empty tests -/
+
+-- Test Empty writer metadata and interest behavior
+
+def emptyWriterBasics : Async Unit := do
+  let body : Body.Empty := {}
+  assert! (← Writer.getKnownSize body) == some (.fixed 0)
+  assert! !(← Writer.isClosed body)
+  assert! !(← Writer.hasInterest body)
+
+  Writer.setKnownSize body (some (.fixed 99))
+  assert! (← Writer.getKnownSize body) == some (.fixed 0)
+
+  Writer.close body
+  let interested ← Selectable.one #[
+    .case (Writer.interestSelector body) pure
+  ]
+  assert! interested == false
+
+#eval emptyWriterBasics.block
+
+-- Test Empty writer rejects send
+
+def emptyWriterSendFails : Async Unit := do
+  let body : Body.Empty := {}
+  let failed ←
+    try
+      Writer.send body (Chunk.ofByteArray "x".toUTF8) false
+      pure false
+    catch _ =>
+      pure true
+  assert! failed
+
+#eval emptyWriterSendFails.block
+
 /-! ## Request.Builder body tests -/
 
-private def recvBuiltBody (body : Body.Outgoing) : Async (Option Chunk) :=
-  (Body.Internal.outgoingToIncoming body).recv none
+private def recvBuiltBody (body : Body.Full) : Async (Option Chunk) :=
+  body.recv none
 
-private def tryRecvBuiltBody (body : Body.Outgoing) : Async (Option Chunk) :=
-  (Body.Internal.outgoingToIncoming body).tryRecv
+private def emptyBodyKnownSize (body : Body.Empty) : Async (Option Body.Length) :=
+  Writer.getKnownSize body
 
 -- Test Request.Builder.text sets correct headers
 
@@ -272,7 +359,7 @@ def requestBuilderText : Async Unit := do
     |>.text "Hello, World!"
 
   assert! req.head.headers.get? Header.Name.contentType == some (Header.Value.ofString! "text/plain; charset=utf-8")
-  assert! req.head.headers.get? Header.Name.contentLength == some (Header.Value.ofString! "13")
+  assert! req.head.headers.get? Header.Name.contentLength == none
 
   let body ← recvBuiltBody req.body
   assert! body.isSome
@@ -287,34 +374,34 @@ def requestBuilderJson : Async Unit := do
     |>.json "{\"key\": \"value\"}"
 
   assert! req.head.headers.get? Header.Name.contentType == some (Header.Value.ofString! "application/json")
+  assert! req.head.headers.get? Header.Name.contentLength == none
   let body ← recvBuiltBody req.body
   assert! body.isSome
   assert! body.get!.data == "{\"key\": \"value\"}".toUTF8
 
 #eval requestBuilderJson.block
 
--- Test Request.Builder.fromBytes sets content-length and body
+-- Test Request.Builder.fromBytes sets body
 
 def requestBuilderFromBytes : Async Unit := do
   let data := ByteArray.mk #[0x01, 0x02, 0x03]
   let req ← Request.post (.originForm! "/api")
     |>.fromBytes data
 
-  assert! req.head.headers.get? Header.Name.contentLength == some (Header.Value.ofString! "3")
+  assert! req.head.headers.get? Header.Name.contentLength == none
   let body ← recvBuiltBody req.body
   assert! body.isSome
   assert! body.get!.data == data
 
 #eval requestBuilderFromBytes.block
 
--- Test Request.Builder.noBody creates empty body
+-- Test Request.Builder.blank creates empty body
 
 def requestBuilderNoBody : Async Unit := do
   let req ← Request.get (.originForm! "/api")
-    |>.noBody
+    |>.blank
 
-  let body ← tryRecvBuiltBody req.body
-  assert! body.isNone
+  assert! (← emptyBodyKnownSize req.body) == some (.fixed 0)
 
 #eval requestBuilderNoBody.block
 
@@ -327,7 +414,7 @@ def responseBuilderText : Async Unit := do
     |>.text "Hello, World!"
 
   assert! res.head.headers.get? Header.Name.contentType == some (Header.Value.ofString! "text/plain; charset=utf-8")
-  assert! res.head.headers.get? Header.Name.contentLength == some (Header.Value.ofString! "13")
+  assert! res.head.headers.get? Header.Name.contentLength == none
 
   let body ← recvBuiltBody res.body
   assert! body.isSome
@@ -342,33 +429,33 @@ def responseBuilderJson : Async Unit := do
     |>.json "{\"status\": \"ok\"}"
 
   assert! res.head.headers.get? Header.Name.contentType == some (Header.Value.ofString! "application/json")
+  assert! res.head.headers.get? Header.Name.contentLength == none
   let body ← recvBuiltBody res.body
   assert! body.isSome
   assert! body.get!.data == "{\"status\": \"ok\"}".toUTF8
 
 #eval responseBuilderJson.block
 
--- Test Response.Builder.fromBytes sets content-length and body
+-- Test Response.Builder.fromBytes sets body
 
 def responseBuilderFromBytes : Async Unit := do
   let data := ByteArray.mk #[0xaa, 0xbb]
   let res ← Response.ok
     |>.fromBytes data
 
-  assert! res.head.headers.get? Header.Name.contentLength == some (Header.Value.ofString! "2")
+  assert! res.head.headers.get? Header.Name.contentLength == none
   let body ← recvBuiltBody res.body
   assert! body.isSome
   assert! body.get!.data == data
 
 #eval responseBuilderFromBytes.block
 
--- Test Response.Builder.noBody creates empty body
+-- Test Response.Builder.blank creates empty body
 
 def responseBuilderNoBody : Async Unit := do
   let res ← Response.ok
-    |>.noBody
+    |>.blank
 
-  let body ← tryRecvBuiltBody res.body
-  assert! body.isNone
+  assert! (← emptyBodyKnownSize res.body) == some (.fixed 0)
 
 #eval responseBuilderNoBody.block

@@ -160,7 +160,7 @@ static lean_object* l___private_Lean_Compiler_LCNF_MonoTypes_0__Lean_Compiler_LC
 extern lean_object* l_Lean_instInhabitedExpr;
 lean_object* l_Lean_Compiler_LCNF_getOtherDeclBaseType(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_toSubarray___redArg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Subarray_toArray___redArg(lean_object*);
+lean_object* l_Subarray_copy___redArg(lean_object*);
 lean_object* l_Lean_Compiler_LCNF_instantiateForall(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isErased(lean_object*);
 size_t lean_array_size(lean_object*);
@@ -2406,7 +2406,7 @@ lean_inc(x_20);
 lean_dec_ref(x_19);
 x_21 = lean_unsigned_to_nat(0u);
 x_22 = l_Array_toSubarray___redArg(x_2, x_21, x_16);
-x_23 = l_Subarray_toArray___redArg(x_22);
+x_23 = l_Subarray_copy___redArg(x_22);
 x_24 = l_Lean_Compiler_LCNF_instantiateForall(x_20, x_23, x_9, x_10);
 lean_dec_ref(x_23);
 if (lean_obj_tag(x_24) == 0)

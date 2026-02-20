@@ -354,7 +354,7 @@ static const lean_object* l_Lean_Elab_Tactic_ElimApp_mkElimApp___closed__2 = (co
 static lean_object* l_Lean_Elab_Tactic_ElimApp_mkElimApp___closed__3;
 lean_object* lean_st_mk_ref(lean_object*);
 size_t lean_array_size(lean_object*);
-lean_object* l_Subarray_toArray___redArg(lean_object*);
+lean_object* l_Subarray_copy___redArg(lean_object*);
 lean_object* l_Lean_Expr_getAppNumArgs(lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
 lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(lean_object*, lean_object*, lean_object*);
@@ -7882,8 +7882,8 @@ block_44:
 {
 lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; 
 x_39 = l_Array_toSubarray___redArg(x_33, x_37, x_38);
-x_40 = l_Subarray_toArray___redArg(x_39);
-x_41 = l_Subarray_toArray___redArg(x_36);
+x_40 = l_Subarray_copy___redArg(x_39);
+x_41 = l_Subarray_copy___redArg(x_36);
 x_42 = lean_alloc_ctor(0, 6, 0);
 lean_ctor_set(x_42, 0, x_32);
 lean_ctor_set(x_42, 1, x_40);
@@ -18822,7 +18822,7 @@ x_3 = l_Lean_Syntax_getArgs(x_2);
 x_4 = lean_unsigned_to_nat(0u);
 lean_inc(x_1);
 x_5 = l_Array_toSubarray___redArg(x_3, x_4, x_1);
-x_6 = l_Subarray_toArray___redArg(x_5);
+x_6 = l_Subarray_copy___redArg(x_5);
 x_7 = ((lean_object*)(l_Lean_Elab_Tactic_withCaseRef___at___00__private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Tactic_evalAlt_spec__4___redArg___closed__2));
 x_8 = lean_box(2);
 x_9 = lean_alloc_ctor(1, 3, 0);
@@ -28608,7 +28608,7 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_ob
 x_7 = l_Lean_Syntax_getArgs(x_4);
 lean_dec(x_4);
 x_8 = l_Array_toSubarray___redArg(x_7, x_3, x_5);
-x_9 = l_Subarray_toArray___redArg(x_8);
+x_9 = l_Subarray_copy___redArg(x_8);
 x_10 = ((lean_object*)(l_Lean_Elab_Tactic_withCaseRef___at___00__private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Tactic_evalAlt_spec__4___redArg___closed__2));
 x_11 = lean_box(2);
 x_12 = lean_alloc_ctor(1, 3, 0);
@@ -33532,7 +33532,7 @@ block_51:
 {
 lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; 
 x_45 = l_Array_toSubarray___redArg(x_31, x_43, x_44);
-x_46 = l_Subarray_toArray___redArg(x_45);
+x_46 = l_Subarray_copy___redArg(x_45);
 x_47 = l_Array_zip___redArg(x_42, x_46);
 lean_dec_ref(x_46);
 lean_dec_ref(x_42);

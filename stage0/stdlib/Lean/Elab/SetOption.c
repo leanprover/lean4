@@ -138,7 +138,7 @@ lean_object* l_IO_toEIO___boxed(lean_object*, lean_object*, lean_object*, lean_o
 LEAN_EXPORT lean_object* l_Lean_Elab_elabSetOption___redArg___lam__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
 lean_object* l_Array_toSubarray___redArg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Subarray_toArray___redArg(lean_object*);
+lean_object* l_Subarray_copy___redArg(lean_object*);
 lean_object* l_Lean_Syntax_setArgs(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_addCompletionInfo___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_elabSetOption___redArg___lam__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1087,7 +1087,7 @@ x_12 = l_Lean_Syntax_getArgs(x_9);
 x_13 = lean_unsigned_to_nat(3u);
 x_14 = lean_unsigned_to_nat(0u);
 x_15 = l_Array_toSubarray___redArg(x_12, x_14, x_13);
-x_16 = l_Subarray_toArray___redArg(x_15);
+x_16 = l_Subarray_copy___redArg(x_15);
 x_17 = l_Lean_Syntax_setArgs(x_9, x_16);
 x_18 = lean_alloc_ctor(5, 1, 0);
 lean_ctor_set(x_18, 0, x_17);

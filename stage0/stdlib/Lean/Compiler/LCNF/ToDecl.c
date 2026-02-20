@@ -253,7 +253,7 @@ static const lean_ctor_object l___private_Lean_Compiler_LCNF_ToDecl_0__Lean_Comp
 static const lean_object* l___private_Lean_Compiler_LCNF_ToDecl_0__Lean_Compiler_LCNF_normalizeAlt___lam__2___closed__1 = (const lean_object*)&l___private_Lean_Compiler_LCNF_ToDecl_0__Lean_Compiler_LCNF_normalizeAlt___lam__2___closed__1_value;
 static lean_object* l___private_Lean_Compiler_LCNF_ToDecl_0__Lean_Compiler_LCNF_normalizeAlt___lam__2___closed__2;
 lean_object* l_Array_toSubarray___redArg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Subarray_toArray___redArg(lean_object*);
+lean_object* l_Subarray_copy___redArg(lean_object*);
 lean_object* l_Lean_Core_mkFreshUserName(lean_object*, lean_object*, lean_object*);
 lean_object* lean_infer_type(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_ToDecl_0__Lean_Compiler_LCNF_normalizeAlt___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -4672,7 +4672,7 @@ block_36:
 lean_object* x_15; lean_object* x_16; uint8_t x_17; lean_object* x_18; 
 lean_inc_ref(x_3);
 x_15 = l_Array_toSubarray___redArg(x_3, x_13, x_14);
-x_16 = l_Subarray_toArray___redArg(x_15);
+x_16 = l_Subarray_copy___redArg(x_15);
 x_17 = 1;
 x_18 = l_Lean_Meta_mkLambdaFVars(x_16, x_4, x_11, x_12, x_11, x_12, x_17, x_5, x_6, x_7, x_8);
 lean_dec_ref(x_16);
@@ -4719,7 +4719,7 @@ lean_inc(x_28);
 lean_dec_ref(x_27);
 x_29 = lean_unsigned_to_nat(0u);
 x_30 = l_Array_toSubarray___redArg(x_3, x_29, x_1);
-x_31 = l_Subarray_toArray___redArg(x_30);
+x_31 = l_Subarray_copy___redArg(x_30);
 x_32 = l_Lean_Meta_mkLambdaFVars(x_31, x_28, x_11, x_12, x_11, x_12, x_17, x_5, x_6, x_7, x_8);
 lean_dec(x_8);
 lean_dec_ref(x_7);

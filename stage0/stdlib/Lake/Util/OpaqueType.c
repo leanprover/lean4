@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Util.OpaqueType
-// Imports: public meta import Lake.Util.Binder public import Init.Notation import Lake.Util.Binder
+// Imports: public meta import Lake.Util.Binder public import Init.Prelude
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2679,8 +2679,7 @@ goto block_225;
 }
 }
 lean_object* initialize_Lake_Util_Binder(uint8_t builtin);
-lean_object* initialize_Init_Notation(uint8_t builtin);
-lean_object* initialize_Lake_Util_Binder(uint8_t builtin);
+lean_object* initialize_Init_Prelude(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lake_Util_OpaqueType(uint8_t builtin) {
 lean_object * res;
@@ -2689,10 +2688,7 @@ _G_initialized = true;
 res = initialize_Lake_Util_Binder(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Notation(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lake_Util_Binder(builtin);
+res = initialize_Init_Prelude(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1___closed__9 = _init_l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1___closed__9();

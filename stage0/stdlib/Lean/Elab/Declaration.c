@@ -863,7 +863,7 @@ LEAN_EXPORT uint8_t l___private_Lean_Elab_Declaration_0__Lean_Elab_Command_isMut
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Declaration_0__Lean_Elab_Command_isMutualPreambleCommand___boxed(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Array_toSubarray___redArg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Subarray_toArray___redArg(lean_object*);
+lean_object* l_Subarray_copy___redArg(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Declaration_0__Lean_Elab_Command_splitMutualPreamble_loop(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Declaration_0__Lean_Elab_Command_splitMutualPreamble(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Declaration_0__Lean_Elab_Command_findCommonPrefix_findCommon(lean_object*, lean_object*);
@@ -14109,9 +14109,9 @@ lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean
 lean_inc(x_2);
 lean_inc_ref(x_1);
 x_10 = l_Array_toSubarray___redArg(x_1, x_8, x_2);
-x_11 = l_Subarray_toArray___redArg(x_10);
+x_11 = l_Subarray_copy___redArg(x_10);
 x_12 = l_Array_toSubarray___redArg(x_1, x_2, x_3);
-x_13 = l_Subarray_toArray___redArg(x_12);
+x_13 = l_Subarray_copy___redArg(x_12);
 x_14 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_14, 0, x_11);
 lean_ctor_set(x_14, 1, x_13);

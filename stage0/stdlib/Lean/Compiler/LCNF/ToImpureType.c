@@ -293,7 +293,7 @@ lean_object* lean_mk_array(lean_object*, lean_object*);
 lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_toImpureType(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_getOtherDeclBaseType(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Subarray_toArray___redArg(lean_object*);
+lean_object* l_Subarray_copy___redArg(lean_object*);
 lean_object* l_Lean_Compiler_LCNF_instantiateForall(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_getParamTypes(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_ToImpureType_0__Lean_Compiler_LCNF_toImpureType_visitApp___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -4580,7 +4580,7 @@ lean_inc(x_14);
 lean_dec_ref(x_13);
 x_15 = lean_unsigned_to_nat(0u);
 x_16 = l_Array_toSubarray___redArg(x_2, x_15, x_10);
-x_17 = l_Subarray_toArray___redArg(x_16);
+x_17 = l_Subarray_copy___redArg(x_16);
 x_18 = l_Lean_Compiler_LCNF_instantiateForall(x_14, x_17, x_3, x_4);
 lean_dec_ref(x_17);
 if (lean_obj_tag(x_18) == 0)

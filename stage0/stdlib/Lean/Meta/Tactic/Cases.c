@@ -124,7 +124,7 @@ static const lean_string_object l_Lean_Meta_generalizeTargetsEq___lam__1___close
 static const lean_object* l_Lean_Meta_generalizeTargetsEq___lam__1___closed__2 = (const lean_object*)&l_Lean_Meta_generalizeTargetsEq___lam__1___closed__2_value;
 static lean_object* l_Lean_Meta_generalizeTargetsEq___lam__1___closed__3;
 lean_object* l_Array_toSubarray___redArg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Subarray_toArray___redArg(lean_object*);
+lean_object* l_Subarray_copy___redArg(lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_Nat_reprFast(lean_object*);
 lean_object* l_Lean_MessageData_ofFormat(lean_object*);
@@ -1920,7 +1920,7 @@ lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean
 x_11 = lean_array_get_size(x_1);
 x_12 = lean_unsigned_to_nat(0u);
 x_13 = l_Array_toSubarray___redArg(x_3, x_12, x_11);
-x_14 = l_Subarray_toArray___redArg(x_13);
+x_14 = l_Subarray_copy___redArg(x_13);
 lean_inc_ref(x_14);
 x_15 = lean_alloc_closure((void*)(l_Lean_Meta_generalizeTargetsEq___lam__0___boxed), 9, 2);
 lean_closure_set(x_15, 0, x_2);

@@ -476,7 +476,7 @@ static const lean_object* l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_Str
 static lean_object* l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_elabModifyOp___closed__28;
 lean_object* l_Lean_Elab_Term_elabTerm___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_toSubarray___redArg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Subarray_toArray___redArg(lean_object*);
+lean_object* l_Subarray_copy___redArg(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_elabModifyOp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_elabModifyOp___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -8585,7 +8585,7 @@ lean_inc_ref(x_194);
 x_209 = l_Lean_Name_mkStr4(x_194, x_190, x_199, x_208);
 lean_inc(x_198);
 x_210 = l_Array_toSubarray___redArg(x_206, x_198, x_207);
-x_211 = l_Subarray_toArray___redArg(x_210);
+x_211 = l_Subarray_copy___redArg(x_210);
 x_212 = ((lean_object*)(l_Lean_Elab_Term_StructInst_expandStructInstExpectedType___closed__2));
 x_213 = lean_box(2);
 x_214 = lean_alloc_ctor(1, 3, 0);
@@ -24623,7 +24623,7 @@ block_78:
 {
 lean_object* x_73; lean_object* x_74; lean_object* x_75; lean_object* x_76; lean_object* x_77; 
 x_73 = l_Array_toSubarray___redArg(x_57, x_71, x_72);
-x_74 = l_Subarray_toArray___redArg(x_73);
+x_74 = l_Subarray_copy___redArg(x_73);
 x_75 = l_Lean_mkAppN(x_70, x_74);
 lean_dec_ref(x_74);
 if (lean_is_scalar(x_45)) {

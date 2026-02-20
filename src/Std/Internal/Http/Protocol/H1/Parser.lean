@@ -376,17 +376,6 @@ public def parseTrailers (limits : H1.Config) : Parser (Array (String × String)
   return trailers
 
 /--
-Parses HTTP status code (3 digits)
--/
-def parseStatusCode : Parser Status := do
-  let d1 ← digit
-  let d2 ← digit
-  let d3 ← digit
-  let code := (d1.toNat - 48) * 100 + (d2.toNat - 48) * 10 + (d3.toNat - 48)
-
-  return Status.ofCode code.toUInt16
-
-/--
 Parses reason phrase (text after status code)
 -/
 @[inline]
@@ -403,6 +392,22 @@ def parseReasonPhrase (limits : H1.Config) : Parser String := do
   liftOption<| String.fromUTF8? bytes.toByteArray
 
 /--
+Parses HTTP status code (3 digits)
+-/
+def parseStatusCode (limits : H1.Config) : Parser Status := do
+  let d1 ← digit
+  let d2 ← digit
+  let d3 ← digit
+  let code := (d1.toNat - 48) * 100 + (d2.toNat - 48) * 10 + (d3.toNat - 48)
+  sp
+  let phrase ← parseReasonPhrase limits <* crlf
+
+  if h : phrase.toList.all isValidReasonPhraseChar then
+    return Status.ofCode (some ⟨phrase, h⟩) code.toUInt16
+  else
+    fail "invalid status code"
+
+/--
 Parses a status line and returns a fully-typed `Response.Head`.
 `status-line = HTTP-version SP status-code SP [ reason-phrase ]`
 Accepts only HTTP/1.1. For parsing where the version may be unrecognized and must be
@@ -410,8 +415,7 @@ mapped to an error event, use `parseStatusLineRawVersion`.
 -/
 public def parseStatusLine (limits : H1.Config) : Parser Response.Head := do
   let (major, minor) ← parseHttpVersionNumber <* sp
-  let status ← parseStatusCode <* sp
-  discard <| parseReasonPhrase limits <* crlf
+  let status ← parseStatusCode limits
   if major == 1 ∧ minor == 1 then
     return {
       status
@@ -425,12 +429,11 @@ public def parseStatusLine (limits : H1.Config) : Parser Response.Head := do
 Parses a status line and returns the status code plus recognized HTTP version when available.
 Consumes and discards the reason phrase.
 
-status-line = HTTP-version SP status-code SP [ reason-phrase ]
+status-line = HTTP-version SP status-code SP [ reason-phrase ] CRLF
 -/
 public def parseStatusLineRawVersion (limits : H1.Config) : Parser (Status × Option Version) := do
   let (major, minor) ← parseHttpVersionNumber <* sp
-  let status ← parseStatusCode <* sp
-  discard <| parseReasonPhrase limits <* crlf
+  let status ← parseStatusCode limits <* crlf
   return (status, Version.ofNumber? major minor)
 
 /--

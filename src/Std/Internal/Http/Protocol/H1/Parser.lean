@@ -68,7 +68,7 @@ partial def manyItems {α : Type} (parser : Parser (Option α)) (maxCount : Nat)
     | some x =>
       let acc := acc.push x
 
-      if acc.size + 1 > maxCount then
+      if acc.size > maxCount then
         fail s!"Too many items: {acc.size} > {maxCount}"
 
       go acc
@@ -332,7 +332,7 @@ public inductive TakeResult
 /--
 Parses a single chunk in chunked transfer encoding.
 -/
-public def parseChunk (limits : H1.Config) : Parser (Option (Nat × Array (ExtensionName × Option String) × ByteSlice)) := do
+public def parseChunkPartial (limits : H1.Config) : Parser (Option (Nat × Array (ExtensionName × Option String) × ByteSlice)) := do
   let (size, ext) ← parseChunkSize limits
   if size == 0 then
     return none
@@ -389,8 +389,17 @@ def parseStatusCode : Parser Status := do
 /--
 Parses reason phrase (text after status code)
 -/
+@[inline]
+def isReasonPhraseByte (c : UInt8) : Bool :=
+  c == '\t'.toUInt8 ∨ c == ' '.toUInt8 ∨ isVChar c ∨ isObsChar c
+
+/--
+Parses reason phrase (text after status code).
+
+Allows only `HTAB / SP / VCHAR / obs-text` bytes.
+-/
 def parseReasonPhrase (limits : H1.Config) : Parser String := do
-  let bytes ← takeWhileUpTo (fun c => c != '\r'.toUInt8 ∧ c != '\n'.toUInt8) limits.maxReasonPhraseLength
+  let bytes ← takeWhileUpTo isReasonPhraseByte limits.maxReasonPhraseLength
   liftOption<| String.fromUTF8? bytes.toByteArray
 
 /--
@@ -413,13 +422,15 @@ public def parseStatusLine (limits : H1.Config) : Parser Response.Head := do
     fail "unsupported HTTP version"
 
 /--
-Parses a status line and returns its reason phrase plus the recognized HTTP version if present in `Version`.
+Parses a status line and returns the status code plus recognized HTTP version when available.
+Consumes and discards the reason phrase.
 
 status-line = HTTP-version SP status-code SP [ reason-phrase ]
 -/
-public def parseStatusLineRawVersion : Parser (Status × Option Version) := do
+public def parseStatusLineRawVersion (limits : H1.Config) : Parser (Status × Option Version) := do
   let (major, minor) ← parseHttpVersionNumber <* sp
   let status ← parseStatusCode <* sp
+  discard <| parseReasonPhrase limits <* crlf
   return (status, Version.ofNumber? major minor)
 
 /--

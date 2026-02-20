@@ -185,6 +185,14 @@ private def checkMessageHead (message : Message.Head dir) : Option BodyMode := d
     -- Both absence (getAll? = none) and duplicates (size ≠ 1) are rejected here.
     let headers ← message.headers.getAll? Header.Name.host
     guard (headers.size = 1)
+
+    let hostValue := headers[0]!
+
+    let _ ←
+      match (Std.Http.URI.Parser.parseHostHeader <* eof).run hostValue.value.toUTF8 with
+      | .ok _ => some ()
+      | .error _ => none
+
     let size ← message.getSize true
     match size with
     | .fixed n => return .fixed n
@@ -841,7 +849,7 @@ partial def processRead (machine : Machine dir) : Machine dir :=
               machine
         | .sending =>
             let (machine, result) := parseWith machine
-              parseStatusLineRawVersion
+              (parseStatusLineRawVersion machine.config)
               (limit := some machine.config.maxStartLineLength)
             if let some (status, version) := result then
               if version == some .v11 then

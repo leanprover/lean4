@@ -34570,8 +34570,8 @@ return x_103;
 }
 else
 {
-lean_dec(x_104);
 lean_dec_ref(x_103);
+lean_dec(x_104);
 x_11 = x_2;
 x_12 = x_3;
 x_13 = x_4;
@@ -34646,8 +34646,8 @@ x_24 = lean_ctor_get(x_22, 0);
 if (lean_obj_tag(x_24) == 1)
 {
 uint8_t x_25; 
-lean_free_object(x_22);
 lean_inc_ref(x_21);
+lean_free_object(x_22);
 x_25 = !lean_is_exclusive(x_24);
 if (x_25 == 0)
 {

@@ -3031,11 +3031,11 @@ else
 {
 uint8_t x_86; 
 lean_dec_ref(x_83);
+lean_dec_ref(x_72);
 lean_dec(x_76);
 lean_dec_ref(x_75);
 lean_dec(x_74);
 lean_dec(x_73);
-lean_dec_ref(x_72);
 x_86 = !lean_is_exclusive(x_85);
 if (x_86 == 0)
 {
@@ -3056,11 +3056,11 @@ return x_88;
 else
 {
 uint8_t x_89; 
+lean_dec_ref(x_72);
 lean_dec(x_76);
 lean_dec_ref(x_75);
 lean_dec(x_74);
 lean_dec(x_73);
-lean_dec_ref(x_72);
 x_89 = !lean_is_exclusive(x_81);
 if (x_89 == 0)
 {

@@ -4508,8 +4508,8 @@ return x_30;
 else
 {
 lean_object* x_31; 
-lean_dec(x_9);
 lean_dec_ref(x_8);
+lean_dec(x_9);
 lean_dec_ref(x_6);
 lean_dec_ref(x_5);
 x_31 = lean_box(0);
@@ -9396,11 +9396,11 @@ else
 {
 uint8_t x_959; 
 lean_dec_ref(x_188);
+lean_dec_ref(x_1);
 lean_dec(x_5);
 lean_dec_ref(x_4);
 lean_dec(x_3);
 lean_dec_ref(x_2);
-lean_dec_ref(x_1);
 x_959 = !lean_is_exclusive(x_908);
 if (x_959 == 0)
 {
@@ -9479,11 +9479,11 @@ return x_185;
 else
 {
 uint8_t x_968; 
+lean_dec_ref(x_1);
 lean_dec(x_5);
 lean_dec_ref(x_4);
 lean_dec(x_3);
 lean_dec_ref(x_2);
-lean_dec_ref(x_1);
 x_968 = !lean_is_exclusive(x_179);
 if (x_968 == 0)
 {

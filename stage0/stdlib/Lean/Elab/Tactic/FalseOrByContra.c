@@ -268,8 +268,8 @@ goto block_140;
 case 7:
 {
 lean_object* x_147; uint8_t x_148; 
-lean_free_object(x_91);
 lean_dec_ref(x_93);
+lean_free_object(x_91);
 x_147 = l_Lean_Meta_Context_config(x_3);
 x_148 = !lean_is_exclusive(x_147);
 if (x_148 == 0)
@@ -1779,8 +1779,8 @@ return x_19;
 else
 {
 lean_object* x_25; lean_object* x_26; 
-lean_free_object(x_19);
 lean_dec_ref(x_21);
+lean_free_object(x_19);
 x_25 = l_Lean_MVarId_falseOrByContra___closed__7;
 x_26 = l_panic___at___00Lean_MVarId_falseOrByContra_spec__0(x_25, x_12, x_13, x_14, x_15);
 return x_26;

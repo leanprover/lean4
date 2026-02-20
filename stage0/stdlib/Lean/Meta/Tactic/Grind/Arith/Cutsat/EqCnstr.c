@@ -15909,9 +15909,9 @@ return x_50;
 else
 {
 uint8_t x_51; 
+lean_dec_ref(x_25);
 lean_dec_ref(x_27);
 lean_dec(x_26);
-lean_dec_ref(x_25);
 lean_dec(x_24);
 lean_dec(x_11);
 lean_dec_ref(x_10);
@@ -21245,8 +21245,8 @@ return x_14;
 else
 {
 lean_object* x_19; 
-lean_free_object(x_14);
 lean_dec_ref(x_16);
+lean_free_object(x_14);
 x_19 = l_Lean_Meta_Grind_Arith_Cutsat_getVar___redArg(x_2, x_3, x_11);
 if (lean_obj_tag(x_19) == 0)
 {
@@ -25903,8 +25903,8 @@ goto block_282;
 }
 else
 {
-lean_dec(x_303);
 lean_inc_ref(x_297);
+lean_dec(x_303);
 x_215 = x_283;
 x_216 = x_284;
 x_217 = x_287;
@@ -26907,8 +26907,8 @@ goto block_468;
 }
 else
 {
-lean_dec(x_489);
 lean_inc_ref(x_483);
+lean_dec(x_489);
 x_425 = x_469;
 x_426 = x_470;
 x_427 = x_473;

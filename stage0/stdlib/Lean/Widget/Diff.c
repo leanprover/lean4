@@ -3920,8 +3920,8 @@ switch (lean_obj_tag(x_25)) {
 case 10:
 {
 uint8_t x_39; 
-lean_inc(x_26);
 lean_inc_ref(x_25);
+lean_inc(x_26);
 x_39 = !lean_is_exclusive(x_1);
 if (x_39 == 0)
 {
@@ -3956,8 +3956,8 @@ switch (lean_obj_tag(x_27)) {
 case 10:
 {
 lean_object* x_47; 
-lean_inc(x_28);
 lean_inc_ref(x_27);
+lean_inc(x_28);
 lean_dec_ref(x_2);
 x_47 = lean_ctor_get(x_27, 1);
 lean_inc_ref(x_47);
@@ -4201,8 +4201,8 @@ case 7:
 if (lean_obj_tag(x_27) == 10)
 {
 lean_object* x_101; 
-lean_inc(x_28);
 lean_inc_ref(x_27);
+lean_inc(x_28);
 lean_dec_ref(x_2);
 x_101 = lean_ctor_get(x_27, 1);
 lean_inc_ref(x_101);
@@ -4228,8 +4228,8 @@ switch (lean_obj_tag(x_27)) {
 case 10:
 {
 lean_object* x_103; 
-lean_inc(x_28);
 lean_inc_ref(x_27);
+lean_inc(x_28);
 lean_dec_ref(x_2);
 x_103 = lean_ctor_get(x_27, 1);
 lean_inc_ref(x_103);
@@ -4741,8 +4741,8 @@ switch (lean_obj_tag(x_27)) {
 case 10:
 {
 lean_object* x_219; 
-lean_inc(x_28);
 lean_inc_ref(x_27);
+lean_inc(x_28);
 lean_dec_ref(x_2);
 x_219 = lean_ctor_get(x_27, 1);
 lean_inc_ref(x_219);
@@ -4906,8 +4906,8 @@ default:
 if (lean_obj_tag(x_27) == 10)
 {
 lean_object* x_247; 
-lean_inc(x_28);
 lean_inc_ref(x_27);
+lean_inc(x_28);
 lean_dec_ref(x_2);
 x_247 = lean_ctor_get(x_27, 1);
 lean_inc_ref(x_247);

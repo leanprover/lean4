@@ -1362,9 +1362,9 @@ goto block_54;
 else
 {
 uint8_t x_65; 
+lean_dec_ref(x_37);
 lean_dec(x_39);
 lean_dec(x_38);
-lean_dec_ref(x_37);
 lean_dec(x_32);
 x_65 = !lean_is_exclusive(x_40);
 if (x_65 == 0)
@@ -1688,9 +1688,9 @@ goto block_111;
 else
 {
 uint8_t x_122; 
+lean_dec_ref(x_94);
 lean_dec(x_96);
 lean_dec(x_95);
-lean_dec_ref(x_94);
 lean_dec(x_32);
 x_122 = !lean_is_exclusive(x_97);
 if (x_122 == 0)

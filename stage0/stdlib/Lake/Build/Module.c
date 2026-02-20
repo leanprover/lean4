@@ -6128,11 +6128,11 @@ goto block_49;
 else
 {
 uint8_t x_54; 
-lean_dec(x_28);
 lean_inc_ref(x_27);
-lean_dec_ref(x_25);
 lean_inc(x_23);
 lean_inc(x_22);
+lean_dec(x_28);
+lean_dec_ref(x_25);
 x_54 = !lean_is_exclusive(x_6);
 if (x_54 == 0)
 {
@@ -13440,14 +13440,14 @@ return x_33;
 else
 {
 lean_object* x_99; lean_object* x_100; lean_object* x_101; lean_object* x_102; 
+lean_dec_ref(x_41);
+lean_dec_ref(x_39);
 lean_dec_ref(x_54);
 lean_dec_ref(x_51);
 lean_dec_ref(x_50);
 lean_dec_ref(x_10);
 lean_dec_ref(x_42);
-lean_dec_ref(x_41);
 lean_dec(x_40);
-lean_dec_ref(x_39);
 lean_dec_ref(x_38);
 lean_dec(x_36);
 x_99 = ((lean_object*)(l___private_Lake_Build_Module_0__Lake_Module_computeExportInfo___lam__0___closed__6));
@@ -13468,6 +13468,7 @@ return x_33;
 else
 {
 lean_object* x_103; lean_object* x_104; lean_object* x_105; lean_object* x_106; 
+lean_dec_ref(x_39);
 lean_dec_ref(x_54);
 lean_dec_ref(x_51);
 lean_dec_ref(x_50);
@@ -13475,7 +13476,6 @@ lean_dec_ref(x_10);
 lean_dec_ref(x_42);
 lean_dec(x_41);
 lean_dec(x_40);
-lean_dec_ref(x_39);
 lean_dec_ref(x_38);
 lean_dec(x_36);
 x_103 = ((lean_object*)(l___private_Lake_Build_Module_0__Lake_Module_computeExportInfo___lam__0___closed__7));
@@ -13694,14 +13694,14 @@ return x_175;
 else
 {
 lean_object* x_176; lean_object* x_177; lean_object* x_178; lean_object* x_179; lean_object* x_180; 
+lean_dec_ref(x_116);
+lean_dec_ref(x_114);
 lean_dec_ref(x_129);
 lean_dec_ref(x_126);
 lean_dec_ref(x_125);
 lean_dec_ref(x_10);
 lean_dec_ref(x_117);
-lean_dec_ref(x_116);
 lean_dec(x_115);
-lean_dec_ref(x_114);
 lean_dec_ref(x_113);
 lean_dec(x_111);
 x_176 = ((lean_object*)(l___private_Lake_Build_Module_0__Lake_Module_computeExportInfo___lam__0___closed__6));
@@ -13722,6 +13722,7 @@ return x_180;
 else
 {
 lean_object* x_181; lean_object* x_182; lean_object* x_183; lean_object* x_184; lean_object* x_185; 
+lean_dec_ref(x_114);
 lean_dec_ref(x_129);
 lean_dec_ref(x_126);
 lean_dec_ref(x_125);
@@ -13729,7 +13730,6 @@ lean_dec_ref(x_10);
 lean_dec_ref(x_117);
 lean_dec(x_116);
 lean_dec(x_115);
-lean_dec_ref(x_114);
 lean_dec_ref(x_113);
 lean_dec(x_111);
 x_181 = ((lean_object*)(l___private_Lake_Build_Module_0__Lake_Module_computeExportInfo___lam__0___closed__7));
@@ -14171,14 +14171,14 @@ return x_299;
 else
 {
 lean_object* x_300; lean_object* x_301; lean_object* x_302; lean_object* x_303; lean_object* x_304; 
+lean_dec_ref(x_239);
+lean_dec_ref(x_237);
 lean_dec_ref(x_253);
 lean_dec_ref(x_250);
 lean_dec_ref(x_249);
 lean_dec_ref(x_248);
 lean_dec_ref(x_240);
-lean_dec_ref(x_239);
 lean_dec(x_238);
-lean_dec_ref(x_237);
 lean_dec_ref(x_236);
 lean_dec(x_233);
 x_300 = ((lean_object*)(l___private_Lake_Build_Module_0__Lake_Module_computeExportInfo___lam__0___closed__6));
@@ -14204,6 +14204,7 @@ return x_304;
 else
 {
 lean_object* x_305; lean_object* x_306; lean_object* x_307; lean_object* x_308; lean_object* x_309; 
+lean_dec_ref(x_237);
 lean_dec_ref(x_253);
 lean_dec_ref(x_250);
 lean_dec_ref(x_249);
@@ -14211,7 +14212,6 @@ lean_dec_ref(x_248);
 lean_dec_ref(x_240);
 lean_dec(x_239);
 lean_dec(x_238);
-lean_dec_ref(x_237);
 lean_dec_ref(x_236);
 lean_dec(x_233);
 x_305 = ((lean_object*)(l___private_Lake_Build_Module_0__Lake_Module_computeExportInfo___lam__0___closed__7));
@@ -20091,14 +20091,14 @@ goto block_172;
 else
 {
 uint8_t x_180; 
+lean_inc(x_21);
+lean_inc_ref(x_20);
+lean_inc_ref(x_17);
 lean_dec(x_32);
 lean_dec_ref(x_28);
 lean_dec_ref(x_26);
 lean_dec(x_23);
 lean_dec_ref(x_22);
-lean_inc(x_21);
-lean_inc_ref(x_20);
-lean_inc_ref(x_17);
 lean_dec_ref(x_16);
 lean_dec(x_12);
 lean_dec(x_11);
@@ -20656,13 +20656,13 @@ return x_171;
 else
 {
 uint8_t x_199; 
+lean_inc(x_21);
+lean_inc_ref(x_20);
+lean_inc_ref(x_17);
 lean_dec_ref(x_28);
 lean_dec_ref(x_26);
 lean_dec(x_23);
 lean_dec_ref(x_22);
-lean_inc(x_21);
-lean_inc_ref(x_20);
-lean_inc_ref(x_17);
 lean_dec_ref(x_16);
 lean_dec(x_11);
 x_199 = !lean_is_exclusive(x_5);
@@ -25569,10 +25569,10 @@ goto block_18;
 else
 {
 uint8_t x_43; 
-lean_dec(x_40);
 lean_inc(x_36);
 lean_inc_ref(x_35);
 lean_inc_ref(x_32);
+lean_dec(x_40);
 x_43 = !lean_is_exclusive(x_22);
 if (x_43 == 0)
 {

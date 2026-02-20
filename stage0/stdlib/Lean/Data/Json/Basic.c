@@ -4733,9 +4733,9 @@ goto block_53;
 block_46:
 {
 lean_object* x_43; lean_object* x_44; lean_object* x_45; 
-x_43 = lean_nat_add(x_40, x_42);
+x_43 = lean_nat_add(x_41, x_42);
 lean_dec(x_42);
-lean_dec(x_40);
+lean_dec(x_41);
 if (lean_is_scalar(x_36)) {
  x_44 = lean_alloc_ctor(0, 5, 0);
 } else {
@@ -4754,7 +4754,7 @@ if (lean_is_scalar(x_26)) {
 lean_ctor_set(x_45, 0, x_39);
 lean_ctor_set(x_45, 1, x_28);
 lean_ctor_set(x_45, 2, x_29);
-lean_ctor_set(x_45, 3, x_41);
+lean_ctor_set(x_45, 3, x_40);
 lean_ctor_set(x_45, 4, x_44);
 return x_45;
 }
@@ -4780,8 +4780,8 @@ if (lean_obj_tag(x_31) == 0)
 lean_object* x_51; 
 x_51 = lean_ctor_get(x_31, 0);
 lean_inc(x_51);
-x_40 = x_50;
-x_41 = x_49;
+x_40 = x_49;
+x_41 = x_50;
 x_42 = x_51;
 goto block_46;
 }
@@ -4789,8 +4789,8 @@ else
 {
 lean_object* x_52; 
 x_52 = lean_unsigned_to_nat(0u);
-x_40 = x_50;
-x_41 = x_49;
+x_40 = x_49;
+x_41 = x_50;
 x_42 = x_52;
 goto block_46;
 }
@@ -4855,13 +4855,13 @@ return x_67;
 else
 {
 lean_object* x_68; lean_object* x_69; 
-lean_dec(x_26);
 lean_dec_ref(x_17);
+lean_dec(x_26);
 lean_dec(x_16);
 lean_dec(x_15);
 lean_dec(x_14);
-lean_dec(x_9);
 lean_dec_ref(x_7);
+lean_dec(x_9);
 lean_dec(x_6);
 lean_dec(x_5);
 x_68 = l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_setObjVal_x21_spec__0___redArg___closed__3;
@@ -4877,8 +4877,8 @@ lean_dec(x_18);
 lean_dec(x_16);
 lean_dec(x_15);
 lean_dec(x_14);
-lean_dec(x_9);
 lean_dec_ref(x_7);
+lean_dec(x_9);
 lean_dec(x_6);
 lean_dec(x_5);
 x_70 = l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_setObjVal_x21_spec__0___redArg___closed__4;
@@ -5485,13 +5485,13 @@ return x_205;
 else
 {
 lean_object* x_206; lean_object* x_207; 
-lean_dec(x_162);
 lean_dec_ref(x_153);
+lean_dec(x_162);
 lean_dec(x_152);
 lean_dec(x_151);
 lean_dec(x_150);
-lean_dec(x_9);
 lean_dec_ref(x_8);
+lean_dec(x_9);
 lean_dec(x_6);
 lean_dec(x_5);
 x_206 = l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_setObjVal_x21_spec__0___redArg___closed__7;
@@ -5507,8 +5507,8 @@ lean_dec(x_154);
 lean_dec(x_152);
 lean_dec(x_151);
 lean_dec(x_150);
-lean_dec(x_9);
 lean_dec_ref(x_8);
+lean_dec(x_9);
 lean_dec(x_6);
 lean_dec(x_5);
 x_208 = l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_setObjVal_x21_spec__0___redArg___closed__8;

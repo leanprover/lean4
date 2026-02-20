@@ -538,13 +538,13 @@ return x_67;
 else
 {
 lean_object* x_68; lean_object* x_69; 
-lean_dec(x_26);
 lean_dec_ref(x_17);
+lean_dec(x_26);
 lean_dec(x_16);
 lean_dec(x_15);
 lean_dec(x_14);
-lean_dec(x_9);
 lean_dec_ref(x_7);
+lean_dec(x_9);
 lean_dec(x_6);
 lean_dec(x_5);
 x_68 = l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lake_JsonObject_insertJson_spec__0___redArg___closed__3;
@@ -560,8 +560,8 @@ lean_dec(x_18);
 lean_dec(x_16);
 lean_dec(x_15);
 lean_dec(x_14);
-lean_dec(x_9);
 lean_dec_ref(x_7);
+lean_dec(x_9);
 lean_dec(x_6);
 lean_dec(x_5);
 x_70 = l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lake_JsonObject_insertJson_spec__0___redArg___closed__4;
@@ -1168,13 +1168,13 @@ return x_205;
 else
 {
 lean_object* x_206; lean_object* x_207; 
-lean_dec(x_162);
 lean_dec_ref(x_153);
+lean_dec(x_162);
 lean_dec(x_152);
 lean_dec(x_151);
 lean_dec(x_150);
-lean_dec(x_9);
 lean_dec_ref(x_8);
+lean_dec(x_9);
 lean_dec(x_6);
 lean_dec(x_5);
 x_206 = l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lake_JsonObject_insertJson_spec__0___redArg___closed__7;
@@ -1190,8 +1190,8 @@ lean_dec(x_154);
 lean_dec(x_152);
 lean_dec(x_151);
 lean_dec(x_150);
-lean_dec(x_9);
 lean_dec_ref(x_8);
+lean_dec(x_9);
 lean_dec(x_6);
 lean_dec(x_5);
 x_208 = l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lake_JsonObject_insertJson_spec__0___redArg___closed__8;
@@ -1916,8 +1916,8 @@ return x_67;
 else
 {
 lean_object* x_68; lean_object* x_69; 
-lean_dec(x_24);
 lean_dec_ref(x_15);
+lean_dec(x_24);
 lean_dec(x_14);
 lean_dec(x_13);
 lean_dec(x_12);
@@ -2542,12 +2542,12 @@ return x_208;
 else
 {
 lean_object* x_209; lean_object* x_210; 
+lean_dec_ref(x_157);
 lean_dec(x_173);
 lean_dec(x_164);
 lean_dec(x_163);
 lean_dec_ref(x_162);
 lean_dec(x_160);
-lean_dec_ref(x_157);
 lean_dec(x_156);
 lean_dec(x_155);
 lean_dec(x_154);
@@ -3136,12 +3136,12 @@ return x_5;
 else
 {
 lean_object* x_343; lean_object* x_344; 
+lean_dec_ref(x_152);
 lean_free_object(x_5);
 lean_dec(x_286);
-lean_dec(x_285);
 lean_dec_ref(x_284);
+lean_dec(x_285);
 lean_dec(x_282);
-lean_dec_ref(x_152);
 lean_dec(x_151);
 lean_dec(x_150);
 lean_dec(x_149);
@@ -3155,8 +3155,8 @@ else
 lean_object* x_345; lean_object* x_346; 
 lean_free_object(x_5);
 lean_dec(x_286);
-lean_dec(x_285);
 lean_dec_ref(x_284);
+lean_dec(x_285);
 lean_dec(x_282);
 lean_dec(x_153);
 lean_dec(x_151);
@@ -3335,11 +3335,11 @@ return x_384;
 else
 {
 lean_object* x_385; lean_object* x_386; 
-lean_dec(x_286);
-lean_dec(x_285);
-lean_dec_ref(x_284);
-lean_dec(x_282);
 lean_dec_ref(x_152);
+lean_dec(x_286);
+lean_dec_ref(x_284);
+lean_dec(x_285);
+lean_dec(x_282);
 lean_dec(x_151);
 lean_dec(x_150);
 lean_dec(x_149);
@@ -3352,8 +3352,8 @@ else
 {
 lean_object* x_387; lean_object* x_388; 
 lean_dec(x_286);
-lean_dec(x_285);
 lean_dec_ref(x_284);
+lean_dec(x_285);
 lean_dec(x_282);
 lean_dec(x_153);
 lean_dec(x_151);
@@ -3934,8 +3934,8 @@ return x_513;
 else
 {
 lean_object* x_514; lean_object* x_515; 
-lean_dec(x_472);
 lean_dec_ref(x_463);
+lean_dec(x_472);
 lean_dec(x_462);
 lean_dec(x_461);
 lean_dec(x_460);

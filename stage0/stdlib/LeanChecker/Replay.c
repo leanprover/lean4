@@ -1501,8 +1501,8 @@ goto block_31;
 case 4:
 {
 lean_object* x_108; lean_object* x_109; 
-lean_dec_ref(x_43);
 lean_dec_ref(x_12);
+lean_dec_ref(x_43);
 lean_dec(x_7);
 x_108 = ((lean_object*)(l_Lean_Environment_Replay_x27_replayConstant___closed__3));
 lean_inc(x_3);

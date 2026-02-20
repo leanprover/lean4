@@ -7586,9 +7586,9 @@ goto block_273;
 }
 else
 {
+lean_dec_ref(x_8);
 lean_dec_ref(x_10);
 lean_dec(x_9);
-lean_dec_ref(x_8);
 lean_dec_ref(x_7);
 lean_dec_ref(x_6);
 lean_dec_ref(x_5);

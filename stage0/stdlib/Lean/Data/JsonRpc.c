@@ -888,8 +888,8 @@ return x_10;
 default: 
 {
 uint8_t x_11; 
-lean_dec(x_2);
 lean_dec_ref(x_1);
+lean_dec(x_2);
 x_11 = 0;
 return x_11;
 }
@@ -947,8 +947,8 @@ return x_19;
 default: 
 {
 uint8_t x_20; 
-lean_dec(x_2);
 lean_dec_ref(x_1);
+lean_dec(x_2);
 x_20 = 0;
 return x_20;
 }
@@ -3895,8 +3895,8 @@ return x_5;
 else
 {
 uint8_t x_6; 
-lean_dec(x_2);
 lean_dec_ref(x_1);
+lean_dec(x_2);
 x_6 = 0;
 return x_6;
 }
@@ -3927,8 +3927,8 @@ return x_10;
 default: 
 {
 uint8_t x_11; 
-lean_dec(x_2);
 lean_dec_ref(x_1);
+lean_dec(x_2);
 x_11 = 0;
 return x_11;
 }

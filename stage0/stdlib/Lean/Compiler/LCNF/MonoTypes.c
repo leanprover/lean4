@@ -2312,8 +2312,8 @@ goto block_67;
 else
 {
 lean_object* x_76; lean_object* x_77; 
-lean_dec(x_7);
 lean_dec_ref(x_6);
+lean_dec(x_7);
 lean_dec(x_4);
 lean_dec_ref(x_3);
 lean_dec_ref(x_2);
@@ -2326,8 +2326,8 @@ return x_77;
 else
 {
 lean_object* x_78; lean_object* x_79; 
-lean_dec(x_7);
 lean_dec_ref(x_6);
+lean_dec(x_7);
 lean_dec(x_4);
 lean_dec_ref(x_3);
 lean_dec_ref(x_2);
@@ -2340,8 +2340,8 @@ return x_79;
 else
 {
 lean_object* x_80; lean_object* x_81; 
-lean_dec(x_7);
 lean_dec_ref(x_6);
+lean_dec(x_7);
 lean_dec(x_4);
 lean_dec_ref(x_3);
 lean_dec_ref(x_2);

@@ -1453,8 +1453,8 @@ x_36 = l_Lake_Package_findTargetDecl_x3f(x_35, x_12);
 lean_dec(x_35);
 if (lean_obj_tag(x_36) == 0)
 {
-lean_dec(x_16);
 lean_inc(x_15);
+lean_dec(x_16);
 lean_dec_ref(x_14);
 lean_dec(x_12);
 lean_dec(x_11);
@@ -1481,10 +1481,10 @@ x_42 = lean_name_eq(x_39, x_41);
 lean_dec(x_39);
 if (x_42 == 0)
 {
+lean_inc(x_15);
 lean_dec(x_40);
 lean_dec(x_38);
 lean_dec(x_16);
-lean_inc(x_15);
 lean_dec_ref(x_14);
 lean_dec(x_12);
 lean_dec(x_11);
@@ -1501,10 +1501,10 @@ x_43 = l_Array_isEmpty___redArg(x_14);
 lean_dec_ref(x_14);
 if (x_43 == 0)
 {
+lean_inc(x_15);
 lean_dec(x_40);
 lean_dec(x_38);
 lean_dec(x_16);
-lean_inc(x_15);
 lean_dec(x_12);
 lean_dec(x_4);
 lean_dec_ref(x_3);
@@ -1518,10 +1518,10 @@ x_44 = l_List_isEmpty___redArg(x_2);
 lean_dec(x_2);
 if (x_44 == 0)
 {
+lean_inc(x_15);
 lean_dec(x_40);
 lean_dec(x_38);
 lean_dec(x_16);
-lean_inc(x_15);
 lean_dec(x_12);
 lean_dec(x_4);
 lean_dec_ref(x_3);
@@ -1857,8 +1857,8 @@ x_34 = l_Lake_Package_findTargetDecl_x3f(x_28, x_12);
 lean_dec(x_28);
 if (lean_obj_tag(x_34) == 0)
 {
-lean_dec(x_16);
 lean_inc(x_15);
+lean_dec(x_16);
 lean_dec_ref(x_14);
 lean_dec(x_12);
 lean_dec(x_4);
@@ -1884,10 +1884,10 @@ x_40 = lean_name_eq(x_37, x_39);
 lean_dec(x_37);
 if (x_40 == 0)
 {
+lean_inc(x_15);
 lean_dec(x_38);
 lean_dec(x_36);
 lean_dec(x_16);
-lean_inc(x_15);
 lean_dec_ref(x_14);
 lean_dec(x_12);
 lean_dec(x_4);

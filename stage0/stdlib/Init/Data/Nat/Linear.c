@@ -714,11 +714,11 @@ x_35 = l_Nat_blt(x_28, x_26);
 if (x_35 == 0)
 {
 uint8_t x_36; 
-lean_free_object(x_3);
 lean_inc(x_27);
 lean_inc(x_26);
 lean_inc(x_25);
 lean_inc(x_24);
+lean_free_object(x_3);
 x_36 = !lean_is_exclusive(x_2);
 if (x_36 == 0)
 {
@@ -1072,8 +1072,8 @@ else
 {
 uint8_t x_87; 
 lean_inc(x_24);
-lean_dec(x_22);
 lean_inc(x_21);
+lean_dec(x_22);
 x_87 = !lean_is_exclusive(x_2);
 if (x_87 == 0)
 {

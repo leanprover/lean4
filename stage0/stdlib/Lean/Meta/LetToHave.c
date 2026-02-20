@@ -5082,9 +5082,9 @@ lean_dec(x_14);
 if (x_16 == 0)
 {
 lean_object* x_17; 
-lean_dec(x_12);
 lean_inc(x_10);
 lean_inc(x_9);
+lean_dec(x_12);
 lean_dec_ref(x_1);
 x_17 = l_Lean_Meta_throwIncorrectNumberOfLevels___redArg(x_9, x_10, x_4, x_5, x_6, x_7);
 lean_dec(x_7);
@@ -5159,11 +5159,11 @@ return x_29;
 else
 {
 uint8_t x_30; 
+lean_dec_ref(x_1);
 lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec(x_5);
 lean_dec_ref(x_4);
-lean_dec_ref(x_1);
 x_30 = !lean_is_exclusive(x_11);
 if (x_30 == 0)
 {
@@ -11361,13 +11361,13 @@ return x_30;
 }
 else
 {
+lean_dec_ref(x_1);
 lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec(x_5);
 lean_dec_ref(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-lean_dec_ref(x_1);
 return x_11;
 }
 }
@@ -11480,25 +11480,25 @@ return x_16;
 else
 {
 lean_dec(x_13);
+lean_dec_ref(x_1);
 lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec(x_5);
 lean_dec_ref(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-lean_dec_ref(x_1);
 return x_14;
 }
 }
 else
 {
+lean_dec_ref(x_1);
 lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec(x_5);
 lean_dec_ref(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-lean_dec_ref(x_1);
 return x_12;
 }
 }

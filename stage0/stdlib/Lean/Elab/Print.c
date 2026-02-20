@@ -7710,8 +7710,8 @@ return x_47;
 else
 {
 lean_object* x_52; lean_object* x_53; 
-lean_free_object(x_47);
 lean_inc_ref(x_39);
+lean_free_object(x_47);
 lean_free_object(x_6);
 x_52 = lean_box(0);
 x_53 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Meta_instantiateStructDefaultValueFn_x3f___at___00__private_Lean_Elab_Print_0__Lean_Elab_Command_printStructure_spec__11_spec__17___lam__0(x_39, x_42, x_40, x_36, x_52, x_7, x_8, x_9, x_10, x_11, x_12);
@@ -7763,8 +7763,8 @@ else
 {
 uint8_t x_60; 
 lean_dec(x_42);
-lean_free_object(x_6);
 lean_dec_ref(x_36);
+lean_free_object(x_6);
 lean_dec(x_12);
 lean_dec_ref(x_11);
 lean_dec(x_10);
@@ -7790,8 +7790,8 @@ else
 {
 uint8_t x_63; 
 lean_dec(x_42);
-lean_free_object(x_6);
 lean_dec_ref(x_36);
+lean_free_object(x_6);
 lean_dec(x_12);
 lean_dec_ref(x_11);
 lean_dec(x_10);
@@ -7912,8 +7912,8 @@ return x_84;
 else
 {
 lean_object* x_85; lean_object* x_86; 
-lean_dec(x_80);
 lean_inc_ref(x_70);
+lean_dec(x_80);
 x_85 = lean_box(0);
 x_86 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Meta_instantiateStructDefaultValueFn_x3f___at___00__private_Lean_Elab_Print_0__Lean_Elab_Command_printStructure_spec__11_spec__17___lam__0(x_70, x_73, x_71, x_68, x_85, x_7, x_8, x_9, x_10, x_11, x_12);
 lean_dec_ref(x_68);

@@ -1487,8 +1487,8 @@ return x_22;
 else
 {
 lean_object* x_23; 
-lean_dec(x_4);
 lean_dec_ref(x_3);
+lean_dec(x_4);
 lean_dec_ref(x_2);
 x_23 = l_Lean_Expr_nat_x3f(x_1);
 return x_23;
@@ -1633,8 +1633,8 @@ return x_29;
 else
 {
 lean_object* x_30; 
-lean_dec(x_4);
 lean_dec_ref(x_3);
+lean_dec(x_4);
 lean_dec_ref(x_2);
 x_30 = l_Lean_Expr_int_x3f(x_1);
 return x_30;
@@ -3840,8 +3840,8 @@ goto block_157;
 }
 else
 {
-lean_dec(x_178);
 lean_dec_ref(x_177);
+lean_dec(x_178);
 lean_dec_ref(x_176);
 lean_dec(x_175);
 lean_dec(x_96);
@@ -4466,8 +4466,8 @@ goto block_27;
 }
 else
 {
-lean_dec(x_104);
 lean_dec_ref(x_103);
+lean_dec(x_104);
 lean_dec_ref(x_102);
 lean_dec(x_90);
 x_24 = lean_box(0);
@@ -5559,8 +5559,8 @@ return x_618;
 else
 {
 lean_object* x_619; 
-lean_dec(x_581);
 lean_dec_ref(x_580);
+lean_dec(x_581);
 lean_dec_ref(x_579);
 lean_dec(x_37);
 x_619 = lean_alloc_ctor(0, 1, 0);

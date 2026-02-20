@@ -7617,8 +7617,8 @@ goto block_65;
 else
 {
 lean_object* x_74; lean_object* x_75; lean_object* x_76; lean_object* x_77; lean_object* x_78; uint8_t x_79; 
-lean_dec(x_52);
 lean_inc(x_30);
+lean_dec(x_52);
 lean_dec_ref(x_26);
 lean_dec(x_1);
 x_74 = l_Lean_Elab_Term_elabParserName_x3f___closed__3;
@@ -7758,8 +7758,8 @@ goto block_47;
 }
 else
 {
-lean_free_object(x_24);
 lean_dec_ref(x_28);
+lean_free_object(x_24);
 lean_dec_ref(x_26);
 x_10 = x_3;
 x_11 = x_4;
@@ -7891,8 +7891,8 @@ goto block_119;
 else
 {
 lean_object* x_128; lean_object* x_129; lean_object* x_130; lean_object* x_131; lean_object* x_132; lean_object* x_133; lean_object* x_134; lean_object* x_135; lean_object* x_136; 
-lean_dec(x_106);
 lean_inc(x_86);
+lean_dec(x_106);
 lean_dec_ref(x_26);
 lean_dec(x_1);
 x_128 = l_Lean_Elab_Term_elabParserName_x3f___closed__3;
@@ -8185,8 +8185,8 @@ return x_184;
 }
 else
 {
-lean_free_object(x_24);
 lean_dec_ref(x_141);
+lean_free_object(x_24);
 lean_dec_ref(x_26);
 x_10 = x_3;
 x_11 = x_4;
@@ -8620,8 +8620,8 @@ goto block_268;
 else
 {
 lean_object* x_277; lean_object* x_278; lean_object* x_279; lean_object* x_280; lean_object* x_281; lean_object* x_282; lean_object* x_283; lean_object* x_284; lean_object* x_285; 
-lean_dec(x_255);
 lean_inc(x_235);
+lean_dec(x_255);
 lean_dec_ref(x_232);
 lean_dec(x_1);
 x_277 = l_Lean_Elab_Term_elabParserName_x3f___closed__3;
@@ -8769,8 +8769,8 @@ goto block_250;
 }
 else
 {
-lean_dec(x_234);
 lean_dec_ref(x_233);
+lean_dec(x_234);
 lean_dec_ref(x_232);
 x_10 = x_3;
 x_11 = x_4;
@@ -8930,8 +8930,8 @@ return x_331;
 }
 else
 {
-lean_dec(x_290);
 lean_dec_ref(x_289);
+lean_dec(x_290);
 lean_dec_ref(x_232);
 x_10 = x_3;
 x_11 = x_4;
@@ -15019,8 +15019,8 @@ switch (lean_obj_tag(x_25)) {
 case 0:
 {
 lean_object* x_26; 
-lean_free_object(x_16);
 lean_dec_ref(x_25);
+lean_free_object(x_16);
 lean_dec(x_17);
 lean_dec(x_12);
 x_26 = l___private_Lean_Elab_Syntax_0__Lean_Elab_Term_toParserDescr_processParserCategory(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
@@ -15342,8 +15342,8 @@ return x_105;
 default: 
 {
 lean_object* x_106; 
-lean_free_object(x_16);
 lean_dec_ref(x_25);
+lean_free_object(x_16);
 lean_dec(x_17);
 lean_inc_ref(x_8);
 x_106 = l___private_Lean_Elab_Syntax_0__Lean_Elab_Term_toParserDescr_ensureNoPrec(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
@@ -17596,9 +17596,9 @@ else
 {
 uint8_t x_169; 
 lean_dec(x_7);
+lean_dec_ref(x_1);
 lean_dec(x_3);
 lean_dec_ref(x_2);
-lean_dec_ref(x_1);
 x_169 = !lean_is_exclusive(x_8);
 if (x_169 == 0)
 {
@@ -17619,9 +17619,9 @@ return x_171;
 else
 {
 uint8_t x_172; 
+lean_dec_ref(x_1);
 lean_dec(x_3);
 lean_dec_ref(x_2);
-lean_dec_ref(x_1);
 x_172 = !lean_is_exclusive(x_6);
 if (x_172 == 0)
 {

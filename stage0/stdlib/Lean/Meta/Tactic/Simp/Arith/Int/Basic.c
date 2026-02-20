@@ -4777,9 +4777,9 @@ switch (lean_obj_tag(x_37)) {
 case 1:
 {
 lean_object* x_43; 
-lean_dec(x_38);
 lean_dec_ref(x_37);
 lean_dec_ref(x_35);
+lean_dec(x_38);
 x_43 = lean_box(0);
 lean_ctor_set(x_33, 0, x_43);
 return x_33;
@@ -4787,9 +4787,9 @@ return x_33;
 case 0:
 {
 lean_object* x_44; 
-lean_dec(x_38);
 lean_dec_ref(x_37);
 lean_dec_ref(x_35);
+lean_dec(x_38);
 x_44 = lean_box(0);
 lean_ctor_set(x_33, 0, x_44);
 return x_33;
@@ -4806,9 +4806,9 @@ case 0:
 if (lean_obj_tag(x_37) == 1)
 {
 lean_object* x_45; 
-lean_dec(x_38);
 lean_dec_ref(x_37);
 lean_dec_ref(x_35);
+lean_dec(x_38);
 x_45 = lean_box(0);
 lean_ctor_set(x_33, 0, x_45);
 return x_33;
@@ -4890,9 +4890,9 @@ switch (lean_obj_tag(x_51)) {
 case 1:
 {
 lean_object* x_57; lean_object* x_58; 
-lean_dec(x_52);
 lean_dec_ref(x_51);
 lean_dec_ref(x_49);
+lean_dec(x_52);
 x_57 = lean_box(0);
 x_58 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_58, 0, x_57);
@@ -4901,9 +4901,9 @@ return x_58;
 case 0:
 {
 lean_object* x_59; lean_object* x_60; 
-lean_dec(x_52);
 lean_dec_ref(x_51);
 lean_dec_ref(x_49);
+lean_dec(x_52);
 x_59 = lean_box(0);
 x_60 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_60, 0, x_59);
@@ -4920,9 +4920,9 @@ case 0:
 if (lean_obj_tag(x_51) == 1)
 {
 lean_object* x_61; lean_object* x_62; 
-lean_dec(x_52);
 lean_dec_ref(x_51);
 lean_dec_ref(x_49);
+lean_dec(x_52);
 x_61 = lean_box(0);
 x_62 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_62, 0, x_61);
@@ -5068,9 +5068,9 @@ switch (lean_obj_tag(x_79)) {
 case 1:
 {
 lean_object* x_85; lean_object* x_86; 
-lean_dec(x_80);
 lean_dec_ref(x_79);
 lean_dec_ref(x_76);
+lean_dec(x_80);
 x_85 = lean_box(0);
 if (lean_is_scalar(x_77)) {
  x_86 = lean_alloc_ctor(0, 1, 0);
@@ -5083,9 +5083,9 @@ return x_86;
 case 0:
 {
 lean_object* x_87; lean_object* x_88; 
-lean_dec(x_80);
 lean_dec_ref(x_79);
 lean_dec_ref(x_76);
+lean_dec(x_80);
 x_87 = lean_box(0);
 if (lean_is_scalar(x_77)) {
  x_88 = lean_alloc_ctor(0, 1, 0);
@@ -5107,9 +5107,9 @@ case 0:
 if (lean_obj_tag(x_79) == 1)
 {
 lean_object* x_89; lean_object* x_90; 
-lean_dec(x_80);
 lean_dec_ref(x_79);
 lean_dec_ref(x_76);
+lean_dec(x_80);
 x_89 = lean_box(0);
 if (lean_is_scalar(x_77)) {
  x_90 = lean_alloc_ctor(0, 1, 0);

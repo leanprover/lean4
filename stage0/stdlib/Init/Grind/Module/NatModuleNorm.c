@@ -187,8 +187,8 @@ return x_19;
 }
 else
 {
-lean_dec(x_9);
 lean_inc(x_8);
+lean_dec(x_9);
 lean_dec_ref(x_1);
 return x_8;
 }

@@ -3663,8 +3663,8 @@ return x_52;
 else
 {
 lean_object* x_67; lean_object* x_68; 
-lean_dec_ref(x_22);
 lean_inc_ref(x_10);
+lean_dec_ref(x_22);
 lean_dec_ref(x_2);
 x_67 = lean_ctor_get(x_23, 0);
 lean_inc(x_67);
@@ -4164,8 +4164,8 @@ return x_155;
 else
 {
 lean_object* x_170; lean_object* x_171; 
-lean_dec_ref(x_124);
 lean_inc_ref(x_98);
+lean_dec_ref(x_124);
 lean_dec_ref(x_2);
 x_170 = lean_ctor_get(x_125, 0);
 lean_inc(x_170);

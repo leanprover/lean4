@@ -1311,8 +1311,8 @@ block_47:
 if (x_39 == 0)
 {
 lean_object* x_40; 
-lean_dec(x_21);
 lean_inc_ref(x_17);
+lean_dec(x_21);
 lean_dec_ref(x_2);
 x_40 = l_Lean_Compiler_LCNF_eraseLetDecl___redArg(x_1, x_17, x_5);
 lean_dec_ref(x_17);

@@ -18889,9 +18889,9 @@ x_14 = l_List_isEmpty___redArg(x_13);
 if (x_14 == 0)
 {
 lean_object* x_15; 
+lean_dec_ref(x_1);
 lean_dec(x_10);
 lean_dec_ref(x_7);
-lean_dec_ref(x_1);
 x_15 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_15, 0, x_13);
 return x_15;
@@ -26871,8 +26871,8 @@ return x_41;
 else
 {
 uint8_t x_64; 
-lean_dec(x_22);
 lean_inc(x_10);
+lean_dec(x_22);
 lean_dec_ref(x_7);
 lean_dec_ref(x_3);
 lean_dec(x_2);
@@ -27086,8 +27086,8 @@ return x_95;
 else
 {
 lean_object* x_116; lean_object* x_117; lean_object* x_118; lean_object* x_119; lean_object* x_120; lean_object* x_121; lean_object* x_122; 
-lean_dec(x_75);
 lean_inc(x_10);
+lean_dec(x_75);
 lean_dec_ref(x_7);
 lean_dec_ref(x_3);
 lean_dec(x_2);

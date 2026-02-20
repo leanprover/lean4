@@ -4754,10 +4754,10 @@ if (x_10 == 0)
 {
 lean_object* x_11; 
 lean_dec(x_6);
+lean_dec_ref(x_1);
 lean_dec(x_4);
 lean_dec_ref(x_3);
 lean_dec_ref(x_2);
-lean_dec_ref(x_1);
 x_11 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_11, 0, x_9);
 return x_11;

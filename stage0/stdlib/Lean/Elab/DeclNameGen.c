@@ -2668,12 +2668,12 @@ goto block_17;
 else
 {
 uint8_t x_33; 
+lean_dec_ref(x_1);
 lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_4);
 lean_dec_ref(x_3);
 lean_dec(x_2);
-lean_dec_ref(x_1);
 x_33 = !lean_is_exclusive(x_23);
 if (x_33 == 0)
 {

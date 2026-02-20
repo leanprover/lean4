@@ -13024,8 +13024,8 @@ switch (lean_obj_tag(x_3)) {
 case 0:
 {
 lean_object* x_4; lean_object* x_5; 
-lean_dec(x_2);
 lean_dec_ref(x_1);
+lean_dec(x_2);
 x_4 = ((lean_object*)(l___private_Init_Prelude_0__Lean_assembleParts___closed__0));
 x_5 = l_panic___at___00__private_Init_Prelude_0__Lean_assembleParts_spec__0(x_4);
 return x_5;

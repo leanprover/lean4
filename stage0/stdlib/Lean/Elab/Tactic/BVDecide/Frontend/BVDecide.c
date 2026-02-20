@@ -8150,8 +8150,8 @@ lean_object* x_62;
 lean_inc(x_42);
 lean_inc(x_41);
 lean_inc_ref(x_40);
-lean_dec(x_31);
 lean_dec_ref(x_1);
+lean_dec(x_31);
 lean_inc_ref(x_36);
 x_62 = l_Lean_getConstInfo___at___00__private_Lean_Elab_Tactic_BVDecide_Frontend_BVDecide_0__Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_transformEquation_spec__0(x_42, x_32, x_33, x_34, x_35, x_36, x_37);
 if (lean_obj_tag(x_62) == 0)
@@ -12613,8 +12613,8 @@ x_217 = l_Lean_trace_profiler;
 x_218 = l_Lean_Option_get___at___00__private_Lean_Elab_Tactic_BVDecide_Frontend_BVDecide_0__Lean_Elab_Tactic_BVDecide_Frontend_LratCert_toReflectionProof_mkAuxDecl_spec__1(x_9, x_217);
 if (x_218 == 0)
 {
-lean_dec(x_215);
 lean_inc(x_13);
+lean_dec(x_215);
 x_22 = x_211;
 x_23 = x_210;
 x_24 = x_209;

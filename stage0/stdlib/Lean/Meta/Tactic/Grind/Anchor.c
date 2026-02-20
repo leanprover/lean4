@@ -1584,21 +1584,21 @@ return x_109;
 else
 {
 lean_dec(x_106);
+lean_dec_ref(x_1);
 lean_dec(x_10);
 lean_dec_ref(x_9);
 lean_dec(x_8);
 lean_dec_ref(x_7);
-lean_dec_ref(x_1);
 return x_107;
 }
 }
 else
 {
+lean_dec_ref(x_1);
 lean_dec(x_10);
 lean_dec_ref(x_9);
 lean_dec(x_8);
 lean_dec_ref(x_7);
-lean_dec_ref(x_1);
 return x_105;
 }
 }

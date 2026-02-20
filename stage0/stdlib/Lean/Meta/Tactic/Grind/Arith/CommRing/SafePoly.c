@@ -3660,8 +3660,8 @@ goto block_209;
 }
 else
 {
-lean_free_object(x_193);
 lean_dec_ref(x_195);
+lean_free_object(x_193);
 goto block_209;
 }
 block_209:
@@ -4101,8 +4101,8 @@ goto block_282;
 }
 else
 {
-lean_dec(x_271);
 lean_dec_ref(x_270);
+lean_dec(x_271);
 goto block_282;
 }
 block_282:
@@ -4743,9 +4743,9 @@ return x_54;
 }
 else
 {
+lean_dec_ref(x_1);
 lean_dec_ref(x_12);
 lean_dec_ref(x_2);
-lean_dec_ref(x_1);
 x_15 = lean_box(0);
 goto block_18;
 }
@@ -5223,8 +5223,8 @@ return x_21;
 }
 else
 {
-lean_dec(x_22);
 lean_dec_ref(x_21);
+lean_dec(x_22);
 x_1 = x_20;
 goto _start;
 }

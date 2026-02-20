@@ -8612,8 +8612,8 @@ goto block_9;
 }
 else
 {
-lean_dec(x_24);
 lean_dec_ref(x_23);
+lean_dec(x_24);
 lean_dec_ref(x_21);
 goto block_9;
 }

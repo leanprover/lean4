@@ -12459,8 +12459,8 @@ return x_139;
 else
 {
 lean_object* x_140; uint8_t x_141; 
-lean_dec(x_23);
 lean_inc(x_22);
+lean_dec(x_23);
 lean_dec_ref(x_16);
 lean_inc(x_15);
 x_140 = l_Lean_isTracingEnabledFor___at___00Lean_Elab_Tactic_Omega_Problem_fourierMotzkinSelect_spec__0___redArg(x_15, x_19);

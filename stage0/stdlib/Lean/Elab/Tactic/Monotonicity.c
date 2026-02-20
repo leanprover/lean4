@@ -11939,8 +11939,8 @@ return x_444;
 }
 else
 {
-lean_dec(x_419);
 lean_dec_ref(x_418);
+lean_dec(x_419);
 x_230 = x_406;
 x_231 = x_404;
 x_232 = x_395;

@@ -798,8 +798,8 @@ return x_16;
 else
 {
 lean_object* x_17; 
-lean_dec(x_11);
 lean_inc(x_10);
+lean_dec(x_11);
 lean_dec(x_9);
 lean_dec_ref(x_5);
 lean_dec_ref(x_4);

@@ -2633,9 +2633,9 @@ x_13 = lean_string_dec_eq(x_11, x_12);
 if (x_13 == 0)
 {
 lean_dec(x_10);
+lean_dec_ref(x_2);
 lean_dec(x_4);
 lean_dec_ref(x_3);
-lean_dec_ref(x_2);
 lean_dec(x_1);
 goto block_9;
 }
@@ -2744,10 +2744,10 @@ else
 {
 uint8_t x_43; lean_object* x_44; lean_object* x_45; 
 lean_dec(x_16);
+lean_dec_ref(x_2);
 lean_dec(x_10);
 lean_dec(x_4);
 lean_dec_ref(x_3);
-lean_dec_ref(x_2);
 lean_dec(x_1);
 x_43 = 0;
 x_44 = lean_box(x_43);

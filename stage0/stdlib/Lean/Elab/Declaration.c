@@ -23376,10 +23376,10 @@ if (lean_obj_tag(x_918) == 1)
 if (x_151 == 0)
 {
 lean_object* x_926; lean_object* x_927; 
-lean_dec(x_925);
-lean_dec_ref(x_921);
-lean_dec(x_920);
 lean_dec_ref(x_918);
+lean_dec_ref(x_921);
+lean_dec(x_925);
+lean_dec(x_920);
 lean_dec_ref(x_915);
 x_926 = l_Lean_Elab_Command_elabInitialize___closed__52;
 x_927 = l_Lean_throwErrorAt___at___00Lean_Elab_elabModifiers___at___00Lean_Elab_Command_elabDeclaration_spec__2_spec__5___redArg(x_12, x_926, x_916, x_919);

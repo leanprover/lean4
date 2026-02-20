@@ -8126,10 +8126,10 @@ lean_inc_ref(x_271);
 lean_inc_ref(x_270);
 lean_inc(x_269);
 lean_inc_ref(x_268);
+lean_dec_ref(x_1);
 lean_dec(x_6);
 lean_dec_ref(x_3);
 lean_dec_ref(x_2);
-lean_dec_ref(x_1);
 lean_inc_ref(x_270);
 x_56 = x_268;
 x_57 = x_269;
@@ -8901,14 +8901,14 @@ goto block_231;
 }
 else
 {
+lean_inc(x_246);
 lean_dec(x_250);
 lean_dec(x_249);
 lean_dec(x_247);
-lean_inc(x_246);
+lean_dec_ref(x_1);
 lean_dec_ref(x_237);
 lean_dec(x_6);
 lean_dec_ref(x_3);
-lean_dec_ref(x_1);
 if (lean_obj_tag(x_255) == 1)
 {
 lean_object* x_259; 
@@ -11631,9 +11631,9 @@ return x_30;
 else
 {
 lean_object* x_31; lean_object* x_32; 
+lean_inc_ref(x_5);
 lean_dec_ref(x_10);
 lean_dec_ref(x_9);
-lean_inc_ref(x_5);
 x_31 = lean_ctor_get(x_14, 0);
 lean_inc_ref(x_31);
 lean_inc_ref(x_3);

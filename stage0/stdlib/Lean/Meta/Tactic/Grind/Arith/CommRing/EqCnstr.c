@@ -15262,9 +15262,9 @@ goto block_66;
 else
 {
 lean_object* x_80; uint8_t x_81; 
-lean_dec(x_24);
 lean_inc(x_16);
 lean_inc(x_15);
+lean_dec(x_24);
 x_80 = l_Lean_Meta_Grind_Arith_CommRing_denoteNum___at___00Lean_Grind_CommRing_Poly_denoteExpr___at___00Lean_Meta_Grind_Arith_CommRing_PolyDerivation_simplifyWith_spec__2_spec__2___closed__4;
 x_81 = lean_int_dec_lt(x_78, x_80);
 if (x_81 == 0)
@@ -46691,9 +46691,9 @@ return x_604;
 else
 {
 uint8_t x_605; 
-lean_dec(x_269);
 lean_inc(x_266);
 lean_inc(x_265);
+lean_dec(x_269);
 lean_dec(x_263);
 lean_dec_ref(x_262);
 lean_dec(x_261);
@@ -48112,9 +48112,9 @@ return x_891;
 else
 {
 lean_object* x_892; lean_object* x_893; lean_object* x_894; lean_object* x_895; lean_object* x_896; lean_object* x_897; lean_object* x_898; 
-lean_dec(x_816);
 lean_inc(x_813);
 lean_inc(x_812);
+lean_dec(x_816);
 lean_dec(x_810);
 lean_dec_ref(x_809);
 lean_dec(x_808);
@@ -49558,9 +49558,9 @@ return x_1149;
 else
 {
 lean_object* x_1150; lean_object* x_1151; lean_object* x_1152; lean_object* x_1153; lean_object* x_1154; lean_object* x_1155; lean_object* x_1156; 
-lean_dec(x_1074);
 lean_inc(x_1071);
 lean_inc(x_1070);
+lean_dec(x_1074);
 lean_dec(x_1068);
 lean_dec_ref(x_1067);
 lean_dec(x_1066);

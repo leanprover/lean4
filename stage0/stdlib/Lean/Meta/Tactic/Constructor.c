@@ -1959,8 +1959,8 @@ return x_78;
 }
 else
 {
-lean_free_object(x_78);
 lean_dec_ref(x_80);
+lean_free_object(x_78);
 x_9 = x_47;
 x_10 = x_48;
 x_11 = x_49;

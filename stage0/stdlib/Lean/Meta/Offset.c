@@ -7077,8 +7077,8 @@ goto block_10;
 }
 else
 {
-lean_dec(x_20);
 lean_dec_ref(x_19);
+lean_dec(x_20);
 x_7 = lean_box(0);
 goto block_10;
 }

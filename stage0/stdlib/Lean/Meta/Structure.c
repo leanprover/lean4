@@ -5515,11 +5515,11 @@ block_55:
 if (x_52 == 0)
 {
 lean_dec_ref(x_22);
+lean_dec_ref(x_5);
 lean_dec(x_10);
 lean_dec_ref(x_9);
 lean_dec(x_8);
 lean_dec_ref(x_7);
-lean_dec_ref(x_5);
 lean_dec_ref(x_3);
 x_12 = lean_box(0);
 goto block_15;
@@ -5538,11 +5538,11 @@ x_54 = lean_expr_eqv(x_53, x_22);
 if (x_54 == 0)
 {
 lean_dec_ref(x_22);
+lean_dec_ref(x_5);
 lean_dec(x_10);
 lean_dec_ref(x_9);
 lean_dec(x_8);
 lean_dec_ref(x_7);
-lean_dec_ref(x_5);
 lean_dec_ref(x_3);
 x_12 = lean_box(0);
 goto block_15;

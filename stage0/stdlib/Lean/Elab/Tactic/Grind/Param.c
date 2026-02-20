@@ -7358,8 +7358,8 @@ lean_inc(x_334);
 lean_dec_ref(x_321);
 if (lean_obj_tag(x_334) == 9)
 {
-lean_dec(x_4);
 lean_dec_ref(x_3);
+lean_dec(x_4);
 lean_dec(x_2);
 lean_dec_ref(x_1);
 x_322 = x_6;
@@ -7387,8 +7387,8 @@ case 1:
 {
 lean_object* x_335; lean_object* x_336; uint8_t x_337; 
 lean_dec_ref(x_321);
-lean_dec(x_4);
 lean_dec_ref(x_3);
+lean_dec(x_4);
 lean_dec(x_2);
 lean_dec_ref(x_1);
 x_335 = l___private_Lean_Elab_Tactic_Grind_Param_0__Lean_Elab_Tactic_processTermParam___closed__8;
@@ -7429,8 +7429,8 @@ case 5:
 {
 lean_object* x_340; lean_object* x_341; uint8_t x_342; 
 lean_dec_ref(x_321);
-lean_dec(x_4);
 lean_dec_ref(x_3);
+lean_dec(x_4);
 lean_dec(x_2);
 lean_dec_ref(x_1);
 x_340 = l___private_Lean_Elab_Tactic_Grind_Param_0__Lean_Elab_Tactic_processTermParam___closed__8;
@@ -7460,8 +7460,8 @@ case 8:
 {
 lean_object* x_345; lean_object* x_346; uint8_t x_347; 
 lean_dec_ref(x_321);
-lean_dec(x_4);
 lean_dec_ref(x_3);
+lean_dec(x_4);
 lean_dec(x_2);
 lean_dec_ref(x_1);
 x_345 = l___private_Lean_Elab_Tactic_Grind_Param_0__Lean_Elab_Tactic_processTermParam___closed__8;
@@ -7490,8 +7490,8 @@ return x_349;
 default: 
 {
 lean_dec(x_321);
-lean_dec(x_4);
 lean_dec_ref(x_3);
+lean_dec(x_4);
 lean_dec(x_2);
 lean_dec_ref(x_1);
 x_322 = x_6;
@@ -7533,6 +7533,7 @@ return x_332;
 else
 {
 uint8_t x_350; 
+lean_dec_ref(x_3);
 lean_dec_ref(x_10);
 lean_dec(x_11);
 lean_dec(x_9);
@@ -7540,7 +7541,6 @@ lean_dec_ref(x_8);
 lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec(x_4);
-lean_dec_ref(x_3);
 lean_dec(x_2);
 lean_dec_ref(x_1);
 x_350 = !lean_is_exclusive(x_320);
@@ -7681,8 +7681,8 @@ lean_inc(x_390);
 lean_dec_ref(x_377);
 if (lean_obj_tag(x_390) == 9)
 {
-lean_dec(x_4);
 lean_dec_ref(x_3);
+lean_dec(x_4);
 lean_dec(x_2);
 lean_dec_ref(x_1);
 x_378 = x_6;
@@ -7710,8 +7710,8 @@ case 1:
 {
 lean_object* x_391; lean_object* x_392; lean_object* x_393; lean_object* x_394; lean_object* x_395; 
 lean_dec_ref(x_377);
-lean_dec(x_4);
 lean_dec_ref(x_3);
+lean_dec(x_4);
 lean_dec(x_2);
 lean_dec_ref(x_1);
 x_391 = l___private_Lean_Elab_Tactic_Grind_Param_0__Lean_Elab_Tactic_processTermParam___closed__8;
@@ -7753,8 +7753,8 @@ case 5:
 {
 lean_object* x_396; lean_object* x_397; lean_object* x_398; lean_object* x_399; lean_object* x_400; 
 lean_dec_ref(x_377);
-lean_dec(x_4);
 lean_dec_ref(x_3);
+lean_dec(x_4);
 lean_dec(x_2);
 lean_dec_ref(x_1);
 x_396 = l___private_Lean_Elab_Tactic_Grind_Param_0__Lean_Elab_Tactic_processTermParam___closed__8;
@@ -7785,8 +7785,8 @@ case 8:
 {
 lean_object* x_401; lean_object* x_402; lean_object* x_403; lean_object* x_404; lean_object* x_405; 
 lean_dec_ref(x_377);
-lean_dec(x_4);
 lean_dec_ref(x_3);
+lean_dec(x_4);
 lean_dec(x_2);
 lean_dec_ref(x_1);
 x_401 = l___private_Lean_Elab_Tactic_Grind_Param_0__Lean_Elab_Tactic_processTermParam___closed__8;
@@ -7816,8 +7816,8 @@ return x_405;
 default: 
 {
 lean_dec(x_377);
-lean_dec(x_4);
 lean_dec_ref(x_3);
+lean_dec(x_4);
 lean_dec(x_2);
 lean_dec_ref(x_1);
 x_378 = x_6;
@@ -7860,6 +7860,7 @@ return x_388;
 else
 {
 lean_object* x_406; lean_object* x_407; lean_object* x_408; 
+lean_dec_ref(x_3);
 lean_dec_ref(x_373);
 lean_dec(x_11);
 lean_dec(x_9);
@@ -7867,7 +7868,6 @@ lean_dec_ref(x_8);
 lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec(x_4);
-lean_dec_ref(x_3);
 lean_dec(x_2);
 lean_dec_ref(x_1);
 x_406 = lean_ctor_get(x_376, 0);
@@ -13623,8 +13623,8 @@ return x_177;
 case 8:
 {
 lean_object* x_332; lean_object* x_333; uint8_t x_334; 
-lean_free_object(x_177);
 lean_dec_ref(x_179);
+lean_free_object(x_177);
 lean_dec(x_173);
 lean_dec(x_4);
 lean_dec(x_2);

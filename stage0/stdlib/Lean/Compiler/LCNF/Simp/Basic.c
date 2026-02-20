@@ -40,8 +40,8 @@ return x_5;
 else
 {
 lean_object* x_7; 
-lean_dec(x_6);
 lean_dec_ref(x_5);
+lean_dec(x_6);
 x_7 = l_Lean_Compiler_LCNF_findLetValue_x3f___redArg(x_1, x_2, x_3);
 lean_dec(x_2);
 if (lean_obj_tag(x_7) == 0)

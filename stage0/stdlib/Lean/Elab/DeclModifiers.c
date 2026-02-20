@@ -3227,8 +3227,8 @@ x_12 = l_Lean_Syntax_getArg(x_10, x_11);
 if (lean_obj_tag(x_12) == 2)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
-lean_dec(x_10);
 lean_inc(x_5);
+lean_dec(x_10);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 x_13 = lean_ctor_get(x_12, 1);
@@ -3270,8 +3270,8 @@ x_27 = l_Lean_Syntax_getArg(x_25, x_26);
 if (lean_obj_tag(x_27) == 2)
 {
 lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; 
-lean_dec(x_25);
 lean_inc(x_5);
+lean_dec(x_25);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 x_28 = lean_ctor_get(x_27, 1);
@@ -7485,9 +7485,9 @@ x_12 = l_Lean_isStructure(x_11, x_9);
 if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; 
+lean_dec_ref(x_1);
 lean_dec(x_9);
 lean_dec_ref(x_2);
-lean_dec_ref(x_1);
 x_13 = lean_box(0);
 x_14 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_14, 0, x_13);

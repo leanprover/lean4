@@ -5191,8 +5191,8 @@ return x_12;
 else
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
-lean_dec(x_13);
 lean_dec_ref(x_12);
+lean_dec(x_13);
 x_14 = l___private_Lean_Meta_Eqns_0__Lean_Meta_getEqnsFnsRef;
 x_15 = lean_st_ref_get(x_14);
 x_16 = lean_box(0);
@@ -5328,8 +5328,8 @@ return x_35;
 else
 {
 lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; 
-lean_dec(x_36);
 lean_dec_ref(x_35);
+lean_dec(x_36);
 x_37 = l___private_Lean_Meta_Eqns_0__Lean_Meta_getEqnsFnsRef;
 x_38 = lean_st_ref_get(x_37);
 x_39 = lean_box(0);

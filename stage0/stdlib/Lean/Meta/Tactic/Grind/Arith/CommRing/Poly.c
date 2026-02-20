@@ -353,12 +353,12 @@ return x_2;
 else
 {
 uint8_t x_22; 
-lean_free_object(x_2);
 lean_inc(x_15);
 lean_inc(x_8);
 lean_inc(x_7);
-lean_dec_ref(x_5);
 lean_inc(x_4);
+lean_free_object(x_2);
+lean_dec_ref(x_5);
 lean_dec_ref(x_1);
 x_22 = lean_nat_dec_le(x_8, x_15);
 if (x_22 == 0)
@@ -395,8 +395,8 @@ uint8_t x_26;
 lean_inc(x_15);
 lean_inc(x_8);
 lean_inc(x_7);
-lean_dec_ref(x_5);
 lean_inc(x_4);
+lean_dec_ref(x_5);
 lean_dec_ref(x_1);
 x_26 = lean_nat_dec_le(x_8, x_15);
 if (x_26 == 0)
@@ -1048,9 +1048,9 @@ return x_25;
 }
 else
 {
+lean_dec_ref(x_1);
 lean_dec(x_3);
 lean_dec_ref(x_2);
-lean_dec_ref(x_1);
 goto block_5;
 }
 }

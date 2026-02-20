@@ -3339,10 +3339,10 @@ goto block_33;
 }
 else
 {
+lean_inc_ref(x_6);
 lean_dec(x_16);
 lean_dec(x_15);
 lean_dec(x_14);
-lean_inc_ref(x_6);
 lean_dec(x_4);
 lean_dec_ref(x_3);
 lean_dec(x_2);
@@ -3492,10 +3492,10 @@ goto block_64;
 else
 {
 lean_object* x_77; 
+lean_inc_ref(x_6);
 lean_dec(x_49);
 lean_dec(x_48);
 lean_dec(x_47);
-lean_inc_ref(x_6);
 lean_dec(x_4);
 lean_dec_ref(x_3);
 lean_dec(x_2);

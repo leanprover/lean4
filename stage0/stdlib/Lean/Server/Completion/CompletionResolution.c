@@ -385,12 +385,12 @@ x_34 = ((lean_object*)(l_Lean_Lsp_CompletionItem_resolve___closed__0));
 if (lean_obj_tag(x_27) == 0)
 {
 lean_object* x_182; lean_object* x_183; 
+lean_inc(x_27);
 lean_inc(x_33);
 lean_inc(x_32);
 lean_inc(x_31);
 lean_inc(x_30);
 lean_inc(x_29);
-lean_inc(x_27);
 lean_inc_ref(x_26);
 lean_dec_ref(x_1);
 x_182 = ((lean_object*)(l_Lean_Lsp_CompletionItem_resolve___closed__9));

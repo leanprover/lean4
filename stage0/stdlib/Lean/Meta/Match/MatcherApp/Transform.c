@@ -3604,8 +3604,8 @@ x_13 = lean_nat_dec_lt(x_11, x_12);
 if (x_13 == 0)
 {
 lean_object* x_14; 
-lean_dec_ref(x_10);
 lean_inc_ref(x_9);
+lean_dec_ref(x_10);
 x_14 = l_Lean_Meta_withLCtx_x27___at___00__private_Lean_Meta_Match_MatcherApp_Transform_0__Lean_Meta_MatcherApp_withUserNamesImpl_spec__0___redArg(x_9, x_3, x_4, x_5, x_6, x_7);
 return x_14;
 }
@@ -3618,8 +3618,8 @@ if (x_15 == 0)
 if (x_13 == 0)
 {
 lean_object* x_16; 
-lean_dec_ref(x_10);
 lean_inc_ref(x_9);
+lean_dec_ref(x_10);
 x_16 = l_Lean_Meta_withLCtx_x27___at___00__private_Lean_Meta_Match_MatcherApp_Transform_0__Lean_Meta_MatcherApp_withUserNamesImpl_spec__0___redArg(x_9, x_3, x_4, x_5, x_6, x_7);
 return x_16;
 }

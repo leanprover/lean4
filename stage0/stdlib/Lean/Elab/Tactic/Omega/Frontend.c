@@ -4383,8 +4383,8 @@ return x_39;
 else
 {
 lean_object* x_40; 
-lean_dec(x_4);
 lean_dec_ref(x_3);
+lean_dec(x_4);
 lean_dec_ref(x_2);
 x_40 = lean_box(0);
 return x_40;
@@ -12547,8 +12547,8 @@ return x_801;
 else
 {
 lean_object* x_802; 
-lean_dec(x_34);
 lean_dec_ref(x_33);
+lean_dec(x_34);
 lean_dec_ref(x_32);
 lean_dec_ref(x_2);
 x_802 = l_Lean_Elab_Tactic_Omega_mkAtomLinearCombo(x_1, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
@@ -23863,11 +23863,11 @@ return x_168;
 else
 {
 uint8_t x_494; 
-lean_free_object(x_168);
 lean_inc_ref(x_83);
 lean_inc(x_82);
 lean_inc(x_81);
 lean_inc_ref(x_80);
+lean_free_object(x_168);
 lean_dec_ref(x_1);
 x_494 = l_List_elem___at___00__private_Lean_Elab_Tactic_Omega_Frontend_0__Lean_Elab_Tactic_Omega_asLinearComboImpl_handleNatCast_spec__9(x_2, x_82);
 if (x_494 == 0)

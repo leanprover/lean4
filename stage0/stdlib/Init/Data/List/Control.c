@@ -411,9 +411,9 @@ return x_19;
 else
 {
 lean_inc(x_8);
+lean_dec_ref(x_3);
 lean_dec(x_7);
 lean_dec(x_4);
-lean_dec_ref(x_3);
 lean_dec(x_2);
 lean_dec_ref(x_1);
 x_9 = x_5;

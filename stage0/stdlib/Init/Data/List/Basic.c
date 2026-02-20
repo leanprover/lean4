@@ -1066,8 +1066,8 @@ else
 if (lean_obj_tag(x_2) == 0)
 {
 uint8_t x_6; 
-lean_dec_ref(x_3);
 lean_dec_ref(x_1);
+lean_dec_ref(x_3);
 x_6 = 0;
 return x_6;
 }
@@ -1759,8 +1759,8 @@ else
 if (lean_obj_tag(x_3) == 0)
 {
 uint8_t x_7; 
-lean_dec_ref(x_4);
 lean_dec_ref(x_2);
+lean_dec_ref(x_4);
 lean_dec_ref(x_1);
 x_7 = 0;
 return x_7;

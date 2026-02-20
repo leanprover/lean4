@@ -7734,8 +7734,8 @@ lean_object* x_45;
 x_45 = lean_ctor_get(x_23, 0);
 if (lean_obj_tag(x_45) == 11)
 {
-lean_free_object(x_23);
 lean_dec_ref(x_45);
+lean_free_object(x_23);
 x_9 = x_19;
 x_10 = x_22;
 x_11 = lean_box(0);

@@ -1601,8 +1601,8 @@ return x_55;
 }
 else
 {
-lean_dec(x_9);
 lean_dec_ref(x_8);
+lean_dec(x_9);
 x_11 = x_3;
 x_12 = x_4;
 x_13 = lean_box(0);
@@ -1611,9 +1611,9 @@ goto block_18;
 }
 else
 {
+lean_dec_ref(x_8);
 lean_dec(x_10);
 lean_dec(x_9);
-lean_dec_ref(x_8);
 x_11 = x_3;
 x_12 = x_4;
 x_13 = lean_box(0);
@@ -1645,8 +1645,8 @@ return x_60;
 }
 else
 {
-lean_dec(x_9);
 lean_dec_ref(x_7);
+lean_dec(x_9);
 x_11 = x_3;
 x_12 = x_4;
 x_13 = lean_box(0);
@@ -1655,9 +1655,9 @@ goto block_18;
 }
 else
 {
+lean_dec_ref(x_7);
 lean_dec(x_10);
 lean_dec(x_9);
-lean_dec_ref(x_7);
 x_11 = x_3;
 x_12 = x_4;
 x_13 = lean_box(0);
@@ -1666,10 +1666,10 @@ goto block_18;
 }
 else
 {
+lean_dec_ref(x_7);
 lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_8);
-lean_dec_ref(x_7);
 x_11 = x_3;
 x_12 = x_4;
 x_13 = lean_box(0);

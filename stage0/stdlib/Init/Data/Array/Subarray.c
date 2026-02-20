@@ -1229,9 +1229,9 @@ x_19 = lean_nat_dec_lt(x_6, x_18);
 if (x_19 == 0)
 {
 lean_object* x_20; lean_object* x_21; lean_object* x_22; 
+lean_inc(x_9);
 lean_dec(x_18);
 lean_dec_ref(x_17);
-lean_inc(x_9);
 lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec_ref(x_1);
@@ -1321,9 +1321,9 @@ x_21 = lean_nat_dec_lt(x_8, x_20);
 if (x_21 == 0)
 {
 lean_object* x_22; lean_object* x_23; lean_object* x_24; 
+lean_inc(x_11);
 lean_dec(x_20);
 lean_dec_ref(x_19);
-lean_inc(x_11);
 lean_dec(x_8);
 lean_dec_ref(x_7);
 lean_dec_ref(x_3);

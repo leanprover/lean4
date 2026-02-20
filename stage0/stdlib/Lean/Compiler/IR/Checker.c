@@ -3693,8 +3693,8 @@ x_234 = lean_ctor_get(x_2, 0);
 if (lean_obj_tag(x_234) == 1)
 {
 lean_object* x_235; 
-lean_free_object(x_2);
 lean_dec_ref(x_234);
+lean_free_object(x_2);
 x_235 = l_Lean_IR_Checker_checkObjType(x_1, x_3, x_4, x_5, x_6);
 return x_235;
 }

@@ -2874,8 +2874,8 @@ goto _start;
 else
 {
 lean_object* x_19; 
-lean_dec_ref(x_6);
 lean_dec_ref(x_3);
+lean_dec_ref(x_6);
 lean_dec(x_2);
 x_19 = lean_box(0);
 return x_19;
@@ -3480,8 +3480,8 @@ x_10 = lean_nat_dec_lt(x_8, x_9);
 if (x_10 == 0)
 {
 lean_object* x_11; 
-lean_dec_ref(x_7);
 lean_inc(x_6);
+lean_dec_ref(x_7);
 lean_dec(x_2);
 lean_dec_ref(x_1);
 x_11 = lean_apply_2(x_6, lean_box(0), x_4);
@@ -3502,9 +3502,9 @@ if (x_13 == 0)
 if (x_10 == 0)
 {
 lean_object* x_14; 
+lean_inc(x_6);
 lean_dec_ref(x_12);
 lean_dec_ref(x_7);
-lean_inc(x_6);
 lean_dec_ref(x_1);
 x_14 = lean_apply_2(x_6, lean_box(0), x_4);
 return x_14;

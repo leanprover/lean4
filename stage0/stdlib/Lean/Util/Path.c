@@ -729,8 +729,8 @@ x_12 = lean_ctor_get(x_11, 0);
 x_13 = l_System_FilePath_pathExists(x_12);
 if (x_13 == 0)
 {
-lean_free_object(x_9);
 lean_dec_ref(x_11);
+lean_free_object(x_9);
 x_5 = lean_box(0);
 goto block_8;
 }

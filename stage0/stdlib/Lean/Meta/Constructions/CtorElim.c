@@ -9605,8 +9605,8 @@ return x_28;
 else
 {
 uint8_t x_32; 
-lean_dec(x_19);
 lean_dec_ref(x_18);
+lean_dec(x_19);
 lean_free_object(x_12);
 lean_dec_ref(x_9);
 lean_dec(x_5);
@@ -9705,8 +9705,8 @@ return x_50;
 else
 {
 lean_object* x_53; lean_object* x_54; lean_object* x_55; 
-lean_dec(x_40);
 lean_dec_ref(x_39);
+lean_dec(x_40);
 lean_dec_ref(x_9);
 lean_dec(x_5);
 lean_dec_ref(x_4);

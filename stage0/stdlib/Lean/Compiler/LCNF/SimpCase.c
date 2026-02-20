@@ -2040,11 +2040,11 @@ return x_37;
 else
 {
 uint8_t x_55; 
+lean_dec_ref(x_1);
 lean_dec(x_5);
 lean_dec_ref(x_4);
 lean_dec(x_3);
 lean_dec_ref(x_2);
-lean_dec_ref(x_1);
 x_55 = !lean_is_exclusive(x_35);
 if (x_55 == 0)
 {
@@ -2064,11 +2064,11 @@ return x_57;
 }
 else
 {
+lean_dec_ref(x_1);
 lean_dec(x_5);
 lean_dec_ref(x_4);
 lean_dec(x_3);
 lean_dec_ref(x_2);
-lean_dec_ref(x_1);
 return x_32;
 }
 }

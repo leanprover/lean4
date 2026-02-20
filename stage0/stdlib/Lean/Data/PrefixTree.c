@@ -569,8 +569,8 @@ x_14 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___redArg(x_2, x_13, x_11);
 if (lean_obj_tag(x_14) == 0)
 {
 lean_object* x_15; 
-lean_dec(x_12);
 lean_inc(x_10);
+lean_dec(x_12);
 lean_dec(x_7);
 lean_dec(x_4);
 lean_dec_ref(x_2);

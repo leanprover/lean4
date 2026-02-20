@@ -522,8 +522,8 @@ return x_6;
 else
 {
 uint8_t x_7; 
-lean_dec_ref(x_3);
 lean_dec_ref(x_2);
+lean_dec_ref(x_3);
 x_7 = 0;
 return x_7;
 }
@@ -563,8 +563,8 @@ return x_14;
 else
 {
 uint8_t x_15; 
-lean_dec_ref(x_3);
 lean_dec_ref(x_2);
+lean_dec_ref(x_3);
 lean_dec_ref(x_1);
 x_15 = 0;
 return x_15;
@@ -607,8 +607,8 @@ goto _start;
 else
 {
 uint8_t x_24; 
-lean_dec_ref(x_3);
 lean_dec_ref(x_2);
+lean_dec_ref(x_3);
 lean_dec_ref(x_1);
 x_24 = 0;
 return x_24;
@@ -2279,8 +2279,8 @@ x_14 = lean_nat_dec_lt(x_11, x_12);
 if (x_14 == 0)
 {
 lean_object* x_15; 
-lean_dec_ref(x_10);
 lean_inc(x_9);
+lean_dec_ref(x_10);
 lean_dec(x_2);
 lean_dec_ref(x_1);
 x_15 = lean_apply_2(x_9, lean_box(0), x_13);
@@ -2299,9 +2299,9 @@ if (x_17 == 0)
 if (x_14 == 0)
 {
 lean_object* x_18; 
+lean_inc(x_9);
 lean_dec_ref(x_16);
 lean_dec_ref(x_10);
-lean_inc(x_9);
 lean_dec_ref(x_1);
 x_18 = lean_apply_2(x_9, lean_box(0), x_13);
 return x_18;

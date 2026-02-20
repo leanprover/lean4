@@ -785,8 +785,8 @@ goto block_101;
 }
 else
 {
-lean_dec(x_17);
 lean_dec_ref(x_15);
+lean_dec(x_17);
 lean_dec_ref(x_5);
 lean_dec_ref(x_1);
 x_18 = x_6;

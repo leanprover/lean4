@@ -11150,9 +11150,9 @@ goto block_17;
 }
 else
 {
+lean_inc(x_19);
 lean_dec(x_24);
 lean_dec(x_23);
-lean_inc(x_19);
 goto block_21;
 }
 }
@@ -11377,8 +11377,8 @@ x_9 = lean_ctor_get(x_1, 5);
 if (lean_obj_tag(x_8) == 1)
 {
 lean_object* x_15; uint8_t x_16; 
-lean_inc_ref(x_9);
 lean_inc_ref(x_8);
+lean_inc_ref(x_9);
 lean_inc_ref(x_7);
 lean_inc(x_6);
 lean_inc(x_5);

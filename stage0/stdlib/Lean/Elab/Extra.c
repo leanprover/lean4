@@ -17169,6 +17169,7 @@ else
 {
 uint8_t x_166; 
 lean_dec_ref(x_72);
+lean_dec_ref(x_2);
 lean_dec(x_11);
 lean_dec_ref(x_10);
 lean_dec(x_9);
@@ -17176,7 +17177,6 @@ lean_dec_ref(x_8);
 lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec(x_3);
-lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 x_166 = !lean_is_exclusive(x_165);
 if (x_166 == 0)
@@ -17218,10 +17218,10 @@ lean_dec(x_82);
 if (x_83 == 0)
 {
 lean_object* x_84; 
-lean_free_object(x_80);
 lean_inc_ref(x_15);
 lean_inc_ref(x_14);
 lean_inc(x_13);
+lean_free_object(x_80);
 lean_dec_ref(x_2);
 x_84 = l_Lean_isTracingEnabledFor___at___00Lean_Elab_liftMacroM___at___00__private_Lean_Elab_Extra_0__Lean_Elab_Term_Op_toTree_go_spec__0_spec__0___redArg(x_69, x_77);
 if (lean_obj_tag(x_84) == 0)
@@ -17691,6 +17691,7 @@ else
 {
 uint8_t x_169; 
 lean_dec(x_68);
+lean_dec_ref(x_2);
 lean_dec(x_11);
 lean_dec_ref(x_10);
 lean_dec(x_9);
@@ -17698,7 +17699,6 @@ lean_dec_ref(x_8);
 lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec(x_3);
-lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 x_169 = !lean_is_exclusive(x_70);
 if (x_169 == 0)
@@ -17720,6 +17720,7 @@ return x_171;
 else
 {
 uint8_t x_172; 
+lean_dec_ref(x_2);
 lean_dec(x_11);
 lean_dec_ref(x_10);
 lean_dec(x_9);
@@ -17727,7 +17728,6 @@ lean_dec_ref(x_8);
 lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec(x_3);
-lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 x_172 = !lean_is_exclusive(x_67);
 if (x_172 == 0)
@@ -17749,6 +17749,7 @@ return x_174;
 else
 {
 uint8_t x_175; 
+lean_dec_ref(x_2);
 lean_dec(x_11);
 lean_dec_ref(x_10);
 lean_dec(x_9);
@@ -17756,7 +17757,6 @@ lean_dec_ref(x_8);
 lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec(x_3);
-lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 x_175 = !lean_is_exclusive(x_65);
 if (x_175 == 0)

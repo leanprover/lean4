@@ -3121,9 +3121,9 @@ else
 uint8_t x_87; 
 lean_dec(x_16);
 lean_dec_ref(x_15);
+lean_dec_ref(x_3);
 lean_dec_ref(x_14);
 lean_dec_ref(x_6);
-lean_dec_ref(x_3);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 x_87 = !lean_is_exclusive(x_17);
@@ -4167,10 +4167,10 @@ x_129 = l_Lean_Server_RequestCancellationToken_wasCancelled(x_9);
 if (x_129 == 0)
 {
 lean_object* x_130; lean_object* x_131; uint8_t x_132; 
-lean_free_object(x_124);
 lean_inc(x_14);
 lean_inc(x_13);
 lean_inc_ref(x_12);
+lean_free_object(x_124);
 lean_dec_ref(x_2);
 x_130 = lean_array_mk(x_125);
 x_131 = lean_array_get_size(x_130);

@@ -5674,12 +5674,12 @@ goto block_24;
 else
 {
 uint8_t x_37; 
+lean_dec_ref(x_1);
 lean_dec(x_29);
 lean_dec_ref(x_28);
 lean_dec(x_27);
 lean_dec_ref(x_26);
 lean_dec(x_25);
-lean_dec_ref(x_1);
 x_37 = !lean_is_exclusive(x_34);
 if (x_37 == 0)
 {
@@ -5730,12 +5730,12 @@ goto block_24;
 else
 {
 uint8_t x_47; 
+lean_dec_ref(x_1);
 lean_dec(x_29);
 lean_dec_ref(x_28);
 lean_dec(x_27);
 lean_dec_ref(x_26);
 lean_dec(x_25);
-lean_dec_ref(x_1);
 x_47 = !lean_is_exclusive(x_44);
 if (x_47 == 0)
 {
@@ -12311,8 +12311,8 @@ goto block_13;
 else
 {
 lean_object* x_17; 
-lean_dec_ref(x_2);
 lean_dec_ref(x_1);
+lean_dec_ref(x_2);
 x_17 = ((lean_object*)(l_Lean_Widget_instRpcEncodableHighlightedSubexprInfo___lam__1___closed__0));
 return x_17;
 }
@@ -14367,8 +14367,8 @@ goto block_13;
 else
 {
 lean_object* x_17; 
-lean_dec_ref(x_2);
 lean_dec_ref(x_1);
+lean_dec_ref(x_2);
 x_17 = ((lean_object*)(l_Lean_Widget_instRpcEncodableHighlightedSubexprInfo___lam__1___closed__0));
 return x_17;
 }

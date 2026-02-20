@@ -6696,8 +6696,8 @@ x_10 = l_Lean_NameTrie_find_x3f___redArg(x_8, x_9);
 if (lean_obj_tag(x_10) == 1)
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; uint8_t x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; 
-lean_dec(x_9);
 lean_inc(x_4);
+lean_dec(x_9);
 lean_dec_ref(x_2);
 x_11 = lean_ctor_get(x_10, 0);
 lean_inc(x_11);
@@ -6730,11 +6730,11 @@ return x_27;
 else
 {
 uint8_t x_28; 
-lean_dec(x_10);
 lean_inc_ref(x_8);
 lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_5);
+lean_dec(x_10);
 x_28 = !lean_is_exclusive(x_1);
 if (x_28 == 0)
 {
@@ -7155,8 +7155,8 @@ else
 if (x_13 == 0)
 {
 lean_object* x_17; 
-lean_dec(x_6);
 lean_dec_ref(x_4);
+lean_dec(x_6);
 lean_dec(x_1);
 x_17 = lean_box(0);
 return x_17;
@@ -12007,8 +12007,8 @@ x_7 = lean_name_eq(x_4, x_5);
 if (x_7 == 0)
 {
 uint8_t x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
-lean_dec(x_6);
 lean_inc(x_4);
+lean_dec(x_6);
 lean_dec_ref(x_2);
 x_8 = 1;
 x_9 = ((lean_object*)(l_Lean_Environment_AddConstAsyncResult_commitSignature___closed__0));

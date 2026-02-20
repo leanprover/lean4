@@ -3493,8 +3493,8 @@ return x_32;
 else
 {
 lean_object* x_38; 
-lean_free_object(x_32);
 lean_dec_ref(x_34);
+lean_free_object(x_32);
 x_38 = l_Lean_evalConstCheck___at___00__private_Lean_Server_CodeActions_Basic_0__Lean_Server_evalCodeActionProviderUnsafe___at___00Lean_Server_handleCodeAction_spec__2_spec__3___redArg___lam__0(x_4, x_5);
 if (lean_obj_tag(x_38) == 0)
 {

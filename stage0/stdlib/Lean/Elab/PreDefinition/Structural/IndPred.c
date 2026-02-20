@@ -4696,9 +4696,9 @@ x_43 = l_Array_idxOf_x3f___at___00__private_Lean_Elab_PreDefinition_Structural_I
 if (lean_obj_tag(x_43) == 1)
 {
 lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; 
+lean_dec_ref(x_8);
 lean_dec(x_12);
 lean_dec(x_11);
-lean_dec_ref(x_8);
 lean_dec_ref(x_5);
 lean_dec_ref(x_4);
 lean_dec_ref(x_3);
@@ -5579,13 +5579,13 @@ else
 {
 uint8_t x_167; 
 lean_dec(x_126);
+lean_dec_ref(x_7);
 lean_dec(x_13);
 lean_dec_ref(x_12);
 lean_dec(x_11);
 lean_dec_ref(x_10);
 lean_dec(x_9);
 lean_dec(x_8);
-lean_dec_ref(x_7);
 lean_dec_ref(x_6);
 lean_dec_ref(x_5);
 lean_dec_ref(x_4);
@@ -5721,13 +5721,13 @@ else
 {
 uint8_t x_170; 
 lean_dec(x_126);
+lean_dec_ref(x_7);
 lean_dec(x_13);
 lean_dec_ref(x_12);
 lean_dec(x_11);
 lean_dec_ref(x_10);
 lean_dec(x_9);
 lean_dec(x_8);
-lean_dec_ref(x_7);
 lean_dec_ref(x_6);
 lean_dec_ref(x_5);
 lean_dec_ref(x_4);
@@ -5771,13 +5771,13 @@ goto block_29;
 else
 {
 uint8_t x_173; 
+lean_dec_ref(x_7);
 lean_dec(x_13);
 lean_dec_ref(x_12);
 lean_dec(x_11);
 lean_dec_ref(x_10);
 lean_dec(x_9);
 lean_dec(x_8);
-lean_dec_ref(x_7);
 lean_dec_ref(x_6);
 lean_dec_ref(x_5);
 lean_dec_ref(x_4);
@@ -6455,13 +6455,13 @@ else
 {
 lean_object* x_306; lean_object* x_307; lean_object* x_308; 
 lean_dec(x_265);
+lean_dec_ref(x_7);
 lean_dec(x_13);
 lean_dec_ref(x_12);
 lean_dec(x_11);
 lean_dec_ref(x_10);
 lean_dec(x_9);
 lean_dec(x_8);
-lean_dec_ref(x_7);
 lean_dec_ref(x_6);
 lean_dec_ref(x_5);
 lean_dec_ref(x_4);
@@ -6599,13 +6599,13 @@ else
 {
 lean_object* x_309; lean_object* x_310; lean_object* x_311; 
 lean_dec(x_265);
+lean_dec_ref(x_7);
 lean_dec(x_13);
 lean_dec_ref(x_12);
 lean_dec(x_11);
 lean_dec_ref(x_10);
 lean_dec(x_9);
 lean_dec(x_8);
-lean_dec_ref(x_7);
 lean_dec_ref(x_6);
 lean_dec_ref(x_5);
 lean_dec_ref(x_4);
@@ -6650,13 +6650,13 @@ goto block_29;
 else
 {
 lean_object* x_312; lean_object* x_313; lean_object* x_314; 
+lean_dec_ref(x_7);
 lean_dec(x_13);
 lean_dec_ref(x_12);
 lean_dec(x_11);
 lean_dec_ref(x_10);
 lean_dec(x_9);
 lean_dec(x_8);
-lean_dec_ref(x_7);
 lean_dec_ref(x_6);
 lean_dec_ref(x_5);
 lean_dec_ref(x_4);

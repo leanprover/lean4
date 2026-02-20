@@ -1013,8 +1013,8 @@ return x_21;
 else
 {
 lean_object* x_22; lean_object* x_23; 
-lean_dec(x_8);
 lean_dec_ref(x_1);
+lean_dec(x_8);
 x_22 = lean_box(0);
 x_23 = lean_apply_1(x_7, x_22);
 return x_23;
@@ -1023,9 +1023,9 @@ return x_23;
 else
 {
 lean_object* x_24; lean_object* x_25; 
+lean_dec_ref(x_1);
 lean_dec(x_8);
 lean_dec(x_7);
-lean_dec_ref(x_1);
 x_24 = lean_box(0);
 x_25 = lean_apply_1(x_6, x_24);
 return x_25;
@@ -1034,10 +1034,10 @@ return x_25;
 else
 {
 lean_object* x_26; lean_object* x_27; 
+lean_dec_ref(x_1);
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
-lean_dec_ref(x_1);
 x_26 = lean_box(0);
 x_27 = lean_apply_1(x_4, x_26);
 return x_27;
@@ -1046,11 +1046,11 @@ return x_27;
 else
 {
 lean_object* x_28; lean_object* x_29; 
+lean_dec_ref(x_1);
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_4);
-lean_dec_ref(x_1);
 x_28 = lean_box(0);
 x_29 = lean_apply_1(x_3, x_28);
 return x_29;
@@ -1059,12 +1059,12 @@ return x_29;
 else
 {
 lean_object* x_30; lean_object* x_31; 
+lean_dec_ref(x_1);
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_4);
 lean_dec(x_3);
-lean_dec_ref(x_1);
 x_30 = lean_box(0);
 x_31 = lean_apply_1(x_2, x_30);
 return x_31;
@@ -1159,8 +1159,8 @@ return x_22;
 else
 {
 lean_object* x_23; lean_object* x_24; 
-lean_dec(x_9);
 lean_dec_ref(x_2);
+lean_dec(x_9);
 x_23 = lean_box(0);
 x_24 = lean_apply_1(x_8, x_23);
 return x_24;
@@ -1169,9 +1169,9 @@ return x_24;
 else
 {
 lean_object* x_25; lean_object* x_26; 
+lean_dec_ref(x_2);
 lean_dec(x_9);
 lean_dec(x_8);
-lean_dec_ref(x_2);
 x_25 = lean_box(0);
 x_26 = lean_apply_1(x_7, x_25);
 return x_26;
@@ -1180,10 +1180,10 @@ return x_26;
 else
 {
 lean_object* x_27; lean_object* x_28; 
+lean_dec_ref(x_2);
 lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
-lean_dec_ref(x_2);
 x_27 = lean_box(0);
 x_28 = lean_apply_1(x_5, x_27);
 return x_28;
@@ -1192,11 +1192,11 @@ return x_28;
 else
 {
 lean_object* x_29; lean_object* x_30; 
+lean_dec_ref(x_2);
 lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_5);
-lean_dec_ref(x_2);
 x_29 = lean_box(0);
 x_30 = lean_apply_1(x_4, x_29);
 return x_30;
@@ -1205,12 +1205,12 @@ return x_30;
 else
 {
 lean_object* x_31; lean_object* x_32; 
+lean_dec_ref(x_2);
 lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_5);
 lean_dec(x_4);
-lean_dec_ref(x_2);
 x_31 = lean_box(0);
 x_32 = lean_apply_1(x_3, x_31);
 return x_32;

@@ -983,8 +983,8 @@ lean_inc(x_32);
 x_35 = l_Lean_isBRecOnRecursor(x_34, x_32);
 if (x_35 == 0)
 {
-lean_dec_ref(x_4);
 lean_dec_ref(x_3);
+lean_dec_ref(x_4);
 lean_dec_ref(x_2);
 x_11 = x_6;
 x_12 = x_7;
@@ -1026,8 +1026,8 @@ x_43 = lean_nat_dec_le(x_41, x_42);
 if (x_43 == 0)
 {
 lean_dec(x_41);
-lean_dec_ref(x_4);
 lean_dec_ref(x_3);
+lean_dec_ref(x_4);
 lean_dec_ref(x_2);
 x_11 = x_6;
 x_12 = x_7;
@@ -1100,12 +1100,12 @@ return x_56;
 else
 {
 uint8_t x_57; 
+lean_dec_ref(x_3);
 lean_dec(x_9);
 lean_dec_ref(x_8);
 lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec_ref(x_4);
-lean_dec_ref(x_3);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 x_57 = !lean_is_exclusive(x_40);
@@ -1128,12 +1128,12 @@ return x_59;
 else
 {
 uint8_t x_60; 
+lean_dec_ref(x_3);
 lean_dec(x_9);
 lean_dec_ref(x_8);
 lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec_ref(x_4);
-lean_dec_ref(x_3);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 x_60 = !lean_is_exclusive(x_36);

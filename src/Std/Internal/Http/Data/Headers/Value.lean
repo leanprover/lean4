@@ -66,8 +66,9 @@ for HTTP header values.
 -/
 @[expose]
 def ofString? (s : String) : Option Value :=
-  if h : IsValidHeaderValue s then
-    some ⟨s, h⟩
+  let val := s.trimAscii.toString
+  if h : IsValidHeaderValue val then
+    some ⟨val, h⟩
   else
     none
 
@@ -77,8 +78,9 @@ characters for HTTP header values.
 -/
 @[expose]
 def ofString! (s : String) : Value :=
-  if h : IsValidHeaderValue s then
-    ⟨s, h⟩
+  let val := s.trimAscii.toString
+  if h : IsValidHeaderValue val then
+    ⟨val, h⟩
   else
     panic! s!"invalid header value: {s.quote}"
 

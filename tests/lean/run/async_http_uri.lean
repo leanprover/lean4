@@ -726,7 +726,7 @@ info: https://example.com/api/users?page=1
 #guard_msgs in
 #eval do
   let uri := URI.Builder.empty
-    |>.setScheme "https"
+    |>.setScheme! "https"
     |>.setHost! "example.com"
     |>.appendPathSegment "api"
     |>.appendPathSegment "users"
@@ -740,7 +740,7 @@ info: http://localhost:8080/
 #guard_msgs in
 #eval do
   let uri := URI.Builder.empty
-    |>.setScheme "http"
+    |>.setScheme! "http"
     |>.setHost! "localhost"
     |>.setPort 8080
     |>.build
@@ -752,7 +752,7 @@ info: https://user:pass@secure.example.com/private
 #guard_msgs in
 #eval do
   let uri := URI.Builder.empty
-    |>.setScheme "https"
+    |>.setScheme! "https"
     |>.setUserInfo "user" (some "pass")
     |>.setHost! "secure.example.com"
     |>.appendPathSegment "private"

@@ -230,7 +230,7 @@ theorem denote_blastCpopTree (aig : AIG α) (len : Nat)
   · rw [← hgen]
     unfold BitVec.cpopTree
     simp only [Nat.reduceDiv, BitVec.ofNat_eq_ofNat, Lean.Elab.WF.paramLet,
-      show ¬len = 0 by omega, ↓reduceDIte, show ¬len = 1 by omega]
+      show ¬len = 0 by omega, reduceDIte, show ¬len = 1 by omega]
     apply denote_blastCpopTree
     apply denote_blastCpopLayer
     · simp [hpar]
@@ -238,7 +238,7 @@ theorem denote_blastCpopTree (aig : AIG α) (len : Nat)
   · have : len = 1 := by omega
     subst this
     rw [← hgen, BitVec.cpopTree]
-    simp only [Lean.Elab.WF.paramLet, Nat.succ_ne_self, ↓reduceDIte, BitVec.cast_eq]
+    simp only [Lean.Elab.WF.paramLet, Nat.succ_ne_self, reduceDIte, BitVec.getLsbD_cast]
     rw [← hpar]
     · congr
       · simp

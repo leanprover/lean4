@@ -2439,7 +2439,7 @@ termination_by oldLength - (iterNum * 2)
   ultimately returning a single `w`-long words corresponding to the whole addition.
 -/
 def cpopTree (l : BitVec (len * w)) : BitVec w :=
-  if h : len = 0 then (0#_)
+  if h : len = 0 then 0#w
   else if h : len = 1 then
     l.cast (by simp [h])
   else
@@ -2748,7 +2748,7 @@ private theorem addRecAux_extractAndExtend_eq_cpop {x : BitVec w} :
   apply addRecAux_extractAndExtend_eq_cpopNatRec
 
 private theorem addRecAux_cpopTree {x : BitVec (len * w)} :
-    addRecAux (cpopTree x) 1 0#w = addRecAux x len 0#w := by
+    addRecAux ((cpopTree x).cast (m := 1 * w) (by simp)) 1 0#w = addRecAux x len 0#w := by
   unfold cpopTree
   split
   · case _ h =>

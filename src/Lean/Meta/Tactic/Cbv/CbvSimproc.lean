@@ -18,6 +18,17 @@ namespace Lean.Meta.Tactic.Cbv
 open Lean.Meta.Sym
 open Lean.Meta.Sym.Simp
 
+/--
+The phase at which a `cbv_simproc` fires during cbv normalization.
+
+- `pre` (`↓`): Fires on each subexpression *before* cbv reduction, so arguments are still
+  unreduced. Runs before cbv-specific pre-steps (projection reduction, unfolding, etc.).
+- `eval` (`cbv_eval`): Fires during the post phase, after ground evaluation but *before*
+  `handleApp` attempts equation lemmas, unfolding, and recursion reduction.
+  Arguments have already been reduced.
+- `post` (`↑`, default): Fires during the post phase, *after* `handleApp` has attempted
+  standard reduction. Arguments have already been reduced.
+-/
 inductive CbvSimprocPhase where
   | pre | eval | post
   deriving Inhabited, BEq, Hashable, Repr
@@ -245,6 +256,7 @@ def cbvSimprocDispatch (tree : DiscrTree CbvSimprocEntry)
     (erased : PHashSet Name) : Simproc := fun e => do
   let candidates := Sym.getMatchWithExtra tree e
   if candidates.isEmpty then
+    trace[Debug.Meta.Tactic.cbv.simprocs] "no cbv simprocs found for {e}"
     return .rfl
   for (entry, numExtra) in candidates do
     unless erased.contains entry.declName do
@@ -252,7 +264,10 @@ def cbvSimprocDispatch (tree : DiscrTree CbvSimprocEntry)
         entry.proc e
       else
         simpOverApplied e numExtra entry.proc
-      if (result matches .rfl (done := true)) || (result matches .step _ _ _) then
+      if result matches .step _ _ _ then
+        trace[Debug.Meta.Tactic.cbv.simprocs] "cbv simproc `{entry.declName}` result {e} => {result.expr}"
+        return result
+      if result matches .rfl (done := true) then
         return result
   return .rfl
 

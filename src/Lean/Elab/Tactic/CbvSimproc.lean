@@ -15,6 +15,8 @@ public section
 namespace Lean.Elab
 open Lean Meta Sym
 
+-- NB: This duplicates `elabSimprocPattern` from `Lean.Elab.Tactic.Simproc`
+-- to avoid pulling in simp simproc elaboration as a dependency.
 def elabCbvSimprocPattern (stx : Syntax) : MetaM Expr := do
   let go : TermElabM Expr := do
     let pattern ← Term.elabTerm stx none

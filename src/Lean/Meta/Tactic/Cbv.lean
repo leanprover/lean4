@@ -16,5 +16,6 @@ namespace Lean
 
 builtin_initialize registerTraceClass `Meta.Tactic.cbv
 builtin_initialize registerTraceClass `Debug.Meta.Tactic.cbv
+builtin_initialize registerTraceClass `Debug.Meta.Tactic.cbv.simprocs (inherited := true)
 
 end Lean

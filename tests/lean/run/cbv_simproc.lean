@@ -206,3 +206,78 @@ info: prod matched
 #guard_msgs in
 example : (1 + 2, 3) = (3, 3) := by cbv
 end
+
+-- Scoped simproc: active when namespace is open, inactive when closed
+namespace ScopedTest
+scoped cbv_simproc ↓ scopedProc (myFun _) := fun e => do
+  let .app _f arg := e | return .rfl
+  logInfo m!"scoped saw: {arg}"
+  return .rfl
+
+/-- info: scoped saw: 0 -/
+#guard_msgs in
+example : myFun 0 = myFun 0 := by cbv
+end ScopedTest
+
+-- Outside the namespace, the simproc should not fire
+example : myFun 0 = myFun 0 := by cbv
+
+-- Re-opening the namespace reactivates the simproc
+open ScopedTest in
+/-- info: scoped saw: 0 -/
+#guard_msgs in
+example : myFun 0 = myFun 0 := by cbv
+
+-- Over-applied pattern: simproc registered for `myBinFun _` fires on `myBinFun x y`
+opaque myBinFun : Nat → Nat → Nat
+
+section
+local cbv_simproc ↓ overAppliedProc (myBinFun _) := fun e => do
+  logInfo m!"over-applied saw: {e}"
+  return .rfl
+
+/--
+info: over-applied saw: myBinFun (1 + 2)
+---
+info: over-applied saw: myBinFun 3
+-/
+#guard_msgs in
+example : myBinFun (1 + 2) 4 = myBinFun 3 4 := by cbv
+end
+
+-- Multiple simprocs matching the same head: first non-rfl result wins
+section
+local cbv_simproc ↓ multiFirst (myFun _) := fun e => do
+  logInfo m!"first fired"
+  return .rfl (done := true)
+
+local cbv_simproc ↓ multiSecond (myFun _) := fun e => do
+  logInfo m!"second fired"
+  return .rfl
+
+/-- info: first fired -/
+#guard_msgs in
+example : myFun 0 = myFun 0 := by cbv
+end
+
+-- Multiple simprocs: first returns .rfl (skip), second succeeds with .step
+section
+@[irreducible] def myConst : Nat := 42
+
+local cbv_simproc ↓ skipFirst (myConst) := fun _e => do
+  logInfo m!"first skipped"
+  return .rfl
+
+local cbv_simproc ↓ succeedSecond (myConst) := fun _e => do
+  logInfo m!"second succeeded"
+  let result := toExpr (42 : Nat)
+  return .step result (mkConst ``myConst.eq_def) (done := true)
+
+/--
+info: first skipped
+---
+info: second succeeded
+-/
+#guard_msgs in
+example : myConst = 42 := by cbv
+end

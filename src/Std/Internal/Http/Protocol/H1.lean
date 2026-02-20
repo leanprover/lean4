@@ -181,6 +181,12 @@ private def responseMustNotHaveBody (status : Status) : Bool :=
 private def checkMessageHead (message : Message.Head dir) : Option BodyMode := do
   match dir with
   | .receiving => do
+    match message.method, message.uri with
+    | .connect, .authorityForm _ => pure ()
+    | .connect, _ => none
+    | _, .authorityForm _ => none
+    | _, _ => pure ()
+
     -- RFC 9112 §3.2: an HTTP/1.1 request MUST contain exactly one Host header.
     -- Both absence (getAll? = none) and duplicates (size ≠ 1) are rejected here.
     let headers ← message.headers.getAll? Header.Name.host
@@ -376,7 +382,8 @@ private def resetForNextMessage (machine : Machine ty) : Machine ty :=
         knownSize := none,
         messageHead := {},
         userClosedBody := false,
-        sentMessage := false
+        sentMessage := false,
+        omitBody := false
       },
       events := machine.events.push .next,
       error := none,
@@ -521,6 +528,22 @@ def setKnownSize (machine : Machine dir) (size : Body.Length) : Machine dir :=
   machine.modifyWriter (fun w => { w with knownSize := some size })
 
 /--
+Suppresses writing body bytes for the current outgoing message while keeping
+header generation active. Used for responses that must not carry payload bytes.
+-/
+@[inline]
+def suppressOutgoingBody (machine : Machine dir) (forceZero : Bool := false) : Machine dir :=
+  machine.modifyWriter fun w =>
+    let knownSize :=
+      if forceZero then
+        some (.fixed 0)
+      else
+        match w.knownSize with
+        | some (.fixed n) => some (.fixed n)
+        | _ => some (.fixed 0)
+    { w with omitBody := true, userClosedBody := true, knownSize, userData := #[] }
+
+/--
 Send the head of a message to the machine.
 -/
 @[inline]
@@ -533,7 +556,7 @@ def send (machine : Machine dir) (message : Message.Head dir.swap) : Machine dir
       message.headers.contains Header.Name.transferEncoding
     let headerSize := message.getSize false
 
-    let machine :=
+    let machine : Machine dir :=
       match machine.writer.knownSize, headerSize with
       | some explicit, some parsed =>
           if explicit == parsed then
@@ -552,6 +575,18 @@ def send (machine : Machine dir) (message : Message.Head dir.swap) : Machine dir
             machine.setFailure .badMessage
           else
             machine
+
+    let machine : Machine dir :=
+      match dir, machine, message with
+      | .receiving, machine, message =>
+          let suppressByStatus := responseMustNotHaveBody message.status
+          let suppressByMethod := machine.reader.messageHead.method == .head
+          if suppressByStatus ∨ suppressByMethod then
+            machine.suppressOutgoingBody (forceZero := suppressByStatus)
+          else
+            machine
+      | .sending, machine, _ =>
+          machine
 
     if machine.failed && !hadFailure then
       machine
@@ -622,7 +657,11 @@ partial def processWrite (machine : Machine dir) : Machine dir :=
       |> processWrite
 
   | .writingBody (.fixed n) =>
-      if n = 0 then
+      if machine.writer.omitBody then
+        machine.modifyWriter ({ · with userData := #[] })
+        |>.setWriterState .complete
+        |> processWrite
+      else if n = 0 then
         if machine.writer.userData.isEmpty then
           machine.setWriterState .complete |> processWrite
         else
@@ -647,7 +686,11 @@ partial def processWrite (machine : Machine dir) : Machine dir :=
         machine
 
   | .writingBody .chunked =>
-      if machine.writer.userClosedBody then
+      if machine.writer.omitBody then
+        machine.modifyWriter ({ · with userData := #[] })
+        |>.setWriterState .complete
+        |> processWrite
+      else if machine.writer.userClosedBody then
         machine.modifyWriter Writer.writeFinalChunk
         |>.setWriterState .complete
         |> processWrite

@@ -123,6 +123,12 @@ structure Reader (dir : Direction) where
   bodyBytesRead : Nat := 0
 
   /--
+  Number of header bytes accumulated for the current message.
+  Counts name + value bytes plus 4 bytes per line for `: ` and `\r\n`.
+  -/
+  headerBytesRead : Nat := 0
+
+  /--
   Flag that says that it cannot receive more input (the socket disconnected).
   -/
   noMoreInput : Bool := false
@@ -221,6 +227,7 @@ def reset (reader : Reader dir) : Reader dir :=
   { reader with
     state := .needStartLine
     bodyBytesRead := 0
+    headerBytesRead := 0
     messageHead := {} }
 
 /--
@@ -261,7 +268,7 @@ Transitions to the state for reading headers.
 -/
 @[inline]
 def startHeaders (reader : Reader dir) : Reader dir :=
-  { reader with state := .needHeader 0, bodyBytesRead := 0 }
+  { reader with state := .needHeader 0, bodyBytesRead := 0, headerBytesRead := 0 }
 
 /--
 Adds body bytes parsed for the current message.
@@ -269,6 +276,13 @@ Adds body bytes parsed for the current message.
 @[inline]
 def addBodyBytes (n : Nat) (reader : Reader dir) : Reader dir :=
   { reader with bodyBytesRead := reader.bodyBytesRead + n }
+
+/--
+Adds header bytes accumulated for the current message.
+-/
+@[inline]
+def addHeaderBytes (n : Nat) (reader : Reader dir) : Reader dir :=
+  { reader with headerBytesRead := reader.headerBytesRead + n }
 
 /--
 Transitions to the state for reading a fixed-length body.

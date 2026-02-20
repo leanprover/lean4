@@ -910,19 +910,25 @@ partial def processRead (machine : Machine dir) : Machine dir :=
               machine
 
   | .needHeader headerCount =>
+      let start := machine.reader.input.remainingBytes
       let (machine, result) := parseWith machine
         (parseSingleHeader machine.config) (limit := none)
       if let some result := result then
         if let some (name, value) := result then
           if headerCount ≥ machine.config.maxHeaders then
             machine.setFailure .badMessage
-          else if let some (name, headerValue) := Prod.mk <$> Header.Name.ofString? name <*> Header.Value.ofString? value then
-            machine
-            |>.modifyReader (.addHeader name headerValue)
-            |>.setReaderState (.needHeader (headerCount + 1))
-            |> processRead
           else
-            machine.setFailure .badMessage
+            let headerBytes := start - machine.reader.input.remainingBytes
+            if machine.reader.headerBytesRead + headerBytes > machine.config.maxHeaderBytes then
+              machine.setFailure .badMessage
+            else if let some (name, headerValue) := Prod.mk <$> Header.Name.ofString? name <*> Header.Value.ofString? value then
+              machine
+              |>.modifyReader (.addHeader name headerValue)
+              |>.modifyReader (.addHeaderBytes headerBytes)
+              |>.setReaderState (.needHeader (headerCount + 1))
+              |> processRead
+            else
+              machine.setFailure .badMessage
         else
           processHeaders machine
           |> processRead

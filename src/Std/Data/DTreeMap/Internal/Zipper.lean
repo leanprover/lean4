@@ -390,8 +390,6 @@ theorem Zipper.step_done : (done : Zipper α β).step = .done := rfl
 @[simp]
 theorem Zipper.step_cons : (cons k v t it : Zipper α β).step = .yield ⟨it.prependMap t⟩ ⟨k, v⟩ := rfl
 
--- TODO: run_pure
-set_option backward.isDefEq.respectTransparency false in
 @[simp] theorem Zipper.val_run_step_toIterM_iter {z : Zipper α β} : z.iter.toIterM.step.run.inflate.val = z.step := by
   rw [IterM.step]
   simp only [Iterator.step, Id.run_pure, Shrink.inflate_deflate]
@@ -496,8 +494,6 @@ theorem RxcIterator.step_cons_of_not_LE [Ord α] {upper : α} {h : (compare k up
   rw [step, h]
   simp only [Bool.false_eq_true, ↓reduceIte]
 
--- TODO: run_pure
-set_option backward.isDefEq.respectTransparency false in
 @[simp]
 theorem RxcIterator.val_run_step_toIterM_iter [Ord α] {z : RxcIterator α β} : (⟨z⟩ : Iter (α := RxcIterator α β) ((a : α) × β a)).toIterM.step.run.inflate.val = z.step := by
   rw [IterM.step]
@@ -627,7 +623,6 @@ theorem RxoIterator.step_cons_of_isLT_eq_false [Ord α] {upper : α} {h : (compa
   rw [step, h]
   simp only [Bool.false_eq_true, ↓reduceIte]
 
--- TODO: run_pure
 set_option backward.isDefEq.respectTransparency false in
 @[simp]
 theorem RxoIterator.val_run_step_toIterM_iter [Ord α] {z : RxoIterator α β} : (⟨z⟩ : Iter (α := RxoIterator α β) ((a : α) × β a)).toIterM.step.run.inflate.val = z.step := by

@@ -535,8 +535,6 @@ private theorem Iterator.instIteratorLoop.loop_eq_wf [UpwardEnumerable α] [LE �
     · rw [WellFounded.fix_eq]
       simp_all
 
--- TODO: make `Iterator.IsPlausibleStep` reducible
-set_option backward.isDefEq.respectTransparency false in
 private theorem Iterator.instIteratorLoop.loopWf_eq [UpwardEnumerable α] [LE α] [DecidableLE α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
     {n : Type u → Type w} [Monad n] [LawfulMonad n] (γ : Type u)
@@ -582,13 +580,17 @@ private theorem Iterator.instIteratorLoop.loopWf_eq [UpwardEnumerable α] [LE α
           · simp
         · simp
     · rw [IterM.DefaultConsumers.forIn'_eq_match_step Pl wf]
-      simp [IterM.step_eq, Monadic.step, instLawfulMonadLiftFunction.liftBind_pure, *]
+      simp only [IterM.step_eq, instLawfulMonadLiftFunction.liftBind_pure, Shrink.inflate_deflate, *]
+      -- Unfolding `Monadic.step` earlier would make some defeq checks fail on reducible transparency:
+      -- `Iterator.IsPlausibleStep` is reducible and it reduces to `Monadic.step`, but `Monadic.step`
+      -- is semireducible, and `simp` isn't able to unfold `Monadic.step` inside `Iterator.IsPlausibleStep`,
+      -- since that one only appears in the type of a constant -- I think?
+      simp [Monadic.step]
   · simp
 termination_by IteratorLoop.WithWF.mk ⟨⟨some next, upperBound⟩⟩ acc (hwf := wf)
 decreasing_by
   simp [IteratorLoop.rel, Monadic.isPlausibleStep_iff, Monadic.step, *]
 
-set_option backward.isDefEq.respectTransparency false in
 instance Iterator.instLawfulIteratorLoop [UpwardEnumerable α] [LE α] [DecidableLE α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
     {n : Type u → Type w} [Monad n] [LawfulMonad n] :
@@ -599,7 +601,9 @@ instance Iterator.instLawfulIteratorLoop [UpwardEnumerable α] [LE α] [Decidabl
       IterM.DefaultConsumers.forIn'_eq_wf Pl wf]
     rw [IterM.DefaultConsumers.forIn'.wf]
     split; rotate_left
-    · simp [IterM.step_eq, Monadic.step, Internal.LawfulMonadLiftBindFunction.liftBind_pure (liftBind := lift)]
+    · simp only [IterM.step_eq,
+      Internal.LawfulMonadLiftBindFunction.liftBind_pure (liftBind := lift), Shrink.inflate_deflate]
+      simp [Monadic.step]
     rename_i next _
     rw [instIteratorLoop.loop_eq_wf Pl wf, instIteratorLoop.loopWf_eq (lift := lift)]
     simp only [IterM.step_mk, Monadic.step_eq_step, Monadic.step,

@@ -15,7 +15,6 @@ open Std.Internal Std.Iterators Std.Iterators.Types
 
 variable {m : Type w → Type w'} {n : Type w → Type w''} [Monad m] {β : Type w}
 
--- TODO: make `Iterator.IsPlausibleStep` reducible
 -- We don't want to pollute `List` with this rarely used lemma.
 public theorem Types.ListIterator.stepAsHetT_iterM [LawfulMonad m] {l : List β} :
     (l.iterM m).stepAsHetT = (match l with

@@ -19,8 +19,6 @@ open Std.Iterators
 
 variable {α : Type w} {f : α → α} {init : α}
 
--- TODO: make Iter.IsPlausibleStep reducible
-set_option backward.isDefEq.respectTransparency false in
 theorem Iter.step_repeat :
     (Iter.repeat f init).step = .yield (Iter.repeat f (f init)) init ⟨rfl, rfl⟩ := by
   simp [Iter.«repeat», Iter.step, Iter.toIterM, IterM.step, Iterator.step, IterM.toIter]

@@ -7,19 +7,16 @@ module
 
 prelude
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Basic
-public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Cpop
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Const
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Sub
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Append
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Eq
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.ZeroExtend
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Extract
-
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Cpop
 
 import Init.Data.BitVec.Bootstrap
 import Init.Omega
-@[expose] public section
-
 
 /-!
 This module contains the verification of the bitblaster for `BitVec.cpop`, implemented in
@@ -37,8 +34,8 @@ namespace BVExpr
 
 namespace bitblast
 
-theorem denote_blastExtractAndExtendBit (aig : AIG α) (xc : AIG.RefVec aig w) (x : BitVec w) (start : Nat)
-    (hx : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, xc.get idx hidx, assign⟧ = x.getLsbD idx) :
+theorem denote_blastExtractAndExtendBit (aig : AIG α) (xc : AIG.RefVec aig w)
+    (x : BitVec w) (start : Nat) (hx : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, xc.get idx hidx, assign⟧ = x.getLsbD idx) :
     ∀ (idx : Nat) (hidx : idx < w),
       ⟦
         (blastExtractAndExtendBit aig xc start).aig,
@@ -59,7 +56,7 @@ theorem denote_blastExtractAndExtendBit (aig : AIG α) (xc : AIG.RefVec aig w) (
   · simp [show ¬ idx = 0 by omega]
 
 theorem blastExtractAndExtendBit_denote_mem_prefix (aig : AIG α) (curr : Nat)
-    (xc : RefVec aig w) (hstart : _) :
+    (xc : RefVec aig w) (hstart : start < aig.decls.size) :
     ⟦
       (blastExtractAndExtendBit aig xc curr).aig,
       ⟨start, inv, by apply Nat.lt_of_lt_of_le; exact hstart; apply extractAndExtendBit_le_size⟩,
@@ -72,7 +69,7 @@ theorem blastExtractAndExtendBit_denote_mem_prefix (aig : AIG α) (curr : Nat)
   · intros
     apply extractAndExtendBit_le_size
 
-theorem denote_append (assign : α → Bool) (aig : AIG α) (currIdx w : Nat) (x : BitVec w)
+theorem denote_append_blastExtractAndExtendBit (assign : α → Bool) (aig : AIG α) (currIdx w : Nat) (x : BitVec w)
     (xc : AIG.RefVec aig w) (acc : AIG.RefVec aig (w * currIdx)) (hidx : idx < w * currIdx + w)
     (hacc : ∀ (idx : Nat) (hidx : idx < w * currIdx),
                 ⟦aig, acc.get idx hidx, assign⟧ = (BitVec.extractAndExtend w x).getLsbD idx)
@@ -117,7 +114,7 @@ theorem denote_blastExtractAndExtend (assign : α → Bool) (aig : AIG α) (curr
     simp only [Lean.Elab.WF.paramLet]
     apply denote_blastExtractAndExtend
     · intros idx hidx
-      apply denote_append (hx := hx) (hacc := hacc)
+      apply denote_append_blastExtractAndExtendBit (hx := hx) (hacc := hacc)
     · intros i hi
       rw [blastExtractAndExtendBit_denote_mem_prefix (xc := xc)]
       apply hx

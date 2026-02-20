@@ -2508,11 +2508,19 @@ private theorem extractLsb'_extractAndExtendAux {k len : Nat} {x : BitVec w}
       · intros i hi
         have hcast : len + k * len = (k + 1) * len := by
             simp [Nat.mul_comm, Nat.mul_add, Nat.add_comm]
+
         by_cases hi' : i < k
-        · rw [extractLsb'_append_of_lt (hcast := hcast) hi']
+        · have heq : extractLsb' (i * len) len (BitVec.cast hcast (extractAndExtendBit k len x ++ acc))  =
+              extractLsb' (i * len) len ((extractAndExtendBit k len x ++ acc)) := by
+            ext; simp
+          rw [heq, extractLsb'_append_of_lt hi']
           apply hacc
           exact hi'
-        · simp [show i = k by omega, extractLsb'_append_of_eq (hcast := hcast), extractAndExtendBit]
+        · have heq : extractLsb' (i * len) len (BitVec.cast hcast (extractAndExtendBit k len x ++ acc))   =
+              extractLsb' (i * len) len ((extractAndExtendBit k len x ++ acc)) := by
+            ext; simp
+          rw [heq, extractLsb'_append_of_eq (by omega)]
+          simp [show i = k by omega, extractAndExtendBit]
       · omega
 
 theorem extractLsb'_cpopLayer {w iterNum i oldLen : Nat} {oldLayer : BitVec (oldLen * w)}

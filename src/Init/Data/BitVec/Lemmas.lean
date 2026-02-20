@@ -3030,9 +3030,10 @@ theorem append_extractLsb'_of_lt {x : BitVec (x_len * w)} :
 
 
 theorem extractLsb'_append_of_lt {x : BitVec (k * w)} {y : BitVec w} (hlt : i < k) :
-    extractLsb' (i * w) w ((y ++ x).cast hcast) = extractLsb' (i * w) w x := by
+    extractLsb' (i * w) w (y ++ x) = extractLsb' (i * w) w x := by
   ext j hj
-  simp [← getLsbD_eq_getElem, getLsbD_append, hj]
+  simp only [← getLsbD_eq_getElem, getLsbD_extractLsb', hj, decide_true, getLsbD_append,
+    Bool.true_and, ite_eq_left_iff, Nat.not_lt]
   intros h
   by_cases hw0 : w = 0
   · subst hw0
@@ -3043,7 +3044,7 @@ theorem extractLsb'_append_of_lt {x : BitVec (k * w)} {y : BitVec w} (hlt : i < 
     omega
 
 theorem extractLsb'_append_of_eq {x : BitVec (k * w)} {y : BitVec w} (heq : i = k) :
-    extractLsb' (i * w) w ((y ++ x).cast hcast) = y := by
+    extractLsb' (i * w) w (y ++ x) = y := by
   ext j hj
   simp [← getLsbD_eq_getElem, getLsbD_append, hj, heq]
 

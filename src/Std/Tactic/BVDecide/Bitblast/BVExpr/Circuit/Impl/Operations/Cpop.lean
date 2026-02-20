@@ -1,5 +1,5 @@
 /-
-Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
+Copyright (c) 2026 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Luisa Cicolini, Siddharth Bhat, Henrik Böving
 -/
@@ -30,7 +30,7 @@ variable [Hashable α] [DecidableEq α]
 namespace BVExpr
 namespace bitblast
 
-/-- We extract a single bit in position `start` and extend it to haev width `w`-/
+/-- We extract a single bit in position `start` and extend it to have width `w`-/
 def blastExtractAndExtendBit (aig : AIG α) (x : AIG.RefVec aig w) (start : Nat) : AIG.RefVecEntry α w :=
   -- extract 1 bit starting from start
   let targetExtract : ExtractTarget aig 1 := {vec := x, start := start}

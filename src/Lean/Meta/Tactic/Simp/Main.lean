@@ -109,7 +109,17 @@ private def reduceProjFn? (e : Expr) : SimpM (Option Expr) := do
           let major := e.getArg! projInfo.numParams
           unless (← isConstructorApp major) do
             return none
-          reduceProjCont? (← unfoldDefinitionAny? e)
+          if backward.whnf.reducibleClassField.get (← getOptions) then
+            /-
+            When `backward.whnf.reducibleClassField` is `true`, `unfoldDefault` (in WHNF.lean)
+            already reduces the `.proj` node during `unfoldDefinitionAny?`, so `reduceProjCont?`
+            would discard the fully-reduced result because it expects a `.proj` head.
+            We return the unfolded result directly; the dsimp traversal will revisit it
+            (via `.visit`) and handle any remaining `.proj` nodes naturally.
+            -/
+            unfoldDefinitionAny? e
+          else
+            reduceProjCont? (← unfoldDefinitionAny? e)
       else
         -- `structure` projections
         reduceProjCont? (← unfoldDefinition? e)

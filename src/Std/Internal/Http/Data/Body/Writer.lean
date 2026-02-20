@@ -111,6 +111,36 @@ instance : Coe (Response Full) (Response AnyBody) where
 instance : Coe (Response Outgoing) (Response AnyBody) where
   coe f := { f with }
 
+instance : Coe (ContextAsync (Response Empty)) (ContextAsync (Response AnyBody)) where
+  coe action := do
+    let response ← action
+    pure (response : Response AnyBody)
+
+instance : Coe (ContextAsync (Response Full)) (ContextAsync (Response AnyBody)) where
+  coe action := do
+    let response ← action
+    pure (response : Response AnyBody)
+
+instance : Coe (ContextAsync (Response Outgoing)) (ContextAsync (Response AnyBody)) where
+  coe action := do
+    let response ← action
+    pure (response : Response AnyBody)
+
+instance : Coe (Async (Response Empty)) (ContextAsync (Response AnyBody)) where
+  coe action := do
+    let response ← action
+    pure (response : Response AnyBody)
+
+instance : Coe (Async (Response Full)) (ContextAsync (Response AnyBody)) where
+  coe action := do
+    let response ← action
+    pure (response : Response AnyBody)
+
+instance : Coe (Async (Response Outgoing)) (ContextAsync (Response AnyBody)) where
+  coe action := do
+    let response ← action
+    pure (response : Response AnyBody)
+
 instance : Writer Outgoing where
   send body chunk incomplete := Outgoing.send body chunk incomplete
   close := Outgoing.close
@@ -175,5 +205,23 @@ instance : Writer AnyBody where
     | .outgoing body => Writer.interestSelector body
     | .full body => Writer.interestSelector body
     | .empty body => Writer.interestSelector body
+
+instance : Reader AnyBody where
+  recv
+    | .outgoing body, count => Reader.recv body count
+    | .full body, count => Reader.recv body count
+    | .empty body, count => Reader.recv body count
+  close
+    | .outgoing body => Reader.close body
+    | .full body => Reader.close body
+    | .empty body => Reader.close body
+  isClosed
+    | .outgoing body => Reader.isClosed body
+    | .full body => Reader.isClosed body
+    | .empty body => Reader.isClosed body
+  recvSelector
+    | .outgoing body => Reader.recvSelector body
+    | .full body => Reader.recvSelector body
+    | .empty body => Reader.recvSelector body
 
 end Std.Http.Body

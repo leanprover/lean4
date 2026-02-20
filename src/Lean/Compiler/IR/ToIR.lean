@@ -101,14 +101,14 @@ partial def lowerCode (c : LCNF.Code .impure) : M FnBody := do
     let ret ← getFVarValue fvarId
     return .ret ret
   | .unreach .. => return .unreachable
-  | .sset var i offset y type k _ =>
+  | .sset fvarId i offset y type k _ =>
     let .var y ← getFVarValue y | unreachable!
-    let .var var ← getFVarValue var | unreachable!
-    return .sset var i offset y (toIRType type) (← lowerCode k)
-  | .uset var i y k _ =>
+    let .var fvarId ← getFVarValue fvarId | unreachable!
+    return .sset fvarId i offset y (toIRType type) (← lowerCode k)
+  | .uset fvarId i y k _ =>
     let .var y ← getFVarValue y | unreachable!
-    let .var var ← getFVarValue var | unreachable!
-    return .uset var i y (← lowerCode k)
+    let .var fvarId ← getFVarValue fvarId | unreachable!
+    return .uset fvarId i y (← lowerCode k)
   | .inc fvarId n check persistent k _ =>
     let .var var ← getFVarValue fvarId | unreachable!
     return .inc var n check persistent (← lowerCode k)

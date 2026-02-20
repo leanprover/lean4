@@ -59,7 +59,7 @@ jobs:
       - name: Download toolchain for this commit
         if: ${{ steps.should-run.outputs.should-run == 'true' }}
         id: download-toolchain
-        uses: dawidd6/action-download-artifact@v11
+        uses: dawidd6/action-download-artifact@v14
         with:
           commit: ${{ steps.workflow-info.outputs.sourceHeadSha }}
           workflow: ci.yml

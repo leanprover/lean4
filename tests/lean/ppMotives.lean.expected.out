@@ -1,4 +1,4 @@
-protected def Nat.add : Nat → Nat → Nat :=
+@[implicit_reducible] protected def Nat.add : Nat → Nat → Nat :=
 fun x x_1 =>
   Nat.brecOn x_1
     (fun x f x_2 =>
@@ -7,7 +7,7 @@ fun x x_1 =>
         | a, b.succ => fun x => (x.1 a).succ)
         f)
     x
-protected def Nat.add : Nat → Nat → Nat :=
+@[implicit_reducible] protected def Nat.add : Nat → Nat → Nat :=
 fun x x_1 =>
   Nat.brecOn (motive := fun x => Nat → Nat) x_1
     (fun x f x_2 =>

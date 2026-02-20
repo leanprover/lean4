@@ -197,7 +197,6 @@ theorem IsValidSearchFrom.splitFromSteps_eq_extend_split {ρ : Type} (pat : ρ)
     · exact h' p hp₁ hp
     · exact rej _ (Std.not_lt.1 hp) hp₂
 
-set_option backward.isDefEq.respectTransparency false in
 theorem SplitIterator.toList_eq_splitFromSteps {ρ : Type} {pat : ρ} {σ : Slice → Type}
     [ToForwardSearcher pat σ]
     [∀ s, Std.Iterator (σ s) Id (SearchStep s)] [∀ s, Std.Iterators.Finite (σ s) Id] {s : Slice}

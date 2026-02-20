@@ -22,6 +22,8 @@ options get_default_options() {
     opts = opts.update({"quotPrecheck"}, true);
 
     opts = opts.update({"pp", "rawOnError"}, true);
+    // enable implicit argument transparency bump
+    opts = opts.update({"backward", "isDefEq", "implicitBump"}, true);
 #endif
     return opts;
 }

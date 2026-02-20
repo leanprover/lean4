@@ -23,7 +23,7 @@ attribute [instance] exposed
 #guard_msgs in
 attribute [local instance] exposed
 
-@[expose, instance_reducible]
+@[expose, implicit_reducible]
 public def exposedAndReducible : Inhabited Nat := inferInstance
 
 #guard_msgs in

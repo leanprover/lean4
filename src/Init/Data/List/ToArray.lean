@@ -589,7 +589,7 @@ theorem flatMap_toArray_cons {β} (f : α → Array β) (a : α) (as : List α) 
 @[simp, grind =] theorem swap_toArray (l : List α) (i j : Nat) {hi hj}:
     l.toArray.swap i j hi hj = ((l.set i l[j]).set j l[i]).toArray := by
   apply ext'
-  simp; rfl
+  simp
 
 @[simp, grind =] theorem eraseIdx_toArray (l : List α) (i : Nat) (h : i < l.toArray.size) :
     l.toArray.eraseIdx i h = (l.eraseIdx i).toArray := by
@@ -644,8 +644,8 @@ private theorem insertIdx_loop_toArray (i : Nat) (l : List α) (j : Nat) (hj : j
       drop_append_of_le_length (by simp; omega)]
     simp only [append_assoc, cons_append, nil_append]
     cases i with
-    | zero => simp; rfl
-    | succ i => rw [take_set_of_le (by omega)]; rfl
+    | zero => simp
+    | succ i => rw [take_set_of_le (by omega)]
   · simp only [Nat.not_lt] at h'
     have : i = j := by omega
     subst this

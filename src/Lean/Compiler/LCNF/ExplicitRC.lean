@@ -638,10 +638,10 @@ partial def Code.explicitRc (code : Code .impure) : RcM (Code .impure) := do
       addInc fvarId code
     else
       return code
-  | .uset (var := var) (k := k) .. | .sset (var := var) (k := k) .. =>
+  | .uset (fvarId := fvarId) (k := k) .. | .sset (fvarId := fvarId) (k := k) .. =>
     let k ← k.explicitRc
-    -- We don't need to insert `var` since we only need to track live variables that are references at runtime
-    useVar var
+    -- We don't need to insert `fvarId` since we only need to track live variables that are references at runtime
+    useVar fvarId
     return code.updateCont! k
   | .unreach .. =>
     setRetLiveVars

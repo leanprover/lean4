@@ -133,10 +133,10 @@ where
     | .jp decl k =>
       let decl ← decl.updateValue (← decl.value.pushProj)
       go k (decls.push (.jp decl))
-    | .uset var i y k _ =>
-      go k (decls.push (.uset var i y))
-    | .sset var i offset y ty k _ =>
-      go k (decls.push (.sset var i offset y ty))
+    | .uset fvarId i y k _ =>
+      go k (decls.push (.uset fvarId i y))
+    | .sset fvarId i offset y ty k _ =>
+      go k (decls.push (.sset fvarId i offset y ty))
     | .inc fvarId n check persistent k _ =>
       go k (decls.push (.inc fvarId n check persistent))
     | .dec fvarId n check persistent k _ =>

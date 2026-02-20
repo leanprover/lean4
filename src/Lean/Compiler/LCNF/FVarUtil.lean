@@ -209,8 +209,8 @@ instance : TraverseFVar (CodeDecl pu) where
     | .fun decl _ => return .fun (← mapFVarM f decl)
     | .jp decl => return .jp (← mapFVarM f decl)
     | .let decl => return .let (← mapFVarM f decl)
-    | .uset var i y _ => return .uset (← f var) i (← f y)
-    | .sset var i offset y ty _ => return .sset (← f var) i offset (← f y) (← mapFVarM f ty)
+    | .uset fvarId i y _ => return .uset (← f fvarId) i (← f y)
+    | .sset fvarId i offset y ty _ => return .sset (← f fvarId) i offset (← f y) (← mapFVarM f ty)
     | .inc fvarId n check persistent _ => return .inc (← f fvarId) n check persistent
     | .dec fvarId n check persistent _ => return .dec (← f fvarId) n check persistent
   forFVarM f decl :=
@@ -218,8 +218,8 @@ instance : TraverseFVar (CodeDecl pu) where
     | .fun decl _ => forFVarM f decl
     | .jp decl => forFVarM f decl
     | .let decl => forFVarM f decl
-    | .uset var i y _ => do f var; f y
-    | .sset var i offset y ty _ => do f var; f y; forFVarM f ty
+    | .uset fvarId i y _ => do f fvarId; f y
+    | .sset fvarId i offset y ty _ => do f fvarId; f y; forFVarM f ty
     | .inc (fvarId := fvarId) .. | .dec (fvarId := fvarId) .. => f fvarId
 
 instance : TraverseFVar (Alt pu) where

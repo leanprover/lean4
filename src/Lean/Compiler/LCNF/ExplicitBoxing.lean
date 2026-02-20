@@ -274,14 +274,14 @@ partial def Code.explicitBoxing (code : Code .impure) : BoxM (Code .impure) := d
     let decl ← decl.update (← getResultType) decl.params value
     let k ← k.explicitBoxing
     return code.updateFun! decl k
-  | .uset var i y k _ =>
+  | .uset fvarId i y k _ =>
     let k ← k.explicitBoxing
     castVarIfNeeded y ImpureType.usize fun y =>
-      return code.updateUset! var i y k
-  | .sset var i offset y ty k _ =>
+      return code.updateUset! fvarId i y k
+  | .sset fvarId i offset y ty k _ =>
     let k ← k.explicitBoxing
     castVarIfNeeded y ty fun y =>
-      return code.updateSset! var i offset y ty k
+      return code.updateSset! fvarId i offset y ty k
   | .cases cs =>
     let alts ← cs.alts.mapMonoM (·.mapCodeM (·.explicitBoxing))
     castVarIfNeeded cs.discr (mkConst cs.typeName) fun discr =>

@@ -35,6 +35,7 @@ Author: Leonardo de Moura
 // Declared as a weak symbol so leanrt doesn't require libLean at link time.
 // When the Lean demangler is linked in, it overrides this stub.
 extern "C" __attribute__((weak)) lean_object * lean_demangle_bt_line_cstr(lean_object * s) {
+    lean_dec(s);
     return lean_mk_string("");
 }
 #endif

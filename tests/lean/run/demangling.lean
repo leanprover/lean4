@@ -267,7 +267,7 @@ private def checkRoundTrip (label : String) (parts : List (String ⊕ Nat)) : IO
 
 #eval do
   let name := mkName [.inl "foo", .inl "_lambda_2"]
-  checkSome "lambda_2" (demangleSymbol (name.mangle "l_")) "foo [λ]"
+  checkSome "lambda_2" (demangleSymbol (name.mangle "l_")) "foo._lambda_2"
 
 #eval do
   let name := mkName [.inl "foo", .inl "_elam"]
@@ -283,7 +283,7 @@ private def checkRoundTrip (label : String) (parts : List (String ⊕ Nat)) : IO
 
 #eval do
   let name := mkName [.inl "foo", .inl "_jp_3"]
-  checkSome "jp indexed" (demangleSymbol (name.mangle "l_")) "foo [jp]"
+  checkSome "jp indexed" (demangleSymbol (name.mangle "l_")) "foo._jp_3"
 
 #eval do
   let name := mkName [.inl "myConst", .inl "_closed", .inr 0]
@@ -291,7 +291,7 @@ private def checkRoundTrip (label : String) (parts : List (String ⊕ Nat)) : IO
 
 #eval do
   let name := mkName [.inl "myConst", .inl "_closed_0"]
-  checkSome "closed indexed" (demangleSymbol (name.mangle "l_")) "myConst [closed]"
+  checkSome "closed indexed" (demangleSymbol (name.mangle "l_")) "myConst._closed_0"
 
 #eval do
   let name := mkName [.inl "foo", .inl "_redArg", .inl "_boxed"]

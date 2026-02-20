@@ -9,6 +9,7 @@ prelude
 import Init.While
 import Init.Data.String.TakeDrop
 import Init.Data.String.Search
+import Lean.Data.NameTrie
 public import Lean.Compiler.NameMangling
 
 /-! Human-friendly demangling of Lean compiler symbol names, extending
@@ -40,31 +41,23 @@ private def dropPrefix? (s : String) (pre : String) : Option String :=
 private def isAllDigits (s : String) : Bool :=
   !s.isEmpty && s.all (·.isDigit)
 
-private def isHexChar (c : Char) : Bool :=
-  c.isDigit || (c.val >= 0x61 && c.val <= 0x66) || (c.val >= 0x41 && c.val <= 0x46)
-
-private inductive Component where
-  | str (s : String)
-  | num (n : Nat)
-  deriving BEq, Repr, Inhabited
-
-private def nameToComponents (n : Name) : Array Component :=
+private def nameToNameParts (n : Name) : Array NamePart :=
   go n [] |>.toArray
 where
-  go : Name → List Component → List Component
+  go : Name → List NamePart → List NamePart
     | .anonymous, acc => acc
-    | .str pre s, acc => go pre (Component.str s :: acc)
-    | .num pre n, acc => go pre (Component.num n :: acc)
+    | .str pre s, acc => go pre (NamePart.str s :: acc)
+    | .num pre n, acc => go pre (NamePart.num n :: acc)
 
-private def formatComponents (comps : Array Component) : String :=
+private def formatNameParts (comps : Array NamePart) : String :=
   comps.toList.map (fun
-    | Component.str s => s
-    | Component.num n => toString n)
+    | NamePart.str s => s
+    | NamePart.num n => toString n)
   |> String.intercalate "."
 
-private def matchSuffix (c : Component) : Option String :=
+private def matchSuffix (c : NamePart) : Option String :=
   match c with
-  | Component.str s =>
+  | NamePart.str s =>
     if s == "_redArg" then some "arity↓"
     else if s == "_boxed" then some "boxed"
     else if s == "_impl" then some "impl"
@@ -72,24 +65,21 @@ private def matchSuffix (c : Component) : Option String :=
     else if s == "_jp" then some "jp"
     else if s == "_closed" then some "closed"
     else if (dropPrefix? s "_lam_").any isAllDigits then some "λ"
-    else if (dropPrefix? s "_lambda_").any isAllDigits then some "λ"
     else if (dropPrefix? s "_elam_").any isAllDigits then some "λ"
-    else if (dropPrefix? s "_jp_").any isAllDigits then some "jp"
-    else if (dropPrefix? s "_closed_").any isAllDigits then some "closed"
     else none
   | _ => none
 
-private def isSpecIndex (c : Component) : Bool :=
+private def isSpecIndex (c : NamePart) : Bool :=
   match c with
-  | Component.str s => (dropPrefix? s "spec_").any isAllDigits
+  | NamePart.str s => (dropPrefix? s "spec_").any isAllDigits
   | _ => false
 
-private def stripPrivate (comps : Array Component) (start stop : Nat) :
+private def stripPrivate (comps : Array NamePart) (start stop : Nat) :
     Nat × Bool :=
-  if stop - start >= 3 && comps[start]? == some (Component.str "_private") then
+  if stop - start >= 3 && comps[start]? == some (NamePart.str "_private") then
     Id.run do
       for i in [start + 1 : stop] do
-        if comps[i]? == some (Component.num 0) then
+        if comps[i]? == some (NamePart.num 0) then
           if i + 1 < stop then return (i + 1, true)
           else return (start, false)
       return (start, false)
@@ -100,11 +90,11 @@ private structure SpecEntry where
   name : String
   flags : Array String
 
-private def processSpecContext (comps : Array Component) : SpecEntry := Id.run do
+private def processSpecContext (comps : Array NamePart) : SpecEntry := Id.run do
   let mut begin_ := 0
-  if comps.size >= 3 && comps[0]? == some (Component.str "_private") then
+  if comps.size >= 3 && comps[0]? == some (NamePart.str "_private") then
     for i in [1:comps.size] do
-      if comps[i]? == some (Component.num 0) && i + 1 < comps.size then
+      if comps[i]? == some (NamePart.num 0) && i + 1 < comps.size then
         begin_ := i + 1
         break
   let mut nameParts : Array String := #[]
@@ -118,11 +108,11 @@ private def processSpecContext (comps : Array Component) : SpecEntry := Id.run d
     | none =>
       if isSpecIndex c then pure ()
       else match c with
-        | Component.str s => nameParts := nameParts.push s
-        | Component.num n => nameParts := nameParts.push (toString n)
+        | NamePart.str s => nameParts := nameParts.push s
+        | NamePart.num n => nameParts := nameParts.push (toString n)
   { name := String.intercalate "." nameParts.toList, flags }
 
-private def postprocessComponents (components : Array Component) : String := Id.run do
+private def postprocessNameParts (components : Array NamePart) : String := Id.run do
   if components.isEmpty then return ""
 
   let (privStart, isPrivate) := stripPrivate components 0 components.size
@@ -131,7 +121,7 @@ private def postprocessComponents (components : Array Component) : String := Id.
   -- Strip hygienic suffixes (_@ onward)
   for i in [:parts.size] do
     match parts[i]! with
-    | Component.str s =>
+    | NamePart.str s =>
       if s.startsWith "_@" then
         parts := parts.extract 0 i
         break
@@ -141,7 +131,7 @@ private def postprocessComponents (components : Array Component) : String := Id.
   let mut specEntries : Array SpecEntry := #[]
   let mut firstAt : Option Nat := none
   for i in [:parts.size] do
-    if parts[i]! == Component.str "_at_" then
+    if parts[i]! == NamePart.str "_at_" then
       firstAt := some i
       break
 
@@ -149,9 +139,9 @@ private def postprocessComponents (components : Array Component) : String := Id.
     let base := parts.extract 0 fa
     let rest := parts.extract fa parts.size
 
-    let mut entries : Array (Array Component) := #[]
-    let mut currentCtx : Option (Array Component) := none
-    let mut remaining : Array Component := #[]
+    let mut entries : Array (Array NamePart) := #[]
+    let mut currentCtx : Option (Array NamePart) := none
+    let mut remaining : Array NamePart := #[]
     let mut skipNext := false
 
     for i in [:rest.size] do
@@ -159,16 +149,16 @@ private def postprocessComponents (components : Array Component) : String := Id.
         skipNext := false
         continue
       let p := rest[i]!
-      if p == Component.str "_at_" then
+      if p == NamePart.str "_at_" then
         if let some ctx := currentCtx then
           entries := entries.push ctx
         currentCtx := some #[]
-      else if p == Component.str "_spec" then
+      else if p == NamePart.str "_spec" then
         if let some ctx := currentCtx then
           entries := entries.push ctx
           currentCtx := none
         skipNext := true
-      else if match p with | Component.str s => s.startsWith "_spec" | _ => false then
+      else if match p with | NamePart.str s => s.startsWith "_spec" | _ => false then
         if let some ctx := currentCtx then
           entries := entries.push ctx
           currentCtx := none
@@ -199,7 +189,7 @@ private def postprocessComponents (components : Array Component) : String := Id.
       parts := parts.pop
     | none =>
       match last with
-      | Component.num _ =>
+      | NamePart.num _ =>
         if parts.size >= 2 then
           match matchSuffix parts[parts.size - 2]! with
           | some flag =>
@@ -212,7 +202,7 @@ private def postprocessComponents (components : Array Component) : String := Id.
   if isPrivate then
     flags := flags.push "private"
 
-  let name := if parts.isEmpty then "?" else formatComponents parts
+  let name := if parts.isEmpty then "?" else formatNameParts parts
   let mut result := name
 
   if !flags.isEmpty then
@@ -288,7 +278,7 @@ private def stripColdSuffix (s : String) : String × String := Id.run do
 
 private def demangleBody (body : String) : String :=
   let name := Name.demangle body
-  postprocessComponents (nameToComponents name)
+  postprocessNameParts (nameToNameParts name)
 
 private def demangleCore (s : String) : Option String := do
   -- _init_l_
@@ -381,7 +371,7 @@ private def extractSymbol (line : String) :
         -- Skip hex digits
         let mut j := rawNext line pos1
         for _ in [:len] do
-          if rawAtEnd line j || !isHexChar (rawGet line j) then break
+          if rawAtEnd line j || !(rawGet line j).isHexDigit then break
           j := rawNext line j
         -- Skip spaces
         for _ in [:len] do

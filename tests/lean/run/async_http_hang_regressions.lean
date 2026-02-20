@@ -310,3 +310,15 @@ def stressResponseHandler (n : Nat) : TestHandler := fun _ => do
   assertContains "20_triple_pipeline_mixed" response "/a"
   assertContains "20_triple_pipeline_mixed" response "/b"
   assertContains "20_triple_pipeline_mixed" response "/c"
+
+-- 21: Slow/incomplete active body transfer must time out (no connection pinning).
+#eval runWithTimeout "21_incomplete_slow_post_times_out" 2000 do
+  let raw := "POST /slow HTTP/1.1\x0d\nHost: example.com\x0d\nContent-Length: 100\x0d\nConnection: close\x0d\n\x0d\nabcde".toUTF8
+  let response ← sendRawTimed
+    "21_incomplete_slow_post_times_out/send"
+    raw
+    (fun req => do
+      let _s : String ← req.body.readAll
+      Response.ok |>.text "unreachable")
+    (config := { lingeringTimeout := 200, generateDate := false })
+  assertStatusPrefix "21_incomplete_slow_post_times_out" response "HTTP/1.1 408"

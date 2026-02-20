@@ -96,13 +96,12 @@ private def receiveWithTimeout {α : Type} {β : Type}
   if let some socket := socket then
     baseSelectables := baseSelectables.push (.case (Transport.recvSelector socket expect) (Recv.bytes · |> pure))
 
-    -- Only apply an idle timeout when no active body stream or pending response is in
-    -- flight; during active data transfer the timeout is managed by the transfer itself.
-    if responseBody.isNone ∧ requestBody.isNone ∧ response.isNone then
-      if let some keepAliveTimeout := keepAliveTimeoutMs then
-        baseSelectables := baseSelectables.push (.case (← Selector.sleep keepAliveTimeout) (fun _ => pure .timeout))
-      else
-        baseSelectables := baseSelectables.push (.case (← Selector.sleep timeoutMs) (fun _ => pure .timeout))
+    -- Always keep a timeout active while waiting on socket progress to avoid
+    -- pinning the connection during slow/incomplete transfers.
+    if let some keepAliveTimeout := keepAliveTimeoutMs then
+      baseSelectables := baseSelectables.push (.case (← Selector.sleep keepAliveTimeout) (fun _ => pure .timeout))
+    else
+      baseSelectables := baseSelectables.push (.case (← Selector.sleep timeoutMs) (fun _ => pure .timeout))
 
   if let some responseBody := responseBody then
     baseSelectables := baseSelectables.push (.case (Body.Reader.recvSelector responseBody) (Recv.responseBody · |> pure))

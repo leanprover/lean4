@@ -93,6 +93,50 @@ def notImplemented : String :=
   "HTTP/1.1 501 Not Implemented\x0d\nContent-Length: 0\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"
 
 
+-- Client-mode response parsing regressions.
+#eval show IO _ from do
+  let machineA : Protocol.H1.Machine .sending := { config := {} }
+  let rawA := "HTTP/1.1 200 OK\x0d\nContent-Length: 0\x0d\nConnection: close\x0d\n\x0d\n"
+  let (machineA, stepA) := (machineA.feed rawA.toUTF8).step
+  let failedA := stepA.events.any fun
+    | .failed _ => true
+    | _ => false
+  if failedA then
+    throw <| IO.userError s!"Test 'Client mode parses response status-line with headers' failed:\nUnexpected failure events: {repr stepA.events}"
+
+  let endedA := stepA.events.any fun
+    | .endHeaders _ => true
+    | _ => false
+  unless endedA do
+    throw <| IO.userError s!"Test 'Client mode parses response status-line with headers' failed:\nMissing endHeaders event: {repr stepA.events}"
+
+  unless machineA.reader.messageHead.status == .ok do
+    throw <| IO.userError s!"Test 'Client mode parses response status-line with headers' failed:\nUnexpected status: {repr machineA.reader.messageHead.status}"
+
+  unless machineA.reader.messageHead.headers.hasEntry Header.Name.contentLength (Header.Value.ofString! "0") do
+    throw <| IO.userError s!"Test 'Client mode parses response status-line with headers' failed:\nMissing Content-Length header in parsed response"
+
+  let machineB : Protocol.H1.Machine .sending := { config := {} }
+  let rawB := "HTTP/1.1 204 No Content\x0d\n\x0d\n"
+  let (_machineB, stepB) := (machineB.feed rawB.toUTF8).step
+  let failedB := stepB.events.any fun
+    | .failed _ => true
+    | _ => false
+  if failedB then
+    throw <| IO.userError s!"Test 'Client mode parses headerless response status-line' failed:\nUnexpected failure events: {repr stepB.events}"
+
+  let needMoreB := stepB.events.any fun
+    | .needMoreData _ => true
+    | _ => false
+  if needMoreB then
+    throw <| IO.userError s!"Test 'Client mode parses headerless response status-line' failed:\nUnexpected needMoreData event: {repr stepB.events}"
+
+  let endedB := stepB.events.any fun
+    | .endHeaders _ => true
+    | _ => false
+  unless endedB do
+    throw <| IO.userError s!"Test 'Client mode parses headerless response status-line' failed:\nMissing endHeaders event: {repr stepB.events}"
+
 -- Host header rules.
 #eval show IO _ from do
   let (clientA, serverA) ← Mock.new

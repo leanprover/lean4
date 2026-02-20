@@ -229,7 +229,7 @@ Examples:
 * `"Orange".toLower = "orange"`
 * `"ABc123".toLower = "abc123"`
 -/
-@[inline] def toLower (s : String) : String :=
+@[inline, expose] def toLower (s : String) : String :=
   s.map Char.toLower
 
 /--

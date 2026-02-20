@@ -6,7 +6,10 @@ Authors: Sofia Rodrigues
 module
 
 prelude
+public import Std.Internal.Http.Internal.Char
 public import Std.Internal.Http.Internal.ChunkedBuffer
+public import Std.Internal.Http.Internal.LowerCase
+public import Std.Internal.Http.Internal.MultiMap
 public import Std.Internal.Http.Internal.Encode
 
 public section

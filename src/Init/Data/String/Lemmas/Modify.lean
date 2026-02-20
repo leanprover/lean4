@@ -57,4 +57,14 @@ theorem length_map {f : Char → Char} {s : String} : (s.map f).length = s.lengt
 theorem map_eq_empty {f : Char → Char} {s : String} : s.map f = "" ↔ s = "" := by
   simp [← toList_eq_nil_iff]
 
+@[simp]
+theorem map_map {f g : Char → Char} {s : String} : String.map g (String.map f s) = String.map (g ∘ f) s  := by
+  apply String.ext
+  simp [List.map_map]
+
+@[simp]
+theorem map_id {s : String} : String.map id s = s := by
+  apply String.ext
+  simp [List.map_id]
+
 end String

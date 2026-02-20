@@ -14770,8 +14770,8 @@ goto block_165;
 }
 default: 
 {
-lean_dec(x_237);
 lean_dec_ref(x_236);
+lean_dec(x_237);
 lean_dec_ref(x_28);
 lean_dec_ref(x_24);
 x_17 = lean_box(0);
@@ -14847,8 +14847,8 @@ goto block_235;
 }
 else
 {
-lean_dec(x_237);
 lean_dec_ref(x_236);
+lean_dec(x_237);
 lean_dec_ref(x_28);
 lean_dec_ref(x_24);
 x_17 = lean_box(0);
@@ -30752,9 +30752,9 @@ return x_130;
 else
 {
 lean_object* x_198; 
+lean_dec_ref(x_1);
 lean_dec(x_3);
 lean_dec_ref(x_2);
-lean_dec_ref(x_1);
 x_198 = l_Lean_Meta_Grind_Arith_Cutsat_DvdCnstr_throwUnexpected___redArg(x_120, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
 lean_dec(x_13);
 lean_dec_ref(x_12);
@@ -31099,12 +31099,12 @@ goto block_290;
 else
 {
 uint8_t x_294; 
+lean_dec_ref(x_27);
 lean_dec(x_251);
 lean_dec(x_249);
 lean_dec(x_30);
 lean_dec_ref(x_29);
 lean_dec_ref(x_28);
-lean_dec_ref(x_27);
 lean_dec(x_25);
 lean_dec_ref(x_24);
 lean_dec_ref(x_23);

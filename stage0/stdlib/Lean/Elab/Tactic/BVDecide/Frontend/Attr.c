@@ -4613,8 +4613,8 @@ goto block_48;
 }
 else
 {
-lean_dec(x_54);
 lean_dec_ref(x_53);
+lean_dec(x_54);
 lean_dec(x_3);
 lean_dec(x_1);
 x_39 = x_49;

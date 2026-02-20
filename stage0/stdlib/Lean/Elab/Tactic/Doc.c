@@ -1918,8 +1918,8 @@ goto block_10;
 }
 else
 {
-lean_dec(x_23);
 lean_dec_ref(x_22);
+lean_dec(x_23);
 lean_dec_ref(x_20);
 goto block_10;
 }

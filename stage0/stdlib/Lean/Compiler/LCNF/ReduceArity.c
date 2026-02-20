@@ -6279,8 +6279,8 @@ block_220:
 if (x_202 == 0)
 {
 lean_object* x_203; lean_object* x_204; lean_object* x_205; uint8_t x_206; 
-lean_dec(x_14);
 lean_inc(x_10);
+lean_dec(x_14);
 lean_dec_ref(x_1);
 x_203 = ((lean_object*)(l_Lean_Compiler_LCNF_Decl_reduceArity___closed__11));
 x_204 = l_Lean_isTracingEnabledFor___at___00Lean_Compiler_LCNF_Decl_reduceArity_spec__7___redArg(x_203, x_4);
@@ -6367,8 +6367,8 @@ else
 {
 uint8_t x_224; 
 lean_dec_ref(x_11);
-lean_dec_ref(x_8);
 lean_dec_ref(x_7);
+lean_dec_ref(x_8);
 lean_dec(x_5);
 lean_dec_ref(x_4);
 lean_dec(x_3);

@@ -2126,8 +2126,8 @@ goto _start;
 else
 {
 lean_object* x_12; 
-lean_dec(x_3);
 lean_dec_ref(x_2);
+lean_dec(x_3);
 lean_dec(x_1);
 x_12 = lean_array_to_list(x_4);
 return x_12;

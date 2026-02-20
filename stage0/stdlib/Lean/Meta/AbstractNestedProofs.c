@@ -3265,10 +3265,10 @@ goto block_17;
 else
 {
 lean_object* x_39; lean_object* x_40; lean_object* x_41; 
-lean_dec_ref(x_38);
 lean_inc(x_37);
 lean_inc_ref(x_36);
 lean_inc_ref(x_35);
+lean_dec_ref(x_38);
 lean_dec_ref(x_32);
 x_39 = lean_ctor_get(x_33, 0);
 lean_inc(x_39);

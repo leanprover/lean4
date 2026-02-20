@@ -939,14 +939,14 @@ goto block_35;
 }
 block_75:
 {
-if (lean_obj_tag(x_45) == 1)
+if (lean_obj_tag(x_44) == 1)
 {
 lean_object* x_47; lean_object* x_48; 
-x_47 = lean_ctor_get(x_45, 0);
+x_47 = lean_ctor_get(x_44, 0);
 lean_inc(x_47);
-lean_dec_ref(x_45);
-x_48 = lean_string_append(x_46, x_44);
 lean_dec_ref(x_44);
+x_48 = lean_string_append(x_46, x_45);
+lean_dec_ref(x_45);
 if (lean_obj_tag(x_47) == 0)
 {
 lean_object* x_49; lean_object* x_50; lean_object* x_51; uint8_t x_52; lean_object* x_53; uint8_t x_54; 
@@ -1028,8 +1028,8 @@ goto block_39;
 }
 else
 {
-lean_dec(x_45);
-lean_dec_ref(x_44);
+lean_dec_ref(x_45);
+lean_dec(x_44);
 x_32 = x_46;
 goto block_35;
 }
@@ -1061,16 +1061,16 @@ x_90 = lean_string_append(x_88, x_82);
 x_91 = l_Nat_reprFast(x_89);
 x_92 = lean_string_append(x_90, x_91);
 lean_dec_ref(x_91);
-x_44 = x_82;
-x_45 = x_78;
+x_44 = x_78;
+x_45 = x_82;
 x_46 = x_92;
 goto block_75;
 }
 else
 {
 lean_dec(x_77);
-x_44 = x_82;
-x_45 = x_78;
+x_44 = x_78;
+x_45 = x_82;
 x_46 = x_88;
 goto block_75;
 }
@@ -1629,14 +1629,14 @@ goto block_42;
 }
 block_78:
 {
-if (lean_obj_tag(x_51) == 1)
+if (lean_obj_tag(x_52) == 1)
 {
 lean_object* x_54; lean_object* x_55; 
-x_54 = lean_ctor_get(x_51, 0);
+x_54 = lean_ctor_get(x_52, 0);
 lean_inc(x_54);
-lean_dec_ref(x_51);
-x_55 = lean_string_append(x_53, x_52);
 lean_dec_ref(x_52);
+x_55 = lean_string_append(x_53, x_51);
+lean_dec_ref(x_51);
 if (lean_obj_tag(x_54) == 0)
 {
 lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; uint8_t x_60; 
@@ -1712,8 +1712,8 @@ goto block_50;
 }
 else
 {
-lean_dec_ref(x_52);
-lean_dec(x_51);
+lean_dec(x_52);
+lean_dec_ref(x_51);
 x_39 = x_53;
 goto block_42;
 }
@@ -1745,16 +1745,16 @@ x_93 = lean_string_append(x_91, x_85);
 x_94 = l_Nat_reprFast(x_92);
 x_95 = lean_string_append(x_93, x_94);
 lean_dec_ref(x_94);
-x_51 = x_81;
-x_52 = x_85;
+x_51 = x_85;
+x_52 = x_81;
 x_53 = x_95;
 goto block_78;
 }
 else
 {
 lean_dec(x_80);
-x_51 = x_81;
-x_52 = x_85;
+x_51 = x_85;
+x_52 = x_81;
 x_53 = x_91;
 goto block_78;
 }

@@ -7547,8 +7547,8 @@ return x_123;
 else
 {
 lean_object* x_141; lean_object* x_142; 
-lean_dec_ref(x_2);
 lean_dec_ref(x_1);
+lean_dec_ref(x_2);
 x_141 = l___private_Lean_Meta_Tactic_Grind_Proof_0__Lean_Meta_Grind_mkCongrProof___closed__4;
 x_142 = l_panic___at___00__private_Lean_Meta_Tactic_Grind_Proof_0__Lean_Meta_Grind_findCommon_spec__5(x_141, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
 return x_142;
@@ -8495,8 +8495,8 @@ return x_43;
 else
 {
 lean_object* x_46; lean_object* x_47; 
-lean_dec(x_21);
 lean_dec_ref(x_20);
+lean_dec(x_21);
 lean_dec(x_19);
 lean_dec(x_3);
 lean_dec_ref(x_1);
@@ -9525,9 +9525,9 @@ return x_31;
 else
 {
 lean_object* x_32; lean_object* x_33; 
+lean_dec_ref(x_4);
 lean_dec(x_6);
 lean_dec_ref(x_5);
-lean_dec_ref(x_4);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 x_32 = l___private_Lean_Meta_Tactic_Grind_Proof_0__Lean_Meta_Grind_mkCongrProofFunCC_go___closed__1;

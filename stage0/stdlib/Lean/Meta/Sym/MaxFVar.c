@@ -235,9 +235,9 @@ return x_26;
 else
 {
 uint8_t x_27; 
-lean_dec_ref(x_3);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
+lean_dec_ref(x_3);
 x_27 = !lean_is_exclusive(x_10);
 if (x_27 == 0)
 {
@@ -1743,13 +1743,13 @@ block_204:
 if (x_176 == 0)
 {
 lean_object* x_177; lean_object* x_178; 
+lean_dec_ref(x_1);
 lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec(x_5);
 lean_dec_ref(x_4);
 lean_dec(x_3);
 lean_dec_ref(x_2);
-lean_dec_ref(x_1);
 x_177 = lean_box(0);
 x_178 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_178, 0, x_177);
@@ -1766,13 +1766,13 @@ x_181 = l_Lean_PersistentHashMap_find_x3f___at___00Lean_Meta_Sym_getMaxFVar_x3f_
 if (lean_obj_tag(x_181) == 1)
 {
 uint8_t x_182; 
+lean_dec_ref(x_1);
 lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec(x_5);
 lean_dec_ref(x_4);
 lean_dec(x_3);
 lean_dec_ref(x_2);
-lean_dec_ref(x_1);
 x_182 = !lean_is_exclusive(x_181);
 if (x_182 == 0)
 {
@@ -1865,8 +1865,8 @@ goto block_64;
 }
 else
 {
-lean_dec(x_3);
 lean_dec_ref(x_1);
+lean_dec(x_3);
 return x_198;
 }
 }
@@ -1889,13 +1889,13 @@ goto block_64;
 else
 {
 uint8_t x_201; 
+lean_dec_ref(x_1);
 lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec(x_5);
 lean_dec_ref(x_4);
 lean_dec(x_3);
 lean_dec_ref(x_2);
-lean_dec_ref(x_1);
 x_201 = !lean_is_exclusive(x_185);
 if (x_201 == 0)
 {
@@ -1939,13 +1939,13 @@ block_223:
 if (x_209 == 0)
 {
 lean_object* x_210; lean_object* x_211; 
+lean_dec_ref(x_1);
 lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec(x_5);
 lean_dec_ref(x_4);
 lean_dec(x_3);
 lean_dec_ref(x_2);
-lean_dec_ref(x_1);
 x_210 = lean_box(0);
 x_211 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_211, 0, x_210);
@@ -1962,13 +1962,13 @@ x_214 = l_Lean_PersistentHashMap_find_x3f___at___00Lean_Meta_Sym_getMaxFVar_x3f_
 if (lean_obj_tag(x_214) == 1)
 {
 uint8_t x_215; 
+lean_dec_ref(x_1);
 lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec(x_5);
 lean_dec_ref(x_4);
 lean_dec(x_3);
 lean_dec_ref(x_2);
-lean_dec_ref(x_1);
 x_215 = !lean_is_exclusive(x_214);
 if (x_215 == 0)
 {
@@ -2106,13 +2106,13 @@ block_251:
 if (x_233 == 0)
 {
 lean_object* x_234; lean_object* x_235; 
+lean_dec_ref(x_1);
 lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec(x_5);
 lean_dec_ref(x_4);
 lean_dec(x_3);
 lean_dec_ref(x_2);
-lean_dec_ref(x_1);
 x_234 = lean_box(0);
 x_235 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_235, 0, x_234);
@@ -2129,13 +2129,13 @@ x_238 = l_Lean_PersistentHashMap_find_x3f___at___00Lean_Meta_Sym_getMaxFVar_x3f_
 if (lean_obj_tag(x_238) == 1)
 {
 uint8_t x_239; 
+lean_dec_ref(x_1);
 lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec(x_5);
 lean_dec_ref(x_4);
 lean_dec(x_3);
 lean_dec_ref(x_2);
-lean_dec_ref(x_1);
 x_239 = !lean_is_exclusive(x_238);
 if (x_239 == 0)
 {
@@ -2481,13 +2481,13 @@ block_345:
 if (x_302 == 0)
 {
 lean_object* x_303; lean_object* x_304; 
+lean_dec_ref(x_1);
 lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec(x_5);
 lean_dec_ref(x_4);
 lean_dec(x_3);
 lean_dec_ref(x_2);
-lean_dec_ref(x_1);
 x_303 = lean_box(0);
 x_304 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_304, 0, x_303);
@@ -2504,13 +2504,13 @@ x_307 = l_Lean_PersistentHashMap_find_x3f___at___00Lean_Meta_Sym_getMaxFVar_x3f_
 if (lean_obj_tag(x_307) == 1)
 {
 uint8_t x_308; 
+lean_dec_ref(x_1);
 lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec(x_5);
 lean_dec_ref(x_4);
 lean_dec(x_3);
 lean_dec_ref(x_2);
-lean_dec_ref(x_1);
 x_308 = !lean_is_exclusive(x_307);
 if (x_308 == 0)
 {
@@ -2650,8 +2650,8 @@ return x_344;
 }
 else
 {
-lean_dec(x_3);
 lean_dec_ref(x_1);
+lean_dec(x_3);
 return x_311;
 }
 }

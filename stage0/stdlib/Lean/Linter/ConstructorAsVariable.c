@@ -2473,8 +2473,8 @@ x_19 = lean_ctor_get(x_12, 1);
 x_20 = lean_string_dec_eq(x_19, x_1);
 if (x_20 == 0)
 {
-lean_dec(x_14);
 lean_dec_ref(x_12);
+lean_dec(x_14);
 x_7 = x_13;
 x_8 = x_17;
 goto _start;
@@ -2847,8 +2847,8 @@ return x_121;
 else
 {
 lean_dec_ref(x_38);
-lean_dec(x_37);
 lean_dec_ref(x_36);
+lean_dec(x_37);
 lean_dec(x_25);
 lean_dec(x_18);
 lean_dec_ref(x_5);
@@ -3448,8 +3448,8 @@ else
 {
 lean_object* x_192; 
 lean_dec_ref(x_146);
-lean_dec(x_145);
 lean_dec_ref(x_144);
+lean_dec(x_145);
 lean_dec(x_133);
 lean_dec(x_125);
 lean_dec_ref(x_5);
@@ -4242,10 +4242,10 @@ else
 uint8_t x_58; 
 lean_dec(x_16);
 lean_dec_ref(x_15);
+lean_dec_ref(x_3);
 lean_dec_ref(x_14);
 lean_dec(x_6);
 lean_dec_ref(x_5);
-lean_dec_ref(x_3);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 x_58 = !lean_is_exclusive(x_17);

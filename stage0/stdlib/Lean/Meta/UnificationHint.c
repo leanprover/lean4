@@ -2171,8 +2171,8 @@ x_5 = l___private_Lean_Meta_UnificationHint_0__Lean_Meta_decodeUnificationHint_d
 if (lean_obj_tag(x_5) == 0)
 {
 uint8_t x_6; 
-lean_dec_ref(x_2);
 lean_dec_ref(x_1);
+lean_dec_ref(x_2);
 x_6 = !lean_is_exclusive(x_5);
 if (x_6 == 0)
 {
@@ -2201,8 +2201,8 @@ x_11 = l_Lean_Expr_hasLooseBVars(x_4);
 if (x_11 == 0)
 {
 lean_object* x_12; 
-lean_free_object(x_5);
 lean_inc_ref(x_4);
+lean_free_object(x_5);
 lean_dec_ref(x_1);
 x_12 = lean_array_push(x_2, x_10);
 x_1 = x_4;

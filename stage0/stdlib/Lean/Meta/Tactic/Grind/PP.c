@@ -5636,13 +5636,13 @@ else
 {
 uint8_t x_99; 
 lean_dec(x_38);
+lean_dec_ref(x_15);
 lean_dec(x_23);
 lean_dec(x_22);
 lean_dec(x_20);
 lean_dec(x_18);
 lean_dec(x_17);
 lean_dec(x_16);
-lean_dec_ref(x_15);
 lean_dec(x_9);
 lean_dec_ref(x_8);
 lean_dec(x_7);
@@ -5909,13 +5909,13 @@ else
 {
 uint8_t x_112; 
 lean_dec(x_38);
+lean_dec_ref(x_15);
 lean_dec(x_23);
 lean_dec(x_22);
 lean_dec(x_20);
 lean_dec(x_18);
 lean_dec(x_17);
 lean_dec(x_16);
-lean_dec_ref(x_15);
 lean_dec(x_9);
 lean_dec_ref(x_8);
 lean_dec(x_7);
@@ -5941,8 +5941,8 @@ return x_114;
 else
 {
 lean_dec(x_36);
-lean_dec(x_17);
 lean_dec_ref(x_15);
+lean_dec(x_17);
 x_25 = x_5;
 x_26 = lean_box(0);
 goto block_31;

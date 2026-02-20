@@ -7422,8 +7422,8 @@ else
 uint8_t x_78; 
 lean_dec_ref(x_29);
 lean_dec_ref(x_28);
-lean_dec_ref(x_27);
 lean_dec_ref(x_23);
+lean_dec_ref(x_27);
 lean_dec(x_14);
 lean_dec_ref(x_13);
 lean_dec(x_12);

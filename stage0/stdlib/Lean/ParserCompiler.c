@@ -3904,8 +3904,8 @@ goto _start;
 else
 {
 lean_object* x_275; lean_object* x_276; lean_object* x_277; lean_object* x_278; lean_object* x_279; lean_object* x_280; lean_object* x_281; lean_object* x_282; lean_object* x_283; lean_object* x_284; 
-lean_dec(x_272);
 lean_inc(x_44);
+lean_dec(x_272);
 lean_dec_ref(x_1);
 x_275 = l_Lean_ParserCompiler_compileParserExpr___redArg___closed__12;
 x_276 = l_Lean_MessageData_ofName(x_44);
@@ -4059,12 +4059,12 @@ goto block_269;
 else
 {
 lean_object* x_300; lean_object* x_301; lean_object* x_302; lean_object* x_303; lean_object* x_304; lean_object* x_305; lean_object* x_306; lean_object* x_307; lean_object* x_308; lean_object* x_309; 
+lean_inc(x_44);
 lean_dec(x_288);
 lean_dec_ref(x_56);
 lean_dec_ref(x_52);
 lean_dec(x_50);
 lean_dec(x_48);
-lean_inc(x_44);
 lean_dec_ref(x_43);
 lean_dec(x_41);
 lean_dec_ref(x_1);

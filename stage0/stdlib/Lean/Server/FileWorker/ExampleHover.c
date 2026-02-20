@@ -970,9 +970,9 @@ lean_dec(x_2);
 if (x_21 == 0)
 {
 uint8_t x_22; 
-lean_dec(x_20);
 lean_inc(x_4);
 lean_inc_ref(x_3);
+lean_dec(x_20);
 x_22 = !lean_is_exclusive(x_1);
 if (x_22 == 0)
 {
@@ -1097,9 +1097,9 @@ lean_dec(x_2);
 if (x_21 == 0)
 {
 uint8_t x_22; 
-lean_dec(x_20);
 lean_inc(x_4);
 lean_inc_ref(x_3);
+lean_dec(x_20);
 x_22 = !lean_is_exclusive(x_1);
 if (x_22 == 0)
 {

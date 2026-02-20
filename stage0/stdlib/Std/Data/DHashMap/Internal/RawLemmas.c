@@ -9708,9 +9708,9 @@ goto block_211;
 else
 {
 uint8_t x_228; 
+lean_dec_ref(x_212);
 lean_dec_ref(x_214);
 lean_dec(x_213);
-lean_dec_ref(x_212);
 x_228 = !lean_is_exclusive(x_223);
 if (x_228 == 0)
 {

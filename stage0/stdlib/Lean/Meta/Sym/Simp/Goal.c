@@ -1162,12 +1162,12 @@ if (lean_obj_tag(x_10) == 0)
 if (lean_obj_tag(x_1) == 0)
 {
 uint8_t x_11; 
+lean_dec_ref(x_1);
 lean_dec(x_8);
 lean_dec_ref(x_7);
 lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_2);
-lean_dec_ref(x_1);
 x_11 = !lean_is_exclusive(x_10);
 if (x_11 == 0)
 {

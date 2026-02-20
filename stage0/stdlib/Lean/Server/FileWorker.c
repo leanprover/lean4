@@ -25981,9 +25981,9 @@ return x_5;
 else
 {
 uint8_t x_12; 
-lean_dec(x_9);
 lean_inc(x_8);
 lean_inc_ref(x_7);
+lean_dec(x_9);
 lean_free_object(x_3);
 x_12 = !lean_is_exclusive(x_2);
 if (x_12 == 0)
@@ -26040,9 +26040,9 @@ return x_24;
 else
 {
 lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; 
-lean_dec(x_21);
 lean_inc(x_20);
 lean_inc_ref(x_19);
+lean_dec(x_21);
 lean_free_object(x_3);
 if (lean_is_exclusive(x_2)) {
  lean_ctor_release(x_2, 0);
@@ -26108,9 +26108,9 @@ return x_37;
 else
 {
 lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; 
-lean_dec(x_32);
 lean_inc(x_31);
 lean_inc_ref(x_30);
+lean_dec(x_32);
 if (lean_is_exclusive(x_2)) {
  lean_ctor_release(x_2, 0);
  lean_ctor_release(x_2, 1);

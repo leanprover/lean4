@@ -578,9 +578,9 @@ x_19 = lean_unbox(x_18);
 if (x_19 == 0)
 {
 uint8_t x_20; 
-lean_dec(x_14);
 lean_inc(x_6);
 lean_inc_ref(x_4);
+lean_dec(x_14);
 lean_dec(x_3);
 lean_dec_ref(x_1);
 x_20 = !lean_is_exclusive(x_2);
@@ -615,9 +615,9 @@ lean_dec(x_3);
 if (x_25 == 0)
 {
 uint8_t x_26; 
-lean_dec(x_14);
 lean_inc(x_6);
 lean_inc_ref(x_4);
+lean_dec(x_14);
 lean_dec_ref(x_1);
 x_26 = !lean_is_exclusive(x_2);
 if (x_26 == 0)
@@ -654,9 +654,9 @@ goto _start;
 else
 {
 uint8_t x_32; 
-lean_dec(x_8);
 lean_inc(x_6);
 lean_inc_ref(x_4);
+lean_dec(x_8);
 lean_dec(x_3);
 lean_dec_ref(x_1);
 x_32 = !lean_is_exclusive(x_2);

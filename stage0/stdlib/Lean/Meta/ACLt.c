@@ -2590,8 +2590,8 @@ return x_79;
 case 10:
 {
 lean_object* x_80; lean_object* x_81; 
-lean_dec_ref(x_3);
 lean_dec_ref(x_2);
+lean_dec_ref(x_3);
 x_80 = l___private_Lean_Meta_ACLt_0__Lean_Meta_ACLt_main_lexSameCtor___closed__7;
 x_81 = l_panic___at___00__private_Lean_Meta_ACLt_0__Lean_Meta_ACLt_main_lexSameCtor_spec__3(x_80, x_4, x_5, x_6, x_7);
 return x_81;

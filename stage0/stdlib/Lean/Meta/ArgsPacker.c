@@ -1875,13 +1875,13 @@ lean_inc(x_12);
 if (lean_obj_tag(x_12) == 0)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
+lean_dec_ref(x_1);
 lean_dec(x_9);
 lean_dec_ref(x_8);
 lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec_ref(x_4);
 lean_dec(x_3);
-lean_dec_ref(x_1);
 x_13 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Meta_ArgsPacker_Unary_packType_spec__0___closed__0;
 x_14 = lean_array_push(x_13, x_2);
 x_15 = l_Lean_Expr_beta(x_5, x_14);
@@ -1953,8 +1953,8 @@ lean_dec_ref(x_37);
 lean_dec_ref(x_36);
 lean_dec(x_20);
 lean_free_object(x_1);
-lean_dec(x_18);
 lean_dec_ref(x_12);
+lean_dec(x_18);
 lean_dec_ref(x_5);
 lean_dec_ref(x_4);
 lean_dec(x_3);
@@ -2123,8 +2123,8 @@ else
 lean_dec(x_22);
 lean_dec(x_20);
 lean_free_object(x_1);
-lean_dec(x_18);
 lean_dec_ref(x_12);
+lean_dec(x_18);
 lean_dec(x_9);
 lean_dec_ref(x_8);
 lean_dec(x_7);
@@ -2140,8 +2140,8 @@ else
 {
 lean_dec(x_20);
 lean_free_object(x_1);
-lean_dec(x_18);
 lean_dec_ref(x_12);
+lean_dec(x_18);
 lean_dec(x_9);
 lean_dec_ref(x_8);
 lean_dec(x_7);
@@ -2211,8 +2211,8 @@ if (x_86 == 0)
 lean_dec_ref(x_85);
 lean_dec_ref(x_84);
 lean_dec(x_68);
-lean_dec(x_67);
 lean_dec_ref(x_12);
+lean_dec(x_67);
 lean_dec_ref(x_5);
 lean_dec_ref(x_4);
 lean_dec(x_3);
@@ -2371,8 +2371,8 @@ else
 {
 lean_dec(x_70);
 lean_dec(x_68);
-lean_dec(x_67);
 lean_dec_ref(x_12);
+lean_dec(x_67);
 lean_dec(x_9);
 lean_dec_ref(x_8);
 lean_dec(x_7);
@@ -2387,8 +2387,8 @@ return x_71;
 else
 {
 lean_dec(x_68);
-lean_dec(x_67);
 lean_dec_ref(x_12);
+lean_dec(x_67);
 lean_dec(x_9);
 lean_dec_ref(x_8);
 lean_dec(x_7);
@@ -7979,15 +7979,15 @@ block_28:
 {
 lean_object* x_22; lean_object* x_23; lean_object* x_24; 
 lean_inc(x_3);
-x_22 = l_List_get_x21Internal___redArg(x_13, x_16, x_3);
-lean_dec(x_16);
+x_22 = l_List_get_x21Internal___redArg(x_13, x_15, x_3);
+lean_dec(x_15);
 x_23 = l_Lean_Expr_bindingName_x21(x_12);
 lean_dec(x_12);
 lean_inc(x_20);
 lean_inc_ref(x_19);
 lean_inc(x_18);
 lean_inc_ref(x_17);
-x_24 = l_Lean_Meta_withLocalDeclD___at___00Lean_Meta_ArgsPacker_Unary_uncurryType_spec__1___redArg(x_23, x_22, x_15, x_17, x_18, x_19, x_20);
+x_24 = l_Lean_Meta_withLocalDeclD___at___00Lean_Meta_ArgsPacker_Unary_uncurryType_spec__1___redArg(x_23, x_22, x_16, x_17, x_18, x_19, x_20);
 if (lean_obj_tag(x_24) == 0)
 {
 lean_object* x_25; lean_object* x_26; lean_object* x_27; 
@@ -8063,8 +8063,8 @@ return x_45;
 }
 else
 {
-x_15 = x_38;
-x_16 = x_37;
+x_15 = x_37;
+x_16 = x_38;
 x_17 = x_30;
 x_18 = x_31;
 x_19 = x_32;

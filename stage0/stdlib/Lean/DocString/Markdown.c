@@ -1676,9 +1676,9 @@ lean_dec(x_2);
 if (x_10 == 0)
 {
 uint8_t x_11; 
-lean_dec(x_9);
 lean_inc(x_4);
 lean_inc_ref(x_3);
+lean_dec(x_9);
 x_11 = !lean_is_exclusive(x_1);
 if (x_11 == 0)
 {
@@ -2408,9 +2408,9 @@ lean_dec(x_2);
 if (x_14 == 0)
 {
 uint8_t x_15; 
-lean_dec(x_13);
 lean_inc(x_5);
 lean_inc_ref(x_3);
+lean_dec(x_13);
 x_15 = !lean_is_exclusive(x_1);
 if (x_15 == 0)
 {
@@ -2447,9 +2447,9 @@ block_28:
 if (x_22 == 0)
 {
 uint8_t x_23; 
-lean_dec(x_13);
 lean_inc(x_5);
 lean_inc_ref(x_3);
+lean_dec(x_13);
 lean_dec(x_2);
 x_23 = !lean_is_exclusive(x_1);
 if (x_23 == 0)
@@ -2510,9 +2510,9 @@ goto block_21;
 else
 {
 uint8_t x_41; 
-lean_dec(x_7);
 lean_inc(x_5);
 lean_inc_ref(x_3);
+lean_dec(x_7);
 lean_dec(x_2);
 x_41 = !lean_is_exclusive(x_1);
 if (x_41 == 0)

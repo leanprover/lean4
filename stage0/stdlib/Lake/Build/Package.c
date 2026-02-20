@@ -3473,11 +3473,11 @@ return x_34;
 else
 {
 uint8_t x_35; 
-lean_dec_ref(x_21);
-lean_dec(x_20);
 lean_inc(x_19);
 lean_inc_ref(x_18);
 lean_inc_ref(x_15);
+lean_dec_ref(x_21);
+lean_dec(x_20);
 lean_dec_ref(x_14);
 lean_dec_ref(x_7);
 lean_dec(x_5);

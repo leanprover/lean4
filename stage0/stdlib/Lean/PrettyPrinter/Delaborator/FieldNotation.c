@@ -5143,8 +5143,8 @@ else
 {
 lean_object* x_37; lean_object* x_38; uint8_t x_39; 
 lean_dec(x_23);
-lean_dec_ref(x_2);
 lean_dec_ref(x_1);
+lean_dec_ref(x_2);
 x_37 = l_WellFounded_opaqueFix_u2083___at___00__private_Lean_PrettyPrinter_Delaborator_FieldNotation_0__Lean_PrettyPrinter_Delaborator_generalizedFieldInfo_spec__1___redArg___lam__0___closed__1;
 x_38 = l_Lean_throwError___at___00Lean_getConstInfoInduct___at___00__private_Lean_PrettyPrinter_Delaborator_FieldNotation_0__Lean_PrettyPrinter_Delaborator_projInfo_spec__0_spec__0___redArg(x_37, x_3, x_4, x_5, x_6);
 lean_dec(x_6);
@@ -5192,8 +5192,8 @@ else
 {
 lean_object* x_30; lean_object* x_31; uint8_t x_32; 
 lean_dec_ref(x_27);
-lean_dec_ref(x_2);
 lean_dec_ref(x_1);
+lean_dec_ref(x_2);
 x_30 = l_WellFounded_opaqueFix_u2083___at___00__private_Lean_PrettyPrinter_Delaborator_FieldNotation_0__Lean_PrettyPrinter_Delaborator_generalizedFieldInfo_spec__1___redArg___lam__0___closed__1;
 x_31 = l_Lean_throwError___at___00Lean_getConstInfoInduct___at___00__private_Lean_PrettyPrinter_Delaborator_FieldNotation_0__Lean_PrettyPrinter_Delaborator_projInfo_spec__0_spec__0___redArg(x_30, x_3, x_4, x_5, x_6);
 lean_dec(x_6);

@@ -779,8 +779,8 @@ if (x_11 == 0)
 lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 lean_inc(x_9);
 lean_inc(x_8);
-lean_dec(x_6);
 lean_dec_ref(x_1);
+lean_dec(x_6);
 x_12 = lean_unsigned_to_nat(1u);
 x_13 = lean_nat_sub(x_2, x_12);
 lean_dec(x_2);
@@ -821,8 +821,8 @@ if (x_13 == 0)
 lean_object* x_14; lean_object* x_15; lean_object* x_16; 
 lean_inc(x_11);
 lean_inc(x_10);
-lean_dec(x_8);
 lean_dec_ref(x_3);
+lean_dec(x_8);
 x_14 = lean_unsigned_to_nat(1u);
 x_15 = lean_nat_sub(x_4, x_14);
 lean_dec(x_4);

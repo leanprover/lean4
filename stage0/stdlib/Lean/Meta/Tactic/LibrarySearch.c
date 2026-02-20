@@ -8124,8 +8124,8 @@ x_29 = l_Array_isEmpty___redArg(x_28);
 if (x_29 == 0)
 {
 lean_object* x_30; lean_object* x_31; size_t x_32; size_t x_33; lean_object* x_34; lean_object* x_35; 
-lean_free_object(x_26);
 lean_inc(x_25);
+lean_free_object(x_26);
 lean_dec_ref(x_24);
 x_30 = lean_st_ref_get(x_9);
 x_31 = lean_ctor_get(x_30, 0);
@@ -8669,8 +8669,8 @@ x_30 = l_Array_isEmpty___redArg(x_29);
 if (x_30 == 0)
 {
 lean_object* x_31; lean_object* x_32; size_t x_33; size_t x_34; lean_object* x_35; lean_object* x_36; 
-lean_free_object(x_27);
 lean_inc(x_26);
+lean_free_object(x_27);
 lean_dec_ref(x_25);
 x_31 = lean_st_ref_get(x_10);
 x_32 = lean_ctor_get(x_31, 0);
@@ -9152,8 +9152,8 @@ x_30 = l_Array_isEmpty___redArg(x_29);
 if (x_30 == 0)
 {
 lean_object* x_31; lean_object* x_32; size_t x_33; size_t x_34; lean_object* x_35; lean_object* x_36; 
-lean_free_object(x_27);
 lean_inc(x_26);
+lean_free_object(x_27);
 lean_dec_ref(x_25);
 x_31 = lean_st_ref_get(x_10);
 x_32 = lean_ctor_get(x_31, 0);

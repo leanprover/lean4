@@ -2137,8 +2137,8 @@ goto block_7;
 else
 {
 uint8_t x_12; 
-lean_dec(x_2);
 lean_dec_ref(x_1);
+lean_dec(x_2);
 x_12 = 0;
 return x_12;
 }
@@ -2161,8 +2161,8 @@ goto block_7;
 else
 {
 uint8_t x_15; 
-lean_dec(x_2);
 lean_dec_ref(x_1);
+lean_dec(x_2);
 x_15 = 0;
 return x_15;
 }

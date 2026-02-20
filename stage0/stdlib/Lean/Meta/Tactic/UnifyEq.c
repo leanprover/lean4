@@ -4074,8 +4074,8 @@ x_47 = lean_ctor_get(x_27, 0);
 if (lean_obj_tag(x_47) == 1)
 {
 lean_object* x_48; 
-lean_free_object(x_27);
 lean_dec_ref(x_47);
+lean_free_object(x_27);
 lean_dec(x_25);
 lean_dec(x_5);
 x_48 = l___private_Lean_Meta_Tactic_UnifyEq_0__Lean_Meta_unifyEq_x3f_substEq(x_2, x_1, x_3, x_4, x_12, x_23, x_26, x_17, x_6, x_7, x_8, x_9);

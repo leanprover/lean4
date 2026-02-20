@@ -12195,10 +12195,10 @@ goto block_107;
 else
 {
 lean_object* x_119; lean_object* x_120; uint8_t x_121; 
-lean_dec(x_12);
-lean_dec_ref(x_11);
 lean_dec_ref(x_10);
 lean_dec_ref(x_9);
+lean_dec(x_12);
+lean_dec_ref(x_11);
 lean_dec(x_8);
 lean_dec_ref(x_7);
 lean_dec_ref(x_6);
@@ -34039,10 +34039,10 @@ goto block_109;
 else
 {
 lean_object* x_121; lean_object* x_122; uint8_t x_123; 
-lean_dec(x_14);
-lean_dec_ref(x_13);
 lean_dec_ref(x_12);
 lean_dec_ref(x_11);
+lean_dec(x_14);
+lean_dec_ref(x_13);
 lean_dec_ref(x_10);
 lean_dec_ref(x_9);
 lean_dec(x_8);

@@ -19171,13 +19171,13 @@ lean_dec(x_66);
 if (x_72 == 0)
 {
 lean_object* x_73; lean_object* x_74; lean_object* x_75; lean_object* x_76; lean_object* x_77; lean_object* x_78; uint8_t x_79; 
+lean_inc(x_16);
 lean_dec_ref(x_69);
 lean_dec(x_63);
 lean_dec(x_56);
 lean_dec(x_52);
 lean_dec_ref(x_51);
 lean_dec(x_50);
-lean_inc(x_16);
 lean_dec(x_15);
 lean_dec(x_13);
 lean_dec_ref(x_3);

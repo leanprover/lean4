@@ -1448,8 +1448,8 @@ switch (lean_obj_tag(x_2)) {
 case 0:
 {
 lean_object* x_8; 
-lean_dec(x_3);
 lean_dec_ref(x_2);
+lean_dec(x_3);
 x_8 = l___private_Lean_Data_Trie_0__Lean_Data_Trie_findPrefix_go___redArg___closed__0;
 return x_8;
 }

@@ -1196,8 +1196,8 @@ else
 if (lean_obj_tag(x_12) == 0)
 {
 lean_object* x_25; 
-lean_dec(x_13);
 lean_dec_ref(x_12);
+lean_dec(x_13);
 lean_dec(x_5);
 x_25 = lean_box(0);
 return x_25;

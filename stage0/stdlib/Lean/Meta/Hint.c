@@ -3206,8 +3206,8 @@ goto _start;
 else
 {
 lean_object* x_114; 
-lean_dec(x_6);
 lean_dec_ref(x_5);
+lean_dec(x_6);
 lean_dec(x_4);
 lean_dec(x_3);
 x_114 = lean_ctor_get(x_1, 1);
@@ -7203,8 +7203,8 @@ goto _start;
 else
 {
 lean_object* x_114; 
-lean_dec(x_6);
 lean_dec_ref(x_5);
+lean_dec(x_6);
 lean_dec(x_4);
 lean_dec(x_3);
 x_114 = lean_ctor_get(x_1, 1);

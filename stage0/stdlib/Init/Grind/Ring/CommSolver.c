@@ -3474,9 +3474,9 @@ x_17 = l_Lean_Grind_CommRing_Power_varLt(x_7, x_9);
 if (x_17 == 0)
 {
 uint8_t x_18; 
-lean_free_object(x_3);
 lean_inc(x_10);
 lean_inc_ref(x_9);
+lean_free_object(x_3);
 x_18 = !lean_is_exclusive(x_2);
 if (x_18 == 0)
 {
@@ -5096,9 +5096,9 @@ x_7 = l_Lean_Grind_Ring_toIntModule___redArg(x_1);
 if (lean_obj_tag(x_3) == 0)
 {
 lean_object* x_8; lean_object* x_9; 
+lean_inc(x_5);
 lean_dec_ref(x_7);
 lean_dec(x_6);
-lean_inc(x_5);
 lean_dec_ref(x_1);
 x_8 = lean_ctor_get(x_3, 0);
 lean_inc(x_8);

@@ -2688,10 +2688,10 @@ else
 uint8_t x_58; 
 lean_dec(x_16);
 lean_dec_ref(x_15);
+lean_dec_ref(x_3);
 lean_dec_ref(x_14);
 lean_dec(x_6);
 lean_dec_ref(x_5);
-lean_dec_ref(x_3);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 x_58 = !lean_is_exclusive(x_17);

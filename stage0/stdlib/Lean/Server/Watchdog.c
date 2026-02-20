@@ -42358,8 +42358,8 @@ return x_61;
 else
 {
 lean_object* x_67; lean_object* x_68; lean_object* x_69; lean_object* x_70; 
-lean_dec(x_53);
 lean_inc_ref(x_40);
+lean_dec(x_53);
 lean_inc(x_51);
 lean_inc(x_1);
 lean_inc(x_50);

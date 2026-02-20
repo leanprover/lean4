@@ -2551,8 +2551,8 @@ switch (lean_obj_tag(x_1)) {
 case 4:
 {
 lean_object* x_28; 
-lean_dec_ref(x_3);
 lean_dec_ref(x_1);
+lean_dec_ref(x_3);
 x_28 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_28, 0, x_13);
 return x_28;

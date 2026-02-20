@@ -2003,8 +2003,8 @@ return x_71;
 else
 {
 uint8_t x_72; 
-lean_dec(x_50);
 lean_dec_ref(x_25);
+lean_dec(x_50);
 lean_dec(x_18);
 lean_dec(x_8);
 lean_dec_ref(x_7);

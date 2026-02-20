@@ -2255,8 +2255,8 @@ switch (lean_obj_tag(x_9)) {
 case 0:
 {
 uint8_t x_12; 
-lean_dec_ref(x_11);
 lean_inc(x_7);
+lean_dec_ref(x_11);
 lean_dec_ref(x_1);
 x_12 = !lean_is_exclusive(x_9);
 if (x_12 == 0)
@@ -2315,8 +2315,8 @@ return x_26;
 case 5:
 {
 uint8_t x_27; 
-lean_dec_ref(x_11);
 lean_inc(x_7);
+lean_dec_ref(x_11);
 lean_dec_ref(x_1);
 x_27 = !lean_is_exclusive(x_9);
 if (x_27 == 0)
@@ -2534,8 +2534,8 @@ return x_76;
 case 9:
 {
 uint8_t x_77; 
-lean_dec_ref(x_11);
 lean_inc(x_7);
+lean_dec_ref(x_11);
 lean_dec_ref(x_1);
 x_77 = !lean_is_exclusive(x_9);
 if (x_77 == 0)
@@ -2640,8 +2640,8 @@ return x_98;
 case 10:
 {
 uint8_t x_99; 
-lean_dec_ref(x_11);
 lean_inc(x_7);
+lean_dec_ref(x_11);
 lean_dec_ref(x_1);
 x_99 = !lean_is_exclusive(x_9);
 if (x_99 == 0)

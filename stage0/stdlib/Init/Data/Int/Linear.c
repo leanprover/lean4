@@ -3199,8 +3199,8 @@ _start:
 if (lean_obj_tag(x_1) == 0)
 {
 uint8_t x_3; 
-lean_dec_ref(x_2);
 lean_dec_ref(x_1);
+lean_dec_ref(x_2);
 x_3 = 0;
 return x_3;
 }
@@ -3245,8 +3245,8 @@ return x_5;
 else
 {
 uint8_t x_6; 
-lean_dec_ref(x_2);
 lean_dec_ref(x_1);
+lean_dec_ref(x_2);
 x_6 = 0;
 return x_6;
 }

@@ -494,8 +494,8 @@ return x_14;
 else
 {
 uint8_t x_15; 
-lean_dec_ref(x_4);
 lean_dec_ref(x_3);
+lean_dec_ref(x_4);
 x_15 = 0;
 return x_15;
 }
@@ -572,8 +572,8 @@ return x_30;
 else
 {
 uint8_t x_31; 
-lean_dec_ref(x_4);
 lean_dec_ref(x_3);
+lean_dec_ref(x_4);
 lean_dec_ref(x_1);
 x_31 = 0;
 return x_31;
@@ -774,8 +774,8 @@ return x_62;
 else
 {
 uint8_t x_69; 
-lean_dec_ref(x_4);
 lean_dec_ref(x_3);
+lean_dec_ref(x_4);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 x_69 = 0;
@@ -817,8 +817,8 @@ return x_76;
 else
 {
 uint8_t x_77; 
-lean_dec_ref(x_4);
 lean_dec_ref(x_3);
+lean_dec_ref(x_4);
 x_77 = 0;
 return x_77;
 }

@@ -1460,10 +1460,10 @@ x_32 = lean_ctor_get_uint8(x_13, sizeof(void*)*4);
 if (x_32 == 0)
 {
 lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; 
+lean_inc_ref(x_13);
 lean_inc(x_16);
 lean_inc(x_15);
 lean_inc(x_14);
-lean_inc_ref(x_13);
 lean_dec_ref(x_1);
 x_33 = lean_ctor_get(x_13, 0);
 lean_inc(x_33);
@@ -1496,9 +1496,9 @@ if (x_37 == 0)
 {
 lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; 
 lean_inc_ref(x_16);
+lean_inc_ref(x_13);
 lean_inc(x_15);
 lean_inc(x_14);
-lean_inc_ref(x_13);
 lean_dec_ref(x_1);
 x_38 = lean_ctor_get(x_16, 0);
 lean_inc(x_38);
@@ -1670,10 +1670,10 @@ x_34 = lean_ctor_get_uint8(x_15, sizeof(void*)*4);
 if (x_34 == 0)
 {
 lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; 
+lean_inc_ref(x_15);
 lean_inc(x_18);
 lean_inc(x_17);
 lean_inc(x_16);
-lean_inc_ref(x_15);
 lean_dec_ref(x_3);
 x_35 = lean_ctor_get(x_15, 0);
 lean_inc(x_35);
@@ -1706,9 +1706,9 @@ if (x_39 == 0)
 {
 lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; 
 lean_inc_ref(x_18);
+lean_inc_ref(x_15);
 lean_inc(x_17);
 lean_inc(x_16);
-lean_inc_ref(x_15);
 lean_dec_ref(x_3);
 x_40 = lean_ctor_get(x_18, 0);
 lean_inc(x_40);
@@ -1880,10 +1880,10 @@ x_32 = lean_ctor_get_uint8(x_13, sizeof(void*)*4);
 if (x_32 == 0)
 {
 lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; 
+lean_inc_ref(x_13);
 lean_inc(x_16);
 lean_inc(x_15);
 lean_inc(x_14);
-lean_inc_ref(x_13);
 lean_dec_ref(x_4);
 x_33 = lean_ctor_get(x_13, 0);
 lean_inc(x_33);
@@ -1916,9 +1916,9 @@ if (x_37 == 0)
 {
 lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; 
 lean_inc_ref(x_16);
+lean_inc_ref(x_13);
 lean_inc(x_15);
 lean_inc(x_14);
-lean_inc_ref(x_13);
 lean_dec_ref(x_4);
 x_38 = lean_ctor_get(x_16, 0);
 lean_inc(x_38);
@@ -2090,10 +2090,10 @@ x_34 = lean_ctor_get_uint8(x_15, sizeof(void*)*4);
 if (x_34 == 0)
 {
 lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; 
+lean_inc_ref(x_15);
 lean_inc(x_18);
 lean_inc(x_17);
 lean_inc(x_16);
-lean_inc_ref(x_15);
 lean_dec_ref(x_6);
 x_35 = lean_ctor_get(x_15, 0);
 lean_inc(x_35);
@@ -2126,9 +2126,9 @@ if (x_39 == 0)
 {
 lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; 
 lean_inc_ref(x_18);
+lean_inc_ref(x_15);
 lean_inc(x_17);
 lean_inc(x_16);
-lean_inc_ref(x_15);
 lean_dec_ref(x_6);
 x_40 = lean_ctor_get(x_18, 0);
 lean_inc(x_40);
@@ -2620,9 +2620,9 @@ goto block_54;
 else
 {
 uint8_t x_65; 
+lean_dec_ref(x_37);
 lean_dec(x_39);
 lean_dec(x_38);
-lean_dec_ref(x_37);
 lean_dec(x_32);
 x_65 = !lean_is_exclusive(x_40);
 if (x_65 == 0)
@@ -2946,9 +2946,9 @@ goto block_111;
 else
 {
 uint8_t x_122; 
+lean_dec_ref(x_94);
 lean_dec(x_96);
 lean_dec(x_95);
-lean_dec_ref(x_94);
 lean_dec(x_32);
 x_122 = !lean_is_exclusive(x_97);
 if (x_122 == 0)
@@ -3672,9 +3672,9 @@ goto block_27;
 else
 {
 lean_dec_ref(x_34);
+lean_dec_ref(x_31);
 lean_dec(x_33);
 lean_dec(x_32);
-lean_dec_ref(x_31);
 x_5 = x_28;
 x_6 = x_29;
 x_7 = x_30;
@@ -3684,10 +3684,10 @@ goto block_11;
 }
 else
 {
+lean_dec_ref(x_31);
 lean_dec(x_34);
 lean_dec(x_33);
 lean_dec(x_32);
-lean_dec_ref(x_31);
 x_5 = x_28;
 x_6 = x_29;
 x_7 = x_30;
@@ -4580,9 +4580,9 @@ goto block_23;
 else
 {
 uint8_t x_116; 
+lean_dec_ref(x_101);
 lean_dec(x_103);
 lean_dec(x_102);
-lean_dec_ref(x_101);
 x_116 = !lean_is_exclusive(x_104);
 if (x_116 == 0)
 {
@@ -4832,9 +4832,9 @@ goto block_23;
 else
 {
 lean_object* x_156; lean_object* x_157; 
+lean_dec_ref(x_140);
 lean_dec(x_142);
 lean_dec(x_141);
-lean_dec_ref(x_140);
 if (lean_is_exclusive(x_143)) {
  lean_ctor_release(x_143, 0);
  lean_ctor_release(x_143, 1);
@@ -8767,9 +8767,9 @@ goto block_54;
 else
 {
 uint8_t x_65; 
+lean_dec_ref(x_37);
 lean_dec(x_39);
 lean_dec(x_38);
-lean_dec_ref(x_37);
 lean_dec(x_32);
 x_65 = !lean_is_exclusive(x_40);
 if (x_65 == 0)
@@ -9093,9 +9093,9 @@ goto block_111;
 else
 {
 uint8_t x_122; 
+lean_dec_ref(x_94);
 lean_dec(x_96);
 lean_dec(x_95);
-lean_dec_ref(x_94);
 lean_dec(x_32);
 x_122 = !lean_is_exclusive(x_97);
 if (x_122 == 0)

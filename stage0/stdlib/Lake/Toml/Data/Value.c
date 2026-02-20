@@ -516,8 +516,8 @@ return x_8;
 else
 {
 uint8_t x_9; 
-lean_dec_ref(x_2);
 lean_dec_ref(x_1);
+lean_dec_ref(x_2);
 x_9 = 0;
 return x_9;
 }
@@ -556,8 +556,8 @@ return x_15;
 else
 {
 uint8_t x_16; 
-lean_dec_ref(x_2);
 lean_dec_ref(x_1);
+lean_dec_ref(x_2);
 x_16 = 0;
 return x_16;
 }
@@ -590,8 +590,8 @@ return x_22;
 else
 {
 uint8_t x_23; 
-lean_dec_ref(x_2);
 lean_dec_ref(x_1);
+lean_dec_ref(x_2);
 x_23 = 0;
 return x_23;
 }
@@ -636,8 +636,8 @@ return x_27;
 else
 {
 uint8_t x_29; 
-lean_dec_ref(x_2);
 lean_dec_ref(x_1);
+lean_dec_ref(x_2);
 x_29 = 0;
 return x_29;
 }
@@ -674,8 +674,8 @@ return x_35;
 else
 {
 uint8_t x_36; 
-lean_dec_ref(x_2);
 lean_dec_ref(x_1);
+lean_dec_ref(x_2);
 x_36 = 0;
 return x_36;
 }
@@ -727,8 +727,8 @@ return x_45;
 else
 {
 uint8_t x_46; 
-lean_dec_ref(x_2);
 lean_dec_ref(x_1);
+lean_dec_ref(x_2);
 x_46 = 0;
 return x_46;
 }
@@ -767,8 +767,8 @@ return x_52;
 else
 {
 uint8_t x_53; 
-lean_dec_ref(x_2);
 lean_dec_ref(x_1);
+lean_dec_ref(x_2);
 x_53 = 0;
 return x_53;
 }
@@ -2026,9 +2026,9 @@ else
 if (x_23 == 0)
 {
 uint8_t x_41; 
-lean_dec(x_21);
 lean_inc(x_12);
 lean_inc(x_11);
+lean_dec(x_21);
 x_41 = !lean_is_exclusive(x_4);
 if (x_41 == 0)
 {
@@ -2152,9 +2152,9 @@ goto block_9;
 else
 {
 lean_object* x_61; lean_object* x_62; lean_object* x_63; lean_object* x_64; lean_object* x_65; 
-lean_dec_ref(x_22);
 lean_inc(x_12);
 lean_inc(x_11);
+lean_dec_ref(x_22);
 lean_dec_ref(x_4);
 x_61 = l_Lake_Toml_ppKey(x_20);
 x_62 = ((lean_object*)(l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_Toml_ppTable_spec__5___closed__0));

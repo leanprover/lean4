@@ -2484,8 +2484,8 @@ return x_6;
 else
 {
 lean_object* x_7; lean_object* x_8; 
-lean_dec_ref(x_3);
 lean_dec_ref(x_2);
+lean_dec_ref(x_3);
 lean_dec_ref(x_1);
 x_7 = lean_box(0);
 x_8 = lean_alloc_ctor(0, 2, 0);
@@ -3925,8 +3925,8 @@ goto block_20;
 else
 {
 lean_object* x_32; 
-lean_dec_ref(x_22);
 lean_dec_ref(x_14);
+lean_dec_ref(x_22);
 lean_dec(x_12);
 x_32 = l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_NameMap_insert_spec__0___redArg(x_15, x_24, x_5);
 x_6 = x_32;

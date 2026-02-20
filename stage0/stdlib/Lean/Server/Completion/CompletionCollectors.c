@@ -2309,9 +2309,9 @@ x_13 = lean_nat_dec_le(x_12, x_1);
 if (x_13 == 0)
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
-lean_dec(x_12);
 lean_inc_ref(x_6);
 lean_inc(x_5);
+lean_dec(x_12);
 lean_dec_ref(x_2);
 x_14 = lean_unsigned_to_nat(0u);
 x_15 = lean_nat_sub(x_1, x_9);
@@ -4456,8 +4456,8 @@ return x_15;
 else
 {
 uint8_t x_16; 
-lean_dec(x_4);
 lean_dec_ref(x_3);
+lean_dec(x_4);
 x_16 = 2;
 return x_16;
 }
@@ -7723,8 +7723,8 @@ return x_45;
 else
 {
 lean_object* x_51; 
-lean_free_object(x_45);
 lean_dec_ref(x_47);
+lean_free_object(x_45);
 x_51 = lean_unsigned_to_nat(0u);
 x_13 = x_51;
 x_14 = lean_box(0);
@@ -9151,8 +9151,8 @@ return x_32;
 }
 else
 {
-lean_free_object(x_32);
 lean_dec_ref(x_34);
+lean_free_object(x_32);
 x_16 = x_26;
 x_17 = lean_box(0);
 goto block_22;
@@ -9286,8 +9286,8 @@ return x_60;
 }
 else
 {
-lean_dec(x_56);
 lean_dec_ref(x_55);
+lean_dec(x_56);
 x_16 = x_47;
 x_17 = lean_box(0);
 goto block_22;
@@ -9449,8 +9449,8 @@ return x_37;
 }
 else
 {
-lean_free_object(x_37);
 lean_dec_ref(x_39);
+lean_free_object(x_37);
 x_21 = x_31;
 x_22 = lean_box(0);
 goto block_27;
@@ -9584,8 +9584,8 @@ return x_65;
 }
 else
 {
-lean_dec(x_61);
 lean_dec_ref(x_60);
+lean_dec(x_61);
 x_21 = x_52;
 x_22 = lean_box(0);
 goto block_27;
@@ -9751,8 +9751,8 @@ return x_32;
 }
 else
 {
-lean_free_object(x_32);
 lean_dec_ref(x_34);
+lean_free_object(x_32);
 x_16 = x_26;
 x_17 = lean_box(0);
 goto block_22;
@@ -9886,8 +9886,8 @@ return x_60;
 }
 else
 {
-lean_dec(x_56);
 lean_dec_ref(x_55);
+lean_dec(x_56);
 x_16 = x_47;
 x_17 = lean_box(0);
 goto block_22;
@@ -10049,8 +10049,8 @@ return x_37;
 }
 else
 {
-lean_free_object(x_37);
 lean_dec_ref(x_39);
+lean_free_object(x_37);
 x_21 = x_31;
 x_22 = lean_box(0);
 goto block_27;
@@ -10184,8 +10184,8 @@ return x_65;
 }
 else
 {
-lean_dec(x_61);
 lean_dec_ref(x_60);
+lean_dec(x_61);
 x_21 = x_52;
 x_22 = lean_box(0);
 goto block_27;
@@ -12605,9 +12605,9 @@ lean_inc(x_52);
 if (lean_obj_tag(x_52) == 0)
 {
 lean_dec_ref(x_52);
+lean_dec_ref(x_20);
 lean_dec_ref(x_22);
 lean_dec(x_21);
-lean_dec_ref(x_20);
 lean_dec(x_19);
 lean_dec_ref(x_18);
 lean_dec_ref(x_17);
@@ -12627,9 +12627,9 @@ return x_53;
 }
 else
 {
+lean_dec_ref(x_20);
 lean_dec_ref(x_22);
 lean_dec(x_21);
-lean_dec_ref(x_20);
 lean_dec(x_19);
 lean_dec_ref(x_18);
 lean_dec_ref(x_17);

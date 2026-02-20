@@ -7258,8 +7258,8 @@ return x_69;
 }
 else
 {
-lean_dec(x_7);
 lean_dec_ref(x_6);
+lean_dec(x_7);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 goto block_5;
@@ -7592,8 +7592,8 @@ return x_64;
 }
 else
 {
-lean_dec(x_7);
 lean_dec_ref(x_6);
+lean_dec(x_7);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 goto block_5;

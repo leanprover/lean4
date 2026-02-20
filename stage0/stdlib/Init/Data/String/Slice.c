@@ -3843,9 +3843,9 @@ lean_dec(x_3);
 if (x_13 == 0)
 {
 uint8_t x_14; 
-lean_dec(x_12);
 lean_inc(x_6);
 lean_inc_ref(x_5);
+lean_dec(x_12);
 lean_dec_ref(x_2);
 x_14 = !lean_is_exclusive(x_1);
 if (x_14 == 0)
@@ -3881,9 +3881,9 @@ goto _start;
 else
 {
 uint8_t x_20; 
-lean_dec(x_10);
 lean_inc(x_6);
 lean_inc_ref(x_5);
+lean_dec(x_10);
 lean_dec(x_3);
 lean_dec_ref(x_2);
 x_20 = !lean_is_exclusive(x_1);
@@ -6253,9 +6253,9 @@ lean_dec(x_3);
 if (x_12 == 0)
 {
 uint8_t x_13; 
-lean_dec(x_11);
 lean_inc(x_7);
 lean_inc_ref(x_5);
+lean_dec(x_11);
 lean_dec_ref(x_2);
 x_13 = !lean_is_exclusive(x_1);
 if (x_13 == 0)
@@ -6291,9 +6291,9 @@ goto _start;
 else
 {
 uint8_t x_19; 
-lean_dec(x_10);
 lean_inc(x_7);
 lean_inc_ref(x_5);
+lean_dec(x_10);
 lean_dec(x_3);
 lean_dec_ref(x_2);
 x_19 = !lean_is_exclusive(x_1);

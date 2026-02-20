@@ -1637,8 +1637,8 @@ return x_17;
 else
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
-lean_dec(x_12);
 lean_inc(x_11);
+lean_dec(x_12);
 lean_inc_ref(x_6);
 x_18 = lean_alloc_closure((void*)(l___private_Lean_Meta_ExprLens_0__Lean_Meta_viewAux___redArg___lam__1___boxed), 4, 2);
 lean_closure_set(x_18, 0, x_6);

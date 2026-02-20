@@ -7444,8 +7444,8 @@ return x_13;
 else
 {
 uint8_t x_14; 
-lean_dec(x_2);
 lean_dec_ref(x_1);
+lean_dec(x_2);
 x_14 = 0;
 return x_14;
 }
@@ -7469,8 +7469,8 @@ return x_17;
 else
 {
 uint8_t x_18; 
-lean_dec(x_2);
 lean_dec_ref(x_1);
+lean_dec(x_2);
 x_18 = 0;
 return x_18;
 }
@@ -7532,8 +7532,8 @@ return x_26;
 else
 {
 uint8_t x_30; 
-lean_dec(x_2);
 lean_dec_ref(x_1);
+lean_dec(x_2);
 x_30 = 0;
 return x_30;
 }
@@ -9235,10 +9235,10 @@ x_24 = lean_nat_dec_eq(x_15, x_16);
 if (x_24 == 0)
 {
 uint8_t x_25; 
-lean_free_object(x_19);
 lean_inc_ref(x_7);
 lean_inc(x_6);
 lean_inc(x_5);
+lean_free_object(x_19);
 x_25 = !lean_is_exclusive(x_1);
 if (x_25 == 0)
 {
@@ -9636,10 +9636,10 @@ x_105 = lean_nat_dec_eq(x_96, x_97);
 if (x_105 == 0)
 {
 lean_object* x_106; lean_object* x_107; lean_object* x_108; lean_object* x_109; size_t x_110; size_t x_111; uint8_t x_112; lean_object* x_113; 
-lean_dec(x_104);
 lean_inc_ref(x_7);
 lean_inc(x_6);
 lean_inc(x_5);
+lean_dec(x_104);
 if (lean_is_exclusive(x_1)) {
  lean_ctor_release(x_1, 0);
  lean_ctor_release(x_1, 1);

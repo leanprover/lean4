@@ -6659,8 +6659,8 @@ x_10 = l_List_isEmpty___redArg(x_9);
 if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-lean_dec(x_4);
 lean_dec_ref(x_3);
+lean_dec(x_4);
 lean_dec_ref(x_2);
 x_11 = lean_ctor_get(x_1, 0);
 lean_inc_ref(x_11);
@@ -7042,8 +7042,8 @@ return x_34;
 else
 {
 lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; 
-lean_dec_ref(x_19);
 lean_inc(x_17);
+lean_dec_ref(x_19);
 lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_4);
@@ -7063,8 +7063,8 @@ return x_39;
 else
 {
 lean_object* x_40; lean_object* x_41; 
-lean_dec_ref(x_19);
 lean_inc(x_17);
+lean_dec_ref(x_19);
 lean_dec(x_16);
 lean_dec(x_10);
 lean_dec(x_9);
@@ -7084,8 +7084,8 @@ return x_41;
 else
 {
 uint8_t x_42; 
-lean_dec_ref(x_19);
 lean_inc(x_17);
+lean_dec_ref(x_19);
 lean_dec(x_9);
 lean_dec_ref(x_8);
 lean_dec_ref(x_7);
@@ -7387,8 +7387,8 @@ x_21 = l_Lean_Name_isPrefixOf(x_6, x_20);
 if (x_21 == 0)
 {
 lean_object* x_22; 
-lean_dec_ref(x_16);
 lean_inc(x_9);
+lean_dec_ref(x_16);
 lean_dec_ref(x_8);
 x_22 = l___private_Lean_ResolveName_0__Lean_resolveLocalName_go(x_9, x_7, x_20, x_6);
 lean_dec(x_20);
@@ -7453,8 +7453,8 @@ x_34 = l_Lean_Name_isPrefixOf(x_6, x_33);
 if (x_34 == 0)
 {
 lean_object* x_35; 
-lean_dec_ref(x_32);
 lean_inc(x_9);
+lean_dec_ref(x_32);
 lean_dec_ref(x_8);
 x_35 = l___private_Lean_ResolveName_0__Lean_resolveLocalName_go(x_9, x_7, x_33, x_6);
 lean_dec(x_33);
@@ -7503,8 +7503,8 @@ return x_8;
 else
 {
 lean_object* x_46; 
-lean_dec(x_14);
 lean_inc(x_9);
+lean_dec(x_14);
 lean_dec_ref(x_8);
 lean_dec_ref(x_7);
 lean_dec(x_6);

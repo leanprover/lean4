@@ -191,8 +191,8 @@ return x_26;
 else
 {
 lean_object* x_28; 
-lean_dec(x_27);
 lean_dec_ref(x_26);
+lean_dec(x_27);
 x_28 = l_Lean_Meta_Grind_getConfig___redArg(x_6);
 if (lean_obj_tag(x_28) == 0)
 {
@@ -448,8 +448,8 @@ return x_24;
 else
 {
 lean_object* x_26; 
-lean_dec(x_25);
 lean_dec_ref(x_24);
+lean_dec(x_25);
 x_26 = l_Lean_Meta_Grind_getConfig___redArg(x_5);
 if (lean_obj_tag(x_26) == 0)
 {
@@ -672,8 +672,8 @@ return x_24;
 else
 {
 lean_object* x_26; 
-lean_dec(x_25);
 lean_dec_ref(x_24);
+lean_dec(x_25);
 x_26 = l_Lean_Meta_Grind_getConfig___redArg(x_5);
 if (lean_obj_tag(x_26) == 0)
 {
@@ -896,8 +896,8 @@ return x_24;
 else
 {
 lean_object* x_26; 
-lean_dec(x_25);
 lean_dec_ref(x_24);
+lean_dec(x_25);
 x_26 = l_Lean_Meta_Grind_getConfig___redArg(x_5);
 if (lean_obj_tag(x_26) == 0)
 {
@@ -1120,8 +1120,8 @@ return x_24;
 else
 {
 lean_object* x_26; 
-lean_dec(x_25);
 lean_dec_ref(x_24);
+lean_dec(x_25);
 x_26 = l_Lean_Meta_Grind_getConfig___redArg(x_5);
 if (lean_obj_tag(x_26) == 0)
 {

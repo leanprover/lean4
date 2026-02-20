@@ -2139,8 +2139,8 @@ x_16 = lean_ctor_get(x_14, 0);
 if (lean_obj_tag(x_16) == 1)
 {
 uint8_t x_17; 
-lean_free_object(x_14);
 lean_inc_ref(x_13);
+lean_free_object(x_14);
 x_17 = !lean_is_exclusive(x_16);
 if (x_17 == 0)
 {

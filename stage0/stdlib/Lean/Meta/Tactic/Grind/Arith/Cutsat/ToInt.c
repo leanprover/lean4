@@ -3068,10 +3068,10 @@ goto block_253;
 else
 {
 uint8_t x_263; 
+lean_dec_ref(x_42);
 lean_dec_ref(x_48);
 lean_dec_ref(x_46);
 lean_dec(x_43);
-lean_dec_ref(x_42);
 lean_dec(x_38);
 lean_free_object(x_34);
 lean_dec(x_36);
@@ -4299,10 +4299,10 @@ goto block_412;
 else
 {
 lean_object* x_422; lean_object* x_423; lean_object* x_424; 
+lean_dec_ref(x_269);
 lean_dec_ref(x_275);
 lean_dec_ref(x_273);
 lean_dec(x_270);
-lean_dec_ref(x_269);
 lean_dec(x_38);
 lean_free_object(x_34);
 lean_dec(x_36);
@@ -5177,10 +5177,10 @@ goto block_580;
 else
 {
 lean_object* x_591; lean_object* x_592; lean_object* x_593; 
+lean_dec_ref(x_437);
 lean_dec_ref(x_443);
 lean_dec_ref(x_441);
 lean_dec(x_438);
-lean_dec_ref(x_437);
 lean_dec(x_433);
 lean_dec(x_431);
 lean_dec_ref(x_30);
@@ -6249,10 +6249,10 @@ goto block_782;
 else
 {
 lean_object* x_793; lean_object* x_794; lean_object* x_795; 
+lean_dec_ref(x_639);
 lean_dec_ref(x_645);
 lean_dec_ref(x_643);
 lean_dec(x_640);
-lean_dec_ref(x_639);
 lean_dec(x_635);
 lean_dec(x_633);
 lean_dec(x_632);

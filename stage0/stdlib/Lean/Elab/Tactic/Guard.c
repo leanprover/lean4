@@ -3628,6 +3628,7 @@ else
 if (lean_obj_tag(x_4) == 0)
 {
 lean_object* x_41; 
+lean_dec_ref(x_3);
 lean_dec_ref(x_26);
 lean_dec(x_24);
 lean_dec_ref(x_23);
@@ -3638,7 +3639,6 @@ lean_dec_ref(x_19);
 lean_dec(x_18);
 lean_dec_ref(x_17);
 lean_dec_ref(x_16);
-lean_dec_ref(x_3);
 lean_dec(x_1);
 x_41 = l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Elab_Tactic_GuardExpr_evalGuardExpr_spec__0___redArg();
 return x_41;
@@ -4238,8 +4238,8 @@ return x_166;
 }
 else
 {
-lean_dec(x_6);
 lean_dec_ref(x_5);
+lean_dec(x_6);
 x_16 = x_125;
 x_17 = x_126;
 x_18 = x_127;
@@ -4476,6 +4476,7 @@ else
 if (lean_obj_tag(x_3) == 0)
 {
 lean_object* x_41; 
+lean_dec_ref(x_2);
 lean_dec_ref(x_26);
 lean_dec(x_23);
 lean_dec_ref(x_22);
@@ -4486,7 +4487,6 @@ lean_dec_ref(x_18);
 lean_dec(x_17);
 lean_dec_ref(x_16);
 lean_dec_ref(x_15);
-lean_dec_ref(x_2);
 lean_dec(x_1);
 x_41 = l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Elab_Tactic_GuardExpr_evalGuardExpr_spec__0___redArg();
 return x_41;
@@ -5087,8 +5087,8 @@ return x_167;
 }
 else
 {
-lean_dec(x_5);
 lean_dec_ref(x_4);
+lean_dec(x_5);
 x_15 = x_125;
 x_16 = x_126;
 x_17 = x_127;

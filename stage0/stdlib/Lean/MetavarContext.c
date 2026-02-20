@@ -18449,9 +18449,9 @@ return x_55;
 else
 {
 uint8_t x_56; 
+lean_dec_ref(x_2);
 lean_dec_ref(x_4);
 lean_dec_ref(x_3);
-lean_dec_ref(x_2);
 x_56 = !lean_is_exclusive(x_7);
 if (x_56 == 0)
 {
@@ -18773,8 +18773,8 @@ return x_30;
 }
 else
 {
-lean_dec_ref(x_3);
 lean_dec_ref(x_2);
+lean_dec_ref(x_3);
 return x_27;
 }
 }
@@ -18892,8 +18892,8 @@ return x_55;
 }
 else
 {
-lean_dec_ref(x_3);
 lean_dec_ref(x_2);
+lean_dec_ref(x_3);
 return x_52;
 }
 }
@@ -19028,15 +19028,15 @@ return x_84;
 else
 {
 lean_dec(x_79);
-lean_dec_ref(x_3);
 lean_dec_ref(x_2);
+lean_dec_ref(x_3);
 return x_81;
 }
 }
 else
 {
-lean_dec_ref(x_3);
 lean_dec_ref(x_2);
+lean_dec_ref(x_3);
 return x_78;
 }
 }

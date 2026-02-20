@@ -54788,9 +54788,9 @@ goto block_14;
 else
 {
 uint8_t x_56; 
-lean_dec(x_32);
 lean_inc(x_30);
 lean_inc(x_29);
+lean_dec(x_32);
 lean_dec(x_28);
 lean_dec(x_16);
 x_56 = !lean_is_exclusive(x_7);

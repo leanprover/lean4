@@ -2280,10 +2280,10 @@ x_76 = l_Lean_Syntax_getId(x_75);
 if (lean_obj_tag(x_76) == 0)
 {
 lean_object* x_99; uint8_t x_100; 
+lean_dec_ref(x_1);
 lean_dec(x_4);
 lean_dec_ref(x_3);
 lean_dec(x_2);
-lean_dec_ref(x_1);
 x_99 = l_Lean_throwError___at___00__private_Lean_Elab_PatternVar_0__Lean_Elab_Term_CollectPatternVars_throwCtorExpected_spec__1___redArg(x_10, x_5, x_6, x_7, x_8);
 lean_dec(x_8);
 lean_dec_ref(x_7);
@@ -11141,6 +11141,7 @@ goto block_175;
 else
 {
 uint8_t x_199; 
+lean_dec_ref(x_179);
 lean_dec_ref(x_191);
 lean_dec(x_188);
 lean_dec_ref(x_187);
@@ -11151,7 +11152,6 @@ lean_dec_ref(x_183);
 lean_dec(x_182);
 lean_dec(x_181);
 lean_dec(x_180);
-lean_dec_ref(x_179);
 lean_dec(x_177);
 lean_dec(x_176);
 x_199 = !lean_is_exclusive(x_198);

@@ -3664,11 +3664,11 @@ return x_45;
 else
 {
 uint8_t x_63; 
+lean_dec_ref(x_3);
 lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec(x_5);
 lean_dec_ref(x_4);
-lean_dec_ref(x_3);
 lean_dec(x_2);
 lean_dec_ref(x_1);
 x_63 = !lean_is_exclusive(x_43);
@@ -3691,11 +3691,11 @@ return x_65;
 else
 {
 lean_dec(x_39);
+lean_dec_ref(x_3);
 lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec(x_5);
 lean_dec_ref(x_4);
-lean_dec_ref(x_3);
 lean_dec(x_2);
 lean_dec_ref(x_1);
 return x_40;
@@ -3704,11 +3704,11 @@ return x_40;
 else
 {
 uint8_t x_66; 
+lean_dec_ref(x_3);
 lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec(x_5);
 lean_dec_ref(x_4);
-lean_dec_ref(x_3);
 lean_dec(x_2);
 lean_dec_ref(x_1);
 x_66 = !lean_is_exclusive(x_38);

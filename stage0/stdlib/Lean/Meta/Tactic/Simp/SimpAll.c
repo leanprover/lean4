@@ -6163,9 +6163,9 @@ goto block_20;
 else
 {
 lean_object* x_25; lean_object* x_26; uint8_t x_27; 
+lean_dec_ref(x_11);
 lean_dec(x_13);
 lean_dec(x_12);
-lean_dec_ref(x_11);
 x_25 = l_Lean_Meta_simpAll___lam__0___closed__1;
 x_26 = l_Lean_throwError___at___00Lean_Meta_simpAll_spec__0___redArg(x_25, x_4, x_5, x_6, x_7);
 lean_dec(x_7);

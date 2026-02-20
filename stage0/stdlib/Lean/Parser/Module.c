@@ -3544,8 +3544,8 @@ if (lean_obj_tag(x_36) == 1)
 {
 if (lean_obj_tag(x_39) == 0)
 {
-lean_dec(x_37);
 lean_dec_ref(x_36);
+lean_dec(x_37);
 x_8 = x_6;
 x_9 = lean_box(0);
 goto block_13;
@@ -3562,8 +3562,8 @@ lean_dec(x_42);
 if (x_38 == 0)
 {
 lean_free_object(x_39);
-lean_dec(x_37);
 lean_dec_ref(x_36);
+lean_dec(x_37);
 x_8 = x_6;
 x_9 = lean_box(0);
 goto block_13;
@@ -3600,8 +3600,8 @@ else
 lean_dec(x_39);
 if (x_38 == 0)
 {
-lean_dec(x_37);
 lean_dec_ref(x_36);
+lean_dec(x_37);
 x_8 = x_6;
 x_9 = lean_box(0);
 goto block_13;

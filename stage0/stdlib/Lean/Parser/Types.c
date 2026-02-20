@@ -4537,8 +4537,8 @@ goto block_7;
 default: 
 {
 lean_object* x_19; 
-lean_dec(x_2);
 lean_dec_ref(x_1);
+lean_dec(x_2);
 x_19 = lean_box(1);
 return x_19;
 }
@@ -4582,8 +4582,8 @@ goto block_7;
 default: 
 {
 lean_object* x_25; 
-lean_dec(x_2);
 lean_dec_ref(x_1);
+lean_dec(x_2);
 x_25 = lean_box(1);
 return x_25;
 }

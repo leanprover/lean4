@@ -564,8 +564,8 @@ lean_object* x_24;
 x_24 = lean_ctor_get(x_22, 0);
 if (lean_obj_tag(x_24) == 1)
 {
-lean_free_object(x_22);
 lean_dec_ref(x_24);
+lean_free_object(x_22);
 lean_dec(x_20);
 goto _start;
 }
@@ -691,8 +691,8 @@ if (lean_is_exclusive(x_50)) {
 }
 if (lean_obj_tag(x_51) == 1)
 {
-lean_dec(x_52);
 lean_dec_ref(x_51);
+lean_dec(x_52);
 lean_dec(x_48);
 goto _start;
 }
@@ -4642,13 +4642,13 @@ else
 {
 uint8_t x_98; 
 lean_dec(x_53);
+lean_dec_ref(x_1);
 lean_dec(x_8);
 lean_dec_ref(x_7);
 lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_4);
 lean_dec_ref(x_2);
-lean_dec_ref(x_1);
 x_98 = !lean_is_exclusive(x_54);
 if (x_98 == 0)
 {
@@ -4669,13 +4669,13 @@ return x_100;
 else
 {
 uint8_t x_101; 
+lean_dec_ref(x_1);
 lean_dec(x_8);
 lean_dec_ref(x_7);
 lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_4);
 lean_dec_ref(x_2);
-lean_dec_ref(x_1);
 x_101 = !lean_is_exclusive(x_52);
 if (x_101 == 0)
 {
@@ -4851,13 +4851,13 @@ return x_110;
 else
 {
 uint8_t x_128; 
+lean_dec_ref(x_1);
 lean_dec(x_8);
 lean_dec_ref(x_7);
 lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_4);
 lean_dec_ref(x_2);
-lean_dec_ref(x_1);
 x_128 = !lean_is_exclusive(x_106);
 if (x_128 == 0)
 {

@@ -30379,10 +30379,10 @@ uint8_t x_189;
 lean_dec_ref(x_126);
 lean_dec_ref(x_125);
 lean_dec_ref(x_123);
+lean_dec_ref(x_1);
 lean_dec(x_4);
 lean_dec_ref(x_3);
 lean_dec_ref(x_2);
-lean_dec_ref(x_1);
 x_189 = !lean_is_exclusive(x_127);
 if (x_189 == 0)
 {
@@ -30486,10 +30486,10 @@ else
 uint8_t x_209; 
 lean_dec_ref(x_198);
 lean_dec(x_193);
+lean_dec_ref(x_1);
 lean_dec(x_4);
 lean_dec_ref(x_3);
 lean_dec_ref(x_2);
-lean_dec_ref(x_1);
 x_209 = !lean_is_exclusive(x_200);
 if (x_209 == 0)
 {
@@ -30513,8 +30513,8 @@ else
 {
 lean_object* x_217; lean_object* x_218; lean_object* x_219; lean_object* x_220; 
 lean_inc_ref(x_7);
-lean_dec_ref(x_2);
 lean_dec_ref(x_1);
+lean_dec_ref(x_2);
 x_217 = lean_unsigned_to_nat(0u);
 x_218 = lean_array_get_size(x_7);
 x_219 = lean_alloc_closure((void*)(l___private_Lean_Elab_Command_0__Lean_Elab_Command_elabCommand_go___lam__7___boxed), 6, 3);
@@ -32280,9 +32280,9 @@ goto block_10;
 }
 else
 {
+lean_dec_ref(x_1);
 lean_dec(x_3);
 lean_dec_ref(x_2);
-lean_dec_ref(x_1);
 return x_16;
 }
 }

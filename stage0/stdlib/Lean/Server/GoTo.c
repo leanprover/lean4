@@ -8995,10 +8995,10 @@ return x_50;
 else
 {
 lean_object* x_61; 
+lean_inc_ref(x_12);
 lean_dec(x_17);
 lean_dec(x_16);
 lean_dec_ref(x_14);
-lean_inc_ref(x_12);
 lean_dec_ref(x_1);
 x_61 = l_Lean_Server_locationLinksFromTermInfo(x_12, x_2, x_3, x_4, x_5, x_6);
 return x_61;
@@ -9165,10 +9165,10 @@ return x_88;
 else
 {
 lean_object* x_99; 
+lean_inc_ref(x_72);
 lean_dec(x_77);
 lean_dec(x_76);
 lean_dec_ref(x_74);
-lean_inc_ref(x_72);
 lean_dec_ref(x_1);
 x_99 = l_Lean_Server_locationLinksFromTermInfo(x_72, x_2, x_3, x_4, x_5, x_6);
 return x_99;
@@ -9336,10 +9336,10 @@ return x_125;
 else
 {
 lean_object* x_136; 
+lean_inc_ref(x_108);
 lean_dec(x_114);
 lean_dec(x_113);
 lean_dec_ref(x_110);
-lean_inc_ref(x_108);
 lean_dec_ref(x_1);
 x_136 = l_Lean_Server_locationLinksFromTermInfo(x_108, x_2, x_3, x_4, x_5, x_6);
 return x_136;

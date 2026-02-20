@@ -867,8 +867,8 @@ return x_39;
 }
 else
 {
-lean_dec(x_2);
 lean_dec_ref(x_1);
+lean_dec(x_2);
 return x_17;
 }
 }
@@ -952,8 +952,8 @@ return x_60;
 }
 else
 {
-lean_dec(x_2);
 lean_dec_ref(x_1);
+lean_dec(x_2);
 return x_50;
 }
 }
@@ -1166,10 +1166,10 @@ return x_41;
 case 11:
 {
 lean_object* x_42; lean_object* x_43; 
+lean_dec_ref(x_1);
 lean_dec(x_4);
 lean_dec_ref(x_3);
 lean_dec(x_2);
-lean_dec_ref(x_1);
 x_42 = lean_box(0);
 x_43 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_43, 0, x_42);

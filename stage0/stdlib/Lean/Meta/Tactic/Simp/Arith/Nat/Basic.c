@@ -3577,11 +3577,11 @@ lean_inc_ref(x_8);
 if (lean_obj_tag(x_8) == 0)
 {
 uint8_t x_9; 
+lean_dec_ref(x_1);
 lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_4);
 lean_dec_ref(x_3);
-lean_dec_ref(x_1);
 x_9 = !lean_is_exclusive(x_8);
 if (x_9 == 0)
 {
@@ -3659,11 +3659,11 @@ return x_27;
 else
 {
 lean_object* x_28; lean_object* x_29; 
+lean_dec_ref(x_1);
 lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_4);
 lean_dec_ref(x_3);
-lean_dec_ref(x_1);
 x_28 = ((lean_object*)(l_Lean_Meta_Simp_Arith_Nat_ToLinear_toLinearExpr___closed__1));
 x_29 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_29, 0, x_28);

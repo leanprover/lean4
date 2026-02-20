@@ -668,8 +668,8 @@ if (x_15 == 0)
 if (x_12 == 0)
 {
 lean_object* x_16; 
-lean_dec_ref(x_14);
 lean_inc(x_9);
+lean_dec_ref(x_14);
 lean_dec_ref(x_6);
 lean_dec_ref(x_5);
 x_16 = lean_apply_2(x_9, lean_box(0), x_2);
@@ -734,8 +734,8 @@ if (x_19 == 0)
 if (x_16 == 0)
 {
 lean_object* x_20; 
-lean_dec_ref(x_18);
 lean_inc(x_13);
+lean_dec_ref(x_18);
 lean_dec_ref(x_10);
 lean_dec_ref(x_9);
 x_20 = lean_apply_2(x_13, lean_box(0), x_5);
@@ -2084,8 +2084,8 @@ if (x_13 == 0)
 if (x_9 == 0)
 {
 lean_object* x_14; lean_object* x_15; 
-lean_dec_ref(x_12);
 lean_inc(x_6);
+lean_dec_ref(x_12);
 lean_dec_ref(x_3);
 lean_dec_ref(x_2);
 x_14 = l_Lake_computeArrayHash___redArg___boxed__const__1;
@@ -2150,8 +2150,8 @@ if (x_15 == 0)
 if (x_11 == 0)
 {
 lean_object* x_16; lean_object* x_17; 
-lean_dec_ref(x_14);
 lean_inc(x_8);
+lean_dec_ref(x_14);
 lean_dec_ref(x_5);
 lean_dec_ref(x_4);
 x_16 = l_Lake_computeArrayHash___redArg___boxed__const__1;

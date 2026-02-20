@@ -6024,6 +6024,7 @@ lean_inc_ref(x_107);
 x_108 = l_Lean_LocalContext_getRoundtrippingUserName_x3f(x_107, x_106);
 if (lean_obj_tag(x_108) == 0)
 {
+lean_dec_ref(x_71);
 lean_free_object(x_98);
 lean_free_object(x_91);
 lean_dec(x_80);
@@ -6033,7 +6034,6 @@ lean_dec(x_76);
 lean_dec_ref(x_75);
 lean_dec(x_74);
 lean_dec_ref(x_73);
-lean_dec_ref(x_71);
 x_23 = x_101;
 x_24 = x_87;
 x_25 = x_78;
@@ -6045,6 +6045,7 @@ else
 lean_dec_ref(x_108);
 if (x_5 == 0)
 {
+lean_dec_ref(x_71);
 lean_free_object(x_98);
 lean_free_object(x_91);
 lean_dec(x_80);
@@ -6054,7 +6055,6 @@ lean_dec(x_76);
 lean_dec_ref(x_75);
 lean_dec(x_74);
 lean_dec_ref(x_73);
-lean_dec_ref(x_71);
 x_23 = x_101;
 x_24 = x_87;
 x_25 = x_78;
@@ -6189,6 +6189,7 @@ lean_inc_ref(x_126);
 x_127 = l_Lean_LocalContext_getRoundtrippingUserName_x3f(x_126, x_125);
 if (lean_obj_tag(x_127) == 0)
 {
+lean_dec_ref(x_71);
 lean_free_object(x_91);
 lean_dec(x_80);
 lean_dec_ref(x_79);
@@ -6197,7 +6198,6 @@ lean_dec(x_76);
 lean_dec_ref(x_75);
 lean_dec(x_74);
 lean_dec_ref(x_73);
-lean_dec_ref(x_71);
 x_23 = x_121;
 x_24 = x_87;
 x_25 = x_78;
@@ -6209,6 +6209,7 @@ else
 lean_dec_ref(x_127);
 if (x_5 == 0)
 {
+lean_dec_ref(x_71);
 lean_free_object(x_91);
 lean_dec(x_80);
 lean_dec_ref(x_79);
@@ -6217,7 +6218,6 @@ lean_dec(x_76);
 lean_dec_ref(x_75);
 lean_dec(x_74);
 lean_dec_ref(x_73);
-lean_dec_ref(x_71);
 x_23 = x_121;
 x_24 = x_87;
 x_25 = x_78;
@@ -6491,6 +6491,7 @@ lean_inc_ref(x_164);
 x_165 = l_Lean_LocalContext_getRoundtrippingUserName_x3f(x_164, x_163);
 if (lean_obj_tag(x_165) == 0)
 {
+lean_dec_ref(x_71);
 lean_dec(x_159);
 lean_dec(x_80);
 lean_dec_ref(x_79);
@@ -6499,7 +6500,6 @@ lean_dec(x_76);
 lean_dec_ref(x_75);
 lean_dec(x_74);
 lean_dec_ref(x_73);
-lean_dec_ref(x_71);
 x_23 = x_158;
 x_24 = x_87;
 x_25 = x_78;
@@ -6511,6 +6511,7 @@ else
 lean_dec_ref(x_165);
 if (x_5 == 0)
 {
+lean_dec_ref(x_71);
 lean_dec(x_159);
 lean_dec(x_80);
 lean_dec_ref(x_79);
@@ -6519,7 +6520,6 @@ lean_dec(x_76);
 lean_dec_ref(x_75);
 lean_dec(x_74);
 lean_dec_ref(x_73);
-lean_dec_ref(x_71);
 x_23 = x_158;
 x_24 = x_87;
 x_25 = x_78;
@@ -8614,9 +8614,9 @@ lean_dec(x_69);
 if (x_370 == 0)
 {
 lean_object* x_371; lean_object* x_372; 
+lean_inc(x_65);
 lean_dec(x_369);
 lean_dec(x_365);
-lean_inc(x_65);
 lean_dec(x_16);
 lean_dec(x_14);
 lean_dec_ref(x_10);
@@ -8679,10 +8679,10 @@ x_378 = l_Lean_Syntax_isOfKind(x_377, x_15);
 if (x_378 == 0)
 {
 lean_object* x_379; lean_object* x_380; 
+lean_inc(x_65);
 lean_dec(x_377);
 lean_dec(x_369);
 lean_dec(x_365);
-lean_inc(x_65);
 lean_dec(x_16);
 lean_dec(x_14);
 lean_dec_ref(x_10);
@@ -8751,12 +8751,12 @@ x_388 = l_Lean_Syntax_matchesNull(x_386, x_14);
 if (x_388 == 0)
 {
 lean_object* x_389; lean_object* x_390; 
+lean_inc(x_65);
 lean_dec(x_386);
 lean_dec(x_385);
 lean_dec(x_377);
 lean_dec(x_369);
 lean_dec(x_365);
-lean_inc(x_65);
 lean_dec(x_14);
 lean_dec_ref(x_10);
 lean_dec_ref(x_9);

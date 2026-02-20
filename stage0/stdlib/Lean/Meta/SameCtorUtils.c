@@ -1645,8 +1645,8 @@ return x_37;
 else
 {
 lean_object* x_38; 
-lean_dec(x_7);
 lean_dec_ref(x_6);
+lean_dec(x_7);
 lean_dec_ref(x_1);
 x_38 = lean_apply_9(x_2, x_8, x_4, x_3, x_5, x_9, x_10, x_11, x_12, lean_box(0));
 return x_38;
@@ -1674,8 +1674,8 @@ goto _start;
 else
 {
 lean_object* x_44; 
-lean_dec(x_7);
 lean_dec_ref(x_6);
+lean_dec(x_7);
 lean_dec_ref(x_1);
 x_44 = lean_apply_9(x_2, x_8, x_4, x_3, x_5, x_9, x_10, x_11, x_12, lean_box(0));
 return x_44;

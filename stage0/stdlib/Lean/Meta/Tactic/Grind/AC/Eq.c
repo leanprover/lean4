@@ -1762,6 +1762,7 @@ else
 {
 if (lean_obj_tag(x_3) == 0)
 {
+lean_dec_ref(x_2);
 lean_dec(x_13);
 lean_dec_ref(x_12);
 lean_dec(x_11);
@@ -1772,7 +1773,6 @@ lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
-lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 x_15 = lean_box(0);
 goto block_18;
@@ -29702,9 +29702,10 @@ return x_164;
 else
 {
 uint8_t x_165; 
-lean_dec(x_147);
 lean_inc(x_146);
 lean_inc(x_145);
+lean_inc_ref(x_131);
+lean_dec(x_147);
 lean_dec(x_143);
 lean_dec_ref(x_142);
 lean_dec(x_141);
@@ -29716,7 +29717,6 @@ lean_dec_ref(x_136);
 lean_dec(x_135);
 lean_dec(x_134);
 lean_dec(x_133);
-lean_inc_ref(x_131);
 lean_dec(x_24);
 x_165 = !lean_is_exclusive(x_132);
 if (x_165 == 0)

@@ -1749,8 +1749,8 @@ x_172 = lean_ctor_get_uint8(x_171, 0);
 if (x_172 == 0)
 {
 lean_object* x_173; 
-lean_free_object(x_169);
 lean_dec_ref(x_171);
+lean_free_object(x_169);
 lean_inc(x_162);
 lean_inc_ref(x_161);
 lean_inc(x_160);
@@ -2814,8 +2814,8 @@ x_298 = lean_ctor_get_uint8(x_296, 0);
 if (x_298 == 0)
 {
 lean_object* x_299; 
-lean_dec(x_297);
 lean_dec_ref(x_296);
+lean_dec(x_297);
 lean_inc(x_162);
 lean_inc_ref(x_161);
 lean_inc(x_160);
@@ -3603,8 +3603,8 @@ x_425 = lean_ctor_get_uint8(x_423, 0);
 if (x_425 == 0)
 {
 lean_object* x_426; 
-lean_dec(x_424);
 lean_dec_ref(x_423);
+lean_dec(x_424);
 lean_inc(x_413);
 lean_inc_ref(x_412);
 lean_inc(x_411);

@@ -20815,8 +20815,8 @@ return x_12;
 }
 else
 {
-lean_free_object(x_12);
 lean_dec_ref(x_14);
+lean_free_object(x_12);
 x_8 = lean_box(0);
 goto block_11;
 }

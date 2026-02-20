@@ -8620,8 +8620,8 @@ return x_15;
 else
 {
 lean_object* x_20; 
-lean_dec(x_8);
 lean_dec_ref(x_7);
+lean_dec(x_8);
 x_20 = l_Lean_PrettyPrinter_Delaborator_annotateTermInfo___redArg(x_1, x_2, x_3, x_4);
 return x_20;
 }
@@ -11114,8 +11114,8 @@ if (x_13 == 0)
 {
 if (lean_obj_tag(x_9) == 0)
 {
-lean_dec(x_11);
 lean_dec_ref(x_9);
+lean_dec(x_11);
 lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec(x_5);

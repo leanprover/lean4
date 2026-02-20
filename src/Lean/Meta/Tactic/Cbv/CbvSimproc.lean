@@ -265,7 +265,7 @@ def cbvSimprocDispatch (tree : DiscrTree CbvSimprocEntry)
       else
         simpOverApplied e numExtra entry.proc
       if result matches .step _ _ _ then
-        trace[Debug.Meta.Tactic.cbv.simprocs] "cbv simproc `{entry.declName}` result {e} => {result.expr}"
+        trace[Debug.Meta.Tactic.cbv.simprocs] "cbv simproc `{entry.declName}` result {e} => {result.getResultExpr e}"
         return result
       if result matches .rfl (done := true) then
         return result

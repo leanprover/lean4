@@ -1,0 +1,4 @@
+defaultInstBacktrackIssue.lean:18:0-18:7: warning: declaration uses `sorry`
+defaultInstBacktrackIssue.lean:20:0-20:7: warning: declaration uses `sorry`
+defaultInstBacktrackIssue.lean:24:0-24:7: warning: declaration uses `sorry`
+defaultInstBacktrackIssue.lean:26:0-26:7: warning: declaration uses `sorry`

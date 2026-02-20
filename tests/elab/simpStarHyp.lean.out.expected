@@ -1,0 +1,7 @@
+simpStarHyp.lean:2:12-2:14: warning: This simp argument is unused:
+  h₂
+
+Hint: Omit it from the simp argument list.
+  simp [h₁,̵ ̵h̵₂̵] at h₁ h₂
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`

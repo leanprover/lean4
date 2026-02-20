@@ -1,0 +1,13 @@
+ac_expr.lean:95:16-95:22: warning: This simp argument is unused:
+  denote
+
+Hint: Omit it from the simp argument list.
+  simp [d̵e̵n̵o̵t̵e̵,̵ ̵ih]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+theorem ex₂ : ∀ (x₁ x₂ x₃ x₄ : Nat), x₁ + x₂ + (x₃ + x₄) = x₃ + x₁ + x₂ + x₄ :=
+fun x₁ x₂ x₃ x₄ =>
+  Expr.eq_of_sort_flat
+    { op := Nat.add, assoc := Nat.add_assoc, comm := Nat.add_comm, vars := [x₁, x₂, x₃, x₄], someVal := x₁ }
+    (((Expr.var 0).op (Expr.var 1)).op ((Expr.var 2).op (Expr.var 3)))
+    ((((Expr.var 2).op (Expr.var 0)).op (Expr.var 1)).op (Expr.var 3)) rfl

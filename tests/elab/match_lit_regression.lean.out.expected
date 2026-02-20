@@ -1,0 +1,12 @@
+match_lit_regression.lean:1:0-4:44: warning: declaration uses `sorry`
+match_lit_regression.lean:1:0-4:44: warning: declaration uses `sorry`
+match_lit_regression.lean:1:0-4:44: warning: declaration uses `sorry`
+match_lit_regression.lean:1:0-4:44: warning: declaration uses `sorry`
+match_lit_regression.lean:1:0-4:44: warning: declaration uses `sorry`
+match_lit_regression.lean:1:0-4:44: warning: declaration uses `sorry`
+match_lit_regression.lean:1:0-4:44: warning: declaration uses `sorry`
+match_lit_regression.lean:1:0-4:44: warning: declaration uses `sorry`
+match_lit_regression.lean:1:0-4:44: warning: declaration uses `sorry`
+match_lit_regression.lean:1:0-4:44: warning: declaration uses `sorry`
+match_lit_regression.lean:6:4-6:11: warning: declaration uses `sorry`
+match_lit_regression.lean:6:4-6:11: warning: declaration uses `sorry`

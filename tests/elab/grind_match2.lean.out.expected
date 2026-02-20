@@ -1,0 +1,37 @@
+[grind] working on goal `grind`
+[grind.assert] (match
+        match as with
+        | [] => [a]
+        | b :: bs => a :: a :: b :: bs with
+      | [] => true
+      | head :: tail => false) =
+      true
+[grind] working on goal `grind.1`
+[grind.assert] as = []
+[grind.assert] (match as with
+      | [] => [a]
+      | b :: bs => a :: a :: b :: bs) =
+      [a]
+[grind.assert] (match
+        match as with
+        | [] => [a]
+        | b :: bs => a :: a :: b :: bs with
+      | [] => Bool.true
+      | head :: tail => Bool.false) =
+      Bool.false
+[grind] closed `grind.1`
+[grind] working on goal `grind.2`
+[grind.assert] as = b :: bs
+[grind.assert] (match as with
+      | [] => [a]
+      | b :: bs => a :: a :: b :: bs) =
+      a :: a :: b :: bs
+[grind.assert] (match
+        match as with
+        | [] => [a]
+        | b :: bs => a :: a :: b :: bs with
+      | [] => true
+      | head :: tail => false) =
+      false
+[grind] closed `grind.2`
+grind_match2.lean:32:0-32:7: warning: declaration uses `sorry`

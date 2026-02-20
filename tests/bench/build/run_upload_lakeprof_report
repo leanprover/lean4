@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+source ../../env_bench.sh
+source "$TEST_DIR/util.sh"
+
+# This should run in the same environment as run_bench, otherwise `lakeprof`
+# will use the `lake` from the global system `elan` install and not the one from
+# the current commit.
+#
+# Once an elan with support for relative toolchains has been widely released and
+# been adopted by this repo, this wrapper script should no longer be necessary
+# and the upload script can be called directly.
+./lakeprof_report_upload.py

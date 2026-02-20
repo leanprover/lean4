@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+source ../env_test.sh
+source "$TEST_DIR/util.sh"
+
+NAME="$1"
+FILE="$(realpath "$1")"
+source "$1"

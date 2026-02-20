@@ -1,0 +1,16 @@
+[Compiler.result] size: 1
+    def Iff.elim1._redArg h : tobj :=
+      let _x.1 := h ◾ ◾;
+      return _x.1
+[Compiler.result] size: 1
+    def Iff.elim1 a b motive t h : tobj :=
+      let _x.1 := h ◾ ◾;
+      return _x.1
+[Compiler.result] size: 1
+    def Iff.elim2._redArg h : tobj :=
+      let _x.1 := h ◾ ◾;
+      return _x.1
+[Compiler.result] size: 1
+    def Iff.elim2 a b motive t h : tobj :=
+      let _x.1 := h ◾ ◾;
+      return _x.1

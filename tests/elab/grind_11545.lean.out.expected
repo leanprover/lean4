@@ -1,0 +1,15 @@
+op_comp: [@Quiver.Hom.op #7 _ #4 #2 (@CategoryStruct.comp _ #6 #4 #3 #2 #1 #0)]
+op_comp: [@CategoryStruct.comp (Opposite #7) _ (@op _ #2) (@op _ #3) (@op _ #4) (@Quiver.Hom.op _ _ #3 #2 #0) (@Quiver.Hom.op _ _ #4 #3 #1)]
+grind_11545.lean:100:0-100:85: warning: automatically included section variable(s) unused in theorem `op_comp`:
+  [Category C]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Category C] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+grind_11545.lean:132:4-132:14: warning: declaration uses `sorry`
+grind_11545.lean:148:4-148:13: warning: declaration uses `sorry`
+grind_11545.lean:148:4-148:13: warning: declaration uses `sorry`
+grind_11545.lean:151:4-151:21: warning: declaration uses `sorry`
+grind_11545.lean:154:4-154:21: warning: declaration uses `sorry`
+grind_11545.lean:170:8-170:22: warning: declaration uses `sorry`
+grind_11545.lean:223:8-223:29: warning: declaration uses `sorry`

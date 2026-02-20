@@ -1,0 +1,21 @@
+972.lean:19:38-19:47: warning: This simp argument is unused:
+  mul_assoc
+
+Hint: Omit it from the simp argument list.
+  simp only [mul_left_comm, mul_comm,̵ ̵m̵u̵l̵_̵a̵s̵s̵o̵c̵]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+972.lean:22:28-22:36: warning: This simp argument is unused:
+  mul_comm
+
+Hint: Omit it from the simp argument list.
+  simp only [mul_left_comm, mul_c̵o̵m̵m̵,̵ ̵m̵u̵l̵_̵assoc]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+972.lean:22:38-22:47: warning: This simp argument is unused:
+  mul_assoc
+
+Hint: Omit it from the simp argument list.
+  simp only [mul_left_comm, mul_comm,̵ ̵m̵u̵l̵_̵a̵s̵s̵o̵c̵]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`

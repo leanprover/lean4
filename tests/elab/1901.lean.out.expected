@@ -1,0 +1,4 @@
+Funny.toFun.{u_1, u_2, u_3} {F : Type u_1} {A : outParam (Type u_2)} {B : outParam (Type u_3)} [self : Funny F A B] :
+  F → A → B
+MulHomClass.toFunny.{u_1, u_2, u_3} {F : Type u_1} {A : outParam (Type u_2)} {B : outParam (Type u_3)} {inst✝ : Mul A}
+  {inst✝¹ : Mul B} [self : MulHomClass F A B] : Funny F A B

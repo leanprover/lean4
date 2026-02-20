@@ -1,0 +1,46 @@
+def f._mutual : (x : (_ : Nat) ×' Bool ⊕' Nat) → PSum.casesOn x (fun _x => Nat) fun _x => Nat :=
+f._mutual._proof_1.fix fun x a =>
+  PSum.casesOn (motive := fun x =>
+    ((y : (_ : Nat) ×' Bool ⊕' Nat) →
+        (invImage
+                (fun x =>
+                  PSum.casesOn x (fun _x => PSigma.casesOn _x fun a a_1 => (a, if a_1 = true then 2 else 1)) fun n =>
+                    (n, 0))
+                Prod.instWellFoundedRelation).1
+            y x →
+          PSum.casesOn y (fun _x => Nat) fun _x => Nat) →
+      PSum.casesOn x (fun _x => Nat) fun _x => Nat)
+    x
+    (fun _x a =>
+      PSigma.casesOn (motive := fun _x =>
+        ((y : (_ : Nat) ×' Bool ⊕' Nat) →
+            (invImage
+                    (fun x =>
+                      PSum.casesOn x (fun _x => PSigma.casesOn _x fun a a_1 => (a, if a_1 = true then 2 else 1))
+                        fun n => (n, 0))
+                    Prod.instWellFoundedRelation).1
+                y (PSum.inl _x) →
+              PSum.casesOn y (fun _x => Nat) fun _x => Nat) →
+          Nat)
+        _x
+        (fun a a_1 a_2 =>
+          (match (motive :=
+              (x : Nat) →
+                (x_1 : Bool) →
+                  ((y : (_ : Nat) ×' Bool ⊕' Nat) →
+                      (invImage
+                              (fun x =>
+                                PSum.casesOn x
+                                  (fun _x => PSigma.casesOn _x fun a a_3 => (a, if a_3 = true then 2 else 1)) fun n =>
+                                  (n, 0))
+                              Prod.instWellFoundedRelation).1
+                          y (PSum.inl ⟨x, x_1⟩) →
+                        PSum.casesOn y (fun _x => Nat) fun _x => Nat) →
+                    Nat)
+              a, a_1 with
+            | n, true => fun x => 2 * x (PSum.inl ⟨n, false⟩) ⋯
+            | 0, false => fun x => 1
+            | n, false => fun x => n + x (PSum.inr n) ⋯)
+            a_2)
+        a)
+    (fun n a => if h : n ≠ 0 then a (PSum.inl ⟨n - 1, true⟩) ⋯ else n) a

@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+source ../env_bench.sh
+source "$TEST_DIR/util.sh"
+source_init "$1"
+
+if [[ -f "$1.do_compile_bench" ]]; then DO_COMPILE=1
+elif [[ -f "$1.no_compile_bench" ]]; then DO_COMPILE=
+elif [[ -f "$1.do_compile" ]]; then DO_COMPILE=1
+elif [[ -f "$1.no_compile" ]]; then DO_COMPILE=
+else DO_COMPILE=1
+fi
+
+rm -f "$1.measurements.jsonl"
+
+if [[ -n $DO_COMPILE ]]; then
+  run_before "$1"
+
+  lean --c="$1.c" "${TEST_LEAN_ARGS[@]}" "$1" || fail "Failed to compile $1 into $1.c"
+  leanc ${LEANC_OPTS-} -O3 -DNDEBUG -o "$1.out" "${TEST_LEANC_ARGS[@]}" "$1.c" || fail "Failed to compile $1.c"
+
+  # Measure .out binary size
+  wc -c "$1.out" \
+    | jq -R 'split(" ")[0] | tonumber | {metric: "size/compile/.out//bytes", value: ., unit: "B"}' -c \
+    >> "$1.measurements.jsonl"
+
+  run_after "$1"
+fi

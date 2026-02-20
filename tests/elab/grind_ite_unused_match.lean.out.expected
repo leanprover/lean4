@@ -1,0 +1,28 @@
+Try this:
+  [apply] [grind =] for pattern: [@Membership.mem #3 (List _) _ (@List.cons _ #2 #1) #0]
+Try this:
+  [apply] [grind .] for pattern: [@Membership.mem #1 (List _) _ (@List.nil _) #0]
+Try these:
+  [apply] [grind
+    =] for pattern: [@Membership.mem #3 (List _) _ (@HAppend.hAppend (List _) (List _) (List _) _ #1 #0) #2]
+  [apply] [grind =_] for pattern: [@Membership.mem #3 (List _) _ #1 #2, @Membership.mem _ (List _) _ #0 #2]
+Try this:
+  [apply] [grind =] for pattern: [@Option.getD #2 (@some _ #1) #0]
+Try this:
+  [apply] [grind =] for pattern: [@Option.getD #1 (@none _) #0]
+Try these:
+  [apply] [grind =] for pattern: [@getElem? (Std.HashMap #9 #8 #7 #6) _ _ _ _ (@Std.HashMap.insert _ _ _ _ #5 #2 #0) #1]
+  [apply] [grind
+    =>] for pattern: [EquivBEq #9 #7, LawfulHashable _ _ #6, @getElem? (Std.HashMap _ #8 _ _) _ _ _ _ (@Std.HashMap.insert _ _ _ _ #5 #2 #0) #1]
+Try this:
+  [apply] [grind =] for pattern: [eval #0 (lit #1)]
+Try this:
+  [apply] [grind =] for pattern: [eval #0 (var #1)]
+Try this:
+  [apply] [grind =] for pattern: [eval #0 (ite (lit #3) #2 #1)]
+Try this:
+  [apply] [grind =] for pattern: [eval #0 (ite (var #3) #2 #1)]
+Try these:
+  [apply] [grind =] for pattern: [eval #5 (ite (ite #4 #3 #2) #1 #0)]
+  [apply] [grind =_] for pattern: [eval #5 (ite #4 (ite #3 #1 #0) (ite #2 #1 #0))]
+grind_ite_unused_match.lean:156:8-156:25: warning: declaration uses `sorry`

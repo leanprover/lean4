@@ -1,0 +1,3 @@
+1132.lean:17:15-17:16: warning: Local variable 'a' resembles constructor 'Baz.a' - write '.a' (with a dot) or 'Baz.a' to use the constructor.
+
+Note: This linter can be disabled with `set_option linter.constructorNameAsVariable false`

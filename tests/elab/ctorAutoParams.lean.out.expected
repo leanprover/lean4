@@ -1,0 +1,2 @@
+@Bigstep.seq : ∀ {c₁ : Command} {σ₁ σ₂ : State} {t₁ : Nat} {c₂ : Command} {σ₃ : State} {t₂ : Nat},
+  Bigstep (c₁, σ₁) σ₂ t₁ → Bigstep (c₂, σ₂) σ₃ t₂ → Bigstep (c₁;;c₂, σ₁) σ₃ (t₁ + t₂ + 1)

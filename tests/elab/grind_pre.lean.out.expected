@@ -1,0 +1,11 @@
+[grind.debug.proof] fun h₁ h₂ =>
+      id
+        (Eq.mp (Eq.trans (Eq.symm (eq_true (eq_of_heq ((fun a a' e_1 => e_1 ▸ HEq.refl (f a)) a b h₁)))) (eq_false h₂))
+          True.intro)
+[grind.debug.proof] fun h₁ h₂ h₃ =>
+      Classical.byContradiction
+        (Lean.Grind.intro_with_eq (¬q = r) (q = ¬r) False (Lean.Grind.not_eq_prop q r) fun h =>
+          id
+            (Lean.Grind.false_of_not_eq_self
+              (eq_of_heq (HEq.trans (HEq.trans (HEq.trans (HEq.symm (heq_of_eq h)) h₂) (HEq.symm h₁)) (heq_of_eq h₃)))))
+grind_pre.lean:183:0-183:7: warning: declaration uses `sorry`

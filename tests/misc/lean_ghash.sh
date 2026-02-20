@@ -1,0 +1,2 @@
+lean --githash
+lean -g

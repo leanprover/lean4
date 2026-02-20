@@ -1,0 +1,58 @@
+grind_cutsat_tests.lean:11:0-11:6: warning: `cutsat` has been deprecated, use `lia` instead
+Try this:
+  [apply] lia
+grind_cutsat_tests.lean:28:0-28:7: warning: declaration uses `sorry`
+grind_cutsat_tests.lean:41:2-41:8: warning: `cutsat` has been deprecated, use `lia` instead
+Try this:
+  [apply] lia
+grind_cutsat_tests.lean:51:2-51:8: warning: `cutsat` has been deprecated, use `lia` instead
+Try this:
+  [apply] lia
+grind_cutsat_tests.lean:59:2-59:8: warning: `cutsat` has been deprecated, use `lia` instead
+Try this:
+  [apply] lia
+grind_cutsat_tests.lean:66:2-66:8: warning: `cutsat` has been deprecated, use `lia` instead
+Try this:
+  [apply] lia
+grind_cutsat_tests.lean:71:2-71:8: warning: `cutsat` has been deprecated, use `lia` instead
+Try this:
+  [apply] lia
+grind_cutsat_tests.lean:79:2-79:8: warning: `cutsat` has been deprecated, use `lia` instead
+Try this:
+  [apply] lia
+grind_cutsat_tests.lean:87:2-87:8: warning: `cutsat` has been deprecated, use `lia` instead
+Try this:
+  [apply] lia
+grind_cutsat_tests.lean:96:2-96:8: warning: `cutsat` has been deprecated, use `lia` instead
+Try this:
+  [apply] lia
+grind_cutsat_tests.lean:104:2-104:8: warning: `cutsat` has been deprecated, use `lia` instead
+Try this:
+  [apply] lia
+grind_cutsat_tests.lean:110:2-110:8: warning: `cutsat` has been deprecated, use `lia` instead
+Try this:
+  [apply] lia
+grind_cutsat_tests.lean:117:2-117:8: warning: `cutsat` has been deprecated, use `lia` instead
+Try this:
+  [apply] lia
+grind_cutsat_tests.lean:124:2-124:8: warning: `cutsat` has been deprecated, use `lia` instead
+Try this:
+  [apply] lia
+grind_cutsat_tests.lean:126:37-126:43: warning: `cutsat` has been deprecated, use `lia` instead
+Try this:
+  [apply] lia
+grind_cutsat_tests.lean:127:36-127:42: warning: `cutsat` has been deprecated, use `lia` instead
+Try this:
+  [apply] lia
+grind_cutsat_tests.lean:128:37-128:43: warning: `cutsat` has been deprecated, use `lia` instead
+Try this:
+  [apply] lia
+grind_cutsat_tests.lean:129:36-129:42: warning: `cutsat` has been deprecated, use `lia` instead
+Try this:
+  [apply] lia
+grind_cutsat_tests.lean:130:39-130:45: warning: `cutsat` has been deprecated, use `lia` instead
+Try this:
+  [apply] lia
+grind_cutsat_tests.lean:131:37-131:43: warning: `cutsat` has been deprecated, use `lia` instead
+Try this:
+  [apply] lia

@@ -1,0 +1,48 @@
+nestedWF.lean:4:4-4:5: warning: declaration uses `sorry`
+nestedWF.lean:4:4-4:5: warning: declaration uses `sorry`
+nestedWF.lean:4:4-4:5: warning: declaration uses `sorry`
+nestedWF.lean:4:4-4:5: warning: declaration uses `sorry`
+nestedWF.lean:4:4-4:5: warning: declaration uses `sorry`
+nestedWF.lean:4:4-4:5: warning: declaration uses `sorry`
+nestedWF.lean:4:4-4:5: warning: declaration uses `sorry`
+Ex1.g.eq_1 (c a b n : Nat) :
+  g c n.succ a b =
+    match g c n a b with
+    | 0 => 0
+    | m =>
+      match g c (n - m) a b with
+      | 0 => 0
+      | m.succ => g c m a b
+Ex1.g.eq_2 (c a b : Nat) : g c 0 a b = f c 0
+Ex1.h.eq_1 (c x : Nat) :
+  h c x =
+    match g c x c c with
+    | 0 => 1
+    | r => r + 2
+Ex1.f.eq_1 (c x : Nat) :
+  f c x =
+    match h c x with
+    | 0 => 1
+    | r => f c r
+nestedWF.lean:42:4-42:5: warning: declaration uses `sorry`
+nestedWF.lean:42:4-42:5: warning: declaration uses `sorry`
+Ex2.g.eq_1 (n : Nat) :
+  g n.succ =
+    match g n with
+    | 0 => 0
+    | m.succ =>
+      match g (n - m) with
+      | 0 => 0
+      | m.succ => g n
+Ex2.g.eq_2 : g 0 = 0
+Ex2.g.eq_def (t : Nat) :
+  g t =
+    match t with
+    | n.succ =>
+      match g n with
+      | 0 => 0
+      | m.succ =>
+        match g (n - m) with
+        | 0 => 0
+        | m.succ => g n
+    | 0 => 0

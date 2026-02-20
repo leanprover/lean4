@@ -38,12 +38,8 @@ def updateGitPkg
 def cloneGitPkg
   (name : String) (repo : GitRepo) (url : String) (rev? : Option String)
 : LoggerIO PUnit := do
-  logInfo s!"{name}: cloning {url}"
-  repo.clone url
-  if let some rev := rev? then
-    let rev ← repo.resolveRemoteRevision rev
-    logInfo s!"{name}: checking out revision '{rev}'"
-    repo.checkoutDetach rev
+  logInfo s!"{name}: cloning {url}{(if let some rev := rev? then s!" at revision '{rev}'" else "")}"
+  repo.clone url rev?
 
 /--
 Update the Git repository from `url` in `repo` to `rev?`.

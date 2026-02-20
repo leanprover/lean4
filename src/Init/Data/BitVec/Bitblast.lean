@@ -2420,8 +2420,8 @@ def extractAndExtend (len : Nat) (x : BitVec w) : BitVec (w * len) :=
   flattened `w`-long words, each resulting from an addition.
 -/
 def cpopLayer {w iterNum : Nat}
-  (oldLayer : BitVec (oldLength * w)) (newLayer : BitVec (iterNum * w))
-  (hold : 2 * (iterNum - 1) < oldLength) : BitVec (((oldLength + 1)/2) * w) :=
+    (oldLayer : BitVec (oldLength * w)) (newLayer : BitVec (iterNum * w))
+    (hold : 2 * (iterNum - 1) < oldLength) : BitVec (((oldLength + 1)/2) * w) :=
   if hlen : oldLength - (iterNum * 2) = 0 then
     have : ((oldLength + 1)/2) = iterNum := by omega
     newLayer.cast (by simp [this])
@@ -2514,11 +2514,11 @@ private theorem extractLsb'_extractAndExtendAux
       · omega
 
 theorem extractLsb'_cpopLayer {w iterNum i oldLength : Nat}
-  (oldLayer : BitVec (oldLength * w)) (newLayer : BitVec (iterNum * w))
-  (hold : 2 * (iterNum - 1) < oldLength)
-  (proof_addition : ∀ i (_hi: i < iterNum),
-        newLayer.extractLsb' (i * w) w =
-        oldLayer.extractLsb' ((2 * i) * w) w + (oldLayer.extractLsb' ((2 * i + 1) * w) w)) :
+    (oldLayer : BitVec (oldLength * w)) (newLayer : BitVec (iterNum * w))
+    (hold : 2 * (iterNum - 1) < oldLength)
+    (proof_addition : ∀ i (_hi: i < iterNum),
+          newLayer.extractLsb' (i * w) w =
+          oldLayer.extractLsb' ((2 * i) * w) w + (oldLayer.extractLsb' ((2 * i + 1) * w) w)) :
     extractLsb' (i * w) w (oldLayer.cpopLayer newLayer hold) =
       extractLsb' (2 * i * w) w oldLayer + extractLsb' ((2 * i + 1) * w) w oldLayer := by
   rw [cpopLayer]
@@ -2554,11 +2554,11 @@ theorem extractLsb'_cpopLayer {w iterNum i oldLength : Nat}
 termination_by oldLength - 2 * (iterNum + 1 - 1)
 
 theorem getLsbD_cpopLayer {w iterNum: Nat}
-  (oldLayer : BitVec (oldLength * w)) (newLayer : BitVec (iterNum * w))
-  (hold : 2 * (iterNum - 1) < oldLength)
-  (proof_addition : ∀ i (_hi: i < iterNum),
-        newLayer.extractLsb' (i * w) w =
-        oldLayer.extractLsb' ((2 * i) * w) w + (oldLayer.extractLsb' ((2 * i + 1) * w) w)) :
+    (oldLayer : BitVec (oldLength * w)) (newLayer : BitVec (iterNum * w))
+    (hold : 2 * (iterNum - 1) < oldLength)
+    (proof_addition : ∀ i (_hi: i < iterNum),
+          newLayer.extractLsb' (i * w) w =
+          oldLayer.extractLsb' ((2 * i) * w) w + (oldLayer.extractLsb' ((2 * i + 1) * w) w)) :
     (oldLayer.cpopLayer newLayer hold).getLsbD k =
       (extractLsb' (2 * ((k - k % w) / w) * w) w oldLayer +
         extractLsb' ((2 * ((k - k % w) / w) + 1) * w) w oldLayer).getLsbD (k % w) := by
@@ -2771,7 +2771,8 @@ private theorem addRecAux_eq_cpopTree {x : BitVec (xLen * w)} :
   ext k hk
   simp [← getLsbD_eq_getElem, hk]
 
-theorem cpop_eq_cpopRec {x : BitVec w} : BitVec.cpop x = BitVec.cpopRec x := by
+theorem cpop_eq_cpopRec {x : BitVec w} :
+    BitVec.cpop x = BitVec.cpopRec x := by
   unfold BitVec.cpopRec
   split
   · simp [← addRecAux_extractAndExtend_eq_cpop, addRecAux_eq_cpopTree (w := w) (x := extractAndExtend w x)]

@@ -17,6 +17,7 @@ import Lean.Meta.Sym.ProofInstInfo
 import Lean.Meta.Sym.AlphaShareBuilder
 import Lean.Meta.Sym.Offset
 import Lean.Meta.Sym.Eta
+import Lean.Meta.AbstractMVars
 import Init.Data.List.MapIdx
 import Init.Data.Nat.Linear
 import Std.Do.Triple.Basic
@@ -259,6 +260,45 @@ public def mkEqPatternFromDecl (declName : Name) : MetaM (Pattern × Expr) := do
   mkPatternFromDeclWithKey declName fun type => do
     let_expr Eq _ lhs rhs := type | throwError "conclusion is not a equality{indentExpr type}"
     return (lhs, rhs)
+
+/--
+Like `mkPatternCore` but takes a lambda expression instead of a forall type.
+Uses `lambdaBoundedTelescope` to open binders and detect instance/proof arguments.
+-/
+def mkPatternCoreFromLambda (lam : Expr) (levelParams : List Name)
+    (varTypes : Array Expr) (pattern : Expr) : MetaM Pattern := do
+  let fnInfos ← mkProofInstInfoMapFor pattern
+  let checkTypeMask := mkCheckTypeMask pattern varTypes.size
+  let checkTypeMask? := if checkTypeMask.all (· == false) then none else some checkTypeMask
+  let varInfos? ← lambdaBoundedTelescope lam varTypes.size fun xs _ =>
+    mkProofInstArgInfo? xs
+  return { levelParams, varTypes, pattern, fnInfos, varInfos?, checkTypeMask? }
+
+def mkPatternFromLambda (levelParams : List Name) (lam : Expr) : MetaM Pattern := do
+  let rec go (pattern : Expr) (varTypes : Array Expr) : MetaM Pattern := do
+    if let .lam _ d b _ := pattern then
+      return (← go b (varTypes.push d))
+    let pattern ← preprocessType pattern
+    mkPatternCoreFromLambda lam levelParams varTypes pattern
+  go lam #[]
+
+/--
+Creates a `Pattern` from an expression containing metavariables.
+
+Metavariables in `e` become pattern variables (wildcards). For example,
+`Nat.succ ?m` produces a pattern matching `Nat.succ _` with discrimination
+tree keys `[Nat.succ, *]`.
+
+This is used for user-registered simproc patterns where the user provides
+an expression with underscores (elaborated as metavariables) to specify
+what the simproc should match.
+-/
+public def mkSimprocPatternFromExpr (e : Expr) : MetaM Pattern := do
+  let result ← abstractMVars e
+  let levelParams := result.paramNames.mapIdx fun i _ => Name.num uvarPrefix i
+  let us := levelParams.toList.map mkLevelParam
+  let expr := result.expr.instantiateLevelParamsArray result.paramNames us.toArray
+  mkPatternFromLambda levelParams.toList expr
 
 structure UnifyM.Context where
   pattern   : Pattern

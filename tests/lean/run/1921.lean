@@ -1,4 +1,3 @@
-@[simp] theorem Array.size_singleton : #[a].size = 1 := rfl
 @[simp] theorem USize.not_size_le_one : ¬ USize.size ≤ 1 := by cases USize.size_eq <;> simp (config := { decide := true }) [*]
 
 def f := #[true].any id 0 USize.size

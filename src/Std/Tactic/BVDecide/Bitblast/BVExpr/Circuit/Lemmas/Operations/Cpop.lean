@@ -171,7 +171,7 @@ theorem denote_blastCpopLayer (aig : AIG α) (iterNum : Nat)
           apply Ref.hgate
       · have hiter : idx / w = iterNum := Nat.div_eq_of_lt_le (by omega) hidx
         subst hiter
-        rw [BitVec.getLsbD_cpopLayer (oldLayer := oldLayerBv) (proof_addition := by intros; omega),
+        rw [BitVec.getLsbD_cpopLayer (oldLayer := oldLayerBv) (by intros; omega) (by omega),
           ← Nat.div_eq_sub_mod_div (m := idx) (n := w)]
         simp only [show idx - idx / w * w = idx % w by exact Eq.symm Nat.mod_eq_sub_div_mul]
         apply denote_blastAdd

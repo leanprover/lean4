@@ -697,6 +697,45 @@ example (x y : BitVec 256) : x * y * z = z * y * x := by
 
 end NormalizeMul
 
+namespace NormBvMulPow2Rev
+
+
+/--
+info: BitVec.extractLsb'_append_zero_eq_mul_shiftLeft {n m : Nat} (x : BitVec n) (tz : Nat) (hm : n = m + tz) :
+  BitVec.extractLsb' 0 m x ++ 0#tz = BitVec.cast hm (x * 1#n <<< tz)
+-/
+#guard_msgs in #check BitVec.extractLsb'_append_zero_eq_mul_shiftLeft
+
+/--
+info: BitVec.shiftLeft_eq_concat_of_lt {w : Nat} {x : BitVec w} {n : Nat} (hn : n < w) :
+  x <<< n = BitVec.cast ⋯ (BitVec.extractLsb' 0 (w - n) x ++ 0#n)
+-/
+#guard_msgs in #check BitVec.shiftLeft_eq_concat_of_lt
+
+/- NORM_BV_MUL_POW2_REV: extractLsb' ++ 0#tz to multiplication -/
+-- attribute [bv_normalize] BitVec.extractLsb'_append_zero_eq_mul_shiftLeft
+
+-- set_option trace.Meta true
+-- set_option trace.Meta.Tactic.simp.all true
+-- set_option trace.Meta.Tactic.bv true
+-- set_option diagnostics true
+set_option trace.Meta.Tactic.simp.rewrite true
+set_option trace.Meta.Tactic.simp.loopProtection true
+example {x : BitVec 8} :
+  (x.extractLsb' 0 4 ++ 0#4) = (x * (1#8 <<< 4)).cast (by omega) := by
+    simp? only [bv_normalize, -BitVec.extractLsb'_append_zero_eq_mul_shiftLeft, -Lean.Elab.Tactic.BVDecide.Frontend.Normalize.bv_extractLsb'_append_zero_to_mul]
+    -- bv_normalize
+    -- simp only [BitVec.extractLsb'_append_zero_eq_mul_shiftLeft]
+    -- bv_normalize
+    -- simp only [bv_normalize]
+    -- rw [BitVec.extractLsb'_append_zero_eq_mul_shiftLeft]
+    -- simp? only [bv_normalize]
+
+example {x : BitVec 8} :
+  (x.extractLsb' 0 5 ++ 0#3) = (x * 8).cast (by omega) := by bv_normalize
+
+end NormBvMulPow2Rev
+
 def foo (x : Bool) : Prop := x = true
 
 example (x : Bool) (h1 h2 : x = true) : foo x := by

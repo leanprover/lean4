@@ -1,5 +1,5 @@
 [Compiler.IR] [result]
-    def Exp.ctorIdx (x_1 : @& tobj) : tobj :=
+    def Exp.ctorIdx (x_1 : @& tobj) : tagged :=
       case x_1 : tobj of
       Exp.var →
         let x_2 : tagged := 0;
@@ -22,7 +22,7 @@
       Exp.a5 →
         let x_8 : tagged := 6;
         ret x_8
-    def Exp.ctorIdx._boxed (x_1 : tobj) : tobj :=
+    def Exp.ctorIdx._boxed (x_1 : tobj) : tagged :=
       let x_2 : tobj := Exp.ctorIdx x_1;
       dec x_1;
       ret x_2
@@ -215,7 +215,7 @@
       dec x_5;
       ret x_10
 [Compiler.IR] [result]
-    def Exp.var._override (x_1 : u32) : tobj :=
+    def Exp.var._override (x_1 : u32) : obj :=
       let x_2 : u64 := UInt32.toUInt64 x_1;
       let x_3 : u64 := 1000;
       let x_4 : u64 := UInt64.add x_2 x_3;
@@ -223,7 +223,7 @@
       sset x_5[0, 0] : u64 := x_4;
       sset x_5[0, 8] : u32 := x_1;
       ret x_5
-    def Exp.var._override._boxed (x_1 : tobj) : tobj :=
+    def Exp.var._override._boxed (x_1 : tobj) : obj :=
       let x_2 : u32 := unbox x_1;
       dec x_1;
       let x_3 : tobj := Exp.var._override x_2;
@@ -246,7 +246,7 @@
       let x_3 : obj := box x_2;
       ret x_3
 [Compiler.IR] [result]
-    def Exp.app._override (x_1 : tobj) (x_2 : tobj) : tobj :=
+    def Exp.app._override (x_1 : tobj) (x_2 : tobj) : obj :=
       let x_3 : u64 := Exp.hash._override x_1;
       let x_4 : u64 := Exp.hash._override x_2;
       let x_5 : u64 := mixHash x_3 x_4;
@@ -254,34 +254,34 @@
       sset x_6[2, 0] : u64 := x_5;
       ret x_6
 [Compiler.IR] [result]
-    def Exp.a1._override : tobj :=
+    def Exp.a1._override : tagged :=
       let x_1 : tagged := ctor_2[Exp.a1._impl];
       ret x_1
 [Compiler.IR] [result]
-    def Exp.a2._override : tobj :=
+    def Exp.a2._override : tagged :=
       let x_1 : tagged := ctor_3[Exp.a2._impl];
       ret x_1
 [Compiler.IR] [result]
-    def Exp.a3._override : tobj :=
+    def Exp.a3._override : tagged :=
       let x_1 : tagged := ctor_4[Exp.a3._impl];
       ret x_1
 [Compiler.IR] [result]
-    def Exp.a4._override : tobj :=
+    def Exp.a4._override : tagged :=
       let x_1 : tagged := ctor_5[Exp.a4._impl];
       ret x_1
 [Compiler.IR] [result]
-    def Exp.a5._override : tobj :=
+    def Exp.a5._override : tagged :=
       let x_1 : tagged := ctor_6[Exp.a5._impl];
       ret x_1
 [Compiler.IR] [result]
-    def f._closed_0 : tobj :=
+    def f._closed_0 : obj :=
       let x_1 : u32 := 10;
-      let x_2 : tobj := Exp.var._override x_1;
+      let x_2 : obj := Exp.var._override x_1;
       ret x_2
-    def f._closed_1 : tobj :=
+    def f._closed_1 : obj :=
       let x_1 : tagged := ctor_5[Exp.a4._impl];
       let x_2 : tobj := f._closed_0;
-      let x_3 : tobj := Exp.app._override x_2 x_1;
+      let x_3 : obj := Exp.app._override x_2 x_1;
       ret x_3
     def f._closed_2 : u64 :=
       let x_1 : tobj := f._closed_1;

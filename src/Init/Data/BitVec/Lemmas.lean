@@ -2786,7 +2786,8 @@ theorem msb_append {x : BitVec w} {y : BitVec v} :
   rw [getElem_append] -- Why does this not work with `simp [getElem_append]`?
   simp; rfl
 
-@[simp] theorem append_of_zero_width (x : BitVec w) (y : BitVec v) (h : w = 0) : (x ++ y) = y.cast (by simp [h]) := by
+theorem append_of_zero_width (x : BitVec w) (y : BitVec v) (h : w = 0) :
+    (x ++ y) = y.cast (by simp [h]) := by
   ext i ih
   subst h
   simp [← getLsbD_eq_getElem, getLsbD_append]
@@ -2853,7 +2854,7 @@ theorem toNat_shiftLeft_or_toNat_lt_two_pow_add {m n : Nat} (x : BitVec m) (y : 
 
 @[simp] theorem zero_width_append (x : BitVec 0) (y : BitVec v) : x ++ y = y.cast (by omega) := by
   ext i ih
-  simp
+  simp [getElem_append, show i < v by omega]
 
 @[simp] theorem zero_append_zero : 0#v ++ 0#w = 0#(v + w) := by
   ext

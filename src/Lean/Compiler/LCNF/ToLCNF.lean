@@ -74,7 +74,7 @@ partial def bindCases (jpDecl : FunDecl .pure) (cases : Cases .pure) : CompilerM
   return .jp jpDecl result
 where
   visitAlts (alts : Array (Alt .pure)) : BindCasesM (Array (Alt .pure)) :=
-    alts.mapM fun alt => return alt.updateCode (← go alt.getCode)
+    alts.mapMonoM (·.mapCodeM go)
 
   findFun? (f : FVarId) : CompilerM (Option (FunDecl .pure)) := do
     if let some funDecl ← findFunDecl? (pu := .pure) f then

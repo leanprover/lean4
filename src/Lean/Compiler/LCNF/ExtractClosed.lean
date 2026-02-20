@@ -145,7 +145,7 @@ partial def visitCode (code : Code .pure) : M (Code .pure) := do
     let decl ← decl.updateValue (← visitCode decl.value)
     return code.updateFun! decl (← visitCode k)
   | .cases cases =>
-    let alts ← cases.alts.mapM (fun alt => do return alt.updateCode (← visitCode alt.getCode))
+    let alts ← cases.alts.mapMonoM (fun alt => do return alt.updateCode (← visitCode alt.getCode))
     return code.updateAlts! alts
   | .jmp .. | .return _ | .unreach .. => return code
 

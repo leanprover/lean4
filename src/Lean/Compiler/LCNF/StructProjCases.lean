@@ -101,7 +101,7 @@ partial def visitCode (code : Code .pure) : M (Code .pure) := do
         -- a variable above while also destructuring an array doesn't work.
         return code.updateCases! cases.resultType discr #[.alt ctorName params k]
     else
-      let alts ← cases.alts.mapM (visitAlt ·)
+      let alts ← cases.alts.mapMonoM (visitAlt ·)
       return code.updateCases! cases.resultType discr alts
   | .return fvarId => return code.updateReturn! (← remapFVar fvarId)
   | .unreach .. => return code

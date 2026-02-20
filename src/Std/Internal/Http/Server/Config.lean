@@ -172,5 +172,6 @@ def toH1Config (config : Config) : Protocol.H1.Config where
   enableKeepAlive := config.enableKeepAlive
   identityHeader := config.serverName
   maxChunkExtensions := config.maxChunkExtensions
+  maxHeaderBytes := config.maxHeaderBytes
 
 end Std.Http.Config

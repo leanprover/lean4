@@ -104,6 +104,9 @@ partial def collectCode (code : Code .impure) : M Unit := do
     | .fap ``Array.get!Internal args =>
       if let .fvar parent := args[2]! then
         addDerivedValue parent decl.fvarId
+    | .fap ``Array.uget args =>
+      if let .fvar parent := args[1]! then
+        addDerivedValue parent decl.fvarId
     | .reset _ target =>
       removeFromParent target
     | _ => pure ()
@@ -556,6 +559,8 @@ def LetDecl.explicitRc (code : Code .impure) (decl : LetDecl .impure) (k : Code 
           pure <| .fap ``Array.getInternalBorrowed args
         else if f == ``Array.get!Internal && (← isBorrowed decl.fvarId) then
           pure <| .fap ``Array.get!InternalBorrowed args
+        else if f == ``Array.uget && (← isBorrowed decl.fvarId) then
+          pure <| .fap ``Array.ugetBorrowed args
         else
           pure <| decl.value
       let decl ← decl.updateValue value

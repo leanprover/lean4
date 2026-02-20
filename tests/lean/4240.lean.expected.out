@@ -15,9 +15,8 @@
 [Compiler.IR] [result]
     def isSomeWithInstanceNat (x_1 : @& obj) : u8 :=
       let x_2 : usize := 0;
-      let x_3 : tobj := Array.uget ◾ x_1 x_2 ◾;
+      let x_3 : tobj := Array.ugetBorrowed ◾ x_1 x_2 ◾;
       let x_4 : u8 := MyOption.isSomeWithInstance._at_.isSomeWithInstanceNat.spec_0 x_3;
-      dec x_3;
       ret x_4
     def isSomeWithInstanceNat._boxed (x_1 : obj) : tagged :=
       let x_2 : u8 := isSomeWithInstanceNat x_1;

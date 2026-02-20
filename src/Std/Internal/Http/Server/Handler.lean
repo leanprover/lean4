@@ -18,19 +18,16 @@ open Std.Internal.IO.Async
 
 set_option linter.all true
 
+
 /--
 A type class for handling HTTP server events. Implement this class to define how the server
 responds to incoming requests, failures, and `Expect: 100-continue` headers.
 -/
-class Handler (σ : Type) where
+class Handler (σ : Type) (β : outParam Type) where
   /--
-  Called for each incoming HTTP request. The default implementation returns a 404 Not Found response.
+  Called for each incoming HTTP request.
   -/
-  onRequest (self : σ) (request : Request Body.Incoming) : ContextAsync (Response Body.Outgoing) := do
-    let (body, _incoming) ← Body.mkChannel
-    body.setKnownSize (some (.fixed 0))
-    body.close
-    pure { head := { status := .notFound }, body }
+  onRequest (self : σ) (request : Request Body.Incoming) : ContextAsync (Response β)
 
   /--
   Called when an error occurs while processing a request. The default implementation does nothing.

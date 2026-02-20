@@ -65,44 +65,27 @@ public structure Connection (α : Type) where
 
 namespace Connection
 
-instance : Repr (Response t) where
-  reprPrec t := reprPrec t.head
-
-deriving instance Repr for Error
-deriving instance Repr for ByteArray
-deriving instance Repr for Chunk
-
-private inductive Recv
+private inductive Recv (β : Type)
   | bytes (x : Option ByteArray)
   | responseBody (x : Option Chunk)
   | bodyInterest (x : Bool)
-  | response (x : (Except Error (Response Body.Outgoing)))
+  | response (x : (Except Error (Response β)))
   | timeout
   | shutdown
   | close
 
-private instance : Repr Recv where
-  reprPrec
-    | .bytes b  => reprPrec ("bytes", b)
-    | .responseBody b => reprPrec ("responseBody", b)
-    | .bodyInterest b => reprPrec ("bodyInterest", b)
-    | .response b => reprPrec ("response", b)
-    | .timeout => reprPrec "timeout"
-    | .shutdown => reprPrec "shutdown"
-    | .close => reprPrec "close"
-
-private def receiveWithTimeout {α}
-    [Transport α]
+private def receiveWithTimeout {α : Type} {β : Type}
+    [Transport α] [Body.Reader β]
     (socket : Option α)
     (expect : UInt64)
-    (responseBody : Option Body.Incoming)
+    (responseBody : Option β)
     (requestBody : Option Body.Outgoing)
-    (response : Option (Std.Channel (Except Error (Response Body.Outgoing))))
+    (response : Option (Std.Channel (Except Error (Response β))))
     (timeoutMs : Millisecond.Offset)
     (keepAliveTimeoutMs : Option Millisecond.Offset)
-    (connectionContext : CancellationContext) : Async Recv := do
+    (connectionContext : CancellationContext) : Async (Recv β) := do
 
-  let mut baseSelectables : Array (Selectable Recv) := #[
+  let mut baseSelectables : Array (Selectable (Recv β)) := #[
     .case connectionContext.doneSelector (fun _ => do
       let reason ← connectionContext.getCancellationReason
       match reason with
@@ -122,10 +105,10 @@ private def receiveWithTimeout {α}
         baseSelectables := baseSelectables.push (.case (← Selector.sleep timeoutMs) (fun _ => pure .timeout))
 
   if let some responseBody := responseBody then
-    baseSelectables := baseSelectables.push (.case responseBody.recvSelector (Recv.responseBody · |> pure))
+    baseSelectables := baseSelectables.push (.case (Body.Reader.recvSelector responseBody) (Recv.responseBody · |> pure))
 
   if let some requestBody := requestBody then
-    baseSelectables := baseSelectables.push (.case requestBody.interestSelector (Recv.bodyInterest · |> pure))
+    baseSelectables := baseSelectables.push (.case (Body.Writer.interestSelector requestBody) (Recv.bodyInterest · |> pure))
 
   if let some response := response then
     baseSelectables := baseSelectables.push (.case response.recvSelector (Recv.response · |> pure))
@@ -133,17 +116,17 @@ private def receiveWithTimeout {α}
   Selectable.one baseSelectables
 
 private def processNeedMoreData
-    {σ : Type} [Transport α] [Handler σ]
+    {σ : Type} {β : Type} [Transport α] [Handler σ β] [Body.Reader β]
     (config : Config)
     (handler : σ)
     (socket : Option α)
     (expect : Option Nat)
-    (response : Option (Std.Channel (Except Error (Response Body.Outgoing))))
-    (responseBody : Option Body.Incoming)
+    (response : Option (Std.Channel (Except Error (Response β))))
+    (responseBody : Option β)
     (requestBody : Option Body.Outgoing)
     (timeout : Millisecond.Offset)
     (keepAliveTimeout : Option Millisecond.Offset)
-    (connectionContext : CancellationContext) : Async Recv := do
+    (connectionContext : CancellationContext) : Async (Recv β) := do
   try
     let expectedBytes := expect
       |>.getD config.defaultPayloadBytes
@@ -166,7 +149,7 @@ private def handleError (machine : H1.Machine .receiving) (status : Status) (wai
     (machine.closeWriter.noMoreInput, waitingResponse)
 
 private def handle
-    {σ : Type} [Transport α] [Handler σ]
+    {σ : Type} {β : Type} [Transport α] [Handler σ β] [Body.Reader β] [Body.Writer β]
     (connection : Connection α)
     (config : Config)
     (connectionContext : CancellationContext)
@@ -181,8 +164,8 @@ private def handle
   let mut keepAliveTimeout := some config.keepAliveTimeout.val
   let mut currentTimeout := config.keepAliveTimeout.val
 
-  let mut response : Std.Channel (Except Error (Response Body.Outgoing)) ← Std.Channel.new
-  let mut respStream : Option Body.Incoming := none
+  let mut response : Std.Channel (Except Error (Response β)) ← Std.Channel.new
+  let mut respStream : Option β := none
   let mut requiresData := false
 
   let mut expectData := none
@@ -211,7 +194,7 @@ private def handle
         keepAliveTimeout := none
 
         if let some length := head.getSize true then
-          requestOutgoing.setKnownSize (some length)
+          Body.Writer.setKnownSize requestOutgoing (some length)
 
         pendingHead := some head
 
@@ -224,8 +207,8 @@ private def handle
             pendingHead := none
 
       | .next => do
-        if ¬(← requestOutgoing.isClosed) then
-          requestOutgoing.close
+        if ¬(← Body.Writer.isClosed requestOutgoing) then
+          Body.Writer.close requestOutgoing
 
         let (newRequestOutgoing, newRequestIncoming) ← Body.mkChannel
         requestOutgoing := newRequestOutgoing
@@ -234,7 +217,7 @@ private def handle
         response ← Std.Channel.new
 
         if let some res := respStream then
-          if ¬ (← res.isClosed) then res.close
+          if ¬(← Body.Reader.isClosed res) then Body.Reader.close res
 
         respStream := none
 
@@ -245,13 +228,13 @@ private def handle
       | .failed _ =>
         pendingHead := none
         requiresData := false
-        if ¬(← requestOutgoing.isClosed) then
-          requestOutgoing.close
+        if ¬(← Body.Writer.isClosed requestOutgoing) then
+          Body.Writer.close requestOutgoing
         break
 
       | .closeBody =>
-        if ¬(← requestOutgoing.isClosed) then
-          requestOutgoing.close
+        if ¬(← Body.Writer.isClosed requestOutgoing) then
+          Body.Writer.close requestOutgoing
 
       | .close =>
         pure ()
@@ -269,7 +252,7 @@ private def handle
 
       let requestBody ←
         if machine.canPullBodyNow then
-          if ← requestOutgoing.isClosed then
+          if ← Body.Writer.isClosed requestOutgoing then
             pure none
           else
             pure (some requestOutgoing)
@@ -295,7 +278,7 @@ private def handle
         machine := machine.userClosedBody
 
         if let some res := respStream then
-          if ¬(← res.isClosed) then res.close
+          if ¬(← Body.Reader.isClosed res) then Body.Reader.close res
 
         respStream := none
 
@@ -306,13 +289,13 @@ private def handle
 
           if let some pulled := pulledChunk then
             try
-              requestOutgoing.send pulled.chunk (incomplete := pulled.incomplete)
+              Body.Writer.send requestOutgoing pulled.chunk pulled.incomplete
             catch _ =>
               pure ()
 
             if pulled.final then
-              if ¬(← requestOutgoing.isClosed) then
-                requestOutgoing.close
+              if ¬(← Body.Writer.isClosed requestOutgoing) then
+                Body.Writer.close requestOutgoing
         else
           pure ()
 
@@ -339,11 +322,10 @@ private def handle
       | .response (.ok res) =>
         if machine.failed then
           waitingResponse := false
-          let body := Body.Internal.outgoingToIncoming res.body
-          if ¬(← body.isClosed) then
-            body.close
+          if ¬(← Body.Reader.isClosed res.body) then
+            Body.Reader.close res.body
         else
-          let size ← res.body.getKnownSize
+          let size ← Body.Writer.getKnownSize res.body
           if let some knownSize := size then
             machine := machine.setKnownSize knownSize
 
@@ -356,14 +338,14 @@ private def handle
           machine := machine.send head
           waitingResponse := false
 
-          respStream := some (Body.Internal.outgoingToIncoming res.body)
+          respStream := some res.body
 
-  if ¬ (← requestOutgoing.isClosed) then
-    requestOutgoing.close
+  if ¬(← Body.Writer.isClosed requestOutgoing) then
+    Body.Writer.close requestOutgoing
 
   if let some res := respStream then
-    if ¬(← res.isClosed) then
-      res.close
+    if ¬(← Body.Reader.isClosed res) then
+      Body.Reader.close res
 
   Transport.close socket
 
@@ -390,7 +372,8 @@ while true do
 ```
 -/
 def serveConnection
-    {σ : Type} [Transport t] [Handler σ] (client : t) (handler : σ)
+    {σ : Type} {β : Type} [Transport t] [Handler σ β] [Body.Reader β] [Body.Writer β]
+    (client : t) (handler : σ)
     (config : Config) (extensions : Extensions := .empty) : ContextAsync Unit := do
   (Connection.mk client { config := config.toH1Config } extensions)
   |>.handle config (← ContextAsync.getContext) handler

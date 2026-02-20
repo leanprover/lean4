@@ -70,9 +70,9 @@ structure Config where
   maxHeaderValueLength : Nat := 8192
 
   /--
-  Maximum number of spaces in delimiter sequences (default: 256)
+  Maximum number of spaces in delimiter sequences (default: 16)
   -/
-  maxSpaceSequence : Nat := 256
+  maxSpaceSequence : Nat := 16
 
   /--
   Maximum number of extensions on a single chunk-size line (default: 16).

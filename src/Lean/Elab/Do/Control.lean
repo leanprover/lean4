@@ -232,7 +232,7 @@ def ControlLifter.ofCont (info : ControlInfo) (dec : DoElemCont) : DoElabM Contr
     pureBase := controlStack,
     -- The success continuation `origCont` is dead code iff the `ControlInfo` says that there is no
     -- regular exit.
-    pureDeadCode := if info.exitsRegularly then .alive else .deadSemantically,
+    pureDeadCode := if info.numRegularExits > 0 then .alive else .deadSemantically,
     liftedDoBlockResultType := (← controlStack.stM dec.resultType),
   }
 

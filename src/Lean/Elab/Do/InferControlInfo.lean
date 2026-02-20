@@ -16,22 +16,31 @@ namespace Lean.Elab.Do
 
 open Lean Meta Parser.Term
 
+/-- Represents information about what control effects a `do` block has. -/
 structure ControlInfo where
+  /-- The `do` block may `break`. -/
   breaks : Bool := false
+  /-- The `do` block may `continue`. -/
   continues : Bool := false
+  /-- The `do` block may `return` early. -/
   returnsEarly : Bool := false
-  exitsRegularly : Bool := true
+  /--
+  The number of regular exit paths the `do` block has.
+  Corresponds to the number of jumps to an ambient join point.
+  -/
+  numRegularExits : Nat := 1
+  /-- The variables that are reassigned in the `do` block. -/
   reassigns : NameSet := {}
   deriving Inhabited
 
 def ControlInfo.pure : ControlInfo := {}
 
 def ControlInfo.sequence (a b : ControlInfo) : ControlInfo :=
-  if !a.exitsRegularly then a else {
+  if a.numRegularExits == 0 then a else {
     breaks := a.breaks || b.breaks,
     continues := a.continues || b.continues,
     returnsEarly := a.returnsEarly || b.returnsEarly,
-    exitsRegularly := b.exitsRegularly,
+    numRegularExits := b.numRegularExits,
     reassigns := a.reassigns ++ b.reassigns,
   }
 
@@ -39,13 +48,13 @@ def ControlInfo.alternative (a b : ControlInfo) : ControlInfo := {
     breaks := a.breaks || b.breaks,
     continues := a.continues || b.continues,
     returnsEarly := a.returnsEarly || b.returnsEarly,
-    exitsRegularly := a.exitsRegularly || b.exitsRegularly,
+    numRegularExits := a.numRegularExits + b.numRegularExits,
     reassigns := a.reassigns ++ b.reassigns,
   }
 
 instance : ToMessageData ControlInfo where
   toMessageData info := m!"breaks: {info.breaks}, continues: {info.continues},
-    returnsEarly: {info.returnsEarly}, exitsRegularly: {info.exitsRegularly},
+    returnsEarly: {info.returnsEarly}, exitsRegularly: {info.numRegularExits},
     reassigns: {info.reassigns.toList}"
 
 /-- A handler for inferring `ControlInfo` from a `doElem` syntax. Register with `@[doElem_control_info parserName]`. -/
@@ -79,10 +88,10 @@ partial def ofElem (stx : TSyntax `doElem) : TermElabM ControlInfo := do
     return ← ofElem ⟨stxNew⟩
 
   match stx with
-  | `(doElem| break) => return { breaks := true, exitsRegularly := false }
-  | `(doElem| continue) => return { continues := true, exitsRegularly := false }
-  | `(doElem| return $[$_]?) => return { returnsEarly := true, exitsRegularly := false }
-  | `(doExpr| $_:term) => return { exitsRegularly := true }
+  | `(doElem| break) => return { breaks := true, numRegularExits := 0 }
+  | `(doElem| continue) => return { continues := true, numRegularExits := 0 }
+  | `(doElem| return $[$_]?) => return { returnsEarly := true, numRegularExits := 0 }
+  | `(doExpr| $_:term) => return { numRegularExits := 1 }
   | `(doElem| do $doSeq) => ofSeq doSeq
   -- Let
   | `(doElem| let $[mut]? $_:letDecl) => return .pure
@@ -122,7 +131,7 @@ partial def ofElem (stx : TSyntax `doElem) : TermElabM ControlInfo := do
   | `(doElem| for $[$[$_ :]? $_ in $_],* do $bodySeq) =>
     let info ← ofSeq bodySeq
     return { info with  -- keep only reassigns and earlyReturn
-      exitsRegularly := true,
+      numRegularExits := 1,
       continues := false,
       breaks := false
     }
@@ -192,7 +201,7 @@ partial def ofLetOrReassign (reassigned : Array Ident) (rhs? : Option (TSyntax `
 partial def ofSeq (stx : TSyntax ``doSeq) : TermElabM ControlInfo := do
   let mut info : ControlInfo := {}
   for elem in getDoElems stx do
-    if !info.exitsRegularly then
+    if info.numRegularExits == 0 then
       break
     let elemInfo ← ofElem elem
     info := {
@@ -200,7 +209,7 @@ partial def ofSeq (stx : TSyntax ``doSeq) : TermElabM ControlInfo := do
       breaks := info.breaks || elemInfo.breaks
       continues := info.continues || elemInfo.continues
       returnsEarly := info.returnsEarly || elemInfo.returnsEarly
-      exitsRegularly := elemInfo.exitsRegularly
+      numRegularExits := elemInfo.numRegularExits
       reassigns := info.reassigns ++ elemInfo.reassigns
     }
   return info

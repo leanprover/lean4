@@ -542,7 +542,7 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (callerInfo : Control
     withLocalDeclD nondupDec.resultName nondupDec.resultType fun r => do
     withLocalDeclsDND (mutDecls.map fun (d : LocalDecl) => (d.userName, d.type)) fun muts => do
     for (x, newX) in mutVars.zip muts do Term.addTermInfo' x newX
-    withDeadCode (if callerInfo.exitsRegularly then .alive else .deadSemantically) do
+    withDeadCode (if callerInfo.numRegularExits > 0 then .alive else .deadSemantically) do
     let e ← nondupDec.k
     mkLambdaFVars (#[r] ++ muts) e
   discard <| joinRhsMVar.mvarId!.checkedAssign joinRhs
@@ -551,7 +551,10 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (callerInfo : Control
     -- Here we unconditionally add a pending MVar.
     doElabToSyntax "join point RHS" elabBody (Term.postponeElabTerm · mγ)
 
-  mkLetFVars (generalizeNondepLet := false) #[jp] body
+  if callerInfo.numRegularExits > 1 then
+    mkLetFVars (generalizeNondepLet := false) #[jp] body
+  else
+    return (← body.abstractM #[jp]).instantiateBetaRevRange 0 1 #[joinRhs]
 
 def getReturnCont : DoElabM ReturnCont := do
   return (← read).contInfo.toContInfo.returnCont

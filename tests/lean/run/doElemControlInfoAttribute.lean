@@ -21,7 +21,7 @@ Register a handler with `@[doElem_control_info myReturn]`.
   return 0
 
 @[doElem_control_info myReturn] def controlInfoMyReturn : ControlInfoHandler := fun _stx => do
-  return { exitsRegularly := false, returnsEarly := true }
+  return { numRegularExits := 0, returnsEarly := true }
 
 /-- info: 42 -/
 #guard_msgs in

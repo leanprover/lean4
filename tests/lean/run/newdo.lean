@@ -206,20 +206,18 @@ trace: [Elab.do] let x := 42;
     let __s ←
       forIn [1, 2, 3] (none, x) fun i __s =>
           let x := __s.snd;
-          have __do_jp := fun __r =>
-            have __do_jp := fun __r_1 x =>
-              have __do_jp := fun __r_2 x_1 =>
-                let x := x_1 + i;
-                pure (ForInStep.yield (none, x));
-              if x < 20 then
-                let x := x * 2;
-                pure (ForInStep.done (none, x))
-              else __do_jp PUnit.unit x;
+          if x = 3 then pure (ForInStep.done (some x, x))
+          else
             if x > 10 then
               let x := x + 3;
               pure (ForInStep.yield (none, x))
-            else __do_jp PUnit.unit x;
-          if x = 3 then pure (ForInStep.done (some x, x)) else __do_jp PUnit.unit
+            else
+              if x < 20 then
+                let x := x * 2;
+                pure (ForInStep.done (none, x))
+              else
+                let x := x + i;
+                pure (ForInStep.yield (none, x))
     let __r : Option ?m.182 := __s.fst
     let x : ?m.182 := __s.snd
     match __r with
@@ -258,23 +256,21 @@ info: (let w := 23;
         let __s_1 := __s.snd;
         let y := __s_1.fst;
         let z := __s_1.snd;
-        have __do_jp := fun __r y =>
-          have __do_jp := fun __r z =>
-            have __do_jp := fun __r x =>
-              let x := x + i;
-              pure (ForInStep.yield (x, y, z));
-            if x > 10 then
-              let x := x + 3;
-              pure (ForInStep.yield (x, y, z))
-            else __do_jp PUnit.unit x;
-          if x = 3 then
-            let z := z + i;
-            __do_jp PUnit.unit z
-          else __do_jp PUnit.unit z;
         if x < 20 then
           let y := y - 2;
           pure (ForInStep.done (x, y, z))
-        else __do_jp PUnit.unit y
+        else
+          have __do_jp := fun __r z =>
+            if x > 10 then
+              let x := x + 3;
+              pure (ForInStep.yield (x, y, z))
+            else
+              let x := x + i;
+              pure (ForInStep.yield (x, y, z));
+          if x = 3 then
+            let z := z + i;
+            __do_jp PUnit.unit z
+          else __do_jp PUnit.unit z
   let x : Nat := __s.fst
   let __s : Nat × Nat := __s.snd
   let y : Nat := __s.fst

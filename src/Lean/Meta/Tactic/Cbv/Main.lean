@@ -95,7 +95,7 @@ def handleProj : Simproc := fun e => do
   let res ← simp struct
   match res with
   | .rfl _ =>
-    let some reduced ← withCbvOpaqueGuard <| reduceProj? <| .proj typeName idx struct | do
+    let some reduced ← reduceProj? <| .proj typeName idx struct | do
       return .rfl (done := true)
 
     -- TODO: Figure if we can share this term incrementally
@@ -111,7 +111,7 @@ def handleProj : Simproc := fun e => do
       return .step (← Lean.Expr.updateProjS! e e') newProof
     else
       -- If the type of the projection function is dependent, we first try to reduce the projection
-      let reduced ← withCbvOpaqueGuard <| reduceProj? e
+      let reduced ← reduceProj? e
       match reduced with
       | .some reduced =>
         let reduced ← Sym.share reduced

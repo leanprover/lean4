@@ -280,6 +280,7 @@ For each value emitted by the base iterator `it`, this combinator calls `f`.
 @[inline, expose]
 def IterM.mapWithPostcondition {α β γ : Type w} {m : Type w → Type w'} {n : Type w → Type w''}
     [Monad n] [MonadLiftT m n] [Iterator α m β] (f : β → PostconditionT n γ)
+    -- TODO: eta expand `lift`?
     (it : IterM (α := α) m β) : IterM (α := Map α m n (fun ⦃_⦄ => monadLift) f) n γ :=
   InternalCombinators.map (fun {_} => monadLift) f it
 

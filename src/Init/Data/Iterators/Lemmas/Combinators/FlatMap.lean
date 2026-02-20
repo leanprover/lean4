@@ -232,6 +232,35 @@ public theorem Iter.toArray_flatMapM {α α₂ β γ : Type w} {m : Type w → T
     (it₁.flatMapM f).toArray = Array.flatten <$> (it₁.mapM fun b => do (← f b).toArray).toArray := by
   simp [flatMapM, toArray_flatMapAfterM]
 
+-- public theorem Iter.toList_flatMapAfter {α α₂ β γ : Type w} [Iterator α Id β] [Iterator α₂ Id γ]
+--     [Finite α Id] [Finite α₂ Id]
+--     {f : β → Iter (α := α₂) γ} {it₁ : Iter (α := α) β} {it₂ : Option (Iter (α := α₂) γ)} :
+--     (it₁.flatMapAfter f it₂).toList = match it₂ with
+--       | none => (it₁.map fun b => (f b).toList).toList.flatten
+--       | some it₂ => it₂.toList ++
+--           (it₁.map fun b => (f b).toList).toList.flatten := by
+--   unfold Iter.toList
+--   simp only [flatMapAfter, Iter.toList, toIterM_toIter, IterM.toList_flatMapAfter]
+--   cases it₂ <;>
+--     simp only [map, toIterM_toIter]
+--   · -- Here, we rewrite with `Id.pure_run`, making the RHS ill-typed in `reducible` transparency because the `Types.Map.instIterator` instance is *not* rewritten. However, not applying `pure_run` doesn't allow progress, either. `+instances` would help.
+--     -- Could we have `congr` lemmas for these situations?
+--     -- Is it a good idea that `simp` happily rewrites even though this increases the incongruence level?
+--     -- Can we visualize the "incongruence level" by showing explicit casts for `reducible`, `instance` and `semireducible` transparency violations?
+--     simp? [map, IterM.toList_map_eq_toList_mapM, - IterM.toList_map, Id.pure_run]
+--     with_reducible congr -- This solves that problem that we don't rewrite inside instances
+--     -- Observation: Types have already been acknowledged to be equal, and unfolding the very same expressions would make the terms equal, too.
+--     --- Would it be possible to unfold the arguments when they are used in the type and need to be unfolded so that it type-checks?
+--     -- At least, it's unintuitive that types are checked differently.
+--     -- Another perspective on the problem:
+--     --- It's weird that parameters that should be of the same type can syntactically differ, even though they
+--     --- make problems with `simp`.
+--     ---- Again, one could think about collecting all such "type correctness required unfolding equations" and allow simp to unfold them?
+--     simp only [Id.pure_run]
+--   · simp only [map, IterM.toList_map_eq_toList_mapM, - IterM.toList_map]
+--   -- IDEA: Would it be an idea to include instances in the discr tree AFTER REDUCING THEM?
+--   -- Should I just not rely so much on defeq? How would a non-defeq proof look like?
+
 set_option backward.isDefEq.respectTransparency false in
 public theorem Iter.toList_flatMapAfter {α α₂ β γ : Type w} [Iterator α Id β] [Iterator α₂ Id γ]
     [Finite α Id] [Finite α₂ Id]

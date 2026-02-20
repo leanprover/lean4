@@ -36,11 +36,11 @@ theorem step_eq {it : Iter (α := SubarrayIterator α) α} :
         ⟨.yield ⟨⟨it.1.xs.array, it.1.xs.start + 1, it.1.xs.stop, by omega, by assumption⟩⟩
             (it.1.xs.array[it.1.xs.start]'(by omega)),
           (by
-            simp_all [Iter.IsPlausibleStep, IterM.IsPlausibleStep, Iterator.IsPlausibleStep,
+            simp_all [Iter.IsPlausibleStep, IterM.IsPlausibleStep, Iterator.IsPlausibleStep, instIteratorSubarrayIteratorId, -- TODO
               SubarrayIterator.step, Iter.toIterM])⟩
       else
         ⟨.done, (by
-            simpa [Iter.IsPlausibleStep, IterM.IsPlausibleStep, Iterator.IsPlausibleStep,
+            simpa [Iter.IsPlausibleStep, IterM.IsPlausibleStep, Iterator.IsPlausibleStep, instIteratorSubarrayIteratorId, -- TODO
               SubarrayIterator.step] using h)⟩ := by
   simp only [Iter.step, IterM.Step.toPure, Iter.toIter_toIterM, IterStep.mapIterator, IterM.step,
     Iterator.step, SubarrayIterator.step, Id.run_pure, Shrink.inflate_deflate]
@@ -67,7 +67,6 @@ theorem val_step_eq {it : Iter (α := SubarrayIterator α) α} :
   simp only [step_eq]
   split <;> simp
 
-set_option backward.isDefEq.respectTransparency false in
 theorem toList_eq {α : Type u} {it : Iter (α := SubarrayIterator α) α} :
     it.toList =
       (it.internalState.xs.array.toList.take it.internalState.xs.stop).drop it.internalState.xs.start := by
@@ -84,7 +83,7 @@ theorem toList_eq {α : Type u} {it : Iter (α := SubarrayIterator α) α} :
         simp [it.internalState.xs.stop_le_array_size]
         exact h
       · simp [Subarray.array, Subarray.stop]
-    · simp only [Iter.IsPlausibleStep, IterM.IsPlausibleStep, Iterator.IsPlausibleStep,
+    · simp only [Iter.IsPlausibleStep, IterM.IsPlausibleStep, Iterator.IsPlausibleStep, instIteratorSubarrayIteratorId, -- TODO
       IterStep.mapIterator_yield, SubarrayIterator.step]
       rw [dif_pos]; rotate_left; exact h
       rfl
@@ -106,13 +105,11 @@ theorem Internal.iter_eq {α : Type u} {s : Subarray α} :
     Internal.iter s = ⟨⟨s⟩⟩ :=
   rfl
 
-set_option backward.isDefEq.respectTransparency false in
 theorem Internal.toList_iter {α : Type u} {s : Subarray α} :
     (Internal.iter s).toList =
       (s.array.toList.take s.stop).drop s.start := by
   simp [SubarrayIterator.toList_eq, Internal.iter_eq_toIteratorIter, ToIterator.iter_eq]
 
-set_option backward.isDefEq.respectTransparency false in
 public instance : LawfulSliceSize (Internal.SubarrayData α) where
   lawful s := by
     simp [SliceSize.size, ToIterator.iter_eq,
@@ -228,13 +225,13 @@ public theorem Subarray.toList_eq {xs : Subarray α} :
   change aslice.toList = _
   have : aslice.toList = lslice.toList := by
     rw [ListSlice.toList_eq]
-    simp +instances only [aslice, lslice, Std.Slice.toList, Internal.toList_iter]
+    simp only [aslice, lslice, Std.Slice.toList, Internal.toList_iter]
     apply List.ext_getElem
     · have : stop - start ≤ array.size - start := by omega
       simp [Subarray.start, Subarray.stop, *, Subarray.array]
     · intros
       simp [Subarray.array, Subarray.start, Subarray.stop]
-  simp +instances [this, ListSlice.toList_eq, lslice]
+  simp [this, ListSlice.toList_eq, lslice]
 
 -- TODO: The current `List.extract_eq_drop_take` should be called `List.extract_eq_take_drop`
 private theorem Std.Internal.List.extract_eq_drop_take' {l : List α} {start stop : Nat} :
@@ -279,7 +276,7 @@ public theorem Subarray.getElem_eq_getElem_array {xs : Subarray α} {h : i < xs.
 
 public theorem Subarray.getElem_toList {xs : Subarray α} {h : i < xs.toList.length} :
     xs.toList[i]'h = xs[i]'(by simpa using h) := by
-  simp [getElem_eq_getElem_array, toList_eq_drop_take]; rfl
+  simp [getElem_eq_getElem_array, toList_eq_drop_take]
 
 public theorem Subarray.getElem_eq_getElem_toList {xs : Subarray α} {h : i < xs.size} :
     xs[i]'h = xs.toList[i]'(by simpa using h) := by

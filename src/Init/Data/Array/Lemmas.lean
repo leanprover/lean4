@@ -175,10 +175,10 @@ theorem getElem_push_lt {xs : Array α} {x : α} {i : Nat} (h : i < xs.size) :
     have : i < (xs.push x).size := by simp [*, Nat.lt_succ_of_le, Nat.le_of_lt]
     (xs.push x)[i] = xs[i] := by
   rw [Array.size] at h
-  simp only [push, ← getElem_toList, List.concat_eq_append, List.getElem_append_left, h]
+  simp only [push, getElem_eq_getElem_toList, List.concat_eq_append, List.getElem_append_left, h]
 
 @[simp] theorem getElem_push_eq {xs : Array α} {x : α} : (xs.push x)[xs.size] = x := by
-  simp only [push, ← getElem_toList, List.concat_eq_append]
+  simp only [push, getElem_eq_getElem_toList, List.concat_eq_append]
   rw [List.getElem_append_right] <;> simp
 
 @[grind =] theorem getElem_push {xs : Array α} {x : α} {i : Nat} (h : i < (xs.push x).size) :
@@ -339,7 +339,7 @@ theorem replicate_succ : replicate (n + 1) a = (replicate n a).push a := by
   simp [List.replicate_succ']
 
 @[simp, grind =] theorem getElem_replicate {n : Nat} {v : α} {i : Nat} (h : i < (replicate n v).size) :
-    (replicate n v)[i] = v := by simp [← getElem_toList]
+    (replicate n v)[i] = v := by simp [getElem_eq_getElem_toList]
 
 @[grind =] theorem getElem?_replicate {n : Nat} {v : α} {i : Nat} :
     (replicate n v)[i]? = if i < n then some v else none := by
@@ -896,7 +896,7 @@ theorem all_push {xs : Array α} {a : α} {p : α → Bool} :
 @[simp] theorem getElem_set_ne {xs : Array α} {i : Nat} (h' : i < xs.size) {v : α} {j : Nat}
     (pj : j < xs.size) (h : i ≠ j) :
     (xs.set i v)[j]'(by simp [*]) = xs[j] := by
-  simp only [set, ← getElem_toList, List.getElem_set_ne h]; rfl
+  simp only [set, getElem_eq_getElem_toList, List.getElem_set_ne h]
 
 @[simp] theorem getElem?_set_ne {xs : Array α} {i : Nat} (h : i < xs.size) {v : α} {j : Nat}
     (ne : i ≠ j) : (xs.set i v)[j]? = xs[j]? := by
@@ -1822,7 +1822,7 @@ theorem forall_mem_append {p : α → Prop} {xs ys : Array α} :
 @[simp]
 theorem getElem_append_left {xs ys : Array α} {h : i < (xs ++ ys).size} (hlt : i < xs.size) :
     (xs ++ ys)[i] = xs[i] := by
-  simp only [← getElem_toList]
+  simp only [getElem_eq_getElem_toList]
   have h' : i < (xs.toList ++ ys.toList).length := by rwa [← length_toList, toList_append] at h
   conv => rhs; rw [← List.getElem_append_left (bs := ys.toList) (h' := h')]
   apply List.get_of_eq; rw [toList_append]
@@ -1830,7 +1830,7 @@ theorem getElem_append_left {xs ys : Array α} {h : i < (xs ++ ys).size} (hlt : 
 @[simp]
 theorem getElem_append_right {xs ys : Array α} {h : i < (xs ++ ys).size} (hle : xs.size ≤ i) :
     (xs ++ ys)[i] = ys[i - xs.size]'(Nat.sub_lt_left_of_lt_add hle (size_append .. ▸ h)) := by
-  simp only [← getElem_toList]
+  simp only [getElem_eq_getElem_toList]
   have h' : i < (xs.toList ++ ys.toList).length := by rwa [← length_toList, toList_append] at h
   conv => rhs; unfold Array.size; rw [← List.getElem_append_right (h₁ := hle) (h₂ := h')]
   apply List.get_of_eq; rw [toList_append]
@@ -2565,7 +2565,7 @@ theorem getElem?_swap {xs : Array α} {i j : Nat} (hi hj) {k : Nat} : (xs.swap i
       · simp [size_swap, h₂]
       · intro k
         rw [getElem?_toList, getElem?_swap]
-        simp only [H, ← getElem_toList, ← List.getElem?_eq_getElem, Nat.le_of_lt h₁,
+        simp only [H, getElem_eq_getElem_toList, ← List.getElem?_eq_getElem, Nat.le_of_lt h₁,
           ← getElem?_toList]
         split <;> rename_i h₂
         · simp only [← h₂, Nat.not_le.2 (Nat.lt_succ_self _), Nat.le_refl, and_false]
@@ -2855,7 +2855,7 @@ theorem getElem?_extract {xs : Array α} {start stop : Nat} :
   · simp only [length_toList, size_extract, List.length_take, List.length_drop]
     omega
   · intro n h₁ h₂
-    simp; rfl
+    simp
 
 @[simp] theorem extract_size {xs : Array α} : xs.extract 0 xs.size = xs := by
   apply ext
@@ -4284,7 +4284,7 @@ theorem getElem?_ofFn {f : Fin n → α} {i : Nat} :
 theorem getElem_range' {start size step : Nat} {i : Nat}
     (h : i < (Array.range' start size step).size) :
     (Array.range' start size step)[i] = start + step * i := by
-  simp [← getElem_toList]
+  simp [getElem_eq_getElem_toList]
 
 @[grind =]
 theorem getElem?_range' {start size step : Nat} {i : Nat} :
@@ -4304,7 +4304,7 @@ theorem getElem?_range' {start size step : Nat} {i : Nat} :
 
 @[simp, grind =]
 theorem getElem_range {n : Nat} {i : Nat} (h : i < (Array.range n).size) : (Array.range n)[i] = i := by
-  simp [← getElem_toList]
+  simp [getElem_eq_getElem_toList]
 
 @[grind =]
 theorem getElem?_range {n : Nat} {i : Nat} : (Array.range n)[i]? = if i < n then some i else none := by
@@ -4395,7 +4395,7 @@ theorem getElem?_size_le {xs : Array α} {i : Nat} (h : xs.size ≤ i) : xs[i]? 
   simp [getElem?_neg, h]
 
 theorem getElem_mem_toList {xs : Array α} {i : Nat} (h : i < xs.size) : xs[i] ∈ xs.toList := by
-  simp only [← getElem_toList, List.getElem_mem]
+  simp only [getElem_eq_getElem_toList, List.getElem_mem]
 
 theorem back!_eq_back? [Inhabited α] {xs : Array α} : xs.back! = xs.back?.getD default := by
   simp [back!, back?, getElem!_def, Option.getD]; rfl

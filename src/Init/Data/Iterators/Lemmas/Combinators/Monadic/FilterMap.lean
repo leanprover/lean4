@@ -182,11 +182,12 @@ theorem IterM.step_filterMap [Monad m] [LawfulMonad m] {f : β → Option β'} :
       pure <| .deflate <| .skip (it'.filterMap f) (.skip h)
     | .done h =>
       pure <| .deflate <| .done (.done h)) := by
-  simp only [IterM.filterMap, step_filterMapWithPostcondition, pure]
+  simp only [IterM.filterMap]
+  simp only [step_filterMapWithPostcondition, PostconditionT.operation_pure]
   apply bind_congr
   intro step
   split
-  · simp only [PostconditionT.pure, PlausibleIterStep.skip, PlausibleIterStep.yield, pure_bind]
+  · simp only [PlausibleIterStep.skip, PlausibleIterStep.yield, pure_bind]
     split <;> split <;> simp_all
   · simp
   · simp
@@ -361,8 +362,8 @@ theorem IterM.toList_map_eq_toList_mapM {α β γ : Type w}
       bind_map_left]
     conv => rhs; rhs; ext a; rw [← pure_bind (x := a.val) (f := fun _ => _ <$> _)]
     simp only [← bind_assoc, bind_pure_comp, WeaklyLawfulMonadAttach.map_attach]
-    simp [ihy ‹_›]
-  · simp [ihs ‹_›]
+    simpa using ihy ‹_›
+  · simpa using ihs ‹_›
   · simp
 
 theorem IterM.toList_map_eq_toList_filterMapM {α β γ : Type w} {m : Type w → Type w'}
@@ -394,7 +395,7 @@ private theorem IterM.toList_filterMapWithPostcondition_filterMapWithPostconditi
       (it.filterMapWithPostcondition (n := o) fg).toList := by
   induction it using IterM.inductSteps with | step it ihy ihs
   letI : MonadLift n o := ⟨monadLift⟩
-  haveI : LawfulMonadLift n o := ⟨by simp +instances [this], by simp +instances [this]⟩
+  haveI : LawfulMonadLift n o := ⟨LawfulMonadLiftT.monadLift_pure, LawfulMonadLiftT.monadLift_bind⟩
   rw [toList_eq_match_step, toList_eq_match_step, step_filterMapWithPostcondition,
     bind_assoc, step_filterMapWithPostcondition, step_filterMapWithPostcondition]
   simp only [bind_assoc, liftM_bind]

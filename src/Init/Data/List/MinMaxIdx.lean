@@ -358,11 +358,19 @@ private theorem combineMinIdxOn_lt [LE β] [DecidableLE β]
   simp only [combineMinIdxOn]
   split <;> (simp; omega)
 
+private theorem combineMinIdxOn_lt' [LE β] [DecidableLE β]
+    (f : α → β) {xs ys : List α} (zs : List α) {i j : Nat} (hi : i < xs.length) (hj : j < ys.length)
+    (h : zs = xs ++ ys) :
+    combineMinIdxOn f i j hi hj < zs.length := by
+  simp only [combineMinIdxOn, h]
+  split <;> (simp; omega)
+
 private theorem combineMinIdxOn_assoc [LE β] [DecidableLE β] [IsLinearPreorder β]
     {xs ys zs : List α} {i j k : Nat} {f : α → β} (hi : i < xs.length) (hj : j < ys.length)
-    (hk : k < zs.length) :
+    (hk : k < zs.length) (h) :
     combineMinIdxOn f (combineMinIdxOn f i j _ _) k
-      (combineMinIdxOn_lt f hi hj) hk = combineMinIdxOn f i (combineMinIdxOn f j k _ _) hi (combineMinIdxOn_lt f hj hk) := by
+      (combineMinIdxOn_lt' f xys hi hj h) hk = combineMinIdxOn f i (combineMinIdxOn f j k _ _) hi (combineMinIdxOn_lt f hj hk) := by
+  cases h
   open scoped Classical.Order in
   simp only [combineMinIdxOn]
   split
@@ -410,10 +418,10 @@ private theorem minIdxOn_append_aux [LE β] [DecidableLE β]
     match xs with
     | [] => simp [minIdxOn_cons_aux (xs := ys) ‹_›]
     | z :: zs =>
-      set_option backward.isDefEq.respectTransparency false in
       simp +singlePass only [cons_append]
       simp only [minIdxOn_cons_aux (xs := z :: zs ++ ys) (by simp), ih (by simp),
-        minIdxOn_cons_aux (xs := z :: zs) (by simp), combineMinIdxOn_assoc]
+        minIdxOn_cons_aux (xs := z :: zs) (by simp)]
+      rw [combineMinIdxOn_assoc (h := by simp)]
 
 protected theorem minIdxOn_append [LE β] [DecidableLE β] [IsLinearPreorder β]
     {xs ys : List α} {f : α → β} (hxs : xs ≠ []) (hys : ys ≠ []) :

@@ -178,7 +178,6 @@ theorem Iter.toList_intermediateZip_of_finite [Iterator α₁ Id β₁] [Iterato
       · cases hs
         simp
 
-set_option backward.isDefEq.respectTransparency false in
 theorem Iter.atIdxSlow?_intermediateZip [Iterator α₁ Id β₁] [Iterator α₂ Id β₂]
     [Productive α₁ Id] [Productive α₂ Id]
     {it₁ : Iter (α := α₁) β₁} {memo} {it₂ : Iter (α := α₂) β₂} {n : Nat} :

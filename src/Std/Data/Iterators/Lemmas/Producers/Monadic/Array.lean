@@ -53,7 +53,6 @@ theorem Array.step_iterM {array : Array β} :
 
 section Equivalence
 
-set_option backward.isDefEq.respectTransparency false in
 theorem Std.Iterators.Types.ArrayIterator.stepAsHetT_iterFromIdxM [LawfulMonad m] {array : Array β}
     {pos : Nat} :
     (array.iterFromIdxM m pos).stepAsHetT = (if _ : pos < array.size then
@@ -61,7 +60,8 @@ theorem Std.Iterators.Types.ArrayIterator.stepAsHetT_iterFromIdxM [LawfulMonad m
     else
       pure .done) := by
   simp only [Array.iterFromIdxM, pure, HetT.ext_iff, Equivalence.property_step,
-    IterM.IsPlausibleStep, Iterator.IsPlausibleStep, Equivalence.prun_step, ge_iff_le]
+    IterM.IsPlausibleStep, instIterator, -- TODO
+    Iterator.IsPlausibleStep, Equivalence.prun_step, ge_iff_le]
   refine ⟨?_, ?_⟩
   · ext step
     cases step

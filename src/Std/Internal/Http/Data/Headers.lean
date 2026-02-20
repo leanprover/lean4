@@ -81,9 +81,7 @@ Checks if the entry is present in the `Headers`.
 -/
 @[inline]
 def hasEntry (headers : Headers) (name : Header.Name) (value : Header.Value) : Bool :=
-  headers.map.data.get? name
-  |>.bind (fun x => x.val.find? (· == value))
-  |>.isSome
+  headers.map.hasEntry name value
 
 /--
 Retrieves the last header value for the given key.

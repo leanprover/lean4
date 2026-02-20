@@ -55,7 +55,7 @@ instance SubarrayIterator.instFinite : Finite (SubarrayIterator α) Id :=
 
 instance [Monad m] : IteratorLoop (SubarrayIterator α) Id m := .defaultImplementation
 
-@[inline, expose, instance_reducible]
+@[inline, expose, implicit_reducible]
 def Subarray.instToIterator :=
   ToIterator.of (γ := Slice (Internal.SubarrayData α)) (β := α) (SubarrayIterator α) (⟨⟨·⟩⟩)
 attribute [instance] Subarray.instToIterator

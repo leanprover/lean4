@@ -19,7 +19,7 @@ run_meta do
   let consts ← ci.type.foldRelevantConstants (init := #[]) (fun n ns => return ns.push n)
   logInfo m!"{consts}"
 
-/-- info: [Array, Nat, LT.lt, Array.size, HAdd.hAdd, OfNat.ofNat, Array.swap, Not] -/
+/-- info: [Array, Nat, LT.lt, HAdd.hAdd, OfNat.ofNat, Array.swap, Not] -/
 #guard_msgs in
 run_meta do
   let ci ← getConstInfo `Array.eraseIdx.induct

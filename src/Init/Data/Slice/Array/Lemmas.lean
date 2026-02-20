@@ -278,7 +278,7 @@ public theorem Subarray.getElem_eq_getElem_array {xs : Subarray α} {h : i < xs.
 
 public theorem Subarray.getElem_toList {xs : Subarray α} {h : i < xs.toList.length} :
     xs.toList[i]'h = xs[i]'(by simpa using h) := by
-  simp [getElem_eq_getElem_array, toList_eq_drop_take]; rfl
+  simp [getElem_eq_getElem_array, toList_eq_drop_take]
 
 public theorem Subarray.getElem_eq_getElem_toList {xs : Subarray α} {h : i < xs.size} :
     xs[i]'h = xs.toList[i]'(by simpa using h) := by

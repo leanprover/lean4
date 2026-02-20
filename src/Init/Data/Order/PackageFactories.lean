@@ -169,7 +169,7 @@ automatically. If it fails, it is necessary to provide some of the fields manual
 * Other proof obligations, namely `le_refl` and `le_trans`, can be omitted if `Refl` and `Trans`
   instances can be synthesized.
 -/
-@[expose, instance_reducible]
+@[expose, implicit_reducible]
 public def PreorderPackage.ofLE (α : Type u)
     (args : Packages.PreorderOfLEArgs α := by exact {}) : PreorderPackage α where
   toLE := args.le
@@ -254,7 +254,7 @@ automatically. If it fails, it is necessary to provide some of the fields manual
 * Other proof obligations, namely `le_refl`, `le_trans` and `le_antisymm`, can be omitted if `Refl`,
   `Trans` and `Antisymm` instances can be synthesized.
 -/
-@[expose, instance_reducible]
+@[expose, implicit_reducible]
 public def PartialOrderPackage.ofLE (α : Type u)
     (args : Packages.PartialOrderOfLEArgs α := by exact {}) : PartialOrderPackage α where
   toPreorderPackage := .ofLE α args.toPreorderOfLEArgs
@@ -383,7 +383,7 @@ automatically. If it fails, it is necessary to provide some of the fields manual
 * Other proof obligations, namely `le_total` and `le_trans`, can be omitted if `Total` and `Trans`
   instances can be synthesized.
 -/
-@[expose, instance_reducible]
+@[expose, implicit_reducible]
 public def LinearPreorderPackage.ofLE (α : Type u)
     (args : Packages.LinearPreorderOfLEArgs α := by exact {}) : LinearPreorderPackage α where
   toPreorderPackage := .ofLE α args.toPreorderOfLEArgs
@@ -485,7 +485,7 @@ automatically. If it fails, it is necessary to provide some of the fields manual
 * Other proof obligations, namely `le_total`, `le_trans` and `le_antisymm`, can be omitted if
   `Total`, `Trans` and `Antisymm` instances can be synthesized.
 -/
-@[expose, instance_reducible]
+@[expose, implicit_reducible]
 public def LinearOrderPackage.ofLE (α : Type u)
     (args : Packages.LinearOrderOfLEArgs α := by exact {}) : LinearOrderPackage α where
   toLinearPreorderPackage := .ofLE α args.toLinearPreorderOfLEArgs

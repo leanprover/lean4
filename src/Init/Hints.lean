@@ -14,11 +14,3 @@ public section
 unif_hint (p : Prop) where
   ⊢ Not p =?= p → False
 
-unif_hint (n : Nat) where
-  ⊢ n - 0 =?= n
-
-unif_hint (n : Nat) where
-  ⊢ n + 0 =?= n
-
-unif_hint (n : Nat) where
-  ⊢ n * 0 =?= 0

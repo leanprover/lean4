@@ -311,7 +311,15 @@ where
     | .pap .. => return object
     | .uproj .. => return usize
     | .erased => return tagged
-    | .fvar .. | .lit .. | .sproj .. | .oproj .. | .reset .. | .ctor .. | .reuse .. =>
+    | .lit (.nat n) =>
+      if n ≤ maxSmallNat then
+        return tagged
+      else
+        return currentType
+    | .lit (.str ..) =>
+      return object
+    | .ctor i _ => return i.type
+    | .fvar .. | .lit .. | .sproj .. | .oproj .. | .reset .. | .reuse .. =>
       return currentType
     | .box .. | .unbox .. => unreachable!
 

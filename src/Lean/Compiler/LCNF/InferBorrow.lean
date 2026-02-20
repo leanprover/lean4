@@ -118,7 +118,7 @@ where
       let ps ← updateParams decl.params map[ParamMap.Key.jp declName decl.fvarId]!
       let decl ← decl.update decl.type ps (← go declName decl.value)
       return code.updateFun! decl (← go declName k)
-    | .cases cs => return code.updateAlts! <| ← cs.alts.mapM (·.mapCodeM (go declName))
+    | .cases cs => return code.updateAlts! <| ← cs.alts.mapMonoM (·.mapCodeM (go declName))
     | .let _ k | .uset _ _ _ k _ | .sset _ _ _ _ _ k _ => return code.updateCont! (← go declName k)
     | .return .. | .jmp .. | .unreach .. => return code
     | .inc .. | .dec .. => unreachable!

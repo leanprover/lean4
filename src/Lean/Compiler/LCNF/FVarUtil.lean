@@ -132,7 +132,7 @@ partial def Code.mapFVarM [MonadLiftT CompilerM m] [Monad m] (f : FVarId → m F
     let decl ← decl.update (← Expr.mapFVarM f decl.type) params (← mapFVarM f decl.value)
     return Code.updateFun! c decl (← mapFVarM f k)
   | .cases cs =>
-    return Code.updateCases! c (← Expr.mapFVarM f cs.resultType) (← f cs.discr) (← cs.alts.mapM (·.mapCodeM (mapFVarM f)))
+    return Code.updateCases! c (← Expr.mapFVarM f cs.resultType) (← f cs.discr) (← cs.alts.mapMonoM (·.mapCodeM (mapFVarM f)))
   | .jmp fn args =>
     return Code.updateJmp! c (← f fn) (← args.mapM (Arg.mapFVarM f))
   | .return var =>

@@ -78,7 +78,7 @@ partial def Cases.pushProjs (c : Cases .impure) (decls : Array (CodeDecl .impure
   let altsUsed := c.alts.map (·.getCode.collectUsed)
   let ctxUsed := ({} : FVarIdHashSet) |>.insert c.discr
   let (bs, alts) ← go decls c.alts altsUsed #[] ctxUsed
-  let alts ← alts.mapM (·.mapCodeM Code.pushProj)
+  let alts ← alts.mapMonoM (·.mapCodeM Code.pushProj)
   let c := c.updateAlts alts
   return attachCodeDecls bs (.cases c)
 where

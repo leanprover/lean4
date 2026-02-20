@@ -43,7 +43,7 @@ open Lean.Meta.Tactic.Cbv
     let declName ← realizeGlobalConstNoOverload declName
     checkCbvSimprocType declName
     let keys ← elabCbvSimprocKeys pattern
-    registerCbvSimproc declName .post keys
+    registerCbvSimproc declName keys
 
 @[builtin_command_elab Lean.Parser.cbvSimprocPatternBuiltin] def elabCbvSimprocPatternBuiltin : CommandElab := fun stx => do
   let `(builtin_cbv_simproc_pattern% $pattern => $declName) := stx | throwUnsupportedSyntax
@@ -52,7 +52,7 @@ open Lean.Meta.Tactic.Cbv
     checkCbvSimprocType declName
     let keys ← elabCbvSimprocKeys pattern
     let val := mkAppN (mkConst ``registerBuiltinCbvSimproc)
-      #[toExpr declName, toExpr CbvSimprocPhase.post, toExpr keys, mkConst declName]
+      #[toExpr declName, toExpr keys, mkConst declName]
     let initDeclName ← mkFreshUserName (declName ++ `declare)
     declareBuiltin initDeclName val
 

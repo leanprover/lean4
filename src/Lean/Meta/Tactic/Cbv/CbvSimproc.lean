@@ -65,13 +65,13 @@ def CbvSimprocs.erase (s : CbvSimprocs) (declName : Name) : CbvSimprocs :=
   { s with erased := s.erased.insert declName, simprocNames := s.simprocNames.erase declName }
 
 structure BuiltinCbvSimprocs where
-  keys  : Std.HashMap Name (CbvSimprocPhase × Array DiscrTree.Key) := {}
+  keys  : Std.HashMap Name (Array DiscrTree.Key) := {}
   procs : Std.HashMap Name Simproc := {}
   deriving Inhabited
 
 builtin_initialize builtinCbvSimprocDeclsRef : IO.Ref BuiltinCbvSimprocs ← IO.mkRef {}
 
-def registerBuiltinCbvSimproc (declName : Name) (phase : CbvSimprocPhase)
+def registerBuiltinCbvSimproc (declName : Name)
     (keys : Array DiscrTree.Key) (proc : Simproc) : IO Unit := do
   unless (← initializing) do
     throw (IO.userError s!"Invalid builtin cbv simproc declaration: \
@@ -80,11 +80,10 @@ def registerBuiltinCbvSimproc (declName : Name) (phase : CbvSimprocPhase)
     throw (IO.userError s!"Invalid builtin cbv simproc declaration \
       `{privateToUserName declName}`: It has already been declared")
   builtinCbvSimprocDeclsRef.modify fun { keys := ks, procs } =>
-    { keys := ks.insert declName (phase, keys), procs := procs.insert declName proc }
+    { keys := ks.insert declName keys, procs := procs.insert declName proc }
 
 structure CbvSimprocDecl where
   declName : Name
-  phase    : CbvSimprocPhase
   keys     : Array DiscrTree.Key
   deriving Inhabited
 
@@ -92,8 +91,8 @@ def CbvSimprocDecl.lt (d₁ d₂ : CbvSimprocDecl) : Bool :=
   Name.quickLt d₁.declName d₂.declName
 
 structure CbvSimprocDeclExtState where
-  builtin    : Std.HashMap Name (CbvSimprocPhase × Array DiscrTree.Key)
-  newEntries : PHashMap Name (CbvSimprocPhase × Array DiscrTree.Key) := {}
+  builtin    : Std.HashMap Name (Array DiscrTree.Key)
+  newEntries : PHashMap Name (Array DiscrTree.Key) := {}
   deriving Inhabited
 
 builtin_initialize cbvSimprocDeclExt :
@@ -102,37 +101,34 @@ builtin_initialize cbvSimprocDeclExt :
     mkInitial       := return { builtin := (← builtinCbvSimprocDeclsRef.get).keys }
     addImportedFn   := fun _ => return { builtin := (← builtinCbvSimprocDeclsRef.get).keys }
     addEntryFn      := fun s d =>
-      { s with newEntries := s.newEntries.insert d.declName (d.phase, d.keys) }
+      { s with newEntries := s.newEntries.insert d.declName d.keys }
     exportEntriesFn := fun s =>
-      let result := s.newEntries.foldl (init := #[]) fun result declName (phase, keys) =>
-        result.push { declName, phase, keys }
+      let result := s.newEntries.foldl (init := #[]) fun result declName keys =>
+        result.push { declName, keys }
       result.qsort CbvSimprocDecl.lt
   }
 
-def getCbvSimprocDeclInfo? (declName : Name) :
-    CoreM (Option (CbvSimprocPhase × Array DiscrTree.Key)) := do
+def getCbvSimprocDeclKeys? (declName : Name) : CoreM (Option (Array DiscrTree.Key)) := do
   let env ← getEnv
-  let info? ← match env.getModuleIdxFor? declName with
+  let keys? ← match env.getModuleIdxFor? declName with
     | some modIdx => do
-      let sentinel : CbvSimprocDecl := { declName, phase := .post, keys := #[] }
       let some decl :=
-        (cbvSimprocDeclExt.getModuleEntries env modIdx).binSearch sentinel CbvSimprocDecl.lt
+        (cbvSimprocDeclExt.getModuleEntries env modIdx).binSearch { declName, keys := #[] } CbvSimprocDecl.lt
         | pure none
-      pure (some (decl.phase, decl.keys))
+      pure (some decl.keys)
     | none => pure ((cbvSimprocDeclExt.getState env).newEntries.find? declName)
-  if let some info := info? then
-    return some info
+  if let some keys := keys? then
+    return some keys
   else
     return (cbvSimprocDeclExt.getState env).builtin[declName]?
 
 def isCbvSimproc (declName : Name) : CoreM Bool :=
-  return (← getCbvSimprocDeclInfo? declName).isSome
+  return (← getCbvSimprocDeclKeys? declName).isSome
 
 def isBuiltinCbvSimproc (declName : Name) : CoreM Bool := do
   return (cbvSimprocDeclExt.getState (← getEnv)).builtin.contains declName
 
-def registerCbvSimproc (declName : Name) (phase : CbvSimprocPhase)
-    (keys : Array DiscrTree.Key) : CoreM Unit := do
+def registerCbvSimproc (declName : Name) (keys : Array DiscrTree.Key) : CoreM Unit := do
   let env ← getEnv
   unless (env.getModuleIdxFor? declName).isNone do
     throwError "Invalid cbv simproc declaration `{.ofConstName declName}`: \
@@ -141,7 +137,7 @@ def registerCbvSimproc (declName : Name) (phase : CbvSimprocPhase)
     throwError "Invalid cbv simproc declaration `{.ofConstName declName}`: \
       It has already been declared"
   modifyEnv fun env => cbvSimprocDeclExt.modifyState env fun s =>
-    { s with newEntries := s.newEntries.insert declName (phase, keys) }
+    { s with newEntries := s.newEntries.insert declName keys }
 
 abbrev CbvSimprocExtension := ScopedEnvExtension CbvSimprocOLeanEntry CbvSimprocEntry CbvSimprocs
 
@@ -182,7 +178,7 @@ def eraseCbvSimprocAttr (declName : Name) : AttrM Unit := do
 def addCbvSimprocAttrCore (declName : Name) (kind : AttributeKind)
     (phase : CbvSimprocPhase) : CoreM Unit := do
   let proc ← getCbvSimprocFromDecl declName
-  let some (_, keys) ← getCbvSimprocDeclInfo? declName |
+  let some keys ← getCbvSimprocDeclKeys? declName |
     throwError "Invalid `[cbv_simproc]` attribute: \
       `{.ofConstName declName}` is not a cbv simproc"
   cbvSimprocExtension.add { declName, phase, keys, proc } kind
@@ -204,7 +200,7 @@ def addCbvSimprocAttr (declName : Name) (stx : Syntax)
 
 def addCbvSimprocBuiltinAttrCore (ref : IO.Ref CbvSimprocs) (declName : Name)
     (phase : CbvSimprocPhase) (proc : Simproc) : IO Unit := do
-  let some (_, keys) := (← builtinCbvSimprocDeclsRef.get).keys[declName]? |
+  let some keys := (← builtinCbvSimprocDeclsRef.get).keys[declName]? |
     throw (IO.userError s!"Invalid `[builtin_cbv_simproc]` attribute: \
       `{privateToUserName declName}` is not a builtin cbv simproc")
   ref.modify fun s => s.addCore keys declName phase proc
@@ -256,7 +252,7 @@ def cbvSimprocDispatch (tree : DiscrTree CbvSimprocEntry)
         entry.proc e
       else
         simpOverApplied e numExtra entry.proc
-      if !result.isRfl then
+      if (result matches .rfl (done := true)) || (result matches .step _ _ _) then
         return result
   return .rfl
 

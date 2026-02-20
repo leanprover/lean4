@@ -359,7 +359,7 @@ inductive Status where
   /--
   Other
   -/
-  | other (number : UInt16) (s : String)
+  | other (number : UInt16) (s : { x : String // x.toList.all isValidReasonPhraseChar })
 deriving Repr, Inhabited, BEq
 
 namespace Status
@@ -436,7 +436,7 @@ def toCode : Status → UInt16
 /--
 Converts a `UInt16` to `Status`.
 -/
-def ofCode : UInt16 → Status
+def ofCode (reasonPhrase : Option { x : String // x.toList.all isValidReasonPhraseChar }) : UInt16 → Status
   | 100 => .«continue»
   | 101 => .switchingProtocols
   | 102 => .processing
@@ -500,7 +500,7 @@ def ofCode : UInt16 → Status
   | 508 => .loopDetected
   | 510 => .notExtended
   | 511 => .networkAuthenticationRequired
-  | n => .other n "Unknown"
+  | n => .other n (reasonPhrase.getD ⟨"Unknown", by decide⟩)
 
 /--
 Checks if the type of the status code is informational, meaning that the request was received
@@ -562,7 +562,7 @@ def isError (c : Status) : Bool :=
 /--
 Returns the standard reason phrase for an HTTP status code as defined in RFC 9110.
 For known status codes this returns the canonical phrase (e.g., "OK" for 200).
-For unknown codes (`other n`), returns the numeric code as a string.
+For unknown codes (`other n s`), returns the caller-supplied reason phrase `s`.
 -/
 def reasonPhrase : Status → String
   | .«continue» => "Continue"

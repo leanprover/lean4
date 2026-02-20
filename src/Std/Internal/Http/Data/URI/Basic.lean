@@ -31,13 +31,21 @@ open Internal Char
 
 namespace URI
 
+
+/--
+Checks if a character is valid after the first character of a URI scheme.
+Valid characters are ASCII alphanumeric, `+`, `-`, and `.`.
+-/
+def isValidSchemeChar (c : Char) : Bool :=
+  c.isAlphanum || c == '+' || c == '-' || c == '.'
+
 /--
 URI scheme identifier (e.g., "http", "https", "ftp").
 -/
-abbrev Scheme := { s : String // IsLowerCase s }
+abbrev Scheme := { s : String // IsLowerCase s ∧ s.toList.all isValidSchemeChar ∧ ¬s.isEmpty }
 
 instance : Inhabited Scheme where
-  default := ⟨"", .isLowerCase_empty⟩
+  default := ⟨"a", ⟨by decide, by decide, by decide⟩⟩
 
 /--
 User information component containing the username and optional password. Both fields store decoded
@@ -73,7 +81,7 @@ A domain name represented as a validated, lowercase-normalized string.
 Only ASCII alphanumeric characters, hyphens, and dots are allowed.
 Internationalized domain names must be converted to punycode before use.
 -/
-abbrev DomainName := { s : String // IsLowerCase s ∧ IsValidDomainName s }
+abbrev DomainName := { s : String // IsLowerCase s ∧ IsValidDomainName s ∧ ¬s.isEmpty }
 
 /--
 Host component of a URI, supporting domain names and IP addresses.
@@ -453,7 +461,7 @@ structure Builder where
   /--
   The URI scheme (e.g., "http", "https").
   -/
-  scheme : Option String := none
+  scheme : Option URI.Scheme := none
 
   /--
   User information (username and optional password).
@@ -494,10 +502,22 @@ Creates an empty URI builder.
 def empty : Builder := {}
 
 /--
-Sets the URI scheme (e.g., "http", "https").
+Attempts to set the URI scheme (e.g., "http", "https").
+Returns `none` if the scheme is not a valid RFC 3986 scheme.
+A scheme must start with an ASCII letter followed by alphanumeric, `+`, `-`, or `.` characters.
 -/
-def setScheme (b : Builder) (scheme : String) : Builder :=
-  { b with scheme := some scheme }
+def setScheme? (b : Builder) (scheme : String) : Option Builder :=
+  if h : IsLowerCase scheme ∧ scheme.toList.all isValidSchemeChar ∧ ¬scheme.isEmpty then some { b with scheme := some ⟨scheme, h⟩ }
+  else none
+
+/--
+Sets the URI scheme (e.g., "http", "https"). Panics if the scheme is invalid.
+Use `setScheme?` if you need a safe option-returning version.
+-/
+def setScheme! (b : Builder) (scheme : String) : Builder :=
+  match b.setScheme? scheme with
+  | some b => b
+  | none   => panic! s!"invalid URI scheme: {scheme.quote}"
 
 /--
 Sets the user information with username and optional password.
@@ -518,8 +538,10 @@ Internationalized domain names must be converted to punycode before use.
 -/
 def setHost? (b : Builder) (name : String) : Option Builder :=
   let lower := name.toLower
-  if h : IsValidDomainName lower then
-    some { b with host := some (Host.name ⟨lower, IsLowerCase.isLowerCase_toLower, h⟩) }
+  if h₁: lower.isEmpty then
+    none
+  else if h : IsValidDomainName lower then
+    some { b with host := some (Host.name ⟨lower, IsLowerCase.isLowerCase_toLower, h, h₁⟩) }
   else
     none
 
@@ -595,7 +617,7 @@ Builds a complete URI from the builder state, encoding all components. Defaults 
 none is specified.
 -/
 def build (b : Builder) : URI :=
-  let scheme := b.scheme.getD "https"
+  let scheme := (b.scheme.getD ⟨"https", by decide⟩)
 
   let authority :=
     if b.host.isSome then
@@ -618,7 +640,7 @@ def build (b : Builder) : URI :=
   let query := URI.Query.ofList query.toList
 
   {
-    scheme := ⟨scheme.toLower, IsLowerCase.isLowerCase_toLower⟩
+    scheme
     authority := authority
     path
     query := query
@@ -634,10 +656,23 @@ namespace URI
 /--
 Returns a new URI with the scheme replaced.
 -/
-def withScheme (uri : URI) (scheme : String) : URI :=
-  { uri with scheme := ⟨scheme.toLower, IsLowerCase.isLowerCase_toLower⟩ }
+def withScheme! (uri : URI) (scheme : String) : URI :=
+  let lower := scheme.toLower
+  if h : IsLowerCase lower ∧ lower.toList.all isValidSchemeChar ∧ ¬lower.isEmpty then
+    { uri with scheme := ⟨lower, h.1, h.2.1, h.2.2⟩ }
+  else
+    panic! s!"invalid URI scheme: {scheme.quote}"
 
-/--
+/--/--
+Returns a new URI with the scheme replaced.
+-/
+def withScheme! (uri : URI) (scheme : String) : URI :=
+  let lower := scheme.toLower
+  if h : IsLowerCase lower ∧ lower.toList.all isValidSchemeChar ∧ ¬lower.isEmpty then
+    { uri with scheme := ⟨lower, h.1, h.2.1, h.2.2⟩ }
+  else
+    panic! s!"invalid URI scheme: {scheme.quote}"
+z
 Returns a new URI with the authority replaced.
 -/
 def withAuthority (uri : URI) (authority : Option URI.Authority) : URI :=

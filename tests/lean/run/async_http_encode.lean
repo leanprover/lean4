@@ -141,13 +141,13 @@ info: "X-Custom-Header: value\x0d\n"
 info: "GET /path HTTP/1.1\x0d\n\x0d\n"
 -/
 #guard_msgs in
-#eval encodeStr ({ method := .get, version := .v11, uri := "/path" } : Request.Head)
+#eval encodeStr ({ method := .get, version := .v11, uri := .parse! "/path" } : Request.Head)
 
 /--
 info: "POST /submit HTTP/1.1\x0d\n\x0d\n"
 -/
 #guard_msgs in
-#eval encodeStr ({ method := .post, version := .v11, uri := "/submit" } : Request.Head)
+#eval encodeStr ({ method := .post, version := .v11, uri := .parse! "/submit" } : Request.Head)
 
 /--
 info: "PUT /resource HTTP/2.0\x0d\nContent-Type: application/json\x0d\n\x0d\n"
@@ -156,7 +156,7 @@ info: "PUT /resource HTTP/2.0\x0d\nContent-Type: application/json\x0d\n\x0d\n"
 #eval encodeStr ({
     method := .put
     version := .v20
-    uri := "/resource"
+    uri := .parse! "/resource"
     headers := Headers.empty.insert! "content-type" "application/json"
   } : Request.Head)
 
@@ -222,61 +222,61 @@ info: "a\x0d\n0123456789\x0d\n"
 info: "GET /index.html HTTP/1.1\x0d\n\x0d\n"
 -/
 #guard_msgs in
-#eval encodeStr (Request.get "/index.html" |>.body ()).head
+#eval encodeStr (Request.get (.parse! "/index.html") |>.body ()).head
 
 /--
 info: "POST /api/data HTTP/1.1\x0d\n\x0d\n"
 -/
 #guard_msgs in
-#eval encodeStr (Request.post "/api/data" |>.body ()).head
+#eval encodeStr (Request.post (.parse! "/api/data") |>.body ()).head
 
 /--
 info: "PUT /resource HTTP/1.1\x0d\n\x0d\n"
 -/
 #guard_msgs in
-#eval encodeStr (Request.put "/resource" |>.body ()).head
+#eval encodeStr (Request.put (.parse! "/resource") |>.body ()).head
 
 /--
 info: "DELETE /item HTTP/1.1\x0d\n\x0d\n"
 -/
 #guard_msgs in
-#eval encodeStr (Request.delete "/item" |>.body ()).head
+#eval encodeStr (Request.delete (.parse! "/item") |>.body ()).head
 
 /--
 info: "PATCH /update HTTP/1.1\x0d\n\x0d\n"
 -/
 #guard_msgs in
-#eval encodeStr (Request.patch "/update" |>.body ()).head
+#eval encodeStr (Request.patch (.parse! "/update") |>.body ()).head
 
 /--
 info: "HEAD /check HTTP/1.1\x0d\n\x0d\n"
 -/
 #guard_msgs in
-#eval encodeStr (Request.head' "/check" |>.body ()).head
+#eval encodeStr (Request.head' (.parse! "/check") |>.body ()).head
 
 /--
 info: "OPTIONS * HTTP/1.1\x0d\n\x0d\n"
 -/
 #guard_msgs in
-#eval encodeStr (Request.options "*" |>.body ()).head
+#eval encodeStr (Request.options (.parse! "*") |>.body ()).head
 
 /--
 info: "CONNECT proxy:8080 HTTP/1.1\x0d\n\x0d\n"
 -/
 #guard_msgs in
-#eval encodeStr (Request.connect "proxy:8080" |>.body ()).head
+#eval encodeStr (Request.connect (.parse! "proxy:8080") |>.body ()).head
 
 /--
 info: "TRACE /debug HTTP/1.1\x0d\n\x0d\n"
 -/
 #guard_msgs in
-#eval encodeStr (Request.trace "/debug" |>.body ()).head
+#eval encodeStr (Request.trace (.parse! "/debug") |>.body ()).head
 
 /--
 info: "POST /v2 HTTP/2.0\x0d\n\x0d\n"
 -/
 #guard_msgs in
-#eval encodeStr (Request.new |>.method .post |>.uri "/v2" |>.version .v20 |>.body ()).head
+#eval encodeStr (Request.new |>.method .post |>.uri (.parse! "/v2") |>.version .v20 |>.body ()).head
 
 /-! ## Response builder -/
 
@@ -578,35 +578,14 @@ info: true
 info: "GET /search?q=hello&lang=en HTTP/1.1\x0d\n\x0d\n"
 -/
 #guard_msgs in
-#eval encodeStr ({ method := .get, version := .v11, uri := "/search?q=hello&lang=en" } : Request.Head)
-
--- URI with fragment
-/--
-info: "GET /page#section HTTP/1.1\x0d\n\x0d\n"
--/
-#guard_msgs in
-#eval encodeStr ({ method := .get, version := .v11, uri := "/page#section" } : Request.Head)
+#eval encodeStr ({ method := .get, version := .v11, uri := .parse! "/search?q=hello&lang=en" } : Request.Head)
 
 -- URI with percent-encoded characters
 /--
 info: "GET /path%20with%20spaces HTTP/1.1\x0d\n\x0d\n"
 -/
 #guard_msgs in
-#eval encodeStr ({ method := .get, version := .v11, uri := "/path%20with%20spaces" } : Request.Head)
-
--- URI with special characters (brackets, colons)
-/--
-info: "GET /api/v1/users/[id]:action HTTP/1.1\x0d\n\x0d\n"
--/
-#guard_msgs in
-#eval encodeStr ({ method := .get, version := .v11, uri := "/api/v1/users/[id]:action" } : Request.Head)
-
--- Empty URI
-/--
-info: "GET  HTTP/1.1\x0d\n\x0d\n"
--/
-#guard_msgs in
-#eval encodeStr ({ method := .get, version := .v11, uri := "" } : Request.Head)
+#eval encodeStr ({ method := .get, version := .v11, uri :=.parse!  "/path%20with%20spaces" } : Request.Head)
 
 /-! ## Edge cases: Response with unusual statuses -/
 

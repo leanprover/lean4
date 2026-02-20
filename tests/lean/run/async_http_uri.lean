@@ -550,8 +550,8 @@ info: /x/y
 -- URI Modification Helpers
 -- ============================================================================
 
-#guard ((URI.parse! "http://example.com").withScheme "htTps" |>.scheme) == "https"
-#guard ((URI.parse! "http://example.com").withScheme "ftP" |>.scheme) == "ftp"
+#guard ((URI.parse! "http://example.com").withScheme! "htTps" |>.scheme) == "https"
+#guard ((URI.parse! "http://example.com").withScheme! "ftP" |>.scheme) == "ftp"
 
 /--
 info: http://example.com/#section1

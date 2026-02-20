@@ -402,11 +402,10 @@ mapped to an error event, use `parseStatusLineRawVersion`.
 public def parseStatusLine (limits : H1.Config) : Parser Response.Head := do
   let (major, minor) ← parseHttpVersionNumber <* sp
   let status ← parseStatusCode <* sp
-  let reasonPhrase ← parseReasonPhrase limits <* crlf
+  discard <| parseReasonPhrase limits <* crlf
   if major == 1 ∧ minor == 1 then
     return {
       status
-      reasonPhrase := some reasonPhrase
       version := .v11
       headers := .empty
     }

@@ -40,6 +40,12 @@ structure Config where
   maxHeaders : Nat := 100
 
   /--
+  Maximum aggregate byte size of all header field lines in a single message
+  (name + value bytes plus 4 bytes per line for `: ` and `\r\n`). Default: 64 KiB.
+  -/
+  maxHeaderBytes : Nat := 65536
+
+  /--
   Whether to enable keep-alive connections by default.
   -/
   enableKeepAlive : Bool := true

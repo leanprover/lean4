@@ -97,8 +97,7 @@ Parses a line terminator.
 -/
 @[inline]
 def crlf : Parser Unit := do
-  discard <| optional (skipByte '\r'.toUInt8)
-  skipByte '\n'.toUInt8
+  skipBytes "\r\n".toUTF8
 
 /--
 Parses a single space (SP, 0x20).

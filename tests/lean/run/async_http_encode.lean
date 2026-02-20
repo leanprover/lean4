@@ -111,10 +111,10 @@ info: "500 Internal Server Error"
 #eval encodeStr Status.internalServerError
 
 /--
-info: "999 999"
+info: "999 Unknown"
 -/
 #guard_msgs in
-#eval encodeStr (Status.other 999)
+#eval encodeStr (Status.other 999 ⟨"Unknown", by decide⟩)
 
 /-! ## Request.Head encoding -/
 
@@ -350,31 +350,31 @@ info: "HTTP/1.1 418 I'm a teapot\x0d\n\x0d\n"
 
 -- Status.other 0: minimum possible value
 /--
-info: "0 0"
+info: "0 Unknown"
 -/
 #guard_msgs in
-#eval encodeStr (Status.other 0)
+#eval encodeStr (Status.other 0 ⟨"Unknown", by decide⟩)
 
 -- Status.other that overlaps with a named status (100 = Continue)
 /--
-info: "100 100"
+info: "100 Unknown"
 -/
 #guard_msgs in
-#eval encodeStr (Status.other 100)
+#eval encodeStr (Status.other 100 ⟨"Unknown", by decide⟩)
 
 -- Status.other max UInt16
 /--
-info: "65535 65535"
+info: "65535 Unknown"
 -/
 #guard_msgs in
-#eval encodeStr (Status.other 65535)
+#eval encodeStr (Status.other 65535 ⟨"Unknown", by decide⟩)
 
 -- Non-standard status code in the middle
 /--
-info: "299 299"
+info: "299 Unknown"
 -/
 #guard_msgs in
-#eval encodeStr (Status.other 299)
+#eval encodeStr (Status.other 299 ⟨"Unknown", by decide⟩)
 
 /-! ## Edge cases: Chunk size hex encoding -/
 

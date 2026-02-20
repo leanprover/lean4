@@ -663,16 +663,7 @@ def withScheme! (uri : URI) (scheme : String) : URI :=
   else
     panic! s!"invalid URI scheme: {scheme.quote}"
 
-/--/--
-Returns a new URI with the scheme replaced.
--/
-def withScheme! (uri : URI) (scheme : String) : URI :=
-  let lower := scheme.toLower
-  if h : IsLowerCase lower ∧ lower.toList.all isValidSchemeChar ∧ ¬lower.isEmpty then
-    { uri with scheme := ⟨lower, h.1, h.2.1, h.2.2⟩ }
-  else
-    panic! s!"invalid URI scheme: {scheme.quote}"
-z
+/--
 Returns a new URI with the authority replaced.
 -/
 def withAuthority (uri : URI) (authority : Option URI.Authority) : URI :=

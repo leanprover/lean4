@@ -2470,7 +2470,8 @@ private def addRec (x : BitVec (l * w)) : BitVec w := addRecAux x l 0#w
 
 theorem getLsbD_extractAndExtendBit {x : BitVec w} :
     (extractAndExtendBit k len x).getLsbD i = (decide (i = 0) && decide (0 < len) && x.getLsbD k) := by
-  simp [extractAndExtendBit]
+  simp only [extractAndExtendBit, truncate_eq_setWidth, getLsbD_setWidth, getLsbD_extractLsb',
+    Nat.lt_one_iff]
   by_cases hi : i = 0
   <;> simp [hi]
 

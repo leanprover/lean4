@@ -9,6 +9,7 @@ prelude
 import Init.While
 import Init.Data.String.TakeDrop
 import Init.Data.String.Search
+import Init.Data.String.Iterate
 import Lean.Data.NameTrie
 public import Lean.Compiler.NameMangling
 
@@ -17,22 +18,6 @@ public import Lean.Compiler.NameMangling
 line parsing. Called from the C runtime via `@[export]` for backtrace display. -/
 
 namespace Lean.Name.Demangle
-
-private abbrev RawPos := String.Pos.Raw
-
-private def rawGet (s : String) (i : RawPos) : Char :=
-  String.Pos.Raw.get s i
-
-private def rawNext (s : String) (i : RawPos) : RawPos :=
-  String.Pos.Raw.next s i
-
-private def rawAtEnd (s : String) (i : RawPos) : Bool :=
-  i.byteIdx >= s.utf8ByteSize
-
-private def rawExtract (s : String) (b e : RawPos) : String :=
-  String.Pos.Raw.extract s b e
-
-private def rawEnd (s : String) : RawPos := ⟨s.utf8ByteSize⟩
 
 /-- `String.dropPrefix?` returning a `String` instead of a `Slice`. -/
 private def dropPrefix? (s : String) (pre : String) : Option String :=
@@ -218,37 +203,30 @@ private def postprocessNameParts (components : Array NamePart) : String := Id.ru
 
   return result
 
-private def hasUpperStart (s : String) : Bool := Id.run do
-  if s.isEmpty then return false
-  let mut pos : RawPos := ⟨0⟩
-  -- Skip 00 disambiguation
-  if s.utf8ByteSize >= 2 && rawGet s ⟨0⟩ == '0' && rawGet s ⟨1⟩ == '0' then
-    pos := ⟨2⟩
-  -- Skip leading underscores
-  for _ in [:s.utf8ByteSize] do
-    if rawAtEnd s pos || rawGet s pos != '_' then break
-    pos := rawNext s pos
-  if rawAtEnd s pos then return false
-  return (rawGet s pos).isUpper
+private def hasUpperStart (s : String) : Bool :=
+  let s := ((s.dropPrefix? "00").map (·.toString)).getD s
+  go s s.startPos
+where
+  go (s : String) (pos : s.Pos) : Bool :=
+    if h : pos = s.endPos then false
+    else if pos.get h == '_' then go s (pos.next h)
+    else (pos.get h).isUpper
+  termination_by pos
 
 private def findLpSplit (s : String) : Option (String × String) := Id.run do
-  let endPos := rawEnd s
   let mut validSplits : Array (String × String × Bool) := #[]
-  let mut pos : RawPos := ⟨0⟩
-  for _ in [:s.utf8ByteSize] do
-    if rawAtEnd s pos then break
-    if rawGet s pos == '_' && pos.byteIdx > 0 then
-      let nextByte := rawNext s pos
-      if !rawAtEnd s nextByte then
-        let pkg := rawExtract s ⟨0⟩ pos
-        let body := rawExtract s nextByte endPos
-        -- Package must be a valid single-component mangled name
-        let validPkg := match Name.demangle? pkg with
-          | some (.str .anonymous _) => true
-          | _ => false
-        if validPkg && (Name.demangle? body).isSome then
-          validSplits := validSplits.push (pkg, body, hasUpperStart body)
-    pos := rawNext s pos
+  for ⟨pos, h⟩ in s.positions do
+    if pos.get h == '_' && pos ≠ s.startPos then
+      let nextPos := pos.next h
+      if nextPos == s.endPos then continue
+      let pkg := s.extract s.startPos pos
+      let body := s.extract nextPos s.endPos
+      -- Package must be a valid single-component mangled name
+      let validPkg := match Name.demangle? pkg with
+        | some (.str .anonymous _) => true
+        | _ => false
+      if validPkg && (Name.demangle? body).isSome then
+        validSplits := validSplits.push (pkg, body, hasUpperStart body)
   if validSplits.isEmpty then return none
   -- Prefer: shortest valid package (first split point).
   -- Among splits where body starts uppercase, pick the first.
@@ -264,17 +242,10 @@ private def unmanglePkg (s : String) : String :=
   | .str .anonymous s => s
   | _ => s
 
-private def stripColdSuffix (s : String) : String × String := Id.run do
-  let endPos := rawEnd s
-  let mut pos : RawPos := ⟨0⟩
-  for _ in [:s.utf8ByteSize] do
-    if rawAtEnd s pos then break
-    if rawGet s pos == '.' then
-      let rest := rawExtract s pos endPos
-      if rest.startsWith ".cold" then
-        return (rawExtract s ⟨0⟩ pos, rest)
-    pos := rawNext s pos
-  return (s, "")
+private def stripColdSuffix (s : String) : String × String :=
+  match s.find? ".cold" with
+  | some pos => (s.extract s.startPos pos, s.extract pos s.endPos)
+  | none => (s, "")
 
 private def demangleBody (body : String) : String :=
   let name := Name.demangle body
@@ -336,67 +307,41 @@ public def demangleSymbol (symbol : String) : Option String := do
   if coldSuffix.isEmpty then return result
   else return s!"{result} {coldSuffix}"
 
+private def skipWhile (s : String) (pos : s.Pos) (pred : Char → Bool) : s.Pos :=
+  if h : pos = s.endPos then pos
+  else if pred (pos.get h) then skipWhile s (pos.next h) pred
+  else pos
+termination_by pos
+
+private def splitAt₂ (s : String) (p₁ p₂ : s.Pos) : String × String × String :=
+  (s.extract s.startPos p₁, s.extract p₁ p₂, s.extract p₂ s.endPos)
+
 /-- Extract the symbol from a backtrace line (Linux glibc or macOS format). -/
 private def extractSymbol (line : String) :
-    Option (String × String × String) := Id.run do
-  let endPos := rawEnd line
-  let len := line.utf8ByteSize
-  -- Try Linux glibc: ./lean(SYMBOL+0x2a) [0x555...]
-  let mut pos : RawPos := ⟨0⟩
-  for _ in [:len] do
-    if rawAtEnd line pos then break
-    if rawGet line pos == '(' then
-      let symStart := rawNext line pos
-      let mut j := symStart
-      for _ in [:len] do
-        if rawAtEnd line j then break
-        let c := rawGet line j
-        if c == '+' || c == ')' then
-          if j.byteIdx > symStart.byteIdx then
-            return some (rawExtract line ⟨0⟩ symStart,
-                         rawExtract line symStart j,
-                         rawExtract line j endPos)
-          return none
-        j := rawNext line j
-      return none
-    pos := rawNext line pos
-
-  -- Try macOS: N   lib   0xADDR SYMBOL + offset
-  pos := ⟨0⟩
-  for _ in [:len] do
-    if rawAtEnd line pos then break
-    if rawGet line pos == '0' then
-      let pos1 := rawNext line pos
-      if !rawAtEnd line pos1 && rawGet line pos1 == 'x' then
-        -- Skip hex digits
-        let mut j := rawNext line pos1
-        for _ in [:len] do
-          if rawAtEnd line j || !(rawGet line j).isHexDigit then break
-          j := rawNext line j
-        -- Skip spaces
-        for _ in [:len] do
-          if rawAtEnd line j || rawGet line j != ' ' then break
-          j := rawNext line j
-        if rawAtEnd line j then return none
-        let symStart := j
-        -- Find " + " or end
-        for _ in [:len] do
-          if rawAtEnd line j then break
-          if rawGet line j == ' ' then
-            let j1 := rawNext line j
-            if !rawAtEnd line j1 && rawGet line j1 == '+' then
-              let j2 := rawNext line j1
-              if !rawAtEnd line j2 && rawGet line j2 == ' ' then
-                break
-          j := rawNext line j
-        if j.byteIdx > symStart.byteIdx then
-          return some (rawExtract line ⟨0⟩ symStart,
-                       rawExtract line symStart j,
-                       rawExtract line j endPos)
-        return none
-    pos := rawNext line pos
-
-  return none
+    Option (String × String × String) :=
+  tryLinux line |>.orElse (fun _ => tryMacOS line)
+where
+  -- Linux glibc: ./lean(SYMBOL+0x2a) [0x555...]
+  tryLinux (line : String) : Option (String × String × String) := do
+    let parenPos ← line.find? '('
+    if h : parenPos = line.endPos then none else
+    let symStart := parenPos.next h
+    let delimPos ← symStart.find? (fun c => c == '+' || c == ')')
+    if delimPos == symStart then none else
+    some (splitAt₂ line symStart delimPos)
+  -- macOS: N   lib   0xADDR SYMBOL + offset
+  tryMacOS (line : String) : Option (String × String × String) := do
+    let zxPos ← line.find? "0x"
+    if h : zxPos = line.endPos then none else
+    let afterZero := zxPos.next h
+    if h2 : afterZero = line.endPos then none else
+    let afterX := afterZero.next h2
+    let afterHex := skipWhile line afterX (·.isHexDigit)
+    let symStart := skipWhile line afterHex (· == ' ')
+    if symStart == line.endPos then none else
+    let symEnd := (symStart.find? " + ").getD line.endPos
+    if symEnd == symStart then none else
+    some (splitAt₂ line symStart symEnd)
 
 public def demangleBtLine (line : String) : Option String := do
   let (pfx, sym, sfx) ← extractSymbol line

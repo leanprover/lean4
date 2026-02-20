@@ -309,7 +309,9 @@ public def inferBorrow : Pass where
   name := `inferBorrow
   run decls := do
     let map ← infer decls
-    apply decls map
+    let decls ← apply decls map
+    decls.forM (·.saveImpure)
+    return decls
 
 builtin_initialize
   registerTraceClass `Compiler.inferBorrow (inherited := true)

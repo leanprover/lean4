@@ -433,7 +433,7 @@ status-line = HTTP-version SP status-code SP [ reason-phrase ] CRLF
 -/
 public def parseStatusLineRawVersion (limits : H1.Config) : Parser (Status × Option Version) := do
   let (major, minor) ← parseHttpVersionNumber <* sp
-  let status ← parseStatusCode limits <* crlf
+  let status ← parseStatusCode limits
   return (status, Version.ofNumber? major minor)
 
 /--

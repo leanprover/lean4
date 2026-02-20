@@ -1,6 +1,5 @@
 import Std.Internal.Http
 import Std.Internal.Async
-import Std.Internal.Async.Timer
 
 open Std.Internal.IO Async
 open Std Http
@@ -21,509 +20,312 @@ instance : Coe (Async (Response Body.Incoming)) (ContextAsync (Response Body.Any
     pure { response with body := Body.Internal.incomingToOutgoing response.body }
 
 
-/-!
-# Body Edge Case Tests
-
-Tests for HTTP/1.1 body handling edge cases: Content-Length mismatches, chunked encoding
-edge cases, body reading/consuming, Transfer-Encoding conflicts, and trailer headers.
--/
-
-/-- Send raw bytes to the server and return the response. -/
-def sendRaw (client : Mock.Client) (server : Mock.Server) (raw : ByteArray)
-    (handler : Request Body.Incoming → ContextAsync (Response Body.AnyBody))
-    (config : Config := { lingeringTimeout := 3000, generateDate := false }) : IO ByteArray := Async.block do
+def sendRaw
+    (client : Mock.Client)
+    (server : Mock.Server)
+    (raw : ByteArray)
+    (handler : TestHandler)
+    (config : Config := { lingeringTimeout := 1000, generateDate := false }) : IO ByteArray := Async.block do
   client.send raw
   Std.Http.Server.serveConnection server handler config
     |>.run
   let res ← client.recv?
-  pure <| res.getD .empty
+  pure (res.getD .empty)
 
-/-- Assert response string contains a substring. -/
+
+def sendRawAndClose
+    (client : Mock.Client)
+    (server : Mock.Server)
+    (raw : ByteArray)
+    (handler : TestHandler)
+    (config : Config := { lingeringTimeout := 1000, generateDate := false }) : IO ByteArray := Async.block do
+  client.send raw
+  client.getSendChan.close
+  Std.Http.Server.serveConnection server handler config
+    |>.run
+  let res ← client.recv?
+  pure (res.getD .empty)
+
+
+def responseText (response : ByteArray) : String :=
+  String.fromUTF8! response
+
+
+def assertStatusPrefix (name : String) (response : ByteArray) (prefix_ : String) : IO Unit := do
+  let text := responseText response
+  unless text.startsWith prefix_ do
+    throw <| IO.userError s!"Test '{name}' failed:\nExpected status prefix {prefix_.quote}\nGot:\n{text.quote}"
+
+
 def assertContains (name : String) (response : ByteArray) (needle : String) : IO Unit := do
-  let responseStr := String.fromUTF8! response
-  unless responseStr.contains needle do
-    throw <| IO.userError s!"Test '{name}' failed:\nExpected to contain: {needle.quote}\nGot:\n{responseStr.quote}"
+  let text := responseText response
+  unless text.contains needle do
+    throw <| IO.userError s!"Test '{name}' failed:\nMissing {needle.quote}\nGot:\n{text.quote}"
 
-/-- Assert the full response matches exactly. -/
+
+def assertNotContains (name : String) (response : ByteArray) (needle : String) : IO Unit := do
+  let text := responseText response
+  if text.contains needle then
+    throw <| IO.userError s!"Test '{name}' failed:\nUnexpected {needle.quote}\nGot:\n{text.quote}"
+
+
 def assertExact (name : String) (response : ByteArray) (expected : String) : IO Unit := do
-  let responseStr := String.fromUTF8! response
-  if responseStr != expected then
-    throw <| IO.userError s!"Test '{name}' failed:\nExpected:\n{expected.quote}\nGot:\n{responseStr.quote}"
+  let text := responseText response
+  if text != expected then
+    throw <| IO.userError s!"Test '{name}' failed:\nExpected:\n{expected.quote}\nGot:\n{text.quote}"
 
-/-- Assert response starts with given prefix. -/
-def assertStartsWith (name : String) (response : ByteArray) (prefix_ : String) : IO Unit := do
-  let responseStr := String.fromUTF8! response
-  unless responseStr.startsWith prefix_ do
-    throw <| IO.userError s!"Test '{name}' failed:\nExpected to start with: {prefix_.quote}\nGot:\n{responseStr.quote}"
+
+def countOccurrences (s : String) (needle : String) : Nat :=
+  if needle.isEmpty then
+    0
+  else
+    (s.splitOn needle).length - 1
+
+
+def assertStatusCount (name : String) (response : ByteArray) (expected : Nat) : IO Unit := do
+  let text := responseText response
+  let got := countOccurrences text "HTTP/1.1 "
+  if got != expected then
+    throw <| IO.userError s!"Test '{name}' failed:\nExpected {expected} responses but saw {got}\n{text.quote}"
+
 
 def bad400 : String :=
   "HTTP/1.1 400 Bad Request\x0d\nContent-Length: 0\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"
 
-def timeout408 : String :=
-  "HTTP/1.1 408 Request Timeout\x0d\nContent-Length: 0\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"
 
-/-- Handler that reads and echoes the full request body. -/
-def echoBodyHandler : Request Body.Incoming → ContextAsync (Response Body.AnyBody) :=
-  fun req => do
-    let ctx ← ContextAsync.getContext
-
-    background do
-      Async.sleep 3000
-      ctx.cancel .deadline
-
-    let mut body := ByteArray.empty
-    for chunk in req.body do
-      body := body ++ chunk.data
-    Response.ok |>.text (String.fromUTF8! body)
+def echoBodyHandler : TestHandler := fun req => do
+  let body : String ← req.body.readAll
+  Response.ok |>.text body
 
 
--- =============================================================================
--- POST with body and handler reads it correctly
--- =============================================================================
-
+-- Content-Length body is read exactly.
 #eval show IO _ from do
   let (client, server) ← Mock.new
-  let raw := "POST /echo HTTP/1.1\x0d\nHost: example.com\x0d\nContent-Length: 13\x0d\nConnection: close\x0d\n\x0d\nHello, World!".toUTF8
+  let raw := "POST /echo HTTP/1.1\x0d\nHost: example.com\x0d\nContent-Length: 5\x0d\nConnection: close\x0d\n\x0d\nhello".toUTF8
   let response ← sendRaw client server raw echoBodyHandler
-  assertContains "Echo body" response "Hello, World!"
+  assertStatusPrefix "CL body accepted" response "HTTP/1.1 200"
+  assertContains "CL body echoed" response "hello"
 
--- =============================================================================
--- POST with Content-Length: 0 and no body bytes
--- =============================================================================
-
+-- Chunked body baseline.
 #eval show IO _ from do
   let (client, server) ← Mock.new
-  let raw := "POST /empty HTTP/1.1\x0d\nHost: example.com\x0d\nContent-Length: 0\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
+  let raw := "POST /chunked HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: chunked\x0d\nConnection: close\x0d\n\x0d\n5\x0d\nhello\x0d\n0\x0d\n\x0d\n".toUTF8
   let response ← sendRaw client server raw echoBodyHandler
-  assertStartsWith "Empty body CL=0" response "HTTP/1.1 200"
+  assertStatusPrefix "Chunked baseline" response "HTTP/1.1 200"
+  assertContains "Chunked baseline body" response "hello"
 
--- =============================================================================
--- Chunked request - handler reads body data
--- =============================================================================
-
+-- Uppercase and leading-zero chunk-size are accepted.
 #eval show IO _ from do
   let (client, server) ← Mock.new
-  let raw := "POST /chunked HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: chunked\x0d\nConnection: close\x0d\n\x0d\n5\x0d\nhello\x0d\n6\x0d\n world\x0d\n0\x0d\n\x0d\n".toUTF8
+  let raw := "POST /chunked HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: chunked\x0d\nConnection: close\x0d\n\x0d\n000A\x0d\n0123456789\x0d\n0\x0d\n\x0d\n".toUTF8
   let response ← sendRaw client server raw echoBodyHandler
-  assertContains "Chunked body read" response "hello world"
+  assertStatusPrefix "Chunk-size uppercase+leading-zero" response "HTTP/1.1 200"
+  assertContains "Chunk-size uppercase+leading-zero body" response "0123456789"
 
--- =============================================================================
--- Zero-length chunked body (just the terminator)
--- =============================================================================
-
+-- Chunk extensions with token and quoted value are accepted.
 #eval show IO _ from do
   let (client, server) ← Mock.new
-  let raw := "POST /empty-chunked HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: chunked\x0d\nConnection: close\x0d\n\x0d\n0\x0d\n\x0d\n".toUTF8
+  let raw := "POST /chunked HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: chunked\x0d\nConnection: close\x0d\n\x0d\n5;ext=value;quoted=\"ok\"\x0d\nhello\x0d\n0\x0d\n\x0d\n".toUTF8
   let response ← sendRaw client server raw echoBodyHandler
-  assertStartsWith "Zero-length chunked" response "HTTP/1.1 200"
+  assertStatusPrefix "Chunk extensions accepted" response "HTTP/1.1 200"
+  assertContains "Chunk extensions body" response "hello"
 
--- =============================================================================
--- Single-byte chunks
--- =============================================================================
-
+-- h11-inspired: invalid chunk-size token is rejected.
 #eval show IO _ from do
   let (client, server) ← Mock.new
-  let raw := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: chunked\x0d\nConnection: close\x0d\n\x0d\n1\x0d\na\x0d\n1\x0d\nb\x0d\n1\x0d\nc\x0d\n0\x0d\n\x0d\n".toUTF8
+  let raw := "POST /bad HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: chunked\x0d\nConnection: close\x0d\n\x0d\nG\x0d\nabc\x0d\n0\x0d\n\x0d\n".toUTF8
   let response ← sendRaw client server raw echoBodyHandler
-  assertContains "Single-byte chunks" response "abc"
+  assertExact "Invalid chunk-size token" response bad400
 
--- =============================================================================
--- Large chunk size (hex)
--- =============================================================================
-
+-- h11-inspired: reject bad bytes where chunk terminator must be CRLF.
 #eval show IO _ from do
   let (client, server) ← Mock.new
-  let body := String.ofList (List.replicate 255 'X')
-  let raw := s!"POST / HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: chunked\x0d\nConnection: close\x0d\n\x0d\nff\x0d\n{body}\x0d\n0\x0d\n\x0d\n".toUTF8
+  let raw := "POST /smuggle HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: chunked\x0d\nConnection: close\x0d\n\x0d\n3\x0d\nxxx__1a\x0d\n".toUTF8
+  let response ← sendRawAndClose client server raw echoBodyHandler
+  assertExact "Chunk terminator bytes validated" response bad400
+
+-- Missing terminal 0-chunk is rejected once EOF arrives.
+#eval show IO _ from do
+  let (client, server) ← Mock.new
+  let raw := "POST /incomplete HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: chunked\x0d\nConnection: close\x0d\n\x0d\n5\x0d\nhello\x0d\n".toUTF8
+  let response ← sendRawAndClose client server raw echoBodyHandler
+  assertExact "Missing terminal zero chunk" response bad400
+
+-- TE+CL mixed framing is rejected.
+#eval show IO _ from do
+  let (client, server) ← Mock.new
+  let raw := "POST /mix HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: chunked\x0d\nContent-Length: 5\x0d\nConnection: close\x0d\n\x0d\n5\x0d\nhello\x0d\n0\x0d\n\x0d\n".toUTF8
   let response ← sendRaw client server raw echoBodyHandler
-  assertContains "Large hex chunk (0xff=255)" response body
+  assertExact "TE+CL rejected" response bad400
 
--- =============================================================================
--- Chunked with chunk extensions
--- =============================================================================
-
+-- Duplicate chunked coding is rejected.
 #eval show IO _ from do
   let (client, server) ← Mock.new
-  let raw := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: chunked\x0d\nConnection: close\x0d\n\x0d\n5;ext=val\x0d\nhello\x0d\n0\x0d\n\x0d\n".toUTF8
+  let raw := "POST /dup HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: chunked, chunked\x0d\nConnection: close\x0d\n\x0d\n5\x0d\nhello\x0d\n0\x0d\n\x0d\n".toUTF8
   let response ← sendRaw client server raw echoBodyHandler
-  assertContains "Chunk with extensions" response "hello"
+  assertExact "Duplicate chunked coding" response bad400
 
--- =============================================================================
--- Chunked with quoted chunk extension value
--- =============================================================================
-
+-- Duplicate Transfer-Encoding lines with unsupported coding are rejected.
 #eval show IO _ from do
   let (client, server) ← Mock.new
-  let raw := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: chunked\x0d\nConnection: close\x0d\n\x0d\n5;ext=\"quoted value\"\x0d\nhello\x0d\n0\x0d\n\x0d\n".toUTF8
+  let raw := "POST /dup-lines HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: chunked\x0d\nTransfer-Encoding: gzip\x0d\nConnection: close\x0d\n\x0d\n5\x0d\nhello\x0d\n0\x0d\n\x0d\n".toUTF8
   let response ← sendRaw client server raw echoBodyHandler
-  assertContains "Chunk with quoted extension" response "hello"
+  assertExact "Duplicate TE headers with gzip" response bad400
 
--- =============================================================================
--- Chunked with trailer headers
--- =============================================================================
-
+-- Unsupported transfer codings are rejected.
 #eval show IO _ from do
   let (client, server) ← Mock.new
-  let raw := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: chunked\x0d\nConnection: close\x0d\n\x0d\n5\x0d\nhello\x0d\n0\x0d\nX-Checksum: abc123\x0d\n\x0d\n".toUTF8
+  let raw := "POST /gzip HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: gzip, chunked\x0d\nConnection: close\x0d\n\x0d\n5\x0d\nhello\x0d\n0\x0d\n\x0d\n".toUTF8
   let response ← sendRaw client server raw echoBodyHandler
-  assertContains "Chunked with trailers" response "hello"
-
--- =============================================================================
--- Malformed chunk size (non-hex)
--- =============================================================================
+  assertExact "gzip, chunked rejected" response bad400
 
 #eval show IO _ from do
   let (client, server) ← Mock.new
-  let raw := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: chunked\x0d\nConnection: close\x0d\n\x0d\nZZ\x0d\nhello\x0d\n0\x0d\n\x0d\n".toUTF8
+  let raw := "POST /identity HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: identity\x0d\nConnection: close\x0d\n\x0d\nhello".toUTF8
   let response ← sendRaw client server raw echoBodyHandler
-  let responseStr := String.fromUTF8! response
-  unless responseStr.startsWith "HTTP/1.1 400" ∨ responseStr.startsWith "HTTP/1.1 408" do
-    throw <| IO.userError s!"Test 'Malformed chunk size' failed:\nExpected 400 or 408 status but got:\n{responseStr.quote}"
+  assertExact "identity transfer-coding rejected" response bad400
 
--- =============================================================================
--- Both Content-Length AND Transfer-Encoding (TE takes precedence per RFC 9112 §6.1)
--- =============================================================================
-
+-- Malformed Transfer-Encoding token list is rejected.
 #eval show IO _ from do
   let (client, server) ← Mock.new
-  let raw := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nContent-Length: 100\x0d\nTransfer-Encoding: chunked\x0d\nConnection: close\x0d\n\x0d\n5\x0d\nhello\x0d\n0\x0d\n\x0d\n".toUTF8
+  let raw := "POST /bad-te-list HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: ,chunked\x0d\nConnection: close\x0d\n\x0d\n5\x0d\nhello\x0d\n0\x0d\n\x0d\n".toUTF8
   let response ← sendRaw client server raw echoBodyHandler
-  assertExact "Does not allow both headers" response bad400
+  assertExact "Malformed Transfer-Encoding token list" response bad400
 
--- =============================================================================
--- POST without Content-Length or Transfer-Encoding (ambiguous body)
--- =============================================================================
+-- Strict chunk-extension name/value limits.
+#eval show IO _ from do
+  let config : Config := {
+    lingeringTimeout := 1000
+    generateDate := false
+    maxChunkExtNameLength := 4
+    maxChunkExtValueLength := 4
+  }
 
+  let (clientA, serverA) ← Mock.new
+  let okName := "POST /ok-name HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: chunked\x0d\nConnection: close\x0d\n\x0d\n5;name=1\x0d\nhello\x0d\n0\x0d\n\x0d\n".toUTF8
+  let responseA ← sendRaw clientA serverA okName echoBodyHandler (config := config)
+  assertStatusPrefix "Chunk ext name at limit" responseA "HTTP/1.1 200"
+
+  let (clientB, serverB) ← Mock.new
+  let badName := "POST /bad-name HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: chunked\x0d\nConnection: close\x0d\n\x0d\n5;toolong=1\x0d\nhello\x0d\n0\x0d\n\x0d\n".toUTF8
+  let responseB ← sendRaw clientB serverB badName echoBodyHandler (config := config)
+  assertExact "Chunk ext name too long" responseB bad400
+
+  let (clientC, serverC) ← Mock.new
+  let okValue := "POST /ok-value HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: chunked\x0d\nConnection: close\x0d\n\x0d\n5;name=abcd\x0d\nhello\x0d\n0\x0d\n\x0d\n".toUTF8
+  let responseC ← sendRaw clientC serverC okValue echoBodyHandler (config := config)
+  assertStatusPrefix "Chunk ext value at limit" responseC "HTTP/1.1 200"
+
+  let (clientD, serverD) ← Mock.new
+  let badQuoted := "POST /bad-value HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: chunked\x0d\nConnection: close\x0d\n\x0d\n5;name=\"abcde\"\x0d\nhello\x0d\n0\x0d\n\x0d\n".toUTF8
+  let responseD ← sendRaw clientD serverD badQuoted echoBodyHandler (config := config)
+  assertExact "Quoted chunk ext value too long" responseD bad400
+
+  let (clientE, serverE) ← Mock.new
+  let badToken := "POST /bad-token HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: chunked\x0d\nConnection: close\x0d\n\x0d\n5;na@e=1\x0d\nhello\x0d\n0\x0d\n\x0d\n".toUTF8
+  let responseE ← sendRaw clientE serverE badToken echoBodyHandler (config := config)
+  assertExact "Invalid chunk ext token char" responseE bad400
+
+  let (clientF, serverF) ← Mock.new
+  let mixed := "POST /mixed-ext HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: chunked\x0d\nConnection: close\x0d\n\x0d\n5;a=1;b=2;toolong=3\x0d\nhello\x0d\n0\x0d\n\x0d\n".toUTF8
+  let responseF ← sendRaw clientF serverF mixed echoBodyHandler (config := config)
+  assertExact "Mixed valid/invalid chunk extensions" responseF bad400
+
+-- maxChunkExtensions boundary is enforced.
+#eval show IO _ from do
+  let config : Config := {
+    lingeringTimeout := 1000
+    generateDate := false
+    maxChunkExtensions := 2
+  }
+
+  let (clientA, serverA) ← Mock.new
+  let okRaw := "POST /ext-count HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: chunked\x0d\nConnection: close\x0d\n\x0d\n5;a=1;b=2\x0d\nhello\x0d\n0\x0d\n\x0d\n".toUTF8
+  let okResponse ← sendRaw clientA serverA okRaw echoBodyHandler (config := config)
+  assertStatusPrefix "maxChunkExtensions at limit" okResponse "HTTP/1.1 200"
+
+  let (clientB, serverB) ← Mock.new
+  let badRaw := "POST /ext-count-overflow HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: chunked\x0d\nConnection: close\x0d\n\x0d\n5;a=1;b=2;c=3\x0d\nhello\x0d\n0\x0d\n\x0d\n".toUTF8
+  let badResponse ← sendRaw clientB serverB badRaw echoBodyHandler (config := config)
+  assertExact "maxChunkExtensions overflow" badResponse bad400
+
+-- Content-Length with leading zeros is accepted.
 #eval show IO _ from do
   let (client, server) ← Mock.new
-  let raw := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\nsome body data".toUTF8
+  let raw := "POST /leading-zeros HTTP/1.1\x0d\nHost: example.com\x0d\nContent-Length: 005\x0d\nConnection: close\x0d\n\x0d\nhello".toUTF8
   let response ← sendRaw client server raw echoBodyHandler
-  -- Without CL or TE, server should treat body as zero-length
-  assertStartsWith "POST no CL no TE" response "HTTP/1.1"
+  assertStatusPrefix "Content-Length leading zeros" response "HTTP/1.1 200"
+  assertContains "Content-Length leading zeros body" response "hello"
 
--- =============================================================================
--- GET with unexpected body (Content-Length present)
--- =============================================================================
-
+-- Very large Content-Length is rejected with 413.
 #eval show IO _ from do
   let (client, server) ← Mock.new
-  let raw := "GET / HTTP/1.1\x0d\nHost: example.com\x0d\nContent-Length: 5\x0d\nConnection: close\x0d\n\x0d\nhello".toUTF8
+  let raw := "POST /too-large HTTP/1.1\x0d\nHost: example.com\x0d\nContent-Length: 99999999999999999999\x0d\nConnection: close\x0d\n\x0d\nhello".toUTF8
   let response ← sendRaw client server raw echoBodyHandler
-  -- GET with body is technically valid per RFC
-  assertStartsWith "GET with body" response "HTTP/1.1 200"
+  assertStatusPrefix "Huge Content-Length" response "HTTP/1.1 413"
 
--- =============================================================================
--- Multiple chunks with varying sizes
--- =============================================================================
+-- Duplicate Content-Length (same and different values) are rejected.
+#eval show IO _ from do
+  let (clientA, serverA) ← Mock.new
+  let same := "POST /dup-cl-same HTTP/1.1\x0d\nHost: example.com\x0d\nContent-Length: 5\x0d\nContent-Length: 5\x0d\nConnection: close\x0d\n\x0d\nhello".toUTF8
+  let responseA ← sendRaw clientA serverA same echoBodyHandler
+  assertExact "Duplicate Content-Length same" responseA bad400
 
+  let (clientB, serverB) ← Mock.new
+  let diff := "POST /dup-cl-diff HTTP/1.1\x0d\nHost: example.com\x0d\nContent-Length: 3\x0d\nContent-Length: 5\x0d\nConnection: close\x0d\n\x0d\nabc".toUTF8
+  let responseB ← sendRaw clientB serverB diff echoBodyHandler
+  assertExact "Duplicate Content-Length different" responseB bad400
+
+-- Chunk-size line trailing whitespace is rejected.
 #eval show IO _ from do
   let (client, server) ← Mock.new
-  let raw := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: chunked\x0d\nConnection: close\x0d\n\x0d\n3\x0d\nabc\x0d\na\x0d\n0123456789\x0d\n1\x0d\nX\x0d\n0\x0d\n\x0d\n".toUTF8
+  let raw := "POST /bad-space HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: chunked\x0d\nConnection: close\x0d\n\x0d\n5 \x0d\nhello\x0d\n0\x0d\n\x0d\n".toUTF8
   let response ← sendRaw client server raw echoBodyHandler
-  assertContains "Varying chunk sizes" response "abc0123456789X"
+  assertExact "Chunk-size trailing space" response bad400
 
--- =============================================================================
--- Chunked with uppercase hex
--- =============================================================================
-
+-- Transfer-Encoding trailing OWS is currently accepted.
 #eval show IO _ from do
   let (client, server) ← Mock.new
-  let body := String.ofList (List.replicate 10 'Y')
-  let raw := s!"POST / HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: chunked\x0d\nConnection: close\x0d\n\x0d\nA\x0d\n{body}\x0d\n0\x0d\n\x0d\n".toUTF8
+  let raw := "POST /te-ows HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: chunked \x0d\nConnection: close\x0d\n\x0d\n5\x0d\nhello\x0d\n0\x0d\n\x0d\n".toUTF8
   let response ← sendRaw client server raw echoBodyHandler
-  assertContains "Uppercase hex chunk size" response body
+  assertStatusPrefix "Transfer-Encoding trailing OWS" response "HTTP/1.1 200"
+  assertContains "Transfer-Encoding trailing OWS body" response "hello"
 
--- =============================================================================
--- Chunked with mixed case hex
--- =============================================================================
+-- h11-inspired: early invalid-byte detection before CRLF.
+#eval show IO _ from do
+  let (clientA, serverA) ← Mock.new
+  let responseA ← sendRawAndClose clientA serverA (ByteArray.mk #[0x00]) echoBodyHandler
+  assertExact "Early invalid NUL" responseA bad400
 
+  let (clientB, serverB) ← Mock.new
+  let responseB ← sendRawAndClose clientB serverB (ByteArray.mk #[0x20]) echoBodyHandler
+  assertExact "Early invalid SP" responseB bad400
+
+  let (clientC, serverC) ← Mock.new
+  let responseC ← sendRawAndClose clientC serverC (ByteArray.mk #[0x16, 0x03, 0x01, 0x00, 0xa5]) echoBodyHandler
+  assertExact "Early invalid TLS prefix" responseC bad400
+
+-- h11-inspired: reject garbage after request-line version token.
 #eval show IO _ from do
   let (client, server) ← Mock.new
-  let body := String.ofList (List.replicate 15 'Z')
-  let raw := s!"POST / HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: chunked\x0d\nConnection: close\x0d\n\x0d\nF\x0d\n{body}\x0d\n0\x0d\n\x0d\n".toUTF8
+  let raw := "GET / HTTP/1.1 xxxxxx\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
   let response ← sendRaw client server raw echoBodyHandler
-  assertContains "Mixed case hex" response body
+  assertExact "Garbage after request-line" response bad400
 
--- =============================================================================
--- Large body with Content-Length
--- =============================================================================
-
+-- Extra bytes beyond Content-Length become the next pipelined request.
 #eval show IO _ from do
   let (client, server) ← Mock.new
-  let body := String.ofList (List.replicate 10000 'A')
-  let raw := s!"POST / HTTP/1.1\x0d\nHost: example.com\x0d\nContent-Length: 10000\x0d\nConnection: close\x0d\n\x0d\n{body}".toUTF8
-  let response ← sendRaw client server raw echoBodyHandler
-  assertContains "Large body 10KB" response (String.ofList (List.replicate 100 'A'))
+  let raw :=
+    ("POST / HTTP/1.1\x0d\nHost: example.com\x0d\nContent-Length: 5\x0d\n\x0d\nhello" ++
+     "GET /second HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n").toUTF8
 
--- =============================================================================
--- Multiple Content-Length headers with same value (MAY accept)
--- =============================================================================
-
-#eval show IO _ from do
-  let (client, server) ← Mock.new
-  let raw := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nContent-Length: 5\x0d\nContent-Length: 5\x0d\nConnection: close\x0d\n\x0d\nhello".toUTF8
-  let response ← sendRaw client server raw echoBodyHandler
-  -- Same value duplicated - server may accept or reject
-  assertStartsWith "Duplicate CL same value" response "HTTP/1.1"
-
--- =============================================================================
--- Transfer-Encoding: identity (should be treated as no encoding)
--- =============================================================================
-
-#eval show IO _ from do
-  let (client, server) ← Mock.new
-  let raw := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: identity\x0d\nContent-Length: 5\x0d\nConnection: close\x0d\n\x0d\nhello".toUTF8
-  let response ← sendRaw client server raw echoBodyHandler
-  assertStartsWith "TE identity" response "HTTP/1.1"
-
--- =============================================================================
--- Chunked with multiple extensions
--- =============================================================================
-
-#eval show IO _ from do
-  let (client, server) ← Mock.new
-  let raw := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: chunked\x0d\nConnection: close\x0d\n\x0d\n5;a=1;b=2\x0d\nhello\x0d\n0\x0d\n\x0d\n".toUTF8
-  let response ← sendRaw client server raw echoBodyHandler
-  assertContains "Multiple chunk extensions" response "hello"
-
--- =============================================================================
--- Body exactly at Content-Length boundary
--- =============================================================================
-
-#eval show IO _ from do
-  let (client, server) ← Mock.new
-  let raw := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nContent-Length: 5\x0d\nConnection: close\x0d\n\x0d\nhello".toUTF8
-  let response ← sendRaw client server raw echoBodyHandler
-  assertContains "Exact CL boundary" response "hello"
-
--- =============================================================================
--- Binary body data
--- =============================================================================
-
-#eval show IO _ from do
-  let (client, server) ← Mock.new
-  let headers := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nContent-Length: 4\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
-  let body := ByteArray.mk #[0xFF, 0x00, 0xAB, 0xCD]
-  let raw := headers ++ body
   let response ← sendRaw client server raw (fun req => do
     let mut body := ByteArray.empty
     for chunk in req.body do
       body := body ++ chunk.data
-    if body.size == 4 then Response.ok |>.text "ok"
-    else Response.badRequest |>.text s!"wrong size: {body.size}")
-  assertContains "Binary body" response "ok"
+    Response.ok |>.text s!"{toString req.head.uri}:{String.fromUTF8! body}")
 
--- =============================================================================
--- Chunked with trailing whitespace in chunk size
--- =============================================================================
-
-#eval show IO _ from do
-  let (client, server) ← Mock.new
-  -- Chunk size with trailing space before CRLF
-  let raw := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: chunked\x0d\nConnection: close\x0d\n\x0d\n5 \x0d\nhello\x0d\n0\x0d\n\x0d\n".toUTF8
-  let response ← sendRaw client server raw echoBodyHandler
-  -- Trailing space in chunk size line - may be accepted or rejected
-  assertStartsWith "Chunk size trailing space" response "HTTP/1.1"
-
--- =============================================================================
--- Handler that ignores body - server should still drain on keep-alive
--- =============================================================================
-
-#eval show IO _ from do
-  let (client, server) ← Mock.new
-  let req1 := "POST /ignore HTTP/1.1\x0d\nHost: example.com\x0d\nContent-Length: 5\x0d\n\x0d\nhello"
-  let req2 := "GET /after HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n"
-  let raw := (req1 ++ req2).toUTF8
-
-  let response ← sendRaw client server raw (fun req => do
-    -- Handler does NOT read the body
-    Response.ok |>.text (toString req.head.uri))
-
-  assertContains "Ignore body, drain: first" response "/ignore"
-  assertContains "Ignore body, drain: second" response "/after"
-
--- =============================================================================
--- Chunked body followed by another request on keep-alive (body must be drained)
--- =============================================================================
-
-#eval show IO _ from do
-  let (client, server) ← Mock.new
-  let req1 := "POST /chunked HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: chunked\x0d\n\x0d\n5\x0d\nhello\x0d\n0\x0d\n\x0d\n"
-  let req2 := "GET /next HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n"
-  let raw := (req1 ++ req2).toUTF8
-
-  let response ← sendRaw client server raw (fun req => do
-    Response.ok |>.text (toString req.head.uri))
-
-  assertContains "Chunked drain keep-alive: first" response "/chunked"
-  assertContains "Chunked drain keep-alive: second" response "/next"
-
--- =============================================================================
--- Content-Length with leading zeros
--- =============================================================================
-
-#eval show IO _ from do
-  let (client, server) ← Mock.new
-  let raw := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nContent-Length: 005\x0d\nConnection: close\x0d\n\x0d\nhello".toUTF8
-  let response ← sendRaw client server raw echoBodyHandler
-  -- Leading zeros - some servers accept, some reject
-  assertStartsWith "CL leading zeros" response "HTTP/1.1"
-
--- =============================================================================
--- Very large Content-Length value (overflow attempt)
--- =============================================================================
-
-#eval show IO _ from do
-  let (client, server) ← Mock.new
-  let raw := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nContent-Length: 99999999999999999999\x0d\nConnection: close\x0d\n\x0d\nhello".toUTF8
-  let response ← sendRaw client server raw echoBodyHandler
-  assertStartsWith "Huge CL value" response "HTTP/1.1"
-
--- =============================================================================
--- Chunked encoding: chunk size with leading zeros
--- =============================================================================
-
-#eval show IO _ from do
-  let (client, server) ← Mock.new
-  let raw := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: chunked\x0d\nConnection: close\x0d\n\x0d\n005\x0d\nhello\x0d\n0\x0d\n\x0d\n".toUTF8
-  let response ← sendRaw client server raw echoBodyHandler
-  assertContains "Chunk size leading zeros" response "hello"
-
--- =============================================================================
--- Multiple trailer headers after chunked body
--- =============================================================================
-
-#eval show IO _ from do
-  let (client, server) ← Mock.new
-  let raw := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: chunked\x0d\nConnection: close\x0d\n\x0d\n5\x0d\nhello\x0d\n0\x0d\nX-Checksum: abc\x0d\nX-Signature: def\x0d\n\x0d\n".toUTF8
-  let response ← sendRaw client server raw echoBodyHandler
-  assertContains "Multiple trailers" response "hello"
-
--- =============================================================================
--- Content-Length mismatch: body shorter than declared (should timeout/error)
--- =============================================================================
-
-#eval show IO _ from do
-  let (client, server) ← Mock.new
-  -- Declare CL=10 but only send 5 bytes, then close
-  let headers := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nContent-Length: 10\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
-  let body := "hello".toUTF8
-  let raw := headers ++ body
-  let result ← Async.block do
-    client.send raw
-    -- Close only the client→server direction to simulate client disconnect
-    client.getSendChan.close
-    Std.Http.Server.serveConnection server echoBodyHandler { lingeringTimeout := 500, generateDate := false }
-      |>.run
-    let res ← client.recv?
-    pure <| res.getD .empty
-  -- Server should respond with something (timeout, error, or partial) but not crash
-  assert! result.size > 0 ∨ result.size == 0
-
--- =============================================================================
--- Content-Length mismatch: body longer than declared (extra data is next request)
--- =============================================================================
-
-#eval show IO _ from do
-  let (client, server) ← Mock.new
-  -- CL=5 so only "hello" is read; remainder is parsed as a new request
-  let raw := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nContent-Length: 5\x0d\n\x0d\nhelloGET /second HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
-  let response ← sendRaw client server raw (fun req => do
-    let mut body := ByteArray.empty
-    for chunk in req.body do
-      body := body ++ chunk.data
-    Response.ok |>.text (String.fromUTF8! body))
-  -- First response should have exactly "hello"
-  assertContains "CL mismatch longer: first body" response "hello"
-  -- The server processes the remainder as a second request on keep-alive.
-  -- We see two HTTP/1.1 200 responses in the output.
-  let responseStr := String.fromUTF8! response
-  let parts := responseStr.splitOn "HTTP/1.1 200 OK"
-  if parts.length < 3 then
-    throw <| IO.userError s!"CL mismatch longer: expected 2 responses, got {parts.length} parts"
-
--- =============================================================================
--- Duplicate Content-Length with different values (MUST reject per RFC 9110 §8.6)
--- =============================================================================
-
-#eval show IO _ from do
-  let (client, server) ← Mock.new
-  let raw := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nContent-Length: 3\x0d\nContent-Length: 7\x0d\nConnection: close\x0d\n\x0d\nabc".toUTF8
-  let response ← sendRaw client server raw echoBodyHandler
-  assertExact "Duplicate CL different values (3 vs 7)" response bad400
-
--- =============================================================================
--- Chunk size overflow (extremely large hex number)
--- =============================================================================
-
-#eval show IO _ from do
-  let (client, server) ← Mock.new
-  let raw := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: chunked\x0d\nConnection: close\x0d\n\x0d\nFFFFFFFFFFFFFFFF\x0d\nhello\x0d\n0\x0d\n\x0d\n".toUTF8
-  let response ← sendRaw client server raw echoBodyHandler
-  -- Should either reject or handle gracefully
-  assertStartsWith "Chunk size overflow" response "HTTP/1.1"
-
--- =============================================================================
--- Incomplete chunked body (missing final 0\r\n\r\n, then connection closes)
--- =============================================================================
-
-#eval show IO _ from do Async.block do
-  let (client, server) ← Mock.new
-  let raw := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: chunked\x0d\nConnection: close\x0d\n\x0d\n5\x0d\nhello\x0d\n".toUTF8
-  client.send raw
-  client.close
-  let result ← Async.block do
-    Std.Http.Server.serveConnection server echoBodyHandler { lingeringTimeout := 500, generateDate := false }
-      |>.run
-    let res ← client.recv?
-    pure <| res.getD .empty
-  -- Server should handle incomplete chunked body without crashing
-  assert! result.size >= 0
-
--- =============================================================================
--- Content-Length: 0 with POST and handler reading body
--- =============================================================================
-
-#eval show IO _ from do
-  let (client, server) ← Mock.new
-  let raw := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nContent-Length: 0\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
-  let response ← sendRaw client server raw (fun req => do
-    let mut body := ByteArray.empty
-    for chunk in req.body do
-      body := body ++ chunk.data
-    if body.size == 0
-    then Response.ok |>.text "empty"
-    else Response.badRequest |>.text s!"unexpected: {body.size}")
-  assertContains "CL=0 body is empty" response "empty"
-
--- =============================================================================
--- Handler ignores chunked body on keep-alive, next request uses Content-Length
--- =============================================================================
-
-#eval show IO _ from do
-  let (client, server) ← Mock.new
-  let req1 := "POST /first HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: chunked\x0d\n\x0d\na\x0d\n0123456789\x0d\n0\x0d\n\x0d\n"
-  let req2 := "POST /second HTTP/1.1\x0d\nHost: example.com\x0d\nContent-Length: 3\x0d\nConnection: close\x0d\n\x0d\nabc"
-  let raw := (req1 ++ req2).toUTF8
-
-  let response ← sendRaw client server raw (fun req => do
-    -- Intentionally don't read body of first request
-    Response.ok |>.text (toString req.head.uri))
-
-  assertContains "Chunked then CL: first" response "/first"
-  assertContains "Chunked then CL: second" response "/second"
-
--- =============================================================================
--- Extremely large number of chunks (100 single-byte chunks)
--- =============================================================================
-
-#eval show IO _ from do
-  let (client, server) ← Mock.new
-  let mut chunked := ""
-  for _ in [0:100] do
-    chunked := chunked ++ "1\x0d\nX\x0d\n"
-  chunked := chunked ++ "0\x0d\n\x0d\n"
-  let raw := s!"POST / HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: chunked\x0d\nConnection: close\x0d\n\x0d\n{chunked}".toUTF8
-  let response ← sendRaw client server raw echoBodyHandler
-  let expected := String.ofList (List.replicate 100 'X')
-  assertContains "100 single-byte chunks" response expected
+  assertStatusCount "Pipelined parse after exact CL" response 2
+  assertContains "Pipelined first response" response "/:hello"
+  assertContains "Pipelined second response" response "/second:"
+  assertNotContains "No parse confusion" response "/second:hello"

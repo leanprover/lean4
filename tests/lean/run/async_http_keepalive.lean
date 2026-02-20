@@ -1,6 +1,5 @@
 import Std.Internal.Http
 import Std.Internal.Async
-import Std.Internal.Async.Timer
 
 open Std.Internal.IO Async
 open Std Http
@@ -21,16 +20,11 @@ instance : Coe (Async (Response Body.Incoming)) (ContextAsync (Response Body.Any
     pure { response with body := Body.Internal.incomingToOutgoing response.body }
 
 
-/-!
-# Keep-Alive and Connection Persistence Tests
-
-Tests for HTTP/1.1 keep-alive behavior, connection reuse, multiple sequential requests
-on a single connection, and connection limits.
--/
-
-/-- Send raw bytes to the server and return the response. -/
-def sendRaw (client : Mock.Client) (server : Mock.Server) (raw : ByteArray)
-    (handler : Request Body.Incoming → ContextAsync (Response Body.AnyBody))
+def sendRaw
+    (client : Mock.Client)
+    (server : Mock.Server)
+    (raw : ByteArray)
+    (handler : TestHandler)
     (config : Config := { lingeringTimeout := 3000, generateDate := false }) : IO ByteArray := Async.block do
   client.send raw
   Std.Http.Server.serveConnection server handler config
@@ -38,278 +32,193 @@ def sendRaw (client : Mock.Client) (server : Mock.Server) (raw : ByteArray)
   let res ← client.recv?
   pure <| res.getD .empty
 
-/-- Assert the full response matches exactly. -/
-def assertExact (name : String) (response : ByteArray) (expected : String) : IO Unit := do
-  let responseStr := String.fromUTF8! response
-  if responseStr != expected then
-    throw <| IO.userError s!"Test '{name}' failed:\nExpected:\n{expected.quote}\nGot:\n{responseStr.quote}"
 
-/-- Assert response string contains a substring. -/
+def runPipelined
+    (raw : String)
+    (readBody : Bool)
+    (config : Config := { lingeringTimeout := 1000, generateDate := false }) : IO (ByteArray × Array String) := Async.block do
+  let (client, server) ← Mock.new
+  let seenRef ← IO.mkRef (#[] : Array String)
+
+  let handler : TestHandler := fun req => do
+    let uri := toString req.head.uri
+    seenRef.modify (·.push uri)
+
+    let body ←
+      if readBody then
+        req.body.readAll
+      else
+        pure "<ignored>"
+
+    Response.ok |>.text s!"{uri}:{body}"
+
+  client.send raw.toUTF8
+  client.getSendChan.close
+
+  Std.Http.Server.serveConnection server handler config
+    |>.run
+
+  let response ← client.recv?
+  let seen ← seenRef.get
+  pure (response.getD .empty, seen)
+
+
 def assertContains (name : String) (response : ByteArray) (needle : String) : IO Unit := do
-  let responseStr := String.fromUTF8! response
-  unless responseStr.contains needle do
-    throw <| IO.userError s!"Test '{name}' failed:\nExpected to contain: {needle.quote}\nGot:\n{responseStr.quote}"
-
-/-- Assert response starts with given prefix. -/
-def assertStartsWith (name : String) (response : ByteArray) (prefix_ : String) : IO Unit := do
-  let responseStr := String.fromUTF8! response
-  unless responseStr.startsWith prefix_ do
-    throw <| IO.userError s!"Test '{name}' failed:\nExpected to start with: {prefix_.quote}\nGot:\n{responseStr.quote}"
-
-/-- Count occurrences of a substring in a string. -/
-partial def countOccurrences (haystack : String) (needle : String) : Nat :=
-  let rec go (s : haystack.Pos) (count : Nat) : Nat :=
-    if let some idx := s.find? needle then
-      go (idx.nextn needle.length) (count + 1)
-    else
-      count
-
-  go haystack.startPos 0
+  let text := String.fromUTF8! response
+  unless text.contains needle do
+    throw <| IO.userError s!"Test '{name}' failed:\nExpected to contain {needle.quote}\nGot:\n{text.quote}"
 
 
-def okHandler : Request Body.Incoming → ContextAsync (Response Body.AnyBody) :=
-  fun _ => Response.ok |>.text "ok"
+def assertNotContains (name : String) (response : ByteArray) (needle : String) : IO Unit := do
+  let text := String.fromUTF8! response
+  if text.contains needle then
+    throw <| IO.userError s!"Test '{name}' failed:\nDid not expect {needle.quote}\nGot:\n{text.quote}"
 
--- =============================================================================
--- Two sequential requests on the same keep-alive connection
--- =============================================================================
 
+def countOccurrences (s : String) (needle : String) : Nat :=
+  if needle.isEmpty then
+    0
+  else
+    (s.splitOn needle).length - 1
+
+
+def assertStatusCount (name : String) (response : ByteArray) (expected : Nat) : IO Unit := do
+  let text := String.fromUTF8! response
+  let got := countOccurrences text "HTTP/1.1 "
+  if got != expected then
+    throw <| IO.userError s!"Test '{name}' failed:\nExpected {expected} responses, got {got}\n{text.quote}"
+
+
+def assertSeenCount (name : String) (seen : Array String) (expected : Nat) : IO Unit := do
+  if seen.size != expected then
+    throw <| IO.userError s!"Test '{name}' failed:\nExpected {expected} handler calls, got {seen.size}: {seen}"
+
+
+-- Two sequential requests on the same HTTP/1.1 connection.
 #eval show IO _ from do
   let (client, server) ← Mock.new
   let req1 := "GET /first HTTP/1.1\x0d\nHost: example.com\x0d\n\x0d\n"
   let req2 := "GET /second HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n"
-  let raw := (req1 ++ req2).toUTF8
-
-  let response ← sendRaw client server raw (fun req => do
-    let uri := toString req.head.uri
-    if uri == "/first" then Response.ok |>.text "first"
-    else if uri == "/second" then Response.ok |>.text "second"
-    else Response.notFound |>.text "not found")
-
-  assertContains "Keep-alive: two responses" response "HTTP/1.1 200 OK"
-  assertContains "Keep-alive: first body" response "first"
-  assertContains "Keep-alive: second body" response "second"
-
--- =============================================================================
--- Three sequential requests on keep-alive
--- =============================================================================
-
-#eval show IO _ from do
-  let (client, server) ← Mock.new
-  let req1 := "GET /a HTTP/1.1\x0d\nHost: example.com\x0d\n\x0d\n"
-  let req2 := "GET /b HTTP/1.1\x0d\nHost: example.com\x0d\n\x0d\n"
-  let req3 := "GET /c HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n"
-  let raw := (req1 ++ req2 ++ req3).toUTF8
-
-  let response ← sendRaw client server raw (fun req => do
-    let uri := toString req.head.uri
-    Response.ok |>.text uri)
-
-  let responseStr := String.fromUTF8! response
-  assertContains "Three keep-alive: response a" response "/a"
-  assertContains "Three keep-alive: response b" response "/b"
-  assertContains "Three keep-alive: response c" response "/c"
-
--- =============================================================================
--- Explicit Connection: keep-alive header
--- =============================================================================
-
-#eval show IO _ from do
-  let (client, server) ← Mock.new
-  let req1 := "GET /1 HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: keep-alive\x0d\n\x0d\n"
-  let req2 := "GET /2 HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n"
-  let raw := (req1 ++ req2).toUTF8
-
-  let response ← sendRaw client server raw (fun req => do
+  let response ← sendRaw client server (req1 ++ req2).toUTF8 (fun req =>
     Response.ok |>.text (toString req.head.uri))
 
-  assertContains "Explicit keep-alive: first" response "/1"
-  assertContains "Explicit keep-alive: second" response "/2"
+  assertStatusCount "Two keep-alive responses" response 2
+  assertContains "Two keep-alive first" response "/first"
+  assertContains "Two keep-alive second" response "/second"
 
--- =============================================================================
--- Connection: close on first request - server should not process second
--- =============================================================================
-
+-- Connection: close on first request blocks pipelined second request.
 #eval show IO _ from do
   let (client, server) ← Mock.new
   let req1 := "GET /first HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n"
   let req2 := "GET /second HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n"
-  let raw := (req1 ++ req2).toUTF8
-
-  let response ← sendRaw client server raw (fun req => do
+  let response ← sendRaw client server (req1 ++ req2).toUTF8 (fun req =>
     Response.ok |>.text (toString req.head.uri))
 
-  let responseStr := String.fromUTF8! response
-  assertContains "Connection close: first served" response "/first"
-  -- Second request should NOT be processed since first had Connection: close
-  if responseStr.contains "/second" then
-    throw <| IO.userError "Test 'Connection close stops pipeline' failed: second request was served"
+  assertStatusCount "Connection close response count" response 1
+  assertContains "Connection close first served" response "/first"
+  assertNotContains "Connection close second blocked" response "/second"
 
--- =============================================================================
--- Default keep-alive (no Connection header = keep-alive in HTTP/1.1)
--- =============================================================================
-
-#eval show IO _ from do
-  let (client, server) ← Mock.new
-  -- No Connection header at all - HTTP/1.1 defaults to keep-alive
-  let req1 := "GET /default1 HTTP/1.1\x0d\nHost: example.com\x0d\n\x0d\n"
-  let req2 := "GET /default2 HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n"
-  let raw := (req1 ++ req2).toUTF8
-
-  let response ← sendRaw client server raw (fun req => do
-    Response.ok |>.text (toString req.head.uri))
-
-  assertContains "Default keep-alive: first" response "/default1"
-  assertContains "Default keep-alive: second" response "/default2"
-
--- =============================================================================
--- Keep-alive disabled via config
--- =============================================================================
-
+-- Disabling keep-alive via config forces one response.
 #eval show IO _ from do
   let (client, server) ← Mock.new
   let req1 := "GET /1 HTTP/1.1\x0d\nHost: example.com\x0d\n\x0d\n"
   let req2 := "GET /2 HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n"
-  let raw := (req1 ++ req2).toUTF8
-
-  let response ← sendRaw client server raw
+  let response ← sendRaw client server (req1 ++ req2).toUTF8
     (fun req => Response.ok |>.text (toString req.head.uri))
     (config := { lingeringTimeout := 3000, enableKeepAlive := false, generateDate := false })
 
-  let responseStr := String.fromUTF8! response
-  assertContains "Keep-alive disabled: first served" response "/1"
-  -- With keep-alive disabled, second request should not be processed
-  if responseStr.contains "/2" then
-    throw <| IO.userError "Test 'Keep-alive disabled' failed: second request was served"
+  assertStatusCount "Keep-alive disabled response count" response 1
+  assertContains "Keep-alive disabled first served" response "/1"
+  assertNotContains "Keep-alive disabled second blocked" response "/2"
 
--- =============================================================================
--- Max requests per connection limit
--- =============================================================================
-
+-- maxRequests cap enforces hard limit on responses per connection.
 #eval show IO _ from do
   let (client, server) ← Mock.new
-  let config : Config := { lingeringTimeout := 3000, maxRequests := 3, generateDate := false }
-
-  -- Send 4 requests but only 3 should be processed
-  let mut raw := ""
-  for i in [0:3] do
-    raw := raw ++ s!"GET /{i} HTTP/1.1\x0d\nHost: example.com\x0d\n\x0d\n"
-  raw := raw ++ "GET /3 HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n"
-
-  let response ← sendRaw client server raw.toUTF8
+  let req0 := "GET /0 HTTP/1.1\x0d\nHost: example.com\x0d\n\x0d\n"
+  let req1 := "GET /1 HTTP/1.1\x0d\nHost: example.com\x0d\n\x0d\n"
+  let req2 := "GET /2 HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n"
+  let response ← sendRaw client server (req0 ++ req1 ++ req2).toUTF8
     (fun req => Response.ok |>.text (toString req.head.uri))
-    (config := config)
+    (config := { lingeringTimeout := 3000, maxRequests := 2, generateDate := false })
 
-  assertContains "Max requests: /0 served" response "/0"
-  assertContains "Max requests: /1 served" response "/1"
-  assertContains "Max requests: /2 served" response "/2"
+  assertStatusCount "maxRequests response count" response 2
+  assertContains "maxRequests /0 served" response "/0"
+  assertContains "maxRequests /1 served" response "/1"
+  assertNotContains "maxRequests /2 blocked" response "/2"
 
--- =============================================================================
--- Keep-alive with POST bodies (body must be fully consumed before next request)
--- =============================================================================
-
+-- Handler that ignores a fixed-size body still allows next keep-alive request.
 #eval show IO _ from do
   let (client, server) ← Mock.new
-  let req1 := "POST /upload HTTP/1.1\x0d\nHost: example.com\x0d\nContent-Length: 5\x0d\n\x0d\nhello"
+  let req1 := "POST /ignore HTTP/1.1\x0d\nHost: example.com\x0d\nContent-Length: 5\x0d\n\x0d\nhello"
   let req2 := "GET /after HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n"
-  let raw := (req1 ++ req2).toUTF8
+  let response ← sendRaw client server (req1 ++ req2).toUTF8 (fun req =>
+    Response.ok |>.text (toString req.head.uri))
 
-  let response ← sendRaw client server raw (fun req => do
-    let uri := toString req.head.uri
-    if uri == "/upload" then Response.ok |>.text "uploaded"
-    else if uri == "/after" then Response.ok |>.text "after"
-    else Response.notFound |>.text "")
+  assertStatusCount "Unread CL body keep-alive responses" response 2
+  assertContains "Unread CL body first" response "/ignore"
+  assertContains "Unread CL body second" response "/after"
 
-  assertContains "Keep-alive POST then GET: uploaded" response "uploaded"
-  assertContains "Keep-alive POST then GET: after" response "after"
-
--- =============================================================================
--- Keep-alive response should include Connection header appropriately
--- =============================================================================
-
-#eval show IO _ from do
-  let (client, server) ← Mock.new
-  -- First request without Connection: close - response should NOT have Connection: close
-  let req1 := "GET /check HTTP/1.1\x0d\nHost: example.com\x0d\n\x0d\n"
-  let req2 := "GET /end HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n"
-  let raw := (req1 ++ req2).toUTF8
-
-  let response ← sendRaw client server raw okHandler
-
-  assertContains "Last response has Connection: close" response "Connection: close"
-
--- =============================================================================
--- Mixed methods on keep-alive
--- =============================================================================
-
-#eval show IO _ from do
-  let (client, server) ← Mock.new
-  let req1 := "GET /get HTTP/1.1\x0d\nHost: example.com\x0d\n\x0d\n"
-  let req2 := "POST /post HTTP/1.1\x0d\nHost: example.com\x0d\nContent-Length: 4\x0d\n\x0d\ndata"
-  let req3 := "DELETE /delete HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n"
-  let raw := (req1 ++ req2 ++ req3).toUTF8
-
-  let response ← sendRaw client server raw (fun req => do
-    match req.head.method with
-    | .get => Response.ok |>.text "got"
-    | .post => Response.ok |>.text "posted"
-    | .delete => Response.ok |>.text "deleted"
-    | _ => Response.badRequest |>.text "unknown")
-
-  assertContains "Mixed methods: got" response "got"
-  assertContains "Mixed methods: posted" response "posted"
-  assertContains "Mixed methods: deleted" response "deleted"
-
--- =============================================================================
--- Keep-alive with chunked request body then another request
--- =============================================================================
-
+-- Handler that ignores chunked body still allows next keep-alive request.
 #eval show IO _ from do
   let (client, server) ← Mock.new
   let req1 := "POST /chunked HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: chunked\x0d\n\x0d\n5\x0d\nhello\x0d\n0\x0d\n\x0d\n"
-  let req2 := "GET /after HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n"
-  let raw := (req1 ++ req2).toUTF8
-
-  let response ← sendRaw client server raw (fun req => do
+  let req2 := "GET /next HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n"
+  let response ← sendRaw client server (req1 ++ req2).toUTF8 (fun req =>
     Response.ok |>.text (toString req.head.uri))
 
-  assertContains "Chunked then GET: first" response "/chunked"
-  assertContains "Chunked then GET: second" response "/after"
+  assertStatusCount "Unread chunked body keep-alive responses" response 2
+  assertContains "Unread chunked first" response "/chunked"
+  assertContains "Unread chunked second" response "/next"
 
--- =============================================================================
--- Keep-alive with varying Content-Lengths
--- =============================================================================
-
+-- Exact first Content-Length allows pipelined second request.
 #eval show IO _ from do
-  let (client, server) ← Mock.new
-  let req1 := "POST /a HTTP/1.1\x0d\nHost: example.com\x0d\nContent-Length: 3\x0d\n\x0d\nabc"
-  let req2 := "POST /b HTTP/1.1\x0d\nHost: example.com\x0d\nContent-Length: 10\x0d\n\x0d\n0123456789"
-  let req3 := "POST /c HTTP/1.1\x0d\nHost: example.com\x0d\nContent-Length: 0\x0d\nConnection: close\x0d\n\x0d\n"
-  let raw := (req1 ++ req2 ++ req3).toUTF8
+  let req1 := "POST /first HTTP/1.1\x0d\nHost: example.com\x0d\nContent-Length: 3\x0d\n\x0d\nabc"
+  let req2 := "GET /second HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n"
+  let (response, seen) ← runPipelined (req1 ++ req2) true
 
-  let response ← sendRaw client server raw (fun req => do
-    Response.ok |>.text (toString req.head.uri))
+  assertStatusCount "Exact CL pipelined responses" response 2
+  assertContains "Exact CL first" response "/first"
+  assertContains "Exact CL second" response "/second"
+  assertSeenCount "Exact CL seen count" seen 2
 
-  assertContains "Varying CL: /a" response "/a"
-  assertContains "Varying CL: /b" response "/b"
-  assertContains "Varying CL: /c" response "/c"
-
--- =============================================================================
--- Handler reads body on keep-alive connection
--- =============================================================================
-
+-- Incomplete first Content-Length blocks pipelined second request.
 #eval show IO _ from do
-  let (client, server) ← Mock.new
-  let req1 := "POST /read HTTP/1.1\x0d\nHost: example.com\x0d\nContent-Length: 5\x0d\n\x0d\nhello"
-  let req2 := "POST /read HTTP/1.1\x0d\nHost: example.com\x0d\nContent-Length: 5\x0d\nConnection: close\x0d\n\x0d\nworld"
-  let raw := (req1 ++ req2).toUTF8
+  let req1 := "POST /first HTTP/1.1\x0d\nHost: example.com\x0d\nContent-Length: 10\x0d\n\x0d\nabc"
+  let req2 := "GET /second HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n"
+  let (response, seen) ← runPipelined (req1 ++ req2) true
 
-  let response ← sendRaw client server raw (fun req => do
-    let mut body := ByteArray.empty
-    for chunk in req.body do
-      body := body ++ chunk.data
-    let bodyStr := String.fromUTF8! body
-    Response.ok |>.text s!"body={bodyStr}")
+  assertContains "Incomplete CL first served" response "/first"
+  assertNotContains "Incomplete CL second blocked" response "/second"
+  assertSeenCount "Incomplete CL seen count" seen 1
 
-  assertContains "Body read keep-alive: first" response "body=hello"
-  assertContains "Body read keep-alive: second" response "body=world"
+-- Incomplete first chunked body blocks pipelined second request.
+#eval show IO _ from do
+  let req1 := "POST /chunked-first HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: chunked\x0d\n\x0d\nF\x0d\nhel"
+  let req2 := "GET /second HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n"
+  let (response, seen) ← runPipelined (req1 ++ req2) true
+
+  assertNotContains "Incomplete chunked second blocked" response "/second"
+  if seen.contains "/second" then
+    throw <| IO.userError s!"Test 'Incomplete chunked seen list' failed: {seen}"
+
+-- Content-Length: 0 on first request allows immediate second request.
+#eval show IO _ from do
+  let req1 := "POST /empty HTTP/1.1\x0d\nHost: example.com\x0d\nContent-Length: 0\x0d\n\x0d\n"
+  let req2 := "GET /tail HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n"
+  let (response, seen) ← runPipelined (req1 ++ req2) true
+
+  assertStatusCount "CL=0 pipelined responses" response 2
+  assertContains "CL=0 first" response "/empty"
+  assertContains "CL=0 second" response "/tail"
+  assertSeenCount "CL=0 seen count" seen 2
+
+-- Complete chunked first request allows second request.
+#eval show IO _ from do
+  let req1 := "POST /chunked HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: chunked\x0d\n\x0d\n5\x0d\nhello\x0d\n0\x0d\n\x0d\n"
+  let req2 := "GET /tail HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n"
+  let (response, seen) ← runPipelined (req1 ++ req2) true
+
+  assertStatusCount "Complete chunked pipelined responses" response 2
+  assertContains "Complete chunked first" response "/chunked"
+  assertContains "Complete chunked second" response "/tail"
+  assertSeenCount "Complete chunked seen count" seen 2

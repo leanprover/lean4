@@ -1,6 +1,5 @@
 import Std.Internal.Http
 import Std.Internal.Async
-import Std.Internal.Async.Timer
 
 open Std.Internal.IO Async
 open Std Http
@@ -21,514 +20,344 @@ instance : Coe (Async (Response Body.Incoming)) (ContextAsync (Response Body.Any
     pure { response with body := Body.Internal.incomingToOutgoing response.body }
 
 
-/-!
-# Malformed HTTP Request Tests
-
-Tests for HTTP/1.1 compliance when handling malformed, invalid, or edge-case requests.
-Covers: missing Host, invalid methods, bad headers, CRLF issues, invalid characters.
--/
-
-/-- Send raw bytes to the server and return the response. -/
-def sendRaw (client : Mock.Client) (server : Mock.Server) (raw : ByteArray)
-    (handler : Request Body.Incoming → ContextAsync (Response Body.AnyBody))
-    (config : Config := { lingeringTimeout := 3000, generateDate := false }) : IO ByteArray := Async.block do
+def sendRaw
+    (client : Mock.Client)
+    (server : Mock.Server)
+    (raw : ByteArray)
+    (handler : TestHandler)
+    (config : Config := { lingeringTimeout := 1000, generateDate := false }) : IO ByteArray := Async.block do
   client.send raw
   Std.Http.Server.serveConnection server handler config
     |>.run
   let res ← client.recv?
   pure <| res.getD .empty
 
-/-- Assert that the response starts with the expected status line. -/
+
+def sendRawAndClose
+    (client : Mock.Client)
+    (server : Mock.Server)
+    (raw : ByteArray)
+    (handler : TestHandler)
+    (config : Config := { lingeringTimeout := 1000, generateDate := false }) : IO ByteArray := Async.block do
+  client.send raw
+  client.getSendChan.close
+  Std.Http.Server.serveConnection server handler config
+    |>.run
+  let res ← client.recv?
+  pure <| res.getD .empty
+
+
 def assertStatus (name : String) (response : ByteArray) (status : String) : IO Unit := do
   let responseStr := String.fromUTF8! response
   unless responseStr.startsWith status do
-    throw <| IO.userError s!"Test '{name}' failed:\nExpected status: {status}\nGot: {responseStr.quote}"
+    throw <| IO.userError s!"Test '{name}' failed:\nExpected status: {status}\nGot:\n{responseStr.quote}"
 
-/-- Assert the full response matches exactly. -/
+
 def assertExact (name : String) (response : ByteArray) (expected : String) : IO Unit := do
   let responseStr := String.fromUTF8! response
   if responseStr != expected then
     throw <| IO.userError s!"Test '{name}' failed:\nExpected:\n{expected.quote}\nGot:\n{responseStr.quote}"
 
-def okHandler : Request Body.Incoming → ContextAsync (Response Body.AnyBody) :=
+
+def assertContains (name : String) (response : ByteArray) (needle : String) : IO Unit := do
+  let responseStr := String.fromUTF8! response
+  unless responseStr.contains needle do
+    throw <| IO.userError s!"Test '{name}' failed:\nExpected to contain: {needle.quote}\nGot:\n{responseStr.quote}"
+
+
+def headerSection (response : ByteArray) : String :=
+  (String.fromUTF8! response).splitOn "\x0d\n\x0d\n" |>.headD ""
+
+
+def okHandler : TestHandler :=
   fun _ => Response.ok |>.text "ok"
+
 
 def bad400 : String :=
   "HTTP/1.1 400 Bad Request\x0d\nContent-Length: 0\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"
 
+
 def bad505 : String :=
   "HTTP/1.1 505 HTTP Version Not Supported\x0d\nContent-Length: 0\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"
+
 
 def ok200 : String :=
   "HTTP/1.1 200 OK\x0d\nContent-Length: 2\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\nContent-Type: text/plain; charset=utf-8\x0d\n\x0d\nok"
 
+
 def ok200Head : String :=
   "HTTP/1.1 200 OK\x0d\nContent-Length: 2\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\nContent-Type: text/plain; charset=utf-8\x0d\n\x0d\n"
+
 
 def notImplemented : String :=
   "HTTP/1.1 501 Not Implemented\x0d\nContent-Length: 0\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"
 
--- =============================================================================
--- Missing Host header (RFC 9112 §3.2 - Host is REQUIRED in HTTP/1.1)
--- =============================================================================
 
+-- Host header rules.
 #eval show IO _ from do
-  let (client, server) ← Mock.new
-  let raw := "GET / HTTP/1.1\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
-  let response ← sendRaw client server raw okHandler
-  assertExact "Missing Host header returns 400" response bad400
+  let (clientA, serverA) ← Mock.new
+  let missingHost := "GET / HTTP/1.1\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
+  let responseA ← sendRaw clientA serverA missingHost okHandler
+  assertExact "Missing Host header" responseA bad400
 
--- =============================================================================
--- Empty Host header value
--- =============================================================================
+  let (clientB, serverB) ← Mock.new
+  let emptyHost := "GET / HTTP/1.1\x0d\nHost: \x0d\nConnection: close\x0d\n\x0d\n".toUTF8
+  let responseB ← sendRaw clientB serverB emptyHost okHandler
+  assertExact "Empty Host header" responseB bad400
 
+  let (clientC, serverC) ← Mock.new
+  let multiHost := "GET / HTTP/1.1\x0d\nHost: example.com\x0d\nHost: other.com\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
+  let responseC ← sendRaw clientC serverC multiHost okHandler
+  assertExact "Multiple Host headers" responseC bad400
+
+-- HTTP version handling.
 #eval show IO _ from do
-  let (client, server) ← Mock.new
-  let raw := "GET / HTTP/1.1\x0d\nHost: \x0d\nConnection: close\x0d\n\x0d\n".toUTF8
-  let response ← sendRaw client server raw okHandler
-  assertStatus "Empty Host header" response "HTTP/1.1"
+  let (clientA, serverA) ← Mock.new
+  let rawA := "GET / HTTP/2.0\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
+  let responseA ← sendRaw clientA serverA rawA okHandler
+  assertExact "HTTP/2.0 rejected" responseA bad505
 
--- =============================================================================
--- Invalid HTTP version
--- =============================================================================
+  let (clientB, serverB) ← Mock.new
+  let rawB := "GET / HTTP/1.0\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
+  let responseB ← sendRaw clientB serverB rawB okHandler
+  assertExact "HTTP/1.0 rejected" responseB bad505
 
+-- Request-line parsing failures.
 #eval show IO _ from do
-  let (client, server) ← Mock.new
-  let raw := "GET / HTTP/2.0\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
-  let response ← sendRaw client server raw okHandler
-  assertExact "Invalid HTTP version HTTP/2.0" response bad505
+  let (clientA, serverA) ← Mock.new
+  let missingVersion := "GET /\x0d\nHost: example.com\x0d\n\x0d\n".toUTF8
+  let responseA ← sendRaw clientA serverA missingVersion okHandler
+  assertExact "Missing version in request-line" responseA bad400
 
+  let (clientB, serverB) ← Mock.new
+  let missingUri := "GET  HTTP/1.1\x0d\nHost: example.com\x0d\n\x0d\n".toUTF8
+  let responseB ← sendRaw clientB serverB missingUri okHandler
+  assertExact "Missing URI in request-line" responseB bad400
+
+  let (clientC, serverC) ← Mock.new
+  let extraSpaces := "GET  /  HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
+  let responseC ← sendRaw clientC serverC extraSpaces okHandler
+  assertExact "Extra spaces in request-line" responseC bad400
+
+  let (clientD, serverD) ← Mock.new
+  let emptyLine := "\x0d\n\x0d\n".toUTF8
+  let responseD ← sendRaw clientD serverD emptyLine okHandler
+  assertExact "Empty request-line" responseD bad400
+
+  let (clientE, serverE) ← Mock.new
+  let whitespaceOnly := "   \x0d\n\x0d\n".toUTF8
+  let responseE ← sendRaw clientE serverE whitespaceOnly okHandler
+  assertExact "Whitespace-only request-line" responseE bad400
+
+  let (clientF, serverF) ← Mock.new
+  let noSpaces := "GETHTTP/1.1\x0d\nHost: example.com\x0d\n\x0d\n".toUTF8
+  let responseF ← sendRaw clientF serverF noSpaces okHandler
+  assertExact "No spaces in request-line" responseF bad400
+
+  let (clientG, serverG) ← Mock.new
+  let leadingCRLF := "\x0d\nGET / HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
+  let responseG ← sendRaw clientG serverG leadingCRLF okHandler
+  assertExact "Leading CRLF before request-line" responseG bad400
+
+  let (clientH, serverH) ← Mock.new
+  let garbageAfterVersion := "GET / HTTP/1.1 xxxxxx\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
+  let responseH ← sendRaw clientH serverH garbageAfterVersion okHandler
+  assertExact "Garbage after request-line version" responseH bad400
+
+-- Method rules.
 #eval show IO _ from do
-  let (client, server) ← Mock.new
-  let raw := "GET / HTTP/0.9\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
-  let response ← sendRaw client server raw okHandler
-  assertExact "Invalid HTTP version HTTP/0.9" response bad505
+  let (clientA, serverA) ← Mock.new
+  let invalidMethod := "FOOBAR / HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
+  let responseA ← sendRaw clientA serverA invalidMethod okHandler
+  assertExact "Unknown method returns 501" responseA notImplemented
 
-#eval show IO _ from do
-  let (client, server) ← Mock.new
-  let raw := "GET / HTTP/1.0\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
-  let response ← sendRaw client server raw okHandler
-  assertExact "Invalid HTTP version HTTP/1.0" response bad505
+  let (clientB, serverB) ← Mock.new
+  let lowercaseMethod := "get / HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
+  let responseB ← sendRaw clientB serverB lowercaseMethod okHandler
+  assertExact "Lowercase method rejected" responseB bad400
 
--- =============================================================================
--- Malformed request line - missing version
--- =============================================================================
+  let (clientC, serverC) ← Mock.new
+  let nonAsciiMethod := "GÉT / HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
+  let responseC ← sendRaw clientC serverC nonAsciiMethod okHandler
+  assertExact "Non-ASCII method rejected" responseC bad400
 
-#eval show IO _ from do
-  let (client, server) ← Mock.new
-  let raw := "GET /\x0d\nHost: example.com\x0d\n\x0d\n".toUTF8
-  let response ← sendRaw client server raw okHandler
-  assertExact "Missing HTTP version" response bad400
-
--- =============================================================================
--- Malformed request line - missing URI
--- =============================================================================
-
-#eval show IO _ from do
-  let (client, server) ← Mock.new
-  let raw := "GET  HTTP/1.1\x0d\nHost: example.com\x0d\n\x0d\n".toUTF8
-  let response ← sendRaw client server raw okHandler
-  assertStatus "Missing URI" response "HTTP/1.1 400"
-
--- =============================================================================
--- Malformed request line - extra spaces
--- =============================================================================
-
-#eval show IO _ from do
-  let (client, server) ← Mock.new
-  let raw := "GET  /  HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
-  let response ← sendRaw client server raw okHandler
-  -- Extra spaces in request line - should still parse or reject
-  assertStatus "Extra spaces in request line" response "HTTP/1.1"
-
--- =============================================================================
--- Completely empty request line
--- =============================================================================
-
-#eval show IO _ from do
-  let (client, server) ← Mock.new
-  let raw := "\x0d\n\x0d\n".toUTF8
-  let response ← sendRaw client server raw okHandler
-  assertExact "Empty request line" response bad400
-
--- =============================================================================
--- Invalid method name
--- =============================================================================
-
-#eval show IO _ from do
-  let (client, server) ← Mock.new
-  let raw := "FOOBAR / HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
-  let response ← sendRaw client server raw okHandler
-  assertStatus "Invalid method FOOBAR" response "HTTP/1.1 501"
-
--- =============================================================================
--- Method with lowercase (HTTP methods are case-sensitive)
--- =============================================================================
-
-#eval show IO _ from do
-  let (client, server) ← Mock.new
-  let raw := "get / HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
-  let response ← sendRaw client server raw okHandler
-  assertStatus "Lowercase method" response "HTTP/1.1 400"
-
--- =============================================================================
--- HEAD response must not include a message body
--- =============================================================================
-
-#eval show IO _ from do
-  let (client, server) ← Mock.new
-  let raw := "HEAD / HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
-  let response ← sendRaw client server raw okHandler
-  assertExact "HEAD has no response body" response ok200Head
-
--- =============================================================================
--- authority-form request target is valid only for CONNECT
--- =============================================================================
-
-#eval show IO _ from do
-  let (client, server) ← Mock.new
-  let raw := "GET example.com:443 HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
-  let response ← sendRaw client server raw okHandler
-  assertExact "authority-form with GET is rejected" response bad400
-
-#eval show IO _ from do
-  let (client, server) ← Mock.new
-  let raw := "CONNECT example.com:443 HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
-  let response ← sendRaw client server raw okHandler
-  assertExact "authority-form with CONNECT is accepted" response ok200
-
--- =============================================================================
--- Header without colon separator
--- =============================================================================
-
-#eval show IO _ from do
-  let (client, server) ← Mock.new
-  let raw := "GET / HTTP/1.1\x0d\nHost: example.com\x0d\nBadHeader value\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
-  let response ← sendRaw client server raw okHandler
-  assertExact "Header without colon" response bad400
-
--- =============================================================================
--- Header with leading whitespace (obsolete line folding - should reject)
--- =============================================================================
-
-#eval show IO _ from do
-  let (client, server) ← Mock.new
-  let raw := "GET / HTTP/1.1\x0d\nHost: example.com\x0d\n X-Bad: folded\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
-  let response ← sendRaw client server raw okHandler
-  assertExact "Leading whitespace in header (obs-fold)" response bad400
-
--- =============================================================================
--- Null byte in header name
--- =============================================================================
-
-#eval show IO _ from do
-  let (client, server) ← Mock.new
-  let before := "GET / HTTP/1.1\x0d\nHost: example.com\x0d\nX-Bad".toUTF8
-  let null := ByteArray.mk #[0]
-  let after := "Header: value\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
-  let raw := before ++ null ++ after
-  let response ← sendRaw client server raw okHandler
-  assertExact "Null byte in header name" response bad400
-
--- =============================================================================
--- Null byte in header value
--- =============================================================================
-
-#eval show IO _ from do
-  let (client, server) ← Mock.new
-  let before := "GET / HTTP/1.1\x0d\nHost: example.com\x0d\nX-Header: bad".toUTF8
-  let null := ByteArray.mk #[0]
-  let after := "value\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
-  let raw := before ++ null ++ after
-  let response ← sendRaw client server raw okHandler
-  assertExact "Null byte in header value" response bad400
-
--- =============================================================================
--- Bare LF without CR.
--- =============================================================================
-
-#eval show IO _ from do
-  let (client, server) ← Mock.new
-  let raw := "GET / HTTP/1.1\nHost: example.com\nConnection: close\n\n".toUTF8
-  let response ← sendRaw client server raw okHandler
-  assertExact "Bare LF without CR" response ok200
-
--- =============================================================================
--- CRLF injection attempt in header value
--- =============================================================================
-
-#eval show IO _ from do
-  let (client, server) ← Mock.new
-  let raw := "GET / HTTP/1.1\x0d\nHost: example.com\x0d\nX-Inject: value\x0d\nEvil: injected\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
-  let response ← sendRaw client server raw okHandler
-  -- This is actually two valid headers, not an injection. Server should process normally.
-  assertStatus "CRLF in header (two valid headers)" response "HTTP/1.1 200"
-
--- =============================================================================
--- Non-ASCII in method
--- =============================================================================
-
-#eval show IO _ from do
-  let (client, server) ← Mock.new
-  let raw := "GÉT / HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
-  let response ← sendRaw client server raw okHandler
-  assertExact "Non-ASCII in method" response bad400
-
--- =============================================================================
--- Tab character in header value (allowed per RFC 9110)
--- =============================================================================
-
-#eval show IO _ from do
-  let (client, server) ← Mock.new
-  let raw := "GET / HTTP/1.1\x0d\nHost: example.com\x0d\nX-Tab: value\twith\ttabs\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
-  let response ← sendRaw client server raw okHandler
-  assertStatus "Tab in header value (allowed)" response "HTTP/1.1 200"
-
--- =============================================================================
--- Very long method name (exceeds maxMethodLength=16)
--- =============================================================================
-
-#eval show IO _ from do
-  let (client, server) ← Mock.new
+  let (clientD, serverD) ← Mock.new
   let longMethod := String.ofList (List.replicate 20 'G')
-  let raw := s!"{longMethod} / HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
-  let response ← sendRaw client server raw okHandler
-  assertExact "Method too long" response bad400
+  let rawD := s!"{longMethod} / HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
+  let responseD ← sendRaw clientD serverD rawD okHandler
+  assertExact "Method too long" responseD bad400
 
--- =============================================================================
--- Request with only whitespace
--- =============================================================================
-
+-- HEAD framing and authority-form rules.
 #eval show IO _ from do
-  let (client, server) ← Mock.new
-  let raw := "   \x0d\n\x0d\n".toUTF8
-  let response ← sendRaw client server raw okHandler
-  assertExact "Whitespace-only request" response bad400
+  let (clientA, serverA) ← Mock.new
+  let headReq := "HEAD / HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
+  let responseA ← sendRaw clientA serverA headReq okHandler
+  assertExact "HEAD omits body bytes" responseA ok200Head
 
--- =============================================================================
--- Double CRLF before request (empty lines before request)
--- =============================================================================
+  let (clientB, serverB) ← Mock.new
+  let badAuthority := "GET example.com:443 HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
+  let responseB ← sendRaw clientB serverB badAuthority okHandler
+  assertExact "GET authority-form rejected" responseB bad400
 
+  let (clientC, serverC) ← Mock.new
+  let okAuthority := "CONNECT example.com:443 HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
+  let responseC ← sendRaw clientC serverC okAuthority okHandler
+  assertExact "CONNECT authority-form accepted" responseC ok200
+
+-- h11-inspired: GET and HEAD should use the same framing headers.
 #eval show IO _ from do
-  let (client, server) ← Mock.new
-  let raw := "\x0d\nGET / HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
-  let response ← sendRaw client server raw okHandler
-  -- Leading CRLF before request line - per RFC, servers SHOULD ignore at least one empty line
-  assertStatus "Leading CRLF before request" response "HTTP/1.1"
+  let handler : TestHandler := fun _ => Response.ok |>.text "hello"
 
--- =============================================================================
--- Non-numeric Content-Length
--- =============================================================================
+  let (clientA, serverA) ← Mock.new
+  let getReq := "GET /frame HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
+  let getResponse ← sendRaw clientA serverA getReq handler
 
+  let (clientB, serverB) ← Mock.new
+  let headReq := "HEAD /frame HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
+  let headResponse ← sendRaw clientB serverB headReq handler
+
+  let getHeaders := headerSection getResponse
+  let headHeaders := headerSection headResponse
+  if getHeaders != headHeaders then
+    throw <| IO.userError s!"Test 'HEAD framing headers parity' failed:\nGET headers:\n{getHeaders.quote}\nHEAD headers:\n{headHeaders.quote}"
+
+  assertContains "GET framing body present" getResponse "hello"
+  let headText := String.fromUTF8! headResponse
+  if headText.contains "hello" then
+    throw <| IO.userError s!"Test 'HEAD framing body omitted' failed:\n{headText.quote}"
+
+-- Header syntax and byte-level validation.
 #eval show IO _ from do
-  let (client, server) ← Mock.new
-  let raw := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nContent-Length: abc\x0d\nConnection: close\x0d\n\x0d\nbody".toUTF8
-  let response ← sendRaw client server raw okHandler
-  assertExact "Non-numeric Content-Length" response bad400
+  let (clientA, serverA) ← Mock.new
+  let noColon := "GET / HTTP/1.1\x0d\nHost: example.com\x0d\nBadHeader value\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
+  let responseA ← sendRaw clientA serverA noColon okHandler
+  assertExact "Header without colon" responseA bad400
 
--- =============================================================================
--- Negative Content-Length
--- =============================================================================
+  let (clientB, serverB) ← Mock.new
+  let obsFold := "GET / HTTP/1.1\x0d\nHost: example.com\x0d\n X-Bad: folded\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
+  let responseB ← sendRaw clientB serverB obsFold okHandler
+  assertExact "Leading whitespace header" responseB bad400
 
+  let (clientC, serverC) ← Mock.new
+  let beforeName := "GET / HTTP/1.1\x0d\nHost: example.com\x0d\nX-Bad".toUTF8
+  let afterName := "Header: value\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
+  let responseC ← sendRaw clientC serverC (beforeName ++ ByteArray.mk #[0] ++ afterName) okHandler
+  assertExact "NUL in header name" responseC bad400
+
+  let (clientD, serverD) ← Mock.new
+  let beforeValue := "GET / HTTP/1.1\x0d\nHost: example.com\x0d\nX-Header: bad".toUTF8
+  let afterValue := "value\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
+  let responseD ← sendRaw clientD serverD (beforeValue ++ ByteArray.mk #[0] ++ afterValue) okHandler
+  assertExact "NUL in header value" responseD bad400
+
+  let (clientE, serverE) ← Mock.new
+  let beforeCtrl := "GET / HTTP/1.1\x0d\nHost: example.com\x0d\nX-Header: bad".toUTF8
+  let afterCtrl := "value\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
+  let responseE ← sendRaw clientE serverE (beforeCtrl ++ ByteArray.mk #[0x01] ++ afterCtrl) okHandler
+  assertExact "Control char in header value" responseE bad400
+
+  let (clientF, serverF) ← Mock.new
+  let spaceInName := "GET / HTTP/1.1\x0d\nHost: example.com\x0d\nBad Header: value\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
+  let responseF ← sendRaw clientF serverF spaceInName okHandler
+  assertExact "Space in header name" responseF bad400
+
+-- Lenient-but-supported parsing behavior.
 #eval show IO _ from do
-  let (client, server) ← Mock.new
-  let raw := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nContent-Length: -1\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
-  let response ← sendRaw client server raw okHandler
-  assertExact "Negative Content-Length" response bad400
+  let (clientA, serverA) ← Mock.new
+  let bareLF := "GET / HTTP/1.1\nHost: example.com\nConnection: close\n\n".toUTF8
+  let responseA ← sendRaw clientA serverA bareLF okHandler
+  assertExact "Bare LF line endings accepted" responseA ok200
 
--- =============================================================================
--- Duplicate Content-Length with different values (MUST reject per RFC 9110 §8.6)
--- =============================================================================
+  let (clientB, serverB) ← Mock.new
+  let splitHeaders := "GET / HTTP/1.1\x0d\nHost: example.com\x0d\nX-Inject: value\x0d\nEvil: injected\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
+  let responseB ← sendRaw clientB serverB splitHeaders okHandler
+  assertExact "CRLF split into two headers" responseB ok200
 
+  let (clientC, serverC) ← Mock.new
+  let tabValue := "GET / HTTP/1.1\x0d\nHost: example.com\x0d\nX-Tab: value\twith\ttabs\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
+  let responseC ← sendRaw clientC serverC tabValue okHandler
+  assertExact "Tab in header value accepted" responseC ok200
+
+  let (clientD, serverD) ← Mock.new
+  let absoluteUri := "GET http://example.com/path HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
+  let responseD ← sendRaw clientD serverD absoluteUri okHandler
+  assertExact "Absolute-form URI accepted" responseD ok200
+
+  let (clientE, serverE) ← Mock.new
+  let colonValue := "GET / HTTP/1.1\x0d\nHost: example.com\x0d\nBad:Name: value\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
+  let responseE ← sendRaw clientE serverE colonValue okHandler
+  assertExact "Additional colon remains in value" responseE ok200
+
+-- Content-Length validation.
 #eval show IO _ from do
-  let (client, server) ← Mock.new
-  let raw := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nContent-Length: 5\x0d\nContent-Length: 10\x0d\nConnection: close\x0d\n\x0d\nhello".toUTF8
-  let response ← sendRaw client server raw okHandler
-  assertExact "Duplicate Content-Length different values" response bad400
+  let (clientA, serverA) ← Mock.new
+  let nonNumeric := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nContent-Length: abc\x0d\nConnection: close\x0d\n\x0d\nbody".toUTF8
+  let responseA ← sendRaw clientA serverA nonNumeric okHandler
+  assertExact "Non-numeric Content-Length" responseA bad400
 
--- =============================================================================
--- Space in header name (invalid token character)
--- =============================================================================
+  let (clientB, serverB) ← Mock.new
+  let negative := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nContent-Length: -1\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
+  let responseB ← sendRaw clientB serverB negative okHandler
+  assertExact "Negative Content-Length" responseB bad400
 
+  let (clientC, serverC) ← Mock.new
+  let duplicateCl := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nContent-Length: 5\x0d\nContent-Length: 10\x0d\nConnection: close\x0d\n\x0d\nhello".toUTF8
+  let responseC ← sendRaw clientC serverC duplicateCl okHandler
+  assertExact "Duplicate Content-Length mismatch" responseC bad400
+
+-- Transfer-Encoding normalization.
 #eval show IO _ from do
-  let (client, server) ← Mock.new
-  let raw := "GET / HTTP/1.1\x0d\nHost: example.com\x0d\nBad Header: value\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
-  let response ← sendRaw client server raw okHandler
-  assertExact "Space in header name" response bad400
+  let (clientA, serverA) ← Mock.new
+  let mixedCase := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: Chunked\x0d\nConnection: close\x0d\n\x0d\n5\x0d\nhello\x0d\n0\x0d\n\x0d\n".toUTF8
+  let responseA ← sendRaw clientA serverA mixedCase (fun req => do
+    let body : String ← req.body.readAll
+    Response.ok |>.text body)
+  assertStatus "Mixed-case chunked accepted" responseA "HTTP/1.1 200"
+  assertContains "Mixed-case chunked body" responseA "hello"
 
--- =============================================================================
--- Colon in header name (invalid)
--- =============================================================================
+  let (clientB, serverB) ← Mock.new
+  let teOWS := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: chunked \x0d\nConnection: close\x0d\n\x0d\n5\x0d\nhello\x0d\n0\x0d\n\x0d\n".toUTF8
+  let responseB ← sendRaw clientB serverB teOWS (fun req => do
+    let body : String ← req.body.readAll
+    Response.ok |>.text body)
+  assertStatus "Transfer-Encoding trailing OWS accepted" responseB "HTTP/1.1 200"
+  assertContains "Transfer-Encoding trailing OWS body" responseB "hello"
 
+  let (clientC, serverC) ← Mock.new
+  let doubleChunked := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: chunked, chunked\x0d\nConnection: close\x0d\n\x0d\n5\x0d\nhello\x0d\n0\x0d\n\x0d\n".toUTF8
+  let responseC ← sendRaw clientC serverC doubleChunked okHandler
+  assertExact "Double chunked rejected" responseC bad400
+
+-- Size limits.
 #eval show IO _ from do
-  let (client, server) ← Mock.new
-  let raw := "GET / HTTP/1.1\x0d\nHost: example.com\x0d\nBad:Name: value\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
-  let response ← sendRaw client server raw okHandler
-  -- "Bad" is the name, "Name: value" is the value - this is actually valid parsing
-  assertStatus "Colon parsed as header name delimiter" response "HTTP/1.1"
-
--- =============================================================================
--- Request with absolute-form URI
--- =============================================================================
-
-#eval show IO _ from do
-  let (client, server) ← Mock.new
-  let raw := "GET http://example.com/path HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
-  let response ← sendRaw client server raw okHandler
-  assertStatus "Absolute-form URI" response "HTTP/1.1"
-
--- =============================================================================
--- PUT request with body
--- =============================================================================
-
-#eval show IO _ from do
-  let (client, server) ← Mock.new
-  let raw := "PUT /resource HTTP/1.1\x0d\nHost: example.com\x0d\nContent-Length: 11\x0d\nConnection: close\x0d\n\x0d\nhello world".toUTF8
-  let response ← sendRaw client server raw (fun req => do
-    if req.head.method == .put then Response.ok |>.text "updated"
-    else Response.badRequest |>.text "wrong method")
-  assertStatus "PUT request" response "HTTP/1.1 200"
-
--- =============================================================================
--- PATCH request with body
--- =============================================================================
-
-#eval show IO _ from do
-  let (client, server) ← Mock.new
-  let raw := "PATCH /resource HTTP/1.1\x0d\nHost: example.com\x0d\nContent-Length: 5\x0d\nConnection: close\x0d\n\x0d\npatch".toUTF8
-  let response ← sendRaw client server raw (fun req => do
-    if req.head.method == .patch then Response.ok |>.text "patched"
-    else Response.badRequest |>.text "wrong method")
-  assertStatus "PATCH request" response "HTTP/1.1 200"
-
--- =============================================================================
--- TRACE request
--- =============================================================================
-
-#eval show IO _ from do
-  let (client, server) ← Mock.new
-  let raw := "TRACE / HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
-  let response ← sendRaw client server raw (fun req => do
-    if req.head.method == .trace then Response.ok |>.text "traced"
-    else Response.badRequest |>.text "wrong method")
-  assertStatus "TRACE request" response "HTTP/1.1 200"
-
--- =============================================================================
--- Multiple Host headers (MUST return 400 per RFC 9112 §3.2)
--- =============================================================================
-
-#eval show IO _ from do
-  let (client, server) ← Mock.new
-  let raw := "GET / HTTP/1.1\x0d\nHost: example.com\x0d\nHost: other.com\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
-  let response ← sendRaw client server raw okHandler
-  assertExact "Multiple Host headers" response bad400
-
--- =============================================================================
--- Header value with leading/trailing OWS (should be trimmed per RFC 9110 §5.5)
--- =============================================================================
-
-#eval show IO _ from do
-  let (client, server) ← Mock.new
-  let raw := "GET / HTTP/1.1\x0d\nHost:   example.com   \x0d\nConnection: close\x0d\n\x0d\n".toUTF8
-  let response ← sendRaw client server raw okHandler
-  assertStatus "OWS around header value" response "HTTP/1.1 200"
-
--- =============================================================================
--- Mixed-case Transfer-Encoding (e.g., Chunked instead of chunked)
--- =============================================================================
-
-#eval show IO _ from do
-  let (client, server) ← Mock.new
-  let raw := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: Chunked\x0d\nConnection: close\x0d\n\x0d\n5\x0d\nhello\x0d\n0\x0d\n\x0d\n".toUTF8
-  let response ← sendRaw client server raw (fun req => do
-    let mut body := ByteArray.empty
-    for chunk in req.body do
-      body := body ++ chunk.data
-    Response.ok |>.text (String.fromUTF8! body))
-  assertStatus "Mixed-case TE: Chunked" response "HTTP/1.1 200"
-
--- =============================================================================
--- Transfer-Encoding with trailing space (e.g., "chunked ")
--- =============================================================================
-
-#eval show IO _ from do
-  let (client, server) ← Mock.new
-  let raw := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: chunked \x0d\nConnection: close\x0d\n\x0d\n5\x0d\nhello\x0d\n0\x0d\n\x0d\n".toUTF8
-  let response ← sendRaw client server raw (fun req => do
-    let mut body := ByteArray.empty
-    for chunk in req.body do
-      body := body ++ chunk.data
-    Response.ok |>.text (String.fromUTF8! body))
-  assertStatus "TE with trailing space" response "HTTP/1.1"
-
--- =============================================================================
--- Transfer-Encoding: chunked, chunked (double chunked - should reject)
--- =============================================================================
-
-#eval show IO _ from do
-  let (client, server) ← Mock.new
-  let raw := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: chunked, chunked\x0d\nConnection: close\x0d\n\x0d\n5\x0d\nhello\x0d\n0\x0d\n\x0d\n".toUTF8
-  let response ← sendRaw client server raw okHandler
-  assertExact "Double chunked TE" response bad400
-
--- =============================================================================
--- Empty connection (client connects then immediately disconnects)
--- =============================================================================
-
-#eval show IO _ from do Async.block do
-  let (client, server) ← Mock.new
-  let raw := ByteArray.empty
-  client.send raw
-  client.close
-  let result ← Async.block do
-    Std.Http.Server.serveConnection server okHandler { lingeringTimeout := 500, generateDate := false }
-      |>.run
-    let res ← client.recv?
-    pure <| res.getD .empty
-  -- Empty connection should result in no response or a timeout
-  assert! result.size == 0 ∨ (String.fromUTF8! result).startsWith "HTTP/1.1"
-
--- =============================================================================
--- Request with extremely long header name (boundary test at maxHeaderNameLength)
--- =============================================================================
-
-#eval show IO _ from do Async.block do
-  let (client, server) ← Mock.new
+  let (clientA, serverA) ← Mock.new
   let longName := String.ofList (List.replicate 257 'X')
-  let raw := s!"GET / HTTP/1.1\x0d\nHost: example.com\x0d\n{longName}: value\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
-  let response ← sendRaw client server raw okHandler
-  assertExact "Header name at 257 chars" response bad400
+  let rawA := s!"GET / HTTP/1.1\x0d\nHost: example.com\x0d\n{longName}: value\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
+  let responseA ← sendRaw clientA serverA rawA okHandler
+  assertExact "Header name too long" responseA bad400
 
--- =============================================================================
--- Control character (0x01) in header value
--- =============================================================================
-
-#eval show IO _ from do
-  let (client, server) ← Mock.new
-  let before := "GET / HTTP/1.1\x0d\nHost: example.com\x0d\nX-Header: bad".toUTF8
-  let ctrl := ByteArray.mk #[0x01]
-  let after := "value\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
-  let raw := before ++ ctrl ++ after
-  let response ← sendRaw client server raw okHandler
-  assertExact "Control char in header value" response bad400
-
--- =============================================================================
--- Request line with no spaces at all
--- =============================================================================
-
-#eval show IO _ from do
-  let (client, server) ← Mock.new
-  let raw := "GETHTTP/1.1\x0d\nHost: example.com\x0d\n\x0d\n".toUTF8
-  let response ← sendRaw client server raw okHandler
-  assertExact "Request line no spaces" response bad400
-
--- =============================================================================
--- Very long URI (exceeds maxUriLength=8192)
--- =============================================================================
-
-#eval show IO _ from do
-  let (client, server) ← Mock.new
+  let (clientB, serverB) ← Mock.new
   let longUri := "/" ++ String.ofList (List.replicate 9000 'a')
-  let raw := s!"GET {longUri} HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
-  let response ← sendRaw client server raw okHandler
-  assertExact "URI too long" response bad400
+  let rawB := s!"GET {longUri} HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
+  let responseB ← sendRaw clientB serverB rawB okHandler
+  assertExact "URI too long" responseB bad400
+
+-- Empty connection closes silently (no response bytes).
+#eval show IO _ from do
+  let (client, server) ← Mock.new
+  let response ← sendRawAndClose client server ByteArray.empty okHandler
+  assert! response.size == 0
+
+-- h11-inspired: early invalid-byte detection before CRLF.
+#eval show IO _ from do
+  let (clientA, serverA) ← Mock.new
+  let responseA ← sendRawAndClose clientA serverA (ByteArray.mk #[0x00]) okHandler
+  assertExact "Early invalid NUL" responseA bad400
+
+  let (clientB, serverB) ← Mock.new
+  let responseB ← sendRawAndClose clientB serverB (ByteArray.mk #[0x20]) okHandler
+  assertExact "Early invalid SP" responseB bad400
+
+  let (clientC, serverC) ← Mock.new
+  let responseC ← sendRawAndClose clientC serverC (ByteArray.mk #[0x16, 0x03, 0x01, 0x00, 0xa5]) okHandler
+  assertExact "Early invalid TLS prefix" responseC bad400

@@ -31,7 +31,8 @@ namespace BVExpr
 namespace bitblast
 
 /-- We extract a single bit in position `start` and extend it to have width `w`-/
-def blastExtractAndExtendBit (aig : AIG α) (x : AIG.RefVec aig w) (start : Nat) : AIG.RefVecEntry α w :=
+def blastExtractAndExtendBit (aig : AIG α) (x : AIG.RefVec aig w) (start : Nat) :
+    AIG.RefVecEntry α w :=
   -- extract 1 bit starting from start
   let res := blastExtract aig ⟨x, start⟩
   let aig := res.aig
@@ -111,8 +112,8 @@ theorem extractAndExtend_decl_eq (aig : AIG α) (idx' : Nat) (x : AIG.RefVec aig
 /-- Given a vector of references belonging to the same AIG `oldParSum`,
   we create a node to add the `curr`-th couple of elements and push the add node to `newParSum` -/
 def blastCpopLayer (aig : AIG α) (iterNum : Nat)
-  (oldLayer : AIG.RefVec aig (len * w)) (newLayer : AIG.RefVec aig (iterNum * w))
-  (hold : 2 * (iterNum - 1) < len) : AIG.RefVecEntry α ((len + 1)/2 * w) :=
+    (oldLayer : AIG.RefVec aig (len * w)) (newLayer : AIG.RefVec aig (iterNum * w))
+    (hold : 2 * (iterNum - 1) < len) : AIG.RefVecEntry α ((len + 1)/2 * w) :=
   if  hlen : 0 < len - (iterNum * 2) then
     -- lhs
     let res := blastExtract aig ⟨oldLayer, 2 * iterNum * w⟩
@@ -230,12 +231,11 @@ def blastCpop (aig : AIG α) (x : AIG.RefVec aig w) : AIG.RefVecEntry α w :=
     have := extractAndExtend_le_size
     let x := x.cast (aig2 := res.aig) (by apply this)
     blastCpopTree aig extendedBits (by omega)
-  else
-    if hw' : 0 < w then
+  else if hw' : 0 < w then
       ⟨aig, x⟩
-    else
-      let zero := blastConst aig (w := w) 0
-      ⟨aig, zero⟩
+  else
+    let zero := blastConst aig (w := w) 0
+    ⟨aig, zero⟩
 
 theorem blastCpop_le_size (aig : AIG α) (input : AIG.RefVec aig w) :
     aig.decls.size ≤ (blastCpop aig input).aig.decls.size := by

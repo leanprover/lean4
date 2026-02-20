@@ -145,7 +145,7 @@ def bad400 : String :=
 
 #eval show IO _ from do
   let (client, server) ← Mock.new
-  let config : Config := { lingeringTimeout := 3000, maxTrailerHeaders := 3, generateDate := false }
+  let config : Config := { lingeringTimeout := 3000, maxTrailerHeaders := 2, generateDate := false }
   let trailers := "T1: v1\x0d\nT2: v2\x0d\nT3: v3\x0d\n"
   let raw := s!"POST / HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: chunked\x0d\nConnection: close\x0d\n\x0d\n3\x0d\nabc\x0d\n0\x0d\n{trailers}\x0d\n".toUTF8
   let response ← sendRaw client server raw bodyHandler (config := config)
@@ -336,7 +336,7 @@ def bad400 : String :=
 
 #eval show IO _ from do
   let (client, server) ← Mock.new
-  let config : Config := { lingeringTimeout := 3000, maxTrailerHeaders := 5, maxHeaderValueLength := 50, generateDate := false }
+  let config : Config := { lingeringTimeout := 3000, maxTrailerHeaders :=4, maxHeaderValueLength := 50, generateDate := false }
   -- 5 trailers with values near the limit
   let longVal := String.ofList (List.replicate 50 'z')
   let trailers := s!"T1: {longVal}\x0d\nT2: {longVal}\x0d\nT3: {longVal}\x0d\nT4: {longVal}\x0d\nT5: {longVal}\x0d\n"

@@ -283,12 +283,11 @@ structure InductiveVal extends ConstantVal where
   numNested : Nat
   isRec : Bool
   isUnsafe : Bool
-  isReflexive : Bool
 */
 class inductive_val : public object_ref {
 public:
     inductive_val(name const & n, names const & lparams, expr const & type, unsigned nparams,
-                  unsigned nindices, names const & all, names const & cnstrs, unsigned nnested, bool is_rec, bool is_unsafe, bool is_reflexive);
+                  unsigned nindices, names const & all, names const & cnstrs, unsigned nnested, bool is_rec, bool is_unsafe);
     inductive_val(inductive_val const & other):object_ref(other) {}
     inductive_val(inductive_val && other) noexcept:object_ref(std::move(other)) {}
     inductive_val & operator=(inductive_val const & other) { object_ref::operator=(other); return *this; }
@@ -302,7 +301,6 @@ public:
     unsigned get_nnested() const { return static_cast<nat const &>(cnstr_get_ref(*this, 5)).get_small_value(); }
     bool is_rec() const;
     bool is_unsafe() const;
-    bool is_reflexive() const;
 };
 
 /*

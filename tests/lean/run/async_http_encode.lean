@@ -111,7 +111,7 @@ info: "500 Internal Server Error"
 #eval encodeStr Status.internalServerError
 
 /--
-info: "999 999"
+info: "999 Unknown"
 -/
 #guard_msgs in
 #eval encodeStr (Status.other 999)

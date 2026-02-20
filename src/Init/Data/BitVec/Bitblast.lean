@@ -2454,8 +2454,10 @@ def cpopRec (x : BitVec w) : BitVec w :=
     let extendedBits := x.extractAndExtend w
     (cpopTree extendedBits).cast (by simp)
   else
-    if hw' : 0 < w then x
-    else 0#w
+    if hw' : 0 < w then
+      x
+    else
+      0#w
 
 /-- Recursive addition of the elements in a flattened bitvec, starting from the `rem`-th element. -/
 private def addRecAux (x : BitVec (l * w)) (rem : Nat) (acc : BitVec w) : BitVec w :=
@@ -2467,7 +2469,7 @@ private def addRecAux (x : BitVec (l * w)) (rem : Nat) (acc : BitVec w) : BitVec
 private def addRec (x : BitVec (l * w)) : BitVec w := addRecAux x l 0#w
 
 theorem getLsbD_extractAndExtendBit {x : BitVec w} :
-    (extractAndExtendBit k len x).getLsbD i = (decide (i = 0) && (0 < len) && x.getLsbD k) := by
+    (extractAndExtendBit k len x).getLsbD i = (decide (i = 0) && decide (0 < len) && x.getLsbD k) := by
   simp [extractAndExtendBit]
   by_cases hi : i = 0
   <;> simp [hi]

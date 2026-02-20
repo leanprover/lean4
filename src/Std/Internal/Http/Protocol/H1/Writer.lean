@@ -115,6 +115,13 @@ structure Writer (dir : Direction) where
   -/
   userClosedBody : Bool := false
 
+  /--
+  When `true`, body bytes are intentionally omitted from the wire for this message
+  (e.g. HEAD responses), while headers/framing metadata may still describe the
+  hypothetical representation.
+  -/
+  omitBody : Bool := false
+
 namespace Writer
 
 /--

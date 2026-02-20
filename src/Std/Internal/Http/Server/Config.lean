@@ -102,7 +102,7 @@ structure Config where
   /--
   Maximum number of spaces in delimiter sequences (default: 256)
   -/
-  maxSpaceSequence : Nat := 256
+  maxSpaceSequence : Nat := 16
 
   /--
   Maximum length of chunk extension name (default: 256 bytes)

@@ -2533,14 +2533,13 @@ theorem extractLsb'_cpopLayer {w iterNum i oldLen : Nat} {oldLayer : BitVec (old
       have : iterNum * w ≤ i * w := by refine mul_le_mul_right w (by omega)
       have : oldLen * w ≤ (2 * i) * w := by refine mul_le_mul_right w (by omega)
       have : oldLen * w ≤ (2 * i + 1) * w := by refine mul_le_mul_right w (by omega)
-      simp [show iterNum * w ≤ i * w + j by omega]
       have hz : extractLsb' (2 * i * w) w oldLayer = 0#w := by
         ext j hj
         simp [show oldLen * w ≤ 2 * i * w + j by omega]
       have hz' : extractLsb' ((2 * i + 1) * w) w oldLayer = 0#w := by
         ext j hj
         simp [show oldLen * w ≤ (2 * i + 1) * w + j by omega]
-      simp [hz, hz']
+      simp [show iterNum * w ≤ i * w + j by omega, hz, hz']
   · generalize hop1 : oldLayer.extractLsb' ((2 * iterNum) * w) w = op1
     generalize hop2 : oldLayer.extractLsb' ((2 * iterNum + 1) * w) w = op2
     have hcast : w + iterNum * w = (iterNum + 1) * w := by simp [Nat.add_mul]; omega
@@ -2722,7 +2721,7 @@ theorem getLsbD_extractAndExtend {x : BitVec w} (hv : 0 < v) :
   rw [← getLsbD_extractAndExtend_of_lt (by exact mod_lt k hv)]
   congr
   by_cases hmod : k % v = 0
-  · simp [hmod]
+  · simp only [hmod, Nat.sub_zero, Nat.add_zero]
     rw [Nat.div_mul_cancel (by omega)]
   · rw [← Nat.div_eq_sub_mod_div]
     exact Eq.symm (div_add_mod' k v)

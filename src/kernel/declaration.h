@@ -380,6 +380,7 @@ public:
     recursor_rules const & get_rules() const { return static_cast<recursor_rules const &>(cnstr_get_ref(*this, 6)); }
     bool is_k() const;
     bool is_unsafe() const;
+    bool has_sort_poly_motive() const;
 };
 
 enum class quot_kind { Type, Mk, Lift, Ind };

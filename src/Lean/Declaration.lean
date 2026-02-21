@@ -401,6 +401,16 @@ where
   | 0, e => e.bindingDomain!.getAppFn.constName!
   | n+1, e => go n e.bindingBody!
 
+/-- Returns true if the recursor's motive is of the form `A1 -> An -> Sort u` and \c u is non-zero,
+ * i.e the inductive type either does not live in Prop or is a syntactic subsingleton
+ * TODO this if already computed once when generating the recursor, and should ideally be stored in the RecursorVal instead of re-computed at call-site. -/
+def RecursorVal.hasSortPolyMotive (v : RecursorVal) : Bool :=
+  go v.numParams v.type
+where
+  go
+  | 0, e => !e.bindingDomain!.getForallBody.sortLevel!.isZero
+  | n+1, e => go n e.bindingBody!
+
 inductive QuotKind where
   | type  -- `Quot`
   | ctor  -- `Quot.mk`

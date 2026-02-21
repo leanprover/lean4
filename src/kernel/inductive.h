@@ -60,14 +60,15 @@ expr expand_eta_struct(environment const & env, expr const & e_type, expr const 
 /* If `e` is not a constructor application and its type `C ...` is a structure, return `C.mk e.1 ... e.n`,
    where `C.mk` is `C`s constructor. */
 template<typename WHNF, typename INFER>
-inline expr to_cnstr_when_structure(environment const & env, name const & induct_name, expr const & e,
+inline expr to_cnstr_when_structure(environment const & env, const lean::recursor_val &rec_val, expr const & e,
                                     WHNF const & whnf, INFER const & infer_type) {
+    name const & induct_name = rec_val.get_major_induct();
     if (!is_structure_like(env, induct_name) || is_constructor_app(env, e))
         return e;
     expr e_type = whnf(infer_type(e));
-    if (!is_constant(get_app_fn(e_type), induct_name))
+    if (!is_constant(get_app_fn(e_type), induct_name))  // Why is this check done ? if we're reducing, we already know the recursor expression to be type-correct, checking it again here should be not useful
         return e;
-    if (whnf(infer_type(e_type)) == mk_Prop())
+    if (!rec_val.has_sort_poly_motive())
         return e;
     return expand_eta_struct(env, e_type, e);
 }
@@ -94,7 +95,7 @@ inline optional<expr> inductive_reduce_rec(environment const & env, expr const &
     else if (is_string_lit(major))
         major = whnf(string_lit_to_constructor(major));
     else
-        major = to_cnstr_when_structure(env, rec_val.get_major_induct(), major, whnf, infer_type);
+        major = to_cnstr_when_structure(env, rec_val, major, whnf, infer_type);
     optional<recursor_rule> rule = get_rec_rule_for(rec_val, major);
     if (!rule) return none_expr();
     buffer<expr> major_args;

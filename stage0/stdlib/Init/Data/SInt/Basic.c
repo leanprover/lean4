@@ -38,6 +38,7 @@ LEAN_EXPORT lean_object* l_Int8_ofBitVec___boxed(lean_object*);
 uint8_t lean_int8_neg(uint8_t);
 LEAN_EXPORT lean_object* l_Int8_neg___boxed(lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
+static lean_once_cell_t l_instToStringInt8___lam__0___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_instToStringInt8___lam__0___closed__0;
 static const lean_string_object l_instToStringInt8___lam__0___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 2, .m_capacity = 2, .m_length = 1, .m_data = "-"};
 static const lean_object* l_instToStringInt8___lam__0___closed__1 = (const lean_object*)&l_instToStringInt8___lam__0___closed__1_value;
@@ -69,16 +70,21 @@ LEAN_EXPORT lean_object* l_Int8_instOfNat___boxed(lean_object*);
 static const lean_closure_object l_Int8_instNeg___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Int8_neg___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_Int8_instNeg___closed__0 = (const lean_object*)&l_Int8_instNeg___closed__0_value;
 LEAN_EXPORT const lean_object* l_Int8_instNeg = (const lean_object*)&l_Int8_instNeg___closed__0_value;
+static lean_once_cell_t l_Int8_maxValue___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static uint8_t l_Int8_maxValue___closed__0;
 LEAN_EXPORT uint8_t l_Int8_maxValue;
+static lean_once_cell_t l_Int8_minValue___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static uint8_t l_Int8_minValue___closed__0;
+static lean_once_cell_t l_Int8_minValue___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static uint8_t l_Int8_minValue___closed__1;
 LEAN_EXPORT uint8_t l_Int8_minValue;
 LEAN_EXPORT uint8_t l_Int8_ofIntLE___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Int8_ofIntLE___redArg___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Int8_ofIntLE(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int8_ofIntLE___boxed(lean_object*, lean_object*, lean_object*);
+static lean_once_cell_t l_Int8_ofIntTruncate___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Int8_ofIntTruncate___closed__0;
+static lean_once_cell_t l_Int8_ofIntTruncate___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Int8_ofIntTruncate___closed__1;
 uint8_t lean_int_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Int8_ofIntTruncate(lean_object*);
@@ -91,6 +97,7 @@ uint8_t lean_int8_mul(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Int8_mul___boxed(lean_object*, lean_object*);
 uint8_t lean_int8_div(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Int8_div___boxed(lean_object*, lean_object*);
+static lean_once_cell_t l_Int8_pow___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static uint8_t l_Int8_pow___closed__0;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Int8_pow(uint8_t, lean_object*);
@@ -113,6 +120,7 @@ uint8_t lean_int8_abs(uint8_t);
 LEAN_EXPORT lean_object* l_Int8_abs___boxed(lean_object*);
 uint8_t lean_int8_dec_eq(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Int8_decEq___boxed(lean_object*, lean_object*);
+static lean_once_cell_t l_instInhabitedInt8___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static uint8_t l_instInhabitedInt8___closed__0;
 LEAN_EXPORT uint8_t l_instInhabitedInt8;
 static const lean_closure_object l_instAddInt8___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Int8_add___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
@@ -218,16 +226,21 @@ LEAN_EXPORT lean_object* l_Int16_instOfNat___boxed(lean_object*);
 static const lean_closure_object l_Int16_instNeg___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Int16_neg___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_Int16_instNeg___closed__0 = (const lean_object*)&l_Int16_instNeg___closed__0_value;
 LEAN_EXPORT const lean_object* l_Int16_instNeg = (const lean_object*)&l_Int16_instNeg___closed__0_value;
+static lean_once_cell_t l_Int16_maxValue___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static uint16_t l_Int16_maxValue___closed__0;
 LEAN_EXPORT uint16_t l_Int16_maxValue;
+static lean_once_cell_t l_Int16_minValue___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static uint16_t l_Int16_minValue___closed__0;
+static lean_once_cell_t l_Int16_minValue___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static uint16_t l_Int16_minValue___closed__1;
 LEAN_EXPORT uint16_t l_Int16_minValue;
 LEAN_EXPORT uint16_t l_Int16_ofIntLE___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Int16_ofIntLE___redArg___boxed(lean_object*);
 LEAN_EXPORT uint16_t l_Int16_ofIntLE(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int16_ofIntLE___boxed(lean_object*, lean_object*, lean_object*);
+static lean_once_cell_t l_Int16_ofIntTruncate___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Int16_ofIntTruncate___closed__0;
+static lean_once_cell_t l_Int16_ofIntTruncate___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Int16_ofIntTruncate___closed__1;
 LEAN_EXPORT uint16_t l_Int16_ofIntTruncate(lean_object*);
 LEAN_EXPORT lean_object* l_Int16_ofIntTruncate___boxed(lean_object*);
@@ -239,6 +252,7 @@ uint16_t lean_int16_mul(uint16_t, uint16_t);
 LEAN_EXPORT lean_object* l_Int16_mul___boxed(lean_object*, lean_object*);
 uint16_t lean_int16_div(uint16_t, uint16_t);
 LEAN_EXPORT lean_object* l_Int16_div___boxed(lean_object*, lean_object*);
+static lean_once_cell_t l_Int16_pow___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static uint16_t l_Int16_pow___closed__0;
 LEAN_EXPORT uint16_t l_Int16_pow(uint16_t, lean_object*);
 LEAN_EXPORT lean_object* l_Int16_pow___boxed(lean_object*, lean_object*);
@@ -260,6 +274,7 @@ uint16_t lean_int16_abs(uint16_t);
 LEAN_EXPORT lean_object* l_Int16_abs___boxed(lean_object*);
 uint8_t lean_int16_dec_eq(uint16_t, uint16_t);
 LEAN_EXPORT lean_object* l_Int16_decEq___boxed(lean_object*, lean_object*);
+static lean_once_cell_t l_instInhabitedInt16___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static uint16_t l_instInhabitedInt16___closed__0;
 LEAN_EXPORT uint16_t l_instInhabitedInt16;
 static const lean_closure_object l_instAddInt16___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Int16_add___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
@@ -369,16 +384,21 @@ LEAN_EXPORT lean_object* l_Int32_instOfNat___boxed(lean_object*);
 static const lean_closure_object l_Int32_instNeg___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Int32_neg___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_Int32_instNeg___closed__0 = (const lean_object*)&l_Int32_instNeg___closed__0_value;
 LEAN_EXPORT const lean_object* l_Int32_instNeg = (const lean_object*)&l_Int32_instNeg___closed__0_value;
+static lean_once_cell_t l_Int32_maxValue___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static uint32_t l_Int32_maxValue___closed__0;
 LEAN_EXPORT uint32_t l_Int32_maxValue;
+static lean_once_cell_t l_Int32_minValue___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static uint32_t l_Int32_minValue___closed__0;
+static lean_once_cell_t l_Int32_minValue___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static uint32_t l_Int32_minValue___closed__1;
 LEAN_EXPORT uint32_t l_Int32_minValue;
 LEAN_EXPORT uint32_t l_Int32_ofIntLE___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Int32_ofIntLE___redArg___boxed(lean_object*);
 LEAN_EXPORT uint32_t l_Int32_ofIntLE(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int32_ofIntLE___boxed(lean_object*, lean_object*, lean_object*);
+static lean_once_cell_t l_Int32_ofIntTruncate___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Int32_ofIntTruncate___closed__0;
+static lean_once_cell_t l_Int32_ofIntTruncate___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Int32_ofIntTruncate___closed__1;
 LEAN_EXPORT uint32_t l_Int32_ofIntTruncate(lean_object*);
 LEAN_EXPORT lean_object* l_Int32_ofIntTruncate___boxed(lean_object*);
@@ -390,6 +410,7 @@ uint32_t lean_int32_mul(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l_Int32_mul___boxed(lean_object*, lean_object*);
 uint32_t lean_int32_div(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l_Int32_div___boxed(lean_object*, lean_object*);
+static lean_once_cell_t l_Int32_pow___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static uint32_t l_Int32_pow___closed__0;
 LEAN_EXPORT uint32_t l_Int32_pow(uint32_t, lean_object*);
 LEAN_EXPORT lean_object* l_Int32_pow___boxed(lean_object*, lean_object*);
@@ -411,6 +432,7 @@ uint32_t lean_int32_abs(uint32_t);
 LEAN_EXPORT lean_object* l_Int32_abs___boxed(lean_object*);
 uint8_t lean_int32_dec_eq(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l_Int32_decEq___boxed(lean_object*, lean_object*);
+static lean_once_cell_t l_instInhabitedInt32___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static uint32_t l_instInhabitedInt32___closed__0;
 LEAN_EXPORT uint32_t l_instInhabitedInt32;
 static const lean_closure_object l_instAddInt32___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Int32_add___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
@@ -469,6 +491,7 @@ LEAN_EXPORT lean_object* l_instMinInt32___lam__0___boxed(lean_object*, lean_obje
 static const lean_closure_object l_instMinInt32___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_instMinInt32___lam__0___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_instMinInt32___closed__0 = (const lean_object*)&l_instMinInt32___closed__0_value;
 LEAN_EXPORT const lean_object* l_instMinInt32 = (const lean_object*)&l_instMinInt32___closed__0_value;
+static lean_once_cell_t l_Int64_size___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Int64_size___closed__0;
 LEAN_EXPORT lean_object* l_Int64_size;
 lean_object* lean_uint64_to_nat(uint64_t);
@@ -526,17 +549,23 @@ LEAN_EXPORT lean_object* l_Int64_instOfNat___boxed(lean_object*);
 static const lean_closure_object l_Int64_instNeg___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Int64_neg___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_Int64_instNeg___closed__0 = (const lean_object*)&l_Int64_instNeg___closed__0_value;
 LEAN_EXPORT const lean_object* l_Int64_instNeg = (const lean_object*)&l_Int64_instNeg___closed__0_value;
+static lean_once_cell_t l_Int64_maxValue___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static uint64_t l_Int64_maxValue___closed__0;
 LEAN_EXPORT uint64_t l_Int64_maxValue;
+static lean_once_cell_t l_Int64_minValue___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Int64_minValue___closed__0;
+static lean_once_cell_t l_Int64_minValue___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static uint64_t l_Int64_minValue___closed__1;
+static lean_once_cell_t l_Int64_minValue___closed__2_once = LEAN_ONCE_CELL_INITIALIZER;
 static uint64_t l_Int64_minValue___closed__2;
 LEAN_EXPORT uint64_t l_Int64_minValue;
 LEAN_EXPORT uint64_t l_Int64_ofIntLE___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Int64_ofIntLE___redArg___boxed(lean_object*);
 LEAN_EXPORT uint64_t l_Int64_ofIntLE(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int64_ofIntLE___boxed(lean_object*, lean_object*, lean_object*);
+static lean_once_cell_t l_Int64_ofIntTruncate___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Int64_ofIntTruncate___closed__0;
+static lean_once_cell_t l_Int64_ofIntTruncate___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Int64_ofIntTruncate___closed__1;
 LEAN_EXPORT uint64_t l_Int64_ofIntTruncate(lean_object*);
 LEAN_EXPORT lean_object* l_Int64_ofIntTruncate___boxed(lean_object*);
@@ -548,6 +577,7 @@ uint64_t lean_int64_mul(uint64_t, uint64_t);
 LEAN_EXPORT lean_object* l_Int64_mul___boxed(lean_object*, lean_object*);
 uint64_t lean_int64_div(uint64_t, uint64_t);
 LEAN_EXPORT lean_object* l_Int64_div___boxed(lean_object*, lean_object*);
+static lean_once_cell_t l_Int64_pow___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static uint64_t l_Int64_pow___closed__0;
 LEAN_EXPORT uint64_t l_Int64_pow(uint64_t, lean_object*);
 LEAN_EXPORT lean_object* l_Int64_pow___boxed(lean_object*, lean_object*);
@@ -569,6 +599,7 @@ uint64_t lean_int64_abs(uint64_t);
 LEAN_EXPORT lean_object* l_Int64_abs___boxed(lean_object*);
 uint8_t lean_int64_dec_eq(uint64_t, uint64_t);
 LEAN_EXPORT lean_object* l_Int64_decEq___boxed(lean_object*, lean_object*);
+static lean_once_cell_t l_instInhabitedInt64___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static uint64_t l_instInhabitedInt64___closed__0;
 LEAN_EXPORT uint64_t l_instInhabitedInt64;
 static const lean_closure_object l_instAddInt64___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Int64_add___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
@@ -629,6 +660,7 @@ static const lean_object* l_instMinInt64___closed__0 = (const lean_object*)&l_in
 LEAN_EXPORT const lean_object* l_instMinInt64 = (const lean_object*)&l_instMinInt64___closed__0_value;
 extern lean_object* l_System_Platform_numBits;
 lean_object* lean_nat_pow(lean_object*, lean_object*);
+static lean_once_cell_t l_ISize_size___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_ISize_size___closed__0;
 LEAN_EXPORT lean_object* l_ISize_size;
 lean_object* lean_usize_to_nat(size_t);
@@ -689,24 +721,34 @@ LEAN_EXPORT lean_object* l_ISize_instOfNat___boxed(lean_object*);
 static const lean_closure_object l_ISize_instNeg___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_ISize_neg___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_ISize_instNeg___closed__0 = (const lean_object*)&l_ISize_instNeg___closed__0_value;
 LEAN_EXPORT const lean_object* l_ISize_instNeg = (const lean_object*)&l_ISize_instNeg___closed__0_value;
+static lean_once_cell_t l_ISize_maxValue___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_ISize_maxValue___closed__0;
+static lean_once_cell_t l_ISize_maxValue___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_ISize_maxValue___closed__1;
 lean_object* l_Int_pow(lean_object*, lean_object*);
+static lean_once_cell_t l_ISize_maxValue___closed__2_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_ISize_maxValue___closed__2;
+static lean_once_cell_t l_ISize_maxValue___closed__3_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_ISize_maxValue___closed__3;
 lean_object* lean_int_sub(lean_object*, lean_object*);
+static lean_once_cell_t l_ISize_maxValue___closed__4_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_ISize_maxValue___closed__4;
+static lean_once_cell_t l_ISize_maxValue___closed__5_once = LEAN_ONCE_CELL_INITIALIZER;
 static size_t l_ISize_maxValue___closed__5;
 LEAN_EXPORT size_t l_ISize_maxValue;
 lean_object* lean_int_neg(lean_object*);
+static lean_once_cell_t l_ISize_minValue___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_ISize_minValue___closed__0;
+static lean_once_cell_t l_ISize_minValue___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static size_t l_ISize_minValue___closed__1;
 LEAN_EXPORT size_t l_ISize_minValue;
 LEAN_EXPORT size_t l_ISize_ofIntLE___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_ISize_ofIntLE___redArg___boxed(lean_object*);
 LEAN_EXPORT size_t l_ISize_ofIntLE(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ISize_ofIntLE___boxed(lean_object*, lean_object*, lean_object*);
+static lean_once_cell_t l_ISize_ofIntTruncate___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_ISize_ofIntTruncate___closed__0;
+static lean_once_cell_t l_ISize_ofIntTruncate___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_ISize_ofIntTruncate___closed__1;
 LEAN_EXPORT size_t l_ISize_ofIntTruncate(lean_object*);
 LEAN_EXPORT lean_object* l_ISize_ofIntTruncate___boxed(lean_object*);
@@ -718,6 +760,7 @@ size_t lean_isize_mul(size_t, size_t);
 LEAN_EXPORT lean_object* l_ISize_mul___boxed(lean_object*, lean_object*);
 size_t lean_isize_div(size_t, size_t);
 LEAN_EXPORT lean_object* l_ISize_div___boxed(lean_object*, lean_object*);
+static lean_once_cell_t l_ISize_pow___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static size_t l_ISize_pow___closed__0;
 LEAN_EXPORT size_t l_ISize_pow(size_t, lean_object*);
 LEAN_EXPORT lean_object* l_ISize_pow___boxed(lean_object*, lean_object*);
@@ -739,6 +782,7 @@ size_t lean_isize_abs(size_t);
 LEAN_EXPORT lean_object* l_ISize_abs___boxed(lean_object*);
 uint8_t lean_isize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l_ISize_decEq___boxed(lean_object*, lean_object*);
+static lean_once_cell_t l_instInhabitedISize___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static size_t l_instInhabitedISize___closed__0;
 LEAN_EXPORT size_t l_instInhabitedISize;
 static const lean_closure_object l_instAddISize___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_ISize_add___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
@@ -797,7 +841,7 @@ LEAN_EXPORT lean_object* l_instMinISize___lam__0___boxed(lean_object*, lean_obje
 static const lean_closure_object l_instMinISize___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_instMinISize___lam__0___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_instMinISize___closed__0 = (const lean_object*)&l_instMinISize___closed__0_value;
 LEAN_EXPORT const lean_object* l_instMinISize = (const lean_object*)&l_instMinISize___closed__0_value;
-static lean_object* _init_l_Int8_size() {
+static lean_object* _init_l_Int8_size(void) {
 _start:
 {
 lean_object* x_1; 
@@ -948,7 +992,7 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_instToStringInt8___lam__0___closed__0() {
+static lean_object* _init_l_instToStringInt8___lam__0___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -962,7 +1006,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; uint8_t x_4; 
 x_2 = lean_int8_to_int(x_1);
-x_3 = l_instToStringInt8___lam__0___closed__0;
+x_3 = lean_obj_once(&l_instToStringInt8___lam__0___closed__0, &l_instToStringInt8___lam__0___closed__0_once, _init_l_instToStringInt8___lam__0___closed__0);
 x_4 = lean_int_dec_lt(x_2, x_3);
 if (x_4 == 0)
 {
@@ -1002,7 +1046,7 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
 x_3 = lean_int8_to_int(x_1);
-x_4 = l_instToStringInt8___lam__0___closed__0;
+x_4 = lean_obj_once(&l_instToStringInt8___lam__0___closed__0, &l_instToStringInt8___lam__0___closed__0_once, _init_l_instToStringInt8___lam__0___closed__0);
 x_5 = lean_int_dec_lt(x_3, x_4);
 if (x_5 == 0)
 {
@@ -1033,7 +1077,7 @@ lean_dec(x_2);
 return x_4;
 }
 }
-static lean_object* _init_l_instReprAtomInt8() {
+static lean_object* _init_l_instReprAtomInt8(void) {
 _start:
 {
 lean_object* x_1; 
@@ -1059,7 +1103,7 @@ x_3 = lean_box(x_2);
 return x_3;
 }
 }
-static uint8_t _init_l_Int8_maxValue___closed__0() {
+static uint8_t _init_l_Int8_maxValue___closed__0(void) {
 _start:
 {
 lean_object* x_1; uint8_t x_2; 
@@ -1068,15 +1112,15 @@ x_2 = lean_int8_of_nat(x_1);
 return x_2;
 }
 }
-static uint8_t _init_l_Int8_maxValue() {
+static uint8_t _init_l_Int8_maxValue(void) {
 _start:
 {
 uint8_t x_1; 
-x_1 = l_Int8_maxValue___closed__0;
+x_1 = lean_uint8_once(&l_Int8_maxValue___closed__0, &l_Int8_maxValue___closed__0_once, _init_l_Int8_maxValue___closed__0);
 return x_1;
 }
 }
-static uint8_t _init_l_Int8_minValue___closed__0() {
+static uint8_t _init_l_Int8_minValue___closed__0(void) {
 _start:
 {
 lean_object* x_1; uint8_t x_2; 
@@ -1085,20 +1129,20 @@ x_2 = lean_int8_of_nat(x_1);
 return x_2;
 }
 }
-static uint8_t _init_l_Int8_minValue___closed__1() {
+static uint8_t _init_l_Int8_minValue___closed__1(void) {
 _start:
 {
 uint8_t x_1; uint8_t x_2; 
-x_1 = l_Int8_minValue___closed__0;
+x_1 = lean_uint8_once(&l_Int8_minValue___closed__0, &l_Int8_minValue___closed__0_once, _init_l_Int8_minValue___closed__0);
 x_2 = lean_int8_neg(x_1);
 return x_2;
 }
 }
-static uint8_t _init_l_Int8_minValue() {
+static uint8_t _init_l_Int8_minValue(void) {
 _start:
 {
 uint8_t x_1; 
-x_1 = l_Int8_minValue___closed__1;
+x_1 = lean_uint8_once(&l_Int8_minValue___closed__1, &l_Int8_minValue___closed__1_once, _init_l_Int8_minValue___closed__1);
 return x_1;
 }
 }
@@ -1138,20 +1182,20 @@ x_5 = lean_box(x_4);
 return x_5;
 }
 }
-static lean_object* _init_l_Int8_ofIntTruncate___closed__0() {
+static lean_object* _init_l_Int8_ofIntTruncate___closed__0(void) {
 _start:
 {
 uint8_t x_1; lean_object* x_2; 
-x_1 = l_Int8_minValue___closed__1;
+x_1 = lean_uint8_once(&l_Int8_minValue___closed__1, &l_Int8_minValue___closed__1_once, _init_l_Int8_minValue___closed__1);
 x_2 = lean_int8_to_int(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Int8_ofIntTruncate___closed__1() {
+static lean_object* _init_l_Int8_ofIntTruncate___closed__1(void) {
 _start:
 {
 uint8_t x_1; lean_object* x_2; 
-x_1 = l_Int8_maxValue___closed__0;
+x_1 = lean_uint8_once(&l_Int8_maxValue___closed__0, &l_Int8_maxValue___closed__0_once, _init_l_Int8_maxValue___closed__0);
 x_2 = lean_int8_to_int(x_1);
 return x_2;
 }
@@ -1160,8 +1204,8 @@ LEAN_EXPORT uint8_t l_Int8_ofIntTruncate(lean_object* x_1) {
 _start:
 {
 uint8_t x_2; lean_object* x_3; uint8_t x_4; 
-x_2 = l_Int8_minValue___closed__1;
-x_3 = l_Int8_ofIntTruncate___closed__0;
+x_2 = lean_uint8_once(&l_Int8_minValue___closed__1, &l_Int8_minValue___closed__1_once, _init_l_Int8_minValue___closed__1);
+x_3 = lean_obj_once(&l_Int8_ofIntTruncate___closed__0, &l_Int8_ofIntTruncate___closed__0_once, _init_l_Int8_ofIntTruncate___closed__0);
 x_4 = lean_int_dec_le(x_3, x_1);
 if (x_4 == 0)
 {
@@ -1170,7 +1214,7 @@ return x_2;
 else
 {
 lean_object* x_5; uint8_t x_6; 
-x_5 = l_Int8_ofIntTruncate___closed__1;
+x_5 = lean_obj_once(&l_Int8_ofIntTruncate___closed__1, &l_Int8_ofIntTruncate___closed__1_once, _init_l_Int8_ofIntTruncate___closed__1);
 x_6 = lean_int_dec_le(x_1, x_5);
 if (x_6 == 0)
 {
@@ -1239,7 +1283,7 @@ x_6 = lean_box(x_5);
 return x_6;
 }
 }
-static uint8_t _init_l_Int8_pow___closed__0() {
+static uint8_t _init_l_Int8_pow___closed__0(void) {
 _start:
 {
 lean_object* x_1; uint8_t x_2; 
@@ -1257,7 +1301,7 @@ x_4 = lean_nat_dec_eq(x_2, x_3);
 if (x_4 == 1)
 {
 uint8_t x_5; 
-x_5 = l_Int8_pow___closed__0;
+x_5 = lean_uint8_once(&l_Int8_pow___closed__0, &l_Int8_pow___closed__0_once, _init_l_Int8_pow___closed__0);
 return x_5;
 }
 else
@@ -1380,7 +1424,7 @@ x_6 = lean_box(x_5);
 return x_6;
 }
 }
-static uint8_t _init_l_instInhabitedInt8___closed__0() {
+static uint8_t _init_l_instInhabitedInt8___closed__0(void) {
 _start:
 {
 lean_object* x_1; uint8_t x_2; 
@@ -1389,15 +1433,15 @@ x_2 = lean_int8_of_nat(x_1);
 return x_2;
 }
 }
-static uint8_t _init_l_instInhabitedInt8() {
+static uint8_t _init_l_instInhabitedInt8(void) {
 _start:
 {
 uint8_t x_1; 
-x_1 = l_instInhabitedInt8___closed__0;
+x_1 = lean_uint8_once(&l_instInhabitedInt8___closed__0, &l_instInhabitedInt8___closed__0_once, _init_l_instInhabitedInt8___closed__0);
 return x_1;
 }
 }
-static lean_object* _init_l_instLTInt8() {
+static lean_object* _init_l_instLTInt8(void) {
 _start:
 {
 lean_object* x_1; 
@@ -1405,7 +1449,7 @@ x_1 = lean_box(0);
 return x_1;
 }
 }
-static lean_object* _init_l_instLEInt8() {
+static lean_object* _init_l_instLEInt8(void) {
 _start:
 {
 lean_object* x_1; 
@@ -1516,7 +1560,7 @@ x_6 = lean_box(x_5);
 return x_6;
 }
 }
-static lean_object* _init_l_Int16_size() {
+static lean_object* _init_l_Int16_size(void) {
 _start:
 {
 lean_object* x_1; 
@@ -1692,7 +1736,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; uint8_t x_4; 
 x_2 = lean_int16_to_int(x_1);
-x_3 = l_instToStringInt8___lam__0___closed__0;
+x_3 = lean_obj_once(&l_instToStringInt8___lam__0___closed__0, &l_instToStringInt8___lam__0___closed__0_once, _init_l_instToStringInt8___lam__0___closed__0);
 x_4 = lean_int_dec_lt(x_2, x_3);
 if (x_4 == 0)
 {
@@ -1732,7 +1776,7 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
 x_3 = lean_int16_to_int(x_1);
-x_4 = l_instToStringInt8___lam__0___closed__0;
+x_4 = lean_obj_once(&l_instToStringInt8___lam__0___closed__0, &l_instToStringInt8___lam__0___closed__0_once, _init_l_instToStringInt8___lam__0___closed__0);
 x_5 = lean_int_dec_lt(x_3, x_4);
 if (x_5 == 0)
 {
@@ -1763,7 +1807,7 @@ lean_dec(x_2);
 return x_4;
 }
 }
-static lean_object* _init_l_instReprAtomInt16() {
+static lean_object* _init_l_instReprAtomInt16(void) {
 _start:
 {
 lean_object* x_1; 
@@ -1789,7 +1833,7 @@ x_3 = lean_box(x_2);
 return x_3;
 }
 }
-static uint16_t _init_l_Int16_maxValue___closed__0() {
+static uint16_t _init_l_Int16_maxValue___closed__0(void) {
 _start:
 {
 lean_object* x_1; uint16_t x_2; 
@@ -1798,15 +1842,15 @@ x_2 = lean_int16_of_nat(x_1);
 return x_2;
 }
 }
-static uint16_t _init_l_Int16_maxValue() {
+static uint16_t _init_l_Int16_maxValue(void) {
 _start:
 {
 uint16_t x_1; 
-x_1 = l_Int16_maxValue___closed__0;
+x_1 = lean_uint16_once(&l_Int16_maxValue___closed__0, &l_Int16_maxValue___closed__0_once, _init_l_Int16_maxValue___closed__0);
 return x_1;
 }
 }
-static uint16_t _init_l_Int16_minValue___closed__0() {
+static uint16_t _init_l_Int16_minValue___closed__0(void) {
 _start:
 {
 lean_object* x_1; uint16_t x_2; 
@@ -1815,20 +1859,20 @@ x_2 = lean_int16_of_nat(x_1);
 return x_2;
 }
 }
-static uint16_t _init_l_Int16_minValue___closed__1() {
+static uint16_t _init_l_Int16_minValue___closed__1(void) {
 _start:
 {
 uint16_t x_1; uint16_t x_2; 
-x_1 = l_Int16_minValue___closed__0;
+x_1 = lean_uint16_once(&l_Int16_minValue___closed__0, &l_Int16_minValue___closed__0_once, _init_l_Int16_minValue___closed__0);
 x_2 = lean_int16_neg(x_1);
 return x_2;
 }
 }
-static uint16_t _init_l_Int16_minValue() {
+static uint16_t _init_l_Int16_minValue(void) {
 _start:
 {
 uint16_t x_1; 
-x_1 = l_Int16_minValue___closed__1;
+x_1 = lean_uint16_once(&l_Int16_minValue___closed__1, &l_Int16_minValue___closed__1_once, _init_l_Int16_minValue___closed__1);
 return x_1;
 }
 }
@@ -1868,20 +1912,20 @@ x_5 = lean_box(x_4);
 return x_5;
 }
 }
-static lean_object* _init_l_Int16_ofIntTruncate___closed__0() {
+static lean_object* _init_l_Int16_ofIntTruncate___closed__0(void) {
 _start:
 {
 uint16_t x_1; lean_object* x_2; 
-x_1 = l_Int16_minValue___closed__1;
+x_1 = lean_uint16_once(&l_Int16_minValue___closed__1, &l_Int16_minValue___closed__1_once, _init_l_Int16_minValue___closed__1);
 x_2 = lean_int16_to_int(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Int16_ofIntTruncate___closed__1() {
+static lean_object* _init_l_Int16_ofIntTruncate___closed__1(void) {
 _start:
 {
 uint16_t x_1; lean_object* x_2; 
-x_1 = l_Int16_maxValue___closed__0;
+x_1 = lean_uint16_once(&l_Int16_maxValue___closed__0, &l_Int16_maxValue___closed__0_once, _init_l_Int16_maxValue___closed__0);
 x_2 = lean_int16_to_int(x_1);
 return x_2;
 }
@@ -1890,8 +1934,8 @@ LEAN_EXPORT uint16_t l_Int16_ofIntTruncate(lean_object* x_1) {
 _start:
 {
 uint16_t x_2; lean_object* x_3; uint8_t x_4; 
-x_2 = l_Int16_minValue___closed__1;
-x_3 = l_Int16_ofIntTruncate___closed__0;
+x_2 = lean_uint16_once(&l_Int16_minValue___closed__1, &l_Int16_minValue___closed__1_once, _init_l_Int16_minValue___closed__1);
+x_3 = lean_obj_once(&l_Int16_ofIntTruncate___closed__0, &l_Int16_ofIntTruncate___closed__0_once, _init_l_Int16_ofIntTruncate___closed__0);
 x_4 = lean_int_dec_le(x_3, x_1);
 if (x_4 == 0)
 {
@@ -1900,7 +1944,7 @@ return x_2;
 else
 {
 lean_object* x_5; uint8_t x_6; 
-x_5 = l_Int16_ofIntTruncate___closed__1;
+x_5 = lean_obj_once(&l_Int16_ofIntTruncate___closed__1, &l_Int16_ofIntTruncate___closed__1_once, _init_l_Int16_ofIntTruncate___closed__1);
 x_6 = lean_int_dec_le(x_1, x_5);
 if (x_6 == 0)
 {
@@ -1969,7 +2013,7 @@ x_6 = lean_box(x_5);
 return x_6;
 }
 }
-static uint16_t _init_l_Int16_pow___closed__0() {
+static uint16_t _init_l_Int16_pow___closed__0(void) {
 _start:
 {
 lean_object* x_1; uint16_t x_2; 
@@ -1987,7 +2031,7 @@ x_4 = lean_nat_dec_eq(x_2, x_3);
 if (x_4 == 1)
 {
 uint16_t x_5; 
-x_5 = l_Int16_pow___closed__0;
+x_5 = lean_uint16_once(&l_Int16_pow___closed__0, &l_Int16_pow___closed__0_once, _init_l_Int16_pow___closed__0);
 return x_5;
 }
 else
@@ -2110,7 +2154,7 @@ x_6 = lean_box(x_5);
 return x_6;
 }
 }
-static uint16_t _init_l_instInhabitedInt16___closed__0() {
+static uint16_t _init_l_instInhabitedInt16___closed__0(void) {
 _start:
 {
 lean_object* x_1; uint16_t x_2; 
@@ -2119,15 +2163,15 @@ x_2 = lean_int16_of_nat(x_1);
 return x_2;
 }
 }
-static uint16_t _init_l_instInhabitedInt16() {
+static uint16_t _init_l_instInhabitedInt16(void) {
 _start:
 {
 uint16_t x_1; 
-x_1 = l_instInhabitedInt16___closed__0;
+x_1 = lean_uint16_once(&l_instInhabitedInt16___closed__0, &l_instInhabitedInt16___closed__0_once, _init_l_instInhabitedInt16___closed__0);
 return x_1;
 }
 }
-static lean_object* _init_l_instLTInt16() {
+static lean_object* _init_l_instLTInt16(void) {
 _start:
 {
 lean_object* x_1; 
@@ -2135,7 +2179,7 @@ x_1 = lean_box(0);
 return x_1;
 }
 }
-static lean_object* _init_l_instLEInt16() {
+static lean_object* _init_l_instLEInt16(void) {
 _start:
 {
 lean_object* x_1; 
@@ -2246,7 +2290,7 @@ x_6 = lean_box(x_5);
 return x_6;
 }
 }
-static lean_object* _init_l_Int32_size() {
+static lean_object* _init_l_Int32_size(void) {
 _start:
 {
 lean_object* x_1; 
@@ -2450,7 +2494,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; uint8_t x_4; 
 x_2 = lean_int32_to_int(x_1);
-x_3 = l_instToStringInt8___lam__0___closed__0;
+x_3 = lean_obj_once(&l_instToStringInt8___lam__0___closed__0, &l_instToStringInt8___lam__0___closed__0_once, _init_l_instToStringInt8___lam__0___closed__0);
 x_4 = lean_int_dec_lt(x_2, x_3);
 if (x_4 == 0)
 {
@@ -2493,7 +2537,7 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
 x_3 = lean_int32_to_int(x_1);
-x_4 = l_instToStringInt8___lam__0___closed__0;
+x_4 = lean_obj_once(&l_instToStringInt8___lam__0___closed__0, &l_instToStringInt8___lam__0___closed__0_once, _init_l_instToStringInt8___lam__0___closed__0);
 x_5 = lean_int_dec_lt(x_3, x_4);
 if (x_5 == 0)
 {
@@ -2527,7 +2571,7 @@ lean_dec(x_2);
 return x_4;
 }
 }
-static lean_object* _init_l_instReprAtomInt32() {
+static lean_object* _init_l_instReprAtomInt32(void) {
 _start:
 {
 lean_object* x_1; 
@@ -2553,7 +2597,7 @@ x_3 = lean_box_uint32(x_2);
 return x_3;
 }
 }
-static uint32_t _init_l_Int32_maxValue___closed__0() {
+static uint32_t _init_l_Int32_maxValue___closed__0(void) {
 _start:
 {
 lean_object* x_1; uint32_t x_2; 
@@ -2562,15 +2606,15 @@ x_2 = lean_int32_of_nat(x_1);
 return x_2;
 }
 }
-static uint32_t _init_l_Int32_maxValue() {
+static uint32_t _init_l_Int32_maxValue(void) {
 _start:
 {
 uint32_t x_1; 
-x_1 = l_Int32_maxValue___closed__0;
+x_1 = lean_uint32_once(&l_Int32_maxValue___closed__0, &l_Int32_maxValue___closed__0_once, _init_l_Int32_maxValue___closed__0);
 return x_1;
 }
 }
-static uint32_t _init_l_Int32_minValue___closed__0() {
+static uint32_t _init_l_Int32_minValue___closed__0(void) {
 _start:
 {
 lean_object* x_1; uint32_t x_2; 
@@ -2579,20 +2623,20 @@ x_2 = lean_int32_of_nat(x_1);
 return x_2;
 }
 }
-static uint32_t _init_l_Int32_minValue___closed__1() {
+static uint32_t _init_l_Int32_minValue___closed__1(void) {
 _start:
 {
 uint32_t x_1; uint32_t x_2; 
-x_1 = l_Int32_minValue___closed__0;
+x_1 = lean_uint32_once(&l_Int32_minValue___closed__0, &l_Int32_minValue___closed__0_once, _init_l_Int32_minValue___closed__0);
 x_2 = lean_int32_neg(x_1);
 return x_2;
 }
 }
-static uint32_t _init_l_Int32_minValue() {
+static uint32_t _init_l_Int32_minValue(void) {
 _start:
 {
 uint32_t x_1; 
-x_1 = l_Int32_minValue___closed__1;
+x_1 = lean_uint32_once(&l_Int32_minValue___closed__1, &l_Int32_minValue___closed__1_once, _init_l_Int32_minValue___closed__1);
 return x_1;
 }
 }
@@ -2632,20 +2676,20 @@ x_5 = lean_box_uint32(x_4);
 return x_5;
 }
 }
-static lean_object* _init_l_Int32_ofIntTruncate___closed__0() {
+static lean_object* _init_l_Int32_ofIntTruncate___closed__0(void) {
 _start:
 {
 uint32_t x_1; lean_object* x_2; 
-x_1 = l_Int32_minValue___closed__1;
+x_1 = lean_uint32_once(&l_Int32_minValue___closed__1, &l_Int32_minValue___closed__1_once, _init_l_Int32_minValue___closed__1);
 x_2 = lean_int32_to_int(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Int32_ofIntTruncate___closed__1() {
+static lean_object* _init_l_Int32_ofIntTruncate___closed__1(void) {
 _start:
 {
 uint32_t x_1; lean_object* x_2; 
-x_1 = l_Int32_maxValue___closed__0;
+x_1 = lean_uint32_once(&l_Int32_maxValue___closed__0, &l_Int32_maxValue___closed__0_once, _init_l_Int32_maxValue___closed__0);
 x_2 = lean_int32_to_int(x_1);
 return x_2;
 }
@@ -2654,8 +2698,8 @@ LEAN_EXPORT uint32_t l_Int32_ofIntTruncate(lean_object* x_1) {
 _start:
 {
 uint32_t x_2; lean_object* x_3; uint8_t x_4; 
-x_2 = l_Int32_minValue___closed__1;
-x_3 = l_Int32_ofIntTruncate___closed__0;
+x_2 = lean_uint32_once(&l_Int32_minValue___closed__1, &l_Int32_minValue___closed__1_once, _init_l_Int32_minValue___closed__1);
+x_3 = lean_obj_once(&l_Int32_ofIntTruncate___closed__0, &l_Int32_ofIntTruncate___closed__0_once, _init_l_Int32_ofIntTruncate___closed__0);
 x_4 = lean_int_dec_le(x_3, x_1);
 if (x_4 == 0)
 {
@@ -2664,7 +2708,7 @@ return x_2;
 else
 {
 lean_object* x_5; uint8_t x_6; 
-x_5 = l_Int32_ofIntTruncate___closed__1;
+x_5 = lean_obj_once(&l_Int32_ofIntTruncate___closed__1, &l_Int32_ofIntTruncate___closed__1_once, _init_l_Int32_ofIntTruncate___closed__1);
 x_6 = lean_int_dec_le(x_1, x_5);
 if (x_6 == 0)
 {
@@ -2741,7 +2785,7 @@ x_6 = lean_box_uint32(x_5);
 return x_6;
 }
 }
-static uint32_t _init_l_Int32_pow___closed__0() {
+static uint32_t _init_l_Int32_pow___closed__0(void) {
 _start:
 {
 lean_object* x_1; uint32_t x_2; 
@@ -2759,7 +2803,7 @@ x_4 = lean_nat_dec_eq(x_2, x_3);
 if (x_4 == 1)
 {
 uint32_t x_5; 
-x_5 = l_Int32_pow___closed__0;
+x_5 = lean_uint32_once(&l_Int32_pow___closed__0, &l_Int32_pow___closed__0_once, _init_l_Int32_pow___closed__0);
 return x_5;
 }
 else
@@ -2899,7 +2943,7 @@ x_6 = lean_box(x_5);
 return x_6;
 }
 }
-static uint32_t _init_l_instInhabitedInt32___closed__0() {
+static uint32_t _init_l_instInhabitedInt32___closed__0(void) {
 _start:
 {
 lean_object* x_1; uint32_t x_2; 
@@ -2908,15 +2952,15 @@ x_2 = lean_int32_of_nat(x_1);
 return x_2;
 }
 }
-static uint32_t _init_l_instInhabitedInt32() {
+static uint32_t _init_l_instInhabitedInt32(void) {
 _start:
 {
 uint32_t x_1; 
-x_1 = l_instInhabitedInt32___closed__0;
+x_1 = lean_uint32_once(&l_instInhabitedInt32___closed__0, &l_instInhabitedInt32___closed__0_once, _init_l_instInhabitedInt32___closed__0);
 return x_1;
 }
 }
-static lean_object* _init_l_instLTInt32() {
+static lean_object* _init_l_instLTInt32(void) {
 _start:
 {
 lean_object* x_1; 
@@ -2924,7 +2968,7 @@ x_1 = lean_box(0);
 return x_1;
 }
 }
-static lean_object* _init_l_instLEInt32() {
+static lean_object* _init_l_instLEInt32(void) {
 _start:
 {
 lean_object* x_1; 
@@ -3045,7 +3089,7 @@ x_6 = lean_box_uint32(x_5);
 return x_6;
 }
 }
-static lean_object* _init_l_Int64_size___closed__0() {
+static lean_object* _init_l_Int64_size___closed__0(void) {
 _start:
 {
 lean_object* x_1; 
@@ -3053,11 +3097,11 @@ x_1 = lean_cstr_to_nat("18446744073709551616");
 return x_1;
 }
 }
-static lean_object* _init_l_Int64_size() {
+static lean_object* _init_l_Int64_size(void) {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Int64_size___closed__0;
+x_1 = lean_obj_once(&l_Int64_size___closed__0, &l_Int64_size___closed__0_once, _init_l_Int64_size___closed__0);
 return x_1;
 }
 }
@@ -3279,7 +3323,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; uint8_t x_4; 
 x_2 = lean_int64_to_int_sint(x_1);
-x_3 = l_instToStringInt8___lam__0___closed__0;
+x_3 = lean_obj_once(&l_instToStringInt8___lam__0___closed__0, &l_instToStringInt8___lam__0___closed__0_once, _init_l_instToStringInt8___lam__0___closed__0);
 x_4 = lean_int_dec_lt(x_2, x_3);
 if (x_4 == 0)
 {
@@ -3322,7 +3366,7 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
 x_3 = lean_int64_to_int_sint(x_1);
-x_4 = l_instToStringInt8___lam__0___closed__0;
+x_4 = lean_obj_once(&l_instToStringInt8___lam__0___closed__0, &l_instToStringInt8___lam__0___closed__0_once, _init_l_instToStringInt8___lam__0___closed__0);
 x_5 = lean_int_dec_lt(x_3, x_4);
 if (x_5 == 0)
 {
@@ -3356,7 +3400,7 @@ lean_dec(x_2);
 return x_4;
 }
 }
-static lean_object* _init_l_instReprAtomInt64() {
+static lean_object* _init_l_instReprAtomInt64(void) {
 _start:
 {
 lean_object* x_1; 
@@ -3399,7 +3443,7 @@ x_3 = lean_box_uint64(x_2);
 return x_3;
 }
 }
-static uint64_t _init_l_Int64_maxValue___closed__0() {
+static uint64_t _init_l_Int64_maxValue___closed__0(void) {
 _start:
 {
 lean_object* x_1; uint64_t x_2; 
@@ -3408,15 +3452,15 @@ x_2 = lean_int64_of_nat(x_1);
 return x_2;
 }
 }
-static uint64_t _init_l_Int64_maxValue() {
+static uint64_t _init_l_Int64_maxValue(void) {
 _start:
 {
 uint64_t x_1; 
-x_1 = l_Int64_maxValue___closed__0;
+x_1 = lean_uint64_once(&l_Int64_maxValue___closed__0, &l_Int64_maxValue___closed__0_once, _init_l_Int64_maxValue___closed__0);
 return x_1;
 }
 }
-static lean_object* _init_l_Int64_minValue___closed__0() {
+static lean_object* _init_l_Int64_minValue___closed__0(void) {
 _start:
 {
 lean_object* x_1; 
@@ -3424,29 +3468,29 @@ x_1 = lean_cstr_to_nat("9223372036854775808");
 return x_1;
 }
 }
-static uint64_t _init_l_Int64_minValue___closed__1() {
+static uint64_t _init_l_Int64_minValue___closed__1(void) {
 _start:
 {
 lean_object* x_1; uint64_t x_2; 
-x_1 = l_Int64_minValue___closed__0;
+x_1 = lean_obj_once(&l_Int64_minValue___closed__0, &l_Int64_minValue___closed__0_once, _init_l_Int64_minValue___closed__0);
 x_2 = lean_int64_of_nat(x_1);
 return x_2;
 }
 }
-static uint64_t _init_l_Int64_minValue___closed__2() {
+static uint64_t _init_l_Int64_minValue___closed__2(void) {
 _start:
 {
 uint64_t x_1; uint64_t x_2; 
-x_1 = l_Int64_minValue___closed__1;
+x_1 = lean_uint64_once(&l_Int64_minValue___closed__1, &l_Int64_minValue___closed__1_once, _init_l_Int64_minValue___closed__1);
 x_2 = lean_int64_neg(x_1);
 return x_2;
 }
 }
-static uint64_t _init_l_Int64_minValue() {
+static uint64_t _init_l_Int64_minValue(void) {
 _start:
 {
 uint64_t x_1; 
-x_1 = l_Int64_minValue___closed__2;
+x_1 = lean_uint64_once(&l_Int64_minValue___closed__2, &l_Int64_minValue___closed__2_once, _init_l_Int64_minValue___closed__2);
 return x_1;
 }
 }
@@ -3486,20 +3530,20 @@ x_5 = lean_box_uint64(x_4);
 return x_5;
 }
 }
-static lean_object* _init_l_Int64_ofIntTruncate___closed__0() {
+static lean_object* _init_l_Int64_ofIntTruncate___closed__0(void) {
 _start:
 {
 uint64_t x_1; lean_object* x_2; 
-x_1 = l_Int64_minValue___closed__2;
+x_1 = lean_uint64_once(&l_Int64_minValue___closed__2, &l_Int64_minValue___closed__2_once, _init_l_Int64_minValue___closed__2);
 x_2 = lean_int64_to_int_sint(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Int64_ofIntTruncate___closed__1() {
+static lean_object* _init_l_Int64_ofIntTruncate___closed__1(void) {
 _start:
 {
 uint64_t x_1; lean_object* x_2; 
-x_1 = l_Int64_maxValue___closed__0;
+x_1 = lean_uint64_once(&l_Int64_maxValue___closed__0, &l_Int64_maxValue___closed__0_once, _init_l_Int64_maxValue___closed__0);
 x_2 = lean_int64_to_int_sint(x_1);
 return x_2;
 }
@@ -3508,8 +3552,8 @@ LEAN_EXPORT uint64_t l_Int64_ofIntTruncate(lean_object* x_1) {
 _start:
 {
 uint64_t x_2; lean_object* x_3; uint8_t x_4; 
-x_2 = l_Int64_minValue___closed__2;
-x_3 = l_Int64_ofIntTruncate___closed__0;
+x_2 = lean_uint64_once(&l_Int64_minValue___closed__2, &l_Int64_minValue___closed__2_once, _init_l_Int64_minValue___closed__2);
+x_3 = lean_obj_once(&l_Int64_ofIntTruncate___closed__0, &l_Int64_ofIntTruncate___closed__0_once, _init_l_Int64_ofIntTruncate___closed__0);
 x_4 = lean_int_dec_le(x_3, x_1);
 if (x_4 == 0)
 {
@@ -3518,7 +3562,7 @@ return x_2;
 else
 {
 lean_object* x_5; uint8_t x_6; 
-x_5 = l_Int64_ofIntTruncate___closed__1;
+x_5 = lean_obj_once(&l_Int64_ofIntTruncate___closed__1, &l_Int64_ofIntTruncate___closed__1_once, _init_l_Int64_ofIntTruncate___closed__1);
 x_6 = lean_int_dec_le(x_1, x_5);
 if (x_6 == 0)
 {
@@ -3595,7 +3639,7 @@ x_6 = lean_box_uint64(x_5);
 return x_6;
 }
 }
-static uint64_t _init_l_Int64_pow___closed__0() {
+static uint64_t _init_l_Int64_pow___closed__0(void) {
 _start:
 {
 lean_object* x_1; uint64_t x_2; 
@@ -3613,7 +3657,7 @@ x_4 = lean_nat_dec_eq(x_2, x_3);
 if (x_4 == 1)
 {
 uint64_t x_5; 
-x_5 = l_Int64_pow___closed__0;
+x_5 = lean_uint64_once(&l_Int64_pow___closed__0, &l_Int64_pow___closed__0_once, _init_l_Int64_pow___closed__0);
 return x_5;
 }
 else
@@ -3753,7 +3797,7 @@ x_6 = lean_box(x_5);
 return x_6;
 }
 }
-static uint64_t _init_l_instInhabitedInt64___closed__0() {
+static uint64_t _init_l_instInhabitedInt64___closed__0(void) {
 _start:
 {
 lean_object* x_1; uint64_t x_2; 
@@ -3762,15 +3806,15 @@ x_2 = lean_int64_of_nat(x_1);
 return x_2;
 }
 }
-static uint64_t _init_l_instInhabitedInt64() {
+static uint64_t _init_l_instInhabitedInt64(void) {
 _start:
 {
 uint64_t x_1; 
-x_1 = l_instInhabitedInt64___closed__0;
+x_1 = lean_uint64_once(&l_instInhabitedInt64___closed__0, &l_instInhabitedInt64___closed__0_once, _init_l_instInhabitedInt64___closed__0);
 return x_1;
 }
 }
-static lean_object* _init_l_instLTInt64() {
+static lean_object* _init_l_instLTInt64(void) {
 _start:
 {
 lean_object* x_1; 
@@ -3778,7 +3822,7 @@ x_1 = lean_box(0);
 return x_1;
 }
 }
-static lean_object* _init_l_instLEInt64() {
+static lean_object* _init_l_instLEInt64(void) {
 _start:
 {
 lean_object* x_1; 
@@ -3899,7 +3943,7 @@ x_6 = lean_box_uint64(x_5);
 return x_6;
 }
 }
-static lean_object* _init_l_ISize_size___closed__0() {
+static lean_object* _init_l_ISize_size___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -3909,11 +3953,11 @@ x_3 = lean_nat_pow(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_ISize_size() {
+static lean_object* _init_l_ISize_size(void) {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_ISize_size___closed__0;
+x_1 = lean_obj_once(&l_ISize_size___closed__0, &l_ISize_size___closed__0_once, _init_l_ISize_size___closed__0);
 return x_1;
 }
 }
@@ -4157,7 +4201,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; uint8_t x_4; 
 x_2 = lean_isize_to_int(x_1);
-x_3 = l_instToStringInt8___lam__0___closed__0;
+x_3 = lean_obj_once(&l_instToStringInt8___lam__0___closed__0, &l_instToStringInt8___lam__0___closed__0_once, _init_l_instToStringInt8___lam__0___closed__0);
 x_4 = lean_int_dec_lt(x_2, x_3);
 if (x_4 == 0)
 {
@@ -4200,7 +4244,7 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
 x_3 = lean_isize_to_int(x_1);
-x_4 = l_instToStringInt8___lam__0___closed__0;
+x_4 = lean_obj_once(&l_instToStringInt8___lam__0___closed__0, &l_instToStringInt8___lam__0___closed__0_once, _init_l_instToStringInt8___lam__0___closed__0);
 x_5 = lean_int_dec_lt(x_3, x_4);
 if (x_5 == 0)
 {
@@ -4234,7 +4278,7 @@ lean_dec(x_2);
 return x_4;
 }
 }
-static lean_object* _init_l_instReprAtomISize() {
+static lean_object* _init_l_instReprAtomISize(void) {
 _start:
 {
 lean_object* x_1; 
@@ -4260,7 +4304,7 @@ x_3 = lean_box_usize(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_ISize_maxValue___closed__0() {
+static lean_object* _init_l_ISize_maxValue___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -4269,7 +4313,7 @@ x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_ISize_maxValue___closed__1() {
+static lean_object* _init_l_ISize_maxValue___closed__1(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -4279,17 +4323,17 @@ x_3 = lean_nat_sub(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_ISize_maxValue___closed__2() {
+static lean_object* _init_l_ISize_maxValue___closed__2(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_ISize_maxValue___closed__1;
-x_2 = l_ISize_maxValue___closed__0;
+x_1 = lean_obj_once(&l_ISize_maxValue___closed__1, &l_ISize_maxValue___closed__1_once, _init_l_ISize_maxValue___closed__1);
+x_2 = lean_obj_once(&l_ISize_maxValue___closed__0, &l_ISize_maxValue___closed__0_once, _init_l_ISize_maxValue___closed__0);
 x_3 = l_Int_pow(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_ISize_maxValue___closed__3() {
+static lean_object* _init_l_ISize_maxValue___closed__3(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -4298,56 +4342,56 @@ x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_ISize_maxValue___closed__4() {
+static lean_object* _init_l_ISize_maxValue___closed__4(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_ISize_maxValue___closed__3;
-x_2 = l_ISize_maxValue___closed__2;
+x_1 = lean_obj_once(&l_ISize_maxValue___closed__3, &l_ISize_maxValue___closed__3_once, _init_l_ISize_maxValue___closed__3);
+x_2 = lean_obj_once(&l_ISize_maxValue___closed__2, &l_ISize_maxValue___closed__2_once, _init_l_ISize_maxValue___closed__2);
 x_3 = lean_int_sub(x_2, x_1);
 return x_3;
 }
 }
-static size_t _init_l_ISize_maxValue___closed__5() {
+static size_t _init_l_ISize_maxValue___closed__5(void) {
 _start:
 {
 lean_object* x_1; size_t x_2; 
-x_1 = l_ISize_maxValue___closed__4;
+x_1 = lean_obj_once(&l_ISize_maxValue___closed__4, &l_ISize_maxValue___closed__4_once, _init_l_ISize_maxValue___closed__4);
 x_2 = lean_isize_of_int(x_1);
 return x_2;
 }
 }
-static size_t _init_l_ISize_maxValue() {
+static size_t _init_l_ISize_maxValue(void) {
 _start:
 {
 size_t x_1; 
-x_1 = l_ISize_maxValue___closed__5;
+x_1 = lean_usize_once(&l_ISize_maxValue___closed__5, &l_ISize_maxValue___closed__5_once, _init_l_ISize_maxValue___closed__5);
 return x_1;
 }
 }
-static lean_object* _init_l_ISize_minValue___closed__0() {
+static lean_object* _init_l_ISize_minValue___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_ISize_maxValue___closed__2;
+x_1 = lean_obj_once(&l_ISize_maxValue___closed__2, &l_ISize_maxValue___closed__2_once, _init_l_ISize_maxValue___closed__2);
 x_2 = lean_int_neg(x_1);
 return x_2;
 }
 }
-static size_t _init_l_ISize_minValue___closed__1() {
+static size_t _init_l_ISize_minValue___closed__1(void) {
 _start:
 {
 lean_object* x_1; size_t x_2; 
-x_1 = l_ISize_minValue___closed__0;
+x_1 = lean_obj_once(&l_ISize_minValue___closed__0, &l_ISize_minValue___closed__0_once, _init_l_ISize_minValue___closed__0);
 x_2 = lean_isize_of_int(x_1);
 return x_2;
 }
 }
-static size_t _init_l_ISize_minValue() {
+static size_t _init_l_ISize_minValue(void) {
 _start:
 {
 size_t x_1; 
-x_1 = l_ISize_minValue___closed__1;
+x_1 = lean_usize_once(&l_ISize_minValue___closed__1, &l_ISize_minValue___closed__1_once, _init_l_ISize_minValue___closed__1);
 return x_1;
 }
 }
@@ -4387,20 +4431,20 @@ x_5 = lean_box_usize(x_4);
 return x_5;
 }
 }
-static lean_object* _init_l_ISize_ofIntTruncate___closed__0() {
+static lean_object* _init_l_ISize_ofIntTruncate___closed__0(void) {
 _start:
 {
 size_t x_1; lean_object* x_2; 
-x_1 = l_ISize_minValue___closed__1;
+x_1 = lean_usize_once(&l_ISize_minValue___closed__1, &l_ISize_minValue___closed__1_once, _init_l_ISize_minValue___closed__1);
 x_2 = lean_isize_to_int(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_ISize_ofIntTruncate___closed__1() {
+static lean_object* _init_l_ISize_ofIntTruncate___closed__1(void) {
 _start:
 {
 size_t x_1; lean_object* x_2; 
-x_1 = l_ISize_maxValue___closed__5;
+x_1 = lean_usize_once(&l_ISize_maxValue___closed__5, &l_ISize_maxValue___closed__5_once, _init_l_ISize_maxValue___closed__5);
 x_2 = lean_isize_to_int(x_1);
 return x_2;
 }
@@ -4409,8 +4453,8 @@ LEAN_EXPORT size_t l_ISize_ofIntTruncate(lean_object* x_1) {
 _start:
 {
 size_t x_2; lean_object* x_3; uint8_t x_4; 
-x_2 = l_ISize_minValue___closed__1;
-x_3 = l_ISize_ofIntTruncate___closed__0;
+x_2 = lean_usize_once(&l_ISize_minValue___closed__1, &l_ISize_minValue___closed__1_once, _init_l_ISize_minValue___closed__1);
+x_3 = lean_obj_once(&l_ISize_ofIntTruncate___closed__0, &l_ISize_ofIntTruncate___closed__0_once, _init_l_ISize_ofIntTruncate___closed__0);
 x_4 = lean_int_dec_le(x_3, x_1);
 if (x_4 == 0)
 {
@@ -4419,7 +4463,7 @@ return x_2;
 else
 {
 lean_object* x_5; uint8_t x_6; 
-x_5 = l_ISize_ofIntTruncate___closed__1;
+x_5 = lean_obj_once(&l_ISize_ofIntTruncate___closed__1, &l_ISize_ofIntTruncate___closed__1_once, _init_l_ISize_ofIntTruncate___closed__1);
 x_6 = lean_int_dec_le(x_1, x_5);
 if (x_6 == 0)
 {
@@ -4496,7 +4540,7 @@ x_6 = lean_box_usize(x_5);
 return x_6;
 }
 }
-static size_t _init_l_ISize_pow___closed__0() {
+static size_t _init_l_ISize_pow___closed__0(void) {
 _start:
 {
 lean_object* x_1; size_t x_2; 
@@ -4514,7 +4558,7 @@ x_4 = lean_nat_dec_eq(x_2, x_3);
 if (x_4 == 1)
 {
 size_t x_5; 
-x_5 = l_ISize_pow___closed__0;
+x_5 = lean_usize_once(&l_ISize_pow___closed__0, &l_ISize_pow___closed__0_once, _init_l_ISize_pow___closed__0);
 return x_5;
 }
 else
@@ -4654,7 +4698,7 @@ x_6 = lean_box(x_5);
 return x_6;
 }
 }
-static size_t _init_l_instInhabitedISize___closed__0() {
+static size_t _init_l_instInhabitedISize___closed__0(void) {
 _start:
 {
 lean_object* x_1; size_t x_2; 
@@ -4663,15 +4707,15 @@ x_2 = lean_isize_of_nat(x_1);
 return x_2;
 }
 }
-static size_t _init_l_instInhabitedISize() {
+static size_t _init_l_instInhabitedISize(void) {
 _start:
 {
 size_t x_1; 
-x_1 = l_instInhabitedISize___closed__0;
+x_1 = lean_usize_once(&l_instInhabitedISize___closed__0, &l_instInhabitedISize___closed__0_once, _init_l_instInhabitedISize___closed__0);
 return x_1;
 }
 }
-static lean_object* _init_l_instLTISize() {
+static lean_object* _init_l_instLTISize(void) {
 _start:
 {
 lean_object* x_1; 
@@ -4679,7 +4723,7 @@ x_1 = lean_box(0);
 return x_1;
 }
 }
-static lean_object* _init_l_instLEISize() {
+static lean_object* _init_l_instLEISize(void) {
 _start:
 {
 lean_object* x_1; 
@@ -4811,21 +4855,10 @@ if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Int8_size = _init_l_Int8_size();
 lean_mark_persistent(l_Int8_size);
-l_instToStringInt8___lam__0___closed__0 = _init_l_instToStringInt8___lam__0___closed__0();
-lean_mark_persistent(l_instToStringInt8___lam__0___closed__0);
 l_instReprAtomInt8 = _init_l_instReprAtomInt8();
 lean_mark_persistent(l_instReprAtomInt8);
-l_Int8_maxValue___closed__0 = _init_l_Int8_maxValue___closed__0();
 l_Int8_maxValue = _init_l_Int8_maxValue();
-l_Int8_minValue___closed__0 = _init_l_Int8_minValue___closed__0();
-l_Int8_minValue___closed__1 = _init_l_Int8_minValue___closed__1();
 l_Int8_minValue = _init_l_Int8_minValue();
-l_Int8_ofIntTruncate___closed__0 = _init_l_Int8_ofIntTruncate___closed__0();
-lean_mark_persistent(l_Int8_ofIntTruncate___closed__0);
-l_Int8_ofIntTruncate___closed__1 = _init_l_Int8_ofIntTruncate___closed__1();
-lean_mark_persistent(l_Int8_ofIntTruncate___closed__1);
-l_Int8_pow___closed__0 = _init_l_Int8_pow___closed__0();
-l_instInhabitedInt8___closed__0 = _init_l_instInhabitedInt8___closed__0();
 l_instInhabitedInt8 = _init_l_instInhabitedInt8();
 l_instLTInt8 = _init_l_instLTInt8();
 lean_mark_persistent(l_instLTInt8);
@@ -4835,17 +4868,8 @@ l_Int16_size = _init_l_Int16_size();
 lean_mark_persistent(l_Int16_size);
 l_instReprAtomInt16 = _init_l_instReprAtomInt16();
 lean_mark_persistent(l_instReprAtomInt16);
-l_Int16_maxValue___closed__0 = _init_l_Int16_maxValue___closed__0();
 l_Int16_maxValue = _init_l_Int16_maxValue();
-l_Int16_minValue___closed__0 = _init_l_Int16_minValue___closed__0();
-l_Int16_minValue___closed__1 = _init_l_Int16_minValue___closed__1();
 l_Int16_minValue = _init_l_Int16_minValue();
-l_Int16_ofIntTruncate___closed__0 = _init_l_Int16_ofIntTruncate___closed__0();
-lean_mark_persistent(l_Int16_ofIntTruncate___closed__0);
-l_Int16_ofIntTruncate___closed__1 = _init_l_Int16_ofIntTruncate___closed__1();
-lean_mark_persistent(l_Int16_ofIntTruncate___closed__1);
-l_Int16_pow___closed__0 = _init_l_Int16_pow___closed__0();
-l_instInhabitedInt16___closed__0 = _init_l_instInhabitedInt16___closed__0();
 l_instInhabitedInt16 = _init_l_instInhabitedInt16();
 l_instLTInt16 = _init_l_instLTInt16();
 lean_mark_persistent(l_instLTInt16);
@@ -4855,74 +4879,30 @@ l_Int32_size = _init_l_Int32_size();
 lean_mark_persistent(l_Int32_size);
 l_instReprAtomInt32 = _init_l_instReprAtomInt32();
 lean_mark_persistent(l_instReprAtomInt32);
-l_Int32_maxValue___closed__0 = _init_l_Int32_maxValue___closed__0();
 l_Int32_maxValue = _init_l_Int32_maxValue();
-l_Int32_minValue___closed__0 = _init_l_Int32_minValue___closed__0();
-l_Int32_minValue___closed__1 = _init_l_Int32_minValue___closed__1();
 l_Int32_minValue = _init_l_Int32_minValue();
-l_Int32_ofIntTruncate___closed__0 = _init_l_Int32_ofIntTruncate___closed__0();
-lean_mark_persistent(l_Int32_ofIntTruncate___closed__0);
-l_Int32_ofIntTruncate___closed__1 = _init_l_Int32_ofIntTruncate___closed__1();
-lean_mark_persistent(l_Int32_ofIntTruncate___closed__1);
-l_Int32_pow___closed__0 = _init_l_Int32_pow___closed__0();
-l_instInhabitedInt32___closed__0 = _init_l_instInhabitedInt32___closed__0();
 l_instInhabitedInt32 = _init_l_instInhabitedInt32();
 l_instLTInt32 = _init_l_instLTInt32();
 lean_mark_persistent(l_instLTInt32);
 l_instLEInt32 = _init_l_instLEInt32();
 lean_mark_persistent(l_instLEInt32);
-l_Int64_size___closed__0 = _init_l_Int64_size___closed__0();
-lean_mark_persistent(l_Int64_size___closed__0);
 l_Int64_size = _init_l_Int64_size();
 lean_mark_persistent(l_Int64_size);
 l_instReprAtomInt64 = _init_l_instReprAtomInt64();
 lean_mark_persistent(l_instReprAtomInt64);
-l_Int64_maxValue___closed__0 = _init_l_Int64_maxValue___closed__0();
 l_Int64_maxValue = _init_l_Int64_maxValue();
-l_Int64_minValue___closed__0 = _init_l_Int64_minValue___closed__0();
-lean_mark_persistent(l_Int64_minValue___closed__0);
-l_Int64_minValue___closed__1 = _init_l_Int64_minValue___closed__1();
-l_Int64_minValue___closed__2 = _init_l_Int64_minValue___closed__2();
 l_Int64_minValue = _init_l_Int64_minValue();
-l_Int64_ofIntTruncate___closed__0 = _init_l_Int64_ofIntTruncate___closed__0();
-lean_mark_persistent(l_Int64_ofIntTruncate___closed__0);
-l_Int64_ofIntTruncate___closed__1 = _init_l_Int64_ofIntTruncate___closed__1();
-lean_mark_persistent(l_Int64_ofIntTruncate___closed__1);
-l_Int64_pow___closed__0 = _init_l_Int64_pow___closed__0();
-l_instInhabitedInt64___closed__0 = _init_l_instInhabitedInt64___closed__0();
 l_instInhabitedInt64 = _init_l_instInhabitedInt64();
 l_instLTInt64 = _init_l_instLTInt64();
 lean_mark_persistent(l_instLTInt64);
 l_instLEInt64 = _init_l_instLEInt64();
 lean_mark_persistent(l_instLEInt64);
-l_ISize_size___closed__0 = _init_l_ISize_size___closed__0();
-lean_mark_persistent(l_ISize_size___closed__0);
 l_ISize_size = _init_l_ISize_size();
 lean_mark_persistent(l_ISize_size);
 l_instReprAtomISize = _init_l_instReprAtomISize();
 lean_mark_persistent(l_instReprAtomISize);
-l_ISize_maxValue___closed__0 = _init_l_ISize_maxValue___closed__0();
-lean_mark_persistent(l_ISize_maxValue___closed__0);
-l_ISize_maxValue___closed__1 = _init_l_ISize_maxValue___closed__1();
-lean_mark_persistent(l_ISize_maxValue___closed__1);
-l_ISize_maxValue___closed__2 = _init_l_ISize_maxValue___closed__2();
-lean_mark_persistent(l_ISize_maxValue___closed__2);
-l_ISize_maxValue___closed__3 = _init_l_ISize_maxValue___closed__3();
-lean_mark_persistent(l_ISize_maxValue___closed__3);
-l_ISize_maxValue___closed__4 = _init_l_ISize_maxValue___closed__4();
-lean_mark_persistent(l_ISize_maxValue___closed__4);
-l_ISize_maxValue___closed__5 = _init_l_ISize_maxValue___closed__5();
 l_ISize_maxValue = _init_l_ISize_maxValue();
-l_ISize_minValue___closed__0 = _init_l_ISize_minValue___closed__0();
-lean_mark_persistent(l_ISize_minValue___closed__0);
-l_ISize_minValue___closed__1 = _init_l_ISize_minValue___closed__1();
 l_ISize_minValue = _init_l_ISize_minValue();
-l_ISize_ofIntTruncate___closed__0 = _init_l_ISize_ofIntTruncate___closed__0();
-lean_mark_persistent(l_ISize_ofIntTruncate___closed__0);
-l_ISize_ofIntTruncate___closed__1 = _init_l_ISize_ofIntTruncate___closed__1();
-lean_mark_persistent(l_ISize_ofIntTruncate___closed__1);
-l_ISize_pow___closed__0 = _init_l_ISize_pow___closed__0();
-l_instInhabitedISize___closed__0 = _init_l_instInhabitedISize___closed__0();
 l_instInhabitedISize = _init_l_instInhabitedISize();
 l_instLTISize = _init_l_instLTISize();
 lean_mark_persistent(l_instLTISize);

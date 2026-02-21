@@ -84,7 +84,7 @@ lean_object* l_liftM(lean_object*, lean_object*, lean_object*, lean_object*, lea
 lean_object* l_ReaderT_bind(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Mutex_atomicallyOnce___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Mutex_atomicallyOnce(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* _init_l___private_Std_Sync_Mutex_0__Std_BaseMutexImpl() {
+static lean_object* _init_l___private_Std_Sync_Mutex_0__Std_BaseMutexImpl(void) {
 _start:
 {
 return lean_box(0);
@@ -126,7 +126,7 @@ lean_dec(x_1);
 return x_3;
 }
 }
-static lean_object* _init_l___private_Std_Sync_Mutex_0__Std_CondvarImpl() {
+static lean_object* _init_l___private_Std_Sync_Mutex_0__Std_CondvarImpl(void) {
 _start:
 {
 return lean_box(0);

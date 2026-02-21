@@ -33,7 +33,9 @@ LEAN_EXPORT lean_object* l_Std_Format_joinSep___at___00Lean_Syntax_formatStxAux_
 static const lean_string_object l_Lean_Syntax_formatStxAux___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 2, .m_capacity = 2, .m_length = 1, .m_data = "["};
 static const lean_object* l_Lean_Syntax_formatStxAux___closed__0 = (const lean_object*)&l_Lean_Syntax_formatStxAux___closed__0_value;
 lean_object* lean_string_length(lean_object*);
+static lean_once_cell_t l_Lean_Syntax_formatStxAux___closed__2_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Syntax_formatStxAux___closed__2;
+static lean_once_cell_t l_Lean_Syntax_formatStxAux___closed__3_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Syntax_formatStxAux___closed__3;
 static const lean_ctor_object l_Lean_Syntax_formatStxAux___closed__4_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 3}, .m_objs = {((lean_object*)&l_Lean_Syntax_formatStxAux___closed__0_value)}};
 static const lean_object* l_Lean_Syntax_formatStxAux___closed__4 = (const lean_object*)&l_Lean_Syntax_formatStxAux___closed__4_value;
@@ -64,7 +66,9 @@ static const lean_ctor_object l_Lean_Syntax_formatStxAux___closed__14_value = {.
 static const lean_object* l_Lean_Syntax_formatStxAux___closed__14 = (const lean_object*)&l_Lean_Syntax_formatStxAux___closed__14_value;
 static const lean_string_object l_Lean_Syntax_formatStxAux___closed__15_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 2, .m_capacity = 2, .m_length = 1, .m_data = "("};
 static const lean_object* l_Lean_Syntax_formatStxAux___closed__15 = (const lean_object*)&l_Lean_Syntax_formatStxAux___closed__15_value;
+static lean_once_cell_t l_Lean_Syntax_formatStxAux___closed__17_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Syntax_formatStxAux___closed__17;
+static lean_once_cell_t l_Lean_Syntax_formatStxAux___closed__18_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Syntax_formatStxAux___closed__18;
 static const lean_ctor_object l_Lean_Syntax_formatStxAux___closed__19_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 3}, .m_objs = {((lean_object*)&l_Lean_Syntax_formatStxAux___closed__15_value)}};
 static const lean_object* l_Lean_Syntax_formatStxAux___closed__19 = (const lean_object*)&l_Lean_Syntax_formatStxAux___closed__19_value;
@@ -375,7 +379,7 @@ return x_7;
 }
 }
 }
-static lean_object* _init_l_Lean_Syntax_formatStxAux___closed__2() {
+static lean_object* _init_l_Lean_Syntax_formatStxAux___closed__2(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -384,16 +388,16 @@ x_2 = lean_string_length(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Syntax_formatStxAux___closed__3() {
+static lean_object* _init_l_Lean_Syntax_formatStxAux___closed__3(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Syntax_formatStxAux___closed__2;
+x_1 = lean_obj_once(&l_Lean_Syntax_formatStxAux___closed__2, &l_Lean_Syntax_formatStxAux___closed__2_once, _init_l_Lean_Syntax_formatStxAux___closed__2);
 x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Syntax_formatStxAux___closed__17() {
+static lean_object* _init_l_Lean_Syntax_formatStxAux___closed__17(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -402,11 +406,11 @@ x_2 = lean_string_length(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Syntax_formatStxAux___closed__18() {
+static lean_object* _init_l_Lean_Syntax_formatStxAux___closed__18(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Syntax_formatStxAux___closed__17;
+x_1 = lean_obj_once(&l_Lean_Syntax_formatStxAux___closed__17, &l_Lean_Syntax_formatStxAux___closed__17_once, _init_l_Lean_Syntax_formatStxAux___closed__17);
 x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
@@ -481,7 +485,7 @@ lean_ctor_set(x_42, 0, x_40);
 lean_ctor_set(x_42, 1, x_41);
 x_43 = lean_box(1);
 x_44 = l_Std_Format_joinSep___at___00Lean_Syntax_formatStxAux_spec__2(x_42, x_43);
-x_45 = l_Lean_Syntax_formatStxAux___closed__18;
+x_45 = lean_obj_once(&l_Lean_Syntax_formatStxAux___closed__18, &l_Lean_Syntax_formatStxAux___closed__18_once, _init_l_Lean_Syntax_formatStxAux___closed__18);
 x_46 = ((lean_object*)(l_Lean_Syntax_formatStxAux___closed__19));
 x_47 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_47, 0, x_46);
@@ -635,7 +639,7 @@ return x_83;
 block_14:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; lean_object* x_13; 
-x_6 = l_Lean_Syntax_formatStxAux___closed__3;
+x_6 = lean_obj_once(&l_Lean_Syntax_formatStxAux___closed__3, &l_Lean_Syntax_formatStxAux___closed__3_once, _init_l_Lean_Syntax_formatStxAux___closed__3);
 x_7 = ((lean_object*)(l_Lean_Syntax_formatStxAux___closed__4));
 x_8 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_8, 0, x_7);
@@ -842,14 +846,6 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Format_Macro(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Syntax_formatStxAux___closed__2 = _init_l_Lean_Syntax_formatStxAux___closed__2();
-lean_mark_persistent(l_Lean_Syntax_formatStxAux___closed__2);
-l_Lean_Syntax_formatStxAux___closed__3 = _init_l_Lean_Syntax_formatStxAux___closed__3();
-lean_mark_persistent(l_Lean_Syntax_formatStxAux___closed__3);
-l_Lean_Syntax_formatStxAux___closed__17 = _init_l_Lean_Syntax_formatStxAux___closed__17();
-lean_mark_persistent(l_Lean_Syntax_formatStxAux___closed__17);
-l_Lean_Syntax_formatStxAux___closed__18 = _init_l_Lean_Syntax_formatStxAux___closed__18();
-lean_mark_persistent(l_Lean_Syntax_formatStxAux___closed__18);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

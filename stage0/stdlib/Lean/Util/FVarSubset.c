@@ -22,10 +22,14 @@ lean_object* l_Lean_Expr_fvarId_x21(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Expr_fvarsSubset___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_fvarsSubset___lam__0___boxed(lean_object*, lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
+static lean_once_cell_t l_Lean_Expr_fvarsSubset___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Expr_fvarsSubset___closed__0;
+static lean_once_cell_t l_Lean_Expr_fvarsSubset___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Expr_fvarsSubset___closed__1;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
+static lean_once_cell_t l_Lean_Expr_fvarsSubset___closed__2_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Expr_fvarsSubset___closed__2;
+static lean_once_cell_t l_Lean_Expr_fvarsSubset___closed__3_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Expr_fvarsSubset___closed__3;
 lean_object* l_Lean_collectFVars(lean_object*, lean_object*);
 lean_object* lean_find_ext_expr(lean_object*, lean_object*);
@@ -149,7 +153,7 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Expr_fvarsSubset___closed__0() {
+static lean_object* _init_l_Lean_Expr_fvarsSubset___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -159,11 +163,11 @@ x_3 = lean_mk_array(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Expr_fvarsSubset___closed__1() {
+static lean_object* _init_l_Lean_Expr_fvarsSubset___closed__1(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Expr_fvarsSubset___closed__0;
+x_1 = lean_obj_once(&l_Lean_Expr_fvarsSubset___closed__0, &l_Lean_Expr_fvarsSubset___closed__0_once, _init_l_Lean_Expr_fvarsSubset___closed__0);
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
@@ -171,7 +175,7 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Expr_fvarsSubset___closed__2() {
+static lean_object* _init_l_Lean_Expr_fvarsSubset___closed__2(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -180,13 +184,13 @@ x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Expr_fvarsSubset___closed__3() {
+static lean_object* _init_l_Lean_Expr_fvarsSubset___closed__3(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Expr_fvarsSubset___closed__2;
+x_1 = lean_obj_once(&l_Lean_Expr_fvarsSubset___closed__2, &l_Lean_Expr_fvarsSubset___closed__2_once, _init_l_Lean_Expr_fvarsSubset___closed__2);
 x_2 = lean_box(1);
-x_3 = l_Lean_Expr_fvarsSubset___closed__1;
+x_3 = lean_obj_once(&l_Lean_Expr_fvarsSubset___closed__1, &l_Lean_Expr_fvarsSubset___closed__1_once, _init_l_Lean_Expr_fvarsSubset___closed__1);
 x_4 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_4, 0, x_3);
 lean_ctor_set(x_4, 1, x_2);
@@ -219,7 +223,7 @@ return x_5;
 else
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-x_7 = l_Lean_Expr_fvarsSubset___closed__3;
+x_7 = lean_obj_once(&l_Lean_Expr_fvarsSubset___closed__3, &l_Lean_Expr_fvarsSubset___closed__3_once, _init_l_Lean_Expr_fvarsSubset___closed__3);
 x_8 = l_Lean_collectFVars(x_7, x_2);
 x_9 = lean_alloc_closure((void*)(l_Lean_Expr_fvarsSubset___lam__0___boxed), 2, 1);
 lean_closure_set(x_9, 0, x_8);
@@ -280,14 +284,6 @@ lean_dec_ref(res);
 res = initialize_Lean_Util_FindExpr(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Expr_fvarsSubset___closed__0 = _init_l_Lean_Expr_fvarsSubset___closed__0();
-lean_mark_persistent(l_Lean_Expr_fvarsSubset___closed__0);
-l_Lean_Expr_fvarsSubset___closed__1 = _init_l_Lean_Expr_fvarsSubset___closed__1();
-lean_mark_persistent(l_Lean_Expr_fvarsSubset___closed__1);
-l_Lean_Expr_fvarsSubset___closed__2 = _init_l_Lean_Expr_fvarsSubset___closed__2();
-lean_mark_persistent(l_Lean_Expr_fvarsSubset___closed__2);
-l_Lean_Expr_fvarsSubset___closed__3 = _init_l_Lean_Expr_fvarsSubset___closed__3();
-lean_mark_persistent(l_Lean_Expr_fvarsSubset___closed__3);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

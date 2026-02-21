@@ -49,7 +49,7 @@ LEAN_EXPORT uint32_t l_Char_toLower(uint32_t);
 LEAN_EXPORT lean_object* l_Char_toLower___boxed(lean_object*);
 LEAN_EXPORT uint32_t l_Char_toUpper(uint32_t);
 LEAN_EXPORT lean_object* l_Char_toUpper___boxed(lean_object*);
-static lean_object* _init_l_Char_instLT() {
+static lean_object* _init_l_Char_instLT(void) {
 _start:
 {
 lean_object* x_1; 
@@ -57,7 +57,7 @@ x_1 = lean_box(0);
 return x_1;
 }
 }
-static lean_object* _init_l_Char_instLE() {
+static lean_object* _init_l_Char_instLE(void) {
 _start:
 {
 lean_object* x_1; 
@@ -162,7 +162,7 @@ x_4 = lean_box_uint32(x_3);
 return x_4;
 }
 }
-static uint32_t _init_l_Char_instInhabited() {
+static uint32_t _init_l_Char_instInhabited(void) {
 _start:
 {
 uint32_t x_1; 

@@ -115,7 +115,7 @@ lean_dec(x_3);
 return x_5;
 }
 }
-static lean_object* _init_l_Nat_lt__wfRel() {
+static lean_object* _init_l_Nat_lt__wfRel(void) {
 _start:
 {
 lean_object* x_1; 

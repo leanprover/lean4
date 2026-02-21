@@ -25,6 +25,7 @@ LEAN_EXPORT lean_object* l_Lean_Grind_Ring_OfSemiring_Q_liftOn_u2082___boxed(lea
 LEAN_EXPORT lean_object* l_Lean_Grind_Ring_OfSemiring_natCast___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Ring_OfSemiring_natCast(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
+static lean_once_cell_t l_Lean_Grind_Ring_OfSemiring_intCast___redArg___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Grind_Ring_OfSemiring_intCast___redArg___closed__0;
 uint8_t lean_int_dec_lt(lean_object*, lean_object*);
 lean_object* lean_nat_abs(lean_object*);
@@ -202,7 +203,7 @@ x_4 = l_Lean_Grind_Ring_OfSemiring_natCast___redArg(x_2, x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Grind_Ring_OfSemiring_intCast___redArg___closed__0() {
+static lean_object* _init_l_Lean_Grind_Ring_OfSemiring_intCast___redArg___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -216,7 +217,7 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
 x_3 = lean_unsigned_to_nat(0u);
-x_4 = l_Lean_Grind_Ring_OfSemiring_intCast___redArg___closed__0;
+x_4 = lean_obj_once(&l_Lean_Grind_Ring_OfSemiring_intCast___redArg___closed__0, &l_Lean_Grind_Ring_OfSemiring_intCast___redArg___closed__0_once, _init_l_Lean_Grind_Ring_OfSemiring_intCast___redArg___closed__0);
 x_5 = lean_int_dec_lt(x_2, x_4);
 if (x_5 == 0)
 {
@@ -844,8 +845,6 @@ lean_dec_ref(res);
 res = initialize_Init_RCases(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Grind_Ring_OfSemiring_intCast___redArg___closed__0 = _init_l_Lean_Grind_Ring_OfSemiring_intCast___redArg___closed__0();
-lean_mark_persistent(l_Lean_Grind_Ring_OfSemiring_intCast___redArg___closed__0);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

@@ -27,6 +27,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_mkWhereFinallyView___redArg___lam__1(lean_o
 static const lean_string_object l_Lean_Elab_mkWhereFinallyView___redArg___lam__3___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 93, .m_capacity = 93, .m_length = 92, .m_data = "`where ... finally` does not currently support any named sub-sections `| sectionName => ...`"};
 static const lean_object* l_Lean_Elab_mkWhereFinallyView___redArg___lam__3___closed__0 = (const lean_object*)&l_Lean_Elab_mkWhereFinallyView___redArg___lam__3___closed__0_value;
 lean_object* l_Lean_stringToMessageData(lean_object*);
+static lean_once_cell_t l_Lean_Elab_mkWhereFinallyView___redArg___lam__3___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Elab_mkWhereFinallyView___redArg___lam__3___closed__1;
 lean_object* l_Lean_throwErrorAt___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_mkWhereFinallyView___redArg___lam__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
@@ -83,7 +84,7 @@ x_3 = lean_apply_1(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Elab_mkWhereFinallyView___redArg___lam__3___closed__1() {
+static lean_object* _init_l_Lean_Elab_mkWhereFinallyView___redArg___lam__3___closed__1(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -131,7 +132,7 @@ goto block_16;
 block_16:
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; 
-x_13 = l_Lean_Elab_mkWhereFinallyView___redArg___lam__3___closed__1;
+x_13 = lean_obj_once(&l_Lean_Elab_mkWhereFinallyView___redArg___lam__3___closed__1, &l_Lean_Elab_mkWhereFinallyView___redArg___lam__3___closed__1_once, _init_l_Lean_Elab_mkWhereFinallyView___redArg___lam__3___closed__1);
 x_14 = l_Lean_throwErrorAt___redArg(x_1, x_2, x_3, x_13);
 x_15 = lean_apply_4(x_4, lean_box(0), lean_box(0), x_14, x_5);
 return x_15;
@@ -246,8 +247,6 @@ _G_initialized = true;
 res = initialize_Lean_Parser_Term(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Elab_mkWhereFinallyView___redArg___lam__3___closed__1 = _init_l_Lean_Elab_mkWhereFinallyView___redArg___lam__3___closed__1();
-lean_mark_persistent(l_Lean_Elab_mkWhereFinallyView___redArg___lam__3___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

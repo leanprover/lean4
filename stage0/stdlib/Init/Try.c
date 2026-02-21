@@ -41,7 +41,9 @@ static const lean_object* l_Lean_Parser_Tactic_tryTrace___closed__7 = (const lea
 static const lean_ctor_object l_Lean_Parser_Tactic_tryTrace___closed__8_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 8, .m_other = 1, .m_tag = 6}, .m_objs = {((lean_object*)&l_Lean_Parser_Tactic_tryTrace___closed__7_value),LEAN_SCALAR_PTR_LITERAL(0, 0, 0, 0, 0, 0, 0, 0)}};
 static const lean_object* l_Lean_Parser_Tactic_tryTrace___closed__8 = (const lean_object*)&l_Lean_Parser_Tactic_tryTrace___closed__8_value;
 extern lean_object* l_Lean_Parser_Tactic_optConfig;
+static lean_once_cell_t l_Lean_Parser_Tactic_tryTrace___closed__9_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Parser_Tactic_tryTrace___closed__9;
+static lean_once_cell_t l_Lean_Parser_Tactic_tryTrace___closed__10_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Parser_Tactic_tryTrace___closed__10;
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_tryTrace;
 static const lean_string_object l_Lean_Parser_Tactic_attemptAll___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 11, .m_capacity = 11, .m_length = 10, .m_data = "attemptAll"};
@@ -261,6 +263,7 @@ static const lean_object* l___aux__Init__Try______macroRules__tactic_u220e__1___
 static const lean_ctor_object l___aux__Init__Try______macroRules__tactic_u220e__1___closed__3_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l___aux__Init__Try______macroRules__tactic_u220e__1___closed__2_value),LEAN_SCALAR_PTR_LITERAL(24, 58, 49, 223, 146, 207, 197, 136)}};
 static const lean_object* l___aux__Init__Try______macroRules__tactic_u220e__1___closed__3 = (const lean_object*)&l___aux__Init__Try______macroRules__tactic_u220e__1___closed__3_value;
 lean_object* l_Array_mkArray0(lean_object*);
+static lean_once_cell_t l___aux__Init__Try______macroRules__tactic_u220e__1___closed__4_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___aux__Init__Try______macroRules__tactic_u220e__1___closed__4;
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 lean_object* l_Lean_SourceInfo_fromRef(lean_object*, uint8_t);
@@ -317,11 +320,13 @@ static const lean_object* l___aux__Init__Try______macroRules__term_u220e__1___cl
 static const lean_string_object l___aux__Init__Try______macroRules__term_u220e__1___closed__11_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 11, .m_capacity = 11, .m_length = 10, .m_data = "wrapWithBy"};
 static const lean_object* l___aux__Init__Try______macroRules__term_u220e__1___closed__11 = (const lean_object*)&l___aux__Init__Try______macroRules__term_u220e__1___closed__11_value;
 lean_object* l_String_toRawSubstring_x27(lean_object*);
+static lean_once_cell_t l___aux__Init__Try______macroRules__term_u220e__1___closed__12_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___aux__Init__Try______macroRules__term_u220e__1___closed__12;
 static const lean_ctor_object l___aux__Init__Try______macroRules__term_u220e__1___closed__13_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l___aux__Init__Try______macroRules__term_u220e__1___closed__11_value),LEAN_SCALAR_PTR_LITERAL(182, 142, 241, 227, 132, 208, 208, 14)}};
 static const lean_object* l___aux__Init__Try______macroRules__term_u220e__1___closed__13 = (const lean_object*)&l___aux__Init__Try______macroRules__term_u220e__1___closed__13_value;
 static const lean_string_object l___aux__Init__Try______macroRules__term_u220e__1___closed__14_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 5, .m_capacity = 5, .m_length = 4, .m_data = "true"};
 static const lean_object* l___aux__Init__Try______macroRules__term_u220e__1___closed__14 = (const lean_object*)&l___aux__Init__Try______macroRules__term_u220e__1___closed__14_value;
+static lean_once_cell_t l___aux__Init__Try______macroRules__term_u220e__1___closed__15_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___aux__Init__Try______macroRules__term_u220e__1___closed__15;
 static const lean_ctor_object l___aux__Init__Try______macroRules__term_u220e__1___closed__16_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l___aux__Init__Try______macroRules__term_u220e__1___closed__14_value),LEAN_SCALAR_PTR_LITERAL(235, 97, 249, 134, 197, 220, 12, 91)}};
 static const lean_object* l___aux__Init__Try______macroRules__term_u220e__1___closed__16 = (const lean_object*)&l___aux__Init__Try______macroRules__term_u220e__1___closed__16_value;
@@ -346,7 +351,7 @@ LEAN_EXPORT lean_object* l_Lean_Try_markerUnexpander___redArg(lean_object*, lean
 LEAN_EXPORT lean_object* l_Lean_Try_markerUnexpander___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Try_markerUnexpander(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Try_markerUnexpander___boxed(lean_object*, lean_object*, lean_object*);
-static lean_object* _init_l_Lean_Parser_Tactic_tryTrace___closed__9() {
+static lean_object* _init_l_Lean_Parser_Tactic_tryTrace___closed__9(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -360,11 +365,11 @@ lean_ctor_set(x_4, 2, x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Parser_Tactic_tryTrace___closed__10() {
+static lean_object* _init_l_Lean_Parser_Tactic_tryTrace___closed__10(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Parser_Tactic_tryTrace___closed__9;
+x_1 = lean_obj_once(&l_Lean_Parser_Tactic_tryTrace___closed__9, &l_Lean_Parser_Tactic_tryTrace___closed__9_once, _init_l_Lean_Parser_Tactic_tryTrace___closed__9);
 x_2 = lean_unsigned_to_nat(1022u);
 x_3 = ((lean_object*)(l_Lean_Parser_Tactic_tryTrace___closed__4));
 x_4 = lean_alloc_ctor(3, 3, 0);
@@ -374,15 +379,15 @@ lean_ctor_set(x_4, 2, x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Parser_Tactic_tryTrace() {
+static lean_object* _init_l_Lean_Parser_Tactic_tryTrace(void) {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Parser_Tactic_tryTrace___closed__10;
+x_1 = lean_obj_once(&l_Lean_Parser_Tactic_tryTrace___closed__10, &l_Lean_Parser_Tactic_tryTrace___closed__10_once, _init_l_Lean_Parser_Tactic_tryTrace___closed__10);
 return x_1;
 }
 }
-static lean_object* _init_l___aux__Init__Try______macroRules__tactic_u220e__1___closed__4() {
+static lean_object* _init_l___aux__Init__Try______macroRules__tactic_u220e__1___closed__4(void) {
 _start:
 {
 lean_object* x_1; 
@@ -419,7 +424,7 @@ lean_ctor_set(x_13, 0, x_10);
 lean_ctor_set(x_13, 1, x_12);
 x_14 = ((lean_object*)(l___aux__Init__Try______macroRules__tactic_u220e__1___closed__1));
 x_15 = ((lean_object*)(l___aux__Init__Try______macroRules__tactic_u220e__1___closed__3));
-x_16 = l___aux__Init__Try______macroRules__tactic_u220e__1___closed__4;
+x_16 = lean_obj_once(&l___aux__Init__Try______macroRules__tactic_u220e__1___closed__4, &l___aux__Init__Try______macroRules__tactic_u220e__1___closed__4_once, _init_l___aux__Init__Try______macroRules__tactic_u220e__1___closed__4);
 lean_inc(x_10);
 x_17 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_17, 0, x_10);
@@ -444,7 +449,7 @@ lean_dec_ref(x_2);
 return x_4;
 }
 }
-static lean_object* _init_l___aux__Init__Try______macroRules__term_u220e__1___closed__12() {
+static lean_object* _init_l___aux__Init__Try______macroRules__term_u220e__1___closed__12(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -453,7 +458,7 @@ x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___aux__Init__Try______macroRules__term_u220e__1___closed__15() {
+static lean_object* _init_l___aux__Init__Try______macroRules__term_u220e__1___closed__15(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -514,7 +519,7 @@ lean_inc(x_12);
 x_26 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_26, 0, x_12);
 lean_ctor_set(x_26, 1, x_25);
-x_27 = l___aux__Init__Try______macroRules__term_u220e__1___closed__12;
+x_27 = lean_obj_once(&l___aux__Init__Try______macroRules__term_u220e__1___closed__12, &l___aux__Init__Try______macroRules__term_u220e__1___closed__12_once, _init_l___aux__Init__Try______macroRules__term_u220e__1___closed__12);
 x_28 = ((lean_object*)(l___aux__Init__Try______macroRules__term_u220e__1___closed__13));
 lean_inc(x_9);
 lean_inc(x_8);
@@ -531,7 +536,7 @@ lean_inc(x_12);
 x_33 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_33, 0, x_12);
 lean_ctor_set(x_33, 1, x_32);
-x_34 = l___aux__Init__Try______macroRules__term_u220e__1___closed__15;
+x_34 = lean_obj_once(&l___aux__Init__Try______macroRules__term_u220e__1___closed__15, &l___aux__Init__Try______macroRules__term_u220e__1___closed__15_once, _init_l___aux__Init__Try______macroRules__term_u220e__1___closed__15);
 x_35 = ((lean_object*)(l___aux__Init__Try______macroRules__term_u220e__1___closed__16));
 x_36 = l_Lean_addMacroScope(x_8, x_35, x_9);
 x_37 = ((lean_object*)(l___aux__Init__Try______macroRules__term_u220e__1___closed__20));
@@ -624,7 +629,7 @@ x_13 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_13, 0, x_4);
 lean_ctor_set(x_13, 1, x_12);
 x_14 = ((lean_object*)(l___aux__Init__Try______macroRules__tactic_u220e__1___closed__1));
-x_15 = l___aux__Init__Try______macroRules__tactic_u220e__1___closed__4;
+x_15 = lean_obj_once(&l___aux__Init__Try______macroRules__tactic_u220e__1___closed__4, &l___aux__Init__Try______macroRules__tactic_u220e__1___closed__4_once, _init_l___aux__Init__Try______macroRules__tactic_u220e__1___closed__4);
 lean_inc(x_4);
 x_16 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_16, 0, x_4);
@@ -683,18 +688,8 @@ _G_initialized = true;
 res = initialize_Init_Tactics(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Parser_Tactic_tryTrace___closed__9 = _init_l_Lean_Parser_Tactic_tryTrace___closed__9();
-lean_mark_persistent(l_Lean_Parser_Tactic_tryTrace___closed__9);
-l_Lean_Parser_Tactic_tryTrace___closed__10 = _init_l_Lean_Parser_Tactic_tryTrace___closed__10();
-lean_mark_persistent(l_Lean_Parser_Tactic_tryTrace___closed__10);
 l_Lean_Parser_Tactic_tryTrace = _init_l_Lean_Parser_Tactic_tryTrace();
 lean_mark_persistent(l_Lean_Parser_Tactic_tryTrace);
-l___aux__Init__Try______macroRules__tactic_u220e__1___closed__4 = _init_l___aux__Init__Try______macroRules__tactic_u220e__1___closed__4();
-lean_mark_persistent(l___aux__Init__Try______macroRules__tactic_u220e__1___closed__4);
-l___aux__Init__Try______macroRules__term_u220e__1___closed__12 = _init_l___aux__Init__Try______macroRules__term_u220e__1___closed__12();
-lean_mark_persistent(l___aux__Init__Try______macroRules__term_u220e__1___closed__12);
-l___aux__Init__Try______macroRules__term_u220e__1___closed__15 = _init_l___aux__Init__Try______macroRules__term_u220e__1___closed__15();
-lean_mark_persistent(l___aux__Init__Try______macroRules__term_u220e__1___closed__15);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

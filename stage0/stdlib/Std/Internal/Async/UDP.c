@@ -56,6 +56,7 @@ lean_object* lean_uv_udp_send(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_sendAll(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_sendAll___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
+static lean_once_cell_t l_Std_Internal_IO_Async_UDP_Socket_send___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Internal_IO_Async_UDP_Socket_send___closed__0;
 lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_send(lean_object*, lean_object*, lean_object*);
@@ -581,7 +582,7 @@ lean_dec(x_1);
 return x_5;
 }
 }
-static lean_object* _init_l_Std_Internal_IO_Async_UDP_Socket_send___closed__0() {
+static lean_object* _init_l_Std_Internal_IO_Async_UDP_Socket_send___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -594,7 +595,7 @@ LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_send(lean_object* x_
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_16; 
-x_5 = l_Std_Internal_IO_Async_UDP_Socket_send___closed__0;
+x_5 = lean_obj_once(&l_Std_Internal_IO_Async_UDP_Socket_send___closed__0, &l_Std_Internal_IO_Async_UDP_Socket_send___closed__0_once, _init_l_Std_Internal_IO_Async_UDP_Socket_send___closed__0);
 x_6 = lean_array_push(x_5, x_2);
 x_7 = ((lean_object*)(l_Std_Internal_IO_Async_UDP_Socket_sendAll___closed__2));
 x_16 = lean_uv_udp_send(x_1, x_6, x_3);
@@ -2224,8 +2225,6 @@ lean_dec_ref(res);
 res = initialize_Std_Internal_Async_Select(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Std_Internal_IO_Async_UDP_Socket_send___closed__0 = _init_l_Std_Internal_IO_Async_UDP_Socket_send___closed__0();
-lean_mark_persistent(l_Std_Internal_IO_Async_UDP_Socket_send___closed__0);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

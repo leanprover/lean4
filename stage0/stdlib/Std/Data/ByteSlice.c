@@ -37,9 +37,12 @@ LEAN_EXPORT lean_object* l_ByteSlice_getD___boxed(lean_object*, lean_object*, le
 LEAN_EXPORT uint8_t l_ByteSlice_get_x21(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteSlice_get_x21___boxed(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
+static lean_once_cell_t l_ByteSlice_empty___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_ByteSlice_empty___closed__0;
 lean_object* lean_byte_array_mk(lean_object*);
+static lean_once_cell_t l_ByteSlice_empty___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_ByteSlice_empty___closed__1;
+static lean_once_cell_t l_ByteSlice_empty___closed__2_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_ByteSlice_empty___closed__2;
 LEAN_EXPORT lean_object* l_ByteSlice_empty;
 lean_object* lean_byte_array_size(lean_object*);
@@ -367,7 +370,7 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_ByteSlice_empty___closed__0() {
+static lean_object* _init_l_ByteSlice_empty___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -376,21 +379,21 @@ x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_ByteSlice_empty___closed__1() {
+static lean_object* _init_l_ByteSlice_empty___closed__1(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_ByteSlice_empty___closed__0;
+x_1 = lean_obj_once(&l_ByteSlice_empty___closed__0, &l_ByteSlice_empty___closed__0_once, _init_l_ByteSlice_empty___closed__0);
 x_2 = lean_byte_array_mk(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_ByteSlice_empty___closed__2() {
+static lean_object* _init_l_ByteSlice_empty___closed__2(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_ByteSlice_empty___closed__1;
+x_2 = lean_obj_once(&l_ByteSlice_empty___closed__1, &l_ByteSlice_empty___closed__1_once, _init_l_ByteSlice_empty___closed__1);
 x_3 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
@@ -398,11 +401,11 @@ lean_ctor_set(x_3, 2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_ByteSlice_empty() {
+static lean_object* _init_l_ByteSlice_empty(void) {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_ByteSlice_empty___closed__2;
+x_1 = lean_obj_once(&l_ByteSlice_empty___closed__2, &l_ByteSlice_empty___closed__2_once, _init_l_ByteSlice_empty___closed__2);
 return x_1;
 }
 }
@@ -419,7 +422,7 @@ lean_ctor_set(x_4, 2, x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_ByteSlice_instEmptyCollection() {
+static lean_object* _init_l_ByteSlice_instEmptyCollection(void) {
 _start:
 {
 lean_object* x_1; 
@@ -427,7 +430,7 @@ x_1 = l_ByteSlice_empty;
 return x_1;
 }
 }
-static lean_object* _init_l_ByteSlice_instInhabited() {
+static lean_object* _init_l_ByteSlice_instInhabited(void) {
 _start:
 {
 lean_object* x_1; 
@@ -1619,12 +1622,6 @@ lean_dec_ref(res);
 res = initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_ByteSlice_empty___closed__0 = _init_l_ByteSlice_empty___closed__0();
-lean_mark_persistent(l_ByteSlice_empty___closed__0);
-l_ByteSlice_empty___closed__1 = _init_l_ByteSlice_empty___closed__1();
-lean_mark_persistent(l_ByteSlice_empty___closed__1);
-l_ByteSlice_empty___closed__2 = _init_l_ByteSlice_empty___closed__2();
-lean_mark_persistent(l_ByteSlice_empty___closed__2);
 l_ByteSlice_empty = _init_l_ByteSlice_empty();
 lean_mark_persistent(l_ByteSlice_empty);
 l_ByteSlice_instEmptyCollection = _init_l_ByteSlice_instEmptyCollection();

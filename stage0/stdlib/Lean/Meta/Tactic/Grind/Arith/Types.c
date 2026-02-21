@@ -24,7 +24,7 @@ x_2 = lean_unsigned_to_nat(0u);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Meta_Grind_Arith_instInhabitedState_default() {
+static lean_object* _init_l_Lean_Meta_Grind_Arith_instInhabitedState_default(void) {
 _start:
 {
 lean_object* x_1; 
@@ -32,7 +32,7 @@ x_1 = lean_box(0);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Meta_Grind_Arith_instInhabitedState() {
+static lean_object* _init_l_Lean_Meta_Grind_Arith_instInhabitedState(void) {
 _start:
 {
 lean_object* x_1; 

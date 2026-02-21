@@ -83,6 +83,7 @@ LEAN_EXPORT lean_object* l_ExceptCpsT_instInhabited___redArg___lam__0___boxed(le
 LEAN_EXPORT lean_object* l_ExceptCpsT_instInhabited___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_ExceptCpsT_instInhabited(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_MonadAttach_trivial___redArg(lean_object*);
+static lean_once_cell_t l_ExceptCpsT_instMonadAttach___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_ExceptCpsT_instMonadAttach___closed__0;
 LEAN_EXPORT lean_object* l_ExceptCpsT_instMonadAttach(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ExceptCpsT_run___redArg___lam__0(lean_object* x_1, lean_object* x_2) {
@@ -525,7 +526,7 @@ lean_closure_set(x_5, 0, x_4);
 return x_5;
 }
 }
-static lean_object* _init_l_ExceptCpsT_instMonadAttach___closed__0() {
+static lean_object* _init_l_ExceptCpsT_instMonadAttach___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -538,7 +539,7 @@ LEAN_EXPORT lean_object* l_ExceptCpsT_instMonadAttach(lean_object* x_1, lean_obj
 _start:
 {
 lean_object* x_3; 
-x_3 = l_ExceptCpsT_instMonadAttach___closed__0;
+x_3 = lean_obj_once(&l_ExceptCpsT_instMonadAttach___closed__0, &l_ExceptCpsT_instMonadAttach___closed__0_once, _init_l_ExceptCpsT_instMonadAttach___closed__0);
 return x_3;
 }
 }
@@ -555,8 +556,6 @@ lean_dec_ref(res);
 res = initialize_Init_SimpLemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_ExceptCpsT_instMonadAttach___closed__0 = _init_l_ExceptCpsT_instMonadAttach___closed__0();
-lean_mark_persistent(l_ExceptCpsT_instMonadAttach___closed__0);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

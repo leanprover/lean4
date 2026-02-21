@@ -64,7 +64,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_FVarSubst_append(lean_object*, lean_object*
 LEAN_EXPORT lean_object* l_Lean_LocalDecl_applyFVarSubst(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_applyFVarSubst(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_applyFVarSubst___boxed(lean_object*, lean_object*);
-static lean_object* _init_l_Lean_Meta_instInhabitedFVarSubst_default() {
+static lean_object* _init_l_Lean_Meta_instInhabitedFVarSubst_default(void) {
 _start:
 {
 lean_object* x_1; 
@@ -72,7 +72,7 @@ x_1 = lean_box(0);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Meta_instInhabitedFVarSubst() {
+static lean_object* _init_l_Lean_Meta_instInhabitedFVarSubst(void) {
 _start:
 {
 lean_object* x_1; 
@@ -80,7 +80,7 @@ x_1 = lean_box(0);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Meta_FVarSubst_empty() {
+static lean_object* _init_l_Lean_Meta_FVarSubst_empty(void) {
 _start:
 {
 lean_object* x_1; 

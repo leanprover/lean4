@@ -22,7 +22,7 @@ lean_object* lean_uv_signal_stop(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_UV_Signal_stop___boxed(lean_object*, lean_object*);
 lean_object* lean_uv_signal_cancel(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_UV_Signal_cancel___boxed(lean_object*, lean_object*);
-static lean_object* _init_l___private_Std_Internal_UV_Signal_0__Std_Internal_UV_SignalImpl() {
+static lean_object* _init_l___private_Std_Internal_UV_Signal_0__Std_Internal_UV_SignalImpl(void) {
 _start:
 {
 return lean_box(0);

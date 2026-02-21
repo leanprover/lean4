@@ -244,7 +244,7 @@ LEAN_EXPORT size_t l_LLVM_constIntSizeT(size_t, uint64_t, uint8_t);
 LEAN_EXPORT lean_object* l_LLVM_constIntSizeT___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT size_t l_LLVM_constIntUnsigned(size_t, uint64_t, uint8_t);
 LEAN_EXPORT lean_object* l_LLVM_constIntUnsigned___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-static uint64_t _init_l_LLVM_CodegenFileType_AssemblyFile() {
+static uint64_t _init_l_LLVM_CodegenFileType_AssemblyFile(void) {
 _start:
 {
 uint64_t x_1; 
@@ -252,7 +252,7 @@ x_1 = 0;
 return x_1;
 }
 }
-static uint64_t _init_l_LLVM_CodegenFileType_ObjectFile() {
+static uint64_t _init_l_LLVM_CodegenFileType_ObjectFile(void) {
 _start:
 {
 uint64_t x_1; 
@@ -260,7 +260,7 @@ x_1 = 1;
 return x_1;
 }
 }
-static uint64_t _init_l_LLVM_IntPredicate_EQ() {
+static uint64_t _init_l_LLVM_IntPredicate_EQ(void) {
 _start:
 {
 uint64_t x_1; 
@@ -268,7 +268,7 @@ x_1 = 32;
 return x_1;
 }
 }
-static uint64_t _init_l_LLVM_IntPredicate_NE() {
+static uint64_t _init_l_LLVM_IntPredicate_NE(void) {
 _start:
 {
 uint64_t x_1; 
@@ -276,7 +276,7 @@ x_1 = 33;
 return x_1;
 }
 }
-static uint64_t _init_l_LLVM_IntPredicate_UGT() {
+static uint64_t _init_l_LLVM_IntPredicate_UGT(void) {
 _start:
 {
 uint64_t x_1; 
@@ -284,7 +284,7 @@ x_1 = 34;
 return x_1;
 }
 }
-static uint64_t _init_l_LLVM_AttributeIndex_AttributeReturnIndex() {
+static uint64_t _init_l_LLVM_AttributeIndex_AttributeReturnIndex(void) {
 _start:
 {
 uint64_t x_1; 
@@ -292,7 +292,7 @@ x_1 = 0;
 return x_1;
 }
 }
-static uint64_t _init_l_LLVM_AttributeIndex_AttributeFunctionIndex() {
+static uint64_t _init_l_LLVM_AttributeIndex_AttributeFunctionIndex(void) {
 _start:
 {
 uint64_t x_1; 
@@ -1437,7 +1437,7 @@ x_10 = lean_llvm_add_attribute_at_index(x_6, x_7, x_8, x_9);
 return x_10;
 }
 }
-static uint64_t _init_l_LLVM_Visibility_default() {
+static uint64_t _init_l_LLVM_Visibility_default(void) {
 _start:
 {
 uint64_t x_1; 
@@ -1445,7 +1445,7 @@ x_1 = 0;
 return x_1;
 }
 }
-static uint64_t _init_l_LLVM_Visibility_hidden() {
+static uint64_t _init_l_LLVM_Visibility_hidden(void) {
 _start:
 {
 uint64_t x_1; 
@@ -1453,7 +1453,7 @@ x_1 = 1;
 return x_1;
 }
 }
-static uint64_t _init_l_LLVM_Visibility_protected() {
+static uint64_t _init_l_LLVM_Visibility_protected(void) {
 _start:
 {
 uint64_t x_1; 
@@ -1475,7 +1475,7 @@ x_8 = lean_llvm_set_visibility(x_5, x_6, x_7);
 return x_8;
 }
 }
-static uint64_t _init_l_LLVM_DLLStorageClass_default() {
+static uint64_t _init_l_LLVM_DLLStorageClass_default(void) {
 _start:
 {
 uint64_t x_1; 
@@ -1483,7 +1483,7 @@ x_1 = 0;
 return x_1;
 }
 }
-static uint64_t _init_l_LLVM_DLLStorageClass_import() {
+static uint64_t _init_l_LLVM_DLLStorageClass_import(void) {
 _start:
 {
 uint64_t x_1; 
@@ -1491,7 +1491,7 @@ x_1 = 1;
 return x_1;
 }
 }
-static uint64_t _init_l_LLVM_DLLStorageClass_export() {
+static uint64_t _init_l_LLVM_DLLStorageClass_export(void) {
 _start:
 {
 uint64_t x_1; 
@@ -1513,7 +1513,7 @@ x_8 = lean_llvm_set_dll_storage_class(x_5, x_6, x_7);
 return x_8;
 }
 }
-static uint64_t _init_l_LLVM_Linkage_external() {
+static uint64_t _init_l_LLVM_Linkage_external(void) {
 _start:
 {
 uint64_t x_1; 
@@ -1521,7 +1521,7 @@ x_1 = 0;
 return x_1;
 }
 }
-static uint64_t _init_l_LLVM_Linkage_availableExternally() {
+static uint64_t _init_l_LLVM_Linkage_availableExternally(void) {
 _start:
 {
 uint64_t x_1; 
@@ -1529,7 +1529,7 @@ x_1 = 1;
 return x_1;
 }
 }
-static uint64_t _init_l_LLVM_Linkage_linkOnceAny() {
+static uint64_t _init_l_LLVM_Linkage_linkOnceAny(void) {
 _start:
 {
 uint64_t x_1; 
@@ -1537,7 +1537,7 @@ x_1 = 2;
 return x_1;
 }
 }
-static uint64_t _init_l_LLVM_Linkage_linkOnceODR() {
+static uint64_t _init_l_LLVM_Linkage_linkOnceODR(void) {
 _start:
 {
 uint64_t x_1; 
@@ -1545,7 +1545,7 @@ x_1 = 3;
 return x_1;
 }
 }
-static uint64_t _init_l_LLVM_Linkage_linkOnceODRAutoHide() {
+static uint64_t _init_l_LLVM_Linkage_linkOnceODRAutoHide(void) {
 _start:
 {
 uint64_t x_1; 
@@ -1553,7 +1553,7 @@ x_1 = 4;
 return x_1;
 }
 }
-static uint64_t _init_l_LLVM_Linkage_weakAny() {
+static uint64_t _init_l_LLVM_Linkage_weakAny(void) {
 _start:
 {
 uint64_t x_1; 
@@ -1561,7 +1561,7 @@ x_1 = 5;
 return x_1;
 }
 }
-static uint64_t _init_l_LLVM_Linkage_weakODR() {
+static uint64_t _init_l_LLVM_Linkage_weakODR(void) {
 _start:
 {
 uint64_t x_1; 
@@ -1569,7 +1569,7 @@ x_1 = 6;
 return x_1;
 }
 }
-static uint64_t _init_l_LLVM_Linkage_appending() {
+static uint64_t _init_l_LLVM_Linkage_appending(void) {
 _start:
 {
 uint64_t x_1; 
@@ -1577,7 +1577,7 @@ x_1 = 7;
 return x_1;
 }
 }
-static uint64_t _init_l_LLVM_Linkage_internal() {
+static uint64_t _init_l_LLVM_Linkage_internal(void) {
 _start:
 {
 uint64_t x_1; 
@@ -1585,7 +1585,7 @@ x_1 = 8;
 return x_1;
 }
 }
-static uint64_t _init_l_LLVM_Linkage_private() {
+static uint64_t _init_l_LLVM_Linkage_private(void) {
 _start:
 {
 uint64_t x_1; 
@@ -1593,7 +1593,7 @@ x_1 = 9;
 return x_1;
 }
 }
-static uint64_t _init_l_LLVM_Linkage_dllImport() {
+static uint64_t _init_l_LLVM_Linkage_dllImport(void) {
 _start:
 {
 uint64_t x_1; 
@@ -1601,7 +1601,7 @@ x_1 = 10;
 return x_1;
 }
 }
-static uint64_t _init_l_LLVM_Linkage_dllExport() {
+static uint64_t _init_l_LLVM_Linkage_dllExport(void) {
 _start:
 {
 uint64_t x_1; 
@@ -1609,7 +1609,7 @@ x_1 = 11;
 return x_1;
 }
 }
-static uint64_t _init_l_LLVM_Linkage_externalWeak() {
+static uint64_t _init_l_LLVM_Linkage_externalWeak(void) {
 _start:
 {
 uint64_t x_1; 
@@ -1617,7 +1617,7 @@ x_1 = 12;
 return x_1;
 }
 }
-static uint64_t _init_l_LLVM_Linkage_ghost() {
+static uint64_t _init_l_LLVM_Linkage_ghost(void) {
 _start:
 {
 uint64_t x_1; 
@@ -1625,7 +1625,7 @@ x_1 = 13;
 return x_1;
 }
 }
-static uint64_t _init_l_LLVM_Linkage_common() {
+static uint64_t _init_l_LLVM_Linkage_common(void) {
 _start:
 {
 uint64_t x_1; 
@@ -1633,7 +1633,7 @@ x_1 = 14;
 return x_1;
 }
 }
-static uint64_t _init_l_LLVM_Linkage_linkerPrivate() {
+static uint64_t _init_l_LLVM_Linkage_linkerPrivate(void) {
 _start:
 {
 uint64_t x_1; 
@@ -1641,7 +1641,7 @@ x_1 = 15;
 return x_1;
 }
 }
-static uint64_t _init_l_LLVM_Linkage_linkerPrivateWeak() {
+static uint64_t _init_l_LLVM_Linkage_linkerPrivateWeak(void) {
 _start:
 {
 uint64_t x_1; 

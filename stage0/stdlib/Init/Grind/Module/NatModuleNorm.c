@@ -19,6 +19,7 @@ LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_Expr_denoteN___redArg___boxed(lea
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_Expr_denoteN(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_Expr_denoteN___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
+static lean_once_cell_t l_Lean_Grind_Linarith_Poly_denoteN___redArg___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Grind_Linarith_Poly_denoteN___redArg___closed__0;
 uint8_t lean_int_dec_lt(lean_object*, lean_object*);
 lean_object* lean_nat_abs(lean_object*);
@@ -31,6 +32,7 @@ LEAN_EXPORT lean_object* l___private_Init_Grind_Module_NatModuleNorm_0__Lean_Gri
 LEAN_EXPORT lean_object* l___private_Init_Grind_Module_NatModuleNorm_0__Lean_Grind_Linarith_Poly_denote_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Grind_Module_NatModuleNorm_0__Lean_Grind_Linarith_Poly_denote_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_cast___at___00Lean_Grind_Linarith_Expr_toPolyN_spec__0(lean_object*);
+static lean_once_cell_t l_Lean_Grind_Linarith_Expr_toPolyN___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Grind_Linarith_Expr_toPolyN___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_Expr_toPolyN(lean_object*);
 lean_object* l_Lean_Grind_Linarith_Poly_combine(lean_object*, lean_object*);
@@ -138,7 +140,7 @@ lean_dec_ref(x_3);
 return x_5;
 }
 }
-static lean_object* _init_l_Lean_Grind_Linarith_Poly_denoteN___redArg___closed__0() {
+static lean_object* _init_l_Lean_Grind_Linarith_Poly_denoteN___redArg___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -172,7 +174,7 @@ lean_inc(x_9);
 x_10 = lean_ctor_get(x_3, 0);
 x_11 = lean_ctor_get(x_3, 1);
 x_12 = lean_ctor_get(x_3, 2);
-x_13 = l_Lean_Grind_Linarith_Poly_denoteN___redArg___closed__0;
+x_13 = lean_obj_once(&l_Lean_Grind_Linarith_Poly_denoteN___redArg___closed__0, &l_Lean_Grind_Linarith_Poly_denoteN___redArg___closed__0_once, _init_l_Lean_Grind_Linarith_Poly_denoteN___redArg___closed__0);
 x_14 = lean_int_dec_lt(x_10, x_13);
 if (x_14 == 0)
 {
@@ -301,7 +303,7 @@ x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Grind_Linarith_Expr_toPolyN___closed__0() {
+static lean_object* _init_l_Lean_Grind_Linarith_Expr_toPolyN___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -326,7 +328,7 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6;
 x_3 = lean_ctor_get(x_1, 0);
 lean_inc(x_3);
 lean_dec_ref(x_1);
-x_4 = l_Lean_Grind_Linarith_Expr_toPolyN___closed__0;
+x_4 = lean_obj_once(&l_Lean_Grind_Linarith_Expr_toPolyN___closed__0, &l_Lean_Grind_Linarith_Expr_toPolyN___closed__0_once, _init_l_Lean_Grind_Linarith_Expr_toPolyN___closed__0);
 x_5 = lean_box(0);
 x_6 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_6, 0, x_4);
@@ -543,10 +545,6 @@ lean_dec_ref(res);
 res = initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Grind_Linarith_Poly_denoteN___redArg___closed__0 = _init_l_Lean_Grind_Linarith_Poly_denoteN___redArg___closed__0();
-lean_mark_persistent(l_Lean_Grind_Linarith_Poly_denoteN___redArg___closed__0);
-l_Lean_Grind_Linarith_Expr_toPolyN___closed__0 = _init_l_Lean_Grind_Linarith_Expr_toPolyN___closed__0();
-lean_mark_persistent(l_Lean_Grind_Linarith_Expr_toPolyN___closed__0);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

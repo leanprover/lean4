@@ -58,6 +58,18 @@ LEAN_EXPORT lean_object* l_Id_instMonadLiftTOfPure___redArg___lam__0(lean_object
 LEAN_EXPORT lean_object* l_Id_instMonadLiftTOfPure___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Id_instMonadLiftTOfPure(lean_object*, lean_object*);
 LEAN_EXPORT const lean_object* l_Id_instMonadAttach = (const lean_object*)&l_Id_instMonad___closed__2_value;
+lean_object* lean_array_push(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_ForIn_toArray___redArg___lam__0(lean_object*, lean_object*);
+static const lean_closure_object l_ForIn_toArray___redArg___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_ForIn_toArray___redArg___lam__0, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_ForIn_toArray___redArg___closed__0 = (const lean_object*)&l_ForIn_toArray___redArg___closed__0_value;
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
+static lean_once_cell_t l_ForIn_toArray___redArg___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
+static lean_object* l_ForIn_toArray___redArg___closed__1;
+LEAN_EXPORT lean_object* l_ForIn_toArray___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_ForIn_toArray(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_to_list(lean_object*);
+LEAN_EXPORT lean_object* l_ForIn_toList___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_ForIn_toList(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Id_instMonad___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -241,6 +253,60 @@ lean_object* x_3;
 x_3 = lean_alloc_closure((void*)(l_Id_instMonadLiftTOfPure___redArg___lam__0), 3, 1);
 lean_closure_set(x_3, 0, x_2);
 return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_ForIn_toArray___redArg___lam__0(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; 
+x_3 = lean_array_push(x_2, x_1);
+x_4 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_4, 0, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_ForIn_toArray___redArg___closed__1(void) {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_ForIn_toArray___redArg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_3 = ((lean_object*)(l_ForIn_toArray___redArg___closed__0));
+x_4 = lean_obj_once(&l_ForIn_toArray___redArg___closed__1, &l_ForIn_toArray___redArg___closed__1_once, _init_l_ForIn_toArray___redArg___closed__1);
+x_5 = lean_apply_4(x_1, lean_box(0), x_2, x_4, x_3);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_ForIn_toArray(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_ForIn_toArray___redArg(x_3, x_4);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_ForIn_toList___redArg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; 
+x_3 = l_ForIn_toArray___redArg(x_1, x_2);
+x_4 = lean_array_to_list(x_3);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_ForIn_toList(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_ForIn_toList___redArg(x_3, x_4);
+return x_5;
 }
 }
 lean_object* initialize_Init_Control_MonadAttach(uint8_t builtin);

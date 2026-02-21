@@ -44,7 +44,7 @@ lean_object* lean_uv_udp_set_multicast_interface(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_UV_UDP_Socket_setMulticastInterface___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_uv_udp_set_ttl(lean_object*, uint32_t);
 LEAN_EXPORT lean_object* l_Std_Internal_UV_UDP_Socket_setTTL___boxed(lean_object*, lean_object*, lean_object*);
-static lean_object* _init_l___private_Std_Internal_UV_UDP_0__Std_Internal_UV_UDP_SocketImpl() {
+static lean_object* _init_l___private_Std_Internal_UV_UDP_0__Std_Internal_UV_UDP_SocketImpl(void) {
 _start:
 {
 return lean_box(0);

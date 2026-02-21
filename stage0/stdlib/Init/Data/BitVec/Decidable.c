@@ -33,6 +33,7 @@ lean_object* l_BitVec_cons(lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT uint8_t l_BitVec_instDecidableForallBitVec___redArg___lam__0(lean_object*, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_instDecidableForallBitVec___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_BitVec_ofNat(lean_object*, lean_object*);
+static lean_once_cell_t l_BitVec_instDecidableForallBitVec___redArg___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_BitVec_instDecidableForallBitVec___redArg___closed__0;
 LEAN_EXPORT uint8_t l_BitVec_instDecidableForallBitVec___redArg___lam__1(lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_BitVec_instDecidableForallBitVec___redArg___lam__1___boxed(lean_object*, lean_object*, lean_object*);
@@ -218,7 +219,7 @@ x_7 = lean_box(x_6);
 return x_7;
 }
 }
-static lean_object* _init_l_BitVec_instDecidableForallBitVec___redArg___closed__0() {
+static lean_object* _init_l_BitVec_instDecidableForallBitVec___redArg___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -246,7 +247,7 @@ x_4 = lean_nat_dec_eq(x_1, x_3);
 if (x_4 == 1)
 {
 lean_object* x_5; lean_object* x_6; uint8_t x_7; 
-x_5 = l_BitVec_instDecidableForallBitVec___redArg___closed__0;
+x_5 = lean_obj_once(&l_BitVec_instDecidableForallBitVec___redArg___closed__0, &l_BitVec_instDecidableForallBitVec___redArg___closed__0_once, _init_l_BitVec_instDecidableForallBitVec___redArg___closed__0);
 x_6 = lean_apply_1(x_2, x_5);
 x_7 = lean_unbox(x_6);
 return x_7;
@@ -376,7 +377,7 @@ x_4 = lean_nat_dec_eq(x_1, x_3);
 if (x_4 == 1)
 {
 lean_object* x_5; lean_object* x_6; uint8_t x_7; 
-x_5 = l_BitVec_instDecidableForallBitVec___redArg___closed__0;
+x_5 = lean_obj_once(&l_BitVec_instDecidableForallBitVec___redArg___closed__0, &l_BitVec_instDecidableForallBitVec___redArg___closed__0_once, _init_l_BitVec_instDecidableForallBitVec___redArg___closed__0);
 x_6 = lean_apply_1(x_2, x_5);
 x_7 = lean_unbox(x_6);
 return x_7;
@@ -450,8 +451,6 @@ lean_dec_ref(res);
 res = initialize_Init_Data_BitVec_Bootstrap(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_BitVec_instDecidableForallBitVec___redArg___closed__0 = _init_l_BitVec_instDecidableForallBitVec___redArg___closed__0();
-lean_mark_persistent(l_BitVec_instDecidableForallBitVec___redArg___closed__0);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

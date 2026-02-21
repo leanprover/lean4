@@ -20,7 +20,9 @@ static const lean_object* l_Lake_Target_repr___redArg___closed__1 = (const lean_
 static const lean_ctor_object l_Lake_Target_repr___redArg___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 0, .m_other = 2, .m_tag = 5}, .m_objs = {((lean_object*)&l_Lake_Target_repr___redArg___closed__1_value),((lean_object*)(((size_t)(1) << 1) | 1))}};
 static const lean_object* l_Lake_Target_repr___redArg___closed__2 = (const lean_object*)&l_Lake_Target_repr___redArg___closed__2_value;
 lean_object* lean_nat_to_int(lean_object*);
+static lean_once_cell_t l_Lake_Target_repr___redArg___closed__3_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lake_Target_repr___redArg___closed__3;
+static lean_once_cell_t l_Lake_Target_repr___redArg___closed__4_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lake_Target_repr___redArg___closed__4;
 lean_object* l_Lake_instReprBuildKey_repr(lean_object*, lean_object*);
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
@@ -41,7 +43,7 @@ LEAN_EXPORT lean_object* l_Lake_Target_instCoePartialBuildKey___lam__0___boxed(l
 static const lean_closure_object l_Lake_Target_instCoePartialBuildKey___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lake_Target_instCoePartialBuildKey___lam__0___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_Lake_Target_instCoePartialBuildKey___closed__0 = (const lean_object*)&l_Lake_Target_instCoePartialBuildKey___closed__0_value;
 LEAN_EXPORT lean_object* l_Lake_Target_instCoePartialBuildKey(lean_object*);
-static lean_object* _init_l_Lake_Target_repr___redArg___closed__3() {
+static lean_object* _init_l_Lake_Target_repr___redArg___closed__3(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -50,7 +52,7 @@ x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lake_Target_repr___redArg___closed__4() {
+static lean_object* _init_l_Lake_Target_repr___redArg___closed__4(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -68,14 +70,14 @@ x_14 = lean_nat_dec_le(x_13, x_2);
 if (x_14 == 0)
 {
 lean_object* x_15; 
-x_15 = l_Lake_Target_repr___redArg___closed__3;
+x_15 = lean_obj_once(&l_Lake_Target_repr___redArg___closed__3, &l_Lake_Target_repr___redArg___closed__3_once, _init_l_Lake_Target_repr___redArg___closed__3);
 x_3 = x_15;
 goto block_12;
 }
 else
 {
 lean_object* x_16; 
-x_16 = l_Lake_Target_repr___redArg___closed__4;
+x_16 = lean_obj_once(&l_Lake_Target_repr___redArg___closed__4, &l_Lake_Target_repr___redArg___closed__4_once, _init_l_Lake_Target_repr___redArg___closed__4);
 x_3 = x_16;
 goto block_12;
 }
@@ -175,10 +177,6 @@ _G_initialized = true;
 res = initialize_Lake_Build_Key(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lake_Target_repr___redArg___closed__3 = _init_l_Lake_Target_repr___redArg___closed__3();
-lean_mark_persistent(l_Lake_Target_repr___redArg___closed__3);
-l_Lake_Target_repr___redArg___closed__4 = _init_l_Lake_Target_repr___redArg___closed__4();
-lean_mark_persistent(l_Lake_Target_repr___redArg___closed__4);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

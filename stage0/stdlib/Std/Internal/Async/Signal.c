@@ -214,7 +214,9 @@ static const lean_object* l_Std_Internal_IO_Async_instReprSignal_repr___closed__
 static const lean_ctor_object l_Std_Internal_IO_Async_instReprSignal_repr___closed__47_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 3}, .m_objs = {((lean_object*)&l_Std_Internal_IO_Async_instReprSignal_repr___closed__46_value)}};
 static const lean_object* l_Std_Internal_IO_Async_instReprSignal_repr___closed__47 = (const lean_object*)&l_Std_Internal_IO_Async_instReprSignal_repr___closed__47_value;
 lean_object* lean_nat_to_int(lean_object*);
+static lean_once_cell_t l_Std_Internal_IO_Async_instReprSignal_repr___closed__48_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Internal_IO_Async_instReprSignal_repr___closed__48;
+static lean_once_cell_t l_Std_Internal_IO_Async_instReprSignal_repr___closed__49_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Internal_IO_Async_instReprSignal_repr___closed__49;
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
@@ -235,29 +237,53 @@ static const lean_closure_object l_Std_Internal_IO_Async_instBEqSignal___closed_
 static const lean_object* l_Std_Internal_IO_Async_instBEqSignal___closed__0 = (const lean_object*)&l_Std_Internal_IO_Async_instBEqSignal___closed__0_value;
 LEAN_EXPORT const lean_object* l_Std_Internal_IO_Async_instBEqSignal = (const lean_object*)&l_Std_Internal_IO_Async_instBEqSignal___closed__0_value;
 uint32_t lean_int32_of_nat(lean_object*);
+static lean_once_cell_t l_Std_Internal_IO_Async_Signal_toInt32___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static uint32_t l_Std_Internal_IO_Async_Signal_toInt32___closed__0;
+static lean_once_cell_t l_Std_Internal_IO_Async_Signal_toInt32___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static uint32_t l_Std_Internal_IO_Async_Signal_toInt32___closed__1;
+static lean_once_cell_t l_Std_Internal_IO_Async_Signal_toInt32___closed__2_once = LEAN_ONCE_CELL_INITIALIZER;
 static uint32_t l_Std_Internal_IO_Async_Signal_toInt32___closed__2;
+static lean_once_cell_t l_Std_Internal_IO_Async_Signal_toInt32___closed__3_once = LEAN_ONCE_CELL_INITIALIZER;
 static uint32_t l_Std_Internal_IO_Async_Signal_toInt32___closed__3;
+static lean_once_cell_t l_Std_Internal_IO_Async_Signal_toInt32___closed__4_once = LEAN_ONCE_CELL_INITIALIZER;
 static uint32_t l_Std_Internal_IO_Async_Signal_toInt32___closed__4;
+static lean_once_cell_t l_Std_Internal_IO_Async_Signal_toInt32___closed__5_once = LEAN_ONCE_CELL_INITIALIZER;
 static uint32_t l_Std_Internal_IO_Async_Signal_toInt32___closed__5;
+static lean_once_cell_t l_Std_Internal_IO_Async_Signal_toInt32___closed__6_once = LEAN_ONCE_CELL_INITIALIZER;
 static uint32_t l_Std_Internal_IO_Async_Signal_toInt32___closed__6;
+static lean_once_cell_t l_Std_Internal_IO_Async_Signal_toInt32___closed__7_once = LEAN_ONCE_CELL_INITIALIZER;
 static uint32_t l_Std_Internal_IO_Async_Signal_toInt32___closed__7;
+static lean_once_cell_t l_Std_Internal_IO_Async_Signal_toInt32___closed__8_once = LEAN_ONCE_CELL_INITIALIZER;
 static uint32_t l_Std_Internal_IO_Async_Signal_toInt32___closed__8;
+static lean_once_cell_t l_Std_Internal_IO_Async_Signal_toInt32___closed__9_once = LEAN_ONCE_CELL_INITIALIZER;
 static uint32_t l_Std_Internal_IO_Async_Signal_toInt32___closed__9;
+static lean_once_cell_t l_Std_Internal_IO_Async_Signal_toInt32___closed__10_once = LEAN_ONCE_CELL_INITIALIZER;
 static uint32_t l_Std_Internal_IO_Async_Signal_toInt32___closed__10;
+static lean_once_cell_t l_Std_Internal_IO_Async_Signal_toInt32___closed__11_once = LEAN_ONCE_CELL_INITIALIZER;
 static uint32_t l_Std_Internal_IO_Async_Signal_toInt32___closed__11;
+static lean_once_cell_t l_Std_Internal_IO_Async_Signal_toInt32___closed__12_once = LEAN_ONCE_CELL_INITIALIZER;
 static uint32_t l_Std_Internal_IO_Async_Signal_toInt32___closed__12;
+static lean_once_cell_t l_Std_Internal_IO_Async_Signal_toInt32___closed__13_once = LEAN_ONCE_CELL_INITIALIZER;
 static uint32_t l_Std_Internal_IO_Async_Signal_toInt32___closed__13;
+static lean_once_cell_t l_Std_Internal_IO_Async_Signal_toInt32___closed__14_once = LEAN_ONCE_CELL_INITIALIZER;
 static uint32_t l_Std_Internal_IO_Async_Signal_toInt32___closed__14;
+static lean_once_cell_t l_Std_Internal_IO_Async_Signal_toInt32___closed__15_once = LEAN_ONCE_CELL_INITIALIZER;
 static uint32_t l_Std_Internal_IO_Async_Signal_toInt32___closed__15;
+static lean_once_cell_t l_Std_Internal_IO_Async_Signal_toInt32___closed__16_once = LEAN_ONCE_CELL_INITIALIZER;
 static uint32_t l_Std_Internal_IO_Async_Signal_toInt32___closed__16;
+static lean_once_cell_t l_Std_Internal_IO_Async_Signal_toInt32___closed__17_once = LEAN_ONCE_CELL_INITIALIZER;
 static uint32_t l_Std_Internal_IO_Async_Signal_toInt32___closed__17;
+static lean_once_cell_t l_Std_Internal_IO_Async_Signal_toInt32___closed__18_once = LEAN_ONCE_CELL_INITIALIZER;
 static uint32_t l_Std_Internal_IO_Async_Signal_toInt32___closed__18;
+static lean_once_cell_t l_Std_Internal_IO_Async_Signal_toInt32___closed__19_once = LEAN_ONCE_CELL_INITIALIZER;
 static uint32_t l_Std_Internal_IO_Async_Signal_toInt32___closed__19;
+static lean_once_cell_t l_Std_Internal_IO_Async_Signal_toInt32___closed__20_once = LEAN_ONCE_CELL_INITIALIZER;
 static uint32_t l_Std_Internal_IO_Async_Signal_toInt32___closed__20;
+static lean_once_cell_t l_Std_Internal_IO_Async_Signal_toInt32___closed__21_once = LEAN_ONCE_CELL_INITIALIZER;
 static uint32_t l_Std_Internal_IO_Async_Signal_toInt32___closed__21;
+static lean_once_cell_t l_Std_Internal_IO_Async_Signal_toInt32___closed__22_once = LEAN_ONCE_CELL_INITIALIZER;
 static uint32_t l_Std_Internal_IO_Async_Signal_toInt32___closed__22;
+static lean_once_cell_t l_Std_Internal_IO_Async_Signal_toInt32___closed__23_once = LEAN_ONCE_CELL_INITIALIZER;
 static uint32_t l_Std_Internal_IO_Async_Signal_toInt32___closed__23;
 LEAN_EXPORT uint32_t l_Std_Internal_IO_Async_Signal_toInt32(uint8_t);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Signal_toInt32___boxed(lean_object*);
@@ -1337,7 +1363,7 @@ lean_dec(x_4);
 return x_6;
 }
 }
-static lean_object* _init_l_Std_Internal_IO_Async_instReprSignal_repr___closed__48() {
+static lean_object* _init_l_Std_Internal_IO_Async_instReprSignal_repr___closed__48(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1346,7 +1372,7 @@ x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Std_Internal_IO_Async_instReprSignal_repr___closed__49() {
+static lean_object* _init_l_Std_Internal_IO_Async_instReprSignal_repr___closed__49(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1368,14 +1394,14 @@ x_172 = lean_nat_dec_le(x_171, x_2);
 if (x_172 == 0)
 {
 lean_object* x_173; 
-x_173 = l_Std_Internal_IO_Async_instReprSignal_repr___closed__48;
+x_173 = lean_obj_once(&l_Std_Internal_IO_Async_instReprSignal_repr___closed__48, &l_Std_Internal_IO_Async_instReprSignal_repr___closed__48_once, _init_l_Std_Internal_IO_Async_instReprSignal_repr___closed__48);
 x_3 = x_173;
 goto block_9;
 }
 else
 {
 lean_object* x_174; 
-x_174 = l_Std_Internal_IO_Async_instReprSignal_repr___closed__49;
+x_174 = lean_obj_once(&l_Std_Internal_IO_Async_instReprSignal_repr___closed__49, &l_Std_Internal_IO_Async_instReprSignal_repr___closed__49_once, _init_l_Std_Internal_IO_Async_instReprSignal_repr___closed__49);
 x_3 = x_174;
 goto block_9;
 }
@@ -1388,14 +1414,14 @@ x_176 = lean_nat_dec_le(x_175, x_2);
 if (x_176 == 0)
 {
 lean_object* x_177; 
-x_177 = l_Std_Internal_IO_Async_instReprSignal_repr___closed__48;
+x_177 = lean_obj_once(&l_Std_Internal_IO_Async_instReprSignal_repr___closed__48, &l_Std_Internal_IO_Async_instReprSignal_repr___closed__48_once, _init_l_Std_Internal_IO_Async_instReprSignal_repr___closed__48);
 x_10 = x_177;
 goto block_16;
 }
 else
 {
 lean_object* x_178; 
-x_178 = l_Std_Internal_IO_Async_instReprSignal_repr___closed__49;
+x_178 = lean_obj_once(&l_Std_Internal_IO_Async_instReprSignal_repr___closed__49, &l_Std_Internal_IO_Async_instReprSignal_repr___closed__49_once, _init_l_Std_Internal_IO_Async_instReprSignal_repr___closed__49);
 x_10 = x_178;
 goto block_16;
 }
@@ -1408,14 +1434,14 @@ x_180 = lean_nat_dec_le(x_179, x_2);
 if (x_180 == 0)
 {
 lean_object* x_181; 
-x_181 = l_Std_Internal_IO_Async_instReprSignal_repr___closed__48;
+x_181 = lean_obj_once(&l_Std_Internal_IO_Async_instReprSignal_repr___closed__48, &l_Std_Internal_IO_Async_instReprSignal_repr___closed__48_once, _init_l_Std_Internal_IO_Async_instReprSignal_repr___closed__48);
 x_17 = x_181;
 goto block_23;
 }
 else
 {
 lean_object* x_182; 
-x_182 = l_Std_Internal_IO_Async_instReprSignal_repr___closed__49;
+x_182 = lean_obj_once(&l_Std_Internal_IO_Async_instReprSignal_repr___closed__49, &l_Std_Internal_IO_Async_instReprSignal_repr___closed__49_once, _init_l_Std_Internal_IO_Async_instReprSignal_repr___closed__49);
 x_17 = x_182;
 goto block_23;
 }
@@ -1428,14 +1454,14 @@ x_184 = lean_nat_dec_le(x_183, x_2);
 if (x_184 == 0)
 {
 lean_object* x_185; 
-x_185 = l_Std_Internal_IO_Async_instReprSignal_repr___closed__48;
+x_185 = lean_obj_once(&l_Std_Internal_IO_Async_instReprSignal_repr___closed__48, &l_Std_Internal_IO_Async_instReprSignal_repr___closed__48_once, _init_l_Std_Internal_IO_Async_instReprSignal_repr___closed__48);
 x_24 = x_185;
 goto block_30;
 }
 else
 {
 lean_object* x_186; 
-x_186 = l_Std_Internal_IO_Async_instReprSignal_repr___closed__49;
+x_186 = lean_obj_once(&l_Std_Internal_IO_Async_instReprSignal_repr___closed__49, &l_Std_Internal_IO_Async_instReprSignal_repr___closed__49_once, _init_l_Std_Internal_IO_Async_instReprSignal_repr___closed__49);
 x_24 = x_186;
 goto block_30;
 }
@@ -1448,14 +1474,14 @@ x_188 = lean_nat_dec_le(x_187, x_2);
 if (x_188 == 0)
 {
 lean_object* x_189; 
-x_189 = l_Std_Internal_IO_Async_instReprSignal_repr___closed__48;
+x_189 = lean_obj_once(&l_Std_Internal_IO_Async_instReprSignal_repr___closed__48, &l_Std_Internal_IO_Async_instReprSignal_repr___closed__48_once, _init_l_Std_Internal_IO_Async_instReprSignal_repr___closed__48);
 x_31 = x_189;
 goto block_37;
 }
 else
 {
 lean_object* x_190; 
-x_190 = l_Std_Internal_IO_Async_instReprSignal_repr___closed__49;
+x_190 = lean_obj_once(&l_Std_Internal_IO_Async_instReprSignal_repr___closed__49, &l_Std_Internal_IO_Async_instReprSignal_repr___closed__49_once, _init_l_Std_Internal_IO_Async_instReprSignal_repr___closed__49);
 x_31 = x_190;
 goto block_37;
 }
@@ -1468,14 +1494,14 @@ x_192 = lean_nat_dec_le(x_191, x_2);
 if (x_192 == 0)
 {
 lean_object* x_193; 
-x_193 = l_Std_Internal_IO_Async_instReprSignal_repr___closed__48;
+x_193 = lean_obj_once(&l_Std_Internal_IO_Async_instReprSignal_repr___closed__48, &l_Std_Internal_IO_Async_instReprSignal_repr___closed__48_once, _init_l_Std_Internal_IO_Async_instReprSignal_repr___closed__48);
 x_38 = x_193;
 goto block_44;
 }
 else
 {
 lean_object* x_194; 
-x_194 = l_Std_Internal_IO_Async_instReprSignal_repr___closed__49;
+x_194 = lean_obj_once(&l_Std_Internal_IO_Async_instReprSignal_repr___closed__49, &l_Std_Internal_IO_Async_instReprSignal_repr___closed__49_once, _init_l_Std_Internal_IO_Async_instReprSignal_repr___closed__49);
 x_38 = x_194;
 goto block_44;
 }
@@ -1488,14 +1514,14 @@ x_196 = lean_nat_dec_le(x_195, x_2);
 if (x_196 == 0)
 {
 lean_object* x_197; 
-x_197 = l_Std_Internal_IO_Async_instReprSignal_repr___closed__48;
+x_197 = lean_obj_once(&l_Std_Internal_IO_Async_instReprSignal_repr___closed__48, &l_Std_Internal_IO_Async_instReprSignal_repr___closed__48_once, _init_l_Std_Internal_IO_Async_instReprSignal_repr___closed__48);
 x_45 = x_197;
 goto block_51;
 }
 else
 {
 lean_object* x_198; 
-x_198 = l_Std_Internal_IO_Async_instReprSignal_repr___closed__49;
+x_198 = lean_obj_once(&l_Std_Internal_IO_Async_instReprSignal_repr___closed__49, &l_Std_Internal_IO_Async_instReprSignal_repr___closed__49_once, _init_l_Std_Internal_IO_Async_instReprSignal_repr___closed__49);
 x_45 = x_198;
 goto block_51;
 }
@@ -1508,14 +1534,14 @@ x_200 = lean_nat_dec_le(x_199, x_2);
 if (x_200 == 0)
 {
 lean_object* x_201; 
-x_201 = l_Std_Internal_IO_Async_instReprSignal_repr___closed__48;
+x_201 = lean_obj_once(&l_Std_Internal_IO_Async_instReprSignal_repr___closed__48, &l_Std_Internal_IO_Async_instReprSignal_repr___closed__48_once, _init_l_Std_Internal_IO_Async_instReprSignal_repr___closed__48);
 x_52 = x_201;
 goto block_58;
 }
 else
 {
 lean_object* x_202; 
-x_202 = l_Std_Internal_IO_Async_instReprSignal_repr___closed__49;
+x_202 = lean_obj_once(&l_Std_Internal_IO_Async_instReprSignal_repr___closed__49, &l_Std_Internal_IO_Async_instReprSignal_repr___closed__49_once, _init_l_Std_Internal_IO_Async_instReprSignal_repr___closed__49);
 x_52 = x_202;
 goto block_58;
 }
@@ -1528,14 +1554,14 @@ x_204 = lean_nat_dec_le(x_203, x_2);
 if (x_204 == 0)
 {
 lean_object* x_205; 
-x_205 = l_Std_Internal_IO_Async_instReprSignal_repr___closed__48;
+x_205 = lean_obj_once(&l_Std_Internal_IO_Async_instReprSignal_repr___closed__48, &l_Std_Internal_IO_Async_instReprSignal_repr___closed__48_once, _init_l_Std_Internal_IO_Async_instReprSignal_repr___closed__48);
 x_59 = x_205;
 goto block_65;
 }
 else
 {
 lean_object* x_206; 
-x_206 = l_Std_Internal_IO_Async_instReprSignal_repr___closed__49;
+x_206 = lean_obj_once(&l_Std_Internal_IO_Async_instReprSignal_repr___closed__49, &l_Std_Internal_IO_Async_instReprSignal_repr___closed__49_once, _init_l_Std_Internal_IO_Async_instReprSignal_repr___closed__49);
 x_59 = x_206;
 goto block_65;
 }
@@ -1548,14 +1574,14 @@ x_208 = lean_nat_dec_le(x_207, x_2);
 if (x_208 == 0)
 {
 lean_object* x_209; 
-x_209 = l_Std_Internal_IO_Async_instReprSignal_repr___closed__48;
+x_209 = lean_obj_once(&l_Std_Internal_IO_Async_instReprSignal_repr___closed__48, &l_Std_Internal_IO_Async_instReprSignal_repr___closed__48_once, _init_l_Std_Internal_IO_Async_instReprSignal_repr___closed__48);
 x_66 = x_209;
 goto block_72;
 }
 else
 {
 lean_object* x_210; 
-x_210 = l_Std_Internal_IO_Async_instReprSignal_repr___closed__49;
+x_210 = lean_obj_once(&l_Std_Internal_IO_Async_instReprSignal_repr___closed__49, &l_Std_Internal_IO_Async_instReprSignal_repr___closed__49_once, _init_l_Std_Internal_IO_Async_instReprSignal_repr___closed__49);
 x_66 = x_210;
 goto block_72;
 }
@@ -1568,14 +1594,14 @@ x_212 = lean_nat_dec_le(x_211, x_2);
 if (x_212 == 0)
 {
 lean_object* x_213; 
-x_213 = l_Std_Internal_IO_Async_instReprSignal_repr___closed__48;
+x_213 = lean_obj_once(&l_Std_Internal_IO_Async_instReprSignal_repr___closed__48, &l_Std_Internal_IO_Async_instReprSignal_repr___closed__48_once, _init_l_Std_Internal_IO_Async_instReprSignal_repr___closed__48);
 x_73 = x_213;
 goto block_79;
 }
 else
 {
 lean_object* x_214; 
-x_214 = l_Std_Internal_IO_Async_instReprSignal_repr___closed__49;
+x_214 = lean_obj_once(&l_Std_Internal_IO_Async_instReprSignal_repr___closed__49, &l_Std_Internal_IO_Async_instReprSignal_repr___closed__49_once, _init_l_Std_Internal_IO_Async_instReprSignal_repr___closed__49);
 x_73 = x_214;
 goto block_79;
 }
@@ -1588,14 +1614,14 @@ x_216 = lean_nat_dec_le(x_215, x_2);
 if (x_216 == 0)
 {
 lean_object* x_217; 
-x_217 = l_Std_Internal_IO_Async_instReprSignal_repr___closed__48;
+x_217 = lean_obj_once(&l_Std_Internal_IO_Async_instReprSignal_repr___closed__48, &l_Std_Internal_IO_Async_instReprSignal_repr___closed__48_once, _init_l_Std_Internal_IO_Async_instReprSignal_repr___closed__48);
 x_80 = x_217;
 goto block_86;
 }
 else
 {
 lean_object* x_218; 
-x_218 = l_Std_Internal_IO_Async_instReprSignal_repr___closed__49;
+x_218 = lean_obj_once(&l_Std_Internal_IO_Async_instReprSignal_repr___closed__49, &l_Std_Internal_IO_Async_instReprSignal_repr___closed__49_once, _init_l_Std_Internal_IO_Async_instReprSignal_repr___closed__49);
 x_80 = x_218;
 goto block_86;
 }
@@ -1608,14 +1634,14 @@ x_220 = lean_nat_dec_le(x_219, x_2);
 if (x_220 == 0)
 {
 lean_object* x_221; 
-x_221 = l_Std_Internal_IO_Async_instReprSignal_repr___closed__48;
+x_221 = lean_obj_once(&l_Std_Internal_IO_Async_instReprSignal_repr___closed__48, &l_Std_Internal_IO_Async_instReprSignal_repr___closed__48_once, _init_l_Std_Internal_IO_Async_instReprSignal_repr___closed__48);
 x_87 = x_221;
 goto block_93;
 }
 else
 {
 lean_object* x_222; 
-x_222 = l_Std_Internal_IO_Async_instReprSignal_repr___closed__49;
+x_222 = lean_obj_once(&l_Std_Internal_IO_Async_instReprSignal_repr___closed__49, &l_Std_Internal_IO_Async_instReprSignal_repr___closed__49_once, _init_l_Std_Internal_IO_Async_instReprSignal_repr___closed__49);
 x_87 = x_222;
 goto block_93;
 }
@@ -1628,14 +1654,14 @@ x_224 = lean_nat_dec_le(x_223, x_2);
 if (x_224 == 0)
 {
 lean_object* x_225; 
-x_225 = l_Std_Internal_IO_Async_instReprSignal_repr___closed__48;
+x_225 = lean_obj_once(&l_Std_Internal_IO_Async_instReprSignal_repr___closed__48, &l_Std_Internal_IO_Async_instReprSignal_repr___closed__48_once, _init_l_Std_Internal_IO_Async_instReprSignal_repr___closed__48);
 x_94 = x_225;
 goto block_100;
 }
 else
 {
 lean_object* x_226; 
-x_226 = l_Std_Internal_IO_Async_instReprSignal_repr___closed__49;
+x_226 = lean_obj_once(&l_Std_Internal_IO_Async_instReprSignal_repr___closed__49, &l_Std_Internal_IO_Async_instReprSignal_repr___closed__49_once, _init_l_Std_Internal_IO_Async_instReprSignal_repr___closed__49);
 x_94 = x_226;
 goto block_100;
 }
@@ -1648,14 +1674,14 @@ x_228 = lean_nat_dec_le(x_227, x_2);
 if (x_228 == 0)
 {
 lean_object* x_229; 
-x_229 = l_Std_Internal_IO_Async_instReprSignal_repr___closed__48;
+x_229 = lean_obj_once(&l_Std_Internal_IO_Async_instReprSignal_repr___closed__48, &l_Std_Internal_IO_Async_instReprSignal_repr___closed__48_once, _init_l_Std_Internal_IO_Async_instReprSignal_repr___closed__48);
 x_101 = x_229;
 goto block_107;
 }
 else
 {
 lean_object* x_230; 
-x_230 = l_Std_Internal_IO_Async_instReprSignal_repr___closed__49;
+x_230 = lean_obj_once(&l_Std_Internal_IO_Async_instReprSignal_repr___closed__49, &l_Std_Internal_IO_Async_instReprSignal_repr___closed__49_once, _init_l_Std_Internal_IO_Async_instReprSignal_repr___closed__49);
 x_101 = x_230;
 goto block_107;
 }
@@ -1668,14 +1694,14 @@ x_232 = lean_nat_dec_le(x_231, x_2);
 if (x_232 == 0)
 {
 lean_object* x_233; 
-x_233 = l_Std_Internal_IO_Async_instReprSignal_repr___closed__48;
+x_233 = lean_obj_once(&l_Std_Internal_IO_Async_instReprSignal_repr___closed__48, &l_Std_Internal_IO_Async_instReprSignal_repr___closed__48_once, _init_l_Std_Internal_IO_Async_instReprSignal_repr___closed__48);
 x_108 = x_233;
 goto block_114;
 }
 else
 {
 lean_object* x_234; 
-x_234 = l_Std_Internal_IO_Async_instReprSignal_repr___closed__49;
+x_234 = lean_obj_once(&l_Std_Internal_IO_Async_instReprSignal_repr___closed__49, &l_Std_Internal_IO_Async_instReprSignal_repr___closed__49_once, _init_l_Std_Internal_IO_Async_instReprSignal_repr___closed__49);
 x_108 = x_234;
 goto block_114;
 }
@@ -1688,14 +1714,14 @@ x_236 = lean_nat_dec_le(x_235, x_2);
 if (x_236 == 0)
 {
 lean_object* x_237; 
-x_237 = l_Std_Internal_IO_Async_instReprSignal_repr___closed__48;
+x_237 = lean_obj_once(&l_Std_Internal_IO_Async_instReprSignal_repr___closed__48, &l_Std_Internal_IO_Async_instReprSignal_repr___closed__48_once, _init_l_Std_Internal_IO_Async_instReprSignal_repr___closed__48);
 x_115 = x_237;
 goto block_121;
 }
 else
 {
 lean_object* x_238; 
-x_238 = l_Std_Internal_IO_Async_instReprSignal_repr___closed__49;
+x_238 = lean_obj_once(&l_Std_Internal_IO_Async_instReprSignal_repr___closed__49, &l_Std_Internal_IO_Async_instReprSignal_repr___closed__49_once, _init_l_Std_Internal_IO_Async_instReprSignal_repr___closed__49);
 x_115 = x_238;
 goto block_121;
 }
@@ -1708,14 +1734,14 @@ x_240 = lean_nat_dec_le(x_239, x_2);
 if (x_240 == 0)
 {
 lean_object* x_241; 
-x_241 = l_Std_Internal_IO_Async_instReprSignal_repr___closed__48;
+x_241 = lean_obj_once(&l_Std_Internal_IO_Async_instReprSignal_repr___closed__48, &l_Std_Internal_IO_Async_instReprSignal_repr___closed__48_once, _init_l_Std_Internal_IO_Async_instReprSignal_repr___closed__48);
 x_122 = x_241;
 goto block_128;
 }
 else
 {
 lean_object* x_242; 
-x_242 = l_Std_Internal_IO_Async_instReprSignal_repr___closed__49;
+x_242 = lean_obj_once(&l_Std_Internal_IO_Async_instReprSignal_repr___closed__49, &l_Std_Internal_IO_Async_instReprSignal_repr___closed__49_once, _init_l_Std_Internal_IO_Async_instReprSignal_repr___closed__49);
 x_122 = x_242;
 goto block_128;
 }
@@ -1728,14 +1754,14 @@ x_244 = lean_nat_dec_le(x_243, x_2);
 if (x_244 == 0)
 {
 lean_object* x_245; 
-x_245 = l_Std_Internal_IO_Async_instReprSignal_repr___closed__48;
+x_245 = lean_obj_once(&l_Std_Internal_IO_Async_instReprSignal_repr___closed__48, &l_Std_Internal_IO_Async_instReprSignal_repr___closed__48_once, _init_l_Std_Internal_IO_Async_instReprSignal_repr___closed__48);
 x_129 = x_245;
 goto block_135;
 }
 else
 {
 lean_object* x_246; 
-x_246 = l_Std_Internal_IO_Async_instReprSignal_repr___closed__49;
+x_246 = lean_obj_once(&l_Std_Internal_IO_Async_instReprSignal_repr___closed__49, &l_Std_Internal_IO_Async_instReprSignal_repr___closed__49_once, _init_l_Std_Internal_IO_Async_instReprSignal_repr___closed__49);
 x_129 = x_246;
 goto block_135;
 }
@@ -1748,14 +1774,14 @@ x_248 = lean_nat_dec_le(x_247, x_2);
 if (x_248 == 0)
 {
 lean_object* x_249; 
-x_249 = l_Std_Internal_IO_Async_instReprSignal_repr___closed__48;
+x_249 = lean_obj_once(&l_Std_Internal_IO_Async_instReprSignal_repr___closed__48, &l_Std_Internal_IO_Async_instReprSignal_repr___closed__48_once, _init_l_Std_Internal_IO_Async_instReprSignal_repr___closed__48);
 x_136 = x_249;
 goto block_142;
 }
 else
 {
 lean_object* x_250; 
-x_250 = l_Std_Internal_IO_Async_instReprSignal_repr___closed__49;
+x_250 = lean_obj_once(&l_Std_Internal_IO_Async_instReprSignal_repr___closed__49, &l_Std_Internal_IO_Async_instReprSignal_repr___closed__49_once, _init_l_Std_Internal_IO_Async_instReprSignal_repr___closed__49);
 x_136 = x_250;
 goto block_142;
 }
@@ -1768,14 +1794,14 @@ x_252 = lean_nat_dec_le(x_251, x_2);
 if (x_252 == 0)
 {
 lean_object* x_253; 
-x_253 = l_Std_Internal_IO_Async_instReprSignal_repr___closed__48;
+x_253 = lean_obj_once(&l_Std_Internal_IO_Async_instReprSignal_repr___closed__48, &l_Std_Internal_IO_Async_instReprSignal_repr___closed__48_once, _init_l_Std_Internal_IO_Async_instReprSignal_repr___closed__48);
 x_143 = x_253;
 goto block_149;
 }
 else
 {
 lean_object* x_254; 
-x_254 = l_Std_Internal_IO_Async_instReprSignal_repr___closed__49;
+x_254 = lean_obj_once(&l_Std_Internal_IO_Async_instReprSignal_repr___closed__49, &l_Std_Internal_IO_Async_instReprSignal_repr___closed__49_once, _init_l_Std_Internal_IO_Async_instReprSignal_repr___closed__49);
 x_143 = x_254;
 goto block_149;
 }
@@ -1788,14 +1814,14 @@ x_256 = lean_nat_dec_le(x_255, x_2);
 if (x_256 == 0)
 {
 lean_object* x_257; 
-x_257 = l_Std_Internal_IO_Async_instReprSignal_repr___closed__48;
+x_257 = lean_obj_once(&l_Std_Internal_IO_Async_instReprSignal_repr___closed__48, &l_Std_Internal_IO_Async_instReprSignal_repr___closed__48_once, _init_l_Std_Internal_IO_Async_instReprSignal_repr___closed__48);
 x_150 = x_257;
 goto block_156;
 }
 else
 {
 lean_object* x_258; 
-x_258 = l_Std_Internal_IO_Async_instReprSignal_repr___closed__49;
+x_258 = lean_obj_once(&l_Std_Internal_IO_Async_instReprSignal_repr___closed__49, &l_Std_Internal_IO_Async_instReprSignal_repr___closed__49_once, _init_l_Std_Internal_IO_Async_instReprSignal_repr___closed__49);
 x_150 = x_258;
 goto block_156;
 }
@@ -1808,14 +1834,14 @@ x_260 = lean_nat_dec_le(x_259, x_2);
 if (x_260 == 0)
 {
 lean_object* x_261; 
-x_261 = l_Std_Internal_IO_Async_instReprSignal_repr___closed__48;
+x_261 = lean_obj_once(&l_Std_Internal_IO_Async_instReprSignal_repr___closed__48, &l_Std_Internal_IO_Async_instReprSignal_repr___closed__48_once, _init_l_Std_Internal_IO_Async_instReprSignal_repr___closed__48);
 x_157 = x_261;
 goto block_163;
 }
 else
 {
 lean_object* x_262; 
-x_262 = l_Std_Internal_IO_Async_instReprSignal_repr___closed__49;
+x_262 = lean_obj_once(&l_Std_Internal_IO_Async_instReprSignal_repr___closed__49, &l_Std_Internal_IO_Async_instReprSignal_repr___closed__49_once, _init_l_Std_Internal_IO_Async_instReprSignal_repr___closed__49);
 x_157 = x_262;
 goto block_163;
 }
@@ -1828,14 +1854,14 @@ x_264 = lean_nat_dec_le(x_263, x_2);
 if (x_264 == 0)
 {
 lean_object* x_265; 
-x_265 = l_Std_Internal_IO_Async_instReprSignal_repr___closed__48;
+x_265 = lean_obj_once(&l_Std_Internal_IO_Async_instReprSignal_repr___closed__48, &l_Std_Internal_IO_Async_instReprSignal_repr___closed__48_once, _init_l_Std_Internal_IO_Async_instReprSignal_repr___closed__48);
 x_164 = x_265;
 goto block_170;
 }
 else
 {
 lean_object* x_266; 
-x_266 = l_Std_Internal_IO_Async_instReprSignal_repr___closed__49;
+x_266 = lean_obj_once(&l_Std_Internal_IO_Async_instReprSignal_repr___closed__49, &l_Std_Internal_IO_Async_instReprSignal_repr___closed__49_once, _init_l_Std_Internal_IO_Async_instReprSignal_repr___closed__49);
 x_164 = x_266;
 goto block_170;
 }
@@ -2529,7 +2555,7 @@ x_6 = lean_box(x_5);
 return x_6;
 }
 }
-static uint32_t _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__0() {
+static uint32_t _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__0(void) {
 _start:
 {
 lean_object* x_1; uint32_t x_2; 
@@ -2538,7 +2564,7 @@ x_2 = lean_int32_of_nat(x_1);
 return x_2;
 }
 }
-static uint32_t _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__1() {
+static uint32_t _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__1(void) {
 _start:
 {
 lean_object* x_1; uint32_t x_2; 
@@ -2547,7 +2573,7 @@ x_2 = lean_int32_of_nat(x_1);
 return x_2;
 }
 }
-static uint32_t _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__2() {
+static uint32_t _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__2(void) {
 _start:
 {
 lean_object* x_1; uint32_t x_2; 
@@ -2556,7 +2582,7 @@ x_2 = lean_int32_of_nat(x_1);
 return x_2;
 }
 }
-static uint32_t _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__3() {
+static uint32_t _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__3(void) {
 _start:
 {
 lean_object* x_1; uint32_t x_2; 
@@ -2565,7 +2591,7 @@ x_2 = lean_int32_of_nat(x_1);
 return x_2;
 }
 }
-static uint32_t _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__4() {
+static uint32_t _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__4(void) {
 _start:
 {
 lean_object* x_1; uint32_t x_2; 
@@ -2574,7 +2600,7 @@ x_2 = lean_int32_of_nat(x_1);
 return x_2;
 }
 }
-static uint32_t _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__5() {
+static uint32_t _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__5(void) {
 _start:
 {
 lean_object* x_1; uint32_t x_2; 
@@ -2583,7 +2609,7 @@ x_2 = lean_int32_of_nat(x_1);
 return x_2;
 }
 }
-static uint32_t _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__6() {
+static uint32_t _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__6(void) {
 _start:
 {
 lean_object* x_1; uint32_t x_2; 
@@ -2592,7 +2618,7 @@ x_2 = lean_int32_of_nat(x_1);
 return x_2;
 }
 }
-static uint32_t _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__7() {
+static uint32_t _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__7(void) {
 _start:
 {
 lean_object* x_1; uint32_t x_2; 
@@ -2601,7 +2627,7 @@ x_2 = lean_int32_of_nat(x_1);
 return x_2;
 }
 }
-static uint32_t _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__8() {
+static uint32_t _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__8(void) {
 _start:
 {
 lean_object* x_1; uint32_t x_2; 
@@ -2610,7 +2636,7 @@ x_2 = lean_int32_of_nat(x_1);
 return x_2;
 }
 }
-static uint32_t _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__9() {
+static uint32_t _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__9(void) {
 _start:
 {
 lean_object* x_1; uint32_t x_2; 
@@ -2619,7 +2645,7 @@ x_2 = lean_int32_of_nat(x_1);
 return x_2;
 }
 }
-static uint32_t _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__10() {
+static uint32_t _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__10(void) {
 _start:
 {
 lean_object* x_1; uint32_t x_2; 
@@ -2628,7 +2654,7 @@ x_2 = lean_int32_of_nat(x_1);
 return x_2;
 }
 }
-static uint32_t _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__11() {
+static uint32_t _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__11(void) {
 _start:
 {
 lean_object* x_1; uint32_t x_2; 
@@ -2637,7 +2663,7 @@ x_2 = lean_int32_of_nat(x_1);
 return x_2;
 }
 }
-static uint32_t _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__12() {
+static uint32_t _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__12(void) {
 _start:
 {
 lean_object* x_1; uint32_t x_2; 
@@ -2646,7 +2672,7 @@ x_2 = lean_int32_of_nat(x_1);
 return x_2;
 }
 }
-static uint32_t _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__13() {
+static uint32_t _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__13(void) {
 _start:
 {
 lean_object* x_1; uint32_t x_2; 
@@ -2655,7 +2681,7 @@ x_2 = lean_int32_of_nat(x_1);
 return x_2;
 }
 }
-static uint32_t _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__14() {
+static uint32_t _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__14(void) {
 _start:
 {
 lean_object* x_1; uint32_t x_2; 
@@ -2664,7 +2690,7 @@ x_2 = lean_int32_of_nat(x_1);
 return x_2;
 }
 }
-static uint32_t _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__15() {
+static uint32_t _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__15(void) {
 _start:
 {
 lean_object* x_1; uint32_t x_2; 
@@ -2673,7 +2699,7 @@ x_2 = lean_int32_of_nat(x_1);
 return x_2;
 }
 }
-static uint32_t _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__16() {
+static uint32_t _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__16(void) {
 _start:
 {
 lean_object* x_1; uint32_t x_2; 
@@ -2682,7 +2708,7 @@ x_2 = lean_int32_of_nat(x_1);
 return x_2;
 }
 }
-static uint32_t _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__17() {
+static uint32_t _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__17(void) {
 _start:
 {
 lean_object* x_1; uint32_t x_2; 
@@ -2691,7 +2717,7 @@ x_2 = lean_int32_of_nat(x_1);
 return x_2;
 }
 }
-static uint32_t _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__18() {
+static uint32_t _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__18(void) {
 _start:
 {
 lean_object* x_1; uint32_t x_2; 
@@ -2700,7 +2726,7 @@ x_2 = lean_int32_of_nat(x_1);
 return x_2;
 }
 }
-static uint32_t _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__19() {
+static uint32_t _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__19(void) {
 _start:
 {
 lean_object* x_1; uint32_t x_2; 
@@ -2709,7 +2735,7 @@ x_2 = lean_int32_of_nat(x_1);
 return x_2;
 }
 }
-static uint32_t _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__20() {
+static uint32_t _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__20(void) {
 _start:
 {
 lean_object* x_1; uint32_t x_2; 
@@ -2718,7 +2744,7 @@ x_2 = lean_int32_of_nat(x_1);
 return x_2;
 }
 }
-static uint32_t _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__21() {
+static uint32_t _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__21(void) {
 _start:
 {
 lean_object* x_1; uint32_t x_2; 
@@ -2727,7 +2753,7 @@ x_2 = lean_int32_of_nat(x_1);
 return x_2;
 }
 }
-static uint32_t _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__22() {
+static uint32_t _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__22(void) {
 _start:
 {
 lean_object* x_1; uint32_t x_2; 
@@ -2736,7 +2762,7 @@ x_2 = lean_int32_of_nat(x_1);
 return x_2;
 }
 }
-static uint32_t _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__23() {
+static uint32_t _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__23(void) {
 _start:
 {
 lean_object* x_1; uint32_t x_2; 
@@ -2752,145 +2778,145 @@ switch (x_1) {
 case 0:
 {
 uint32_t x_2; 
-x_2 = l_Std_Internal_IO_Async_Signal_toInt32___closed__0;
+x_2 = lean_uint32_once(&l_Std_Internal_IO_Async_Signal_toInt32___closed__0, &l_Std_Internal_IO_Async_Signal_toInt32___closed__0_once, _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__0);
 return x_2;
 }
 case 1:
 {
 uint32_t x_3; 
-x_3 = l_Std_Internal_IO_Async_Signal_toInt32___closed__1;
+x_3 = lean_uint32_once(&l_Std_Internal_IO_Async_Signal_toInt32___closed__1, &l_Std_Internal_IO_Async_Signal_toInt32___closed__1_once, _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__1);
 return x_3;
 }
 case 2:
 {
 uint32_t x_4; 
-x_4 = l_Std_Internal_IO_Async_Signal_toInt32___closed__2;
+x_4 = lean_uint32_once(&l_Std_Internal_IO_Async_Signal_toInt32___closed__2, &l_Std_Internal_IO_Async_Signal_toInt32___closed__2_once, _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__2);
 return x_4;
 }
 case 3:
 {
 uint32_t x_5; 
-x_5 = l_Std_Internal_IO_Async_Signal_toInt32___closed__3;
+x_5 = lean_uint32_once(&l_Std_Internal_IO_Async_Signal_toInt32___closed__3, &l_Std_Internal_IO_Async_Signal_toInt32___closed__3_once, _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__3);
 return x_5;
 }
 case 4:
 {
 uint32_t x_6; 
-x_6 = l_Std_Internal_IO_Async_Signal_toInt32___closed__4;
+x_6 = lean_uint32_once(&l_Std_Internal_IO_Async_Signal_toInt32___closed__4, &l_Std_Internal_IO_Async_Signal_toInt32___closed__4_once, _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__4);
 return x_6;
 }
 case 5:
 {
 uint32_t x_7; 
-x_7 = l_Std_Internal_IO_Async_Signal_toInt32___closed__5;
+x_7 = lean_uint32_once(&l_Std_Internal_IO_Async_Signal_toInt32___closed__5, &l_Std_Internal_IO_Async_Signal_toInt32___closed__5_once, _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__5);
 return x_7;
 }
 case 6:
 {
 uint32_t x_8; 
-x_8 = l_Std_Internal_IO_Async_Signal_toInt32___closed__6;
+x_8 = lean_uint32_once(&l_Std_Internal_IO_Async_Signal_toInt32___closed__6, &l_Std_Internal_IO_Async_Signal_toInt32___closed__6_once, _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__6);
 return x_8;
 }
 case 7:
 {
 uint32_t x_9; 
-x_9 = l_Std_Internal_IO_Async_Signal_toInt32___closed__7;
+x_9 = lean_uint32_once(&l_Std_Internal_IO_Async_Signal_toInt32___closed__7, &l_Std_Internal_IO_Async_Signal_toInt32___closed__7_once, _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__7);
 return x_9;
 }
 case 8:
 {
 uint32_t x_10; 
-x_10 = l_Std_Internal_IO_Async_Signal_toInt32___closed__8;
+x_10 = lean_uint32_once(&l_Std_Internal_IO_Async_Signal_toInt32___closed__8, &l_Std_Internal_IO_Async_Signal_toInt32___closed__8_once, _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__8);
 return x_10;
 }
 case 9:
 {
 uint32_t x_11; 
-x_11 = l_Std_Internal_IO_Async_Signal_toInt32___closed__9;
+x_11 = lean_uint32_once(&l_Std_Internal_IO_Async_Signal_toInt32___closed__9, &l_Std_Internal_IO_Async_Signal_toInt32___closed__9_once, _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__9);
 return x_11;
 }
 case 10:
 {
 uint32_t x_12; 
-x_12 = l_Std_Internal_IO_Async_Signal_toInt32___closed__10;
+x_12 = lean_uint32_once(&l_Std_Internal_IO_Async_Signal_toInt32___closed__10, &l_Std_Internal_IO_Async_Signal_toInt32___closed__10_once, _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__10);
 return x_12;
 }
 case 11:
 {
 uint32_t x_13; 
-x_13 = l_Std_Internal_IO_Async_Signal_toInt32___closed__11;
+x_13 = lean_uint32_once(&l_Std_Internal_IO_Async_Signal_toInt32___closed__11, &l_Std_Internal_IO_Async_Signal_toInt32___closed__11_once, _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__11);
 return x_13;
 }
 case 12:
 {
 uint32_t x_14; 
-x_14 = l_Std_Internal_IO_Async_Signal_toInt32___closed__12;
+x_14 = lean_uint32_once(&l_Std_Internal_IO_Async_Signal_toInt32___closed__12, &l_Std_Internal_IO_Async_Signal_toInt32___closed__12_once, _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__12);
 return x_14;
 }
 case 13:
 {
 uint32_t x_15; 
-x_15 = l_Std_Internal_IO_Async_Signal_toInt32___closed__13;
+x_15 = lean_uint32_once(&l_Std_Internal_IO_Async_Signal_toInt32___closed__13, &l_Std_Internal_IO_Async_Signal_toInt32___closed__13_once, _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__13);
 return x_15;
 }
 case 14:
 {
 uint32_t x_16; 
-x_16 = l_Std_Internal_IO_Async_Signal_toInt32___closed__14;
+x_16 = lean_uint32_once(&l_Std_Internal_IO_Async_Signal_toInt32___closed__14, &l_Std_Internal_IO_Async_Signal_toInt32___closed__14_once, _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__14);
 return x_16;
 }
 case 15:
 {
 uint32_t x_17; 
-x_17 = l_Std_Internal_IO_Async_Signal_toInt32___closed__15;
+x_17 = lean_uint32_once(&l_Std_Internal_IO_Async_Signal_toInt32___closed__15, &l_Std_Internal_IO_Async_Signal_toInt32___closed__15_once, _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__15);
 return x_17;
 }
 case 16:
 {
 uint32_t x_18; 
-x_18 = l_Std_Internal_IO_Async_Signal_toInt32___closed__16;
+x_18 = lean_uint32_once(&l_Std_Internal_IO_Async_Signal_toInt32___closed__16, &l_Std_Internal_IO_Async_Signal_toInt32___closed__16_once, _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__16);
 return x_18;
 }
 case 17:
 {
 uint32_t x_19; 
-x_19 = l_Std_Internal_IO_Async_Signal_toInt32___closed__17;
+x_19 = lean_uint32_once(&l_Std_Internal_IO_Async_Signal_toInt32___closed__17, &l_Std_Internal_IO_Async_Signal_toInt32___closed__17_once, _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__17);
 return x_19;
 }
 case 18:
 {
 uint32_t x_20; 
-x_20 = l_Std_Internal_IO_Async_Signal_toInt32___closed__18;
+x_20 = lean_uint32_once(&l_Std_Internal_IO_Async_Signal_toInt32___closed__18, &l_Std_Internal_IO_Async_Signal_toInt32___closed__18_once, _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__18);
 return x_20;
 }
 case 19:
 {
 uint32_t x_21; 
-x_21 = l_Std_Internal_IO_Async_Signal_toInt32___closed__19;
+x_21 = lean_uint32_once(&l_Std_Internal_IO_Async_Signal_toInt32___closed__19, &l_Std_Internal_IO_Async_Signal_toInt32___closed__19_once, _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__19);
 return x_21;
 }
 case 20:
 {
 uint32_t x_22; 
-x_22 = l_Std_Internal_IO_Async_Signal_toInt32___closed__20;
+x_22 = lean_uint32_once(&l_Std_Internal_IO_Async_Signal_toInt32___closed__20, &l_Std_Internal_IO_Async_Signal_toInt32___closed__20_once, _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__20);
 return x_22;
 }
 case 21:
 {
 uint32_t x_23; 
-x_23 = l_Std_Internal_IO_Async_Signal_toInt32___closed__21;
+x_23 = lean_uint32_once(&l_Std_Internal_IO_Async_Signal_toInt32___closed__21, &l_Std_Internal_IO_Async_Signal_toInt32___closed__21_once, _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__21);
 return x_23;
 }
 case 22:
 {
 uint32_t x_24; 
-x_24 = l_Std_Internal_IO_Async_Signal_toInt32___closed__22;
+x_24 = lean_uint32_once(&l_Std_Internal_IO_Async_Signal_toInt32___closed__22, &l_Std_Internal_IO_Async_Signal_toInt32___closed__22_once, _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__22);
 return x_24;
 }
 default: 
 {
 uint32_t x_25; 
-x_25 = l_Std_Internal_IO_Async_Signal_toInt32___closed__23;
+x_25 = lean_uint32_once(&l_Std_Internal_IO_Async_Signal_toInt32___closed__23, &l_Std_Internal_IO_Async_Signal_toInt32___closed__23_once, _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__23);
 return x_25;
 }
 }
@@ -3879,34 +3905,6 @@ lean_dec_ref(res);
 res = initialize_Std_Internal_Async_Select(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Std_Internal_IO_Async_instReprSignal_repr___closed__48 = _init_l_Std_Internal_IO_Async_instReprSignal_repr___closed__48();
-lean_mark_persistent(l_Std_Internal_IO_Async_instReprSignal_repr___closed__48);
-l_Std_Internal_IO_Async_instReprSignal_repr___closed__49 = _init_l_Std_Internal_IO_Async_instReprSignal_repr___closed__49();
-lean_mark_persistent(l_Std_Internal_IO_Async_instReprSignal_repr___closed__49);
-l_Std_Internal_IO_Async_Signal_toInt32___closed__0 = _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__0();
-l_Std_Internal_IO_Async_Signal_toInt32___closed__1 = _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__1();
-l_Std_Internal_IO_Async_Signal_toInt32___closed__2 = _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__2();
-l_Std_Internal_IO_Async_Signal_toInt32___closed__3 = _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__3();
-l_Std_Internal_IO_Async_Signal_toInt32___closed__4 = _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__4();
-l_Std_Internal_IO_Async_Signal_toInt32___closed__5 = _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__5();
-l_Std_Internal_IO_Async_Signal_toInt32___closed__6 = _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__6();
-l_Std_Internal_IO_Async_Signal_toInt32___closed__7 = _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__7();
-l_Std_Internal_IO_Async_Signal_toInt32___closed__8 = _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__8();
-l_Std_Internal_IO_Async_Signal_toInt32___closed__9 = _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__9();
-l_Std_Internal_IO_Async_Signal_toInt32___closed__10 = _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__10();
-l_Std_Internal_IO_Async_Signal_toInt32___closed__11 = _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__11();
-l_Std_Internal_IO_Async_Signal_toInt32___closed__12 = _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__12();
-l_Std_Internal_IO_Async_Signal_toInt32___closed__13 = _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__13();
-l_Std_Internal_IO_Async_Signal_toInt32___closed__14 = _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__14();
-l_Std_Internal_IO_Async_Signal_toInt32___closed__15 = _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__15();
-l_Std_Internal_IO_Async_Signal_toInt32___closed__16 = _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__16();
-l_Std_Internal_IO_Async_Signal_toInt32___closed__17 = _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__17();
-l_Std_Internal_IO_Async_Signal_toInt32___closed__18 = _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__18();
-l_Std_Internal_IO_Async_Signal_toInt32___closed__19 = _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__19();
-l_Std_Internal_IO_Async_Signal_toInt32___closed__20 = _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__20();
-l_Std_Internal_IO_Async_Signal_toInt32___closed__21 = _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__21();
-l_Std_Internal_IO_Async_Signal_toInt32___closed__22 = _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__22();
-l_Std_Internal_IO_Async_Signal_toInt32___closed__23 = _init_l_Std_Internal_IO_Async_Signal_toInt32___closed__23();
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

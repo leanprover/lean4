@@ -48,7 +48,7 @@ LEAN_EXPORT lean_object* l_Std_Do_SVal_getThe___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_SVal_getThe___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_SVal_getThe(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_SVal_getThe___boxed(lean_object*, lean_object*, lean_object*);
-static lean_object* _init_l_Std_Do_SVal_instInhabitedStateTupleNil() {
+static lean_object* _init_l_Std_Do_SVal_instInhabitedStateTupleNil(void) {
 _start:
 {
 lean_object* x_1; 

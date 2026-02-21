@@ -16,6 +16,7 @@ extern "C" {
 static const lean_string_object l_IO_FS_Stream_readUTF8___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 14, .m_capacity = 14, .m_length = 13, .m_data = "invalid UTF-8"};
 static const lean_object* l_IO_FS_Stream_readUTF8___closed__0 = (const lean_object*)&l_IO_FS_Stream_readUTF8___closed__0_value;
 lean_object* lean_mk_io_user_error(lean_object*);
+static lean_once_cell_t l_IO_FS_Stream_readUTF8___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_IO_FS_Stream_readUTF8___closed__1;
 size_t lean_usize_of_nat(lean_object*);
 uint8_t lean_string_validate_utf8(lean_object*);
@@ -32,7 +33,7 @@ LEAN_EXPORT lean_object* l_IO_FS_Stream_readJson___boxed(lean_object*, lean_obje
 lean_object* l_Lean_Json_compress(lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Stream_writeJson(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Stream_writeJson___boxed(lean_object*, lean_object*, lean_object*);
-static lean_object* _init_l_IO_FS_Stream_readUTF8___closed__1() {
+static lean_object* _init_l_IO_FS_Stream_readUTF8___closed__1(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -64,7 +65,7 @@ if (x_10 == 0)
 {
 lean_object* x_11; 
 lean_dec(x_9);
-x_11 = l_IO_FS_Stream_readUTF8___closed__1;
+x_11 = lean_obj_once(&l_IO_FS_Stream_readUTF8___closed__1, &l_IO_FS_Stream_readUTF8___closed__1_once, _init_l_IO_FS_Stream_readUTF8___closed__1);
 lean_ctor_set_tag(x_7, 1);
 lean_ctor_set(x_7, 0, x_11);
 return x_7;
@@ -88,7 +89,7 @@ if (x_14 == 0)
 {
 lean_object* x_15; lean_object* x_16; 
 lean_dec(x_13);
-x_15 = l_IO_FS_Stream_readUTF8___closed__1;
+x_15 = lean_obj_once(&l_IO_FS_Stream_readUTF8___closed__1, &l_IO_FS_Stream_readUTF8___closed__1_once, _init_l_IO_FS_Stream_readUTF8___closed__1);
 x_16 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_16, 0, x_15);
 return x_16;
@@ -230,7 +231,7 @@ if (x_10 == 0)
 {
 lean_object* x_11; 
 lean_dec(x_9);
-x_11 = l_IO_FS_Stream_readUTF8___closed__1;
+x_11 = lean_obj_once(&l_IO_FS_Stream_readUTF8___closed__1, &l_IO_FS_Stream_readUTF8___closed__1_once, _init_l_IO_FS_Stream_readUTF8___closed__1);
 lean_ctor_set_tag(x_7, 1);
 lean_ctor_set(x_7, 0, x_11);
 return x_7;
@@ -256,7 +257,7 @@ if (x_16 == 0)
 {
 lean_object* x_17; lean_object* x_18; 
 lean_dec(x_15);
-x_17 = l_IO_FS_Stream_readUTF8___closed__1;
+x_17 = lean_obj_once(&l_IO_FS_Stream_readUTF8___closed__1, &l_IO_FS_Stream_readUTF8___closed__1_once, _init_l_IO_FS_Stream_readUTF8___closed__1);
 x_18 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_18, 0, x_17);
 return x_18;
@@ -347,8 +348,6 @@ lean_dec_ref(res);
 res = initialize_Lean_Data_Json_Printer(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_IO_FS_Stream_readUTF8___closed__1 = _init_l_IO_FS_Stream_readUTF8___closed__1();
-lean_mark_persistent(l_IO_FS_Stream_readUTF8___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

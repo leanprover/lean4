@@ -106,7 +106,7 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Linear_0__Nat_Linear_Poly_isZ
 LEAN_EXPORT lean_object* l_Nat_elimOffset___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Nat_elimOffset(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_elimOffset___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* _init_l_Nat_Linear_fixedVar() {
+static lean_object* _init_l_Nat_Linear_fixedVar(void) {
 _start:
 {
 lean_object* x_1; 
@@ -1111,7 +1111,7 @@ goto _start;
 }
 }
 }
-static lean_object* _init_l_Nat_Linear_hugeFuel() {
+static lean_object* _init_l_Nat_Linear_hugeFuel(void) {
 _start:
 {
 lean_object* x_1; 

@@ -12,12 +12,12 @@ example : @Prod.rec Bool Bool (motive := fun _ => Bool) (fun b c => a (b,c)) = f
 example : @Prod.rec Bool Bool (motive := fun _ => Bool) (fun b c => a (b,c)) = a := rfl --fails
 
 -- This should probably be filed as another issue since it is about allowing for eta-expansion when checking defeq against a partial structure constructor application, not against a partially applied recursor
--- structure T where
-  -- val : Bool
-  -- proof : True
---
--- variable (x : True → T)
--- #check T.mk (x True.intro).val
--- example : (T.mk (x True.intro).val) = (fun h => x h) := rfl
--- example : (fun h => x h) = x := rfl
--- example : (T.mk (x True.intro).val) = x := rfl
+structure T where
+  val : Bool
+  proof : True
+
+variable (x : True → T)
+
+example : (T.mk (x True.intro).val) = (fun h => x h) := rfl
+example : (fun h => x h) = x := rfl
+example : (T.mk (x True.intro).val) = x := rfl

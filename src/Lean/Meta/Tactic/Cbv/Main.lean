@@ -16,6 +16,78 @@ import Lean.Meta.Tactic.Cbv.CbvEvalExt
 import Lean.Meta.Sym
 import Lean.Meta.Tactic.Refl
 
+/-!
+# Cbv Evaluator
+
+Proof-producing symbolic evaluator that tries to match call-by-value evaluation
+semantics as closely as possible. Built on top of `Lean.Meta.Sym.Simp`, it runs
+as a pair of `Simproc`s (pre/post) that drive the simplifier loop.
+
+## Evaluation strategy
+
+The pre-pass (`cbvPre`) handles structural dispatch: projections, let-bindings,
+constants, and control flow. Before doing any work, it short-circuits on proof
+terms and ground literal values (Nat, Int, BitVec, String, etc.), marking them
+as done so the simplifier does not recurse into them.
+
+For applications, the pre-pass first tries control flow simprocs (`ite`, `dite`,
+`cond`, `match`, `Decidable.rec`) before the simplifier recurses into the
+arguments. This matters because control flow reduction can eliminate branches
+entirely, avoiding unnecessary work on arguments that would be discarded.
+
+It converts non-dependent lets into beta-applications (via `toBetaApp`) so the
+simplifier's congruence machinery can process arguments in parallel.
+
+The post-pass (`cbvPost`) fires after the simplifier has recursed into subterms.
+It evaluates ground arithmetic (`evalGround`) and unfolds/beta-reduces remaining
+applications (`handleApp`).
+
+Neither pass enters binders — lambdas, foralls, and free variables are marked
+`done := true` immediately.
+
+## Limitations
+
+This is a best-effort tactic. It reduces as far as it can, but cannot always
+fully evaluate a term.
+
+Rewriting is fundamentally non-dependent: congruence lemmas like `congrArg`
+cannot rewrite an argument when the return type of the function depends on it.
+When the simplifier encounters such a dependency, it leaves that subterm alone.
+
+There are also places where we deviate from strict call-by-value semantics:
+- Dependent let-expressions are zeta-reduced (substituted directly) rather than
+  evaluated as an argument first, because the type dependency prevents us from
+  using congruence-based rewriting on the value.
+- Dependent projections that cannot be rewritten via `congrArg` are reduced
+  directly when possible. As a last resort, if the types on which the projection
+  function depends are definitionally equal, we use `HCongr` to build the proof.
+
+## Attributes
+
+- `@[cbv_opaque]`: prevents `cbv` from unfolding a definition. The constant is
+  returned as-is without attempting any equation or unfold theorems.
+- `@[cbv_eval]`: registers a theorem as a custom rewrite rule for `cbv`. The
+  theorem must be an unconditional equality whose LHS is an application of a
+  constant. Use `@[cbv_eval ←]` to rewrite right-to-left. These rules are tried
+  before equation theorems, so they can be used together with `@[cbv_opaque]` to
+  replace the default unfolding behavior with a controlled set of evaluation rules.
+
+## Unfolding order
+
+For a constant application, `handleApp` tries in order:
+1. `@[cbv_eval]` rewrite rules
+2. Equation theorems (e.g. `foo.eq_1`, `foo.eq_2`)
+3. Unfold equations
+4. Kernel matcher reduction (`reduceRecMatcher`), which also handles quotients
+   and recursors
+
+## Entry points
+
+- `cbvEntry`: reduces a single expression (used by `conv => cbv`)
+- `cbvGoal`: reduces both sides of an equation goal (used by the `cbv` tactic)
+- `cbvDecideGoal`: reduces `decide P = true` and closes or errors (used by `decide_cbv`)
+-/
+
 namespace Lean.Meta.Tactic.Cbv
 open Lean.Meta.Sym.Simp
 
@@ -38,6 +110,7 @@ def tryUnfold : Simproc := fun e => do
   let some thm ← getUnfoldTheorem appFn | return .rfl
   Simproc.tryCatch (fun e => Theorem.rewrite thm e) e
 
+/-- Try equation theorems, then unfold equations. Skip `@[cbv_opaque]` constants. -/
 def handleConstApp : Simproc := fun e => do
   if (← isCbvOpaque e.getAppFn.constName!) then
     return .rfl (done := true)
@@ -55,6 +128,11 @@ def tryCbvTheorems : Simproc := fun e => do
   let some evalLemmas ← getCbvEvalLemmas fnName | return .rfl
   Simproc.tryCatch (Theorems.rewrite evalLemmas (d := dischargeNone)) e
 
+/--
+Post-pass handler for applications. For a constant-headed application, tries
+`@[cbv_eval]` rules, then equation/unfold theorems, then `reduceRecMatcher`.
+For a lambda-headed application, beta-reduces.
+-/
 def handleApp : Simproc := fun e => do
   unless e.isApp do return .rfl
   let fn := e.getAppFn
@@ -89,6 +167,12 @@ def zetaReduce : Simproc := fun e => do
   let new ← Sym.share new
   return .step new (← Sym.mkEqRefl new)
 
+/--
+Recursively simplifies the struct inside a projection, then reduces the projection.
+For non-dependent projection types, uses `congrArg` to lift the proof.
+For dependent projection types, tries direct reduction first; if that fails and
+the original and rewritten struct are definitionally equal, falls back to `HCongr`.
+-/
 def handleProj : Simproc := fun e => do
   let Expr.proj typeName idx struct := e | return .rfl
   -- We recursively simplify the projection
@@ -128,6 +212,10 @@ def handleProj : Simproc := fun e => do
         let newProof ← mkEqOfHEq newProof (check := false)
         return .step (← Lean.Expr.updateProjS! e e') newProof
 
+/--
+For an application whose head is neither a constant nor a lambda (e.g. a projection
+like `p.1 x`), simplify the function head and lift the proof via `congrArg`.
+-/
 def simplifyAppFn : Simproc := fun e => do
     unless e.isApp do return .rfl
     let fn := e.getAppFn
@@ -156,6 +244,12 @@ def handleConst : Simproc := fun e => do
   let some thm ← getUnfoldTheorem n | return .rfl
   Simproc.tryCatch (fun e => Theorem.rewrite thm e) e
 
+/--
+Pre-pass structural dispatch. Routes each expression form to the appropriate handler:
+literals, projections, constants, applications (control flow first), and let-bindings
+(non-dependent → `toBetaApp`, dependent → zeta-reduce). Binders and variables are
+marked done immediately.
+-/
 def cbvPreStep : Simproc := fun e => do
   match e with
   | .lit .. => foldLit e
@@ -171,10 +265,14 @@ def cbvPreStep : Simproc := fun e => do
   | .forallE .. | .lam .. | .fvar .. | .mvar .. | .bvar .. | .sort .. => return .rfl (done := true)
   | _ => return .rfl
 
+/-- Pre-pass: skip builtin values and proofs, then dispatch structurally. -/
 def cbvPre : Simproc := isBuiltinValue <|> isProofTerm <|> cbvPreStep
 
+/-- Post-pass: evaluate ground arithmetic, then try unfolding/beta-reducing applications. -/
 def cbvPost : Simproc := evalGround <|> handleApp
 
+/-- Reduce a single expression. Unfolds reducibles, shares subterms, then runs the
+simplifier with `cbvPre`/`cbvPost`. Used by `conv => cbv`. -/
 public def cbvEntry (e : Expr) : MetaM Result := do
   trace[Meta.Tactic.cbv] "Called cbv tactic to simplify {e}"
   let methods := {pre := cbvPre, post := cbvPost}
@@ -183,6 +281,9 @@ public def cbvEntry (e : Expr) : MetaM Result := do
     let e ← Sym.shareCommon e
     SimpM.run' (simp e) (methods := methods)
 
+/-- Reduce one side of an equation goal. When `inv = false`, reduces the LHS;
+when `inv = true`, reduces the RHS. Returns `none` if the goal is closed,
+or a residual goal with the reduced side. -/
 public def cbvGoalCore (m : MVarId) (inv : Bool := false) : MetaM (Option MVarId) := do
   Sym.SymM.run do
     let methods := {pre := cbvPre, post := cbvPost}
@@ -217,6 +318,8 @@ public def cbvGoalCore (m : MVarId) (inv : Bool := false) : MetaM (Option MVarId
           m.assign toAssign
           return newGoal.mvarId!
 
+/-- Reduce both sides of an equation goal. Tries the LHS first, then the RHS.
+Used by the `cbv` tactic. -/
 public def cbvGoal (m : MVarId) : MetaM (Option MVarId) := do
   match (← cbvGoalCore m (inv := false)) with
   | .none => return .none

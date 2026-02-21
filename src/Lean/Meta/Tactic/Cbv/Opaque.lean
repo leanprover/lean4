@@ -8,6 +8,13 @@ module
 prelude
 public import Lean.ScopedEnvExtension
 
+/-!
+# `@[cbv_opaque]` Attribute and Extension
+
+Scoped set of declaration names that `cbv` should not unfold.
+Supports `erase` to remove a declaration from the set within a scope.
+-/
+
 public section
 
 namespace Lean.Meta.Tactic.Cbv

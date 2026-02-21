@@ -73,6 +73,32 @@ def channelRecvAfterClose : Async Unit := do
 
 #eval channelRecvAfterClose.block
 
+-- Test Body.stream runs producer concurrently and transfers chunks
+
+def bodyStreamSends : Async Unit := do
+  let incoming ← Body.stream fun outgoing => do
+    outgoing.send (Chunk.ofByteArray "x".toUTF8)
+
+  let first ← incoming.recv none
+  assert! first.isSome
+  assert! first.get!.data == "x".toUTF8
+
+  let done ← incoming.recv none
+  assert! done.isNone
+
+#eval bodyStreamSends.block
+
+-- Test Body.stream closes channel when generator throws
+
+def bodyStreamThrowCloses : Async Unit := do
+  let incoming ← Body.stream fun _ => do
+    throw (.userError "boom")
+
+  let result ← incoming.recv none
+  assert! result.isNone
+
+#eval bodyStreamThrowCloses.block
+
 -- Test for-in iteration collects chunks until close
 
 def channelForIn : Async Unit := do
@@ -107,6 +133,34 @@ def channelExtensions : Async Unit := do
   await sendTask
 
 #eval channelExtensions.block
+
+-- Test incomplete sends are collapsed before delivery
+
+def channelCollapseIncompleteChunks : Async Unit := do
+  let (outgoing, incoming) ← Body.mkChannel
+
+  let first : Chunk := { data := "aaaaaaaaaa".toUTF8, extensions := #[(.mk "part", some "first")] }
+  let second : Chunk := { data := "bbbbbbbbbb".toUTF8, extensions := #[(.mk "part", some "second")] }
+  let last : Chunk := { data := "cccccccccccccccccccc".toUTF8, extensions := #[(.mk "part", some "last")] }
+
+  outgoing.send first (incomplete := true)
+  outgoing.send second (incomplete := true)
+
+  let noChunkYet ← incoming.tryRecv
+  assert! noChunkYet.isNone
+
+  let sendFinal ← async (t := AsyncTask) <| outgoing.send last
+  let result ← incoming.recv none
+
+  assert! result.isSome
+  let merged := result.get!
+  assert! merged.data == "aaaaaaaaaabbbbbbbbbbcccccccccccccccccccc".toUTF8
+  assert! merged.data.size == 40
+  assert! merged.extensions == #[(.mk "part", some "first")]
+
+  await sendFinal
+
+#eval channelCollapseIncompleteChunks.block
 
 -- Test known size metadata
 

@@ -29,23 +29,23 @@ trace: [Compiler.IR] [result]
     def stringTest2._closed_2 : obj :=
       let x_1 : obj := "C";
       ret x_1
-    def stringTest2._closed_3 : tobj :=
+    def stringTest2._closed_3 : obj :=
       let x_1 : tagged := ctor_0[List.nil];
       let x_2 : obj := stringTest2._closed_2;
       let x_3 : obj := ctor_1[List.cons] x_2 x_1;
       ret x_3
-    def stringTest2._closed_4 : tobj :=
-      let x_1 : tobj := stringTest2._closed_3;
+    def stringTest2._closed_4 : obj :=
+      let x_1 : obj := stringTest2._closed_3;
       let x_2 : obj := stringTest2._closed_1;
       let x_3 : obj := ctor_1[List.cons] x_2 x_1;
       ret x_3
-    def stringTest2._closed_5 : tobj :=
-      let x_1 : tobj := stringTest2._closed_4;
+    def stringTest2._closed_5 : obj :=
+      let x_1 : obj := stringTest2._closed_4;
       let x_2 : obj := stringTest2._closed_0;
       let x_3 : obj := ctor_1[List.cons] x_2 x_1;
       ret x_3
-    def stringTest2 : tobj :=
-      let x_1 : tobj := stringTest2._closed_5;
+    def stringTest2 : obj :=
+      let x_1 : obj := stringTest2._closed_5;
       ret x_1
 [compiler.ir.simple_ground] Marked stringTest2._closed_0 as simple ground expr
 [compiler.ir.simple_ground] Marked stringTest2._closed_1 as simple ground expr

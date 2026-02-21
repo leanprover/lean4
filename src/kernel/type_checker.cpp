@@ -1090,9 +1090,8 @@ bool type_checker::is_unit_like(expr const & t) {
         I       = whnf(binding_body(I));
     }
     I = get_app_args(I,args);
-    if ( !is_constant(I) || !is_structure_like(env(), const_name(I))){
+    if (!is_constant(I) || !is_structure_like(env(), const_name(I)))
         return false;
-    }
     name ctor_name = head(env().get(const_name(I)).to_inductive_val().get_cnstrs());
     I = env().get(ctor_name).to_constructor_val().to_constant_val().get_type();
     for (unsigned i = 0; i < args.size(); i++) {
@@ -1118,7 +1117,9 @@ bool type_checker::is_def_eq_unit_like(expr const & t, expr const & s) {
     expr t_type = whnf(infer_type(t));
     if (!is_unit_like(t_type))
         return false;
-    if (is_def_eq_core(t_type, infer_type(s)))
+    //This should always be true under the invariant that terms that get compared must be known to have defeq types 
+    // Also, should this be is_def_eq_core or is_def_eq ?
+    if (is_def_eq_core(t_type, infer_type(s))) 
         return true;
     return false;
 }

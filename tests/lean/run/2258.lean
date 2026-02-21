@@ -4,8 +4,6 @@ structure Foo (A B: Type) where
     baz : True
     barf : A = B
 
-set_option trace.Meta.isDefEq.eta.unitLike true
-
 example (p q : Foo Nat Unit) : p = q := rfl
 
 structure Bar : Type where

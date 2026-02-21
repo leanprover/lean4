@@ -19,17 +19,13 @@ abbrev plus : Term Γ a → Term Γ a
 | .ap l m => (plus l).ap (plus m)
 
 /--
-error: failed to generate equational theorem for `plus`
-  failed to generate equality theorems for `match` expression `plus.match_1`
-  Γ✝ : Context
-  a✝ : Ty
-  motive✝ : Term Γ✝ a✝ → Sort u_1
-  n✝ : Term ( ✶ :: Γ✝) ✶
-  h_1✝ : (i : Lookup Γ✝ a✝) → motive✝ (Term.var i)
-  h_2✝ : (n : Term ( ✶ :: Γ✝) ✶ ) → motive✝ n.lam
-  h_3✝ : (a : Term ( ✶ :: Γ✝) ✶ ) → (m : Term Γ✝ ✶ ) → motive✝ (a.lam.ap m)
-  h_4✝ : (l m : Term Γ✝ ✶ ) → motive✝ (l.ap m)
-  ⊢ (⋯ ▸ fun x motive h_1 h_2 h_3 h_4 h => ⋯ ▸ h_2 n✝) n✝.lam motive✝ h_1✝ h_2✝ h_3✝ h_4✝ ⋯ = h_2✝ n✝
+info: equations:
+@[defeq] theorem plus.eq_1 : ∀ {Γ : Context} {a : Ty} (i : Lookup Γ a), plus (Term.var i) = Term.var i
+@[defeq] theorem plus.eq_2 : ∀ {Γ : Context} {a : Ty} (n : Term ( ✶ :: Γ) ✶ ), plus n.lam = (plus n).lam
+@[defeq] theorem plus.eq_3 : ∀ {Γ : Context} {a : Ty} (a_1 : Term ( ✶ :: Γ) ✶ ) (m : Term Γ ✶ ),
+  plus (a_1.lam.ap m) = plus m
+theorem plus.eq_4 : ∀ {Γ : Context} {a : Ty} (l m : Term Γ ✶ ),
+  (∀ (a : Term ( ✶ :: Γ) ✶ ), l = a.lam → False) → plus (l.ap m) = (plus l).ap (plus m)
 -/
 #guard_msgs in
 #print equations plus

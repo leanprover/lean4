@@ -2088,9 +2088,12 @@ private def isDefEqApp (t s : Expr) : MetaM Bool := do
   else
     isDefEqOnFailure t s
 
+/-- Given a type `I As`, checks that `I` is a (non-recursive) structure, and that each (instantiated) fields is itself either a proposition or a unit-like type -/
 private partial def isUnitLikeStruct (tType : Expr) : MetaM Bool := do
-  let hd := (← whnf tType).getAppFn
+  let tType ← whnf tType
+  let hd := tType.getAppFn
   matchConstStructureLike hd (fun _ => pure false) fun _ _ ctorVal => do
+    --TODO Shouldn't this also instantiate universes ?
     let ctorType := ctorVal.type
         |>.getForallBodyMaxDepth tType.getAppNumArgs
         |>.instantiateRev tType.getAppArgs
@@ -2099,8 +2102,10 @@ private partial def isUnitLikeStruct (tType : Expr) : MetaM Bool := do
         let ty ← e.fvarId!.getType
         isProp ty <||> forallTelescopeReducing ty fun _ => isUnitLikeStruct
 
+/-- Takes a type of the form `A1 -> ... -> An` and checks whether `An` is a unit-Like structure-/
 private def isUnitLikeType (e : Expr) : MetaM Bool := do
-  forallTelescopeReducing e fun _ e => isUnitLikeStruct e
+  withTraceNode `Meta.isDefEq ( return m!"{exceptBoolEmoji · } isUnitLikeType {e}") do
+    forallTelescopeReducing e fun _ e => isUnitLikeStruct e
 
 /--
   Return `true` if the types of the given expressions is a non-recursive, non-indexed inductive datatype
@@ -2111,7 +2116,7 @@ private def isDefEqUnitLike (t : Expr) (s : Expr) : MetaM Bool := do
   let tType  ← inferType t
   let isUnit ← isUnitLikeType tType
   if !isUnit then
-      return false
+    return false
   Meta.isExprDefEqAux tType (← inferType s)
 
 /--

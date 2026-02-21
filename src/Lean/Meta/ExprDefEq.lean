@@ -127,30 +127,29 @@ where
         k a' b'
 
   go ctorVal us := do
-    expandIfNeeded ctorVal fun a b => do
-      if !isStructureLike (← getEnv) ctorVal.induct then
-        trace[Meta.isDefEq.eta.struct] "failed, type is not a structure{indentExpr b}"
-        return false
-      if !(← isDefEq (← inferType a) (← inferType b)) then
-        return false
-      checkpointDefEq do expandIfNeeded ctorVal fun a b => do
-        let args := b.getAppArgs
-        let params := args[*...ctorVal.numParams].toArray
-        for h : i in ctorVal.numParams...args.size do
-          let j := i - ctorVal.numParams
-          let proj ← mkProjFn ctorVal us params j a
-          if ← isProof proj then
-            unless ← isAbstractedUnassignedMVar args[i] do
-              -- Skip expensive unification problem that is likely solved
-              -- using proof irrelevance.  We already know that `proj` and
-              -- `args[i]` have the same type, so they're defeq in any case.
-              -- See comment at `isAbstractedUnassignedMVar`.
-              continue
-          trace[Meta.isDefEq.eta.struct] "{a} =?= {b} @ [{j}], {proj} =?= {args[i]}"
-          unless (← isDefEq proj args[i]) do
-            trace[Meta.isDefEq.eta.struct] "failed, unexpected arg #{i}, projection{indentExpr proj}\nis not defeq to{indentExpr args[i]}"
-            return false
-        return true
+    if !isStructureLike (← getEnv) ctorVal.induct then
+      trace[Meta.isDefEq.eta.struct] "failed, type is not a structure{indentExpr b}"
+      return false
+    if !(← isDefEq (← inferType a) (← inferType b)) then
+      return false
+    checkpointDefEq do expandIfNeeded ctorVal fun a b => do
+      let args := b.getAppArgs
+      let params := args[*...ctorVal.numParams].toArray
+      for h : i in ctorVal.numParams...args.size do
+        let j := i - ctorVal.numParams
+        let proj ← mkProjFn ctorVal us params j a
+        if ← isProof proj then
+          unless ← isAbstractedUnassignedMVar args[i] do
+            -- Skip expensive unification problem that is likely solved
+            -- using proof irrelevance.  We already know that `proj` and
+            -- `args[i]` have the same type, so they're defeq in any case.
+            -- See comment at `isAbstractedUnassignedMVar`.
+            continue
+        trace[Meta.isDefEq.eta.struct] "{a} =?= {b} @ [{j}], {proj} =?= {args[i]}"
+        unless (← isDefEq proj args[i]) do
+          trace[Meta.isDefEq.eta.struct] "failed, unexpected arg #{i}, projection{indentExpr proj}\nis not defeq to{indentExpr args[i]}"
+          return false
+      return true
 
 private def shouldEtaRecursors (a b : Expr) : MetaM Bool := do
   let afn := a.getAppFn

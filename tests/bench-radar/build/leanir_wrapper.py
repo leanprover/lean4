@@ -54,7 +54,7 @@ def run_leanir(module: str) -> None:
         *("-m", "cycles"),
         "--",
         f"{STAGE2}/bin/leanir.wrapped",
-        *sys.argv[2:],
+        *sys.argv[1:],
         *("-Dprofiler=true", "-Dprofiler.threshold=9999999"),
     )
 

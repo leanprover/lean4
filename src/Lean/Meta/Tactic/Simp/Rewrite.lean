@@ -126,7 +126,7 @@ private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInf
           trace[Meta.Tactic.simp.rewrite] "{← ppSimpTheorem thm}, has unassigned metavariables after unification"
           return none
         pure <| some proof
-      let rhs := (← instantiateMVars type).appArg!
+      let rhs ← instantiateMVars type.appArg!
       /-
       We used to use `e == rhs` in the following test.
       However, it include unnecessary proof steps when `e` and `rhs`

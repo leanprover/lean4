@@ -130,6 +130,14 @@ The ASCII digits are the following: `0123456789`.
   c.val ≥ '0'.val && c.val ≤ '9'.val
 
 /--
+Returns `true` if the character is an ASCII hexadecimal digit.
+
+The ASCII hexadecimal digits are the following: `0123456789abcdefABCDEF`.
+-/
+@[inline] def isHexDigit (c : Char) : Bool :=
+  c.isDigit || (c.val ≥ 'a'.val && c.val ≤ 'f'.val) || (c.val ≥ 'A'.val && c.val ≤ 'F'.val)
+
+/--
 Returns `true` if the character is an ASCII letter or digit.
 
 The ASCII letters are the following: `ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz`.

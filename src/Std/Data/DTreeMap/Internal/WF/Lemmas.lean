@@ -2455,7 +2455,7 @@ theorem getEntryLE?_eq_findRev? [Ord α] [TransOrd α] {t : Impl α β} (hto : t
     getEntryLE? k t = t.toListModel.findRev? (fun e => (compare e.1 k).isLE) := by
   rw [getEntryLE?_eq_getEntryGE?_reverse, @getEntryGE?_eq_find?, List.findRev?_eq_find?_reverse,
     toListModel_reverse]
-  · simp +instances only [Ord.opposite, Bool.coe_iff_coe.mp OrientedCmp.isGE_iff_isLE]
+  · simp only [Bool.coe_iff_coe.mp OrientedCmp.isGE_iff_isLE]; rfl
   · exact hto.reverse
 
 theorem getEntryLT?_eq_findRev? [Ord α] [TransOrd α] {t : Impl α β} (hto : t.Ordered) {k : α} :

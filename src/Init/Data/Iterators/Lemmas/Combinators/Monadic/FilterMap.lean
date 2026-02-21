@@ -373,6 +373,7 @@ theorem IterM.toList_map_eq_toList_filterMapM {α β γ : Type w} {m : Type w �
   simp [toList_map_eq_toList_mapM, toList_mapM_eq_toList_filterMapM]
   congr <;> simp
 
+set_option backward.whnf.reducibleClassField false in
 /--
 Variant of `toList_filterMapWithPostcondition_filterMapWithPostcondition` that is intended to be
 used with the `apply` tactic. Because neither the LHS nor the RHS determine all implicit parameters,

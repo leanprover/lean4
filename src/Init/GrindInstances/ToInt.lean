@@ -123,7 +123,9 @@ instance [NeZero n] : ToInt.OfNat (Fin n) (.co 0 n) where
   toInt_ofNat x := by simp; rfl
 
 theorem ofNat_FinZero (n : Nat) [NeZero n] : ToInt.toInt (OfNat.ofNat 0 : Fin n) = 0 := by
-  rw [ToInt.toInt, instToIntFinCoOfNatIntCast, Fin.instOfNat, Fin.ofNat]; simp
+  rw [ToInt.toInt, instToIntFinCoOfNatIntCast, Fin.instOfNat, Fin.ofNat]
+  simp
+  try rfl -- Not needed after leanprover/lean4#12538
 
 instance : ToInt.Add (Fin n) (.co 0 n) where
   toInt_add x y := by rfl

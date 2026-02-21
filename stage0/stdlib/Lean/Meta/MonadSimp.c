@@ -119,7 +119,7 @@ x_5 = l_Lean_Meta_MonadSimp_Result_ctorElim___redArg(x_2, x_4);
 return x_5;
 }
 }
-static lean_object* _init_l_Lean_Meta_MonadSimp_instInhabitedResult_default() {
+static lean_object* _init_l_Lean_Meta_MonadSimp_instInhabitedResult_default(void) {
 _start:
 {
 lean_object* x_1; 
@@ -127,7 +127,7 @@ x_1 = lean_box(0);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Meta_MonadSimp_instInhabitedResult() {
+static lean_object* _init_l_Lean_Meta_MonadSimp_instInhabitedResult(void) {
 _start:
 {
 lean_object* x_1; 

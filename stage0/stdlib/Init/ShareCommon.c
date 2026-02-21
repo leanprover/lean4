@@ -107,7 +107,7 @@ x_3 = lean_box_uint64(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_ShareCommon_StateFactoryPointed() {
+static lean_object* _init_l_ShareCommon_StateFactoryPointed(void) {
 _start:
 {
 return lean_box(0);

@@ -22,6 +22,7 @@ static const lean_object* l_Lean_IR_nameToIRType___closed__1 = (const lean_objec
 static const lean_string_object l_Lean_IR_nameToIRType___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 34, .m_capacity = 34, .m_length = 33, .m_data = "unreachable code has been reached"};
 static const lean_object* l_Lean_IR_nameToIRType___closed__2 = (const lean_object*)&l_Lean_IR_nameToIRType___closed__2_value;
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_once_cell_t l_Lean_IR_nameToIRType___closed__3_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_IR_nameToIRType___closed__3;
 static const lean_string_object l_Lean_IR_nameToIRType___closed__4_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 6, .m_capacity = 6, .m_length = 5, .m_data = "Float"};
 static const lean_object* l_Lean_IR_nameToIRType___closed__4 = (const lean_object*)&l_Lean_IR_nameToIRType___closed__4_value;
@@ -50,6 +51,7 @@ LEAN_EXPORT lean_object* l_Lean_IR_nameToIRType(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_nameToIRType___boxed(lean_object*);
 static const lean_string_object l_Lean_IR_toIRType___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 17, .m_capacity = 17, .m_length = 16, .m_data = "Lean.IR.toIRType"};
 static const lean_object* l_Lean_IR_toIRType___closed__0 = (const lean_object*)&l_Lean_IR_toIRType___closed__0_value;
+static lean_once_cell_t l_Lean_IR_toIRType___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_IR_toIRType___closed__1;
 static const lean_string_object l_Lean_IR_toIRType___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 6, .m_capacity = 6, .m_length = 5, .m_data = "USize"};
 static const lean_object* l_Lean_IR_toIRType___closed__2 = (const lean_object*)&l_Lean_IR_toIRType___closed__2_value;
@@ -64,7 +66,7 @@ x_3 = lean_panic_fn(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_IR_nameToIRType___closed__3() {
+static lean_object* _init_l_Lean_IR_nameToIRType___closed__3(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
@@ -233,7 +235,7 @@ goto block_4;
 block_4:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_Lean_IR_nameToIRType___closed__3;
+x_2 = lean_obj_once(&l_Lean_IR_nameToIRType___closed__3, &l_Lean_IR_nameToIRType___closed__3_once, _init_l_Lean_IR_nameToIRType___closed__3);
 x_3 = l_panic___at___00Lean_IR_nameToIRType_spec__0(x_2);
 return x_3;
 }
@@ -248,7 +250,7 @@ lean_dec(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_IR_toIRType___closed__1() {
+static lean_object* _init_l_Lean_IR_toIRType___closed__1(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
@@ -523,7 +525,7 @@ goto block_4;
 block_4:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_Lean_IR_toIRType___closed__1;
+x_2 = lean_obj_once(&l_Lean_IR_toIRType___closed__1, &l_Lean_IR_toIRType___closed__1_once, _init_l_Lean_IR_toIRType___closed__1);
 x_3 = l_panic___at___00Lean_IR_nameToIRType_spec__0(x_2);
 return x_3;
 }
@@ -551,10 +553,6 @@ lean_dec_ref(res);
 res = initialize_Lean_Compiler_LCNF_MonoTypes(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_IR_nameToIRType___closed__3 = _init_l_Lean_IR_nameToIRType___closed__3();
-lean_mark_persistent(l_Lean_IR_nameToIRType___closed__3);
-l_Lean_IR_toIRType___closed__1 = _init_l_Lean_IR_toIRType___closed__1();
-lean_mark_persistent(l_Lean_IR_toIRType___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

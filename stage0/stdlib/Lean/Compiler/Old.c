@@ -22,19 +22,22 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_mkEagerLambdaLiftingName(lean_object*, 
 static const lean_string_object l_Lean_Compiler_isEagerLambdaLiftingName___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 9, .m_capacity = 9, .m_length = 8, .m_data = "_elambda"};
 static const lean_object* l_Lean_Compiler_isEagerLambdaLiftingName___closed__0 = (const lean_object*)&l_Lean_Compiler_isEagerLambdaLiftingName___closed__0_value;
 lean_object* lean_string_utf8_byte_size(lean_object*);
+static lean_once_cell_t l_Lean_Compiler_isEagerLambdaLiftingName___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Compiler_isEagerLambdaLiftingName___closed__1;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Compiler_isEagerLambdaLiftingName(lean_object*);
 uint8_t lean_string_memcmp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_isEagerLambdaLiftingName___boxed(lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
-lean_object* lean_array_uget(lean_object*, size_t);
+lean_object* lean_array_uget_borrowed(lean_object*, size_t);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Compiler_getDeclNamesForCodeGen_spec__0(size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Compiler_getDeclNamesForCodeGen_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
+static lean_once_cell_t l_Lean_Compiler_getDeclNamesForCodeGen___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Compiler_getDeclNamesForCodeGen___closed__0;
+static lean_once_cell_t l_Lean_Compiler_getDeclNamesForCodeGen___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Compiler_getDeclNamesForCodeGen___closed__1;
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_mk(lean_object*);
@@ -71,7 +74,7 @@ x_6 = l_Lean_Name_str___override(x_1, x_5);
 return x_6;
 }
 }
-static lean_object* _init_l_Lean_Compiler_isEagerLambdaLiftingName___closed__1() {
+static lean_object* _init_l_Lean_Compiler_isEagerLambdaLiftingName___closed__1(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -91,7 +94,7 @@ x_2 = lean_ctor_get(x_1, 0);
 x_3 = lean_ctor_get(x_1, 1);
 x_4 = ((lean_object*)(l_Lean_Compiler_isEagerLambdaLiftingName___closed__0));
 x_5 = lean_string_utf8_byte_size(x_3);
-x_6 = l_Lean_Compiler_isEagerLambdaLiftingName___closed__1;
+x_6 = lean_obj_once(&l_Lean_Compiler_isEagerLambdaLiftingName___closed__1, &l_Lean_Compiler_isEagerLambdaLiftingName___closed__1_once, _init_l_Lean_Compiler_isEagerLambdaLiftingName___closed__1);
 x_7 = lean_nat_dec_le(x_6, x_5);
 if (x_7 == 0)
 {
@@ -152,13 +155,10 @@ return x_3;
 else
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; size_t x_10; size_t x_11; lean_object* x_12; 
-x_5 = lean_array_uget(x_3, x_2);
+x_5 = lean_array_uget_borrowed(x_3, x_2);
 x_6 = lean_ctor_get(x_5, 0);
-lean_inc_ref(x_6);
-lean_dec(x_5);
 x_7 = lean_ctor_get(x_6, 0);
 lean_inc(x_7);
-lean_dec_ref(x_6);
 x_8 = lean_unsigned_to_nat(0u);
 x_9 = lean_array_uset(x_3, x_2, x_8);
 x_10 = 1;
@@ -182,7 +182,7 @@ x_6 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Co
 return x_6;
 }
 }
-static lean_object* _init_l_Lean_Compiler_getDeclNamesForCodeGen___closed__0() {
+static lean_object* _init_l_Lean_Compiler_getDeclNamesForCodeGen___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -191,7 +191,7 @@ x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Compiler_getDeclNamesForCodeGen___closed__1() {
+static lean_object* _init_l_Lean_Compiler_getDeclNamesForCodeGen___closed__1(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -216,7 +216,7 @@ lean_dec_ref(x_2);
 x_4 = lean_ctor_get(x_3, 0);
 lean_inc(x_4);
 lean_dec_ref(x_3);
-x_5 = l_Lean_Compiler_getDeclNamesForCodeGen___closed__0;
+x_5 = lean_obj_once(&l_Lean_Compiler_getDeclNamesForCodeGen___closed__0, &l_Lean_Compiler_getDeclNamesForCodeGen___closed__0_once, _init_l_Lean_Compiler_getDeclNamesForCodeGen___closed__0);
 x_6 = lean_array_push(x_5, x_4);
 return x_6;
 }
@@ -232,7 +232,7 @@ lean_dec_ref(x_7);
 x_9 = lean_ctor_get(x_8, 0);
 lean_inc(x_9);
 lean_dec_ref(x_8);
-x_10 = l_Lean_Compiler_getDeclNamesForCodeGen___closed__0;
+x_10 = lean_obj_once(&l_Lean_Compiler_getDeclNamesForCodeGen___closed__0, &l_Lean_Compiler_getDeclNamesForCodeGen___closed__0_once, _init_l_Lean_Compiler_getDeclNamesForCodeGen___closed__0);
 x_11 = lean_array_push(x_10, x_9);
 return x_11;
 }
@@ -248,7 +248,7 @@ lean_dec_ref(x_12);
 x_14 = lean_ctor_get(x_13, 0);
 lean_inc(x_14);
 lean_dec_ref(x_13);
-x_15 = l_Lean_Compiler_getDeclNamesForCodeGen___closed__0;
+x_15 = lean_obj_once(&l_Lean_Compiler_getDeclNamesForCodeGen___closed__0, &l_Lean_Compiler_getDeclNamesForCodeGen___closed__0_once, _init_l_Lean_Compiler_getDeclNamesForCodeGen___closed__0);
 x_16 = lean_array_push(x_15, x_14);
 return x_16;
 }
@@ -268,7 +268,7 @@ default:
 {
 lean_object* x_22; 
 lean_dec(x_1);
-x_22 = l_Lean_Compiler_getDeclNamesForCodeGen___closed__1;
+x_22 = lean_obj_once(&l_Lean_Compiler_getDeclNamesForCodeGen___closed__1, &l_Lean_Compiler_getDeclNamesForCodeGen___closed__1_once, _init_l_Lean_Compiler_getDeclNamesForCodeGen___closed__1);
 return x_22;
 }
 }
@@ -443,12 +443,6 @@ lean_dec_ref(res);
 res = initialize_Init_Data_String_TakeDrop(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Compiler_isEagerLambdaLiftingName___closed__1 = _init_l_Lean_Compiler_isEagerLambdaLiftingName___closed__1();
-lean_mark_persistent(l_Lean_Compiler_isEagerLambdaLiftingName___closed__1);
-l_Lean_Compiler_getDeclNamesForCodeGen___closed__0 = _init_l_Lean_Compiler_getDeclNamesForCodeGen___closed__0();
-lean_mark_persistent(l_Lean_Compiler_getDeclNamesForCodeGen___closed__0);
-l_Lean_Compiler_getDeclNamesForCodeGen___closed__1 = _init_l_Lean_Compiler_getDeclNamesForCodeGen___closed__1();
-lean_mark_persistent(l_Lean_Compiler_getDeclNamesForCodeGen___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

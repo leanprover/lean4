@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 extern lean_object* l_Lean_Elab_unsupportedSyntaxExceptionId;
+static lean_once_cell_t l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Elab_Tactic_evalSymm_spec__1___redArg___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Elab_Tactic_evalSymm_spec__1___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Elab_Tactic_evalSymm_spec__1___redArg();
 LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Elab_Tactic_evalSymm_spec__1___redArg___boxed(lean_object*);
@@ -35,6 +36,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___00Lean_Elab_Tactic_evalSymm_sp
 static const lean_string_object l_Lean_Elab_Tactic_evalSymm___lam__2___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 24, .m_capacity = 24, .m_length = 23, .m_data = "`symm` made no progress"};
 static const lean_object* l_Lean_Elab_Tactic_evalSymm___lam__2___closed__0 = (const lean_object*)&l_Lean_Elab_Tactic_evalSymm___lam__2___closed__0_value;
 lean_object* l_Lean_stringToMessageData(lean_object*);
+static lean_once_cell_t l_Lean_Elab_Tactic_evalSymm___lam__2___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Elab_Tactic_evalSymm___lam__2___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_evalSymm___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_evalSymm___lam__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -66,6 +68,7 @@ static const lean_object* l_Lean_Elab_Tactic_evalSymm___closed__7 = (const lean_
 static const lean_closure_object l_Lean_Elab_Tactic_evalSymm___closed__8_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lean_Elab_Tactic_evalSymm___lam__4___boxed, .m_arity = 10, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_Lean_Elab_Tactic_evalSymm___closed__8 = (const lean_object*)&l_Lean_Elab_Tactic_evalSymm___closed__8_value;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
+static lean_once_cell_t l_Lean_Elab_Tactic_evalSymm___closed__9_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Elab_Tactic_evalSymm___closed__9;
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
@@ -145,7 +148,7 @@ static const lean_ctor_object l_Lean_Elab_Tactic_evalSymmSaturate___regBuiltin_L
 static const lean_object* l_Lean_Elab_Tactic_evalSymmSaturate___regBuiltin_Lean_Elab_Tactic_evalSymmSaturate_declRange__3___closed__6 = (const lean_object*)&l_Lean_Elab_Tactic_evalSymmSaturate___regBuiltin_Lean_Elab_Tactic_evalSymmSaturate_declRange__3___closed__6_value;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_evalSymmSaturate___regBuiltin_Lean_Elab_Tactic_evalSymmSaturate_declRange__3();
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_evalSymmSaturate___regBuiltin_Lean_Elab_Tactic_evalSymmSaturate_declRange__3___boxed(lean_object*);
-static lean_object* _init_l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Elab_Tactic_evalSymm_spec__1___redArg___closed__0() {
+static lean_object* _init_l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Elab_Tactic_evalSymm_spec__1___redArg___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -161,7 +164,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Elab_T
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Elab_Tactic_evalSymm_spec__1___redArg___closed__0;
+x_2 = lean_obj_once(&l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Elab_Tactic_evalSymm_spec__1___redArg___closed__0, &l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Elab_Tactic_evalSymm_spec__1___redArg___closed__0_once, _init_l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Elab_Tactic_evalSymm_spec__1___redArg___closed__0);
 x_3 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_3, 0, x_2);
 return x_3;
@@ -397,7 +400,7 @@ lean_dec_ref(x_2);
 return x_7;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_evalSymm___lam__2___closed__1() {
+static lean_object* _init_l_Lean_Elab_Tactic_evalSymm___lam__2___closed__1(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -410,7 +413,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_evalSymm___lam__2(lean_object* x_1, 
 _start:
 {
 lean_object* x_11; lean_object* x_12; 
-x_11 = l_Lean_Elab_Tactic_evalSymm___lam__2___closed__1;
+x_11 = lean_obj_once(&l_Lean_Elab_Tactic_evalSymm___lam__2___closed__1, &l_Lean_Elab_Tactic_evalSymm___lam__2___closed__1_once, _init_l_Lean_Elab_Tactic_evalSymm___lam__2___closed__1);
 x_12 = l_Lean_throwError___at___00Lean_Elab_Tactic_evalSymm_spec__0___redArg(x_11, x_6, x_7, x_8, x_9);
 return x_12;
 }
@@ -545,7 +548,7 @@ x_11 = l_Lean_Elab_Tactic_evalSymm___lam__4(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x
 return x_11;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_evalSymm___closed__9() {
+static lean_object* _init_l_Lean_Elab_Tactic_evalSymm___closed__9(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -590,7 +593,7 @@ lean_dec(x_18);
 if (lean_obj_tag(x_19) == 0)
 {
 lean_object* x_20; lean_object* x_21; lean_object* x_22; 
-x_20 = l_Lean_Elab_Tactic_evalSymm___closed__9;
+x_20 = lean_obj_once(&l_Lean_Elab_Tactic_evalSymm___closed__9, &l_Lean_Elab_Tactic_evalSymm___closed__9_once, _init_l_Lean_Elab_Tactic_evalSymm___closed__9);
 x_21 = lean_alloc_ctor(1, 1, 1);
 lean_ctor_set(x_21, 0, x_20);
 lean_ctor_set_uint8(x_21, sizeof(void*)*1, x_12);
@@ -865,12 +868,6 @@ lean_dec_ref(res);
 res = initialize_Lean_Elab_Tactic_Location(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Elab_Tactic_evalSymm_spec__1___redArg___closed__0 = _init_l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Elab_Tactic_evalSymm_spec__1___redArg___closed__0();
-lean_mark_persistent(l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Elab_Tactic_evalSymm_spec__1___redArg___closed__0);
-l_Lean_Elab_Tactic_evalSymm___lam__2___closed__1 = _init_l_Lean_Elab_Tactic_evalSymm___lam__2___closed__1();
-lean_mark_persistent(l_Lean_Elab_Tactic_evalSymm___lam__2___closed__1);
-l_Lean_Elab_Tactic_evalSymm___closed__9 = _init_l_Lean_Elab_Tactic_evalSymm___closed__9();
-lean_mark_persistent(l_Lean_Elab_Tactic_evalSymm___closed__9);
 if (builtin) {res = l_Lean_Elab_Tactic_evalSymm___regBuiltin_Lean_Elab_Tactic_evalSymm__1();
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

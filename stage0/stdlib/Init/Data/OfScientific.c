@@ -24,8 +24,10 @@ double lean_uint64_to_float(uint64_t);
 double lean_float_scaleb(double, lean_object*);
 LEAN_EXPORT double l_Float_ofBinaryScientific(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Float_ofBinaryScientific___boxed(lean_object*, lean_object*);
+static lean_once_cell_t l_Float_ofScientific___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Float_ofScientific___closed__0;
 lean_object* lean_int_neg(lean_object*);
+static lean_once_cell_t l_Float_ofScientific___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Float_ofScientific___closed__1;
 lean_object* lean_nat_pow(lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
@@ -41,6 +43,7 @@ static const lean_object* l_instOfScientificFloat___closed__0 = (const lean_obje
 LEAN_EXPORT const lean_object* l_instOfScientificFloat = (const lean_object*)&l_instOfScientificFloat___closed__0_value;
 LEAN_EXPORT double lean_float_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Float_ofNat___boxed(lean_object*);
+static lean_once_cell_t l_Float_ofInt___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Float_ofInt___closed__0;
 uint8_t lean_int_dec_lt(lean_object*, lean_object*);
 lean_object* lean_nat_abs(lean_object*);
@@ -108,7 +111,7 @@ x_4 = lean_box_float(x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Float_ofScientific___closed__0() {
+static lean_object* _init_l_Float_ofScientific___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -117,11 +120,11 @@ x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Float_ofScientific___closed__1() {
+static lean_object* _init_l_Float_ofScientific___closed__1(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Float_ofScientific___closed__0;
+x_1 = lean_obj_once(&l_Float_ofScientific___closed__0, &l_Float_ofScientific___closed__0_once, _init_l_Float_ofScientific___closed__0);
 x_2 = lean_int_neg(x_1);
 return x_2;
 }
@@ -160,7 +163,7 @@ x_17 = lean_nat_pow(x_16, x_3);
 x_18 = lean_nat_div(x_15, x_17);
 lean_dec(x_17);
 lean_dec(x_15);
-x_19 = l_Float_ofScientific___closed__1;
+x_19 = lean_obj_once(&l_Float_ofScientific___closed__1, &l_Float_ofScientific___closed__1_once, _init_l_Float_ofScientific___closed__1);
 x_20 = lean_nat_to_int(x_3);
 x_21 = lean_int_mul(x_19, x_20);
 lean_dec(x_20);
@@ -206,7 +209,7 @@ x_3 = lean_box_float(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Float_ofInt___closed__0() {
+static lean_object* _init_l_Float_ofInt___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -219,7 +222,7 @@ LEAN_EXPORT double l_Float_ofInt(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; uint8_t x_3; 
-x_2 = l_Float_ofInt___closed__0;
+x_2 = lean_obj_once(&l_Float_ofInt___closed__0, &l_Float_ofInt___closed__0_once, _init_l_Float_ofInt___closed__0);
 x_3 = lean_int_dec_lt(x_1, x_2);
 if (x_3 == 0)
 {
@@ -352,7 +355,7 @@ x_17 = lean_nat_pow(x_16, x_3);
 x_18 = lean_nat_div(x_15, x_17);
 lean_dec(x_17);
 lean_dec(x_15);
-x_19 = l_Float_ofScientific___closed__1;
+x_19 = lean_obj_once(&l_Float_ofScientific___closed__1, &l_Float_ofScientific___closed__1_once, _init_l_Float_ofScientific___closed__1);
 x_20 = lean_nat_to_int(x_3);
 x_21 = lean_int_mul(x_19, x_20);
 lean_dec(x_20);
@@ -402,7 +405,7 @@ LEAN_EXPORT float l_Float32_ofInt(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; uint8_t x_3; 
-x_2 = l_Float_ofInt___closed__0;
+x_2 = lean_obj_once(&l_Float_ofInt___closed__0, &l_Float_ofInt___closed__0_once, _init_l_Float_ofInt___closed__0);
 x_3 = lean_int_dec_lt(x_1, x_2);
 if (x_3 == 0)
 {
@@ -487,12 +490,6 @@ lean_dec_ref(res);
 res = initialize_Init_Meta(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Float_ofScientific___closed__0 = _init_l_Float_ofScientific___closed__0();
-lean_mark_persistent(l_Float_ofScientific___closed__0);
-l_Float_ofScientific___closed__1 = _init_l_Float_ofScientific___closed__1();
-lean_mark_persistent(l_Float_ofScientific___closed__1);
-l_Float_ofInt___closed__0 = _init_l_Float_ofInt___closed__0();
-lean_mark_persistent(l_Float_ofInt___closed__0);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

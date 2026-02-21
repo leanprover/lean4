@@ -17,6 +17,7 @@ lean_object* lean_uint8_to_nat(uint8_t);
 LEAN_EXPORT lean_object* l_UInt8_toFin(uint8_t);
 LEAN_EXPORT lean_object* l_UInt8_toFin___boxed(lean_object*);
 uint8_t lean_uint8_of_nat(lean_object*);
+static lean_once_cell_t l_UInt8_ofNatTruncate___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static uint8_t l_UInt8_ofNatTruncate___closed__0;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_UInt8_ofNatTruncate(lean_object*);
@@ -34,6 +35,7 @@ LEAN_EXPORT lean_object* l_UInt16_toFin___boxed(lean_object*);
 uint16_t lean_uint16_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_UInt16_ofNat___boxed(lean_object*);
 uint16_t lean_uint16_of_nat(lean_object*);
+static lean_once_cell_t l_UInt16_ofNatTruncate___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static uint16_t l_UInt16_ofNatTruncate___closed__0;
 LEAN_EXPORT uint16_t l_UInt16_ofNatTruncate(lean_object*);
 LEAN_EXPORT lean_object* l_UInt16_ofNatTruncate___boxed(lean_object*);
@@ -53,6 +55,7 @@ LEAN_EXPORT lean_object* l_UInt32_toFin___boxed(lean_object*);
 uint32_t lean_uint32_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_UInt32_ofNat___boxed(lean_object*);
 uint32_t lean_uint32_of_nat(lean_object*);
+static lean_once_cell_t l_UInt32_ofNatTruncate___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static uint32_t l_UInt32_ofNatTruncate___closed__0;
 LEAN_EXPORT uint32_t l_UInt32_ofNatTruncate(lean_object*);
 LEAN_EXPORT lean_object* l_UInt32_ofNatTruncate___boxed(lean_object*);
@@ -83,9 +86,12 @@ LEAN_EXPORT lean_object* l_UInt64_toFin(uint64_t);
 LEAN_EXPORT lean_object* l_UInt64_toFin___boxed(lean_object*);
 uint64_t lean_uint64_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_UInt64_ofNat___boxed(lean_object*);
+static lean_once_cell_t l_UInt64_ofNatTruncate___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_UInt64_ofNatTruncate___closed__0;
+static lean_once_cell_t l_UInt64_ofNatTruncate___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_UInt64_ofNatTruncate___closed__1;
 uint64_t lean_uint64_of_nat(lean_object*);
+static lean_once_cell_t l_UInt64_ofNatTruncate___closed__2_once = LEAN_ONCE_CELL_INITIALIZER;
 static uint64_t l_UInt64_ofNatTruncate___closed__2;
 LEAN_EXPORT uint64_t l_UInt64_ofNatTruncate(lean_object*);
 LEAN_EXPORT lean_object* l_UInt64_ofNatTruncate___boxed(lean_object*);
@@ -114,10 +120,13 @@ size_t lean_usize_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_USize_ofNat___boxed(lean_object*);
 extern lean_object* l_System_Platform_numBits;
 lean_object* lean_nat_pow(lean_object*, lean_object*);
+static lean_once_cell_t l_USize_ofNatTruncate___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_USize_ofNatTruncate___closed__0;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
+static lean_once_cell_t l_USize_ofNatTruncate___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_USize_ofNatTruncate___closed__1;
 size_t lean_usize_of_nat(lean_object*);
+static lean_once_cell_t l_USize_ofNatTruncate___closed__2_once = LEAN_ONCE_CELL_INITIALIZER;
 static size_t l_USize_ofNatTruncate___closed__2;
 LEAN_EXPORT size_t l_USize_ofNatTruncate(lean_object*);
 LEAN_EXPORT lean_object* l_USize_ofNatTruncate___boxed(lean_object*);
@@ -160,7 +169,7 @@ x_3 = l_UInt8_toFin(x_2);
 return x_3;
 }
 }
-static uint8_t _init_l_UInt8_ofNatTruncate___closed__0() {
+static uint8_t _init_l_UInt8_ofNatTruncate___closed__0(void) {
 _start:
 {
 lean_object* x_1; uint8_t x_2; 
@@ -178,7 +187,7 @@ x_3 = lean_nat_dec_lt(x_1, x_2);
 if (x_3 == 0)
 {
 uint8_t x_4; 
-x_4 = l_UInt8_ofNatTruncate___closed__0;
+x_4 = lean_uint8_once(&l_UInt8_ofNatTruncate___closed__0, &l_UInt8_ofNatTruncate___closed__0_once, _init_l_UInt8_ofNatTruncate___closed__0);
 return x_4;
 }
 else
@@ -271,7 +280,7 @@ x_3 = lean_box(x_2);
 return x_3;
 }
 }
-static uint16_t _init_l_UInt16_ofNatTruncate___closed__0() {
+static uint16_t _init_l_UInt16_ofNatTruncate___closed__0(void) {
 _start:
 {
 lean_object* x_1; uint16_t x_2; 
@@ -289,7 +298,7 @@ x_3 = lean_nat_dec_lt(x_1, x_2);
 if (x_3 == 0)
 {
 uint16_t x_4; 
-x_4 = l_UInt16_ofNatTruncate___closed__0;
+x_4 = lean_uint16_once(&l_UInt16_ofNatTruncate___closed__0, &l_UInt16_ofNatTruncate___closed__0_once, _init_l_UInt16_ofNatTruncate___closed__0);
 return x_4;
 }
 else
@@ -403,7 +412,7 @@ x_3 = lean_box_uint32(x_2);
 return x_3;
 }
 }
-static uint32_t _init_l_UInt32_ofNatTruncate___closed__0() {
+static uint32_t _init_l_UInt32_ofNatTruncate___closed__0(void) {
 _start:
 {
 lean_object* x_1; uint32_t x_2; 
@@ -421,7 +430,7 @@ x_3 = lean_nat_dec_lt(x_1, x_2);
 if (x_3 == 0)
 {
 uint32_t x_4; 
-x_4 = l_UInt32_ofNatTruncate___closed__0;
+x_4 = lean_uint32_once(&l_UInt32_ofNatTruncate___closed__0, &l_UInt32_ofNatTruncate___closed__0_once, _init_l_UInt32_ofNatTruncate___closed__0);
 return x_4;
 }
 else
@@ -574,7 +583,7 @@ x_3 = lean_box_uint64(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_UInt64_ofNatTruncate___closed__0() {
+static lean_object* _init_l_UInt64_ofNatTruncate___closed__0(void) {
 _start:
 {
 lean_object* x_1; 
@@ -582,7 +591,7 @@ x_1 = lean_cstr_to_nat("18446744073709551616");
 return x_1;
 }
 }
-static lean_object* _init_l_UInt64_ofNatTruncate___closed__1() {
+static lean_object* _init_l_UInt64_ofNatTruncate___closed__1(void) {
 _start:
 {
 lean_object* x_1; 
@@ -590,11 +599,11 @@ x_1 = lean_cstr_to_nat("18446744073709551615");
 return x_1;
 }
 }
-static uint64_t _init_l_UInt64_ofNatTruncate___closed__2() {
+static uint64_t _init_l_UInt64_ofNatTruncate___closed__2(void) {
 _start:
 {
 lean_object* x_1; uint64_t x_2; 
-x_1 = l_UInt64_ofNatTruncate___closed__1;
+x_1 = lean_obj_once(&l_UInt64_ofNatTruncate___closed__1, &l_UInt64_ofNatTruncate___closed__1_once, _init_l_UInt64_ofNatTruncate___closed__1);
 x_2 = lean_uint64_of_nat(x_1);
 return x_2;
 }
@@ -603,12 +612,12 @@ LEAN_EXPORT uint64_t l_UInt64_ofNatTruncate(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; uint8_t x_3; 
-x_2 = l_UInt64_ofNatTruncate___closed__0;
+x_2 = lean_obj_once(&l_UInt64_ofNatTruncate___closed__0, &l_UInt64_ofNatTruncate___closed__0_once, _init_l_UInt64_ofNatTruncate___closed__0);
 x_3 = lean_nat_dec_lt(x_1, x_2);
 if (x_3 == 0)
 {
 uint64_t x_4; 
-x_4 = l_UInt64_ofNatTruncate___closed__2;
+x_4 = lean_uint64_once(&l_UInt64_ofNatTruncate___closed__2, &l_UInt64_ofNatTruncate___closed__2_once, _init_l_UInt64_ofNatTruncate___closed__2);
 return x_4;
 }
 else
@@ -767,7 +776,7 @@ x_3 = lean_box_usize(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_USize_ofNatTruncate___closed__0() {
+static lean_object* _init_l_USize_ofNatTruncate___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -777,21 +786,21 @@ x_3 = lean_nat_pow(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_USize_ofNatTruncate___closed__1() {
+static lean_object* _init_l_USize_ofNatTruncate___closed__1(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(1u);
-x_2 = l_USize_ofNatTruncate___closed__0;
+x_2 = lean_obj_once(&l_USize_ofNatTruncate___closed__0, &l_USize_ofNatTruncate___closed__0_once, _init_l_USize_ofNatTruncate___closed__0);
 x_3 = lean_nat_sub(x_2, x_1);
 return x_3;
 }
 }
-static size_t _init_l_USize_ofNatTruncate___closed__2() {
+static size_t _init_l_USize_ofNatTruncate___closed__2(void) {
 _start:
 {
 lean_object* x_1; size_t x_2; 
-x_1 = l_USize_ofNatTruncate___closed__1;
+x_1 = lean_obj_once(&l_USize_ofNatTruncate___closed__1, &l_USize_ofNatTruncate___closed__1_once, _init_l_USize_ofNatTruncate___closed__1);
 x_2 = lean_usize_of_nat(x_1);
 return x_2;
 }
@@ -800,12 +809,12 @@ LEAN_EXPORT size_t l_USize_ofNatTruncate(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; uint8_t x_3; 
-x_2 = l_USize_ofNatTruncate___closed__0;
+x_2 = lean_obj_once(&l_USize_ofNatTruncate___closed__0, &l_USize_ofNatTruncate___closed__0_once, _init_l_USize_ofNatTruncate___closed__0);
 x_3 = lean_nat_dec_lt(x_1, x_2);
 if (x_3 == 0)
 {
 size_t x_4; 
-x_4 = l_USize_ofNatTruncate___closed__2;
+x_4 = lean_usize_once(&l_USize_ofNatTruncate___closed__2, &l_USize_ofNatTruncate___closed__2_once, _init_l_USize_ofNatTruncate___closed__2);
 return x_4;
 }
 else
@@ -898,7 +907,7 @@ x_3 = lean_box_usize(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_instLTUSize() {
+static lean_object* _init_l_instLTUSize(void) {
 _start:
 {
 lean_object* x_1; 
@@ -906,7 +915,7 @@ x_1 = lean_box(0);
 return x_1;
 }
 }
-static lean_object* _init_l_instLEUSize() {
+static lean_object* _init_l_instLEUSize(void) {
 _start:
 {
 lean_object* x_1; 
@@ -957,19 +966,6 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Nat_Div_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_UInt8_ofNatTruncate___closed__0 = _init_l_UInt8_ofNatTruncate___closed__0();
-l_UInt16_ofNatTruncate___closed__0 = _init_l_UInt16_ofNatTruncate___closed__0();
-l_UInt32_ofNatTruncate___closed__0 = _init_l_UInt32_ofNatTruncate___closed__0();
-l_UInt64_ofNatTruncate___closed__0 = _init_l_UInt64_ofNatTruncate___closed__0();
-lean_mark_persistent(l_UInt64_ofNatTruncate___closed__0);
-l_UInt64_ofNatTruncate___closed__1 = _init_l_UInt64_ofNatTruncate___closed__1();
-lean_mark_persistent(l_UInt64_ofNatTruncate___closed__1);
-l_UInt64_ofNatTruncate___closed__2 = _init_l_UInt64_ofNatTruncate___closed__2();
-l_USize_ofNatTruncate___closed__0 = _init_l_USize_ofNatTruncate___closed__0();
-lean_mark_persistent(l_USize_ofNatTruncate___closed__0);
-l_USize_ofNatTruncate___closed__1 = _init_l_USize_ofNatTruncate___closed__1();
-lean_mark_persistent(l_USize_ofNatTruncate___closed__1);
-l_USize_ofNatTruncate___closed__2 = _init_l_USize_ofNatTruncate___closed__2();
 l_instLTUSize = _init_l_instLTUSize();
 lean_mark_persistent(l_instLTUSize);
 l_instLEUSize = _init_l_instLEUSize();

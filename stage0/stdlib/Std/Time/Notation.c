@@ -16,6 +16,7 @@ extern "C" {
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertText___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 20, .m_capacity = 20, .m_length = 19, .m_data = "Std.Time.Text.short"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertText___closed__0 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertText___closed__0_value;
 lean_object* l_String_toRawSubstring_x27(lean_object*);
+static lean_once_cell_t l___private_Std_Time_Notation_0__Std_Time_convertText___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_convertText___closed__1;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertText___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 4, .m_capacity = 4, .m_length = 3, .m_data = "Std"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertText___closed__2 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertText___closed__2_value;
@@ -41,6 +42,7 @@ static const lean_ctor_object l___private_Std_Time_Notation_0__Std_Time_convertT
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertText___closed__10 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertText___closed__10_value;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertText___closed__11_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 19, .m_capacity = 19, .m_length = 18, .m_data = "Std.Time.Text.full"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertText___closed__11 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertText___closed__11_value;
+static lean_once_cell_t l___private_Std_Time_Notation_0__Std_Time_convertText___closed__12_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_convertText___closed__12;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertText___closed__13_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 5, .m_capacity = 5, .m_length = 4, .m_data = "full"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertText___closed__13 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertText___closed__13_value;
@@ -59,6 +61,7 @@ static const lean_ctor_object l___private_Std_Time_Notation_0__Std_Time_convertT
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertText___closed__18 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertText___closed__18_value;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertText___closed__19_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 21, .m_capacity = 21, .m_length = 20, .m_data = "Std.Time.Text.narrow"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertText___closed__19 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertText___closed__19_value;
+static lean_once_cell_t l___private_Std_Time_Notation_0__Std_Time_convertText___closed__20_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_convertText___closed__20;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertText___closed__21_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 7, .m_capacity = 7, .m_length = 6, .m_data = "narrow"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertText___closed__21 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertText___closed__21_value;
@@ -94,6 +97,7 @@ static const lean_ctor_object l___private_Std_Time_Notation_0__Std_Time_convertN
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4_value;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__5_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 19, .m_capacity = 19, .m_length = 18, .m_data = "Std.Time.Number.mk"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__5 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__5_value;
+static lean_once_cell_t l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__6_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__6;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__7_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 7, .m_capacity = 7, .m_length = 6, .m_data = "Number"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__7 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__7_value;
@@ -124,6 +128,7 @@ lean_object* l_Lean_Syntax_node2(lean_object*, lean_object*, lean_object*, lean_
 LEAN_EXPORT lean_object* l___private_Std_Time_Notation_0__Std_Time_convertNumber(lean_object*, lean_object*, lean_object*);
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertFraction___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 23, .m_capacity = 23, .m_length = 22, .m_data = "Std.Time.Fraction.nano"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertFraction___closed__0 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertFraction___closed__0_value;
+static lean_once_cell_t l___private_Std_Time_Notation_0__Std_Time_convertFraction___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_convertFraction___closed__1;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertFraction___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 9, .m_capacity = 9, .m_length = 8, .m_data = "Fraction"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertFraction___closed__2 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertFraction___closed__2_value;
@@ -144,6 +149,7 @@ static const lean_ctor_object l___private_Std_Time_Notation_0__Std_Time_convertF
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertFraction___closed__8 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertFraction___closed__8_value;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertFraction___closed__9_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 28, .m_capacity = 28, .m_length = 27, .m_data = "Std.Time.Fraction.truncated"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertFraction___closed__9 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertFraction___closed__9_value;
+static lean_once_cell_t l___private_Std_Time_Notation_0__Std_Time_convertFraction___closed__10_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_convertFraction___closed__10;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertFraction___closed__11_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 10, .m_capacity = 10, .m_length = 9, .m_data = "truncated"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertFraction___closed__11 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertFraction___closed__11_value;
@@ -163,6 +169,7 @@ static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertFract
 LEAN_EXPORT lean_object* l___private_Std_Time_Notation_0__Std_Time_convertFraction(lean_object*, lean_object*, lean_object*);
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 18, .m_capacity = 18, .m_length = 17, .m_data = "Std.Time.Year.any"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__0 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__0_value;
+static lean_once_cell_t l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__1;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 5, .m_capacity = 5, .m_length = 4, .m_data = "Year"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__2 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__2_value;
@@ -183,6 +190,7 @@ static const lean_ctor_object l___private_Std_Time_Notation_0__Std_Time_convertY
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__8 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__8_value;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__9_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 23, .m_capacity = 23, .m_length = 22, .m_data = "Std.Time.Year.twoDigit"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__9 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__9_value;
+static lean_once_cell_t l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__10_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__10;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__11_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 9, .m_capacity = 9, .m_length = 8, .m_data = "twoDigit"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__11 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__11_value;
@@ -201,6 +209,7 @@ static const lean_ctor_object l___private_Std_Time_Notation_0__Std_Time_convertY
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__16 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__16_value;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__17_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 24, .m_capacity = 24, .m_length = 23, .m_data = "Std.Time.Year.fourDigit"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__17 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__17_value;
+static lean_once_cell_t l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__18_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__18;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__19_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 10, .m_capacity = 10, .m_length = 9, .m_data = "fourDigit"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__19 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__19_value;
@@ -219,6 +228,7 @@ static const lean_ctor_object l___private_Std_Time_Notation_0__Std_Time_convertY
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__24 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__24_value;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__25_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 23, .m_capacity = 23, .m_length = 22, .m_data = "Std.Time.Year.extended"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__25 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__25_value;
+static lean_once_cell_t l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__26_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__26;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__27_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 9, .m_capacity = 9, .m_length = 8, .m_data = "extended"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__27 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__27_value;
@@ -238,6 +248,7 @@ static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertYear_
 LEAN_EXPORT lean_object* l___private_Std_Time_Notation_0__Std_Time_convertYear(lean_object*, lean_object*, lean_object*);
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertZoneName___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 24, .m_capacity = 24, .m_length = 23, .m_data = "Std.Time.ZoneName.short"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertZoneName___closed__0 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertZoneName___closed__0_value;
+static lean_once_cell_t l___private_Std_Time_Notation_0__Std_Time_convertZoneName___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_convertZoneName___closed__1;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertZoneName___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 9, .m_capacity = 9, .m_length = 8, .m_data = "ZoneName"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertZoneName___closed__2 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertZoneName___closed__2_value;
@@ -256,6 +267,7 @@ static const lean_ctor_object l___private_Std_Time_Notation_0__Std_Time_convertZ
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertZoneName___closed__7 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertZoneName___closed__7_value;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertZoneName___closed__8_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 23, .m_capacity = 23, .m_length = 22, .m_data = "Std.Time.ZoneName.full"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertZoneName___closed__8 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertZoneName___closed__8_value;
+static lean_once_cell_t l___private_Std_Time_Notation_0__Std_Time_convertZoneName___closed__9_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_convertZoneName___closed__9;
 static const lean_ctor_object l___private_Std_Time_Notation_0__Std_Time_convertZoneName___closed__10_value_aux_0 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertText___closed__2_value),LEAN_SCALAR_PTR_LITERAL(48, 144, 193, 124, 159, 137, 91, 218)}};
 static const lean_ctor_object l___private_Std_Time_Notation_0__Std_Time_convertZoneName___closed__10_value_aux_1 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertZoneName___closed__10_value_aux_0),((lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertText___closed__3_value),LEAN_SCALAR_PTR_LITERAL(64, 230, 28, 41, 157, 98, 229, 68)}};
@@ -274,6 +286,7 @@ LEAN_EXPORT lean_object* l___private_Std_Time_Notation_0__Std_Time_convertZoneNa
 LEAN_EXPORT lean_object* l___private_Std_Time_Notation_0__Std_Time_convertZoneName___boxed(lean_object*, lean_object*, lean_object*);
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 22, .m_capacity = 22, .m_length = 21, .m_data = "Std.Time.OffsetX.hour"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__0 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__0_value;
+static lean_once_cell_t l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__1;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 8, .m_capacity = 8, .m_length = 7, .m_data = "OffsetX"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__2 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__2_value;
@@ -294,6 +307,7 @@ static const lean_ctor_object l___private_Std_Time_Notation_0__Std_Time_convertO
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__8 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__8_value;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__9_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 28, .m_capacity = 28, .m_length = 27, .m_data = "Std.Time.OffsetX.hourMinute"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__9 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__9_value;
+static lean_once_cell_t l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__10_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__10;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__11_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 11, .m_capacity = 11, .m_length = 10, .m_data = "hourMinute"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__11 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__11_value;
@@ -312,6 +326,7 @@ static const lean_ctor_object l___private_Std_Time_Notation_0__Std_Time_convertO
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__16 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__16_value;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__17_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 33, .m_capacity = 33, .m_length = 32, .m_data = "Std.Time.OffsetX.hourMinuteColon"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__17 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__17_value;
+static lean_once_cell_t l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__18_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__18;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__19_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 16, .m_capacity = 16, .m_length = 15, .m_data = "hourMinuteColon"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__19 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__19_value;
@@ -330,6 +345,7 @@ static const lean_ctor_object l___private_Std_Time_Notation_0__Std_Time_convertO
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__24 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__24_value;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__25_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 34, .m_capacity = 34, .m_length = 33, .m_data = "Std.Time.OffsetX.hourMinuteSecond"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__25 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__25_value;
+static lean_once_cell_t l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__26_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__26;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__27_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 17, .m_capacity = 17, .m_length = 16, .m_data = "hourMinuteSecond"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__27 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__27_value;
@@ -348,6 +364,7 @@ static const lean_ctor_object l___private_Std_Time_Notation_0__Std_Time_convertO
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__32 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__32_value;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__33_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 39, .m_capacity = 39, .m_length = 38, .m_data = "Std.Time.OffsetX.hourMinuteSecondColon"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__33 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__33_value;
+static lean_once_cell_t l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__34_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__34;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__35_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 22, .m_capacity = 22, .m_length = 21, .m_data = "hourMinuteSecondColon"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__35 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__35_value;
@@ -368,6 +385,7 @@ LEAN_EXPORT lean_object* l___private_Std_Time_Notation_0__Std_Time_convertOffset
 LEAN_EXPORT lean_object* l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___boxed(lean_object*, lean_object*, lean_object*);
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertOffsetO___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 23, .m_capacity = 23, .m_length = 22, .m_data = "Std.Time.OffsetO.short"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertOffsetO___closed__0 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertOffsetO___closed__0_value;
+static lean_once_cell_t l___private_Std_Time_Notation_0__Std_Time_convertOffsetO___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_convertOffsetO___closed__1;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertOffsetO___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 8, .m_capacity = 8, .m_length = 7, .m_data = "OffsetO"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertOffsetO___closed__2 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertOffsetO___closed__2_value;
@@ -386,6 +404,7 @@ static const lean_ctor_object l___private_Std_Time_Notation_0__Std_Time_convertO
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertOffsetO___closed__7 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertOffsetO___closed__7_value;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertOffsetO___closed__8_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 22, .m_capacity = 22, .m_length = 21, .m_data = "Std.Time.OffsetO.full"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertOffsetO___closed__8 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertOffsetO___closed__8_value;
+static lean_once_cell_t l___private_Std_Time_Notation_0__Std_Time_convertOffsetO___closed__9_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_convertOffsetO___closed__9;
 static const lean_ctor_object l___private_Std_Time_Notation_0__Std_Time_convertOffsetO___closed__10_value_aux_0 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertText___closed__2_value),LEAN_SCALAR_PTR_LITERAL(48, 144, 193, 124, 159, 137, 91, 218)}};
 static const lean_ctor_object l___private_Std_Time_Notation_0__Std_Time_convertOffsetO___closed__10_value_aux_1 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertOffsetO___closed__10_value_aux_0),((lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertText___closed__3_value),LEAN_SCALAR_PTR_LITERAL(64, 230, 28, 41, 157, 98, 229, 68)}};
@@ -404,6 +423,7 @@ LEAN_EXPORT lean_object* l___private_Std_Time_Notation_0__Std_Time_convertOffset
 LEAN_EXPORT lean_object* l___private_Std_Time_Notation_0__Std_Time_convertOffsetO___boxed(lean_object*, lean_object*, lean_object*);
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertOffsetZ___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 28, .m_capacity = 28, .m_length = 27, .m_data = "Std.Time.OffsetZ.hourMinute"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertOffsetZ___closed__0 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertOffsetZ___closed__0_value;
+static lean_once_cell_t l___private_Std_Time_Notation_0__Std_Time_convertOffsetZ___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_convertOffsetZ___closed__1;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertOffsetZ___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 8, .m_capacity = 8, .m_length = 7, .m_data = "OffsetZ"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertOffsetZ___closed__2 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertOffsetZ___closed__2_value;
@@ -422,6 +442,7 @@ static const lean_ctor_object l___private_Std_Time_Notation_0__Std_Time_convertO
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertOffsetZ___closed__7 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertOffsetZ___closed__7_value;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertOffsetZ___closed__8_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 22, .m_capacity = 22, .m_length = 21, .m_data = "Std.Time.OffsetZ.full"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertOffsetZ___closed__8 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertOffsetZ___closed__8_value;
+static lean_once_cell_t l___private_Std_Time_Notation_0__Std_Time_convertOffsetZ___closed__9_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_convertOffsetZ___closed__9;
 static const lean_ctor_object l___private_Std_Time_Notation_0__Std_Time_convertOffsetZ___closed__10_value_aux_0 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertText___closed__2_value),LEAN_SCALAR_PTR_LITERAL(48, 144, 193, 124, 159, 137, 91, 218)}};
 static const lean_ctor_object l___private_Std_Time_Notation_0__Std_Time_convertOffsetZ___closed__10_value_aux_1 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertOffsetZ___closed__10_value_aux_0),((lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertText___closed__3_value),LEAN_SCALAR_PTR_LITERAL(64, 230, 28, 41, 157, 98, 229, 68)}};
@@ -438,6 +459,7 @@ static const lean_ctor_object l___private_Std_Time_Notation_0__Std_Time_convertO
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertOffsetZ___closed__14 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertOffsetZ___closed__14_value;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertOffsetZ___closed__15_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 39, .m_capacity = 39, .m_length = 38, .m_data = "Std.Time.OffsetZ.hourMinuteSecondColon"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertOffsetZ___closed__15 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertOffsetZ___closed__15_value;
+static lean_once_cell_t l___private_Std_Time_Notation_0__Std_Time_convertOffsetZ___closed__16_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_convertOffsetZ___closed__16;
 static const lean_ctor_object l___private_Std_Time_Notation_0__Std_Time_convertOffsetZ___closed__17_value_aux_0 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertText___closed__2_value),LEAN_SCALAR_PTR_LITERAL(48, 144, 193, 124, 159, 137, 91, 218)}};
 static const lean_ctor_object l___private_Std_Time_Notation_0__Std_Time_convertOffsetZ___closed__17_value_aux_1 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertOffsetZ___closed__17_value_aux_0),((lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertText___closed__3_value),LEAN_SCALAR_PTR_LITERAL(64, 230, 28, 41, 157, 98, 229, 68)}};
@@ -456,6 +478,7 @@ LEAN_EXPORT lean_object* l___private_Std_Time_Notation_0__Std_Time_convertOffset
 LEAN_EXPORT lean_object* l___private_Std_Time_Notation_0__Std_Time_convertOffsetZ___boxed(lean_object*, lean_object*, lean_object*);
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 20, .m_capacity = 20, .m_length = 19, .m_data = "Std.Time.Modifier.G"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__0 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__0_value;
+static lean_once_cell_t l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__1;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 9, .m_capacity = 9, .m_length = 8, .m_data = "Modifier"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__2 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__2_value;
@@ -476,6 +499,7 @@ static const lean_ctor_object l___private_Std_Time_Notation_0__Std_Time_convertM
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__8 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__8_value;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__9_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 20, .m_capacity = 20, .m_length = 19, .m_data = "Std.Time.Modifier.y"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__9 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__9_value;
+static lean_once_cell_t l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__10_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__10;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__11_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 2, .m_capacity = 2, .m_length = 1, .m_data = "y"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__11 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__11_value;
@@ -494,6 +518,7 @@ static const lean_ctor_object l___private_Std_Time_Notation_0__Std_Time_convertM
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__16 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__16_value;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__17_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 20, .m_capacity = 20, .m_length = 19, .m_data = "Std.Time.Modifier.u"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__17 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__17_value;
+static lean_once_cell_t l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__18_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__18;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__19_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 2, .m_capacity = 2, .m_length = 1, .m_data = "u"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__19 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__19_value;
@@ -512,6 +537,7 @@ static const lean_ctor_object l___private_Std_Time_Notation_0__Std_Time_convertM
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__24 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__24_value;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__25_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 20, .m_capacity = 20, .m_length = 19, .m_data = "Std.Time.Modifier.D"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__25 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__25_value;
+static lean_once_cell_t l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__26_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__26;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__27_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 2, .m_capacity = 2, .m_length = 1, .m_data = "D"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__27 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__27_value;
@@ -530,6 +556,7 @@ static const lean_ctor_object l___private_Std_Time_Notation_0__Std_Time_convertM
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__32 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__32_value;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__33_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 23, .m_capacity = 23, .m_length = 22, .m_data = "Std.Time.Modifier.MorL"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__33 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__33_value;
+static lean_once_cell_t l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__34_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__34;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__35_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 5, .m_capacity = 5, .m_length = 4, .m_data = "MorL"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__35 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__35_value;
@@ -568,6 +595,7 @@ static const lean_ctor_object l___private_Std_Time_Notation_0__Std_Time_convertM
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__47 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__47_value;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__48_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 1, .m_capacity = 1, .m_length = 0, .m_data = ""};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__48 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__48_value;
+static lean_once_cell_t l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49;
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 static const lean_ctor_object l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__50_value_aux_0 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertText___closed__2_value),LEAN_SCALAR_PTR_LITERAL(48, 144, 193, 124, 159, 137, 91, 218)}};
@@ -618,6 +646,7 @@ static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_conver
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__68 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__68_value;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__69_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 4, .m_capacity = 4, .m_length = 3, .m_data = "inl"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__69 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__69_value;
+static lean_once_cell_t l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__70_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__70;
 static const lean_ctor_object l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__71_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__69_value),LEAN_SCALAR_PTR_LITERAL(86, 142, 99, 99, 156, 120, 56, 132)}};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__71 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__71_value;
@@ -625,11 +654,13 @@ static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_conver
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__72 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__72_value;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__73_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 4, .m_capacity = 4, .m_length = 3, .m_data = "inr"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__73 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__73_value;
+static lean_once_cell_t l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__74_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__74;
 static const lean_ctor_object l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__75_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__73_value),LEAN_SCALAR_PTR_LITERAL(209, 212, 202, 104, 137, 8, 49, 108)}};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__75 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__75_value;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__76_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 20, .m_capacity = 20, .m_length = 19, .m_data = "Std.Time.Modifier.d"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__76 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__76_value;
+static lean_once_cell_t l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__77_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__77;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__78_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 2, .m_capacity = 2, .m_length = 1, .m_data = "d"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__78 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__78_value;
@@ -648,6 +679,7 @@ static const lean_ctor_object l___private_Std_Time_Notation_0__Std_Time_convertM
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__83 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__83_value;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__84_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 23, .m_capacity = 23, .m_length = 22, .m_data = "Std.Time.Modifier.Qorq"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__84 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__84_value;
+static lean_once_cell_t l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__85_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__85;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__86_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 5, .m_capacity = 5, .m_length = 4, .m_data = "Qorq"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__86 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__86_value;
@@ -666,6 +698,7 @@ static const lean_ctor_object l___private_Std_Time_Notation_0__Std_Time_convertM
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__91 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__91_value;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__92_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 20, .m_capacity = 20, .m_length = 19, .m_data = "Std.Time.Modifier.w"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__92 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__92_value;
+static lean_once_cell_t l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__93_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__93;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__94_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 2, .m_capacity = 2, .m_length = 1, .m_data = "w"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__94 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__94_value;
@@ -684,6 +717,7 @@ static const lean_ctor_object l___private_Std_Time_Notation_0__Std_Time_convertM
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__99 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__99_value;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__100_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 20, .m_capacity = 20, .m_length = 19, .m_data = "Std.Time.Modifier.W"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__100 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__100_value;
+static lean_once_cell_t l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__101_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__101;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__102_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 2, .m_capacity = 2, .m_length = 1, .m_data = "W"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__102 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__102_value;
@@ -702,6 +736,7 @@ static const lean_ctor_object l___private_Std_Time_Notation_0__Std_Time_convertM
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__107 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__107_value;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__108_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 20, .m_capacity = 20, .m_length = 19, .m_data = "Std.Time.Modifier.E"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__108 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__108_value;
+static lean_once_cell_t l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__109_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__109;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__110_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 2, .m_capacity = 2, .m_length = 1, .m_data = "E"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__110 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__110_value;
@@ -720,6 +755,7 @@ static const lean_ctor_object l___private_Std_Time_Notation_0__Std_Time_convertM
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__115 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__115_value;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__116_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 23, .m_capacity = 23, .m_length = 22, .m_data = "Std.Time.Modifier.eorc"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__116 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__116_value;
+static lean_once_cell_t l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__117_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__117;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__118_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 5, .m_capacity = 5, .m_length = 4, .m_data = "eorc"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__118 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__118_value;
@@ -738,6 +774,7 @@ static const lean_ctor_object l___private_Std_Time_Notation_0__Std_Time_convertM
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__123 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__123_value;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__124_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 20, .m_capacity = 20, .m_length = 19, .m_data = "Std.Time.Modifier.F"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__124 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__124_value;
+static lean_once_cell_t l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__125_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__125;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__126_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 2, .m_capacity = 2, .m_length = 1, .m_data = "F"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__126 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__126_value;
@@ -756,6 +793,7 @@ static const lean_ctor_object l___private_Std_Time_Notation_0__Std_Time_convertM
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__131 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__131_value;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__132_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 20, .m_capacity = 20, .m_length = 19, .m_data = "Std.Time.Modifier.a"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__132 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__132_value;
+static lean_once_cell_t l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__133_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__133;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__134_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 2, .m_capacity = 2, .m_length = 1, .m_data = "a"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__134 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__134_value;
@@ -774,6 +812,7 @@ static const lean_ctor_object l___private_Std_Time_Notation_0__Std_Time_convertM
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__139 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__139_value;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__140_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 20, .m_capacity = 20, .m_length = 19, .m_data = "Std.Time.Modifier.h"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__140 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__140_value;
+static lean_once_cell_t l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__141_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__141;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__142_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 2, .m_capacity = 2, .m_length = 1, .m_data = "h"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__142 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__142_value;
@@ -792,6 +831,7 @@ static const lean_ctor_object l___private_Std_Time_Notation_0__Std_Time_convertM
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__147 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__147_value;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__148_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 20, .m_capacity = 20, .m_length = 19, .m_data = "Std.Time.Modifier.K"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__148 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__148_value;
+static lean_once_cell_t l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__149_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__149;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__150_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 2, .m_capacity = 2, .m_length = 1, .m_data = "K"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__150 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__150_value;
@@ -810,6 +850,7 @@ static const lean_ctor_object l___private_Std_Time_Notation_0__Std_Time_convertM
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__155 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__155_value;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__156_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 20, .m_capacity = 20, .m_length = 19, .m_data = "Std.Time.Modifier.k"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__156 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__156_value;
+static lean_once_cell_t l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__157_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__157;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__158_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 2, .m_capacity = 2, .m_length = 1, .m_data = "k"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__158 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__158_value;
@@ -828,6 +869,7 @@ static const lean_ctor_object l___private_Std_Time_Notation_0__Std_Time_convertM
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__163 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__163_value;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__164_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 20, .m_capacity = 20, .m_length = 19, .m_data = "Std.Time.Modifier.H"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__164 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__164_value;
+static lean_once_cell_t l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__165_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__165;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__166_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 2, .m_capacity = 2, .m_length = 1, .m_data = "H"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__166 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__166_value;
@@ -846,6 +888,7 @@ static const lean_ctor_object l___private_Std_Time_Notation_0__Std_Time_convertM
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__171 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__171_value;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__172_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 20, .m_capacity = 20, .m_length = 19, .m_data = "Std.Time.Modifier.m"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__172 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__172_value;
+static lean_once_cell_t l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__173_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__173;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__174_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 2, .m_capacity = 2, .m_length = 1, .m_data = "m"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__174 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__174_value;
@@ -864,6 +907,7 @@ static const lean_ctor_object l___private_Std_Time_Notation_0__Std_Time_convertM
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__179 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__179_value;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__180_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 20, .m_capacity = 20, .m_length = 19, .m_data = "Std.Time.Modifier.s"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__180 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__180_value;
+static lean_once_cell_t l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__181_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__181;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__182_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 2, .m_capacity = 2, .m_length = 1, .m_data = "s"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__182 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__182_value;
@@ -882,6 +926,7 @@ static const lean_ctor_object l___private_Std_Time_Notation_0__Std_Time_convertM
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__187 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__187_value;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__188_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 20, .m_capacity = 20, .m_length = 19, .m_data = "Std.Time.Modifier.S"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__188 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__188_value;
+static lean_once_cell_t l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__189_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__189;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__190_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 2, .m_capacity = 2, .m_length = 1, .m_data = "S"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__190 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__190_value;
@@ -900,6 +945,7 @@ static const lean_ctor_object l___private_Std_Time_Notation_0__Std_Time_convertM
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__195 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__195_value;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__196_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 20, .m_capacity = 20, .m_length = 19, .m_data = "Std.Time.Modifier.A"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__196 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__196_value;
+static lean_once_cell_t l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__197_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__197;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__198_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 2, .m_capacity = 2, .m_length = 1, .m_data = "A"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__198 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__198_value;
@@ -918,6 +964,7 @@ static const lean_ctor_object l___private_Std_Time_Notation_0__Std_Time_convertM
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__203 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__203_value;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__204_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 20, .m_capacity = 20, .m_length = 19, .m_data = "Std.Time.Modifier.n"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__204 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__204_value;
+static lean_once_cell_t l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__205_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__205;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__206_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 2, .m_capacity = 2, .m_length = 1, .m_data = "n"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__206 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__206_value;
@@ -936,6 +983,7 @@ static const lean_ctor_object l___private_Std_Time_Notation_0__Std_Time_convertM
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__211 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__211_value;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__212_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 20, .m_capacity = 20, .m_length = 19, .m_data = "Std.Time.Modifier.N"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__212 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__212_value;
+static lean_once_cell_t l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__213_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__213;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__214_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 2, .m_capacity = 2, .m_length = 1, .m_data = "N"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__214 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__214_value;
@@ -954,6 +1002,7 @@ static const lean_ctor_object l___private_Std_Time_Notation_0__Std_Time_convertM
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__219 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__219_value;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__220_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 20, .m_capacity = 20, .m_length = 19, .m_data = "Std.Time.Modifier.V"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__220 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__220_value;
+static lean_once_cell_t l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__221_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__221;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__222_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 2, .m_capacity = 2, .m_length = 1, .m_data = "V"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__222 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__222_value;
@@ -972,6 +1021,7 @@ static const lean_ctor_object l___private_Std_Time_Notation_0__Std_Time_convertM
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__227 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__227_value;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__228_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 20, .m_capacity = 20, .m_length = 19, .m_data = "Std.Time.Modifier.z"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__228 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__228_value;
+static lean_once_cell_t l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__229_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__229;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__230_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 2, .m_capacity = 2, .m_length = 1, .m_data = "z"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__230 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__230_value;
@@ -990,6 +1040,7 @@ static const lean_ctor_object l___private_Std_Time_Notation_0__Std_Time_convertM
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__235 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__235_value;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__236_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 20, .m_capacity = 20, .m_length = 19, .m_data = "Std.Time.Modifier.O"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__236 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__236_value;
+static lean_once_cell_t l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__237_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__237;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__238_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 2, .m_capacity = 2, .m_length = 1, .m_data = "O"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__238 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__238_value;
@@ -1008,6 +1059,7 @@ static const lean_ctor_object l___private_Std_Time_Notation_0__Std_Time_convertM
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__243 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__243_value;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__244_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 20, .m_capacity = 20, .m_length = 19, .m_data = "Std.Time.Modifier.X"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__244 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__244_value;
+static lean_once_cell_t l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__245_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__245;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__246_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 2, .m_capacity = 2, .m_length = 1, .m_data = "X"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__246 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__246_value;
@@ -1026,6 +1078,7 @@ static const lean_ctor_object l___private_Std_Time_Notation_0__Std_Time_convertM
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__251 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__251_value;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__252_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 20, .m_capacity = 20, .m_length = 19, .m_data = "Std.Time.Modifier.x"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__252 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__252_value;
+static lean_once_cell_t l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__253_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__253;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__254_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 2, .m_capacity = 2, .m_length = 1, .m_data = "x"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__254 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__254_value;
@@ -1044,6 +1097,7 @@ static const lean_ctor_object l___private_Std_Time_Notation_0__Std_Time_convertM
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__259 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__259_value;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__260_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 20, .m_capacity = 20, .m_length = 19, .m_data = "Std.Time.Modifier.Z"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__260 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__260_value;
+static lean_once_cell_t l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__261_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__261;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__262_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 2, .m_capacity = 2, .m_length = 1, .m_data = "Z"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__262 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__262_value;
@@ -1064,11 +1118,13 @@ lean_object* l_Lean_Syntax_node3(lean_object*, lean_object*, lean_object*, lean_
 LEAN_EXPORT lean_object* l___private_Std_Time_Notation_0__Std_Time_convertModifier(lean_object*, lean_object*, lean_object*);
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertFormatPart___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 7, .m_capacity = 7, .m_length = 6, .m_data = "string"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertFormatPart___closed__0 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertFormatPart___closed__0_value;
+static lean_once_cell_t l___private_Std_Time_Notation_0__Std_Time_convertFormatPart___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_convertFormatPart___closed__1;
 static const lean_ctor_object l___private_Std_Time_Notation_0__Std_Time_convertFormatPart___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertFormatPart___closed__0_value),LEAN_SCALAR_PTR_LITERAL(18, 56, 52, 137, 138, 241, 128, 175)}};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertFormatPart___closed__2 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertFormatPart___closed__2_value;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertFormatPart___closed__3_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 9, .m_capacity = 9, .m_length = 8, .m_data = "modifier"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertFormatPart___closed__3 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertFormatPart___closed__3_value;
+static lean_once_cell_t l___private_Std_Time_Notation_0__Std_Time_convertFormatPart___closed__4_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_convertFormatPart___closed__4;
 static const lean_ctor_object l___private_Std_Time_Notation_0__Std_Time_convertFormatPart___closed__5_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertFormatPart___closed__3_value),LEAN_SCALAR_PTR_LITERAL(225, 238, 236, 22, 130, 68, 194, 201)}};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertFormatPart___closed__5 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertFormatPart___closed__5_value;
@@ -1087,9 +1143,11 @@ static const lean_object* l___private_Std_Time_Notation_0__Std_Time_syntaxString
 LEAN_EXPORT lean_object* l___private_Std_Time_Notation_0__Std_Time_syntaxString(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Time_Notation_0__Std_Time_syntaxString___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
+static lean_once_cell_t l___private_Std_Time_Notation_0__Std_Time_syntaxInt___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_syntaxInt___closed__0;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_syntaxInt___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 10, .m_capacity = 10, .m_length = 9, .m_data = "Int.ofNat"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_syntaxInt___closed__1 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_syntaxInt___closed__1_value;
+static lean_once_cell_t l___private_Std_Time_Notation_0__Std_Time_syntaxInt___closed__2_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_syntaxInt___closed__2;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_syntaxInt___closed__3_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 4, .m_capacity = 4, .m_length = 3, .m_data = "Int"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_syntaxInt___closed__3 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_syntaxInt___closed__3_value;
@@ -1108,6 +1166,7 @@ static const lean_ctor_object l___private_Std_Time_Notation_0__Std_Time_syntaxIn
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_syntaxInt___closed__9 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_syntaxInt___closed__9_value;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_syntaxInt___closed__10_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 12, .m_capacity = 12, .m_length = 11, .m_data = "Int.negSucc"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_syntaxInt___closed__10 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_syntaxInt___closed__10_value;
+static lean_once_cell_t l___private_Std_Time_Notation_0__Std_Time_syntaxInt___closed__11_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_syntaxInt___closed__11;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_syntaxInt___closed__12_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 8, .m_capacity = 8, .m_length = 7, .m_data = "negSucc"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_syntaxInt___closed__12 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_syntaxInt___closed__12_value;
@@ -1129,6 +1188,7 @@ LEAN_EXPORT lean_object* l___private_Std_Time_Notation_0__Std_Time_syntaxInt(lea
 LEAN_EXPORT lean_object* l___private_Std_Time_Notation_0__Std_Time_syntaxInt___boxed(lean_object*, lean_object*, lean_object*);
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_syntaxBounded___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 43, .m_capacity = 43, .m_length = 42, .m_data = "Std.Time.Internal.Bounded.LE.ofNatWrapping"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_syntaxBounded___closed__0 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_syntaxBounded___closed__0_value;
+static lean_once_cell_t l___private_Std_Time_Notation_0__Std_Time_syntaxBounded___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_syntaxBounded___closed__1;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_syntaxBounded___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 9, .m_capacity = 9, .m_length = 8, .m_data = "Internal"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_syntaxBounded___closed__2 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_syntaxBounded___closed__2_value;
@@ -1190,11 +1250,13 @@ static const lean_ctor_object l___private_Std_Time_Notation_0__Std_Time_syntaxBo
 static const lean_ctor_object l___private_Std_Time_Notation_0__Std_Time_syntaxBounded___closed__20_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l___private_Std_Time_Notation_0__Std_Time_syntaxBounded___closed__20_value_aux_2),((lean_object*)&l___private_Std_Time_Notation_0__Std_Time_syntaxBounded___closed__19_value),LEAN_SCALAR_PTR_LITERAL(137, 208, 10, 74, 108, 50, 106, 48)}};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_syntaxBounded___closed__20 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_syntaxBounded___closed__20_value;
 lean_object* l_Array_mkArray0(lean_object*);
+static lean_once_cell_t l___private_Std_Time_Notation_0__Std_Time_syntaxBounded___closed__21_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_syntaxBounded___closed__21;
 LEAN_EXPORT lean_object* l___private_Std_Time_Notation_0__Std_Time_syntaxBounded(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Time_Notation_0__Std_Time_syntaxBounded___boxed(lean_object*, lean_object*, lean_object*);
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_syntaxVal___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 32, .m_capacity = 32, .m_length = 31, .m_data = "Std.Time.Internal.UnitVal.ofInt"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_syntaxVal___closed__0 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_syntaxVal___closed__0_value;
+static lean_once_cell_t l___private_Std_Time_Notation_0__Std_Time_syntaxVal___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_syntaxVal___closed__1;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_syntaxVal___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 8, .m_capacity = 8, .m_length = 7, .m_data = "UnitVal"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_syntaxVal___closed__2 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_syntaxVal___closed__2_value;
@@ -1219,6 +1281,7 @@ LEAN_EXPORT lean_object* l___private_Std_Time_Notation_0__Std_Time_syntaxVal(lea
 LEAN_EXPORT lean_object* l___private_Std_Time_Notation_0__Std_Time_syntaxVal___boxed(lean_object*, lean_object*, lean_object*);
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertOffset___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 35, .m_capacity = 35, .m_length = 34, .m_data = "Std.Time.TimeZone.Offset.ofSeconds"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertOffset___closed__0 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertOffset___closed__0_value;
+static lean_once_cell_t l___private_Std_Time_Notation_0__Std_Time_convertOffset___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_convertOffset___closed__1;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertOffset___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 9, .m_capacity = 9, .m_length = 8, .m_data = "TimeZone"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertOffset___closed__2 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertOffset___closed__2_value;
@@ -1244,6 +1307,7 @@ LEAN_EXPORT lean_object* l___private_Std_Time_Notation_0__Std_Time_convertOffset
 LEAN_EXPORT lean_object* l___private_Std_Time_Notation_0__Std_Time_convertOffset___boxed(lean_object*, lean_object*, lean_object*);
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertTimezone___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 21, .m_capacity = 21, .m_length = 20, .m_data = "Std.Time.TimeZone.mk"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertTimezone___closed__0 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertTimezone___closed__0_value;
+static lean_once_cell_t l___private_Std_Time_Notation_0__Std_Time_convertTimezone___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_convertTimezone___closed__1;
 static const lean_ctor_object l___private_Std_Time_Notation_0__Std_Time_convertTimezone___closed__2_value_aux_0 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertText___closed__2_value),LEAN_SCALAR_PTR_LITERAL(48, 144, 193, 124, 159, 137, 91, 218)}};
 static const lean_ctor_object l___private_Std_Time_Notation_0__Std_Time_convertTimezone___closed__2_value_aux_1 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertTimezone___closed__2_value_aux_0),((lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertText___closed__3_value),LEAN_SCALAR_PTR_LITERAL(64, 230, 28, 41, 157, 98, 229, 68)}};
@@ -1260,6 +1324,7 @@ static const lean_ctor_object l___private_Std_Time_Notation_0__Std_Time_convertT
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertTimezone___closed__6 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertTimezone___closed__6_value;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertTimezone___closed__7_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 6, .m_capacity = 6, .m_length = 5, .m_data = "false"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertTimezone___closed__7 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertTimezone___closed__7_value;
+static lean_once_cell_t l___private_Std_Time_Notation_0__Std_Time_convertTimezone___closed__8_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_convertTimezone___closed__8;
 static const lean_ctor_object l___private_Std_Time_Notation_0__Std_Time_convertTimezone___closed__9_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertTimezone___closed__7_value),LEAN_SCALAR_PTR_LITERAL(160, 214, 196, 140, 104, 187, 164, 111)}};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertTimezone___closed__9 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertTimezone___closed__9_value;
@@ -1276,6 +1341,7 @@ lean_object* l_Lean_Syntax_node4(lean_object*, lean_object*, lean_object*, lean_
 LEAN_EXPORT lean_object* l___private_Std_Time_Notation_0__Std_Time_convertTimezone(lean_object*, lean_object*, lean_object*);
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertPlainDate___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 38, .m_capacity = 38, .m_length = 37, .m_data = "Std.Time.PlainDate.ofYearMonthDayClip"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertPlainDate___closed__0 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertPlainDate___closed__0_value;
+static lean_once_cell_t l___private_Std_Time_Notation_0__Std_Time_convertPlainDate___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_convertPlainDate___closed__1;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertPlainDate___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 10, .m_capacity = 10, .m_length = 9, .m_data = "PlainDate"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertPlainDate___closed__2 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertPlainDate___closed__2_value;
@@ -1294,6 +1360,7 @@ LEAN_EXPORT lean_object* l___private_Std_Time_Notation_0__Std_Time_convertPlainD
 LEAN_EXPORT lean_object* l___private_Std_Time_Notation_0__Std_Time_convertPlainDate___boxed(lean_object*, lean_object*, lean_object*);
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertPlainTime___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 22, .m_capacity = 22, .m_length = 21, .m_data = "Std.Time.PlainTime.mk"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertPlainTime___closed__0 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertPlainTime___closed__0_value;
+static lean_once_cell_t l___private_Std_Time_Notation_0__Std_Time_convertPlainTime___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_convertPlainTime___closed__1;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertPlainTime___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 10, .m_capacity = 10, .m_length = 9, .m_data = "PlainTime"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertPlainTime___closed__2 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertPlainTime___closed__2_value;
@@ -1313,6 +1380,7 @@ static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertPlain
 LEAN_EXPORT lean_object* l___private_Std_Time_Notation_0__Std_Time_convertPlainTime(lean_object*, lean_object*, lean_object*);
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertPlainDateTime___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 26, .m_capacity = 26, .m_length = 25, .m_data = "Std.Time.PlainDateTime.mk"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertPlainDateTime___closed__0 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertPlainDateTime___closed__0_value;
+static lean_once_cell_t l___private_Std_Time_Notation_0__Std_Time_convertPlainDateTime___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_convertPlainDateTime___closed__1;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertPlainDateTime___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 14, .m_capacity = 14, .m_length = 13, .m_data = "PlainDateTime"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertPlainDateTime___closed__2 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertPlainDateTime___closed__2_value;
@@ -1332,6 +1400,7 @@ static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertPlain
 LEAN_EXPORT lean_object* l___private_Std_Time_Notation_0__Std_Time_convertPlainDateTime(lean_object*, lean_object*, lean_object*);
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 39, .m_capacity = 39, .m_length = 38, .m_data = "Std.Time.ZonedDateTime.ofPlainDateTime"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__0 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__0_value;
+static lean_once_cell_t l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__1;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 14, .m_capacity = 14, .m_length = 13, .m_data = "ZonedDateTime"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__2 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__2_value;
@@ -1348,6 +1417,7 @@ static const lean_ctor_object l___private_Std_Time_Notation_0__Std_Time_convertZ
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__6 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__6_value;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__7_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 39, .m_capacity = 39, .m_length = 38, .m_data = "Std.Time.TimeZone.ZoneRules.ofTimeZone"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__7 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__7_value;
+static lean_once_cell_t l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__8_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__8;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__9_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 10, .m_capacity = 10, .m_length = 9, .m_data = "ZoneRules"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__9 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__9_value;
@@ -1380,6 +1450,7 @@ static const lean_ctor_object l___private_Std_Time_Notation_0__Std_Time_convertZ
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__19 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__19_value;
 static const lean_string_object l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__20_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 38, .m_capacity = 38, .m_length = 37, .m_data = "Std.Time.Database.defaultGetZoneRules"};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__20 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__20_value;
+static lean_once_cell_t l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__21_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__21;
 static const lean_ctor_object l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__22_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 0, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__17_value),((lean_object*)(((size_t)(0) << 1) | 1))}};
 static const lean_object* l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__22 = (const lean_object*)&l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__22_value;
@@ -1544,7 +1615,7 @@ lean_object* l_Std_Time_TimeZone_Offset_fromOffset(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time___aux__Std__Time__Notation______macroRules__Std__Time__termOffset_x28___x29__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Time_TimeZone_fromTimeZone(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time___aux__Std__Time__Notation______macroRules__Std__Time__termTimezone_x28___x29__1(lean_object*, lean_object*, lean_object*);
-static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertText___closed__1() {
+static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertText___closed__1(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1553,7 +1624,7 @@ x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertText___closed__12() {
+static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertText___closed__12(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1562,7 +1633,7 @@ x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertText___closed__20() {
+static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertText___closed__20(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1588,7 +1659,7 @@ lean_dec_ref(x_2);
 x_7 = 0;
 x_8 = l_Lean_SourceInfo_fromRef(x_6, x_7);
 lean_dec(x_6);
-x_9 = l___private_Std_Time_Notation_0__Std_Time_convertText___closed__1;
+x_9 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertText___closed__1, &l___private_Std_Time_Notation_0__Std_Time_convertText___closed__1_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertText___closed__1);
 x_10 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertText___closed__6));
 x_11 = l_Lean_addMacroScope(x_4, x_10, x_5);
 x_12 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertText___closed__10));
@@ -1615,7 +1686,7 @@ lean_dec_ref(x_2);
 x_18 = 0;
 x_19 = l_Lean_SourceInfo_fromRef(x_17, x_18);
 lean_dec(x_17);
-x_20 = l___private_Std_Time_Notation_0__Std_Time_convertText___closed__12;
+x_20 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertText___closed__12, &l___private_Std_Time_Notation_0__Std_Time_convertText___closed__12_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertText___closed__12);
 x_21 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertText___closed__14));
 x_22 = l_Lean_addMacroScope(x_15, x_21, x_16);
 x_23 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertText___closed__18));
@@ -1642,7 +1713,7 @@ lean_dec_ref(x_2);
 x_29 = 0;
 x_30 = l_Lean_SourceInfo_fromRef(x_28, x_29);
 lean_dec(x_28);
-x_31 = l___private_Std_Time_Notation_0__Std_Time_convertText___closed__20;
+x_31 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertText___closed__20, &l___private_Std_Time_Notation_0__Std_Time_convertText___closed__20_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertText___closed__20);
 x_32 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertText___closed__22));
 x_33 = l_Lean_addMacroScope(x_26, x_32, x_27);
 x_34 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertText___closed__26));
@@ -1668,7 +1739,7 @@ x_5 = l___private_Std_Time_Notation_0__Std_Time_convertText(x_4, x_2, x_3);
 return x_5;
 }
 }
-static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__6() {
+static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__6(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1692,7 +1763,7 @@ x_7 = 0;
 x_8 = l_Lean_SourceInfo_fromRef(x_6, x_7);
 lean_dec(x_6);
 x_9 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_10 = l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__6;
+x_10 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__6, &l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__6_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__6);
 x_11 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__9));
 x_12 = l_Lean_addMacroScope(x_4, x_11, x_5);
 x_13 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__13));
@@ -1715,7 +1786,7 @@ lean_ctor_set(x_21, 1, x_3);
 return x_21;
 }
 }
-static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertFraction___closed__1() {
+static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertFraction___closed__1(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1724,7 +1795,7 @@ x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertFraction___closed__10() {
+static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertFraction___closed__10(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1749,7 +1820,7 @@ lean_dec_ref(x_2);
 x_7 = 0;
 x_8 = l_Lean_SourceInfo_fromRef(x_6, x_7);
 lean_dec(x_6);
-x_9 = l___private_Std_Time_Notation_0__Std_Time_convertFraction___closed__1;
+x_9 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertFraction___closed__1, &l___private_Std_Time_Notation_0__Std_Time_convertFraction___closed__1_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertFraction___closed__1);
 x_10 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertFraction___closed__4));
 x_11 = l_Lean_addMacroScope(x_4, x_10, x_5);
 x_12 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertFraction___closed__8));
@@ -1780,7 +1851,7 @@ x_19 = 0;
 x_20 = l_Lean_SourceInfo_fromRef(x_18, x_19);
 lean_dec(x_18);
 x_21 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_22 = l___private_Std_Time_Notation_0__Std_Time_convertFraction___closed__10;
+x_22 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertFraction___closed__10, &l___private_Std_Time_Notation_0__Std_Time_convertFraction___closed__10_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertFraction___closed__10);
 x_23 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertFraction___closed__12));
 x_24 = l_Lean_addMacroScope(x_16, x_23, x_17);
 x_25 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertFraction___closed__16));
@@ -1804,7 +1875,7 @@ return x_33;
 }
 }
 }
-static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__1() {
+static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__1(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1813,7 +1884,7 @@ x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__10() {
+static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__10(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1822,7 +1893,7 @@ x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__18() {
+static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__18(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1831,7 +1902,7 @@ x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__26() {
+static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__26(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1857,7 +1928,7 @@ lean_dec_ref(x_2);
 x_7 = 0;
 x_8 = l_Lean_SourceInfo_fromRef(x_6, x_7);
 lean_dec(x_6);
-x_9 = l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__1;
+x_9 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__1, &l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__1_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__1);
 x_10 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__4));
 x_11 = l_Lean_addMacroScope(x_4, x_10, x_5);
 x_12 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__8));
@@ -1884,7 +1955,7 @@ lean_dec_ref(x_2);
 x_18 = 0;
 x_19 = l_Lean_SourceInfo_fromRef(x_17, x_18);
 lean_dec(x_17);
-x_20 = l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__10;
+x_20 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__10, &l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__10_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__10);
 x_21 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__12));
 x_22 = l_Lean_addMacroScope(x_15, x_21, x_16);
 x_23 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__16));
@@ -1911,7 +1982,7 @@ lean_dec_ref(x_2);
 x_29 = 0;
 x_30 = l_Lean_SourceInfo_fromRef(x_28, x_29);
 lean_dec(x_28);
-x_31 = l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__18;
+x_31 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__18, &l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__18_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__18);
 x_32 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__20));
 x_33 = l_Lean_addMacroScope(x_26, x_32, x_27);
 x_34 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__24));
@@ -1942,7 +2013,7 @@ x_41 = 0;
 x_42 = l_Lean_SourceInfo_fromRef(x_40, x_41);
 lean_dec(x_40);
 x_43 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_44 = l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__26;
+x_44 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__26, &l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__26_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__26);
 x_45 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__28));
 x_46 = l_Lean_addMacroScope(x_38, x_45, x_39);
 x_47 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__32));
@@ -1967,7 +2038,7 @@ return x_55;
 }
 }
 }
-static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertZoneName___closed__1() {
+static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertZoneName___closed__1(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1976,7 +2047,7 @@ x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertZoneName___closed__9() {
+static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertZoneName___closed__9(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2001,7 +2072,7 @@ lean_dec_ref(x_2);
 x_7 = 0;
 x_8 = l_Lean_SourceInfo_fromRef(x_6, x_7);
 lean_dec(x_6);
-x_9 = l___private_Std_Time_Notation_0__Std_Time_convertZoneName___closed__1;
+x_9 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertZoneName___closed__1, &l___private_Std_Time_Notation_0__Std_Time_convertZoneName___closed__1_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertZoneName___closed__1);
 x_10 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertZoneName___closed__3));
 x_11 = l_Lean_addMacroScope(x_4, x_10, x_5);
 x_12 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertZoneName___closed__7));
@@ -2028,7 +2099,7 @@ lean_dec_ref(x_2);
 x_18 = 0;
 x_19 = l_Lean_SourceInfo_fromRef(x_17, x_18);
 lean_dec(x_17);
-x_20 = l___private_Std_Time_Notation_0__Std_Time_convertZoneName___closed__9;
+x_20 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertZoneName___closed__9, &l___private_Std_Time_Notation_0__Std_Time_convertZoneName___closed__9_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertZoneName___closed__9);
 x_21 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertZoneName___closed__10));
 x_22 = l_Lean_addMacroScope(x_15, x_21, x_16);
 x_23 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertZoneName___closed__14));
@@ -2053,7 +2124,7 @@ x_5 = l___private_Std_Time_Notation_0__Std_Time_convertZoneName(x_4, x_2, x_3);
 return x_5;
 }
 }
-static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__1() {
+static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__1(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2062,7 +2133,7 @@ x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__10() {
+static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__10(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2071,7 +2142,7 @@ x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__18() {
+static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__18(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2080,7 +2151,7 @@ x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__26() {
+static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__26(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2089,7 +2160,7 @@ x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__34() {
+static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__34(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2115,7 +2186,7 @@ lean_dec_ref(x_2);
 x_7 = 0;
 x_8 = l_Lean_SourceInfo_fromRef(x_6, x_7);
 lean_dec(x_6);
-x_9 = l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__1;
+x_9 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__1, &l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__1_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__1);
 x_10 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__4));
 x_11 = l_Lean_addMacroScope(x_4, x_10, x_5);
 x_12 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__8));
@@ -2142,7 +2213,7 @@ lean_dec_ref(x_2);
 x_18 = 0;
 x_19 = l_Lean_SourceInfo_fromRef(x_17, x_18);
 lean_dec(x_17);
-x_20 = l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__10;
+x_20 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__10, &l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__10_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__10);
 x_21 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__12));
 x_22 = l_Lean_addMacroScope(x_15, x_21, x_16);
 x_23 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__16));
@@ -2169,7 +2240,7 @@ lean_dec_ref(x_2);
 x_29 = 0;
 x_30 = l_Lean_SourceInfo_fromRef(x_28, x_29);
 lean_dec(x_28);
-x_31 = l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__18;
+x_31 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__18, &l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__18_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__18);
 x_32 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__20));
 x_33 = l_Lean_addMacroScope(x_26, x_32, x_27);
 x_34 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__24));
@@ -2196,7 +2267,7 @@ lean_dec_ref(x_2);
 x_40 = 0;
 x_41 = l_Lean_SourceInfo_fromRef(x_39, x_40);
 lean_dec(x_39);
-x_42 = l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__26;
+x_42 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__26, &l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__26_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__26);
 x_43 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__28));
 x_44 = l_Lean_addMacroScope(x_37, x_43, x_38);
 x_45 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__32));
@@ -2223,7 +2294,7 @@ lean_dec_ref(x_2);
 x_51 = 0;
 x_52 = l_Lean_SourceInfo_fromRef(x_50, x_51);
 lean_dec(x_50);
-x_53 = l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__34;
+x_53 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__34, &l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__34_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__34);
 x_54 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__36));
 x_55 = l_Lean_addMacroScope(x_48, x_54, x_49);
 x_56 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__40));
@@ -2249,7 +2320,7 @@ x_5 = l___private_Std_Time_Notation_0__Std_Time_convertOffsetX(x_4, x_2, x_3);
 return x_5;
 }
 }
-static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertOffsetO___closed__1() {
+static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertOffsetO___closed__1(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2258,7 +2329,7 @@ x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertOffsetO___closed__9() {
+static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertOffsetO___closed__9(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2283,7 +2354,7 @@ lean_dec_ref(x_2);
 x_7 = 0;
 x_8 = l_Lean_SourceInfo_fromRef(x_6, x_7);
 lean_dec(x_6);
-x_9 = l___private_Std_Time_Notation_0__Std_Time_convertOffsetO___closed__1;
+x_9 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertOffsetO___closed__1, &l___private_Std_Time_Notation_0__Std_Time_convertOffsetO___closed__1_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertOffsetO___closed__1);
 x_10 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertOffsetO___closed__3));
 x_11 = l_Lean_addMacroScope(x_4, x_10, x_5);
 x_12 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertOffsetO___closed__7));
@@ -2310,7 +2381,7 @@ lean_dec_ref(x_2);
 x_18 = 0;
 x_19 = l_Lean_SourceInfo_fromRef(x_17, x_18);
 lean_dec(x_17);
-x_20 = l___private_Std_Time_Notation_0__Std_Time_convertOffsetO___closed__9;
+x_20 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertOffsetO___closed__9, &l___private_Std_Time_Notation_0__Std_Time_convertOffsetO___closed__9_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertOffsetO___closed__9);
 x_21 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertOffsetO___closed__10));
 x_22 = l_Lean_addMacroScope(x_15, x_21, x_16);
 x_23 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertOffsetO___closed__14));
@@ -2335,7 +2406,7 @@ x_5 = l___private_Std_Time_Notation_0__Std_Time_convertOffsetO(x_4, x_2, x_3);
 return x_5;
 }
 }
-static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertOffsetZ___closed__1() {
+static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertOffsetZ___closed__1(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2344,7 +2415,7 @@ x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertOffsetZ___closed__9() {
+static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertOffsetZ___closed__9(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2353,7 +2424,7 @@ x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertOffsetZ___closed__16() {
+static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertOffsetZ___closed__16(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2379,7 +2450,7 @@ lean_dec_ref(x_2);
 x_7 = 0;
 x_8 = l_Lean_SourceInfo_fromRef(x_6, x_7);
 lean_dec(x_6);
-x_9 = l___private_Std_Time_Notation_0__Std_Time_convertOffsetZ___closed__1;
+x_9 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertOffsetZ___closed__1, &l___private_Std_Time_Notation_0__Std_Time_convertOffsetZ___closed__1_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertOffsetZ___closed__1);
 x_10 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertOffsetZ___closed__3));
 x_11 = l_Lean_addMacroScope(x_4, x_10, x_5);
 x_12 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertOffsetZ___closed__7));
@@ -2406,7 +2477,7 @@ lean_dec_ref(x_2);
 x_18 = 0;
 x_19 = l_Lean_SourceInfo_fromRef(x_17, x_18);
 lean_dec(x_17);
-x_20 = l___private_Std_Time_Notation_0__Std_Time_convertOffsetZ___closed__9;
+x_20 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertOffsetZ___closed__9, &l___private_Std_Time_Notation_0__Std_Time_convertOffsetZ___closed__9_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertOffsetZ___closed__9);
 x_21 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertOffsetZ___closed__10));
 x_22 = l_Lean_addMacroScope(x_15, x_21, x_16);
 x_23 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertOffsetZ___closed__14));
@@ -2433,7 +2504,7 @@ lean_dec_ref(x_2);
 x_29 = 0;
 x_30 = l_Lean_SourceInfo_fromRef(x_28, x_29);
 lean_dec(x_28);
-x_31 = l___private_Std_Time_Notation_0__Std_Time_convertOffsetZ___closed__16;
+x_31 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertOffsetZ___closed__16, &l___private_Std_Time_Notation_0__Std_Time_convertOffsetZ___closed__16_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertOffsetZ___closed__16);
 x_32 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertOffsetZ___closed__17));
 x_33 = l_Lean_addMacroScope(x_26, x_32, x_27);
 x_34 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertOffsetZ___closed__21));
@@ -2459,7 +2530,7 @@ x_5 = l___private_Std_Time_Notation_0__Std_Time_convertOffsetZ(x_4, x_2, x_3);
 return x_5;
 }
 }
-static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__1() {
+static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__1(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2468,7 +2539,7 @@ x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__10() {
+static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__10(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2477,7 +2548,7 @@ x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__18() {
+static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__18(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2486,7 +2557,7 @@ x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__26() {
+static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__26(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2495,7 +2566,7 @@ x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__34() {
+static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__34(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2504,7 +2575,7 @@ x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49() {
+static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2513,7 +2584,7 @@ x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__70() {
+static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__70(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2522,7 +2593,7 @@ x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__74() {
+static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__74(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2531,7 +2602,7 @@ x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__77() {
+static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__77(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2540,7 +2611,7 @@ x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__85() {
+static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__85(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2549,7 +2620,7 @@ x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__93() {
+static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__93(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2558,7 +2629,7 @@ x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__101() {
+static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__101(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2567,7 +2638,7 @@ x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__109() {
+static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__109(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2576,7 +2647,7 @@ x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__117() {
+static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__117(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2585,7 +2656,7 @@ x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__125() {
+static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__125(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2594,7 +2665,7 @@ x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__133() {
+static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__133(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2603,7 +2674,7 @@ x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__141() {
+static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__141(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2612,7 +2683,7 @@ x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__149() {
+static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__149(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2621,7 +2692,7 @@ x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__157() {
+static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__157(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2630,7 +2701,7 @@ x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__165() {
+static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__165(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2639,7 +2710,7 @@ x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__173() {
+static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__173(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2648,7 +2719,7 @@ x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__181() {
+static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__181(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2657,7 +2728,7 @@ x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__189() {
+static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__189(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2666,7 +2737,7 @@ x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__197() {
+static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__197(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2675,7 +2746,7 @@ x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__205() {
+static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__205(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2684,7 +2755,7 @@ x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__213() {
+static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__213(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2693,7 +2764,7 @@ x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__221() {
+static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__221(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2702,7 +2773,7 @@ x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__229() {
+static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__229(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2711,7 +2782,7 @@ x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__237() {
+static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__237(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2720,7 +2791,7 @@ x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__245() {
+static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__245(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2729,7 +2800,7 @@ x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__253() {
+static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__253(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2738,7 +2809,7 @@ x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__261() {
+static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__261(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2774,7 +2845,7 @@ x_11 = 0;
 x_12 = l_Lean_SourceInfo_fromRef(x_10, x_11);
 lean_dec(x_10);
 x_13 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_14 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__1;
+x_14 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__1, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__1_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__1);
 x_15 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__4));
 x_16 = l_Lean_addMacroScope(x_8, x_15, x_9);
 x_17 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__8));
@@ -2810,7 +2881,7 @@ x_27 = 0;
 x_28 = l_Lean_SourceInfo_fromRef(x_26, x_27);
 lean_dec(x_26);
 x_29 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_30 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__1;
+x_30 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__1, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__1_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__1);
 x_31 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__4));
 x_32 = l_Lean_addMacroScope(x_24, x_31, x_25);
 x_33 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__8));
@@ -2854,7 +2925,7 @@ x_46 = 0;
 x_47 = l_Lean_SourceInfo_fromRef(x_45, x_46);
 lean_dec(x_45);
 x_48 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_49 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__10;
+x_49 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__10, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__10_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__10);
 x_50 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__12));
 x_51 = l_Lean_addMacroScope(x_43, x_50, x_44);
 x_52 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__16));
@@ -2890,7 +2961,7 @@ x_62 = 0;
 x_63 = l_Lean_SourceInfo_fromRef(x_61, x_62);
 lean_dec(x_61);
 x_64 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_65 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__10;
+x_65 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__10, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__10_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__10);
 x_66 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__12));
 x_67 = l_Lean_addMacroScope(x_59, x_66, x_60);
 x_68 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__16));
@@ -2934,7 +3005,7 @@ x_81 = 0;
 x_82 = l_Lean_SourceInfo_fromRef(x_80, x_81);
 lean_dec(x_80);
 x_83 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_84 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__18;
+x_84 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__18, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__18_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__18);
 x_85 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__20));
 x_86 = l_Lean_addMacroScope(x_78, x_85, x_79);
 x_87 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__24));
@@ -2970,7 +3041,7 @@ x_97 = 0;
 x_98 = l_Lean_SourceInfo_fromRef(x_96, x_97);
 lean_dec(x_96);
 x_99 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_100 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__18;
+x_100 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__18, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__18_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__18);
 x_101 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__20));
 x_102 = l_Lean_addMacroScope(x_94, x_101, x_95);
 x_103 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__24));
@@ -3014,7 +3085,7 @@ x_116 = 0;
 x_117 = l_Lean_SourceInfo_fromRef(x_115, x_116);
 lean_dec(x_115);
 x_118 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_119 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__26;
+x_119 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__26, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__26_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__26);
 x_120 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__28));
 x_121 = l_Lean_addMacroScope(x_113, x_120, x_114);
 x_122 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__32));
@@ -3050,7 +3121,7 @@ x_132 = 0;
 x_133 = l_Lean_SourceInfo_fromRef(x_131, x_132);
 lean_dec(x_131);
 x_134 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_135 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__26;
+x_135 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__26, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__26_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__26);
 x_136 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__28));
 x_137 = l_Lean_addMacroScope(x_129, x_136, x_130);
 x_138 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__32));
@@ -3100,7 +3171,7 @@ x_152 = 0;
 x_153 = l_Lean_SourceInfo_fromRef(x_151, x_152);
 lean_dec(x_151);
 x_154 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_155 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__34;
+x_155 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__34, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__34_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__34);
 x_156 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__36));
 lean_inc(x_150);
 lean_inc(x_149);
@@ -3122,7 +3193,7 @@ x_165 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_165, 0, x_153);
 lean_ctor_set(x_165, 1, x_164);
 x_166 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__47));
-x_167 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49;
+x_167 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49);
 x_168 = lean_box(0);
 lean_inc(x_150);
 lean_inc(x_149);
@@ -3144,7 +3215,7 @@ lean_inc(x_153);
 x_176 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_176, 0, x_153);
 lean_ctor_set(x_176, 1, x_175);
-x_177 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__70;
+x_177 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__70, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__70_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__70);
 x_178 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__71));
 x_179 = l_Lean_addMacroScope(x_149, x_178, x_150);
 lean_inc(x_153);
@@ -3191,7 +3262,7 @@ x_194 = 0;
 x_195 = l_Lean_SourceInfo_fromRef(x_193, x_194);
 lean_dec(x_193);
 x_196 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_197 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__34;
+x_197 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__34, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__34_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__34);
 x_198 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__36));
 lean_inc(x_192);
 lean_inc(x_191);
@@ -3213,7 +3284,7 @@ x_207 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_207, 0, x_195);
 lean_ctor_set(x_207, 1, x_206);
 x_208 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__47));
-x_209 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49;
+x_209 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49);
 x_210 = lean_box(0);
 lean_inc(x_192);
 lean_inc(x_191);
@@ -3235,7 +3306,7 @@ lean_inc(x_195);
 x_218 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_218, 0, x_195);
 lean_ctor_set(x_218, 1, x_217);
-x_219 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__70;
+x_219 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__70, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__70_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__70);
 x_220 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__71));
 x_221 = l_Lean_addMacroScope(x_191, x_220, x_192);
 lean_inc(x_195);
@@ -3292,7 +3363,7 @@ x_240 = 0;
 x_241 = l_Lean_SourceInfo_fromRef(x_239, x_240);
 lean_dec(x_239);
 x_242 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_243 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__34;
+x_243 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__34, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__34_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__34);
 x_244 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__36));
 lean_inc(x_238);
 lean_inc(x_237);
@@ -3314,7 +3385,7 @@ x_253 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_253, 0, x_241);
 lean_ctor_set(x_253, 1, x_252);
 x_254 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__47));
-x_255 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49;
+x_255 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49);
 x_256 = lean_box(0);
 lean_inc(x_238);
 lean_inc(x_237);
@@ -3336,7 +3407,7 @@ lean_inc(x_241);
 x_264 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_264, 0, x_241);
 lean_ctor_set(x_264, 1, x_263);
-x_265 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__74;
+x_265 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__74, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__74_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__74);
 x_266 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__75));
 x_267 = l_Lean_addMacroScope(x_237, x_266, x_238);
 lean_inc(x_241);
@@ -3383,7 +3454,7 @@ x_282 = 0;
 x_283 = l_Lean_SourceInfo_fromRef(x_281, x_282);
 lean_dec(x_281);
 x_284 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_285 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__34;
+x_285 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__34, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__34_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__34);
 x_286 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__36));
 lean_inc(x_280);
 lean_inc(x_279);
@@ -3405,7 +3476,7 @@ x_295 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_295, 0, x_283);
 lean_ctor_set(x_295, 1, x_294);
 x_296 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__47));
-x_297 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49;
+x_297 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49);
 x_298 = lean_box(0);
 lean_inc(x_280);
 lean_inc(x_279);
@@ -3427,7 +3498,7 @@ lean_inc(x_283);
 x_306 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_306, 0, x_283);
 lean_ctor_set(x_306, 1, x_305);
-x_307 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__74;
+x_307 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__74, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__74_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__74);
 x_308 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__75));
 x_309 = l_Lean_addMacroScope(x_279, x_308, x_280);
 lean_inc(x_283);
@@ -3483,7 +3554,7 @@ x_327 = 0;
 x_328 = l_Lean_SourceInfo_fromRef(x_326, x_327);
 lean_dec(x_326);
 x_329 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_330 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__77;
+x_330 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__77, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__77_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__77);
 x_331 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__79));
 x_332 = l_Lean_addMacroScope(x_324, x_331, x_325);
 x_333 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__83));
@@ -3519,7 +3590,7 @@ x_343 = 0;
 x_344 = l_Lean_SourceInfo_fromRef(x_342, x_343);
 lean_dec(x_342);
 x_345 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_346 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__77;
+x_346 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__77, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__77_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__77);
 x_347 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__79));
 x_348 = l_Lean_addMacroScope(x_340, x_347, x_341);
 x_349 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__83));
@@ -3569,7 +3640,7 @@ x_363 = 0;
 x_364 = l_Lean_SourceInfo_fromRef(x_362, x_363);
 lean_dec(x_362);
 x_365 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_366 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__85;
+x_366 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__85, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__85_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__85);
 x_367 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__87));
 lean_inc(x_361);
 lean_inc(x_360);
@@ -3591,7 +3662,7 @@ x_376 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_376, 0, x_364);
 lean_ctor_set(x_376, 1, x_375);
 x_377 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__47));
-x_378 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49;
+x_378 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49);
 x_379 = lean_box(0);
 lean_inc(x_361);
 lean_inc(x_360);
@@ -3613,7 +3684,7 @@ lean_inc(x_364);
 x_387 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_387, 0, x_364);
 lean_ctor_set(x_387, 1, x_386);
-x_388 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__70;
+x_388 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__70, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__70_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__70);
 x_389 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__71));
 x_390 = l_Lean_addMacroScope(x_360, x_389, x_361);
 lean_inc(x_364);
@@ -3660,7 +3731,7 @@ x_405 = 0;
 x_406 = l_Lean_SourceInfo_fromRef(x_404, x_405);
 lean_dec(x_404);
 x_407 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_408 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__85;
+x_408 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__85, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__85_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__85);
 x_409 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__87));
 lean_inc(x_403);
 lean_inc(x_402);
@@ -3682,7 +3753,7 @@ x_418 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_418, 0, x_406);
 lean_ctor_set(x_418, 1, x_417);
 x_419 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__47));
-x_420 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49;
+x_420 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49);
 x_421 = lean_box(0);
 lean_inc(x_403);
 lean_inc(x_402);
@@ -3704,7 +3775,7 @@ lean_inc(x_406);
 x_429 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_429, 0, x_406);
 lean_ctor_set(x_429, 1, x_428);
-x_430 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__70;
+x_430 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__70, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__70_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__70);
 x_431 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__71));
 x_432 = l_Lean_addMacroScope(x_402, x_431, x_403);
 lean_inc(x_406);
@@ -3761,7 +3832,7 @@ x_451 = 0;
 x_452 = l_Lean_SourceInfo_fromRef(x_450, x_451);
 lean_dec(x_450);
 x_453 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_454 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__85;
+x_454 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__85, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__85_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__85);
 x_455 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__87));
 lean_inc(x_449);
 lean_inc(x_448);
@@ -3783,7 +3854,7 @@ x_464 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_464, 0, x_452);
 lean_ctor_set(x_464, 1, x_463);
 x_465 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__47));
-x_466 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49;
+x_466 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49);
 x_467 = lean_box(0);
 lean_inc(x_449);
 lean_inc(x_448);
@@ -3805,7 +3876,7 @@ lean_inc(x_452);
 x_475 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_475, 0, x_452);
 lean_ctor_set(x_475, 1, x_474);
-x_476 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__74;
+x_476 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__74, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__74_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__74);
 x_477 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__75));
 x_478 = l_Lean_addMacroScope(x_448, x_477, x_449);
 lean_inc(x_452);
@@ -3852,7 +3923,7 @@ x_493 = 0;
 x_494 = l_Lean_SourceInfo_fromRef(x_492, x_493);
 lean_dec(x_492);
 x_495 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_496 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__85;
+x_496 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__85, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__85_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__85);
 x_497 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__87));
 lean_inc(x_491);
 lean_inc(x_490);
@@ -3874,7 +3945,7 @@ x_506 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_506, 0, x_494);
 lean_ctor_set(x_506, 1, x_505);
 x_507 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__47));
-x_508 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49;
+x_508 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49);
 x_509 = lean_box(0);
 lean_inc(x_491);
 lean_inc(x_490);
@@ -3896,7 +3967,7 @@ lean_inc(x_494);
 x_517 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_517, 0, x_494);
 lean_ctor_set(x_517, 1, x_516);
-x_518 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__74;
+x_518 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__74, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__74_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__74);
 x_519 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__75));
 x_520 = l_Lean_addMacroScope(x_490, x_519, x_491);
 lean_inc(x_494);
@@ -3952,7 +4023,7 @@ x_538 = 0;
 x_539 = l_Lean_SourceInfo_fromRef(x_537, x_538);
 lean_dec(x_537);
 x_540 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_541 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__93;
+x_541 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__93, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__93_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__93);
 x_542 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__95));
 x_543 = l_Lean_addMacroScope(x_535, x_542, x_536);
 x_544 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__99));
@@ -3988,7 +4059,7 @@ x_554 = 0;
 x_555 = l_Lean_SourceInfo_fromRef(x_553, x_554);
 lean_dec(x_553);
 x_556 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_557 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__93;
+x_557 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__93, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__93_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__93);
 x_558 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__95));
 x_559 = l_Lean_addMacroScope(x_551, x_558, x_552);
 x_560 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__99));
@@ -4032,7 +4103,7 @@ x_573 = 0;
 x_574 = l_Lean_SourceInfo_fromRef(x_572, x_573);
 lean_dec(x_572);
 x_575 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_576 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__101;
+x_576 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__101, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__101_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__101);
 x_577 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__103));
 x_578 = l_Lean_addMacroScope(x_570, x_577, x_571);
 x_579 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__107));
@@ -4068,7 +4139,7 @@ x_589 = 0;
 x_590 = l_Lean_SourceInfo_fromRef(x_588, x_589);
 lean_dec(x_588);
 x_591 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_592 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__101;
+x_592 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__101, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__101_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__101);
 x_593 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__103));
 x_594 = l_Lean_addMacroScope(x_586, x_593, x_587);
 x_595 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__107));
@@ -4111,7 +4182,7 @@ x_608 = 0;
 x_609 = l_Lean_SourceInfo_fromRef(x_607, x_608);
 lean_dec(x_607);
 x_610 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_611 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__109;
+x_611 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__109, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__109_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__109);
 x_612 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__111));
 x_613 = l_Lean_addMacroScope(x_605, x_612, x_606);
 x_614 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__115));
@@ -4147,7 +4218,7 @@ x_624 = 0;
 x_625 = l_Lean_SourceInfo_fromRef(x_623, x_624);
 lean_dec(x_623);
 x_626 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_627 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__109;
+x_627 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__109, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__109_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__109);
 x_628 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__111));
 x_629 = l_Lean_addMacroScope(x_621, x_628, x_622);
 x_630 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__115));
@@ -4197,7 +4268,7 @@ x_644 = 0;
 x_645 = l_Lean_SourceInfo_fromRef(x_643, x_644);
 lean_dec(x_643);
 x_646 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_647 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__117;
+x_647 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__117, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__117_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__117);
 x_648 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__119));
 lean_inc(x_642);
 lean_inc(x_641);
@@ -4219,7 +4290,7 @@ x_657 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_657, 0, x_645);
 lean_ctor_set(x_657, 1, x_656);
 x_658 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__47));
-x_659 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49;
+x_659 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49);
 x_660 = lean_box(0);
 lean_inc(x_642);
 lean_inc(x_641);
@@ -4241,7 +4312,7 @@ lean_inc(x_645);
 x_668 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_668, 0, x_645);
 lean_ctor_set(x_668, 1, x_667);
-x_669 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__70;
+x_669 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__70, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__70_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__70);
 x_670 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__71));
 x_671 = l_Lean_addMacroScope(x_641, x_670, x_642);
 lean_inc(x_645);
@@ -4288,7 +4359,7 @@ x_686 = 0;
 x_687 = l_Lean_SourceInfo_fromRef(x_685, x_686);
 lean_dec(x_685);
 x_688 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_689 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__117;
+x_689 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__117, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__117_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__117);
 x_690 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__119));
 lean_inc(x_684);
 lean_inc(x_683);
@@ -4310,7 +4381,7 @@ x_699 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_699, 0, x_687);
 lean_ctor_set(x_699, 1, x_698);
 x_700 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__47));
-x_701 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49;
+x_701 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49);
 x_702 = lean_box(0);
 lean_inc(x_684);
 lean_inc(x_683);
@@ -4332,7 +4403,7 @@ lean_inc(x_687);
 x_710 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_710, 0, x_687);
 lean_ctor_set(x_710, 1, x_709);
-x_711 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__70;
+x_711 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__70, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__70_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__70);
 x_712 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__71));
 x_713 = l_Lean_addMacroScope(x_683, x_712, x_684);
 lean_inc(x_687);
@@ -4389,7 +4460,7 @@ x_732 = 0;
 x_733 = l_Lean_SourceInfo_fromRef(x_731, x_732);
 lean_dec(x_731);
 x_734 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_735 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__117;
+x_735 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__117, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__117_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__117);
 x_736 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__119));
 lean_inc(x_730);
 lean_inc(x_729);
@@ -4411,7 +4482,7 @@ x_745 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_745, 0, x_733);
 lean_ctor_set(x_745, 1, x_744);
 x_746 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__47));
-x_747 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49;
+x_747 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49);
 x_748 = lean_box(0);
 lean_inc(x_730);
 lean_inc(x_729);
@@ -4433,7 +4504,7 @@ lean_inc(x_733);
 x_756 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_756, 0, x_733);
 lean_ctor_set(x_756, 1, x_755);
-x_757 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__74;
+x_757 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__74, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__74_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__74);
 x_758 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__75));
 x_759 = l_Lean_addMacroScope(x_729, x_758, x_730);
 lean_inc(x_733);
@@ -4480,7 +4551,7 @@ x_774 = 0;
 x_775 = l_Lean_SourceInfo_fromRef(x_773, x_774);
 lean_dec(x_773);
 x_776 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_777 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__117;
+x_777 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__117, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__117_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__117);
 x_778 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__119));
 lean_inc(x_772);
 lean_inc(x_771);
@@ -4502,7 +4573,7 @@ x_787 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_787, 0, x_775);
 lean_ctor_set(x_787, 1, x_786);
 x_788 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__47));
-x_789 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49;
+x_789 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49);
 x_790 = lean_box(0);
 lean_inc(x_772);
 lean_inc(x_771);
@@ -4524,7 +4595,7 @@ lean_inc(x_775);
 x_798 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_798, 0, x_775);
 lean_ctor_set(x_798, 1, x_797);
-x_799 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__74;
+x_799 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__74, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__74_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__74);
 x_800 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__75));
 x_801 = l_Lean_addMacroScope(x_771, x_800, x_772);
 lean_inc(x_775);
@@ -4580,7 +4651,7 @@ x_819 = 0;
 x_820 = l_Lean_SourceInfo_fromRef(x_818, x_819);
 lean_dec(x_818);
 x_821 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_822 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__125;
+x_822 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__125, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__125_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__125);
 x_823 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__127));
 x_824 = l_Lean_addMacroScope(x_816, x_823, x_817);
 x_825 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__131));
@@ -4616,7 +4687,7 @@ x_835 = 0;
 x_836 = l_Lean_SourceInfo_fromRef(x_834, x_835);
 lean_dec(x_834);
 x_837 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_838 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__125;
+x_838 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__125, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__125_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__125);
 x_839 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__127));
 x_840 = l_Lean_addMacroScope(x_832, x_839, x_833);
 x_841 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__131));
@@ -4659,7 +4730,7 @@ x_854 = 0;
 x_855 = l_Lean_SourceInfo_fromRef(x_853, x_854);
 lean_dec(x_853);
 x_856 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_857 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__133;
+x_857 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__133, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__133_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__133);
 x_858 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__135));
 x_859 = l_Lean_addMacroScope(x_851, x_858, x_852);
 x_860 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__139));
@@ -4695,7 +4766,7 @@ x_870 = 0;
 x_871 = l_Lean_SourceInfo_fromRef(x_869, x_870);
 lean_dec(x_869);
 x_872 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_873 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__133;
+x_873 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__133, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__133_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__133);
 x_874 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__135));
 x_875 = l_Lean_addMacroScope(x_867, x_874, x_868);
 x_876 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__139));
@@ -4739,7 +4810,7 @@ x_889 = 0;
 x_890 = l_Lean_SourceInfo_fromRef(x_888, x_889);
 lean_dec(x_888);
 x_891 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_892 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__141;
+x_892 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__141, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__141_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__141);
 x_893 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__143));
 x_894 = l_Lean_addMacroScope(x_886, x_893, x_887);
 x_895 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__147));
@@ -4775,7 +4846,7 @@ x_905 = 0;
 x_906 = l_Lean_SourceInfo_fromRef(x_904, x_905);
 lean_dec(x_904);
 x_907 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_908 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__141;
+x_908 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__141, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__141_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__141);
 x_909 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__143));
 x_910 = l_Lean_addMacroScope(x_902, x_909, x_903);
 x_911 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__147));
@@ -4819,7 +4890,7 @@ x_924 = 0;
 x_925 = l_Lean_SourceInfo_fromRef(x_923, x_924);
 lean_dec(x_923);
 x_926 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_927 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__149;
+x_927 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__149, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__149_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__149);
 x_928 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__151));
 x_929 = l_Lean_addMacroScope(x_921, x_928, x_922);
 x_930 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__155));
@@ -4855,7 +4926,7 @@ x_940 = 0;
 x_941 = l_Lean_SourceInfo_fromRef(x_939, x_940);
 lean_dec(x_939);
 x_942 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_943 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__149;
+x_943 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__149, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__149_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__149);
 x_944 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__151));
 x_945 = l_Lean_addMacroScope(x_937, x_944, x_938);
 x_946 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__155));
@@ -4899,7 +4970,7 @@ x_959 = 0;
 x_960 = l_Lean_SourceInfo_fromRef(x_958, x_959);
 lean_dec(x_958);
 x_961 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_962 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__157;
+x_962 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__157, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__157_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__157);
 x_963 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__159));
 x_964 = l_Lean_addMacroScope(x_956, x_963, x_957);
 x_965 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__163));
@@ -4935,7 +5006,7 @@ x_975 = 0;
 x_976 = l_Lean_SourceInfo_fromRef(x_974, x_975);
 lean_dec(x_974);
 x_977 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_978 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__157;
+x_978 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__157, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__157_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__157);
 x_979 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__159));
 x_980 = l_Lean_addMacroScope(x_972, x_979, x_973);
 x_981 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__163));
@@ -4979,7 +5050,7 @@ x_994 = 0;
 x_995 = l_Lean_SourceInfo_fromRef(x_993, x_994);
 lean_dec(x_993);
 x_996 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_997 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__165;
+x_997 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__165, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__165_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__165);
 x_998 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__167));
 x_999 = l_Lean_addMacroScope(x_991, x_998, x_992);
 x_1000 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__171));
@@ -5015,7 +5086,7 @@ x_1010 = 0;
 x_1011 = l_Lean_SourceInfo_fromRef(x_1009, x_1010);
 lean_dec(x_1009);
 x_1012 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_1013 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__165;
+x_1013 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__165, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__165_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__165);
 x_1014 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__167));
 x_1015 = l_Lean_addMacroScope(x_1007, x_1014, x_1008);
 x_1016 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__171));
@@ -5059,7 +5130,7 @@ x_1029 = 0;
 x_1030 = l_Lean_SourceInfo_fromRef(x_1028, x_1029);
 lean_dec(x_1028);
 x_1031 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_1032 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__173;
+x_1032 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__173, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__173_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__173);
 x_1033 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__175));
 x_1034 = l_Lean_addMacroScope(x_1026, x_1033, x_1027);
 x_1035 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__179));
@@ -5095,7 +5166,7 @@ x_1045 = 0;
 x_1046 = l_Lean_SourceInfo_fromRef(x_1044, x_1045);
 lean_dec(x_1044);
 x_1047 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_1048 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__173;
+x_1048 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__173, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__173_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__173);
 x_1049 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__175));
 x_1050 = l_Lean_addMacroScope(x_1042, x_1049, x_1043);
 x_1051 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__179));
@@ -5139,7 +5210,7 @@ x_1064 = 0;
 x_1065 = l_Lean_SourceInfo_fromRef(x_1063, x_1064);
 lean_dec(x_1063);
 x_1066 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_1067 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__181;
+x_1067 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__181, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__181_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__181);
 x_1068 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__183));
 x_1069 = l_Lean_addMacroScope(x_1061, x_1068, x_1062);
 x_1070 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__187));
@@ -5175,7 +5246,7 @@ x_1080 = 0;
 x_1081 = l_Lean_SourceInfo_fromRef(x_1079, x_1080);
 lean_dec(x_1079);
 x_1082 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_1083 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__181;
+x_1083 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__181, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__181_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__181);
 x_1084 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__183));
 x_1085 = l_Lean_addMacroScope(x_1077, x_1084, x_1078);
 x_1086 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__187));
@@ -5219,7 +5290,7 @@ x_1099 = 0;
 x_1100 = l_Lean_SourceInfo_fromRef(x_1098, x_1099);
 lean_dec(x_1098);
 x_1101 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_1102 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__189;
+x_1102 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__189, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__189_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__189);
 x_1103 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__191));
 x_1104 = l_Lean_addMacroScope(x_1096, x_1103, x_1097);
 x_1105 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__195));
@@ -5255,7 +5326,7 @@ x_1115 = 0;
 x_1116 = l_Lean_SourceInfo_fromRef(x_1114, x_1115);
 lean_dec(x_1114);
 x_1117 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_1118 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__189;
+x_1118 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__189, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__189_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__189);
 x_1119 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__191));
 x_1120 = l_Lean_addMacroScope(x_1112, x_1119, x_1113);
 x_1121 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__195));
@@ -5299,7 +5370,7 @@ x_1134 = 0;
 x_1135 = l_Lean_SourceInfo_fromRef(x_1133, x_1134);
 lean_dec(x_1133);
 x_1136 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_1137 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__197;
+x_1137 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__197, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__197_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__197);
 x_1138 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__199));
 x_1139 = l_Lean_addMacroScope(x_1131, x_1138, x_1132);
 x_1140 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__203));
@@ -5335,7 +5406,7 @@ x_1150 = 0;
 x_1151 = l_Lean_SourceInfo_fromRef(x_1149, x_1150);
 lean_dec(x_1149);
 x_1152 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_1153 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__197;
+x_1153 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__197, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__197_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__197);
 x_1154 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__199));
 x_1155 = l_Lean_addMacroScope(x_1147, x_1154, x_1148);
 x_1156 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__203));
@@ -5379,7 +5450,7 @@ x_1169 = 0;
 x_1170 = l_Lean_SourceInfo_fromRef(x_1168, x_1169);
 lean_dec(x_1168);
 x_1171 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_1172 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__205;
+x_1172 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__205, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__205_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__205);
 x_1173 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__207));
 x_1174 = l_Lean_addMacroScope(x_1166, x_1173, x_1167);
 x_1175 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__211));
@@ -5415,7 +5486,7 @@ x_1185 = 0;
 x_1186 = l_Lean_SourceInfo_fromRef(x_1184, x_1185);
 lean_dec(x_1184);
 x_1187 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_1188 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__205;
+x_1188 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__205, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__205_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__205);
 x_1189 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__207));
 x_1190 = l_Lean_addMacroScope(x_1182, x_1189, x_1183);
 x_1191 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__211));
@@ -5459,7 +5530,7 @@ x_1204 = 0;
 x_1205 = l_Lean_SourceInfo_fromRef(x_1203, x_1204);
 lean_dec(x_1203);
 x_1206 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_1207 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__213;
+x_1207 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__213, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__213_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__213);
 x_1208 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__215));
 x_1209 = l_Lean_addMacroScope(x_1201, x_1208, x_1202);
 x_1210 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__219));
@@ -5495,7 +5566,7 @@ x_1220 = 0;
 x_1221 = l_Lean_SourceInfo_fromRef(x_1219, x_1220);
 lean_dec(x_1219);
 x_1222 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_1223 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__213;
+x_1223 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__213, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__213_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__213);
 x_1224 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__215));
 x_1225 = l_Lean_addMacroScope(x_1217, x_1224, x_1218);
 x_1226 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__219));
@@ -5528,7 +5599,7 @@ lean_dec_ref(x_2);
 x_1235 = 0;
 x_1236 = l_Lean_SourceInfo_fromRef(x_1234, x_1235);
 lean_dec(x_1234);
-x_1237 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__221;
+x_1237 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__221, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__221_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__221);
 x_1238 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__223));
 x_1239 = l_Lean_addMacroScope(x_1232, x_1238, x_1233);
 x_1240 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__227));
@@ -5565,7 +5636,7 @@ x_1250 = 0;
 x_1251 = l_Lean_SourceInfo_fromRef(x_1249, x_1250);
 lean_dec(x_1249);
 x_1252 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_1253 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__229;
+x_1253 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__229, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__229_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__229);
 x_1254 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__231));
 x_1255 = l_Lean_addMacroScope(x_1247, x_1254, x_1248);
 x_1256 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__235));
@@ -5601,7 +5672,7 @@ x_1266 = 0;
 x_1267 = l_Lean_SourceInfo_fromRef(x_1265, x_1266);
 lean_dec(x_1265);
 x_1268 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_1269 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__229;
+x_1269 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__229, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__229_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__229);
 x_1270 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__231));
 x_1271 = l_Lean_addMacroScope(x_1263, x_1270, x_1264);
 x_1272 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__235));
@@ -5644,7 +5715,7 @@ x_1285 = 0;
 x_1286 = l_Lean_SourceInfo_fromRef(x_1284, x_1285);
 lean_dec(x_1284);
 x_1287 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_1288 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__237;
+x_1288 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__237, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__237_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__237);
 x_1289 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__239));
 x_1290 = l_Lean_addMacroScope(x_1282, x_1289, x_1283);
 x_1291 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__243));
@@ -5680,7 +5751,7 @@ x_1301 = 0;
 x_1302 = l_Lean_SourceInfo_fromRef(x_1300, x_1301);
 lean_dec(x_1300);
 x_1303 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_1304 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__237;
+x_1304 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__237, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__237_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__237);
 x_1305 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__239));
 x_1306 = l_Lean_addMacroScope(x_1298, x_1305, x_1299);
 x_1307 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__243));
@@ -5723,7 +5794,7 @@ x_1320 = 0;
 x_1321 = l_Lean_SourceInfo_fromRef(x_1319, x_1320);
 lean_dec(x_1319);
 x_1322 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_1323 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__245;
+x_1323 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__245, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__245_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__245);
 x_1324 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__247));
 x_1325 = l_Lean_addMacroScope(x_1317, x_1324, x_1318);
 x_1326 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__251));
@@ -5759,7 +5830,7 @@ x_1336 = 0;
 x_1337 = l_Lean_SourceInfo_fromRef(x_1335, x_1336);
 lean_dec(x_1335);
 x_1338 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_1339 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__245;
+x_1339 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__245, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__245_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__245);
 x_1340 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__247));
 x_1341 = l_Lean_addMacroScope(x_1333, x_1340, x_1334);
 x_1342 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__251));
@@ -5802,7 +5873,7 @@ x_1355 = 0;
 x_1356 = l_Lean_SourceInfo_fromRef(x_1354, x_1355);
 lean_dec(x_1354);
 x_1357 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_1358 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__253;
+x_1358 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__253, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__253_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__253);
 x_1359 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__255));
 x_1360 = l_Lean_addMacroScope(x_1352, x_1359, x_1353);
 x_1361 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__259));
@@ -5838,7 +5909,7 @@ x_1371 = 0;
 x_1372 = l_Lean_SourceInfo_fromRef(x_1370, x_1371);
 lean_dec(x_1370);
 x_1373 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_1374 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__253;
+x_1374 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__253, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__253_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__253);
 x_1375 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__255));
 x_1376 = l_Lean_addMacroScope(x_1368, x_1375, x_1369);
 x_1377 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__259));
@@ -5881,7 +5952,7 @@ x_1390 = 0;
 x_1391 = l_Lean_SourceInfo_fromRef(x_1389, x_1390);
 lean_dec(x_1389);
 x_1392 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_1393 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__261;
+x_1393 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__261, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__261_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__261);
 x_1394 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__263));
 x_1395 = l_Lean_addMacroScope(x_1387, x_1394, x_1388);
 x_1396 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__267));
@@ -5917,7 +5988,7 @@ x_1406 = 0;
 x_1407 = l_Lean_SourceInfo_fromRef(x_1405, x_1406);
 lean_dec(x_1405);
 x_1408 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_1409 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__261;
+x_1409 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__261, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__261_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__261);
 x_1410 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__263));
 x_1411 = l_Lean_addMacroScope(x_1403, x_1410, x_1404);
 x_1412 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__267));
@@ -5940,7 +6011,7 @@ return x_1417;
 }
 }
 }
-static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertFormatPart___closed__1() {
+static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertFormatPart___closed__1(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -5949,7 +6020,7 @@ x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertFormatPart___closed__4() {
+static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertFormatPart___closed__4(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -5984,7 +6055,7 @@ lean_inc(x_9);
 x_13 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_13, 0, x_9);
 lean_ctor_set(x_13, 1, x_12);
-x_14 = l___private_Std_Time_Notation_0__Std_Time_convertFormatPart___closed__1;
+x_14 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertFormatPart___closed__1, &l___private_Std_Time_Notation_0__Std_Time_convertFormatPart___closed__1_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertFormatPart___closed__1);
 x_15 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertFormatPart___closed__2));
 x_16 = l_Lean_addMacroScope(x_5, x_15, x_6);
 x_17 = lean_box(0);
@@ -6037,7 +6108,7 @@ lean_inc(x_34);
 x_38 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_38, 0, x_34);
 lean_ctor_set(x_38, 1, x_37);
-x_39 = l___private_Std_Time_Notation_0__Std_Time_convertFormatPart___closed__4;
+x_39 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertFormatPart___closed__4, &l___private_Std_Time_Notation_0__Std_Time_convertFormatPart___closed__4_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertFormatPart___closed__4);
 x_40 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertFormatPart___closed__5));
 x_41 = l_Lean_addMacroScope(x_30, x_40, x_31);
 x_42 = lean_box(0);
@@ -6081,7 +6152,7 @@ lean_inc(x_54);
 x_58 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_58, 0, x_54);
 lean_ctor_set(x_58, 1, x_57);
-x_59 = l___private_Std_Time_Notation_0__Std_Time_convertFormatPart___closed__4;
+x_59 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertFormatPart___closed__4, &l___private_Std_Time_Notation_0__Std_Time_convertFormatPart___closed__4_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertFormatPart___closed__4);
 x_60 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertFormatPart___closed__5));
 x_61 = l_Lean_addMacroScope(x_50, x_60, x_51);
 x_62 = lean_box(0);
@@ -6162,7 +6233,7 @@ lean_dec_ref(x_2);
 return x_4;
 }
 }
-static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_syntaxInt___closed__0() {
+static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_syntaxInt___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -6171,7 +6242,7 @@ x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_syntaxInt___closed__2() {
+static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_syntaxInt___closed__2(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -6180,7 +6251,7 @@ x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_syntaxInt___closed__11() {
+static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_syntaxInt___closed__11(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -6193,7 +6264,7 @@ LEAN_EXPORT lean_object* l___private_Std_Time_Notation_0__Std_Time_syntaxInt(lea
 _start:
 {
 lean_object* x_4; uint8_t x_5; 
-x_4 = l___private_Std_Time_Notation_0__Std_Time_syntaxInt___closed__0;
+x_4 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_syntaxInt___closed__0, &l___private_Std_Time_Notation_0__Std_Time_syntaxInt___closed__0_once, _init_l___private_Std_Time_Notation_0__Std_Time_syntaxInt___closed__0);
 x_5 = lean_int_dec_lt(x_1, x_4);
 if (x_5 == 0)
 {
@@ -6209,7 +6280,7 @@ x_9 = lean_nat_abs(x_1);
 x_10 = l_Lean_SourceInfo_fromRef(x_8, x_5);
 lean_dec(x_8);
 x_11 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_12 = l___private_Std_Time_Notation_0__Std_Time_syntaxInt___closed__2;
+x_12 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_syntaxInt___closed__2, &l___private_Std_Time_Notation_0__Std_Time_syntaxInt___closed__2_once, _init_l___private_Std_Time_Notation_0__Std_Time_syntaxInt___closed__2);
 x_13 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_syntaxInt___closed__5));
 x_14 = l_Lean_addMacroScope(x_6, x_13, x_7);
 x_15 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_syntaxInt___closed__9));
@@ -6249,7 +6320,7 @@ x_30 = 0;
 x_31 = l_Lean_SourceInfo_fromRef(x_26, x_30);
 lean_dec(x_26);
 x_32 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_33 = l___private_Std_Time_Notation_0__Std_Time_syntaxInt___closed__11;
+x_33 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_syntaxInt___closed__11, &l___private_Std_Time_Notation_0__Std_Time_syntaxInt___closed__11_once, _init_l___private_Std_Time_Notation_0__Std_Time_syntaxInt___closed__11);
 x_34 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_syntaxInt___closed__13));
 x_35 = l_Lean_addMacroScope(x_24, x_34, x_25);
 x_36 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_syntaxInt___closed__17));
@@ -6282,7 +6353,7 @@ lean_dec(x_1);
 return x_4;
 }
 }
-static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_syntaxBounded___closed__1() {
+static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_syntaxBounded___closed__1(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -6291,7 +6362,7 @@ x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_syntaxBounded___closed__21() {
+static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_syntaxBounded___closed__21(void) {
 _start:
 {
 lean_object* x_1; 
@@ -6321,7 +6392,7 @@ x_10 = 0;
 x_11 = l_Lean_SourceInfo_fromRef(x_9, x_10);
 lean_dec(x_9);
 x_12 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_13 = l___private_Std_Time_Notation_0__Std_Time_syntaxBounded___closed__1;
+x_13 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_syntaxBounded___closed__1, &l___private_Std_Time_Notation_0__Std_Time_syntaxBounded___closed__1_once, _init_l___private_Std_Time_Notation_0__Std_Time_syntaxBounded___closed__1);
 x_14 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_syntaxBounded___closed__6));
 lean_inc(x_8);
 lean_inc(x_7);
@@ -6342,7 +6413,7 @@ x_22 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_22, 0, x_11);
 lean_ctor_set(x_22, 1, x_21);
 x_23 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__47));
-x_24 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49;
+x_24 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49);
 x_25 = lean_box(0);
 x_26 = l_Lean_addMacroScope(x_7, x_25, x_8);
 x_27 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__65));
@@ -6371,7 +6442,7 @@ x_38 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_38, 0, x_11);
 lean_ctor_set(x_38, 1, x_36);
 x_39 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_syntaxBounded___closed__20));
-x_40 = l___private_Std_Time_Notation_0__Std_Time_syntaxBounded___closed__21;
+x_40 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_syntaxBounded___closed__21, &l___private_Std_Time_Notation_0__Std_Time_syntaxBounded___closed__21_once, _init_l___private_Std_Time_Notation_0__Std_Time_syntaxBounded___closed__21);
 lean_inc(x_11);
 x_41 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_41, 0, x_11);
@@ -6421,7 +6492,7 @@ x_58 = 0;
 x_59 = l_Lean_SourceInfo_fromRef(x_57, x_58);
 lean_dec(x_57);
 x_60 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_61 = l___private_Std_Time_Notation_0__Std_Time_syntaxBounded___closed__1;
+x_61 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_syntaxBounded___closed__1, &l___private_Std_Time_Notation_0__Std_Time_syntaxBounded___closed__1_once, _init_l___private_Std_Time_Notation_0__Std_Time_syntaxBounded___closed__1);
 x_62 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_syntaxBounded___closed__6));
 lean_inc(x_56);
 lean_inc(x_55);
@@ -6442,7 +6513,7 @@ x_70 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_70, 0, x_59);
 lean_ctor_set(x_70, 1, x_69);
 x_71 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__47));
-x_72 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49;
+x_72 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49);
 x_73 = lean_box(0);
 x_74 = l_Lean_addMacroScope(x_55, x_73, x_56);
 x_75 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__65));
@@ -6471,7 +6542,7 @@ x_86 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_86, 0, x_59);
 lean_ctor_set(x_86, 1, x_84);
 x_87 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_syntaxBounded___closed__20));
-x_88 = l___private_Std_Time_Notation_0__Std_Time_syntaxBounded___closed__21;
+x_88 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_syntaxBounded___closed__21, &l___private_Std_Time_Notation_0__Std_Time_syntaxBounded___closed__21_once, _init_l___private_Std_Time_Notation_0__Std_Time_syntaxBounded___closed__21);
 lean_inc(x_59);
 x_89 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_89, 0, x_59);
@@ -6515,7 +6586,7 @@ lean_dec(x_1);
 return x_4;
 }
 }
-static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_syntaxVal___closed__1() {
+static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_syntaxVal___closed__1(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -6546,7 +6617,7 @@ x_10 = 0;
 x_11 = l_Lean_SourceInfo_fromRef(x_9, x_10);
 lean_dec(x_9);
 x_12 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_13 = l___private_Std_Time_Notation_0__Std_Time_syntaxVal___closed__1;
+x_13 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_syntaxVal___closed__1, &l___private_Std_Time_Notation_0__Std_Time_syntaxVal___closed__1_once, _init_l___private_Std_Time_Notation_0__Std_Time_syntaxVal___closed__1);
 x_14 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_syntaxVal___closed__4));
 x_15 = l_Lean_addMacroScope(x_7, x_14, x_8);
 x_16 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_syntaxVal___closed__8));
@@ -6582,7 +6653,7 @@ x_26 = 0;
 x_27 = l_Lean_SourceInfo_fromRef(x_25, x_26);
 lean_dec(x_25);
 x_28 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_29 = l___private_Std_Time_Notation_0__Std_Time_syntaxVal___closed__1;
+x_29 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_syntaxVal___closed__1, &l___private_Std_Time_Notation_0__Std_Time_syntaxVal___closed__1_once, _init_l___private_Std_Time_Notation_0__Std_Time_syntaxVal___closed__1);
 x_30 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_syntaxVal___closed__4));
 x_31 = l_Lean_addMacroScope(x_23, x_30, x_24);
 x_32 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_syntaxVal___closed__8));
@@ -6612,7 +6683,7 @@ lean_dec(x_1);
 return x_4;
 }
 }
-static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertOffset___closed__1() {
+static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertOffset___closed__1(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -6643,7 +6714,7 @@ x_10 = 0;
 x_11 = l_Lean_SourceInfo_fromRef(x_9, x_10);
 lean_dec(x_9);
 x_12 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_13 = l___private_Std_Time_Notation_0__Std_Time_convertOffset___closed__1;
+x_13 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertOffset___closed__1, &l___private_Std_Time_Notation_0__Std_Time_convertOffset___closed__1_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertOffset___closed__1);
 x_14 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertOffset___closed__5));
 x_15 = l_Lean_addMacroScope(x_7, x_14, x_8);
 x_16 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertOffset___closed__9));
@@ -6679,7 +6750,7 @@ x_26 = 0;
 x_27 = l_Lean_SourceInfo_fromRef(x_25, x_26);
 lean_dec(x_25);
 x_28 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_29 = l___private_Std_Time_Notation_0__Std_Time_convertOffset___closed__1;
+x_29 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertOffset___closed__1, &l___private_Std_Time_Notation_0__Std_Time_convertOffset___closed__1_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertOffset___closed__1);
 x_30 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertOffset___closed__5));
 x_31 = l_Lean_addMacroScope(x_23, x_30, x_24);
 x_32 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertOffset___closed__9));
@@ -6709,7 +6780,7 @@ lean_dec(x_1);
 return x_4;
 }
 }
-static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertTimezone___closed__1() {
+static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertTimezone___closed__1(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -6718,7 +6789,7 @@ x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertTimezone___closed__8() {
+static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertTimezone___closed__8(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -6757,7 +6828,7 @@ x_13 = 0;
 x_14 = l_Lean_SourceInfo_fromRef(x_12, x_13);
 lean_dec(x_12);
 x_15 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_16 = l___private_Std_Time_Notation_0__Std_Time_convertTimezone___closed__1;
+x_16 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertTimezone___closed__1, &l___private_Std_Time_Notation_0__Std_Time_convertTimezone___closed__1_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertTimezone___closed__1);
 x_17 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertTimezone___closed__2));
 lean_inc(x_11);
 lean_inc(x_10);
@@ -6773,7 +6844,7 @@ x_21 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber__
 x_22 = lean_box(2);
 x_23 = l_Lean_Syntax_mkStrLit(x_5, x_22);
 x_24 = l_Lean_Syntax_mkStrLit(x_6, x_22);
-x_25 = l___private_Std_Time_Notation_0__Std_Time_convertTimezone___closed__8;
+x_25 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertTimezone___closed__8, &l___private_Std_Time_Notation_0__Std_Time_convertTimezone___closed__8_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertTimezone___closed__8);
 x_26 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertTimezone___closed__9));
 x_27 = l_Lean_addMacroScope(x_10, x_26, x_11);
 x_28 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertTimezone___closed__13));
@@ -6808,7 +6879,7 @@ x_37 = 0;
 x_38 = l_Lean_SourceInfo_fromRef(x_36, x_37);
 lean_dec(x_36);
 x_39 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_40 = l___private_Std_Time_Notation_0__Std_Time_convertTimezone___closed__1;
+x_40 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertTimezone___closed__1, &l___private_Std_Time_Notation_0__Std_Time_convertTimezone___closed__1_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertTimezone___closed__1);
 x_41 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertTimezone___closed__2));
 lean_inc(x_35);
 lean_inc(x_34);
@@ -6824,7 +6895,7 @@ x_45 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber__
 x_46 = lean_box(2);
 x_47 = l_Lean_Syntax_mkStrLit(x_5, x_46);
 x_48 = l_Lean_Syntax_mkStrLit(x_6, x_46);
-x_49 = l___private_Std_Time_Notation_0__Std_Time_convertTimezone___closed__8;
+x_49 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertTimezone___closed__8, &l___private_Std_Time_Notation_0__Std_Time_convertTimezone___closed__8_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertTimezone___closed__8);
 x_50 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertTimezone___closed__9));
 x_51 = l_Lean_addMacroScope(x_34, x_50, x_35);
 x_52 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertTimezone___closed__13));
@@ -6844,7 +6915,7 @@ return x_56;
 }
 }
 }
-static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertPlainDate___closed__1() {
+static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertPlainDate___closed__1(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -6892,7 +6963,7 @@ x_19 = 0;
 x_20 = l_Lean_SourceInfo_fromRef(x_18, x_19);
 lean_dec(x_18);
 x_21 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_22 = l___private_Std_Time_Notation_0__Std_Time_convertPlainDate___closed__1;
+x_22 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertPlainDate___closed__1, &l___private_Std_Time_Notation_0__Std_Time_convertPlainDate___closed__1_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertPlainDate___closed__1);
 x_23 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertPlainDate___closed__4));
 x_24 = l_Lean_addMacroScope(x_16, x_23, x_17);
 x_25 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertPlainDate___closed__6));
@@ -6928,7 +6999,7 @@ x_35 = 0;
 x_36 = l_Lean_SourceInfo_fromRef(x_34, x_35);
 lean_dec(x_34);
 x_37 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_38 = l___private_Std_Time_Notation_0__Std_Time_convertPlainDate___closed__1;
+x_38 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertPlainDate___closed__1, &l___private_Std_Time_Notation_0__Std_Time_convertPlainDate___closed__1_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertPlainDate___closed__1);
 x_39 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertPlainDate___closed__4));
 x_40 = l_Lean_addMacroScope(x_32, x_39, x_33);
 x_41 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertPlainDate___closed__6));
@@ -6958,7 +7029,7 @@ lean_dec_ref(x_1);
 return x_4;
 }
 }
-static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertPlainTime___closed__1() {
+static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertPlainTime___closed__1(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -7022,7 +7093,7 @@ x_24 = 0;
 x_25 = l_Lean_SourceInfo_fromRef(x_23, x_24);
 lean_dec(x_23);
 x_26 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_27 = l___private_Std_Time_Notation_0__Std_Time_convertPlainTime___closed__1;
+x_27 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertPlainTime___closed__1, &l___private_Std_Time_Notation_0__Std_Time_convertPlainTime___closed__1_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertPlainTime___closed__1);
 x_28 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertPlainTime___closed__3));
 x_29 = l_Lean_addMacroScope(x_21, x_28, x_22);
 x_30 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertPlainTime___closed__7));
@@ -7058,7 +7129,7 @@ x_39 = 0;
 x_40 = l_Lean_SourceInfo_fromRef(x_38, x_39);
 lean_dec(x_38);
 x_41 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_42 = l___private_Std_Time_Notation_0__Std_Time_convertPlainTime___closed__1;
+x_42 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertPlainTime___closed__1, &l___private_Std_Time_Notation_0__Std_Time_convertPlainTime___closed__1_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertPlainTime___closed__1);
 x_43 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertPlainTime___closed__3));
 x_44 = l_Lean_addMacroScope(x_36, x_43, x_37);
 x_45 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertPlainTime___closed__7));
@@ -7140,7 +7211,7 @@ x_70 = 0;
 x_71 = l_Lean_SourceInfo_fromRef(x_69, x_70);
 lean_dec(x_69);
 x_72 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_73 = l___private_Std_Time_Notation_0__Std_Time_convertPlainTime___closed__1;
+x_73 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertPlainTime___closed__1, &l___private_Std_Time_Notation_0__Std_Time_convertPlainTime___closed__1_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertPlainTime___closed__1);
 x_74 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertPlainTime___closed__3));
 x_75 = l_Lean_addMacroScope(x_67, x_74, x_68);
 x_76 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertPlainTime___closed__7));
@@ -7165,7 +7236,7 @@ return x_81;
 }
 }
 }
-static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertPlainDateTime___closed__1() {
+static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertPlainDateTime___closed__1(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -7209,7 +7280,7 @@ x_15 = 0;
 x_16 = l_Lean_SourceInfo_fromRef(x_14, x_15);
 lean_dec(x_14);
 x_17 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_18 = l___private_Std_Time_Notation_0__Std_Time_convertPlainDateTime___closed__1;
+x_18 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertPlainDateTime___closed__1, &l___private_Std_Time_Notation_0__Std_Time_convertPlainDateTime___closed__1_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertPlainDateTime___closed__1);
 x_19 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertPlainDateTime___closed__3));
 x_20 = l_Lean_addMacroScope(x_12, x_19, x_13);
 x_21 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertPlainDateTime___closed__7));
@@ -7245,7 +7316,7 @@ x_31 = 0;
 x_32 = l_Lean_SourceInfo_fromRef(x_30, x_31);
 lean_dec(x_30);
 x_33 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_34 = l___private_Std_Time_Notation_0__Std_Time_convertPlainDateTime___closed__1;
+x_34 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertPlainDateTime___closed__1, &l___private_Std_Time_Notation_0__Std_Time_convertPlainDateTime___closed__1_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertPlainDateTime___closed__1);
 x_35 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertPlainDateTime___closed__3));
 x_36 = l_Lean_addMacroScope(x_28, x_35, x_29);
 x_37 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertPlainDateTime___closed__7));
@@ -7266,7 +7337,7 @@ return x_42;
 }
 }
 }
-static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__1() {
+static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__1(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -7275,7 +7346,7 @@ x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__8() {
+static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__8(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -7284,7 +7355,7 @@ x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__21() {
+static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__21(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -7336,7 +7407,7 @@ lean_dec_ref(x_3);
 x_20 = l_Lean_SourceInfo_fromRef(x_19, x_2);
 lean_dec(x_19);
 x_21 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_22 = l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__1;
+x_22 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__1, &l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__1_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__1);
 x_23 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__4));
 lean_inc(x_18);
 lean_inc(x_17);
@@ -7357,7 +7428,7 @@ x_30 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_30, 0, x_20);
 lean_ctor_set(x_30, 1, x_29);
 x_31 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__47));
-x_32 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49;
+x_32 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49);
 x_33 = lean_box(0);
 lean_inc(x_18);
 lean_inc(x_17);
@@ -7373,7 +7444,7 @@ lean_inc(x_20);
 x_37 = l_Lean_Syntax_node1(x_20, x_31, x_36);
 lean_inc(x_20);
 x_38 = l_Lean_Syntax_node2(x_20, x_28, x_30, x_37);
-x_39 = l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__8;
+x_39 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__8, &l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__8_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__8);
 x_40 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__11));
 x_41 = l_Lean_addMacroScope(x_17, x_40, x_18);
 x_42 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__13));
@@ -7418,7 +7489,7 @@ lean_dec_ref(x_3);
 x_56 = l_Lean_SourceInfo_fromRef(x_55, x_2);
 lean_dec(x_55);
 x_57 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_58 = l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__1;
+x_58 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__1, &l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__1_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__1);
 x_59 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__4));
 lean_inc(x_54);
 lean_inc(x_53);
@@ -7439,7 +7510,7 @@ x_66 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_66, 0, x_56);
 lean_ctor_set(x_66, 1, x_65);
 x_67 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__47));
-x_68 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49;
+x_68 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49);
 x_69 = lean_box(0);
 lean_inc(x_54);
 lean_inc(x_53);
@@ -7455,7 +7526,7 @@ lean_inc(x_56);
 x_73 = l_Lean_Syntax_node1(x_56, x_67, x_72);
 lean_inc(x_56);
 x_74 = l_Lean_Syntax_node2(x_56, x_64, x_66, x_73);
-x_75 = l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__8;
+x_75 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__8, &l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__8_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__8);
 x_76 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__11));
 x_77 = l_Lean_addMacroScope(x_53, x_76, x_54);
 x_78 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__13));
@@ -7504,7 +7575,7 @@ x_93 = 0;
 x_94 = l_Lean_SourceInfo_fromRef(x_92, x_93);
 lean_dec(x_92);
 x_95 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_96 = l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__1;
+x_96 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__1, &l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__1_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__1);
 x_97 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__4));
 lean_inc(x_91);
 lean_inc(x_90);
@@ -7532,7 +7603,7 @@ lean_ctor_set(x_105, 1, x_104);
 x_106 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__17));
 x_107 = l_Lean_addMacroScope(x_90, x_106, x_91);
 x_108 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__19));
-x_109 = l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__21;
+x_109 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__21, &l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__21_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__21);
 x_110 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__23));
 lean_inc(x_94);
 x_111 = lean_alloc_ctor(3, 4, 0);
@@ -7569,7 +7640,7 @@ x_122 = 0;
 x_123 = l_Lean_SourceInfo_fromRef(x_121, x_122);
 lean_dec(x_121);
 x_124 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_125 = l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__1;
+x_125 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__1, &l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__1_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__1);
 x_126 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__4));
 lean_inc(x_120);
 lean_inc(x_119);
@@ -7597,7 +7668,7 @@ lean_ctor_set(x_134, 1, x_133);
 x_135 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__17));
 x_136 = l_Lean_addMacroScope(x_119, x_135, x_120);
 x_137 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__19));
-x_138 = l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__21;
+x_138 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__21, &l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__21_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__21);
 x_139 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__23));
 lean_inc(x_123);
 x_140 = lean_alloc_ctor(3, 4, 0);
@@ -7663,7 +7734,7 @@ lean_dec_ref(x_3);
 x_160 = l_Lean_SourceInfo_fromRef(x_159, x_2);
 lean_dec(x_159);
 x_161 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_162 = l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__1;
+x_162 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__1, &l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__1_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__1);
 x_163 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__4));
 lean_inc(x_158);
 lean_inc(x_157);
@@ -7684,7 +7755,7 @@ x_171 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_171, 0, x_160);
 lean_ctor_set(x_171, 1, x_170);
 x_172 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__47));
-x_173 = l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49;
+x_173 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49, &l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49);
 x_174 = lean_box(0);
 lean_inc(x_158);
 lean_inc(x_157);
@@ -7700,7 +7771,7 @@ lean_inc(x_160);
 x_178 = l_Lean_Syntax_node1(x_160, x_172, x_177);
 lean_inc(x_160);
 x_179 = l_Lean_Syntax_node2(x_160, x_169, x_171, x_178);
-x_180 = l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__8;
+x_180 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__8, &l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__8_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__8);
 x_181 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__11));
 x_182 = l_Lean_addMacroScope(x_157, x_181, x_158);
 x_183 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__13));
@@ -7759,7 +7830,7 @@ x_199 = 0;
 x_200 = l_Lean_SourceInfo_fromRef(x_198, x_199);
 lean_dec(x_198);
 x_201 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_202 = l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__1;
+x_202 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__1, &l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__1_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__1);
 x_203 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__4));
 lean_inc(x_197);
 lean_inc(x_196);
@@ -7787,7 +7858,7 @@ lean_ctor_set(x_212, 1, x_211);
 x_213 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__17));
 x_214 = l_Lean_addMacroScope(x_196, x_213, x_197);
 x_215 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__19));
-x_216 = l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__21;
+x_216 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__21, &l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__21_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__21);
 x_217 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__23));
 lean_inc(x_200);
 x_218 = lean_alloc_ctor(3, 4, 0);
@@ -8031,7 +8102,7 @@ x_29 = 0;
 x_30 = l_Lean_SourceInfo_fromRef(x_26, x_29);
 lean_dec(x_26);
 x_31 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_32 = l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__1;
+x_32 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__1, &l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__1_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__1);
 x_33 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__4));
 x_34 = l_Lean_addMacroScope(x_24, x_33, x_25);
 x_35 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__6));
@@ -8070,7 +8141,7 @@ x_47 = 0;
 x_48 = l_Lean_SourceInfo_fromRef(x_44, x_47);
 lean_dec(x_44);
 x_49 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__4));
-x_50 = l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__1;
+x_50 = lean_obj_once(&l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__1, &l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__1_once, _init_l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__1);
 x_51 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__4));
 x_52 = l_Lean_addMacroScope(x_42, x_51, x_43);
 x_53 = ((lean_object*)(l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__6));
@@ -8544,148 +8615,6 @@ lean_dec_ref(res);
 res = initialize_Std_Time_Format(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l___private_Std_Time_Notation_0__Std_Time_convertText___closed__1 = _init_l___private_Std_Time_Notation_0__Std_Time_convertText___closed__1();
-lean_mark_persistent(l___private_Std_Time_Notation_0__Std_Time_convertText___closed__1);
-l___private_Std_Time_Notation_0__Std_Time_convertText___closed__12 = _init_l___private_Std_Time_Notation_0__Std_Time_convertText___closed__12();
-lean_mark_persistent(l___private_Std_Time_Notation_0__Std_Time_convertText___closed__12);
-l___private_Std_Time_Notation_0__Std_Time_convertText___closed__20 = _init_l___private_Std_Time_Notation_0__Std_Time_convertText___closed__20();
-lean_mark_persistent(l___private_Std_Time_Notation_0__Std_Time_convertText___closed__20);
-l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__6 = _init_l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__6();
-lean_mark_persistent(l___private_Std_Time_Notation_0__Std_Time_convertNumber___closed__6);
-l___private_Std_Time_Notation_0__Std_Time_convertFraction___closed__1 = _init_l___private_Std_Time_Notation_0__Std_Time_convertFraction___closed__1();
-lean_mark_persistent(l___private_Std_Time_Notation_0__Std_Time_convertFraction___closed__1);
-l___private_Std_Time_Notation_0__Std_Time_convertFraction___closed__10 = _init_l___private_Std_Time_Notation_0__Std_Time_convertFraction___closed__10();
-lean_mark_persistent(l___private_Std_Time_Notation_0__Std_Time_convertFraction___closed__10);
-l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__1 = _init_l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__1();
-lean_mark_persistent(l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__1);
-l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__10 = _init_l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__10();
-lean_mark_persistent(l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__10);
-l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__18 = _init_l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__18();
-lean_mark_persistent(l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__18);
-l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__26 = _init_l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__26();
-lean_mark_persistent(l___private_Std_Time_Notation_0__Std_Time_convertYear___closed__26);
-l___private_Std_Time_Notation_0__Std_Time_convertZoneName___closed__1 = _init_l___private_Std_Time_Notation_0__Std_Time_convertZoneName___closed__1();
-lean_mark_persistent(l___private_Std_Time_Notation_0__Std_Time_convertZoneName___closed__1);
-l___private_Std_Time_Notation_0__Std_Time_convertZoneName___closed__9 = _init_l___private_Std_Time_Notation_0__Std_Time_convertZoneName___closed__9();
-lean_mark_persistent(l___private_Std_Time_Notation_0__Std_Time_convertZoneName___closed__9);
-l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__1 = _init_l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__1();
-lean_mark_persistent(l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__1);
-l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__10 = _init_l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__10();
-lean_mark_persistent(l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__10);
-l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__18 = _init_l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__18();
-lean_mark_persistent(l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__18);
-l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__26 = _init_l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__26();
-lean_mark_persistent(l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__26);
-l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__34 = _init_l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__34();
-lean_mark_persistent(l___private_Std_Time_Notation_0__Std_Time_convertOffsetX___closed__34);
-l___private_Std_Time_Notation_0__Std_Time_convertOffsetO___closed__1 = _init_l___private_Std_Time_Notation_0__Std_Time_convertOffsetO___closed__1();
-lean_mark_persistent(l___private_Std_Time_Notation_0__Std_Time_convertOffsetO___closed__1);
-l___private_Std_Time_Notation_0__Std_Time_convertOffsetO___closed__9 = _init_l___private_Std_Time_Notation_0__Std_Time_convertOffsetO___closed__9();
-lean_mark_persistent(l___private_Std_Time_Notation_0__Std_Time_convertOffsetO___closed__9);
-l___private_Std_Time_Notation_0__Std_Time_convertOffsetZ___closed__1 = _init_l___private_Std_Time_Notation_0__Std_Time_convertOffsetZ___closed__1();
-lean_mark_persistent(l___private_Std_Time_Notation_0__Std_Time_convertOffsetZ___closed__1);
-l___private_Std_Time_Notation_0__Std_Time_convertOffsetZ___closed__9 = _init_l___private_Std_Time_Notation_0__Std_Time_convertOffsetZ___closed__9();
-lean_mark_persistent(l___private_Std_Time_Notation_0__Std_Time_convertOffsetZ___closed__9);
-l___private_Std_Time_Notation_0__Std_Time_convertOffsetZ___closed__16 = _init_l___private_Std_Time_Notation_0__Std_Time_convertOffsetZ___closed__16();
-lean_mark_persistent(l___private_Std_Time_Notation_0__Std_Time_convertOffsetZ___closed__16);
-l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__1 = _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__1();
-lean_mark_persistent(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__1);
-l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__10 = _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__10();
-lean_mark_persistent(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__10);
-l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__18 = _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__18();
-lean_mark_persistent(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__18);
-l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__26 = _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__26();
-lean_mark_persistent(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__26);
-l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__34 = _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__34();
-lean_mark_persistent(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__34);
-l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49 = _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49();
-lean_mark_persistent(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__49);
-l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__70 = _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__70();
-lean_mark_persistent(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__70);
-l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__74 = _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__74();
-lean_mark_persistent(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__74);
-l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__77 = _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__77();
-lean_mark_persistent(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__77);
-l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__85 = _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__85();
-lean_mark_persistent(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__85);
-l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__93 = _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__93();
-lean_mark_persistent(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__93);
-l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__101 = _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__101();
-lean_mark_persistent(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__101);
-l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__109 = _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__109();
-lean_mark_persistent(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__109);
-l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__117 = _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__117();
-lean_mark_persistent(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__117);
-l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__125 = _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__125();
-lean_mark_persistent(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__125);
-l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__133 = _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__133();
-lean_mark_persistent(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__133);
-l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__141 = _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__141();
-lean_mark_persistent(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__141);
-l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__149 = _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__149();
-lean_mark_persistent(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__149);
-l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__157 = _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__157();
-lean_mark_persistent(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__157);
-l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__165 = _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__165();
-lean_mark_persistent(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__165);
-l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__173 = _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__173();
-lean_mark_persistent(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__173);
-l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__181 = _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__181();
-lean_mark_persistent(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__181);
-l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__189 = _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__189();
-lean_mark_persistent(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__189);
-l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__197 = _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__197();
-lean_mark_persistent(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__197);
-l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__205 = _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__205();
-lean_mark_persistent(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__205);
-l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__213 = _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__213();
-lean_mark_persistent(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__213);
-l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__221 = _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__221();
-lean_mark_persistent(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__221);
-l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__229 = _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__229();
-lean_mark_persistent(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__229);
-l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__237 = _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__237();
-lean_mark_persistent(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__237);
-l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__245 = _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__245();
-lean_mark_persistent(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__245);
-l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__253 = _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__253();
-lean_mark_persistent(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__253);
-l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__261 = _init_l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__261();
-lean_mark_persistent(l___private_Std_Time_Notation_0__Std_Time_convertModifier___closed__261);
-l___private_Std_Time_Notation_0__Std_Time_convertFormatPart___closed__1 = _init_l___private_Std_Time_Notation_0__Std_Time_convertFormatPart___closed__1();
-lean_mark_persistent(l___private_Std_Time_Notation_0__Std_Time_convertFormatPart___closed__1);
-l___private_Std_Time_Notation_0__Std_Time_convertFormatPart___closed__4 = _init_l___private_Std_Time_Notation_0__Std_Time_convertFormatPart___closed__4();
-lean_mark_persistent(l___private_Std_Time_Notation_0__Std_Time_convertFormatPart___closed__4);
-l___private_Std_Time_Notation_0__Std_Time_syntaxInt___closed__0 = _init_l___private_Std_Time_Notation_0__Std_Time_syntaxInt___closed__0();
-lean_mark_persistent(l___private_Std_Time_Notation_0__Std_Time_syntaxInt___closed__0);
-l___private_Std_Time_Notation_0__Std_Time_syntaxInt___closed__2 = _init_l___private_Std_Time_Notation_0__Std_Time_syntaxInt___closed__2();
-lean_mark_persistent(l___private_Std_Time_Notation_0__Std_Time_syntaxInt___closed__2);
-l___private_Std_Time_Notation_0__Std_Time_syntaxInt___closed__11 = _init_l___private_Std_Time_Notation_0__Std_Time_syntaxInt___closed__11();
-lean_mark_persistent(l___private_Std_Time_Notation_0__Std_Time_syntaxInt___closed__11);
-l___private_Std_Time_Notation_0__Std_Time_syntaxBounded___closed__1 = _init_l___private_Std_Time_Notation_0__Std_Time_syntaxBounded___closed__1();
-lean_mark_persistent(l___private_Std_Time_Notation_0__Std_Time_syntaxBounded___closed__1);
-l___private_Std_Time_Notation_0__Std_Time_syntaxBounded___closed__21 = _init_l___private_Std_Time_Notation_0__Std_Time_syntaxBounded___closed__21();
-lean_mark_persistent(l___private_Std_Time_Notation_0__Std_Time_syntaxBounded___closed__21);
-l___private_Std_Time_Notation_0__Std_Time_syntaxVal___closed__1 = _init_l___private_Std_Time_Notation_0__Std_Time_syntaxVal___closed__1();
-lean_mark_persistent(l___private_Std_Time_Notation_0__Std_Time_syntaxVal___closed__1);
-l___private_Std_Time_Notation_0__Std_Time_convertOffset___closed__1 = _init_l___private_Std_Time_Notation_0__Std_Time_convertOffset___closed__1();
-lean_mark_persistent(l___private_Std_Time_Notation_0__Std_Time_convertOffset___closed__1);
-l___private_Std_Time_Notation_0__Std_Time_convertTimezone___closed__1 = _init_l___private_Std_Time_Notation_0__Std_Time_convertTimezone___closed__1();
-lean_mark_persistent(l___private_Std_Time_Notation_0__Std_Time_convertTimezone___closed__1);
-l___private_Std_Time_Notation_0__Std_Time_convertTimezone___closed__8 = _init_l___private_Std_Time_Notation_0__Std_Time_convertTimezone___closed__8();
-lean_mark_persistent(l___private_Std_Time_Notation_0__Std_Time_convertTimezone___closed__8);
-l___private_Std_Time_Notation_0__Std_Time_convertPlainDate___closed__1 = _init_l___private_Std_Time_Notation_0__Std_Time_convertPlainDate___closed__1();
-lean_mark_persistent(l___private_Std_Time_Notation_0__Std_Time_convertPlainDate___closed__1);
-l___private_Std_Time_Notation_0__Std_Time_convertPlainTime___closed__1 = _init_l___private_Std_Time_Notation_0__Std_Time_convertPlainTime___closed__1();
-lean_mark_persistent(l___private_Std_Time_Notation_0__Std_Time_convertPlainTime___closed__1);
-l___private_Std_Time_Notation_0__Std_Time_convertPlainDateTime___closed__1 = _init_l___private_Std_Time_Notation_0__Std_Time_convertPlainDateTime___closed__1();
-lean_mark_persistent(l___private_Std_Time_Notation_0__Std_Time_convertPlainDateTime___closed__1);
-l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__1 = _init_l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__1();
-lean_mark_persistent(l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__1);
-l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__8 = _init_l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__8();
-lean_mark_persistent(l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__8);
-l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__21 = _init_l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__21();
-lean_mark_persistent(l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime___closed__21);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

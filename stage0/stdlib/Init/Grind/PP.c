@@ -52,6 +52,7 @@ static const lean_string_object l_Lean_Grind_NodeDefUnexpander___redArg___closed
 static const lean_object* l_Lean_Grind_NodeDefUnexpander___redArg___closed__0 = (const lean_object*)&l_Lean_Grind_NodeDefUnexpander___redArg___closed__0_value;
 static const lean_ctor_object l_Lean_Grind_NodeDefUnexpander___redArg___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_Lean_Grind_NodeDefUnexpander___redArg___closed__0_value),LEAN_SCALAR_PTR_LITERAL(15, 91, 42, 70, 184, 75, 32, 170)}};
 static const lean_object* l_Lean_Grind_NodeDefUnexpander___redArg___closed__1 = (const lean_object*)&l_Lean_Grind_NodeDefUnexpander___redArg___closed__1_value;
+static lean_once_cell_t l_Lean_Grind_NodeDefUnexpander___redArg___closed__2_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Grind_NodeDefUnexpander___redArg___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Grind_NodeDefUnexpander___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_NodeDefUnexpander(lean_object*, lean_object*, lean_object*);
@@ -174,7 +175,7 @@ lean_dec(x_2);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Grind_NodeDefUnexpander___redArg___closed__2() {
+static lean_object* _init_l_Lean_Grind_NodeDefUnexpander___redArg___closed__2(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -187,7 +188,7 @@ LEAN_EXPORT lean_object* l_Lean_Grind_NodeDefUnexpander___redArg(lean_object* x_
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_Lean_Grind_NodeDefUnexpander___redArg___closed__2;
+x_2 = lean_obj_once(&l_Lean_Grind_NodeDefUnexpander___redArg___closed__2, &l_Lean_Grind_NodeDefUnexpander___redArg___closed__2_once, _init_l_Lean_Grind_NodeDefUnexpander___redArg___closed__2);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
@@ -225,8 +226,6 @@ lean_dec_ref(res);
 res = initialize_Init_Grind_Tactics(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Grind_NodeDefUnexpander___redArg___closed__2 = _init_l_Lean_Grind_NodeDefUnexpander___redArg___closed__2();
-lean_mark_persistent(l_Lean_Grind_NodeDefUnexpander___redArg___closed__2);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

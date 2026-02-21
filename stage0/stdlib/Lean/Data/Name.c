@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 uint64_t lean_uint64_of_nat(lean_object*);
+static lean_once_cell_t l_Lean_Name_hashEx___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static uint64_t l_Lean_Name_hashEx___closed__0;
 LEAN_EXPORT uint64_t lean_name_hash_exported(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_hashEx___boxed(lean_object*);
@@ -30,6 +31,7 @@ static const lean_object* l_Lean_Name_getString_x21___closed__1 = (const lean_ob
 static const lean_string_object l_Lean_Name_getString_x21___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 34, .m_capacity = 34, .m_length = 33, .m_data = "unreachable code has been reached"};
 static const lean_object* l_Lean_Name_getString_x21___closed__2 = (const lean_object*)&l_Lean_Name_getString_x21___closed__2_value;
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_once_cell_t l_Lean_Name_getString_x21___closed__3_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Name_getString_x21___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Name_getString_x21(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_getString_x21___boxed(lean_object*);
@@ -101,11 +103,13 @@ static const lean_string_object l_Lean_Name_isInternalDetail___closed__3_value =
 static const lean_object* l_Lean_Name_isInternalDetail___closed__3 = (const lean_object*)&l_Lean_Name_isInternalDetail___closed__3_value;
 static const lean_string_object l_Lean_Name_isInternalDetail___closed__4_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 2, .m_capacity = 2, .m_length = 1, .m_data = "_"};
 static const lean_object* l_Lean_Name_isInternalDetail___closed__4 = (const lean_object*)&l_Lean_Name_isInternalDetail___closed__4_value;
+static lean_once_cell_t l_Lean_Name_isInternalDetail___closed__5_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Name_isInternalDetail___closed__5;
 LEAN_EXPORT uint8_t l_Lean_Name_isInternalDetail(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_isInternalDetail___boxed(lean_object*);
 static const lean_string_object l_Lean_Name_isImplementationDetail___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 3, .m_capacity = 3, .m_length = 2, .m_data = "__"};
 static const lean_object* l_Lean_Name_isImplementationDetail___closed__0 = (const lean_object*)&l_Lean_Name_isImplementationDetail___closed__0_value;
+static lean_once_cell_t l_Lean_Name_isImplementationDetail___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Name_isImplementationDetail___closed__1;
 LEAN_EXPORT uint8_t l_Lean_Name_isImplementationDetail(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_isImplementationDetail___boxed(lean_object*);
@@ -144,7 +148,7 @@ lean_object* l_List_head_x3f___redArg(lean_object*);
 uint8_t l_List_any___redArg(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Name_isMetaprogramming(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_isMetaprogramming___boxed(lean_object*);
-static uint64_t _init_l_Lean_Name_hashEx___closed__0() {
+static uint64_t _init_l_Lean_Name_hashEx___closed__0(void) {
 _start:
 {
 lean_object* x_1; uint64_t x_2; 
@@ -159,7 +163,7 @@ _start:
 if (lean_obj_tag(x_1) == 0)
 {
 uint64_t x_2; 
-x_2 = l_Lean_Name_hashEx___closed__0;
+x_2 = lean_uint64_once(&l_Lean_Name_hashEx___closed__0, &l_Lean_Name_hashEx___closed__0_once, _init_l_Lean_Name_hashEx___closed__0);
 return x_2;
 }
 else
@@ -214,7 +218,7 @@ x_3 = lean_panic_fn(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Name_getString_x21___closed__3() {
+static lean_object* _init_l_Lean_Name_getString_x21___closed__3(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
@@ -240,7 +244,7 @@ return x_2;
 else
 {
 lean_object* x_3; lean_object* x_4; 
-x_3 = l_Lean_Name_getString_x21___closed__3;
+x_3 = lean_obj_once(&l_Lean_Name_getString_x21___closed__3, &l_Lean_Name_getString_x21___closed__3_once, _init_l_Lean_Name_getString_x21___closed__3);
 x_4 = l_panic___at___00Lean_Name_getString_x21_spec__0(x_3);
 return x_4;
 }
@@ -838,7 +842,7 @@ if (x_15 == 0)
 if (lean_obj_tag(x_1) == 0)
 {
 uint64_t x_16; 
-x_16 = l_Lean_Name_hashEx___closed__0;
+x_16 = lean_uint64_once(&l_Lean_Name_hashEx___closed__0, &l_Lean_Name_hashEx___closed__0_once, _init_l_Lean_Name_hashEx___closed__0);
 x_11 = x_16;
 goto block_14;
 }
@@ -889,7 +893,7 @@ block_14:
 if (lean_obj_tag(x_2) == 0)
 {
 uint64_t x_12; 
-x_12 = l_Lean_Name_hashEx___closed__0;
+x_12 = lean_uint64_once(&l_Lean_Name_hashEx___closed__0, &l_Lean_Name_hashEx___closed__0_once, _init_l_Lean_Name_hashEx___closed__0);
 x_3 = x_11;
 x_4 = x_12;
 goto block_10;
@@ -1293,7 +1297,7 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Name_isInternalDetail___closed__5() {
+static lean_object* _init_l_Lean_Name_isInternalDetail___closed__5(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1316,7 +1320,7 @@ lean_inc_ref(x_3);
 lean_dec_ref(x_1);
 x_14 = ((lean_object*)(l_Lean_Name_isInternalDetail___closed__4));
 x_15 = lean_string_utf8_byte_size(x_3);
-x_16 = l_Lean_Name_isInternalDetail___closed__5;
+x_16 = lean_obj_once(&l_Lean_Name_isInternalDetail___closed__5, &l_Lean_Name_isInternalDetail___closed__5_once, _init_l_Lean_Name_isInternalDetail___closed__5);
 x_17 = lean_nat_dec_le(x_16, x_15);
 if (x_17 == 0)
 {
@@ -1422,7 +1426,7 @@ x_3 = lean_box(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Name_isImplementationDetail___closed__1() {
+static lean_object* _init_l_Lean_Name_isImplementationDetail___closed__1(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1451,7 +1455,7 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t 
 x_4 = lean_ctor_get(x_1, 1);
 x_5 = ((lean_object*)(l_Lean_Name_isImplementationDetail___closed__0));
 x_6 = lean_string_utf8_byte_size(x_4);
-x_7 = l_Lean_Name_isImplementationDetail___closed__1;
+x_7 = lean_obj_once(&l_Lean_Name_isImplementationDetail___closed__1, &l_Lean_Name_isImplementationDetail___closed__1_once, _init_l_Lean_Name_isImplementationDetail___closed__1);
 x_8 = lean_nat_dec_le(x_7, x_6);
 if (x_8 == 0)
 {
@@ -1802,13 +1806,6 @@ lean_dec_ref(res);
 res = initialize_Init_Data_String_Search(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Name_hashEx___closed__0 = _init_l_Lean_Name_hashEx___closed__0();
-l_Lean_Name_getString_x21___closed__3 = _init_l_Lean_Name_getString_x21___closed__3();
-lean_mark_persistent(l_Lean_Name_getString_x21___closed__3);
-l_Lean_Name_isInternalDetail___closed__5 = _init_l_Lean_Name_isInternalDetail___closed__5();
-lean_mark_persistent(l_Lean_Name_isInternalDetail___closed__5);
-l_Lean_Name_isImplementationDetail___closed__1 = _init_l_Lean_Name_isImplementationDetail___closed__1();
-lean_mark_persistent(l_Lean_Name_isImplementationDetail___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

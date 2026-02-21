@@ -27,7 +27,9 @@ static const lean_object* l_Std_Internal_Parsec_instReprError_repr___closed__0 =
 static const lean_ctor_object l_Std_Internal_Parsec_instReprError_repr___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 3}, .m_objs = {((lean_object*)&l_Std_Internal_Parsec_instReprError_repr___closed__0_value)}};
 static const lean_object* l_Std_Internal_Parsec_instReprError_repr___closed__1 = (const lean_object*)&l_Std_Internal_Parsec_instReprError_repr___closed__1_value;
 lean_object* lean_nat_to_int(lean_object*);
+static lean_once_cell_t l_Std_Internal_Parsec_instReprError_repr___closed__2_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Internal_Parsec_instReprError_repr___closed__2;
+static lean_once_cell_t l_Std_Internal_Parsec_instReprError_repr___closed__3_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Internal_Parsec_instReprError_repr___closed__3;
 static const lean_string_object l_Std_Internal_Parsec_instReprError_repr___closed__4_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 32, .m_capacity = 32, .m_length = 31, .m_data = "Std.Internal.Parsec.Error.other"};
 static const lean_object* l_Std_Internal_Parsec_instReprError_repr___closed__4 = (const lean_object*)&l_Std_Internal_Parsec_instReprError_repr___closed__4_value;
@@ -150,10 +152,12 @@ LEAN_EXPORT lean_object* l_Std_Internal_Parsec_manyCore___redArg(lean_object*, l
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_manyCore(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_manyCore___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
+static lean_once_cell_t l_Std_Internal_Parsec_many___redArg___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Internal_Parsec_many___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_many___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_many(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_many___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_once_cell_t l_Std_Internal_Parsec_many1___redArg___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Internal_Parsec_many1___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_many1___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_many1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -288,7 +292,7 @@ x_5 = l_Std_Internal_Parsec_Error_ctorElim___redArg(x_2, x_4);
 return x_5;
 }
 }
-static lean_object* _init_l_Std_Internal_Parsec_instReprError_repr___closed__2() {
+static lean_object* _init_l_Std_Internal_Parsec_instReprError_repr___closed__2(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -297,7 +301,7 @@ x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Std_Internal_Parsec_instReprError_repr___closed__3() {
+static lean_object* _init_l_Std_Internal_Parsec_instReprError_repr___closed__3(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -318,14 +322,14 @@ x_11 = lean_nat_dec_le(x_10, x_2);
 if (x_11 == 0)
 {
 lean_object* x_12; 
-x_12 = l_Std_Internal_Parsec_instReprError_repr___closed__2;
+x_12 = lean_obj_once(&l_Std_Internal_Parsec_instReprError_repr___closed__2, &l_Std_Internal_Parsec_instReprError_repr___closed__2_once, _init_l_Std_Internal_Parsec_instReprError_repr___closed__2);
 x_3 = x_12;
 goto block_9;
 }
 else
 {
 lean_object* x_13; 
-x_13 = l_Std_Internal_Parsec_instReprError_repr___closed__3;
+x_13 = lean_obj_once(&l_Std_Internal_Parsec_instReprError_repr___closed__3, &l_Std_Internal_Parsec_instReprError_repr___closed__3_once, _init_l_Std_Internal_Parsec_instReprError_repr___closed__3);
 x_3 = x_13;
 goto block_9;
 }
@@ -347,14 +351,14 @@ x_27 = lean_nat_dec_le(x_26, x_2);
 if (x_27 == 0)
 {
 lean_object* x_28; 
-x_28 = l_Std_Internal_Parsec_instReprError_repr___closed__2;
+x_28 = lean_obj_once(&l_Std_Internal_Parsec_instReprError_repr___closed__2, &l_Std_Internal_Parsec_instReprError_repr___closed__2_once, _init_l_Std_Internal_Parsec_instReprError_repr___closed__2);
 x_16 = x_28;
 goto block_25;
 }
 else
 {
 lean_object* x_29; 
-x_29 = l_Std_Internal_Parsec_instReprError_repr___closed__3;
+x_29 = lean_obj_once(&l_Std_Internal_Parsec_instReprError_repr___closed__3, &l_Std_Internal_Parsec_instReprError_repr___closed__3_once, _init_l_Std_Internal_Parsec_instReprError_repr___closed__3);
 x_16 = x_29;
 goto block_25;
 }
@@ -564,14 +568,14 @@ x_23 = lean_nat_dec_le(x_22, x_4);
 if (x_23 == 0)
 {
 lean_object* x_24; 
-x_24 = l_Std_Internal_Parsec_instReprError_repr___closed__2;
+x_24 = lean_obj_once(&l_Std_Internal_Parsec_instReprError_repr___closed__2, &l_Std_Internal_Parsec_instReprError_repr___closed__2_once, _init_l_Std_Internal_Parsec_instReprError_repr___closed__2);
 x_8 = x_24;
 goto block_21;
 }
 else
 {
 lean_object* x_25; 
-x_25 = l_Std_Internal_Parsec_instReprError_repr___closed__3;
+x_25 = lean_obj_once(&l_Std_Internal_Parsec_instReprError_repr___closed__3, &l_Std_Internal_Parsec_instReprError_repr___closed__3_once, _init_l_Std_Internal_Parsec_instReprError_repr___closed__3);
 x_8 = x_25;
 goto block_21;
 }
@@ -629,14 +633,14 @@ x_44 = lean_nat_dec_le(x_43, x_4);
 if (x_44 == 0)
 {
 lean_object* x_45; 
-x_45 = l_Std_Internal_Parsec_instReprError_repr___closed__2;
+x_45 = lean_obj_once(&l_Std_Internal_Parsec_instReprError_repr___closed__2, &l_Std_Internal_Parsec_instReprError_repr___closed__2_once, _init_l_Std_Internal_Parsec_instReprError_repr___closed__2);
 x_29 = x_45;
 goto block_42;
 }
 else
 {
 lean_object* x_46; 
-x_46 = l_Std_Internal_Parsec_instReprError_repr___closed__3;
+x_46 = lean_obj_once(&l_Std_Internal_Parsec_instReprError_repr___closed__3, &l_Std_Internal_Parsec_instReprError_repr___closed__3_once, _init_l_Std_Internal_Parsec_instReprError_repr___closed__3);
 x_29 = x_46;
 goto block_42;
 }
@@ -1918,7 +1922,7 @@ lean_dec_ref(x_6);
 return x_11;
 }
 }
-static lean_object* _init_l_Std_Internal_Parsec_many___redArg___closed__0() {
+static lean_object* _init_l_Std_Internal_Parsec_many___redArg___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1931,7 +1935,7 @@ LEAN_EXPORT lean_object* l_Std_Internal_Parsec_many___redArg(lean_object* x_1, l
 _start:
 {
 lean_object* x_5; lean_object* x_6; 
-x_5 = l_Std_Internal_Parsec_many___redArg___closed__0;
+x_5 = lean_obj_once(&l_Std_Internal_Parsec_many___redArg___closed__0, &l_Std_Internal_Parsec_many___redArg___closed__0_once, _init_l_Std_Internal_Parsec_many___redArg___closed__0);
 x_6 = l_Std_Internal_Parsec_manyCore___redArg(x_1, x_2, x_3, x_5, x_4);
 return x_6;
 }
@@ -1940,7 +1944,7 @@ LEAN_EXPORT lean_object* l_Std_Internal_Parsec_many(lean_object* x_1, lean_objec
 _start:
 {
 lean_object* x_10; lean_object* x_11; 
-x_10 = l_Std_Internal_Parsec_many___redArg___closed__0;
+x_10 = lean_obj_once(&l_Std_Internal_Parsec_many___redArg___closed__0, &l_Std_Internal_Parsec_many___redArg___closed__0_once, _init_l_Std_Internal_Parsec_many___redArg___closed__0);
 x_11 = l_Std_Internal_Parsec_manyCore___redArg(x_5, x_7, x_8, x_10, x_9);
 return x_11;
 }
@@ -1954,7 +1958,7 @@ lean_dec_ref(x_6);
 return x_10;
 }
 }
-static lean_object* _init_l_Std_Internal_Parsec_many1___redArg___closed__0() {
+static lean_object* _init_l_Std_Internal_Parsec_many1___redArg___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1977,7 +1981,7 @@ lean_inc(x_6);
 x_7 = lean_ctor_get(x_5, 1);
 lean_inc(x_7);
 lean_dec_ref(x_5);
-x_8 = l_Std_Internal_Parsec_many1___redArg___closed__0;
+x_8 = lean_obj_once(&l_Std_Internal_Parsec_many1___redArg___closed__0, &l_Std_Internal_Parsec_many1___redArg___closed__0_once, _init_l_Std_Internal_Parsec_many1___redArg___closed__0);
 x_9 = lean_array_push(x_8, x_7);
 x_10 = l_Std_Internal_Parsec_manyCore___redArg(x_1, x_2, x_3, x_9, x_6);
 return x_10;
@@ -2023,7 +2027,7 @@ lean_inc(x_11);
 x_12 = lean_ctor_get(x_10, 1);
 lean_inc(x_12);
 lean_dec_ref(x_10);
-x_13 = l_Std_Internal_Parsec_many1___redArg___closed__0;
+x_13 = lean_obj_once(&l_Std_Internal_Parsec_many1___redArg___closed__0, &l_Std_Internal_Parsec_many1___redArg___closed__0_once, _init_l_Std_Internal_Parsec_many1___redArg___closed__0);
 x_14 = lean_array_push(x_13, x_12);
 x_15 = l_Std_Internal_Parsec_manyCore___redArg(x_5, x_7, x_8, x_14, x_11);
 return x_15;
@@ -3096,14 +3100,6 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Array_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Std_Internal_Parsec_instReprError_repr___closed__2 = _init_l_Std_Internal_Parsec_instReprError_repr___closed__2();
-lean_mark_persistent(l_Std_Internal_Parsec_instReprError_repr___closed__2);
-l_Std_Internal_Parsec_instReprError_repr___closed__3 = _init_l_Std_Internal_Parsec_instReprError_repr___closed__3();
-lean_mark_persistent(l_Std_Internal_Parsec_instReprError_repr___closed__3);
-l_Std_Internal_Parsec_many___redArg___closed__0 = _init_l_Std_Internal_Parsec_many___redArg___closed__0();
-lean_mark_persistent(l_Std_Internal_Parsec_many___redArg___closed__0);
-l_Std_Internal_Parsec_many1___redArg___closed__0 = _init_l_Std_Internal_Parsec_many1___redArg___closed__0();
-lean_mark_persistent(l_Std_Internal_Parsec_many1___redArg___closed__0);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

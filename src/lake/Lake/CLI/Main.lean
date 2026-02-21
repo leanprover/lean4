@@ -577,7 +577,7 @@ protected def add : CliM PUnit := do
     | _ => pure ws.root
   let scope := pkg.cacheScope
   let map ← CacheMap.load file
-  ws.lakeCache.writeMap scope map opts.service?
+  ws.lakeCache.writeMap scope map opts.service? opts.scope?
 
 protected def services : CliM PUnit := do
   processOptions lakeOption

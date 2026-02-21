@@ -599,36 +599,31 @@ public def Module.cacheOutputHashes (mod : Module) : IO PUnit := do
   if Lean.Internal.hasLLVMBackend () then
     cacheFileHash mod.bcFile
 
-def ModuleOutputDescrs.getArtifactsFrom
-  (cache : Cache) (descrs : ModuleOutputDescrs)
-: EIO String ModuleOutputArtifacts := do
-  let arts : ModuleOutputArtifacts := {
-    olean := ← cache.getArtifact descrs.olean
-    oleanServer? := ← descrs.oleanServer?.mapM cache.getArtifact
-    oleanPrivate? := ← descrs.oleanPrivate?.mapM cache.getArtifact
-    ir? := ← descrs.ir?.mapM cache.getArtifact
-    ilean := ← cache.getArtifact descrs.ilean
-    c :=← cache.getArtifact descrs.c
-    bc? := none
-  }
-  if Lean.Internal.hasLLVMBackend () then
-    let some descr := descrs.bc?
-      | error "LLVM backend enabled but module outputs lack bitcode"
-    return {arts with bc? := some (← cache.getArtifact descr)}
-  else
-    return arts
+def resolveModuleOutputs
+  (pkg : Package) (out : Json) (service? scope? : Option String)
+: JobM ModuleOutputArtifacts := do
+  match fromJson? out with
+  | .ok (descrs : ModuleOutputDescrs) => do
+    let arts : ModuleOutputArtifacts := {
+      olean := ← resolve descrs.olean
+      oleanServer? := ← descrs.oleanServer?.mapM resolve
+      oleanPrivate? := ← descrs.oleanPrivate?.mapM resolve
+      ir? := ← descrs.ir?.mapM resolve
+      ilean := ← resolve descrs.ilean
+      c :=← resolve descrs.c
+      bc? := none
+    }
+    if Lean.Internal.hasLLVMBackend () then
+      let some descr := descrs.bc?
+        | error "LLVM backend enabled but module outputs lack bitcode"
+      return {arts with bc? := some (← resolve descr)}
+    else
+      return arts
+  | .error e =>
+    error s!"ill-formed module outputs:\n{out.render.pretty 80 2}\n{e}"
+where @[inline] resolve descr := resolveArtifact pkg descr service? scope?
 
-@[inline] def resolveModuleOutputs?
-   [MonadWorkspace m] [MonadLiftT BaseIO m] [MonadError m] [Monad m]  (outputs : Json)
-: m (Except String ModuleOutputArtifacts) := do
-  match fromJson? outputs with
-  | .ok (descrs : ModuleOutputDescrs) =>
-    descrs.getArtifactsFrom (← getLakeCache) |>.toBaseIO
-  | .error e => return .error s!"ill-formed module outputs: {e}"
-
-instance
-  [MonadWorkspace m] [MonadLiftT BaseIO m] [MonadError m] [Monad m]
-: ResolveOutputs m ModuleOutputArtifacts := ⟨resolveModuleOutputs?⟩
+instance : ResolveOutputs ModuleOutputArtifacts := ⟨resolveModuleOutputs⟩
 
 /-- Save module build artifacts to the local Lake cache. -/
 private def Module.cacheOutputArtifacts
@@ -751,9 +746,8 @@ private def Module.recBuildLean (mod : Module) : FetchM (Job ModuleOutputArtifac
     let depTrace ← getTrace
     let inputHash := depTrace.hash
     let savedTrace ← readTraceFile mod.traceFile
-    let cache ← getLakeCache
     let fetchArtsFromCache? restoreAll := do
-      let some arts ← getArtifacts? inputHash savedTrace cache mod.pkg
+      let some arts ← getArtifacts? inputHash savedTrace mod.pkg
         | return none
       unless (← savedTrace.replayOrFetchIfUpToDate inputHash) do
         mod.clearOutputArtifacts
@@ -772,7 +766,7 @@ private def Module.recBuildLean (mod : Module) : FetchM (Job ModuleOutputArtifac
             discard <| mod.buildLean depTrace srcFile setup
           if status.isCacheable then
             let arts ← mod.cacheOutputArtifacts setup.isModule mod.pkg.restoreAllArtifacts
-            cache.writeOutputs mod.pkg.cacheScope inputHash arts.descrs
+            (← getLakeCache).writeOutputs mod.pkg.cacheScope inputHash arts.descrs
             return arts
           else
             mod.computeArtifacts setup.isModule

@@ -108,13 +108,17 @@ with_bogus_endpoints test_err "failed to upload artifact" \
 LAKE_CONFIG=services.toml test_err "failed to upload artifact" \
   cache put .lake/outputs.jsonl --scope='!/test' --service='bogus'
 
-# Test cache put/get with a custom endpoint
+# Test cache put with a custom endpoint
 with_upload_endpoints test_run cache put .lake/outputs.jsonl --scope='!/test'
 test_cmd rm -rf .lake/build "$LAKE_CACHE_DIR"
+
+# Test download failure with a bogus scope
 with_cdn_endpoints test_err 'failed to download some artifacts' \
   cache get .lake/outputs.jsonl --scope='!/bogus'
-with_cdn_endpoints test_run cache get .lake/outputs.jsonl --scope='!/test'
-test_run build +Test --no-build
+
+# Test on-demand fetch from a custom endpoint
+test_run cache add .lake/outputs.jsonl --scope='!/test' --service=cdn
+LAKE_CONFIG=services.toml test_run build +Test --no-build -v
 
 # Test that outputs and artifacts are not re-downloaded
 with_cdn_endpoints test_not_out "downloading" cache get .lake/outputs.jsonl --scope='!/test'
@@ -124,8 +128,9 @@ with_cdn_endpoints test_not_out "downloading" cache get --scope='!/test'
 # Test that the revision cache directory for the package is properly created
 test_exp -d $LAKE_CACHE_DIR/revisions/test
 
-# Test `--force-download`
+# Test cache get with custom endpoint using `--force-download`
 with_cdn_endpoints test_out "downloading" cache get --scope='!/test' --force-download
+test_run build +Test --no-build
 
 # Test download service configuration through system configuration
 LAKE_CONFIG=services.toml test_out "downloading" \

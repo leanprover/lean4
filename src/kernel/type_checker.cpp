@@ -835,7 +835,6 @@ bool type_checker::try_eta_struct_core(expr const & t_, expr const & s_) {
         };
         t = mk_app(t, fvars);
         s = mk_app(s, fvars);
-        // throw def_type_mismatch_exception(env(), m_lctx, const_name(f) ,t, s);
     };
     buffer<expr> s_args;
     get_app_args(s, s_args);

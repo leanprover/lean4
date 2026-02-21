@@ -2328,7 +2328,5 @@ builtin_initialize
   registerTraceClass `Meta.isDefEq.assign.occursCheck (inherited := true)
   registerTraceClass `Meta.isDefEq.assign.readOnlyMVarWithBiggerLCtx (inherited := true)
   registerTraceClass `Meta.isDefEq.eta.struct
-  registerTraceClass `Meta.isDefEq.eta.unitLike
-
 
 end Lean.Meta

@@ -38,11 +38,11 @@ private def warnUnused (stx : Syntax) (i : Nat) : CoreM Unit := do
       the other direction from the simp set, even if the simp argument itself is unused. \
       If the hint above does not work, try replacing `←` with `-` to only get that effect \
       and silence this warning."
-  logLint Tactic.linter.unusedSimpArgs argStx (msg ++ hint)
+  logLintIf Tactic.linter.unusedSimpArgs argStx (msg ++ hint)
 
 def unusedSimpArgs : Linter where
   run cmdStx := do
-    if !Tactic.linter.unusedSimpArgs.get (← getOptions) then return
+    if !getLinterValue Tactic.linter.unusedSimpArgs (← getLinterOptions) then return
     let some cmdStxRange := cmdStx.getRange?  | return
 
     let infoTrees := (← get).infoState.trees.toArray

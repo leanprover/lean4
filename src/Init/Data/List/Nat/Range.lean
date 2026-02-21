@@ -67,20 +67,22 @@ theorem pairwise_lt_range' {s n} (step := 1) (pos : 0 < step := by simp) :
     simp only [range'_succ, pairwise_cons]
     constructor
     · intro n m
-      rw [mem_range'] at m
-      omega
+      obtain ⟨a, -, rfl⟩ := mem_range'.1 m
+      calc s < s + step := Nat.lt_add_of_pos_right pos
+           _ ≤ s + step + step * a := Nat.le_add_right _ _
     · exact pairwise_lt_range' (s := s + step) step pos
 
-theorem pairwise_le_range' {s n} (step := 1) :
-    Pairwise (· ≤ ·) (range' s n step) :=
+
+theorem pairwise_le_range' {s n} (step := 1) : Pairwise (· ≤ ·) (range' s n step) :=
   match s, n, step with
   | _, 0, _ => Pairwise.nil
   | s, n + 1, step => by
     simp only [range'_succ, pairwise_cons]
     constructor
     · intro n m
-      rw [mem_range'] at m
-      omega
+      obtain ⟨a, -, rfl⟩ := mem_range'.1 m
+      rw [Nat.add_assoc]
+      exact Nat.le_add_right s (step + step * a)
     · exact pairwise_le_range' (s := s + step) step
 
 theorem nodup_range' {s n : Nat} (step := 1) (h : 0 < step := by simp) : Nodup (range' s n step) :=

@@ -37,7 +37,7 @@ theorem Iter.forIn'_eq {α β : Type w} [Iterator α Id β] [Finite α Id]
   simp +singlePass only [this]
   rw [hl.lawful (fun _ _ f x => f x.run) (wf := IteratorLoop.wellFounded_of_finite)]
   simp +instances [IteratorLoop.defaultImplementation]
-  rfl
+  try rfl -- Not needed after leanprover/lean4#12538
 
 theorem Iter.forIn_eq {α β : Type w} [Iterator α Id β] [Finite α Id]
     {m : Type x → Type x'} [Monad m] [LawfulMonad m] [IteratorLoop α Id m]
@@ -60,6 +60,7 @@ theorem Iter.forIn_eq {α β : Type w} [Iterator α Id β] [Finite α Id]
   subst_eqs
   simp only [← funext_iff] at h
   rw [← h]
+  try rfl -- `rfl` will be needed after leanprover/lean4#12538
 
 @[congr] theorem Iter.forIn_congr {α β : Type w} {m : Type w → Type w'} [Monad m]
     [Iterator α Id β] [Finite α Id] [IteratorLoop α Id m]
@@ -277,6 +278,8 @@ theorem Iter.forIn'_eq_forIn'_toList {α β : Type w} [Iterator α Id β]
     letI : ForIn' m (Iter (α := α) β) β _ := Iter.instForIn'
     ForIn'.forIn' it init f = ForIn'.forIn' it.toList init (fun out h acc => f out (Iter.mem_toList_iff_isPlausibleIndirectOutput.mp h) acc) := by
   simp only [forIn'_toList]
+  try rfl -- `rfl` will be needed after leanprover/lean4#12538
+
 
 theorem Iter.forIn'_eq_forIn'_toArray {α β : Type w} [Iterator α Id β]
     [Finite α Id] {m : Type x → Type x'} [Monad m] [LawfulMonad m]
@@ -287,6 +290,8 @@ theorem Iter.forIn'_eq_forIn'_toArray {α β : Type w} [Iterator α Id β]
     letI : ForIn' m (Iter (α := α) β) β _ := Iter.instForIn'
     ForIn'.forIn' it init f = ForIn'.forIn' it.toArray init (fun out h acc => f out (Iter.mem_toArray_iff_isPlausibleIndirectOutput.mp h) acc) := by
   simp only [forIn'_toArray]
+  try rfl -- `rfl` will be needed after leanprover/lean4#12538
+
 
 theorem Iter.forIn_toList {α β : Type w} [Iterator α Id β]
     [Finite α Id] {m : Type x → Type x'} [Monad m] [LawfulMonad m]

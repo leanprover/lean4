@@ -32,7 +32,12 @@ open Lean.Meta
     let x ←
       if pattern.raw.isIdent then
         pure ⟨pattern⟩
+      else if pattern.raw.isOfKind ``Lean.Parser.Term.hole then
+        Term.mkFreshIdent pattern
       else
+        -- This case is a last resort, because it introduces a `match` and that will cause eager
+        -- defaulting. In practice this means that `mut` vars default to `Nat` too often.
+        -- Hence we try to only generate a `match` if we absolutely must.
         let x ← Term.mkFreshIdent pattern
         body ← `(doSeq| match $x:term with | $pattern => $body)
         pure x

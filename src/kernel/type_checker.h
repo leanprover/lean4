@@ -83,6 +83,8 @@ private:
     lbool quick_is_def_eq(expr const & t, expr const & s, bool use_hash = false);
     lbool is_def_eq_offset(expr const & t, expr const & s);
     bool is_def_eq_args(expr t, expr s);
+    bool should_eta_recursors(expr const & t, expr const & s);
+    bool should_eta(expr const & t, expr const & s);
     bool try_eta_expansion_core(expr const & t, expr const & s);
     bool try_eta_expansion(expr const & t, expr const & s) {
         return try_eta_expansion_core(t, s) || try_eta_expansion_core(s, t);

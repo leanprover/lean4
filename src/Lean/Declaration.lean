@@ -520,6 +520,10 @@ def isDefinition : ConstantInfo → Bool
   | .defnInfo _ => true
   | _           => false
 
+def isRecVal : ConstantInfo → Bool
+  | .recInfo _  => true
+  | _           => false
+
 def inductiveVal! : ConstantInfo → InductiveVal
   | .inductInfo val => val
   | _ => panic! "Expected a `ConstantInfo.inductInfo`."

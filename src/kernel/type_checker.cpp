@@ -776,9 +776,30 @@ bool type_checker::is_def_eq_args(expr t, expr s) {
     return !is_app(t) && !is_app(s);
 }
 
+bool type_checker::should_eta_recursors(expr const & t, expr const & s) {
+    buffer<expr> t_args;
+    expr const & t_fn = get_app_args(t, t_args);
+    if (!is_constant(t_fn)) return false;
+    name t_fn_name = const_name(t_fn);
+    expr const & s_fn = get_app_fn(s);
+    if (is_constant(s_fn) && const_name(s_fn) == t_fn_name) return false;
+    constant_info t_info = env().get(t_fn_name);
+    if (!t_info.is_recursor()) return false;
+    recursor_val rec_val = t_info.to_recursor_val();
+    // Should this be != instead of > ?
+    if (t_args.size() > rec_val.get_major_idx()) return false;
+    return 
+        rec_val.is_k() || is_structure_like(env(), rec_val.get_major_induct());
+}
+
+bool type_checker::should_eta(expr const & t, expr const & s) {
+    if (is_lambda(t) && !is_lambda(s)) return true;
+    return should_eta_recursors(s, t);
+}
+
 /** \brief Try to solve (fun (x : A), B) =?= s by trying eta-expansion on s */
 bool type_checker::try_eta_expansion_core(expr const & t, expr const & s) {
-    if (is_lambda(t) && !is_lambda(s)) {
+    if (should_eta(t, s)) {
         expr s_type = whnf(infer_type(s));
         if (!is_pi(s_type))
             return false;

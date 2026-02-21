@@ -174,7 +174,8 @@ def mkProjFn (ctorVal : ConstructorVal) (us : List Level) (params : Array Expr) 
   \pre `inductName` is `C`.
 
   If `Meta.Config.etaStruct` is `false` or the condition above does not hold, this method just returns `major`. -/
-private def toCtorWhenStructure (inductName : Name) (major : Expr) : MetaM Expr := do
+private def toCtorWhenStructure (recVal : RecursorVal) (major : Expr): MetaM Expr := do
+  let inductName := recVal.getMajorInduct
   unless (← useEtaStruct inductName) do
     return major
   let env ← getEnv
@@ -190,8 +191,8 @@ private def toCtorWhenStructure (inductName : Name) (major : Expr) : MetaM Expr 
       return major
     match majorType.getAppFn with
     | Expr.const d us =>
-      if (← whnfD (← inferType majorType)) == mkSort levelZero then
-        return major -- We do not perform eta for propositions, see implementation in the kernel
+      if !recVal.hasSortPolyMotive then
+        return major -- We do not perform eta for non-singleton propositions, see implementation in the kernel
       else
         let some ctorName ← getFirstCtor d | pure major
         let ctorInfo ← getConstInfoCtor ctorName
@@ -240,7 +241,7 @@ private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : A
       major ← toCtorWhenK recVal major
     major ← major.toCtorIfLit
     major ← cleanupNatOffsetMajor major
-    major ← toCtorWhenStructure recVal.getMajorInduct major
+    major ← toCtorWhenStructure recVal major
     match getRecRuleFor recVal major with
     | some rule =>
       let majorArgs := major.getAppArgs

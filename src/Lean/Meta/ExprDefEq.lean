@@ -115,35 +115,58 @@ private def isDefEqEtaStruct (a b : Expr) : MetaM Bool := do
     else
       return false
 where
-  go ctorVal us := do
-    if ctorVal.numParams + ctorVal.numFields != b.getAppNumArgs then
-      trace[Meta.isDefEq.eta.struct] "failed, insufficient number of arguments at{indentExpr b}"
-      return false
+    -- if `b` is a *partially* applied constructor, we compare eta-expanded versions of `a` and `b`.
+  expandIfNeeded ctorVal k := do
+    if ctorVal.numParams + ctorVal.numFields == b.getAppNumArgs then
+      k a b
     else
-      if !isStructureLike (← getEnv) ctorVal.induct then
-        trace[Meta.isDefEq.eta.struct] "failed, type is not a structure{indentExpr b}"
-        return false
-      else if (← isDefEq (← inferType a) (← inferType b)) then
-        checkpointDefEq do
-          let args := b.getAppArgs
-          let params := args[*...ctorVal.numParams].toArray
-          for h : i in ctorVal.numParams...args.size do
-            let j := i - ctorVal.numParams
-            let proj ← mkProjFn ctorVal us params j a
-            if ← isProof proj then
-              unless ← isAbstractedUnassignedMVar args[i] do
-                -- Skip expensive unification problem that is likely solved
-                -- using proof irrelevance.  We already know that `proj` and
-                -- `args[i]` have the same type, so they're defeq in any case.
-                -- See comment at `isAbstractedUnassignedMVar`.
-                continue
-            trace[Meta.isDefEq.eta.struct] "{a} =?= {b} @ [{j}], {proj} =?= {args[i]}"
-            unless (← isDefEq proj args[i]) do
-              trace[Meta.isDefEq.eta.struct] "failed, unexpected arg #{i}, projection{indentExpr proj}\nis not defeq to{indentExpr args[i]}"
-              return false
-          return true
-      else
-        return false
+      let bType ← inferType b
+      forallTelescopeReducing bType fun xs _ => do
+        let a' := mkAppN a xs
+        let b' := mkAppN b xs
+        k a' b'
+
+  go ctorVal us := do
+    if !isStructureLike (← getEnv) ctorVal.induct then
+      trace[Meta.isDefEq.eta.struct] "failed, type is not a structure{indentExpr b}"
+      return false
+    if !(← isDefEq (← inferType a) (← inferType b)) then
+      return false
+    checkpointDefEq do expandIfNeeded ctorVal fun a b => do
+      let args := b.getAppArgs
+      let params := args[*...ctorVal.numParams].toArray
+      for h : i in ctorVal.numParams...args.size do
+        let j := i - ctorVal.numParams
+        let proj ← mkProjFn ctorVal us params j a
+        if ← isProof proj then
+          unless ← isAbstractedUnassignedMVar args[i] do
+            -- Skip expensive unification problem that is likely solved
+            -- using proof irrelevance.  We already know that `proj` and
+            -- `args[i]` have the same type, so they're defeq in any case.
+            -- See comment at `isAbstractedUnassignedMVar`.
+            continue
+        trace[Meta.isDefEq.eta.struct] "{a} =?= {b} @ [{j}], {proj} =?= {args[i]}"
+        unless (← isDefEq proj args[i]) do
+          trace[Meta.isDefEq.eta.struct] "failed, unexpected arg #{i}, projection{indentExpr proj}\nis not defeq to{indentExpr args[i]}"
+          return false
+      return true
+
+private def shouldEtaRecursors (a b : Expr) : MetaM Bool := do
+  let afn := a.getAppFn
+  if !afn.isConst then return false
+  let bfn := b.getAppFn
+  if bfn.isConstOf afn.constName! then return false
+  let args := a.getAppArgs
+  let t_info ← getConstInfo afn.constName!
+  let .recInfo recVal := t_info | return false
+  -- Should this be `!=` instead of `>` ?
+  if args.size > recVal.getMajorIdx then return false
+  return recVal.k || isStructureLike (← getEnv) recVal.getMajorInduct
+
+private def shouldEta (a b : Expr) : MetaM Bool :=
+  withTraceNode `Meta.isDefEq (return m!"{exceptEmoji ·} shouldEta {a} =?= {b}") do
+  if a.isLambda && !b.isLambda then return true
+  else shouldEtaRecursors b a
 
 /--
   Try to solve `a := (fun x => t) =?= b` by eta-expanding `b`,
@@ -163,7 +186,7 @@ where
   The fresh free variable `x` also busts the cache.
   See https://github.com/leanprover/lean4/pull/2002 -/
 private def isDefEqEta (a b : Expr) : MetaM LBool := do
-  if a.isLambda && !b.isLambda then
+  if (← shouldEta a b) then
     let bType ← inferType b
     let bType ← whnfD bType
     match bType with
@@ -2098,16 +2121,36 @@ private def isDefEqApp (t s : Expr) : MetaM Bool := do
   else
     isDefEqOnFailure t s
 
-/-- Return `true` if the type of the given expression is an inductive datatype with a single constructor with no fields. -/
+/-- Given a type `I As`, checks that `I` is a (non-recursive) structure, and that each (instantiated) fields is itself either a proposition or a unit-like type -/
+private partial def isUnitLikeStruct (tType : Expr) : MetaM Bool := do
+  let tType ← whnf tType
+  let hd := tType.getAppFn
+  matchConstStructureLike hd (fun _ => pure false) fun _ _ ctorVal => do
+    --TODO Shouldn't this also instantiate universes ?
+    let ctorType := ctorVal.type
+        |>.getForallBodyMaxDepth tType.getAppNumArgs
+        |>.instantiateRev tType.getAppArgs
+    forallTelescope ctorType fun xs _ =>
+      xs.allM fun e => do
+        let ty ← e.fvarId!.getType
+        isProp ty <||> forallTelescopeReducing ty fun _ => isUnitLikeStruct
+
+/-- Takes a type of the form `A1 -> ... -> An` and checks whether `An` is a unit-Like structure-/
+private def isUnitLikeType (e : Expr) : MetaM Bool := do
+  withTraceNode `Meta.isDefEq ( return m!"{exceptBoolEmoji · } isUnitLikeType {e}") do
+    forallTelescopeReducing e fun _ e => isUnitLikeStruct e
+
+/--
+  Return `true` if the types of the given expressions is a non-recursive, non-indexed inductive datatype
+  with a single constructor for which all fields are unit-like or Prop types,
+  or a dependent arrow for which the codomain is unit-like.
+-/
 private def isDefEqUnitLike (t : Expr) (s : Expr) : MetaM Bool := do
-  let tType ← whnf (← inferType t)
-  matchConstStructureLike tType.getAppFn (fun _ => return false) fun _ _ ctorVal => do
-    if ctorVal.numFields != 0 then
-      return false
-    else if (← useEtaStruct ctorVal.induct) then
-      Meta.isExprDefEqAux tType (← inferType s)
-    else
-      return false
+  let tType  ← inferType t
+  let isUnit ← isUnitLikeType tType
+  if !isUnit then
+    return false
+  Meta.isExprDefEqAux tType (← inferType s)
 
 /--
   The `whnf` procedure has support for unfolding class projections when the
@@ -2275,6 +2318,7 @@ partial def isExprDefEqAuxImpl (t : Expr) (s : Expr) : MetaM Bool := withIncRecD
 
 builtin_initialize
   registerTraceClass `Meta.isDefEq
+  registerTraceClass `Meta.isDefEq.inferType
   registerTraceClass `Meta.isDefEq.stuck
   registerTraceClass `Meta.isDefEq.stuckMVar (inherited := true)
   registerTraceClass `Meta.isDefEq.cache

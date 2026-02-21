@@ -153,6 +153,22 @@ name const & recursor_val::get_major_induct() const {
     return const_name(*t);
 }
 
+/**  \brief Returns true if the recursor's motive is of the form `A1 -> An -> Sort u` and \c u is non-zero, 
+ * i.e the inductive type either does not live in Prop or is a syntactic subsingleton.
+ * TODO this if already computed once when generating the recursor, and should ideally be stored in the RecursorVal instead of re-computed at call-site.
+ */
+bool recursor_val::has_sort_poly_motive() const{
+    unsigned int n = get_nparams();
+    expr const * t = &(to_constant_val().get_type());
+    for (unsigned int i = 0; i < n; i++) {
+        t = &(binding_body(*t));
+    }
+    t = &(binding_domain(*t));
+    while (!is_sort(*t)) 
+        t = &(binding_body(*t));
+    const lean::level & l = sort_level(*t);
+    return l != mk_level_zero(); // Should this be a level_eq ?
+}
 
 bool recursor_val::is_k() const { return lean_recursor_k(to_obj_arg()); }
 bool recursor_val::is_unsafe() const { return lean_recursor_is_unsafe(to_obj_arg()); }

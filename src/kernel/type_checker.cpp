@@ -776,9 +776,30 @@ bool type_checker::is_def_eq_args(expr t, expr s) {
     return !is_app(t) && !is_app(s);
 }
 
+bool type_checker::should_eta_recursors(expr const & t, expr const & s) {
+    buffer<expr> t_args;
+    expr const & t_fn = get_app_args(t, t_args);
+    if (!is_constant(t_fn)) return false;
+    name t_fn_name = const_name(t_fn);
+    expr const & s_fn = get_app_fn(s);
+    if (is_constant(s_fn) && const_name(s_fn) == t_fn_name) return false;
+    constant_info t_info = env().get(t_fn_name);
+    if (!t_info.is_recursor()) return false;
+    recursor_val rec_val = t_info.to_recursor_val();
+    // Should this be != instead of > ?
+    if (t_args.size() > rec_val.get_major_idx()) return false;
+    return 
+        rec_val.is_k() || is_structure_like(env(), rec_val.get_major_induct());
+}
+
+bool type_checker::should_eta(expr const & t, expr const & s) {
+    if (is_lambda(t) && !is_lambda(s)) return true;
+    return should_eta_recursors(s, t);
+}
+
 /** \brief Try to solve (fun (x : A), B) =?= s by trying eta-expansion on s */
 bool type_checker::try_eta_expansion_core(expr const & t, expr const & s) {
-    if (is_lambda(t) && !is_lambda(s)) {
+    if (should_eta(t, s)) {
         expr s_type = whnf(infer_type(s));
         if (!is_pi(s_type))
             return false;
@@ -792,15 +813,29 @@ bool type_checker::try_eta_expansion_core(expr const & t, expr const & s) {
 }
 
 /** \brief check whether \c s is of the form <tt>mk t.1 ... t.n</tt> */
-bool type_checker::try_eta_struct_core(expr const & t, expr const & s) {
+bool type_checker::try_eta_struct_core(expr const & t_, expr const & s_) {
+    expr t = t_;
+    expr s = s_;
     expr f = get_app_fn(s);
     if (!is_constant(f)) return false;
     constant_info f_info = env().get(const_name(f));
     if (!f_info.is_constructor()) return false;
     constructor_val f_val = f_info.to_constructor_val();
-    if (get_app_num_args(s) != f_val.get_nparams() + f_val.get_nfields()) return false;
     if (!is_structure_like(env(), f_val.get_induct())) return false;
-    if (!is_def_eq(infer_type(t), infer_type(s))) return false;
+    expr t_type = infer_type(t);
+    expr s_type = infer_type(s);
+    if (!is_def_eq(t_type,s_type)) return false;
+    flet<local_ctx> save_lctx(m_lctx, m_lctx);
+    if (get_app_num_args(s) != f_val.get_nparams() + f_val.get_nfields()) {
+        buffer<expr> fvars;
+        while (is_pi(t_type)) {
+            expr hd = instantiate_rev(binding_domain(t_type), fvars.size(), fvars.data());
+            fvars.push_back(m_lctx.mk_local_decl(m_st->m_ngen, binding_name(t_type), hd, binding_info(t_type)));
+            t_type  = whnf(binding_body(t_type));
+        };
+        t = mk_app(t, fvars);
+        s = mk_app(s, fvars);
+    };
     buffer<expr> s_args;
     get_app_args(s, s_args);
     for (unsigned i = f_val.get_nparams(); i < s_args.size(); i++) {
@@ -841,7 +876,7 @@ lbool type_checker::is_def_eq_proof_irrel(expr const & t, expr const & s) {
     if (!is_prop(t_type))
         return l_undef;
     expr s_type = infer_type(s);
-    return to_lbool(is_def_eq(t_type, s_type));
+    return to_lbool(is_def_eq(t_type, s_type)); // An invariant of the kernel is that two terms getting compared should have the same type, this is
 }
 
 bool type_checker::failed_before(expr const & t, expr const & s) const {
@@ -1042,17 +1077,51 @@ lbool type_checker::try_string_lit_expansion(expr const & t, expr const & s) {
     return try_string_lit_expansion_core(s, t);
 }
 
-/* Return `true` if the types of the given expressions is an inductive datatype with an inductive datatype with a single constructor with no fields. */
-bool type_checker::is_def_eq_unit_like(expr const & t, expr const & s) {
-    expr t_type = whnf(infer_type(t));
-    expr I = get_app_fn(t_type);
+bool type_checker::is_unit_like(expr const & t) {
+    buffer<expr> args;
+    buffer<expr> fvars;
+    flet<local_ctx> save_lctx(m_lctx, m_lctx);
+
+    expr I = whnf(t);
+    // If type is an arrow-type, we check if the final codomain is unit-like
+    while (is_pi(I)) {
+        expr hd = instantiate_rev(binding_domain(I), fvars.size(), fvars.data());
+        fvars.push_back(m_lctx.mk_local_decl(m_st->m_ngen, binding_name(I), hd, binding_info(I)));
+        I       = whnf(binding_body(I));
+    }
+    I = get_app_args(I,args);
     if (!is_constant(I) || !is_structure_like(env(), const_name(I)))
         return false;
     name ctor_name = head(env().get(const_name(I)).to_inductive_val().get_cnstrs());
-    constructor_val ctor_val = env().get(ctor_name).to_constructor_val();
-    if (ctor_val.get_nfields() != 0)
+    I = env().get(ctor_name).to_constructor_val().to_constant_val().get_type();
+    for (unsigned i = 0; i < args.size(); i++) {
+        // Check the instantiated type of the fields for the according structure parameter
+        I = instantiate(binding_body(I),args[i]);
+    }
+    // Check that every field (read, every domain) of the constructor are themselves unit-like
+    while (is_pi(I)) {
+        expr hd = instantiate_rev(binding_domain(I), fvars.size(), fvars.data());
+        if (!is_unit_like(hd) && !is_prop(hd))
+            return false;
+        fvars.push_back(m_lctx.mk_local_decl(m_st->m_ngen, binding_name(I), hd, binding_info(I)));
+        I     = binding_body(I);
+    }
+    return true;
+}
+
+/*
+  Return `true` if the types of the given expressions is a structure-like inductive datatype
+  with a single constructor for which all fields are unit-like or Prop types,
+  or a dependent arrow for which the final codomain is unit-like. */
+bool type_checker::is_def_eq_unit_like(expr const & t, expr const & s) {
+    expr t_type = whnf(infer_type(t));
+    if (!is_unit_like(t_type))
         return false;
-    return is_def_eq_core(t_type, infer_type(s));
+    //This should always be true under the invariant that terms that get compared must be known to have defeq types 
+    // Also, should this be is_def_eq_core or is_def_eq ?
+    if (is_def_eq_core(t_type, infer_type(s))) 
+        return true;
+    return false;
 }
 
 bool type_checker::is_def_eq_core(expr const & t, expr const & s) {

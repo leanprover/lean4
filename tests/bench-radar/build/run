@@ -23,6 +23,7 @@ export PATH="$PWD/$STAGE2/bin:$PATH"
 # Substitute our own wrapper script
 mv "$STAGE2/bin/lean" "$STAGE2/bin/lean.wrapped"
 cp "$BENCH/build/lean_wrapper.py" "$STAGE2/bin/lean"
+mv "$STAGE2/bin/lean" "$STAGE2/bin/lean.wrapped"
 cp "$BENCH/build/leanir_wrapper.py" "$STAGE2/bin/leanir"
 
 # Build stage3

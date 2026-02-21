@@ -1,0 +1,142 @@
+/-
+Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Sofia Rodrigues
+-/
+module
+
+prelude
+import Init.Data.Array
+public import Std.Internal.Http.Data
+
+public section
+
+/-!
+# Message
+
+This module provides types and operations for HTTP/1.1 messages, centered around the `Direction`
+type which models the server's role in message exchange: `Direction.receiving` for parsing incoming
+requests from clients, and `Direction.sending` for generating outgoing responses to clients.
+The `Message.Head` type is parameterized by `Direction` and resolves to `Request.Head` or
+`Response.Head` accordingly, enabling generic code that works uniformly across both phases
+while exposing common operations such as headers, version, and `shouldKeepAlive`
+-/
+
+namespace Std.Http.Protocol.H1
+
+set_option linter.all true
+
+/--
+Direction of message flow from the server's perspective.
+-/
+inductive Direction
+  /--
+  Receiving and parsing incoming requests from clients.
+  -/
+  | receiving
+
+  /--
+  Generating and sending outgoing responses to clients.
+  -/
+  | sending
+deriving BEq
+
+/--
+Inverts the message direction.
+-/
+@[expose]
+abbrev Direction.swap : Direction → Direction
+  | .receiving => .sending
+  | .sending => .receiving
+
+/--
+Gets the message head type based on direction.
+-/
+@[expose]
+def Message.Head : Direction → Type
+  | .receiving => Request.Head
+  | .sending => Response.Head
+
+/--
+Gets the headers of a `Message`.
+-/
+def Message.Head.headers (m : Message.Head dir) : Headers :=
+  match dir with
+  | .receiving => Request.Head.headers m
+  | .sending => Response.Head.headers m
+
+/--
+Gets the version of a `Message`.
+-/
+def Message.Head.version (m : Message.Head dir) : Version :=
+  match dir with
+  | .receiving => Request.Head.version m
+  | .sending => Response.Head.version m
+
+/--
+Determines the message body size based on the `Content-Length` header and the `Transfer-Encoding` (chunked) flag.
+-/
+def Message.Head.getSize (message : Message.Head dir) (allowEOFBody : Bool) : Option Body.Length :=
+  let contentLength := message.headers.getAll? .contentLength
+  match message.headers.getAll? .transferEncoding with
+  | none =>
+      match contentLength with
+      | some #[cl] => .fixed <$> cl.value.toNat?
+      | none => if allowEOFBody then some (.fixed 0) else none
+      | some _ => none -- To avoid request smuggling with malformed/multiple content-length headers.
+  | some teHeaders =>
+      let codings? : Option (Array String) :=
+        teHeaders.foldl (fun acc headerValue => do
+          let acc ← acc
+          let te ← Header.TransferEncoding.parse headerValue
+          pure (acc ++ te.codings)
+        ) (some #[])
+
+      match codings? with
+      | none => none
+      | some codings =>
+          if ¬Header.TransferEncoding.Validate codings then
+            none
+          else if codings != #["chunked"] then -- Non-chunked transfer codings are not supported.
+            none
+          else
+            match contentLength with
+            | none => some .chunked
+            | some _ => none -- To avoid request smuggling when TE and CL are mixed.
+
+/--
+Checks whether the message indicates that the connection should be kept alive.
+-/
+@[inline]
+def Message.Head.shouldKeepAlive (message : Message.Head dir) : Bool :=
+  if message.version ≠ .v11 then
+    false
+  else
+    match message.headers.getAll? .connection with
+    | none => true
+    | some values =>
+        let tokens? : Option (Array String) :=
+          values.foldl (fun acc raw => do
+            let acc ← acc
+            let parsed ← Header.Connection.parse raw
+            pure (acc ++ parsed.tokens)
+          ) (some #[])
+        match tokens? with
+        | none => false
+        | some tokens => !tokens.any (· == "close")
+
+instance : Repr (Message.Head dir) :=
+  match dir with
+  | .receiving => inferInstanceAs (Repr Request.Head)
+  | .sending => inferInstanceAs (Repr Response.Head)
+
+instance : Internal.Encode .v11 (Message.Head dir) :=
+  match dir with
+  | .receiving => inferInstanceAs (Internal.Encode .v11 Request.Head)
+  | .sending => inferInstanceAs (Internal.Encode .v11 Response.Head)
+
+instance : EmptyCollection (Message.Head dir) where
+  emptyCollection :=
+    match dir with
+    | .receiving => {}
+    | .sending => {}

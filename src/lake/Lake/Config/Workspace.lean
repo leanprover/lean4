@@ -125,7 +125,7 @@ This is configured through {lit}`cache.defaultUploadService` in the system Lake 
 /--
 Returns the configured cache service with the given name.
 
-This is configured through {lit}`cache.service` entries in the global Lake configuration.
+This is configured through {lit}`cache.service` entries in the system Lake configuration.
 -/
 @[inline] public def findCacheService? (ws : Workspace) (service : String) : Option CacheService :=
   ws.lakeConfig.cacheServices.find? (.mkSimple service)

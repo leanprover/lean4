@@ -212,36 +212,39 @@ public structure Cache where
   deriving Inhabited
 
 /-- The current version of the output file format. -/
-def CacheOutput.schemaVersion : String := "2026-02-10"
+public def CacheOutput.schemaVersion : String := "2026-02-10"
 
-structure CacheOutput where
-  service? : Option String := none
+public structure CacheOutput where
   data : Json
+  service? : Option String := none
+  scope? : Option String := none
   deriving ToJson
 
 namespace CacheOutput
 
-protected def toJson (out : CacheOutput) : Json :=
+public protected def toJson (out : CacheOutput) : Json :=
   JsonObject.empty
   |>.insert "schemaVersion" schemaVersion
   |>.insert "service" out.service?
+  |>.insert "scope" out.scope?
   |>.insert "data" out.data
 
-instance : ToJson CacheOutput := ⟨CacheOutput.toJson⟩
+public instance : ToJson CacheOutput := ⟨CacheOutput.toJson⟩
 
-protected def fromJson? (json : Json) : Except String CacheOutput := do
+public protected def fromJson? (json : Json) : Except String CacheOutput := do
   if let .obj obj := json then
     let obj := JsonObject.mk obj
     if obj.contains "schemaVersion" then
       -- presumably the new format
       -- (the edge case of a custom output with a `schemaVersion` is not worth covering)
+      let scope? ← obj.get? "scope"
       let service? ← obj.get? "service"
       let data ← obj.get "data"
-      return {service?, data}
+      return {data, service?, scope?}
   -- old format: just the data
   return {data := json}
 
-instance : FromJson CacheOutput := ⟨CacheOutput.fromJson?⟩
+public instance : FromJson CacheOutput := ⟨CacheOutput.fromJson?⟩
 
 end CacheOutput
 
@@ -295,33 +298,34 @@ public def getArtifactPaths
 
 /-- Cache the outputs corresponding to the given input for the package.  -/
 def writeOutputsCore
-  (cache : Cache) (scope : String) (inputHash : Hash) (outputs : Json)
-  (service? : Option String := none)
+  (cache : Cache) (scope : String) (inputHash : Hash) (out : Json)
+  (service? : Option String := none) (remoteScope? : Option String := none)
 : IO Unit := do
   let file := cache.outputsFile scope inputHash
   createParentDirs file
-  let out := {service?, data := outputs : CacheOutput}
+  let out := {service?, scope? := remoteScope?, data := out : CacheOutput}
   IO.FS.writeFile file (toJson out).pretty
 
 /-- Cache the outputs corresponding to the given input for the package.  -/
 @[inline] public def writeOutputs
   [ToJson α] (cache : Cache) (scope : String) (inputHash : Hash) (outputs : α)
-  (service? : Option String := none)
-: IO Unit := cache.writeOutputsCore scope inputHash (toJson outputs) service?
+  (service? : Option String := none) (remoteScope? : Option String := none)
+: IO Unit := cache.writeOutputsCore scope inputHash (toJson outputs) service? remoteScope?
 
 /-- Cache the input-to-outputs mappings from a `CacheMap`.  -/
 public def writeMap
-  (cache : Cache) (scope : String) (map : CacheMap) (service? : Option String := none)
-: IO Unit := map.forM fun i o => cache.writeOutputsCore scope i o service?
+  (cache : Cache) (scope : String) (map : CacheMap)
+  (service? : Option String := none) (remoteScope? : Option String := none)
+: IO Unit := map.forM fun i o => cache.writeOutputsCore scope i o service? remoteScope?
 
 /-- Retrieve the cached outputs corresponding to the given input for the package (if any). -/
-public def readOutputs? (cache : Cache) (scope : String) (inputHash : Hash) : LogIO (Option Json) := do
+public def readOutputs? (cache : Cache) (scope : String) (inputHash : Hash) : LogIO (Option CacheOutput) := do
   let path := cache.outputsFile scope inputHash
   match (← IO.FS.readFile path |>.toBaseIO) with
   | .ok contents =>
     match Json.parse contents >>= fromJson? with
     | .ok out =>
-      return CacheOutput.data out
+      return out
     | .error e =>
       logWarning s!"{path}: invalid JSON: {e}"
       return none
@@ -339,6 +343,15 @@ public def readOutputs? (cache : Cache) (scope : String) (inputHash : Hash) : Lo
 end Cache
 
 /-! ## Remote Cache Service -/
+
+/-- **For internal use only.** -/
+public def downloadArtifactCore (hash : Hash) (url : String) (path : FilePath) : LogIO Unit := do
+  download url path
+  let actualHash ← computeFileHash path
+  if actualHash != hash then
+    logError s!"{path}: downloaded artifact does not have the expected hash"
+    IO.FS.removeFile path
+    failure
 
 /-- Uploads a file to an online bucket using the Amazon S3 protocol. -/
 def uploadS3
@@ -473,12 +486,7 @@ public def downloadArtifact
     {scope}: downloading artifact {descr.hash}\
     \n  local path: {path}\
     \n  remote URL: {url}"
-  download url path
-  let hash ← computeFileHash path
-  if hash != descr.hash then
-    logError s!"{path}: downloaded artifact does not have the expected hash"
-    IO.FS.removeFile path
-    failure
+  downloadArtifactCore descr.hash url path
 
 public def downloadArtifacts
    (descrs : Array ArtifactDescr) (cache : Cache)
@@ -497,7 +505,7 @@ public def downloadOutputArtifacts
   (map : CacheMap) (cache : Cache) (service : CacheService)
   (localScope remoteScope : String) (force := false)
 : LoggerIO Unit := do
-  cache.writeMap localScope map service.name?
+  cache.writeMap localScope map service.name? (some remoteScope)
   let descrs ← map.collectOutputDescrs
   service.downloadArtifacts descrs cache remoteScope force
 

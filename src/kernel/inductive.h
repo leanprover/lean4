@@ -59,23 +59,18 @@ expr expand_eta_struct(environment const & env, expr const & e_type, expr const 
 
 /* If `e` is not a constructor application and its type `C ...` is a non-recursive structure, return `C.mk e.1 ... e.n`,
    where `C.mk` is `C`s constructor. */
-template<typename WHNF, typename INFER, typename IS_PROP>
-inline expr to_cnstr_when_structure(environment const & env, name const & induct_name, expr const & e,
-                                    WHNF const & whnf, INFER const & infer_type, IS_PROP const & is_prop) {
-    if (!is_non_rec_structure(env, induct_name) || is_constructor_app(env, e))
+template<typename WHNF, typename INFER>
+inline expr to_cnstr_when_structure(environment const & env, const lean::recursor_val &rec_val, expr const & e,
+                                    WHNF const & whnf, INFER const & infer_type) {
+    name const & induct_name = rec_val.get_major_induct();
+    if (!is_structure_like(env, induct_name) || is_constructor_app(env, e))
         return e;
     expr e_type = whnf(infer_type(e));
-    if (!is_constant(get_app_fn(e_type), induct_name))
+    if (!is_constant(get_app_fn(e_type), induct_name))  // Why is this check done ? if we're reducing, we already know the recursor expression to be type-correct, checking it again here should be not useful
         return e;
-    // See `type_checker::is_prop`: zero must be tested up to normalization, e.g. `imax 1 0` is `Prop`.
-    if (is_prop(e_type))
+    if (!rec_val.has_sort_poly_motive())
         return e;
-    return expand_eta_struct(env, e_type, e);
-}
-
-template<typename WHNF, typename INFER, typename IS_DEF_EQ, typename IS_PROP>
 inline optional<expr> inductive_reduce_rec(environment const & env, expr const & e,
-                                           WHNF const & whnf, INFER const & infer_type, IS_DEF_EQ const & is_def_eq,
                                            IS_PROP const & is_prop) {
     expr const & rec_fn   = get_app_fn(e);
     if (!is_constant(rec_fn)) return none_expr();
@@ -96,7 +91,7 @@ inline optional<expr> inductive_reduce_rec(environment const & env, expr const &
     else if (is_string_lit(major))
         major = whnf(string_lit_to_constructor(major));
     else
-        major = to_cnstr_when_structure(env, rec_val.get_major_induct(), major, whnf, infer_type, is_prop);
+        major = to_cnstr_when_structure(env, rec_val, major, whnf, infer_type);
     optional<recursor_rule> rule = get_rec_rule_for(rec_val, major);
     if (!rule) return none_expr();
     buffer<expr> major_args;
@@ -104,11 +99,7 @@ inline optional<expr> inductive_reduce_rec(environment const & env, expr const &
     if (rule->get_nfields() > major_args.size()) return none_expr();
     if (length(const_levels(rec_fn)) != length(rec_info->get_lparams())) return none_expr();
     expr rhs = instantiate_lparams(rule->get_rhs(), rec_info->get_lparams(), const_levels(rec_fn));
-    /* apply parameters, motives and minor premises from recursor application. */
-    rhs      = mk_app(rhs, rec_val.get_nparams() + rec_val.get_nmotives() + rec_val.get_nminors(), rec_args.data());
-    /* The number of parameters in the constructor is not necessarily
        equal to the number of parameters in the recursor when we have
-       nested inductive types. */
     unsigned nparams = major_args.size() - rule->get_nfields();
     /* apply fields from major premise */
     rhs      = mk_app(rhs, rule->get_nfields(), major_args.data() + nparams);

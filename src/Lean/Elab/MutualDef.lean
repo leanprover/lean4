@@ -965,30 +965,18 @@ structure LetRecClosure where
 private def mkLetRecClosureFor (toLift : LetRecToLift) (freeVars : Array FVarId) : TermElabM LetRecClosure := do
   let lctx := toLift.lctx
   withLCtx lctx toLift.localInstances do
-  lambdaTelescope toLift.val fun xs val => do
-    /-
-      Recall that `toLift.type` and `toLift.value` may have different binder annotations.
-      See issue #1377 for an example.
-    -/
-    let userNameAndBinderInfos ← forallBoundedTelescope toLift.type xs.size fun xs _ =>
-      xs.mapM fun x => do
-        let localDecl ← x.fvarId!.getDecl
-        return (localDecl.userName, localDecl.binderInfo)
-    /- Auxiliary map for preserving binder user-facing names and `BinderInfo` for types. -/
-    let mut userNameBinderInfoMap : FVarIdMap (Name × BinderInfo) := {}
-    for x in xs, (userName, bi) in userNameAndBinderInfos do
-      userNameBinderInfoMap := userNameBinderInfoMap.insert x.fvarId! (userName, bi)
-    let type ← instantiateForall toLift.type xs
+  /-
+    Recall that `toLift.type` and `toLift.value` may have different binder annotations.
+    See issue #1377 for an example.
+  -/
+  let lambdaArity := toLift.val.getNumHeadLambdas
+  forallBoundedTelescope toLift.type lambdaArity fun xs type => do
+    let val := toLift.val.beta xs
     let lctx ← getLCtx
     let s ← mkClosureFor freeVars <| xs.map fun x => lctx.get! x.fvarId!
-    /- Apply original type binder info and user-facing names to local declarations. -/
-    let typeLocalDecls := s.localDecls.map fun localDecl =>
-      if let some (userName, bi) := userNameBinderInfoMap.get? localDecl.fvarId then
-        localDecl.setBinderInfo bi |>.setUserName userName
-      else
-        localDecl
-    let type := Closure.mkForall typeLocalDecls <| Closure.mkForall s.newLetDecls type
-    let val  := Closure.mkLambda s.localDecls <| Closure.mkLambda s.newLetDecls val
+    let cleanLocalDecls := s.localDecls.map fun decl => decl.setType <| decl.type.cleanupAnnotations
+    let type := Closure.mkForall s.localDecls <| Closure.mkForall s.newLetDecls type
+    let val  := Closure.mkLambda cleanLocalDecls <| Closure.mkLambda s.newLetDecls val
     let c    := mkAppN (Lean.mkConst toLift.declName) s.exprArgs
     toLift.mvarId.assign c
     return {

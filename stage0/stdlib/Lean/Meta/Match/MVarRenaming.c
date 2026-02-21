@@ -31,6 +31,7 @@ static const lean_object* l_Lean_Meta_MVarRenaming_find_x21___closed__1 = (const
 static const lean_string_object l_Lean_Meta_MVarRenaming_find_x21___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 14, .m_capacity = 14, .m_length = 13, .m_data = "value is none"};
 static const lean_object* l_Lean_Meta_MVarRenaming_find_x21___closed__2 = (const lean_object*)&l_Lean_Meta_MVarRenaming_find_x21___closed__2_value;
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_once_cell_t l_Lean_Meta_MVarRenaming_find_x21___closed__3_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Meta_MVarRenaming_find_x21___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Meta_MVarRenaming_find_x21(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_MVarRenaming_find_x21___boxed(lean_object*, lean_object*);
@@ -165,7 +166,7 @@ x_3 = lean_panic_fn(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Meta_MVarRenaming_find_x21___closed__3() {
+static lean_object* _init_l_Lean_Meta_MVarRenaming_find_x21___closed__3(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
@@ -186,7 +187,7 @@ x_3 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___00Lean_Meta_MVarRenaming
 if (lean_obj_tag(x_3) == 0)
 {
 lean_object* x_4; lean_object* x_5; 
-x_4 = l_Lean_Meta_MVarRenaming_find_x21___closed__3;
+x_4 = lean_obj_once(&l_Lean_Meta_MVarRenaming_find_x21___closed__3, &l_Lean_Meta_MVarRenaming_find_x21___closed__3_once, _init_l_Lean_Meta_MVarRenaming_find_x21___closed__3);
 x_5 = l_panic___at___00Lean_Meta_MVarRenaming_find_x21_spec__0(x_4);
 return x_5;
 }
@@ -325,8 +326,6 @@ _G_initialized = true;
 res = initialize_Lean_Util_ReplaceExpr(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Meta_MVarRenaming_find_x21___closed__3 = _init_l_Lean_Meta_MVarRenaming_find_x21___closed__3();
-lean_mark_persistent(l_Lean_Meta_MVarRenaming_find_x21___closed__3);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

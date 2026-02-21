@@ -45,6 +45,7 @@ static const lean_ctor_object l_List_MergeSort_Internal_mergeSortTR___auto__1___
 static const lean_ctor_object l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__4_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__4_value_aux_2),((lean_object*)&l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__3_value),LEAN_SCALAR_PTR_LITERAL(212, 140, 85, 215, 241, 69, 7, 118)}};
 static const lean_object* l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__4 = (const lean_object*)&l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__4_value;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
+static lean_once_cell_t l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__5_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__5;
 static const lean_string_object l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__6_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 19, .m_capacity = 19, .m_length = 18, .m_data = "tacticSeq1Indented"};
 static const lean_object* l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__6 = (const lean_object*)&l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__6_value;
@@ -66,8 +67,10 @@ static const lean_ctor_object l_List_MergeSort_Internal_mergeSortTR___auto__1___
 static const lean_ctor_object l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__11_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__11_value_aux_2),((lean_object*)&l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__10_value),LEAN_SCALAR_PTR_LITERAL(108, 106, 111, 83, 219, 207, 32, 208)}};
 static const lean_object* l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__11 = (const lean_object*)&l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__11_value;
 lean_object* l_Lean_mkAtom(lean_object*);
+static lean_once_cell_t l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__12_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__12;
 lean_object* lean_array_push(lean_object*, lean_object*);
+static lean_once_cell_t l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__13_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__13;
 static const lean_string_object l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__14_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 5, .m_capacity = 5, .m_length = 4, .m_data = "Term"};
 static const lean_object* l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__14 = (const lean_object*)&l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__14_value;
@@ -78,7 +81,9 @@ static const lean_ctor_object l_List_MergeSort_Internal_mergeSortTR___auto__1___
 static const lean_ctor_object l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__16_value_aux_2 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__16_value_aux_1),((lean_object*)&l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__14_value),LEAN_SCALAR_PTR_LITERAL(75, 170, 162, 138, 136, 204, 251, 229)}};
 static const lean_ctor_object l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__16_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__16_value_aux_2),((lean_object*)&l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__15_value),LEAN_SCALAR_PTR_LITERAL(249, 155, 133, 242, 71, 132, 191, 97)}};
 static const lean_object* l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__16 = (const lean_object*)&l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__16_value;
+static lean_once_cell_t l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__17_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__17;
+static lean_once_cell_t l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__18_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__18;
 static const lean_string_object l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__19_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 9, .m_capacity = 9, .m_length = 8, .m_data = "basicFun"};
 static const lean_object* l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__19 = (const lean_object*)&l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__19_value;
@@ -90,27 +95,41 @@ static const lean_object* l_List_MergeSort_Internal_mergeSortTR___auto__1___clos
 static const lean_string_object l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__21_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 2, .m_capacity = 2, .m_length = 1, .m_data = "a"};
 static const lean_object* l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__21 = (const lean_object*)&l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__21_value;
 lean_object* lean_string_utf8_byte_size(lean_object*);
+static lean_once_cell_t l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__22_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__22;
+static lean_once_cell_t l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__23_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__23;
 static const lean_ctor_object l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__24_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__21_value),LEAN_SCALAR_PTR_LITERAL(247, 80, 99, 121, 74, 33, 203, 108)}};
 static const lean_object* l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__24 = (const lean_object*)&l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__24_value;
+static lean_once_cell_t l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__25_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__25;
+static lean_once_cell_t l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__26_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__26;
 static const lean_string_object l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__27_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 2, .m_capacity = 2, .m_length = 1, .m_data = "b"};
 static const lean_object* l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__27 = (const lean_object*)&l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__27_value;
+static lean_once_cell_t l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__28_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__28;
+static lean_once_cell_t l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__29_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__29;
 static const lean_ctor_object l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__30_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__27_value),LEAN_SCALAR_PTR_LITERAL(47, 22, 244, 233, 226, 169, 241, 142)}};
 static const lean_object* l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__30 = (const lean_object*)&l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__30_value;
+static lean_once_cell_t l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__31_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__31;
+static lean_once_cell_t l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__32_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__32;
+static lean_once_cell_t l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__33_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__33;
+static lean_once_cell_t l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__34_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__34;
+static lean_once_cell_t l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__35_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__35;
+static lean_once_cell_t l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__36_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__36;
 static const lean_string_object l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__37_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 3, .m_capacity = 3, .m_length = 2, .m_data = "=>"};
 static const lean_object* l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__37 = (const lean_object*)&l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__37_value;
+static lean_once_cell_t l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__38_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__38;
+static lean_once_cell_t l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__39_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__39;
 static const lean_string_object l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__40_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 10, .m_capacity = 10, .m_length = 7, .m_data = "term_≤_"};
 static const lean_object* l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__40 = (const lean_object*)&l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__40_value;
@@ -118,21 +137,37 @@ static const lean_ctor_object l_List_MergeSort_Internal_mergeSortTR___auto__1___
 static const lean_object* l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__41 = (const lean_object*)&l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__41_value;
 static const lean_string_object l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__42_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 4, .m_capacity = 4, .m_length = 1, .m_data = "≤"};
 static const lean_object* l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__42 = (const lean_object*)&l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__42_value;
+static lean_once_cell_t l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__43_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__43;
+static lean_once_cell_t l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__44_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__44;
+static lean_once_cell_t l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__45_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__45;
+static lean_once_cell_t l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__46_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__46;
+static lean_once_cell_t l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__47_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__47;
+static lean_once_cell_t l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__48_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__48;
+static lean_once_cell_t l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__49_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__49;
+static lean_once_cell_t l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__50_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__50;
+static lean_once_cell_t l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__51_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__51;
+static lean_once_cell_t l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__52_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__52;
+static lean_once_cell_t l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__53_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__53;
+static lean_once_cell_t l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__54_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__54;
+static lean_once_cell_t l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__55_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__55;
+static lean_once_cell_t l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__56_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__56;
+static lean_once_cell_t l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__57_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__57;
+static lean_once_cell_t l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__58_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__58;
 LEAN_EXPORT lean_object* l_List_MergeSort_Internal_mergeSortTR___auto__1;
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -647,7 +682,7 @@ return x_16;
 }
 }
 }
-static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__5() {
+static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__5(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -656,7 +691,7 @@ x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__12() {
+static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__12(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -665,17 +700,17 @@ x_2 = l_Lean_mkAtom(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__13() {
+static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__13(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__12;
-x_2 = l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__5;
+x_1 = lean_obj_once(&l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__12, &l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__12_once, _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__12);
+x_2 = lean_obj_once(&l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__5, &l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__5_once, _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__5);
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__17() {
+static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__17(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -684,17 +719,17 @@ x_2 = l_Lean_mkAtom(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__18() {
+static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__18(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__17;
-x_2 = l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__5;
+x_1 = lean_obj_once(&l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__17, &l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__17_once, _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__17);
+x_2 = lean_obj_once(&l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__5, &l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__5_once, _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__5);
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__22() {
+static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__22(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -703,11 +738,11 @@ x_2 = lean_string_utf8_byte_size(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__23() {
+static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__23(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__22;
+x_1 = lean_obj_once(&l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__22, &l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__22_once, _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__22);
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = ((lean_object*)(l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__21));
 x_4 = lean_alloc_ctor(0, 3, 0);
@@ -717,13 +752,13 @@ lean_ctor_set(x_4, 2, x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__25() {
+static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__25(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = lean_box(0);
 x_2 = ((lean_object*)(l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__24));
-x_3 = l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__23;
+x_3 = lean_obj_once(&l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__23, &l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__23_once, _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__23);
 x_4 = lean_box(2);
 x_5 = lean_alloc_ctor(3, 4, 0);
 lean_ctor_set(x_5, 0, x_4);
@@ -733,17 +768,17 @@ lean_ctor_set(x_5, 3, x_1);
 return x_5;
 }
 }
-static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__26() {
+static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__26(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__25;
-x_2 = l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__5;
+x_1 = lean_obj_once(&l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__25, &l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__25_once, _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__25);
+x_2 = lean_obj_once(&l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__5, &l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__5_once, _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__5);
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__28() {
+static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__28(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -752,11 +787,11 @@ x_2 = lean_string_utf8_byte_size(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__29() {
+static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__29(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__28;
+x_1 = lean_obj_once(&l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__28, &l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__28_once, _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__28);
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = ((lean_object*)(l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__27));
 x_4 = lean_alloc_ctor(0, 3, 0);
@@ -766,13 +801,13 @@ lean_ctor_set(x_4, 2, x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__31() {
+static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__31(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = lean_box(0);
 x_2 = ((lean_object*)(l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__30));
-x_3 = l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__29;
+x_3 = lean_obj_once(&l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__29, &l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__29_once, _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__29);
 x_4 = lean_box(2);
 x_5 = lean_alloc_ctor(3, 4, 0);
 lean_ctor_set(x_5, 0, x_4);
@@ -782,21 +817,21 @@ lean_ctor_set(x_5, 3, x_1);
 return x_5;
 }
 }
-static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__32() {
+static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__32(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__31;
-x_2 = l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__26;
+x_1 = lean_obj_once(&l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__31, &l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__31_once, _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__31);
+x_2 = lean_obj_once(&l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__26, &l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__26_once, _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__26);
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__33() {
+static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__33(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__32;
+x_1 = lean_obj_once(&l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__32, &l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__32_once, _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__32);
 x_2 = ((lean_object*)(l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__9));
 x_3 = lean_box(2);
 x_4 = lean_alloc_ctor(1, 3, 0);
@@ -806,21 +841,21 @@ lean_ctor_set(x_4, 2, x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__34() {
+static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__34(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__33;
-x_2 = l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__5;
+x_1 = lean_obj_once(&l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__33, &l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__33_once, _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__33);
+x_2 = lean_obj_once(&l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__5, &l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__5_once, _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__5);
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__35() {
+static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__35(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__5;
+x_1 = lean_obj_once(&l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__5, &l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__5_once, _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__5);
 x_2 = ((lean_object*)(l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__9));
 x_3 = lean_box(2);
 x_4 = lean_alloc_ctor(1, 3, 0);
@@ -830,17 +865,17 @@ lean_ctor_set(x_4, 2, x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__36() {
+static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__36(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__35;
-x_2 = l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__34;
+x_1 = lean_obj_once(&l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__35, &l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__35_once, _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__35);
+x_2 = lean_obj_once(&l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__34, &l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__34_once, _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__34);
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__38() {
+static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__38(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -849,17 +884,17 @@ x_2 = l_Lean_mkAtom(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__39() {
+static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__39(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__38;
-x_2 = l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__36;
+x_1 = lean_obj_once(&l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__38, &l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__38_once, _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__38);
+x_2 = lean_obj_once(&l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__36, &l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__36_once, _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__36);
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__43() {
+static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__43(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -868,31 +903,31 @@ x_2 = l_Lean_mkAtom(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__44() {
+static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__44(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__43;
-x_2 = l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__26;
+x_1 = lean_obj_once(&l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__43, &l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__43_once, _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__43);
+x_2 = lean_obj_once(&l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__26, &l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__26_once, _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__26);
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__45() {
+static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__45(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__31;
-x_2 = l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__44;
+x_1 = lean_obj_once(&l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__31, &l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__31_once, _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__31);
+x_2 = lean_obj_once(&l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__44, &l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__44_once, _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__44);
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__46() {
+static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__46(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__45;
+x_1 = lean_obj_once(&l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__45, &l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__45_once, _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__45);
 x_2 = ((lean_object*)(l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__41));
 x_3 = lean_box(2);
 x_4 = lean_alloc_ctor(1, 3, 0);
@@ -902,21 +937,21 @@ lean_ctor_set(x_4, 2, x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__47() {
+static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__47(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__46;
-x_2 = l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__39;
+x_1 = lean_obj_once(&l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__46, &l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__46_once, _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__46);
+x_2 = lean_obj_once(&l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__39, &l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__39_once, _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__39);
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__48() {
+static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__48(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__47;
+x_1 = lean_obj_once(&l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__47, &l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__47_once, _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__47);
 x_2 = ((lean_object*)(l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__20));
 x_3 = lean_box(2);
 x_4 = lean_alloc_ctor(1, 3, 0);
@@ -926,21 +961,21 @@ lean_ctor_set(x_4, 2, x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__49() {
+static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__49(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__48;
-x_2 = l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__18;
+x_1 = lean_obj_once(&l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__48, &l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__48_once, _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__48);
+x_2 = lean_obj_once(&l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__18, &l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__18_once, _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__18);
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__50() {
+static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__50(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__49;
+x_1 = lean_obj_once(&l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__49, &l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__49_once, _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__49);
 x_2 = ((lean_object*)(l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__16));
 x_3 = lean_box(2);
 x_4 = lean_alloc_ctor(1, 3, 0);
@@ -950,21 +985,21 @@ lean_ctor_set(x_4, 2, x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__51() {
+static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__51(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__50;
-x_2 = l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__13;
+x_1 = lean_obj_once(&l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__50, &l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__50_once, _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__50);
+x_2 = lean_obj_once(&l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__13, &l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__13_once, _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__13);
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__52() {
+static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__52(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__51;
+x_1 = lean_obj_once(&l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__51, &l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__51_once, _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__51);
 x_2 = ((lean_object*)(l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__11));
 x_3 = lean_box(2);
 x_4 = lean_alloc_ctor(1, 3, 0);
@@ -974,21 +1009,21 @@ lean_ctor_set(x_4, 2, x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__53() {
+static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__53(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__52;
-x_2 = l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__5;
+x_1 = lean_obj_once(&l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__52, &l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__52_once, _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__52);
+x_2 = lean_obj_once(&l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__5, &l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__5_once, _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__5);
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__54() {
+static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__54(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__53;
+x_1 = lean_obj_once(&l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__53, &l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__53_once, _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__53);
 x_2 = ((lean_object*)(l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__9));
 x_3 = lean_box(2);
 x_4 = lean_alloc_ctor(1, 3, 0);
@@ -998,21 +1033,21 @@ lean_ctor_set(x_4, 2, x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__55() {
+static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__55(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__54;
-x_2 = l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__5;
+x_1 = lean_obj_once(&l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__54, &l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__54_once, _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__54);
+x_2 = lean_obj_once(&l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__5, &l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__5_once, _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__5);
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__56() {
+static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__56(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__55;
+x_1 = lean_obj_once(&l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__55, &l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__55_once, _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__55);
 x_2 = ((lean_object*)(l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__7));
 x_3 = lean_box(2);
 x_4 = lean_alloc_ctor(1, 3, 0);
@@ -1022,21 +1057,21 @@ lean_ctor_set(x_4, 2, x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__57() {
+static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__57(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__56;
-x_2 = l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__5;
+x_1 = lean_obj_once(&l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__56, &l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__56_once, _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__56);
+x_2 = lean_obj_once(&l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__5, &l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__5_once, _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__5);
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__58() {
+static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__58(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__57;
+x_1 = lean_obj_once(&l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__57, &l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__57_once, _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__57);
 x_2 = ((lean_object*)(l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__4));
 x_3 = lean_box(2);
 x_4 = lean_alloc_ctor(1, 3, 0);
@@ -1046,11 +1081,11 @@ lean_ctor_set(x_4, 2, x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR___auto__1() {
+static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR___auto__1(void) {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__58;
+x_1 = lean_obj_once(&l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__58, &l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__58_once, _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__58);
 return x_1;
 }
 }
@@ -1361,11 +1396,11 @@ lean_dec(x_2);
 return x_4;
 }
 }
-static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR_u2082___auto__1() {
+static lean_object* _init_l_List_MergeSort_Internal_mergeSortTR_u2082___auto__1(void) {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__58;
+x_1 = lean_obj_once(&l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__58, &l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__58_once, _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__58);
 return x_1;
 }
 }
@@ -1651,76 +1686,6 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Nat_Linear(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__5 = _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__5();
-lean_mark_persistent(l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__5);
-l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__12 = _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__12();
-lean_mark_persistent(l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__12);
-l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__13 = _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__13();
-lean_mark_persistent(l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__13);
-l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__17 = _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__17();
-lean_mark_persistent(l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__17);
-l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__18 = _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__18();
-lean_mark_persistent(l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__18);
-l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__22 = _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__22();
-lean_mark_persistent(l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__22);
-l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__23 = _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__23();
-lean_mark_persistent(l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__23);
-l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__25 = _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__25();
-lean_mark_persistent(l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__25);
-l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__26 = _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__26();
-lean_mark_persistent(l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__26);
-l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__28 = _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__28();
-lean_mark_persistent(l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__28);
-l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__29 = _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__29();
-lean_mark_persistent(l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__29);
-l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__31 = _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__31();
-lean_mark_persistent(l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__31);
-l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__32 = _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__32();
-lean_mark_persistent(l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__32);
-l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__33 = _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__33();
-lean_mark_persistent(l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__33);
-l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__34 = _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__34();
-lean_mark_persistent(l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__34);
-l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__35 = _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__35();
-lean_mark_persistent(l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__35);
-l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__36 = _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__36();
-lean_mark_persistent(l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__36);
-l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__38 = _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__38();
-lean_mark_persistent(l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__38);
-l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__39 = _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__39();
-lean_mark_persistent(l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__39);
-l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__43 = _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__43();
-lean_mark_persistent(l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__43);
-l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__44 = _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__44();
-lean_mark_persistent(l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__44);
-l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__45 = _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__45();
-lean_mark_persistent(l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__45);
-l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__46 = _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__46();
-lean_mark_persistent(l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__46);
-l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__47 = _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__47();
-lean_mark_persistent(l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__47);
-l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__48 = _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__48();
-lean_mark_persistent(l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__48);
-l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__49 = _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__49();
-lean_mark_persistent(l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__49);
-l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__50 = _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__50();
-lean_mark_persistent(l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__50);
-l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__51 = _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__51();
-lean_mark_persistent(l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__51);
-l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__52 = _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__52();
-lean_mark_persistent(l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__52);
-l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__53 = _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__53();
-lean_mark_persistent(l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__53);
-l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__54 = _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__54();
-lean_mark_persistent(l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__54);
-l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__55 = _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__55();
-lean_mark_persistent(l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__55);
-l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__56 = _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__56();
-lean_mark_persistent(l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__56);
-l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__57 = _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__57();
-lean_mark_persistent(l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__57);
-l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__58 = _init_l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__58();
-lean_mark_persistent(l_List_MergeSort_Internal_mergeSortTR___auto__1___closed__58);
 l_List_MergeSort_Internal_mergeSortTR___auto__1 = _init_l_List_MergeSort_Internal_mergeSortTR___auto__1();
 lean_mark_persistent(l_List_MergeSort_Internal_mergeSortTR___auto__1);
 l_List_MergeSort_Internal_mergeSortTR_u2082___auto__1 = _init_l_List_MergeSort_Internal_mergeSortTR_u2082___auto__1();

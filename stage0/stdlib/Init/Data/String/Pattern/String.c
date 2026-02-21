@@ -31,6 +31,7 @@ LEAN_EXPORT lean_object* l___private_Init_Data_String_Pattern_String_0__String_S
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Pattern_String_0__String_Slice_Pattern_ForwardSliceSearcher_buildTable_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Pattern_String_0__String_Slice_Pattern_ForwardSliceSearcher_buildTable_go___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
+static lean_once_cell_t l_String_Slice_Pattern_ForwardSliceSearcher_buildTable___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_String_Slice_Pattern_ForwardSliceSearcher_buildTable___closed__0;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardSliceSearcher_buildTable(lean_object*);
@@ -240,7 +241,7 @@ lean_dec_ref(x_1);
 return x_6;
 }
 }
-static lean_object* _init_l_String_Slice_Pattern_ForwardSliceSearcher_buildTable___closed__0() {
+static lean_object* _init_l_String_Slice_Pattern_ForwardSliceSearcher_buildTable___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -271,7 +272,7 @@ else
 {
 lean_object* x_10; 
 lean_dec(x_4);
-x_10 = l_String_Slice_Pattern_ForwardSliceSearcher_buildTable___closed__0;
+x_10 = lean_obj_once(&l_String_Slice_Pattern_ForwardSliceSearcher_buildTable___closed__0, &l_String_Slice_Pattern_ForwardSliceSearcher_buildTable___closed__0_once, _init_l_String_Slice_Pattern_ForwardSliceSearcher_buildTable___closed__0);
 return x_10;
 }
 }
@@ -2554,8 +2555,6 @@ lean_dec_ref(res);
 res = initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_String_Slice_Pattern_ForwardSliceSearcher_buildTable___closed__0 = _init_l_String_Slice_Pattern_ForwardSliceSearcher_buildTable___closed__0();
-lean_mark_persistent(l_String_Slice_Pattern_ForwardSliceSearcher_buildTable___closed__0);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

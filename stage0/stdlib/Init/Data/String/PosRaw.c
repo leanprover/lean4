@@ -217,7 +217,7 @@ lean_dec(x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_String_instLERaw() {
+static lean_object* _init_l_String_instLERaw(void) {
 _start:
 {
 lean_object* x_1; 
@@ -225,7 +225,7 @@ x_1 = lean_box(0);
 return x_1;
 }
 }
-static lean_object* _init_l_String_instLTRaw() {
+static lean_object* _init_l_String_instLTRaw(void) {
 _start:
 {
 lean_object* x_1; 

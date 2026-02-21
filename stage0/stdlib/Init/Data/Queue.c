@@ -16,6 +16,7 @@ extern "C" {
 static const lean_ctor_object l_Std_Queue_empty___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 0, .m_other = 2, .m_tag = 0}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)(((size_t)(0) << 1) | 1))}};
 static const lean_object* l_Std_Queue_empty___closed__0 = (const lean_object*)&l_Std_Queue_empty___closed__0_value;
 LEAN_EXPORT lean_object* l_Std_Queue_empty(lean_object*);
+static lean_once_cell_t l_Std_Queue_instEmptyCollection___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Queue_instEmptyCollection___closed__0;
 LEAN_EXPORT lean_object* l_Std_Queue_instEmptyCollection(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Queue_instInhabited(lean_object*);
@@ -51,7 +52,7 @@ x_2 = ((lean_object*)(l_Std_Queue_empty___closed__0));
 return x_2;
 }
 }
-static lean_object* _init_l_Std_Queue_instEmptyCollection___closed__0() {
+static lean_object* _init_l_Std_Queue_instEmptyCollection___closed__0(void) {
 _start:
 {
 lean_object* x_1; 
@@ -63,7 +64,7 @@ LEAN_EXPORT lean_object* l_Std_Queue_instEmptyCollection(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_Std_Queue_instEmptyCollection___closed__0;
+x_2 = lean_obj_once(&l_Std_Queue_instEmptyCollection___closed__0, &l_Std_Queue_instEmptyCollection___closed__0_once, _init_l_Std_Queue_instEmptyCollection___closed__0);
 return x_2;
 }
 }
@@ -71,7 +72,7 @@ LEAN_EXPORT lean_object* l_Std_Queue_instInhabited(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_Std_Queue_instEmptyCollection___closed__0;
+x_2 = lean_obj_once(&l_Std_Queue_instEmptyCollection___closed__0, &l_Std_Queue_instEmptyCollection___closed__0_once, _init_l_Std_Queue_instEmptyCollection___closed__0);
 return x_2;
 }
 }
@@ -517,8 +518,6 @@ _G_initialized = true;
 res = initialize_Init_Data_List_Control(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Std_Queue_instEmptyCollection___closed__0 = _init_l_Std_Queue_instEmptyCollection___closed__0();
-lean_mark_persistent(l_Std_Queue_instEmptyCollection___closed__0);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

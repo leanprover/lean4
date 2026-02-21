@@ -40,6 +40,7 @@ LEAN_EXPORT lean_object* l_IO_AsyncList_waitUntil___redArg___lam__0(lean_object*
 static const lean_ctor_object l_IO_AsyncList_waitUntil___redArg___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 0, .m_other = 2, .m_tag = 0}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)(((size_t)(0) << 1) | 1))}};
 static const lean_object* l_IO_AsyncList_waitUntil___redArg___closed__0 = (const lean_object*)&l_IO_AsyncList_waitUntil___redArg___closed__0_value;
 lean_object* lean_task_pure(lean_object*);
+static lean_once_cell_t l_IO_AsyncList_waitUntil___redArg___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_IO_AsyncList_waitUntil___redArg___closed__1;
 LEAN_EXPORT lean_object* l_IO_AsyncList_waitUntil___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_Server_ServerTask_mapCheap___redArg(lean_object*, lean_object*);
@@ -54,11 +55,14 @@ LEAN_EXPORT lean_object* l_IO_AsyncList_waitAll___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_IO_AsyncList_waitAll(lean_object*, lean_object*, lean_object*);
 static const lean_ctor_object l_IO_AsyncList_waitFind_x3f___redArg___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1))}};
 static const lean_object* l_IO_AsyncList_waitFind_x3f___redArg___closed__0 = (const lean_object*)&l_IO_AsyncList_waitFind_x3f___redArg___closed__0_value;
+static lean_once_cell_t l_IO_AsyncList_waitFind_x3f___redArg___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_IO_AsyncList_waitFind_x3f___redArg___closed__1;
 LEAN_EXPORT lean_object* l_IO_AsyncList_waitFind_x3f___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_AsyncList_waitFind_x3f___redArg___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_AsyncList_waitFind_x3f(lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_once_cell_t l_IO_AsyncList_getFinishedPrefix___redArg___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_IO_AsyncList_getFinishedPrefix___redArg___closed__0;
+static lean_once_cell_t l_IO_AsyncList_getFinishedPrefix___redArg___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_IO_AsyncList_getFinishedPrefix___redArg___closed__1;
 LEAN_EXPORT lean_object* l_IO_AsyncList_getFinishedPrefix___redArg(lean_object*);
 uint8_t l_Lean_Server_ServerTask_hasFinished___redArg(lean_object*);
@@ -86,6 +90,7 @@ static const lean_object* l_IO_AsyncList_getFinishedPrefixWithTimeout___redArg__
 lean_object* l_IO_sleep(uint32_t);
 LEAN_EXPORT lean_object* l_IO_AsyncList_getFinishedPrefixWithTimeout___redArg___lam__0(uint32_t);
 LEAN_EXPORT lean_object* l_IO_AsyncList_getFinishedPrefixWithTimeout___redArg___lam__0___boxed(lean_object*, lean_object*);
+static lean_once_cell_t l_IO_AsyncList_getFinishedPrefixWithTimeout___redArg___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_IO_AsyncList_getFinishedPrefixWithTimeout___redArg___closed__0;
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 lean_object* l_Lean_Server_ServerTask_BaseIO_asTask___redArg(lean_object*);
@@ -384,7 +389,7 @@ return x_9;
 }
 }
 }
-static lean_object* _init_l_IO_AsyncList_waitUntil___redArg___closed__1() {
+static lean_object* _init_l_IO_AsyncList_waitUntil___redArg___closed__1(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -490,7 +495,7 @@ default:
 {
 lean_object* x_30; 
 lean_dec_ref(x_1);
-x_30 = l_IO_AsyncList_waitUntil___redArg___closed__1;
+x_30 = lean_obj_once(&l_IO_AsyncList_waitUntil___redArg___closed__1, &l_IO_AsyncList_waitUntil___redArg___closed__1_once, _init_l_IO_AsyncList_waitUntil___redArg___closed__1);
 return x_30;
 }
 }
@@ -585,7 +590,7 @@ x_4 = l_IO_AsyncList_waitAll___redArg(x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_IO_AsyncList_waitFind_x3f___redArg___closed__1() {
+static lean_object* _init_l_IO_AsyncList_waitFind_x3f___redArg___closed__1(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -644,7 +649,7 @@ default:
 {
 lean_object* x_14; 
 lean_dec_ref(x_1);
-x_14 = l_IO_AsyncList_waitFind_x3f___redArg___closed__1;
+x_14 = lean_obj_once(&l_IO_AsyncList_waitFind_x3f___redArg___closed__1, &l_IO_AsyncList_waitFind_x3f___redArg___closed__1_once, _init_l_IO_AsyncList_waitFind_x3f___redArg___closed__1);
 return x_14;
 }
 }
@@ -695,7 +700,7 @@ x_5 = l_IO_AsyncList_waitFind_x3f___redArg(x_3, x_4);
 return x_5;
 }
 }
-static lean_object* _init_l_IO_AsyncList_getFinishedPrefix___redArg___closed__0() {
+static lean_object* _init_l_IO_AsyncList_getFinishedPrefix___redArg___closed__0(void) {
 _start:
 {
 uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -708,11 +713,11 @@ lean_ctor_set(x_4, 1, x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_IO_AsyncList_getFinishedPrefix___redArg___closed__1() {
+static lean_object* _init_l_IO_AsyncList_getFinishedPrefix___redArg___closed__1(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_IO_AsyncList_getFinishedPrefix___redArg___closed__0;
+x_1 = lean_obj_once(&l_IO_AsyncList_getFinishedPrefix___redArg___closed__0, &l_IO_AsyncList_getFinishedPrefix___redArg___closed__0_once, _init_l_IO_AsyncList_getFinishedPrefix___redArg___closed__0);
 x_2 = lean_box(0);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
@@ -870,7 +875,7 @@ goto _start;
 default: 
 {
 lean_object* x_40; 
-x_40 = l_IO_AsyncList_getFinishedPrefix___redArg___closed__1;
+x_40 = lean_obj_once(&l_IO_AsyncList_getFinishedPrefix___redArg___closed__1, &l_IO_AsyncList_getFinishedPrefix___redArg___closed__1_once, _init_l_IO_AsyncList_getFinishedPrefix___redArg___closed__1);
 return x_40;
 }
 }
@@ -1195,7 +1200,7 @@ default:
 lean_object* x_62; 
 lean_dec_ref(x_2);
 lean_dec(x_1);
-x_62 = l_IO_AsyncList_getFinishedPrefix___redArg___closed__1;
+x_62 = lean_obj_once(&l_IO_AsyncList_getFinishedPrefix___redArg___closed__1, &l_IO_AsyncList_getFinishedPrefix___redArg___closed__1_once, _init_l_IO_AsyncList_getFinishedPrefix___redArg___closed__1);
 return x_62;
 }
 }
@@ -1252,7 +1257,7 @@ x_4 = l_IO_AsyncList_getFinishedPrefixWithTimeout___redArg___lam__0(x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_IO_AsyncList_getFinishedPrefixWithTimeout___redArg___closed__0() {
+static lean_object* _init_l_IO_AsyncList_getFinishedPrefixWithTimeout___redArg___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1280,7 +1285,7 @@ return x_10;
 else
 {
 lean_object* x_11; lean_object* x_12; 
-x_11 = l_IO_AsyncList_getFinishedPrefixWithTimeout___redArg___closed__0;
+x_11 = lean_obj_once(&l_IO_AsyncList_getFinishedPrefixWithTimeout___redArg___closed__0, &l_IO_AsyncList_getFinishedPrefixWithTimeout___redArg___closed__0_once, _init_l_IO_AsyncList_getFinishedPrefixWithTimeout___redArg___closed__0);
 x_12 = l___private_Lean_Server_AsyncList_0__IO_AsyncList_getFinishedPrefixWithTimeout_go___redArg(x_3, x_11, x_1);
 return x_12;
 }
@@ -1472,16 +1477,6 @@ _G_initialized = true;
 res = initialize_Lean_Server_ServerTask(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_IO_AsyncList_waitUntil___redArg___closed__1 = _init_l_IO_AsyncList_waitUntil___redArg___closed__1();
-lean_mark_persistent(l_IO_AsyncList_waitUntil___redArg___closed__1);
-l_IO_AsyncList_waitFind_x3f___redArg___closed__1 = _init_l_IO_AsyncList_waitFind_x3f___redArg___closed__1();
-lean_mark_persistent(l_IO_AsyncList_waitFind_x3f___redArg___closed__1);
-l_IO_AsyncList_getFinishedPrefix___redArg___closed__0 = _init_l_IO_AsyncList_getFinishedPrefix___redArg___closed__0();
-lean_mark_persistent(l_IO_AsyncList_getFinishedPrefix___redArg___closed__0);
-l_IO_AsyncList_getFinishedPrefix___redArg___closed__1 = _init_l_IO_AsyncList_getFinishedPrefix___redArg___closed__1();
-lean_mark_persistent(l_IO_AsyncList_getFinishedPrefix___redArg___closed__1);
-l_IO_AsyncList_getFinishedPrefixWithTimeout___redArg___closed__0 = _init_l_IO_AsyncList_getFinishedPrefixWithTimeout___redArg___closed__0();
-lean_mark_persistent(l_IO_AsyncList_getFinishedPrefixWithTimeout___redArg___closed__0);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

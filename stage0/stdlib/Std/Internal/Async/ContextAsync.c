@@ -196,8 +196,10 @@ static const lean_object* l_Std_Internal_IO_Async_ContextAsync_concurrentlyAll__
 static const lean_closure_object l_Std_Internal_IO_Async_ContextAsync_concurrentlyAll___redArg___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Std_Internal_IO_Async_ContextAsync_concurrentlyAll___redArg___lam__1___boxed, .m_arity = 3, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_Std_Internal_IO_Async_ContextAsync_concurrentlyAll___redArg___closed__1 = (const lean_object*)&l_Std_Internal_IO_Async_ContextAsync_concurrentlyAll___redArg___closed__1_value;
 lean_object* l_Std_Internal_IO_Async_EAsync_instMonad(lean_object*);
+static lean_once_cell_t l_Std_Internal_IO_Async_ContextAsync_concurrentlyAll___redArg___closed__2_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Internal_IO_Async_ContextAsync_concurrentlyAll___redArg___closed__2;
 lean_object* l_ReaderT_instMonad___redArg(lean_object*);
+static lean_once_cell_t l_Std_Internal_IO_Async_ContextAsync_concurrentlyAll___redArg___closed__3_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Internal_IO_Async_ContextAsync_concurrentlyAll___redArg___closed__3;
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_ContextAsync_concurrentlyAll___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_ContextAsync_concurrentlyAll___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3965,7 +3967,7 @@ x_4 = l_Std_Internal_IO_Async_ContextAsync_concurrentlyAll___redArg___lam__8(x_1
 return x_4;
 }
 }
-static lean_object* _init_l_Std_Internal_IO_Async_ContextAsync_concurrentlyAll___redArg___closed__2() {
+static lean_object* _init_l_Std_Internal_IO_Async_ContextAsync_concurrentlyAll___redArg___closed__2(void) {
 _start:
 {
 lean_object* x_1; 
@@ -3973,11 +3975,11 @@ x_1 = l_Std_Internal_IO_Async_EAsync_instMonad(lean_box(0));
 return x_1;
 }
 }
-static lean_object* _init_l_Std_Internal_IO_Async_ContextAsync_concurrentlyAll___redArg___closed__3() {
+static lean_object* _init_l_Std_Internal_IO_Async_ContextAsync_concurrentlyAll___redArg___closed__3(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Std_Internal_IO_Async_ContextAsync_concurrentlyAll___redArg___closed__2;
+x_1 = lean_obj_once(&l_Std_Internal_IO_Async_ContextAsync_concurrentlyAll___redArg___closed__2, &l_Std_Internal_IO_Async_ContextAsync_concurrentlyAll___redArg___closed__2_once, _init_l_Std_Internal_IO_Async_ContextAsync_concurrentlyAll___redArg___closed__2);
 x_2 = l_ReaderT_instMonad___redArg(x_1);
 return x_2;
 }
@@ -3990,7 +3992,7 @@ x_5 = ((lean_object*)(l_Std_Internal_IO_Async_ContextAsync_concurrentlyAll___red
 x_6 = ((lean_object*)(l_Std_Internal_IO_Async_ContextAsync_concurrentlyAll___redArg___closed__1));
 x_7 = ((lean_object*)(l_Std_Internal_IO_Async_ContextAsync_concurrently___redArg___closed__0));
 x_8 = ((lean_object*)(l_Std_Internal_IO_Async_ContextAsync_concurrently___redArg___closed__1));
-x_9 = l_Std_Internal_IO_Async_ContextAsync_concurrentlyAll___redArg___closed__3;
+x_9 = lean_obj_once(&l_Std_Internal_IO_Async_ContextAsync_concurrentlyAll___redArg___closed__3, &l_Std_Internal_IO_Async_ContextAsync_concurrentlyAll___redArg___closed__3_once, _init_l_Std_Internal_IO_Async_ContextAsync_concurrentlyAll___redArg___closed__3);
 lean_inc_ref(x_3);
 x_10 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_ContextAsync_concurrentlyAll___redArg___lam__4___boxed), 6, 4);
 lean_closure_set(x_10, 0, x_9);
@@ -4034,7 +4036,7 @@ x_6 = ((lean_object*)(l_Std_Internal_IO_Async_ContextAsync_concurrentlyAll___red
 x_7 = ((lean_object*)(l_Std_Internal_IO_Async_ContextAsync_concurrentlyAll___redArg___closed__1));
 x_8 = ((lean_object*)(l_Std_Internal_IO_Async_ContextAsync_concurrently___redArg___closed__0));
 x_9 = ((lean_object*)(l_Std_Internal_IO_Async_ContextAsync_concurrently___redArg___closed__1));
-x_10 = l_Std_Internal_IO_Async_ContextAsync_concurrentlyAll___redArg___closed__3;
+x_10 = lean_obj_once(&l_Std_Internal_IO_Async_ContextAsync_concurrentlyAll___redArg___closed__3, &l_Std_Internal_IO_Async_ContextAsync_concurrentlyAll___redArg___closed__3_once, _init_l_Std_Internal_IO_Async_ContextAsync_concurrentlyAll___redArg___closed__3);
 lean_inc_ref(x_4);
 x_11 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_ContextAsync_concurrentlyAll___redArg___lam__4___boxed), 6, 4);
 lean_closure_set(x_11, 0, x_10);
@@ -5857,12 +5859,12 @@ x_7 = l_Std_Internal_IO_Async_ContextAsync_instMonad___lam__2(x_1, x_2, x_3, x_4
 return x_7;
 }
 }
-static lean_object* _init_l_Std_Internal_IO_Async_ContextAsync_instMonad() {
+static lean_object* _init_l_Std_Internal_IO_Async_ContextAsync_instMonad(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; 
 x_1 = ((lean_object*)(l_Std_Internal_IO_Async_ContextAsync_instFunctor));
-x_2 = l_Std_Internal_IO_Async_ContextAsync_concurrentlyAll___redArg___closed__2;
+x_2 = lean_obj_once(&l_Std_Internal_IO_Async_ContextAsync_concurrentlyAll___redArg___closed__2, &l_Std_Internal_IO_Async_ContextAsync_concurrentlyAll___redArg___closed__2_once, _init_l_Std_Internal_IO_Async_ContextAsync_concurrentlyAll___redArg___closed__2);
 x_3 = !lean_is_exclusive(x_2);
 if (x_3 == 0)
 {
@@ -6373,10 +6375,6 @@ lean_dec_ref(res);
 res = initialize_Std_Sync_CancellationContext(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Std_Internal_IO_Async_ContextAsync_concurrentlyAll___redArg___closed__2 = _init_l_Std_Internal_IO_Async_ContextAsync_concurrentlyAll___redArg___closed__2();
-lean_mark_persistent(l_Std_Internal_IO_Async_ContextAsync_concurrentlyAll___redArg___closed__2);
-l_Std_Internal_IO_Async_ContextAsync_concurrentlyAll___redArg___closed__3 = _init_l_Std_Internal_IO_Async_ContextAsync_concurrentlyAll___redArg___closed__3();
-lean_mark_persistent(l_Std_Internal_IO_Async_ContextAsync_concurrentlyAll___redArg___closed__3);
 l_Std_Internal_IO_Async_ContextAsync_instMonad = _init_l_Std_Internal_IO_Async_ContextAsync_instMonad();
 lean_mark_persistent(l_Std_Internal_IO_Async_ContextAsync_instMonad);
 return lean_io_result_mk_ok(lean_box(0));

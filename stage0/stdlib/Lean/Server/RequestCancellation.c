@@ -321,7 +321,7 @@ x_2 = lean_unsigned_to_nat(0u);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Server_RequestCancellation_requestCancelled() {
+static lean_object* _init_l_Lean_Server_RequestCancellation_requestCancelled(void) {
 _start:
 {
 lean_object* x_1; 

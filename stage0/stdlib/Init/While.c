@@ -76,6 +76,7 @@ static const lean_ctor_object l_Lean___aux__Init__While______macroRules__Lean__d
 static const lean_ctor_object l_Lean___aux__Init__While______macroRules__Lean__doElemRepeat____1___closed__8_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_Lean___aux__Init__While______macroRules__Lean__doElemRepeat____1___closed__8_value_aux_2),((lean_object*)&l_Lean___aux__Init__While______macroRules__Lean__doElemRepeat____1___closed__7_value),LEAN_SCALAR_PTR_LITERAL(149, 147, 251, 147, 43, 72, 7, 132)}};
 static const lean_object* l_Lean___aux__Init__While______macroRules__Lean__doElemRepeat____1___closed__8 = (const lean_object*)&l_Lean___aux__Init__While______macroRules__Lean__doElemRepeat____1___closed__8_value;
 lean_object* l_Array_mkArray0(lean_object*);
+static lean_once_cell_t l_Lean___aux__Init__While______macroRules__Lean__doElemRepeat____1___closed__9_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean___aux__Init__While______macroRules__Lean__doElemRepeat____1___closed__9;
 static const lean_string_object l_Lean___aux__Init__While______macroRules__Lean__doElemRepeat____1___closed__10_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 5, .m_capacity = 5, .m_length = 4, .m_data = "hole"};
 static const lean_object* l_Lean___aux__Init__While______macroRules__Lean__doElemRepeat____1___closed__10 = (const lean_object*)&l_Lean___aux__Init__While______macroRules__Lean__doElemRepeat____1___closed__10_value;
@@ -91,6 +92,7 @@ static const lean_object* l_Lean___aux__Init__While______macroRules__Lean__doEle
 static const lean_string_object l_Lean___aux__Init__While______macroRules__Lean__doElemRepeat____1___closed__14_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 8, .m_capacity = 8, .m_length = 7, .m_data = "Loop.mk"};
 static const lean_object* l_Lean___aux__Init__While______macroRules__Lean__doElemRepeat____1___closed__14 = (const lean_object*)&l_Lean___aux__Init__While______macroRules__Lean__doElemRepeat____1___closed__14_value;
 lean_object* l_String_toRawSubstring_x27(lean_object*);
+static lean_once_cell_t l_Lean___aux__Init__While______macroRules__Lean__doElemRepeat____1___closed__15_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean___aux__Init__While______macroRules__Lean__doElemRepeat____1___closed__15;
 static const lean_string_object l_Lean___aux__Init__While______macroRules__Lean__doElemRepeat____1___closed__16_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 5, .m_capacity = 5, .m_length = 4, .m_data = "Loop"};
 static const lean_object* l_Lean___aux__Init__While______macroRules__Lean__doElemRepeat____1___closed__16 = (const lean_object*)&l_Lean___aux__Init__While______macroRules__Lean__doElemRepeat____1___closed__16_value;
@@ -381,7 +383,7 @@ lean_closure_set(x_3, 0, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean___aux__Init__While______macroRules__Lean__doElemRepeat____1___closed__9() {
+static lean_object* _init_l_Lean___aux__Init__While______macroRules__Lean__doElemRepeat____1___closed__9(void) {
 _start:
 {
 lean_object* x_1; 
@@ -389,7 +391,7 @@ x_1 = l_Array_mkArray0(lean_box(0));
 return x_1;
 }
 }
-static lean_object* _init_l_Lean___aux__Init__While______macroRules__Lean__doElemRepeat____1___closed__15() {
+static lean_object* _init_l_Lean___aux__Init__While______macroRules__Lean__doElemRepeat____1___closed__15(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -440,7 +442,7 @@ lean_ctor_set(x_17, 0, x_14);
 lean_ctor_set(x_17, 1, x_16);
 x_18 = ((lean_object*)(l_Lean___aux__Init__While______macroRules__Lean__doElemRepeat____1___closed__6));
 x_19 = ((lean_object*)(l_Lean___aux__Init__While______macroRules__Lean__doElemRepeat____1___closed__8));
-x_20 = l_Lean___aux__Init__While______macroRules__Lean__doElemRepeat____1___closed__9;
+x_20 = lean_obj_once(&l_Lean___aux__Init__While______macroRules__Lean__doElemRepeat____1___closed__9, &l_Lean___aux__Init__While______macroRules__Lean__doElemRepeat____1___closed__9_once, _init_l_Lean___aux__Init__While______macroRules__Lean__doElemRepeat____1___closed__9);
 lean_inc(x_14);
 x_21 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_21, 0, x_14);
@@ -459,7 +461,7 @@ lean_inc(x_14);
 x_27 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_27, 0, x_14);
 lean_ctor_set(x_27, 1, x_26);
-x_28 = l_Lean___aux__Init__While______macroRules__Lean__doElemRepeat____1___closed__15;
+x_28 = lean_obj_once(&l_Lean___aux__Init__While______macroRules__Lean__doElemRepeat____1___closed__15, &l_Lean___aux__Init__While______macroRules__Lean__doElemRepeat____1___closed__15_once, _init_l_Lean___aux__Init__While______macroRules__Lean__doElemRepeat____1___closed__15);
 x_29 = ((lean_object*)(l_Lean___aux__Init__While______macroRules__Lean__doElemRepeat____1___closed__18));
 x_30 = l_Lean_addMacroScope(x_8, x_29, x_9);
 x_31 = ((lean_object*)(l_Lean___aux__Init__While______macroRules__Lean__doElemRepeat____1___closed__23));
@@ -546,7 +548,7 @@ lean_inc(x_16);
 x_32 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_32, 0, x_16);
 lean_ctor_set(x_32, 1, x_31);
-x_33 = l_Lean___aux__Init__While______macroRules__Lean__doElemRepeat____1___closed__9;
+x_33 = lean_obj_once(&l_Lean___aux__Init__While______macroRules__Lean__doElemRepeat____1___closed__9, &l_Lean___aux__Init__While______macroRules__Lean__doElemRepeat____1___closed__9_once, _init_l_Lean___aux__Init__While______macroRules__Lean__doElemRepeat____1___closed__9);
 lean_inc(x_16);
 x_34 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_34, 0, x_16);
@@ -644,7 +646,7 @@ x_23 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_23, 0, x_14);
 lean_ctor_set(x_23, 1, x_22);
 x_24 = ((lean_object*)(l_Lean___aux__Init__While______macroRules__Lean__doElemWhile___x3a__Do____1___closed__9));
-x_25 = l_Lean___aux__Init__While______macroRules__Lean__doElemRepeat____1___closed__9;
+x_25 = lean_obj_once(&l_Lean___aux__Init__While______macroRules__Lean__doElemRepeat____1___closed__9, &l_Lean___aux__Init__While______macroRules__Lean__doElemRepeat____1___closed__9_once, _init_l_Lean___aux__Init__While______macroRules__Lean__doElemRepeat____1___closed__9);
 lean_inc(x_14);
 x_26 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_26, 0, x_14);
@@ -767,7 +769,7 @@ x_31 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_31, 0, x_14);
 lean_ctor_set(x_31, 1, x_30);
 x_32 = ((lean_object*)(l_Lean___aux__Init__While______macroRules__Lean__doElemWhile___x3a__Do____1___closed__9));
-x_33 = l_Lean___aux__Init__While______macroRules__Lean__doElemRepeat____1___closed__9;
+x_33 = lean_obj_once(&l_Lean___aux__Init__While______macroRules__Lean__doElemRepeat____1___closed__9, &l_Lean___aux__Init__While______macroRules__Lean__doElemRepeat____1___closed__9_once, _init_l_Lean___aux__Init__While______macroRules__Lean__doElemRepeat____1___closed__9);
 lean_inc(x_14);
 x_34 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_34, 0, x_14);
@@ -831,10 +833,6 @@ _G_initialized = true;
 res = initialize_Init_Core(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean___aux__Init__While______macroRules__Lean__doElemRepeat____1___closed__9 = _init_l_Lean___aux__Init__While______macroRules__Lean__doElemRepeat____1___closed__9();
-lean_mark_persistent(l_Lean___aux__Init__While______macroRules__Lean__doElemRepeat____1___closed__9);
-l_Lean___aux__Init__While______macroRules__Lean__doElemRepeat____1___closed__15 = _init_l_Lean___aux__Init__While______macroRules__Lean__doElemRepeat____1___closed__15();
-lean_mark_persistent(l_Lean___aux__Init__While______macroRules__Lean__doElemRepeat____1___closed__15);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

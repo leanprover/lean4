@@ -37,8 +37,8 @@ Run the initializer of the given module (without `builtin_initialize` commands).
 Return `false` if the initializer is not available as native code.
 Initializers do not have corresponding Lean definitions, so they cannot be interpreted in this case.
 -/
-@[inline] private unsafe def runModInit (mod : Name) (pkg? : Option String) : IO Bool :=
-  runModInitCore (mkModuleInitializationFunctionName mod pkg?)
+@[inline] private unsafe def runModInit (mod : Name) (pkg? : Option String) (isMeta : Bool) : IO Bool :=
+  runModInitCore (mkModuleInitializationFunctionName mod pkg? isMeta)
 
 /-- Run the initializer for `decl` and store its value for global access. Should only be used while importing. -/
 @[extern "lean_run_init"]
@@ -163,18 +163,25 @@ private unsafe def runInitAttrs (env : Environment) (opts : Options) : IO Unit :
   if (← isInitializerExecutionEnabled) then
     -- **Note**: `ModuleIdx` is not an abbreviation, and we don't have instances for it.
     -- Thus, we use `(modIdx : Nat)`
-    for mod in env.header.moduleNames, (modIdx : Nat) in 0...* do
+    for mod in env.header.modules, (modIdx : Nat) in 0...* do
+      if mod.irPhases == .runtime && !Elab.inServer.get opts then
+        continue
+      let initRuntime := !env.header.isModule || Elab.inServer.get opts || mod.irPhases != .runtime
+
       -- any native Lean code reachable by the interpreter (i.e. from shared
       -- libraries with their corresponding module in the Environment) must
       -- first be initialized
       let pkg? := env.getModulePackageByIdx? modIdx
-      if (← runModInit mod pkg?) then
+      let initializedRuntime ← pure initRuntime <&&> runModInit (isMeta := false) mod.module pkg?
+      let initializedComptime ← pure env.header.isModule <&&> runModInit (isMeta := true) mod.module pkg?
+      if initializedRuntime || initializedComptime then
         continue
+
       -- As `[init]` decls can have global side effects, ensure we run them at most once,
       -- just like the compiled code does.
-      if (← interpretedModInits.get).contains mod then
+      if (← interpretedModInits.get).contains mod.module then
         continue
-      interpretedModInits.modify (·.insert mod)
+      interpretedModInits.modify (·.insert mod.module)
       let modEntries := regularInitAttr.ext.getModuleEntries env modIdx
       -- `getModuleIREntries` is identical to `getModuleEntries` if we loaded only one of
       -- .olean (from `meta initialize`)/.ir (`initialize` via transitive `meta import`)
@@ -183,8 +190,7 @@ private unsafe def runInitAttrs (env : Environment) (opts : Options) : IO Unit :
       -- non-`meta` initialize should not have interdependencies.
       let modEntries := modEntries ++ (regularInitAttr.ext.getModuleIREntries env modIdx).filter (!modEntries.contains ·)
       for (decl, initDecl) in modEntries do
-        -- Skip initializers we do not have IR for; they should not be reachable by interpretation.
-        if !Elab.inServer.get opts && getIRPhases env decl == .runtime then
+        if !initRuntime && getIRPhases env decl == .runtime then
           continue
         if initDecl.isAnonymous then
           let initFn ← IO.ofExcept <| env.evalConst (IO Unit) opts decl

@@ -36,6 +36,7 @@ lean_object* lean_string_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at___00Lake_toUpperCamelCaseString_spec__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at___00Lake_toUpperCamelCaseString_spec__2___boxed(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
+static lean_once_cell_t l_Lake_toUpperCamelCaseString___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lake_toUpperCamelCaseString___closed__0;
 static const lean_string_object l_Lake_toUpperCamelCaseString___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 1, .m_capacity = 1, .m_length = 0, .m_data = ""};
 static const lean_object* l_Lake_toUpperCamelCaseString___closed__1 = (const lean_object*)&l_Lake_toUpperCamelCaseString___closed__1_value;
@@ -260,7 +261,7 @@ lean_dec(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lake_toUpperCamelCaseString___closed__0() {
+static lean_object* _init_l_Lake_toUpperCamelCaseString___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -281,7 +282,7 @@ lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
 lean_ctor_set(x_4, 2, x_3);
 x_5 = l_String_Slice_splitToSubslice___at___00Lake_toUpperCamelCaseString_spec__0(x_4);
-x_6 = l_Lake_toUpperCamelCaseString___closed__0;
+x_6 = lean_obj_once(&l_Lake_toUpperCamelCaseString___closed__0, &l_Lake_toUpperCamelCaseString___closed__0_once, _init_l_Lake_toUpperCamelCaseString___closed__0);
 x_7 = l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___at___00Lake_toUpperCamelCaseString_spec__1___redArg(x_1, x_4, x_3, x_5, x_6);
 lean_dec_ref(x_4);
 lean_dec_ref(x_1);
@@ -353,8 +354,6 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Iterators_Consumers_Collect(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lake_toUpperCamelCaseString___closed__0 = _init_l_Lake_toUpperCamelCaseString___closed__0();
-lean_mark_persistent(l_Lake_toUpperCamelCaseString___closed__0);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

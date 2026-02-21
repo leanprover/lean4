@@ -30,6 +30,7 @@ LEAN_EXPORT lean_object* l_Int_tdiv___boxed(lean_object*, lean_object*);
 lean_object* lean_int_mod(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_tmod___boxed(lean_object*, lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
+static lean_once_cell_t l_Int_fdiv___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Int_fdiv___closed__0;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
@@ -45,13 +46,16 @@ lean_object* l_Int_subNatNat(lean_object*, lean_object*);
 lean_object* lean_int_neg(lean_object*);
 LEAN_EXPORT lean_object* l_Int_fmod(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_fmod___boxed(lean_object*, lean_object*);
+static lean_once_cell_t l___private_Init_Data_Int_DivMod_Basic_0__Int_fdiv_match__1_splitter___redArg___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Init_Data_Int_DivMod_Basic_0__Int_fdiv_match__1_splitter___redArg___closed__0;
 LEAN_EXPORT lean_object* l___private_Init_Data_Int_DivMod_Basic_0__Int_fdiv_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Int_DivMod_Basic_0__Int_fdiv_match__1_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Int_DivMod_Basic_0__Int_fdiv_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Int_DivMod_Basic_0__Int_fdiv_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_cast___at___00Int_bmod_spec__0(lean_object*);
+static lean_once_cell_t l_Int_bmod___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Int_bmod___closed__0;
+static lean_once_cell_t l_Int_bmod___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Int_bmod___closed__1;
 lean_object* lean_int_add(lean_object*, lean_object*);
 lean_object* lean_int_sub(lean_object*, lean_object*);
@@ -109,7 +113,7 @@ lean_dec(x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Int_fdiv___closed__0() {
+static lean_object* _init_l_Int_fdiv___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -123,7 +127,7 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_10; lean_object* x_11; uint8_t x_12; 
 x_10 = lean_unsigned_to_nat(0u);
-x_11 = l_Int_fdiv___closed__0;
+x_11 = lean_obj_once(&l_Int_fdiv___closed__0, &l_Int_fdiv___closed__0_once, _init_l_Int_fdiv___closed__0);
 x_12 = lean_int_dec_lt(x_1, x_11);
 if (x_12 == 0)
 {
@@ -239,7 +243,7 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
 x_3 = lean_unsigned_to_nat(0u);
-x_4 = l_Int_fdiv___closed__0;
+x_4 = lean_obj_once(&l_Int_fdiv___closed__0, &l_Int_fdiv___closed__0_once, _init_l_Int_fdiv___closed__0);
 x_5 = lean_int_dec_lt(x_1, x_4);
 if (x_5 == 0)
 {
@@ -337,7 +341,7 @@ lean_dec(x_1);
 return x_3;
 }
 }
-static lean_object* _init_l___private_Init_Data_Int_DivMod_Basic_0__Int_fdiv_match__1_splitter___redArg___closed__0() {
+static lean_object* _init_l___private_Init_Data_Int_DivMod_Basic_0__Int_fdiv_match__1_splitter___redArg___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -351,7 +355,7 @@ _start:
 {
 lean_object* x_9; lean_object* x_10; uint8_t x_11; 
 x_9 = lean_unsigned_to_nat(0u);
-x_10 = l___private_Init_Data_Int_DivMod_Basic_0__Int_fdiv_match__1_splitter___redArg___closed__0;
+x_10 = lean_obj_once(&l___private_Init_Data_Int_DivMod_Basic_0__Int_fdiv_match__1_splitter___redArg___closed__0, &l___private_Init_Data_Int_DivMod_Basic_0__Int_fdiv_match__1_splitter___redArg___closed__0_once, _init_l___private_Init_Data_Int_DivMod_Basic_0__Int_fdiv_match__1_splitter___redArg___closed__0);
 x_11 = lean_int_dec_lt(x_1, x_10);
 if (x_11 == 0)
 {
@@ -465,7 +469,7 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; uint8_t x_12; 
 x_10 = lean_unsigned_to_nat(0u);
-x_11 = l___private_Init_Data_Int_DivMod_Basic_0__Int_fdiv_match__1_splitter___redArg___closed__0;
+x_11 = lean_obj_once(&l___private_Init_Data_Int_DivMod_Basic_0__Int_fdiv_match__1_splitter___redArg___closed__0, &l___private_Init_Data_Int_DivMod_Basic_0__Int_fdiv_match__1_splitter___redArg___closed__0_once, _init_l___private_Init_Data_Int_DivMod_Basic_0__Int_fdiv_match__1_splitter___redArg___closed__0);
 x_12 = lean_int_dec_lt(x_2, x_11);
 if (x_12 == 0)
 {
@@ -582,7 +586,7 @@ x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Int_bmod___closed__0() {
+static lean_object* _init_l_Int_bmod___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -591,7 +595,7 @@ x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Int_bmod___closed__1() {
+static lean_object* _init_l_Int_bmod___closed__1(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -606,9 +610,9 @@ _start:
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
 x_3 = lean_nat_to_int(x_2);
 x_4 = lean_int_emod(x_1, x_3);
-x_5 = l_Int_bmod___closed__0;
+x_5 = lean_obj_once(&l_Int_bmod___closed__0, &l_Int_bmod___closed__0_once, _init_l_Int_bmod___closed__0);
 x_6 = lean_int_add(x_3, x_5);
-x_7 = l_Int_bmod___closed__1;
+x_7 = lean_obj_once(&l_Int_bmod___closed__1, &l_Int_bmod___closed__1_once, _init_l_Int_bmod___closed__1);
 x_8 = lean_int_ediv(x_6, x_7);
 lean_dec(x_6);
 x_9 = lean_int_dec_lt(x_4, x_8);
@@ -649,10 +653,10 @@ lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_obj
 x_5 = lean_nat_to_int(x_2);
 x_6 = lean_int_ediv(x_1, x_5);
 x_7 = lean_int_emod(x_1, x_5);
-x_8 = l_Int_bmod___closed__0;
+x_8 = lean_obj_once(&l_Int_bmod___closed__0, &l_Int_bmod___closed__0_once, _init_l_Int_bmod___closed__0);
 x_9 = lean_int_add(x_5, x_8);
 lean_dec(x_5);
-x_10 = l_Int_bmod___closed__1;
+x_10 = lean_obj_once(&l_Int_bmod___closed__1, &l_Int_bmod___closed__1_once, _init_l_Int_bmod___closed__1);
 x_11 = lean_int_ediv(x_9, x_10);
 lean_dec(x_9);
 x_12 = lean_int_dec_lt(x_7, x_11);
@@ -674,7 +678,7 @@ else
 {
 lean_object* x_14; 
 lean_dec(x_2);
-x_14 = l___private_Init_Data_Int_DivMod_Basic_0__Int_fdiv_match__1_splitter___redArg___closed__0;
+x_14 = lean_obj_once(&l___private_Init_Data_Int_DivMod_Basic_0__Int_fdiv_match__1_splitter___redArg___closed__0, &l___private_Init_Data_Int_DivMod_Basic_0__Int_fdiv_match__1_splitter___redArg___closed__0_once, _init_l___private_Init_Data_Int_DivMod_Basic_0__Int_fdiv_match__1_splitter___redArg___closed__0);
 return x_14;
 }
 }
@@ -701,14 +705,6 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Nat_Div_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Int_fdiv___closed__0 = _init_l_Int_fdiv___closed__0();
-lean_mark_persistent(l_Int_fdiv___closed__0);
-l___private_Init_Data_Int_DivMod_Basic_0__Int_fdiv_match__1_splitter___redArg___closed__0 = _init_l___private_Init_Data_Int_DivMod_Basic_0__Int_fdiv_match__1_splitter___redArg___closed__0();
-lean_mark_persistent(l___private_Init_Data_Int_DivMod_Basic_0__Int_fdiv_match__1_splitter___redArg___closed__0);
-l_Int_bmod___closed__0 = _init_l_Int_bmod___closed__0();
-lean_mark_persistent(l_Int_bmod___closed__0);
-l_Int_bmod___closed__1 = _init_l_Int_bmod___closed__1();
-lean_mark_persistent(l_Int_bmod___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

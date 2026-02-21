@@ -422,25 +422,25 @@ lean_dec(x_2);
 return x_8;
 }
 }
-static lean_object* _init_l_Nat_instTransLt() {
+static lean_object* _init_l_Nat_instTransLt(void) {
 _start:
 {
 return lean_box(0);
 }
 }
-static lean_object* _init_l_Nat_instTransLe() {
+static lean_object* _init_l_Nat_instTransLe(void) {
 _start:
 {
 return lean_box(0);
 }
 }
-static lean_object* _init_l_Nat_instTransLtLe() {
+static lean_object* _init_l_Nat_instTransLtLe(void) {
 _start:
 {
 return lean_box(0);
 }
 }
-static lean_object* _init_l_Nat_instTransLeLt() {
+static lean_object* _init_l_Nat_instTransLeLt(void) {
 _start:
 {
 return lean_box(0);

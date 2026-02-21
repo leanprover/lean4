@@ -19,11 +19,15 @@ lean_object* l_Lean_Name_mkStr1(lean_object*);
 static const lean_ctor_object l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase_default___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase_default___closed__0_value),LEAN_SCALAR_PTR_LITERAL(37, 247, 56, 151, 29, 116, 116, 243)}};
 static const lean_object* l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase_default___closed__1 = (const lean_object*)&l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase_default___closed__1_value;
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
+static lean_once_cell_t l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase_default___closed__2_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase_default___closed__2;
+static lean_once_cell_t l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase_default___closed__3_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase_default___closed__3;
+static lean_once_cell_t l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase_default___closed__4_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase_default___closed__4;
 extern lean_object* l_Lean_Meta_Grind_Arith_Linear_instInhabitedStruct_default;
 extern lean_object* l_Lean_instInhabitedFVarId_default;
+static lean_once_cell_t l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase_default___closed__5_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase_default___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase_default;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase;
@@ -51,7 +55,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Linear_mkCase(lean_object*, lea
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Linear_mkCase___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkFreshId___at___00Lean_mkFreshFVarId___at___00Lean_Meta_Grind_Arith_Linear_mkCase_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkFreshId___at___00Lean_mkFreshFVarId___at___00Lean_Meta_Grind_Arith_Linear_mkCase_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* _init_l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase_default___closed__2() {
+static lean_object* _init_l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase_default___closed__2(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -61,12 +65,12 @@ x_3 = l_Lean_Expr_const___override(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase_default___closed__3() {
+static lean_object* _init_l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase_default___closed__3(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase_default___closed__2;
+x_2 = lean_obj_once(&l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase_default___closed__2, &l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase_default___closed__2_once, _init_l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase_default___closed__2);
 x_3 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_2);
@@ -75,11 +79,11 @@ lean_ctor_set(x_3, 3, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase_default___closed__4() {
+static lean_object* _init_l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase_default___closed__4(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase_default___closed__3;
+x_1 = lean_obj_once(&l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase_default___closed__3, &l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase_default___closed__3_once, _init_l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase_default___closed__3);
 x_2 = lean_box(0);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
@@ -87,13 +91,13 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase_default___closed__5() {
+static lean_object* _init_l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase_default___closed__5(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_Meta_Grind_Arith_Linear_instInhabitedStruct_default;
 x_2 = l_Lean_instInhabitedFVarId_default;
-x_3 = l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase_default___closed__4;
+x_3 = lean_obj_once(&l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase_default___closed__4, &l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase_default___closed__4_once, _init_l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase_default___closed__4);
 x_4 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_4, 0, x_3);
 lean_ctor_set(x_4, 1, x_2);
@@ -101,15 +105,15 @@ lean_ctor_set(x_4, 2, x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase_default() {
+static lean_object* _init_l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase_default(void) {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase_default___closed__5;
+x_1 = lean_obj_once(&l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase_default___closed__5, &l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase_default___closed__5_once, _init_l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase_default___closed__5);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase() {
+static lean_object* _init_l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase(void) {
 _start:
 {
 lean_object* x_1; 
@@ -960,14 +964,6 @@ _G_initialized = true;
 res = initialize_Lean_Meta_Tactic_Grind_Arith_Linear_LinearM(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase_default___closed__2 = _init_l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase_default___closed__2();
-lean_mark_persistent(l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase_default___closed__2);
-l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase_default___closed__3 = _init_l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase_default___closed__3();
-lean_mark_persistent(l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase_default___closed__3);
-l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase_default___closed__4 = _init_l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase_default___closed__4();
-lean_mark_persistent(l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase_default___closed__4);
-l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase_default___closed__5 = _init_l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase_default___closed__5();
-lean_mark_persistent(l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase_default___closed__5);
 l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase_default = _init_l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase_default();
 lean_mark_persistent(l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase_default);
 l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase = _init_l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase();

@@ -26,6 +26,7 @@ lean_object* l___private_Lean_Data_Name_0__Lean_Name_quickCmpImpl___boxed(lean_o
 static const lean_closure_object l_Lake_OrdNameMap_empty___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l___private_Lean_Data_Name_0__Lean_Name_quickCmpImpl___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_Lake_OrdNameMap_empty___closed__0 = (const lean_object*)&l_Lake_OrdNameMap_empty___closed__0_value;
 lean_object* l_Lake_RBArray_empty(lean_object*, lean_object*, lean_object*);
+static lean_once_cell_t l_Lake_OrdNameMap_empty___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lake_OrdNameMap_empty___closed__1;
 LEAN_EXPORT lean_object* l_Lake_OrdNameMap_empty(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_mkOrdNameMap(lean_object*);
@@ -88,7 +89,7 @@ x_2 = ((lean_object*)(l___private_Lake_Util_Name_0__Lake_instCoeTreeMapNameQuick
 return x_2;
 }
 }
-static lean_object* _init_l_Lake_OrdNameMap_empty___closed__1() {
+static lean_object* _init_l_Lake_OrdNameMap_empty___closed__1(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -101,7 +102,7 @@ LEAN_EXPORT lean_object* l_Lake_OrdNameMap_empty(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_Lake_OrdNameMap_empty___closed__1;
+x_2 = lean_obj_once(&l_Lake_OrdNameMap_empty___closed__1, &l_Lake_OrdNameMap_empty___closed__1_once, _init_l_Lake_OrdNameMap_empty___closed__1);
 return x_2;
 }
 }
@@ -109,7 +110,7 @@ LEAN_EXPORT lean_object* l_Lake_mkOrdNameMap(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_Lake_OrdNameMap_empty___closed__1;
+x_2 = lean_obj_once(&l_Lake_OrdNameMap_empty___closed__1, &l_Lake_OrdNameMap_empty___closed__1_once, _init_l_Lake_OrdNameMap_empty___closed__1);
 return x_2;
 }
 }
@@ -723,8 +724,6 @@ lean_dec_ref(res);
 res = initialize_Lean_Data_Name(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lake_OrdNameMap_empty___closed__1 = _init_l_Lake_OrdNameMap_empty___closed__1();
-lean_mark_persistent(l_Lake_OrdNameMap_empty___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

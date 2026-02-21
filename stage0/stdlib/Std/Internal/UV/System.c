@@ -29,6 +29,7 @@ static const lean_ctor_object l_Std_Internal_UV_System_instReprRUsage_repr___red
 static const lean_object* l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__5 = (const lean_object*)&l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__5_value;
 static const lean_ctor_object l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__6_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 0, .m_other = 2, .m_tag = 5}, .m_objs = {((lean_object*)&l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__3_value),((lean_object*)&l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__5_value)}};
 static const lean_object* l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__6 = (const lean_object*)&l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__6_value;
+static lean_once_cell_t l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__7_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__7;
 static const lean_string_object l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__8_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 2, .m_capacity = 2, .m_length = 1, .m_data = ","};
 static const lean_object* l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__8 = (const lean_object*)&l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__8_value;
@@ -38,16 +39,19 @@ static const lean_string_object l_Std_Internal_UV_System_instReprRUsage_repr___r
 static const lean_object* l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__10 = (const lean_object*)&l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__10_value;
 static const lean_ctor_object l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__11_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 3}, .m_objs = {((lean_object*)&l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__10_value)}};
 static const lean_object* l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__11 = (const lean_object*)&l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__11_value;
+static lean_once_cell_t l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__12_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__12;
 static const lean_string_object l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__13_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 7, .m_capacity = 7, .m_length = 6, .m_data = "maxRSS"};
 static const lean_object* l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__13 = (const lean_object*)&l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__13_value;
 static const lean_ctor_object l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__14_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 3}, .m_objs = {((lean_object*)&l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__13_value)}};
 static const lean_object* l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__14 = (const lean_object*)&l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__14_value;
+static lean_once_cell_t l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__15_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__15;
 static const lean_string_object l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__16_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 6, .m_capacity = 6, .m_length = 5, .m_data = "ixRSS"};
 static const lean_object* l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__16 = (const lean_object*)&l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__16_value;
 static const lean_ctor_object l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__17_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 3}, .m_objs = {((lean_object*)&l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__16_value)}};
 static const lean_object* l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__17 = (const lean_object*)&l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__17_value;
+static lean_once_cell_t l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__18_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__18;
 static const lean_string_object l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__19_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 6, .m_capacity = 6, .m_length = 5, .m_data = "idRSS"};
 static const lean_object* l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__19 = (const lean_object*)&l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__19_value;
@@ -73,6 +77,7 @@ static const lean_string_object l_Std_Internal_UV_System_instReprRUsage_repr___r
 static const lean_object* l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__29 = (const lean_object*)&l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__29_value;
 static const lean_ctor_object l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__30_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 3}, .m_objs = {((lean_object*)&l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__29_value)}};
 static const lean_object* l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__30 = (const lean_object*)&l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__30_value;
+static lean_once_cell_t l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__31_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__31;
 static const lean_string_object l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__32_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 9, .m_capacity = 9, .m_length = 8, .m_data = "outBlock"};
 static const lean_object* l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__32 = (const lean_object*)&l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__32_value;
@@ -94,16 +99,20 @@ static const lean_string_object l_Std_Internal_UV_System_instReprRUsage_repr___r
 static const lean_object* l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__40 = (const lean_object*)&l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__40_value;
 static const lean_ctor_object l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__41_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 3}, .m_objs = {((lean_object*)&l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__40_value)}};
 static const lean_object* l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__41 = (const lean_object*)&l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__41_value;
+static lean_once_cell_t l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__42_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__42;
 static const lean_string_object l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__43_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 14, .m_capacity = 14, .m_length = 13, .m_data = "involuntaryCS"};
 static const lean_object* l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__43 = (const lean_object*)&l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__43_value;
 static const lean_ctor_object l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__44_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 3}, .m_objs = {((lean_object*)&l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__43_value)}};
 static const lean_object* l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__44 = (const lean_object*)&l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__44_value;
+static lean_once_cell_t l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__45_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__45;
 static const lean_string_object l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__46_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 3, .m_capacity = 3, .m_length = 2, .m_data = " }"};
 static const lean_object* l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__46 = (const lean_object*)&l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__46_value;
 lean_object* lean_string_length(lean_object*);
+static lean_once_cell_t l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__47_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__47;
+static lean_once_cell_t l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__48_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__48;
 static const lean_ctor_object l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__49_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 3}, .m_objs = {((lean_object*)&l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__0_value)}};
 static const lean_object* l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__49 = (const lean_object*)&l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__49_value;
@@ -119,7 +128,9 @@ static const lean_closure_object l_Std_Internal_UV_System_instReprRUsage___close
 static const lean_object* l_Std_Internal_UV_System_instReprRUsage___closed__0 = (const lean_object*)&l_Std_Internal_UV_System_instReprRUsage___closed__0_value;
 LEAN_EXPORT const lean_object* l_Std_Internal_UV_System_instReprRUsage = (const lean_object*)&l_Std_Internal_UV_System_instReprRUsage___closed__0_value;
 uint64_t lean_uint64_of_nat(lean_object*);
+static lean_once_cell_t l_Std_Internal_UV_System_instInhabitedRUsage_default___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static uint64_t l_Std_Internal_UV_System_instInhabitedRUsage_default___closed__0;
+static lean_once_cell_t l_Std_Internal_UV_System_instInhabitedRUsage_default___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Internal_UV_System_instInhabitedRUsage_default___closed__1;
 LEAN_EXPORT lean_object* l_Std_Internal_UV_System_instInhabitedRUsage_default;
 LEAN_EXPORT lean_object* l_Std_Internal_UV_System_instInhabitedRUsage;
@@ -131,6 +142,7 @@ static const lean_ctor_object l_Std_Internal_UV_System_instReprCPUTimes_repr___r
 static const lean_object* l_Std_Internal_UV_System_instReprCPUTimes_repr___redArg___closed__2 = (const lean_object*)&l_Std_Internal_UV_System_instReprCPUTimes_repr___redArg___closed__2_value;
 static const lean_ctor_object l_Std_Internal_UV_System_instReprCPUTimes_repr___redArg___closed__3_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 0, .m_other = 2, .m_tag = 5}, .m_objs = {((lean_object*)&l_Std_Internal_UV_System_instReprCPUTimes_repr___redArg___closed__2_value),((lean_object*)&l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__5_value)}};
 static const lean_object* l_Std_Internal_UV_System_instReprCPUTimes_repr___redArg___closed__3 = (const lean_object*)&l_Std_Internal_UV_System_instReprCPUTimes_repr___redArg___closed__3_value;
+static lean_once_cell_t l_Std_Internal_UV_System_instReprCPUTimes_repr___redArg___closed__4_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Internal_UV_System_instReprCPUTimes_repr___redArg___closed__4;
 static const lean_string_object l_Std_Internal_UV_System_instReprCPUTimes_repr___redArg___closed__5_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 5, .m_capacity = 5, .m_length = 4, .m_data = "nice"};
 static const lean_object* l_Std_Internal_UV_System_instReprCPUTimes_repr___redArg___closed__5 = (const lean_object*)&l_Std_Internal_UV_System_instReprCPUTimes_repr___redArg___closed__5_value;
@@ -140,6 +152,7 @@ static const lean_string_object l_Std_Internal_UV_System_instReprCPUTimes_repr__
 static const lean_object* l_Std_Internal_UV_System_instReprCPUTimes_repr___redArg___closed__7 = (const lean_object*)&l_Std_Internal_UV_System_instReprCPUTimes_repr___redArg___closed__7_value;
 static const lean_ctor_object l_Std_Internal_UV_System_instReprCPUTimes_repr___redArg___closed__8_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 3}, .m_objs = {((lean_object*)&l_Std_Internal_UV_System_instReprCPUTimes_repr___redArg___closed__7_value)}};
 static const lean_object* l_Std_Internal_UV_System_instReprCPUTimes_repr___redArg___closed__8 = (const lean_object*)&l_Std_Internal_UV_System_instReprCPUTimes_repr___redArg___closed__8_value;
+static lean_once_cell_t l_Std_Internal_UV_System_instReprCPUTimes_repr___redArg___closed__9_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Internal_UV_System_instReprCPUTimes_repr___redArg___closed__9;
 static const lean_string_object l_Std_Internal_UV_System_instReprCPUTimes_repr___redArg___closed__10_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 5, .m_capacity = 5, .m_length = 4, .m_data = "idle"};
 static const lean_object* l_Std_Internal_UV_System_instReprCPUTimes_repr___redArg___closed__10 = (const lean_object*)&l_Std_Internal_UV_System_instReprCPUTimes_repr___redArg___closed__10_value;
@@ -156,6 +169,7 @@ LEAN_EXPORT lean_object* l_Std_Internal_UV_System_instReprCPUTimes_repr___boxed(
 static const lean_closure_object l_Std_Internal_UV_System_instReprCPUTimes___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Std_Internal_UV_System_instReprCPUTimes_repr___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_Std_Internal_UV_System_instReprCPUTimes___closed__0 = (const lean_object*)&l_Std_Internal_UV_System_instReprCPUTimes___closed__0_value;
 LEAN_EXPORT const lean_object* l_Std_Internal_UV_System_instReprCPUTimes = (const lean_object*)&l_Std_Internal_UV_System_instReprCPUTimes___closed__0_value;
+static lean_once_cell_t l_Std_Internal_UV_System_instInhabitedCPUTimes_default___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Internal_UV_System_instInhabitedCPUTimes_default___closed__0;
 LEAN_EXPORT lean_object* l_Std_Internal_UV_System_instInhabitedCPUTimes_default;
 LEAN_EXPORT lean_object* l_Std_Internal_UV_System_instInhabitedCPUTimes;
@@ -184,6 +198,7 @@ static const lean_object* l_Std_Internal_UV_System_instReprCPUInfo___closed__0 =
 LEAN_EXPORT const lean_object* l_Std_Internal_UV_System_instReprCPUInfo = (const lean_object*)&l_Std_Internal_UV_System_instReprCPUInfo___closed__0_value;
 static const lean_string_object l_Std_Internal_UV_System_instInhabitedCPUInfo_default___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 1, .m_capacity = 1, .m_length = 0, .m_data = ""};
 static const lean_object* l_Std_Internal_UV_System_instInhabitedCPUInfo_default___closed__0 = (const lean_object*)&l_Std_Internal_UV_System_instInhabitedCPUInfo_default___closed__0_value;
+static lean_once_cell_t l_Std_Internal_UV_System_instInhabitedCPUInfo_default___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Internal_UV_System_instInhabitedCPUInfo_default___closed__1;
 LEAN_EXPORT lean_object* l_Std_Internal_UV_System_instInhabitedCPUInfo_default;
 LEAN_EXPORT lean_object* l_Std_Internal_UV_System_instInhabitedCPUInfo;
@@ -244,7 +259,9 @@ static const lean_ctor_object l_Array_repr___at___00Std_Internal_UV_System_instR
 static const lean_object* l_Array_repr___at___00Std_Internal_UV_System_instReprGroupInfo_repr_spec__0___closed__1 = (const lean_object*)&l_Array_repr___at___00Std_Internal_UV_System_instReprGroupInfo_repr_spec__0___closed__1_value;
 static const lean_string_object l_Array_repr___at___00Std_Internal_UV_System_instReprGroupInfo_repr_spec__0___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 2, .m_capacity = 2, .m_length = 1, .m_data = "]"};
 static const lean_object* l_Array_repr___at___00Std_Internal_UV_System_instReprGroupInfo_repr_spec__0___closed__2 = (const lean_object*)&l_Array_repr___at___00Std_Internal_UV_System_instReprGroupInfo_repr_spec__0___closed__2_value;
+static lean_once_cell_t l_Array_repr___at___00Std_Internal_UV_System_instReprGroupInfo_repr_spec__0___closed__3_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Array_repr___at___00Std_Internal_UV_System_instReprGroupInfo_repr_spec__0___closed__3;
+static lean_once_cell_t l_Array_repr___at___00Std_Internal_UV_System_instReprGroupInfo_repr_spec__0___closed__4_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Array_repr___at___00Std_Internal_UV_System_instReprGroupInfo_repr_spec__0___closed__4;
 static const lean_ctor_object l_Array_repr___at___00Std_Internal_UV_System_instReprGroupInfo_repr_spec__0___closed__5_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 3}, .m_objs = {((lean_object*)&l_Array_repr___at___00Std_Internal_UV_System_instReprGroupInfo_repr_spec__0___closed__0_value)}};
 static const lean_object* l_Array_repr___at___00Std_Internal_UV_System_instReprGroupInfo_repr_spec__0___closed__5 = (const lean_object*)&l_Array_repr___at___00Std_Internal_UV_System_instReprGroupInfo_repr_spec__0___closed__5_value;
@@ -267,6 +284,7 @@ static const lean_ctor_object l_Std_Internal_UV_System_instReprGroupInfo_repr___
 static const lean_object* l_Std_Internal_UV_System_instReprGroupInfo_repr___redArg___closed__2 = (const lean_object*)&l_Std_Internal_UV_System_instReprGroupInfo_repr___redArg___closed__2_value;
 static const lean_ctor_object l_Std_Internal_UV_System_instReprGroupInfo_repr___redArg___closed__3_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 0, .m_other = 2, .m_tag = 5}, .m_objs = {((lean_object*)&l_Std_Internal_UV_System_instReprGroupInfo_repr___redArg___closed__2_value),((lean_object*)&l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__5_value)}};
 static const lean_object* l_Std_Internal_UV_System_instReprGroupInfo_repr___redArg___closed__3 = (const lean_object*)&l_Std_Internal_UV_System_instReprGroupInfo_repr___redArg___closed__3_value;
+static lean_once_cell_t l_Std_Internal_UV_System_instReprGroupInfo_repr___redArg___closed__4_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Internal_UV_System_instReprGroupInfo_repr___redArg___closed__4;
 static const lean_string_object l_Std_Internal_UV_System_instReprGroupInfo_repr___redArg___closed__5_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 8, .m_capacity = 8, .m_length = 7, .m_data = "members"};
 static const lean_object* l_Std_Internal_UV_System_instReprGroupInfo_repr___redArg___closed__5 = (const lean_object*)&l_Std_Internal_UV_System_instReprGroupInfo_repr___redArg___closed__5_value;
@@ -279,7 +297,9 @@ static const lean_closure_object l_Std_Internal_UV_System_instReprGroupInfo___cl
 static const lean_object* l_Std_Internal_UV_System_instReprGroupInfo___closed__0 = (const lean_object*)&l_Std_Internal_UV_System_instReprGroupInfo___closed__0_value;
 LEAN_EXPORT const lean_object* l_Std_Internal_UV_System_instReprGroupInfo = (const lean_object*)&l_Std_Internal_UV_System_instReprGroupInfo___closed__0_value;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
+static lean_once_cell_t l_Std_Internal_UV_System_instInhabitedGroupInfo_default___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Internal_UV_System_instInhabitedGroupInfo_default___closed__0;
+static lean_once_cell_t l_Std_Internal_UV_System_instInhabitedGroupInfo_default___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Internal_UV_System_instInhabitedGroupInfo_default___closed__1;
 LEAN_EXPORT lean_object* l_Std_Internal_UV_System_instInhabitedGroupInfo_default;
 LEAN_EXPORT lean_object* l_Std_Internal_UV_System_instInhabitedGroupInfo;
@@ -309,6 +329,7 @@ LEAN_EXPORT lean_object* l_Std_Internal_UV_System_instReprUnameInfo_repr___boxed
 static const lean_closure_object l_Std_Internal_UV_System_instReprUnameInfo___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Std_Internal_UV_System_instReprUnameInfo_repr___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_Std_Internal_UV_System_instReprUnameInfo___closed__0 = (const lean_object*)&l_Std_Internal_UV_System_instReprUnameInfo___closed__0_value;
 LEAN_EXPORT const lean_object* l_Std_Internal_UV_System_instReprUnameInfo = (const lean_object*)&l_Std_Internal_UV_System_instReprUnameInfo___closed__0_value;
+static lean_once_cell_t l_Std_Internal_UV_System_instInhabitedUnameInfo_default___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Internal_UV_System_instInhabitedUnameInfo_default___closed__0;
 LEAN_EXPORT lean_object* l_Std_Internal_UV_System_instInhabitedUnameInfo_default;
 LEAN_EXPORT lean_object* l_Std_Internal_UV_System_instInhabitedUnameInfo;
@@ -376,7 +397,7 @@ x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__7() {
+static lean_object* _init_l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__7(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -385,7 +406,7 @@ x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__12() {
+static lean_object* _init_l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__12(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -394,7 +415,7 @@ x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__15() {
+static lean_object* _init_l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__15(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -403,7 +424,7 @@ x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__18() {
+static lean_object* _init_l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__18(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -412,7 +433,7 @@ x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__31() {
+static lean_object* _init_l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__31(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -421,7 +442,7 @@ x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__42() {
+static lean_object* _init_l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__42(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -430,7 +451,7 @@ x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__45() {
+static lean_object* _init_l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__45(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -439,7 +460,7 @@ x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__47() {
+static lean_object* _init_l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__47(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -448,11 +469,11 @@ x_2 = lean_string_length(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__48() {
+static lean_object* _init_l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__48(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__47;
+x_1 = lean_obj_once(&l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__47, &l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__47_once, _init_l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__47);
 x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
@@ -479,7 +500,7 @@ x_16 = lean_ctor_get_uint64(x_1, 112);
 x_17 = lean_ctor_get_uint64(x_1, 120);
 x_18 = ((lean_object*)(l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__5));
 x_19 = ((lean_object*)(l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__6));
-x_20 = l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__7;
+x_20 = lean_obj_once(&l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__7, &l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__7_once, _init_l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__7);
 x_21 = lean_uint64_to_nat(x_2);
 x_22 = l_Nat_reprFast(x_21);
 x_23 = lean_alloc_ctor(3, 1, 0);
@@ -509,7 +530,7 @@ lean_ctor_set(x_33, 1, x_32);
 x_34 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_34, 0, x_33);
 lean_ctor_set(x_34, 1, x_18);
-x_35 = l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__12;
+x_35 = lean_obj_once(&l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__12, &l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__12_once, _init_l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__12);
 x_36 = lean_uint64_to_nat(x_3);
 x_37 = l_Nat_reprFast(x_36);
 x_38 = lean_alloc_ctor(3, 1, 0);
@@ -536,7 +557,7 @@ lean_ctor_set(x_45, 1, x_44);
 x_46 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_46, 0, x_45);
 lean_ctor_set(x_46, 1, x_18);
-x_47 = l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__15;
+x_47 = lean_obj_once(&l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__15, &l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__15_once, _init_l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__15);
 x_48 = lean_uint64_to_nat(x_4);
 x_49 = l_Nat_reprFast(x_48);
 x_50 = lean_alloc_ctor(3, 1, 0);
@@ -563,7 +584,7 @@ lean_ctor_set(x_57, 1, x_56);
 x_58 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_58, 0, x_57);
 lean_ctor_set(x_58, 1, x_18);
-x_59 = l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__18;
+x_59 = lean_obj_once(&l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__18, &l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__18_once, _init_l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__18);
 x_60 = lean_uint64_to_nat(x_5);
 x_61 = l_Nat_reprFast(x_60);
 x_62 = lean_alloc_ctor(3, 1, 0);
@@ -720,7 +741,7 @@ lean_ctor_set(x_124, 1, x_123);
 x_125 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_125, 0, x_124);
 lean_ctor_set(x_125, 1, x_18);
-x_126 = l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__31;
+x_126 = lean_obj_once(&l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__31, &l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__31_once, _init_l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__31);
 x_127 = lean_uint64_to_nat(x_11);
 x_128 = l_Nat_reprFast(x_127);
 x_129 = lean_alloc_ctor(3, 1, 0);
@@ -851,7 +872,7 @@ lean_ctor_set(x_180, 1, x_179);
 x_181 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_181, 0, x_180);
 lean_ctor_set(x_181, 1, x_18);
-x_182 = l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__42;
+x_182 = lean_obj_once(&l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__42, &l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__42_once, _init_l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__42);
 x_183 = lean_uint64_to_nat(x_16);
 x_184 = l_Nat_reprFast(x_183);
 x_185 = lean_alloc_ctor(3, 1, 0);
@@ -878,7 +899,7 @@ lean_ctor_set(x_192, 1, x_191);
 x_193 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_193, 0, x_192);
 lean_ctor_set(x_193, 1, x_18);
-x_194 = l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__45;
+x_194 = lean_obj_once(&l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__45, &l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__45_once, _init_l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__45);
 x_195 = lean_uint64_to_nat(x_17);
 x_196 = l_Nat_reprFast(x_195);
 x_197 = lean_alloc_ctor(3, 1, 0);
@@ -892,7 +913,7 @@ lean_ctor_set_uint8(x_199, sizeof(void*)*1, x_25);
 x_200 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_200, 0, x_193);
 lean_ctor_set(x_200, 1, x_199);
-x_201 = l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__48;
+x_201 = lean_obj_once(&l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__48, &l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__48_once, _init_l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__48);
 x_202 = ((lean_object*)(l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__49));
 x_203 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_203, 0, x_202);
@@ -937,7 +958,7 @@ lean_dec_ref(x_1);
 return x_3;
 }
 }
-static uint64_t _init_l_Std_Internal_UV_System_instInhabitedRUsage_default___closed__0() {
+static uint64_t _init_l_Std_Internal_UV_System_instInhabitedRUsage_default___closed__0(void) {
 _start:
 {
 lean_object* x_1; uint64_t x_2; 
@@ -946,11 +967,11 @@ x_2 = lean_uint64_of_nat(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Std_Internal_UV_System_instInhabitedRUsage_default___closed__1() {
+static lean_object* _init_l_Std_Internal_UV_System_instInhabitedRUsage_default___closed__1(void) {
 _start:
 {
 uint64_t x_1; lean_object* x_2; 
-x_1 = l_Std_Internal_UV_System_instInhabitedRUsage_default___closed__0;
+x_1 = lean_uint64_once(&l_Std_Internal_UV_System_instInhabitedRUsage_default___closed__0, &l_Std_Internal_UV_System_instInhabitedRUsage_default___closed__0_once, _init_l_Std_Internal_UV_System_instInhabitedRUsage_default___closed__0);
 x_2 = lean_alloc_ctor(0, 0, 128);
 lean_ctor_set_uint64(x_2, 0, x_1);
 lean_ctor_set_uint64(x_2, 8, x_1);
@@ -971,15 +992,15 @@ lean_ctor_set_uint64(x_2, 120, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Std_Internal_UV_System_instInhabitedRUsage_default() {
+static lean_object* _init_l_Std_Internal_UV_System_instInhabitedRUsage_default(void) {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Std_Internal_UV_System_instInhabitedRUsage_default___closed__1;
+x_1 = lean_obj_once(&l_Std_Internal_UV_System_instInhabitedRUsage_default___closed__1, &l_Std_Internal_UV_System_instInhabitedRUsage_default___closed__1_once, _init_l_Std_Internal_UV_System_instInhabitedRUsage_default___closed__1);
 return x_1;
 }
 }
-static lean_object* _init_l_Std_Internal_UV_System_instInhabitedRUsage() {
+static lean_object* _init_l_Std_Internal_UV_System_instInhabitedRUsage(void) {
 _start:
 {
 lean_object* x_1; 
@@ -987,7 +1008,7 @@ x_1 = l_Std_Internal_UV_System_instInhabitedRUsage_default;
 return x_1;
 }
 }
-static lean_object* _init_l_Std_Internal_UV_System_instReprCPUTimes_repr___redArg___closed__4() {
+static lean_object* _init_l_Std_Internal_UV_System_instReprCPUTimes_repr___redArg___closed__4(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -996,7 +1017,7 @@ x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Std_Internal_UV_System_instReprCPUTimes_repr___redArg___closed__9() {
+static lean_object* _init_l_Std_Internal_UV_System_instReprCPUTimes_repr___redArg___closed__9(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1016,7 +1037,7 @@ x_5 = lean_ctor_get_uint64(x_1, 24);
 x_6 = lean_ctor_get_uint64(x_1, 32);
 x_7 = ((lean_object*)(l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__5));
 x_8 = ((lean_object*)(l_Std_Internal_UV_System_instReprCPUTimes_repr___redArg___closed__3));
-x_9 = l_Std_Internal_UV_System_instReprCPUTimes_repr___redArg___closed__4;
+x_9 = lean_obj_once(&l_Std_Internal_UV_System_instReprCPUTimes_repr___redArg___closed__4, &l_Std_Internal_UV_System_instReprCPUTimes_repr___redArg___closed__4_once, _init_l_Std_Internal_UV_System_instReprCPUTimes_repr___redArg___closed__4);
 x_10 = lean_uint64_to_nat(x_2);
 x_11 = l_Nat_reprFast(x_10);
 x_12 = lean_alloc_ctor(3, 1, 0);
@@ -1072,7 +1093,7 @@ lean_ctor_set(x_33, 1, x_32);
 x_34 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_34, 0, x_33);
 lean_ctor_set(x_34, 1, x_7);
-x_35 = l_Std_Internal_UV_System_instReprCPUTimes_repr___redArg___closed__9;
+x_35 = lean_obj_once(&l_Std_Internal_UV_System_instReprCPUTimes_repr___redArg___closed__9, &l_Std_Internal_UV_System_instReprCPUTimes_repr___redArg___closed__9_once, _init_l_Std_Internal_UV_System_instReprCPUTimes_repr___redArg___closed__9);
 x_36 = lean_uint64_to_nat(x_4);
 x_37 = l_Nat_reprFast(x_36);
 x_38 = lean_alloc_ctor(3, 1, 0);
@@ -1138,7 +1159,7 @@ lean_ctor_set_uint8(x_62, sizeof(void*)*1, x_14);
 x_63 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_63, 0, x_57);
 lean_ctor_set(x_63, 1, x_62);
-x_64 = l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__48;
+x_64 = lean_obj_once(&l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__48, &l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__48_once, _init_l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__48);
 x_65 = ((lean_object*)(l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__49));
 x_66 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_66, 0, x_65);
@@ -1183,11 +1204,11 @@ lean_dec_ref(x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Std_Internal_UV_System_instInhabitedCPUTimes_default___closed__0() {
+static lean_object* _init_l_Std_Internal_UV_System_instInhabitedCPUTimes_default___closed__0(void) {
 _start:
 {
 uint64_t x_1; lean_object* x_2; 
-x_1 = l_Std_Internal_UV_System_instInhabitedRUsage_default___closed__0;
+x_1 = lean_uint64_once(&l_Std_Internal_UV_System_instInhabitedRUsage_default___closed__0, &l_Std_Internal_UV_System_instInhabitedRUsage_default___closed__0_once, _init_l_Std_Internal_UV_System_instInhabitedRUsage_default___closed__0);
 x_2 = lean_alloc_ctor(0, 0, 40);
 lean_ctor_set_uint64(x_2, 0, x_1);
 lean_ctor_set_uint64(x_2, 8, x_1);
@@ -1197,15 +1218,15 @@ lean_ctor_set_uint64(x_2, 32, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Std_Internal_UV_System_instInhabitedCPUTimes_default() {
+static lean_object* _init_l_Std_Internal_UV_System_instInhabitedCPUTimes_default(void) {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Std_Internal_UV_System_instInhabitedCPUTimes_default___closed__0;
+x_1 = lean_obj_once(&l_Std_Internal_UV_System_instInhabitedCPUTimes_default___closed__0, &l_Std_Internal_UV_System_instInhabitedCPUTimes_default___closed__0_once, _init_l_Std_Internal_UV_System_instInhabitedCPUTimes_default___closed__0);
 return x_1;
 }
 }
-static lean_object* _init_l_Std_Internal_UV_System_instInhabitedCPUTimes() {
+static lean_object* _init_l_Std_Internal_UV_System_instInhabitedCPUTimes(void) {
 _start:
 {
 lean_object* x_1; 
@@ -1225,7 +1246,7 @@ lean_inc_ref(x_4);
 lean_dec_ref(x_1);
 x_5 = ((lean_object*)(l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__5));
 x_6 = ((lean_object*)(l_Std_Internal_UV_System_instReprCPUInfo_repr___redArg___closed__3));
-x_7 = l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__18;
+x_7 = lean_obj_once(&l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__18, &l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__18_once, _init_l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__18);
 x_8 = l_String_quote(x_2);
 x_9 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_9, 0, x_8);
@@ -1291,7 +1312,7 @@ lean_ctor_set_uint8(x_34, sizeof(void*)*1, x_11);
 x_35 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_35, 0, x_31);
 lean_ctor_set(x_35, 1, x_34);
-x_36 = l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__48;
+x_36 = lean_obj_once(&l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__48, &l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__48_once, _init_l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__48);
 x_37 = ((lean_object*)(l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__49));
 x_38 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_38, 0, x_37);
@@ -1326,12 +1347,12 @@ lean_dec(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Std_Internal_UV_System_instInhabitedCPUInfo_default___closed__1() {
+static lean_object* _init_l_Std_Internal_UV_System_instInhabitedCPUInfo_default___closed__1(void) {
 _start:
 {
 lean_object* x_1; uint64_t x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Std_Internal_UV_System_instInhabitedCPUTimes_default;
-x_2 = l_Std_Internal_UV_System_instInhabitedRUsage_default___closed__0;
+x_2 = lean_uint64_once(&l_Std_Internal_UV_System_instInhabitedRUsage_default___closed__0, &l_Std_Internal_UV_System_instInhabitedRUsage_default___closed__0_once, _init_l_Std_Internal_UV_System_instInhabitedRUsage_default___closed__0);
 x_3 = ((lean_object*)(l_Std_Internal_UV_System_instInhabitedCPUInfo_default___closed__0));
 x_4 = lean_alloc_ctor(0, 2, 8);
 lean_ctor_set(x_4, 0, x_3);
@@ -1340,15 +1361,15 @@ lean_ctor_set_uint64(x_4, sizeof(void*)*2, x_2);
 return x_4;
 }
 }
-static lean_object* _init_l_Std_Internal_UV_System_instInhabitedCPUInfo_default() {
+static lean_object* _init_l_Std_Internal_UV_System_instInhabitedCPUInfo_default(void) {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Std_Internal_UV_System_instInhabitedCPUInfo_default___closed__1;
+x_1 = lean_obj_once(&l_Std_Internal_UV_System_instInhabitedCPUInfo_default___closed__1, &l_Std_Internal_UV_System_instInhabitedCPUInfo_default___closed__1_once, _init_l_Std_Internal_UV_System_instInhabitedCPUInfo_default___closed__1);
 return x_1;
 }
 }
-static lean_object* _init_l_Std_Internal_UV_System_instInhabitedCPUInfo() {
+static lean_object* _init_l_Std_Internal_UV_System_instInhabitedCPUInfo(void) {
 _start:
 {
 lean_object* x_1; 
@@ -1489,7 +1510,7 @@ lean_inc(x_6);
 lean_dec_ref(x_1);
 x_7 = ((lean_object*)(l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__5));
 x_8 = ((lean_object*)(l_Std_Internal_UV_System_instReprPasswdInfo_repr___redArg___closed__3));
-x_9 = l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__7;
+x_9 = lean_obj_once(&l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__7, &l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__7_once, _init_l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__7);
 x_10 = l_String_quote(x_2);
 x_11 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_11, 0, x_10);
@@ -1518,7 +1539,7 @@ lean_ctor_set(x_21, 1, x_20);
 x_22 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_22, 0, x_21);
 lean_ctor_set(x_22, 1, x_7);
-x_23 = l_Std_Internal_UV_System_instReprCPUTimes_repr___redArg___closed__9;
+x_23 = lean_obj_once(&l_Std_Internal_UV_System_instReprCPUTimes_repr___redArg___closed__9, &l_Std_Internal_UV_System_instReprCPUTimes_repr___redArg___closed__9_once, _init_l_Std_Internal_UV_System_instReprCPUTimes_repr___redArg___closed__9);
 x_24 = lean_unsigned_to_nat(0u);
 x_25 = l_Option_repr___at___00Std_Internal_UV_System_instReprPasswdInfo_repr_spec__0(x_3, x_24);
 x_26 = lean_alloc_ctor(4, 2, 0);
@@ -1566,7 +1587,7 @@ lean_ctor_set(x_41, 1, x_40);
 x_42 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_42, 0, x_41);
 lean_ctor_set(x_42, 1, x_7);
-x_43 = l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__18;
+x_43 = lean_obj_once(&l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__18, &l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__18_once, _init_l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__18);
 x_44 = l_Option_repr___at___00Std_Internal_UV_System_instReprPasswdInfo_repr_spec__1(x_5, x_24);
 x_45 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_45, 0, x_43);
@@ -1590,7 +1611,7 @@ lean_ctor_set(x_51, 1, x_50);
 x_52 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_52, 0, x_51);
 lean_ctor_set(x_52, 1, x_7);
-x_53 = l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__31;
+x_53 = lean_obj_once(&l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__31, &l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__31_once, _init_l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__31);
 x_54 = l_Option_repr___at___00Std_Internal_UV_System_instReprPasswdInfo_repr_spec__1(x_6, x_24);
 x_55 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_55, 0, x_53);
@@ -1601,7 +1622,7 @@ lean_ctor_set_uint8(x_56, sizeof(void*)*1, x_13);
 x_57 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_57, 0, x_52);
 lean_ctor_set(x_57, 1, x_56);
-x_58 = l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__48;
+x_58 = lean_obj_once(&l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__48, &l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__48_once, _init_l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__48);
 x_59 = ((lean_object*)(l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__49));
 x_60 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_60, 0, x_59);
@@ -1794,7 +1815,7 @@ return x_9;
 }
 }
 }
-static lean_object* _init_l_Array_repr___at___00Std_Internal_UV_System_instReprGroupInfo_repr_spec__0___closed__3() {
+static lean_object* _init_l_Array_repr___at___00Std_Internal_UV_System_instReprGroupInfo_repr_spec__0___closed__3(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1803,11 +1824,11 @@ x_2 = lean_string_length(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Array_repr___at___00Std_Internal_UV_System_instReprGroupInfo_repr_spec__0___closed__4() {
+static lean_object* _init_l_Array_repr___at___00Std_Internal_UV_System_instReprGroupInfo_repr_spec__0___closed__4(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Array_repr___at___00Std_Internal_UV_System_instReprGroupInfo_repr_spec__0___closed__3;
+x_1 = lean_obj_once(&l_Array_repr___at___00Std_Internal_UV_System_instReprGroupInfo_repr_spec__0___closed__3, &l_Array_repr___at___00Std_Internal_UV_System_instReprGroupInfo_repr_spec__0___closed__3_once, _init_l_Array_repr___at___00Std_Internal_UV_System_instReprGroupInfo_repr_spec__0___closed__3);
 x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
@@ -1825,7 +1846,7 @@ lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_obj
 x_5 = lean_array_to_list(x_1);
 x_6 = ((lean_object*)(l_Array_repr___at___00Std_Internal_UV_System_instReprGroupInfo_repr_spec__0___closed__1));
 x_7 = l_Std_Format_joinSep___at___00Array_repr___at___00Std_Internal_UV_System_instReprGroupInfo_repr_spec__0_spec__0(x_5, x_6);
-x_8 = l_Array_repr___at___00Std_Internal_UV_System_instReprGroupInfo_repr_spec__0___closed__4;
+x_8 = lean_obj_once(&l_Array_repr___at___00Std_Internal_UV_System_instReprGroupInfo_repr_spec__0___closed__4, &l_Array_repr___at___00Std_Internal_UV_System_instReprGroupInfo_repr_spec__0___closed__4_once, _init_l_Array_repr___at___00Std_Internal_UV_System_instReprGroupInfo_repr_spec__0___closed__4);
 x_9 = ((lean_object*)(l_Array_repr___at___00Std_Internal_UV_System_instReprGroupInfo_repr_spec__0___closed__5));
 x_10 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_10, 0, x_9);
@@ -1849,7 +1870,7 @@ return x_15;
 }
 }
 }
-static lean_object* _init_l_Std_Internal_UV_System_instReprGroupInfo_repr___redArg___closed__4() {
+static lean_object* _init_l_Std_Internal_UV_System_instReprGroupInfo_repr___redArg___closed__4(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1870,7 +1891,7 @@ lean_inc_ref(x_4);
 lean_dec_ref(x_1);
 x_5 = ((lean_object*)(l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__5));
 x_6 = ((lean_object*)(l_Std_Internal_UV_System_instReprGroupInfo_repr___redArg___closed__3));
-x_7 = l_Std_Internal_UV_System_instReprGroupInfo_repr___redArg___closed__4;
+x_7 = lean_obj_once(&l_Std_Internal_UV_System_instReprGroupInfo_repr___redArg___closed__4, &l_Std_Internal_UV_System_instReprGroupInfo_repr___redArg___closed__4_once, _init_l_Std_Internal_UV_System_instReprGroupInfo_repr___redArg___closed__4);
 x_8 = l_String_quote(x_2);
 x_9 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_9, 0, x_8);
@@ -1899,7 +1920,7 @@ lean_ctor_set(x_19, 1, x_18);
 x_20 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_20, 0, x_19);
 lean_ctor_set(x_20, 1, x_5);
-x_21 = l_Std_Internal_UV_System_instReprCPUTimes_repr___redArg___closed__9;
+x_21 = lean_obj_once(&l_Std_Internal_UV_System_instReprCPUTimes_repr___redArg___closed__9, &l_Std_Internal_UV_System_instReprCPUTimes_repr___redArg___closed__9_once, _init_l_Std_Internal_UV_System_instReprCPUTimes_repr___redArg___closed__9);
 x_22 = lean_uint64_to_nat(x_3);
 x_23 = l_Nat_reprFast(x_22);
 x_24 = lean_alloc_ctor(3, 1, 0);
@@ -1926,7 +1947,7 @@ lean_ctor_set(x_31, 1, x_30);
 x_32 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_32, 0, x_31);
 lean_ctor_set(x_32, 1, x_5);
-x_33 = l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__31;
+x_33 = lean_obj_once(&l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__31, &l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__31_once, _init_l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__31);
 x_34 = l_Array_repr___at___00Std_Internal_UV_System_instReprGroupInfo_repr_spec__0(x_4);
 x_35 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_35, 0, x_33);
@@ -1937,7 +1958,7 @@ lean_ctor_set_uint8(x_36, sizeof(void*)*1, x_11);
 x_37 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_37, 0, x_32);
 lean_ctor_set(x_37, 1, x_36);
-x_38 = l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__48;
+x_38 = lean_obj_once(&l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__48, &l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__48_once, _init_l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__48);
 x_39 = ((lean_object*)(l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__49));
 x_40 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_40, 0, x_39);
@@ -1972,7 +1993,7 @@ lean_dec(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Std_Internal_UV_System_instInhabitedGroupInfo_default___closed__0() {
+static lean_object* _init_l_Std_Internal_UV_System_instInhabitedGroupInfo_default___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1981,12 +2002,12 @@ x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Std_Internal_UV_System_instInhabitedGroupInfo_default___closed__1() {
+static lean_object* _init_l_Std_Internal_UV_System_instInhabitedGroupInfo_default___closed__1(void) {
 _start:
 {
 lean_object* x_1; uint64_t x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Std_Internal_UV_System_instInhabitedGroupInfo_default___closed__0;
-x_2 = l_Std_Internal_UV_System_instInhabitedRUsage_default___closed__0;
+x_1 = lean_obj_once(&l_Std_Internal_UV_System_instInhabitedGroupInfo_default___closed__0, &l_Std_Internal_UV_System_instInhabitedGroupInfo_default___closed__0_once, _init_l_Std_Internal_UV_System_instInhabitedGroupInfo_default___closed__0);
+x_2 = lean_uint64_once(&l_Std_Internal_UV_System_instInhabitedRUsage_default___closed__0, &l_Std_Internal_UV_System_instInhabitedRUsage_default___closed__0_once, _init_l_Std_Internal_UV_System_instInhabitedRUsage_default___closed__0);
 x_3 = ((lean_object*)(l_Std_Internal_UV_System_instInhabitedCPUInfo_default___closed__0));
 x_4 = lean_alloc_ctor(0, 2, 8);
 lean_ctor_set(x_4, 0, x_3);
@@ -1995,15 +2016,15 @@ lean_ctor_set_uint64(x_4, sizeof(void*)*2, x_2);
 return x_4;
 }
 }
-static lean_object* _init_l_Std_Internal_UV_System_instInhabitedGroupInfo_default() {
+static lean_object* _init_l_Std_Internal_UV_System_instInhabitedGroupInfo_default(void) {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Std_Internal_UV_System_instInhabitedGroupInfo_default___closed__1;
+x_1 = lean_obj_once(&l_Std_Internal_UV_System_instInhabitedGroupInfo_default___closed__1, &l_Std_Internal_UV_System_instInhabitedGroupInfo_default___closed__1_once, _init_l_Std_Internal_UV_System_instInhabitedGroupInfo_default___closed__1);
 return x_1;
 }
 }
-static lean_object* _init_l_Std_Internal_UV_System_instInhabitedGroupInfo() {
+static lean_object* _init_l_Std_Internal_UV_System_instInhabitedGroupInfo(void) {
 _start:
 {
 lean_object* x_1; 
@@ -2026,7 +2047,7 @@ lean_inc_ref(x_5);
 lean_dec_ref(x_1);
 x_6 = ((lean_object*)(l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__5));
 x_7 = ((lean_object*)(l_Std_Internal_UV_System_instReprUnameInfo_repr___redArg___closed__3));
-x_8 = l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__31;
+x_8 = lean_obj_once(&l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__31, &l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__31_once, _init_l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__31);
 x_9 = l_String_quote(x_2);
 x_10 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_10, 0, x_9);
@@ -2117,7 +2138,7 @@ lean_ctor_set_uint8(x_45, sizeof(void*)*1, x_12);
 x_46 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_46, 0, x_41);
 lean_ctor_set(x_46, 1, x_45);
-x_47 = l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__48;
+x_47 = lean_obj_once(&l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__48, &l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__48_once, _init_l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__48);
 x_48 = ((lean_object*)(l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__49));
 x_49 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_49, 0, x_48);
@@ -2152,7 +2173,7 @@ lean_dec(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Std_Internal_UV_System_instInhabitedUnameInfo_default___closed__0() {
+static lean_object* _init_l_Std_Internal_UV_System_instInhabitedUnameInfo_default___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2165,15 +2186,15 @@ lean_ctor_set(x_2, 3, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Std_Internal_UV_System_instInhabitedUnameInfo_default() {
+static lean_object* _init_l_Std_Internal_UV_System_instInhabitedUnameInfo_default(void) {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Std_Internal_UV_System_instInhabitedUnameInfo_default___closed__0;
+x_1 = lean_obj_once(&l_Std_Internal_UV_System_instInhabitedUnameInfo_default___closed__0, &l_Std_Internal_UV_System_instInhabitedUnameInfo_default___closed__0_once, _init_l_Std_Internal_UV_System_instInhabitedUnameInfo_default___closed__0);
 return x_1;
 }
 }
-static lean_object* _init_l_Std_Internal_UV_System_instInhabitedUnameInfo() {
+static lean_object* _init_l_Std_Internal_UV_System_instInhabitedUnameInfo(void) {
 _start:
 {
 lean_object* x_1; 
@@ -2434,63 +2455,22 @@ lean_dec_ref(res);
 res = initialize_Std_Net(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__7 = _init_l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__7();
-lean_mark_persistent(l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__7);
-l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__12 = _init_l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__12();
-lean_mark_persistent(l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__12);
-l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__15 = _init_l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__15();
-lean_mark_persistent(l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__15);
-l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__18 = _init_l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__18();
-lean_mark_persistent(l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__18);
-l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__31 = _init_l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__31();
-lean_mark_persistent(l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__31);
-l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__42 = _init_l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__42();
-lean_mark_persistent(l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__42);
-l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__45 = _init_l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__45();
-lean_mark_persistent(l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__45);
-l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__47 = _init_l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__47();
-lean_mark_persistent(l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__47);
-l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__48 = _init_l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__48();
-lean_mark_persistent(l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__48);
-l_Std_Internal_UV_System_instInhabitedRUsage_default___closed__0 = _init_l_Std_Internal_UV_System_instInhabitedRUsage_default___closed__0();
-l_Std_Internal_UV_System_instInhabitedRUsage_default___closed__1 = _init_l_Std_Internal_UV_System_instInhabitedRUsage_default___closed__1();
-lean_mark_persistent(l_Std_Internal_UV_System_instInhabitedRUsage_default___closed__1);
 l_Std_Internal_UV_System_instInhabitedRUsage_default = _init_l_Std_Internal_UV_System_instInhabitedRUsage_default();
 lean_mark_persistent(l_Std_Internal_UV_System_instInhabitedRUsage_default);
 l_Std_Internal_UV_System_instInhabitedRUsage = _init_l_Std_Internal_UV_System_instInhabitedRUsage();
 lean_mark_persistent(l_Std_Internal_UV_System_instInhabitedRUsage);
-l_Std_Internal_UV_System_instReprCPUTimes_repr___redArg___closed__4 = _init_l_Std_Internal_UV_System_instReprCPUTimes_repr___redArg___closed__4();
-lean_mark_persistent(l_Std_Internal_UV_System_instReprCPUTimes_repr___redArg___closed__4);
-l_Std_Internal_UV_System_instReprCPUTimes_repr___redArg___closed__9 = _init_l_Std_Internal_UV_System_instReprCPUTimes_repr___redArg___closed__9();
-lean_mark_persistent(l_Std_Internal_UV_System_instReprCPUTimes_repr___redArg___closed__9);
-l_Std_Internal_UV_System_instInhabitedCPUTimes_default___closed__0 = _init_l_Std_Internal_UV_System_instInhabitedCPUTimes_default___closed__0();
-lean_mark_persistent(l_Std_Internal_UV_System_instInhabitedCPUTimes_default___closed__0);
 l_Std_Internal_UV_System_instInhabitedCPUTimes_default = _init_l_Std_Internal_UV_System_instInhabitedCPUTimes_default();
 lean_mark_persistent(l_Std_Internal_UV_System_instInhabitedCPUTimes_default);
 l_Std_Internal_UV_System_instInhabitedCPUTimes = _init_l_Std_Internal_UV_System_instInhabitedCPUTimes();
 lean_mark_persistent(l_Std_Internal_UV_System_instInhabitedCPUTimes);
-l_Std_Internal_UV_System_instInhabitedCPUInfo_default___closed__1 = _init_l_Std_Internal_UV_System_instInhabitedCPUInfo_default___closed__1();
-lean_mark_persistent(l_Std_Internal_UV_System_instInhabitedCPUInfo_default___closed__1);
 l_Std_Internal_UV_System_instInhabitedCPUInfo_default = _init_l_Std_Internal_UV_System_instInhabitedCPUInfo_default();
 lean_mark_persistent(l_Std_Internal_UV_System_instInhabitedCPUInfo_default);
 l_Std_Internal_UV_System_instInhabitedCPUInfo = _init_l_Std_Internal_UV_System_instInhabitedCPUInfo();
 lean_mark_persistent(l_Std_Internal_UV_System_instInhabitedCPUInfo);
-l_Array_repr___at___00Std_Internal_UV_System_instReprGroupInfo_repr_spec__0___closed__3 = _init_l_Array_repr___at___00Std_Internal_UV_System_instReprGroupInfo_repr_spec__0___closed__3();
-lean_mark_persistent(l_Array_repr___at___00Std_Internal_UV_System_instReprGroupInfo_repr_spec__0___closed__3);
-l_Array_repr___at___00Std_Internal_UV_System_instReprGroupInfo_repr_spec__0___closed__4 = _init_l_Array_repr___at___00Std_Internal_UV_System_instReprGroupInfo_repr_spec__0___closed__4();
-lean_mark_persistent(l_Array_repr___at___00Std_Internal_UV_System_instReprGroupInfo_repr_spec__0___closed__4);
-l_Std_Internal_UV_System_instReprGroupInfo_repr___redArg___closed__4 = _init_l_Std_Internal_UV_System_instReprGroupInfo_repr___redArg___closed__4();
-lean_mark_persistent(l_Std_Internal_UV_System_instReprGroupInfo_repr___redArg___closed__4);
-l_Std_Internal_UV_System_instInhabitedGroupInfo_default___closed__0 = _init_l_Std_Internal_UV_System_instInhabitedGroupInfo_default___closed__0();
-lean_mark_persistent(l_Std_Internal_UV_System_instInhabitedGroupInfo_default___closed__0);
-l_Std_Internal_UV_System_instInhabitedGroupInfo_default___closed__1 = _init_l_Std_Internal_UV_System_instInhabitedGroupInfo_default___closed__1();
-lean_mark_persistent(l_Std_Internal_UV_System_instInhabitedGroupInfo_default___closed__1);
 l_Std_Internal_UV_System_instInhabitedGroupInfo_default = _init_l_Std_Internal_UV_System_instInhabitedGroupInfo_default();
 lean_mark_persistent(l_Std_Internal_UV_System_instInhabitedGroupInfo_default);
 l_Std_Internal_UV_System_instInhabitedGroupInfo = _init_l_Std_Internal_UV_System_instInhabitedGroupInfo();
 lean_mark_persistent(l_Std_Internal_UV_System_instInhabitedGroupInfo);
-l_Std_Internal_UV_System_instInhabitedUnameInfo_default___closed__0 = _init_l_Std_Internal_UV_System_instInhabitedUnameInfo_default___closed__0();
-lean_mark_persistent(l_Std_Internal_UV_System_instInhabitedUnameInfo_default___closed__0);
 l_Std_Internal_UV_System_instInhabitedUnameInfo_default = _init_l_Std_Internal_UV_System_instInhabitedUnameInfo_default();
 lean_mark_persistent(l_Std_Internal_UV_System_instInhabitedUnameInfo_default);
 l_Std_Internal_UV_System_instInhabitedUnameInfo = _init_l_Std_Internal_UV_System_instInhabitedUnameInfo();

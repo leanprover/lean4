@@ -37,6 +37,7 @@ uint8_t lean_uint8_dec_eq(uint8_t, uint8_t);
 uint8_t lean_uint8_shift_left(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___at___00System_Uri_UriEscape_decodeUri_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_ByteArray_empty;
+static lean_once_cell_t l_System_Uri_UriEscape_decodeUri___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_System_Uri_UriEscape_decodeUri___closed__0;
 static const lean_string_object l_System_Uri_UriEscape_decodeUri___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 23, .m_capacity = 23, .m_length = 22, .m_data = "Init.Data.String.Basic"};
 static const lean_object* l_System_Uri_UriEscape_decodeUri___closed__1 = (const lean_object*)&l_System_Uri_UriEscape_decodeUri___closed__1_value;
@@ -45,6 +46,7 @@ static const lean_object* l_System_Uri_UriEscape_decodeUri___closed__2 = (const 
 static const lean_string_object l_System_Uri_UriEscape_decodeUri___closed__3_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 21, .m_capacity = 21, .m_length = 20, .m_data = "invalid UTF-8 string"};
 static const lean_object* l_System_Uri_UriEscape_decodeUri___closed__3 = (const lean_object*)&l_System_Uri_UriEscape_decodeUri___closed__3_value;
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_once_cell_t l_System_Uri_UriEscape_decodeUri___closed__4_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_System_Uri_UriEscape_decodeUri___closed__4;
 lean_object* lean_string_to_utf8(lean_object*);
 lean_object* lean_byte_array_size(lean_object*);
@@ -53,42 +55,61 @@ lean_object* lean_string_from_utf8_unchecked(lean_object*);
 LEAN_EXPORT lean_object* l_System_Uri_UriEscape_decodeUri(lean_object*);
 LEAN_EXPORT lean_object* l_System_Uri_UriEscape_decodeUri___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_System_Uri_UriEscape_rfc3986ReservedChars___closed__0___boxed__const__1;
+static lean_once_cell_t l_System_Uri_UriEscape_rfc3986ReservedChars___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_System_Uri_UriEscape_rfc3986ReservedChars___closed__0;
 LEAN_EXPORT lean_object* l_System_Uri_UriEscape_rfc3986ReservedChars___closed__1___boxed__const__1;
+static lean_once_cell_t l_System_Uri_UriEscape_rfc3986ReservedChars___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_System_Uri_UriEscape_rfc3986ReservedChars___closed__1;
 LEAN_EXPORT lean_object* l_System_Uri_UriEscape_rfc3986ReservedChars___closed__2___boxed__const__1;
+static lean_once_cell_t l_System_Uri_UriEscape_rfc3986ReservedChars___closed__2_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_System_Uri_UriEscape_rfc3986ReservedChars___closed__2;
 LEAN_EXPORT lean_object* l_System_Uri_UriEscape_rfc3986ReservedChars___closed__3___boxed__const__1;
+static lean_once_cell_t l_System_Uri_UriEscape_rfc3986ReservedChars___closed__3_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_System_Uri_UriEscape_rfc3986ReservedChars___closed__3;
 LEAN_EXPORT lean_object* l_System_Uri_UriEscape_rfc3986ReservedChars___closed__4___boxed__const__1;
+static lean_once_cell_t l_System_Uri_UriEscape_rfc3986ReservedChars___closed__4_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_System_Uri_UriEscape_rfc3986ReservedChars___closed__4;
 LEAN_EXPORT lean_object* l_System_Uri_UriEscape_rfc3986ReservedChars___closed__5___boxed__const__1;
+static lean_once_cell_t l_System_Uri_UriEscape_rfc3986ReservedChars___closed__5_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_System_Uri_UriEscape_rfc3986ReservedChars___closed__5;
 LEAN_EXPORT lean_object* l_System_Uri_UriEscape_rfc3986ReservedChars___closed__6___boxed__const__1;
+static lean_once_cell_t l_System_Uri_UriEscape_rfc3986ReservedChars___closed__6_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_System_Uri_UriEscape_rfc3986ReservedChars___closed__6;
 LEAN_EXPORT lean_object* l_System_Uri_UriEscape_rfc3986ReservedChars___closed__7___boxed__const__1;
+static lean_once_cell_t l_System_Uri_UriEscape_rfc3986ReservedChars___closed__7_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_System_Uri_UriEscape_rfc3986ReservedChars___closed__7;
 LEAN_EXPORT lean_object* l_System_Uri_UriEscape_rfc3986ReservedChars___closed__8___boxed__const__1;
+static lean_once_cell_t l_System_Uri_UriEscape_rfc3986ReservedChars___closed__8_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_System_Uri_UriEscape_rfc3986ReservedChars___closed__8;
 LEAN_EXPORT lean_object* l_System_Uri_UriEscape_rfc3986ReservedChars___closed__9___boxed__const__1;
+static lean_once_cell_t l_System_Uri_UriEscape_rfc3986ReservedChars___closed__9_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_System_Uri_UriEscape_rfc3986ReservedChars___closed__9;
 LEAN_EXPORT lean_object* l_System_Uri_UriEscape_rfc3986ReservedChars___closed__10___boxed__const__1;
+static lean_once_cell_t l_System_Uri_UriEscape_rfc3986ReservedChars___closed__10_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_System_Uri_UriEscape_rfc3986ReservedChars___closed__10;
 LEAN_EXPORT lean_object* l_System_Uri_UriEscape_rfc3986ReservedChars___closed__11___boxed__const__1;
+static lean_once_cell_t l_System_Uri_UriEscape_rfc3986ReservedChars___closed__11_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_System_Uri_UriEscape_rfc3986ReservedChars___closed__11;
 LEAN_EXPORT lean_object* l_System_Uri_UriEscape_rfc3986ReservedChars___closed__12___boxed__const__1;
+static lean_once_cell_t l_System_Uri_UriEscape_rfc3986ReservedChars___closed__12_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_System_Uri_UriEscape_rfc3986ReservedChars___closed__12;
 LEAN_EXPORT lean_object* l_System_Uri_UriEscape_rfc3986ReservedChars___closed__13___boxed__const__1;
+static lean_once_cell_t l_System_Uri_UriEscape_rfc3986ReservedChars___closed__13_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_System_Uri_UriEscape_rfc3986ReservedChars___closed__13;
 LEAN_EXPORT lean_object* l_System_Uri_UriEscape_rfc3986ReservedChars___closed__14___boxed__const__1;
+static lean_once_cell_t l_System_Uri_UriEscape_rfc3986ReservedChars___closed__14_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_System_Uri_UriEscape_rfc3986ReservedChars___closed__14;
 LEAN_EXPORT lean_object* l_System_Uri_UriEscape_rfc3986ReservedChars___closed__15___boxed__const__1;
+static lean_once_cell_t l_System_Uri_UriEscape_rfc3986ReservedChars___closed__15_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_System_Uri_UriEscape_rfc3986ReservedChars___closed__15;
 LEAN_EXPORT lean_object* l_System_Uri_UriEscape_rfc3986ReservedChars___closed__16___boxed__const__1;
+static lean_once_cell_t l_System_Uri_UriEscape_rfc3986ReservedChars___closed__16_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_System_Uri_UriEscape_rfc3986ReservedChars___closed__16;
 LEAN_EXPORT lean_object* l_System_Uri_UriEscape_rfc3986ReservedChars___closed__17___boxed__const__1;
+static lean_once_cell_t l_System_Uri_UriEscape_rfc3986ReservedChars___closed__17_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_System_Uri_UriEscape_rfc3986ReservedChars___closed__17;
 LEAN_EXPORT lean_object* l_System_Uri_UriEscape_rfc3986ReservedChars___closed__18___boxed__const__1;
+static lean_once_cell_t l_System_Uri_UriEscape_rfc3986ReservedChars___closed__18_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_System_Uri_UriEscape_rfc3986ReservedChars___closed__18;
 LEAN_EXPORT lean_object* l_System_Uri_UriEscape_rfc3986ReservedChars;
 lean_object* lean_string_utf8_set(lean_object*, lean_object*, uint32_t);
@@ -139,6 +160,7 @@ static const lean_string_object l_System_Uri_pathToUri___closed__0_value = {.m_h
 static const lean_object* l_System_Uri_pathToUri___closed__0 = (const lean_object*)&l_System_Uri_pathToUri___closed__0_value;
 static const lean_string_object l_System_Uri_pathToUri___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 2, .m_capacity = 2, .m_length = 1, .m_data = "/"};
 static const lean_object* l_System_Uri_pathToUri___closed__1 = (const lean_object*)&l_System_Uri_pathToUri___closed__1_value;
+static lean_once_cell_t l_System_Uri_pathToUri___closed__2_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_System_Uri_pathToUri___closed__2;
 static const lean_string_object l_System_Uri_pathToUri___closed__3_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 8, .m_capacity = 8, .m_length = 7, .m_data = "file://"};
 static const lean_object* l_System_Uri_pathToUri___closed__3 = (const lean_object*)&l_System_Uri_pathToUri___closed__3_value;
@@ -155,6 +177,7 @@ LEAN_EXPORT lean_object* l_System_Uri_fileUriToPath_x3f___lam__0___boxed(lean_ob
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Slice_0__String_Slice_dropWhile_go___at___00System_Uri_fileUriToPath_x3f_spec__1(uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Slice_0__String_Slice_dropWhile_go___at___00System_Uri_fileUriToPath_x3f_spec__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_mapAux___at___00System_Uri_fileUriToPath_x3f_spec__0(lean_object*, lean_object*);
+static lean_once_cell_t l_System_Uri_fileUriToPath_x3f___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_System_Uri_fileUriToPath_x3f___closed__0;
 static const lean_closure_object l_System_Uri_fileUriToPath_x3f___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_System_Uri_fileUriToPath_x3f___lam__0___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_System_Uri_fileUriToPath_x3f___closed__1 = (const lean_object*)&l_System_Uri_fileUriToPath_x3f___closed__1_value;
@@ -163,7 +186,7 @@ lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 lean_object* l_String_Pos_Raw_modify(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_System_Uri_fileUriToPath_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_System_Uri_fileUriToPath_x3f___boxed(lean_object*);
-static uint8_t _init_l_System_Uri_UriEscape_zero() {
+static uint8_t _init_l_System_Uri_UriEscape_zero(void) {
 _start:
 {
 uint8_t x_1; 
@@ -171,7 +194,7 @@ x_1 = 48;
 return x_1;
 }
 }
-static uint8_t _init_l_System_Uri_UriEscape_nine() {
+static uint8_t _init_l_System_Uri_UriEscape_nine(void) {
 _start:
 {
 uint8_t x_1; 
@@ -179,7 +202,7 @@ x_1 = 57;
 return x_1;
 }
 }
-static uint8_t _init_l_System_Uri_UriEscape_lettera() {
+static uint8_t _init_l_System_Uri_UriEscape_lettera(void) {
 _start:
 {
 uint8_t x_1; 
@@ -187,7 +210,7 @@ x_1 = 97;
 return x_1;
 }
 }
-static uint8_t _init_l_System_Uri_UriEscape_letterf() {
+static uint8_t _init_l_System_Uri_UriEscape_letterf(void) {
 _start:
 {
 uint8_t x_1; 
@@ -195,7 +218,7 @@ x_1 = 102;
 return x_1;
 }
 }
-static uint8_t _init_l_System_Uri_UriEscape_letterA() {
+static uint8_t _init_l_System_Uri_UriEscape_letterA(void) {
 _start:
 {
 uint8_t x_1; 
@@ -203,7 +226,7 @@ x_1 = 65;
 return x_1;
 }
 }
-static uint8_t _init_l_System_Uri_UriEscape_letterF() {
+static uint8_t _init_l_System_Uri_UriEscape_letterF(void) {
 _start:
 {
 uint8_t x_1; 
@@ -618,7 +641,7 @@ lean_dec(x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_System_Uri_UriEscape_decodeUri___closed__0() {
+static lean_object* _init_l_System_Uri_UriEscape_decodeUri___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -630,7 +653,7 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_System_Uri_UriEscape_decodeUri___closed__4() {
+static lean_object* _init_l_System_Uri_UriEscape_decodeUri___closed__4(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
@@ -649,7 +672,7 @@ _start:
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
 x_2 = lean_string_to_utf8(x_1);
 x_3 = lean_byte_array_size(x_2);
-x_4 = l_System_Uri_UriEscape_decodeUri___closed__0;
+x_4 = lean_obj_once(&l_System_Uri_UriEscape_decodeUri___closed__0, &l_System_Uri_UriEscape_decodeUri___closed__0_once, _init_l_System_Uri_UriEscape_decodeUri___closed__0);
 x_5 = l___private_Init_While_0__Lean_Loop_forIn_loop___at___00System_Uri_UriEscape_decodeUri_spec__0(x_3, x_2, x_4);
 lean_dec_ref(x_2);
 x_6 = lean_ctor_get(x_5, 0);
@@ -660,7 +683,7 @@ if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; 
 lean_dec(x_6);
-x_8 = l_System_Uri_UriEscape_decodeUri___closed__4;
+x_8 = lean_obj_once(&l_System_Uri_UriEscape_decodeUri___closed__4, &l_System_Uri_UriEscape_decodeUri___closed__4_once, _init_l_System_Uri_UriEscape_decodeUri___closed__4);
 x_9 = l_panic___at___00System_Uri_UriEscape_decodeUri_spec__1(x_8);
 return x_9;
 }
@@ -681,7 +704,7 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__0___boxed__const__1() {
+static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__0___boxed__const__1(void) {
 _start:
 {
 uint32_t x_1; lean_object* x_2; 
@@ -690,7 +713,7 @@ x_2 = lean_box_uint32(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__0() {
+static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -702,7 +725,7 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__1___boxed__const__1() {
+static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__1___boxed__const__1(void) {
 _start:
 {
 uint32_t x_1; lean_object* x_2; 
@@ -711,11 +734,11 @@ x_2 = lean_box_uint32(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__1() {
+static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__1(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_System_Uri_UriEscape_rfc3986ReservedChars___closed__0;
+x_1 = lean_obj_once(&l_System_Uri_UriEscape_rfc3986ReservedChars___closed__0, &l_System_Uri_UriEscape_rfc3986ReservedChars___closed__0_once, _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__0);
 x_2 = l_System_Uri_UriEscape_rfc3986ReservedChars___closed__1___boxed__const__1;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
@@ -723,7 +746,7 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__2___boxed__const__1() {
+static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__2___boxed__const__1(void) {
 _start:
 {
 uint32_t x_1; lean_object* x_2; 
@@ -732,11 +755,11 @@ x_2 = lean_box_uint32(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__2() {
+static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__2(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_System_Uri_UriEscape_rfc3986ReservedChars___closed__1;
+x_1 = lean_obj_once(&l_System_Uri_UriEscape_rfc3986ReservedChars___closed__1, &l_System_Uri_UriEscape_rfc3986ReservedChars___closed__1_once, _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__1);
 x_2 = l_System_Uri_UriEscape_rfc3986ReservedChars___closed__2___boxed__const__1;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
@@ -744,7 +767,7 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__3___boxed__const__1() {
+static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__3___boxed__const__1(void) {
 _start:
 {
 uint32_t x_1; lean_object* x_2; 
@@ -753,11 +776,11 @@ x_2 = lean_box_uint32(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__3() {
+static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__3(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_System_Uri_UriEscape_rfc3986ReservedChars___closed__2;
+x_1 = lean_obj_once(&l_System_Uri_UriEscape_rfc3986ReservedChars___closed__2, &l_System_Uri_UriEscape_rfc3986ReservedChars___closed__2_once, _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__2);
 x_2 = l_System_Uri_UriEscape_rfc3986ReservedChars___closed__3___boxed__const__1;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
@@ -765,7 +788,7 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__4___boxed__const__1() {
+static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__4___boxed__const__1(void) {
 _start:
 {
 uint32_t x_1; lean_object* x_2; 
@@ -774,11 +797,11 @@ x_2 = lean_box_uint32(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__4() {
+static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__4(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_System_Uri_UriEscape_rfc3986ReservedChars___closed__3;
+x_1 = lean_obj_once(&l_System_Uri_UriEscape_rfc3986ReservedChars___closed__3, &l_System_Uri_UriEscape_rfc3986ReservedChars___closed__3_once, _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__3);
 x_2 = l_System_Uri_UriEscape_rfc3986ReservedChars___closed__4___boxed__const__1;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
@@ -786,7 +809,7 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__5___boxed__const__1() {
+static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__5___boxed__const__1(void) {
 _start:
 {
 uint32_t x_1; lean_object* x_2; 
@@ -795,11 +818,11 @@ x_2 = lean_box_uint32(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__5() {
+static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__5(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_System_Uri_UriEscape_rfc3986ReservedChars___closed__4;
+x_1 = lean_obj_once(&l_System_Uri_UriEscape_rfc3986ReservedChars___closed__4, &l_System_Uri_UriEscape_rfc3986ReservedChars___closed__4_once, _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__4);
 x_2 = l_System_Uri_UriEscape_rfc3986ReservedChars___closed__5___boxed__const__1;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
@@ -807,7 +830,7 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__6___boxed__const__1() {
+static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__6___boxed__const__1(void) {
 _start:
 {
 uint32_t x_1; lean_object* x_2; 
@@ -816,11 +839,11 @@ x_2 = lean_box_uint32(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__6() {
+static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__6(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_System_Uri_UriEscape_rfc3986ReservedChars___closed__5;
+x_1 = lean_obj_once(&l_System_Uri_UriEscape_rfc3986ReservedChars___closed__5, &l_System_Uri_UriEscape_rfc3986ReservedChars___closed__5_once, _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__5);
 x_2 = l_System_Uri_UriEscape_rfc3986ReservedChars___closed__6___boxed__const__1;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
@@ -828,7 +851,7 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__7___boxed__const__1() {
+static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__7___boxed__const__1(void) {
 _start:
 {
 uint32_t x_1; lean_object* x_2; 
@@ -837,11 +860,11 @@ x_2 = lean_box_uint32(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__7() {
+static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__7(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_System_Uri_UriEscape_rfc3986ReservedChars___closed__6;
+x_1 = lean_obj_once(&l_System_Uri_UriEscape_rfc3986ReservedChars___closed__6, &l_System_Uri_UriEscape_rfc3986ReservedChars___closed__6_once, _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__6);
 x_2 = l_System_Uri_UriEscape_rfc3986ReservedChars___closed__7___boxed__const__1;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
@@ -849,7 +872,7 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__8___boxed__const__1() {
+static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__8___boxed__const__1(void) {
 _start:
 {
 uint32_t x_1; lean_object* x_2; 
@@ -858,11 +881,11 @@ x_2 = lean_box_uint32(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__8() {
+static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__8(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_System_Uri_UriEscape_rfc3986ReservedChars___closed__7;
+x_1 = lean_obj_once(&l_System_Uri_UriEscape_rfc3986ReservedChars___closed__7, &l_System_Uri_UriEscape_rfc3986ReservedChars___closed__7_once, _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__7);
 x_2 = l_System_Uri_UriEscape_rfc3986ReservedChars___closed__8___boxed__const__1;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
@@ -870,7 +893,7 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__9___boxed__const__1() {
+static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__9___boxed__const__1(void) {
 _start:
 {
 uint32_t x_1; lean_object* x_2; 
@@ -879,11 +902,11 @@ x_2 = lean_box_uint32(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__9() {
+static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__9(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_System_Uri_UriEscape_rfc3986ReservedChars___closed__8;
+x_1 = lean_obj_once(&l_System_Uri_UriEscape_rfc3986ReservedChars___closed__8, &l_System_Uri_UriEscape_rfc3986ReservedChars___closed__8_once, _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__8);
 x_2 = l_System_Uri_UriEscape_rfc3986ReservedChars___closed__9___boxed__const__1;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
@@ -891,7 +914,7 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__10___boxed__const__1() {
+static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__10___boxed__const__1(void) {
 _start:
 {
 uint32_t x_1; lean_object* x_2; 
@@ -900,11 +923,11 @@ x_2 = lean_box_uint32(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__10() {
+static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__10(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_System_Uri_UriEscape_rfc3986ReservedChars___closed__9;
+x_1 = lean_obj_once(&l_System_Uri_UriEscape_rfc3986ReservedChars___closed__9, &l_System_Uri_UriEscape_rfc3986ReservedChars___closed__9_once, _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__9);
 x_2 = l_System_Uri_UriEscape_rfc3986ReservedChars___closed__10___boxed__const__1;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
@@ -912,7 +935,7 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__11___boxed__const__1() {
+static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__11___boxed__const__1(void) {
 _start:
 {
 uint32_t x_1; lean_object* x_2; 
@@ -921,11 +944,11 @@ x_2 = lean_box_uint32(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__11() {
+static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__11(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_System_Uri_UriEscape_rfc3986ReservedChars___closed__10;
+x_1 = lean_obj_once(&l_System_Uri_UriEscape_rfc3986ReservedChars___closed__10, &l_System_Uri_UriEscape_rfc3986ReservedChars___closed__10_once, _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__10);
 x_2 = l_System_Uri_UriEscape_rfc3986ReservedChars___closed__11___boxed__const__1;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
@@ -933,7 +956,7 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__12___boxed__const__1() {
+static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__12___boxed__const__1(void) {
 _start:
 {
 uint32_t x_1; lean_object* x_2; 
@@ -942,11 +965,11 @@ x_2 = lean_box_uint32(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__12() {
+static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__12(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_System_Uri_UriEscape_rfc3986ReservedChars___closed__11;
+x_1 = lean_obj_once(&l_System_Uri_UriEscape_rfc3986ReservedChars___closed__11, &l_System_Uri_UriEscape_rfc3986ReservedChars___closed__11_once, _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__11);
 x_2 = l_System_Uri_UriEscape_rfc3986ReservedChars___closed__12___boxed__const__1;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
@@ -954,7 +977,7 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__13___boxed__const__1() {
+static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__13___boxed__const__1(void) {
 _start:
 {
 uint32_t x_1; lean_object* x_2; 
@@ -963,11 +986,11 @@ x_2 = lean_box_uint32(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__13() {
+static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__13(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_System_Uri_UriEscape_rfc3986ReservedChars___closed__12;
+x_1 = lean_obj_once(&l_System_Uri_UriEscape_rfc3986ReservedChars___closed__12, &l_System_Uri_UriEscape_rfc3986ReservedChars___closed__12_once, _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__12);
 x_2 = l_System_Uri_UriEscape_rfc3986ReservedChars___closed__13___boxed__const__1;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
@@ -975,7 +998,7 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__14___boxed__const__1() {
+static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__14___boxed__const__1(void) {
 _start:
 {
 uint32_t x_1; lean_object* x_2; 
@@ -984,11 +1007,11 @@ x_2 = lean_box_uint32(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__14() {
+static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__14(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_System_Uri_UriEscape_rfc3986ReservedChars___closed__13;
+x_1 = lean_obj_once(&l_System_Uri_UriEscape_rfc3986ReservedChars___closed__13, &l_System_Uri_UriEscape_rfc3986ReservedChars___closed__13_once, _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__13);
 x_2 = l_System_Uri_UriEscape_rfc3986ReservedChars___closed__14___boxed__const__1;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
@@ -996,7 +1019,7 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__15___boxed__const__1() {
+static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__15___boxed__const__1(void) {
 _start:
 {
 uint32_t x_1; lean_object* x_2; 
@@ -1005,11 +1028,11 @@ x_2 = lean_box_uint32(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__15() {
+static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__15(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_System_Uri_UriEscape_rfc3986ReservedChars___closed__14;
+x_1 = lean_obj_once(&l_System_Uri_UriEscape_rfc3986ReservedChars___closed__14, &l_System_Uri_UriEscape_rfc3986ReservedChars___closed__14_once, _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__14);
 x_2 = l_System_Uri_UriEscape_rfc3986ReservedChars___closed__15___boxed__const__1;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
@@ -1017,7 +1040,7 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__16___boxed__const__1() {
+static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__16___boxed__const__1(void) {
 _start:
 {
 uint32_t x_1; lean_object* x_2; 
@@ -1026,11 +1049,11 @@ x_2 = lean_box_uint32(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__16() {
+static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__16(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_System_Uri_UriEscape_rfc3986ReservedChars___closed__15;
+x_1 = lean_obj_once(&l_System_Uri_UriEscape_rfc3986ReservedChars___closed__15, &l_System_Uri_UriEscape_rfc3986ReservedChars___closed__15_once, _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__15);
 x_2 = l_System_Uri_UriEscape_rfc3986ReservedChars___closed__16___boxed__const__1;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
@@ -1038,7 +1061,7 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__17___boxed__const__1() {
+static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__17___boxed__const__1(void) {
 _start:
 {
 uint32_t x_1; lean_object* x_2; 
@@ -1047,11 +1070,11 @@ x_2 = lean_box_uint32(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__17() {
+static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__17(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_System_Uri_UriEscape_rfc3986ReservedChars___closed__16;
+x_1 = lean_obj_once(&l_System_Uri_UriEscape_rfc3986ReservedChars___closed__16, &l_System_Uri_UriEscape_rfc3986ReservedChars___closed__16_once, _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__16);
 x_2 = l_System_Uri_UriEscape_rfc3986ReservedChars___closed__17___boxed__const__1;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
@@ -1059,7 +1082,7 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__18___boxed__const__1() {
+static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__18___boxed__const__1(void) {
 _start:
 {
 uint32_t x_1; lean_object* x_2; 
@@ -1068,11 +1091,11 @@ x_2 = lean_box_uint32(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__18() {
+static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__18(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_System_Uri_UriEscape_rfc3986ReservedChars___closed__17;
+x_1 = lean_obj_once(&l_System_Uri_UriEscape_rfc3986ReservedChars___closed__17, &l_System_Uri_UriEscape_rfc3986ReservedChars___closed__17_once, _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__17);
 x_2 = l_System_Uri_UriEscape_rfc3986ReservedChars___closed__18___boxed__const__1;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
@@ -1080,11 +1103,11 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars() {
+static lean_object* _init_l_System_Uri_UriEscape_rfc3986ReservedChars(void) {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_System_Uri_UriEscape_rfc3986ReservedChars___closed__18;
+x_1 = lean_obj_once(&l_System_Uri_UriEscape_rfc3986ReservedChars___closed__18, &l_System_Uri_UriEscape_rfc3986ReservedChars___closed__18_once, _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__18);
 return x_1;
 }
 }
@@ -1498,7 +1521,7 @@ goto _start;
 }
 }
 }
-static lean_object* _init_l_System_Uri_pathToUri___closed__2() {
+static lean_object* _init_l_System_Uri_pathToUri___closed__2(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1613,7 +1636,7 @@ lean_dec_ref(x_6);
 lean_dec_ref(x_10);
 x_13 = ((lean_object*)(l_System_Uri_pathToUri___closed__1));
 x_14 = lean_string_utf8_byte_size(x_12);
-x_15 = l_System_Uri_pathToUri___closed__2;
+x_15 = lean_obj_once(&l_System_Uri_pathToUri___closed__2, &l_System_Uri_pathToUri___closed__2_once, _init_l_System_Uri_pathToUri___closed__2);
 x_16 = lean_nat_dec_le(x_15, x_14);
 if (x_16 == 0)
 {
@@ -1873,7 +1896,7 @@ goto _start;
 }
 }
 }
-static lean_object* _init_l_System_Uri_fileUriToPath_x3f___closed__0() {
+static lean_object* _init_l_System_Uri_fileUriToPath_x3f___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1888,7 +1911,7 @@ _start:
 lean_object* x_2; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; 
 x_7 = ((lean_object*)(l_System_Uri_pathToUri___closed__3));
 x_8 = lean_string_utf8_byte_size(x_1);
-x_9 = l_System_Uri_fileUriToPath_x3f___closed__0;
+x_9 = lean_obj_once(&l_System_Uri_fileUriToPath_x3f___closed__0, &l_System_Uri_fileUriToPath_x3f___closed__0_once, _init_l_System_Uri_fileUriToPath_x3f___closed__0);
 x_10 = lean_nat_dec_le(x_9, x_8);
 if (x_10 == 0)
 {
@@ -2176,92 +2199,46 @@ l_System_Uri_UriEscape_lettera = _init_l_System_Uri_UriEscape_lettera();
 l_System_Uri_UriEscape_letterf = _init_l_System_Uri_UriEscape_letterf();
 l_System_Uri_UriEscape_letterA = _init_l_System_Uri_UriEscape_letterA();
 l_System_Uri_UriEscape_letterF = _init_l_System_Uri_UriEscape_letterF();
-l_System_Uri_UriEscape_decodeUri___closed__0 = _init_l_System_Uri_UriEscape_decodeUri___closed__0();
-lean_mark_persistent(l_System_Uri_UriEscape_decodeUri___closed__0);
-l_System_Uri_UriEscape_decodeUri___closed__4 = _init_l_System_Uri_UriEscape_decodeUri___closed__4();
-lean_mark_persistent(l_System_Uri_UriEscape_decodeUri___closed__4);
 l_System_Uri_UriEscape_rfc3986ReservedChars___closed__0___boxed__const__1 = _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__0___boxed__const__1();
 lean_mark_persistent(l_System_Uri_UriEscape_rfc3986ReservedChars___closed__0___boxed__const__1);
-l_System_Uri_UriEscape_rfc3986ReservedChars___closed__0 = _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__0();
-lean_mark_persistent(l_System_Uri_UriEscape_rfc3986ReservedChars___closed__0);
 l_System_Uri_UriEscape_rfc3986ReservedChars___closed__1___boxed__const__1 = _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__1___boxed__const__1();
 lean_mark_persistent(l_System_Uri_UriEscape_rfc3986ReservedChars___closed__1___boxed__const__1);
-l_System_Uri_UriEscape_rfc3986ReservedChars___closed__1 = _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__1();
-lean_mark_persistent(l_System_Uri_UriEscape_rfc3986ReservedChars___closed__1);
 l_System_Uri_UriEscape_rfc3986ReservedChars___closed__2___boxed__const__1 = _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__2___boxed__const__1();
 lean_mark_persistent(l_System_Uri_UriEscape_rfc3986ReservedChars___closed__2___boxed__const__1);
-l_System_Uri_UriEscape_rfc3986ReservedChars___closed__2 = _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__2();
-lean_mark_persistent(l_System_Uri_UriEscape_rfc3986ReservedChars___closed__2);
 l_System_Uri_UriEscape_rfc3986ReservedChars___closed__3___boxed__const__1 = _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__3___boxed__const__1();
 lean_mark_persistent(l_System_Uri_UriEscape_rfc3986ReservedChars___closed__3___boxed__const__1);
-l_System_Uri_UriEscape_rfc3986ReservedChars___closed__3 = _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__3();
-lean_mark_persistent(l_System_Uri_UriEscape_rfc3986ReservedChars___closed__3);
 l_System_Uri_UriEscape_rfc3986ReservedChars___closed__4___boxed__const__1 = _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__4___boxed__const__1();
 lean_mark_persistent(l_System_Uri_UriEscape_rfc3986ReservedChars___closed__4___boxed__const__1);
-l_System_Uri_UriEscape_rfc3986ReservedChars___closed__4 = _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__4();
-lean_mark_persistent(l_System_Uri_UriEscape_rfc3986ReservedChars___closed__4);
 l_System_Uri_UriEscape_rfc3986ReservedChars___closed__5___boxed__const__1 = _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__5___boxed__const__1();
 lean_mark_persistent(l_System_Uri_UriEscape_rfc3986ReservedChars___closed__5___boxed__const__1);
-l_System_Uri_UriEscape_rfc3986ReservedChars___closed__5 = _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__5();
-lean_mark_persistent(l_System_Uri_UriEscape_rfc3986ReservedChars___closed__5);
 l_System_Uri_UriEscape_rfc3986ReservedChars___closed__6___boxed__const__1 = _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__6___boxed__const__1();
 lean_mark_persistent(l_System_Uri_UriEscape_rfc3986ReservedChars___closed__6___boxed__const__1);
-l_System_Uri_UriEscape_rfc3986ReservedChars___closed__6 = _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__6();
-lean_mark_persistent(l_System_Uri_UriEscape_rfc3986ReservedChars___closed__6);
 l_System_Uri_UriEscape_rfc3986ReservedChars___closed__7___boxed__const__1 = _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__7___boxed__const__1();
 lean_mark_persistent(l_System_Uri_UriEscape_rfc3986ReservedChars___closed__7___boxed__const__1);
-l_System_Uri_UriEscape_rfc3986ReservedChars___closed__7 = _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__7();
-lean_mark_persistent(l_System_Uri_UriEscape_rfc3986ReservedChars___closed__7);
 l_System_Uri_UriEscape_rfc3986ReservedChars___closed__8___boxed__const__1 = _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__8___boxed__const__1();
 lean_mark_persistent(l_System_Uri_UriEscape_rfc3986ReservedChars___closed__8___boxed__const__1);
-l_System_Uri_UriEscape_rfc3986ReservedChars___closed__8 = _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__8();
-lean_mark_persistent(l_System_Uri_UriEscape_rfc3986ReservedChars___closed__8);
 l_System_Uri_UriEscape_rfc3986ReservedChars___closed__9___boxed__const__1 = _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__9___boxed__const__1();
 lean_mark_persistent(l_System_Uri_UriEscape_rfc3986ReservedChars___closed__9___boxed__const__1);
-l_System_Uri_UriEscape_rfc3986ReservedChars___closed__9 = _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__9();
-lean_mark_persistent(l_System_Uri_UriEscape_rfc3986ReservedChars___closed__9);
 l_System_Uri_UriEscape_rfc3986ReservedChars___closed__10___boxed__const__1 = _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__10___boxed__const__1();
 lean_mark_persistent(l_System_Uri_UriEscape_rfc3986ReservedChars___closed__10___boxed__const__1);
-l_System_Uri_UriEscape_rfc3986ReservedChars___closed__10 = _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__10();
-lean_mark_persistent(l_System_Uri_UriEscape_rfc3986ReservedChars___closed__10);
 l_System_Uri_UriEscape_rfc3986ReservedChars___closed__11___boxed__const__1 = _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__11___boxed__const__1();
 lean_mark_persistent(l_System_Uri_UriEscape_rfc3986ReservedChars___closed__11___boxed__const__1);
-l_System_Uri_UriEscape_rfc3986ReservedChars___closed__11 = _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__11();
-lean_mark_persistent(l_System_Uri_UriEscape_rfc3986ReservedChars___closed__11);
 l_System_Uri_UriEscape_rfc3986ReservedChars___closed__12___boxed__const__1 = _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__12___boxed__const__1();
 lean_mark_persistent(l_System_Uri_UriEscape_rfc3986ReservedChars___closed__12___boxed__const__1);
-l_System_Uri_UriEscape_rfc3986ReservedChars___closed__12 = _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__12();
-lean_mark_persistent(l_System_Uri_UriEscape_rfc3986ReservedChars___closed__12);
 l_System_Uri_UriEscape_rfc3986ReservedChars___closed__13___boxed__const__1 = _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__13___boxed__const__1();
 lean_mark_persistent(l_System_Uri_UriEscape_rfc3986ReservedChars___closed__13___boxed__const__1);
-l_System_Uri_UriEscape_rfc3986ReservedChars___closed__13 = _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__13();
-lean_mark_persistent(l_System_Uri_UriEscape_rfc3986ReservedChars___closed__13);
 l_System_Uri_UriEscape_rfc3986ReservedChars___closed__14___boxed__const__1 = _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__14___boxed__const__1();
 lean_mark_persistent(l_System_Uri_UriEscape_rfc3986ReservedChars___closed__14___boxed__const__1);
-l_System_Uri_UriEscape_rfc3986ReservedChars___closed__14 = _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__14();
-lean_mark_persistent(l_System_Uri_UriEscape_rfc3986ReservedChars___closed__14);
 l_System_Uri_UriEscape_rfc3986ReservedChars___closed__15___boxed__const__1 = _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__15___boxed__const__1();
 lean_mark_persistent(l_System_Uri_UriEscape_rfc3986ReservedChars___closed__15___boxed__const__1);
-l_System_Uri_UriEscape_rfc3986ReservedChars___closed__15 = _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__15();
-lean_mark_persistent(l_System_Uri_UriEscape_rfc3986ReservedChars___closed__15);
 l_System_Uri_UriEscape_rfc3986ReservedChars___closed__16___boxed__const__1 = _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__16___boxed__const__1();
 lean_mark_persistent(l_System_Uri_UriEscape_rfc3986ReservedChars___closed__16___boxed__const__1);
-l_System_Uri_UriEscape_rfc3986ReservedChars___closed__16 = _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__16();
-lean_mark_persistent(l_System_Uri_UriEscape_rfc3986ReservedChars___closed__16);
 l_System_Uri_UriEscape_rfc3986ReservedChars___closed__17___boxed__const__1 = _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__17___boxed__const__1();
 lean_mark_persistent(l_System_Uri_UriEscape_rfc3986ReservedChars___closed__17___boxed__const__1);
-l_System_Uri_UriEscape_rfc3986ReservedChars___closed__17 = _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__17();
-lean_mark_persistent(l_System_Uri_UriEscape_rfc3986ReservedChars___closed__17);
 l_System_Uri_UriEscape_rfc3986ReservedChars___closed__18___boxed__const__1 = _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__18___boxed__const__1();
 lean_mark_persistent(l_System_Uri_UriEscape_rfc3986ReservedChars___closed__18___boxed__const__1);
-l_System_Uri_UriEscape_rfc3986ReservedChars___closed__18 = _init_l_System_Uri_UriEscape_rfc3986ReservedChars___closed__18();
-lean_mark_persistent(l_System_Uri_UriEscape_rfc3986ReservedChars___closed__18);
 l_System_Uri_UriEscape_rfc3986ReservedChars = _init_l_System_Uri_UriEscape_rfc3986ReservedChars();
 lean_mark_persistent(l_System_Uri_UriEscape_rfc3986ReservedChars);
-l_System_Uri_pathToUri___closed__2 = _init_l_System_Uri_pathToUri___closed__2();
-lean_mark_persistent(l_System_Uri_pathToUri___closed__2);
-l_System_Uri_fileUriToPath_x3f___closed__0 = _init_l_System_Uri_fileUriToPath_x3f___closed__0();
-lean_mark_persistent(l_System_Uri_fileUriToPath_x3f___closed__0);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

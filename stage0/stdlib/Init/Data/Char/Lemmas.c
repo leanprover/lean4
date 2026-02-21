@@ -16,19 +16,19 @@ extern "C" {
 LEAN_EXPORT lean_object* l_Char_leTrans;
 LEAN_EXPORT lean_object* l_Char_ltTrans;
 LEAN_EXPORT lean_object* l_Char_notLTTrans;
-static lean_object* _init_l_Char_leTrans() {
+static lean_object* _init_l_Char_leTrans(void) {
 _start:
 {
 return lean_box(0);
 }
 }
-static lean_object* _init_l_Char_ltTrans() {
+static lean_object* _init_l_Char_ltTrans(void) {
 _start:
 {
 return lean_box(0);
 }
 }
-static lean_object* _init_l_Char_notLTTrans() {
+static lean_object* _init_l_Char_notLTTrans(void) {
 _start:
 {
 return lean_box(0);

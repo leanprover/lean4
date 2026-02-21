@@ -51,6 +51,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_addDeclarationRangesFromSyntax___redArg___b
 LEAN_EXPORT lean_object* l_Lean_Elab_addDeclarationRangesFromSyntax(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_addDeclarationRangesFromSyntax___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
+static lean_once_cell_t l_Lean_Elab_addDeclarationRangesForBuiltin___redArg___lam__0___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Elab_addDeclarationRangesForBuiltin___redArg___lam__0___closed__0;
 static const lean_string_object l_Lean_Elab_addDeclarationRangesForBuiltin___redArg___lam__0___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 5, .m_capacity = 5, .m_length = 4, .m_data = "null"};
 static const lean_object* l_Lean_Elab_addDeclarationRangesForBuiltin___redArg___lam__0___closed__1 = (const lean_object*)&l_Lean_Elab_addDeclarationRangesForBuiltin___redArg___lam__0___closed__1_value;
@@ -380,7 +381,7 @@ lean_dec(x_6);
 return x_8;
 }
 }
-static lean_object* _init_l_Lean_Elab_addDeclarationRangesForBuiltin___redArg___lam__0___closed__0() {
+static lean_object* _init_l_Lean_Elab_addDeclarationRangesForBuiltin___redArg___lam__0___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -393,7 +394,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_addDeclarationRangesForBuiltin___redArg___l
 _start:
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
-x_8 = l_Lean_Elab_addDeclarationRangesForBuiltin___redArg___lam__0___closed__0;
+x_8 = lean_obj_once(&l_Lean_Elab_addDeclarationRangesForBuiltin___redArg___lam__0___closed__0, &l_Lean_Elab_addDeclarationRangesForBuiltin___redArg___lam__0___closed__0_once, _init_l_Lean_Elab_addDeclarationRangesForBuiltin___redArg___lam__0___closed__0);
 x_9 = lean_array_push(x_8, x_1);
 lean_inc(x_2);
 x_10 = lean_array_push(x_9, x_2);
@@ -475,8 +476,6 @@ _G_initialized = true;
 res = initialize_Lean_Parser_Command(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Elab_addDeclarationRangesForBuiltin___redArg___lam__0___closed__0 = _init_l_Lean_Elab_addDeclarationRangesForBuiltin___redArg___lam__0___closed__0();
-lean_mark_persistent(l_Lean_Elab_addDeclarationRangesForBuiltin___redArg___lam__0___closed__0);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

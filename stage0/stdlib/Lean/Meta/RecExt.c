@@ -25,8 +25,11 @@ LEAN_EXPORT lean_object* l_Lean_Meta_initFn_00___x40_Lean_Meta_RecExt_2067193597
 LEAN_EXPORT lean_object* l_Lean_Meta_initFn_00___x40_Lean_Meta_RecExt_2067193597____hygCtx___hyg_2____boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_recExt;
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
+static lean_once_cell_t l_Lean_Meta_markAsRecursive___redArg___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Meta_markAsRecursive___redArg___closed__0;
+static lean_once_cell_t l_Lean_Meta_markAsRecursive___redArg___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Meta_markAsRecursive___redArg___closed__1;
+static lean_once_cell_t l_Lean_Meta_markAsRecursive___redArg___closed__2_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Meta_markAsRecursive___redArg___closed__2;
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_TagDeclarationExtension_tag(lean_object*, lean_object*, lean_object*);
@@ -59,7 +62,7 @@ x_2 = l_Lean_Meta_initFn_00___x40_Lean_Meta_RecExt_2067193597____hygCtx___hyg_2_
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Meta_markAsRecursive___redArg___closed__0() {
+static lean_object* _init_l_Lean_Meta_markAsRecursive___redArg___closed__0(void) {
 _start:
 {
 lean_object* x_1; 
@@ -67,21 +70,21 @@ x_1 = l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_box(0), lean_box(0));
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Meta_markAsRecursive___redArg___closed__1() {
+static lean_object* _init_l_Lean_Meta_markAsRecursive___redArg___closed__1(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_markAsRecursive___redArg___closed__0;
+x_1 = lean_obj_once(&l_Lean_Meta_markAsRecursive___redArg___closed__0, &l_Lean_Meta_markAsRecursive___redArg___closed__0_once, _init_l_Lean_Meta_markAsRecursive___redArg___closed__0);
 x_2 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Meta_markAsRecursive___redArg___closed__2() {
+static lean_object* _init_l_Lean_Meta_markAsRecursive___redArg___closed__2(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_markAsRecursive___redArg___closed__1;
+x_1 = lean_obj_once(&l_Lean_Meta_markAsRecursive___redArg___closed__1, &l_Lean_Meta_markAsRecursive___redArg___closed__1_once, _init_l_Lean_Meta_markAsRecursive___redArg___closed__1);
 x_2 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_2, 0, x_1);
 lean_ctor_set(x_2, 1, x_1);
@@ -102,7 +105,7 @@ x_7 = lean_ctor_get(x_4, 5);
 lean_dec(x_7);
 x_8 = l_Lean_Meta_recExt;
 x_9 = l_Lean_TagDeclarationExtension_tag(x_8, x_6, x_1);
-x_10 = l_Lean_Meta_markAsRecursive___redArg___closed__2;
+x_10 = lean_obj_once(&l_Lean_Meta_markAsRecursive___redArg___closed__2, &l_Lean_Meta_markAsRecursive___redArg___closed__2_once, _init_l_Lean_Meta_markAsRecursive___redArg___closed__2);
 lean_ctor_set(x_4, 5, x_10);
 lean_ctor_set(x_4, 0, x_9);
 x_11 = lean_st_ref_set(x_2, x_4);
@@ -133,7 +136,7 @@ lean_inc(x_14);
 lean_dec(x_4);
 x_22 = l_Lean_Meta_recExt;
 x_23 = l_Lean_TagDeclarationExtension_tag(x_22, x_14, x_1);
-x_24 = l_Lean_Meta_markAsRecursive___redArg___closed__2;
+x_24 = lean_obj_once(&l_Lean_Meta_markAsRecursive___redArg___closed__2, &l_Lean_Meta_markAsRecursive___redArg___closed__2_once, _init_l_Lean_Meta_markAsRecursive___redArg___closed__2);
 x_25 = lean_alloc_ctor(0, 9, 0);
 lean_ctor_set(x_25, 0, x_23);
 lean_ctor_set(x_25, 1, x_15);
@@ -242,13 +245,7 @@ if (lean_io_result_is_error(res)) return res;
 l_Lean_Meta_recExt = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_Meta_recExt);
 lean_dec_ref(res);
-}l_Lean_Meta_markAsRecursive___redArg___closed__0 = _init_l_Lean_Meta_markAsRecursive___redArg___closed__0();
-lean_mark_persistent(l_Lean_Meta_markAsRecursive___redArg___closed__0);
-l_Lean_Meta_markAsRecursive___redArg___closed__1 = _init_l_Lean_Meta_markAsRecursive___redArg___closed__1();
-lean_mark_persistent(l_Lean_Meta_markAsRecursive___redArg___closed__1);
-l_Lean_Meta_markAsRecursive___redArg___closed__2 = _init_l_Lean_Meta_markAsRecursive___redArg___closed__2();
-lean_mark_persistent(l_Lean_Meta_markAsRecursive___redArg___closed__2);
-return lean_io_result_mk_ok(lean_box(0));
+}return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus
 }

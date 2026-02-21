@@ -31,7 +31,7 @@ public instance (priority := low) [Pure m] [MonadExceptOf ε m] : MonadLiftT (Ex
     | .error e => throw e
 
 -- Remark: not necessarily optimal; uses context non-linearly
-public instance (priority := low) [Bind m] [MonadReaderOf ρ m] [MonadLiftT n m] : MonadLiftT (ReaderT ρ n) m where
+public instance (priority := low) [Monad m] [MonadReaderOf ρ m] [MonadLiftT n m] : MonadLiftT (ReaderT ρ n) m where
   monadLift act := do act (← read)
 
 -- Remark: not necessarily optimal; uses state non-linearly

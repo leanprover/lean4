@@ -355,6 +355,7 @@ theorem erase_eq_eraseP' (a : α) (l : List α) : l.erase a = l.eraseP (· == a)
 theorem erase_eq_eraseP [LawfulBEq α] (a : α) : ∀ (l : List α), l.erase a = l.eraseP (a == ·)
   | [] => rfl
   | b :: l => by
+    have : DecidableEq α := instDecidableEqOfLawfulBEq
     if h : a = b then simp [h] else simp [h, Ne.symm h, erase_eq_eraseP (l := l)]
 
 @[simp] theorem erase_eq_nil_iff [LawfulBEq α] {xs : List α} {a : α} :

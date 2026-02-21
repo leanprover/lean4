@@ -237,6 +237,7 @@ set_option compiler.ignoreBorrowAnnotation true in
 @[export lean_infer_type]
 def inferTypeImp (e : Expr) : MetaM Expr :=
   let rec infer (e : Expr) :  MetaM Expr := do
+    withTraceNode  `Meta.isDefEq.inferType (fun r => return m!"{exceptEmoji r} infer:\n{e} \n⇒\n {r.toOption}") do
     match e with
     | .const c []    => inferConstType c []
     | .const c us    => checkInferTypeCache e (inferConstType c us)

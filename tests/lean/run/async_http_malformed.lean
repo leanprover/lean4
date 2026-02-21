@@ -137,6 +137,57 @@ def notImplemented : String :=
   unless endedB do
     throw <| IO.userError s!"Test 'Client mode parses headerless response status-line' failed:\nMissing endHeaders event: {repr stepB.events}"
 
+  let machineC : Protocol.H1.Machine .sending := { config := {} }
+  let rawC := "HTTP/1.1 204 No Content\x0d\nContent-Length: 5\x0d\n\x0d\nHELLO"
+  let (machineC, stepC) := (machineC.feed rawC.toUTF8).step
+  let failedC := stepC.events.any fun
+    | .failed _ => true
+    | _ => false
+  if failedC then
+    throw <| IO.userError s!"Test 'Client mode ignores body framing on 204' failed:\nUnexpected failure events: {repr stepC.events}"
+
+  match machineC.reader.state with
+  | .readBody (.fixed 0) =>
+      pure ()
+  | .complete =>
+      pure ()
+  | .closed =>
+      pure ()
+  | _ =>
+      throw <| IO.userError s!"Test 'Client mode ignores body framing on 204' failed:\nUnexpected body-reading state: {repr machineC.reader.state}"
+
+  unless machineC.reader.input.remainingBytes == 5 do
+    throw <| IO.userError s!"Test 'Client mode ignores body framing on 204' failed:\nExpected 5 unread bytes, got {machineC.reader.input.remainingBytes}"
+
+-- Outgoing response framing regressions for bodyless statuses.
+#eval show IO _ from do
+  let request := "GET /cache HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
+  let machine0 : Protocol.H1.Machine .receiving := { config := {} }
+  let (machine1, _step1) := (machine0.feed request).step
+
+  let headers304 := Headers.empty.insert Header.Name.contentLength (Header.Value.ofString! "5")
+  let machine304 := machine1.send ({ status := .notModified, headers := headers304 } : Response.Head)
+  let (_machine304, step304) := machine304.step
+  let text304 := String.fromUTF8! step304.output.toByteArray
+  unless text304.contains "HTTP/1.1 304 Not Modified" do
+    throw <| IO.userError s!"Test '304 preserves explicit Content-Length' failed:\n{text304.quote}"
+  unless text304.contains "Content-Length: 5" do
+    throw <| IO.userError s!"Test '304 preserves explicit Content-Length' failed:\n{text304.quote}"
+  if text304.contains "Content-Length: 0" then
+    throw <| IO.userError s!"Test '304 preserves explicit Content-Length' failed:\nUnexpected rewritten Content-Length: {text304.quote}"
+
+  let headers204 := Headers.empty
+    |>.insert Header.Name.contentLength (Header.Value.ofString! "9")
+  let machine204 := machine1.send ({ status := .noContent, headers := headers204 } : Response.Head)
+  let (_machine204, step204) := machine204.step
+  let text204 := String.fromUTF8! step204.output.toByteArray
+  unless step204.output.size > 0 do
+    throw <| IO.userError "Test '204 strips framing headers' failed:\nExpected serialized response output"
+  unless text204.contains "HTTP/1.1 204 No Content" do
+    throw <| IO.userError s!"Test '204 strips framing headers' failed:\n{text204.quote}"
+  if text204.contains "Content-Length:" ∨ text204.contains "Transfer-Encoding:" then
+    throw <| IO.userError s!"Test '204 strips framing headers' failed:\nUnexpected framing headers:\n{text204.quote}"
+
 -- Host header rules.
 #eval show IO _ from do
   let (clientA, serverA) ← Mock.new

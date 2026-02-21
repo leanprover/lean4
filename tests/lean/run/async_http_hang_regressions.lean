@@ -80,6 +80,11 @@ def assertContains (name : String) (response : ByteArray) (needle : String) : IO
   unless text.contains needle do
     throw <| IO.userError s!"Test '{name}' failed:\nMissing: {needle.quote}\nGot:\n{text.quote}"
 
+def assertNotContains (name : String) (response : ByteArray) (needle : String) : IO Unit := do
+  let text := String.fromUTF8! response
+  if text.contains needle then
+    throw <| IO.userError s!"Test '{name}' failed:\nDid not expect {needle.quote}\nGot:\n{text.quote}"
+
 def assertEndsWith (name : String) (response : ByteArray) (suffix_ : String) : IO Unit := do
   let text := String.fromUTF8! response
   unless text.endsWith suffix_ do
@@ -322,3 +327,48 @@ def stressResponseHandler (n : Nat) : TestHandler := fun _ => do
       Response.ok |>.text "unreachable")
     (config := { lingeringTimeout := 200, generateDate := false })
   assertStatusPrefix "21_incomplete_slow_post_times_out" response "HTTP/1.1 408"
+
+-- 22: Keep-alive + unknown-size stream flushes once first chunk is available.
+#eval runWithTimeout "22_keepalive_unknown_size_flushes_early" 3000 do
+  Async.block do
+    let (client, server) ← Mock.new
+    let handler : TestHandler := fun _ => do
+      let (outgoing, _incoming) ← Body.mkChannel
+      background do
+        outgoing.send <| Chunk.ofByteArray "aaa".toUTF8
+        let sleep ← Sleep.mk 300
+        sleep.wait
+        outgoing.send <| Chunk.ofByteArray "bbb".toUTF8
+        outgoing.close
+      return Response.ok
+        |>.body outgoing
+
+    background <| (Std.Http.Server.serveConnection server handler {
+      lingeringTimeout := 800
+      keepAliveTimeout := ⟨1500, by decide⟩
+      generateDate := false
+    }).run
+
+    client.send "GET /stream HTTP/1.1\x0d\nHost: example.com\x0d\n\x0d\n".toUTF8
+
+    let mut early : Option ByteArray := none
+    for _ in [0:5] do
+      if early.isNone then
+        let sleep ← Sleep.mk 40
+        sleep.wait
+        early ← client.tryRecv?
+
+    let earlyBytes := early.getD ByteArray.empty
+    if earlyBytes.isEmpty then
+      throw <| IO.userError "Test '22_keepalive_unknown_size_flushes_early' failed:\nExpected early streamed bytes before producer EOF"
+
+    assertContains "22_keepalive_unknown_size_flushes_early header" earlyBytes "Transfer-Encoding: chunked"
+    assertContains "22_keepalive_unknown_size_flushes_early first chunk" earlyBytes "aaa"
+    assertNotContains "22_keepalive_unknown_size_flushes_early no second chunk yet" earlyBytes "bbb"
+
+    let sleep ← Sleep.mk 420
+    sleep.wait
+    let later := (← client.tryRecv?).getD ByteArray.empty
+    assertContains "22_keepalive_unknown_size_flushes_early second chunk later" later "bbb"
+
+    client.close

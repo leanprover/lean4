@@ -184,7 +184,7 @@ def hasUri (req : Request Body.Incoming) (uri : String) : Bool :=
     then Response.new |>.status .noContent |>.text ""
     else Response.notFound |>.text ""
 
-  expected := "HTTP/1.1 204 No Content\x0d\nContent-Length: 0\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\nContent-Type: text/plain; charset=utf-8\x0d\n\x0d\n"
+  expected := "HTTP/1.1 204 No Content\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\nContent-Type: text/plain; charset=utf-8\x0d\n\x0d\n"
 }
 
 #eval runTestCase {
@@ -642,4 +642,26 @@ def hasUri (req : Request Body.Incoming) (uri : String) : Bool :=
 
   expected := "HTTP/1.1 400 Bad Request\x0d\nContent-Length: 0\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"
   chunked := true
+}
+
+#eval runTestCase {
+  name := "Fixed-length response overflow closes connection"
+
+  request := Request.new
+    |>.method .get
+    |>.uri! "/overflow"
+    |>.header! "Host" "example.com"
+    |>.header! "Connection" "close"
+    |>.body #[]
+
+  handler := fun _ => do
+    let (stream, _incoming) ← Body.mkChannel
+    background do
+      stream.send <| Chunk.ofByteArray "abcdef".toUTF8
+      stream.close
+    return Response.ok
+      |>.header (.mk "content-length") (.mk "3")
+      |>.body stream
+
+  expected := "HTTP/1.1 200 OK\x0d\nContent-Length: 3\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"
 }

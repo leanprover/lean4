@@ -1016,6 +1016,14 @@ string or a `MessageData` term.
 @[builtin_term_parser] def logNamedWarningAtMacro := leading_parser
   "logNamedWarningAt " >> termParser maxPrec >> ppSpace >> identWithPartialTrailingDot >> ppSpace >> (interpolatedStr termParser <|> termParser maxPrec)
 
+/--
+Representation of an expression with metadata used during pretty printing for the `pp.mdata` option.
+-/
+@[run_builtin_parser_attribute_hooks]
+def mdataDiagnostic := leading_parser
+  group ("[" >> "mdata" >> many (group <| ppSpace >> ident >> optional (":" >> termParser)) >> "]") >>
+  ppSpace >> termParser
+
 end Term
 
 @[builtin_term_parser default+1] def Tactic.quot : Parser := leading_parser

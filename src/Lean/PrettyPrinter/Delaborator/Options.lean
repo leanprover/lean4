@@ -98,6 +98,10 @@ register_builtin_option pp.numericTypes : Bool := {
   defValue := false
   descr    := "(pretty printer) display types of numeric literals"
 }
+register_builtin_option pp.mdata : Bool := {
+  defValue := false
+  descr    := "(pretty printer) displays a representation of mdata annotations"
+}
 register_builtin_option pp.instantiateMVars : Bool := {
   defValue := true
   descr    := "(pretty printer) instantiate mvars before delaborating"
@@ -260,6 +264,7 @@ def getPPTagAppFns (o : Options) : Bool := o.get pp.tagAppFns.name (getPPAll o)
 def getPPUniverses (o : Options) : Bool := o.get pp.universes.name (getPPAll o)
 def getPPFullNames (o : Options) : Bool := o.get pp.fullNames.name (getPPAll o)
 def getPPPrivateNames (o : Options) : Bool := o.get pp.privateNames.name (getPPAll o)
+def getPPMData (o : Options) : Bool := o.get pp.mdata.name pp.mdata.defValue
 def getPPInstantiateMVars (o : Options) : Bool := o.get pp.instantiateMVars.name pp.instantiateMVars.defValue
 def getPPMVars (o : Options) : Bool := o.get pp.mvars.name pp.mvars.defValue
 def getPPMVarsAnonymous (o : Options) : Bool := o.get pp.mvars.anonymous.name (pp.mvars.anonymous.defValue && getPPMVars o)

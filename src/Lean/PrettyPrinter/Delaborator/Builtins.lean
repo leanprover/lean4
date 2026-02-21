@@ -296,7 +296,10 @@ def delabAppExplicitCore (fieldNotation : Bool) (numArgs : Nat) (delabHead : (in
   let insertExplicit := needsExplicit ((← getExpr).getBoundedAppFn numArgs) numArgs paramKinds
   let fieldNotation ← pure (fieldNotation && !insertExplicit) <&&> getPPOption getPPFieldNotation
     <&&> not <$> getPPOption getPPAnalysisNoDot
-    <&&> withBoundedAppFn numArgs do pure (← getExpr).consumeMData.isConst <&&> not <$> withMDatasOptions (getPPOption getPPAnalysisBlockImplicit <|> getPPOption getPPUniverses)
+    <&&> withBoundedAppFn numArgs do
+            pure (← getExpr).consumeMData.isConst
+            <&&> not <$> (pure (← getExpr).isMData <&&> getPPOption getPPMData)
+            <&&> not <$> withMDatasOptions (getPPOption getPPAnalysisBlockImplicit <|> getPPOption getPPUniverses)
   let field? ← if fieldNotation then appFieldNotationCandidate? else pure none
   let (fnStx, _, argStxs) ← withBoundedAppFnArgs numArgs
     (do return (← delabHead insertExplicit, paramKinds.toList, Array.mkEmpty numArgs))
@@ -357,7 +360,10 @@ Assumes `numArgs ≤ paramKinds.size`.
 -/
 def delabAppImplicitCore (unexpand : Bool) (numArgs : Nat) (delabHead : Delab) (paramKinds : Array ParamKind) : Delab := do
   let unexpand ← pure unexpand
-    <&&> withBoundedAppFn numArgs do pure (← getExpr).consumeMData.isConst <&&> not <$> withMDatasOptions (getPPOption getPPUniverses)
+    <&&> withBoundedAppFn numArgs do
+            pure (← getExpr).consumeMData.isConst
+            <&&> not <$> (pure (← getExpr).isMData <&&> getPPOption getPPMData)
+            <&&> not <$> withMDatasOptions (getPPOption getPPUniverses)
   let field? ←
     if ← pure unexpand <&&> getPPOption getPPFieldNotation <&&> not <$> getPPOption getPPAnalysisNoDot then
       appFieldNotationCandidate?
@@ -522,7 +528,12 @@ Default delaborator for applications.
 @[builtin_delab app]
 def delabApp : Delab := do
   let delabAppFn (insertExplicit : Bool) : Delab := do
-    let stx ← if (← getExpr).consumeMData.isConst then withMDatasOptions delabConst else delab
+    let e ← getExpr
+    let stx ←
+      if ← pure e.consumeMData.isConst <&&> not <$> (pure e.isMData <&&> getPPOption getPPMData) then
+        withMDatasOptions delabConst
+      else
+        delab
     if insertExplicit && !stx.raw.isOfKind ``Lean.Parser.Term.explicit then `(@$stx) else pure stx
   delabAppCore (← getExpr).getAppNumArgs delabAppFn (unexpand := true)
 
@@ -843,18 +854,37 @@ where
     else
       x
 
+private def reflectDataValue (t : DataValue) : Term := Unhygienic.run do
+  match t with
+  | .ofBool b => return mkIdent (if b then `true else `false)
+  | .ofNat n => return quote n
+  | .ofInt n => if n ≥ 0 then return quote n.toNat else `(-$(quote n.natAbs))
+  | .ofString s => return quote s
+  | .ofName n => return mkIdent n
+  | .ofSyntax _ => `(_)
+
 @[builtin_delab mdata]
 def delabMData : Delab := do
-  if let some _ := inaccessible? (← getExpr) then
-    let s ← withMDataExpr delab
-    if (← read).inPattern then
-      `(.($s)) -- We only include the inaccessible annotation when we are delaborating patterns
-    else
-      return s
-  else if let some _ := isLHSGoal? (← getExpr) then
-    withMDataExpr <| withAppFn <| withAppArg <| delab
+  if ← getPPOption getPPMData then
+    let .mdata d _ ← getExpr | unreachable!
+    let (keys, vals?) ← d.entries.foldlM (init := (#[], #[]))
+      fun ((keys : Array Ident), (vals : Array (Option Term))) (k, v) => do
+        return (keys.push (mkIdent k), vals.push (some <| reflectDataValue v))
+    let e ← withMDataOptions delab
+    -- Annotate to prevent overwriting the terminfo for `e`, which is
+    -- already inserted at the current position.
+    annotateCurPos =<< `(mdataDiagnostic| [mdata $[$keys $[:$vals?]?]*] $e)
   else
-    withMDataOptions delab
+    if let some _ := inaccessible? (← getExpr) then
+      let s ← withMDataExpr delab
+      if (← read).inPattern then
+        `(.($s)) -- We only include the inaccessible annotation when we are delaborating patterns
+      else
+        return s
+    else if let some _ := isLHSGoal? (← getExpr) then
+      withMDataExpr <| withAppFn <| withAppArg <| delab
+    else
+      withMDataOptions delab
 
 /--
 Return `true` iff current binder should be merged with the nested

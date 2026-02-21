@@ -198,19 +198,25 @@ def writeFixedBody (writer : Writer dir) (limitSize : Nat) : Writer dir × Nat :
   if writer.userData.size = 0 then
     (writer, limitSize)
   else
-    let data := writer.userData.map Chunk.data
-    let (chunks, totalSize) := data.foldl (fun (acc, size) ba =>
+    let (chunks, pending, totalSize) := writer.userData.foldl (fun (state : Array ByteArray × Array Chunk × Nat) chunk =>
+      let (acc, pending, size) := state
       if size >= limitSize then
-        (acc, size)
+        (acc, pending.push chunk, size)
       else
         let remaining := limitSize - size
-        let takeSize := min ba.size remaining
-        let chunk := ba.extract 0 takeSize
-        (acc.push chunk, size + takeSize)
-    ) (#[], 0)
+        let takeSize := min chunk.data.size remaining
+        let dataPart := chunk.data.extract 0 takeSize
+        let acc := if takeSize = 0 then acc else acc.push dataPart
+        let size := size + takeSize
+        if takeSize < chunk.data.size then
+          let pendingChunk : Chunk := { chunk with data := chunk.data.extract takeSize chunk.data.size }
+          (acc, pending.push pendingChunk, size)
+        else
+          (acc, pending, size)
+    ) (#[], #[], 0)
     let outputData := writer.outputData.append (ChunkedBuffer.ofArray chunks)
     let remaining := limitSize - totalSize
-    ({ writer with userData := #[], outputData }, remaining)
+    ({ writer with userData := pending, outputData }, remaining)
 
 /--
 Writes accumulated user data to output using chunked transfer encoding.

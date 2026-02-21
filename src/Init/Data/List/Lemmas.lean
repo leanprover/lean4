@@ -395,7 +395,16 @@ theorem exists_mem_of_ne_nil (l : List α) (h : l ≠ []) : ∃ x, x ∈ l :=
   exists_mem_of_length_pos (length_pos_iff.2 h)
 
 theorem eq_nil_iff_forall_not_mem {l : List α} : l = [] ↔ ∀ a, a ∉ l := by
-  cases l <;> simp [-not_or]
+    cases l with
+  | nil =>
+    simp only [true_iff]
+    intro a h
+    cases h
+  | cons a l =>
+    constructor
+    · simp
+    · intro h
+      exact (h a (List.Mem.head l)).elim
 
 @[simp] theorem mem_dite_nil_left {x : α} [Decidable p] {l : ¬ p → List α} :
     (x ∈ if h : p then [] else l h) ↔ ∃ h : ¬ p, x ∈ l h := by

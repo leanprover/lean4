@@ -243,7 +243,7 @@ def parseFieldLine (limits : H1.Config) : Parser (String × String) := do
 /--
 Parses a single header.
 
-field-line CRLF / CRLF
+field-line CRLF
 -/
 public def parseSingleHeader (limits : H1.Config) : Parser (Option (String × String)) := do
   let next ← peek?

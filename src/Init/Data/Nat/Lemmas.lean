@@ -217,7 +217,13 @@ protected theorem add_right_inj {n : Nat} : n + m = n + k ↔ m = k := Nat.add_l
 @[simp high] protected theorem add_eq_left {a b : Nat} : a + b = a ↔ b = 0 := by omega
 @[simp high] protected theorem add_eq_right {a b : Nat} : a + b = b ↔ a = 0 := by omega
 @[simp high] protected theorem left_eq_add {a b : Nat} : a = a + b ↔ b = 0 := by omega
-@[simp high] protected theorem right_eq_add {a b : Nat} : b = a + b ↔ a = 0 := by omega
+@[simp high] protected theorem right_eq_add {a b : Nat} : b = a + b ↔ a = 0 := by
+  refine ⟨fun h ↦ ?_, fun h ↦ ?_⟩
+  · induction b with
+    | zero => exact h.symm
+    | succ b ih => exact ih (Nat.succ.inj h)
+  · cases h
+    exact (Nat.zero_add b).symm
 
 protected theorem lt_of_add_lt_add_right : ∀ {n : Nat}, k + n < m + n → k < m
   | 0, h => h

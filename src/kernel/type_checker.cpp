@@ -1099,7 +1099,9 @@ bool type_checker::is_unit_like(expr const & t) {
     if (!is_structure_like(env(), I_name))
         return false;
     name ctor_name = head(env().get(I_name).to_inductive_val().get_cnstrs());
-    expr ctor_ty = env().get(ctor_name).to_constructor_val().to_constant_val().get_type();
+    constant_val ctor_val = env().get(ctor_name).to_constructor_val().to_constant_val();
+    expr ctor_ty = ctor_val.get_type();
+    ctor_ty = instantiate_lparams(ctor_ty, ctor_val.get_lparams(), const_levels(I));
     // The type is a structure, and in particular has no index. Furthermore, it is itself a type, meaning `args.size() = I_val.nparams()`
     for (unsigned i = 0; i < args.size(); i++) 
         ctor_ty = binding_body(ctor_ty);

@@ -2116,8 +2116,8 @@ private partial def isUnitLikeStruct (tType : Expr) : MetaM Bool := do
   let tType ← whnf tType
   let hd := tType.getAppFn
   matchConstStructureLike hd (fun _ => pure false) fun _ _ ctorVal => do
-    --TODO Shouldn't this also instantiate universes ?
     let ctorType := ctorVal.type
+        |>.instantiateLevelParams ctorVal.levelParams hd.constLevels!
         |>.getForallBodyMaxDepth tType.getAppNumArgs
         |>.instantiateRev tType.getAppArgs
     forallTelescope ctorType fun xs _ =>

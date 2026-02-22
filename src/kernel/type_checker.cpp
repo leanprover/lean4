@@ -829,9 +829,10 @@ bool type_checker::try_eta_struct_core(expr const & t_, expr const & s_) {
     if (get_app_num_args(s) != f_val.get_nparams() + f_val.get_nfields()) {
         buffer<expr> fvars;
         while (is_pi(t_type)) {
-            expr hd = instantiate_rev(binding_domain(t_type), fvars.size(), fvars.data());
-            fvars.push_back(m_lctx.mk_local_decl(m_st->m_ngen, binding_name(t_type), hd, binding_info(t_type)));
-            t_type  = whnf(binding_body(t_type));
+             expr hd = instantiate_rev(binding_domain(t_type), fvars.size(), fvars.data());
+            expr x  = m_lctx.mk_local_decl(m_st->m_ngen, binding_name(t_type), hd, binding_info(t_type));
+            fvars.push_back(x);
+            t_type = whnf(instantiate(binding_body(t_type), x));
         };
         t = mk_app(t, fvars);
         s = mk_app(s, fvars);
@@ -1086,15 +1087,18 @@ bool type_checker::is_unit_like(expr const & t) {
     // If type is an arrow-type, we check if the final codomain is unit-like
     while (is_pi(I)) {
         expr hd = instantiate_rev(binding_domain(I), fvars.size(), fvars.data());
-        fvars.push_back(m_lctx.mk_local_decl(m_st->m_ngen, binding_name(I), hd, binding_info(I)));
-        I       = whnf(binding_body(I));
+        expr x  = m_lctx.mk_local_decl(m_st->m_ngen, binding_name(I), hd, binding_info(I));
+        fvars.push_back(x);
+        I       = whnf(instantiate(binding_body(I), x));
     }
     I = instantiate_rev(I, fvars.size(), fvars.data());
     I = get_app_args(I, args);
-    name I_name = const_name(I);
-    if (!is_constant(I) || !is_structure_like(env(), I_name))
+    if (!is_constant(I)) 
         return false;
-    name ctor_name = head(env().get(const_name(I)).to_inductive_val().get_cnstrs());
+    name I_name = const_name(I);
+    if (!is_structure_like(env(), I_name))
+        return false;
+    name ctor_name = head(env().get(I_name).to_inductive_val().get_cnstrs());
     expr ctor_ty = env().get(ctor_name).to_constructor_val().to_constant_val().get_type();
     // The type is a structure, and in particular has no index. Furthermore, it is itself a type, meaning `args.size() = I_val.nparams()`
     for (unsigned i = 0; i < args.size(); i++) 
@@ -1104,10 +1108,11 @@ bool type_checker::is_unit_like(expr const & t) {
     // Check that every field (read, every domain) of the constructor are themselves unit-like
     while (is_pi(ctor_ty)) {
         expr hd = instantiate_rev(binding_domain(ctor_ty), fvars.size(), fvars.data());
-        if (!is_unit_like(hd) && !is_prop(hd))
+        if (!is_prop(hd) && !is_unit_like(hd))
             return false;
-        fvars.push_back(m_lctx.mk_local_decl(m_st->m_ngen, binding_name(ctor_ty), hd, binding_info(ctor_ty)));
-        ctor_ty     = binding_body(ctor_ty);
+        expr x  = m_lctx.mk_local_decl(m_st->m_ngen, binding_name(ctor_ty), hd, binding_info(ctor_ty));
+        fvars.push_back(x);
+        ctor_ty = binding_body(whnf(instantiate(binding_body(ctor_ty), x)));
     }
     return true;
 }

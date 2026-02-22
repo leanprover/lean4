@@ -325,8 +325,10 @@ grind_pattern boole_getElem_le_count => l.count a, l[i]
 
 variable [LawfulBEq α]
 
-@[simp] theorem count_cons_self {a : α} {l : List α} : count a (a :: l) = count a l + 1 := by
-  simp [count_cons]
+@[simp] theorem count_cons_self {a : α} {l : List α} : count a (a :: l) = count a l + 1 :=
+match l with
+| nil => by simp [count_cons]
+| cons a' l => by simp [count_cons]
 
 @[simp] theorem count_cons_of_ne (h : b ≠ a) {l : List α} : count a (b :: l) = count a l := by
   simp [count_cons, h]
@@ -408,12 +410,14 @@ theorem count_erase {a b : α} :
   | [] => by simp
   | c :: l => by
     rw [erase_cons]
+    have : DecidableEq α := instDecidableEqOfLawfulBEq
     if hc : c = b then
       have hc_beq := beq_iff_eq.mpr hc
       rw [if_pos hc_beq, hc, count_cons, Nat.add_sub_cancel]
     else
       have hc_beq := beq_false_of_ne hc
       simp only [hc_beq, if_false, count_cons, count_cons, count_erase, reduceCtorEq]
+      have : DecidableEq α := instDecidableEqOfLawfulBEq
       if ha : b = a then
         rw [ha, eq_comm] at hc
         rw [if_pos (beq_iff_eq.2 ha), if_neg (by simpa using Ne.symm hc), Nat.add_zero, Nat.add_zero]

@@ -829,7 +829,7 @@ bool type_checker::try_eta_struct_core(expr const & t_, expr const & s_) {
     if (get_app_num_args(s) != f_val.get_nparams() + f_val.get_nfields()) {
         buffer<expr> fvars;
         while (is_pi(t_type)) {
-             expr hd = instantiate_rev(binding_domain(t_type), fvars.size(), fvars.data());
+            expr hd = binding_domain(t_type);
             expr x  = m_lctx.mk_local_decl(m_st->m_ngen, binding_name(t_type), hd, binding_info(t_type));
             fvars.push_back(x);
             t_type = whnf(instantiate(binding_body(t_type), x));
@@ -1086,7 +1086,7 @@ bool type_checker::is_unit_like(expr const & t) {
     expr I = whnf(t);
     // If type is an arrow-type, we check if the final codomain is unit-like
     while (is_pi(I)) {
-        expr hd = instantiate_rev(binding_domain(I), fvars.size(), fvars.data());
+        expr hd = binding_domain(I);
         expr x  = m_lctx.mk_local_decl(m_st->m_ngen, binding_name(I), hd, binding_info(I));
         fvars.push_back(x);
         I       = whnf(instantiate(binding_body(I), x));
@@ -1107,12 +1107,12 @@ bool type_checker::is_unit_like(expr const & t) {
     ctor_ty = instantiate_rev(ctor_ty, args.size(), args.data());
     // Check that every field (read, every domain) of the constructor are themselves unit-like
     while (is_pi(ctor_ty)) {
-        expr hd = instantiate_rev(binding_domain(ctor_ty), fvars.size(), fvars.data());
+        expr hd = binding_domain(ctor_ty);
         if (!is_prop(hd) && !is_unit_like(hd))
             return false;
         expr x  = m_lctx.mk_local_decl(m_st->m_ngen, binding_name(ctor_ty), hd, binding_info(ctor_ty));
         fvars.push_back(x);
-        ctor_ty = binding_body(whnf(instantiate(binding_body(ctor_ty), x)));
+        ctor_ty = whnf(instantiate(binding_body(ctor_ty), x));
     }
     return true;
 }

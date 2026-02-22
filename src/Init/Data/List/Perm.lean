@@ -437,6 +437,7 @@ theorem perm_iff_count {l₁ l₂ : List α} : l₁ ~ l₂ ↔ ∀ a, count a l�
     refine ((IH fun b => ?_).cons a).trans (perm_cons_erase this).symm
     specialize H b
     rw [(perm_cons_erase this).count_eq] at H
+    have : DecidableEq α := instDecidableEqOfLawfulBEq
     by_cases h : b = a <;> simpa [h, count_cons, Nat.succ_inj] using H
 
 theorem Perm.count (h : l₁ ~ l₂) (a : α) : count a l₁ = count a l₂ := by

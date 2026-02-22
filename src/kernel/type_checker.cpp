@@ -1078,6 +1078,7 @@ lbool type_checker::try_string_lit_expansion(expr const & t, expr const & s) {
     return try_string_lit_expansion_core(s, t);
 }
 
+/** Takes a type of the form `A1 -> ... -> An-> I As`, checks that `I` is a (non-recursive) structure, and that each (instantiated) fields is itself either a proposition or a unit-like type*/
 bool type_checker::is_unit_like(expr const & t) {
     buffer<expr> args;
     buffer<expr> fvars;
@@ -1102,10 +1103,9 @@ bool type_checker::is_unit_like(expr const & t) {
     constant_val ctor_val = env().get(ctor_name).to_constructor_val().to_constant_val();
     expr ctor_ty = ctor_val.get_type();
     ctor_ty = instantiate_lparams(ctor_ty, ctor_val.get_lparams(), const_levels(I));
-    // The type is a structure, and in particular has no index. Furthermore, it is itself a type, meaning `args.size() = I_val.nparams()`
+    // `I` is a structure, and in particular has no indices. Furthermore, it is a type, so `args.size() = I_val.nparams()`
     for (unsigned i = 0; i < args.size(); i++) 
         ctor_ty = binding_body(ctor_ty);
-    // TODO instantiate the ctor levels ?
     ctor_ty = instantiate_rev(ctor_ty, args.size(), args.data());
     // Check that every field (read, every domain) of the constructor are themselves unit-like
     while (is_pi(ctor_ty)) {

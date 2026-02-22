@@ -1089,22 +1089,25 @@ bool type_checker::is_unit_like(expr const & t) {
         fvars.push_back(m_lctx.mk_local_decl(m_st->m_ngen, binding_name(I), hd, binding_info(I)));
         I       = whnf(binding_body(I));
     }
-    I = get_app_args(I,args);
-    if (!is_constant(I) || !is_structure_like(env(), const_name(I)))
+    I = instantiate_rev(I, fvars.size(), fvars.data());
+    I = get_app_args(I, args);
+    name I_name = const_name(I);
+    if (!is_constant(I) || !is_structure_like(env(), I_name))
         return false;
     name ctor_name = head(env().get(const_name(I)).to_inductive_val().get_cnstrs());
-    I = env().get(ctor_name).to_constructor_val().to_constant_val().get_type();
-    for (unsigned i = 0; i < args.size(); i++) {
-        // Check the instantiated type of the fields for the according structure parameter
-        I = instantiate(binding_body(I),args[i]);
-    }
+    expr ctor_ty = env().get(ctor_name).to_constructor_val().to_constant_val().get_type();
+    // The type is a structure, and in particular has no index. Furthermore, it is itself a type, meaning `args.size() = I_val.nparams()`
+    for (unsigned i = 0; i < args.size(); i++) 
+        ctor_ty = binding_body(ctor_ty);
+    // TODO instantiate the ctor levels ?
+    ctor_ty = instantiate_rev(ctor_ty, args.size(), args.data());
     // Check that every field (read, every domain) of the constructor are themselves unit-like
-    while (is_pi(I)) {
-        expr hd = instantiate_rev(binding_domain(I), fvars.size(), fvars.data());
+    while (is_pi(ctor_ty)) {
+        expr hd = instantiate_rev(binding_domain(ctor_ty), fvars.size(), fvars.data());
         if (!is_unit_like(hd) && !is_prop(hd))
             return false;
-        fvars.push_back(m_lctx.mk_local_decl(m_st->m_ngen, binding_name(I), hd, binding_info(I)));
-        I     = binding_body(I);
+        fvars.push_back(m_lctx.mk_local_decl(m_st->m_ngen, binding_name(ctor_ty), hd, binding_info(ctor_ty)));
+        ctor_ty     = binding_body(ctor_ty);
     }
     return true;
 }

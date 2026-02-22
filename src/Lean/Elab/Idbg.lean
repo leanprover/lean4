@@ -309,18 +309,25 @@ namespace Lean.Elab.Do
 
 open Lean.Idbg
 
-syntax (name := idbg_stx) "idbg " term : doElem
+-- Term-level syntax: `idbg expr; body` (continuation via semicolon or linebreak)
+open Lean.Parser Lean.Parser.Term in
+@[builtin_term_parser] def idbgTerm := leading_parser:leadPrec
+  withPosition ("idbg " >> checkColGt >> termParser) >>
+  optSemicolon termParser
+
+-- DoElem syntax: `idbg expr` (continuation handled by do elaborator)
+syntax (name := idbg_stx) "idbg" colGt withPosition(term) : doElem
 
 @[builtin_doElem_control_info idbg_stx]
 def controlInfoIdbg : ControlInfoHandler := fun _ => return default
 
-@[builtin_doElem_elab idbg_stx]
-def elabIdbg : DoElab := fun stx dec => do
-  let `(doElem| idbg $e) := stx | throwUnsupportedSyntax
+/-- Core elaboration logic shared by term and doElem forms. -/
+private def elabIdbgCore (e : Syntax) (body : TSyntax `term) (ref : Syntax) (expectedType? : Option Expr) :
+    TermElabM Expr := do
   -- Canonicalize the filename so the editor (absolute path) and the compiled
   -- program (possibly relative path) produce the same siteId.
   let fileName ← IO.FS.realPath (← getFileName)
-  let siteId := toString (hash s!"{fileName}:{stx.raw.getPos?.getD 0}")
+  let siteId := toString (hash s!"{fileName}:{ref.getPos?.getD 0}")
 
   -- Collect ALL non-aux local declarations.
   -- We need all of them (not just those used in the current expression)
@@ -333,21 +340,22 @@ def elabIdbg : DoElab := fun stx dec => do
     localDecls := localDecls.push decl
   let localFVars := localDecls.map (mkFVar ·.fvarId)
 
-  -- Elaborate e, wrap in toString.
+  -- Elaborate e, wrap in `toString ∘ repr`.
   -- synthesizeSyntheticMVarsNoPostponing forces pending instance resolution
   -- so that instantiateMVars can fully resolve all metavariables.
   let eExpr ← Term.elabTerm e none
   Term.synthesizeSyntheticMVarsNoPostponing
   let eExpr ← instantiateMVars eExpr
-  let toStringExpr ← Meta.mkAppM ``toString #[eExpr]
+  let reprExpr ← Meta.mkAppM ``repr #[eExpr]
+  let reprStrExpr ← Meta.mkAppM ``toString #[reprExpr]
   Term.synthesizeSyntheticMVarsNoPostponing
-  let toStringExpr ← instantiateMVars toStringExpr
+  let reprStrExpr ← instantiateMVars reprStrExpr
 
   -- Abstract over ALL locals as lambdas (not lets).
   -- We can't use mkLambdaFVars because it creates letE for let-bound locals
   -- (when their nondep flag is false, as in do-notation), but we need lambdas
   -- so the running program can pass its own values for these variables.
-  let abstractedValue := toStringExpr.abstract localFVars
+  let abstractedValue := reprStrExpr.abstract localFVars
   let abstractedValue ← localFVars.size.foldRevM (init := abstractedValue) fun i _ acc => do
     let decl := localDecls[i]!
     let type ← instantiateMVars (← Meta.inferType (mkFVar decl.fvarId))
@@ -361,40 +369,57 @@ def elabIdbg : DoElab := fun stx dec => do
   if abstractedType.hasMVar then
     throwError "idbg: abstracted type still has metavariables"
 
-  -- Server mode: serialize and serve
-  if Elab.inServer.get (← getOptions) then
+  -- Server mode: serialize and serve (in background so elaboration continues).
+  -- Skip if expression contains sorry (partial input during editing).
+  if Elab.inServer.get (← getOptions) && !abstractedValue.hasSorry then
     let json := Json.mkObj [
       ("type", exprToJson abstractedType),
       ("value", exprToJson abstractedValue)
     ]
-    let result ← idbgServer siteId json
-    logInfoAt stx m!"idbg: {result}"
+    let cancelTk ← IO.CancelToken.new
+    let act ← Core.wrapAsyncAsSnapshot (cancelTk? := cancelTk) fun () => do
+      let result ← idbgServer siteId json
+      logInfoAt ref m!"idbg: {result}"
+    Core.logSnapshotTask {
+      stx? := some ref
+      task := (← BaseIO.asTask (act ()))
+      cancelTk? := cancelTk
+    }
 
   -- Generate runtime code for compiled execution
+  let siteLit := Syntax.mkStrLit siteId
+  let applyClosure ← withLocalDecl `f .default abstractedType fun fVar => do
+    let appBody := mkAppN fVar localFVars
+    Meta.mkLambdaFVars #[fVar] appBody
+  let closureStx ← Term.exprToSyntax applyClosure
+  let imports := (← getEnv).header.imports
+  let importExprs ← imports.mapM fun imp => do
+    let nameExpr := toExpr imp.module
+    let importAllExpr := toExpr imp.importAll
+    let isExportedExpr := toExpr imp.isExported
+    let isMetaExpr := toExpr imp.isMeta
+    return mkAppN (.const ``Import.mk []) #[nameExpr, importAllExpr, isExportedExpr, isMetaExpr]
+  let importsExpr := mkApp2 (.const ``List.toArray [.zero])
+    (.const ``Import [])
+    (importExprs.toList.foldr (fun e acc => mkApp3 (.const ``List.cons [.zero]) (.const ``Import []) e acc)
+      (mkApp (.const ``List.nil [.zero]) (.const ``Import [])))
+  let importsStx ← Term.exprToSyntax importsExpr
+  Term.elabTerm (← `(
+    Lean.Idbg.idbgClientLoop $siteLit $importsStx $closureStx >>= fun _ => $body
+  )) expectedType?
+
+-- Term elaborator: extracts expression and body from syntax, delegates to core
+@[builtin_term_elab idbgTerm]
+def elabIdbgTerm : TermElab := fun stx expectedType? =>
+  -- stx structure: [atom "idbg", term, semicolonOrLinebreak, term]
+  elabIdbgCore (e := stx[1]) (body := ⟨stx[3]⟩) (ref := stx) expectedType?
+
+-- DoElem elaborator: gets continuation from do block, delegates to core
+@[builtin_doElem_elab idbg_stx]
+def elabIdbg : DoElab := fun stx dec => do
+  let `(doElem| idbg $e) := stx | throwUnsupportedSyntax
   let mγ ← mkMonadicType (← read).doBlockResultType
   doElabToSyntax "idbg body" dec.continueWithUnit fun body => do
-    let siteLit := Syntax.mkStrLit siteId
-    -- Build the apply closure: fun (f : abstractedType) => f x₁ x₂ ...
-    let applyClosure ← withLocalDecl `f .default abstractedType fun fVar => do
-      let appBody := mkAppN fVar localFVars
-      Meta.mkLambdaFVars #[fVar] appBody
-    let closureStx ← Term.exprToSyntax applyClosure
-    -- Build imports array from current environment so the client can
-    -- reconstruct an environment with all necessary constants.
-    let imports := (← getEnv).header.imports
-    let importExprs ← imports.mapM fun imp => do
-      let nameExpr := toExpr imp.module
-      let importAllExpr := toExpr imp.importAll
-      let isExportedExpr := toExpr imp.isExported
-      let isMetaExpr := toExpr imp.isMeta
-      return mkAppN (.const ``Import.mk []) #[nameExpr, importAllExpr, isExportedExpr, isMetaExpr]
-    let importsExpr := mkApp2 (.const ``List.toArray [.zero])
-      (.const ``Import [])
-      (importExprs.toList.foldr (fun e acc => mkApp3 (.const ``List.cons [.zero]) (.const ``Import []) e acc)
-        (mkApp (.const ``List.nil [.zero]) (.const ``Import [])))
-    let importsStx ← Term.exprToSyntax importsExpr
-    Term.elabTerm (← `(
-      Lean.Idbg.idbgClientLoop $siteLit $importsStx $closureStx >>= fun _ => $body
-    )) mγ
+    elabIdbgCore (e := e) (body := body) (ref := stx) mγ
 
 end Lean.Elab.Do

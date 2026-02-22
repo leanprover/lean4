@@ -49,12 +49,7 @@ theorem deriving_lawful_beq_helper_nd {x y : α} [BEq α] [ReflBEq α]
     {P : Prop}
     (inst : (x == y) = true → x = y)
     (k : x = y → P) :
-    (x == y) = true → P := by
-  intro h
-  by_cases hxy : x = y
-  · subst hxy
-    apply k rfl
-  · exact False.elim <| hxy (inst h)
+    (x == y) = true → P := fun h ↦ k (inst h)
 
 end DerivingHelpers
 

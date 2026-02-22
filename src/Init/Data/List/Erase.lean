@@ -504,10 +504,11 @@ theorem Pairwise.erase [LawfulBEq α] {l : List α} (a) : Pairwise p l → Pairw
   Pairwise.sublist <| erase_sublist
 
 theorem Nodup.erase_eq_filter [LawfulBEq α] {l} (d : Nodup l) (a : α) : l.erase a = l.filter (· != a) := by
-  induction d with
-  | nil => rfl
-  | cons m _n ih =>
+   induction d with
+   | nil => rfl
+   | cons m _n ih =>
     rename_i b l
+    have : DecidableEq α := instDecidableEqOfLawfulBEq
     by_cases h : b = a
     · subst h
       rw [erase_cons_head, filter_cons_of_neg (by simp)]

@@ -467,6 +467,7 @@ grind_pattern Perm.insert => l₁ ~ l₂, l₂.insert a
 theorem perm_insert_swap (x y : α) (l : List α) :
     List.insert x (List.insert y l) ~ List.insert y (List.insert x l) := by
   by_cases xl : x ∈ l <;> by_cases yl : y ∈ l <;> simp [xl, yl]
+  have : DecidableEq α := instDecidableEqOfLawfulBEq
   if xy : x = y then simp [xy] else
   simp [List.insert, xl, yl, xy, Ne.symm xy]
   constructor

@@ -2589,16 +2589,15 @@ theorem idRun_foldrM {f : α → β → Id β} {b : β} {l : List α} :
     l.reverse.foldrM f b = l.foldlM (fun x y => f y x) b :=
   (foldlM_reverse ..).symm.trans <| by simp
 
-/-! ### foldl and foldr -/
+/-! ### foldl, foldf and foldr -/
 
-@[simp] theorem foldr_cons_eq_append {l : List α} {f : α → β} {l' : List β} :
-    l.foldr (fun x ys => f x :: ys) l' = l.map f ++ l' := by
-  induction l <;> simp [*]
+@[simp] theorem foldl_flip_eq_foldf {l : List α} {f : α → β → β} {b : β} :
+    l.foldl (flip f) b = l.foldf f b := by
+  induction l generalizing b <;> simp [flip, *]
 
-/-- Variant of `foldr_cons_eq_append` specalized to `f = id`. -/
-@[simp, grind =] theorem foldr_cons_eq_append' {l l' : List β} :
-    l.foldr cons l' = l ++ l' := by
-  induction l <;> simp [*]
+@[simp] theorem foldf_flip_eq_foldl {l : List α} {f : β → α → β} {b : β} :
+    l.foldf (flip f) b = l.foldl f b := by
+  induction l generalizing b <;> simp [flip, *]
 
 @[simp] theorem foldl_flip_cons_eq_append {l : List α} {f : α → β} {l' : List β} :
     l.foldl (fun xs y => f y :: xs) l' = (l.map f).reverse ++ l' := by
@@ -2609,21 +2608,49 @@ theorem foldl_flip_cons_eq_append' {l l' : List α} :
     l.foldl (fun xs y => y :: xs) l' = l.reverse ++ l' := by
   simp
 
-@[simp] theorem foldr_append_eq_append {l : List α} {f : α → List β} {l' : List β} :
-    l.foldr (f · ++ ·) l' = (l.map f).flatten ++ l' := by
+@[simp] theorem foldf_cons_eq_append {l : List α} {f : α → β} {l' : List β} :
+    l.foldf (f · :: ·) l' = (l.map f).reverse ++ l' := by
+  induction l generalizing l' <;> simp [*]
+
+/-- Variant of `foldf_cons_eq_append` specalized to `f = id`. -/
+@[simp, grind =] theorem foldf_cons_eq_append' {l l' : List β} :
+    l.foldf cons l' = l.reverse ++ l' := by
+  induction l generalizing l' <;> simp [*]
+
+@[simp] theorem foldr_cons_eq_append {l : List α} {f : α → β} {l' : List β} :
+    l.foldr (f · :: ·) l' = l.map f ++ l' := by
+  induction l <;> simp [*]
+
+/-- Variant of `foldr_cons_eq_append` specalized to `f = id`. -/
+@[simp, grind =] theorem foldr_cons_eq_append' {l l' : List β} :
+    l.foldr cons l' = l ++ l' := by
   induction l <;> simp [*]
 
 @[simp] theorem foldl_append_eq_append {l : List α} {f : α → List β} {l' : List β} :
     l.foldl (· ++ f ·) l' = l' ++ (l.map f).flatten := by
-  induction l generalizing l'<;> simp [*]
-
-@[simp] theorem foldr_flip_append_eq_append {l : List α} {f : α → List β} {l' : List β} :
-    l.foldr (fun x ys => ys ++ f x) l' = l' ++ (l.map f).reverse.flatten := by
   induction l generalizing l' <;> simp [*]
+
+@[simp] theorem foldf_append_eq_append {l : List α} {f : α → List β} {l' : List β} :
+    l.foldf (f · ++ ·) l' = (l.map f).reverse.flatten ++ l' := by
+  induction l generalizing l' <;> simp [*]
+
+@[simp] theorem foldr_append_eq_append {l : List α} {f : α → List β} {l' : List β} :
+    l.foldr (f · ++ ·) l' = (l.map f).flatten ++ l' := by
+  induction l <;> simp [*]
 
 @[simp] theorem foldl_flip_append_eq_append {l : List α} {f : α → List β} {l' : List β} :
     l.foldl (fun xs y => f y ++ xs) l' = (l.map f).reverse.flatten ++ l' := by
   induction l generalizing l' <;> simp [*]
+
+@[simp] theorem foldf_flip_append_eq_append {l : List α} {f : α → List β} {l' : List β} :
+    l.foldf (fun x ys => ys ++ f x) l' = l' ++ (l.map f).flatten := by
+  induction l generalizing l' <;> simp [*]
+
+@[simp] theorem foldr_flip_append_eq_append {l : List α} {f : α → List β} {l' : List β} :
+    l.foldr (fun x ys => ys ++ f x) l' = l' ++ (l.map f).reverse.flatten := by
+  induction l <;> simp [*]
+
+theorem foldf_cons_nil {l : List α} : l.foldf cons [] = l.reverse := by simp
 
 theorem foldr_cons_nil {l : List α} : l.foldr cons [] = l := by simp
 
@@ -2631,9 +2658,13 @@ theorem foldl_map {f : β₁ → β₂} {g : α → β₂ → α} {l : List β�
     (l.map f).foldl g init = l.foldl (fun x y => g x (f y)) init := by
   induction l generalizing init <;> simp [*]
 
+theorem foldf_map {f : α₁ → α₂} {g : α₂ → β → β} {l : List α₁} {init : β} :
+    (l.map f).foldf g init = l.foldf (fun x y => g (f x) y) init := by
+  induction l generalizing init <;> simp [*]
+
 theorem foldr_map {f : α₁ → α₂} {g : α₂ → β → β} {l : List α₁} {init : β} :
     (l.map f).foldr g init = l.foldr (fun x y => g (f x) y) init := by
-  induction l generalizing init <;> simp [*]
+  induction l <;> simp [*]
 
 theorem foldl_filterMap {f : α → Option β} {g : γ → β → γ} {l : List α} {init : γ} :
     (l.filterMap f).foldl g init = l.foldl (fun x y => match f y with | some b => g x b | none => x) init := by
@@ -2641,6 +2672,14 @@ theorem foldl_filterMap {f : α → Option β} {g : γ → β → γ} {l : List 
   | nil => rfl
   | cons a l ih =>
     simp only [filterMap_cons, foldl_cons]
+    cases f a <;> simp [ih]
+
+theorem foldf_filterMap {f : α → Option β} {g : β → γ → γ} {l : List α} {init : γ} :
+    (l.filterMap f).foldf g init = l.foldf (fun x y => match f x with | some b => g b y | none => y) init := by
+  induction l generalizing init with
+  | nil => rfl
+  | cons a l ih =>
+    simp only [filterMap_cons, foldf_cons]
     cases f a <;> simp [ih]
 
 theorem foldr_filterMap {f : α → Option β} {g : β → γ → γ} {l : List α} {init : γ} :
@@ -2658,6 +2697,13 @@ theorem foldl_map_hom {g : α → β} {f : α → α → α} {f' : β → β →
   · simp
   · simp [*]
 
+theorem foldf_map_hom {g : α → β} {f : α → α → α} {f' : β → β → β} {a : α} {l : List α}
+    (h : ∀ x y, f' (g x) (g y) = g (f x y)) :
+    (l.map g).foldf f' (g a) = g (l.foldf f a) := by
+  induction l generalizing a
+  · simp
+  · simp [*]
+
 theorem foldr_map_hom {g : α → β} {f : α → α → α} {f' : β → β → β} {a : α} {l : List α}
     (h : ∀ x y, f' (g x) (g y) = g (f x y)) :
     (l.map g).foldr f' (g a) = g (l.foldr f a) := by
@@ -2669,11 +2715,14 @@ theorem foldr_map_hom {g : α → β} {f : α → α → α} {f' : β → β →
     (l ++ l').foldrM f b = l'.foldrM f b >>= l.foldrM f := by
   induction l <;> simp [*]
 
-@[simp, grind _=_] theorem foldl_append {β : Type _} {f : β → α → β} {b : β} {l l' : List α} :
-    (l ++ l').foldl f b = l'.foldl f (l.foldl f b) := by simp [foldl_eq_foldlM, -foldlM_pure]
+@[simp, grind _=_] theorem foldl_append {f : β → α → β} {b : β} {l l' : List α} :
+    (l ++ l').foldl f b = l'.foldl f (l.foldl f b) := by induction l generalizing b <;> simp [*]
+
+@[simp, grind _=_] theorem foldf_append {f : α → β → β} {b : β} {l l' : List α} :
+    (l ++ l').foldf f b = l'.foldf f (l.foldf f b) := by induction l generalizing b <;> simp [*]
 
 @[simp, grind _=_] theorem foldr_append {f : α → β → β} {b : β} {l l' : List α} :
-    (l ++ l').foldr f b = l.foldr f (l'.foldr f b) := by simp [foldr_eq_foldrM, -foldrM_pure]
+    (l ++ l').foldr f b = l.foldr f (l'.foldr f b) := by induction l <;> simp [*]
 
 theorem foldl_flatMap {f : α → List β} {g : γ → β → γ} {l : List α} {init : γ} :
     (l.flatMap f).foldl g init = l.foldl (fun acc x => (f x).foldl g acc) init := by
@@ -2682,6 +2731,14 @@ theorem foldl_flatMap {f : α → List β} {g : γ → β → γ} {l : List α} 
   next a l ih =>
     simp only [flatMap_cons, foldl_cons]
     rw [foldl_append, ih]
+
+theorem foldf_flatMap {f : α → List β} {g : β → γ → γ} {l : List α} {init : γ} :
+    (l.flatMap f).foldf g init = l.foldf (fun x acc => (f x).foldf g acc) init := by
+  induction l generalizing init
+  · simp
+  next a l ih =>
+    simp only [flatMap_cons, foldf_cons]
+    rw [foldf_append, ih]
 
 theorem foldr_flatMap {f : α → List β} {g : β → γ → γ} {l : List α} {init : γ} :
     (l.flatMap f).foldr g init = l.foldr (fun x acc => (f x).foldr g acc) init := by
@@ -2695,9 +2752,40 @@ theorem foldr_flatMap {f : α → List β} {g : β → γ → γ} {l : List α} 
     (flatten L).foldl f b = L.foldl (fun b l => l.foldl f b) b := by
   induction L generalizing b <;> simp_all
 
+@[grind =] theorem foldf_flatten {f : α → β → β} {b : β} {L : List (List α)} :
+    (flatten L).foldf f b = L.foldf (fun l b => l.foldf f b) b := by
+  induction L generalizing b <;> simp_all
+
 @[grind =] theorem foldr_flatten {f : α → β → β} {b : β} {L : List (List α)} :
     (flatten L).foldr f b = L.foldr (fun l b => l.foldr f b) b := by
   induction L <;> simp_all
+
+theorem foldl_permute {l : List α} {f : β → α → β} {a : α} {b : β}
+    (hf : ∀ b a₁ a₂, f (f b a₁) a₂ = f (f b a₂) a₁) : l.foldl f (f b a) = f (l.foldl f b) a := by
+  induction l generalizing a b <;> simp [*]
+
+theorem foldf_permute {l : List α} {f : α → β → β} {a : α} {b : β}
+    (hf : ∀ a₁ a₂ b, f a₁ (f a₂ b) = f a₂ (f a₁ b)) : l.foldf f (f a b) = f a (l.foldf f b) := by
+  induction l generalizing b <;> simp [*]
+
+theorem foldr_permute {l : List α} {f : α → β → β} {a : α} {b : β}
+    (hf : ∀ a₁ a₂ b, f a₁ (f a₂ b) = f a₂ (f a₁ b)) : l.foldr f (f a b) = f a (l.foldr f b) := by
+  induction l <;> simp [*]
+
+/-- Second Bird–Wadler duality theorem. -/
+theorem foldf_eq_foldr {l : List α} {f : α → β → β} {b : β}
+    (hf : ∀ a₁ a₂ b, f a₁ (f a₂ b) = f a₂ (f a₁ b)) : l.foldf f b = l.foldr f b := by
+  induction l <;> simp [*, foldf_permute]
+
+/-- Third Bird–Wadler duality theorem. -/
+theorem foldr_reverse_eq_foldf {l : List α} {f : α → β → β} {b : β} :
+    l.reverse.foldr f b = l.foldf f b := by
+  induction l generalizing b <;> simp [*]
+
+/-- Third Bird–Wadler duality theorem. -/
+theorem foldf_reverse_eq_foldr {l : List α} {f : α → β → β} {b : β} :
+    l.reverse.foldf f b = l.foldr f b := by
+  induction l <;> simp [*]
 
 @[simp, grind =] theorem foldl_reverse {l : List α} {f : β → α → β} {b : β} :
     l.reverse.foldl f b = l.foldr (fun x y => f y x) b := by
@@ -2720,6 +2808,13 @@ theorem foldl_assoc {op : α → α → α} [ha : Std.Associative op] :
     simp only [foldl_cons, ha.assoc]
     rw [foldl_assoc]
 
+theorem foldf_assoc {op : α → α → α} [ha : Std.Associative op] :
+    ∀ {l : List α} {a₁ a₂}, l.foldf op (op a₁ a₂) = op (l.foldf op a₁) a₂
+  | [], a₁, a₂ => rfl
+  | a :: l, a₁, a₂ => by
+    simp only [foldf_cons, ← ha.assoc]
+    rw [foldf_assoc]
+
 theorem foldr_assoc {op : α → α → α} [ha : Std.Associative op] :
     ∀ {l : List α} {a₁ a₂}, l.foldr op (op a₁ a₂) = op (l.foldr op a₁) a₂
   | [], a₁, a₂ => rfl
@@ -2727,9 +2822,24 @@ theorem foldr_assoc {op : α → α → α} [ha : Std.Associative op] :
     simp only [foldr_cons, ha.assoc]
     rw [foldr_assoc]
 
+/-- First Bird–Wadler duality theorem. -/
+theorem foldl_eq_foldr_of_commuting {l : List α} {f : α → α → α}
+    [Std.Associative f] {z : α} (hz : ∀ a, f z a = f a z) : l.foldl f z = l.foldr f z := by
+  induction l <;> simp [*, foldl_assoc]
+
+/-- First Bird–Wadler duality theorem for commutative functions. -/
+theorem foldl_eq_foldr {l : List α} {f : α → α → α}
+    [hf : Std.Commutative f] [Std.Associative f] {a : α} : l.foldl f a = l.foldr f a :=
+  foldl_eq_foldr_of_commuting (hf.comm _)
+
 -- The argument `f : α₁ → α₂` is intentionally explicit, as it is sometimes not found by unification.
 theorem foldl_hom (f : α₁ → α₂) {g₁ : α₁ → β → α₁} {g₂ : α₂ → β → α₂} {l : List β} {init : α₁}
     (H : ∀ x y, g₂ (f x) y = f (g₁ x y)) : l.foldl g₂ (f init) = f (l.foldl g₁ init) := by
+  induction l generalizing init <;> simp [*]
+
+-- The argument `f : β₁ → β₂` is intentionally explicit, as it is sometimes not found by unification.
+theorem foldf_hom (f : β₁ → β₂) {g₁ : α → β₁ → β₁} {g₂ : α → β₂ → β₂} {l : List α} {init : β₁}
+    (H : ∀ x y, g₂ x (f y) = f (g₁ x y)) : l.foldf g₂ (f init) = f (l.foldf g₁ init) := by
   induction l generalizing init <;> simp [*]
 
 -- The argument `f : β₁ → β₂` is intentionally explicit, as it is sometimes not found by unification.
@@ -2769,6 +2879,40 @@ def foldlRecOn {motive : β → Sort _} : ∀ (l : List α) (op : β → α → 
     (hl : ∀ (b : β) (_ : motive b) (a : α) (_ : a ∈ x :: l), motive (op b a)) :
     foldlRecOn (x :: l) op hb hl =
       foldlRecOn l op (hl b hb x mem_cons_self)
+        (fun b c a m => hl b c a (mem_cons_of_mem x m)) :=
+  rfl
+
+/--
+A reasoning principle for proving propositions about the result of `List.foldf` by establishing an
+invariant that is true for the initial data and preserved by the operation being folded.
+
+Because the motive can return a type in any sort, this function may be used to construct data as
+well as to prove propositions.
+
+Example:
+```lean example
+example {xs : List Nat} : xs.foldf (· + ·) 1 > 0 := by
+  apply List.foldfRecOn
+  . show 0 < 1; trivial
+  . show ∀ (b : Nat), 0 < b → ∀ (a : Nat), a ∈ xs → 0 < a + b
+    intros; omega
+```
+-/
+@[expose]
+def foldfRecOn {motive : β → Sort _} : ∀ (l : List α) (op : α → β → β) {b : β} (_ : motive b)
+    (_ : ∀ (b : β) (_ : motive b) (a : α) (_ : a ∈ l), motive (op a b)), motive (List.foldf op b l)
+  | nil, _, _, hb, _ => hb
+  | hd :: tl, op, b, hb, hl =>
+    foldfRecOn tl op (hl b hb hd mem_cons_self) fun y hy x hx => hl y hy x (mem_cons_of_mem hd hx)
+
+@[simp, grind =] theorem foldfRecOn_nil {motive : β → Sort _} {op : α → β → β} (hb : motive b)
+    (hl : ∀ (b : β) (_ : motive b) (a : α) (_ : a ∈ []), motive (op a b)) :
+    foldfRecOn [] op hb hl = hb := rfl
+
+@[simp, grind =] theorem foldfRecOn_cons {motive : β → Sort _} {op : α → β → β} (hb : motive b)
+    (hl : ∀ (b : β) (_ : motive b) (a : α) (_ : a ∈ x :: l), motive (op a b)) :
+    foldfRecOn (x :: l) op hb hl =
+      foldfRecOn l op (hl b hb x mem_cons_self)
         (fun b c a m => hl b c a (mem_cons_of_mem x m)) :=
   rfl
 
@@ -2814,7 +2958,7 @@ preserves the relation.
 -/
 theorem foldl_rel {l : List α} {f : β → α → β} {g : γ → α → γ} {a : β} {b : γ} {r : β → γ → Prop}
     (h : r a b) (h' : ∀ (a : α), a ∈ l → ∀ (c : β) (c' : γ), r c c' → r (f c a) (g c' a)) :
-    r (l.foldl (fun acc a => f acc a) a) (l.foldl (fun acc a => g acc a) b) := by
+    r (l.foldl f a) (l.foldl g b) := by
   induction l generalizing a b with
   | nil => simp_all
   | cons a l ih =>
@@ -2828,9 +2972,25 @@ We can prove that two folds over the same list are related (by some arbitrary re
 if we know that the initial elements are related and the folding function, for each element of the list,
 preserves the relation.
 -/
+theorem foldf_rel {l : List α} {f : α → β → β} {g : α → γ → γ} {a : β} {b : γ} {r : β → γ → Prop}
+    (h : r a b) (h' : ∀ (a : α), a ∈ l → ∀ (c : β) (c' : γ), r c c' → r (f a c) (g a c')) :
+    r (l.foldf f a) (l.foldf g b) := by
+  induction l generalizing a b with
+  | nil => simp_all
+  | cons a l ih =>
+    simp only [foldf_cons]
+    apply ih
+    · simp_all
+    · exact fun a m c c' h => h' _ (by simp_all) _ _ h
+
+/--
+We can prove that two folds over the same list are related (by some arbitrary relation)
+if we know that the initial elements are related and the folding function, for each element of the list,
+preserves the relation.
+-/
 theorem foldr_rel {l : List α} {f : α → β → β} {g : α → γ → γ} {a : β} {b : γ} {r : β → γ → Prop}
     (h : r a b) (h' : ∀ (a : α), a ∈ l → ∀ (c : β) (c' : γ), r c c' → r (f a c) (g a c')) :
-    r (l.foldr (fun a acc => f a acc) a) (l.foldr (fun a acc => g a acc) b) := by
+    r (l.foldr f a) (l.foldr g b) := by
   induction l generalizing a b with
   | nil => simp_all
   | cons a l ih =>
@@ -2845,6 +3005,14 @@ theorem foldr_rel {l : List α} {f : α → β → β} {g : α → γ → γ} {a
   | nil => simp
   | cons y l ih =>
     simp only [foldl_cons, ih, length_cons, Nat.mul_add, Nat.mul_one, Nat.add_assoc,
+      Nat.add_comm a]
+
+@[simp] theorem foldf_add_const {l : List α} {a b : Nat} :
+    l.foldf (fun _ x => x + a) b = b + a * l.length := by
+  induction l generalizing b with
+  | nil => simp
+  | cons y l ih =>
+    simp only [foldf_cons, ih, length_cons, Nat.mul_add, Nat.mul_one, Nat.add_assoc,
       Nat.add_comm a]
 
 @[simp] theorem foldr_add_const {l : List α} {a b : Nat} :

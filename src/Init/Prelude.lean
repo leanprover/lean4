@@ -3048,18 +3048,18 @@ def List.set : (l : List α) → (n : Nat) → (a : α) → List α
   | nil,       _,          _ => nil
 
 /--
-Folds a function over a list from the left, accumulating a value starting with `init`. The
-accumulated value is combined with the each element of the list in order, using `f`.
+Folds a function over a list from the left, accumulating a value starting with `init`.
+The accumulated value is combined with the each element of the list in order, using `f`.
 
 Examples:
- * `[a, b, c].foldl f z  = f (f (f z a) b) c`
+ * `[a, b, c].foldl f z = f (f (f z a) b) c`
  * `[1, 2, 3].foldl (· ++ toString ·) "" = "123"`
  * `[1, 2, 3].foldl (s!"({·} {·})") "" = "((( 1) 2) 3)"`
 -/
 @[specialize]
-def List.foldl {α : Type u} {β : Type v} (f : α → β → α) : (init : α) → List β → α
-  | a, nil      => a
-  | a, cons b l => foldl f (f a b) l
+def List.foldl {α : Type u} {β : Type v} (f : α → β → α) (init : α) : List β → α
+  | nil      => init
+  | cons b l => foldl f (f init b) l
 
 /--
 Adds an element to the *end* of a list.

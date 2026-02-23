@@ -37,8 +37,8 @@ The operations are organized as follow:
 * Lexicographic ordering: `lt`, `le`, and instances.
 * Head and tail operators: `head`, `head?`, `headD?`, `tail`, `tail?`, `tailD`.
 * Basic operations:
-  `map`, `filter`, `filterMap`, `foldr`, `append`, `flatten`, `pure`, `flatMap`, `replicate`, and
-  `reverse`.
+  `map`, `filter`, `filterMap`, `foldf`, `foldr`, `append`, `flatten`, `pure`, `flatMap`,
+  `replicate`, and `reverse`.
 * Additional functions defined in terms of these: `leftpad`, `rightPad`, and `reduceOption`.
 * Operations using indexes: `mapIdx`.
 * List membership: `isEmpty`, `elem`, `contains`, `mem` (and the `∈` notation),
@@ -461,7 +461,7 @@ def tailD (l fallback : List α) : List α :=
 /-! ## Basic `List` operations.
 
 We define the basic functional programming operations on `List`:
-`map`, `filter`, `filterMap`, `foldr`, `append`, `flatten`, `pure`, `bind`, `replicate`, and `reverse`.
+`map`, `filter`, `filterMap`, `foldf`, `foldr`, `append`, `flatten`, `pure`, `bind`, `replicate`, and `reverse`.
 -/
 
 /-! ### map -/
@@ -520,20 +520,43 @@ noncomputable def filterMap (f : α → Option β) : List α → List β
       | none => filterMap f l
       | some b => b :: filterMap f l := rfl
 
+/-! ### foldf -/
+
+/--
+Folds a function over a list from the left, accumulating a value starting with `init`.
+The accumulated value is combined with the each element of the list in order, using `f`.
+
+`O(|l|)`. This function differs from `List.foldl` in the type of `f`, which matches `List.foldr`;
+it makes stating the Bird–Wadler duality theorems between left and right list folds easier.
+"f" is to be interpreted as "forward", compared to "r" for "reverse".
+
+Examples:
+ * `[a, b, c].foldf f init = f c (f b (f a init))`
+ * `[1, 2, 3].foldf (toString · ++ ·) "" = "321"`
+ * `[1, 2, 3].foldf (s!"({·} {·})") "!" = "(3 (2 (1 !)))"`
+-/
+@[specialize] def foldf (f : α → β → β) (init : β) : List α → β
+  | []     => init
+  | a :: l => foldf f (f a init) l
+
+@[simp, grind =] theorem foldf_nil : [].foldf f b = b := rfl
+@[simp, grind =] theorem foldf_cons {a} {l : List α} {f : α → β → β} {b} :
+    (a :: l).foldf f b = l.foldf f (f a b) := rfl
+
 /-! ### foldr -/
 
 /--
-Folds a function over a list from the right, accumulating a value starting with `init`. The
-accumulated value is combined with the each element of the list in reverse order, using `f`.
+Folds a function over a list from the right, accumulating a value starting with `init`.
+The accumulated value is combined with the each element of the list in reverse order, using `f`.
 
 `O(|l|)`. Replaced at runtime with `List.foldrTR`.
 
 Examples:
- * `[a, b, c].foldr f init  = f a (f b (f c init))`
+ * `[a, b, c].foldr f init = f a (f b (f c init))`
  * `[1, 2, 3].foldr (toString · ++ ·) "" = "123"`
  * `[1, 2, 3].foldr (s!"({·} {·})") "!" = "(1 (2 (3 !)))"`
 -/
-@[specialize] def foldr (f : α → β → β) (init : β) : (l : List α) → β
+@[specialize] def foldr (f : α → β → β) (init : β) : List α → β
   | []     => init
   | a :: l => f a (foldr f init l)
 

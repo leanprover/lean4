@@ -270,15 +270,15 @@ public scoped instance instOrdOfDecidableLE {α : Type u} [LE α] [DecidableLE �
     Ord α where
   compare a b := if a ≤ b then if b ≤ a then .eq else .lt else .gt
 
-public theorem isLE_compare {α : Type u} [LE α] [DecidableLE α] (a b : α) :
+theorem isLE_compare {α : Type u} [LE α] [DecidableLE α] {a b : α} :
     (compare a b).isLE ↔ a ≤ b := by
   simp only [compare]
   split
   · split <;> simp_all
   · simp_all
 
-public theorem isGE_compare {α : Type u} [LE α] [DecidableLE α]
-    (le_total : ∀ a b : α, a ≤ b ∨ b ≤ a) (a b : α) :
+theorem isGE_compare {α : Type u} [LE α] [DecidableLE α]
+    (le_total : ∀ a b : α, a ≤ b ∨ b ≤ a) {a b : α} :
     (compare a b).isGE ↔ b ≤ a := by
   simp only [compare]
   split
@@ -289,8 +289,8 @@ public theorem isGE_compare {α : Type u} [LE α] [DecidableLE α]
 public instance instLawfulOrderOrdOfDecidableLE {α : Type u} [LE α] [DecidableLE α]
     [Total (α := α) (· ≤ ·)] :
     LawfulOrderOrd α where
-  isLE_compare _ _ := by exact isLE_compare _ _
-  isGE_compare _ _ := by exact isGE_compare (le_total := Total.total) _ _
+  isLE_compare _ _ := by exact isLE_compare
+  isGE_compare _ _ := by exact isGE_compare (le_total := Total.total)
 
 end FactoryInstances
 
@@ -329,7 +329,6 @@ public structure Packages.LinearPreorderOfLEArgs (α : Type u) extends
     extract_lets
     first
     | exact _root_.Std.LawfulOrderOrd.isLE_compare
-    | exact _root_.Std.FactoryInstances.isLE_compare
     | fail "Failed to automatically prove that `(compare a b).isLE` is equivalent to `a ≤ b`. \
             Please ensure that a `LawfulOrderOrd` instance can be synthesized or \
             manually provide the field `isLE_compare`."
@@ -339,7 +338,6 @@ public structure Packages.LinearPreorderOfLEArgs (α : Type u) extends
     extract_lets
     first
     | exact _root_.Std.LawfulOrderOrd.isGE_compare
-    | exact _root_.Std.FactoryInstances.isGE_compare (le_total := le_total)
     | fail "Failed to automatically prove that `(compare a b).isGE` is equivalent to `b ≤ a`. \
             Please ensure that a `LawfulOrderOrd` instance can be synthesized or \
             manually provide the field `isGE_compare`."
@@ -431,7 +429,6 @@ public structure Packages.LinearOrderOfLEArgs (α : Type u) extends
     extract_lets
     first
     | exact fun a b => _root_.Std.min_eq_if (a := a) (b := b)
-    | exact fun a b => rfl
     | fail "Failed to automatically prove that `min` is left-leaning. \
             Please ensure that a `LawfulOrderLeftLeaningMin` instance can be synthesized or \
             manually provide the field `min_eq`."
@@ -441,7 +438,7 @@ public structure Packages.LinearOrderOfLEArgs (α : Type u) extends
     extract_lets
     first
     | exact fun a b => _root_.Std.max_eq_if (a := a) (b := b)
-    | exact fun a b => rfl
+
     | fail "Failed to automatically prove that `max` is left-leaning. \
             Please ensure that a `LawfulOrderLeftLeaningMax` instance can be synthesized or \
             manually provide the field `max_eq`."

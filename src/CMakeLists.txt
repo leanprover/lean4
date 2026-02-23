@@ -455,7 +455,7 @@ endif()
 
 set(LEAN_CXX_STDLIB "-lstdc++" CACHE STRING "C++ stdlib linker flags")
 
-if(CMAKE_SYSTEM_NAME MATCHES "Darwin")
+if("c++" IN_LIST CMAKE_CXX_IMPLICIT_LINK_LIBRARIES)
   set(LEAN_CXX_STDLIB "-lc++")
 endif()
 

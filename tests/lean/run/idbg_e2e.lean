@@ -49,15 +49,13 @@ open Lean Lean.Idbg Std.Net Std.Internal.IO.Async in
   -- Run server in background
   let serverTask ← IO.asTask (idbgServer siteId exprJson)
 
-  -- Give server time to start and write port file
+  -- Give server time to bind
   IO.sleep 100
 
-  -- Read port from file
-  let portFile := idbgPortPath siteId
-  let portStr ← IO.FS.readFile portFile
-  let port := portStr.trimAscii.toString.toNat!
+  -- Connect to deterministic port
+  let port := idbgPort siteId
   let client ← TCP.Socket.Client.mk
-  let addr := SocketAddressV4.mk (.ofParts 127 0 0 1) port.toUInt16
+  let addr := SocketAddressV4.mk (.ofParts 127 0 0 1) port
   let t ← (client.connect addr).toIO
   t.block
 
@@ -108,7 +106,7 @@ open Lean Lean.Idbg Std.Net Std.Internal.IO.Async in
 
   -- Verify server received "42"
   let serverResult ← IO.ofExcept (← IO.wait serverTask)
-  assert! serverResult == "42"
+  assert! serverResult == some "42"
 
 /-! ## Part 3: Full pipeline through the real elaborator
 
@@ -128,9 +126,7 @@ open Lean Lean.Idbg Std.Net Std.Internal.IO.Async in
     IO.FS.writeFile testFile testCode
     let realPath ← IO.FS.realPath testFile
     let siteId := toString (hash s!"{realPath}:{idbgPos}")
-    let portFile := idbgPortPath siteId
-    -- Clean up stale port file
-    try IO.FS.removeFile portFile catch _ => pure ()
+    let port := idbgPort siteId
 
     let child ← IO.Process.spawn {
       cmd := lean.toString
@@ -139,20 +135,17 @@ open Lean Lean.Idbg Std.Net Std.Internal.IO.Async in
       stderr := .piped
     }
 
-    -- Poll for port file, then connect
-    let mut port : Nat := 0
+    -- Retry connecting until the server binds
+    let addr := SocketAddressV4.mk (.ofParts 127 0 0 1) port
+    let mut client ← TCP.Socket.Client.mk
+    let mut connected := false
     for _ in List.range 200 do
-      IO.sleep 100
-      let content ← try IO.FS.readFile portFile catch _ => continue
-      let p := String.trimAscii content |>.toString |>.toNat!
-      if p > 0 then port := p; break
-    if port == 0 then
+      match (← (do let t ← (client.connect addr).toIO; t.block : IO Unit).toBaseIO) with
+      | .ok () => connected := true; break
+      | .error _ => IO.sleep 100; client ← TCP.Socket.Client.mk
+    unless connected do
       let stderr ← child.stderr.readToEnd
-      throw (IO.userError s!"Port file not found. stderr: {stderr}")
-    let client ← TCP.Socket.Client.mk
-    let addr := SocketAddressV4.mk (.ofParts 127 0 0 1) port.toUInt16
-    let t ← (client.connect addr).toIO
-    t.block
+      throw (IO.userError s!"Could not connect to port {port}. stderr: {stderr}")
 
     -- Receive expression JSON (length-prefixed: decimal length + newline + payload)
     let mut hdr := ByteArray.empty

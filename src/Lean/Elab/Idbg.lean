@@ -24,9 +24,8 @@ public import Std.Net.Addr
 
 ## Protocol
 
-Communication uses a length-prefixed TCP protocol over localhost. The server (language server side)
-and client (compiled program side) coordinate via a port file at a deterministic path derived from
-the source location hash.
+Communication uses a length-prefixed TCP protocol over localhost. Both server (language server side)
+and client (compiled program side) compute a deterministic port from the source location hash.
 -/
 
 open Lean Lean.Elab Lean.Elab.Term Lean.Meta
@@ -164,10 +163,10 @@ partial def exprFromJson? (j : Json) : Except String Expr := do
       (← exprFromJson? (← obj.getObjVal? "struct"))
   .error s!"expected Expr, got {j}"
 
-/-- Path to the port file for a given `idbg` site. The server writes the
-OS-assigned port here; the client reads and deletes it. -/
-def idbgPortPath (siteId : String) : System.FilePath :=
-  "/tmp" / s!"lean-idbg-{siteId}"
+/-- Deterministic port for a given `idbg` site, in range [10000, 65535]. -/
+def idbgPort (siteId : String) : UInt16 :=
+  let h := hash siteId
+  (h % 55535 + 10000).toUInt16
 
 def sendMsg (client : TCP.Socket.Client) (msg : String) : IO Unit := do
   let bytes := msg.toUTF8
@@ -193,26 +192,25 @@ def recvMsg (client : TCP.Socket.Client) : IO String := do
   let some s := String.fromUTF8? payload | throw (.userError "idbg: invalid UTF-8")
   return s
 
-/-- Start a TCP server on an OS-assigned port, write the port to a file,
-wait for one connection, send expression JSON, and receive the result string. -/
-def idbgServer (siteId : String) (exprJson : Json) : IO String := do
-  let server ← TCP.Socket.Server.mk
-  let addr := SocketAddressV4.mk (.ofParts 127 0 0 1) 0
-  server.bind addr
-  server.listen 1
-  let boundAddr ← server.getSockName
-  let portFile := idbgPortPath siteId
-  IO.FS.writeFile portFile (toString boundAddr.port)
-  try
-    let t ← server.accept |>.toIO
-    let client ← t.block
-    sendMsg client exprJson.compress
-    let result ← recvMsg client
-    let t ← client.shutdown |>.toIO
-    t.block
-    return result
-  finally
-    try IO.FS.removeFile portFile catch _ => pure ()
+/-- Start a TCP server on the deterministic port for this site,
+wait for one connection, send expression JSON, and receive the result string.
+Returns `none` if the port is still held by a previous (cancelled) server. -/
+def idbgServer (siteId : String) (exprJson : Json) : IO (Option String) := do
+  let port := idbgPort siteId
+  let addr := SocketAddressV4.mk (.ofParts 127 0 0 1) port
+  let mut server? : Option TCP.Socket.Server := none
+  for _ in List.range 100 do  -- retry for up to 10s
+    match (← (do let s ← TCP.Socket.Server.mk; s.bind addr; s.listen 1; return s).toBaseIO) with
+    | .ok s => server? := some s; break
+    | .error _ => IO.sleep 100
+  let some server := server? | return none
+  let t ← server.accept |>.toIO
+  let client ← t.block
+  sendMsg client exprJson.compress
+  let result ← recvMsg client
+  let t ← client.shutdown |>.toIO
+  t.block
+  return some result
 
 /-- Load the program's environment from its imports.
 The imports include the current module (appended last by the elaborator) so that
@@ -247,21 +245,11 @@ def idbgCompileAndEval (α : Type) [Nonempty α]
 public def idbgClientLoop {α : Type} [Nonempty α]
     (siteId : String) (imports : Array Import) (apply : α → String) : IO Unit := do
   let baseEnv ← idbgLoadEnv imports
-  let portFile := idbgPortPath siteId
+  let port := idbgPort siteId
+  let addr := SocketAddressV4.mk (.ofParts 127 0 0 1) port
   while true do
     try
-      let mut portStr := ""
-      for _ in List.range 6000 do  -- up to 10 minutes
-        match (← IO.FS.readFile portFile |>.toBaseIO) with
-        | .ok content =>
-          portStr := content.trimAscii.toString
-          try IO.FS.removeFile portFile catch _ => pure ()
-          break
-        | .error _ => IO.sleep 100
-      if portStr.isEmpty then continue
-      let port := portStr.toNat!
       let client ← TCP.Socket.Client.mk
-      let addr := SocketAddressV4.mk (.ofParts 127 0 0 1) port.toUInt16
       let t ← (client.connect addr).toIO
       t.block
       let msg ← recvMsg client
@@ -344,8 +332,8 @@ private def elabIdbgCore (e : Syntax) (body : TSyntax `term) (ref : Syntax) (exp
     ]
     let cancelTk ← IO.CancelToken.new
     let act ← Core.wrapAsyncAsSnapshot (cancelTk? := cancelTk) fun () => do
-      let result ← idbgServer siteId json
-      logInfoAt ref m!"idbg: {result}"
+      if let some result ← idbgServer siteId json then
+        logInfoAt ref m!"idbg: {result}"
     Core.logSnapshotTask {
       stx? := some ref
       task := (← BaseIO.asTask (act ()))

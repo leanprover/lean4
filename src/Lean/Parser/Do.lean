@@ -249,7 +249,7 @@ the program need to be recompiled and restarted.
 * Use of multiple `idbg` at once untested, likely too much overhead from overlapping imports without
   further changes.
 * `LEAN_PATH` must be properly set up so compiled program can import its origin module.
-* Windows support missing.
+* Untested on Windows and macOS.
 -/
 @[builtin_doElem_parser] def doIdbg      := leading_parser:leadPrec
   withPosition ("idbg " >> termParser)

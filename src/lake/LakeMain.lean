@@ -10,5 +10,6 @@ public import Init.System.IO
 import Lake.DSL -- shake: keep (registers builtins)
 import Lake.CLI.Main
 
-public def main (args : List String) : IO UInt32 := do
+public unsafe def main (args : List String) : IO UInt32 := do
+  Lean.enableInitializersExecution  -- needed for `importModules`
   Lake.cli args

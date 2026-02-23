@@ -438,7 +438,6 @@ public structure Packages.LinearOrderOfLEArgs (α : Type u) extends
     extract_lets
     first
     | exact fun a b => _root_.Std.max_eq_if (a := a) (b := b)
-
     | fail "Failed to automatically prove that `max` is left-leaning. \
             Please ensure that a `LawfulOrderLeftLeaningMax` instance can be synthesized or \
             manually provide the field `max_eq`."

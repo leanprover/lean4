@@ -420,7 +420,7 @@ protected def get : CliM PUnit := do
         logWarning endpointDeprecation
         return .downloadArtsService artifactEndpoint ws.lakeEnv.cacheService?
       else
-        return .reservoirService ws.lakeEnv.reservoirApiUrl
+        return ws.defaultCacheService
     let map ← CacheMap.load file
     service.downloadOutputArtifacts map cache ws.root.cacheScope remoteScope opts.forceDownload
   else

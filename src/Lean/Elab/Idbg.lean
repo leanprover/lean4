@@ -214,21 +214,15 @@ def idbgServer (siteId : String) (exprJson : Json) : IO String := do
   finally
     try IO.FS.removeFile portFile catch _ => pure ()
 
-builtin_initialize idbgBaseEnvRef : IO.Ref (Option Environment) ← IO.mkRef none
-
-/-- Load the program's environment from its imports, caching the result.
+/-- Load the program's environment from its imports.
 The imports include the current module (appended last by the elaborator) so that
 same-file declarations are available. If its `.olean` is not found (e.g., when
 running `lean` directly), we fall back to just the transitive imports. -/
-def idbgGetBaseEnv (imports : Array Import) : IO Environment := do
-  if let some env ← idbgBaseEnvRef.get then
-    return env
-  let env ← try
+def idbgLoadEnv (imports : Array Import) : IO Environment := do
+  try
     importModules imports {} 0
   catch _ =>
     importModules imports.pop {} 0
-  idbgBaseEnvRef.set (some env)
-  return env
 
 /-- Compile and evaluate an expression in the given environment. -/
 def idbgCompileAndEval (α : Type) [Nonempty α]
@@ -252,7 +246,7 @@ def idbgCompileAndEval (α : Type) [Nonempty α]
 /-- Connect to the debug server, receive expressions, evaluate, send results. Loops forever. -/
 public def idbgClientLoop {α : Type} [Nonempty α]
     (siteId : String) (imports : Array Import) (apply : α → String) : IO Unit := do
-  let baseEnv ← idbgGetBaseEnv imports
+  let baseEnv ← idbgLoadEnv imports
   let portFile := idbgPortPath siteId
   while true do
     try

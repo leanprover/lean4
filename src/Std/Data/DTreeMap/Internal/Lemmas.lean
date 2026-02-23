@@ -9002,7 +9002,7 @@ theorem insertMany!_list [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t�
 theorem eraseMany_list [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {l : List α} :
     (t₁.eraseMany l h₁.balanced).1 ~m (t₂.eraseMany l h₂.balanced).1 := by
-  simp only [eraseMany, bind_pure_comp, map_pure, List.forIn_pure_yield_eq_foldl, bind_pure,
+  simp only [eraseMany, List.forIn_pure_yield_eq_foldl, bind_pure,
     Id.run_pure]
   refine (List.foldl_rel (r := fun (a : t₁.IteratedErasureFrom) (b : t₂.IteratedErasureFrom) =>
       a.1.WF ∧ b.1.WF ∧ a.1 ~m b.1) ⟨h₁, h₂, h⟩ ?_).2.2
@@ -9012,7 +9012,7 @@ theorem eraseMany_list [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁
 theorem eraseMany!_list [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {l : List α} :
     (t₁.eraseMany! l).1 ~m (t₂.eraseMany! l).1 := by
-  simp only [eraseMany!, bind_pure_comp, map_pure, List.forIn_pure_yield_eq_foldl, bind_pure,
+  simp only [eraseMany!, List.forIn_pure_yield_eq_foldl, bind_pure,
     Id.run_pure]
   refine (List.foldl_rel (r := fun (a : t₁.IteratedSlowErasureFrom) (b : t₂.IteratedSlowErasureFrom) =>
       a.1.WF ∧ b.1.WF ∧ a.1 ~m b.1) ⟨h₁, h₂, h⟩ ?_).2.2

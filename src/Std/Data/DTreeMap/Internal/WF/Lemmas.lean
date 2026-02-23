@@ -1906,7 +1906,7 @@ theorem WF.union! {_ : Ord α} [TransOrd α]
 
 theorem all_eq_all_toListModel {p : (a : α) → β a → Bool} {m : Impl α β} :
     m.all p = m.toListModel.all (fun x => p x.1 x.2) := by
-  simp [all, ForIn.forIn, bind_pure_comp, map_pure, Id.run_bind]
+  simp [all, ForIn.forIn, Id.run_bind]
   rw [forIn_eq_forIn_toListModel, ← toList_eq_toListModel, forIn_eq_forIn']
   induction m.toList with
   | nil => simp

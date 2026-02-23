@@ -372,17 +372,20 @@ structure RecursorVal extends ConstantVal where
   -/
   k : Bool
   isUnsafe : Bool
+  /-- Its motives eliminate to `Sort u`s instead of just `Prop`, i.e the inductive type for the recursor either lives in `Type` or is a subsingleton-/
+  isSortPoly : Bool
   deriving Inhabited, BEq
 
 @[export lean_mk_recursor_val]
 def mkRecursorValEx (name : Name) (levelParams : List Name) (type : Expr) (all : List Name) (numParams numIndices numMotives numMinors : Nat)
-    (rules : List RecursorRule) (k isUnsafe : Bool) : RecursorVal := {
+    (rules : List RecursorRule) (k isUnsafe isSortPoly: Bool) : RecursorVal := {
   name, levelParams, type, all, numParams, numIndices,
-  numMotives, numMinors, rules, k, isUnsafe
+  numMotives, numMinors, rules, k, isUnsafe, isSortPoly
 }
 
 @[export lean_recursor_k] def RecursorVal.kEx (v : RecursorVal) : Bool := v.k
 @[export lean_recursor_is_unsafe] def RecursorVal.isUnsafeEx (v : RecursorVal) : Bool := v.isUnsafe
+@[export lean_recursor_is_sort_poly] def RecursorVal.isSortPolyEx (v : RecursorVal) : Bool := v.isSortPoly
 
 def RecursorVal.getMajorIdx (v : RecursorVal) : Nat :=
   v.numParams + v.numMotives + v.numMinors + v.numIndices
@@ -401,15 +404,6 @@ where
   | 0, e => e.bindingDomain!.getAppFn.constName!
   | n+1, e => go n e.bindingBody!
 
-/-- Returns true if the recursor's motive is of the form `A1 -> An -> Sort u` and \c u is non-zero,
- * i.e the inductive type either does not live in Prop or is a syntactic subsingleton
- * TODO this if already computed once when generating the recursor, and should ideally be stored in the RecursorVal instead of re-computed at call-site. -/
-def RecursorVal.hasSortPolyMotive (v : RecursorVal) : Bool :=
-  go v.numParams v.type
-where
-  go
-  | 0, e => !e.bindingDomain!.getForallBody.sortLevel!.isZero
-  | n+1, e => go n e.bindingBody!
 
 inductive QuotKind where
   | type  -- `Quot`

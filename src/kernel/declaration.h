@@ -358,12 +358,13 @@ structure RecursorVal extends ConstantVal where
   rules : List RecursorRule
   k : Bool         -- It supports K-like reduction.
   isUnsafe : Bool
+  isSortPoly : Bool
 */
 class recursor_val : public object_ref {
 public:
     recursor_val(name const & n, names const & lparams, expr const & type,
                  names const & all, unsigned nparams, unsigned nindices, unsigned nmotives,
-                 unsigned nminors, recursor_rules const & rules, bool k, bool is_unsafe);
+                 unsigned nminors, recursor_rules const & rules, bool k, bool is_unsafe, bool is_sort_poly);
     recursor_val(recursor_val const & other):object_ref(other) {}
     recursor_val(recursor_val && other) noexcept:object_ref(std::move(other)) {}
     recursor_val & operator=(recursor_val const & other) { object_ref::operator=(other); return *this; }
@@ -380,7 +381,7 @@ public:
     recursor_rules const & get_rules() const { return static_cast<recursor_rules const &>(cnstr_get_ref(*this, 6)); }
     bool is_k() const;
     bool is_unsafe() const;
-    bool has_sort_poly_motive() const;
+    bool is_sort_poly() const;
 };
 
 enum class quot_kind { Type, Mk, Lift, Ind };

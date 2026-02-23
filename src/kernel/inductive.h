@@ -68,7 +68,7 @@ inline expr to_cnstr_when_structure(environment const & env, const lean::recurso
     expr e_type = whnf(infer_type(e));
     if (!is_constant(get_app_fn(e_type), induct_name))  // Why is this check done ? if we're reducing, we already know the recursor expression to be type-correct, checking it again here should be not useful
         return e;
-    if (!rec_val.has_sort_poly_motive())
+    if (!rec_val.is_sort_poly())
         return e;
     return expand_eta_struct(env, e_type, e);
 }

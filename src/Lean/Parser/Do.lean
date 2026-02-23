@@ -241,6 +241,15 @@ edited while the program is running - each edit triggers re-elaboration of `e`, 
 and an updated result. This makes `idbg` a live REPL for inspecting and experimenting with
 program state at a specific point in execution. Only when `idbg` is inserted, moved, or removed does
 the program need to be recompiled and restarted.
+
+# Known Limitations
+
+* The program will poll for the server for up to 10 minutes and needs to be killed manually
+  otherwise.
+* Use of multiple `idbg` at once untested, likely too much overhead from overlapping imports without
+  further changes.
+* `LEAN_PATH` must be properly set up so compiled program can import its origin module.
+* Windows support missing.
 -/
 @[builtin_doElem_parser] def doIdbg      := leading_parser:leadPrec
   withPosition ("idbg " >> termParser)

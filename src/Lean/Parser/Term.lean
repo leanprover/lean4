@@ -913,7 +913,7 @@ interpolated string literal) to stderr. It should only be used for debugging.
   withPosition ("dbg_trace" >> (interpolatedStr termParser <|> termParser)) >>
   optSemicolon termParser
 /-- Term-level form of the interactive debugger. See the `doIdbg` do element for full documentation. -/
-@[builtin_term_parser] def idbg := leading_parser:leadPrec
+@[builtin_term_parser] def «idbg» := leading_parser:leadPrec
   withPosition ("idbg " >> checkColGt >> termParser) >>
   optSemicolon termParser
 /-- `assert! cond` panics if `cond` evaluates to `false`. -/

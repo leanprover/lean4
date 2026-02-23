@@ -39,9 +39,9 @@ abbrev M := ReaderT Context (EStateM String String)
 
 @[inline] def getModName : M Name := Context.modName <$> read
 
-@[inline] def getModInitFn (isMeta : Bool) : M String := do
+@[inline] def getModInitFn (isMeta? : Option Bool) : M String := do
   let pkg? := (← getEnv).getModulePackage?
-  return mkModuleInitializationFunctionName (isMeta := isMeta) (← getModName) pkg?
+  return mkModuleInitializationFunctionName (isMeta? := isMeta?) (← getModName) pkg?
 
 def getDecl (n : Name) : M Decl := do
   let env ← getEnv
@@ -343,7 +343,7 @@ def emitMainFn : M Unit := do
     /- We disable panic messages because they do not mesh well with extracted closed terms.
        See issue #534. We can remove this workaround after we implement issue #467. -/
     emitLn "lean_set_panic_messages(false);"
-    emitLn s!"res = {← getModInitFn (isMeta := false)}(1 /* builtin */);"
+    emitLn s!"res = {← getModInitFn (isMeta? := guard env.header.isModule *> some false)}(1 /* builtin */);"
     emitLn "lean_set_panic_messages(true);"
     emitLns ["lean_io_mark_end_initialization();",
              "if (lean_io_result_is_ok(res)) {",
@@ -912,68 +912,75 @@ def emitDeclInit (d : Decl) (isBuiltin : Bool) : M Unit := do
     else if !isClosedTermName env d.name && !isSimpleGroundDecl env d.name then
       emitCName n; emit " = "; emitCInitName n; emitLn "();"; emitMarkPersistent d n
 
-def emitInitFn (isMeta : Bool) : M Unit := do
+def emitInitFn (isMeta? : Option Bool) : M Unit := do
   let env ← getEnv
   let impInitFns ← env.imports.filterMapM fun imp => do
-    if imp.isMeta != isMeta then
+    if isMeta?.any (· != imp.isMeta) then
       return none
     let some idx := env.getModuleIdx? imp.module
       | throw "(internal) import without module index" -- should be unreachable
     let pkg? := env.getModulePackageByIdx? idx
-    let fn := mkModuleInitializationFunctionName (isMeta := isMeta && !imp.isMeta) imp.module pkg?
+    let fn := mkModuleInitializationFunctionName (isMeta? := isMeta?.map (· && !imp.isMeta)) imp.module pkg?
     emitLn s!"lean_object* {fn}(uint8_t builtin);"
     return some fn
-  let initialized := s!"_G_{if isMeta then "meta_" else ""}initialized"
+  let initialized := s!"_G_{mkModuleInitializationPrefix isMeta?}initialized"
   emitLns [
     s!"static bool {initialized} = false;",
-    s!"LEAN_EXPORT lean_object* {← getModInitFn (isMeta := isMeta)}(uint8_t builtin) \{",
+    s!"LEAN_EXPORT lean_object* {← getModInitFn (isMeta? := isMeta?)}(uint8_t builtin) \{",
     "lean_object * res;",
     s!"if ({initialized}) return lean_io_result_mk_ok(lean_box(0));",
     s!"{initialized} = true;"
   ]
-  --withErrRet do
-  --  emitLn "initialize_common()"
   impInitFns.forM fun fn => do
     withErrRet do
       emitLn s!"{fn}(builtin)"
     emitLn "lean_dec_ref(res);"
   let decls := getDecls env
   for d in decls.reverse do
-    if isMarkedMeta env d.name == isMeta then
-      emitDeclInit d (isBuiltin := !isMeta)
+    if isMeta?.all (· == isMarkedMeta env d.name) then
+      emitDeclInit d (isBuiltin := isMeta? != some true)
   emitLns ["return lean_io_result_mk_ok(lean_box(0));", "}"]
 
-def emitAllMetaInitFn : M Unit := do
+/-- Init function used before phase split under module system, keep for compatibility. -/
+def emitLegacyInitFn : M Unit := do
   let env ← getEnv
   let impInitFns ← env.imports.filterMapM fun imp => do
     let some idx := env.getModuleIdx? imp.module
       | throw "(internal) import without module index" -- should be unreachable
     let pkg? := env.getModulePackageByIdx? idx
-    let fn := mkModuleInitializationFunctionName (isMeta := true) imp.module pkg?
-    emitLn s!"lean_object* all_{fn}(uint8_t builtin);"
+    let fn := mkModuleInitializationFunctionName imp.module pkg?
+    emitLn s!"lean_object* {fn}(uint8_t builtin);"
     return some fn
-  let initialized := s!"_G_all_meta_initialized"
+  let initialized := s!"_G_initialized"
   emitLns [
     s!"static bool {initialized} = false;",
-    s!"LEAN_EXPORT lean_object* all_{← getModInitFn (isMeta := true)}(uint8_t builtin) \{",
+    s!"LEAN_EXPORT lean_object* {← getModInitFn (isMeta? := none)}(uint8_t builtin) \{",
     "lean_object * res;",
     s!"if ({initialized}) return lean_io_result_mk_ok(lean_box(0));",
     s!"{initialized} = true;"
   ]
   impInitFns.forM fun fn => do
     withErrRet do
-      emitLn s!"all_{fn}(builtin)"
+      emitLn s!"{fn}(builtin)"
     emitLn "lean_dec_ref(res);"
-  emitLns [s!"return {← getModInitFn (isMeta := true)}(builtin);", "}"]
+  withErrRet do
+    emitLn s!"{← getModInitFn (isMeta? := some false)}(builtin)"
+  emitLn "lean_dec_ref(res);"
+  withErrRet do
+    emitLn s!"{← getModInitFn (isMeta? := some true)}(builtin)"
+  emitLn "lean_dec_ref(res);"
+  emitLns [s!"return {← getModInitFn (isMeta? := none)}(builtin);", "}"]
+
 def main : M Unit := do
   emitFileHeader
   emitFnDecls
   emitFns
-  --emitCommonInitFn
-  emitInitFn (isMeta := false)
   if (← getEnv).header.isModule then
-    emitInitFn (isMeta := true)
-    emitAllMetaInitFn
+    emitInitFn (isMeta? := some false)
+    emitInitFn (isMeta? := some true)
+    emitLegacyInitFn
+  else
+    emitInitFn (isMeta? := none)
   emitMainFnIfNeeded
   emitFileFooter
 

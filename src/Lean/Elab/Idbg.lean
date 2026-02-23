@@ -14,8 +14,8 @@ import Lean.Environment
 import Lean.Data.Json
 import Lean.Compiler.IR.CompilerM
 import Init.System.IO
-import Std.Internal.Async
-import Std.Net.Addr
+public import Std.Internal.Async
+public import Std.Net.Addr
 
 /-!
 # Interactive Debug Expression Evaluator (`idbg`)
@@ -216,11 +216,17 @@ def idbgServer (siteId : String) (exprJson : Json) : IO String := do
 
 builtin_initialize idbgBaseEnvRef : IO.Ref (Option Environment) ← IO.mkRef none
 
-/-- Load the program's environment from its imports, caching the result. -/
+/-- Load the program's environment from its imports, caching the result.
+The imports include the current module (appended last by the elaborator) so that
+same-file declarations are available. If its `.olean` is not found (e.g., when
+running `lean` directly), we fall back to just the transitive imports. -/
 def idbgGetBaseEnv (imports : Array Import) : IO Environment := do
   if let some env ← idbgBaseEnvRef.get then
     return env
-  let env ← importModules imports {} 0
+  let env ← try
+    importModules imports {} 0
+  catch _ =>
+    importModules imports.pop {} 0
   idbgBaseEnvRef.set (some env)
   return env
 
@@ -244,7 +250,7 @@ def idbgCompileAndEval (α : Type) [Nonempty α]
   | .error msg => throw (.userError s!"idbg evalConst failed: {msg}")
 
 /-- Connect to the debug server, receive expressions, evaluate, send results. Loops forever. -/
-def idbgClientLoop {α : Type} [Nonempty α]
+public def idbgClientLoop {α : Type} [Nonempty α]
     (siteId : String) (imports : Array Import) (apply : α → String) : IO Unit := do
   let baseEnv ← idbgGetBaseEnv imports
   let portFile := idbgPortPath siteId
@@ -358,7 +364,9 @@ private def elabIdbgCore (e : Syntax) (body : TSyntax `term) (ref : Syntax) (exp
     let appBody := mkAppN fVar localFVars
     Meta.mkLambdaFVars #[fVar] appBody
   let closureStx ← Term.exprToSyntax applyClosure
-  let imports := (← getEnv).header.imports
+  -- Include the current module so the client can access same-file declarations.
+  -- The `.olean` should exist since the program was compiled from it.
+  let imports := (← getEnv).header.imports.push { module := (← getEnv).mainModule }
   let importExprs ← imports.mapM fun imp => do
     let nameExpr := toExpr imp.module
     let importAllExpr := toExpr imp.importAll

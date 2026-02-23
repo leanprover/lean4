@@ -2760,33 +2760,6 @@ theorem foldr_flatMap {f : α → List β} {g : β → γ → γ} {l : List α} 
     (flatten L).foldr f b = L.foldr (fun l b => l.foldr f b) b := by
   induction L <;> simp_all
 
-theorem foldl_permute {l : List α} {f : β → α → β} {a : α} {b : β}
-    (hf : ∀ b a₁ a₂, f (f b a₁) a₂ = f (f b a₂) a₁) : l.foldl f (f b a) = f (l.foldl f b) a := by
-  induction l generalizing a b <;> simp [*]
-
-theorem foldf_permute {l : List α} {f : α → β → β} {a : α} {b : β}
-    (hf : ∀ a₁ a₂ b, f a₁ (f a₂ b) = f a₂ (f a₁ b)) : l.foldf f (f a b) = f a (l.foldf f b) := by
-  induction l generalizing b <;> simp [*]
-
-theorem foldr_permute {l : List α} {f : α → β → β} {a : α} {b : β}
-    (hf : ∀ a₁ a₂ b, f a₁ (f a₂ b) = f a₂ (f a₁ b)) : l.foldr f (f a b) = f a (l.foldr f b) := by
-  induction l <;> simp [*]
-
-/-- Second Bird–Wadler duality theorem. -/
-theorem foldf_eq_foldr {l : List α} {f : α → β → β} {b : β}
-    (hf : ∀ a₁ a₂ b, f a₁ (f a₂ b) = f a₂ (f a₁ b)) : l.foldf f b = l.foldr f b := by
-  induction l <;> simp [*, foldf_permute]
-
-/-- Third Bird–Wadler duality theorem. -/
-theorem foldr_reverse_eq_foldf {l : List α} {f : α → β → β} {b : β} :
-    l.reverse.foldr f b = l.foldf f b := by
-  induction l generalizing b <;> simp [*]
-
-/-- Third Bird–Wadler duality theorem. -/
-theorem foldf_reverse_eq_foldr {l : List α} {f : α → β → β} {b : β} :
-    l.reverse.foldf f b = l.foldr f b := by
-  induction l <;> simp [*]
-
 @[simp, grind =] theorem foldl_reverse {l : List α} {f : β → α → β} {b : β} :
     l.reverse.foldl f b = l.foldr (fun x y => f y x) b := by
   simp [foldl_eq_foldlM, foldr_eq_foldrM, -foldrM_pure]
@@ -2831,6 +2804,33 @@ theorem foldl_eq_foldr_of_commuting {l : List α} {f : α → α → α}
 theorem foldl_eq_foldr {l : List α} {f : α → α → α}
     [hf : Std.Commutative f] [Std.Associative f] {a : α} : l.foldl f a = l.foldr f a :=
   foldl_eq_foldr_of_commuting (hf.comm _)
+
+theorem foldl_permute {l : List α} {f : β → α → β} {a : α} {b : β}
+    (hf : ∀ b a₁ a₂, f (f b a₁) a₂ = f (f b a₂) a₁) : l.foldl f (f b a) = f (l.foldl f b) a := by
+  induction l generalizing a b <;> simp [*]
+
+theorem foldf_permute {l : List α} {f : α → β → β} {a : α} {b : β}
+    (hf : ∀ a₁ a₂ b, f a₁ (f a₂ b) = f a₂ (f a₁ b)) : l.foldf f (f a b) = f a (l.foldf f b) := by
+  induction l generalizing b <;> simp [*]
+
+theorem foldr_permute {l : List α} {f : α → β → β} {a : α} {b : β}
+    (hf : ∀ a₁ a₂ b, f a₁ (f a₂ b) = f a₂ (f a₁ b)) : l.foldr f (f a b) = f a (l.foldr f b) := by
+  induction l <;> simp [*]
+
+/-- Second Bird–Wadler duality theorem. -/
+theorem foldf_eq_foldr {l : List α} {f : α → β → β} {b : β}
+    (hf : ∀ a₁ a₂ b, f a₁ (f a₂ b) = f a₂ (f a₁ b)) : l.foldf f b = l.foldr f b := by
+  induction l <;> simp [*, foldf_permute]
+
+/-- Third Bird–Wadler duality theorem. -/
+theorem foldr_reverse_eq_foldf {l : List α} {f : α → β → β} {b : β} :
+    l.reverse.foldr f b = l.foldf f b := by
+  induction l generalizing b <;> simp [*]
+
+/-- Third Bird–Wadler duality theorem. -/
+theorem foldf_reverse_eq_foldr {l : List α} {f : α → β → β} {b : β} :
+    l.reverse.foldf f b = l.foldr f b := by
+  induction l <;> simp [*]
 
 -- The argument `f : α₁ → α₂` is intentionally explicit, as it is sometimes not found by unification.
 theorem foldl_hom (f : α₁ → α₂) {g₁ : α₁ → β → α₁} {g₂ : α₂ → β → α₂} {l : List β} {init : α₁}

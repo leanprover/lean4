@@ -17,23 +17,32 @@ import Init.System.IO
 import Std.Internal.Async
 import Std.Net.Addr
 
+/-!
+# Interactive Debug Expression Evaluator (`idbg`)
+
+`idbg` enables live communication between a running compiled Lean program and the language server.
+
+## Protocol
+
+Communication uses a length-prefixed TCP protocol over localhost. The server (language server side)
+and client (compiled program side) coordinate via a port file at a deterministic path derived from
+the source location hash.
+-/
+
 open Lean Lean.Elab Lean.Elab.Term Lean.Meta
 open Std.Net Std.Internal.IO.Async
 
 namespace Lean.Idbg
 
-/-! ## Part 1: Expr JSON Serialization -/
-
-public section
-
--- Custom Name serialization that preserves the exact structure.
--- The standard ToJson/FromJson Name uses toString/toName which doesn't
--- round-trip for hygienic names (e.g., `_@` contains `@` which isn't isIdRest).
+/-- Custom `Name` serialization that preserves the exact structure.
+The standard `ToJson`/`FromJson Name` uses `toString`/`toName` which doesn't
+round-trip for hygienic names (e.g., names containing `@`). -/
 def nameToJson : Name → Json
   | .anonymous => Json.null
   | .str p s   => Json.mkObj [("str", Json.arr #[nameToJson p, toJson s])]
   | .num p n   => Json.mkObj [("num", Json.arr #[nameToJson p, n])]
 
+/-- Inverse of `nameToJson`. -/
 partial def nameFromJson? (j : Json) : Except String Name := do
   if j.isNull then return .anonymous
   if let some arr := (j.getObjVal? "str").toOption then
@@ -44,12 +53,14 @@ partial def nameFromJson? (j : Json) : Except String Name := do
     return .num (← nameFromJson? p) (← fromJson? n)
   .error s!"expected Name, got {j}"
 
+/-- Serialize `BinderInfo` to JSON. -/
 def binderInfoToJson : BinderInfo → Json
   | .default        => "default"
   | .implicit       => "implicit"
   | .strictImplicit => "strictImplicit"
   | .instImplicit   => "instImplicit"
 
+/-- Deserialize `BinderInfo` from JSON. -/
 def binderInfoFromJson? : Json → Except String BinderInfo
   | .str "default"        => .ok .default
   | .str "implicit"       => .ok .implicit
@@ -57,10 +68,12 @@ def binderInfoFromJson? : Json → Except String BinderInfo
   | .str "instImplicit"   => .ok .instImplicit
   | j => .error s!"expected BinderInfo, got {j}"
 
+/-- Serialize `Literal` to JSON. -/
 def literalToJson : Literal → Json
   | .natVal n => Json.mkObj [("natVal", n)]
   | .strVal s => Json.mkObj [("strVal", s)]
 
+/-- Deserialize `Literal` from JSON. -/
 def literalFromJson? (j : Json) : Except String Literal := do
   if let some n := (j.getObjVal? "natVal").toOption then
     return .natVal (← fromJson? n)
@@ -68,6 +81,7 @@ def literalFromJson? (j : Json) : Except String Literal := do
     return .strVal (← fromJson? s)
   .error s!"expected Literal, got {j}"
 
+/-- Serialize `Level` to JSON. -/
 partial def levelToJson : Level → Json
   | .zero     => Json.mkObj [("zero", Json.null)]
   | .succ l   => Json.mkObj [("succ", levelToJson l)]
@@ -76,6 +90,7 @@ partial def levelToJson : Level → Json
   | .param n  => Json.mkObj [("param", nameToJson n)]
   | .mvar id  => Json.mkObj [("mvar", nameToJson id.name)]
 
+/-- Deserialize `Level` from JSON. -/
 partial def levelFromJson? (j : Json) : Except String Level := do
   if (j.getObjVal? "zero").toOption.isSome then
     return .zero
@@ -93,6 +108,7 @@ partial def levelFromJson? (j : Json) : Except String Level := do
     return .mvar ⟨← nameFromJson? n⟩
   .error s!"expected Level, got {j}"
 
+/-- Serialize `Expr` to JSON. Metadata is stripped; free variables are preserved. -/
 partial def exprToJson : Expr → Json
   | .bvar i          => Json.mkObj [("bvar", i)]
   | .fvar id         => Json.mkObj [("fvar", nameToJson id.name)]
@@ -107,6 +123,7 @@ partial def exprToJson : Expr → Json
   | .mdata _ e       => exprToJson e  -- strip metadata
   | .proj tn i s     => Json.mkObj [("proj", Json.mkObj [("typeName", nameToJson tn), ("idx", i), ("struct", exprToJson s)])]
 
+/-- Deserialize `Expr` from JSON. -/
 partial def exprFromJson? (j : Json) : Except String Expr := do
   if let some i := (j.getObjVal? "bvar").toOption then
     return .bvar (← fromJson? i)
@@ -147,41 +164,27 @@ partial def exprFromJson? (j : Json) : Except String Expr := do
       (← exprFromJson? (← obj.getObjVal? "struct"))
   .error s!"expected Expr, got {j}"
 
-instance : ToJson Expr := ⟨exprToJson⟩
-instance : FromJson Expr := ⟨exprFromJson?⟩
-instance : ToJson Level := ⟨levelToJson⟩
-instance : FromJson Level := ⟨levelFromJson?⟩
-
-/-! ## Part 2: TCP Helpers -/
-
-/-- Path to the port file for a given idbg site. The server writes the
-    OS-assigned port here; the client reads and deletes it. -/
+/-- Path to the port file for a given `idbg` site. The server writes the
+OS-assigned port here; the client reads and deletes it. -/
 def idbgPortPath (siteId : String) : System.FilePath :=
   "/tmp" / s!"lean-idbg-{siteId}"
 
-end -- public section
-
-private def sendMsg (client : TCP.Socket.Client) (msg : String) : IO Unit := do
+def sendMsg (client : TCP.Socket.Client) (msg : String) : IO Unit := do
   let bytes := msg.toUTF8
-  let header := (String.ofList (Nat.toDigits 16 bytes.size |>.leftpad 8 '0')).toUTF8
+  let header := s!"{bytes.size}\n".toUTF8
   let t ← (client.sendAll #[header, bytes]).toIO
   t.block
 
-private def recvMsg (client : TCP.Socket.Client) : IO String := do
-  -- Read 8-byte hex length header
+def recvMsg (client : TCP.Socket.Client) : IO String := do
+  -- Read until newline to get the decimal length
   let mut header := ByteArray.empty
-  while header.size < 8 do
-    let t ← (client.recv? (8 - header.size).toUInt64).toIO
+  repeat
+    let t ← (client.recv? 1).toIO
     let some chunk ← t.block | throw (.userError "idbg: connection closed")
+    if chunk[0]! == '\n'.toUInt8 then break
     header := header ++ chunk
   let some lenStr := String.fromUTF8? header | throw (.userError "idbg: invalid header")
-  let hexVal (c : Char) : Nat :=
-    if '0' ≤ c && c ≤ '9' then c.toNat - '0'.toNat
-    else if 'a' ≤ c && c ≤ 'f' then c.toNat - 'a'.toNat + 10
-    else if 'A' ≤ c && c ≤ 'F' then c.toNat - 'A'.toNat + 10
-    else 0
-  let len := lenStr.foldl (fun acc c => acc * 16 + hexVal c) 0
-  -- Read payload
+  let some len := lenStr.toNat? | throw (.userError "idbg: invalid length")
   let mut payload := ByteArray.empty
   while payload.size < len do
     let t ← (client.recv? (len - payload.size).toUInt64).toIO
@@ -190,12 +193,8 @@ private def recvMsg (client : TCP.Socket.Client) : IO String := do
   let some s := String.fromUTF8? payload | throw (.userError "idbg: invalid UTF-8")
   return s
 
-/-! ## Part 3: Server Side -/
-
-public section
-
-/-- Start a TCP server on an OS-assigned port, write it to a port file,
-    wait for one connection, send expression JSON, receive result. -/
+/-- Start a TCP server on an OS-assigned port, write the port to a file,
+wait for one connection, send expression JSON, and receive the result string. -/
 def idbgServer (siteId : String) (exprJson : Json) : IO String := do
   let server ← TCP.Socket.Server.mk
   let addr := SocketAddressV4.mk (.ofParts 127 0 0 1) 0
@@ -215,14 +214,10 @@ def idbgServer (siteId : String) (exprJson : Json) : IO String := do
   finally
     try IO.FS.removeFile portFile catch _ => pure ()
 
-end -- public section
-
-/-! ## Part 4: Program-Side Eval -/
-
 builtin_initialize idbgBaseEnvRef : IO.Ref (Option Environment) ← IO.mkRef none
 
 /-- Load the program's environment from its imports, caching the result. -/
-private unsafe def idbgGetBaseEnv (imports : Array Import) : IO Environment := do
+def idbgGetBaseEnv (imports : Array Import) : IO Environment := do
   if let some env ← idbgBaseEnvRef.get then
     return env
   let env ← importModules imports {} 0
@@ -230,9 +225,9 @@ private unsafe def idbgGetBaseEnv (imports : Array Import) : IO Environment := d
   return env
 
 /-- Compile and evaluate an expression in the given environment. -/
-private unsafe def idbgCompileAndEval (α : Type) [Nonempty α]
+def idbgCompileAndEval (α : Type) [Nonempty α]
     (env : Environment) (type value : Expr) : IO α := do
-  let name := .mkNum `_idbg (← IO.rand 0 1000000)
+  let name := `_idbg
   let decl := Declaration.defnDecl {
     name
     levelParams := []
@@ -244,45 +239,37 @@ private unsafe def idbgCompileAndEval (α : Type) [Nonempty α]
   let ((), {env := env', ..}) ← (addAndCompile decl).toIO
     { fileName := "<idbg>", fileMap := default, options := {} }
     { env }
-  match env'.evalConst α {} name (checkMeta := false) with
+  match unsafe env'.evalConst α {} name (checkMeta := false) with
   | .ok val => return val
   | .error msg => throw (.userError s!"idbg evalConst failed: {msg}")
 
-/-! ## Part 5: Program-Side Client Loop -/
-
 /-- Connect to the debug server, receive expressions, evaluate, send results. Loops forever. -/
-private unsafe def idbgClientLoopUnsafe {α : Type} [Nonempty α]
+def idbgClientLoop {α : Type} [Nonempty α]
     (siteId : String) (imports : Array Import) (apply : α → String) : IO Unit := do
   let baseEnv ← idbgGetBaseEnv imports
   let portFile := idbgPortPath siteId
   while true do
     try
-      -- Wait for port file (silently)
       let mut portStr := ""
       for _ in List.range 6000 do  -- up to 10 minutes
         match (← IO.FS.readFile portFile |>.toBaseIO) with
         | .ok content =>
           portStr := content.trimAscii.toString
-          -- Delete port file so we don't reuse it on next iteration
           try IO.FS.removeFile portFile catch _ => pure ()
           break
         | .error _ => IO.sleep 100
       if portStr.isEmpty then continue
       let port := portStr.toNat!
-      -- Connect
       let client ← TCP.Socket.Client.mk
       let addr := SocketAddressV4.mk (.ofParts 127 0 0 1) port.toUInt16
       let t ← (client.connect addr).toIO
       t.block
-      -- Receive expression
       let msg ← recvMsg client
       let json ← IO.ofExcept (Json.parse msg)
       let type ← IO.ofExcept (exprFromJson? (← IO.ofExcept (json.getObjVal? "type")))
       let value ← IO.ofExcept (exprFromJson? (← IO.ofExcept (json.getObjVal? "value")))
-      -- Compile and evaluate
       let fnVal ← idbgCompileAndEval α baseEnv type value
       let result := apply fnVal
-      -- Send result
       sendMsg client result
       let t ← client.shutdown |>.toIO
       t.block
@@ -293,39 +280,20 @@ private unsafe def idbgClientLoopUnsafe {α : Type} [Nonempty α]
         IO.eprintln s!"idbg client: {e}"
       IO.sleep 500
 
-public section
-
-@[implemented_by idbgClientLoopUnsafe]
-opaque idbgClientLoop {α : Type} [Nonempty α]
-    (siteId : String) (imports : Array Import) (apply : α → String) : IO Unit
-
-end
-
-/-! ## Part 6: Syntax + Elaboration -/
-
 end Lean.Idbg
 
 namespace Lean.Elab.Do
 
 open Lean.Idbg
 
--- Term-level syntax: `idbg expr; body` (continuation via semicolon or linebreak)
-open Lean.Parser Lean.Parser.Term in
-@[builtin_term_parser] def idbgTerm := leading_parser:leadPrec
-  withPosition ("idbg " >> checkColGt >> termParser) >>
-  optSemicolon termParser
-
--- DoElem syntax: `idbg expr` (continuation handled by do elaborator)
-syntax (name := idbg_stx) "idbg" colGt withPosition(term) : doElem
-
-@[builtin_doElem_control_info idbg_stx]
+@[builtin_doElem_control_info Lean.Parser.Term.doIdbg]
 def controlInfoIdbg : ControlInfoHandler := fun _ => return default
 
-/-- Core elaboration logic shared by term and doElem forms. -/
+/-- Core elaboration logic shared by term and do-element forms.
+Elaborates `e`, wraps the result in `toString ∘ repr`, abstracts over all local declarations,
+and generates both the server-side TCP exchange and the runtime client loop code. -/
 private def elabIdbgCore (e : Syntax) (body : TSyntax `term) (ref : Syntax) (expectedType? : Option Expr) :
     TermElabM Expr := do
-  -- Canonicalize the filename so the editor (absolute path) and the compiled
-  -- program (possibly relative path) produce the same siteId.
   let fileName ← IO.FS.realPath (← getFileName)
   let siteId := toString (hash s!"{fileName}:{ref.getPos?.getD 0}")
 
@@ -341,8 +309,8 @@ private def elabIdbgCore (e : Syntax) (body : TSyntax `term) (ref : Syntax) (exp
   let localFVars := localDecls.map (mkFVar ·.fvarId)
 
   -- Elaborate e, wrap in `toString ∘ repr`.
-  -- synthesizeSyntheticMVarsNoPostponing forces pending instance resolution
-  -- so that instantiateMVars can fully resolve all metavariables.
+  -- `synthesizeSyntheticMVarsNoPostponing` forces pending instance resolution
+  -- so that `instantiateMVars` can fully resolve all metavariables.
   let eExpr ← Term.elabTerm e none
   Term.synthesizeSyntheticMVarsNoPostponing
   let eExpr ← instantiateMVars eExpr
@@ -352,24 +320,22 @@ private def elabIdbgCore (e : Syntax) (body : TSyntax `term) (ref : Syntax) (exp
   let reprStrExpr ← instantiateMVars reprStrExpr
 
   -- Abstract over ALL locals as lambdas (not lets).
-  -- We can't use mkLambdaFVars because it creates letE for let-bound locals
-  -- (when their nondep flag is false, as in do-notation), but we need lambdas
-  -- so the running program can pass its own values for these variables.
-  let abstractedValue := reprStrExpr.abstract localFVars
-  let abstractedValue ← localFVars.size.foldRevM (init := abstractedValue) fun i _ acc => do
-    let decl := localDecls[i]!
-    let type ← instantiateMVars (← Meta.inferType (mkFVar decl.fvarId))
-    let type := type.abstract (localFVars[:i])
-    return .lam decl.userName type acc .default
-  let abstractedType ← instantiateMVars (← Meta.inferType abstractedValue)
+  -- Do-notation let-bindings have `nondep := false`, so `mkLambdaFVars` would
+  -- create `letE` for them. We temporarily set `nondep := true` so that
+  -- `generalizeNondepLet` (the default) turns them all into lambdas.
+  let lctx' := localDecls.foldl (init := ← getLCtx) fun lctx decl =>
+    lctx.modifyLocalDecl decl.fvarId (·.setNondep true)
+  let (abstractedValue, abstractedType) ← withLCtx' lctx' do
+    let abstractedValue ← Meta.mkLambdaFVars localFVars reprStrExpr
+    let abstractedType ← Meta.inferType abstractedValue
+    return (← instantiateMVars abstractedValue, ← instantiateMVars abstractedType)
 
-  -- Sanity check: no metavariables should remain
   if abstractedValue.hasMVar then
     throwError "idbg: abstracted value still has metavariables"
   if abstractedType.hasMVar then
     throwError "idbg: abstracted type still has metavariables"
 
-  -- Server mode: serialize and serve (in background so elaboration continues).
+  -- Server mode: serialize and serve in a background snapshot task.
   -- Skip if expression contains sorry (partial input during editing).
   if Elab.inServer.get (← getOptions) && !abstractedValue.hasSorry then
     let json := Json.mkObj [
@@ -386,7 +352,7 @@ private def elabIdbgCore (e : Syntax) (body : TSyntax `term) (ref : Syntax) (exp
       cancelTk? := cancelTk
     }
 
-  -- Generate runtime code for compiled execution
+  -- Generate runtime code: `idbgClientLoop siteId imports apply >>= fun _ => body`
   let siteLit := Syntax.mkStrLit siteId
   let applyClosure ← withLocalDecl `f .default abstractedType fun fVar => do
     let appBody := mkAppN fVar localFVars
@@ -408,16 +374,14 @@ private def elabIdbgCore (e : Syntax) (body : TSyntax `term) (ref : Syntax) (exp
     Lean.Idbg.idbgClientLoop $siteLit $importsStx $closureStx >>= fun _ => $body
   )) expectedType?
 
--- Term elaborator: extracts expression and body from syntax, delegates to core
-@[builtin_term_elab idbgTerm]
-def elabIdbgTerm : TermElab := fun stx expectedType? =>
-  -- stx structure: [atom "idbg", term, semicolonOrLinebreak, term]
-  elabIdbgCore (e := stx[1]) (body := ⟨stx[3]⟩) (ref := stx) expectedType?
+@[builtin_term_elab Lean.Parser.Term.idbg]
+def elabIdbgTerm : TermElab := fun stx expectedType? => do
+  let `(Lean.Parser.Term.idbg| idbg $e; $body) := stx | throwUnsupportedSyntax
+  elabIdbgCore (e := e) (body := body) (ref := stx) expectedType?
 
--- DoElem elaborator: gets continuation from do block, delegates to core
-@[builtin_doElem_elab idbg_stx]
-def elabIdbg : DoElab := fun stx dec => do
-  let `(doElem| idbg $e) := stx | throwUnsupportedSyntax
+@[builtin_doElem_elab Lean.Parser.Term.doIdbg]
+def elabDoIdbg : DoElab := fun stx dec => do
+  let `(Lean.Parser.Term.doIdbg| idbg $e) := stx | throwUnsupportedSyntax
   let mγ ← mkMonadicType (← read).doBlockResultType
   doElabToSyntax "idbg body" dec.continueWithUnit fun body => do
     elabIdbgCore (e := e) (body := body) (ref := stx) mγ

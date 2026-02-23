@@ -224,6 +224,27 @@ It should only be used for debugging.
 @[builtin_doElem_parser] def doDbgTrace  := leading_parser:leadPrec
   "dbg_trace " >> ((interpolatedStr termParser) <|> termParser)
 /--
+*experimental*
+
+`idbg e` enables live inspection of program state from the editor. When placed in a `do` block,
+it captures all local variables in scope and the expression `e`, then:
+
+- **In the language server**: starts a TCP server on localhost waiting for the running program to
+  connect; the editor will mark this part of the program as "in progress" during this wait but that
+  will not block `lake build` of the project.
+- **In the compiled program**: on first execution of the `idbg` call site, connects to the server,
+  receives the expression, compiles and evaluates it using the program's actual runtime values, and
+  sends the `repr` result back.
+
+The result is displayed as an info diagnostic on the `idbg` keyword. The expression `e` can be
+edited while the program is running - each edit triggers re-elaboration of `e`, a new TCP exchange,
+and an updated result. This makes `idbg` a live REPL for inspecting and experimenting with
+program state at a specific point in execution. Only when `idbg` is inserted, moved, or removed does
+the program need to be recompiled and restarted.
+-/
+@[builtin_doElem_parser] def doIdbg      := leading_parser:leadPrec
+  withPosition ("idbg " >> termParser)
+/--
 `assert! cond` panics if `cond` evaluates to `false`.
 -/
 @[builtin_doElem_parser] def doAssert    := leading_parser:leadPrec

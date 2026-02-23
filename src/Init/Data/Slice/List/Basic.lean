@@ -21,7 +21,7 @@ open Std Std.Slice Std.PRange
 /--
 Internal representation of `ListSlice`, which is an abbreviation for `Slice ListSliceData`.
 -/
-public class Std.Slice.Internal.ListSliceData (α : Type u) where
+public structure Std.Slice.Internal.ListSliceData (α : Type u) where
   /-- The relevant suffix of the underlying list. -/
   list : List α
   /-- The maximum length of the slice, starting at the beginning of `list`. -/
@@ -106,6 +106,14 @@ public instance : Rcc.Sliceable (ListSlice α) Nat (ListSlice α) where
       | some stop => min stop (range.upper + 1)
     xs.internalRepresentation.list[range.lower...stop]
 
+public theorem ListSlice.mkSlice_rcc_def {xs : ListSlice α} {range : Rcc Nat} :
+    Rcc.Sliceable.mkSlice xs range =
+      let stop := match xs.internalRepresentation.stop with
+        | none => range.upper + 1
+        | some stop => min stop (range.upper + 1)
+      xs.internalRepresentation.list[range.lower...stop] :=
+  rfl
+
 public instance : Rco.Sliceable (ListSlice α) Nat (ListSlice α) where
   mkSlice xs range :=
     let stop := match xs.internalRepresentation.stop with
@@ -113,11 +121,26 @@ public instance : Rco.Sliceable (ListSlice α) Nat (ListSlice α) where
       | some stop => min stop range.upper
     xs.internalRepresentation.list[range.lower...stop]
 
+public theorem ListSlice.mkSlice_rco_def {xs : ListSlice α} {range : Rco Nat} :
+    Rco.Sliceable.mkSlice xs range =
+      let stop := match xs.internalRepresentation.stop with
+        | none => range.upper
+        | some stop => min stop range.upper
+      xs.internalRepresentation.list[range.lower...stop] :=
+  rfl
+
 public instance : Rci.Sliceable (ListSlice α) Nat (ListSlice α) where
   mkSlice xs range :=
     match xs.internalRepresentation.stop with
     | none => xs.internalRepresentation.list[range.lower...*]
     | some stop => xs.internalRepresentation.list[range.lower...stop]
+
+public theorem ListSlice.mkSlice_rci_def {xs : ListSlice α} {range : Rci Nat} :
+    Rci.Sliceable.mkSlice xs range =
+      match xs.internalRepresentation.stop with
+      | none => xs.internalRepresentation.list[range.lower...*]
+      | some stop => xs.internalRepresentation.list[range.lower...stop] :=
+  rfl
 
 public instance : Roc.Sliceable (ListSlice α) Nat (ListSlice α) where
   mkSlice xs range :=
@@ -126,6 +149,14 @@ public instance : Roc.Sliceable (ListSlice α) Nat (ListSlice α) where
       | some stop => min stop (range.upper + 1)
     xs.internalRepresentation.list[range.lower<...stop]
 
+public theorem ListSlice.mkSlice_roc_def {xs : ListSlice α} {range : Roc Nat} :
+    Roc.Sliceable.mkSlice xs range =
+      let stop := match xs.internalRepresentation.stop with
+        | none => range.upper + 1
+        | some stop => min stop (range.upper + 1)
+      xs.internalRepresentation.list[range.lower<...stop] :=
+  rfl
+
 public instance : Roo.Sliceable (ListSlice α) Nat (ListSlice α) where
   mkSlice xs range :=
     let stop := match xs.internalRepresentation.stop with
@@ -133,11 +164,26 @@ public instance : Roo.Sliceable (ListSlice α) Nat (ListSlice α) where
       | some stop => min stop range.upper
     xs.internalRepresentation.list[range.lower<...stop]
 
+public theorem ListSlice.mkSlice_roo_def {xs : ListSlice α} {range : Roo Nat} :
+    Roo.Sliceable.mkSlice xs range =
+      let stop := match xs.internalRepresentation.stop with
+        | none => range.upper
+        | some stop => min stop range.upper
+      xs.internalRepresentation.list[range.lower<...stop] :=
+  rfl
+
 public instance : Roi.Sliceable (ListSlice α) Nat (ListSlice α) where
   mkSlice xs range :=
     match xs.internalRepresentation.stop with
     | none => xs.internalRepresentation.list[range.lower<...*]
     | some stop => xs.internalRepresentation.list[range.lower<...stop]
+
+public theorem ListSlice.mkSlice_roi_def {xs : ListSlice α} {range : Roi Nat} :
+    Roi.Sliceable.mkSlice xs range =
+      match xs.internalRepresentation.stop with
+      | none => xs.internalRepresentation.list[range.lower<...*]
+      | some stop => xs.internalRepresentation.list[range.lower<...stop] :=
+  rfl
 
 public instance : Ric.Sliceable (ListSlice α) Nat (ListSlice α) where
   mkSlice xs range :=
@@ -146,6 +192,14 @@ public instance : Ric.Sliceable (ListSlice α) Nat (ListSlice α) where
       | some stop => min stop (range.upper + 1)
     xs.internalRepresentation.list[*...stop]
 
+public theorem ListSlice.mkSlice_ric_def {xs : ListSlice α} {range : Ric Nat} :
+    Ric.Sliceable.mkSlice xs range =
+      let stop := match xs.internalRepresentation.stop with
+        | none => range.upper + 1
+        | some stop => min stop (range.upper + 1)
+      xs.internalRepresentation.list[*...stop] :=
+  rfl
+
 public instance : Rio.Sliceable (ListSlice α) Nat (ListSlice α) where
   mkSlice xs range :=
     let stop := match xs.internalRepresentation.stop with
@@ -153,6 +207,18 @@ public instance : Rio.Sliceable (ListSlice α) Nat (ListSlice α) where
       | some stop => min stop range.upper
     xs.internalRepresentation.list[*...stop]
 
+public theorem ListSlice.mkSlice_rio_def {xs : ListSlice α} {range : Rio Nat} :
+    Rio.Sliceable.mkSlice xs range =
+      let stop := match xs.internalRepresentation.stop with
+        | none => range.upper
+        | some stop => min stop range.upper
+      xs.internalRepresentation.list[*...stop] :=
+  rfl
+
 public instance : Rii.Sliceable (ListSlice α) Nat (ListSlice α) where
   mkSlice xs _ :=
     xs
+
+public theorem ListSlice.mkSlice_rii_def {xs : ListSlice α} {range : Rii Nat} :
+    Rii.Sliceable.mkSlice xs range = xs :=
+  rfl

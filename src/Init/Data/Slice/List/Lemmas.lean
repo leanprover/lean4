@@ -78,9 +78,9 @@ public theorem toList_mkSlice_rco {xs : List α} {lo hi : Nat} :
   simp only [Std.Rco.Sliceable.mkSlice, toSlice, ListSlice.toList_eq]
   by_cases h : lo < hi
   · have : lo ≤ hi := by omega
-    simp +instances [h, List.take_drop, Nat.add_sub_cancel' ‹_›, ← List.take_eq_take_min]
+    simp [h, List.take_drop, Nat.add_sub_cancel' ‹_›, ← List.take_eq_take_min]
   · have : min hi xs.length ≤ lo := by omega
-    simp +instances [h, Nat.min_eq_right this]
+    simp [h, Nat.min_eq_right this]
 
 @[simp, grind =]
 public theorem toArray_mkSlice_rco {xs : List α} {lo hi : Nat} :
@@ -116,7 +116,7 @@ set_option backward.whnf.reducibleClassField false in
 public theorem toList_mkSlice_rci {xs : List α} {lo : Nat} :
     xs[lo...*].toList = xs.drop lo := by
   rw [List.drop_eq_drop_min]
-  simp +instances [ListSlice.toList_eq, Std.Rci.Sliceable.mkSlice, List.toUnboundedSlice]
+  simp [ListSlice.toList_eq, Std.Rci.Sliceable.mkSlice, List.toUnboundedSlice]
 
 @[simp, grind =]
 public theorem toArray_mkSlice_rci {xs : List α} {lo : Nat} :
@@ -294,7 +294,7 @@ set_option backward.whnf.reducibleClassField false in
 @[simp, grind =]
 public theorem toList_mkSlice_rco {xs : ListSlice α} {lo hi : Nat} :
     xs[lo...hi].toList = (xs.toList.take hi).drop lo := by
-  simp +instances only [instSliceableListSliceNat_1, List.toList_mkSlice_rco, ListSlice.toList_eq (xs := xs)]
+  simp only [mkSlice_rco_def, List.toList_mkSlice_rco, ListSlice.toList_eq (xs := xs)]
   obtain ⟨⟨xs, stop⟩⟩ := xs
   cases stop
   · simp
@@ -333,9 +333,9 @@ set_option backward.whnf.reducibleClassField false in
 @[simp, grind =]
 public theorem toList_mkSlice_rci {xs : ListSlice α} {lo : Nat} :
     xs[lo...*].toList = xs.toList.drop lo := by
-  simp +instances only [instSliceableListSliceNat_2, ListSlice.toList_eq (xs := xs)]
+  simp only [mkSlice_rci_def, ListSlice.toList_eq (xs := xs)]
   obtain ⟨⟨xs, stop⟩⟩ := xs
-  simp +instances only
+  simp only
   split <;> simp
 
 @[simp, grind =]

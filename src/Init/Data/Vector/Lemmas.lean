@@ -528,7 +528,7 @@ theorem toList_zip {as : Vector α n} {bs : Vector β n} :
 @[simp] theorem getElem_toList {xs : Vector α n} {i : Nat} (h : i < xs.toList.length) :
     xs.toList[i] = xs[i]'(by simpa using h) := by
   cases xs
-  simp; rfl
+  simp
 
 @[simp] theorem getElem?_toList {xs : Vector α n} {i : Nat} :
     xs.toList[i]? = xs[i]? := by

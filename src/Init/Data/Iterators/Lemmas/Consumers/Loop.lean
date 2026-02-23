@@ -8,7 +8,6 @@ module
 prelude
 import all Init.Data.Iterators.Lemmas.Consumers.Monadic.Loop
 import all Init.Data.Iterators.Consumers.Loop
-import all Init.Data.Iterators.Consumers.Monadic.Collect
 import Init.Data.Array.Monadic
 public import Init.Data.Iterators.Consumers.Collect
 public import Init.Data.Iterators.Consumers.Loop
@@ -32,12 +31,11 @@ theorem Iter.forIn'_eq {α β : Type w} [Iterator α Id β] [Finite α Id]
       IterM.DefaultConsumers.forIn' (n := m) (fun _ _ f x => f x.run) γ (fun _ _ _ => True)
         it.toIterM init _ (fun _ => id)
           (fun out h acc => return ⟨← f out (Iter.isPlausibleIndirectOutput_iff_isPlausibleIndirectOutput_toIterM.mpr h) acc, trivial⟩) := by
-  simp +instances only [instForIn', ForIn'.forIn', IteratorLoop.finiteForIn']
   have : ∀ a b c, f a b c = (Subtype.val <$> (⟨·, trivial⟩) <$> f a b c) := by simp
   simp +singlePass only [this]
+  simp only [ForIn'.forIn']
   rw [hl.lawful (fun _ _ f x => f x.run) (wf := IteratorLoop.wellFounded_of_finite)]
-  simp +instances [IteratorLoop.defaultImplementation]
-  rfl
+  simp [IteratorLoop.forIn]
 
 theorem Iter.forIn_eq {α β : Type w} [Iterator α Id β] [Finite α Id]
     {m : Type x → Type x'} [Monad m] [LawfulMonad m] [IteratorLoop α Id m]
@@ -82,7 +80,7 @@ theorem Iter.forIn'_eq_forIn'_toIterM {α β : Type w} [Iterator α Id β]
       letI : ForIn' m (IterM (α := α) Id β) β _ := IterM.instForIn'
       ForIn'.forIn' it.toIterM init
         (fun out h acc => f out (isPlausibleIndirectOutput_iff_isPlausibleIndirectOutput_toIterM.mpr h) acc) := by
-  simp +instances [ForIn'.forIn', Iter.instForIn', IterM.instForIn', monadLift]
+  simp [ForIn'.forIn', monadLift]
 
 theorem Iter.forIn_eq_forIn_toIterM {α β : Type w} [Iterator α Id β]
     [Finite α Id] {m : Type w → Type w''} [Monad m] [LawfulMonad m]

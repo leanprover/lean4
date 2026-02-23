@@ -8,14 +8,7 @@ module
 prelude
 public import Lean.Elab.Do.Basic
 meta import Lean.Parser.Do
-import Lean.Elab.Term
-import Lean.AddDecl
-import Lean.Environment
-import Lean.Data.Json
-import Lean.Compiler.IR.CompilerM
-import Init.System.IO
-public import Std.Internal.Async
-public import Std.Net.Addr
+import Std.Internal.Async.TCP
 
 /-!
 # Interactive Debug Expression Evaluator (`idbg`)
@@ -242,7 +235,7 @@ def idbgCompileAndEval (α : Type) [Nonempty α]
   | .error msg => throw (.userError s!"idbg evalConst failed: {msg}")
 
 /-- Connect to the debug server, receive expressions, evaluate, send results. Loops forever. -/
-public def idbgClientLoop {α : Type} [Nonempty α]
+@[nospecialize] public def idbgClientLoop {α : Type} [Nonempty α]
     (siteId : String) (imports : Array Import) (apply : α → String) : IO Unit := do
   let baseEnv ← idbgLoadEnv imports
   let port := idbgPort siteId

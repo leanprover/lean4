@@ -1081,7 +1081,7 @@ def emitSSet (builder : LLVM.Builder llvmctx) (x : VarId) (n : Nat) (offset : Na
 def emitDel (builder : LLVM.Builder llvmctx) (x : VarId) : M llvmctx Unit := do
   let argtys := #[ ← LLVM.voidPtrType llvmctx]
   let retty  ← LLVM.voidType llvmctx
-  let fn ← getOrCreateFunctionPrototype (← getLLVMModule) retty "lean_free_object" argtys
+  let fn ← getOrCreateFunctionPrototype (← getLLVMModule) retty "lean_del_object" argtys
   let xv ← emitLhsVal builder x
   let fnty ← LLVM.functionType retty argtys
   let _ ← LLVM.buildCall2 builder fnty fn  #[xv]

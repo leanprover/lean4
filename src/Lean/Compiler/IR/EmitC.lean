@@ -470,7 +470,7 @@ def emitDec (x : VarId) (n : Nat) (checkRef : Bool) : M Unit := do
   emitLn ");"
 
 def emitDel (x : VarId) : M Unit := do
-  emit "lean_free_object("; emit x; emitLn ");"
+  emit "lean_del_object("; emit x; emitLn ");"
 
 def emitSetTag (x : VarId) (i : Nat) : M Unit := do
   emit "lean_ctor_set_tag("; emit x; emit ", "; emit i; emitLn ");"

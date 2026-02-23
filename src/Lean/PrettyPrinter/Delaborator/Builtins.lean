@@ -100,17 +100,28 @@ Rather, it is called through the `app` delaborator.
 -/
 def delabConst : Delab := do
   let Expr.const c₀ ls ← getExpr | unreachable!
-  let unresolveName (n : Name) : DelabM Name := do
-    unresolveNameGlobalAvoidingLocals n (fullNames := ← getPPOption getPPFullNames)
-  let mut c := c₀
-  if isPrivateName c₀ then
-    unless (← getPPOption getPPPrivateNames) do
-      c ← unresolveName c
-      if let some n := privateToUserName? c then
-        -- The private name could not be made non-private, so make the result inaccessible
-        c ← withFreshMacroScope <| MonadQuotation.addMacroScope n
-  else
-    c ← unresolveName c
+  let env ← getEnv
+  let c ←
+    if ← pure (isPrivateName c₀) <&&> getPPOption getPPPrivateNames then
+      pure c₀
+    else if let some c ← unresolveNameGlobalAvoidingLocals? c₀ (fullNames := ← getPPOption getPPFullNames) then
+      pure c
+    else if !env.contains c₀ then
+      -- The compiler pretty prints constants that are not defined in the environment.
+      -- Use such names as-is, without additional macro scopes.
+      -- We still remove the private prefix if the name would be accessible to the current module.
+      if isPrivateName c₀ && mkPrivateName env (privateToUserName c₀.eraseMacroScopes) == c₀.eraseMacroScopes then
+        pure <| Name.modifyBase c₀ privateToUserName
+      else
+        pure c₀
+    else
+      -- The identifier cannot be referred to. Add a macro scope to indicate this.
+      if let some (.num priv 0) := privatePrefix? c₀.eraseMacroScopes then
+        -- The private prefix before `0` is of the form `_private.modulename`, which works as a macro scope context
+        pure <| Lean.addMacroScope priv (Name.modifyBase c₀ privateToUserName) reservedMacroScope
+      else
+        pure <| Lean.addMacroScope `_internal c₀ reservedMacroScope
+
   let stx ←
     if !ls.isEmpty && (← getPPOption getPPUniverses) then
       let mvars ← getPPOption getPPMVarsLevels

@@ -42,7 +42,7 @@ j : Fin as.size
 ⊢ (if i < ↑j then
         let j' := ⟨↑j - 1, ⋯⟩;
         let as_1 := as.swap ↑j' ↑j ⋯ ⋯;
-        Array.insertIdx.loop✝ i as_1 ⟨↑j', ⋯⟩
+        insertIdx.loop i as_1 ⟨↑j', ⋯⟩
       else as).size =
     as.size
 -/

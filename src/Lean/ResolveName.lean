@@ -622,7 +622,7 @@ def resolveLocalName [MonadLCtx m] (n : Name) : m (Option (Expr × List String))
   loop view.name [] (globalDeclFound := false)
 
 /--
-Finds a name that unambiguously resolves to the given name `n₀`.
+Finds an efficient name that unambiguously resolves to the given name `n₀`, if possible.
 Considers suffixes of `n₀` and suffixes of aliases of `n₀` when "unresolving".
 Aliases are considered first.
 
@@ -639,28 +639,16 @@ If `n₀` is an accessible name, then the result will be an accessible name.
 
 The name `n₀` may be private.
 -/
-def unresolveNameGlobal (n₀ : Name) (fullNames := false) (allowHorizAliases := false)
-    (filter : Name → m Bool := fun _ => pure true) : m Name := do
-  if n₀.hasMacroScopes then return n₀
-  -- `n₁` is the name without any private prefix, and `qn₁?` is a valid fully-qualified name.
-  let (n₁, qn₁?) := if let some n := privateToUserName? n₀ then
-    if n₀ == mkPrivateName (← getEnv) n then
-      -- The private name is for the current module. `ResolveName.resolveExact` allows `_root_` for such names.
-      (n, some (rootNamespace ++ n))
-    else
-      (n, none)
-  else
-    (n₀, some (rootNamespace ++ n₀))
+def unresolveNameGlobal? (n₀ : Name) (fullNames := false) (allowHorizAliases := false)
+    (filter : Name → m Bool := fun _ => pure true) : m (Option Name) := do
+  if n₀.hasMacroScopes then return none
+  -- `n₁` is the name without any private prefix
+  let n₁ := privateToUserName n₀
+  -- `qn₁?` is a valid fully-qualified name, if one exists.
+  -- `ResolveName.resolveExact` allows `_root_` for private names accessible to the current module.
+  let qn₁? ← tryResolve n₁ <||> tryResolve (rootNamespace ++ n₁)
   if fullNames then
-    if let [(potentialMatch, _)] ← resolveGlobalName n₁ (enableLog := false) then
-      if (← pure (potentialMatch == n₀) <&&> filter n₁) then
-        return n₁
-    if let some qn₁ := qn₁? then
-      -- We assume that the fully-qualified name resolves.
-      return qn₁
-    else
-      -- This is the imported private name case. Return the original private name.
-      return n₀
+    return qn₁?
   -- `initialNames` is an array of names to try taking suffixes of.
   -- First are all the names that have `n₀` as an alias.
   -- If horizontal aliases are not allowed, then any aliases that aren't from a parent namespace are filtered out.
@@ -673,11 +661,15 @@ def unresolveNameGlobal (n₀ : Name) (fullNames := false) (allowHorizAliases :=
   for initialName in initialNames do
     if let some n ← unresolveNameCore initialName then
       return n
-  -- Both non-private names and current-module private names should be handled already,
-  -- but as a backup we return the original name.
-  -- Imported private names will often get to this point.
-  return n₀
+  return none
 where
+  /-- Returns `n` if it resolves to `n₀` and isn't filtered out. -/
+  tryResolve (n : Name) : m (Option Name) := do
+    if let [(potentialMatch, _)] ← resolveGlobalName (enableLog := false) n then
+      if potentialMatch == n₀ then
+        if ← filter n then
+          return some n
+    return none
   unresolveNameCore (n : Name) : m (Option Name) := do
     if n.hasMacroScopes then return none
     let n := privateToUserName n
@@ -685,15 +677,19 @@ where
     let mut candidate := Name.anonymous
     for cmpt in revComponents do
       candidate := Name.appendCore cmpt candidate
-      if let [(potentialMatch, _)] ← resolveGlobalName (enableLog := false) candidate then
-        if potentialMatch == n₀ then
-          if (← filter candidate) then
-            return some candidate
+      if (← tryResolve candidate).isSome then
+        return some candidate
     return none
 
-/-- Like `Lean.unresolveNameGlobal`, but also ensures that the unresolved name does not conflict
-with the names of any local declarations. -/
-def unresolveNameGlobalAvoidingLocals [MonadLCtx m] (n₀ : Name) (fullNames := false) : m Name :=
-  unresolveNameGlobal n₀ (fullNames := fullNames) (filter := fun n => Option.isNone <$> resolveLocalName n)
+/-- Like `Lean.unresolveNameGlobal?`, but also ensures that the unresolved name does not conflict
+with the names of any local declarations. Returns `none` if the name cannot be referred to.
+For example, the name may be private and not accessible to the current module, or it may have macro scopes.-/
+def unresolveNameGlobalAvoidingLocals? [MonadLCtx m] (n₀ : Name) (fullNames := false) : m (Option Name) :=
+  unresolveNameGlobal? n₀ (fullNames := fullNames) (filter := fun n => Option.isNone <$> resolveLocalName n)
+
+/-- Like `Lean.unresolveNameGlobalAvoidingLocals?`, but returns `n₀` unchanged if the name cannot be referred to. -/
+def unresolveNameGlobalAvoidingLocals [MonadLCtx m] (n₀ : Name) (fullNames := false) : m Name := do
+  let n? ← unresolveNameGlobalAvoidingLocals? n₀ (fullNames := fullNames)
+  return n?.getD n₀
 
 end Lean

@@ -21,17 +21,17 @@ inductive State where
   | so
   | sp
 
-/-- info: _root_.Ex1.State.enumToBitVec : State → BitVec 4 -/
+/-- info: Ex1.State.enumToBitVec✝ : State → BitVec 4 -/
 #guard_msgs in
 #check State.enumToBitVec
 
 /--
-info: _root_.Ex1.State.eq_iff_enumToBitVec_eq (x y : State) : x = y ↔ x.enumToBitVec = y.enumToBitVec
+info: Ex1.State.eq_iff_enumToBitVec_eq✝ (x y : State) : x = y ↔ x.enumToBitVec = y.enumToBitVec
 -/
 #guard_msgs in
 #check State.eq_iff_enumToBitVec_eq
 
-/-- info: _root_.Ex1.State.enumToBitVec_le (x : State) : x.enumToBitVec ≤ 15#4 -/
+/-- info: Ex1.State.enumToBitVec_le✝ (x : State) : x.enumToBitVec ≤ 15#4 -/
 #guard_msgs in
 #check State.enumToBitVec_le
 

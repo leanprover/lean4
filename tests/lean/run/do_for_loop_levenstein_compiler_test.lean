@@ -32,7 +32,7 @@ trace: [Compiler.saveMono] size: 13
         | Bool.false =>
           let _x.4 := 1;
           let _x.5 := USize.add i _x.4;
-          let _x.6 := Array.anyMUnsafe.any._at_.Array.contains._at_.deletions.spec_0.spec_0.2 a as _x.5 stop;
+          let _x.6 := _private.Init.Data.Array.Basic.0.Array.anyMUnsafe.any._at_.Array.contains._at_.deletions.spec_0.spec_0 a as _x.5 stop;
           return _x.6
         | Bool.true =>
           return _x.3
@@ -54,7 +54,7 @@ trace: [Compiler.saveMono] size: 13
         | Bool.true =>
           let _x.4 := 0;
           let _x.5 := USize.ofNat _x.2;
-          let _x.6 := Array.anyMUnsafe.any._at_.Array.contains._at_.deletions.spec_0.spec_0.2 a as _x.4 _x.5;
+          let _x.6 := _private.Init.Data.Array.Basic.0.Array.anyMUnsafe.any._at_.Array.contains._at_.deletions.spec_0.spec_0 a as _x.4 _x.5;
           return _x.6
 [Compiler.saveMono] size: 19
     def Array.forInNew'Unsafe.loop._at_.deletions.spec_2 as sz i s : Array String :=

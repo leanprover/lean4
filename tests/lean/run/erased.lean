@@ -49,8 +49,7 @@ trace: [Compiler.saveMono] size: 5
       let _f.11 : Lean.Elab.Term.Context →
         lcAny →
           Lean.Meta.Context →
-            lcAny →
-              Lean.Core.Context → lcAny → lcVoid → EST.Out Lean.Exception lcAny PUnit := _eval._lam_0.2 _x.9 _x.10;
+            lcAny → Lean.Core.Context → lcAny → lcVoid → EST.Out Lean.Exception lcAny PUnit := _eval._lam_0 _x.9 _x.10;
       let _x.12 : EST.Out Lean.Exception lcAny PUnit := Lean.Elab.Command.liftTermElabM._redArg _f.11 a.1 a.2 a.3;
       return _x.12
 -/

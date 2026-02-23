@@ -222,7 +222,11 @@ def getAltsPatternVars (alts : TSyntaxArray ``matchAlt) : TermElabM (Array Ident
   -- Expand non-atomic discriminants for independent elaboration problems
   if let some discrs ← expandNonAtomicDiscrs? discrs then
     let newStx ← `(doElem| match $[(generalizing := $gen?)]? $(motive?)? $discrs,* with $alts:matchAlt*)
-    return ← Term.withMacroExpansion stx newStx <| elabDoElem ⟨newStx⟩ dec
+    -- We use `mkSaveInfoAnnotation` to make sure the info trees for the discriminants are saved
+    -- even if the inner match elaboration is postponed (returning a metavariable).
+    -- Without this, `withTermInfoContext'` in `elabDoElemFns` would discard the subtrees
+    -- containing TermInfo for variable references in the discriminants.
+    return Term.mkSaveInfoAnnotation (← Term.withMacroExpansion stx newStx <| elabDoElem ⟨newStx⟩ dec)
 
   -- Expand simple matches to `let`
   if let `(matchAltExpr| | $y:ident => $seq) := alts.getD 0 ⟨.missing⟩ then

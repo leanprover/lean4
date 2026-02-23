@@ -1,5 +1,6 @@
 #include "util/options.h"
 
+// bump for stage0 update: fix TermInfo preservation in do-match discriminants
 namespace lean {
 options get_default_options() {
     options opts;

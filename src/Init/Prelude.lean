@@ -472,6 +472,7 @@ Lean's type theory includes a [definitional reduction](lean-manual://section/typ
 -/
 add_decl_doc Quot.lift
 
+-- TODO remove after stage0 update
 /--
 Unsafe auxiliary constant used by the compiler to erase `Quot.lift`.
 -/

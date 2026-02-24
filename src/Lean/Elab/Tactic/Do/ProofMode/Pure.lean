@@ -136,7 +136,6 @@ def MGoal.pureTrivial (goal : MGoal) : OptionT MetaM Expr := do
       catch _ =>
         let ([], _) ← runTactic m.mvarId! (← `(tactic| trivial))
           | failure
-        pure ()
       return ((), m)
     return prf
   catch _ => failure

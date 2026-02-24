@@ -36,3 +36,18 @@ info: Try this:
 #guard_msgs in
 example : Lean.eraseMacroScopesAux .anonymous = .anonymous := by
   simp? [Lean.eraseMacroScopesAux]
+
+/-!
+Fixing these issues involved rewriting how name unresolution handled macro scopes.
+Here's a test that hygienic names can be unresolved too.
+-/
+macro "mk_struct" n:ident : command => `(
+  structure S where
+  def $n : S := {})
+namespace NS
+mk_struct T
+/-- info: T : S✝ -/
+#guard_msgs in #check (T)
+end NS
+/-- info: NS.T : NS.S✝ -/
+#guard_msgs in #check (NS.T)

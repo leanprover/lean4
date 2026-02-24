@@ -126,10 +126,10 @@ Build a chain of arrows `α₁ → α₂ → ... → αₙ → β` using the `mk
 def mkArrows (αs : Array Expr) (β : Expr) : SymM Expr := do
   go αs.size β (Nat.le_refl _)
 where
-  go (i : Nat) (β : Expr) (h : i ≤ αs.size) : SymM Expr := do
+  go (i : Nat) (β : Expr) (h : i ≤ αs.size) : SymM Expr :=
     match i with
     | 0 => return β
-    | i+1 => go i (← mkForallS `a .default αs[i] β) (by omega)
+    | i+1 => do go i (← mkForallS `a .default αs[i] β) (by omega)
 
 /--
 Transform a `have`-telescope into a parallel beta-application.

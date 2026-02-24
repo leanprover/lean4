@@ -200,10 +200,48 @@ rev = {repr rev}
 [[lean_lib]]
 name = {repr libRoot}
 "
+def cslibLeanConfigFileContents (pkgName libRoot rev : String) :=
+s!"import Lake
+open Lake DSL
+
+package {repr pkgName} where
+  version := v!\"0.1.0\"
+  keywords := #[\"cs\"]
+  leanOptions := #[
+    ⟨`pp.unicode.fun, true⟩, -- pretty-prints `fun a ↦ b`
+    ⟨`weak.linter.mathlibStandardSet, true⟩,
+  ]
+
+require \"leanprover\" / \"cslib\" @ git {repr rev}
+
+@[default_target]
+lean_lib {libRoot} where
+  -- add any library configuration options here
+"
+def cslibTomlConfigFileContents (pkgName libRoot rev : String) :=
+s!"name = {repr pkgName}
+version = \"0.1.0\"
+keywords = [\"cs\"]
+defaultTargets = [{repr libRoot}]
+
+[leanOptions]
+pp.unicode.fun = true # pretty-prints `fun a ↦ b`
+weak.linter.mathlibStandardSet = true
+
+[[require]]
+name = \"cslib\"
+scope = \"leanprover\"
+rev = {repr rev}
+
+[[lean_lib]]
+name = {repr libRoot}
+"
 
 def readmeFileContents (pkgName : String) := s!"# {pkgName}"
 
-def mathReadmeFileContents (pkgName : String) := s!"# {pkgName}
+def mathReadmeFileContents (pkgName : String) := s!"# {pkgName}"
+
+def csReadmeFileContents (pkgName : String) := s!"# {pkgName}"
 
 ## GitHub configuration
 

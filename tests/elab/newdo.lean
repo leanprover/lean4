@@ -484,12 +484,13 @@ example (cache : Std.HashMap (Nat × Nat) Bool) : Bool := Id.run do
   let := cache.contains key
   return false
 
--- Extracted from MathlibTest.random.lean. The problem here is that the `for` loop macro used to
--- expand `for _ in [:0] do body` to `for x✝ in [:0] do match x✝ with | _ => body` and that caused
--- defaulting of `count` to `Nat`.
+-- Extracted from MathlibTest.random.lean. The problem here is that the `match` elaborator used to
+-- destructure the `(x, y)` pattern into `x` and `y` caused defaulting of `count` to `Nat`.
+-- Nowadays, the `match` elaborator does not trigger global defaulting (in constrast to the term
+-- `match` elaborator), fixing this test case.
 example : IO Bool := do
   let mut count := 0
-  for _ in [:0] do count := count + 1
+  for (x, y) in ([] : List (Nat × Nat)) do count := count + 1
   return Float.abs count > 0
 
 end Repros

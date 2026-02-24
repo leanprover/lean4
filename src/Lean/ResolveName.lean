@@ -659,13 +659,13 @@ def unresolveNameGlobal? (n₀ : Name)
   aliases.firstM (unresolveNameCore none) -- do not apply macro scopes on `n₀` to aliases
     <|> unresolveNameCore view (rootNamespace ++ n₁)
 where
-  /-- Returns `n` if it resolves to `n₀` and isn't filtered out. -/
+  /-- Adds any macro scopes to `n`, then returns it if it resolves to `n₀` and isn't filtered out. -/
   tryResolve (view? : Option MacroScopesView) (n : Name) : OptionT m Name := do
     let n' := if let some view := view? then { view with name := n }.review else n
     let [(potentialMatch, _)] ← resolveGlobalName (enableLog := false) n' | failure
     guard <| potentialMatch == n₀
-    guard <| ← filter n
-    return n
+    guard <| ← filter n'
+    return n'
   unresolveNameCore (view? : Option MacroScopesView) (n : Name) : OptionT m Name := do
     guard <| !n.hasMacroScopes
     let n := privateToUserName n

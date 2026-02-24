@@ -2264,13 +2264,25 @@ theorem Slice.Pos.le_ofSliceFrom {s : Slice} {p₀ : s.Pos} {pos : (s.sliceFrom 
     p₀ ≤ ofSliceFrom pos := by
   simp [Pos.le_iff, Pos.Raw.le_iff]
 
+@[simp]
 theorem Slice.Pos.ofSliceFrom_lt_ofSliceFrom_iff {s : Slice} {p : s.Pos}
     {q r : (s.sliceFrom p).Pos} : Slice.Pos.ofSliceFrom q < Slice.Pos.ofSliceFrom r ↔ q < r := by
   simp [Slice.Pos.lt_iff, Pos.Raw.lt_iff]
 
+@[simp]
 theorem Slice.Pos.ofSliceFrom_le_ofSliceFrom_iff {s : Slice} {p : s.Pos}
     {q r : (s.sliceFrom p).Pos} : Slice.Pos.ofSliceFrom q ≤ Slice.Pos.ofSliceFrom r ↔ q ≤ r := by
   simp [Slice.Pos.le_iff, Pos.Raw.le_iff]
+
+@[simp]
+theorem Pos.ofSliceFrom_lt_ofSliceFrom_iff {s : String} {p : s.Pos}
+    {q r : (s.sliceFrom p).Pos} : Pos.ofSliceFrom q < Pos.ofSliceFrom r ↔ q < r := by
+  simp [Pos.lt_iff, Slice.Pos.lt_iff, Pos.Raw.lt_iff]
+
+@[simp]
+theorem Pos.ofSliceFrom_le_ofSliceFrom_iff {s : String} {p : s.Pos}
+    {q r : (s.sliceFrom p).Pos} : Pos.ofSliceFrom q ≤ Pos.ofSliceFrom r ↔ q ≤ r := by
+  simp [Pos.le_iff, Slice.Pos.le_iff, Pos.Raw.le_iff]
 
 theorem Pos.get_eq_get_ofSliceFrom {s : String} {p₀ : s.Pos}
     {pos : (s.sliceFrom p₀).Pos} {h} :

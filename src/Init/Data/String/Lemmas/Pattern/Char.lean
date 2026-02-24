@@ -29,8 +29,7 @@ instance {c : Char} : NoPrefixForwardPatternModel c :=
 theorem isMatch_iff {c : Char} {s : Slice} {pos : s.Pos} :
     IsMatch c pos ↔
       ∃ (h : s.startPos ≠ s.endPos), pos = s.startPos.next h ∧ s.startPos.get h = c := by
-  simp only [Model.isMatch_iff, ForwardPatternModel.Matches]
-  rw [sliceTo_copy_eq_iff_exists_splits]
+  simp only [Model.isMatch_iff, ForwardPatternModel.Matches, sliceTo_copy_eq_iff_exists_splits]
   refine ⟨?_, ?_⟩
   · simp only [splits_singleton_iff]
     exact fun ⟨t₂, h, h₁, h₂, h₃⟩ => ⟨h, h₁, h₂⟩
@@ -42,11 +41,10 @@ theorem isLongestMatch_iff {c : Char} {s : Slice} {pos : s.Pos} :
       ∃ (h : s.startPos ≠ s.endPos), pos = s.startPos.next h ∧ s.startPos.get h = c := by
   rw [isLongestMatch_iff_isMatch, isMatch_iff]
 
-
 theorem isLongestMatchAt_iff {c : Char} {s : Slice} {pos pos' : s.Pos} :
     IsLongestMatchAt c pos pos' ↔ ∃ h, pos' = pos.next h ∧ pos.get h = c := by
   simp +contextual [Model.isLongestMatchAt_iff, isLongestMatch_iff, ← Pos.ofSliceFrom_inj,
-    Pos.get_eq_get_ofSliceFrom, ofSliceFrom_next]
+    Pos.get_eq_get_ofSliceFrom, Pos.ofSliceFrom_next]
 
 instance {c : Char} : LawfulForwardPatternModel c where
   dropPrefix?_eq_some_iff {s} pos := by

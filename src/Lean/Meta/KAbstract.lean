@@ -52,7 +52,7 @@ def kabstract (e : Expr) (p : Expr) (occs : Occurrences := .all) : MetaM Expr :=
         -- We save the metavariable context here,
         -- so that it can be rolled back unless `occs.contains i`.
         let mctx ← getMCtx
-        if (← isDefEq e p) then
+        if (← isDefEq p e) then
           let i ← get
           set (i+1)
           if occs.contains i then

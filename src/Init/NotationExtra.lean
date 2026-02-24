@@ -27,7 +27,7 @@ meta def expandExplicitBindersAux (combinator : Syntax) (idents : Array Syntax) 
   let rec loop (i : Nat) (h : i ≤ idents.size) (acc : Syntax) := do
     match i, h with
     | 0, _   => pure acc
-    | i + 1, h => do
+    | i + 1, h =>
       let ident := idents[i][0]
       let acc ← match ident.isIdent, type? with
         | true,  none      => `($combinator fun $ident => $acc)
@@ -41,7 +41,7 @@ meta def expandBracketedBindersAux (combinator : Syntax) (binders : Array Syntax
   let rec loop (i : Nat) (h : i ≤ binders.size) (acc : Syntax) := do
     match i, h with
     | 0, _   => pure acc
-    | i+1, h => do
+    | i+1, h =>
       let idents := binders[i][1].getArgs
       let type   := binders[i][3]
       loop i (Nat.le_of_succ_le h) (← expandExplicitBindersAux combinator idents (some type) acc)

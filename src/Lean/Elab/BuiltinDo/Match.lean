@@ -119,34 +119,59 @@ private def elabDiscrs (discrStxs : TSyntaxArray ``matchDiscr) : TermElabM (Arra
   return discrs
 
 open Meta.Match (throwIncorrectNumberOfPatternsAt logIncorrectNumberOfPatternsAt) in
-private def elabPatterns (patternStxs : Array Syntax) (discrTypes : Array Expr) : TermElabM (Array Expr) :=
+private def elabPatterns (patternStxs : Array Syntax) (numDiscrs : Nat) (matchType : Expr) : TermElabM (Array Expr) :=
   withReader (fun ctx => { ctx with implicitLambda := false }) do
     let mut patterns  := #[]
-    let patternStxs ← Term.checkNumPatterns discrTypes.size patternStxs
+    let mut matchType := matchType
+    let patternStxs ← Term.checkNumPatterns numDiscrs patternStxs
     for h : idx in *...patternStxs.size do
       let patternStx := patternStxs[idx]
-      let discrType := discrTypes[idx]!
+      matchType ← whnf matchType
+      let .forallE _ discrType matchTypeBody _ := matchType
+        | throwError "unexpected match type {matchType}"
       let pattern ← Term.withSynthesize <| Term.withPatternElabConfig <| Term.elabTermEnsuringType patternStx discrType
       patterns  := patterns.push pattern
+      matchType := matchTypeBody.instantiate1 pattern
     return patterns
 
+/--
+Abstract earlier discriminant free variables from each discriminant type to produce
+a dependent match motive. E.g., for discriminants `[i, h]` with types `[Nat, i ≤ n]` and
+body `m β`, this produces `∀ (x₁ : Nat), ∀ (x₂ : x₁ ≤ n), m β`.
+-/
+private def mkDepMatchMotive (discrs : Array Term.Discr) (body : Expr) : TermElabM Expr := do
+  let mut matchType := body
+  for i in [0:discrs.size] do
+    let idx := discrs.size - 1 - i
+    let discr := discrs[idx]!
+    let discrType ← inferType discr.expr
+    let discrType ← transform (usedLetOnly := true) (← instantiateMVars discrType)
+    -- Abstract earlier discriminants (reversed so that the closest earlier discriminant
+    -- gets de Bruijn index 0). Non-fvar discriminants occupy index slots but won't match,
+    -- preserving correct de Bruijn numbering.
+    let earlierDiscrs := discrs[:idx].toArray.map (·.expr) |>.reverse
+    let discrType := if earlierDiscrs.isEmpty then discrType else discrType.abstract earlierDiscrs
+    let userName ← mkUserNameFor discr.expr
+    matchType := mkForall userName .default discrType matchType
+  return matchType
+
 def withElaboratedLHS {α} (patternVarDecls : Array Term.PatternVarDecl) (patternStxs : Array Syntax)
-    (lhsStx : Syntax) (discrTypes : Array Expr) (k : AltLHS → TermElabM α) : TermElabM α := do
-  let patterns ← Term.withSynthesize <| withRef lhsStx <| elabPatterns patternStxs discrTypes
+    (lhsStx : Syntax) (numDiscrs : Nat) (matchType : Expr)
+    (k : AltLHS → TermElabM α) : TermElabM α := do
+  let patterns ← Term.withSynthesize <| withRef lhsStx <| elabPatterns patternStxs numDiscrs matchType
   trace[Elab.do.match] "patterns: {patterns}"
-  let matchType := discrTypes.foldr (init := mkConst ``Unit) (fun discrType matchType => mkForall `x .default discrType matchType)
   Term.withDepElimPatterns patternVarDecls patterns matchType fun localDecls patterns _matchType => do
     k { ref := lhsStx, fvarDecls := localDecls.toList, patterns := patterns.toList }
 
 private abbrev DoMatchAltView := Term.MatchAltView ``doSeq
 
-private def elabMatchAlt (discrs : Array Term.Discr) (discrTypes : Array Expr)
+private def elabMatchAlt (discrs : Array Term.Discr) (matchType : Expr)
     (alt : DoMatchAltView) (dec : DoElemCont) : DoElabM (AltLHS × Expr) := withRef alt.ref do
   let (patternVars, alt) ← Term.collectPatternVars alt
   trace[Elab.do.match] "patternVars: {patternVars}"
   controlAtTermElabM fun runInBase => do
   Term.withPatternVars patternVars fun patternVarDecls => do
-    withElaboratedLHS patternVarDecls alt.patterns alt.lhs discrTypes fun altLHS =>
+    withElaboratedLHS patternVarDecls alt.patterns alt.lhs discrs.size matchType fun altLHS =>
       Term.withEqs discrs altLHS.patterns fun eqs =>
         withLocalInstances altLHS.fvarDecls <| runInBase do
           trace[Elab.do.match] "elabMatchAlt: {alt.lhs}"
@@ -158,13 +183,8 @@ private def elabMatchAlt (discrs : Array Term.Discr) (discrTypes : Array Expr)
 
 private def elabMatchAlts (discrs : Array Term.Discr) (alts : Array DoMatchAltView) (dec : DoElemCont) : DoElabM (Expr × Array AltLHS × Array Expr) := do
   let alts ← liftMacroM <| Term.expandMacrosInPatterns alts
-  let discrTypes ← discrs.mapM fun discr => do
-    let discrType ← inferType discr.expr
-    transform (usedLetOnly := true) (← instantiateMVars discrType)
-  let (lhss, rhss) ← Array.unzip <$> alts.mapM (elabMatchAlt discrs discrTypes · dec)
-  let mut matchType ← mkMonadicType (← read).doBlockResultType
-  for discrType in discrTypes.reverse do
-    matchType := mkForall `x .default (← instantiateMVars discrType) matchType
+  let matchType ← mkDepMatchMotive discrs (← mkMonadicType (← read).doBlockResultType)
+  let (lhss, rhss) ← Array.unzip <$> alts.mapM (elabMatchAlt discrs matchType · dec)
   return (matchType, lhss, rhss)
 
 private def compileMatch (discrs : Array Term.Discr) (matchType : Expr) (lhss : List AltLHS)
@@ -190,7 +210,7 @@ private def elabDoMatchCore (discrs : TSyntaxArray ``matchDiscr) (alts : Array D
   let (discrs, matchType, lhss, rhss) ← mapTermElabM Term.commitIfDidNotPostpone do
     let discrs ← Term.withSynthesize <| elabDiscrs discrs
     let (matchType, lhss, rhss) ← elabMatchAlts discrs alts dec
-    Term.synthesizeSyntheticMVarsUsingDefault -- Rationale similar to term match elaborator
+    Term.synthesizeSyntheticMVars
     let lhss ← Term.instantiateAltLHSs lhss
     return (discrs, matchType, lhss, rhss)
   compileMatch discrs matchType lhss rhss

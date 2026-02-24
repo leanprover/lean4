@@ -32,7 +32,6 @@ def elabRewrite (mvarId : MVarId) (e : Expr) (stx : Syntax)
   let r ← mvarId.rewrite e thm symm (config := config)
   let mctx ← getMCtx
   let mvarIds := r.mvarIds.filter fun mvarId => (mctx.getDecl mvarId |>.index) >= mvarCounterSaved
-
   return { r with mvarIds }
 
 /--
@@ -66,48 +65,92 @@ def rewriteLocalDecl (stx : Syntax) (symm : Bool) (fvarId : FVarId) (config : Re
   let replaceResult ← (← getMainGoal).replaceLocalDecl fvarId rwResult.eNew rwResult.eqProof
   replaceMainGoal (replaceResult.mvarId :: rwResult.mvarIds)
 
-def withRWRulesSeq (token : Syntax) (rwRulesSeqStx : Syntax) (x : (symm : Bool) → (term : Syntax) → TacticM Unit) : TacticM Unit := do
+def withRWRulesSeq (tacStx : Syntax) (token : Syntax) (rwRulesSeqStx : Syntax) (dischIdx : Nat) (x : (symm : Bool) → (term : Syntax) → TacticM Unit) : TacticM Unit := do
   let lbrak := rwRulesSeqStx[0]
   let rules := rwRulesSeqStx[1].getArgs
   -- show initial state up to (incl.) `[`
   withTacticInfoContext (mkNullNode #[token, lbrak]) (pure ())
+  let mut sideGoalsRev : List MVarId := []
   let numRules := (rules.size + 1) / 2
   for i in *...numRules do
     let rule := rules[i * 2]!
     let sep  := rules.getD (i * 2 + 1) Syntax.missing
     -- show rule state up to (incl.) next `,`
-    withTacticInfoContext (mkNullNode #[rule, sep]) do
+    let newSideGoals ← withTacticInfoContext (mkNullNode #[rule, sep]) do
       -- show errors on rule
       withRef rule do
         let symm := !rule[0].isNone
         let term := rule[1]
-        let processId (id : Syntax) : TacticM Unit := do
-          -- See if we can interpret `id` as a hypothesis first.
-          if (← withMainContext <| Term.isLocalIdent? id).isSome then
-            x symm term
+        -- focus to be able to determine the new side goals
+        focus do
+          elabRule symm term
+          List.tail <$> getGoals
+    sideGoalsRev := newSideGoals.reverse ++ sideGoalsRev
+  if tacStx[dischIdx].getOptional?.isSome then
+    Term.withNarrowedArgTacticReuse (stx := tacStx) (argIdx := dischIdx) fun optDisch => do
+    Term.withNarrowedArgTacticReuse (stx := optDisch) (argIdx := 0) fun disch => do
+    Term.withNarrowedArgTacticReuse (stx := disch) (argIdx := 1) fun _ => do
+      elabDisch disch sideGoalsRev.reverse
+where
+  elabRule (symm : Bool) (term : Syntax) : TacticM Unit := withMainContext <| do
+    let processId (id : Syntax) : TacticM Unit := do
+      -- See if we can interpret `id` as a local hypothesis before interpreting it as a global constant.
+      if let some fvar ← Term.isLocalIdent? id then
+        if ← fvar.fvarId!.isLetVar <&&> not <$> Meta.isProof fvar then
+          -- If it's a local definition, synthesize a simple equation theorem
+          Term.addTermInfo' id fvar
+          let val := (← fvar.fvarId!.getValue?).get!
+          let eqnThm ← lambdaTelescope val fun xs body => do
+            let eqnThmTy ← mkEq (mkAppN fvar xs) body
+            mkLambdaFVars xs <| mkExpectedPropHint (← mkEqRefl (mkAppN fvar xs)) eqnThmTy
+          x symm (← Term.exprToSyntax eqnThm)
+            -- If that fails, then rewrite using `fvar = val`.
+            <|> do x symm (← Term.exprToSyntax <| mkExpectedPropHint (← mkEqRefl fvar) (← mkEq fvar val))
+        else
+          -- Otherwise do the rewrite.
+          x symm term
+      else
+        -- Try to get equation theorems for `id`.
+        let declName ← try realizeGlobalConstNoOverload id catch _ => return (← x symm term)
+        let some eqThms ← getEqnsFor? declName | x symm term
+        let hint := if eqThms.size = 1 then m!"" else
+          .hint' m!"Try rewriting with `{Name.str declName unfoldThmSuffix}`"
+        let rec go : List Name → TacticM Unit
+          | [] => throwError m!"Failed to rewrite using equation theorems for `{.ofConstName declName}`" ++ hint
+          | eqThm::eqThms => (x symm (mkCIdentFrom id eqThm)) <|> go eqThms
+        Term.addTermInfo' id (← mkConstWithFreshMVarLevels declName)
+        go eqThms.toList
+    match term with
+    | `($id:ident)  => processId id
+    | `(@$id:ident) => processId id
+    | _ => x symm term
+  elabDisch (disch : Syntax) (sideGoals : List MVarId) : TacticM Unit := do
+    withRef disch do
+      let tacSeq := disch[1]
+      let gs ← getGoals
+      setGoals sideGoals
+      Tactic.tryCatch
+        (do
+          if (← getUnsolvedGoals).isEmpty then
+            throwNoGoalsToBeSolved
           else
-            -- Try to get equation theorems for `id`.
-            let declName ← try realizeGlobalConstNoOverload id catch _ => return (← x symm term)
-            let some eqThms ← getEqnsFor? declName | x symm term
-            let hint := if eqThms.size = 1 then m!"" else
-              .hint' m!"Try rewriting with `{Name.str declName unfoldThmSuffix}`"
-            let rec go : List Name →  TacticM Unit
-              | [] => throwError m!"Failed to rewrite using equation theorems for `{.ofConstName declName}`" ++ hint
-              | eqThm::eqThms => (x symm (mkCIdentFrom id eqThm)) <|> go eqThms
-            discard <| Term.addTermInfo id (← mkConstWithFreshMVarLevels declName) (lctx? := ← getLCtx)
-            go eqThms.toList
-        match term with
-        | `($id:ident)  => processId id
-        | `(@$id:ident) => processId id
-        | _ => x symm term
-
+            withTacticInfoContext disch do
+              evalTactic tacSeq
+              done)
+        (fun ex => do
+          if (← read).recover then
+            logException ex
+          else
+            throw ex)
+      setGoals gs
 
 declare_config_elab elabRewriteConfig Rewrite.Config
 
-@[builtin_tactic Lean.Parser.Tactic.rewriteSeq] def evalRewriteSeq : Tactic := fun stx => do
+@[builtin_tactic Lean.Parser.Tactic.rewriteSeq, builtin_incremental]
+def evalRewriteSeq : Tactic := fun stx => do
   let cfg ← elabRewriteConfig stx[1]
   let loc   := expandOptLocation stx[3]
-  withRWRulesSeq stx[0] stx[2] fun symm term => do
+  withRWRulesSeq stx stx[0] stx[2] 4 fun symm term => do
     withLocation loc
       (rewriteLocalDecl term symm · cfg)
       (rewriteTarget term symm cfg)

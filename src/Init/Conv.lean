@@ -161,8 +161,12 @@ For example, if we are searching for `f _` in `f (f a) = f b`:
 -/
 syntax (name := pattern) "pattern " (occs)? term : conv
 
-/-- `rw [thm]` rewrites the target using `thm`. See the `rw` tactic for more information. -/
-syntax (name := rewrite) "rewrite" optConfig rwRuleSeq : conv
+/--
+`rw [thm]` rewrites the target using `thm`. See the `rw` tactic for more information.
+
+In `conv`-mode, `rw` and `rewrite` are synonyms.
+-/
+syntax (name := rewrite) "rewrite" optConfig rwRuleSeq (rwDischarge)? : conv
 
 /-- `simp [thm]` performs simplification using `thm` and marked `@[simp]` lemmas.
 See the `simp` tactic for more information. -/
@@ -287,9 +291,8 @@ macro dot:patternIgnore("· " <|> ". ") s:convSeq : conv => `(conv| {%$dot ($s) 
 macro (name := failIfSuccess) tk:"fail_if_success " s:convSeq : conv =>
   `(conv| tactic' => fail_if_success%$tk conv' => $s)
 
-/-- `rw [rules]` applies the given list of rewrite rules to the target.
-See the `rw` tactic for more information. -/
-macro "rw" c:optConfig s:rwRuleSeq : conv => `(conv| rewrite $c:optConfig $s)
+@[inherit_doc rewrite]
+macro tk:"rw" c:optConfig s:rwRuleSeq d:(rwDischarge)? : conv => withRef tk `(conv| rewrite $c:optConfig $s $(d)?)
 
 /-- `erw [rules]` is a shorthand for `rw (transparency := .default) [rules]`.
 This does rewriting up to unfolding of regular definitions (by comparison to regular `rw`

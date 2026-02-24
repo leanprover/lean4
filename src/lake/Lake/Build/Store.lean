@@ -91,7 +91,7 @@ public def collectPackageFacetArray
 private def getTargetFacetJob? (facet : Name) [FamilyOut FacetOut facet α]
     (k : BuildKey) (v : Job (BuildData k)) : Option (Job α) :=
   match k with
-  | .packageFacet p f =>
+  | .targetFacet _ _ f =>
     if h : f = facet then
       have of_data := by unfold BuildData; simp [h]
       some (cast of_data v)

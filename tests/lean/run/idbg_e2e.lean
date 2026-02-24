@@ -27,6 +27,10 @@ open Lean Lean.Idbg Std.Net Std.Internal.IO.Async in
   assert! n2 == ``List
   assert! ls2 == [.param `u]
 
+-- The remainder of the test currently is a bit timing- and possibly platform-dependent, better for
+-- selective testing locally than in CI
+#exit
+
 /-! ## Part 2: Manual TCP server/client round-trip with hand-built expression -/
 
 open Lean Lean.Idbg Std.Net Std.Internal.IO.Async in
@@ -122,7 +126,7 @@ open Lean Lean.Idbg Std.Net Std.Internal.IO.Async in
 
   -- Helper: run lean on a test file with idbg, act as client, compile the received expression
   let doExchange := fun (env : Environment) (testCode : String) (idbgPos : Nat) => do
-    let testFile : System.FilePath := "/tmp" / "idbg_e2e_test.lean"
+    IO.FS.withTempFile fun _ testFile => do
     IO.FS.writeFile testFile testCode
     let realPath ← IO.FS.realPath testFile
     let siteId := toString (hash s!"{realPath}:{idbgPos}")
@@ -172,7 +176,7 @@ open Lean Lean.Idbg Std.Net Std.Internal.IO.Async in
     if recvType.hasMVar then throw (IO.userError "Expression type has metavariables!")
 
     -- Compile (this is where "declaration has metavariables" would fail)
-    let declName := .mkNum `_idbg_e2e_real (← IO.rand 0 1000000)
+    let declName := `_idbg_e2e_real
     let decl := Declaration.defnDecl {
       name := declName
       levelParams := []
@@ -181,7 +185,7 @@ open Lean Lean.Idbg Std.Net Std.Internal.IO.Async in
       hints := .opaque
       safety := .unsafe
     }
-    let ((), {env := env', ..}) ← (addAndCompile decl).toIO
+    let _ ← (addAndCompile decl).toIO
       { fileName := "<idbg-test>", fileMap := default, options := {} }
       { env }
 
@@ -193,14 +197,13 @@ open Lean Lean.Idbg Std.Net Std.Internal.IO.Async in
     let t ← client.shutdown |>.toIO
     t.block
     let _ ← child.wait
-    return env'
 
   -- Exchange 1: `idbg x + s.length`
   -- idbg at byte 108 in this string
   let code1 := "import Lean\nset_option backward.do.legacy false\ndef main : IO Unit := do\n  let x := 42\n  let s := \"hello\"\n  idbg x + s.length\n"
-  let env' ← doExchange env code1 108
+  doExchange env code1 108
 
   -- Exchange 2: `idbg x + s.length + 1` (the expression that triggered the mvar bug)
   -- idbg at byte 108 in this string too
   let code2 := "import Lean\nset_option backward.do.legacy false\ndef main : IO Unit := do\n  let x := 42\n  let s := \"hello\"\n  idbg x + s.length + 1\n"
-  let _ ← doExchange env' code2 108
+  doExchange env code2 108

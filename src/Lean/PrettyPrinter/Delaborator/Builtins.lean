@@ -115,12 +115,15 @@ def delabConst : Delab := do
       else
         pure c₀
     else
-      -- The identifier cannot be referred to. Add a macro scope to indicate this.
-      if let some (.num priv 0) := privatePrefix? c₀.eraseMacroScopes then
-        -- The private prefix before `0` is of the form `_private.modulename`, which works as a macro scope context
-        pure <| Lean.addMacroScope priv (Name.modifyBase c₀ privateToUserName) reservedMacroScope
-      else
-        pure <| Lean.addMacroScope `_internal c₀ reservedMacroScope
+      -- The identifier cannot be referred to. To indicate this, we add a delaboration-specific macro scope.
+      -- If the name is private, we also erase the private prefix and add it as an additional macro scope, ensuring
+      -- no collisions between names with different private prefixes.
+      let c := if let some (.num priv 0) := privatePrefix? c₀.eraseMacroScopes then
+          -- The private prefix before `0` is of the form `_private.modulename`, which works as a macro scope context
+          Lean.addMacroScope priv (Name.modifyBase c₀ privateToUserName) reservedMacroScope
+        else
+          c₀
+      pure <| Lean.addMacroScope `_delabConst c reservedMacroScope
 
   let stx ←
     if !ls.isEmpty && (← getPPOption getPPUniverses) then

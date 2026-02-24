@@ -681,6 +681,15 @@ where
         return some candidate
     return none
 
+/--
+Finds an efficient name that unambiguously resolves to the given name `n₀`, if possible.
+If not, it returns `n₀`. (See `unresolveNameGlobal?`, which returns `none` instead.)
+-/
+def unresolveNameGlobal (n₀ : Name) (fullNames := false) (allowHorizAliases := false)
+    (filter : Name → m Bool := fun _ => pure true) : m Name := do
+  let n? ← unresolveNameGlobal? n₀ (fullNames := fullNames) (allowHorizAliases := allowHorizAliases) (filter := filter)
+  return n?.getD n₀
+
 /-- Like `Lean.unresolveNameGlobal?`, but also ensures that the unresolved name does not conflict
 with the names of any local declarations. Returns `none` if the name cannot be referred to.
 For example, the name may be private and not accessible to the current module, or it may have macro scopes.-/

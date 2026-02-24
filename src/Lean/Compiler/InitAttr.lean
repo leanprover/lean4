@@ -164,8 +164,6 @@ private unsafe def runInitAttrs (env : Environment) (opts : Options) : IO Unit :
     -- **Note**: `ModuleIdx` is not an abbreviation, and we don't have instances for it.
     -- Thus, we use `(modIdx : Nat)`
     for mod in env.header.modules, (modIdx : Nat) in 0...* do
-      if mod.irPhases == .runtime && !Elab.inServer.get opts then
-        continue
       let initRuntime := Elab.inServer.get opts || mod.irPhases != .runtime
 
       -- any native Lean code reachable by the interpreter (i.e. from shared

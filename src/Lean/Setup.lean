@@ -39,6 +39,16 @@ instance : ToString Import := ⟨fun imp =>
   s!"{if imp.isExported then "public " else ""}{if imp.isMeta then "meta " else ""}import \
     {if imp.importAll then "all " else ""}{imp.module}"⟩
 
+/-- Phases for which some IR is available for execution. -/
+inductive IRPhases where
+  /-- Available for execution in the final native code. -/
+  | runtime
+  /-- Available for execution during elaboration. -/
+  | comptime
+  /-- Available during run time and compile time. -/
+  | all
+deriving Inhabited, BEq, Repr
+
 /-- Abstract structure of a module's header. -/
 structure ModuleHeader where
   /-- The module's direct imports (i.e., those listed in the header). -/

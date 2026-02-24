@@ -157,14 +157,14 @@ public def mkModuleInitializationStem (moduleName : Name) (pkg? : Option PkgId :
   let pre := pkg?.elim "" (s!"{·.mangle}_")
   moduleName.mangle pre
 
-public def mkModuleInitializationPrefix (isMeta? : Option Bool) : String :=
-  match isMeta? with
-  | some true  => "meta_"
-  | some false => "runtime_"
-  | none       => ""
+public def mkModuleInitializationPrefix (phases : IRPhases) : String :=
+  match phases with
+  | .comptime => "meta_"
+  | .runtime  => "runtime_"
+  | .all      => ""
 
-public def mkModuleInitializationFunctionName (moduleName : Name) (pkg? : Option PkgId := none) (isMeta? : Option Bool := none) : String :=
-  mkModuleInitializationPrefix isMeta? ++ "initialize_" ++ mkModuleInitializationStem moduleName pkg?
+public def mkModuleInitializationFunctionName (moduleName : Name) (pkg? : Option PkgId := none) (phases : IRPhases := .all) : String :=
+  mkModuleInitializationPrefix phases ++ "initialize_" ++ mkModuleInitializationStem moduleName pkg?
 
 public def mkPackageSymbolPrefix (pkg? : Option PkgId) : String :=
   pkg?.elim "l_" (s!"lp_{·.mangle}_")

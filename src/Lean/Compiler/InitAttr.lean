@@ -37,8 +37,8 @@ Run the initializer of the given module (without `builtin_initialize` commands).
 Return `false` if the initializer is not available as native code.
 Initializers do not have corresponding Lean definitions, so they cannot be interpreted in this case.
 -/
-@[inline] private unsafe def runModInit (mod : Name) (pkg? : Option String) (isMeta? : Option Bool) : IO Bool :=
-  runModInitCore (mkModuleInitializationFunctionName mod pkg? isMeta?)
+@[inline] private unsafe def runModInit (mod : Name) (pkg? : Option String) (phases : IRPhases) : IO Bool :=
+  runModInitCore (mkModuleInitializationFunctionName mod pkg? phases)
 
 /-- Run the initializer for `decl` and store its value for global access. Should only be used while importing. -/
 @[extern "lean_run_init"]
@@ -171,12 +171,12 @@ private unsafe def runInitAttrs (env : Environment) (opts : Options) : IO Unit :
       -- first be initialized
       let pkg? := env.getModulePackageByIdx? modIdx
       if env.header.isModule && /- TODO: remove after reboostrap -/ false then
-        let initializedRuntime ← pure initRuntime <&&> runModInit (isMeta? := some false) mod.module pkg?
-        let initializedComptime ← runModInit (isMeta? := some true) mod.module pkg?
+        let initializedRuntime ← pure initRuntime <&&> runModInit (phases := .runtime) mod.module pkg?
+        let initializedComptime ← runModInit (phases := .comptime) mod.module pkg?
         if initializedRuntime || initializedComptime then
           continue
       else
-        if (← runModInit (isMeta? := none) mod.module pkg?) then
+        if (← runModInit (phases := .all) mod.module pkg?) then
           continue
 
       -- As `[init]` decls can have global side effects, ensure we run them at most once,

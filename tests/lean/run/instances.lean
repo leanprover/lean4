@@ -7,6 +7,7 @@ instance : ToFormat InstanceEntry where
   format e := format e.val
 
 unsafe def tst1 : IO Unit := do
+  enableInitializersExecution
   let env ← importModules (loadExts := true) #[{module := `Lean}] {}
   let aux : MetaM Unit := do
     let insts ← getGlobalInstancesIndex

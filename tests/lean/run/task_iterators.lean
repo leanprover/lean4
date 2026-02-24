@@ -16,6 +16,8 @@ Tests for `Lean.Elab.Parallel`, verifying:
 
 open Std.Iterators
 
+#eval Lean.enableInitializersExecution
+
 /-- Create a test environment with the given imports. -/
 def mkCoreState (imports : Array Lean.Import) (loadExts : Bool := false) :
     IO (Lean.Core.Context × Lean.Core.State) := do

@@ -639,47 +639,44 @@ If `n₀` is an accessible name, then the result will be an accessible name.
 
 The name `n₀` may be private.
 -/
-def unresolveNameGlobal? (n₀ : Name) (fullNames := false) (allowHorizAliases := false)
-    (filter : Name → m Bool := fun _ => pure true) : m (Option Name) := do
-  if n₀.hasMacroScopes then return none
-  -- `n₁` is the name without any private prefix
-  let n₁ := privateToUserName n₀
-  -- `qn₁?` is a valid fully-qualified name, if one exists.
-  -- `ResolveName.resolveExact` allows `_root_` for private names accessible to the current module.
-  let qn₁? ← tryResolve n₁ <||> tryResolve (rootNamespace ++ n₁)
+def unresolveNameGlobal? (n₀ : Name)
+    (fullNames := false) (allowHorizAliases := false)
+    (filter : Name → m Bool := fun _ => pure true) :
+    m (Option Name) := OptionT.run do
+  let view := extractMacroScopes n₀
+  -- `n₁` is the name without any private prefix or macro scopes
+  let n₁ := privateToUserName view.name
   if fullNames then
-    return qn₁?
-  -- `initialNames` is an array of names to try taking suffixes of.
-  -- First are all the names that have `n₀` as an alias.
-  -- If horizontal aliases are not allowed, then any aliases that aren't from a parent namespace are filtered out.
-  let mut initialNames := (getRevAliases (← getEnv) n₀).toArray
+    -- Prefer `n₀` without `_root_`, but add it if necessary.
+    -- (Note: `ResolveName.resolveExact` allows `_root_` for private names accessible to the current module.)
+    return ← tryResolve view n₁ <|> tryResolve view (rootNamespace ++ n₁)
+  -- Now we consider aliases and the (potential) fully qualified name.
+  -- If horizontal aliases are not allowed, then any aliases that aren't from a parent namespace of `n₁` are skipped.
+  -- We try all suffixes for each option, taking the first that resolves to `n₀`, if any.
+  let mut aliases := (getRevAliases (← getEnv) n₀).toArray
   unless allowHorizAliases do
-    initialNames := initialNames.filter fun n => n.getPrefix.isPrefixOf n₁.getPrefix
-  -- After aliases is the fully-qualified name.
-  if let some qn₁ := qn₁? then
-    initialNames := initialNames.push qn₁
-  for initialName in initialNames do
-    if let some n ← unresolveNameCore initialName then
-      return n
-  return none
+    aliases := aliases.filter fun n => n.getPrefix.isPrefixOf n₁.getPrefix
+  aliases.firstM (unresolveNameCore none) -- do not apply macro scopes on `n₀` to aliases
+    <|> unresolveNameCore view (rootNamespace ++ n₁)
 where
   /-- Returns `n` if it resolves to `n₀` and isn't filtered out. -/
-  tryResolve (n : Name) : m (Option Name) := do
-    if let [(potentialMatch, _)] ← resolveGlobalName (enableLog := false) n then
-      if potentialMatch == n₀ then
-        if ← filter n then
-          return some n
-    return none
-  unresolveNameCore (n : Name) : m (Option Name) := do
-    if n.hasMacroScopes then return none
+  tryResolve (view? : Option MacroScopesView) (n : Name) : OptionT m Name := do
+    let n' := if let some view := view? then { view with name := n }.review else n
+    let [(potentialMatch, _)] ← resolveGlobalName (enableLog := false) n' | failure
+    guard <| potentialMatch == n₀
+    guard <| ← filter n
+    return n
+  unresolveNameCore (view? : Option MacroScopesView) (n : Name) : OptionT m Name := do
+    guard <| !n.hasMacroScopes
     let n := privateToUserName n
     let mut revComponents := n.componentsRev
     let mut candidate := Name.anonymous
     for cmpt in revComponents do
       candidate := Name.appendCore cmpt candidate
-      if (← tryResolve candidate).isSome then
-        return some candidate
-    return none
+      try
+        return ← tryResolve view? candidate
+      catch _ : Unit => pure ()
+    failure
 
 /--
 Finds an efficient name that unambiguously resolves to the given name `n₀`, if possible.

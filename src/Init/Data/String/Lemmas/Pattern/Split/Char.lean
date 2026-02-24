@@ -6,4 +6,11 @@ Author: Markus Himmel
 module
 
 prelude
-public import Init.Data.String.Lemmas.Pattern.Split.Basic
+public import Init.Data.String.Pattern.Char
+import Init.Data.String.Lemmas.Pattern.Basic
+
+namespace String.Slice
+
+theorem toStringList_split_char 
+
+end String.Slice

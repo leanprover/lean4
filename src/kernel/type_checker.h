@@ -83,6 +83,8 @@ private:
     lbool quick_is_def_eq(expr const & t, expr const & s, bool use_hash = false);
     lbool is_def_eq_offset(expr const & t, expr const & s);
     bool is_def_eq_args(expr t, expr s);
+    bool should_eta_recursors(expr const & t, expr const & s);
+    bool should_eta(expr const & t, expr const & s);
     bool try_eta_expansion_core(expr const & t, expr const & s);
     bool try_eta_expansion(expr const & t, expr const & s) {
         return try_eta_expansion_core(t, s) || try_eta_expansion_core(s, t);
@@ -95,6 +97,7 @@ private:
     lbool try_string_lit_expansion(expr const & t, expr const & s);
     bool is_def_eq_app(expr const & t, expr const & s);
     lbool is_def_eq_proof_irrel(expr const & t, expr const & s);
+    bool is_unit_like(expr const & t);
     bool is_def_eq_unit_like(expr const & t, expr const & s);
     bool failed_before(expr const & t, expr const & s) const;
     void cache_failure(expr const & t, expr const & s);

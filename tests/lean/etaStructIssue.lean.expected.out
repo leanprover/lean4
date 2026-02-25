@@ -1,6 +1,0 @@
-etaStructIssue.lean:20:2-20:7: error: Type mismatch
-  rfl
-has type
-  ?m = ?m
-but is expected to have type
-  mkNat e x₁ = mkNat e.mk x₂

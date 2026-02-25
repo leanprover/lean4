@@ -39,6 +39,8 @@ Benchmarks belonging to the old framework are not included in this description.
   Like `elab`, but expecting an exit code of 1 instead of 0.
 - `elab_bench`:
   Like `elab`, but measuring the elaboration performance.
+- `server`, `server_interactive`:
+  Test LSP server requests.
 - `lake_bench`:
   Benchmark directories that measure lake performance.
 - `misc`:
@@ -251,3 +253,35 @@ These bash variables (set via `<file>.init.sh`) are used by the run script:
 - `TEST_ARGS`:
   A bash array of arguments to the compiled (or interpreted) program.
   Check `TEST_BENCH` if you want to specify more intense parameters for benchmarks.
+
+## The `interactive` test pile
+
+These tests are designed to test LSP server requests at a given position in the input file.
+Each `.lean` file contains comments that indicate how to simulate a client request at a position,
+using a `--^` point to the line position.
+
+Example:
+
+```lean,ignore
+open Foo in
+theorem tst2 (h : a ≤ b) : a + 2 ≤ b + 2 :=
+Bla.
+  --^ completion
+```
+
+In this example, the test driver will simulate an auto-completion request at `Bla.`.
+The expected output is stored in the corresponding `.out.expected` file
+in the json format that is part of the
+[Language Server Protocol](https://microsoft.github.io/language-server-protocol/).
+
+This can also be used to test the following additional requests:
+
+```
+--^ textDocument/hover
+--^ textDocument/typeDefinition
+--^ textDocument/definition
+--^ $/lean/plainGoal
+--^ $/lean/plainTermGoal
+--^ insert: ...
+--^ collectDiagnostics
+```

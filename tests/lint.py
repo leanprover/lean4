@@ -28,6 +28,7 @@ for dir in (
     "tests/bench/cbv",
     "tests/bench/inundation",
     "tests/compiler",
+    "tests/lean/interactive",
     "tests/lean/run",
     "tests/lean/server",
     "tests/lean/trust0",
@@ -58,6 +59,7 @@ for dir in (
     "tests/misc",
     "tests/misc_bench",
     "tests/server",
+    "tests/server_interactive",
 ):
     for glob in (
         f"{dir}/*.no_interpreter",

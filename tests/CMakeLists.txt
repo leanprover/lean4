@@ -232,20 +232,6 @@ foreach(T ${LEANPKGTESTS})
   endif()
 endforeach(T)
 
-# LEAN INTERACTIVE SERVER TESTS
-file(GLOB LEANTESTS "${LEAN_SOURCE_DIR}/../tests/lean/interactive/*.lean")
-foreach(T ${LEANTESTS})
-  if(NOT T MATCHES "\\.#" AND NOT T MATCHES "run.lean")
-    get_filename_component(T_NAME ${T} NAME)
-    cmake_path(RELATIVE_PATH T BASE_DIRECTORY ${LEAN_SOURCE_DIR}/.. OUTPUT_VARIABLE T_PATH)
-    add_test(
-      NAME "${T_PATH}"
-      WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/interactive"
-      COMMAND bash -c "${TEST_VARS} ./test_single.sh ${T_NAME}"
-    )
-  endif()
-endforeach(T)
-
 # LEAN INTERACTIVE PROJECT SERVER TESTS
 file(GLOB_RECURSE LEANTESTS "${LEAN_SOURCE_DIR}/../tests/lean/interactive/projects/*Test.lean")
 foreach(T ${LEANTESTS})
@@ -317,6 +303,7 @@ add_test_pile(elab_fail *.lean)
 add_test_pile(misc *.sh)
 add_test_pile(misc_bench *.sh BENCH PART2)
 add_test_pile(server *.lean)
+add_test_pile(server_interactive *.lean)
 
 add_test_dir(../doc/examples/compiler)
 add_test_dir(bench/build BENCH PART1)

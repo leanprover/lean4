@@ -19,9 +19,24 @@ import Lean.Meta.AppBuilder
 import Init.Sym.Lemmas
 import Lean.Meta.Tactic.Cbv.TheoremsLookup
 import Lean.Meta.Tactic.Cbv.Opaque
+
+/-!
+# Control Flow Handling for Cbv
+
+Cbv-specific simprocs for `ite`, `dite`, `cond`, `match`, and `Decidable.rec`.
+
+The standard `Sym.Simp` control flow simprocs (`simpIte`, `simpDIte`) give up
+when the condition does not reduce to `True` or `False` directly. The Cbv variants
+(`simpIteCbv`, `simpDIteCbv`) go further: they evaluate `Decidable.decide` on the
+condition and use `eq_true_of_decide` / `eq_false_of_decide` to take the
+corresponding branch.
+-/
+
 namespace Lean.Meta.Sym.Simp
 open Internal
 
+/-- Like `simpIte` but also evaluates `Decidable.decide` when the condition does not
+reduce to `True`/`False` directly. -/
 public def simpIteCbv : Simproc := fun e => do
   let numArgs := e.getAppNumArgs
   if numArgs < 5 then return .rfl (done := true)
@@ -74,6 +89,8 @@ public def simpIteCbv : Simproc := fun e => do
         let h' := mkApp3 (e.replaceFn ``Sym.ite_cond_congr) c' inst' h
         return .step e' h'
 
+/-- Like `simpDIte` but also evaluates `Decidable.decide` when the condition does not
+reduce to `True`/`False` directly. -/
 public def simpDIteCbv : Simproc := fun e => do
   let numArgs := e.getAppNumArgs
   if numArgs < 5 then return .rfl (done := true)
@@ -193,9 +210,8 @@ def tryMatcher : Simproc := fun e => do
       <|> reduceRecMatcher
         <| e
 
-/-
-  Precondition: `e` is an application
--/
+/-- Dispatch control flow constructs to their specialized simprocs.
+Precondition: `e` is an application. -/
 public def simpControlCbv : Simproc := fun e => do
   let .const declName _ := e.getAppFn | return .rfl
   if declName == ``ite then

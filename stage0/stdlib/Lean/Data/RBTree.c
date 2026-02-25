@@ -69,6 +69,7 @@ LEAN_EXPORT lean_object* l_Lean_RBTree_toArray___redArg___lam__0(lean_object*, l
 static const lean_closure_object l_Lean_RBTree_toArray___redArg___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lean_RBTree_toArray___redArg___lam__0, .m_arity = 3, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_Lean_RBTree_toArray___redArg___closed__0 = (const lean_object*)&l_Lean_RBTree_toArray___redArg___closed__0_value;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
+static lean_once_cell_t l_Lean_RBTree_toArray___redArg___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_RBTree_toArray___redArg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_RBTree_toArray___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBTree_toArray(lean_object*, lean_object*, lean_object*);
@@ -120,7 +121,7 @@ LEAN_EXPORT lean_object* l_Lean_RBNode_insert___at___00Lean_RBTree_fromList_spec
 LEAN_EXPORT lean_object* l_List_foldl___at___00Lean_RBTree_fromList_spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_ins___at___00Lean_RBNode_insert___at___00Lean_RBTree_fromList_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
-lean_object* lean_array_uget(lean_object*, size_t);
+lean_object* lean_array_uget_borrowed(lean_object*, size_t);
 size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_RBTree_fromArray_spec__0___redArg(lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_RBTree_fromArray_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -637,7 +638,7 @@ x_4 = lean_array_push(x_1, x_2);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_RBTree_toArray___redArg___closed__1() {
+static lean_object* _init_l_Lean_RBTree_toArray___redArg___closed__1(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -651,7 +652,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = ((lean_object*)(l_Lean_RBTree_toArray___redArg___closed__0));
-x_3 = l_Lean_RBTree_toArray___redArg___closed__1;
+x_3 = lean_obj_once(&l_Lean_RBTree_toArray___redArg___closed__1, &l_Lean_RBTree_toArray___redArg___closed__1_once, _init_l_Lean_RBTree_toArray___redArg___closed__1);
 x_4 = l_Lean_RBNode_fold___redArg(x_2, x_3, x_1);
 return x_4;
 }
@@ -2014,8 +2015,9 @@ x_6 = lean_usize_dec_eq(x_3, x_4);
 if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; size_t x_10; size_t x_11; 
-x_7 = lean_array_uget(x_2, x_3);
+x_7 = lean_array_uget_borrowed(x_2, x_3);
 x_8 = lean_box(0);
+lean_inc(x_7);
 lean_inc_ref(x_1);
 x_9 = l_Lean_RBNode_insert___at___00Lean_RBTree_fromList_spec__0___redArg(x_1, x_5, x_7, x_8);
 x_10 = 1;
@@ -2833,8 +2835,6 @@ _G_initialized = true;
 res = initialize_Lean_Data_RBMap(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_RBTree_toArray___redArg___closed__1 = _init_l_Lean_RBTree_toArray___redArg___closed__1();
-lean_mark_persistent(l_Lean_RBTree_toArray___redArg___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

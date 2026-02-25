@@ -1339,10 +1339,10 @@ transitive and contains `r`. `TransGen r a z` if and only if there exists a sequ
 -/
 inductive Relation.TransGen {α : Sort u} (r : α → α → Prop) : α → α → Prop
   /-- If `r a b`, then `TransGen r a b`. This is the base case of the transitive closure. -/
-  | single {a b} : r a b → TransGen r a b
+  | single {a b : α} : r a b → TransGen r a b
   /-- If `TransGen r a b` and `r b c`, then `TransGen r a c`.
   This is the inductive case of the transitive closure. -/
-  | tail {a b c} : TransGen r a b → r b c → TransGen r a c
+  | tail {a b c : α} : TransGen r a b → r b c → TransGen r a c
 
 /-- The transitive closure is transitive. -/
 theorem Relation.TransGen.trans {α : Sort u} {r : α → α → Prop} {a b c} :

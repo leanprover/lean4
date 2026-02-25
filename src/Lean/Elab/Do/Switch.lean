@@ -46,4 +46,4 @@ def elabDo : TermElab := fun stx expectedType? => do
   if backward.do.legacy.get (← getOptions) then
     Term.elabLiftMethod stx ty
   else
-    throwError "Not implemented yet"
+    Elab.Do.elabNestedAction stx ty

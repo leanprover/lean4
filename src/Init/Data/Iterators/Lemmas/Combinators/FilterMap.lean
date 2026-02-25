@@ -765,6 +765,7 @@ theorem Iter.anyM_eq_anyM_mapM_pure {α β : Type} {m : Type → Type w'} [Itera
   rw [forIn_eq_match_step, IterM.forIn_eq_match_step, bind_assoc, step_mapM]
   cases it.step using PlausibleIterStep.casesOn
   · rename_i out _
+    simp only
     simp only [bind_assoc, pure_bind, map_eq_pure_bind, Shrink.inflate_deflate,
       liftM, monadLift]
     have {x : m Bool} : x = MonadAttach.attach (pure out) >>= (fun _ => x) := by
@@ -777,7 +778,7 @@ theorem Iter.anyM_eq_anyM_mapM_pure {α β : Type} {m : Type → Type w'} [Itera
     apply bind_congr; intro px
     split
     · simp
-    · simp [ihy ‹_›]
+    · simp [ihy ‹_›, monadLift]
   · simp [ihs ‹_›]
   · simp
 

@@ -158,12 +158,22 @@ def hasEarlyReturn (vcs : Array MVarId) (inv : MVarId) (letMutsTy : Expr) : Meta
 
   return (ρ, σ)
 
+def collectFVarsToRevert (e : Expr)(dontRevert : FVarId → Bool) : MetaM (Array Expr) := do
+  let mut xs := (collectFVars {} e).fvarIds |>.filter (not ∘ dontRevert) |>.map mkFVar
+  repeat do
+    let new ← collectForwardDeps xs false
+    let new := new.filter (not <| dontRevert ·.fvarId!)
+    if new.size == xs.size then xs := new; break
+    let types ← new.mapM inferType
+    let forbidden := .ofArray new
+    let s := (types.foldl collectFVars {visitedExpr := forbidden}).fvarIds |>.filter (not ∘ dontRevert)
+    xs := new ++ s.map mkFVar
+    if s.isEmpty then break -- no need for another iteration; collectForwardDeps is idempotent
+  return xs
+
 /-- Largely lifted from `Lean.MetavarContext.MkBinding.mkAuxMVarType`. -/
 def revertFVarsInTypeExcept (e : Expr) (dontRevert : FVarId → Bool) : MetaM Expr := do
-  let xs := (collectFVars {} e).fvarIds
-    |>.filter (not ∘ dontRevert)
-    |>.map mkFVar
-  let xs ← collectForwardDeps xs false
+  let xs ← collectFVarsToRevert e dontRevert
   let lctx ← getLCtx
   let_expr c@SPred _σs := (← inferType e) | return e
   let lvl := c.constLevels![0]!

@@ -426,9 +426,7 @@ def elabSetLibrarySuggestions : CommandElab
     -- Generate a fresh name for the selector definition
     let name ← liftMacroM <| Macro.addMacroScope `_librarySuggestions
     -- Elaborate the definition with the library_suggestions attribute
-    -- Note: @[expose] public, to ensure visibility across module boundaries
-    -- Use fully qualified `Lean.LibrarySuggestions.Selector` for module compatibility
-    elabCommand (← `(@[expose, library_suggestions] public def $(mkIdent name) : Lean.LibrarySuggestions.Selector := $selector))
+    elabCommand (← `(@[library_suggestions] public meta def $(mkIdent name) : Selector := $selector))
   | _ => throwUnsupportedSyntax
 
 open Lean.Elab.Tactic in

@@ -14,14 +14,16 @@
 extern "C" {
 #endif
 uint8_t lean_usize_dec_lt(size_t, size_t);
-lean_object* lean_array_uget(lean_object*, size_t);
+lean_object* lean_array_uget_borrowed(lean_object*, size_t);
 lean_object* l_Lean_Meta_Sym_Simp_mkTheoremFromDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Sym_Simp_Theorems_insert(lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Meta_Sym_mkSimprocFor_spec__0(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Meta_Sym_mkSimprocFor_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
+static lean_once_cell_t l_Lean_Meta_Sym_mkSimprocFor___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Meta_Sym_mkSimprocFor___closed__0;
+static lean_once_cell_t l_Lean_Meta_Sym_mkSimprocFor___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Meta_Sym_mkSimprocFor___closed__1;
 size_t lean_array_size(lean_object*);
 lean_object* l_Lean_Meta_Sym_Simp_Theorems_rewrite___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -67,11 +69,12 @@ return x_11;
 else
 {
 lean_object* x_12; lean_object* x_13; 
-x_12 = lean_array_uget(x_1, x_3);
+x_12 = lean_array_uget_borrowed(x_1, x_3);
 lean_inc(x_8);
 lean_inc_ref(x_7);
 lean_inc(x_6);
 lean_inc_ref(x_5);
+lean_inc(x_12);
 x_13 = l_Lean_Meta_Sym_Simp_mkTheoremFromDecl(x_12, x_5, x_6, x_7, x_8);
 if (lean_obj_tag(x_13) == 0)
 {
@@ -126,7 +129,7 @@ lean_dec_ref(x_1);
 return x_12;
 }
 }
-static lean_object* _init_l_Lean_Meta_Sym_mkSimprocFor___closed__0() {
+static lean_object* _init_l_Lean_Meta_Sym_mkSimprocFor___closed__0(void) {
 _start:
 {
 lean_object* x_1; 
@@ -134,11 +137,11 @@ x_1 = l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_box(0), lean_box(0));
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Meta_Sym_mkSimprocFor___closed__1() {
+static lean_object* _init_l_Lean_Meta_Sym_mkSimprocFor___closed__1(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_Sym_mkSimprocFor___closed__0;
+x_1 = lean_obj_once(&l_Lean_Meta_Sym_mkSimprocFor___closed__0, &l_Lean_Meta_Sym_mkSimprocFor___closed__0_once, _init_l_Lean_Meta_Sym_mkSimprocFor___closed__0);
 x_2 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -148,7 +151,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Sym_mkSimprocFor(lean_object* x_1, lean_obj
 _start:
 {
 lean_object* x_8; size_t x_9; size_t x_10; lean_object* x_11; 
-x_8 = l_Lean_Meta_Sym_mkSimprocFor___closed__1;
+x_8 = lean_obj_once(&l_Lean_Meta_Sym_mkSimprocFor___closed__1, &l_Lean_Meta_Sym_mkSimprocFor___closed__1_once, _init_l_Lean_Meta_Sym_mkSimprocFor___closed__1);
 x_9 = lean_array_size(x_1);
 x_10 = 0;
 x_11 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Meta_Sym_mkSimprocFor_spec__0(x_1, x_9, x_10, x_8, x_3, x_4, x_5, x_6);
@@ -476,10 +479,6 @@ lean_dec_ref(res);
 res = initialize_Lean_Meta_Sym_Util(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Meta_Sym_mkSimprocFor___closed__0 = _init_l_Lean_Meta_Sym_mkSimprocFor___closed__0();
-lean_mark_persistent(l_Lean_Meta_Sym_mkSimprocFor___closed__0);
-l_Lean_Meta_Sym_mkSimprocFor___closed__1 = _init_l_Lean_Meta_Sym_mkSimprocFor___closed__1();
-lean_mark_persistent(l_Lean_Meta_Sym_mkSimprocFor___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

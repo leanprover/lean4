@@ -61,6 +61,7 @@ LEAN_EXPORT lean_object* l_StateRefT_x27_instMonadExceptOf___redArg___lam__2(lea
 LEAN_EXPORT lean_object* l_StateRefT_x27_instMonadExceptOf___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_StateRefT_x27_instMonadExceptOf(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_instMonadControlReaderT(lean_object*, lean_object*);
+static lean_once_cell_t l_instMonadControlStateRefT_x27___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_instMonadControlStateRefT_x27___closed__0;
 LEAN_EXPORT lean_object* l_instMonadControlStateRefT_x27(lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_tryFinally___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -538,7 +539,7 @@ lean_ctor_set(x_8, 1, x_7);
 return x_8;
 }
 }
-static lean_object* _init_l_instMonadControlStateRefT_x27___closed__0() {
+static lean_object* _init_l_instMonadControlStateRefT_x27___closed__0(void) {
 _start:
 {
 lean_object* x_1; 
@@ -550,7 +551,7 @@ LEAN_EXPORT lean_object* l_instMonadControlStateRefT_x27(lean_object* x_1, lean_
 _start:
 {
 lean_object* x_4; 
-x_4 = l_instMonadControlStateRefT_x27___closed__0;
+x_4 = lean_obj_once(&l_instMonadControlStateRefT_x27___closed__0, &l_instMonadControlStateRefT_x27___closed__0_once, _init_l_instMonadControlStateRefT_x27___closed__0);
 return x_4;
 }
 }
@@ -585,8 +586,6 @@ lean_dec_ref(res);
 res = initialize_Init_Control_Reader(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_instMonadControlStateRefT_x27___closed__0 = _init_l_instMonadControlStateRefT_x27___closed__0();
-lean_mark_persistent(l_instMonadControlStateRefT_x27___closed__0);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

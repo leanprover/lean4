@@ -20,12 +20,15 @@ static const lean_object* l_Lean_Meta_Grind_Arith_checkExp___closed__0 = (const 
 static const lean_string_object l_Lean_Meta_Grind_Arith_checkExp___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 10, .m_capacity = 10, .m_length = 9, .m_data = "exponent "};
 static const lean_object* l_Lean_Meta_Grind_Arith_checkExp___closed__1 = (const lean_object*)&l_Lean_Meta_Grind_Arith_checkExp___closed__1_value;
 lean_object* l_Lean_stringToMessageData(lean_object*);
+static lean_once_cell_t l_Lean_Meta_Grind_Arith_checkExp___closed__2_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Meta_Grind_Arith_checkExp___closed__2;
 static const lean_string_object l_Lean_Meta_Grind_Arith_checkExp___closed__3_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 48, .m_capacity = 48, .m_length = 47, .m_data = " exceeds threshold for exponentiation `(exp := "};
 static const lean_object* l_Lean_Meta_Grind_Arith_checkExp___closed__3 = (const lean_object*)&l_Lean_Meta_Grind_Arith_checkExp___closed__3_value;
+static lean_once_cell_t l_Lean_Meta_Grind_Arith_checkExp___closed__4_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Meta_Grind_Arith_checkExp___closed__4;
 static const lean_string_object l_Lean_Meta_Grind_Arith_checkExp___closed__5_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 3, .m_capacity = 3, .m_length = 2, .m_data = ")`"};
 static const lean_object* l_Lean_Meta_Grind_Arith_checkExp___closed__5 = (const lean_object*)&l_Lean_Meta_Grind_Arith_checkExp___closed__5_value;
+static lean_once_cell_t l_Lean_Meta_Grind_Arith_checkExp___closed__6_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Meta_Grind_Arith_checkExp___closed__6;
 lean_object* l_Lean_Meta_Grind_getConfig___redArg(lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
@@ -207,7 +210,7 @@ lean_dec(x_2);
 return x_12;
 }
 }
-static lean_object* _init_l_Lean_Meta_Grind_Arith_checkExp___closed__2() {
+static lean_object* _init_l_Lean_Meta_Grind_Arith_checkExp___closed__2(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -216,7 +219,7 @@ x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Meta_Grind_Arith_checkExp___closed__4() {
+static lean_object* _init_l_Lean_Meta_Grind_Arith_checkExp___closed__4(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -225,7 +228,7 @@ x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Meta_Grind_Arith_checkExp___closed__6() {
+static lean_object* _init_l_Lean_Meta_Grind_Arith_checkExp___closed__6(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -312,7 +315,7 @@ lean_dec_ref(x_33);
 x_35 = lean_ctor_get(x_34, 7);
 lean_inc(x_35);
 lean_dec(x_34);
-x_36 = l_Lean_Meta_Grind_Arith_checkExp___closed__2;
+x_36 = lean_obj_once(&l_Lean_Meta_Grind_Arith_checkExp___closed__2, &l_Lean_Meta_Grind_Arith_checkExp___closed__2_once, _init_l_Lean_Meta_Grind_Arith_checkExp___closed__2);
 x_37 = l_Nat_reprFast(x_1);
 lean_ctor_set_tag(x_29, 3);
 lean_ctor_set(x_29, 0, x_37);
@@ -320,7 +323,7 @@ x_38 = l_Lean_MessageData_ofFormat(x_29);
 x_39 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_39, 0, x_36);
 lean_ctor_set(x_39, 1, x_38);
-x_40 = l_Lean_Meta_Grind_Arith_checkExp___closed__4;
+x_40 = lean_obj_once(&l_Lean_Meta_Grind_Arith_checkExp___closed__4, &l_Lean_Meta_Grind_Arith_checkExp___closed__4_once, _init_l_Lean_Meta_Grind_Arith_checkExp___closed__4);
 x_41 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_41, 0, x_39);
 lean_ctor_set(x_41, 1, x_40);
@@ -331,7 +334,7 @@ x_43 = l_Lean_MessageData_ofFormat(x_27);
 x_44 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_44, 0, x_41);
 lean_ctor_set(x_44, 1, x_43);
-x_45 = l_Lean_Meta_Grind_Arith_checkExp___closed__6;
+x_45 = lean_obj_once(&l_Lean_Meta_Grind_Arith_checkExp___closed__6, &l_Lean_Meta_Grind_Arith_checkExp___closed__6_once, _init_l_Lean_Meta_Grind_Arith_checkExp___closed__6);
 x_46 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_46, 0, x_44);
 lean_ctor_set(x_46, 1, x_45);
@@ -414,7 +417,7 @@ lean_dec_ref(x_56);
 x_58 = lean_ctor_get(x_57, 7);
 lean_inc(x_58);
 lean_dec(x_57);
-x_59 = l_Lean_Meta_Grind_Arith_checkExp___closed__2;
+x_59 = lean_obj_once(&l_Lean_Meta_Grind_Arith_checkExp___closed__2, &l_Lean_Meta_Grind_Arith_checkExp___closed__2_once, _init_l_Lean_Meta_Grind_Arith_checkExp___closed__2);
 x_60 = l_Nat_reprFast(x_1);
 x_61 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_61, 0, x_60);
@@ -422,7 +425,7 @@ x_62 = l_Lean_MessageData_ofFormat(x_61);
 x_63 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_63, 0, x_59);
 lean_ctor_set(x_63, 1, x_62);
-x_64 = l_Lean_Meta_Grind_Arith_checkExp___closed__4;
+x_64 = lean_obj_once(&l_Lean_Meta_Grind_Arith_checkExp___closed__4, &l_Lean_Meta_Grind_Arith_checkExp___closed__4_once, _init_l_Lean_Meta_Grind_Arith_checkExp___closed__4);
 x_65 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_65, 0, x_63);
 lean_ctor_set(x_65, 1, x_64);
@@ -433,7 +436,7 @@ x_67 = l_Lean_MessageData_ofFormat(x_27);
 x_68 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_68, 0, x_65);
 lean_ctor_set(x_68, 1, x_67);
-x_69 = l_Lean_Meta_Grind_Arith_checkExp___closed__6;
+x_69 = lean_obj_once(&l_Lean_Meta_Grind_Arith_checkExp___closed__6, &l_Lean_Meta_Grind_Arith_checkExp___closed__6_once, _init_l_Lean_Meta_Grind_Arith_checkExp___closed__6);
 x_70 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_70, 0, x_68);
 lean_ctor_set(x_70, 1, x_69);
@@ -527,7 +530,7 @@ lean_dec_ref(x_82);
 x_84 = lean_ctor_get(x_83, 7);
 lean_inc(x_84);
 lean_dec(x_83);
-x_85 = l_Lean_Meta_Grind_Arith_checkExp___closed__2;
+x_85 = lean_obj_once(&l_Lean_Meta_Grind_Arith_checkExp___closed__2, &l_Lean_Meta_Grind_Arith_checkExp___closed__2_once, _init_l_Lean_Meta_Grind_Arith_checkExp___closed__2);
 x_86 = l_Nat_reprFast(x_1);
 if (lean_is_scalar(x_80)) {
  x_87 = lean_alloc_ctor(3, 1, 0);
@@ -540,7 +543,7 @@ x_88 = l_Lean_MessageData_ofFormat(x_87);
 x_89 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_89, 0, x_85);
 lean_ctor_set(x_89, 1, x_88);
-x_90 = l_Lean_Meta_Grind_Arith_checkExp___closed__4;
+x_90 = lean_obj_once(&l_Lean_Meta_Grind_Arith_checkExp___closed__4, &l_Lean_Meta_Grind_Arith_checkExp___closed__4_once, _init_l_Lean_Meta_Grind_Arith_checkExp___closed__4);
 x_91 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_91, 0, x_89);
 lean_ctor_set(x_91, 1, x_90);
@@ -551,7 +554,7 @@ x_94 = l_Lean_MessageData_ofFormat(x_93);
 x_95 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_95, 0, x_91);
 lean_ctor_set(x_95, 1, x_94);
-x_96 = l_Lean_Meta_Grind_Arith_checkExp___closed__6;
+x_96 = lean_obj_once(&l_Lean_Meta_Grind_Arith_checkExp___closed__6, &l_Lean_Meta_Grind_Arith_checkExp___closed__6_once, _init_l_Lean_Meta_Grind_Arith_checkExp___closed__6);
 x_97 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_97, 0, x_95);
 lean_ctor_set(x_97, 1, x_96);
@@ -705,7 +708,7 @@ lean_dec_ref(x_122);
 x_124 = lean_ctor_get(x_123, 7);
 lean_inc(x_124);
 lean_dec(x_123);
-x_125 = l_Lean_Meta_Grind_Arith_checkExp___closed__2;
+x_125 = lean_obj_once(&l_Lean_Meta_Grind_Arith_checkExp___closed__2, &l_Lean_Meta_Grind_Arith_checkExp___closed__2_once, _init_l_Lean_Meta_Grind_Arith_checkExp___closed__2);
 x_126 = l_Nat_reprFast(x_1);
 if (lean_is_scalar(x_120)) {
  x_127 = lean_alloc_ctor(3, 1, 0);
@@ -718,7 +721,7 @@ x_128 = l_Lean_MessageData_ofFormat(x_127);
 x_129 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_129, 0, x_125);
 lean_ctor_set(x_129, 1, x_128);
-x_130 = l_Lean_Meta_Grind_Arith_checkExp___closed__4;
+x_130 = lean_obj_once(&l_Lean_Meta_Grind_Arith_checkExp___closed__4, &l_Lean_Meta_Grind_Arith_checkExp___closed__4_once, _init_l_Lean_Meta_Grind_Arith_checkExp___closed__4);
 x_131 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_131, 0, x_129);
 lean_ctor_set(x_131, 1, x_130);
@@ -734,7 +737,7 @@ x_134 = l_Lean_MessageData_ofFormat(x_133);
 x_135 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_135, 0, x_131);
 lean_ctor_set(x_135, 1, x_134);
-x_136 = l_Lean_Meta_Grind_Arith_checkExp___closed__6;
+x_136 = lean_obj_once(&l_Lean_Meta_Grind_Arith_checkExp___closed__6, &l_Lean_Meta_Grind_Arith_checkExp___closed__6_once, _init_l_Lean_Meta_Grind_Arith_checkExp___closed__6);
 x_137 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_137, 0, x_135);
 lean_ctor_set(x_137, 1, x_136);
@@ -7792,12 +7795,6 @@ lean_dec_ref(res);
 res = initialize_Lean_Meta_NatInstTesters(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Meta_Grind_Arith_checkExp___closed__2 = _init_l_Lean_Meta_Grind_Arith_checkExp___closed__2();
-lean_mark_persistent(l_Lean_Meta_Grind_Arith_checkExp___closed__2);
-l_Lean_Meta_Grind_Arith_checkExp___closed__4 = _init_l_Lean_Meta_Grind_Arith_checkExp___closed__4();
-lean_mark_persistent(l_Lean_Meta_Grind_Arith_checkExp___closed__4);
-l_Lean_Meta_Grind_Arith_checkExp___closed__6 = _init_l_Lean_Meta_Grind_Arith_checkExp___closed__6();
-lean_mark_persistent(l_Lean_Meta_Grind_Arith_checkExp___closed__6);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

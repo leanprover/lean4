@@ -31,7 +31,7 @@ trace: [Compiler.saveMono] size: 1
       let _x.6 := 1;
       let _x.7 := Array.mkEmpty ◾ _x.6;
       let _x.8 := Array.push ◾ _x.7 _x.5;
-      let _f.9 := _eval._lam_0.2 _x.8;
+      let _f.9 := _eval._lam_0 _x.8;
       let _x.10 := Lean.Elab.Command.liftTermElabM._redArg _f.9 a.1 a.2 a.3;
       return _x.10
 -/

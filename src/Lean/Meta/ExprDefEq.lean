@@ -1359,9 +1359,6 @@ private def isDefEqLeftRight (fn : Name) (t s : Expr) : MetaM LBool := do
 private def isNonTrivialRegular (info : DefinitionVal) : MetaM Bool := do
   match info.hints with
   | .regular d =>
-    if (← isProjectionFn info.name) then
-      -- All projections are considered trivial
-      return false
     if d > 2 then
       -- If definition depth is greater than 2, we claim it is not a trivial definition
       return true
@@ -1369,7 +1366,41 @@ private def isNonTrivialRegular (info : DefinitionVal) : MetaM Bool := do
     -- Where simple is a bvar/lit/sort/proj or a single application where all arguments are bvar/lit/sort/proj.
     let val := consumeDefnPreamble info.value
     return !isSimple val (allowApp := true)
-  | _ => return false
+  | .abbrev =>
+    /-
+    **Note**: All projection functions receive `.abbrev` kernel hints (not `.regular`), regardless of their
+    reducibility status. Structure projections default to `.reducible` status, while
+    class projections default to `.semireducible` status. Recall kernel hints and reducibility hints are
+    two different concepts.
+
+    Projections have `.abbrev` hints and are generally considered trivial. But there is an exception
+    when the projection is a class field and `backward.whnf.reducibleClassField` is `true`.
+    In this scenario, `unfoldDefault` reduces past the `.proj` form at `.instances` transparency.
+    This means the unfolded result may lose the instance structure that `isDefEqProj` needs to bump
+    transparency. As an example, consider the following declarations
+    ```
+    @[implicit_reducible] def a := 0
+    @[implicit_reducible] def b := 0
+    class X where x : Nat
+    instance instX (n : Nat) : X where x := n
+    attribute [reducible] X.x
+    ```
+    Then, assume `isDefEqDelta` sees `X.x (instX a) =?= X.x (instX b)` and the transparency setting
+    is `.reducible`. If we assume this kind of projection is trivial, `tryHeuristic` skips the
+    argument comparison, and `unfoldDefault` reduces `X.x (instX a)` all the way to `a`
+    (via projection reduction at `.instances`). The resulting `a =?= b` comparison fails at
+    `.reducible` because both are `@[implicit_reducible]`.
+    Thus, we classify this kind of projection as nontrivial, and `isDefEqArgs`
+    compares `instX a =?= instX b` with the correct transparency bump for
+    instance-implicit parameters, which succeeds. -/
+    if let some projInfo ← getProjectionFnInfo? info.name then
+      /- Only classify class projections as nontrivial at `.reducible` transparency,
+         since `unfoldDefault`'s extra `.instances` reduction (the reason for this classification)
+         only applies there. At higher transparency levels, the normal unfolding behavior is
+         sufficient, and running the heuristic adds overhead without benefit. -/
+      return projInfo.fromClass && backward.whnf.reducibleClassField.get (← getOptions) && (← getTransparency) == .reducible
+    return false
+  | .opaque => return false
 where
   consumeDefnPreamble (e : Expr) : Expr :=
     match e with
@@ -1396,7 +1427,7 @@ private def tryHeuristic (t s : Expr) : MetaM Bool := do
   let .defnInfo info ← getConstInfo tFn.constName! | return false
   /-
   We apply the heuristic in the following cases:
-  1- `f` is a non-trivial regular definition (see predicate `isNonTrivialRegular`)
+  1- `f` is a non-trivial definition (see predicate `isNonTrivialRegular`)
   2- `f` is `match` application.
   3- `t` or `s` contain meta-variables.
 
@@ -1404,7 +1435,7 @@ private def tryHeuristic (t s : Expr) : MetaM Bool := do
   `S.proj ?x =?= S.proj t` without performing delta-reduction.
 
   When the conditions 1&2&3 do not hold, we are assuming the heuristic implemented by this method is seldom effective
-  when `f` is not simple, `t` and `s` do not have metavariables, are not structurally equal.
+  when `f` is simple, `t` and `s` do not have metavariables, and are not structurally equal.
 
   Recall that auxiliary `match` definitions are marked as abbreviations, but we must use the heuristic on
   them since they will not be unfolded when smartUnfolding is turned on. The abbreviation annotation in this
@@ -2020,13 +2051,23 @@ where
 
 private def isDefEqProj : Expr → Expr → MetaM Bool
   | .proj m i t, .proj n j s => do
+    /- When `m` is a class, the projection's parameter is instance-implicit.
+       We bump the transparency to `.instances` (via `withInstanceConfig`) so that
+       instance definitions (which are `[implicit_reducible]`) can be unfolded when comparing
+       the struct arguments. Without this bump, comparing `.proj` nodes produced by unfolding
+       a `[reducible]` class field fails because the struct arguments (`instX a` vs `instX b`)
+       are stuck at `.reducible`. This mirrors the transparency bump that `isDefEqArgs` applies
+       for instance-implicit parameters. -/
+    let fromClass := isClass (← getEnv) m
+    let isDefEqStructArgs (x : MetaM Bool) : MetaM Bool :=
+      if fromClass then withInstanceConfig x else x
     if (← read).inTypeClassResolution then
       -- See comment at `inTypeClassResolution`
-      pure (i == j && m == n) <&&> Meta.isExprDefEqAux t s
+      pure (i == j && m == n) <&&> isDefEqStructArgs (Meta.isExprDefEqAux t s)
     else if !backward.isDefEq.lazyProjDelta.get (← getOptions) then
-      pure (i == j && m == n) <&&> Meta.isExprDefEqAux t s
+      pure (i == j && m == n) <&&> isDefEqStructArgs (Meta.isExprDefEqAux t s)
     else if i == j && m == n then
-      isDefEqProjDelta t s i
+      isDefEqStructArgs (isDefEqProjDelta t s i)
     else
       return false
   | .proj structName 0 s, v  => isDefEqSingleton structName s v

@@ -30,13 +30,18 @@ structure BundledIterM (m : Type w → Type w') (β : Type w) where
   inst : Iterator α m β
   iterator : IterM (α := α) m β
 
-def BundledIterM.ofIterM {α} [Iterator α m β] (it : IterM (α := α) m β) :
+abbrev BundledIterM.ofIterM {α} [Iterator α m β] (it : IterM (α := α) m β) :
     BundledIterM m β :=
   ⟨α, inferInstance, it⟩
 
 @[simp]
 theorem BundledIterM.iterator_ofIterM {α} [Iterator α m β] (it : IterM (α := α) m β) :
     (BundledIterM.ofIterM it).iterator = it :=
+  rfl
+
+@[simp]
+theorem BundledIterM.α_ofIterM {α} [Iterator α m β] {it : IterM (α := α) m β} :
+    (BundledIterM.ofIterM it).α = α :=
   rfl
 
 instance (bit : BundledIterM m β) : Iterator bit.α m β :=
@@ -97,7 +102,7 @@ theorem Equivalence.prun_liftInner_step [Iterator α m β] [Monad m] [Monad n]
     {it : IterM (α := α) m β} {f : (step : _) → _ → n γ} :
     ((IterM.stepAsHetT it).liftInner n).prun f =
       (it.step : n _) >>= (fun step => f step.inflate.1 step.inflate.2) := by
-  simp [IterM.stepAsHetT, HetT.liftInner, HetT.prun, PlausibleIterStep]
+  simp [IterM.stepAsHetT, HetT.liftInner, HetT.prun]
 
 @[simp]
 theorem Equivalence.property_step [Iterator α m β] [Monad m] [LawfulMonad m]
@@ -108,7 +113,7 @@ theorem Equivalence.property_step [Iterator α m β] [Monad m] [LawfulMonad m]
 theorem Equivalence.prun_step [Iterator α m β] [Monad m] [LawfulMonad m]
     {it : IterM (α := α) m β} {f : (step : _) → _ → m γ} :
     (IterM.stepAsHetT it).prun f = it.step >>= (fun step => f step.inflate.1 step.inflate.2) := by
-  simp [IterM.stepAsHetT, HetT.prun, PlausibleIterStep]
+  simp [IterM.stepAsHetT, HetT.prun]
 
 /--
 Like `BundledIterM.step`, but takes and returns iterators modulo `BundledIterM.Equiv`.
@@ -235,7 +240,6 @@ theorem Iter.Equiv.trans {α₁ α₂ α₃ β : Type w}
     (hbc : Iter.Equiv itb itc) : Iter.Equiv ita itc :=
   BundledIterM.Equiv.trans hab hbc
 
-set_option backward.isDefEq.respectTransparency false in
 theorem IterM.Equiv.of_morphism {α₁ α₂} {m : Type w → Type w'} [Monad m] [LawfulMonad m]
     {β : Type w} [Iterator α₁ m β] [Iterator α₂ m β]
     (ita : IterM (α := α₁) m β)
@@ -248,13 +252,12 @@ theorem IterM.Equiv.of_morphism {α₁ α₂} {m : Type w → Type w'} [Monad m]
     exact ∃ it, ita = .ofIterM it ∧ itb = .ofIterM (f it)
   case implies =>
     rintro _ _ ⟨it, rfl, rfl⟩
-    simp only [BundledIterM.step, BundledIterM.iterator_ofIterM, HetT.map_eq_pure_bind,
+    simp only [BundledIterM.step, HetT.map_eq_pure_bind,
       HetT.bind_assoc, Function.comp_apply, HetT.pure_bind, IterStep.mapIterator_mapIterator,
       Functor.map, HetT.ext_iff, HetT.prun_bind, Equivalence.property_step, HetT.prun_pure,
       Equivalence.prun_step, HetT.property_bind, HetT.property_pure, h]
     refine ⟨?_, ?_⟩
     · unfold BundledIterM.ofIterM
-      dsimp only
       ext step
       constructor
       all_goals

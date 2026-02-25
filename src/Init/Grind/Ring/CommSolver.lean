@@ -21,6 +21,7 @@ import Init.Data.Int.LemmasAux
 import Init.Data.Nat.Linear
 import Init.Grind.Ordered.Order
 import Init.Omega
+import Init.WFTactics
 
 @[expose] public section
 

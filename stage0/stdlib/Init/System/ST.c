@@ -1577,7 +1577,7 @@ x_3 = ((lean_object*)(l_instMonadLiftSTEST___closed__0));
 return x_3;
 }
 }
-static lean_object* _init_l_ST_RefPointed() {
+static lean_object* _init_l_ST_RefPointed(void) {
 _start:
 {
 return lean_box(0);

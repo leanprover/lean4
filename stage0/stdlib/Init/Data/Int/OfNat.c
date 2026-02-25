@@ -14,11 +14,12 @@
 extern "C" {
 #endif
 lean_object* lean_nat_to_int(lean_object*);
+static lean_once_cell_t l_Int_Nonneg_num__cert___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Int_Nonneg_num__cert___closed__0;
 uint8_t lean_int_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Int_Nonneg_num__cert(lean_object*);
 LEAN_EXPORT lean_object* l_Int_Nonneg_num__cert___boxed(lean_object*);
-static lean_object* _init_l_Int_Nonneg_num__cert___closed__0() {
+static lean_object* _init_l_Int_Nonneg_num__cert___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -31,7 +32,7 @@ LEAN_EXPORT uint8_t l_Int_Nonneg_num__cert(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; uint8_t x_3; 
-x_2 = l_Int_Nonneg_num__cert___closed__0;
+x_2 = lean_obj_once(&l_Int_Nonneg_num__cert___closed__0, &l_Int_Nonneg_num__cert___closed__0_once, _init_l_Int_Nonneg_num__cert___closed__0);
 x_3 = lean_int_dec_le(x_2, x_1);
 return x_3;
 }
@@ -79,8 +80,6 @@ lean_dec_ref(res);
 res = initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Int_Nonneg_num__cert___closed__0 = _init_l_Int_Nonneg_num__cert___closed__0();
-lean_mark_persistent(l_Int_Nonneg_num__cert___closed__0);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

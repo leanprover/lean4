@@ -2472,6 +2472,7 @@ instance (L : IntermediateField F E) : IsScalarTower F L E := sorry
 instance (L : IntermediateField F E) : Algebra F (adjoin L S) :=
   (IntermediateField.adjoin { x // x ∈ L } S).algebra'
 
+set_option synthInstance.maxHeartbeats 40000 in
 private theorem exists_algHom_adjoin_of_splits'' {L : IntermediateField F E}
     (f : L →ₐ[F] K) :
     ∃ φ : adjoin L S →ₐ[F] K, φ.comp (IsScalarTower.toAlgHom F L _) = f := by

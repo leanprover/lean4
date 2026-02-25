@@ -30,7 +30,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compil
 LEAN_EXPORT uint8_t l___private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_argDepOn(uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_argDepOn___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
-lean_object* lean_array_uget(lean_object*, size_t);
+lean_object* lean_array_uget_borrowed(lean_object*, size_t);
 size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT uint8_t l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00__private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_letValueDepOn_spec__0___redArg(lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00__private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_letValueDepOn_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -360,9 +360,8 @@ x_5 = lean_usize_dec_eq(x_2, x_3);
 if (x_5 == 0)
 {
 lean_object* x_6; uint8_t x_7; 
-x_6 = lean_array_uget(x_1, x_2);
+x_6 = lean_array_uget_borrowed(x_1, x_2);
 x_7 = l___private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_argDepOn___redArg(x_6, x_4);
-lean_dec(x_6);
 if (x_7 == 0)
 {
 size_t x_8; size_t x_9; 
@@ -940,14 +939,13 @@ if (x_6 == 0)
 {
 uint8_t x_7; lean_object* x_8; lean_object* x_14; 
 x_7 = 1;
-x_14 = lean_array_uget(x_2, x_3);
+x_14 = lean_array_uget_borrowed(x_2, x_3);
 switch (lean_obj_tag(x_14)) {
 case 0:
 {
 lean_object* x_15; 
 x_15 = lean_ctor_get(x_14, 2);
 lean_inc_ref(x_15);
-lean_dec_ref(x_14);
 x_8 = x_15;
 goto block_13;
 }
@@ -956,7 +954,6 @@ case 1:
 lean_object* x_16; 
 x_16 = lean_ctor_get(x_14, 1);
 lean_inc_ref(x_16);
-lean_dec_ref(x_14);
 x_8 = x_16;
 goto block_13;
 }
@@ -965,7 +962,6 @@ default:
 lean_object* x_17; 
 x_17 = lean_ctor_get(x_14, 0);
 lean_inc_ref(x_17);
-lean_dec_ref(x_14);
 x_8 = x_17;
 goto block_13;
 }

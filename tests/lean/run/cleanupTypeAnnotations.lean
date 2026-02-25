@@ -9,7 +9,7 @@ set_option pp.mvars false
 Test definitions, theorems, and instances. (MutualDef elaborator)
 Both scope variables and header variables are handled.
 -/
-
+section
 variable (a := true)
 
 /--
@@ -115,3 +115,37 @@ f : optParam Nat 0 → Nat := fun x => x
 example : True :=
   let f (x : Nat := 0) := by trace_state; exact x
   by trace_state; trivial
+
+end
+
+/-!
+Let rec, both as `where` and as real `let rec`.
+-/
+/--
+trace: n✝ : Nat
+x : Bool
+n : Nat
+⊢ Nat
+-/
+#guard_msgs in
+def bar := go 1000
+where
+  go (n : Nat) (x := true) := match n with
+    | 0 => 0
+    | n+1 => by trace_state; exact go n + 1
+/--
+trace: n✝ : Nat
+x : Bool
+n : Nat
+⊢ Nat
+-/
+#guard_msgs in
+def bar' :=
+  let rec go (n : Nat) (x := true) := match n with
+    | 0 => 0
+    | n+1 => by trace_state; exact go n + 1
+  go 1000
+/-- info: bar.go (n : Nat) (x : Bool := true) : Nat -/
+#guard_msgs in #check bar.go
+/-- info: bar'.go (n : Nat) (x : Bool := true) : Nat -/
+#guard_msgs in #check bar'.go

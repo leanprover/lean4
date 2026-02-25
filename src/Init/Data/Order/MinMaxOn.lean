@@ -124,6 +124,21 @@ public theorem min_apply [LE β] [DecidableLE β] [Min β] [LawfulOrderLeftLeani
   rw [min_eq_if, minOn]
   split <;> rfl
 
+public theorem minOn_eq_if [LE β] [DecidableLE β] {f : α → β} {a b : α} :
+    minOn f a b = if f a ≤ f b then a else b :=
+  (rfl)
+
+public theorem minOn_eq_min [Min α] [LE α] [DecidableLE α] [LawfulOrderLeftLeaningMin α] [LE β]
+    [DecidableLE β] {f : α → β} {a b : α} (hf : f a ≤ f b ↔ a ≤ b) :
+    minOn f a b = min a b := by
+  simp [minOn_eq_if, min_eq_if, hf]
+
+public theorem min_apply_eq_min [LE α] [DecidableLE α] [Min α] [LawfulOrderLeftLeaningMin α]
+    [Min β] [LE β] [DecidableLE β] [LawfulOrderLeftLeaningMin β]
+    (f : α → β) {a b : α} (hf : f a ≤ f b ↔ a ≤ b) :
+    min (f a) (f b) = f (min a b) := by
+  rw [min_apply, minOn_eq_min hf]
+
 /-! ## `maxOn` Lemmas -/
 
 public theorem maxOn_eq_minOn [le : LE β] [DecidableLE β] {f : α → β} {x y : α} :
@@ -195,3 +210,18 @@ public theorem max_apply [LE β] [DecidableLE β] [Max β] [LawfulOrderLeftLeani
 public theorem apply_maxOn [LE β] [DecidableLE β] [Max β] [LawfulOrderLeftLeaningMax β]
     {f : α → β} {x y : α} : f (maxOn f x y) = max (f x) (f y) :=
   max_apply.symm
+
+public theorem maxOn_eq_if [LE β] [DecidableLE β] {f : α → β} {a b : α} :
+    maxOn f a b = if f b ≤ f a then a else b := by
+  simp only [maxOn_eq_minOn, minOn_eq_if, LE.le_opposite_iff]
+
+public theorem maxOn_eq_max [Max α] [LE α] [DecidableLE α] [LawfulOrderLeftLeaningMax α] [LE β]
+    [DecidableLE β] {f : α → β} {a b : α} (hf : f b ≤ f a ↔ b ≤ a) :
+    maxOn f a b = max a b := by
+  simp [maxOn_eq_if, max_eq_if, hf]
+
+public theorem max_apply_eq_max [LE α] [DecidableLE α] [Max α] [LawfulOrderLeftLeaningMax α]
+    [Max β] [LE β] [DecidableLE β] [LawfulOrderLeftLeaningMax β]
+    (f : α → β) {a b : α} (hf : f b ≤ f a ↔ b ≤ a) :
+    max (f a) (f b) = f (max a b) := by
+  rw [max_apply, maxOn_eq_max hf]

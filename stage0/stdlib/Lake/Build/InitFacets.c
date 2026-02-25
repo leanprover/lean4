@@ -25,18 +25,25 @@ LEAN_EXPORT lean_object* l___private_Lake_Build_InitFacets_0__Lake_initFacetConf
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___00__private_Lake_Build_InitFacets_0__Lake_initFacetConfigs_insert_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldl___at___00__private_Lake_Build_InitFacets_0__Lake_initFacetConfigs_insert_spec__1(lean_object*, lean_object*);
 extern lean_object* l_Lake_Module_initFacetConfigs;
+static lean_once_cell_t l_Lake_initFacetConfigs___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lake_initFacetConfigs___closed__0;
 extern lean_object* l_Lake_Package_initFacetConfigs;
+static lean_once_cell_t l_Lake_initFacetConfigs___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lake_initFacetConfigs___closed__1;
 extern lean_object* l_Lake_LeanLib_initFacetConfigs;
+static lean_once_cell_t l_Lake_initFacetConfigs___closed__2_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lake_initFacetConfigs___closed__2;
 extern lean_object* l_Lake_LeanExe_initFacetConfigs;
+static lean_once_cell_t l_Lake_initFacetConfigs___closed__3_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lake_initFacetConfigs___closed__3;
 extern lean_object* l_Lake_ExternLib_initFacetConfigs;
+static lean_once_cell_t l_Lake_initFacetConfigs___closed__4_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lake_initFacetConfigs___closed__4;
 extern lean_object* l_Lake_InputFile_initFacetConfigs;
+static lean_once_cell_t l_Lake_initFacetConfigs___closed__5_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lake_initFacetConfigs___closed__5;
 extern lean_object* l_Lake_InputDir_initFacetConfigs;
+static lean_once_cell_t l_Lake_initFacetConfigs___closed__6_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lake_initFacetConfigs___closed__6;
 LEAN_EXPORT lean_object* l_Lake_initFacetConfigs;
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___00__private_Lake_Build_InitFacets_0__Lake_initFacetConfigs_insert_spec__0___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -654,9 +661,9 @@ goto block_154;
 block_147:
 {
 lean_object* x_144; lean_object* x_145; lean_object* x_146; 
-x_144 = lean_nat_add(x_141, x_143);
+x_144 = lean_nat_add(x_142, x_143);
 lean_dec(x_143);
-lean_dec(x_141);
+lean_dec(x_142);
 if (lean_is_scalar(x_138)) {
  x_145 = lean_alloc_ctor(0, 5, 0);
 } else {
@@ -675,7 +682,7 @@ if (lean_is_scalar(x_128)) {
 lean_ctor_set(x_146, 0, x_140);
 lean_ctor_set(x_146, 1, x_130);
 lean_ctor_set(x_146, 2, x_131);
-lean_ctor_set(x_146, 3, x_142);
+lean_ctor_set(x_146, 3, x_141);
 lean_ctor_set(x_146, 4, x_145);
 return x_146;
 }
@@ -701,8 +708,8 @@ if (lean_obj_tag(x_133) == 0)
 lean_object* x_152; 
 x_152 = lean_ctor_get(x_133, 0);
 lean_inc(x_152);
-x_141 = x_151;
-x_142 = x_150;
+x_141 = x_150;
+x_142 = x_151;
 x_143 = x_152;
 goto block_147;
 }
@@ -710,8 +717,8 @@ else
 {
 lean_object* x_153; 
 x_153 = lean_unsigned_to_nat(0u);
-x_141 = x_151;
-x_142 = x_150;
+x_141 = x_150;
+x_142 = x_151;
 x_143 = x_153;
 goto block_147;
 }
@@ -1081,7 +1088,7 @@ x_3 = l_Std_DTreeMap_Internal_Impl_foldlM___at___00Std_DTreeMap_Internal_Impl_fo
 return x_3;
 }
 }
-static lean_object* _init_l_Lake_initFacetConfigs___closed__0() {
+static lean_object* _init_l_Lake_initFacetConfigs___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1091,71 +1098,71 @@ x_3 = l_Std_DTreeMap_Internal_Impl_foldlM___at___00Std_DTreeMap_Internal_Impl_fo
 return x_3;
 }
 }
-static lean_object* _init_l_Lake_initFacetConfigs___closed__1() {
+static lean_object* _init_l_Lake_initFacetConfigs___closed__1(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lake_Package_initFacetConfigs;
-x_2 = l_Lake_initFacetConfigs___closed__0;
+x_2 = lean_obj_once(&l_Lake_initFacetConfigs___closed__0, &l_Lake_initFacetConfigs___closed__0_once, _init_l_Lake_initFacetConfigs___closed__0);
 x_3 = l_Std_DTreeMap_Internal_Impl_foldlM___at___00Std_DTreeMap_Internal_Impl_foldl___at___00__private_Lake_Build_InitFacets_0__Lake_initFacetConfigs_insert_spec__1_spec__1(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lake_initFacetConfigs___closed__2() {
+static lean_object* _init_l_Lake_initFacetConfigs___closed__2(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lake_LeanLib_initFacetConfigs;
-x_2 = l_Lake_initFacetConfigs___closed__1;
+x_2 = lean_obj_once(&l_Lake_initFacetConfigs___closed__1, &l_Lake_initFacetConfigs___closed__1_once, _init_l_Lake_initFacetConfigs___closed__1);
 x_3 = l_Std_DTreeMap_Internal_Impl_foldlM___at___00Std_DTreeMap_Internal_Impl_foldl___at___00__private_Lake_Build_InitFacets_0__Lake_initFacetConfigs_insert_spec__1_spec__1(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lake_initFacetConfigs___closed__3() {
+static lean_object* _init_l_Lake_initFacetConfigs___closed__3(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lake_LeanExe_initFacetConfigs;
-x_2 = l_Lake_initFacetConfigs___closed__2;
+x_2 = lean_obj_once(&l_Lake_initFacetConfigs___closed__2, &l_Lake_initFacetConfigs___closed__2_once, _init_l_Lake_initFacetConfigs___closed__2);
 x_3 = l_Std_DTreeMap_Internal_Impl_foldlM___at___00Std_DTreeMap_Internal_Impl_foldl___at___00__private_Lake_Build_InitFacets_0__Lake_initFacetConfigs_insert_spec__1_spec__1(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lake_initFacetConfigs___closed__4() {
+static lean_object* _init_l_Lake_initFacetConfigs___closed__4(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lake_ExternLib_initFacetConfigs;
-x_2 = l_Lake_initFacetConfigs___closed__3;
+x_2 = lean_obj_once(&l_Lake_initFacetConfigs___closed__3, &l_Lake_initFacetConfigs___closed__3_once, _init_l_Lake_initFacetConfigs___closed__3);
 x_3 = l_Std_DTreeMap_Internal_Impl_foldlM___at___00Std_DTreeMap_Internal_Impl_foldl___at___00__private_Lake_Build_InitFacets_0__Lake_initFacetConfigs_insert_spec__1_spec__1(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lake_initFacetConfigs___closed__5() {
+static lean_object* _init_l_Lake_initFacetConfigs___closed__5(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lake_InputFile_initFacetConfigs;
-x_2 = l_Lake_initFacetConfigs___closed__4;
+x_2 = lean_obj_once(&l_Lake_initFacetConfigs___closed__4, &l_Lake_initFacetConfigs___closed__4_once, _init_l_Lake_initFacetConfigs___closed__4);
 x_3 = l_Std_DTreeMap_Internal_Impl_foldlM___at___00Std_DTreeMap_Internal_Impl_foldl___at___00__private_Lake_Build_InitFacets_0__Lake_initFacetConfigs_insert_spec__1_spec__1(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lake_initFacetConfigs___closed__6() {
+static lean_object* _init_l_Lake_initFacetConfigs___closed__6(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lake_InputDir_initFacetConfigs;
-x_2 = l_Lake_initFacetConfigs___closed__5;
+x_2 = lean_obj_once(&l_Lake_initFacetConfigs___closed__5, &l_Lake_initFacetConfigs___closed__5_once, _init_l_Lake_initFacetConfigs___closed__5);
 x_3 = l_Std_DTreeMap_Internal_Impl_foldlM___at___00Std_DTreeMap_Internal_Impl_foldl___at___00__private_Lake_Build_InitFacets_0__Lake_initFacetConfigs_insert_spec__1_spec__1(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lake_initFacetConfigs() {
+static lean_object* _init_l_Lake_initFacetConfigs(void) {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lake_initFacetConfigs___closed__6;
+x_1 = lean_obj_once(&l_Lake_initFacetConfigs___closed__6, &l_Lake_initFacetConfigs___closed__6_once, _init_l_Lake_initFacetConfigs___closed__6);
 return x_1;
 }
 }
@@ -1192,20 +1199,6 @@ lean_dec_ref(res);
 res = initialize_Lake_Build_InputFile(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lake_initFacetConfigs___closed__0 = _init_l_Lake_initFacetConfigs___closed__0();
-lean_mark_persistent(l_Lake_initFacetConfigs___closed__0);
-l_Lake_initFacetConfigs___closed__1 = _init_l_Lake_initFacetConfigs___closed__1();
-lean_mark_persistent(l_Lake_initFacetConfigs___closed__1);
-l_Lake_initFacetConfigs___closed__2 = _init_l_Lake_initFacetConfigs___closed__2();
-lean_mark_persistent(l_Lake_initFacetConfigs___closed__2);
-l_Lake_initFacetConfigs___closed__3 = _init_l_Lake_initFacetConfigs___closed__3();
-lean_mark_persistent(l_Lake_initFacetConfigs___closed__3);
-l_Lake_initFacetConfigs___closed__4 = _init_l_Lake_initFacetConfigs___closed__4();
-lean_mark_persistent(l_Lake_initFacetConfigs___closed__4);
-l_Lake_initFacetConfigs___closed__5 = _init_l_Lake_initFacetConfigs___closed__5();
-lean_mark_persistent(l_Lake_initFacetConfigs___closed__5);
-l_Lake_initFacetConfigs___closed__6 = _init_l_Lake_initFacetConfigs___closed__6();
-lean_mark_persistent(l_Lake_initFacetConfigs___closed__6);
 l_Lake_initFacetConfigs = _init_l_Lake_initFacetConfigs();
 lean_mark_persistent(l_Lake_initFacetConfigs);
 return lean_io_result_mk_ok(lean_box(0));

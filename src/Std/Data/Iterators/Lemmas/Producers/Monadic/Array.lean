@@ -60,7 +60,8 @@ theorem Std.Iterators.Types.ArrayIterator.stepAsHetT_iterFromIdxM [LawfulMonad m
     else
       pure .done) := by
   simp only [Array.iterFromIdxM, pure, HetT.ext_iff, Equivalence.property_step,
-    IterM.IsPlausibleStep, Iterator.IsPlausibleStep, Equivalence.prun_step, ge_iff_le]
+    IterM.IsPlausibleStep, instIterator, -- TODO
+    Iterator.IsPlausibleStep, Equivalence.prun_step, ge_iff_le]
   refine ⟨?_, ?_⟩
   · ext step
     cases step

@@ -83,6 +83,7 @@ static const lean_object* l_instToStringNat___closed__0 = (const lean_object*)&l
 LEAN_EXPORT const lean_object* l_instToStringNat = (const lean_object*)&l_instToStringNat___closed__0_value;
 LEAN_EXPORT const lean_object* l_instToStringRaw__1 = (const lean_object*)&l_instToStringNat___closed__0_value;
 lean_object* lean_nat_to_int(lean_object*);
+static lean_once_cell_t l_instToStringInt___lam__0___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_instToStringInt___lam__0___closed__0;
 static const lean_string_object l_instToStringInt___lam__0___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 2, .m_capacity = 2, .m_length = 1, .m_data = "-"};
 static const lean_object* l_instToStringInt___lam__0___closed__1 = (const lean_object*)&l_instToStringInt___lam__0___closed__1_value;
@@ -479,7 +480,7 @@ lean_closure_set(x_3, 0, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_instToStringInt___lam__0___closed__0() {
+static lean_object* _init_l_instToStringInt___lam__0___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -492,7 +493,7 @@ LEAN_EXPORT lean_object* l_instToStringInt___lam__0(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; uint8_t x_3; 
-x_2 = l_instToStringInt___lam__0___closed__0;
+x_2 = lean_obj_once(&l_instToStringInt___lam__0___closed__0, &l_instToStringInt___lam__0___closed__0_once, _init_l_instToStringInt___lam__0___closed__0);
 x_3 = lean_int_dec_lt(x_1, x_2);
 if (x_3 == 0)
 {
@@ -1120,8 +1121,6 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Char_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_instToStringInt___lam__0___closed__0 = _init_l_instToStringInt___lam__0___closed__0();
-lean_mark_persistent(l_instToStringInt___lam__0___closed__0);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

@@ -176,7 +176,7 @@ private def finitenessRelation [Std.Iterators.Finite (σ s) Id] :
     match step with
     | .yield it'' out | .skip it'' =>
       obtain rfl : it' = it'' := by simpa using h.symm
-      simp only [Std.IterM.IsPlausibleStep, Std.Iterator.IsPlausibleStep] at h'
+      simp only [Std.IterM.IsPlausibleStep, Std.Iterator.IsPlausibleStep, instIteratorIdSubslice] at h' -- TODO
       revert h'
       match it, it' with
       | ⟨.operating _ searcher⟩, ⟨.operating _ searcher'⟩ => simp [SplitIterator.toOption, Option.lt]
@@ -287,7 +287,7 @@ private def finitenessRelation [Std.Iterators.Finite (σ s) Id] :
     match step with
     | .yield it'' out | .skip it'' =>
       obtain rfl : it' = it'' := by simpa using h.symm
-      simp only [Std.IterM.IsPlausibleStep, Std.Iterator.IsPlausibleStep] at h'
+      simp only [Std.IterM.IsPlausibleStep, Std.Iterator.IsPlausibleStep, instIteratorId] at h' -- TODO
       revert h'
       match it, it' with
       | ⟨.operating _ searcher⟩, ⟨.operating _ searcher'⟩ => simp [SplitInclusiveIterator.toOption, Option.lt]
@@ -627,7 +627,7 @@ private def finitenessRelation [Std.Iterators.Finite (σ s) Id] :
     match step with
     | .yield it'' out | .skip it'' =>
       obtain rfl : it' = it'' := by simpa using h.symm
-      simp only [Std.IterM.IsPlausibleStep, Std.Iterator.IsPlausibleStep] at h'
+      simp only [Std.IterM.IsPlausibleStep, Std.Iterator.IsPlausibleStep, instIteratorOfPure] at h' -- TODO
       revert h'
       match it, it' with
       | ⟨.operating _ searcher⟩, ⟨.operating _ searcher'⟩ => simp [RevSplitIterator.toOption, Option.lt]

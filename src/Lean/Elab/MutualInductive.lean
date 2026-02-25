@@ -421,6 +421,47 @@ private def instantiateMVarsAtInductive (indType : InductiveType) : TermElabM In
   let ctors ← indType.ctors.mapM fun ctor => return { ctor with type := (← instantiateMVars ctor.type) }
   return { indType with type, ctors }
 
+open Parser.Term in
+private def typelessBinder? : Syntax → Option (Array Ident × BinderInfo)
+  | `(bracketedBinderF|($ids:ident*)) => some (ids, .default)
+  | `(bracketedBinderF|{$ids:ident*}) => some (ids, .implicit)
+  | `(bracketedBinderF|⦃$ids:ident*⦄)  => some (ids, .strictImplicit)
+  | `(bracketedBinderF|[$id:ident])   => some (#[id], .instImplicit)
+  | _                                 => none
+
+/--
+Takes a binder list and interprets the prefix to see if any could be construed to be binder info updates.
+Returns the binder list without these updates along with the new binder infos for these parameters.
+
+- `params` are the parameters appearing in the header
+- `binders` is the binder list to process
+- `maybeParam` should return true for every local that could be a parameter
+  (for example, in structures we check that the ids don't refer to previously defined fields)
+-/
+def elabParamInfoUpdates
+    [Monad m] [MonadError m] [MonadLCtx m] [MonadLiftT TermElabM m]
+    (params : Array Expr) (binders : Array Syntax)
+    (maybeParam : FVarId → m Bool) :
+    m (Array Syntax × ExprMap (Syntax × BinderInfo)) := do
+  let mut overrides : ExprMap (Syntax × BinderInfo) := {}
+  for i in *...binders.size do
+    match typelessBinder? binders[i]! with
+    | none => return (binders.extract i, overrides)
+    | some (ids, bi) =>
+      let lctx ← getLCtx
+      let decls := ids.filterMap fun id => lctx.findFromUserName? id.getId
+      let decls ← decls.filterM fun decl => maybeParam decl.fvarId
+      if decls.size != ids.size then
+        -- Then either these are for a new variables or the binder isn't only for parameters
+        return (binders.extract i, overrides)
+      for decl in decls, id in ids do
+        Term.addTermInfo' id decl.toExpr
+        unless params.contains decl.toExpr do
+          throwErrorAt id m!"Only parameters appearing in the declaration header may have their binders kinds be overridden"
+            ++ .hint' "If this is not intended to be an override, use a binder with a type: for example, `(x : _)`"
+        overrides := overrides.insert decl.toExpr (id, bi)
+  return (#[], overrides)
+
 section IndexPromotion
 /-!
 ## Index-to-parameter promotion
@@ -1134,8 +1175,8 @@ private def withUsed {α} (elabs : Array InductiveElabStep2) (vars : Array Expr)
 private def updateParams (vars : Array Expr) (indTypes : List InductiveType) : TermElabM (List InductiveType) :=
   indTypes.mapM fun indType => do
     let type ← mkForallFVars vars indType.type
-    let ctors ← indType.ctors.mapM fun ctor => do
-      let ctorType ← withExplicitToImplicit vars (mkForallFVars vars ctor.type)
+    let ctors ← withExplicitToImplicit vars <| indType.ctors.mapM fun ctor => do
+      let ctorType ← mkForallFVars vars ctor.type
       return { ctor with type := ctorType }
     return { indType with type, ctors }
 

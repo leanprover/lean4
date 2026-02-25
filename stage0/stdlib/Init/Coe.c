@@ -453,13 +453,13 @@ lean_closure_set(x_4, 0, x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_boolToProp() {
+static lean_object* _init_l_boolToProp(void) {
 _start:
 {
 return lean_box(0);
 }
 }
-static lean_object* _init_l_boolToSort() {
+static lean_object* _init_l_boolToSort(void) {
 _start:
 {
 return lean_box(0);

@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 module
 
 prelude
+public import Init.Control.Do
 public import Init.GetElem
 public import Init.Data.List.ToArrayImpl
 import all Init.Data.List.ToArrayImpl

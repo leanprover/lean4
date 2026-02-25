@@ -41,6 +41,7 @@ static const lean_closure_object l_Char_instHasSize__2___closed__0_value = {.m_h
 static const lean_object* l_Char_instHasSize__2___closed__0 = (const lean_object*)&l_Char_instHasSize__2___closed__0_value;
 LEAN_EXPORT const lean_object* l_Char_instHasSize__2 = (const lean_object*)&l_Char_instHasSize__2___closed__0_value;
 LEAN_EXPORT lean_object* l_Char_instLeast_x3f___closed__0___boxed__const__1;
+static lean_once_cell_t l_Char_instLeast_x3f___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Char_instLeast_x3f___closed__0;
 LEAN_EXPORT lean_object* l_Char_instLeast_x3f;
 lean_object* l_Char_ordinal___boxed(lean_object*);
@@ -124,7 +125,7 @@ x_3 = l_Char_instHasSize__2___lam__0(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Char_instLeast_x3f___closed__0___boxed__const__1() {
+static lean_object* _init_l_Char_instLeast_x3f___closed__0___boxed__const__1(void) {
 _start:
 {
 uint32_t x_1; lean_object* x_2; 
@@ -133,7 +134,7 @@ x_2 = lean_box_uint32(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Char_instLeast_x3f___closed__0() {
+static lean_object* _init_l_Char_instLeast_x3f___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -143,11 +144,11 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Char_instLeast_x3f() {
+static lean_object* _init_l_Char_instLeast_x3f(void) {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Char_instLeast_x3f___closed__0;
+x_1 = lean_obj_once(&l_Char_instLeast_x3f___closed__0, &l_Char_instLeast_x3f___closed__0_once, _init_l_Char_instLeast_x3f___closed__0);
 return x_1;
 }
 }
@@ -182,8 +183,6 @@ if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Char_instLeast_x3f___closed__0___boxed__const__1 = _init_l_Char_instLeast_x3f___closed__0___boxed__const__1();
 lean_mark_persistent(l_Char_instLeast_x3f___closed__0___boxed__const__1);
-l_Char_instLeast_x3f___closed__0 = _init_l_Char_instLeast_x3f___closed__0();
-lean_mark_persistent(l_Char_instLeast_x3f___closed__0);
 l_Char_instLeast_x3f = _init_l_Char_instLeast_x3f();
 lean_mark_persistent(l_Char_instLeast_x3f);
 return lean_io_result_mk_ok(lean_box(0));

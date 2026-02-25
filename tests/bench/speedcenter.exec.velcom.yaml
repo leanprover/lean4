@@ -672,7 +672,7 @@
     <<: *time
     cmd: lean ./cbv/leroy.lean
 - attributes:
-    description: cbv tactic (Eratosthenes' sieve)
+    description: cbv tactic (prime filter)
     tags: [other]
   run_config:
     <<: *time

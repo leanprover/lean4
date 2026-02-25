@@ -48,3 +48,5 @@ def runBenchmarks : MetaM Unit := do
   IO.println ""
   for n in [10, 25, 50, 75, 100, 125, 175] do
     runProblem n
+
+#eval runBenchmarks

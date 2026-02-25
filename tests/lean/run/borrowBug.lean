@@ -27,14 +27,14 @@ trace: [Compiler.explicitRc] size: 27
       | Bool.false =>
         dec y;
         let z := g x;
-        let fst := proj[0] z;
+        let fst := oproj[0] z;
         inc fst;
         dec z;
         goto _jp.1 fst
       | Bool.true =>
         dec x;
         let z := g y;
-        let fst := proj[0] z;
+        let fst := oproj[0] z;
         inc fst;
         dec z;
         goto _jp.1 fst

@@ -60,6 +60,7 @@ lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_o
 LEAN_EXPORT lean_object* l_Lean_Meta_repeat_x27Core___redArg___lam__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_repeat_x27Core___redArg___lam__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
+static lean_once_cell_t l_Lean_Meta_repeat_x27Core___redArg___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Meta_repeat_x27Core___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Meta_repeat_x27Core___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_repeat_x27Core(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -73,6 +74,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_repeat_x27(lean_object*, lean_object*, lean
 static const lean_string_object l_Lean_Meta_repeat1_x27___redArg___lam__0___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 28, .m_capacity = 28, .m_length = 27, .m_data = "`repeat1'` made no progress"};
 static const lean_object* l_Lean_Meta_repeat1_x27___redArg___lam__0___closed__0 = (const lean_object*)&l_Lean_Meta_repeat1_x27___redArg___lam__0___closed__0_value;
 lean_object* l_Lean_stringToMessageData(lean_object*);
+static lean_once_cell_t l_Lean_Meta_repeat1_x27___redArg___lam__0___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Meta_repeat1_x27___redArg___lam__0___closed__1;
 lean_object* l_Lean_throwError___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_repeat1_x27___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -632,7 +634,7 @@ lean_dec(x_2);
 return x_8;
 }
 }
-static lean_object* _init_l_Lean_Meta_repeat_x27Core___redArg___closed__0() {
+static lean_object* _init_l_Lean_Meta_repeat_x27Core___redArg___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -654,7 +656,7 @@ lean_inc(x_11);
 x_12 = 0;
 x_13 = lean_box(0);
 x_14 = lean_unsigned_to_nat(0u);
-x_15 = l_Lean_Meta_repeat_x27Core___redArg___closed__0;
+x_15 = lean_obj_once(&l_Lean_Meta_repeat_x27Core___redArg___closed__0, &l_Lean_Meta_repeat_x27Core___redArg___closed__0_once, _init_l_Lean_Meta_repeat_x27Core___redArg___closed__0);
 lean_inc_ref(x_4);
 lean_inc_ref(x_1);
 x_16 = l___private_Lean_Meta_Tactic_Repeat_0__Lean_Meta_repeat_x27Core_go___redArg(x_1, x_2, x_3, x_4, x_5, x_7, x_12, x_6, x_13, x_15);
@@ -727,7 +729,7 @@ x_11 = l_Lean_Meta_repeat_x27___redArg(x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 return x_11;
 }
 }
-static lean_object* _init_l_Lean_Meta_repeat1_x27___redArg___lam__0___closed__1() {
+static lean_object* _init_l_Lean_Meta_repeat1_x27___redArg___lam__0___closed__1(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -758,7 +760,7 @@ else
 lean_object* x_9; lean_object* x_10; 
 lean_dec_ref(x_4);
 lean_dec(x_1);
-x_9 = l_Lean_Meta_repeat1_x27___redArg___lam__0___closed__1;
+x_9 = lean_obj_once(&l_Lean_Meta_repeat1_x27___redArg___lam__0___closed__1, &l_Lean_Meta_repeat1_x27___redArg___lam__0___closed__1_once, _init_l_Lean_Meta_repeat1_x27___redArg___lam__0___closed__1);
 x_10 = l_Lean_throwError___redArg(x_2, x_3, x_9);
 return x_10;
 }
@@ -808,10 +810,6 @@ lean_dec_ref(res);
 res = initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Meta_repeat_x27Core___redArg___closed__0 = _init_l_Lean_Meta_repeat_x27Core___redArg___closed__0();
-lean_mark_persistent(l_Lean_Meta_repeat_x27Core___redArg___closed__0);
-l_Lean_Meta_repeat1_x27___redArg___lam__0___closed__1 = _init_l_Lean_Meta_repeat1_x27___redArg___lam__0___closed__1();
-lean_mark_persistent(l_Lean_Meta_repeat1_x27___redArg___lam__0___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

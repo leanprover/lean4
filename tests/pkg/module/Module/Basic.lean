@@ -431,6 +431,10 @@ inst✝
 
 public meta def pubMeta := 1
 
+/-- error: Invalid `meta` definition `veryMeta`, `f` not marked `meta` -/
+#guard_msgs in
+meta def veryMeta := f
+
 /-! `#eval` should accept `meta` and non-`meta`. -/
 
 meta def fmeta := 1

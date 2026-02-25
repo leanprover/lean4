@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 3.11)
 
+if(NOT CMAKE_GENERATOR MATCHES "Makefiles")
+  message(FATAL_ERROR "Only makefile generators are supported")
+endif()
+
 option(USE_MIMALLOC "use mimalloc" ON)
 
 # store all variables passed on the command line into CL_ARGS so we can pass them to the stage builds

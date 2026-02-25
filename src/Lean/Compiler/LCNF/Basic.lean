@@ -1142,13 +1142,13 @@ def instantiateRevRangeArgs (e : Expr) (beginIdx endIdx : Nat) (args : Array (Ar
   else
     e.instantiateRevRange beginIdx endIdx (args.map (·.toExpr))
 
+/-- Lookup function for compiler extensions with sorted persisted state that works in both `lean` and `leanir`. -/
 def findExtEntry? [Inhabited σ] (env : Environment) (ext : PersistentEnvExtension α β σ) (declName : Name)
     (findAtSorted? : Array α → Name → Option α')
     (findInState? : σ → Name → Option α') : Option α' :=
   (env.getModuleIdxFor? declName).bind (fun modIdx =>
-    --findAtSorted? (ext.getModuleEntries env modIdx) declName <|>
-    -- When
     guard (getIRPhases env declName != .runtime) *> findAtSorted? (ext.getModuleIREntries env modIdx) declName)
+  -- In `leanir`, the current module does have a module index, so we also need to check the local state
   <|> findInState? (ext.getState env) declName
 
 end Lean.Compiler.LCNF

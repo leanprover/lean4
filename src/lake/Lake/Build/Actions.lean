@@ -13,6 +13,7 @@ import Lake.Util.IO
 import Init.Data.String.Search
 import Init.Data.String.TakeDrop
 import Init.System.Platform
+import Lean.CoreM
 
 /-! # Common Build Actions
 Low level actions to build common Lean artifacts via the Lean toolchain.
@@ -39,7 +40,9 @@ public def compileLeanModule
   if let some ileanFile := arts.ilean? then
     createParentDirs ileanFile
     args := args ++ #["-i", ileanFile.toString]
-  if arts.ir?.isNone then  -- TODO: module?
+  let opts := setup.options.toOptions
+  let postponeCompile := setup.isModule && compiler.postponeCompile.get opts
+  if !postponeCompile then
     if let some cFile := arts.c? then
       createParentDirs cFile
       args := args ++ #["-c", cFile.toString]
@@ -77,21 +80,22 @@ public def compileLeanModule
     logInfo s!"stderr:\n{out.stderr.trimAscii}"
   if out.exitCode ≠ 0 then
     error s!"Lean exited with code {out.exitCode}"
-  if let (some irFile, some cFile) := (arts.ir?, arts.c?) then
-    createParentDirs irFile
-    createParentDirs cFile
-    try
-      proc {
-        cmd := leanir.toString
-        args := #[setupFile.toString, irFile.toString, cFile.toString]
-        env := #[
-          ("LEAN_PATH", leanPath.toString)
-        ]
-      }
-    catch e =>
-      if let some oleanFile := arts.olean? then
-        removeFileIfExists oleanFile
-      throw e
+  if postponeCompile then
+    if let (some irFile, some cFile) := (arts.ir?, arts.c?) then
+      createParentDirs irFile
+      createParentDirs cFile
+      try
+        proc {
+          cmd := leanir.toString
+          args := #[setupFile.toString, irFile.toString, cFile.toString]
+          env := #[
+            ("LEAN_PATH", leanPath.toString)
+          ]
+        }
+      catch e =>
+        if let some oleanFile := arts.olean? then
+          removeFileIfExists oleanFile
+        throw e
 
 public def compileO
   (oFile srcFile : FilePath)

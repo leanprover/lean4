@@ -102,6 +102,7 @@ def run (declNames : Array Name) : CompilerM (Array (Array IR.Decl)) := withAtLe
           throwError "`main` function must have type `(List String →)? IO (UInt32 | Unit | PUnit)`"
   let decls ← declNames.mapM toDecl
 
+  -- Compile any postponed dependencies first
   for decl in decls do
     decl.value.forCodeM fun code => code.forM fun
       | .let decl .. => do

@@ -19,9 +19,6 @@ import Lean.Compiler.LCNF.PhaseExt
 
 open Lean
 
-@[extern "lean_ir_export_entries"]
-opaque exportIREntries (env : Environment) : Array (Name × Array EnvExtensionEntry)
-
 def mkIRData (env : Environment) : IO ModuleData :=
   -- TODO: should we use a more specific/efficient data format for IR?
   return { env.header with
@@ -59,6 +56,8 @@ public def main (args : List String) : IO UInt32 := do
   let mut opts := setup.options.toOptions
   for optArg in optArgs do
     opts ← setConfigOption opts optArg
+  -- Already checked in `lean` and could fail on now-private imports
+  opts := Compiler.compiler.checkMeta.set opts false
 
   --initSearchPathInternal  -- TODO
   initSearchPath (← getBuildDir)
@@ -69,6 +68,7 @@ public def main (args : List String) : IO UInt32 := do
     -- no `arts` yet because they are for `exported`
     let (_, s) ← importModulesCore (globalLevel := .private) /-(arts := setup.importArts)-/ imports |>.run
     let s := { s with moduleNameMap := s.moduleNameMap.modify mod fun m => if m.module == mod then { m with irPhases := .runtime } else { m with irPhases := .all } }
+    -- level exported because otherwise we would try to load the current module's `.ir`
     finalizeImport (leakEnv := true) (loadExts := false) (level := .exported) s imports opts
   let env := env.setMainModule mod
 
@@ -97,7 +97,7 @@ public def main (args : List String) : IO UInt32 := do
 
   -- Fill `declMapExt` with functions compiled already in `lean` so the set of "local" decls is
   -- unchanged and also for calculation of `extraConstNames` above
-  -- TODO: do manually-added externs only as others need more state sync around ground exprs etc
+  -- TODO: we do manually-added externs only as others need more state sync around ground exprs etc
   let is := Lean.IR.declMapExt.toEnvExtension.getState env
   let unbox : Name → Name
     | .str f "_boxed" => f

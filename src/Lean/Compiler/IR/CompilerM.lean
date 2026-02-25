@@ -87,7 +87,22 @@ builtin_initialize declMapExt : SimplePersistentEnvExtension Decl DeclMap ←
     -- Leave storing the remainder for `meta import` and server `#eval` to `exportIREntries` below.
     exportEntriesFnEx? := some fun env s entries _ =>
       let decls := entries.foldl (init := #[]) fun decls decl => decls.push decl
-      sortDecls decls
+      let entries := sortDecls decls
+      -- Do not save all IR even in .olean.private as it will be in .ir anyway
+      if env.header.isModule then
+        entries.filterMap fun d => do
+          if isDeclMeta env d.name then
+            return d
+          guard <| Compiler.LCNF.isDeclPublic env d.name
+          -- Bodies of imported IR decls are not relevant for codegen, only interpretation
+          match d with
+          | .fdecl f xs ty b info =>
+            if let some (.str _ s) := getExportNameFor? env f then
+              return .extern f xs ty { entries := [.standard `all s] }
+            else
+              return .extern f xs ty { entries := [.opaque] }
+          | d => some d
+      else entries
     -- Written to on codegen environment branch but accessed from other elaboration branches when
     -- calling into the interpreter. We cannot use `async` as the IR declarations added may not
     -- share a name prefix with the top-level Lean declaration being compiled, e.g. from
@@ -117,6 +132,7 @@ def findEnvDecl (env : Environment) (declName : Name) : Option Decl :=
 
 @[export lean_ir_find_env_decl]
 private def findInterpDecl (env : Environment) (declName : Name) (includeServer := false) : Option Decl :=
+  -- This function is never used in `leanir`, so no need for `findExtEntry?`
   match env.getModuleIdxFor? declName with
   | some modIdx =>
     -- `meta import/import all` and, optionally, additional server-mode IR

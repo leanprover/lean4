@@ -1819,7 +1819,20 @@ def mkModuleData (env : Environment) (level : OLeanLevel := .private) : IO Modul
     constNames, constants, entries
   }
 
-def writeModule (env : Environment) (fname : System.FilePath) : IO Unit := do
+@[extern "lean_ir_export_entries"]
+private opaque exportIREntries (env : Environment) : Array (Name × Array EnvExtensionEntry)
+
+private def mkIRData (env : Environment) : ModuleData :=
+  -- TODO: should we use a more specific/efficient data format for IR?
+  { env.header with
+    entries := exportIREntries env
+    constants := default
+    constNames := default
+    -- make sure to include all names in case only `.ir` is loaded
+    extraConstNames := getIRExtraConstNames env .private (includeDecls := true)
+  }
+
+def writeModule (env : Environment) (fname : System.FilePath) (writeIR := true) : IO Unit := do
   if env.header.isModule then
     let mkPart (level : OLeanLevel) :=
       return (level.adjustFileName fname, (← mkModuleData env level))
@@ -1827,6 +1840,9 @@ def writeModule (env : Environment) (fname : System.FilePath) : IO Unit := do
       (← mkPart .exported),
       (← mkPart .server),
       (← mkPart .private)]
+    if writeIR then
+      -- Make sure to change the module name so we derive a different base address
+      saveModuleData (fname.withExtension "ir") (env.mainModule ++ `ir) (mkIRData env)
   else
     saveModuleData fname env.mainModule (← mkModuleData env)
 
@@ -1846,13 +1862,11 @@ private def setImportedEntries (states : Array EnvExtensionState) (mods : Array 
     (startingAt : Nat := 0) : IO (Array EnvExtensionState) := do
   let mut states := states
   let extDescrs ← persistentEnvExtensionsRef.get
-  let emptyEntries := Array.replicate mods.size #[]
   /- For extensions starting at `startingAt`, ensure their `importedEntries` array have size `mods.size`. -/
   for extDescr in extDescrs[startingAt...*] do
     -- safety: as in `modifyState`
-    -- inline: `modifyState(Impl)` is not usually on the hot path, but certainly here
-    states := unsafe inline extDescr.toEnvExtension.modifyStateImpl states fun s =>
-      { s with importedEntries := emptyEntries }
+    states := unsafe extDescr.toEnvExtension.modifyStateImpl states fun s =>
+      { s with importedEntries := .replicate mods.size #[] }
   /- For each module `mod`, and `mod.entries`, if the extension name is one of the extensions after `startingAt`, set `entries` -/
   let extNameIdx ← mkExtNameMap startingAt
   for h : modIdx in *...mods.size do
@@ -1860,7 +1874,7 @@ private def setImportedEntries (states : Array EnvExtensionState) (mods : Array 
     for (extName, entries) in mod.entries do
       if let some entryIdx := extNameIdx[extName]? then
         -- safety: as in `modifyState`
-        states := unsafe inline extDescrs[entryIdx]!.toEnvExtension.modifyStateImpl states fun s =>
+        states := unsafe extDescrs[entryIdx]!.toEnvExtension.modifyStateImpl states fun s =>
           { s with importedEntries := s.importedEntries.set! modIdx entries }
   return states
 
@@ -1953,7 +1967,7 @@ private def ImportedModule.serverData? (self : ImportedModule) (level : OLeanLev
   self.getData? (if level ≥ .server then level else .exported)
 
 /-- The module data that should be used for accessing IR for interpretation. -/
-private def ImportedModule.interpData? (self : ImportedModule) (level : OLeanLevel)  :
+private def ImportedModule.interpData? (self : ImportedModule) (level : OLeanLevel) :
     Option ModuleData :=
   if (level < .server && self.irPhases == .runtime) || !self.mainModule?.any (·.isModule) then
     self.mainModule?

@@ -413,6 +413,7 @@ where
         else
           let decl ← mkLetDecl nm t arg.toExpr (← arg.inferType) arg (nondep := true)
           go b (i + 1) (xs.push (.fvar decl.fvarId))
+      | .mdata _ e => go e i xs
       | _ => liftMetaM <| Meta.throwFunctionExpected (mkAppN e xs)
     else
       return e.beta xs

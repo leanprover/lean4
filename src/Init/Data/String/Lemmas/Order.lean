@@ -399,4 +399,23 @@ theorem Pos.isUTF8FirstByte_getUTF8Byte_offset {s : String} {p : s.Pos} {h} :
     (s.getUTF8Byte p.offset h).IsUTF8FirstByte := by
   simpa [getUTF8Byte_offset] using isUTF8FirstByte_byte
 
+theorem Slice.Pos.get_eq_get_ofSliceTo {s : Slice} {p₀ : s.Pos} {pos : (s.sliceTo p₀).Pos} {h} :
+    pos.get h = (ofSliceTo pos).get (ofSliceTo_ne_endPos h) := by
+  simp [Slice.Pos.get]
+
+theorem Pos.get_eq_get_ofSliceTo {s : String} {p₀ : s.Pos}
+    {pos : (s.sliceTo p₀).Pos} {h} :
+    pos.get h = (ofSliceTo pos).get (ofSliceTo_ne_endPos h) := by
+  simp [Pos.get, Slice.Pos.get]
+
+theorem Slice.Pos.get_eq_get_ofSlice {s : Slice} {p₀ p₁ : s.Pos} {h}
+    {pos : (s.slice p₀ p₁ h).Pos} {h'} :
+    pos.get h' = (ofSlice pos).get (ofSlice_ne_endPos h') := by
+  simp [Slice.Pos.get, Nat.add_assoc]
+
+theorem Pos.get_eq_get_ofSlice {s : String} {p₀ p₁ : s.Pos} {h}
+    {pos : (s.slice p₀ p₁ h).Pos} {h'} :
+    pos.get h' = (ofSlice pos).get (ofSlice_ne_endPos h') := by
+  simp [Pos.get, Slice.Pos.get]
+
 end String

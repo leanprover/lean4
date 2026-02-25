@@ -336,21 +336,6 @@ theorem Pos.ofSlice_ne_endPos {s : String} {p₀ p₁ : s.Pos} {h} {p : (s.slice
   refine (lt_endPos_iff _).1 (Std.lt_of_lt_of_le ?_ (le_endPos p₁))
   simpa [← Slice.Pos.lt_endPos_iff, ← ofSlice_lt_ofSlice_iff] using h
 
-theorem Slice.Pos.ofSlice_next {s : Slice} {p₀ p₁ : s.Pos} {h}
-    {p : (s.slice p₀ p₁ h).Pos} {h'} :
-    Pos.ofSlice (p.next h') = (Pos.ofSlice p).next (ofSlice_ne_endPos h') := by
-  simp only [Slice.Pos.ext_iff, Pos.Raw.ext_iff, Slice.Pos.offset_next, Slice.Pos.offset_ofSlice]
-  rw [Slice.Pos.get_eq_get_ofSlice (h' := h')]
-  simp [Pos.Raw.offsetBy, Nat.add_assoc]
-
-theorem Pos.ofSlice_next {s : String} {p₀ p₁ : s.Pos} {h}
-    {p : (s.slice p₀ p₁ h).Pos} {h'} :
-    Pos.ofSlice (p.next h') = (Pos.ofSlice p).next (ofSlice_ne_endPos h') := by
-  simp only [Pos.ext_iff, Pos.Raw.ext_iff, Slice.Pos.offset_next, Pos.offset_next,
-    Pos.offset_ofSlice]
-  rw [Pos.get_eq_get_ofSlice (h' := h')]
-  simp [Pos.Raw.offsetBy, Nat.add_assoc]
-
 @[simp]
 theorem Slice.Pos.offset_le_rawEndPos {s : Slice} {p : s.Pos} :
     p.offset ≤ s.rawEndPos :=
@@ -417,5 +402,20 @@ theorem Pos.get_eq_get_ofSlice {s : String} {p₀ p₁ : s.Pos} {h}
     {pos : (s.slice p₀ p₁ h).Pos} {h'} :
     pos.get h' = (ofSlice pos).get (ofSlice_ne_endPos h') := by
   simp [Pos.get, Slice.Pos.get]
+
+theorem Slice.Pos.ofSlice_next {s : Slice} {p₀ p₁ : s.Pos} {h}
+    {p : (s.slice p₀ p₁ h).Pos} {h'} :
+    Pos.ofSlice (p.next h') = (Pos.ofSlice p).next (ofSlice_ne_endPos h') := by
+  simp only [Slice.Pos.ext_iff, Pos.Raw.ext_iff, Slice.Pos.offset_next, Slice.Pos.offset_ofSlice]
+  rw [Slice.Pos.get_eq_get_ofSlice (h' := h')]
+  simp [Pos.Raw.offsetBy, Nat.add_assoc]
+
+theorem Pos.ofSlice_next {s : String} {p₀ p₁ : s.Pos} {h}
+    {p : (s.slice p₀ p₁ h).Pos} {h'} :
+    Pos.ofSlice (p.next h') = (Pos.ofSlice p).next (ofSlice_ne_endPos h') := by
+  simp only [Pos.ext_iff, Pos.Raw.ext_iff, Slice.Pos.offset_next, Pos.offset_next,
+    Pos.offset_ofSlice]
+  rw [Pos.get_eq_get_ofSlice (h' := h')]
+  simp [Pos.Raw.offsetBy, Nat.add_assoc]
 
 end String

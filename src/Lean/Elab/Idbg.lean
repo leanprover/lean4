@@ -235,7 +235,7 @@ def idbgCompileAndEval (α : Type) [Nonempty α]
   | .error msg => throw (.userError s!"idbg evalConst failed: {msg}")
 
 /-- Connect to the debug server, receive expressions, evaluate, send results. Loops forever. -/
-@[nospecialize] public def idbgClientLoop {α : Type} [Nonempty α]
+@[nospecialize, export lean_idbg_client_loop] def idbgClientLoopImpl {α : Type} [Nonempty α]
     (siteId : String) (imports : Array Import) (apply : α → String) : IO Unit := do
   let baseEnv ← idbgLoadEnv imports
   let port := idbgPort siteId

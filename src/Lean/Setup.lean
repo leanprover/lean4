@@ -33,6 +33,11 @@ structure Import where
   deriving Repr, Inhabited, ToJson, FromJson,
     BEq, Hashable -- needed by Lake (in `Lake.Load.Elab.Lean`)
 
+-- TODO: move further up into `Init` by using simpler representation for `imports`
+@[extern "lean_idbg_client_loop"]
+public opaque Idbg.idbgClientLoop {α : Type} [Nonempty α]
+  (siteId : String) (imports : Array Import) (apply : α → String) : IO Unit
+
 instance : Coe Name Import := ⟨({module := ·})⟩
 
 instance : ToString Import := ⟨fun imp =>

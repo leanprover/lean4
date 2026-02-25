@@ -156,6 +156,10 @@ theorem startInclusive_toSubslice {s : Slice} : s.toSubslice.startInclusive = s.
 theorem endExclusive_toSubslice {s : Slice} : s.toSubslice.endExclusive = s.endPos := by
   simp [toSubslice]
 
+@[simp]
+theorem subslice_endPos {s : Slice} {newStart : s.Pos} :
+    s.subslice newStart s.endPos (Slice.Pos.le_endPos _) = s.subsliceFrom newStart := (rfl)
+
 namespace Subslice
 
 /--

@@ -46,6 +46,10 @@ theorem isLongestMatchAt_iff {c : Char} {s : Slice} {pos pos' : s.Pos} :
   simp +contextual [Model.isLongestMatchAt_iff, isLongestMatch_iff, ← Pos.ofSliceFrom_inj,
     Pos.get_eq_get_ofSliceFrom, Pos.ofSliceFrom_next]
 
+theorem isLongestMatchAt_of_get_eq {c: Char} {s : Slice} {pos : s.Pos} {h : pos ≠ s.endPos}
+    (hc : pos.get h = c) : IsLongestMatchAt c pos (pos.next h) :=
+  isLongestMatchAt_iff.2 ⟨h, by simp [hc]⟩
+
 instance {c : Char} : LawfulForwardPatternModel c where
   dropPrefix?_eq_some_iff {s} pos := by
     simp [isLongestMatch_iff, ForwardPattern.dropPrefix?, and_comm, eq_comm (b := pos)]
@@ -56,6 +60,10 @@ instance {c : Char} : LawfulToForwardSearcherModel c :=
 theorem matchesAt_iff {c : Char} {s : Slice} {pos : s.Pos} :
     MatchesAt c pos ↔ ∃ (h : pos ≠ s.endPos), pos.get h = c := by
   simp [matchesAt_iff_exists_isLongestMatchAt, isLongestMatchAt_iff, exists_comm]
+
+theorem not_matchesAt_of_get_ne {c : Char} {s : Slice} {pos : s.Pos} {h : pos ≠ s.endPos}
+    (hc : pos.get h ≠ c) : ¬ MatchesAt c pos := by
+  simp [matchesAt_iff, hc]
 
 theorem matchAt?_eq {s : Slice} {pos : s.Pos} {c : Char} :
     matchAt? c pos =

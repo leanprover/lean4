@@ -8,6 +8,7 @@ module
 
 prelude
 public import Lean.Data.Lsp.Basic
+public import Lean.Data.Lsp.DiagnosticTag
 public import Lean.Data.Lsp.Utf16
 
 
@@ -57,24 +58,6 @@ instance : FromJson DiagnosticCode := ⟨fun
 instance : ToJson DiagnosticCode := ⟨fun
   | DiagnosticCode.int i    => i
   | DiagnosticCode.string s => s⟩
-
-/-- Tags representing additional metadata about the diagnostic. -/
-inductive DiagnosticTag where
-  /-- Unused or unnecessary code. Rendered as faded out eg for unused variables. -/
-  | unnecessary
-  /-- Deprecated or obsolete code. Rendered with a strike-through. -/
-  | deprecated
-  deriving Inhabited, BEq, Ord
-
-instance : FromJson DiagnosticTag := ⟨fun j =>
-  match j.getNat? with
-  | Except.ok 1  => return DiagnosticTag.unnecessary
-  | Except.ok 2  => return DiagnosticTag.deprecated
-  | _            => throw "unknown DiagnosticTag"⟩
-
-instance : ToJson DiagnosticTag := ⟨fun
-  | DiagnosticTag.unnecessary   => (1 : Nat)
-  | DiagnosticTag.deprecated    => (2 : Nat)⟩
 
 /--
 Custom diagnostic tags provided by the language server.

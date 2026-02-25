@@ -239,6 +239,18 @@ instance : MonadLog CommandElabM where
     let msg := { msg with data := MessageData.withNamingContext { currNamespace := currNamespace, openDecls := openDecls } msg.data }
     modify fun s => { s with messages := s.messages.add msg }
 
+private def mkInfoTree (elaborator : Name) (stx : Syntax) (trees : PersistentArray InfoTree) : CommandElabM InfoTree := do
+  let ctx ← read
+  let s ← get
+  let scope := s.scopes.head!
+  let tree := InfoTree.node (Info.ofCommandInfo { elaborator, stx }) trees
+  let ctx := PartialContextInfo.commandCtx {
+    env := s.env, cmdEnv? := some s.env, fileMap := ctx.fileMap, mctx := {},
+    currNamespace := scope.currNamespace,
+    openDecls := scope.openDecls, options := scope.opts, ngen := s.ngen
+  }
+  return InfoTree.context ctx tree
+
 def runLinters (stx : Syntax) : CommandElabM Unit := do
   profileitM Exception "linting" (← getOptions) do
     withTraceNode `Elab.lint (fun _ => return m!"running linters") do
@@ -249,7 +261,10 @@ def runLinters (stx : Syntax) : CommandElabM Unit := do
               (tag := linter.name.toString) do
             let savedState ← get
             try
-              linter.run stx
+              -- Wrap linter execution with context preservation to ensure
+              -- any InfoTree nodes pushed by the linter are properly wrapped
+              withInfoTreeContext (mkInfoTree := mkInfoTree linter.name stx) do
+                linter.run stx
             catch ex =>
               match ex with
               | Exception.error ref msg =>
@@ -257,7 +272,7 @@ def runLinters (stx : Syntax) : CommandElabM Unit := do
               | Exception.internal _ _ =>
                 logException ex
             finally
-              modify fun s => { savedState with messages := s.messages, traceState := s.traceState }
+              modify fun s => { savedState with messages := s.messages, traceState := s.traceState, infoState := s.infoState }
 
 /--
 Catches and logs exceptions occurring in `x`. Unlike `try catch` in `CommandElabM`, this function
@@ -370,18 +385,6 @@ directly.
 @[builtin_doc]
 unsafe builtin_initialize commandElabAttribute : KeyedDeclsAttribute CommandElab ←
   mkElabAttribute CommandElab `builtin_command_elab `command_elab `Lean.Parser.Command `Lean.Elab.Command.CommandElab "command"
-
-private def mkInfoTree (elaborator : Name) (stx : Syntax) (trees : PersistentArray InfoTree) : CommandElabM InfoTree := do
-  let ctx ← read
-  let s ← get
-  let scope := s.scopes.head!
-  let tree := InfoTree.node (Info.ofCommandInfo { elaborator, stx }) trees
-  let ctx := PartialContextInfo.commandCtx {
-    env := s.env, cmdEnv? := some s.env, fileMap := ctx.fileMap, mctx := {},
-    currNamespace := scope.currNamespace,
-    openDecls := scope.openDecls, options := scope.opts, ngen := s.ngen
-  }
-  return InfoTree.context ctx tree
 
 /--
 Disables incremental command reuse *and* reporting for `act` if `cond` is true by setting

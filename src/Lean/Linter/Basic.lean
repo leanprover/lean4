@@ -71,9 +71,10 @@ def getLinterValue (opt : Lean.Option Bool) (o : LinterOptions) : Bool :=
   o.get opt.name (getLinterAll o <| (o.getSet opt).any (o.get? · == some true) || opt.defValue)
 
 def logLint [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions m]
-    (linterOption : Lean.Option Bool) (stx : Syntax) (msg : MessageData) : m Unit :=
+    (linterOption : Lean.Option Bool) (stx : Syntax) (msg : MessageData)
+    (diagnosticTags : Array Lsp.DiagnosticTag := #[]) : m Unit :=
   let disable := .note m!"This linter can be disabled with `set_option {linterOption.name} false`"
-  logWarningAt stx (.tagged linterOption.name m!"{msg}{disable}")
+  logAt stx (.tagged linterOption.name m!"{msg}{disable}") .warning (diagnosticTags := diagnosticTags)
 
 /--
 If `linterOption` is enabled, print a linter warning message at the position determined by `stx`.

@@ -570,14 +570,10 @@ def unusedVariables : Linter where
 
     -- Sort the outputs by position
     for (declStx, userName) in unused.qsort (·.1.getPos?.get! < ·.1.getPos?.get!) do
-      logLint linter.unusedVariables declStx m!"unused variable `{userName}`"
+      logLint linter.unusedVariables declStx m!"unused variable `{userName}`" (diagnosticTags := #[.unnecessary])
 
 builtin_initialize addLinter unusedVariables
 
 end UnusedVariables
 end Linter
 
-/-- Returns true if this is a message produced by the unused variable linter.
-This is used to give these messages an additional "faded" style in the editor. -/
-def MessageData.isUnusedVariableWarning (msg : MessageData) : Bool :=
-  msg.hasTag (· == Linter.linter.unusedVariables.name)

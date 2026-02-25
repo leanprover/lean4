@@ -54,9 +54,6 @@ def setDeprecated {m} [Monad m] [MonadEnv m] [MonadError m] (declName : Name) (e
 def isDeprecated (env : Environment) (declName : Name) : Bool :=
   Option.isSome <| deprecatedAttr.getParam? env declName
 
-def _root_.Lean.MessageData.isDeprecationWarning (msg : MessageData) : Bool :=
-  msg.hasTag (· == ``deprecatedAttr)
-
 def getDeprecatedNewName (env : Environment) (declName : Name) : Option Name := do
   (← deprecatedAttr.getParam? env declName).newName?
 
@@ -91,5 +88,7 @@ def checkDeprecated (declName : Name) : MetaM Unit := do
             msg := msg ++ .note m!"`{.ofConstName newName true}` is protected. References to this \
               constant must include {pfxCompStr}its prefix `{newPfx}` even when inside its namespace."
         pure msg
-    logWarning <| .tagged ``deprecatedAttr <|
-      m!"`{.ofConstName declName true}` has been deprecated" ++ extraMsg
+    logAt (← MonadLog.getRef)
+      (.tagged ``deprecatedAttr <|
+        m!"`{.ofConstName declName true}` has been deprecated" ++ extraMsg)
+      .warning (diagnosticTags := #[.deprecated])

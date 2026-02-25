@@ -34,7 +34,7 @@ private def getDoSeq (doStx : Syntax) : Syntax :=
   doStx[1]
 
 def elabLiftMethod : TermElab := fun stx _ =>
-  throwErrorAt stx "invalid use of `(<- ...)`, must be nested inside a 'do' expression"
+  throwErrorAt stx "invalid use of `(<- ...)`, must be nested inside a `do` expression"
 
 /-- Return true if we should not lift `(<- ...)` actions nested in the syntax nodes with the given kind. -/
 private def liftMethodDelimiter (k : SyntaxNodeKind) : Bool :=

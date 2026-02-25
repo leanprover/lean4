@@ -71,7 +71,7 @@ def mkInhabitantFor (failedToMessage : MessageData) (xs : Array Expr) (type : Ex
           instances for the return type, while making every parameter into a local '{.ofConstName ``Inhabited}' instance.\n\
         - It tries unfolding the return type.\n\
         \n\
-        If the return type is defined using the 'structure' or 'inductive' command, \
-        you can try adding a 'deriving Nonempty' clause to it."
+        If the return type is defined using the `structure` or `inductive` command, \
+        you can try adding a `deriving Nonempty` clause to it."
 
 end Lean.Elab

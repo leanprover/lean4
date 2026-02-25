@@ -4,17 +4,17 @@ has type
   ?m = ?m
 but is expected to have type
   b + b = 0 + c + b
-calcErrors.lean:13:8-13:29: error: invalid 'calc' step, left-hand side is
+calcErrors.lean:13:8-13:29: error: invalid `calc` step, left-hand side is
   0 + c + b : Nat
 but previous right-hand side is
   b + b : Nat
-calcErrors.lean:24:8-24:11: error: invalid 'calc' step, relation expected
+calcErrors.lean:24:8-24:11: error: invalid `calc` step, relation expected
   p a
-calcErrors.lean:31:8-31:13: error: invalid 'calc' step, failed to synthesize `Trans` instance
+calcErrors.lean:31:8-31:13: error: invalid `calc` step, failed to synthesize `Trans` instance
   Trans p p ?m
 
 Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
-calcErrors.lean:40:7-40:12: error: invalid 'calc' step, left-hand side is
+calcErrors.lean:40:7-40:12: error: invalid `calc` step, left-hand side is
   γ : Sort u_1
 but previous right-hand side is
   b : β

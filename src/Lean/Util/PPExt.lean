@@ -26,7 +26,7 @@ register_builtin_option pp.raw.maxDepth : Nat := {
 }
 register_builtin_option pp.rawOnError : Bool := {
   defValue := false
-  descr    := "(pretty printer) fallback to 'raw' printer when pretty printer fails"
+  descr    := "(pretty printer) fallback to \"raw\" printer when pretty printer fails"
 }
 
 structure PPContext where

@@ -511,7 +511,7 @@ partial def normalize (e : Expr) : M Expr := do
         let p := e.getArg! 2
         let h := e.getArg! 3
         unless x.consumeMData.isFVar && h.consumeMData.isFVar do
-          throwError "Unexpected occurrence of auxiliary declaration 'namedPattern'"
+          throwError "Unexpected occurrence of auxiliary declaration `namedPattern`"
         addVar x
         let p ← normalize p
         addVar h
@@ -613,7 +613,7 @@ private partial def toPattern (e : Expr) : MetaM Pattern := do
         let p ← toPattern <| e.getArg! 2
         match e.getArg! 1, e.getArg! 3 with
         | Expr.fvar x, Expr.fvar h => return Pattern.as x p h
-        | _,           _           => throwError "Unexpected occurrence of auxiliary declaration 'namedPattern'"
+        | _,           _           => throwError "Unexpected occurrence of auxiliary declaration `namedPattern`"
       else if (← isMatchValue e) then
         return Pattern.val (← normLitValue e)
       else if e.isFVar then
@@ -1110,7 +1110,7 @@ private def elabMatchAux (generalizing? : Option Bool) (discrStxs : Array Syntax
   let mut generalizing? := generalizing?
   if !matchOptMotive.isNone then
     if generalizing? == some true then
-      throwError "The '(generalizing := true)' parameter is not supported when the 'match' motive is explicitly provided"
+      throwError "The `(generalizing := true)` parameter is not supported when the `match` motive is explicitly provided"
     generalizing? := some false
   let (discrs, matchType, altLHSS, isDep, rhss) ← commitIfDidNotPostpone do
     let ⟨discrs, matchType, isDep, altViews⟩ ← elabMatchTypeAndDiscrs discrStxs matchOptMotive altViews expectedType

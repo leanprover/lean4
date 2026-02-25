@@ -2396,7 +2396,7 @@ def displayStats (env : Environment) : IO Unit := do
   IO.println ("trust level:                           " ++ toString env.header.trustLevel);
   IO.println ("number of extensions:                  " ++ toString env.base.private.extensions.size);
   pExtDescrs.forM fun extDescr => do
-    IO.println ("extension '" ++ toString extDescr.name ++ "'")
+    IO.println ("extension `" ++ toString extDescr.name ++ "`")
     -- get state from `checked` at the end if `async`; it would otherwise panic
     let mut asyncMode := extDescr.toEnvExtension.asyncMode
     if asyncMode matches .async _ then
@@ -2429,7 +2429,7 @@ such as in `#eval`.
   evalConstCore α env opts constName
 
 private def throwUnexpectedType {α} (typeName : Name) (constName : Name) : ExceptT String Id α :=
-  throw ("unexpected type at '" ++ toString constName ++ "', `" ++ toString typeName ++ "` expected")
+  throw ("unexpected type at `" ++ toString constName ++ "`, `" ++ toString typeName ++ "` expected")
 
 /--
 Replays the difference between `newEnv` and `oldEnv` onto `dest`: the set of constants in `newEnv`

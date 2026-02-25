@@ -504,7 +504,7 @@ causes an error if the universe has not been declared previously.
 ```lean
 def L₁.{u} := List (Type u)
 
--- def L₂ := List (Type u) -- error: `unknown universe level 'u'`
+-- def L₂ := List (Type u) -- error: unknown universe level `u`
 
 universe u
 def L₃ := List (Type u)

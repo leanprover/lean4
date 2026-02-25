@@ -424,7 +424,7 @@ def visitModule (pkgs : Array Name) (srcSearchPath : SearchPath)
   let s ← get
 
   let addOnly := addOnly ||
-    (!args.onlyMods.isEmpty && !args.onlyMods.contains (← get).modNames[i]!) ||
+    (!args.onlyMods.isEmpty && !args.onlyMods.contains modName) ||
     module?.any (·.raw.getTrailing?.any (·.toString.contains "shake: keep-all"))
   let mut deps := needs
 

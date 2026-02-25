@@ -8,12 +8,12 @@
         let v := Array.uget ◾ bs i ◾;
         cases v : obj
         | Prod.mk =>
-          let fst := proj[0] v;
+          let fst := oproj[0] v;
           let _x.2 := reset[2] v;
           cases fst : obj
           | Prod.mk =>
-            let fst := proj[0] fst;
-            let snd := proj[1] fst;
+            let fst := oproj[0] fst;
+            let snd := oproj[1] fst;
             let _x.3 := reset[2] fst;
             let _x.4 := 0;
             let bs' := Array.uset ◾ bs i _x.4 ◾;

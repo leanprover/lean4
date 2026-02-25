@@ -253,17 +253,27 @@ where
   mkHeader {α : Type} [ToString α] (csSz : α) (other : Nat) (tag : Nat) : String :=
     s!"\{.m_rc = 0, .m_cs_sz = {csSz}, .m_other = {other}, .m_tag = {tag}}"
 
+def toTokenName (cppBaseName : String) : String :=
+  s!"{cppBaseName}_once"
+
+def emitFnClosedDecl (decl : Decl) (cppBaseName : String) : M Unit := do
+  emitLn s!"static lean_once_cell_t {toTokenName cppBaseName} = LEAN_ONCE_CELL_INITIALIZER;"
+  emitLn s!"static {toCType decl.resultType} {cppBaseName};"
+
 def emitFnDeclAux (decl : Decl) (cppBaseName : String) (isExternal : Bool) : M Unit := do
   let ps := decl.params
   let env ← getEnv
 
   if isSimpleGroundDecl env decl.name then
     emitGroundDecl decl cppBaseName
+  else if isClosedTermName env decl.name then
+    emitFnClosedDecl decl cppBaseName
   else
     if ps.isEmpty then
-      if isExternal then emit "extern "
-      else if isClosedTermName env decl.name then emit "static "
-      else emit "LEAN_EXPORT "
+      if isExternal then
+        emit "extern "
+      else
+        emit "LEAN_EXPORT "
     else
       if !isExternal then emit "LEAN_EXPORT "
     emit (toCType decl.resultType ++ " " ++ cppBaseName)
@@ -588,18 +598,35 @@ def emitExternCall (f : FunId) (ps : Array Param) (extData : ExternAttrData) (ys
   | some (ExternEntry.inline _ pat)     => do emit (expandExternPattern pat (toStringArgs ys)); emitLn ";"
   | _ => throw s!"failed to emit extern application '{f}'"
 
-def emitLeanFunReference (f : FunId) : M Unit := do
-  if isSimpleGroundDecl (← getEnv) f then
+def emitLeanFunReference (t : IRType) (f : FunId) : M Unit := do
+  let env ← getEnv
+  if isSimpleGroundDecl env f then
     emit s!"((lean_object*)({← toCName f}))"
+  else if isClosedTermName env f then
+    emitClosedTermRead t f
   else
     emitCName f
+where
+  emitClosedTermRead (t : IRType) (f : FunId) : M Unit := do
+    let fn ←
+      match t with
+      | .float => pure "lean_float_once"
+      | .float32 => pure "lean_float32_once"
+      | .uint8 => pure "lean_uint8_once"
+      | .uint16 => pure "lean_uint16_once"
+      | .uint32 => pure "lean_uint32_once"
+      | .uint64 => pure "lean_uint64_once"
+      | .usize => pure "lean_usize_once"
+      | .object | .tobject | .tagged | .void => pure "lean_obj_once"
+      | _ => throw s!"failed to emit closed term read for '{f}'"
+    emit s!"{fn}(&{← toCName f}, &{toTokenName (← toCName f)}, {← toCInitName f})"
 
-def emitFullApp (z : VarId) (f : FunId) (ys : Array Arg) : M Unit := do
+def emitFullApp (z : VarId) (t : IRType) (f : FunId) (ys : Array Arg) : M Unit := do
   emitLhs z
   let decl ← getDecl f
   match decl with
   | .fdecl (xs := ps) .. | .extern (xs := ps) (ext := { entries := [.opaque], .. }) .. =>
-    emitLeanFunReference f
+    emitLeanFunReference t f
     if ys.size > 0 then
       let (ys, _) := ys.zip ps |>.filter (fun (_, p) => !p.ty.isVoid) |>.unzip
       emit "("; emitArgs ys; emit ")"
@@ -676,7 +703,7 @@ def emitVDecl (z : VarId) (t : IRType) (v : Expr) : M Unit :=
   | Expr.proj i x       => emitProj z i x
   | Expr.uproj i x      => emitUProj z i x
   | Expr.sproj n o x    => emitSProj z t n o x
-  | Expr.fap c ys       => emitFullApp z c ys
+  | Expr.fap c ys       => emitFullApp z t c ys
   | Expr.pap c ys       => emitPartialApp z c ys
   | Expr.ap x ys        => emitApp z x ys
   | Expr.box t x        => emitBox z x t
@@ -831,7 +858,7 @@ def emitDeclAux (d : Decl) : M Unit := do
             emit (toCType x.ty); emit " "; emit x.x
         emit ")"
       else
-        emit ("_init_" ++ baseName ++ "()")
+        emit ("_init_" ++ baseName ++ "(void)")
       emitLn " {";
       if xs.size > closureMaxArgs && isBoxedName d.name then
         xs.size.forM fun i _ => do
@@ -888,7 +915,7 @@ def emitDeclInit (d : Decl) : M Unit := do
       if getBuiltinInitFnNameFor? env d.name |>.isSome then
         emit "}"
     | _ =>
-      if !isSimpleGroundDecl env d.name then
+      if !isClosedTermName env d.name && !isSimpleGroundDecl env d.name then
         emitCName n; emit " = "; emitCInitName n; emitLn "();"; emitMarkPersistent d n
 
 def emitInitFn : M Unit := do

@@ -1,5 +1,7 @@
 /-!
-# Tests of structure parameter binder updates
+# Tests of `structure` parameter binder updates
+
+See also `inductiveBinderUpdates.lean`.
 -/
 
 /-!

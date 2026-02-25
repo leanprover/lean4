@@ -1,4 +1,4 @@
-@[instance_reducible]
+@[implicit_reducible]
 def myCast : NatCast UInt8 where
   natCast := UInt8.ofNat
 

@@ -723,7 +723,6 @@ theorem findFinIdx?_eq_bind_find?_finIdxOf? [BEq α] [LawfulBEq α] {xs : Array 
     xs.findFinIdx? p = (xs.find? p).bind (xs.finIdxOf? ·) := by
   cases xs
   simp [List.findFinIdx?_eq_bind_find?_finIdxOf?]
-  rfl
 
 theorem findIdx_eq_getD_bind_find?_idxOf? [BEq α] [LawfulBEq α] {xs : Array α} {p : α → Bool} :
     xs.findIdx p = ((xs.find? p).bind (xs.idxOf? ·)).getD xs.size := by

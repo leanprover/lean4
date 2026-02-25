@@ -6,8 +6,7 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Lean.LibrarySuggestions.SineQuaNon
-import all Lean.LibrarySuggestions.SineQuaNon
+public meta import Lean.LibrarySuggestions.SineQuaNon
 
 /-!
 # Default library suggestions engine

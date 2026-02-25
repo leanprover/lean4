@@ -99,7 +99,6 @@ theorem ofFn_add {n m} {f : Fin (n + m) → α} :
   induction m with
   | zero => simp
   | succ m ih =>
-    set_option backward.isDefEq.respectTransparency false in
     simp [-ofFn_succ, ofFn_succ_last, ih]
 
 @[simp]
@@ -157,7 +156,6 @@ theorem ofFnM_add {n m} [Monad m] [LawfulMonad m] {f : Fin (n + k) → m α} :
   induction k with
   | zero => simp
   | succ k ih =>
-    set_option backward.isDefEq.respectTransparency false in
     simp [ofFnM_succ_last, ih]
 
 end List

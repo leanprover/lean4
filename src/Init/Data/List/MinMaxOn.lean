@@ -99,6 +99,15 @@ protected theorem minOn_cons
   | [] => simp
   | y :: xs => simp [foldl_assoc]
 
+protected theorem minOn_cons_cons [LE β] [DecidableLE β] {a b : α} {l : List α} {f : α → β} :
+    (a :: b :: l).minOn f (by simp) = (minOn f a b :: l).minOn f (by simp) :=
+  (rfl)
+
+@[simp]
+protected theorem minOn_cons_cons_nil [LE β] [DecidableLE β] {a b : α} {f : α → β} :
+    [a, b].minOn f (by simp) = minOn f a b := by
+  simp [List.minOn_cons_cons]
+
 @[simp]
 protected theorem minOn_id [Min α] [LE α] [DecidableLE α] [LawfulOrderLeftLeaningMin α]
     {xs : List α} (h : xs ≠ []) :
@@ -242,6 +251,26 @@ protected theorem min_map
     rw [foldl_hom]
     simp [min_apply]
 
+protected theorem minOn_eq_min [Min α] [LE α] [DecidableLE α] [LawfulOrderLeftLeaningMin α]
+    [LE β] [DecidableLE β] {f : α → β} {l : List α} {h}
+    (hf : ∀ a b, f a ≤ f b ↔ a ≤ b) : l.minOn f h = l.min h := by
+  generalize hlen : l.length = n
+  induction n generalizing l with
+  | zero => simp_all
+  | succ n ih =>
+    match n, l, hlen with
+    | 0, [_], _ => simp
+    | 1, [b, c], _ => simp [_root_.minOn_eq_min (hf b c)]
+    | n + 2, b :: c :: tl, _ =>
+      simp [min_cons_cons, List.minOn_cons_cons, _root_.minOn_eq_min (hf b c)]
+      rw [ih (by exact Nat.succ.inj ‹_›)]
+
+protected theorem min_map_eq_min [Min α] [LE α] [DecidableLE α] [LawfulOrderLeftLeaningMin α]
+    [Min β] [LE β] [DecidableLE β] [IsLinearPreorder β] [LawfulOrderLeftLeaningMin β]
+    {f : α → β} (hf : ∀ a b, f a ≤ f b ↔ a ≤ b) {l : List α} {h : l ≠ []} :
+    (l.map f).min (by simpa) = f (l.min h) := by
+  rw [List.min_map h, List.minOn_eq_min hf]
+
 @[simp]
 protected theorem minOn_replicate [LE β] [DecidableLE β] [IsLinearPreorder β]
     {n : Nat} {a : α} {f : α → β} (h : replicate n a ≠ []) :
@@ -270,6 +299,17 @@ protected theorem maxOn_cons
   simp only [maxOn_eq_minOn]
   letI : LE β := (inferInstanceAs (LE β)).opposite
   exact List.minOn_cons (f := f)
+
+protected theorem maxOn_cons_cons [LE β] [DecidableLE β] {a b : α} {l : List α} {f : α → β} :
+    (a :: b :: l).maxOn f (by simp) = (maxOn f a b :: l).maxOn f (by simp) := by
+  simp only [List.maxOn_eq_minOn, maxOn_eq_minOn]
+  letI : LE β := (inferInstanceAs (LE β)).opposite
+  exact List.minOn_cons_cons
+
+@[simp]
+protected theorem maxOn_cons_cons_nil [LE β] [DecidableLE β] {a b : α} {f : α → β} :
+    [a, b].maxOn f (by simp) = maxOn f a b := by
+  simp [List.maxOn_cons_cons]
 
 protected theorem min_eq_max {min : Min α} {xs : List α} {h} :
     xs.min h = (letI := min.oppositeMax; xs.max h) := by
@@ -393,6 +433,26 @@ protected theorem max_map
   letI : LE β := (inferInstanceAs (LE β)).opposite
   letI : Min β := (inferInstanceAs (Max β)).oppositeMin
   simpa [List.max_eq_min] using List.min_map (f := f) h
+
+protected theorem maxOn_eq_max [Max α] [LE α] [DecidableLE α] [LawfulOrderLeftLeaningMax α]
+    [LE β] [DecidableLE β] {f : α → β} {l : List α} {h}
+    (hf : ∀ a b, f a ≤ f b ↔ a ≤ b) : l.maxOn f h = l.max h := by
+  generalize hlen : l.length = n
+  induction n generalizing l with
+  | zero => simp_all
+  | succ n ih =>
+    match n, l, hlen with
+    | 0, [_], _ => simp
+    | 1, [b, c], _ => simp [_root_.maxOn_eq_max (hf c b)]
+    | n + 2, b :: c :: tl, _ =>
+      simp [max_cons_cons, List.maxOn_cons_cons, _root_.maxOn_eq_max (hf c b)]
+      rw [ih (by exact Nat.succ.inj ‹_›)]
+
+protected theorem max_map_eq_max [Max α] [LE α] [DecidableLE α] [LawfulOrderLeftLeaningMax α]
+    [Max β] [LE β] [DecidableLE β] [IsLinearPreorder β] [LawfulOrderLeftLeaningMax β]
+    {f : α → β} (hf : ∀ a b, f a ≤ f b ↔ a ≤ b) {l : List α} {h : l ≠ []} :
+    (l.map f).max (by simpa) = f (l.max h) := by
+  rw [List.max_map h, List.maxOn_eq_max hf]
 
 @[simp]
 protected theorem maxOn_replicate [LE β] [DecidableLE β] [IsLinearPreorder β]

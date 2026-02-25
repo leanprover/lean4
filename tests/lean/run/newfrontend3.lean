@@ -1,7 +1,7 @@
 --
 
-structure S  :=
-(g {α} : α → α)
+structure S : Type u where
+(g {α : Sort u} : α → α)
 
 def f (h : Nat → ({α : Type} → α → α) × Bool) : Nat :=
 (h 0).1 1

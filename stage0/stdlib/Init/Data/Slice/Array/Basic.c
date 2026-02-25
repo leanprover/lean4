@@ -56,9 +56,10 @@ LEAN_EXPORT lean_object* l_instSliceableArrayNatSubarray__8___lam__0(lean_object
 static const lean_closure_object l_instSliceableArrayNatSubarray__8___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_instSliceableArrayNatSubarray__8___lam__0, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_instSliceableArrayNatSubarray__8___closed__0 = (const lean_object*)&l_instSliceableArrayNatSubarray__8___closed__0_value;
 LEAN_EXPORT lean_object* l_instSliceableArrayNatSubarray__8(lean_object*);
-lean_object* l_Subarray_size___redArg(lean_object*);
+lean_object* lean_nat_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instSliceableSubarrayNat___lam__0(lean_object*, lean_object*);
-static const lean_closure_object l_instSliceableSubarrayNat___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_instSliceableSubarrayNat___lam__0, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
+LEAN_EXPORT lean_object* l_instSliceableSubarrayNat___lam__0___boxed(lean_object*, lean_object*);
+static const lean_closure_object l_instSliceableSubarrayNat___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_instSliceableSubarrayNat___lam__0___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_instSliceableSubarrayNat___closed__0 = (const lean_object*)&l_instSliceableSubarrayNat___closed__0_value;
 LEAN_EXPORT lean_object* l_instSliceableSubarrayNat(lean_object*);
 LEAN_EXPORT lean_object* l_instSliceableSubarrayNat__1___lam__0(lean_object*, lean_object*);
@@ -66,11 +67,13 @@ static const lean_closure_object l_instSliceableSubarrayNat__1___closed__0_value
 static const lean_object* l_instSliceableSubarrayNat__1___closed__0 = (const lean_object*)&l_instSliceableSubarrayNat__1___closed__0_value;
 LEAN_EXPORT lean_object* l_instSliceableSubarrayNat__1(lean_object*);
 LEAN_EXPORT lean_object* l_instSliceableSubarrayNat__2___lam__0(lean_object*, lean_object*);
-static const lean_closure_object l_instSliceableSubarrayNat__2___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_instSliceableSubarrayNat__2___lam__0, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
+LEAN_EXPORT lean_object* l_instSliceableSubarrayNat__2___lam__0___boxed(lean_object*, lean_object*);
+static const lean_closure_object l_instSliceableSubarrayNat__2___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_instSliceableSubarrayNat__2___lam__0___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_instSliceableSubarrayNat__2___closed__0 = (const lean_object*)&l_instSliceableSubarrayNat__2___closed__0_value;
 LEAN_EXPORT lean_object* l_instSliceableSubarrayNat__2(lean_object*);
 LEAN_EXPORT lean_object* l_instSliceableSubarrayNat__3___lam__0(lean_object*, lean_object*);
-static const lean_closure_object l_instSliceableSubarrayNat__3___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_instSliceableSubarrayNat__3___lam__0, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
+LEAN_EXPORT lean_object* l_instSliceableSubarrayNat__3___lam__0___boxed(lean_object*, lean_object*);
+static const lean_closure_object l_instSliceableSubarrayNat__3___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_instSliceableSubarrayNat__3___lam__0___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_instSliceableSubarrayNat__3___closed__0 = (const lean_object*)&l_instSliceableSubarrayNat__3___closed__0_value;
 LEAN_EXPORT lean_object* l_instSliceableSubarrayNat__3(lean_object*);
 LEAN_EXPORT lean_object* l_instSliceableSubarrayNat__4___lam__0(lean_object*, lean_object*);
@@ -332,90 +335,70 @@ return x_2;
 LEAN_EXPORT lean_object* l_instSliceableSubarrayNat___lam__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_24; 
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_21; 
+x_3 = lean_ctor_get(x_1, 0);
+lean_inc_ref(x_3);
+x_4 = lean_ctor_get(x_1, 1);
+lean_inc(x_4);
+x_5 = lean_ctor_get(x_1, 2);
+lean_inc(x_5);
+lean_dec_ref(x_1);
 x_12 = lean_ctor_get(x_2, 0);
-lean_inc(x_12);
 x_13 = lean_ctor_get(x_2, 1);
-lean_inc(x_13);
-if (lean_is_exclusive(x_2)) {
- lean_ctor_release(x_2, 0);
- lean_ctor_release(x_2, 1);
- x_14 = x_2;
-} else {
- lean_dec_ref(x_2);
- x_14 = lean_box(0);
-}
-x_15 = lean_unsigned_to_nat(0u);
-x_16 = l_Subarray_size___redArg(x_1);
-x_24 = lean_nat_dec_le(x_12, x_15);
-if (x_24 == 0)
+x_14 = lean_unsigned_to_nat(0u);
+x_15 = lean_nat_sub(x_5, x_4);
+lean_dec(x_5);
+x_21 = lean_nat_dec_le(x_12, x_14);
+if (x_21 == 0)
 {
-x_17 = x_12;
-goto block_23;
+x_16 = x_12;
+goto block_20;
 }
 else
 {
-lean_dec(x_12);
-x_17 = x_15;
-goto block_23;
+x_16 = x_14;
+goto block_20;
 }
 block_11:
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-x_4 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_4);
-x_5 = lean_ctor_get(x_1, 1);
-lean_inc(x_5);
-lean_dec_ref(x_1);
-x_6 = lean_ctor_get(x_3, 0);
-lean_inc(x_6);
-x_7 = lean_ctor_get(x_3, 1);
-lean_inc(x_7);
-lean_dec_ref(x_3);
-x_8 = lean_nat_add(x_6, x_5);
-lean_dec(x_6);
-x_9 = lean_nat_add(x_7, x_5);
-lean_dec(x_5);
+lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+x_8 = lean_nat_add(x_6, x_4);
+x_9 = lean_nat_add(x_7, x_4);
+lean_dec(x_4);
 lean_dec(x_7);
-x_10 = l_Array_toSubarray___redArg(x_4, x_8, x_9);
+x_10 = l_Array_toSubarray___redArg(x_3, x_8, x_9);
 return x_10;
 }
-block_23:
+block_20:
 {
-lean_object* x_18; lean_object* x_19; uint8_t x_20; 
-x_18 = lean_unsigned_to_nat(1u);
-x_19 = lean_nat_add(x_13, x_18);
-lean_dec(x_13);
-x_20 = lean_nat_dec_le(x_19, x_16);
-if (x_20 == 0)
+lean_object* x_17; lean_object* x_18; uint8_t x_19; 
+x_17 = lean_unsigned_to_nat(1u);
+x_18 = lean_nat_add(x_13, x_17);
+x_19 = lean_nat_dec_le(x_18, x_15);
+if (x_19 == 0)
 {
-lean_object* x_21; 
-lean_dec(x_19);
-if (lean_is_scalar(x_14)) {
- x_21 = lean_alloc_ctor(0, 2, 0);
-} else {
- x_21 = x_14;
-}
-lean_ctor_set(x_21, 0, x_17);
-lean_ctor_set(x_21, 1, x_16);
-x_3 = x_21;
+lean_dec(x_18);
+x_6 = x_16;
+x_7 = x_15;
 goto block_11;
 }
 else
 {
-lean_object* x_22; 
-lean_dec(x_16);
-if (lean_is_scalar(x_14)) {
- x_22 = lean_alloc_ctor(0, 2, 0);
-} else {
- x_22 = x_14;
-}
-lean_ctor_set(x_22, 0, x_17);
-lean_ctor_set(x_22, 1, x_19);
-x_3 = x_22;
+lean_dec(x_15);
+x_6 = x_16;
+x_7 = x_18;
 goto block_11;
 }
 }
+}
+}
+LEAN_EXPORT lean_object* l_instSliceableSubarrayNat___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_instSliceableSubarrayNat___lam__0(x_1, x_2);
+lean_dec_ref(x_2);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_instSliceableSubarrayNat(lean_object* x_1) {
@@ -429,84 +412,61 @@ return x_2;
 LEAN_EXPORT lean_object* l_instSliceableSubarrayNat__1___lam__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_22; 
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_19; 
+x_3 = lean_ctor_get(x_1, 0);
+lean_inc_ref(x_3);
+x_4 = lean_ctor_get(x_1, 1);
+lean_inc(x_4);
+x_5 = lean_ctor_get(x_1, 2);
+lean_inc(x_5);
+lean_dec_ref(x_1);
 x_12 = lean_ctor_get(x_2, 0);
 lean_inc(x_12);
 x_13 = lean_ctor_get(x_2, 1);
 lean_inc(x_13);
-if (lean_is_exclusive(x_2)) {
- lean_ctor_release(x_2, 0);
- lean_ctor_release(x_2, 1);
- x_14 = x_2;
-} else {
- lean_dec_ref(x_2);
- x_14 = lean_box(0);
-}
-x_15 = lean_unsigned_to_nat(0u);
-x_16 = l_Subarray_size___redArg(x_1);
-x_22 = lean_nat_dec_le(x_12, x_15);
-if (x_22 == 0)
+lean_dec_ref(x_2);
+x_14 = lean_unsigned_to_nat(0u);
+x_15 = lean_nat_sub(x_5, x_4);
+lean_dec(x_5);
+x_19 = lean_nat_dec_le(x_12, x_14);
+if (x_19 == 0)
 {
-x_17 = x_12;
-goto block_21;
+x_16 = x_12;
+goto block_18;
 }
 else
 {
 lean_dec(x_12);
-x_17 = x_15;
-goto block_21;
+x_16 = x_14;
+goto block_18;
 }
 block_11:
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-x_4 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_4);
-x_5 = lean_ctor_get(x_1, 1);
-lean_inc(x_5);
-lean_dec_ref(x_1);
-x_6 = lean_ctor_get(x_3, 0);
-lean_inc(x_6);
-x_7 = lean_ctor_get(x_3, 1);
-lean_inc(x_7);
-lean_dec_ref(x_3);
-x_8 = lean_nat_add(x_6, x_5);
+lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+x_8 = lean_nat_add(x_6, x_4);
 lean_dec(x_6);
-x_9 = lean_nat_add(x_7, x_5);
-lean_dec(x_5);
+x_9 = lean_nat_add(x_7, x_4);
+lean_dec(x_4);
 lean_dec(x_7);
-x_10 = l_Array_toSubarray___redArg(x_4, x_8, x_9);
+x_10 = l_Array_toSubarray___redArg(x_3, x_8, x_9);
 return x_10;
 }
-block_21:
+block_18:
 {
-uint8_t x_18; 
-x_18 = lean_nat_dec_le(x_13, x_16);
-if (x_18 == 0)
+uint8_t x_17; 
+x_17 = lean_nat_dec_le(x_13, x_15);
+if (x_17 == 0)
 {
-lean_object* x_19; 
 lean_dec(x_13);
-if (lean_is_scalar(x_14)) {
- x_19 = lean_alloc_ctor(0, 2, 0);
-} else {
- x_19 = x_14;
-}
-lean_ctor_set(x_19, 0, x_17);
-lean_ctor_set(x_19, 1, x_16);
-x_3 = x_19;
+x_6 = x_16;
+x_7 = x_15;
 goto block_11;
 }
 else
 {
-lean_object* x_20; 
-lean_dec(x_16);
-if (lean_is_scalar(x_14)) {
- x_20 = lean_alloc_ctor(0, 2, 0);
-} else {
- x_20 = x_14;
-}
-lean_ctor_set(x_20, 0, x_17);
-lean_ctor_set(x_20, 1, x_13);
-x_3 = x_20;
+lean_dec(x_15);
+x_6 = x_16;
+x_7 = x_13;
 goto block_11;
 }
 }
@@ -523,50 +483,49 @@ return x_2;
 LEAN_EXPORT lean_object* l_instSliceableSubarrayNat__2___lam__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_12; lean_object* x_13; uint8_t x_14; 
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_12; lean_object* x_13; uint8_t x_14; 
+x_3 = lean_ctor_get(x_1, 0);
+lean_inc_ref(x_3);
+x_4 = lean_ctor_get(x_1, 1);
+lean_inc(x_4);
+x_5 = lean_ctor_get(x_1, 2);
+lean_inc(x_5);
+lean_dec_ref(x_1);
 x_12 = lean_unsigned_to_nat(0u);
-x_13 = l_Subarray_size___redArg(x_1);
+x_13 = lean_nat_sub(x_5, x_4);
+lean_dec(x_5);
 x_14 = lean_nat_dec_le(x_2, x_12);
 if (x_14 == 0)
 {
-lean_object* x_15; 
-x_15 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_15, 0, x_2);
-lean_ctor_set(x_15, 1, x_13);
-x_3 = x_15;
+x_6 = x_2;
+x_7 = x_13;
 goto block_11;
 }
 else
 {
-lean_object* x_16; 
-lean_dec(x_2);
-x_16 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_16, 0, x_12);
-lean_ctor_set(x_16, 1, x_13);
-x_3 = x_16;
+x_6 = x_12;
+x_7 = x_13;
 goto block_11;
 }
 block_11:
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-x_4 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_4);
-x_5 = lean_ctor_get(x_1, 1);
-lean_inc(x_5);
-lean_dec_ref(x_1);
-x_6 = lean_ctor_get(x_3, 0);
-lean_inc(x_6);
-x_7 = lean_ctor_get(x_3, 1);
-lean_inc(x_7);
-lean_dec_ref(x_3);
-x_8 = lean_nat_add(x_6, x_5);
-lean_dec(x_6);
-x_9 = lean_nat_add(x_7, x_5);
-lean_dec(x_5);
+lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+x_8 = lean_nat_add(x_6, x_4);
+x_9 = lean_nat_add(x_7, x_4);
+lean_dec(x_4);
 lean_dec(x_7);
-x_10 = l_Array_toSubarray___redArg(x_4, x_8, x_9);
+x_10 = l_Array_toSubarray___redArg(x_3, x_8, x_9);
 return x_10;
 }
+}
+}
+LEAN_EXPORT lean_object* l_instSliceableSubarrayNat__2___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_instSliceableSubarrayNat__2___lam__0(x_1, x_2);
+lean_dec(x_2);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_instSliceableSubarrayNat__2(lean_object* x_1) {
@@ -580,92 +539,73 @@ return x_2;
 LEAN_EXPORT lean_object* l_instSliceableSubarrayNat__3___lam__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_24; uint8_t x_25; 
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_21; uint8_t x_22; 
+x_3 = lean_ctor_get(x_1, 0);
+lean_inc_ref(x_3);
+x_4 = lean_ctor_get(x_1, 1);
+lean_inc(x_4);
+x_5 = lean_ctor_get(x_1, 2);
+lean_inc(x_5);
+lean_dec_ref(x_1);
 x_12 = lean_ctor_get(x_2, 0);
-lean_inc(x_12);
 x_13 = lean_ctor_get(x_2, 1);
-lean_inc(x_13);
-if (lean_is_exclusive(x_2)) {
- lean_ctor_release(x_2, 0);
- lean_ctor_release(x_2, 1);
- x_14 = x_2;
-} else {
- lean_dec_ref(x_2);
- x_14 = lean_box(0);
-}
-x_15 = lean_unsigned_to_nat(0u);
-x_16 = l_Subarray_size___redArg(x_1);
-x_17 = lean_unsigned_to_nat(1u);
-x_24 = lean_nat_add(x_12, x_17);
-lean_dec(x_12);
-x_25 = lean_nat_dec_le(x_24, x_15);
-if (x_25 == 0)
+x_14 = lean_unsigned_to_nat(0u);
+x_15 = lean_nat_sub(x_5, x_4);
+lean_dec(x_5);
+x_16 = lean_unsigned_to_nat(1u);
+x_21 = lean_nat_add(x_12, x_16);
+x_22 = lean_nat_dec_le(x_21, x_14);
+if (x_22 == 0)
 {
-x_18 = x_24;
-goto block_23;
+x_17 = x_21;
+goto block_20;
 }
 else
 {
-lean_dec(x_24);
-x_18 = x_15;
-goto block_23;
+lean_dec(x_21);
+x_17 = x_14;
+goto block_20;
 }
 block_11:
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-x_4 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_4);
-x_5 = lean_ctor_get(x_1, 1);
-lean_inc(x_5);
-lean_dec_ref(x_1);
-x_6 = lean_ctor_get(x_3, 0);
-lean_inc(x_6);
-x_7 = lean_ctor_get(x_3, 1);
-lean_inc(x_7);
-lean_dec_ref(x_3);
-x_8 = lean_nat_add(x_6, x_5);
+lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+x_8 = lean_nat_add(x_6, x_4);
 lean_dec(x_6);
-x_9 = lean_nat_add(x_7, x_5);
-lean_dec(x_5);
+x_9 = lean_nat_add(x_7, x_4);
+lean_dec(x_4);
 lean_dec(x_7);
-x_10 = l_Array_toSubarray___redArg(x_4, x_8, x_9);
+x_10 = l_Array_toSubarray___redArg(x_3, x_8, x_9);
 return x_10;
 }
-block_23:
+block_20:
 {
-lean_object* x_19; uint8_t x_20; 
-x_19 = lean_nat_add(x_13, x_17);
-lean_dec(x_13);
-x_20 = lean_nat_dec_le(x_19, x_16);
-if (x_20 == 0)
+lean_object* x_18; uint8_t x_19; 
+x_18 = lean_nat_add(x_13, x_16);
+x_19 = lean_nat_dec_le(x_18, x_15);
+if (x_19 == 0)
 {
-lean_object* x_21; 
-lean_dec(x_19);
-if (lean_is_scalar(x_14)) {
- x_21 = lean_alloc_ctor(0, 2, 0);
-} else {
- x_21 = x_14;
-}
-lean_ctor_set(x_21, 0, x_18);
-lean_ctor_set(x_21, 1, x_16);
-x_3 = x_21;
+lean_dec(x_18);
+x_6 = x_17;
+x_7 = x_15;
 goto block_11;
 }
 else
 {
-lean_object* x_22; 
-lean_dec(x_16);
-if (lean_is_scalar(x_14)) {
- x_22 = lean_alloc_ctor(0, 2, 0);
-} else {
- x_22 = x_14;
-}
-lean_ctor_set(x_22, 0, x_18);
-lean_ctor_set(x_22, 1, x_19);
-x_3 = x_22;
+lean_dec(x_15);
+x_6 = x_17;
+x_7 = x_18;
 goto block_11;
 }
 }
+}
+}
+LEAN_EXPORT lean_object* l_instSliceableSubarrayNat__3___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_instSliceableSubarrayNat__3___lam__0(x_1, x_2);
+lean_dec_ref(x_2);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_instSliceableSubarrayNat__3(lean_object* x_1) {
@@ -679,87 +619,64 @@ return x_2;
 LEAN_EXPORT lean_object* l_instSliceableSubarrayNat__4___lam__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_22; lean_object* x_23; uint8_t x_24; 
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_19; lean_object* x_20; uint8_t x_21; 
+x_3 = lean_ctor_get(x_1, 0);
+lean_inc_ref(x_3);
+x_4 = lean_ctor_get(x_1, 1);
+lean_inc(x_4);
+x_5 = lean_ctor_get(x_1, 2);
+lean_inc(x_5);
+lean_dec_ref(x_1);
 x_12 = lean_ctor_get(x_2, 0);
 lean_inc(x_12);
 x_13 = lean_ctor_get(x_2, 1);
 lean_inc(x_13);
-if (lean_is_exclusive(x_2)) {
- lean_ctor_release(x_2, 0);
- lean_ctor_release(x_2, 1);
- x_14 = x_2;
-} else {
- lean_dec_ref(x_2);
- x_14 = lean_box(0);
-}
-x_15 = lean_unsigned_to_nat(0u);
-x_16 = l_Subarray_size___redArg(x_1);
-x_22 = lean_unsigned_to_nat(1u);
-x_23 = lean_nat_add(x_12, x_22);
+lean_dec_ref(x_2);
+x_14 = lean_unsigned_to_nat(0u);
+x_15 = lean_nat_sub(x_5, x_4);
+lean_dec(x_5);
+x_19 = lean_unsigned_to_nat(1u);
+x_20 = lean_nat_add(x_12, x_19);
 lean_dec(x_12);
-x_24 = lean_nat_dec_le(x_23, x_15);
-if (x_24 == 0)
+x_21 = lean_nat_dec_le(x_20, x_14);
+if (x_21 == 0)
 {
-x_17 = x_23;
-goto block_21;
+x_16 = x_20;
+goto block_18;
 }
 else
 {
-lean_dec(x_23);
-x_17 = x_15;
-goto block_21;
+lean_dec(x_20);
+x_16 = x_14;
+goto block_18;
 }
 block_11:
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-x_4 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_4);
-x_5 = lean_ctor_get(x_1, 1);
-lean_inc(x_5);
-lean_dec_ref(x_1);
-x_6 = lean_ctor_get(x_3, 0);
-lean_inc(x_6);
-x_7 = lean_ctor_get(x_3, 1);
-lean_inc(x_7);
-lean_dec_ref(x_3);
-x_8 = lean_nat_add(x_6, x_5);
+lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+x_8 = lean_nat_add(x_6, x_4);
 lean_dec(x_6);
-x_9 = lean_nat_add(x_7, x_5);
-lean_dec(x_5);
+x_9 = lean_nat_add(x_7, x_4);
+lean_dec(x_4);
 lean_dec(x_7);
-x_10 = l_Array_toSubarray___redArg(x_4, x_8, x_9);
+x_10 = l_Array_toSubarray___redArg(x_3, x_8, x_9);
 return x_10;
 }
-block_21:
+block_18:
 {
-uint8_t x_18; 
-x_18 = lean_nat_dec_le(x_13, x_16);
-if (x_18 == 0)
+uint8_t x_17; 
+x_17 = lean_nat_dec_le(x_13, x_15);
+if (x_17 == 0)
 {
-lean_object* x_19; 
 lean_dec(x_13);
-if (lean_is_scalar(x_14)) {
- x_19 = lean_alloc_ctor(0, 2, 0);
-} else {
- x_19 = x_14;
-}
-lean_ctor_set(x_19, 0, x_17);
-lean_ctor_set(x_19, 1, x_16);
-x_3 = x_19;
+x_6 = x_16;
+x_7 = x_15;
 goto block_11;
 }
 else
 {
-lean_object* x_20; 
-lean_dec(x_16);
-if (lean_is_scalar(x_14)) {
- x_20 = lean_alloc_ctor(0, 2, 0);
-} else {
- x_20 = x_14;
-}
-lean_ctor_set(x_20, 0, x_17);
-lean_ctor_set(x_20, 1, x_13);
-x_3 = x_20;
+lean_dec(x_15);
+x_6 = x_16;
+x_7 = x_13;
 goto block_11;
 }
 }
@@ -776,50 +693,42 @@ return x_2;
 LEAN_EXPORT lean_object* l_instSliceableSubarrayNat__5___lam__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; 
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; 
+x_3 = lean_ctor_get(x_1, 0);
+lean_inc_ref(x_3);
+x_4 = lean_ctor_get(x_1, 1);
+lean_inc(x_4);
+x_5 = lean_ctor_get(x_1, 2);
+lean_inc(x_5);
+lean_dec_ref(x_1);
 x_12 = lean_unsigned_to_nat(0u);
-x_13 = l_Subarray_size___redArg(x_1);
+x_13 = lean_nat_sub(x_5, x_4);
+lean_dec(x_5);
 x_14 = lean_unsigned_to_nat(1u);
 x_15 = lean_nat_add(x_2, x_14);
 x_16 = lean_nat_dec_le(x_15, x_12);
 if (x_16 == 0)
 {
-lean_object* x_17; 
-x_17 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_17, 0, x_15);
-lean_ctor_set(x_17, 1, x_13);
-x_3 = x_17;
+x_6 = x_15;
+x_7 = x_13;
 goto block_11;
 }
 else
 {
-lean_object* x_18; 
 lean_dec(x_15);
-x_18 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_18, 0, x_12);
-lean_ctor_set(x_18, 1, x_13);
-x_3 = x_18;
+x_6 = x_12;
+x_7 = x_13;
 goto block_11;
 }
 block_11:
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-x_4 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_4);
-x_5 = lean_ctor_get(x_1, 1);
-lean_inc(x_5);
-lean_dec_ref(x_1);
-x_6 = lean_ctor_get(x_3, 0);
-lean_inc(x_6);
-x_7 = lean_ctor_get(x_3, 1);
-lean_inc(x_7);
-lean_dec_ref(x_3);
-x_8 = lean_nat_add(x_6, x_5);
+lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+x_8 = lean_nat_add(x_6, x_4);
 lean_dec(x_6);
-x_9 = lean_nat_add(x_7, x_5);
-lean_dec(x_5);
+x_9 = lean_nat_add(x_7, x_4);
+lean_dec(x_4);
 lean_dec(x_7);
-x_10 = l_Array_toSubarray___redArg(x_4, x_8, x_9);
+x_10 = l_Array_toSubarray___redArg(x_3, x_8, x_9);
 return x_10;
 }
 }
@@ -844,51 +753,42 @@ return x_2;
 LEAN_EXPORT lean_object* l_instSliceableSubarrayNat__6___lam__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; 
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; 
+x_3 = lean_ctor_get(x_1, 0);
+lean_inc_ref(x_3);
+x_4 = lean_ctor_get(x_1, 1);
+lean_inc(x_4);
+x_5 = lean_ctor_get(x_1, 2);
+lean_inc(x_5);
+lean_dec_ref(x_1);
 x_12 = lean_unsigned_to_nat(0u);
-x_13 = l_Subarray_size___redArg(x_1);
+x_13 = lean_nat_sub(x_5, x_4);
+lean_dec(x_5);
 x_14 = lean_unsigned_to_nat(1u);
 x_15 = lean_nat_add(x_2, x_14);
 x_16 = lean_nat_dec_le(x_15, x_13);
 if (x_16 == 0)
 {
-lean_object* x_17; 
 lean_dec(x_15);
-x_17 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_17, 0, x_12);
-lean_ctor_set(x_17, 1, x_13);
-x_3 = x_17;
+x_6 = x_12;
+x_7 = x_13;
 goto block_11;
 }
 else
 {
-lean_object* x_18; 
 lean_dec(x_13);
-x_18 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_18, 0, x_12);
-lean_ctor_set(x_18, 1, x_15);
-x_3 = x_18;
+x_6 = x_12;
+x_7 = x_15;
 goto block_11;
 }
 block_11:
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-x_4 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_4);
-x_5 = lean_ctor_get(x_1, 1);
-lean_inc(x_5);
-lean_dec_ref(x_1);
-x_6 = lean_ctor_get(x_3, 0);
-lean_inc(x_6);
-x_7 = lean_ctor_get(x_3, 1);
-lean_inc(x_7);
-lean_dec_ref(x_3);
-x_8 = lean_nat_add(x_6, x_5);
-lean_dec(x_6);
-x_9 = lean_nat_add(x_7, x_5);
-lean_dec(x_5);
+lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+x_8 = lean_nat_add(x_6, x_4);
+x_9 = lean_nat_add(x_7, x_4);
+lean_dec(x_4);
 lean_dec(x_7);
-x_10 = l_Array_toSubarray___redArg(x_4, x_8, x_9);
+x_10 = l_Array_toSubarray___redArg(x_3, x_8, x_9);
 return x_10;
 }
 }
@@ -913,49 +813,40 @@ return x_2;
 LEAN_EXPORT lean_object* l_instSliceableSubarrayNat__7___lam__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_12; lean_object* x_13; uint8_t x_14; 
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_12; lean_object* x_13; uint8_t x_14; 
+x_3 = lean_ctor_get(x_1, 0);
+lean_inc_ref(x_3);
+x_4 = lean_ctor_get(x_1, 1);
+lean_inc(x_4);
+x_5 = lean_ctor_get(x_1, 2);
+lean_inc(x_5);
+lean_dec_ref(x_1);
 x_12 = lean_unsigned_to_nat(0u);
-x_13 = l_Subarray_size___redArg(x_1);
+x_13 = lean_nat_sub(x_5, x_4);
+lean_dec(x_5);
 x_14 = lean_nat_dec_le(x_2, x_13);
 if (x_14 == 0)
 {
-lean_object* x_15; 
 lean_dec(x_2);
-x_15 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_15, 0, x_12);
-lean_ctor_set(x_15, 1, x_13);
-x_3 = x_15;
+x_6 = x_12;
+x_7 = x_13;
 goto block_11;
 }
 else
 {
-lean_object* x_16; 
 lean_dec(x_13);
-x_16 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_16, 0, x_12);
-lean_ctor_set(x_16, 1, x_2);
-x_3 = x_16;
+x_6 = x_12;
+x_7 = x_2;
 goto block_11;
 }
 block_11:
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-x_4 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_4);
-x_5 = lean_ctor_get(x_1, 1);
-lean_inc(x_5);
-lean_dec_ref(x_1);
-x_6 = lean_ctor_get(x_3, 0);
-lean_inc(x_6);
-x_7 = lean_ctor_get(x_3, 1);
-lean_inc(x_7);
-lean_dec_ref(x_3);
-x_8 = lean_nat_add(x_6, x_5);
-lean_dec(x_6);
-x_9 = lean_nat_add(x_7, x_5);
-lean_dec(x_5);
+lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+x_8 = lean_nat_add(x_6, x_4);
+x_9 = lean_nat_add(x_7, x_4);
+lean_dec(x_4);
 lean_dec(x_7);
-x_10 = l_Array_toSubarray___redArg(x_4, x_8, x_9);
+x_10 = l_Array_toSubarray___redArg(x_3, x_8, x_9);
 return x_10;
 }
 }

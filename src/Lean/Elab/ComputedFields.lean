@@ -186,8 +186,9 @@ def overrideComputedFields : M Unit := do
                 ← getComputedFieldValue cfn (mkAppN (mkConst ctor lparams) (params ++ fields))
             else
               mkLambdaFVars (compFieldVars ++ fields) cf
+    let cfnOverride := cfn ++ `_override
     addDecl <| .defnDecl {
-      name := cfn ++ `_override
+      name := cfnOverride
       levelParams
       type := ← mkForallFVars (params ++ indices ++ #[val]) (← inferType cf)
       value := ← mkLambdaFVars (params ++ indices ++ #[val]) <|
@@ -197,7 +198,9 @@ def overrideComputedFields : M Unit := do
       safety := .unsafe
       hints := .opaque
     }
-    setImplementedBy cfn (cfn ++ `_override)
+    if let some inlineAttr := Compiler.getInlineAttribute? (← getEnv) cfn then
+      setInlineAttribute cfnOverride inlineAttr
+    setImplementedBy cfn cfnOverride
 
 def mkComputedFieldOverrides (declName : Name) (compFields : Array Name) : MetaM Unit := do
   let ind ← getConstInfoInduct declName

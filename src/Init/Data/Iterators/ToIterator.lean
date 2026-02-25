@@ -32,14 +32,14 @@ def ToIterator.iter [ToIterator γ Id α β] (x : γ) : Iter (α := α) β :=
   ToIterator.iterM x |>.toIter
 
 /-- Creates a monadic `ToIterator` instance. -/
-@[always_inline, inline, expose]
+@[always_inline, inline, expose, instance_reducible]
 def ToIterator.ofM (α : Type w)
     (iterM : γ → IterM (α := α) m β) :
     ToIterator γ m α β where
   iterMInternal x := iterM x
 
 /-- Creates a pure `ToIterator` instance. -/
-@[always_inline, inline, expose]
+@[always_inline, inline, expose, instance_reducible]
 def ToIterator.of (α : Type w)
     (iter : γ → Iter (α := α) β) :
     ToIterator γ Id α β where

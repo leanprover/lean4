@@ -217,7 +217,9 @@ universe v₁ v₂ v₃ u₁ u₁' u₂ u₃
 structure Discrete (α : Type u₁) where
   as : α
 
-instance discreteCategory (α : Type u₁) : Category (Discrete α) where
+abbrev SmallCategory (C : Type u) : Type (u + 1) := Category.{u} C
+
+instance discreteCategory (α : Type u₁) : SmallCategory (Discrete α) where
   Hom X Y := ULift (PLift (X.as = Y.as))
   id _ := ULift.up (PLift.up rfl)
   comp {X Y Z} g f := by

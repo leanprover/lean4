@@ -21,21 +21,13 @@ partial def findSccCalls (scc : Std.HashMap Name (Decl pu)) (decl : Decl pu) : B
   | .extern .. => return {}
 where
   goCode (c : Code pu) : StateRefT (Std.HashSet Name) BaseIO Unit := do
-    match c with
-    | .let decl k =>
-      match decl.value with
-      | .const name .. | .fap name .. | .pap name .. =>
-        if scc.contains name then
-          modify fun s => s.insert name
-      | _ => pure ()
-      goCode k
-    | .fun decl k _ | .jp decl k =>
-      goCode decl.value
-      goCode k
-    | .cases cases => cases.alts.forM (·.forCodeM goCode)
-    | .jmp .. | .return .. | .unreach .. => return ()
-    | .uset (k := k) .. | .sset (k := k) .. | .inc (k := k) .. | .dec (k := k) .. =>
-      goCode k
+    c.forM fun c => do
+      if let .let decl _ := c then
+        match decl.value with
+        | .const name .. | .fap name .. | .pap name .. =>
+          if scc.contains name then
+            modify fun s => s.insert name
+        | _ => return
 
 end SplitScc
 

@@ -800,18 +800,21 @@ def withMacroExpansion [Monad n] [MonadControlT TermElabM n] (beforeStx afterStx
 Node kind for the `Lean.Elab.Term.elabToSyntax` functionality.
 It is an implementation detail of `Lean.Elab.Term.elabToSyntax`.
 -/
-protected def _root_.Lean.Parser.Term.elabToSyntax : Unit := ()
-
-builtin_initialize Lean.Parser.registerBuiltinNodeKind ``Lean.Parser.Term.elabToSyntax
+@[builtin_term_parser] protected def _root_.Lean.Parser.Term.elabToSyntax : Lean.Parser.Parser := leading_parser
+  "elabToSyntax% " >> Parser.numLit
 
 /-- Refer to the given term elaborator by a scoped `Syntax` object. -/
-def elabToSyntax (fixedTermElab : FixedTermElab) (k : Term → TermElabM α) : TermElabM α := do
+def elabToSyntax (fixedTermElab : FixedTermElab) (k : Term → TermElabM α) (hint? : Option MessageData := none) (ref : Syntax := .missing) : TermElabM α := do
   let ctx ← read
+  let fixedTermElab : FixedTermElab := fun ty? => do
+    if let some hint := hint? then
+      trace[Elab.step] "elabToSyntax hint: {hint}"
+    fixedTermElab ty?
   withReader (fun ctx => { ctx with fixedTermElabs := ctx.fixedTermElabs.push fixedTermElab.toFixedTermElabRef }) do
-    k ⟨mkNode ``Lean.Parser.Term.elabToSyntax #[Syntax.mkNatLit ctx.fixedTermElabs.size]⟩
+    k ⟨Syntax.node (.fromRef ref) ``Lean.Parser.Term.elabToSyntax #[mkAtom "elabToSyntax% ", Syntax.mkNatLit ctx.fixedTermElabs.size]⟩
 
 @[builtin_term_elab Lean.Parser.Term.elabToSyntax] def elabFixedTermElab : TermElab := fun stx expectedType? => do
-  let some idx := stx[0].isNatLit? | throwUnsupportedSyntax
+  let some idx := stx[1].isNatLit? | throwUnsupportedSyntax
   let some fixedTermElab := (← read).fixedTermElabs[idx]?
     | throwError "Fixed term elaborator {idx} not found. There were only {(← read).fixedTermElabs.size} fixed term elaborators registered."
   fixedTermElab.toFixedTermElab expectedType?
@@ -923,10 +926,17 @@ def registerLevelMVarErrorExprInfo (expr : Expr) (ref : Syntax) (msgData? : Opti
 
 def exposeLevelMVars (e : Expr) : MetaM Expr :=
   Core.transform e
+    (pre := fun e => do
+      if e.isSorry then
+        -- (kmill) Exposing metavariables in a `sorry` exposes its encoding.
+        -- On balance, for now it seems better to see `sorry` than ``sorryAx.{?u + 1} (Name → Sort ?u) false `external...hygCtx._hyg.6``
+        return .done e
+      else
+        return .continue)
     (post := fun e => do
       match e with
-      | .const _ us     => return .done <| if us.any (·.isMVar) then e.setPPUniverses true else e
-      | .sort u         => return .done <| if u.isMVar then e.setPPUniverses true else e
+      | .const _ us     => return .done <| if us.any (·.hasMVar) then e.setPPUniverses true else e
+      | .sort u         => return .done <| if u.hasMVar then e.setPPUniverses true else e
       | .lam _ t _ _    => return .done <| if t.hasLevelMVar then e.setOption `pp.funBinderTypes true else e
       | .letE _ t _ _ _ => return .done <| if t.hasLevelMVar then e.setOption `pp.letVarTypes true else e
       | _               => return .done e)
@@ -963,6 +973,31 @@ def logUnassignedLevelMVarsUsingErrorInfos (pendingLevelMVarIds : Array LMVarId)
       error.logError
     return hasNewErrors
 
+/--
+Locates expressions that have level metavariables, calling `f` with the level metavariables exposed.
+Gives entire applications to `f`.
+-/
+partial def forEachExprWithExposedLevelMVars (e : Expr) (f : Expr → TermElabM Unit) : TermElabM Unit := do
+  let rec visitLevel (u : Level) (e : Expr) : TermElabM Unit := do
+    if u.hasMVar then
+      let e' ← exposeLevelMVars e
+      f e'
+  let withExpr (e : Expr) (m : ReaderT Expr (MonadCacheT ExprStructEq Unit TermElabM) Unit) :=
+    withReader (fun _ => e) m
+  let rec visit (e : Expr) (head := false) : ReaderT Expr (MonadCacheT ExprStructEq Unit TermElabM) Unit := do
+    if e.hasLevelMVar then
+      checkCache { val := e : ExprStructEq } fun _ => do
+        match e with
+        | .forallE n d b c | .lam n d b c => withExpr e do visit d; withLocalDecl n c d fun x => visit (b.instantiate1 x)
+        | .letE n t v b nondep => withExpr e do visit t; visit v; withLetDecl n t v (nondep := nondep) fun x => visit (b.instantiate1 x)
+        | .mdata _ b     => withExpr e do visit b
+        | .proj _ _ b    => withExpr e do visit b
+        | .sort u        => visitLevel u (← read)
+        | .const _ us    => (if head then id else withExpr e) <| us.forM (visitLevel · (← read))
+        | .app ..        => withExpr e do e.withApp fun f args => do visit f true; args.forM visit
+        | _              => pure ()
+  visit e |>.run e |>.run {}
+
 /-- Ensure metavariables registered using `registerMVarErrorInfos` (and used in the given declaration) have been assigned. -/
 def ensureNoUnassignedMVars (decl : Declaration) : TermElabM Unit := do
   let pendingMVarIds ← getMVarsAtDecl decl
@@ -976,7 +1011,7 @@ def withoutPostponing (x : TermElabM α) : TermElabM α :=
   withReader (fun ctx => { ctx with mayPostpone := false }) x
 
 /-- Creates syntax for `(` <ident> `:` <type> `)` -/
-def mkExplicitBinder (ident : Syntax) (type : Syntax) : Syntax :=
+def mkExplicitBinder (ident : TSyntax [`ident, ``Parser.Term.hole]) (type : Term) : Syntax :=
   mkNode ``Lean.Parser.Term.explicitBinder #[mkAtom "(", mkNullNode #[ident], mkNullNode #[mkAtom ":", type], mkNullNode, mkAtom ")"]
 
 /--
@@ -1345,12 +1380,12 @@ def withExpectedType (expectedType? : Option Expr) (x : Expr → TermElabM Expr)
 -/
 def saveContext : TermElabM SavedContext :=
   return {
-    macroStack := (← read).macroStack
-    declName?  := (← read).declName?
-    options    := (← getOptions)
-    openDecls  := (← getOpenDecls)
-    errToSorry := (← read).errToSorry
-    levelNames := (← get).levelNames
+    macroStack     := (← read).macroStack
+    declName?      := (← read).declName?
+    options        := (← getOptions)
+    openDecls      := (← getOpenDecls)
+    errToSorry     := (← read).errToSorry
+    levelNames     := (← get).levelNames
     fixedTermElabs := (← read).fixedTermElabs
   }
 
@@ -1358,7 +1393,12 @@ def saveContext : TermElabM SavedContext :=
   Execute `x` with the context saved using `saveContext`.
 -/
 def withSavedContext (savedCtx : SavedContext) (x : TermElabM α) : TermElabM α := do
-  withReader (fun ctx => { ctx with declName? := savedCtx.declName?, macroStack := savedCtx.macroStack, errToSorry := savedCtx.errToSorry }) <|
+  withReader (fun ctx => { ctx with
+        declName? := savedCtx.declName?,
+        macroStack := savedCtx.macroStack,
+        errToSorry := savedCtx.errToSorry,
+        fixedTermElabs := savedCtx.fixedTermElabs,
+      }) <|
     withTheReader Core.Context (fun ctx => { ctx with options := savedCtx.options, openDecls := savedCtx.openDecls }) <|
       withLevelNames savedCtx.levelNames x
 
@@ -2146,7 +2186,7 @@ def TermElabM.toIO (x : TermElabM α)
 -/
 def universeConstraintsCheckpoint (x : TermElabM α) : TermElabM α := do
   let a ← x
-  discard <| processPostponed (mayPostpone := true) (exceptionOnFailure := true)
+  discard <| liftM (m:=TermElabM) (processPostponed (mayPostpone := true) (exceptionOnFailure := true))
   return a
 
 /--

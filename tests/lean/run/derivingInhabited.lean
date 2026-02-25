@@ -54,7 +54,7 @@ structure A where
 deriving Inhabited
 
 /--
-info: @[instance_reducible] private def instInhabitedA : Inhabited A :=
+info: @[implicit_reducible] private def instInhabitedA : Inhabited A :=
 { default := instInhabitedA.default }
 -/
 #guard_msgs in

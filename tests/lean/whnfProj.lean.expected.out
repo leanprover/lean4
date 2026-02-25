@@ -1,6 +1,6 @@
 [Meta.debug] 1. x + 1
 [Meta.debug] 2. x + 1
-[Meta.debug] 3. x.add 1
+[Meta.debug] 3. (x.add 0).succ
 [Meta.debug] 4. (x.add 0).succ
 [Meta.debug] 1. (x, x + 1).fst
 [Meta.debug] 2. x

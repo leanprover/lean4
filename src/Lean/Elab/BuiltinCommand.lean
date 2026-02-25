@@ -70,15 +70,16 @@ where go
 private def addNamespace (header : Name) : CommandElabM Unit :=
   addScopes (isNewNamespace := true) (isNoncomputable := false) (attrs := []) header
 
+private def popScopes (numScopes : Nat) : CommandElabM Unit :=
+  for _ in *...numScopes do
+    popScope
+
 def withNamespace {α} (ns : Name) (elabFn : CommandElabM α) : CommandElabM α := do
   addNamespace ns
   let a ← elabFn
   modify fun s => { s with scopes := s.scopes.drop ns.getNumParts }
+  popScopes ns.getNumParts
   pure a
-
-private def popScopes (numScopes : Nat) : CommandElabM Unit :=
-  for _ in *...numScopes do
-    popScope
 
 private def innermostScopeName? : List Scope → Option Name
   | { header := "", .. } :: _ => none

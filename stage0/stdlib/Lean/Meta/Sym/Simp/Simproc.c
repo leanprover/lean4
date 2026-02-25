@@ -28,6 +28,10 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Sym_Simp_instOrElseSimproc___lam__0___boxed
 static const lean_closure_object l_Lean_Meta_Sym_Simp_instOrElseSimproc___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lean_Meta_Sym_Simp_instOrElseSimproc___lam__0___boxed, .m_arity = 13, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_Lean_Meta_Sym_Simp_instOrElseSimproc___closed__0 = (const lean_object*)&l_Lean_Meta_Sym_Simp_instOrElseSimproc___closed__0_value;
 LEAN_EXPORT const lean_object* l_Lean_Meta_Sym_Simp_instOrElseSimproc = (const lean_object*)&l_Lean_Meta_Sym_Simp_instOrElseSimproc___closed__0_value;
+uint8_t l_Lean_Exception_isInterrupt(lean_object*);
+uint8_t l_Lean_Exception_isRuntime(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Sym_Simp_Simproc_tryCatch(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Sym_Simp_Simproc_tryCatch___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Sym_Simp_Simproc_andThen(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12) {
 _start:
 {
@@ -1208,6 +1212,78 @@ _start:
 lean_object* x_14; 
 x_14 = l_Lean_Meta_Sym_Simp_instOrElseSimproc___lam__0(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
 return x_14;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_Sym_Simp_Simproc_tryCatch(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11) {
+_start:
+{
+lean_object* x_13; 
+x_13 = lean_apply_11(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, lean_box(0));
+if (lean_obj_tag(x_13) == 0)
+{
+return x_13;
+}
+else
+{
+lean_object* x_14; uint8_t x_15; uint8_t x_22; 
+x_14 = lean_ctor_get(x_13, 0);
+lean_inc(x_14);
+x_22 = l_Lean_Exception_isInterrupt(x_14);
+if (x_22 == 0)
+{
+uint8_t x_23; 
+x_23 = l_Lean_Exception_isRuntime(x_14);
+x_15 = x_23;
+goto block_21;
+}
+else
+{
+lean_dec(x_14);
+x_15 = x_22;
+goto block_21;
+}
+block_21:
+{
+if (x_15 == 0)
+{
+uint8_t x_16; 
+x_16 = !lean_is_exclusive(x_13);
+if (x_16 == 0)
+{
+lean_object* x_17; lean_object* x_18; 
+x_17 = lean_ctor_get(x_13, 0);
+lean_dec(x_17);
+x_18 = lean_alloc_ctor(0, 0, 1);
+lean_ctor_set_uint8(x_18, 0, x_15);
+lean_ctor_set_tag(x_13, 0);
+lean_ctor_set(x_13, 0, x_18);
+return x_13;
+}
+else
+{
+lean_object* x_19; lean_object* x_20; 
+lean_dec(x_13);
+x_19 = lean_alloc_ctor(0, 0, 1);
+lean_ctor_set_uint8(x_19, 0, x_15);
+x_20 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_20, 0, x_19);
+return x_20;
+}
+}
+else
+{
+return x_13;
+}
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_Sym_Simp_Simproc_tryCatch___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12) {
+_start:
+{
+lean_object* x_13; 
+x_13 = l_Lean_Meta_Sym_Simp_Simproc_tryCatch(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
+return x_13;
 }
 }
 lean_object* initialize_Lean_Meta_Sym_Simp_Result(uint8_t builtin);

@@ -24,7 +24,7 @@ trace: [Compiler.saveMono] size: 7
         return _x.6
 [Compiler.simpCase] size: 2
     def test f : tobj :=
-      let n.1 := proj[0] f;
+      let n.1 := oproj[0] f;
       let _x.2 := aux n.1;
       return _x.2
 -/

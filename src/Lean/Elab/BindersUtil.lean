@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Parser.Term
 meta import Lean.Parser.Term
+meta import Lean.Parser.Do
 import Init.Syntax
 
 public section
@@ -65,12 +66,19 @@ def shouldExpandMatchAlt : TSyntax ``matchAlt → Bool
 def expandMatchAlts? (stx : Syntax) : MacroM (Option Syntax) := do
   match stx with
   | `(match $[$gen]? $[$motive]? $discrs,* with $alts:matchAlt*) =>
-    if alts.any shouldExpandMatchAlt then
-      let alts ← alts.foldlM (init := #[]) fun alts alt => return alts ++ (expandMatchAlt alt)
+     expand alts >>= fun alts? => alts?.mapM fun alts =>
       `(match $[$gen]? $[$motive]? $discrs,* with $alts:matchAlt*)
-    else
-      return none
+  | `(doElem| match $[$dep?]? $[$gen]? $[$motive]? $discrs,* with $alts:matchAlt*) =>
+     expand alts >>= fun alts? => alts?.mapM fun alts =>
+      `(doElem| match $[$dep?]? $[$gen]? $[$motive]? $discrs,* with $alts:matchAlt*)
   | _ => return none
+  where
+    expand (alts : Array (TSyntax ``matchAlt)) : MacroM (Option (Array (TSyntax ``matchAlt))) := do
+      if alts.any shouldExpandMatchAlt then
+        let alts ← alts.foldlM (init := #[]) fun alts alt => return alts ++ expandMatchAlt alt
+        return some alts
+      else
+        return none
 
 open TSyntax.Compat in
 def clearInMatchAlt (stx : TSyntax ``matchAlt) (vars : Array Ident) : TSyntax ``matchAlt :=

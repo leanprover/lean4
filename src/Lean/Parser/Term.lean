@@ -912,6 +912,10 @@ interpolated string literal) to stderr. It should only be used for debugging.
 @[builtin_term_parser] def dbgTrace := leading_parser:leadPrec
   withPosition ("dbg_trace" >> (interpolatedStr termParser <|> termParser)) >>
   optSemicolon termParser
+/-- Term-level form of the interactive debugger. See the `doIdbg` do element for full documentation. -/
+@[builtin_term_parser] def «idbg» := leading_parser:leadPrec
+  withPosition ("idbg " >> checkColGt >> termParser) >>
+  optSemicolon termParser
 /-- `assert! cond` panics if `cond` evaluates to `false`. -/
 @[builtin_term_parser] def assert := leading_parser:leadPrec
   withPosition ("assert! " >> termParser) >> optSemicolon termParser
@@ -959,6 +963,14 @@ def matchExprAlts (rhsParser : Parser) :=
   leading_parser withPosition $
     many (ppLine >> checkColGe "irrelevant" >> notFollowedBy (symbol "| " >> " _ ") "irrelevant" >> matchExprAlt rhsParser)
     >> (ppLine >> checkColGe "else-alternative for `match_expr`, i.e., `| _ => ...`" >> matchExprElseAlt rhsParser)
+/--
+  Useful for syntax quotations. Note that generic patterns such as `` `(matchExprAltExpr| | ... => $rhs) `` should also
+  work with other `rhsParser`s (of arity 1). -/
+def matchExprAltExpr := matchExprAlt termParser
+
+instance : Coe (TSyntax ``matchExprAltExpr) (TSyntax ``matchExprAlt) where
+  coe stx := ⟨stx.raw⟩
+
 @[builtin_term_parser] def matchExpr := leading_parser:leadPrec
   "match_expr " >> termParser >> " with" >> ppDedent (matchExprAlts termParser)
 
@@ -1015,6 +1027,14 @@ string or a `MessageData` term.
 -/
 @[builtin_term_parser] def logNamedWarningAtMacro := leading_parser
   "logNamedWarningAt " >> termParser maxPrec >> ppSpace >> identWithPartialTrailingDot >> ppSpace >> (interpolatedStr termParser <|> termParser maxPrec)
+
+/--
+Representation of an expression with metadata used during pretty printing for the `pp.mdata` option.
+-/
+@[run_builtin_parser_attribute_hooks]
+def mdataDiagnostic := leading_parser
+  group ("[" >> "mdata" >> many (group <| ppSpace >> ident >> optional (":" >> termParser)) >> "]") >>
+  ppSpace >> termParser
 
 end Term
 

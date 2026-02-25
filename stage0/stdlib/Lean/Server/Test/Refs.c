@@ -17,7 +17,7 @@ LEAN_EXPORT lean_object* l_Lean_Server_Test_Refs_test7;
 LEAN_EXPORT lean_object* l_Lean_Server_Test_Refs_test8;
 LEAN_EXPORT lean_object* l_Lean_Server_Test_Refs_test9;
 LEAN_EXPORT lean_object* l_Lean_Server_Test_Refs_test10;
-static lean_object* _init_l_Lean_Server_Test_Refs_test7() {
+static lean_object* _init_l_Lean_Server_Test_Refs_test7(void) {
 _start:
 {
 lean_object* x_1; 
@@ -25,7 +25,7 @@ x_1 = lean_box(0);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Server_Test_Refs_test8() {
+static lean_object* _init_l_Lean_Server_Test_Refs_test8(void) {
 _start:
 {
 lean_object* x_1; 
@@ -33,7 +33,7 @@ x_1 = lean_box(0);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Server_Test_Refs_test9() {
+static lean_object* _init_l_Lean_Server_Test_Refs_test9(void) {
 _start:
 {
 lean_object* x_1; 
@@ -41,7 +41,7 @@ x_1 = lean_box(0);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Server_Test_Refs_test10() {
+static lean_object* _init_l_Lean_Server_Test_Refs_test10(void) {
 _start:
 {
 lean_object* x_1; 

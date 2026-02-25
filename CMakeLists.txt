@@ -70,13 +70,7 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
       BUILD_IN_SOURCE ON
       INSTALL_COMMAND ""
     )
-    set(
-      CADICAL
-      ${CMAKE_BINARY_DIR}/cadical/cadical${CMAKE_EXECUTABLE_SUFFIX}
-      CACHE FILEPATH
-      "path to cadical binary"
-      FORCE
-    )
+    set(CADICAL ${CMAKE_BINARY_DIR}/cadical/cadical${CMAKE_EXECUTABLE_SUFFIX})
     list(APPEND EXTRA_DEPENDS cadical)
   endif()
   list(APPEND CL_ARGS -DCADICAL=${CADICAL})

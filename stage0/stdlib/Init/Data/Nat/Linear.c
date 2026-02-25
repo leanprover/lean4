@@ -106,7 +106,7 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Linear_0__Nat_Linear_Poly_isZ
 LEAN_EXPORT lean_object* l_Nat_elimOffset___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Nat_elimOffset(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_elimOffset___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* _init_l_Nat_Linear_fixedVar() {
+static lean_object* _init_l_Nat_Linear_fixedVar(void) {
 _start:
 {
 lean_object* x_1; 
@@ -714,11 +714,11 @@ x_35 = l_Nat_blt(x_28, x_26);
 if (x_35 == 0)
 {
 uint8_t x_36; 
-lean_free_object(x_3);
 lean_inc(x_27);
 lean_inc(x_26);
 lean_inc(x_25);
 lean_inc(x_24);
+lean_free_object(x_3);
 x_36 = !lean_is_exclusive(x_2);
 if (x_36 == 0)
 {
@@ -1072,8 +1072,8 @@ else
 {
 uint8_t x_87; 
 lean_inc(x_24);
-lean_dec(x_22);
 lean_inc(x_21);
+lean_dec(x_22);
 x_87 = !lean_is_exclusive(x_2);
 if (x_87 == 0)
 {
@@ -1111,7 +1111,7 @@ goto _start;
 }
 }
 }
-static lean_object* _init_l_Nat_Linear_hugeFuel() {
+static lean_object* _init_l_Nat_Linear_hugeFuel(void) {
 _start:
 {
 lean_object* x_1; 

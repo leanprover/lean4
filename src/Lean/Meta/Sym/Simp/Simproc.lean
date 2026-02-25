@@ -27,4 +27,8 @@ public abbrev Simproc.orElse (f g : Simproc) : Simproc := fun e₁ => do
 public instance : OrElse Simproc where
   orElse f g := Simproc.orElse f (g ())
 
+/-- Wraps a simproc so that any exception is caught and treated as `.rfl` (no rewrite). -/
+public abbrev Simproc.tryCatch (f : Simproc) : Simproc := fun e => do
+  try f e catch _ => return .rfl
+
 end Lean.Meta.Sym.Simp

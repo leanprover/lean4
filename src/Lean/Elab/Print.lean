@@ -28,7 +28,7 @@ private def mkHeader (kind : String) (id : Name) (levelParams : List Name) (type
   match (← getReducibilityStatus id) with
   | .irreducible =>   attrs := attrs.push m!"irreducible"
   | .reducible =>     attrs := attrs.push m!"reducible"
-  | .instanceReducible => attrs := attrs.push m!"instance_reducible"
+  | .implicitReducible => attrs := attrs.push m!"implicit_reducible"
   | .semireducible => pure ()
 
   let env ← getEnv

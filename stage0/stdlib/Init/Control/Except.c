@@ -2649,8 +2649,8 @@ lean_object* x_7;
 x_7 = lean_ctor_get(x_2, 0);
 if (lean_obj_tag(x_7) == 0)
 {
-lean_free_object(x_2);
 lean_dec_ref(x_7);
+lean_free_object(x_2);
 goto block_5;
 }
 else

@@ -19,10 +19,13 @@ lean_object* lean_max_small_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_maxSmallNatFn___boxed(lean_object*);
 lean_object* lean_libuv_version(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_libUVVersionFn___boxed(lean_object*);
+static lean_once_cell_t l_Lean_closureMaxArgs___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_closureMaxArgs___closed__0;
 LEAN_EXPORT lean_object* l_Lean_closureMaxArgs;
+static lean_once_cell_t l_Lean_maxSmallNat___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_maxSmallNat___closed__0;
 LEAN_EXPORT lean_object* l_Lean_maxSmallNat;
+static lean_once_cell_t l_Lean_libUVVersion___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_libUVVersion___closed__0;
 LEAN_EXPORT lean_object* l_Lean_libUVVersion;
 LEAN_EXPORT lean_object* l_Lean_closureMaxArgsFn___boxed(lean_object* x_1) {
@@ -49,7 +52,7 @@ x_2 = lean_libuv_version(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_closureMaxArgs___closed__0() {
+static lean_object* _init_l_Lean_closureMaxArgs___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -58,15 +61,15 @@ x_2 = lean_closure_max_args(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_closureMaxArgs() {
+static lean_object* _init_l_Lean_closureMaxArgs(void) {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_closureMaxArgs___closed__0;
+x_1 = lean_obj_once(&l_Lean_closureMaxArgs___closed__0, &l_Lean_closureMaxArgs___closed__0_once, _init_l_Lean_closureMaxArgs___closed__0);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_maxSmallNat___closed__0() {
+static lean_object* _init_l_Lean_maxSmallNat___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -75,15 +78,15 @@ x_2 = lean_max_small_nat(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_maxSmallNat() {
+static lean_object* _init_l_Lean_maxSmallNat(void) {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_maxSmallNat___closed__0;
+x_1 = lean_obj_once(&l_Lean_maxSmallNat___closed__0, &l_Lean_maxSmallNat___closed__0_once, _init_l_Lean_maxSmallNat___closed__0);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_libUVVersion___closed__0() {
+static lean_object* _init_l_Lean_libUVVersion___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -92,11 +95,11 @@ x_2 = lean_libuv_version(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_libUVVersion() {
+static lean_object* _init_l_Lean_libUVVersion(void) {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_libUVVersion___closed__0;
+x_1 = lean_obj_once(&l_Lean_libUVVersion___closed__0, &l_Lean_libUVVersion___closed__0_once, _init_l_Lean_libUVVersion___closed__0);
 return x_1;
 }
 }
@@ -109,16 +112,10 @@ _G_initialized = true;
 res = initialize_Init_Prelude(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_closureMaxArgs___closed__0 = _init_l_Lean_closureMaxArgs___closed__0();
-lean_mark_persistent(l_Lean_closureMaxArgs___closed__0);
 l_Lean_closureMaxArgs = _init_l_Lean_closureMaxArgs();
 lean_mark_persistent(l_Lean_closureMaxArgs);
-l_Lean_maxSmallNat___closed__0 = _init_l_Lean_maxSmallNat___closed__0();
-lean_mark_persistent(l_Lean_maxSmallNat___closed__0);
 l_Lean_maxSmallNat = _init_l_Lean_maxSmallNat();
 lean_mark_persistent(l_Lean_maxSmallNat);
-l_Lean_libUVVersion___closed__0 = _init_l_Lean_libUVVersion___closed__0();
-lean_mark_persistent(l_Lean_libUVVersion___closed__0);
 l_Lean_libUVVersion = _init_l_Lean_libUVVersion();
 lean_mark_persistent(l_Lean_libUVVersion);
 return lean_io_result_mk_ok(lean_box(0));

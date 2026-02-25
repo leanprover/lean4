@@ -52,7 +52,9 @@ static const lean_object* l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___closed__0 
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 static const lean_ctor_object l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___closed__0_value),LEAN_SCALAR_PTR_LITERAL(155, 221, 223, 104, 58, 13, 204, 158)}};
 static const lean_object* l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___closed__1 = (const lean_object*)&l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___closed__1_value;
+static lean_once_cell_t l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___closed__2_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___closed__2;
+static lean_once_cell_t l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___closed__3_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_getIsCharInst_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -620,7 +622,7 @@ lean_dec(x_8);
 return x_20;
 }
 }
-static lean_object* _init_l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___closed__2() {
+static lean_object* _init_l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___closed__2(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -630,11 +632,11 @@ x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___closed__3() {
+static lean_object* _init_l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___closed__3(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___closed__2;
+x_1 = lean_obj_once(&l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___closed__2, &l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___closed__2_once, _init_l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___closed__2);
 x_2 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -645,7 +647,7 @@ _start:
 {
 lean_object* x_15; lean_object* x_16; uint8_t x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; uint8_t x_21; lean_object* x_22; 
 x_15 = lean_box(0);
-x_16 = l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___closed__3;
+x_16 = lean_obj_once(&l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___closed__3, &l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___closed__3_once, _init_l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___closed__3);
 x_17 = 0;
 x_18 = lean_box(0);
 x_19 = lean_box(x_17);
@@ -818,10 +820,6 @@ lean_dec_ref(res);
 res = initialize_Init_Grind_Ring(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___closed__2 = _init_l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___closed__2();
-lean_mark_persistent(l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___closed__2);
-l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___closed__3 = _init_l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___closed__3();
-lean_mark_persistent(l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___closed__3);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

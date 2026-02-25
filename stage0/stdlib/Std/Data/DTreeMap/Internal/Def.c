@@ -176,7 +176,7 @@ x_3 = lean_box(1);
 return x_3;
 }
 }
-static lean_object* _init_l_Std_DTreeMap_Internal_delta() {
+static lean_object* _init_l_Std_DTreeMap_Internal_delta(void) {
 _start:
 {
 lean_object* x_1; 
@@ -184,7 +184,7 @@ x_1 = lean_unsigned_to_nat(3u);
 return x_1;
 }
 }
-static lean_object* _init_l_Std_DTreeMap_Internal_ratio() {
+static lean_object* _init_l_Std_DTreeMap_Internal_ratio(void) {
 _start:
 {
 lean_object* x_1; 

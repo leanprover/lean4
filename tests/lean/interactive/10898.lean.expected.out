@@ -1,0 +1,9 @@
+{"textDocument": {"uri": "file:///10898.lean"},
+ "position": {"line": 5, "character": 24}}
+{"rendered": "```lean\nh : 2 + 1 = 3\n⊢ True\n```",
+ "goals": ["h : 2 + 1 = 3\n⊢ True"]}
+{"textDocument": {"uri": "file:///10898.lean"},
+ "position": {"line": 5, "character": 24}}
+{"range":
+ {"start": {"line": 5, "character": 24}, "end": {"line": 5, "character": 25}},
+ "goal": "h : 1 + 2 = 3\n⊢ Nat"}

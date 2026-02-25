@@ -75,7 +75,7 @@ unsafe def fold {α : Type} (f : Name → α → MetaM α) (e : Expr) (acc : α)
         return acc
       else
         modify fun s => { s with visitedConsts := s.visitedConsts.insert c }
-        if ← isInstanceReducible c then
+        if ← isImplicitReducible c then
           return acc
         else
           f c acc
@@ -319,7 +319,7 @@ def isDeniedPremise (env : Environment) (name : Name) (allowPrivate : Bool := fa
   if name == ``sorryAx then return true
   -- Allow private names through if allowPrivate is set (e.g., for currentFile selector)
   if name.isInternalDetail && !(allowPrivate && isPrivateName name) then return true
-  if isInstanceReducibleCore env name then return true
+  if isImplicitReducibleCore env name then return true
   if Lean.Linter.isDeprecated env name then return true
   if (nameDenyListExt.getState env).any (fun p => name.anyS (· == p)) then return true
   if let some moduleIdx := env.getModuleIdxFor? name then
@@ -426,9 +426,7 @@ def elabSetLibrarySuggestions : CommandElab
     -- Generate a fresh name for the selector definition
     let name ← liftMacroM <| Macro.addMacroScope `_librarySuggestions
     -- Elaborate the definition with the library_suggestions attribute
-    -- Note: @[expose] public, to ensure visibility across module boundaries
-    -- Use fully qualified `Lean.LibrarySuggestions.Selector` for module compatibility
-    elabCommand (← `(@[expose, library_suggestions] public def $(mkIdent name) : Lean.LibrarySuggestions.Selector := $selector))
+    elabCommand (← `(@[library_suggestions] public meta def $(mkIdent name) : Selector := $selector))
   | _ => throwUnsupportedSyntax
 
 open Lean.Elab.Tactic in

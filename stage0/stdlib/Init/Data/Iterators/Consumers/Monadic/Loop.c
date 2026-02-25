@@ -213,6 +213,7 @@ LEAN_EXPORT lean_object* l_Std_IterM_first_x3f___boxed(lean_object*, lean_object
 LEAN_EXPORT lean_object* l_Std_IterM_Total_first_x3f___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_IterM_Total_first_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_IterM_Total_first_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_once_cell_t l_Std_IterM_isEmpty___redArg___lam__1___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_IterM_isEmpty___redArg___lam__1___closed__0;
 LEAN_EXPORT lean_object* l_Std_IterM_isEmpty___redArg___lam__1(lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Std_IterM_isEmpty___redArg___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3684,7 +3685,7 @@ lean_dec(x_5);
 return x_9;
 }
 }
-static lean_object* _init_l_Std_IterM_isEmpty___redArg___lam__1___closed__0() {
+static lean_object* _init_l_Std_IterM_isEmpty___redArg___lam__1___closed__0(void) {
 _start:
 {
 uint8_t x_1; lean_object* x_2; lean_object* x_3; 
@@ -3699,7 +3700,7 @@ LEAN_EXPORT lean_object* l_Std_IterM_isEmpty___redArg___lam__1(lean_object* x_1,
 _start:
 {
 lean_object* x_5; lean_object* x_6; 
-x_5 = l_Std_IterM_isEmpty___redArg___lam__1___closed__0;
+x_5 = lean_obj_once(&l_Std_IterM_isEmpty___redArg___lam__1___closed__0, &l_Std_IterM_isEmpty___redArg___lam__1___closed__0_once, _init_l_Std_IterM_isEmpty___redArg___lam__1___closed__0);
 x_6 = lean_apply_2(x_1, lean_box(0), x_5);
 return x_6;
 }
@@ -4191,8 +4192,6 @@ lean_dec_ref(res);
 res = initialize_Init_PropLemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Std_IterM_isEmpty___redArg___lam__1___closed__0 = _init_l_Std_IterM_isEmpty___redArg___lam__1___closed__0();
-lean_mark_persistent(l_Std_IterM_isEmpty___redArg___lam__1___closed__0);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

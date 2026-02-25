@@ -42,7 +42,6 @@ theorem IterM.dropWhile_eq_intermediateDropWhile {α m β} [Monad m]
     it.dropWhile P = Intermediate.dropWhile P true it :=
   rfl
 
-set_option backward.isDefEq.respectTransparency false in
 theorem IterM.step_intermediateDropWhileWithPostcondition {α m β} [Monad m] [Iterator α m β]
     {it : IterM (α := α) m β} {P} {dropping} :
     (IterM.Intermediate.dropWhileWithPostcondition P dropping it).step = (do
@@ -61,10 +60,11 @@ theorem IterM.step_intermediateDropWhileWithPostcondition {α m β} [Monad m] [I
       return .deflate <| .skip (IterM.Intermediate.dropWhileWithPostcondition P dropping it') (.skip h)
     | .done h =>
       return .deflate <| .done (.done h)) := by
-  simp only [step, Iterator.step]
+  simp only [step, Iterator.step, Intermediate.dropWhileWithPostcondition]
   apply bind_congr
   intro step
-  cases step.inflate using PlausibleIterStep.casesOn <;> rfl
+  simp
+  cases h : step.inflate using PlausibleIterStep.casesOn <;> rfl
 
 theorem IterM.step_dropWhileWithPostcondition {α m β} [Monad m] [Iterator α m β]
     {it : IterM (α := α) m β} {P} :

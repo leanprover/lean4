@@ -205,6 +205,7 @@ extern lean_object* l_Lean_Int_mkInstLE;
 LEAN_EXPORT lean_object* l_Lean_Meta_DefEq_isInstLEInt(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_DefEq_isInstLEInt___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
+static lean_once_cell_t l_Lean_Meta_DefEq_isInstDvdInt___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Meta_DefEq_isInstDvdInt___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Meta_DefEq_isInstDvdInt(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_DefEq_isInstDvdInt___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2503,7 +2504,7 @@ x_7 = l_Lean_Meta_DefEq_isInstLEInt(x_1, x_2, x_3, x_4, x_5);
 return x_7;
 }
 }
-static lean_object* _init_l_Lean_Meta_DefEq_isInstDvdInt___closed__0() {
+static lean_object* _init_l_Lean_Meta_DefEq_isInstDvdInt___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2530,7 +2531,7 @@ if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; 
 lean_dec_ref(x_7);
-x_10 = l_Lean_Meta_DefEq_isInstDvdInt___closed__0;
+x_10 = lean_obj_once(&l_Lean_Meta_DefEq_isInstDvdInt___closed__0, &l_Lean_Meta_DefEq_isInstDvdInt___closed__0_once, _init_l_Lean_Meta_DefEq_isInstDvdInt___closed__0);
 x_11 = l_Lean_Meta_isDefEqI(x_1, x_10, x_2, x_3, x_4, x_5);
 return x_11;
 }
@@ -2572,8 +2573,6 @@ _G_initialized = true;
 res = initialize_Lean_Meta_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Meta_DefEq_isInstDvdInt___closed__0 = _init_l_Lean_Meta_DefEq_isInstDvdInt___closed__0();
-lean_mark_persistent(l_Lean_Meta_DefEq_isInstDvdInt___closed__0);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

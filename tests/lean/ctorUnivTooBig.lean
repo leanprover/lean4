@@ -9,7 +9,12 @@ inductive Foo : Type where
 
 inductive Foo' : Type u where
   | leaf
-  | mk : Sort (max u v) → a → Foo' -- Error
+  | mk {a : Sort u} : Sort (max u v) → a → Foo' -- Error
+  | mk₂
+
+inductive Foo'' : Type u where
+  | leaf
+  | mk : Sort (max u v) → a → Foo'' -- Error
   | mk₂
 
 inductive Boo : Type u where

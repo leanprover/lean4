@@ -21,7 +21,7 @@ trace: [Compiler.saveMono] size: 5
         let _x.1 := 1;
         return _x.1
       | Option.some =>
-        let val.2 := proj[0] x;
+        let val.2 := oproj[0] x;
         let _x.3 := 0;
         return _x.3
 [Compiler.elimDeadVars] size: 5

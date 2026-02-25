@@ -21,6 +21,8 @@ public import Lean.Server.FileWorker.SetupFile
 public import Lean.Server.Completion.ImportCompletion
 public import Lean.Server.CodeActions.UnknownIdentifier
 
+import Init.Data.String.OrderInstances
+
 public section
 
 /-!

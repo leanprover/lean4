@@ -58,8 +58,7 @@ theorem Iter.forIn_eq {α β : Type w} [Iterator α Id β] [Finite α Id]
     forIn' ita b f = forIn' itb b' g := by
   subst_eqs
   simp only [← funext_iff] at h
-  rw [← h]
-  rfl
+  rw [← h]; rfl
 
 @[congr] theorem Iter.forIn_congr {α β : Type w} {m : Type w → Type w'} [Monad m]
     [Iterator α Id β] [Finite α Id] [IteratorLoop α Id m]
@@ -276,8 +275,7 @@ theorem Iter.forIn'_eq_forIn'_toList {α β : Type w} [Iterator α Id β]
     {f : (out : β) → _ → γ → m (ForInStep γ)} :
     letI : ForIn' m (Iter (α := α) β) β _ := Iter.instForIn'
     ForIn'.forIn' it init f = ForIn'.forIn' it.toList init (fun out h acc => f out (Iter.mem_toList_iff_isPlausibleIndirectOutput.mp h) acc) := by
-  simp only [forIn'_toList]
-  congr
+  simp only [forIn'_toList]; rfl
 
 theorem Iter.forIn'_eq_forIn'_toArray {α β : Type w} [Iterator α Id β]
     [Finite α Id] {m : Type x → Type x'} [Monad m] [LawfulMonad m]
@@ -287,8 +285,7 @@ theorem Iter.forIn'_eq_forIn'_toArray {α β : Type w} [Iterator α Id β]
     {f : (out : β) → _ → γ → m (ForInStep γ)} :
     letI : ForIn' m (Iter (α := α) β) β _ := Iter.instForIn'
     ForIn'.forIn' it init f = ForIn'.forIn' it.toArray init (fun out h acc => f out (Iter.mem_toArray_iff_isPlausibleIndirectOutput.mp h) acc) := by
-  simp only [forIn'_toArray]
-  congr
+  simp only [forIn'_toArray]; rfl
 
 theorem Iter.forIn_toList {α β : Type w} [Iterator α Id β]
     [Finite α Id] {m : Type x → Type x'} [Monad m] [LawfulMonad m]

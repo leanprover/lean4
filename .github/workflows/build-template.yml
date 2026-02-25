@@ -49,7 +49,7 @@ jobs:
       LSAN_OPTIONS: max_leaks=10
       # somehow MinGW clang64 (or cmake?) defaults to `g++` even though it doesn't exist
       CXX: c++
-      MACOSX_DEPLOYMENT_TARGET: 10.15
+      MACOSX_DEPLOYMENT_TARGET: 11.0
     steps:
       - name: Install Nix
         uses: DeterminateSystems/nix-installer-action@main

@@ -182,15 +182,17 @@ def binderType (requireType := false) : Parser :=
 @[run_builtin_parser_attribute_hooks]
 def binderTactic  := leading_parser
   atomic (symbol " := " >> " by ") >> Tactic.tacticSeq
-set_option compiler.postponeCompile false in  -- TODO
 def binderDefault := leading_parser
   " := " >> termParser
+
+set_option compiler.relaxedMetaCheck true in
+private meta def binderDefaultM := binderDefault
 
 open Lean.PrettyPrinter Parenthesizer Syntax.MonadTraverser in
 @[combinator_parenthesizer Lean.Parser.Term.binderDefault, expose] def binderDefault.parenthesizer : Parenthesizer := do
   let prec := match (← getCur) with
     -- must parenthesize to distinguish from `binderTactic`
-    | `(binderDefault| := by $_) => maxPrec
+    | `(binderDefaultM| := by $_) => maxPrec
     | _                          => 0
   visitArgs do
     term.parenthesizer prec

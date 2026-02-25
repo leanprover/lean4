@@ -1285,6 +1285,6 @@ Typeclass synthesis should remain fast when multiple `with` patterns are nested
 
 Prior to #2478, this requires over 30000 heartbeats.
 -/
-set_option synthInstance.maxHeartbeats 400 in
+set_option synthInstance.maxHeartbeats 500 in
 instance instAlgebra' (R M : Type _) [CommRing R] (I : Ideal (Quot_r R M)) :
     Algebra R ((Quot_r R M) ⧸ I) := inferInstance

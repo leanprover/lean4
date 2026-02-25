@@ -58,6 +58,7 @@ for dir in ("tests/lean",):
 # Files that use the old naming convention in the new directories.
 
 for dir in (
+    "doc/examples",
     "tests/compile",
     "tests/compile_bench",
     "tests/elab",

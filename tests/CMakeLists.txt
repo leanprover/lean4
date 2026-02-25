@@ -222,20 +222,6 @@ set(PART2 "")
 ## Tests and benchmarks ##
 ##########################
 
-# LEAN RUN doc/examples
-file(GLOB LEANDOCEXS "${LEAN_SOURCE_DIR}/../doc/examples/*.lean")
-foreach(T ${LEANDOCEXS})
-  if(NOT T MATCHES "\\.#")
-    get_filename_component(T_NAME ${T} NAME)
-    cmake_path(RELATIVE_PATH T BASE_DIRECTORY ${LEAN_SOURCE_DIR}/.. OUTPUT_VARIABLE T_PATH)
-    add_test(
-      NAME "${T_PATH}"
-      WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../doc/examples"
-      COMMAND bash -c "${TEST_VARS} ./test_single.sh ${T_NAME}"
-    )
-  endif()
-endforeach(T)
-
 # LEAN COMPILER TESTS
 file(GLOB LEANCOMPTESTS "${LEAN_SOURCE_DIR}/../tests/compiler/*.lean")
 foreach(T ${LEANCOMPTESTS})
@@ -252,11 +238,6 @@ add_test(
   NAME leancomptest_foreign
   WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/compiler/foreign"
   COMMAND bash -c "${LEAN_BIN}/leanmake --always-make"
-)
-add_test(
-  NAME leancomptest_doc_example
-  WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../doc/examples/compiler"
-  COMMAND bash -c "export ${TEST_VARS}; leanmake --always-make bin && ./build/bin/test hello world"
 )
 
 # LEAN INTERPRETER TESTS
@@ -398,6 +379,7 @@ endforeach(T)
 add_test(NAME lint.py COMMAND python3 lint.py WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
 set_tests_properties(lint.py PROPERTIES RUN_SERIAL TRUE)
 
+add_test_pile(../doc/examples *.lean)
 add_test_pile(compile *.lean BENCH PART2)
 add_test_pile(compile_bench *.lean BENCH PART2)
 add_test_pile(elab *.lean)
@@ -406,6 +388,7 @@ add_test_pile(elab_fail *.lean)
 add_test_pile(misc *.sh)
 add_test_pile(misc_bench *.sh BENCH PART2)
 
+add_test_dir(../doc/examples/compiler)
 add_test_dir(bench/build BENCH PART1)
 add_test_dir(bench/size BENCH PART1)
 add_test_dir(lake_bench/inundation BENCH PART2)

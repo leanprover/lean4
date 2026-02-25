@@ -699,9 +699,6 @@ LEAN_EXPORT lean_object* l_List_max___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_max(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_intersperse___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_intersperse(lean_object*, lean_object*, lean_object*);
-lean_object* l_List_flatten___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_List_intercalate___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_intercalate(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_eraseDupsBy_loop___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_eraseDupsBy_loop(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_eraseDupsBy___redArg(lean_object*, lean_object*);
@@ -7921,23 +7918,6 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_List_intersperse___redArg(x_2, x_3);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_List_intercalate___redArg(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; lean_object* x_4; 
-x_3 = l_List_intersperse___redArg(x_1, x_2);
-x_4 = l_List_flatten___redArg(x_3);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_List_intercalate(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_List_intercalate___redArg(x_2, x_3);
 return x_4;
 }
 }

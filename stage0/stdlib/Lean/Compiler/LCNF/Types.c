@@ -2693,8 +2693,8 @@ goto block_15;
 }
 else
 {
-lean_dec_ref(x_47);
 lean_dec(x_48);
+lean_dec_ref(x_47);
 lean_free_object(x_11);
 goto block_15;
 }
@@ -2864,8 +2864,8 @@ goto block_15;
 }
 else
 {
-lean_dec_ref(x_69);
 lean_dec(x_70);
+lean_dec_ref(x_69);
 goto block_15;
 }
 }
@@ -2900,8 +2900,8 @@ goto block_15;
 }
 default: 
 {
-lean_dec_ref(x_11);
 lean_dec(x_12);
+lean_dec_ref(x_11);
 lean_dec(x_5);
 lean_dec_ref(x_4);
 lean_dec(x_3);

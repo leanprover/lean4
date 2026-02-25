@@ -2749,8 +2749,8 @@ else
 {
 uint8_t x_43; lean_object* x_44; lean_object* x_45; 
 lean_dec(x_16);
-lean_dec_ref(x_2);
 lean_dec(x_10);
+lean_dec_ref(x_2);
 lean_dec(x_4);
 lean_dec_ref(x_3);
 lean_dec(x_1);

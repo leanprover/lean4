@@ -472,12 +472,8 @@ LEAN_EXPORT lean_object* l_List_append___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_append___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_append(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_append___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_flatten___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_List_flatten(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_map___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_map(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_flatMap___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_flatMap(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_to_list(lean_object*);
 LEAN_EXPORT lean_object* l_Array_toList___boxed(lean_object*, lean_object*);
 lean_object* lean_array_mk(lean_object*);
@@ -575,8 +571,6 @@ lean_object* lean_byte_array_size(lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_size___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_String_utf8EncodeChar(uint32_t);
 LEAN_EXPORT lean_object* l_String_utf8EncodeChar___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_List_map___at___00List_utf8Encode_spec__0(lean_object*);
-LEAN_EXPORT lean_object* l_List_utf8Encode(lean_object*);
 lean_object* lean_string_to_utf8(lean_object*);
 LEAN_EXPORT lean_object* l_String_toByteArray___boxed(lean_object*);
 lean_object* lean_string_from_utf8_unchecked(lean_object*);
@@ -5291,38 +5285,6 @@ lean_dec(x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_List_flatten___redArg(lean_object* x_1) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_2; 
-x_2 = lean_box(0);
-return x_2;
-}
-else
-{
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_3 = lean_ctor_get(x_1, 0);
-lean_inc(x_3);
-x_4 = lean_ctor_get(x_1, 1);
-lean_inc(x_4);
-lean_dec_ref(x_1);
-x_5 = l_List_flatten___redArg(x_4);
-x_6 = l_List_append___redArg(x_3, x_5);
-lean_dec(x_5);
-return x_6;
-}
-}
-}
-LEAN_EXPORT lean_object* l_List_flatten(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_List_flatten___redArg(x_2);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l_List_map___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -5374,24 +5336,6 @@ _start:
 lean_object* x_5; 
 x_5 = l_List_map___redArg(x_3, x_4);
 return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_List_flatMap___redArg(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; lean_object* x_4; 
-x_3 = l_List_map___redArg(x_1, x_2);
-x_4 = l_List_flatten___redArg(x_3);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_List_flatMap(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; lean_object* x_6; 
-x_5 = l_List_map___redArg(x_3, x_4);
-x_6 = l_List_flatten___redArg(x_5);
-return x_6;
 }
 }
 LEAN_EXPORT lean_object* l_Array_toList___boxed(lean_object* x_1, lean_object* x_2) {
@@ -6327,63 +6271,6 @@ x_2 = lean_unbox_uint32(x_1);
 lean_dec(x_1);
 x_3 = l_String_utf8EncodeChar(x_2);
 return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_List_map___at___00List_utf8Encode_spec__0(lean_object* x_1) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_2; 
-x_2 = lean_box(0);
-return x_2;
-}
-else
-{
-uint8_t x_3; 
-x_3 = !lean_is_exclusive(x_1);
-if (x_3 == 0)
-{
-lean_object* x_4; lean_object* x_5; uint32_t x_6; lean_object* x_7; lean_object* x_8; 
-x_4 = lean_ctor_get(x_1, 0);
-x_5 = lean_ctor_get(x_1, 1);
-x_6 = lean_unbox_uint32(x_4);
-lean_dec(x_4);
-x_7 = l_String_utf8EncodeChar(x_6);
-x_8 = l_List_map___at___00List_utf8Encode_spec__0(x_5);
-lean_ctor_set(x_1, 1, x_8);
-lean_ctor_set(x_1, 0, x_7);
-return x_1;
-}
-else
-{
-lean_object* x_9; lean_object* x_10; uint32_t x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
-x_9 = lean_ctor_get(x_1, 0);
-x_10 = lean_ctor_get(x_1, 1);
-lean_inc(x_10);
-lean_inc(x_9);
-lean_dec(x_1);
-x_11 = lean_unbox_uint32(x_9);
-lean_dec(x_9);
-x_12 = l_String_utf8EncodeChar(x_11);
-x_13 = l_List_map___at___00List_utf8Encode_spec__0(x_10);
-x_14 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_14, 0, x_12);
-lean_ctor_set(x_14, 1, x_13);
-return x_14;
-}
-}
-}
-}
-LEAN_EXPORT lean_object* l_List_utf8Encode(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = l_List_map___at___00List_utf8Encode_spec__0(x_1);
-x_3 = l_List_flatten___redArg(x_2);
-x_4 = l_List_toByteArray(x_3);
-lean_dec(x_3);
-return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_String_toByteArray___boxed(lean_object* x_1) {

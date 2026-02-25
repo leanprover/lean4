@@ -5862,7 +5862,7 @@ x_14 = lean_ctor_get(x_1, 1);
 lean_dec(x_14);
 x_15 = lean_ctor_get(x_1, 0);
 lean_dec(x_15);
-lean_ctor_set(x_1, 1, x_11);
+lean_ctor_set(x_1, 1, x_10);
 x_16 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_16, 0, x_1);
 return x_16;
@@ -5873,7 +5873,7 @@ lean_object* x_17; lean_object* x_18;
 lean_dec(x_1);
 x_17 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_17, 0, x_8);
-lean_ctor_set(x_17, 1, x_11);
+lean_ctor_set(x_17, 1, x_10);
 x_18 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_18, 0, x_17);
 return x_18;
@@ -5882,7 +5882,7 @@ return x_18;
 else
 {
 lean_object* x_19; 
-lean_dec_ref(x_11);
+lean_dec_ref(x_10);
 x_19 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_19, 0, x_1);
 return x_19;
@@ -5905,8 +5905,8 @@ x_30 = lean_ptr_addr(x_28);
 x_31 = lean_usize_dec_eq(x_29, x_30);
 if (x_31 == 0)
 {
-x_10 = lean_box(0);
-x_11 = x_28;
+x_10 = x_28;
+x_11 = lean_box(0);
 x_12 = x_31;
 goto block_20;
 }
@@ -5915,8 +5915,8 @@ else
 size_t x_32; uint8_t x_33; 
 x_32 = lean_ptr_addr(x_8);
 x_33 = lean_usize_dec_eq(x_32, x_32);
-x_10 = lean_box(0);
-x_11 = x_28;
+x_10 = x_28;
+x_11 = lean_box(0);
 x_12 = x_33;
 goto block_20;
 }
@@ -6423,16 +6423,16 @@ return x_168;
 else
 {
 lean_dec(x_157);
-lean_dec_ref(x_1);
 lean_dec_ref(x_79);
+lean_dec_ref(x_1);
 return x_158;
 }
 }
 else
 {
 uint8_t x_176; 
-lean_dec_ref(x_79);
 lean_dec_ref(x_1);
+lean_dec_ref(x_79);
 lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_4);
@@ -6457,8 +6457,8 @@ return x_178;
 }
 else
 {
-lean_dec_ref(x_79);
 lean_dec_ref(x_1);
+lean_dec_ref(x_79);
 lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_4);
@@ -11046,8 +11046,8 @@ return x_117;
 else
 {
 uint8_t x_118; 
-lean_dec_ref(x_3);
 lean_dec(x_109);
+lean_dec_ref(x_3);
 x_118 = !lean_is_exclusive(x_111);
 if (x_118 == 0)
 {
@@ -11207,8 +11207,8 @@ return x_150;
 else
 {
 uint8_t x_151; 
-lean_dec_ref(x_3);
 lean_dec_ref(x_142);
+lean_dec_ref(x_3);
 x_151 = !lean_is_exclusive(x_144);
 if (x_151 == 0)
 {
@@ -12090,8 +12090,8 @@ else
 {
 uint8_t x_23; 
 lean_dec_ref(x_12);
-lean_dec_ref(x_11);
 lean_dec_ref(x_1);
+lean_dec_ref(x_11);
 lean_dec(x_8);
 lean_dec_ref(x_7);
 lean_dec(x_6);
@@ -12120,8 +12120,8 @@ else
 {
 uint8_t x_26; 
 lean_dec_ref(x_12);
-lean_dec_ref(x_11);
 lean_dec_ref(x_1);
+lean_dec_ref(x_11);
 lean_dec(x_8);
 lean_dec_ref(x_7);
 lean_dec(x_6);
@@ -12195,8 +12195,8 @@ else
 {
 uint8_t x_42; 
 lean_dec_ref(x_30);
-lean_dec_ref(x_1);
 lean_dec_ref(x_29);
+lean_dec_ref(x_1);
 lean_dec(x_8);
 lean_dec_ref(x_7);
 lean_dec(x_6);
@@ -12284,8 +12284,8 @@ uint8_t x_60;
 lean_dec(x_56);
 lean_dec(x_55);
 lean_dec_ref(x_46);
-lean_dec_ref(x_45);
 lean_dec_ref(x_1);
+lean_dec_ref(x_45);
 lean_dec(x_8);
 lean_dec_ref(x_7);
 lean_dec(x_6);
@@ -12314,8 +12314,8 @@ else
 {
 uint8_t x_63; 
 lean_dec_ref(x_46);
-lean_dec_ref(x_45);
 lean_dec_ref(x_1);
+lean_dec_ref(x_45);
 lean_dec(x_8);
 lean_dec_ref(x_7);
 lean_dec(x_6);
@@ -12525,7 +12525,7 @@ x_72 = lean_ctor_get(x_1, 1);
 lean_dec(x_72);
 x_73 = lean_ctor_get(x_1, 0);
 lean_dec(x_73);
-lean_ctor_set(x_1, 1, x_69);
+lean_ctor_set(x_1, 1, x_68);
 x_74 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_74, 0, x_1);
 return x_74;
@@ -12536,7 +12536,7 @@ lean_object* x_75; lean_object* x_76;
 lean_dec(x_1);
 x_75 = lean_alloc_ctor(3, 2, 0);
 lean_ctor_set(x_75, 0, x_66);
-lean_ctor_set(x_75, 1, x_69);
+lean_ctor_set(x_75, 1, x_68);
 x_76 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_76, 0, x_75);
 return x_76;
@@ -12545,7 +12545,7 @@ return x_76;
 else
 {
 lean_object* x_77; 
-lean_dec_ref(x_69);
+lean_dec_ref(x_68);
 x_77 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_77, 0, x_1);
 return x_77;
@@ -12557,8 +12557,8 @@ uint8_t x_81;
 x_81 = l_Lean_instBEqFVarId_beq(x_66, x_66);
 if (x_81 == 0)
 {
-x_68 = lean_box(0);
-x_69 = x_79;
+x_68 = x_79;
+x_69 = lean_box(0);
 x_70 = x_81;
 goto block_78;
 }
@@ -12568,8 +12568,8 @@ size_t x_82; size_t x_83; uint8_t x_84;
 x_82 = lean_ptr_addr(x_67);
 x_83 = lean_ptr_addr(x_79);
 x_84 = lean_usize_dec_eq(x_82, x_83);
-x_68 = lean_box(0);
-x_69 = x_79;
+x_68 = x_79;
+x_69 = lean_box(0);
 x_70 = x_84;
 goto block_78;
 }

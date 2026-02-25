@@ -11687,8 +11687,8 @@ goto block_338;
 }
 else
 {
-lean_dec_ref(x_19);
 lean_dec(x_20);
+lean_dec_ref(x_19);
 lean_dec(x_17);
 lean_dec(x_16);
 lean_dec(x_13);
@@ -12783,8 +12783,8 @@ lean_dec(x_28);
 lean_dec_ref(x_27);
 lean_dec(x_26);
 lean_dec_ref(x_25);
-lean_dec_ref(x_19);
 lean_dec(x_20);
+lean_dec_ref(x_19);
 lean_dec(x_17);
 lean_dec(x_16);
 lean_dec(x_13);
@@ -19717,7 +19717,7 @@ block_45:
 {
 lean_object* x_33; double x_34; double x_35; double x_36; double x_37; double x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; uint8_t x_43; lean_object* x_44; 
 x_33 = lean_io_mono_nanos_now();
-x_34 = lean_float_of_nat(x_29);
+x_34 = lean_float_of_nat(x_30);
 x_35 = lean_float_once(&l_Lean_mkNoConfusion___closed__0, &l_Lean_mkNoConfusion___closed__0_once, _init_l_Lean_mkNoConfusion___closed__0);
 x_36 = lean_float_div(x_34, x_35);
 x_37 = lean_float_of_nat(x_33);
@@ -19732,7 +19732,7 @@ lean_ctor_set(x_42, 0, x_31);
 lean_ctor_set(x_42, 1, x_41);
 x_43 = lean_unbox(x_25);
 lean_dec(x_25);
-x_44 = l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_mkNoConfusion_spec__2___redArg(x_23, x_22, x_28, x_21, x_43, x_30, x_27, x_42, x_2, x_3, x_4, x_5);
+x_44 = l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_mkNoConfusion_spec__2___redArg(x_23, x_22, x_28, x_21, x_43, x_29, x_27, x_42, x_2, x_3, x_4, x_5);
 lean_dec_ref(x_21);
 return x_44;
 }
@@ -19745,8 +19745,8 @@ if (lean_is_scalar(x_26)) {
  x_50 = x_26;
 }
 lean_ctor_set(x_50, 0, x_48);
-x_29 = x_46;
-x_30 = x_47;
+x_29 = x_47;
+x_30 = x_46;
 x_31 = x_50;
 x_32 = lean_box(0);
 goto block_45;
@@ -19761,8 +19761,8 @@ x_55 = !lean_is_exclusive(x_54);
 if (x_55 == 0)
 {
 lean_ctor_set_tag(x_54, 1);
-x_29 = x_52;
-x_30 = x_53;
+x_29 = x_53;
+x_30 = x_52;
 x_31 = x_54;
 x_32 = lean_box(0);
 goto block_45;
@@ -19775,8 +19775,8 @@ lean_inc(x_56);
 lean_dec(x_54);
 x_57 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_57, 0, x_56);
-x_29 = x_52;
-x_30 = x_53;
+x_29 = x_53;
+x_30 = x_52;
 x_31 = x_57;
 x_32 = lean_box(0);
 goto block_45;

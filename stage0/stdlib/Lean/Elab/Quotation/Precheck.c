@@ -4827,8 +4827,8 @@ x_62 = l_List_isEmpty___redArg(x_11);
 if (x_62 == 0)
 {
 lean_object* x_63; lean_object* x_64; 
-lean_dec(x_10);
 lean_dec_ref(x_1);
+lean_dec(x_10);
 lean_dec(x_8);
 lean_dec_ref(x_7);
 lean_dec(x_6);
@@ -4932,8 +4932,8 @@ goto block_61;
 else
 {
 lean_object* x_78; 
-lean_dec(x_10);
 lean_dec_ref(x_1);
+lean_dec(x_10);
 lean_dec(x_8);
 lean_dec_ref(x_7);
 lean_dec(x_6);
@@ -5028,8 +5028,8 @@ goto block_61;
 else
 {
 lean_object* x_91; lean_object* x_92; 
-lean_dec(x_10);
 lean_dec_ref(x_1);
+lean_dec(x_10);
 lean_dec(x_8);
 lean_dec_ref(x_7);
 lean_dec(x_6);
@@ -5046,8 +5046,8 @@ return x_92;
 else
 {
 uint8_t x_93; 
-lean_dec(x_10);
 lean_dec_ref(x_1);
+lean_dec(x_10);
 lean_dec(x_8);
 lean_dec_ref(x_7);
 lean_dec(x_6);

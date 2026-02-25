@@ -5834,8 +5834,8 @@ return x_197;
 else
 {
 uint8_t x_198; 
-lean_dec_ref(x_123);
 lean_dec_ref(x_3);
+lean_dec_ref(x_123);
 lean_dec(x_8);
 lean_dec_ref(x_7);
 lean_dec(x_6);

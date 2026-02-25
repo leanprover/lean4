@@ -5233,8 +5233,8 @@ return x_21;
 }
 else
 {
-lean_dec_ref(x_21);
 lean_dec(x_22);
+lean_dec_ref(x_21);
 x_1 = x_20;
 goto _start;
 }

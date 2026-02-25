@@ -2504,8 +2504,8 @@ return x_113;
 else
 {
 lean_object* x_114; 
-lean_dec(x_4);
 lean_dec_ref(x_3);
+lean_dec(x_4);
 lean_dec_ref(x_2);
 x_114 = l_Lean_Expr_int_x3f(x_1);
 return x_114;
@@ -3876,8 +3876,8 @@ goto block_157;
 }
 else
 {
-lean_dec_ref(x_177);
 lean_dec(x_178);
+lean_dec_ref(x_177);
 lean_dec_ref(x_176);
 lean_dec(x_175);
 lean_dec(x_96);
@@ -5681,16 +5681,16 @@ lean_object* x_459;
 x_459 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_459, 0, x_457);
 lean_ctor_set(x_459, 1, x_430);
-x_411 = x_453;
-x_412 = lean_box(0);
+x_411 = lean_box(0);
+x_412 = x_453;
 x_413 = x_459;
 goto block_421;
 }
 else
 {
 lean_dec_ref(x_457);
-x_411 = x_453;
-x_412 = lean_box(0);
+x_411 = lean_box(0);
+x_412 = x_453;
 x_413 = x_430;
 goto block_421;
 }
@@ -5710,7 +5710,7 @@ block_421:
 lean_object* x_414; lean_object* x_415; lean_object* x_416; uint8_t x_417; 
 x_414 = ((lean_object*)(l_Lean_Elab_Tactic_Omega_analyzeAtom___redArg___closed__76));
 x_415 = l_Lean_Expr_const___override(x_414, x_408);
-x_416 = l_Lean_Expr_app___override(x_415, x_411);
+x_416 = l_Lean_Expr_app___override(x_415, x_412);
 x_417 = l_List_elem___at___00Lean_Elab_Tactic_Omega_analyzeAtom_spec__0(x_416, x_413);
 if (x_417 == 0)
 {

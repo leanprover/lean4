@@ -2658,7 +2658,7 @@ return x_20;
 LEAN_EXPORT uint8_t l_Lean_Compiler_LCNF_AlphaEqv_eqv(uint8_t x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; uint8_t x_20; lean_object* x_22; lean_object* x_23; uint8_t x_24; uint8_t x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; uint8_t x_29; uint8_t x_30; lean_object* x_31; lean_object* x_32; 
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_13; lean_object* x_14; uint8_t x_15; lean_object* x_16; uint8_t x_17; lean_object* x_18; lean_object* x_19; uint8_t x_20; lean_object* x_22; lean_object* x_23; uint8_t x_24; uint8_t x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; uint8_t x_29; uint8_t x_30; lean_object* x_31; lean_object* x_32; 
 switch (lean_obj_tag(x_2)) {
 case 0:
 {
@@ -3432,21 +3432,21 @@ return x_172;
 block_12:
 {
 uint8_t x_10; 
-x_10 = l_Lean_Compiler_LCNF_AlphaEqv_eqvFVar(x_8, x_9, x_7);
-lean_dec(x_9);
+x_10 = l_Lean_Compiler_LCNF_AlphaEqv_eqvFVar(x_8, x_7, x_5);
+lean_dec(x_7);
 lean_dec(x_8);
 if (x_10 == 0)
 {
-lean_dec(x_7);
+lean_dec_ref(x_9);
 lean_dec_ref(x_6);
-lean_dec_ref(x_5);
+lean_dec(x_5);
 return x_10;
 }
 else
 {
-x_2 = x_5;
+x_2 = x_9;
 x_3 = x_6;
-x_4 = x_7;
+x_4 = x_5;
 goto _start;
 }
 }
@@ -3454,52 +3454,52 @@ block_21:
 {
 if (x_20 == 0)
 {
-lean_dec(x_19);
+lean_dec_ref(x_19);
 lean_dec(x_18);
-lean_dec(x_17);
-lean_dec_ref(x_15);
+lean_dec(x_16);
 lean_dec_ref(x_14);
+lean_dec(x_13);
 return x_20;
 }
 else
 {
-if (x_16 == 0)
+if (x_17 == 0)
 {
-if (x_13 == 0)
+if (x_15 == 0)
 {
-x_5 = x_14;
-x_6 = x_15;
-x_7 = x_17;
+x_5 = x_13;
+x_6 = x_14;
+x_7 = x_16;
 x_8 = x_18;
 x_9 = x_19;
 goto block_12;
 }
 else
 {
-lean_dec(x_19);
+lean_dec_ref(x_19);
 lean_dec(x_18);
-lean_dec(x_17);
-lean_dec_ref(x_15);
+lean_dec(x_16);
 lean_dec_ref(x_14);
-return x_16;
+lean_dec(x_13);
+return x_17;
 }
 }
 else
 {
-if (x_13 == 0)
+if (x_15 == 0)
 {
-lean_dec(x_19);
+lean_dec_ref(x_19);
 lean_dec(x_18);
-lean_dec(x_17);
-lean_dec_ref(x_15);
+lean_dec(x_16);
 lean_dec_ref(x_14);
-return x_13;
+lean_dec(x_13);
+return x_15;
 }
 else
 {
-x_5 = x_14;
-x_6 = x_15;
-x_7 = x_17;
+x_5 = x_13;
+x_6 = x_14;
+x_7 = x_16;
 x_8 = x_18;
 x_9 = x_19;
 goto block_12;
@@ -3528,13 +3528,13 @@ if (x_24 == 0)
 {
 if (x_29 == 0)
 {
-x_13 = x_30;
-x_14 = x_26;
-x_15 = x_31;
-x_16 = x_25;
-x_17 = x_32;
+x_13 = x_32;
+x_14 = x_31;
+x_15 = x_30;
+x_16 = x_27;
+x_17 = x_25;
 x_18 = x_22;
-x_19 = x_27;
+x_19 = x_26;
 x_20 = x_33;
 goto block_21;
 }
@@ -3550,13 +3550,13 @@ return x_24;
 }
 else
 {
-x_13 = x_30;
-x_14 = x_26;
-x_15 = x_31;
-x_16 = x_25;
-x_17 = x_32;
+x_13 = x_32;
+x_14 = x_31;
+x_15 = x_30;
+x_16 = x_27;
+x_17 = x_25;
 x_18 = x_22;
-x_19 = x_27;
+x_19 = x_26;
 x_20 = x_29;
 goto block_21;
 }

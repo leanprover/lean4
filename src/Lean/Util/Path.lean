@@ -14,6 +14,9 @@ prelude
 public import Init.System.IO
 import Init.Data.ToString.Name
 import Init.Data.String.TakeDrop
+import Init.Data.List.Monadic
+import Init.Data.Option.BasicAux
+import Init.Data.ToString.Macro
 
 public section
 

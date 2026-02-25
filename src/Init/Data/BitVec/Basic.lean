@@ -6,8 +6,16 @@ Authors: Joe Hendrix, Wojciech Nawrocki, Leonardo de Moura, Mario Carneiro, Alex
 module
 
 prelude
-public import Init.Data.Nat.Bitwise.Lemmas
 public import Init.Data.Int.Bitwise.Basic
+public import Init.Data.Bool
+public import Init.Data.Int.DivMod.Basic
+public import Init.WF
+import Init.Data.Nat.Bitwise.Lemmas
+import Init.Data.Nat.Lemmas
+import Init.Data.Nat.Linear
+import Init.Meta.Defs
+import Init.Omega
+import Init.WFTactics
 
 @[expose] public section
 
@@ -202,7 +210,7 @@ protected def toHex {n : Nat} (x : BitVec n) : String :=
   String.Internal.append t s
 
 /-- `BitVec` representation. -/
-protected def BitVec.repr (a : BitVec n) : Std.Format :=
+protected def repr (a : BitVec n) : Std.Format :=
   "0x" ++ (a.toHex : Std.Format) ++ "#" ++ repr n
 
 instance : Repr (BitVec n) where
@@ -261,7 +269,7 @@ Usually accessed via the `/` operator.
 -/
 @[expose]
 def udiv (x y : BitVec n) : BitVec n :=
-  (x.toNat / y.toNat)#'(Nat.lt_of_le_of_lt (Nat.div_le_self _ _) x.isLt)
+  (x.toNat / y.toNat)#'(by exact Nat.lt_of_le_of_lt (Nat.div_le_self _ _) x.isLt)
 instance : Div (BitVec n) := ⟨.udiv⟩
 
 /--
@@ -271,7 +279,7 @@ SMT-LIB name: `bvurem`.
 -/
 @[expose]
 def umod (x y : BitVec n) : BitVec n :=
-  (x.toNat % y.toNat)#'(Nat.lt_of_le_of_lt (Nat.mod_le _ _) x.isLt)
+  (x.toNat % y.toNat)#'(by exact Nat.lt_of_le_of_lt (Nat.mod_le _ _) x.isLt)
 instance : Mod (BitVec n) := ⟨.umod⟩
 
 /--
@@ -515,7 +523,7 @@ Example:
 -/
 @[expose]
 protected def and (x y : BitVec n) : BitVec n :=
-  (x.toNat &&& y.toNat)#'(Nat.and_lt_two_pow x.toNat y.isLt)
+  (x.toNat &&& y.toNat)#'(by exact Nat.and_lt_two_pow x.toNat y.isLt)
 instance : AndOp (BitVec w) := ⟨.and⟩
 
 /--
@@ -528,7 +536,7 @@ Example:
 -/
 @[expose]
 protected def or (x y : BitVec n) : BitVec n :=
-  (x.toNat ||| y.toNat)#'(Nat.or_lt_two_pow x.isLt y.isLt)
+  (x.toNat ||| y.toNat)#'(by exact Nat.or_lt_two_pow x.isLt y.isLt)
 instance : OrOp (BitVec w) := ⟨.or⟩
 
 /--
@@ -541,7 +549,7 @@ Example:
 -/
 @[expose]
 protected def xor (x y : BitVec n) : BitVec n :=
-  (x.toNat ^^^ y.toNat)#'(Nat.xor_lt_two_pow x.isLt y.isLt)
+  (x.toNat ^^^ y.toNat)#'(by exact Nat.xor_lt_two_pow x.isLt y.isLt)
 instance : XorOp (BitVec w) := ⟨.xor⟩
 
 /--

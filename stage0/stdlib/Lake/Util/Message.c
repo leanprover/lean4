@@ -229,7 +229,7 @@ return x_5;
 LEAN_EXPORT lean_object* l_Lake_mkMessageStringCore(uint8_t x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, uint8_t x_7) {
 _start:
 {
-lean_object* x_8; lean_object* x_12; uint8_t x_13; lean_object* x_15; uint8_t x_16; uint32_t x_17; lean_object* x_21; lean_object* x_34; lean_object* x_48; uint8_t x_49; 
+lean_object* x_8; lean_object* x_12; uint8_t x_13; uint8_t x_15; lean_object* x_16; uint32_t x_17; lean_object* x_21; lean_object* x_34; lean_object* x_48; uint8_t x_49; 
 x_48 = ((lean_object*)(l_Lake_mkParserErrorMessage___closed__0));
 x_49 = lean_string_dec_eq(x_3, x_48);
 if (x_49 == 0)
@@ -274,13 +274,13 @@ x_18 = 10;
 x_19 = lean_uint32_dec_eq(x_17, x_18);
 if (x_19 == 0)
 {
-x_8 = x_15;
+x_8 = x_16;
 goto block_11;
 }
 else
 {
-x_12 = x_15;
-x_13 = x_16;
+x_12 = x_16;
+x_13 = x_15;
 goto block_14;
 }
 }
@@ -304,8 +304,8 @@ if (lean_obj_tag(x_26) == 0)
 uint32_t x_27; 
 lean_dec_ref(x_25);
 x_27 = 65;
-x_15 = x_21;
-x_16 = x_24;
+x_15 = x_24;
+x_16 = x_21;
 x_17 = x_27;
 goto block_20;
 }
@@ -322,8 +322,8 @@ if (lean_obj_tag(x_29) == 0)
 {
 uint32_t x_30; 
 x_30 = 65;
-x_15 = x_21;
-x_16 = x_24;
+x_15 = x_24;
+x_16 = x_21;
 x_17 = x_30;
 goto block_20;
 }
@@ -335,8 +335,8 @@ lean_inc(x_31);
 lean_dec_ref(x_29);
 x_32 = lean_unbox_uint32(x_31);
 lean_dec(x_31);
-x_15 = x_21;
-x_16 = x_24;
+x_15 = x_24;
+x_16 = x_21;
 x_17 = x_32;
 goto block_20;
 }

@@ -7,7 +7,8 @@ Authors: Gabriel Ebner
 module
 
 prelude
-public import Init.Core
+public import Init.Prelude
+import Init.Core
 
 public section
 

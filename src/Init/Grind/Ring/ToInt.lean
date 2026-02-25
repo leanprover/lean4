@@ -7,6 +7,8 @@ module
 
 prelude
 public import Init.Grind.Ring.Basic
+import Init.Conv
+import Init.Data.Int.Pow
 
 public section
 

@@ -8,7 +8,6 @@ module
 prelude
 public import Init.Data.ToString
 import Lake.Version
-import Init.Data.String.Basic
 
 namespace Lake
 
@@ -356,8 +355,10 @@ USAGE:
   lake cache <COMMAND>
 
 COMMANDS:
-  get [<mappings>]      download artifacts into the Lake cache
+  get [<mappings>]      download artifacts into the local Lake cache
   put <mappings>        upload artifacts to a remote cache
+  clean                 removes ALL froms the local Lake cache
+  services              print configured remote cache services
 
 See `lake cache help <command>` for more information on a specific command."
 
@@ -376,12 +377,9 @@ OPTIONS:
   --scope=<remote-scope>          scope for a custom endpoint
 
 Downloads artifacts for packages in the workspace from a remote cache service.
-The cache service used can be configured via the environment variables:
-
-  LAKE_CACHE_ARTIFACT_ENDPOINT  base URL for artifact downloads
-  LAKE_CACHE_REVISION_ENDPOINT  base URL for the mapping download
-
-If neither of these are set, Lake will use Reservoir.
+The cache service used can be specifed via the `--service` option. Otherwise,
+Lake will the system default, or, if none is configured, Reservoir. See
+`lake cache services` for more information on how to configure services.
 
 If an input-to-outputs mappings file, `--scope`, or `--repo` is provided,
 Lake will download artifacts for the root package. Otherwise, it will use
@@ -418,18 +416,17 @@ USAGE:
 
 Uploads the input-to-outputs mappings contained in the specified file along
 with the corresponding output artifacts to a remote cache. The cache service
-used is configured via the environment variables:
-
-  LAKE_CACHE_KEY                  authentication key for requests
-  LAKE_CACHE_ARTIFACT_ENDPOINT    base URL for artifact uploads
-  LAKE_CACHE_REVISION_ENDPOINT    base URL for the mapping upload
+used via be specified via `--service` option. If not specifed, Lake will used
+the system default, or error if none is configured. See `lake cache services`
+for more information on how to configure services.
 
 Files are uploaded using the AWS Signature Version 4 authentication protocol
-via `curl`. Thus, the service should generally be an S3-compatible bucket.
+via `curl`. Thus, the service should generally be an S3-compatible bucket. The
+authentication key is set via the `LAKE_CACHE_KEY` environment variable.
 
 Since Lake does not currently use cryptographically secure hashes for
 artifacts and outputs, uploads to the cache are prefixed with a scope to avoid
-clashes. This scoped is configured with the following options:
+clashes. This scope is configured with the following options:
 
   --scope=<remote-scope>          sets a fixed scope
   --repo=<github-repo>            uses the repository + toolchain & platform
@@ -447,6 +444,40 @@ The mappings file is uploaded to the revision endpoint with a file name
 derived from the package's current Git revision (and prefixed by the
 full scope). As such, the command will warn if the work tree currently
 has changes."
+
+def helpCacheClean :=
+"Removes ALL files from the local Lake cache
+
+USAGE:
+  lake cache clean
+
+Deletes the configured Lake cache directory. If a workspace configuration
+exists, this will delete the cache directory it uses. Otherwise, it will
+delete the default Lake cache directory for the system."
+
+def helpCacheServices :=
+"Print configured remote cache services
+
+USAGE:
+  lake cache services
+
+Prints the name of each configured remote cache services (one per line).
+Additional services can be added by modifying the system Lake configuration.
+The exact location of the this configuration file is system dependent and can
+be set by `LAKE_CONFIG`, but it is usually located at `~/.lake/config.toml`.
+
+The configuration of the system cache could look something like the following:
+
+  cache.defaultService = \"my-s3\"
+  cache.defaultUploadService = \"my-s3\"
+
+  [[cache.service]]
+  name = \"my-s3\"
+  kind = \"s3\"
+  artifactEndpoint = \"https://my-s3.com/a0\"
+  revisionEndpoint = \"https://my-s3.com/r0\"
+
+If no `cache.defaultService` is configured, Lake will use Reservoir by default."
 
 def helpScriptCli :=
 "Manage Lake scripts
@@ -578,6 +609,8 @@ public def helpScript : (cmd : String) → String
 public def helpCache : (cmd : String) → String
 | "get"                 => helpCacheGet
 | "put"                 => helpCachePut
+| "clean"               => helpCacheClean
+| "services"            => helpCacheServices
 | _                     => helpCacheCli
 
 public def help : (cmd : String) → String

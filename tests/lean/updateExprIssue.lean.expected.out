@@ -1,26 +1,23 @@
-[Compiler.IR] [init]
-    def sefFn (x_1 : obj) (x_2 : obj) : obj :=
-      case x_1 : obj of
-      Lean.Expr.app._impl →
-        let x_3 : u64 := sproj[2, 0] x_1;
-        let x_4 : obj := proj[0] x_1;
-        let x_5 : obj := proj[1] x_1;
-        block_6 (x_7 : u8) :=
-          case x_7 : u8 of
-          Bool.false →
-            let x_8 : obj := Lean.Expr.app._override x_2 x_5;
-            ret x_8
-          Bool.true →
-            ret x_1;
-        let x_9 : usize := ptrAddrUnsafe ◾ x_4;
-        let x_10 : usize := ptrAddrUnsafe ◾ x_2;
-        let x_11 : u8 := USize.decEq x_9 x_10;
-        case x_11 : u8 of
-        Bool.false →
-          jmp block_6 x_11
-        Bool.true →
-          let x_12 : usize := ptrAddrUnsafe ◾ x_5;
-          let x_13 : u8 := USize.decEq x_12 x_12;
-          jmp block_6 x_13
-      default →
-        ret x_1
+[Compiler.saveMono] size: 17
+    def sefFn e f : Expr :=
+      cases e : Expr
+      | Lean.Expr.app._impl data fn.1 arg.2 =>
+        jp _jp.3 _y.4 : Expr :=
+          cases _y.4 : Expr
+          | Bool.false =>
+            let _x.5 := Expr.app._override f arg.2;
+            return _x.5
+          | Bool.true =>
+            return e;
+        let _x.6 := ptrAddrUnsafe ◾ fn.1;
+        let _x.7 := ptrAddrUnsafe ◾ f;
+        let _x.8 := USize.decEq _x.6 _x.7;
+        cases _x.8 : Expr
+        | Bool.false =>
+          goto _jp.3 _x.8
+        | Bool.true =>
+          let _x.9 := ptrAddrUnsafe ◾ arg.2;
+          let _x.10 := USize.decEq _x.9 _x.9;
+          goto _jp.3 _x.10
+      | _ =>
+        return e

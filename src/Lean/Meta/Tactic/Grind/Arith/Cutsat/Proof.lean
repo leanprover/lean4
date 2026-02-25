@@ -16,6 +16,8 @@ import Lean.Meta.Tactic.Grind.Arith.Cutsat.Nat
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.VarRename
 import Lean.Meta.Tactic.Grind.Arith.CommRing.VarRename
 import Lean.Meta.Tactic.Grind.Arith.CommRing.ToExpr
+import Init.Data.Nat.Order
+import Init.Data.Order.Lemmas
 public section
 namespace Lean.Meta.Grind.Arith.Cutsat
 deriving instance Hashable for Int.Linear.Expr

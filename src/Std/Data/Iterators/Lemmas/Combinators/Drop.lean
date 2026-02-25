@@ -9,6 +9,12 @@ prelude
 public import Std.Data.Iterators.Combinators.Drop
 public import Std.Data.Iterators.Lemmas.Combinators.Monadic.Drop
 public import Init.Data.Iterators.Lemmas.Combinators.Take
+import Init.Data.Array.Lemmas
+import Init.Data.Iterators.Lemmas.Basic
+import Init.Data.Iterators.Lemmas.Consumers.Access
+import Init.Data.Iterators.Lemmas.Consumers.Collect
+import Init.Data.List.Nat.TakeDrop
+import Init.Data.Option.Lemmas
 
 @[expose] public section
 
@@ -41,7 +47,7 @@ theorem Iter.atIdxSlow?_drop {α β}
   induction k generalizing it <;> induction l generalizing it
   all_goals
     induction it using Iter.inductSkips with | step it ih
-    rw [atIdxSlow?.eq_def, atIdxSlow?.eq_def, step_drop]
+    rw [atIdxSlow?_eq_match, atIdxSlow?_eq_match, step_drop]
     cases it.step using PlausibleIterStep.casesOn <;> simp [*]
 
 @[simp]

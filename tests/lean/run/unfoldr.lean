@@ -16,7 +16,7 @@ def tst2 (n : Nat) : List Nat :=
   -- Similar example where we provide our custom `SizeOf` instance
   List.unfoldr (sz := ⟨fun b => n - b⟩) (b := 0) fun b =>
     if h : b < n then
-      some (b*2, #(b+1))
+      some (b*2, ⟨b+1, by simp [sizeOf]; omega⟩)
     else
       none
 

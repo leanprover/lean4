@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.List.Lemmas
-// Imports: public import Init.Data.Option.Lemmas public import Init.Data.List.BasicAux import all Init.Data.List.BasicAux public import Init.Data.List.Control import all Init.Data.List.Control public import Init.BinderPredicates import Init.Grind.Annotated
+// Imports: public import Init.Data.List.BasicAux import all Init.Data.List.BasicAux public import Init.Data.List.Control import all Init.Data.List.Control public import Init.BinderPredicates import Init.Grind.Annotated public import Init.Data.BEq public import Init.Data.Option.Instances import Init.Data.Bool import Init.Data.Option.Lemmas import Init.TacticsExtra
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -779,8 +779,8 @@ if (x_11 == 0)
 lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 lean_inc(x_9);
 lean_inc(x_8);
-lean_dec(x_6);
 lean_dec_ref(x_1);
+lean_dec(x_6);
 x_12 = lean_unsigned_to_nat(1u);
 x_13 = lean_nat_sub(x_2, x_12);
 lean_dec(x_2);
@@ -821,8 +821,8 @@ if (x_13 == 0)
 lean_object* x_14; lean_object* x_15; lean_object* x_16; 
 lean_inc(x_11);
 lean_inc(x_10);
-lean_dec(x_8);
 lean_dec_ref(x_3);
+lean_dec(x_8);
 x_14 = lean_unsigned_to_nat(1u);
 x_15 = lean_nat_sub(x_4, x_14);
 lean_dec(x_4);
@@ -871,21 +871,22 @@ x_7 = l___private_Init_Data_List_Lemmas_0__List_reverseAux_match__1_splitter___r
 return x_7;
 }
 }
-lean_object* initialize_Init_Data_Option_Lemmas(uint8_t builtin);
 lean_object* initialize_Init_Data_List_BasicAux(uint8_t builtin);
 lean_object* initialize_Init_Data_List_BasicAux(uint8_t builtin);
 lean_object* initialize_Init_Data_List_Control(uint8_t builtin);
 lean_object* initialize_Init_Data_List_Control(uint8_t builtin);
 lean_object* initialize_Init_BinderPredicates(uint8_t builtin);
 lean_object* initialize_Init_Grind_Annotated(uint8_t builtin);
+lean_object* initialize_Init_Data_BEq(uint8_t builtin);
+lean_object* initialize_Init_Data_Option_Instances(uint8_t builtin);
+lean_object* initialize_Init_Data_Bool(uint8_t builtin);
+lean_object* initialize_Init_Data_Option_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_TacticsExtra(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_List_Lemmas(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Option_Lemmas(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Init_Data_List_BasicAux(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -902,6 +903,21 @@ res = initialize_Init_BinderPredicates(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Grind_Annotated(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_BEq(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Option_Instances(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Bool(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Option_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_TacticsExtra(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

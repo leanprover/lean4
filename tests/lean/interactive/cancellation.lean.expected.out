@@ -217,3 +217,5 @@ cancelled!
    "fullRange":
    {"start": {"line": 6, "character": 0},
     "end": {"line": 13, "character": 10}}}]}
+cancelled!
+{"version": 2, "uri": "file:///cancellation.lean", "diagnostics": []}

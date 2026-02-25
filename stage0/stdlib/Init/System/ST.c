@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.System.ST
-// Imports: public import Init.Classical public import Init.Control.EState public import Init.Control.Reader
+// Imports: public import Init.Control.Except public import Init.NotationExtra import Init.Classical
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -156,7 +156,6 @@ LEAN_EXPORT lean_object* l_instSTWorldOfMonadLift(lean_object*, lean_object*, le
 LEAN_EXPORT lean_object* l_instSTWorldOfMonadLift___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instSTWorldST(lean_object*);
 LEAN_EXPORT lean_object* l_instSTWorldEST(lean_object*, lean_object*);
-static lean_object* l_runEST___redArg___closed__0;
 LEAN_EXPORT lean_object* l_runEST___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_runEST(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_runST___redArg(lean_object*);
@@ -1477,59 +1476,51 @@ x_3 = lean_box(0);
 return x_3;
 }
 }
-static lean_object* _init_l_runEST___redArg___closed__0() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_box(0);
-x_2 = lean_void_mk(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_runEST___redArg(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; 
-x_2 = l_runEST___redArg___closed__0;
-x_3 = lean_apply_2(x_1, lean_box(0), x_2);
-if (lean_obj_tag(x_3) == 0)
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_2 = lean_box(0);
+x_3 = lean_void_mk(x_2);
+x_4 = lean_apply_2(x_1, lean_box(0), x_3);
+if (lean_obj_tag(x_4) == 0)
 {
-uint8_t x_4; 
-x_4 = !lean_is_exclusive(x_3);
-if (x_4 == 0)
+uint8_t x_5; 
+x_5 = !lean_is_exclusive(x_4);
+if (x_5 == 0)
 {
-lean_ctor_set_tag(x_3, 1);
-return x_3;
+lean_ctor_set_tag(x_4, 1);
+return x_4;
 }
 else
 {
-lean_object* x_5; lean_object* x_6; 
-x_5 = lean_ctor_get(x_3, 0);
-lean_inc(x_5);
-lean_dec(x_3);
-x_6 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_6, 0, x_5);
-return x_6;
+lean_object* x_6; lean_object* x_7; 
+x_6 = lean_ctor_get(x_4, 0);
+lean_inc(x_6);
+lean_dec(x_4);
+x_7 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_7, 0, x_6);
+return x_7;
 }
 }
 else
 {
-uint8_t x_7; 
-x_7 = !lean_is_exclusive(x_3);
-if (x_7 == 0)
+uint8_t x_8; 
+x_8 = !lean_is_exclusive(x_4);
+if (x_8 == 0)
 {
-lean_ctor_set_tag(x_3, 0);
-return x_3;
+lean_ctor_set_tag(x_4, 0);
+return x_4;
 }
 else
 {
-lean_object* x_8; lean_object* x_9; 
-x_8 = lean_ctor_get(x_3, 0);
-lean_inc(x_8);
-lean_dec(x_3);
-x_9 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_9, 0, x_8);
-return x_9;
+lean_object* x_9; lean_object* x_10; 
+x_9 = lean_ctor_get(x_4, 0);
+lean_inc(x_9);
+lean_dec(x_4);
+x_10 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_10, 0, x_9);
+return x_10;
 }
 }
 }
@@ -1545,10 +1536,11 @@ return x_4;
 LEAN_EXPORT lean_object* l_runST___redArg(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; 
-x_2 = l_runEST___redArg___closed__0;
-x_3 = lean_apply_2(x_1, lean_box(0), x_2);
-return x_3;
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_2 = lean_box(0);
+x_3 = lean_void_mk(x_2);
+x_4 = lean_apply_2(x_1, lean_box(0), x_3);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_runST(lean_object* x_1, lean_object* x_2) {
@@ -1585,7 +1577,7 @@ x_3 = ((lean_object*)(l_instMonadLiftSTEST___closed__0));
 return x_3;
 }
 }
-static lean_object* _init_l_ST_RefPointed() {
+static lean_object* _init_l_ST_RefPointed(void) {
 _start:
 {
 return lean_box(0);
@@ -1987,25 +1979,23 @@ x_6 = l_ST_Ref_toMonadStateOf___redArg(x_3, x_5);
 return x_6;
 }
 }
+lean_object* initialize_Init_Control_Except(uint8_t builtin);
+lean_object* initialize_Init_NotationExtra(uint8_t builtin);
 lean_object* initialize_Init_Classical(uint8_t builtin);
-lean_object* initialize_Init_Control_EState(uint8_t builtin);
-lean_object* initialize_Init_Control_Reader(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_System_ST(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
+res = initialize_Init_Control_Except(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_NotationExtra(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Init_Classical(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Control_EState(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Control_Reader(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-l_runEST___redArg___closed__0 = _init_l_runEST___redArg___closed__0();
-lean_mark_persistent(l_runEST___redArg___closed__0);
 l_ST_RefPointed = _init_l_ST_RefPointed();
 return lean_io_result_mk_ok(lean_box(0));
 }

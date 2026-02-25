@@ -6,9 +6,10 @@ Author: Leonardo de Moura
 module
 
 prelude
-public import Init.Control.State
 public import Init.Data.Int.Basic
 public import Init.Data.String.Bootstrap
+import Init.Control.State
+import Init.Data.Nat.Bitwise.Basic
 
 public section
 

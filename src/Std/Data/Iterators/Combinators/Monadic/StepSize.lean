@@ -86,7 +86,7 @@ def StepSizeIterator.instFinitenessRelation [Iterator α m β] [IteratorAccess �
     apply WellFoundedRelation.wf
   subrelation {it it'} h := by
     obtain ⟨step, hs, h⟩ := h
-    simp only [IterM.IsPlausibleStep, Iterator.IsPlausibleStep] at h
+    simp only [IterM.IsPlausibleStep, Iterator.IsPlausibleStep, instIterator] at h -- TODO
     simp only [InvImage]
     obtain ⟨⟨n, it⟩⟩ := it
     simp only at ⊢ h
@@ -119,7 +119,7 @@ def StepSizeIterator.instProductivenessRelation [Iterator α m β] [IteratorAcce
     apply InvImage.wf
     apply WellFoundedRelation.wf
   subrelation {it it'} h := by
-    simp only [IterM.IsPlausibleSkipSuccessorOf, IterM.IsPlausibleStep, Iterator.IsPlausibleStep] at h
+    simp only [IterM.IsPlausibleSkipSuccessorOf, IterM.IsPlausibleStep, Iterator.IsPlausibleStep, instIterator] at h -- TODO
     simp only [InvImage]
     obtain ⟨⟨n, it⟩⟩ := it
     simp only [IterStep.mapIterator_skip, Function.comp_apply] at ⊢ h

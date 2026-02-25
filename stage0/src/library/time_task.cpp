@@ -57,7 +57,7 @@ void finalize_time_task() {
 time_task::time_task(std::string const & category, options const & opts, name decl) :
         m_category(category) {
     if (get_profiler(opts)) {
-        m_timeit = optional<xtimeit>(get_profiling_threshold(opts), [=](second_duration duration) mutable {
+        m_timeit = optional<xtimeit>(get_profiling_threshold(opts), [=, this](second_duration duration) mutable {
             sstream ss;
             ss << m_category;
             if (decl)

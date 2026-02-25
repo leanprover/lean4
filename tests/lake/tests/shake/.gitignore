@@ -3,6 +3,6 @@ lake-manifest.json
 lake-packages/
 produced.out
 # Working files copied from input/
-lakefile.toml
-Main.lean
-Lib/
+/lakefile.toml
+/Main.lean
+/Lib/

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Internal.Async.DNS
-// Imports: public import Std.Time public import Std.Internal.UV public import Std.Internal.Async.Basic
+// Imports: public import Std.Time public import Std.Internal.UV public import Std.Internal.Async.Basic public import Init.Data.Function
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -610,6 +610,7 @@ return x_3;
 lean_object* initialize_Std_Time(uint8_t builtin);
 lean_object* initialize_Std_Internal_UV(uint8_t builtin);
 lean_object* initialize_Std_Internal_Async_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_Function(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Internal_Async_DNS(uint8_t builtin) {
 lean_object * res;
@@ -622,6 +623,9 @@ res = initialize_Std_Internal_UV(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Internal_Async_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Function(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

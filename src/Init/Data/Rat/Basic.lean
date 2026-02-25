@@ -7,9 +7,17 @@ module
 
 prelude
 public import Init.Data.Nat.Coprime
-public import Init.Data.Hashable
 public import Init.Data.OfScientific
-import Init.Data.Int.Bitwise
+public import Init.Data.Int.DivMod.Basic
+public import Init.Data.String.Defs
+public import Init.Data.ToString.Macro
+import Init.Data.Hashable
+import Init.Data.Int.DivMod.Bootstrap
+import Init.Data.Int.DivMod.Lemmas
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.Data.Int.Pow
+import Init.Data.Nat.Dvd
 
 @[expose] public section
 
@@ -313,5 +321,9 @@ protected def ceil (a : Rat) : Int :=
     a.num
   else
     a.num / a.den + 1
+
+/-- The absolute value of a rational number `a` is `a` if `a ≥ 0` and `-a` if `a ≤ 0`. -/
+protected def abs (a : Rat) : Rat :=
+  if 0 ≤ a then a else -a
 
 end Rat

@@ -8,8 +8,6 @@ prelude
 public import Init.Data.Int.Linear
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.Types
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.ToIntInfo
-import Lean.Meta.Sym.ExprPtr
-import Lean.Meta.Tactic.Grind.Arith.Util
 public section
 namespace Lean.Meta.Grind.Arith.Cutsat
 

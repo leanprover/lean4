@@ -7,8 +7,7 @@ module
 
 prelude
 public import Lean.Compiler.IR.CompilerM
-public import Lean.EnvExtension
-import Lean.Compiler.ClosedTermCache
+import Init.While
 
 /-!
 This module contains logic for detecting simple ground expressions that can be extracted into

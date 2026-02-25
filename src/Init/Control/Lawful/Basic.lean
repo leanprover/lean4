@@ -6,7 +6,9 @@ Authors: Sebastian Ullrich, Leonardo de Moura, Mario Carneiro
 module
 
 prelude
-public import Init.Ext
+public import Init.Control.Id
+public import Init.Grind.Tactics
+import Init.Ext
 
 public section
 

@@ -94,7 +94,7 @@ abbrev ResolveT m := DepStackT <| StateT Workspace m
   (root := ws.root) (stack : DepStack  := {})
 : m Workspace := do
   let (_, ws) ← ResolveT.run ws (stack := stack) do
-    inline <| recFetchAcyclic (·.baseName) go root
+    recFetchAcyclic (·.baseName) go root
   return ws
 
 /-

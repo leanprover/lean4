@@ -7,7 +7,9 @@ module
 
 prelude
 public import Init.Omega.Coeffs
-public import Init.Data.ToString.Macro
+import Init.Data.Int.Lemmas
+import Init.Data.ToString.Macro
+import Init.RCases
 
 public section
 

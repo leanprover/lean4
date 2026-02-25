@@ -5,8 +5,10 @@ Author: David Thrane Christiansen
 -/
 module
 prelude
-import Lean.Elab.DocString
 public import Lean.Parser.Extension
+public import Init.While
+import Init.Data.Array.Attach
+import Init.Data.Array.Mem
 
 namespace Lean.Doc
 open Lean.Parser

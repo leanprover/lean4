@@ -27,7 +27,7 @@
    {"start": {"line": 29, "character": 0},
     "end": {"line": 29, "character": 39}},
    "message":
-   "declaration `_example` contains universe level metavariables at the expression\n  Function.const ({α : Sort _} → α → α) 2 @id.{_}\nin the declaration body\n  Function.const ({α : Sort _} → α → α) 2 @id.{_}",
+   "declaration `_example` contains universe level metavariables at the expression\n  Function.const.{1, imax (_ + 1) _} ({α : Sort _} → α → α) 2 @id.{_}\nin the declaration body\n  Function.const.{1, imax (_ + 1) _} ({α : Sort _} → α → α) 2 @id.{_}",
    "fullRange":
    {"start": {"line": 29, "character": 0},
     "end": {"line": 29, "character": 39}}}]}

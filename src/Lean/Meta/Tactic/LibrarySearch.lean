@@ -13,7 +13,7 @@ public import Lean.Util.Heartbeats
 import Init.Grind.Util
 import Init.Try
 import Lean.Elab.Tactic.Basic
-import Lean.Linter.Deprecated
+import Init.Omega
 
 public section
 

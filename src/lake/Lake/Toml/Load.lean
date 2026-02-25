@@ -8,9 +8,9 @@ module
 prelude
 public import Lean.Parser.Types
 public import Lake.Toml.Data.Value
-import Lean.Parser
 import Lake.Toml.Elab
 import Lake.Util.Message
+import Std.Do
 
 open Lean Parser
 

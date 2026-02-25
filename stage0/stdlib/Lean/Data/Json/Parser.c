@@ -90,19 +90,21 @@ static const lean_ctor_object l_Lean_Json_Parser_natMaybeZero___closed__1_value 
 static const lean_object* l_Lean_Json_Parser_natMaybeZero___closed__1 = (const lean_object*)&l_Lean_Json_Parser_natMaybeZero___closed__1_value;
 LEAN_EXPORT lean_object* l_Lean_Json_Parser_natMaybeZero(lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
+static lean_once_cell_t l_Lean_Json_Parser_numSign___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Json_Parser_numSign___closed__0;
 lean_object* lean_int_neg(lean_object*);
+static lean_once_cell_t l_Lean_Json_Parser_numSign___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Json_Parser_numSign___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Json_Parser_numSign(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Json_Parser_nat(lean_object*);
 extern lean_object* l_System_Platform_numBits;
 lean_object* lean_nat_pow(lean_object*, lean_object*);
+static lean_once_cell_t l_Lean_Json_Parser_numWithDecimals___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Json_Parser_numWithDecimals___closed__0;
 static const lean_string_object l_Lean_Json_Parser_numWithDecimals___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 18, .m_capacity = 18, .m_length = 17, .m_data = "too many decimals"};
 static const lean_object* l_Lean_Json_Parser_numWithDecimals___closed__1 = (const lean_object*)&l_Lean_Json_Parser_numWithDecimals___closed__1_value;
 static const lean_ctor_object l_Lean_Json_Parser_numWithDecimals___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 1}, .m_objs = {((lean_object*)&l_Lean_Json_Parser_numWithDecimals___closed__1_value)}};
 static const lean_object* l_Lean_Json_Parser_numWithDecimals___closed__2 = (const lean_object*)&l_Lean_Json_Parser_numWithDecimals___closed__2_value;
-lean_object* l_instNatCastInt___lam__0(lean_object*);
 lean_object* lean_int_mul(lean_object*, lean_object*);
 lean_object* lean_int_add(lean_object*, lean_object*);
 lean_object* l_Lean_JsonNumber_fromInt(lean_object*);
@@ -125,13 +127,17 @@ static const lean_object* l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_
 static const lean_string_object l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_Parser_objectCore_spec__2___redArg___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 33, .m_capacity = 33, .m_length = 32, .m_data = "balanceR! input was not balanced"};
 static const lean_object* l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_Parser_objectCore_spec__2___redArg___closed__2 = (const lean_object*)&l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_Parser_objectCore_spec__2___redArg___closed__2_value;
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_once_cell_t l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_Parser_objectCore_spec__2___redArg___closed__3_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_Parser_objectCore_spec__2___redArg___closed__3;
+static lean_once_cell_t l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_Parser_objectCore_spec__2___redArg___closed__4_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_Parser_objectCore_spec__2___redArg___closed__4;
 static const lean_string_object l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_Parser_objectCore_spec__2___redArg___closed__5_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 37, .m_capacity = 37, .m_length = 36, .m_data = "Std.DTreeMap.Internal.Impl.balanceL!"};
 static const lean_object* l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_Parser_objectCore_spec__2___redArg___closed__5 = (const lean_object*)&l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_Parser_objectCore_spec__2___redArg___closed__5_value;
 static const lean_string_object l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_Parser_objectCore_spec__2___redArg___closed__6_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 33, .m_capacity = 33, .m_length = 32, .m_data = "balanceL! input was not balanced"};
 static const lean_object* l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_Parser_objectCore_spec__2___redArg___closed__6 = (const lean_object*)&l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_Parser_objectCore_spec__2___redArg___closed__6_value;
+static lean_once_cell_t l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_Parser_objectCore_spec__2___redArg___closed__7_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_Parser_objectCore_spec__2___redArg___closed__7;
+static lean_once_cell_t l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_Parser_objectCore_spec__2___redArg___closed__8_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_Parser_objectCore_spec__2___redArg___closed__8;
 uint8_t lean_string_dec_lt(lean_object*, lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
@@ -168,8 +174,11 @@ LEAN_EXPORT lean_object* l_Lean_Json_Parser_objectCore(lean_object*, lean_object
 static const lean_ctor_object l_Lean_Json_Parser_anyCore___closed__5_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 5}, .m_objs = {((lean_object*)(((size_t)(1) << 1) | 1))}};
 static const lean_object* l_Lean_Json_Parser_anyCore___closed__5 = (const lean_object*)&l_Lean_Json_Parser_anyCore___closed__5_value;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
+static lean_once_cell_t l_Lean_Json_Parser_anyCore___closed__6_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Json_Parser_anyCore___closed__6;
+static lean_once_cell_t l_Lean_Json_Parser_anyCore___closed__7_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Json_Parser_anyCore___closed__7;
+static lean_once_cell_t l_Lean_Json_Parser_anyCore___closed__8_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Json_Parser_anyCore___closed__8;
 lean_object* l_Std_Internal_Parsec_String_pstring(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Json_Parser_arrayCore(lean_object*, lean_object*);
@@ -1216,7 +1225,7 @@ x_4 = l_Lean_Json_Parser_finishSurrogatePair(x_3, x_2);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Json_Parser_escapedChar___boxed__const__1() {
+static lean_object* _init_l_Lean_Json_Parser_escapedChar___boxed__const__1(void) {
 _start:
 {
 uint32_t x_1; lean_object* x_2; 
@@ -1225,7 +1234,7 @@ x_2 = lean_box_uint32(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Json_Parser_escapedChar___boxed__const__2() {
+static lean_object* _init_l_Lean_Json_Parser_escapedChar___boxed__const__2(void) {
 _start:
 {
 uint32_t x_1; lean_object* x_2; 
@@ -1234,7 +1243,7 @@ x_2 = lean_box_uint32(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Json_Parser_escapedChar___boxed__const__3() {
+static lean_object* _init_l_Lean_Json_Parser_escapedChar___boxed__const__3(void) {
 _start:
 {
 uint32_t x_1; lean_object* x_2; 
@@ -1243,7 +1252,7 @@ x_2 = lean_box_uint32(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Json_Parser_escapedChar___boxed__const__4() {
+static lean_object* _init_l_Lean_Json_Parser_escapedChar___boxed__const__4(void) {
 _start:
 {
 uint32_t x_1; lean_object* x_2; 
@@ -1252,7 +1261,7 @@ x_2 = lean_box_uint32(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Json_Parser_escapedChar___boxed__const__5() {
+static lean_object* _init_l_Lean_Json_Parser_escapedChar___boxed__const__5(void) {
 _start:
 {
 uint32_t x_1; lean_object* x_2; 
@@ -1261,7 +1270,7 @@ x_2 = lean_box_uint32(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Json_Parser_escapedChar___boxed__const__6() {
+static lean_object* _init_l_Lean_Json_Parser_escapedChar___boxed__const__6(void) {
 _start:
 {
 uint32_t x_1; lean_object* x_2; 
@@ -1270,7 +1279,7 @@ x_2 = lean_box_uint32(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Json_Parser_escapedChar___boxed__const__7() {
+static lean_object* _init_l_Lean_Json_Parser_escapedChar___boxed__const__7(void) {
 _start:
 {
 uint32_t x_1; lean_object* x_2; 
@@ -1279,7 +1288,7 @@ x_2 = lean_box_uint32(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Json_Parser_escapedChar___boxed__const__8() {
+static lean_object* _init_l_Lean_Json_Parser_escapedChar___boxed__const__8(void) {
 _start:
 {
 uint32_t x_1; lean_object* x_2; 
@@ -1288,7 +1297,7 @@ x_2 = lean_box_uint32(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Json_Parser_escapedChar___boxed__const__9() {
+static lean_object* _init_l_Lean_Json_Parser_escapedChar___boxed__const__9(void) {
 _start:
 {
 uint32_t x_1; lean_object* x_2; 
@@ -3182,7 +3191,7 @@ return x_6;
 }
 }
 }
-static lean_object* _init_l_Lean_Json_Parser_numSign___closed__0() {
+static lean_object* _init_l_Lean_Json_Parser_numSign___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -3191,11 +3200,11 @@ x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Json_Parser_numSign___closed__1() {
+static lean_object* _init_l_Lean_Json_Parser_numSign___closed__1(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Json_Parser_numSign___closed__0;
+x_1 = lean_obj_once(&l_Lean_Json_Parser_numSign___closed__0, &l_Lean_Json_Parser_numSign___closed__0_once, _init_l_Lean_Json_Parser_numSign___closed__0);
 x_2 = lean_int_neg(x_1);
 return x_2;
 }
@@ -3217,7 +3226,7 @@ x_8 = lean_uint32_dec_eq(x_6, x_7);
 if (x_8 == 0)
 {
 lean_object* x_9; lean_object* x_10; 
-x_9 = l_Lean_Json_Parser_numSign___closed__0;
+x_9 = lean_obj_once(&l_Lean_Json_Parser_numSign___closed__0, &l_Lean_Json_Parser_numSign___closed__0_once, _init_l_Lean_Json_Parser_numSign___closed__0);
 x_10 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_10, 0, x_1);
 lean_ctor_set(x_10, 1, x_9);
@@ -3239,7 +3248,7 @@ lean_dec(x_13);
 x_14 = lean_string_utf8_next_fast(x_2, x_3);
 lean_dec(x_3);
 lean_ctor_set(x_1, 1, x_14);
-x_15 = l_Lean_Json_Parser_numSign___closed__1;
+x_15 = lean_obj_once(&l_Lean_Json_Parser_numSign___closed__1, &l_Lean_Json_Parser_numSign___closed__1_once, _init_l_Lean_Json_Parser_numSign___closed__1);
 x_16 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_16, 0, x_1);
 lean_ctor_set(x_16, 1, x_15);
@@ -3254,7 +3263,7 @@ lean_dec(x_3);
 x_18 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_18, 0, x_2);
 lean_ctor_set(x_18, 1, x_17);
-x_19 = l_Lean_Json_Parser_numSign___closed__1;
+x_19 = lean_obj_once(&l_Lean_Json_Parser_numSign___closed__1, &l_Lean_Json_Parser_numSign___closed__1_once, _init_l_Lean_Json_Parser_numSign___closed__1);
 x_20 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_20, 0, x_18);
 lean_ctor_set(x_20, 1, x_19);
@@ -3375,7 +3384,7 @@ return x_6;
 }
 }
 }
-static lean_object* _init_l_Lean_Json_Parser_numWithDecimals___closed__0() {
+static lean_object* _init_l_Lean_Json_Parser_numWithDecimals___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -3404,7 +3413,7 @@ x_136 = lean_uint32_dec_eq(x_134, x_135);
 if (x_136 == 0)
 {
 lean_object* x_137; 
-x_137 = l_Lean_Json_Parser_numSign___closed__0;
+x_137 = lean_obj_once(&l_Lean_Json_Parser_numSign___closed__0, &l_Lean_Json_Parser_numSign___closed__0_once, _init_l_Lean_Json_Parser_numSign___closed__0);
 x_111 = x_1;
 x_112 = x_130;
 x_113 = x_131;
@@ -3426,7 +3435,7 @@ x_141 = lean_string_utf8_next_fast(x_130, x_131);
 lean_dec(x_131);
 lean_inc(x_130);
 lean_ctor_set(x_1, 1, x_141);
-x_142 = l_Lean_Json_Parser_numSign___closed__1;
+x_142 = lean_obj_once(&l_Lean_Json_Parser_numSign___closed__1, &l_Lean_Json_Parser_numSign___closed__1_once, _init_l_Lean_Json_Parser_numSign___closed__1);
 x_111 = x_1;
 x_112 = x_130;
 x_113 = x_141;
@@ -3443,7 +3452,7 @@ lean_inc(x_130);
 x_144 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_144, 0, x_130);
 lean_ctor_set(x_144, 1, x_143);
-x_145 = l_Lean_Json_Parser_numSign___closed__1;
+x_145 = lean_obj_once(&l_Lean_Json_Parser_numSign___closed__1, &l_Lean_Json_Parser_numSign___closed__1_once, _init_l_Lean_Json_Parser_numSign___closed__1);
 x_111 = x_144;
 x_112 = x_130;
 x_113 = x_143;
@@ -3493,19 +3502,19 @@ if (x_12 == 0)
 lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; 
 x_13 = lean_ctor_get(x_11, 0);
 x_14 = lean_ctor_get(x_11, 1);
-x_15 = l_Lean_Json_Parser_numWithDecimals___closed__0;
+x_15 = lean_obj_once(&l_Lean_Json_Parser_numWithDecimals___closed__0, &l_Lean_Json_Parser_numWithDecimals___closed__0_once, _init_l_Lean_Json_Parser_numWithDecimals___closed__0);
 x_16 = lean_nat_dec_lt(x_15, x_14);
 if (x_16 == 0)
 {
 lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; 
-x_17 = l_instNatCastInt___lam__0(x_2);
+x_17 = lean_nat_to_int(x_2);
 x_18 = lean_unsigned_to_nat(10u);
 x_19 = lean_nat_pow(x_18, x_14);
-x_20 = l_instNatCastInt___lam__0(x_19);
+x_20 = lean_nat_to_int(x_19);
 x_21 = lean_int_mul(x_17, x_20);
 lean_dec(x_20);
 lean_dec(x_17);
-x_22 = l_instNatCastInt___lam__0(x_13);
+x_22 = lean_nat_to_int(x_13);
 x_23 = lean_int_add(x_21, x_22);
 lean_dec(x_22);
 lean_dec(x_21);
@@ -3537,19 +3546,19 @@ x_27 = lean_ctor_get(x_11, 1);
 lean_inc(x_27);
 lean_inc(x_26);
 lean_dec(x_11);
-x_28 = l_Lean_Json_Parser_numWithDecimals___closed__0;
+x_28 = lean_obj_once(&l_Lean_Json_Parser_numWithDecimals___closed__0, &l_Lean_Json_Parser_numWithDecimals___closed__0_once, _init_l_Lean_Json_Parser_numWithDecimals___closed__0);
 x_29 = lean_nat_dec_lt(x_28, x_27);
 if (x_29 == 0)
 {
 lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; 
-x_30 = l_instNatCastInt___lam__0(x_2);
+x_30 = lean_nat_to_int(x_2);
 x_31 = lean_unsigned_to_nat(10u);
 x_32 = lean_nat_pow(x_31, x_27);
-x_33 = l_instNatCastInt___lam__0(x_32);
+x_33 = lean_nat_to_int(x_32);
 x_34 = lean_int_mul(x_30, x_33);
 lean_dec(x_33);
 lean_dec(x_30);
-x_35 = l_instNatCastInt___lam__0(x_26);
+x_35 = lean_nat_to_int(x_26);
 x_36 = lean_int_add(x_34, x_35);
 lean_dec(x_35);
 lean_dec(x_34);
@@ -3596,19 +3605,19 @@ if (lean_is_exclusive(x_40)) {
  lean_dec_ref(x_40);
  x_44 = lean_box(0);
 }
-x_45 = l_Lean_Json_Parser_numWithDecimals___closed__0;
+x_45 = lean_obj_once(&l_Lean_Json_Parser_numWithDecimals___closed__0, &l_Lean_Json_Parser_numWithDecimals___closed__0_once, _init_l_Lean_Json_Parser_numWithDecimals___closed__0);
 x_46 = lean_nat_dec_lt(x_45, x_43);
 if (x_46 == 0)
 {
 lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; 
-x_47 = l_instNatCastInt___lam__0(x_2);
+x_47 = lean_nat_to_int(x_2);
 x_48 = lean_unsigned_to_nat(10u);
 x_49 = lean_nat_pow(x_48, x_43);
-x_50 = l_instNatCastInt___lam__0(x_49);
+x_50 = lean_nat_to_int(x_49);
 x_51 = lean_int_mul(x_47, x_50);
 lean_dec(x_50);
 lean_dec(x_47);
-x_52 = l_instNatCastInt___lam__0(x_42);
+x_52 = lean_nat_to_int(x_42);
 x_53 = lean_int_add(x_51, x_52);
 lean_dec(x_52);
 lean_dec(x_51);
@@ -3694,7 +3703,7 @@ if (x_77 == 0)
 lean_object* x_78; lean_object* x_79; lean_object* x_80; lean_object* x_81; 
 lean_dec(x_71);
 lean_dec(x_70);
-x_78 = l_instNatCastInt___lam__0(x_72);
+x_78 = lean_nat_to_int(x_72);
 x_79 = lean_int_mul(x_68, x_78);
 lean_dec(x_78);
 lean_dec(x_68);
@@ -3768,7 +3777,7 @@ else
 lean_object* x_90; lean_object* x_91; lean_object* x_92; lean_object* x_93; 
 lean_dec(x_71);
 lean_dec(x_70);
-x_90 = l_instNatCastInt___lam__0(x_72);
+x_90 = lean_nat_to_int(x_72);
 x_91 = lean_int_mul(x_68, x_90);
 lean_dec(x_90);
 lean_dec(x_68);
@@ -4060,7 +4069,7 @@ if (x_31 == 0)
 {
 lean_object* x_32; lean_object* x_33; uint8_t x_34; 
 x_32 = lean_ctor_get(x_30, 1);
-x_33 = l_Lean_Json_Parser_numWithDecimals___closed__0;
+x_33 = lean_obj_once(&l_Lean_Json_Parser_numWithDecimals___closed__0, &l_Lean_Json_Parser_numWithDecimals___closed__0_once, _init_l_Lean_Json_Parser_numWithDecimals___closed__0);
 x_34 = lean_nat_dec_lt(x_33, x_32);
 if (x_34 == 0)
 {
@@ -4089,7 +4098,7 @@ x_38 = lean_ctor_get(x_30, 1);
 lean_inc(x_38);
 lean_inc(x_37);
 lean_dec(x_30);
-x_39 = l_Lean_Json_Parser_numWithDecimals___closed__0;
+x_39 = lean_obj_once(&l_Lean_Json_Parser_numWithDecimals___closed__0, &l_Lean_Json_Parser_numWithDecimals___closed__0_once, _init_l_Lean_Json_Parser_numWithDecimals___closed__0);
 x_40 = lean_nat_dec_lt(x_39, x_38);
 if (x_40 == 0)
 {
@@ -4450,7 +4459,7 @@ x_249 = lean_uint32_dec_eq(x_247, x_248);
 if (x_249 == 0)
 {
 lean_object* x_250; 
-x_250 = l_Lean_Json_Parser_numSign___closed__0;
+x_250 = lean_obj_once(&l_Lean_Json_Parser_numSign___closed__0, &l_Lean_Json_Parser_numSign___closed__0_once, _init_l_Lean_Json_Parser_numSign___closed__0);
 x_224 = x_1;
 x_225 = x_243;
 x_226 = x_244;
@@ -4472,7 +4481,7 @@ x_254 = lean_string_utf8_next_fast(x_243, x_244);
 lean_dec(x_244);
 lean_inc(x_243);
 lean_ctor_set(x_1, 1, x_254);
-x_255 = l_Lean_Json_Parser_numSign___closed__1;
+x_255 = lean_obj_once(&l_Lean_Json_Parser_numSign___closed__1, &l_Lean_Json_Parser_numSign___closed__1_once, _init_l_Lean_Json_Parser_numSign___closed__1);
 x_224 = x_1;
 x_225 = x_243;
 x_226 = x_254;
@@ -4489,7 +4498,7 @@ lean_inc(x_243);
 x_257 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_257, 0, x_243);
 lean_ctor_set(x_257, 1, x_256);
-x_258 = l_Lean_Json_Parser_numSign___closed__1;
+x_258 = lean_obj_once(&l_Lean_Json_Parser_numSign___closed__1, &l_Lean_Json_Parser_numSign___closed__1_once, _init_l_Lean_Json_Parser_numSign___closed__1);
 x_224 = x_257;
 x_225 = x_243;
 x_226 = x_256;
@@ -4532,7 +4541,7 @@ if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; uint8_t x_12; 
 x_10 = lean_ctor_get(x_8, 1);
-x_11 = l_Lean_Json_Parser_numWithDecimals___closed__0;
+x_11 = lean_obj_once(&l_Lean_Json_Parser_numWithDecimals___closed__0, &l_Lean_Json_Parser_numWithDecimals___closed__0_once, _init_l_Lean_Json_Parser_numWithDecimals___closed__0);
 x_12 = lean_nat_dec_lt(x_11, x_10);
 if (x_12 == 0)
 {
@@ -4561,7 +4570,7 @@ x_16 = lean_ctor_get(x_8, 1);
 lean_inc(x_16);
 lean_inc(x_15);
 lean_dec(x_8);
-x_17 = l_Lean_Json_Parser_numWithDecimals___closed__0;
+x_17 = lean_obj_once(&l_Lean_Json_Parser_numWithDecimals___closed__0, &l_Lean_Json_Parser_numWithDecimals___closed__0_once, _init_l_Lean_Json_Parser_numWithDecimals___closed__0);
 x_18 = lean_nat_dec_lt(x_17, x_16);
 if (x_18 == 0)
 {
@@ -4923,11 +4932,11 @@ block_176:
 if (x_110 == 0)
 {
 lean_object* x_111; lean_object* x_112; 
-lean_dec(x_109);
 lean_dec(x_108);
+lean_dec(x_107);
 x_111 = ((lean_object*)(l_Lean_Json_Parser_natNumDigits___closed__1));
 x_112 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_112, 0, x_107);
+lean_ctor_set(x_112, 0, x_109);
 lean_ctor_set(x_112, 1, x_111);
 return x_112;
 }
@@ -4935,7 +4944,7 @@ else
 {
 lean_object* x_113; lean_object* x_114; 
 x_113 = lean_unsigned_to_nat(0u);
-x_114 = l_Lean_Json_Parser_natCoreNumDigits(x_113, x_113, x_107);
+x_114 = l_Lean_Json_Parser_natCoreNumDigits(x_113, x_113, x_109);
 if (lean_obj_tag(x_114) == 0)
 {
 uint8_t x_115; 
@@ -4951,7 +4960,7 @@ lean_object* x_118; lean_object* x_119; lean_object* x_120; lean_object* x_121; 
 x_118 = lean_ctor_get(x_114, 0);
 x_119 = lean_ctor_get(x_116, 0);
 x_120 = lean_ctor_get(x_116, 1);
-x_121 = l_Lean_Json_Parser_numWithDecimals___closed__0;
+x_121 = lean_obj_once(&l_Lean_Json_Parser_numWithDecimals___closed__0, &l_Lean_Json_Parser_numWithDecimals___closed__0_once, _init_l_Lean_Json_Parser_numWithDecimals___closed__0);
 x_122 = lean_nat_dec_lt(x_121, x_120);
 if (x_122 == 0)
 {
@@ -4962,7 +4971,7 @@ x_125 = lean_ctor_get(x_118, 0);
 lean_inc(x_125);
 x_126 = lean_ctor_get(x_118, 1);
 lean_inc(x_126);
-x_127 = lean_nat_to_int(x_109);
+x_127 = lean_nat_to_int(x_107);
 x_128 = lean_nat_to_int(x_124);
 x_129 = lean_int_mul(x_127, x_128);
 lean_dec(x_128);
@@ -4990,8 +4999,8 @@ lean_object* x_133;
 lean_free_object(x_116);
 lean_dec(x_120);
 lean_dec(x_119);
-lean_dec(x_109);
 lean_dec(x_108);
+lean_dec(x_107);
 x_133 = ((lean_object*)(l_Lean_Json_Parser_numWithDecimals___closed__2));
 lean_ctor_set_tag(x_114, 1);
 lean_ctor_set(x_114, 1, x_133);
@@ -5007,7 +5016,7 @@ x_136 = lean_ctor_get(x_116, 1);
 lean_inc(x_136);
 lean_inc(x_135);
 lean_dec(x_116);
-x_137 = l_Lean_Json_Parser_numWithDecimals___closed__0;
+x_137 = lean_obj_once(&l_Lean_Json_Parser_numWithDecimals___closed__0, &l_Lean_Json_Parser_numWithDecimals___closed__0_once, _init_l_Lean_Json_Parser_numWithDecimals___closed__0);
 x_138 = lean_nat_dec_lt(x_137, x_136);
 if (x_138 == 0)
 {
@@ -5018,7 +5027,7 @@ x_141 = lean_ctor_get(x_134, 0);
 lean_inc(x_141);
 x_142 = lean_ctor_get(x_134, 1);
 lean_inc(x_142);
-x_143 = lean_nat_to_int(x_109);
+x_143 = lean_nat_to_int(x_107);
 x_144 = lean_nat_to_int(x_140);
 x_145 = lean_int_mul(x_143, x_144);
 lean_dec(x_144);
@@ -5048,8 +5057,8 @@ else
 lean_object* x_150; 
 lean_dec(x_136);
 lean_dec(x_135);
-lean_dec(x_109);
 lean_dec(x_108);
+lean_dec(x_107);
 x_150 = ((lean_object*)(l_Lean_Json_Parser_numWithDecimals___closed__2));
 lean_ctor_set_tag(x_114, 1);
 lean_ctor_set(x_114, 1, x_150);
@@ -5077,7 +5086,7 @@ if (lean_is_exclusive(x_151)) {
  lean_dec_ref(x_151);
  x_155 = lean_box(0);
 }
-x_156 = l_Lean_Json_Parser_numWithDecimals___closed__0;
+x_156 = lean_obj_once(&l_Lean_Json_Parser_numWithDecimals___closed__0, &l_Lean_Json_Parser_numWithDecimals___closed__0_once, _init_l_Lean_Json_Parser_numWithDecimals___closed__0);
 x_157 = lean_nat_dec_lt(x_156, x_154);
 if (x_157 == 0)
 {
@@ -5088,7 +5097,7 @@ x_160 = lean_ctor_get(x_152, 0);
 lean_inc(x_160);
 x_161 = lean_ctor_get(x_152, 1);
 lean_inc(x_161);
-x_162 = lean_nat_to_int(x_109);
+x_162 = lean_nat_to_int(x_107);
 x_163 = lean_nat_to_int(x_159);
 x_164 = lean_int_mul(x_162, x_163);
 lean_dec(x_163);
@@ -5125,8 +5134,8 @@ lean_object* x_170; lean_object* x_171;
 lean_dec(x_155);
 lean_dec(x_154);
 lean_dec(x_153);
-lean_dec(x_109);
 lean_dec(x_108);
+lean_dec(x_107);
 x_170 = ((lean_object*)(l_Lean_Json_Parser_numWithDecimals___closed__2));
 x_171 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_171, 0, x_152);
@@ -5138,8 +5147,8 @@ return x_171;
 else
 {
 uint8_t x_172; 
-lean_dec(x_109);
 lean_dec(x_108);
+lean_dec(x_107);
 x_172 = !lean_is_exclusive(x_114);
 if (x_172 == 0)
 {
@@ -5231,9 +5240,9 @@ x_199 = 48;
 x_200 = lean_uint32_dec_le(x_199, x_198);
 if (x_200 == 0)
 {
-x_107 = x_196;
+x_107 = x_185;
 x_108 = x_181;
-x_109 = x_185;
+x_109 = x_196;
 x_110 = x_200;
 goto block_176;
 }
@@ -5242,9 +5251,9 @@ else
 uint32_t x_201; uint8_t x_202; 
 x_201 = 57;
 x_202 = lean_uint32_dec_le(x_198, x_201);
-x_107 = x_196;
+x_107 = x_185;
 x_108 = x_181;
-x_109 = x_185;
+x_109 = x_196;
 x_110 = x_202;
 goto block_176;
 }
@@ -5421,52 +5430,52 @@ x_3 = lean_panic_fn(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_Parser_objectCore_spec__2___redArg___closed__3() {
+static lean_object* _init_l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_Parser_objectCore_spec__2___redArg___closed__3(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_Parser_objectCore_spec__2___redArg___closed__2));
 x_2 = lean_unsigned_to_nat(35u);
-x_3 = lean_unsigned_to_nat(272u);
+x_3 = lean_unsigned_to_nat(276u);
 x_4 = ((lean_object*)(l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_Parser_objectCore_spec__2___redArg___closed__1));
 x_5 = ((lean_object*)(l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_Parser_objectCore_spec__2___redArg___closed__0));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
 }
-static lean_object* _init_l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_Parser_objectCore_spec__2___redArg___closed__4() {
+static lean_object* _init_l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_Parser_objectCore_spec__2___redArg___closed__4(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_Parser_objectCore_spec__2___redArg___closed__2));
 x_2 = lean_unsigned_to_nat(21u);
-x_3 = lean_unsigned_to_nat(273u);
+x_3 = lean_unsigned_to_nat(277u);
 x_4 = ((lean_object*)(l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_Parser_objectCore_spec__2___redArg___closed__1));
 x_5 = ((lean_object*)(l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_Parser_objectCore_spec__2___redArg___closed__0));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
 }
-static lean_object* _init_l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_Parser_objectCore_spec__2___redArg___closed__7() {
+static lean_object* _init_l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_Parser_objectCore_spec__2___redArg___closed__7(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_Parser_objectCore_spec__2___redArg___closed__6));
 x_2 = lean_unsigned_to_nat(35u);
-x_3 = lean_unsigned_to_nat(178u);
+x_3 = lean_unsigned_to_nat(182u);
 x_4 = ((lean_object*)(l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_Parser_objectCore_spec__2___redArg___closed__5));
 x_5 = ((lean_object*)(l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_Parser_objectCore_spec__2___redArg___closed__0));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
 }
-static lean_object* _init_l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_Parser_objectCore_spec__2___redArg___closed__8() {
+static lean_object* _init_l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_Parser_objectCore_spec__2___redArg___closed__8(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_Parser_objectCore_spec__2___redArg___closed__6));
 x_2 = lean_unsigned_to_nat(21u);
-x_3 = lean_unsigned_to_nat(179u);
+x_3 = lean_unsigned_to_nat(183u);
 x_4 = ((lean_object*)(l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_Parser_objectCore_spec__2___redArg___closed__5));
 x_5 = ((lean_object*)(l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_Parser_objectCore_spec__2___redArg___closed__0));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -5745,16 +5754,16 @@ return x_67;
 else
 {
 lean_object* x_68; lean_object* x_69; 
-lean_dec(x_26);
 lean_dec_ref(x_17);
+lean_dec(x_26);
 lean_dec(x_16);
 lean_dec(x_15);
 lean_dec(x_14);
-lean_dec(x_9);
 lean_dec_ref(x_7);
+lean_dec(x_9);
 lean_dec(x_6);
 lean_dec(x_5);
-x_68 = l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_Parser_objectCore_spec__2___redArg___closed__3;
+x_68 = lean_obj_once(&l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_Parser_objectCore_spec__2___redArg___closed__3, &l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_Parser_objectCore_spec__2___redArg___closed__3_once, _init_l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_Parser_objectCore_spec__2___redArg___closed__3);
 x_69 = l_panic___at___00Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_Parser_objectCore_spec__2_spec__2___redArg(x_68);
 return x_69;
 }
@@ -5767,11 +5776,11 @@ lean_dec(x_18);
 lean_dec(x_16);
 lean_dec(x_15);
 lean_dec(x_14);
-lean_dec(x_9);
 lean_dec_ref(x_7);
+lean_dec(x_9);
 lean_dec(x_6);
 lean_dec(x_5);
-x_70 = l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_Parser_objectCore_spec__2___redArg___closed__4;
+x_70 = lean_obj_once(&l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_Parser_objectCore_spec__2___redArg___closed__4, &l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_Parser_objectCore_spec__2___redArg___closed__4_once, _init_l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_Parser_objectCore_spec__2___redArg___closed__4);
 x_71 = l_panic___at___00Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_Parser_objectCore_spec__2_spec__2___redArg(x_70);
 return x_71;
 }
@@ -6251,9 +6260,9 @@ goto block_190;
 block_182:
 {
 lean_object* x_179; lean_object* x_180; lean_object* x_181; 
-x_179 = lean_nat_add(x_176, x_178);
+x_179 = lean_nat_add(x_177, x_178);
 lean_dec(x_178);
-lean_dec(x_176);
+lean_dec(x_177);
 if (lean_is_scalar(x_172)) {
  x_180 = lean_alloc_ctor(0, 5, 0);
 } else {
@@ -6272,7 +6281,7 @@ if (lean_is_scalar(x_162)) {
 lean_ctor_set(x_181, 0, x_175);
 lean_ctor_set(x_181, 1, x_165);
 lean_ctor_set(x_181, 2, x_166);
-lean_ctor_set(x_181, 3, x_177);
+lean_ctor_set(x_181, 3, x_176);
 lean_ctor_set(x_181, 4, x_180);
 return x_181;
 }
@@ -6298,8 +6307,8 @@ if (lean_obj_tag(x_168) == 0)
 lean_object* x_188; 
 x_188 = lean_ctor_get(x_168, 0);
 lean_inc(x_188);
-x_176 = x_187;
-x_177 = x_186;
+x_176 = x_186;
+x_177 = x_187;
 x_178 = x_188;
 goto block_182;
 }
@@ -6307,8 +6316,8 @@ else
 {
 lean_object* x_189; 
 x_189 = lean_unsigned_to_nat(0u);
-x_176 = x_187;
-x_177 = x_186;
+x_176 = x_186;
+x_177 = x_187;
 x_178 = x_189;
 goto block_182;
 }
@@ -6375,16 +6384,16 @@ return x_205;
 else
 {
 lean_object* x_206; lean_object* x_207; 
-lean_dec(x_162);
 lean_dec_ref(x_153);
+lean_dec(x_162);
 lean_dec(x_152);
 lean_dec(x_151);
 lean_dec(x_150);
-lean_dec(x_9);
 lean_dec_ref(x_8);
+lean_dec(x_9);
 lean_dec(x_6);
 lean_dec(x_5);
-x_206 = l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_Parser_objectCore_spec__2___redArg___closed__7;
+x_206 = lean_obj_once(&l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_Parser_objectCore_spec__2___redArg___closed__7, &l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_Parser_objectCore_spec__2___redArg___closed__7_once, _init_l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_Parser_objectCore_spec__2___redArg___closed__7);
 x_207 = l_panic___at___00Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_Parser_objectCore_spec__2_spec__2___redArg(x_206);
 return x_207;
 }
@@ -6397,11 +6406,11 @@ lean_dec(x_154);
 lean_dec(x_152);
 lean_dec(x_151);
 lean_dec(x_150);
-lean_dec(x_9);
 lean_dec_ref(x_8);
+lean_dec(x_9);
 lean_dec(x_6);
 lean_dec(x_5);
-x_208 = l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_Parser_objectCore_spec__2___redArg___closed__8;
+x_208 = lean_obj_once(&l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_Parser_objectCore_spec__2___redArg___closed__8, &l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_Parser_objectCore_spec__2___redArg___closed__8_once, _init_l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_Parser_objectCore_spec__2___redArg___closed__8);
 x_209 = l_panic___at___00Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_Parser_objectCore_spec__2_spec__2___redArg(x_208);
 return x_209;
 }
@@ -7667,7 +7676,7 @@ return x_204;
 }
 }
 }
-static lean_object* _init_l_Lean_Json_Parser_anyCore___closed__6() {
+static lean_object* _init_l_Lean_Json_Parser_anyCore___closed__6(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -7676,7 +7685,7 @@ x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Json_Parser_anyCore___closed__7() {
+static lean_object* _init_l_Lean_Json_Parser_anyCore___closed__7(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -7685,11 +7694,11 @@ x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Json_Parser_anyCore___closed__8() {
+static lean_object* _init_l_Lean_Json_Parser_anyCore___closed__8(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Json_Parser_anyCore___closed__7;
+x_1 = lean_obj_once(&l_Lean_Json_Parser_anyCore___closed__7, &l_Lean_Json_Parser_anyCore___closed__7_once, _init_l_Lean_Json_Parser_anyCore___closed__7);
 x_2 = lean_alloc_ctor(4, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -8565,7 +8574,7 @@ if (x_259 == 0)
 lean_object* x_260; lean_object* x_261; 
 lean_dec(x_252);
 lean_dec(x_35);
-x_260 = l_Lean_Json_Parser_anyCore___closed__6;
+x_260 = lean_obj_once(&l_Lean_Json_Parser_anyCore___closed__6, &l_Lean_Json_Parser_anyCore___closed__6_once, _init_l_Lean_Json_Parser_anyCore___closed__6);
 x_261 = l_Lean_Json_Parser_arrayCore(x_260, x_1);
 if (lean_obj_tag(x_261) == 0)
 {
@@ -8629,7 +8638,7 @@ x_274 = l___private_Std_Internal_Parsec_String_0__Std_Internal_Parsec_String_ski
 x_275 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_275, 0, x_35);
 lean_ctor_set(x_275, 1, x_274);
-x_276 = l_Lean_Json_Parser_anyCore___closed__8;
+x_276 = lean_obj_once(&l_Lean_Json_Parser_anyCore___closed__8, &l_Lean_Json_Parser_anyCore___closed__8_once, _init_l_Lean_Json_Parser_anyCore___closed__8);
 x_277 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_277, 0, x_275);
 lean_ctor_set(x_277, 1, x_276);
@@ -8685,7 +8694,7 @@ if (x_287 == 0)
 lean_object* x_288; lean_object* x_289; 
 lean_dec(x_279);
 lean_dec(x_35);
-x_288 = l_Lean_Json_Parser_anyCore___closed__6;
+x_288 = lean_obj_once(&l_Lean_Json_Parser_anyCore___closed__6, &l_Lean_Json_Parser_anyCore___closed__6_once, _init_l_Lean_Json_Parser_anyCore___closed__6);
 x_289 = l_Lean_Json_Parser_arrayCore(x_288, x_280);
 if (lean_obj_tag(x_289) == 0)
 {
@@ -8748,7 +8757,7 @@ x_300 = l___private_Std_Internal_Parsec_String_0__Std_Internal_Parsec_String_ski
 x_301 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_301, 0, x_35);
 lean_ctor_set(x_301, 1, x_300);
-x_302 = l_Lean_Json_Parser_anyCore___closed__8;
+x_302 = lean_obj_once(&l_Lean_Json_Parser_anyCore___closed__8, &l_Lean_Json_Parser_anyCore___closed__8_once, _init_l_Lean_Json_Parser_anyCore___closed__8);
 x_303 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_303, 0, x_301);
 lean_ctor_set(x_303, 1, x_302);
@@ -9340,26 +9349,6 @@ l_Lean_Json_Parser_escapedChar___boxed__const__8 = _init_l_Lean_Json_Parser_esca
 lean_mark_persistent(l_Lean_Json_Parser_escapedChar___boxed__const__8);
 l_Lean_Json_Parser_escapedChar___boxed__const__9 = _init_l_Lean_Json_Parser_escapedChar___boxed__const__9();
 lean_mark_persistent(l_Lean_Json_Parser_escapedChar___boxed__const__9);
-l_Lean_Json_Parser_numSign___closed__0 = _init_l_Lean_Json_Parser_numSign___closed__0();
-lean_mark_persistent(l_Lean_Json_Parser_numSign___closed__0);
-l_Lean_Json_Parser_numSign___closed__1 = _init_l_Lean_Json_Parser_numSign___closed__1();
-lean_mark_persistent(l_Lean_Json_Parser_numSign___closed__1);
-l_Lean_Json_Parser_numWithDecimals___closed__0 = _init_l_Lean_Json_Parser_numWithDecimals___closed__0();
-lean_mark_persistent(l_Lean_Json_Parser_numWithDecimals___closed__0);
-l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_Parser_objectCore_spec__2___redArg___closed__3 = _init_l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_Parser_objectCore_spec__2___redArg___closed__3();
-lean_mark_persistent(l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_Parser_objectCore_spec__2___redArg___closed__3);
-l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_Parser_objectCore_spec__2___redArg___closed__4 = _init_l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_Parser_objectCore_spec__2___redArg___closed__4();
-lean_mark_persistent(l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_Parser_objectCore_spec__2___redArg___closed__4);
-l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_Parser_objectCore_spec__2___redArg___closed__7 = _init_l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_Parser_objectCore_spec__2___redArg___closed__7();
-lean_mark_persistent(l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_Parser_objectCore_spec__2___redArg___closed__7);
-l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_Parser_objectCore_spec__2___redArg___closed__8 = _init_l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_Parser_objectCore_spec__2___redArg___closed__8();
-lean_mark_persistent(l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_Json_Parser_objectCore_spec__2___redArg___closed__8);
-l_Lean_Json_Parser_anyCore___closed__6 = _init_l_Lean_Json_Parser_anyCore___closed__6();
-lean_mark_persistent(l_Lean_Json_Parser_anyCore___closed__6);
-l_Lean_Json_Parser_anyCore___closed__7 = _init_l_Lean_Json_Parser_anyCore___closed__7();
-lean_mark_persistent(l_Lean_Json_Parser_anyCore___closed__7);
-l_Lean_Json_Parser_anyCore___closed__8 = _init_l_Lean_Json_Parser_anyCore___closed__8();
-lean_mark_persistent(l_Lean_Json_Parser_anyCore___closed__8);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

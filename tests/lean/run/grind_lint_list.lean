@@ -35,6 +35,17 @@ import Lean.Elab.Tactic.Grind.LintExceptions
 #guard_msgs in
 #grind_lint inspect (min := 25) List.head_attachWith
 
+-- `List.drop_append_length` is reasonable at 25.
+#guard_msgs in
+#grind_lint inspect (min := 25) List.drop_append_length
+
+-- `List.getLast_scanr` is a very reasonable lemma.
+-- However, given the signature of it, `foldl_append` gets
+-- triggered very frequently. This seems to be an independent
+-- problem, having nothing to do with `getLast_scanr`.
+#guard_msgs in
+#grind_lint inspect (min := 100) (detailed := 100) List.getLast_scanr
+
 /-! Check List namespace: -/
 
 #guard_msgs in

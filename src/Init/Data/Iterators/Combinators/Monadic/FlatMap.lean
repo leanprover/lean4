@@ -7,7 +7,7 @@ module
 
 prelude
 public import Init.Data.Iterators.Combinators.Monadic.FilterMap
-public import Init.Data.Option.Lemmas
+import Init.Data.Option.Lemmas
 
 /-!
 # Monadic `flatMap` combinator
@@ -38,7 +38,7 @@ Internal iterator combinator that is used to implement all `flatMap` variants
 def IterM.flattenAfter {α α₂ β : Type w} {m : Type w → Type w'} [Monad m]
     [Iterator α m (IterM (α := α₂) m β)] [Iterator α₂ m β]
     (it₁ : IterM (α := α) m (IterM (α := α₂) m β)) (it₂ : Option (IterM (α := α₂) m β)) :=
-  (.mk (α := Flatten α α₂ β m) ⟨it₁, it₂⟩ m β : IterM m β)
+  (⟨⟨it₁, it₂⟩⟩ : IterM (α := Flatten α α₂ β m) m β)
 
 /--
 Let `it₁` and `it₂` be iterators and `f` a monadic function mapping `it₁`'s outputs to iterators
@@ -210,17 +210,17 @@ variable {α α₂ β : Type w} {m : Type w → Type w'}
 public inductive Flatten.IsPlausibleStep [Iterator α m (IterM (α := α₂) m β)] [Iterator α₂ m β] :
     (it : IterM (α := Flatten α α₂ β m) m β) → (step : IterStep (IterM (α := Flatten α α₂ β m) m β) β) → Prop where
   | outerYield : ∀ {it₁ it₁' it₂'}, it₁.IsPlausibleStep (.yield it₁' it₂') →
-      IsPlausibleStep (.mk ⟨it₁, none⟩ m β) (.skip (.mk ⟨it₁', some it₂'⟩ m β))
+      IsPlausibleStep ⟨⟨it₁, none⟩⟩ (.skip ⟨⟨it₁', some it₂'⟩⟩)
   | outerSkip : ∀ {it₁ it₁'}, it₁.IsPlausibleStep (.skip it₁') →
-      IsPlausibleStep (.mk ⟨it₁, none⟩ m β) (.skip (.mk ⟨it₁', none⟩ m β))
+      IsPlausibleStep ⟨⟨it₁, none⟩⟩ (.skip ⟨⟨it₁', none⟩⟩)
   | outerDone : ∀ {it₁}, it₁.IsPlausibleStep .done →
-      IsPlausibleStep (.mk ⟨it₁, none⟩ m β) .done
+      IsPlausibleStep ⟨⟨it₁, none⟩⟩ .done
   | innerYield : ∀ {it₁ it₂ it₂' b}, it₂.IsPlausibleStep (.yield it₂' b) →
-      IsPlausibleStep (.mk ⟨it₁, some it₂⟩ m β) (.yield (.mk ⟨it₁, some it₂'⟩ m β) b)
+      IsPlausibleStep ⟨⟨it₁, some it₂⟩⟩ (.yield ⟨⟨it₁, some it₂'⟩⟩ b)
   | innerSkip : ∀ {it₁ it₂ it₂'}, it₂.IsPlausibleStep (.skip it₂') →
-      IsPlausibleStep (.mk ⟨it₁, some it₂⟩ m β) (.skip (.mk ⟨it₁, some it₂'⟩ m β))
+      IsPlausibleStep ⟨⟨it₁, some it₂⟩⟩ (.skip ⟨⟨it₁, some it₂'⟩⟩)
   | innerDone : ∀ {it₁ it₂}, it₂.IsPlausibleStep .done →
-      IsPlausibleStep (.mk ⟨it₁, some it₂⟩ m β) (.skip (.mk ⟨it₁, none⟩ m β))
+      IsPlausibleStep ⟨⟨it₁, some it₂⟩⟩ (.skip ⟨⟨it₁, none⟩⟩)
 
 public instance Flatten.instIterator [Monad m] [Iterator α m (IterM (α := α₂) m β)] [Iterator α₂ m β] :
     Iterator (Flatten α α₂ β m) m β where

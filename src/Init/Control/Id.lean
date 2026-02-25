@@ -8,7 +8,6 @@ The identity Monad.
 module
 
 prelude
-public import Init.Core
 public import Init.Control.MonadAttach
 
 public section
@@ -80,3 +79,11 @@ instance : LawfulMonadAttach Id where
     exact x.run.2
 
 end Id
+
+/-- Turn a collection with a pure `ForIn` instance into an array. -/
+def ForIn.toArray {α : Type u} [inst : ForIn Id ρ α] (xs : ρ) : Array α :=
+  ForIn.forIn xs Array.empty (fun a acc => pure (.yield (acc.push a))) |> Id.run
+
+/-- Turn a collection with a pure `ForIn` instance into a list. -/
+def ForIn.toList {α : Type u} [ForIn Id ρ α] (xs : ρ) : List α :=
+  ForIn.toArray xs |>.toList

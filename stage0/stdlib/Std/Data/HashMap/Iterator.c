@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.HashMap.Iterator
-// Imports: public import Std.Data.DHashMap.Iterator public import Std.Data.HashMap.Basic public import Std.Data.HashMap.Raw
+// Imports: public import Std.Data.DHashMap.Iterator public import Std.Data.HashMap.Basic public import Std.Data.HashMap.Raw import Init.Data.Iterators.Combinators.FilterMap
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -517,6 +517,7 @@ return x_6;
 lean_object* initialize_Std_Data_DHashMap_Iterator(uint8_t builtin);
 lean_object* initialize_Std_Data_HashMap_Basic(uint8_t builtin);
 lean_object* initialize_Std_Data_HashMap_Raw(uint8_t builtin);
+lean_object* initialize_Init_Data_Iterators_Combinators_FilterMap(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Data_HashMap_Iterator(uint8_t builtin) {
 lean_object * res;
@@ -529,6 +530,9 @@ res = initialize_Std_Data_HashMap_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Data_HashMap_Raw(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Iterators_Combinators_FilterMap(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

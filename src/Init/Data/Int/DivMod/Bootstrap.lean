@@ -7,9 +7,12 @@ module
 
 prelude
 public import Init.Data.Int.DivMod.Basic
-public import Init.Data.Int.Order
-public import Init.Data.Nat.Dvd
-public import Init.RCases
+public import Init.Data.Nat.Div.Basic
+import Init.ByCases
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.Data.Nat.Dvd
+import Init.RCases
 
 public section
 

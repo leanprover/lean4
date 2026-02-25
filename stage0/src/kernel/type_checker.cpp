@@ -497,11 +497,22 @@ optional<constant_info> type_checker::is_delta(expr const & e) const {
 optional<expr> type_checker::unfold_definition_core(expr const & e) {
     if (is_constant(e)) {
         if (auto d = is_delta(e)) {
-            if (length(const_levels(e)) == d->get_num_lparams()) {
+            levels const & us = const_levels(e);
+            unsigned len = length(us);
+            if (len == d->get_num_lparams()) {
                 if (m_diag) {
                     m_diag->record_unfold(d->get_name());
                 }
-                return some_expr(instantiate_value_lparams(*d, const_levels(e)));
+                if (len > 0) {
+                    auto it = m_st->m_unfold.find(e);
+                    if (it != m_st->m_unfold.end())
+                        return some_expr(it->second);
+                    expr result = instantiate_value_lparams(*d, us);
+                    m_st->m_unfold.insert(mk_pair(e, result));
+                    return some_expr(result);
+                } else {
+                    return some_expr(instantiate_value_lparams(*d, us));
+                }
             }
         }
     }

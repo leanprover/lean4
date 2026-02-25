@@ -10,6 +10,7 @@ public import Init.Dynamic
 public import Init.System.FilePath
 public import Lean.Data.NameMap.Basic
 import Init.Data.ToString.Name
+import Init.Data.ToString.Macro
 
 /- # Package Dependency Configuration
 

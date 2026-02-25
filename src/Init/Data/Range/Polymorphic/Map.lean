@@ -6,10 +6,11 @@ Authors: Markus Himmel
 module
 
 prelude
-public import Init.Data.Range.Polymorphic.Instances
 public import Init.Data.Function
 import Init.Data.Order.Lemmas
 import Init.Data.Option.Function
+public import Init.Data.Range.Polymorphic.Basic
+import Init.Data.Option.Lemmas
 
 public section
 

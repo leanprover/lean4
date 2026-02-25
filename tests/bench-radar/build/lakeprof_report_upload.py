@@ -35,9 +35,9 @@ def main() -> None:
     with open("index.html", "w") as f:
         f.write(template)
 
-    run("curl", "-T", "index.html", f"{base_url}/index.html")
-    run("curl", "-T", "src/lakeprof.log", f"{base_url}/lakeprof.log")
-    run("curl", "-T", "src/lakeprof.trace_event", f"{base_url}/lakeprof.trace_event")
+    run("curl", "-fT", "index.html", f"{base_url}/index.html")
+    run("curl", "-fT", "src/lakeprof.log", f"{base_url}/lakeprof.log")
+    run("curl", "-fT", "src/lakeprof.trace_event", f"{base_url}/lakeprof.trace_event")
 
 
 if __name__ == "__main__":

@@ -12,7 +12,6 @@ theorem MulOneClass.ext {M : Type u} : ∀ ⦃m₁ m₂ : MulOneClass M⦄, m₁
     | @mk one₂ mul₂ one_mul₂ mul_one₂ =>
       cases one₂ with | mk one₂
       cases mul₂ with | mk mul₂
-      simp
       intro h
       cases h
       have := (one_mul₂ one₁).symm.trans (mul_one₁ one₂) -- TODO: make sure we can apply after congr

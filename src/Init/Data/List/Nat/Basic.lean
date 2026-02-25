@@ -6,9 +6,14 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 module
 
 prelude
-public import Init.Data.List.Find
 public import Init.Data.List.MinMax
-import Init.Data.Nat.Order
+import Init.Data.Bool
+import Init.Data.List.Count
+import Init.Data.Nat.Lemmas
+import Init.Data.Nat.Linear
+import Init.Data.Nat.MinMax
+import Init.Data.Option.Lemmas
+import Init.Omega
 
 public section
 
@@ -253,5 +258,19 @@ theorem le_max?_get_of_mem {l : List Nat} {a : Nat} (h : a ∈ l) :
 theorem le_max?_getD_of_mem {l : List Nat} {a k : Nat} (h : a ∈ l) :
     a ≤ l.max?.getD k :=
   Option.get_eq_getD _ ▸ le_max?_get_of_mem h
+
+/-! #### append -/
+
+theorem append_eq_append_iff_of_size_eq_left {ws xs ys zs : List α}
+    (h : ws.length = xs.length) : ws ++ ys = xs ++ zs ↔ ws = xs ∧ ys = zs := by
+  rw [append_eq_append_iff]
+  refine ⟨?_, ?_⟩
+  · rintro (⟨as, rfl, rfl⟩|⟨as, rfl, rfl⟩) <;> simp_all
+  · rintro ⟨rfl, rfl⟩ <;> simp_all
+
+theorem append_eq_append_iff_of_size_eq_right {ws xs ys zs : List α}
+    (h : ys.length = zs.length) : ws ++ ys = xs ++ zs ↔ ws = xs ∧ ys = zs := by
+  rw [← reverse_inj, reverse_append, reverse_append,
+    append_eq_append_iff_of_size_eq_left (by simpa), reverse_inj, reverse_inj, and_comm]
 
 end List

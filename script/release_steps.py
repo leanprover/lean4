@@ -24,6 +24,7 @@ What this script does:
    - Safety checks for repositories using bump branches
    - Custom build and test procedures
    - lean-fro.org: runs scripts/update.sh to regenerate site content
+   - mathlib4: updates ProofWidgets4 pin (v0.0.X sequential tags, not v4.X.Y)
 
 6. Commits the changes with message "chore: bump toolchain to {version}"
 
@@ -59,6 +60,8 @@ import re
 import subprocess
 import shutil
 import json
+import requests
+import base64
 from pathlib import Path
 
 # Color functions for terminal output
@@ -114,6 +117,60 @@ def find_repo(repo_name, config):
         print(yellow(f"Available repositories: {', '.join(available_repos)}"))
         sys.exit(1)
     return matching_repos[0]
+
+def get_github_token():
+    try:
+        result = subprocess.run(['gh', 'auth', 'token'], capture_output=True, text=True)
+        if result.returncode == 0:
+            return result.stdout.strip()
+    except FileNotFoundError:
+        pass
+    return None
+
+def find_proofwidgets_tag(version):
+    """Find the latest ProofWidgets4 tag that uses the given toolchain version.
+
+    ProofWidgets4 uses sequential version tags (v0.0.X) rather than toolchain-based tags.
+    This function finds the most recent tag whose lean-toolchain matches the target version
+    exactly, checking the 20 most recent tags.
+    """
+    github_token = get_github_token()
+    api_base = "https://api.github.com/repos/leanprover-community/ProofWidgets4"
+    headers = {'Authorization': f'token {github_token}'} if github_token else {}
+
+    response = requests.get(f"{api_base}/git/matching-refs/tags/v0.0.", headers=headers, timeout=30)
+    if response.status_code != 200:
+        return None
+
+    tags = response.json()
+    tag_names = []
+    for tag in tags:
+        ref = tag['ref']
+        if ref.startswith('refs/tags/v0.0.'):
+            tag_name = ref.replace('refs/tags/', '')
+            try:
+                version_num = int(tag_name.split('.')[-1])
+                tag_names.append((version_num, tag_name))
+            except (ValueError, IndexError):
+                continue
+
+    if not tag_names:
+        return None
+
+    # Sort by version number (descending) and check recent tags
+    tag_names.sort(reverse=True)
+    target = f"leanprover/lean4:{version}"
+    for _, tag_name in tag_names[:20]:
+        # Fetch lean-toolchain for this tag
+        api_url = f"{api_base}/contents/lean-toolchain?ref={tag_name}"
+        resp = requests.get(api_url, headers=headers, timeout=30)
+        if resp.status_code != 200:
+            continue
+        content = base64.b64decode(resp.json().get("content", "").replace("\n", "")).decode('utf-8').strip()
+        if content == target:
+            return tag_name
+
+    return None
 
 def setup_downstream_releases_dir():
     """Create the downstream_releases directory if it doesn't exist."""
@@ -425,6 +482,62 @@ def execute_release_steps(repo, version, config):
     elif dependencies:
         run_command(f'perl -pi -e \'s/"v4\\.[0-9]+(\\.[0-9]+)?(-rc[0-9]+)?"/"' + version + '"/g\' lakefile.*', cwd=repo_path)
         run_command("lake update", cwd=repo_path, stream_output=True)
+
+    # For reference-manual, update the release notes title to match the target version.
+    # e.g., for a stable release, change "Lean 4.28.0-rc1 (date)" to "Lean 4.28.0 (date)"
+    # e.g., for rc2, change "Lean 4.28.0-rc1 (date)" to "Lean 4.28.0-rc2 (date)"
+    if repo_name == "reference-manual":
+        base_version = version.lstrip('v').split('-')[0]  # "4.28.0"
+        file_name = f"v{base_version.replace('.', '_')}.lean"
+        release_notes_file = repo_path / "Manual" / "Releases" / file_name
+
+        if release_notes_file.exists():
+            is_rc = "-rc" in version
+            if is_rc:
+                # For RC releases, update to the exact RC version
+                display_version = version.lstrip('v')  # "4.28.0-rc2"
+            else:
+                # For stable releases, strip any RC suffix
+                display_version = base_version  # "4.28.0"
+
+            print(blue(f"Updating release notes title in {file_name}..."))
+            content = release_notes_file.read_text()
+            # Match the #doc line title: "Lean X.Y.Z-rcN (date)" or "Lean X.Y.Z (date)"
+            new_content = re.sub(
+                r'(#doc\s+\(Manual\)\s+"Lean\s+)\d+\.\d+\.\d+(-rc\d+)?(\s+\([^)]*\)"\s*=>)',
+                rf'\g<1>{display_version}\3',
+                content
+            )
+            if new_content != content:
+                release_notes_file.write_text(new_content)
+                print(green(f"Updated release notes title to Lean {display_version}"))
+            else:
+                print(green("Release notes title already correct"))
+        else:
+            print(yellow(f"Release notes file {file_name} not found, skipping title update"))
+
+    # For mathlib4, update ProofWidgets4 pin (it uses sequential v0.0.X tags, not v4.X.Y)
+    if repo_name == "mathlib4":
+        print(blue("Checking ProofWidgets4 version pin..."))
+        pw_tag = find_proofwidgets_tag(version)
+        if pw_tag:
+            print(blue(f"Updating ProofWidgets4 pin to {pw_tag}..."))
+            for lakefile in repo_path.glob("lakefile.*"):
+                content = lakefile.read_text()
+                # Only update the ProofWidgets4 dependency line, not other v0.0.X pins
+                new_content = re.sub(
+                    r'(require\s+"leanprover-community"\s*/\s*"proofwidgets"\s*@\s*git\s+"v)0\.0\.\d+(")',
+                    rf'\g<1>{pw_tag.removeprefix("v")}\2',
+                    content
+                )
+                if new_content != content:
+                    lakefile.write_text(new_content)
+                    print(green(f"Updated ProofWidgets4 pin in {lakefile.name}"))
+            run_command("lake update proofwidgets", cwd=repo_path, stream_output=True)
+            print(green(f"Updated ProofWidgets4 to {pw_tag}"))
+        else:
+            print(yellow(f"Could not find a ProofWidgets4 tag for toolchain {version}"))
+            print(yellow("You may need to update the ProofWidgets4 pin manually"))
 
     # Commit changes (only if there are changes)
     print(blue("Checking for changes to commit..."))

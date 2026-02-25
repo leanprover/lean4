@@ -7,7 +7,7 @@ module
 
 prelude
 public import Lean.Parser.Command
-meta import Lean.Parser.Extra
+import Init.While
 
 public section
 

@@ -15,7 +15,7 @@ opaque State.restore (abc : Nat) (size : Nat) (s : State) : State
 
 def StateFn := State → State
 
-set_option trace.Compiler.result true
+set_option trace.Compiler.saveMono true
 
 /-!
 The `floatLetIn` pass moves values (here `st.size`) into one branch if they are only used in that
@@ -23,7 +23,7 @@ branch.
 -/
 
 /--
-trace: [Compiler.result] size: 7
+trace: [Compiler.saveMono] size: 7
     def test1 st : State :=
       cases st : State
       | State.mk abc xyz bool =>
@@ -49,7 +49,7 @@ This doesn't occur if it would destroy linearity.
 -/
 
 /--
-trace: [Compiler.result] size: 10
+trace: [Compiler.saveMono] size: 10
     def test2 fn st : State :=
       cases st : State
       | State.mk abc xyz bool =>
@@ -79,11 +79,17 @@ Passing a value to a function as a borrowed parameter doesn't count as a linear 
 can be happily passed through it.
 -/
 
+/--
+trace: [Compiler.saveMono] size: 0
+    def State.remake @&s : State :=
+      extern
+-/
+#guard_msgs in
 @[extern]
 opaque State.remake (s : @& State) : State
 
 /--
-trace: [Compiler.result] size: 10
+trace: [Compiler.saveMono] size: 10
     def test3 st : State :=
       let st := State.remake st;
       cases st : State
@@ -113,7 +119,7 @@ This also doesn't occur if there are indirect uses of a variable in both branche
 -/
 
 /--
-trace: [Compiler.result] size: 13
+trace: [Compiler.saveMono] size: 13
     def test4 st : State :=
       cases st : State
       | State.mk abc xyz bool =>

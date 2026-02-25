@@ -15,11 +15,10 @@ import Lean.Meta.ArgsPacker
 import Lean.Elab.PreDefinition.WF.Eqns
 import Lean.Elab.PreDefinition.Structural.Eqns
 import Lean.Elab.PreDefinition.Structural.FindRecArg
-import Lean.Meta.Tactic.ElimInfo
 import Lean.Meta.Tactic.FunIndInfo
 import Lean.Data.Array
-import Lean.Meta.Tactic.Simp.Rewrite
 import Lean.Meta.Tactic.Replace
+import Init.Omega
 
 /-!
 This module contains code to derive, from the definition of a recursive function (structural or

@@ -8,6 +8,7 @@ module
 prelude
 public import Init.Data.Iterators.Internal.LawfulMonadLiftFunction
 public import Init.Data.Iterators.PostconditionMonad
+public import Init.Classical
 
 @[expose] public section
 

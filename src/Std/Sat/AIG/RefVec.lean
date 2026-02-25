@@ -8,6 +8,8 @@ module
 prelude
 public import Std.Sat.AIG.CachedGatesLemmas
 public import Init.Data.Vector.Lemmas
+import Init.ByCases
+import Init.Omega
 
 @[expose] public section
 

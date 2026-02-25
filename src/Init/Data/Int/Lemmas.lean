@@ -6,7 +6,8 @@ Authors: Jeremy Avigad, Deniz Aydin, Floris van Doorn, Mario Carneiro
 module
 
 prelude
-public import Init.PropLemmas
+public import Init.Data.Int.Basic
+import Init.PropLemmas
 
 public section
 

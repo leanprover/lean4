@@ -46,7 +46,7 @@ universe u
 def Erased (α : Sort u) : Sort max 1 u :=
   { s : α → Prop // ∃ a, (a = ·) = s }
 
-def Erased.mk {α} (a : α) : Erased α :=
+@[macro_inline] def Erased.mk {α} (a : α) : Erased α :=
   ⟨fun b => a = b, a, rfl⟩
 
 noncomputable def Erased.out {α} : Erased α → α

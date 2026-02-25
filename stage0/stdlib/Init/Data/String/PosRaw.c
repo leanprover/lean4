@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.String.PosRaw
-// Imports: public import Init.Data.String.Bootstrap public import Init.Data.ByteArray.Basic
+// Imports: public import Init.Data.ByteArray.Basic import Init.Data.Nat.Simproc import Init.Omega
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -56,16 +56,6 @@ LEAN_EXPORT lean_object* l_String_instDecidableLeRaw___boxed(lean_object*, lean_
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_String_instDecidableLtRaw(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_instDecidableLtRaw___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_instMinRaw___lam__0(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_instMinRaw___lam__0___boxed(lean_object*, lean_object*);
-static const lean_closure_object l_String_instMinRaw___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_String_instMinRaw___lam__0___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
-static const lean_object* l_String_instMinRaw___closed__0 = (const lean_object*)&l_String_instMinRaw___closed__0_value;
-LEAN_EXPORT const lean_object* l_String_instMinRaw = (const lean_object*)&l_String_instMinRaw___closed__0_value;
-LEAN_EXPORT lean_object* l_String_instMaxRaw___lam__0(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_instMaxRaw___lam__0___boxed(lean_object*, lean_object*);
-static const lean_closure_object l_String_instMaxRaw___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_String_instMaxRaw___lam__0___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
-static const lean_object* l_String_instMaxRaw___closed__0 = (const lean_object*)&l_String_instMaxRaw___closed__0_value;
-LEAN_EXPORT const lean_object* l_String_instMaxRaw = (const lean_object*)&l_String_instMaxRaw___closed__0_value;
 LEAN_EXPORT lean_object* l_String_Pos_Raw_byteDistance(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Pos_Raw_byteDistance___boxed(lean_object*, lean_object*);
 uint8_t lean_string_get_byte_fast(lean_object*, lean_object*);
@@ -217,7 +207,7 @@ lean_dec(x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_String_instLERaw() {
+static lean_object* _init_l_String_instLERaw(void) {
 _start:
 {
 lean_object* x_1; 
@@ -225,7 +215,7 @@ x_1 = lean_box(0);
 return x_1;
 }
 }
-static lean_object* _init_l_String_instLTRaw() {
+static lean_object* _init_l_String_instLTRaw(void) {
 _start:
 {
 lean_object* x_1; 
@@ -269,60 +259,6 @@ lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);
 return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_String_instMinRaw___lam__0(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint8_t x_3; 
-x_3 = lean_nat_dec_le(x_1, x_2);
-if (x_3 == 0)
-{
-lean_inc(x_2);
-return x_2;
-}
-else
-{
-lean_inc(x_1);
-return x_1;
-}
-}
-}
-LEAN_EXPORT lean_object* l_String_instMinRaw___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_String_instMinRaw___lam__0(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_String_instMaxRaw___lam__0(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint8_t x_3; 
-x_3 = lean_nat_dec_le(x_1, x_2);
-if (x_3 == 0)
-{
-lean_inc(x_1);
-return x_1;
-}
-else
-{
-lean_inc(x_2);
-return x_2;
-}
-}
-}
-LEAN_EXPORT lean_object* l_String_instMaxRaw___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_String_instMaxRaw___lam__0(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
-return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_String_Pos_Raw_byteDistance(lean_object* x_1, lean_object* x_2) {
@@ -514,17 +450,21 @@ return x_1;
 }
 }
 }
-lean_object* initialize_Init_Data_String_Bootstrap(uint8_t builtin);
 lean_object* initialize_Init_Data_ByteArray_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_Nat_Simproc(uint8_t builtin);
+lean_object* initialize_Init_Omega(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_String_PosRaw(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_String_Bootstrap(builtin);
+res = initialize_Init_Data_ByteArray_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_ByteArray_Basic(builtin);
+res = initialize_Init_Data_Nat_Simproc(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_String_instLERaw = _init_l_String_instLERaw();

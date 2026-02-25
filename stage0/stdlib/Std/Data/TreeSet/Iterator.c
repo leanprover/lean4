@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.TreeSet.Iterator
-// Imports: public import Std.Data.TreeSet.Basic public import Std.Data.TreeMap.Iterator public import Std.Data.DTreeMap.Lemmas
+// Imports: public import Std.Data.TreeSet.Basic public import Std.Data.TreeMap.Iterator public import Std.Data.DTreeMap.Lemmas import Init.Data.Iterators.Lemmas.Combinators.FilterMap
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -56,6 +56,7 @@ return x_4;
 lean_object* initialize_Std_Data_TreeSet_Basic(uint8_t builtin);
 lean_object* initialize_Std_Data_TreeMap_Iterator(uint8_t builtin);
 lean_object* initialize_Std_Data_DTreeMap_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_Data_Iterators_Lemmas_Combinators_FilterMap(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Data_TreeSet_Iterator(uint8_t builtin) {
 lean_object * res;
@@ -68,6 +69,9 @@ res = initialize_Std_Data_TreeMap_Iterator(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Data_DTreeMap_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Iterators_Lemmas_Combinators_FilterMap(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

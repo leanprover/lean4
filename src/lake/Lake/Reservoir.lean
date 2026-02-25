@@ -10,7 +10,6 @@ public import Lake.Util.JsonObject
 public import Lake.Util.Version
 public import Lake.Config.Env
 public import Lake.Util.Reservoir
-import Lake.Util.Proc
 import Lake.Util.Url
 
 /-! # Package Registries

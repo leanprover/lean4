@@ -10,7 +10,6 @@ prelude
 public import Lean.Language.Lean.Types
 public import Lean.Server.Snapshots
 public import Lean.Server.AsyncList
-import Init.Data.ByteArray.Extra
 
 public section
 

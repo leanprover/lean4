@@ -8,6 +8,7 @@ module
 prelude
 public import Init.Ext
 public import Std.Do.SPred.SVal
+public import Init.NotationExtra
 
 @[expose] public section
 

@@ -80,7 +80,7 @@ info: equations:
 theorem trailingZeros2'.aux.eq_1 : ∀ (i : Int) (hi : i ≠ 0) (acc k_2 : Nat) (hk_2 : i.natAbs ≤ k_2 + 1),
   trailingZeros2'.aux k_2.succ i hi hk_2 acc =
     if h : i % 2 = 0 then trailingZeros2'.aux k_2 (i / 2) ⋯ ⋯ (acc + 1) else acc
-@[defeq] theorem trailingZeros2'.aux.eq_2 : ∀ (i : Int) (hi : i ≠ 0) (acc : Nat) (hk_2 : i.natAbs ≤ 0),
+theorem trailingZeros2'.aux.eq_2 : ∀ (i : Int) (hi : i ≠ 0) (acc : Nat) (hk_2 : i.natAbs ≤ 0),
   trailingZeros2'.aux 0 i hi hk_2 acc = acc
 -/
 #guard_msgs(pass trace, all) in

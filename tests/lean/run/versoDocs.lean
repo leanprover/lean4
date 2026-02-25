@@ -536,8 +536,221 @@ Less than {name}`seven`.
 -/
 add_decl_doc four
 
-/-
-TODO test:
-* Scope rules for all operators
-
+/-!
+When a builtin role name like {name}`lit` is shadowed by a user definition,
+the suggestion should use the qualified name {name}`Lean.Doc.lit`.
 -/
+namespace ShadowedBuiltin
+def lit := Nat  -- Shadow the builtin 'lit' role
+
+/--
+warning: Code element could be more specific.
+
+Hint: Insert a role to document it:
+  • {̲g̲i̲v̲e̲n̲}̲`test`
+  • Use the `lit` role:
+    {̲L̲e̲a̲n̲.̲D̲o̲c̲.̲l̲i̲t̲}̲`test`
+    to mark the code as literal text and disable suggestions
+-/
+#guard_msgs in
+/--
+`test`
+-/
+def testShadowedLit := 0
+
+/-! Verify that {Lean.Doc.lit}`{Lean.Doc.lit}` works when {name}`lit` is shadowed -/
+#guard_msgs in
+/-- {Lean.Doc.lit}`qualified works` -/
+def testQualifiedLit := 1
+
+-- {lit} fails when shadowed
+/--
+error: `lit : Type` is not registered as a a role
+
+Hint: `lit` shadows a role. Use the full name of the shadowed role:
+  L̲e̲a̲n̲.̲D̲o̲c̲.̲lit
+-/
+#guard_msgs in
+/-- {lit}`broken` -/
+def testBrokenLit := 0
+
+end ShadowedBuiltin
+
+/-! Verify that this also works for non-builtin documentation roles -/
+
+/-- error: Unknown role `r` -/
+#guard_msgs in
+/-! {r}`foo` -/
+
+open Lean in
+@[doc_role]
+def r (_ : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
+  return .empty
+
+/-! {r}`foo` -/
+
+namespace ShadowedNonBuiltin
+def r := 15
+
+/--
+error: `r : Nat` is not registered as a a role
+
+Hint: `r` shadows a role. Use the full name of the shadowed role:
+  _̲ro̲o̲t̲_̲.̲r̲
+-/
+#guard_msgs in
+/-! {r}`foo` -/
+
+end ShadowedNonBuiltin
+
+namespace DoubleShadowed
+
+@[doc_role]
+def lit (_ : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
+  return .empty
+
+namespace Inner
+
+def lit := 5
+
+/--
+error: `lit : Nat` is not registered as a a role
+
+Hint: `lit` shadows a role. Use the full name of the shadowed role:
+  • l̵i̵t̵D̲o̲u̲b̲l̲e̲S̲h̲a̲d̲o̲w̲e̲d̲.̲l̲i̲t̲
+  • L̲e̲a̲n̲.̲D̲o̲c̲.̲lit
+-/
+#guard_msgs in
+/-! {lit}`abc` -/
+
+end Inner
+
+end DoubleShadowed
+
+/-!
+Self-module references should work without `-checked`.
+-/
+
+/-! {module}`lean.run.versoDocs` -/
+
+/-!
+Test that {lit}`hygieneInfo` nodes in syntax (produced by parenthesized expressions) don't introduce
+spurious {lit}`[anonymous]` strings into highlighted code blocks and inline roles.
+-/
+
+section HygieneInfoTests
+open Doc Elab
+
+private def ppDoc (code : Array (String × Option DocHighlight)) : Std.Format :=
+  .group (behavior := .fill) <| code.foldl (init := .nil) fun
+    | soFar, (str, none) => soFar.append str
+    | soFar, (str, some hl) => soFar ++ .line ++ (entaggen hl str)
+where
+  entaggen hl str := (opener hl : Format) ++ str ++ closer hl
+  opener
+    | .const x sig => s!"<const name=\"{x}\" sig=\"{sig}\">"
+    | .var x fv ty => s!"<var name=\"{x}\" fv=\"{repr fv}\" type=\"{ty}\">"
+    | .field x sig => s!"<field name=\"{x}\" sig=\"{sig}\">"
+    | .option x d => s!"<option name=\"{x}\" decl=\"{d}\">"
+    | .keyword => "<kw>"
+    | .literal k (some ty) => s!"<lit kind=\"{k}\" type=\"{ty}\">"
+    | .literal k none => s!"<lit kind=\"{k}\" type=none>"
+  closer
+    | .const .. => "</const>"
+    | .var .. => "</var>"
+    | .field .. => "</field>"
+    | .option .. => "</option>"
+    | .keyword => "</kw>"
+    | .literal .. => "</lit>"
+
+private def docCodeStr (dc : DocCode) : String :=
+  ppDoc dc.code |>.pretty (width := 70)
+
+private partial def findInInline (name : Name) : Inline ElabInline → Array DocCode
+  | .other container _ =>
+    if container.name == name then
+      if let some (lt : Data.LeanTerm) := container.val.get? Data.LeanTerm then
+        #[lt.term]
+      else #[]
+    else #[]
+  | .emph xs | .bold xs | .concat xs | .link xs _ | .footnote _ xs =>
+    xs.flatMap (findInInline name)
+  | .text .. | .code .. | .math .. | .linebreak .. | .image .. => #[]
+
+private partial def findInBlock (name : Name) : Block ElabInline ElabBlock → Array DocCode
+  | .other container _ =>
+    if container.name == name then
+      if let some (lb : Data.LeanBlock) := container.val.get? Data.LeanBlock then
+        #[lb.commands]
+      else if let some (lt : Data.LeanTerm) := container.val.get? Data.LeanTerm then
+        #[lt.term]
+      else #[]
+    else #[]
+  | .para inlines => inlines.flatMap (findInInline name)
+  | .concat blocks | .blockquote blocks => blocks.flatMap (findInBlock name)
+  | .dl items => items.flatMap fun ⟨x, y⟩ => x.flatMap (findInInline name) ++ y.flatMap (findInBlock name)
+  | .ol _ xs | .ul xs => xs.flatMap fun ⟨x⟩ => x.flatMap (findInBlock name)
+  | .code .. => #[]
+
+-- Lean code block: tests `highlightSyntax` for command sequences
+/--
+```lean
+#eval (2 * (5 + 1) + (5 + 1))
+```
+-/
+def testHygieneCodeBlock := ()
+
+/--
+info:  <kw>#eval</kw>  <kw>(</kw> <lit kind="num" type="Nat">2</lit> ⏎
+<kw>*</kw>  <kw>(</kw> <lit kind="num" type="Nat">5</lit>  <kw>+</kw> ⏎
+<lit kind="num" type="Nat">1</lit> <kw>)</kw>  <kw>+</kw>  <kw>(</kw>
+<lit kind="num" type="Nat">5</lit>  <kw>+</kw> ⏎
+<lit kind="num" type="Nat">1</lit> <kw>)</kw> <kw>)</kw>
+ <kw></kw>
+-/
+#guard_msgs in
+#eval show TermElabM Unit from do
+  let some (.inr doc) ← findInternalDocString? (← getEnv) ``testHygieneCodeBlock
+    | throwError "expected verso doc"
+  doc.text.flatMap (findInBlock ``Data.LeanBlock) |>.map docCodeStr |>.forM (IO.println ·)
+
+-- Inline `lean` role: tests `highlightSyntax` for inline terms
+/--
+The value is {lean}`(2 * (5 + 1) + (5 + 1))`.
+-/
+def testHygieneInlineRole := ()
+
+/--
+info:  <kw>(</kw> <lit kind="num" type="Nat">2</lit>  <kw>*</kw>  <kw>(</kw>
+<lit kind="num" type="Nat">5</lit>  <kw>+</kw> ⏎
+<lit kind="num" type="Nat">1</lit> <kw>)</kw>  <kw>+</kw>  <kw>(</kw>
+<lit kind="num" type="Nat">5</lit>  <kw>+</kw> ⏎
+<lit kind="num" type="Nat">1</lit> <kw>)</kw> <kw>)</kw>
+-/
+#guard_msgs in
+#eval show TermElabM Unit from do
+  let some (.inr doc) ← findInternalDocString? (← getEnv) ``testHygieneInlineRole
+    | throwError "expected verso doc"
+  doc.text.flatMap (findInBlock ``Data.LeanTerm) |>.map docCodeStr |>.forM (IO.println ·)
+
+-- `leanTerm` code block: tests `highlightSyntax` for block-level terms
+/--
+```leanTerm
+(2 * (5 + 1))...34
+```
+-/
+def testHygieneTermBlock := ()
+
+/--
+info:  <kw>(</kw> <lit kind="num" type="Nat">2</lit>  <kw>*</kw>  <kw>(</kw>
+<lit kind="num" type="Nat">5</lit>  <kw>+</kw> ⏎
+<lit kind="num" type="Nat">1</lit> <kw>)</kw> <kw>)</kw> <kw>...</kw>
+<lit kind="num" type="Nat">34</lit>
+-/
+#guard_msgs in
+#eval show TermElabM Unit from do
+  let some (.inr doc) ← findInternalDocString? (← getEnv) ``testHygieneTermBlock
+    | throwError "expected verso doc"
+  doc.text.flatMap (findInBlock ``Data.LeanTerm) |>.map docCodeStr |>.forM (IO.println ·)
+
+end HygieneInfoTests

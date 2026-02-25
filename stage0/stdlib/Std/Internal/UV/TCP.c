@@ -46,7 +46,7 @@ lean_object* lean_uv_tcp_nodelay(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_noDelay___boxed(lean_object*, lean_object*);
 lean_object* lean_uv_tcp_keepalive(lean_object*, uint8_t, uint32_t);
 LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_keepAlive___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* _init_l___private_Std_Internal_UV_TCP_0__Std_Internal_UV_TCP_SocketImpl() {
+static lean_object* _init_l___private_Std_Internal_UV_TCP_0__Std_Internal_UV_TCP_SocketImpl(void) {
 _start:
 {
 return lean_box(0);
@@ -84,7 +84,7 @@ _start:
 {
 uint64_t x_4; lean_object* x_5; 
 x_4 = lean_unbox_uint64(x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_5 = lean_uv_tcp_recv(x_1, x_4);
 lean_dec(x_1);
 return x_5;

@@ -9,7 +9,8 @@ prelude
 public import Lean.Meta.Match.MatcherApp.Basic
 import Lean.Meta.Constructions.CasesOn
 import Lean.Meta.Match.Match
-import Lean.Meta.Tactic.SolveByElim
+import Init.Data.Nat.Linear
+import Init.Omega
 
 /-!
 # The `below` and `brecOn` constructions for inductive predicates

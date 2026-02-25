@@ -11,9 +11,9 @@ trace: [Compiler.IR] [result]
       let x_2 : u64 := sproj[0, 0] x_1;
       dec x_1;
       ret x_2
-    def get_unboxed._boxed (x_1 : obj) : tobj :=
+    def get_unboxed._boxed (x_1 : obj) : obj :=
       let x_2 : u64 := get_unboxed x_1;
-      let x_3 : tobj := box x_2;
+      let x_3 : obj := box x_2;
       ret x_3
 -/
 #guard_msgs in

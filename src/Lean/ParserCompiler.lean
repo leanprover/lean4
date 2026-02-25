@@ -11,6 +11,7 @@ public import Lean.Meta.WHNF
 public import Lean.KeyedDeclsAttribute
 public import Lean.ParserCompiler.Attribute
 public import Lean.Parser.Extension
+import Init.Data.Range.Polymorphic.Iterators
 
 public section
 

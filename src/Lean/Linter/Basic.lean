@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.MonadEnv
+import Init.Data.Function
 
 public section
 

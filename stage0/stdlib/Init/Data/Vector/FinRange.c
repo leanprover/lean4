@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Vector.FinRange
-// Imports: public import Init.Data.Array.FinRange public import Init.Data.Vector.OfFn
+// Imports: public import Init.Data.Vector.Basic import Init.Data.Fin.Lemmas import Init.Data.Vector.Lemmas import Init.Data.Vector.OfFn import Init.Omega
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -44,17 +44,29 @@ x_3 = l_Array_ofFn___redArg(x_1, x_2);
 return x_3;
 }
 }
-lean_object* initialize_Init_Data_Array_FinRange(uint8_t builtin);
+lean_object* initialize_Init_Data_Vector_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_Fin_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_Data_Vector_Lemmas(uint8_t builtin);
 lean_object* initialize_Init_Data_Vector_OfFn(uint8_t builtin);
+lean_object* initialize_Init_Omega(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Vector_FinRange(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Array_FinRange(builtin);
+res = initialize_Init_Data_Vector_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Fin_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Vector_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Vector_OfFn(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

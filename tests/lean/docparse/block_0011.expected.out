@@ -1,7 +1,7 @@
 2 failures:
-  @19 (⟨6, 0⟩): '{'; expected '![', '$$', '$', '[' or '[^'
-    "Here's a paragraph."
-  @19 (⟨6, 0⟩): expected token
+  @1 (⟨1, 1⟩): expected identifier
+    "\n    test\n arg}\n\n\nHere's a paragraph."
+  @19 (⟨6, 0⟩): '['; expected '![', '$$', '$', '*', '[', '[^', '_', '`' or '{'
     "Here's a paragraph."
 
 Final stack:

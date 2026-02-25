@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Array.Subarray.Split
-// Imports: public import Init.Data.Array.Subarray import all Init.Data.Array.Subarray public import Init.Omega
+// Imports: public import Init.Data.Array.Subarray import all Init.Data.Array.Subarray import Init.Omega
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

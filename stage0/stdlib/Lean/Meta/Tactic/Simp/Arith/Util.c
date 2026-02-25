@@ -63,6 +63,7 @@ static const lean_ctor_object l_Lean_Meta_Simp_Arith_isLinearTerm_x3f___closed__
 static const lean_ctor_object l_Lean_Meta_Simp_Arith_isLinearTerm_x3f___closed__13_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_Lean_Meta_Simp_Arith_isLinearTerm_x3f___closed__13_value_aux_0),((lean_object*)&l_Lean_Meta_Simp_Arith_isLinearTerm_x3f___closed__12_value),LEAN_SCALAR_PTR_LITERAL(134, 172, 115, 219, 189, 252, 56, 148)}};
 static const lean_object* l_Lean_Meta_Simp_Arith_isLinearTerm_x3f___closed__13 = (const lean_object*)&l_Lean_Meta_Simp_Arith_isLinearTerm_x3f___closed__13_value;
 extern lean_object* l_Lean_Nat_mkType;
+static lean_once_cell_t l_Lean_Meta_Simp_Arith_isLinearTerm_x3f___closed__14_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Meta_Simp_Arith_isLinearTerm_x3f___closed__14;
 uint8_t l_Lean_Expr_isApp(lean_object*);
 lean_object* l_Lean_Expr_appFnCleanup___redArg(lean_object*);
@@ -173,7 +174,7 @@ x_3 = lean_box(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Meta_Simp_Arith_isLinearTerm_x3f___closed__14() {
+static lean_object* _init_l_Lean_Meta_Simp_Arith_isLinearTerm_x3f___closed__14(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -331,7 +332,7 @@ else
 {
 lean_object* x_44; 
 lean_dec_ref(x_15);
-x_44 = l_Lean_Meta_Simp_Arith_isLinearTerm_x3f___closed__14;
+x_44 = lean_obj_once(&l_Lean_Meta_Simp_Arith_isLinearTerm_x3f___closed__14, &l_Lean_Meta_Simp_Arith_isLinearTerm_x3f___closed__14_once, _init_l_Lean_Meta_Simp_Arith_isLinearTerm_x3f___closed__14);
 return x_44;
 }
 }
@@ -684,8 +685,6 @@ _G_initialized = true;
 res = initialize_Lean_Meta_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Meta_Simp_Arith_isLinearTerm_x3f___closed__14 = _init_l_Lean_Meta_Simp_Arith_isLinearTerm_x3f___closed__14();
-lean_mark_persistent(l_Lean_Meta_Simp_Arith_isLinearTerm_x3f___closed__14);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

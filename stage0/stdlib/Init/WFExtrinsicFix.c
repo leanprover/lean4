@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.WFExtrinsicFix
-// Imports: public import Init.WF import Init.Classical import Init.Ext import Init.NotationExtra
+// Imports: public import Init.WF import Init.Classical import Init.Ext public import Init.NotationExtra
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.Conv
-// Imports: public import Lean.Elab.Tactic.Conv.Basic public import Lean.Elab.Tactic.Conv.Congr public import Lean.Elab.Tactic.Conv.Rewrite public import Lean.Elab.Tactic.Conv.Change public import Lean.Elab.Tactic.Conv.Lets public import Lean.Elab.Tactic.Conv.Simp public import Lean.Elab.Tactic.Conv.Pattern public import Lean.Elab.Tactic.Conv.Delta public import Lean.Elab.Tactic.Conv.Unfold
+// Imports: public import Lean.Elab.Tactic.Conv.Basic public import Lean.Elab.Tactic.Conv.Congr public import Lean.Elab.Tactic.Conv.Rewrite public import Lean.Elab.Tactic.Conv.Change public import Lean.Elab.Tactic.Conv.Lets public import Lean.Elab.Tactic.Conv.Simp public import Lean.Elab.Tactic.Conv.Pattern public import Lean.Elab.Tactic.Conv.Delta public import Lean.Elab.Tactic.Conv.Unfold public import Lean.Elab.Tactic.Conv.Cbv
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -22,6 +22,7 @@ lean_object* initialize_Lean_Elab_Tactic_Conv_Simp(uint8_t builtin);
 lean_object* initialize_Lean_Elab_Tactic_Conv_Pattern(uint8_t builtin);
 lean_object* initialize_Lean_Elab_Tactic_Conv_Delta(uint8_t builtin);
 lean_object* initialize_Lean_Elab_Tactic_Conv_Unfold(uint8_t builtin);
+lean_object* initialize_Lean_Elab_Tactic_Conv_Cbv(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_Tactic_Conv(uint8_t builtin) {
 lean_object * res;
@@ -52,6 +53,9 @@ res = initialize_Lean_Elab_Tactic_Conv_Delta(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_Tactic_Conv_Unfold(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Elab_Tactic_Conv_Cbv(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Iterators.Lemmas.Combinators.FlatMap
-// Imports: import Init.Data.Iterators.Lemmas.Combinators.FilterMap public import Init.Data.Iterators.Combinators.FlatMap import all Init.Data.Iterators.Combinators.FlatMap public import Init.Data.Iterators.Lemmas.Combinators.Monadic.FlatMap import Init.Control.Lawful.MonadAttach.Lemmas
+// Imports: import Init.Data.Iterators.Lemmas.Combinators.FilterMap public import Init.Data.Iterators.Combinators.FlatMap import all Init.Data.Iterators.Combinators.FlatMap public import Init.Data.Iterators.Combinators.FilterMap public import Init.Data.Iterators.Consumers.Collect import Init.Data.Iterators.Lemmas.Combinators.Monadic.FilterMap import Init.Data.Iterators.Lemmas.Combinators.Monadic.FlatMap import Init.Data.List.Monadic import Init.Data.Option.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -355,8 +355,12 @@ return x_7;
 lean_object* initialize_Init_Data_Iterators_Lemmas_Combinators_FilterMap(uint8_t builtin);
 lean_object* initialize_Init_Data_Iterators_Combinators_FlatMap(uint8_t builtin);
 lean_object* initialize_Init_Data_Iterators_Combinators_FlatMap(uint8_t builtin);
+lean_object* initialize_Init_Data_Iterators_Combinators_FilterMap(uint8_t builtin);
+lean_object* initialize_Init_Data_Iterators_Consumers_Collect(uint8_t builtin);
+lean_object* initialize_Init_Data_Iterators_Lemmas_Combinators_Monadic_FilterMap(uint8_t builtin);
 lean_object* initialize_Init_Data_Iterators_Lemmas_Combinators_Monadic_FlatMap(uint8_t builtin);
-lean_object* initialize_Init_Control_Lawful_MonadAttach_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_Data_List_Monadic(uint8_t builtin);
+lean_object* initialize_Init_Data_Option_Lemmas(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Iterators_Lemmas_Combinators_FlatMap(uint8_t builtin) {
 lean_object * res;
@@ -371,10 +375,22 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Iterators_Combinators_FlatMap(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = initialize_Init_Data_Iterators_Combinators_FilterMap(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Iterators_Consumers_Collect(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Iterators_Lemmas_Combinators_Monadic_FilterMap(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Init_Data_Iterators_Lemmas_Combinators_Monadic_FlatMap(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Control_Lawful_MonadAttach_Lemmas(builtin);
+res = initialize_Init_Data_List_Monadic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Option_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

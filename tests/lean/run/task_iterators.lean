@@ -64,7 +64,7 @@ def testStateThreading : IO Unit := do
         let msgText ← msgs.headD default |>.data.toString
         return (value, count, msgText)
       | .error _ =>
-        return (0, 0, "error")).take 3 |>.allowNontermination.toList
+        return (0, 0, "error")).take 3 |>.toList
 
     return (results.map (·.1), results.map (·.2.1), results.map (·.2.2))
 
@@ -215,7 +215,7 @@ def testTacticMStateThreading : IO Unit := do
     let results ← (iter.mapM fun result =>
       match result with
       | .ok tacticName => return (tacticName, (← Lean.Elab.Tactic.getGoals).length)
-      | .error _ => return ("error", 999)).take 3 |>.allowNontermination.toList
+      | .error _ => return ("error", 999)).take 3 |>.toList
     return results.unzip
 
   let (tacticNames, goalCounts) ← runTacticTest tacticTest
@@ -249,7 +249,7 @@ def testTacticMParallel : IO Unit := do
     let (_, iter) ← Lean.Elab.Tactic.TacticM.parIterWithCancel tasks
 
     -- Consume the iterator and collect successful results
-    let results ← iter.take 3 |>.allowNontermination.toList
+    let results ← iter.take 3 |>.toList
     return results.filterMap fun r => match r with | .ok n => some n | .error _ => none
 
   let successResults ← runTacticTest tacticTest
@@ -289,7 +289,7 @@ def testParIterOrdering : IO Unit := do
 
     -- Consume all results from the iterator
     let mut results := []
-    for result in iter.allowNontermination do
+    for result in iter do
       match result with
       | .ok value => results := results.concat value
       | .error _ => pure ()

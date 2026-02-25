@@ -7,8 +7,6 @@ module
 prelude
 public import Lean.Meta.AppBuilder
 import Lean.ExtraModUses
-import Lean.ProjFns
-import Lean.Meta.Transform
 import Lean.Meta.WHNF
 public section
 namespace Lean.Meta

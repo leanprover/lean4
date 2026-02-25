@@ -7,6 +7,9 @@ module
 
 prelude
 public import Init.Simproc
+public import Init.Grind.Tactics
+public import Init.MetaTypes
+import Init.Data.Nat.Bitwise.Basic
 
 @[expose] public section
 

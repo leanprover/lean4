@@ -11,6 +11,7 @@ public import Lake.Config.Workspace
 import Lake.Load.Resolve
 import Lake.Load.Package
 import Lake.Load.Lean.Eval
+import Lake.Load.Toml
 import Lake.Build.InitFacets
 
 /-! # Workspace Loader
@@ -23,16 +24,19 @@ open Lean
 namespace Lake
 
 /--
+**For internal use only.**
 Load a `Workspace` for a Lake package by elaborating its configuration file.
 Does not resolve dependencies.
 -/
-private def loadWorkspaceRoot (config : LoadConfig) : LogIO Workspace := do
+public def loadWorkspaceRoot (config : LoadConfig) : LogIO Workspace := do
   Lean.searchPathRef.set config.lakeEnv.leanSearchPath
+  let lakeConfig ← loadLakeConfig config.lakeEnv
   let (root, env?) ← loadPackageCore "[root]" {config with pkgIdx := 0}
   let root := {root with outputsRef? := ← CacheRef.mk}
   let ws : Workspace := {
     root
     lakeEnv := config.lakeEnv
+    lakeConfig
     lakeArgs? := config.lakeArgs?
     facetConfigs := initFacetConfigs
   }

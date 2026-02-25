@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Util.Task
-// Imports: public import Init.Control.Option
+// Imports: public import Init.Control.Option public import Init.Control.Except
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -55,6 +55,7 @@ LEAN_EXPORT const lean_object* l_Lake_instMonadBaseIOTask = (const lean_object*)
 lean_object* l_instInhabitedOfMonad___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instInhabitedBaseIOTask___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instInhabitedBaseIOTask(lean_object*, lean_object*);
+static lean_once_cell_t l_Lake_instInhabitedOptionIOTask___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lake_instInhabitedOptionIOTask___closed__0;
 LEAN_EXPORT lean_object* l_Lake_instInhabitedOptionIOTask(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instMonadTask__lake___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -208,7 +209,7 @@ x_3 = l_Lake_instInhabitedBaseIOTask___redArg(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lake_instInhabitedOptionIOTask___closed__0() {
+static lean_object* _init_l_Lake_instInhabitedOptionIOTask___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -221,11 +222,12 @@ LEAN_EXPORT lean_object* l_Lake_instInhabitedOptionIOTask(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_Lake_instInhabitedOptionIOTask___closed__0;
+x_2 = lean_obj_once(&l_Lake_instInhabitedOptionIOTask___closed__0, &l_Lake_instInhabitedOptionIOTask___closed__0_once, _init_l_Lake_instInhabitedOptionIOTask___closed__0);
 return x_2;
 }
 }
 lean_object* initialize_Init_Control_Option(uint8_t builtin);
+lean_object* initialize_Init_Control_Except(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lake_Util_Task(uint8_t builtin) {
 lean_object * res;
@@ -234,8 +236,9 @@ _G_initialized = true;
 res = initialize_Init_Control_Option(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lake_instInhabitedOptionIOTask___closed__0 = _init_l_Lake_instInhabitedOptionIOTask___closed__0();
-lean_mark_persistent(l_Lake_instInhabitedOptionIOTask___closed__0);
+res = initialize_Init_Control_Except(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

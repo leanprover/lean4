@@ -9,12 +9,11 @@ public import Lean.Meta.Tactic.Grind.Types
 import Init.Grind.Util
 import Init.Grind.Injective
 import Init.Grind.PP
-import Lean.Meta.Tactic.Grind.Arith.Model
 import Lean.Meta.Tactic.Grind.Arith.CommRing.PP
 import Lean.Meta.Tactic.Grind.Arith.Linear.PP
 import Lean.Meta.Tactic.Grind.AC.PP
 import Lean.Meta.Tactic.Grind.CastLike
-import Lean.PrettyPrinter
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.Model
 public section
 
 namespace Lean.Meta.Grind

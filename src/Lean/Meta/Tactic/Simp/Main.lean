@@ -23,6 +23,7 @@ register_builtin_option backward.dsimp.proofs : Bool := {
     descr    := "Let `dsimp` simplify proof terms"
   }
 
+
 register_builtin_option debug.simp.check.have : Bool := {
     defValue := false
     descr    := "(simp) enable consistency checks for `have` telescope simplification"
@@ -89,9 +90,22 @@ private def reduceProjFn? (e : Expr) : SimpM (Option Expr) := do
         -- `class` projection
         if (← getContext).isDeclToUnfold cinfo.name then
           /-
-          If user requested `class` projection to be unfolded, we set transparency mode to `.instances`,
-          and invoke `unfoldDefinition?`.
-          Recall that `unfoldDefinition?` has support for unfolding this kind of projection when transparency mode is `.instances`.
+          If user requested `class` projection to be unfolded (e.g., `simp [X.x]`), we set transparency
+          mode to `.instances` and invoke `unfoldDefinition?`.
+          Recall that `unfoldDefinition?` has support for unfolding this kind of projection when
+          transparency mode is `.instances`.
+
+          Note: this unfolds the projection function but may leave a `.proj` node that cannot be further
+          reduced. For example, given:
+          ```
+          def a' := 0; def b' := 0
+          class X where x : Nat
+          instance instX (n : Nat) : X where x := n
+          ```
+          `simp [X.x]` on `(instX a').x = (instX b').x` unfolds `X.x` to expose `.proj X 0 (instX a')`,
+          but cannot reduce further because `instX a'` is not a constructor application at `.reducible`.
+          The resulting goal `(instX a').1 = (instX b').1` is expected and reasonable: the user explicitly
+          requested the unfolding, and the projection is stuck because `a'` and `b'` are semireducible.
           -/
           let e? ← withReducibleAndInstances <| unfoldDefinition? e
           if e?.isSome then
@@ -108,7 +122,17 @@ private def reduceProjFn? (e : Expr) : SimpM (Option Expr) := do
           let major := e.getArg! projInfo.numParams
           unless (← isConstructorApp major) do
             return none
-          reduceProjCont? (← unfoldDefinitionAny? e)
+          if backward.whnf.reducibleClassField.get (← getOptions) then
+            /-
+            When `backward.whnf.reducibleClassField` is `true`, `unfoldDefault` (in WHNF.lean)
+            already reduces the `.proj` node during `unfoldDefinitionAny?`, so `reduceProjCont?`
+            would discard the fully-reduced result because it expects a `.proj` head.
+            We return the unfolded result directly; the dsimp traversal will revisit it
+            (via `.visit`) and handle any remaining `.proj` nodes naturally.
+            -/
+            unfoldDefinitionAny? e
+          else
+            reduceProjCont? (← unfoldDefinitionAny? e)
       else
         -- `structure` projections
         reduceProjCont? (← unfoldDefinition? e)
@@ -497,7 +521,11 @@ private partial def dsimpImpl (e : Expr) : SimpM Expr := do
   let pre := m.dpre >> doNotVisitOfNat >> doNotVisitOfScientific >> doNotVisitCharLit >> doNotVisitProofs
   let post := m.dpost >> dsimpReduce
   withInDSimpWithCache fun cache => do
-    transformWithCache e cache (usedLetOnly := cfg.zeta || cfg.zetaUnused) (pre := pre) (post := post)
+    transformWithCache e cache
+      (usedLetOnly := cfg.zeta || cfg.zetaUnused)
+      (skipInstances := !cfg.instances)
+      (pre := pre)
+      (post := post)
 
 def visitFn (e : Expr) : SimpM Result := do
   let f := e.getAppFn

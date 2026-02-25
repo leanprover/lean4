@@ -9,7 +9,10 @@ prelude
 public import Std.Data.Iterators.Combinators.TakeWhile
 public import Std.Data.Iterators.Lemmas.Combinators.Monadic.TakeWhile
 public import Std.Data.Iterators.Lemmas.Consumers
-public import Init.Data.Iterators.Lemmas.Consumers.Access
+import Init.Data.List.TakeDrop
+import Init.Data.List.ToArray
+import Init.Data.Option.Lemmas
+import Init.Omega
 
 @[expose] public section
 
@@ -57,11 +60,11 @@ theorem Iter.atIdxSlow?_takeWhile {α β}
     [Iterator α Id β] [Productive α Id] {l : Nat}
     {it : Iter (α := α) β} {P} :
     (it.takeWhile P).atIdxSlow? l = if ∀ k, k ≤ l → (it.atIdxSlow? k).any P then it.atIdxSlow? l else none := by
-  fun_induction it.atIdxSlow? l
-  case case1 it it' out h h' =>
+  induction l, it using atIdxSlow?.induct_unfolding
+  case yield_zero it it' out h h' =>
     rw [atIdxSlow?_eq_match]
     simp only [val_step_takeWhile, h', Nat.le_zero_eq, forall_eq]
-    rw [atIdxSlow?, h']
+    rw [atIdxSlow?_eq_match, h']
     simp only [Option.any_some]
     apply Eq.symm
     split
@@ -71,10 +74,10 @@ theorem Iter.atIdxSlow?_takeWhile {α β}
     · cases h' : P out
       · simp
       · exfalso; simp_all
-  case case2 it it' out h h' l ih =>
+  case yield_succ it it' out h h' l ih =>
     rw [atIdxSlow?_eq_match]
     simp only [Nat.succ_eq_add_one, val_step_takeWhile, h']
-    simp only [atIdxSlow?.eq_def (it := it), h']
+    simp only [atIdxSlow?_eq_match (it := it), h']
     cases hP : P out
     · simp
       intro h
@@ -96,11 +99,11 @@ theorem Iter.atIdxSlow?_takeWhile {α β}
         apply hl
         intro k hk
         exact hl' (k + 1) (Nat.succ_le_succ hk)
-  case case3 l it it' h h' ih =>
-    simp only [atIdxSlow?.eq_def (it := it.takeWhile P), step_takeWhile, h', ih]
-    simp only [atIdxSlow?.eq_def (it := it), h']
-  case case4 l it h h' =>
-    simp only [atIdxSlow?.eq_def (it := it), atIdxSlow?.eq_def (it := it.takeWhile P), h',
+  case skip_case l it it' h h' ih =>
+    simp only [atIdxSlow?_eq_match (it := it.takeWhile P), step_takeWhile, h', ih]
+    simp only [atIdxSlow?_eq_match (it := it), h']
+  case done_case l it h h' =>
+    simp only [atIdxSlow?_eq_match (it := it), atIdxSlow?_eq_match (it := it.takeWhile P), h',
       step_takeWhile]
     split <;> rfl
 

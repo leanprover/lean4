@@ -6,7 +6,6 @@ Authors: Mac Malone
 module
 
 prelude
-public import Lean.Environment
 public import Lake.Config.Package
 public import Lake.Load.Config
 import Lake.Load.Lean.Elab

@@ -9,6 +9,7 @@ prelude
 public import Lean.DeclarationRange
 public import Lean.DocString.Markdown
 public import Init.Data.String.Extra
+import Init.Omega
 
 public section
 
@@ -66,6 +67,11 @@ deriving Inhabited
 register_builtin_option doc.verso : Bool := {
   defValue := false,
   descr := "whether to use Verso syntax in docstrings"
+}
+
+register_builtin_option doc.verso.module : Bool := {
+  defValue := false,
+  descr := "whether to use Verso syntax in module docstrings (falls back to `doc.verso` if not set)"
 }
 
 private builtin_initialize builtinDocStrings : IO.Ref (NameMap String) ← IO.mkRef {}

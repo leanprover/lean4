@@ -14,7 +14,7 @@ class Y extends W where
 
 class Y' extends Y where
   /-- h -/
-  h : Uint
+  h : Unit
 
 class Z extends X, Y'
 

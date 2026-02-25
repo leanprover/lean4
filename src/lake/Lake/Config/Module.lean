@@ -7,9 +7,6 @@ module
 
 prelude
 public import Lake.Config.LeanLib
-import Lake.Util.OrdHashSet
-import Lake.Util.NativeLib
-import Lake.Util.FilePath
 
 namespace Lake
 open Lean System

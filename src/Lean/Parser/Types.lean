@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Data.Trie
 public import Lean.DocString.Extension
+import Init.Data.String.OrderInstances
 
 public section
 

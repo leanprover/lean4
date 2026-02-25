@@ -1,6 +1,7 @@
 module
 
 import Lib.A
+import Lib.CSimp
 
--- Does not use Lib.B, uses Lib.A privately only
 def myValue : Nat := valueA
+def myCSimpedValue : Nat := valueC

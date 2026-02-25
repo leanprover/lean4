@@ -12,7 +12,7 @@ public import Std.Data.DHashMap.Internal.WF
 import all Std.Data.DHashMap.Raw
 import all Std.Data.DHashMap.Basic
 import all Std.Data.DHashMap.RawDef
-meta import Std.Data.DHashMap.Basic
+public meta import Std.Data.DHashMap.Basic
 
 public section
 
@@ -1439,8 +1439,7 @@ theorem any_toList {p : (a : α) → β a → Bool} :
     simp only [List.forIn'_cons, Id.run_bind, List.any_cons]
     by_cases h : p hd.fst hd.snd = true
     · simp [h]
-    · simp only [forIn'_eq_forIn] at ih
-      simp [h, ih]
+    · simp [h, ih]
 
 theorem any_eq_true [LawfulBEq α] {p : (a : α) → β a → Bool} (h : m.1.WF) :
     m.1.any p = true ↔ ∃ (a : α) (h : m.contains a), p a (m.get a h) := by
@@ -2614,6 +2613,9 @@ theorem Equiv.beq [∀ k, ReflBEq (β k)] (h₁ : m₁.val.WF) (h₂ : m₂.val.
 theorem equiv_of_beq [∀ k, LawfulBEq (β k)] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) : beq m₁ m₂ = true → m₁.1.Equiv m₂.1 := by
   simp_to_model using List.perm_of_beqModel
 
+theorem beq_iff_equiv [∀ k, LawfulBEq (β k)] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) : beq m₁ m₂ = true ↔ m₁.1.Equiv m₂.1 :=
+  ⟨equiv_of_beq h₁ h₂, Equiv.beq h₁ h₂⟩
+
 theorem Equiv.beq_congr {m₃ m₄ : Raw₀ α β} (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) (h₃ : m₃.val.WF) (h₄ : m₄.val.WF) :
     m₁.1.Equiv m₃.1 → m₂.1.Equiv m₄.1 → Raw₀.beq m₁ m₂ = Raw₀.beq m₃ m₄ := by
   simp_to_model using List.beqModel_congr
@@ -2629,6 +2631,9 @@ theorem Const.Equiv.beq [LawfulHashable α] [EquivBEq α] [BEq β] [ReflBEq β] 
 
 theorem Const.equiv_of_beq [LawfulBEq α] [BEq β] [LawfulBEq β] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) : beq m₁ m₂ = true → m₁.1.Equiv m₂.1 := by
   simp_to_model using List.Const.perm_of_beqModel
+
+theorem Const.beq_iff_equiv [LawfulBEq α] [BEq β] [LawfulBEq β] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) : beq m₁ m₂ = true ↔ m₁.1.Equiv m₂.1 :=
+  ⟨equiv_of_beq h₁ h₂, Equiv.beq h₁ h₂⟩
 
 theorem Const.Equiv.beq_congr [EquivBEq α] [LawfulHashable α] {m₃ m₄ : Raw₀ α (fun _ => β)} [BEq β] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) (h₃ : m₃.val.WF) (h₄ : m₄.val.WF) :
     m₁.1.Equiv m₃.1 → m₂.1.Equiv m₄.1 → Const.beq m₁ m₂ = Const.beq m₃ m₄ := by
@@ -4301,6 +4306,20 @@ theorem filterMap_equiv_congr {γ : α → Type w} (h : m₁.1 ~m m₂.1)
     {f : (a : α) → β a → Option (γ a)} : (m₁.filterMap f).1 ~m (m₂.filterMap f).1 := by
   simp_to_model [filterMap, Equiv] using h.1.filterMap _
 
+theorem insertMany_list_equiv_foldl [BEq α] [Hashable α] {l : List ((a : α) × β a)} :
+    (m₁.insertMany l).1 ~m (l.foldl (init := m₁) (fun acc p => acc.insert p.1 p.2)) := by
+  rw [insertMany_list_eq_foldl, ← List.foldl_hom (g₂ := fun acc p => acc.insert p.1 p.2) Subtype.val]
+  · simp_to_model [Equiv] using List.Perm.refl
+  · intro x y
+    simp [Raw.insert, x.property]
+
+theorem insertManyIfNew_list_equiv_foldl [BEq α] [Hashable α] {l : List ((a : α) × β a)} :
+    (m₁.insertManyIfNew l).1 ~m (l.foldl (init := m₁) (fun acc p => acc.insertIfNew p.1 p.2)) := by
+  rw [insertManyIfNew_list_eq_foldl, ← List.foldl_hom (g₂ := fun acc p => acc.insertIfNew p.1 p.2) Subtype.val]
+  · simp_to_model [Equiv] using List.Perm.refl
+  · intro x y
+    simp [Raw.insertIfNew, x.property]
+
 namespace Const
 
 theorem equiv_iff_toList_perm_toList {β : Type v} (m₁ m₂ : Raw α fun _ => β) :
@@ -4420,6 +4439,22 @@ theorem equiv_of_forall_get?_eq [LawfulBEq α] (h₁ : m₁.1.WF) (h₂ : m₂.1
 namespace Const
 
 variable {β : Type v} (m₁ m₂ : Raw₀ α fun _ => β)
+
+theorem insertMany_list_equiv_foldl {l : List (α × β)} :
+    (insertMany m₁ l).1 ~m (l.foldl (init := m₁) (fun (acc : Raw α fun _ => β) p => acc.insert p.1 p.2)) := by
+  rw [insertMany_list_eq_foldl, ← List.foldl_hom (g₂ := fun acc p => acc.insert p.1 p.2) Subtype.val]
+  · simp_to_model [Equiv] using List.Perm.refl
+  · intro x y
+    simp [Raw.insert, x.property]
+
+theorem insertManyIfNewUnit_list_equiv_foldl (m₁ : Raw₀ α fun _ => Unit) {l : List α} :
+    (insertManyIfNewUnit m₁ l).1 ~m (l.foldl (init := m₁) (fun acc a => acc.insertIfNew a ())) := by
+  rw [insertManyIfNewUnit_list_eq_foldl,
+    ← List.foldl_hom (g₂ := fun acc a => acc.insertIfNew a ()) Subtype.val]
+  · simp_to_model [Equiv] using List.Perm.refl
+  · intro x y
+    simp [Raw.insertIfNew, x.property]
+
 variable [EquivBEq α] [LawfulHashable α]
 
 theorem get?_eq_of_equiv (h₁ : m₁.1.WF) (h₂ : m₂.1.WF) (h : m₁.1 ~m m₂.1) {k : α} :

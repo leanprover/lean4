@@ -6,8 +6,9 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Option.Lemmas
 public import Init.Data.Order.Classes
+public import Init.Classical
+import Init.Data.Option.Lemmas
 
 public section
 
@@ -240,6 +241,9 @@ This propositional typeclass ensures that `UpwardEnumerable.succ?` will never re
 In other words, it ensures that there will always be a successor.
 -/
 class InfinitelyUpwardEnumerable (α : Type u) [UpwardEnumerable α] where
+  /--
+  Every element of `α` has a successor.
+  -/
   isSome_succ? : ∀ a : α, (UpwardEnumerable.succ? a).isSome
 
 /--

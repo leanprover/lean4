@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.Iterators.Lemmas.Producers
-// Imports: public import Std.Data.Iterators.Lemmas.Producers.Monadic public import Std.Data.Iterators.Lemmas.Producers.Array public import Std.Data.Iterators.Lemmas.Producers.Empty public import Std.Data.Iterators.Lemmas.Producers.Repeat public import Std.Data.Iterators.Lemmas.Producers.Range public import Std.Data.Iterators.Lemmas.Producers.Slice
+// Imports: public import Std.Data.Iterators.Lemmas.Producers.Monadic public import Std.Data.Iterators.Lemmas.Producers.Array public import Std.Data.Iterators.Lemmas.Producers.Vector public import Std.Data.Iterators.Lemmas.Producers.Empty public import Std.Data.Iterators.Lemmas.Producers.Repeat public import Std.Data.Iterators.Lemmas.Producers.Range public import Std.Data.Iterators.Lemmas.Producers.Slice
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -15,6 +15,7 @@ extern "C" {
 #endif
 lean_object* initialize_Std_Data_Iterators_Lemmas_Producers_Monadic(uint8_t builtin);
 lean_object* initialize_Std_Data_Iterators_Lemmas_Producers_Array(uint8_t builtin);
+lean_object* initialize_Std_Data_Iterators_Lemmas_Producers_Vector(uint8_t builtin);
 lean_object* initialize_Std_Data_Iterators_Lemmas_Producers_Empty(uint8_t builtin);
 lean_object* initialize_Std_Data_Iterators_Lemmas_Producers_Repeat(uint8_t builtin);
 lean_object* initialize_Std_Data_Iterators_Lemmas_Producers_Range(uint8_t builtin);
@@ -28,6 +29,9 @@ res = initialize_Std_Data_Iterators_Lemmas_Producers_Monadic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Data_Iterators_Lemmas_Producers_Array(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Data_Iterators_Lemmas_Producers_Vector(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Data_Iterators_Lemmas_Producers_Empty(builtin);

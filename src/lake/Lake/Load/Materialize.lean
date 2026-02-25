@@ -10,7 +10,6 @@ public import Lake.Config.Env
 public import Lake.Load.Manifest
 public import Lake.Config.Package
 import Lake.Util.Git
-import Lake.Config.Dependency
 import Lake.Reservoir
 
 open System Lean

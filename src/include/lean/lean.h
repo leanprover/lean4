@@ -633,6 +633,10 @@ static inline void lean_ctor_release(b_lean_obj_arg o, unsigned i) {
     assert(i < lean_ctor_num_objs(o));
     lean_object ** objs = lean_ctor_obj_cptr(o);
     lean_dec(objs[i]);
+    // Note: This assignment is crucial. `lean_ctor_release` is called when we are preparing a
+    // `reset` for a unique object. However, in some control paths the object might not be able to
+    // be reused. In these paths we just call `dec` on the object. In this situation not having this
+    // write would cause a use-after free as we would try to `lean_dec(objs[i])` again.
     objs[i] = lean_box(0);
 }
 
@@ -820,6 +824,10 @@ static inline lean_object * lean_mk_empty_array_with_capacity(b_lean_obj_arg cap
 static inline lean_object * lean_array_uget(b_lean_obj_arg a, size_t i) {
     lean_object * r = lean_array_get_core(a, i); lean_inc(r);
     return r;
+}
+
+static inline b_lean_obj_res lean_array_uget_borrowed(b_lean_obj_arg a, size_t i) {
+    return lean_array_get_core(a, i);
 }
 
 static inline lean_obj_res lean_array_fget(b_lean_obj_arg a, b_lean_obj_arg i) {
@@ -1808,7 +1816,7 @@ static inline uint8_t lean_uint8_of_nat_mk(lean_obj_arg a) { uint8_t r = lean_ui
 static inline lean_obj_res lean_uint8_to_nat(uint8_t a) { return lean_usize_to_nat((size_t)a); }
 static inline uint8_t lean_uint8_add(uint8_t a1, uint8_t a2) { return a1+a2; }
 static inline uint8_t lean_uint8_sub(uint8_t a1, uint8_t a2) { return a1-a2; }
-static inline uint8_t lean_uint8_mul(uint8_t a1, uint8_t a2) { return a1*a2; }
+static inline uint8_t lean_uint8_mul(uint8_t a1, uint8_t a2) { return 1U*a1*a2; }
 static inline uint8_t lean_uint8_div(uint8_t a1, uint8_t a2) { return a2 == 0 ? 0  : a1/a2; }
 static inline uint8_t lean_uint8_mod(uint8_t a1, uint8_t a2) { return a2 == 0 ? a1 : a1%a2; }
 static inline uint8_t lean_uint8_land(uint8_t a, uint8_t b) { return a & b; }
@@ -1846,7 +1854,7 @@ static inline uint16_t lean_uint16_of_nat_mk(lean_obj_arg a) { uint16_t r = lean
 static inline lean_obj_res lean_uint16_to_nat(uint16_t a) { return lean_usize_to_nat((size_t)a); }
 static inline uint16_t lean_uint16_add(uint16_t a1, uint16_t a2) { return a1+a2; }
 static inline uint16_t lean_uint16_sub(uint16_t a1, uint16_t a2) { return a1-a2; }
-static inline uint16_t lean_uint16_mul(uint16_t a1, uint16_t a2) { return a1*a2; }
+static inline uint16_t lean_uint16_mul(uint16_t a1, uint16_t a2) { return 1U*a1*a2; }
 static inline uint16_t lean_uint16_div(uint16_t a1, uint16_t a2) { return a2 == 0 ? 0  : a1/a2; }
 static inline uint16_t lean_uint16_mod(uint16_t a1, uint16_t a2) { return a2 == 0 ? a1 : a1%a2; }
 static inline uint16_t lean_uint16_land(uint16_t a, uint16_t b) { return a & b; }
@@ -1883,7 +1891,7 @@ static inline uint32_t lean_uint32_of_nat_mk(lean_obj_arg a) { uint32_t r = lean
 static inline lean_obj_res lean_uint32_to_nat(uint32_t a) { return lean_usize_to_nat((size_t)a); }
 static inline uint32_t lean_uint32_add(uint32_t a1, uint32_t a2) { return a1+a2; }
 static inline uint32_t lean_uint32_sub(uint32_t a1, uint32_t a2) { return a1-a2; }
-static inline uint32_t lean_uint32_mul(uint32_t a1, uint32_t a2) { return a1*a2; }
+static inline uint32_t lean_uint32_mul(uint32_t a1, uint32_t a2) { return 1U*a1*a2; }
 static inline uint32_t lean_uint32_div(uint32_t a1, uint32_t a2) { return a2 == 0 ? 0  : a1/a2; }
 static inline uint32_t lean_uint32_mod(uint32_t a1, uint32_t a2) { return a2 == 0 ? a1 : a1%a2; }
 static inline uint32_t lean_uint32_land(uint32_t a, uint32_t b) { return a & b; }
@@ -1920,7 +1928,7 @@ static inline uint64_t lean_uint64_of_nat(b_lean_obj_arg a) { return lean_is_sca
 static inline uint64_t lean_uint64_of_nat_mk(lean_obj_arg a) { uint64_t r = lean_uint64_of_nat(a); lean_dec(a); return r; }
 static inline uint64_t lean_uint64_add(uint64_t a1, uint64_t a2) { return a1+a2; }
 static inline uint64_t lean_uint64_sub(uint64_t a1, uint64_t a2) { return a1-a2; }
-static inline uint64_t lean_uint64_mul(uint64_t a1, uint64_t a2) { return a1*a2; }
+static inline uint64_t lean_uint64_mul(uint64_t a1, uint64_t a2) { return 1U*a1*a2; }
 static inline uint64_t lean_uint64_div(uint64_t a1, uint64_t a2) { return a2 == 0 ? 0  : a1/a2; }
 static inline uint64_t lean_uint64_mod(uint64_t a1, uint64_t a2) { return a2 == 0 ? a1 : a1%a2; }
 static inline uint64_t lean_uint64_land(uint64_t a, uint64_t b) { return a & b; }
@@ -1941,8 +1949,16 @@ static inline uint64_t lean_uint64_log2(uint64_t a) {
 static inline uint8_t lean_uint64_dec_eq(uint64_t a1, uint64_t a2) { return a1 == a2; }
 static inline uint8_t lean_uint64_dec_lt(uint64_t a1, uint64_t a2) { return a1 < a2; }
 static inline uint8_t lean_uint64_dec_le(uint64_t a1, uint64_t a2) { return a1 <= a2; }
-LEAN_EXPORT uint64_t lean_uint64_mix_hash(uint64_t a1, uint64_t a2);
-
+static inline uint64_t lean_uint64_mix_hash(uint64_t h, uint64_t k) {
+    uint64_t m = 0xc6a4a7935bd1e995;
+    uint64_t r = 47;
+    k *= m;
+    k ^= k >> r;
+    k ^= m;
+    h ^= k;
+    h *= m;
+    return h;
+}
 
 /* UInt64 -> other */
 static inline uint8_t lean_uint64_to_uint8(uint64_t a) { return ((uint8_t)a); }
@@ -1989,10 +2005,18 @@ static inline uint32_t lean_usize_to_uint32(size_t a) { return ((uint32_t)a); }
 static inline uint64_t lean_usize_to_uint64(size_t a) { return ((uint64_t)a); }
 
 /*
- * Note that we compile all files with -frwapv so in the following section all potential UB that
- * may arise from signed overflow is forced to match 2's complement behavior.
+ * Previously we compiled all files with -fwrapv so in the following section all potential UB that
+ * may arise from signed overflow is forced to match 2's complement behavior. However, this requires
+ * everyone including `lean.h` to also compile with this setting to avoid violating the one
+ * definition rule, and also makes it impossible to run the clang sanitizer (which considers
+ * -fwrapv a feature for graceful failures, not to mark things as intended).
  *
- * We furthermore rely on the implementation defined behavior of gcc/clang to apply reduction mod
+ * To avoid integer promotion from small unsigned types to `int` in the `mul` functions, we add a
+ * `1U *` term as recommended by https://stackoverflow.com/a/31083928/102441. This is optimized out,
+ * but forces a cast to _at least_ `unsigned int`, without having to implicitly assume that this is
+ * `uint32_t`.
+ *
+ * We rely on the implementation defined behavior of gcc/clang to apply reduction mod
  * 2^N when casting to an integer type of size N:
  * https://gcc.gnu.org/onlinedocs/gcc/Integers-implementation.html#Integers-implementation
  * Unfortunately LLVM does not yet document their implementation defined behavior but it is
@@ -2032,30 +2056,23 @@ static inline lean_obj_res lean_int8_to_int(uint8_t a) {
 }
 
 static inline uint8_t lean_int8_neg(uint8_t a) {
-    int8_t arg = (int8_t)a;
-
-    return (uint8_t)(-arg);
+    // do not cast to `int8_t`, as there underflow is undefined behavior
+    return -a;
 }
 
 static inline uint8_t lean_int8_add(uint8_t a1, uint8_t a2) {
-    int8_t lhs = (int8_t)a1;
-    int8_t rhs = (int8_t)a2;
-
-    return (uint8_t)(lhs + rhs);
+    // do not cast to `int8_t`, as there overflow is undefined behavior
+    return a1 + a2;
 }
 
 static inline uint8_t lean_int8_sub(uint8_t a1, uint8_t a2) {
-    int8_t lhs = (int8_t)a1;
-    int8_t rhs = (int8_t)a2;
-
-    return (uint8_t)(lhs - rhs);
+    // do not cast to `int8_t`, as there overflow is undefined behavior
+    return a1 - a2;
 }
 
 static inline uint8_t lean_int8_mul(uint8_t a1, uint8_t a2) {
-    int8_t lhs = (int8_t)a1;
-    int8_t rhs = (int8_t)a2;
-
-    return (uint8_t)(lhs * rhs);
+    // do not cast to `int8_t`, as there overflow is undefined behavior
+    return 1U * a1 * a2;
 }
 
 static inline uint8_t lean_int8_div(uint8_t a1, uint8_t a2) {
@@ -2103,10 +2120,10 @@ static inline uint8_t lean_int8_shift_right(uint8_t a1, uint8_t a2) {
 }
 
 static inline uint8_t lean_int8_shift_left(uint8_t a1, uint8_t a2) {
-    int8_t lhs = (int8_t)a1;
     int8_t rhs = (((int8_t)a2 % 8) + 8) % 8; // this is smod 8
 
-    return (uint8_t)(lhs << rhs);
+    // do not cast to `int8_t`, as there negative `a1` is undefined behavior
+    return a1 << (uint8_t)rhs;
 }
 
 static inline uint8_t lean_int8_complement(uint8_t a) {
@@ -2116,11 +2133,8 @@ static inline uint8_t lean_int8_complement(uint8_t a) {
 }
 
 static inline uint8_t lean_int8_abs(uint8_t a) {
-    int8_t arg = (int8_t)a;
-
-    // Recall that we are compiling with -fwrapv so this is guaranteed to
-    // map INT8_MIN to INT8_MIN
-    return (uint8_t)(arg < 0 ? -arg : arg);
+    // do not cast to `int8_t` to negate, as there underflow is undefined behavior
+    return (int8_t)a < 0 ? -a : a;
 }
 
 static inline uint8_t lean_int8_dec_eq(uint8_t a1, uint8_t a2) {
@@ -2183,30 +2197,23 @@ static inline lean_obj_res lean_int16_to_int(uint16_t a) {
 }
 
 static inline uint16_t lean_int16_neg(uint16_t a) {
-    int16_t arg = (int16_t)a;
-
-    return (uint16_t)(-arg);
+    // do not cast to `int16_t`, as there underflow is undefined behavior
+    return -a;
 }
 
 static inline uint16_t lean_int16_add(uint16_t a1, uint16_t a2) {
-    int16_t lhs = (int16_t)a1;
-    int16_t rhs = (int16_t)a2;
-
-    return (uint16_t)(lhs + rhs);
+    // do not cast to `int16_t`, as there overflow is undefined behavior
+    return a1 + a2;
 }
 
 static inline uint16_t lean_int16_sub(uint16_t a1, uint16_t a2) {
-    int16_t lhs = (int16_t)a1;
-    int16_t rhs = (int16_t)a2;
-
-    return (uint16_t)(lhs - rhs);
+    // do not cast to `int16_t`, as there overflow is undefined behavior
+    return a1 - a2;
 }
 
 static inline uint16_t lean_int16_mul(uint16_t a1, uint16_t a2) {
-    int16_t lhs = (int16_t)a1;
-    int16_t rhs = (int16_t)a2;
-
-    return (uint16_t)(lhs * rhs);
+    // do not cast to `int16_t`, as there overflow is undefined behavior
+    return 1U * a1 * a2;
 }
 
 static inline uint16_t lean_int16_div(uint16_t a1, uint16_t a2) {
@@ -2254,10 +2261,10 @@ static inline uint16_t lean_int16_shift_right(uint16_t a1, uint16_t a2) {
 }
 
 static inline uint16_t lean_int16_shift_left(uint16_t a1, uint16_t a2) {
-    int16_t lhs = (int16_t)a1;
     int16_t rhs = (((int16_t)a2 % 16) + 16) % 16; // this is smod 16
 
-    return (uint16_t)(lhs << rhs);
+    // do not cast to `int16_t`, as there negative `a1` is undefined behavior
+    return a1 << (uint16_t)rhs;
 }
 
 static inline uint16_t lean_int16_complement(uint16_t a) {
@@ -2267,11 +2274,8 @@ static inline uint16_t lean_int16_complement(uint16_t a) {
 }
 
 static inline uint16_t lean_int16_abs(uint16_t a) {
-    int16_t arg = (int16_t)a;
-
-    // Recall that we are compiling with -fwrapv so this is guaranteed to
-    // map INT16_MIN to INT16_MIN
-    return (uint16_t)(arg < 0 ? -arg : arg);
+    // do not cast to `int16_t` to negate, as there underflow is undefined behavior
+    return (int16_t)a < 0 ? -a : a;
 }
 
 static inline uint8_t lean_int16_dec_eq(uint16_t a1, uint16_t a2) {
@@ -2333,30 +2337,23 @@ static inline lean_obj_res lean_int32_to_int(uint32_t a) {
 }
 
 static inline uint32_t lean_int32_neg(uint32_t a) {
-    int32_t arg = (int32_t)a;
-
-    return (uint32_t)(-arg);
+    // do not cast to `int32_t`, as there underflow is undefined behavior
+    return -a;
 }
 
 static inline uint32_t lean_int32_add(uint32_t a1, uint32_t a2) {
-    int32_t lhs = (int32_t)a1;
-    int32_t rhs = (int32_t)a2;
-
-    return (uint32_t)(lhs + rhs);
+    // do not cast to `int32_t`, as there overflow is undefined behavior
+    return a1 + a2;
 }
 
 static inline uint32_t lean_int32_sub(uint32_t a1, uint32_t a2) {
-    int32_t lhs = (int32_t)a1;
-    int32_t rhs = (int32_t)a2;
-
-    return (uint32_t)(lhs - rhs);
+    // do not cast to `int32_t`, as there overflow is undefined behavior
+    return a1 - a2;
 }
 
 static inline uint32_t lean_int32_mul(uint32_t a1, uint32_t a2) {
-    int32_t lhs = (int32_t)a1;
-    int32_t rhs = (int32_t)a2;
-
-    return (uint32_t)(lhs * rhs);
+    // do not cast to `int32_t`, as there overflow is undefined behavior
+    return 1U * a1 * a2;
 }
 
 static inline uint32_t lean_int32_div(uint32_t a1, uint32_t a2) {
@@ -2404,10 +2401,10 @@ static inline uint32_t lean_int32_shift_right(uint32_t a1, uint32_t a2) {
 }
 
 static inline uint32_t lean_int32_shift_left(uint32_t a1, uint32_t a2) {
-    int32_t lhs = (int32_t)a1;
     int32_t rhs = (((int32_t)a2 % 32) + 32) % 32; // this is smod 32
 
-    return (uint32_t)(lhs << rhs);
+    // do not cast to `int32_t`, as there negative `a1` is undefined behavior
+    return a1 << (uint32_t)rhs;
 }
 
 static inline uint32_t lean_int32_complement(uint32_t a) {
@@ -2417,11 +2414,8 @@ static inline uint32_t lean_int32_complement(uint32_t a) {
 }
 
 static inline uint32_t lean_int32_abs(uint32_t a) {
-    int32_t arg = (int32_t)a;
-
-    // Recall that we are compiling with -fwrapv so this is guaranteed to
-    // map INT32_MIN to INT32_MIN
-    return (uint32_t)(arg < 0 ? -arg : arg);
+    // do not cast to `int32_t` to negate, as there underflow is undefined behavior
+    return (int32_t)a < 0 ? -a : a;
 }
 
 static inline uint8_t lean_int32_dec_eq(uint32_t a1, uint32_t a2) {
@@ -2483,30 +2477,23 @@ static inline lean_obj_res lean_int64_to_int_sint(uint64_t a) {
 }
 
 static inline uint64_t lean_int64_neg(uint64_t a) {
-    int64_t arg = (int64_t)a;
-
-    return (uint64_t)(-arg);
+    // do not cast to `int64_t`, as there underflow is undefined behavior
+    return -a;
 }
 
 static inline uint64_t lean_int64_add(uint64_t a1, uint64_t a2) {
-    int64_t lhs = (int64_t)a1;
-    int64_t rhs = (int64_t)a2;
-
-    return (uint64_t)(lhs + rhs);
+    // do not cast to `int64_t`, as there overflow is undefined behavior
+    return a1 + a2;
 }
 
 static inline uint64_t lean_int64_sub(uint64_t a1, uint64_t a2) {
-    int64_t lhs = (int64_t)a1;
-    int64_t rhs = (int64_t)a2;
-
-    return (uint64_t)(lhs - rhs);
+    // do not cast to `int64_t`, as there overflow is undefined behavior
+    return a1 - a2;
 }
 
 static inline uint64_t lean_int64_mul(uint64_t a1, uint64_t a2) {
-    int64_t lhs = (int64_t)a1;
-    int64_t rhs = (int64_t)a2;
-
-    return (uint64_t)(lhs * rhs);
+    // do not cast to `int64_t`, as there overflow is undefined behavior
+    return 1U * a1 * a2;
 }
 
 static inline uint64_t lean_int64_div(uint64_t a1, uint64_t a2) {
@@ -2556,10 +2543,10 @@ static inline uint64_t lean_int64_shift_right(uint64_t a1, uint64_t a2) {
 }
 
 static inline uint64_t lean_int64_shift_left(uint64_t a1, uint64_t a2) {
-    int64_t lhs = (int64_t)a1;
     int64_t rhs = (((int64_t)a2 % 64) + 64) % 64; // this is smod 64
 
-    return (uint64_t)(lhs << rhs);
+    // do not cast to `int64_t`, as there negative `a1` is undefined behavior
+    return a1 << (uint64_t)rhs;
 }
 
 static inline uint64_t lean_int64_complement(uint64_t a) {
@@ -2569,11 +2556,8 @@ static inline uint64_t lean_int64_complement(uint64_t a) {
 }
 
 static inline uint64_t lean_int64_abs(uint64_t a) {
-    int64_t arg = (int64_t)a;
-
-    // Recall that we are compiling with -fwrapv so this is guaranteed to
-    // map INT64_MIN to INT64_MIN
-    return (uint64_t)(arg < 0 ? -arg : arg);
+    // do not cast to `int32_t` to negate, as there underflow is undefined behavior
+    return (int64_t)a < 0 ? -a : a;
 }
 
 static inline uint8_t lean_int64_dec_eq(uint64_t a1, uint64_t a2) {
@@ -2635,30 +2619,23 @@ static inline lean_obj_res lean_isize_to_int(size_t a) {
 }
 
 static inline size_t lean_isize_neg(size_t a) {
-    ptrdiff_t arg = (ptrdiff_t)a;
-
-    return (size_t)(-arg);
+    // do not cast to `ptrdiff_t`, as there underflow is undefined behavior
+    return -a;
 }
 
 static inline size_t lean_isize_add(size_t a1, size_t a2) {
-    ptrdiff_t lhs = (ptrdiff_t)a1;
-    ptrdiff_t rhs = (ptrdiff_t)a2;
-
-    return (size_t)(lhs + rhs);
+    // do not cast to `ptrdiff_t`, as there overflow is undefined behavior
+    return a1 + a2;
 }
 
 static inline size_t lean_isize_sub(size_t a1, size_t a2) {
-    ptrdiff_t lhs = (ptrdiff_t)a1;
-    ptrdiff_t rhs = (ptrdiff_t)a2;
-
-    return (size_t)(lhs - rhs);
+    // do not cast to `ptrdiff_t`, as there overflow is undefined behavior
+    return a1 - a2;
 }
 
 static inline size_t lean_isize_mul(size_t a1, size_t a2) {
-    ptrdiff_t lhs = (ptrdiff_t)a1;
-    ptrdiff_t rhs = (ptrdiff_t)a2;
-
-    return (size_t)(lhs * rhs);
+    // do not cast to `ptrdiff_t`, as there overflow is undefined behavior
+    return 1U * a1 * a2;
 }
 
 static inline size_t lean_isize_div(size_t a1, size_t a2) {
@@ -2709,11 +2686,11 @@ static inline size_t lean_isize_shift_right(size_t a1, size_t a2) {
 }
 
 static inline size_t lean_isize_shift_left(size_t a1, size_t a2) {
-    ptrdiff_t lhs = (ptrdiff_t)a1;
     ptrdiff_t size = sizeof(ptrdiff_t) * 8;
     ptrdiff_t rhs = (((ptrdiff_t)a2 % size) + size) % size; // this is smod
 
-    return (size_t)(lhs << rhs);
+    // do not cast to `int64_t`, as there negative `a1` is undefined behavior
+    return a1 << (size_t)rhs;
 }
 
 static inline size_t lean_isize_complement(size_t a) {
@@ -2723,11 +2700,8 @@ static inline size_t lean_isize_complement(size_t a) {
 }
 
 static inline size_t lean_isize_abs(size_t a) {
-    ptrdiff_t arg = (ptrdiff_t)a;
-
-    // Recall that we are compiling with -fwrapv so this is guaranteed to
-    // map ISIZE_MIN to ISIZE_MIN
-    return (size_t)(arg < 0 ? -arg : arg);
+    // do not cast to `ptrdiff_t` to negate, as there underflow is undefined behavior
+    return (ptrdiff_t)a < 0 ? -a : a;
 }
 
 static inline uint8_t lean_isize_dec_eq(size_t a1, size_t a2) {
@@ -3184,6 +3158,85 @@ static inline lean_obj_res lean_manual_get_root(lean_obj_arg _unit) {
 #else
 #define LEAN_SCALAR_PTR_LITERAL(b1, b2, b3, b4, b5, b6, b7, b8) (lean_object*)((uint64_t)b1 | ((uint64_t)b2 << 8) | ((uint64_t)b3 << 16) | ((uint64_t)b4 << 24) | ((uint64_t)b5 << 32) | ((uint64_t)b6 << 40) | ((uint64_t)b7 << 48) | ((uint64_t)b8 << 56))
 #endif
+
+typedef struct {
+    _Atomic(int) state;
+    _Atomic(int) lock;
+} lean_once_cell_t;
+
+#define LEAN_ONCE_CELL_INITIALIZER { .state = 0, .lock = 0 }
+
+LEAN_EXPORT lean_object* lean_obj_once_cold(lean_object** loc, lean_once_cell_t* tok, lean_object* (*init)(void));
+
+static inline lean_object* lean_obj_once(lean_object** loc, lean_once_cell_t* tok, lean_object* (*init)(void)) {
+    if (LEAN_LIKELY(tok->state == 1)) {
+        return *loc;
+    }
+    return lean_obj_once_cold(loc, tok, init);
+}
+
+LEAN_EXPORT uint8_t lean_uint8_once_cold(uint8_t* loc, lean_once_cell_t* tok, uint8_t (*init)(void));
+
+static inline uint8_t lean_uint8_once(uint8_t* loc, lean_once_cell_t* tok, uint8_t (*init)(void)) {
+    if (LEAN_LIKELY(tok->state == 1)) {
+        return *loc;
+    }
+    return lean_uint8_once_cold(loc, tok, init);
+}
+
+LEAN_EXPORT uint16_t lean_uint16_once_cold(uint16_t* loc, lean_once_cell_t* tok, uint16_t (*init)(void));
+
+static inline uint16_t lean_uint16_once(uint16_t* loc, lean_once_cell_t* tok, uint16_t (*init)(void)) {
+    if (LEAN_LIKELY(tok->state == 1)) {
+        return *loc;
+    }
+    return lean_uint16_once_cold(loc, tok, init);
+}
+
+LEAN_EXPORT uint32_t lean_uint32_once_cold(uint32_t* loc, lean_once_cell_t* tok, uint32_t (*init)(void));
+
+static inline uint32_t lean_uint32_once(uint32_t* loc, lean_once_cell_t* tok, uint32_t (*init)(void)) {
+    if (LEAN_LIKELY(tok->state == 1)) {
+        return *loc;
+    }
+    return lean_uint32_once_cold(loc, tok, init);
+}
+
+LEAN_EXPORT uint64_t lean_uint64_once_cold(uint64_t* loc, lean_once_cell_t* tok, uint64_t (*init)(void));
+
+static inline uint64_t lean_uint64_once(uint64_t* loc, lean_once_cell_t* tok, uint64_t (*init)(void)) {
+    if (LEAN_LIKELY(tok->state == 1)) {
+        return *loc;
+    }
+    return lean_uint64_once_cold(loc, tok, init);
+}
+
+LEAN_EXPORT size_t lean_usize_once_cold(size_t* loc, lean_once_cell_t* tok, size_t (*init)(void));
+
+static inline size_t lean_usize_once(size_t* loc, lean_once_cell_t* tok, size_t (*init)(void)) {
+    if (LEAN_LIKELY(tok->state == 1)) {
+        return *loc;
+    }
+    return lean_usize_once_cold(loc, tok, init);
+}
+
+LEAN_EXPORT float lean_float32_once_cold(float* loc, lean_once_cell_t* tok, float (*init)(void));
+
+static inline float lean_float32_once(float* loc, lean_once_cell_t* tok, float (*init)(void)) {
+    if (LEAN_LIKELY(tok->state == 1)) {
+        return *loc;
+    }
+    return lean_float32_once_cold(loc, tok, init);
+}
+
+LEAN_EXPORT double lean_float_once_cold(double* loc, lean_once_cell_t* tok, double (*init)(void));
+
+static inline double lean_float_once(double* loc, lean_once_cell_t* tok, double (*init)(void)) {
+    if (LEAN_LIKELY(tok->state == 1)) {
+        return *loc;
+    }
+    return lean_float_once_cold(loc, tok, init);
+}
 
 #ifdef __cplusplus
 }

@@ -6,10 +6,10 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Init.ByCases
-public import Init.Data.Prod
 public import Init.Data.RArray
 import Init.LawfulBEqTactics
+import Init.ByCases
+import Init.Data.Prod
 
 public section
 

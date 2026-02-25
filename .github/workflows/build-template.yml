@@ -49,7 +49,7 @@ jobs:
       LSAN_OPTIONS: max_leaks=10
       # somehow MinGW clang64 (or cmake?) defaults to `g++` even though it doesn't exist
       CXX: c++
-      MACOSX_DEPLOYMENT_TARGET: 10.15
+      MACOSX_DEPLOYMENT_TARGET: 11.0
     steps:
       - name: Install Nix
         uses: DeterminateSystems/nix-installer-action@main
@@ -102,7 +102,7 @@ jobs:
         if: matrix.cmultilib
       - name: Restore Cache
         id: restore-cache
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v5
         with:
           # NOTE: must be in sync with `save` below and with `restore-cache` in `update-stage0.yml`
           path: |
@@ -175,7 +175,7 @@ jobs:
         # Caching on cancellation created some mysterious issues perhaps related to improper build
         # shutdown
         if: steps.restore-cache.outputs.cache-hit != 'true' && !cancelled()
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         with:
           # NOTE: must be in sync with `restore` above
           path: |

@@ -6,9 +6,12 @@ Author: Leonardo de Moura
 module
 
 prelude
-public import Init.Data.UInt.Basic
 import all Init.Data.UInt.BasicAux
-public import Init.Data.Array.Extract
+public import Init.Data.Array.DecidableEq
+public import Init.Data.List.Attach
+import Init.Data.Array.Bootstrap
+import Init.Data.Array.Lemmas
+import Init.Omega
 
 set_option doc.verso true
 

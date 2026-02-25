@@ -21,6 +21,8 @@ def g : Nat → Nat
 termination_by x => x
 
 /--
+error: Cannot add `[macro_inline]` attribute to `h._unary`: This attribute does not support this kind of declaration; only non-recursive definitions are supported
+---
 error: Cannot add `[macro_inline]` attribute to `h`: This attribute does not support this kind of declaration; only non-recursive definitions are supported
 -/
 #guard_msgs in

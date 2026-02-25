@@ -5,7 +5,6 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Init.Data.Array.Basic
 public import Init.While
 public import Init.Data.Range.Polymorphic
 namespace Lean.Util.ParamMinimizer

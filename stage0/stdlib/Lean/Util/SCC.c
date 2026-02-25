@@ -93,6 +93,7 @@ static const lean_ctor_object l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___red
 static const lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___redArg___closed__19 = (const lean_object*)&l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___redArg___closed__19_value;
 lean_object* l_instDecidableEqNat___boxed(lean_object*, lean_object*);
 lean_object* l_instBEqOfDecidableEq___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
+static lean_once_cell_t l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___redArg___closed__20_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___redArg___closed__20;
 LEAN_EXPORT lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_forM___redArg(lean_object*, lean_object*, lean_object*);
@@ -101,8 +102,11 @@ LEAN_EXPORT lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___redArg(l
 LEAN_EXPORT lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_sccAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SCC_scc___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
+static lean_once_cell_t l_Lean_SCC_scc___redArg___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_SCC_scc___redArg___closed__0;
+static lean_once_cell_t l_Lean_SCC_scc___redArg___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_SCC_scc___redArg___closed__1;
+static lean_once_cell_t l_Lean_SCC_scc___redArg___closed__2_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_SCC_scc___redArg___closed__2;
 lean_object* l_List_reverse___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SCC_scc___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -761,7 +765,7 @@ x_6 = l___private_Lean_Util_SCC_0__Lean_SCC_addSCC___redArg(x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
-static lean_object* _init_l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___redArg___closed__20() {
+static lean_object* _init_l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___redArg___closed__20(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -814,7 +818,7 @@ lean_inc(x_18);
 x_19 = lean_ctor_get(x_16, 1);
 lean_inc(x_19);
 lean_dec(x_16);
-x_20 = l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___redArg___closed__20;
+x_20 = lean_obj_once(&l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___redArg___closed__20, &l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___redArg___closed__20_once, _init_l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___redArg___closed__20);
 x_21 = l_Option_instBEq_beq___redArg(x_20, x_19, x_18);
 if (x_21 == 0)
 {
@@ -847,7 +851,7 @@ lean_inc(x_26);
 x_27 = lean_ctor_get(x_24, 1);
 lean_inc(x_27);
 lean_dec(x_24);
-x_28 = l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___redArg___closed__20;
+x_28 = lean_obj_once(&l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___redArg___closed__20, &l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___redArg___closed__20_once, _init_l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___redArg___closed__20);
 x_29 = l_Option_instBEq_beq___redArg(x_28, x_27, x_26);
 if (x_29 == 0)
 {
@@ -1022,7 +1026,7 @@ return x_16;
 }
 }
 }
-static lean_object* _init_l_Lean_SCC_scc___redArg___closed__0() {
+static lean_object* _init_l_Lean_SCC_scc___redArg___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1032,11 +1036,11 @@ x_3 = lean_mk_array(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_SCC_scc___redArg___closed__1() {
+static lean_object* _init_l_Lean_SCC_scc___redArg___closed__1(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_SCC_scc___redArg___closed__0;
+x_1 = lean_obj_once(&l_Lean_SCC_scc___redArg___closed__0, &l_Lean_SCC_scc___redArg___closed__0_once, _init_l_Lean_SCC_scc___redArg___closed__0);
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
@@ -1044,11 +1048,11 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_SCC_scc___redArg___closed__2() {
+static lean_object* _init_l_Lean_SCC_scc___redArg___closed__2(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_SCC_scc___redArg___closed__1;
+x_1 = lean_obj_once(&l_Lean_SCC_scc___redArg___closed__1, &l_Lean_SCC_scc___redArg___closed__1_once, _init_l_Lean_SCC_scc___redArg___closed__1);
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = lean_box(0);
 x_4 = lean_alloc_ctor(0, 4, 0);
@@ -1068,7 +1072,7 @@ lean_closure_set(x_5, 0, x_1);
 lean_closure_set(x_5, 1, x_2);
 lean_closure_set(x_5, 2, x_4);
 x_6 = ((lean_object*)(l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___redArg___closed__19));
-x_7 = l_Lean_SCC_scc___redArg___closed__2;
+x_7 = lean_obj_once(&l_Lean_SCC_scc___redArg___closed__2, &l_Lean_SCC_scc___redArg___closed__2_once, _init_l_Lean_SCC_scc___redArg___closed__2);
 x_8 = l_List_forM___redArg(x_6, x_3, x_5);
 x_9 = lean_apply_1(x_8, x_7);
 x_10 = lean_ctor_get(x_9, 1);
@@ -1102,14 +1106,6 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Option_Coe(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___redArg___closed__20 = _init_l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___redArg___closed__20();
-lean_mark_persistent(l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___redArg___closed__20);
-l_Lean_SCC_scc___redArg___closed__0 = _init_l_Lean_SCC_scc___redArg___closed__0();
-lean_mark_persistent(l_Lean_SCC_scc___redArg___closed__0);
-l_Lean_SCC_scc___redArg___closed__1 = _init_l_Lean_SCC_scc___redArg___closed__1();
-lean_mark_persistent(l_Lean_SCC_scc___redArg___closed__1);
-l_Lean_SCC_scc___redArg___closed__2 = _init_l_Lean_SCC_scc___redArg___closed__2();
-lean_mark_persistent(l_Lean_SCC_scc___redArg___closed__2);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

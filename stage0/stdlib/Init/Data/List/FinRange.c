@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.List.FinRange
-// Imports: import all Init.Data.List.OfFn public import Init.Data.List.Monadic
+// Imports: import all Init.Data.List.OfFn public import Init.Data.List.Control public import Init.Data.List.OfFn import Init.Data.List.Monadic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -45,12 +45,20 @@ return x_3;
 }
 }
 lean_object* initialize_Init_Data_List_OfFn(uint8_t builtin);
+lean_object* initialize_Init_Data_List_Control(uint8_t builtin);
+lean_object* initialize_Init_Data_List_OfFn(uint8_t builtin);
 lean_object* initialize_Init_Data_List_Monadic(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_List_FinRange(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
+res = initialize_Init_Data_List_OfFn(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_Control(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Init_Data_List_OfFn(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

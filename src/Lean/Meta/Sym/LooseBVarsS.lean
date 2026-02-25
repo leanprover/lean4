@@ -5,7 +5,6 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Sym.SymM
 public import Lean.Meta.Sym.ReplaceS
 public section
 namespace Lean.Meta.Sym

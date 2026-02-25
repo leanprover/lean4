@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Fin.Lemmas
-// Imports: public import Init.Data.Nat.Lemmas public import Init.Ext import Init.Data.Order.Lemmas
+// Imports: public import Init.Ext public import Init.Data.Nat.Div.Basic public import Init.Data.Order.Classes public import Init.NotationExtra import Init.ByCases import Init.Data.Nat.Lemmas import Init.Data.Nat.Linear import Init.Omega import Init.TacticsExtra import Init.Hints
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -19,6 +19,7 @@ LEAN_EXPORT lean_object* l_Fin_NatCast_instNatCast___redArg___lam__0___boxed(lea
 LEAN_EXPORT lean_object* l_Fin_NatCast_instNatCast___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Fin_NatCast_instNatCast(lean_object*, lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
+static lean_once_cell_t l_Fin_intCast___redArg___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Fin_intCast___redArg___closed__0;
 uint8_t lean_int_dec_le(lean_object*, lean_object*);
 lean_object* lean_nat_abs(lean_object*);
@@ -115,7 +116,7 @@ lean_closure_set(x_3, 0, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Fin_intCast___redArg___closed__0() {
+static lean_object* _init_l_Fin_intCast___redArg___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -128,7 +129,7 @@ LEAN_EXPORT lean_object* l_Fin_intCast___redArg(lean_object* x_1, lean_object* x
 _start:
 {
 lean_object* x_3; uint8_t x_4; 
-x_3 = l_Fin_intCast___redArg___closed__0;
+x_3 = lean_obj_once(&l_Fin_intCast___redArg___closed__0, &l_Fin_intCast___redArg___closed__0_once, _init_l_Fin_intCast___redArg___closed__0);
 x_4 = lean_int_dec_le(x_3, x_2);
 if (x_4 == 0)
 {
@@ -718,25 +719,51 @@ lean_dec(x_1);
 return x_7;
 }
 }
-lean_object* initialize_Init_Data_Nat_Lemmas(uint8_t builtin);
 lean_object* initialize_Init_Ext(uint8_t builtin);
-lean_object* initialize_Init_Data_Order_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_Data_Nat_Div_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_Order_Classes(uint8_t builtin);
+lean_object* initialize_Init_NotationExtra(uint8_t builtin);
+lean_object* initialize_Init_ByCases(uint8_t builtin);
+lean_object* initialize_Init_Data_Nat_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_Data_Nat_Linear(uint8_t builtin);
+lean_object* initialize_Init_Omega(uint8_t builtin);
+lean_object* initialize_Init_TacticsExtra(uint8_t builtin);
+lean_object* initialize_Init_Hints(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Fin_Lemmas(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Nat_Lemmas(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Init_Ext(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Order_Lemmas(builtin);
+res = initialize_Init_Data_Nat_Div_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Fin_intCast___redArg___closed__0 = _init_l_Fin_intCast___redArg___closed__0();
-lean_mark_persistent(l_Fin_intCast___redArg___closed__0);
+res = initialize_Init_Data_Order_Classes(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_NotationExtra(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_ByCases(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Nat_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Nat_Linear(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Omega(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_TacticsExtra(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Hints(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

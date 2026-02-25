@@ -7,6 +7,7 @@ module
 prelude
 public import Lean.Meta.Sym.Pattern
 import Lean.Util.CollectFVars
+import Init.Data.Range.Polymorphic.Iterators
 namespace Lean.Meta.Sym
 
 /--

@@ -8,9 +8,7 @@ module
 prelude
 public import Lean.Meta.Structure
 public import Lean.Elab.MutualInductive
-import Lean.Linter.Basic
-import Lean.DocString
-import Lean.DocString.Extension
+import Init.Omega
 
 public section
 
@@ -414,7 +412,8 @@ def structCtor           := leading_parser try (declModifiers >> ident >> " :: "
 def structureSyntaxToView (modifiers : Modifiers) (stx : Syntax) : TermElabM StructView := do
   checkValidInductiveModifier modifiers
   let isClass   := stx[0].getKind == ``Parser.Command.classTk
-  let modifiers := if isClass then modifiers.addAttr { name := `class } else modifiers
+  -- **Note**: We use `addFirstAttr` to make sure the `[class]` attribute is processed **before** `[univ_out_params]`
+  let modifiers := if isClass then modifiers.addFirstAttr { name := `class } else modifiers
   let declId    := stx[1]
   let ⟨name, declName, levelNames, docString?⟩ ← Term.expandDeclId (← getCurrNamespace) (← Term.getLevelNames) declId modifiers
   if modifiers.isMeta then
@@ -907,6 +906,7 @@ where
 
 private def registerFailedToInferFieldType (fieldName : Name) (e : Expr) (ref : Syntax) : TermElabM Unit := do
   Term.registerCustomErrorIfMVar (← instantiateMVars e) ref m!"Failed to infer type of field `{.ofConstName fieldName}`"
+  Term.registerLevelMVarErrorExprInfo e ref m!"Failed to infer universe levels in type of field `{.ofConstName fieldName}`"
 
 private def registerFailedToInferDefaultValue (fieldName : Name) (e : Expr) (ref : Syntax) : TermElabM Unit := do
   Term.registerCustomErrorIfMVar (← instantiateMVars e) ref m!"Failed to infer default value for field `{.ofConstName fieldName}`"
@@ -1248,6 +1248,29 @@ private partial def mkFlatCtor (levelParams : List Name) (params : Array Expr) (
     let valType := valType.inferImplicit params.size true
     addDecl <| Declaration.defnDecl (← mkDefinitionValInferringUnsafe flatCtorName levelParams valType val .abbrev)
 
+/--
+Collects the level metavariables in parent projections.
+These are considered to be part of the header of the structure,
+and are eligible for promotion to level parameters.
+
+A motivation is this example:
+```
+structure Magma where
+  α   : Type u
+  mul : α → α → α
+
+structure Semigroup extends Magma where
+  mul_assoc (a b c : α) : a * b * c = a * (b * c)
+```
+Without considing the level parameter of `Magma`, we would get `Semigroup : Type 1`
+rather than `Semigroup : Type (u + 1)`.
+-/
+private def collectExtraHeaderLMVars (fieldInfos : Array StructFieldInfo) : StateRefT CollectLevelMVars.State MetaM Unit := do
+  for fieldInfo in fieldInfos do
+    if fieldInfo.kind.isParent then
+      let parentType ← instantiateMVars (← inferType fieldInfo.fvar)
+      modify fun s => collectLevelMVars s parentType
+
 private partial def checkResultingUniversesForFields (fieldInfos : Array StructFieldInfo) (u : Level) : TermElabM Unit := do
   for info in fieldInfos do
     let type ← inferType info.fvar
@@ -1272,9 +1295,6 @@ private def addProjections (params : Array Expr) (r : ElabHeaderResult) (fieldIn
   for fieldInfo in fieldInfos do
     if fieldInfo.kind.isSubobject then
       addDeclarationRangesFromSyntax fieldInfo.declName r.view.ref fieldInfo.ref
-  for decl in projDecls do
-    -- projections may generate equation theorems
-    enableRealizationsForConst decl.projName
 
 private def registerStructure (structName : Name) (infos : Array StructFieldInfo) : TermElabM Unit := do
   let fields ← infos.filterMapM fun info => do
@@ -1425,6 +1445,7 @@ private partial def mkCoercionToCopiedParent (levelParams : List Name) (params :
   if !binfo.isInstImplicit && !(← Meta.isProp parentType) then
     setReducibleAttribute declName
   addDeclarationRangesFromSyntax declName view.ref parent.ref
+  modifyEnv fun env => addAuxParentProjectionInfo env declName params.size (view.isClass && isClass env parent.structName)
   return { structName := parent.structName, subobject := false, projFn := declName }
 
 /--
@@ -1501,7 +1522,7 @@ private def addParentInstances (parents : Array StructureParentInfo) : MetaM Uni
   let instParents := instParents.filter fun parent =>
     !resOrders.any (fun resOrder => resOrder[1...*].any (· == parent.structName))
   for instParent in instParents do
-    addInstance instParent.projFn AttributeKind.global (eval_prio default)
+    registerInstance instParent.projFn AttributeKind.global (eval_prio default)
 
 @[builtin_inductive_elab Lean.Parser.Command.«structure»]
 def elabStructureCommand : InductiveElabDescr where
@@ -1525,6 +1546,7 @@ def elabStructureCommand : InductiveElabDescr where
           return {
             ctors := [ctor]
             collectUsedFVars := collectUsedFVars lctx localInsts fieldInfos
+            collectExtraHeaderLMVars := withLCtx lctx localInsts do collectExtraHeaderLMVars fieldInfos
             checkUniverses := fun _ u => withLCtx lctx localInsts do checkResultingUniversesForFields fieldInfos u
             finalizeTermElab := withLCtx lctx localInsts do checkDefaults fieldInfos
             prefinalize := fun levelParams params replaceIndFVars => do
@@ -1541,30 +1563,33 @@ def elabStructureCommand : InductiveElabDescr where
                   mkRemainingProjections levelParams params view
               setStructureParents view.declName parentInfos
 
-              if let some (doc, isVerso) := view.docString? then
-                addDocStringOf isVerso view.declName view.binders doc
-              if let some (doc, isVerso) := view.ctor.modifiers.docString? then
-                addDocStringOf isVerso view.ctor.declName view.ctor.binders doc
-              for field in view.fields do
-                  -- may not exist if overriding inherited field
-                if (← getEnv).contains field.declName then
-                  if let some (doc, isVerso) := field.modifiers.docString? then
-                    addDocStringOf isVerso field.declName field.binders doc
-
-              withSaveInfoContext do  -- save new env
-                for field in view.fields do
-                  -- may not exist if overriding inherited field
-                  if (← getEnv).contains field.declName then
-                    Term.addTermInfo' field.ref (← mkConstWithLevelParams field.declName) (isBinder := true)
-                -- Add terminfo for parents now that all parent projections exist.
-                for parent in parents do
-                  if parent.addTermInfo then
-                    Term.addTermInfo' parent.ref (← mkConstWithLevelParams parent.declName) (isBinder := true)
               checkResolutionOrder view.declName
               return {
                 finalize := do
+                  -- Enable realizations for projections here (after @[class] attribute is applied)
+                  -- so that the realization context has class information available.
+                  for fieldInfo in fieldInfos do
+                    if fieldInfo.kind.isInCtor then
+                      enableRealizationsForConst fieldInfo.declName
                   if view.isClass then
                     addParentInstances parentInfos
+                  -- Add field docstrings here (after @[class] attribute is applied)
+                  -- so that Verso docstrings can use the class.
+                  for field in view.fields do
+                    -- may not exist if overriding inherited field
+                    if (← getEnv).contains field.declName then
+                      if let some (doc, isVerso) := field.modifiers.docString? then
+                        addDocStringOf isVerso field.declName field.binders doc
+                  -- Add terminfo after docstrings so hovers include the docstring.
+                  withSaveInfoContext do
+                    for field in view.fields do
+                      -- may not exist if overriding inherited field
+                      if (← getEnv).contains field.declName then
+                        Term.addTermInfo' field.ref (← mkConstWithLevelParams field.declName) (isBinder := true)
+                    -- Add terminfo for parents now that all parent projections exist.
+                    for parent in parents do
+                      if parent.addTermInfo then
+                        Term.addTermInfo' parent.ref (← mkConstWithLevelParams parent.declName) (isBinder := true)
               }
           }
     }

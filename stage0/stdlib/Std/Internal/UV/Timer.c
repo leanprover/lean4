@@ -24,7 +24,7 @@ lean_object* lean_uv_timer_stop(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_UV_Timer_stop___boxed(lean_object*, lean_object*);
 lean_object* lean_uv_timer_cancel(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_UV_Timer_cancel___boxed(lean_object*, lean_object*);
-static lean_object* _init_l___private_Std_Internal_UV_Timer_0__Std_Internal_UV_TimerImpl() {
+static lean_object* _init_l___private_Std_Internal_UV_Timer_0__Std_Internal_UV_TimerImpl(void) {
 _start:
 {
 return lean_box(0);
@@ -35,7 +35,7 @@ _start:
 {
 uint64_t x_4; uint8_t x_5; lean_object* x_6; 
 x_4 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_5 = lean_unbox(x_2);
 x_6 = lean_uv_timer_mk(x_4, x_5);
 return x_6;

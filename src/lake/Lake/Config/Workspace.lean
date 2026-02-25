@@ -11,7 +11,9 @@ public import Lake.Config.LeanExe
 public import Lake.Config.ExternLib
 public import Lake.Config.FacetConfig
 public import Lake.Config.TargetConfig
-meta import all Lake.Util.OpaqueType
+public import Lake.Config.LakeConfig
+meta import Lake.Util.OpaqueType
+import Lean.DocString.Syntax
 
 set_option doc.verso true
 
@@ -26,6 +28,8 @@ public structure Workspace : Type where
   root : Package
   /-- The detected {lean}`Lake.Env` of the workspace. -/
   lakeEnv : Lake.Env
+  /-- The Lake configuration from the system configuration file. -/
+  lakeConfig : LoadedLakeConfig
   /-- The Lake cache. -/
   lakeCache : Cache :=
     if root.bootstrap then lakeEnv.lakeSystemCache?.getD ⟨root.lakeDir / "cache"⟩
@@ -47,8 +51,7 @@ public structure Workspace : Type where
   facetConfigs : DNameMap FacetConfig := {}
 
 public instance : Nonempty Workspace :=
-  have : Inhabited Package := Classical.inhabited_of_nonempty inferInstance
-  ⟨by constructor <;> exact default⟩
+  ⟨by constructor <;> exact Classical.ofNonempty⟩
 
 public hydrate_opaque_type OpaqueWorkspace Workspace
 
@@ -85,12 +88,47 @@ namespace Workspace
   self.root.lakeDir
 
 /-- Whether the Lake artifact cache should be enabled by default for packages in the workspace. -/
+@[inline] public def enableArtifactCache? (ws : Workspace) : Option Bool :=
+  ws.lakeEnv.enableArtifactCache? <|> ws.root.enableArtifactCache?
+
+/-- Whether the Lake artifact cache should be enabled by default for packages in the workspace. -/
+@[deprecated enableArtifactCache? (since := "2026-02-03")]
 public def enableArtifactCache (ws : Workspace) : Bool :=
-  ws.lakeEnv.enableArtifactCache? <|> ws.root.enableArtifactCache? |>.getD false
+  ws.enableArtifactCache?.getD false
 
 /-- Whether the Lake artifact cache should is enabled for workspace's root package. -/
-public def isRootArtifactCacheEnabled (ws : Workspace) : Bool :=
-  ws.root.enableArtifactCache? <|> ws.lakeEnv.enableArtifactCache? |>.getD false
+public def isRootArtifactCacheWritable (ws : Workspace) : Bool :=
+  ws.enableArtifactCache?.getD false
+
+/-- Whether the Lake artifact cache should is enabled for workspace's root package. -/
+@[deprecated isRootArtifactCacheWritable (since := "2026-02-03")]
+public abbrev isRootArtifactCacheEnabled (ws : Workspace) : Bool :=
+  ws.isRootArtifactCacheWritable
+
+/--
+Returns the cache service used by default for downloads (e.g., for {lit}`lake cache get`).
+
+This is configured through `cache.defaultService` in the system Lake configuration.
+If unconfigured, Lake defaults to using Reservoir.
+-/
+@[inline] public def defaultCacheService (ws : Workspace) : CacheService :=
+  ws.lakeConfig.defaultCacheService
+
+/--
+Returns the cache service (if any) used by default for uploads (e.g., for {lit}`lake cache put`).
+
+This is configured through {lit}`cache.defaultUploadService` in the system Lake configuration.
+-/
+@[inline] public def defaultCacheUploadService? (ws : Workspace) : Option CacheService :=
+  ws.lakeConfig.defaultUploadCacheService?
+
+/--
+Returns the configured cache service with the given name.
+
+This is configured through {lit}`cache.service` entries in the global Lake configuration.
+-/
+@[inline] public def findCacheService? (ws : Workspace) (service : String) : Option CacheService :=
+  ws.lakeConfig.cacheServices.find? (.mkSimple service)
 
 /-- The path to the workspace's remote packages directory relative to {lean}`dir`. -/
 @[inline] public def relPkgsDir (self : Workspace) : FilePath :=
@@ -300,7 +338,7 @@ to run executables.
 public def augmentedEnvVars (self : Workspace) : Array (String × Option String) :=
   let vars := self.lakeEnv.baseVars ++ #[
     ("LAKE_CACHE_DIR", some self.lakeCache.dir.toString),
-    ("LAKE_ARTIFACT_CACHE", toString self.enableArtifactCache),
+    ("LAKE_ARTIFACT_CACHE", if let some b := self.enableArtifactCache? then toString b else ""),
     ("LEAN_PATH", some self.augmentedLeanPath.toString),
     ("LEAN_SRC_PATH", some self.augmentedLeanSrcPath.toString),
     -- Allow the Lean version to change dynamically within core

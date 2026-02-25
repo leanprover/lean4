@@ -6,8 +6,11 @@ import Lean
 /-!
 Simplest example.
 -/
-theorem ex1 : True := by native_decide
-/-- info: 'ex1' depends on axioms: [Lean.ofReduceBool, Lean.trustCompiler] -/
+theorem ex1 : True := by
+  skip
+  native_decide
+  skip
+/-- info: 'ex1' depends on axioms: [ex1._native.native_decide.ax_1_1] -/
 #guard_msgs in #print axioms ex1
 
 
@@ -112,21 +115,3 @@ instance : Decidable ItsTrue := sorry
 error: Tactic `native_decide` failed: Could not evaluate decidable instance. Error: cannot evaluate code because 'instDecidableItsTrue' uses 'sorry' and/or contains errors
 -/
 #guard_msgs in example : ItsTrue := by native_decide
-
-
-/-!
-Panic during evaluation
--/
-
-inductive ItsTrue2 : Prop
-  | mk
-
-instance : Decidable ItsTrue2 :=
-  have : Inhabited (Decidable ItsTrue2) := ⟨isTrue .mk⟩
-  panic! "oh no"
-
--- Note: this test fails within VS Code
-/--
-info: output: PANIC at instDecidableItsTrue2 lean.run.decideNative:126:2: oh no
--/
-#guard_msgs in example : ItsTrue2 := by collect_stdout native_decide

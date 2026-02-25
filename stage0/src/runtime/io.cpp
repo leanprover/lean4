@@ -584,6 +584,10 @@ extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_truncate(b_obj_arg h) {
 extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_read(b_obj_arg h, usize nbytes) {
     FILE * fp = io_get_handle(h);
     obj_res res = lean_alloc_sarray(1, 0, nbytes);
+    if (nbytes == 0) {
+        // std::fread doesn't handle 0 reads well, see https://github.com/leanprover/lean4/issues/12138
+        return io_result_mk_ok(res);
+    }
     usize n = std::fread(lean_sarray_cptr(res), 1, nbytes, fp);
     if (n > 0) {
         lean_sarray_set_size(res, n);
@@ -1094,28 +1098,20 @@ structure Metadata where
 
 constant metadata : @& FilePath → IO IO.FS.Metadata
 */
-static obj_res timespec_to_obj(timespec const & ts) {
+static obj_res timespec_to_obj(uv_timespec_t const & ts) {
     object * o = alloc_cnstr(0, 1, sizeof(uint32));
     cnstr_set(o, 0, lean_int64_to_int(ts.tv_sec));
     cnstr_set_uint32(o, sizeof(object *), ts.tv_nsec);
     return o;
 }
 
-static obj_res metadata_core(struct stat const & st) {
-    object * mdata = alloc_cnstr(0, 2, sizeof(uint64) + sizeof(uint8));
-#ifdef __APPLE__
-    cnstr_set(mdata, 0, timespec_to_obj(st.st_atimespec));
-    cnstr_set(mdata, 1, timespec_to_obj(st.st_mtimespec));
-#elif defined(LEAN_WINDOWS)
-    // TODO: sub-second precision on Windows
-    cnstr_set(mdata, 0, timespec_to_obj(timespec { st.st_atime, 0 }));
-    cnstr_set(mdata, 1, timespec_to_obj(timespec { st.st_mtime, 0 }));
-#else
+static obj_res metadata_core(uv_stat_t const & st) {
+    object * mdata = alloc_cnstr(0, 2, 2 * sizeof(uint64) + sizeof(uint8));
     cnstr_set(mdata, 0, timespec_to_obj(st.st_atim));
     cnstr_set(mdata, 1, timespec_to_obj(st.st_mtim));
-#endif
     cnstr_set_uint64(mdata, 2 * sizeof(object *), st.st_size);
-    cnstr_set_uint8(mdata, 2 * sizeof(object *) + sizeof(uint64),
+    cnstr_set_uint64(mdata, 2 * sizeof(object *) + sizeof(uint64), st.st_nlink);
+    cnstr_set_uint8(mdata, 2 * sizeof(object *) + 2 * sizeof(uint64),
                     S_ISDIR(st.st_mode) ? 0 :
                     S_ISREG(st.st_mode) ? 1 :
 #ifndef LEAN_WINDOWS
@@ -1130,11 +1126,16 @@ extern "C" LEAN_EXPORT obj_res lean_io_metadata(b_obj_arg filename) {
     if (strlen(fname) != lean_string_size(filename) - 1) {
         return mk_embedded_nul_error(filename);
     }
-    struct stat st;
-    if (stat(fname, &st) != 0) {
-        return io_result_mk_error(decode_io_error(errno, filename));
+    uv_fs_t req;
+    int ret = uv_fs_stat(NULL, &req, fname, NULL);
+    if (ret < 0) {
+        uv_fs_req_cleanup(&req);
+        return io_result_mk_error(decode_uv_error(ret, filename));
+    } else {
+        object* mdata = metadata_core(req.statbuf);
+        uv_fs_req_cleanup(&req);
+        return mdata;
     }
-    return metadata_core(st);
 }
 
 extern "C" LEAN_EXPORT obj_res lean_io_symlink_metadata(b_obj_arg filename) {
@@ -1145,11 +1146,16 @@ extern "C" LEAN_EXPORT obj_res lean_io_symlink_metadata(b_obj_arg filename) {
     if (strlen(fname) != lean_string_size(filename) - 1) {
         return mk_embedded_nul_error(filename);
     }
-    struct stat st;
-    if (lstat(string_cstr(filename), &st) != 0) {
-        return io_result_mk_error(decode_io_error(errno, filename));
+    uv_fs_t req;
+    int ret = uv_fs_lstat(NULL, &req, fname, NULL);
+    if (ret < 0) {
+        uv_fs_req_cleanup(&req);
+        return io_result_mk_error(decode_uv_error(ret, filename));
+    } else {
+        object* mdata = metadata_core(req.statbuf);
+        uv_fs_req_cleanup(&req);
+        return mdata;
     }
-    return metadata_core(st);
 #endif
 }
 
@@ -1328,10 +1334,13 @@ extern "C" LEAN_EXPORT obj_res lean_io_remove_file(b_obj_arg filename) {
     if (strlen(fname) != lean_string_size(filename) - 1) {
         return mk_embedded_nul_error(filename);
     }
-    if (std::remove(fname) == 0) {
-        return io_result_mk_ok(box(0));
+    uv_fs_t req;
+    int ret = uv_fs_unlink(NULL, &req, fname, NULL);
+    uv_fs_req_cleanup(&req);
+    if (ret < 0) {
+        return io_result_mk_error(decode_uv_error(ret, filename));
     } else {
-        return io_result_mk_error(decode_io_error(errno, filename));
+        return io_result_mk_ok(box(0));
     }
 }
 

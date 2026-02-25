@@ -1,11 +1,9 @@
-Failure @2 (⟨2, 0⟩): ':'; expected %%% (at line beginning) or expected column at least 1
+Failure @2 (⟨2, 0⟩): expected block opener (at line start: '#', '>', ':', '*', '-', '+', '1.', '```', '%%%', '{..}') or paragraph indented at least 1
 Final stack:
   [(Lean.Doc.Syntax.ul
     "ul{"
     [(Lean.Doc.Syntax.li
       "*"
-      [(Lean.Doc.Syntax.metadata_block
-        <missing>
-        <missing>)
+      [(Lean.Doc.Syntax.para <missing>)
        <missing>])])]
 Remaining: "abc"

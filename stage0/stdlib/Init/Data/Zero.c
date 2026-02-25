@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Zero
-// Imports: public import Init.Core
+// Imports: public import Init.Tactics
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -277,13 +277,13 @@ lean_dec(x_2);
 return x_6;
 }
 }
-lean_object* initialize_Init_Core(uint8_t builtin);
+lean_object* initialize_Init_Tactics(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Zero(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Core(builtin);
+res = initialize_Init_Tactics(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

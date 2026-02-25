@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Vector.Stream
-// Imports: public import Init.Data.Stream public import Init.Data.Vector.Basic
+// Imports: public import Init.Data.Stream public import Init.Data.Vector.Basic import Init.Data.Slice.Array.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -49,6 +49,7 @@ return x_3;
 }
 lean_object* initialize_Init_Data_Stream(uint8_t builtin);
 lean_object* initialize_Init_Data_Vector_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_Slice_Array_Basic(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Vector_Stream(uint8_t builtin) {
 lean_object * res;
@@ -58,6 +59,9 @@ res = initialize_Init_Data_Stream(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Vector_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Slice_Array_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

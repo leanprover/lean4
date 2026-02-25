@@ -4,10 +4,10 @@ open Lean
 open Lean.IR
 
 def test : CoreM Unit := do
-   let ctorLayout ← getCtorLayout ``Lean.IR.Expr.reuse;
+   let ctorLayout ← Compiler.LCNF.getCtorLayout ``Lean.IR.Expr.reuse;
    ctorLayout.fieldInfo.forM $ fun finfo => IO.println (format finfo);
    IO.println "---";
-   let ctorLayout ← getCtorLayout ``Subtype.mk;
+   let ctorLayout ← Compiler.LCNF.getCtorLayout ``Subtype.mk;
    ctorLayout.fieldInfo.forM $ fun finfo => IO.println (format finfo);
    pure ()
 

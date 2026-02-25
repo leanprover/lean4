@@ -15,28 +15,28 @@ namespace Lean.Compiler.LCNF
 namespace PullLetDecls
 
 structure Context where
-  isCandidateFn : LetDecl → FVarIdSet → CompilerM Bool
+  isCandidateFn : LetDecl .pure → FVarIdSet → CompilerM Bool
   included : FVarIdSet := {}
 
 structure State where
-  toPull : Array LetDecl := #[]
+  toPull : Array (LetDecl .pure) := #[]
 
 abbrev PullM := ReaderT Context $ StateRefT State CompilerM
 
 @[inline] def withFVar (fvarId : FVarId) (x : PullM α) : PullM α :=
   withReader (fun ctx => { ctx with included := ctx.included.insert fvarId }) x
 
-@[inline] def withParams (ps : Array Param) (x : PullM α) : PullM α :=
+@[inline] def withParams (ps : Array (Param .pure)) (x : PullM α) : PullM α :=
   withReader (fun ctx => { ctx with included := ps.foldl (init := ctx.included) fun s p => s.insert p.fvarId }) x
 
 @[inline] def withNewScope (x : PullM α) : PullM α :=
   withReader (fun ctx => { ctx with included := {} }) x
 
-partial def withCheckpoint (x : PullM Code) : PullM Code := do
+partial def withCheckpoint (x : PullM (Code .pure)) : PullM (Code .pure) := do
   let toPullSizeSaved := (← get).toPull.size
   let c ← withNewScope x
   let toPull := (← get).toPull
-  let rec go (i : Nat) (included : FVarIdSet) : StateM (Array LetDecl) Code := do
+  let rec go (i : Nat) (included : FVarIdSet) : StateM (Array (LetDecl .pure)) (Code .pure) := do
     if h : i < toPull.size then
       let letDecl := toPull[i]
       if letDecl.dependsOn included then
@@ -51,11 +51,11 @@ partial def withCheckpoint (x : PullM Code) : PullM Code := do
   modify fun s => { s with toPull := s.toPull.shrink toPullSizeSaved ++ keep }
   return c
 
-def attachToPull (c : Code) : PullM Code := do
+def attachToPull (c : Code .pure) : PullM (Code .pure) := do
   let toPull := (← get).toPull
   return toPull.foldr (init := c) fun decl c => .let decl c
 
-def shouldPull (decl : LetDecl) : PullM Bool := do
+def shouldPull (decl : LetDecl .pure) : PullM Bool := do
   unless decl.dependsOn (← read).included do
     if (← (← read).isCandidateFn decl (← read).included) then
       modify fun s => { s with toPull := s.toPull.push decl }
@@ -63,12 +63,12 @@ def shouldPull (decl : LetDecl) : PullM Bool := do
   return false
 
 mutual
-  partial def pullAlt (alt : Alt) : PullM Alt :=
+  partial def pullAlt (alt : (Alt .pure)) : PullM (Alt .pure) :=
     match alt with
     | .default k => return alt.updateCode (← withNewScope <| pullDecls k)
     | .alt _ params k => return alt.updateCode (← withNewScope <| withParams params <| pullDecls k)
 
-  partial def pullDecls (code : Code) : PullM Code := do
+  partial def pullDecls (code : Code .pure) : PullM (Code .pure) := do
     match code with
     | .cases c =>
       -- At the present time, we can't correctly enforce the dependencies required for lifting
@@ -93,21 +93,21 @@ mutual
 
 end
 
-def PullM.run (x : PullM α) (isCandidateFn : LetDecl → FVarIdSet → CompilerM Bool) : CompilerM α :=
+def PullM.run (x : PullM α) (isCandidateFn : LetDecl .pure → FVarIdSet → CompilerM Bool) : CompilerM α :=
   x { isCandidateFn } |>.run' {}
 
 end PullLetDecls
 
 open PullLetDecls
 
-def Decl.pullLetDecls (decl : Decl) (isCandidateFn : LetDecl → FVarIdSet → CompilerM Bool) : CompilerM Decl := do
+def Decl.pullLetDecls (decl : Decl .pure) (isCandidateFn : LetDecl .pure → FVarIdSet → CompilerM Bool) : CompilerM (Decl .pure) := do
   PullM.run (isCandidateFn := isCandidateFn) do
     withParams decl.params do
       let value ← decl.value.mapCodeM pullDecls
       let value ← value.mapCodeM attachToPull
       return { decl with value }
 
-def Decl.pullInstances (decl : Decl) : CompilerM Decl :=
+def Decl.pullInstances (decl : Decl .pure) : CompilerM (Decl .pure) :=
   decl.pullLetDecls fun letDecl candidates => do
     -- TODO: Correctly represent these dependencies so this check isn't required.
     if let .const _ _ args := letDecl.value then
@@ -122,7 +122,7 @@ def Decl.pullInstances (decl : Decl) : CompilerM Decl :=
       return false
 
 def pullInstances : Pass :=
-  .mkPerDeclaration `pullInstances Decl.pullInstances .base
+  .mkPerDeclaration `pullInstances .base Decl.pullInstances
 
 builtin_initialize
   registerTraceClass `Compiler.pullInstances (inherited := true)

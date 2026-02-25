@@ -13,9 +13,19 @@ namespace Lean.Meta.Grind
 
 def instantiateExtTheorem (thm : Ext.ExtTheorem) (e : Expr) : GoalM Unit := withNewMCtxDepth do
   unless (← getGeneration e) < (← getMaxGeneration) do return ()
+  let_expr Eq α lhs rhs := e | return ()
   let c ← mkConstWithFreshMVarLevels thm.declName
   let (mvars, bis, type) ← withDefault <| forallMetaTelescopeReducing (← inferType c)
-  unless (← isDefEq e type) do
+  let_expr Eq α' lhs' rhs' := type | return ()
+  let matchTerm (p : Expr) (e : Expr) : GoalM Bool := do
+    if p.isMVar then
+      p.mvarId!.assign e
+      return true
+    else
+      isDefEq p e
+  let matchEqs : GoalM Bool := do
+    isDefEq α α' <&&> matchTerm lhs' lhs <&&> matchTerm rhs' rhs
+  unless (← matchEqs) do
     reportIssue! "failed to apply extensionality theorem `{thm.declName}` for {indentExpr e}\nis not definitionally equal to{indentExpr type}"
     return ()
   -- Instantiate type class instances

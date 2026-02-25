@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lean.Elab.Task
-import Init.System.IO
 
 /-!
 # Iterator-based parallelization for Lean's tactic monads.
@@ -58,7 +57,7 @@ This allows you to observe state changes (like logged messages, modified metavar
 as tasks complete, unlike `par`/`par'` which restore the initial state after collecting all results.
 
 Iterators do not have `Finite` instances, as we cannot prove termination from the available
-information. For consumers that require `Finite` (like `.toList`), use `.allowNontermination.toList`.
+information.
 -/
 
 public section
@@ -85,7 +84,7 @@ private instance {α : Type} : Iterator (TaskIterator α) BaseIO α where
         have hlen : 0 < (task :: rest).length := by simp
         let (result, remaining) ← IO.waitAny' (task :: rest) hlen
         pure <| .deflate ⟨
-          .yield (.mk { tasks := remaining } BaseIO α) result,
+          .yield ⟨{ tasks := remaining }⟩ result,
           trivial⟩
 
 end Std.Iterators.Types
@@ -117,7 +116,7 @@ for result in iter do
 ```
 -/
 private def iterTasks {α : Type} (tasks : List (Task α)) : IterM (α := TaskIterator α) BaseIO α :=
-  .mk { tasks } BaseIO α
+  ⟨{ tasks }⟩
 
 end IO
 
@@ -245,7 +244,7 @@ If `cancel := true` (the default), cancels all remaining tasks after the first s
 -/
 def parFirst {α : Type} (jobs : List (CoreM α)) (cancel : Bool := true) : CoreM α := do
   let (cancelHook, iter) ← parIterGreedyWithCancel jobs
-  for result in iter.allowNontermination do
+  for result in iter do
     match result with
     | .ok value =>
       if cancel then cancelHook
@@ -380,7 +379,7 @@ If `cancel := true` (the default), cancels all remaining tasks after the first s
 -/
 def parFirst {α : Type} (jobs : List (MetaM α)) (cancel : Bool := true) : MetaM α := do
   let (cancelHook, iter) ← parIterGreedyWithCancel jobs
-  for result in iter.allowNontermination do
+  for result in iter do
     match result with
     | .ok value =>
       if cancel then cancelHook
@@ -517,7 +516,7 @@ If `cancel := true` (the default), cancels all remaining tasks after the first s
 -/
 def parFirst {α : Type} (jobs : List (TermElabM α)) (cancel : Bool := true) : TermElabM α := do
   let (cancelHook, iter) ← parIterGreedyWithCancel jobs
-  for result in iter.allowNontermination do
+  for result in iter do
     match result with
     | .ok value =>
       if cancel then cancelHook
@@ -654,7 +653,7 @@ If `cancel := true` (the default), cancels all remaining tasks after the first s
 -/
 def parFirst {α : Type} (jobs : List (TacticM α)) (cancel : Bool := true) : TacticM α := do
   let (cancelHook, iter) ← parIterGreedyWithCancel jobs
-  for result in iter.allowNontermination do
+  for result in iter do
     match result with
     | .ok value =>
       if cancel then cancelHook

@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 lean_object* lean_nat_to_int(lean_object*);
+static lean_once_cell_t l_Std_Time_Internal_instInhabitedUnitVal_default___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Time_Internal_instInhabitedUnitVal_default___closed__0;
 LEAN_EXPORT lean_object* l_Std_Time_Internal_instInhabitedUnitVal_default(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Internal_instInhabitedUnitVal_default___boxed(lean_object*);
@@ -42,7 +43,6 @@ LEAN_EXPORT uint8_t l_Std_Time_Internal_instDecidableLeUnitVal___redArg(lean_obj
 LEAN_EXPORT lean_object* l_Std_Time_Internal_instDecidableLeUnitVal___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_Time_Internal_instDecidableLeUnitVal(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Internal_instDecidableLeUnitVal___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_instNatCastInt___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_ofNat___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_ofNat(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_ofNat___boxed(lean_object*, lean_object*);
@@ -125,7 +125,7 @@ LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_cast___redArg(lean_object*)
 LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_cast___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_cast(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_cast___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* _init_l_Std_Time_Internal_instInhabitedUnitVal_default___closed__0() {
+static lean_object* _init_l_Std_Time_Internal_instInhabitedUnitVal_default___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -138,7 +138,7 @@ LEAN_EXPORT lean_object* l_Std_Time_Internal_instInhabitedUnitVal_default(lean_o
 _start:
 {
 lean_object* x_2; 
-x_2 = l_Std_Time_Internal_instInhabitedUnitVal_default___closed__0;
+x_2 = lean_obj_once(&l_Std_Time_Internal_instInhabitedUnitVal_default___closed__0, &l_Std_Time_Internal_instInhabitedUnitVal_default___closed__0_once, _init_l_Std_Time_Internal_instInhabitedUnitVal_default___closed__0);
 return x_2;
 }
 }
@@ -364,7 +364,7 @@ LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_ofNat___redArg(lean_object*
 _start:
 {
 lean_object* x_2; 
-x_2 = l_instNatCastInt___lam__0(x_1);
+x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
@@ -372,7 +372,7 @@ LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_ofNat(lean_object* x_1, lea
 _start:
 {
 lean_object* x_3; 
-x_3 = l_instNatCastInt___lam__0(x_2);
+x_3 = lean_nat_to_int(x_2);
 return x_3;
 }
 }
@@ -645,7 +645,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = lean_nat_abs(x_1);
-x_3 = l_instNatCastInt___lam__0(x_2);
+x_3 = lean_nat_to_int(x_2);
 return x_3;
 }
 }
@@ -663,7 +663,7 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; 
 x_3 = lean_nat_abs(x_2);
-x_4 = l_instNatCastInt___lam__0(x_3);
+x_4 = lean_nat_to_int(x_3);
 return x_4;
 }
 }
@@ -689,7 +689,7 @@ lean_inc(x_6);
 lean_dec_ref(x_4);
 x_7 = lean_int_mul(x_3, x_5);
 lean_dec(x_5);
-x_8 = l_instNatCastInt___lam__0(x_6);
+x_8 = lean_nat_to_int(x_6);
 x_9 = lean_int_ediv(x_7, x_8);
 lean_dec(x_8);
 lean_dec(x_7);
@@ -735,7 +735,7 @@ LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_instRepr___lam__0(lean_obje
 _start:
 {
 lean_object* x_3; uint8_t x_4; 
-x_3 = l_Std_Time_Internal_instInhabitedUnitVal_default___closed__0;
+x_3 = lean_obj_once(&l_Std_Time_Internal_instInhabitedUnitVal_default___closed__0, &l_Std_Time_Internal_instInhabitedUnitVal_default___closed__0_once, _init_l_Std_Time_Internal_instInhabitedUnitVal_default___closed__0);
 x_4 = lean_int_dec_lt(x_1, x_3);
 if (x_4 == 0)
 {
@@ -856,7 +856,7 @@ LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_instToString___lam__0(lean_
 _start:
 {
 lean_object* x_2; uint8_t x_3; 
-x_2 = l_Std_Time_Internal_instInhabitedUnitVal_default___closed__0;
+x_2 = lean_obj_once(&l_Std_Time_Internal_instInhabitedUnitVal_default___closed__0, &l_Std_Time_Internal_instInhabitedUnitVal_default___closed__0_once, _init_l_Std_Time_Internal_instInhabitedUnitVal_default___closed__0);
 x_3 = lean_int_dec_lt(x_1, x_2);
 if (x_3 == 0)
 {
@@ -955,8 +955,6 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Rat_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Std_Time_Internal_instInhabitedUnitVal_default___closed__0 = _init_l_Std_Time_Internal_instInhabitedUnitVal_default___closed__0();
-lean_mark_persistent(l_Std_Time_Internal_instInhabitedUnitVal_default___closed__0);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

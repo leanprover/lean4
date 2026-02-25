@@ -134,7 +134,6 @@ def handleCodeAction (params : CodeActionParams) : RequestM (RequestTask (Array 
         RequestM.checkCancelled
         let cas ← cap params snap
         cas.mapIdxM fun i lca => do
-          if lca.lazy?.isNone then return lca.eager
           let data : CodeActionResolveData := {
             params, providerName, providerResultIndex := i
           }
@@ -165,7 +164,8 @@ def handleCodeActionResolve (param : CodeAction) : RequestM (RequestTask CodeAct
       let some ca := cas[data.providerResultIndex]?
         | throw <| RequestError.internalError s!"Failed to resolve code action index {data.providerResultIndex}."
       let some lazy := ca.lazy?
-        | throw <| RequestError.internalError s!"Can't resolve; nothing further to resolve."
+        -- Eager code action - return unchanged
+        | return param
       let r ← liftM lazy
       return r
 

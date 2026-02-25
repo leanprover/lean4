@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Array.MapIdx
-// Imports: import all Init.Data.Array.Basic public import Init.Data.Array.OfFn public import Init.Data.List.MapIdx import all Init.Data.List.MapIdx
+// Imports: import all Init.Data.Array.Basic public import Init.Data.List.MapIdx import all Init.Data.List.MapIdx import Init.Data.Array.OfFn
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -150,9 +150,9 @@ return x_8;
 }
 }
 lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_List_MapIdx(uint8_t builtin);
+lean_object* initialize_Init_Data_List_MapIdx(uint8_t builtin);
 lean_object* initialize_Init_Data_Array_OfFn(uint8_t builtin);
-lean_object* initialize_Init_Data_List_MapIdx(uint8_t builtin);
-lean_object* initialize_Init_Data_List_MapIdx(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Array_MapIdx(uint8_t builtin) {
 lean_object * res;
@@ -161,13 +161,13 @@ _G_initialized = true;
 res = initialize_Init_Data_Array_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = initialize_Init_Data_List_MapIdx(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_MapIdx(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Init_Data_Array_OfFn(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_List_MapIdx(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_List_MapIdx(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

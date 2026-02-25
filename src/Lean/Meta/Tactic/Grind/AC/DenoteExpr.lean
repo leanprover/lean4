@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Grind.AC.Util
-import Lean.Meta.AppBuilder
 public section
 namespace Lean.Meta.Grind.AC
 open Lean.Grind

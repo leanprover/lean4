@@ -82,60 +82,63 @@ partial def replayConstant (name : Name) : M Unit := do
     replayConstants ci.getUsedConstantsAsSet
     -- Check that this name is still pending: a mutual block may have taken care of it.
     if (← get).pending.contains name then
-      match ci with
-      | .defnInfo   info =>
-        addDecl (Declaration.defnDecl   info)
-      | .thmInfo    info =>
-        -- Ignore duplicate theorems. This code is identical to that in `finalizeImport` before it
-        -- added extended duplicates support for the module system, which is not relevant for us
-        -- here as we always load all .olean information. We need this case *because* of the module
-        -- system -- as we have more data loaded than it, we might encounter duplicate private
-        -- theorems where elaboration under the module system would have only one of them in scope.
-        if let some (.thmInfo info') := (← get).env.find? ci.name then
-          if info.name == info'.name &&
-            info.type == info'.type &&
-            info.levelParams == info'.levelParams &&
-            info.all == info'.all
-          then
-            return
-        addDecl (Declaration.thmDecl    info)
-      | .axiomInfo  info =>
-        addDecl (Declaration.axiomDecl  info)
-      | .opaqueInfo info =>
-        addDecl (Declaration.opaqueDecl info)
-      | .inductInfo info =>
-        let lparams := info.levelParams
-        let nparams := info.numParams
-        let all ← info.all.mapM fun n => do pure <| ((← read).newConstants[n]!)
-        for o in all do
-          modify fun s =>
-            { s with remaining := s.remaining.erase o.name, pending := s.pending.erase o.name }
-        let ctorInfo ← all.mapM fun ci => do
-          pure (ci, ← ci.inductiveVal!.ctors.mapM fun n => do
-            pure ((← read).newConstants[n]!))
-        -- Make sure we are really finished with the constructors.
-        for (_, ctors) in ctorInfo do
-          for ctor in ctors do
-            replayConstants ctor.getUsedConstantsAsSet
-        let types : List InductiveType := ctorInfo.map fun ⟨ci, ctors⟩ =>
-          { name := ci.name
-            type := ci.type
-            ctors := ctors.map fun ci => { name := ci.name, type := ci.type } }
-        addDecl (Declaration.inductDecl lparams nparams types false)
-      -- We postpone checking constructors,
-      -- and at the end make sure they are identical
-      -- to the constructors generated when we replay the inductives.
-      | .ctorInfo info =>
-        modify fun s => { s with postponedConstructors := s.postponedConstructors.insert info.name }
-      -- Similarly we postpone checking recursors.
-      | .recInfo info =>
-        modify fun s => { s with postponedRecursors := s.postponedRecursors.insert info.name }
-      | .quotInfo _ =>
-        -- `Quot.lift` and `Quot.ind` have types that reference `Eq`,
-        -- so we need to ensure `Eq` is replayed before adding the quotient declaration.
-        replayConstant `Eq
-        addDecl (Declaration.quotDecl)
-      modify fun s => { s with pending := s.pending.erase name }
+      try
+        match ci with
+        | .defnInfo   info =>
+          addDecl (Declaration.defnDecl   info)
+        | .thmInfo    info =>
+          -- Ignore duplicate theorems. This code is identical to that in `finalizeImport` before it
+          -- added extended duplicates support for the module system, which is not relevant for us
+          -- here as we always load all .olean information. We need this case *because* of the module
+          -- system -- as we have more data loaded than it, we might encounter duplicate private
+          -- theorems where elaboration under the module system would have only one of them in scope.
+          if let some (.thmInfo info') := (← get).env.find? ci.name then
+            if info.name == info'.name &&
+              info.type == info'.type &&
+              info.levelParams == info'.levelParams &&
+              info.all == info'.all
+            then
+              return
+          addDecl (Declaration.thmDecl    info)
+        | .axiomInfo  info =>
+          addDecl (Declaration.axiomDecl  info)
+        | .opaqueInfo info =>
+          addDecl (Declaration.opaqueDecl info)
+        | .inductInfo info =>
+          let lparams := info.levelParams
+          let nparams := info.numParams
+          let all ← info.all.mapM fun n => do pure <| ((← read).newConstants[n]!)
+          for o in all do
+            modify fun s =>
+              { s with remaining := s.remaining.erase o.name, pending := s.pending.erase o.name }
+          let ctorInfo ← all.mapM fun ci => do
+            pure (ci, ← ci.inductiveVal!.ctors.mapM fun n => do
+              pure ((← read).newConstants[n]!))
+          -- Make sure we are really finished with the constructors.
+          for (_, ctors) in ctorInfo do
+            for ctor in ctors do
+              replayConstants ctor.getUsedConstantsAsSet
+          let types : List InductiveType := ctorInfo.map fun ⟨ci, ctors⟩ =>
+            { name := ci.name
+              type := ci.type
+              ctors := ctors.map fun ci => { name := ci.name, type := ci.type } }
+          addDecl (Declaration.inductDecl lparams nparams types false)
+        -- We postpone checking constructors,
+        -- and at the end make sure they are identical
+        -- to the constructors generated when we replay the inductives.
+        | .ctorInfo info =>
+          modify fun s => { s with postponedConstructors := s.postponedConstructors.insert info.name }
+        -- Similarly we postpone checking recursors.
+        | .recInfo info =>
+          modify fun s => { s with postponedRecursors := s.postponedRecursors.insert info.name }
+        | .quotInfo _ =>
+          -- `Quot.lift` and `Quot.ind` have types that reference `Eq`,
+          -- so we need to ensure `Eq` is replayed before adding the quotient declaration.
+          replayConstant `Eq
+          addDecl (Declaration.quotDecl)
+        modify fun s => { s with pending := s.pending.erase name }
+      catch ex =>
+        throw <| .userError s!"while replaying declaration '{name}':\n{ex}"
 
 /-- Replay a set of constants one at a time. -/
 partial def replayConstants (names : NameSet) : M Unit := do

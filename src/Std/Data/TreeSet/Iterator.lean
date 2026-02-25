@@ -9,6 +9,7 @@ prelude
 public import Std.Data.TreeSet.Basic
 public import Std.Data.TreeMap.Iterator
 public import Std.Data.DTreeMap.Lemmas
+import Init.Data.Iterators.Lemmas.Combinators.FilterMap
 
 /-!
 # Iterators on `DTreeMap`

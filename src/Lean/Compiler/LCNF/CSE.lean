@@ -20,17 +20,17 @@ namespace CSE
 
 structure State where
   map   : PHashMap Expr FVarId := {}
-  subst : FVarSubst := {}
+  subst : FVarSubst .pure := {}
 
 abbrev M := StateRefT State CompilerM
 
-instance : MonadFVarSubst M false where
+instance : MonadFVarSubst M .pure false where
   getSubst := return (← get).subst
 
-instance : MonadFVarSubstState M where
+instance : MonadFVarSubstState M .pure where
   modifySubst f := modify fun s => { s with subst := f s.subst }
 
-@[inline] def getSubst : M FVarSubst :=
+@[inline] def getSubst : M (FVarSubst .pure) :=
   return (← get).subst
 
 @[inline] def addEntry (value : Expr) (fvarId : FVarId) : M Unit :=
@@ -40,31 +40,32 @@ instance : MonadFVarSubstState M where
   let map := (← get).map
   try x finally modify fun s => { s with map }
 
-def replaceLet (decl : LetDecl) (fvarId : FVarId) : M Unit := do
+def replaceLet (decl : LetDecl .pure) (fvarId : FVarId) : M Unit := do
   eraseLetDecl decl
   addFVarSubst decl.fvarId fvarId
 
-def replaceFun (decl : FunDecl) (fvarId : FVarId) : M Unit := do
+def replaceFun (decl : FunDecl .pure) (fvarId : FVarId) : M Unit := do
   eraseFunDecl decl
   addFVarSubst decl.fvarId fvarId
 
-def hasNeverExtract (v : LetValue) : CompilerM Bool :=
+def hasNeverExtract (v : LetValue .pure) : CompilerM Bool :=
   match v with
   | .const declName .. =>
     return hasNeverExtractAttribute (← getEnv) declName
   | .lit _ | .erased | .proj .. | .fvar .. =>
     return false
 
-partial def _root_.Lean.Compiler.LCNF.Code.cse (shouldElimFunDecls : Bool) (code : Code) : CompilerM Code :=
+partial def _root_.Lean.Compiler.LCNF.Code.cse (shouldElimFunDecls : Bool) (code : Code .pure) :
+    CompilerM (Code .pure) :=
   go code |>.run' {}
 where
-  goFunDecl (decl : FunDecl) : M FunDecl := do
+  goFunDecl (decl : FunDecl .pure) : M (FunDecl .pure) := do
     let type ← normExpr decl.type
     let params ← normParams decl.params
     let value ← withNewScope do go decl.value
     decl.update type params value
 
-  go (code : Code) : M Code := do
+  go (code : Code .pure) : M (Code .pure) := do
     match code with
     | .let decl k =>
       let decl ← normLetDecl decl
@@ -118,12 +119,13 @@ end CSE
 /--
 Common sub-expression elimination
 -/
-def Decl.cse (shouldElimFunDecls : Bool) (decl : Decl) : CompilerM Decl := do
+def Decl.cse (shouldElimFunDecls : Bool) (decl : Decl .pure) : CompilerM (Decl .pure) := do
   let value ← decl.value.mapCodeM (·.cse shouldElimFunDecls)
   return { decl with value }
 
 def cse (phase : Phase := .base) (shouldElimFunDecls := false) (occurrence := 0) : Pass :=
-  .mkPerDeclaration `cse (Decl.cse shouldElimFunDecls) phase occurrence
+  phase.withPurityCheck .pure fun h =>
+    .mkPerDeclaration `cse phase (h ▸ Decl.cse shouldElimFunDecls) occurrence
 
 builtin_initialize
   registerTraceClass `Compiler.cse (inherited := true)

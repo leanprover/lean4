@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Nat.Div.Basic
-// Imports: public import Init.WFTactics public meta import Init.MetaTypes
+// Imports: public import Init.Data.NeZero public import Init.WF meta import Init.MetaTypes import Init.WFTactics
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -32,7 +32,7 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Div_Basic_0__Nat_mod_match__1
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Div_Basic_0__Nat_mod_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_mod_inductionOn___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_mod_inductionOn(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* _init_l_Nat_instDvd() {
+static lean_object* _init_l_Nat_instDvd(void) {
 _start:
 {
 lean_object* x_1; 
@@ -216,17 +216,25 @@ x_6 = l_Nat_div_inductionOn___redArg(x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
-lean_object* initialize_Init_WFTactics(uint8_t builtin);
+lean_object* initialize_Init_Data_NeZero(uint8_t builtin);
+lean_object* initialize_Init_WF(uint8_t builtin);
 lean_object* initialize_Init_MetaTypes(uint8_t builtin);
+lean_object* initialize_Init_WFTactics(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Nat_Div_Basic(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_WFTactics(builtin);
+res = initialize_Init_Data_NeZero(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_WF(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_MetaTypes(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_WFTactics(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Nat_instDvd = _init_l_Nat_instDvd();

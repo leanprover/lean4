@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lake.Build.Trace
-import Init.Data.String.Search
 
 open System Lean
 

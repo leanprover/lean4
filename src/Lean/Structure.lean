@@ -10,6 +10,8 @@ module
 prelude
 public import Lean.ProjFns
 public import Lean.Exception
+public import Init.While
+import Init.Data.Range.Polymorphic.Iterators
 
 public section
 

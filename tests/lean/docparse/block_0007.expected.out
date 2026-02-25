@@ -1,7 +1,7 @@
 2 failures:
-  @36 (⟨3, 28⟩): expected token
-    ""
-  @36 (⟨3, 28⟩): unexpected end of input; expected '![', '$$', '$', '[' or '[^'
+  @1 (⟨1, 1⟩): expected identifier
+    "\ntest}\nHere's a modified paragraph."
+  @36 (⟨3, 28⟩): unexpected end of input; expected '![', '$$', '$', '*', '[', '[^', '_', '`' or '{'
     ""
 
 Final stack:

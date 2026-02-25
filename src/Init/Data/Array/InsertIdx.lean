@@ -6,7 +6,11 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Data.Array.Lemmas
+public import Init.Data.Array.Basic
+import Init.Data.List.Nat.InsertIdx
+import Init.Data.List.ToArray
+import Init.Data.Nat.Lemmas
+import Init.Omega
 
 public section
 

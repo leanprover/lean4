@@ -11,6 +11,7 @@ public import Lean.Elab.Binders
 public import Lean.Elab.RecAppSyntax
 public import Lean.IdentifierSuggestion
 import all Lean.Elab.ErrorUtils
+import Init.Omega
 
 public section
 

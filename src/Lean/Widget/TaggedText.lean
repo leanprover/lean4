@@ -8,6 +8,7 @@ module
 
 prelude
 public import Lean.Server.Rpc.Basic
+import Init.Data.Array.GetLit
 
 public section
 

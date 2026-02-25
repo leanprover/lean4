@@ -29,19 +29,19 @@ def addPreDefsFromUnary (docCtx : LocalContext × LocalInstances) (preDefs : Arr
   let preDefNonRec := unaryPreDefNonRec.filterAttrs fun attr => attr.name != `implemented_by
   let declNames := preDefs.toList.map (·.declName)
 
-  preDefs.forM fun preDef =>
-    unless preDef.kind.isTheorem do
-      markAsRecursive preDef.declName
-
   -- Do not complain if the user sets @[semireducible], which usually is a noop,
   -- we recognize that below and then do not set @[irreducible]
   withOptions (allowUnsafeReducibility.set · true) do
     if unaryPreDefNonRec.declName = preDefs[0]!.declName then
       addNonRec docCtx preDefNonRec (applyAttrAfterCompilation := false) (cacheProofs := cacheProofs)
+        (isRecursive := true)
     else
       withEnableInfoTree false do
         addNonRec docCtx preDefNonRec (applyAttrAfterCompilation := false) (cacheProofs := cacheProofs)
-      preDefsNonrec.forM (addNonRec docCtx · (applyAttrAfterCompilation := false) (all := declNames) (cacheProofs := cacheProofs))
+          (isRecursive := true)
+      preDefsNonrec.forM fun preDefNonRec =>
+        addNonRec docCtx preDefNonRec (applyAttrAfterCompilation := false) (all := declNames)
+          (cacheProofs := cacheProofs) (isRecursive := true)
 
 /--
 Cleans the right-hand-sides of the predefinitions, to prepare for inclusion in the EqnInfos:
@@ -57,17 +57,25 @@ def cleanPreDef (preDef : PreDefinition) (cacheProofs := true) : MetaM PreDefini
 Assign final attributes to the definitions. Assumes the EqnInfos to be already present.
 -/
 def addPreDefAttributes (preDefs : Array PreDefinition) : TermElabM Unit := do
+  /-
+  Set irreducibility attribute, unless the user has requested a different setting.
+  Must appen before `enableRealizationsForConst`, else the equation generation sees
+  a wrong setting and creates bad `defEq` equations.
+  -/
+  for preDef in preDefs do
+    unless preDef.modifiers.attrs.any fun a => a.name = `reducible || a.name = `semireducible do
+      setIrreducibleAttribute preDef.declName
+
+  /-
+  `enableRealizationsForConst` must happen before `generateEagerEqns`
+  It must happen in reverse order so that constants realized as part of the first decl
+  have realizations for the other ones enabled
+  -/
   for preDef in preDefs.reverse do
-    -- must happen before `generateEagerEqns`
-    -- must happen in reverse order so that constants realized as part of the first decl
-    -- have realizations for the other ones enabled
     enableRealizationsForConst preDef.declName
+
   for preDef in preDefs do
     generateEagerEqns preDef.declName
     applyAttributesOf #[preDef] AttributeApplicationTime.afterCompilation
-    -- Unless the user asks for something else, mark the definition as irreducible
-    unless preDef.modifiers.attrs.any fun a =>
-      a.name = `reducible || a.name = `semireducible do
-      setIrreducibleAttribute preDef.declName
 
 end Lean.Elab.Mutual

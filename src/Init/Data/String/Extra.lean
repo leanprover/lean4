@@ -9,9 +9,8 @@ prelude
 import all Init.Data.ByteArray.Basic
 public import Init.Data.String.Basic
 import all Init.Data.String.Basic
-public import Init.Data.String.Substring
-public import Init.Data.String.Modify
 import Init.Data.String.Search
+import Init.Data.String.Termination
 
 public section
 

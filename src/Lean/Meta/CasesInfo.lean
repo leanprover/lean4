@@ -7,7 +7,7 @@ Authors: Leonardo de Moura, Joachim Breitner
 module
 prelude
 public import Lean.Meta.Basic
-import Lean.AuxRecursor
+import Init.Data.Range.Polymorphic.Iterators
 
 open Lean Meta
 

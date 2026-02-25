@@ -11,6 +11,7 @@ import Lean.Elab.ParseImportsFast
 import Lean.Server.Watchdog
 import Lean.Server.FileWorker
 import Lean.Compiler.IR.EmitC
+import Init.System.Platform
 
 /-  Lean companion to  `shell.cpp` -/
 

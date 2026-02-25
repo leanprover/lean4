@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Grind.Util
-// Imports: public import Init.Classical
+// Imports: public import Init.Data.Cast public import Init.Grind.Tactics public meta import Init.Grind.Tactics import Init.Classical
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -130,6 +130,7 @@ static const lean_ctor_object l_Lean_Grind_markerUnexpander___redArg___closed__1
 static const lean_ctor_object l_Lean_Grind_markerUnexpander___redArg___closed__13_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_Lean_Grind_markerUnexpander___redArg___closed__13_value_aux_2),((lean_object*)&l_Lean_Grind_markerUnexpander___redArg___closed__12_value),LEAN_SCALAR_PTR_LITERAL(137, 208, 10, 74, 108, 50, 106, 48)}};
 static const lean_object* l_Lean_Grind_markerUnexpander___redArg___closed__13 = (const lean_object*)&l_Lean_Grind_markerUnexpander___redArg___closed__13_value;
 lean_object* l_Array_mkArray0(lean_object*);
+static lean_once_cell_t l_Lean_Grind_markerUnexpander___redArg___closed__14_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Grind_markerUnexpander___redArg___closed__14;
 lean_object* l_Lean_Syntax_node1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -594,7 +595,7 @@ lean_dec(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Grind_markerUnexpander___redArg___closed__14() {
+static lean_object* _init_l_Lean_Grind_markerUnexpander___redArg___closed__14(void) {
 _start:
 {
 lean_object* x_1; 
@@ -624,7 +625,7 @@ x_13 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_13, 0, x_4);
 lean_ctor_set(x_13, 1, x_11);
 x_14 = ((lean_object*)(l_Lean_Grind_markerUnexpander___redArg___closed__13));
-x_15 = l_Lean_Grind_markerUnexpander___redArg___closed__14;
+x_15 = lean_obj_once(&l_Lean_Grind_markerUnexpander___redArg___closed__14, &l_Lean_Grind_markerUnexpander___redArg___closed__14_once, _init_l_Lean_Grind_markerUnexpander___redArg___closed__14);
 lean_inc(x_4);
 x_16 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_16, 0, x_4);
@@ -676,17 +677,27 @@ lean_dec(x_1);
 return x_4;
 }
 }
+lean_object* initialize_Init_Data_Cast(uint8_t builtin);
+lean_object* initialize_Init_Grind_Tactics(uint8_t builtin);
+lean_object* initialize_Init_Grind_Tactics(uint8_t builtin);
 lean_object* initialize_Init_Classical(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Grind_Util(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
+res = initialize_Init_Data_Cast(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Grind_Tactics(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Grind_Tactics(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Init_Classical(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Grind_markerUnexpander___redArg___closed__14 = _init_l_Lean_Grind_markerUnexpander___redArg___closed__14();
-lean_mark_persistent(l_Lean_Grind_markerUnexpander___redArg___closed__14);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

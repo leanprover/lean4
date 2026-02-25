@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Do.Triple.SpecLemmas
-// Imports: public import Std.Do.Triple.Basic public import Init.Data.Range.Polymorphic.Iterators import Init.Data.Range.Polymorphic public import Init.Data.Slice.Array public import Init.Data.Iterators.ToIterator public import Init.Data.Iterators.Lemmas.Combinators.FilterMap
+// Imports: public import Std.Do.Triple.Basic public import Init.Data.Range.Polymorphic.Iterators import Init.Data.Range.Polymorphic public import Init.Data.Slice.Array public import Init.Data.Iterators.Lemmas.Combinators.FilterMap public import Init.Data.Range import Init.Data.Iterators.Lemmas import Init.Data.List.Nat.Range import Init.Data.List.Nat.TakeDrop import Init.Data.List.Range import Init.Data.List.TakeDrop import Init.Data.Nat.Mod import Init.Data.Slice.Lemmas import Init.Omega public import Init.Data.String.Defs public import Init.Data.String.Iterate import Init.Data.String.Lemmas.Splits import Init.Data.String.Termination import Init.Data.String.Lemmas.Iterate
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -20,9 +20,7 @@ lean_object* lean_nat_mul(lean_object*, lean_object*);
 lean_object* l_List_range_x27TR_go(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Legacy_Range_toList(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Legacy_Range_toList___boxed(lean_object*);
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_object* l_List_Cursor_at___redArg___closed__0;
-lean_object* l___private_Init_Data_List_Impl_0__List_takeTR_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_List_take___redArg(lean_object*, lean_object*);
 lean_object* l_List_drop___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_Cursor_at___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_Cursor_at(lean_object*, lean_object*, lean_object*);
@@ -46,6 +44,7 @@ static const lean_ctor_object l_List_Cursor_current___auto__1___closed__4_value_
 static const lean_ctor_object l_List_Cursor_current___auto__1___closed__4_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_List_Cursor_current___auto__1___closed__4_value_aux_2),((lean_object*)&l_List_Cursor_current___auto__1___closed__3_value),LEAN_SCALAR_PTR_LITERAL(212, 140, 85, 215, 241, 69, 7, 118)}};
 static const lean_object* l_List_Cursor_current___auto__1___closed__4 = (const lean_object*)&l_List_Cursor_current___auto__1___closed__4_value;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
+static lean_once_cell_t l_List_Cursor_current___auto__1___closed__5_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_List_Cursor_current___auto__1___closed__5;
 static const lean_string_object l_List_Cursor_current___auto__1___closed__6_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 19, .m_capacity = 19, .m_length = 18, .m_data = "tacticSeq1Indented"};
 static const lean_object* l_List_Cursor_current___auto__1___closed__6 = (const lean_object*)&l_List_Cursor_current___auto__1___closed__6_value;
@@ -66,15 +65,24 @@ static const lean_object* l_List_Cursor_current___auto__1___closed__11 = (const 
 static const lean_string_object l_List_Cursor_current___auto__1___closed__12_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 16, .m_capacity = 16, .m_length = 15, .m_data = "get_elem_tactic"};
 static const lean_object* l_List_Cursor_current___auto__1___closed__12 = (const lean_object*)&l_List_Cursor_current___auto__1___closed__12_value;
 lean_object* l_Lean_mkAtom(lean_object*);
+static lean_once_cell_t l_List_Cursor_current___auto__1___closed__13_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_List_Cursor_current___auto__1___closed__13;
 lean_object* lean_array_push(lean_object*, lean_object*);
+static lean_once_cell_t l_List_Cursor_current___auto__1___closed__14_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_List_Cursor_current___auto__1___closed__14;
+static lean_once_cell_t l_List_Cursor_current___auto__1___closed__15_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_List_Cursor_current___auto__1___closed__15;
+static lean_once_cell_t l_List_Cursor_current___auto__1___closed__16_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_List_Cursor_current___auto__1___closed__16;
+static lean_once_cell_t l_List_Cursor_current___auto__1___closed__17_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_List_Cursor_current___auto__1___closed__17;
+static lean_once_cell_t l_List_Cursor_current___auto__1___closed__18_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_List_Cursor_current___auto__1___closed__18;
+static lean_once_cell_t l_List_Cursor_current___auto__1___closed__19_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_List_Cursor_current___auto__1___closed__19;
+static lean_once_cell_t l_List_Cursor_current___auto__1___closed__20_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_List_Cursor_current___auto__1___closed__20;
+static lean_once_cell_t l_List_Cursor_current___auto__1___closed__21_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_List_Cursor_current___auto__1___closed__21;
 LEAN_EXPORT lean_object* l_List_Cursor_current___auto__1;
 lean_object* l_List_get___redArg(lean_object*, lean_object*);
@@ -108,8 +116,14 @@ LEAN_EXPORT lean_object* l_Std_Do_Invariant_withEarlyReturn(lean_object*, lean_o
 LEAN_EXPORT lean_object* l_Std_Do_Invariant_withEarlyReturn___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Do_Triple_SpecLemmas_0__List_forIn_x27__cons_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Do_Triple_SpecLemmas_0__List_forIn_x27__cons_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Std_Do_Triple_SpecLemmas_0__Std_Do_Spec_forIn_x27__list_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Std_Do_Triple_SpecLemmas_0__Std_Do_Spec_forIn_x27__list_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Do_StringInvariant_withEarlyReturn___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Do_StringInvariant_withEarlyReturn___redArg___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Do_StringInvariant_withEarlyReturn___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Do_StringInvariant_withEarlyReturn(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Do_StringInvariant_withEarlyReturn___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Do_StringSliceInvariant_withEarlyReturn___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Do_StringSliceInvariant_withEarlyReturn(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Do_StringSliceInvariant_withEarlyReturn___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Legacy_Range_toList(lean_object* x_1) {
 _start:
 {
@@ -142,29 +156,18 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_List_Cursor_at___redArg___closed__0() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_List_Cursor_at___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_3 = l_List_Cursor_at___redArg___closed__0;
-lean_inc(x_2);
+lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 lean_inc(x_1);
-x_4 = l___private_Init_Data_List_Impl_0__List_takeTR_go(lean_box(0), x_1, x_1, x_2, x_3);
-x_5 = l_List_drop___redArg(x_2, x_1);
+x_3 = l_List_take___redArg(x_2, x_1);
+x_4 = l_List_drop___redArg(x_2, x_1);
 lean_dec(x_1);
-x_6 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_6, 0, x_4);
-lean_ctor_set(x_6, 1, x_5);
-return x_6;
+x_5 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_5, 0, x_3);
+lean_ctor_set(x_5, 1, x_4);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_List_Cursor_at(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -211,7 +214,7 @@ x_4 = l_List_Cursor_at___redArg(x_2, x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_List_Cursor_current___auto__1___closed__5() {
+static lean_object* _init_l_List_Cursor_current___auto__1___closed__5(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -220,7 +223,7 @@ x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_List_Cursor_current___auto__1___closed__13() {
+static lean_object* _init_l_List_Cursor_current___auto__1___closed__13(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -229,21 +232,21 @@ x_2 = l_Lean_mkAtom(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_List_Cursor_current___auto__1___closed__14() {
+static lean_object* _init_l_List_Cursor_current___auto__1___closed__14(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_List_Cursor_current___auto__1___closed__13;
-x_2 = l_List_Cursor_current___auto__1___closed__5;
+x_1 = lean_obj_once(&l_List_Cursor_current___auto__1___closed__13, &l_List_Cursor_current___auto__1___closed__13_once, _init_l_List_Cursor_current___auto__1___closed__13);
+x_2 = lean_obj_once(&l_List_Cursor_current___auto__1___closed__5, &l_List_Cursor_current___auto__1___closed__5_once, _init_l_List_Cursor_current___auto__1___closed__5);
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_List_Cursor_current___auto__1___closed__15() {
+static lean_object* _init_l_List_Cursor_current___auto__1___closed__15(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_List_Cursor_current___auto__1___closed__14;
+x_1 = lean_obj_once(&l_List_Cursor_current___auto__1___closed__14, &l_List_Cursor_current___auto__1___closed__14_once, _init_l_List_Cursor_current___auto__1___closed__14);
 x_2 = ((lean_object*)(l_List_Cursor_current___auto__1___closed__11));
 x_3 = lean_box(2);
 x_4 = lean_alloc_ctor(1, 3, 0);
@@ -253,21 +256,21 @@ lean_ctor_set(x_4, 2, x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_List_Cursor_current___auto__1___closed__16() {
+static lean_object* _init_l_List_Cursor_current___auto__1___closed__16(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_List_Cursor_current___auto__1___closed__15;
-x_2 = l_List_Cursor_current___auto__1___closed__5;
+x_1 = lean_obj_once(&l_List_Cursor_current___auto__1___closed__15, &l_List_Cursor_current___auto__1___closed__15_once, _init_l_List_Cursor_current___auto__1___closed__15);
+x_2 = lean_obj_once(&l_List_Cursor_current___auto__1___closed__5, &l_List_Cursor_current___auto__1___closed__5_once, _init_l_List_Cursor_current___auto__1___closed__5);
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_List_Cursor_current___auto__1___closed__17() {
+static lean_object* _init_l_List_Cursor_current___auto__1___closed__17(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_List_Cursor_current___auto__1___closed__16;
+x_1 = lean_obj_once(&l_List_Cursor_current___auto__1___closed__16, &l_List_Cursor_current___auto__1___closed__16_once, _init_l_List_Cursor_current___auto__1___closed__16);
 x_2 = ((lean_object*)(l_List_Cursor_current___auto__1___closed__9));
 x_3 = lean_box(2);
 x_4 = lean_alloc_ctor(1, 3, 0);
@@ -277,21 +280,21 @@ lean_ctor_set(x_4, 2, x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_List_Cursor_current___auto__1___closed__18() {
+static lean_object* _init_l_List_Cursor_current___auto__1___closed__18(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_List_Cursor_current___auto__1___closed__17;
-x_2 = l_List_Cursor_current___auto__1___closed__5;
+x_1 = lean_obj_once(&l_List_Cursor_current___auto__1___closed__17, &l_List_Cursor_current___auto__1___closed__17_once, _init_l_List_Cursor_current___auto__1___closed__17);
+x_2 = lean_obj_once(&l_List_Cursor_current___auto__1___closed__5, &l_List_Cursor_current___auto__1___closed__5_once, _init_l_List_Cursor_current___auto__1___closed__5);
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_List_Cursor_current___auto__1___closed__19() {
+static lean_object* _init_l_List_Cursor_current___auto__1___closed__19(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_List_Cursor_current___auto__1___closed__18;
+x_1 = lean_obj_once(&l_List_Cursor_current___auto__1___closed__18, &l_List_Cursor_current___auto__1___closed__18_once, _init_l_List_Cursor_current___auto__1___closed__18);
 x_2 = ((lean_object*)(l_List_Cursor_current___auto__1___closed__7));
 x_3 = lean_box(2);
 x_4 = lean_alloc_ctor(1, 3, 0);
@@ -301,21 +304,21 @@ lean_ctor_set(x_4, 2, x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_List_Cursor_current___auto__1___closed__20() {
+static lean_object* _init_l_List_Cursor_current___auto__1___closed__20(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_List_Cursor_current___auto__1___closed__19;
-x_2 = l_List_Cursor_current___auto__1___closed__5;
+x_1 = lean_obj_once(&l_List_Cursor_current___auto__1___closed__19, &l_List_Cursor_current___auto__1___closed__19_once, _init_l_List_Cursor_current___auto__1___closed__19);
+x_2 = lean_obj_once(&l_List_Cursor_current___auto__1___closed__5, &l_List_Cursor_current___auto__1___closed__5_once, _init_l_List_Cursor_current___auto__1___closed__5);
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_List_Cursor_current___auto__1___closed__21() {
+static lean_object* _init_l_List_Cursor_current___auto__1___closed__21(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_List_Cursor_current___auto__1___closed__20;
+x_1 = lean_obj_once(&l_List_Cursor_current___auto__1___closed__20, &l_List_Cursor_current___auto__1___closed__20_once, _init_l_List_Cursor_current___auto__1___closed__20);
 x_2 = ((lean_object*)(l_List_Cursor_current___auto__1___closed__4));
 x_3 = lean_box(2);
 x_4 = lean_alloc_ctor(1, 3, 0);
@@ -325,11 +328,11 @@ lean_ctor_set(x_4, 2, x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_List_Cursor_current___auto__1() {
+static lean_object* _init_l_List_Cursor_current___auto__1(void) {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_List_Cursor_current___auto__1___closed__21;
+x_1 = lean_obj_once(&l_List_Cursor_current___auto__1___closed__21, &l_List_Cursor_current___auto__1___closed__21_once, _init_l_List_Cursor_current___auto__1___closed__21);
 return x_1;
 }
 }
@@ -370,11 +373,11 @@ lean_dec(x_2);
 return x_5;
 }
 }
-static lean_object* _init_l_List_Cursor_tail___auto__1() {
+static lean_object* _init_l_List_Cursor_tail___auto__1(void) {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_List_Cursor_current___auto__1___closed__21;
+x_1 = lean_obj_once(&l_List_Cursor_current___auto__1___closed__21, &l_List_Cursor_current___auto__1___closed__21_once, _init_l_List_Cursor_current___auto__1___closed__21);
 return x_1;
 }
 }
@@ -688,45 +691,140 @@ x_6 = l___private_Std_Do_Triple_SpecLemmas_0__List_forIn_x27__cons_match__1_spli
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l___private_Std_Do_Triple_SpecLemmas_0__Std_Do_Spec_forIn_x27__list_match__1_splitter___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Std_Do_StringInvariant_withEarlyReturn___redArg___lam__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-if (lean_obj_tag(x_1) == 0)
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
+x_5 = lean_ctor_get(x_4, 1);
+lean_inc(x_5);
+x_6 = lean_ctor_get(x_4, 0);
+lean_inc(x_6);
+lean_dec_ref(x_4);
+x_7 = lean_ctor_get(x_5, 1);
+lean_inc(x_7);
+lean_dec(x_5);
+x_8 = l_Std_Do_PostShape_args(x_1);
+lean_inc(x_8);
+x_9 = l_Std_Do_SPred_pure___redArg(x_8);
+lean_inc(x_9);
+lean_inc(x_8);
+lean_inc(x_7);
+x_10 = lean_alloc_closure((void*)(l_Std_Do_Invariant_withEarlyReturn___redArg___lam__0), 5, 4);
+lean_closure_set(x_10, 0, x_2);
+lean_closure_set(x_10, 1, x_7);
+lean_closure_set(x_10, 2, x_8);
+lean_closure_set(x_10, 3, x_9);
+x_11 = lean_apply_2(x_3, x_6, x_7);
+lean_inc(x_8);
+x_12 = l_Std_Do_SPred_and(x_8, x_9, x_11);
+lean_inc(x_8);
+x_13 = l_Std_Do_SPred_exists___redArg(x_8, x_10);
+x_14 = l_Std_Do_SPred_or(x_8, x_12, x_13);
+return x_14;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Do_StringInvariant_withEarlyReturn___redArg___lam__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
 {
-lean_object* x_4; lean_object* x_5; 
-lean_dec(x_2);
-x_4 = lean_ctor_get(x_1, 0);
-lean_inc(x_4);
-lean_dec_ref(x_1);
-x_5 = lean_apply_1(x_3, x_4);
+lean_object* x_5; 
+x_5 = l_Std_Do_StringInvariant_withEarlyReturn___redArg___lam__1(x_1, x_2, x_3, x_4);
+lean_dec(x_1);
 return x_5;
 }
-else
-{
-lean_object* x_6; lean_object* x_7; 
-lean_dec(x_3);
-x_6 = lean_ctor_get(x_1, 0);
-lean_inc(x_6);
-lean_dec_ref(x_1);
-x_7 = lean_apply_1(x_2, x_6);
-return x_7;
 }
-}
-}
-LEAN_EXPORT lean_object* l___private_Std_Do_Triple_SpecLemmas_0__Std_Do_Spec_forIn_x27__list_match__1_splitter(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l_Std_Do_StringInvariant_withEarlyReturn___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_6; 
-x_6 = l___private_Std_Do_Triple_SpecLemmas_0__Std_Do_Spec_forIn_x27__list_match__1_splitter___redArg(x_3, x_4, x_5);
+lean_object* x_5; lean_object* x_6; 
+x_5 = lean_alloc_closure((void*)(l_Std_Do_StringInvariant_withEarlyReturn___redArg___lam__1___boxed), 4, 3);
+lean_closure_set(x_5, 0, x_1);
+lean_closure_set(x_5, 1, x_3);
+lean_closure_set(x_5, 2, x_2);
+x_6 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_6, 0, x_5);
+lean_ctor_set(x_6, 1, x_4);
 return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Do_StringInvariant_withEarlyReturn(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+_start:
+{
+lean_object* x_8; lean_object* x_9; 
+x_8 = lean_alloc_closure((void*)(l_Std_Do_StringInvariant_withEarlyReturn___redArg___lam__1___boxed), 4, 3);
+lean_closure_set(x_8, 0, x_2);
+lean_closure_set(x_8, 1, x_6);
+lean_closure_set(x_8, 2, x_5);
+x_9 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_9, 0, x_8);
+lean_ctor_set(x_9, 1, x_7);
+return x_9;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Do_StringInvariant_withEarlyReturn___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+_start:
+{
+lean_object* x_8; 
+x_8 = l_Std_Do_StringInvariant_withEarlyReturn(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
+lean_dec_ref(x_4);
+return x_8;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Do_StringSliceInvariant_withEarlyReturn___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; lean_object* x_6; 
+x_5 = lean_alloc_closure((void*)(l_Std_Do_StringInvariant_withEarlyReturn___redArg___lam__1___boxed), 4, 3);
+lean_closure_set(x_5, 0, x_1);
+lean_closure_set(x_5, 1, x_3);
+lean_closure_set(x_5, 2, x_2);
+x_6 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_6, 0, x_5);
+lean_ctor_set(x_6, 1, x_4);
+return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Do_StringSliceInvariant_withEarlyReturn(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+_start:
+{
+lean_object* x_8; lean_object* x_9; 
+x_8 = lean_alloc_closure((void*)(l_Std_Do_StringInvariant_withEarlyReturn___redArg___lam__1___boxed), 4, 3);
+lean_closure_set(x_8, 0, x_2);
+lean_closure_set(x_8, 1, x_6);
+lean_closure_set(x_8, 2, x_5);
+x_9 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_9, 0, x_8);
+lean_ctor_set(x_9, 1, x_7);
+return x_9;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Do_StringSliceInvariant_withEarlyReturn___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+_start:
+{
+lean_object* x_8; 
+x_8 = l_Std_Do_StringSliceInvariant_withEarlyReturn(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
+lean_dec_ref(x_4);
+return x_8;
 }
 }
 lean_object* initialize_Std_Do_Triple_Basic(uint8_t builtin);
 lean_object* initialize_Init_Data_Range_Polymorphic_Iterators(uint8_t builtin);
 lean_object* initialize_Init_Data_Range_Polymorphic(uint8_t builtin);
 lean_object* initialize_Init_Data_Slice_Array(uint8_t builtin);
-lean_object* initialize_Init_Data_Iterators_ToIterator(uint8_t builtin);
 lean_object* initialize_Init_Data_Iterators_Lemmas_Combinators_FilterMap(uint8_t builtin);
+lean_object* initialize_Init_Data_Range(uint8_t builtin);
+lean_object* initialize_Init_Data_Iterators_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_Data_List_Nat_Range(uint8_t builtin);
+lean_object* initialize_Init_Data_List_Nat_TakeDrop(uint8_t builtin);
+lean_object* initialize_Init_Data_List_Range(uint8_t builtin);
+lean_object* initialize_Init_Data_List_TakeDrop(uint8_t builtin);
+lean_object* initialize_Init_Data_Nat_Mod(uint8_t builtin);
+lean_object* initialize_Init_Data_Slice_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_Omega(uint8_t builtin);
+lean_object* initialize_Init_Data_String_Defs(uint8_t builtin);
+lean_object* initialize_Init_Data_String_Iterate(uint8_t builtin);
+lean_object* initialize_Init_Data_String_Lemmas_Splits(uint8_t builtin);
+lean_object* initialize_Init_Data_String_Termination(uint8_t builtin);
+lean_object* initialize_Init_Data_String_Lemmas_Iterate(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Do_Triple_SpecLemmas(uint8_t builtin) {
 lean_object * res;
@@ -744,34 +842,51 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Slice_Array(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Iterators_ToIterator(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Init_Data_Iterators_Lemmas_Combinators_FilterMap(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_List_Cursor_at___redArg___closed__0 = _init_l_List_Cursor_at___redArg___closed__0();
-lean_mark_persistent(l_List_Cursor_at___redArg___closed__0);
-l_List_Cursor_current___auto__1___closed__5 = _init_l_List_Cursor_current___auto__1___closed__5();
-lean_mark_persistent(l_List_Cursor_current___auto__1___closed__5);
-l_List_Cursor_current___auto__1___closed__13 = _init_l_List_Cursor_current___auto__1___closed__13();
-lean_mark_persistent(l_List_Cursor_current___auto__1___closed__13);
-l_List_Cursor_current___auto__1___closed__14 = _init_l_List_Cursor_current___auto__1___closed__14();
-lean_mark_persistent(l_List_Cursor_current___auto__1___closed__14);
-l_List_Cursor_current___auto__1___closed__15 = _init_l_List_Cursor_current___auto__1___closed__15();
-lean_mark_persistent(l_List_Cursor_current___auto__1___closed__15);
-l_List_Cursor_current___auto__1___closed__16 = _init_l_List_Cursor_current___auto__1___closed__16();
-lean_mark_persistent(l_List_Cursor_current___auto__1___closed__16);
-l_List_Cursor_current___auto__1___closed__17 = _init_l_List_Cursor_current___auto__1___closed__17();
-lean_mark_persistent(l_List_Cursor_current___auto__1___closed__17);
-l_List_Cursor_current___auto__1___closed__18 = _init_l_List_Cursor_current___auto__1___closed__18();
-lean_mark_persistent(l_List_Cursor_current___auto__1___closed__18);
-l_List_Cursor_current___auto__1___closed__19 = _init_l_List_Cursor_current___auto__1___closed__19();
-lean_mark_persistent(l_List_Cursor_current___auto__1___closed__19);
-l_List_Cursor_current___auto__1___closed__20 = _init_l_List_Cursor_current___auto__1___closed__20();
-lean_mark_persistent(l_List_Cursor_current___auto__1___closed__20);
-l_List_Cursor_current___auto__1___closed__21 = _init_l_List_Cursor_current___auto__1___closed__21();
-lean_mark_persistent(l_List_Cursor_current___auto__1___closed__21);
+res = initialize_Init_Data_Range(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Iterators_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_Nat_Range(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_Nat_TakeDrop(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_Range(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_TakeDrop(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Nat_Mod(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Slice_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Omega(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_String_Defs(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_String_Iterate(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_String_Lemmas_Splits(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_String_Termination(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_String_Lemmas_Iterate(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 l_List_Cursor_current___auto__1 = _init_l_List_Cursor_current___auto__1();
 lean_mark_persistent(l_List_Cursor_current___auto__1);
 l_List_Cursor_tail___auto__1 = _init_l_List_Cursor_tail___auto__1();

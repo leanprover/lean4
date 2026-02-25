@@ -8,6 +8,9 @@ module
 prelude
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Basic
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Replicate
+import Init.ByCases
+import Init.Data.Nat.Mod
+import Init.Omega
 
 @[expose] public section
 

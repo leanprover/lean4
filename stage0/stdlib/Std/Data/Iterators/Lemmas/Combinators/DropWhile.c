@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.Iterators.Lemmas.Combinators.DropWhile
-// Imports: public import Std.Data.Iterators.Combinators.DropWhile public import Std.Data.Iterators.Lemmas.Combinators.Monadic.DropWhile public import Init.Data.Iterators.Lemmas.Consumers
+// Imports: public import Std.Data.Iterators.Combinators.DropWhile public import Std.Data.Iterators.Lemmas.Combinators.Monadic.DropWhile public import Init.Data.Iterators.Lemmas.Consumers import Init.Data.Bool import Init.Data.Iterators.Lemmas.Basic import Init.Data.List.TakeDrop
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -385,6 +385,9 @@ return x_8;
 lean_object* initialize_Std_Data_Iterators_Combinators_DropWhile(uint8_t builtin);
 lean_object* initialize_Std_Data_Iterators_Lemmas_Combinators_Monadic_DropWhile(uint8_t builtin);
 lean_object* initialize_Init_Data_Iterators_Lemmas_Consumers(uint8_t builtin);
+lean_object* initialize_Init_Data_Bool(uint8_t builtin);
+lean_object* initialize_Init_Data_Iterators_Lemmas_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_List_TakeDrop(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Data_Iterators_Lemmas_Combinators_DropWhile(uint8_t builtin) {
 lean_object * res;
@@ -397,6 +400,15 @@ res = initialize_Std_Data_Iterators_Lemmas_Combinators_Monadic_DropWhile(builtin
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Iterators_Lemmas_Consumers(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Bool(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Iterators_Lemmas_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_TakeDrop(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

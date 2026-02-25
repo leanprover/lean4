@@ -9,6 +9,7 @@ prelude
 public import Lean.Meta.WHNF
 public import Lean.PrettyPrinter.Delaborator.Attributes
 public import Lean.PrettyPrinter.Delaborator.Options
+import Init.Data.Range.Polymorphic.Iterators
 
 public section
 

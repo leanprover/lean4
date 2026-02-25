@@ -161,7 +161,9 @@ def declareBuiltin (forDecl : Name) (value : Expr) : CoreM Unit :=
 @[export lean_run_init_attrs]
 private unsafe def runInitAttrs (env : Environment) (opts : Options) : IO Unit := do
   if (← isInitializerExecutionEnabled) then
-    for mod in env.header.moduleNames, modIdx in 0...* do
+    -- **Note**: `ModuleIdx` is not an abbreviation, and we don't have instances for it.
+    -- Thus, we use `(modIdx : Nat)`
+    for mod in env.header.moduleNames, (modIdx : Nat) in 0...* do
       -- any native Lean code reachable by the interpreter (i.e. from shared
       -- libraries with their corresponding module in the Environment) must
       -- first be initialized
@@ -174,8 +176,11 @@ private unsafe def runInitAttrs (env : Environment) (opts : Options) : IO Unit :
         continue
       interpretedModInits.modify (·.insert mod)
       let modEntries := regularInitAttr.ext.getModuleEntries env modIdx
-      -- `getModuleIREntries` is identical to `getModuleEntries` if we loaded only one of .olean/.ir
-      -- so deduplicate (these lists should be very short)
+      -- `getModuleIREntries` is identical to `getModuleEntries` if we loaded only one of
+      -- .olean (from `meta initialize`)/.ir (`initialize` via transitive `meta import`)
+      -- so deduplicate (these lists should be very short).
+      -- If we have both, we should not need to worry about their relative ordering as `meta` and
+      -- non-`meta` initialize should not have interdependencies.
       let modEntries := modEntries ++ (regularInitAttr.ext.getModuleIREntries env modIdx).filter (!modEntries.contains ·)
       for (decl, initDecl) in modEntries do
         -- Skip initializers we do not have IR for; they should not be reachable by interpretation.

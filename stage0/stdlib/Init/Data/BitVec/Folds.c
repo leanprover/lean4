@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.BitVec.Folds
-// Imports: import all Init.Data.BitVec.Basic public import Init.Data.BitVec.Lemmas public import Init.Data.Fin.Iterate
+// Imports: import all Init.Data.BitVec.Basic public import Init.Data.BitVec.Basic public import Init.Ext import Init.Data.BitVec.Lemmas import Init.Data.Fin.Iterate
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -16,6 +16,7 @@ extern "C" {
 lean_object* l_BitVec_cons(lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_iunfoldr___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 lean_object* l_BitVec_ofNat(lean_object*, lean_object*);
+static lean_once_cell_t l_BitVec_iunfoldr___redArg___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_BitVec_iunfoldr___redArg___closed__0;
 lean_object* l_Fin_hIterate___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_iunfoldr___redArg(lean_object*, lean_object*, lean_object*);
@@ -66,7 +67,7 @@ return x_15;
 }
 }
 }
-static lean_object* _init_l_BitVec_iunfoldr___redArg___closed__0() {
+static lean_object* _init_l_BitVec_iunfoldr___redArg___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -81,7 +82,7 @@ _start:
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_4 = lean_alloc_closure((void*)(l_BitVec_iunfoldr___redArg___lam__0), 3, 1);
 lean_closure_set(x_4, 0, x_2);
-x_5 = l_BitVec_iunfoldr___redArg___closed__0;
+x_5 = lean_obj_once(&l_BitVec_iunfoldr___redArg___closed__0, &l_BitVec_iunfoldr___redArg___closed__0_once, _init_l_BitVec_iunfoldr___redArg___closed__0);
 x_6 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_6, 0, x_3);
 lean_ctor_set(x_6, 1, x_5);
@@ -116,6 +117,8 @@ return x_5;
 }
 }
 lean_object* initialize_Init_Data_BitVec_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_BitVec_Basic(uint8_t builtin);
+lean_object* initialize_Init_Ext(uint8_t builtin);
 lean_object* initialize_Init_Data_BitVec_Lemmas(uint8_t builtin);
 lean_object* initialize_Init_Data_Fin_Iterate(uint8_t builtin);
 static bool _G_initialized = false;
@@ -126,14 +129,18 @@ _G_initialized = true;
 res = initialize_Init_Data_BitVec_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = initialize_Init_Data_BitVec_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Ext(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Init_Data_BitVec_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Fin_Iterate(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_BitVec_iunfoldr___redArg___closed__0 = _init_l_BitVec_iunfoldr___redArg___closed__0();
-lean_mark_persistent(l_BitVec_iunfoldr___redArg___closed__0);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

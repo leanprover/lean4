@@ -8,9 +8,14 @@ module
 prelude
 public import Init.System.IOError
 public import Init.System.FilePath
-public import Init.Data.Ord.UInt
 import Init.Data.String.TakeDrop
 import Init.Data.String.Search
+public import Init.Data.Ord.Basic
+public import Init.Data.String.Basic
+import Init.Data.List.MapIdx
+import Init.Data.Ord.UInt
+import Init.Data.ToString.Macro
+import Init.Data.List.Impl
 
 public section
 
@@ -1117,6 +1122,8 @@ structure Metadata where
   Whether the file is an ordinary file, a directory, a symbolic link, or some other kind of file.
   -/
   type     : FileType
+  /-- The number of hard links to the file. -/
+  numLinks : UInt64
   deriving Repr
 
 end FS

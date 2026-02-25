@@ -1,6 +1,6 @@
-[Compiler.IR] [init]
-    def f (x_1 : tobj) : tobj :=
-      let x_2 : tagged := 2;
-      let x_3 : tobj := List.lengthTR._redArg x_1;
-      let x_4 : tobj := Nat.mul x_2 x_3;
-      ret x_4
+[Compiler.inferBorrow] size: 3
+    def f @&xs : tobj :=
+      let _x.1 := 2;
+      let _x.2 := List.lengthTR._redArg xs;
+      let _x.3 := Nat.mul _x.1 _x.2;
+      return _x.3

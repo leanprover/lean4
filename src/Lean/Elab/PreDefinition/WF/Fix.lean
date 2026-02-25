@@ -24,7 +24,7 @@ register_builtin_option debug.definition.wf.replaceRecApps : Bool := {
     descr    := "Type check every step of the well-founded definition translation"
   }
 
-/-
+/--
 Creates a subgoal for a recursive call, as an unsolved `MVar`. The goal is cleaned up, and
 the current syntax reference is stored in the `MVar`’s type as a `RecApp` marker, for
 use by `solveDecreasingGoals` below.
@@ -32,18 +32,50 @@ use by `solveDecreasingGoals` below.
 private def mkDecreasingProof (decreasingProp : Expr) : TermElabM Expr := do
   -- We store the current Ref in the MVar as a RecApp annotation around the type
   let ref ← getRef
-  let mvar ← mkFreshExprSyntheticOpaqueMVar (mkRecAppWithSyntax decreasingProp ref)
+  let ty := mkRecAppWithSyntax decreasingProp ref
+  let mvar ← mkFreshExprSyntheticOpaqueMVar ty
   let mvarId := mvar.mvarId!
   let _mvarId ← mvarId.cleanup
   return mvar
 
+/--
+Below we need a way to identify local contexts, and check if one is included in the other.
+We use the last free variable for that. This works because
+
+* the code below never sees an empty context
+* contexts are extended with fresh variable names
+* we do not clear free variable in this code
+-/
+private def LCtxId := FVarId
+
+private def getLCtxId : MetaM LCtxId := do
+  let lctx := (← getLCtx)
+  if lctx.isEmpty then
+    throwError "unexpected empty local context"
+  return lctx.decls[lctx.size - 1]!.get!.fvarId
+
+private def LCtxId.isValid (lctxid : LCtxId) : MetaM Bool :=
+  return (← getLCtx).contains lctxid
+
+/--
+Since `replaceRecApp` looks at the whole context (by way of `mkDecreasingProof`), a cache entry
+for it is only valid in the current local context, or a sub-context. We use a `LctxId` to track
+that, and ignore cache entries that come from a deeper context.
+
+In the case where we first see a recursive application in a deeper context, and later the same
+call in a less deep context, we thus get two proof obligations. We catch that situation later in
+`assignSubsumed` and the user should only see the more general one.
+-/
+private abbrev RecM (recFnName : Name) :=
+  StateRefT (HasConstCache #[recFnName]) $ StateRefT (ExprMap (Expr × LCtxId)) TermElabM
+
 private partial def replaceRecApps (recFnName : Name) (fixedPrefixSize : Nat) (F : Expr) (e : Expr) : TermElabM Expr := do
   trace[Elab.definition.wf] "replaceRecApps:{indentExpr e}"
   trace[Elab.definition.wf] "type of functorial {F} is{indentExpr (← inferType F)}"
-  let e ← loop F e |>.run' {}
+  let e ← loop F e |>.run' {} |>.run' {}
   return e
 where
-  processRec (F : Expr) (e : Expr) : StateRefT (HasConstCache #[recFnName]) TermElabM Expr := do
+  processRec (F : Expr) (e : Expr) : RecM recFnName Expr := do
     if e.getAppNumArgs < fixedPrefixSize + 1 then
       trace[Elab.definition.wf] "replaceRecApp: eta-expanding{indentExpr e}"
       loop F (← etaExpand e)
@@ -54,17 +86,28 @@ where
       let r := mkApp r (← mkDecreasingProof decreasingProp)
       return mkAppN r (← args[fixedPrefixSize<...*].toArray.mapM (loop F))
 
-  processApp (F : Expr) (e : Expr) : StateRefT (HasConstCache #[recFnName]) TermElabM Expr := do
+  processApp (F : Expr) (e : Expr) : RecM recFnName Expr := do
     if e.isAppOf recFnName then
       processRec F e
     else
       e.withApp fun f args => return mkAppN (← loop F f) (← args.mapM (loop F))
 
-  containsRecFn (e : Expr) : StateRefT (HasConstCache #[recFnName]) TermElabM Bool := do
+  containsRecFn (e : Expr) : RecM recFnName Bool := do
     modifyGet (·.contains e)
 
-  loop (F : Expr) (e : Expr) : StateRefT (HasConstCache #[recFnName]) TermElabM Expr := do
+  loop (F : Expr) (e : Expr) : RecM recFnName Expr := do
+    if !(← containsRecFn e) then
+      return e
+    if let some (newE, lctxId) := (← getThe (ExprMap _)).get? e then
+      -- only use if the local context is still valid, else ignore and override
+      if (← LCtxId.isValid lctxId) then
+        return newE
     let e' ← loopGo F e
+    -- we only ever extend the local context in this procedure
+    -- so it should suffice to check the last fvar
+    -- (note that we assume here that the local context is not empty)
+    let lctxId ← getLCtxId
+    modifyThe (ExprMap _) fun map => map.insert e (e', lctxId)
     if (debug.definition.wf.replaceRecApps.get (← getOptions)) then
       withTransparency .all do withNewMCtxDepth do
         unless (← isTypeCorrect e') do
@@ -76,9 +119,7 @@ where
           throwError "Type not preserved transforming{indentExpr e}\nto{indentExpr e'}\nType was{indentExpr t1}\nand now is{indentExpr t2}"
     return e'
 
-  loopGo (F : Expr) (e : Expr) : StateRefT (HasConstCache #[recFnName]) TermElabM Expr := do
-    if !(← containsRecFn e) then
-      return e
+  loopGo (F : Expr) (e : Expr) : RecM recFnName Expr := do
     match e with
     | Expr.lam n d b c =>
       withLocalDecl n c (← loop F d) fun x => do

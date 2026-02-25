@@ -7,9 +7,7 @@ module
 prelude
 public import Lean.Meta.Sym.Simp.SimpM
 import Init.Sym.Lemmas
-import Init.Data.Int.Gcd
 import Lean.Meta.Sym.LitValues
-import Lean.Meta.Sym.AlphaShareBuilder
 namespace Lean.Meta.Sym.Simp
 
 /-!

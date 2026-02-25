@@ -22,7 +22,7 @@ theorem Iter.toIterM_empty {β} :
 @[simp]
 theorem Iter.step_empty {β} :
     (Iter.empty β).step = ⟨.done, rfl⟩ := by
-  simp [Iter.step]
+  simp [Iter.step]; rfl
 
 @[simp]
 theorem Iter.toList_empty {β} :

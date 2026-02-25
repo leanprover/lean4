@@ -6,11 +6,15 @@ Authors: Leonardo de Moura
 module
 
 prelude
+public import Init.Control.Do
 public import Init.GetElem
 public import Init.Data.List.ToArrayImpl
 import all Init.Data.List.ToArrayImpl
 public import Init.Data.Array.Set
 import all Init.Data.Array.Set
+public import Init.WF
+meta import Init.MetaTypes
+import Init.WFTactics
 
 public section
 
@@ -166,6 +170,15 @@ This avoids overhead due to unboxing a `Nat` used as an index.
 @[extern "lean_array_uget", simp, expose]
 def uget (xs : @& Array α) (i : USize) (h : i.toNat < xs.size) : α :=
   xs[i.toNat]
+
+/--
+Version of `Array.uget` that does not increment the reference count of its result.
+
+This is only intended for direct use by the compiler.
+-/
+@[extern "lean_array_uget_borrowed"]
+unsafe opaque ugetBorrowed (xs : @& Array α) (i : USize) (h : i.toNat < xs.size) : α :=
+  xs.uget i h
 
 /--
 Low-level modification operator which is as fast as a C array write. The modification is performed
@@ -2122,7 +2135,7 @@ Examples:
 
 /-! ### Repr and ToString -/
 
-protected def Array.repr {α : Type u} [Repr α] (xs : Array α) : Std.Format :=
+protected def repr {α : Type u} [Repr α] (xs : Array α) : Std.Format :=
   let _ : Std.ToFormat α := ⟨repr⟩
   if xs.size == 0 then
     "#[]"

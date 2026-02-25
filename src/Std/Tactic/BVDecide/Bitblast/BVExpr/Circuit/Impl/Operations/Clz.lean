@@ -8,6 +8,7 @@ module
 prelude
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Const
 public import Std.Sat.AIG.If
+import Init.Omega
 
 @[expose] public section
 

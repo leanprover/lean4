@@ -1,4 +1,4 @@
-Failure @92 (⟨7, 0⟩): '{'; expected '![', '$$', '$', '[' or '[^'
+Failure @92 (⟨7, 0⟩): '['; expected '![', '$$', '$', '*', '[', '[^', '_', '`' or '{'
 Final stack:
   [(Lean.Doc.Syntax.dl
     "dl{"

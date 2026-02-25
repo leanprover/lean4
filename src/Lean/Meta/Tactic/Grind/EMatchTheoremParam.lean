@@ -6,8 +6,6 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Grind.Anchor
-public import Lean.Meta.Tactic.Grind.EMatchTheorem
-import Lean.Meta.Eqns
 namespace Lean.Meta.Grind
 /--
 Returns pairs `(type, anchor)` where `type` is the type of a local theorem,

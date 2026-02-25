@@ -8,12 +8,12 @@ prelude
 public import Init.Grind.Lemmas
 public import Lean.Meta.Tactic.Grind.Action
 import Lean.Meta.Tactic.Apply
-import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Tactic.Grind.CasesMatch
 import Lean.Meta.Tactic.Grind.Injection
 import Lean.Meta.Tactic.Grind.Core
 import Lean.Meta.Tactic.Grind.RevertAll
+import Init.Grind.Util
 public section
 namespace Lean.Meta.Grind
 

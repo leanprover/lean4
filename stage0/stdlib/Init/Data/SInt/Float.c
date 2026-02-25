@@ -124,7 +124,7 @@ _start:
 {
 uint64_t x_2; double x_3; lean_object* x_4; 
 x_2 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = lean_int64_to_float(x_2);
 x_4 = lean_box_float(x_3);
 return x_4;

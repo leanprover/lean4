@@ -1,7 +1,7 @@
 3 failures:
   @68 (⟨8, 0⟩): expected closing ':::' from directive on line 3 at column 0, but it's at column 1
     " :::\n"
-  @72 (⟨8, 4⟩): expected token
+  @72 (⟨8, 4⟩): expected identifier
     "\n"
   @73 (⟨9, 0⟩): expected closing ':::' for directive from line 8
     ""

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Int.Gcd
-// Imports: public import Init.Data.Nat.Lcm public import Init.Data.Int.DivMod.Lemmas public import Init.Data.Int.Pow
+// Imports: public import Init.Data.Nat.Lcm public import Init.Data.Int.DivMod.Basic import Init.Data.Int.DivMod.Lemmas import Init.Data.Int.Pow import Init.Data.Nat.Dvd import Init.Omega import Init.RCases
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -19,6 +19,7 @@ LEAN_EXPORT lean_object* l_Int_gcd(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_gcd___boxed(lean_object*, lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
 LEAN_EXPORT lean_object* l_Nat_cast___at___00Int_dvdProdDvdOfDvdProd_spec__0(lean_object*);
+static lean_once_cell_t l_Int_dvdProdDvdOfDvdProd___redArg___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Int_dvdProdDvdOfDvdProd___redArg___closed__0;
 lean_object* l_Nat_dvdProdDvdOfDvdProd___redArg(lean_object*, lean_object*, lean_object*);
 uint8_t lean_int_dec_le(lean_object*, lean_object*);
@@ -60,7 +61,7 @@ x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Int_dvdProdDvdOfDvdProd___redArg___closed__0() {
+static lean_object* _init_l_Int_dvdProdDvdOfDvdProd___redArg___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -79,7 +80,7 @@ x_6 = lean_nat_abs(x_3);
 x_7 = l_Nat_dvdProdDvdOfDvdProd___redArg(x_4, x_5, x_6);
 lean_dec(x_5);
 lean_dec(x_4);
-x_8 = l_Int_dvdProdDvdOfDvdProd___redArg___closed__0;
+x_8 = lean_obj_once(&l_Int_dvdProdDvdOfDvdProd___redArg___closed__0, &l_Int_dvdProdDvdOfDvdProd___redArg___closed__0_once, _init_l_Int_dvdProdDvdOfDvdProd___redArg___closed__0);
 x_9 = lean_int_dec_le(x_8, x_1);
 if (x_9 == 0)
 {
@@ -202,8 +203,12 @@ return x_3;
 }
 }
 lean_object* initialize_Init_Data_Nat_Lcm(uint8_t builtin);
+lean_object* initialize_Init_Data_Int_DivMod_Basic(uint8_t builtin);
 lean_object* initialize_Init_Data_Int_DivMod_Lemmas(uint8_t builtin);
 lean_object* initialize_Init_Data_Int_Pow(uint8_t builtin);
+lean_object* initialize_Init_Data_Nat_Dvd(uint8_t builtin);
+lean_object* initialize_Init_Omega(uint8_t builtin);
+lean_object* initialize_Init_RCases(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Int_Gcd(uint8_t builtin) {
 lean_object * res;
@@ -212,14 +217,24 @@ _G_initialized = true;
 res = initialize_Init_Data_Nat_Lcm(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = initialize_Init_Data_Int_DivMod_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Init_Data_Int_DivMod_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Int_Pow(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Int_dvdProdDvdOfDvdProd___redArg___closed__0 = _init_l_Int_dvdProdDvdOfDvdProd___redArg___closed__0();
-lean_mark_persistent(l_Int_dvdProdDvdOfDvdProd___redArg___closed__0);
+res = initialize_Init_Data_Nat_Dvd(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Omega(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_RCases(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

@@ -8,8 +8,10 @@ module
 prelude
 public import Lean.Elab.Tactic.ElabTerm
 import Lean.Elab.Tactic.Induction
-import Lean.Elab.Tactic.Generalize
 import Lean.Meta.Tactic.Replace
+import Init.Omega
+import Lean.Elab.Binders
+import Lean.Meta.Tactic.Generalize
 
 namespace Lean.Elab.Tactic.RCases
 open Meta Parser Tactic

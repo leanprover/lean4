@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Int.LemmasAux
-// Imports: public import Init.Data.Int.Pow
+// Imports: public import Init.Data.Int.Lemmas import Init.ByCases import Init.Data.Int.Pow import Init.Omega
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 lean_object* lean_nat_to_int(lean_object*);
+static lean_once_cell_t l___private_Init_Data_Int_LemmasAux_0__Int_toNat_match__1_splitter___redArg___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Init_Data_Int_LemmasAux_0__Int_toNat_match__1_splitter___redArg___closed__0;
 uint8_t lean_int_dec_lt(lean_object*, lean_object*);
 lean_object* lean_nat_abs(lean_object*);
@@ -22,7 +23,7 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Int_LemmasAux_0__Int_toNat_match_
 LEAN_EXPORT lean_object* l___private_Init_Data_Int_LemmasAux_0__Int_toNat_match__1_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Int_LemmasAux_0__Int_toNat_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Int_LemmasAux_0__Int_toNat_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* _init_l___private_Init_Data_Int_LemmasAux_0__Int_toNat_match__1_splitter___redArg___closed__0() {
+static lean_object* _init_l___private_Init_Data_Int_LemmasAux_0__Int_toNat_match__1_splitter___redArg___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -35,7 +36,7 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Int_LemmasAux_0__Int_toNat_match_
 _start:
 {
 lean_object* x_4; uint8_t x_5; 
-x_4 = l___private_Init_Data_Int_LemmasAux_0__Int_toNat_match__1_splitter___redArg___closed__0;
+x_4 = lean_obj_once(&l___private_Init_Data_Int_LemmasAux_0__Int_toNat_match__1_splitter___redArg___closed__0, &l___private_Init_Data_Int_LemmasAux_0__Int_toNat_match__1_splitter___redArg___closed__0_once, _init_l___private_Init_Data_Int_LemmasAux_0__Int_toNat_match__1_splitter___redArg___closed__0);
 x_5 = lean_int_dec_lt(x_1, x_4);
 if (x_5 == 0)
 {
@@ -84,17 +85,27 @@ lean_dec(x_2);
 return x_5;
 }
 }
+lean_object* initialize_Init_Data_Int_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_ByCases(uint8_t builtin);
 lean_object* initialize_Init_Data_Int_Pow(uint8_t builtin);
+lean_object* initialize_Init_Omega(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Int_LemmasAux(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
+res = initialize_Init_Data_Int_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_ByCases(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Init_Data_Int_Pow(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l___private_Init_Data_Int_LemmasAux_0__Int_toNat_match__1_splitter___redArg___closed__0 = _init_l___private_Init_Data_Int_LemmasAux_0__Int_toNat_match__1_splitter___redArg___closed__0();
-lean_mark_persistent(l___private_Init_Data_Int_LemmasAux_0__Int_toNat_match__1_splitter___redArg___closed__0);
+res = initialize_Init_Omega(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

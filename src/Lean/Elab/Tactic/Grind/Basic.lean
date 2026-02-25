@@ -7,9 +7,8 @@ module
 prelude
 public import Lean.Elab.Tactic.Basic
 public import Lean.Meta.Tactic.Grind.Main
-import Lean.CoreM
 import Lean.Meta.Tactic.Grind.Intro
-import Lean.Meta.Tactic.Grind.PP
+import Init.Omega
 public section
 namespace Lean.Elab.Tactic.Grind
 open Meta

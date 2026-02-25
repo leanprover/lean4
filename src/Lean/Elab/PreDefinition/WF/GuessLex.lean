@@ -18,6 +18,7 @@ public import Lean.Elab.PreDefinition.FixedParams
 public import Lean.Elab.PreDefinition.WF.Basic
 public import Lean.Data.Array
 import Lean.Meta.Tactic.Refl
+import Init.Data.Prod
 
 public section
 

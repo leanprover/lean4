@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Slice.List.Iterator
-// Imports: public import Init.Data.Slice.List.Basic public import Init.Data.Iterators.Producers.List public import Init.Data.Iterators.Combinators.Take import all Init.Data.Range.Polymorphic.Basic public import Init.Data.Range.Polymorphic.Iterators public import Init.Data.Slice.Operations import Init.Omega
+// Imports: public import Init.Data.Slice.List.Basic public import Init.Data.Iterators.Producers.List public import Init.Data.Iterators.Combinators.Take import all Init.Data.Range.Polymorphic.Basic public import Init.Data.Slice.Operations
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -17,6 +17,9 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ListSlice_instToIterator___lam__0(lean_object*);
 static const lean_closure_object l_ListSlice_instToIterator___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_ListSlice_instToIterator___lam__0, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_ListSlice_instToIterator___closed__0 = (const lean_object*)&l_ListSlice_instToIterator___closed__0_value;
+lean_object* l_Std_ToIterator_of___redArg___lam__0(lean_object*, lean_object*);
+static const lean_closure_object l_ListSlice_instToIterator___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*1, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Std_ToIterator_of___redArg___lam__0, .m_arity = 2, .m_num_fixed = 1, .m_objs = {((lean_object*)&l_ListSlice_instToIterator___closed__0_value)} };
+static const lean_object* l_ListSlice_instToIterator___closed__1 = (const lean_object*)&l_ListSlice_instToIterator___closed__1_value;
 LEAN_EXPORT lean_object* l_ListSlice_instToIterator(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
@@ -38,6 +41,7 @@ LEAN_EXPORT lean_object* l_instForInListSliceOfMonad(lean_object*, lean_object*,
 lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_instAppendListSlice___lam__0(lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
+static lean_once_cell_t l_List_instAppendListSlice___lam__2___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_List_instAppendListSlice___lam__2___closed__0;
 lean_object* l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_to_list(lean_object*);
@@ -47,6 +51,7 @@ lean_object* l_List_toSlice___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_instAppendListSlice___lam__2(lean_object*, lean_object*, lean_object*, lean_object*);
 static const lean_closure_object l_List_instAppendListSlice___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_List_instAppendListSlice___lam__0, .m_arity = 3, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_List_instAppendListSlice___closed__0 = (const lean_object*)&l_List_instAppendListSlice___closed__0_value;
+static lean_once_cell_t l_List_instAppendListSlice___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_List_instAppendListSlice___closed__1;
 LEAN_EXPORT lean_object* l_List_instAppendListSlice(lean_object*);
 static const lean_string_object l_List_ListSlice_repr___redArg___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 12, .m_capacity = 12, .m_length = 11, .m_data = ".toSlice 0 "};
@@ -146,7 +151,7 @@ LEAN_EXPORT lean_object* l_ListSlice_instToIterator(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = ((lean_object*)(l_ListSlice_instToIterator___closed__0));
+x_2 = ((lean_object*)(l_ListSlice_instToIterator___closed__1));
 return x_2;
 }
 }
@@ -715,7 +720,7 @@ return x_2;
 }
 }
 }
-static lean_object* _init_l_List_instAppendListSlice___lam__2___closed__0() {
+static lean_object* _init_l_List_instAppendListSlice___lam__2___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -803,9 +808,9 @@ goto block_37;
 block_14:
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-x_9 = l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___redArg(x_1, x_8, x_7);
+x_9 = l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___redArg(x_1, x_8, x_6);
 x_10 = lean_array_to_list(x_9);
-x_11 = l_List_appendTR___redArg(x_6, x_10);
+x_11 = l_List_appendTR___redArg(x_7, x_10);
 x_12 = l_List_lengthTR___redArg(x_11);
 x_13 = l_List_toSlice___redArg(x_11, x_5, x_12);
 lean_dec(x_12);
@@ -822,7 +827,7 @@ lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean
 x_17 = lean_ctor_get(x_4, 0);
 x_18 = lean_ctor_get(x_4, 1);
 x_19 = lean_unsigned_to_nat(0u);
-x_20 = l_List_instAppendListSlice___lam__2___closed__0;
+x_20 = lean_obj_once(&l_List_instAppendListSlice___lam__2___closed__0, &l_List_instAppendListSlice___lam__2___closed__0_once, _init_l_List_instAppendListSlice___lam__2___closed__0);
 x_21 = l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___redArg(x_2, x_15, x_20);
 x_22 = lean_array_to_list(x_21);
 if (lean_obj_tag(x_18) == 0)
@@ -830,8 +835,8 @@ if (lean_obj_tag(x_18) == 0)
 lean_ctor_set(x_4, 1, x_17);
 lean_ctor_set(x_4, 0, x_19);
 x_5 = x_19;
-x_6 = x_22;
-x_7 = x_20;
+x_6 = x_20;
+x_7 = x_22;
 x_8 = x_4;
 goto block_14;
 }
@@ -847,8 +852,8 @@ lean_dec(x_23);
 lean_ctor_set(x_4, 1, x_17);
 lean_ctor_set(x_4, 0, x_25);
 x_5 = x_19;
-x_6 = x_22;
-x_7 = x_20;
+x_6 = x_20;
+x_7 = x_22;
 x_8 = x_4;
 goto block_14;
 }
@@ -862,7 +867,7 @@ lean_inc(x_27);
 lean_inc(x_26);
 lean_dec(x_4);
 x_28 = lean_unsigned_to_nat(0u);
-x_29 = l_List_instAppendListSlice___lam__2___closed__0;
+x_29 = lean_obj_once(&l_List_instAppendListSlice___lam__2___closed__0, &l_List_instAppendListSlice___lam__2___closed__0_once, _init_l_List_instAppendListSlice___lam__2___closed__0);
 x_30 = l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___redArg(x_2, x_15, x_29);
 x_31 = lean_array_to_list(x_30);
 if (lean_obj_tag(x_27) == 0)
@@ -872,8 +877,8 @@ x_32 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_32, 0, x_28);
 lean_ctor_set(x_32, 1, x_26);
 x_5 = x_28;
-x_6 = x_31;
-x_7 = x_29;
+x_6 = x_29;
+x_7 = x_31;
 x_8 = x_32;
 goto block_14;
 }
@@ -890,8 +895,8 @@ x_36 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_36, 0, x_35);
 lean_ctor_set(x_36, 1, x_26);
 x_5 = x_28;
-x_6 = x_31;
-x_7 = x_29;
+x_6 = x_29;
+x_7 = x_31;
 x_8 = x_36;
 goto block_14;
 }
@@ -899,7 +904,7 @@ goto block_14;
 }
 }
 }
-static lean_object* _init_l_List_instAppendListSlice___closed__1() {
+static lean_object* _init_l_List_instAppendListSlice___closed__1(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -914,7 +919,7 @@ LEAN_EXPORT lean_object* l_List_instAppendListSlice(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_List_instAppendListSlice___closed__1;
+x_2 = lean_obj_once(&l_List_instAppendListSlice___closed__1, &l_List_instAppendListSlice___closed__1_once, _init_l_List_instAppendListSlice___closed__1);
 return x_2;
 }
 }
@@ -963,7 +968,7 @@ goto block_18;
 block_18:
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
-x_8 = l_List_instAppendListSlice___lam__2___closed__0;
+x_8 = lean_obj_once(&l_List_instAppendListSlice___lam__2___closed__0, &l_List_instAppendListSlice___lam__2___closed__0_once, _init_l_List_instAppendListSlice___lam__2___closed__0);
 x_9 = l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___redArg(x_6, x_7, x_8);
 x_10 = lean_array_to_list(x_9);
 lean_inc(x_10);
@@ -1111,7 +1116,7 @@ goto block_11;
 block_11:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-x_5 = l_List_instAppendListSlice___lam__2___closed__0;
+x_5 = lean_obj_once(&l_List_instAppendListSlice___lam__2___closed__0, &l_List_instAppendListSlice___lam__2___closed__0_once, _init_l_List_instAppendListSlice___lam__2___closed__0);
 x_6 = l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___redArg(x_1, x_4, x_5);
 x_7 = ((lean_object*)(l_List_instToStringListSlice___redArg___lam__1___closed__0));
 x_8 = lean_array_to_list(x_6);
@@ -1145,9 +1150,7 @@ lean_object* initialize_Init_Data_Slice_List_Basic(uint8_t builtin);
 lean_object* initialize_Init_Data_Iterators_Producers_List(uint8_t builtin);
 lean_object* initialize_Init_Data_Iterators_Combinators_Take(uint8_t builtin);
 lean_object* initialize_Init_Data_Range_Polymorphic_Basic(uint8_t builtin);
-lean_object* initialize_Init_Data_Range_Polymorphic_Iterators(uint8_t builtin);
 lean_object* initialize_Init_Data_Slice_Operations(uint8_t builtin);
-lean_object* initialize_Init_Omega(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Slice_List_Iterator(uint8_t builtin) {
 lean_object * res;
@@ -1165,19 +1168,9 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Range_Polymorphic_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Range_Polymorphic_Iterators(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Init_Data_Slice_Operations(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Omega(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-l_List_instAppendListSlice___lam__2___closed__0 = _init_l_List_instAppendListSlice___lam__2___closed__0();
-lean_mark_persistent(l_List_instAppendListSlice___lam__2___closed__0);
-l_List_instAppendListSlice___closed__1 = _init_l_List_instAppendListSlice___closed__1();
-lean_mark_persistent(l_List_instAppendListSlice___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

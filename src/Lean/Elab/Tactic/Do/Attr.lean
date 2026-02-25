@@ -8,6 +8,8 @@ module
 prelude
 public import Lean.Meta.Tactic.Simp
 public import Std.Tactic.Do.Syntax
+import Init.While
+import Init.Syntax
 
 public section
 
@@ -43,6 +45,13 @@ def SpecProof.key : SpecProof → Name
   | .global declName => declName
   | .local fvarId => fvarId.name
   | .stx id _ _ => id
+
+def SpecProof.getProof : SpecProof → MetaM (List Name × Expr)
+  | .stx _ _ proof => pure ([], proof)
+  | .local fvarId => pure ([], mkFVar fvarId)
+  | .global declName => do
+    let info ← getConstInfo declName
+    pure (info.levelParams, mkConst declName (info.levelParams.map mkLevelParam))
 
 instance : Hashable SpecProof where
   hash sp := hash sp.key
@@ -89,10 +98,13 @@ structure SpecTheorems where
   erased : PHashSet SpecProof := {}
   deriving Inhabited
 
+def SpecTheorems.insert (d : SpecTheorems) (e : SpecTheorem) : SpecTheorems :=
+  { d with specs := d.specs.insertKeyValue e.keys e }
+
 def SpecTheorems.isErased (d : SpecTheorems) (thmId : SpecProof) : Bool :=
   d.erased.contains thmId
 
-def SpecTheorems.eraseCore (d : SpecTheorems) (thmId : SpecProof) : SpecTheorems :=
+def SpecTheorems.erase (d : SpecTheorems) (thmId : SpecProof) : SpecTheorems :=
   { d with erased := d.erased.insert thmId }
 
 abbrev SpecExtension := SimpleScopedEnvExtension SpecEntry SpecTheorems
@@ -185,24 +197,25 @@ def mkSpecTheoremFromConst (declName : Name) (prio : Nat := eval_prio default) :
   mkSpecTheorem type (.global declName) prio
 
 def mkSpecTheoremFromLocal (fvar : FVarId) (prio : Nat := eval_prio default) : MetaM SpecTheorem := do
-  let some decl ← fvar.findDecl? | throwError "invalid 'spec', local constant not found"
+  let some decl ← fvar.findDecl? | throwError "invalid 'spec', local declaration {fvar.name} not found"
   mkSpecTheorem decl.type (.local fvar) prio
 
 def mkSpecTheoremFromStx (ref : Syntax) (proof : Expr) (prio : Nat := eval_prio default) : MetaM SpecTheorem := do
   let type ← inferType proof
   mkSpecTheorem type (.stx (← mkFreshId) ref proof) prio
 
-def addSpecTheoremEntry (d : SpecTheorems) (e : SpecTheorem) : SpecTheorems :=
-  { d with specs := d.specs.insertKeyValue e.keys e }
-
-def addSpecTheorem (ext : SpecExtension) (declName : Name) (prio : Nat) (attrKind : AttributeKind) : MetaM Unit := do
+def SpecExtension.addSpecTheoremFromConst (ext : SpecExtension) (declName : Name) (prio : Nat) (attrKind : AttributeKind) : MetaM Unit := do
   let thm ← mkSpecTheoremFromConst declName prio
   ext.add thm attrKind
+
+def SpecExtension.addSpecTheoremFromLocal (ext : SpecExtension) (fvar : FVarId) (prio : Nat := eval_prio default) : MetaM Unit := do
+  let thm ← mkSpecTheoremFromLocal fvar prio
+  ext.add thm .local
 
 def mkSpecExt : SimpleScopedEnvExtension.Descr SpecEntry SpecTheorems where
   name     := `specMap
   initial  := {}
-  addEntry := fun d e => addSpecTheoremEntry d e
+  addEntry := fun d e => d.insert e
 
 builtin_initialize specAttr : SpecExtension ← registerSimpleScopedEnvExtension mkSpecExt
 
@@ -216,13 +229,15 @@ def mkSpecAttr (ext : SpecExtension) : AttributeImpl where
   add   := fun declName stx attrKind => do
     let go : MetaM Unit := do
       let info ← getAsyncConstInfo declName
-      let prio ← if stx.getKind = ``Lean.Parser.Attr.spec then getAttrParamOptPrio stx[3] else getAttrParamOptPrio stx[1]
+      let prio ← getAttrParamOptPrio stx[1]
       try
-        addSpecTheorem ext declName prio attrKind
+        ext.addSpecTheoremFromConst declName prio attrKind
       catch _ =>
       let impl ← getBuiltinAttributeImpl `mvcgen_simp
       try
-        impl.add declName stx attrKind
+        let newStx ← `(attr| mvcgen_simp)
+        let newStx := newStx.raw.setArg 3 stx[1]
+        impl.add declName newStx attrKind
       catch e =>
       trace[Elab.Tactic.Do.specAttr] "Reason for failure to apply spec attribute: {e.toMessageData}"
       throwError "Invalid 'spec': target was neither a Hoare triple specification nor a 'simp' lemma"

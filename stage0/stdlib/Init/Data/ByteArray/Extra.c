@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.ByteArray.Extra
-// Imports: public import Init.Data.ByteArray.Basic import Init.Data.String.Basic
+// Imports: public import Init.Data.ByteArray.Basic import Init.Data.String.Defs import Init.Data.UInt.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -25,6 +25,7 @@ static const lean_object* l_ByteArray_toUInt64LE_x21___closed__1 = (const lean_o
 static const lean_string_object l_ByteArray_toUInt64LE_x21___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 37, .m_capacity = 37, .m_length = 36, .m_data = "assertion violation: bs.size == 8\n  "};
 static const lean_object* l_ByteArray_toUInt64LE_x21___closed__2 = (const lean_object*)&l_ByteArray_toUInt64LE_x21___closed__2_value;
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_once_cell_t l_ByteArray_toUInt64LE_x21___closed__3_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_ByteArray_toUInt64LE_x21___closed__3;
 lean_object* lean_byte_array_size(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
@@ -36,10 +37,11 @@ LEAN_EXPORT uint64_t l_ByteArray_toUInt64LE_x21(lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_toUInt64LE_x21___boxed(lean_object*);
 static const lean_string_object l_ByteArray_toUInt64BE_x21___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 22, .m_capacity = 22, .m_length = 21, .m_data = "ByteArray.toUInt64BE!"};
 static const lean_object* l_ByteArray_toUInt64BE_x21___closed__0 = (const lean_object*)&l_ByteArray_toUInt64BE_x21___closed__0_value;
+static lean_once_cell_t l_ByteArray_toUInt64BE_x21___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_ByteArray_toUInt64BE_x21___closed__1;
 LEAN_EXPORT uint64_t l_ByteArray_toUInt64BE_x21(lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_toUInt64BE_x21___boxed(lean_object*);
-static lean_object* _init_l_panic___at___00ByteArray_toUInt64LE_x21_spec__0___boxed__const__1() {
+static lean_object* _init_l_panic___at___00ByteArray_toUInt64LE_x21_spec__0___boxed__const__1(void) {
 _start:
 {
 uint64_t x_1; lean_object* x_2; 
@@ -68,13 +70,13 @@ x_3 = lean_box_uint64(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_ByteArray_toUInt64LE_x21___closed__3() {
+static lean_object* _init_l_ByteArray_toUInt64LE_x21___closed__3(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l_ByteArray_toUInt64LE_x21___closed__2));
 x_2 = lean_unsigned_to_nat(2u);
-x_3 = lean_unsigned_to_nat(20u);
+x_3 = lean_unsigned_to_nat(21u);
 x_4 = ((lean_object*)(l_ByteArray_toUInt64LE_x21___closed__1));
 x_5 = ((lean_object*)(l_ByteArray_toUInt64LE_x21___closed__0));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -91,7 +93,7 @@ x_4 = lean_nat_dec_eq(x_2, x_3);
 if (x_4 == 0)
 {
 lean_object* x_5; uint64_t x_6; 
-x_5 = l_ByteArray_toUInt64LE_x21___closed__3;
+x_5 = lean_obj_once(&l_ByteArray_toUInt64LE_x21___closed__3, &l_ByteArray_toUInt64LE_x21___closed__3_once, _init_l_ByteArray_toUInt64LE_x21___closed__3);
 x_6 = l_panic___at___00ByteArray_toUInt64LE_x21_spec__0(x_5);
 return x_6;
 }
@@ -157,13 +159,13 @@ x_3 = lean_box_uint64(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_ByteArray_toUInt64BE_x21___closed__1() {
+static lean_object* _init_l_ByteArray_toUInt64BE_x21___closed__1(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l_ByteArray_toUInt64LE_x21___closed__2));
 x_2 = lean_unsigned_to_nat(2u);
-x_3 = lean_unsigned_to_nat(36u);
+x_3 = lean_unsigned_to_nat(37u);
 x_4 = ((lean_object*)(l_ByteArray_toUInt64BE_x21___closed__0));
 x_5 = ((lean_object*)(l_ByteArray_toUInt64LE_x21___closed__0));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -180,7 +182,7 @@ x_4 = lean_nat_dec_eq(x_2, x_3);
 if (x_4 == 0)
 {
 lean_object* x_5; uint64_t x_6; 
-x_5 = l_ByteArray_toUInt64BE_x21___closed__1;
+x_5 = lean_obj_once(&l_ByteArray_toUInt64BE_x21___closed__1, &l_ByteArray_toUInt64BE_x21___closed__1_once, _init_l_ByteArray_toUInt64BE_x21___closed__1);
 x_6 = l_panic___at___00ByteArray_toUInt64LE_x21_spec__0(x_5);
 return x_6;
 }
@@ -247,7 +249,8 @@ return x_3;
 }
 }
 lean_object* initialize_Init_Data_ByteArray_Basic(uint8_t builtin);
-lean_object* initialize_Init_Data_String_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_String_Defs(uint8_t builtin);
+lean_object* initialize_Init_Data_UInt_Basic(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_ByteArray_Extra(uint8_t builtin) {
 lean_object * res;
@@ -256,15 +259,14 @@ _G_initialized = true;
 res = initialize_Init_Data_ByteArray_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_String_Basic(builtin);
+res = initialize_Init_Data_String_Defs(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_UInt_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_panic___at___00ByteArray_toUInt64LE_x21_spec__0___boxed__const__1 = _init_l_panic___at___00ByteArray_toUInt64LE_x21_spec__0___boxed__const__1();
 lean_mark_persistent(l_panic___at___00ByteArray_toUInt64LE_x21_spec__0___boxed__const__1);
-l_ByteArray_toUInt64LE_x21___closed__3 = _init_l_ByteArray_toUInt64LE_x21___closed__3();
-lean_mark_persistent(l_ByteArray_toUInt64LE_x21___closed__3);
-l_ByteArray_toUInt64BE_x21___closed__1 = _init_l_ByteArray_toUInt64BE_x21___closed__1();
-lean_mark_persistent(l_ByteArray_toUInt64BE_x21___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

@@ -85,7 +85,7 @@ it terminates.
 -/
 @[always_inline, inline]
 def IterM.takeWhileWithPostcondition (P : β → PostconditionT m (ULift Bool)) (it : IterM (α := α) m β) :=
-  (IterM.mk (Types.TakeWhile.mk (P := P) it) m β : IterM m β)
+  (⟨Types.TakeWhile.mk (P := P) it⟩ : IterM m β)
 
 /--
 Given an iterator `it` and a monadic predicate `P`, `it.takeWhileM P` is an iterator that outputs

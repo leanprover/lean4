@@ -7,13 +7,10 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.SearchM
 import Lean.Meta.Tactic.Simp.Arith.Int.Simp
-import Lean.Meta.Tactic.Grind.Arith.Cutsat.Var
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.DvdCnstr
-import Lean.Meta.Tactic.Grind.Arith.Cutsat.LeCnstr
-import Lean.Meta.Tactic.Grind.Arith.Cutsat.EqCnstr
-import Lean.Meta.Tactic.Grind.Arith.Cutsat.Model
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.ReorderVars
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Proof
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
 public section
 namespace Lean.Meta.Grind.Arith.Cutsat
 

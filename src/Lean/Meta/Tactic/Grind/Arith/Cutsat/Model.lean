@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Types
-import Init.Grind.ToInt
 import Lean.Meta.Tactic.Grind.Arith.ModelUtil
 public section
 namespace Lean.Meta.Grind.Arith.Cutsat

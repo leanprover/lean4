@@ -7,7 +7,9 @@ module
 
 prelude
 import all Init.Data.List.OfFn
-public import Init.Data.List.Monadic
+public import Init.Data.List.Control
+public import Init.Data.List.OfFn
+import Init.Data.List.Monadic
 
 public section
 

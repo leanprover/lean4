@@ -36,7 +36,12 @@ l : List Nat
 set_option linter.unusedSimpArgs false in
 example (l : List Nat) :
   l.foldr (fun x a => a + x*x) 0 = List.sum (l.map (fun x => x * x)) := by
-  simp [foldr_to_sum]
+  simp (failIfUnchanged := false) [foldr_to_sum]
+
+example (l : List Nat) :
+  l.foldr (fun x a => a + x*x) 0 = List.sum (l.map (fun x => x * x)) := by
+  simp [List.sum, List.foldr_map, Nat.add_comm]
+
 
 -- but with stronger simp normal forms, it would work:
 

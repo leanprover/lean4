@@ -11,10 +11,15 @@ public import Lean.Meta.Eqns
 public import Lean.Meta.Tactic.Simp.SimpTheorems
 public import Lean.Meta.Tactic.Simp.SimpCongrTheorems
 import Lean.Meta.Tactic.Replace
-import Lean.Meta.FunInfo
+import Init.Data.Nat.Linear
 public section
 namespace Lean.Meta
 namespace Simp
+
+register_builtin_option backward.dsimp.instances : Bool := {
+    defValue := false
+    descr    := "Let `dsimp` and `simp` simplify instance terms"
+  }
 
 /-- The result of simplifying some expression `e`. -/
 structure Result where
@@ -167,6 +172,7 @@ private def mkMetaConfig (c : Config) : MetaM ConfigWithKey := do
 
 def mkContext (config : Config := {}) (simpTheorems : SimpTheoremsArray := {}) (congrTheorems : SimpCongrTheorems := {}) : MetaM Context := do
   let config ← updateArith config
+  let config ← if backward.dsimp.instances.get (← getOptions) then pure { config with instances := true } else pure config
   return {
     config, simpTheorems, congrTheorems
     metaConfig := (← mkMetaConfig config)
@@ -627,12 +633,12 @@ def congrArgs (r : Result) (args : Array Expr) : SimpM Result := do
       if h : i < infos.size then
         trace[Debug.Meta.Tactic.simp] "app [{i}] {infos.size} {arg} hasFwdDeps: {infos[i].hasFwdDeps}"
         let info := infos[i]
-        if cfg.ground && info.isInstImplicit then
-          -- We don't visit instance implicit arguments when we are reducing ground terms.
-          -- Motivation: many instance implicit arguments are ground, and it does not make sense
-          -- to reduce them if the parent term is not ground.
-          -- TODO: consider using it as the default behavior.
-          -- We have considered it at https://github.com/leanprover/lean4/pull/3151
+        if info.isInstance && (!cfg.instances || cfg.ground) then
+          /-
+          **Note**: We don't visit instance implicit arguments when we are reducing ground terms.
+          Motivation: many instance implicit arguments are ground, and it does not make sense
+          to reduce them if the parent term is not ground.
+          -/
           r ← mkCongrFun r arg
         else if !info.hasFwdDeps then
           r ← mkCongr r (← simp arg)
@@ -712,13 +718,13 @@ def simpAppUsingCongr (e : Expr) : SimpM Result := do
       let fr ← visit f i
       if h : i < infos.size then
         let info := infos[i]
-        trace[Debug.Meta.Tactic.simp] "app [{i}] {infos.size} {a} hasFwdDeps: {info.hasFwdDeps}"
-        if cfg.ground && info.isInstImplicit then
-          -- We don't visit instance implicit arguments when we are reducing ground terms.
-          -- Motivation: many instance implicit arguments are ground, and it does not make sense
-          -- to reduce them if the parent term is not ground.
-          -- TODO: consider using it as the default behavior.
-          -- We have considered it at https://github.com/leanprover/lean4/pull/3151
+        trace[Debug.Meta.Tactic.simp] "app [{i}] {infos.size} {a} hasFwdDeps: {infos[i].hasFwdDeps}"
+        if info.isInstance && (!cfg.instances || cfg.ground) then
+          /-
+          **Note**: We don't visit instance implicit arguments when we are reducing ground terms.
+          Motivation: many instance implicit arguments are ground, and it does not make sense
+          to reduce them if the parent term is not ground.
+          -/
           mkCongrFun' e fr a
         else if !info.hasFwdDeps then
           mkCongr' e fr (← simp a)
@@ -788,7 +794,7 @@ def tryAutoCongrTheorem? (e : Expr) : SimpM (Option Result) := do
   let mut i          := 0 -- index at args
   for arg in args, kind in cgrThm.argKinds do
     if h : config.ground ∧ i < infos.size then
-      if (infos[i]'h.2).isInstImplicit then
+      if (infos[i]'h.2).isInstance then
         -- Do not visit instance implicit arguments when `ground := true`
         -- See comment at `congrArgs`
         argsNew := argsNew.push arg

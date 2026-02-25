@@ -6,7 +6,6 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Order.Classes
 public import Init.Data.Ord.Basic
 
 namespace Std

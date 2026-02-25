@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Build.Store
-// Imports: public import Lake.Util.Store public import Lake.Build.Job.Basic import Lake.Util.StoreInsts import Lake.Build.Data
+// Imports: public import Lake.Util.Store public import Lake.Build.Job.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -46,6 +46,7 @@ static const lean_object* l_Lake_BuildStore_collectModuleFacetArray___redArg___c
 static const lean_ctor_object l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__9_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 0, .m_other = 2, .m_tag = 0}, .m_objs = {((lean_object*)&l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__8_value),((lean_object*)&l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__6_value)}};
 static const lean_object* l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__9 = (const lean_object*)&l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__9_value;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
+static lean_once_cell_t l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__10_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__10;
 lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_BuildStore_collectModuleFacetArray___redArg(lean_object*, lean_object*);
@@ -73,7 +74,7 @@ static const lean_ctor_object l_Lake_BuildStore_collectSharedExternLibs___redArg
 static const lean_object* l_Lake_BuildStore_collectSharedExternLibs___redArg___closed__2 = (const lean_object*)&l_Lake_BuildStore_collectSharedExternLibs___redArg___closed__2_value;
 LEAN_EXPORT lean_object* l_Lake_BuildStore_collectSharedExternLibs___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_BuildStore_collectSharedExternLibs(lean_object*, lean_object*, lean_object*);
-static lean_object* _init_l_Lake_BuildStore_empty() {
+static lean_object* _init_l_Lake_BuildStore_empty(void) {
 _start:
 {
 lean_object* x_1; 
@@ -173,9 +174,9 @@ return x_19;
 default: 
 {
 lean_object* x_20; 
+lean_dec_ref(x_2);
 lean_dec_ref(x_5);
 lean_dec_ref(x_3);
-lean_dec_ref(x_2);
 x_20 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_20, 0, x_4);
 return x_20;
@@ -202,7 +203,7 @@ lean_dec(x_1);
 return x_5;
 }
 }
-static lean_object* _init_l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__10() {
+static lean_object* _init_l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__10(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -218,7 +219,7 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_obj
 x_3 = lean_alloc_closure((void*)(l_Lake_BuildStore_collectModuleFacetArray___redArg___lam__0___boxed), 4, 1);
 lean_closure_set(x_3, 0, x_2);
 x_4 = ((lean_object*)(l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__9));
-x_5 = l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__10;
+x_5 = lean_obj_once(&l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__10, &l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__10_once, _init_l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__10);
 x_6 = l_Std_DTreeMap_Internal_Impl_forInStep___redArg(x_4, x_3, x_5, x_1);
 x_7 = lean_ctor_get(x_6, 0);
 lean_inc(x_7);
@@ -333,8 +334,8 @@ default:
 {
 lean_object* x_22; 
 lean_dec_ref(x_5);
-lean_dec_ref(x_3);
 lean_dec_ref(x_2);
+lean_dec_ref(x_3);
 x_22 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_22, 0, x_4);
 return x_22;
@@ -448,8 +449,8 @@ else
 {
 lean_object* x_15; 
 lean_dec_ref(x_5);
-lean_dec_ref(x_3);
 lean_dec_ref(x_2);
+lean_dec_ref(x_3);
 x_15 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_15, 0, x_4);
 return x_15;
@@ -482,7 +483,7 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_obj
 x_3 = lean_alloc_closure((void*)(l_Lake_BuildStore_collectPackageFacetArray___redArg___lam__0___boxed), 4, 1);
 lean_closure_set(x_3, 0, x_2);
 x_4 = ((lean_object*)(l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__9));
-x_5 = l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__10;
+x_5 = lean_obj_once(&l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__10, &l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__10_once, _init_l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__10);
 x_6 = l_Std_DTreeMap_Internal_Impl_forInStep___redArg(x_4, x_3, x_5, x_1);
 x_7 = lean_ctor_get(x_6, 0);
 lean_inc(x_7);
@@ -563,7 +564,7 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_obj
 x_3 = lean_alloc_closure((void*)(l_Lake_BuildStore_collectTargetFacetArray___redArg___lam__0___boxed), 4, 1);
 lean_closure_set(x_3, 0, x_2);
 x_4 = ((lean_object*)(l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__9));
-x_5 = l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__10;
+x_5 = lean_obj_once(&l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__10, &l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__10_once, _init_l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__10);
 x_6 = l_Std_DTreeMap_Internal_Impl_forInStep___redArg(x_4, x_3, x_5, x_1);
 x_7 = lean_ctor_get(x_6, 0);
 lean_inc(x_7);
@@ -598,8 +599,6 @@ return x_4;
 }
 lean_object* initialize_Lake_Util_Store(uint8_t builtin);
 lean_object* initialize_Lake_Build_Job_Basic(uint8_t builtin);
-lean_object* initialize_Lake_Util_StoreInsts(uint8_t builtin);
-lean_object* initialize_Lake_Build_Data(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lake_Build_Store(uint8_t builtin) {
 lean_object * res;
@@ -611,16 +610,8 @@ lean_dec_ref(res);
 res = initialize_Lake_Build_Job_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Util_StoreInsts(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lake_Build_Data(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 l_Lake_BuildStore_empty = _init_l_Lake_BuildStore_empty();
 lean_mark_persistent(l_Lake_BuildStore_empty);
-l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__10 = _init_l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__10();
-lean_mark_persistent(l_Lake_BuildStore_collectModuleFacetArray___redArg___closed__10);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

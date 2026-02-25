@@ -8,7 +8,7 @@ module
 prelude
 public import Init.Data.Float
 import Init.Ext
-public import Init.Data.Array.DecidableEq
+public import Init.GetElem
 
 public section
 universe u

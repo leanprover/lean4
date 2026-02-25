@@ -8,6 +8,7 @@ prelude
 public import Lean.HeadIndex
 public import Lean.Meta.Basic
 import Lean.Meta.Eqns
+import Init.Data.Range.Polymorphic.Iterators
 public section
 namespace Lean.Meta.Grind
 /-!

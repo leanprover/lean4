@@ -7,6 +7,7 @@ module
 
 prelude
 public import Std.Data.Internal.List.Associative
+import Init.Data.List.Find
 
 @[expose] public section
 

@@ -8,7 +8,6 @@ module
 prelude
 public import Lean.Parser.Do
 import Lean.DocString.Parser
-meta import Lean.Parser.Basic
 
 public section
 
@@ -57,7 +56,7 @@ multiple times in the same file.
 -/
 @[builtin_command_parser]
 def moduleDoc := leading_parser ppDedent <|
-  "/-!" >> Doc.Parser.ifVerso versoCommentBody commentBody >> ppLine
+  "/-!" >> Doc.Parser.ifVersoModuleDocs versoCommentBody commentBody >> ppLine
 
 
 def namedPrio := leading_parser

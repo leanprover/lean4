@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.Iterators.Lemmas.Producers.Slice
-// Imports: public import Std.Data.Iterators.Producers.Slice import all Std.Data.Iterators.Producers.Slice public import Init.Data.Slice.Lemmas
+// Imports: public import Std.Data.Iterators.Producers.Slice import all Std.Data.Iterators.Producers.Slice public import Init.Data.Slice.Lemmas import Init.Data.Slice.InternalLemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -16,6 +16,7 @@ extern "C" {
 lean_object* initialize_Std_Data_Iterators_Producers_Slice(uint8_t builtin);
 lean_object* initialize_Std_Data_Iterators_Producers_Slice(uint8_t builtin);
 lean_object* initialize_Init_Data_Slice_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_Data_Slice_InternalLemmas(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Data_Iterators_Lemmas_Producers_Slice(uint8_t builtin) {
 lean_object * res;
@@ -28,6 +29,9 @@ res = initialize_Std_Data_Iterators_Producers_Slice(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Slice_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Slice_InternalLemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

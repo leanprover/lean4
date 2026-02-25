@@ -8,7 +8,6 @@ module
 prelude
 public import Lean.Compiler.LCNF.Util
 public import Lean.Compiler.LCNF.BaseTypes
-public import Lean.Compiler.LCNF.CompilerM
 public import Lean.Compiler.LCNF.Irrelevant
 
 public section

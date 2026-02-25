@@ -42,7 +42,7 @@ public import Init.While
 public import Init.Syntax
 public import Init.Internal
 public import Init.Try
-public meta import Init.Try  -- make sure `Try.Config` can be evaluated anywhere
+public meta import Init.Try  -- shake: keep (make sure `Try.Config` can be evaluated anywhere)
 public import Init.BinderNameHint
 public import Init.Task
 public import Init.MethodSpecsSimp

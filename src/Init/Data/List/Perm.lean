@@ -6,8 +6,13 @@ Authors: Leonardo de Moura, Jeremy Avigad, Mario Carneiro
 module
 
 prelude
-public import Init.Data.List.Erase
 import all Init.Data.List.Attach
+public import Init.Data.List.Attach
+import Init.Data.List.Erase
+import Init.Data.List.Pairwise
+import Init.Data.List.Sublist
+import Init.Data.List.TakeDrop
+import Init.Data.Nat.Lemmas
 
 public section
 

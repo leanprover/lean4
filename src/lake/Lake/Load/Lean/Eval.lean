@@ -6,10 +6,9 @@ Authors: Mac Malone
 module
 
 prelude
-public import Lean.Environment
 public import Lake.Config.Workspace
-import Lake.DSL.Attributes
 import Lean.DocString
+import Lake.DSL.AttributesCore
 
 /-! # Lean Configuration Evaluator
 

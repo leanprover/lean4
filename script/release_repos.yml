@@ -65,13 +65,6 @@ repositories:
     branch: master
     dependencies: [lean4-unicode-basic]
 
-  - name: doc-gen4
-    url: https://github.com/leanprover/doc-gen4
-    toolchain-tag: true
-    stable-branch: false
-    branch: main
-    dependencies: [lean4-cli, BibtexQuery]
-
   - name: reference-manual
     url: https://github.com/leanprover/reference-manual
     toolchain-tag: true
@@ -84,8 +77,7 @@ repositories:
     toolchain-tag: false
     stable-branch: false
     branch: main
-    dependencies:
-      - batteries
+    dependencies: []
 
   - name: aesop
     url: https://github.com/leanprover-community/aesop
@@ -107,9 +99,15 @@ repositories:
       - lean4checker
       - batteries
       - lean4-cli
-      - doc-gen4
       - import-graph
       - plausible
+
+  - name: doc-gen4
+    url: https://github.com/leanprover/doc-gen4
+    toolchain-tag: true
+    stable-branch: false
+    branch: main
+    dependencies: [lean4-cli, BibtexQuery, mathlib4]
 
   - name: cslib
     url: https://github.com/leanprover/cslib

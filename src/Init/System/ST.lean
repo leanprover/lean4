@@ -6,9 +6,9 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Init.Classical
-public import Init.Control.EState
-public import Init.Control.Reader
+public import Init.Control.Except
+public import Init.NotationExtra
+import Init.Classical
 
 public section
 
@@ -19,7 +19,7 @@ opaque Void.nonemptyType (σ : Type) : NonemptyType.{0}
 instance Void.instNonempty : Nonempty (Void σ) :=
   by exact (Void.nonemptyType σ).property
 
-@[extern "lean_void_mk"]
+@[extern "lean_void_mk", never_extract]
 opaque Void.mk (x : σ) : Void σ
 
 structure ST.Out (σ : Type) (α : Type) where

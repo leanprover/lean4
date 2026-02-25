@@ -8,6 +8,7 @@ module
 prelude
 public import Lake.Build.Fetch
 meta import all Lake.Util.OpaqueType
+import Lake.Util.OpaqueType
 
 open Lean
 

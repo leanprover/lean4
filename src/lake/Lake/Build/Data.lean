@@ -13,6 +13,7 @@ public import Lake.Config.Kinds
 public meta import Lake.Config.Kinds
 public meta import Lake.Util.Name
 import all Lake.Config.Kinds
+import Lake.Util.Name
 
 open Lean
 
@@ -50,7 +51,7 @@ public class OptDataKind (α : Type u) where
 
 namespace OptDataKind
 
-@[instance low]
+@[implicit_reducible, instance low]
 public def anonymous : OptDataKind α where
   name := .anonymous
   wf h := by simp [Name.isAnonymous_iff_eq_anonymous] at h

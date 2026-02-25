@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Array.Perm
-// Imports: public import Init.Data.List.Nat.Perm import all Init.Data.Array.Basic public import Init.Data.Array.Lemmas
+// Imports: import all Init.Data.Array.Basic public import Init.Data.Array.Basic import Init.Data.Array.Lemmas import Init.Data.List.Nat.Perm import Init.Data.List.Nat.TakeDrop import Init.Data.List.Perm import Init.Omega
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -58,6 +58,7 @@ static const lean_object* l_Array___aux__Init__Data__Array__Perm______macroRules
 static const lean_string_object l_Array___aux__Init__Data__Array__Perm______macroRules__Array__term___x7e____1___closed__5_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 5, .m_capacity = 5, .m_length = 4, .m_data = "Perm"};
 static const lean_object* l_Array___aux__Init__Data__Array__Perm______macroRules__Array__term___x7e____1___closed__5 = (const lean_object*)&l_Array___aux__Init__Data__Array__Perm______macroRules__Array__term___x7e____1___closed__5_value;
 lean_object* l_String_toRawSubstring_x27(lean_object*);
+static lean_once_cell_t l_Array___aux__Init__Data__Array__Perm______macroRules__Array__term___x7e____1___closed__6_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Array___aux__Init__Data__Array__Perm______macroRules__Array__term___x7e____1___closed__6;
 static const lean_ctor_object l_Array___aux__Init__Data__Array__Perm______macroRules__Array__term___x7e____1___closed__7_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_Array___aux__Init__Data__Array__Perm______macroRules__Array__term___x7e____1___closed__5_value),LEAN_SCALAR_PTR_LITERAL(93, 39, 207, 243, 25, 131, 84, 93)}};
 static const lean_object* l_Array___aux__Init__Data__Array__Perm______macroRules__Array__term___x7e____1___closed__7 = (const lean_object*)&l_Array___aux__Init__Data__Array__Perm______macroRules__Array__term___x7e____1___closed__7_value;
@@ -101,7 +102,7 @@ lean_object* l_Lean_Syntax_node3(lean_object*, lean_object*, lean_object*, lean_
 LEAN_EXPORT lean_object* l_Array___aux__Init__Data__Array__Perm______unexpand__Array__Perm__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array___aux__Init__Data__Array__Perm______unexpand__Array__Perm__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_instTransPerm(lean_object*);
-static lean_object* _init_l_Array___aux__Init__Data__Array__Perm______macroRules__Array__term___x7e____1___closed__6() {
+static lean_object* _init_l_Array___aux__Init__Data__Array__Perm______macroRules__Array__term___x7e____1___closed__6(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -147,7 +148,7 @@ x_15 = 0;
 x_16 = l_Lean_SourceInfo_fromRef(x_10, x_15);
 lean_dec(x_10);
 x_17 = ((lean_object*)(l_Array___aux__Init__Data__Array__Perm______macroRules__Array__term___x7e____1___closed__4));
-x_18 = l_Array___aux__Init__Data__Array__Perm______macroRules__Array__term___x7e____1___closed__6;
+x_18 = lean_obj_once(&l_Array___aux__Init__Data__Array__Perm______macroRules__Array__term___x7e____1___closed__6, &l_Array___aux__Init__Data__Array__Perm______macroRules__Array__term___x7e____1___closed__6_once, _init_l_Array___aux__Init__Data__Array__Perm______macroRules__Array__term___x7e____1___closed__6);
 x_19 = ((lean_object*)(l_Array___aux__Init__Data__Array__Perm______macroRules__Array__term___x7e____1___closed__7));
 x_20 = l_Lean_addMacroScope(x_8, x_19, x_9);
 x_21 = ((lean_object*)(l_Array___aux__Init__Data__Array__Perm______macroRules__Array__term___x7e____1___closed__16));
@@ -266,15 +267,19 @@ _start:
 return lean_box(0);
 }
 }
-lean_object* initialize_Init_Data_List_Nat_Perm(uint8_t builtin);
+lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin);
 lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin);
 lean_object* initialize_Init_Data_Array_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_Data_List_Nat_Perm(uint8_t builtin);
+lean_object* initialize_Init_Data_List_Nat_TakeDrop(uint8_t builtin);
+lean_object* initialize_Init_Data_List_Perm(uint8_t builtin);
+lean_object* initialize_Init_Omega(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Array_Perm(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_List_Nat_Perm(builtin);
+res = initialize_Init_Data_Array_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Array_Basic(builtin);
@@ -283,8 +288,18 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Array_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Array___aux__Init__Data__Array__Perm______macroRules__Array__term___x7e____1___closed__6 = _init_l_Array___aux__Init__Data__Array__Perm______macroRules__Array__term___x7e____1___closed__6();
-lean_mark_persistent(l_Array___aux__Init__Data__Array__Perm______macroRules__Array__term___x7e____1___closed__6);
+res = initialize_Init_Data_List_Nat_Perm(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_Nat_TakeDrop(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_Perm(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Omega(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

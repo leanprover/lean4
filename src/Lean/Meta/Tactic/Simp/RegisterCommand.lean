@@ -6,8 +6,8 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Meta.Tactic.Simp.Simproc
-meta import Lean.Meta.Tactic.Simp.Attr
+public import Lean.Meta.Tactic.Simp.Attr  -- shake: keep (macro output dependency)
+public meta import Lean.Meta.Tactic.Simp.Simproc
 
 public section
 
@@ -23,10 +23,10 @@ macro (name := _root_.Lean.Parser.Command.registerSimpAttr) doc:(docComment)?
   let procIdParser := mkIdentFrom procId (`Parser.Attr ++ procId.getId)
   let procDescr := quote s!"simproc set for {procId.getId.toString}"
   -- TODO: better docComment for simprocs
-  `($[$doc:docComment]? initialize ext : SimpExtension ← registerSimpAttr $(quote id.getId) $descr $(quote id.getId)
+  `($[$doc:docComment]? public meta initialize ext : SimpExtension ← registerSimpAttr $(quote id.getId) $descr
     $[$doc:docComment]? syntax (name := $idParser:ident) $(quote str):str (Parser.Tactic.simpPre <|> Parser.Tactic.simpPost)? patternIgnore("← " <|> "<- ")? (prio)? : attr
     /-- Simplification procedure -/
-    initialize extProc : SimprocExtension ← registerSimprocAttr $(quote procId.getId) $procDescr none $(quote procId.getId)
+    public meta initialize extProc : SimprocExtension ← registerSimprocAttr $(quote procId.getId) $procDescr none
     /-- Simplification procedure -/
     syntax (name := $procIdParser:ident) $(quote procStr):str (Parser.Tactic.simpPre <|> Parser.Tactic.simpPost)? : attr)
 

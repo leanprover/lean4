@@ -546,10 +546,12 @@ protected abbrev not_lt_of_gt := @Nat.lt_asymm
 /-- Alias for `Nat.lt_asymm`. -/
 protected abbrev not_lt_of_lt := @Nat.lt_asymm
 
-protected theorem lt_iff_le_not_le {m n : Nat} : m < n ↔ m ≤ n ∧ ¬ n ≤ m :=
+protected theorem lt_iff_le_and_not_ge {m n : Nat} : m < n ↔ m ≤ n ∧ ¬ n ≤ m :=
   ⟨fun h => ⟨Nat.le_of_lt h, Nat.not_le_of_gt h⟩, fun ⟨_, h⟩ => Nat.lt_of_not_ge h⟩
-/-- Alias for `Nat.lt_iff_le_not_le`. -/
-protected abbrev lt_iff_le_and_not_ge := @Nat.lt_iff_le_not_le
+
+/-- Deprecated alias for `Nat.lt_iff_le_and_not_ge`. -/
+@[deprecated Nat.lt_iff_le_and_not_ge (since := "2026-02-11")]
+protected abbrev lt_iff_le_not_le := @Nat.lt_iff_le_and_not_ge
 
 protected theorem lt_iff_le_and_ne {m n : Nat} : m < n ↔ m ≤ n ∧ m ≠ n :=
   ⟨fun h => ⟨Nat.le_of_lt h, Nat.ne_of_lt h⟩, fun h => Nat.lt_of_le_of_ne h.1 h.2⟩

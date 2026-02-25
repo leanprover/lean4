@@ -246,3 +246,20 @@ end
 #guard " ".revFind? (· = ' ') = some " ".startPos
 #guard " ".endsWith (·.isWhitespace) = true
 #guard " ".endsWith (· = ' ') = true
+
+#guard (Id.run do
+  let mut s' := ""
+  for c in "hello" do
+    s' := s'.push c
+  return s') = "hello"
+
+example {s : String} : (Id.run do
+    let mut s' := ""
+    for c in s do
+      s' := s'.push c
+    return s') = s := by
+  obtain ⟨cs, rfl⟩ := s.exists_eq_ofList
+  simp only [bind_pure_comp, map_pure, String.forIn_eq_forIn_toList, String.toList_ofList,
+    List.forIn_pure_yield_eq_foldl, bind_pure, Id.run_pure, ← String.toList_inj]
+  suffices ∀ (t : String), (cs.foldl (fun b a => b.push a) t).toList = t.toList ++ cs by simpa using this ""
+  induction cs <;> simp_all

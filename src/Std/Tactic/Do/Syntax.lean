@@ -8,6 +8,7 @@ module
 prelude
 public import Std.Do
 public import Std.Tactic.Do.ProofMode -- For (meta) importing `mgoalStx`; otherwise users might experience
+public import Init.Data.Array.GetLit
                                       -- a broken goal view due to the builtin delaborator for `MGoalEntails`
 
 @[expose] public section
@@ -59,7 +60,7 @@ Theorems tagged with the `spec` attribute are used by the `mspec` and `mvcgen` t
   simp set of `mvcgen` that is used within `wp⟦·⟧` contexts to simplify match discriminants and
   applications of constants.
 -/
-syntax (name := spec) "spec" (Tactic.simpPre <|> Tactic.simpPost)? patternIgnore("← " <|> "<- ")? (ppSpace prio)? : attr
+syntax (name := spec) "spec" (ppSpace prio)? : attr
 
 end Attr
 

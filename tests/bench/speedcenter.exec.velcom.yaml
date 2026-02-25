@@ -665,3 +665,39 @@
     <<: *time
     cmd: leanchecker --fresh Init
     max_runs: 1
+- attributes:
+    description: cbv tactic (leroy compiler verification course)
+    tags: [other]
+  run_config:
+    <<: *time
+    cmd: lean ./cbv/leroy.lean
+- attributes:
+    description: cbv tactic (Eratosthenes' sieve)
+    tags: [other]
+  run_config:
+    <<: *time
+    cmd: lean ./cbv/divisors.lean
+- attributes:
+    description: cbv tactic (removing duplicates from the list)
+    tags: [other]
+  run_config:
+    <<: *time
+    cmd: lean ./cbv/dedup.lean
+- attributes:
+    description: cbv tactic (evaluating Decidable.decide)
+    tags: [other]
+  run_config:
+    <<: *time
+    cmd: lean ./cbv/decide.lean
+- attributes:
+    description: cbv tactic (evaluating List.mergeSort)
+    tags: [other]
+  run_config:
+    <<: *time
+    cmd: lean ./cbv/merge_sort.lean
+- attributes:
+    description: cbv tactic (System F normalization)
+    tags: [other]
+  run_config:
+    <<: *time
+    cmd: lean ./cbv/system_f.lean

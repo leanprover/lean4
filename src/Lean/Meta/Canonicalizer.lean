@@ -9,6 +9,7 @@ prelude
 public import Lean.Util.ShareCommon
 public import Lean.Meta.FunInfo
 public import Std.Data.HashMap.Raw
+import Init.Data.Range.Polymorphic.Iterators
 
 public section
 

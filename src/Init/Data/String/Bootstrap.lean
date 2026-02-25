@@ -6,8 +6,8 @@ Author: Leonardo de Moura, Mario Carneiro
 module
 
 prelude
-public import Init.Data.Char.Basic
 public import Init.Data.ByteArray.Bootstrap
+import Init.Data.Char.Basic
 
 public section
 

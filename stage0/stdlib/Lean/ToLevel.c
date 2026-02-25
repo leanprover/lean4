@@ -20,7 +20,7 @@ lean_object* l_Lean_Level_max___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ToLevel_max(lean_object*, lean_object*);
 lean_object* l_Lean_Level_imax___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ToLevel_imax(lean_object*, lean_object*);
-static lean_object* _init_l_Lean_instToLevel() {
+static lean_object* _init_l_Lean_instToLevel(void) {
 _start:
 {
 lean_object* x_1; 

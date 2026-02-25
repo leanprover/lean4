@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.Internal.List.Associative
-// Imports: public import Init.Data.Option.Attach public import Init.Data.List.Perm public import Init.Data.List.Monadic public import Std.Data.Internal.List.Defs import all Std.Data.Internal.List.Defs public import Init.Data.Order.Ord import Init.Data.Subtype.Order public import Init.Data.Order.ClassesExtra public import Init.Data.Order.LemmasExtra
+// Imports: public import Init.Data.Option.Attach public import Init.Data.List.Perm public import Std.Data.Internal.List.Defs import all Std.Data.Internal.List.Defs public import Init.Data.Order.LemmasExtra public import Init.Data.Bool import Init.ByCases import Init.Data.List.Count import Init.Data.List.Erase import Init.Data.List.Find import Init.Data.List.MinMax import Init.Data.List.Pairwise import Init.Data.List.Sublist import Init.Data.Prod import Init.Omega
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -26,6 +26,7 @@ static const lean_object* l_Std_Internal_List_getEntry_x21___redArg___closed__1 
 static const lean_string_object l_Std_Internal_List_getEntry_x21___redArg___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 39, .m_capacity = 39, .m_length = 38, .m_data = "key is not present in associative list"};
 static const lean_object* l_Std_Internal_List_getEntry_x21___redArg___closed__2 = (const lean_object*)&l_Std_Internal_List_getEntry_x21___redArg___closed__2_value;
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_once_cell_t l_Std_Internal_List_getEntry_x21___redArg___closed__3_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Internal_List_getEntry_x21___redArg___closed__3;
 lean_object* l_panic___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_List_getEntry_x21___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -84,6 +85,7 @@ static const lean_string_object l_Std_Internal_List_getValueCast_x21___redArg___
 static const lean_object* l_Std_Internal_List_getValueCast_x21___redArg___closed__1 = (const lean_object*)&l_Std_Internal_List_getValueCast_x21___redArg___closed__1_value;
 static const lean_string_object l_Std_Internal_List_getValueCast_x21___redArg___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 14, .m_capacity = 14, .m_length = 13, .m_data = "value is none"};
 static const lean_object* l_Std_Internal_List_getValueCast_x21___redArg___closed__2 = (const lean_object*)&l_Std_Internal_List_getValueCast_x21___redArg___closed__2_value;
+static lean_once_cell_t l_Std_Internal_List_getValueCast_x21___redArg___closed__3_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Internal_List_getValueCast_x21___redArg___closed__3;
 LEAN_EXPORT lean_object* l_Std_Internal_List_getValueCast_x21___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_List_getValueCast_x21(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -322,13 +324,13 @@ lean_dec_ref(x_5);
 return x_7;
 }
 }
-static lean_object* _init_l_Std_Internal_List_getEntry_x21___redArg___closed__3() {
+static lean_object* _init_l_Std_Internal_List_getEntry_x21___redArg___closed__3(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l_Std_Internal_List_getEntry_x21___redArg___closed__2));
 x_2 = lean_unsigned_to_nat(10u);
-x_3 = lean_unsigned_to_nat(61u);
+x_3 = lean_unsigned_to_nat(67u);
 x_4 = ((lean_object*)(l_Std_Internal_List_getEntry_x21___redArg___closed__1));
 x_5 = ((lean_object*)(l_Std_Internal_List_getEntry_x21___redArg___closed__0));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -343,7 +345,7 @@ if (lean_obj_tag(x_4) == 0)
 lean_object* x_5; lean_object* x_6; 
 lean_dec(x_2);
 lean_dec_ref(x_1);
-x_5 = l_Std_Internal_List_getEntry_x21___redArg___closed__3;
+x_5 = lean_obj_once(&l_Std_Internal_List_getEntry_x21___redArg___closed__3, &l_Std_Internal_List_getEntry_x21___redArg___closed__3_once, _init_l_Std_Internal_List_getEntry_x21___redArg___closed__3);
 x_6 = l_panic___redArg(x_3, x_5);
 return x_6;
 }
@@ -1094,7 +1096,7 @@ lean_dec(x_7);
 return x_8;
 }
 }
-static lean_object* _init_l_Std_Internal_List_getValueCast_x21___redArg___closed__3() {
+static lean_object* _init_l_Std_Internal_List_getValueCast_x21___redArg___closed__3(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
@@ -1115,7 +1117,7 @@ x_5 = l_Std_Internal_List_getValueCast_x3f___redArg(x_1, x_2, x_4);
 if (lean_obj_tag(x_5) == 0)
 {
 lean_object* x_6; lean_object* x_7; 
-x_6 = l_Std_Internal_List_getValueCast_x21___redArg___closed__3;
+x_6 = lean_obj_once(&l_Std_Internal_List_getValueCast_x21___redArg___closed__3, &l_Std_Internal_List_getValueCast_x21___redArg___closed__3_once, _init_l_Std_Internal_List_getValueCast_x21___redArg___closed__3);
 x_7 = l_panic___redArg(x_3, x_6);
 return x_7;
 }
@@ -1192,7 +1194,7 @@ x_5 = l_Std_Internal_List_getValue_x3f___redArg(x_1, x_3, x_4);
 if (lean_obj_tag(x_5) == 0)
 {
 lean_object* x_6; lean_object* x_7; 
-x_6 = l_Std_Internal_List_getValueCast_x21___redArg___closed__3;
+x_6 = lean_obj_once(&l_Std_Internal_List_getValueCast_x21___redArg___closed__3, &l_Std_Internal_List_getValueCast_x21___redArg___closed__3_once, _init_l_Std_Internal_List_getValueCast_x21___redArg___closed__3);
 x_7 = l_panic___redArg(x_2, x_6);
 return x_7;
 }
@@ -1342,7 +1344,7 @@ x_5 = l_Std_Internal_List_getKey_x3f___redArg(x_1, x_3, x_4);
 if (lean_obj_tag(x_5) == 0)
 {
 lean_object* x_6; lean_object* x_7; 
-x_6 = l_Std_Internal_List_getValueCast_x21___redArg___closed__3;
+x_6 = lean_obj_once(&l_Std_Internal_List_getValueCast_x21___redArg___closed__3, &l_Std_Internal_List_getValueCast_x21___redArg___closed__3_once, _init_l_Std_Internal_List_getValueCast_x21___redArg___closed__3);
 x_7 = l_panic___redArg(x_2, x_6);
 return x_7;
 }
@@ -2598,7 +2600,7 @@ x_4 = l_Std_Internal_List_minKey_x3f___redArg(x_1, x_3);
 if (lean_obj_tag(x_4) == 0)
 {
 lean_object* x_5; lean_object* x_6; 
-x_5 = l_Std_Internal_List_getValueCast_x21___redArg___closed__3;
+x_5 = lean_obj_once(&l_Std_Internal_List_getValueCast_x21___redArg___closed__3, &l_Std_Internal_List_getValueCast_x21___redArg___closed__3_once, _init_l_Std_Internal_List_getValueCast_x21___redArg___closed__3);
 x_6 = l_panic___redArg(x_2, x_5);
 return x_6;
 }
@@ -2717,7 +2719,7 @@ x_5 = l_Std_Internal_List_minKey_x3f___redArg(x_4, x_3);
 if (lean_obj_tag(x_5) == 0)
 {
 lean_object* x_6; lean_object* x_7; 
-x_6 = l_Std_Internal_List_getValueCast_x21___redArg___closed__3;
+x_6 = lean_obj_once(&l_Std_Internal_List_getValueCast_x21___redArg___closed__3, &l_Std_Internal_List_getValueCast_x21___redArg___closed__3_once, _init_l_Std_Internal_List_getValueCast_x21___redArg___closed__3);
 x_7 = l_panic___redArg(x_2, x_6);
 return x_7;
 }
@@ -2877,13 +2879,19 @@ return x_6;
 }
 lean_object* initialize_Init_Data_Option_Attach(uint8_t builtin);
 lean_object* initialize_Init_Data_List_Perm(uint8_t builtin);
-lean_object* initialize_Init_Data_List_Monadic(uint8_t builtin);
 lean_object* initialize_Std_Data_Internal_List_Defs(uint8_t builtin);
 lean_object* initialize_Std_Data_Internal_List_Defs(uint8_t builtin);
-lean_object* initialize_Init_Data_Order_Ord(uint8_t builtin);
-lean_object* initialize_Init_Data_Subtype_Order(uint8_t builtin);
-lean_object* initialize_Init_Data_Order_ClassesExtra(uint8_t builtin);
 lean_object* initialize_Init_Data_Order_LemmasExtra(uint8_t builtin);
+lean_object* initialize_Init_Data_Bool(uint8_t builtin);
+lean_object* initialize_Init_ByCases(uint8_t builtin);
+lean_object* initialize_Init_Data_List_Count(uint8_t builtin);
+lean_object* initialize_Init_Data_List_Erase(uint8_t builtin);
+lean_object* initialize_Init_Data_List_Find(uint8_t builtin);
+lean_object* initialize_Init_Data_List_MinMax(uint8_t builtin);
+lean_object* initialize_Init_Data_List_Pairwise(uint8_t builtin);
+lean_object* initialize_Init_Data_List_Sublist(uint8_t builtin);
+lean_object* initialize_Init_Data_Prod(uint8_t builtin);
+lean_object* initialize_Init_Omega(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Data_Internal_List_Associative(uint8_t builtin) {
 lean_object * res;
@@ -2895,31 +2903,45 @@ lean_dec_ref(res);
 res = initialize_Init_Data_List_Perm(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_List_Monadic(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Std_Data_Internal_List_Defs(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Data_Internal_List_Defs(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Order_Ord(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Subtype_Order(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Order_ClassesExtra(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Order_LemmasExtra(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Std_Internal_List_getEntry_x21___redArg___closed__3 = _init_l_Std_Internal_List_getEntry_x21___redArg___closed__3();
-lean_mark_persistent(l_Std_Internal_List_getEntry_x21___redArg___closed__3);
-l_Std_Internal_List_getValueCast_x21___redArg___closed__3 = _init_l_Std_Internal_List_getValueCast_x21___redArg___closed__3();
-lean_mark_persistent(l_Std_Internal_List_getValueCast_x21___redArg___closed__3);
+res = initialize_Init_Data_Bool(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_ByCases(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_Count(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_Erase(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_Find(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_MinMax(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_Pairwise(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_Sublist(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Prod(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Omega(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.Data.String.Slice
+import Init.Data.Iterators.Consumers.Collect  -- shake: keep (used in verso)
 
 set_option doc.verso true
 
@@ -539,88 +540,6 @@ Examples:
 -/
 @[inline, expose] def back (s : String) : Char :=
   s.toSlice.back
-
-theorem Pos.ofToSlice_ne_endPos {s : String} {p : s.toSlice.Pos}
-    (h : p ≠ s.toSlice.endPos) : ofToSlice p ≠ s.endPos := by
-  rwa [ne_eq, ← Pos.toSlice_inj, Slice.Pos.toSlice_ofToSlice, ← endPos_toSlice]
-
-@[inline]
-def Internal.toSliceWithProof {s : String} :
-    { p : s.toSlice.Pos // p ≠ s.toSlice.endPos } → { p : s.Pos // p ≠ s.endPos } :=
-  fun ⟨p, h⟩ => ⟨Pos.ofToSlice p, Pos.ofToSlice_ne_endPos h⟩
-
-/--
-Creates an iterator over all valid positions within {name}`s`.
-
-Examples
- * {lean}`("abc".positions.map (fun ⟨p, h⟩ => p.get h) |>.toList) = ['a', 'b', 'c']`
- * {lean}`("abc".positions.map (·.val.offset.byteIdx) |>.toList) = [0, 1, 2]`
- * {lean}`("ab∀c".positions.map (fun ⟨p, h⟩ => p.get h) |>.toList) = ['a', 'b', '∀', 'c']`
- * {lean}`("ab∀c".positions.map (·.val.offset.byteIdx) |>.toList) = [0, 1, 2, 5]`
--/
-@[inline]
-def positions (s : String) :=
-  (s.toSlice.positions.map Internal.toSliceWithProof : Std.Iter { p : s.Pos // p ≠ s.endPos })
-
-/--
-Creates an iterator over all characters (Unicode code points) in {name}`s`.
-
-Examples:
- * {lean}`"abc".chars.toList = ['a', 'b', 'c']`
- * {lean}`"ab∀c".chars.toList = ['a', 'b', '∀', 'c']`
--/
-@[inline]
-def chars (s : String) :=
-  (s.toSlice.chars : Std.Iter Char)
-
-/--
-Creates an iterator over all valid positions within {name}`s`, starting from the last valid
-position and iterating towards the first one.
-
-Examples
- * {lean}`("abc".revPositions.map (fun ⟨p, h⟩ => p.get h) |>.toList) = ['c', 'b', 'a']`
- * {lean}`("abc".revPositions.map (·.val.offset.byteIdx) |>.toList) = [2, 1, 0]`
- * {lean}`("ab∀c".revPositions.map (fun ⟨p, h⟩ => p.get h) |>.toList) = ['c', '∀', 'b', 'a']`
- * {lean}`("ab∀c".toSlice.revPositions.map (·.val.offset.byteIdx) |>.toList) = [5, 2, 1, 0]`
--/
-@[inline]
-def revPositions (s : String) :=
-  (s.toSlice.revPositions.map Internal.toSliceWithProof : Std.Iter { p : s.Pos // p ≠ s.endPos })
-
-/--
-Creates an iterator over all characters (Unicode code points) in {name}`s`, starting from the end
-of the slice and iterating towards the start.
-
-Example:
- * {lean}`"abc".revChars.toList = ['c', 'b', 'a']`
- * {lean}`"ab∀c".revChars.toList = ['c', '∀', 'b', 'a']`
--/
-@[inline]
-def revChars (s : String) :=
-  (s.toSlice.revChars : Std.Iter Char)
-
-/--
-Creates an iterator over all bytes in {name}`s`.
-
-Examples:
- * {lean}`"abc".byteIterator.toList = [97, 98, 99]`
- * {lean}`"ab∀c".byteIterator.toList = [97, 98, 226, 136, 128, 99]`
--/
-@[inline]
-def byteIterator (s : String) :=
-  (s.toSlice.bytes : Std.Iter UInt8)
-
-/--
-Creates an iterator over all bytes in {name}`s`, starting from the last one and iterating towards
-the first one.
-
-Examples:
- * {lean}`"abc".revBytes.toList = [99, 98, 97]`
- * {lean}`"ab∀c".revBytes.toList = [99, 128, 136, 226, 98, 97]`
--/
-@[inline]
-def revBytes (s : String) :=
-  (s.toSlice.revBytes : Std.Iter UInt8)
 
 /--
 Creates an iterator over all lines in {name}`s` with the line ending characters `\r\n` or `\n` being

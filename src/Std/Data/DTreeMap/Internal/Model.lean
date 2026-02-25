@@ -8,6 +8,8 @@ module
 prelude
 public import Std.Data.DTreeMap.Internal.WF.Defs
 public import Std.Data.DTreeMap.Internal.Cell
+import Init.Data.Nat.Linear
+import Init.Omega
 
 @[expose] public section
 
@@ -1009,6 +1011,7 @@ theorem getEntryGT?_eq_getEntryGT?ₘ [Ord α] (k : α) (t : Impl α β) :
     getEntryGT? k t = getEntryGT?ₘ k t := by
   rw [getEntryGT?_eq_getEntryGT?ₘ', getEntryGT?ₘ', getEntryGT?ₘ, explore_eq_applyPartition] <;> simp
 
+set_option backward.whnf.reducibleClassField false in
 theorem getEntryLT?_eq_getEntryGT?_reverse [o : Ord α] [TransOrd α] {t : Impl α β} {k : α} :
     getEntryLT? k t = @getEntryGT? α β o.opposite k t.reverse := by
   rw [getEntryLT?, @getEntryGT?.eq_def, Ord.opposite]
@@ -1016,6 +1019,7 @@ theorem getEntryLT?_eq_getEntryGT?_reverse [o : Ord α] [TransOrd α] {t : Impl 
     simp only [*, getEntryLT?.go, reverse, getEntryGT?.go, OrientedCmp.eq_swap (b := k),
       Ordering.swap]
 
+set_option backward.whnf.reducibleClassField false in
 theorem getEntryLE?_eq_getEntryGE?_reverse [o : Ord α] [TransOrd α] {t : Impl α β} {k : α} :
     getEntryLE? k t = @getEntryGE? α β o.opposite k t.reverse := by
   rw [getEntryLE?, @getEntryGE?.eq_def, Ord.opposite]

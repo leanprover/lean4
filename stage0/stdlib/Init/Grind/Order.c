@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Grind.Order
-// Imports: public import Init.Grind.Ordered.Ring import Init.Grind.Ring
+// Imports: public import Init.Grind.Ordered.Ring import Init.Data.Int.LemmasAux import Init.Ext import Init.Grind.Ordered.Order import Init.Omega
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -14,7 +14,10 @@
 extern "C" {
 #endif
 lean_object* initialize_Init_Grind_Ordered_Ring(uint8_t builtin);
-lean_object* initialize_Init_Grind_Ring(uint8_t builtin);
+lean_object* initialize_Init_Data_Int_LemmasAux(uint8_t builtin);
+lean_object* initialize_Init_Ext(uint8_t builtin);
+lean_object* initialize_Init_Grind_Ordered_Order(uint8_t builtin);
+lean_object* initialize_Init_Omega(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Grind_Order(uint8_t builtin) {
 lean_object * res;
@@ -23,7 +26,16 @@ _G_initialized = true;
 res = initialize_Init_Grind_Ordered_Ring(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Grind_Ring(builtin);
+res = initialize_Init_Data_Int_LemmasAux(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Ext(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Grind_Ordered_Order(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

@@ -7,12 +7,20 @@ module
 
 prelude
 import all Init.Data.Nat.Bitwise.Basic
-public import Init.Data.Int.DivMod
 import all Init.Data.Int.DivMod
 import all Init.Data.BitVec.Basic
-public import Init.Data.BitVec.Decidable
 public import Init.Data.BitVec.Folds
-import Init.BinderPredicates
+public import Init.BinderPredicates
+public import Init.Data.BitVec.Lemmas
+public import Init.Data.Nat.Lemmas
+import Init.ByCases
+import Init.Data.BitVec.Bootstrap
+import Init.Data.BitVec.Decidable
+import Init.Data.Int.Pow
+import Init.Data.Nat.Div.Lemmas
+import Init.Data.Nat.Mod
+import Init.Data.Nat.Simproc
+import Init.TacticsExtra
 
 @[expose] public section
 
@@ -2184,6 +2192,7 @@ def uppcRec {w} (x : BitVec w) (s : Nat) (hs : s < w) : Bool :=
   | 0 => x.msb
   | i + 1 =>  x[w - 1 - i] || uppcRec x i (by omega)
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The unsigned parallel prefix of `x` at `s` is `true` if and only if x interpreted
   as a natural number is greater or equal than `2 ^ (w - 1 - (s - 1))`. -/
 @[simp]
@@ -2233,7 +2242,7 @@ def aandRec (x y : BitVec w) (s : Nat) (hs : s < w) : Bool :=
 -/
 def resRec (x y : BitVec w) (s : Nat) (hs : s < w) (hslt : 0 < s) : Bool :=
   match hs0 : s with
-  | 0 => by omega
+  | 0 => False.elim (by omega)
   | s' + 1 =>
     match hs' : s' with
     | 0 => aandRec x y 1 (by omega)

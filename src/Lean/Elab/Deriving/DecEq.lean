@@ -14,6 +14,7 @@ import Lean.Meta.NatTable
 import Lean.Meta.Constructions.CtorIdx
 import Lean.Meta.Constructions.CasesOnSameCtor
 import Lean.Meta.SameCtorUtils
+import Init.Data.Array.OfFn
 
 namespace Lean.Elab.Deriving.DecEq
 open Lean.Parser.Term

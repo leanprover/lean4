@@ -1,9 +1,13 @@
 #!/usr/bin/env bash
-source ../../common.sh
+source ../env_test.sh
+source "$TEST_DIR/util.sh"
 
 # IO.Process.exit (used by the file worker) seems to be incompatible with LSAN
 # TODO: investigate or work around
 export ASAN_OPTIONS=detect_leaks=0
 
-exec_capture lean -Dlinter.all=false --run run.lean "$f"
-diff_produced
+exec_capture "$1" \
+  lean -Dlinter.all=false --run run_test.lean "$1"
+
+check_exit "$1"
+check_out "$1"

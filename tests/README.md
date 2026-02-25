@@ -33,6 +33,8 @@ Benchmarks belonging to the old framework are not included in this description.
 - `compile_bench`:
   Benchmarks that compile lean files and measure the execution of the resulting binary,
   as well as optionally run the same lean file through the interpreter.
+- `docparse`:
+  Docstring parsing tests.
 - `elab`:
   Tests that elaborate lean files without executing them, verifying the resulting output.
 - `elab_fail`:

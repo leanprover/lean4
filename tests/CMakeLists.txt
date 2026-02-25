@@ -232,20 +232,6 @@ foreach(T ${LEANPKGTESTS})
   endif()
 endforeach(T)
 
-# LEAN DOCSTRING PARSER TESTS
-file(GLOB_RECURSE LEANTESTS "${LEAN_SOURCE_DIR}/../tests/lean/docparse/*_[0-9][0-9][0-9][0-9]")
-foreach(T ${LEANTESTS})
-  if(NOT T MATCHES "\\.#" AND NOT T MATCHES "run.lean")
-    get_filename_component(T_NAME ${T} NAME)
-    cmake_path(RELATIVE_PATH T BASE_DIRECTORY ${LEAN_SOURCE_DIR}/.. OUTPUT_VARIABLE T_PATH)
-    add_test(
-      NAME "${T_PATH}"
-      WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/docparse"
-      COMMAND bash -c "${TEST_VARS} ./test_single.sh ${T_NAME}"
-    )
-  endif()
-endforeach(T)
-
 # Create a lake test for each test and examples subdirectory of `lake`
 # which contains a `test.sh` file, excluding the following test(s):
 # bootstrap: too slow
@@ -283,6 +269,7 @@ set_tests_properties(lint.py PROPERTIES RUN_SERIAL TRUE)
 add_test_pile(../doc/examples *.lean)
 add_test_pile(compile *.lean BENCH PART2)
 add_test_pile(compile_bench *.lean BENCH PART2)
+add_test_pile(docparse *.txt)
 add_test_pile(elab *.lean)
 add_test_pile(elab_bench *.lean BENCH PART2)
 add_test_pile(elab_fail *.lean)

@@ -7,10 +7,60 @@ module
 
 prelude
 public import Lean.Compiler.LCNF.PassManager
-import Lean.Compiler.LCNF.Internalize
 import Init.While
-import Lean.Compiler.LCNF.PrettyPrinter
 
+/-!
+This pass expands pairs of reset-reuse instructions into explicit hot and cold paths. We do this on
+the LCNF level rather than letting the backend do it because we can apply domain specific
+optimizations at this point in time.
+
+Whenever we encounter a `let token := reset nfields orig; k`, we create code of the shape (not
+showing reference counting instructions):
+```
+jp resetjp token isShared :=
+  k
+cases isShared orig with
+  | false -> jmp resetjp orig true
+  | true -> jmp resetjp box(0) false
+```
+Then within the join point body `k` we turn `dec` instructions on `token` into `del` and expand
+`let final := reuse token arg; k'` into another join point:
+```
+jp reusejp final :=
+  k'
+cases isShared with
+  | false -> jmp reusejp token
+  | true ->
+    let x := alloc args
+    jmp reusejp x
+```
+
+In addition to this we perform optimizations specific to the hot path for both the `resetjp` and
+`reusejp`. For the former, we will frequently encounter the pattern:
+```
+let x_0 = proj[0] orig
+inc x_0
+...
+let x_i = proj[i] orig
+inc x_i
+let token := reset nfields orig
+```
+On the hot path we do not free `orig`, thus there is no need to increment the reference counts of
+the projections because the reference coming from `orig` will keep all of the projections alive
+naturally (a form of "dynamic derived borrows" if you wish). On the cold path the reference counts
+still have to happen though.
+
+For `resetjp` we frequently encounter the pattern:
+```
+let final := reuse token args
+set final[0] := x0
+...
+set final[i] := xi
+```
+On the hot path we know that `token` and `orig` refer to the same value. Thus, if we can detect that
+one of the `xi` is of the shape `let xi := proj[i] orig`, we can omit the store on the hot path.
+Just like with `reusejp` on the cold path we have to perform all the stores.
+-/
 
 namespace Lean.Compiler.LCNF
 
@@ -63,10 +113,6 @@ def mkIf (discr : FVarId) (discrType : Expr) (resultType : Expr) (t e : Code .im
     .ctorAlt { name := ``Bool.true, cidx := 1, size := 0, usize := 0, ssize := 0 } t,
   ]
 
-/--
-Change all `sets` such that they affect `targetId` instead of whatever variable they are currently
-affecting.
--/
 def remapSets (targetId : FVarId) (sets : Array (CodeDecl .impure)) :
     CompilerM (Array (CodeDecl .impure)) :=
   return sets.map fun
@@ -117,9 +163,6 @@ def partitionSelfSets (selfId : FVarId) (sets : Array (CodeDecl .impure)) :
 
   return (selfSets, necessarySets)
 
-/--
-Collect the chain of sets affecting `target` that occur in a chain at the beginning of `k`.
--/
 def collectSucceedingSets (target : FVarId) (k : Code .impure) :
     CompilerM (Array (CodeDecl .impure) × Code .impure) := do
   let mut sets := #[]
@@ -142,20 +185,20 @@ Expand the matching `reuse`/`dec` for the allocation in `origAllocId` whose `res
 `resetTokenId`.
 -/
 partial def processResetCont (resetTokenId : FVarId) (code : Code .impure) (origAllocId : FVarId)
-    (isSharedId : FVarId) : CompilerM (Code .impure) := do
+    (isSharedId : FVarId) (currentRetType : Expr) : CompilerM (Code .impure) := do
   match code with
   | .dec y n _ _ k =>
     if resetTokenId == y then
       assert! n == 1 -- n must be one since `resetToken := reset ...`
       return .del resetTokenId k
     else
-      let k ← processResetCont resetTokenId k origAllocId isSharedId
+      let k ← processResetCont resetTokenId k origAllocId isSharedId currentRetType
       return code.updateCont! k
   | .let decl k =>
     match decl.value with
     | .reuse y c u xs =>
       if resetTokenId != y then
-        let k ← processResetCont resetTokenId k origAllocId isSharedId
+        let k ← processResetCont resetTokenId k origAllocId isSharedId currentRetType
         return code.updateCont! k
 
       let (succeedingSets, k) ← collectSucceedingSets decl.fvarId k
@@ -168,29 +211,27 @@ partial def processResetCont (resetTokenId : FVarId) (code : Code .impure) (orig
         type := decl.type,
         borrow := false
       }
-      -- TODO
-      let todoType := tobject
-      let contJp ← mkFunDecl (← mkFreshBinderName `reusejp) todoType #[param] k
+      let contJp ← mkFunDecl (← mkFreshBinderName `reusejp) currentRetType #[param] k
 
       let slowPath ← mkSlowPath decl c xs contJp.fvarId selfSets
       let fastPath ← mkFastPath resetTokenId c u xs contJp.fvarId origAllocId
 
       eraseLetDecl decl
 
-      let reuse ← mkIf isSharedId uint8 todoType slowPath fastPath
+      let reuse ← mkIf isSharedId uint8 currentRetType slowPath fastPath
       return .jp contJp reuse
     | _ =>
-      let k ← processResetCont resetTokenId k origAllocId isSharedId
+      let k ← processResetCont resetTokenId k origAllocId isSharedId currentRetType
       return code.updateCont! k
   | .cases cs =>
-    return code.updateAlts! (← cs.alts.mapMonoM (·.mapCodeM (processResetCont resetTokenId · origAllocId isSharedId)))
+    return code.updateAlts! (← cs.alts.mapMonoM (·.mapCodeM (processResetCont resetTokenId · origAllocId isSharedId cs.resultType)))
   | .jp decl k =>
-    let decl ← decl.updateValue (← processResetCont resetTokenId decl.value origAllocId isSharedId)
-    let k ← processResetCont resetTokenId k origAllocId isSharedId
+    let decl ← decl.updateValue (← processResetCont resetTokenId decl.value origAllocId isSharedId decl.type)
+    let k ← processResetCont resetTokenId k origAllocId isSharedId currentRetType
     return code.updateFun! decl k
   | .uset (k := k) .. | .sset (k := k) .. | .inc (k := k) .. | .setTag (k := k) ..
   | .del (k := k) .. | .oset (k := k) .. =>
-    let k ← processResetCont resetTokenId k origAllocId isSharedId
+    let k ← processResetCont resetTokenId k origAllocId isSharedId currentRetType
     return code.updateCont! k
   | .jmp .. | .return .. | .unreach .. => return code
 where
@@ -228,22 +269,22 @@ where
 Traverse `code` looking for reset-reuse pairs to expand while `ds` holds the instructions up to the
 last branching point.
 -/
-partial def Code.expandResetReuse (code : Code .impure) (ds : Array (CodeDecl .impure)) :
-    CompilerM (Code .impure) := do
+partial def Code.expandResetReuse (code : Code .impure) (ds : Array (CodeDecl .impure))
+    (currentRetType : Expr) : CompilerM (Code .impure) := do
   let collectAndGo (code : Code .impure) (ds : Array (CodeDecl .impure)) (k : Code .impure) :=
     let d := code.toCodeDecl!
-    k.expandResetReuse (ds.push d)
+    k.expandResetReuse (ds.push d) currentRetType
   match code with
   | .let decl k =>
     match decl.value with
     | .reset nFields origAllocId => expand ds decl nFields origAllocId k
     | _ => collectAndGo code ds k
   | .jp decl k =>
-    let value ← decl.value.expandResetReuse #[]
+    let value ← decl.value.expandResetReuse #[] decl.type
     let decl ← decl.updateValue value
-    k.expandResetReuse (ds.push (.jp decl))
+    k.expandResetReuse (ds.push (.jp decl)) currentRetType
   | .cases cs =>
-    let alts ← cs.alts.mapMonoM (·.mapCodeM (·.expandResetReuse #[]))
+    let alts ← cs.alts.mapMonoM (·.mapCodeM (·.expandResetReuse #[] cs.resultType))
     let code := code.updateAlts! alts
     return attachCodeDecls ds code
   | .uset (k := k) .. | .sset (k := k) .. | .inc (k := k) .. | .setTag (k := k) ..
@@ -259,21 +300,19 @@ where
       (origAllocId : FVarId) (k : Code .impure) : CompilerM (Code .impure) := do
     let (ds, mask) ← eraseProjIncFor nFields origAllocId ds
     let isSharedParam ← mkParam (← mkFreshBinderName `isShared) uint8 false
-    let k ← processResetCont decl.fvarId k origAllocId isSharedParam.fvarId
-    let k ← k.expandResetReuse #[]
+    let k ← processResetCont decl.fvarId k origAllocId isSharedParam.fvarId currentRetType
+    let k ← k.expandResetReuse #[] currentRetType
     let allocParam := {
       fvarId := decl.fvarId,
       binderName := decl.binderName,
       type := tobject,
       borrow := false
     }
-    -- TODO
-    let todoType := tobject
-    let resetJp ← mkFunDecl (← mkFreshBinderName `resetjp) todoType #[allocParam, isSharedParam] k
+    let resetJp ← mkFunDecl (← mkFreshBinderName `resetjp) currentRetType #[allocParam, isSharedParam] k
     let isSharedDecl ← mkLetDecl (← mkFreshBinderName `isSharedCheck) uint8 (.isShared origAllocId)
     let slowPath ← mkSlowPath origAllocId mask resetJp.fvarId isSharedDecl.fvarId
     let fastPath ← mkFastPath origAllocId mask resetJp.fvarId isSharedDecl.fvarId
-    let mut reset ← mkIf isSharedDecl.fvarId uint8 todoType slowPath fastPath
+    let mut reset ← mkIf isSharedDecl.fvarId uint8 currentRetType slowPath fastPath
     reset := .let isSharedDecl reset
     eraseLetDecl decl
     return attachCodeDecls ds (.jp resetJp reset)
@@ -315,7 +354,7 @@ end
 
 def Decl.expandResetReuse (decl : Decl .impure) : CompilerM (Decl .impure) := do
   if (← getConfig).resetReuse then
-    let value ← decl.value.mapCodeM (·.expandResetReuse #[])
+    let value ← decl.value.mapCodeM (·.expandResetReuse #[] decl.type)
     let decl := { decl with value }
     return decl
   else

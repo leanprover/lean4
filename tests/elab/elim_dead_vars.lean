@@ -33,6 +33,21 @@ trace: [Compiler.saveMono] size: 5
       | Option.some =>
         let _x.2 := 0;
         return _x.2
+[Compiler.pushProj] size: 5
+    def isNone @&x : UInt8 :=
+      cases x : UInt8
+      | Option.none =>
+        let _x.1 := 1;
+        return _x.1
+      | Option.some =>
+        let _x.2 := 0;
+        return _x.2
+[Compiler.pushProj] size: 3
+    def isNone._boxed x : tagged :=
+      let res := isNone x;
+      dec x;
+      let r := box res;
+      return r
 -/
 #guard_msgs in
 set_option trace.Compiler.saveMono true in

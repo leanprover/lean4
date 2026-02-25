@@ -379,6 +379,9 @@ def PostCond.entails (p q : PostCond α ps) : Prop :=
 @[inherit_doc PostCond.entails]
 scoped infixr:25 " ⊢ₚ " => PostCond.entails
 
+theorem PostCond.entails.mk {P Q : PostCond α ps} (h₁ : ∀ a, P.1 a ⊢ₛ Q.1 a) (h₂ : P.2 ⊢ₑ Q.2) : P ⊢ₚ Q :=
+  ⟨h₁, h₂⟩
+
 @[refl, simp]
 theorem PostCond.entails.refl (Q : PostCond α ps) : Q ⊢ₚ Q := ⟨fun a => SPred.entails.refl (Q.1 a), ExceptConds.entails.refl Q.2⟩
 theorem PostCond.entails.rfl {Q : PostCond α ps} : Q ⊢ₚ Q := refl Q

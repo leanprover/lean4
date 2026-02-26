@@ -2111,11 +2111,10 @@ private def isDefEqApp (t s : Expr) : MetaM Bool := do
   else
     isDefEqOnFailure t s
 
-@[inline] private def cachedUnitLike? (e : Expr) : MetaM (Option Bool) := do
-  return (← get).cache.isUnitLike.find? (← mkExprConfigCacheKey e)
+@[inline] private def cachedUnitLike? (key : ExprConfigCacheKey) : MetaM (Option Bool) := do
+  return (← get).cache.isUnitLike.find? key
 
-private def cacheUnitLike (e : Expr) (b : Bool) : MetaM Bool := do
-  let key ← mkExprConfigCacheKey e
+private def cacheUnitLike (key : ExprConfigCacheKey) (b : Bool) : MetaM Bool := do
   modify fun s => { s with cache.isUnitLike := s.cache.isUnitLike.insert key b }
   return b
 
@@ -2141,13 +2140,14 @@ private partial def isUnitLikeType (e : Expr) : MetaM Bool :=
 -/
 private def isDefEqUnitLike (t : Expr) (s : Expr) : MetaM Bool := do
   let tType  ← inferType t
-    match (← cachedUnitLike? tType) with
-      | some false => return false
-      | some true => Meta.isExprDefEqAux tType (← inferType s)
-      | none => cacheUnitLike tType (← do
-        let isUnit ← isUnitLikeType tType
-        if !isUnit then return false
-        Meta.isExprDefEqAux tType (← inferType s))
+  let key ← mkExprConfigCacheKey tType
+  match (← cachedUnitLike? key) with
+    | some false => return false
+    | some true => Meta.isExprDefEqAux tType (← inferType s)
+    | none => cacheUnitLike key <| ← do
+      let isUnit ← isUnitLikeType tType
+      if !isUnit then return false
+      Meta.isExprDefEqAux tType (← inferType s)
 
 /--
   The `whnf` procedure has support for unfolding class projections when the

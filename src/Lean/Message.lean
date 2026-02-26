@@ -68,8 +68,12 @@ structure NamingContext where
 
 /-- Structured result of a trace node action, set by `withTraceNode` and `withTraceNodeBefore`. -/
 inductive TraceResult where
+  /-- The traced action succeeded (✅️ checkEmoji). -/
   | success
+  /-- The traced action failed (❌️ crossEmoji). -/
   | failure
+  /-- An exception was thrown during the traced action (💥️ bombEmoji). -/
+  | error
   deriving Inhabited, BEq, Repr
 
 structure TraceData where

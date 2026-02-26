@@ -393,7 +393,9 @@ def withTraceNodeBefore [MonadRef m] [AddMessageContext m] [MonadOptions m]
     (msg : Unit → m MessageData) (k : m α) (collapsed := true) (tag := "")
     (mkResult? : Except ε α → Option TraceResult := fun res =>
       let emoji := ExceptToEmoji.toEmoji res
-      if emoji == checkEmoji then some .success else some .failure) : m α := do
+      if emoji == checkEmoji then some .success
+      else if emoji == bombEmoji then some .error
+      else some .failure) : m α := do
   let opts ← getOptions
   if !opts.hasTrace then
     return (← k)

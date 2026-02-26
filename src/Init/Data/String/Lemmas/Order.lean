@@ -106,6 +106,22 @@ theorem Pos.le_next {s : String} {p : s.Pos} {h} : p ≤ p.next h :=
   Std.le_of_lt (by simp)
 
 @[simp]
+theorem Slice.Pos.ne_next {s : Slice} {p : s.Pos} {h} : p ≠ p.next h :=
+  Std.ne_of_lt (by simp)
+
+@[simp]
+theorem Pos.ne_next {s : String} {p : s.Pos} {h} : p ≠ p.next h :=
+  Std.ne_of_lt (by simp)
+
+@[simp]
+theorem Slice.Pos.next_ne {s : Slice} {p : s.Pos} {h} : p.next h ≠ p :=
+  Ne.symm (by simp)
+
+@[simp]
+theorem Pos.next_ne {s : String} {p : s.Pos} {h} : p.next h ≠ p :=
+  Ne.symm (by simp)
+
+@[simp]
 theorem Slice.Pos.next_ne_startPos {s : Slice} {p : s.Pos} {h} :
     p.next h ≠ s.startPos :=
   ne_startPos_of_lt lt_next

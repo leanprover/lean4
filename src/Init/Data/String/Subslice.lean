@@ -76,6 +76,15 @@ def toString {s : Slice} (sl : s.Subslice) : String :=
 instance {s : Slice} : ToString s.Subslice where
   toString
 
+@[simp]
+theorem copy_eq {s : Slice} {sl : s.Subslice} : sl.copy = sl.toSlice.copy := (rfl)
+
+@[simp]
+theorem toString_eq {s : Slice} {sl : s.Subslice} : sl.toString = sl.toSlice.copy := (rfl)
+
+@[simp]
+theorem toStringToString_eq {s : Slice} {sl : s.Subslice} : ToString.toString sl = sl.toSlice.copy := (rfl)
+
 end Subslice
 
 /--
@@ -129,6 +138,10 @@ theorem startInclusive_subsliceFrom {s : Slice} {newStart : s.Pos} :
 @[simp]
 theorem endExclusive_subsliceFrom {s : Slice} {newStart : s.Pos} :
     (s.subsliceFrom newStart).endExclusive = s.endPos := (rfl)
+
+@[simp]
+theorem subslice_endPos {s : Slice} {newStart : s.Pos} :
+    s.subslice newStart s.endPos (Slice.Pos.le_endPos _) = s.subsliceFrom newStart := (rfl)
 
 /-- The entire slice, as a subslice of itself. -/
 @[inline]

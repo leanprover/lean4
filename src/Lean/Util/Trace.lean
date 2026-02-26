@@ -273,7 +273,7 @@ The `cls`, `collapsed`, and `tag` arguments are forwarded to the constructor of 
 @[inline]
 def withTraceNode [always : MonadAlwaysExcept ε m] [MonadLiftT BaseIO m] (cls : Name)
     (msg : Except ε α → m MessageData) (k : m α) (collapsed := true) (tag := "")
-    (result? : Option TraceResult := none) : m α := do
+    (mkResult? : Except ε α → Option TraceResult := fun _ => none) : m α := do
   let opts ← getOptions
   if !opts.hasTrace then
     return (← k)
@@ -294,7 +294,7 @@ where
       return (← MonadExcept.ofExcept res)
     let ref ← getRef
     let mut m ← try msg res catch _ => pure m!"<exception thrown while producing trace node message>"
-    let mut data : TraceData := { cls, collapsed, tag, result? }
+    let mut data : TraceData := { cls, collapsed, tag, result? := mkResult? res }
     if trace.profiler.get opts then
       data := { data with startTime := start, stopTime := stop }
     addTraceNode oldTraces data ref m
@@ -391,7 +391,9 @@ TODO: find better name for this function.
 def withTraceNodeBefore [MonadRef m] [AddMessageContext m] [MonadOptions m]
     [always : MonadAlwaysExcept ε m] [MonadLiftT BaseIO m] [ExceptToEmoji ε α] (cls : Name)
     (msg : Unit → m MessageData) (k : m α) (collapsed := true) (tag := "")
-    (result? : Option TraceResult := none) : m α := do
+    (mkResult? : Except ε α → Option TraceResult := fun res =>
+      let emoji := ExceptToEmoji.toEmoji res
+      if emoji == checkEmoji then some .success else some .failure) : m α := do
   let opts ← getOptions
   if !opts.hasTrace then
     return (← k)
@@ -415,10 +417,7 @@ where
       return (← MonadExcept.ofExcept res)
     let emoji := ExceptToEmoji.toEmoji res
     let mut msg := m!"{emoji} {msg}"
-    let result? := result?.orElse fun _ =>
-      if emoji == checkEmoji then some .success
-      else some .failure
-    let mut data : TraceData := { cls, collapsed, tag, result? }
+    let mut data : TraceData := { cls, collapsed, tag, result? := mkResult? res }
     if trace.profiler.get opts then
       data := { data with startTime := start, stopTime := stop }
     addTraceNode oldTraces data ref msg

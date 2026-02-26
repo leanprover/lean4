@@ -1549,6 +1549,16 @@ def elabStructureCommand : InductiveElabDescr where
                     if fieldInfo.kind.isInCtor then
                       enableRealizationsForConst fieldInfo.declName
                   if view.isClass then
+                    -- Set implicitReducible on subobject projections to class parents.
+                    -- mkProjections defers reducibility to addParentInstances, but
+                    -- addParentInstances only handles direct parents. Subobject fields
+                    -- for non-direct parents (grandparents promoted to constructor
+                    -- subobjects during diamond flattening) also need implicitReducible
+                    -- to be unfoldable at .instances transparency.
+                    for fieldInfo in fieldInfos do
+                      if let .subobject parentName := fieldInfo.kind then
+                        if isClass (← getEnv) parentName then
+                          setReducibilityStatus fieldInfo.declName .implicitReducible
                     addParentInstances parentInfos
                   -- Add field docstrings here (after @[class] attribute is applied)
                   -- so that Verso docstrings can use the class.

@@ -3774,4 +3774,28 @@ theorem get_mem : ∀ (l : List α) n, get l n ∈ l
 theorem mem_iff_get {a} {l : List α} : a ∈ l ↔ ∃ n, get l n = a :=
   ⟨get_of_mem, fun ⟨_, e⟩ => e ▸ get_mem ..⟩
 
+/-! ### `intercalate` -/
+
+@[simp]
+theorem intercalate_nil {ys : List α} : ys.intercalate [] = [] := rfl
+
+@[simp]
+theorem intercalate_singleton {ys xs : List α} : ys.intercalate [xs] = xs := by
+  simp [intercalate]
+
+@[simp]
+theorem intercalate_cons_cons {ys l l' : List α} {zs : List (List α)} :
+    ys.intercalate (l :: l' :: zs) = l ++ ys ++ ys.intercalate (l' :: zs) := by
+  simp [intercalate]
+
+@[simp]
+theorem intercalate_cons_cons_left {ys l : List α} {x : α} {zs : List (List α)} :
+    ys.intercalate ((x :: l) :: zs) = x :: ys.intercalate (l :: zs) := by
+  cases zs <;> simp
+
+theorem intercalate_cons_of_ne_nil {ys l : List α} {zs : List (List α)} (h : zs ≠ []) :
+    ys.intercalate (l :: zs) = l ++ ys ++ ys.intercalate zs :=
+  match zs, h with
+  | l'::zs, _ => by simp
+
 end List

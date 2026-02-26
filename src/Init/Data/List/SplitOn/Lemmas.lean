@@ -130,28 +130,6 @@ theorem splitOnP_first (h : ∀ x ∈ xs, p x = false) (sep : α)
   splitOnP_append_cons_of_forall_mem h sep hsep as
 
 @[simp]
-theorem intercalate_nil {sep : List α} : sep.intercalate [] = [] := rfl
-
-@[simp]
-theorem intercalate_singleton {sep xs : List α} : sep.intercalate [xs] = xs := by
-  simp [intercalate]
-
-@[simp]
-theorem intercalate_cons_cons {sep l l' : List α} {ls : List (List α)} :
-    sep.intercalate (l :: l' :: ls) = l ++ sep ++ sep.intercalate (l' :: ls) := by
-  simp [intercalate]
-
-@[simp]
-theorem intercalate_cons_cons_left {sep l : List α} {x : α} {ls : List (List α)} :
-    sep.intercalate ((x :: l) :: ls) = x :: sep.intercalate (l :: ls) := by
-  cases ls <;> simp
-
-theorem intercalate_cons_of_ne_nil {sep l : List α} {ls : List (List α)} (h : ls ≠ []) :
-    sep.intercalate (l :: ls) = l ++ sep ++ sep.intercalate ls :=
-  match ls, h with
-  | l'::ls, _ => by simp
-
-@[simp]
 theorem splitOn_eq_splitOnP [BEq α] {x : α} {xs : List α} : xs.splitOn x = xs.splitOnP (· == x) :=
   (rfl)
 

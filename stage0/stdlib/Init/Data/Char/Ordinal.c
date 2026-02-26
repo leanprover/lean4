@@ -26,6 +26,7 @@ uint32_t lean_uint32_of_nat(lean_object*);
 LEAN_EXPORT uint32_t l_Char_ofOrdinal(lean_object*);
 LEAN_EXPORT lean_object* l_Char_ofOrdinal___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Char_succ_x3f___closed__0___boxed__const__1;
+static lean_once_cell_t l_Char_succ_x3f___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Char_succ_x3f___closed__0;
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 uint32_t lean_uint32_add(uint32_t, uint32_t);
@@ -33,7 +34,7 @@ LEAN_EXPORT lean_object* l_Char_succ_x3f(uint32_t);
 LEAN_EXPORT lean_object* l_Char_succ_x3f___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Char_succMany_x3f(lean_object*, uint32_t);
 LEAN_EXPORT lean_object* l_Char_succMany_x3f___boxed(lean_object*, lean_object*);
-static lean_object* _init_l_Char_numSurrogates() {
+static lean_object* _init_l_Char_numSurrogates(void) {
 _start:
 {
 lean_object* x_1; 
@@ -41,7 +42,7 @@ x_1 = lean_unsigned_to_nat(2048u);
 return x_1;
 }
 }
-static lean_object* _init_l_Char_numCodePoints() {
+static lean_object* _init_l_Char_numCodePoints(void) {
 _start:
 {
 lean_object* x_1; 
@@ -115,7 +116,7 @@ x_3 = lean_box_uint32(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Char_succ_x3f___closed__0___boxed__const__1() {
+static lean_object* _init_l_Char_succ_x3f___closed__0___boxed__const__1(void) {
 _start:
 {
 uint32_t x_1; lean_object* x_2; 
@@ -124,7 +125,7 @@ x_2 = lean_box_uint32(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Char_succ_x3f___closed__0() {
+static lean_object* _init_l_Char_succ_x3f___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -169,7 +170,7 @@ return x_11;
 else
 {
 lean_object* x_12; 
-x_12 = l_Char_succ_x3f___closed__0;
+x_12 = lean_obj_once(&l_Char_succ_x3f___closed__0, &l_Char_succ_x3f___closed__0_once, _init_l_Char_succ_x3f___closed__0);
 return x_12;
 }
 }
@@ -297,8 +298,6 @@ l_Char_numCodePoints = _init_l_Char_numCodePoints();
 lean_mark_persistent(l_Char_numCodePoints);
 l_Char_succ_x3f___closed__0___boxed__const__1 = _init_l_Char_succ_x3f___closed__0___boxed__const__1();
 lean_mark_persistent(l_Char_succ_x3f___closed__0___boxed__const__1);
-l_Char_succ_x3f___closed__0 = _init_l_Char_succ_x3f___closed__0();
-lean_mark_persistent(l_Char_succ_x3f___closed__0);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

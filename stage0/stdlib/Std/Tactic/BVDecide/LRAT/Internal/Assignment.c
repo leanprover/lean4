@@ -310,7 +310,7 @@ lean_dec(x_4);
 return x_6;
 }
 }
-static uint8_t _init_l_Std_Tactic_BVDecide_LRAT_Internal_instInhabitedAssignment_default() {
+static uint8_t _init_l_Std_Tactic_BVDecide_LRAT_Internal_instInhabitedAssignment_default(void) {
 _start:
 {
 uint8_t x_1; 
@@ -318,7 +318,7 @@ x_1 = 0;
 return x_1;
 }
 }
-static uint8_t _init_l_Std_Tactic_BVDecide_LRAT_Internal_instInhabitedAssignment() {
+static uint8_t _init_l_Std_Tactic_BVDecide_LRAT_Internal_instInhabitedAssignment(void) {
 _start:
 {
 uint8_t x_1; 

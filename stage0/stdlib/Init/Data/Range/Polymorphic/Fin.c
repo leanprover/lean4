@@ -123,7 +123,7 @@ lean_ctor_set(x_4, 1, x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Fin_instLeast_x3fOfNatNat() {
+static lean_object* _init_l_Fin_instLeast_x3fOfNatNat(void) {
 _start:
 {
 lean_object* x_1; 

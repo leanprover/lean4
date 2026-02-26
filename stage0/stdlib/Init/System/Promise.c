@@ -35,7 +35,7 @@ LEAN_EXPORT uint8_t l_IO_Promise_isResolved___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_IO_Promise_isResolved___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_IO_Promise_isResolved(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_Promise_isResolved___boxed(lean_object*, lean_object*, lean_object*);
-static lean_object* _init_l___private_Init_System_Promise_0__IO_PromisePointed() {
+static lean_object* _init_l___private_Init_System_Promise_0__IO_PromisePointed(void) {
 _start:
 {
 return lean_box(0);

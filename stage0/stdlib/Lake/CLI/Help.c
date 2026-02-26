@@ -17,6 +17,7 @@ static const lean_string_object l_Lake_usage___closed__0_value = {.m_header = {.
 static const lean_object* l_Lake_usage___closed__0 = (const lean_object*)&l_Lake_usage___closed__0_value;
 extern lean_object* l_Lake_uiVersionString;
 lean_object* lean_string_append(lean_object*, lean_object*);
+static lean_once_cell_t l_Lake_usage___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lake_usage___closed__1;
 LEAN_EXPORT lean_object* l_Lake_usage;
 static const lean_string_object l___private_Lake_CLI_Help_0__Lake_newInitHelp___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 627, .m_capacity = 627, .m_length = 626, .m_data = "If you are using Lake through Elan (which is standard), you can create a\npackage with a specific Lean version via the `+` option.\n\nThe initial configuration and starter files are based on the template:\n\n  std                   library and executable; default\n  exe                   executable only\n  lib                   library only\n  math-lax              library only with a Mathlib dependency\n  math                  library with Mathlib standards for linting and workflows\n\nTemplates can be suffixed with `.lean` or `.toml` to produce a Lean or TOML\nversion of the configuration file, respectively. The default is TOML."};
@@ -178,7 +179,7 @@ static const lean_string_object l_Lake_help___closed__23_value = {.m_header = {.
 static const lean_object* l_Lake_help___closed__23 = (const lean_object*)&l_Lake_help___closed__23_value;
 LEAN_EXPORT lean_object* l_Lake_help(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_help___boxed(lean_object*);
-static lean_object* _init_l_Lake_usage___closed__1() {
+static lean_object* _init_l_Lake_usage___closed__1(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -188,11 +189,11 @@ x_3 = lean_string_append(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lake_usage() {
+static lean_object* _init_l_Lake_usage(void) {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lake_usage___closed__1;
+x_1 = lean_obj_once(&l_Lake_usage___closed__1, &l_Lake_usage___closed__1_once, _init_l_Lake_usage___closed__1);
 return x_1;
 }
 }
@@ -656,8 +657,6 @@ lean_dec_ref(res);
 res = initialize_Lake_Version(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lake_usage___closed__1 = _init_l_Lake_usage___closed__1();
-lean_mark_persistent(l_Lake_usage___closed__1);
 l_Lake_usage = _init_l_Lake_usage();
 lean_mark_persistent(l_Lake_usage);
 return lean_io_result_mk_ok(lean_box(0));

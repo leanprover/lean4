@@ -46,7 +46,7 @@ lean_object* lean_io_getenv(lean_object*);
 lean_object* l_System_SearchPath_parse(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getSearchPath(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getSearchPath___boxed(lean_object*, lean_object*);
-static lean_object* _init_l_Lake_sharedLibExt() {
+static lean_object* _init_l_Lake_sharedLibExt(void) {
 _start:
 {
 uint8_t x_1; 
@@ -173,7 +173,7 @@ lean_dec_ref(x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_Lake_sharedLibPathEnvVar() {
+static lean_object* _init_l_Lake_sharedLibPathEnvVar(void) {
 _start:
 {
 uint8_t x_1; 

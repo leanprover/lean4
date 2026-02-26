@@ -130,16 +130,17 @@ bool constructor_val::is_unsafe() const { return lean_constructor_val_is_unsafe(
 
 extern "C" object * lean_mk_recursor_val(object * n, object * lparams, object * type, object * all,
                                          object * nparams, object * nindices, object * nmotives, object * nminors,
-                                         object * rules, uint8 k, uint8 unsafe);
+                                         object * rules, uint8 k, uint8 unsafe, uint8 is_sort_poly);
 extern "C" uint8 lean_recursor_k(object * v);
 extern "C" uint8 lean_recursor_is_unsafe(object * v);
+extern "C" uint8 lean_recursor_is_sort_poly(object * v);
 
 recursor_val::recursor_val(name const & n, names const & lparams, expr const & type,
                            names const & all, unsigned nparams, unsigned nindices, unsigned nmotives,
-                           unsigned nminors, recursor_rules const & rules, bool k, bool is_unsafe):
+                           unsigned nminors, recursor_rules const & rules, bool k, bool is_unsafe, bool is_sort_poly):
     object_ref(lean_mk_recursor_val(n.to_obj_arg(), lparams.to_obj_arg(), type.to_obj_arg(), all.to_obj_arg(),
                                     nat(nparams).to_obj_arg(), nat(nindices).to_obj_arg(), nat(nmotives).to_obj_arg(),
-                                    nat(nminors).to_obj_arg(), rules.to_obj_arg(), k, is_unsafe)) {
+                                    nat(nminors).to_obj_arg(), rules.to_obj_arg(), k, is_unsafe, is_sort_poly)) {
 }
 
 name const & recursor_val::get_major_induct() const {
@@ -153,9 +154,9 @@ name const & recursor_val::get_major_induct() const {
     return const_name(*t);
 }
 
-
 bool recursor_val::is_k() const { return lean_recursor_k(to_obj_arg()); }
 bool recursor_val::is_unsafe() const { return lean_recursor_is_unsafe(to_obj_arg()); }
+bool recursor_val::is_sort_poly() const { return lean_recursor_is_sort_poly(to_obj_arg()); }
 
 bool declaration::is_unsafe() const {
     switch (kind()) {

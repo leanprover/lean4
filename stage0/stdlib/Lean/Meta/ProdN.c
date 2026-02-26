@@ -68,9 +68,11 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___00Lean_Meta_getProdFields_spec
 static const lean_string_object l_Lean_Meta_getProdFields___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 36, .m_capacity = 36, .m_length = 35, .m_data = "Internal error: Expected Prod, got "};
 static const lean_object* l_Lean_Meta_getProdFields___closed__0 = (const lean_object*)&l_Lean_Meta_getProdFields___closed__0_value;
 lean_object* l_Lean_stringToMessageData(lean_object*);
+static lean_once_cell_t l_Lean_Meta_getProdFields___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Meta_getProdFields___closed__1;
 static const lean_string_object l_Lean_Meta_getProdFields___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 10, .m_capacity = 10, .m_length = 9, .m_data = " of type "};
 static const lean_object* l_Lean_Meta_getProdFields___closed__2 = (const lean_object*)&l_Lean_Meta_getProdFields___closed__2_value;
+static lean_once_cell_t l_Lean_Meta_getProdFields___closed__3_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Meta_getProdFields___closed__3;
 static const lean_string_object l_Lean_Meta_getProdFields___closed__4_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 4, .m_capacity = 4, .m_length = 3, .m_data = "fst"};
 static const lean_object* l_Lean_Meta_getProdFields___closed__4 = (const lean_object*)&l_Lean_Meta_getProdFields___closed__4_value;
@@ -1362,7 +1364,7 @@ lean_dec_ref(x_2);
 return x_7;
 }
 }
-static lean_object* _init_l_Lean_Meta_getProdFields___closed__1() {
+static lean_object* _init_l_Lean_Meta_getProdFields___closed__1(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1371,7 +1373,7 @@ x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Meta_getProdFields___closed__3() {
+static lean_object* _init_l_Lean_Meta_getProdFields___closed__3(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1479,12 +1481,12 @@ return x_8;
 block_23:
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
-x_15 = l_Lean_Meta_getProdFields___closed__1;
+x_15 = lean_obj_once(&l_Lean_Meta_getProdFields___closed__1, &l_Lean_Meta_getProdFields___closed__1_once, _init_l_Lean_Meta_getProdFields___closed__1);
 x_16 = l_Lean_MessageData_ofExpr(x_1);
 x_17 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_17, 0, x_15);
 lean_ctor_set(x_17, 1, x_16);
-x_18 = l_Lean_Meta_getProdFields___closed__3;
+x_18 = lean_obj_once(&l_Lean_Meta_getProdFields___closed__3, &l_Lean_Meta_getProdFields___closed__3_once, _init_l_Lean_Meta_getProdFields___closed__3);
 x_19 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_19, 0, x_17);
 lean_ctor_set(x_19, 1, x_18);
@@ -1586,12 +1588,12 @@ return x_76;
 block_56:
 {
 lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; 
-x_48 = l_Lean_Meta_getProdFields___closed__1;
+x_48 = lean_obj_once(&l_Lean_Meta_getProdFields___closed__1, &l_Lean_Meta_getProdFields___closed__1_once, _init_l_Lean_Meta_getProdFields___closed__1);
 x_49 = l_Lean_MessageData_ofExpr(x_1);
 x_50 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_50, 0, x_48);
 lean_ctor_set(x_50, 1, x_49);
-x_51 = l_Lean_Meta_getProdFields___closed__3;
+x_51 = lean_obj_once(&l_Lean_Meta_getProdFields___closed__3, &l_Lean_Meta_getProdFields___closed__3_once, _init_l_Lean_Meta_getProdFields___closed__3);
 x_52 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_52, 0, x_50);
 lean_ctor_set(x_52, 1, x_51);
@@ -1675,10 +1677,6 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Range_Polymorphic_Iterators(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Meta_getProdFields___closed__1 = _init_l_Lean_Meta_getProdFields___closed__1();
-lean_mark_persistent(l_Lean_Meta_getProdFields___closed__1);
-l_Lean_Meta_getProdFields___closed__3 = _init_l_Lean_Meta_getProdFields___closed__3();
-lean_mark_persistent(l_Lean_Meta_getProdFields___closed__3);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

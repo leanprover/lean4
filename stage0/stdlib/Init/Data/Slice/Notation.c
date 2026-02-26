@@ -98,6 +98,7 @@ static const lean_object* l_Std___aux__Init__Data__Slice__Notation______macroRul
 static const lean_string_object l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__32_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 22, .m_capacity = 22, .m_length = 21, .m_data = "Roc.Sliceable.mkSlice"};
 static const lean_object* l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__32 = (const lean_object*)&l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__32_value;
 lean_object* l_String_toRawSubstring_x27(lean_object*);
+static lean_once_cell_t l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__33_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__33;
 static const lean_string_object l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__34_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 4, .m_capacity = 4, .m_length = 3, .m_data = "Roc"};
 static const lean_object* l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__34 = (const lean_object*)&l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__34_value;
@@ -127,6 +128,7 @@ static const lean_string_object l_Std___aux__Init__Data__Slice__Notation______ma
 static const lean_object* l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__43 = (const lean_object*)&l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__43_value;
 static const lean_string_object l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__44_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 22, .m_capacity = 22, .m_length = 21, .m_data = "Rcc.Sliceable.mkSlice"};
 static const lean_object* l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__44 = (const lean_object*)&l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__44_value;
+static lean_once_cell_t l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__45_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__45;
 static const lean_string_object l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__46_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 4, .m_capacity = 4, .m_length = 3, .m_data = "Rcc"};
 static const lean_object* l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__46 = (const lean_object*)&l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__46_value;
@@ -147,6 +149,7 @@ static const lean_string_object l_Std___aux__Init__Data__Slice__Notation______ma
 static const lean_object* l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__51 = (const lean_object*)&l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__51_value;
 static const lean_string_object l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__52_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 22, .m_capacity = 22, .m_length = 21, .m_data = "Ric.Sliceable.mkSlice"};
 static const lean_object* l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__52 = (const lean_object*)&l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__52_value;
+static lean_once_cell_t l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__53_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__53;
 static const lean_string_object l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__54_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 4, .m_capacity = 4, .m_length = 3, .m_data = "Ric"};
 static const lean_object* l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__54 = (const lean_object*)&l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__54_value;
@@ -167,6 +170,7 @@ static const lean_string_object l_Std___aux__Init__Data__Slice__Notation______ma
 static const lean_object* l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__59 = (const lean_object*)&l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__59_value;
 static const lean_string_object l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__60_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 22, .m_capacity = 22, .m_length = 21, .m_data = "Roo.Sliceable.mkSlice"};
 static const lean_object* l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__60 = (const lean_object*)&l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__60_value;
+static lean_once_cell_t l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__61_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__61;
 static const lean_string_object l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__62_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 4, .m_capacity = 4, .m_length = 3, .m_data = "Roo"};
 static const lean_object* l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__62 = (const lean_object*)&l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__62_value;
@@ -187,6 +191,7 @@ static const lean_string_object l_Std___aux__Init__Data__Slice__Notation______ma
 static const lean_object* l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__67 = (const lean_object*)&l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__67_value;
 static const lean_string_object l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__68_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 22, .m_capacity = 22, .m_length = 21, .m_data = "Rco.Sliceable.mkSlice"};
 static const lean_object* l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__68 = (const lean_object*)&l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__68_value;
+static lean_once_cell_t l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__69_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__69;
 static const lean_string_object l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__70_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 4, .m_capacity = 4, .m_length = 3, .m_data = "Rco"};
 static const lean_object* l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__70 = (const lean_object*)&l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__70_value;
@@ -207,6 +212,7 @@ static const lean_string_object l_Std___aux__Init__Data__Slice__Notation______ma
 static const lean_object* l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__75 = (const lean_object*)&l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__75_value;
 static const lean_string_object l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__76_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 22, .m_capacity = 22, .m_length = 21, .m_data = "Rio.Sliceable.mkSlice"};
 static const lean_object* l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__76 = (const lean_object*)&l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__76_value;
+static lean_once_cell_t l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__77_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__77;
 static const lean_string_object l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__78_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 4, .m_capacity = 4, .m_length = 3, .m_data = "Rio"};
 static const lean_object* l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__78 = (const lean_object*)&l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__78_value;
@@ -227,6 +233,7 @@ static const lean_string_object l_Std___aux__Init__Data__Slice__Notation______ma
 static const lean_object* l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__83 = (const lean_object*)&l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__83_value;
 static const lean_string_object l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__84_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 22, .m_capacity = 22, .m_length = 21, .m_data = "Roi.Sliceable.mkSlice"};
 static const lean_object* l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__84 = (const lean_object*)&l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__84_value;
+static lean_once_cell_t l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__85_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__85;
 static const lean_string_object l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__86_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 4, .m_capacity = 4, .m_length = 3, .m_data = "Roi"};
 static const lean_object* l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__86 = (const lean_object*)&l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__86_value;
@@ -247,6 +254,7 @@ static const lean_string_object l_Std___aux__Init__Data__Slice__Notation______ma
 static const lean_object* l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__91 = (const lean_object*)&l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__91_value;
 static const lean_string_object l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__92_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 22, .m_capacity = 22, .m_length = 21, .m_data = "Rci.Sliceable.mkSlice"};
 static const lean_object* l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__92 = (const lean_object*)&l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__92_value;
+static lean_once_cell_t l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__93_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__93;
 static const lean_string_object l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__94_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 4, .m_capacity = 4, .m_length = 3, .m_data = "Rci"};
 static const lean_object* l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__94 = (const lean_object*)&l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__94_value;
@@ -267,6 +275,7 @@ static const lean_string_object l_Std___aux__Init__Data__Slice__Notation______ma
 static const lean_object* l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__99 = (const lean_object*)&l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__99_value;
 static const lean_string_object l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__100_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 22, .m_capacity = 22, .m_length = 21, .m_data = "Rii.Sliceable.mkSlice"};
 static const lean_object* l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__100 = (const lean_object*)&l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__100_value;
+static lean_once_cell_t l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__101_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__101;
 static const lean_string_object l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__102_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 4, .m_capacity = 4, .m_length = 3, .m_data = "Rii"};
 static const lean_object* l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__102 = (const lean_object*)&l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__102_value;
@@ -293,7 +302,7 @@ lean_object* l_Lean_Syntax_node3(lean_object*, lean_object*, lean_object*, lean_
 lean_object* l_Lean_Syntax_node2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1(lean_object*, lean_object*, lean_object*);
-static lean_object* _init_l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__33() {
+static lean_object* _init_l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__33(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -302,7 +311,7 @@ x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__45() {
+static lean_object* _init_l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__45(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -311,7 +320,7 @@ x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__53() {
+static lean_object* _init_l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__53(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -320,7 +329,7 @@ x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__61() {
+static lean_object* _init_l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__61(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -329,7 +338,7 @@ x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__69() {
+static lean_object* _init_l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__69(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -338,7 +347,7 @@ x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__77() {
+static lean_object* _init_l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__77(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -347,7 +356,7 @@ x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__85() {
+static lean_object* _init_l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__85(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -356,7 +365,7 @@ x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__93() {
+static lean_object* _init_l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__93(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -365,7 +374,7 @@ x_2 = l_String_toRawSubstring_x27(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__101() {
+static lean_object* _init_l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__101(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -498,7 +507,7 @@ lean_dec(x_11);
 x_44 = l_Lean_SourceInfo_fromRef(x_41, x_34);
 lean_dec(x_41);
 x_45 = ((lean_object*)(l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__31));
-x_46 = l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__33;
+x_46 = lean_obj_once(&l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__33, &l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__33_once, _init_l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__33);
 x_47 = ((lean_object*)(l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__37));
 x_48 = l_Lean_addMacroScope(x_39, x_47, x_40);
 x_49 = ((lean_object*)(l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__40));
@@ -541,7 +550,7 @@ lean_dec(x_11);
 x_63 = l_Lean_SourceInfo_fromRef(x_60, x_32);
 lean_dec(x_60);
 x_64 = ((lean_object*)(l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__31));
-x_65 = l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__45;
+x_65 = lean_obj_once(&l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__45, &l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__45_once, _init_l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__45);
 x_66 = ((lean_object*)(l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__47));
 x_67 = l_Lean_addMacroScope(x_58, x_66, x_59);
 x_68 = ((lean_object*)(l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__50));
@@ -583,7 +592,7 @@ lean_dec(x_11);
 x_81 = l_Lean_SourceInfo_fromRef(x_79, x_30);
 lean_dec(x_79);
 x_82 = ((lean_object*)(l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__31));
-x_83 = l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__53;
+x_83 = lean_obj_once(&l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__53, &l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__53_once, _init_l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__53);
 x_84 = ((lean_object*)(l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__55));
 x_85 = l_Lean_addMacroScope(x_77, x_84, x_78);
 x_86 = ((lean_object*)(l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__58));
@@ -626,7 +635,7 @@ lean_dec(x_11);
 x_100 = l_Lean_SourceInfo_fromRef(x_97, x_28);
 lean_dec(x_97);
 x_101 = ((lean_object*)(l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__31));
-x_102 = l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__61;
+x_102 = lean_obj_once(&l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__61, &l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__61_once, _init_l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__61);
 x_103 = ((lean_object*)(l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__63));
 x_104 = l_Lean_addMacroScope(x_95, x_103, x_96);
 x_105 = ((lean_object*)(l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__66));
@@ -669,7 +678,7 @@ lean_dec(x_11);
 x_119 = l_Lean_SourceInfo_fromRef(x_116, x_26);
 lean_dec(x_116);
 x_120 = ((lean_object*)(l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__31));
-x_121 = l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__69;
+x_121 = lean_obj_once(&l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__69, &l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__69_once, _init_l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__69);
 x_122 = ((lean_object*)(l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__71));
 x_123 = l_Lean_addMacroScope(x_114, x_122, x_115);
 x_124 = ((lean_object*)(l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__74));
@@ -711,7 +720,7 @@ lean_dec(x_11);
 x_137 = l_Lean_SourceInfo_fromRef(x_135, x_24);
 lean_dec(x_135);
 x_138 = ((lean_object*)(l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__31));
-x_139 = l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__77;
+x_139 = lean_obj_once(&l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__77, &l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__77_once, _init_l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__77);
 x_140 = ((lean_object*)(l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__79));
 x_141 = l_Lean_addMacroScope(x_133, x_140, x_134);
 x_142 = ((lean_object*)(l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__82));
@@ -754,7 +763,7 @@ lean_dec(x_11);
 x_156 = l_Lean_SourceInfo_fromRef(x_153, x_22);
 lean_dec(x_153);
 x_157 = ((lean_object*)(l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__31));
-x_158 = l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__61;
+x_158 = lean_obj_once(&l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__61, &l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__61_once, _init_l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__61);
 x_159 = ((lean_object*)(l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__63));
 x_160 = l_Lean_addMacroScope(x_151, x_159, x_152);
 x_161 = ((lean_object*)(l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__66));
@@ -797,7 +806,7 @@ lean_dec(x_11);
 x_175 = l_Lean_SourceInfo_fromRef(x_172, x_20);
 lean_dec(x_172);
 x_176 = ((lean_object*)(l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__31));
-x_177 = l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__69;
+x_177 = lean_obj_once(&l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__69, &l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__69_once, _init_l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__69);
 x_178 = ((lean_object*)(l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__71));
 x_179 = l_Lean_addMacroScope(x_170, x_178, x_171);
 x_180 = ((lean_object*)(l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__74));
@@ -839,7 +848,7 @@ lean_dec(x_11);
 x_193 = l_Lean_SourceInfo_fromRef(x_191, x_17);
 lean_dec(x_191);
 x_194 = ((lean_object*)(l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__31));
-x_195 = l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__77;
+x_195 = lean_obj_once(&l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__77, &l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__77_once, _init_l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__77);
 x_196 = ((lean_object*)(l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__79));
 x_197 = l_Lean_addMacroScope(x_189, x_196, x_190);
 x_198 = ((lean_object*)(l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__82));
@@ -881,7 +890,7 @@ lean_dec(x_11);
 x_211 = l_Lean_SourceInfo_fromRef(x_209, x_15);
 lean_dec(x_209);
 x_212 = ((lean_object*)(l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__31));
-x_213 = l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__85;
+x_213 = lean_obj_once(&l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__85, &l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__85_once, _init_l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__85);
 x_214 = ((lean_object*)(l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__87));
 x_215 = l_Lean_addMacroScope(x_207, x_214, x_208);
 x_216 = ((lean_object*)(l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__90));
@@ -923,7 +932,7 @@ lean_dec(x_11);
 x_229 = l_Lean_SourceInfo_fromRef(x_227, x_13);
 lean_dec(x_227);
 x_230 = ((lean_object*)(l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__31));
-x_231 = l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__93;
+x_231 = lean_obj_once(&l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__93, &l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__93_once, _init_l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__93);
 x_232 = ((lean_object*)(l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__95));
 x_233 = l_Lean_addMacroScope(x_225, x_232, x_226);
 x_234 = ((lean_object*)(l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__98));
@@ -965,7 +974,7 @@ x_246 = 0;
 x_247 = l_Lean_SourceInfo_fromRef(x_245, x_246);
 lean_dec(x_245);
 x_248 = ((lean_object*)(l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__31));
-x_249 = l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__101;
+x_249 = lean_obj_once(&l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__101, &l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__101_once, _init_l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__101);
 x_250 = ((lean_object*)(l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__103));
 x_251 = l_Lean_addMacroScope(x_243, x_250, x_244);
 x_252 = ((lean_object*)(l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__106));
@@ -1003,24 +1012,6 @@ _G_initialized = true;
 res = initialize_Init_Data_Range_Polymorphic_PRange(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__33 = _init_l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__33();
-lean_mark_persistent(l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__33);
-l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__45 = _init_l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__45();
-lean_mark_persistent(l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__45);
-l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__53 = _init_l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__53();
-lean_mark_persistent(l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__53);
-l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__61 = _init_l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__61();
-lean_mark_persistent(l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__61);
-l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__69 = _init_l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__69();
-lean_mark_persistent(l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__69);
-l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__77 = _init_l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__77();
-lean_mark_persistent(l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__77);
-l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__85 = _init_l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__85();
-lean_mark_persistent(l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__85);
-l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__93 = _init_l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__93();
-lean_mark_persistent(l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__93);
-l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__101 = _init_l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__101();
-lean_mark_persistent(l_Std___aux__Init__Data__Slice__Notation______macroRules__term_____x5b___x5d__1___closed__101);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

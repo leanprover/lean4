@@ -110,6 +110,7 @@ static const lean_ctor_object l_Std_Internal_IO_Async_Interval_mk___auto__1___cl
 static const lean_ctor_object l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__4_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__4_value_aux_2),((lean_object*)&l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__3_value),LEAN_SCALAR_PTR_LITERAL(212, 140, 85, 215, 241, 69, 7, 118)}};
 static const lean_object* l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__4 = (const lean_object*)&l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__4_value;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
+static lean_once_cell_t l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__5_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__5;
 static const lean_string_object l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__6_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 19, .m_capacity = 19, .m_length = 18, .m_data = "tacticSeq1Indented"};
 static const lean_object* l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__6 = (const lean_object*)&l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__6_value;
@@ -131,8 +132,10 @@ static const lean_ctor_object l_Std_Internal_IO_Async_Interval_mk___auto__1___cl
 static const lean_ctor_object l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__11_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__11_value_aux_2),((lean_object*)&l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__10_value),LEAN_SCALAR_PTR_LITERAL(53, 158, 1, 232, 101, 200, 191, 197)}};
 static const lean_object* l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__11 = (const lean_object*)&l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__11_value;
 lean_object* l_Lean_mkAtom(lean_object*);
+static lean_once_cell_t l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__12_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__12;
 lean_object* lean_array_push(lean_object*, lean_object*);
+static lean_once_cell_t l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__13_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__13;
 static const lean_string_object l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__14_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 10, .m_capacity = 10, .m_length = 9, .m_data = "optConfig"};
 static const lean_object* l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__14 = (const lean_object*)&l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__14_value;
@@ -141,16 +144,27 @@ static const lean_ctor_object l_Std_Internal_IO_Async_Interval_mk___auto__1___cl
 static const lean_ctor_object l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__15_value_aux_2 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__15_value_aux_1),((lean_object*)&l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__2_value),LEAN_SCALAR_PTR_LITERAL(166, 58, 35, 182, 187, 130, 147, 254)}};
 static const lean_ctor_object l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__15_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__15_value_aux_2),((lean_object*)&l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__14_value),LEAN_SCALAR_PTR_LITERAL(137, 208, 10, 74, 108, 50, 106, 48)}};
 static const lean_object* l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__15 = (const lean_object*)&l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__15_value;
+static lean_once_cell_t l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__16_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__16;
+static lean_once_cell_t l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__17_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__17;
+static lean_once_cell_t l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__18_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__18;
+static lean_once_cell_t l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__19_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__19;
+static lean_once_cell_t l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__20_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__20;
+static lean_once_cell_t l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__21_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__21;
+static lean_once_cell_t l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__22_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__22;
+static lean_once_cell_t l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__23_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__23;
+static lean_once_cell_t l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__24_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__24;
+static lean_once_cell_t l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__25_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__25;
+static lean_once_cell_t l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__26_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__26;
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Interval_mk___auto__1;
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Interval_mk___redArg(lean_object*);
@@ -1593,7 +1607,7 @@ lean_dec(x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__5() {
+static lean_object* _init_l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__5(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1602,7 +1616,7 @@ x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__12() {
+static lean_object* _init_l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__12(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1611,21 +1625,21 @@ x_2 = l_Lean_mkAtom(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__13() {
+static lean_object* _init_l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__13(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__12;
-x_2 = l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__5;
+x_1 = lean_obj_once(&l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__12, &l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__12_once, _init_l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__12);
+x_2 = lean_obj_once(&l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__5, &l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__5_once, _init_l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__5);
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__16() {
+static lean_object* _init_l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__16(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__5;
+x_1 = lean_obj_once(&l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__5, &l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__5_once, _init_l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__5);
 x_2 = ((lean_object*)(l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__9));
 x_3 = lean_box(2);
 x_4 = lean_alloc_ctor(1, 3, 0);
@@ -1635,21 +1649,21 @@ lean_ctor_set(x_4, 2, x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__17() {
+static lean_object* _init_l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__17(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__16;
-x_2 = l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__5;
+x_1 = lean_obj_once(&l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__16, &l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__16_once, _init_l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__16);
+x_2 = lean_obj_once(&l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__5, &l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__5_once, _init_l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__5);
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__18() {
+static lean_object* _init_l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__18(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__17;
+x_1 = lean_obj_once(&l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__17, &l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__17_once, _init_l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__17);
 x_2 = ((lean_object*)(l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__15));
 x_3 = lean_box(2);
 x_4 = lean_alloc_ctor(1, 3, 0);
@@ -1659,21 +1673,21 @@ lean_ctor_set(x_4, 2, x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__19() {
+static lean_object* _init_l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__19(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__18;
-x_2 = l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__13;
+x_1 = lean_obj_once(&l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__18, &l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__18_once, _init_l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__18);
+x_2 = lean_obj_once(&l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__13, &l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__13_once, _init_l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__13);
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__20() {
+static lean_object* _init_l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__20(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__19;
+x_1 = lean_obj_once(&l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__19, &l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__19_once, _init_l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__19);
 x_2 = ((lean_object*)(l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__11));
 x_3 = lean_box(2);
 x_4 = lean_alloc_ctor(1, 3, 0);
@@ -1683,21 +1697,21 @@ lean_ctor_set(x_4, 2, x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__21() {
+static lean_object* _init_l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__21(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__20;
-x_2 = l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__5;
+x_1 = lean_obj_once(&l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__20, &l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__20_once, _init_l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__20);
+x_2 = lean_obj_once(&l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__5, &l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__5_once, _init_l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__5);
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__22() {
+static lean_object* _init_l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__22(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__21;
+x_1 = lean_obj_once(&l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__21, &l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__21_once, _init_l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__21);
 x_2 = ((lean_object*)(l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__9));
 x_3 = lean_box(2);
 x_4 = lean_alloc_ctor(1, 3, 0);
@@ -1707,21 +1721,21 @@ lean_ctor_set(x_4, 2, x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__23() {
+static lean_object* _init_l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__23(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__22;
-x_2 = l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__5;
+x_1 = lean_obj_once(&l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__22, &l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__22_once, _init_l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__22);
+x_2 = lean_obj_once(&l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__5, &l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__5_once, _init_l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__5);
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__24() {
+static lean_object* _init_l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__24(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__23;
+x_1 = lean_obj_once(&l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__23, &l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__23_once, _init_l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__23);
 x_2 = ((lean_object*)(l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__7));
 x_3 = lean_box(2);
 x_4 = lean_alloc_ctor(1, 3, 0);
@@ -1731,21 +1745,21 @@ lean_ctor_set(x_4, 2, x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__25() {
+static lean_object* _init_l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__25(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__24;
-x_2 = l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__5;
+x_1 = lean_obj_once(&l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__24, &l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__24_once, _init_l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__24);
+x_2 = lean_obj_once(&l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__5, &l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__5_once, _init_l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__5);
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__26() {
+static lean_object* _init_l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__26(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__25;
+x_1 = lean_obj_once(&l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__25, &l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__25_once, _init_l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__25);
 x_2 = ((lean_object*)(l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__4));
 x_3 = lean_box(2);
 x_4 = lean_alloc_ctor(1, 3, 0);
@@ -1755,11 +1769,11 @@ lean_ctor_set(x_4, 2, x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_Std_Internal_IO_Async_Interval_mk___auto__1() {
+static lean_object* _init_l_Std_Internal_IO_Async_Interval_mk___auto__1(void) {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__26;
+x_1 = lean_obj_once(&l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__26, &l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__26_once, _init_l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__26);
 return x_1;
 }
 }
@@ -2006,34 +2020,6 @@ lean_dec_ref(res);
 res = initialize_Std_Internal_Async_Select(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__5 = _init_l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__5();
-lean_mark_persistent(l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__5);
-l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__12 = _init_l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__12();
-lean_mark_persistent(l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__12);
-l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__13 = _init_l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__13();
-lean_mark_persistent(l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__13);
-l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__16 = _init_l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__16();
-lean_mark_persistent(l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__16);
-l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__17 = _init_l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__17();
-lean_mark_persistent(l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__17);
-l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__18 = _init_l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__18();
-lean_mark_persistent(l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__18);
-l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__19 = _init_l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__19();
-lean_mark_persistent(l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__19);
-l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__20 = _init_l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__20();
-lean_mark_persistent(l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__20);
-l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__21 = _init_l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__21();
-lean_mark_persistent(l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__21);
-l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__22 = _init_l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__22();
-lean_mark_persistent(l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__22);
-l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__23 = _init_l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__23();
-lean_mark_persistent(l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__23);
-l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__24 = _init_l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__24();
-lean_mark_persistent(l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__24);
-l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__25 = _init_l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__25();
-lean_mark_persistent(l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__25);
-l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__26 = _init_l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__26();
-lean_mark_persistent(l_Std_Internal_IO_Async_Interval_mk___auto__1___closed__26);
 l_Std_Internal_IO_Async_Interval_mk___auto__1 = _init_l_Std_Internal_IO_Async_Interval_mk___auto__1();
 lean_mark_persistent(l_Std_Internal_IO_Async_Interval_mk___auto__1);
 return lean_io_result_mk_ok(lean_box(0));

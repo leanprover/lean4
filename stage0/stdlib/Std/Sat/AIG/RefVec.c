@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
+static lean_once_cell_t l_Std_Sat_AIG_RefVec_empty___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Sat_AIG_RefVec_empty___closed__0;
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_empty(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_empty___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -76,7 +77,7 @@ LEAN_EXPORT lean_object* l_Std_Sat_AIG_BinaryRefVec_cast___boxed(lean_object*, l
 LEAN_EXPORT lean_object* l___private_Std_Sat_AIG_RefVec_0__Std_Sat_AIG_BinaryRefVec_cast_match__1_splitter___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Sat_AIG_RefVec_0__Std_Sat_AIG_BinaryRefVec_cast_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Sat_AIG_RefVec_0__Std_Sat_AIG_BinaryRefVec_cast_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* _init_l_Std_Sat_AIG_RefVec_empty___closed__0() {
+static lean_object* _init_l_Std_Sat_AIG_RefVec_empty___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -89,7 +90,7 @@ LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_empty(lean_object* x_1, lean_objec
 _start:
 {
 lean_object* x_5; 
-x_5 = l_Std_Sat_AIG_RefVec_empty___closed__0;
+x_5 = lean_obj_once(&l_Std_Sat_AIG_RefVec_empty___closed__0, &l_Std_Sat_AIG_RefVec_empty___closed__0_once, _init_l_Std_Sat_AIG_RefVec_empty___closed__0);
 return x_5;
 }
 }
@@ -798,8 +799,6 @@ lean_dec_ref(res);
 res = initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Std_Sat_AIG_RefVec_empty___closed__0 = _init_l_Std_Sat_AIG_RefVec_empty___closed__0();
-lean_mark_persistent(l_Std_Sat_AIG_RefVec_empty___closed__0);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

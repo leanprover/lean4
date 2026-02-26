@@ -34,6 +34,7 @@ LEAN_EXPORT lean_object* l___private_Lean_LoadDynlib_0__Lean_loadPlugin_unsafe__
 static const lean_string_object l_String_Slice_dropSuffix___at___00Lean_loadPlugin_spec__1___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 8, .m_capacity = 8, .m_length = 7, .m_data = "_shared"};
 static const lean_object* l_String_Slice_dropSuffix___at___00Lean_loadPlugin_spec__1___closed__0 = (const lean_object*)&l_String_Slice_dropSuffix___at___00Lean_loadPlugin_spec__1___closed__0_value;
 lean_object* lean_string_utf8_byte_size(lean_object*);
+static lean_once_cell_t l_String_Slice_dropSuffix___at___00Lean_loadPlugin_spec__1___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_String_Slice_dropSuffix___at___00Lean_loadPlugin_spec__1___closed__1;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
@@ -43,6 +44,7 @@ lean_object* l_String_Slice_pos_x21(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_dropSuffix___at___00Lean_loadPlugin_spec__1(lean_object*);
 static const lean_string_object l_String_Slice_dropPrefix___at___00String_dropPrefix___at___00Lean_loadPlugin_spec__0_spec__0___redArg___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 4, .m_capacity = 4, .m_length = 3, .m_data = "lib"};
 static const lean_object* l_String_Slice_dropPrefix___at___00String_dropPrefix___at___00Lean_loadPlugin_spec__0_spec__0___redArg___closed__0 = (const lean_object*)&l_String_Slice_dropPrefix___at___00String_dropPrefix___at___00Lean_loadPlugin_spec__0_spec__0___redArg___closed__0_value;
+static lean_once_cell_t l_String_Slice_dropPrefix___at___00String_dropPrefix___at___00Lean_loadPlugin_spec__0_spec__0___redArg___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_String_Slice_dropPrefix___at___00String_dropPrefix___at___00Lean_loadPlugin_spec__0_spec__0___redArg___closed__1;
 LEAN_EXPORT lean_object* l_String_Slice_dropPrefix___at___00String_dropPrefix___at___00Lean_loadPlugin_spec__0_spec__0___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_String_dropPrefix___at___00Lean_loadPlugin_spec__0(lean_object*, lean_object*);
@@ -64,7 +66,7 @@ LEAN_EXPORT lean_object* lean_load_plugin(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_loadPlugin___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_dropPrefix___at___00String_dropPrefix___at___00Lean_loadPlugin_spec__0_spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_dropPrefix___at___00String_dropPrefix___at___00Lean_loadPlugin_spec__0_spec__0___boxed(lean_object*, lean_object*);
-static lean_object* _init_l___private_Lean_LoadDynlib_0__Lean_DynlibImpl() {
+static lean_object* _init_l___private_Lean_LoadDynlib_0__Lean_DynlibImpl(void) {
 _start:
 {
 return lean_box(0);
@@ -227,7 +229,7 @@ lean_dec(x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_String_Slice_dropSuffix___at___00Lean_loadPlugin_spec__1___closed__1() {
+static lean_object* _init_l_String_Slice_dropSuffix___at___00Lean_loadPlugin_spec__1___closed__1(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -244,7 +246,7 @@ x_2 = lean_ctor_get(x_1, 0);
 x_3 = lean_ctor_get(x_1, 1);
 x_4 = lean_ctor_get(x_1, 2);
 x_5 = ((lean_object*)(l_String_Slice_dropSuffix___at___00Lean_loadPlugin_spec__1___closed__0));
-x_6 = l_String_Slice_dropSuffix___at___00Lean_loadPlugin_spec__1___closed__1;
+x_6 = lean_obj_once(&l_String_Slice_dropSuffix___at___00Lean_loadPlugin_spec__1___closed__1, &l_String_Slice_dropSuffix___at___00Lean_loadPlugin_spec__1___closed__1_once, _init_l_String_Slice_dropSuffix___at___00Lean_loadPlugin_spec__1___closed__1);
 x_7 = lean_nat_sub(x_4, x_3);
 x_8 = lean_nat_dec_le(x_6, x_7);
 if (x_8 == 0)
@@ -304,7 +306,7 @@ return x_20;
 }
 }
 }
-static lean_object* _init_l_String_Slice_dropPrefix___at___00String_dropPrefix___at___00Lean_loadPlugin_spec__0_spec__0___redArg___closed__1() {
+static lean_object* _init_l_String_Slice_dropPrefix___at___00String_dropPrefix___at___00Lean_loadPlugin_spec__0_spec__0___redArg___closed__1(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -321,7 +323,7 @@ x_2 = lean_ctor_get(x_1, 0);
 x_3 = lean_ctor_get(x_1, 1);
 x_4 = lean_ctor_get(x_1, 2);
 x_5 = ((lean_object*)(l_String_Slice_dropPrefix___at___00String_dropPrefix___at___00Lean_loadPlugin_spec__0_spec__0___redArg___closed__0));
-x_6 = l_String_Slice_dropPrefix___at___00String_dropPrefix___at___00Lean_loadPlugin_spec__0_spec__0___redArg___closed__1;
+x_6 = lean_obj_once(&l_String_Slice_dropPrefix___at___00String_dropPrefix___at___00Lean_loadPlugin_spec__0_spec__0___redArg___closed__1, &l_String_Slice_dropPrefix___at___00String_dropPrefix___at___00Lean_loadPlugin_spec__0_spec__0___redArg___closed__1_once, _init_l_String_Slice_dropPrefix___at___00String_dropPrefix___at___00Lean_loadPlugin_spec__0_spec__0___redArg___closed__1);
 x_7 = lean_nat_sub(x_4, x_3);
 x_8 = lean_nat_dec_le(x_6, x_7);
 lean_dec(x_7);
@@ -733,10 +735,6 @@ res = initialize_Init_Data_ToString_Macro(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___private_Lean_LoadDynlib_0__Lean_DynlibImpl = _init_l___private_Lean_LoadDynlib_0__Lean_DynlibImpl();
-l_String_Slice_dropSuffix___at___00Lean_loadPlugin_spec__1___closed__1 = _init_l_String_Slice_dropSuffix___at___00Lean_loadPlugin_spec__1___closed__1();
-lean_mark_persistent(l_String_Slice_dropSuffix___at___00Lean_loadPlugin_spec__1___closed__1);
-l_String_Slice_dropPrefix___at___00String_dropPrefix___at___00Lean_loadPlugin_spec__0_spec__0___redArg___closed__1 = _init_l_String_Slice_dropPrefix___at___00String_dropPrefix___at___00Lean_loadPlugin_spec__0_spec__0___redArg___closed__1();
-lean_mark_persistent(l_String_Slice_dropPrefix___at___00String_dropPrefix___at___00Lean_loadPlugin_spec__0_spec__0___redArg___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

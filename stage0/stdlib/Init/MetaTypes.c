@@ -390,7 +390,7 @@ lean_dec(x_4);
 return x_6;
 }
 }
-static uint8_t _init_l_Lean_Meta_instInhabitedTransparencyMode_default() {
+static uint8_t _init_l_Lean_Meta_instInhabitedTransparencyMode_default(void) {
 _start:
 {
 uint8_t x_1; 
@@ -398,7 +398,7 @@ x_1 = 0;
 return x_1;
 }
 }
-static uint8_t _init_l_Lean_Meta_instInhabitedTransparencyMode() {
+static uint8_t _init_l_Lean_Meta_instInhabitedTransparencyMode(void) {
 _start:
 {
 uint8_t x_1; 
@@ -613,7 +613,7 @@ lean_dec(x_4);
 return x_6;
 }
 }
-static uint8_t _init_l_Lean_Meta_instInhabitedEtaStructMode_default() {
+static uint8_t _init_l_Lean_Meta_instInhabitedEtaStructMode_default(void) {
 _start:
 {
 uint8_t x_1; 
@@ -621,7 +621,7 @@ x_1 = 0;
 return x_1;
 }
 }
-static uint8_t _init_l_Lean_Meta_instInhabitedEtaStructMode() {
+static uint8_t _init_l_Lean_Meta_instInhabitedEtaStructMode(void) {
 _start:
 {
 uint8_t x_1; 
@@ -1097,7 +1097,7 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Meta_Simp_defaultMaxSteps() {
+static lean_object* _init_l_Lean_Meta_Simp_defaultMaxSteps(void) {
 _start:
 {
 lean_object* x_1; 
@@ -2082,7 +2082,7 @@ x_5 = l_Lean_Meta_Occurrences_ctorElim___redArg(x_2, x_4);
 return x_5;
 }
 }
-static lean_object* _init_l_Lean_Meta_instInhabitedOccurrences_default() {
+static lean_object* _init_l_Lean_Meta_instInhabitedOccurrences_default(void) {
 _start:
 {
 lean_object* x_1; 
@@ -2090,7 +2090,7 @@ x_1 = lean_box(0);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Meta_instInhabitedOccurrences() {
+static lean_object* _init_l_Lean_Meta_instInhabitedOccurrences(void) {
 _start:
 {
 lean_object* x_1; 

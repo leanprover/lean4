@@ -102,7 +102,7 @@ lean_dec(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l___private_Init_Dynamic_0__DynamicPointed() {
+static lean_object* _init_l___private_Init_Dynamic_0__DynamicPointed(void) {
 _start:
 {
 return lean_box(0);

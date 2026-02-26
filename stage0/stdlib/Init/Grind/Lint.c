@@ -52,8 +52,11 @@ static const lean_object* l_Lean_Grind_grindLintCheck___closed__15 = (const lean
 static const lean_ctor_object l_Lean_Grind_grindLintCheck___closed__16_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_Lean_Grind_grindLintCheck___closed__15_value),LEAN_SCALAR_PTR_LITERAL(41, 35, 40, 86, 189, 97, 244, 31)}};
 static const lean_object* l_Lean_Grind_grindLintCheck___closed__16 = (const lean_object*)&l_Lean_Grind_grindLintCheck___closed__16_value;
 extern lean_object* l_Lean_Parser_Tactic_configItem;
+static lean_once_cell_t l_Lean_Grind_grindLintCheck___closed__17_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Grind_grindLintCheck___closed__17;
+static lean_once_cell_t l_Lean_Grind_grindLintCheck___closed__18_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Grind_grindLintCheck___closed__18;
+static lean_once_cell_t l_Lean_Grind_grindLintCheck___closed__19_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Grind_grindLintCheck___closed__19;
 static const lean_string_object l_Lean_Grind_grindLintCheck___closed__20_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 9, .m_capacity = 9, .m_length = 8, .m_data = "optional"};
 static const lean_object* l_Lean_Grind_grindLintCheck___closed__20 = (const lean_object*)&l_Lean_Grind_grindLintCheck___closed__20_value;
@@ -91,7 +94,9 @@ static const lean_ctor_object l_Lean_Grind_grindLintCheck___closed__36_value = {
 static const lean_object* l_Lean_Grind_grindLintCheck___closed__36 = (const lean_object*)&l_Lean_Grind_grindLintCheck___closed__36_value;
 static const lean_ctor_object l_Lean_Grind_grindLintCheck___closed__37_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 0, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_Lean_Grind_grindLintCheck___closed__21_value),((lean_object*)&l_Lean_Grind_grindLintCheck___closed__36_value)}};
 static const lean_object* l_Lean_Grind_grindLintCheck___closed__37 = (const lean_object*)&l_Lean_Grind_grindLintCheck___closed__37_value;
+static lean_once_cell_t l_Lean_Grind_grindLintCheck___closed__38_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Grind_grindLintCheck___closed__38;
+static lean_once_cell_t l_Lean_Grind_grindLintCheck___closed__39_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Grind_grindLintCheck___closed__39;
 LEAN_EXPORT lean_object* l_Lean_Grind_grindLintCheck;
 static const lean_string_object l_Lean_Grind_grindLintInspect___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 17, .m_capacity = 17, .m_length = 16, .m_data = "grindLintInspect"};
@@ -106,8 +111,11 @@ static const lean_ctor_object l_Lean_Grind_grindLintInspect___closed__3_value = 
 static const lean_object* l_Lean_Grind_grindLintInspect___closed__3 = (const lean_object*)&l_Lean_Grind_grindLintInspect___closed__3_value;
 static const lean_ctor_object l_Lean_Grind_grindLintInspect___closed__4_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*3 + 0, .m_other = 3, .m_tag = 2}, .m_objs = {((lean_object*)&l_Lean_Grind_grindLintCheck___closed__5_value),((lean_object*)&l_Lean_Grind_grindLintCheck___closed__11_value),((lean_object*)&l_Lean_Grind_grindLintInspect___closed__3_value)}};
 static const lean_object* l_Lean_Grind_grindLintInspect___closed__4 = (const lean_object*)&l_Lean_Grind_grindLintInspect___closed__4_value;
+static lean_once_cell_t l_Lean_Grind_grindLintInspect___closed__5_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Grind_grindLintInspect___closed__5;
+static lean_once_cell_t l_Lean_Grind_grindLintInspect___closed__6_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Grind_grindLintInspect___closed__6;
+static lean_once_cell_t l_Lean_Grind_grindLintInspect___closed__7_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Grind_grindLintInspect___closed__7;
 LEAN_EXPORT lean_object* l_Lean_Grind_grindLintInspect;
 static const lean_string_object l_Lean_Grind_grindLintMute___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 14, .m_capacity = 14, .m_length = 13, .m_data = "grindLintMute"};
@@ -154,7 +162,7 @@ static const lean_object* l_Lean_Grind_grindLintSkip___closed__10 = (const lean_
 static const lean_ctor_object l_Lean_Grind_grindLintSkip___closed__11_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*3 + 0, .m_other = 3, .m_tag = 3}, .m_objs = {((lean_object*)&l_Lean_Grind_grindLintSkip___closed__1_value),((lean_object*)(((size_t)(1022) << 1) | 1)),((lean_object*)&l_Lean_Grind_grindLintSkip___closed__10_value)}};
 static const lean_object* l_Lean_Grind_grindLintSkip___closed__11 = (const lean_object*)&l_Lean_Grind_grindLintSkip___closed__11_value;
 LEAN_EXPORT const lean_object* l_Lean_Grind_grindLintSkip = (const lean_object*)&l_Lean_Grind_grindLintSkip___closed__11_value;
-static lean_object* _init_l_Lean_Grind_grindLintCheck___closed__17() {
+static lean_object* _init_l_Lean_Grind_grindLintCheck___closed__17(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -168,11 +176,11 @@ lean_ctor_set(x_4, 2, x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Grind_grindLintCheck___closed__18() {
+static lean_object* _init_l_Lean_Grind_grindLintCheck___closed__18(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Grind_grindLintCheck___closed__17;
+x_1 = lean_obj_once(&l_Lean_Grind_grindLintCheck___closed__17, &l_Lean_Grind_grindLintCheck___closed__17_once, _init_l_Lean_Grind_grindLintCheck___closed__17);
 x_2 = ((lean_object*)(l_Lean_Grind_grindLintCheck___closed__16));
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
@@ -180,11 +188,11 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Grind_grindLintCheck___closed__19() {
+static lean_object* _init_l_Lean_Grind_grindLintCheck___closed__19(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Grind_grindLintCheck___closed__18;
+x_1 = lean_obj_once(&l_Lean_Grind_grindLintCheck___closed__18, &l_Lean_Grind_grindLintCheck___closed__18_once, _init_l_Lean_Grind_grindLintCheck___closed__18);
 x_2 = ((lean_object*)(l_Lean_Grind_grindLintCheck___closed__14));
 x_3 = ((lean_object*)(l_Lean_Grind_grindLintCheck___closed__5));
 x_4 = lean_alloc_ctor(2, 3, 0);
@@ -194,12 +202,12 @@ lean_ctor_set(x_4, 2, x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Grind_grindLintCheck___closed__38() {
+static lean_object* _init_l_Lean_Grind_grindLintCheck___closed__38(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = ((lean_object*)(l_Lean_Grind_grindLintCheck___closed__37));
-x_2 = l_Lean_Grind_grindLintCheck___closed__19;
+x_2 = lean_obj_once(&l_Lean_Grind_grindLintCheck___closed__19, &l_Lean_Grind_grindLintCheck___closed__19_once, _init_l_Lean_Grind_grindLintCheck___closed__19);
 x_3 = ((lean_object*)(l_Lean_Grind_grindLintCheck___closed__5));
 x_4 = lean_alloc_ctor(2, 3, 0);
 lean_ctor_set(x_4, 0, x_3);
@@ -208,11 +216,11 @@ lean_ctor_set(x_4, 2, x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Grind_grindLintCheck___closed__39() {
+static lean_object* _init_l_Lean_Grind_grindLintCheck___closed__39(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Grind_grindLintCheck___closed__38;
+x_1 = lean_obj_once(&l_Lean_Grind_grindLintCheck___closed__38, &l_Lean_Grind_grindLintCheck___closed__38_once, _init_l_Lean_Grind_grindLintCheck___closed__38);
 x_2 = lean_unsigned_to_nat(1022u);
 x_3 = ((lean_object*)(l_Lean_Grind_grindLintCheck___closed__3));
 x_4 = lean_alloc_ctor(3, 3, 0);
@@ -222,19 +230,19 @@ lean_ctor_set(x_4, 2, x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Grind_grindLintCheck() {
+static lean_object* _init_l_Lean_Grind_grindLintCheck(void) {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Grind_grindLintCheck___closed__39;
+x_1 = lean_obj_once(&l_Lean_Grind_grindLintCheck___closed__39, &l_Lean_Grind_grindLintCheck___closed__39_once, _init_l_Lean_Grind_grindLintCheck___closed__39);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Grind_grindLintInspect___closed__5() {
+static lean_object* _init_l_Lean_Grind_grindLintInspect___closed__5(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Grind_grindLintCheck___closed__18;
+x_1 = lean_obj_once(&l_Lean_Grind_grindLintCheck___closed__18, &l_Lean_Grind_grindLintCheck___closed__18_once, _init_l_Lean_Grind_grindLintCheck___closed__18);
 x_2 = ((lean_object*)(l_Lean_Grind_grindLintInspect___closed__4));
 x_3 = ((lean_object*)(l_Lean_Grind_grindLintCheck___closed__5));
 x_4 = lean_alloc_ctor(2, 3, 0);
@@ -244,12 +252,12 @@ lean_ctor_set(x_4, 2, x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Grind_grindLintInspect___closed__6() {
+static lean_object* _init_l_Lean_Grind_grindLintInspect___closed__6(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = ((lean_object*)(l_Lean_Grind_grindLintCheck___closed__35));
-x_2 = l_Lean_Grind_grindLintInspect___closed__5;
+x_2 = lean_obj_once(&l_Lean_Grind_grindLintInspect___closed__5, &l_Lean_Grind_grindLintInspect___closed__5_once, _init_l_Lean_Grind_grindLintInspect___closed__5);
 x_3 = ((lean_object*)(l_Lean_Grind_grindLintCheck___closed__5));
 x_4 = lean_alloc_ctor(2, 3, 0);
 lean_ctor_set(x_4, 0, x_3);
@@ -258,11 +266,11 @@ lean_ctor_set(x_4, 2, x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Grind_grindLintInspect___closed__7() {
+static lean_object* _init_l_Lean_Grind_grindLintInspect___closed__7(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Grind_grindLintInspect___closed__6;
+x_1 = lean_obj_once(&l_Lean_Grind_grindLintInspect___closed__6, &l_Lean_Grind_grindLintInspect___closed__6_once, _init_l_Lean_Grind_grindLintInspect___closed__6);
 x_2 = lean_unsigned_to_nat(1022u);
 x_3 = ((lean_object*)(l_Lean_Grind_grindLintInspect___closed__1));
 x_4 = lean_alloc_ctor(3, 3, 0);
@@ -272,11 +280,11 @@ lean_ctor_set(x_4, 2, x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Grind_grindLintInspect() {
+static lean_object* _init_l_Lean_Grind_grindLintInspect(void) {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Grind_grindLintInspect___closed__7;
+x_1 = lean_obj_once(&l_Lean_Grind_grindLintInspect___closed__7, &l_Lean_Grind_grindLintInspect___closed__7_once, _init_l_Lean_Grind_grindLintInspect___closed__7);
 return x_1;
 }
 }
@@ -289,24 +297,8 @@ _G_initialized = true;
 res = initialize_Init_Tactics(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Grind_grindLintCheck___closed__17 = _init_l_Lean_Grind_grindLintCheck___closed__17();
-lean_mark_persistent(l_Lean_Grind_grindLintCheck___closed__17);
-l_Lean_Grind_grindLintCheck___closed__18 = _init_l_Lean_Grind_grindLintCheck___closed__18();
-lean_mark_persistent(l_Lean_Grind_grindLintCheck___closed__18);
-l_Lean_Grind_grindLintCheck___closed__19 = _init_l_Lean_Grind_grindLintCheck___closed__19();
-lean_mark_persistent(l_Lean_Grind_grindLintCheck___closed__19);
-l_Lean_Grind_grindLintCheck___closed__38 = _init_l_Lean_Grind_grindLintCheck___closed__38();
-lean_mark_persistent(l_Lean_Grind_grindLintCheck___closed__38);
-l_Lean_Grind_grindLintCheck___closed__39 = _init_l_Lean_Grind_grindLintCheck___closed__39();
-lean_mark_persistent(l_Lean_Grind_grindLintCheck___closed__39);
 l_Lean_Grind_grindLintCheck = _init_l_Lean_Grind_grindLintCheck();
 lean_mark_persistent(l_Lean_Grind_grindLintCheck);
-l_Lean_Grind_grindLintInspect___closed__5 = _init_l_Lean_Grind_grindLintInspect___closed__5();
-lean_mark_persistent(l_Lean_Grind_grindLintInspect___closed__5);
-l_Lean_Grind_grindLintInspect___closed__6 = _init_l_Lean_Grind_grindLintInspect___closed__6();
-lean_mark_persistent(l_Lean_Grind_grindLintInspect___closed__6);
-l_Lean_Grind_grindLintInspect___closed__7 = _init_l_Lean_Grind_grindLintInspect___closed__7();
-lean_mark_persistent(l_Lean_Grind_grindLintInspect___closed__7);
 l_Lean_Grind_grindLintInspect = _init_l_Lean_Grind_grindLintInspect();
 lean_mark_persistent(l_Lean_Grind_grindLintInspect);
 return lean_io_result_mk_ok(lean_box(0));

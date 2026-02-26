@@ -83,23 +83,36 @@ lean_object* l_Lean_registerTraceClass(lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_NormCast_0__Lean_Elab_Tactic_NormCast_initFn_00___x40_Lean_Elab_Tactic_NormCast_1508164376____hygCtx___hyg_2_();
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_NormCast_0__Lean_Elab_Tactic_NormCast_initFn_00___x40_Lean_Elab_Tactic_NormCast_1508164376____hygCtx___hyg_2____boxed(lean_object*);
 uint64_t l_Lean_Meta_TransparencyMode_toUInt64(uint8_t);
+static lean_once_cell_t l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static uint64_t l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__0;
 static const lean_ctor_object l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*3 + 32, .m_other = 3, .m_tag = 0}, .m_objs = {((lean_object*)(((size_t)(100000) << 1) | 1)),((lean_object*)(((size_t)(2) << 1) | 1)),((lean_object*)(((size_t)(0) << 1) | 1)),LEAN_SCALAR_PTR_LITERAL(0, 1, 0, 1, 1, 1, 0, 1),LEAN_SCALAR_PTR_LITERAL(1, 0, 0, 0, 1, 1, 0, 0),LEAN_SCALAR_PTR_LITERAL(0, 1, 1, 1, 1, 1, 1, 1),LEAN_SCALAR_PTR_LITERAL(1, 1, 0, 0, 0, 0, 0, 0)}};
 static const lean_object* l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__1 = (const lean_object*)&l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__1_value;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
+static lean_once_cell_t l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__2_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__2;
 lean_object* lean_mk_array(lean_object*, lean_object*);
+static lean_once_cell_t l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__3_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__3;
+static lean_once_cell_t l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__4_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__4;
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
+static lean_once_cell_t l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__5_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__5;
+static lean_once_cell_t l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__6_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__6;
+static lean_once_cell_t l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__7_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__7;
+static lean_once_cell_t l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__8_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__8;
+static lean_once_cell_t l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__9_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__9;
+static lean_once_cell_t l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__10_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__10;
+static lean_once_cell_t l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__11_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__11;
+static lean_once_cell_t l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__12_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__12;
+static lean_once_cell_t l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__13_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__13;
 lean_object* l_Lean_Meta_Context_config(lean_object*);
 lean_object* l_Lean_Meta_getSimpCongrTheorems___redArg(lean_object*);
@@ -130,8 +143,11 @@ LEAN_EXPORT lean_object* l_Lean_isTracingEnabledFor___at___00Lean_Elab_Tactic_No
 LEAN_EXPORT lean_object* l_Lean_isTracingEnabledFor___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isTracingEnabledFor___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isTracingEnabledFor___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_once_cell_t l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__1___redArg___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__1___redArg___closed__0;
+static lean_once_cell_t l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__1___redArg___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__1___redArg___closed__1;
+static lean_once_cell_t l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__1___redArg___closed__2_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__1___redArg___closed__2;
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*);
@@ -145,6 +161,7 @@ LEAN_EXPORT lean_object* l_Lean_Option_get___at___00Lean_Elab_Tactic_NormCast_pr
 static const lean_string_object l_Lean_Elab_Tactic_NormCast_proveEqUsingDown___lam__0___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 11, .m_capacity = 11, .m_length = 10, .m_data = " proving: "};
 static const lean_object* l_Lean_Elab_Tactic_NormCast_proveEqUsingDown___lam__0___closed__0 = (const lean_object*)&l_Lean_Elab_Tactic_NormCast_proveEqUsingDown___lam__0___closed__0_value;
 lean_object* l_Lean_stringToMessageData(lean_object*);
+static lean_once_cell_t l_Lean_Elab_Tactic_NormCast_proveEqUsingDown___lam__0___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Elab_Tactic_NormCast_proveEqUsingDown___lam__0___closed__1;
 lean_object* l_Lean_Meta_mkEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_exceptOptionEmoji___redArg(lean_object*);
@@ -156,7 +173,7 @@ LEAN_EXPORT lean_object* l_Lean_Option_get___at___00__private_Lean_Util_Trace_0_
 LEAN_EXPORT lean_object* l_Lean_addMessageContextFull___at___00__private_Lean_Util_Trace_0__Lean_addTraceNode___at___00__private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__3_spec__3_spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_addMessageContextFull___at___00__private_Lean_Util_Trace_0__Lean_addTraceNode___at___00__private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__3_spec__3_spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
-lean_object* lean_array_uget(lean_object*, size_t);
+lean_object* lean_array_uget_borrowed(lean_object*, size_t);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00__private_Lean_Util_Trace_0__Lean_addTraceNode___at___00__private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__3_spec__3_spec__4(size_t, size_t, lean_object*);
@@ -170,10 +187,13 @@ LEAN_EXPORT lean_object* l___private_Lean_Util_Trace_0__Lean_addTraceNode___at__
 LEAN_EXPORT lean_object* l_MonadExcept_ofExcept___at___00__private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__3_spec__4___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_MonadExcept_ofExcept___at___00__private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__3_spec__4___redArg___boxed(lean_object*, lean_object*);
 double lean_float_of_nat(lean_object*);
+static lean_once_cell_t l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__3___redArg___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static double l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__3___redArg___closed__0;
 static const lean_string_object l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__3___redArg___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 54, .m_capacity = 54, .m_length = 53, .m_data = "<exception thrown while producing trace node message>"};
 static const lean_object* l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__3___redArg___closed__1 = (const lean_object*)&l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__3___redArg___closed__1_value;
+static lean_once_cell_t l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__3___redArg___closed__2_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__3___redArg___closed__2;
+static lean_once_cell_t l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__3___redArg___closed__3_once = LEAN_ONCE_CELL_INITIALIZER;
 static double l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__3___redArg___closed__3;
 extern lean_object* l_Lean_trace_profiler;
 lean_object* l_Lean_PersistentArray_append___redArg(lean_object*, lean_object*);
@@ -186,6 +206,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Util_Trace_0__Lean_withTraceNode_postC
 LEAN_EXPORT lean_object* l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__3___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static const lean_string_object l_Lean_Elab_Tactic_NormCast_proveEqUsingDown___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 1, .m_capacity = 1, .m_length = 0, .m_data = ""};
 static const lean_object* l_Lean_Elab_Tactic_NormCast_proveEqUsingDown___closed__0 = (const lean_object*)&l_Lean_Elab_Tactic_NormCast_proveEqUsingDown___closed__0_value;
+static lean_once_cell_t l_Lean_Elab_Tactic_NormCast_proveEqUsingDown___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static double l_Lean_Elab_Tactic_NormCast_proveEqUsingDown___closed__1;
 extern lean_object* l_Lean_Meta_NormCast_normCastExt;
 lean_object* l_Lean_Meta_SimpExtension_getTheorems___redArg(lean_object*, lean_object*);
@@ -201,6 +222,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___00Lean_Elab_Tactic_NormCast_mk
 LEAN_EXPORT lean_object* l_Lean_throwError___at___00Lean_Elab_Tactic_NormCast_mkCoe_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static const lean_string_object l_Lean_Elab_Tactic_NormCast_mkCoe___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 7, .m_capacity = 7, .m_length = 6, .m_data = "failed"};
 static const lean_object* l_Lean_Elab_Tactic_NormCast_mkCoe___closed__0 = (const lean_object*)&l_Lean_Elab_Tactic_NormCast_mkCoe___closed__0_value;
+static lean_once_cell_t l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1;
 lean_object* l_Lean_Meta_coerce_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_NormCast_mkCoe(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -231,8 +253,11 @@ static const lean_object* l_Lean_Elab_Tactic_NormCast_isNumeral_x3f___closed__4 
 static const lean_ctor_object l_Lean_Elab_Tactic_NormCast_isNumeral_x3f___closed__5_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_Lean_Elab_Tactic_NormCast_isNumeral_x3f___closed__0_value),LEAN_SCALAR_PTR_LITERAL(155, 221, 223, 104, 58, 13, 204, 158)}};
 static const lean_object* l_Lean_Elab_Tactic_NormCast_isNumeral_x3f___closed__5 = (const lean_object*)&l_Lean_Elab_Tactic_NormCast_isNumeral_x3f___closed__5_value;
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
+static lean_once_cell_t l_Lean_Elab_Tactic_NormCast_isNumeral_x3f___closed__6_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Elab_Tactic_NormCast_isNumeral_x3f___closed__6;
+static lean_once_cell_t l_Lean_Elab_Tactic_NormCast_isNumeral_x3f___closed__7_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Elab_Tactic_NormCast_isNumeral_x3f___closed__7;
+static lean_once_cell_t l_Lean_Elab_Tactic_NormCast_isNumeral_x3f___closed__8_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Elab_Tactic_NormCast_isNumeral_x3f___closed__8;
 uint8_t l_Lean_Expr_isConstOf(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_consumeMData(lean_object*);
@@ -242,25 +267,34 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_NormCast_isNumeral_x3f___boxed(lean_
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_bombEmoji;
+static lean_once_cell_t l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__0;
 static const lean_string_object l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 2, .m_capacity = 2, .m_length = 1, .m_data = " "};
 static const lean_object* l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__1 = (const lean_object*)&l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__1_value;
+static lean_once_cell_t l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__2_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__2;
+static lean_once_cell_t l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__3_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__3;
 extern lean_object* l_Lean_checkEmoji;
+static lean_once_cell_t l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__4_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__4;
+static lean_once_cell_t l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__5_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__5;
 static const lean_string_object l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__6_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 5, .m_capacity = 5, .m_length = 4, .m_data = " to "};
 static const lean_object* l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__6 = (const lean_object*)&l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__6_value;
+static lean_once_cell_t l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__7_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__7;
 extern lean_object* l_Lean_crossEmoji;
+static lean_once_cell_t l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__8_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__8;
+static lean_once_cell_t l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__9_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__9;
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static const lean_string_object l_Lean_Elab_Tactic_NormCast_splittingProcedure___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 11, .m_capacity = 11, .m_length = 10, .m_data = "splitting "};
 static const lean_object* l_Lean_Elab_Tactic_NormCast_splittingProcedure___closed__0 = (const lean_object*)&l_Lean_Elab_Tactic_NormCast_splittingProcedure___closed__0_value;
+static lean_once_cell_t l_Lean_Elab_Tactic_NormCast_splittingProcedure___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Elab_Tactic_NormCast_splittingProcedure___closed__1;
 uint8_t l_Lean_Exception_isInterrupt(lean_object*);
 uint8_t l_Lean_Exception_isRuntime(lean_object*);
@@ -282,6 +316,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Util_Trace_0__Lean_getResetTraces___at
 LEAN_EXPORT lean_object* l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___00Lean_Elab_Tactic_NormCast_prove_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static const lean_string_object l_Lean_Elab_Tactic_NormCast_prove___lam__0___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 15, .m_capacity = 15, .m_length = 14, .m_data = " discharging: "};
 static const lean_object* l_Lean_Elab_Tactic_NormCast_prove___lam__0___closed__0 = (const lean_object*)&l_Lean_Elab_Tactic_NormCast_prove___lam__0___closed__0_value;
+static lean_once_cell_t l_Lean_Elab_Tactic_NormCast_prove___lam__0___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Elab_Tactic_NormCast_prove___lam__0___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_NormCast_prove___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_NormCast_prove___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -315,6 +350,7 @@ static const lean_object* l_Lean_Elab_Tactic_NormCast_numeralToCoe___closed__0 =
 static const lean_ctor_object l_Lean_Elab_Tactic_NormCast_numeralToCoe___closed__1_value_aux_0 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_Lean_Elab_Tactic_NormCast_isNumeral_x3f___closed__0_value),LEAN_SCALAR_PTR_LITERAL(155, 221, 223, 104, 58, 13, 204, 158)}};
 static const lean_ctor_object l_Lean_Elab_Tactic_NormCast_numeralToCoe___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_Lean_Elab_Tactic_NormCast_numeralToCoe___closed__1_value_aux_0),((lean_object*)&l_Lean_Elab_Tactic_NormCast_numeralToCoe___closed__0_value),LEAN_SCALAR_PTR_LITERAL(19, 237, 167, 212, 100, 179, 19, 112)}};
 static const lean_object* l_Lean_Elab_Tactic_NormCast_numeralToCoe___closed__1 = (const lean_object*)&l_Lean_Elab_Tactic_NormCast_numeralToCoe___closed__1_value;
+static lean_once_cell_t l_Lean_Elab_Tactic_NormCast_numeralToCoe___closed__2_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Elab_Tactic_NormCast_numeralToCoe___closed__2;
 lean_object* l_Lean_mkNatLit(lean_object*);
 lean_object* l_Lean_Meta_mkAppOptM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -339,11 +375,13 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_NormCast_evalUnsafe___redArg_00___x4
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_NormCast_evalUnsafe_00___x40_Lean_Elab_Tactic_NormCast_121220554____hygCtx___hyg_3_(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_NormCast_evalUnsafe_00___x40_Lean_Elab_Tactic_NormCast_121220554____hygCtx___hyg_3____boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofFormat(lean_object*);
+static lean_once_cell_t l_List_foldl___at___00Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4_spec__9___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_List_foldl___at___00Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4_spec__9___closed__0;
 static const lean_string_object l_List_foldl___at___00Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4_spec__9___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 16, .m_capacity = 16, .m_length = 15, .m_data = "while expanding"};
 static const lean_object* l_List_foldl___at___00Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4_spec__9___closed__1 = (const lean_object*)&l_List_foldl___at___00Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4_spec__9___closed__1_value;
 static const lean_ctor_object l_List_foldl___at___00Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4_spec__9___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 3}, .m_objs = {((lean_object*)&l_List_foldl___at___00Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4_spec__9___closed__1_value)}};
 static const lean_object* l_List_foldl___at___00Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4_spec__9___closed__2 = (const lean_object*)&l_List_foldl___at___00Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4_spec__9___closed__2_value;
+static lean_once_cell_t l_List_foldl___at___00Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4_spec__9___closed__3_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_List_foldl___at___00Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4_spec__9___closed__3;
 lean_object* l_Lean_MessageData_ofSyntax(lean_object*);
 lean_object* l_Lean_indentD(lean_object*);
@@ -352,6 +390,7 @@ static const lean_string_object l_Lean_Elab_addMacroStack___at___00Lean_throwErr
 static const lean_object* l_Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4___redArg___closed__0 = (const lean_object*)&l_Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4___redArg___closed__0_value;
 static const lean_ctor_object l_Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4___redArg___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 3}, .m_objs = {((lean_object*)&l_Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4___redArg___closed__0_value)}};
 static const lean_object* l_Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4___redArg___closed__1 = (const lean_object*)&l_Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4___redArg___closed__1_value;
+static lean_once_cell_t l_Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4___redArg___closed__2_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4___redArg___closed__2;
 extern lean_object* l_Lean_Elab_pp_macroStack;
 LEAN_EXPORT lean_object* l_Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4___redArg(lean_object*, lean_object*, lean_object*);
@@ -359,6 +398,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_addMacroStack___at___00Lean_throwError___at
 lean_object* l_Lean_Elab_getBetterRef(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_once_cell_t l_Lean_addTrace___at___00__private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0_spec__3___redArg___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_addTrace___at___00__private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0_spec__3___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lean_addTrace___at___00__private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0_spec__3___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_addTrace___at___00__private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0_spec__3___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -370,8 +410,10 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_PersistentHashMap_containsAtAux___at___00Lean_PersistentHashMap_containsAux___at___00Lean_PersistentHashMap_contains___at___00__private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0_spec__1_spec__3_spec__8___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_containsAtAux___at___00Lean_PersistentHashMap_containsAux___at___00Lean_PersistentHashMap_contains___at___00__private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0_spec__1_spec__3_spec__8___redArg___boxed(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_shift_left(size_t, size_t);
+static lean_once_cell_t l_Lean_PersistentHashMap_containsAux___at___00Lean_PersistentHashMap_contains___at___00__private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0_spec__1_spec__3___redArg___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static size_t l_Lean_PersistentHashMap_containsAux___at___00Lean_PersistentHashMap_contains___at___00__private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0_spec__1_spec__3___redArg___closed__0;
 size_t lean_usize_sub(size_t, size_t);
+static lean_once_cell_t l_Lean_PersistentHashMap_containsAux___at___00Lean_PersistentHashMap_contains___at___00__private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0_spec__1_spec__3___redArg___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static size_t l_Lean_PersistentHashMap_containsAux___at___00Lean_PersistentHashMap_contains___at___00__private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0_spec__1_spec__3___redArg___closed__1;
 size_t lean_usize_land(size_t, size_t);
 lean_object* lean_usize_to_nat(size_t);
@@ -392,10 +434,15 @@ lean_object* l_Lean_instHashableExtraModUse_hash___boxed(lean_object*);
 static const lean_closure_object l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lean_instHashableExtraModUse_hash___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__1 = (const lean_object*)&l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__1_value;
 lean_object* l_Lean_PersistentHashMap_empty(lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_once_cell_t l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__2_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__2;
+static lean_once_cell_t l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__3_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__3;
+static lean_once_cell_t l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__4_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__4;
+static lean_once_cell_t l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__5_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__5;
+static lean_once_cell_t l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__6_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__6;
 static const lean_string_object l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__7_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 13, .m_capacity = 13, .m_length = 12, .m_data = "extraModUses"};
 static const lean_object* l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__7 = (const lean_object*)&l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__7_value;
@@ -403,13 +450,17 @@ static const lean_ctor_object l___private_Lean_ExtraModUses_0__Lean_recordExtraM
 static const lean_object* l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__8 = (const lean_object*)&l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__8_value;
 static const lean_string_object l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__9_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 16, .m_capacity = 16, .m_length = 15, .m_data = " extra mod use "};
 static const lean_object* l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__9 = (const lean_object*)&l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__9_value;
+static lean_once_cell_t l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__10_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__10;
 static const lean_string_object l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__11_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 5, .m_capacity = 5, .m_length = 4, .m_data = " of "};
 static const lean_object* l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__11 = (const lean_object*)&l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__11_value;
+static lean_once_cell_t l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__12_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__12;
+static lean_once_cell_t l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__13_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__13;
 static const lean_string_object l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__14_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 11, .m_capacity = 11, .m_length = 10, .m_data = "recording "};
 static const lean_object* l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__14 = (const lean_object*)&l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__14_value;
+static lean_once_cell_t l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__15_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__15;
 static const lean_string_object l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__16_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 8, .m_capacity = 8, .m_length = 7, .m_data = "regular"};
 static const lean_object* l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__16 = (const lean_object*)&l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__16_value;
@@ -434,6 +485,7 @@ uint8_t lean_name_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at___00Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__2_spec__6___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at___00Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__2_spec__6___redArg___boxed(lean_object*, lean_object*);
 uint64_t lean_uint64_of_nat(lean_object*);
+static lean_once_cell_t l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__2___redArg___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static uint64_t l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__2___redArg___closed__0;
 uint64_t lean_uint64_xor(uint64_t, uint64_t);
 size_t lean_usize_of_nat(lean_object*);
@@ -446,7 +498,9 @@ lean_object* l_Lean_Name_hash___override___boxed(lean_object*);
 static const lean_closure_object l_Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lean_Name_hash___override___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0___closed__1 = (const lean_object*)&l_Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0___closed__1_value;
 lean_object* l_Std_HashMap_instInhabited(lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_once_cell_t l_Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0___closed__2_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0___closed__2;
+static lean_once_cell_t l_Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0___closed__3_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0___closed__3;
 lean_object* l_Lean_Environment_getModuleIdxFor_x3f(lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
@@ -456,17 +510,23 @@ LEAN_EXPORT lean_object* l_Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tac
 LEAN_EXPORT lean_object* l_Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static const lean_string_object l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 32, .m_capacity = 32, .m_length = 31, .m_data = "Error evaluating configuration\n"};
 static const lean_object* l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__0 = (const lean_object*)&l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__0_value;
+static lean_once_cell_t l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__1;
 static const lean_string_object l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 14, .m_capacity = 14, .m_length = 13, .m_data = "\n\nException: "};
 static const lean_object* l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__2 = (const lean_object*)&l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__2_value;
+static lean_once_cell_t l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__3_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__3;
 static const lean_string_object l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__4_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 31, .m_capacity = 31, .m_length = 30, .m_data = "Configuration contains `sorry`"};
 static const lean_object* l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__4 = (const lean_object*)&l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__4_value;
+static lean_once_cell_t l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__5_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__5;
 static const lean_string_object l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__6_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 71, .m_capacity = 71, .m_length = 70, .m_data = "Error evaluating configuration: Environment does not yet contain type "};
 static const lean_object* l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__6 = (const lean_object*)&l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__6_value;
+static lean_once_cell_t l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__7_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__7;
+static lean_once_cell_t l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__8_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__8;
+static lean_once_cell_t l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__9_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__9;
 static const lean_ctor_object l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__10_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*3 + 32, .m_other = 3, .m_tag = 0}, .m_objs = {((lean_object*)(((size_t)(100000) << 1) | 1)),((lean_object*)(((size_t)(2) << 1) | 1)),((lean_object*)(((size_t)(0) << 1) | 1)),LEAN_SCALAR_PTR_LITERAL(0, 1, 0, 0, 0, 0, 0, 0),LEAN_SCALAR_PTR_LITERAL(0, 0, 0, 0, 1, 1, 0, 0),LEAN_SCALAR_PTR_LITERAL(0, 1, 1, 1, 1, 1, 1, 1),LEAN_SCALAR_PTR_LITERAL(1, 1, 0, 0, 0, 0, 0, 0)}};
 static const lean_object* l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__10 = (const lean_object*)&l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__10_value;
@@ -518,9 +578,11 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_NormCast_derive___lam__2(lean_object
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_NormCast_derive___lam__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static const lean_string_object l_Lean_Elab_Tactic_NormCast_derive___lam__3___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 9, .m_capacity = 9, .m_length = 8, .m_data = " (after "};
 static const lean_object* l_Lean_Elab_Tactic_NormCast_derive___lam__3___closed__0 = (const lean_object*)&l_Lean_Elab_Tactic_NormCast_derive___lam__3___closed__0_value;
+static lean_once_cell_t l_Lean_Elab_Tactic_NormCast_derive___lam__3___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Elab_Tactic_NormCast_derive___lam__3___closed__1;
 static const lean_string_object l_Lean_Elab_Tactic_NormCast_derive___lam__3___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 2, .m_capacity = 2, .m_length = 1, .m_data = ")"};
 static const lean_object* l_Lean_Elab_Tactic_NormCast_derive___lam__3___closed__2 = (const lean_object*)&l_Lean_Elab_Tactic_NormCast_derive___lam__3___closed__2_value;
+static lean_once_cell_t l_Lean_Elab_Tactic_NormCast_derive___lam__3___closed__3_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Elab_Tactic_NormCast_derive___lam__3___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_NormCast_derive___lam__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_NormCast_derive___lam__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -528,7 +590,9 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_NormCast_derive___lam__5(lean_object
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_NormCast_derive___lam__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_NormCast_derive___lam__6(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_NormCast_derive___lam__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_once_cell_t l_Lean_Elab_Tactic_NormCast_derive___lam__7___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Elab_Tactic_NormCast_derive___lam__7___closed__0;
+static lean_once_cell_t l_Lean_Elab_Tactic_NormCast_derive___lam__7___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Elab_Tactic_NormCast_derive___lam__7___closed__1;
 lean_object* l_Lean_Meta_Simp_main(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_NormCast_derive___lam__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -558,10 +622,12 @@ static const lean_closure_object l_Lean_Elab_Tactic_NormCast_derive___closed__2_
 static const lean_object* l_Lean_Elab_Tactic_NormCast_derive___closed__2 = (const lean_object*)&l_Lean_Elab_Tactic_NormCast_derive___closed__2_value;
 static const lean_closure_object l_Lean_Elab_Tactic_NormCast_derive___closed__3_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*1, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lean_Elab_Tactic_NormCast_derive___lam__2___boxed, .m_arity = 10, .m_num_fixed = 1, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1))} };
 static const lean_object* l_Lean_Elab_Tactic_NormCast_derive___closed__3 = (const lean_object*)&l_Lean_Elab_Tactic_NormCast_derive___closed__3_value;
+static lean_once_cell_t l_Lean_Elab_Tactic_NormCast_derive___closed__4_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Elab_Tactic_NormCast_derive___closed__4;
 static const lean_string_object l_Lean_Elab_Tactic_NormCast_derive___closed__5_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 24, .m_capacity = 24, .m_length = 23, .m_data = "pre-processing numerals"};
 static const lean_object* l_Lean_Elab_Tactic_NormCast_derive___closed__5 = (const lean_object*)&l_Lean_Elab_Tactic_NormCast_derive___closed__5_value;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
+static lean_once_cell_t l_Lean_Elab_Tactic_NormCast_derive___closed__6_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Elab_Tactic_NormCast_derive___closed__6;
 static const lean_string_object l_Lean_Elab_Tactic_NormCast_derive___closed__7_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 41, .m_capacity = 41, .m_length = 40, .m_data = "moving upward, splitting and eliminating"};
 static const lean_object* l_Lean_Elab_Tactic_NormCast_derive___closed__7 = (const lean_object*)&l_Lean_Elab_Tactic_NormCast_derive___closed__7_value;
@@ -575,6 +641,7 @@ lean_object* l_Lean_Meta_Simp_SimprocsArray_add(lean_object*, lean_object*, uint
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_NormCast_derive(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_NormCast_derive___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_unsupportedSyntaxExceptionId;
+static lean_once_cell_t l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Elab_Tactic_NormCast_elabModCast_spec__0___redArg___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Elab_Tactic_NormCast_elabModCast_spec__0___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Elab_Tactic_NormCast_elabModCast_spec__0___redArg();
 LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Elab_Tactic_NormCast_elabModCast_spec__0___redArg___boxed(lean_object*);
@@ -588,7 +655,9 @@ static const lean_string_object l_Lean_Elab_Tactic_NormCast_elabModCast___lam__0
 static const lean_object* l_Lean_Elab_Tactic_NormCast_elabModCast___lam__0___closed__0 = (const lean_object*)&l_Lean_Elab_Tactic_NormCast_elabModCast___lam__0___closed__0_value;
 static const lean_ctor_object l_Lean_Elab_Tactic_NormCast_elabModCast___lam__0___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 3}, .m_objs = {((lean_object*)&l_Lean_Elab_Tactic_NormCast_elabModCast___lam__0___closed__0_value)}};
 static const lean_object* l_Lean_Elab_Tactic_NormCast_elabModCast___lam__0___closed__1 = (const lean_object*)&l_Lean_Elab_Tactic_NormCast_elabModCast___lam__0___closed__1_value;
+static lean_once_cell_t l_Lean_Elab_Tactic_NormCast_elabModCast___lam__0___closed__2_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Elab_Tactic_NormCast_elabModCast___lam__0___closed__2;
+static lean_once_cell_t l_Lean_Elab_Tactic_NormCast_elabModCast___lam__0___closed__3_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Elab_Tactic_NormCast_elabModCast___lam__0___closed__3;
 lean_object* l_Lean_Meta_Simp_Result_mkCast(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_throwTypeMismatchError___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -675,6 +744,7 @@ static const lean_ctor_object l_Lean_Elab_Tactic_NormCast_evalNormCast0___closed
 static const lean_ctor_object l_Lean_Elab_Tactic_NormCast_evalNormCast0___closed__2_value_aux_2 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_Lean_Elab_Tactic_NormCast_evalNormCast0___closed__2_value_aux_1),((lean_object*)&l___private_Lean_Elab_Tactic_NormCast_0__Lean_Elab_Tactic_NormCast_initFn___closed__0_00___x40_Lean_Elab_Tactic_NormCast_1508164376____hygCtx___hyg_2__value),LEAN_SCALAR_PTR_LITERAL(166, 58, 35, 182, 187, 130, 147, 254)}};
 static const lean_ctor_object l_Lean_Elab_Tactic_NormCast_evalNormCast0___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_Lean_Elab_Tactic_NormCast_evalNormCast0___closed__2_value_aux_2),((lean_object*)&l_Lean_Elab_Tactic_NormCast_evalNormCast0___closed__1_value),LEAN_SCALAR_PTR_LITERAL(45, 127, 34, 143, 195, 62, 88, 123)}};
 static const lean_object* l_Lean_Elab_Tactic_NormCast_evalNormCast0___closed__2 = (const lean_object*)&l_Lean_Elab_Tactic_NormCast_evalNormCast0___closed__2_value;
+static lean_once_cell_t l_Lean_Elab_Tactic_NormCast_evalNormCast0___closed__3_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Elab_Tactic_NormCast_evalNormCast0___closed__3;
 uint8_t l_Lean_Syntax_isNone(lean_object*);
 uint8_t l_Lean_Syntax_matchesNull(lean_object*, lean_object*);
@@ -760,6 +830,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_NormCast_evalPushCast___lam__0(lean_
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_NormCast_evalPushCast___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_NormCast_pushCastExt;
 lean_object* l_Lean_Meta_SimpExtension_getTheorems___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_once_cell_t l_Lean_Elab_Tactic_NormCast_evalPushCast___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Elab_Tactic_NormCast_evalPushCast___closed__0;
 lean_object* l_Lean_Elab_Tactic_mkSimpContext___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Simp_Context_setFailIfUnchanged(lean_object*, uint8_t);
@@ -818,16 +889,27 @@ static const lean_string_object l_Lean_Elab_Tactic_NormCast_elabAddElim___closed
 static const lean_object* l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__2 = (const lean_object*)&l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__2_value;
 static const lean_ctor_object l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__3_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__2_value),LEAN_SCALAR_PTR_LITERAL(52, 159, 208, 51, 14, 60, 6, 71)}};
 static const lean_object* l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__3 = (const lean_object*)&l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__3_value;
+static lean_once_cell_t l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__4_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__4;
+static lean_once_cell_t l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__5_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__5;
+static lean_once_cell_t l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__6_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__6;
+static lean_once_cell_t l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__7_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__7;
+static lean_once_cell_t l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__8_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__8;
+static lean_once_cell_t l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__9_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__9;
+static lean_once_cell_t l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__10_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__10;
+static lean_once_cell_t l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__11_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__11;
+static lean_once_cell_t l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__12_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__12;
+static lean_once_cell_t l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__13_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__13;
+static lean_once_cell_t l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__14_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__14;
 extern lean_object* l_Lean_Meta_instInhabitedConfigWithKey___private__1;
 lean_object* l_Lean_Elab_Command_liftCoreM___redArg(lean_object*, lean_object*, lean_object*);
@@ -879,7 +961,7 @@ x_2 = l___private_Lean_Elab_Tactic_NormCast_0__Lean_Elab_Tactic_NormCast_initFn_
 return x_2;
 }
 }
-static uint64_t _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__0() {
+static uint64_t _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__0(void) {
 _start:
 {
 uint8_t x_1; uint64_t x_2; 
@@ -888,7 +970,7 @@ x_2 = l_Lean_Meta_TransparencyMode_toUInt64(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__2() {
+static lean_object* _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__2(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -897,7 +979,7 @@ x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__3() {
+static lean_object* _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__3(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -907,11 +989,11 @@ x_3 = lean_mk_array(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__4() {
+static lean_object* _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__4(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__3;
+x_1 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__3, &l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__3_once, _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__3);
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
@@ -919,7 +1001,7 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__5() {
+static lean_object* _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__5(void) {
 _start:
 {
 lean_object* x_1; 
@@ -927,22 +1009,22 @@ x_1 = l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_box(0), lean_box(0));
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__6() {
+static lean_object* _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__6(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__5;
+x_1 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__5, &l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__5_once, _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__5);
 x_2 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__7() {
+static lean_object* _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__7(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
-x_1 = l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__6;
-x_2 = l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__4;
+x_1 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__6, &l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__6_once, _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__6);
+x_2 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__4, &l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__4_once, _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__4);
 x_3 = 1;
 x_4 = lean_alloc_ctor(0, 2, 1);
 lean_ctor_set(x_4, 0, x_2);
@@ -951,19 +1033,19 @@ lean_ctor_set_uint8(x_4, sizeof(void*)*2, x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__8() {
+static lean_object* _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__8(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__6;
+x_2 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__6, &l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__6_once, _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__6);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__9() {
+static lean_object* _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__9(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -972,24 +1054,24 @@ x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__10() {
+static lean_object* _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__10(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__9;
+x_1 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__9, &l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__9_once, _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__9);
 x_2 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__11() {
+static lean_object* _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__11(void) {
 _start:
 {
 size_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = 5;
 x_2 = lean_unsigned_to_nat(0u);
-x_3 = l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__9;
-x_4 = l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__10;
+x_3 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__9, &l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__9_once, _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__9);
+x_4 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__10, &l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__10_once, _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__10);
 x_5 = lean_alloc_ctor(0, 4, sizeof(size_t)*1);
 lean_ctor_set(x_5, 0, x_4);
 lean_ctor_set(x_5, 1, x_3);
@@ -999,12 +1081,12 @@ lean_ctor_set_usize(x_5, 4, x_1);
 return x_5;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__12() {
+static lean_object* _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__12(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__11;
-x_2 = l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__6;
+x_1 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__11, &l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__11_once, _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__11);
+x_2 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__6, &l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__6_once, _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__6);
 x_3 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_2);
@@ -1013,15 +1095,15 @@ lean_ctor_set(x_3, 3, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__13() {
+static lean_object* _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__13(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_1 = l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__12;
+x_1 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__12, &l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__12_once, _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__12);
 x_2 = lean_unsigned_to_nat(0u);
-x_3 = l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__8;
-x_4 = l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__4;
-x_5 = l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__7;
+x_3 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__8, &l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__8_once, _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__8);
+x_4 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__4, &l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__4_once, _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__4);
+x_5 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__7, &l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__7_once, _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__7);
 x_6 = lean_alloc_ctor(0, 6, 0);
 lean_ctor_set(x_6, 0, x_5);
 lean_ctor_set(x_6, 1, x_4);
@@ -1088,7 +1170,7 @@ lean_dec(x_32);
 x_33 = 2;
 x_34 = lean_uint64_shift_right(x_24, x_33);
 x_35 = lean_uint64_shift_left(x_34, x_33);
-x_36 = l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__0;
+x_36 = lean_uint64_once(&l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__0, &l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__0_once, _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__0);
 x_37 = lean_uint64_lor(x_35, x_36);
 x_38 = lean_alloc_ctor(0, 1, 8);
 lean_ctor_set(x_38, 0, x_9);
@@ -1096,7 +1178,7 @@ lean_ctor_set_uint64(x_38, sizeof(void*)*1, x_37);
 lean_ctor_set(x_4, 0, x_38);
 x_39 = lean_box(0);
 x_40 = ((lean_object*)(l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__1));
-x_41 = l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__2;
+x_41 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__2, &l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__2_once, _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__2);
 x_42 = lean_array_push(x_41, x_1);
 x_43 = l_Lean_Meta_Simp_mkContext___redArg(x_40, x_42, x_12, x_4, x_6, x_7);
 if (lean_obj_tag(x_43) == 0)
@@ -1118,7 +1200,7 @@ if (lean_is_exclusive(x_45)) {
  lean_dec_ref(x_45);
  x_47 = lean_box(0);
 }
-x_48 = l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__13;
+x_48 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__13, &l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__13_once, _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__13);
 x_49 = lean_st_mk_ref(x_48);
 x_55 = l_Lean_Meta_Simp_Methods_toMethodsRefImpl(x_46);
 lean_dec(x_46);
@@ -1416,7 +1498,7 @@ lean_dec(x_4);
 x_91 = 2;
 x_92 = lean_uint64_shift_right(x_24, x_91);
 x_93 = lean_uint64_shift_left(x_92, x_91);
-x_94 = l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__0;
+x_94 = lean_uint64_once(&l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__0, &l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__0_once, _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__0);
 x_95 = lean_uint64_lor(x_93, x_94);
 x_96 = lean_alloc_ctor(0, 1, 8);
 lean_ctor_set(x_96, 0, x_9);
@@ -1435,7 +1517,7 @@ lean_ctor_set_uint8(x_97, sizeof(void*)*7 + 2, x_21);
 lean_ctor_set_uint8(x_97, sizeof(void*)*7 + 3, x_22);
 x_98 = lean_box(0);
 x_99 = ((lean_object*)(l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__1));
-x_100 = l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__2;
+x_100 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__2, &l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__2_once, _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__2);
 x_101 = lean_array_push(x_100, x_1);
 x_102 = l_Lean_Meta_Simp_mkContext___redArg(x_99, x_101, x_12, x_97, x_6, x_7);
 if (lean_obj_tag(x_102) == 0)
@@ -1457,7 +1539,7 @@ if (lean_is_exclusive(x_104)) {
  lean_dec_ref(x_104);
  x_106 = lean_box(0);
 }
-x_107 = l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__13;
+x_107 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__13, &l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__13_once, _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__13);
 x_108 = lean_st_mk_ref(x_107);
 x_114 = l_Lean_Meta_Simp_Methods_toMethodsRefImpl(x_105);
 lean_dec(x_105);
@@ -1867,7 +1949,7 @@ if (lean_is_exclusive(x_4)) {
 x_187 = 2;
 x_188 = lean_uint64_shift_right(x_185, x_187);
 x_189 = lean_uint64_shift_left(x_188, x_187);
-x_190 = l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__0;
+x_190 = lean_uint64_once(&l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__0, &l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__0_once, _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__0);
 x_191 = lean_uint64_lor(x_189, x_190);
 x_192 = lean_alloc_ctor(0, 1, 8);
 lean_ctor_set(x_192, 0, x_184);
@@ -1890,7 +1972,7 @@ lean_ctor_set_uint8(x_193, sizeof(void*)*7 + 2, x_181);
 lean_ctor_set_uint8(x_193, sizeof(void*)*7 + 3, x_182);
 x_194 = lean_box(0);
 x_195 = ((lean_object*)(l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__1));
-x_196 = l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__2;
+x_196 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__2, &l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__2_once, _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__2);
 x_197 = lean_array_push(x_196, x_1);
 x_198 = l_Lean_Meta_Simp_mkContext___redArg(x_195, x_197, x_172, x_193, x_6, x_7);
 if (lean_obj_tag(x_198) == 0)
@@ -1912,7 +1994,7 @@ if (lean_is_exclusive(x_200)) {
  lean_dec_ref(x_200);
  x_202 = lean_box(0);
 }
-x_203 = l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__13;
+x_203 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__13, &l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__13_once, _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__13);
 x_204 = lean_st_mk_ref(x_203);
 x_210 = l_Lean_Meta_Simp_Methods_toMethodsRefImpl(x_201);
 lean_dec(x_201);
@@ -2307,7 +2389,7 @@ lean_dec_ref(x_2);
 return x_7;
 }
 }
-static lean_object* _init_l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__1___redArg___closed__0() {
+static lean_object* _init_l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__1___redArg___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2316,24 +2398,24 @@ x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__1___redArg___closed__1() {
+static lean_object* _init_l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__1___redArg___closed__1(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__1___redArg___closed__0;
+x_1 = lean_obj_once(&l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__1___redArg___closed__0, &l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__1___redArg___closed__0_once, _init_l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__1___redArg___closed__0);
 x_2 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__1___redArg___closed__2() {
+static lean_object* _init_l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__1___redArg___closed__2(void) {
 _start:
 {
 size_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = 5;
 x_2 = lean_unsigned_to_nat(0u);
-x_3 = l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__1___redArg___closed__0;
-x_4 = l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__1___redArg___closed__1;
+x_3 = lean_obj_once(&l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__1___redArg___closed__0, &l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__1___redArg___closed__0_once, _init_l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__1___redArg___closed__0);
+x_4 = lean_obj_once(&l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__1___redArg___closed__1, &l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__1___redArg___closed__1_once, _init_l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__1___redArg___closed__1);
 x_5 = lean_alloc_ctor(0, 4, sizeof(size_t)*1);
 lean_ctor_set(x_5, 0, x_4);
 lean_ctor_set(x_5, 1, x_3);
@@ -2366,7 +2448,7 @@ if (x_9 == 0)
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_10 = lean_ctor_get(x_8, 0);
 lean_dec(x_10);
-x_11 = l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__1___redArg___closed__2;
+x_11 = lean_obj_once(&l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__1___redArg___closed__2, &l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__1___redArg___closed__2_once, _init_l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__1___redArg___closed__2);
 lean_ctor_set(x_8, 0, x_11);
 x_12 = lean_st_ref_set(x_1, x_6);
 x_13 = lean_alloc_ctor(0, 1, 0);
@@ -2378,7 +2460,7 @@ else
 uint64_t x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
 x_14 = lean_ctor_get_uint64(x_8, sizeof(void*)*1);
 lean_dec(x_8);
-x_15 = l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__1___redArg___closed__2;
+x_15 = lean_obj_once(&l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__1___redArg___closed__2, &l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__1___redArg___closed__2_once, _init_l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__1___redArg___closed__2);
 x_16 = lean_alloc_ctor(0, 1, 8);
 lean_ctor_set(x_16, 0, x_15);
 lean_ctor_set_uint64(x_16, sizeof(void*)*1, x_14);
@@ -2419,7 +2501,7 @@ if (lean_is_exclusive(x_19)) {
  lean_dec_ref(x_19);
  x_29 = lean_box(0);
 }
-x_30 = l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__1___redArg___closed__2;
+x_30 = lean_obj_once(&l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__1___redArg___closed__2, &l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__1___redArg___closed__2_once, _init_l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__1___redArg___closed__2);
 if (lean_is_scalar(x_29)) {
  x_31 = lean_alloc_ctor(0, 1, 8);
 } else {
@@ -2521,7 +2603,7 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_NormCast_proveEqUsingDown___lam__0___closed__1() {
+static lean_object* _init_l_Lean_Elab_Tactic_NormCast_proveEqUsingDown___lam__0___closed__1(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2545,7 +2627,7 @@ lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean
 x_11 = lean_ctor_get(x_9, 0);
 x_12 = l_Lean_exceptOptionEmoji___redArg(x_3);
 x_13 = l_Lean_stringToMessageData(x_12);
-x_14 = l_Lean_Elab_Tactic_NormCast_proveEqUsingDown___lam__0___closed__1;
+x_14 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_proveEqUsingDown___lam__0___closed__1, &l_Lean_Elab_Tactic_NormCast_proveEqUsingDown___lam__0___closed__1_once, _init_l_Lean_Elab_Tactic_NormCast_proveEqUsingDown___lam__0___closed__1);
 x_15 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_15, 0, x_13);
 lean_ctor_set(x_15, 1, x_14);
@@ -2564,7 +2646,7 @@ lean_inc(x_18);
 lean_dec(x_9);
 x_19 = l_Lean_exceptOptionEmoji___redArg(x_3);
 x_20 = l_Lean_stringToMessageData(x_19);
-x_21 = l_Lean_Elab_Tactic_NormCast_proveEqUsingDown___lam__0___closed__1;
+x_21 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_proveEqUsingDown___lam__0___closed__1, &l_Lean_Elab_Tactic_NormCast_proveEqUsingDown___lam__0___closed__1_once, _init_l_Lean_Elab_Tactic_NormCast_proveEqUsingDown___lam__0___closed__1);
 x_22 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_22, 0, x_20);
 lean_ctor_set(x_22, 1, x_21);
@@ -2706,10 +2788,9 @@ return x_3;
 else
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; size_t x_9; size_t x_10; lean_object* x_11; 
-x_5 = lean_array_uget(x_3, x_2);
+x_5 = lean_array_uget_borrowed(x_3, x_2);
 x_6 = lean_ctor_get(x_5, 1);
 lean_inc_ref(x_6);
-lean_dec(x_5);
 x_7 = lean_unsigned_to_nat(0u);
 x_8 = lean_array_uset(x_3, x_2, x_7);
 x_9 = 1;
@@ -3169,7 +3250,7 @@ x_3 = l_MonadExcept_ofExcept___at___00__private_Lean_Util_Trace_0__Lean_withTrac
 return x_3;
 }
 }
-static double _init_l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__3___redArg___closed__0() {
+static double _init_l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__3___redArg___closed__0(void) {
 _start:
 {
 lean_object* x_1; double x_2; 
@@ -3178,7 +3259,7 @@ x_2 = lean_float_of_nat(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__3___redArg___closed__2() {
+static lean_object* _init_l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__3___redArg___closed__2(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -3187,7 +3268,7 @@ x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
-static double _init_l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__3___redArg___closed__3() {
+static double _init_l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__3___redArg___closed__3(void) {
 _start:
 {
 lean_object* x_1; double x_2; 
@@ -3228,7 +3309,7 @@ lean_object* x_89; lean_object* x_90; double x_91; double x_92; double x_93;
 x_89 = l_Lean_trace_profiler_threshold;
 x_90 = l_Lean_Option_get___at___00__private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__3_spec__5(x_4, x_89);
 x_91 = lean_float_of_nat(x_90);
-x_92 = l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__3___redArg___closed__3;
+x_92 = lean_float_once(&l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__3___redArg___closed__3, &l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__3___redArg___closed__3_once, _init_l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__3___redArg___closed__3);
 x_93 = lean_float_div(x_91, x_92);
 x_81 = x_93;
 goto block_86;
@@ -3281,7 +3362,7 @@ return x_28;
 block_42:
 {
 double x_37; lean_object* x_38; 
-x_37 = l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__3___redArg___closed__0;
+x_37 = lean_float_once(&l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__3___redArg___closed__0, &l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__3___redArg___closed__0_once, _init_l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__3___redArg___closed__0);
 lean_inc_ref(x_3);
 lean_inc(x_1);
 x_38 = lean_alloc_ctor(0, 2, 17);
@@ -3357,7 +3438,7 @@ else
 {
 lean_object* x_46; 
 lean_dec_ref(x_44);
-x_46 = l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__3___redArg___closed__2;
+x_46 = lean_obj_once(&l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__3___redArg___closed__2, &l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__3___redArg___closed__2_once, _init_l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__3___redArg___closed__2);
 lean_inc(x_43);
 x_34 = x_43;
 x_35 = x_46;
@@ -3508,7 +3589,7 @@ lean_dec_ref(x_4);
 return x_16;
 }
 }
-static double _init_l_Lean_Elab_Tactic_NormCast_proveEqUsingDown___closed__1() {
+static double _init_l_Lean_Elab_Tactic_NormCast_proveEqUsingDown___closed__1(void) {
 _start:
 {
 lean_object* x_1; double x_2; 
@@ -3589,7 +3670,7 @@ block_46:
 lean_object* x_34; double x_35; double x_36; double x_37; double x_38; double x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; uint8_t x_44; lean_object* x_45; 
 x_34 = lean_io_mono_nanos_now();
 x_35 = lean_float_of_nat(x_31);
-x_36 = l_Lean_Elab_Tactic_NormCast_proveEqUsingDown___closed__1;
+x_36 = lean_float_once(&l_Lean_Elab_Tactic_NormCast_proveEqUsingDown___closed__1, &l_Lean_Elab_Tactic_NormCast_proveEqUsingDown___closed__1_once, _init_l_Lean_Elab_Tactic_NormCast_proveEqUsingDown___closed__1);
 x_37 = lean_float_div(x_35, x_36);
 x_38 = lean_float_of_nat(x_34);
 x_39 = lean_float_div(x_38, x_36);
@@ -3948,7 +4029,7 @@ lean_dec_ref(x_2);
 return x_7;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1() {
+static lean_object* _init_l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -3992,7 +4073,7 @@ else
 lean_object* x_12; lean_object* x_13; 
 lean_free_object(x_8);
 lean_dec(x_10);
-x_12 = l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1;
+x_12 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1, &l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1_once, _init_l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1);
 x_13 = l_Lean_throwError___at___00Lean_Elab_Tactic_NormCast_mkCoe_spec__0___redArg(x_12, x_3, x_4, x_5, x_6);
 lean_dec(x_6);
 lean_dec_ref(x_5);
@@ -4025,7 +4106,7 @@ else
 {
 lean_object* x_17; lean_object* x_18; 
 lean_dec(x_14);
-x_17 = l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1;
+x_17 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1, &l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1_once, _init_l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1);
 x_18 = l_Lean_throwError___at___00Lean_Elab_Tactic_NormCast_mkCoe_spec__0___redArg(x_17, x_3, x_4, x_5, x_6);
 lean_dec(x_6);
 lean_dec_ref(x_5);
@@ -4325,7 +4406,7 @@ lean_dec_ref(x_1);
 return x_7;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_NormCast_isNumeral_x3f___closed__6() {
+static lean_object* _init_l_Lean_Elab_Tactic_NormCast_isNumeral_x3f___closed__6(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -4335,23 +4416,23 @@ x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_NormCast_isNumeral_x3f___closed__7() {
+static lean_object* _init_l_Lean_Elab_Tactic_NormCast_isNumeral_x3f___closed__7(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Lean_Elab_Tactic_NormCast_isNumeral_x3f___closed__6;
+x_2 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_isNumeral_x3f___closed__6, &l_Lean_Elab_Tactic_NormCast_isNumeral_x3f___closed__6_once, _init_l_Lean_Elab_Tactic_NormCast_isNumeral_x3f___closed__6);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_NormCast_isNumeral_x3f___closed__8() {
+static lean_object* _init_l_Lean_Elab_Tactic_NormCast_isNumeral_x3f___closed__8(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Elab_Tactic_NormCast_isNumeral_x3f___closed__7;
+x_1 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_isNumeral_x3f___closed__7, &l_Lean_Elab_Tactic_NormCast_isNumeral_x3f___closed__7_once, _init_l_Lean_Elab_Tactic_NormCast_isNumeral_x3f___closed__7);
 x_2 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -4563,7 +4644,7 @@ return x_36;
 else
 {
 lean_object* x_37; 
-x_37 = l_Lean_Elab_Tactic_NormCast_isNumeral_x3f___closed__8;
+x_37 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_isNumeral_x3f___closed__8, &l_Lean_Elab_Tactic_NormCast_isNumeral_x3f___closed__8_once, _init_l_Lean_Elab_Tactic_NormCast_isNumeral_x3f___closed__8);
 return x_37;
 }
 }
@@ -4581,7 +4662,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__0
 _start:
 {
 lean_object* x_7; lean_object* x_8; uint8_t x_9; 
-x_7 = l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1;
+x_7 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1, &l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1_once, _init_l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1);
 x_8 = l_Lean_throwError___at___00Lean_Elab_Tactic_NormCast_mkCoe_spec__0___redArg(x_7, x_2, x_3, x_4, x_5);
 x_9 = !lean_is_exclusive(x_8);
 if (x_9 == 0)
@@ -4613,7 +4694,7 @@ lean_dec(x_1);
 return x_7;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__0() {
+static lean_object* _init_l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -4622,7 +4703,7 @@ x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__2() {
+static lean_object* _init_l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__2(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -4631,19 +4712,19 @@ x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__3() {
+static lean_object* _init_l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__3(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__2;
-x_2 = l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__0;
+x_1 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__2, &l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__2_once, _init_l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__2);
+x_2 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__0, &l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__0_once, _init_l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__0);
 x_3 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__4() {
+static lean_object* _init_l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__4(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -4652,19 +4733,19 @@ x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__5() {
+static lean_object* _init_l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__5(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__2;
-x_2 = l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__4;
+x_1 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__2, &l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__2_once, _init_l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__2);
+x_2 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__4, &l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__4_once, _init_l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__4);
 x_3 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__7() {
+static lean_object* _init_l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__7(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -4673,7 +4754,7 @@ x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__8() {
+static lean_object* _init_l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__8(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -4682,12 +4763,12 @@ x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__9() {
+static lean_object* _init_l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__9(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__2;
-x_2 = l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__8;
+x_1 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__2, &l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__2_once, _init_l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__2);
+x_2 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__8, &l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__8_once, _init_l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__8);
 x_3 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
@@ -4706,7 +4787,7 @@ if (x_9 == 0)
 lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 x_10 = lean_ctor_get(x_3, 0);
 lean_dec(x_10);
-x_11 = l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__3;
+x_11 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__3, &l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__3_once, _init_l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__3);
 x_12 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_12, 0, x_11);
 lean_ctor_set(x_12, 1, x_1);
@@ -4717,7 +4798,7 @@ else
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; 
 lean_dec(x_3);
-x_13 = l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__3;
+x_13 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__3, &l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__3_once, _init_l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__3);
 x_14 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_14, 0, x_13);
 lean_ctor_set(x_14, 1, x_1);
@@ -4741,11 +4822,11 @@ x_19 = lean_expr_eqv(x_18, x_2);
 if (x_19 == 0)
 {
 lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 
-x_20 = l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__5;
+x_20 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__5, &l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__5_once, _init_l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__5);
 x_21 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_21, 0, x_20);
 lean_ctor_set(x_21, 1, x_1);
-x_22 = l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__7;
+x_22 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__7, &l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__7_once, _init_l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__7);
 x_23 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_23, 0, x_21);
 lean_ctor_set(x_23, 1, x_22);
@@ -4761,7 +4842,7 @@ else
 {
 lean_object* x_26; lean_object* x_27; 
 lean_dec_ref(x_18);
-x_26 = l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__9;
+x_26 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__9, &l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__9_once, _init_l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__9);
 x_27 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_27, 0, x_26);
 lean_ctor_set(x_27, 1, x_1);
@@ -4783,11 +4864,11 @@ x_30 = lean_expr_eqv(x_29, x_2);
 if (x_30 == 0)
 {
 lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; 
-x_31 = l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__5;
+x_31 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__5, &l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__5_once, _init_l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__5);
 x_32 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_32, 0, x_31);
 lean_ctor_set(x_32, 1, x_1);
-x_33 = l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__7;
+x_33 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__7, &l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__7_once, _init_l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__7);
 x_34 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_34, 0, x_32);
 lean_ctor_set(x_34, 1, x_33);
@@ -4803,7 +4884,7 @@ else
 {
 lean_object* x_38; lean_object* x_39; lean_object* x_40; 
 lean_dec_ref(x_29);
-x_38 = l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__9;
+x_38 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__9, &l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__9_once, _init_l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__9);
 x_39 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_39, 0, x_38);
 lean_ctor_set(x_39, 1, x_1);
@@ -4828,7 +4909,7 @@ lean_dec_ref(x_2);
 return x_9;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_NormCast_splittingProcedure___closed__1() {
+static lean_object* _init_l_Lean_Elab_Tactic_NormCast_splittingProcedure___closed__1(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -5067,7 +5148,7 @@ else
 {
 lean_object* x_226; lean_object* x_227; lean_object* x_228; 
 lean_dec(x_216);
-x_226 = l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1;
+x_226 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1, &l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1_once, _init_l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1);
 x_227 = l_Lean_throwError___at___00Lean_Elab_Tactic_NormCast_mkCoe_spec__0___redArg(x_226, x_2, x_3, x_4, x_5);
 x_228 = lean_ctor_get(x_227, 0);
 lean_inc(x_228);
@@ -5175,7 +5256,7 @@ lean_object* x_233; lean_object* x_234; lean_object* x_235;
 lean_dec(x_207);
 lean_dec(x_205);
 lean_dec_ref(x_188);
-x_233 = l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1;
+x_233 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1, &l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1_once, _init_l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1);
 x_234 = l_Lean_throwError___at___00Lean_Elab_Tactic_NormCast_mkCoe_spec__0___redArg(x_233, x_2, x_3, x_4, x_5);
 x_235 = lean_ctor_get(x_234, 0);
 lean_inc(x_235);
@@ -5460,7 +5541,7 @@ else
 {
 lean_object* x_289; lean_object* x_290; lean_object* x_291; 
 lean_dec(x_281);
-x_289 = l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1;
+x_289 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1, &l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1_once, _init_l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1);
 x_290 = l_Lean_throwError___at___00Lean_Elab_Tactic_NormCast_mkCoe_spec__0___redArg(x_289, x_2, x_3, x_4, x_5);
 x_291 = lean_ctor_get(x_290, 0);
 lean_inc(x_291);
@@ -5565,7 +5646,7 @@ else
 lean_object* x_296; lean_object* x_297; lean_object* x_298; 
 lean_dec(x_272);
 lean_dec(x_270);
-x_296 = l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1;
+x_296 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1, &l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1_once, _init_l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1);
 x_297 = l_Lean_throwError___at___00Lean_Elab_Tactic_NormCast_mkCoe_spec__0___redArg(x_296, x_2, x_3, x_4, x_5);
 x_298 = lean_ctor_get(x_297, 0);
 lean_inc(x_298);
@@ -5829,7 +5910,7 @@ else
 {
 lean_object* x_357; lean_object* x_358; 
 lean_dec(x_351);
-x_357 = l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1;
+x_357 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1, &l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1_once, _init_l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1);
 x_358 = l_Lean_throwError___at___00Lean_Elab_Tactic_NormCast_mkCoe_spec__0___redArg(x_357, x_2, x_3, x_4, x_5);
 x_319 = x_337;
 x_320 = x_338;
@@ -6178,7 +6259,7 @@ else
 {
 lean_object* x_429; lean_object* x_430; lean_object* x_431; 
 lean_dec(x_419);
-x_429 = l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1;
+x_429 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1, &l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1_once, _init_l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1);
 x_430 = l_Lean_throwError___at___00Lean_Elab_Tactic_NormCast_mkCoe_spec__0___redArg(x_429, x_2, x_3, x_4, x_5);
 x_431 = lean_ctor_get(x_430, 0);
 lean_inc(x_431);
@@ -6286,7 +6367,7 @@ lean_object* x_436; lean_object* x_437; lean_object* x_438;
 lean_dec(x_410);
 lean_dec(x_408);
 lean_dec_ref(x_188);
-x_436 = l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1;
+x_436 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1, &l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1_once, _init_l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1);
 x_437 = l_Lean_throwError___at___00Lean_Elab_Tactic_NormCast_mkCoe_spec__0___redArg(x_436, x_2, x_3, x_4, x_5);
 x_438 = lean_ctor_get(x_437, 0);
 lean_inc(x_438);
@@ -6571,7 +6652,7 @@ else
 {
 lean_object* x_492; lean_object* x_493; lean_object* x_494; 
 lean_dec(x_484);
-x_492 = l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1;
+x_492 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1, &l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1_once, _init_l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1);
 x_493 = l_Lean_throwError___at___00Lean_Elab_Tactic_NormCast_mkCoe_spec__0___redArg(x_492, x_2, x_3, x_4, x_5);
 x_494 = lean_ctor_get(x_493, 0);
 lean_inc(x_494);
@@ -6676,7 +6757,7 @@ else
 lean_object* x_499; lean_object* x_500; lean_object* x_501; 
 lean_dec(x_475);
 lean_dec(x_473);
-x_499 = l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1;
+x_499 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1, &l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1_once, _init_l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1);
 x_500 = l_Lean_throwError___at___00Lean_Elab_Tactic_NormCast_mkCoe_spec__0___redArg(x_499, x_2, x_3, x_4, x_5);
 x_501 = lean_ctor_get(x_500, 0);
 lean_inc(x_501);
@@ -6940,7 +7021,7 @@ else
 {
 lean_object* x_560; lean_object* x_561; 
 lean_dec(x_554);
-x_560 = l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1;
+x_560 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1, &l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1_once, _init_l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1);
 x_561 = l_Lean_throwError___at___00Lean_Elab_Tactic_NormCast_mkCoe_spec__0___redArg(x_560, x_2, x_3, x_4, x_5);
 x_522 = x_541;
 x_523 = x_535;
@@ -7285,7 +7366,7 @@ else
 {
 lean_object* x_632; lean_object* x_633; 
 lean_dec(x_625);
-x_632 = l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1;
+x_632 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1, &l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1_once, _init_l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1);
 x_633 = l_Lean_throwError___at___00Lean_Elab_Tactic_NormCast_mkCoe_spec__0___redArg(x_632, x_2, x_3, x_4, x_5);
 x_379 = x_606;
 x_380 = x_597;
@@ -7418,7 +7499,7 @@ else
 lean_object* x_639; lean_object* x_640; lean_object* x_641; 
 lean_dec(x_614);
 lean_dec(x_612);
-x_639 = l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1;
+x_639 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1, &l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1_once, _init_l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1);
 x_640 = l_Lean_throwError___at___00Lean_Elab_Tactic_NormCast_mkCoe_spec__0___redArg(x_639, x_2, x_3, x_4, x_5);
 x_641 = lean_ctor_get(x_640, 0);
 lean_inc(x_641);
@@ -7462,7 +7543,7 @@ else
 {
 lean_object* x_643; lean_object* x_644; lean_object* x_645; 
 lean_dec(x_611);
-x_643 = l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1;
+x_643 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1, &l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1_once, _init_l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1);
 x_644 = l_Lean_throwError___at___00Lean_Elab_Tactic_NormCast_mkCoe_spec__0___redArg(x_643, x_2, x_3, x_4, x_5);
 x_645 = lean_ctor_get(x_644, 0);
 lean_inc(x_645);
@@ -7654,7 +7735,7 @@ else
 {
 lean_object* x_670; lean_object* x_671; 
 lean_dec(x_663);
-x_670 = l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1;
+x_670 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1, &l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1_once, _init_l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1);
 x_671 = l_Lean_throwError___at___00Lean_Elab_Tactic_NormCast_mkCoe_spec__0___redArg(x_670, x_2, x_3, x_4, x_5);
 x_582 = x_606;
 x_583 = x_647;
@@ -7787,7 +7868,7 @@ else
 lean_object* x_677; lean_object* x_678; lean_object* x_679; 
 lean_dec(x_652);
 lean_dec(x_650);
-x_677 = l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1;
+x_677 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1, &l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1_once, _init_l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1);
 x_678 = l_Lean_throwError___at___00Lean_Elab_Tactic_NormCast_mkCoe_spec__0___redArg(x_677, x_2, x_3, x_4, x_5);
 x_679 = lean_ctor_get(x_678, 0);
 lean_inc(x_679);
@@ -7831,7 +7912,7 @@ else
 {
 lean_object* x_681; lean_object* x_682; lean_object* x_683; 
 lean_dec(x_649);
-x_681 = l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1;
+x_681 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1, &l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1_once, _init_l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1);
 x_682 = l_Lean_throwError___at___00Lean_Elab_Tactic_NormCast_mkCoe_spec__0___redArg(x_681, x_2, x_3, x_4, x_5);
 x_683 = lean_ctor_get(x_682, 0);
 lean_inc(x_683);
@@ -8007,7 +8088,7 @@ else
 {
 lean_object* x_716; lean_object* x_717; lean_object* x_718; 
 lean_dec(x_707);
-x_716 = l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1;
+x_716 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1, &l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1_once, _init_l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1);
 x_717 = l_Lean_throwError___at___00Lean_Elab_Tactic_NormCast_mkCoe_spec__0___redArg(x_716, x_690, x_687, x_686, x_689);
 lean_dec(x_689);
 lean_dec_ref(x_686);
@@ -8095,7 +8176,7 @@ lean_object* x_723; lean_object* x_724; lean_object* x_725;
 lean_dec(x_698);
 lean_dec(x_696);
 lean_dec_ref(x_188);
-x_723 = l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1;
+x_723 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1, &l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1_once, _init_l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1);
 x_724 = l_Lean_throwError___at___00Lean_Elab_Tactic_NormCast_mkCoe_spec__0___redArg(x_723, x_690, x_687, x_686, x_689);
 lean_dec(x_689);
 lean_dec_ref(x_686);
@@ -8350,7 +8431,7 @@ else
 {
 lean_object* x_775; lean_object* x_776; lean_object* x_777; 
 lean_dec(x_768);
-x_775 = l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1;
+x_775 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1, &l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1_once, _init_l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1);
 x_776 = l_Lean_throwError___at___00Lean_Elab_Tactic_NormCast_mkCoe_spec__0___redArg(x_775, x_752, x_750, x_748, x_751);
 x_777 = lean_ctor_get(x_776, 0);
 lean_inc(x_777);
@@ -8435,7 +8516,7 @@ else
 lean_object* x_782; lean_object* x_783; lean_object* x_784; 
 lean_dec(x_759);
 lean_dec(x_757);
-x_782 = l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1;
+x_782 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1, &l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1_once, _init_l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1);
 x_783 = l_Lean_throwError___at___00Lean_Elab_Tactic_NormCast_mkCoe_spec__0___redArg(x_782, x_752, x_750, x_748, x_751);
 x_784 = lean_ctor_get(x_783, 0);
 lean_inc(x_784);
@@ -8669,7 +8750,7 @@ else
 {
 lean_object* x_835; lean_object* x_836; 
 lean_dec(x_829);
-x_835 = l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1;
+x_835 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1, &l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1_once, _init_l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1);
 x_836 = l_Lean_throwError___at___00Lean_Elab_Tactic_NormCast_mkCoe_spec__0___redArg(x_835, x_820, x_816, x_815, x_817);
 x_806 = x_815;
 x_807 = x_816;
@@ -8954,7 +9035,7 @@ else
 {
 lean_object* x_891; lean_object* x_892; 
 lean_dec(x_884);
-x_891 = l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1;
+x_891 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1, &l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1_once, _init_l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1);
 x_892 = l_Lean_throwError___at___00Lean_Elab_Tactic_NormCast_mkCoe_spec__0___redArg(x_891, x_864, x_865, x_866, x_867);
 x_853 = x_866;
 x_854 = x_865;
@@ -9063,7 +9144,7 @@ else
 lean_object* x_898; lean_object* x_899; lean_object* x_900; 
 lean_dec(x_873);
 lean_dec(x_871);
-x_898 = l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1;
+x_898 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1, &l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1_once, _init_l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1);
 x_899 = l_Lean_throwError___at___00Lean_Elab_Tactic_NormCast_mkCoe_spec__0___redArg(x_898, x_864, x_865, x_866, x_867);
 x_900 = lean_ctor_get(x_899, 0);
 lean_inc(x_900);
@@ -9099,7 +9180,7 @@ else
 {
 lean_object* x_902; lean_object* x_903; lean_object* x_904; 
 lean_dec(x_870);
-x_902 = l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1;
+x_902 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1, &l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1_once, _init_l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1);
 x_903 = l_Lean_throwError___at___00Lean_Elab_Tactic_NormCast_mkCoe_spec__0___redArg(x_902, x_864, x_865, x_866, x_867);
 x_904 = lean_ctor_get(x_903, 0);
 lean_inc(x_904);
@@ -9195,7 +9276,7 @@ x_919 = l_Lean_isTracingEnabledFor___at___00Lean_Elab_Tactic_NormCast_proveEqUsi
 x_920 = lean_ctor_get(x_919, 0);
 lean_inc(x_920);
 lean_dec_ref(x_919);
-x_921 = l_Lean_Elab_Tactic_NormCast_splittingProcedure___closed__1;
+x_921 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_splittingProcedure___closed__1, &l_Lean_Elab_Tactic_NormCast_splittingProcedure___closed__1_once, _init_l_Lean_Elab_Tactic_NormCast_splittingProcedure___closed__1);
 lean_inc_ref(x_1);
 x_922 = l_Lean_MessageData_ofExpr(x_1);
 x_923 = lean_alloc_ctor(7, 2, 0);
@@ -9319,7 +9400,7 @@ x_944 = l_Lean_isTracingEnabledFor___at___00Lean_Elab_Tactic_NormCast_proveEqUsi
 x_945 = lean_ctor_get(x_944, 0);
 lean_inc(x_945);
 lean_dec_ref(x_944);
-x_946 = l_Lean_Elab_Tactic_NormCast_splittingProcedure___closed__1;
+x_946 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_splittingProcedure___closed__1, &l_Lean_Elab_Tactic_NormCast_splittingProcedure___closed__1_once, _init_l_Lean_Elab_Tactic_NormCast_splittingProcedure___closed__1);
 lean_inc_ref(x_1);
 x_947 = l_Lean_MessageData_ofExpr(x_1);
 x_948 = lean_alloc_ctor(7, 2, 0);
@@ -9586,7 +9667,7 @@ block_49:
 lean_object* x_38; double x_39; double x_40; double x_41; double x_42; double x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; 
 x_38 = lean_io_mono_nanos_now();
 x_39 = lean_float_of_nat(x_31);
-x_40 = l_Lean_Elab_Tactic_NormCast_proveEqUsingDown___closed__1;
+x_40 = lean_float_once(&l_Lean_Elab_Tactic_NormCast_proveEqUsingDown___closed__1, &l_Lean_Elab_Tactic_NormCast_proveEqUsingDown___closed__1_once, _init_l_Lean_Elab_Tactic_NormCast_proveEqUsingDown___closed__1);
 x_41 = lean_float_div(x_39, x_40);
 x_42 = lean_float_of_nat(x_38);
 x_43 = lean_float_div(x_42, x_40);
@@ -9941,7 +10022,7 @@ if (x_9 == 0)
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_10 = lean_ctor_get(x_8, 0);
 lean_dec(x_10);
-x_11 = l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__1___redArg___closed__2;
+x_11 = lean_obj_once(&l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__1___redArg___closed__2, &l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__1___redArg___closed__2_once, _init_l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__1___redArg___closed__2);
 lean_ctor_set(x_8, 0, x_11);
 x_12 = lean_st_ref_set(x_1, x_6);
 x_13 = lean_alloc_ctor(0, 1, 0);
@@ -9953,7 +10034,7 @@ else
 uint64_t x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
 x_14 = lean_ctor_get_uint64(x_8, sizeof(void*)*1);
 lean_dec(x_8);
-x_15 = l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__1___redArg___closed__2;
+x_15 = lean_obj_once(&l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__1___redArg___closed__2, &l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__1___redArg___closed__2_once, _init_l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__1___redArg___closed__2);
 x_16 = lean_alloc_ctor(0, 1, 8);
 lean_ctor_set(x_16, 0, x_15);
 lean_ctor_set_uint64(x_16, sizeof(void*)*1, x_14);
@@ -9994,7 +10075,7 @@ if (lean_is_exclusive(x_19)) {
  lean_dec_ref(x_19);
  x_29 = lean_box(0);
 }
-x_30 = l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__1___redArg___closed__2;
+x_30 = lean_obj_once(&l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__1___redArg___closed__2, &l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__1___redArg___closed__2_once, _init_l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__1___redArg___closed__2);
 if (lean_is_scalar(x_29)) {
  x_31 = lean_alloc_ctor(0, 1, 8);
 } else {
@@ -10051,7 +10132,7 @@ lean_dec(x_1);
 return x_9;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_NormCast_prove___lam__0___closed__1() {
+static lean_object* _init_l_Lean_Elab_Tactic_NormCast_prove___lam__0___closed__1(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -10066,7 +10147,7 @@ _start:
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
 x_11 = l_Lean_exceptOptionEmoji___redArg(x_2);
 x_12 = l_Lean_stringToMessageData(x_11);
-x_13 = l_Lean_Elab_Tactic_NormCast_prove___lam__0___closed__1;
+x_13 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_prove___lam__0___closed__1, &l_Lean_Elab_Tactic_NormCast_prove___lam__0___closed__1_once, _init_l_Lean_Elab_Tactic_NormCast_prove___lam__0___closed__1);
 x_14 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_14, 0, x_12);
 lean_ctor_set(x_14, 1, x_13);
@@ -10563,7 +10644,7 @@ lean_object* x_95; lean_object* x_96; double x_97; double x_98; double x_99;
 x_95 = l_Lean_trace_profiler_threshold;
 x_96 = l_Lean_Option_get___at___00__private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__3_spec__5(x_4, x_95);
 x_97 = lean_float_of_nat(x_96);
-x_98 = l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__3___redArg___closed__3;
+x_98 = lean_float_once(&l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__3___redArg___closed__3, &l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__3___redArg___closed__3_once, _init_l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__3___redArg___closed__3);
 x_99 = lean_float_div(x_97, x_98);
 x_87 = x_99;
 goto block_92;
@@ -10619,7 +10700,7 @@ return x_34;
 block_48:
 {
 double x_43; lean_object* x_44; 
-x_43 = l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__3___redArg___closed__0;
+x_43 = lean_float_once(&l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__3___redArg___closed__0, &l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__3___redArg___closed__0_once, _init_l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__3___redArg___closed__0);
 lean_inc_ref(x_3);
 lean_inc(x_1);
 x_44 = lean_alloc_ctor(0, 2, 17);
@@ -10704,7 +10785,7 @@ else
 {
 lean_object* x_52; 
 lean_dec_ref(x_50);
-x_52 = l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__3___redArg___closed__2;
+x_52 = lean_obj_once(&l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__3___redArg___closed__2, &l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__3___redArg___closed__2_once, _init_l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__3___redArg___closed__2);
 lean_inc(x_49);
 x_40 = x_49;
 x_41 = x_52;
@@ -10981,7 +11062,7 @@ block_52:
 lean_object* x_40; double x_41; double x_42; double x_43; double x_44; double x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; uint8_t x_50; lean_object* x_51; 
 x_40 = lean_io_mono_nanos_now();
 x_41 = lean_float_of_nat(x_36);
-x_42 = l_Lean_Elab_Tactic_NormCast_proveEqUsingDown___closed__1;
+x_42 = lean_float_once(&l_Lean_Elab_Tactic_NormCast_proveEqUsingDown___closed__1, &l_Lean_Elab_Tactic_NormCast_proveEqUsingDown___closed__1_once, _init_l_Lean_Elab_Tactic_NormCast_proveEqUsingDown___closed__1);
 x_43 = lean_float_div(x_41, x_42);
 x_44 = lean_float_of_nat(x_40);
 x_45 = lean_float_div(x_44, x_42);
@@ -11433,7 +11514,7 @@ lean_object* x_14; uint8_t x_15; lean_object* x_16; lean_object* x_17; lean_obje
 x_14 = lean_ctor_get(x_12, 0);
 lean_dec(x_14);
 x_15 = 1;
-x_16 = l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__7;
+x_16 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__7, &l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__7_once, _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__7);
 lean_ctor_set(x_12, 0, x_16);
 x_17 = lean_st_ref_set(x_5, x_12);
 x_18 = lean_ctor_get(x_1, 1);
@@ -12178,7 +12259,7 @@ lean_inc(x_154);
 lean_inc(x_153);
 lean_dec(x_12);
 x_158 = 1;
-x_159 = l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__7;
+x_159 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__7, &l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__7_once, _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__7);
 x_160 = lean_alloc_ctor(0, 6, 0);
 lean_ctor_set(x_160, 0, x_159);
 lean_ctor_set(x_160, 1, x_153);
@@ -12467,7 +12548,7 @@ x_11 = l_Lean_Elab_Tactic_NormCast_upwardAndElim(x_1, x_2, x_3, x_4, x_5, x_6, x
 return x_11;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_NormCast_numeralToCoe___closed__2() {
+static lean_object* _init_l_Lean_Elab_Tactic_NormCast_numeralToCoe___closed__2(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -12529,7 +12610,7 @@ lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);
 lean_dec_ref(x_1);
-x_50 = l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1;
+x_50 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1, &l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1_once, _init_l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1);
 x_51 = l_Lean_throwError___at___00Lean_Elab_Tactic_NormCast_mkCoe_spec__0___redArg(x_50, x_2, x_3, x_4, x_5);
 lean_dec(x_5);
 lean_dec_ref(x_4);
@@ -12593,7 +12674,7 @@ x_19 = lean_box(0);
 x_20 = l_Lean_mkNatLit(x_11);
 x_21 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_21, 0, x_20);
-x_22 = l_Lean_Elab_Tactic_NormCast_numeralToCoe___closed__2;
+x_22 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_numeralToCoe___closed__2, &l_Lean_Elab_Tactic_NormCast_numeralToCoe___closed__2_once, _init_l_Lean_Elab_Tactic_NormCast_numeralToCoe___closed__2);
 x_23 = lean_array_push(x_22, x_18);
 x_24 = lean_array_push(x_23, x_19);
 x_25 = lean_array_push(x_24, x_21);
@@ -12639,7 +12720,7 @@ else
 lean_object* x_32; lean_object* x_33; 
 lean_free_object(x_28);
 lean_dec(x_30);
-x_32 = l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1;
+x_32 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1, &l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1_once, _init_l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1);
 x_33 = l_Lean_throwError___at___00Lean_Elab_Tactic_NormCast_mkCoe_spec__0___redArg(x_32, x_12, x_13, x_14, x_15);
 lean_dec(x_15);
 lean_dec_ref(x_14);
@@ -12672,7 +12753,7 @@ else
 {
 lean_object* x_37; lean_object* x_38; 
 lean_dec(x_34);
-x_37 = l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1;
+x_37 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1, &l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1_once, _init_l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1);
 x_38 = l_Lean_throwError___at___00Lean_Elab_Tactic_NormCast_mkCoe_spec__0___redArg(x_37, x_12, x_13, x_14, x_15);
 lean_dec(x_15);
 lean_dec_ref(x_14);
@@ -12737,7 +12818,7 @@ else
 lean_object* x_58; lean_object* x_59; 
 lean_dec(x_7);
 lean_dec_ref(x_1);
-x_58 = l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1;
+x_58 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1, &l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1_once, _init_l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1);
 x_59 = l_Lean_throwError___at___00Lean_Elab_Tactic_NormCast_mkCoe_spec__0___redArg(x_58, x_2, x_3, x_4, x_5);
 lean_dec(x_5);
 lean_dec_ref(x_4);
@@ -12792,7 +12873,7 @@ lean_dec_ref(x_2);
 return x_9;
 }
 }
-static lean_object* _init_l_List_foldl___at___00Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4_spec__9___closed__0() {
+static lean_object* _init_l_List_foldl___at___00Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4_spec__9___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -12801,7 +12882,7 @@ x_2 = l_Lean_MessageData_ofFormat(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_List_foldl___at___00Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4_spec__9___closed__3() {
+static lean_object* _init_l_List_foldl___at___00Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4_spec__9___closed__3(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -12833,11 +12914,11 @@ x_6 = lean_ctor_get(x_2, 1);
 x_7 = lean_ctor_get(x_4, 0);
 x_8 = lean_ctor_get(x_4, 1);
 lean_dec(x_8);
-x_9 = l_List_foldl___at___00Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4_spec__9___closed__0;
+x_9 = lean_obj_once(&l_List_foldl___at___00Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4_spec__9___closed__0, &l_List_foldl___at___00Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4_spec__9___closed__0_once, _init_l_List_foldl___at___00Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4_spec__9___closed__0);
 lean_ctor_set_tag(x_4, 7);
 lean_ctor_set(x_4, 1, x_9);
 lean_ctor_set(x_4, 0, x_1);
-x_10 = l_List_foldl___at___00Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4_spec__9___closed__3;
+x_10 = lean_obj_once(&l_List_foldl___at___00Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4_spec__9___closed__3, &l_List_foldl___at___00Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4_spec__9___closed__3_once, _init_l_List_foldl___at___00Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4_spec__9___closed__3);
 lean_ctor_set_tag(x_2, 7);
 lean_ctor_set(x_2, 1, x_10);
 x_11 = l_Lean_MessageData_ofSyntax(x_7);
@@ -12856,11 +12937,11 @@ x_15 = lean_ctor_get(x_2, 1);
 x_16 = lean_ctor_get(x_4, 0);
 lean_inc(x_16);
 lean_dec(x_4);
-x_17 = l_List_foldl___at___00Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4_spec__9___closed__0;
+x_17 = lean_obj_once(&l_List_foldl___at___00Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4_spec__9___closed__0, &l_List_foldl___at___00Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4_spec__9___closed__0_once, _init_l_List_foldl___at___00Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4_spec__9___closed__0);
 x_18 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_18, 0, x_1);
 lean_ctor_set(x_18, 1, x_17);
-x_19 = l_List_foldl___at___00Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4_spec__9___closed__3;
+x_19 = lean_obj_once(&l_List_foldl___at___00Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4_spec__9___closed__3, &l_List_foldl___at___00Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4_spec__9___closed__3_once, _init_l_List_foldl___at___00Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4_spec__9___closed__3);
 lean_ctor_set_tag(x_2, 7);
 lean_ctor_set(x_2, 1, x_19);
 lean_ctor_set(x_2, 0, x_18);
@@ -12892,7 +12973,7 @@ if (lean_is_exclusive(x_24)) {
  lean_dec_ref(x_24);
  x_27 = lean_box(0);
 }
-x_28 = l_List_foldl___at___00Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4_spec__9___closed__0;
+x_28 = lean_obj_once(&l_List_foldl___at___00Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4_spec__9___closed__0, &l_List_foldl___at___00Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4_spec__9___closed__0_once, _init_l_List_foldl___at___00Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4_spec__9___closed__0);
 if (lean_is_scalar(x_27)) {
  x_29 = lean_alloc_ctor(7, 2, 0);
 } else {
@@ -12901,7 +12982,7 @@ if (lean_is_scalar(x_27)) {
 }
 lean_ctor_set(x_29, 0, x_1);
 lean_ctor_set(x_29, 1, x_28);
-x_30 = l_List_foldl___at___00Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4_spec__9___closed__3;
+x_30 = lean_obj_once(&l_List_foldl___at___00Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4_spec__9___closed__3, &l_List_foldl___at___00Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4_spec__9___closed__3_once, _init_l_List_foldl___at___00Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4_spec__9___closed__3);
 x_31 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_31, 0, x_29);
 lean_ctor_set(x_31, 1, x_30);
@@ -12917,7 +12998,7 @@ goto _start;
 }
 }
 }
-static lean_object* _init_l_Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4___redArg___closed__2() {
+static lean_object* _init_l_Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4___redArg___closed__2(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -12962,11 +13043,11 @@ lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean
 x_12 = lean_ctor_get(x_10, 1);
 x_13 = lean_ctor_get(x_10, 0);
 lean_dec(x_13);
-x_14 = l_List_foldl___at___00Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4_spec__9___closed__0;
+x_14 = lean_obj_once(&l_List_foldl___at___00Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4_spec__9___closed__0, &l_List_foldl___at___00Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4_spec__9___closed__0_once, _init_l_List_foldl___at___00Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4_spec__9___closed__0);
 lean_ctor_set_tag(x_10, 7);
 lean_ctor_set(x_10, 1, x_14);
 lean_ctor_set(x_10, 0, x_1);
-x_15 = l_Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4___redArg___closed__2;
+x_15 = lean_obj_once(&l_Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4___redArg___closed__2, &l_Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4___redArg___closed__2_once, _init_l_Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4___redArg___closed__2);
 x_16 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_16, 0, x_10);
 lean_ctor_set(x_16, 1, x_15);
@@ -12986,11 +13067,11 @@ lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean
 x_22 = lean_ctor_get(x_10, 1);
 lean_inc(x_22);
 lean_dec(x_10);
-x_23 = l_List_foldl___at___00Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4_spec__9___closed__0;
+x_23 = lean_obj_once(&l_List_foldl___at___00Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4_spec__9___closed__0, &l_List_foldl___at___00Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4_spec__9___closed__0_once, _init_l_List_foldl___at___00Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4_spec__9___closed__0);
 x_24 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_24, 0, x_1);
 lean_ctor_set(x_24, 1, x_23);
-x_25 = l_Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4___redArg___closed__2;
+x_25 = lean_obj_once(&l_Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4___redArg___closed__2, &l_Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4___redArg___closed__2_once, _init_l_Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4___redArg___closed__2);
 x_26 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_26, 0, x_24);
 lean_ctor_set(x_26, 1, x_25);
@@ -13072,7 +13153,7 @@ lean_dec(x_3);
 return x_9;
 }
 }
-static lean_object* _init_l_Lean_addTrace___at___00__private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0_spec__3___redArg___closed__0() {
+static lean_object* _init_l_Lean_addTrace___at___00__private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0_spec__3___redArg___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -13103,7 +13184,7 @@ if (x_15 == 0)
 {
 lean_object* x_16; double x_17; uint8_t x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; 
 x_16 = lean_ctor_get(x_14, 0);
-x_17 = l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__3___redArg___closed__0;
+x_17 = lean_float_once(&l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__3___redArg___closed__0, &l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__3___redArg___closed__0_once, _init_l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__3___redArg___closed__0);
 x_18 = 0;
 x_19 = ((lean_object*)(l_Lean_Elab_Tactic_NormCast_proveEqUsingDown___closed__0));
 x_20 = lean_alloc_ctor(0, 2, 17);
@@ -13112,7 +13193,7 @@ lean_ctor_set(x_20, 1, x_19);
 lean_ctor_set_float(x_20, sizeof(void*)*2, x_17);
 lean_ctor_set_float(x_20, sizeof(void*)*2 + 8, x_17);
 lean_ctor_set_uint8(x_20, sizeof(void*)*2 + 16, x_18);
-x_21 = l_Lean_addTrace___at___00__private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0_spec__3___redArg___closed__0;
+x_21 = lean_obj_once(&l_Lean_addTrace___at___00__private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0_spec__3___redArg___closed__0, &l_Lean_addTrace___at___00__private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0_spec__3___redArg___closed__0_once, _init_l_Lean_addTrace___at___00__private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0_spec__3___redArg___closed__0);
 x_22 = lean_alloc_ctor(9, 3, 0);
 lean_ctor_set(x_22, 0, x_20);
 lean_ctor_set(x_22, 1, x_11);
@@ -13135,7 +13216,7 @@ x_27 = lean_ctor_get_uint64(x_14, sizeof(void*)*1);
 x_28 = lean_ctor_get(x_14, 0);
 lean_inc(x_28);
 lean_dec(x_14);
-x_29 = l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__3___redArg___closed__0;
+x_29 = lean_float_once(&l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__3___redArg___closed__0, &l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__3___redArg___closed__0_once, _init_l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__3___redArg___closed__0);
 x_30 = 0;
 x_31 = ((lean_object*)(l_Lean_Elab_Tactic_NormCast_proveEqUsingDown___closed__0));
 x_32 = lean_alloc_ctor(0, 2, 17);
@@ -13144,7 +13225,7 @@ lean_ctor_set(x_32, 1, x_31);
 lean_ctor_set_float(x_32, sizeof(void*)*2, x_29);
 lean_ctor_set_float(x_32, sizeof(void*)*2 + 8, x_29);
 lean_ctor_set_uint8(x_32, sizeof(void*)*2 + 16, x_30);
-x_33 = l_Lean_addTrace___at___00__private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0_spec__3___redArg___closed__0;
+x_33 = lean_obj_once(&l_Lean_addTrace___at___00__private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0_spec__3___redArg___closed__0, &l_Lean_addTrace___at___00__private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0_spec__3___redArg___closed__0_once, _init_l_Lean_addTrace___at___00__private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0_spec__3___redArg___closed__0);
 x_34 = lean_alloc_ctor(9, 3, 0);
 lean_ctor_set(x_34, 0, x_32);
 lean_ctor_set(x_34, 1, x_11);
@@ -13196,7 +13277,7 @@ if (lean_is_exclusive(x_40)) {
  lean_dec_ref(x_40);
  x_51 = lean_box(0);
 }
-x_52 = l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__3___redArg___closed__0;
+x_52 = lean_float_once(&l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__3___redArg___closed__0, &l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__3___redArg___closed__0_once, _init_l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__3___redArg___closed__0);
 x_53 = 0;
 x_54 = ((lean_object*)(l_Lean_Elab_Tactic_NormCast_proveEqUsingDown___closed__0));
 x_55 = lean_alloc_ctor(0, 2, 17);
@@ -13205,7 +13286,7 @@ lean_ctor_set(x_55, 1, x_54);
 lean_ctor_set_float(x_55, sizeof(void*)*2, x_52);
 lean_ctor_set_float(x_55, sizeof(void*)*2 + 8, x_52);
 lean_ctor_set_uint8(x_55, sizeof(void*)*2 + 16, x_53);
-x_56 = l_Lean_addTrace___at___00__private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0_spec__3___redArg___closed__0;
+x_56 = lean_obj_once(&l_Lean_addTrace___at___00__private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0_spec__3___redArg___closed__0, &l_Lean_addTrace___at___00__private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0_spec__3___redArg___closed__0_once, _init_l_Lean_addTrace___at___00__private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0_spec__3___redArg___closed__0);
 x_57 = lean_alloc_ctor(9, 3, 0);
 lean_ctor_set(x_57, 0, x_55);
 lean_ctor_set(x_57, 1, x_11);
@@ -13288,7 +13369,7 @@ if (lean_is_exclusive(x_66)) {
  lean_dec_ref(x_66);
  x_78 = lean_box(0);
 }
-x_79 = l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__3___redArg___closed__0;
+x_79 = lean_float_once(&l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__3___redArg___closed__0, &l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__3___redArg___closed__0_once, _init_l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__3___redArg___closed__0);
 x_80 = 0;
 x_81 = ((lean_object*)(l_Lean_Elab_Tactic_NormCast_proveEqUsingDown___closed__0));
 x_82 = lean_alloc_ctor(0, 2, 17);
@@ -13297,7 +13378,7 @@ lean_ctor_set(x_82, 1, x_81);
 lean_ctor_set_float(x_82, sizeof(void*)*2, x_79);
 lean_ctor_set_float(x_82, sizeof(void*)*2 + 8, x_79);
 lean_ctor_set_uint8(x_82, sizeof(void*)*2 + 16, x_80);
-x_83 = l_Lean_addTrace___at___00__private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0_spec__3___redArg___closed__0;
+x_83 = lean_obj_once(&l_Lean_addTrace___at___00__private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0_spec__3___redArg___closed__0, &l_Lean_addTrace___at___00__private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0_spec__3___redArg___closed__0_once, _init_l_Lean_addTrace___at___00__private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0_spec__3___redArg___closed__0);
 x_84 = lean_alloc_ctor(9, 3, 0);
 lean_ctor_set(x_84, 0, x_82);
 lean_ctor_set(x_84, 1, x_64);
@@ -13392,7 +13473,7 @@ x_5 = lean_box(x_4);
 return x_5;
 }
 }
-static size_t _init_l_Lean_PersistentHashMap_containsAux___at___00Lean_PersistentHashMap_contains___at___00__private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0_spec__1_spec__3___redArg___closed__0() {
+static size_t _init_l_Lean_PersistentHashMap_containsAux___at___00Lean_PersistentHashMap_contains___at___00__private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0_spec__1_spec__3___redArg___closed__0(void) {
 _start:
 {
 size_t x_1; size_t x_2; size_t x_3; 
@@ -13402,12 +13483,12 @@ x_3 = lean_usize_shift_left(x_2, x_1);
 return x_3;
 }
 }
-static size_t _init_l_Lean_PersistentHashMap_containsAux___at___00Lean_PersistentHashMap_contains___at___00__private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0_spec__1_spec__3___redArg___closed__1() {
+static size_t _init_l_Lean_PersistentHashMap_containsAux___at___00Lean_PersistentHashMap_contains___at___00__private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0_spec__1_spec__3___redArg___closed__1(void) {
 _start:
 {
 size_t x_1; size_t x_2; size_t x_3; 
 x_1 = 1;
-x_2 = l_Lean_PersistentHashMap_containsAux___at___00Lean_PersistentHashMap_contains___at___00__private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0_spec__1_spec__3___redArg___closed__0;
+x_2 = lean_usize_once(&l_Lean_PersistentHashMap_containsAux___at___00Lean_PersistentHashMap_contains___at___00__private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0_spec__1_spec__3___redArg___closed__0, &l_Lean_PersistentHashMap_containsAux___at___00Lean_PersistentHashMap_contains___at___00__private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0_spec__1_spec__3___redArg___closed__0_once, _init_l_Lean_PersistentHashMap_containsAux___at___00Lean_PersistentHashMap_contains___at___00__private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0_spec__1_spec__3___redArg___closed__0);
 x_3 = lean_usize_sub(x_2, x_1);
 return x_3;
 }
@@ -13423,7 +13504,7 @@ lean_inc_ref(x_4);
 lean_dec_ref(x_1);
 x_5 = lean_box(2);
 x_6 = 5;
-x_7 = l_Lean_PersistentHashMap_containsAux___at___00Lean_PersistentHashMap_contains___at___00__private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0_spec__1_spec__3___redArg___closed__1;
+x_7 = lean_usize_once(&l_Lean_PersistentHashMap_containsAux___at___00Lean_PersistentHashMap_contains___at___00__private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0_spec__1_spec__3___redArg___closed__1, &l_Lean_PersistentHashMap_containsAux___at___00Lean_PersistentHashMap_contains___at___00__private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0_spec__1_spec__3___redArg___closed__1_once, _init_l_Lean_PersistentHashMap_containsAux___at___00Lean_PersistentHashMap_contains___at___00__private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0_spec__1_spec__3___redArg___closed__1);
 x_8 = lean_usize_land(x_2, x_7);
 x_9 = lean_usize_to_nat(x_8);
 x_10 = lean_array_get(x_5, x_4, x_9);
@@ -13543,7 +13624,7 @@ lean_dec_ref(x_2);
 return x_4;
 }
 }
-static lean_object* _init_l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__2() {
+static lean_object* _init_l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__2(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -13553,7 +13634,7 @@ x_3 = l_Lean_PersistentHashMap_empty(lean_box(0), lean_box(0), x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__3() {
+static lean_object* _init_l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__3(void) {
 _start:
 {
 lean_object* x_1; 
@@ -13561,32 +13642,32 @@ x_1 = l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_box(0), lean_box(0));
 return x_1;
 }
 }
-static lean_object* _init_l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__4() {
+static lean_object* _init_l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__4(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__3;
+x_1 = lean_obj_once(&l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__3, &l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__3_once, _init_l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__3);
 x_2 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__5() {
+static lean_object* _init_l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__5(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__4;
+x_1 = lean_obj_once(&l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__4, &l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__4_once, _init_l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__4);
 x_2 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_2, 0, x_1);
 lean_ctor_set(x_2, 1, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__6() {
+static lean_object* _init_l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__6(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__4;
+x_1 = lean_obj_once(&l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__4, &l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__4_once, _init_l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__4);
 x_2 = lean_alloc_ctor(0, 6, 0);
 lean_ctor_set(x_2, 0, x_1);
 lean_ctor_set(x_2, 1, x_1);
@@ -13597,7 +13678,7 @@ lean_ctor_set(x_2, 5, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__10() {
+static lean_object* _init_l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__10(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -13606,7 +13687,7 @@ x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__12() {
+static lean_object* _init_l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__12(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -13615,7 +13696,7 @@ x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__13() {
+static lean_object* _init_l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__13(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -13624,7 +13705,7 @@ x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__15() {
+static lean_object* _init_l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__15(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -13647,7 +13728,7 @@ x_14 = lean_st_ref_get(x_9);
 x_15 = lean_ctor_get(x_14, 0);
 lean_inc_ref(x_15);
 lean_dec(x_14);
-x_16 = l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__2;
+x_16 = lean_obj_once(&l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__2, &l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__2_once, _init_l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__2);
 lean_inc(x_1);
 x_17 = lean_alloc_ctor(0, 1, 2);
 lean_ctor_set(x_17, 0, x_1);
@@ -13680,7 +13761,7 @@ goto block_73;
 else
 {
 lean_object* x_99; lean_object* x_100; 
-x_99 = l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__15;
+x_99 = lean_obj_once(&l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__15, &l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__15_once, _init_l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__15);
 if (x_13 == 0)
 {
 lean_object* x_108; 
@@ -13702,7 +13783,7 @@ x_101 = l_Lean_stringToMessageData(x_100);
 x_102 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_102, 0, x_99);
 lean_ctor_set(x_102, 1, x_101);
-x_103 = l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__2;
+x_103 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__2, &l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__2_once, _init_l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__2);
 x_104 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_104, 0, x_102);
 lean_ctor_set(x_104, 1, x_103);
@@ -13752,7 +13833,7 @@ x_86 = l_Lean_stringToMessageData(x_85);
 x_87 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_87, 0, x_84);
 lean_ctor_set(x_87, 1, x_86);
-x_88 = l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__10;
+x_88 = lean_obj_once(&l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__10, &l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__10_once, _init_l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__10);
 x_89 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_89, 0, x_87);
 lean_ctor_set(x_89, 1, x_88);
@@ -13764,7 +13845,7 @@ x_92 = l_Lean_Name_isAnonymous(x_3);
 if (x_92 == 0)
 {
 lean_object* x_93; lean_object* x_94; lean_object* x_95; 
-x_93 = l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__12;
+x_93 = lean_obj_once(&l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__12, &l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__12_once, _init_l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__12);
 x_94 = l_Lean_MessageData_ofName(x_3);
 x_95 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_95, 0, x_93);
@@ -13777,7 +13858,7 @@ else
 {
 lean_object* x_96; 
 lean_dec(x_3);
-x_96 = l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__13;
+x_96 = lean_obj_once(&l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__13, &l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__13_once, _init_l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__13);
 x_79 = x_91;
 x_80 = x_96;
 goto block_83;
@@ -13813,7 +13894,7 @@ lean_inc(x_29);
 lean_dec_ref(x_25);
 x_30 = l_Lean_PersistentEnvExtension_addEntry___redArg(x_18, x_27, x_17, x_29, x_20);
 lean_dec(x_29);
-x_31 = l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__5;
+x_31 = lean_obj_once(&l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__5, &l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__5_once, _init_l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__5);
 lean_ctor_set(x_24, 5, x_31);
 lean_ctor_set(x_24, 0, x_30);
 x_32 = lean_st_ref_set(x_22, x_24);
@@ -13824,7 +13905,7 @@ if (x_34 == 0)
 lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; 
 x_35 = lean_ctor_get(x_33, 1);
 lean_dec(x_35);
-x_36 = l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__6;
+x_36 = lean_obj_once(&l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__6, &l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__6_once, _init_l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__6);
 lean_ctor_set(x_33, 1, x_36);
 x_37 = lean_st_ref_set(x_21, x_33);
 x_38 = lean_box(0);
@@ -13844,7 +13925,7 @@ lean_inc(x_42);
 lean_inc(x_41);
 lean_inc(x_40);
 lean_dec(x_33);
-x_44 = l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__6;
+x_44 = lean_obj_once(&l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__6, &l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__6_once, _init_l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__6);
 x_45 = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(x_45, 0, x_40);
 lean_ctor_set(x_45, 1, x_44);
@@ -13883,7 +13964,7 @@ lean_inc(x_57);
 lean_dec_ref(x_25);
 x_58 = l_Lean_PersistentEnvExtension_addEntry___redArg(x_18, x_49, x_17, x_57, x_20);
 lean_dec(x_57);
-x_59 = l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__5;
+x_59 = lean_obj_once(&l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__5, &l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__5_once, _init_l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__5);
 x_60 = lean_alloc_ctor(0, 9, 0);
 lean_ctor_set(x_60, 0, x_58);
 lean_ctor_set(x_60, 1, x_50);
@@ -13915,7 +13996,7 @@ if (lean_is_exclusive(x_62)) {
  lean_dec_ref(x_62);
  x_67 = lean_box(0);
 }
-x_68 = l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__6;
+x_68 = lean_obj_once(&l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__6, &l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__6_once, _init_l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__6);
 if (lean_is_scalar(x_67)) {
  x_69 = lean_alloc_ctor(0, 5, 0);
 } else {
@@ -13971,9 +14052,8 @@ x_17 = lean_ctor_get(x_16, 3);
 lean_inc_ref(x_17);
 lean_dec_ref(x_16);
 x_18 = l_Lean_instInhabitedEffectiveImport_default;
-x_19 = lean_array_uget(x_3, x_5);
+x_19 = lean_array_uget_borrowed(x_3, x_5);
 x_20 = lean_array_get(x_18, x_17, x_19);
-lean_dec(x_19);
 lean_dec_ref(x_17);
 x_21 = lean_ctor_get(x_20, 0);
 lean_inc_ref(x_21);
@@ -14065,7 +14145,7 @@ lean_dec(x_1);
 return x_3;
 }
 }
-static uint64_t _init_l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__2___redArg___closed__0() {
+static uint64_t _init_l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__2___redArg___closed__0(void) {
 _start:
 {
 lean_object* x_1; uint64_t x_2; 
@@ -14083,7 +14163,7 @@ x_4 = lean_array_get_size(x_3);
 if (lean_obj_tag(x_2) == 0)
 {
 uint64_t x_20; 
-x_20 = l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__2___redArg___closed__0;
+x_20 = lean_uint64_once(&l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__2___redArg___closed__0, &l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__2___redArg___closed__0_once, _init_l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__2___redArg___closed__0);
 x_5 = x_20;
 goto block_19;
 }
@@ -14108,9 +14188,8 @@ x_13 = lean_usize_of_nat(x_4);
 x_14 = 1;
 x_15 = lean_usize_sub(x_13, x_14);
 x_16 = lean_usize_land(x_12, x_15);
-x_17 = lean_array_uget(x_3, x_16);
+x_17 = lean_array_uget_borrowed(x_3, x_16);
 x_18 = l_Std_DHashMap_Internal_AssocList_get_x3f___at___00Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__2_spec__6___redArg(x_2, x_17);
-lean_dec(x_17);
 return x_18;
 }
 }
@@ -14125,7 +14204,7 @@ lean_dec_ref(x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0___closed__2() {
+static lean_object* _init_l_Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0___closed__2(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -14135,7 +14214,7 @@ x_3 = l_Std_HashMap_instInhabited(lean_box(0), lean_box(0), x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0___closed__3() {
+static lean_object* _init_l_Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0___closed__3(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -14186,7 +14265,7 @@ x_31 = lean_st_ref_get(x_8);
 x_32 = lean_ctor_get(x_31, 0);
 lean_inc_ref(x_32);
 lean_dec(x_31);
-x_33 = l_Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0___closed__2;
+x_33 = lean_obj_once(&l_Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0___closed__2, &l_Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0___closed__2_once, _init_l_Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0___closed__2);
 x_34 = lean_array_fget(x_28, x_26);
 lean_dec(x_26);
 lean_dec_ref(x_28);
@@ -14239,7 +14318,7 @@ lean_dec(x_42);
 if (lean_obj_tag(x_43) == 0)
 {
 lean_object* x_44; 
-x_44 = l_Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0___closed__3;
+x_44 = lean_obj_once(&l_Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0___closed__3, &l_Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0___closed__3_once, _init_l_Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0___closed__3);
 x_15 = lean_box(0);
 x_16 = x_44;
 goto block_24;
@@ -14324,7 +14403,7 @@ lean_dec_ref(x_3);
 return x_11;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__1() {
+static lean_object* _init_l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__1(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -14333,7 +14412,7 @@ x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__3() {
+static lean_object* _init_l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__3(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -14342,7 +14421,7 @@ x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__5() {
+static lean_object* _init_l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__5(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -14351,7 +14430,7 @@ x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__7() {
+static lean_object* _init_l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__7(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -14360,7 +14439,7 @@ x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__8() {
+static lean_object* _init_l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__8(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -14369,12 +14448,12 @@ x_2 = l_Lean_MessageData_ofName(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__9() {
+static lean_object* _init_l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__9(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__8;
-x_2 = l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__7;
+x_1 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__8, &l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__8_once, _init_l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__8);
+x_2 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__7, &l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__7_once, _init_l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__7);
 x_3 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
@@ -14413,7 +14492,7 @@ if (x_101 == 0)
 {
 lean_object* x_102; lean_object* x_103; uint8_t x_104; 
 lean_dec_ref(x_46);
-x_102 = l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__9;
+x_102 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__9, &l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__9_once, _init_l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__9);
 x_103 = l_Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1___redArg(x_102, x_3, x_4, x_5, x_6, x_7, x_8);
 lean_dec(x_8);
 lean_dec_ref(x_7);
@@ -14511,7 +14590,7 @@ if (x_127 == 0)
 {
 lean_object* x_128; lean_object* x_129; lean_object* x_130; lean_object* x_131; lean_object* x_132; 
 lean_dec_ref(x_46);
-x_128 = l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__9;
+x_128 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__9, &l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__9_once, _init_l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__9);
 x_129 = l_Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1___redArg(x_128, x_3, x_4, x_5, x_6, x_125, x_8);
 lean_dec(x_8);
 lean_dec_ref(x_125);
@@ -14570,13 +14649,13 @@ if (x_20 == 0)
 {
 lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; 
 lean_dec_ref(x_15);
-x_21 = l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__1;
+x_21 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__1, &l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__1_once, _init_l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__1);
 x_22 = l_Lean_MessageData_ofExpr(x_16);
 x_23 = l_Lean_indentD(x_22);
 x_24 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_24, 0, x_21);
 lean_ctor_set(x_24, 1, x_23);
-x_25 = l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__3;
+x_25 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__3, &l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__3_once, _init_l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__3);
 x_26 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_26, 0, x_24);
 lean_ctor_set(x_26, 1, x_25);
@@ -14713,7 +14792,7 @@ else
 {
 lean_object* x_63; lean_object* x_64; uint8_t x_65; 
 lean_dec(x_60);
-x_63 = l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__5;
+x_63 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__5, &l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__5_once, _init_l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__5);
 x_64 = l_Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1___redArg(x_63, x_48, x_49, x_50, x_51, x_52, x_53);
 lean_dec(x_53);
 lean_dec_ref(x_52);
@@ -14815,7 +14894,7 @@ else
 {
 lean_object* x_76; lean_object* x_77; lean_object* x_78; lean_object* x_79; lean_object* x_80; 
 lean_dec(x_73);
-x_76 = l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__5;
+x_76 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__5, &l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__5_once, _init_l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__5);
 x_77 = l_Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1___redArg(x_76, x_48, x_49, x_50, x_51, x_52, x_53);
 lean_dec(x_53);
 lean_dec_ref(x_52);
@@ -15353,7 +15432,7 @@ lean_dec_ref(x_2);
 return x_11;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_NormCast_derive___lam__3___closed__1() {
+static lean_object* _init_l_Lean_Elab_Tactic_NormCast_derive___lam__3___closed__1(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -15362,7 +15441,7 @@ x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_NormCast_derive___lam__3___closed__3() {
+static lean_object* _init_l_Lean_Elab_Tactic_NormCast_derive___lam__3___closed__3(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -15383,7 +15462,7 @@ if (x_8 == 0)
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 x_9 = lean_ctor_get(x_2, 0);
 lean_dec(x_9);
-x_10 = l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__3;
+x_10 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__3, &l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__3_once, _init_l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__3);
 x_11 = l_Lean_stringToMessageData(x_1);
 x_12 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_12, 0, x_10);
@@ -15395,7 +15474,7 @@ else
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
 lean_dec(x_2);
-x_13 = l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__3;
+x_13 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__3, &l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__3_once, _init_l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__3);
 x_14 = l_Lean_stringToMessageData(x_1);
 x_15 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_15, 0, x_13);
@@ -15417,7 +15496,7 @@ x_19 = lean_ctor_get(x_18, 0);
 lean_inc_ref(x_19);
 lean_dec(x_18);
 x_20 = l_Lean_MessageData_ofExpr(x_19);
-x_21 = l_Lean_Elab_Tactic_NormCast_derive___lam__3___closed__1;
+x_21 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_derive___lam__3___closed__1, &l_Lean_Elab_Tactic_NormCast_derive___lam__3___closed__1_once, _init_l_Lean_Elab_Tactic_NormCast_derive___lam__3___closed__1);
 x_22 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_22, 0, x_20);
 lean_ctor_set(x_22, 1, x_21);
@@ -15425,7 +15504,7 @@ x_23 = l_Lean_stringToMessageData(x_1);
 x_24 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_24, 0, x_22);
 lean_ctor_set(x_24, 1, x_23);
-x_25 = l_Lean_Elab_Tactic_NormCast_derive___lam__3___closed__3;
+x_25 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_derive___lam__3___closed__3, &l_Lean_Elab_Tactic_NormCast_derive___lam__3___closed__3_once, _init_l_Lean_Elab_Tactic_NormCast_derive___lam__3___closed__3);
 x_26 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_26, 0, x_24);
 lean_ctor_set(x_26, 1, x_25);
@@ -15443,7 +15522,7 @@ x_28 = lean_ctor_get(x_27, 0);
 lean_inc_ref(x_28);
 lean_dec(x_27);
 x_29 = l_Lean_MessageData_ofExpr(x_28);
-x_30 = l_Lean_Elab_Tactic_NormCast_derive___lam__3___closed__1;
+x_30 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_derive___lam__3___closed__1, &l_Lean_Elab_Tactic_NormCast_derive___lam__3___closed__1_once, _init_l_Lean_Elab_Tactic_NormCast_derive___lam__3___closed__1);
 x_31 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_31, 0, x_29);
 lean_ctor_set(x_31, 1, x_30);
@@ -15451,7 +15530,7 @@ x_32 = l_Lean_stringToMessageData(x_1);
 x_33 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_33, 0, x_31);
 lean_ctor_set(x_33, 1, x_32);
-x_34 = l_Lean_Elab_Tactic_NormCast_derive___lam__3___closed__3;
+x_34 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_derive___lam__3___closed__3, &l_Lean_Elab_Tactic_NormCast_derive___lam__3___closed__3_once, _init_l_Lean_Elab_Tactic_NormCast_derive___lam__3___closed__3);
 x_35 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_35, 0, x_33);
 lean_ctor_set(x_35, 1, x_34);
@@ -15530,7 +15609,7 @@ block_33:
 lean_object* x_21; double x_22; double x_23; double x_24; double x_25; double x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; uint8_t x_31; lean_object* x_32; 
 x_21 = lean_io_mono_nanos_now();
 x_22 = lean_float_of_nat(x_18);
-x_23 = l_Lean_Elab_Tactic_NormCast_proveEqUsingDown___closed__1;
+x_23 = lean_float_once(&l_Lean_Elab_Tactic_NormCast_proveEqUsingDown___closed__1, &l_Lean_Elab_Tactic_NormCast_proveEqUsingDown___closed__1_once, _init_l_Lean_Elab_Tactic_NormCast_proveEqUsingDown___closed__1);
 x_24 = lean_float_div(x_22, x_23);
 x_25 = lean_float_of_nat(x_21);
 x_26 = lean_float_div(x_25, x_23);
@@ -15832,7 +15911,7 @@ lean_dec(x_4);
 return x_13;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_NormCast_derive___lam__7___closed__0() {
+static lean_object* _init_l_Lean_Elab_Tactic_NormCast_derive___lam__7___closed__0(void) {
 _start:
 {
 lean_object* x_1; 
@@ -15840,11 +15919,11 @@ x_1 = l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_box(0), lean_box(0));
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_NormCast_derive___lam__7___closed__1() {
+static lean_object* _init_l_Lean_Elab_Tactic_NormCast_derive___lam__7___closed__1(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Elab_Tactic_NormCast_derive___lam__7___closed__0;
+x_1 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_derive___lam__7___closed__0, &l_Lean_Elab_Tactic_NormCast_derive___lam__7___closed__0_once, _init_l_Lean_Elab_Tactic_NormCast_derive___lam__7___closed__0);
 x_2 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -15861,13 +15940,13 @@ lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean
 x_19 = lean_ctor_get(x_18, 0);
 lean_inc(x_19);
 lean_dec_ref(x_18);
-x_20 = l_Lean_Elab_Tactic_NormCast_derive___lam__7___closed__1;
+x_20 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_derive___lam__7___closed__1, &l_Lean_Elab_Tactic_NormCast_derive___lam__7___closed__1_once, _init_l_Lean_Elab_Tactic_NormCast_derive___lam__7___closed__1);
 lean_inc(x_4);
 x_21 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_21, 0, x_20);
 lean_ctor_set(x_21, 1, x_4);
-x_22 = l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__9;
-x_23 = l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__10;
+x_22 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__9, &l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__9_once, _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__9);
+x_23 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__10, &l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__10_once, _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__10);
 x_24 = 5;
 lean_inc(x_4);
 x_25 = lean_alloc_ctor(0, 4, sizeof(size_t)*1);
@@ -16013,13 +16092,13 @@ lean_dec_ref(x_19);
 x_21 = lean_ctor_get(x_5, 0);
 x_22 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_NormCast_upwardAndElim___boxed), 10, 1);
 lean_closure_set(x_22, 0, x_18);
-x_23 = l_Lean_Elab_Tactic_NormCast_derive___lam__7___closed__1;
+x_23 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_derive___lam__7___closed__1, &l_Lean_Elab_Tactic_NormCast_derive___lam__7___closed__1_once, _init_l_Lean_Elab_Tactic_NormCast_derive___lam__7___closed__1);
 lean_inc(x_6);
 x_24 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_24, 0, x_23);
 lean_ctor_set(x_24, 1, x_6);
-x_25 = l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__9;
-x_26 = l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__10;
+x_25 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__9, &l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__9_once, _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__9);
+x_26 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__10, &l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__10_once, _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__10);
 x_27 = 5;
 lean_inc(x_6);
 x_28 = lean_alloc_ctor(0, 4, sizeof(size_t)*1);
@@ -16172,7 +16251,7 @@ lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16;
 x_13 = lean_ctor_get(x_12, 0);
 lean_inc(x_13);
 lean_dec_ref(x_12);
-x_14 = l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__2;
+x_14 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__2, &l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__2_once, _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__2);
 x_15 = lean_array_push(x_14, x_13);
 x_16 = l_Lean_Meta_Simp_mkContext___redArg(x_2, x_15, x_3, x_7, x_9, x_10);
 if (lean_obj_tag(x_16) == 0)
@@ -16183,13 +16262,13 @@ lean_inc(x_17);
 lean_dec_ref(x_16);
 x_18 = lean_ctor_get(x_4, 0);
 x_19 = lean_box(0);
-x_20 = l_Lean_Elab_Tactic_NormCast_derive___lam__7___closed__1;
+x_20 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_derive___lam__7___closed__1, &l_Lean_Elab_Tactic_NormCast_derive___lam__7___closed__1_once, _init_l_Lean_Elab_Tactic_NormCast_derive___lam__7___closed__1);
 lean_inc(x_5);
 x_21 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_21, 0, x_20);
 lean_ctor_set(x_21, 1, x_5);
-x_22 = l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__9;
-x_23 = l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__10;
+x_22 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__9, &l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__9_once, _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__9);
+x_23 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__10, &l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__10_once, _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__10);
 x_24 = 5;
 lean_inc(x_5);
 x_25 = lean_alloc_ctor(0, 4, sizeof(size_t)*1);
@@ -16395,7 +16474,7 @@ block_33:
 lean_object* x_21; double x_22; double x_23; double x_24; double x_25; double x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; uint8_t x_31; lean_object* x_32; 
 x_21 = lean_io_mono_nanos_now();
 x_22 = lean_float_of_nat(x_17);
-x_23 = l_Lean_Elab_Tactic_NormCast_proveEqUsingDown___closed__1;
+x_23 = lean_float_once(&l_Lean_Elab_Tactic_NormCast_proveEqUsingDown___closed__1, &l_Lean_Elab_Tactic_NormCast_proveEqUsingDown___closed__1_once, _init_l_Lean_Elab_Tactic_NormCast_proveEqUsingDown___closed__1);
 x_24 = lean_float_div(x_22, x_23);
 x_25 = lean_float_of_nat(x_21);
 x_26 = lean_float_div(x_25, x_23);
@@ -16708,13 +16787,13 @@ lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean
 x_19 = lean_ctor_get(x_18, 0);
 lean_inc(x_19);
 lean_dec_ref(x_18);
-x_20 = l_Lean_Elab_Tactic_NormCast_derive___lam__7___closed__1;
+x_20 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_derive___lam__7___closed__1, &l_Lean_Elab_Tactic_NormCast_derive___lam__7___closed__1_once, _init_l_Lean_Elab_Tactic_NormCast_derive___lam__7___closed__1);
 lean_inc(x_4);
 x_21 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_21, 0, x_20);
 lean_ctor_set(x_21, 1, x_4);
-x_22 = l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__9;
-x_23 = l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__10;
+x_22 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__9, &l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__9_once, _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__9);
+x_23 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__10, &l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__10_once, _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__10);
 x_24 = 5;
 lean_inc(x_4);
 x_25 = lean_alloc_ctor(0, 4, sizeof(size_t)*1);
@@ -16860,13 +16939,13 @@ lean_dec_ref(x_19);
 x_21 = lean_ctor_get(x_5, 0);
 x_22 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_NormCast_upwardAndElim___boxed), 10, 1);
 lean_closure_set(x_22, 0, x_18);
-x_23 = l_Lean_Elab_Tactic_NormCast_derive___lam__7___closed__1;
+x_23 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_derive___lam__7___closed__1, &l_Lean_Elab_Tactic_NormCast_derive___lam__7___closed__1_once, _init_l_Lean_Elab_Tactic_NormCast_derive___lam__7___closed__1);
 lean_inc(x_6);
 x_24 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_24, 0, x_23);
 lean_ctor_set(x_24, 1, x_6);
-x_25 = l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__9;
-x_26 = l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__10;
+x_25 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__9, &l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__9_once, _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__9);
+x_26 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__10, &l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__10_once, _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__10);
 x_27 = 5;
 lean_inc(x_6);
 x_28 = lean_alloc_ctor(0, 4, sizeof(size_t)*1);
@@ -17065,7 +17144,7 @@ block_34:
 lean_object* x_22; double x_23; double x_24; double x_25; double x_26; double x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; uint8_t x_32; lean_object* x_33; 
 x_22 = lean_io_mono_nanos_now();
 x_23 = lean_float_of_nat(x_18);
-x_24 = l_Lean_Elab_Tactic_NormCast_proveEqUsingDown___closed__1;
+x_24 = lean_float_once(&l_Lean_Elab_Tactic_NormCast_proveEqUsingDown___closed__1, &l_Lean_Elab_Tactic_NormCast_proveEqUsingDown___closed__1_once, _init_l_Lean_Elab_Tactic_NormCast_proveEqUsingDown___closed__1);
 x_25 = lean_float_div(x_23, x_24);
 x_26 = lean_float_of_nat(x_22);
 x_27 = lean_float_div(x_26, x_24);
@@ -17257,7 +17336,7 @@ lean_dec_ref(x_4);
 return x_13;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_NormCast_derive___closed__4() {
+static lean_object* _init_l_Lean_Elab_Tactic_NormCast_derive___closed__4(void) {
 _start:
 {
 uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -17270,7 +17349,7 @@ lean_closure_set(x_4, 1, x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_NormCast_derive___closed__6() {
+static lean_object* _init_l_Lean_Elab_Tactic_NormCast_derive___closed__6(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -17383,7 +17462,7 @@ block_98:
 lean_object* x_86; double x_87; double x_88; double x_89; double x_90; double x_91; lean_object* x_92; lean_object* x_93; lean_object* x_94; lean_object* x_95; uint8_t x_96; lean_object* x_97; 
 x_86 = lean_io_mono_nanos_now();
 x_87 = lean_float_of_nat(x_82);
-x_88 = l_Lean_Elab_Tactic_NormCast_proveEqUsingDown___closed__1;
+x_88 = lean_float_once(&l_Lean_Elab_Tactic_NormCast_proveEqUsingDown___closed__1, &l_Lean_Elab_Tactic_NormCast_proveEqUsingDown___closed__1_once, _init_l_Lean_Elab_Tactic_NormCast_proveEqUsingDown___closed__1);
 x_89 = lean_float_div(x_87, x_88);
 x_90 = lean_float_of_nat(x_86);
 x_91 = lean_float_div(x_90, x_88);
@@ -17451,7 +17530,7 @@ lean_ctor_set(x_119, 1, x_114);
 lean_ctor_set_uint8(x_119, sizeof(void*)*2, x_9);
 x_120 = ((lean_object*)(l_Lean_Elab_Tactic_NormCast_derive___closed__5));
 x_121 = lean_unsigned_to_nat(0u);
-x_122 = l_Lean_Elab_Tactic_NormCast_derive___closed__6;
+x_122 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_derive___closed__6, &l_Lean_Elab_Tactic_NormCast_derive___closed__6_once, _init_l_Lean_Elab_Tactic_NormCast_derive___closed__6);
 x_123 = lean_box(x_9);
 lean_inc(x_113);
 lean_inc_ref(x_2);
@@ -17665,7 +17744,7 @@ lean_ctor_set(x_159, 1, x_154);
 lean_ctor_set_uint8(x_159, sizeof(void*)*2, x_108);
 x_160 = ((lean_object*)(l_Lean_Elab_Tactic_NormCast_derive___closed__5));
 x_161 = lean_unsigned_to_nat(0u);
-x_162 = l_Lean_Elab_Tactic_NormCast_derive___closed__6;
+x_162 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_derive___closed__6, &l_Lean_Elab_Tactic_NormCast_derive___closed__6_once, _init_l_Lean_Elab_Tactic_NormCast_derive___closed__6);
 x_163 = lean_box(x_108);
 lean_inc(x_153);
 lean_inc_ref(x_2);
@@ -17872,7 +17951,7 @@ x_22 = lean_box(0);
 x_23 = ((lean_object*)(l_Lean_Elab_Tactic_NormCast_derive___closed__2));
 x_24 = ((lean_object*)(l_Lean_Elab_Tactic_NormCast_derive___closed__3));
 x_25 = 1;
-x_26 = l_Lean_Elab_Tactic_NormCast_derive___closed__4;
+x_26 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_derive___closed__4, &l_Lean_Elab_Tactic_NormCast_derive___closed__4_once, _init_l_Lean_Elab_Tactic_NormCast_derive___closed__4);
 lean_inc(x_19);
 x_27 = lean_alloc_ctor(0, 2, 1);
 lean_ctor_set(x_27, 0, x_19);
@@ -17880,7 +17959,7 @@ lean_ctor_set(x_27, 1, x_22);
 lean_ctor_set_uint8(x_27, sizeof(void*)*2, x_25);
 x_28 = ((lean_object*)(l_Lean_Elab_Tactic_NormCast_derive___closed__5));
 x_29 = lean_unsigned_to_nat(0u);
-x_30 = l_Lean_Elab_Tactic_NormCast_derive___closed__6;
+x_30 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_derive___closed__6, &l_Lean_Elab_Tactic_NormCast_derive___closed__6_once, _init_l_Lean_Elab_Tactic_NormCast_derive___closed__6);
 x_31 = lean_box(x_25);
 lean_inc(x_21);
 lean_inc_ref(x_2);
@@ -18047,7 +18126,7 @@ x_8 = l_Lean_Elab_Tactic_NormCast_derive(x_1, x_2, x_3, x_4, x_5, x_6);
 return x_8;
 }
 }
-static lean_object* _init_l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Elab_Tactic_NormCast_elabModCast_spec__0___redArg___closed__0() {
+static lean_object* _init_l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Elab_Tactic_NormCast_elabModCast_spec__0___redArg___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -18063,7 +18142,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Elab_T
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Elab_Tactic_NormCast_elabModCast_spec__0___redArg___closed__0;
+x_2 = lean_obj_once(&l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Elab_Tactic_NormCast_elabModCast_spec__0___redArg___closed__0, &l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Elab_Tactic_NormCast_elabModCast_spec__0___redArg___closed__0_once, _init_l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Elab_Tactic_NormCast_elabModCast_spec__0___redArg___closed__0);
 x_3 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_3, 0, x_2);
 return x_3;
@@ -18194,7 +18273,7 @@ lean_dec_ref(x_2);
 return x_9;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_NormCast_elabModCast___lam__0___closed__2() {
+static lean_object* _init_l_Lean_Elab_Tactic_NormCast_elabModCast___lam__0___closed__2(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -18203,11 +18282,11 @@ x_2 = l_Lean_MessageData_ofFormat(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_NormCast_elabModCast___lam__0___closed__3() {
+static lean_object* _init_l_Lean_Elab_Tactic_NormCast_elabModCast___lam__0___closed__3(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Elab_Tactic_NormCast_elabModCast___lam__0___closed__2;
+x_1 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_elabModCast___lam__0___closed__2, &l_Lean_Elab_Tactic_NormCast_elabModCast___lam__0___closed__2_once, _init_l_Lean_Elab_Tactic_NormCast_elabModCast___lam__0___closed__2);
 x_2 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -18391,7 +18470,7 @@ lean_dec(x_45);
 if (x_46 == 0)
 {
 lean_object* x_47; lean_object* x_48; lean_object* x_49; 
-x_47 = l_Lean_Elab_Tactic_NormCast_elabModCast___lam__0___closed__3;
+x_47 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_elabModCast___lam__0___closed__3, &l_Lean_Elab_Tactic_NormCast_elabModCast___lam__0___closed__3_once, _init_l_Lean_Elab_Tactic_NormCast_elabModCast___lam__0___closed__3);
 x_48 = lean_box(0);
 lean_inc(x_39);
 lean_inc_ref(x_38);
@@ -19297,7 +19376,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Elab_T
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Elab_Tactic_NormCast_elabModCast_spec__0___redArg___closed__0;
+x_2 = lean_obj_once(&l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Elab_Tactic_NormCast_elabModCast_spec__0___redArg___closed__0, &l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Elab_Tactic_NormCast_elabModCast_spec__0___redArg___closed__0_once, _init_l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Elab_Tactic_NormCast_elabModCast_spec__0___redArg___closed__0);
 x_3 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_3, 0, x_2);
 return x_3;
@@ -19343,7 +19422,7 @@ x_15 = lean_usize_dec_eq(x_3, x_4);
 if (x_15 == 0)
 {
 lean_object* x_16; lean_object* x_17; 
-x_16 = lean_array_uget(x_2, x_3);
+x_16 = lean_array_uget_borrowed(x_2, x_3);
 lean_inc(x_13);
 lean_inc_ref(x_12);
 lean_inc(x_11);
@@ -19352,6 +19431,7 @@ lean_inc(x_9);
 lean_inc_ref(x_8);
 lean_inc(x_7);
 lean_inc_ref(x_6);
+lean_inc(x_16);
 lean_inc_ref(x_1);
 x_17 = l_Lean_Elab_Tactic_NormCast_normCastHyp(x_1, x_16, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
 if (lean_obj_tag(x_17) == 0)
@@ -19912,7 +19992,7 @@ lean_dec(x_3);
 return x_13;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_NormCast_evalNormCast0___closed__3() {
+static lean_object* _init_l_Lean_Elab_Tactic_NormCast_evalNormCast0___closed__3(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -19998,7 +20078,7 @@ else
 {
 lean_object* x_42; lean_object* x_43; 
 lean_dec(x_36);
-x_42 = l_Lean_Elab_Tactic_NormCast_evalNormCast0___closed__3;
+x_42 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_evalNormCast0___closed__3, &l_Lean_Elab_Tactic_NormCast_evalNormCast0___closed__3_once, _init_l_Lean_Elab_Tactic_NormCast_evalNormCast0___closed__3);
 x_43 = lean_alloc_ctor(1, 1, 1);
 lean_ctor_set(x_43, 0, x_42);
 lean_ctor_set_uint8(x_43, sizeof(void*)*1, x_12);
@@ -20344,7 +20424,7 @@ lean_dec(x_1);
 return x_14;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_NormCast_evalPushCast___closed__0() {
+static lean_object* _init_l_Lean_Elab_Tactic_NormCast_evalPushCast___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -20360,7 +20440,7 @@ _start:
 uint8_t x_11; uint8_t x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
 x_11 = 0;
 x_12 = 0;
-x_13 = l_Lean_Elab_Tactic_NormCast_evalPushCast___closed__0;
+x_13 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_evalPushCast___closed__0, &l_Lean_Elab_Tactic_NormCast_evalPushCast___closed__0_once, _init_l_Lean_Elab_Tactic_NormCast_evalPushCast___closed__0);
 x_14 = lean_box(x_11);
 x_15 = lean_box(x_12);
 x_16 = lean_box(x_11);
@@ -20482,7 +20562,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Elab_T
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Elab_Tactic_NormCast_elabModCast_spec__0___redArg___closed__0;
+x_2 = lean_obj_once(&l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Elab_Tactic_NormCast_elabModCast_spec__0___redArg___closed__0, &l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Elab_Tactic_NormCast_elabModCast_spec__0___redArg___closed__0_once, _init_l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Elab_Tactic_NormCast_elabModCast_spec__0___redArg___closed__0);
 x_3 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_3, 0, x_2);
 return x_3;
@@ -20597,7 +20677,7 @@ x_7 = l_Lean_Elab_Tactic_NormCast_elabAddElim___lam__0(x_1, x_2, x_3, x_4, x_5);
 return x_7;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__4() {
+static lean_object* _init_l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__4(void) {
 _start:
 {
 lean_object* x_1; 
@@ -20605,17 +20685,17 @@ x_1 = l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_box(0), lean_box(0));
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__5() {
+static lean_object* _init_l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__5(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__4;
+x_1 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__4, &l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__4_once, _init_l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__4);
 x_2 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__6() {
+static lean_object* _init_l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__6(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -20624,24 +20704,24 @@ x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__7() {
+static lean_object* _init_l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__7(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__6;
+x_1 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__6, &l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__6_once, _init_l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__6);
 x_2 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__8() {
+static lean_object* _init_l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__8(void) {
 _start:
 {
 size_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = 5;
 x_2 = lean_unsigned_to_nat(0u);
-x_3 = l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__6;
-x_4 = l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__7;
+x_3 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__6, &l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__6_once, _init_l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__6);
+x_4 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__7, &l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__7_once, _init_l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__7);
 x_5 = lean_alloc_ctor(0, 4, sizeof(size_t)*1);
 lean_ctor_set(x_5, 0, x_4);
 lean_ctor_set(x_5, 1, x_3);
@@ -20651,13 +20731,13 @@ lean_ctor_set_usize(x_5, 4, x_1);
 return x_5;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__9() {
+static lean_object* _init_l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__9(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = lean_box(1);
-x_2 = l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__8;
-x_3 = l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__5;
+x_2 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__8, &l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__8_once, _init_l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__8);
+x_3 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__5, &l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__5_once, _init_l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__5);
 x_4 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_4, 0, x_3);
 lean_ctor_set(x_4, 1, x_2);
@@ -20665,7 +20745,7 @@ lean_ctor_set(x_4, 2, x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__10() {
+static lean_object* _init_l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__10(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -20674,11 +20754,11 @@ x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__11() {
+static lean_object* _init_l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__11(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__5;
+x_1 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__5, &l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__5_once, _init_l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__5);
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = lean_alloc_ctor(0, 9, 0);
 lean_ctor_set(x_3, 0, x_2);
@@ -20693,11 +20773,11 @@ lean_ctor_set(x_3, 8, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__12() {
+static lean_object* _init_l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__12(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__5;
+x_1 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__5, &l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__5_once, _init_l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__5);
 x_2 = lean_alloc_ctor(0, 6, 0);
 lean_ctor_set(x_2, 0, x_1);
 lean_ctor_set(x_2, 1, x_1);
@@ -20708,11 +20788,11 @@ lean_ctor_set(x_2, 5, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__13() {
+static lean_object* _init_l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__13(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__5;
+x_1 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__5, &l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__5_once, _init_l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__5);
 x_2 = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(x_2, 0, x_1);
 lean_ctor_set(x_2, 1, x_1);
@@ -20722,15 +20802,15 @@ lean_ctor_set(x_2, 4, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__14() {
+static lean_object* _init_l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__14(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_1 = l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__13;
-x_2 = l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__8;
+x_1 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__13, &l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__13_once, _init_l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__13);
+x_2 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__8, &l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__8_once, _init_l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__8);
 x_3 = lean_box(1);
-x_4 = l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__12;
-x_5 = l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__11;
+x_4 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__12, &l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__12_once, _init_l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__12);
+x_5 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__11, &l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__11_once, _init_l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__11);
 x_6 = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(x_6, 0, x_5);
 lean_ctor_set(x_6, 1, x_4);
@@ -20779,8 +20859,8 @@ x_13 = lean_unsigned_to_nat(0u);
 x_14 = l_Lean_Meta_instInhabitedConfigWithKey___private__1;
 x_15 = 0;
 x_16 = lean_box(1);
-x_17 = l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__9;
-x_18 = l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__10;
+x_17 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__9, &l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__9_once, _init_l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__9);
+x_18 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__10, &l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__10_once, _init_l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__10);
 x_19 = lean_box(0);
 x_20 = lean_alloc_ctor(0, 7, 4);
 lean_ctor_set(x_20, 0, x_14);
@@ -20794,7 +20874,7 @@ lean_ctor_set_uint8(x_20, sizeof(void*)*7, x_15);
 lean_ctor_set_uint8(x_20, sizeof(void*)*7 + 1, x_15);
 lean_ctor_set_uint8(x_20, sizeof(void*)*7 + 2, x_15);
 lean_ctor_set_uint8(x_20, sizeof(void*)*7 + 3, x_11);
-x_21 = l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__14;
+x_21 = lean_obj_once(&l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__14, &l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__14_once, _init_l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__14);
 x_22 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_NormCast_elabAddElim___lam__0___boxed), 6, 3);
 lean_closure_set(x_22, 0, x_21);
 lean_closure_set(x_22, 1, x_9);
@@ -20868,146 +20948,13 @@ lean_dec_ref(res);
 if (builtin) {res = l___private_Lean_Elab_Tactic_NormCast_0__Lean_Elab_Tactic_NormCast_initFn_00___x40_Lean_Elab_Tactic_NormCast_1508164376____hygCtx___hyg_2_();
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-}l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__0 = _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__0();
-l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__2 = _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__2();
-lean_mark_persistent(l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__2);
-l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__3 = _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__3();
-lean_mark_persistent(l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__3);
-l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__4 = _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__4();
-lean_mark_persistent(l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__4);
-l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__5 = _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__5();
-lean_mark_persistent(l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__5);
-l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__6 = _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__6();
-lean_mark_persistent(l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__6);
-l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__7 = _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__7();
-lean_mark_persistent(l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__7);
-l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__8 = _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__8();
-lean_mark_persistent(l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__8);
-l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__9 = _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__9();
-lean_mark_persistent(l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__9);
-l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__10 = _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__10();
-lean_mark_persistent(l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__10);
-l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__11 = _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__11();
-lean_mark_persistent(l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__11);
-l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__12 = _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__12();
-lean_mark_persistent(l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__12);
-l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__13 = _init_l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__13();
-lean_mark_persistent(l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__13);
-l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__1___redArg___closed__0 = _init_l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__1___redArg___closed__0();
-lean_mark_persistent(l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__1___redArg___closed__0);
-l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__1___redArg___closed__1 = _init_l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__1___redArg___closed__1();
-lean_mark_persistent(l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__1___redArg___closed__1);
-l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__1___redArg___closed__2 = _init_l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__1___redArg___closed__2();
-lean_mark_persistent(l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__1___redArg___closed__2);
-l_Lean_Elab_Tactic_NormCast_proveEqUsingDown___lam__0___closed__1 = _init_l_Lean_Elab_Tactic_NormCast_proveEqUsingDown___lam__0___closed__1();
-lean_mark_persistent(l_Lean_Elab_Tactic_NormCast_proveEqUsingDown___lam__0___closed__1);
-l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__3___redArg___closed__0 = _init_l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__3___redArg___closed__0();
-l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__3___redArg___closed__2 = _init_l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__3___redArg___closed__2();
-lean_mark_persistent(l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__3___redArg___closed__2);
-l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__3___redArg___closed__3 = _init_l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Tactic_NormCast_proveEqUsingDown_spec__3___redArg___closed__3();
-l_Lean_Elab_Tactic_NormCast_proveEqUsingDown___closed__1 = _init_l_Lean_Elab_Tactic_NormCast_proveEqUsingDown___closed__1();
-l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1 = _init_l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1();
-lean_mark_persistent(l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1);
-l_Lean_Elab_Tactic_NormCast_isNumeral_x3f___closed__6 = _init_l_Lean_Elab_Tactic_NormCast_isNumeral_x3f___closed__6();
-lean_mark_persistent(l_Lean_Elab_Tactic_NormCast_isNumeral_x3f___closed__6);
-l_Lean_Elab_Tactic_NormCast_isNumeral_x3f___closed__7 = _init_l_Lean_Elab_Tactic_NormCast_isNumeral_x3f___closed__7();
-lean_mark_persistent(l_Lean_Elab_Tactic_NormCast_isNumeral_x3f___closed__7);
-l_Lean_Elab_Tactic_NormCast_isNumeral_x3f___closed__8 = _init_l_Lean_Elab_Tactic_NormCast_isNumeral_x3f___closed__8();
-lean_mark_persistent(l_Lean_Elab_Tactic_NormCast_isNumeral_x3f___closed__8);
-l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__0 = _init_l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__0();
-lean_mark_persistent(l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__0);
-l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__2 = _init_l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__2();
-lean_mark_persistent(l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__2);
-l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__3 = _init_l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__3();
-lean_mark_persistent(l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__3);
-l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__4 = _init_l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__4();
-lean_mark_persistent(l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__4);
-l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__5 = _init_l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__5();
-lean_mark_persistent(l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__5);
-l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__7 = _init_l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__7();
-lean_mark_persistent(l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__7);
-l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__8 = _init_l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__8();
-lean_mark_persistent(l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__8);
-l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__9 = _init_l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__9();
-lean_mark_persistent(l_Lean_Elab_Tactic_NormCast_splittingProcedure___lam__3___closed__9);
-l_Lean_Elab_Tactic_NormCast_splittingProcedure___closed__1 = _init_l_Lean_Elab_Tactic_NormCast_splittingProcedure___closed__1();
-lean_mark_persistent(l_Lean_Elab_Tactic_NormCast_splittingProcedure___closed__1);
-l_Lean_Elab_Tactic_NormCast_prove___lam__0___closed__1 = _init_l_Lean_Elab_Tactic_NormCast_prove___lam__0___closed__1();
-lean_mark_persistent(l_Lean_Elab_Tactic_NormCast_prove___lam__0___closed__1);
-l_Lean_Elab_Tactic_NormCast_numeralToCoe___closed__2 = _init_l_Lean_Elab_Tactic_NormCast_numeralToCoe___closed__2();
-lean_mark_persistent(l_Lean_Elab_Tactic_NormCast_numeralToCoe___closed__2);
-l_List_foldl___at___00Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4_spec__9___closed__0 = _init_l_List_foldl___at___00Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4_spec__9___closed__0();
-lean_mark_persistent(l_List_foldl___at___00Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4_spec__9___closed__0);
-l_List_foldl___at___00Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4_spec__9___closed__3 = _init_l_List_foldl___at___00Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4_spec__9___closed__3();
-lean_mark_persistent(l_List_foldl___at___00Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4_spec__9___closed__3);
-l_Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4___redArg___closed__2 = _init_l_Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4___redArg___closed__2();
-lean_mark_persistent(l_Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__1_spec__4___redArg___closed__2);
-l_Lean_addTrace___at___00__private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0_spec__3___redArg___closed__0 = _init_l_Lean_addTrace___at___00__private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0_spec__3___redArg___closed__0();
-lean_mark_persistent(l_Lean_addTrace___at___00__private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0_spec__3___redArg___closed__0);
-l_Lean_PersistentHashMap_containsAux___at___00Lean_PersistentHashMap_contains___at___00__private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0_spec__1_spec__3___redArg___closed__0 = _init_l_Lean_PersistentHashMap_containsAux___at___00Lean_PersistentHashMap_contains___at___00__private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0_spec__1_spec__3___redArg___closed__0();
-l_Lean_PersistentHashMap_containsAux___at___00Lean_PersistentHashMap_contains___at___00__private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0_spec__1_spec__3___redArg___closed__1 = _init_l_Lean_PersistentHashMap_containsAux___at___00Lean_PersistentHashMap_contains___at___00__private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0_spec__1_spec__3___redArg___closed__1();
-l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__2 = _init_l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__2();
-lean_mark_persistent(l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__2);
-l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__3 = _init_l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__3();
-lean_mark_persistent(l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__3);
-l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__4 = _init_l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__4();
-lean_mark_persistent(l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__4);
-l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__5 = _init_l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__5();
-lean_mark_persistent(l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__5);
-l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__6 = _init_l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__6();
-lean_mark_persistent(l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__6);
-l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__10 = _init_l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__10();
-lean_mark_persistent(l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__10);
-l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__12 = _init_l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__12();
-lean_mark_persistent(l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__12);
-l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__13 = _init_l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__13();
-lean_mark_persistent(l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__13);
-l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__15 = _init_l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__15();
-lean_mark_persistent(l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__0___closed__15);
-l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__2___redArg___closed__0 = _init_l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0_spec__2___redArg___closed__0();
-l_Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0___closed__2 = _init_l_Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0___closed__2();
-lean_mark_persistent(l_Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0___closed__2);
-l_Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0___closed__3 = _init_l_Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0___closed__3();
-lean_mark_persistent(l_Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Tactic_NormCast_elabNormCastConfig_spec__0___closed__3);
-l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__1 = _init_l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__1();
-lean_mark_persistent(l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__1);
-l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__3 = _init_l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__3();
-lean_mark_persistent(l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__3);
-l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__5 = _init_l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__5();
-lean_mark_persistent(l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__5);
-l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__7 = _init_l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__7();
-lean_mark_persistent(l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__7);
-l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__8 = _init_l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__8();
-lean_mark_persistent(l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__8);
-l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__9 = _init_l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__9();
-lean_mark_persistent(l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redArg___closed__9);
-l_Lean_Elab_Tactic_NormCast_derive___lam__3___closed__1 = _init_l_Lean_Elab_Tactic_NormCast_derive___lam__3___closed__1();
-lean_mark_persistent(l_Lean_Elab_Tactic_NormCast_derive___lam__3___closed__1);
-l_Lean_Elab_Tactic_NormCast_derive___lam__3___closed__3 = _init_l_Lean_Elab_Tactic_NormCast_derive___lam__3___closed__3();
-lean_mark_persistent(l_Lean_Elab_Tactic_NormCast_derive___lam__3___closed__3);
-l_Lean_Elab_Tactic_NormCast_derive___lam__7___closed__0 = _init_l_Lean_Elab_Tactic_NormCast_derive___lam__7___closed__0();
-lean_mark_persistent(l_Lean_Elab_Tactic_NormCast_derive___lam__7___closed__0);
-l_Lean_Elab_Tactic_NormCast_derive___lam__7___closed__1 = _init_l_Lean_Elab_Tactic_NormCast_derive___lam__7___closed__1();
-lean_mark_persistent(l_Lean_Elab_Tactic_NormCast_derive___lam__7___closed__1);
-l_Lean_Elab_Tactic_NormCast_derive___closed__4 = _init_l_Lean_Elab_Tactic_NormCast_derive___closed__4();
-lean_mark_persistent(l_Lean_Elab_Tactic_NormCast_derive___closed__4);
-l_Lean_Elab_Tactic_NormCast_derive___closed__6 = _init_l_Lean_Elab_Tactic_NormCast_derive___closed__6();
-lean_mark_persistent(l_Lean_Elab_Tactic_NormCast_derive___closed__6);
-l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Elab_Tactic_NormCast_elabModCast_spec__0___redArg___closed__0 = _init_l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Elab_Tactic_NormCast_elabModCast_spec__0___redArg___closed__0();
-lean_mark_persistent(l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Elab_Tactic_NormCast_elabModCast_spec__0___redArg___closed__0);
-l_Lean_Elab_Tactic_NormCast_elabModCast___lam__0___closed__2 = _init_l_Lean_Elab_Tactic_NormCast_elabModCast___lam__0___closed__2();
-lean_mark_persistent(l_Lean_Elab_Tactic_NormCast_elabModCast___lam__0___closed__2);
-l_Lean_Elab_Tactic_NormCast_elabModCast___lam__0___closed__3 = _init_l_Lean_Elab_Tactic_NormCast_elabModCast___lam__0___closed__3();
-lean_mark_persistent(l_Lean_Elab_Tactic_NormCast_elabModCast___lam__0___closed__3);
-if (builtin) {res = l_Lean_Elab_Tactic_NormCast_elabModCast___regBuiltin_Lean_Elab_Tactic_NormCast_elabModCast__1();
+}if (builtin) {res = l_Lean_Elab_Tactic_NormCast_elabModCast___regBuiltin_Lean_Elab_Tactic_NormCast_elabModCast__1();
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 }if (builtin) {res = l_Lean_Elab_Tactic_NormCast_elabModCast___regBuiltin_Lean_Elab_Tactic_NormCast_elabModCast_declRange__3();
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-}l_Lean_Elab_Tactic_NormCast_evalNormCast0___closed__3 = _init_l_Lean_Elab_Tactic_NormCast_evalNormCast0___closed__3();
-lean_mark_persistent(l_Lean_Elab_Tactic_NormCast_evalNormCast0___closed__3);
-if (builtin) {res = l_Lean_Elab_Tactic_NormCast_evalNormCast0___regBuiltin_Lean_Elab_Tactic_NormCast_evalNormCast0__1();
+}if (builtin) {res = l_Lean_Elab_Tactic_NormCast_evalNormCast0___regBuiltin_Lean_Elab_Tactic_NormCast_evalNormCast0__1();
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 }if (builtin) {res = l_Lean_Elab_Tactic_NormCast_evalNormCast0___regBuiltin_Lean_Elab_Tactic_NormCast_evalNormCast0_declRange__3();
@@ -21019,37 +20966,13 @@ lean_dec_ref(res);
 }if (builtin) {res = l_Lean_Elab_Tactic_NormCast_evalConvNormCast___regBuiltin_Lean_Elab_Tactic_NormCast_evalConvNormCast_declRange__3();
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-}l_Lean_Elab_Tactic_NormCast_evalPushCast___closed__0 = _init_l_Lean_Elab_Tactic_NormCast_evalPushCast___closed__0();
-lean_mark_persistent(l_Lean_Elab_Tactic_NormCast_evalPushCast___closed__0);
-if (builtin) {res = l_Lean_Elab_Tactic_NormCast_evalPushCast___regBuiltin_Lean_Elab_Tactic_NormCast_evalPushCast__1();
+}if (builtin) {res = l_Lean_Elab_Tactic_NormCast_evalPushCast___regBuiltin_Lean_Elab_Tactic_NormCast_evalPushCast__1();
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 }if (builtin) {res = l_Lean_Elab_Tactic_NormCast_evalPushCast___regBuiltin_Lean_Elab_Tactic_NormCast_evalPushCast_declRange__3();
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-}l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__4 = _init_l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__4();
-lean_mark_persistent(l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__4);
-l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__5 = _init_l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__5();
-lean_mark_persistent(l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__5);
-l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__6 = _init_l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__6();
-lean_mark_persistent(l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__6);
-l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__7 = _init_l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__7();
-lean_mark_persistent(l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__7);
-l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__8 = _init_l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__8();
-lean_mark_persistent(l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__8);
-l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__9 = _init_l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__9();
-lean_mark_persistent(l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__9);
-l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__10 = _init_l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__10();
-lean_mark_persistent(l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__10);
-l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__11 = _init_l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__11();
-lean_mark_persistent(l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__11);
-l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__12 = _init_l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__12();
-lean_mark_persistent(l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__12);
-l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__13 = _init_l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__13();
-lean_mark_persistent(l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__13);
-l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__14 = _init_l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__14();
-lean_mark_persistent(l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__14);
-if (builtin) {res = l_Lean_Elab_Tactic_NormCast_elabAddElim___regBuiltin_Lean_Elab_Tactic_NormCast_elabAddElim__1();
+}if (builtin) {res = l_Lean_Elab_Tactic_NormCast_elabAddElim___regBuiltin_Lean_Elab_Tactic_NormCast_elabAddElim__1();
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 }if (builtin) {res = l_Lean_Elab_Tactic_NormCast_elabAddElim___regBuiltin_Lean_Elab_Tactic_NormCast_elabAddElim_declRange__3();

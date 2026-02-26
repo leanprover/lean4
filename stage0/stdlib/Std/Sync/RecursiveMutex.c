@@ -54,7 +54,7 @@ static const lean_closure_object l_Std_RecursiveMutex_tryAtomically___redArg___c
 static const lean_object* l_Std_RecursiveMutex_tryAtomically___redArg___closed__1 = (const lean_object*)&l_Std_RecursiveMutex_tryAtomically___redArg___closed__1_value;
 LEAN_EXPORT lean_object* l_Std_RecursiveMutex_tryAtomically___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_RecursiveMutex_tryAtomically(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* _init_l___private_Std_Sync_RecursiveMutex_0__Std_RecursiveMutexImpl() {
+static lean_object* _init_l___private_Std_Sync_RecursiveMutex_0__Std_RecursiveMutexImpl(void) {
 _start:
 {
 return lean_box(0);

@@ -61,6 +61,7 @@ static const lean_object* l_Lean_Elab_Tactic_Conv_evalCbv___lam__0___closed__0 =
 static const lean_ctor_object l_Lean_Elab_Tactic_Conv_evalCbv___lam__0___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 3}, .m_objs = {((lean_object*)&l_Lean_Elab_Tactic_Conv_evalCbv___lam__0___closed__0_value)}};
 static const lean_object* l_Lean_Elab_Tactic_Conv_evalCbv___lam__0___closed__1 = (const lean_object*)&l_Lean_Elab_Tactic_Conv_evalCbv___lam__0___closed__1_value;
 lean_object* l_Lean_MessageData_ofFormat(lean_object*);
+static lean_once_cell_t l_Lean_Elab_Tactic_Conv_evalCbv___lam__0___closed__2_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Elab_Tactic_Conv_evalCbv___lam__0___closed__2;
 lean_object* l_Lean_Elab_Tactic_Conv_getLhs___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Tactic_Cbv_cbvEntry(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -781,7 +782,7 @@ lean_dec(x_1);
 return x_12;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_Conv_evalCbv___lam__0___closed__2() {
+static lean_object* _init_l_Lean_Elab_Tactic_Conv_evalCbv___lam__0___closed__2(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -813,7 +814,7 @@ goto block_41;
 else
 {
 lean_object* x_45; lean_object* x_46; 
-x_45 = l_Lean_Elab_Tactic_Conv_evalCbv___lam__0___closed__2;
+x_45 = lean_obj_once(&l_Lean_Elab_Tactic_Conv_evalCbv___lam__0___closed__2, &l_Lean_Elab_Tactic_Conv_evalCbv___lam__0___closed__2_once, _init_l_Lean_Elab_Tactic_Conv_evalCbv___lam__0___closed__2);
 lean_inc_ref(x_8);
 x_46 = l_Lean_logWarningAt___at___00Lean_Elab_Tactic_Conv_evalCbv_spec__1(x_1, x_45, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 if (lean_obj_tag(x_46) == 0)
@@ -1063,8 +1064,6 @@ lean_dec_ref(res);
 res = initialize_Lean_Elab_Tactic_Conv_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Elab_Tactic_Conv_evalCbv___lam__0___closed__2 = _init_l_Lean_Elab_Tactic_Conv_evalCbv___lam__0___closed__2();
-lean_mark_persistent(l_Lean_Elab_Tactic_Conv_evalCbv___lam__0___closed__2);
 if (builtin) {res = l_Lean_Elab_Tactic_Conv_evalCbv___regBuiltin_Lean_Elab_Tactic_Conv_evalCbv__1();
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

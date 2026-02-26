@@ -132,6 +132,7 @@ static const lean_object* l_Lake_instQueryJsonUnit___closed__0 = (const lean_obj
 LEAN_EXPORT const lean_object* l_Lake_instQueryJsonUnit = (const lean_object*)&l_Lake_instQueryJsonUnit___closed__0_value;
 LEAN_EXPORT lean_object* l_Lake_instFormatQueryOfQueryTextOfQueryJson___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instFormatQueryOfQueryTextOfQueryJson(lean_object*, lean_object*, lean_object*);
+static lean_once_cell_t l_Lake_nullFormat___redArg___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lake_nullFormat___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lake_nullFormat___redArg(uint8_t);
 LEAN_EXPORT lean_object* l_Lake_nullFormat___redArg___boxed(lean_object*);
@@ -153,7 +154,7 @@ lean_object* l_Lean_Name_toString(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lake_ppImport(lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_ppImport___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
-lean_object* lean_array_uget(lean_object*, size_t);
+lean_object* lean_array_uget_borrowed(lean_object*, size_t);
 lean_object* lean_string_push(lean_object*, uint32_t);
 size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_ppModuleHeader_spec__0(uint8_t, lean_object*, size_t, size_t, lean_object*);
@@ -946,7 +947,7 @@ lean_ctor_set(x_4, 1, x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lake_nullFormat___redArg___closed__0() {
+static lean_object* _init_l_Lake_nullFormat___redArg___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -967,7 +968,7 @@ return x_2;
 else
 {
 lean_object* x_3; 
-x_3 = l_Lake_nullFormat___redArg___closed__0;
+x_3 = lean_obj_once(&l_Lake_nullFormat___redArg___closed__0, &l_Lake_nullFormat___redArg___closed__0_once, _init_l_Lake_nullFormat___redArg___closed__0);
 return x_3;
 }
 }
@@ -1145,9 +1146,10 @@ x_6 = lean_usize_dec_eq(x_3, x_4);
 if (x_6 == 0)
 {
 lean_object* x_7; uint32_t x_8; lean_object* x_9; lean_object* x_10; size_t x_11; size_t x_12; 
-x_7 = lean_array_uget(x_2, x_3);
+x_7 = lean_array_uget_borrowed(x_2, x_3);
 x_8 = 10;
 x_9 = lean_string_push(x_5, x_8);
+lean_inc(x_7);
 x_10 = l_Lake_ppImport(x_7, x_1, x_9);
 x_11 = 1;
 x_12 = lean_usize_add(x_3, x_11);
@@ -1258,8 +1260,6 @@ lean_dec_ref(res);
 res = initialize_Init_Data_String_TakeDrop(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lake_nullFormat___redArg___closed__0 = _init_l_Lake_nullFormat___redArg___closed__0();
-lean_mark_persistent(l_Lake_nullFormat___redArg___closed__0);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

@@ -246,7 +246,7 @@ lean_dec(x_4);
 return x_6;
 }
 }
-static uint8_t _init_l_Lean_instInhabitedLBool_default() {
+static uint8_t _init_l_Lean_instInhabitedLBool_default(void) {
 _start:
 {
 uint8_t x_1; 
@@ -254,7 +254,7 @@ x_1 = 0;
 return x_1;
 }
 }
-static uint8_t _init_l_Lean_instInhabitedLBool() {
+static uint8_t _init_l_Lean_instInhabitedLBool(void) {
 _start:
 {
 uint8_t x_1; 

@@ -1,52 +1,99 @@
 # Lean
 
-**Fork of the [official Lean repo](https://github.com/leanprover/lean4) focused on making life easier for terminal-only Lean developers.**
+Fork of the [official Lean repo](https://github.com/leanprover/lean4) focused on **making life easier for terminal-only Lean developers.**
 
-## Features
+_(For testing new features and up-streaming them later.)_
 
-### Formatter
+<!--toc:start-->
+- [Lean](#lean)
+  - [Additions and Fixes to Upstream](#additions-and-fixes-to-upstream)
+    - [LSP Formatter](#lsp-formatter)
+    - [CLI Formatter (WIP)](#cli-formatter-wip)
+    - [LSP Setup Progress](#lsp-setup-progress)
+    - [Conciser `lake build` output](#conciser-lake-build-output)
+    - [Workspace Diagnostics in Failed Targets](#workspace-diagnostics-in-failed-targets)
+    - [User-Defined Code Actions](#user-defined-code-actions)
+    - [Diagnostic Tags](#diagnostic-tags)
+    - [Linter Severity Levels](#linter-severity-levels)
+    - [`lake install` (WIP)](#lake-install-wip)
+    - [Nix Build Improvements](#nix-build-improvements)
+  - [Installation](#installation)
+    - [Without Nix Flakes](#without-nix-flakes)
+    - [With Nix Flakes (Recommended)](#with-nix-flakes-recommended)
+  - [Development](#development)
+    - [Structure](#structure)
+    - [Development Shell](#development-shell)
+    - [LSP for Lean Development](#lsp-for-lean-development)
+    - [Disabling `elan`](#disabling-elan)
+    - [Testing](#testing)
+  - [Related](#related)
+<!--toc:end-->
 
-Integrated Lean formatter in the LSP server. Editors that support `textDocument/formatting` get formatting automatically. Only requires parsing, not elaboration, so it's fast even with syntax extensions. `lake fmt` is a shorter alias.
+## Additions and Fixes to Upstream
+
+### LSP Formatter
+
+Integrated Lean formatter in the LSP server. Editors that support `textDocument/formatting` get formatting automatically.
+
+You can also format selections using range formatting.
+
+![](./images/format.png)
+
+Only requires parsing, not elaboration.
+
+### CLI Formatter (WIP)
+
+You can also format files from the command line with the `format` subcommand:
 
 ```bash
 lake format file.lean                     # format a file in place
-lake format --check file.lean             # exit 1 if file would change (CI use)
-lake format --stdin                       # read from stdin, write to stdout
-lake format --check --stdin               # check stdin formatting
+lake fmt file.lean
+```
+
+Or use Lean binary itself (slightly faster)
+
+```bash
 lean --format file.lean                   # format directly via lean binary
 lean --format-check file.lean             # check formatting via lean binary
 ```
 
-### LSP setup progress
+### LSP Setup Progress
 
-Real-time `$/progress` notifications during Lake dependency setup, replacing the old diagnostic-based approach. Works automatically in editors that support `window/workDoneProgress` — no configuration needed. The progress token is `lean4/lakeSetup`.
+Real-time `$/progress` notifications during Lake dependency setup, replacing the old diagnostic-based approach.
 
-### Concise build errors
+![](./images/notifications.png)
 
-When Lake build fails during LSP setup, displays a structured summary with error count and the failed target names. Diagnostics from dependencies appear as cross-file entries in the workspace diagnostics picker, so you can jump directly to errors in other files. Stale cross-file diagnostics clear automatically when dependencies are fixed and the file worker restarts.
+### Conciser `lake build` output
 
-### User-defined code actions
+When Lake build fails, it displays a structured summary with error count and the failed target names.
+
+![](./images/build_failure.png)
+
+### Workspace Diagnostics in Failed Targets
+
+Diagnostics from dependencies appear as cross-file entries in the workspace diagnostics picker, so you can jump directly to errors in other files. Stale cross-file diagnostics clear automatically when dependencies are fixed and the file worker restarts.
+
+![](images/build_diagnostics.png)
+
+### User-Defined Code Actions
 
 Linters can register code action providers to offer quick-fix suggestions in the editor. Supports eager actions (computed immediately) and lazy actions (resolved on click via `codeAction/resolve`).
 
-```lean
-@[code_action_provider] def myProvider : CodeActionProvider :=
-  fun params snap => do
-    -- params: CodeActionParams (range, diagnostics)
-    -- snap: Snapshot (elaboration state)
-    return #[{ eager := { title := "My fix", edit? := some edit } }]
-```
+![](./images/actions.png)
 
-Specialized attributes are also available:
+Lazy code actions (refactors):
 
-- `@[hole_code_action]` — suggestions for holes (`_`, `?_`, `sorry`)
-- `@[command_code_action]` — command-level actions with optional kind filtering
+![](./images/refactor.png)
 
-Upstream discarded `infoState` after linters ran, which meant info tree nodes pushed by external linters had no context — causing panics when the editor tried to resolve code actions. This fork wraps linter execution in `withInfoTreeContext` and preserves `infoState` through the `finally` block in `runLinters`, so code actions from external linters work correctly.
+Upstream discarded `infoState` after linters ran, which meant info tree nodes pushed by external linters had no context, causing panics when the editor tried to resolve code actions. This fork wraps linter execution in `withInfoTreeContext` and preserves `infoState` through the `finally` block in `runLinters`, so code actions from external linters work correctly.
 
-### Diagnostic tags
+See [Heron](https://codeberg.org/wvhulle/heron) for real-world examples of custom diagnostics, code actions built on these changes.
 
-In upstream Lean, diagnostic tags (`unnecessary`, `deprecated`) are hardcoded — only the built-in `unusedVariables` linter can emit `unnecessary` and only the built-in `deprecated` linter can emit `deprecated`. External linters have no way to tag their own diagnostics. This fork adds a `diagnosticTags` field directly on `BaseMessage` and extends `logAt`/`logLint` to accept tags:
+### Diagnostic Tags
+
+In upstream Lean, diagnostic tags (`unnecessary`, `deprecated`) are hardcoded, only the built-in `unusedVariables` linter can emit `unnecessary` and only the built-in `deprecated` linter can emit `deprecated`. External linters have no way to tag their own diagnostics.
+
+This fork adds a `diagnosticTags` field directly on `BaseMessage` and extends `logAt`/`logLint` to accept tags:
 
 ```lean
 -- Any linter can now emit diagnostic tags
@@ -54,22 +101,13 @@ logLint linter.myLinter stx m!"unused import" (diagnosticTags := #[.unnecessary]
 logAt stx (.tagged ``myAttr m!"obsolete API") .warning (diagnosticTags := #[.deprecated])
 ```
 
-### Linter severity levels
+### Linter Severity Levels
 
-Upstream's `logLint` is hardcoded to `.warning`. With the extended `logAt`, linters can emit diagnostics at any severity while still attaching diagnostic tags:
+Create diagnostics with different levels. Notice how different levels generate different colors in the UI according to your editors color theme:
 
-```lean
--- info-level hint (non-intrusive)
-logAt stx m!"consider simplifying" .information (diagnosticTags := #[.unnecessary])
--- warning (default logLint behavior)
-logLint linter.myLinter stx m!"unused import" (diagnosticTags := #[.unnecessary])
--- error-level lint
-logAt stx m!"banned API usage" .error (diagnosticTags := #[.deprecated])
-```
+![](./images/info.png)
 
-See [Heron](https://codeberg.org/wvhulle/heron) for real-world examples of custom diagnostics, code actions, and linter severity levels built on these changes.
-
-### `lake install` *(WIP)*
+### `lake install` (WIP)
 
 Install Lake executables globally to `~/.elan/bin/`. Requires an Elan installation.
 
@@ -77,46 +115,21 @@ Install Lake executables globally to `~/.elan/bin/`. Requires an Elan installati
 lake install                              # install all executable targets
 lake install myexe                        # install a specific target
 lake install --git <url>                  # install from a remote repo
-lake install --git <url> --branch dev     # pin to a branch
-lake install --git <url> --rev v1.0.0     # pin to a tag or commit
 ```
 
-### Nix build improvements
+### Nix Build Improvements
 
 The `flake.nix` splits the build into cached `stage0` (C-only) and `stage1` (Lean) targets for [Nix](https://wiki.nixos.org/wiki/Flake) users, configures `ccache` in the dev shell, and provides a public shared Cachix cache for stage compilation artifacts.
 
-<!--toc:start-->
-
-- [Lean](#lean)
-  - [Features](#features)
-    - [`lake install`](#lake-install)
-    - [Formatter](#formatter)
-    - [LSP setup progress](#lsp-setup-progress)
-    - [Concise build errors](#concise-build-errors)
-    - [User-defined code actions](#user-defined-code-actions)
-    - [Diagnostic tags](#diagnostic-tags)
-    - [Linter severity levels](#linter-severity-levels)
-    - [Nix build improvements](#nix-build-improvements)
-  - [Installation](#installation)
-  - [Usage](#usage)
-    - [As Flake Input](#as-flake-input)
-    - [Without Installation](#without-installation)
-  - [Development](#development)
-    - [Structure](#structure)
-    - [Building for Nix](#building-for-nix)
-    - [Caching `stage0` with Nix](#caching-stage0-with-nix)
-    - [Development Builds](#development-builds)
-    - [LSP for Lean Development](#lsp-for-lean-development)
-    - [Using with elan](#using-with-elan)
-    - [Testing](#testing)
-    - [Ignoring Nix `stage0` Cache](#ignoring-nix-stage0-cache)
-  - [Related](#related)
-
-<!--toc:end-->
-
 ## Installation
 
-Add this repo as a Flake input to any of your Flake-based Nix projects:
+### Without Nix Flakes
+
+You should be able to use the same process using CMake as recommended in upstream (unmodified) docs in [`doc`](./doc). The build with CMake itself was not modified.
+
+### With Nix Flakes (Recommended)
+
+Nix flakes are a way to install heterogeneous software reproducible and easily. Add this repo as a Nix flake input to any of your Flake-based Nix projects:
 
 ```nix
 {
@@ -133,10 +146,6 @@ Add this repo as a Flake input to any of your Flake-based Nix projects:
     };
 }
 ```
-
-## Usage
-
-### As Flake Input
 
 Just add a `flake.nix` with this repo as input.
 
@@ -185,7 +194,7 @@ Just add a `flake.nix` with this repo as input.
         };
 
         # Optional: only if you have a local checkout of the lean4 repo.
-        # Use locally-built lean4 — no flake rebuild on source changes.
+        # Use locally-built lean4, no flake rebuild on source changes.
         # Requires: make -j -C ../lean4/build/release
         local = pkgs.mkShell {
           packages = with pkgs; [
@@ -204,15 +213,13 @@ Just add a `flake.nix` with this repo as input.
 
 The Nix flake outputs the same binaries as upstream, but just packages that in isolated Nix packages:
 
-| Package                                                                                        | Description                                    |
-| ---------------------------------------------------------------------------------------------- | ---------------------------------------------- |
-| `lean`                                                                                         | Lean compiler (alias for `stage1`)             |
-| `lake`                                                                                         | Lake build tool (same derivation, runs `lake`) |
-| `leanc`                                                                                        | Lean C compiler wrapper                        |
-| `leanchecker`                                                                                  | Lean proof checker                             |
-| `leanmake`                                                                                     | Lean make tool                                 |
-
-### Without Installation
+| Package       | Description                                    |
+| ------------- | ---------------------------------------------- |
+| `lean`        | Lean compiler (alias for `stage1`)             |
+| `lake`        | Lake build tool (same derivation, runs `lake`) |
+| `leanc`       | Lean C compiler wrapper                        |
+| `leanchecker` | Lean proof checker                             |
+| `leanmake`    | Lean make tool                                 |
 
 Run the Lean binaries directly without installing them permanently:
 
@@ -245,27 +252,7 @@ The Nix flake outputs are named after upstream conventions. Lean compilation is 
 
 All tool packages (`lean`, `lake`, `leanc`, `leanchecker`, `leanmake`) are the same derivation with a different entry point. Building any one of them gives you the complete toolchain.
 
-### Building for Nix
-
-You can build for example `stage0` with:
-
-```bash
-nix build .#stage0
-```
-
-To build and simultaneously push artifacts to Cachix so others can have quicker builds:
-
-```bash
-cachix watch-exec wvhulle -- nix build .#stage0
-```
-
-To push an already-built result afterward:
-
-```bash
-nix build .#stage0 --print-out-paths | cachix push wvhulle
-```
-
-### Caching `stage0` with Nix
+### Development Shell
 
 `nix build` always builds from scratch in a sandbox. Use the Nix dev shell when working on the Lean codebase (and ignoring the part of `stage0`):
 
@@ -281,7 +268,7 @@ I recommend installing `direnv` and creating a `.envrc` file:
 use flake
 ```
 
-Run this configuration step once. It will configurei CMake to use the cached `stage0` (skips ~20min bootstrap):
+Run this configuration step once. It will configure CMake to use the cached `stage0` (skips ~20min bootstrap):
 
 ```bash
 cmake -S . -B build/release \
@@ -290,9 +277,7 @@ cmake -S . -B build/release \
   -DSTAGE1_PREV_STAGE=$STAGE0
 ```
 
-### Development Builds
-
-After caching `stage0` and running CMake configuration in previous steps once, you can build (and rebuild after editing `src/*`) with:
+You can build (and rebuild after editing `src/*`) with:
 
 ```bash
 make -C build/release stage1
@@ -311,9 +296,11 @@ make -C build/release stage1
 cd src && lake serve
 ```
 
-### Using with elan
+### Disabling `elan`
 
-If you use elan (outside the Nix dev shell), you can register a local build as a custom toolchain:
+During development you should disable Elan. This is done with an environment variable in the flake's dev shell.
+
+Otherwise, you should register a local build as a custom toolchain:
 
 ```bash
 elan toolchain link lean4-local ./build/release/stage1
@@ -341,15 +328,6 @@ elan toolchain link lean4-local "$(nix build .#stage1 --print-out-paths)"
 
 See [doc/dev/testing.md](doc/dev/testing.md) for how to run the test suite, write new tests, and fix broken expected output.
 
-### Ignoring Nix `stage0` Cache
-
-The dev shell sets `$STAGE0` to the Nix-cached stage0 output. To build stage0 from source instead (e.g. when hacking on `stage0/`), omit `-DSTAGE1_PREV_STAGE`:
-
-```bash
-cmake -S . -B build/release \
-  -DCMAKE_BUILD_TYPE=Release \
-  -DUSE_MIMALLOC=ON
-```
 
 ## Related
 

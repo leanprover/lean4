@@ -51,7 +51,7 @@ private def interCommandGap (contents : String) (prevTailPos : Option String.Pos
     (curStartPos : Option String.Pos.Raw) : String :=
   match prevTailPos, curStartPos with
   | some prevEnd, some curStart => collapseBlankLines (String.Pos.Raw.extract contents prevEnd curStart)
-  | none, some curStart         => collapseBlankLines (String.Pos.Raw.extract contents {} curStart)
+  | none, some curStart       => collapseBlankLines (String.Pos.Raw.extract contents {} curStart)
   | _, none                     => "\n"
 
 /-- Extract the header text from original source, trimming trailing whitespace. -/

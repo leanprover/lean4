@@ -16,6 +16,7 @@ Previously, `addParentInstances` only set `@[implicit_reducible]` on direct
 parent projections. This test verifies that grandparent subobject projections
 also receive `@[implicit_reducible]`.
 -/
+import Lean
 
 -- Minimal hierarchy with a diamond via MyMul
 class MyOne (α : Type _) where one : α
@@ -24,15 +25,11 @@ class MyMulOneClass (M : Type _) extends MyOne M, MyMul M
 class MySemigroup (G : Type _) extends MyMul G
 class MyMonoid (M : Type _) extends MySemigroup M, MyMulOneClass M
 
--- Direct parent projections: @[implicit_reducible] ✓
-/-- info: @[implicit_reducible] def MyMonoid.toMySemigroup.{u_1} : {M : Type u_1} → [self : MyMonoid M] → MySemigroup M -/
-#guard_msgs in #print MyMonoid.toMySemigroup
-
-/-- info: @[implicit_reducible] def MyMonoid.toMyMulOneClass.{u_1} : {M : Type u_1} → [self : MyMonoid M] → MyMulOneClass M -/
-#guard_msgs in #print MyMonoid.toMyMulOneClass
-
--- Grandparent subobject projection: @[implicit_reducible] ✓
--- This is the key test — MyOne is NOT a direct parent of MyMonoid,
--- but it's a constructor subobject field (promoted during diamond flattening).
-/-- info: @[implicit_reducible] def MyMonoid.toMyOne.{u_1} : {M : Type u_1} → [self : MyMonoid M] → MyOne M -/
-#guard_msgs in #print MyMonoid.toMyOne
+open Lean in
+#eval do
+  let env ← getEnv
+  -- Direct parent projections should be implicitReducible
+  guard (getReducibilityStatus env ``MyMonoid.toMySemigroup == .implicitReducible)
+  guard (getReducibilityStatus env ``MyMonoid.toMyMulOneClass == .implicitReducible)
+  -- Grandparent subobject projection should also be implicitReducible
+  guard (getReducibilityStatus env ``MyMonoid.toMyOne == .implicitReducible)

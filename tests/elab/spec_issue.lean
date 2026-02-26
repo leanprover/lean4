@@ -1,5 +1,5 @@
 
-set_option trace.compiler.ir.result true
+set_option trace.Compiler.saveMono true
 
 def g (ys : List Nat) : IO Nat := do
 let x := 0

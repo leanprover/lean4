@@ -32,6 +32,89 @@ unsafe axiom lcAny : Type
 /-- Internal representation of `Void` in the compiler. -/
 unsafe axiom lcVoid : Type
 
+set_option bootstrap.inductiveCheckResultingUniverse false in
+/--
+The canonical universe-polymorphic type with just one element.
+
+It should be used in contexts that require a type to be universe polymorphic, thus disallowing
+`Unit`.
+-/
+inductive PUnit : Sort u where
+  /-- The only element of the universe-polymorphic unit type. -/
+  | unit : PUnit
+
+/--
+The equality relation. It has one introduction rule, `Eq.refl`.
+We use `a = b` as notation for `Eq a b`.
+A fundamental property of equality is that it is an equivalence relation.
+```
+variable (α : Type) (a b c d : α)
+variable (hab : a = b) (hcb : c = b) (hcd : c = d)
+
+example : a = d :=
+  Eq.trans (Eq.trans hab (Eq.symm hcb)) hcd
+```
+Equality is much more than an equivalence relation, however. It has the important property that every assertion
+respects the equivalence, in the sense that we can substitute equal expressions without changing the truth value.
+That is, given `h1 : a = b` and `h2 : p a`, we can construct a proof for `p b` using substitution: `Eq.subst h1 h2`.
+Example:
+```
+example (α : Type) (a b : α) (p : α → Prop)
+        (h1 : a = b) (h2 : p a) : p b :=
+  Eq.subst h1 h2
+
+example (α : Type) (a b : α) (p : α → Prop)
+    (h1 : a = b) (h2 : p a) : p b :=
+  h1 ▸ h2
+```
+The triangle in the second presentation is a macro built on top of `Eq.subst` and `Eq.symm`, and you can enter it by typing `\t`.
+For more information: [Equality](https://lean-lang.org/theorem_proving_in_lean4/quantifiers_and_equality.html#equality)
+-/
+inductive Eq : α → α → Prop where
+  /-- `Eq.refl a : a = a` is reflexivity, the unique constructor of the
+  equality type. See also `rfl`, which is usually used instead. -/
+  | refl (a : α) : Eq a a
+
+
+/-- Non-dependent recursor for the equality type. -/
+@[simp] abbrev Eq.ndrec.{u1, u2} {α : Sort u2} {a : α} {motive : α → Sort u1} (m : motive a) {b : α} (h : Eq a b) : motive b :=
+  h.rec m
+
+/--
+Heterogeneous equality. `a ≍ b` asserts that `a` and `b` have the same
+type, and casting `a` across the equality yields `b`, and vice versa.
+
+You should avoid using this type if you can. Heterogeneous equality does not
+have all the same properties as `Eq`, because the assumption that the types of
+`a` and `b` are equal is often too weak to prove theorems of interest. One
+public important non-theorem is the analogue of `congr`: If `f ≍ g` and `x ≍ y`
+and `f x` and `g y` are well typed it does not follow that `f x ≍ g y`.
+(This does follow if you have `f = g` instead.) However if `a` and `b` have
+the same type then `a = b` and `a ≍ b` are equivalent.
+-/
+inductive HEq : {α : Sort u} → α → {β : Sort u} → β → Prop where
+  /-- Reflexivity of heterogeneous equality. -/
+  | refl (a : α) : HEq a a
+
+/--
+The Boolean values, `true` and `false`.
+
+Logically speaking, this is equivalent to `Prop` (the type of propositions). The distinction is
+public important for programming: both propositions and their proofs are erased in the code generator,
+while `Bool` corresponds to the Boolean type in most programming languages and carries precisely one
+bit of run-time information.
+-/
+inductive Bool : Type where
+  /-- The Boolean value `false`, not to be confused with the proposition `False`. -/
+  | false : Bool
+  /-- The Boolean value `true`, not to be confused with the proposition `True`. -/
+  | true : Bool
+
+export Bool (false true)
+
+/-- Compute whether `x` is a tagged pointer or not. -/
+@[extern "lean_is_scalar"]
+unsafe axiom isScalarObj {α : Type u} (x : α) : Bool
 
 /--
 The identity function. `id` takes an implicit argument `α : Sort u`
@@ -115,16 +198,7 @@ does.) Example:
 -/
 abbrev inferInstanceAs (α : Sort u) [i : α] : α := i
 
-set_option bootstrap.inductiveCheckResultingUniverse false in
-/--
-The canonical universe-polymorphic type with just one element.
 
-It should be used in contexts that require a type to be universe polymorphic, thus disallowing
-`Unit`.
--/
-inductive PUnit : Sort u where
-  /-- The only element of the universe-polymorphic unit type. -/
-  | unit : PUnit
 
 /--
 The canonical type with one element. This element is written `()`.
@@ -243,42 +317,6 @@ example (hp : p) (hnp : ¬p) : q := absurd hp hnp
 For more information: [Propositional Logic](https://lean-lang.org/theorem_proving_in_lean4/propositions_and_proofs.html#propositional-logic)
 -/
 @[macro_inline] def absurd {a : Prop} {b : Sort v} (h₁ : a) (h₂ : Not a) : b :=(  h₂ h₁).rec
-
-/--
-The equality relation. It has one introduction rule, `Eq.refl`.
-We use `a = b` as notation for `Eq a b`.
-A fundamental property of equality is that it is an equivalence relation.
-```
-variable (α : Type) (a b c d : α)
-variable (hab : a = b) (hcb : c = b) (hcd : c = d)
-
-example : a = d :=
-  Eq.trans (Eq.trans hab (Eq.symm hcb)) hcd
-```
-Equality is much more than an equivalence relation, however. It has the important property that every assertion
-respects the equivalence, in the sense that we can substitute equal expressions without changing the truth value.
-That is, given `h1 : a = b` and `h2 : p a`, we can construct a proof for `p b` using substitution: `Eq.subst h1 h2`.
-Example:
-```
-example (α : Type) (a b : α) (p : α → Prop)
-        (h1 : a = b) (h2 : p a) : p b :=
-  Eq.subst h1 h2
-
-example (α : Type) (a b : α) (p : α → Prop)
-    (h1 : a = b) (h2 : p a) : p b :=
-  h1 ▸ h2
-```
-The triangle in the second presentation is a macro built on top of `Eq.subst` and `Eq.symm`, and you can enter it by typing `\t`.
-For more information: [Equality](https://lean-lang.org/theorem_proving_in_lean4/quantifiers_and_equality.html#equality)
--/
-inductive Eq : α → α → Prop where
-  /-- `Eq.refl a : a = a` is reflexivity, the unique constructor of the
-  equality type. See also `rfl`, which is usually used instead. -/
-  | refl (a : α) : Eq a a
-
-/-- Non-dependent recursor for the equality type. -/
-@[simp] abbrev Eq.ndrec.{u1, u2} {α : Sort u2} {a : α} {motive : α → Sort u1} (m : motive a) {b : α} (h : Eq a b) : motive b :=
-  h.rec m
 
 /--
 `rfl : a = a` is the unique constructor of the equality type. This is the
@@ -476,21 +514,6 @@ Unsafe auxiliary constant used by the compiler to erase `Quot.lift`.
 -/
 unsafe axiom Quot.lcInv {α : Sort u} {r : α → α → Prop} (q : Quot r) : α
 
-/--
-Heterogeneous equality. `a ≍ b` asserts that `a` and `b` have the same
-type, and casting `a` across the equality yields `b`, and vice versa.
-
-You should avoid using this type if you can. Heterogeneous equality does not
-have all the same properties as `Eq`, because the assumption that the types of
-`a` and `b` are equal is often too weak to prove theorems of interest. One
-public important non-theorem is the analogue of `congr`: If `f ≍ g` and `x ≍ y`
-and `f x` and `g y` are well typed it does not follow that `f x ≍ g y`.
-(This does follow if you have `f = g` instead.) However if `a` and `b` have
-the same type then `a = b` and `a ≍ b` are equivalent.
--/
-inductive HEq : {α : Sort u} → α → {β : Sort u} → β → Prop where
-  /-- Reflexivity of heterogeneous equality. -/
-  | refl (a : α) : HEq a a
 
 /-- A version of `HEq.refl` with an implicit argument. -/
 @[match_pattern] protected def HEq.rfl {α : Sort u} {a : α} : HEq a a :=
@@ -598,23 +621,6 @@ theorem Or.resolve_left  (h: Or a b) (na : Not a) : b := h.elim (  absurd · na)
 theorem Or.resolve_right (h: Or a b) (nb : Not b) : a := h.elim id (  absurd · nb)
 theorem Or.neg_resolve_left  (h : Or (  Not a)b) (ha : a) : b := h.elim (  absurd ha)id
 theorem Or.neg_resolve_right (h : Or a (  Not b)) (nb : b) : a := h.elim id (  absurd nb)
-
-/--
-The Boolean values, `true` and `false`.
-
-Logically speaking, this is equivalent to `Prop` (the type of propositions). The distinction is
-public important for programming: both propositions and their proofs are erased in the code generator,
-while `Bool` corresponds to the Boolean type in most programming languages and carries precisely one
-bit of run-time information.
--/
-inductive Bool : Type where
-  /-- The Boolean value `false`, not to be confused with the proposition `False`. -/
-  | false : Bool
-  /-- The Boolean value `true`, not to be confused with the proposition `True`. -/
-  | true : Bool
-
-export Bool (false true)
-
 /--
 All the elements of a type that satisfy a predicate.
 

@@ -66,15 +66,9 @@ jobs:
           brew install ccache tree zstd coreutils gmp libuv
         if: runner.os == 'macOS'
       - name: Checkout
-        if: (!endsWith(matrix.os, '-with-cache'))
         uses: actions/checkout@v6
         with:
           # the default is to use a virtual merge commit between the PR and master: just use the PR
-          ref: ${{ github.event.pull_request.head.sha }}
-      - name: Namespace Checkout
-        if: endsWith(matrix.os, '-with-cache')
-        uses: namespacelabs/nscloud-checkout-action@v8
-        with:
           ref: ${{ github.event.pull_request.head.sha }}
       - name: Open Nix shell once
         run: true

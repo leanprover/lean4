@@ -117,7 +117,12 @@ function(add_test_pile DIR GLOB)
     cmake_path(RELATIVE_PATH FILE_ABS BASE_DIRECTORY "${DIR_ABS}" OUTPUT_VARIABLE FILE_NAME)
 
     if(RUN_TEST_EXISTS AND NOT EXISTS "${FILE_ABS}.no_test")
-      add_test(NAME "${FILE}" WORKING_DIRECTORY "${DIR_ABS}" COMMAND "${RUN_TEST}" "${FILE_NAME}")
+      add_test(
+        NAME "${FILE}"
+        WORKING_DIRECTORY "${DIR_ABS}"
+        # On Windows, we can't call the file directly, hence we always use bash.
+        COMMAND bash "${RUN_TEST}" "${FILE_NAME}"
+      )
     endif()
 
     if(RUN_BENCH_EXISTS AND NOT EXISTS "${FILE_ABS}.no_bench")
@@ -127,7 +132,8 @@ function(add_test_pile DIR GLOB)
         OUTPUT "${MEASUREMENTS_FILE}"
         WORKING_DIRECTORY "${DIR_ABS}"
         COMMAND "${CMAKE_COMMAND}" -E remove -f "${MEASUREMENTS_FILE}"
-        COMMAND "${RUN_BENCH}" "${FILE_NAME}"
+        # On Windows, we can't call the file directly, hence we always use bash.
+        COMMAND bash "${RUN_BENCH}" "${FILE_NAME}"
       )
     endif()
   endforeach()
@@ -152,7 +158,12 @@ function(add_test_dir DIR)
 
   # Add as test
   if(RUN_TEST_EXISTS)
-    add_test(NAME "${DIR}" WORKING_DIRECTORY "${DIR_ABS}" COMMAND "${RUN_TEST}")
+    add_test(
+      NAME "${DIR}"
+      WORKING_DIRECTORY "${DIR_ABS}"
+      # On Windows, we can't call the file directly, hence we always use bash.
+      COMMAND bash "${RUN_TEST}"
+    )
   endif()
 
   # Add as benchmark
@@ -164,7 +175,8 @@ function(add_test_dir DIR)
       OUTPUT "${MEASUREMENTS_FILE}"
       WORKING_DIRECTORY "${DIR_ABS}"
       COMMAND "${CMAKE_COMMAND}" -E remove -f "${MEASUREMENTS_FILE}"
-      COMMAND "${RUN_BENCH}"
+      # On Windows, we can't call the file directly, hence we always use bash.
+      COMMAND bash "${RUN_BENCH}"
     )
   endif()
 endfunction()

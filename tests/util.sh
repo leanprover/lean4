@@ -1,6 +1,6 @@
 set -eu
 
-DIFF="diff -u --color=always"
+DIFF="diff -au --strip-trailing-cr --color=always"
 
 function fail {
   echo "$1"

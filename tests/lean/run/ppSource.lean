@@ -63,3 +63,39 @@ def bar :=
   let input := "def foo := 1\n\n\n\ndef bar := 2\n"
   let result ← ppSource input "<test>"
   IO.println result
+
+-- Test that leading whitespace before a top-level command is stripped
+open Lean PrettyPrinter in
+/--
+info: #eval "Hello
+world"
+-/
+#guard_msgs in
+#eval do
+  let input := "   #eval \"Hello\nworld\"\n"
+  let result ← ppSource input "<test>"
+  IO.println result
+
+-- Test that formatting multiline strings is idempotent
+open Lean PrettyPrinter in
+/-- info: true -/
+#guard_msgs in
+#eval do
+  let input := "def greeting := \"Hello\nworld\"\n"
+  let result ← ppSource input "<test>"
+  let result2 ← ppSource result "<test>"
+  IO.println (result == result2)
+
+-- Test leading whitespace stripped across multiple commands
+open Lean PrettyPrinter in
+/--
+info: def foo :=
+  1
+
+#eval "hey"
+-/
+#guard_msgs in
+#eval do
+  let input := "  def foo := 1\n\n  #eval \"hey\"\n"
+  let result ← ppSource input "<test>"
+  IO.println result

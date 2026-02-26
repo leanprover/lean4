@@ -5,12 +5,13 @@ Fork of the [official Lean repo](https://github.com/leanprover/lean4) focused on
 _(For testing new features and up-streaming them later.)_
 
 <!--toc:start-->
+
 - [Lean](#lean)
   - [Additions and Fixes to Upstream](#additions-and-fixes-to-upstream)
     - [LSP Formatter](#lsp-formatter)
     - [CLI Formatter (WIP)](#cli-formatter-wip)
     - [LSP Setup Progress](#lsp-setup-progress)
-    - [Conciser `lake build` output](#conciser-lake-build-output)
+    - [Compact `lake build` Output](#compact-lake-build-output)
     - [Workspace Diagnostics in Failed Targets](#workspace-diagnostics-in-failed-targets)
     - [User-Defined Code Actions](#user-defined-code-actions)
     - [Diagnostic Tags](#diagnostic-tags)
@@ -27,6 +28,7 @@ _(For testing new features and up-streaming them later.)_
     - [Disabling `elan`](#disabling-elan)
     - [Testing](#testing)
   - [Related](#related)
+
 <!--toc:end-->
 
 ## Additions and Fixes to Upstream
@@ -63,7 +65,7 @@ Real-time `$/progress` notifications during Lake dependency setup, replacing the
 
 ![](./images/notifications.png)
 
-### Conciser `lake build` output
+### Compact `lake build` Output
 
 When Lake build fails, it displays a structured summary with error count and the failed target names.
 
@@ -323,11 +325,6 @@ To register the Nix-built stage1 instead of a `make` build:
 ```bash
 elan toolchain link lean4-local "$(nix build .#stage1 --print-out-paths)"
 ```
-
-### Testing
-
-See [doc/dev/testing.md](doc/dev/testing.md) for how to run the test suite, write new tests, and fix broken expected output.
-
 
 ## Related
 

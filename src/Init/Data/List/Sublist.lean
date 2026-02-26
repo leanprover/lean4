@@ -36,7 +36,8 @@ variable [BEq α]
     isPrefixOf (a::as) (a::bs) = isPrefixOf as bs := by simp [isPrefixOf_cons_cons]
 
 @[deprecated isPrefixOf_cons_cons_self (since := "2026-02-26")]
-def isPrefixOf_cons₂_self := @isPrefixOf_cons_cons_self
+theorem isPrefixOf_cons₂_self [LawfulBEq α] {a : α} :
+    isPrefixOf (a::as) (a::bs) = isPrefixOf as bs := isPrefixOf_cons_cons_self
 
 @[simp] theorem isPrefixOf_length_pos_nil {l : List α} (h : 0 < l.length) : isPrefixOf l [] = false := by
   cases l <;> simp_all [isPrefixOf]

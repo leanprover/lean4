@@ -137,9 +137,9 @@ protected def beq [BEq α] : List α → List α → Bool
 @[simp] theorem beq_nil_cons [BEq α] {a : α} {as : List α} : List.beq [] (a::as) = false := rfl
 theorem beq_cons_cons [BEq α] {a b : α} {as bs : List α} : List.beq (a::as) (b::bs) = (a == b && List.beq as bs) := rfl
 
-set_option linter.missingDocs false in
 @[deprecated beq_cons_cons (since := "2026-02-26")]
-def beq_cons₂ := @beq_cons_cons
+theorem beq_cons₂ [BEq α] {a b : α} {as bs : List α} :
+    List.beq (a::as) (b::bs) = (a == b && List.beq as bs) := beq_cons_cons
 
 instance [BEq α] : BEq (List α) := ⟨List.beq⟩
 
@@ -181,9 +181,8 @@ Examples:
 @[simp, grind =] theorem isEqv_cons_nil : isEqv (a::as : List α) [] eqv = false := rfl
 @[grind =] theorem isEqv_cons_cons : isEqv (a::as) (b::bs) eqv = (eqv a b && isEqv as bs eqv) := rfl
 
-set_option linter.missingDocs false in
 @[deprecated isEqv_cons_cons (since := "2026-02-26")]
-def isEqv_cons₂ := @isEqv_cons_cons
+theorem isEqv_cons₂ : isEqv (a::as) (b::bs) eqv = (eqv a b && isEqv as bs eqv) := isEqv_cons_cons
 
 
 /-! ## Lexicographic ordering -/
@@ -1059,9 +1058,8 @@ def dropLast {α} : List α → List α
 @[simp, grind =] theorem dropLast_cons_cons :
     (x::y::zs).dropLast = x :: (y::zs).dropLast := rfl
 
-set_option linter.missingDocs false in
 @[deprecated dropLast_cons_cons (since := "2026-02-26")]
-def dropLast_cons₂ := @dropLast_cons_cons
+theorem dropLast_cons₂ : (x::y::zs).dropLast = x :: (y::zs).dropLast := dropLast_cons_cons
 
 -- Later this can be proved by `simp` via `[List.length_dropLast, List.length_cons, Nat.add_sub_cancel]`,
 -- but we need this while bootstrapping `Array`.
@@ -1162,9 +1160,9 @@ def isPrefixOf [BEq α] : List α → List α → Bool
 @[grind =] theorem isPrefixOf_cons_cons [BEq α] {a : α} :
     isPrefixOf (a::as) (b::bs) = (a == b && isPrefixOf as bs) := rfl
 
-set_option linter.missingDocs false in
 @[deprecated isPrefixOf_cons_cons (since := "2026-02-26")]
-def isPrefixOf_cons₂ := @isPrefixOf_cons_cons
+theorem isPrefixOf_cons₂ [BEq α] {a : α} :
+    isPrefixOf (a::as) (b::bs) = (a == b && isPrefixOf as bs) := isPrefixOf_cons_cons
 
 /--
 If the first list is a prefix of the second, returns the result of dropping the prefix.
@@ -2190,9 +2188,9 @@ def intersperse (sep : α) : (l : List α) → List α
 @[simp] theorem intersperse_cons_cons {x : α} {y : α} {zs : List α} {sep : α} :
     (x::y::zs).intersperse sep = x::sep::((y::zs).intersperse sep) := rfl
 
-set_option linter.missingDocs false in
 @[deprecated intersperse_cons_cons (since := "2026-02-26")]
-def intersperse_cons₂ := @intersperse_cons_cons
+theorem intersperse_cons₂ {x : α} {y : α} {zs : List α} {sep : α} :
+    (x::y::zs).intersperse sep = x::sep::((y::zs).intersperse sep) := intersperse_cons_cons
 
 /-! ### intercalate -/
 

@@ -147,7 +147,7 @@ theorem mul_def (xs ys : IntList) : xs * ys = List.zipWith (· * ·) xs ys :=
 @[simp] theorem mul_cons_cons : (x::xs : IntList) * (y::ys) = (x * y) :: (xs * ys) := rfl
 
 @[deprecated mul_cons_cons (since := "2026-02-26")]
-def mul_cons₂ := @mul_cons_cons
+theorem mul_cons₂ : (x::xs : IntList) * (y::ys) = (x * y) :: (xs * ys) := mul_cons_cons
 
 /-- Implementation of negation on `IntList`. -/
 def neg (xs : IntList) : IntList := xs.map fun x => -x
@@ -284,7 +284,7 @@ example : IntList.dot [a, b, c] [x, y, z] = IntList.dot [a, b, c] [x, y, z, w] :
 @[simp] theorem dot_cons_cons : dot (x::xs) (y::ys) = x * y + dot xs ys := rfl
 
 @[deprecated dot_cons_cons (since := "2026-02-26")]
-def dot_cons₂ := @dot_cons_cons
+theorem dot_cons₂ : dot (x::xs) (y::ys) = x * y + dot xs ys := dot_cons_cons
 
 -- theorem dot_comm (xs ys : IntList) : dot xs ys = dot ys xs := by
 --   rw [dot, dot, mul_comm]

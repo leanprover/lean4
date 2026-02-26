@@ -3,15 +3,15 @@ trace: [Compiler.IR] [result]
     def f._closed_0 : obj :=
       let x_1 : tagged := 1;
       let x_2 : obj := Array.mkEmpty ◾ x_1;
-      ret x_2
-    def f (x_1 : tobj) : obj :=
-      let x_2 : obj := f._closed_0;
       let x_3 : obj := Array.push ◾ x_2 x_1;
       ret x_3
+    def f : obj :=
+      let x_1 : obj := f._closed_0;
+      ret x_1
 -/
 #guard_msgs in
 set_option trace.compiler.ir.result true in
-def f (a : Nat) : Array Nat := #[a]
+def f : Array Nat := #[1]
 
 /--
 trace: [Compiler.IR] [result]

@@ -22,19 +22,10 @@ trace: [Compiler.extractClosed] size: 18
       let _x.17 := Array.push ◾ _x.16 _x.2;
       let _x.18 := Array.push ◾ _x.17 _x.9;
       return _x.18
-[Compiler.extractClosed] size: 10
+[Compiler.extractClosed] size: 1
     def Arr.arrayTable : Array Nat :=
-      let _x.1 := 1;
-      let _x.2 := 2;
-      let _x.3 := 3;
-      let _x.4 := 4;
-      let _x.5 := 5;
-      let _x.6 := 6;
-      let _x.7 := 7;
-      let _x.8 := 8;
-      let _x.9 := Array.mkEmpty ◾ _x.8;
-      let _x.10 := Arr.arrayTable._closed_0;
-      return _x.10
+      let _x.1 := Arr.arrayTable._closed_0;
+      return _x.1
 -/
 #guard_msgs in
 set_option trace.Compiler.extractClosed true in
@@ -80,22 +71,10 @@ trace: [Compiler.extractClosed] size: 2
       let _x.17 := Array.push ◾ _x.16 _x.2;
       let _x.18 := Array.push ◾ _x.17 _x.9;
       return _x.18
-[Compiler.extractClosed] size: 13
+[Compiler.extractClosed] size: 1
     def Arr.nonTrivialArrayTable : Array Nat :=
-      let _x.1 := 1;
-      let _x.2 := 2;
-      let _x.3 := Arr.nonTrivialArrayTable._closed_0;
-      let _x.4 := 3;
-      let _x.5 := 4;
-      let _x.6 := 5;
-      let _x.7 := Arr.nonTrivialArrayTable._closed_1;
-      let _x.8 := 6;
-      let _x.9 := 7;
-      let _x.10 := Arr.nonTrivialArrayTable._closed_2;
-      let _x.11 := 8;
-      let _x.12 := Array.mkEmpty ◾ _x.11;
-      let _x.13 := Arr.nonTrivialArrayTable._closed_3;
-      return _x.13
+      let _x.1 := Arr.nonTrivialArrayTable._closed_3;
+      return _x.1
 -/
 #guard_msgs in
 set_option trace.Compiler.extractClosed true in
@@ -134,20 +113,10 @@ trace: [Compiler.extractClosed] size: 10
       let _x.2 := Arr.dualArrayTable._closed_0;
       let _x.3 := Prod.mk ◾ ◾ _x.2 _x.1;
       return _x.3
-[Compiler.extractClosed] size: 11
+[Compiler.extractClosed] size: 1
     def Arr.dualArrayTable : Prod (Array Nat) (Array Nat) :=
-      let _x.1 := 1;
-      let _x.2 := 2;
-      let _x.3 := 3;
-      let _x.4 := 4;
-      let _x.5 := Array.mkEmpty ◾ _x.4;
-      let _x.6 := Arr.dualArrayTable._closed_0;
-      let _x.7 := 5;
-      let _x.8 := 6;
-      let _x.9 := 7;
-      let _x.10 := Arr.dualArrayTable._closed_1;
-      let _x.11 := Arr.dualArrayTable._closed_2;
-      return _x.11
+      let _x.1 := Arr.dualArrayTable._closed_2;
+      return _x.1
 -/
 #guard_msgs in
 set_option trace.Compiler.extractClosed true in
@@ -181,20 +150,10 @@ trace: [Compiler.extractClosed] size: 19
       let _x.18 := Array.push ◾ _x.17 _x.1;
       let _x.19 := ByteArray.mk _x.18;
       return _x.19
-[Compiler.extractClosed] size: 11
+[Compiler.extractClosed] size: 1
     def BArr.arrayTable : ByteArray :=
-      let _x.1 := 1;
-      let _x.2 := 2;
-      let _x.3 := 3;
-      let _x.4 := 4;
-      let _x.5 := 5;
-      let _x.6 := 6;
-      let _x.7 := 7;
-      let _x.8 := 8;
-      let _x.9 := 8;
-      let _x.10 := Array.mkEmpty ◾ _x.9;
-      let _x.11 := BArr.arrayTable._closed_0;
-      return _x.11
+      let _x.1 := BArr.arrayTable._closed_0;
+      return _x.1
 -/
 #guard_msgs in
 set_option trace.Compiler.extractClosed true in
@@ -241,23 +200,10 @@ trace: [Compiler.extractClosed] size: 2
       let _x.18 := Array.push ◾ _x.17 _x.1;
       let _x.19 := ByteArray.mk _x.18;
       return _x.19
-[Compiler.extractClosed] size: 14
+[Compiler.extractClosed] size: 1
     def BArr.nonTrivialArrayTable : ByteArray :=
-      let _x.1 := 1;
-      let _x.2 := 2;
-      let _x.3 := BArr.nonTrivialArrayTable._closed_0;
-      let _x.4 := 3;
-      let _x.5 := 4;
-      let _x.6 := 5;
-      let _x.7 := BArr.nonTrivialArrayTable._closed_1;
-      let _x.8 := 6;
-      let _x.9 := 7;
-      let _x.10 := BArr.nonTrivialArrayTable._closed_2;
-      let _x.11 := 8;
-      let _x.12 := 8;
-      let _x.13 := Array.mkEmpty ◾ _x.12;
-      let _x.14 := BArr.nonTrivialArrayTable._closed_3;
-      return _x.14
+      let _x.1 := BArr.nonTrivialArrayTable._closed_3;
+      return _x.1
 -/
 #guard_msgs in
 set_option trace.Compiler.extractClosed true in
@@ -298,21 +244,10 @@ trace: [Compiler.extractClosed] size: 11
       let _x.2 := BArr.dualArrayTable._closed_0;
       let _x.3 := Prod.mk ◾ ◾ _x.2 _x.1;
       return _x.3
-[Compiler.extractClosed] size: 12
+[Compiler.extractClosed] size: 1
     def BArr.dualArrayTable : Prod ByteArray ByteArray :=
-      let _x.1 := 1;
-      let _x.2 := 2;
-      let _x.3 := 3;
-      let _x.4 := 4;
-      let _x.5 := 4;
-      let _x.6 := Array.mkEmpty ◾ _x.5;
-      let _x.7 := BArr.dualArrayTable._closed_0;
-      let _x.8 := 5;
-      let _x.9 := 6;
-      let _x.10 := 7;
-      let _x.11 := BArr.dualArrayTable._closed_1;
-      let _x.12 := BArr.dualArrayTable._closed_2;
-      return _x.12
+      let _x.1 := BArr.dualArrayTable._closed_2;
+      return _x.1
 -/
 #guard_msgs in
 set_option trace.Compiler.extractClosed true in
@@ -386,27 +321,10 @@ trace: [Compiler.extractClosed] size: 2
       let _x.18 := Array.push ◾ _x.17 _x.1;
       let _x.19 := FloatArray.mk _x.18;
       return _x.19
-[Compiler.extractClosed] size: 18
+[Compiler.extractClosed] size: 1
     def FArr.arrayTable : FloatArray :=
-      let _x.1 := 1;
-      let _x.2 := FArr.arrayTable._closed_0;
-      let _x.3 := 2;
-      let _x.4 := FArr.arrayTable._closed_1;
-      let _x.5 := 3;
-      let _x.6 := FArr.arrayTable._closed_2;
-      let _x.7 := 4;
-      let _x.8 := FArr.arrayTable._closed_3;
-      let _x.9 := 5;
-      let _x.10 := FArr.arrayTable._closed_4;
-      let _x.11 := 6;
-      let _x.12 := FArr.arrayTable._closed_5;
-      let _x.13 := 7;
-      let _x.14 := FArr.arrayTable._closed_6;
-      let _x.15 := 8;
-      let _x.16 := FArr.arrayTable._closed_7;
-      let _x.17 := Array.mkEmpty ◾ _x.15;
-      let _x.18 := FArr.arrayTable._closed_8;
-      return _x.18
+      let _x.1 := FArr.arrayTable._closed_8;
+      return _x.1
 -/
 #guard_msgs in
 set_option trace.Compiler.extractClosed true in
@@ -453,30 +371,10 @@ trace: [Compiler.extractClosed] size: 2
       let _x.18 := Array.push ◾ _x.17 _x.1;
       let _x.19 := FloatArray.mk _x.18;
       return _x.19
-[Compiler.extractClosed] size: 21
+[Compiler.extractClosed] size: 1
     def FArr.nonTrivialArrayTable : FloatArray :=
-      let _x.1 := 1;
-      let _x.2 := FArr.arrayTable._closed_0;
-      let _x.3 := 2;
-      let _x.4 := FArr.arrayTable._closed_1;
-      let _x.5 := FArr.nonTrivialArrayTable._closed_0;
-      let _x.6 := 3;
-      let _x.7 := FArr.arrayTable._closed_2;
-      let _x.8 := 4;
-      let _x.9 := FArr.arrayTable._closed_3;
-      let _x.10 := 5;
-      let _x.11 := FArr.arrayTable._closed_4;
-      let _x.12 := FArr.nonTrivialArrayTable._closed_1;
-      let _x.13 := 6;
-      let _x.14 := FArr.arrayTable._closed_5;
-      let _x.15 := 7;
-      let _x.16 := FArr.arrayTable._closed_6;
-      let _x.17 := FArr.nonTrivialArrayTable._closed_2;
-      let _x.18 := 8;
-      let _x.19 := FArr.arrayTable._closed_7;
-      let _x.20 := Array.mkEmpty ◾ _x.18;
-      let _x.21 := FArr.nonTrivialArrayTable._closed_3;
-      return _x.21
+      let _x.1 := FArr.nonTrivialArrayTable._closed_3;
+      return _x.1
 -/
 #guard_msgs in
 set_option trace.Compiler.extractClosed true in
@@ -517,27 +415,10 @@ trace: [Compiler.extractClosed] size: 11
       let _x.2 := FArr.dualArrayTable._closed_0;
       let _x.3 := Prod.mk ◾ ◾ _x.2 _x.1;
       return _x.3
-[Compiler.extractClosed] size: 18
+[Compiler.extractClosed] size: 1
     def FArr.dualArrayTable : Prod FloatArray FloatArray :=
-      let _x.1 := 1;
-      let _x.2 := FArr.arrayTable._closed_0;
-      let _x.3 := 2;
-      let _x.4 := FArr.arrayTable._closed_1;
-      let _x.5 := 3;
-      let _x.6 := FArr.arrayTable._closed_2;
-      let _x.7 := 4;
-      let _x.8 := FArr.arrayTable._closed_3;
-      let _x.9 := Array.mkEmpty ◾ _x.7;
-      let _x.10 := FArr.dualArrayTable._closed_0;
-      let _x.11 := 5;
-      let _x.12 := FArr.arrayTable._closed_4;
-      let _x.13 := 6;
-      let _x.14 := FArr.arrayTable._closed_5;
-      let _x.15 := 7;
-      let _x.16 := FArr.arrayTable._closed_6;
-      let _x.17 := FArr.dualArrayTable._closed_1;
-      let _x.18 := FArr.dualArrayTable._closed_2;
-      return _x.18
+      let _x.1 := FArr.dualArrayTable._closed_2;
+      return _x.1
 -/
 #guard_msgs in
 set_option trace.Compiler.extractClosed true in

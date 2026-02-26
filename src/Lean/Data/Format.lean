@@ -46,7 +46,7 @@ open Std
 export Std
   (Format ToFormat Format.nest Format.nil Format.joinSep Format.line
    Format.sbracket Format.bracket Format.group Format.tag Format.pretty
-   Format.fill Format.paren Format.join Format.align)
+   Format.fill Format.paren Format.join Format.align Format.hardLine)
 export ToFormat (format)
 
 instance : ToFormat Name where

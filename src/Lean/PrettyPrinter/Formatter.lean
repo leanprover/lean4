@@ -369,12 +369,12 @@ def pushToken (info : SourceInfo) (tk : String) (ident : Bool) : FormatterM Unit
       let preNL := Substring.Raw.contains { ss with stopPos := ss'.startPos } '\n'
       let postNL := Substring.Raw.contains { ss with startPos := ss'.stopPos } '\n'
       if postNL then
-        pushWhitespace "\n"
+        pushWhitespace Format.hardLine
       else if !(← get).leadWord.isEmpty then
         pushLine
       push ss'.toString
       if preNL then
-        pushWhitespace "\n"
+        pushWhitespace Format.hardLine
       else
         pushLine
 
@@ -407,11 +407,9 @@ def pushToken (info : SourceInfo) (tk : String) (ident : Bool) : FormatterM Unit
     -- already separated => use `tk` as is
     if st.leadWord == "" then
       push tk.trimAsciiEnd.copy
-    else if tk.endsWith " " then
+    else
       pushLine
       push tk.trimAsciiEnd.copy
-    else
-      push tk -- preserve special whitespace for tokens like ":=\n"
     modify fun st => { st with leadWord := if tk.trimAsciiStart == tk.toSlice then tk else "", leadWordIdent := ident }
 
   if let SourceInfo.original ss _ _ _ := info then
@@ -424,12 +422,12 @@ def pushToken (info : SourceInfo) (tk : String) (ident : Bool) : FormatterM Unit
       -- with the actual token, so dedent
       indent (indent := some (-Std.Format.getIndent (← getOptions))) do
         if postNL then
-          pushWhitespace "\n"
+          pushWhitespace Format.hardLine
         else
           pushLine
         pushWhitespace ss'.toString
         if preNL then
-          pushWhitespace "\n"
+          pushWhitespace Format.hardLine
         else
           -- It is conceivable that the start of comment syntax could be misinterpreted as part of a token,
           -- so add the beginning of it as the leadWord.

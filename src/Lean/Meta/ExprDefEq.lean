@@ -2111,6 +2111,14 @@ private def isDefEqApp (t s : Expr) : MetaM Bool := do
   else
     isDefEqOnFailure t s
 
+@[inline] private def cachedUnitLike? (e : Expr) : MetaM (Option Bool) := do
+  return (← get).cache.isUnitLike.find? (← mkExprConfigCacheKey e)
+
+private def cacheUnitLike (e : Expr) (b : Bool) : MetaM Bool := do
+  let key ← mkExprConfigCacheKey e
+  modify fun s => { s with cache.isUnitLike := s.cache.isUnitLike.insert key b }
+  return b
+
 /-- Takes a type of the form `A1 -> ... -> An-> I As`, checks that `I` is a (non-recursive) structure, and that each (instantiated) fields is itself either a proposition or a unit-like type-/
 private partial def isUnitLikeType (e : Expr) : MetaM Bool :=
   forallTelescopeReducing (whnfType := true) e fun _ tType => do
@@ -2133,10 +2141,12 @@ private partial def isUnitLikeType (e : Expr) : MetaM Bool :=
 -/
 private def isDefEqUnitLike (t : Expr) (s : Expr) : MetaM Bool := do
   let tType  ← inferType t
-  let isUnit ← isUnitLikeType tType
-  if !isUnit then
-    return false
-  Meta.isExprDefEqAux tType (← inferType s)
+    match (← cachedUnitLike? tType) with
+      | some b => return b
+      | none => cacheUnitLike tType (← do
+        let isUnit ← isUnitLikeType tType
+        if !isUnit then return false
+        Meta.isExprDefEqAux tType (← inferType s))
 
 /--
   The `whnf` procedure has support for unfolding class projections when the

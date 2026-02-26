@@ -1,0 +1,2 @@
+@Foo.Bar.mk₁ : {α : Type} → Foo.A α → Foo.Bar α
+@Foo.Bar.mk₂ : {α : Type} → Foo.A α → Foo.Bar α

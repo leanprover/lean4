@@ -120,6 +120,10 @@ private partial def internalizeLetValue (e : LetValue pu) : InternalizeM pu (Let
     match (← normFVar fvarId) with
     | .fvar fvarId' => return e.updateBox! ty fvarId'
     | .erased => return .erased
+  | .isShared fvarId _ =>
+    match (← normFVar fvarId) with
+    | .fvar fvarId' => return e.updateIsShared! fvarId'
+    | .erased => return .erased
 
 def internalizeLetDecl (decl : LetDecl pu) : InternalizeM pu (LetDecl pu) := do
   let binderName ← refreshBinderName decl.binderName
@@ -166,12 +170,22 @@ partial def internalizeCode (code : Code pu) : InternalizeM pu (Code pu) := do
     withNormFVarResult (← normFVar fvarId) fun fvarId => do
     withNormFVarResult (← normFVar y) fun y => do
       return .uset fvarId offset y (← internalizeCode k)
+  | .oset fvarId offset y k _ =>
+    withNormFVarResult (← normFVar fvarId) fun fvarId => do
+      let y ← normArg y
+      return .oset fvarId offset y (← internalizeCode k)
+  | .setTag fvarId cidx k _ =>
+    withNormFVarResult (← normFVar fvarId) fun fvarId => do
+      return .setTag fvarId cidx (← internalizeCode k)
   | .inc fvarId n check persistent k _ =>
     withNormFVarResult (← normFVar fvarId) fun fvarId => do
       return .inc fvarId n check persistent (← internalizeCode k)
   | .dec fvarId n check persistent k _ =>
     withNormFVarResult (← normFVar fvarId) fun fvarId => do
       return .dec fvarId n check persistent (← internalizeCode k)
+  | .del fvarId k _ =>
+    withNormFVarResult (← normFVar fvarId) fun fvarId => do
+      return .del fvarId (← internalizeCode k)
 
 end
 
@@ -180,8 +194,12 @@ partial def internalizeCodeDecl (decl : CodeDecl pu) : InternalizeM pu (CodeDecl
   | .let decl => return .let (← internalizeLetDecl decl)
   | .fun decl _ => return .fun (← internalizeFunDecl decl)
   | .jp decl => return .jp (← internalizeFunDecl decl)
-  | .uset fvarId i y _ =>
+  | .oset fvarId i y _ =>
     -- Something weird should be happening if these become erased...
+    let .fvar fvarId ← normFVar fvarId | unreachable!
+    let y ← normArg y
+    return .oset fvarId i y
+  | .uset fvarId i y _ =>
     let .fvar fvarId ← normFVar fvarId | unreachable!
     let .fvar y ← normFVar y | unreachable!
     return .uset fvarId i y
@@ -190,12 +208,18 @@ partial def internalizeCodeDecl (decl : CodeDecl pu) : InternalizeM pu (CodeDecl
     let .fvar y ← normFVar y | unreachable!
     let ty ← normExpr ty
     return .sset fvarId i offset y ty
+  | .setTag fvarId cidx _ =>
+    let .fvar fvarId ← normFVar fvarId | unreachable!
+    return .setTag fvarId cidx
   | .inc fvarId n check offset _ =>
     let .fvar fvarId ← normFVar fvarId | unreachable!
     return .inc fvarId n check offset
   | .dec fvarId n check offset _ =>
     let .fvar fvarId ← normFVar fvarId | unreachable!
     return .dec fvarId n check offset
+  | .del fvarId _ =>
+    let .fvar fvarId ← normFVar fvarId | unreachable!
+    return .del fvarId
 
 
 end Internalize

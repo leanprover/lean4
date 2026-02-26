@@ -1,0 +1,24 @@
+@[defeq] theorem AList.nil.sizeOf_spec.{u} : ∀ {α β : Type u} [inst : SizeOf α] [inst_1 : SizeOf β],
+  sizeOf AList.nil = 1 :=
+fun {α β} [SizeOf α] [SizeOf β] => Eq.refl 1
+@[defeq] theorem AList.cons.sizeOf_spec.{u} : ∀ {α β : Type u} [inst : SizeOf α] [inst_1 : SizeOf β] (a : α)
+  (t : BList α β), sizeOf (AList.cons a t) = 1 + sizeOf a + sizeOf t :=
+fun {α β} [SizeOf α] [SizeOf β] a t => Eq.refl (1 + sizeOf a + sizeOf t)
+@[defeq] theorem BList.cons.sizeOf_spec.{u} : ∀ {α β : Type u} [inst : SizeOf α] [inst_1 : SizeOf β] (b : β)
+  (t : AList α β), sizeOf (BList.cons b t) = 1 + sizeOf b + sizeOf t :=
+fun {α β} [SizeOf α] [SizeOf β] b t => Eq.refl (1 + sizeOf b + sizeOf t)
+theorem Boo.mk.sizeOf_spec.{u} : ∀ {α : Type u} [inst : SizeOf α] (a : α) (cs : BList (Foo α) (Boo α)),
+  sizeOf (Boo.mk a cs) = 1 + sizeOf a + sizeOf cs :=
+fun {α} [SizeOf α] a cs => congrArg (1 + sizeOf a).add (Foo._sizeOf_4_eq cs)
+theorem Foo._sizeOf_4_eq.{u} : ∀ {α : Type u} [inst : SizeOf α] (x : BList (Foo α) (Boo α)),
+  Foo._sizeOf_4 x = sizeOf x :=
+fun {α} [SizeOf α] x =>
+  BList.rec (Eq.refl (sizeOf AList.nil))
+    (fun a t t_ih => Eq.trans (congrArg (1 + sizeOf a).add t_ih) (Eq.symm (AList.cons.sizeOf_spec a t)))
+    (fun b t t_ih => Eq.trans (congrArg (1 + sizeOf b).add t_ih) (Eq.symm (BList.cons.sizeOf_spec b t))) x
+theorem Foo._sizeOf_3_eq.{u} : ∀ {α : Type u} [inst : SizeOf α] (x : AList (Foo α) (Boo α)),
+  Foo._sizeOf_3 x = sizeOf x :=
+fun {α} [SizeOf α] x =>
+  AList.rec (Eq.refl (sizeOf AList.nil))
+    (fun a t t_ih => Eq.trans (congrArg (1 + sizeOf a).add t_ih) (Eq.symm (AList.cons.sizeOf_spec a t)))
+    (fun b t t_ih => Eq.trans (congrArg (1 + sizeOf b).add t_ih) (Eq.symm (BList.cons.sizeOf_spec b t))) x

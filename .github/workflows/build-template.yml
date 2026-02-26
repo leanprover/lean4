@@ -85,7 +85,7 @@ jobs:
       - name: CI Merge Checkout
         run: |
           git fetch --depth=1 origin ${{ github.sha }}
-          git checkout FETCH_HEAD flake.nix flake.lock script/prepare-* tests/lean/run/importStructure.lean
+          git checkout FETCH_HEAD flake.nix flake.lock script/prepare-* tests/elab/importStructure.lean
         if: github.event_name == 'pull_request'
       # (needs to be after "Checkout" so files don't get overridden)
       - name: Setup emsdk
@@ -235,7 +235,7 @@ jobs:
         # prefix `if` above with `always` so it's run even if tests failed
         if: always() && steps.test.conclusion != 'skipped'
       - name: Check Test Binary
-        run: ${{ matrix.binary-check }} tests/compiler/534.lean.out
+        run: ${{ matrix.binary-check }} tests/compile/534.lean.out
         if: (!matrix.cross) && steps.test.conclusion != 'skipped'
       - name: Build Stage 2
         run: |
@@ -246,13 +246,7 @@ jobs:
           make -C build -j$NPROC check-stage3
         if: matrix.check-stage3
       - name: Test Speedcenter Benchmarks
-        run: |
-          # Necessary for some timing metrics but does not work on Namespace runners
-          # and we just want to test that the benchmarks run at all here
-          #echo -1 | sudo tee /proc/sys/kernel/perf_event_paranoid
-          export BUILD=$PWD/build PATH=$PWD/build/stage1/bin:$PATH
-          cd tests/bench
-          nix shell .#temci -c temci exec --config speedcenter.yaml --included_blocks fast --runs 1
+        run: nix shell github:Kha/lakeprof -c make -C build -j$NPROC bench
         if: matrix.test-speedcenter
       - name: Check rebootstrap
         run: |

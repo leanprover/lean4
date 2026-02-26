@@ -101,6 +101,17 @@ theorem toArray_mk {xs : Array α} (h : xs.size = n) : (Vector.mk xs h).toArray 
 @[simp] theorem foldr_mk {f : α → β → β} {b : β} {xs : Array α} (h : xs.size = n) :
     (Vector.mk xs h).foldr f b = xs.foldr f b := rfl
 
+@[simp, grind =] theorem foldlM_toArray [Monad m]
+    {f : β → α → m β} {init : β} {xs : Vector α n} :
+    xs.toArray.foldlM f init = xs.foldlM f init := rfl
+
+@[simp, grind =] theorem foldrM_toArray [Monad m]
+    {f : α → β → m β} {init : β} {xs : Vector α n} :
+    xs.toArray.foldrM f init = xs.foldrM f init := rfl
+
+@[simp, grind =] theorem foldl_toArray (f : β → α → β) {init : β} {xs : Vector α n} :
+    xs.toArray.foldl f init = xs.foldl f init := rfl
+
 @[simp] theorem drop_mk {xs : Array α} {h : xs.size = n} {i} :
     (Vector.mk xs h).drop i = Vector.mk (xs.extract i xs.size) (by simp [h]) := rfl
 
@@ -514,16 +525,31 @@ protected theorem ext {xs ys : Vector α n} (h : (i : Nat) → (_ : i < n) → x
 
 @[grind =_] theorem toList_toArray {xs : Vector α n} : xs.toArray.toList = xs.toList := rfl
 
+theorem toArray_toList {xs : Vector α n} : xs.toList.toArray = xs.toArray := rfl
+
+@[simp, grind =] theorem foldlM_toList [Monad m]
+    {f : β → α → m β} {init : β} {xs : Vector α n} :
+    xs.toList.foldlM f init = xs.foldlM f init := by
+  rw [← foldlM_toArray, ← toArray_toList, List.foldlM_toArray]
+
+@[simp, grind =] theorem foldl_toList (f : β → α → β) {init : β} {xs : Vector α n} :
+    xs.toList.foldl f init = xs.foldl f init :=
+  List.foldl_eq_foldlM .. ▸ foldlM_toList ..
+
+@[simp, grind =] theorem foldrM_toList [Monad m]
+    {f : α → β → m β} {init : β} {xs : Vector α n} :
+    xs.toList.foldrM f init = xs.foldrM f init := by
+  rw [← foldrM_toArray, ← toArray_toList, List.foldrM_toArray]
+
+@[simp, grind =] theorem foldr_toList (f : α → β → β) {init : β} {xs : Vector α n} :
+    xs.toList.foldr f init = xs.foldr f init :=
+  List.foldr_eq_foldrM .. ▸ foldrM_toList ..
+
 @[simp, grind =] theorem toList_mk : (Vector.mk xs h).toList = xs.toList := rfl
 
 @[simp, grind =] theorem sum_toList [Add α] [Zero α] {xs : Vector α n} :
     xs.toList.sum = xs.sum := by
   rw [← toList_toArray, Array.sum_toList, sum_toArray]
-
-@[simp, grind =]
-theorem toList_zip {as : Vector α n} {bs : Vector β n} :
-    (Vector.zip as bs).toList = List.zip as.toList bs.toList := by
-  rw [mk_zip_mk, toList_mk, Array.toList_zip, toList_toArray, toList_toArray]
 
 @[simp] theorem getElem_toList {xs : Vector α n} {i : Nat} (h : i < xs.toList.length) :
     xs.toList[i] = xs[i]'(by simpa using h) := by
@@ -608,6 +634,11 @@ theorem toList_swap {xs : Vector α n} {i j} (hi hj) :
 
 @[simp] theorem toList_take {xs : Vector α n} {i} : (xs.take i).toList = xs.toList.take i := by
   simp [toList]
+
+@[simp, grind =]
+theorem toList_zip {as : Vector α n} {bs : Vector β n} :
+    (Vector.zip as bs).toList = List.zip as.toList bs.toList := by
+  rw [mk_zip_mk, toList_mk, Array.toList_zip, toList_toArray, toList_toArray]
 
 @[simp] theorem toList_zipWith {f : α → β → γ} {as : Vector α n} {bs : Vector β n} :
     (Vector.zipWith f as bs).toList = List.zipWith f as.toList bs.toList := by
@@ -702,6 +733,9 @@ protected theorem eq_empty {xs : Vector α 0} : xs = #v[] := by
 
 
 /-! ### size -/
+
+theorem size_singleton {x : α} : #v[x].size = 1 := by
+  simp
 
 theorem eq_empty_of_size_eq_zero {xs : Vector α n} (h : n = 0) : xs = #v[].cast h.symm := by
   rcases xs with ⟨xs, rfl⟩
@@ -2448,6 +2482,21 @@ theorem foldl_eq_foldr_reverse {xs : Vector α n} {f : β → α → β} {b} :
 theorem foldr_eq_foldl_reverse {xs : Vector α n} {f : α → β → β} {b} :
     xs.foldr f b = xs.reverse.foldl (fun x y => f y x) b := by simp
 
+theorem foldl_eq_apply_foldr {xs : Vector α n} {f : α → α → α}
+    [Std.Associative f] [Std.LawfulRightIdentity f init] :
+    xs.foldl f x = f x (xs.foldr f init) := by
+  simp [← foldl_toList, ← foldr_toList, List.foldl_eq_apply_foldr]
+
+theorem foldr_eq_apply_foldl {xs : Vector α n} {f : α → α → α}
+    [Std.Associative f] [Std.LawfulLeftIdentity f init] :
+    xs.foldr f x = f (xs.foldl f init) x := by
+  simp [← foldl_toList, ← foldr_toList, List.foldr_eq_apply_foldl]
+
+theorem foldr_eq_foldl {xs : Vector α n} {f : α → α → α}
+    [Std.Associative f] [Std.LawfulIdentity f init] :
+    xs.foldr f init = xs.foldl f init := by
+  simp [foldl_eq_apply_foldr, Std.LawfulLeftIdentity.left_id]
+
 theorem foldl_assoc {op : α → α → α} [ha : Std.Associative op] {xs : Vector α n} {a₁ a₂} :
     xs.foldl op (op a₁ a₂) = op a₁ (xs.foldl op a₂) := by
   rcases xs with ⟨xs, rfl⟩
@@ -3065,7 +3114,24 @@ theorem sum_append [Zero α] [Add α] [Std.Associative (α := α) (· + ·)]
   simp [← sum_toList, List.sum_append]
 
 @[simp, grind =]
+theorem sum_singleton [Add α] [Zero α] [Std.LawfulRightIdentity (· + ·) (0 : α)] {x : α} :
+    #v[x].sum = x := by
+  simp [← sum_toList, Std.LawfulRightIdentity.right_id x]
+
+@[simp, grind =]
+theorem sum_push [Add α] [Zero α] [Std.Associative (α := α) (· + ·)]
+    [Std.LawfulIdentity (· + ·) (0 : α)] {xs : Vector α n} {x : α} :
+    (xs.push x).sum = xs.sum + x := by
+  simp [← sum_toArray]
+
+@[simp, grind =]
 theorem sum_reverse [Zero α] [Add α] [Std.Associative (α := α) (· + ·)]
     [Std.Commutative (α := α) (· + ·)]
     [Std.LawfulLeftIdentity (α := α) (· + ·) 0] (xs : Vector α n) : xs.reverse.sum = xs.sum := by
   simp [← sum_toList, List.sum_reverse]
+
+theorem sum_eq_foldl [Zero α] [Add α]
+    [Std.Associative (α := α) (· + ·)] [Std.LawfulIdentity (· + ·) (0 : α)]
+    {xs : Vector α n} :
+    xs.sum = xs.foldl (b := 0) (· + ·) := by
+  simp [← sum_toList, List.sum_eq_foldl]

@@ -1,0 +1,5 @@
+Try these:
+  [apply] [grind =] for pattern: [@getElem (Vector #10 #9) `[Nat] _ _ _ (@Vector.swap _ #9 #7 #6 #5 #4 #3) #8 #2]
+  [apply] [grind
+    =>] for pattern: [@LE.le `[Nat] `[instLENat] (#6 + 1) #9, @LE.le `[Nat] `[instLENat] (#5 + 1) #9, @LE.le `[Nat] `[instLENat] (#8 + 1) #9, @getElem (Vector #10 _) `[Nat] _ _ _ (@Vector.swap _ #9 #7 #6 #5 #4 #3) #8 #2]
+grind_split_arith_imp.lean:13:0-13:7: warning: declaration uses `sorry`

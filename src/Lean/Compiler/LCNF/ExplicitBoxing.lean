@@ -284,7 +284,7 @@ partial def Code.explicitBoxing (code : Code .impure) : BoxM (Code .impure) := d
     let some jpDecl ← findFunDecl? fvarId | unreachable!
     castArgsIfNeeded args jpDecl.params fun args => return code.updateJmp! fvarId args
   | .unreach .. => return code.updateUnreach! (← getResultType)
-  | .inc .. | .dec .. => unreachable!
+  | .inc .. | .dec .. | .oset .. | .setTag .. | .del .. => unreachable!
 where
   /--
   Up to this point the type system of IR is quite loose so we can for example encounter situations
@@ -313,7 +313,7 @@ where
     | .ctor i _ => return i.type
     | .fvar .. | .lit .. | .sproj .. | .oproj .. | .reset .. | .reuse .. =>
       return currentType
-    | .box .. | .unbox .. => unreachable!
+    | .box .. | .unbox .. | .isShared .. => unreachable!
 
   visitLet (code : Code .impure) (decl : LetDecl .impure) (k : Code .impure) : BoxM (Code .impure) := do
     let type ← tryCorrectLetDeclType decl.type decl.value
@@ -350,7 +350,7 @@ where
     | .erased | .reset .. | .sproj .. | .uproj .. | .oproj .. | .lit .. =>
       let decl ← decl.update type decl.value
       return code.updateLet! decl k
-    | .box .. | .unbox .. => unreachable!
+    | .box .. | .unbox .. | .isShared .. => unreachable!
 
 def run (decls : Array (Decl .impure)) : CompilerM (Array (Decl .impure)) := do
   let decls ← decls.foldlM (init := #[]) fun newDecls decl => do

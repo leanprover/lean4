@@ -1,0 +1,1 @@
+@Foo.toString : {Foo : Sort u_1} → Foo → String

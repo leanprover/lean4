@@ -1,0 +1,14 @@
+3965_2.lean:9:8-9:19: warning: declaration uses `sorry`
+3965_2.lean:30:12-30:18: warning: declaration uses `sorry`
+3965_2.lean:32:28-32:33: warning: declaration uses `sorry`
+3965_2.lean:32:28-32:33: warning: declaration uses `sorry`
+3965_2.lean:39:18-39:27: warning: declaration uses `sorry`
+3965_2.lean:41:18-41:27: warning: declaration uses `sorry`
+3965_2.lean:81:4-81:8: warning: declaration uses `sorry`
+3965_2.lean:81:4-81:8: warning: declaration uses `sorry`
+3965_2.lean:81:4-81:8: warning: declaration uses `sorry`
+3965_2.lean:81:4-81:8: warning: declaration uses `sorry`
+3965_2.lean:81:4-81:8: warning: declaration uses `sorry`
+3965_2.lean:81:4-81:8: warning: declaration uses `sorry`
+3965_2.lean:81:4-81:8: warning: declaration uses `sorry`
+3965_2.lean:89:8-89:25: warning: declaration uses `sorry`

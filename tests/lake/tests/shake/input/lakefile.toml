@@ -8,3 +8,4 @@ globs = ["Lib.**"]
 
 [[lean_lib]]
 name = "Main"
+roots = ["Main", "DepMain"]

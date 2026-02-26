@@ -1,0 +1,39 @@
+robinson.lean:23:8-23:17: warning: declaration uses `sorry`
+robinson.lean:28:8-28:18: warning: declaration uses `sorry`
+robinson.lean:33:4-33:12: warning: declaration uses `sorry`
+robinson.lean:33:4-33:12: warning: declaration uses `sorry`
+robinson.lean:33:4-33:12: warning: declaration uses `sorry`
+robinson.lean:33:4-33:12: warning: declaration uses `sorry`
+robinson.lean:33:4-33:12: warning: declaration uses `sorry`
+robinson.lean:33:4-33:12: warning: declaration uses `sorry`
+robinson.lean:33:4-33:12: warning: declaration uses `sorry`
+robinson.lean:33:4-33:12: warning: declaration uses `sorry`
+robinson.lean:33:4-33:12: warning: declaration uses `sorry`
+robinson.lean:33:4-33:12: warning: declaration uses `sorry`
+robinson.lean:33:4-33:12: warning: declaration uses `sorry`
+robinson.lean:33:4-33:12: warning: declaration uses `sorry`
+robinson.lean:33:4-33:12: warning: declaration uses `sorry`
+robinson.lean:33:4-33:12: warning: declaration uses `sorry`
+robinson.lean:33:4-33:12: warning: declaration uses `sorry`
+robinson.lean:33:4-33:12: warning: declaration uses `sorry`
+robinson.lean:33:4-33:12: warning: declaration uses `sorry`
+robinson.lean:33:4-33:12: warning: declaration uses `sorry`
+robinson.lean:33:4-33:12: warning: declaration uses `sorry`
+robinson.lean:33:4-33:12: warning: declaration uses `sorry`
+robinson.lean:33:4-33:12: warning: declaration uses `sorry`
+robinson.lean:33:4-33:12: warning: declaration uses `sorry`
+robinson.lean:33:0-47:30: warning: declaration uses `sorry`
+robinson.eq_1 (l₁ r₁ l₂ r₂ : Term) :
+  robinson (l₁.Cons r₁) (l₂.Cons r₂) =
+    match robinson l₁ l₂ with
+    | ⟨none, h⟩ => ⟨none, robinson._proof_1 l₁ r₁ l₂ r₂⟩
+    | ⟨some f, h⟩ =>
+      match robinson (act f r₁) (act f r₂) with
+      | ⟨none, h⟩ => ⟨none, robinson._proof_2 l₁ r₁ l₂ r₂⟩
+      | ⟨some g, h⟩ => ⟨some (g ∘ f), robinson._proof_3 l₁ r₁ l₂ r₂ f g⟩
+robinson.eq_2 (i : Nat) (l r : Term) : robinson (Term.Var i) (l.Cons r) = ⟨none, robinson._proof_4 i l r⟩
+robinson.eq_3 (l r : Term) (i : Nat) : robinson (l.Cons r) (Term.Var i) = ⟨none, robinson._proof_5 l r i⟩
+robinson.eq_4 (i j : Nat) :
+  robinson (Term.Var i) (Term.Var j) =
+    if i = j then ⟨some id, robinson._proof_6 i j⟩ else ⟨some fun n => if n = i then j else n, robinson._proof_7 i j⟩
+robinson.lean:57:8-57:10: warning: declaration uses `sorry`

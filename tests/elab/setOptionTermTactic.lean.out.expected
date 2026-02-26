@@ -1,0 +1,38 @@
+[Meta.synthInstance] 💥️ OfNat ?m 1
+  [Meta.synthInstance] new goal OfNat ?m 1
+    [Meta.synthInstance.instances] #[@Lean.Grind.Semiring.ofNat, @One.toOfNat1, @Int16.instOfNat, @UInt64.instOfNat, @Rat.instOfNat, @Int8.instOfNat, @instOfNatFloat, @BitVec.instOfNat, Dyadic.instOfNat, @Int64.instOfNat, @instOfNat, @Id.instOfNat, @UInt16.instOfNat, instOfNatNat, @UInt32.instOfNat, @UInt8.instOfNat, @Fin.instOfNat, @ISize.instOfNat, @instOfNatFloat32, @Int32.instOfNat, @USize.instOfNat]
+  [Meta.synthInstance] 💥️ apply @USize.instOfNat to OfNat ?m 1
+    [Meta.synthInstance.tryResolve] 💥️ OfNat ?m 1 ≟ OfNat USize ?m
+[Meta.Tactic.simp.rewrite] Nat.add_succ:1000:
+      x + 1
+    ==>
+      (x + 0).succ
+[Meta.Tactic.simp.unify] Nat.add_succ:1000, failed to unify
+      ?n + Nat.succ ?m
+    with
+      x + 0
+[Meta.Tactic.simp.unify] Nat.add_succ:1000, failed to unify
+      ?n + Nat.succ ?m
+    with
+      x + 0
+[Meta.Tactic.simp.rewrite] unfold g, g ==> fun x => 0 + x.succ
+[Meta.Tactic.simp.rewrite] Nat.add_succ:1000:
+      0 + x.succ
+    ==>
+      (0 + x).succ
+[Meta.Tactic.simp.unify] Nat.add_succ:1000, failed to unify
+      ?n + Nat.succ ?m
+    with
+      0 + x
+[Meta.Tactic.simp.unify] Nat.add_succ:1000, failed to unify
+      ?n + Nat.succ ?m
+    with
+      0 + x
+[Meta.Tactic.simp.unify] eq_self:1000, failed to unify
+      ?a = ?a
+    with
+      (fun x => (x + 0).succ) = fun x => (0 + x).succ
+[Meta.Tactic.simp.unify] eq_self:1000, failed to unify
+      ?a = ?a
+    with
+      (fun x => (x + 0).succ) = fun x => (0 + x).succ

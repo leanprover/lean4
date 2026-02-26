@@ -1,0 +1,30 @@
+3965_3.lean:8:8-8:16: warning: declaration uses `sorry`
+3965_3.lean:50:19-50:26: warning: @Sup.sup does not have a doc string
+3965_3.lean:53:19-53:26: warning: @Inf.inf does not have a doc string
+3965_3.lean:93:4-93:21: warning: declaration uses `sorry`
+3965_3.lean:125:8-125:14: warning: declaration uses `sorry`
+3965_3.lean:138:8-138:19: warning: declaration uses `sorry`
+3965_3.lean:140:8-140:18: warning: declaration uses `sorry`
+3965_3.lean:148:14-148:28: warning: declaration uses `sorry`
+3965_3.lean:148:14-148:28: warning: declaration uses `sorry`
+3965_3.lean:148:14-148:28: warning: declaration uses `sorry`
+3965_3.lean:148:14-148:28: warning: declaration uses `sorry`
+3965_3.lean:148:14-148:28: warning: declaration uses `sorry`
+3965_3.lean:148:14-148:28: warning: declaration uses `sorry`
+3965_3.lean:148:14-148:28: warning: declaration uses `sorry`
+3965_3.lean:156:14-156:28: warning: declaration uses `sorry`
+3965_3.lean:156:14-156:28: warning: declaration uses `sorry`
+3965_3.lean:156:14-156:28: warning: declaration uses `sorry`
+3965_3.lean:156:14-156:28: warning: declaration uses `sorry`
+3965_3.lean:156:14-156:28: warning: declaration uses `sorry`
+3965_3.lean:156:14-156:28: warning: declaration uses `sorry`
+3965_3.lean:156:14-156:28: warning: declaration uses `sorry`
+3965_3.lean:217:8-217:15: warning: declaration uses `sorry`
+3965_3.lean:227:8-227:15: warning: declaration uses `sorry`
+3965_3.lean:260:9-260:17: warning: declaration uses `sorry`
+3965_3.lean:262:9-262:17: warning: declaration uses `sorry`
+3965_3.lean:278:4-278:23: warning: declaration uses `sorry`
+3965_3.lean:278:4-278:23: warning: declaration uses `sorry`
+3965_3.lean:278:4-278:23: warning: declaration uses `sorry`
+3965_3.lean:278:4-278:23: warning: declaration uses `sorry`
+3965_3.lean:287:0-287:7: warning: declaration uses `sorry`

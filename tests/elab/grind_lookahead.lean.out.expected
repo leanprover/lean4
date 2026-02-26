@@ -1,0 +1,4 @@
+Try these:
+  [apply] [grind .] for pattern: [@List.nil #2, @List.length _ #1]
+  [apply] [grind →] for pattern: [@List.length #2 #1]
+grind_lookahead.lean:16:0-16:7: warning: declaration uses `sorry`

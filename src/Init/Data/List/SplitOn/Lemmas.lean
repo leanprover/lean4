@@ -75,6 +75,12 @@ theorem splitOnP_cons_eq_if_modifyHead (x : α) (xs : List α) :
       if p x then [] :: xs.splitOnP p else (xs.splitOnP p).modifyHead (cons x) := by
   simp [splitOnP_cons_eq_if_splitOnPPrepend, splitOnPPrepend_eq_modifyHead]
 
+@[deprecated splitOnP_cons_eq_if_modifyHead (since := "2026-02-26")]
+theorem splitOnP_cons (x : α) (xs : List α) :
+    (x :: xs).splitOnP p =
+      if p x then [] :: xs.splitOnP p else (xs.splitOnP p).modifyHead (cons x) :=
+  splitOnP_cons_eq_if_modifyHead x xs
+
 /-- The original list `L` can be recovered by flattening the lists produced by `splitOnP p L`,
 interspersed with the elements `L.filter p`. -/
 theorem splitOnP_spec (as : List α) :
@@ -117,6 +123,11 @@ theorem splitOnP_append_cons (xs as : List α) {sep : α} (hsep : p sep) :
 theorem splitOnP_append_cons_of_forall_mem (h : ∀ x ∈ xs, p x = false) (sep : α)
     (hsep : p sep = true) (as : List α) : (xs ++ sep :: as).splitOnP p = xs :: as.splitOnP p := by
   rw [splitOnP_append_cons xs as hsep, splitOnP_eq_singleton h, singleton_append]
+
+@[deprecated splitOnP_append_cons_of_forall_mem (since := "2026-02-26")]
+theorem splitOnP_first (h : ∀ x ∈ xs, p x = false) (sep : α)
+    (hsep : p sep = true) (as : List α) : (xs ++ sep :: as).splitOnP p = xs :: as.splitOnP p :=
+  splitOnP_append_cons_of_forall_mem h sep hsep as
 
 @[simp]
 theorem intercalate_nil {sep : List α} : sep.intercalate [] = [] := rfl

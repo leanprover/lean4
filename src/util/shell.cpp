@@ -190,6 +190,8 @@ static struct option g_long_options[] = {
     {"setup",        required_argument, 0, 'u'},
     {"error",        required_argument, 0, 'E'},
     {"json",         no_argument,       0, 'J'},
+    {"format",       no_argument,       0, 'F'},
+    {"format-check", no_argument,       0, 'G'},
     {"print-prefix", no_argument,       0, 'x'},
     {"print-libdir", no_argument,       0, 'L'},
 #ifdef LEAN_DEBUG
@@ -199,7 +201,7 @@ static struct option g_long_options[] = {
 };
 
 static char const * g_opt_str =
-    "PdD:o:i:b:c:C:qgvVht:012j:012rR:M:012T:012ap:eE:"
+    "PdD:o:i:b:c:C:qgvVht:012j:012rR:M:012T:012ap:eE:FG"
 #if defined(LEAN_MULTI_THREAD)
     "s:012"
 #endif

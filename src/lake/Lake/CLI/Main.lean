@@ -851,6 +851,30 @@ protected def lean : CliM PUnit := do
   let rc ← ws.evalLeanFile leanFile opts.subArgs.toArray (mkBuildConfig opts)
   exit rc
 
+protected def format : CliM PUnit := do
+  -- Parse format-specific options before file args
+  let mut check := false
+  let mut done := false
+  repeat do
+    if done then break
+    let args ← getArgs
+    match args with
+    | "--check" :: rest => setArgs rest; check := true
+    | _ => done := true
+  processOptions lakeOption
+  let opts ← getThe LakeOptions
+  let files ← takeArgs
+  if files.isEmpty then
+    throw <| CliError.missingArg "files"
+  let ws ← loadWorkspace (← mkLoadConfig opts)
+  let flag := if check then "--format-check" else "--format"
+  let mut anyFailed := false
+  for file in files do
+    let rc ← ws.evalLeanFile file #[flag] (mkBuildConfig opts)
+    if rc != 0 then
+      anyFailed := true
+  if anyFailed then exit 1
+
 protected def translateConfig : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
@@ -1002,6 +1026,7 @@ def lakeCli : (cmd : String) → CliM PUnit
 | "check-lint"          => lake.checkLint
 | "clean"               => lake.clean
 | "shake"               => lake.shake
+| "format" | "fmt"      => lake.format
 | "script"              => lake.script
 | "scripts"             => lake.script.list
 | "run"                 => lake.script.run

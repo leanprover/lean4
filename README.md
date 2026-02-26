@@ -2,23 +2,101 @@
 
 **Fork of the [official Lean repo](https://github.com/leanprover/lean4) focused on making life easier for terminal-only Lean developers.**
 
-Features added compared to upstream:
+## Features
 
-- Installation of standalone Lake binaries with `lake install` and `lake install --git`
-- Lean formatter integrated with LSP server
-- Notifications instead of diagnostics during LSP server setup
-- Concise error messages when lake build at LSP setup fails
-- Opening up of diagnostic fix creation by users for better linters
+### Formatter
 
-Improvements for reproducible builds and development shell:
+Integrated Lean formatter in the LSP server. Editors that support `textDocument/formatting` get formatting automatically. Only requires parsing, not elaboration, so it's fast even with syntax extensions. `lake fmt` is a shorter alias.
 
-- Build stage caching in `flake.nix` for [Nix package manager](https://wiki.nixos.org/wiki/Flake) users: separated `stage0` (C-only) and `stage1` (Lean) build
-- Configuration of `ccache` in Nix `devshell`
-- Added public shared cache for stage compilation artifacts
+```bash
+lake format file.lean                     # format a file in place
+lake format --check file.lean             # exit 1 if file would change (CI use)
+lake format --stdin                       # read from stdin, write to stdout
+lake format --check --stdin               # check stdin formatting
+lean --format file.lean                   # format directly via lean binary
+lean --format-check file.lean             # check formatting via lean binary
+```
+
+### LSP setup progress
+
+Real-time `$/progress` notifications during Lake dependency setup, replacing the old diagnostic-based approach. Works automatically in editors that support `window/workDoneProgress` — no configuration needed. The progress token is `lean4/lakeSetup`.
+
+### Concise build errors
+
+When Lake build fails during LSP setup, displays a structured summary with error count and the failed target names. Diagnostics from dependencies appear as cross-file entries in the workspace diagnostics picker, so you can jump directly to errors in other files. Stale cross-file diagnostics clear automatically when dependencies are fixed and the file worker restarts.
+
+### User-defined code actions
+
+Linters can register code action providers to offer quick-fix suggestions in the editor. Supports eager actions (computed immediately) and lazy actions (resolved on click via `codeAction/resolve`).
+
+```lean
+@[code_action_provider] def myProvider : CodeActionProvider :=
+  fun params snap => do
+    -- params: CodeActionParams (range, diagnostics)
+    -- snap: Snapshot (elaboration state)
+    return #[{ eager := { title := "My fix", edit? := some edit } }]
+```
+
+Specialized attributes are also available:
+
+- `@[hole_code_action]` — suggestions for holes (`_`, `?_`, `sorry`)
+- `@[command_code_action]` — command-level actions with optional kind filtering
+
+Upstream discarded `infoState` after linters ran, which meant info tree nodes pushed by external linters had no context — causing panics when the editor tried to resolve code actions. This fork wraps linter execution in `withInfoTreeContext` and preserves `infoState` through the `finally` block in `runLinters`, so code actions from external linters work correctly.
+
+### Diagnostic tags
+
+In upstream Lean, diagnostic tags (`unnecessary`, `deprecated`) are hardcoded — only the built-in `unusedVariables` linter can emit `unnecessary` and only the built-in `deprecated` linter can emit `deprecated`. External linters have no way to tag their own diagnostics. This fork adds a `diagnosticTags` field directly on `BaseMessage` and extends `logAt`/`logLint` to accept tags:
+
+```lean
+-- Any linter can now emit diagnostic tags
+logLint linter.myLinter stx m!"unused import" (diagnosticTags := #[.unnecessary])
+logAt stx (.tagged ``myAttr m!"obsolete API") .warning (diagnosticTags := #[.deprecated])
+```
+
+### Linter severity levels
+
+Upstream's `logLint` is hardcoded to `.warning`. With the extended `logAt`, linters can emit diagnostics at any severity while still attaching diagnostic tags:
+
+```lean
+-- info-level hint (non-intrusive)
+logAt stx m!"consider simplifying" .information (diagnosticTags := #[.unnecessary])
+-- warning (default logLint behavior)
+logLint linter.myLinter stx m!"unused import" (diagnosticTags := #[.unnecessary])
+-- error-level lint
+logAt stx m!"banned API usage" .error (diagnosticTags := #[.deprecated])
+```
+
+See [Heron](https://codeberg.org/wvhulle/heron) for real-world examples of custom diagnostics, code actions, and linter severity levels built on these changes.
+
+### `lake install` *(WIP)*
+
+Install Lake executables globally to `~/.elan/bin/`. Requires an Elan installation.
+
+```bash
+lake install                              # install all executable targets
+lake install myexe                        # install a specific target
+lake install --git <url>                  # install from a remote repo
+lake install --git <url> --branch dev     # pin to a branch
+lake install --git <url> --rev v1.0.0     # pin to a tag or commit
+```
+
+### Nix build improvements
+
+The `flake.nix` splits the build into cached `stage0` (C-only) and `stage1` (Lean) targets for [Nix](https://wiki.nixos.org/wiki/Flake) users, configures `ccache` in the dev shell, and provides a public shared Cachix cache for stage compilation artifacts.
 
 <!--toc:start-->
 
 - [Lean](#lean)
+  - [Features](#features)
+    - [`lake install`](#lake-install)
+    - [Formatter](#formatter)
+    - [LSP setup progress](#lsp-setup-progress)
+    - [Concise build errors](#concise-build-errors)
+    - [User-defined code actions](#user-defined-code-actions)
+    - [Diagnostic tags](#diagnostic-tags)
+    - [Linter severity levels](#linter-severity-levels)
+    - [Nix build improvements](#nix-build-improvements)
   - [Installation](#installation)
   - [Usage](#usage)
     - [As Flake Input](#as-flake-input)
@@ -133,7 +211,6 @@ The Nix flake outputs the same binaries as upstream, but just packages that in i
 | `leanc`                                                                                        | Lean C compiler wrapper                        |
 | `leanchecker`                                                                                  | Lean proof checker                             |
 | `leanmake`                                                                                     | Lean make tool                                 |
-| When you launch your editor and a Lean LSP client, it should get automatic formatting support. |                                                |
 
 ### Without Installation
 

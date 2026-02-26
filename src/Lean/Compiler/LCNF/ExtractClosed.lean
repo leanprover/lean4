@@ -11,6 +11,7 @@ public import Lean.Compiler.NeverExtractAttr
 public import Lean.Compiler.LCNF.Internalize
 public import Lean.Compiler.LCNF.ToExpr
 import Lean.Compiler.LCNF.ElimDead
+import Lean.Compiler.LCNF.DependsOn
 
 public section
 
@@ -112,29 +113,36 @@ where
 
 end
 
+def identifyArrayLiteral (decl : LetDecl .pure) (k : Code .pure) :
+    M (Option (LetDecl .pure × Code .pure)) := do
+  let .const ``Array.mkEmpty lvls #[_, .fvar sizeFVar] := decl.value | return none
+  let some (.lit (.nat size)) ← findLetValue? (pu := .pure) sizeFVar | return none
+  identifyChain decl k {} size
+where
+  identifyChain (decl : LetDecl .pure) (k : Code .pure) (illegalSet : FVarIdSet) (size : Nat) :
+      M (Option (LetDecl .pure × Code .pure)) := do
+    match size with
+    | 0 =>
+      if k.dependsOn illegalSet then return none
+      return some (decl, k)
+    | n + 1 =>
+      let .let pushDecl nextK := k | return none
+      let .const ``Array.push _ #[_, .fvar arrFVar, elemArg] := pushDecl.value | return none
+      if arrFVar != decl.fvarId then return none
+      if !(← shouldExtractArg elemArg) then return none
+      identifyChain pushDecl nextK (illegalSet.insert decl.fvarId) n
+
 mutual
 
 partial def visitCode (code : Code .pure) : M (Code .pure) := do
   match code with
   | .let decl k =>
-    if (← shouldExtractLetValue true decl.value) then
-      let ⟨_, decls⟩ ← extractLetValue decl.value |>.run {}
-      let decls := decls.reverse.push (.let decl)
-      let decls ← decls.mapM Internalize.internalizeCodeDecl |>.run' {}
-      let closedCode := attachCodeDecls decls (.return decls.back!.fvarId)
-      let closedExpr := closedCode.toExpr
-      let env ← getEnv
-      let name ← if let some closedTermName := getClosedTermName? env closedExpr then
-        eraseCode closedCode
-        pure closedTermName
-      else
-        let name := (← read).baseName ++ (`_closed).appendIndexAfter (← get).decls.size
-        cacheClosedTermName env closedExpr name |> setEnv
-        let decl := { name, levelParams := [], type := decl.type, params := #[],
-                      value := .code closedCode, inlineAttr? := some .noinline }
-        decl.saveMono
-        modify fun s => { s with decls := s.decls.push decl }
-        pure name
+    if let some (decl, k) ← identifyArrayLiteral decl k then
+      let name ← performExtraction decl
+      let decl ← decl.updateValue (.const name [] #[])
+      return code.updateLet! decl (← visitCode k)
+    else if (← shouldExtractLetValue true decl.value) then
+      let name ← performExtraction decl
       let decl ← decl.updateValue (.const name [] #[])
       return code.updateLet! decl (← visitCode k)
     else
@@ -149,6 +157,26 @@ partial def visitCode (code : Code .pure) : M (Code .pure) := do
     let alts ← cases.alts.mapMonoM (fun alt => do return alt.updateCode (← visitCode alt.getCode))
     return code.updateAlts! alts
   | .jmp .. | .return _ | .unreach .. => return code
+where
+  performExtraction (decl : LetDecl .pure) : M Name := do
+    let ⟨_, decls⟩ ← extractLetValue decl.value |>.run {}
+    let decls := decls.reverse.push (.let decl)
+    let decls ← decls.mapM Internalize.internalizeCodeDecl |>.run' {}
+    let closedCode := attachCodeDecls decls (.return decls.back!.fvarId)
+    let closedExpr := closedCode.toExpr
+    let env ← getEnv
+    if let some closedTermName := getClosedTermName? env closedExpr then
+      eraseCode closedCode
+      return closedTermName
+    else
+      let name := (← read).baseName ++ (`_closed).appendIndexAfter (← get).decls.size
+      cacheClosedTermName env closedExpr name |> setEnv
+      let decl := { name, levelParams := [], type := decl.type, params := #[],
+                    value := .code closedCode, inlineAttr? := some .noinline }
+      decl.saveMono
+      modify fun s => { s with decls := s.decls.push decl }
+      return name
+
 
 end
 

@@ -42,33 +42,59 @@ where
     if Parser.isTerminalCommand stx then acc
     else go mps' msgs' (acc.push stx)
 
-/-- Extract the inter-command gap from original source, collapsing excessive blank lines. -/
+/-- Clean an inter-command gap: collapse excessive blank lines and strip trailing
+non-newline whitespace (original indentation before the next command, which `ppCommand`
+will re-emit at column 0). -/
+public def cleanGap (s : String) : String :=
+  let s := collapseBlankLines s
+  -- Strip trailing spaces/tabs (original indentation) since ppCommand starts at column 0
+  let lastNL := s.revPosOf '\n'
+  match lastNL with
+  | some pos => String.Pos.Raw.extract s {} (String.Pos.Raw.next s pos)
+  | none     => if s.any (!·.isWhitespace) then s else ""
+
+/-- Extract the inter-command gap from original source and clean it. -/
 private def interCommandGap (contents : String) (prevTailPos : Option String.Pos.Raw)
     (curStartPos : Option String.Pos.Raw) : String :=
   match prevTailPos, curStartPos with
-  | some prevEnd, some curStart => collapseBlankLines (String.Pos.Raw.extract contents prevEnd curStart)
-  | none, some curStart       => collapseBlankLines (String.Pos.Raw.extract contents {} curStart)
+  | some prevEnd, some curStart => cleanGap (String.Pos.Raw.extract contents prevEnd curStart)
+  | none, some curStart       => cleanGap (String.Pos.Raw.extract contents {} curStart)
   | _, none                     => "\n"
 
 /-- Extract the header text from original source, trimming trailing whitespace. -/
-private def extractHeader (contents : String) (headerStx : Syntax) : String :=
+public def extractHeader (contents : String) (headerStx : Syntax) : String :=
   let raw := match headerStx.getPos?, headerStx.getTailPos? with
     | some s, some e => String.Pos.Raw.extract contents s e
     | _, _           => headerStx.reprint.getD ""
   raw.trimAsciiEnd.copy
 
-/-- Pretty-print a single command, falling back to reprint on error. -/
-private def ppSingleCommand (stx : Syntax) (cmdState : Elab.Command.State)
-    (fileName : String) (fileMap : FileMap) : IO String := do
-  let cmdCtx : Elab.Command.Context := {
-    cmdPos := stx.getPos?.getD 0
-    fileName, fileMap
-    snap? := none, cancelTk? := none
-  }
-  let fmtResult ← (Elab.Command.liftCoreM (ppCommand ⟨stx⟩) |>.run cmdCtx |>.run' cmdState).toBaseIO
-  return match fmtResult with
-    | .ok fmt  => trimTrailingCommentLines fmt.pretty.trimAsciiEnd.copy
-    | .error _ => trimTrailingCommentLines (stx.reprint.getD "").trimAsciiEnd.copy
+/-- Format the result of `ppCommand`, trimming trailing whitespace and comment lines. -/
+public def cleanCommandOutput (fmtResult : Except Exception Format) (stx : Syntax) : String :=
+  match fmtResult with
+  | .ok fmt  => trimTrailingCommentLines fmt.pretty.trimAsciiEnd.copy
+  | .error _ => trimTrailingCommentLines (stx.reprint.getD "").trimAsciiEnd.copy
+
+/-- Emit a command's original source verbatim, trimming trailing whitespace. -/
+public def verbatimCommand (contents : String) (stx : Syntax) : String :=
+  let raw := match stx.getPos?, stx.getTailPos? with
+    | some s, some e => String.Pos.Raw.extract contents s e
+    | _, _           => stx.reprint.getD ""
+  raw.trimAsciiEnd.copy
+
+/-- Format a sequence of commands. Emits the header verbatim, cleans inter-command gaps,
+and calls `formatCmd` for each command. This is the shared core used by both `ppSource`
+and the LSP formatter. -/
+public def formatCommands [Monad m] (source : String) (headerStx : Syntax)
+    (cmdStxs : Array Syntax) (formatCmd : Syntax → m String) : m String := do
+  let mut result := extractHeader source headerStx
+  let mut prevTailPos := headerStx.getTailPos?
+  for stx in cmdStxs do
+    result := result ++ interCommandGap source prevTailPos stx.getPos?
+    result := result ++ (← formatCmd stx)
+    prevTailPos := stx.getTailPos?
+  if !result.isEmpty && !result.endsWith "\n" then
+    result := result ++ "\n"
+  return result
 
 /-- Pretty-print a Lean source file. Parses the header and commands,
 then pretty-prints each command via `ppCommand`. Only requires parsing,
@@ -81,14 +107,13 @@ public def ppSource (contents : String) (fileName : String) (opts : Options := {
   let cmdStxs := parseCommands inputCtx pmctx parserState
   let cmdState := Elab.Command.mkState env {} opts
   let fileMap := FileMap.ofString contents
-  let mut result := extractHeader contents header.raw
-  let mut prevTailPos := header.raw.getTailPos?
-  for stx in cmdStxs do
-    result := result ++ interCommandGap contents prevTailPos stx.getPos?
-    result := result ++ (← ppSingleCommand stx cmdState fileName fileMap)
-    prevTailPos := stx.getTailPos?
-  if !result.isEmpty && !result.endsWith "\n" then
-    result := result ++ "\n"
-  return result
+  formatCommands contents header.raw cmdStxs fun stx => do
+    let cmdCtx : Elab.Command.Context := {
+      cmdPos := stx.getPos?.getD 0
+      fileName, fileMap
+      snap? := none, cancelTk? := none
+    }
+    let fmtResult ← (Elab.Command.liftCoreM (ppCommand ⟨stx⟩) |>.run cmdCtx |>.run' cmdState).toBaseIO
+    return cleanCommandOutput fmtResult stx
 
 end Lean.PrettyPrinter

@@ -38,37 +38,15 @@ def formatCommandRange
     mpState := headerParsed.parserState
     cmdState := headerSuccess.cmdState
   }
-  -- Emit header (imports) verbatim — ppCommand would incorrectly indent it.
-  let headerStx := initSnap.stx
-  let mut result : String := ""
-  let headerOriginal := match headerStx.getPos?, headerStx.getTailPos? with
-    | some s, some e => String.Pos.Raw.extract text.source s e
-    | _, _ => headerStx.reprint.getD ""
-  result := result ++ headerOriginal.trimAsciiEnd.copy
-  let mut prevTailPos := headerStx.getTailPos?
-  for stx in cmdStxs do
-    match prevTailPos, stx.getPos? with
-    | some prevEnd, some curStart =>
-      let gap := String.Pos.Raw.extract text.source prevEnd curStart
-      result := result ++ PrettyPrinter.collapseBlankLines gap
-    | none, _ => pure ()
-    | _, none => result := result ++ "\n"
+  let result ← PrettyPrinter.formatCommands text.source initSnap.stx cmdStxs fun stx => do
     let cmdStart := stx.getPos?.getD 0
     let cmdEnd := stx.getTailPos?.getD 0
     let overlaps := cmdStart < rangeEnd && cmdEnd > rangeStart
     if overlaps then
       let fmtResult ← (headerSnap.runCoreM doc.meta (PrettyPrinter.ppCommand ⟨stx⟩)).toBaseIO
-      let formatted := match fmtResult with
-        | .ok fmt => PrettyPrinter.trimTrailingCommentLines fmt.pretty.trimAsciiEnd.copy
-        | .error _ => PrettyPrinter.trimTrailingCommentLines (stx.reprint.getD "").trimAsciiEnd.copy
-      result := result ++ formatted
+      return PrettyPrinter.cleanCommandOutput fmtResult stx
     else
-      -- Outside requested range: emit original source verbatim
-      let original := match stx.getPos?, stx.getTailPos? with
-        | some s, some e => String.Pos.Raw.extract text.source s e
-        | _, _ => stx.reprint.getD ""
-      result := result ++ original.trimAsciiEnd.copy
-    prevTailPos := stx.getTailPos?
+      return PrettyPrinter.verbatimCommand text.source stx
   let endPos := text.utf8PosToLspPos text.source.rawEndPos
   let fullRange : Range := ⟨⟨0, 0⟩, endPos⟩
   return #[{ range := fullRange, newText := result }]

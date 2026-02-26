@@ -35,6 +35,18 @@ world"
   let result ← ppSource input "<test>"
   IO.println result
 
+-- Test that leading whitespace before a top-level command is stripped
+open Lean PrettyPrinter in
+/--
+info: #eval "Hello
+world"
+-/
+#guard_msgs in
+#eval do
+  let input := "   #eval \"Hello\nworld\"\n"
+  let result ← ppSource input "<test>"
+  IO.println result
+
 -- Test interpolated multiline string
 open Lean PrettyPrinter in
 /--

@@ -2142,7 +2142,8 @@ private partial def isUnitLikeType (e : Expr) : MetaM Bool :=
 private def isDefEqUnitLike (t : Expr) (s : Expr) : MetaM Bool := do
   let tType  ← inferType t
     match (← cachedUnitLike? tType) with
-      | some b => return b
+      | some false => return false
+      | some true => Meta.isExprDefEqAux tType (← inferType s)
       | none => cacheUnitLike tType (← do
         let isUnit ← isUnitLikeType tType
         if !isUnit then return false

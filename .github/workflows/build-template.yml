@@ -234,14 +234,14 @@ jobs:
       - name: Build Stage 2
         run: |
           make -C build -j$NPROC stage2
-        if: matrix.test-speedcenter
+        if: matrix.test-bench
       - name: Check Stage 3
         run: |
           make -C build -j$NPROC check-stage3
         if: matrix.check-stage3
-      - name: Test Speedcenter Benchmarks
+      - name: Test Benchmarks
         run: nix shell github:Kha/lakeprof -c make -C build -j$NPROC bench
-        if: matrix.test-speedcenter
+        if: matrix.test-bench
       - name: Check rebootstrap
         run: |
           set -e

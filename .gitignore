@@ -1,7 +1,6 @@
 *~
 \#*
 .#*
-*.lock
 .lake
 lake-manifest.json
 /build

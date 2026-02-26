@@ -240,7 +240,9 @@ jobs:
           make -C build -j$NPROC check-stage3
         if: matrix.check-stage3
       - name: Test Benchmarks
-        run: nix shell github:Kha/lakeprof -c make -C build -j$NPROC bench
+        run: |
+          cd tests
+          nix develop -c make -C ../build -j$NPROC bench
         if: matrix.test-bench
       - name: Check rebootstrap
         run: |

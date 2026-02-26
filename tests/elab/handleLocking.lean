@@ -2,7 +2,7 @@
 This test covers the file handle locking functionality in `IO`.
 -/
 
-def testFile := "handleLocking.lock"
+def testFile := "handleLocking.lean.lock"
 
 /-- Test an exclusive lock. -/
 def test1 : IO Unit := do

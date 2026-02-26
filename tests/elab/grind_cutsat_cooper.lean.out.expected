@@ -1,0 +1,13 @@
+grind_cutsat_cooper.lean:26:0-26:7: warning: declaration uses `sorry`
+private theorem ex₁ : ∀ (x y : Int),
+  27 ≤ 13 * x + 11 * y → 13 * x + 11 * y ≤ 30 → -10 ≤ 9 * x - 7 * y → 9 * x - 7 * y ≤ 4 → False :=
+fun x y => ex₁._proof_1_1 x y
+private theorem ex₂ : ∀ (x y : Int),
+  27 ≤ 11 * x + 13 * y → 11 * x + 13 * y ≤ 45 → -10 ≤ 7 * x - 9 * y → 7 * x - 9 * y ≤ 4 → False :=
+fun x y => ex₂._proof_1_1 x y
+private theorem ex₃ : ∀ (x y : Int), 5 ≤ x + y → x + 2 * y ≤ 14 → 7 ∣ x → 4 ∣ y → y ≥ 4 → False :=
+fun x y => ex₃._proof_1_1 x y
+private theorem ex₄ : ∀ (x y : Int), 5 ≤ 2 * x + y → 3 * x + 2 * y ≤ 14 → 7 ∣ x → 4 ∣ y → y ≥ 4 → False :=
+fun x y => ex₄._proof_1_1 x y
+private theorem ex₅ : ∀ (x y : Int), 1 ≤ x + y → 100 ∣ x + y → 100 ≤ x + y :=
+fun x y => ex₅._proof_1_1 x y

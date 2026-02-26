@@ -16,6 +16,9 @@ test_run build
 lake_out shake Main || true
 match_pat 'remove.*Lib.B' produced.out
 
+# This should succeed
+lake_out shake --only DepMain
+
 # Test --fix mode: apply the fixes and verify the result
 ./clean.sh
 cp -r input/* .

@@ -1,0 +1,2 @@
+discrTreeSimp.lean:7:16-7:28: warning: declaration uses `sorry`
+discrTreeSimp.lean:10:8-10:15: warning: declaration uses `sorry`

@@ -1,0 +1,6 @@
+Try these:
+  [apply] [grind =] for pattern: [@HashMap.size #8 #7 #6 #5 (@HashMap.insert _ _ _ _ #4 #1 #0)]
+  [apply] [grind
+    =>] for pattern: [EquivBEq #8 #6, LawfulHashable _ _ #5, @HashMap.size _ #7 _ _ (@HashMap.insert _ _ _ _ #4 #1 #0)]
+  [apply] [grind! .] for pattern: [@HashMap.insert #8 #7 #6 #5 #4 #1 #0]
+  [apply] [grind! =>] for pattern: [EquivBEq #8 #6, LawfulHashable _ _ #5, @HashMap.insert _ #7 _ _ #4 #1 #0]

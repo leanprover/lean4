@@ -117,7 +117,7 @@ partial def collectCode (code : Code .impure) : M Unit := do
   | .cases cases => cases.alts.forM (·.forCodeM collectCode)
   | .sset (k := k) .. | .uset (k := k) .. => collectCode k
   | .return .. | .jmp .. | .unreach .. => return ()
-  | .inc .. | .dec .. => unreachable!
+  | .inc .. | .dec .. | .setTag .. | .oset .. | .del .. => unreachable!
 
 /--
 Collect the derived value tree as well as the set of parameters that take objects and are borrowed.
@@ -334,6 +334,7 @@ def useLetValue (value : LetValue .impure) : RcM Unit := do
     useVar fvarId
     useArgs args
   | .lit .. | .erased => return ()
+  | .isShared .. => unreachable!
 
 @[inline]
 def bindVar (fvarId : FVarId) : RcM Unit :=
@@ -547,6 +548,7 @@ def LetDecl.explicitRc (code : Code .impure) (decl : LetDecl .impure) (k : Code 
       addIncBeforeConsumeAll allArgs (code.updateLet! decl k)
     | .lit .. | .box .. | .reset .. | .erased .. =>
       pure <| code.updateLet! decl k
+    | .isShared .. => unreachable!
   useLetValue decl.value
   bindVar decl.fvarId
   return k
@@ -622,7 +624,7 @@ partial def Code.explicitRc (code : Code .impure) : RcM (Code .impure) := do
   | .unreach .. =>
     setRetLiveVars
     return code
-  | .inc .. | .dec .. => unreachable!
+  | .inc .. | .dec .. | .setTag .. | .del .. | .oset .. => unreachable!
 
 def Decl.explicitRc (decl : Decl .impure) :
     CompilerM (Decl .impure) := do

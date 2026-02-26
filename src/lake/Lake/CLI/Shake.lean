@@ -37,6 +37,8 @@ public structure Args where
   fix : Bool := false
   /-- `<MODULE>..`: the list of root modules to check -/
   mods : Array Name := #[]
+  /-- The list of modules to minimize exclusively, otherwise all reachable ones. -/
+  onlyMods : Array Name := #[]
 
 /-- We use `Nat` as a bitset for doing efficient set operations.
 The bit indexes will usually be a module index. -/
@@ -421,7 +423,9 @@ def visitModule (pkgs : Array Name) (srcSearchPath : SearchPath)
 
   let s ← get
 
-  let addOnly := addOnly || module?.any (·.raw.getTrailing?.any (·.toString.contains "shake: keep-all"))
+  let addOnly := addOnly ||
+    (!args.onlyMods.isEmpty && !args.onlyMods.contains modName) ||
+    module?.any (·.raw.getTrailing?.any (·.toString.contains "shake: keep-all"))
   let mut deps := needs
 
   -- Add additional preserved imports

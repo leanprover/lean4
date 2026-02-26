@@ -1,0 +1,33 @@
+[grind.debug.proof] fun h h_1 h_2 h_3 h_4 h_5 =>
+      id
+        (let ctx := branch 2 (branch 1 (leaf a) (leaf b)) (branch 3 (leaf d) (leaf c));
+        let p_1 := Poly.nil;
+        let p_2 := Poly.add (-1) 2 Poly.nil;
+        let p_3 := Poly.add 1 3 (Poly.add (-1) 0 Poly.nil);
+        let p_4 := Poly.add 1 2 Poly.nil;
+        let p_5 := Poly.add (-1) 3 (Poly.add 1 1 Poly.nil);
+        let p_6 := Poly.add 1 1 (Poly.add (-1) 0 Poly.nil);
+        let p_7 := Poly.add (-1) 3 (Poly.add 1 0 Poly.nil);
+        let p_8 := Poly.add 1 3 (Poly.add 1 2 (Poly.add (-1) 0 Poly.nil));
+        let p_9 := Poly.add (-1) 1 (Poly.add 1 0 Poly.nil);
+        let e_1 := Expr.var 2;
+        let e_2 := Expr.zero;
+        let e_3 := Expr.var 0;
+        let e_4 := (Expr.var 0).sub (Expr.var 3);
+        let e_5 := Expr.var 3;
+        let e_6 := Expr.var 1;
+        let e_7 := Expr.zero.add (Expr.var 2);
+        lt_unsat ctx
+          (le_lt_combine ctx p_2 p_4 p_1 (eagerReduce (Eq.refl true))
+            (le_norm ctx e_2 e_1 p_2 (eagerReduce (Eq.refl true)) h_3)
+            (le_lt_combine ctx p_8 p_7 p_4 (eagerReduce (Eq.refl true))
+              (le_norm ctx e_7 e_4 p_8 (eagerReduce (Eq.refl true)) h_1)
+              (diseq_split_resolve ctx p_3 p_7 (eagerReduce (Eq.refl true))
+                (diseq_neg ctx p_7 p_3 (eagerReduce (Eq.refl true))
+                  (diseq_norm ctx e_3 e_5 p_7 (eagerReduce (Eq.refl true)) (ne_of_ne_of_eq_right (Eq.symm h_4) h_5)))
+                fun h_6 =>
+                lt_unsat ctx
+                  (le_lt_combine ctx p_9 p_6 p_1 (eagerReduce (Eq.refl true))
+                    (le_norm ctx e_3 e_6 p_9 (eagerReduce (Eq.refl true)) h)
+                    (le_lt_combine ctx p_5 p_3 p_6 (eagerReduce (Eq.refl true))
+                      (Linarith.le_of_eq ctx e_6 e_5 p_5 (eagerReduce (Eq.refl true)) h_4) h_6))))))

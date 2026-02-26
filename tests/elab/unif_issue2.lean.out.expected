@@ -1,0 +1,11 @@
+(let f := fun x => pure 0;
+    f ()).run
+  0 : Id (Nat × Nat)
+((let x := fun x => pure 0;
+      x ()).run
+    0).run : Nat × Nat
+(let x := fun x => pure [0];
+    x ()).run
+  0 : Id (List Nat × Nat)
+(let x := fun x => pure Syntax.missing;
+  x ()).run : Syntax

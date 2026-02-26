@@ -1,0 +1,7 @@
+foldLits.lean:3:0-3:7: warning: declaration uses `sorry`
+foldLits.lean:8:0-8:7: warning: declaration uses `sorry`
+foldLits.lean:13:0-13:7: warning: declaration uses `sorry`
+foldLits.lean:18:0-18:7: warning: declaration uses `sorry`
+foldLits.lean:23:0-23:7: warning: declaration uses `sorry`
+foldLits.lean:38:0-38:7: warning: declaration uses `sorry`
+foldLits.lean:43:0-43:7: warning: declaration uses `sorry`

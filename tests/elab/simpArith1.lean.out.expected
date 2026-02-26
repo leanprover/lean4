@@ -1,0 +1,30 @@
+theorem ex5 : ∀ {a d b c : Nat}, a + d + b > b + 1 + (a + (c + c) + d) → False :=
+fun {a d b c} h =>
+  False.elim
+    (Eq.mp
+      (Eq.trans gt_iff_lt._simp_1
+        (id
+          (Nat.Linear.ExprCnstr.eq_false_of_isUnsat
+            (Lean.RArray.branch 2 (Lean.RArray.branch 1 (Lean.RArray.leaf a) (Lean.RArray.leaf d))
+              (Lean.RArray.branch 3 (Lean.RArray.leaf b) (Lean.RArray.leaf c)))
+            { eq := false,
+              lhs :=
+                (((Nat.Linear.Expr.var 2).add (Nat.Linear.Expr.num 1)).add
+                      (((Nat.Linear.Expr.var 0).add ((Nat.Linear.Expr.var 3).add (Nat.Linear.Expr.var 3))).add
+                        (Nat.Linear.Expr.var 1))).add
+                  (Nat.Linear.Expr.num 1),
+              rhs := ((Nat.Linear.Expr.var 0).add (Nat.Linear.Expr.var 1)).add (Nat.Linear.Expr.var 2) }
+            (eagerReduce (Eq.refl true)))))
+      h)
+theorem ex6 : ∀ {a b : Nat} (p : Nat → Prop), p (a + 1 + a + 2 + b) → p (2 * a + b + 3) :=
+fun {a b} p h =>
+  Eq.mp
+    (congrArg p
+      (id
+        (Nat.Linear.Expr.eq_of_toNormPoly_eq (Lean.RArray.branch 1 (Lean.RArray.leaf a) (Lean.RArray.leaf b))
+          (((((Nat.Linear.Expr.var 0).add (Nat.Linear.Expr.num 1)).add (Nat.Linear.Expr.var 0)).add
+                (Nat.Linear.Expr.num 2)).add
+            (Nat.Linear.Expr.var 1))
+          (((Nat.Linear.Expr.mulL 2 (Nat.Linear.Expr.var 0)).add (Nat.Linear.Expr.var 1)).add (Nat.Linear.Expr.num 3))
+          (eagerReduce (Eq.refl true)))))
+    h

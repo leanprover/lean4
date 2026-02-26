@@ -68,7 +68,8 @@ where
       eraseCode k
       eraseParam auxParam
       return .unreach typeNew
-    | .sset (k := k) .. | .uset (k := k) .. | .inc (k := k) .. | .dec (k := k) .. =>
+    | .oset (k := k) ..| .sset (k := k) .. | .uset (k := k) .. | .inc (k := k) .. | .dec (k := k) ..
+    | .del (k := k) .. | .setTag (k := k) .. =>
       return c.updateCont! (← go k)
 
 instance : MonadCodeBind CompilerM where

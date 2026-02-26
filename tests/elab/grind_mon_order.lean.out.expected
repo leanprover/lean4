@@ -1,0 +1,3 @@
+Lean.Grind.CommRing.Mon.mult
+  { x := 0, k := 3 }
+  (Lean.Grind.CommRing.Mon.mult { x := 2, k := 2 } (Lean.Grind.CommRing.Mon.unit))

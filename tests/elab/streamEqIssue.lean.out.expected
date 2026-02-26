@@ -1,0 +1,10 @@
+@Std.Stream.hasLength.eq_1 : ∀ {stream : Type u_1} {value : Type u_2} [inst : Std.Stream stream value] (s : stream),
+  Std.Stream.next? s = none → Std.Stream.hasLength 0 s = true
+@Std.Stream.hasLength.eq_2 : ∀ {stream : Type u_1} {value : Type u_2} [inst : Std.Stream stream value] (s : stream)
+  (n_2 : Nat) (s' : stream) (fst : value),
+  Std.Stream.next? s = some (fst, s') → Std.Stream.hasLength n_2.succ s = Std.Stream.hasLength n_2 s'
+@Std.Stream.hasLength.eq_3 : ∀ {stream : Type u_1} {value : Type u_2} [inst : Std.Stream stream value] (s : stream)
+  (n : Nat),
+  (n = 0 → Std.Stream.next? s = none → False) →
+    (∀ (n_1 : Nat) (fst : value) (s' : stream), n = n_1.succ → Std.Stream.next? s = some (fst, s') → False) →
+      Std.Stream.hasLength n s = false

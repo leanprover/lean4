@@ -1,0 +1,47 @@
+@instCoeTOfCoeHTCT
+  (@Subtype Nat fun x => @GT.gt Nat instLTNat x (@OfNat.ofNat Nat (nat_lit 0) (instOfNatNat (nat_lit 0)))) Nat
+  (@Subtype.mk Nat (fun x => @GT.gt Nat instLTNat x (@OfNat.ofNat Nat (nat_lit 0) (instOfNatNat (nat_lit 0))))
+    (@OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1))) ⋯)
+  (@instCoeHTCTOfCoeHTC
+    (@Subtype Nat fun x => @GT.gt Nat instLTNat x (@OfNat.ofNat Nat (nat_lit 0) (instOfNatNat (nat_lit 0)))) Nat
+    (@instCoeHTCOfCoeOTC
+      (@Subtype Nat fun x => @GT.gt Nat instLTNat x (@OfNat.ofNat Nat (nat_lit 0) (instOfNatNat (nat_lit 0)))) Nat
+      (@instCoeOTCOfCoeOut
+        (@Subtype Nat fun x => @GT.gt Nat instLTNat x (@OfNat.ofNat Nat (nat_lit 0) (instOfNatNat (nat_lit 0)))) Nat Nat
+        (@subtypeCoe Nat fun x => @GT.gt Nat instLTNat x (@OfNat.ofNat Nat (nat_lit 0) (instOfNatNat (nat_lit 0))))
+        (@instCoeOTC Nat))))
+@instCoeTOfCoeHTCT
+  (@Subtype Nat fun x => @GT.gt Nat instLTNat x (@OfNat.ofNat Nat (nat_lit 0) (instOfNatNat (nat_lit 0)))) Bool
+  (@Subtype.mk Nat (fun x => @GT.gt Nat instLTNat x (@OfNat.ofNat Nat (nat_lit 0) (instOfNatNat (nat_lit 0))))
+    (@OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1))) ⋯)
+  (@instCoeHTCTOfCoeHTC
+    (@Subtype Nat fun x => @GT.gt Nat instLTNat x (@OfNat.ofNat Nat (nat_lit 0) (instOfNatNat (nat_lit 0)))) Bool
+    (@instCoeHTCOfCoeOTC
+      (@Subtype Nat fun x => @GT.gt Nat instLTNat x (@OfNat.ofNat Nat (nat_lit 0) (instOfNatNat (nat_lit 0)))) Bool
+      (@instCoeOTCOfCoeOut
+        (@Subtype Nat fun x => @GT.gt Nat instLTNat x (@OfNat.ofNat Nat (nat_lit 0) (instOfNatNat (nat_lit 0)))) Nat
+        Bool (@subtypeCoe Nat fun x => @GT.gt Nat instLTNat x (@OfNat.ofNat Nat (nat_lit 0) (instOfNatNat (nat_lit 0))))
+        (@instCoeOTCOfCoeTC Nat Bool (@instCoeTCOfCoe_1 Nat Bool natToBool)))))
+@instCoeTOfCoeHTCT Nat (Option Nat) (@OfNat.ofNat Nat (nat_lit 0) (instOfNatNat (nat_lit 0)))
+  (@instCoeHTCTOfCoeHTC Nat (Option Nat)
+    (@instCoeHTCOfCoeOTC Nat (Option Nat)
+      (@instCoeOTCOfCoeTC Nat (Option Nat) (@instCoeTCOfCoe_1 Nat (Option Nat) (@optionCoe Nat)))))
+@instCoeTOfCoeHTCT Bool (Option Nat) true
+  (@instCoeHTCTOfCoeHTC Bool (Option Nat)
+    (@instCoeHTCOfCoeOTC Bool (Option Nat)
+      (@instCoeOTCOfCoeTC Bool (Option Nat)
+        (@instCoeTCOfCoe Nat (Option Nat) Bool (@optionCoe Nat) (@instCoeTCOfCoe_1 Bool Nat boolToNat)))))
+@instCoeTOfCoeDep Prop
+  (@Eq Nat (@OfNat.ofNat Nat (nat_lit 0) (instOfNatNat (nat_lit 0)))
+    (@OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1))))
+  Bool
+  (@decPropToBool
+    (@Eq Nat (@OfNat.ofNat Nat (nat_lit 0) (instOfNatNat (nat_lit 0)))
+      (@OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1))))
+    (instDecidableEqNat (@OfNat.ofNat Nat (nat_lit 0) (instOfNatNat (nat_lit 0)))
+      (@OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1)))))
+@instCoeTOfCoeHTCT Bool (Option Nat) true
+  (@instCoeHTCTOfCoeHTC Bool (Option Nat)
+    (@instCoeHTCOfCoeOTC Bool (Option Nat)
+      (@instCoeOTCOfCoeTC Bool (Option Nat)
+        (@instCoeTCOfCoe Nat (Option Nat) Bool (@optionCoe Nat) (@instCoeTCOfCoe_1 Bool Nat boolToNat)))))

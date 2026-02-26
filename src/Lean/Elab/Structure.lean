@@ -416,55 +416,59 @@ def structureSyntaxToView (modifiers : Modifiers) (stx : Syntax) : TermElabM Str
   let modifiers := if isClass then modifiers.addFirstAttr { name := `class } else modifiers
   let declId    := stx[1]
   let ⟨name, declName, levelNames, docString?⟩ ← Term.expandDeclId (← getCurrNamespace) (← Term.getLevelNames) declId modifiers
-  if modifiers.isMeta then
-    modifyEnv (markMeta · declName)
-  addDeclarationRangesForBuiltin declName modifiers.stx stx
-  let (binders, type?) := expandOptDeclSig stx[2]
-  let exts := stx[3]
-  let type? ←
-    -- Compatibility mode for `structure S extends P : Type` syntax
-    if type?.isNone && !exts.isNone && !exts[0][2].isNone then
-      logWarningAt exts[0][2][0] <| "\
-        The syntax is now `structure S : Type extends P` rather than `structure S extends P : Type`"
-        ++ .note "The purpose of this change is to accommodate `structure S extends toP : P` syntax for naming parent projections."
-      pure (some exts[0][2][0][1])
-    else
-      if !exts.isNone && !exts[0][2].isNone then
-        logErrorAt exts[0][2][0] <| "\
-            Unexpected additional resulting type. \
-            The syntax is now `structure S : Type extends P` rather than `structure S extends P : Type`."
-            ++ .note "The purpose of this change is to accommodate `structure S extends toP : P` syntax for naming parent projections."
-      pure type?
-  let parents ← expandParents exts
-  let derivingClasses ← getOptDerivingClasses stx[5]
-  let fields ← expandFields stx modifiers declName
-  -- Private fields imply a private constructor (in the module system only, for back-compat)
-  let ctor ← expandCtor
-    (forcePrivate := (← getEnv).header.isModule && fields.any (·.modifiers.isPrivate))
-    stx modifiers declName
-  fields.forM fun field => do
-    if field.declName == ctor.declName then
-      throwErrorAt field.ref "Invalid field name `{field.name}`: This is the name of the structure constructor"
-    addDeclarationRangesFromSyntax field.declName field.ref
-  return {
-    ref := stx
-    declId
-    modifiers
-    isClass
-    shortDeclName := name
-    declName
-    levelNames
-    binders
-    type?
-    allowIndices := false
-    allowSortPolymorphism := false
-    ctors := #[ctor]
-    parents
-    fields
-    computedFields := #[]
-    derivingClasses
-    docString?
-  }
+  -- In the case of mutual inductives, this is the earliests point where we can establish the
+  -- correct scope for each individual inductive declaration (used e.g. to infer ctor visibility
+  -- below), so let's do that now.
+  withExporting (isExporting := !isPrivateName declName) do
+    if modifiers.isMeta then
+      modifyEnv (markMeta · declName)
+    addDeclarationRangesForBuiltin declName modifiers.stx stx
+    let (binders, type?) := expandOptDeclSig stx[2]
+    let exts := stx[3]
+    let type? ←
+      -- Compatibility mode for `structure S extends P : Type` syntax
+      if type?.isNone && !exts.isNone && !exts[0][2].isNone then
+        logWarningAt exts[0][2][0] <| "\
+          The syntax is now `structure S : Type extends P` rather than `structure S extends P : Type`"
+          ++ .note "The purpose of this change is to accommodate `structure S extends toP : P` syntax for naming parent projections."
+        pure (some exts[0][2][0][1])
+      else
+        if !exts.isNone && !exts[0][2].isNone then
+          logErrorAt exts[0][2][0] <| "\
+              Unexpected additional resulting type. \
+              The syntax is now `structure S : Type extends P` rather than `structure S extends P : Type`."
+              ++ .note "The purpose of this change is to accommodate `structure S extends toP : P` syntax for naming parent projections."
+        pure type?
+    let parents ← expandParents exts
+    let derivingClasses ← getOptDerivingClasses stx[5]
+    let fields ← expandFields stx modifiers declName
+    -- Private fields imply a private constructor (in the module system only, for back-compat)
+    let ctor ← expandCtor
+      (forcePrivate := (← getEnv).header.isModule && fields.any (·.modifiers.isPrivate))
+      stx modifiers declName
+    fields.forM fun field => do
+      if field.declName == ctor.declName then
+        throwErrorAt field.ref "Invalid field name `{field.name}`: This is the name of the structure constructor"
+      addDeclarationRangesFromSyntax field.declName field.ref
+    return {
+      ref := stx
+      declId
+      modifiers
+      isClass
+      shortDeclName := name
+      declName
+      levelNames
+      binders
+      type?
+      allowIndices := false
+      allowSortPolymorphism := false
+      ctors := #[ctor]
+      parents
+      fields
+      computedFields := #[]
+      derivingClasses
+      docString?
+    }
 
 
 /-!
@@ -1527,9 +1531,10 @@ def elabStructureCommand : InductiveElabDescr where
                   addProjections params r fieldInfos
                 registerStructure view.declName fieldInfos
                 runStructElabM (init := state) do
-                  withOptions (warn.sorry.set · false) do
-                    mkFlatCtor levelParams params view.declName replaceIndFVars
-                  addDefaults levelParams params replaceIndFVars
+                  withExporting (isExporting := !isPrivateName view.ctor.declName) do
+                    withOptions (warn.sorry.set · false) do
+                      mkFlatCtor levelParams params view.declName replaceIndFVars
+                    addDefaults levelParams params replaceIndFVars
               let parentInfos ← withLCtx lctx localInsts <| runStructElabM (init := state) do
                 withOptions (warn.sorry.set · false) do
                   mkRemainingProjections levelParams params view

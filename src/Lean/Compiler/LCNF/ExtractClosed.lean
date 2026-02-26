@@ -10,6 +10,7 @@ public import Lean.Compiler.ClosedTermCache
 public import Lean.Compiler.NeverExtractAttr
 public import Lean.Compiler.LCNF.Internalize
 public import Lean.Compiler.LCNF.ToExpr
+import Lean.Compiler.LCNF.ElimDead
 
 public section
 
@@ -159,7 +160,10 @@ end ExtractClosed
 
 partial def Decl.extractClosed (decl : Decl .pure) (sccDecls : Array (Decl .pure)) :
     CompilerM (Array (Decl .pure)) := do
-  let ⟨decl, s⟩ ← ExtractClosed.visitDecl decl |>.run { baseName := decl.name, sccDecls } |>.run {}
+  let mut ⟨decl, s⟩ ← ExtractClosed.visitDecl decl |>.run { baseName := decl.name, sccDecls } |>.run {}
+  if !s.decls.isEmpty then
+    -- Closed term extraction might have left behind dead values.
+    decl ← decl.elimDeadVars
   return s.decls.push decl
 
 def extractClosed : Pass where

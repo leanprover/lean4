@@ -69,7 +69,7 @@ elab_rules : doElem <= dec
     let mutVarBinders ← Term.Quotation.mkTuple reassignments
     let cursorσ := mkApp2 (mkConst ``Prod [v, mi.u]) cursor σ
     let success ← Term.elabFun (← `(fun ($cursorBinder, $(⟨mutVarBinders⟩)) $stateBinders* => $body)) (← mkArrow cursorσ assertion)
-    let inv := mkApp3 (mkConst ``Std.Do.PostCond.noThrow [mkLevelMax v mi.u]) ps cursorσ success
+    let inv := mkApp3 (mkConst ``Std.Do.PostCond.noThrow [mkLevelMax v mi.u]) cursorσ ps success
     let forIn := mkApp5 app instMonad instForIn ps instWP inv
     return mkApp6 bind m instBind σ γ forIn k
 

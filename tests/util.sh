@@ -79,3 +79,9 @@ function extract_measurements {
 
   normalize_measurements "$1"
 }
+
+function set_stack_size_to_maximum {
+  # On macOS, `ulimit -s unlimited` fails with `Operation not permitted` because
+  # the hard limit is a certain number, not `unlimited` like on Linux.
+  ulimit -s "$(ulimit -H -s)"
+}

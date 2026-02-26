@@ -207,7 +207,7 @@ theorem take_eq_dropLast {l : List α} {i : Nat} (h : i + 1 = l.length) :
     · cases as with
       | nil => simp_all
       | cons b bs =>
-        simp only [take_succ_cons, dropLast_cons₂]
+        simp only [take_succ_cons, dropLast_cons_cons]
         rw [ih]
         simpa using h
 

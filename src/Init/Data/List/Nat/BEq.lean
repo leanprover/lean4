@@ -42,7 +42,7 @@ theorem beq_eq_isEqv [BEq α] {as bs : List α} : as.beq bs = isEqv as bs (· ==
     cases bs with
     | nil => simp
     | cons b bs =>
-      simp only [beq_cons₂, ih, isEqv_eq_decide, length_cons, Nat.add_right_cancel_iff,
+      simp only [beq_cons_cons, ih, isEqv_eq_decide, length_cons, Nat.add_right_cancel_iff,
         Nat.forall_lt_succ_left', getElem_cons_zero, getElem_cons_succ, Bool.decide_and,
         Bool.decide_eq_true]
       split <;> simp

@@ -252,13 +252,13 @@ theorem exists_perm_sublist {l₁ l₂ l₂' : List α} (s : l₁ <+ l₂) (p : 
   | cons x _ IH =>
     match s with
     | .cons _ s => let ⟨l₁', p', s'⟩ := IH s; exact ⟨l₁', p', s'.cons _⟩
-    | .cons₂ _ s => let ⟨l₁', p', s'⟩ := IH s; exact ⟨x :: l₁', p'.cons x, s'.cons₂ _⟩
+    | .cons_cons _ s => let ⟨l₁', p', s'⟩ := IH s; exact ⟨x :: l₁', p'.cons x, s'.cons_cons _⟩
   | swap x y l' =>
     match s with
     | .cons _ (.cons _ s) => exact ⟨_, .rfl, (s.cons _).cons _⟩
-    | .cons _ (.cons₂ _ s) => exact ⟨x :: _, .rfl, (s.cons _).cons₂ _⟩
-    | .cons₂ _ (.cons _ s) => exact ⟨y :: _, .rfl, (s.cons₂ _).cons _⟩
-    | .cons₂ _ (.cons₂ _ s) => exact ⟨x :: y :: _, .swap .., (s.cons₂ _).cons₂ _⟩
+    | .cons _ (.cons_cons _ s) => exact ⟨x :: _, .rfl, (s.cons _).cons_cons _⟩
+    | .cons_cons _ (.cons _ s) => exact ⟨y :: _, .rfl, (s.cons_cons _).cons _⟩
+    | .cons_cons _ (.cons_cons _ s) => exact ⟨x :: y :: _, .swap .., (s.cons_cons _).cons_cons _⟩
   | trans _ _ IH₁ IH₂ =>
     let ⟨_, pm, sm⟩ := IH₁ s
     let ⟨r₁, pr, sr⟩ := IH₂ sm
@@ -277,7 +277,7 @@ theorem Sublist.exists_perm_append {l₁ l₂ : List α} : l₁ <+ l₂ → ∃ 
   | Sublist.cons a s =>
     let ⟨l, p⟩ := Sublist.exists_perm_append s
     ⟨a :: l, (p.cons a).trans perm_middle.symm⟩
-  | Sublist.cons₂ a s =>
+  | Sublist.cons_cons a s =>
     let ⟨l, p⟩ := Sublist.exists_perm_append s
     ⟨l, p.cons a⟩
 

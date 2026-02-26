@@ -1394,7 +1394,7 @@ theorem head_filter_of_pos {p : α → Bool} {l : List α} (w : l ≠ []) (h : p
 
 @[simp] theorem filter_sublist {p : α → Bool} : ∀ {l : List α}, filter p l <+ l
   | [] => .slnil
-  | a :: l => by rw [filter]; split <;> simp [Sublist.cons, Sublist.cons₂, filter_sublist]
+  | a :: l => by rw [filter]; split <;> simp [Sublist.cons, Sublist.cons_cons, filter_sublist]
 
 /-! ### filterMap -/
 
@@ -3154,7 +3154,7 @@ theorem dropLast_concat_getLast : ∀ {l : List α} (h : l ≠ []), dropLast l +
   | [], h => absurd rfl h
   | [_], _ => rfl
   | _ :: b :: l, _ => by
-    rw [dropLast_cons₂, cons_append, getLast_cons (cons_ne_nil _ _)]
+    rw [dropLast_cons_cons, cons_append, getLast_cons (cons_ne_nil _ _)]
     congr
     exact dropLast_concat_getLast (cons_ne_nil b l)
 

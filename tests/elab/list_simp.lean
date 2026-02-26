@@ -229,7 +229,7 @@ variable (h : ¬ n = 0) in -- It would be nice if this also worked with `h : 0 <
 variable [BEq α] [LawfulBEq α] in
 #check_simp isPrefixOf [x, y, x] (replicate n x) ~> decide (3 ≤ n) && y == x
 
-attribute [local simp] isPrefixOf_cons₂ in
+attribute [local simp] isPrefixOf_cons_cons in
 variable [BEq α] [LawfulBEq α] in
 #check_simp isPrefixOf [x, y, x] (replicate (n+3) x) ~> y == x
 

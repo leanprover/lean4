@@ -33,7 +33,7 @@ open Nat
 @[grind →] theorem Pairwise.sublist : l₁ <+ l₂ → l₂.Pairwise R → l₁.Pairwise R
   | .slnil, h => h
   | .cons _ s, .cons _ h₂ => h₂.sublist s
-  | .cons₂ _ s, .cons h₁ h₂ => (h₂.sublist s).cons fun _ h => h₁ _ (s.subset h)
+  | .cons_cons _ s, .cons h₁ h₂ => (h₂.sublist s).cons fun _ h => h₁ _ (s.subset h)
 
 theorem Pairwise.imp {α R S} (H : ∀ {a b}, R a b → S a b) :
     ∀ {l : List α}, l.Pairwise R → l.Pairwise S
@@ -226,7 +226,7 @@ theorem pairwise_iff_forall_sublist : l.Pairwise R ↔ (∀ {a b}, [a,b] <+ l �
     constructor <;> intro h
     · intro
       | a, b, .cons _ hab => exact IH.mp h.2 hab
-      | _, b, .cons₂ _ hab => refine h.1 _ (hab.subset ?_); simp
+      | _, b, .cons_cons _ hab => refine h.1 _ (hab.subset ?_); simp
     · constructor
       · intro x hx
         apply h

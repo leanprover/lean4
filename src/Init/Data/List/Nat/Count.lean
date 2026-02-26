@@ -106,7 +106,7 @@ theorem Sublist.le_countP (s : l₁ <+ l₂) (p) : countP p l₂ - (l₂.length 
     have := s.le_countP p
     have := s.length_le
     split <;> omega
-  | .cons₂ a s =>
+  | .cons_cons a s =>
     rename_i l₁ l₂
     simp only [countP_cons, length_cons]
     have := s.le_countP p

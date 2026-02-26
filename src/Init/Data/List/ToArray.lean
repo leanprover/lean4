@@ -393,7 +393,7 @@ theorem isPrefixOfAux_toArray_zero [BEq α] (l₁ l₂ : List α) (hle : l₁.le
   | [], _ => rw [dif_neg] <;> simp
   | _::_, [] => simp at hle
   | a::l₁, b::l₂ =>
-    simp [isPrefixOf_cons₂, isPrefixOfAux_toArray_succ', isPrefixOfAux_toArray_zero]
+    simp [isPrefixOf_cons_cons, isPrefixOfAux_toArray_succ', isPrefixOfAux_toArray_zero]
 
 @[simp, grind =] theorem isPrefixOf_toArray [BEq α] (l₁ l₂ : List α) :
     l₁.toArray.isPrefixOf l₂.toArray = l₁.isPrefixOf l₂ := by
@@ -407,7 +407,7 @@ theorem isPrefixOfAux_toArray_zero [BEq α] (l₁ l₂ : List α) (hle : l₁.le
       cases l₂ with
       | nil => simp
       | cons b l₂ =>
-        simp only [isPrefixOf_cons₂, Bool.and_eq_false_imp]
+        simp only [isPrefixOf_cons_cons, Bool.and_eq_false_imp]
         intro w
         rw [ih]
         simp_all

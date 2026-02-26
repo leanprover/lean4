@@ -58,16 +58,18 @@ function check_out {
 
 # mvar suffixes like in `?m.123` are deterministic but prone to change on minor changes, so strip them
 function normalize_mvar_suffixes {
-  sed -i -E 's/(\?(\w|_\w+))\.[0-9]+/\1/g' "$1.out.produced"
+  # Sed on macOS does not support \w.
+  perl -p -i -e 's/(\?(\w|_\w+))\.[0-9]+/\1/g' "$1.out.produced"
 }
 
 # similarly, links to the language reference may have URL components depending on the toolchain, so normalize those
 function normalize_reference_urls {
-  sed -i -E 's#https://lean-lang\.org/doc/reference/(v?[0-9.]+(-rc[0-9]+)?|latest)#REFERENCE#g' "$1.out.produced"
+  perl -p -i -e 's#https://lean-lang\.org/doc/reference/(v?[0-9.]+(-rc[0-9]+)?|latest)#REFERENCE#g' "$1.out.produced"
 }
 
 function normalize_measurements {
-  sed -i -E 's/^measurement: (\S+) \S+( \S+)?$/measurement: \1 .../' "$1.out.produced"
+  # Sed on macOS does not support \S.
+  perl -p -i -e 's/^measurement: (\S+) \S+( \S+)?$/measurement: \1 .../' "$1.out.produced"
 }
 
 function extract_measurements {

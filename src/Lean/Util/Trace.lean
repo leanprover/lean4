@@ -294,9 +294,6 @@ where
       return (← MonadExcept.ofExcept res)
     let ref ← getRef
     let mut m ← try msg res catch _ => pure m!"<exception thrown while producing trace node message>"
-    let result? := result?.orElse fun _ => match res with
-      | .ok _ => some .success
-      | .error _ => some .failure
     let mut data : TraceData := { cls, collapsed, tag, result? }
     if trace.profiler.get opts then
       data := { data with startTime := start, stopTime := stop }

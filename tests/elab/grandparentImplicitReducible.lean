@@ -1,3 +1,5 @@
+import Lean
+
 /-!
 # Grandparent subobject projections should be `@[implicit_reducible]`
 
@@ -16,7 +18,6 @@ Previously, `addParentInstances` only set `@[implicit_reducible]` on direct
 parent projections. This test verifies that grandparent subobject projections
 also receive `@[implicit_reducible]`.
 -/
-import Lean
 
 -- Minimal hierarchy with a diamond via MyMul
 class MyOne (α : Type _) where one : α
@@ -26,10 +27,17 @@ class MySemigroup (G : Type _) extends MyMul G
 class MyMonoid (M : Type _) extends MySemigroup M, MyMulOneClass M
 
 open Lean in
+def showReducibility (n : Name) : CoreM Unit := do
+  IO.println s!"{n}: {repr (← getReducibilityStatus n)}"
+
+/--
+info: MyMonoid.toMySemigroup: Lean.ReducibilityStatus.implicitReducible
+MyMonoid.toMyMulOneClass: Lean.ReducibilityStatus.implicitReducible
+MyMonoid.toMyOne: Lean.ReducibilityStatus.implicitReducible
+-/
+#guard_msgs in
 #eval do
-  let env ← getEnv
-  -- Direct parent projections should be implicitReducible
-  guard (getReducibilityStatus env ``MyMonoid.toMySemigroup == .implicitReducible)
-  guard (getReducibilityStatus env ``MyMonoid.toMyMulOneClass == .implicitReducible)
+  showReducibility ``MyMonoid.toMySemigroup
+  showReducibility ``MyMonoid.toMyMulOneClass
   -- Grandparent subobject projection should also be implicitReducible
-  guard (getReducibilityStatus env ``MyMonoid.toMyOne == .implicitReducible)
+  showReducibility ``MyMonoid.toMyOne

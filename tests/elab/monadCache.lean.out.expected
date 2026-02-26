@@ -1,0 +1,33 @@
+201
+Lean.Expr.app
+  (Lean.Expr.app
+    (Lean.Expr.const `f [])
+    (Lean.Expr.app
+      (Lean.Expr.app
+        (Lean.Expr.const `f [])
+        (Lean.Expr.app
+          (Lean.Expr.app
+            (Lean.Expr.const `f [])
+            (Lean.Expr.app (Lean.Expr.app (Lean.Expr.const `f []) (Lean.Expr.const `b [])) (Lean.Expr.const `b [])))
+          (Lean.Expr.app (Lean.Expr.app (Lean.Expr.const `f []) (Lean.Expr.const `b [])) (Lean.Expr.const `b []))))
+      (Lean.Expr.app
+        (Lean.Expr.app
+          (Lean.Expr.const `f [])
+          (Lean.Expr.app (Lean.Expr.app (Lean.Expr.const `f []) (Lean.Expr.const `b [])) (Lean.Expr.const `b [])))
+        (Lean.Expr.app (Lean.Expr.app (Lean.Expr.const `f []) (Lean.Expr.const `b [])) (Lean.Expr.const `b [])))))
+  (Lean.Expr.app
+    (Lean.Expr.app
+      (Lean.Expr.const `f [])
+      (Lean.Expr.app
+        (Lean.Expr.app
+          (Lean.Expr.const `f [])
+          (Lean.Expr.app (Lean.Expr.app (Lean.Expr.const `f []) (Lean.Expr.const `b [])) (Lean.Expr.const `b [])))
+        (Lean.Expr.app (Lean.Expr.app (Lean.Expr.const `f []) (Lean.Expr.const `b [])) (Lean.Expr.const `b []))))
+    (Lean.Expr.app
+      (Lean.Expr.app
+        (Lean.Expr.const `f [])
+        (Lean.Expr.app (Lean.Expr.app (Lean.Expr.const `f []) (Lean.Expr.const `b [])) (Lean.Expr.const `b [])))
+      (Lean.Expr.app (Lean.Expr.app (Lean.Expr.const `f []) (Lean.Expr.const `b [])) (Lean.Expr.const `b []))))
+201
+f
+b

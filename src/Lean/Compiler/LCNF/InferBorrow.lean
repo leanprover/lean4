@@ -91,6 +91,7 @@ where
     | .cases cs => cs.alts.forM (·.forCodeM (goCode declName))
     | .let _ k | .uset _ _ _ k _ | .sset _ _ _ _ _ k _ => goCode declName k
     | .return .. | .jmp .. | .unreach .. => return ()
+    | .inc .. | .dec .. | .setTag .. | .del .. | .oset .. => unreachable!
 
 /--
 Apply the inferred borrow annotations from `map` to a SCC.
@@ -117,9 +118,10 @@ where
       let ps ← updateParams decl.params map[ParamMap.Key.jp declName decl.fvarId]!
       let decl ← decl.update decl.type ps (← go declName decl.value)
       return code.updateFun! decl (← go declName k)
-    | .cases cs => return code.updateAlts! <| ← cs.alts.mapM (·.mapCodeM (go declName))
+    | .cases cs => return code.updateAlts! <| ← cs.alts.mapMonoM (·.mapCodeM (go declName))
     | .let _ k | .uset _ _ _ k _ | .sset _ _ _ _ _ k _ => return code.updateCont! (← go declName k)
     | .return .. | .jmp .. | .unreach .. => return code
+    | .inc .. | .dec .. | .setTag .. | .oset .. | .del .. => unreachable!
 
 structure Ctx where
   /--
@@ -298,6 +300,7 @@ where
     | .cases cs => cs.alts.forM (·.forCodeM collectCode)
     | .uset _ _ _ k _ | .sset _ _ _ _ _ k _ => collectCode k
     | .return .. | .unreach .. => return ()
+    | .inc .. | .dec .. | .setTag .. | .oset .. | .del .. => unreachable!
 
 
 public def inferBorrow : Pass where
@@ -306,7 +309,9 @@ public def inferBorrow : Pass where
   name := `inferBorrow
   run decls := do
     let map ← infer decls
-    apply decls map
+    let decls ← apply decls map
+    decls.forM (·.saveImpure)
+    return decls
 
 builtin_initialize
   registerTraceClass `Compiler.inferBorrow (inherited := true)

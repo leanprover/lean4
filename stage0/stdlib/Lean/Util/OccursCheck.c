@@ -66,7 +66,9 @@ LEAN_EXPORT lean_object* l___private_Lean_Util_OccursCheck_0__Lean_occursCheck_v
 LEAN_EXPORT lean_object* l_Lean_occursCheck___redArg___lam__0(lean_object*, uint8_t, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_occursCheck___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
+static lean_once_cell_t l_Lean_occursCheck___redArg___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_occursCheck___redArg___closed__0;
+static lean_once_cell_t l_Lean_occursCheck___redArg___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_occursCheck___redArg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_occursCheck___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_occursCheck(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1210,7 +1212,7 @@ lean_dec_ref(x_4);
 return x_7;
 }
 }
-static lean_object* _init_l_Lean_occursCheck___redArg___closed__0() {
+static lean_object* _init_l_Lean_occursCheck___redArg___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1220,11 +1222,11 @@ x_3 = lean_mk_array(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_occursCheck___redArg___closed__1() {
+static lean_object* _init_l_Lean_occursCheck___redArg___closed__1(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_occursCheck___redArg___closed__0;
+x_1 = lean_obj_once(&l_Lean_occursCheck___redArg___closed__0, &l_Lean_occursCheck___redArg___closed__0_once, _init_l_Lean_occursCheck___redArg___closed__0);
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
@@ -1268,7 +1270,7 @@ x_16 = lean_alloc_closure((void*)(l_Lean_occursCheck___redArg___lam__0___boxed),
 lean_closure_set(x_16, 0, x_11);
 lean_closure_set(x_16, 1, x_14);
 lean_closure_set(x_16, 2, x_15);
-x_17 = l_Lean_occursCheck___redArg___closed__1;
+x_17 = lean_obj_once(&l_Lean_occursCheck___redArg___closed__1, &l_Lean_occursCheck___redArg___closed__1_once, _init_l_Lean_occursCheck___redArg___closed__1);
 x_18 = l___private_Lean_Util_OccursCheck_0__Lean_occursCheck_visit___redArg(x_1, x_2, x_3, x_4, x_17);
 x_19 = lean_apply_4(x_12, lean_box(0), lean_box(0), x_18, x_16);
 return x_19;
@@ -1283,20 +1285,44 @@ x_6 = l_Lean_occursCheck___redArg(x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
+lean_object* runtime_initialize_Lean_MetavarContext(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lean_Util_OccursCheck(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Lean_MetavarContext(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lean_Util_OccursCheck(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Lean_MetavarContext(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Util_OccursCheck(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_MetavarContext(builtin);
+res = initialize_Lean_MetavarContext(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_occursCheck___redArg___closed__0 = _init_l_Lean_occursCheck___redArg___closed__0();
-lean_mark_persistent(l_Lean_occursCheck___redArg___closed__0);
-l_Lean_occursCheck___redArg___closed__1 = _init_l_Lean_occursCheck___redArg___closed__1();
-lean_mark_persistent(l_Lean_occursCheck___redArg___closed__1);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Lean_Util_OccursCheck(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Lean_Util_OccursCheck(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Lean_Util_OccursCheck(builtin);
 }
 #ifdef __cplusplus
 }

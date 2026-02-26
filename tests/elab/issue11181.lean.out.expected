@@ -1,0 +1,84 @@
+issue11181.lean:6:26-6:35: warning: This simp argument is unused:
+  instXorOp
+
+Hint: Omit it from the simp argument list.
+  simp only [HXor.hXor, i̵n̵s̵t̵X̵o̵r̵O̵p̵,̵ ̵xor, bitwise, Bool.bne_true, Bool.not_false, ↓reduceIte]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+issue11181.lean:6:37-6:40: warning: This simp argument is unused:
+  xor
+
+Hint: Omit it from the simp argument list.
+  simp only [HXor.hXor, instXorOp, x̵o̵r̵,̵ ̵bitwise, Bool.bne_true, Bool.not_false, ↓reduceIte]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+issue11181.lean:6:42-6:49: warning: This simp argument is unused:
+  bitwise
+
+Hint: Omit it from the simp argument list.
+  simp only [HXor.hXor, instXorOp, xor, b̵i̵t̵w̵i̵s̵e̵,̵ ̵Bool.bne_true, Bool.not_false, ↓reduceIte]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+issue11181.lean:6:51-6:64: warning: This simp argument is unused:
+  Bool.bne_true
+
+Hint: Omit it from the simp argument list.
+  simp only [HXor.hXor, instXorOp, xor, bitwise, B̵o̵o̵l̵.̵b̵n̵e̵_̵t̵r̵u̵e̵,̵ ̵Bool.not_false, ↓reduceIte]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+issue11181.lean:6:66-6:80: warning: This simp argument is unused:
+  Bool.not_false
+
+Hint: Omit it from the simp argument list.
+  simp only [HXor.hXor, instXorOp, xor, bitwise, Bool.bne_true, B̵o̵o̵l̵.̵n̵o̵t̵_̵f̵a̵l̵s̵e̵,̵ ̵↓reduceIte]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+issue11181.lean:6:82-6:92: warning: This simp argument is unused:
+  ↓reduceIte
+
+Hint: Omit it from the simp argument list.
+  simp only [HXor.hXor, instXorOp, xor, bitwise, Bool.bne_true, Bool.not_false,̵ ̵↓̵r̵e̵d̵u̵c̵e̵I̵t̵e̵]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+issue11181.lean:10:24-10:33: warning: This simp argument is unused:
+  instXorOp
+
+Hint: Omit it from the simp argument list.
+  simp only [HXor.hXor, i̵n̵s̵t̵X̵o̵r̵O̵p̵,̵ ̵xor, bitwise, Bool.bne_true, Bool.not_false, ↓reduceIte]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+issue11181.lean:10:35-10:38: warning: This simp argument is unused:
+  xor
+
+Hint: Omit it from the simp argument list.
+  simp only [HXor.hXor, instXorOp, x̵o̵r̵,̵ ̵bitwise, Bool.bne_true, Bool.not_false, ↓reduceIte]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+issue11181.lean:10:40-10:47: warning: This simp argument is unused:
+  bitwise
+
+Hint: Omit it from the simp argument list.
+  simp only [HXor.hXor, instXorOp, xor, b̵i̵t̵w̵i̵s̵e̵,̵ ̵Bool.bne_true, Bool.not_false, ↓reduceIte]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+issue11181.lean:10:49-10:62: warning: This simp argument is unused:
+  Bool.bne_true
+
+Hint: Omit it from the simp argument list.
+  simp only [HXor.hXor, instXorOp, xor, bitwise, B̵o̵o̵l̵.̵b̵n̵e̵_̵t̵r̵u̵e̵,̵ ̵Bool.not_false, ↓reduceIte]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+issue11181.lean:10:64-10:78: warning: This simp argument is unused:
+  Bool.not_false
+
+Hint: Omit it from the simp argument list.
+  simp only [HXor.hXor, instXorOp, xor, bitwise, Bool.bne_true, B̵o̵o̵l̵.̵n̵o̵t̵_̵f̵a̵l̵s̵e̵,̵ ̵↓reduceIte]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+issue11181.lean:10:80-10:90: warning: This simp argument is unused:
+  ↓reduceIte
+
+Hint: Omit it from the simp argument list.
+  simp only [HXor.hXor, instXorOp, xor, bitwise, Bool.bne_true, Bool.not_false,̵ ̵↓̵r̵e̵d̵u̵c̵e̵I̵t̵e̵]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`

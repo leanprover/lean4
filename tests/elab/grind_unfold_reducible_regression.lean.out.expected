@@ -1,0 +1,17 @@
+Try these:
+  [apply] [grind =] for pattern: [@getElem (TreeMapD #7 #6 #5 #4 #3) _ _ _ _ (@mk _ _ _ _ #3 #2 #1) #0 _]
+  [apply] [grind =_] for pattern: [@Option.getD #4 (@getElem? (@ExtTreeMap #7 _ _) _ _ _ _ #2 #0) #3]
+  [apply] [grind
+    =>] for pattern: [@TransCmp #7 (@compare _ #6), @getElem (TreeMapD _ _ #5 #4 #3) _ _ _ _ (@mk _ _ _ _ #3 #2 #1) #0 _]
+  [apply] [grind!
+    =>] for pattern: [@compare #7 #6, @getElem (TreeMapD _ _ #5 #4 #3) _ _ _ _ (@mk _ _ _ _ #3 #2 #1) #0 _]
+Try these:
+  [apply] [grind =] for pattern: [@getElem? (@ExtTreeMap #7 #4 _) _ _ _ _ (@tree _ #6 #5 _ #3 #1) #0]
+  [apply] [grind
+    =>] for pattern: [@TransCmp #7 (@compare _ #6), @getElem? (@ExtTreeMap _ #4 _) _ _ _ _ (@tree _ _ #5 _ #3 #1) #0]
+  [apply] [grind! =>] for pattern: [@compare #7 #6, @getElem? (@ExtTreeMap _ #4 _) _ _ _ _ (@tree _ _ #5 _ #3 #1) #0]
+Try these:
+  [apply] [grind =] for pattern: [@Membership.mem #6 (@ExtTreeMap _ #3 _) _ (@tree _ #5 #4 _ #2 #1) #0]
+  [apply] [grind
+    =>] for pattern: [@TransCmp #6 (@compare _ #5), @Membership.mem _ (@ExtTreeMap _ #3 _) _ (@tree _ _ #4 _ #2 #1) #0]
+  [apply] [grind! =>] for pattern: [@compare #6 #5, @Membership.mem _ (@ExtTreeMap _ #3 _) _ (@tree _ _ #4 _ #2 #1) #0]

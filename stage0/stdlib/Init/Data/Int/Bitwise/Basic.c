@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 lean_object* lean_nat_to_int(lean_object*);
+static lean_once_cell_t l_Int_not___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Int_not___closed__0;
 uint8_t lean_int_dec_lt(lean_object*, lean_object*);
 lean_object* lean_nat_abs(lean_object*);
@@ -37,7 +38,7 @@ LEAN_EXPORT lean_object* l_Int_shiftLeft___boxed(lean_object*, lean_object*);
 static const lean_closure_object l_Int_instHShiftLeftNat___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Int_shiftLeft___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_Int_instHShiftLeftNat___closed__0 = (const lean_object*)&l_Int_instHShiftLeftNat___closed__0_value;
 LEAN_EXPORT const lean_object* l_Int_instHShiftLeftNat = (const lean_object*)&l_Int_instHShiftLeftNat___closed__0_value;
-static lean_object* _init_l_Int_not___closed__0() {
+static lean_object* _init_l_Int_not___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -50,7 +51,7 @@ LEAN_EXPORT lean_object* l_Int_not(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; uint8_t x_3; 
-x_2 = l_Int_not___closed__0;
+x_2 = lean_obj_once(&l_Int_not___closed__0, &l_Int_not___closed__0_once, _init_l_Int_not___closed__0);
 x_3 = lean_int_dec_lt(x_1, x_2);
 if (x_3 == 0)
 {
@@ -84,7 +85,7 @@ LEAN_EXPORT lean_object* l_Int_shiftRight(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; uint8_t x_4; 
-x_3 = l_Int_not___closed__0;
+x_3 = lean_obj_once(&l_Int_not___closed__0, &l_Int_not___closed__0_once, _init_l_Int_not___closed__0);
 x_4 = lean_int_dec_lt(x_1, x_3);
 if (x_4 == 0)
 {
@@ -123,7 +124,7 @@ LEAN_EXPORT lean_object* l_Int_shiftLeft(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; uint8_t x_4; 
-x_3 = l_Int_not___closed__0;
+x_3 = lean_obj_once(&l_Int_not___closed__0, &l_Int_not___closed__0_once, _init_l_Int_not___closed__0);
 x_4 = lean_int_dec_lt(x_1, x_3);
 if (x_4 == 0)
 {
@@ -162,6 +163,30 @@ lean_dec(x_1);
 return x_3;
 }
 }
+lean_object* runtime_initialize_Init_Data_Int_Basic(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Nat_Bitwise_Basic(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Int_Bitwise_Basic(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Init_Data_Int_Basic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Nat_Bitwise_Basic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Init_Data_Int_Bitwise_Basic(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Init_Data_Int_Basic(uint8_t builtin);
 lean_object* initialize_Init_Data_Nat_Bitwise_Basic(uint8_t builtin);
 static bool _G_initialized = false;
@@ -169,15 +194,23 @@ LEAN_EXPORT lean_object* initialize_Init_Data_Int_Bitwise_Basic(uint8_t builtin)
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Int_Basic(builtin);
+res = initialize_Init_Data_Int_Basic(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Bitwise_Basic(builtin);
+res = initialize_Init_Data_Nat_Bitwise_Basic(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Int_not___closed__0 = _init_l_Int_not___closed__0();
-lean_mark_persistent(l_Int_not___closed__0);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Init_Data_Int_Bitwise_Basic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Init_Data_Int_Bitwise_Basic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Init_Data_Int_Bitwise_Basic(builtin);
 }
 #ifdef __cplusplus
 }

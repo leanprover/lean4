@@ -83,7 +83,7 @@ static const lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Un
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Std_Internal_IO_Async_Selectable_one_spec__0___redArg___lam__1(size_t, lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Std_Internal_IO_Async_Selectable_one_spec__0___redArg___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
-lean_object* lean_array_uget(lean_object*, size_t);
+lean_object* lean_array_uget_borrowed(lean_object*, size_t);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Std_Internal_IO_Async_Selectable_one_spec__0___redArg(lean_object*, size_t, size_t, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Std_Internal_IO_Async_Selectable_one_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1305,13 +1305,10 @@ return x_8;
 else
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
-x_9 = lean_array_uget(x_1, x_3);
+x_9 = lean_array_uget_borrowed(x_1, x_3);
 x_10 = lean_ctor_get(x_9, 0);
-lean_inc_ref(x_10);
-lean_dec(x_9);
 x_11 = lean_ctor_get(x_10, 2);
 lean_inc_ref(x_11);
-lean_dec_ref(x_10);
 x_12 = lean_apply_1(x_11, lean_box(0));
 x_13 = ((lean_object*)(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Std_Internal_IO_Async_Selectable_one_spec__0___redArg___closed__0));
 x_14 = lean_unsigned_to_nat(0u);
@@ -1787,7 +1784,7 @@ lean_closure_set(x_14, 0, x_1);
 x_15 = lean_box(0);
 x_16 = ((lean_object*)(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Std_Internal_IO_Async_Selectable_one_spec__0___redArg___closed__0));
 x_17 = 0;
-x_18 = lean_array_uget(x_4, x_6);
+x_18 = lean_array_uget_borrowed(x_4, x_6);
 x_19 = lean_box(x_17);
 lean_inc(x_18);
 lean_inc_ref(x_2);
@@ -1805,6 +1802,7 @@ lean_closure_set(x_22, 2, x_20);
 lean_closure_set(x_22, 3, x_13);
 x_23 = lean_box(x_17);
 lean_inc(x_3);
+lean_inc(x_18);
 x_24 = lean_alloc_closure((void*)(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Std_Internal_IO_Async_Selectable_one_spec__2___redArg___lam__6___boxed), 8, 6);
 lean_closure_set(x_24, 0, x_18);
 lean_closure_set(x_24, 1, x_3);
@@ -2622,16 +2620,15 @@ else
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
 lean_dec_ref(x_4);
-x_9 = lean_array_uget(x_1, x_3);
+x_9 = lean_array_uget_borrowed(x_1, x_3);
 x_10 = lean_ctor_get(x_9, 0);
-lean_inc_ref(x_10);
 x_11 = lean_ctor_get(x_10, 0);
 lean_inc_ref(x_11);
-lean_dec_ref(x_10);
 x_12 = lean_apply_1(x_11, lean_box(0));
 x_13 = lean_box(0);
 x_14 = ((lean_object*)(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Std_Internal_IO_Async_Selectable_one_spec__3___redArg___closed__0));
 x_15 = ((lean_object*)(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Std_Internal_IO_Async_Selectable_one_spec__3___redArg___closed__2));
+lean_inc(x_9);
 x_16 = lean_alloc_closure((void*)(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Std_Internal_IO_Async_Selectable_one_spec__3___redArg___lam__2___boxed), 6, 4);
 lean_closure_set(x_16, 0, x_9);
 lean_closure_set(x_16, 1, x_14);
@@ -3560,17 +3557,16 @@ else
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; uint8_t x_25; lean_object* x_26; 
 lean_dec_ref(x_5);
-x_10 = lean_array_uget(x_2, x_4);
+x_10 = lean_array_uget_borrowed(x_2, x_4);
 x_11 = lean_ctor_get(x_10, 0);
-lean_inc_ref(x_11);
 x_12 = lean_ctor_get(x_11, 0);
 lean_inc_ref(x_12);
-lean_dec_ref(x_11);
 x_13 = lean_apply_1(x_12, lean_box(0));
 x_14 = lean_box(0);
 x_15 = ((lean_object*)(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Std_Internal_IO_Async_Selectable_tryOne_spec__0___redArg___closed__0));
 x_16 = ((lean_object*)(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Std_Internal_IO_Async_Selectable_tryOne_spec__0___redArg___closed__2));
 x_17 = lean_box(x_1);
+lean_inc(x_10);
 x_18 = lean_alloc_closure((void*)(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Std_Internal_IO_Async_Selectable_tryOne_spec__0___redArg___lam__2___boxed), 7, 5);
 lean_closure_set(x_18, 0, x_10);
 lean_closure_set(x_18, 1, x_17);
@@ -4159,13 +4155,10 @@ return x_9;
 else
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; uint8_t x_21; lean_object* x_22; 
-x_10 = lean_array_uget(x_2, x_4);
+x_10 = lean_array_uget_borrowed(x_2, x_4);
 x_11 = lean_ctor_get(x_10, 0);
-lean_inc_ref(x_11);
-lean_dec(x_10);
 x_12 = lean_ctor_get(x_11, 2);
 lean_inc_ref(x_12);
-lean_dec_ref(x_11);
 x_13 = lean_apply_1(x_12, lean_box(0));
 x_14 = ((lean_object*)(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Std_Internal_IO_Async_Selectable_one_spec__0___redArg___closed__0));
 x_15 = lean_unsigned_to_nat(0u);
@@ -4677,7 +4670,7 @@ lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean
 x_12 = lean_io_promise_new();
 x_13 = lean_box(0);
 x_14 = ((lean_object*)(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Std_Internal_IO_Async_Selectable_one_spec__0___redArg___closed__0));
-x_15 = lean_array_uget(x_4, x_6);
+x_15 = lean_array_uget_borrowed(x_4, x_6);
 x_16 = lean_box(x_2);
 lean_inc(x_15);
 lean_inc_ref(x_3);
@@ -4689,6 +4682,7 @@ lean_closure_set(x_17, 2, x_16);
 lean_closure_set(x_17, 3, x_3);
 lean_closure_set(x_17, 4, x_15);
 x_18 = lean_box(x_2);
+lean_inc(x_15);
 lean_inc_ref(x_3);
 x_19 = lean_alloc_closure((void*)(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Std_Internal_IO_Async_Selectable_combine_spec__1___redArg___lam__6___boxed), 8, 6);
 lean_closure_set(x_19, 0, x_3);
@@ -4924,7 +4918,7 @@ x_11 = l_Std_Internal_IO_Async_Selectable_combine___redArg___lam__2(x_8, x_2, x_
 return x_11;
 }
 }
-static lean_object* _init_l_Std_Internal_IO_Async_Selectable_combine___redArg___boxed__const__1() {
+static lean_object* _init_l_Std_Internal_IO_Async_Selectable_combine___redArg___boxed__const__1(void) {
 _start:
 {
 size_t x_1; lean_object* x_2; 
@@ -5159,6 +5153,47 @@ x_13 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00
 return x_13;
 }
 }
+lean_object* runtime_initialize_Init_Data_Random(uint8_t builtin);
+lean_object* runtime_initialize_Std_Internal_Async_Basic(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_ByteArray_Extra(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Array_Lemmas(uint8_t builtin);
+lean_object* runtime_initialize_Init_Omega(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Std_Internal_Async_Select(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Init_Data_Random(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Std_Internal_Async_Basic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_ByteArray_Extra(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Array_Lemmas(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Omega(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+l_Std_Internal_IO_Async_Selectable_combine___redArg___boxed__const__1 = _init_l_Std_Internal_IO_Async_Selectable_combine___redArg___boxed__const__1();
+lean_mark_persistent(l_Std_Internal_IO_Async_Selectable_combine___redArg___boxed__const__1);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Std_Internal_Async_Select(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Init_Data_Random(uint8_t builtin);
 lean_object* initialize_Std_Internal_Async_Basic(uint8_t builtin);
 lean_object* initialize_Init_Data_ByteArray_Extra(uint8_t builtin);
@@ -5169,24 +5204,35 @@ LEAN_EXPORT lean_object* initialize_Std_Internal_Async_Select(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Random(builtin);
+res = initialize_Init_Data_Random(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Internal_Async_Basic(builtin);
+res = initialize_Std_Internal_Async_Basic(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_ByteArray_Extra(builtin);
+res = initialize_Init_Data_ByteArray_Extra(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Array_Lemmas(builtin);
+res = initialize_Init_Data_Array_Lemmas(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Omega(builtin);
+res = initialize_Init_Omega(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Std_Internal_IO_Async_Selectable_combine___redArg___boxed__const__1 = _init_l_Std_Internal_IO_Async_Selectable_combine___redArg___boxed__const__1();
-lean_mark_persistent(l_Std_Internal_IO_Async_Selectable_combine___redArg___boxed__const__1);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Std_Internal_Async_Select(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Std_Internal_Async_Select(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Std_Internal_Async_Select(builtin);
 }
 #ifdef __cplusplus
 }

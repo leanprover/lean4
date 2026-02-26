@@ -2164,7 +2164,9 @@ def intersperse (sep : α) : (l : List α) → List α
   | x::xs => x :: sep :: intersperse sep xs
 
 @[simp] theorem intersperse_nil {sep : α} : ([] : List α).intersperse sep = [] := rfl
-@[simp] theorem intersperse_single {x : α} {sep : α} : [x].intersperse sep = [x] := rfl
+@[simp] theorem intersperse_singleton {x : α} {sep : α} : [x].intersperse sep = [x] := rfl
+@[deprecated intersperse_single (since := "2026-02-26")]
+theorem intersperse_single {x : α} {sep : α} : [x].intersperse sep = [x] := rfl
 @[simp] theorem intersperse_cons₂ {x : α} {y : α} {zs : List α} {sep : α} :
     (x::y::zs).intersperse sep = x::sep::((y::zs).intersperse sep) := rfl
 
@@ -2186,7 +2188,7 @@ Examples:
 * `List.intercalate sep [a, b] = a ++ sep ++ b`
 * `List.intercalate sep [a, b, c] = a ++ sep ++ b ++ sep ++ c`
 -/
-def intercalate (sep : List α) (xs : List (List α)) : List α :=
+noncomputable def intercalate (sep : List α) (xs : List (List α)) : List α :=
   (intersperse sep xs).flatten
 
 /-! ### eraseDupsBy -/

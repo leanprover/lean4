@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 lean_object* lean_nat_to_int(lean_object*);
+static lean_once_cell_t l_Std_PRange_instUpwardEnumerableInt___lam__0___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_PRange_instUpwardEnumerableInt___lam__0___closed__0;
 lean_object* lean_int_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PRange_instUpwardEnumerableInt___lam__0(lean_object*);
@@ -40,7 +41,7 @@ LEAN_EXPORT lean_object* l_Std_PRange_instHasSizeInt__1___lam__0___boxed(lean_ob
 static const lean_closure_object l_Std_PRange_instHasSizeInt__1___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Std_PRange_instHasSizeInt__1___lam__0___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_Std_PRange_instHasSizeInt__1___closed__0 = (const lean_object*)&l_Std_PRange_instHasSizeInt__1___closed__0_value;
 LEAN_EXPORT const lean_object* l_Std_PRange_instHasSizeInt__1 = (const lean_object*)&l_Std_PRange_instHasSizeInt__1___closed__0_value;
-static lean_object* _init_l_Std_PRange_instUpwardEnumerableInt___lam__0___closed__0() {
+static lean_object* _init_l_Std_PRange_instUpwardEnumerableInt___lam__0___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -53,7 +54,7 @@ LEAN_EXPORT lean_object* l_Std_PRange_instUpwardEnumerableInt___lam__0(lean_obje
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = l_Std_PRange_instUpwardEnumerableInt___lam__0___closed__0;
+x_2 = lean_obj_once(&l_Std_PRange_instUpwardEnumerableInt___lam__0___closed__0, &l_Std_PRange_instUpwardEnumerableInt___lam__0___closed__0_once, _init_l_Std_PRange_instUpwardEnumerableInt___lam__0___closed__0);
 x_3 = lean_int_add(x_1, x_2);
 x_4 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_4, 0, x_3);
@@ -94,7 +95,7 @@ LEAN_EXPORT lean_object* l_Std_PRange_instHasSizeInt___lam__0(lean_object* x_1, 
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_3 = l_Std_PRange_instUpwardEnumerableInt___lam__0___closed__0;
+x_3 = lean_obj_once(&l_Std_PRange_instUpwardEnumerableInt___lam__0___closed__0, &l_Std_PRange_instUpwardEnumerableInt___lam__0___closed__0_once, _init_l_Std_PRange_instUpwardEnumerableInt___lam__0___closed__0);
 x_4 = lean_int_add(x_2, x_3);
 x_5 = lean_int_sub(x_4, x_1);
 lean_dec(x_4);
@@ -118,7 +119,7 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_3 = lean_unsigned_to_nat(1u);
-x_4 = l_Std_PRange_instUpwardEnumerableInt___lam__0___closed__0;
+x_4 = lean_obj_once(&l_Std_PRange_instUpwardEnumerableInt___lam__0___closed__0, &l_Std_PRange_instUpwardEnumerableInt___lam__0___closed__0_once, _init_l_Std_PRange_instUpwardEnumerableInt___lam__0___closed__0);
 x_5 = lean_int_add(x_2, x_4);
 x_6 = lean_int_sub(x_5, x_1);
 lean_dec(x_5);
@@ -139,6 +140,30 @@ lean_dec(x_1);
 return x_3;
 }
 }
+lean_object* runtime_initialize_Init_Data_Range_Polymorphic_Instances(uint8_t builtin);
+lean_object* runtime_initialize_Init_Omega(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Range_Polymorphic_Int(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Init_Data_Range_Polymorphic_Instances(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Omega(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Init_Data_Range_Polymorphic_Int(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Init_Data_Range_Polymorphic_Instances(uint8_t builtin);
 lean_object* initialize_Init_Omega(uint8_t builtin);
 static bool _G_initialized = false;
@@ -146,15 +171,23 @@ LEAN_EXPORT lean_object* initialize_Init_Data_Range_Polymorphic_Int(uint8_t buil
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Range_Polymorphic_Instances(builtin);
+res = initialize_Init_Data_Range_Polymorphic_Instances(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Omega(builtin);
+res = initialize_Init_Omega(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Std_PRange_instUpwardEnumerableInt___lam__0___closed__0 = _init_l_Std_PRange_instUpwardEnumerableInt___lam__0___closed__0();
-lean_mark_persistent(l_Std_PRange_instUpwardEnumerableInt___lam__0___closed__0);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Init_Data_Range_Polymorphic_Int(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Init_Data_Range_Polymorphic_Int(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Init_Data_Range_Polymorphic_Int(builtin);
 }
 #ifdef __cplusplus
 }

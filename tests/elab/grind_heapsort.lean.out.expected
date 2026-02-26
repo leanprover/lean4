@@ -1,0 +1,11 @@
+Try these:
+  [apply] [grind =] for pattern: [@Array.size #5 (@Array.swap _ #4 #3 #2 #1 #0)]
+  [apply] [grind
+    →] for pattern: [@LE.le `[Nat] `[instLENat] (#3 + 1) (@Array.size #5 #4), @LE.le `[Nat] `[instLENat] (#2 + 1) (@Array.size _ #4)]
+  [apply] [grind! .] for pattern: [@Array.swap #5 #4 #3 #2 #1 #0]
+Try these:
+  [apply] [grind =] for pattern: [@Array.size `[Int] (@siftDown #3 #2 #1 #0)]
+  [apply] [grind
+    =>] for pattern: [@LE.le `[Nat] `[instLENat] #1 (@Array.size `[Int] #3), @Array.size `[Int] (@siftDown #3 #2 #1 #0)]
+  [apply] [grind! .] for pattern: [@siftDown #3 #2 #1 #0]
+  [apply] [grind! =>] for pattern: [@LE.le `[Nat] `[instLENat] #1 (@Array.size `[Int] #3), @siftDown #3 #2 #1 #0]

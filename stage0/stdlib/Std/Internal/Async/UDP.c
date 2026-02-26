@@ -56,6 +56,7 @@ lean_object* lean_uv_udp_send(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_sendAll(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_sendAll___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
+static lean_once_cell_t l_Std_Internal_IO_Async_UDP_Socket_send___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Internal_IO_Async_UDP_Socket_send___closed__0;
 lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_send(lean_object*, lean_object*, lean_object*);
@@ -581,7 +582,7 @@ lean_dec(x_1);
 return x_5;
 }
 }
-static lean_object* _init_l_Std_Internal_IO_Async_UDP_Socket_send___closed__0() {
+static lean_object* _init_l_Std_Internal_IO_Async_UDP_Socket_send___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -594,7 +595,7 @@ LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_send(lean_object* x_
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_16; 
-x_5 = l_Std_Internal_IO_Async_UDP_Socket_send___closed__0;
+x_5 = lean_obj_once(&l_Std_Internal_IO_Async_UDP_Socket_send___closed__0, &l_Std_Internal_IO_Async_UDP_Socket_send___closed__0_once, _init_l_Std_Internal_IO_Async_UDP_Socket_send___closed__0);
 x_6 = lean_array_push(x_5, x_2);
 x_7 = ((lean_object*)(l_Std_Internal_IO_Async_UDP_Socket_sendAll___closed__2));
 x_16 = lean_uv_udp_send(x_1, x_6, x_3);
@@ -2207,6 +2208,35 @@ lean_dec(x_1);
 return x_5;
 }
 }
+lean_object* runtime_initialize_Std_Time(uint8_t builtin);
+lean_object* runtime_initialize_Std_Internal_UV_UDP(uint8_t builtin);
+lean_object* runtime_initialize_Std_Internal_Async_Select(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Std_Internal_Async_UDP(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Std_Time(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Std_Internal_UV_UDP(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Std_Internal_Async_Select(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Std_Internal_Async_UDP(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Std_Time(uint8_t builtin);
 lean_object* initialize_Std_Internal_UV_UDP(uint8_t builtin);
 lean_object* initialize_Std_Internal_Async_Select(uint8_t builtin);
@@ -2215,18 +2245,27 @@ LEAN_EXPORT lean_object* initialize_Std_Internal_Async_UDP(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Std_Time(builtin);
+res = initialize_Std_Time(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Internal_UV_UDP(builtin);
+res = initialize_Std_Internal_UV_UDP(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Internal_Async_Select(builtin);
+res = initialize_Std_Internal_Async_Select(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Std_Internal_IO_Async_UDP_Socket_send___closed__0 = _init_l_Std_Internal_IO_Async_UDP_Socket_send___closed__0();
-lean_mark_persistent(l_Std_Internal_IO_Async_UDP_Socket_send___closed__0);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Std_Internal_Async_UDP(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Std_Internal_Async_UDP(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Std_Internal_Async_UDP(builtin);
 }
 #ifdef __cplusplus
 }

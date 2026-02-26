@@ -1,0 +1,10 @@
+def map2 : (Bool → Bool → Bool) → {n : Nat} → BV n → BV n → BV n :=
+fun f x x_1 x_2 =>
+  BV.brecOn (motive := fun x x_3 => BV x → BV x) x_1
+    (fun x x_3 f_1 x_4 =>
+      (match (motive := (x : Nat) → (x_5 : BV x) → BV x → BV.below (motive := fun x x_7 => BV x → BV x) x_5 → BV x) x,
+          x_3, x_4 with
+        | .(0), nil, nil => fun x => nil
+        | .(n + 1), cons n b1 v1, cons .(n) b2 v2 => fun x => cons n (f b1 b2) (x.1 v2))
+        f_1)
+    x_2

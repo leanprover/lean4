@@ -73,6 +73,7 @@ static const lean_ctor_object l_StateCpsT_instMonadStateOf___closed__3_value = {
 static const lean_object* l_StateCpsT_instMonadStateOf___closed__3 = (const lean_object*)&l_StateCpsT_instMonadStateOf___closed__3_value;
 LEAN_EXPORT lean_object* l_StateCpsT_instMonadStateOf(lean_object*, lean_object*);
 lean_object* l_MonadAttach_trivial___redArg(lean_object*);
+static lean_once_cell_t l_StateCpsT_instMonadAttach___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_StateCpsT_instMonadAttach___closed__0;
 LEAN_EXPORT lean_object* l_StateCpsT_instMonadAttach(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_StateCpsT_lift___redArg___lam__0(lean_object*, lean_object*, lean_object*);
@@ -398,7 +399,7 @@ x_3 = ((lean_object*)(l_StateCpsT_instMonadStateOf___closed__3));
 return x_3;
 }
 }
-static lean_object* _init_l_StateCpsT_instMonadAttach___closed__0() {
+static lean_object* _init_l_StateCpsT_instMonadAttach___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -411,7 +412,7 @@ LEAN_EXPORT lean_object* l_StateCpsT_instMonadAttach(lean_object* x_1, lean_obje
 _start:
 {
 lean_object* x_3; 
-x_3 = l_StateCpsT_instMonadAttach___closed__0;
+x_3 = lean_obj_once(&l_StateCpsT_instMonadAttach___closed__0, &l_StateCpsT_instMonadAttach___closed__0_once, _init_l_StateCpsT_instMonadAttach___closed__0);
 return x_3;
 }
 }
@@ -491,6 +492,30 @@ lean_closure_set(x_4, 0, x_3);
 return x_4;
 }
 }
+lean_object* runtime_initialize_Init_Control_Lawful_Basic(uint8_t builtin);
+lean_object* runtime_initialize_Init_Ext(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Init_Control_StateCps(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Init_Control_Lawful_Basic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Ext(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Init_Control_StateCps(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Init_Control_Lawful_Basic(uint8_t builtin);
 lean_object* initialize_Init_Ext(uint8_t builtin);
 static bool _G_initialized = false;
@@ -498,15 +523,23 @@ LEAN_EXPORT lean_object* initialize_Init_Control_StateCps(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Control_Lawful_Basic(builtin);
+res = initialize_Init_Control_Lawful_Basic(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Ext(builtin);
+res = initialize_Init_Ext(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_StateCpsT_instMonadAttach___closed__0 = _init_l_StateCpsT_instMonadAttach___closed__0();
-lean_mark_persistent(l_StateCpsT_instMonadAttach___closed__0);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Init_Control_StateCps(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Init_Control_StateCps(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Init_Control_StateCps(builtin);
 }
 #ifdef __cplusplus
 }

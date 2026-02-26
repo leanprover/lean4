@@ -46,6 +46,7 @@ LEAN_EXPORT lean_object* l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFi
 LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00Lake_Toml_Time_ofString_x3f_spec__4___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00Lake_Toml_Time_ofString_x3f_spec__4___redArg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
+static lean_once_cell_t l_Lake_Toml_Time_ofString_x3f___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lake_Toml_Time_ofString_x3f___closed__0;
 lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* lean_array_to_list(lean_object*);
@@ -83,6 +84,7 @@ LEAN_EXPORT lean_object* l_Lake_Toml_DateTime_localDate_elim(lean_object*, lean_
 LEAN_EXPORT lean_object* l_Lake_Toml_DateTime_localTime_elim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_DateTime_localTime_elim(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lake_instInhabitedDate_default;
+static lean_once_cell_t l_Lake_Toml_instInhabitedDateTime_default___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lake_Toml_instInhabitedDateTime_default___closed__0;
 LEAN_EXPORT lean_object* l_Lake_Toml_instInhabitedDateTime_default;
 LEAN_EXPORT lean_object* l_Lake_Toml_instInhabitedDateTime;
@@ -723,7 +725,7 @@ lean_dec_ref(x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_Lake_Toml_Time_ofString_x3f___closed__0() {
+static lean_object* _init_l_Lake_Toml_Time_ofString_x3f___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -744,7 +746,7 @@ lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
 lean_ctor_set(x_4, 2, x_3);
 x_5 = l_String_Slice_splitToSubslice___at___00Lake_Toml_Time_ofString_x3f_spec__0(x_4);
-x_6 = l_Lake_Toml_Time_ofString_x3f___closed__0;
+x_6 = lean_obj_once(&l_Lake_Toml_Time_ofString_x3f___closed__0, &l_Lake_Toml_Time_ofString_x3f___closed__0_once, _init_l_Lake_Toml_Time_ofString_x3f___closed__0);
 x_7 = l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___at___00Lake_Toml_Time_ofString_x3f_spec__1___redArg(x_1, x_4, x_3, x_5, x_6);
 lean_dec_ref(x_4);
 x_8 = lean_array_to_list(x_7);
@@ -1111,8 +1113,8 @@ return x_86;
 else
 {
 lean_object* x_87; 
-lean_dec(x_9);
 lean_dec_ref(x_8);
+lean_dec(x_9);
 x_87 = lean_box(0);
 return x_87;
 }
@@ -1388,7 +1390,7 @@ x_5 = l_Lake_Toml_DateTime_ctorElim___redArg(x_2, x_4);
 return x_5;
 }
 }
-static lean_object* _init_l_Lake_Toml_instInhabitedDateTime_default___closed__0() {
+static lean_object* _init_l_Lake_Toml_instInhabitedDateTime_default___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -1402,15 +1404,15 @@ lean_ctor_set(x_4, 2, x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_Lake_Toml_instInhabitedDateTime_default() {
+static lean_object* _init_l_Lake_Toml_instInhabitedDateTime_default(void) {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lake_Toml_instInhabitedDateTime_default___closed__0;
+x_1 = lean_obj_once(&l_Lake_Toml_instInhabitedDateTime_default___closed__0, &l_Lake_Toml_instInhabitedDateTime_default___closed__0_once, _init_l_Lake_Toml_instInhabitedDateTime_default___closed__0);
 return x_1;
 }
 }
-static lean_object* _init_l_Lake_Toml_instInhabitedDateTime() {
+static lean_object* _init_l_Lake_Toml_instInhabitedDateTime(void) {
 _start:
 {
 lean_object* x_1; 
@@ -1530,8 +1532,8 @@ return x_14;
 else
 {
 uint8_t x_15; 
-lean_dec_ref(x_2);
 lean_dec_ref(x_1);
+lean_dec_ref(x_2);
 x_15 = 0;
 return x_15;
 }
@@ -1572,8 +1574,8 @@ return x_21;
 else
 {
 uint8_t x_22; 
-lean_dec_ref(x_2);
 lean_dec_ref(x_1);
+lean_dec_ref(x_2);
 x_22 = 0;
 return x_22;
 }
@@ -1597,8 +1599,8 @@ return x_25;
 else
 {
 uint8_t x_26; 
-lean_dec_ref(x_2);
 lean_dec_ref(x_1);
+lean_dec_ref(x_2);
 x_26 = 0;
 return x_26;
 }
@@ -1622,8 +1624,8 @@ return x_29;
 else
 {
 uint8_t x_30; 
-lean_dec_ref(x_2);
 lean_dec_ref(x_1);
+lean_dec_ref(x_2);
 x_30 = 0;
 return x_30;
 }
@@ -2338,7 +2340,7 @@ lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
 lean_ctor_set(x_4, 2, x_3);
 x_5 = l_String_Slice_splitToSubslice___at___00Lake_Toml_DateTime_ofString_x3f_spec__0(x_4);
-x_6 = l_Lake_Toml_Time_ofString_x3f___closed__0;
+x_6 = lean_obj_once(&l_Lake_Toml_Time_ofString_x3f___closed__0, &l_Lake_Toml_Time_ofString_x3f___closed__0_once, _init_l_Lake_Toml_Time_ofString_x3f___closed__0);
 x_7 = l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___at___00Lake_Toml_DateTime_ofString_x3f_spec__1___redArg(x_1, x_4, x_3, x_5, x_6);
 lean_dec_ref(x_4);
 x_8 = lean_array_to_list(x_7);
@@ -3308,32 +3310,32 @@ return x_190;
 }
 else
 {
+lean_inc(x_49);
+lean_inc(x_48);
+lean_inc_ref(x_47);
 lean_dec_ref(x_132);
 lean_dec_ref(x_131);
-lean_inc(x_49);
-lean_inc(x_48);
-lean_inc_ref(x_47);
 x_60 = x_128;
 goto block_126;
 }
 }
 else
 {
+lean_inc(x_49);
+lean_inc(x_48);
+lean_inc_ref(x_47);
 lean_dec(x_132);
 lean_dec_ref(x_131);
-lean_inc(x_49);
-lean_inc(x_48);
-lean_inc_ref(x_47);
 x_60 = x_128;
 goto block_126;
 }
 }
 else
 {
-lean_dec(x_131);
 lean_inc(x_49);
 lean_inc(x_48);
 lean_inc_ref(x_47);
+lean_dec(x_131);
 x_60 = x_128;
 goto block_126;
 }
@@ -3739,6 +3741,54 @@ return x_63;
 }
 }
 }
+lean_object* runtime_initialize_Lake_Util_Date(uint8_t builtin);
+lean_object* runtime_initialize_Lake_Util_String(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_String_Search(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Iterators_Consumers_Collect(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Iterators_Consumers_Loop(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_ToString_Macro(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lake_Toml_Data_DateTime(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Lake_Util_Date(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lake_Util_String(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_String_Search(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Iterators_Consumers_Collect(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Iterators_Consumers_Loop(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_ToString_Macro(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+l_Lake_Toml_instInhabitedDateTime_default = _init_l_Lake_Toml_instInhabitedDateTime_default();
+lean_mark_persistent(l_Lake_Toml_instInhabitedDateTime_default);
+l_Lake_Toml_instInhabitedDateTime = _init_l_Lake_Toml_instInhabitedDateTime();
+lean_mark_persistent(l_Lake_Toml_instInhabitedDateTime);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lake_Toml_Data_DateTime(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Lake_Util_Date(uint8_t builtin);
 lean_object* initialize_Lake_Util_String(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Search(uint8_t builtin);
@@ -3750,33 +3800,39 @@ LEAN_EXPORT lean_object* initialize_Lake_Toml_Data_DateTime(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lake_Util_Date(builtin);
+res = initialize_Lake_Util_Date(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Util_String(builtin);
+res = initialize_Lake_Util_String(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_String_Search(builtin);
+res = initialize_Init_Data_String_Search(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Iterators_Consumers_Collect(builtin);
+res = initialize_Init_Data_Iterators_Consumers_Collect(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Iterators_Consumers_Loop(builtin);
+res = initialize_Init_Data_Iterators_Consumers_Loop(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_ToString_Macro(builtin);
+res = initialize_Init_Data_ToString_Macro(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lake_Toml_Time_ofString_x3f___closed__0 = _init_l_Lake_Toml_Time_ofString_x3f___closed__0();
-lean_mark_persistent(l_Lake_Toml_Time_ofString_x3f___closed__0);
-l_Lake_Toml_instInhabitedDateTime_default___closed__0 = _init_l_Lake_Toml_instInhabitedDateTime_default___closed__0();
-lean_mark_persistent(l_Lake_Toml_instInhabitedDateTime_default___closed__0);
-l_Lake_Toml_instInhabitedDateTime_default = _init_l_Lake_Toml_instInhabitedDateTime_default();
-lean_mark_persistent(l_Lake_Toml_instInhabitedDateTime_default);
-l_Lake_Toml_instInhabitedDateTime = _init_l_Lake_Toml_instInhabitedDateTime();
-lean_mark_persistent(l_Lake_Toml_instInhabitedDateTime);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Lake_Toml_Data_DateTime(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Lake_Toml_Data_DateTime(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Lake_Toml_Data_DateTime(builtin);
 }
 #ifdef __cplusplus
 }

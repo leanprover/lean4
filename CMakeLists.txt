@@ -1,4 +1,8 @@
-cmake_minimum_required(VERSION 3.11)
+cmake_minimum_required(VERSION 3.21)
+
+if(NOT CMAKE_GENERATOR MATCHES "Makefiles")
+  message(FATAL_ERROR "Only makefile generators are supported")
+endif()
 
 option(USE_MIMALLOC "use mimalloc" ON)
 
@@ -70,13 +74,7 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
       BUILD_IN_SOURCE ON
       INSTALL_COMMAND ""
     )
-    set(
-      CADICAL
-      ${CMAKE_BINARY_DIR}/cadical/cadical${CMAKE_EXECUTABLE_SUFFIX}
-      CACHE FILEPATH
-      "path to cadical binary"
-      FORCE
-    )
+    set(CADICAL ${CMAKE_BINARY_DIR}/cadical/cadical${CMAKE_EXECUTABLE_SUFFIX})
     list(APPEND EXTRA_DEPENDS cadical)
   endif()
   list(APPEND CL_ARGS -DCADICAL=${CADICAL})
@@ -153,6 +151,7 @@ ExternalProject_Add(
   INSTALL_COMMAND ""
   DEPENDS stage2
   EXCLUDE_FROM_ALL ON
+  STEP_TARGETS configure
 )
 
 # targets forwarded to appropriate stages
@@ -162,6 +161,25 @@ add_custom_target(update-stage0 COMMAND $(MAKE) -C stage1 update-stage0 DEPENDS 
 add_custom_target(update-stage0-commit COMMAND $(MAKE) -C stage1 update-stage0-commit DEPENDS stage1)
 
 add_custom_target(test COMMAND $(MAKE) -C stage1 test DEPENDS stage1)
+
+add_custom_target(
+  bench
+  COMMAND $(MAKE) -C stage2
+  COMMAND $(MAKE) -C stage2 -j1 bench
+  DEPENDS stage2
+)
+add_custom_target(
+  bench-part1
+  COMMAND $(MAKE) -C stage2
+  COMMAND $(MAKE) -C stage2 -j1 bench-part1
+  DEPENDS stage2
+)
+add_custom_target(
+  bench-part2
+  COMMAND $(MAKE) -C stage2
+  COMMAND $(MAKE) -C stage2 -j1 bench-part2
+  DEPENDS stage2
+)
 
 add_custom_target(clean-stdlib COMMAND $(MAKE) -C stage1 clean-stdlib DEPENDS stage1)
 

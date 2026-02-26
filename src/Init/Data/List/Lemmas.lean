@@ -1839,6 +1839,11 @@ theorem sum_append [Add α] [Zero α] [Std.LawfulLeftIdentity (α := α) (· + �
   induction l₁ generalizing l₂ <;> simp_all [Std.Associative.assoc, Std.LawfulLeftIdentity.left_id]
 
 @[simp, grind =]
+theorem sum_singleton [Add α] [Zero α] [Std.LawfulRightIdentity (· + ·) (0 : α)] {x : α} :
+    [x].sum = x := by
+  simp [List.sum_eq_foldr, Std.LawfulRightIdentity.right_id x]
+
+@[simp, grind =]
 theorem sum_reverse [Zero α] [Add α] [Std.Associative (α := α) (· + ·)]
     [Std.Commutative (α := α) (· + ·)]
     [Std.LawfulLeftIdentity (α := α) (· + ·) 0] (xs : List α) : xs.reverse.sum = xs.sum := by
@@ -2727,6 +2732,31 @@ theorem foldr_assoc {op : α → α → α} [ha : Std.Associative op] :
     simp only [foldr_cons, ha.assoc]
     rw [foldr_assoc]
 
+theorem foldl_eq_apply_foldr {xs : List α} {f : α → α → α}
+    [Std.Associative f] [Std.LawfulRightIdentity f init] :
+    xs.foldl f x = f x (xs.foldr f init) := by
+  induction xs generalizing x
+  · simp [Std.LawfulRightIdentity.right_id]
+  · simp [foldl_assoc, *]
+
+theorem foldr_eq_apply_foldl {xs : List α} {f : α → α → α}
+    [Std.Associative f] [Std.LawfulLeftIdentity f init] :
+    xs.foldr f x = f (xs.foldl f init) x := by
+  have : Std.Associative (fun x y => f y x) := ⟨by simp [Std.Associative.assoc]⟩
+  have : Std.RightIdentity (fun x y => f y x) init := ⟨⟩
+  have : Std.LawfulRightIdentity (fun x y => f y x) init := ⟨by simp [Std.LawfulLeftIdentity.left_id]⟩
+  rw [← List.reverse_reverse (as := xs), foldr_reverse, foldl_eq_apply_foldr, foldl_reverse]
+
+theorem foldr_eq_foldl {xs : List α} {f : α → α → α}
+    [Std.Associative f] [Std.LawfulIdentity f init] :
+    xs.foldr f init = xs.foldl f init := by
+  simp [foldl_eq_apply_foldr, Std.LawfulLeftIdentity.left_id]
+
+theorem sum_eq_foldl [Zero α] [Add α] [Std.Associative (α := α) (· + ·)]
+    [Std.LawfulIdentity (· + ·) (0 : α)] {xs : List α} :
+    xs.sum = xs.foldl (init := 0) (· + ·) := by
+  simp [sum_eq_foldr, foldl_eq_apply_foldr, Std.LawfulLeftIdentity.left_id]
+
 -- The argument `f : α₁ → α₂` is intentionally explicit, as it is sometimes not found by unification.
 theorem foldl_hom (f : α₁ → α₂) {g₁ : α₁ → β → α₁} {g₂ : α₂ → β → α₂} {l : List β} {init : α₁}
     (H : ∀ x y, g₂ (f x) y = f (g₁ x y)) : l.foldl g₂ (f init) = f (l.foldl g₁ init) := by
@@ -3525,7 +3555,7 @@ theorem getElem?_insert_succ {l : List α} {a : α} {i : Nat} :
   · split
     · rfl
     · have h' : i - 1 < l.length := Nat.lt_of_le_of_lt (Nat.pred_le _) h
-      simp [h']; rfl
+      simp [h']
 
 theorem head?_insert {l : List α} {a : α} :
     (l.insert a).head? = some (if h : a ∈ l then l.head (ne_nil_of_mem h) else a) := by
@@ -3743,5 +3773,29 @@ theorem get_mem : ∀ (l : List α) n, get l n ∈ l
 
 theorem mem_iff_get {a} {l : List α} : a ∈ l ↔ ∃ n, get l n = a :=
   ⟨get_of_mem, fun ⟨_, e⟩ => e ▸ get_mem ..⟩
+
+/-! ### `intercalate` -/
+
+@[simp]
+theorem intercalate_nil {ys : List α} : ys.intercalate [] = [] := rfl
+
+@[simp]
+theorem intercalate_singleton {ys xs : List α} : ys.intercalate [xs] = xs := by
+  simp [intercalate]
+
+@[simp]
+theorem intercalate_cons_cons {ys l l' : List α} {zs : List (List α)} :
+    ys.intercalate (l :: l' :: zs) = l ++ ys ++ ys.intercalate (l' :: zs) := by
+  simp [intercalate]
+
+@[simp]
+theorem intercalate_cons_cons_left {ys l : List α} {x : α} {zs : List (List α)} :
+    ys.intercalate ((x :: l) :: zs) = x :: ys.intercalate (l :: zs) := by
+  cases zs <;> simp
+
+theorem intercalate_cons_of_ne_nil {ys l : List α} {zs : List (List α)} (h : zs ≠ []) :
+    ys.intercalate (l :: zs) = l ++ ys ++ ys.intercalate zs :=
+  match zs, h with
+  | l'::zs, _ => by simp
 
 end List

@@ -786,6 +786,13 @@ where
     match stx with
     | .node info kind args =>
       emitLeading info
+      if kind == hygieneInfoKind then
+        -- hygieneInfo nodes contain no source text; skip content but preserve whitespace
+        for arg in args do
+          emitLeading arg.getHeadInfo
+          emitTrailing arg.getHeadInfo
+        emitTrailing info
+        return
       if isLitKind kind then
         match args with
         | #[.atom info' str] =>

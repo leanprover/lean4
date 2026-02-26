@@ -400,7 +400,7 @@ mutual
   partial def specializeApp? (e : LetValue .pure) : SpecializeM (Option (LetValue .pure)) := do
     let .const declName us args := e | return none
     if args.isEmpty then return none
-    if (← isInstanceReducible declName) then return none
+    if (← isImplicitReducible declName) then return none
     let some specEntry ← getSpecEntry? declName | return none
     unless (← shouldSpecialize specEntry args) do return none
     let some ⟨.pure, decl⟩ ← getDecl? declName | return none

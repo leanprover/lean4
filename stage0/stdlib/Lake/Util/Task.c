@@ -55,6 +55,7 @@ LEAN_EXPORT const lean_object* l_Lake_instMonadBaseIOTask = (const lean_object*)
 lean_object* l_instInhabitedOfMonad___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instInhabitedBaseIOTask___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instInhabitedBaseIOTask(lean_object*, lean_object*);
+static lean_once_cell_t l_Lake_instInhabitedOptionIOTask___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lake_instInhabitedOptionIOTask___closed__0;
 LEAN_EXPORT lean_object* l_Lake_instInhabitedOptionIOTask(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instMonadTask__lake___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -208,7 +209,7 @@ x_3 = l_Lake_instInhabitedBaseIOTask___redArg(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lake_instInhabitedOptionIOTask___closed__0() {
+static lean_object* _init_l_Lake_instInhabitedOptionIOTask___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -221,9 +222,33 @@ LEAN_EXPORT lean_object* l_Lake_instInhabitedOptionIOTask(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_Lake_instInhabitedOptionIOTask___closed__0;
+x_2 = lean_obj_once(&l_Lake_instInhabitedOptionIOTask___closed__0, &l_Lake_instInhabitedOptionIOTask___closed__0_once, _init_l_Lake_instInhabitedOptionIOTask___closed__0);
 return x_2;
 }
+}
+lean_object* runtime_initialize_Init_Control_Option(uint8_t builtin);
+lean_object* runtime_initialize_Init_Control_Except(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lake_Util_Task(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Init_Control_Option(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Control_Except(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lake_Util_Task(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Init_Control_Option(uint8_t builtin);
 lean_object* initialize_Init_Control_Except(uint8_t builtin);
@@ -232,15 +257,23 @@ LEAN_EXPORT lean_object* initialize_Lake_Util_Task(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Control_Option(builtin);
+res = initialize_Init_Control_Option(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Control_Except(builtin);
+res = initialize_Init_Control_Except(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lake_instInhabitedOptionIOTask___closed__0 = _init_l_Lake_instInhabitedOptionIOTask___closed__0();
-lean_mark_persistent(l_Lake_instInhabitedOptionIOTask___closed__0);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Lake_Util_Task(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Lake_Util_Task(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Lake_Util_Task(builtin);
 }
 #ifdef __cplusplus
 }

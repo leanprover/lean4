@@ -31,10 +31,10 @@ LEAN_EXPORT lean_object* l_Lake_instMonadLiftTOptionOfAlternative__lake(lean_obj
 LEAN_EXPORT lean_object* l_Lake_instMonadLiftTExceptOfPureOfMonadExceptOf__lake___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instMonadLiftTExceptOfPureOfMonadExceptOf__lake___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instMonadLiftTExceptOfPureOfMonadExceptOf__lake(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_instMonadLiftTReaderTOfBindOfMonadReaderOf__lake___redArg___lam__0(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_instMonadLiftTReaderTOfBindOfMonadReaderOf__lake___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_instMonadLiftTReaderTOfBindOfMonadReaderOf__lake___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_instMonadLiftTReaderTOfBindOfMonadReaderOf__lake(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_instMonadLiftTReaderTOfMonadOfMonadReaderOf__lake___redArg___lam__0(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_instMonadLiftTReaderTOfMonadOfMonadReaderOf__lake___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_instMonadLiftTReaderTOfMonadOfMonadReaderOf__lake___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_instMonadLiftTReaderTOfMonadOfMonadReaderOf__lake(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instMonadLiftTStateTOfMonadOfMonadStateOf__lake___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instMonadLiftTStateTOfMonadOfMonadStateOf__lake___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instMonadLiftTStateTOfMonadOfMonadStateOf__lake___redArg___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -267,7 +267,7 @@ lean_closure_set(x_5, 1, x_3);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_instMonadLiftTReaderTOfBindOfMonadReaderOf__lake___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Lake_instMonadLiftTReaderTOfMonadOfMonadReaderOf__lake___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; lean_object* x_5; 
@@ -276,36 +276,36 @@ x_5 = lean_apply_2(x_2, lean_box(0), x_4);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_instMonadLiftTReaderTOfBindOfMonadReaderOf__lake___redArg___lam__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l_Lake_instMonadLiftTReaderTOfMonadOfMonadReaderOf__lake___redArg___lam__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; lean_object* x_7; 
-x_6 = lean_alloc_closure((void*)(l_Lake_instMonadLiftTReaderTOfBindOfMonadReaderOf__lake___redArg___lam__0), 3, 2);
+x_6 = lean_alloc_closure((void*)(l_Lake_instMonadLiftTReaderTOfMonadOfMonadReaderOf__lake___redArg___lam__0), 3, 2);
 lean_closure_set(x_6, 0, x_5);
 lean_closure_set(x_6, 1, x_1);
 x_7 = lean_apply_4(x_2, lean_box(0), lean_box(0), x_3, x_6);
 return x_7;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_instMonadLiftTReaderTOfBindOfMonadReaderOf__lake___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Lake_instMonadLiftTReaderTOfMonadOfMonadReaderOf__lake___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_4; 
-x_4 = lean_alloc_closure((void*)(l_Lake_instMonadLiftTReaderTOfBindOfMonadReaderOf__lake___redArg___lam__1), 5, 3);
-lean_closure_set(x_4, 0, x_3);
-lean_closure_set(x_4, 1, x_1);
-lean_closure_set(x_4, 2, x_2);
-return x_4;
+lean_object* x_4; lean_object* x_5; 
+x_4 = lean_ctor_get(x_1, 1);
+lean_inc(x_4);
+lean_dec_ref(x_1);
+x_5 = lean_alloc_closure((void*)(l_Lake_instMonadLiftTReaderTOfMonadOfMonadReaderOf__lake___redArg___lam__1), 5, 3);
+lean_closure_set(x_5, 0, x_3);
+lean_closure_set(x_5, 1, x_4);
+lean_closure_set(x_5, 2, x_2);
+return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_instMonadLiftTReaderTOfBindOfMonadReaderOf__lake(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+LEAN_EXPORT lean_object* l_Lake_instMonadLiftTReaderTOfMonadOfMonadReaderOf__lake(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
 lean_object* x_7; 
-x_7 = lean_alloc_closure((void*)(l_Lake_instMonadLiftTReaderTOfBindOfMonadReaderOf__lake___redArg___lam__1), 5, 3);
-lean_closure_set(x_7, 0, x_6);
-lean_closure_set(x_7, 1, x_4);
-lean_closure_set(x_7, 2, x_5);
+x_7 = l_Lake_instMonadLiftTReaderTOfMonadOfMonadReaderOf__lake___redArg(x_4, x_5, x_6);
 return x_7;
 }
 }
@@ -527,16 +527,44 @@ x_6 = l_Lake_instMonadLiftTEIOOfMonadOfMonadExceptOfOfBaseIO__lake___redArg(x_3,
 return x_6;
 }
 }
+lean_object* runtime_initialize_Init_System_IO(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lake_Util_Lift(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Init_System_IO(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lake_Util_Lift(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Init_System_IO(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lake_Util_Lift(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_System_IO(builtin);
+res = initialize_Init_System_IO(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Lake_Util_Lift(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Lake_Util_Lift(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Lake_Util_Lift(builtin);
 }
 #ifdef __cplusplus
 }

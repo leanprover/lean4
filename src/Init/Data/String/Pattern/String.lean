@@ -241,7 +241,7 @@ private def finitenessRelation :
     all_goals try
       cases h
       revert h'
-      simp only [Std.IterM.IsPlausibleStep, Std.Iterator.IsPlausibleStep]
+      simp only [Std.IterM.IsPlausibleStep, Std.Iterator.IsPlausibleStep, instIteratorIdSearchStep] -- TODO
       match it.internalState with
       | .emptyBefore pos =>
         rintro (⟨h, h'⟩|h') <;> simp [h', ForwardSliceSearcher.toOption, Option.lt, Prod.lex_def]

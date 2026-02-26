@@ -94,7 +94,7 @@ class Semiring (α : Type u) extends Add α, Mul α where
   -/
   nsmul_eq_natCast_mul : ∀ n : Nat, ∀ a : α, n • a = Nat.cast n * a := by intros; rfl
 
-attribute [instance_reducible] Semiring.npow Semiring.ofNat Semiring.natCast
+attribute [implicit_reducible] Semiring.npow Semiring.ofNat Semiring.natCast
 
 /--
 A ring, i.e. a type equipped with addition, negation, multiplication, and a map from the integers,
@@ -120,7 +120,7 @@ class Ring (α : Type u) extends Semiring α, Neg α, Sub α where
   /-- The canonical map from the integers is consistent with negation. -/
   intCast_neg : ∀ i : Int, Int.cast (R := α) (-i) = -Int.cast i := by intros; rfl
 
-attribute [instance_reducible] Ring.intCast Ring.zsmul
+attribute [implicit_reducible] Ring.intCast Ring.zsmul
 
 /--
 A commutative semiring, i.e. a semiring with commutative multiplication.
@@ -184,7 +184,7 @@ theorem natCast_succ (n : Nat) : ((n + 1 : Nat) : α) = ((n : α) + 1) := by
 
 theorem ofNat_mul (a b : Nat) : OfNat.ofNat (α := α) (a * b) = OfNat.ofNat a * OfNat.ofNat b := by
   induction b with
-  | zero => simp [Nat.mul_zero, mul_zero]; rfl
+  | zero => simp [Nat.mul_zero, mul_zero]
   | succ a ih => rw [Nat.mul_succ, ofNat_add, ih, ofNat_add, left_distrib, mul_one]
 
 theorem natCast_mul (a b : Nat) : ((a * b : Nat) : α) = ((a : α) * (b : α)) := by

@@ -83,10 +83,10 @@ def ppLetValue (e : LetValue pu) : M Format := do
   | .proj _ i fvarId _ => return f!"{← ppFVar fvarId} # {i}"
   | .fvar fvarId args => return f!"{← ppFVar fvarId}{← ppArgs args}"
   | .const declName us args _ => return f!"{← ppExpr (.const declName us)}{← ppArgs args}"
-  | .ctor i args _ => return f!"{i} {← ppArgs args}"
+  | .ctor i args _ => return f!"{i}{← ppArgs args}"
   | .fap declName args _ => return f!"{declName}{← ppArgs args}"
   | .pap declName args _ => return f!"pap {declName}{← ppArgs args}"
-  | .oproj i fvarId _ => return f!"proj[{i}] {← ppFVar fvarId}"
+  | .oproj i fvarId _ => return f!"oproj[{i}] {← ppFVar fvarId}"
   | .uproj i fvarId _ => return f!"uproj[{i}] {← ppFVar fvarId}"
   | .sproj i offset fvarId _ => return f!"sproj[{i}, {offset}] {← ppFVar fvarId}"
   | .reset n fvarId _ => return f!"reset[{n}] {← ppFVar fvarId}"
@@ -94,6 +94,7 @@ def ppLetValue (e : LetValue pu) : M Format := do
     return f!"reuse" ++ (if updateHeader then f!"!" else f!"") ++ f!" {← ppFVar fvarId} in {info}{← ppArgs args}"
   | .box _ fvarId _ => return f!"box {← ppFVar fvarId}"
   | .unbox fvarId _ => return f!"unbox {← ppFVar fvarId}"
+  | .isShared fvarId _ => return f!"isShared {← ppFVar fvarId}"
 
 def ppParam (param : Param pu) : M Format := do
   let borrow := if param.borrow then "@&" else ""
@@ -144,11 +145,27 @@ mutual
         return "⊥"
     | .sset fvarId i offset y ty k _ =>
       if pp.letVarTypes.get (← getOptions) then
-        return f!"sset {← ppFVar fvarId} [{i}, {offset}] : {← ppExpr ty} := {← ppFVar y} " ++ ";" ++ .line ++ (← ppCode k)
+        return f!"sset {← ppFVar fvarId}[{i}, {offset}] : {← ppExpr ty} := {← ppFVar y};" ++ .line ++ (← ppCode k)
       else
-        return f!"sset {← ppFVar fvarId} [{i}, {offset}] := {← ppFVar y} " ++ ";" ++ .line ++ (← ppCode k)
+        return f!"sset {← ppFVar fvarId}[{i}, {offset}] := {← ppFVar y};" ++ .line ++ (← ppCode k)
     | .uset fvarId i y k _ =>
-      return f!"uset {← ppFVar fvarId} [{i}] := {← ppFVar y} " ++ ";" ++ .line ++ (← ppCode k)
+      return f!"uset {← ppFVar fvarId}[{i}] := {← ppFVar y};" ++ .line ++ (← ppCode k)
+    | .oset fvarId i y k _ =>
+      return f!"oset {← ppFVar fvarId} [{i}] := {← ppArg y};" ++ .line ++ (← ppCode k)
+    | .setTag fvarId cidx k _ =>
+      return f!"setTag {← ppFVar fvarId} := {cidx};" ++ .line ++ (← ppCode k)
+    | .inc fvarId n _ _ k _ =>
+      if n != 1 then
+        return f!"inc[{n}] {← ppFVar fvarId};" ++ .line ++ (← ppCode k)
+      else
+        return f!"inc {← ppFVar fvarId};" ++ .line ++ (← ppCode k)
+    | .dec fvarId n _ _ k _ =>
+      if n != 1 then
+        return f!"dec[{n}] {← ppFVar fvarId};" ++ .line ++ (← ppCode k)
+      else
+        return f!"dec {← ppFVar fvarId};" ++ .line ++ (← ppCode k)
+    | .del fvarId k _ =>
+      return f!"del {← ppFVar fvarId};" ++ .line ++ (← ppCode k)
 
 
   partial def ppDeclValue (b : DeclValue pu) : M Format := do

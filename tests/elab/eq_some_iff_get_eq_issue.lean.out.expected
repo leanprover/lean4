@@ -1,0 +1,7 @@
+eq_some_iff_get_eq_issue.lean:6:8-6:19: warning: This simp argument is unused:
+  exists_prop
+
+Hint: Omit it from the simp argument list.
+  simp ̵[̵e̵x̵i̵s̵t̵s̵_̵p̵r̵o̵p̵]̵
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`

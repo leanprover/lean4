@@ -1,0 +1,13 @@
+Try these:
+  [apply] 
+    instantiate only [findIdx, insert, = mem_indices_of_mem]
+    instantiate only [usr getElem?_pos, = getElem?_neg, = getElem?_pos]
+    instantiate only [=_ WF]
+    instantiate only [= getElem?_neg]
+    instantiate only [= size_keys]
+    cases #ffde
+    · instantiate only [findIdx]
+    · instantiate only
+      instantiate only [= HashMap.getElem?_insert]
+  [apply] finish only [findIdx, insert, = mem_indices_of_mem, usr getElem?_pos, = getElem?_neg, = getElem?_pos, =_ WF,
+    = size_keys, = HashMap.getElem?_insert, #ffde]

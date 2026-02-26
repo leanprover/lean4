@@ -1,0 +1,7 @@
+simpMatch.lean:10:26-10:29: warning: This simp argument is unused:
+  hnp
+
+Hint: Omit it from the simp argument list.
+  simp [̵h̵n̵p̵]̵ ̵at h
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`

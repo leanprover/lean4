@@ -18,6 +18,7 @@ compile_commands.json
 *.idea
 tasks.json
 settings.json
+!.claude/settings.json
 .gdb_history
 .vscode/*
 script/__pycache__

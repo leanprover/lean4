@@ -35,6 +35,22 @@ builtin_dsimproc [simp, seval] reduceOfList (String.ofList _) := fun e => do
   unless e.isAppOfArity ``String.ofList 1 do return .continue
   reduceListChar e.appArg! ""
 
+builtin_dsimproc [simp, seval] reduceToList (String.toList _) := fun e => do
+  unless e.isAppOfArity ``String.toList 1 do return .continue
+  let some s ← fromExpr? e.appArg! | return .continue
+  return .done <| toExpr s.toList
+
+builtin_dsimproc [simp, seval] reducePush (String.push _ _) := fun e => do
+  unless e.isAppOfArity ``String.push 2 do return .continue
+  let some n ← fromExpr? e.appFn!.appArg! | return .continue
+  let some m ← Char.fromExpr? e.appArg! | return .continue
+  return .done <| toExpr (n.push m)
+
+builtin_dsimproc [simp, seval] reduceSingleton (String.singleton _) := fun e => do
+  unless e.isAppOfArity ``String.singleton 1 do return .continue
+  let some c ← Char.fromExpr? e.appArg! | return .continue
+  return .done <| toExpr (String.singleton c)
+
 @[inline] def reduceBinPred (declName : Name) (arity : Nat) (op : String → String → Bool) (e : Expr) : SimpM Step := do
   unless e.isAppOfArity declName arity do return .continue
   let some n ← fromExpr? e.appFn!.appArg! | return .continue

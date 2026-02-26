@@ -1,0 +1,1 @@
+fun a b => g.mul a b : g.carrier → g.carrier → g.carrier

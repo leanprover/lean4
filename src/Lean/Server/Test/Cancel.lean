@@ -7,7 +7,9 @@ Authors: Sebastian Ullrich
 module
 
 prelude
+public import Lean.Elab.Command
 public import Lean.Elab.Tactic.Basic
+public meta import Lean.Elab.Command
 public meta import Lean.Elab.Tactic.Basic
 
 public section
@@ -181,3 +183,31 @@ elab_rules : tactic
 
   dbg_trace "blocked!"
   log "blocked"
+
+meta initialize cmdOnceRef : IO.Ref (Option (Task Unit)) ← IO.mkRef none
+
+/--
+Like `wait_for_main_cancel_once_async` but for commands. Takes a `num` parameter so that its syntax
+can be changed (via `change:`) to trigger re-elaboration. Sends "blocked" as a diagnostic and spawns
+an async task that waits for the command's cancellation token to be set.
+-/
+scoped syntax "wait_for_cancel_once_command" num : command
+elab_rules : command
+| `(command| wait_for_cancel_once_command $_n) => Elab.Command.liftCoreM do
+  let prom ← IO.Promise.new
+  if let some t := (← cmdOnceRef.modifyGet (fun old => (old, old.getD prom.result!))) then
+    IO.wait t
+    return
+  let some cancelTk := (← read).cancelTk? | unreachable!
+  let act ← Core.wrapAsyncAsSnapshot (cancelTk? := none) fun _ => do
+    while true do
+      if (← cancelTk.isSet) then
+        break
+      IO.sleep 30
+    IO.eprintln "cancelled!"
+    logInfo "cancelled (should never be visible)"
+    prom.resolve ()
+    Core.checkInterrupted
+  let t ← BaseIO.asTask (act ())
+  (Core.logSnapshotTask { stx? := none, task := t, cancelTk? := cancelTk })
+  logInfo "blocked"

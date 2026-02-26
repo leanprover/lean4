@@ -88,13 +88,18 @@ private def addAndCompileExprForEval (declName : Name) (value : Expr) (allowSorr
   -- An alternative design would be to make `elabTermForEval` into a term elaborator and elaborate the command all at once
   -- with `unsafe def _eval := term_for_eval% $t`, which we did try, but unwanted error messages
   -- such as "failed to infer definition type" can surface.
-  let defView := mkDefViewOfDef { isUnsafe := true, visibility := .private }
+  let defView := mkDefViewOfDef { isUnsafe := true, visibility := .private, computeKind := .meta }
     (← `(Parser.Command.definition|
           def $(mkIdent <| `_root_ ++ declName) := $(← Term.exprToSyntax value)))
   let declName := mkPrivateName (← getEnv) declName
-  -- Allow access to both `meta` and non-`meta` declarations as the compilation result does not
-  -- escape the current module.
-  withOptions (Compiler.compiler.checkMeta.set · false) do
+  -- For simplicity, allow arbitrary phase accesses in server, `import`-correct access otherwise.
+  -- These are the most permissive respective settings that are guaranteed not to lead to missing
+  -- IR errors.
+  withOptions (fun opts =>
+      if Elab.inServer.get opts then
+        Compiler.compiler.checkMeta.set opts false
+      else
+        Compiler.compiler.relaxedMetaCheck.set opts true) do
     Term.elabMutualDef #[] { header := "" } #[defView]
   assert! (← getEnv).contains declName
   unless allowSorry do

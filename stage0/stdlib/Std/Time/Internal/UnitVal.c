@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 lean_object* lean_nat_to_int(lean_object*);
+static lean_once_cell_t l_Std_Time_Internal_instInhabitedUnitVal_default___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Time_Internal_instInhabitedUnitVal_default___closed__0;
 LEAN_EXPORT lean_object* l_Std_Time_Internal_instInhabitedUnitVal_default(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Internal_instInhabitedUnitVal_default___boxed(lean_object*);
@@ -124,7 +125,7 @@ LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_cast___redArg(lean_object*)
 LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_cast___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_cast(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_cast___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* _init_l_Std_Time_Internal_instInhabitedUnitVal_default___closed__0() {
+static lean_object* _init_l_Std_Time_Internal_instInhabitedUnitVal_default___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -137,7 +138,7 @@ LEAN_EXPORT lean_object* l_Std_Time_Internal_instInhabitedUnitVal_default(lean_o
 _start:
 {
 lean_object* x_2; 
-x_2 = l_Std_Time_Internal_instInhabitedUnitVal_default___closed__0;
+x_2 = lean_obj_once(&l_Std_Time_Internal_instInhabitedUnitVal_default___closed__0, &l_Std_Time_Internal_instInhabitedUnitVal_default___closed__0_once, _init_l_Std_Time_Internal_instInhabitedUnitVal_default___closed__0);
 return x_2;
 }
 }
@@ -734,7 +735,7 @@ LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_instRepr___lam__0(lean_obje
 _start:
 {
 lean_object* x_3; uint8_t x_4; 
-x_3 = l_Std_Time_Internal_instInhabitedUnitVal_default___closed__0;
+x_3 = lean_obj_once(&l_Std_Time_Internal_instInhabitedUnitVal_default___closed__0, &l_Std_Time_Internal_instInhabitedUnitVal_default___closed__0_once, _init_l_Std_Time_Internal_instInhabitedUnitVal_default___closed__0);
 x_4 = lean_int_dec_lt(x_1, x_3);
 if (x_4 == 0)
 {
@@ -855,7 +856,7 @@ LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_instToString___lam__0(lean_
 _start:
 {
 lean_object* x_2; uint8_t x_3; 
-x_2 = l_Std_Time_Internal_instInhabitedUnitVal_default___closed__0;
+x_2 = lean_obj_once(&l_Std_Time_Internal_instInhabitedUnitVal_default___closed__0, &l_Std_Time_Internal_instInhabitedUnitVal_default___closed__0_once, _init_l_Std_Time_Internal_instInhabitedUnitVal_default___closed__0);
 x_3 = lean_int_dec_lt(x_1, x_2);
 if (x_3 == 0)
 {
@@ -941,6 +942,30 @@ lean_dec_ref(x_1);
 return x_5;
 }
 }
+lean_object* runtime_initialize_Init_Data_Order_Ord(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Rat_Basic(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Std_Time_Internal_UnitVal(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Init_Data_Order_Ord(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Rat_Basic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Std_Time_Internal_UnitVal(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Init_Data_Order_Ord(uint8_t builtin);
 lean_object* initialize_Init_Data_Rat_Basic(uint8_t builtin);
 static bool _G_initialized = false;
@@ -948,15 +973,23 @@ LEAN_EXPORT lean_object* initialize_Std_Time_Internal_UnitVal(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Order_Ord(builtin);
+res = initialize_Init_Data_Order_Ord(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Rat_Basic(builtin);
+res = initialize_Init_Data_Rat_Basic(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Std_Time_Internal_instInhabitedUnitVal_default___closed__0 = _init_l_Std_Time_Internal_instInhabitedUnitVal_default___closed__0();
-lean_mark_persistent(l_Std_Time_Internal_instInhabitedUnitVal_default___closed__0);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Std_Time_Internal_UnitVal(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Std_Time_Internal_UnitVal(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Std_Time_Internal_UnitVal(builtin);
 }
 #ifdef __cplusplus
 }

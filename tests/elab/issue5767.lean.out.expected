@@ -1,0 +1,16 @@
+issue5767.lean:12:4-12:7: warning: declaration uses `sorry`
+issue5767.lean:12:4-12:7: warning: declaration uses `sorry`
+issue5767.lean:12:4-12:7: warning: declaration uses `sorry`
+issue5767.lean:12:4-12:7: warning: declaration uses `sorry`
+issue5767.lean:12:4-12:7: warning: declaration uses `sorry`
+issue5767.lean:12:4-12:7: warning: declaration uses `sorry`
+issue5767.lean:12:4-12:7: warning: declaration uses `sorry`
+issue5767.lean:11:0-21:25: warning: declaration uses `sorry`
+issue5767.lean:44:4-44:7: warning: declaration uses `sorry`
+issue5767.lean:44:4-44:7: warning: declaration uses `sorry`
+issue5767.lean:44:4-44:7: warning: declaration uses `sorry`
+issue5767.lean:44:4-44:7: warning: declaration uses `sorry`
+issue5767.lean:44:4-44:7: warning: declaration uses `sorry`
+issue5767.lean:44:4-44:7: warning: declaration uses `sorry`
+issue5767.lean:44:4-44:7: warning: declaration uses `sorry`
+issue5767.lean:43:0-53:25: warning: declaration uses `sorry`

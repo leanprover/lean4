@@ -1,0 +1,7 @@
+Try these:
+  [apply] [grind =] for pattern: [@List.map #4 #3 #2 (@HAppend.hAppend (List _) (List _) (List _) _ #1 #0)]
+  [apply] [grind
+    =_] for pattern: [@HAppend.hAppend (List #3) (List _) (List _) _ (@List.map #4 _ #2 #1) (@List.map _ _ #2 #0)]
+Try these:
+  [apply] [grind =] for pattern: [f `[a]]
+  [apply] [grind =_] for pattern: [@OfNat.ofNat `[Nat] `[11] `[instOfNatNat 11]]

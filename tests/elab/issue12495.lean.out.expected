@@ -1,0 +1,4 @@
+test.eq_unfold : test = fun self =>
+  match self with
+  | { base? := none } => []
+  | { base? := some base } => base :: test base.data

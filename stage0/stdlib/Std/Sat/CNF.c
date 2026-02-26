@@ -13,6 +13,45 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* runtime_initialize_Std_Sat_CNF_Basic(uint8_t builtin);
+lean_object* runtime_initialize_Std_Sat_CNF_Literal(uint8_t builtin);
+lean_object* runtime_initialize_Std_Sat_CNF_Relabel(uint8_t builtin);
+lean_object* runtime_initialize_Std_Sat_CNF_RelabelFin(uint8_t builtin);
+lean_object* runtime_initialize_Std_Sat_CNF_Dimacs(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Std_Sat_CNF(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Std_Sat_CNF_Basic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Std_Sat_CNF_Literal(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Std_Sat_CNF_Relabel(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Std_Sat_CNF_RelabelFin(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Std_Sat_CNF_Dimacs(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Std_Sat_CNF(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Std_Sat_CNF_Basic(uint8_t builtin);
 lean_object* initialize_Std_Sat_CNF_Literal(uint8_t builtin);
 lean_object* initialize_Std_Sat_CNF_Relabel(uint8_t builtin);
@@ -23,22 +62,35 @@ LEAN_EXPORT lean_object* initialize_Std_Sat_CNF(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Std_Sat_CNF_Basic(builtin);
+res = initialize_Std_Sat_CNF_Basic(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Sat_CNF_Literal(builtin);
+res = initialize_Std_Sat_CNF_Literal(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Sat_CNF_Relabel(builtin);
+res = initialize_Std_Sat_CNF_Relabel(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Sat_CNF_RelabelFin(builtin);
+res = initialize_Std_Sat_CNF_RelabelFin(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Sat_CNF_Dimacs(builtin);
+res = initialize_Std_Sat_CNF_Dimacs(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Std_Sat_CNF(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Std_Sat_CNF(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Std_Sat_CNF(builtin);
 }
 #ifdef __cplusplus
 }

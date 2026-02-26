@@ -13,7 +13,7 @@ public import Lean.Compiler.IR.SimpCase
 public import Lean.Compiler.ModPkgExt
 import Lean.Compiler.LCNF.Types
 import Lean.Compiler.ClosedTermCache
-import Lean.Compiler.IR.SimpleGroundExpr
+import Lean.Compiler.LCNF.SimpleGroundExpr
 import Init.Omega
 import Init.While
 import Init.Data.Range.Polymorphic.Iterators
@@ -22,7 +22,9 @@ import Lean.Runtime
 public section
 
 namespace Lean.IR.EmitC
-open Lean.Compiler.LCNF (isBoxedName)
+open Lean.Compiler.LCNF (isBoxedName isSimpleGroundDecl getSimpleGroundExpr
+  getSimpleGroundExprWithResolvedRefs uint64ToByteArrayLE SimpleGroundExpr SimpleGroundArg
+  addSimpleGroundDecl)
 
 def leanMainFn := "_lean_main"
 
@@ -39,9 +41,9 @@ abbrev M := ReaderT Context (EStateM String String)
 
 @[inline] def getModName : M Name := Context.modName <$> read
 
-@[inline] def getModInitFn : M String := do
+@[inline] def getModInitFn (phases : IRPhases) : M String := do
   let pkg? := (← getEnv).getModulePackage?
-  return mkModuleInitializationFunctionName (← getModName) pkg?
+  return mkModuleInitializationFunctionName (phases := phases) (← getModName) pkg?
 
 def getDecl (n : Name) : M Decl := do
   let env ← getEnv
@@ -222,7 +224,7 @@ where
         break
     return mkValueName (← toCName decl)
 
-  compileCtor (cidx : Nat) (objArgs : Array SimpleGroundArg) (usizeArgs : Array USize)
+  compileCtor (cidx : Nat) (objArgs : Array SimpleGroundArg) (usizeArgs : Array UInt64)
       (scalarArgs : Array UInt8) : GroundM String := do
     let header := mkCtorHeader objArgs.size usizeArgs.size scalarArgs.size cidx
     let objArgs ← objArgs.mapM groundArgToCLit
@@ -253,17 +255,27 @@ where
   mkHeader {α : Type} [ToString α] (csSz : α) (other : Nat) (tag : Nat) : String :=
     s!"\{.m_rc = 0, .m_cs_sz = {csSz}, .m_other = {other}, .m_tag = {tag}}"
 
+def toTokenName (cppBaseName : String) : String :=
+  s!"{cppBaseName}_once"
+
+def emitFnClosedDecl (decl : Decl) (cppBaseName : String) : M Unit := do
+  emitLn s!"static lean_once_cell_t {toTokenName cppBaseName} = LEAN_ONCE_CELL_INITIALIZER;"
+  emitLn s!"static {toCType decl.resultType} {cppBaseName};"
+
 def emitFnDeclAux (decl : Decl) (cppBaseName : String) (isExternal : Bool) : M Unit := do
   let ps := decl.params
   let env ← getEnv
 
   if isSimpleGroundDecl env decl.name then
     emitGroundDecl decl cppBaseName
+  else if isClosedTermName env decl.name then
+    emitFnClosedDecl decl cppBaseName
   else
     if ps.isEmpty then
-      if isExternal then emit "extern "
-      else if isClosedTermName env decl.name then emit "static "
-      else emit "LEAN_EXPORT "
+      if isExternal then
+        emit "extern "
+      else
+        emit "LEAN_EXPORT "
     else
       if !isExternal then emit "LEAN_EXPORT "
     emit (toCType decl.resultType ++ " " ++ cppBaseName)
@@ -333,7 +345,7 @@ def emitMainFn : M Unit := do
     /- We disable panic messages because they do not mesh well with extracted closed terms.
        See issue #534. We can remove this workaround after we implement issue #467. -/
     emitLn "lean_set_panic_messages(false);"
-    emitLn s!"res = {← getModInitFn}(1 /* builtin */);"
+    emitLn s!"res = {← getModInitFn (phases := if env.header.isModule then .runtime else .all)}(1 /* builtin */);"
     emitLn "lean_set_panic_messages(true);"
     emitLns ["lean_io_mark_end_initialization();",
              "if (lean_io_result_is_ok(res)) {",
@@ -460,7 +472,7 @@ def emitDec (x : VarId) (n : Nat) (checkRef : Bool) : M Unit := do
   emitLn ");"
 
 def emitDel (x : VarId) : M Unit := do
-  emit "lean_free_object("; emit x; emitLn ");"
+  emit "lean_del_object("; emit x; emitLn ");"
 
 def emitSetTag (x : VarId) (i : Nat) : M Unit := do
   emit "lean_ctor_set_tag("; emit x; emit ", "; emit i; emitLn ");"
@@ -588,18 +600,35 @@ def emitExternCall (f : FunId) (ps : Array Param) (extData : ExternAttrData) (ys
   | some (ExternEntry.inline _ pat)     => do emit (expandExternPattern pat (toStringArgs ys)); emitLn ";"
   | _ => throw s!"failed to emit extern application '{f}'"
 
-def emitLeanFunReference (f : FunId) : M Unit := do
-  if isSimpleGroundDecl (← getEnv) f then
+def emitLeanFunReference (t : IRType) (f : FunId) : M Unit := do
+  let env ← getEnv
+  if isSimpleGroundDecl env f then
     emit s!"((lean_object*)({← toCName f}))"
+  else if isClosedTermName env f then
+    emitClosedTermRead t f
   else
     emitCName f
+where
+  emitClosedTermRead (t : IRType) (f : FunId) : M Unit := do
+    let fn ←
+      match t with
+      | .float => pure "lean_float_once"
+      | .float32 => pure "lean_float32_once"
+      | .uint8 => pure "lean_uint8_once"
+      | .uint16 => pure "lean_uint16_once"
+      | .uint32 => pure "lean_uint32_once"
+      | .uint64 => pure "lean_uint64_once"
+      | .usize => pure "lean_usize_once"
+      | .object | .tobject | .tagged | .void => pure "lean_obj_once"
+      | _ => throw s!"failed to emit closed term read for '{f}'"
+    emit s!"{fn}(&{← toCName f}, &{toTokenName (← toCName f)}, {← toCInitName f})"
 
-def emitFullApp (z : VarId) (f : FunId) (ys : Array Arg) : M Unit := do
+def emitFullApp (z : VarId) (t : IRType) (f : FunId) (ys : Array Arg) : M Unit := do
   emitLhs z
   let decl ← getDecl f
   match decl with
   | .fdecl (xs := ps) .. | .extern (xs := ps) (ext := { entries := [.opaque], .. }) .. =>
-    emitLeanFunReference f
+    emitLeanFunReference t f
     if ys.size > 0 then
       let (ys, _) := ys.zip ps |>.filter (fun (_, p) => !p.ty.isVoid) |>.unzip
       emit "("; emitArgs ys; emit ")"
@@ -676,7 +705,7 @@ def emitVDecl (z : VarId) (t : IRType) (v : Expr) : M Unit :=
   | Expr.proj i x       => emitProj z i x
   | Expr.uproj i x      => emitUProj z i x
   | Expr.sproj n o x    => emitSProj z t n o x
-  | Expr.fap c ys       => emitFullApp z c ys
+  | Expr.fap c ys       => emitFullApp z t c ys
   | Expr.pap c ys       => emitPartialApp z c ys
   | Expr.ap x ys        => emitApp z x ys
   | Expr.box t x        => emitBox z x t
@@ -831,7 +860,7 @@ def emitDeclAux (d : Decl) : M Unit := do
             emit (toCType x.ty); emit " "; emit x.x
         emit ")"
       else
-        emit ("_init_" ++ baseName ++ "()")
+        emit ("_init_" ++ baseName ++ "(void)")
       emitLn " {";
       if xs.size > closureMaxArgs && isBoxedName d.name then
         xs.size.forM fun i _ => do
@@ -860,24 +889,21 @@ def emitMarkPersistent (d : Decl) (n : Name) : M Unit := do
     emitCName n
     emitLn ");"
 
-def emitDeclInit (d : Decl) : M Unit := do
+def withErrRet (emitIORes : M Unit) : M Unit := do
+    emit "res = "; emitIORes; emitLn ";"
+    emitLn "if (lean_io_result_is_error(res)) return res;"
+
+def emitDeclInit (d : Decl) (isBuiltin : Bool) : M Unit := do
   let env ← getEnv
   let n := d.name
-  if isIOUnitInitFn env n then
-    if isIOUnitBuiltinInitFn env n then
-      emit "if (builtin) {"
-    emit "res = "; emitCName n; emitLn "();"
-    emitLn "if (lean_io_result_is_error(res)) return res;"
+  if (isBuiltin && isIOUnitBuiltinInitFn env n) || isIOUnitInitFn env n then
+    withErrRet do
+      emitCName n; emitLn "()"
     emitLn "lean_dec_ref(res);"
-    if isIOUnitBuiltinInitFn env n then
-      emit "}"
   else if d.params.size == 0 then
-    match getInitFnNameFor? env d.name with
-    | some initFn =>
-      if getBuiltinInitFnNameFor? env d.name |>.isSome then
-        emit "if (builtin) {"
-      emit "res = "; emitCName initFn; emitLn "();"
-      emitLn "if (lean_io_result_is_error(res)) return res;"
+    if let some initFn := (guard isBuiltin *> getBuiltinInitFnNameFor? env d.name) <|> getInitFnNameFor? env d.name then
+      withErrRet do
+        emitCName initFn; emitLn "()"
       emitCName n
       if d.resultType.isScalar then
         emitLn (" = " ++ getUnboxOpName d.resultType ++ "(lean_io_result_get_value(res));")
@@ -885,41 +911,78 @@ def emitDeclInit (d : Decl) : M Unit := do
         emitLn " = lean_io_result_get_value(res);"
         emitMarkPersistent d n
       emitLn "lean_dec_ref(res);"
-      if getBuiltinInitFnNameFor? env d.name |>.isSome then
-        emit "}"
-    | _ =>
-      if !isSimpleGroundDecl env d.name then
-        emitCName n; emit " = "; emitCInitName n; emitLn "();"; emitMarkPersistent d n
+    else if !isClosedTermName env d.name && !isSimpleGroundDecl env d.name then
+      emitCName n; emit " = "; emitCInitName n; emitLn "();"; emitMarkPersistent d n
 
-def emitInitFn : M Unit := do
+def emitInitFn (phases : IRPhases) : M Unit := do
   let env ← getEnv
-  let impInitFns ← env.imports.mapM fun imp => do
+  let impInitFns ← env.imports.filterMapM fun imp => do
+    if phases != .all && imp.isMeta != (phases == .comptime) then
+      return none
+    let some idx := env.getModuleIdx? imp.module
+      | throw "(internal) import without module index" -- should be unreachable
+    let pkg? := env.getModulePackageByIdx? idx
+    let fn := mkModuleInitializationFunctionName (phases := if phases == .all then .all else if imp.isMeta then .runtime else phases) imp.module pkg?
+    emitLn s!"lean_object* {fn}(uint8_t builtin);"
+    return some fn
+  let initialized := s!"_G_{mkModuleInitializationPrefix phases}initialized"
+  emitLns [
+    s!"static bool {initialized} = false;",
+    s!"LEAN_EXPORT lean_object* {← getModInitFn (phases := phases)}(uint8_t builtin) \{",
+    "lean_object * res;",
+    s!"if ({initialized}) return lean_io_result_mk_ok(lean_box(0));",
+    s!"{initialized} = true;"
+  ]
+  impInitFns.forM fun fn => do
+    withErrRet do
+      emitLn s!"{fn}(builtin)"
+    emitLn "lean_dec_ref(res);"
+  let decls := getDecls env
+  for d in decls.reverse do
+    if phases == .all || (phases == .comptime) == isMarkedMeta env d.name then
+      emitDeclInit d (isBuiltin := phases != .comptime)
+  emitLns ["return lean_io_result_mk_ok(lean_box(0));", "}"]
+
+/-- Init function used before phase split under module system, keep for compatibility. -/
+def emitLegacyInitFn : M Unit := do
+  let env ← getEnv
+  let impInitFns ← env.imports.filterMapM fun imp => do
     let some idx := env.getModuleIdx? imp.module
       | throw "(internal) import without module index" -- should be unreachable
     let pkg? := env.getModulePackageByIdx? idx
     let fn := mkModuleInitializationFunctionName imp.module pkg?
     emitLn s!"lean_object* {fn}(uint8_t builtin);"
-    return fn
+    return some fn
+  let initialized := s!"_G_initialized"
   emitLns [
-    "static bool _G_initialized = false;",
-    s!"LEAN_EXPORT lean_object* {← getModInitFn}(uint8_t builtin) \{",
+    s!"static bool {initialized} = false;",
+    s!"LEAN_EXPORT lean_object* {← getModInitFn (phases := .all)}(uint8_t builtin) \{",
     "lean_object * res;",
-    "if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));",
-    "_G_initialized = true;"
+    s!"if ({initialized}) return lean_io_result_mk_ok(lean_box(0));",
+    s!"{initialized} = true;"
   ]
-  impInitFns.forM fun fn => emitLns [
-    s!"res = {fn}(builtin);",
-    "if (lean_io_result_is_error(res)) return res;",
-    "lean_dec_ref(res);"]
-  let decls := getDecls env
-  decls.reverse.forM emitDeclInit
-  emitLns ["return lean_io_result_mk_ok(lean_box(0));", "}"]
+  impInitFns.forM fun fn => do
+    withErrRet do
+      emitLn s!"{fn}(builtin)"
+    emitLn "lean_dec_ref(res);"
+  withErrRet do
+    emitLn s!"{← getModInitFn (phases := .runtime)}(builtin)"
+  emitLn "lean_dec_ref(res);"
+  withErrRet do
+    emitLn s!"{← getModInitFn (phases := .comptime)}(builtin)"
+  emitLn "lean_dec_ref(res);"
+  emitLns [s!"return {← getModInitFn (phases := .all)}(builtin);", "}"]
 
 def main : M Unit := do
   emitFileHeader
   emitFnDecls
   emitFns
-  emitInitFn
+  if (← getEnv).header.isModule then
+    emitInitFn (phases := .runtime)
+    emitInitFn (phases := .comptime)
+    emitLegacyInitFn
+  else
+    emitInitFn (phases := .all)
   emitMainFnIfNeeded
   emitFileFooter
 

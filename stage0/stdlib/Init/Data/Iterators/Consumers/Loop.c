@@ -174,6 +174,7 @@ LEAN_EXPORT lean_object* l_Std_Iter_first_x3f___boxed(lean_object*, lean_object*
 LEAN_EXPORT lean_object* l_Std_Iter_Total_first_x3f___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iter_Total_first_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iter_Total_first_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_once_cell_t l_Std_Iter_isEmpty___redArg___lam__1___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Iter_isEmpty___redArg___lam__1___closed__0;
 LEAN_EXPORT lean_object* l_Std_Iter_isEmpty___redArg___lam__1(lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Std_Iter_isEmpty___redArg___lam__1___boxed(lean_object*, lean_object*, lean_object*);
@@ -2483,7 +2484,7 @@ lean_dec(x_3);
 return x_7;
 }
 }
-static lean_object* _init_l_Std_Iter_isEmpty___redArg___lam__1___closed__0() {
+static lean_object* _init_l_Std_Iter_isEmpty___redArg___lam__1___closed__0(void) {
 _start:
 {
 uint8_t x_1; lean_object* x_2; lean_object* x_3; 
@@ -2498,7 +2499,7 @@ LEAN_EXPORT lean_object* l_Std_Iter_isEmpty___redArg___lam__1(lean_object* x_1, 
 _start:
 {
 lean_object* x_4; 
-x_4 = l_Std_Iter_isEmpty___redArg___lam__1___closed__0;
+x_4 = lean_obj_once(&l_Std_Iter_isEmpty___redArg___lam__1___closed__0, &l_Std_Iter_isEmpty___redArg___lam__1___closed__0_once, _init_l_Std_Iter_isEmpty___redArg___lam__1___closed__0);
 return x_4;
 }
 }
@@ -2786,6 +2787,35 @@ lean_dec(x_3);
 return x_6;
 }
 }
+lean_object* runtime_initialize_Init_Data_Iterators_Consumers_Monadic_Loop(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Iterators_Consumers_Partial(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Iterators_Consumers_Total(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Iterators_Consumers_Loop(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Init_Data_Iterators_Consumers_Monadic_Loop(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Iterators_Consumers_Partial(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Iterators_Consumers_Total(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Init_Data_Iterators_Consumers_Loop(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Init_Data_Iterators_Consumers_Monadic_Loop(uint8_t builtin);
 lean_object* initialize_Init_Data_Iterators_Consumers_Partial(uint8_t builtin);
 lean_object* initialize_Init_Data_Iterators_Consumers_Total(uint8_t builtin);
@@ -2794,18 +2824,27 @@ LEAN_EXPORT lean_object* initialize_Init_Data_Iterators_Consumers_Loop(uint8_t b
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Iterators_Consumers_Monadic_Loop(builtin);
+res = initialize_Init_Data_Iterators_Consumers_Monadic_Loop(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Iterators_Consumers_Partial(builtin);
+res = initialize_Init_Data_Iterators_Consumers_Partial(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Iterators_Consumers_Total(builtin);
+res = initialize_Init_Data_Iterators_Consumers_Total(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Std_Iter_isEmpty___redArg___lam__1___closed__0 = _init_l_Std_Iter_isEmpty___redArg___lam__1___closed__0();
-lean_mark_persistent(l_Std_Iter_isEmpty___redArg___lam__1___closed__0);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Init_Data_Iterators_Consumers_Loop(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Init_Data_Iterators_Consumers_Loop(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Init_Data_Iterators_Consumers_Loop(builtin);
 }
 #ifdef __cplusplus
 }

@@ -99,6 +99,15 @@ theorem Slice.utf8ByteSize_eq_size_toByteArray_copy {s : Slice} :
     s.utf8ByteSize = s.copy.toByteArray.size := by
   simp [utf8ByteSize_eq]
 
+@[ext (iff := false)]
+theorem Slice.ext {s t : Slice} (h : s.str = t.str)
+    (hsi : s.startInclusive.cast h = t.startInclusive)
+    (hee : s.endExclusive.cast h = t.endExclusive) : s = t := by
+  rcases s with ⟨s, s₁, e₁, h₁⟩
+  rcases t with ⟨t, s₂, e₂, h₂⟩
+  cases h
+  simp_all
+
 section Iterate
 
 /-
@@ -106,32 +115,71 @@ These lemmas are slightly evil because they are non-definitional equalities betw
 are useful and they are at least equalities between slices with definitionally equal underlying
 strings, so it should be fine.
 -/
-set_option backward.isDefEq.respectTransparency false in
 @[simp]
 theorem Slice.sliceTo_sliceFrom {s : Slice} {pos pos'} :
     (s.sliceFrom pos).sliceTo pos' =
       s.slice pos (Slice.Pos.ofSliceFrom pos') Slice.Pos.le_ofSliceFrom := by
-  ext <;> simp [String.Pos.ext_iff, Pos.Raw.offsetBy_assoc]
+  ext <;> simp [Pos.Raw.offsetBy_assoc]
 
-set_option backward.isDefEq.respectTransparency false in
 @[simp]
 theorem Slice.sliceFrom_sliceTo {s : Slice} {pos pos'} :
     (s.sliceTo pos).sliceFrom pos' =
       s.slice (Slice.Pos.ofSliceTo pos') pos Slice.Pos.ofSliceTo_le := by
-  ext <;> simp [String.Pos.ext_iff]
+  ext <;> simp
 
-set_option backward.isDefEq.respectTransparency false in
 @[simp]
 theorem Slice.sliceFrom_sliceFrom {s : Slice} {pos pos'} :
     (s.sliceFrom pos).sliceFrom pos' =
       s.sliceFrom (Slice.Pos.ofSliceFrom pos') := by
-  ext <;> simp [String.Pos.ext_iff, Pos.Raw.offsetBy_assoc]
+  ext <;> simp [Pos.Raw.offsetBy_assoc]
 
-set_option backward.isDefEq.respectTransparency false in
 @[simp]
 theorem Slice.sliceTo_sliceTo {s : Slice} {pos pos'} :
     (s.sliceTo pos).sliceTo pos' = s.sliceTo (Slice.Pos.ofSliceTo pos') := by
-  ext <;> simp [String.Pos.ext_iff]
+  ext <;> simp
+
+@[simp]
+theorem Slice.sliceFrom_slice {s : Slice} {p₁ p₂ h p} :
+    (s.slice p₁ p₂ h).sliceFrom p = s.slice (Pos.ofSlice p) p₂ Pos.ofSlice_le := by
+  ext <;> simp [Nat.add_assoc]
+
+@[simp]
+theorem Slice.sliceTo_slice {s : Slice} {p₁ p₂ h p} :
+    (s.slice p₁ p₂ h).sliceTo p = s.slice p₁ (Pos.ofSlice p) Pos.le_ofSlice := by
+  ext <;> simp [Nat.add_assoc]
+
+@[simp]
+theorem sliceTo_sliceFrom {s : String} {pos pos'} :
+    (s.sliceFrom pos).sliceTo pos' =
+      s.slice pos (Pos.ofSliceFrom pos') Pos.le_ofSliceFrom := by
+  ext <;> simp
+
+@[simp]
+theorem sliceFrom_sliceTo {s : String} {pos pos'} :
+    (s.sliceTo pos).sliceFrom pos' =
+      s.slice (Pos.ofSliceTo pos') pos Pos.ofSliceTo_le := by
+  ext <;> simp
+
+@[simp]
+theorem sliceFrom_sliceFrom {s : String} {pos pos'} :
+    (s.sliceFrom pos).sliceFrom pos' =
+      s.sliceFrom (Pos.ofSliceFrom pos') := by
+  ext <;> simp
+
+@[simp]
+theorem sliceTo_sliceTo {s : String} {pos pos'} :
+    (s.sliceTo pos).sliceTo pos' = s.sliceTo (Pos.ofSliceTo pos') := by
+  ext <;> simp
+
+@[simp]
+theorem sliceFrom_slice {s : String} {p₁ p₂ h p} :
+    (s.slice p₁ p₂ h).sliceFrom p = s.slice (Pos.ofSlice p) p₂ Pos.ofSlice_le := by
+  ext <;> simp
+
+@[simp]
+theorem sliceTo_slice {s : String} {p₁ p₂ h p} :
+    (s.slice p₁ p₂ h).sliceTo p = s.slice p₁ (Pos.ofSlice p) Pos.le_ofSlice := by
+  ext <;> simp
 
 end Iterate
 
@@ -175,5 +223,8 @@ theorem Pos.Raw.isValidForSlice_zero {s : Slice} : (0 : Pos.Raw).IsValidForSlice
 theorem Pos.get_ofToSlice {s : String} {p : (s.toSlice).Pos} {h} :
     (ofToSlice p).get h = p.get (by simpa [← ofToSlice_inj]) := by
   simp [get_eq_get_toSlice]
+
+@[simp]
+theorem push_empty {c : Char} : "".push c = singleton c := rfl
 
 end String

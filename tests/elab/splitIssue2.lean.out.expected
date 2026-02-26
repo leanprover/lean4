@@ -1,0 +1,20 @@
+splitIssue2.lean:17:8-17:25: warning: declaration uses `sorry`
+splitIssue2.lean:19:8-19:19: warning: declaration uses `sorry`
+splitIssue2.lean:39:8-39:17: warning: declaration uses `sorry`
+splitIssue2.lean:49:4-49:8: warning: declaration uses `sorry`
+splitIssue2.lean:49:4-49:8: warning: declaration uses `sorry`
+splitIssue2.lean:49:4-49:8: warning: declaration uses `sorry`
+splitIssue2.lean:49:4-49:8: warning: declaration uses `sorry`
+splitIssue2.lean:49:4-49:8: warning: declaration uses `sorry`
+splitIssue2.lean:49:4-49:8: warning: declaration uses `sorry`
+splitIssue2.lean:49:4-49:8: warning: declaration uses `sorry`
+splitIssue2.lean:49:4-49:8: warning: declaration uses `sorry`
+splitIssue2.lean:49:4-49:8: warning: declaration uses `sorry`
+splitIssue2.lean:48:0-57:41: warning: declaration uses `sorry`
+splitIssue2.lean:64:20-64:39: warning: This simp argument is unused:
+  Array.length_toList
+
+Hint: Omit it from the simp argument list.
+  simp only [rootD, A̵r̵r̵a̵y̵.̵l̵e̵n̵g̵t̵h̵_̵t̵o̵L̵i̵s̵t̵,̵ ̵parent_lt]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`

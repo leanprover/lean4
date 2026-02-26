@@ -12,6 +12,17 @@ public import Lean.Meta.Sym.Simp.Theorems
 import Lean.Meta.Tactic.AuxLemma
 import Lean.Meta.AppBuilder
 
+/-!
+# `@[cbv_eval]` Attribute and Extension
+
+Environment extension for user-provided `cbv` rewrite rules. Each theorem is converted
+to a `Sym.Simp.Theorem` (precomputed `Pattern` + `DiscrTree` key) and indexed by the
+head constant on its LHS.
+
+`@[cbv_eval ←]` inverts the theorem: an auxiliary lemma with swapped sides is created
+via `mkAuxLemma`.
+-/
+
 public section
 namespace Lean.Meta.Sym.Simp
 
@@ -31,6 +42,8 @@ structure CbvEvalEntry where
   thm  : Theorem
   deriving BEq, Inhabited
 
+/-- Create a `CbvEvalEntry` from a theorem declaration. When `inv = true`, creates an
+auxiliary lemma with swapped sides so the theorem can be used for right-to-left rewriting. -/
 def mkCbvTheoremFromConst (declName : Name) (inv : Bool := false) : MetaM CbvEvalEntry := do
   let cinfo ← getConstVal declName
   let us := cinfo.levelParams.map mkLevelParam

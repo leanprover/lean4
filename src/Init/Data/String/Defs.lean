@@ -403,7 +403,6 @@ achieved by tracking the bounds by hand, the slice API is much more convenient.
 `String.Slice` bundles proofs to ensure that the start and end positions always delineate a valid
 string. For this reason, it should be preferred over `Substring.Raw`.
 -/
-@[ext]
 structure Slice where
   /-- The underlying strings. -/
   str : String

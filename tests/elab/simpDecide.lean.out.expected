@@ -1,0 +1,7 @@
+simpDecide.lean:16:44-16:51: warning: This simp argument is unused:
+  fib_two
+
+Hint: Omit it from the simp argument list.
+  simp (config := { decide := true }) only ̵[̵f̵i̵b̵_̵t̵w̵o̵]̵
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`

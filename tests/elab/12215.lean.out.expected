@@ -1,0 +1,8 @@
+[Meta.MkIffOfInductiveProp] Generating existential form of test1.Foo._functor
+[Meta.MkIffOfInductiveProp] Existential form is: fun test1.Foo._functor.call {n} a => (∃ m, n = m + 1) ∨ n = 1
+[Meta.MkIffOfInductiveProp] The type of proof of equivalence: ∀ (test1.Foo._functor.call : {n : Nat} → Fin n → Prop)
+      {n : Nat} (a : Fin n), Foo._functor test1.Foo._functor.call a ↔ (∃ m, n = m + 1) ∨ n = 1
+[Meta.MkIffOfInductiveProp] Generating existential form of test2.Foo._functor
+[Meta.MkIffOfInductiveProp] Existential form is: fun test2.Foo._functor.call n a => (∃ m, n = m + 1) ∨ n = 1
+[Meta.MkIffOfInductiveProp] The type of proof of equivalence: ∀ (test2.Foo._functor.call : (n : Nat) → Fin n → Prop)
+      (n : Nat) (a : Fin n), Foo._functor test2.Foo._functor.call n a ↔ (∃ m, n = m + 1) ∨ n = 1

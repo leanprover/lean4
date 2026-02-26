@@ -1,0 +1,51 @@
+calc.lean:15:0-15:8: warning: declaration uses `sorry`
+calc.lean:18:0-25:3: warning: automatically included section variable(s) unused in theorem `foo₁`:
+  pf23
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit pf23 in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+calc.lean:28:0-32:20: warning: automatically included section variable(s) unused in theorem `foo₂`:
+  pf23
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit pf23 in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+calc.lean:35:0-40:19: warning: automatically included section variable(s) unused in theorem `foo₃`:
+  pf23
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit pf23 in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+calc.lean:43:0-47:23: warning: automatically included section variable(s) unused in theorem `foo₄`:
+  pf23
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit pf23 in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+calc.lean:50:0-57:19: warning: automatically included section variable(s) unused in theorem `foo₅`:
+  pf23'
+  pf45'
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit pf23' pf45' in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+calc.lean:60:0-65:19: warning: automatically included section variable(s) unused in theorem `foo₆`:
+  pf23'
+  pf45'
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit pf23' pf45' in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+calc.lean:68:0-73:19: warning: automatically included section variable(s) unused in theorem `foo₇`:
+  pf23
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit pf23 in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+calc.lean:76:0-81:19: warning: automatically included section variable(s) unused in theorem `foo₈`:
+  pf23
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit pf23 in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`

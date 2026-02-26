@@ -1,0 +1,2 @@
+bv_decide_rewriter.lean:689:0-689:7: warning: declaration uses `sorry`
+bv_decide_rewriter.lean:702:0-702:7: warning: declaration uses `sorry`

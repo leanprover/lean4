@@ -15,13 +15,14 @@ extern "C" {
 #endif
 lean_object* l_instDecidableEqPUnit___boxed(lean_object*, lean_object*);
 lean_object* l_instBEqOfDecidableEq___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
+static lean_once_cell_t l_Std_TreeSet_Raw_instDecidableEquiv___redArg___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_TreeSet_Raw_instDecidableEquiv___redArg___closed__0;
 uint8_t l_Std_TreeMap_Raw_instDecidableEquiv___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_TreeSet_Raw_instDecidableEquiv___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeSet_Raw_instDecidableEquiv___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_TreeSet_Raw_instDecidableEquiv(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeSet_Raw_instDecidableEquiv___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* _init_l_Std_TreeSet_Raw_instDecidableEquiv___redArg___closed__0() {
+static lean_object* _init_l_Std_TreeSet_Raw_instDecidableEquiv___redArg___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -35,7 +36,7 @@ LEAN_EXPORT uint8_t l_Std_TreeSet_Raw_instDecidableEquiv___redArg(lean_object* x
 _start:
 {
 lean_object* x_4; uint8_t x_5; 
-x_4 = l_Std_TreeSet_Raw_instDecidableEquiv___redArg___closed__0;
+x_4 = lean_obj_once(&l_Std_TreeSet_Raw_instDecidableEquiv___redArg___closed__0, &l_Std_TreeSet_Raw_instDecidableEquiv___redArg___closed__0_once, _init_l_Std_TreeSet_Raw_instDecidableEquiv___redArg___closed__0);
 x_5 = l_Std_TreeMap_Raw_instDecidableEquiv___redArg(x_1, x_4, x_2, x_3);
 return x_5;
 }
@@ -66,6 +67,30 @@ x_10 = lean_box(x_9);
 return x_10;
 }
 }
+lean_object* runtime_initialize_Std_Data_TreeMap_Raw_DecidableEquiv(uint8_t builtin);
+lean_object* runtime_initialize_Std_Data_TreeSet_Raw_Basic(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Std_Data_TreeSet_Raw_DecidableEquiv(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Std_Data_TreeMap_Raw_DecidableEquiv(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Std_Data_TreeSet_Raw_Basic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Std_Data_TreeSet_Raw_DecidableEquiv(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Std_Data_TreeMap_Raw_DecidableEquiv(uint8_t builtin);
 lean_object* initialize_Std_Data_TreeSet_Raw_Basic(uint8_t builtin);
 static bool _G_initialized = false;
@@ -73,15 +98,23 @@ LEAN_EXPORT lean_object* initialize_Std_Data_TreeSet_Raw_DecidableEquiv(uint8_t 
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Std_Data_TreeMap_Raw_DecidableEquiv(builtin);
+res = initialize_Std_Data_TreeMap_Raw_DecidableEquiv(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_TreeSet_Raw_Basic(builtin);
+res = initialize_Std_Data_TreeSet_Raw_Basic(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Std_TreeSet_Raw_instDecidableEquiv___redArg___closed__0 = _init_l_Std_TreeSet_Raw_instDecidableEquiv___redArg___closed__0();
-lean_mark_persistent(l_Std_TreeSet_Raw_instDecidableEquiv___redArg___closed__0);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Std_Data_TreeSet_Raw_DecidableEquiv(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Std_Data_TreeSet_Raw_DecidableEquiv(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Std_Data_TreeSet_Raw_DecidableEquiv(builtin);
 }
 #ifdef __cplusplus
 }

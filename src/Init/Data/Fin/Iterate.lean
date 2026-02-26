@@ -69,7 +69,7 @@ private theorem hIterateFrom_elim {P : Nat → Sort _}(Q : ∀(i : Nat), P i →
     have g : ¬ (i < n) := by simp at p; simp [p]
     have r : Q n (_root_.cast (congrArg P p) s) :=
       @Eq.rec Nat i (fun k eq => Q k (_root_.cast (congrArg P eq) s)) init n p
-    simp only [g, r, dite_false]
+    simp only [g, dite_false]; exact r
   | succ j inv =>
     unfold hIterateFrom
     have d : Nat.succ i + j = n := by simp [Nat.succ_add]; exact p

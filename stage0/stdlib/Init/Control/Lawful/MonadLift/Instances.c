@@ -116,6 +116,90 @@ x_7 = l___private_Init_Control_Lawful_MonadLift_Instances_0__ExceptT_bindCont_ma
 return x_7;
 }
 }
+lean_object* runtime_initialize_Init_Control_Option(uint8_t builtin);
+lean_object* runtime_initialize_Init_Control_Except(uint8_t builtin);
+lean_object* runtime_initialize_Init_Control_ExceptCps(uint8_t builtin);
+lean_object* runtime_initialize_Init_Control_ExceptCps(uint8_t builtin);
+lean_object* runtime_initialize_Init_Control_StateRef(uint8_t builtin);
+lean_object* runtime_initialize_Init_Control_StateCps(uint8_t builtin);
+lean_object* runtime_initialize_Init_Control_StateCps(uint8_t builtin);
+lean_object* runtime_initialize_Init_Control_Id(uint8_t builtin);
+lean_object* runtime_initialize_Init_Control_Lawful_MonadLift_Basic(uint8_t builtin);
+lean_object* runtime_initialize_Init_Control_Option(uint8_t builtin);
+lean_object* runtime_initialize_Init_Control_State(uint8_t builtin);
+lean_object* runtime_initialize_Init_Control_StateRef(uint8_t builtin);
+lean_object* runtime_initialize_Init_Control_Lawful_Instances(uint8_t builtin);
+lean_object* runtime_initialize_Init_Control_Lawful_MonadLift_Lemmas(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Init_Control_Lawful_MonadLift_Instances(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Init_Control_Option(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Control_Except(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Control_ExceptCps(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Control_ExceptCps(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Control_StateRef(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Control_StateCps(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Control_StateCps(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Control_Id(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Control_Lawful_MonadLift_Basic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Control_Option(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Control_State(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Control_StateRef(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Control_Lawful_Instances(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Control_Lawful_MonadLift_Lemmas(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Init_Control_Lawful_MonadLift_Instances(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Init_Control_Option(uint8_t builtin);
 lean_object* initialize_Init_Control_Except(uint8_t builtin);
 lean_object* initialize_Init_Control_ExceptCps(uint8_t builtin);
@@ -135,49 +219,71 @@ LEAN_EXPORT lean_object* initialize_Init_Control_Lawful_MonadLift_Instances(uint
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Control_Option(builtin);
+res = initialize_Init_Control_Option(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Control_Except(builtin);
+res = initialize_Init_Control_Except(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Control_ExceptCps(builtin);
+res = initialize_Init_Control_ExceptCps(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Control_ExceptCps(builtin);
+res = initialize_Init_Control_ExceptCps(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Control_StateRef(builtin);
+res = initialize_Init_Control_StateRef(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Control_StateCps(builtin);
+res = initialize_Init_Control_StateCps(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Control_StateCps(builtin);
+res = initialize_Init_Control_StateCps(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Control_Id(builtin);
+res = initialize_Init_Control_Id(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Control_Lawful_MonadLift_Basic(builtin);
+res = initialize_Init_Control_Lawful_MonadLift_Basic(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Control_Option(builtin);
+res = initialize_Init_Control_Option(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Control_State(builtin);
+res = initialize_Init_Control_State(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Control_StateRef(builtin);
+res = initialize_Init_Control_StateRef(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Control_Lawful_Instances(builtin);
+res = initialize_Init_Control_Lawful_Instances(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Control_Lawful_MonadLift_Lemmas(builtin);
+res = initialize_Init_Control_Lawful_MonadLift_Lemmas(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Init_Control_Lawful_MonadLift_Instances(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Init_Control_Lawful_MonadLift_Instances(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Init_Control_Lawful_MonadLift_Instances(builtin);
 }
 #ifdef __cplusplus
 }

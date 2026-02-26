@@ -22,7 +22,7 @@ lean_object* lean_uv_signal_stop(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_UV_Signal_stop___boxed(lean_object*, lean_object*);
 lean_object* lean_uv_signal_cancel(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_UV_Signal_cancel___boxed(lean_object*, lean_object*);
-static lean_object* _init_l___private_Std_Internal_UV_Signal_0__Std_Internal_UV_SignalImpl() {
+static lean_object* _init_l___private_Std_Internal_UV_Signal_0__Std_Internal_UV_SignalImpl(void) {
 _start:
 {
 return lean_box(0);
@@ -66,6 +66,36 @@ lean_dec(x_1);
 return x_3;
 }
 }
+lean_object* runtime_initialize_Init_System_Promise(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_SInt(uint8_t builtin);
+lean_object* runtime_initialize_Std_Net(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Std_Internal_UV_Signal(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Init_System_Promise(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_SInt(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Std_Net(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+l___private_Std_Internal_UV_Signal_0__Std_Internal_UV_SignalImpl = _init_l___private_Std_Internal_UV_Signal_0__Std_Internal_UV_SignalImpl();
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Std_Internal_UV_Signal(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Init_System_Promise(uint8_t builtin);
 lean_object* initialize_Init_Data_SInt(uint8_t builtin);
 lean_object* initialize_Std_Net(uint8_t builtin);
@@ -74,17 +104,27 @@ LEAN_EXPORT lean_object* initialize_Std_Internal_UV_Signal(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_System_Promise(builtin);
+res = initialize_Init_System_Promise(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_SInt(builtin);
+res = initialize_Init_Data_SInt(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Net(builtin);
+res = initialize_Std_Net(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l___private_Std_Internal_UV_Signal_0__Std_Internal_UV_SignalImpl = _init_l___private_Std_Internal_UV_Signal_0__Std_Internal_UV_SignalImpl();
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Std_Internal_UV_Signal(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Std_Internal_UV_Signal(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Std_Internal_UV_Signal(builtin);
 }
 #ifdef __cplusplus
 }

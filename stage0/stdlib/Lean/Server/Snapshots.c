@@ -29,6 +29,7 @@ static const lean_object* l_Lean_Server_Snapshots_Snapshot_infoTree___closed__1 
 static const lean_string_object l_Lean_Server_Snapshots_Snapshot_infoTree___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 50, .m_capacity = 50, .m_length = 49, .m_data = "assertion violation: infoState.trees.size == 1\n  "};
 static const lean_object* l_Lean_Server_Snapshots_Snapshot_infoTree___closed__2 = (const lean_object*)&l_Lean_Server_Snapshots_Snapshot_infoTree___closed__2_value;
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_once_cell_t l_Lean_Server_Snapshots_Snapshot_infoTree___closed__3_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Server_Snapshots_Snapshot_infoTree___closed__3;
 lean_object* l_Lean_Elab_InfoState_substituteLazy(lean_object*);
 lean_object* lean_task_get_own(lean_object*);
@@ -124,7 +125,7 @@ x_3 = lean_panic_fn(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Server_Snapshots_Snapshot_infoTree___closed__3() {
+static lean_object* _init_l_Lean_Server_Snapshots_Snapshot_infoTree___closed__3(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
@@ -159,7 +160,7 @@ if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; 
 lean_dec_ref(x_6);
-x_10 = l_Lean_Server_Snapshots_Snapshot_infoTree___closed__3;
+x_10 = lean_obj_once(&l_Lean_Server_Snapshots_Snapshot_infoTree___closed__3, &l_Lean_Server_Snapshots_Snapshot_infoTree___closed__3_once, _init_l_Lean_Server_Snapshots_Snapshot_infoTree___closed__3);
 x_11 = l_panic___at___00Lean_Server_Snapshots_Snapshot_infoTree_spec__0(x_10);
 return x_11;
 }
@@ -392,6 +393,35 @@ lean_dec_ref(x_3);
 return x_6;
 }
 }
+lean_object* runtime_initialize_Lean_Elab_Import(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_Command(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Widget_InteractiveDiagnostic(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lean_Server_Snapshots(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Lean_Elab_Import(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_Command(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Widget_InteractiveDiagnostic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lean_Server_Snapshots(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Lean_Elab_Import(uint8_t builtin);
 lean_object* initialize_Lean_Elab_Command(uint8_t builtin);
 lean_object* initialize_Lean_Widget_InteractiveDiagnostic(uint8_t builtin);
@@ -400,18 +430,27 @@ LEAN_EXPORT lean_object* initialize_Lean_Server_Snapshots(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Elab_Import(builtin);
+res = initialize_Lean_Elab_Import(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Command(builtin);
+res = initialize_Lean_Elab_Command(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Widget_InteractiveDiagnostic(builtin);
+res = initialize_Lean_Widget_InteractiveDiagnostic(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Server_Snapshots_Snapshot_infoTree___closed__3 = _init_l_Lean_Server_Snapshots_Snapshot_infoTree___closed__3();
-lean_mark_persistent(l_Lean_Server_Snapshots_Snapshot_infoTree___closed__3);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Lean_Server_Snapshots(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Lean_Server_Snapshots(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Lean_Server_Snapshots(builtin);
 }
 #ifdef __cplusplus
 }

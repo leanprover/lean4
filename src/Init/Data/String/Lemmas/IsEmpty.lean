@@ -87,6 +87,10 @@ theorem isEmpty_iff_utf8ByteSize_eq_zero {s : String} : s.isEmpty ↔ s.utf8Byte
 theorem isEmpty_iff {s : String} : s.isEmpty ↔ s = "" := by
   simp [isEmpty_iff_utf8ByteSize_eq_zero]
 
+@[simp]
+theorem isEmpty_eq_false_iff {s : String} : s.isEmpty = false ↔ s ≠ "" := by
+  simp [← isEmpty_iff]
+
 theorem startPos_ne_endPos_iff {s : String} : s.startPos ≠ s.endPos ↔ s ≠ "" := by
   simp
 
@@ -174,5 +178,35 @@ theorem Slice.toByteArray_copy_eq_empty_iff {s : Slice} :
 theorem Slice.toByteArray_copy_ne_empty_iff {s : Slice} :
     s.copy.toByteArray ≠ ByteArray.empty ↔ s.isEmpty = false := by
   simp
+
+section CopyEqEmpty
+
+-- Yes, `simp` can prove these, but we still need to mark them as simp lemmas.
+
+@[simp]
+theorem copy_slice_self {s : String} {p : s.Pos} : (s.slice p p (Pos.le_refl _)).copy = "" := by
+  simp
+
+@[simp]
+theorem copy_sliceTo_startPos {s : String} : (s.sliceTo s.startPos).copy = "" := by
+  simp
+
+@[simp]
+theorem copy_sliceFrom_startPos {s : String} : (s.sliceFrom s.endPos).copy = "" := by
+  simp
+
+@[simp]
+theorem Slice.copy_slice_self {s : Slice} {p : s.Pos} : (s.slice p p (Pos.le_refl _)).copy = "" := by
+  simp
+
+@[simp]
+theorem Slice.copy_sliceTo_startPos {s : Slice} : (s.sliceTo s.startPos).copy = "" := by
+  simp
+
+@[simp]
+theorem Slice.copy_sliceFrom_startPos {s : Slice} : (s.sliceFrom s.endPos).copy = "" := by
+  simp
+
+end CopyEqEmpty
 
 end String

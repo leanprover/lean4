@@ -71,7 +71,12 @@ public def setupFile
     | .error msg =>
       let summary := if result.failures.isEmpty then msg
         else result.toMonitorResult.failureSummary.trimAsciiEnd.toString
-      IO.println summary |>.catchExceptions fun _ => pure ()
+      let output := Json.mkObj [
+        ("summary", toJson summary),
+        ("buildDiagnostics", toJson result.toMonitorResult.allSerialMessages),
+        ("failedTargets", toJson (result.failures.map (·.caption)))
+      ]
+      IO.println output.compress |>.catchExceptions fun _ => pure ()
       return 1
 where
   print! msg := do

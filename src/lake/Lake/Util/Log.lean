@@ -271,10 +271,12 @@ end MonadLogT
 /- A Lake log. An `Array` of log entries. -/
 public structure Log where
   entries : Array LogEntry
+  /-- Structured messages preserved for cross-file diagnostics in the LSP. -/
+  serialMessages : Array SerialMessage := #[]
   deriving Inhabited
 
 public instance : ToJson Log := ⟨(toJson ·.entries)⟩
-public instance : FromJson Log := ⟨(Log.mk <$> fromJson? ·)⟩
+public instance : FromJson Log := ⟨fun j => return { entries := ← fromJson? j }⟩
 
 /-- A position in a `Log` (i.e., an array index). Can be past the log's end. -/
 public structure Log.Pos where
@@ -295,7 +297,7 @@ public instance : Max Log.Pos := maxOfLe
 namespace Log
 
 @[inline] public def empty : Log :=
-  .mk #[]
+  { entries := #[] }
 
 public instance : EmptyCollection Log := ⟨Log.empty⟩
 
@@ -312,20 +314,21 @@ public instance : EmptyCollection Log := ⟨Log.empty⟩
   ⟨log.entries.size⟩
 
 @[inline] public def push (log : Log) (e : LogEntry) : Log :=
-  .mk <| log.entries.push e
+  { log with entries := log.entries.push e }
 
 @[inline] public def append (log : Log) (o : Log) : Log :=
-  .mk <| log.entries.append o.entries
+  { entries := log.entries.append o.entries
+    serialMessages := log.serialMessages.append o.serialMessages }
 
 public instance : Append Log := ⟨Log.append⟩
 
 /-- Takes log entries between `start` (inclusive) and `stop` (exclusive). -/
 @[inline] public def extract (log : Log) (start stop : Log.Pos)  : Log :=
-  .mk <| log.entries.extract start.val stop.val
+  { entries := log.entries.extract start.val stop.val }
 
 /-- Removes log entries after `pos` (inclusive). -/
 @[inline] public def dropFrom (log : Log) (pos : Log.Pos) : Log :=
-  .mk <| log.entries.shrink pos.val
+  { log with entries := log.entries.shrink pos.val }
 
 /-- Takes log entries before `pos` (exclusive). -/
 @[inline] public def takeFrom (log : Log) (pos : Log.Pos) : Log :=
@@ -348,7 +351,7 @@ public instance : ToString Log := ⟨Log.toString⟩
   log.entries.forM fun e => logger.logEntry e
 
 @[inline] public def filter (f : LogEntry → Bool) (log : Log) : Log :=
-  .mk <| log.entries.filter f
+  { log with entries := log.entries.filter f }
 
 @[inline] public def any (f : LogEntry → Bool) (log : Log) : Bool :=
   log.entries.any f
@@ -356,6 +359,9 @@ public instance : ToString Log := ⟨Log.toString⟩
 /-- The max log level of entries in this log. If empty, returns `trace`. -/
 public def maxLv (log : Log) : LogLevel :=
   log.entries.foldl (max · ·.level) .trace
+
+@[inline] public def pushSerialMessage (log : Log) (msg : SerialMessage) : Log :=
+  { log with serialMessages := log.serialMessages.push msg }
 
 end Log
 

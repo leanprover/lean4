@@ -57,6 +57,7 @@ private structure MonitorContext where
 public structure JobFailure where
   caption : String
   errors : Array String
+  serialMessages : Array Lean.SerialMessage := #[]
 
 /-- State of the Lake build monitor. -/
 private structure MonitorState where
@@ -128,8 +129,9 @@ private def reportJob (job : OpaqueJob) : MonitorM PUnit := do
   if failed && !optional then
     let errors := log.entries.filterMap fun e =>
       if e.level ≥ .error then some e.message else none
+    let serialMsgs := log.serialMessages.filter fun m => m.severity == .error
     modify fun s => {s with
-      failures := s.failures.push { caption, errors }
+      failures := s.failures.push { caption, errors, serialMessages := serialMsgs }
       wantsRebuild := s.wantsRebuild || wantsRebuild
     }
   let inSummary := failed && !optional
@@ -208,6 +210,9 @@ public structure MonitorResult where
 
 @[inline] def MonitorResult.isOk (self : MonitorResult) : Bool :=
   self.failures.isEmpty
+
+public def MonitorResult.allSerialMessages (self : MonitorResult) : Array Lean.SerialMessage :=
+  self.failures.foldl (init := #[]) fun acc f => acc ++ f.serialMessages
 
 /-- Format the failure summary as a plain-text string. -/
 public def MonitorResult.failureSummary (self : MonitorResult) : String := Id.run do

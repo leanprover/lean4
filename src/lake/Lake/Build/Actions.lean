@@ -64,6 +64,7 @@ public def compileLeanModule
           logInfo s!"stdout:\n{txt}"
         let msg := {msg with fileName := mkRelPathString relLeanFile}
         logSerialMessage msg
+        modify fun log => log.pushSerialMessage msg
         return txt
       else if txt.isEmpty && ln.isEmpty then
         return txt

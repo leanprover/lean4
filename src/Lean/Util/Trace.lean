@@ -272,7 +272,8 @@ The `cls`, `collapsed`, and `tag` arguments are forwarded to the constructor of 
 -/
 @[inline]
 def withTraceNode [always : MonadAlwaysExcept ε m] [MonadLiftT BaseIO m] (cls : Name)
-    (msg : Except ε α → m MessageData) (k : m α) (collapsed := true) (tag := "") : m α := do
+    (msg : Except ε α → m MessageData) (k : m α) (collapsed := true) (tag := "")
+    (result? : Option TraceResult := none) : m α := do
   let opts ← getOptions
   if !opts.hasTrace then
     return (← k)
@@ -293,7 +294,10 @@ where
       return (← MonadExcept.ofExcept res)
     let ref ← getRef
     let mut m ← try msg res catch _ => pure m!"<exception thrown while producing trace node message>"
-    let mut data := { cls, collapsed, tag }
+    let result? := result?.orElse fun _ => match res with
+      | .ok _ => some .success
+      | .error _ => some .failure
+    let mut data : TraceData := { cls, collapsed, tag, result? }
     if trace.profiler.get opts then
       data := { data with startTime := start, stopTime := stop }
     addTraceNode oldTraces data ref m
@@ -389,7 +393,8 @@ TODO: find better name for this function.
 @[inline]
 def withTraceNodeBefore [MonadRef m] [AddMessageContext m] [MonadOptions m]
     [always : MonadAlwaysExcept ε m] [MonadLiftT BaseIO m] [ExceptToEmoji ε α] (cls : Name)
-    (msg : Unit → m MessageData) (k : m α) (collapsed := true) (tag := "") : m α := do
+    (msg : Unit → m MessageData) (k : m α) (collapsed := true) (tag := "")
+    (result? : Option TraceResult := none) : m α := do
   let opts ← getOptions
   if !opts.hasTrace then
     return (← k)
@@ -411,8 +416,12 @@ where
     unless clsEnabled || aboveThresh do
       modifyTraces (oldTraces ++ ·)
       return (← MonadExcept.ofExcept res)
-    let mut msg := m!"{ExceptToEmoji.toEmoji res} {msg}"
-    let mut data := { cls, collapsed, tag }
+    let emoji := ExceptToEmoji.toEmoji res
+    let mut msg := m!"{emoji} {msg}"
+    let result? := result?.orElse fun _ =>
+      if emoji == checkEmoji then some .success
+      else some .failure
+    let mut data : TraceData := { cls, collapsed, tag, result? }
     if trace.profiler.get opts then
       data := { data with startTime := start, stopTime := stop }
     addTraceNode oldTraces data ref msg

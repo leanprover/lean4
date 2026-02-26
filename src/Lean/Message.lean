@@ -66,9 +66,18 @@ structure NamingContext where
   currNamespace : Name
   openDecls : List OpenDecl
 
+/-- Structured result of a trace node action, set by `withTraceNode` and `withTraceNodeBefore`. -/
+inductive TraceResult where
+  | success
+  | failure
+  deriving Inhabited, BEq, Repr
+
 structure TraceData where
   /-- Trace class, e.g. `Elab.step`. -/
   cls       : Name
+  /-- Structured success/failure result set by `withTraceNode`/`withTraceNodeBefore`.
+  `none` for trace nodes not created by these functions (e.g. `addTrace`, diagnostic nodes). -/
+  result?   : Option TraceResult := none
   /-- Start time in seconds; 0 if unknown to avoid `Option` allocation. -/
   startTime : Float := 0
   /-- Stop time in seconds; 0 if unknown to avoid `Option` allocation. -/

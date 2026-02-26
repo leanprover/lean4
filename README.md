@@ -28,6 +28,8 @@ Improvements for reproducible builds and development shell:
     - [Building for Nix](#building-for-nix)
     - [Caching `stage0` with Nix](#caching-stage0-with-nix)
     - [Development Builds](#development-builds)
+    - [LSP for Lean Development](#lsp-for-lean-development)
+    - [Using with elan](#using-with-elan)
     - [Testing](#testing)
     - [Ignoring Nix `stage0` Cache](#ignoring-nix-stage0-cache)
   - [Related](#related)
@@ -220,6 +222,43 @@ make -C build/release stage1
 ```
 
 The dev shell sets `MAKEFLAGS="-j$(nproc)"` automatically, so all `make` invocations use full parallelism.
+
+### LSP for Lean Development
+
+The `src/lean-toolchain` file references `lean4-stage0`, a toolchain name that only makes sense inside the CMake build system. If elan is on your `PATH`, it intercepts `lake`/`lean` and fails to resolve this toolchain.
+
+The dev shell handles this automatically: it disables elan via `ELAN=""` and prepends `build/release/stage1/bin` to `PATH`. After building stage1, `lake serve` works from within `src/`:
+
+```bash
+make -C build/release stage1
+cd src && lake serve
+```
+
+### Using with elan
+
+If you use elan (outside the Nix dev shell), you can register a local build as a custom toolchain:
+
+```bash
+elan toolchain link lean4-local ./build/release/stage1
+```
+
+This makes the locally-built stage1 available under the name `lean4-local`. You can then use it in any project by setting the `lean-toolchain` file:
+
+```
+lean4-local
+```
+
+Or override it for a single command:
+
+```bash
+elan run --install lean4-local lake build
+```
+
+To register the Nix-built stage1 instead of a `make` build:
+
+```bash
+elan toolchain link lean4-local "$(nix build .#stage1 --print-out-paths)"
+```
 
 ### Testing
 

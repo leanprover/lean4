@@ -195,9 +195,16 @@
                 MAKEFLAGS = "-j$(nproc)";
                 CTEST_OUTPUT_ON_FAILURE = 1;
                 STAGE0 = stage0;
+                # Disable elan so Lake uses the local stage1 binaries directly.
+                # Without this, elan intercepts `lake`/`lean` and tries to resolve
+                # the `lean4-stage0` toolchain from src/lean-toolchain, which fails.
+                ELAN = "";
                 # Use ccache by name so cmake doesn't cache absolute nix store paths
                 CMAKE_C_COMPILER_LAUNCHER = "ccache";
                 CMAKE_CXX_COMPILER_LAUNCHER = "ccache";
+                shellHook = ''
+                  export PATH="$PWD/build/release/stage1/bin:$PATH"
+                '';
               };
         }
       );

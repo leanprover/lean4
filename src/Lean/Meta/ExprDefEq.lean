@@ -164,7 +164,7 @@ private def shouldEtaRecursors (a b : Expr) : MetaM Bool := do
   return recVal.k || isStructureLike (← getEnv) recVal.getMajorInduct
 
 private def shouldEta (a b : Expr) : MetaM Bool :=
-  withTraceNode `Meta.isDefEq (return m!"{exceptEmoji ·} shouldEta {a} =?= {b}") do
+  -- withTraceNode `Meta.isDefEq (return m!"{exceptEmoji ·} shouldEta {a} =?= {b}") do
   if a.isLambda && !b.isLambda then return true
   else shouldEtaRecursors b a
 

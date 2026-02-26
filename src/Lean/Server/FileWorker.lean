@@ -378,40 +378,6 @@ abbrev WorkerM := ReaderT WorkerContext <| StateRefT WorkerState IO
 /-- Makes sure we load imports at most once per process as they cannot be unloaded. -/
 private builtin_initialize importsLoadedRef : IO.Ref Bool ← IO.mkRef false
 
-/-- Send a `textDocument/publishDiagnostics` notification for a specific URI. -/
-private def publishDiagnosticsForUri
-    (chanOut : Std.Channel OutputMessage) (uri : DocumentUri) (diagnostics : Array Diagnostic)
-    : BaseIO Unit :=
-  let params : PublishDiagnosticsParams := { uri, version? := none, diagnostics }
-  chanOut.sync.send <| .ofMsg <| (⟨"textDocument/publishDiagnostics", params⟩ :
-    JsonRpc.Notification PublishDiagnosticsParams)
-
-/--
-Clear previously published cross-file diagnostics and emit new ones.
-Returns the URIs that received diagnostics (for tracking in the ref).
--/
-private def replaceCrossFileDiagnostics
-    (chanOut : Std.Channel OutputMessage)
-    (crossFileDiagUrisRef : IO.Ref (Array DocumentUri))
-    (buildDiagnostics : Array SerialMessage)
-    : IO (Array DocumentUri) := do
-  for uri in (← crossFileDiagUrisRef.get) do
-    publishDiagnosticsForUri chanOut uri #[]
-  let crossFileDiags ← serialMessagesToCrossFileDiagnostics buildDiagnostics
-  for (uri, diags) in crossFileDiags do
-    publishDiagnosticsForUri chanOut uri diags
-  let uris := crossFileDiags.map (·.1)
-  crossFileDiagUrisRef.set uris
-  return uris
-
-/-- Send a transient `window/showMessage` notification for build failures. -/
-private def notifyBuildFailure
-    (chanOut : Std.Channel OutputMessage) (errorCount : Nat)
-    : BaseIO Unit :=
-  chanOut.sync.send <| .ofMsg <| (⟨"window/showMessage",
-    ({ type := .error, message := s!"Lake build failed: {errorCount} error(s) in dependent targets"
-     } : ShowMessageParams)⟩ : JsonRpc.Notification ShowMessageParams)
-
 open Language Lean in
 /-- Create a warning diagnostic covering only line 1. -/
 private def diagnosticsOfBuildWarning (msg : String) : BaseIO Language.Snapshot.Diagnostics :=
@@ -434,7 +400,6 @@ def setupImports
     (chanOut              : Std.Channel OutputMessage)
     (clientCapabilities   : Lsp.ClientCapabilities)
     (createProgressToken  : IO Unit)
-    (crossFileDiagUrisRef : IO.Ref (Array DocumentUri))
     (stx                  : Elab.HeaderSyntax)
     : Language.ProcessingT IO (Except Language.Lean.HeaderProcessedSnapshot SetupImportsResult) := do
   let importsAlreadyLoaded ← importsLoadedRef.modifyGet ((·, true))
@@ -487,9 +452,16 @@ def setupImports
       metaSnap := default
     }
   | .error err =>
-    let _ ← replaceCrossFileDiagnostics chanOut crossFileDiagUrisRef err.buildDiagnostics
-    unless err.buildDiagnostics.isEmpty do
-      notifyBuildFailure chanOut err.buildDiagnostics.size
+    let crossFileDiags ← serialMessagesToCrossFileDiagnostics err.buildDiagnostics
+    for (uri, diags) in crossFileDiags do
+      chanOut.sync.send <| .ofMsg <| (⟨"textDocument/publishDiagnostics",
+        ({ uri, version? := none, diagnostics := diags } : PublishDiagnosticsParams)⟩ :
+        JsonRpc.Notification PublishDiagnosticsParams)
+    unless crossFileDiags.isEmpty do
+      chanOut.sync.send <| .ofMsg <| (⟨"window/showMessage",
+        ({ type := .error,
+           message := s!"Lake build failed: {err.buildDiagnostics.size} error(s)"
+         } : ShowMessageParams)⟩ : JsonRpc.Notification ShowMessageParams)
     let diagnostics ← if err.buildDiagnostics.isEmpty then
         diagnosticsOfHeaderError err.summary
       else
@@ -547,9 +519,8 @@ section Initialization
         let _ ← IO.wait responsePromise.result!
       else
         pure ()
-    let crossFileDiagUrisRef ← IO.mkRef (#[] : Array DocumentUri)
     let processor := Language.Lean.process
-        (setupImports doc opts chanOut initParams.capabilities createProgressToken crossFileDiagUrisRef)
+        (setupImports doc opts chanOut initParams.capabilities createProgressToken)
     let processor ← Language.mkIncrementalProcessor processor
     let initSnap ← processor doc.mkInputContext
     let _ ← ServerTask.IO.asTask do

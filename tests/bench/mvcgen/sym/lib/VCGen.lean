@@ -105,7 +105,7 @@ meta def mkTriplePatternFromExpr (expr : Expr) (levelParams : List Name := []) :
 meta def mkSpecTheoremNew (proof : SpecProof) (prio : Nat) : SymM SpecTheoremNew := do
   -- cf. mkSimpTheoremCore
   let (levelParams, expr) ← proof.getProof
-  let type ← Sym.inferType expr
+  let type ← Meta.inferType expr
   let type ← instantiateMVars type
   unless (← isProp type) do
     throwError "invalid 'spec', proposition expected{indentExpr type}"
@@ -235,7 +235,7 @@ meta def mkBackwardRuleFromSpecs (specThms : Array SpecTheoremNew) (m σs ps ins
     -- The following code could potentially be extracted into a definition at @[spec] attribute
     -- annotation time. That might help a bit with kernel checking time.
     let excessArgNamesTypes ← excessArgs.mapM fun arg =>
-      return (← mkFreshUserName `s, ← Sym.inferType arg)
+      return (← mkFreshUserName `s, ← Meta.inferType arg)
     let spec ← withLocalDeclsDND excessArgNamesTypes fun ss => do
       let needPreVC := !excessArgs.isEmpty || !xs.contains P
       let needPostVC := !xs.contains Q
@@ -296,7 +296,7 @@ meta def mkBackwardRuleFromSpecs (specThms : Array SpecTheoremNew) (m σs ps ins
           -- check prf
         return prf
     let res ← abstractMVars spec
-    let type ← Sym.inferType res.expr
+    let type ← preprocessExpr (← Meta.inferType res.expr)
     trace[Elab.Tactic.Do.vcgen] "Type of new auxiliary spec apply theorem: {type}"
     let spec ← Meta.mkAuxLemma res.paramNames.toList type res.expr
     return some (specThm, ← mkBackwardRuleFromDecl spec)
@@ -326,7 +326,7 @@ meta def mkBackwardRuleForIte (m σs ps instWP : Expr) (excessArgs : Array Expr)
     withLocalDeclD `e mα fun e => do
     let prog ← preprocessExpr (mkApp5 (mkConst ``ite [v.succ]) mα c dec t e)
     let excessArgNamesTypes ← excessArgs.mapM fun arg =>
-      return (`s, ← Sym.inferType arg)
+      return (`s, ← Meta.inferType arg)
     withLocalDeclsDND excessArgNamesTypes fun ss => do
     withLocalDeclD `P (← preprocessExpr <| mkApp (mkConst ``SPred [u]) σs) fun P => do
     withLocalDeclD `Q (← preprocessExpr <| mkApp2 (mkConst ``PostCond [u]) α ps) fun Q => do
@@ -353,7 +353,7 @@ meta def mkBackwardRuleForIte (m σs ps instWP : Expr) (excessArgs : Array Expr)
     let prf := mkApp5 (mkConst ``dite [0]) (goalWithProg prog) c dec ht he
     mkLambdaFVars (#[α, c, dec, t, e] ++ ss ++ #[P, Q, hthen, helse]) prf
   let res ← abstractMVars prf
-  let type ← preprocessExpr (← Sym.inferType res.expr)
+  let type ← preprocessExpr (← Meta.inferType res.expr)
   let prf ← Meta.mkAuxLemma res.paramNames.toList type res.expr
   trace[Elab.Tactic.Do.vcgen] "Type of new auxiliary spec apply theorem for `ite`: {type}"
   mkBackwardRuleFromDecl prf

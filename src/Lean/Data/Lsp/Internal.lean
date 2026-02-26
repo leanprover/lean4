@@ -338,12 +338,10 @@ structure LeanImportClosureParams where
   deriving FromJson, ToJson
 
 /--
-Used in the `$/lean/importClosure` watchdog -> worker notification.
+Used in the `$/lean/staleDependency` watchdog -> worker notification.
 Informs the worker that one of its dependencies has gone stale and likely needs to be rebuilt.
 -/
 structure LeanStaleDependencyParams where
-  /-- The dependency that is stale. -/
-  staleDependency : DocumentUri
   deriving FromJson, ToJson
 
 /-- LSP type for `Lean.OpenDecl`. -/

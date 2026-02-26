@@ -87,10 +87,6 @@ structure WorkerContext where
   -/
   maxDocVersionRef         : IO.Ref Int
   freshRequestIdRef        : IO.Ref Int
-  /--
-  Diagnostics that are included in every single `textDocument/publishDiagnostics` notification.
-  -/
-  stickyDiagnosticsRef     : IO.Ref (Array InteractiveDiagnostic)
   partialHandlersRef       : IO.Ref (Std.TreeMap String PartialHandlerInfo)
   pendingServerRequestsRef : IO.Ref (Std.TreeMap RequestID (IO.Promise (ServerRequestResponse Json)))
   hLog                     : FS.Stream
@@ -209,15 +205,11 @@ This option can only be set on the command line, not in the lakefile or via `set
 
   /--
   Sends a `textDocument/publishDiagnostics` notification to the client that contains the diagnostics
-  in `ctx.stickyDiagnosticsRef` and `doc.diagnosticsRef`.
+  in `doc.diagnosticsRef`.
   -/
   private def publishDiagnostics (ctx : WorkerContext) (doc : EditableDocumentCore)
       : BaseIO Unit := do
-    let stickyInteractiveDiagnostics ← ctx.stickyDiagnosticsRef.get
-    let docInteractiveDiagnostics ← doc.diagnosticsRef.get
-    let diagnostics :=
-      stickyInteractiveDiagnostics ++ docInteractiveDiagnostics
-      |>.map (·.toDiagnostic)
+    let diagnostics := (← doc.diagnosticsRef.get).map (·.toDiagnostic)
     let notification := mkPublishDiagnosticsNotification doc.meta diagnostics
     ctx.chanOut.sync.send <| .ofMsg notification
 
@@ -458,6 +450,10 @@ def setupImports
         ({ uri, version? := none, diagnostics := diags } : PublishDiagnosticsParams)⟩ :
         JsonRpc.Notification PublishDiagnosticsParams)
     unless crossFileDiags.isEmpty do
+      -- Tell watchdog which URIs we published so it can clear them on restart
+      let uris := crossFileDiags.map (·.1)
+      chanOut.sync.send <| .ofMsg <| (⟨"$/lean/crossFileDiagnosticUris", uris⟩ :
+        JsonRpc.Notification (Array DocumentUri))
       chanOut.sync.send <| .ofMsg <| (⟨"window/showMessage",
         ({ type := .error,
            message := s!"Lake build failed: {err.buildDiagnostics.size} error(s)"
@@ -497,7 +493,6 @@ section Initialization
     let clientHasWidgets := initParams.initializationOptions?.bind (·.hasWidgets?) |>.getD false
     let maxDocVersionRef ← IO.mkRef 0
     let freshRequestIdRef ← IO.mkRef (0 : Int)
-    let stickyDiagnosticsRef ← IO.mkRef ∅
     let pendingServerRequestsRef ← IO.mkRef ∅
     let chanOut ← mkLspOutputChannel maxDocVersionRef
     let timestamp ← IO.monoMsNow
@@ -538,7 +533,6 @@ section Initialization
       maxDocVersionRef
       freshRequestIdRef
       cmdlineOpts := opts
-      stickyDiagnosticsRef
     }
     let doc : EditableDocumentCore := {
       «meta» := doc, initSnap
@@ -585,13 +579,12 @@ section Initialization
         o.writeSerializedLspMessage serialized |>.catchExceptions (fun _ => pure ())
       return chanOut
 
-    getImportClosure? (snap : Language.Lean.InitialSnapshot) : Array Name := Id.run do
-      let some snap := snap.result?
+    getImportClosure? (initSnap : Language.Lean.InitialSnapshot) : Array Name := Id.run do
+      let some parsed := initSnap.result?
         | return #[]
-      let some snap ← snap.processedSnap.get.result?
-        | return #[]
-      let importClosure := snap.cmdState.env.allImportedModuleNames
-      return importClosure
+      let some processed ← parsed.processedSnap.get.result?
+        | return (Elab.HeaderSyntax.imports ⟨initSnap.stx⟩).map (·.module)
+      return processed.cmdState.env.allImportedModuleNames
 
 end Initialization
 
@@ -676,25 +669,12 @@ section NotificationHandling
 
   /--
   Received from the watchdog when a dependency of this file is detected as being stale.
-  Issues a sticky diagnostic to the client that it should run "Restart File".
+  Triggers a worker restart via the same `forceExit 2` mechanism used in `setupImports`,
+  so that the watchdog restarts the worker and rebuilds dependencies.
   -/
   def handleStaleDependency (_ : LeanStaleDependencyParams) : WorkerM Unit := do
-    let ctx ← read
-    let s ← get
-    let text := s.doc.meta.text
-    let importOutOfDataMessage := .text s!"Imports are out of date and should be rebuilt; \
-      use the \"Restart File\" command in your editor."
-    let diagnostic := {
-      range      := ⟨⟨0, 0⟩, ⟨1, 0⟩⟩
-      fullRange? := some ⟨⟨0, 0⟩, text.utf8PosToLspPos text.source.rawEndPos⟩
-      severity?  := DiagnosticSeverity.information
-      message := importOutOfDataMessage
-    }
-    ctx.stickyDiagnosticsRef.modify fun stickyDiagnostics =>
-      let stickyDiagnostics := stickyDiagnostics.filter
-        (·.message.stripTags != importOutOfDataMessage.stripTags)
-      stickyDiagnostics.push diagnostic
-    publishDiagnostics ctx s.doc.toEditableDocumentCore
+    IO.sleep 200  -- give user time to make further edits before restart
+    IO.Process.forceExit 2  -- signal restart request to watchdog
 
 def handleRpcRelease (p : Lsp.RpcReleaseParams) : WorkerM Unit := do
   -- NOTE(WN): when the worker restarts e.g. due to changed imports, we may receive `rpc/release`
@@ -801,19 +781,18 @@ section MessageHandling
 
   open Widget RequestM Language in
   def handleGetInteractiveDiagnosticsRequest
-      (ctx : WorkerContext)
+      (_ctx : WorkerContext)
       (params : GetInteractiveDiagnosticsParams)
       : RequestM (Array InteractiveDiagnostic) := do
     let doc ← readDoc
     -- NOTE: always uses latest document (which is the only one we can retrieve diagnostics for);
     -- any race should be temporary as the client should re-request interactive diagnostics when
     -- they receive the non-interactive diagnostics for the new document
-    let stickyDiags ← ctx.stickyDiagnosticsRef.get
     let diags ← doc.diagnosticsRef.get
     -- NOTE: does not wait for `lineRange?` to be fully elaborated, which would be problematic with
     -- fine-grained incremental reporting anyway; instead, the client is obligated to resend the
     -- request when the non-interactive diagnostics of this range have changed
-    return (stickyDiags ++ diags).filter fun diag =>
+    return diags.filter fun diag =>
       let r := diag.fullRange
       let diagStartLine := r.start.line
       let diagEndLine   :=

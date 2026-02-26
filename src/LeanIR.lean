@@ -19,11 +19,17 @@ import Lean.Compiler.LCNF.PhaseExt
 
 open Lean
 
-def mkIRData (env : Environment) : IO ModuleData :=
+def mkIRData (env : Environment) : IO ModuleData := do
   -- TODO: should we use a more specific/efficient data format for IR?
+  -- `exportIREntries` provides full IR for `declMapExt` and `regularInitAttr`; filter them from
+  -- `mkModuleData` to prevent the latter's opaque-extern entries from overwriting the full IR
+  -- in `setImportedEntries`
+  let irEntries := exportIREntries env
+  let irExtNames := irEntries.map (·.1)
+  -- TODO: `.private` because `import all` may require otherwise unreachable IR entries
+  let modEntries := (← mkModuleData env .private).entries.filter (!irExtNames.contains ·.1)
   return { env.header with
-    -- TODO: `.private` because `import all` may require otherwise unreachable IR entries
-    entries := exportIREntries env ++ (← mkModuleData env .private).entries
+    entries := irEntries ++ modEntries
     constants := default
     constNames := default
     -- make sure to include all names in case only `.ir` is loaded

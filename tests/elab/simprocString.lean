@@ -50,5 +50,10 @@ example : "b" > "a" := by simp
 example : "abc" ≥ "abc" := by simp
 example : "abd" ≥ "abc" := by simp
 
+-- String.reduceSingleton
+example : String.singleton ' ' = " " := by simp
+example : String.singleton 'a' = "a" := by simp
+example : String.singleton '\n' = "\n" := by simp
+
 -- Combined: roundtrip toList/ofList
 example : String.ofList "hello".toList = "hello" := by simp

@@ -65,6 +65,8 @@ info: theorem trfl : f = 1 :=
 
 -- Should not fail with 'unknown constant `inst*`
 /--
+warning: Definition `_private.Module.Imported.0.fX` of class type must be marked with `@[reducible]` or `@[implicit_reducible]`
+---
 error: failed to synthesize instance of type class
   X
 

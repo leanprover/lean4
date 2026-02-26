@@ -12,6 +12,8 @@ def IsGood [DecidableEq dOut] [DecidableEq dOut₂] (Λ : Mappish dIn dOut) (Λ�
   ∃ (D : Mappish dOut (dOut₂)), D.k = Λ.k + Λ₂.k
 
 /--
+warning: Definition `MappishOrder` of class type must be marked with `@[reducible]` or `@[implicit_reducible]`
+---
 error: failed to synthesize instance of type class
   Fintype v
 

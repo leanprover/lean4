@@ -1172,6 +1172,11 @@ private def checkAllDeclNamesDistinct (preDefs : Array PreDefinition) : TermElab
 structure AsyncBodyInfo where
 deriving TypeName
 
+register_builtin_option warn.classDefReducibility : Bool := {
+  defValue := true
+  descr    := "warn when a `def` of class type is not marked `@[reducible]` or `@[implicit_reducible]`"
+}
+
 register_builtin_option warn.exposeOnPrivate : Bool := {
   defValue := true
   descr    := "warn about uses of `@[expose]` on private declarations"
@@ -1220,7 +1225,8 @@ where
           if !(← isProp header.type) then
             setReducibilityStatus header.declName .implicitReducible
         | .def =>
-          if (← isClass? header.type).isSome /-TODO-/ && !header.type.getForallBody.getAppFn.constName? matches ``Decidable | ``DecidableEq then
+          if warn.classDefReducibility.get (← getOptions) &&
+              (← isClass? header.type).isSome /-TODO-/ && !header.type.getForallBody.getAppFn.constName? matches ``Decidable | ``DecidableEq then
             logWarning m!"Definition `{header.declName}` of class type must be marked with `@[reducible]` or `@[implicit_reducible]`"
         | _ => pure ()
 

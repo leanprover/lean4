@@ -1213,7 +1213,8 @@ where
     -- Now that we have elaborated types, default data instances to `[implicit_reducible]`. This
     -- should happen before attribute application as `[instance]` will check for it.
     for header in headers do
-      if !header.modifiers.anyAttr (·.name matches `reducible | `implicit_reducible | `irreducible) then
+      -- TODO: remove `instance_reducible once the alias is deprecated
+      if !header.modifiers.anyAttr (·.name matches `reducible | `implicit_reducible | `instance_reducible | `irreducible) then
         match header.kind with
         | .instance =>
           if !(← isProp header.type) then

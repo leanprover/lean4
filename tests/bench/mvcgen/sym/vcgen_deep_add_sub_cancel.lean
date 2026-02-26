@@ -51,12 +51,6 @@ theorem Spec.M_set_Nat (n : Nat) :
 set_option maxRecDepth 10000
 set_option maxHeartbeats 10000000
 
-/-
-example : Goal 20 := by
-  simp only [Goal, loop, step]
-  mvcgen' <;> grind
--/
-
 #eval runBenchUsingTactic ``Goal [``loop, ``step] `(tactic| mvcgen') `(tactic| grind)
   [100, 500, 1000]
   -- [1000]

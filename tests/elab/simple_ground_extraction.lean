@@ -606,3 +606,302 @@ trace: [Compiler.simpleGround] Marked usizePair._closed_0._boxed_const_1 as simp
 set_option trace.Compiler.saveImpure true in
 set_option trace.Compiler.simpleGround true in
 def usizePair : USize × USize := (1,3)
+
+/--
+trace: [Compiler.simpleGround] Marked arrayNatTest._closed_0 as simple ground expr
+[Compiler.simpleGround] Marked arrayNatTest as simple ground expr
+[Compiler.saveImpure] size: 7
+    def arrayNatTest._closed_0 : obj :=
+      let _x.1 := 2;
+      let _x.2 := 1;
+      let _x.3 := 3;
+      let _x.4 := Array.mkEmpty ◾ _x.3;
+      let _x.5 := Array.push ◾ _x.4 _x.2;
+      let _x.6 := Array.push ◾ _x.5 _x.1;
+      let _x.7 := Array.push ◾ _x.6 _x.3;
+      return _x.7
+[Compiler.saveImpure] size: 1
+    def arrayNatTest : obj :=
+      let _x.1 := arrayNatTest._closed_0;
+      return _x.1
+-/
+#guard_msgs in
+set_option trace.Compiler.saveImpure true in
+set_option trace.Compiler.simpleGround true in
+def arrayNatTest : Array Nat := #[1, 2, 3]
+
+/--
+trace: [Compiler.simpleGround] Marked emptyArrayTest._closed_0 as simple ground expr
+[Compiler.simpleGround] Marked emptyArrayTest as simple ground expr
+[Compiler.saveImpure] size: 2
+    def emptyArrayTest._closed_0 : obj :=
+      let _x.1 := 0;
+      let _x.2 := Array.mkEmpty ◾ _x.1;
+      return _x.2
+[Compiler.saveImpure] size: 1
+    def emptyArrayTest : obj :=
+      let _x.1 := emptyArrayTest._closed_0;
+      return _x.1
+-/
+#guard_msgs in
+set_option trace.Compiler.saveImpure true in
+set_option trace.Compiler.simpleGround true in
+def emptyArrayTest : Array Nat := #[]
+
+/--
+trace: [Compiler.simpleGround] Marked arrayStringTest._closed_0 as simple ground expr
+[Compiler.simpleGround] Marked arrayStringTest._closed_1 as simple ground expr
+[Compiler.simpleGround] Marked arrayStringTest._closed_2 as simple ground expr
+[Compiler.simpleGround] Marked arrayStringTest as simple ground expr
+[Compiler.saveImpure] size: 1
+    def arrayStringTest._closed_0 : obj :=
+      let _x.1 := "hello";
+      return _x.1
+[Compiler.saveImpure] size: 1
+    def arrayStringTest._closed_1 : obj :=
+      let _x.1 := "world";
+      return _x.1
+[Compiler.saveImpure] size: 6
+    def arrayStringTest._closed_2 : obj :=
+      let _x.1 := arrayStringTest._closed_1;
+      let _x.2 := arrayStringTest._closed_0;
+      let _x.3 := 2;
+      let _x.4 := Array.mkEmpty ◾ _x.3;
+      let _x.5 := Array.push ◾ _x.4 _x.2;
+      let _x.6 := Array.push ◾ _x.5 _x.1;
+      return _x.6
+[Compiler.saveImpure] size: 1
+    def arrayStringTest : obj :=
+      let _x.1 := arrayStringTest._closed_2;
+      return _x.1
+-/
+#guard_msgs in
+set_option trace.Compiler.saveImpure true in
+set_option trace.Compiler.simpleGround true in
+def arrayStringTest : Array String := #["hello", "world"]
+
+/--
+trace: [Compiler.simpleGround] Marked arrayUInt8Test._closed_0 as simple ground expr
+[Compiler.simpleGround] Marked arrayUInt8Test as simple ground expr
+[Compiler.saveImpure] size: 11
+    def arrayUInt8Test._closed_0 : obj :=
+      let _x.1 := 3;
+      let _x.2 := 2;
+      let _x.3 := 1;
+      let _x.4 := 3;
+      let _x.5 := Array.mkEmpty ◾ _x.4;
+      let _x.6 := box _x.3;
+      let _x.7 := Array.push ◾ _x.5 _x.6;
+      let _x.8 := box _x.2;
+      let _x.9 := Array.push ◾ _x.7 _x.8;
+      let _x.10 := box _x.1;
+      let _x.11 := Array.push ◾ _x.9 _x.10;
+      return _x.11
+[Compiler.saveImpure] size: 1
+    def arrayUInt8Test : obj :=
+      let _x.1 := arrayUInt8Test._closed_0;
+      return _x.1
+-/
+#guard_msgs in
+set_option trace.Compiler.saveImpure true in
+set_option trace.Compiler.simpleGround true in
+def arrayUInt8Test : Array UInt8 := #[1, 2, 3]
+
+/--
+trace: [Compiler.simpleGround] Marked arrayUInt16Test._closed_0 as simple ground expr
+[Compiler.simpleGround] Marked arrayUInt16Test as simple ground expr
+[Compiler.saveImpure] size: 11
+    def arrayUInt16Test._closed_0 : obj :=
+      let _x.1 := 3;
+      let _x.2 := 2;
+      let _x.3 := 1;
+      let _x.4 := 3;
+      let _x.5 := Array.mkEmpty ◾ _x.4;
+      let _x.6 := box _x.3;
+      let _x.7 := Array.push ◾ _x.5 _x.6;
+      let _x.8 := box _x.2;
+      let _x.9 := Array.push ◾ _x.7 _x.8;
+      let _x.10 := box _x.1;
+      let _x.11 := Array.push ◾ _x.9 _x.10;
+      return _x.11
+[Compiler.saveImpure] size: 1
+    def arrayUInt16Test : obj :=
+      let _x.1 := arrayUInt16Test._closed_0;
+      return _x.1
+-/
+#guard_msgs in
+set_option trace.Compiler.saveImpure true in
+set_option trace.Compiler.simpleGround true in
+def arrayUInt16Test : Array UInt16 := #[1, 2, 3]
+
+/--
+trace: [Compiler.simpleGround] Marked arrayUInt64._closed_0._boxed_const_1 as simple ground expr
+[Compiler.simpleGround] Marked arrayUInt64._closed_0._boxed_const_2 as simple ground expr
+[Compiler.simpleGround] Marked arrayUInt64._closed_0._boxed_const_3 as simple ground expr
+[Compiler.simpleGround] Marked arrayUInt64._closed_0 as simple ground expr
+[Compiler.simpleGround] Marked arrayUInt64 as simple ground expr
+[Compiler.saveImpure] size: 2
+    def arrayUInt64._closed_0._boxed_const_1 : tobj :=
+      let _x.1 := 34;
+      let _x.2 := box _x.1;
+      return _x.2
+[Compiler.saveImpure] size: 2
+    def arrayUInt64._closed_0._boxed_const_2 : tobj :=
+      let _x.1 := 23;
+      let _x.2 := box _x.1;
+      return _x.2
+[Compiler.saveImpure] size: 2
+    def arrayUInt64._closed_0._boxed_const_3 : tobj :=
+      let _x.1 := 11;
+      let _x.2 := box _x.1;
+      return _x.2
+[Compiler.saveImpure] size: 8
+    def arrayUInt64._closed_0 : obj :=
+      let _x.1 := 3;
+      let _x.2 := Array.mkEmpty ◾ _x.1;
+      let _x.3 := arrayUInt64._closed_0._boxed_const_3;
+      let _x.4 := Array.push ◾ _x.2 _x.3;
+      let _x.5 := arrayUInt64._closed_0._boxed_const_2;
+      let _x.6 := Array.push ◾ _x.4 _x.5;
+      let _x.7 := arrayUInt64._closed_0._boxed_const_1;
+      let _x.8 := Array.push ◾ _x.6 _x.7;
+      return _x.8
+[Compiler.saveImpure] size: 1
+    def arrayUInt64 : obj :=
+      let _x.1 := arrayUInt64._closed_0;
+      return _x.1
+-/
+#guard_msgs in
+set_option trace.Compiler.saveImpure true in
+set_option trace.Compiler.simpleGround true in
+def arrayUInt64 : Array UInt64 := #[11, 23, 34]
+
+/--
+trace: [Compiler.simpleGround] Marked arrayUSize._closed_0._boxed_const_1 as simple ground expr
+[Compiler.simpleGround] Marked arrayUSize._closed_0._boxed_const_2 as simple ground expr
+[Compiler.simpleGround] Marked arrayUSize._closed_0._boxed_const_3 as simple ground expr
+[Compiler.simpleGround] Marked arrayUSize._closed_0 as simple ground expr
+[Compiler.simpleGround] Marked arrayUSize as simple ground expr
+[Compiler.saveImpure] size: 2
+    def arrayUSize._closed_0._boxed_const_1 : tobj :=
+      let _x.1 := 37;
+      let _x.2 := box _x.1;
+      return _x.2
+[Compiler.saveImpure] size: 2
+    def arrayUSize._closed_0._boxed_const_2 : tobj :=
+      let _x.1 := 27;
+      let _x.2 := box _x.1;
+      return _x.2
+[Compiler.saveImpure] size: 2
+    def arrayUSize._closed_0._boxed_const_3 : tobj :=
+      let _x.1 := 17;
+      let _x.2 := box _x.1;
+      return _x.2
+[Compiler.saveImpure] size: 8
+    def arrayUSize._closed_0 : obj :=
+      let _x.1 := 3;
+      let _x.2 := Array.mkEmpty ◾ _x.1;
+      let _x.3 := arrayUSize._closed_0._boxed_const_3;
+      let _x.4 := Array.push ◾ _x.2 _x.3;
+      let _x.5 := arrayUSize._closed_0._boxed_const_2;
+      let _x.6 := Array.push ◾ _x.4 _x.5;
+      let _x.7 := arrayUSize._closed_0._boxed_const_1;
+      let _x.8 := Array.push ◾ _x.6 _x.7;
+      return _x.8
+[Compiler.saveImpure] size: 1
+    def arrayUSize : obj :=
+      let _x.1 := arrayUSize._closed_0;
+      return _x.1
+-/
+#guard_msgs in
+set_option trace.Compiler.saveImpure true in
+set_option trace.Compiler.simpleGround true in
+def arrayUSize : Array USize := #[17, 27, 37]
+
+/--
+trace: [Compiler.simpleGround] Marked arrayNatPair._closed_0 as simple ground expr
+[Compiler.simpleGround] Marked arrayNatPair._closed_1 as simple ground expr
+[Compiler.simpleGround] Marked arrayNatPair._closed_2 as simple ground expr
+[Compiler.simpleGround] Marked arrayNatPair as simple ground expr
+[Compiler.saveImpure] size: 3
+    def arrayNatPair._closed_0 : obj :=
+      let _x.1 := 2;
+      let _x.2 := 1;
+      let _x.3 := ctor_0[Prod.mk] _x.2 _x.1;
+      return _x.3
+[Compiler.saveImpure] size: 3
+    def arrayNatPair._closed_1 : obj :=
+      let _x.1 := 4;
+      let _x.2 := 3;
+      let _x.3 := ctor_0[Prod.mk] _x.2 _x.1;
+      return _x.3
+[Compiler.saveImpure] size: 6
+    def arrayNatPair._closed_2 : obj :=
+      let _x.1 := arrayNatPair._closed_1;
+      let _x.2 := arrayNatPair._closed_0;
+      let _x.3 := 2;
+      let _x.4 := Array.mkEmpty ◾ _x.3;
+      let _x.5 := Array.push ◾ _x.4 _x.2;
+      let _x.6 := Array.push ◾ _x.5 _x.1;
+      return _x.6
+[Compiler.saveImpure] size: 1
+    def arrayNatPair : obj :=
+      let _x.1 := arrayNatPair._closed_2;
+      return _x.1
+-/
+#guard_msgs in
+set_option trace.Compiler.saveImpure true in
+set_option trace.Compiler.simpleGround true in
+def arrayNatPair : Array (Nat × Nat) := #[(1,2), (3,4)]
+
+/--
+trace: [Compiler.simpleGround] Marked byteArrayTest._closed_0 as simple ground expr
+[Compiler.simpleGround] Marked byteArrayTest as simple ground expr
+[Compiler.saveImpure] size: 12
+    def byteArrayTest._closed_0 : obj :=
+      let _x.1 := 67;
+      let _x.2 := 66;
+      let _x.3 := 65;
+      let _x.4 := 3;
+      let _x.5 := Array.mkEmpty ◾ _x.4;
+      let _x.6 := box _x.3;
+      let _x.7 := Array.push ◾ _x.5 _x.6;
+      let _x.8 := box _x.2;
+      let _x.9 := Array.push ◾ _x.7 _x.8;
+      let _x.10 := box _x.1;
+      let _x.11 := Array.push ◾ _x.9 _x.10;
+      let _x.12 := ByteArray.mk _x.11;
+      return _x.12
+[Compiler.saveImpure] size: 1
+    def byteArrayTest : obj :=
+      let _x.1 := byteArrayTest._closed_0;
+      return _x.1
+-/
+#guard_msgs in
+set_option trace.Compiler.saveImpure true in
+set_option trace.Compiler.simpleGround true in
+def byteArrayTest : ByteArray := ⟨#[65, 66, 67]⟩
+
+/--
+trace: [Compiler.simpleGround] Marked emptyByteArrayTest._closed_0 as simple ground expr
+[Compiler.simpleGround] Marked emptyByteArrayTest._closed_1 as simple ground expr
+[Compiler.simpleGround] Marked emptyByteArrayTest as simple ground expr
+[Compiler.saveImpure] size: 2
+    def emptyByteArrayTest._closed_0 : obj :=
+      let _x.1 := 0;
+      let _x.2 := Array.mkEmpty ◾ _x.1;
+      return _x.2
+[Compiler.saveImpure] size: 2
+    def emptyByteArrayTest._closed_1 : obj :=
+      let _x.1 := emptyByteArrayTest._closed_0;
+      let _x.2 := ByteArray.mk _x.1;
+      return _x.2
+[Compiler.saveImpure] size: 1
+    def emptyByteArrayTest : obj :=
+      let _x.1 := emptyByteArrayTest._closed_1;
+      return _x.1
+-/
+#guard_msgs in
+set_option trace.Compiler.saveImpure true in
+set_option trace.Compiler.simpleGround true in
+def emptyByteArrayTest : ByteArray := ⟨#[]⟩

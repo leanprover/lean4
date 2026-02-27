@@ -62,6 +62,14 @@ structure LogConfig where
   disallowedMethods? : Option (Std.HashSet String)
   deriving FromJson, ToJson
 
+/-- Template for a hover link shown after the module name in hover popups.
+The `url` field supports placeholders: `{decl}`, `{module}`, `{path}`, `{line}`,
+`{version}`, `{githash}`. -/
+structure HoverLinkTemplate where
+  label : String
+  url : String
+  deriving ToJson, FromJson
+
 /-- Lean-specific initialization options. -/
 structure InitializationOptions where
   /-- Whether the client supports interactive widgets. When true, in order to improve performance
@@ -74,6 +82,9 @@ structure InitializationOptions where
   `LeanOptions`: an object mapping dotted names to string/bool/nat values,
   e.g. `{"pp.all": false, "server.reportDelayMs": 200}`. -/
   options? : Option LeanOptions := none
+  /-- Hover link templates. When set, replaces the built-in defaults.
+  Each template's `url` field may use `{decl}`, `{module}`, `{path}`, `{line}` placeholders. -/
+  hoverLinks? : Option (Array HoverLinkTemplate) := none
   deriving ToJson, FromJson
 
 structure InitializeParams where

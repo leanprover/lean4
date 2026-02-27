@@ -51,7 +51,8 @@ function exec_capture {
     # similarly, links to the language reference may have URL components depending on the toolchain, so normalize those
     LEAN_BACKTRACE=0 "$@" 2>&1 \
       | perl -pe 's/(\?(\w|_\w+))\.[0-9]+/\1/g' \
-      | perl -pe 's/https:\/\/lean-lang\.org\/doc\/reference\/(v?[0-9.]+(-rc[0-9]+)?|latest)/REFERENCE/g'  > "$f.produced.out"
+      | perl -pe 's/https:\/\/lean-lang\.org\/doc\/reference\/(v?[0-9.]+(-rc[0-9]+)?|latest)/REFERENCE/g' \
+      | perl -pe 's/(https:\/\/github\.com\/leanprover\/lean4\/blob\/v)[0-9]+\.[0-9]+\.[0-9]+/\1VERSION/g'  > "$f.produced.out"
 }
 
 

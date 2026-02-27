@@ -353,8 +353,35 @@ def Info.docString? (i : Info) : MetaM (Option String) := do
     return ← findDocString? env ei.stx.getKind <||> findDocString? env ei.elaborator
   return none
 
-/-- Construct a hover popup, if any, from an info node in a context.-/
-def Info.fmtHover? (ci : ContextInfo) (i : Info) : IO (Option FormatWithInfos) := do
+/-- Convert a module name to a source file path, e.g. `Init.Data.List.Basic` → `Init/Data/List/Basic.lean`. -/
+private def moduleToPath (mod : Name) : String :=
+  mod.toString (escape := false) |>.replace "." "/" |> (· ++ ".lean")
+
+/-- Convert a module name to a slash-separated path without extension, e.g. `Init.Data.List.Basic` → `Init/Data/List/Basic`. -/
+private def moduleToSlashPath (mod : Name) : String :=
+  mod.toString (escape := false) |>.replace "." "/"
+
+/-- Check whether a module belongs to Lean core (`Init`, `Lean`, or `Std`). -/
+private def isLeanCoreModule (mod : Name) : Bool :=
+  match mod.getRoot with
+  | `Init | `Lean | `Std => true
+  | _ => false
+
+/-- Substitute `{decl}`, `{module}`, `{path}`, `{line}` placeholders in a URL template. -/
+private def resolveHoverLink (template : String) (decl : Name) (mod : Name) (line : Nat) : String :=
+  template
+    |>.replace "{decl}" (toString decl)
+    |>.replace "{module}" (mod.toString (escape := false))
+    |>.replace "{path}" (moduleToPath mod)
+    |>.replace "{line}" (toString line)
+    |>.replace "{version}" Lean.versionStringCore
+    |>.replace "{githash}" Lean.githash
+
+/-- Construct a hover popup, if any, from an info node in a context.
+`linkTemplates` are `(label, urlTemplate)` pairs for generating hover links.
+An empty array means use built-in defaults for Lean core modules. -/
+def Info.fmtHover? (ci : ContextInfo) (i : Info)
+    (linkTemplates : Array (String × String) := #[]) : IO (Option FormatWithInfos) := do
   ci.runMetaM i.lctx do
     let mut fmts : Array Format := #[]
     let mut infos := ∅
@@ -375,7 +402,26 @@ def Info.fmtHover? (ci : ContextInfo) (i : Info) : IO (Option FormatWithInfos) :
 where
   fmtModule? (decl : Name) : MetaM (Option Format) := do
     let some mod ← findModuleOf? decl | return none
-    return some f!"*{mod}*"
+    let line ← do
+      if let some ranges ← findDeclarationRanges? decl then
+        pure ranges.range.pos.line
+      else
+        pure 1
+    let resolvedLinks : Array (String × String) :=
+      if linkTemplates.isEmpty then
+        if isLeanCoreModule mod then
+          #[("git", s!"https://github.com/leanprover/lean4/blob/v{Lean.versionStringCore}/src/{moduleToPath mod}#L{line}"),
+            ("ref", s!"https://lean-lang.org/doc/api/{moduleToSlashPath mod}.html#{decl}")]
+        else
+          #[]
+      else
+        linkTemplates.map fun (label, urlTmpl) =>
+          (label, resolveHoverLink urlTmpl decl mod line)
+    if resolvedLinks.isEmpty then
+      return some f!"*{mod}*"
+    else
+      let linkLines := resolvedLinks.toList.map fun (label, url) => s!"- **{label}**: {url}"
+      return some f!"*{mod}*\n{"\n".intercalate linkLines}"
 
   fmtTermAndModule? : MetaM (Option FormatWithInfos × Option Format) := do
     match i with

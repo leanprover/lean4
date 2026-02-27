@@ -111,6 +111,15 @@ def handleHover (p : HoverParams)
       range? := r
     }
 
+  -- Extract hover link templates from initialization options
+  let linkTemplates : Array (String × String) :=
+    match (← read).initParams.initializationOptions? with
+    | some opts =>
+      match opts.hoverLinks? with
+      | some templates => templates.map fun t => (t.label, t.url)
+      | none => #[]
+    | none => #[]
+
   let hoverPos := text.lspPosToUtf8Pos p.position
   withWaitFindSnap doc (fun s => s.endPos > hoverPos)
     (notFoundX := pure none) fun snap => do
@@ -131,7 +140,7 @@ def handleHover (p : HoverParams)
         let info := result.info
         if let some r := info.range? then
           if stxDoc?.all fun (_, stxRange) => stxRange.includes r then
-            if let some hoverFmt ← info.fmtHover? ctx then
+            if let some hoverFmt ← info.fmtHover? ctx linkTemplates then
               parts := parts.push (toString hoverFmt.fmt)
               range? := r.toLspRange text
       -- parser docstring fallback

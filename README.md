@@ -131,6 +131,12 @@ args = ["serve"]
 options = { "pp.all" = false, "pp.unicode" = true }
 ```
 
+### Links to Reference Manual
+
+Hover popups with documentation include links to the source in GitHub and official Lean reference manual. You can also configure additional data resources using LSP config.
+
+![](./images/links.png)
+
 ### `lake install` (WIP)
 
 Install Lake executables globally to `~/.lake/bin/` (similar to `~/.cargo/bin` for Rust). Add `~/.lake/bin` to your `PATH` to use installed executables directly.

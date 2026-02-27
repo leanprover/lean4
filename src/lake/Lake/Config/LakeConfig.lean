@@ -45,9 +45,11 @@ public configuration LakeConfig where
   cache : CacheConfig := ∅
   deriving Inhabited
 
+public abbrev CacheServiceMap := NameMap CacheService
+
 public structure LoadedLakeConfig where
   config : LakeConfig
   defaultCacheService : CacheService
   defaultUploadCacheService? : Option CacheService
-  cacheServices : NameMap CacheService
+  cacheServices : CacheServiceMap
   deriving Nonempty

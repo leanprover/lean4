@@ -496,7 +496,8 @@ public def cacheArtifact
 /-- **For internal use only.** -/
 public class ResolveOutputs (α : Type) where
   /-- **For internal use only.** -/
-  resolveOutputs (pkg : Package) (out : Json) (service? scope? : Option String) : JobM α
+  resolveOutputs (out : Json)
+    (service? : Option CacheServiceName) (scope? : Option CacheServiceScope) : JobM α
 
 open ResolveOutputs in
 /--
@@ -512,7 +513,7 @@ in either the saved trace file or in the cached input-to-content mapping.
   let updateCache ← pkg.isArtifactCacheWritable
   if let some out ← cache.readOutputs? pkg.cacheScope inputHash then
     try
-      return some (← resolveOutputs pkg out.data out.service? out.scope?)
+      return some (← resolveOutputs out.data out.service? out.scope?)
     catch e =>
       let log ← takeLogFrom e
       let msg := s!"input '{inputHash.toString.take 7}' found in package artifact cache, \
@@ -523,7 +524,7 @@ in either the saved trace file or in the cached input-to-content mapping.
     if data.depHash == inputHash then
       if let some out := data.outputs? then
         try
-          let arts ← resolveOutputs pkg out none none
+          let arts ← resolveOutputs out none none
           if updateCache then
             if let .error e ← (cache.writeOutputs pkg.cacheScope inputHash out).toBaseIO then
               logWarning s!"could not write outputs to cache: {e}"
@@ -534,15 +535,17 @@ in either the saved trace file or in the cached input-to-content mapping.
 
 /-- **For internal use only.** -/
 public def resolveArtifact
-  (pkg : Package) (descr : ArtifactDescr) (service? scope? : Option String) (exe := false)
+  (descr : ArtifactDescr)
+  (service? : Option CacheServiceName) (scope? : Option CacheServiceScope) (exe := false)
 : JobM Artifact := do
   let ws ← getWorkspace
   let path := ws.lakeCache.artifactDir / descr.relPath
   if let some art ← computeArtifact? descr path then
     return art
   else if let some service := service? then
-    if let some service := ws.findCacheService? service then
-      let scope := scope?.getD pkg.cacheScope
+    if let some service := ws.findCacheService? service.toString then
+      let some scope := scope?
+        | error s!"artifact with associated cache service but no scope"
       let url := service.artifactUrl descr.hash scope
       logVerbose s!"\
         downloaded artifact {descr.hash}\
@@ -569,10 +572,11 @@ where
       return none
 
 def resolveArtifactOutput
-  (pkg : Package) (out : Json) (service? scope? : Option String) (exe := false)
+  (out : Json) (service? : Option CacheServiceName) (scope? : Option CacheServiceScope)
+  (exe := false)
 : JobM Artifact := do
   match fromJson? out with
-  | .ok descr => resolveArtifact pkg descr service? scope? exe
+  | .ok descr => resolveArtifact descr service? scope? exe
   | .error e => error s!"ill-formed artifact output:\n{out.render.pretty 80 2}\n{e}"
 
 set_option linter.unusedVariables false in

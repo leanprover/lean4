@@ -105,6 +105,10 @@ public def isRootArtifactCacheWritable (ws : Workspace) : Bool :=
 public abbrev isRootArtifactCacheEnabled (ws : Workspace) : Bool :=
   ws.isRootArtifactCacheWritable
 
+/-- Returns the toolchain identifier for the Lake cache corresponding the workspace's toolchain. -/
+@[inline] public def cacheToolchain (ws : Workspace) : CacheToolchain :=
+  ws.lakeEnv.cacheToolchain
+
 /--
 Returns the cache service used by default for downloads (e.g., for {lit}`lake cache get`).
 

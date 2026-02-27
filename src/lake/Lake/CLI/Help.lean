@@ -357,6 +357,7 @@ USAGE:
 COMMANDS:
   get [<mappings>]      download artifacts into the local Lake cache
   put <mappings>        upload artifacts to a remote cache
+  add <mappings>        add input-to-output mappings to the Lake cache
   clean                 removes ALL froms the local Lake cache
   services              print configured remote cache services
 
@@ -371,6 +372,7 @@ USAGE:
 OPTIONS:
   --max-revs=<n>                  backtrack up to n revisions (default: 100)
   --rev=<commit-hash>             uses this exact revision to lookup artifacts
+  --service=<name>                fcache service to fetch from
   --repo=<github-repo>            GitHub repository of the package or a fork
   --platform=<target-triple>      with Reservoir or --repo, sets the platform
   --toolchain=<name>              with Reservoir or --repo, sets the toolchain
@@ -414,11 +416,11 @@ def helpCachePut :=
 USAGE:
   lake cache put <mappings> <scope-option>
 
-Uploads the input-to-outputs mappings contained in the specified file along
+Uploads the input-to-output mappings contained in the specified file along
 with the corresponding output artifacts to a remote cache. The cache service
 used via be specified via `--service` option. If not specifed, Lake will used
-the system default, or error if none is configured. See `lake cache services`
-for more information on how to configure services.
+the system default, or error if none is configured. See the help page of
+`lake cache services` for more information on how to configure services.
 
 Files are uploaded using the AWS Signature Version 4 authentication protocol
 via `curl`. Thus, the service should generally be an S3-compatible bucket. The
@@ -444,6 +446,29 @@ The mappings file is uploaded to the revision endpoint with a file name
 derived from the package's current Git revision (and prefixed by the
 full scope). As such, the command will warn if the work tree currently
 has changes."
+
+def helpCacheAdd :=
+"Addd input-to-output mappings to the Lake cache
+
+USAGE:
+  lake cache add <mappings>
+
+OPTIONS:
+  --service=<name>                cache service to fetch from on demand
+  --scope=<remote-scope>          the prefix of artifacts within the service
+  --repo=<github-repo>            for Reservoir, a GitHub repository scope
+
+Reads a list of input-to-output mapppings from the provided file and adds
+them to the local Lake cache. If `--service` is provided, the output artifacts
+can then be fetched lazily from that service during a Lake build. The service
+must either be `reservoir` or  be configured through the Lake system
+configuration (see the help page of `lake cache services` for details).
+
+Since Lake does not currently use cryptographically secure hashes for
+artifacts and outputs, artifacts in a cache service are prefixed with a scope
+to avoid clashes. For Reservoir, this scope can either be a package (set via
+`--scope`) or a repository (set via `--repo`). For S3 services, both options
+are synonymous."
 
 def helpCacheClean :=
 "Removes ALL files from the local Lake cache
@@ -609,6 +634,7 @@ public def helpScript : (cmd : String) → String
 public def helpCache : (cmd : String) → String
 | "get"                 => helpCacheGet
 | "put"                 => helpCachePut
+| "add"                 => helpCacheAdd
 | "clean"               => helpCacheClean
 | "services"            => helpCacheServices
 | _                     => helpCacheCli

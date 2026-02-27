@@ -117,7 +117,8 @@ with_cdn_endpoints test_err 'failed to download some artifacts' \
   cache get .lake/outputs.jsonl --scope='!/bogus'
 
 # Test on-demand fetch from a custom endpoint
-test_run cache add .lake/outputs.jsonl --scope='!/test' --service=cdn
+LAKE_CONFIG=services.toml test_run \
+  cache add .lake/outputs.jsonl --scope='!/test' --service=cdn
 LAKE_CONFIG=services.toml test_run build +Test --no-build -v
 
 # Test that outputs and artifacts are not re-downloaded

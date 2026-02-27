@@ -67,7 +67,7 @@ public structure Env where
   /-- The base URL for revision uploads and downloads from the cache (i.e., `LAKE_CACHE_REVISION_ENDPOINT`). -/
   cacheRevisionEndpoint? : Option String
   /-- The name of the cache service (i.e., `LAKE_CACHE_SERVICE`). -/
-  cacheService? : Option String
+  cacheService? : Option CacheServiceName
   /-- The initial Lean library search path of the environment (i.e., `LEAN_PATH`). -/
   initLeanPath : SearchPath
   /-- The initial Lean source search path of the environment (i.e., `LEAN_SRC_PATH`). -/
@@ -177,7 +177,7 @@ public def compute
     cacheKey? := (← IO.getEnv "LAKE_CACHE_KEY").map (·.trimAscii.copy)
     cacheArtifactEndpoint? := (← IO.getEnv "LAKE_CACHE_ARTIFACT_ENDPOINT").map normalizeUrl
     cacheRevisionEndpoint? := (← IO.getEnv "LAKE_CACHE_REVISION_ENDPOINT").map normalizeUrl
-    cacheService? := (← IO.getEnv "LAKE_CACHE_SERVICE").map (·.trimAscii.copy)
+    cacheService? := (← IO.getEnv "LAKE_CACHE_SERVICE").map (.ofString ·.trimAscii.copy)
     githashOverride := (← IO.getEnv "LEAN_GITHASH").getD ""
     toolchain
     initLeanPath := ← getSearchPath "LEAN_PATH",
@@ -211,6 +211,10 @@ where
        return default
   normalizeUrl url :=
     if url.back == '/' then url.dropEnd 1 |>.copy else url
+
+/-- The toolchain identifier for the Lake cache corresponding to the environment's toolchain. -/
+@[inline] public def cacheToolchain (env : Env) : CacheToolchain :=
+  .ofElanToolchain env.toolchain
 
 /--
 The string Lake uses to identify Lean in traces.
@@ -290,7 +294,7 @@ public def baseVars (env : Env) : Array (String × Option String)  :=
     ("LAKE_CACHE_KEY", env.cacheKey?),
     ("LAKE_CACHE_ARTIFACT_ENDPOINT", env.cacheArtifactEndpoint?),
     ("LAKE_CACHE_REVISION_ENDPOINT", env.cacheRevisionEndpoint?),
-    ("LAKE_CACHE_SERVICE", env.cacheService?),
+    ("LAKE_CACHE_SERVICE", env.cacheService?.map (·.toString)),
     ("LEAN", env.lean.lean.toString),
     ("LEAN_SYSROOT", env.lean.sysroot.toString),
     ("LEAN_AR", env.lean.ar.toString),

@@ -494,7 +494,9 @@ private def loadLakeConfigCore (path : FilePath) (lakeEnv : Lake.Env) : LogIO Lo
     let .ok config errs := EStateM.run (s := #[]) do
       LakeConfig.decodeToml table
     if errs.isEmpty then
-      let cacheServices ← config.cache.services.foldlM (init := {}) fun map cfg => do
+      let defaultService := .reservoirService lakeEnv.reservoirApiUrl
+      let cacheServices := NameMap.empty.insert `reservoir defaultService
+      let cacheServices ← config.cache.services.foldlM (init := cacheServices) fun map cfg => do
         let validateUrl name key url := do
           if url.isEmpty then
             error s!"cache service `{name}` is missing field `{key}`"
@@ -503,19 +505,19 @@ private def loadLakeConfigCore (path : FilePath) (lakeEnv : Lake.Env) : LogIO Lo
         match cfg.kind with
         | .reservoir => do
           let apiEndpoint ← validateUrl cfg.name "apiEndpoint" cfg.apiEndpoint
-          let service := .reservoirService apiEndpoint (some cfg.name)
+          let service := .reservoirService apiEndpoint (some (.ofString cfg.name))
           return map.insert (.mkSimple cfg.name) service
         | .s3 => do
           let artifactEndpoint ← validateUrl cfg.name "artifactEndpoint" cfg.artifactEndpoint
           let revisionEndpoint ← validateUrl cfg.name "revisionEndpoint" cfg.revisionEndpoint
-          let service :=  .downloadService artifactEndpoint revisionEndpoint (some cfg.name)
+          let service :=  .downloadService artifactEndpoint revisionEndpoint (some (.ofString cfg.name))
           return map.insert (.mkSimple cfg.name) service
         | _ =>
           error s!"cache service `{cfg.name}` is missing field `kind`"
       let defaultCacheService ← id do
         let name := config.cache.defaultService
         if name.isEmpty then
-          return .reservoirService lakeEnv.reservoirApiUrl
+          return defaultService
         else
           let some service := cacheServices.get? (.mkSimple name)
             | error s!"the configured default cache service `{name}` is not defined; \

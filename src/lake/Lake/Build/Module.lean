@@ -600,7 +600,7 @@ public def Module.cacheOutputHashes (mod : Module) : IO PUnit := do
     cacheFileHash mod.bcFile
 
 def resolveModuleOutputs
-  (pkg : Package) (out : Json) (service? scope? : Option String)
+  (out : Json) (service? : Option CacheServiceName) (scope? : Option CacheServiceScope)
 : JobM ModuleOutputArtifacts := do
   match fromJson? out with
   | .ok (descrs : ModuleOutputDescrs) => do
@@ -621,7 +621,7 @@ def resolveModuleOutputs
       return arts
   | .error e =>
     error s!"ill-formed module outputs:\n{out.render.pretty 80 2}\n{e}"
-where @[inline] resolve descr := resolveArtifact pkg descr service? scope?
+where @[inline] resolve descr := resolveArtifact descr service? scope?
 
 instance : ResolveOutputs ModuleOutputArtifacts := ⟨resolveModuleOutputs⟩
 

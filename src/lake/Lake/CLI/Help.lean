@@ -38,7 +38,7 @@ COMMANDS:
   pack                  pack build artifacts into an archive for distribution
   unpack                unpack build artifacts from an distributed archive
   upload <tag>          upload build artifacts to a GitHub release
-  install <targets>...  install executables globally to ~/.elan/bin
+  install <targets>...  install executables globally to ~/.lake/bin
   cache                 manage the Lake cache
   script                manage and run workspace scripts
   scripts               shorthand for `lake script list`
@@ -590,7 +590,7 @@ USAGE:
   lake install [--git <url> [--branch <branch> | --rev <rev>]] [<targets>...]
 
 Builds the specified executable targets (or all package executables if none
-specified) and installs them to ~/.elan/bin/.
+specified) and installs them to ~/.lake/bin/.
 
 OPTIONS:
   --git <url>       Install from a Git repository URL
@@ -604,7 +604,7 @@ EXAMPLES:
   lake install --git <url> --branch dev     Install from a specific branch
   lake install --git <url> --rev v1.0.0     Install from a tag or commit
 
-Note: Requires an Elan installation."
+Tip: Add ~/.lake/bin to your PATH to use installed executables directly."
 
 public def helpScript : (cmd : String) → String
 | "list"                => helpScriptList

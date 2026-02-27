@@ -11,6 +11,7 @@ public import Lake.CLI.Build
 public import Lake.CLI.Error
 public import Lake.CLI.Help
 public import Lake.CLI.Init
+public import Lake.CLI.Install
 public import Lake.CLI.Main
 public import Lake.CLI.Serve
 public import Lake.CLI.Shake

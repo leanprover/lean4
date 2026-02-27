@@ -16,6 +16,7 @@ _(For testing new features and up-streaming them later.)_
     - [User-Defined Code Actions](#user-defined-code-actions)
     - [Diagnostic Tags](#diagnostic-tags)
     - [Linter Severity Levels](#linter-severity-levels)
+    - [Detailed Diagnostic Popups](#detailed-diagnostic-popups)
     - [`lake install` (WIP)](#lake-install-wip)
     - [Nix Build Improvements](#nix-build-improvements)
   - [Installation](#installation)
@@ -26,7 +27,6 @@ _(For testing new features and up-streaming them later.)_
     - [Development Shell](#development-shell)
     - [LSP for Lean Development](#lsp-for-lean-development)
     - [Disabling `elan`](#disabling-elan)
-    - [Testing](#testing)
   - [Related](#related)
 
 <!--toc:end-->
@@ -117,7 +117,7 @@ Detailed explanations of diagnostics are shown below doc-comments and types. Dia
 
 ### `lake install` (WIP)
 
-Install Lake executables globally to `~/.elan/bin/`. Requires an Elan installation.
+Install Lake executables globally to `~/.lake/bin/` (similar to `~/.cargo/bin` for Rust). Add `~/.lake/bin` to your `PATH` to use installed executables directly.
 
 ```bash
 lake install                              # install all executable targets
@@ -150,70 +150,6 @@ Nix flakes are a way to install heterogeneous software reproducible and easily. 
     in {
       devShells.x86_64-linux.default = pkgs.mkShell {
         packages = [ lean.lean ];
-      };
-    };
-}
-```
-
-Just add a `flake.nix` with this repo as input.
-
-```nix
-{
-
-  inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    lean4.url = "github:wvhulle/lean4";
-    lean4-nix.url = "github:lenianiva/lean4-nix";
-  };
-
-  outputs =
-    {
-      self,
-      nixpkgs,
-      lean4,
-      lean4-nix,
-    }:
-    let
-      system = "x86_64-linux";
-      pkgs = import nixpkgs {
-        inherit system;
-        config.allowUnfree = true;
-      };
-
-      lake2nix = pkgs.callPackage lean4-nix.lake {
-        lean = {
-          lean-all = lean4.packages.${system}.lake;
-        };
-      };
-
-    in
-    {
-      packages.${system}.default = lake2nix.mkPackage {
-        name = "lean-prism";
-        src = ./.;
-      };
-
-      devShells.${system} = {
-        default = pkgs.mkShell {
-          packages = with pkgs; [
-            lean4.packages.${system}.lake
-          ];
-
-        };
-
-        # Optional: only if you have a local checkout of the lean4 repo.
-        # Use locally-built lean4, no flake rebuild on source changes.
-        # Requires: make -j -C ../lean4/build/release
-        local = pkgs.mkShell {
-          packages = with pkgs; [
-            gcc
-            llvmPackages.bintools
-          ];
-
-          shellHook = ''
-            export PATH="$PWD/../lean4/build/release/stage1/bin:$PATH"
-          '';
-        };
       };
     };
 }
@@ -295,10 +231,6 @@ The dev shell sets `MAKEFLAGS="-j$(nproc)"` automatically, so all `make` invocat
 
 ### LSP for Lean Development
 
-The `src/lean-toolchain` file references `lean4-stage0`, a toolchain name that only makes sense inside the CMake build system. If elan is on your `PATH`, it intercepts `lake`/`lean` and fails to resolve this toolchain.
-
-The dev shell handles this automatically: it disables elan via `ELAN=""` and prepends `build/release/stage1/bin` to `PATH`. After building stage1, `lake serve` works from within `src/`:
-
 ```bash
 make -C build/release stage1
 cd src && lake serve
@@ -306,7 +238,7 @@ cd src && lake serve
 
 ### Disabling `elan`
 
-During development you should disable Elan. This is done with an environment variable in the flake's dev shell.
+You should disable Elan. The dev shell handles this automatically: it disables elan via `ELAN=""` and prepends `build/release/stage1/bin` to `PATH`.
 
 Otherwise, you should register a local build as a custom toolchain:
 

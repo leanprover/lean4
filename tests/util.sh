@@ -1,6 +1,7 @@
 set -eu
 
 DIFF="diff -au --strip-trailing-cr --color=always"
+ulimit -s ${TEST_STACK_SIZE:-8192}
 
 function fail {
   echo "$1"

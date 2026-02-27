@@ -1,1 +1,1 @@
-"$TEST_DIR/lint.py"
+python "$TEST_DIR/lint.py"

@@ -40,9 +40,19 @@ function exec_capture {
 
 function check_exit {
   if [[ -f "$1.exit.expected" ]]; then
-    $DIFF -- "$1.exit.expected" "$1.exit.produced" || fail "$1: Unexpected exit code"
+    EXPECTED="$(< "$1.exit.expected")"
   else
-    echo "${2:-0}" | $DIFF -- - "$1.exit.produced" || fail "$1: Unexpected exit code"
+    EXPECTED="${2:-0}"
+  fi
+
+  ACTUAL="$(< "$1.exit.produced")"
+
+  if [[ "$EXPECTED" == "nonzero" ]]; then
+    if [[ "$ACTUAL" == "0" ]]; then
+      fail "$1: Expected nonzero exit code, got 0"
+    fi
+  elif [[ "$EXPECTED" != "$ACTUAL" ]]; then
+    fail "$1: Expected exit code $EXPECTED, got $ACTUAL"
   fi
 }
 

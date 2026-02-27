@@ -193,6 +193,7 @@ These files are available to configure a test:
 - `<file>.exit.expected`:
   The test fails if its exit code doesn't match this file's contents.
   If this file isn't present, the pile's default exit code is used instead.
+  If this file contains the text `nonzero`, the test's exit code must not be 0.
 
 These bash variables (set via `<file>.init.sh`) are used by the run script:
 
@@ -234,6 +235,7 @@ These files are available to configure a test:
 - `<file>.exit.expected`:
   The test fails if its exit code doesn't match this file's contents.
   If this file isn't present, the test's exit code must be 0.
+  If this file contains the text `nonzero`, the test's exit code must not be 0.
 
 These bash variables (set via `<file>.init.sh`) are used by the run script:
 

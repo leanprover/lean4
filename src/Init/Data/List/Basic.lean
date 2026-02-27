@@ -2184,7 +2184,7 @@ def intersperse (sep : α) : (l : List α) → List α
 @[simp] theorem intersperse_nil {sep : α} : ([] : List α).intersperse sep = [] := rfl
 @[simp] theorem intersperse_singleton {x : α} {sep : α} : [x].intersperse sep = [x] := rfl
 @[deprecated intersperse_singleton (since := "2026-02-26")]
-@[simp] theorem intersperse_single {x : α} {sep : α} : [x].intersperse sep = [x] := rfl
+theorem intersperse_single {x : α} {sep : α} : [x].intersperse sep = [x] := rfl
 @[simp] theorem intersperse_cons_cons {x : α} {y : α} {zs : List α} {sep : α} :
     (x::y::zs).intersperse sep = x::sep::((y::zs).intersperse sep) := rfl
 

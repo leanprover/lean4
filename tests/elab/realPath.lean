@@ -9,6 +9,7 @@ This test will need to be updated once that issue is fixed.
 
 def realPathTest : IO Unit := do
   unless System.Platform.isWindows do
+    IO.println "This test only does something on Windows."
     return
   let dir ← IO.currentDir
   let tmpDir := dir / "tmp_realpath_test_dir"

@@ -147,7 +147,7 @@ def mkLevelMax (u v : Level) :=
 def mkLevelIMax (u v : Level) :=
   Level.imax u v
 
-@[implicit_reducible] def levelOne := mkLevelSucc levelZero
+def levelOne := mkLevelSucc levelZero
 
 @[export lean_level_mk_zero] def mkLevelZeroEx : Unit → Level := fun _ => levelZero
 @[export lean_level_mk_succ] def mkLevelSuccEx : Level → Level := mkLevelSucc

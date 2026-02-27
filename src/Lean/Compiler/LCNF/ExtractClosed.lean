@@ -13,7 +13,6 @@ public import Lean.Compiler.LCNF.ToExpr
 import Lean.Compiler.LCNF.ElimDead
 import Lean.Compiler.LCNF.DependsOn
 meta import Init.Data.FloatArray.Basic
-import Lean.Compiler.LCNF.ElimDead
 
 public section
 

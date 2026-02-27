@@ -207,6 +207,16 @@ where
         let alignedSsize := align i.ssize 8
         let ssizeArgs := Array.replicate alignedSsize 0
         compileSetChain decl.fvarId i objArgs usizeArgs ssizeArgs k
+    | .box _ fvarId =>
+      match (← get).groundMap[fvarId]! with
+      | .uint8 v =>
+        record decl.fvarId (.arg (.tagged v.toNat))
+        go k
+      | .uint16 v =>
+        record decl.fvarId (.arg (.tagged v.toNat))
+        go k
+      -- boxed uint32/uint64 get extracted into separate closed terms automatically
+      | _ => failure
     | _ => failure
 
   compileSetChain (id : FVarId) (info : CtorInfo) (objArgs : Array SimpleGroundArg)
@@ -291,10 +301,17 @@ where
         nameAcc := .str nameAcc str
         processedArgs := processedArgs.push (ref, nameAcc.hash)
       return .nameMkStr processedArgs
-    | .pap c ys => return .pap c (← compileArgs ys)
     | .fap c #[] =>
       guard <| isSimpleGroundDecl (← getEnv) c
       return .reference c
+    | .box _ fvarId =>
+      match (← get).groundMap[fvarId]! with
+      | .uint32 _ => failure -- TODO: figure out how to do this properly with 32/64bit restrictions
+      | .uint64 v => return .ctor 0 #[] #[] (uint64ToByteArrayLE v)
+      | .usize v => return .ctor 0 #[] #[v] #[]
+      | .uint8 _ | .uint16 _ -- boxed uint8/uint16 should never be final expressions
+      | _ => failure
+    | .pap c ys => return .pap c (← compileArgs ys)
     | _ => failure
 
   compileArg (arg : Arg .impure) : DetectM SimpleGroundArg := do

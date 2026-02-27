@@ -496,3 +496,113 @@ trace: [Compiler.simpleGround] Marked testWithUSizeAndScalars._closed_0 as simpl
 set_option trace.Compiler.saveImpure true in
 set_option trace.Compiler.simpleGround true in
 def testWithUSizeAndScalars : WithUSizeAndScalars := ⟨"WUAS", 0, 1, 2, 3, 4⟩
+
+
+/--
+trace: [Compiler.simpleGround] Marked uint8Pair._closed_0 as simple ground expr
+[Compiler.simpleGround] Marked uint8Pair as simple ground expr
+[Compiler.saveImpure] size: 5
+    def uint8Pair._closed_0 : obj :=
+      let _x.1 := 3;
+      let _x.2 := 1;
+      let _x.3 := box _x.2;
+      let _x.4 := box _x.1;
+      let _x.5 := ctor_0[Prod.mk] _x.3 _x.4;
+      return _x.5
+[Compiler.saveImpure] size: 1
+    def uint8Pair : obj :=
+      let _x.1 := uint8Pair._closed_0;
+      return _x.1
+-/
+#guard_msgs in
+set_option trace.Compiler.saveImpure true in
+set_option trace.Compiler.simpleGround true in
+def uint8Pair : UInt8 × UInt8 := (1,3)
+
+
+/--
+trace: [Compiler.simpleGround] Marked uint16Pair._closed_0 as simple ground expr
+[Compiler.simpleGround] Marked uint16Pair as simple ground expr
+[Compiler.saveImpure] size: 5
+    def uint16Pair._closed_0 : obj :=
+      let _x.1 := 3;
+      let _x.2 := 1;
+      let _x.3 := box _x.2;
+      let _x.4 := box _x.1;
+      let _x.5 := ctor_0[Prod.mk] _x.3 _x.4;
+      return _x.5
+[Compiler.saveImpure] size: 1
+    def uint16Pair : obj :=
+      let _x.1 := uint16Pair._closed_0;
+      return _x.1
+-/
+#guard_msgs in
+set_option trace.Compiler.saveImpure true in
+set_option trace.Compiler.simpleGround true in
+def uint16Pair : UInt16 × UInt16 := (1,3)
+
+-- TODO: UInt32 support
+
+
+/--
+trace: [Compiler.simpleGround] Marked uint64Pair._closed_0._boxed_const_1 as simple ground expr
+[Compiler.simpleGround] Marked uint64Pair._closed_0._boxed_const_2 as simple ground expr
+[Compiler.simpleGround] Marked uint64Pair._closed_0 as simple ground expr
+[Compiler.simpleGround] Marked uint64Pair as simple ground expr
+[Compiler.saveImpure] size: 2
+    def uint64Pair._closed_0._boxed_const_1 : tobj :=
+      let _x.1 := 1;
+      let _x.2 := box _x.1;
+      return _x.2
+[Compiler.saveImpure] size: 2
+    def uint64Pair._closed_0._boxed_const_2 : tobj :=
+      let _x.1 := 3;
+      let _x.2 := box _x.1;
+      return _x.2
+[Compiler.saveImpure] size: 3
+    def uint64Pair._closed_0 : obj :=
+      let _x.1 := uint64Pair._closed_0._boxed_const_1;
+      let _x.2 := uint64Pair._closed_0._boxed_const_2;
+      let _x.3 := ctor_0[Prod.mk] _x.1 _x.2;
+      return _x.3
+[Compiler.saveImpure] size: 1
+    def uint64Pair : obj :=
+      let _x.1 := uint64Pair._closed_0;
+      return _x.1
+-/
+#guard_msgs in
+set_option trace.Compiler.saveImpure true in
+set_option trace.Compiler.simpleGround true in
+def uint64Pair : UInt64 × UInt64 := (1,3)
+
+
+/--
+trace: [Compiler.simpleGround] Marked usizePair._closed_0._boxed_const_1 as simple ground expr
+[Compiler.simpleGround] Marked usizePair._closed_0._boxed_const_2 as simple ground expr
+[Compiler.simpleGround] Marked usizePair._closed_0 as simple ground expr
+[Compiler.simpleGround] Marked usizePair as simple ground expr
+[Compiler.saveImpure] size: 2
+    def usizePair._closed_0._boxed_const_1 : tobj :=
+      let _x.1 := 1;
+      let _x.2 := box _x.1;
+      return _x.2
+[Compiler.saveImpure] size: 2
+    def usizePair._closed_0._boxed_const_2 : tobj :=
+      let _x.1 := 3;
+      let _x.2 := box _x.1;
+      return _x.2
+[Compiler.saveImpure] size: 3
+    def usizePair._closed_0 : obj :=
+      let _x.1 := usizePair._closed_0._boxed_const_1;
+      let _x.2 := usizePair._closed_0._boxed_const_2;
+      let _x.3 := ctor_0[Prod.mk] _x.1 _x.2;
+      return _x.3
+[Compiler.saveImpure] size: 1
+    def usizePair : obj :=
+      let _x.1 := usizePair._closed_0;
+      return _x.1
+-/
+#guard_msgs in
+set_option trace.Compiler.saveImpure true in
+set_option trace.Compiler.simpleGround true in
+def usizePair : USize × USize := (1,3)

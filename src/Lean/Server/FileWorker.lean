@@ -209,8 +209,11 @@ This option can only be set on the command line, not in the lakefile or via `set
   -/
   private def publishDiagnostics (ctx : WorkerContext) (doc : EditableDocumentCore)
       : BaseIO Unit := do
-    let diagnostics := (← doc.diagnosticsRef.get).map (·.toDiagnostic)
-    let notification := mkPublishDiagnosticsNotification doc.meta diagnostics
+    let diags ← doc.diagnosticsRef.get
+    let lastCount ← doc.lastPublishedCount.get
+    if diags.size == lastCount then return
+    doc.lastPublishedCount.set diags.size
+    let notification := mkPublishDiagnosticsNotification doc.meta (diags.map (·.toDiagnostic))
     ctx.chanOut.sync.send <| .ofMsg notification
 
   open Language in
@@ -537,6 +540,7 @@ section Initialization
     let doc : EditableDocumentCore := {
       «meta» := doc, initSnap
       diagnosticsRef := (← IO.mkRef ∅)
+      lastPublishedCount := (← IO.mkRef 0)
     }
     let reporterCancelTk ← CancelToken.new
     let reporter ← reportSnapshots ctx doc reporterCancelTk
@@ -623,6 +627,7 @@ section Updates
     let doc : EditableDocumentCore := {
       «meta» := doc, initSnap
       diagnosticsRef := (← IO.mkRef ∅)
+      lastPublishedCount := (← IO.mkRef 0)
     }
     let reporterCancelTk ← CancelToken.new
     let reporter ← reportSnapshots ctx doc reporterCancelTk
@@ -1015,6 +1020,8 @@ def runRefreshTasks : WorkerM (Array (ServerTask Unit)) := do
   let ctx ← read
   let mut tasks := #[]
   for (method, refreshMethod, refreshIntervalMs) in ← partialLspRequestHandlerMethods do
+    unless ctx.initParams.capabilities.supportsRefresh refreshMethod do
+      continue
     tasks := tasks.push <| ← ServerTask.BaseIO.asTask do
       while true do
         let lastRefreshTimestamp? ← ctx.modifyGetPartialHandler method fun h => Id.run do

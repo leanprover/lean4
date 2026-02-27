@@ -56,6 +56,8 @@ structure EditableDocumentCore where
   `handleGetInteractiveDiagnosticsRequest`.
   -/
   diagnosticsRef : IO.Ref (Array Widget.InteractiveDiagnostic)
+  /-- Count of diagnostics last published, used to avoid re-publishing identical diagnostic sets. -/
+  lastPublishedCount : IO.Ref Nat
 
 /-- `EditableDocumentCore` with reporter task. -/
 structure EditableDocument extends EditableDocumentCore where

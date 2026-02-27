@@ -46,7 +46,7 @@ theorem isLongestMatchAt_iff {c : Char} {s : Slice} {pos pos' : s.Pos} :
   simp +contextual [Model.isLongestMatchAt_iff, isLongestMatch_iff, ← Pos.ofSliceFrom_inj,
     Pos.get_eq_get_ofSliceFrom, Pos.ofSliceFrom_next]
 
-theorem isLongestMatchAt_of_get_eq {c: Char} {s : Slice} {pos : s.Pos} {h : pos ≠ s.endPos}
+theorem isLongestMatchAt_of_get_eq {c : Char} {s : Slice} {pos : s.Pos} {h : pos ≠ s.endPos}
     (hc : pos.get h = c) : IsLongestMatchAt c pos (pos.next h) :=
   isLongestMatchAt_iff.2 ⟨h, by simp [hc]⟩
 

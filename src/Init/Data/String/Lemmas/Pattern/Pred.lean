@@ -47,6 +47,10 @@ theorem isLongestMatchAt_iff {p : Char → Bool} {s : Slice} {pos pos' : s.Pos} 
   simp +contextual [Model.isLongestMatchAt_iff, isLongestMatch_iff, ← Pos.ofSliceFrom_inj,
     Pos.get_eq_get_ofSliceFrom, Pos.ofSliceFrom_next]
 
+theorem isLongestMatchAt_of_get {p : Char → Bool} {s : Slice} {pos : s.Pos} {h : pos ≠ s.endPos}
+    (hc : p (pos.get h)) : IsLongestMatchAt p pos (pos.next h) :=
+  isLongestMatchAt_iff.2 ⟨h, by simp [hc]⟩
+
 instance {p : Char → Bool} : LawfulForwardPatternModel p where
   dropPrefix?_eq_some_iff {s} pos := by
     simp [isLongestMatch_iff, ForwardPattern.dropPrefix?, and_comm, eq_comm (b := pos)]
@@ -57,6 +61,10 @@ instance {p : Char → Bool} : LawfulToForwardSearcherModel p :=
 theorem matchesAt_iff {p : Char → Bool} {s : Slice} {pos : s.Pos} :
     MatchesAt p pos ↔ ∃ (h : pos ≠ s.endPos), p (pos.get h) := by
   simp [matchesAt_iff_exists_isLongestMatchAt, isLongestMatchAt_iff, exists_comm]
+
+theorem not_matchesAt_of_get {p : Char → Bool} {s : Slice} {pos : s.Pos} {h : pos ≠ s.endPos}
+    (hc : p (pos.get h) = false) : ¬ MatchesAt p pos := by
+  simp [matchesAt_iff, hc]
 
 theorem matchAt?_eq {s : Slice} {pos : s.Pos} {p : Char → Bool} :
     matchAt? p pos =
@@ -100,6 +108,10 @@ theorem isLongestMatchAt_iff {p : Char → Prop} [DecidablePred p] {s : Slice}
     IsLongestMatchAt p pos pos' ↔ ∃ h, pos' = pos.next h ∧ p (pos.get h) := by
   simp [isLongestMatchAt_iff_isLongestMatchAt_decide, CharPred.isLongestMatchAt_iff]
 
+theorem isLongestMatchAt_of_get {p : Char → Prop} [DecidablePred p] {s : Slice} {pos : s.Pos}
+    {h : pos ≠ s.endPos} (hc : p (pos.get h)) : IsLongestMatchAt p pos (pos.next h) :=
+  isLongestMatchAt_iff.2 ⟨h, by simp [hc]⟩
+
 theorem dropPrefix?_eq_dropPrefix?_decide {p : Char → Prop} [DecidablePred p] :
     ForwardPattern.dropPrefix? p = ForwardPattern.dropPrefix? (decide <| p ·) := rfl
 
@@ -114,6 +126,10 @@ instance {p : Char → Prop} [DecidablePred p] : LawfulToForwardSearcherModel p 
 theorem matchesAt_iff {p : Char → Prop} [DecidablePred p] {s : Slice} {pos : s.Pos} :
     MatchesAt p pos ↔ ∃ (h : pos ≠ s.endPos), p (pos.get h) := by
   simp [matchesAt_iff_exists_isLongestMatchAt, isLongestMatchAt_iff, exists_comm]
+
+theorem not_matchesAt_of_get {p : Char → Prop} [DecidablePred p] {s : Slice} {pos : s.Pos}
+    {h : pos ≠ s.endPos} (hc : ¬ p (pos.get h)) : ¬ MatchesAt p pos := by
+  simp [matchesAt_iff, hc]
 
 theorem matchAt?_eq {s : Slice} {pos : s.Pos} {p : Char → Prop} [DecidablePred p] :
     matchAt? p pos =

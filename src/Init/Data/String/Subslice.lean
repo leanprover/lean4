@@ -77,13 +77,14 @@ instance {s : Slice} : ToString s.Subslice where
   toString
 
 @[simp]
-theorem copy_eq {s : Slice} {sl : s.Subslice} : sl.copy = sl.toSlice.copy := (rfl)
+theorem copy_eq {s : Slice} : copy (s := s) = Slice.copy ∘ toSlice := (rfl)
 
 @[simp]
-theorem toString_eq {s : Slice} {sl : s.Subslice} : sl.toString = sl.toSlice.copy := (rfl)
+theorem toString_eq {s : Slice} : toString (s := s) = Slice.copy ∘ toSlice := (rfl)
 
 @[simp]
-theorem toStringToString_eq {s : Slice} {sl : s.Subslice} : ToString.toString sl = sl.toSlice.copy := (rfl)
+theorem toStringToString_eq {s : Slice} :
+    ToString.toString (α := s.Subslice) = Slice.copy ∘ toSlice := (rfl)
 
 end Subslice
 
@@ -155,10 +156,6 @@ theorem startInclusive_toSubslice {s : Slice} : s.toSubslice.startInclusive = s.
 @[simp]
 theorem endExclusive_toSubslice {s : Slice} : s.toSubslice.endExclusive = s.endPos := by
   simp [toSubslice]
-
-@[simp]
-theorem subslice_endPos {s : Slice} {newStart : s.Pos} :
-    s.subslice newStart s.endPos (Slice.Pos.le_endPos _) = s.subsliceFrom newStart := (rfl)
 
 namespace Subslice
 

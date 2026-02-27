@@ -369,6 +369,12 @@ theorem String.ofList_toList {s : String} : String.ofList s.toList = s := by
 theorem String.asString_data {b : String} : String.ofList b.toList = b :=
   String.ofList_toList
 
+@[simp]
+theorem String.ofList_comp_toList : String.ofList ∘ String.toList = id := by ext; simp
+
+@[simp]
+theorem String.toList_comp_ofList : String.toList ∘ String.ofList = id := by ext; simp
+
 theorem String.ofList_injective {l₁ l₂ : List Char} (h : String.ofList l₁ = String.ofList l₂) : l₁ = l₂ := by
   simpa using congrArg String.toList h
 

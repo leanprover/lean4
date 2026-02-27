@@ -8,7 +8,9 @@ module
 prelude
 public import Init.Data.String.Lemmas.Pattern.Basic
 public import Init.Data.String.Slice
+public import Init.Data.String.Search
 import all Init.Data.String.Slice
+import all Init.Data.String.Search
 import Init.Data.Option.Lemmas
 import Init.Data.String.Termination
 import Init.Data.String.Lemmas.Order
@@ -17,6 +19,7 @@ import Init.Data.Order.Lemmas
 import Init.Data.String.OrderInstances
 import Init.Data.Iterators.Lemmas.Basic
 import Init.Data.Iterators.Lemmas.Consumers.Collect
+import Init.Data.Iterators.Lemmas.Combinators.FilterMap
 
 set_option doc.verso true
 
@@ -157,4 +160,22 @@ public theorem toList_splitToSubslice_eq_modelSplit {ρ : Type} (pat : ρ) [Forw
     s.startPos s.startPos (Std.le_refl _) _ (LawfulToForwardSearcherModel.isValidSearchFrom_toList _)]
   simp
 
-end String.Slice.Pattern
+end Pattern
+
+open Pattern
+
+public theorem toList_split_eq_splitToSubslice {ρ : Type} (pat : ρ) {σ : Slice → Type}
+    [ToForwardSearcher pat σ] [∀ s, Std.Iterator (σ s) Id (SearchStep s)]
+    [∀ s, Std.Iterators.Finite (σ s) Id] {s : Slice} :
+    (s.split pat).toList = (s.splitToSubslice pat).toList.map Subslice.toSlice := by
+  simp [split, Std.Iter.toList_map]
+
+end Slice
+
+open Slice.Pattern
+
+public theorem split_eq_split_toSlice {ρ : Type} {pat : ρ} {σ : Slice → Type}
+    [ToForwardSearcher pat σ] [∀ s, Std.Iterator (σ s) Id (SearchStep s)] {s : String} :
+  s.split pat = s.toSlice.split pat := (rfl)
+
+end String

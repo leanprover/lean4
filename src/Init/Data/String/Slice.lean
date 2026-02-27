@@ -75,13 +75,13 @@ def toString (s : Slice) : String :=
   s.copy
 
 @[simp]
-theorem toString_eq_copy : toString = copy := (rfl)
+theorem toString_eq : toString = copy := (rfl)
 
 instance : ToString String.Slice where
   toString := toString
 
 @[simp]
-theorem toStringToString_eq_copy : ToString.toString = String.Slice.copy := (rfl)
+theorem toStringToString_eq : ToString.toString = String.Slice.copy := (rfl)
 
 @[extern "lean_slice_hash"]
 opaque hash (s : @& Slice) : UInt64

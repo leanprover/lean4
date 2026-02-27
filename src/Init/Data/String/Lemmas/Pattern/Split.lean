@@ -7,3 +7,5 @@ module
 
 prelude
 public import Init.Data.String.Lemmas.Pattern.Split.Basic
+public import Init.Data.String.Lemmas.Pattern.Split.Char
+public import Init.Data.String.Lemmas.Pattern.Split.Pred

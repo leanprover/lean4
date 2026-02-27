@@ -67,6 +67,7 @@ theorem splitOnP.go_acc {xs acc : List α} :
     splitOnPPrepend p xs acc = modifyHead (acc.reverse ++ ·) (splitOnP p xs) :=
   splitOnPPrepend_eq_modifyHead
 
+@[simp]
 theorem splitOnP_ne_nil (p : α → Bool) (xs : List α) : xs.splitOnP p ≠ [] :=
   splitOnPPrepend_ne_nil p xs []
 
@@ -129,38 +130,79 @@ theorem splitOnP_first (h : ∀ x ∈ xs, p x = false) (sep : α)
     (hsep : p sep = true) (as : List α) : (xs ++ sep :: as).splitOnP p = xs :: as.splitOnP p :=
   splitOnP_append_cons_of_forall_mem h sep hsep as
 
-@[simp]
 theorem splitOn_eq_splitOnP [BEq α] {x : α} {xs : List α} : xs.splitOn x = xs.splitOnP (· == x) :=
   (rfl)
+
+@[simp]
+theorem splitOn_ne_nil [BEq α] (a : α) (xs : List α) : xs.splitOn a ≠ [] := by
+  simp [splitOn_eq_splitOnP]
+
+theorem splitOn_cons_eq_if_modifyHead [BEq α] {a : α} (x : α) (xs : List α) :
+    (x :: xs).splitOn a =
+      if x == a then [] :: xs.splitOn a else (xs.splitOn a).modifyHead (cons x) := by
+  simpa [splitOn_eq_splitOnP] using splitOnP_cons_eq_if_modifyHead ..
+
+/-- If no element satisfies `p` in the list `xs`, then `xs.splitOnP p = [xs]` -/
+theorem splitOn_eq_singleton_of_beq_eq_false [BEq α] {a : α} (h : ∀ x ∈ xs, (x == a) = false) :
+    xs.splitOn a = [xs] := by
+  simpa [splitOn_eq_splitOnP] using splitOnP_eq_singleton h
+
+theorem splitOn_eq_singleton [BEq α] [LawfulBEq α] {a : α} (h : a ∉ xs) :
+    xs.splitOn a = [xs] :=
+  splitOn_eq_singleton_of_beq_eq_false
+    (fun _ hb => beq_eq_false_iff_ne.2 (fun hab => absurd hb (hab ▸ h)))
+
+/-- When a list of the form `[...xs, sep, ...as]` is split at the `sep` element equal to `a`,
+the result is the concatenation of `splitOnP` called on `xs` and `as` -/
+theorem splitOn_append_cons_of_beq [BEq α] {a : α} (xs as : List α) {sep : α} (hsep : sep == a) :
+    (xs ++ sep :: as).splitOn a = List.splitOn a xs ++ List.splitOn a as := by
+  simpa [splitOn_eq_splitOnP] using splitOnP_append_cons (p := (· == a)) _ _ hsep
+
+/-- When a list of the form `[...xs, sep, ...as]` is split at `a`,
+the result is the concatenation of `splitOnP` called on `xs` and `as` -/
+theorem splitOn_append_cons_self [BEq α] [ReflBEq α] {a : α} (xs as : List α) :
+    (xs ++ a :: as).splitOn a = List.splitOn a xs ++ List.splitOn a as :=
+  splitOn_append_cons_of_beq _ _ (BEq.refl _)
+
+/-- When a list of the form `[...xs, sep, ...as]` is split at `a`, the first element is `xs`,
+  assuming no element in `xs` is equal to `a` but `sep` is equal to `a`. -/
+theorem splitOn_append_cons_of_forall_mem_beq_eq_false [BEq α] {a : α}
+    (h : ∀ x ∈ xs, (x == a) = false) (sep : α)
+    (hsep : sep == a) (as : List α) : (xs ++ sep :: as).splitOn a = xs :: as.splitOn a := by
+  simpa [splitOn_eq_splitOnP] using splitOnP_append_cons_of_forall_mem h _ hsep _
+
+/-- When a list of the form `[...xs, a, ...as]` is split at `a`, the first element is `xs`,
+  assuming no element in `xs` is equal to `a`. -/
+theorem splitOn_append_cons_self_of_not_mem [BEq α] [LawfulBEq α] {a : α}
+    (h : a ∉ xs) (as : List α) : (xs ++ a :: as).splitOn a = xs :: as.splitOn a :=
+  splitOn_append_cons_of_forall_mem_beq_eq_false
+    (fun b hb => beq_eq_false_iff_ne.2 fun hab => absurd hb (hab ▸ h)) _ (by simp) _
 
 /-- `intercalate [x]` is the left inverse of `splitOn x` -/
 @[simp]
 theorem intercalate_splitOn [BEq α] [LawfulBEq α] (x : α) : [x].intercalate (xs.splitOn x) = xs := by
-  simp only [splitOn_eq_splitOnP]
   induction xs with
   | nil => simp
   | cons hd tl ih =>
-    simp only [splitOnP_cons_eq_if_modifyHead, beq_iff_eq]
+    simp only [splitOn_cons_eq_if_modifyHead, beq_iff_eq]
     split
-    · simp_all [intercalate_cons_of_ne_nil, splitOnP_ne_nil]
-    · have hsp := splitOnP_ne_nil (· == x) tl
-      generalize splitOnP (· == x) tl = ls at *
+    · simp_all [intercalate_cons_of_ne_nil, splitOn_ne_nil]
+    · have hsp := splitOn_ne_nil x tl
+      generalize splitOn x tl = ls at *
       cases ls <;> simp_all
 
 /-- `splitOn x` is the left inverse of `intercalate [x]`, on the domain
 consisting of each nonempty list of lists `ls` whose elements do not contain `x` -/
 theorem splitOn_intercalate [BEq α] [LawfulBEq α] (x : α) (hx : ∀ l ∈ ls, x ∉ l) (hls : ls ≠ []) :
     ([x].intercalate ls).splitOn x = ls := by
-  simp only [splitOn_eq_splitOnP]
   induction ls with
   | nil => simp at hls
   | cons hd tl ih =>
     simp only [mem_cons, forall_eq_or_imp] at ⊢ hx
-    have (y) (hy : y ∈ hd) : (y == x) = false := beq_eq_false_iff_ne.2 fun h => absurd hy (h ▸ hx.1)
     match tl with
-    | [] => simpa using splitOnP_eq_singleton this
+    | [] => simpa using splitOn_eq_singleton hx.1
     | t::tl =>
       simp only [intercalate_cons_cons, append_assoc, cons_append, nil_append]
-      rw [splitOnP_append_cons_of_forall_mem this _ (by simp), ih hx.2 (by simp)]
+      rw [splitOn_append_cons_self_of_not_mem hx.1, ih hx.2 (by simp)]
 
 end List

@@ -109,6 +109,12 @@ Create diagnostics with different levels. Notice how different levels generate d
 
 ![](./images/info.png)
 
+### Detailed Diagnostic Popups
+
+Detailed explanations of diagnostics are shown below doc-comments and types. Diagnostic providers should pass extra metadata with every violation.
+
+![](./images/hover.png)
+
 ### `lake install` (WIP)
 
 Install Lake executables globally to `~/.elan/bin/`. Requires an Elan installation.

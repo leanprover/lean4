@@ -2,17 +2,33 @@
 ## Environment ##
 #################
 
-# MSYS2 bash usually handles Windows paths relatively well, but not when putting them in the PATH
-string(REGEX REPLACE "^([a-zA-Z]):" "/\\1" LEAN_BIN "${CMAKE_BINARY_DIR}/bin")
+# MSYS2 bash usually handles Windows paths relatively well, but not in all situations.
+# Thus, rewrite C:/foo/bar to /C/foo/bar on Windows.
+function(mangle_windows_path OUT PATH)
+  if(WIN32)
+    string(REGEX REPLACE "^([a-zA-Z]):" "/\\1" RESULT "${PATH}")
+    # Replace with return(PROPAGATE) if we ever update to cmake 3.25+
+    set("${OUT}" "${RESULT}" PARENT_SCOPE)
+  else()
+    # Replace with return(PROPAGATE) if we ever update to cmake 3.25+
+    set("${OUT}" "${PATH}" PARENT_SCOPE)
+  endif()
+endfunction()
+
+mangle_windows_path(MANGLED_BINARY_DIR "${CMAKE_BINARY_DIR}")
+mangle_windows_path(MANGLED_SOURCE_DIR "${CMAKE_SOURCE_DIR}")
+mangle_windows_path(MANGLED_CURRENT_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
+
+set(LEAN_BIN "${MANGLED_BINARY_DIR}/bin")
 
 set(TEST_VARS "${LEAN_TEST_VARS}")
 
 # Test scripts can use these to find other parts of the repo, e.g. "$TEST_DIR/measure.py"
 string(APPEND TEST_VARS " STAGE='${STAGE}'") # Using this should not normally be necessary
-string(APPEND TEST_VARS " SRC_DIR='${CMAKE_SOURCE_DIR}'")
-string(APPEND TEST_VARS " TEST_DIR='${CMAKE_CURRENT_SOURCE_DIR}'")
-string(APPEND TEST_VARS " BUILD_DIR='${CMAKE_BINARY_DIR}'")
-string(APPEND TEST_VARS " SCRIPT_DIR='${CMAKE_SOURCE_DIR}/../script'")
+string(APPEND TEST_VARS " SRC_DIR='${MANGLED_SOURCE_DIR}'")
+string(APPEND TEST_VARS " TEST_DIR='${MANGLED_CURRENT_SOURCE_DIR}'")
+string(APPEND TEST_VARS " BUILD_DIR='${MANGLED_BINARY_DIR}'")
+string(APPEND TEST_VARS " SCRIPT_DIR='${MANGLED_SOURCE_DIR}/../script'")
 
 # Use the current stage's lean binary instead of whatever lake thinks we want
 string(APPEND TEST_VARS " PATH='${LEAN_BIN}':\"$PATH\"")

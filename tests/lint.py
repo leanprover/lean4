@@ -190,5 +190,15 @@ for file in Path().glob("**/run_bench"):
         nag("has env_test.sh", file)
 
 
+# File confusion by case insensitive filesystems
+
+seen: set[str] = set()
+for file in Path().glob("**/*"):
+    path = str(file).lower()
+    if path in seen:
+        nag("case sensitive", file)
+    seen.add(path)
+
+
 if ERROR:
     sys.exit(1)

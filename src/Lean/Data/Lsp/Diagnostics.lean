@@ -8,6 +8,7 @@ module
 
 prelude
 public import Lean.Data.Lsp.Basic
+public import Lean.Data.Lsp.DiagnosticRelatedInformation
 public import Lean.Data.Lsp.DiagnosticTag
 public import Lean.Data.Lsp.Utf16
 
@@ -87,14 +88,6 @@ instance : ToJson LeanDiagnosticTag where
   toJson
   | .unsolvedGoals => (1 : Nat)
   | .goalsAccomplished => (2 : Nat)
-
-/-- Represents a related message and source code location for a diagnostic.
-    This should be used to point to code locations that cause or are related to
-    a diagnostics, e.g when duplicating a symbol in a scope. -/
-structure DiagnosticRelatedInformation where
-  location : Location
-  message : String
-  deriving Inhabited, BEq, ToJson, FromJson, Ord
 
 /-- Represents a diagnostic, such as a compiler error or warning. Diagnostic objects are only valid in the scope of a resource.
 

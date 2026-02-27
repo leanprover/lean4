@@ -257,6 +257,7 @@ def msgToInteractiveDiagnostic (text : FileMap) (m : Message) (hasWidgets : Bool
     match Lean.Json.parse s with
     | .ok j => some j
     | .error _ => none
-  pure { range, fullRange? := some fullRange, severity?, source?, message, tags?, leanTags?, isSilent?, code?, data? }
+  let relatedInformation? := m.relatedInformation?
+  pure { range, fullRange? := some fullRange, severity?, source?, message, tags?, leanTags?, isSilent?, code?, data?, relatedInformation? }
 
 end Lean.Widget

@@ -17,6 +17,7 @@ _(For testing new features and up-streaming them later.)_
     - [Diagnostic Tags](#diagnostic-tags)
     - [Linter Severity Levels](#linter-severity-levels)
     - [Detailed Diagnostic Popups](#detailed-diagnostic-popups)
+    - [LSP Initialization Options](#lsp-initialization-options)
     - [`lake install` (WIP)](#lake-install-wip)
     - [Nix Build Improvements](#nix-build-improvements)
   - [Installation](#installation)
@@ -114,6 +115,21 @@ Create diagnostics with different levels. Notice how different levels generate d
 Detailed explanations of diagnostics are shown below doc-comments and types. Diagnostic providers should pass extra metadata with every violation.
 
 ![](./images/hover.png)
+
+### LSP Initialization Options
+
+Pass Lean options (the `-D` flags) through your editor's LSP config instead of CLI arguments.
+
+Helix `languages.toml`:
+
+```toml
+[language-server.lean]
+command = "lake"
+args = ["serve"]
+
+[language-server.lean.config]
+options = { "pp.all" = false, "pp.unicode" = true }
+```
 
 ### `lake install` (WIP)
 

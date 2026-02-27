@@ -9,6 +9,7 @@ module
 prelude
 public import Lean.Data.Lsp.Capabilities
 public import Lean.Data.Lsp.Workspace
+public import Lean.Util.LeanOptions
 
 public section
 
@@ -68,6 +69,11 @@ structure InitializationOptions where
   LSP messages. Defaults to false. -/
   hasWidgets? : Option Bool
   logCfg? : Option LogConfig
+  /-- Lean options (the `-D` flags) to set for this server session. These are overridden by
+  CLI `-D` flags but override per-module options from the lakefile. JSON format matches
+  `LeanOptions`: an object mapping dotted names to string/bool/nat values,
+  e.g. `{"pp.all": false, "server.reportDelayMs": 200}`. -/
+  options? : Option LeanOptions := none
   deriving ToJson, FromJson
 
 structure InitializeParams where

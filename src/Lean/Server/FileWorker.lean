@@ -1100,6 +1100,10 @@ def initAndRunWorker (i o e : FS.Stream) (opts : Options) : IO Unit := do
   }
   let e := e.withPrefix s!"[{param.textDocument.uri}] "
   let _ ← IO.setStderr e
+  -- Merge options from initializationOptions; CLI `-D` flags take precedence.
+  let opts := match initParams.param.initializationOptions?.bind (·.options?) with
+    | some lspOpts => opts.mergeBy (fun _ cliVal _ => cliVal) lspOpts.toOptions
+    | none => opts
   let (ctx, st) ← try
     initializeWorker doc o e initParams.param opts
   catch err =>

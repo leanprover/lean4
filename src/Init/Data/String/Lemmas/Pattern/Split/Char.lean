@@ -58,27 +58,21 @@ end List
 
 namespace String.Slice
 
+-- OK
 @[simp]
 theorem copy_slice_self {s : Slice} {p : s.Pos} : (s.slice p p (Std.le_refl _)).copy = "" := by
-  simp [copy_eq_empty_iff, ← Slice.startPos_eq_endPos_iff, ← Pos.ofSlice_inj]
+  simp
 
+-- OK
 @[simp]
 theorem Pos.ne_next {s : Slice} {p : s.Pos} {h : p ≠ s.endPos} : p ≠ p.next h :=
   Std.ne_of_lt (by simp)
 
-theorem Pos.get_eq_get_ofSlice {s : Slice} {p q : s.Pos} {h} {r : (s.slice p q h).Pos} {h'} :
-    r.get h' = (Pos.ofSlice r).get (by sorry) := sorry
-
-#check Pos.ofSliceFrom_lt_ofSliceFrom_iff
-
-theorem Pos.ofSlice_next {s : Slice} {p₀ p₁ : s.Pos} {h₀} {p : (s.slice p₀ p₁ h₀).Pos} {h} :
-    Pos.ofSlice (p.next h) = (Pos.ofSlice p).next (sorry) := by
-  sorry
-
+-- OK
 @[simp]
 theorem push_empty {c : Char} : "".push c = String.singleton c := rfl
 
-theorem copy_slice_of_lt {s : Slice} {p q : s.Pos} (h : p < q) :
+theorem copy_slice_eq_append_of_lt {s : Slice} {p q : s.Pos} (h : p < q) :
     (s.slice p q (Std.le_of_lt h)).copy = String.singleton (p.get (Pos.ne_endPos_of_lt h)) ++
       (s.slice (p.next (Pos.ne_endPos_of_lt h)) q (by simpa)).copy := by
   have hsp := (s.slice p q (Std.le_of_lt h)).splits_startPos
@@ -89,11 +83,7 @@ theorem copy_slice_of_lt {s : Slice} {p q : s.Pos} (h : p < q) :
 @[simp]
 theorem copy_slice_next {s : Slice} {p : s.Pos} {h} :
     (s.slice p (p.next h) (by simp)).copy = String.singleton (p.get h) := by
-  rw [copy_slice_of_lt (by simp), copy_slice_self, String.append_empty]
-
-@[simp]
-theorem Pos.ofSlice_slice {s : Slice} {p₀ p₁ p : s.Pos} {h₁ h₂} :
-    Pos.ofSlice (p.slice p₀ p₁ h₁ h₂) = p := sorry
+  rw [copy_slice_eq_append_of_lt (by simp), copy_slice_self, String.append_empty]
 
 theorem splits_slice {s : Slice} {p₀ p₁ : s.Pos} (h) (p : (s.slice p₀ p₁ h).Pos) :
     p.Splits (s.slice p₀ (Pos.ofSlice p) Pos.le_ofSlice).copy (s.slice (Pos.ofSlice p) p₁ Pos.ofSlice_le).copy := by
@@ -129,5 +119,36 @@ theorem toStringList_splitToSubslice_char {s : Slice} {c : Char} :
 
 theorem toStringList_split_char {s : Slice} {c : Char} :
     (s.split c).toStringList = (s.copy.toList.splitOnP (· == c)).map String.ofList := sorry
+
+#check String.intercalate
+
+#synth ToString String.Slice
+#check instToString
+
+theorem String.toList_intercalate {s : String} {l : List String} :
+  (s.intercalate l).toList = s.toList.intercalate  (l.map (String.toList)) := sorry
+
+@[simp]
+theorem List.intercalate_nil {l : List α} : l.intercalate [] = [] := rfl
+
+theorem List.splitOn_intercalate {α : Type u_1} (ls : List (List α)) [DecidableEq α] (x : α)
+  (hx : ∀ l ∈ ls, x ∉ l) (hls : ls ≠ []) : List.splitOnP (· == x) ([x].intercalate ls) = ls := sorry
+
+@[simp]
+theorem String.ofList_comp_toList : String.ofList ∘ String.toList = id := by ext; simp
+
+theorem String.toList_split_intercalate {c : Char} {l : List String} (hl : ∀ s ∈ l, c ∉ s.toList) :
+    ((String.intercalate (String.singleton c) l).toSlice.split c).toList.map (·.copy) = if l = [] then [""] else l := by
+  have := toStringList_split_char (s := (String.intercalate (String.singleton c) l).toSlice) (c := c)
+  simp at this
+  rw [this, String.toList_intercalate]
+  split <;> rename_i h
+  · subst h
+    simp
+  · simp only [toList_singleton]
+    rw [List.splitOn_intercalate]
+    · simp
+    · simpa using hl
+    · simpa using h
 
 end String.Slice

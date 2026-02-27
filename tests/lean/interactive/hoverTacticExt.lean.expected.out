@@ -4,7 +4,7 @@
  {"start": {"line": 16, "character": 17}, "end": {"line": 16, "character": 27}},
  "contents":
  {"value":
-  "```lean\nmy_trivial : Lean.ParserDescr\n```\n***\nAnother `trivial` tactic ",
+  "```lean\nmy_trivial : Lean.ParserDescr\n```\n\nAnother `trivial` tactic ",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hoverTacticExt.lean"},
  "position": {"line": 19, "character": 15}}
@@ -28,7 +28,7 @@
  {"start": {"line": 33, "character": 17}, "end": {"line": 33, "character": 27}},
  "contents":
  {"value":
-  "```lean\nmy_trivial : Lean.ParserDescr\n```\n***\nAnother `trivial` tactic \n\nExtensions:\n\n * It tries Lean's `trivial` \n\n * It tries `simp_all`",
+  "```lean\nmy_trivial : Lean.ParserDescr\n```\n\nAnother `trivial` tactic \n\nExtensions:\n\n * It tries Lean's `trivial` \n\n * It tries `simp_all`",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hoverTacticExt.lean"},
  "position": {"line": 38, "character": 13}}

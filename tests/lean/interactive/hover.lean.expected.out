@@ -4,7 +4,7 @@
  {"start": {"line": 3, "character": 8}, "end": {"line": 3, "character": 18}},
  "contents":
  {"value":
-  "```lean\nTrue.intro : True\n```\n***\n`True` is true, and `True.intro` (or more commonly, `trivial`)\nis the proof. \n***\n*import Init.Prelude*",
+  "```lean\nTrue.intro : True\n```\n\n`True` is true, and `True.intro` (or more commonly, `trivial`)\nis the proof. \n\n*Init.Prelude*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 7, "character": 8}}
@@ -12,7 +12,7 @@
  {"start": {"line": 7, "character": 8}, "end": {"line": 7, "character": 18}},
  "contents":
  {"value":
-  "```lean\nTrue.intro : True\n```\n***\n`True` is true, and `True.intro` (or more commonly, `trivial`)\nis the proof. \n***\n*import Init.Prelude*",
+  "```lean\nTrue.intro : True\n```\n\n`True` is true, and `True.intro` (or more commonly, `trivial`)\nis the proof. \n\n*Init.Prelude*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 12, "character": 4}}
@@ -20,7 +20,7 @@
  {"start": {"line": 12, "character": 4}, "end": {"line": 12, "character": 12}},
  "contents":
  {"value":
-  "```lean\nNat.zero : Nat\n```\n***\nZero, the smallest natural number.\n\nUsing `Nat.zero` explicitly should usually be avoided in favor of the literal `0`, which is the\n[simp normal form](REFERENCE/find/?domain=Verso.Genre.Manual.section&name=simp-normal-forms).\n\n***\n*import Init.Prelude*",
+  "```lean\nNat.zero : Nat\n```\n\nZero, the smallest natural number.\n\nUsing `Nat.zero` explicitly should usually be avoided in favor of the literal `0`, which is the\n[simp normal form](REFERENCE/find/?domain=Verso.Genre.Manual.section&name=simp-normal-forms).\n\n\n*Init.Prelude*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 21, "character": 2}}
@@ -38,7 +38,7 @@
  {"start": {"line": 21, "character": 13}, "end": {"line": 21, "character": 23}},
  "contents":
  {"value":
-  "```lean\nTrue.intro : True\n```\n***\n`True` is true, and `True.intro` (or more commonly, `trivial`)\nis the proof. \n***\n*import Init.Prelude*",
+  "```lean\nTrue.intro : True\n```\n\n`True` is true, and `True.intro` (or more commonly, `trivial`)\nis the proof. \n\n*Init.Prelude*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 28, "character": 6}}
@@ -46,7 +46,7 @@
  {"start": {"line": 28, "character": 6}, "end": {"line": 28, "character": 12}},
  "contents":
  {"value":
-  "```lean\nLean.Parser.Category.tactic : Lean.Parser.Category\n```\n***\n`tactic` is the builtin syntax category for tactics. These appear after\n`by` in proofs, and they are programs that take in the proof context\n(the hypotheses in scope plus the type of the term to synthesize) and construct\na term of the expected type. For example, `simp` is a tactic, used in:\n```\nexample : 2 + 2 = 4 := by simp\n```\n\n***\n*import Init.Notation*",
+  "```lean\nLean.Parser.Category.tactic : Lean.Parser.Category\n```\n\n`tactic` is the builtin syntax category for tactics. These appear after\n`by` in proofs, and they are programs that take in the proof context\n(the hypotheses in scope plus the type of the term to synthesize) and construct\na term of the expected type. For example, `simp` is a tactic, used in:\n```\nexample : 2 + 2 = 4 := by simp\n```\n\n\n*Init.Notation*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 28, "character": 32}}
@@ -54,7 +54,7 @@
  {"start": {"line": 28, "character": 32}, "end": {"line": 28, "character": 36}},
  "contents":
  {"value":
-  "```lean\nLean.Parser.Category.term : Lean.Parser.Category\n```\n***\n`term` is the builtin syntax category for terms. A term denotes an expression\nin lean's type theory, for example `2 + 2` is a term. The difference between\n`Term` and `Expr` is that the former is a kind of syntax, while the latter is\nthe result of elaboration. For example `by simp` is also a `Term`, but it elaborates\nto different `Expr`s depending on the context. \n***\n*import Init.Notation*",
+  "```lean\nLean.Parser.Category.term : Lean.Parser.Category\n```\n\n`term` is the builtin syntax category for terms. A term denotes an expression\nin lean's type theory, for example `2 + 2` is a term. The difference between\n`Term` and `Expr` is that the former is a kind of syntax, while the latter is\nthe result of elaboration. For example `by simp` is also a `Term`, but it elaborates\nto different `Expr`s depending on the context. \n\n*Init.Notation*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 31, "character": 6}}
@@ -62,7 +62,7 @@
  {"start": {"line": 31, "character": 6}, "end": {"line": 31, "character": 12}},
  "contents":
  {"value":
-  "```lean\nLean.Parser.Category.tactic : Lean.Parser.Category\n```\n***\n`tactic` is the builtin syntax category for tactics. These appear after\n`by` in proofs, and they are programs that take in the proof context\n(the hypotheses in scope plus the type of the term to synthesize) and construct\na term of the expected type. For example, `simp` is a tactic, used in:\n```\nexample : 2 + 2 = 4 := by simp\n```\n\n***\n*import Init.Notation*",
+  "```lean\nLean.Parser.Category.tactic : Lean.Parser.Category\n```\n\n`tactic` is the builtin syntax category for tactics. These appear after\n`by` in proofs, and they are programs that take in the proof context\n(the hypotheses in scope plus the type of the term to synthesize) and construct\na term of the expected type. For example, `simp` is a tactic, used in:\n```\nexample : 2 + 2 = 4 := by simp\n```\n\n\n*Init.Notation*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 31, "character": 24}}
@@ -70,7 +70,7 @@
  {"start": {"line": 31, "character": 23}, "end": {"line": 31, "character": 27}},
  "contents":
  {"value":
-  "```lean\nLean.Parser.Category.term : Lean.Parser.Category\n```\n***\n`term` is the builtin syntax category for terms. A term denotes an expression\nin lean's type theory, for example `2 + 2` is a term. The difference between\n`Term` and `Expr` is that the former is a kind of syntax, while the latter is\nthe result of elaboration. For example `by simp` is also a `Term`, but it elaborates\nto different `Expr`s depending on the context. \n***\n*import Init.Notation*",
+  "```lean\nLean.Parser.Category.term : Lean.Parser.Category\n```\n\n`term` is the builtin syntax category for terms. A term denotes an expression\nin lean's type theory, for example `2 + 2` is a term. The difference between\n`Term` and `Expr` is that the former is a kind of syntax, while the latter is\nthe result of elaboration. For example `by simp` is also a `Term`, but it elaborates\nto different `Expr`s depending on the context. \n\n*Init.Notation*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 36, "character": 2}}
@@ -87,33 +87,32 @@
 {"range":
  {"start": {"line": 49, "character": 15}, "end": {"line": 49, "character": 21}},
  "contents":
- {"value": "```lean\nmyNota : Lean.ParserDescr\n```\n***\nMy notation ",
+ {"value": "```lean\nmyNota : Lean.ParserDescr\n```\n\nMy notation ",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 52, "character": 7}}
 {"range":
  {"start": {"line": 52, "character": 7}, "end": {"line": 52, "character": 15}},
  "contents":
- {"value": "```lean\n1 : Nat\n```\n***\nMy notation ", "kind": "markdown"}}
+ {"value": "```lean\n1 : Nat\n```\n\nMy notation ", "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 59, "character": 7}}
 {"range":
  {"start": {"line": 59, "character": 7}, "end": {"line": 59, "character": 15}},
- "contents":
- {"value": "```lean\nNat\n```\n***\nMy notation ", "kind": "markdown"}}
+ "contents": {"value": "```lean\nNat\n```\n\nMy notation ", "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 69, "character": 7}}
 {"range":
  {"start": {"line": 69, "character": 7}, "end": {"line": 69, "character": 16}},
  "contents":
- {"value": "```lean\nNat\n```\n***\nMy ultimate notation ", "kind": "markdown"}}
+ {"value": "```lean\nNat\n```\n\nMy ultimate notation ", "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 73, "character": 21}}
 {"range":
  {"start": {"line": 73, "character": 18}, "end": {"line": 73, "character": 25}},
  "contents":
  {"value":
-  "```lean\nmyInfix : Lean.TrailingParserDescr\n```\n***\nAddition of natural numbers, typically used via the `+` operator.\n\nThis function is overridden in both the kernel and the compiler to efficiently evaluate using the\narbitrary-precision arithmetic library. The definition provided here is the logical model.\n",
+  "```lean\nmyInfix : Lean.TrailingParserDescr\n```\n\nAddition of natural numbers, typically used via the `+` operator.\n\nThis function is overridden in both the kernel and the compiler to efficiently evaluate using the\narbitrary-precision arithmetic library. The definition provided here is the logical model.\n",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 73, "character": 39}}
@@ -121,7 +120,7 @@
  {"start": {"line": 73, "character": 38}, "end": {"line": 73, "character": 45}},
  "contents":
  {"value":
-  "```lean\nNat.add : Nat → Nat → Nat\n```\n***\nAddition of natural numbers, typically used via the `+` operator.\n\nThis function is overridden in both the kernel and the compiler to efficiently evaluate using the\narbitrary-precision arithmetic library. The definition provided here is the logical model.\n\n***\n*import Init.Prelude*",
+  "```lean\nNat.add : Nat → Nat → Nat\n```\n\nAddition of natural numbers, typically used via the `+` operator.\n\nThis function is overridden in both the kernel and the compiler to efficiently evaluate using the\narbitrary-precision arithmetic library. The definition provided here is the logical model.\n\n\n*Init.Prelude*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 77, "character": 10}}
@@ -129,7 +128,7 @@
  {"start": {"line": 77, "character": 7}, "end": {"line": 77, "character": 14}},
  "contents":
  {"value":
-  "```lean\nNat\n```\n***\nAddition of natural numbers, typically used via the `+` operator.\n\nThis function is overridden in both the kernel and the compiler to efficiently evaluate using the\narbitrary-precision arithmetic library. The definition provided here is the logical model.\n",
+  "```lean\nNat\n```\n\nAddition of natural numbers, typically used via the `+` operator.\n\nThis function is overridden in both the kernel and the compiler to efficiently evaluate using the\narbitrary-precision arithmetic library. The definition provided here is the logical model.\n",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 82, "character": 7}}
@@ -137,7 +136,7 @@
  {"start": {"line": 82, "character": 7}, "end": {"line": 82, "character": 8}},
  "contents":
  {"value":
-  "```lean\nNat : Type\n```\n***\nThe natural numbers, starting at zero.\n\nThis type is special-cased by both the kernel and the compiler, and overridden with an efficient\nimplementation. Both use a fast arbitrary-precision arithmetic library (usually\n[GMP](https://gmplib.org/)); at runtime, `Nat` values that are sufficiently small are unboxed.\n\n***\n*import Init.Prelude*",
+  "```lean\nNat : Type\n```\n\nThe natural numbers, starting at zero.\n\nThis type is special-cased by both the kernel and the compiler, and overridden with an efficient\nimplementation. Both use a fast arbitrary-precision arithmetic library (usually\n[GMP](https://gmplib.org/)); at runtime, `Nat` values that are sufficiently small are unboxed.\n\n\n*Init.Prelude*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 87, "character": 14}}
@@ -145,7 +144,7 @@
  {"start": {"line": 87, "character": 14}, "end": {"line": 87, "character": 36}},
  "contents":
  {"value":
-  "```lean\nLean.Parser.Term.doSeq : Lean.Parser.Parser\n```\n***\nA `doSeq` is a sequence of `doElem`, the main argument after the `do` keyword and other\ndo elements that take blocks. It can either have the form `\"{\" (doElem \";\"?)* \"}\"` or\n`many1Indent (doElem \";\"?)`, where `many1Indent` ensures that all the items are at\nthe same or higher indentation level as the first line. \n***\n*import Lean.Parser.Do*",
+  "```lean\nLean.Parser.Term.doSeq : Lean.Parser.Parser\n```\n\nA `doSeq` is a sequence of `doElem`, the main argument after the `do` keyword and other\ndo elements that take blocks. It can either have the form `\"{\" (doElem \";\"?)* \"}\"` or\n`many1Indent (doElem \";\"?)`, where `many1Indent` ensures that all the items are at\nthe same or higher indentation level as the first line. \n\n*Lean.Parser.Do*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 89, "character": 30}}
@@ -153,7 +152,7 @@
  {"start": {"line": 89, "character": 29}, "end": {"line": 89, "character": 34}},
  "contents":
  {"value":
-  "```lean\nLean.Parser.Term.doSeq : Lean.Parser.Parser\n```\n***\nA `doSeq` is a sequence of `doElem`, the main argument after the `do` keyword and other\ndo elements that take blocks. It can either have the form `\"{\" (doElem \";\"?)* \"}\"` or\n`many1Indent (doElem \";\"?)`, where `many1Indent` ensures that all the items are at\nthe same or higher indentation level as the first line. \n***\n*import Lean.Parser.Do*",
+  "```lean\nLean.Parser.Term.doSeq : Lean.Parser.Parser\n```\n\nA `doSeq` is a sequence of `doElem`, the main argument after the `do` keyword and other\ndo elements that take blocks. It can either have the form `\"{\" (doElem \";\"?)* \"}\"` or\n`many1Indent (doElem \";\"?)`, where `many1Indent` ensures that all the items are at\nthe same or higher indentation level as the first line. \n\n*Lean.Parser.Do*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 92, "character": 2}}
@@ -172,7 +171,7 @@
   "end": {"line": 102, "character": 23}},
  "contents":
  {"value":
-  "```lean\nLean.Parser.ppSpace : Lean.Parser.Parser\n```\n***\nNo-op parser that advises the pretty printer to emit a space/soft line break. \n***\n*import Lean.Parser.Extra*",
+  "```lean\nLean.Parser.ppSpace : Lean.Parser.Parser\n```\n\nNo-op parser that advises the pretty printer to emit a space/soft line break. \n\n*Lean.Parser.Extra*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 102, "character": 24}}
@@ -181,7 +180,7 @@
   "end": {"line": 102, "character": 31}},
  "contents":
  {"value":
-  "```lean\nLean.ParserDescr.sepBy1 (p : Lean.ParserDescr) (sep : String) (psep : Lean.ParserDescr)\n  (allowTrailingSep : Bool := false) : Lean.ParserDescr\n```\n***\n`sepBy1` is just like `sepBy`, except it takes 1 or more instead of\n0 or more occurrences of `p`. \n***\n*import Init.Prelude*",
+  "```lean\nLean.ParserDescr.sepBy1 (p : Lean.ParserDescr) (sep : String) (psep : Lean.ParserDescr)\n  (allowTrailingSep : Bool := false) : Lean.ParserDescr\n```\n\n`sepBy1` is just like `sepBy`, except it takes 1 or more instead of\n0 or more occurrences of `p`. \n\n*Init.Prelude*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 102, "character": 31}}
@@ -190,7 +189,7 @@
   "end": {"line": 102, "character": 35}},
  "contents":
  {"value":
-  "```lean\nLean.Parser.Category.term : Lean.Parser.Category\n```\n***\n`term` is the builtin syntax category for terms. A term denotes an expression\nin lean's type theory, for example `2 + 2` is a term. The difference between\n`Term` and `Expr` is that the former is a kind of syntax, while the latter is\nthe result of elaboration. For example `by simp` is also a `Term`, but it elaborates\nto different `Expr`s depending on the context. \n***\n*import Init.Notation*",
+  "```lean\nLean.Parser.Category.term : Lean.Parser.Category\n```\n\n`term` is the builtin syntax category for terms. A term denotes an expression\nin lean's type theory, for example `2 + 2` is a term. The difference between\n`Term` and `Expr` is that the former is a kind of syntax, while the latter is\nthe result of elaboration. For example `by simp` is also a `Term`, but it elaborates\nto different `Expr`s depending on the context. \n\n*Init.Notation*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 111, "character": 2}}
@@ -213,7 +212,7 @@
   "end": {"line": 119, "character": 10}},
  "contents":
  {"value":
-  "```lean\nid.{u} {α : Sort u} (a : α) : α\n```\n***\nThe identity function. `id` takes an implicit argument `α : Sort u`\n(a type in any universe), and an argument `a : α`, and returns `a`.\n\nAlthough this may look like a useless function, one application of the identity\nfunction is to explicitly put a type on an expression. If `e` has type `T`,\nand `T'` is definitionally equal to `T`, then `@id T' e` typechecks, and Lean\nknows that this expression has type `T'` rather than `T`. This can make a\ndifference for typeclass inference, since `T` and `T'` may have different\ntypeclass instances on them. `show T' from e` is sugar for an `@id T' e`\nexpression.\n\n***\n*import Init.Prelude*",
+  "```lean\nid {α : Sort u} (a : α) : α\n```\n\nThe identity function. `id` takes an implicit argument `α : Sort u`\n(a type in any universe), and an argument `a : α`, and returns `a`.\n\nAlthough this may look like a useless function, one application of the identity\nfunction is to explicitly put a type on an expression. If `e` has type `T`,\nand `T'` is definitionally equal to `T`, then `@id T' e` typechecks, and Lean\nknows that this expression has type `T'` rather than `T`. This can make a\ndifference for typeclass inference, since `T` and `T'` may have different\ntypeclass instances on them. `show T' from e` is sugar for an `@id T' e`\nexpression.\n\n\n*Init.Prelude*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 119, "character": 10}}
@@ -395,7 +394,7 @@
   "end": {"line": 203, "character": 32}},
  "contents":
  {"value":
-  "```lean\nId ℕ\n```\n***\nParentheses, used for grouping expressions (e.g., `a * (b + c)`).\nCan also be used for creating simple functions when combined with `·`. Here are some examples:\n  - `(· + 1)` is shorthand for `fun x => x + 1`\n  - `(· + ·)` is shorthand for `fun x y => x + y`\n  - `(f · a b)` is shorthand for `fun x => f x a b`\n  - `(h (· + 1) ·)` is shorthand for `fun x => h (fun y => y + 1) x`\n  - also applies to other parentheses-like notations such as `(·, 1)` and `(· : Nat → Nat)`\n",
+  "```lean\nId ℕ\n```\n\nParentheses, used for grouping expressions (e.g., `a * (b + c)`).\nCan also be used for creating simple functions when combined with `·`. Here are some examples:\n  - `(· + 1)` is shorthand for `fun x => x + 1`\n  - `(· + ·)` is shorthand for `fun x y => x + y`\n  - `(f · a b)` is shorthand for `fun x => f x a b`\n  - `(h (· + 1) ·)` is shorthand for `fun x => h (fun y => y + 1) x`\n  - also applies to other parentheses-like notations such as `(·, 1)` and `(· : Nat → Nat)`\n",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 206, "character": 8}}
@@ -409,7 +408,7 @@
   "end": {"line": 206, "character": 13}},
  "contents":
  {"value":
-  "```lean\n?m x1✝ x2✝\n```\n***\n`a + b` computes the sum of `a` and `b`.\nThe meaning of this notation is type-dependent. \n\nConventions for notations in identifiers:\n\n * The recommended spelling of `+` in identifiers is `add`.",
+  "```lean\n?m x1✝ x2✝\n```\n\n`a + b` computes the sum of `a` and `b`.\nThe meaning of this notation is type-dependent. \n\nConventions for notations in identifiers:\n\n * The recommended spelling of `+` in identifiers is `add`.",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 215, "character": 28}}
@@ -453,8 +452,7 @@
  {"start": {"line": 231, "character": 17},
   "end": {"line": 231, "character": 25}},
  "contents":
- {"value": "```lean\nmy_intro : ℕ\n```\n***\nmy_intro term ",
-  "kind": "markdown"}}
+ {"value": "```lean\nmy_intro : ℕ\n```\n\nmy_intro term ", "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 235, "character": 8}}
 {"range":
@@ -466,7 +464,7 @@
  {"start": {"line": 238, "character": 4}, "end": {"line": 238, "character": 8}},
  "contents":
  {"value":
-  "```lean\nNat.zero : ℕ\n```\n***\nZero, the smallest natural number.\n\nUsing `Nat.zero` explicitly should usually be avoided in favor of the literal `0`, which is the\n[simp normal form](REFERENCE/find/?domain=Verso.Genre.Manual.section&name=simp-normal-forms).\n\n***\n*import Init.Prelude*",
+  "```lean\nNat.zero : ℕ\n```\n\nZero, the smallest natural number.\n\nUsing `Nat.zero` explicitly should usually be avoided in favor of the literal `0`, which is the\n[simp normal form](REFERENCE/find/?domain=Verso.Genre.Manual.section&name=simp-normal-forms).\n\n\n*Init.Prelude*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 241, "character": 4}}
@@ -474,7 +472,7 @@
  {"start": {"line": 241, "character": 4}, "end": {"line": 241, "character": 8}},
  "contents":
  {"value":
-  "```lean\nNat.succ (n : ℕ) : ℕ\n```\n***\nThe successor of a natural number `n`.\n\nUsing `Nat.succ n` should usually be avoided in favor of `n + 1`, which is the [simp normal\nform](REFERENCE/find/?domain=Verso.Genre.Manual.section&name=simp-normal-forms).\n\n***\n*import Init.Prelude*",
+  "```lean\nNat.succ (n : ℕ) : ℕ\n```\n\nThe successor of a natural number `n`.\n\nUsing `Nat.succ n` should usually be avoided in favor of `n + 1`, which is the [simp normal\nform](REFERENCE/find/?domain=Verso.Genre.Manual.section&name=simp-normal-forms).\n\n\n*Init.Prelude*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 241, "character": 9}}
@@ -499,7 +497,7 @@
  {"start": {"line": 249, "character": 4}, "end": {"line": 249, "character": 8}},
  "contents":
  {"value":
-  "```lean\nNat.zero : ℕ\n```\n***\nZero, the smallest natural number.\n\nUsing `Nat.zero` explicitly should usually be avoided in favor of the literal `0`, which is the\n[simp normal form](REFERENCE/find/?domain=Verso.Genre.Manual.section&name=simp-normal-forms).\n\n***\n*import Init.Prelude*",
+  "```lean\nNat.zero : ℕ\n```\n\nZero, the smallest natural number.\n\nUsing `Nat.zero` explicitly should usually be avoided in favor of the literal `0`, which is the\n[simp normal form](REFERENCE/find/?domain=Verso.Genre.Manual.section&name=simp-normal-forms).\n\n\n*Init.Prelude*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 252, "character": 9}}
@@ -508,7 +506,7 @@
   "end": {"line": 252, "character": 10}},
  "contents":
  {"value":
-  "```lean\nℕ\n```\n***\nA *hole* (or *placeholder term*), which stands for an unknown term that is expected to be inferred based on context.\nFor example, in `@id _ Nat.zero`, the `_` must be the type of `Nat.zero`, which is `Nat`.\n\nThe way this works is that holes create fresh metavariables.\nThe elaborator is allowed to assign terms to metavariables while it is checking definitional equalities.\nThis is often known as *unification*.\n\nNormally, all holes must be solved for. However, there are a few contexts where this is not necessary:\n* In `match` patterns, holes are catch-all patterns.\n* In some tactics, such as `refine'` and `apply`, unsolved-for placeholders become new goals.\n\nRelated concept: implicit parameters are automatically filled in with holes during the elaboration process.\n\nSee also `?m` syntax (synthetic holes).\n",
+  "```lean\nℕ\n```\n\nA *hole* (or *placeholder term*), which stands for an unknown term that is expected to be inferred based on context.\nFor example, in `@id _ Nat.zero`, the `_` must be the type of `Nat.zero`, which is `Nat`.\n\nThe way this works is that holes create fresh metavariables.\nThe elaborator is allowed to assign terms to metavariables while it is checking definitional equalities.\nThis is often known as *unification*.\n\nNormally, all holes must be solved for. However, there are a few contexts where this is not necessary:\n* In `match` patterns, holes are catch-all patterns.\n* In some tactics, such as `refine'` and `apply`, unsolved-for placeholders become new goals.\n\nRelated concept: implicit parameters are automatically filled in with holes during the elaboration process.\n\nSee also `?m` syntax (synthetic holes).\n",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 252, "character": 11}}
@@ -522,7 +520,7 @@
  {"start": {"line": 257, "character": 4}, "end": {"line": 257, "character": 9}},
  "contents":
  {"value":
-  "```lean\nNat.zero : ℕ\n```\n***\nZero, the smallest natural number.\n\nUsing `Nat.zero` explicitly should usually be avoided in favor of the literal `0`, which is the\n[simp normal form](REFERENCE/find/?domain=Verso.Genre.Manual.section&name=simp-normal-forms).\n\n***\n*import Init.Prelude*",
+  "```lean\nNat.zero : ℕ\n```\n\nZero, the smallest natural number.\n\nUsing `Nat.zero` explicitly should usually be avoided in favor of the literal `0`, which is the\n[simp normal form](REFERENCE/find/?domain=Verso.Genre.Manual.section&name=simp-normal-forms).\n\n\n*Init.Prelude*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 257, "character": 15}}
@@ -531,7 +529,7 @@
   "end": {"line": 257, "character": 18}},
  "contents":
  {"value":
-  "```lean\nNat.zero : ℕ\n```\n***\nZero, the smallest natural number.\n\nUsing `Nat.zero` explicitly should usually be avoided in favor of the literal `0`, which is the\n[simp normal form](REFERENCE/find/?domain=Verso.Genre.Manual.section&name=simp-normal-forms).\n\n***\n*import Init.Prelude*",
+  "```lean\nNat.zero : ℕ\n```\n\nZero, the smallest natural number.\n\nUsing `Nat.zero` explicitly should usually be avoided in favor of the literal `0`, which is the\n[simp normal form](REFERENCE/find/?domain=Verso.Genre.Manual.section&name=simp-normal-forms).\n\n\n*Init.Prelude*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 260, "character": 6}}
@@ -539,7 +537,7 @@
  {"start": {"line": 260, "character": 4}, "end": {"line": 260, "character": 9}},
  "contents":
  {"value":
-  "```lean\nNat.succ (n : ℕ) : ℕ\n```\n***\nThe successor of a natural number `n`.\n\nUsing `Nat.succ n` should usually be avoided in favor of `n + 1`, which is the [simp normal\nform](REFERENCE/find/?domain=Verso.Genre.Manual.section&name=simp-normal-forms).\n\n***\n*import Init.Prelude*",
+  "```lean\nNat.succ (n : ℕ) : ℕ\n```\n\nThe successor of a natural number `n`.\n\nUsing `Nat.succ n` should usually be avoided in favor of `n + 1`, which is the [simp normal\nform](REFERENCE/find/?domain=Verso.Genre.Manual.section&name=simp-normal-forms).\n\n\n*Init.Prelude*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 260, "character": 17}}
@@ -548,7 +546,7 @@
   "end": {"line": 260, "character": 20}},
  "contents":
  {"value":
-  "```lean\nNat.succ (n : ℕ) : ℕ\n```\n***\nThe successor of a natural number `n`.\n\nUsing `Nat.succ n` should usually be avoided in favor of `n + 1`, which is the [simp normal\nform](REFERENCE/find/?domain=Verso.Genre.Manual.section&name=simp-normal-forms).\n\n***\n*import Init.Prelude*",
+  "```lean\nNat.succ (n : ℕ) : ℕ\n```\n\nThe successor of a natural number `n`.\n\nUsing `Nat.succ n` should usually be avoided in favor of `n + 1`, which is the [simp normal\nform](REFERENCE/find/?domain=Verso.Genre.Manual.section&name=simp-normal-forms).\n\n\n*Init.Prelude*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 263, "character": 27}}
@@ -557,7 +555,7 @@
   "end": {"line": 263, "character": 37}},
  "contents":
  {"value":
-  "```lean\nInhabited.mk.{u} {α : Sort u} (default : α) : Inhabited α\n```\n***\n*import Init.Prelude*",
+  "```lean\nInhabited.mk {α : Sort u} (default : α) : Inhabited α\n```\n\n*Init.Prelude*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 263, "character": 28}}
@@ -566,7 +564,7 @@
   "end": {"line": 263, "character": 36}},
  "contents":
  {"value":
-  "```lean\nNat.zero : ℕ\n```\n***\nZero, the smallest natural number.\n\nUsing `Nat.zero` explicitly should usually be avoided in favor of the literal `0`, which is the\n[simp normal form](REFERENCE/find/?domain=Verso.Genre.Manual.section&name=simp-normal-forms).\n\n***\n*import Init.Prelude*",
+  "```lean\nNat.zero : ℕ\n```\n\nZero, the smallest natural number.\n\nUsing `Nat.zero` explicitly should usually be avoided in favor of the literal `0`, which is the\n[simp normal form](REFERENCE/find/?domain=Verso.Genre.Manual.section&name=simp-normal-forms).\n\n\n*Init.Prelude*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 269, "character": 2}}
@@ -574,7 +572,7 @@
  {"start": {"line": 269, "character": 2}, "end": {"line": 269, "character": 3}},
  "contents":
  {"value":
-  "```lean\nℕ\n```\n***\nA *hole* (or *placeholder term*), which stands for an unknown term that is expected to be inferred based on context.\nFor example, in `@id _ Nat.zero`, the `_` must be the type of `Nat.zero`, which is `Nat`.\n\nThe way this works is that holes create fresh metavariables.\nThe elaborator is allowed to assign terms to metavariables while it is checking definitional equalities.\nThis is often known as *unification*.\n\nNormally, all holes must be solved for. However, there are a few contexts where this is not necessary:\n* In `match` patterns, holes are catch-all patterns.\n* In some tactics, such as `refine'` and `apply`, unsolved-for placeholders become new goals.\n\nRelated concept: implicit parameters are automatically filled in with holes during the elaboration process.\n\nSee also `?m` syntax (synthetic holes).\n",
+  "```lean\nℕ\n```\n\nA *hole* (or *placeholder term*), which stands for an unknown term that is expected to be inferred based on context.\nFor example, in `@id _ Nat.zero`, the `_` must be the type of `Nat.zero`, which is `Nat`.\n\nThe way this works is that holes create fresh metavariables.\nThe elaborator is allowed to assign terms to metavariables while it is checking definitional equalities.\nThis is often known as *unification*.\n\nNormally, all holes must be solved for. However, there are a few contexts where this is not necessary:\n* In `match` patterns, holes are catch-all patterns.\n* In some tactics, such as `refine'` and `apply`, unsolved-for placeholders become new goals.\n\nRelated concept: implicit parameters are automatically filled in with holes during the elaboration process.\n\nSee also `?m` syntax (synthetic holes).\n",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 272, "character": 4}}
@@ -613,7 +611,7 @@
   "end": {"line": 290, "character": 16}},
  "contents":
  {"value":
-  "```lean\nList.nil.{u} {α : Type u} : List α\n```\n***\nThe empty list, usually written `[]`. \n\nConventions for notations in identifiers:\n\n * The recommended spelling of `[]` in identifiers is `nil`.\n***\n*import Init.Prelude*",
+  "```lean\nList.nil {α : Type u} : List α\n```\n\nThe empty list, usually written `[]`. \n\nConventions for notations in identifiers:\n\n * The recommended spelling of `[]` in identifiers is `nil`.\n\n*Init.Prelude*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 292, "character": 13}}
@@ -622,7 +620,7 @@
   "end": {"line": 292, "character": 15}},
  "contents":
  {"value":
-  "```lean\nList.cons.{u} {α : Type u} (head : α) (tail : List α) : List α\n```\n***\nThe list whose first element is `head`, where `tail` is the rest of the list.\nUsually written `head :: tail`.\n\n\nConventions for notations in identifiers:\n\n * The recommended spelling of `::` in identifiers is `cons`.\n\n * The recommended spelling of `[a]` in identifiers is `singleton`.\n***\n*import Init.Prelude*",
+  "```lean\nList.cons {α : Type u} (head : α) (tail : List α) : List α\n```\n\nThe list whose first element is `head`, where `tail` is the rest of the list.\nUsually written `head :: tail`.\n\n\nConventions for notations in identifiers:\n\n * The recommended spelling of `::` in identifiers is `cons`.\n\n * The recommended spelling of `[a]` in identifiers is `singleton`.\n\n*Init.Prelude*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 294, "character": 18}}
@@ -631,7 +629,7 @@
   "end": {"line": 294, "character": 20}},
  "contents":
  {"value":
-  "```lean\nList.map.{u_1, u_2} {α : Type u_1} {β : Type u_2} (f : α → β) (l : List α) : List β\n```\n***\nApplies a function to each element of the list, returning the resulting list of values.\n\n`O(|l|)`.\n\nExamples:\n* `[a, b, c].map f = [f a, f b, f c]`\n* `[].map Nat.succ = []`\n* `[\"one\", \"two\", \"three\"].map (·.length) = [3, 3, 5]`\n* `[\"one\", \"two\", \"three\"].map (·.reverse) = [\"eno\", \"owt\", \"eerht\"]`\n\n***\n*import Init.Prelude*",
+  "```lean\nList.map {α : Type u_1} {β : Type u_2} (f : α → β) (l : List α) : List β\n```\n\nApplies a function to each element of the list, returning the resulting list of values.\n\n`O(|l|)`.\n\nExamples:\n* `[a, b, c].map f = [f a, f b, f c]`\n* `[].map Nat.succ = []`\n* `[\"one\", \"two\", \"three\"].map (·.length) = [3, 3, 5]`\n* `[\"one\", \"two\", \"three\"].map (·.reverse) = [\"eno\", \"owt\", \"eerht\"]`\n\n\n*Init.Prelude*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 297, "character": 26}}
@@ -640,7 +638,7 @@
   "end": {"line": 297, "character": 29}},
  "contents":
  {"value":
-  "```lean\nList.zip.{u, v} {α : Type u} {β : Type v} : List α → List β → List (α × β)\n```\n***\nCombines two lists into a list of pairs in which the first and second components are the\ncorresponding elements of each list. The resulting list is the length of the shorter of the input\nlists.\n\n`O(min |xs| |ys|)`.\n\nExamples:\n* `[\"Mon\", \"Tue\", \"Wed\"].zip [1, 2, 3] = [(\"Mon\", 1), (\"Tue\", 2), (\"Wed\", 3)]`\n* `[\"Mon\", \"Tue\", \"Wed\"].zip [1, 2] = [(\"Mon\", 1), (\"Tue\", 2)]`\n* `[x₁, x₂, x₃].zip [y₁, y₂, y₃, y₄] = [(x₁, y₁), (x₂, y₂), (x₃, y₃)]`\n\n***\n*import Init.Data.List.Basic*",
+  "```lean\nList.zip {α : Type u} {β : Type v} : List α → List β → List (α × β)\n```\n\nCombines two lists into a list of pairs in which the first and second components are the\ncorresponding elements of each list. The resulting list is the length of the shorter of the input\nlists.\n\n`O(min |xs| |ys|)`.\n\nExamples:\n* `[\"Mon\", \"Tue\", \"Wed\"].zip [1, 2, 3] = [(\"Mon\", 1), (\"Tue\", 2), (\"Wed\", 3)]`\n* `[\"Mon\", \"Tue\", \"Wed\"].zip [1, 2] = [(\"Mon\", 1), (\"Tue\", 2)]`\n* `[x₁, x₂, x₃].zip [y₁, y₂, y₃, y₄] = [(x₁, y₁), (x₂, y₂), (x₃, y₃)]`\n\n\n*Init.Data.List.Basic*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 297, "character": 19}}
@@ -649,7 +647,7 @@
   "end": {"line": 297, "character": 22}},
  "contents":
  {"value":
-  "```lean\nList.zip.{u, v} {α : Type u} {β : Type v} : List α → List β → List (α × β)\n```\n***\nCombines two lists into a list of pairs in which the first and second components are the\ncorresponding elements of each list. The resulting list is the length of the shorter of the input\nlists.\n\n`O(min |xs| |ys|)`.\n\nExamples:\n* `[\"Mon\", \"Tue\", \"Wed\"].zip [1, 2, 3] = [(\"Mon\", 1), (\"Tue\", 2), (\"Wed\", 3)]`\n* `[\"Mon\", \"Tue\", \"Wed\"].zip [1, 2] = [(\"Mon\", 1), (\"Tue\", 2)]`\n* `[x₁, x₂, x₃].zip [y₁, y₂, y₃, y₄] = [(x₁, y₁), (x₂, y₂), (x₃, y₃)]`\n\n***\n*import Init.Data.List.Basic*",
+  "```lean\nList.zip {α : Type u} {β : Type v} : List α → List β → List (α × β)\n```\n\nCombines two lists into a list of pairs in which the first and second components are the\ncorresponding elements of each list. The resulting list is the length of the shorter of the input\nlists.\n\n`O(min |xs| |ys|)`.\n\nExamples:\n* `[\"Mon\", \"Tue\", \"Wed\"].zip [1, 2, 3] = [(\"Mon\", 1), (\"Tue\", 2), (\"Wed\", 3)]`\n* `[\"Mon\", \"Tue\", \"Wed\"].zip [1, 2] = [(\"Mon\", 1), (\"Tue\", 2)]`\n* `[x₁, x₂, x₃].zip [y₁, y₂, y₃, y₄] = [(x₁, y₁), (x₂, y₂), (x₃, y₃)]`\n\n\n*Init.Data.List.Basic*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 306, "character": 24}}
@@ -663,48 +661,46 @@
  {"start": {"line": 312, "character": 10},
   "end": {"line": 312, "character": 11}},
  "contents":
- {"value": "```lean\nS : Type\n```\n***\nThese are docs\n", "kind": "markdown"}}
+ {"value": "```lean\nS : Type\n```\n\nThese are docs\n", "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 315, "character": 2}}
 {"range":
  {"start": {"line": 315, "character": 2}, "end": {"line": 315, "character": 4}},
  "contents":
- {"value": "```lean\nS.mk (x : ℕ) : S\n```\n***\nSo are these ",
+ {"value": "```lean\nS.mk (x : ℕ) : S\n```\n\nSo are these ",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 318, "character": 2}}
 {"range":
  {"start": {"line": 318, "character": 2}, "end": {"line": 318, "character": 3}},
  "contents":
- {"value": "```lean\nS.x (self : S) : ℕ\n```\n***\nAnd these ",
+ {"value": "```lean\nS.x (self : S) : ℕ\n```\n\nAnd these ",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 321, "character": 9}}
 {"range":
  {"start": {"line": 321, "character": 9},
   "end": {"line": 321, "character": 10}},
- "contents":
- {"value": "```lean\nx : ℕ\n```\n***\nAnd these ", "kind": "markdown"}}
+ "contents": {"value": "```lean\nx : ℕ\n```\n\nAnd these ", "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 321, "character": 18}}
 {"range":
  {"start": {"line": 321, "character": 18},
   "end": {"line": 321, "character": 19}},
  "contents":
- {"value": "```lean\nS : Type\n```\n***\nThese are docs\n", "kind": "markdown"}}
+ {"value": "```lean\nS : Type\n```\n\nThese are docs\n", "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 326, "character": 10}}
 {"range":
  {"start": {"line": 326, "character": 10},
   "end": {"line": 326, "character": 12}},
- "contents":
- {"value": "```lean\nS' : Type\n```\n***\nDocs ", "kind": "markdown"}}
+ "contents": {"value": "```lean\nS' : Type\n```\n\nDocs ", "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 329, "character": 4}}
 {"range":
  {"start": {"line": 329, "character": 4}, "end": {"line": 329, "character": 6}},
  "contents":
- {"value": "```lean\nS'.mk (x : ℕ) : S'\n```\n***\nMore docs ",
+ {"value": "```lean\nS'.mk (x : ℕ) : S'\n```\n\nMore docs ",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 332, "character": 9}}
@@ -712,15 +708,14 @@
  {"start": {"line": 332, "character": 8},
   "end": {"line": 332, "character": 11}},
  "contents":
- {"value": "```lean\nS'.mk (x : ℕ) : S'\n```\n***\nMore docs ",
+ {"value": "```lean\nS'.mk (x : ℕ) : S'\n```\n\nMore docs ",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 332, "character": 16}}
 {"range":
  {"start": {"line": 332, "character": 16},
   "end": {"line": 332, "character": 18}},
- "contents":
- {"value": "```lean\nS' : Type\n```\n***\nDocs ", "kind": "markdown"}}
+ "contents": {"value": "```lean\nS' : Type\n```\n\nDocs ", "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 337, "character": 12}}
 {"range":
@@ -728,7 +723,7 @@
   "end": {"line": 337, "character": 18}},
  "contents":
  {"value":
-  "```lean\nInfSeq.{u_1} {α : Sort u_1} (r : α → α → Prop) : α → Prop\n```\n***\nAn infinite sequence ",
+  "```lean\nInfSeq {α : Sort u_1} (r : α → α → Prop) : α → Prop\n```\n\nAn infinite sequence ",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 340, "character": 7}}
@@ -736,7 +731,7 @@
  {"start": {"line": 340, "character": 4}, "end": {"line": 340, "character": 8}},
  "contents":
  {"value":
-  "```lean\nInfSeq.step.{u_1} {α : Sort u_1} (r : α → α → Prop) {a b : α} : r a b → InfSeq r b → InfSeq r a\n```\n***\nTake a step ",
+  "```lean\nInfSeq.step {α : Sort u_1} (r : α → α → Prop) {a b : α} : r a b → InfSeq r b → InfSeq r a\n```\n\nTake a step ",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 343, "character": 7}}
@@ -745,7 +740,7 @@
   "end": {"line": 343, "character": 13}},
  "contents":
  {"value":
-  "```lean\nInfSeq.{u_1} {α : Sort u_1} (r : α → α → Prop) : α → Prop\n```\n***\nAn infinite sequence ",
+  "```lean\nInfSeq {α : Sort u_1} (r : α → α → Prop) : α → Prop\n```\n\nAn infinite sequence ",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 346, "character": 7}}
@@ -754,5 +749,5 @@
   "end": {"line": 346, "character": 18}},
  "contents":
  {"value":
-  "```lean\nInfSeq.step.{u_1} {α : Sort u_1} (r : α → α → Prop) {a b : α} : r a b → InfSeq r b → InfSeq r a\n```\n***\nTake a step ",
+  "```lean\nInfSeq.step {α : Sort u_1} (r : α → α → Prop) {a b : α} : r a b → InfSeq r b → InfSeq r a\n```\n\nTake a step ",
   "kind": "markdown"}}

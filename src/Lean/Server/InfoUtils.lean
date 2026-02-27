@@ -356,15 +356,13 @@ def Info.docString? (i : Info) : MetaM (Option String) := do
 /-- Construct a hover popup, if any, from an info node in a context.-/
 def Info.fmtHover? (ci : ContextInfo) (i : Info) : IO (Option FormatWithInfos) := do
   ci.runMetaM i.lctx do
-    let mut fmts := #[]
+    let mut fmts : Array Format := #[]
     let mut infos := ∅
-    let modFmt ← try
-      let (termFmt, modFmt) ← fmtTermAndModule?
-      if let some f := termFmt then
-        fmts := fmts.push f.fmt
-        infos := f.infos
-      pure modFmt
-    catch _ => pure none
+    let (termFmt, modFmt) ← try fmtTermAndModule? catch _ => pure (none, none)
+    -- Build a single section: type signature, docstring, module path
+    if let some f := termFmt then
+      fmts := fmts.push f.fmt
+      infos := f.infos
     if let some m ← i.docString? then
       fmts := fmts.push m
     if let some f := modFmt then
@@ -372,12 +370,12 @@ def Info.fmtHover? (ci : ContextInfo) (i : Info) : IO (Option FormatWithInfos) :
     if fmts.isEmpty then
       return none
     else
-      return some ⟨f!"\n***\n".joinSep fmts.toList, infos⟩
+      return some ⟨f!"\n\n".joinSep fmts.toList, infos⟩
 
 where
   fmtModule? (decl : Name) : MetaM (Option Format) := do
     let some mod ← findModuleOf? decl | return none
-    return some f!"*import {mod}*"
+    return some f!"*{mod}*"
 
   fmtTermAndModule? : MetaM (Option FormatWithInfos × Option Format) := do
     match i with
@@ -389,7 +387,8 @@ where
       let tp ← instantiateMVars (← Meta.inferType e)
       let tpFmt ← Meta.ppExpr tp
       if let .const c _ := e then
-        let eFmt ← PrettyPrinter.ppSignature c
+        let eFmt ← withOptions (fun o => pp.analyze.set (pp.universes.set o false) false) <|
+          PrettyPrinter.ppSignature c
         return (some { eFmt with fmt := f!"```lean\n{eFmt.fmt}\n```" }, ← fmtModule? c)
       let eFmt ← Meta.ppExpr e
       let lctx ← getLCtx

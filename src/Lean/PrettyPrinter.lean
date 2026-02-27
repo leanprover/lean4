@@ -87,7 +87,8 @@ def ppSignature (c : Name) : MetaM FormatWithInfos := do
   if pp.raw.get (← getOptions) then
     return s!"{e} : {decl.type}"
   else
-    let (stx, infos) ← delabCore e (delab := delabConstWithSignature)
+    let universes := pp.universes.get (← getOptions)
+    let (stx, infos) ← delabCore e (delab := delabConstWithSignature (universes := universes))
     return ⟨← ppTerm ⟨stx⟩, infos⟩  -- HACK: not a term
 
 private partial def noContext : MessageData → MessageData

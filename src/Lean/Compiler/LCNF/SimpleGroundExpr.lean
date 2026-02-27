@@ -71,6 +71,14 @@ public inductive SimpleGroundExpr where
   compiled to a reference to the mangled version of the name.
   -/
   | reference (n : Name)
+  /--
+  An array of `lean_object*` elements, represented by a `lean_array_object`.
+  -/
+  | array (elems : Array SimpleGroundArg)
+  /--
+  A byte array (scalar array with elem_size=1), represented by a `lean_sarray_object`.
+  -/
+  | byteArray (data : Array UInt8)
   deriving Inhabited
 
 public structure SimpleGroundExtState where
@@ -141,6 +149,11 @@ inductive SimpleGroundValue where
   | uint32 (val : UInt32)
   | uint64 (val : UInt64)
   | usize (val : UInt64)
+  /--
+  Contains the elements of the array in a list in reverse order to enable sharing as we traverse the
+  expression instead.
+  -/
+  | arrayBuilder (elems : List SimpleGroundArg) (remainingCapacity : Nat)
   deriving Inhabited
 
 structure DetectState where
@@ -157,6 +170,8 @@ The compiler currently supports the following patterns:
 - Constructor calls with other simple expressions
 - `Name.mkStrX`, `Name.str._override`, and `Name.num._override`
 - references to other declarations marked as simple ground expressions
+- Array literals (`Array.mkEmpty` + `Array.push` chains)
+- ByteArray literals (`Array.mkEmpty` + `Array.push` chains + `ByteArray.mk`)
 -/
 partial def compileToSimpleGroundExpr (code : Code .impure) : CompilerM (Option SimpleGroundExpr) :=
   go code |>.run' {} |>.run
@@ -217,6 +232,16 @@ where
         go k
       -- boxed uint32/uint64 get extracted into separate closed terms automatically
       | _ => failure
+    | .fap ``Array.mkEmpty #[.erased, .fvar sizeId]
+    | .fap ``Array.emptyWithCapacity #[.erased, .fvar sizeId] =>
+      let .arg (.tagged size) := (← get).groundMap[sizeId]! | failure
+      record decl.fvarId (.arrayBuilder [] size)
+      go k
+    | .fap ``Array.push #[.erased, .fvar arrId, .fvar elemId] =>
+      let .arrayBuilder elems remainingCapacity := (← get).groundMap[arrId]! | failure
+      let .arg elemArg := (← get).groundMap[elemId]! | failure
+      record decl.fvarId (.arrayBuilder (elemArg :: elems) (remainingCapacity - 1))
+      go k
     | _ => failure
 
   compileSetChain (id : FVarId) (info : CtorInfo) (objArgs : Array SimpleGroundArg)
@@ -301,6 +326,29 @@ where
         nameAcc := .str nameAcc str
         processedArgs := processedArgs.push (ref, nameAcc.hash)
       return .nameMkStr processedArgs
+    | .fap ``Array.mkEmpty #[.erased, .fvar sizeId]
+    | .fap ``Array.emptyWithCapacity #[.erased, .fvar sizeId] =>
+      let .arg (.tagged 0) := (← get).groundMap[sizeId]! | failure
+      return .array #[]
+    | .fap ``ByteArray.mk #[.fvar argId] =>
+      match (← get).groundMap[argId]! with
+      | .arrayBuilder elems 0 =>
+        let bytes ← elems.mapM fun elem => do
+          let .tagged v := elem | failure
+          return v.toUInt8
+        return .byteArray bytes.toArray.reverse
+      | .arg (.reference ref) =>
+        let some (.array elems) := getSimpleGroundExprWithResolvedRefs (← getEnv) ref | failure
+        let bytes ← elems.mapM fun elem => do
+          let .tagged v := elem | failure
+          return v.toUInt8
+        return .byteArray bytes
+      | _ => failure
+    | .fap ``Array.push #[.erased, .fvar arrId, .fvar elemId] =>
+      let .arrayBuilder elems remainingCapacity := (← get).groundMap[arrId]! | failure
+      if remainingCapacity > 1 then failure
+      let .arg elemArg := (← get).groundMap[elemId]! | failure
+      return .array (elemArg :: elems).toArray.reverse
     | .fap c #[] =>
       guard <| isSimpleGroundDecl (← getEnv) c
       return .reference c

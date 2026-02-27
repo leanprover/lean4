@@ -176,6 +176,23 @@ where
     | .nameMkStr args =>
       let obj ← groundNameMkStrToCLit args
       mkValueCLit "lean_ctor_object" obj
+    | .array elems =>
+      let leanArrayTag := 246
+      let header := mkHeader s!"sizeof(lean_array_object) + sizeof(void*)*{elems.size}" 0 leanArrayTag
+      let elemLits ← elems.mapM groundArgToCLit
+      let dataArray := String.intercalate "," elemLits.toList
+      mkValueCLit
+        "lean_array_object"
+        s!"\{.m_header = {header}, .m_size = {elems.size}, .m_capacity = {elems.size}, .m_data = \{{dataArray}}}"
+    | .byteArray data =>
+      let leanScalarArrayTag := 248
+      let elemSize : Nat := 1
+      let header := mkHeader s!"sizeof(lean_sarray_object) + {data.size}" elemSize leanScalarArrayTag
+      let dataLits := data.map toString
+      let dataArray := String.intercalate "," dataLits.toList
+      mkValueCLit
+        "lean_sarray_object"
+        s!"\{.m_header = {header}, .m_size = {data.size}, .m_capacity = {data.size}, .m_data = \{{dataArray}}}"
     | .reference refDecl => findValueDecl refDecl
 
   mkValueName (name : String) : String :=

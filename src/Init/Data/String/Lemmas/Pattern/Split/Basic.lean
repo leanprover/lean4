@@ -20,6 +20,7 @@ import Init.Data.String.OrderInstances
 import Init.Data.Iterators.Lemmas.Basic
 import Init.Data.Iterators.Lemmas.Consumers.Collect
 import Init.Data.Iterators.Lemmas.Combinators.FilterMap
+import Init.Data.String.Lemmas.IsEmpty
 
 set_option doc.verso true
 
@@ -164,11 +165,28 @@ end Pattern
 
 open Pattern
 
+public theorem toList_splitToSubslice_of_isEmpty {ρ : Type} (pat : ρ)
+    [Model.ForwardPatternModel pat] {σ : Slice → Type}
+    [ToForwardSearcher pat σ] [∀ s, Std.Iterator (σ s) Id (SearchStep s)]
+    [∀ s, Std.Iterators.Finite (σ s) Id] [Model.LawfulToForwardSearcherModel pat] {s : Slice}
+    (h : s.isEmpty = true) :
+    (s.splitToSubslice pat).toList = [s.subsliceFrom s.endPos] := by
+  simp [toList_splitToSubslice_eq_modelSplit, Slice.startPos_eq_endPos_iff.2 h]
+
 public theorem toList_split_eq_splitToSubslice {ρ : Type} (pat : ρ) {σ : Slice → Type}
     [ToForwardSearcher pat σ] [∀ s, Std.Iterator (σ s) Id (SearchStep s)]
     [∀ s, Std.Iterators.Finite (σ s) Id] {s : Slice} :
     (s.split pat).toList = (s.splitToSubslice pat).toList.map Subslice.toSlice := by
   simp [split, Std.Iter.toList_map]
+
+public theorem toList_split_of_isEmpty {ρ : Type} (pat : ρ)
+    [Model.ForwardPatternModel pat] {σ : Slice → Type}
+    [ToForwardSearcher pat σ] [∀ s, Std.Iterator (σ s) Id (SearchStep s)]
+    [∀ s, Std.Iterators.Finite (σ s) Id] [Model.LawfulToForwardSearcherModel pat] {s : Slice}
+    (h : s.isEmpty = true) :
+    (s.split pat).toList.map Slice.copy = [""] := by
+  rw [toList_split_eq_splitToSubslice, toList_splitToSubslice_of_isEmpty _ h]
+  simp
 
 end Slice
 
@@ -177,5 +195,13 @@ open Slice.Pattern
 public theorem split_eq_split_toSlice {ρ : Type} {pat : ρ} {σ : Slice → Type}
     [ToForwardSearcher pat σ] [∀ s, Std.Iterator (σ s) Id (SearchStep s)] {s : String} :
   s.split pat = s.toSlice.split pat := (rfl)
+
+@[simp]
+public theorem toList_split_empty {ρ : Type} (pat : ρ)
+    [Model.ForwardPatternModel pat] {σ : Slice → Type}
+    [ToForwardSearcher pat σ] [∀ s, Std.Iterator (σ s) Id (SearchStep s)]
+    [∀ s, Std.Iterators.Finite (σ s) Id] [Model.LawfulToForwardSearcherModel pat] :
+    ("".split pat).toList.map Slice.copy = [""] := by
+  rw [split_eq_split_toSlice, Slice.toList_split_of_isEmpty _ (by simp)]
 
 end String

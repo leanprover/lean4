@@ -7,6 +7,8 @@ module
 
 prelude
 public import Init.Data.String.Basic
+import Init.Data.String.Lemmas.IsEmpty
+import Init.Data.String.Lemmas.Basic
 
 set_option doc.verso true
 
@@ -58,6 +60,11 @@ theorem startInclusive_toSlice {s : Slice} {sl : s.Subslice} :
 @[simp]
 theorem endExclusive_toSlice {s : Slice} {sl : s.Subslice} :
     sl.toSlice.endExclusive = sl.endExclusive.str := rfl
+
+@[simp]
+theorem isEmpty_toSlice_iff {s : Slice} {sl : s.Subslice} :
+    sl.toSlice.isEmpty ↔ sl.startInclusive = sl.endExclusive := by
+  simp [toSlice]
 
 instance {s : Slice} : CoeOut s.Subslice Slice where
   coe := Subslice.toSlice
@@ -143,6 +150,11 @@ theorem endExclusive_subsliceFrom {s : Slice} {newStart : s.Pos} :
 @[simp]
 theorem subslice_endPos {s : Slice} {newStart : s.Pos} :
     s.subslice newStart s.endPos (Slice.Pos.le_endPos _) = s.subsliceFrom newStart := (rfl)
+
+@[simp]
+theorem toSlice_subsliceFrom {s : Slice} {newStart : s.Pos} :
+    (s.subsliceFrom newStart).toSlice = s.sliceFrom newStart := by
+  ext1 <;> simp
 
 /-- The entire slice, as a subslice of itself. -/
 @[inline]

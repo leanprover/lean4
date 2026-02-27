@@ -1,7 +1,7 @@
 set -eu
 
 DIFF="diff -au --strip-trailing-cr --color=always"
-ulimit -s ${TEST_STACK_SIZE:-8192}
+ulimit -S -s ${TEST_STACK_SIZE:-8192}
 
 function fail {
   echo "$1"
@@ -94,5 +94,6 @@ function extract_measurements {
 function set_stack_size_to_maximum {
   # On macOS, `ulimit -s unlimited` fails with `Operation not permitted` because
   # the hard limit is a certain number, not `unlimited` like on Linux.
+  echo "Setting stack size to $(ulimit -H -s)"
   ulimit -s "$(ulimit -H -s)"
 }

@@ -44,11 +44,14 @@ if(USE_MIMALLOC)
   if(CMAKE_CXX_COMPILER_ID MATCHES "AppleClang|Clang")
     string(APPEND MIMALLOC_FLAGS " -Wno-deprecated")
   endif()
+  # mimalloc is compiled as C, so it doesn't inherit -fPIC from CMAKE_CXX_FLAGS
+  if(${CMAKE_SYSTEM_NAME} MATCHES "Linux|Emscripten")
+    string(APPEND MIMALLOC_FLAGS " -fPIC")
+  endif()
   set_source_files_properties(
     ${LEAN_BINARY_DIR}/../mimalloc/src/mimalloc/src/static.c
     PROPERTIES
-      # (C flags are incomplete, compile as C++ instead like everything else)
-      LANGUAGE CXX
+      LANGUAGE C
       COMPILE_FLAGS ${MIMALLOC_FLAGS}
   )
 endif()

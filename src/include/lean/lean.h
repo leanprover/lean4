@@ -496,7 +496,7 @@ static inline void lean_inc_ref_n(lean_object * o, size_t n) {
         o->m_rc += n;
     } else if (o->m_rc != 0) {
 #ifdef __cplusplus
-        std::atomic_fetch_sub_explicit(lean_get_rc_mt_addr(o), n, std::memory_order_relaxed);
+        std::atomic_fetch_sub_explicit(reinterpret_cast<std::atomic<int>*>(lean_get_rc_mt_addr(o)), static_cast<int>(n), std::memory_order_relaxed);
 #else
         atomic_fetch_sub_explicit(lean_get_rc_mt_addr(o), n, memory_order_relaxed);
 #endif

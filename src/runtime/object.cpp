@@ -778,7 +778,7 @@ class task_manager {
                 // idle before picking up new work.
                 // But during shutdown, we skip this throttling:
                 // because the finalizer might have called m_queue_cv.notify_all() for the last
-                // time, we don't want to get stuck behind the wait(). 
+                // time, we don't want to get stuck behind the wait().
                 if (!m_shutting_down &&
                     m_std_workers.size() - m_idle_std_workers >= m_max_std_workers) {
                     m_queue_cv.wait(lock);
@@ -2632,8 +2632,8 @@ extern "C" LEAN_EXPORT obj_res lean_copy_expand_array(obj_arg a, bool expand) {
     return r;
 }
 
-__attribute__((noinline))
-extern "C" LEAN_EXPORT obj_res lean_copy_expand_array_nonlinear(obj_arg a, bool expand) {
+extern "C" LEAN_EXPORT __attribute__((noinline))
+obj_res lean_copy_expand_array_nonlinear(obj_arg a, bool expand) {
     return lean_copy_expand_array(a, expand);
 }
 

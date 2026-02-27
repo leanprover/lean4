@@ -127,7 +127,7 @@ def simpRel? (e : Expr) : MetaM (Option (Expr × Expr)) := do
     | _ => pure ()
     let some eNew := eNew? | return none
     let some (eNew', h₂) ← simpLe? eNew (checkIfModified := false) | return (eNew, h₁)
-    let h  := mkApp6 (mkConst ``Eq.trans [levelOne]) (mkSort levelZero) e eNew eNew' h₁ h₂
+    let h  := mkApp6 (mkConst ``Eq.trans [Level.one]) (mkSort Level.zero) e eNew eNew' h₁ h₂
     return some (eNew', h)
   else
     simpLe? e (checkIfModified := true)

@@ -186,7 +186,7 @@ def mkBRecOn (ctx : Context) : MetaM Unit := do
   withBRecOnArgs (ctx := ctx) fun newMinors proofArgs => do
     let nmotives := ctx.motives.size
     let lparams := ctx.levelParams.map Level.param
-    let lparams := if ctx.largeElim then levelZero :: lparams else lparams
+    let lparams := if ctx.largeElim then Level.zero :: lparams else lparams
     for i in *...nmotives do
       let motive := ctx.motives[i]!
       let motiveType ← inferType motive

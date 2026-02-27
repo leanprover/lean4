@@ -1045,7 +1045,7 @@ private partial def process (p : Problem) : StateRefT State MetaM Unit := do
   throwNonSupported p
 
 private def getUElimPos? (matcherLevels : List Level) (uElim : Level) : MetaM (Option Nat) :=
-  if uElim == levelZero then
+  if uElim == Level.zero then
     return none
   else match matcherLevels.idxOf? uElim with
     | none => throwError "Dependent match elimination failed: Universe level not found"
@@ -1155,10 +1155,10 @@ def mkMatcher (input : MkMatcherInput) : MetaM MatcherResult := withCleanLCtxFor
   forallBoundedTelescope matchType numDiscrs fun discrs matchTypeBody => do
   /- We generate an matcher that can eliminate using different motives with different universe levels.
      `uElim` is the universe level the caller wants to eliminate to.
-     If it is not levelZero, we create a matcher that can eliminate in any universe level.
+     If it is not Level.zero, we create a matcher that can eliminate in any universe level.
      This is useful for implementing `MatcherApp.addArg` because it may have to change the universe level. -/
   let uElim ← getLevel matchTypeBody
-  let uElimGen ← if uElim == levelZero then pure levelZero else mkFreshLevelMVar
+  let uElimGen ← if uElim == Level.zero then pure Level.zero else mkFreshLevelMVar
   let mkMatcher (type val : Expr) (altInfos : Array AltParamInfo) (s : State) : MetaM MatcherResult := do
     trace[Meta.Match.debug] "matcher value: {val}\ntype: {type}"
     /- The option `bootstrap.gen_matcher_code` is a helper hack. It is useful, for example,
@@ -1252,7 +1252,7 @@ def getMkMatcherInputInContext (matcherApp : MatcherApp) (unfoldNamed : Bool) : 
     let u :=
       if let some idx := matcherInfo.uElimPos?
       then mkLevelParam matcherConst.levelParams.toArray[idx]!
-      else levelZero
+      else Level.zero
     forallBoundedTelescope matcherType (some matcherInfo.numDiscrs) fun discrs _ => do
     mkForallFVars discrs (mkConst ``PUnit [u])
 

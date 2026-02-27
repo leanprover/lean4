@@ -254,7 +254,7 @@ def getDeclTypeValueDagSize (declName : Name) : CoreM Nat := do
 #eval getDeclTypeValueDagSize `test8
 
 def reduceAndGetDagSize (declName : Name) : MetaM Nat := do
-  let c := mkConst declName [levelOne]
+  let c := mkConst declName [Level.one]
   let e ← Meta.reduce c
   trace[Meta.debug] "{e}"
   e.dagSize

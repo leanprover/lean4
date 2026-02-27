@@ -18,11 +18,11 @@ namespace Lean.Elab.Term
 open Meta
 
 @[builtin_term_elab «prop»] def elabProp : TermElab := fun _ _ =>
-  return mkSort levelZero
+  return mkSort Level.zero
 
 private def elabOptLevel (stx : Syntax) : TermElabM Level :=
   if stx.isNone then
-    pure levelZero
+    pure Level.zero
   else
     elabLevel stx[0]
 

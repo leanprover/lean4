@@ -136,7 +136,7 @@ partial def mkSizeOfFn (recName : Name) (declName : Name): MetaM Unit := do
     let nat := mkConst ``Nat
     mkLocalInstances params fun localInsts =>
     mkSizeOfMotives motiveFVars fun motives => do
-      let us := levelOne :: levelParams.map mkLevelParam -- universe level parameters for `rec`-application
+      let us := Level.one :: levelParams.map mkLevelParam -- universe level parameters for `rec`-application
       let recFn := mkConst recName us
       let val := mkAppN recFn (params ++ motives)
       forallBoundedTelescope (← inferType val) recInfo.numMinors fun minorFVars' _ =>
@@ -294,7 +294,7 @@ mutual
     | some (_, us) =>
       let recName := mkRecName info.name
       let recInfo ← getConstInfoRec recName
-      let r := mkConst recName (levelZero :: us)
+      let r := mkConst recName (Level.zero :: us)
       let r := mkAppN r majorTypeArgs[*...info.numParams]
       forallBoundedTelescope (← inferType r) recInfo.numMotives fun motiveFVars _ => do
         let mut r := r

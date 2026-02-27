@@ -6,9 +6,9 @@ unsafe def tst : IO Unit :=
   withImportModules #[{module := `Init.Data.Array}] {} fun env =>
     match env.find? `Array.foldl with
     | some info => do
-      IO.println (info.instantiateTypeLevelParams [levelZero, levelZero])
-      IO.println (info.instantiateValueLevelParams! [levelZero, levelZero])
-      IO.println (info.instantiateValueLevelParams! [levelZero])
+      IO.println (info.instantiateTypeLevelParams [Level.zero, Level.zero])
+      IO.println (info.instantiateValueLevelParams! [Level.zero, Level.zero])
+      IO.println (info.instantiateValueLevelParams! [Level.zero])
     | none      => IO.println "Array.foldl not found"
 
 #eval tst

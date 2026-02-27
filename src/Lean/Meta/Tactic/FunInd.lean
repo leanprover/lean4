@@ -834,10 +834,10 @@ where doRealize (inductName : Name) := do
 
       let e' ← match_expr funBody with
         | fix@WellFounded.fix α _motive rel wf _body _target =>
-          let e' := .const ``WellFounded.fix [fix.constLevels![0]!, levelZero]
+          let e' := .const ``WellFounded.fix [fix.constLevels![0]!, Level.zero]
           pure <| mkApp4 e' α motiveArg rel wf
         | fix@WellFounded.Nat.fix α _motive measure _body _target =>
-          let e' := .const `WellFounded.Nat.fix [fix.constLevels![0]!, levelZero]
+          let e' := .const `WellFounded.Nat.fix [fix.constLevels![0]!, Level.zero]
           pure <| mkApp3 e' α motiveArg measure
         | _ =>
           if funBody.isAppOf ``WellFounded.fix || funBody.isAppOf `WellFounded.Nat.Fix then

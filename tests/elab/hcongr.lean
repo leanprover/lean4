@@ -19,6 +19,6 @@ def tstHCongr (f : Expr) : MetaM Unit := do
   unless (← isDefEq result.type (← inferType result.proof)) do
     throwError "invalid proof"
 
-#eval tstHCongr (mkConst ``Vec.map [levelZero, levelZero])
+#eval tstHCongr (mkConst ``Vec.map [Level.zero, Level.zero])
 
-#eval tstHCongr (mkApp2 (mkConst ``Vec.map [levelZero, levelZero]) (mkConst ``Nat) (mkConst ``Nat))
+#eval tstHCongr (mkApp2 (mkConst ``Vec.map [Level.zero, Level.zero]) (mkConst ``Nat) (mkConst ``Nat))

@@ -29,7 +29,7 @@ trace[Meta.synthInstance] (toString a)
 
 
 def tst1 : MetaM Unit := do
-let inst ← mkAppM `HasCoerce #[mkConst `Nat, mkSort levelZero]
+let inst ← mkAppM `HasCoerce #[mkConst `Nat, mkSort Level.zero]
 let r ← synthInstance inst
 print r
 

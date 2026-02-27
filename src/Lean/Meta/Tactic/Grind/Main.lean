@@ -93,7 +93,7 @@ private def discharge? (e : Expr) : SimpM (Option Expr) := do
   let e := e.cleanupAnnotations
   let r ← Simp.simp e
   if let some p ← Simp.dischargeRfl r.expr then
-    return some (mkApp4 (mkConst ``Eq.mpr [levelZero]) e r.expr (← r.getProof) p)
+    return some (mkApp4 (mkConst ``Eq.mpr [Level.zero]) e r.expr (← r.getProof) p)
   else if r.expr.isTrue then
     return some (← mkOfEqTrue (← r.getProof))
   else

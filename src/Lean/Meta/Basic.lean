@@ -2293,7 +2293,7 @@ Return `true` if `indVal` is an inductive predicate. That is, `inductive` type i
 def isInductivePredicateVal (indVal : InductiveVal) : MetaM Bool := do
   forallTelescopeReducing indVal.type fun _ type => do
     match (← whnfD type) with
-    | .sort u .. => return u == levelZero
+    | .sort u .. => return u == Level.zero
     | _ => return false
 
 /--

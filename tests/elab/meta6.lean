@@ -15,7 +15,7 @@ def succ  := mkConst `Nat.succ
 def zero  := mkConst `Nat.zero
 def add   := mkConst `Nat.add
 def io    := mkConst `IO
-def type  := mkSort levelOne
+def type  := mkSort Level.one
 def mkArrow (d b : Expr) : Expr := mkForall `_ BinderInfo.default d b
 
 def tst1 : MetaM Unit := do
@@ -87,7 +87,7 @@ def tst5 : MetaM Unit := do
 let arrayNat ← mkAppM `Array #[nat];
 withLocalDeclD `a arrayNat fun a => do
 withLocalDeclD `b arrayNat fun b => do
-let motiveType := _root_.mkArrow arrayNat (mkSort levelZero);
+let motiveType := _root_.mkArrow arrayNat (mkSort Level.zero);
 withLocalDeclD `motive motiveType fun motive => do
 let mvarType := mkApp motive a;
 let mvar ← mkFreshExprSyntheticOpaqueMVar mvarType;

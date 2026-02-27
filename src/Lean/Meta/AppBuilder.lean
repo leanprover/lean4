@@ -26,7 +26,7 @@ def mkExpectedTypeHintCore (e : Expr) (expectedType : Expr) (expectedTypeUniv : 
 Given `proof` s.t. `inferType proof` is definitionally equal to `expectedProp`, returns
 term `@id expectedProp proof`. -/
 def mkExpectedPropHint (proof : Expr) (expectedProp : Expr) : Expr :=
-  mkExpectedTypeHintCore proof expectedProp levelZero
+  mkExpectedTypeHintCore proof expectedProp Level.zero
 
 /--
 Given `e` s.t. `inferType e` is definitionally equal to `expectedType`, returns

@@ -190,10 +190,11 @@ for file in Path().glob("**/run_bench"):
         nag("has env_test.sh", file)
 
 
-# File confusion by case insensitive filesystems
+# File confusion by case insensitive filesystems,
+# applies to entire repository
 
 seen: set[str] = set()
-for file in Path().glob("**/*"):
+for file in Path("..").glob("**/*"):
     path = str(file).lower()
     if path in seen:
         nag("case sensitive", file)

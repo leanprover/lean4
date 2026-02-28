@@ -56,7 +56,7 @@ def mkILvl (major : Expr) (recVal : RecursorVal) : MetaM Level := do
     | throwError "type of type of major premise {major} not a type former"
   unless ilvl.isZero do
     return ilvl
-  /- At this point, `ind` is both recursive and a subsingleton predicate here, so it must have a single constructor. Furthermore, every field must either be a Prop OR a non-uniform parameter. In this case, the sort of the motive is the max of the constructor's argument's sorts. i.e for `Acc`:
+  /- At this point, `ind` is both recursive and a subsingleton predicate here, so it must have exactly one constructor. Furthermore, every field must either be a Prop OR a non-uniform parameter. In this case, the sort of the motive is the max of the constructor's argument's sorts. i.e for `Acc`:
   ```
   inductive Acc {α : Sort u} (r : α → α → Prop) : α → Prop where
     | intro (x : α) (h : (y : α) → r y x → Acc r y) : Acc r x

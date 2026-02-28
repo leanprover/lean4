@@ -2313,6 +2313,19 @@ def isInductivePredicate? (declName : Name) : MetaM (Option InductiveVal) := do
 def isInductivePredicate (declName : Name) : MetaM Bool := do
   return (← isInductivePredicate? declName).isSome
 
+/--
+Return `some info` if `declName` is an non-subsingleton inductive predicate where `info : InductiveVal`.
+That is, `inductive` type in `Prop` and cannot eliminate to any `Sort u`.
+-/
+def isInductivePredicateNotSubsingleton? (declName : Name) : MetaM Bool := do
+  match (← getEnv).find? (declName ++ `rec) with
+  | some (.recInfo info) => return go info.numParams info.type
+  | _ => return false
+where
+  go
+  | 0, e => e.bindingDomain!.getForallBody.sortLevel!.isZero
+  | n+1, e => go n e.bindingBody!
+
 def isListLevelDefEqAux : List Level → List Level → MetaM Bool
   | [],    []    => return true
   | u::us, v::vs => isLevelDefEqAux u v <&&> isListLevelDefEqAux us vs

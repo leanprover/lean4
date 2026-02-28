@@ -30,7 +30,7 @@ private def elimMutualRecursion (preDefs : Array PreDefinition) (fixedParamPerms
   let positions : Positions := .groupAndSort (·.indIdx) recArgInfos (Array.range indInfo.numTypeFormers)
   trace[Elab.definition.structural] "assignments of type formers of {indInfo.name} to functions: {positions}"
 
-  let isIndPred ← isInductivePredicate indInfo.name
+  let isIndPred ← isInductivePredicateNotSubsingleton? indInfo.name
 
   let withFunTypesAndMotives (k : Array Expr → Array Expr → M (Array PreDefinition)) :
       M (Array PreDefinition) := do

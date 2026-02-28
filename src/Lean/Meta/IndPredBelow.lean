@@ -210,7 +210,7 @@ def mkBRecOn (ctx : Context) : MetaM Unit := do
 /-- Generates the auxiliary lemmas `below` and `brecOn` for a recursive inductive predicate. -/
 public def mkBelow (indName : Name) : MetaM Unit :=
   withTraceNode `Meta.IndPredBelow (fun _ => return m!"{indName}") do
-  unless (← isInductivePredicate indName) do return
+  unless (← isInductivePredicateNotSubsingleton? indName) do return
   let indVal ← getConstInfoInduct indName
   if indVal.isUnsafe || !indVal.isRec then return
   let levelParams := indVal.levelParams

@@ -87,7 +87,7 @@ partial def visit (e : Expr) : M Expr := do
         lctx := lctx.modifyLocalDecl xFVarId fun _ => localDecl
       withLCtx lctx localInstances k
     checkCache { val := e : ExprStructEq } fun _ => do
-      if (← withTransparency TransparencyMode.all <| withInferTypeConfig <| isNonTrivialProof e) then
+      if (← isNonTrivialProof e) then
         /- Ensure proofs nested in type are also abstracted -/
         abstractProof e (← read).cache visit
       else match e with
@@ -107,6 +107,8 @@ def abstractNestedProofs (e : Expr) (cache := true) : MetaM Expr := do
     -- `e` is a proof itself. So, we don't abstract nested proofs
     return e
   else
-    AbstractNestedProofs.visit e |>.run { cache } |>.run
+    withTransparency TransparencyMode.all <|
+    withInferTypeConfig <|
+        AbstractNestedProofs.visit e |>.run { cache } |>.run
 
 end Lean.Meta

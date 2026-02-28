@@ -405,6 +405,11 @@ foreach(T ${LEANLAKETESTS})
   endif()
 endforeach(T)
 
+# Lint test suite and parts of the repository.
+# Must not run in parallel with any other tests that may create or delete files.
+add_test(NAME lint.py COMMAND python lint.py WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
+set_tests_properties(lint.py PROPERTIES RUN_SERIAL TRUE)
+
 add_test_pile(compile *.lean BENCH PART2)
 add_test_pile(compile_bench *.lean BENCH PART2)
 add_test_pile(elab *.lean)

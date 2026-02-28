@@ -313,6 +313,7 @@ theorem Pos.Raw.unoffsetBy_lt_unoffsetBy_of_le_of_lt {p₁ p₂ p₃ : Pos.Raw} 
 
 namespace Pos.Raw
 
+@[deprecated rfl (since := "2026-02-28")]
 theorem byteIdx_mk (n : Nat) : byteIdx ⟨n⟩ = n := rfl
 
 @[simp] theorem mk_zero : ⟨0⟩ = (0 : Pos.Raw) := rfl

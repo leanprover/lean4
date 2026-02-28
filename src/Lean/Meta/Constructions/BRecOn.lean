@@ -67,6 +67,7 @@ def mkILvl (major : Expr) (recVal : RecursorVal) : MetaM Level := do
   -/
   let indName := recVal.getMajorInduct
   let indVal ← getConstInfoInduct indName
+  assert! indVal.ctors.length == 1
   let ctorVal ← getConstInfoCtor indVal.ctors[0]!
   let ctorType := ctorVal.type
   forallTelescopeReducing ctorType fun args _ => do

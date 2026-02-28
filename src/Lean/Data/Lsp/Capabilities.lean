@@ -42,7 +42,8 @@ structure ShowDocumentClientCapabilities where
   deriving ToJson, FromJson
 
 structure WindowClientCapabilities where
-  showDocument? : Option ShowDocumentClientCapabilities := none
+  showDocument?     : Option ShowDocumentClientCapabilities := none
+  workDoneProgress? : Option Bool := none
   deriving ToJson, FromJson
 
 structure ChangeAnnotationSupport where
@@ -83,6 +84,9 @@ structure ClientCapabilities where
   /-- Capabilities for Lean language server extensions. -/
   lean?         : Option LeanClientCapabilities         := none
   deriving ToJson, FromJson
+
+def ClientCapabilities.workDoneProgress (c : ClientCapabilities) : Bool :=
+  c.window?.bind (·.workDoneProgress?) |>.getD false
 
 def ClientCapabilities.silentDiagnosticSupport (c : ClientCapabilities) : Bool := Id.run do
   let some lean := c.lean?

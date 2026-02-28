@@ -161,6 +161,32 @@ def mkFileProgressAtPosNotification (m : DocumentMeta) (pos : String.Pos.Raw)
 def mkFileProgressDoneNotification (m : DocumentMeta) : JsonRpc.Notification Lsp.LeanFileProgressParams :=
   mkFileProgressNotification m #[]
 
+/-- Constructs a `$/progress` notification with `WorkDoneProgressBegin`. -/
+def mkProgressBeginNotification (token : Lsp.ProgressToken) (title : String)
+    (message? : Option String := none) :
+    JsonRpc.Notification (Lsp.ProgressParams Lsp.WorkDoneProgressBegin) :=
+  { method := "$/progress", param := { token, value := { title, message? } } }
+
+/-- Constructs a `$/progress` notification with `WorkDoneProgressReport`. -/
+def mkProgressReportNotification (token : Lsp.ProgressToken)
+    (message? : Option String := none) :
+    JsonRpc.Notification (Lsp.ProgressParams Lsp.WorkDoneProgressReport) :=
+  { method := "$/progress", param := { token, value := { message? } } }
+
+/-- Constructs a `$/progress` notification with `WorkDoneProgressEnd`. -/
+def mkProgressEndNotification (token : Lsp.ProgressToken)
+    (message? : Option String := none) :
+    JsonRpc.Notification (Lsp.ProgressParams Lsp.WorkDoneProgressEnd) :=
+  { method := "$/progress", param := { token, value := { message? } } }
+
+/-- Shared progress token for Lake dependency setup. -/
+def lakeProgressToken : Lsp.ProgressToken := "lean4/lakeSetup"
+
+/-- Constructs a `window/workDoneProgress/create` request. -/
+def mkWorkDoneProgressCreateRequest (id : JsonRpc.RequestID) (token : Lsp.ProgressToken) :
+    JsonRpc.Request Lsp.WorkDoneProgressCreateParams :=
+  ⟨id, "window/workDoneProgress/create", { token }⟩
+
 -- TODO: should return a request ID (or task?) when we add response handling
 def mkApplyWorkspaceEditRequest (params : ApplyWorkspaceEditParams) :
     JsonRpc.Request ApplyWorkspaceEditParams :=

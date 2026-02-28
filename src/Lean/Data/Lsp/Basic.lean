@@ -369,7 +369,7 @@ abbrev ProgressToken := String -- do we need integers?
 structure ProgressParams (α : Type) where
   token : ProgressToken
   value : α
-  deriving ToJson
+  deriving ToJson, FromJson
 
 structure WorkDoneProgressReport where
   kind := "report"
@@ -405,6 +405,13 @@ structure PartialResultParams where
 /-- [reference](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#workDoneProgressOptions) -/
 structure WorkDoneProgressOptions where
   workDoneProgress := false
+  deriving ToJson, FromJson
+
+/-- Params for `window/workDoneProgress/create` request.
+
+[reference](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#window_workDoneProgress_create) -/
+structure WorkDoneProgressCreateParams where
+  token : ProgressToken
   deriving ToJson, FromJson
 
 structure ResolveSupport where

@@ -133,7 +133,7 @@ public def mkBelow (indName : Name) : MetaM Unit := do
   withTraceNode `Meta.mkBelow (fun _ => return m!"{indName}") do
   let .inductInfo indVal ← getConstInfo indName | return
   unless indVal.isRec do return
-  if ← isInductivePredicateNotSubsingleton? indName then return
+  if ← inductiveEliminatesToPropOnly indVal then return
 
   let recName := mkRecName indName
   let belowName := mkBelowName indName
@@ -324,7 +324,7 @@ public def mkBRecOn (indName : Name) : MetaM Unit := do
   withTraceNode `Meta.mkBRecOn (fun _ => return m!"{indName}") do
   let .inductInfo indVal ← getConstInfo indName | return
   unless indVal.isRec do return
-  if ← isInductivePredicateNotSubsingleton? indName then return
+  if ← inductiveEliminatesToPropOnly indVal then return
 
   let recName := mkRecName indName
   let brecOnName := mkBRecOnName indName

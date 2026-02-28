@@ -2,7 +2,7 @@
 
 /--
 info: @[reducible] protected def Acc.below.{u_1, u} : {α : Sort u} →
-  {r : α → α → Prop} → {motive : (a : α) → Acc r a → Sort u_1} → {a : α} → Acc r a → Sort (max (max (max 1 u) 0) u_1) :=
+  {r : α → α → Prop} → {motive : (a : α) → Acc r a → Sort u_1} → {a : α} → Acc r a → Sort (max (max 1 u) u_1) :=
 fun {α} {r} {motive} {a} t => Acc.rec (fun x h h_ih => (y : α) → (a : r y x) → motive y ⋯ ×' h_ih y a) t
 -/
 #guard_msgs in
@@ -26,6 +26,20 @@ def witness_of_Acc [h : DecidablePred P] (a : Acc (R P) n) : {n : Nat // P n} :=
       | isFalse h =>
         witness_of_Acc (ak (k+1) ⟨rfl, h⟩)
 termination_by structural a
+
+-- Makes sure the auxiliary lemmas for `witness_of_Acc` are correctly generated
+
+#guard_msgs(drop info) in
+#check witness_of_Acc.eq_1
+
+#guard_msgs(drop info) in
+#check witness_of_Acc.eq_def
+
+#guard_msgs(drop info) in
+#check witness_of_Acc.induct
+
+#guard_msgs(drop info) in
+#check witness_of_Acc.induct_unfolding
 
 inductive Acc' {α : Sort u} {β : Sort v} (R₁ : α → α → Prop) (R₂ : β → β → Prop) : α → β → Prop where
   | intro (a : α) (b : β) (h₁ : (y : α) → R₁ y a → Acc' R₁ R₂ y b) (h₂ : (y : β) → R₂ y b → Acc' R₁ R₂ a y) : Acc' R₁ R₂ a b

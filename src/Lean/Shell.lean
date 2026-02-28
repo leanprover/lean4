@@ -8,6 +8,7 @@ module
 prelude
 import Lean.Elab.Frontend
 import Lean.Elab.ParseImportsFast
+import Lean.PrettyPrinter.Source
 import Lean.Server.Watchdog
 import Lean.Server.FileWorker
 import Lean.Compiler.IR.EmitC
@@ -153,6 +154,8 @@ def displayHelp (useStderr : Bool) : IO Unit := do
   out.putStrLn    "  -i, --i=iname          create ilean file"
   out.putStrLn    "  -c, --c=fname          name of the C output file"
   out.putStrLn    "  -b, --bc=fname         name of the LLVM bitcode file"
+  out.putStrLn    "      --format           format the input file using the pretty printer"
+  out.putStrLn    "      --format-check    check if input is already formatted; exit 1 if not"
   out.putStrLn    "      --stdin            take input from stdin"
   out.putStrLn    "  -R, --root=dir         set package root directory from which the module name\n"
   out.putStrLn    "                         of the input file is calculated\n"
@@ -250,6 +253,8 @@ structure ShellOptions where
   jsonOutput : Bool := false
   errorOnKinds : Array Name := #[]
   printStats : Bool := false
+  format : Bool := false
+  formatCheck : Bool := false
   run : Bool := false
 
 @[export lean_shell_options_mk]
@@ -387,6 +392,10 @@ def ShellOptions.process (opts : ShellOptions)
     return {opts with onlyDeps := true, depsJson := true}
   | 'J' => -- `--json`
     return {opts with jsonOutput := true}
+  | 'F' => -- `--format`
+    return {opts with format := true}
+  | 'G' => -- `--format-check`
+    return {opts with format := true, formatCheck := true}
   | 'a' => -- `--stats`
     return {opts with printStats := true}
   | 'x' =>  -- `--print-prefix`
@@ -506,6 +515,17 @@ def shellMain (args : List String) (opts : ShellOptions) : IO UInt32 := do
     return 0
   if opts.onlySrcDeps then
     Elab.printImportSrcs contents fileName
+    return 0
+  if opts.format then
+    let formatted ← PrettyPrinter.ppSource contents fileName opts.leanOpts
+    if opts.formatCheck then
+      return if formatted == contents then 0 else 1
+    else if opts.useStdin then
+      IO.print formatted
+    else
+      let tmpFile := fileName ++ ".fmt.tmp"
+      IO.FS.writeFile tmpFile formatted
+      IO.FS.rename tmpFile fileName
     return 0
   -- Quick and dirty `#lang` support
   ---TODO: make it extensible, and add `lean4md`

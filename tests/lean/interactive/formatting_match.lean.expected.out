@@ -1,0 +1,6 @@
+{"textDocument": {"uri": "file:///formatting_match.lean"},
+ "options": {"tabSize": 2, "insertSpaces": true}}
+[{"range":
+  {"start": {"line": 0, "character": 0}, "end": {"line": 13, "character": 0}},
+  "newText":
+  "inductive Tree where\n  | leaf : Nat → Tree\n  | node : Tree → Tree → Tree\n\ndef Tree.depth : Tree → Nat\n  | .leaf _ => 0\n  | .node l r =>\n    let dl := l.depth\n    let dr := r.depth\n    match Nat.ble dl dr with\n    | true => dr + 1\n    | false =>\n      dl +\n        1\n--^ formatting\n"}]

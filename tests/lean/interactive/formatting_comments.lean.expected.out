@@ -1,0 +1,6 @@
+{"textDocument": {"uri": "file:///formatting_comments.lean"},
+ "options": {"tabSize": 2, "insertSpaces": true}}
+[{"range":
+  {"start": {"line": 0, "character": 0}, "end": {"line": 11, "character": 0}},
+  "newText":
+  "def double (n : Nat) : Nat :=\n  n *\n    2\n\n-- Tripling is useful for tests\n\ndef triple (n : Nat) : Nat :=\n  n * 3\n\n/-!## Combining functions -/\n\ndef six : Nat :=\n  triple\n    (double 1)\n--^ formatting\n"}]

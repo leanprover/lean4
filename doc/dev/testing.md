@@ -84,7 +84,24 @@ All these tests are included by [src/shell/CMakeLists.txt](https://github.com/le
     --^ $/lean/plainTermGoal
     --^ insert: ...
     --^ collectDiagnostics
+    --^ formatting
     ```
+
+    **Formatting tests:** The `formatting_*.lean` files test the
+    `textDocument/formatting` LSP handler. The `--^ formatting`
+    directive sends a formatting request with default options
+    (`tabSize: 2, insertSpaces: true`). The handler is
+    `processFormatting` in `src/Lean/Server/Test/Runner.lean`.
+    A formatting test file contains Lean code with a directive on the
+    last line:
+
+    ```lean
+    def foo :    Nat :=      42
+    --^ formatting
+    ```
+
+    Generate and verify the expected output using `test_single.sh -i`
+    as described in [Fixing Tests](#fixing-tests) below.
 
 - [`tests/lean/server`](https://github.com/leanprover/lean4/tree/master/tests/lean/server/): Tests more of the Lean `--server` protocol.
   There are just a few of them, and it uses .log files containing
@@ -126,6 +143,19 @@ First, we must install [meld](http://meldmerge.org/). On Ubuntu, we can do it by
 ```
 sudo apt-get install meld
 ```
+
+When running `test_single.sh` outside of `ctest`, the built `lean`
+must be on `PATH` (ctest sets this automatically).
+A system-installed `lean` (e.g. from `elan` or Nix) will **not** work
+because it does not contain your local changes and may not even match
+the expected version. Prepend the stage 1 build directory:
+
+```bash
+export PATH=$(pwd)/build/release/stage1/bin:$PATH
+```
+
+Verify you are using the right binary with `lean --version`; the
+commit hash should match your working tree.
 
 Now, suppose `bad_class.lean` test is broken. We can see the problem by going to [`tests/lean`](https://github.com/leanprover/lean4/tree/master/tests/lean) directory and
 executing

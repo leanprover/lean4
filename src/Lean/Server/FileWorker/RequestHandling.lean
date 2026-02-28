@@ -8,6 +8,7 @@ module
 
 prelude
 public import Lean.Server.FileWorker.ExampleHover
+public import Lean.Server.FileWorker.Formatting
 public import Lean.Server.FileWorker.InlayHints
 public import Lean.Server.FileWorker.SemanticHighlighting
 public import Lean.Server.FileWorker.SignatureHelp
@@ -481,6 +482,37 @@ partial def handleWaitForDiagnostics (p : WaitForDiagnosticsParams)
     return doc.reporter.bindCheap (fun _ => doc.cmdSnaps.waitAll)
       |>.mapCheap fun _ => pure WaitForDiagnostics.mk
 
+def handleDocumentFormatting (_ : DocumentFormattingParams)
+    : RequestM (RequestTask (Array TextEdit)) := do
+  let doc ← readDoc
+  let text := doc.meta.text
+  let initSnap := doc.initSnap
+  let some headerParsed := initSnap.result?
+    | return ServerTask.pure (.error (RequestError.internalError "header parsing failed"))
+  let headerProcessedTask := headerParsed.processedSnap.task.asServerTask
+  mapTaskCostly headerProcessedTask fun headerProcessed => do
+    let some headerSuccess := headerProcessed.result?
+      | throw ⟨.internalError, "import processing failed"⟩
+    Formatting.formatCommandRange doc text initSnap headerParsed headerSuccess
+      0 text.source.rawEndPos
+
+/-- Handle `textDocument/rangeFormatting`: format only commands overlapping the given range. -/
+def handleDocumentRangeFormatting (p : DocumentRangeFormattingParams)
+    : RequestM (RequestTask (Array TextEdit)) := do
+  let doc ← readDoc
+  let text := doc.meta.text
+  let initSnap := doc.initSnap
+  let some headerParsed := initSnap.result?
+    | return ServerTask.pure (.error (RequestError.internalError "header parsing failed"))
+  let headerProcessedTask := headerParsed.processedSnap.task.asServerTask
+  mapTaskCostly headerProcessedTask fun headerProcessed => do
+    let some headerSuccess := headerProcessed.result?
+      | throw ⟨.internalError, "import processing failed"⟩
+    let rangeStart := text.lspPosToUtf8Pos p.range.start
+    let rangeEnd := text.lspPosToUtf8Pos p.range.«end»
+    Formatting.formatCommandRange doc text initSnap headerParsed headerSuccess
+      rangeStart rangeEnd
+
 def handleDocumentColor (_ : DocumentColorParams) :
     RequestM (RequestTask (Array ColorInformation)) :=
   -- By default, if no document color provider is registered, VS Code itself provides
@@ -548,6 +580,16 @@ builtin_initialize
     SignatureHelpParams
     (Option SignatureHelp)
     handleSignatureHelp
+  registerLspRequestHandler
+    "textDocument/formatting"
+    DocumentFormattingParams
+    (Array TextEdit)
+    handleDocumentFormatting
+  registerLspRequestHandler
+    "textDocument/rangeFormatting"
+    DocumentRangeFormattingParams
+    (Array TextEdit)
+    handleDocumentRangeFormatting
   registerLspRequestHandler
     "textDocument/documentColor"
     DocumentColorParams

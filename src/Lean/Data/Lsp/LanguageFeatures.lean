@@ -724,5 +724,21 @@ structure ColorInformation where
 structure DocumentColorOptions extends WorkDoneProgressOptions where
   deriving FromJson, ToJson
 
+structure FormattingOptions where
+  tabSize : Nat
+  insertSpaces : Bool
+  deriving FromJson, ToJson
+
+structure DocumentFormattingParams where
+  textDocument : TextDocumentIdentifier
+  options : FormattingOptions
+  deriving FromJson, ToJson
+
+structure DocumentRangeFormattingParams where
+  textDocument : TextDocumentIdentifier
+  range : Range
+  options : FormattingOptions
+  deriving FromJson, ToJson
+
 end Lsp
 end Lean

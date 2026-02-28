@@ -217,7 +217,7 @@ def sepByIndent.formatter (p : Formatter) (_sep : String) (pSep : Formatter) : F
     for i in (List.range stx.getArgs.size).reverse do
       if i % 2 == 0 then p else pSep <|>
         -- If the final separator is a newline, skip it.
-        ((if i == stx.getArgs.size - 1 then pure () else pushWhitespace "\n") *> goLeft)
+        ((if i == stx.getArgs.size - 1 then pure () else pushWhitespace Format.hardLine) *> goLeft)
   -- If there is any newline separator, then we add an `align` at the start
   -- so that `withPosition` will pick up the right column.
   if hasNewlineSep then
@@ -286,7 +286,7 @@ open PrettyPrinter Parser
 
 @[combinator_formatter ppHardSpace, expose] def ppHardSpace.formatter : Formatter := Formatter.pushWhitespace " "
 @[combinator_formatter ppSpace, expose] def ppSpace.formatter : Formatter := Formatter.pushLine
-@[combinator_formatter ppLine, expose] def ppLine.formatter : Formatter := Formatter.pushWhitespace "\n"
+@[combinator_formatter ppLine, expose] def ppLine.formatter : Formatter := Formatter.pushWhitespace Format.hardLine
 @[combinator_formatter ppRealFill, expose] def ppRealFill.formatter (p : Formatter) : Formatter := Formatter.fill p
 @[combinator_formatter ppRealGroup, expose] def ppRealGroup.formatter (p : Formatter) : Formatter := Formatter.group p
 @[combinator_formatter ppIndent, expose] def ppIndent.formatter (p : Formatter) : Formatter := Formatter.indent p

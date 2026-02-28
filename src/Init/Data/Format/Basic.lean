@@ -57,9 +57,15 @@ inductive Format where
   | nil                 : Format
   /--
   A position where a newline may be inserted if the current group does not fit within the allotted
-  column width.
+  column width. When the surrounding group is flattened, `line` becomes a space.
   -/
   | line                : Format
+  /--
+  An unconditional newline that indents to the current level.
+  Unlike `line`, `hardLine` always produces a newline and prevents the surrounding group
+  from being flattened.
+  -/
+  | hardLine            : Format
   /--
   `align` tells the formatter to pad with spaces to the current indentation level, or else add a
   newline if we are already at or past the indent.
@@ -80,7 +86,8 @@ inductive Format where
   /--
   A node containing a plain string.
 
-  If the string contains newlines, the formatter emits them and then indents to the current level.
+  If the string contains newlines, the formatter emits them at column 0.
+  Use `Format.line` or `Format.nest` to control indentation of line breaks.
   -/
   | text                : String → Format
   /--
@@ -112,6 +119,7 @@ namespace Format
 def isEmpty : Format → Bool
   | nil          => true
   | line         => false
+  | hardLine     => false
   | align _      => true
   | text msg     => msg == ""
   | nest _ f     => f.isEmpty
@@ -162,16 +170,17 @@ private structure SpaceResult where
 private def spaceUptoLine : Format → Bool → Int → Nat → SpaceResult
   | nil,          _,       _, _ => {}
   | line,         flatten, _, _ => if flatten then { space := 1 } else { foundLine := true }
+  | hardLine,     flatten, _, _ => { foundLine := true, foundFlattenedHardLine := flatten }
   | align force,  flatten, m, w =>
     if flatten && !force then {}
     else if w < m then
       { space := (m - w).toNat }
     else
       { foundLine := true }
-  | text s,       flatten, _, _ =>
+  | text s,       _, _, _ =>
     let p := String.Internal.posOf s '\n'
     let off := String.Internal.offsetOfPos s p
-    { foundLine := p != s.rawEndPos, foundFlattenedHardLine := flatten && p != s.rawEndPos, space := off }
+    { foundLine := p != s.rawEndPos, space := off }
   | append f₁ f₂, flatten, m, w => merge w (spaceUptoLine f₁ flatten m w) (spaceUptoLine f₂ flatten m)
   | nest n f,     flatten, m, w => spaceUptoLine f flatten (m - n) w
   | group f _,    _,       m, w => spaceUptoLine f true m w
@@ -271,14 +280,19 @@ private partial def be (w : Nat) [Monad m] [MonadPrettyFormat m] : List WorkGrou
         be w (gs' is)
       else
         pushOutput (String.Internal.extract s {} p)
-        pushNewline i.indent.toNat
+        pushNewline 0
         let is := { i with f := text (String.Internal.extract s (String.Internal.next s p) s.rawEndPos) }::is
-        -- after a hard line break, re-evaluate whether to flatten the remaining group
-        -- note that we shouldn't start flattening after a hard break outside a group
         if g.fla == .disallow then
           be w (gs' is)
         else
           pushGroup g.flb is gs w >>= be w
+    | hardLine =>
+      pushNewline i.indent.toNat
+      endTags i.activeTags
+      if g.fla == .disallow then
+        be w (gs' is)
+      else
+        pushGroup g.flb is gs w >>= be w
     | line =>
       match g.flb with
       | FlattenBehavior.allOrNone =>

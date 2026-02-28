@@ -30,6 +30,7 @@ COMMANDS:
   check-lint            check if there is a properly configured lint driver
   clean                 remove build outputs
   shake                 minimize imports in source files
+  format <files>...     format Lean source files in place
   env <cmd> <args>...   execute a command in Lake's environment
   lean <file>           elaborate a Lean file in Lake's context
   update                update dependencies and save them to the manifest
@@ -585,6 +586,18 @@ the workspace's root package's additional Lean arguments and the given args
 (in that order). The `lean` process is executed in Lake's environment like
 `lake env lean` (see `lake help env` for how the environment is set up)."
 
+def helpFormat :=
+"Format Lean source files
+
+USAGE:
+  lake format [OPTIONS] <files>...
+
+OPTIONS:
+  --check    check formatting without modifying; exit 1 if any file would change
+
+Formats files in place using the Lean pretty printer. Imports are built
+so syntax extensions are available. Only requires parsing, not elaboration."
+
 def helpTranslateConfig :=
 "Translate a Lake configuration file into a different language
 
@@ -630,6 +643,7 @@ public def help : (cmd : String) → String
 | "check-lint"          => helpCheckLint
 | "clean"               => helpClean
 | "shake"               => helpShake
+| "format" | "fmt"      => helpFormat
 | "script"              => helpScriptCli
 | "scripts"             => helpScriptList
 | "run"                 => helpScriptRun

@@ -385,10 +385,12 @@ Callback from Lean language processor after parsing imports that requests necess
 Lake for processing imports.
 -/
 def setupImports
-    (doc         : DocumentMeta)
-    (cmdlineOpts : Options)
-    (chanOut     : Std.Channel OutputMessage)
-    (stx         : Elab.HeaderSyntax)
+    (doc                : DocumentMeta)
+    (cmdlineOpts        : Options)
+    (chanOut            : Std.Channel OutputMessage)
+    (clientCapabilities : Lsp.ClientCapabilities)
+    (createProgressToken : IO Unit)
+    (stx                : Elab.HeaderSyntax)
     : Language.ProcessingT IO (Except Language.Lean.HeaderProcessedSnapshot SetupImportsResult) := do
   let importsAlreadyLoaded ← importsLoadedRef.modifyGet ((·, true))
   if importsAlreadyLoaded then
@@ -400,22 +402,37 @@ def setupImports
     -- should not be visible to user as task is already canceled
     return .error { diagnostics := .empty, result? := none, metaSnap := default }
 
+  let useProgress := clientCapabilities.workDoneProgress
+  let progressToken := lakeProgressToken
+  if useProgress then
+    createProgressToken
+    chanOut.sync.send <| .ofMsg <| mkProgressBeginNotification progressToken "Lake"
+        (message? := some "Setting up dependencies...")
+
   let header := stx.toModuleHeader
   let fileSetupResult ← setupFile doc header fun stderrLine => do
-    let progressDiagnostic := {
-      range      := ⟨⟨0, 0⟩, ⟨1, 0⟩⟩
-      -- make progress visible anywhere in the file
-      fullRange? := some ⟨⟨0, 0⟩, doc.text.utf8PosToLspPos doc.text.source.rawEndPos⟩
-      severity?  := DiagnosticSeverity.information
-      message    := stderrLine
-    }
-    chanOut.sync.send <| .ofMsg <| mkPublishDiagnosticsNotification doc #[progressDiagnostic]
+    if useProgress then
+      let cleanLine := (stderrLine.trimAsciiEnd.toString.dropPrefix "✔ " |>.dropPrefix "✗ ").toString
+      chanOut.sync.send <| .ofMsg <| mkProgressReportNotification progressToken
+          (message? := some cleanLine)
+    else
+      let progressDiagnostic := {
+        range      := ⟨⟨0, 0⟩, ⟨1, 0⟩⟩
+        -- make progress visible anywhere in the file
+        fullRange? := some ⟨⟨0, 0⟩, doc.text.utf8PosToLspPos doc.text.source.rawEndPos⟩
+        severity?  := DiagnosticSeverity.information
+        message    := stderrLine
+      }
+      chanOut.sync.send <| .ofMsg <| mkPublishDiagnosticsNotification doc #[progressDiagnostic]
   let isSetupError := fileSetupResult matches .importsOutOfDate
     || fileSetupResult matches .error ..
   chanOut.sync.send <| .ofMsg <|
     mkIleanHeaderSetupInfoNotification doc (collectImports stx) isSetupError
-  -- clear progress notifications in the end
-  chanOut.sync.send <| .ofMsg <| mkPublishDiagnosticsNotification doc #[]
+  if useProgress then
+    chanOut.sync.send <| .ofMsg <| mkProgressEndNotification progressToken
+  else
+    -- clear progress notifications in the end
+    chanOut.sync.send <| .ofMsg <| mkPublishDiagnosticsNotification doc #[]
   let setup ← do
     match fileSetupResult with
     | .importsOutOfDate =>
@@ -475,7 +492,18 @@ section Initialization
           -- Emit a refresh request after a file worker restart.
           pendingRefreshInfo? := some { lastRefreshTimestamp := timestamp, successiveRefreshAttempts := 0 }
         })
-    let processor := Language.Lean.process (setupImports doc opts chanOut)
+    let createProgressToken : IO Unit :=
+      if initParams.capabilities.workDoneProgress then do
+        let requestId ← freshRequestIdRef.modifyGet fun id => (id, id + 1)
+        let responsePromise ← IO.Promise.new
+        pendingServerRequestsRef.modify (·.insert requestId responsePromise)
+        chanOut.sync.send <| .ofMsg <|
+          mkWorkDoneProgressCreateRequest requestId lakeProgressToken
+        let _ ← IO.wait responsePromise.result!
+      else
+        pure ()
+    let processor := Language.Lean.process
+        (setupImports doc opts chanOut initParams.capabilities createProgressToken)
     let processor ← Language.mkIncrementalProcessor processor
     let initSnap ← processor doc.mkInputContext
     let _ ← ServerTask.IO.asTask do

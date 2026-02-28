@@ -8,6 +8,8 @@ module
 
 prelude
 public import Lean.Data.Lsp.Basic
+public import Lean.Data.Lsp.DiagnosticRelatedInformation
+public import Lean.Data.Lsp.DiagnosticTag
 public import Lean.Data.Lsp.Utf16
 
 
@@ -58,24 +60,6 @@ instance : ToJson DiagnosticCode := ⟨fun
   | DiagnosticCode.int i    => i
   | DiagnosticCode.string s => s⟩
 
-/-- Tags representing additional metadata about the diagnostic. -/
-inductive DiagnosticTag where
-  /-- Unused or unnecessary code. Rendered as faded out eg for unused variables. -/
-  | unnecessary
-  /-- Deprecated or obsolete code. Rendered with a strike-through. -/
-  | deprecated
-  deriving Inhabited, BEq, Ord
-
-instance : FromJson DiagnosticTag := ⟨fun j =>
-  match j.getNat? with
-  | Except.ok 1  => return DiagnosticTag.unnecessary
-  | Except.ok 2  => return DiagnosticTag.deprecated
-  | _            => throw "unknown DiagnosticTag"⟩
-
-instance : ToJson DiagnosticTag := ⟨fun
-  | DiagnosticTag.unnecessary   => (1 : Nat)
-  | DiagnosticTag.deprecated    => (2 : Nat)⟩
-
 /--
 Custom diagnostic tags provided by the language server.
 We use a separate diagnostic field for this to avoid confusing LSP clients with our custom tags.
@@ -104,14 +88,6 @@ instance : ToJson LeanDiagnosticTag where
   toJson
   | .unsolvedGoals => (1 : Nat)
   | .goalsAccomplished => (2 : Nat)
-
-/-- Represents a related message and source code location for a diagnostic.
-    This should be used to point to code locations that cause or are related to
-    a diagnostics, e.g when duplicating a symbol in a scope. -/
-structure DiagnosticRelatedInformation where
-  location : Location
-  message : String
-  deriving Inhabited, BEq, ToJson, FromJson, Ord
 
 /-- Represents a diagnostic, such as a compiler error or warning. Diagnostic objects are only valid in the scope of a resource.
 

@@ -994,6 +994,8 @@ def runRefreshTasks : WorkerM (Array (ServerTask Unit)) := do
   let ctx ← read
   let mut tasks := #[]
   for (method, refreshMethod, refreshIntervalMs) in ← partialLspRequestHandlerMethods do
+    unless ctx.initParams.capabilities.supportsRefresh refreshMethod do
+      continue
     tasks := tasks.push <| ← ServerTask.BaseIO.asTask do
       while true do
         let lastRefreshTimestamp? ← ctx.modifyGetPartialHandler method fun h => Id.run do

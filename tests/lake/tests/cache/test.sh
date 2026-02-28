@@ -19,6 +19,7 @@ test_run cache clean
 LAKE_CONFIG=services.toml test_out_diff <(cat << EOF
 cdn
 bogus
+reservoir
 EOF
 ) cache services
 

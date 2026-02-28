@@ -64,6 +64,7 @@ public structure LakeOptions where
   offline : Bool := false
   outputsFile? : Option FilePath := none
   forceDownload : Bool := false
+  downloadArts : Bool := false
   service? : Option String := none
   scope? : Option CacheServiceScope := none
   platform? : Option CachePlatform := none
@@ -248,6 +249,7 @@ def lakeLongOption : (opt : String) → CliM PUnit
 | "--wfail"       => modifyThe LakeOptions ({· with failLv := .warning})
 | "--iofail"      => modifyThe LakeOptions ({· with failLv := .info})
 | "--force-download" => modifyThe LakeOptions ({· with forceDownload := true})
+| "--download-arts" => modifyThe LakeOptions ({· with downloadArts := true})
 | "--service" => do
   let service ← takeOptArg "--service" "service name"
   modifyThe LakeOptions ({· with service? := some service})
@@ -427,7 +429,9 @@ protected def get : CliM PUnit := do
       else
         return ws.defaultCacheService
     let map ← CacheMap.load file
-    service.downloadOutputArtifacts map cache ws.root.cacheScope remoteScope opts.forceDownload
+    cache.writeMap ws.root.cacheScope map service.name? (some remoteScope)
+    let descrs ← map.collectOutputDescrs
+    service.downloadArtifacts descrs cache remoteScope opts.forceDownload
   else
     let platform := opts.platform?.getD .system
     let toolchain := opts.toolchain?.getD ws.cacheToolchain
@@ -467,7 +471,10 @@ protected def get : CliM PUnit := do
           return map
         else
           findOutputs cache service pkg remoteScope opts platform toolchain
-      service.downloadOutputArtifacts map cache pkg.cacheScope remoteScope opts.forceDownload
+      cache.writeMap pkg.cacheScope map service.name? (some remoteScope)
+      if opts.downloadArts || service.name?.isNone then
+        let descrs ← map.collectOutputDescrs
+        service.downloadArtifacts descrs cache remoteScope opts.forceDownload
     else if service.isReservoir then
       -- TODO: Parallelize?
       let ok ← ws.packages.foldlM (start := 1) (init := true) (m := LoggerIO) fun ok pkg => do
@@ -479,7 +486,10 @@ protected def get : CliM PUnit := do
             let toolchain := cacheToolchain pkg toolchain
             let remoteScope := .ofPackage pkg
             let map ← findOutputs cache service pkg remoteScope opts platform toolchain
-            service.downloadOutputArtifacts map cache pkg.cacheScope remoteScope opts.forceDownload
+            cache.writeMap pkg.cacheScope map service.name? (some remoteScope)
+            if opts.downloadArts || service.name?.isNone then
+              let descrs ← map.collectOutputDescrs
+              service.downloadArtifacts descrs cache remoteScope opts.forceDownload
           return ok
         catch _ =>
           return false
@@ -541,7 +551,7 @@ protected def put : CliM PUnit := do
             | error "uploads require an authentication key configured through `LAKE_CACHE_KEY`"
           return service.withKey key
         else
-          error "the `--service` option must be set for `cache put`"
+          error "no default upload service configured; the `--service` option must be set for `cache put`"
       | key?, artifactEndpoint?, revisionEndpoint? =>
         logWarning endpointDeprecation
         error (invalidEndpointConfig key? artifactEndpoint? revisionEndpoint?)

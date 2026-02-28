@@ -643,6 +643,7 @@ public def downloadArtifacts
   unless ok do
     error s!"{scope}: failed to download some artifacts"
 
+@[deprecated "Deprecated without replacement." (since := "2026-02-27")]
 public def downloadOutputArtifacts
   (map : CacheMap) (cache : Cache) (service : CacheService)
   (localScope : String) (remoteScope : CacheServiceScope) (force := false)

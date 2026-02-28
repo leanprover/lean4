@@ -11,6 +11,8 @@ prelude
 public import Init.Data.Slice.Array
 public import Lean.Util.PPExt
 public import Lean.Util.Sorry
+public import Lean.Data.Lsp.DiagnosticRelatedInformation
+public import Lean.Data.Lsp.DiagnosticTag
 import Init.Data.String.Search
 import Init.Data.Format.Macro
 import Init.Data.Iterators.Consumers.Collect
@@ -444,6 +446,12 @@ structure BaseMessage (α : Type u) where
   caption       : String          := ""
   /-- The content of the message. -/
   data          : α
+  /-- Optional JSON-encoded data for LSP `Diagnostic.data?`. -/
+  diagnosticData? : Option String := none
+  /-- LSP diagnostic tags (e.g. unnecessary, deprecated). -/
+  diagnosticTags : Array Lsp.DiagnosticTag := #[]
+  /-- Related diagnostic information (e.g. other locations relevant to this diagnostic). -/
+  relatedInformation? : Option (Array Lsp.DiagnosticRelatedInformation) := none
   deriving Inhabited, ToJson, FromJson
 
 /-- A `Message` is a richly formatted piece of information emitted by Lean.

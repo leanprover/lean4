@@ -244,10 +244,7 @@ def msgToInteractiveDiagnostic (text : FileMap) (m : Message) (hasWidgets : Bool
     | .error       => .error
   let isSilent? := if m.isSilent then some true else none
   let source? := some "Lean 4"
-  let tags? :=
-    if m.data.isDeprecationWarning then some #[.deprecated]
-    else if m.data.isUnusedVariableWarning then some #[.unnecessary]
-    else none
+  let tags? := if m.diagnosticTags.isEmpty then none else some m.diagnosticTags
   let leanTags? :=
     if m.data.hasTag (· == `Tactic.unsolvedGoals) then some #[.unsolvedGoals]
     else if m.data.hasTag (· == `goalsAccomplished) then some #[.goalsAccomplished]
@@ -256,6 +253,11 @@ def msgToInteractiveDiagnostic (text : FileMap) (m : Message) (hasWidgets : Bool
     | .ok msg => msg
     | .error ex => TaggedText.text s!"[error when printing message: {ex.toString}]"
   let code? := (errorNameOfKind? m.kind).map (.string ·.toString)
-  pure { range, fullRange? := some fullRange, severity?, source?, message, tags?, leanTags?, isSilent?, code? }
+  let data? := m.diagnosticData?.bind fun s =>
+    match Lean.Json.parse s with
+    | .ok j => some j
+    | .error _ => none
+  let relatedInformation? := m.relatedInformation?
+  pure { range, fullRange? := some fullRange, severity?, source?, message, tags?, leanTags?, isSilent?, code?, data?, relatedInformation? }
 
 end Lean.Widget

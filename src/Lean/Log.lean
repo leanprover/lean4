@@ -108,7 +108,8 @@ If `getRef` has position information but `ref` does not, we use `getRef`.
 We use the `fileMap` to find the line and column numbers for the error message.
 -/
 def logAt (ref : Syntax) (msgData : MessageData)
-    (severity : MessageSeverity := MessageSeverity.error) (isSilent : Bool := false) : m Unit :=
+    (severity : MessageSeverity := MessageSeverity.error) (isSilent : Bool := false)
+    (diagnosticTags : Array Lsp.DiagnosticTag := #[]) : m Unit :=
   unless severity == .error && msgData.hasSyntheticSorry do
     let severity := if severity == .warning && warningAsError.get (← getOptions) then .error else severity
     let ref    := replaceRef ref (← MonadLog.getRef)
@@ -123,6 +124,7 @@ def logAt (ref : Syntax) (msgData : MessageData)
       data := msgData
       severity
       isSilent
+      diagnosticTags
     }
 
 /-- Log a new error message using the given message data. The position is provided by `ref`. -/

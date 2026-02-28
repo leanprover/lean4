@@ -1540,9 +1540,12 @@ section MainLoop
             (ErrorCode.workerExited, "see stderr for exception")
           else
             (ErrorCode.workerCrashed, "likely due to a stack overflow or a bug")
-        errorPendingRequests uri errorCode
-          s!"Server process for {uri} crashed, {errorCausePointer}."
+        let crashMsg := s!"Server process for {uri} crashed, {errorCausePointer}."
+        errorPendingRequests uri errorCode crashMsg
         writeMessage <| mkFileProgressAtPosNotification doc 0 (kind := LeanFileProgressKind.fatalError)
+        writeMessage <| (⟨"window/showMessage",
+          { type := MessageType.error, message := crashMsg : ShowMessageParams }⟩ :
+          JsonRpc.Notification ShowMessageParams)
         setWorkerState fw .crashed
         mainLoop clientTask
       | WorkerEvent.terminated =>

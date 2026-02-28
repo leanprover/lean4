@@ -2318,7 +2318,7 @@ Return `some info` if `declName` is an non-subsingleton inductive predicate wher
 That is, `inductive` type in `Prop` and cannot eliminate to any `Sort u`.
 -/
 def isInductivePredicateNotSubsingleton? (declName : Name) : MetaM Bool := do
-  match (← getEnv).find? (declName ++ `rec) with
+  match (← getEnv).find? (mkRecName declName) with
   | some (.recInfo info) => return go info.numParams info.type
   | _ => return false
 where

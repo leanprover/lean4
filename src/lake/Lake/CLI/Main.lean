@@ -510,7 +510,7 @@ where
     let n := opts.maxRevs
     let revs ← repo.getHeadRevisions n
     let map? ← revs.findSomeM? fun rev =>
-      service.downloadRevisionOutputs? rev cache pkg.cacheScope remoteScope platform toolchain
+      service.downloadRevisionOutputs? rev cache pkg.cacheScope remoteScope platform toolchain opts.forceDownload
     let some map := map?
       | let revisions :=
           if n = 0 || revs.size < n then "for any revision" else s!"in {n} revisions from HEAD"

@@ -516,7 +516,7 @@ private def loadLakeConfigCore (path : FilePath) (lakeEnv : Lake.Env) : LogIO Lo
       let defaultCacheService ← id do
         let name := config.cache.defaultService
         if name.isEmpty then
-          return defaultService
+          return cacheServices.get? `reservoir |>.getD defaultService
         else
           let some service := cacheServices.get? (.mkSimple name)
             | error s!"the configured default cache service `{name}` is not defined; \

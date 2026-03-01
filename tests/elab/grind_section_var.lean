@@ -1,5 +1,7 @@
 import Std.Do
 
+set_option warn.classDefReducibility false
+
 /-
 Section variables should not be included.
 -/

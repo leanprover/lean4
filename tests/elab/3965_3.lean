@@ -1,3 +1,5 @@
+set_option warn.classDefReducibility false
+
 section Mathlib.Init.Order.Defs
 
 universe u

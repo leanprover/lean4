@@ -1,5 +1,7 @@
 import Lean
 
+set_option warn.classDefReducibility false
+
 /- from core:
 class OfNat (α : Type u) (n : Nat) where
   ofNat : α

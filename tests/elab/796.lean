@@ -1,3 +1,5 @@
+set_option warn.classDefReducibility false
+
 namespace Ex1
 structure A
 class B (a : outParam A) (α : Sort u)

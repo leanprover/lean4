@@ -1,3 +1,5 @@
+set_option warn.classDefReducibility false
+
 set_option warn.sorry false
 
 inductive T : Type u where

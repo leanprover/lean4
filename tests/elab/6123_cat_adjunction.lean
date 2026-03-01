@@ -1,3 +1,5 @@
+set_option warn.classDefReducibility false
+
 section Mathlib.CategoryTheory.ConcreteCategory.Bundled
 
 universe u v

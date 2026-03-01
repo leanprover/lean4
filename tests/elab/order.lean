@@ -1,5 +1,6 @@
-
 import Init.Data.Order.PackageFactories
+
+set_option warn.classDefReducibility false
 
 variable {α : Type u}
 

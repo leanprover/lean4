@@ -114,7 +114,7 @@ theorem IterM.toList_scan [Iterator α m β] [Finite α m] [Monad m] [LawfulMona
   simp only [↓reduceDIte, pure_bind, Shrink.inflate_deflate,
     toList_scan_afterInit, bind_pure_comp, Functor.map_map]
   congr 1; apply funext
-  simp +singlePass +eta only [← List.scanl_cons_head_tail]
+  simp +singlePass only [← List.scanl_cons_head_tail]
   simp
 
 end Std

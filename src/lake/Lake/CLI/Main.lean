@@ -400,9 +400,6 @@ def serviceNotFound (service : String) (configuredServices : Array CacheServiceC
 private def endpointDeprecation : String :=
    "configuring the cache service via environment variables is deprecated; use --service instead"
 
-def _root_.Lake.CacheServiceScope.ofPackage (pkg : Package) : CacheServiceScope :=
-  .ofString s!"{pkg.scope}/{pkg.prettyName}"
-
 protected def get : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
@@ -478,18 +475,17 @@ protected def get : CliM PUnit := do
     else if service.isReservoir then
       -- TODO: Parallelize?
       let ok ← ws.packages.foldlM (start := 1) (init := true) (m := LoggerIO) fun ok pkg => do
+        let some remoteScope := pkg.reservoirScope?
+          | logInfo s!"{pkg.prettyName}: skipping non-Reservoir dependency`"
+            return ok
+        let platform := cachePlatform pkg platform
+        let toolchain := cacheToolchain pkg toolchain
         try
-          if pkg.scope.isEmpty then
-            logInfo s!"{pkg.prettyName}: skipping non-Reservoir dependency`"
-          else
-            let platform := cachePlatform pkg platform
-            let toolchain := cacheToolchain pkg toolchain
-            let remoteScope := .ofPackage pkg
-            let map ← findOutputs cache service pkg remoteScope opts platform toolchain
-            cache.writeMap pkg.cacheScope map service.name? (some remoteScope)
-            if opts.downloadArts || service.name?.isNone then
-              let descrs ← map.collectOutputDescrs
-              service.downloadArtifacts descrs cache remoteScope opts.forceDownload
+          let map ← findOutputs cache service pkg remoteScope opts platform toolchain
+          cache.writeMap pkg.cacheScope map service.name? (some remoteScope)
+          if opts.downloadArts || service.name?.isNone then
+            let descrs ← map.collectOutputDescrs
+            service.downloadArtifacts descrs cache remoteScope opts.forceDownload
           return ok
         catch _ =>
           return false

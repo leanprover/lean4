@@ -10,4 +10,5 @@ public import Init.Data.Iterators.Lemmas.Combinators.Monadic.Attach
 public import Init.Data.Iterators.Lemmas.Combinators.Monadic.FilterMap
 public import Init.Data.Iterators.Lemmas.Combinators.Monadic.FlatMap
 public import Init.Data.Iterators.Lemmas.Combinators.Monadic.Take
+public import Init.Data.Iterators.Lemmas.Combinators.Monadic.Scan
 public import Init.Data.Iterators.Lemmas.Combinators.Monadic.ULift

@@ -51,6 +51,11 @@ theorem scanlM_cons [Monad m] [LawfulMonad m] {f : α → β → m α} :
     scanlM f init (x :: xs) = return init :: (← scanlM f (← f init x) xs) := by
   simp [scanlM, scanAuxM_cons]
 
+theorem scanlM_cons_head_tail [Monad m] [LawfulMonad m]
+    {f : γ → β → m γ} {init : γ} {as : List β} :
+    (return (init :: (← as.scanlM f init).tail)) = as.scanlM f init := by
+  induction as generalizing init with simp_all
+
 @[simp, grind =]
 theorem scanrM_concat [Monad m] [LawfulMonad m] {f : α → β → m β} :
     scanrM f init (xs ++ [x]) = return (← scanrM f (← f x init) xs) ++ [init] := by
@@ -127,6 +132,11 @@ theorem scanl_nil {f : β → α → β} : scanl f init [] = [init] := by simp [
 @[simp, grind =]
 theorem scanl_cons {f : β → α → β} : scanl f b (a :: l) = b :: scanl f (f b a) l := by
   simp [scanl]
+
+theorem scanl_cons_head_tail
+    {f : γ → β → γ} {init : γ} {as : List β} :
+    init :: (as.scanl f init).tail = as.scanl f init := by
+  induction as generalizing init with simp_all
 
 theorem scanl_singleton {f : β → α → β} : scanl f b [a] = [b, f b a] := by simp
 

@@ -11,4 +11,5 @@ public import Init.Data.Iterators.Lemmas.Combinators.Monadic
 public import Init.Data.Iterators.Lemmas.Combinators.FilterMap
 public import Init.Data.Iterators.Lemmas.Combinators.FlatMap
 public import Init.Data.Iterators.Lemmas.Combinators.Take
+public import Init.Data.Iterators.Lemmas.Combinators.Scan
 public import Init.Data.Iterators.Lemmas.Combinators.ULift

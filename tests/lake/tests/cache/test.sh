@@ -251,4 +251,4 @@ if command -v jq > /dev/null; then # skip if no jq found
 fi
 
 # Cleanup
-rm -f produced.out Ignored.lean
+rm -f produced.* Ignored.lean

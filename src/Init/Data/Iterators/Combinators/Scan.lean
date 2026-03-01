@@ -12,6 +12,18 @@ import Init.Data.Iterators.Combinators.FilterMap
 
 @[expose] public section
 
+/-!
+
+# `scan`, `scanM` and `scanWithPostcondition` combinators
+
+This file provides iterator combinators for scanning with an accumulator.
+
+* `Iter.scan` threads an accumulator through the iterator using a pure stepping function.
+* `Iter.scanM` threads an accumulator using a monadic stepping function.
+* `Iter.scanWithPostcondition` threads an accumulator using a monadic stepping function
+  whose result is returned as a subtype.
+-/
+
 namespace Std
 open Iterators.Types Std.Iterators
 variable {α β γ : Type w}

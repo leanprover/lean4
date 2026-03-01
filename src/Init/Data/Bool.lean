@@ -52,7 +52,6 @@ instance : LT Bool := ⟨(!. && .)⟩
 instance (x y : Bool) : Decidable (x ≤ y) := inferInstanceAs (Decidable (x → y))
 instance (x y : Bool) : Decidable (x < y) := inferInstanceAs (Decidable (!x && y))
 
-/-- Boolean '' is well founded -/
 @[implicit_reducible, expose]
 def lt_wfRel : WellFoundedRelation Bool where
   rel := (· < ·)
@@ -60,7 +59,6 @@ def lt_wfRel : WellFoundedRelation Bool where
     | false => ⟨false, nofun⟩
     | true => ⟨true, fun | false, _ => ⟨false, nofun⟩⟩⟩
 
-/-- Boolean '>' is well founded -/
 @[implicit_reducible, expose]
 def gt_wfRel : WellFoundedRelation Bool where
   rel := (· > ·)

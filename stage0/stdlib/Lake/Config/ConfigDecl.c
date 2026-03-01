@@ -38,8 +38,8 @@ static const lean_ctor_object l_Lake_PConfigDecl_pkg__eq___autoParam___closed__4
 static const lean_ctor_object l_Lake_PConfigDecl_pkg__eq___autoParam___closed__4_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_Lake_PConfigDecl_pkg__eq___autoParam___closed__4_value_aux_2),((lean_object*)&l_Lake_PConfigDecl_pkg__eq___autoParam___closed__3_value),LEAN_SCALAR_PTR_LITERAL(212, 140, 85, 215, 241, 69, 7, 118)}};
 static const lean_object* l_Lake_PConfigDecl_pkg__eq___autoParam___closed__4 = (const lean_object*)&l_Lake_PConfigDecl_pkg__eq___autoParam___closed__4_value;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l_Lake_PConfigDecl_pkg__eq___autoParam___closed__5_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lake_PConfigDecl_pkg__eq___autoParam___closed__5;
+static const lean_array_object l_Lake_PConfigDecl_pkg__eq___autoParam___closed__5_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_Lake_PConfigDecl_pkg__eq___autoParam___closed__5 = (const lean_object*)&l_Lake_PConfigDecl_pkg__eq___autoParam___closed__5_value;
 static const lean_string_object l_Lake_PConfigDecl_pkg__eq___autoParam___closed__6_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 19, .m_capacity = 19, .m_length = 18, .m_data = "tacticSeq1Indented"};
 static const lean_object* l_Lake_PConfigDecl_pkg__eq___autoParam___closed__6 = (const lean_object*)&l_Lake_PConfigDecl_pkg__eq___autoParam___closed__6_value;
 static const lean_ctor_object l_Lake_PConfigDecl_pkg__eq___autoParam___closed__7_value_aux_0 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_Lake_PConfigDecl_pkg__eq___autoParam___closed__0_value),LEAN_SCALAR_PTR_LITERAL(70, 193, 83, 126, 233, 67, 208, 165)}};
@@ -195,15 +195,6 @@ static const lean_ctor_object l_Lake_instTypeNameInputDirDecl_unsafe__1___closed
 static const lean_object* l_Lake_instTypeNameInputDirDecl_unsafe__1___closed__1 = (const lean_object*)&l_Lake_instTypeNameInputDirDecl_unsafe__1___closed__1_value;
 LEAN_EXPORT const lean_object* l_Lake_instTypeNameInputDirDecl_unsafe__1 = (const lean_object*)&l_Lake_instTypeNameInputDirDecl_unsafe__1___closed__1_value;
 LEAN_EXPORT const lean_object* l_Lake_instTypeNameInputDirDecl = (const lean_object*)&l_Lake_instTypeNameInputDirDecl_unsafe__1___closed__1_value;
-static lean_object* _init_l_Lake_PConfigDecl_pkg__eq___autoParam___closed__5(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Lake_PConfigDecl_pkg__eq___autoParam___closed__13(void) {
 _start:
 {
@@ -218,7 +209,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Lake_PConfigDecl_pkg__eq___autoParam___closed__13, &l_Lake_PConfigDecl_pkg__eq___autoParam___closed__13_once, _init_l_Lake_PConfigDecl_pkg__eq___autoParam___closed__13);
-x_2 = lean_obj_once(&l_Lake_PConfigDecl_pkg__eq___autoParam___closed__5, &l_Lake_PConfigDecl_pkg__eq___autoParam___closed__5_once, _init_l_Lake_PConfigDecl_pkg__eq___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Lake_PConfigDecl_pkg__eq___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -242,7 +233,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Lake_PConfigDecl_pkg__eq___autoParam___closed__15, &l_Lake_PConfigDecl_pkg__eq___autoParam___closed__15_once, _init_l_Lake_PConfigDecl_pkg__eq___autoParam___closed__15);
-x_2 = lean_obj_once(&l_Lake_PConfigDecl_pkg__eq___autoParam___closed__5, &l_Lake_PConfigDecl_pkg__eq___autoParam___closed__5_once, _init_l_Lake_PConfigDecl_pkg__eq___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Lake_PConfigDecl_pkg__eq___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -266,7 +257,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Lake_PConfigDecl_pkg__eq___autoParam___closed__17, &l_Lake_PConfigDecl_pkg__eq___autoParam___closed__17_once, _init_l_Lake_PConfigDecl_pkg__eq___autoParam___closed__17);
-x_2 = lean_obj_once(&l_Lake_PConfigDecl_pkg__eq___autoParam___closed__5, &l_Lake_PConfigDecl_pkg__eq___autoParam___closed__5_once, _init_l_Lake_PConfigDecl_pkg__eq___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Lake_PConfigDecl_pkg__eq___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -290,7 +281,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Lake_PConfigDecl_pkg__eq___autoParam___closed__19, &l_Lake_PConfigDecl_pkg__eq___autoParam___closed__19_once, _init_l_Lake_PConfigDecl_pkg__eq___autoParam___closed__19);
-x_2 = lean_obj_once(&l_Lake_PConfigDecl_pkg__eq___autoParam___closed__5, &l_Lake_PConfigDecl_pkg__eq___autoParam___closed__5_once, _init_l_Lake_PConfigDecl_pkg__eq___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Lake_PConfigDecl_pkg__eq___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }

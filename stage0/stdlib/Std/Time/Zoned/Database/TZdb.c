@@ -24,20 +24,12 @@ static const lean_object* l_Std_Time_Database_TZdb_default___closed__3 = (const 
 static const lean_string_object l_Std_Time_Database_TZdb_default___closed__4_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 24, .m_capacity = 24, .m_length = 23, .m_data = "/usr/share/lib/zoneinfo"};
 static const lean_object* l_Std_Time_Database_TZdb_default___closed__4 = (const lean_object*)&l_Std_Time_Database_TZdb_default___closed__4_value;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l_Std_Time_Database_TZdb_default___closed__5_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Std_Time_Database_TZdb_default___closed__5;
 lean_object* lean_array_push(lean_object*, lean_object*);
-static lean_once_cell_t l_Std_Time_Database_TZdb_default___closed__6_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Std_Time_Database_TZdb_default___closed__6;
-static lean_once_cell_t l_Std_Time_Database_TZdb_default___closed__7_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Std_Time_Database_TZdb_default___closed__7;
-static lean_once_cell_t l_Std_Time_Database_TZdb_default___closed__8_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Std_Time_Database_TZdb_default___closed__8;
-static lean_once_cell_t l_Std_Time_Database_TZdb_default___closed__9_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Std_Time_Database_TZdb_default___closed__9;
-static lean_once_cell_t l_Std_Time_Database_TZdb_default___closed__10_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Std_Time_Database_TZdb_default___closed__10;
-LEAN_EXPORT lean_object* l_Std_Time_Database_TZdb_default;
+static const lean_array_object l_Std_Time_Database_TZdb_default___closed__5_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*4, .m_other = 0, .m_tag = 246}, .m_size = 4, .m_capacity = 4, .m_data = {((lean_object*)&l_Std_Time_Database_TZdb_default___closed__1_value),((lean_object*)&l_Std_Time_Database_TZdb_default___closed__2_value),((lean_object*)&l_Std_Time_Database_TZdb_default___closed__3_value),((lean_object*)&l_Std_Time_Database_TZdb_default___closed__4_value)}};
+static const lean_object* l_Std_Time_Database_TZdb_default___closed__5 = (const lean_object*)&l_Std_Time_Database_TZdb_default___closed__5_value;
+static const lean_ctor_object l_Std_Time_Database_TZdb_default___closed__6_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 0, .m_other = 2, .m_tag = 0}, .m_objs = {((lean_object*)&l_Std_Time_Database_TZdb_default___closed__0_value),((lean_object*)&l_Std_Time_Database_TZdb_default___closed__5_value)}};
+static const lean_object* l_Std_Time_Database_TZdb_default___closed__6 = (const lean_object*)&l_Std_Time_Database_TZdb_default___closed__6_value;
+LEAN_EXPORT const lean_object* l_Std_Time_Database_TZdb_default = (const lean_object*)&l_Std_Time_Database_TZdb_default___closed__6_value;
 lean_object* l_Std_Time_TimeZone_TZif_parse(lean_object*);
 static const lean_closure_object l_Std_Time_Database_TZdb_parseTZif___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Std_Time_TimeZone_TZif_parse, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_Std_Time_Database_TZdb_parseTZif___closed__0 = (const lean_object*)&l_Std_Time_Database_TZdb_parseTZif___closed__0_value;
@@ -112,75 +104,6 @@ static lean_object* l_Std_Time_Database_TZdb_inst___closed__2;
 static lean_once_cell_t l_Std_Time_Database_TZdb_inst___closed__3_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Time_Database_TZdb_inst___closed__3;
 LEAN_EXPORT lean_object* l_Std_Time_Database_TZdb_inst;
-static lean_object* _init_l_Std_Time_Database_TZdb_default___closed__5(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(4u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Std_Time_Database_TZdb_default___closed__6(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = ((lean_object*)(l_Std_Time_Database_TZdb_default___closed__1));
-x_2 = lean_obj_once(&l_Std_Time_Database_TZdb_default___closed__5, &l_Std_Time_Database_TZdb_default___closed__5_once, _init_l_Std_Time_Database_TZdb_default___closed__5);
-x_3 = lean_array_push(x_2, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_Std_Time_Database_TZdb_default___closed__7(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = ((lean_object*)(l_Std_Time_Database_TZdb_default___closed__2));
-x_2 = lean_obj_once(&l_Std_Time_Database_TZdb_default___closed__6, &l_Std_Time_Database_TZdb_default___closed__6_once, _init_l_Std_Time_Database_TZdb_default___closed__6);
-x_3 = lean_array_push(x_2, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_Std_Time_Database_TZdb_default___closed__8(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = ((lean_object*)(l_Std_Time_Database_TZdb_default___closed__3));
-x_2 = lean_obj_once(&l_Std_Time_Database_TZdb_default___closed__7, &l_Std_Time_Database_TZdb_default___closed__7_once, _init_l_Std_Time_Database_TZdb_default___closed__7);
-x_3 = lean_array_push(x_2, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_Std_Time_Database_TZdb_default___closed__9(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = ((lean_object*)(l_Std_Time_Database_TZdb_default___closed__4));
-x_2 = lean_obj_once(&l_Std_Time_Database_TZdb_default___closed__8, &l_Std_Time_Database_TZdb_default___closed__8_once, _init_l_Std_Time_Database_TZdb_default___closed__8);
-x_3 = lean_array_push(x_2, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_Std_Time_Database_TZdb_default___closed__10(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_obj_once(&l_Std_Time_Database_TZdb_default___closed__9, &l_Std_Time_Database_TZdb_default___closed__9_once, _init_l_Std_Time_Database_TZdb_default___closed__9);
-x_2 = ((lean_object*)(l_Std_Time_Database_TZdb_default___closed__0));
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set(x_3, 1, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_Std_Time_Database_TZdb_default(void) {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_obj_once(&l_Std_Time_Database_TZdb_default___closed__10, &l_Std_Time_Database_TZdb_default___closed__10_once, _init_l_Std_Time_Database_TZdb_default___closed__10);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Time_Database_TZdb_parseTZif(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -1150,8 +1073,6 @@ res = runtime_initialize_Init_Data_String_TakeDrop(builtin)
 ;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Std_Time_Database_TZdb_default = _init_l_Std_Time_Database_TZdb_default();
-lean_mark_persistent(l_Std_Time_Database_TZdb_default);
 l_Std_Time_Database_TZdb_inst = _init_l_Std_Time_Database_TZdb_inst();
 lean_mark_persistent(l_Std_Time_Database_TZdb_inst);
 return lean_io_result_mk_ok(lean_box(0));

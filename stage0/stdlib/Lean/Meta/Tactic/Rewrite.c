@@ -100,8 +100,8 @@ static const lean_object* l_Lean_MVarId_rewrite___lam__1___closed__2 = (const le
 static lean_once_cell_t l_Lean_MVarId_rewrite___lam__1___closed__3_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_MVarId_rewrite___lam__1___closed__3;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l_Lean_MVarId_rewrite___lam__1___closed__4_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_MVarId_rewrite___lam__1___closed__4;
+static const lean_array_object l_Lean_MVarId_rewrite___lam__1___closed__4_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_Lean_MVarId_rewrite___lam__1___closed__4 = (const lean_object*)&l_Lean_MVarId_rewrite___lam__1___closed__4_value;
 static const lean_string_object l_Lean_MVarId_rewrite___lam__1___closed__5_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 9, .m_capacity = 9, .m_length = 8, .m_data = "congrArg"};
 static const lean_object* l_Lean_MVarId_rewrite___lam__1___closed__5 = (const lean_object*)&l_Lean_MVarId_rewrite___lam__1___closed__5_value;
 lean_object* l_Lean_Name_mkStr1(lean_object*);
@@ -1362,15 +1362,6 @@ x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__4(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__8(void) {
 _start:
 {
@@ -1721,7 +1712,7 @@ x_120 = 0;
 x_121 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_MVarId_rewrite_spec__3(x_119, x_120, x_102);
 x_122 = lean_unsigned_to_nat(0u);
 x_123 = lean_array_get_size(x_121);
-x_124 = lean_obj_once(&l_Lean_MVarId_rewrite___lam__1___closed__4, &l_Lean_MVarId_rewrite___lam__1___closed__4_once, _init_l_Lean_MVarId_rewrite___lam__1___closed__4);
+x_124 = ((lean_object*)(l_Lean_MVarId_rewrite___lam__1___closed__4));
 x_125 = lean_nat_dec_lt(x_122, x_123);
 if (x_125 == 0)
 {

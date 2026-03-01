@@ -16,8 +16,8 @@ extern "C" {
 static const lean_string_object l_Lake_instInhabitedDynlib_default___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 1, .m_capacity = 1, .m_length = 0, .m_data = ""};
 static const lean_object* l_Lake_instInhabitedDynlib_default___closed__0 = (const lean_object*)&l_Lake_instInhabitedDynlib_default___closed__0_value;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l_Lake_instInhabitedDynlib_default___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lake_instInhabitedDynlib_default___closed__1;
+static const lean_array_object l_Lake_instInhabitedDynlib_default___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_Lake_instInhabitedDynlib_default___closed__1 = (const lean_object*)&l_Lake_instInhabitedDynlib_default___closed__1_value;
 extern lean_object* l_System_instInhabitedFilePath_default;
 static lean_once_cell_t l_Lake_instInhabitedDynlib_default___closed__2_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lake_instInhabitedDynlib_default___closed__2;
@@ -122,20 +122,11 @@ static const lean_closure_object l_Lake_Dynlib_instToString___closed__0_value = 
 static const lean_object* l_Lake_Dynlib_instToString___closed__0 = (const lean_object*)&l_Lake_Dynlib_instToString___closed__0_value;
 LEAN_EXPORT const lean_object* l_Lake_Dynlib_instToString = (const lean_object*)&l_Lake_Dynlib_instToString___closed__0_value;
 LEAN_EXPORT const lean_object* l_Lake_Dynlib_instCoeFilePath = (const lean_object*)&l_Lake_Dynlib_instToString___closed__0_value;
-static lean_object* _init_l_Lake_instInhabitedDynlib_default___closed__1(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Lake_instInhabitedDynlib_default___closed__2(void) {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = lean_obj_once(&l_Lake_instInhabitedDynlib_default___closed__1, &l_Lake_instInhabitedDynlib_default___closed__1_once, _init_l_Lake_instInhabitedDynlib_default___closed__1);
+x_1 = ((lean_object*)(l_Lake_instInhabitedDynlib_default___closed__1));
 x_2 = 0;
 x_3 = ((lean_object*)(l_Lake_instInhabitedDynlib_default___closed__0));
 x_4 = l_System_instInhabitedFilePath_default;

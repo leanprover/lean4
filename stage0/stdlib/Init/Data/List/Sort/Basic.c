@@ -28,8 +28,8 @@ static const lean_ctor_object l_List_merge___auto__1___closed__4_value_aux_2 = {
 static const lean_ctor_object l_List_merge___auto__1___closed__4_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_List_merge___auto__1___closed__4_value_aux_2),((lean_object*)&l_List_merge___auto__1___closed__3_value),LEAN_SCALAR_PTR_LITERAL(212, 140, 85, 215, 241, 69, 7, 118)}};
 static const lean_object* l_List_merge___auto__1___closed__4 = (const lean_object*)&l_List_merge___auto__1___closed__4_value;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l_List_merge___auto__1___closed__5_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_List_merge___auto__1___closed__5;
+static const lean_array_object l_List_merge___auto__1___closed__5_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_List_merge___auto__1___closed__5 = (const lean_object*)&l_List_merge___auto__1___closed__5_value;
 static const lean_string_object l_List_merge___auto__1___closed__6_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 19, .m_capacity = 19, .m_length = 18, .m_data = "tacticSeq1Indented"};
 static const lean_object* l_List_merge___auto__1___closed__6 = (const lean_object*)&l_List_merge___auto__1___closed__6_value;
 static const lean_ctor_object l_List_merge___auto__1___closed__7_value_aux_0 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_List_merge___auto__1___closed__0_value),LEAN_SCALAR_PTR_LITERAL(70, 193, 83, 126, 233, 67, 208, 165)}};
@@ -104,8 +104,8 @@ static lean_once_cell_t l_List_merge___auto__1___closed__33_once = LEAN_ONCE_CEL
 static lean_object* l_List_merge___auto__1___closed__33;
 static lean_once_cell_t l_List_merge___auto__1___closed__34_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_List_merge___auto__1___closed__34;
-static lean_once_cell_t l_List_merge___auto__1___closed__35_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_List_merge___auto__1___closed__35;
+static const lean_ctor_object l_List_merge___auto__1___closed__35_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*3 + 0, .m_other = 3, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(2) << 1) | 1)),((lean_object*)&l_List_merge___auto__1___closed__9_value),((lean_object*)&l_List_merge___auto__1___closed__5_value)}};
+static const lean_object* l_List_merge___auto__1___closed__35 = (const lean_object*)&l_List_merge___auto__1___closed__35_value;
 static lean_once_cell_t l_List_merge___auto__1___closed__36_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_List_merge___auto__1___closed__36;
 static const lean_string_object l_List_merge___auto__1___closed__37_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 3, .m_capacity = 3, .m_length = 2, .m_data = "=>"};
@@ -175,15 +175,6 @@ LEAN_EXPORT uint8_t l_List_zipIdxLE___redArg(lean_object*, lean_object*, lean_ob
 LEAN_EXPORT lean_object* l_List_zipIdxLE___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_List_zipIdxLE(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_zipIdxLE___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* _init_l_List_merge___auto__1___closed__5(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_List_merge___auto__1___closed__12(void) {
 _start:
 {
@@ -198,7 +189,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_List_merge___auto__1___closed__12, &l_List_merge___auto__1___closed__12_once, _init_l_List_merge___auto__1___closed__12);
-x_2 = lean_obj_once(&l_List_merge___auto__1___closed__5, &l_List_merge___auto__1___closed__5_once, _init_l_List_merge___auto__1___closed__5);
+x_2 = ((lean_object*)(l_List_merge___auto__1___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -217,7 +208,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_List_merge___auto__1___closed__17, &l_List_merge___auto__1___closed__17_once, _init_l_List_merge___auto__1___closed__17);
-x_2 = lean_obj_once(&l_List_merge___auto__1___closed__5, &l_List_merge___auto__1___closed__5_once, _init_l_List_merge___auto__1___closed__5);
+x_2 = ((lean_object*)(l_List_merge___auto__1___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -266,7 +257,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_List_merge___auto__1___closed__25, &l_List_merge___auto__1___closed__25_once, _init_l_List_merge___auto__1___closed__25);
-x_2 = lean_obj_once(&l_List_merge___auto__1___closed__5, &l_List_merge___auto__1___closed__5_once, _init_l_List_merge___auto__1___closed__5);
+x_2 = ((lean_object*)(l_List_merge___auto__1___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -339,30 +330,16 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_List_merge___auto__1___closed__33, &l_List_merge___auto__1___closed__33_once, _init_l_List_merge___auto__1___closed__33);
-x_2 = lean_obj_once(&l_List_merge___auto__1___closed__5, &l_List_merge___auto__1___closed__5_once, _init_l_List_merge___auto__1___closed__5);
+x_2 = ((lean_object*)(l_List_merge___auto__1___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
-}
-}
-static lean_object* _init_l_List_merge___auto__1___closed__35(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = lean_obj_once(&l_List_merge___auto__1___closed__5, &l_List_merge___auto__1___closed__5_once, _init_l_List_merge___auto__1___closed__5);
-x_2 = ((lean_object*)(l_List_merge___auto__1___closed__9));
-x_3 = lean_box(2);
-x_4 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_4, 0, x_3);
-lean_ctor_set(x_4, 1, x_2);
-lean_ctor_set(x_4, 2, x_1);
-return x_4;
 }
 }
 static lean_object* _init_l_List_merge___auto__1___closed__36(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_obj_once(&l_List_merge___auto__1___closed__35, &l_List_merge___auto__1___closed__35_once, _init_l_List_merge___auto__1___closed__35);
+x_1 = ((lean_object*)(l_List_merge___auto__1___closed__35));
 x_2 = lean_obj_once(&l_List_merge___auto__1___closed__34, &l_List_merge___auto__1___closed__34_once, _init_l_List_merge___auto__1___closed__34);
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -507,7 +484,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_List_merge___auto__1___closed__52, &l_List_merge___auto__1___closed__52_once, _init_l_List_merge___auto__1___closed__52);
-x_2 = lean_obj_once(&l_List_merge___auto__1___closed__5, &l_List_merge___auto__1___closed__5_once, _init_l_List_merge___auto__1___closed__5);
+x_2 = ((lean_object*)(l_List_merge___auto__1___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -531,7 +508,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_List_merge___auto__1___closed__54, &l_List_merge___auto__1___closed__54_once, _init_l_List_merge___auto__1___closed__54);
-x_2 = lean_obj_once(&l_List_merge___auto__1___closed__5, &l_List_merge___auto__1___closed__5_once, _init_l_List_merge___auto__1___closed__5);
+x_2 = ((lean_object*)(l_List_merge___auto__1___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -555,7 +532,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_List_merge___auto__1___closed__56, &l_List_merge___auto__1___closed__56_once, _init_l_List_merge___auto__1___closed__56);
-x_2 = lean_obj_once(&l_List_merge___auto__1___closed__5, &l_List_merge___auto__1___closed__5_once, _init_l_List_merge___auto__1___closed__5);
+x_2 = ((lean_object*)(l_List_merge___auto__1___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }

@@ -123,8 +123,6 @@ uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_Net_instDecidableEqAddressFamily(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Std_Net_instDecidableEqAddressFamily___boxed(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l_Std_Net_IPv4Addr_ofParts___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Std_Net_IPv4Addr_ofParts___closed__0;
 lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Net_IPv4Addr_ofParts(uint8_t, uint8_t, uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Std_Net_IPv4Addr_ofParts___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -143,8 +141,6 @@ LEAN_EXPORT lean_object* l_Std_Net_SocketAddressV4_instCoeSocketAddress___lam__0
 static const lean_closure_object l_Std_Net_SocketAddressV4_instCoeSocketAddress___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Std_Net_SocketAddressV4_instCoeSocketAddress___lam__0, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_Std_Net_SocketAddressV4_instCoeSocketAddress___closed__0 = (const lean_object*)&l_Std_Net_SocketAddressV4_instCoeSocketAddress___closed__0_value;
 LEAN_EXPORT const lean_object* l_Std_Net_SocketAddressV4_instCoeSocketAddress = (const lean_object*)&l_Std_Net_SocketAddressV4_instCoeSocketAddress___closed__0_value;
-static lean_once_cell_t l_Std_Net_IPv6Addr_ofParts___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Std_Net_IPv6Addr_ofParts___closed__0;
 LEAN_EXPORT lean_object* l_Std_Net_IPv6Addr_ofParts(uint16_t, uint16_t, uint16_t, uint16_t, uint16_t, uint16_t, uint16_t, uint16_t);
 LEAN_EXPORT lean_object* l_Std_Net_IPv6Addr_ofParts___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_uv_pton_v6(lean_object*);
@@ -1135,29 +1131,21 @@ x_6 = lean_box(x_5);
 return x_6;
 }
 }
-static lean_object* _init_l_Std_Net_IPv4Addr_ofParts___closed__0(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(4u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Net_IPv4Addr_ofParts(uint8_t x_1, uint8_t x_2, uint8_t x_3, uint8_t x_4) {
 _start:
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-x_5 = lean_obj_once(&l_Std_Net_IPv4Addr_ofParts___closed__0, &l_Std_Net_IPv4Addr_ofParts___closed__0_once, _init_l_Std_Net_IPv4Addr_ofParts___closed__0);
-x_6 = lean_box(x_1);
-x_7 = lean_array_push(x_5, x_6);
-x_8 = lean_box(x_2);
-x_9 = lean_array_push(x_7, x_8);
-x_10 = lean_box(x_3);
-x_11 = lean_array_push(x_9, x_10);
-x_12 = lean_box(x_4);
-x_13 = lean_array_push(x_11, x_12);
-return x_13;
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
+x_5 = lean_unsigned_to_nat(4u);
+x_6 = lean_mk_empty_array_with_capacity(x_5);
+x_7 = lean_box(x_1);
+x_8 = lean_array_push(x_6, x_7);
+x_9 = lean_box(x_2);
+x_10 = lean_array_push(x_8, x_9);
+x_11 = lean_box(x_3);
+x_12 = lean_array_push(x_10, x_11);
+x_13 = lean_box(x_4);
+x_14 = lean_array_push(x_12, x_13);
+return x_14;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Net_IPv4Addr_ofParts___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -1208,37 +1196,29 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Std_Net_IPv6Addr_ofParts___closed__0(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(8u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Net_IPv6Addr_ofParts(uint16_t x_1, uint16_t x_2, uint16_t x_3, uint16_t x_4, uint16_t x_5, uint16_t x_6, uint16_t x_7, uint16_t x_8) {
 _start:
 {
-lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 
-x_9 = lean_obj_once(&l_Std_Net_IPv6Addr_ofParts___closed__0, &l_Std_Net_IPv6Addr_ofParts___closed__0_once, _init_l_Std_Net_IPv6Addr_ofParts___closed__0);
-x_10 = lean_box(x_1);
-x_11 = lean_array_push(x_9, x_10);
-x_12 = lean_box(x_2);
-x_13 = lean_array_push(x_11, x_12);
-x_14 = lean_box(x_3);
-x_15 = lean_array_push(x_13, x_14);
-x_16 = lean_box(x_4);
-x_17 = lean_array_push(x_15, x_16);
-x_18 = lean_box(x_5);
-x_19 = lean_array_push(x_17, x_18);
-x_20 = lean_box(x_6);
-x_21 = lean_array_push(x_19, x_20);
-x_22 = lean_box(x_7);
-x_23 = lean_array_push(x_21, x_22);
-x_24 = lean_box(x_8);
-x_25 = lean_array_push(x_23, x_24);
-return x_25;
+lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; 
+x_9 = lean_unsigned_to_nat(8u);
+x_10 = lean_mk_empty_array_with_capacity(x_9);
+x_11 = lean_box(x_1);
+x_12 = lean_array_push(x_10, x_11);
+x_13 = lean_box(x_2);
+x_14 = lean_array_push(x_12, x_13);
+x_15 = lean_box(x_3);
+x_16 = lean_array_push(x_14, x_15);
+x_17 = lean_box(x_4);
+x_18 = lean_array_push(x_16, x_17);
+x_19 = lean_box(x_5);
+x_20 = lean_array_push(x_18, x_19);
+x_21 = lean_box(x_6);
+x_22 = lean_array_push(x_20, x_21);
+x_23 = lean_box(x_7);
+x_24 = lean_array_push(x_22, x_23);
+x_25 = lean_box(x_8);
+x_26 = lean_array_push(x_24, x_25);
+return x_26;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Net_IPv6Addr_ofParts___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {

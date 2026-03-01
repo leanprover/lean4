@@ -268,8 +268,8 @@ LEAN_EXPORT lean_object* l_instGetElem_x3fOfGetElemOfDecidable___redArg___lam__1
 LEAN_EXPORT lean_object* l_instGetElem_x3fOfGetElemOfDecidable___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instGetElem_x3fOfGetElemOfDecidable(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0;
+static const lean_array_object l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0 = (const lean_object*)&l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0_value;
 static const lean_string_object l_LawfulGetElem_getElem_x3f__def___autoParam___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 7, .m_capacity = 7, .m_length = 6, .m_data = "intros"};
 static const lean_object* l_LawfulGetElem_getElem_x3f__def___autoParam___closed__1 = (const lean_object*)&l_LawfulGetElem_getElem_x3f__def___autoParam___closed__1_value;
 static const lean_ctor_object l_LawfulGetElem_getElem_x3f__def___autoParam___closed__2_value_aux_0 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l___aux__Init__GetElem______macroRules__term_____x5b___x5d__1___closed__0_value),LEAN_SCALAR_PTR_LITERAL(70, 193, 83, 126, 233, 67, 208, 165)}};
@@ -283,8 +283,8 @@ static lean_object* l_LawfulGetElem_getElem_x3f__def___autoParam___closed__3;
 lean_object* lean_array_push(lean_object*, lean_object*);
 static lean_once_cell_t l_LawfulGetElem_getElem_x3f__def___autoParam___closed__4_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_LawfulGetElem_getElem_x3f__def___autoParam___closed__4;
-static lean_once_cell_t l_LawfulGetElem_getElem_x3f__def___autoParam___closed__5_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_LawfulGetElem_getElem_x3f__def___autoParam___closed__5;
+static const lean_ctor_object l_LawfulGetElem_getElem_x3f__def___autoParam___closed__5_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*3 + 0, .m_other = 3, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(2) << 1) | 1)),((lean_object*)&l___aux__Init__GetElem______macroRules__term_____x5b___x5d__1___closed__13_value),((lean_object*)&l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0_value)}};
+static const lean_object* l_LawfulGetElem_getElem_x3f__def___autoParam___closed__5 = (const lean_object*)&l_LawfulGetElem_getElem_x3f__def___autoParam___closed__5_value;
 static lean_once_cell_t l_LawfulGetElem_getElem_x3f__def___autoParam___closed__6_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_LawfulGetElem_getElem_x3f__def___autoParam___closed__6;
 static lean_once_cell_t l_LawfulGetElem_getElem_x3f__def___autoParam___closed__7_once = LEAN_ONCE_CELL_INITIALIZER;
@@ -1119,15 +1119,6 @@ x_7 = l_instGetElem_x3fOfGetElemOfDecidable___redArg(x_5, x_6);
 return x_7;
 }
 }
-static lean_object* _init_l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_LawfulGetElem_getElem_x3f__def___autoParam___closed__3(void) {
 _start:
 {
@@ -1142,30 +1133,16 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_LawfulGetElem_getElem_x3f__def___autoParam___closed__3, &l_LawfulGetElem_getElem_x3f__def___autoParam___closed__3_once, _init_l_LawfulGetElem_getElem_x3f__def___autoParam___closed__3);
-x_2 = lean_obj_once(&l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0, &l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0_once, _init_l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0);
+x_2 = ((lean_object*)(l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
-}
-}
-static lean_object* _init_l_LawfulGetElem_getElem_x3f__def___autoParam___closed__5(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = lean_obj_once(&l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0, &l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0_once, _init_l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0);
-x_2 = ((lean_object*)(l___aux__Init__GetElem______macroRules__term_____x5b___x5d__1___closed__13));
-x_3 = lean_box(2);
-x_4 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_4, 0, x_3);
-lean_ctor_set(x_4, 1, x_2);
-lean_ctor_set(x_4, 2, x_1);
-return x_4;
 }
 }
 static lean_object* _init_l_LawfulGetElem_getElem_x3f__def___autoParam___closed__6(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_obj_once(&l_LawfulGetElem_getElem_x3f__def___autoParam___closed__5, &l_LawfulGetElem_getElem_x3f__def___autoParam___closed__5_once, _init_l_LawfulGetElem_getElem_x3f__def___autoParam___closed__5);
+x_1 = ((lean_object*)(l_LawfulGetElem_getElem_x3f__def___autoParam___closed__5));
 x_2 = lean_obj_once(&l_LawfulGetElem_getElem_x3f__def___autoParam___closed__4, &l_LawfulGetElem_getElem_x3f__def___autoParam___closed__4_once, _init_l_LawfulGetElem_getElem_x3f__def___autoParam___closed__4);
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -1190,7 +1167,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_LawfulGetElem_getElem_x3f__def___autoParam___closed__7, &l_LawfulGetElem_getElem_x3f__def___autoParam___closed__7_once, _init_l_LawfulGetElem_getElem_x3f__def___autoParam___closed__7);
-x_2 = lean_obj_once(&l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0, &l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0_once, _init_l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0);
+x_2 = ((lean_object*)(l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -1199,7 +1176,7 @@ static lean_object* _init_l_LawfulGetElem_getElem_x3f__def___autoParam___closed_
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_obj_once(&l_LawfulGetElem_getElem_x3f__def___autoParam___closed__5, &l_LawfulGetElem_getElem_x3f__def___autoParam___closed__5_once, _init_l_LawfulGetElem_getElem_x3f__def___autoParam___closed__5);
+x_1 = ((lean_object*)(l_LawfulGetElem_getElem_x3f__def___autoParam___closed__5));
 x_2 = lean_obj_once(&l_LawfulGetElem_getElem_x3f__def___autoParam___closed__8, &l_LawfulGetElem_getElem_x3f__def___autoParam___closed__8_once, _init_l_LawfulGetElem_getElem_x3f__def___autoParam___closed__8);
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -1219,7 +1196,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_LawfulGetElem_getElem_x3f__def___autoParam___closed__13, &l_LawfulGetElem_getElem_x3f__def___autoParam___closed__13_once, _init_l_LawfulGetElem_getElem_x3f__def___autoParam___closed__13);
-x_2 = lean_obj_once(&l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0, &l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0_once, _init_l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0);
+x_2 = ((lean_object*)(l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -1238,7 +1215,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_LawfulGetElem_getElem_x3f__def___autoParam___closed__19, &l_LawfulGetElem_getElem_x3f__def___autoParam___closed__19_once, _init_l_LawfulGetElem_getElem_x3f__def___autoParam___closed__19);
-x_2 = lean_obj_once(&l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0, &l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0_once, _init_l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0);
+x_2 = ((lean_object*)(l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -1247,8 +1224,8 @@ static lean_object* _init_l_LawfulGetElem_getElem_x3f__def___autoParam___closed_
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_obj_once(&l_LawfulGetElem_getElem_x3f__def___autoParam___closed__5, &l_LawfulGetElem_getElem_x3f__def___autoParam___closed__5_once, _init_l_LawfulGetElem_getElem_x3f__def___autoParam___closed__5);
-x_2 = lean_obj_once(&l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0, &l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0_once, _init_l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0);
+x_1 = ((lean_object*)(l_LawfulGetElem_getElem_x3f__def___autoParam___closed__5));
+x_2 = ((lean_object*)(l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -1281,7 +1258,7 @@ static lean_object* _init_l_LawfulGetElem_getElem_x3f__def___autoParam___closed_
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_obj_once(&l_LawfulGetElem_getElem_x3f__def___autoParam___closed__5, &l_LawfulGetElem_getElem_x3f__def___autoParam___closed__5_once, _init_l_LawfulGetElem_getElem_x3f__def___autoParam___closed__5);
+x_1 = ((lean_object*)(l_LawfulGetElem_getElem_x3f__def___autoParam___closed__5));
 x_2 = lean_obj_once(&l_LawfulGetElem_getElem_x3f__def___autoParam___closed__25, &l_LawfulGetElem_getElem_x3f__def___autoParam___closed__25_once, _init_l_LawfulGetElem_getElem_x3f__def___autoParam___closed__25);
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -1301,7 +1278,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_LawfulGetElem_getElem_x3f__def___autoParam___closed__28, &l_LawfulGetElem_getElem_x3f__def___autoParam___closed__28_once, _init_l_LawfulGetElem_getElem_x3f__def___autoParam___closed__28);
-x_2 = lean_obj_once(&l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0, &l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0_once, _init_l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0);
+x_2 = ((lean_object*)(l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -1344,7 +1321,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_LawfulGetElem_getElem_x3f__def___autoParam___closed__32, &l_LawfulGetElem_getElem_x3f__def___autoParam___closed__32_once, _init_l_LawfulGetElem_getElem_x3f__def___autoParam___closed__32);
-x_2 = lean_obj_once(&l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0, &l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0_once, _init_l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0);
+x_2 = ((lean_object*)(l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -1353,7 +1330,7 @@ static lean_object* _init_l_LawfulGetElem_getElem_x3f__def___autoParam___closed_
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_obj_once(&l_LawfulGetElem_getElem_x3f__def___autoParam___closed__5, &l_LawfulGetElem_getElem_x3f__def___autoParam___closed__5_once, _init_l_LawfulGetElem_getElem_x3f__def___autoParam___closed__5);
+x_1 = ((lean_object*)(l_LawfulGetElem_getElem_x3f__def___autoParam___closed__5));
 x_2 = lean_obj_once(&l_LawfulGetElem_getElem_x3f__def___autoParam___closed__23, &l_LawfulGetElem_getElem_x3f__def___autoParam___closed__23_once, _init_l_LawfulGetElem_getElem_x3f__def___autoParam___closed__23);
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -1427,7 +1404,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_LawfulGetElem_getElem_x3f__def___autoParam___closed__41, &l_LawfulGetElem_getElem_x3f__def___autoParam___closed__41_once, _init_l_LawfulGetElem_getElem_x3f__def___autoParam___closed__41);
-x_2 = lean_obj_once(&l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0, &l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0_once, _init_l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0);
+x_2 = ((lean_object*)(l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -1503,7 +1480,7 @@ static lean_object* _init_l_LawfulGetElem_getElem_x3f__def___autoParam___closed_
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_obj_once(&l_LawfulGetElem_getElem_x3f__def___autoParam___closed__5, &l_LawfulGetElem_getElem_x3f__def___autoParam___closed__5_once, _init_l_LawfulGetElem_getElem_x3f__def___autoParam___closed__5);
+x_1 = ((lean_object*)(l_LawfulGetElem_getElem_x3f__def___autoParam___closed__5));
 x_2 = lean_obj_once(&l_LawfulGetElem_getElem_x3f__def___autoParam___closed__48, &l_LawfulGetElem_getElem_x3f__def___autoParam___closed__48_once, _init_l_LawfulGetElem_getElem_x3f__def___autoParam___closed__48);
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -1528,7 +1505,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_LawfulGetElem_getElem_x3f__def___autoParam___closed__50, &l_LawfulGetElem_getElem_x3f__def___autoParam___closed__50_once, _init_l_LawfulGetElem_getElem_x3f__def___autoParam___closed__50);
-x_2 = lean_obj_once(&l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0, &l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0_once, _init_l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0);
+x_2 = ((lean_object*)(l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -1566,7 +1543,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_LawfulGetElem_getElem_x3f__def___autoParam___closed__57, &l_LawfulGetElem_getElem_x3f__def___autoParam___closed__57_once, _init_l_LawfulGetElem_getElem_x3f__def___autoParam___closed__57);
-x_2 = lean_obj_once(&l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0, &l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0_once, _init_l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0);
+x_2 = ((lean_object*)(l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -1575,7 +1552,7 @@ static lean_object* _init_l_LawfulGetElem_getElem_x3f__def___autoParam___closed_
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_obj_once(&l_LawfulGetElem_getElem_x3f__def___autoParam___closed__5, &l_LawfulGetElem_getElem_x3f__def___autoParam___closed__5_once, _init_l_LawfulGetElem_getElem_x3f__def___autoParam___closed__5);
+x_1 = ((lean_object*)(l_LawfulGetElem_getElem_x3f__def___autoParam___closed__5));
 x_2 = lean_obj_once(&l_LawfulGetElem_getElem_x3f__def___autoParam___closed__58, &l_LawfulGetElem_getElem_x3f__def___autoParam___closed__58_once, _init_l_LawfulGetElem_getElem_x3f__def___autoParam___closed__58);
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -1624,7 +1601,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_LawfulGetElem_getElem_x3f__def___autoParam___closed__62, &l_LawfulGetElem_getElem_x3f__def___autoParam___closed__62_once, _init_l_LawfulGetElem_getElem_x3f__def___autoParam___closed__62);
-x_2 = lean_obj_once(&l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0, &l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0_once, _init_l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0);
+x_2 = ((lean_object*)(l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -1648,7 +1625,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_LawfulGetElem_getElem_x3f__def___autoParam___closed__64, &l_LawfulGetElem_getElem_x3f__def___autoParam___closed__64_once, _init_l_LawfulGetElem_getElem_x3f__def___autoParam___closed__64);
-x_2 = lean_obj_once(&l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0, &l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0_once, _init_l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0);
+x_2 = ((lean_object*)(l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -1672,7 +1649,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_LawfulGetElem_getElem_x3f__def___autoParam___closed__66, &l_LawfulGetElem_getElem_x3f__def___autoParam___closed__66_once, _init_l_LawfulGetElem_getElem_x3f__def___autoParam___closed__66);
-x_2 = lean_obj_once(&l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0, &l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0_once, _init_l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0);
+x_2 = ((lean_object*)(l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -1744,7 +1721,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_LawfulGetElem_getElem_x3f__def___autoParam___closed__72, &l_LawfulGetElem_getElem_x3f__def___autoParam___closed__72_once, _init_l_LawfulGetElem_getElem_x3f__def___autoParam___closed__72);
-x_2 = lean_obj_once(&l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0, &l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0_once, _init_l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0);
+x_2 = ((lean_object*)(l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -1768,7 +1745,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_LawfulGetElem_getElem_x3f__def___autoParam___closed__74, &l_LawfulGetElem_getElem_x3f__def___autoParam___closed__74_once, _init_l_LawfulGetElem_getElem_x3f__def___autoParam___closed__74);
-x_2 = lean_obj_once(&l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0, &l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0_once, _init_l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0);
+x_2 = ((lean_object*)(l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -1863,7 +1840,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_LawfulGetElem_getElem_x21__def___autoParam___closed__4, &l_LawfulGetElem_getElem_x21__def___autoParam___closed__4_once, _init_l_LawfulGetElem_getElem_x21__def___autoParam___closed__4);
-x_2 = lean_obj_once(&l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0, &l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0_once, _init_l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0);
+x_2 = ((lean_object*)(l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -2042,7 +2019,7 @@ static lean_object* _init_l_LawfulGetElem_getElem_x21__def___autoParam___closed_
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_obj_once(&l_LawfulGetElem_getElem_x3f__def___autoParam___closed__5, &l_LawfulGetElem_getElem_x3f__def___autoParam___closed__5_once, _init_l_LawfulGetElem_getElem_x3f__def___autoParam___closed__5);
+x_1 = ((lean_object*)(l_LawfulGetElem_getElem_x3f__def___autoParam___closed__5));
 x_2 = lean_obj_once(&l_LawfulGetElem_getElem_x21__def___autoParam___closed__23, &l_LawfulGetElem_getElem_x21__def___autoParam___closed__23_once, _init_l_LawfulGetElem_getElem_x21__def___autoParam___closed__23);
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -2091,7 +2068,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_LawfulGetElem_getElem_x21__def___autoParam___closed__27, &l_LawfulGetElem_getElem_x21__def___autoParam___closed__27_once, _init_l_LawfulGetElem_getElem_x21__def___autoParam___closed__27);
-x_2 = lean_obj_once(&l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0, &l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0_once, _init_l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0);
+x_2 = ((lean_object*)(l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -2115,7 +2092,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_LawfulGetElem_getElem_x21__def___autoParam___closed__29, &l_LawfulGetElem_getElem_x21__def___autoParam___closed__29_once, _init_l_LawfulGetElem_getElem_x21__def___autoParam___closed__29);
-x_2 = lean_obj_once(&l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0, &l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0_once, _init_l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0);
+x_2 = ((lean_object*)(l_LawfulGetElem_getElem_x3f__def___autoParam___closed__0));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }

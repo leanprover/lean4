@@ -286,8 +286,8 @@ LEAN_EXPORT uint32_t l___private_Lean_Shell_0__Lean_defaultNumThreads;
 static lean_once_cell_t l___private_Lean_Shell_0__Lean_mkShellOptions___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Lean_Shell_0__Lean_mkShellOptions___closed__0;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l___private_Lean_Shell_0__Lean_mkShellOptions___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l___private_Lean_Shell_0__Lean_mkShellOptions___closed__1;
+static const lean_array_object l___private_Lean_Shell_0__Lean_mkShellOptions___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l___private_Lean_Shell_0__Lean_mkShellOptions___closed__1 = (const lean_object*)&l___private_Lean_Shell_0__Lean_mkShellOptions___closed__1_value;
 extern lean_object* l_Lean_Options_empty;
 static lean_once_cell_t l___private_Lean_Shell_0__Lean_mkShellOptions___closed__2_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Lean_Shell_0__Lean_mkShellOptions___closed__2;
@@ -2197,15 +2197,6 @@ x_2 = lean_internal_get_default_options(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Lean_Shell_0__Lean_mkShellOptions___closed__1(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l___private_Lean_Shell_0__Lean_mkShellOptions___closed__2(void) {
 _start:
 {
@@ -2216,7 +2207,7 @@ x_3 = l___private_Lean_Shell_0__Lean_defaultTrustLevel;
 x_4 = l_Lean_Options_empty;
 x_5 = 0;
 x_6 = 0;
-x_7 = lean_obj_once(&l___private_Lean_Shell_0__Lean_mkShellOptions___closed__1, &l___private_Lean_Shell_0__Lean_mkShellOptions___closed__1_once, _init_l___private_Lean_Shell_0__Lean_mkShellOptions___closed__1);
+x_7 = ((lean_object*)(l___private_Lean_Shell_0__Lean_mkShellOptions___closed__1));
 x_8 = lean_obj_once(&l___private_Lean_Shell_0__Lean_mkShellOptions___closed__0, &l___private_Lean_Shell_0__Lean_mkShellOptions___closed__0_once, _init_l___private_Lean_Shell_0__Lean_mkShellOptions___closed__0);
 x_9 = lean_alloc_ctor(0, 10, 18);
 lean_ctor_set(x_9, 0, x_8);
@@ -9833,7 +9824,7 @@ goto block_25;
 block_162:
 {
 lean_object* x_100; lean_object* x_101; 
-x_100 = lean_obj_once(&l___private_Lean_Shell_0__Lean_mkShellOptions___closed__1, &l___private_Lean_Shell_0__Lean_mkShellOptions___closed__1_once, _init_l___private_Lean_Shell_0__Lean_mkShellOptions___closed__1);
+x_100 = ((lean_object*)(l___private_Lean_Shell_0__Lean_mkShellOptions___closed__1));
 lean_inc(x_98);
 lean_inc_ref(x_47);
 x_101 = l_Lean_Elab_runFrontend(x_97, x_47, x_94, x_98, x_56, x_59, x_60, x_63, x_64, x_100, x_65, x_95);

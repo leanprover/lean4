@@ -56,8 +56,8 @@ lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at___00Lean_Elab_CheckTactic_elabCheckTactic_spec__1___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at___00Lean_Elab_CheckTactic_elabCheckTactic_spec__1___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l_Lean_Elab_CheckTactic_elabCheckTactic___lam__1___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_Elab_CheckTactic_elabCheckTactic___lam__1___closed__0;
+static const lean_array_object l_Lean_Elab_CheckTactic_elabCheckTactic___lam__1___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_Lean_Elab_CheckTactic_elabCheckTactic___lam__1___closed__0 = (const lean_object*)&l_Lean_Elab_CheckTactic_elabCheckTactic___lam__1___closed__0_value;
 static const lean_string_object l_Lean_Elab_CheckTactic_elabCheckTactic___lam__1___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 44, .m_capacity = 44, .m_length = 43, .m_data = " closed goal, but is expected to reduce to "};
 static const lean_object* l_Lean_Elab_CheckTactic_elabCheckTactic___lam__1___closed__1 = (const lean_object*)&l_Lean_Elab_CheckTactic_elabCheckTactic___lam__1___closed__1_value;
 lean_object* l_Lean_stringToMessageData(lean_object*);
@@ -909,15 +909,6 @@ lean_dec(x_1);
 return x_10;
 }
 }
-static lean_object* _init_l_Lean_Elab_CheckTactic_elabCheckTactic___lam__1___closed__0(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Lean_Elab_CheckTactic_elabCheckTactic___lam__1___closed__2(void) {
 _start:
 {
@@ -1050,7 +1041,7 @@ lean_dec(x_35);
 x_40 = lean_box(0);
 x_41 = lean_box(1);
 x_42 = 0;
-x_43 = lean_obj_once(&l_Lean_Elab_CheckTactic_elabCheckTactic___lam__1___closed__0, &l_Lean_Elab_CheckTactic_elabCheckTactic___lam__1___closed__0_once, _init_l_Lean_Elab_CheckTactic_elabCheckTactic___lam__1___closed__0);
+x_43 = ((lean_object*)(l_Lean_Elab_CheckTactic_elabCheckTactic___lam__1___closed__0));
 x_44 = lean_alloc_ctor(0, 8, 10);
 lean_ctor_set(x_44, 0, x_20);
 lean_ctor_set(x_44, 1, x_40);
@@ -3160,7 +3151,7 @@ lean_dec(x_127);
 x_129 = lean_box(0);
 x_130 = lean_box(1);
 x_131 = 0;
-x_132 = lean_obj_once(&l_Lean_Elab_CheckTactic_elabCheckTactic___lam__1___closed__0, &l_Lean_Elab_CheckTactic_elabCheckTactic___lam__1___closed__0_once, _init_l_Lean_Elab_CheckTactic_elabCheckTactic___lam__1___closed__0);
+x_132 = ((lean_object*)(l_Lean_Elab_CheckTactic_elabCheckTactic___lam__1___closed__0));
 x_133 = lean_alloc_ctor(0, 8, 10);
 lean_ctor_set(x_133, 0, x_116);
 lean_ctor_set(x_133, 1, x_129);

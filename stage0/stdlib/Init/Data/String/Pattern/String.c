@@ -31,8 +31,8 @@ LEAN_EXPORT lean_object* l___private_Init_Data_String_Pattern_String_0__String_S
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Pattern_String_0__String_Slice_Pattern_ForwardSliceSearcher_buildTable_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Pattern_String_0__String_Slice_Pattern_ForwardSliceSearcher_buildTable_go___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l_String_Slice_Pattern_ForwardSliceSearcher_buildTable___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_String_Slice_Pattern_ForwardSliceSearcher_buildTable___closed__0;
+static const lean_array_object l_String_Slice_Pattern_ForwardSliceSearcher_buildTable___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_String_Slice_Pattern_ForwardSliceSearcher_buildTable___closed__0 = (const lean_object*)&l_String_Slice_Pattern_ForwardSliceSearcher_buildTable___closed__0_value;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardSliceSearcher_buildTable(lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardSliceSearcher_buildTable___boxed(lean_object*);
@@ -244,15 +244,6 @@ lean_dec_ref(x_1);
 return x_6;
 }
 }
-static lean_object* _init_l_String_Slice_Pattern_ForwardSliceSearcher_buildTable___closed__0(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardSliceSearcher_buildTable(lean_object* x_1) {
 _start:
 {
@@ -275,7 +266,7 @@ else
 {
 lean_object* x_10; 
 lean_dec(x_4);
-x_10 = lean_obj_once(&l_String_Slice_Pattern_ForwardSliceSearcher_buildTable___closed__0, &l_String_Slice_Pattern_ForwardSliceSearcher_buildTable___closed__0_once, _init_l_String_Slice_Pattern_ForwardSliceSearcher_buildTable___closed__0);
+x_10 = ((lean_object*)(l_String_Slice_Pattern_ForwardSliceSearcher_buildTable___closed__0));
 return x_10;
 }
 }

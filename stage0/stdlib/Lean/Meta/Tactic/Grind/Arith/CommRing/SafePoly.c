@@ -4981,8 +4981,8 @@ return x_25;
 }
 else
 {
-lean_dec(x_26);
 lean_dec_ref(x_25);
+lean_dec(x_26);
 x_1 = x_24;
 goto _start;
 }

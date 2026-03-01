@@ -28,8 +28,8 @@ static const lean_ctor_object l_Array_lex___auto__1___closed__4_value_aux_2 = {.
 static const lean_ctor_object l_Array_lex___auto__1___closed__4_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_Array_lex___auto__1___closed__4_value_aux_2),((lean_object*)&l_Array_lex___auto__1___closed__3_value),LEAN_SCALAR_PTR_LITERAL(212, 140, 85, 215, 241, 69, 7, 118)}};
 static const lean_object* l_Array_lex___auto__1___closed__4 = (const lean_object*)&l_Array_lex___auto__1___closed__4_value;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l_Array_lex___auto__1___closed__5_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Array_lex___auto__1___closed__5;
+static const lean_array_object l_Array_lex___auto__1___closed__5_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_Array_lex___auto__1___closed__5 = (const lean_object*)&l_Array_lex___auto__1___closed__5_value;
 static const lean_string_object l_Array_lex___auto__1___closed__6_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 19, .m_capacity = 19, .m_length = 18, .m_data = "tacticSeq1Indented"};
 static const lean_object* l_Array_lex___auto__1___closed__6 = (const lean_object*)&l_Array_lex___auto__1___closed__6_value;
 static const lean_ctor_object l_Array_lex___auto__1___closed__7_value_aux_0 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_Array_lex___auto__1___closed__0_value),LEAN_SCALAR_PTR_LITERAL(70, 193, 83, 126, 233, 67, 208, 165)}};
@@ -174,15 +174,6 @@ LEAN_EXPORT uint8_t l_Array_lex___redArg(lean_object*, lean_object*, lean_object
 LEAN_EXPORT lean_object* l_Array_lex___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_lex(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_lex___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* _init_l_Array_lex___auto__1___closed__5(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Array_lex___auto__1___closed__12(void) {
 _start:
 {
@@ -197,7 +188,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Array_lex___auto__1___closed__12, &l_Array_lex___auto__1___closed__12_once, _init_l_Array_lex___auto__1___closed__12);
-x_2 = lean_obj_once(&l_Array_lex___auto__1___closed__5, &l_Array_lex___auto__1___closed__5_once, _init_l_Array_lex___auto__1___closed__5);
+x_2 = ((lean_object*)(l_Array_lex___auto__1___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -216,7 +207,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Array_lex___auto__1___closed__20, &l_Array_lex___auto__1___closed__20_once, _init_l_Array_lex___auto__1___closed__20);
-x_2 = lean_obj_once(&l_Array_lex___auto__1___closed__5, &l_Array_lex___auto__1___closed__5_once, _init_l_Array_lex___auto__1___closed__5);
+x_2 = ((lean_object*)(l_Array_lex___auto__1___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -265,7 +256,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Array_lex___auto__1___closed__27, &l_Array_lex___auto__1___closed__27_once, _init_l_Array_lex___auto__1___closed__27);
-x_2 = lean_obj_once(&l_Array_lex___auto__1___closed__5, &l_Array_lex___auto__1___closed__5_once, _init_l_Array_lex___auto__1___closed__5);
+x_2 = ((lean_object*)(l_Array_lex___auto__1___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -313,7 +304,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Array_lex___auto__1___closed__31, &l_Array_lex___auto__1___closed__31_once, _init_l_Array_lex___auto__1___closed__31);
-x_2 = lean_obj_once(&l_Array_lex___auto__1___closed__5, &l_Array_lex___auto__1___closed__5_once, _init_l_Array_lex___auto__1___closed__5);
+x_2 = ((lean_object*)(l_Array_lex___auto__1___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -332,7 +323,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Array_lex___auto__1___closed__38, &l_Array_lex___auto__1___closed__38_once, _init_l_Array_lex___auto__1___closed__38);
-x_2 = lean_obj_once(&l_Array_lex___auto__1___closed__5, &l_Array_lex___auto__1___closed__5_once, _init_l_Array_lex___auto__1___closed__5);
+x_2 = ((lean_object*)(l_Array_lex___auto__1___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -366,7 +357,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Array_lex___auto__1___closed__41, &l_Array_lex___auto__1___closed__41_once, _init_l_Array_lex___auto__1___closed__41);
-x_2 = lean_obj_once(&l_Array_lex___auto__1___closed__5, &l_Array_lex___auto__1___closed__5_once, _init_l_Array_lex___auto__1___closed__5);
+x_2 = ((lean_object*)(l_Array_lex___auto__1___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -486,7 +477,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Array_lex___auto__1___closed__54, &l_Array_lex___auto__1___closed__54_once, _init_l_Array_lex___auto__1___closed__54);
-x_2 = lean_obj_once(&l_Array_lex___auto__1___closed__5, &l_Array_lex___auto__1___closed__5_once, _init_l_Array_lex___auto__1___closed__5);
+x_2 = ((lean_object*)(l_Array_lex___auto__1___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -510,7 +501,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Array_lex___auto__1___closed__56, &l_Array_lex___auto__1___closed__56_once, _init_l_Array_lex___auto__1___closed__56);
-x_2 = lean_obj_once(&l_Array_lex___auto__1___closed__5, &l_Array_lex___auto__1___closed__5_once, _init_l_Array_lex___auto__1___closed__5);
+x_2 = ((lean_object*)(l_Array_lex___auto__1___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -534,7 +525,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Array_lex___auto__1___closed__58, &l_Array_lex___auto__1___closed__58_once, _init_l_Array_lex___auto__1___closed__58);
-x_2 = lean_obj_once(&l_Array_lex___auto__1___closed__5, &l_Array_lex___auto__1___closed__5_once, _init_l_Array_lex___auto__1___closed__5);
+x_2 = ((lean_object*)(l_Array_lex___auto__1___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }

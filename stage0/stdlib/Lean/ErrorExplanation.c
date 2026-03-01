@@ -98,8 +98,8 @@ lean_object* lean_array_to_list(lean_object*);
 lean_object* l_List_foldl___at___00Array_appendList_spec__0___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___00Lean_ErrorExplanation_instToJsonMetadata_toJson_spec__1(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l_Lean_ErrorExplanation_instToJsonMetadata_toJson___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_ErrorExplanation_instToJsonMetadata_toJson___closed__0;
+static const lean_array_object l_Lean_ErrorExplanation_instToJsonMetadata_toJson___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_Lean_ErrorExplanation_instToJsonMetadata_toJson___closed__0 = (const lean_object*)&l_Lean_ErrorExplanation_instToJsonMetadata_toJson___closed__0_value;
 lean_object* l_Lean_instToJsonMessageSeverity_toJson(uint8_t);
 lean_object* l_Lean_Json_mkObj(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ErrorExplanation_instToJsonMetadata_toJson(lean_object*);
@@ -170,8 +170,8 @@ LEAN_EXPORT lean_object* l_Lean_getErrorExplanations___redArg___lam__0___boxed(l
 lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getErrorExplanations___redArg___lam__1(lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l_Lean_getErrorExplanations___redArg___lam__2___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_getErrorExplanations___redArg___lam__2___closed__0;
+static const lean_array_object l_Lean_getErrorExplanations___redArg___lam__2___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_Lean_getErrorExplanations___redArg___lam__2___closed__0 = (const lean_object*)&l_Lean_getErrorExplanations___redArg___lam__2___closed__0_value;
 lean_object* l_Std_DTreeMap_Internal_Impl_foldl___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
@@ -1044,15 +1044,6 @@ goto _start;
 }
 }
 }
-static lean_object* _init_l_Lean_ErrorExplanation_instToJsonMetadata_toJson___closed__0(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_ErrorExplanation_instToJsonMetadata_toJson(lean_object* x_1) {
 _start:
 {
@@ -1106,7 +1097,7 @@ lean_ctor_set(x_23, 1, x_22);
 x_24 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_24, 0, x_10);
 lean_ctor_set(x_24, 1, x_23);
-x_25 = lean_obj_once(&l_Lean_ErrorExplanation_instToJsonMetadata_toJson___closed__0, &l_Lean_ErrorExplanation_instToJsonMetadata_toJson___closed__0_once, _init_l_Lean_ErrorExplanation_instToJsonMetadata_toJson___closed__0);
+x_25 = ((lean_object*)(l_Lean_ErrorExplanation_instToJsonMetadata_toJson___closed__0));
 x_26 = l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___00Lean_ErrorExplanation_instToJsonMetadata_toJson_spec__1(x_24, x_25);
 x_27 = l_Lean_Json_mkObj(x_26);
 return x_27;
@@ -1569,15 +1560,6 @@ x_5 = lean_array_push(x_1, x_4);
 return x_5;
 }
 }
-static lean_object* _init_l_Lean_getErrorExplanations___redArg___lam__2___closed__0(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_getErrorExplanations___redArg___lam__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -1592,7 +1574,7 @@ x_9 = lean_box(0);
 x_10 = l_Lean_SimplePersistentEnvExtension_getState___redArg(x_1, x_6, x_5, x_8, x_9);
 lean_dec(x_8);
 x_11 = lean_unsigned_to_nat(0u);
-x_12 = lean_obj_once(&l_Lean_getErrorExplanations___redArg___lam__2___closed__0, &l_Lean_getErrorExplanations___redArg___lam__2___closed__0_once, _init_l_Lean_getErrorExplanations___redArg___lam__2___closed__0);
+x_12 = ((lean_object*)(l_Lean_getErrorExplanations___redArg___lam__2___closed__0));
 x_13 = l_Std_DTreeMap_Internal_Impl_foldl___redArg(x_2, x_12, x_10);
 x_14 = lean_array_get_size(x_13);
 x_20 = lean_nat_dec_eq(x_14, x_11);
@@ -1817,7 +1799,7 @@ x_6 = lean_box(0);
 x_7 = l_Lean_SimplePersistentEnvExtension_getState___redArg(x_5, x_2, x_1, x_4, x_6);
 lean_dec(x_4);
 x_8 = lean_unsigned_to_nat(0u);
-x_9 = lean_obj_once(&l_Lean_getErrorExplanations___redArg___lam__2___closed__0, &l_Lean_getErrorExplanations___redArg___lam__2___closed__0_once, _init_l_Lean_getErrorExplanations___redArg___lam__2___closed__0);
+x_9 = ((lean_object*)(l_Lean_getErrorExplanations___redArg___lam__2___closed__0));
 x_10 = l_Std_DTreeMap_Internal_Impl_foldlM___at___00Std_DTreeMap_Internal_Impl_foldl___at___00Lean_getErrorExplanationsRaw_spec__0_spec__0(x_9, x_7);
 lean_dec(x_7);
 x_11 = lean_array_get_size(x_10);

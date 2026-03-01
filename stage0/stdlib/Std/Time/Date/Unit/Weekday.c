@@ -250,20 +250,20 @@ LEAN_EXPORT lean_object* l___private_Std_Time_Date_Unit_Weekday_0__Std_Time_inst
 LEAN_EXPORT lean_object* l___private_Std_Time_Date_Unit_Weekday_0__Std_Time_instReprWeekday_repr_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Weekday_toNat(uint8_t);
 LEAN_EXPORT lean_object* l_Std_Time_Weekday_toNat___boxed(lean_object*);
-static lean_once_cell_t l_Std_Time_Weekday_ofNat_x3f___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Std_Time_Weekday_ofNat_x3f___closed__0;
-static lean_once_cell_t l_Std_Time_Weekday_ofNat_x3f___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Std_Time_Weekday_ofNat_x3f___closed__1;
-static lean_once_cell_t l_Std_Time_Weekday_ofNat_x3f___closed__2_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Std_Time_Weekday_ofNat_x3f___closed__2;
-static lean_once_cell_t l_Std_Time_Weekday_ofNat_x3f___closed__3_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Std_Time_Weekday_ofNat_x3f___closed__3;
-static lean_once_cell_t l_Std_Time_Weekday_ofNat_x3f___closed__4_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Std_Time_Weekday_ofNat_x3f___closed__4;
-static lean_once_cell_t l_Std_Time_Weekday_ofNat_x3f___closed__5_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Std_Time_Weekday_ofNat_x3f___closed__5;
-static lean_once_cell_t l_Std_Time_Weekday_ofNat_x3f___closed__6_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Std_Time_Weekday_ofNat_x3f___closed__6;
+static const lean_ctor_object l_Std_Time_Weekday_ofNat_x3f___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(6) << 1) | 1))}};
+static const lean_object* l_Std_Time_Weekday_ofNat_x3f___closed__0 = (const lean_object*)&l_Std_Time_Weekday_ofNat_x3f___closed__0_value;
+static const lean_ctor_object l_Std_Time_Weekday_ofNat_x3f___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(5) << 1) | 1))}};
+static const lean_object* l_Std_Time_Weekday_ofNat_x3f___closed__1 = (const lean_object*)&l_Std_Time_Weekday_ofNat_x3f___closed__1_value;
+static const lean_ctor_object l_Std_Time_Weekday_ofNat_x3f___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(4) << 1) | 1))}};
+static const lean_object* l_Std_Time_Weekday_ofNat_x3f___closed__2 = (const lean_object*)&l_Std_Time_Weekday_ofNat_x3f___closed__2_value;
+static const lean_ctor_object l_Std_Time_Weekday_ofNat_x3f___closed__3_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(3) << 1) | 1))}};
+static const lean_object* l_Std_Time_Weekday_ofNat_x3f___closed__3 = (const lean_object*)&l_Std_Time_Weekday_ofNat_x3f___closed__3_value;
+static const lean_ctor_object l_Std_Time_Weekday_ofNat_x3f___closed__4_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(2) << 1) | 1))}};
+static const lean_object* l_Std_Time_Weekday_ofNat_x3f___closed__4 = (const lean_object*)&l_Std_Time_Weekday_ofNat_x3f___closed__4_value;
+static const lean_ctor_object l_Std_Time_Weekday_ofNat_x3f___closed__5_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(1) << 1) | 1))}};
+static const lean_object* l_Std_Time_Weekday_ofNat_x3f___closed__5 = (const lean_object*)&l_Std_Time_Weekday_ofNat_x3f___closed__5_value;
+static const lean_ctor_object l_Std_Time_Weekday_ofNat_x3f___closed__6_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1))}};
+static const lean_object* l_Std_Time_Weekday_ofNat_x3f___closed__6 = (const lean_object*)&l_Std_Time_Weekday_ofNat_x3f___closed__6_value;
 LEAN_EXPORT lean_object* l_Std_Time_Weekday_ofNat_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Weekday_ofNat_x3f___boxed(lean_object*);
 static const lean_string_object l_Std_Time_Weekday_ofNat_x21___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 27, .m_capacity = 27, .m_length = 26, .m_data = "Std.Time.Date.Unit.Weekday"};
@@ -1988,83 +1988,6 @@ x_3 = l_Std_Time_Weekday_toNat(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Std_Time_Weekday_ofNat_x3f___closed__0(void) {
-_start:
-{
-uint8_t x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = 6;
-x_2 = lean_box(x_1);
-x_3 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_3, 0, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Std_Time_Weekday_ofNat_x3f___closed__1(void) {
-_start:
-{
-uint8_t x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = 5;
-x_2 = lean_box(x_1);
-x_3 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_3, 0, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Std_Time_Weekday_ofNat_x3f___closed__2(void) {
-_start:
-{
-uint8_t x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = 4;
-x_2 = lean_box(x_1);
-x_3 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_3, 0, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Std_Time_Weekday_ofNat_x3f___closed__3(void) {
-_start:
-{
-uint8_t x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = 3;
-x_2 = lean_box(x_1);
-x_3 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_3, 0, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Std_Time_Weekday_ofNat_x3f___closed__4(void) {
-_start:
-{
-uint8_t x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = 2;
-x_2 = lean_box(x_1);
-x_3 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_3, 0, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Std_Time_Weekday_ofNat_x3f___closed__5(void) {
-_start:
-{
-uint8_t x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = 1;
-x_2 = lean_box(x_1);
-x_3 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_3, 0, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Std_Time_Weekday_ofNat_x3f___closed__6(void) {
-_start:
-{
-uint8_t x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = 0;
-x_2 = lean_box(x_1);
-x_3 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_3, 0, x_2);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Time_Weekday_ofNat_x3f(lean_object* x_1) {
 _start:
 {
@@ -2110,49 +2033,49 @@ return x_16;
 else
 {
 lean_object* x_17; 
-x_17 = lean_obj_once(&l_Std_Time_Weekday_ofNat_x3f___closed__0, &l_Std_Time_Weekday_ofNat_x3f___closed__0_once, _init_l_Std_Time_Weekday_ofNat_x3f___closed__0);
+x_17 = ((lean_object*)(l_Std_Time_Weekday_ofNat_x3f___closed__0));
 return x_17;
 }
 }
 else
 {
 lean_object* x_18; 
-x_18 = lean_obj_once(&l_Std_Time_Weekday_ofNat_x3f___closed__1, &l_Std_Time_Weekday_ofNat_x3f___closed__1_once, _init_l_Std_Time_Weekday_ofNat_x3f___closed__1);
+x_18 = ((lean_object*)(l_Std_Time_Weekday_ofNat_x3f___closed__1));
 return x_18;
 }
 }
 else
 {
 lean_object* x_19; 
-x_19 = lean_obj_once(&l_Std_Time_Weekday_ofNat_x3f___closed__2, &l_Std_Time_Weekday_ofNat_x3f___closed__2_once, _init_l_Std_Time_Weekday_ofNat_x3f___closed__2);
+x_19 = ((lean_object*)(l_Std_Time_Weekday_ofNat_x3f___closed__2));
 return x_19;
 }
 }
 else
 {
 lean_object* x_20; 
-x_20 = lean_obj_once(&l_Std_Time_Weekday_ofNat_x3f___closed__3, &l_Std_Time_Weekday_ofNat_x3f___closed__3_once, _init_l_Std_Time_Weekday_ofNat_x3f___closed__3);
+x_20 = ((lean_object*)(l_Std_Time_Weekday_ofNat_x3f___closed__3));
 return x_20;
 }
 }
 else
 {
 lean_object* x_21; 
-x_21 = lean_obj_once(&l_Std_Time_Weekday_ofNat_x3f___closed__4, &l_Std_Time_Weekday_ofNat_x3f___closed__4_once, _init_l_Std_Time_Weekday_ofNat_x3f___closed__4);
+x_21 = ((lean_object*)(l_Std_Time_Weekday_ofNat_x3f___closed__4));
 return x_21;
 }
 }
 else
 {
 lean_object* x_22; 
-x_22 = lean_obj_once(&l_Std_Time_Weekday_ofNat_x3f___closed__5, &l_Std_Time_Weekday_ofNat_x3f___closed__5_once, _init_l_Std_Time_Weekday_ofNat_x3f___closed__5);
+x_22 = ((lean_object*)(l_Std_Time_Weekday_ofNat_x3f___closed__5));
 return x_22;
 }
 }
 else
 {
 lean_object* x_23; 
-x_23 = lean_obj_once(&l_Std_Time_Weekday_ofNat_x3f___closed__6, &l_Std_Time_Weekday_ofNat_x3f___closed__6_once, _init_l_Std_Time_Weekday_ofNat_x3f___closed__6);
+x_23 = ((lean_object*)(l_Std_Time_Weekday_ofNat_x3f___closed__6));
 return x_23;
 }
 }

@@ -14,8 +14,8 @@
 extern "C" {
 #endif
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l_Lake_JobState_renew___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lake_JobState_renew___closed__0;
+static const lean_array_object l_Lake_JobState_renew___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_Lake_JobState_renew___closed__0 = (const lean_object*)&l_Lake_JobState_renew___closed__0_value;
 LEAN_EXPORT lean_object* l_Lake_JobState_renew(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Job_renew___redArg___lam__0(lean_object*);
 static const lean_closure_object l_Lake_Job_renew___redArg___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lake_Job_renew___redArg___lam__0, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
@@ -93,15 +93,6 @@ LEAN_EXPORT lean_object* l_Lake_maybeRegisterJob___redArg(lean_object*, lean_obj
 LEAN_EXPORT lean_object* l_Lake_maybeRegisterJob___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_maybeRegisterJob(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_maybeRegisterJob___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* _init_l_Lake_JobState_renew___closed__0(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_JobState_renew(lean_object* x_1) {
 _start:
 {
@@ -156,7 +147,7 @@ block_20:
 {
 lean_object* x_10; lean_object* x_11; uint8_t x_12; uint8_t x_13; lean_object* x_14; 
 x_10 = lean_unsigned_to_nat(0u);
-x_11 = lean_obj_once(&l_Lake_JobState_renew___closed__0, &l_Lake_JobState_renew___closed__0_once, _init_l_Lake_JobState_renew___closed__0);
+x_11 = ((lean_object*)(l_Lake_JobState_renew___closed__0));
 x_12 = 0;
 x_13 = 0;
 if (x_9 == 0)
@@ -288,7 +279,7 @@ block_27:
 {
 lean_object* x_14; lean_object* x_15; uint8_t x_16; uint8_t x_17; lean_object* x_18; 
 x_14 = lean_unsigned_to_nat(0u);
-x_15 = lean_obj_once(&l_Lake_JobState_renew___closed__0, &l_Lake_JobState_renew___closed__0_once, _init_l_Lake_JobState_renew___closed__0);
+x_15 = ((lean_object*)(l_Lake_JobState_renew___closed__0));
 x_16 = 0;
 x_17 = 0;
 if (x_13 == 0)
@@ -434,7 +425,7 @@ block_61:
 {
 lean_object* x_48; lean_object* x_49; uint8_t x_50; uint8_t x_51; lean_object* x_52; 
 x_48 = lean_unsigned_to_nat(0u);
-x_49 = lean_obj_once(&l_Lake_JobState_renew___closed__0, &l_Lake_JobState_renew___closed__0_once, _init_l_Lake_JobState_renew___closed__0);
+x_49 = ((lean_object*)(l_Lake_JobState_renew___closed__0));
 x_50 = 0;
 x_51 = 0;
 if (x_47 == 0)

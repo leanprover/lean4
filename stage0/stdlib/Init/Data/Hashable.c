@@ -43,7 +43,8 @@ LEAN_EXPORT lean_object* l_instHashableOption___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_instHashableOption(lean_object*, lean_object*);
 LEAN_EXPORT uint64_t l_instHashableList___redArg___lam__0(lean_object*, uint64_t, lean_object*);
 LEAN_EXPORT lean_object* l_instHashableList___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_instHashableList___redArg___lam__1___boxed__const__1;
+static const lean_ctor_object l_instHashableList___redArg___lam__1___boxed__const__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*0 + 8, .m_other = 0, .m_tag = 0}, .m_objs = {LEAN_SCALAR_PTR_LITERAL(7, 0, 0, 0, 0, 0, 0, 0)}};
+LEAN_EXPORT const lean_object* l_instHashableList___redArg___lam__1___boxed__const__1 = (const lean_object*)&l_instHashableList___redArg___lam__1___boxed__const__1_value;
 lean_object* l_List_foldl___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint64_t l_instHashableList___redArg___lam__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instHashableList___redArg___lam__1___boxed(lean_object*, lean_object*);
@@ -314,20 +315,11 @@ x_6 = lean_box_uint64(x_5);
 return x_6;
 }
 }
-static lean_object* _init_l_instHashableList___redArg___lam__1___boxed__const__1(void) {
-_start:
-{
-uint64_t x_1; lean_object* x_2; 
-x_1 = 7;
-x_2 = lean_box_uint64(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT uint64_t l_instHashableList___redArg___lam__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; uint64_t x_5; 
-x_3 = l_instHashableList___redArg___lam__1___boxed__const__1;
+x_3 = ((lean_object*)(l_instHashableList___redArg___lam__1___boxed__const__1));
 x_4 = l_List_foldl___redArg(x_1, x_3, x_2);
 x_5 = lean_unbox_uint64(x_4);
 lean_dec(x_4);
@@ -416,7 +408,7 @@ else
 size_t x_9; size_t x_10; lean_object* x_11; lean_object* x_12; uint64_t x_13; 
 x_9 = 0;
 x_10 = lean_usize_of_nat(x_5);
-x_11 = l_instHashableList___redArg___lam__1___boxed__const__1;
+x_11 = ((lean_object*)(l_instHashableList___redArg___lam__1___boxed__const__1));
 x_12 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_6, x_1, x_2, x_9, x_10, x_11);
 x_13 = lean_unbox_uint64(x_12);
 lean_dec(x_12);
@@ -428,7 +420,7 @@ else
 size_t x_14; size_t x_15; lean_object* x_16; lean_object* x_17; uint64_t x_18; 
 x_14 = 0;
 x_15 = lean_usize_of_nat(x_5);
-x_16 = l_instHashableList___redArg___lam__1___boxed__const__1;
+x_16 = ((lean_object*)(l_instHashableList___redArg___lam__1___boxed__const__1));
 x_17 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_6, x_1, x_2, x_14, x_15, x_16);
 x_18 = lean_unbox_uint64(x_17);
 lean_dec(x_17);
@@ -613,8 +605,6 @@ res = runtime_initialize_Init_Data_UInt_Basic(builtin)
 ;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_instHashableList___redArg___lam__1___boxed__const__1 = _init_l_instHashableList___redArg___lam__1___boxed__const__1();
-lean_mark_persistent(l_instHashableList___redArg___lam__1___boxed__const__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
 static bool _G_meta_initialized = false;

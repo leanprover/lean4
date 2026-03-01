@@ -264,7 +264,8 @@ LEAN_EXPORT lean_object* l_Lake_computeArrayHash___redArg___lam__0(uint64_t, lea
 LEAN_EXPORT lean_object* l_Lake_computeArrayHash___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_computeArrayHash___redArg___lam__1(lean_object*, lean_object*, lean_object*, uint64_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_computeArrayHash___redArg___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_computeArrayHash___redArg___boxed__const__1;
+static const lean_ctor_object l_Lake_computeArrayHash___redArg___boxed__const__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*0 + 8, .m_other = 0, .m_tag = 0}, .m_objs = {LEAN_SCALAR_PTR_LITERAL(187, 6, 0, 0, 0, 0, 0, 0)}};
+LEAN_EXPORT const lean_object* l_Lake_computeArrayHash___redArg___boxed__const__1 = (const lean_object*)&l_Lake_computeArrayHash___redArg___boxed__const__1_value;
 LEAN_EXPORT lean_object* l_Lake_computeArrayHash___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_computeArrayHash(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instComputeHashArrayOfMonad___redArg(lean_object*, lean_object*);
@@ -384,8 +385,8 @@ static const lean_object* l_Lake_instReprBuildTrace___closed__0 = (const lean_ob
 LEAN_EXPORT const lean_object* l_Lake_instReprBuildTrace = (const lean_object*)&l_Lake_instReprBuildTrace___closed__0_value;
 LEAN_EXPORT lean_object* l_Lake_BuildTrace_withCaption(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l_Lake_BuildTrace_withoutInputs___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lake_BuildTrace_withoutInputs___closed__0;
+static const lean_array_object l_Lake_BuildTrace_withoutInputs___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_Lake_BuildTrace_withoutInputs___closed__0 = (const lean_object*)&l_Lake_BuildTrace_withoutInputs___closed__0_value;
 LEAN_EXPORT lean_object* l_Lake_BuildTrace_withoutInputs(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_BuildTrace_ofHash(uint64_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_BuildTrace_ofHash___boxed(lean_object*, lean_object*);
@@ -2152,15 +2153,6 @@ x_7 = l_Lake_computeArrayHash___redArg___lam__1(x_1, x_2, x_3, x_6, x_5);
 return x_7;
 }
 }
-static lean_object* _init_l_Lake_computeArrayHash___redArg___boxed__const__1(void) {
-_start:
-{
-uint64_t x_1; lean_object* x_2; 
-x_1 = 1723;
-x_2 = lean_box_uint64(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_computeArrayHash___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -2178,7 +2170,7 @@ lean_inc(x_6);
 lean_dec_ref(x_3);
 lean_dec_ref(x_2);
 lean_dec(x_1);
-x_10 = l_Lake_computeArrayHash___redArg___boxed__const__1;
+x_10 = ((lean_object*)(l_Lake_computeArrayHash___redArg___boxed__const__1));
 x_11 = lean_apply_2(x_6, lean_box(0), x_10);
 return x_11;
 }
@@ -2201,7 +2193,7 @@ lean_inc(x_6);
 lean_dec_ref(x_12);
 lean_dec_ref(x_3);
 lean_dec_ref(x_2);
-x_14 = l_Lake_computeArrayHash___redArg___boxed__const__1;
+x_14 = ((lean_object*)(l_Lake_computeArrayHash___redArg___boxed__const__1));
 x_15 = lean_apply_2(x_6, lean_box(0), x_14);
 return x_15;
 }
@@ -2210,7 +2202,7 @@ else
 size_t x_16; size_t x_17; lean_object* x_18; lean_object* x_19; 
 x_16 = 0;
 x_17 = lean_usize_of_nat(x_8);
-x_18 = l_Lake_computeArrayHash___redArg___boxed__const__1;
+x_18 = ((lean_object*)(l_Lake_computeArrayHash___redArg___boxed__const__1));
 x_19 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_2, x_12, x_3, x_16, x_17, x_18);
 return x_19;
 }
@@ -2220,7 +2212,7 @@ else
 size_t x_20; size_t x_21; lean_object* x_22; lean_object* x_23; 
 x_20 = 0;
 x_21 = lean_usize_of_nat(x_8);
-x_22 = l_Lake_computeArrayHash___redArg___boxed__const__1;
+x_22 = ((lean_object*)(l_Lake_computeArrayHash___redArg___boxed__const__1));
 x_23 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_2, x_12, x_3, x_20, x_21, x_22);
 return x_23;
 }
@@ -2244,7 +2236,7 @@ lean_inc(x_8);
 lean_dec_ref(x_5);
 lean_dec_ref(x_4);
 lean_dec(x_3);
-x_12 = l_Lake_computeArrayHash___redArg___boxed__const__1;
+x_12 = ((lean_object*)(l_Lake_computeArrayHash___redArg___boxed__const__1));
 x_13 = lean_apply_2(x_8, lean_box(0), x_12);
 return x_13;
 }
@@ -2267,7 +2259,7 @@ lean_inc(x_8);
 lean_dec_ref(x_14);
 lean_dec_ref(x_5);
 lean_dec_ref(x_4);
-x_16 = l_Lake_computeArrayHash___redArg___boxed__const__1;
+x_16 = ((lean_object*)(l_Lake_computeArrayHash___redArg___boxed__const__1));
 x_17 = lean_apply_2(x_8, lean_box(0), x_16);
 return x_17;
 }
@@ -2276,7 +2268,7 @@ else
 size_t x_18; size_t x_19; lean_object* x_20; lean_object* x_21; 
 x_18 = 0;
 x_19 = lean_usize_of_nat(x_10);
-x_20 = l_Lake_computeArrayHash___redArg___boxed__const__1;
+x_20 = ((lean_object*)(l_Lake_computeArrayHash___redArg___boxed__const__1));
 x_21 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_4, x_14, x_5, x_18, x_19, x_20);
 return x_21;
 }
@@ -2286,7 +2278,7 @@ else
 size_t x_22; size_t x_23; lean_object* x_24; lean_object* x_25; 
 x_22 = 0;
 x_23 = lean_usize_of_nat(x_10);
-x_24 = l_Lake_computeArrayHash___redArg___boxed__const__1;
+x_24 = ((lean_object*)(l_Lake_computeArrayHash___redArg___boxed__const__1));
 x_25 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_4, x_14, x_5, x_22, x_23, x_24);
 return x_25;
 }
@@ -3163,15 +3155,6 @@ return x_8;
 }
 }
 }
-static lean_object* _init_l_Lake_BuildTrace_withoutInputs___closed__0(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_BuildTrace_withoutInputs(lean_object* x_1) {
 _start:
 {
@@ -3201,7 +3184,7 @@ goto block_11;
 block_11:
 {
 lean_object* x_7; lean_object* x_8; 
-x_7 = lean_obj_once(&l_Lake_BuildTrace_withoutInputs___closed__0, &l_Lake_BuildTrace_withoutInputs___closed__0_once, _init_l_Lake_BuildTrace_withoutInputs___closed__0);
+x_7 = ((lean_object*)(l_Lake_BuildTrace_withoutInputs___closed__0));
 if (x_6 == 0)
 {
 lean_ctor_set(x_5, 1, x_7);
@@ -3230,7 +3213,7 @@ LEAN_EXPORT lean_object* l_Lake_BuildTrace_ofHash(uint64_t x_1, lean_object* x_2
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = lean_obj_once(&l_Lake_BuildTrace_withoutInputs___closed__0, &l_Lake_BuildTrace_withoutInputs___closed__0_once, _init_l_Lake_BuildTrace_withoutInputs___closed__0);
+x_3 = ((lean_object*)(l_Lake_BuildTrace_withoutInputs___closed__0));
 x_4 = lean_obj_once(&l_Lake_MTime_instOfNat___closed__0, &l_Lake_MTime_instOfNat___closed__0_once, _init_l_Lake_MTime_instOfNat___closed__0);
 x_5 = lean_alloc_ctor(0, 3, 8);
 lean_ctor_set(x_5, 0, x_2);
@@ -3255,7 +3238,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = ((lean_object*)(l_Lake_BuildTrace_instCoeHash___lam__0___closed__0));
-x_3 = lean_obj_once(&l_Lake_BuildTrace_withoutInputs___closed__0, &l_Lake_BuildTrace_withoutInputs___closed__0_once, _init_l_Lake_BuildTrace_withoutInputs___closed__0);
+x_3 = ((lean_object*)(l_Lake_BuildTrace_withoutInputs___closed__0));
 x_4 = lean_obj_once(&l_Lake_MTime_instOfNat___closed__0, &l_Lake_MTime_instOfNat___closed__0_once, _init_l_Lake_MTime_instOfNat___closed__0);
 x_5 = lean_alloc_ctor(0, 3, 8);
 lean_ctor_set(x_5, 0, x_2);
@@ -3279,7 +3262,7 @@ LEAN_EXPORT lean_object* l_Lake_BuildTrace_ofMTime(lean_object* x_1, lean_object
 _start:
 {
 lean_object* x_3; uint64_t x_4; lean_object* x_5; 
-x_3 = lean_obj_once(&l_Lake_BuildTrace_withoutInputs___closed__0, &l_Lake_BuildTrace_withoutInputs___closed__0_once, _init_l_Lake_BuildTrace_withoutInputs___closed__0);
+x_3 = ((lean_object*)(l_Lake_BuildTrace_withoutInputs___closed__0));
 x_4 = 1723;
 x_5 = lean_alloc_ctor(0, 3, 8);
 lean_ctor_set(x_5, 0, x_2);
@@ -3294,7 +3277,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; uint64_t x_4; lean_object* x_5; 
 x_2 = ((lean_object*)(l_Lake_BuildTrace_instCoeMTime___lam__0___closed__0));
-x_3 = lean_obj_once(&l_Lake_BuildTrace_withoutInputs___closed__0, &l_Lake_BuildTrace_withoutInputs___closed__0_once, _init_l_Lake_BuildTrace_withoutInputs___closed__0);
+x_3 = ((lean_object*)(l_Lake_BuildTrace_withoutInputs___closed__0));
 x_4 = 1723;
 x_5 = lean_alloc_ctor(0, 3, 8);
 lean_ctor_set(x_5, 0, x_2);
@@ -3308,7 +3291,7 @@ LEAN_EXPORT lean_object* l_Lake_BuildTrace_nil(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; uint64_t x_3; lean_object* x_4; lean_object* x_5; 
-x_2 = lean_obj_once(&l_Lake_BuildTrace_withoutInputs___closed__0, &l_Lake_BuildTrace_withoutInputs___closed__0_once, _init_l_Lake_BuildTrace_withoutInputs___closed__0);
+x_2 = ((lean_object*)(l_Lake_BuildTrace_withoutInputs___closed__0));
 x_3 = 1723;
 x_4 = lean_obj_once(&l_Lake_MTime_instOfNat___closed__0, &l_Lake_MTime_instOfNat___closed__0_once, _init_l_Lake_MTime_instOfNat___closed__0);
 x_5 = lean_alloc_ctor(0, 3, 8);
@@ -3374,7 +3357,7 @@ block_21:
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; uint64_t x_17; lean_object* x_18; 
 x_14 = lean_apply_1(x_1, x_5);
-x_15 = lean_obj_once(&l_Lake_BuildTrace_withoutInputs___closed__0, &l_Lake_BuildTrace_withoutInputs___closed__0_once, _init_l_Lake_BuildTrace_withoutInputs___closed__0);
+x_15 = ((lean_object*)(l_Lake_BuildTrace_withoutInputs___closed__0));
 x_16 = lean_alloc_ctor(0, 3, 8);
 lean_ctor_set(x_16, 0, x_14);
 lean_ctor_set(x_16, 1, x_15);
@@ -3763,8 +3746,6 @@ if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lake_Hash_nil = _init_l_Lake_Hash_nil();
 l_Lake_Hash_instNilTrace = _init_l_Lake_Hash_instNilTrace();
-l_Lake_computeArrayHash___redArg___boxed__const__1 = _init_l_Lake_computeArrayHash___redArg___boxed__const__1();
-lean_mark_persistent(l_Lake_computeArrayHash___redArg___boxed__const__1);
 l_Lake_MTime_instOfNat = _init_l_Lake_MTime_instOfNat();
 lean_mark_persistent(l_Lake_MTime_instOfNat);
 l_Lake_MTime_instLT = _init_l_Lake_MTime_instLT();

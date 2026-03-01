@@ -331,8 +331,8 @@ static const lean_ctor_object l_IO_waitAny___auto__1___closed__4_value_aux_2 = {
 static const lean_ctor_object l_IO_waitAny___auto__1___closed__4_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_IO_waitAny___auto__1___closed__4_value_aux_2),((lean_object*)&l_IO_waitAny___auto__1___closed__3_value),LEAN_SCALAR_PTR_LITERAL(212, 140, 85, 215, 241, 69, 7, 118)}};
 static const lean_object* l_IO_waitAny___auto__1___closed__4 = (const lean_object*)&l_IO_waitAny___auto__1___closed__4_value;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l_IO_waitAny___auto__1___closed__5_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_IO_waitAny___auto__1___closed__5;
+static const lean_array_object l_IO_waitAny___auto__1___closed__5_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_IO_waitAny___auto__1___closed__5 = (const lean_object*)&l_IO_waitAny___auto__1___closed__5_value;
 static const lean_string_object l_IO_waitAny___auto__1___closed__6_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 19, .m_capacity = 19, .m_length = 18, .m_data = "tacticSeq1Indented"};
 static const lean_object* l_IO_waitAny___auto__1___closed__6 = (const lean_object*)&l_IO_waitAny___auto__1___closed__6_value;
 static const lean_ctor_object l_IO_waitAny___auto__1___closed__7_value_aux_0 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_IO_waitAny___auto__1___closed__0_value),LEAN_SCALAR_PTR_LITERAL(70, 193, 83, 126, 233, 67, 208, 165)}};
@@ -435,8 +435,8 @@ lean_object* lean_array_get_size(lean_object*);
 lean_object* lean_task_map(lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_List_mapIdx_go___at___00IO_waitAny_x27_spec__0___redArg(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l_IO_waitAny_x27___redArg___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_IO_waitAny_x27___redArg___closed__0;
+static const lean_array_object l_IO_waitAny_x27___redArg___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_IO_waitAny_x27___redArg___closed__0 = (const lean_object*)&l_IO_waitAny_x27___redArg___closed__0_value;
 lean_object* l___private_Init_Data_List_Impl_0__List_eraseIdxTR_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_waitAny_x27___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_IO_waitAny_x27___redArg___boxed(lean_object*, lean_object*);
@@ -504,12 +504,12 @@ static const lean_closure_object l_IO_FS_instInhabitedStream_default___closed__3
 static const lean_object* l_IO_FS_instInhabitedStream_default___closed__3 = (const lean_object*)&l_IO_FS_instInhabitedStream_default___closed__3_value;
 static const lean_closure_object l_IO_FS_instInhabitedStream_default___closed__4_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_IO_FS_instInhabitedStream_default___lam__4___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_IO_FS_instInhabitedStream_default___closed__4 = (const lean_object*)&l_IO_FS_instInhabitedStream_default___closed__4_value;
-static lean_once_cell_t l_IO_FS_instInhabitedStream_default___closed__5_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_IO_FS_instInhabitedStream_default___closed__5;
-static lean_once_cell_t l_IO_FS_instInhabitedStream_default___closed__6_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_IO_FS_instInhabitedStream_default___closed__6;
-LEAN_EXPORT lean_object* l_IO_FS_instInhabitedStream_default;
-LEAN_EXPORT lean_object* l_IO_FS_instInhabitedStream;
+static const lean_closure_object l_IO_FS_instInhabitedStream_default___closed__5_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*1, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_IO_FS_instInhabitedStream_default___lam__5___boxed, .m_arity = 2, .m_num_fixed = 1, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1))} };
+static const lean_object* l_IO_FS_instInhabitedStream_default___closed__5 = (const lean_object*)&l_IO_FS_instInhabitedStream_default___closed__5_value;
+static const lean_ctor_object l_IO_FS_instInhabitedStream_default___closed__6_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*6 + 0, .m_other = 6, .m_tag = 0}, .m_objs = {((lean_object*)&l_IO_FS_instInhabitedStream_default___closed__0_value),((lean_object*)&l_IO_FS_instInhabitedStream_default___closed__1_value),((lean_object*)&l_IO_FS_instInhabitedStream_default___closed__2_value),((lean_object*)&l_IO_FS_instInhabitedStream_default___closed__3_value),((lean_object*)&l_IO_FS_instInhabitedStream_default___closed__4_value),((lean_object*)&l_IO_FS_instInhabitedStream_default___closed__5_value)}};
+static const lean_object* l_IO_FS_instInhabitedStream_default___closed__6 = (const lean_object*)&l_IO_FS_instInhabitedStream_default___closed__6_value;
+LEAN_EXPORT const lean_object* l_IO_FS_instInhabitedStream_default = (const lean_object*)&l_IO_FS_instInhabitedStream_default___closed__6_value;
+LEAN_EXPORT const lean_object* l_IO_FS_instInhabitedStream = (const lean_object*)&l_IO_FS_instInhabitedStream_default___closed__6_value;
 lean_object* lean_get_stdin();
 LEAN_EXPORT lean_object* l_IO_getStdin___boxed(lean_object*);
 lean_object* lean_get_stdout();
@@ -605,8 +605,8 @@ lean_object* l_String_Slice_Pos_prev_x3f(lean_object*, lean_object*);
 lean_object* l_String_Slice_Pos_get_x3f(lean_object*, lean_object*);
 lean_object* lean_string_length(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_System_IO_0__IO_FS_Handle_lines_read___boxed(lean_object*, lean_object*, lean_object*);
-static lean_once_cell_t l_IO_FS_Handle_lines___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_IO_FS_Handle_lines___closed__0;
+static const lean_array_object l_IO_FS_Handle_lines___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_IO_FS_Handle_lines___closed__0 = (const lean_object*)&l_IO_FS_Handle_lines___closed__0_value;
 LEAN_EXPORT lean_object* l_IO_FS_Handle_lines(lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Handle_lines___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_lines(lean_object*);
@@ -1019,7 +1019,8 @@ LEAN_EXPORT lean_object* l_IO_FS_Stream_ofBuffer___lam__4___boxed(lean_object*, 
 static const lean_closure_object l_IO_FS_Stream_ofBuffer___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*1, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_IO_FS_Stream_ofBuffer___lam__4___boxed, .m_arity = 2, .m_num_fixed = 1, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1))} };
 static const lean_object* l_IO_FS_Stream_ofBuffer___closed__0 = (const lean_object*)&l_IO_FS_Stream_ofBuffer___closed__0_value;
 LEAN_EXPORT lean_object* l_IO_FS_Stream_ofBuffer(lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_System_IO_0__IO_FS_Stream_readBinToEndInto_loop___boxed__const__1;
+static const lean_ctor_object l___private_Init_System_IO_0__IO_FS_Stream_readBinToEndInto_loop___boxed__const__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*0 + sizeof(size_t)*1, .m_other = 0, .m_tag = 0}, .m_objs = {(lean_object*)(size_t)(1024ULL)}};
+LEAN_EXPORT const lean_object* l___private_Init_System_IO_0__IO_FS_Stream_readBinToEndInto_loop___boxed__const__1 = (const lean_object*)&l___private_Init_System_IO_0__IO_FS_Stream_readBinToEndInto_loop___boxed__const__1_value;
 LEAN_EXPORT lean_object* l___private_Init_System_IO_0__IO_FS_Stream_readBinToEndInto_loop(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_System_IO_0__IO_FS_Stream_readBinToEndInto_loop___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Stream_readBinToEndInto(lean_object*, lean_object*);
@@ -5405,15 +5406,6 @@ x_4 = lean_io_wait(x_2);
 return x_4;
 }
 }
-static lean_object* _init_l_IO_waitAny___auto__1___closed__5(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_IO_waitAny___auto__1___closed__12(void) {
 _start:
 {
@@ -5428,7 +5420,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_IO_waitAny___auto__1___closed__12, &l_IO_waitAny___auto__1___closed__12_once, _init_l_IO_waitAny___auto__1___closed__12);
-x_2 = lean_obj_once(&l_IO_waitAny___auto__1___closed__5, &l_IO_waitAny___auto__1___closed__5_once, _init_l_IO_waitAny___auto__1___closed__5);
+x_2 = ((lean_object*)(l_IO_waitAny___auto__1___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -5477,7 +5469,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_IO_waitAny___auto__1___closed__23, &l_IO_waitAny___auto__1___closed__23_once, _init_l_IO_waitAny___auto__1___closed__23);
-x_2 = lean_obj_once(&l_IO_waitAny___auto__1___closed__5, &l_IO_waitAny___auto__1___closed__5_once, _init_l_IO_waitAny___auto__1___closed__5);
+x_2 = ((lean_object*)(l_IO_waitAny___auto__1___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -5496,7 +5488,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_IO_waitAny___auto__1___closed__28, &l_IO_waitAny___auto__1___closed__28_once, _init_l_IO_waitAny___auto__1___closed__28);
-x_2 = lean_obj_once(&l_IO_waitAny___auto__1___closed__5, &l_IO_waitAny___auto__1___closed__5_once, _init_l_IO_waitAny___auto__1___closed__5);
+x_2 = ((lean_object*)(l_IO_waitAny___auto__1___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -5520,7 +5512,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_IO_waitAny___auto__1___closed__30, &l_IO_waitAny___auto__1___closed__30_once, _init_l_IO_waitAny___auto__1___closed__30);
-x_2 = lean_obj_once(&l_IO_waitAny___auto__1___closed__5, &l_IO_waitAny___auto__1___closed__5_once, _init_l_IO_waitAny___auto__1___closed__5);
+x_2 = ((lean_object*)(l_IO_waitAny___auto__1___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -5592,7 +5584,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_IO_waitAny___auto__1___closed__36, &l_IO_waitAny___auto__1___closed__36_once, _init_l_IO_waitAny___auto__1___closed__36);
-x_2 = lean_obj_once(&l_IO_waitAny___auto__1___closed__5, &l_IO_waitAny___auto__1___closed__5_once, _init_l_IO_waitAny___auto__1___closed__5);
+x_2 = ((lean_object*)(l_IO_waitAny___auto__1___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -5616,7 +5608,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_IO_waitAny___auto__1___closed__38, &l_IO_waitAny___auto__1___closed__38_once, _init_l_IO_waitAny___auto__1___closed__38);
-x_2 = lean_obj_once(&l_IO_waitAny___auto__1___closed__5, &l_IO_waitAny___auto__1___closed__5_once, _init_l_IO_waitAny___auto__1___closed__5);
+x_2 = ((lean_object*)(l_IO_waitAny___auto__1___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -5640,7 +5632,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_IO_waitAny___auto__1___closed__40, &l_IO_waitAny___auto__1___closed__40_once, _init_l_IO_waitAny___auto__1___closed__40);
-x_2 = lean_obj_once(&l_IO_waitAny___auto__1___closed__5, &l_IO_waitAny___auto__1___closed__5_once, _init_l_IO_waitAny___auto__1___closed__5);
+x_2 = ((lean_object*)(l_IO_waitAny___auto__1___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -5724,20 +5716,11 @@ goto _start;
 }
 }
 }
-static lean_object* _init_l_IO_waitAny_x27___redArg___closed__0(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_IO_waitAny_x27___redArg(lean_object* x_1) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; uint8_t x_15; 
-x_3 = lean_obj_once(&l_IO_waitAny_x27___redArg___closed__0, &l_IO_waitAny_x27___redArg___closed__0_once, _init_l_IO_waitAny_x27___redArg___closed__0);
+x_3 = ((lean_object*)(l_IO_waitAny_x27___redArg___closed__0));
 lean_inc(x_1);
 x_4 = l_List_mapIdx_go___at___00IO_waitAny_x27_spec__0___redArg(x_1, x_3);
 x_5 = lean_io_wait_any(x_4);
@@ -6227,53 +6210,6 @@ x_3 = lean_unbox(x_1);
 x_4 = l_IO_FS_instInhabitedStream_default___lam__5(x_3);
 x_5 = lean_box(x_4);
 return x_5;
-}
-}
-static lean_object* _init_l_IO_FS_instInhabitedStream_default___closed__5(void) {
-_start:
-{
-uint8_t x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = 0;
-x_2 = lean_box(x_1);
-x_3 = lean_alloc_closure((void*)(l_IO_FS_instInhabitedStream_default___lam__5___boxed), 2, 1);
-lean_closure_set(x_3, 0, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_IO_FS_instInhabitedStream_default___closed__6(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_1 = lean_obj_once(&l_IO_FS_instInhabitedStream_default___closed__5, &l_IO_FS_instInhabitedStream_default___closed__5_once, _init_l_IO_FS_instInhabitedStream_default___closed__5);
-x_2 = ((lean_object*)(l_IO_FS_instInhabitedStream_default___closed__4));
-x_3 = ((lean_object*)(l_IO_FS_instInhabitedStream_default___closed__3));
-x_4 = ((lean_object*)(l_IO_FS_instInhabitedStream_default___closed__2));
-x_5 = ((lean_object*)(l_IO_FS_instInhabitedStream_default___closed__1));
-x_6 = ((lean_object*)(l_IO_FS_instInhabitedStream_default___closed__0));
-x_7 = lean_alloc_ctor(0, 6, 0);
-lean_ctor_set(x_7, 0, x_6);
-lean_ctor_set(x_7, 1, x_5);
-lean_ctor_set(x_7, 2, x_4);
-lean_ctor_set(x_7, 3, x_3);
-lean_ctor_set(x_7, 4, x_2);
-lean_ctor_set(x_7, 5, x_1);
-return x_7;
-}
-}
-static lean_object* _init_l_IO_FS_instInhabitedStream_default(void) {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_obj_once(&l_IO_FS_instInhabitedStream_default___closed__6, &l_IO_FS_instInhabitedStream_default___closed__6_once, _init_l_IO_FS_instInhabitedStream_default___closed__6);
-return x_1;
-}
-}
-static lean_object* _init_l_IO_FS_instInhabitedStream(void) {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_IO_FS_instInhabitedStream_default;
-return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_IO_getStdin___boxed(lean_object* x_1) {
@@ -7351,20 +7287,11 @@ lean_dec(x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_IO_FS_Handle_lines___closed__0(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_IO_FS_Handle_lines(lean_object* x_1) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; 
-x_3 = lean_obj_once(&l_IO_FS_Handle_lines___closed__0, &l_IO_FS_Handle_lines___closed__0_once, _init_l_IO_FS_Handle_lines___closed__0);
+x_3 = ((lean_object*)(l_IO_FS_Handle_lines___closed__0));
 x_4 = l___private_Init_System_IO_0__IO_FS_Handle_lines_read(x_1, x_3);
 return x_4;
 }
@@ -9328,7 +9255,7 @@ LEAN_EXPORT lean_object* l_System_FilePath_walkDir(lean_object* x_1, lean_object
 _start:
 {
 lean_object* x_4; lean_object* x_5; 
-x_4 = lean_obj_once(&l_IO_FS_Handle_lines___closed__0, &l_IO_FS_Handle_lines___closed__0_once, _init_l_IO_FS_Handle_lines___closed__0);
+x_4 = ((lean_object*)(l_IO_FS_Handle_lines___closed__0));
 x_5 = l___private_Init_System_IO_0__System_FilePath_walkDir_go(x_2, x_1, x_4);
 if (lean_obj_tag(x_5) == 0)
 {
@@ -12667,7 +12594,7 @@ lean_closure_set(x_4, 0, x_1);
 x_5 = lean_alloc_closure((void*)(l_IO_FS_Stream_ofBuffer___lam__3___boxed), 2, 1);
 lean_closure_set(x_5, 0, x_1);
 x_6 = ((lean_object*)(l_IO_FS_Stream_ofBuffer___closed__0));
-x_7 = lean_obj_once(&l_IO_FS_instInhabitedStream_default___closed__5, &l_IO_FS_instInhabitedStream_default___closed__5_once, _init_l_IO_FS_instInhabitedStream_default___closed__5);
+x_7 = ((lean_object*)(l_IO_FS_instInhabitedStream_default___closed__5));
 x_8 = lean_alloc_ctor(0, 6, 0);
 lean_ctor_set(x_8, 0, x_6);
 lean_ctor_set(x_8, 1, x_2);
@@ -12678,21 +12605,12 @@ lean_ctor_set(x_8, 5, x_7);
 return x_8;
 }
 }
-static lean_object* _init_l___private_Init_System_IO_0__IO_FS_Stream_readBinToEndInto_loop___boxed__const__1(void) {
-_start:
-{
-size_t x_1; lean_object* x_2; 
-x_1 = 1024;
-x_2 = lean_box_usize(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l___private_Init_System_IO_0__IO_FS_Stream_readBinToEndInto_loop(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_4 = lean_ctor_get(x_1, 1);
-x_5 = l___private_Init_System_IO_0__IO_FS_Stream_readBinToEndInto_loop___boxed__const__1;
+x_5 = ((lean_object*)(l___private_Init_System_IO_0__IO_FS_Stream_readBinToEndInto_loop___boxed__const__1));
 lean_inc_ref(x_4);
 x_6 = lean_apply_2(x_4, x_5, lean_box(0));
 if (lean_obj_tag(x_6) == 0)
@@ -13221,7 +13139,7 @@ LEAN_EXPORT lean_object* l_IO_FS_Stream_lines(lean_object* x_1) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; 
-x_3 = lean_obj_once(&l_IO_FS_Handle_lines___closed__0, &l_IO_FS_Handle_lines___closed__0_once, _init_l_IO_FS_Handle_lines___closed__0);
+x_3 = ((lean_object*)(l_IO_FS_Handle_lines___closed__0));
 x_4 = l___private_Init_System_IO_0__IO_FS_Stream_lines_read(x_1, x_3);
 return x_4;
 }
@@ -13835,10 +13753,6 @@ l_IO_instLTTaskState = _init_l_IO_instLTTaskState();
 lean_mark_persistent(l_IO_instLTTaskState);
 l_IO_instLETaskState = _init_l_IO_instLETaskState();
 lean_mark_persistent(l_IO_instLETaskState);
-l_IO_FS_instInhabitedStream_default = _init_l_IO_FS_instInhabitedStream_default();
-lean_mark_persistent(l_IO_FS_instInhabitedStream_default);
-l_IO_FS_instInhabitedStream = _init_l_IO_FS_instInhabitedStream();
-lean_mark_persistent(l_IO_FS_instInhabitedStream);
 l_IO_FS_instInhabitedSystemTime_default = _init_l_IO_FS_instInhabitedSystemTime_default();
 lean_mark_persistent(l_IO_FS_instInhabitedSystemTime_default);
 l_IO_FS_instInhabitedSystemTime = _init_l_IO_FS_instInhabitedSystemTime();
@@ -13847,8 +13761,6 @@ l_IO_FS_instLTSystemTime = _init_l_IO_FS_instLTSystemTime();
 lean_mark_persistent(l_IO_FS_instLTSystemTime);
 l_IO_FS_instLESystemTime = _init_l_IO_FS_instLESystemTime();
 lean_mark_persistent(l_IO_FS_instLESystemTime);
-l___private_Init_System_IO_0__IO_FS_Stream_readBinToEndInto_loop___boxed__const__1 = _init_l___private_Init_System_IO_0__IO_FS_Stream_readBinToEndInto_loop___boxed__const__1();
-lean_mark_persistent(l___private_Init_System_IO_0__IO_FS_Stream_readBinToEndInto_loop___boxed__const__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
 static bool _G_meta_initialized = false;

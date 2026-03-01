@@ -153,8 +153,8 @@ static const lean_ctor_object l_Lean_OptionDecl_declName___autoParam___closed__4
 static const lean_ctor_object l_Lean_OptionDecl_declName___autoParam___closed__4_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_Lean_OptionDecl_declName___autoParam___closed__4_value_aux_2),((lean_object*)&l_Lean_OptionDecl_declName___autoParam___closed__3_value),LEAN_SCALAR_PTR_LITERAL(212, 140, 85, 215, 241, 69, 7, 118)}};
 static const lean_object* l_Lean_OptionDecl_declName___autoParam___closed__4 = (const lean_object*)&l_Lean_OptionDecl_declName___autoParam___closed__4_value;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l_Lean_OptionDecl_declName___autoParam___closed__5_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_OptionDecl_declName___autoParam___closed__5;
+static const lean_array_object l_Lean_OptionDecl_declName___autoParam___closed__5_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_Lean_OptionDecl_declName___autoParam___closed__5 = (const lean_object*)&l_Lean_OptionDecl_declName___autoParam___closed__5_value;
 static const lean_string_object l_Lean_OptionDecl_declName___autoParam___closed__6_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 19, .m_capacity = 19, .m_length = 18, .m_data = "tacticSeq1Indented"};
 static const lean_object* l_Lean_OptionDecl_declName___autoParam___closed__6 = (const lean_object*)&l_Lean_OptionDecl_declName___autoParam___closed__6_value;
 static const lean_ctor_object l_Lean_OptionDecl_declName___autoParam___closed__7_value_aux_0 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_Lean_OptionDecl_declName___autoParam___closed__0_value),LEAN_SCALAR_PTR_LITERAL(70, 193, 83, 126, 233, 67, 208, 165)}};
@@ -255,8 +255,8 @@ LEAN_EXPORT lean_object* l_Lean_getOptionDecls___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at___00Std_DTreeMap_Internal_Impl_foldl___at___00Lean_getOptionDeclsArray_spec__0_spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at___00Std_DTreeMap_Internal_Impl_foldl___at___00Lean_getOptionDeclsArray_spec__0_spec__0___boxed(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l_Lean_getOptionDeclsArray___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_getOptionDeclsArray___closed__0;
+static const lean_array_object l_Lean_getOptionDeclsArray___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_Lean_getOptionDeclsArray___closed__0 = (const lean_object*)&l_Lean_getOptionDeclsArray___closed__0_value;
 LEAN_EXPORT lean_object* lean_get_option_decls_array();
 LEAN_EXPORT lean_object* l_Lean_getOptionDeclsArray___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldl___at___00Lean_getOptionDeclsArray_spec__0(lean_object*, lean_object*);
@@ -5277,15 +5277,6 @@ x_4 = l_Std_DTreeMap_Internal_Impl_foldlM___at___00Std_DTreeMap_Internal_Impl_fo
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_OptionDecl_declName___autoParam___closed__5(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Lean_OptionDecl_declName___autoParam___closed__12(void) {
 _start:
 {
@@ -5300,7 +5291,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Lean_OptionDecl_declName___autoParam___closed__12, &l_Lean_OptionDecl_declName___autoParam___closed__12_once, _init_l_Lean_OptionDecl_declName___autoParam___closed__12);
-x_2 = lean_obj_once(&l_Lean_OptionDecl_declName___autoParam___closed__5, &l_Lean_OptionDecl_declName___autoParam___closed__5_once, _init_l_Lean_OptionDecl_declName___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Lean_OptionDecl_declName___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -5319,7 +5310,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Lean_OptionDecl_declName___autoParam___closed__18, &l_Lean_OptionDecl_declName___autoParam___closed__18_once, _init_l_Lean_OptionDecl_declName___autoParam___closed__18);
-x_2 = lean_obj_once(&l_Lean_OptionDecl_declName___autoParam___closed__5, &l_Lean_OptionDecl_declName___autoParam___closed__5_once, _init_l_Lean_OptionDecl_declName___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Lean_OptionDecl_declName___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -5367,7 +5358,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Lean_OptionDecl_declName___autoParam___closed__22, &l_Lean_OptionDecl_declName___autoParam___closed__22_once, _init_l_Lean_OptionDecl_declName___autoParam___closed__22);
-x_2 = lean_obj_once(&l_Lean_OptionDecl_declName___autoParam___closed__5, &l_Lean_OptionDecl_declName___autoParam___closed__5_once, _init_l_Lean_OptionDecl_declName___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Lean_OptionDecl_declName___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -5391,7 +5382,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Lean_OptionDecl_declName___autoParam___closed__24, &l_Lean_OptionDecl_declName___autoParam___closed__24_once, _init_l_Lean_OptionDecl_declName___autoParam___closed__24);
-x_2 = lean_obj_once(&l_Lean_OptionDecl_declName___autoParam___closed__5, &l_Lean_OptionDecl_declName___autoParam___closed__5_once, _init_l_Lean_OptionDecl_declName___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Lean_OptionDecl_declName___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -5415,7 +5406,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Lean_OptionDecl_declName___autoParam___closed__26, &l_Lean_OptionDecl_declName___autoParam___closed__26_once, _init_l_Lean_OptionDecl_declName___autoParam___closed__26);
-x_2 = lean_obj_once(&l_Lean_OptionDecl_declName___autoParam___closed__5, &l_Lean_OptionDecl_declName___autoParam___closed__5_once, _init_l_Lean_OptionDecl_declName___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Lean_OptionDecl_declName___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -5782,15 +5773,6 @@ lean_dec(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_getOptionDeclsArray___closed__0(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* lean_get_option_decls_array() {
 _start:
 {
@@ -5815,7 +5797,7 @@ goto block_11;
 block_11:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_6 = lean_obj_once(&l_Lean_getOptionDeclsArray___closed__0, &l_Lean_getOptionDeclsArray___closed__0_once, _init_l_Lean_getOptionDeclsArray___closed__0);
+x_6 = ((lean_object*)(l_Lean_getOptionDeclsArray___closed__0));
 x_7 = l_Std_DTreeMap_Internal_Impl_foldlM___at___00Std_DTreeMap_Internal_Impl_foldl___at___00Lean_getOptionDeclsArray_spec__0_spec__0(x_6, x_3);
 lean_dec(x_3);
 if (x_5 == 0)
@@ -7316,7 +7298,7 @@ else
 {
 lean_object* x_95; 
 lean_dec(x_82);
-x_95 = lean_obj_once(&l_Lean_OptionDecl_declName___autoParam___closed__5, &l_Lean_OptionDecl_declName___autoParam___closed__5_once, _init_l_Lean_OptionDecl_declName___autoParam___closed__5);
+x_95 = ((lean_object*)(l_Lean_OptionDecl_declName___autoParam___closed__5));
 x_19 = x_79;
 x_20 = x_91;
 x_21 = x_81;
@@ -7375,7 +7357,7 @@ else
 {
 lean_object* x_112; 
 lean_dec(x_98);
-x_112 = lean_obj_once(&l_Lean_OptionDecl_declName___autoParam___closed__5, &l_Lean_OptionDecl_declName___autoParam___closed__5_once, _init_l_Lean_OptionDecl_declName___autoParam___closed__5);
+x_112 = ((lean_object*)(l_Lean_OptionDecl_declName___autoParam___closed__5));
 x_79 = x_106;
 x_80 = x_99;
 x_81 = x_100;

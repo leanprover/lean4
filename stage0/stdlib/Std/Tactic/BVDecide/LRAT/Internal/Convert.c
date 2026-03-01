@@ -32,8 +32,8 @@ lean_object* lean_array_uget_borrowed(lean_object*, size_t);
 lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Array_filterMapM___at___00Std_Tactic_BVDecide_LRAT_Internal_CNF_convertLRAT_x27_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l_Array_filterMapM___at___00Std_Tactic_BVDecide_LRAT_Internal_CNF_convertLRAT_x27_spec__0___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Array_filterMapM___at___00Std_Tactic_BVDecide_LRAT_Internal_CNF_convertLRAT_x27_spec__0___closed__0;
+static const lean_array_object l_Array_filterMapM___at___00Std_Tactic_BVDecide_LRAT_Internal_CNF_convertLRAT_x27_spec__0___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_Array_filterMapM___at___00Std_Tactic_BVDecide_LRAT_Internal_CNF_convertLRAT_x27_spec__0___closed__0 = (const lean_object*)&l_Array_filterMapM___at___00Std_Tactic_BVDecide_LRAT_Internal_CNF_convertLRAT_x27_spec__0___closed__0_value;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
@@ -45,10 +45,8 @@ LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_CNF_convertLRAT_x27
 LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_LRAT_Internal_Convert_0__Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_ofArray_folder_match__6_splitter___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_LRAT_Internal_Convert_0__Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_ofArray_folder_match__6_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_LRAT_Internal_Convert_0__Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_ofArray_folder_match__6_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_once_cell_t l_Std_Tactic_BVDecide_LRAT_Internal_CNF_convertLRAT___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_CNF_convertLRAT___closed__0;
-static lean_once_cell_t l_Std_Tactic_BVDecide_LRAT_Internal_CNF_convertLRAT___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_CNF_convertLRAT___closed__1;
+static const lean_array_object l_Std_Tactic_BVDecide_LRAT_Internal_CNF_convertLRAT___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*1, .m_other = 0, .m_tag = 246}, .m_size = 1, .m_capacity = 1, .m_data = {((lean_object*)(((size_t)(0) << 1) | 1))}};
+static const lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_CNF_convertLRAT___closed__0 = (const lean_object*)&l_Std_Tactic_BVDecide_LRAT_Internal_CNF_convertLRAT___closed__0_value;
 lean_object* l_Std_Sat_CNF_numLiterals(lean_object*);
 lean_object* l_Array_append___redArg(lean_object*, lean_object*);
 lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_ofArray(lean_object*, lean_object*);
@@ -156,20 +154,11 @@ lean_dec(x_1);
 return x_8;
 }
 }
-static lean_object* _init_l_Array_filterMapM___at___00Std_Tactic_BVDecide_LRAT_Internal_CNF_convertLRAT_x27_spec__0___closed__0(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Array_filterMapM___at___00Std_Tactic_BVDecide_LRAT_Internal_CNF_convertLRAT_x27_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; uint8_t x_6; 
-x_5 = lean_obj_once(&l_Array_filterMapM___at___00Std_Tactic_BVDecide_LRAT_Internal_CNF_convertLRAT_x27_spec__0___closed__0, &l_Array_filterMapM___at___00Std_Tactic_BVDecide_LRAT_Internal_CNF_convertLRAT_x27_spec__0___closed__0_once, _init_l_Array_filterMapM___at___00Std_Tactic_BVDecide_LRAT_Internal_CNF_convertLRAT_x27_spec__0___closed__0);
+x_5 = ((lean_object*)(l_Array_filterMapM___at___00Std_Tactic_BVDecide_LRAT_Internal_CNF_convertLRAT_x27_spec__0___closed__0));
 x_6 = lean_nat_dec_lt(x_3, x_4);
 if (x_6 == 0)
 {
@@ -280,25 +269,6 @@ lean_dec(x_1);
 return x_6;
 }
 }
-static lean_object* _init_l_Std_Tactic_BVDecide_LRAT_Internal_CNF_convertLRAT___closed__0(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(1u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Std_Tactic_BVDecide_LRAT_Internal_CNF_convertLRAT___closed__1(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = lean_obj_once(&l_Std_Tactic_BVDecide_LRAT_Internal_CNF_convertLRAT___closed__0, &l_Std_Tactic_BVDecide_LRAT_Internal_CNF_convertLRAT___closed__0_once, _init_l_Std_Tactic_BVDecide_LRAT_Internal_CNF_convertLRAT___closed__0);
-x_3 = lean_array_push(x_2, x_1);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_CNF_convertLRAT(lean_object* x_1) {
 _start:
 {
@@ -312,7 +282,7 @@ x_5 = lean_nat_add(x_3, x_4);
 lean_dec(x_3);
 x_6 = l_Std_Tactic_BVDecide_LRAT_Internal_CNF_convertLRAT_x27(x_5, x_2);
 lean_dec_ref(x_2);
-x_7 = lean_obj_once(&l_Std_Tactic_BVDecide_LRAT_Internal_CNF_convertLRAT___closed__1, &l_Std_Tactic_BVDecide_LRAT_Internal_CNF_convertLRAT___closed__1_once, _init_l_Std_Tactic_BVDecide_LRAT_Internal_CNF_convertLRAT___closed__1);
+x_7 = ((lean_object*)(l_Std_Tactic_BVDecide_LRAT_Internal_CNF_convertLRAT___closed__0));
 x_8 = l_Array_append___redArg(x_7, x_6);
 lean_dec_ref(x_6);
 x_9 = l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_ofArray(x_5, x_8);

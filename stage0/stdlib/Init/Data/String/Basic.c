@@ -33,8 +33,8 @@ LEAN_EXPORT lean_object* l_ByteArray_utf8Decode_x3f_go___boxed(lean_object*, lea
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Basic_0__ByteArray_utf8Decode_x3f_go_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Basic_0__ByteArray_utf8Decode_x3f_go_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l_ByteArray_utf8Decode_x3f___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_ByteArray_utf8Decode_x3f___closed__0;
+static const lean_array_object l_ByteArray_utf8Decode_x3f___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_ByteArray_utf8Decode_x3f___closed__0 = (const lean_object*)&l_ByteArray_utf8Decode_x3f___closed__0_value;
 LEAN_EXPORT lean_object* l_ByteArray_utf8Decode_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_utf8Decode_x3f___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_ByteArray_validateUTF8_go___redArg(lean_object*, lean_object*);
@@ -906,21 +906,12 @@ x_5 = l___private_Init_Data_String_Basic_0__ByteArray_utf8Decode_x3f_go_match__1
 return x_5;
 }
 }
-static lean_object* _init_l_ByteArray_utf8Decode_x3f___closed__0(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_ByteArray_utf8Decode_x3f(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = lean_unsigned_to_nat(0u);
-x_3 = lean_obj_once(&l_ByteArray_utf8Decode_x3f___closed__0, &l_ByteArray_utf8Decode_x3f___closed__0_once, _init_l_ByteArray_utf8Decode_x3f___closed__0);
+x_3 = ((lean_object*)(l_ByteArray_utf8Decode_x3f___closed__0));
 x_4 = l_ByteArray_utf8Decode_x3f_go___redArg(x_1, x_2, x_3);
 return x_4;
 }
@@ -1471,7 +1462,7 @@ _start:
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_2 = lean_string_to_utf8(x_1);
 x_3 = lean_unsigned_to_nat(0u);
-x_4 = lean_obj_once(&l_ByteArray_utf8Decode_x3f___closed__0, &l_ByteArray_utf8Decode_x3f___closed__0_once, _init_l_ByteArray_utf8Decode_x3f___closed__0);
+x_4 = ((lean_object*)(l_ByteArray_utf8Decode_x3f___closed__0));
 x_5 = l_ByteArray_utf8Decode_x3f_go___redArg(x_2, x_3, x_4);
 lean_dec_ref(x_2);
 x_6 = lean_ctor_get(x_5, 0);

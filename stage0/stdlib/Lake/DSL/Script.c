@@ -41,8 +41,8 @@ static const lean_object* l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDe
 static const lean_string_object l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__11_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 7, .m_capacity = 7, .m_length = 6, .m_data = "declId"};
 static const lean_object* l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__11 = (const lean_object*)&l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__11_value;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__12_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__12;
+static const lean_array_object l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__12_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__12 = (const lean_object*)&l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__12_value;
 static const lean_string_object l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__13_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 11, .m_capacity = 11, .m_length = 10, .m_data = "optDeclSig"};
 static const lean_object* l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__13 = (const lean_object*)&l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__13_value;
 static const lean_string_object l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__14_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 9, .m_capacity = 9, .m_length = 8, .m_data = "typeSpec"};
@@ -72,8 +72,8 @@ static const lean_object* l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDe
 static const lean_string_object l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__24_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 3, .m_capacity = 3, .m_length = 2, .m_data = "=>"};
 static const lean_object* l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__24 = (const lean_object*)&l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__24_value;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__25_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__25;
+static const lean_array_object l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__25_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__25 = (const lean_object*)&l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__25_value;
 static const lean_string_object l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__26_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 5, .m_capacity = 5, .m_length = 4, .m_data = "Term"};
 static const lean_object* l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__26 = (const lean_object*)&l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__26_value;
 static const lean_string_object l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__27_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 13, .m_capacity = 13, .m_length = 12, .m_data = "attrInstance"};
@@ -202,30 +202,12 @@ extern lean_object* l_Lean_Elab_macroAttribute;
 lean_object* l_Lean_KeyedDeclsAttribute_addBuiltin___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___regBuiltin___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl__1();
 LEAN_EXPORT lean_object* l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___regBuiltin___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl__1___boxed(lean_object*);
-static lean_object* _init_l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__12(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__17(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = ((lean_object*)(l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__16));
 x_2 = l_String_toRawSubstring_x27(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__25(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
@@ -367,7 +349,7 @@ lean_inc_ref(x_56);
 lean_inc_ref(x_54);
 lean_inc_ref(x_67);
 x_97 = l_Lean_Name_mkStr4(x_67, x_54, x_56, x_96);
-x_98 = lean_obj_once(&l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__12, &l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__12_once, _init_l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__12);
+x_98 = ((lean_object*)(l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__12));
 x_99 = lean_box(2);
 lean_inc(x_73);
 x_100 = lean_alloc_ctor(1, 3, 0);
@@ -477,7 +459,7 @@ else
 {
 lean_object* x_135; 
 lean_dec(x_71);
-x_135 = lean_obj_once(&l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__25, &l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__25_once, _init_l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__25);
+x_135 = ((lean_object*)(l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__25));
 x_4 = x_91;
 x_5 = x_57;
 x_6 = x_95;
@@ -661,7 +643,7 @@ else
 {
 lean_object* x_198; 
 lean_dec(x_148);
-x_198 = lean_obj_once(&l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__25, &l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__25_once, _init_l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__25);
+x_198 = ((lean_object*)(l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__25));
 x_54 = x_137;
 x_55 = x_140;
 x_56 = x_139;
@@ -817,7 +799,7 @@ else
 {
 lean_object* x_245; 
 lean_dec(x_221);
-x_245 = lean_obj_once(&l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__25, &l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__25_once, _init_l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__25);
+x_245 = ((lean_object*)(l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__25));
 x_28 = x_235;
 x_29 = x_213;
 x_30 = x_214;
@@ -883,7 +865,7 @@ else
 {
 lean_object* x_270; 
 lean_dec(x_257);
-x_270 = lean_obj_once(&l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__25, &l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__25_once, _init_l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__25);
+x_270 = ((lean_object*)(l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__25));
 x_213 = x_248;
 x_214 = x_249;
 x_215 = x_250;
@@ -944,7 +926,7 @@ else
 {
 lean_object* x_292; 
 lean_dec(x_279);
-x_292 = lean_obj_once(&l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__25, &l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__25_once, _init_l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__25);
+x_292 = ((lean_object*)(l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__25));
 x_247 = x_272;
 x_248 = x_273;
 x_249 = x_274;
@@ -1004,7 +986,7 @@ else
 {
 lean_object* x_315; 
 lean_dec(x_300);
-x_315 = lean_obj_once(&l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__25, &l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__25_once, _init_l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__25);
+x_315 = ((lean_object*)(l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__25));
 x_272 = x_294;
 x_273 = x_307;
 x_274 = x_311;

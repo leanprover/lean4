@@ -75,9 +75,9 @@ LEAN_EXPORT lean_object* l___private_Lake_Util_MainM_0__Lake_MainM_instAlternati
 lean_object* l_Lake_OutStream_logEntry(lean_object*, lean_object*, uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lake_MainM_instMonadLog___lam__0(lean_object*, uint8_t, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_MainM_instMonadLog___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_once_cell_t l_Lake_MainM_instMonadLog___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lake_MainM_instMonadLog___closed__0;
-LEAN_EXPORT lean_object* l_Lake_MainM_instMonadLog;
+static const lean_closure_object l_Lake_MainM_instMonadLog___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*3, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lake_MainM_instMonadLog___lam__0___boxed, .m_arity = 5, .m_num_fixed = 3, .m_objs = {((lean_object*)(((size_t)(1) << 1) | 1)),((lean_object*)(((size_t)(1) << 1) | 1)),((lean_object*)(((size_t)(0) << 1) | 1))} };
+static const lean_object* l_Lake_MainM_instMonadLog___closed__0 = (const lean_object*)&l_Lake_MainM_instMonadLog___closed__0_value;
+LEAN_EXPORT const lean_object* l_Lake_MainM_instMonadLog = (const lean_object*)&l_Lake_MainM_instMonadLog___closed__0_value;
 LEAN_EXPORT lean_object* l_Lake_MainM_error___redArg(lean_object*, uint32_t);
 LEAN_EXPORT lean_object* l_Lake_MainM_error___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_MainM_error(lean_object*, lean_object*, uint32_t);
@@ -100,8 +100,8 @@ lean_object* l_instMonadST(lean_object*);
 static lean_once_cell_t l_Lake_MainM_runLogIO___redArg___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lake_MainM_runLogIO___redArg___closed__0;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l_Lake_MainM_runLogIO___redArg___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lake_MainM_runLogIO___redArg___closed__1;
+static const lean_array_object l_Lake_MainM_runLogIO___redArg___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_Lake_MainM_runLogIO___redArg___closed__1 = (const lean_object*)&l_Lake_MainM_runLogIO___redArg___closed__1_value;
 lean_object* l_Lake_OutStream_get(lean_object*);
 uint8_t l_Lake_AnsiMode_isEnabled(lean_object*, uint8_t);
 lean_object* lean_array_get_size(lean_object*);
@@ -994,30 +994,6 @@ lean_dec(x_1);
 return x_8;
 }
 }
-static lean_object* _init_l_Lake_MainM_instMonadLog___closed__0(void) {
-_start:
-{
-uint8_t x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_1 = 0;
-x_2 = 1;
-x_3 = lean_box(1);
-x_4 = lean_box(x_2);
-x_5 = lean_box(x_1);
-x_6 = lean_alloc_closure((void*)(l_Lake_MainM_instMonadLog___lam__0___boxed), 5, 3);
-lean_closure_set(x_6, 0, x_3);
-lean_closure_set(x_6, 1, x_4);
-lean_closure_set(x_6, 2, x_5);
-return x_6;
-}
-}
-static lean_object* _init_l_Lake_MainM_instMonadLog(void) {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_obj_once(&l_Lake_MainM_instMonadLog___closed__0, &l_Lake_MainM_instMonadLog___closed__0_once, _init_l_Lake_MainM_instMonadLog___closed__0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_MainM_error___redArg(lean_object* x_1, uint32_t x_2) {
 _start:
 {
@@ -1239,21 +1215,12 @@ x_1 = l_instMonadST(lean_box(0));
 return x_1;
 }
 }
-static lean_object* _init_l_Lake_MainM_runLogIO___redArg___closed__1(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_MainM_runLogIO___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_4; lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_20; uint8_t x_21; lean_object* x_22; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; uint8_t x_28; uint8_t x_29; lean_object* x_51; lean_object* x_52; lean_object* x_53; uint8_t x_54; lean_object* x_57; lean_object* x_58; 
 x_24 = lean_obj_once(&l_Lake_MainM_runLogIO___redArg___closed__0, &l_Lake_MainM_runLogIO___redArg___closed__0_once, _init_l_Lake_MainM_runLogIO___redArg___closed__0);
-x_57 = lean_obj_once(&l_Lake_MainM_runLogIO___redArg___closed__1, &l_Lake_MainM_runLogIO___redArg___closed__1_once, _init_l_Lake_MainM_runLogIO___redArg___closed__1);
+x_57 = ((lean_object*)(l_Lake_MainM_runLogIO___redArg___closed__1));
 x_58 = lean_apply_2(x_1, x_57, lean_box(0));
 if (lean_obj_tag(x_58) == 0)
 {
@@ -1475,7 +1442,7 @@ _start:
 {
 lean_object* x_5; lean_object* x_9; uint8_t x_10; lean_object* x_11; lean_object* x_21; uint8_t x_22; lean_object* x_23; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; uint8_t x_29; uint8_t x_30; lean_object* x_52; lean_object* x_53; lean_object* x_54; uint8_t x_55; lean_object* x_58; lean_object* x_59; 
 x_25 = lean_obj_once(&l_Lake_MainM_runLogIO___redArg___closed__0, &l_Lake_MainM_runLogIO___redArg___closed__0_once, _init_l_Lake_MainM_runLogIO___redArg___closed__0);
-x_58 = lean_obj_once(&l_Lake_MainM_runLogIO___redArg___closed__1, &l_Lake_MainM_runLogIO___redArg___closed__1_once, _init_l_Lake_MainM_runLogIO___redArg___closed__1);
+x_58 = ((lean_object*)(l_Lake_MainM_runLogIO___redArg___closed__1));
 x_59 = lean_apply_2(x_2, x_58, lean_box(0));
 if (lean_obj_tag(x_59) == 0)
 {
@@ -1736,7 +1703,7 @@ _start:
 {
 lean_object* x_3; lean_object* x_7; uint8_t x_8; lean_object* x_9; uint8_t x_19; lean_object* x_20; lean_object* x_21; lean_object* x_23; lean_object* x_24; lean_object* x_25; uint8_t x_26; lean_object* x_27; lean_object* x_28; uint8_t x_29; lean_object* x_30; lean_object* x_31; uint8_t x_32; lean_object* x_46; lean_object* x_47; lean_object* x_48; uint8_t x_49; 
 x_23 = lean_unsigned_to_nat(0u);
-x_24 = lean_obj_once(&l_Lake_MainM_runLogIO___redArg___closed__1, &l_Lake_MainM_runLogIO___redArg___closed__1_once, _init_l_Lake_MainM_runLogIO___redArg___closed__1);
+x_24 = ((lean_object*)(l_Lake_MainM_runLogIO___redArg___closed__1));
 x_25 = lean_apply_2(x_1, x_24, lean_box(0));
 x_26 = 0;
 x_27 = lean_box(1);
@@ -2376,8 +2343,6 @@ l_Lake_MainM_failure___redArg___boxed__const__1 = _init_l_Lake_MainM_failure___r
 lean_mark_persistent(l_Lake_MainM_failure___redArg___boxed__const__1);
 l___private_Lake_Util_MainM_0__Lake_MainM_instAlternative = _init_l___private_Lake_Util_MainM_0__Lake_MainM_instAlternative();
 lean_mark_persistent(l___private_Lake_Util_MainM_0__Lake_MainM_instAlternative);
-l_Lake_MainM_instMonadLog = _init_l_Lake_MainM_instMonadLog();
-lean_mark_persistent(l_Lake_MainM_instMonadLog);
 return lean_io_result_mk_ok(lean_box(0));
 }
 static bool _G_meta_initialized = false;

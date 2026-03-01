@@ -212,12 +212,12 @@ LEAN_EXPORT lean_object* l_String_Slice_find_x3f___boxed(lean_object*, lean_obje
 LEAN_EXPORT lean_object* l_String_Slice_find___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_find(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_find___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_once_cell_t l_String_Slice_contains___redArg___lam__1___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_String_Slice_contains___redArg___lam__1___closed__0;
+static const lean_ctor_object l_String_Slice_contains___redArg___lam__1___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 0}, .m_objs = {((lean_object*)(((size_t)(1) << 1) | 1))}};
+static const lean_object* l_String_Slice_contains___redArg___lam__1___closed__0 = (const lean_object*)&l_String_Slice_contains___redArg___lam__1___closed__0_value;
 LEAN_EXPORT lean_object* l_String_Slice_contains___redArg___lam__1(uint8_t, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_String_Slice_contains___redArg___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_once_cell_t l_String_Slice_contains___redArg___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_String_Slice_contains___redArg___closed__0;
+static const lean_closure_object l_String_Slice_contains___redArg___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*1, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_String_Slice_contains___redArg___lam__1___boxed, .m_arity = 4, .m_num_fixed = 1, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1))} };
+static const lean_object* l_String_Slice_contains___redArg___closed__0 = (const lean_object*)&l_String_Slice_contains___redArg___closed__0_value;
 LEAN_EXPORT uint8_t l_String_Slice_contains___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_contains___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_String_Slice_contains(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -4297,24 +4297,13 @@ lean_dec(x_3);
 return x_8;
 }
 }
-static lean_object* _init_l_String_Slice_contains___redArg___lam__1___closed__0(void) {
-_start:
-{
-uint8_t x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = 1;
-x_2 = lean_box(x_1);
-x_3 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_3, 0, x_2);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l_String_Slice_contains___redArg___lam__1(uint8_t x_1, lean_object* x_2, lean_object* x_3, uint8_t x_4) {
 _start:
 {
 if (lean_obj_tag(x_2) == 1)
 {
 lean_object* x_5; 
-x_5 = lean_obj_once(&l_String_Slice_contains___redArg___lam__1___closed__0, &l_String_Slice_contains___redArg___lam__1___closed__0_once, _init_l_String_Slice_contains___redArg___lam__1___closed__0);
+x_5 = ((lean_object*)(l_String_Slice_contains___redArg___lam__1___closed__0));
 return x_5;
 }
 else
@@ -4338,17 +4327,6 @@ lean_dec_ref(x_2);
 return x_7;
 }
 }
-static lean_object* _init_l_String_Slice_contains___redArg___closed__0(void) {
-_start:
-{
-uint8_t x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = 0;
-x_2 = lean_box(x_1);
-x_3 = lean_alloc_closure((void*)(l_String_Slice_contains___redArg___lam__1___boxed), 4, 1);
-lean_closure_set(x_3, 0, x_2);
-return x_3;
-}
-}
 LEAN_EXPORT uint8_t l_String_Slice_contains___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -4357,7 +4335,7 @@ x_4 = ((lean_object*)(l_String_Slice_replace___redArg___closed__0));
 lean_inc_ref(x_2);
 x_5 = lean_apply_1(x_3, x_2);
 x_6 = 0;
-x_7 = lean_obj_once(&l_String_Slice_contains___redArg___closed__0, &l_String_Slice_contains___redArg___closed__0_once, _init_l_String_Slice_contains___redArg___closed__0);
+x_7 = ((lean_object*)(l_String_Slice_contains___redArg___closed__0));
 x_8 = lean_box(x_6);
 x_9 = lean_apply_7(x_1, x_2, x_4, lean_box(0), lean_box(0), x_5, x_8, x_7);
 x_10 = lean_unbox(x_9);
@@ -7038,8 +7016,8 @@ x_36 = 65;
 x_37 = lean_uint8_dec_le(x_36, x_35);
 if (x_37 == 0)
 {
-x_13 = x_33;
-x_14 = x_35;
+x_13 = x_35;
+x_14 = x_33;
 x_15 = x_37;
 goto block_18;
 }
@@ -7048,8 +7026,8 @@ else
 uint8_t x_38; uint8_t x_39; 
 x_38 = 90;
 x_39 = lean_uint8_dec_le(x_35, x_38);
-x_13 = x_33;
-x_14 = x_35;
+x_13 = x_35;
+x_14 = x_33;
 x_15 = x_39;
 goto block_18;
 }
@@ -7082,16 +7060,16 @@ block_18:
 {
 if (x_15 == 0)
 {
-x_5 = x_13;
-x_6 = x_14;
+x_5 = x_14;
+x_6 = x_13;
 goto block_12;
 }
 else
 {
 uint8_t x_16; uint8_t x_17; 
 x_16 = 32;
-x_17 = lean_uint8_add(x_14, x_16);
-x_5 = x_13;
+x_17 = lean_uint8_add(x_13, x_16);
+x_5 = x_14;
 x_6 = x_17;
 goto block_12;
 }

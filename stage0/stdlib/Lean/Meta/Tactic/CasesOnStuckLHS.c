@@ -57,8 +57,8 @@ lean_object* l_Lean_stringToMessageData(lean_object*);
 static lean_once_cell_t l_Lean_Meta_casesOnStuckLHS___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Meta_casesOnStuckLHS___closed__1;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l_Lean_Meta_casesOnStuckLHS___closed__2_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_Meta_casesOnStuckLHS___closed__2;
+static const lean_array_object l_Lean_Meta_casesOnStuckLHS___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_Lean_Meta_casesOnStuckLHS___closed__2 = (const lean_object*)&l_Lean_Meta_casesOnStuckLHS___closed__2_value;
 lean_object* l_Lean_MVarId_getType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_matchEqHEqLHS_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MVarId_cases(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -635,15 +635,6 @@ x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Meta_casesOnStuckLHS___closed__2(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Meta_casesOnStuckLHS(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -689,7 +680,7 @@ lean_object* x_23; lean_object* x_24; uint8_t x_25; lean_object* x_26; lean_obje
 x_23 = lean_ctor_get(x_22, 0);
 lean_inc(x_23);
 lean_dec_ref(x_22);
-x_24 = lean_obj_once(&l_Lean_Meta_casesOnStuckLHS___closed__2, &l_Lean_Meta_casesOnStuckLHS___closed__2_once, _init_l_Lean_Meta_casesOnStuckLHS___closed__2);
+x_24 = ((lean_object*)(l_Lean_Meta_casesOnStuckLHS___closed__2));
 x_25 = 0;
 x_26 = lean_box(0);
 x_27 = l_Lean_MVarId_cases(x_1, x_23, x_24, x_25, x_26, x_2, x_3, x_4, x_5);

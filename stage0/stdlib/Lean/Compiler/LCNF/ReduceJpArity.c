@@ -43,10 +43,10 @@ lean_object* l_Lean_Compiler_LCNF_eraseParam___redArg(uint8_t, lean_object*, lea
 lean_object* l___private_Lean_Compiler_LCNF_Basic_0__Lean_Compiler_LCNF_collectType(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Compiler_LCNF_ReduceJpArity_reduce_spec__1___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l_Lean_Compiler_LCNF_ReduceJpArity_reduce___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_Compiler_LCNF_ReduceJpArity_reduce___closed__0;
-static lean_once_cell_t l_Lean_Compiler_LCNF_ReduceJpArity_reduce___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_Compiler_LCNF_ReduceJpArity_reduce___closed__1;
+static const lean_array_object l_Lean_Compiler_LCNF_ReduceJpArity_reduce___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_Lean_Compiler_LCNF_ReduceJpArity_reduce___closed__0 = (const lean_object*)&l_Lean_Compiler_LCNF_ReduceJpArity_reduce___closed__0_value;
+static const lean_array_object l_Lean_Compiler_LCNF_ReduceJpArity_reduce___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_Lean_Compiler_LCNF_ReduceJpArity_reduce___closed__1 = (const lean_object*)&l_Lean_Compiler_LCNF_ReduceJpArity_reduce___closed__1_value;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_ReduceJpArity_reduce(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_ptr_addr(lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
@@ -727,24 +727,6 @@ lean_dec_ref(x_1);
 return x_9;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_ReduceJpArity_reduce___closed__0(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Compiler_LCNF_ReduceJpArity_reduce___closed__1(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_ReduceJpArity_reduce(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -1151,7 +1133,7 @@ x_92 = l_Lean_instEmptyCollectionFVarIdHashSet;
 x_93 = 0;
 lean_inc(x_91);
 x_94 = l_Lean_Compiler_LCNF_Code_collectUsed(x_93, x_91, x_92);
-x_95 = lean_obj_once(&l_Lean_Compiler_LCNF_ReduceJpArity_reduce___closed__0, &l_Lean_Compiler_LCNF_ReduceJpArity_reduce___closed__0_once, _init_l_Lean_Compiler_LCNF_ReduceJpArity_reduce___closed__0);
+x_95 = ((lean_object*)(l_Lean_Compiler_LCNF_ReduceJpArity_reduce___closed__0));
 lean_inc_ref(x_87);
 x_96 = l_Array_reverse___redArg(x_87);
 x_97 = lean_alloc_ctor(0, 2, 0);
@@ -1780,7 +1762,7 @@ x_213 = lean_ctor_get(x_210, 0);
 lean_inc(x_213);
 lean_dec_ref(x_210);
 x_214 = lean_unsigned_to_nat(0u);
-x_215 = lean_obj_once(&l_Lean_Compiler_LCNF_ReduceJpArity_reduce___closed__1, &l_Lean_Compiler_LCNF_ReduceJpArity_reduce___closed__1_once, _init_l_Lean_Compiler_LCNF_ReduceJpArity_reduce___closed__1);
+x_215 = ((lean_object*)(l_Lean_Compiler_LCNF_ReduceJpArity_reduce___closed__1));
 x_216 = lean_array_get_size(x_209);
 x_217 = l_Array_toSubarray___redArg(x_209, x_214, x_216);
 x_218 = lean_alloc_ctor(0, 2, 0);

@@ -94,8 +94,8 @@ static double l_Lean_addTrace___at___00Lean_Compiler_LCNF_splitScc_spec__15___cl
 static const lean_string_object l_Lean_addTrace___at___00Lean_Compiler_LCNF_splitScc_spec__15___closed__4_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 1, .m_capacity = 1, .m_length = 0, .m_data = ""};
 static const lean_object* l_Lean_addTrace___at___00Lean_Compiler_LCNF_splitScc_spec__15___closed__4 = (const lean_object*)&l_Lean_addTrace___at___00Lean_Compiler_LCNF_splitScc_spec__15___closed__4_value;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l_Lean_addTrace___at___00Lean_Compiler_LCNF_splitScc_spec__15___closed__5_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_addTrace___at___00Lean_Compiler_LCNF_splitScc_spec__15___closed__5;
+static const lean_array_object l_Lean_addTrace___at___00Lean_Compiler_LCNF_splitScc_spec__15___closed__5_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_Lean_addTrace___at___00Lean_Compiler_LCNF_splitScc_spec__15___closed__5 = (const lean_object*)&l_Lean_addTrace___at___00Lean_Compiler_LCNF_splitScc_spec__15___closed__5_value;
 lean_object* l_Lean_Compiler_LCNF_getPurity___redArg(lean_object*);
 lean_object* l_Lean_Compiler_LCNF_LCtx_toLocalContext(lean_object*, uint8_t);
 lean_object* l_Lean_PersistentArray_push___redArg(lean_object*, lean_object*);
@@ -196,8 +196,6 @@ static const lean_object* l_Lean_Compiler_LCNF_splitScc___closed__3 = (const lea
 lean_object* l_Lean_stringToMessageData(lean_object*);
 static lean_once_cell_t l_Lean_Compiler_LCNF_splitScc___closed__4_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Compiler_LCNF_splitScc___closed__4;
-static lean_once_cell_t l_Lean_Compiler_LCNF_splitScc___closed__5_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_Compiler_LCNF_splitScc___closed__5;
 lean_object* lean_array_to_list(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_splitScc(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1289,15 +1287,6 @@ x_2 = lean_float_of_nat(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_addTrace___at___00Lean_Compiler_LCNF_splitScc_spec__15___closed__5(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_addTrace___at___00Lean_Compiler_LCNF_splitScc_spec__15(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -1450,7 +1439,7 @@ lean_ctor_set(x_44, 1, x_43);
 lean_ctor_set_float(x_44, sizeof(void*)*2, x_41);
 lean_ctor_set_float(x_44, sizeof(void*)*2 + 8, x_41);
 lean_ctor_set_uint8(x_44, sizeof(void*)*2 + 16, x_42);
-x_45 = lean_obj_once(&l_Lean_addTrace___at___00Lean_Compiler_LCNF_splitScc_spec__15___closed__5, &l_Lean_addTrace___at___00Lean_Compiler_LCNF_splitScc_spec__15___closed__5_once, _init_l_Lean_addTrace___at___00Lean_Compiler_LCNF_splitScc_spec__15___closed__5);
+x_45 = ((lean_object*)(l_Lean_addTrace___at___00Lean_Compiler_LCNF_splitScc_spec__15___closed__5));
 x_46 = lean_alloc_ctor(9, 3, 0);
 lean_ctor_set(x_46, 0, x_44);
 lean_ctor_set(x_46, 1, x_40);
@@ -3717,15 +3706,6 @@ x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_splitScc___closed__5(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(1u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_splitScc(uint8_t x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -3925,7 +3905,7 @@ return x_56;
 else
 {
 lean_object* x_61; lean_object* x_62; lean_object* x_63; 
-x_61 = lean_obj_once(&l_Lean_Compiler_LCNF_splitScc___closed__5, &l_Lean_Compiler_LCNF_splitScc___closed__5_once, _init_l_Lean_Compiler_LCNF_splitScc___closed__5);
+x_61 = lean_mk_empty_array_with_capacity(x_9);
 x_62 = lean_array_push(x_61, x_2);
 x_63 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_63, 0, x_62);

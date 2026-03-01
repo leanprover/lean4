@@ -13,10 +13,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l_Lake_ModuleOutputDescrs_oleanParts___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lake_ModuleOutputDescrs_oleanParts___closed__0;
 lean_object* lean_array_push(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_ModuleOutputDescrs_oleanParts(lean_object*);
 static const lean_string_object l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Array_toJson___at___00Lake_ModuleOutputDescrs_toJson_spec__0_spec__0___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 2, .m_capacity = 2, .m_length = 1, .m_data = "."};
 static const lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Array_toJson___at___00Lake_ModuleOutputDescrs_toJson_spec__0_spec__0___closed__0 = (const lean_object*)&l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Array_toJson___at___00Lake_ModuleOutputDescrs_toJson_spec__0_spec__0___closed__0_value;
@@ -96,19 +94,10 @@ static const lean_closure_object l_Lake_instFromJsonModuleOutputDescrs___closed_
 static const lean_object* l_Lake_instFromJsonModuleOutputDescrs___closed__0 = (const lean_object*)&l_Lake_instFromJsonModuleOutputDescrs___closed__0_value;
 LEAN_EXPORT const lean_object* l_Lake_instFromJsonModuleOutputDescrs = (const lean_object*)&l_Lake_instFromJsonModuleOutputDescrs___closed__0_value;
 LEAN_EXPORT lean_object* l_Lake_ModuleOutputArtifacts_descrs(lean_object*);
-static lean_object* _init_l_Lake_ModuleOutputDescrs_oleanParts___closed__0(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(1u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_ModuleOutputDescrs_oleanParts(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_9; lean_object* x_10; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_2 = lean_ctor_get(x_1, 0);
 lean_inc_ref(x_2);
 x_3 = lean_ctor_get(x_1, 1);
@@ -116,22 +105,23 @@ lean_inc(x_3);
 x_4 = lean_ctor_get(x_1, 2);
 lean_inc(x_4);
 lean_dec_ref(x_1);
-x_9 = lean_obj_once(&l_Lake_ModuleOutputDescrs_oleanParts___closed__0, &l_Lake_ModuleOutputDescrs_oleanParts___closed__0_once, _init_l_Lake_ModuleOutputDescrs_oleanParts___closed__0);
-x_10 = lean_array_push(x_9, x_2);
+x_9 = lean_unsigned_to_nat(1u);
+x_10 = lean_mk_empty_array_with_capacity(x_9);
+x_11 = lean_array_push(x_10, x_2);
 if (lean_obj_tag(x_3) == 1)
 {
-lean_object* x_11; lean_object* x_12; 
-x_11 = lean_ctor_get(x_3, 0);
-lean_inc(x_11);
+lean_object* x_12; lean_object* x_13; 
+x_12 = lean_ctor_get(x_3, 0);
+lean_inc(x_12);
 lean_dec_ref(x_3);
-x_12 = lean_array_push(x_10, x_11);
-x_5 = x_12;
+x_13 = lean_array_push(x_11, x_12);
+x_5 = x_13;
 goto block_8;
 }
 else
 {
 lean_dec(x_3);
-x_5 = x_10;
+x_5 = x_11;
 goto block_8;
 }
 block_8:

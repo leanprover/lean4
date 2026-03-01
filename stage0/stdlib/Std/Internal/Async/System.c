@@ -200,12 +200,12 @@ static const lean_closure_object l_Std_Internal_IO_Async_System_instReprGroupInf
 static const lean_object* l_Std_Internal_IO_Async_System_instReprGroupInfo___closed__0 = (const lean_object*)&l_Std_Internal_IO_Async_System_instReprGroupInfo___closed__0_value;
 LEAN_EXPORT const lean_object* l_Std_Internal_IO_Async_System_instReprGroupInfo = (const lean_object*)&l_Std_Internal_IO_Async_System_instReprGroupInfo___closed__0_value;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l_Std_Internal_IO_Async_System_instInhabitedGroupInfo_default___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Std_Internal_IO_Async_System_instInhabitedGroupInfo_default___closed__0;
-static lean_once_cell_t l_Std_Internal_IO_Async_System_instInhabitedGroupInfo_default___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Std_Internal_IO_Async_System_instInhabitedGroupInfo_default___closed__1;
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_instInhabitedGroupInfo_default;
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_instInhabitedGroupInfo;
+static const lean_array_object l_Std_Internal_IO_Async_System_instInhabitedGroupInfo_default___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_Std_Internal_IO_Async_System_instInhabitedGroupInfo_default___closed__0 = (const lean_object*)&l_Std_Internal_IO_Async_System_instInhabitedGroupInfo_default___closed__0_value;
+static const lean_ctor_object l_Std_Internal_IO_Async_System_instInhabitedGroupInfo_default___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*3 + 0, .m_other = 3, .m_tag = 0}, .m_objs = {((lean_object*)&l_Std_Internal_IO_Async_System_instInhabitedSystemUser_default___closed__0_value),((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_Std_Internal_IO_Async_System_instInhabitedGroupInfo_default___closed__0_value)}};
+static const lean_object* l_Std_Internal_IO_Async_System_instInhabitedGroupInfo_default___closed__1 = (const lean_object*)&l_Std_Internal_IO_Async_System_instInhabitedGroupInfo_default___closed__1_value;
+LEAN_EXPORT const lean_object* l_Std_Internal_IO_Async_System_instInhabitedGroupInfo_default = (const lean_object*)&l_Std_Internal_IO_Async_System_instInhabitedGroupInfo_default___closed__1_value;
+LEAN_EXPORT const lean_object* l_Std_Internal_IO_Async_System_instInhabitedGroupInfo = (const lean_object*)&l_Std_Internal_IO_Async_System_instInhabitedGroupInfo_default___closed__1_value;
 extern lean_object* l_Std_Time_Millisecond_instInhabitedOffset;
 static lean_once_cell_t l_Std_Internal_IO_Async_System_instInhabitedCPUTimes_default___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Internal_IO_Async_System_instInhabitedCPUTimes_default___closed__0;
@@ -1728,45 +1728,6 @@ lean_object* x_3;
 x_3 = l_Std_Internal_IO_Async_System_instReprGroupInfo_repr(x_1, x_2);
 lean_dec(x_2);
 return x_3;
-}
-}
-static lean_object* _init_l_Std_Internal_IO_Async_System_instInhabitedGroupInfo_default___closed__0(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Std_Internal_IO_Async_System_instInhabitedGroupInfo_default___closed__1(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = lean_obj_once(&l_Std_Internal_IO_Async_System_instInhabitedGroupInfo_default___closed__0, &l_Std_Internal_IO_Async_System_instInhabitedGroupInfo_default___closed__0_once, _init_l_Std_Internal_IO_Async_System_instInhabitedGroupInfo_default___closed__0);
-x_2 = lean_unsigned_to_nat(0u);
-x_3 = ((lean_object*)(l_Std_Internal_IO_Async_System_instInhabitedSystemUser_default___closed__0));
-x_4 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_4, 0, x_3);
-lean_ctor_set(x_4, 1, x_2);
-lean_ctor_set(x_4, 2, x_1);
-return x_4;
-}
-}
-static lean_object* _init_l_Std_Internal_IO_Async_System_instInhabitedGroupInfo_default(void) {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_obj_once(&l_Std_Internal_IO_Async_System_instInhabitedGroupInfo_default___closed__1, &l_Std_Internal_IO_Async_System_instInhabitedGroupInfo_default___closed__1_once, _init_l_Std_Internal_IO_Async_System_instInhabitedGroupInfo_default___closed__1);
-return x_1;
-}
-}
-static lean_object* _init_l_Std_Internal_IO_Async_System_instInhabitedGroupInfo(void) {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Std_Internal_IO_Async_System_instInhabitedGroupInfo_default;
-return x_1;
 }
 }
 static lean_object* _init_l_Std_Internal_IO_Async_System_instInhabitedCPUTimes_default___closed__0(void) {
@@ -4666,10 +4627,6 @@ l_Std_Internal_IO_Async_System_instInhabitedUserId_default = _init_l_Std_Interna
 lean_mark_persistent(l_Std_Internal_IO_Async_System_instInhabitedUserId_default);
 l_Std_Internal_IO_Async_System_instInhabitedUserId = _init_l_Std_Internal_IO_Async_System_instInhabitedUserId();
 lean_mark_persistent(l_Std_Internal_IO_Async_System_instInhabitedUserId);
-l_Std_Internal_IO_Async_System_instInhabitedGroupInfo_default = _init_l_Std_Internal_IO_Async_System_instInhabitedGroupInfo_default();
-lean_mark_persistent(l_Std_Internal_IO_Async_System_instInhabitedGroupInfo_default);
-l_Std_Internal_IO_Async_System_instInhabitedGroupInfo = _init_l_Std_Internal_IO_Async_System_instInhabitedGroupInfo();
-lean_mark_persistent(l_Std_Internal_IO_Async_System_instInhabitedGroupInfo);
 l_Std_Internal_IO_Async_System_instInhabitedCPUTimes_default = _init_l_Std_Internal_IO_Async_System_instInhabitedCPUTimes_default();
 lean_mark_persistent(l_Std_Internal_IO_Async_System_instInhabitedCPUTimes_default);
 l_Std_Internal_IO_Async_System_instInhabitedCPUTimes = _init_l_Std_Internal_IO_Async_System_instInhabitedCPUTimes();

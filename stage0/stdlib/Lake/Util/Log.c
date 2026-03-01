@@ -239,14 +239,14 @@ static const lean_string_object l_Lake_instFromJsonLogLevel_fromJson___closed__2
 static const lean_object* l_Lake_instFromJsonLogLevel_fromJson___closed__2 = (const lean_object*)&l_Lake_instFromJsonLogLevel_fromJson___closed__2_value;
 static const lean_ctor_object l_Lake_instFromJsonLogLevel_fromJson___closed__3_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 0}, .m_objs = {((lean_object*)&l_Lake_instFromJsonLogLevel_fromJson___closed__2_value)}};
 static const lean_object* l_Lake_instFromJsonLogLevel_fromJson___closed__3 = (const lean_object*)&l_Lake_instFromJsonLogLevel_fromJson___closed__3_value;
-static lean_once_cell_t l_Lake_instFromJsonLogLevel_fromJson___closed__4_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lake_instFromJsonLogLevel_fromJson___closed__4;
-static lean_once_cell_t l_Lake_instFromJsonLogLevel_fromJson___closed__5_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lake_instFromJsonLogLevel_fromJson___closed__5;
-static lean_once_cell_t l_Lake_instFromJsonLogLevel_fromJson___closed__6_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lake_instFromJsonLogLevel_fromJson___closed__6;
-static lean_once_cell_t l_Lake_instFromJsonLogLevel_fromJson___closed__7_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lake_instFromJsonLogLevel_fromJson___closed__7;
+static const lean_ctor_object l_Lake_instFromJsonLogLevel_fromJson___closed__4_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(2) << 1) | 1))}};
+static const lean_object* l_Lake_instFromJsonLogLevel_fromJson___closed__4 = (const lean_object*)&l_Lake_instFromJsonLogLevel_fromJson___closed__4_value;
+static const lean_ctor_object l_Lake_instFromJsonLogLevel_fromJson___closed__5_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(1) << 1) | 1))}};
+static const lean_object* l_Lake_instFromJsonLogLevel_fromJson___closed__5 = (const lean_object*)&l_Lake_instFromJsonLogLevel_fromJson___closed__5_value;
+static const lean_ctor_object l_Lake_instFromJsonLogLevel_fromJson___closed__6_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1))}};
+static const lean_object* l_Lake_instFromJsonLogLevel_fromJson___closed__6 = (const lean_object*)&l_Lake_instFromJsonLogLevel_fromJson___closed__6_value;
+static const lean_ctor_object l_Lake_instFromJsonLogLevel_fromJson___closed__7_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(3) << 1) | 1))}};
+static const lean_object* l_Lake_instFromJsonLogLevel_fromJson___closed__7 = (const lean_object*)&l_Lake_instFromJsonLogLevel_fromJson___closed__7_value;
 lean_object* l_Lean_Json_getTag_x3f(lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instFromJsonLogLevel_fromJson(lean_object*);
@@ -283,18 +283,18 @@ lean_object* lean_string_utf8_byte_size(lean_object*);
 uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_le(uint32_t, uint32_t);
 uint32_t lean_uint32_add(uint32_t, uint32_t);
-static lean_once_cell_t l_Lake_LogLevel_ofString_x3f___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lake_LogLevel_ofString_x3f___closed__0;
-static lean_once_cell_t l_Lake_LogLevel_ofString_x3f___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lake_LogLevel_ofString_x3f___closed__1;
+static const lean_ctor_object l_Lake_LogLevel_ofString_x3f___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(1) << 1) | 1))}};
+static const lean_object* l_Lake_LogLevel_ofString_x3f___closed__0 = (const lean_object*)&l_Lake_LogLevel_ofString_x3f___closed__0_value;
+static const lean_ctor_object l_Lake_LogLevel_ofString_x3f___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(2) << 1) | 1))}};
+static const lean_object* l_Lake_LogLevel_ofString_x3f___closed__1 = (const lean_object*)&l_Lake_LogLevel_ofString_x3f___closed__1_value;
 static const lean_string_object l_Lake_LogLevel_ofString_x3f___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 12, .m_capacity = 12, .m_length = 11, .m_data = "information"};
 static const lean_object* l_Lake_LogLevel_ofString_x3f___closed__2 = (const lean_object*)&l_Lake_LogLevel_ofString_x3f___closed__2_value;
 static const lean_string_object l_Lake_LogLevel_ofString_x3f___closed__3_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 5, .m_capacity = 5, .m_length = 4, .m_data = "warn"};
 static const lean_object* l_Lake_LogLevel_ofString_x3f___closed__3 = (const lean_object*)&l_Lake_LogLevel_ofString_x3f___closed__3_value;
-static lean_once_cell_t l_Lake_LogLevel_ofString_x3f___closed__4_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lake_LogLevel_ofString_x3f___closed__4;
-static lean_once_cell_t l_Lake_LogLevel_ofString_x3f___closed__5_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lake_LogLevel_ofString_x3f___closed__5;
+static const lean_ctor_object l_Lake_LogLevel_ofString_x3f___closed__4_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(3) << 1) | 1))}};
+static const lean_object* l_Lake_LogLevel_ofString_x3f___closed__4 = (const lean_object*)&l_Lake_LogLevel_ofString_x3f___closed__4_value;
+static const lean_ctor_object l_Lake_LogLevel_ofString_x3f___closed__5_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1))}};
+static const lean_object* l_Lake_LogLevel_ofString_x3f___closed__5 = (const lean_object*)&l_Lake_LogLevel_ofString_x3f___closed__5_value;
 LEAN_EXPORT lean_object* l_Lake_LogLevel_ofString_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LogLevel_toString(uint8_t);
 LEAN_EXPORT lean_object* l_Lake_LogLevel_toString___boxed(lean_object*);
@@ -321,8 +321,8 @@ static const lean_object* l_Lake_instToJsonLogEntry_toJson___closed__0 = (const 
 static const lean_string_object l_Lake_instToJsonLogEntry_toJson___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 8, .m_capacity = 8, .m_length = 7, .m_data = "message"};
 static const lean_object* l_Lake_instToJsonLogEntry_toJson___closed__1 = (const lean_object*)&l_Lake_instToJsonLogEntry_toJson___closed__1_value;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l_Lake_instToJsonLogEntry_toJson___closed__2_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lake_instToJsonLogEntry_toJson___closed__2;
+static const lean_array_object l_Lake_instToJsonLogEntry_toJson___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_Lake_instToJsonLogEntry_toJson___closed__2 = (const lean_object*)&l_Lake_instToJsonLogEntry_toJson___closed__2_value;
 lean_object* l_Lean_Json_mkObj(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instToJsonLogEntry_toJson(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instToJsonLogEntry_toJson___boxed(lean_object*);
@@ -476,10 +476,10 @@ LEAN_EXPORT lean_object* l_Lake_MonadLogT_adaptMethods___boxed(lean_object*, lea
 LEAN_EXPORT lean_object* l_Lake_MonadLogT_ignoreLog___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_MonadLogT_ignoreLog(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l_Lake_instInhabitedLog_default___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lake_instInhabitedLog_default___closed__0;
-LEAN_EXPORT lean_object* l_Lake_instInhabitedLog_default;
-LEAN_EXPORT lean_object* l_Lake_instInhabitedLog;
+static const lean_array_object l_Lake_instInhabitedLog_default___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_Lake_instInhabitedLog_default___closed__0 = (const lean_object*)&l_Lake_instInhabitedLog_default___closed__0_value;
+LEAN_EXPORT const lean_object* l_Lake_instInhabitedLog_default = (const lean_object*)&l_Lake_instInhabitedLog_default___closed__0_value;
+LEAN_EXPORT const lean_object* l_Lake_instInhabitedLog = (const lean_object*)&l_Lake_instInhabitedLog_default___closed__0_value;
 lean_object* l_Array_toJson___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instToJsonLog___lam__0(lean_object*, lean_object*);
 static const lean_closure_object l_Lake_instToJsonLog___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*1, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lake_instToJsonLog___lam__0, .m_arity = 2, .m_num_fixed = 1, .m_objs = {((lean_object*)&l_Lake_instToJsonLogEntry___closed__0_value)} };
@@ -518,10 +518,10 @@ LEAN_EXPORT lean_object* l_Lake_instMaxPos___lam__0___boxed(lean_object*, lean_o
 static const lean_closure_object l_Lake_instMaxPos___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lake_instMaxPos___lam__0___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_Lake_instMaxPos___closed__0 = (const lean_object*)&l_Lake_instMaxPos___closed__0_value;
 LEAN_EXPORT const lean_object* l_Lake_instMaxPos = (const lean_object*)&l_Lake_instMaxPos___closed__0_value;
-static lean_once_cell_t l_Lake_Log_empty___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lake_Log_empty___closed__0;
-LEAN_EXPORT lean_object* l_Lake_Log_empty;
-LEAN_EXPORT lean_object* l_Lake_Log_instEmptyCollection;
+static const lean_array_object l_Lake_Log_empty___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_Lake_Log_empty___closed__0 = (const lean_object*)&l_Lake_Log_empty___closed__0_value;
+LEAN_EXPORT const lean_object* l_Lake_Log_empty = (const lean_object*)&l_Lake_Log_empty___closed__0_value;
+LEAN_EXPORT const lean_object* l_Lake_Log_instEmptyCollection = (const lean_object*)&l_Lake_Log_empty___closed__0_value;
 lean_object* lean_array_get_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Log_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Log_size___boxed(lean_object*);
@@ -2490,50 +2490,6 @@ x_3 = l_Lake_instToJsonLogLevel_toJson(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lake_instFromJsonLogLevel_fromJson___closed__4(void) {
-_start:
-{
-uint8_t x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = 2;
-x_2 = lean_box(x_1);
-x_3 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_3, 0, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lake_instFromJsonLogLevel_fromJson___closed__5(void) {
-_start:
-{
-uint8_t x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = 1;
-x_2 = lean_box(x_1);
-x_3 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_3, 0, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lake_instFromJsonLogLevel_fromJson___closed__6(void) {
-_start:
-{
-uint8_t x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = 0;
-x_2 = lean_box(x_1);
-x_3 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_3, 0, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lake_instFromJsonLogLevel_fromJson___closed__7(void) {
-_start:
-{
-uint8_t x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = 3;
-x_2 = lean_box(x_1);
-x_3 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_3, 0, x_2);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_instFromJsonLogLevel_fromJson(lean_object* x_1) {
 _start:
 {
@@ -2578,7 +2534,7 @@ return x_13;
 else
 {
 lean_object* x_14; 
-x_14 = lean_obj_once(&l_Lake_instFromJsonLogLevel_fromJson___closed__4, &l_Lake_instFromJsonLogLevel_fromJson___closed__4_once, _init_l_Lake_instFromJsonLogLevel_fromJson___closed__4);
+x_14 = ((lean_object*)(l_Lake_instFromJsonLogLevel_fromJson___closed__4));
 return x_14;
 }
 }
@@ -2586,7 +2542,7 @@ else
 {
 lean_object* x_15; 
 lean_dec(x_4);
-x_15 = lean_obj_once(&l_Lake_instFromJsonLogLevel_fromJson___closed__5, &l_Lake_instFromJsonLogLevel_fromJson___closed__5_once, _init_l_Lake_instFromJsonLogLevel_fromJson___closed__5);
+x_15 = ((lean_object*)(l_Lake_instFromJsonLogLevel_fromJson___closed__5));
 return x_15;
 }
 }
@@ -2594,7 +2550,7 @@ else
 {
 lean_object* x_16; 
 lean_dec(x_4);
-x_16 = lean_obj_once(&l_Lake_instFromJsonLogLevel_fromJson___closed__6, &l_Lake_instFromJsonLogLevel_fromJson___closed__6_once, _init_l_Lake_instFromJsonLogLevel_fromJson___closed__6);
+x_16 = ((lean_object*)(l_Lake_instFromJsonLogLevel_fromJson___closed__6));
 return x_16;
 }
 }
@@ -2602,7 +2558,7 @@ else
 {
 lean_object* x_17; 
 lean_dec(x_4);
-x_17 = lean_obj_once(&l_Lake_instFromJsonLogLevel_fromJson___closed__7, &l_Lake_instFromJsonLogLevel_fromJson___closed__7_once, _init_l_Lake_instFromJsonLogLevel_fromJson___closed__7);
+x_17 = ((lean_object*)(l_Lake_instFromJsonLogLevel_fromJson___closed__7));
 return x_17;
 }
 }
@@ -2802,50 +2758,6 @@ goto _start;
 }
 }
 }
-static lean_object* _init_l_Lake_LogLevel_ofString_x3f___closed__0(void) {
-_start:
-{
-uint8_t x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = 1;
-x_2 = lean_box(x_1);
-x_3 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_3, 0, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lake_LogLevel_ofString_x3f___closed__1(void) {
-_start:
-{
-uint8_t x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = 2;
-x_2 = lean_box(x_1);
-x_3 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_3, 0, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lake_LogLevel_ofString_x3f___closed__4(void) {
-_start:
-{
-uint8_t x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = 3;
-x_2 = lean_box(x_1);
-x_3 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_3, 0, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lake_LogLevel_ofString_x3f___closed__5(void) {
-_start:
-{
-uint8_t x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = 0;
-x_2 = lean_box(x_1);
-x_3 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_3, 0, x_2);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_LogLevel_ofString_x3f(lean_object* x_1) {
 _start:
 {
@@ -2889,7 +2801,7 @@ return x_20;
 else
 {
 lean_object* x_21; 
-x_21 = lean_obj_once(&l_Lake_LogLevel_ofString_x3f___closed__4, &l_Lake_LogLevel_ofString_x3f___closed__4_once, _init_l_Lake_LogLevel_ofString_x3f___closed__4);
+x_21 = ((lean_object*)(l_Lake_LogLevel_ofString_x3f___closed__4));
 return x_21;
 }
 }
@@ -2921,19 +2833,19 @@ else
 {
 lean_object* x_22; 
 lean_dec_ref(x_7);
-x_22 = lean_obj_once(&l_Lake_LogLevel_ofString_x3f___closed__5, &l_Lake_LogLevel_ofString_x3f___closed__5_once, _init_l_Lake_LogLevel_ofString_x3f___closed__5);
+x_22 = ((lean_object*)(l_Lake_LogLevel_ofString_x3f___closed__5));
 return x_22;
 }
 block_3:
 {
 lean_object* x_2; 
-x_2 = lean_obj_once(&l_Lake_LogLevel_ofString_x3f___closed__0, &l_Lake_LogLevel_ofString_x3f___closed__0_once, _init_l_Lake_LogLevel_ofString_x3f___closed__0);
+x_2 = ((lean_object*)(l_Lake_LogLevel_ofString_x3f___closed__0));
 return x_2;
 }
 block_5:
 {
 lean_object* x_4; 
-x_4 = lean_obj_once(&l_Lake_LogLevel_ofString_x3f___closed__1, &l_Lake_LogLevel_ofString_x3f___closed__1_once, _init_l_Lake_LogLevel_ofString_x3f___closed__1);
+x_4 = ((lean_object*)(l_Lake_LogLevel_ofString_x3f___closed__1));
 return x_4;
 }
 }
@@ -3107,15 +3019,6 @@ goto _start;
 }
 }
 }
-static lean_object* _init_l_Lake_instToJsonLogEntry_toJson___closed__2(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_instToJsonLogEntry_toJson(lean_object* x_1) {
 _start:
 {
@@ -3147,7 +3050,7 @@ lean_ctor_set(x_13, 1, x_7);
 x_14 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_14, 0, x_8);
 lean_ctor_set(x_14, 1, x_13);
-x_15 = lean_obj_once(&l_Lake_instToJsonLogEntry_toJson___closed__2, &l_Lake_instToJsonLogEntry_toJson___closed__2_once, _init_l_Lake_instToJsonLogEntry_toJson___closed__2);
+x_15 = ((lean_object*)(l_Lake_instToJsonLogEntry_toJson___closed__2));
 x_16 = l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___00Lake_instToJsonLogEntry_toJson_spec__0(x_14, x_15);
 x_17 = l_Lean_Json_mkObj(x_16);
 return x_17;
@@ -4973,31 +4876,6 @@ x_7 = lean_apply_1(x_5, x_6);
 return x_7;
 }
 }
-static lean_object* _init_l_Lake_instInhabitedLog_default___closed__0(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lake_instInhabitedLog_default(void) {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_obj_once(&l_Lake_instInhabitedLog_default___closed__0, &l_Lake_instInhabitedLog_default___closed__0_once, _init_l_Lake_instInhabitedLog_default___closed__0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lake_instInhabitedLog(void) {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lake_instInhabitedLog_default;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_instToJsonLog___lam__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -5304,31 +5182,6 @@ x_3 = l_Lake_instMaxPos___lam__0(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_3;
-}
-}
-static lean_object* _init_l_Lake_Log_empty___closed__0(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lake_Log_empty(void) {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_obj_once(&l_Lake_Log_empty___closed__0, &l_Lake_Log_empty___closed__0_once, _init_l_Lake_Log_empty___closed__0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lake_Log_instEmptyCollection(void) {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_obj_once(&l_Lake_Log_empty___closed__0, &l_Lake_Log_empty___closed__0_once, _init_l_Lake_Log_empty___closed__0);
-return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_Log_size(lean_object* x_1) {
@@ -5760,7 +5613,7 @@ _start:
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
 x_3 = lean_unsigned_to_nat(0u);
 x_4 = lean_array_get_size(x_2);
-x_5 = lean_obj_once(&l_Lake_Log_empty___closed__0, &l_Lake_Log_empty___closed__0_once, _init_l_Lake_Log_empty___closed__0);
+x_5 = ((lean_object*)(l_Lake_Log_empty___closed__0));
 x_6 = ((lean_object*)(l_Lake_Log_filter___closed__9));
 x_7 = lean_nat_dec_lt(x_3, x_4);
 if (x_7 == 0)
@@ -6124,7 +5977,7 @@ LEAN_EXPORT lean_object* l_Lake_takeLog___redArg___lam__0(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = lean_obj_once(&l_Lake_Log_empty___closed__0, &l_Lake_Log_empty___closed__0_once, _init_l_Lake_Log_empty___closed__0);
+x_2 = ((lean_object*)(l_Lake_Log_empty___closed__0));
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -7847,7 +7700,7 @@ lean_inc(x_7);
 x_8 = lean_alloc_closure((void*)(l_Lake_Log_replay___redArg___lam__0), 3, 1);
 lean_closure_set(x_8, 0, x_2);
 x_9 = lean_unsigned_to_nat(0u);
-x_10 = lean_obj_once(&l_Lake_Log_empty___closed__0, &l_Lake_Log_empty___closed__0_once, _init_l_Lake_Log_empty___closed__0);
+x_10 = ((lean_object*)(l_Lake_Log_empty___closed__0));
 x_11 = lean_apply_1(x_4, x_10);
 x_12 = lean_apply_2(x_3, lean_box(0), x_11);
 lean_inc(x_6);
@@ -7873,7 +7726,7 @@ lean_inc(x_10);
 x_11 = lean_alloc_closure((void*)(l_Lake_Log_replay___redArg___lam__0), 3, 1);
 lean_closure_set(x_11, 0, x_5);
 x_12 = lean_unsigned_to_nat(0u);
-x_13 = lean_obj_once(&l_Lake_Log_empty___closed__0, &l_Lake_Log_empty___closed__0_once, _init_l_Lake_Log_empty___closed__0);
+x_13 = ((lean_object*)(l_Lake_Log_empty___closed__0));
 x_14 = lean_apply_1(x_7, x_13);
 x_15 = lean_apply_2(x_6, lean_box(0), x_14);
 lean_inc(x_9);
@@ -9420,7 +9273,7 @@ lean_inc(x_8);
 x_9 = lean_alloc_closure((void*)(l_Lake_Log_replay___redArg___lam__0), 3, 1);
 lean_closure_set(x_9, 0, x_2);
 x_10 = lean_unsigned_to_nat(0u);
-x_11 = lean_obj_once(&l_Lake_Log_empty___closed__0, &l_Lake_Log_empty___closed__0_once, _init_l_Lake_Log_empty___closed__0);
+x_11 = ((lean_object*)(l_Lake_Log_empty___closed__0));
 x_12 = lean_apply_1(x_4, x_11);
 x_13 = lean_apply_2(x_3, lean_box(0), x_12);
 lean_inc(x_7);
@@ -9453,7 +9306,7 @@ lean_inc(x_11);
 x_12 = lean_alloc_closure((void*)(l_Lake_Log_replay___redArg___lam__0), 3, 1);
 lean_closure_set(x_12, 0, x_5);
 x_13 = lean_unsigned_to_nat(0u);
-x_14 = lean_obj_once(&l_Lake_Log_empty___closed__0, &l_Lake_Log_empty___closed__0_once, _init_l_Lake_Log_empty___closed__0);
+x_14 = ((lean_object*)(l_Lake_Log_empty___closed__0));
 x_15 = lean_apply_1(x_7, x_14);
 x_16 = lean_apply_2(x_6, lean_box(0), x_15);
 lean_inc(x_10);
@@ -9646,7 +9499,7 @@ lean_closure_set(x_12, 0, x_3);
 x_13 = lean_alloc_closure((void*)(l_Lake_MonadLog_error___redArg___lam__0), 2, 1);
 lean_closure_set(x_13, 0, x_9);
 x_14 = lean_unsigned_to_nat(0u);
-x_15 = lean_obj_once(&l_Lake_Log_empty___closed__0, &l_Lake_Log_empty___closed__0_once, _init_l_Lake_Log_empty___closed__0);
+x_15 = ((lean_object*)(l_Lake_Log_empty___closed__0));
 x_16 = lean_apply_1(x_5, x_15);
 x_17 = lean_apply_2(x_4, lean_box(0), x_16);
 lean_inc_ref(x_12);
@@ -9686,7 +9539,7 @@ lean_closure_set(x_15, 0, x_6);
 x_16 = lean_alloc_closure((void*)(l_Lake_MonadLog_error___redArg___lam__0), 2, 1);
 lean_closure_set(x_16, 0, x_12);
 x_17 = lean_unsigned_to_nat(0u);
-x_18 = lean_obj_once(&l_Lake_Log_empty___closed__0, &l_Lake_Log_empty___closed__0_once, _init_l_Lake_Log_empty___closed__0);
+x_18 = ((lean_object*)(l_Lake_Log_empty___closed__0));
 x_19 = lean_apply_1(x_8, x_18);
 x_20 = lean_apply_2(x_7, lean_box(0), x_19);
 lean_inc_ref(x_15);
@@ -9862,7 +9715,7 @@ _start:
 {
 lean_object* x_4; uint8_t x_5; lean_object* x_6; lean_object* x_9; uint8_t x_10; lean_object* x_11; lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; lean_object* x_17; uint8_t x_18; lean_object* x_40; lean_object* x_41; lean_object* x_42; uint8_t x_43; lean_object* x_46; lean_object* x_47; 
 x_13 = lean_obj_once(&l_Lake_LogIO_toBaseIO___redArg___closed__0, &l_Lake_LogIO_toBaseIO___redArg___closed__0_once, _init_l_Lake_LogIO_toBaseIO___redArg___closed__0);
-x_46 = lean_obj_once(&l_Lake_Log_empty___closed__0, &l_Lake_Log_empty___closed__0_once, _init_l_Lake_Log_empty___closed__0);
+x_46 = ((lean_object*)(l_Lake_Log_empty___closed__0));
 x_47 = lean_apply_2(x_1, x_46, lean_box(0));
 if (lean_obj_tag(x_47) == 0)
 {
@@ -10031,7 +9884,7 @@ _start:
 {
 lean_object* x_5; uint8_t x_6; lean_object* x_7; lean_object* x_10; uint8_t x_11; lean_object* x_12; lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_17; lean_object* x_18; uint8_t x_19; lean_object* x_41; lean_object* x_42; lean_object* x_43; uint8_t x_44; lean_object* x_47; lean_object* x_48; 
 x_14 = lean_obj_once(&l_Lake_LogIO_toBaseIO___redArg___closed__0, &l_Lake_LogIO_toBaseIO___redArg___closed__0_once, _init_l_Lake_LogIO_toBaseIO___redArg___closed__0);
-x_47 = lean_obj_once(&l_Lake_Log_empty___closed__0, &l_Lake_Log_empty___closed__0_once, _init_l_Lake_Log_empty___closed__0);
+x_47 = ((lean_object*)(l_Lake_Log_empty___closed__0));
 x_48 = lean_apply_2(x_2, x_47, lean_box(0));
 if (lean_obj_tag(x_48) == 0)
 {
@@ -10373,7 +10226,7 @@ _start:
 {
 lean_object* x_8; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 x_12 = lean_unsigned_to_nat(0u);
-x_13 = lean_obj_once(&l_Lake_Log_empty___closed__0, &l_Lake_Log_empty___closed__0_once, _init_l_Lake_Log_empty___closed__0);
+x_13 = ((lean_object*)(l_Lake_Log_empty___closed__0));
 x_14 = lean_apply_2(x_5, x_13, lean_box(0));
 if (lean_obj_tag(x_14) == 0)
 {
@@ -11006,7 +10859,7 @@ LEAN_EXPORT lean_object* l_Lake_LoggerIO_captureLog___redArg(lean_object* x_1) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_23; lean_object* x_24; 
-x_8 = lean_obj_once(&l_Lake_Log_empty___closed__0, &l_Lake_Log_empty___closed__0_once, _init_l_Lake_Log_empty___closed__0);
+x_8 = ((lean_object*)(l_Lake_Log_empty___closed__0));
 x_9 = lean_st_mk_ref(x_8);
 lean_inc(x_9);
 x_23 = lean_alloc_closure((void*)(l_Lake_LoggerIO_captureLog___redArg___lam__0___boxed), 3, 1);
@@ -11405,10 +11258,6 @@ l_Lake_instLTLogLevel = _init_l_Lake_instLTLogLevel();
 lean_mark_persistent(l_Lake_instLTLogLevel);
 l_Lake_instLELogLevel = _init_l_Lake_instLELogLevel();
 lean_mark_persistent(l_Lake_instLELogLevel);
-l_Lake_instInhabitedLog_default = _init_l_Lake_instInhabitedLog_default();
-lean_mark_persistent(l_Lake_instInhabitedLog_default);
-l_Lake_instInhabitedLog = _init_l_Lake_instInhabitedLog();
-lean_mark_persistent(l_Lake_instInhabitedLog);
 l_Lake_Log_instInhabitedPos_default = _init_l_Lake_Log_instInhabitedPos_default();
 lean_mark_persistent(l_Lake_Log_instInhabitedPos_default);
 l_Lake_Log_instInhabitedPos = _init_l_Lake_Log_instInhabitedPos();
@@ -11419,10 +11268,6 @@ l_Lake_instLTPos = _init_l_Lake_instLTPos();
 lean_mark_persistent(l_Lake_instLTPos);
 l_Lake_instLEPos = _init_l_Lake_instLEPos();
 lean_mark_persistent(l_Lake_instLEPos);
-l_Lake_Log_empty = _init_l_Lake_Log_empty();
-lean_mark_persistent(l_Lake_Log_empty);
-l_Lake_Log_instEmptyCollection = _init_l_Lake_Log_instEmptyCollection();
-lean_mark_persistent(l_Lake_Log_instEmptyCollection);
 l_Lake_LoggerIO_instMonadLiftLogIO = _init_l_Lake_LoggerIO_instMonadLiftLogIO();
 lean_mark_persistent(l_Lake_LoggerIO_instMonadLiftLogIO);
 return lean_io_result_mk_ok(lean_box(0));

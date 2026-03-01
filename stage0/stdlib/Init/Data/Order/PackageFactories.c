@@ -44,8 +44,8 @@ static const lean_ctor_object l_Std_Packages_PreorderOfLEArgs_le___autoParam___c
 static const lean_ctor_object l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__4_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__4_value_aux_2),((lean_object*)&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__3_value),LEAN_SCALAR_PTR_LITERAL(212, 140, 85, 215, 241, 69, 7, 118)}};
 static const lean_object* l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__4 = (const lean_object*)&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__4_value;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5;
+static const lean_array_object l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5 = (const lean_object*)&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_value;
 static const lean_string_object l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__6_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 19, .m_capacity = 19, .m_length = 18, .m_data = "tacticSeq1Indented"};
 static const lean_object* l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__6 = (const lean_object*)&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__6_value;
 static const lean_ctor_object l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__7_value_aux_0 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__0_value),LEAN_SCALAR_PTR_LITERAL(70, 193, 83, 126, 233, 67, 208, 165)}};
@@ -109,8 +109,8 @@ static const lean_ctor_object l_Std_Packages_PreorderOfLEArgs_lt___autoParam___c
 static const lean_ctor_object l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__6_value_aux_2 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__6_value_aux_1),((lean_object*)&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__2_value),LEAN_SCALAR_PTR_LITERAL(166, 58, 35, 182, 187, 130, 147, 254)}};
 static const lean_ctor_object l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__6_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__6_value_aux_2),((lean_object*)&l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__5_value),LEAN_SCALAR_PTR_LITERAL(137, 208, 10, 74, 108, 50, 106, 48)}};
 static const lean_object* l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__6 = (const lean_object*)&l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__6_value;
-static lean_once_cell_t l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__7_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__7;
+static const lean_ctor_object l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__7_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*3 + 0, .m_other = 3, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(2) << 1) | 1)),((lean_object*)&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__9_value),((lean_object*)&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_value)}};
+static const lean_object* l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__7 = (const lean_object*)&l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__7_value;
 static lean_once_cell_t l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__8_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__8;
 static lean_once_cell_t l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__9_once = LEAN_ONCE_CELL_INITIALIZER;
@@ -3383,15 +3383,6 @@ x_9 = lean_box(x_8);
 return x_9;
 }
 }
-static lean_object* _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__13(void) {
 _start:
 {
@@ -3406,7 +3397,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__13, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__13_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__13);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -3430,7 +3421,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__15, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__15_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__15);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -3454,7 +3445,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__17, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__17_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__17);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -3478,7 +3469,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__19, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__19_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__19);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -3527,31 +3518,17 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__3, &l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__3_once, _init_l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__3);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
-}
-}
-static lean_object* _init_l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__7(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
-x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__9));
-x_3 = lean_box(2);
-x_4 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_4, 0, x_3);
-lean_ctor_set(x_4, 1, x_2);
-lean_ctor_set(x_4, 2, x_1);
-return x_4;
 }
 }
 static lean_object* _init_l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__8(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__7, &l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__7_once, _init_l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__7);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_1 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__7));
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -3584,7 +3561,7 @@ static lean_object* _init_l_Std_Packages_PreorderOfLEArgs_lt___autoParam___close
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__7, &l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__7_once, _init_l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__7);
+x_1 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__7));
 x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__10, &l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__10_once, _init_l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__10);
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -3594,7 +3571,7 @@ static lean_object* _init_l_Std_Packages_PreorderOfLEArgs_lt___autoParam___close
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__7, &l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__7_once, _init_l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__7);
+x_1 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__7));
 x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__11, &l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__11_once, _init_l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__11);
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -3619,7 +3596,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__13, &l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__13_once, _init_l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__13);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -3628,7 +3605,7 @@ static lean_object* _init_l_Std_Packages_PreorderOfLEArgs_lt___autoParam___close
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__7, &l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__7_once, _init_l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__7);
+x_1 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__7));
 x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__14, &l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__14_once, _init_l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__14);
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -3648,7 +3625,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__18, &l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__18_once, _init_l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__18);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -3667,7 +3644,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__23, &l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__23_once, _init_l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__23);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -3701,7 +3678,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__26, &l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__26_once, _init_l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__26);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -3720,7 +3697,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__30, &l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__30_once, _init_l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__30);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -3793,7 +3770,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__42, &l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__42_once, _init_l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__42);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -3817,7 +3794,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__44, &l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__44_once, _init_l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__44);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -3841,7 +3818,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__46, &l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__46_once, _init_l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__46);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -3961,7 +3938,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__56, &l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__56_once, _init_l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__56);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -3985,7 +3962,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__58, &l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__58_once, _init_l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__58);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -4080,7 +4057,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_beq___autoParam___closed__9, &l_Std_Packages_PreorderOfLEArgs_beq___autoParam___closed__9_once, _init_l_Std_Packages_PreorderOfLEArgs_beq___autoParam___closed__9);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -4104,7 +4081,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_beq___autoParam___closed__11, &l_Std_Packages_PreorderOfLEArgs_beq___autoParam___closed__11_once, _init_l_Std_Packages_PreorderOfLEArgs_beq___autoParam___closed__11);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -4128,7 +4105,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_beq___autoParam___closed__13, &l_Std_Packages_PreorderOfLEArgs_beq___autoParam___closed__13_once, _init_l_Std_Packages_PreorderOfLEArgs_beq___autoParam___closed__13);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -4248,7 +4225,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_beq___autoParam___closed__23, &l_Std_Packages_PreorderOfLEArgs_beq___autoParam___closed__23_once, _init_l_Std_Packages_PreorderOfLEArgs_beq___autoParam___closed__23);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -4272,7 +4249,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_beq___autoParam___closed__25, &l_Std_Packages_PreorderOfLEArgs_beq___autoParam___closed__25_once, _init_l_Std_Packages_PreorderOfLEArgs_beq___autoParam___closed__25);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -4367,7 +4344,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_lt__iff___autoParam___closed__8, &l_Std_Packages_PreorderOfLEArgs_lt__iff___autoParam___closed__8_once, _init_l_Std_Packages_PreorderOfLEArgs_lt__iff___autoParam___closed__8);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -4391,7 +4368,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_lt__iff___autoParam___closed__10, &l_Std_Packages_PreorderOfLEArgs_lt__iff___autoParam___closed__10_once, _init_l_Std_Packages_PreorderOfLEArgs_lt__iff___autoParam___closed__10);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -4415,7 +4392,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_lt__iff___autoParam___closed__12, &l_Std_Packages_PreorderOfLEArgs_lt__iff___autoParam___closed__12_once, _init_l_Std_Packages_PreorderOfLEArgs_lt__iff___autoParam___closed__12);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -4463,7 +4440,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_lt__iff___autoParam___closed__16, &l_Std_Packages_PreorderOfLEArgs_lt__iff___autoParam___closed__16_once, _init_l_Std_Packages_PreorderOfLEArgs_lt__iff___autoParam___closed__16);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -4482,7 +4459,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_lt__iff___autoParam___closed__20, &l_Std_Packages_PreorderOfLEArgs_lt__iff___autoParam___closed__20_once, _init_l_Std_Packages_PreorderOfLEArgs_lt__iff___autoParam___closed__20);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -4501,7 +4478,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_lt__iff___autoParam___closed__25, &l_Std_Packages_PreorderOfLEArgs_lt__iff___autoParam___closed__25_once, _init_l_Std_Packages_PreorderOfLEArgs_lt__iff___autoParam___closed__25);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -4525,7 +4502,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_lt__iff___autoParam___closed__27, &l_Std_Packages_PreorderOfLEArgs_lt__iff___autoParam___closed__27_once, _init_l_Std_Packages_PreorderOfLEArgs_lt__iff___autoParam___closed__27);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -4573,7 +4550,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_lt__iff___autoParam___closed__31, &l_Std_Packages_PreorderOfLEArgs_lt__iff___autoParam___closed__31_once, _init_l_Std_Packages_PreorderOfLEArgs_lt__iff___autoParam___closed__31);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -4597,7 +4574,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_lt__iff___autoParam___closed__33, &l_Std_Packages_PreorderOfLEArgs_lt__iff___autoParam___closed__33_once, _init_l_Std_Packages_PreorderOfLEArgs_lt__iff___autoParam___closed__33);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -4621,7 +4598,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_lt__iff___autoParam___closed__35, &l_Std_Packages_PreorderOfLEArgs_lt__iff___autoParam___closed__35_once, _init_l_Std_Packages_PreorderOfLEArgs_lt__iff___autoParam___closed__35);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -4741,7 +4718,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_lt__iff___autoParam___closed__45, &l_Std_Packages_PreorderOfLEArgs_lt__iff___autoParam___closed__45_once, _init_l_Std_Packages_PreorderOfLEArgs_lt__iff___autoParam___closed__45);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -4765,7 +4742,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_lt__iff___autoParam___closed__47, &l_Std_Packages_PreorderOfLEArgs_lt__iff___autoParam___closed__47_once, _init_l_Std_Packages_PreorderOfLEArgs_lt__iff___autoParam___closed__47);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -4806,7 +4783,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__3, &l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__3_once, _init_l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__3);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -4825,7 +4802,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__8, &l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__8_once, _init_l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__8);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -4898,7 +4875,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__26, &l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__26_once, _init_l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__26);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -4922,7 +4899,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__28, &l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__28_once, _init_l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__28);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -4946,7 +4923,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__30, &l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__30_once, _init_l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__30);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -4955,7 +4932,7 @@ static lean_object* _init_l_Std_Packages_PreorderOfLEArgs_decidableLT___autoPara
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__7, &l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__7_once, _init_l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__7);
+x_1 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__7));
 x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__31, &l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__31_once, _init_l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__31);
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -4965,7 +4942,7 @@ static lean_object* _init_l_Std_Packages_PreorderOfLEArgs_decidableLT___autoPara
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__7, &l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__7_once, _init_l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__7);
+x_1 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__7));
 x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__32, &l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__32_once, _init_l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__32);
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -5004,7 +4981,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__42, &l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__42_once, _init_l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__42);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -5077,7 +5054,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__51, &l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__51_once, _init_l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__51);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -5155,7 +5132,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__64, &l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__64_once, _init_l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__64);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -5174,7 +5151,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__68, &l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__68_once, _init_l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__68);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -5198,7 +5175,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__70, &l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__70_once, _init_l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__70);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -5222,7 +5199,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__72, &l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__72_once, _init_l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__72);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -5246,7 +5223,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__74, &l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__74_once, _init_l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__74);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -5337,7 +5314,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__83, &l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__83_once, _init_l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__83);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -5356,7 +5333,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__88, &l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__88_once, _init_l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__88);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -5452,7 +5429,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__96, &l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__96_once, _init_l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__96);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -5500,7 +5477,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__100, &l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__100_once, _init_l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__100);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -5553,7 +5530,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__106, &l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__106_once, _init_l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__106);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -5577,7 +5554,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__108, &l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__108_once, _init_l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__108);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -5635,7 +5612,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__113, &l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__113_once, _init_l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__113);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -5659,7 +5636,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__115, &l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__115_once, _init_l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__115);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -5683,7 +5660,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__117, &l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__117_once, _init_l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__117);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -5804,7 +5781,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__130, &l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__130_once, _init_l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__130);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -5828,7 +5805,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__132, &l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__132_once, _init_l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__132);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -5852,7 +5829,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__134, &l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__134_once, _init_l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__134);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -5934,7 +5911,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__141, &l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__141_once, _init_l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__141);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -5958,7 +5935,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__143, &l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__143_once, _init_l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__143);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -6016,7 +5993,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__148, &l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__148_once, _init_l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__148);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -6040,7 +6017,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__150, &l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__150_once, _init_l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__150);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -6064,7 +6041,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__152, &l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__152_once, _init_l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__152);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -6131,7 +6108,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__159, &l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__159_once, _init_l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__159);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -6155,7 +6132,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__161, &l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__161_once, _init_l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__161);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -6203,7 +6180,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__165, &l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__165_once, _init_l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__165);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -6227,7 +6204,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__167, &l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__167_once, _init_l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__167);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -6251,7 +6228,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__169, &l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__169_once, _init_l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__169);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -6371,7 +6348,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__179, &l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__179_once, _init_l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__179);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -6395,7 +6372,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__181, &l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__181_once, _init_l_Std_Packages_PreorderOfLEArgs_decidableLT___autoParam___closed__181);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -6490,7 +6467,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_beq__iff__le__and__ge___autoParam___closed__8, &l_Std_Packages_PreorderOfLEArgs_beq__iff__le__and__ge___autoParam___closed__8_once, _init_l_Std_Packages_PreorderOfLEArgs_beq__iff__le__and__ge___autoParam___closed__8);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -6514,7 +6491,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_beq__iff__le__and__ge___autoParam___closed__10, &l_Std_Packages_PreorderOfLEArgs_beq__iff__le__and__ge___autoParam___closed__10_once, _init_l_Std_Packages_PreorderOfLEArgs_beq__iff__le__and__ge___autoParam___closed__10);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -6538,7 +6515,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_beq__iff__le__and__ge___autoParam___closed__12, &l_Std_Packages_PreorderOfLEArgs_beq__iff__le__and__ge___autoParam___closed__12_once, _init_l_Std_Packages_PreorderOfLEArgs_beq__iff__le__and__ge___autoParam___closed__12);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -6586,7 +6563,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_beq__iff__le__and__ge___autoParam___closed__16, &l_Std_Packages_PreorderOfLEArgs_beq__iff__le__and__ge___autoParam___closed__16_once, _init_l_Std_Packages_PreorderOfLEArgs_beq__iff__le__and__ge___autoParam___closed__16);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -6605,7 +6582,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_beq__iff__le__and__ge___autoParam___closed__19, &l_Std_Packages_PreorderOfLEArgs_beq__iff__le__and__ge___autoParam___closed__19_once, _init_l_Std_Packages_PreorderOfLEArgs_beq__iff__le__and__ge___autoParam___closed__19);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -6629,7 +6606,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_beq__iff__le__and__ge___autoParam___closed__21, &l_Std_Packages_PreorderOfLEArgs_beq__iff__le__and__ge___autoParam___closed__21_once, _init_l_Std_Packages_PreorderOfLEArgs_beq__iff__le__and__ge___autoParam___closed__21);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -6677,7 +6654,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_beq__iff__le__and__ge___autoParam___closed__25, &l_Std_Packages_PreorderOfLEArgs_beq__iff__le__and__ge___autoParam___closed__25_once, _init_l_Std_Packages_PreorderOfLEArgs_beq__iff__le__and__ge___autoParam___closed__25);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -6701,7 +6678,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_beq__iff__le__and__ge___autoParam___closed__27, &l_Std_Packages_PreorderOfLEArgs_beq__iff__le__and__ge___autoParam___closed__27_once, _init_l_Std_Packages_PreorderOfLEArgs_beq__iff__le__and__ge___autoParam___closed__27);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -6725,7 +6702,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_beq__iff__le__and__ge___autoParam___closed__29, &l_Std_Packages_PreorderOfLEArgs_beq__iff__le__and__ge___autoParam___closed__29_once, _init_l_Std_Packages_PreorderOfLEArgs_beq__iff__le__and__ge___autoParam___closed__29);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -6845,7 +6822,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_beq__iff__le__and__ge___autoParam___closed__39, &l_Std_Packages_PreorderOfLEArgs_beq__iff__le__and__ge___autoParam___closed__39_once, _init_l_Std_Packages_PreorderOfLEArgs_beq__iff__le__and__ge___autoParam___closed__39);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -6869,7 +6846,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_beq__iff__le__and__ge___autoParam___closed__41, &l_Std_Packages_PreorderOfLEArgs_beq__iff__le__and__ge___autoParam___closed__41_once, _init_l_Std_Packages_PreorderOfLEArgs_beq__iff__le__and__ge___autoParam___closed__41);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -6940,7 +6917,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le__refl___autoParam___closed__6, &l_Std_Packages_PreorderOfLEArgs_le__refl___autoParam___closed__6_once, _init_l_Std_Packages_PreorderOfLEArgs_le__refl___autoParam___closed__6);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -7033,7 +7010,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le__refl___autoParam___closed__19, &l_Std_Packages_PreorderOfLEArgs_le__refl___autoParam___closed__19_once, _init_l_Std_Packages_PreorderOfLEArgs_le__refl___autoParam___closed__19);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -7052,7 +7029,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le__refl___autoParam___closed__26, &l_Std_Packages_PreorderOfLEArgs_le__refl___autoParam___closed__26_once, _init_l_Std_Packages_PreorderOfLEArgs_le__refl___autoParam___closed__26);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -7086,7 +7063,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le__refl___autoParam___closed__29, &l_Std_Packages_PreorderOfLEArgs_le__refl___autoParam___closed__29_once, _init_l_Std_Packages_PreorderOfLEArgs_le__refl___autoParam___closed__29);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -7207,7 +7184,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le__refl___autoParam___closed__41, &l_Std_Packages_PreorderOfLEArgs_le__refl___autoParam___closed__41_once, _init_l_Std_Packages_PreorderOfLEArgs_le__refl___autoParam___closed__41);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -7279,7 +7256,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le__refl___autoParam___closed__47, &l_Std_Packages_PreorderOfLEArgs_le__refl___autoParam___closed__47_once, _init_l_Std_Packages_PreorderOfLEArgs_le__refl___autoParam___closed__47);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -7303,7 +7280,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le__refl___autoParam___closed__49, &l_Std_Packages_PreorderOfLEArgs_le__refl___autoParam___closed__49_once, _init_l_Std_Packages_PreorderOfLEArgs_le__refl___autoParam___closed__49);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -7327,7 +7304,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le__refl___autoParam___closed__51, &l_Std_Packages_PreorderOfLEArgs_le__refl___autoParam___closed__51_once, _init_l_Std_Packages_PreorderOfLEArgs_le__refl___autoParam___closed__51);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -7375,7 +7352,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le__refl___autoParam___closed__55, &l_Std_Packages_PreorderOfLEArgs_le__refl___autoParam___closed__55_once, _init_l_Std_Packages_PreorderOfLEArgs_le__refl___autoParam___closed__55);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -7394,7 +7371,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le__refl___autoParam___closed__58, &l_Std_Packages_PreorderOfLEArgs_le__refl___autoParam___closed__58_once, _init_l_Std_Packages_PreorderOfLEArgs_le__refl___autoParam___closed__58);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -7418,7 +7395,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le__refl___autoParam___closed__60, &l_Std_Packages_PreorderOfLEArgs_le__refl___autoParam___closed__60_once, _init_l_Std_Packages_PreorderOfLEArgs_le__refl___autoParam___closed__60);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -7466,7 +7443,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le__refl___autoParam___closed__64, &l_Std_Packages_PreorderOfLEArgs_le__refl___autoParam___closed__64_once, _init_l_Std_Packages_PreorderOfLEArgs_le__refl___autoParam___closed__64);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -7490,7 +7467,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le__refl___autoParam___closed__66, &l_Std_Packages_PreorderOfLEArgs_le__refl___autoParam___closed__66_once, _init_l_Std_Packages_PreorderOfLEArgs_le__refl___autoParam___closed__66);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -7514,7 +7491,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le__refl___autoParam___closed__68, &l_Std_Packages_PreorderOfLEArgs_le__refl___autoParam___closed__68_once, _init_l_Std_Packages_PreorderOfLEArgs_le__refl___autoParam___closed__68);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -7634,7 +7611,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le__refl___autoParam___closed__78, &l_Std_Packages_PreorderOfLEArgs_le__refl___autoParam___closed__78_once, _init_l_Std_Packages_PreorderOfLEArgs_le__refl___autoParam___closed__78);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -7658,7 +7635,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le__refl___autoParam___closed__80, &l_Std_Packages_PreorderOfLEArgs_le__refl___autoParam___closed__80_once, _init_l_Std_Packages_PreorderOfLEArgs_le__refl___autoParam___closed__80);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -7699,7 +7676,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le__trans___autoParam___closed__2, &l_Std_Packages_PreorderOfLEArgs_le__trans___autoParam___closed__2_once, _init_l_Std_Packages_PreorderOfLEArgs_le__trans___autoParam___closed__2);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -7718,7 +7695,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le__trans___autoParam___closed__9, &l_Std_Packages_PreorderOfLEArgs_le__trans___autoParam___closed__9_once, _init_l_Std_Packages_PreorderOfLEArgs_le__trans___autoParam___closed__9);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -7742,7 +7719,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le__trans___autoParam___closed__11, &l_Std_Packages_PreorderOfLEArgs_le__trans___autoParam___closed__11_once, _init_l_Std_Packages_PreorderOfLEArgs_le__trans___autoParam___closed__11);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -7884,7 +7861,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le__trans___autoParam___closed__27, &l_Std_Packages_PreorderOfLEArgs_le__trans___autoParam___closed__27_once, _init_l_Std_Packages_PreorderOfLEArgs_le__trans___autoParam___closed__27);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -7893,7 +7870,7 @@ static lean_object* _init_l_Std_Packages_PreorderOfLEArgs_le__trans___autoParam_
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__7, &l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__7_once, _init_l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__7);
+x_1 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__7));
 x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le__trans___autoParam___closed__28, &l_Std_Packages_PreorderOfLEArgs_le__trans___autoParam___closed__28_once, _init_l_Std_Packages_PreorderOfLEArgs_le__trans___autoParam___closed__28);
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -7962,7 +7939,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le__trans___autoParam___closed__39, &l_Std_Packages_PreorderOfLEArgs_le__trans___autoParam___closed__39_once, _init_l_Std_Packages_PreorderOfLEArgs_le__trans___autoParam___closed__39);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -8308,7 +8285,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le__trans___autoParam___closed__73, &l_Std_Packages_PreorderOfLEArgs_le__trans___autoParam___closed__73_once, _init_l_Std_Packages_PreorderOfLEArgs_le__trans___autoParam___closed__73);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -8332,7 +8309,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le__trans___autoParam___closed__75, &l_Std_Packages_PreorderOfLEArgs_le__trans___autoParam___closed__75_once, _init_l_Std_Packages_PreorderOfLEArgs_le__trans___autoParam___closed__75);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -8356,7 +8333,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le__trans___autoParam___closed__77, &l_Std_Packages_PreorderOfLEArgs_le__trans___autoParam___closed__77_once, _init_l_Std_Packages_PreorderOfLEArgs_le__trans___autoParam___closed__77);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -8404,7 +8381,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le__trans___autoParam___closed__81, &l_Std_Packages_PreorderOfLEArgs_le__trans___autoParam___closed__81_once, _init_l_Std_Packages_PreorderOfLEArgs_le__trans___autoParam___closed__81);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -8423,7 +8400,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le__trans___autoParam___closed__84, &l_Std_Packages_PreorderOfLEArgs_le__trans___autoParam___closed__84_once, _init_l_Std_Packages_PreorderOfLEArgs_le__trans___autoParam___closed__84);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -8447,7 +8424,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le__trans___autoParam___closed__86, &l_Std_Packages_PreorderOfLEArgs_le__trans___autoParam___closed__86_once, _init_l_Std_Packages_PreorderOfLEArgs_le__trans___autoParam___closed__86);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -8495,7 +8472,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le__trans___autoParam___closed__90, &l_Std_Packages_PreorderOfLEArgs_le__trans___autoParam___closed__90_once, _init_l_Std_Packages_PreorderOfLEArgs_le__trans___autoParam___closed__90);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -8519,7 +8496,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le__trans___autoParam___closed__92, &l_Std_Packages_PreorderOfLEArgs_le__trans___autoParam___closed__92_once, _init_l_Std_Packages_PreorderOfLEArgs_le__trans___autoParam___closed__92);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -8543,7 +8520,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le__trans___autoParam___closed__94, &l_Std_Packages_PreorderOfLEArgs_le__trans___autoParam___closed__94_once, _init_l_Std_Packages_PreorderOfLEArgs_le__trans___autoParam___closed__94);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -8663,7 +8640,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le__trans___autoParam___closed__104, &l_Std_Packages_PreorderOfLEArgs_le__trans___autoParam___closed__104_once, _init_l_Std_Packages_PreorderOfLEArgs_le__trans___autoParam___closed__104);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -8687,7 +8664,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le__trans___autoParam___closed__106, &l_Std_Packages_PreorderOfLEArgs_le__trans___autoParam___closed__106_once, _init_l_Std_Packages_PreorderOfLEArgs_le__trans___autoParam___closed__106);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -8728,7 +8705,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_PreorderPackage_ofLE___auto__1___closed__5, &l_Std_PreorderPackage_ofLE___auto__1___closed__5_once, _init_l_Std_PreorderPackage_ofLE___auto__1___closed__5);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -8771,7 +8748,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_PreorderPackage_ofLE___auto__1___closed__10, &l_Std_PreorderPackage_ofLE___auto__1___closed__10_once, _init_l_Std_PreorderPackage_ofLE___auto__1___closed__10);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -8780,7 +8757,7 @@ static lean_object* _init_l_Std_PreorderPackage_ofLE___auto__1___closed__14(void
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__7, &l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__7_once, _init_l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__7);
+x_1 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__7));
 x_2 = lean_obj_once(&l_Std_PreorderPackage_ofLE___auto__1___closed__6, &l_Std_PreorderPackage_ofLE___auto__1___closed__6_once, _init_l_Std_PreorderPackage_ofLE___auto__1___closed__6);
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -8838,7 +8815,7 @@ static lean_object* _init_l_Std_PreorderPackage_ofLE___auto__1___closed__23(void
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__7, &l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__7_once, _init_l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__7);
+x_1 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__7));
 x_2 = lean_obj_once(&l_Std_PreorderPackage_ofLE___auto__1___closed__22, &l_Std_PreorderPackage_ofLE___auto__1___closed__22_once, _init_l_Std_PreorderPackage_ofLE___auto__1___closed__22);
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -8921,7 +8898,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_PreorderPackage_ofLE___auto__1___closed__29, &l_Std_PreorderPackage_ofLE___auto__1___closed__29_once, _init_l_Std_PreorderPackage_ofLE___auto__1___closed__29);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -8945,7 +8922,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_PreorderPackage_ofLE___auto__1___closed__31, &l_Std_PreorderPackage_ofLE___auto__1___closed__31_once, _init_l_Std_PreorderPackage_ofLE___auto__1___closed__31);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -8969,7 +8946,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_PreorderPackage_ofLE___auto__1___closed__33, &l_Std_PreorderPackage_ofLE___auto__1___closed__33_once, _init_l_Std_PreorderPackage_ofLE___auto__1___closed__33);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -9130,7 +9107,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PartialOrderOfLEArgs_le__antisymm___autoParam___closed__8, &l_Std_Packages_PartialOrderOfLEArgs_le__antisymm___autoParam___closed__8_once, _init_l_Std_Packages_PartialOrderOfLEArgs_le__antisymm___autoParam___closed__8);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -9154,7 +9131,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PartialOrderOfLEArgs_le__antisymm___autoParam___closed__10, &l_Std_Packages_PartialOrderOfLEArgs_le__antisymm___autoParam___closed__10_once, _init_l_Std_Packages_PartialOrderOfLEArgs_le__antisymm___autoParam___closed__10);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -9178,7 +9155,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PartialOrderOfLEArgs_le__antisymm___autoParam___closed__12, &l_Std_Packages_PartialOrderOfLEArgs_le__antisymm___autoParam___closed__12_once, _init_l_Std_Packages_PartialOrderOfLEArgs_le__antisymm___autoParam___closed__12);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -9226,7 +9203,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PartialOrderOfLEArgs_le__antisymm___autoParam___closed__16, &l_Std_Packages_PartialOrderOfLEArgs_le__antisymm___autoParam___closed__16_once, _init_l_Std_Packages_PartialOrderOfLEArgs_le__antisymm___autoParam___closed__16);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -9245,7 +9222,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PartialOrderOfLEArgs_le__antisymm___autoParam___closed__19, &l_Std_Packages_PartialOrderOfLEArgs_le__antisymm___autoParam___closed__19_once, _init_l_Std_Packages_PartialOrderOfLEArgs_le__antisymm___autoParam___closed__19);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -9269,7 +9246,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PartialOrderOfLEArgs_le__antisymm___autoParam___closed__21, &l_Std_Packages_PartialOrderOfLEArgs_le__antisymm___autoParam___closed__21_once, _init_l_Std_Packages_PartialOrderOfLEArgs_le__antisymm___autoParam___closed__21);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -9317,7 +9294,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PartialOrderOfLEArgs_le__antisymm___autoParam___closed__25, &l_Std_Packages_PartialOrderOfLEArgs_le__antisymm___autoParam___closed__25_once, _init_l_Std_Packages_PartialOrderOfLEArgs_le__antisymm___autoParam___closed__25);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -9341,7 +9318,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PartialOrderOfLEArgs_le__antisymm___autoParam___closed__27, &l_Std_Packages_PartialOrderOfLEArgs_le__antisymm___autoParam___closed__27_once, _init_l_Std_Packages_PartialOrderOfLEArgs_le__antisymm___autoParam___closed__27);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -9365,7 +9342,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PartialOrderOfLEArgs_le__antisymm___autoParam___closed__29, &l_Std_Packages_PartialOrderOfLEArgs_le__antisymm___autoParam___closed__29_once, _init_l_Std_Packages_PartialOrderOfLEArgs_le__antisymm___autoParam___closed__29);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -9485,7 +9462,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PartialOrderOfLEArgs_le__antisymm___autoParam___closed__39, &l_Std_Packages_PartialOrderOfLEArgs_le__antisymm___autoParam___closed__39_once, _init_l_Std_Packages_PartialOrderOfLEArgs_le__antisymm___autoParam___closed__39);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -9509,7 +9486,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_PartialOrderOfLEArgs_le__antisymm___autoParam___closed__41, &l_Std_Packages_PartialOrderOfLEArgs_le__antisymm___autoParam___closed__41_once, _init_l_Std_Packages_PartialOrderOfLEArgs_le__antisymm___autoParam___closed__41);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -9693,7 +9670,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfLEArgs_ord___autoParam___closed__7, &l_Std_Packages_LinearPreorderOfLEArgs_ord___autoParam___closed__7_once, _init_l_Std_Packages_LinearPreorderOfLEArgs_ord___autoParam___closed__7);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -9717,7 +9694,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfLEArgs_ord___autoParam___closed__9, &l_Std_Packages_LinearPreorderOfLEArgs_ord___autoParam___closed__9_once, _init_l_Std_Packages_LinearPreorderOfLEArgs_ord___autoParam___closed__9);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -9741,7 +9718,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfLEArgs_ord___autoParam___closed__11, &l_Std_Packages_LinearPreorderOfLEArgs_ord___autoParam___closed__11_once, _init_l_Std_Packages_LinearPreorderOfLEArgs_ord___autoParam___closed__11);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -9861,7 +9838,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfLEArgs_ord___autoParam___closed__21, &l_Std_Packages_LinearPreorderOfLEArgs_ord___autoParam___closed__21_once, _init_l_Std_Packages_LinearPreorderOfLEArgs_ord___autoParam___closed__21);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -9885,7 +9862,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfLEArgs_ord___autoParam___closed__23, &l_Std_Packages_LinearPreorderOfLEArgs_ord___autoParam___closed__23_once, _init_l_Std_Packages_LinearPreorderOfLEArgs_ord___autoParam___closed__23);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -9980,7 +9957,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfLEArgs_le__total___autoParam___closed__8, &l_Std_Packages_LinearPreorderOfLEArgs_le__total___autoParam___closed__8_once, _init_l_Std_Packages_LinearPreorderOfLEArgs_le__total___autoParam___closed__8);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -10004,7 +9981,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfLEArgs_le__total___autoParam___closed__10, &l_Std_Packages_LinearPreorderOfLEArgs_le__total___autoParam___closed__10_once, _init_l_Std_Packages_LinearPreorderOfLEArgs_le__total___autoParam___closed__10);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -10028,7 +10005,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfLEArgs_le__total___autoParam___closed__12, &l_Std_Packages_LinearPreorderOfLEArgs_le__total___autoParam___closed__12_once, _init_l_Std_Packages_LinearPreorderOfLEArgs_le__total___autoParam___closed__12);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -10076,7 +10053,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfLEArgs_le__total___autoParam___closed__16, &l_Std_Packages_LinearPreorderOfLEArgs_le__total___autoParam___closed__16_once, _init_l_Std_Packages_LinearPreorderOfLEArgs_le__total___autoParam___closed__16);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -10095,7 +10072,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfLEArgs_le__total___autoParam___closed__19, &l_Std_Packages_LinearPreorderOfLEArgs_le__total___autoParam___closed__19_once, _init_l_Std_Packages_LinearPreorderOfLEArgs_le__total___autoParam___closed__19);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -10119,7 +10096,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfLEArgs_le__total___autoParam___closed__21, &l_Std_Packages_LinearPreorderOfLEArgs_le__total___autoParam___closed__21_once, _init_l_Std_Packages_LinearPreorderOfLEArgs_le__total___autoParam___closed__21);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -10167,7 +10144,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfLEArgs_le__total___autoParam___closed__25, &l_Std_Packages_LinearPreorderOfLEArgs_le__total___autoParam___closed__25_once, _init_l_Std_Packages_LinearPreorderOfLEArgs_le__total___autoParam___closed__25);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -10191,7 +10168,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfLEArgs_le__total___autoParam___closed__27, &l_Std_Packages_LinearPreorderOfLEArgs_le__total___autoParam___closed__27_once, _init_l_Std_Packages_LinearPreorderOfLEArgs_le__total___autoParam___closed__27);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -10215,7 +10192,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfLEArgs_le__total___autoParam___closed__29, &l_Std_Packages_LinearPreorderOfLEArgs_le__total___autoParam___closed__29_once, _init_l_Std_Packages_LinearPreorderOfLEArgs_le__total___autoParam___closed__29);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -10311,7 +10288,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfLEArgs_le__total___autoParam___closed__37, &l_Std_Packages_LinearPreorderOfLEArgs_le__total___autoParam___closed__37_once, _init_l_Std_Packages_LinearPreorderOfLEArgs_le__total___autoParam___closed__37);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -10335,7 +10312,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfLEArgs_le__total___autoParam___closed__39, &l_Std_Packages_LinearPreorderOfLEArgs_le__total___autoParam___closed__39_once, _init_l_Std_Packages_LinearPreorderOfLEArgs_le__total___autoParam___closed__39);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -10359,7 +10336,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfLEArgs_le__total___autoParam___closed__41, &l_Std_Packages_LinearPreorderOfLEArgs_le__total___autoParam___closed__41_once, _init_l_Std_Packages_LinearPreorderOfLEArgs_le__total___autoParam___closed__41);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -10454,7 +10431,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfLEArgs_isLE__compare___autoParam___closed__8, &l_Std_Packages_LinearPreorderOfLEArgs_isLE__compare___autoParam___closed__8_once, _init_l_Std_Packages_LinearPreorderOfLEArgs_isLE__compare___autoParam___closed__8);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -10478,7 +10455,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfLEArgs_isLE__compare___autoParam___closed__10, &l_Std_Packages_LinearPreorderOfLEArgs_isLE__compare___autoParam___closed__10_once, _init_l_Std_Packages_LinearPreorderOfLEArgs_isLE__compare___autoParam___closed__10);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -10502,7 +10479,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfLEArgs_isLE__compare___autoParam___closed__12, &l_Std_Packages_LinearPreorderOfLEArgs_isLE__compare___autoParam___closed__12_once, _init_l_Std_Packages_LinearPreorderOfLEArgs_isLE__compare___autoParam___closed__12);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -10550,7 +10527,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfLEArgs_isLE__compare___autoParam___closed__16, &l_Std_Packages_LinearPreorderOfLEArgs_isLE__compare___autoParam___closed__16_once, _init_l_Std_Packages_LinearPreorderOfLEArgs_isLE__compare___autoParam___closed__16);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -10569,7 +10546,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfLEArgs_isLE__compare___autoParam___closed__19, &l_Std_Packages_LinearPreorderOfLEArgs_isLE__compare___autoParam___closed__19_once, _init_l_Std_Packages_LinearPreorderOfLEArgs_isLE__compare___autoParam___closed__19);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -10593,7 +10570,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfLEArgs_isLE__compare___autoParam___closed__21, &l_Std_Packages_LinearPreorderOfLEArgs_isLE__compare___autoParam___closed__21_once, _init_l_Std_Packages_LinearPreorderOfLEArgs_isLE__compare___autoParam___closed__21);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -10641,7 +10618,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfLEArgs_isLE__compare___autoParam___closed__25, &l_Std_Packages_LinearPreorderOfLEArgs_isLE__compare___autoParam___closed__25_once, _init_l_Std_Packages_LinearPreorderOfLEArgs_isLE__compare___autoParam___closed__25);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -10665,7 +10642,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfLEArgs_isLE__compare___autoParam___closed__27, &l_Std_Packages_LinearPreorderOfLEArgs_isLE__compare___autoParam___closed__27_once, _init_l_Std_Packages_LinearPreorderOfLEArgs_isLE__compare___autoParam___closed__27);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -10689,7 +10666,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfLEArgs_isLE__compare___autoParam___closed__29, &l_Std_Packages_LinearPreorderOfLEArgs_isLE__compare___autoParam___closed__29_once, _init_l_Std_Packages_LinearPreorderOfLEArgs_isLE__compare___autoParam___closed__29);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -10809,7 +10786,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfLEArgs_isLE__compare___autoParam___closed__39, &l_Std_Packages_LinearPreorderOfLEArgs_isLE__compare___autoParam___closed__39_once, _init_l_Std_Packages_LinearPreorderOfLEArgs_isLE__compare___autoParam___closed__39);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -10833,7 +10810,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfLEArgs_isLE__compare___autoParam___closed__41, &l_Std_Packages_LinearPreorderOfLEArgs_isLE__compare___autoParam___closed__41_once, _init_l_Std_Packages_LinearPreorderOfLEArgs_isLE__compare___autoParam___closed__41);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -10928,7 +10905,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfLEArgs_isGE__compare___autoParam___closed__7, &l_Std_Packages_LinearPreorderOfLEArgs_isGE__compare___autoParam___closed__7_once, _init_l_Std_Packages_LinearPreorderOfLEArgs_isGE__compare___autoParam___closed__7);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -10952,7 +10929,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfLEArgs_isGE__compare___autoParam___closed__9, &l_Std_Packages_LinearPreorderOfLEArgs_isGE__compare___autoParam___closed__9_once, _init_l_Std_Packages_LinearPreorderOfLEArgs_isGE__compare___autoParam___closed__9);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -10976,7 +10953,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfLEArgs_isGE__compare___autoParam___closed__11, &l_Std_Packages_LinearPreorderOfLEArgs_isGE__compare___autoParam___closed__11_once, _init_l_Std_Packages_LinearPreorderOfLEArgs_isGE__compare___autoParam___closed__11);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -11024,7 +11001,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfLEArgs_isGE__compare___autoParam___closed__15, &l_Std_Packages_LinearPreorderOfLEArgs_isGE__compare___autoParam___closed__15_once, _init_l_Std_Packages_LinearPreorderOfLEArgs_isGE__compare___autoParam___closed__15);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -11043,7 +11020,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfLEArgs_isGE__compare___autoParam___closed__18, &l_Std_Packages_LinearPreorderOfLEArgs_isGE__compare___autoParam___closed__18_once, _init_l_Std_Packages_LinearPreorderOfLEArgs_isGE__compare___autoParam___closed__18);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -11067,7 +11044,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfLEArgs_isGE__compare___autoParam___closed__20, &l_Std_Packages_LinearPreorderOfLEArgs_isGE__compare___autoParam___closed__20_once, _init_l_Std_Packages_LinearPreorderOfLEArgs_isGE__compare___autoParam___closed__20);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -11115,7 +11092,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfLEArgs_isGE__compare___autoParam___closed__24, &l_Std_Packages_LinearPreorderOfLEArgs_isGE__compare___autoParam___closed__24_once, _init_l_Std_Packages_LinearPreorderOfLEArgs_isGE__compare___autoParam___closed__24);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -11139,7 +11116,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfLEArgs_isGE__compare___autoParam___closed__26, &l_Std_Packages_LinearPreorderOfLEArgs_isGE__compare___autoParam___closed__26_once, _init_l_Std_Packages_LinearPreorderOfLEArgs_isGE__compare___autoParam___closed__26);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -11163,7 +11140,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfLEArgs_isGE__compare___autoParam___closed__28, &l_Std_Packages_LinearPreorderOfLEArgs_isGE__compare___autoParam___closed__28_once, _init_l_Std_Packages_LinearPreorderOfLEArgs_isGE__compare___autoParam___closed__28);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -11283,7 +11260,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfLEArgs_isGE__compare___autoParam___closed__38, &l_Std_Packages_LinearPreorderOfLEArgs_isGE__compare___autoParam___closed__38_once, _init_l_Std_Packages_LinearPreorderOfLEArgs_isGE__compare___autoParam___closed__38);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -11307,7 +11284,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfLEArgs_isGE__compare___autoParam___closed__40, &l_Std_Packages_LinearPreorderOfLEArgs_isGE__compare___autoParam___closed__40_once, _init_l_Std_Packages_LinearPreorderOfLEArgs_isGE__compare___autoParam___closed__40);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -11478,7 +11455,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfLEArgs_min___autoParam___closed__6, &l_Std_Packages_LinearOrderOfLEArgs_min___autoParam___closed__6_once, _init_l_Std_Packages_LinearOrderOfLEArgs_min___autoParam___closed__6);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -11550,7 +11527,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfLEArgs_min___autoParam___closed__12, &l_Std_Packages_LinearOrderOfLEArgs_min___autoParam___closed__12_once, _init_l_Std_Packages_LinearOrderOfLEArgs_min___autoParam___closed__12);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -11574,7 +11551,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfLEArgs_min___autoParam___closed__14, &l_Std_Packages_LinearOrderOfLEArgs_min___autoParam___closed__14_once, _init_l_Std_Packages_LinearOrderOfLEArgs_min___autoParam___closed__14);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -11598,7 +11575,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfLEArgs_min___autoParam___closed__16, &l_Std_Packages_LinearOrderOfLEArgs_min___autoParam___closed__16_once, _init_l_Std_Packages_LinearOrderOfLEArgs_min___autoParam___closed__16);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -11718,7 +11695,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfLEArgs_min___autoParam___closed__26, &l_Std_Packages_LinearOrderOfLEArgs_min___autoParam___closed__26_once, _init_l_Std_Packages_LinearOrderOfLEArgs_min___autoParam___closed__26);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -11742,7 +11719,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfLEArgs_min___autoParam___closed__28, &l_Std_Packages_LinearOrderOfLEArgs_min___autoParam___closed__28_once, _init_l_Std_Packages_LinearOrderOfLEArgs_min___autoParam___closed__28);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -11813,7 +11790,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfLEArgs_max___autoParam___closed__5, &l_Std_Packages_LinearOrderOfLEArgs_max___autoParam___closed__5_once, _init_l_Std_Packages_LinearOrderOfLEArgs_max___autoParam___closed__5);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -11871,7 +11848,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfLEArgs_max___autoParam___closed__10, &l_Std_Packages_LinearOrderOfLEArgs_max___autoParam___closed__10_once, _init_l_Std_Packages_LinearOrderOfLEArgs_max___autoParam___closed__10);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -11895,7 +11872,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfLEArgs_max___autoParam___closed__12, &l_Std_Packages_LinearOrderOfLEArgs_max___autoParam___closed__12_once, _init_l_Std_Packages_LinearOrderOfLEArgs_max___autoParam___closed__12);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -11919,7 +11896,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfLEArgs_max___autoParam___closed__14, &l_Std_Packages_LinearOrderOfLEArgs_max___autoParam___closed__14_once, _init_l_Std_Packages_LinearOrderOfLEArgs_max___autoParam___closed__14);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -12039,7 +12016,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfLEArgs_max___autoParam___closed__24, &l_Std_Packages_LinearOrderOfLEArgs_max___autoParam___closed__24_once, _init_l_Std_Packages_LinearOrderOfLEArgs_max___autoParam___closed__24);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -12063,7 +12040,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfLEArgs_max___autoParam___closed__26, &l_Std_Packages_LinearOrderOfLEArgs_max___autoParam___closed__26_once, _init_l_Std_Packages_LinearOrderOfLEArgs_max___autoParam___closed__26);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -12134,7 +12111,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__4, &l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__4_once, _init_l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__4);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -12207,7 +12184,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__12, &l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__12_once, _init_l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__12);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -12216,7 +12193,7 @@ static lean_object* _init_l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__7, &l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__7_once, _init_l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__7);
+x_1 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__7));
 x_2 = lean_obj_once(&l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__13, &l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__13_once, _init_l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__13);
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -12276,7 +12253,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__21, &l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__21_once, _init_l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__21);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -12340,7 +12317,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__27, &l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__27_once, _init_l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__27);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -12524,7 +12501,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__43, &l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__43_once, _init_l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__43);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -12548,7 +12525,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__45, &l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__45_once, _init_l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__45);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -12572,7 +12549,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__47, &l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__47_once, _init_l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__47);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -12620,7 +12597,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__51, &l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__51_once, _init_l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__51);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -12639,7 +12616,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__54, &l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__54_once, _init_l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__54);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -12663,7 +12640,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__56, &l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__56_once, _init_l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__56);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -12711,7 +12688,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__60, &l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__60_once, _init_l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__60);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -12735,7 +12712,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__62, &l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__62_once, _init_l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__62);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -12759,7 +12736,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__64, &l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__64_once, _init_l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__64);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -12879,7 +12856,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__74, &l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__74_once, _init_l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__74);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -12903,7 +12880,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__76, &l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__76_once, _init_l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__76);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -12974,7 +12951,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfLEArgs_max__eq___autoParam___closed__5, &l_Std_Packages_LinearOrderOfLEArgs_max__eq___autoParam___closed__5_once, _init_l_Std_Packages_LinearOrderOfLEArgs_max__eq___autoParam___closed__5);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -13080,7 +13057,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfLEArgs_max__eq___autoParam___closed__14, &l_Std_Packages_LinearOrderOfLEArgs_max__eq___autoParam___closed__14_once, _init_l_Std_Packages_LinearOrderOfLEArgs_max__eq___autoParam___closed__14);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -13104,7 +13081,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfLEArgs_max__eq___autoParam___closed__16, &l_Std_Packages_LinearOrderOfLEArgs_max__eq___autoParam___closed__16_once, _init_l_Std_Packages_LinearOrderOfLEArgs_max__eq___autoParam___closed__16);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -13128,7 +13105,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfLEArgs_max__eq___autoParam___closed__18, &l_Std_Packages_LinearOrderOfLEArgs_max__eq___autoParam___closed__18_once, _init_l_Std_Packages_LinearOrderOfLEArgs_max__eq___autoParam___closed__18);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -13176,7 +13153,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfLEArgs_max__eq___autoParam___closed__22, &l_Std_Packages_LinearOrderOfLEArgs_max__eq___autoParam___closed__22_once, _init_l_Std_Packages_LinearOrderOfLEArgs_max__eq___autoParam___closed__22);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -13195,7 +13172,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfLEArgs_max__eq___autoParam___closed__25, &l_Std_Packages_LinearOrderOfLEArgs_max__eq___autoParam___closed__25_once, _init_l_Std_Packages_LinearOrderOfLEArgs_max__eq___autoParam___closed__25);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -13219,7 +13196,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfLEArgs_max__eq___autoParam___closed__27, &l_Std_Packages_LinearOrderOfLEArgs_max__eq___autoParam___closed__27_once, _init_l_Std_Packages_LinearOrderOfLEArgs_max__eq___autoParam___closed__27);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -13267,7 +13244,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfLEArgs_max__eq___autoParam___closed__31, &l_Std_Packages_LinearOrderOfLEArgs_max__eq___autoParam___closed__31_once, _init_l_Std_Packages_LinearOrderOfLEArgs_max__eq___autoParam___closed__31);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -13291,7 +13268,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfLEArgs_max__eq___autoParam___closed__33, &l_Std_Packages_LinearOrderOfLEArgs_max__eq___autoParam___closed__33_once, _init_l_Std_Packages_LinearOrderOfLEArgs_max__eq___autoParam___closed__33);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -13315,7 +13292,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfLEArgs_max__eq___autoParam___closed__35, &l_Std_Packages_LinearOrderOfLEArgs_max__eq___autoParam___closed__35_once, _init_l_Std_Packages_LinearOrderOfLEArgs_max__eq___autoParam___closed__35);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -13435,7 +13412,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfLEArgs_max__eq___autoParam___closed__45, &l_Std_Packages_LinearOrderOfLEArgs_max__eq___autoParam___closed__45_once, _init_l_Std_Packages_LinearOrderOfLEArgs_max__eq___autoParam___closed__45);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -13459,7 +13436,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfLEArgs_max__eq___autoParam___closed__47, &l_Std_Packages_LinearOrderOfLEArgs_max__eq___autoParam___closed__47_once, _init_l_Std_Packages_LinearOrderOfLEArgs_max__eq___autoParam___closed__47);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -13649,7 +13626,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfOrdArgs_le___autoParam___closed__6, &l_Std_Packages_LinearPreorderOfOrdArgs_le___autoParam___closed__6_once, _init_l_Std_Packages_LinearPreorderOfOrdArgs_le___autoParam___closed__6);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -13707,7 +13684,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfOrdArgs_le___autoParam___closed__11, &l_Std_Packages_LinearPreorderOfOrdArgs_le___autoParam___closed__11_once, _init_l_Std_Packages_LinearPreorderOfOrdArgs_le___autoParam___closed__11);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -13731,7 +13708,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfOrdArgs_le___autoParam___closed__13, &l_Std_Packages_LinearPreorderOfOrdArgs_le___autoParam___closed__13_once, _init_l_Std_Packages_LinearPreorderOfOrdArgs_le___autoParam___closed__13);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -13755,7 +13732,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfOrdArgs_le___autoParam___closed__15, &l_Std_Packages_LinearPreorderOfOrdArgs_le___autoParam___closed__15_once, _init_l_Std_Packages_LinearPreorderOfOrdArgs_le___autoParam___closed__15);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -13875,7 +13852,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfOrdArgs_le___autoParam___closed__25, &l_Std_Packages_LinearPreorderOfOrdArgs_le___autoParam___closed__25_once, _init_l_Std_Packages_LinearPreorderOfOrdArgs_le___autoParam___closed__25);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -13899,7 +13876,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfOrdArgs_le___autoParam___closed__27, &l_Std_Packages_LinearPreorderOfOrdArgs_le___autoParam___closed__27_once, _init_l_Std_Packages_LinearPreorderOfOrdArgs_le___autoParam___closed__27);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -13940,7 +13917,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfOrdArgs_lawfulOrderOrd___autoParam___closed__1, &l_Std_Packages_LinearPreorderOfOrdArgs_lawfulOrderOrd___autoParam___closed__1_once, _init_l_Std_Packages_LinearPreorderOfOrdArgs_lawfulOrderOrd___autoParam___closed__1);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -13964,7 +13941,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfOrdArgs_lawfulOrderOrd___autoParam___closed__3, &l_Std_Packages_LinearPreorderOfOrdArgs_lawfulOrderOrd___autoParam___closed__3_once, _init_l_Std_Packages_LinearPreorderOfOrdArgs_lawfulOrderOrd___autoParam___closed__3);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -14012,7 +13989,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfOrdArgs_lawfulOrderOrd___autoParam___closed__7, &l_Std_Packages_LinearPreorderOfOrdArgs_lawfulOrderOrd___autoParam___closed__7_once, _init_l_Std_Packages_LinearPreorderOfOrdArgs_lawfulOrderOrd___autoParam___closed__7);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -14036,7 +14013,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfOrdArgs_lawfulOrderOrd___autoParam___closed__9, &l_Std_Packages_LinearPreorderOfOrdArgs_lawfulOrderOrd___autoParam___closed__9_once, _init_l_Std_Packages_LinearPreorderOfOrdArgs_lawfulOrderOrd___autoParam___closed__9);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -14060,7 +14037,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfOrdArgs_lawfulOrderOrd___autoParam___closed__11, &l_Std_Packages_LinearPreorderOfOrdArgs_lawfulOrderOrd___autoParam___closed__11_once, _init_l_Std_Packages_LinearPreorderOfOrdArgs_lawfulOrderOrd___autoParam___closed__11);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -14180,7 +14157,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfOrdArgs_lawfulOrderOrd___autoParam___closed__21, &l_Std_Packages_LinearPreorderOfOrdArgs_lawfulOrderOrd___autoParam___closed__21_once, _init_l_Std_Packages_LinearPreorderOfOrdArgs_lawfulOrderOrd___autoParam___closed__21);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -14204,7 +14181,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfOrdArgs_lawfulOrderOrd___autoParam___closed__23, &l_Std_Packages_LinearPreorderOfOrdArgs_lawfulOrderOrd___autoParam___closed__23_once, _init_l_Std_Packages_LinearPreorderOfOrdArgs_lawfulOrderOrd___autoParam___closed__23);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -14275,7 +14252,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfOrdArgs_decidableLE___autoParam___closed__5, &l_Std_Packages_LinearPreorderOfOrdArgs_decidableLE___autoParam___closed__5_once, _init_l_Std_Packages_LinearPreorderOfOrdArgs_decidableLE___autoParam___closed__5);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -14333,7 +14310,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfOrdArgs_decidableLE___autoParam___closed__10, &l_Std_Packages_LinearPreorderOfOrdArgs_decidableLE___autoParam___closed__10_once, _init_l_Std_Packages_LinearPreorderOfOrdArgs_decidableLE___autoParam___closed__10);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -14357,7 +14334,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfOrdArgs_decidableLE___autoParam___closed__12, &l_Std_Packages_LinearPreorderOfOrdArgs_decidableLE___autoParam___closed__12_once, _init_l_Std_Packages_LinearPreorderOfOrdArgs_decidableLE___autoParam___closed__12);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -14381,7 +14358,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfOrdArgs_decidableLE___autoParam___closed__14, &l_Std_Packages_LinearPreorderOfOrdArgs_decidableLE___autoParam___closed__14_once, _init_l_Std_Packages_LinearPreorderOfOrdArgs_decidableLE___autoParam___closed__14);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -14448,7 +14425,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfOrdArgs_decidableLE___autoParam___closed__21, &l_Std_Packages_LinearPreorderOfOrdArgs_decidableLE___autoParam___closed__21_once, _init_l_Std_Packages_LinearPreorderOfOrdArgs_decidableLE___autoParam___closed__21);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -14472,7 +14449,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfOrdArgs_decidableLE___autoParam___closed__23, &l_Std_Packages_LinearPreorderOfOrdArgs_decidableLE___autoParam___closed__23_once, _init_l_Std_Packages_LinearPreorderOfOrdArgs_decidableLE___autoParam___closed__23);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -14520,7 +14497,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfOrdArgs_decidableLE___autoParam___closed__27, &l_Std_Packages_LinearPreorderOfOrdArgs_decidableLE___autoParam___closed__27_once, _init_l_Std_Packages_LinearPreorderOfOrdArgs_decidableLE___autoParam___closed__27);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -14544,7 +14521,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfOrdArgs_decidableLE___autoParam___closed__29, &l_Std_Packages_LinearPreorderOfOrdArgs_decidableLE___autoParam___closed__29_once, _init_l_Std_Packages_LinearPreorderOfOrdArgs_decidableLE___autoParam___closed__29);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -14568,7 +14545,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfOrdArgs_decidableLE___autoParam___closed__31, &l_Std_Packages_LinearPreorderOfOrdArgs_decidableLE___autoParam___closed__31_once, _init_l_Std_Packages_LinearPreorderOfOrdArgs_decidableLE___autoParam___closed__31);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -14688,7 +14665,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfOrdArgs_decidableLE___autoParam___closed__41, &l_Std_Packages_LinearPreorderOfOrdArgs_decidableLE___autoParam___closed__41_once, _init_l_Std_Packages_LinearPreorderOfOrdArgs_decidableLE___autoParam___closed__41);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -14712,7 +14689,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfOrdArgs_decidableLE___autoParam___closed__43, &l_Std_Packages_LinearPreorderOfOrdArgs_decidableLE___autoParam___closed__43_once, _init_l_Std_Packages_LinearPreorderOfOrdArgs_decidableLE___autoParam___closed__43);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -14783,7 +14760,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfOrdArgs_lt___autoParam___closed__5, &l_Std_Packages_LinearPreorderOfOrdArgs_lt___autoParam___closed__5_once, _init_l_Std_Packages_LinearPreorderOfOrdArgs_lt___autoParam___closed__5);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -14841,7 +14818,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfOrdArgs_lt___autoParam___closed__10, &l_Std_Packages_LinearPreorderOfOrdArgs_lt___autoParam___closed__10_once, _init_l_Std_Packages_LinearPreorderOfOrdArgs_lt___autoParam___closed__10);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -14865,7 +14842,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfOrdArgs_lt___autoParam___closed__12, &l_Std_Packages_LinearPreorderOfOrdArgs_lt___autoParam___closed__12_once, _init_l_Std_Packages_LinearPreorderOfOrdArgs_lt___autoParam___closed__12);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -14889,7 +14866,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfOrdArgs_lt___autoParam___closed__14, &l_Std_Packages_LinearPreorderOfOrdArgs_lt___autoParam___closed__14_once, _init_l_Std_Packages_LinearPreorderOfOrdArgs_lt___autoParam___closed__14);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -15009,7 +14986,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfOrdArgs_lt___autoParam___closed__24, &l_Std_Packages_LinearPreorderOfOrdArgs_lt___autoParam___closed__24_once, _init_l_Std_Packages_LinearPreorderOfOrdArgs_lt___autoParam___closed__24);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -15033,7 +15010,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfOrdArgs_lt___autoParam___closed__26, &l_Std_Packages_LinearPreorderOfOrdArgs_lt___autoParam___closed__26_once, _init_l_Std_Packages_LinearPreorderOfOrdArgs_lt___autoParam___closed__26);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -15079,7 +15056,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfOrdArgs_lt__iff___autoParam___closed__0, &l_Std_Packages_LinearPreorderOfOrdArgs_lt__iff___autoParam___closed__0_once, _init_l_Std_Packages_LinearPreorderOfOrdArgs_lt__iff___autoParam___closed__0);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -15088,7 +15065,7 @@ static lean_object* _init_l_Std_Packages_LinearPreorderOfOrdArgs_lt__iff___autoP
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__7, &l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__7_once, _init_l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__7);
+x_1 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__7));
 x_2 = lean_obj_once(&l_Std_Packages_LinearPreorderOfOrdArgs_lt__iff___autoParam___closed__1, &l_Std_Packages_LinearPreorderOfOrdArgs_lt__iff___autoParam___closed__1_once, _init_l_Std_Packages_LinearPreorderOfOrdArgs_lt__iff___autoParam___closed__1);
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -15220,7 +15197,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfOrdArgs_lt__iff___autoParam___closed__16, &l_Std_Packages_LinearPreorderOfOrdArgs_lt__iff___autoParam___closed__16_once, _init_l_Std_Packages_LinearPreorderOfOrdArgs_lt__iff___autoParam___closed__16);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -15244,7 +15221,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfOrdArgs_lt__iff___autoParam___closed__18, &l_Std_Packages_LinearPreorderOfOrdArgs_lt__iff___autoParam___closed__18_once, _init_l_Std_Packages_LinearPreorderOfOrdArgs_lt__iff___autoParam___closed__18);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -15268,7 +15245,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfOrdArgs_lt__iff___autoParam___closed__20, &l_Std_Packages_LinearPreorderOfOrdArgs_lt__iff___autoParam___closed__20_once, _init_l_Std_Packages_LinearPreorderOfOrdArgs_lt__iff___autoParam___closed__20);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -15316,7 +15293,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfOrdArgs_lt__iff___autoParam___closed__24, &l_Std_Packages_LinearPreorderOfOrdArgs_lt__iff___autoParam___closed__24_once, _init_l_Std_Packages_LinearPreorderOfOrdArgs_lt__iff___autoParam___closed__24);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -15335,7 +15312,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfOrdArgs_lt__iff___autoParam___closed__27, &l_Std_Packages_LinearPreorderOfOrdArgs_lt__iff___autoParam___closed__27_once, _init_l_Std_Packages_LinearPreorderOfOrdArgs_lt__iff___autoParam___closed__27);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -15359,7 +15336,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfOrdArgs_lt__iff___autoParam___closed__29, &l_Std_Packages_LinearPreorderOfOrdArgs_lt__iff___autoParam___closed__29_once, _init_l_Std_Packages_LinearPreorderOfOrdArgs_lt__iff___autoParam___closed__29);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -15407,7 +15384,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfOrdArgs_lt__iff___autoParam___closed__33, &l_Std_Packages_LinearPreorderOfOrdArgs_lt__iff___autoParam___closed__33_once, _init_l_Std_Packages_LinearPreorderOfOrdArgs_lt__iff___autoParam___closed__33);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -15431,7 +15408,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfOrdArgs_lt__iff___autoParam___closed__35, &l_Std_Packages_LinearPreorderOfOrdArgs_lt__iff___autoParam___closed__35_once, _init_l_Std_Packages_LinearPreorderOfOrdArgs_lt__iff___autoParam___closed__35);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -15455,7 +15432,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfOrdArgs_lt__iff___autoParam___closed__37, &l_Std_Packages_LinearPreorderOfOrdArgs_lt__iff___autoParam___closed__37_once, _init_l_Std_Packages_LinearPreorderOfOrdArgs_lt__iff___autoParam___closed__37);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -15575,7 +15552,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfOrdArgs_lt__iff___autoParam___closed__47, &l_Std_Packages_LinearPreorderOfOrdArgs_lt__iff___autoParam___closed__47_once, _init_l_Std_Packages_LinearPreorderOfOrdArgs_lt__iff___autoParam___closed__47);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -15599,7 +15576,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfOrdArgs_lt__iff___autoParam___closed__49, &l_Std_Packages_LinearPreorderOfOrdArgs_lt__iff___autoParam___closed__49_once, _init_l_Std_Packages_LinearPreorderOfOrdArgs_lt__iff___autoParam___closed__49);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -15670,7 +15647,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfOrdArgs_decidableLT___autoParam___closed__5, &l_Std_Packages_LinearPreorderOfOrdArgs_decidableLT___autoParam___closed__5_once, _init_l_Std_Packages_LinearPreorderOfOrdArgs_decidableLT___autoParam___closed__5);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -15728,7 +15705,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfOrdArgs_decidableLT___autoParam___closed__10, &l_Std_Packages_LinearPreorderOfOrdArgs_decidableLT___autoParam___closed__10_once, _init_l_Std_Packages_LinearPreorderOfOrdArgs_decidableLT___autoParam___closed__10);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -15752,7 +15729,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfOrdArgs_decidableLT___autoParam___closed__12, &l_Std_Packages_LinearPreorderOfOrdArgs_decidableLT___autoParam___closed__12_once, _init_l_Std_Packages_LinearPreorderOfOrdArgs_decidableLT___autoParam___closed__12);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -15776,7 +15753,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfOrdArgs_decidableLT___autoParam___closed__14, &l_Std_Packages_LinearPreorderOfOrdArgs_decidableLT___autoParam___closed__14_once, _init_l_Std_Packages_LinearPreorderOfOrdArgs_decidableLT___autoParam___closed__14);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -15906,7 +15883,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfOrdArgs_decidableLT___autoParam___closed__25, &l_Std_Packages_LinearPreorderOfOrdArgs_decidableLT___autoParam___closed__25_once, _init_l_Std_Packages_LinearPreorderOfOrdArgs_decidableLT___autoParam___closed__25);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -15930,7 +15907,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfOrdArgs_decidableLT___autoParam___closed__27, &l_Std_Packages_LinearPreorderOfOrdArgs_decidableLT___autoParam___closed__27_once, _init_l_Std_Packages_LinearPreorderOfOrdArgs_decidableLT___autoParam___closed__27);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -16001,7 +15978,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfOrdArgs_beq___autoParam___closed__5, &l_Std_Packages_LinearPreorderOfOrdArgs_beq___autoParam___closed__5_once, _init_l_Std_Packages_LinearPreorderOfOrdArgs_beq___autoParam___closed__5);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -16059,7 +16036,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfOrdArgs_beq___autoParam___closed__10, &l_Std_Packages_LinearPreorderOfOrdArgs_beq___autoParam___closed__10_once, _init_l_Std_Packages_LinearPreorderOfOrdArgs_beq___autoParam___closed__10);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -16083,7 +16060,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfOrdArgs_beq___autoParam___closed__12, &l_Std_Packages_LinearPreorderOfOrdArgs_beq___autoParam___closed__12_once, _init_l_Std_Packages_LinearPreorderOfOrdArgs_beq___autoParam___closed__12);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -16107,7 +16084,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfOrdArgs_beq___autoParam___closed__14, &l_Std_Packages_LinearPreorderOfOrdArgs_beq___autoParam___closed__14_once, _init_l_Std_Packages_LinearPreorderOfOrdArgs_beq___autoParam___closed__14);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -16227,7 +16204,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfOrdArgs_beq___autoParam___closed__24, &l_Std_Packages_LinearPreorderOfOrdArgs_beq___autoParam___closed__24_once, _init_l_Std_Packages_LinearPreorderOfOrdArgs_beq___autoParam___closed__24);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -16251,7 +16228,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfOrdArgs_beq___autoParam___closed__26, &l_Std_Packages_LinearPreorderOfOrdArgs_beq___autoParam___closed__26_once, _init_l_Std_Packages_LinearPreorderOfOrdArgs_beq___autoParam___closed__26);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -16394,7 +16371,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfOrdArgs_beq__iff___autoParam___closed__11, &l_Std_Packages_LinearPreorderOfOrdArgs_beq__iff___autoParam___closed__11_once, _init_l_Std_Packages_LinearPreorderOfOrdArgs_beq__iff___autoParam___closed__11);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -16418,7 +16395,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfOrdArgs_beq__iff___autoParam___closed__13, &l_Std_Packages_LinearPreorderOfOrdArgs_beq__iff___autoParam___closed__13_once, _init_l_Std_Packages_LinearPreorderOfOrdArgs_beq__iff___autoParam___closed__13);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -16442,7 +16419,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfOrdArgs_beq__iff___autoParam___closed__15, &l_Std_Packages_LinearPreorderOfOrdArgs_beq__iff___autoParam___closed__15_once, _init_l_Std_Packages_LinearPreorderOfOrdArgs_beq__iff___autoParam___closed__15);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -16490,7 +16467,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfOrdArgs_beq__iff___autoParam___closed__19, &l_Std_Packages_LinearPreorderOfOrdArgs_beq__iff___autoParam___closed__19_once, _init_l_Std_Packages_LinearPreorderOfOrdArgs_beq__iff___autoParam___closed__19);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -16509,7 +16486,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfOrdArgs_beq__iff___autoParam___closed__22, &l_Std_Packages_LinearPreorderOfOrdArgs_beq__iff___autoParam___closed__22_once, _init_l_Std_Packages_LinearPreorderOfOrdArgs_beq__iff___autoParam___closed__22);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -16533,7 +16510,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfOrdArgs_beq__iff___autoParam___closed__24, &l_Std_Packages_LinearPreorderOfOrdArgs_beq__iff___autoParam___closed__24_once, _init_l_Std_Packages_LinearPreorderOfOrdArgs_beq__iff___autoParam___closed__24);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -16581,7 +16558,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfOrdArgs_beq__iff___autoParam___closed__28, &l_Std_Packages_LinearPreorderOfOrdArgs_beq__iff___autoParam___closed__28_once, _init_l_Std_Packages_LinearPreorderOfOrdArgs_beq__iff___autoParam___closed__28);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -16605,7 +16582,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfOrdArgs_beq__iff___autoParam___closed__30, &l_Std_Packages_LinearPreorderOfOrdArgs_beq__iff___autoParam___closed__30_once, _init_l_Std_Packages_LinearPreorderOfOrdArgs_beq__iff___autoParam___closed__30);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -16629,7 +16606,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfOrdArgs_beq__iff___autoParam___closed__32, &l_Std_Packages_LinearPreorderOfOrdArgs_beq__iff___autoParam___closed__32_once, _init_l_Std_Packages_LinearPreorderOfOrdArgs_beq__iff___autoParam___closed__32);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -16749,7 +16726,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfOrdArgs_beq__iff___autoParam___closed__42, &l_Std_Packages_LinearPreorderOfOrdArgs_beq__iff___autoParam___closed__42_once, _init_l_Std_Packages_LinearPreorderOfOrdArgs_beq__iff___autoParam___closed__42);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -16773,7 +16750,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearPreorderOfOrdArgs_beq__iff___autoParam___closed__44, &l_Std_Packages_LinearPreorderOfOrdArgs_beq__iff___autoParam___closed__44_once, _init_l_Std_Packages_LinearPreorderOfOrdArgs_beq__iff___autoParam___closed__44);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -17052,7 +17029,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfOrdArgs_eq__of__compare___autoParam___closed__12, &l_Std_Packages_LinearOrderOfOrdArgs_eq__of__compare___autoParam___closed__12_once, _init_l_Std_Packages_LinearOrderOfOrdArgs_eq__of__compare___autoParam___closed__12);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -17076,7 +17053,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfOrdArgs_eq__of__compare___autoParam___closed__14, &l_Std_Packages_LinearOrderOfOrdArgs_eq__of__compare___autoParam___closed__14_once, _init_l_Std_Packages_LinearOrderOfOrdArgs_eq__of__compare___autoParam___closed__14);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -17100,7 +17077,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfOrdArgs_eq__of__compare___autoParam___closed__16, &l_Std_Packages_LinearOrderOfOrdArgs_eq__of__compare___autoParam___closed__16_once, _init_l_Std_Packages_LinearOrderOfOrdArgs_eq__of__compare___autoParam___closed__16);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -17148,7 +17125,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfOrdArgs_eq__of__compare___autoParam___closed__20, &l_Std_Packages_LinearOrderOfOrdArgs_eq__of__compare___autoParam___closed__20_once, _init_l_Std_Packages_LinearOrderOfOrdArgs_eq__of__compare___autoParam___closed__20);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -17167,7 +17144,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfOrdArgs_eq__of__compare___autoParam___closed__23, &l_Std_Packages_LinearOrderOfOrdArgs_eq__of__compare___autoParam___closed__23_once, _init_l_Std_Packages_LinearOrderOfOrdArgs_eq__of__compare___autoParam___closed__23);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -17191,7 +17168,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfOrdArgs_eq__of__compare___autoParam___closed__25, &l_Std_Packages_LinearOrderOfOrdArgs_eq__of__compare___autoParam___closed__25_once, _init_l_Std_Packages_LinearOrderOfOrdArgs_eq__of__compare___autoParam___closed__25);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -17239,7 +17216,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfOrdArgs_eq__of__compare___autoParam___closed__29, &l_Std_Packages_LinearOrderOfOrdArgs_eq__of__compare___autoParam___closed__29_once, _init_l_Std_Packages_LinearOrderOfOrdArgs_eq__of__compare___autoParam___closed__29);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -17263,7 +17240,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfOrdArgs_eq__of__compare___autoParam___closed__31, &l_Std_Packages_LinearOrderOfOrdArgs_eq__of__compare___autoParam___closed__31_once, _init_l_Std_Packages_LinearOrderOfOrdArgs_eq__of__compare___autoParam___closed__31);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -17287,7 +17264,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfOrdArgs_eq__of__compare___autoParam___closed__33, &l_Std_Packages_LinearOrderOfOrdArgs_eq__of__compare___autoParam___closed__33_once, _init_l_Std_Packages_LinearOrderOfOrdArgs_eq__of__compare___autoParam___closed__33);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -17407,7 +17384,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfOrdArgs_eq__of__compare___autoParam___closed__43, &l_Std_Packages_LinearOrderOfOrdArgs_eq__of__compare___autoParam___closed__43_once, _init_l_Std_Packages_LinearOrderOfOrdArgs_eq__of__compare___autoParam___closed__43);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -17431,7 +17408,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfOrdArgs_eq__of__compare___autoParam___closed__45, &l_Std_Packages_LinearOrderOfOrdArgs_eq__of__compare___autoParam___closed__45_once, _init_l_Std_Packages_LinearOrderOfOrdArgs_eq__of__compare___autoParam___closed__45);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -17526,7 +17503,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfOrdArgs_min___autoParam___closed__7, &l_Std_Packages_LinearOrderOfOrdArgs_min___autoParam___closed__7_once, _init_l_Std_Packages_LinearOrderOfOrdArgs_min___autoParam___closed__7);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -17550,7 +17527,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfOrdArgs_min___autoParam___closed__9, &l_Std_Packages_LinearOrderOfOrdArgs_min___autoParam___closed__9_once, _init_l_Std_Packages_LinearOrderOfOrdArgs_min___autoParam___closed__9);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -17574,7 +17551,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfOrdArgs_min___autoParam___closed__11, &l_Std_Packages_LinearOrderOfOrdArgs_min___autoParam___closed__11_once, _init_l_Std_Packages_LinearOrderOfOrdArgs_min___autoParam___closed__11);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -17694,7 +17671,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfOrdArgs_min___autoParam___closed__21, &l_Std_Packages_LinearOrderOfOrdArgs_min___autoParam___closed__21_once, _init_l_Std_Packages_LinearOrderOfOrdArgs_min___autoParam___closed__21);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -17718,7 +17695,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfOrdArgs_min___autoParam___closed__23, &l_Std_Packages_LinearOrderOfOrdArgs_min___autoParam___closed__23_once, _init_l_Std_Packages_LinearOrderOfOrdArgs_min___autoParam___closed__23);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -17813,7 +17790,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfOrdArgs_max___autoParam___closed__7, &l_Std_Packages_LinearOrderOfOrdArgs_max___autoParam___closed__7_once, _init_l_Std_Packages_LinearOrderOfOrdArgs_max___autoParam___closed__7);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -17837,7 +17814,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfOrdArgs_max___autoParam___closed__9, &l_Std_Packages_LinearOrderOfOrdArgs_max___autoParam___closed__9_once, _init_l_Std_Packages_LinearOrderOfOrdArgs_max___autoParam___closed__9);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -17861,7 +17838,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfOrdArgs_max___autoParam___closed__11, &l_Std_Packages_LinearOrderOfOrdArgs_max___autoParam___closed__11_once, _init_l_Std_Packages_LinearOrderOfOrdArgs_max___autoParam___closed__11);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -17981,7 +17958,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfOrdArgs_max___autoParam___closed__21, &l_Std_Packages_LinearOrderOfOrdArgs_max___autoParam___closed__21_once, _init_l_Std_Packages_LinearOrderOfOrdArgs_max___autoParam___closed__21);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -18005,7 +17982,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfOrdArgs_max___autoParam___closed__23, &l_Std_Packages_LinearOrderOfOrdArgs_max___autoParam___closed__23_once, _init_l_Std_Packages_LinearOrderOfOrdArgs_max___autoParam___closed__23);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -18076,7 +18053,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfOrdArgs_min__eq___autoParam___closed__5, &l_Std_Packages_LinearOrderOfOrdArgs_min__eq___autoParam___closed__5_once, _init_l_Std_Packages_LinearOrderOfOrdArgs_min__eq___autoParam___closed__5);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -18182,7 +18159,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfOrdArgs_min__eq___autoParam___closed__14, &l_Std_Packages_LinearOrderOfOrdArgs_min__eq___autoParam___closed__14_once, _init_l_Std_Packages_LinearOrderOfOrdArgs_min__eq___autoParam___closed__14);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -18206,7 +18183,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfOrdArgs_min__eq___autoParam___closed__16, &l_Std_Packages_LinearOrderOfOrdArgs_min__eq___autoParam___closed__16_once, _init_l_Std_Packages_LinearOrderOfOrdArgs_min__eq___autoParam___closed__16);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -18230,7 +18207,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfOrdArgs_min__eq___autoParam___closed__18, &l_Std_Packages_LinearOrderOfOrdArgs_min__eq___autoParam___closed__18_once, _init_l_Std_Packages_LinearOrderOfOrdArgs_min__eq___autoParam___closed__18);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -18278,7 +18255,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfOrdArgs_min__eq___autoParam___closed__22, &l_Std_Packages_LinearOrderOfOrdArgs_min__eq___autoParam___closed__22_once, _init_l_Std_Packages_LinearOrderOfOrdArgs_min__eq___autoParam___closed__22);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -18360,7 +18337,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfOrdArgs_min__eq___autoParam___closed__29, &l_Std_Packages_LinearOrderOfOrdArgs_min__eq___autoParam___closed__29_once, _init_l_Std_Packages_LinearOrderOfOrdArgs_min__eq___autoParam___closed__29);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -18384,7 +18361,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfOrdArgs_min__eq___autoParam___closed__31, &l_Std_Packages_LinearOrderOfOrdArgs_min__eq___autoParam___closed__31_once, _init_l_Std_Packages_LinearOrderOfOrdArgs_min__eq___autoParam___closed__31);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -18455,7 +18432,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfOrdArgs_max__eq___autoParam___closed__5, &l_Std_Packages_LinearOrderOfOrdArgs_max__eq___autoParam___closed__5_once, _init_l_Std_Packages_LinearOrderOfOrdArgs_max__eq___autoParam___closed__5);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -18561,7 +18538,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfOrdArgs_max__eq___autoParam___closed__14, &l_Std_Packages_LinearOrderOfOrdArgs_max__eq___autoParam___closed__14_once, _init_l_Std_Packages_LinearOrderOfOrdArgs_max__eq___autoParam___closed__14);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -18585,7 +18562,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfOrdArgs_max__eq___autoParam___closed__16, &l_Std_Packages_LinearOrderOfOrdArgs_max__eq___autoParam___closed__16_once, _init_l_Std_Packages_LinearOrderOfOrdArgs_max__eq___autoParam___closed__16);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -18609,7 +18586,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfOrdArgs_max__eq___autoParam___closed__18, &l_Std_Packages_LinearOrderOfOrdArgs_max__eq___autoParam___closed__18_once, _init_l_Std_Packages_LinearOrderOfOrdArgs_max__eq___autoParam___closed__18);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -18657,7 +18634,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfOrdArgs_max__eq___autoParam___closed__22, &l_Std_Packages_LinearOrderOfOrdArgs_max__eq___autoParam___closed__22_once, _init_l_Std_Packages_LinearOrderOfOrdArgs_max__eq___autoParam___closed__22);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -18739,7 +18716,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfOrdArgs_max__eq___autoParam___closed__29, &l_Std_Packages_LinearOrderOfOrdArgs_max__eq___autoParam___closed__29_once, _init_l_Std_Packages_LinearOrderOfOrdArgs_max__eq___autoParam___closed__29);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -18763,7 +18740,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Std_Packages_LinearOrderOfOrdArgs_max__eq___autoParam___closed__31, &l_Std_Packages_LinearOrderOfOrdArgs_max__eq___autoParam___closed__31_once, _init_l_Std_Packages_LinearOrderOfOrdArgs_max__eq___autoParam___closed__31);
-x_2 = lean_obj_once(&l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5, &l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5_once, _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5);
+x_2 = ((lean_object*)(l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }

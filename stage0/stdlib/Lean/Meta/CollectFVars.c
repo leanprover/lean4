@@ -55,8 +55,8 @@ lean_object* lean_infer_type(lean_object*, lean_object*, lean_object*, lean_obje
 lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldrMUnsafe_fold___at___00Lean_Meta_removeUnused_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l_Lean_Meta_removeUnused___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_Meta_removeUnused___closed__0;
+static const lean_array_object l_Lean_Meta_removeUnused___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_Lean_Meta_removeUnused___closed__0 = (const lean_object*)&l_Lean_Meta_removeUnused___closed__0_value;
 lean_object* l_Array_reverse___redArg(lean_object*);
 lean_object* l_Lean_Meta_getLocalInstances___redArg(lean_object*);
 size_t lean_usize_of_nat(lean_object*);
@@ -1044,15 +1044,6 @@ lean_dec_ref(x_1);
 return x_12;
 }
 }
-static lean_object* _init_l_Lean_Meta_removeUnused___closed__0(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Meta_removeUnused(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -1066,7 +1057,7 @@ lean_inc(x_18);
 lean_dec_ref(x_17);
 x_19 = lean_ctor_get(x_3, 2);
 x_20 = lean_unsigned_to_nat(0u);
-x_21 = lean_obj_once(&l_Lean_Meta_removeUnused___closed__0, &l_Lean_Meta_removeUnused___closed__0_once, _init_l_Lean_Meta_removeUnused___closed__0);
+x_21 = ((lean_object*)(l_Lean_Meta_removeUnused___closed__0));
 x_22 = lean_array_get_size(x_1);
 x_23 = lean_nat_dec_lt(x_20, x_22);
 if (x_23 == 0)

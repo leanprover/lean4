@@ -86,8 +86,8 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___00Lean_SearchPath_findAllWithExt_spec__2___redArg___lam__0(uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___00Lean_SearchPath_findAllWithExt_spec__2___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l_List_forIn_x27_loop___at___00Lean_SearchPath_findAllWithExt_spec__2___redArg___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_List_forIn_x27_loop___at___00Lean_SearchPath_findAllWithExt_spec__2___redArg___closed__0;
+static const lean_array_object l_List_forIn_x27_loop___at___00Lean_SearchPath_findAllWithExt_spec__2___redArg___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_List_forIn_x27_loop___at___00Lean_SearchPath_findAllWithExt_spec__2___redArg___closed__0 = (const lean_object*)&l_List_forIn_x27_loop___at___00Lean_SearchPath_findAllWithExt_spec__2___redArg___closed__0_value;
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___00Lean_SearchPath_findAllWithExt_spec__2___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_System_FilePath_walkDir(lean_object*, lean_object*);
 lean_object* l_Array_append___redArg(lean_object*, lean_object*);
@@ -210,12 +210,10 @@ static const lean_ctor_object l_Lean_findSysroot___closed__1_value = {.m_header 
 static const lean_object* l_Lean_findSysroot___closed__1 = (const lean_object*)&l_Lean_findSysroot___closed__1_value;
 static const lean_string_object l_Lean_findSysroot___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 15, .m_capacity = 15, .m_length = 14, .m_data = "--print-prefix"};
 static const lean_object* l_Lean_findSysroot___closed__2 = (const lean_object*)&l_Lean_findSysroot___closed__2_value;
-static lean_once_cell_t l_Lean_findSysroot___closed__3_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_findSysroot___closed__3;
-static lean_once_cell_t l_Lean_findSysroot___closed__4_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_findSysroot___closed__4;
-static lean_once_cell_t l_Lean_findSysroot___closed__5_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_findSysroot___closed__5;
+static const lean_array_object l_Lean_findSysroot___closed__3_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*1, .m_other = 0, .m_tag = 246}, .m_size = 1, .m_capacity = 1, .m_data = {((lean_object*)&l_Lean_findSysroot___closed__2_value)}};
+static const lean_object* l_Lean_findSysroot___closed__3 = (const lean_object*)&l_Lean_findSysroot___closed__3_value;
+static const lean_array_object l_Lean_findSysroot___closed__4_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_Lean_findSysroot___closed__4 = (const lean_object*)&l_Lean_findSysroot___closed__4_value;
 lean_object* l_IO_Process_run(lean_object*, lean_object*);
 lean_object* l_String_Slice_trimAscii(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_findSysroot(lean_object*);
@@ -977,15 +975,6 @@ lean_dec_ref(x_2);
 return x_5;
 }
 }
-static lean_object* _init_l_List_forIn_x27_loop___at___00Lean_SearchPath_findAllWithExt_spec__2___redArg___closed__0(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___00Lean_SearchPath_findAllWithExt_spec__2___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -1027,7 +1016,7 @@ lean_inc(x_13);
 lean_dec_ref(x_12);
 x_18 = lean_unsigned_to_nat(0u);
 x_19 = lean_array_get_size(x_13);
-x_20 = lean_obj_once(&l_List_forIn_x27_loop___at___00Lean_SearchPath_findAllWithExt_spec__2___redArg___closed__0, &l_List_forIn_x27_loop___at___00Lean_SearchPath_findAllWithExt_spec__2___redArg___closed__0_once, _init_l_List_forIn_x27_loop___at___00Lean_SearchPath_findAllWithExt_spec__2___redArg___closed__0);
+x_20 = ((lean_object*)(l_List_forIn_x27_loop___at___00Lean_SearchPath_findAllWithExt_spec__2___redArg___closed__0));
 x_21 = lean_nat_dec_lt(x_18, x_19);
 if (x_21 == 0)
 {
@@ -1104,7 +1093,7 @@ LEAN_EXPORT lean_object* l_Lean_SearchPath_findAllWithExt(lean_object* x_1, lean
 _start:
 {
 lean_object* x_4; lean_object* x_5; 
-x_4 = lean_obj_once(&l_List_forIn_x27_loop___at___00Lean_SearchPath_findAllWithExt_spec__2___redArg___closed__0, &l_List_forIn_x27_loop___at___00Lean_SearchPath_findAllWithExt_spec__2___redArg___closed__0_once, _init_l_List_forIn_x27_loop___at___00Lean_SearchPath_findAllWithExt_spec__2___redArg___closed__0);
+x_4 = ((lean_object*)(l_List_forIn_x27_loop___at___00Lean_SearchPath_findAllWithExt_spec__2___redArg___closed__0));
 x_5 = l_List_forIn_x27_loop___at___00Lean_SearchPath_findAllWithExt_spec__2___redArg(x_2, x_1, x_4);
 return x_5;
 }
@@ -2637,34 +2626,6 @@ lean_dec(x_2);
 return x_7;
 }
 }
-static lean_object* _init_l_Lean_findSysroot___closed__3(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(1u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_findSysroot___closed__4(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = ((lean_object*)(l_Lean_findSysroot___closed__2));
-x_2 = lean_obj_once(&l_Lean_findSysroot___closed__3, &l_Lean_findSysroot___closed__3_once, _init_l_Lean_findSysroot___closed__3);
-x_3 = lean_array_push(x_2, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_findSysroot___closed__5(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_findSysroot(lean_object* x_1) {
 _start:
 {
@@ -2719,10 +2680,10 @@ else
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; uint8_t x_19; lean_object* x_20; lean_object* x_21; 
 lean_dec(x_4);
 x_13 = ((lean_object*)(l_Lean_findSysroot___closed__1));
-x_14 = lean_obj_once(&l_Lean_findSysroot___closed__4, &l_Lean_findSysroot___closed__4_once, _init_l_Lean_findSysroot___closed__4);
+x_14 = ((lean_object*)(l_Lean_findSysroot___closed__3));
 x_15 = lean_box(0);
 x_16 = lean_unsigned_to_nat(0u);
-x_17 = lean_obj_once(&l_Lean_findSysroot___closed__5, &l_Lean_findSysroot___closed__5_once, _init_l_Lean_findSysroot___closed__5);
+x_17 = ((lean_object*)(l_Lean_findSysroot___closed__4));
 x_18 = 1;
 x_19 = 0;
 x_20 = lean_alloc_ctor(0, 5, 2);

@@ -47,8 +47,8 @@ static lean_object* l_Lean_Meta_getMVars___closed__0;
 static lean_once_cell_t l_Lean_Meta_getMVars___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Meta_getMVars___closed__1;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l_Lean_Meta_getMVars___closed__2_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_Meta_getMVars___closed__2;
+static const lean_array_object l_Lean_Meta_getMVars___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_Lean_Meta_getMVars___closed__2 = (const lean_object*)&l_Lean_Meta_getMVars___closed__2_value;
 static lean_once_cell_t l_Lean_Meta_getMVars___closed__3_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Meta_getMVars___closed__3;
 lean_object* lean_st_mk_ref(lean_object*);
@@ -708,20 +708,11 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Meta_getMVars___closed__2(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Lean_Meta_getMVars___closed__3(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_obj_once(&l_Lean_Meta_getMVars___closed__2, &l_Lean_Meta_getMVars___closed__2_once, _init_l_Lean_Meta_getMVars___closed__2);
+x_1 = ((lean_object*)(l_Lean_Meta_getMVars___closed__2));
 x_2 = lean_obj_once(&l_Lean_Meta_getMVars___closed__1, &l_Lean_Meta_getMVars___closed__1_once, _init_l_Lean_Meta_getMVars___closed__1);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
@@ -1193,7 +1184,7 @@ block_28:
 lean_object* x_11; lean_object* x_12; lean_object* x_13; uint8_t x_14; 
 x_11 = lean_unsigned_to_nat(0u);
 x_12 = lean_array_get_size(x_8);
-x_13 = lean_obj_once(&l_Lean_Meta_getMVars___closed__2, &l_Lean_Meta_getMVars___closed__2_once, _init_l_Lean_Meta_getMVars___closed__2);
+x_13 = ((lean_object*)(l_Lean_Meta_getMVars___closed__2));
 x_14 = lean_nat_dec_lt(x_11, x_12);
 if (x_14 == 0)
 {

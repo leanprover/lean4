@@ -74,8 +74,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_DiscrTree_Trie_size___boxed(lean_object*, l
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Meta_DiscrTree_Trie_size_spec__0(lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Meta_DiscrTree_Trie_size_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l_Lean_Meta_DiscrTree_foldM___redArg___lam__0___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_Meta_DiscrTree_foldM___redArg___lam__0___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Meta_DiscrTree_foldM___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_foldlMAux___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_DiscrTree_foldM___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -104,8 +102,8 @@ LEAN_EXPORT lean_object* l_Lean_Meta_DiscrTree_values___redArg___lam__1(lean_obj
 LEAN_EXPORT lean_object* l_Lean_Meta_DiscrTree_values___redArg___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static const lean_closure_object l_Lean_Meta_DiscrTree_values___redArg___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lean_Meta_DiscrTree_values___redArg___lam__0, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_Lean_Meta_DiscrTree_values___redArg___closed__0 = (const lean_object*)&l_Lean_Meta_DiscrTree_values___redArg___closed__0_value;
-static lean_once_cell_t l_Lean_Meta_DiscrTree_values___redArg___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_Meta_DiscrTree_values___redArg___closed__1;
+static const lean_array_object l_Lean_Meta_DiscrTree_values___redArg___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_Lean_Meta_DiscrTree_values___redArg___closed__1 = (const lean_object*)&l_Lean_Meta_DiscrTree_values___redArg___closed__1_value;
 static const lean_closure_object l_Lean_Meta_DiscrTree_values___redArg___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*2, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lean_Meta_DiscrTree_values___redArg___lam__1___boxed, .m_arity = 5, .m_num_fixed = 2, .m_objs = {((lean_object*)&l_Lean_Meta_DiscrTree_Trie_fold___redArg___closed__9_value),((lean_object*)&l_Lean_Meta_DiscrTree_values___redArg___closed__0_value)} };
 static const lean_object* l_Lean_Meta_DiscrTree_values___redArg___closed__2 = (const lean_object*)&l_Lean_Meta_DiscrTree_values___redArg___closed__2_value;
 LEAN_EXPORT lean_object* l_Lean_Meta_DiscrTree_values___redArg(lean_object*);
@@ -114,8 +112,8 @@ LEAN_EXPORT lean_object* l_Lean_Meta_DiscrTree_toArray___redArg___lam__0(lean_ob
 LEAN_EXPORT lean_object* l_Lean_Meta_DiscrTree_toArray___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static const lean_closure_object l_Lean_Meta_DiscrTree_toArray___redArg___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lean_Meta_DiscrTree_toArray___redArg___lam__0, .m_arity = 3, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_Lean_Meta_DiscrTree_toArray___redArg___closed__0 = (const lean_object*)&l_Lean_Meta_DiscrTree_toArray___redArg___closed__0_value;
-static lean_once_cell_t l_Lean_Meta_DiscrTree_toArray___redArg___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_Meta_DiscrTree_toArray___redArg___closed__1;
+static const lean_array_object l_Lean_Meta_DiscrTree_toArray___redArg___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_Lean_Meta_DiscrTree_toArray___redArg___closed__1 = (const lean_object*)&l_Lean_Meta_DiscrTree_toArray___redArg___closed__1_value;
 static const lean_closure_object l_Lean_Meta_DiscrTree_toArray___redArg___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*2, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lean_Meta_DiscrTree_toArray___redArg___lam__1, .m_arity = 5, .m_num_fixed = 2, .m_objs = {((lean_object*)&l_Lean_Meta_DiscrTree_Trie_fold___redArg___closed__9_value),((lean_object*)&l_Lean_Meta_DiscrTree_toArray___redArg___closed__0_value)} };
 static const lean_object* l_Lean_Meta_DiscrTree_toArray___redArg___closed__2 = (const lean_object*)&l_Lean_Meta_DiscrTree_toArray___redArg___closed__2_value;
 LEAN_EXPORT lean_object* l_Lean_Meta_DiscrTree_toArray___redArg(lean_object*);
@@ -653,23 +651,15 @@ lean_dec_ref(x_2);
 return x_8;
 }
 }
-static lean_object* _init_l_Lean_Meta_DiscrTree_foldM___redArg___lam__0___closed__0(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(1u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Meta_DiscrTree_foldM___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
-lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_6 = lean_obj_once(&l_Lean_Meta_DiscrTree_foldM___redArg___lam__0___closed__0, &l_Lean_Meta_DiscrTree_foldM___redArg___lam__0___closed__0_once, _init_l_Lean_Meta_DiscrTree_foldM___redArg___lam__0___closed__0);
-x_7 = lean_array_push(x_6, x_4);
-x_8 = l_Lean_Meta_DiscrTree_Trie_foldM___redArg(x_1, x_7, x_2, x_3, x_5);
-return x_8;
+lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+x_6 = lean_unsigned_to_nat(1u);
+x_7 = lean_mk_empty_array_with_capacity(x_6);
+x_8 = lean_array_push(x_7, x_4);
+x_9 = l_Lean_Meta_DiscrTree_Trie_foldM___redArg(x_1, x_8, x_2, x_3, x_5);
+return x_9;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Meta_DiscrTree_foldM___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -707,11 +697,12 @@ return x_5;
 LEAN_EXPORT lean_object* l_Lean_Meta_DiscrTree_fold___redArg___lam__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
-lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_6 = lean_obj_once(&l_Lean_Meta_DiscrTree_foldM___redArg___lam__0___closed__0, &l_Lean_Meta_DiscrTree_foldM___redArg___lam__0___closed__0_once, _init_l_Lean_Meta_DiscrTree_foldM___redArg___lam__0___closed__0);
-x_7 = lean_array_push(x_6, x_4);
-x_8 = l_Lean_Meta_DiscrTree_Trie_foldM___redArg(x_1, x_7, x_2, x_3, x_5);
-return x_8;
+lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+x_6 = lean_unsigned_to_nat(1u);
+x_7 = lean_mk_empty_array_with_capacity(x_6);
+x_8 = lean_array_push(x_7, x_4);
+x_9 = l_Lean_Meta_DiscrTree_Trie_foldM___redArg(x_1, x_8, x_2, x_3, x_5);
+return x_9;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Meta_DiscrTree_fold___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -946,20 +937,11 @@ lean_dec(x_4);
 return x_6;
 }
 }
-static lean_object* _init_l_Lean_Meta_DiscrTree_values___redArg___closed__1(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Meta_DiscrTree_values___redArg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_2 = lean_obj_once(&l_Lean_Meta_DiscrTree_values___redArg___closed__1, &l_Lean_Meta_DiscrTree_values___redArg___closed__1_once, _init_l_Lean_Meta_DiscrTree_values___redArg___closed__1);
+x_2 = ((lean_object*)(l_Lean_Meta_DiscrTree_values___redArg___closed__1));
 x_3 = ((lean_object*)(l_Lean_Meta_DiscrTree_Trie_fold___redArg___closed__9));
 x_4 = ((lean_object*)(l_Lean_Meta_DiscrTree_values___redArg___closed__2));
 x_5 = l_Lean_PersistentHashMap_foldlMAux___redArg(x_3, x_4, x_1, x_2);
@@ -970,7 +952,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_DiscrTree_values(lean_object* x_1, lean_obj
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_3 = lean_obj_once(&l_Lean_Meta_DiscrTree_values___redArg___closed__1, &l_Lean_Meta_DiscrTree_values___redArg___closed__1_once, _init_l_Lean_Meta_DiscrTree_values___redArg___closed__1);
+x_3 = ((lean_object*)(l_Lean_Meta_DiscrTree_values___redArg___closed__1));
 x_4 = ((lean_object*)(l_Lean_Meta_DiscrTree_Trie_fold___redArg___closed__9));
 x_5 = ((lean_object*)(l_Lean_Meta_DiscrTree_values___redArg___closed__2));
 x_6 = l_Lean_PersistentHashMap_foldlMAux___redArg(x_4, x_5, x_2, x_3);
@@ -991,27 +973,19 @@ return x_5;
 LEAN_EXPORT lean_object* l_Lean_Meta_DiscrTree_toArray___redArg___lam__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
-lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_6 = lean_obj_once(&l_Lean_Meta_DiscrTree_foldM___redArg___lam__0___closed__0, &l_Lean_Meta_DiscrTree_foldM___redArg___lam__0___closed__0_once, _init_l_Lean_Meta_DiscrTree_foldM___redArg___lam__0___closed__0);
-x_7 = lean_array_push(x_6, x_4);
-x_8 = l_Lean_Meta_DiscrTree_Trie_foldM___redArg(x_1, x_7, x_2, x_3, x_5);
-return x_8;
-}
-}
-static lean_object* _init_l_Lean_Meta_DiscrTree_toArray___redArg___closed__1(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
+lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+x_6 = lean_unsigned_to_nat(1u);
+x_7 = lean_mk_empty_array_with_capacity(x_6);
+x_8 = lean_array_push(x_7, x_4);
+x_9 = l_Lean_Meta_DiscrTree_Trie_foldM___redArg(x_1, x_8, x_2, x_3, x_5);
+return x_9;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Meta_DiscrTree_toArray___redArg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_2 = lean_obj_once(&l_Lean_Meta_DiscrTree_toArray___redArg___closed__1, &l_Lean_Meta_DiscrTree_toArray___redArg___closed__1_once, _init_l_Lean_Meta_DiscrTree_toArray___redArg___closed__1);
+x_2 = ((lean_object*)(l_Lean_Meta_DiscrTree_toArray___redArg___closed__1));
 x_3 = ((lean_object*)(l_Lean_Meta_DiscrTree_Trie_fold___redArg___closed__9));
 x_4 = ((lean_object*)(l_Lean_Meta_DiscrTree_toArray___redArg___closed__2));
 x_5 = l_Lean_PersistentHashMap_foldlMAux___redArg(x_3, x_4, x_1, x_2);
@@ -1022,7 +996,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_DiscrTree_toArray(lean_object* x_1, lean_ob
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_3 = lean_obj_once(&l_Lean_Meta_DiscrTree_toArray___redArg___closed__1, &l_Lean_Meta_DiscrTree_toArray___redArg___closed__1_once, _init_l_Lean_Meta_DiscrTree_toArray___redArg___closed__1);
+x_3 = ((lean_object*)(l_Lean_Meta_DiscrTree_toArray___redArg___closed__1));
 x_4 = ((lean_object*)(l_Lean_Meta_DiscrTree_Trie_fold___redArg___closed__9));
 x_5 = ((lean_object*)(l_Lean_Meta_DiscrTree_toArray___redArg___closed__2));
 x_6 = l_Lean_PersistentHashMap_foldlMAux___redArg(x_4, x_5, x_2, x_3);

@@ -196,8 +196,8 @@ LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at___00Lean_parseVersoDocString__
 LEAN_EXPORT lean_object* l_Lean_parseVersoDocString___at___00Lean_versoDocString_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_parseVersoDocString___at___00Lean_versoDocString_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l_Lean_versoDocString___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_versoDocString___closed__0;
+static const lean_array_object l_Lean_versoDocString___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_Lean_versoDocString___closed__0 = (const lean_object*)&l_Lean_versoDocString___closed__0_value;
 static lean_once_cell_t l_Lean_versoDocString___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_versoDocString___closed__1;
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
@@ -249,15 +249,15 @@ static const lean_ctor_object l_Lean_versoDocStringFromString___closed__1_value 
 static const lean_object* l_Lean_versoDocStringFromString___closed__1 = (const lean_object*)&l_Lean_versoDocStringFromString___closed__1_value;
 static const lean_closure_object l_Lean_versoDocStringFromString___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*1, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lean_Doc_Parser_document, .m_arity = 3, .m_num_fixed = 1, .m_objs = {((lean_object*)&l_Lean_versoDocStringFromString___closed__1_value)} };
 static const lean_object* l_Lean_versoDocStringFromString___closed__2 = (const lean_object*)&l_Lean_versoDocStringFromString___closed__2_value;
-static lean_once_cell_t l_Lean_versoDocStringFromString___closed__3_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_versoDocStringFromString___closed__3;
+static const lean_array_object l_Lean_versoDocStringFromString___closed__3_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_Lean_versoDocStringFromString___closed__3 = (const lean_object*)&l_Lean_versoDocStringFromString___closed__3_value;
 static const lean_string_object l_Lean_versoDocStringFromString___closed__4_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 5, .m_capacity = 5, .m_length = 4, .m_data = "null"};
 static const lean_object* l_Lean_versoDocStringFromString___closed__4 = (const lean_object*)&l_Lean_versoDocStringFromString___closed__4_value;
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 static const lean_ctor_object l_Lean_versoDocStringFromString___closed__5_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_Lean_versoDocStringFromString___closed__4_value),LEAN_SCALAR_PTR_LITERAL(24, 58, 49, 223, 146, 207, 197, 136)}};
 static const lean_object* l_Lean_versoDocStringFromString___closed__5 = (const lean_object*)&l_Lean_versoDocStringFromString___closed__5_value;
-static lean_once_cell_t l_Lean_versoDocStringFromString___closed__6_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_versoDocStringFromString___closed__6;
+static const lean_ctor_object l_Lean_versoDocStringFromString___closed__6_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*3 + 0, .m_other = 3, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(2) << 1) | 1)),((lean_object*)&l_Lean_versoDocStringFromString___closed__5_value),((lean_object*)&l_Lean_versoDocStringFromString___closed__3_value)}};
+static const lean_object* l_Lean_versoDocStringFromString___closed__6 = (const lean_object*)&l_Lean_versoDocStringFromString___closed__6_value;
 lean_object* l_Lean_FileMap_ofString(lean_object*);
 lean_object* l_Lean_Core_getAndEmptyMessageLog___redArg(lean_object*);
 lean_object* l_Lean_Core_setMessageLog___redArg(lean_object*, lean_object*);
@@ -1609,8 +1609,8 @@ goto block_29;
 }
 else
 {
-lean_dec(x_35);
 lean_dec_ref(x_34);
+lean_dec(x_35);
 lean_dec_ref(x_33);
 lean_dec_ref(x_32);
 lean_dec_ref(x_31);
@@ -1636,8 +1636,8 @@ goto block_29;
 }
 else
 {
-lean_dec(x_32);
 lean_dec_ref(x_31);
+lean_dec(x_32);
 goto block_29;
 }
 }
@@ -3565,8 +3565,8 @@ return x_236;
 }
 else
 {
-lean_dec_ref(x_211);
 lean_dec(x_212);
+lean_dec_ref(x_211);
 lean_dec_ref(x_210);
 lean_dec_ref(x_209);
 lean_dec_ref(x_208);
@@ -3600,8 +3600,8 @@ goto block_199;
 }
 else
 {
-lean_dec_ref(x_209);
 lean_dec(x_210);
+lean_dec_ref(x_209);
 lean_dec_ref(x_208);
 lean_dec_ref(x_207);
 x_170 = x_2;
@@ -3631,8 +3631,8 @@ goto block_199;
 }
 else
 {
-lean_dec(x_208);
 lean_dec_ref(x_207);
+lean_dec(x_208);
 x_170 = x_2;
 x_171 = x_3;
 x_172 = x_4;
@@ -4262,20 +4262,11 @@ lean_dec(x_3);
 return x_9;
 }
 }
-static lean_object* _init_l_Lean_versoDocString___closed__0(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Lean_versoDocString___closed__1(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_obj_once(&l_Lean_versoDocString___closed__0, &l_Lean_versoDocString___closed__0_once, _init_l_Lean_versoDocString___closed__0);
+x_1 = ((lean_object*)(l_Lean_versoDocString___closed__0));
 x_2 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_2, 0, x_1);
 lean_ctor_set(x_2, 1, x_1);
@@ -5723,29 +5714,6 @@ lean_dec_ref(x_1);
 return x_14;
 }
 }
-static lean_object* _init_l_Lean_versoDocStringFromString___closed__3(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_versoDocStringFromString___closed__6(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = lean_obj_once(&l_Lean_versoDocStringFromString___closed__3, &l_Lean_versoDocStringFromString___closed__3_once, _init_l_Lean_versoDocStringFromString___closed__3);
-x_2 = ((lean_object*)(l_Lean_versoDocStringFromString___closed__5));
-x_3 = lean_box(2);
-x_4 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_4, 0, x_3);
-lean_ctor_set(x_4, 1, x_2);
-lean_ctor_set(x_4, 2, x_1);
-return x_4;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_versoDocStringFromString(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
@@ -5907,7 +5875,7 @@ x_71 = l_Lean_Parser_SyntaxStack_back(x_69);
 lean_dec_ref(x_69);
 x_72 = l_Lean_Syntax_getArgs(x_71);
 lean_dec(x_71);
-x_73 = lean_obj_once(&l_Lean_versoDocStringFromString___closed__6, &l_Lean_versoDocStringFromString___closed__6_once, _init_l_Lean_versoDocStringFromString___closed__6);
+x_73 = ((lean_object*)(l_Lean_versoDocStringFromString___closed__6));
 x_74 = lean_array_size(x_72);
 x_75 = 0;
 x_76 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_versoModDocString_spec__0(x_74, x_75, x_72);
@@ -8085,16 +8053,16 @@ goto block_14;
 }
 else
 {
-lean_dec(x_27);
 lean_dec_ref(x_26);
+lean_dec(x_27);
 lean_dec_ref(x_24);
 goto block_14;
 }
 }
 else
 {
-lean_dec_ref(x_24);
 lean_dec(x_26);
+lean_dec_ref(x_24);
 goto block_14;
 }
 }

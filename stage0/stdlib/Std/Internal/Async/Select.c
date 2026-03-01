@@ -226,7 +226,8 @@ LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Selectable_combine___redArg___l
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Selectable_combine___redArg___lam__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static const lean_closure_object l_Std_Internal_IO_Async_Selectable_combine___redArg___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*1, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Std_Internal_IO_Async_Selectable_combine___redArg___lam__1___boxed, .m_arity = 3, .m_num_fixed = 1, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1))} };
 static const lean_object* l_Std_Internal_IO_Async_Selectable_combine___redArg___closed__0 = (const lean_object*)&l_Std_Internal_IO_Async_Selectable_combine___redArg___closed__0_value;
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Selectable_combine___redArg___boxed__const__1;
+static const lean_ctor_object l_Std_Internal_IO_Async_Selectable_combine___redArg___boxed__const__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*0 + sizeof(size_t)*1, .m_other = 0, .m_tag = 0}, .m_objs = {(lean_object*)(size_t)(0ULL)}};
+LEAN_EXPORT const lean_object* l_Std_Internal_IO_Async_Selectable_combine___redArg___boxed__const__1 = (const lean_object*)&l_Std_Internal_IO_Async_Selectable_combine___redArg___boxed__const__1_value;
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Selectable_combine___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Selectable_combine___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Selectable_combine(lean_object*, lean_object*);
@@ -6047,15 +6048,6 @@ x_11 = l_Std_Internal_IO_Async_Selectable_combine___redArg___lam__2(x_8, x_2, x_
 return x_11;
 }
 }
-static lean_object* _init_l_Std_Internal_IO_Async_Selectable_combine___redArg___boxed__const__1(void) {
-_start:
-{
-size_t x_1; lean_object* x_2; 
-x_1 = 0;
-x_2 = lean_box_usize(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Selectable_combine___redArg(lean_object* x_1) {
 _start:
 {
@@ -6113,7 +6105,7 @@ x_20 = ((lean_object*)(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsaf
 x_21 = lean_array_size(x_13);
 x_22 = lean_box(x_3);
 x_23 = lean_box_usize(x_21);
-x_24 = l_Std_Internal_IO_Async_Selectable_combine___redArg___boxed__const__1;
+x_24 = ((lean_object*)(l_Std_Internal_IO_Async_Selectable_combine___redArg___boxed__const__1));
 lean_inc_ref(x_13);
 x_25 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_Selectable_combine___redArg___lam__4___boxed), 7, 6);
 lean_closure_set(x_25, 0, x_22);
@@ -6124,7 +6116,7 @@ lean_closure_set(x_25, 4, x_14);
 lean_closure_set(x_25, 5, x_15);
 x_26 = lean_box(x_3);
 x_27 = lean_box_usize(x_21);
-x_28 = l_Std_Internal_IO_Async_Selectable_combine___redArg___boxed__const__1;
+x_28 = ((lean_object*)(l_Std_Internal_IO_Async_Selectable_combine___redArg___boxed__const__1));
 x_29 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_Selectable_combine___redArg___lam__2___boxed), 7, 6);
 lean_closure_set(x_29, 0, x_26);
 lean_closure_set(x_29, 1, x_13);
@@ -6306,8 +6298,6 @@ res = runtime_initialize_Init_Omega(builtin)
 ;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Std_Internal_IO_Async_Selectable_combine___redArg___boxed__const__1 = _init_l_Std_Internal_IO_Async_Selectable_combine___redArg___boxed__const__1();
-lean_mark_persistent(l_Std_Internal_IO_Async_Selectable_combine___redArg___boxed__const__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
 static bool _G_meta_initialized = false;

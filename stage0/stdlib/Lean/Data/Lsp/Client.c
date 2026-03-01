@@ -25,8 +25,8 @@ static const lean_object* l_Lean_Lsp_instToJsonRegistration_toJson___closed__1 =
 static const lean_string_object l_Lean_Lsp_instToJsonRegistration_toJson___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 16, .m_capacity = 16, .m_length = 15, .m_data = "registerOptions"};
 static const lean_object* l_Lean_Lsp_instToJsonRegistration_toJson___closed__2 = (const lean_object*)&l_Lean_Lsp_instToJsonRegistration_toJson___closed__2_value;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l_Lean_Lsp_instToJsonRegistration_toJson___closed__3_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_Lsp_instToJsonRegistration_toJson___closed__3;
+static const lean_array_object l_Lean_Lsp_instToJsonRegistration_toJson___closed__3_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_Lean_Lsp_instToJsonRegistration_toJson___closed__3 = (const lean_object*)&l_Lean_Lsp_instToJsonRegistration_toJson___closed__3_value;
 lean_object* l_Lean_Json_mkObj(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_instToJsonRegistration_toJson(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_instToJsonRegistration_toJson___boxed(lean_object*);
@@ -182,15 +182,6 @@ goto _start;
 }
 }
 }
-static lean_object* _init_l_Lean_Lsp_instToJsonRegistration_toJson___closed__3(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Lsp_instToJsonRegistration_toJson(lean_object* x_1) {
 _start:
 {
@@ -236,7 +227,7 @@ lean_ctor_set(x_19, 1, x_18);
 x_20 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_20, 0, x_9);
 lean_ctor_set(x_20, 1, x_19);
-x_21 = lean_obj_once(&l_Lean_Lsp_instToJsonRegistration_toJson___closed__3, &l_Lean_Lsp_instToJsonRegistration_toJson___closed__3_once, _init_l_Lean_Lsp_instToJsonRegistration_toJson___closed__3);
+x_21 = ((lean_object*)(l_Lean_Lsp_instToJsonRegistration_toJson___closed__3));
 x_22 = l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___00Lean_Lsp_instToJsonRegistration_toJson_spec__1(x_20, x_21);
 x_23 = l_Lean_Json_mkObj(x_22);
 return x_23;
@@ -709,7 +700,7 @@ lean_ctor_set(x_6, 1, x_5);
 x_7 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_7, 0, x_6);
 lean_ctor_set(x_7, 1, x_5);
-x_8 = lean_obj_once(&l_Lean_Lsp_instToJsonRegistration_toJson___closed__3, &l_Lean_Lsp_instToJsonRegistration_toJson___closed__3_once, _init_l_Lean_Lsp_instToJsonRegistration_toJson___closed__3);
+x_8 = ((lean_object*)(l_Lean_Lsp_instToJsonRegistration_toJson___closed__3));
 x_9 = l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___00Lean_Lsp_instToJsonRegistration_toJson_spec__1(x_7, x_8);
 x_10 = l_Lean_Json_mkObj(x_9);
 return x_10;

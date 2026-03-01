@@ -297,8 +297,8 @@ static const lean_closure_object l_Std_Internal_UV_System_instReprGroupInfo___cl
 static const lean_object* l_Std_Internal_UV_System_instReprGroupInfo___closed__0 = (const lean_object*)&l_Std_Internal_UV_System_instReprGroupInfo___closed__0_value;
 LEAN_EXPORT const lean_object* l_Std_Internal_UV_System_instReprGroupInfo = (const lean_object*)&l_Std_Internal_UV_System_instReprGroupInfo___closed__0_value;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l_Std_Internal_UV_System_instInhabitedGroupInfo_default___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Std_Internal_UV_System_instInhabitedGroupInfo_default___closed__0;
+static const lean_array_object l_Std_Internal_UV_System_instInhabitedGroupInfo_default___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_Std_Internal_UV_System_instInhabitedGroupInfo_default___closed__0 = (const lean_object*)&l_Std_Internal_UV_System_instInhabitedGroupInfo_default___closed__0_value;
 static lean_once_cell_t l_Std_Internal_UV_System_instInhabitedGroupInfo_default___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Internal_UV_System_instInhabitedGroupInfo_default___closed__1;
 LEAN_EXPORT lean_object* l_Std_Internal_UV_System_instInhabitedGroupInfo_default;
@@ -2043,20 +2043,11 @@ lean_dec(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Std_Internal_UV_System_instInhabitedGroupInfo_default___closed__0(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Std_Internal_UV_System_instInhabitedGroupInfo_default___closed__1(void) {
 _start:
 {
 lean_object* x_1; uint64_t x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = lean_obj_once(&l_Std_Internal_UV_System_instInhabitedGroupInfo_default___closed__0, &l_Std_Internal_UV_System_instInhabitedGroupInfo_default___closed__0_once, _init_l_Std_Internal_UV_System_instInhabitedGroupInfo_default___closed__0);
+x_1 = ((lean_object*)(l_Std_Internal_UV_System_instInhabitedGroupInfo_default___closed__0));
 x_2 = lean_uint64_once(&l_Std_Internal_UV_System_instInhabitedRUsage_default___closed__0, &l_Std_Internal_UV_System_instInhabitedRUsage_default___closed__0_once, _init_l_Std_Internal_UV_System_instInhabitedRUsage_default___closed__0);
 x_3 = ((lean_object*)(l_Std_Internal_UV_System_instInhabitedCPUInfo_default___closed__0));
 x_4 = lean_alloc_ctor(0, 2, 8);

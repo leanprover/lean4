@@ -68,8 +68,8 @@ static const lean_object* l_Lean_Elab_Tactic_evalSymm___closed__7 = (const lean_
 static const lean_closure_object l_Lean_Elab_Tactic_evalSymm___closed__8_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lean_Elab_Tactic_evalSymm___lam__4___boxed, .m_arity = 10, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_Lean_Elab_Tactic_evalSymm___closed__8 = (const lean_object*)&l_Lean_Elab_Tactic_evalSymm___closed__8_value;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l_Lean_Elab_Tactic_evalSymm___closed__9_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_Elab_Tactic_evalSymm___closed__9;
+static const lean_array_object l_Lean_Elab_Tactic_evalSymm___closed__9_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_Lean_Elab_Tactic_evalSymm___closed__9 = (const lean_object*)&l_Lean_Elab_Tactic_evalSymm___closed__9_value;
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getOptional_x3f(lean_object*);
@@ -652,15 +652,6 @@ x_11 = l_Lean_Elab_Tactic_evalSymm___lam__4(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x
 return x_11;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_evalSymm___closed__9(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_evalSymm(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
 _start:
 {
@@ -697,7 +688,7 @@ lean_dec(x_18);
 if (lean_obj_tag(x_19) == 0)
 {
 lean_object* x_20; lean_object* x_21; lean_object* x_22; 
-x_20 = lean_obj_once(&l_Lean_Elab_Tactic_evalSymm___closed__9, &l_Lean_Elab_Tactic_evalSymm___closed__9_once, _init_l_Lean_Elab_Tactic_evalSymm___closed__9);
+x_20 = ((lean_object*)(l_Lean_Elab_Tactic_evalSymm___closed__9));
 x_21 = lean_alloc_ctor(1, 1, 1);
 lean_ctor_set(x_21, 0, x_20);
 lean_ctor_set_uint8(x_21, sizeof(void*)*1, x_12);

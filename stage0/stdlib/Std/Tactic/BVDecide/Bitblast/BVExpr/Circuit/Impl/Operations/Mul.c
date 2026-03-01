@@ -91,11 +91,11 @@ block_19:
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
 x_12 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_12, 0, x_11);
-lean_ctor_set(x_12, 1, x_10);
+lean_ctor_set(x_12, 1, x_9);
 lean_ctor_set(x_12, 2, x_8);
 lean_inc_ref(x_2);
 lean_inc_ref(x_1);
-x_13 = l_Std_Sat_AIG_RefVec_ite___redArg(x_1, x_2, x_3, x_9, x_12);
+x_13 = l_Std_Sat_AIG_RefVec_ite___redArg(x_1, x_2, x_3, x_10, x_12);
 x_14 = lean_ctor_get(x_13, 0);
 lean_inc_ref(x_14);
 x_15 = lean_ctor_get(x_13, 1);
@@ -186,8 +186,8 @@ lean_object* x_40;
 x_40 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_40, 0, x_36);
 lean_ctor_set_uint8(x_40, sizeof(void*)*1, x_20);
-x_9 = x_32;
-x_10 = x_33;
+x_9 = x_33;
+x_10 = x_32;
 x_11 = x_40;
 goto block_19;
 }
@@ -197,8 +197,8 @@ lean_object* x_41;
 x_41 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_41, 0, x_36);
 lean_ctor_set_uint8(x_41, sizeof(void*)*1, x_23);
-x_9 = x_32;
-x_10 = x_33;
+x_9 = x_33;
+x_10 = x_32;
 x_11 = x_41;
 goto block_19;
 }

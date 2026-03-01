@@ -83,10 +83,10 @@ uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Lean_Compiler_LCNF_Simp_addDefaultAlt_spec__2(lean_object*, lean_object*, size_t, size_t);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Lean_Compiler_LCNF_Simp_addDefaultAlt_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l_Lean_Compiler_LCNF_Simp_addDefaultAlt___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_Compiler_LCNF_Simp_addDefaultAlt___closed__0;
-static lean_once_cell_t l_Lean_Compiler_LCNF_Simp_addDefaultAlt___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_Compiler_LCNF_Simp_addDefaultAlt___closed__1;
+static const lean_array_object l_Lean_Compiler_LCNF_Simp_addDefaultAlt___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_Lean_Compiler_LCNF_Simp_addDefaultAlt___closed__0 = (const lean_object*)&l_Lean_Compiler_LCNF_Simp_addDefaultAlt___closed__0_value;
+static const lean_ctor_object l_Lean_Compiler_LCNF_Simp_addDefaultAlt___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 0, .m_other = 2, .m_tag = 0}, .m_objs = {((lean_object*)&l_Lean_Compiler_LCNF_Simp_addDefaultAlt___closed__0_value),((lean_object*)(((size_t)(1) << 1) | 1))}};
+static const lean_object* l_Lean_Compiler_LCNF_Simp_addDefaultAlt___closed__1 = (const lean_object*)&l_Lean_Compiler_LCNF_Simp_addDefaultAlt___closed__1_value;
 lean_object* l_Lean_Compiler_LCNF_Simp_markSimplified___redArg(lean_object*);
 size_t lean_array_size(lean_object*);
 size_t lean_usize_of_nat(lean_object*);
@@ -1169,28 +1169,6 @@ x_8 = lean_box(x_7);
 return x_8;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_Simp_addDefaultAlt___closed__0(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Compiler_LCNF_Simp_addDefaultAlt___closed__1(void) {
-_start:
-{
-uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = 1;
-x_2 = lean_obj_once(&l_Lean_Compiler_LCNF_Simp_addDefaultAlt___closed__0, &l_Lean_Compiler_LCNF_Simp_addDefaultAlt___closed__0_once, _init_l_Lean_Compiler_LCNF_Simp_addDefaultAlt___closed__0);
-x_3 = lean_box(x_1);
-x_4 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_4, 0, x_2);
-lean_ctor_set(x_4, 1, x_3);
-return x_4;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_addDefaultAlt(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
@@ -1261,7 +1239,7 @@ if (lean_obj_tag(x_24) == 0)
 {
 lean_object* x_25; size_t x_26; size_t x_27; lean_object* x_28; 
 lean_dec_ref(x_24);
-x_25 = lean_obj_once(&l_Lean_Compiler_LCNF_Simp_addDefaultAlt___closed__1, &l_Lean_Compiler_LCNF_Simp_addDefaultAlt___closed__1_once, _init_l_Lean_Compiler_LCNF_Simp_addDefaultAlt___closed__1);
+x_25 = ((lean_object*)(l_Lean_Compiler_LCNF_Simp_addDefaultAlt___closed__1));
 x_26 = lean_array_size(x_1);
 x_27 = 0;
 lean_inc(x_21);

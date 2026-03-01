@@ -17,8 +17,8 @@ lean_object* l_id___boxed(lean_object*, lean_object*);
 static const lean_closure_object l_List_flatMapMTR_loop___redArg___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*1, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_id___boxed, .m_arity = 2, .m_num_fixed = 1, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1))} };
 static const lean_object* l_List_flatMapMTR_loop___redArg___closed__0 = (const lean_object*)&l_List_flatMapMTR_loop___redArg___closed__0_value;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l_List_flatMapMTR_loop___redArg___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_List_flatMapMTR_loop___redArg___closed__1;
+static const lean_array_object l_List_flatMapMTR_loop___redArg___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_List_flatMapMTR_loop___redArg___closed__1 = (const lean_object*)&l_List_flatMapMTR_loop___redArg___closed__1_value;
 lean_object* l_List_reverse___redArg(lean_object*);
 lean_object* l___private_Init_Data_List_Impl_0__List_flatMapTR_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_flatMapMTR_loop___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -30,15 +30,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_List_ControlImpl_0__List_flatMapM
 LEAN_EXPORT lean_object* l___private_Init_Data_List_ControlImpl_0__List_flatMapM_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_List_ControlImpl_0__List_flatMapMTR_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_List_ControlImpl_0__List_flatMapMTR_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* _init_l_List_flatMapMTR_loop___redArg___closed__1(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_List_flatMapMTR_loop___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -54,7 +45,7 @@ lean_inc(x_6);
 lean_dec_ref(x_5);
 x_7 = l_List_reverse___redArg(x_4);
 x_8 = ((lean_object*)(l_List_flatMapMTR_loop___redArg___closed__0));
-x_9 = lean_obj_once(&l_List_flatMapMTR_loop___redArg___closed__1, &l_List_flatMapMTR_loop___redArg___closed__1_once, _init_l_List_flatMapMTR_loop___redArg___closed__1);
+x_9 = ((lean_object*)(l_List_flatMapMTR_loop___redArg___closed__1));
 x_10 = l___private_Init_Data_List_Impl_0__List_flatMapTR_go(lean_box(0), lean_box(0), x_8, x_7, x_9);
 x_11 = lean_apply_2(x_6, lean_box(0), x_10);
 return x_11;

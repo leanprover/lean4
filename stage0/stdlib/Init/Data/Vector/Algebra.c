@@ -47,8 +47,8 @@ static const lean_object* l_Vector_add___redArg___closed__8 = (const lean_object
 static const lean_ctor_object l_Vector_add___redArg___closed__9_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 0, .m_other = 2, .m_tag = 0}, .m_objs = {((lean_object*)&l_Vector_add___redArg___closed__8_value),((lean_object*)&l_Vector_add___redArg___closed__6_value)}};
 static const lean_object* l_Vector_add___redArg___closed__9 = (const lean_object*)&l_Vector_add___redArg___closed__9_value;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l_Vector_add___redArg___closed__10_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Vector_add___redArg___closed__10;
+static const lean_array_object l_Vector_add___redArg___closed__10_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_Vector_add___redArg___closed__10 = (const lean_object*)&l_Vector_add___redArg___closed__10_value;
 lean_object* l_Array_zipWithMAux___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Vector_add___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Vector_add(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -133,15 +133,6 @@ x_4 = lean_apply_2(x_1, x_2, x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Vector_add___redArg___closed__10(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Vector_add___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -150,7 +141,7 @@ x_4 = lean_alloc_closure((void*)(l_Vector_add___redArg___lam__0), 3, 1);
 lean_closure_set(x_4, 0, x_1);
 x_5 = ((lean_object*)(l_Vector_add___redArg___closed__9));
 x_6 = lean_unsigned_to_nat(0u);
-x_7 = lean_obj_once(&l_Vector_add___redArg___closed__10, &l_Vector_add___redArg___closed__10_once, _init_l_Vector_add___redArg___closed__10);
+x_7 = ((lean_object*)(l_Vector_add___redArg___closed__10));
 x_8 = l_Array_zipWithMAux___redArg(x_5, x_2, x_3, x_4, x_6, x_7);
 return x_8;
 }
@@ -262,7 +253,7 @@ x_4 = lean_alloc_closure((void*)(l_Vector_add___redArg___lam__0), 3, 1);
 lean_closure_set(x_4, 0, x_1);
 x_5 = ((lean_object*)(l_Vector_add___redArg___closed__9));
 x_6 = lean_unsigned_to_nat(0u);
-x_7 = lean_obj_once(&l_Vector_add___redArg___closed__10, &l_Vector_add___redArg___closed__10_once, _init_l_Vector_add___redArg___closed__10);
+x_7 = ((lean_object*)(l_Vector_add___redArg___closed__10));
 x_8 = l_Array_zipWithMAux___redArg(x_5, x_2, x_3, x_4, x_6, x_7);
 return x_8;
 }
@@ -314,7 +305,7 @@ x_4 = lean_alloc_closure((void*)(l_Vector_add___redArg___lam__0), 3, 1);
 lean_closure_set(x_4, 0, x_1);
 x_5 = ((lean_object*)(l_Vector_add___redArg___closed__9));
 x_6 = lean_unsigned_to_nat(0u);
-x_7 = lean_obj_once(&l_Vector_add___redArg___closed__10, &l_Vector_add___redArg___closed__10_once, _init_l_Vector_add___redArg___closed__10);
+x_7 = ((lean_object*)(l_Vector_add___redArg___closed__10));
 x_8 = l_Array_zipWithMAux___redArg(x_5, x_2, x_3, x_4, x_6, x_7);
 return x_8;
 }

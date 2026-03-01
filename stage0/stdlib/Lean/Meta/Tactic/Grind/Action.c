@@ -119,18 +119,16 @@ static const lean_ctor_object l_Lean_Meta_Grind_Action_mkGrindStep___closed__1_v
 static const lean_ctor_object l_Lean_Meta_Grind_Action_mkGrindStep___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_Lean_Meta_Grind_Action_mkGrindStep___closed__1_value_aux_3),((lean_object*)&l_Lean_Meta_Grind_Action_mkGrindStep___closed__0_value),LEAN_SCALAR_PTR_LITERAL(197, 239, 5, 217, 230, 199, 187, 87)}};
 static const lean_object* l_Lean_Meta_Grind_Action_mkGrindStep___closed__1 = (const lean_object*)&l_Lean_Meta_Grind_Action_mkGrindStep___closed__1_value;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l_Lean_Meta_Grind_Action_mkGrindStep___closed__2_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_Meta_Grind_Action_mkGrindStep___closed__2;
+static const lean_array_object l_Lean_Meta_Grind_Action_mkGrindStep___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_Lean_Meta_Grind_Action_mkGrindStep___closed__2 = (const lean_object*)&l_Lean_Meta_Grind_Action_mkGrindStep___closed__2_value;
 static const lean_string_object l_Lean_Meta_Grind_Action_mkGrindStep___closed__3_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 5, .m_capacity = 5, .m_length = 4, .m_data = "null"};
 static const lean_object* l_Lean_Meta_Grind_Action_mkGrindStep___closed__3 = (const lean_object*)&l_Lean_Meta_Grind_Action_mkGrindStep___closed__3_value;
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 static const lean_ctor_object l_Lean_Meta_Grind_Action_mkGrindStep___closed__4_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_Lean_Meta_Grind_Action_mkGrindStep___closed__3_value),LEAN_SCALAR_PTR_LITERAL(24, 58, 49, 223, 146, 207, 197, 136)}};
 static const lean_object* l_Lean_Meta_Grind_Action_mkGrindStep___closed__4 = (const lean_object*)&l_Lean_Meta_Grind_Action_mkGrindStep___closed__4_value;
-static lean_once_cell_t l_Lean_Meta_Grind_Action_mkGrindStep___closed__5_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_Meta_Grind_Action_mkGrindStep___closed__5;
+static const lean_ctor_object l_Lean_Meta_Grind_Action_mkGrindStep___closed__5_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*3 + 0, .m_other = 3, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(2) << 1) | 1)),((lean_object*)&l_Lean_Meta_Grind_Action_mkGrindStep___closed__4_value),((lean_object*)&l_Lean_Meta_Grind_Action_mkGrindStep___closed__2_value)}};
+static const lean_object* l_Lean_Meta_Grind_Action_mkGrindStep___closed__5 = (const lean_object*)&l_Lean_Meta_Grind_Action_mkGrindStep___closed__5_value;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l_Lean_Meta_Grind_Action_mkGrindStep___closed__6_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_Meta_Grind_Action_mkGrindStep___closed__6;
 lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Action_mkGrindStep(lean_object*);
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
@@ -139,10 +137,10 @@ uint8_t l_Lean_Syntax_isNone(lean_object*);
 uint8_t l_Lean_Syntax_matchesNull(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Action_TGrindStep_getTactic(lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at___00Lean_Meta_Grind_Action_mkGrindSeq_spec__0(lean_object*, lean_object*);
-static lean_once_cell_t l_Lean_Meta_Grind_Action_mkGrindSeq___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_Meta_Grind_Action_mkGrindSeq___closed__0;
-static lean_once_cell_t l_Lean_Meta_Grind_Action_mkGrindSeq___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_Meta_Grind_Action_mkGrindSeq___closed__1;
+static const lean_array_object l_Lean_Meta_Grind_Action_mkGrindSeq___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_Lean_Meta_Grind_Action_mkGrindSeq___closed__0 = (const lean_object*)&l_Lean_Meta_Grind_Action_mkGrindSeq___closed__0_value;
+static const lean_ctor_object l_Lean_Meta_Grind_Action_mkGrindSeq___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*3 + 0, .m_other = 3, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(2) << 1) | 1)),((lean_object*)&l_Lean_Meta_Grind_Action_mkGrindStep___closed__4_value),((lean_object*)&l_Lean_Meta_Grind_Action_mkGrindSeq___closed__0_value)}};
+static const lean_object* l_Lean_Meta_Grind_Action_mkGrindSeq___closed__1 = (const lean_object*)&l_Lean_Meta_Grind_Action_mkGrindSeq___closed__1_value;
 static const lean_string_object l_Lean_Meta_Grind_Action_mkGrindSeq___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 9, .m_capacity = 9, .m_length = 8, .m_data = "grindSeq"};
 static const lean_object* l_Lean_Meta_Grind_Action_mkGrindSeq___closed__2 = (const lean_object*)&l_Lean_Meta_Grind_Action_mkGrindSeq___closed__2_value;
 static const lean_ctor_object l_Lean_Meta_Grind_Action_mkGrindSeq___closed__3_value_aux_0 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_Lean_Meta_Grind_Action_run___lam__0___closed__0_value),LEAN_SCALAR_PTR_LITERAL(70, 193, 83, 126, 233, 67, 208, 165)}};
@@ -159,8 +157,6 @@ static const lean_ctor_object l_Lean_Meta_Grind_Action_mkGrindSeq___closed__5_va
 static const lean_ctor_object l_Lean_Meta_Grind_Action_mkGrindSeq___closed__5_value_aux_3 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_Lean_Meta_Grind_Action_mkGrindSeq___closed__5_value_aux_2),((lean_object*)&l_Lean_Meta_Grind_Action_run___lam__0___closed__3_value),LEAN_SCALAR_PTR_LITERAL(148, 105, 19, 51, 118, 250, 248, 43)}};
 static const lean_ctor_object l_Lean_Meta_Grind_Action_mkGrindSeq___closed__5_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_Lean_Meta_Grind_Action_mkGrindSeq___closed__5_value_aux_3),((lean_object*)&l_Lean_Meta_Grind_Action_mkGrindSeq___closed__4_value),LEAN_SCALAR_PTR_LITERAL(35, 114, 22, 139, 17, 175, 241, 184)}};
 static const lean_object* l_Lean_Meta_Grind_Action_mkGrindSeq___closed__5 = (const lean_object*)&l_Lean_Meta_Grind_Action_mkGrindSeq___closed__5_value;
-static lean_once_cell_t l_Lean_Meta_Grind_Action_mkGrindSeq___closed__6_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_Meta_Grind_Action_mkGrindSeq___closed__6;
 lean_object* l_List_intersperseTR___redArg(lean_object*, lean_object*);
 lean_object* lean_array_mk(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Action_mkGrindSeq(lean_object*);
@@ -1633,53 +1629,22 @@ lean_dec_ref(x_3);
 return x_15;
 }
 }
-static lean_object* _init_l_Lean_Meta_Grind_Action_mkGrindStep___closed__2(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Meta_Grind_Action_mkGrindStep___closed__5(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = lean_obj_once(&l_Lean_Meta_Grind_Action_mkGrindStep___closed__2, &l_Lean_Meta_Grind_Action_mkGrindStep___closed__2_once, _init_l_Lean_Meta_Grind_Action_mkGrindStep___closed__2);
-x_2 = ((lean_object*)(l_Lean_Meta_Grind_Action_mkGrindStep___closed__4));
-x_3 = lean_box(2);
-x_4 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_4, 0, x_3);
-lean_ctor_set(x_4, 1, x_2);
-lean_ctor_set(x_4, 2, x_1);
-return x_4;
-}
-}
-static lean_object* _init_l_Lean_Meta_Grind_Action_mkGrindStep___closed__6(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(2u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Action_mkGrindStep(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_2 = ((lean_object*)(l_Lean_Meta_Grind_Action_mkGrindStep___closed__1));
 x_3 = lean_box(2);
-x_4 = lean_obj_once(&l_Lean_Meta_Grind_Action_mkGrindStep___closed__5, &l_Lean_Meta_Grind_Action_mkGrindStep___closed__5_once, _init_l_Lean_Meta_Grind_Action_mkGrindStep___closed__5);
-x_5 = lean_obj_once(&l_Lean_Meta_Grind_Action_mkGrindStep___closed__6, &l_Lean_Meta_Grind_Action_mkGrindStep___closed__6_once, _init_l_Lean_Meta_Grind_Action_mkGrindStep___closed__6);
-x_6 = lean_array_push(x_5, x_1);
-x_7 = lean_array_push(x_6, x_4);
-x_8 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_8, 0, x_3);
-lean_ctor_set(x_8, 1, x_2);
-lean_ctor_set(x_8, 2, x_7);
-return x_8;
+x_4 = ((lean_object*)(l_Lean_Meta_Grind_Action_mkGrindStep___closed__5));
+x_5 = lean_unsigned_to_nat(2u);
+x_6 = lean_mk_empty_array_with_capacity(x_5);
+x_7 = lean_array_push(x_6, x_1);
+x_8 = lean_array_push(x_7, x_4);
+x_9 = lean_alloc_ctor(1, 3, 0);
+lean_ctor_set(x_9, 0, x_3);
+lean_ctor_set(x_9, 1, x_2);
+lean_ctor_set(x_9, 2, x_8);
+return x_9;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Action_TGrindStep_getTactic(lean_object* x_1) {
@@ -1693,7 +1658,7 @@ if (x_3 == 0)
 {
 lean_object* x_4; 
 lean_dec(x_1);
-x_4 = lean_obj_once(&l_Lean_Meta_Grind_Action_mkGrindStep___closed__5, &l_Lean_Meta_Grind_Action_mkGrindStep___closed__5_once, _init_l_Lean_Meta_Grind_Action_mkGrindStep___closed__5);
+x_4 = ((lean_object*)(l_Lean_Meta_Grind_Action_mkGrindStep___closed__5));
 return x_4;
 }
 else
@@ -1716,7 +1681,7 @@ if (x_11 == 0)
 lean_object* x_12; 
 lean_dec(x_8);
 lean_dec(x_6);
-x_12 = lean_obj_once(&l_Lean_Meta_Grind_Action_mkGrindStep___closed__5, &l_Lean_Meta_Grind_Action_mkGrindStep___closed__5_once, _init_l_Lean_Meta_Grind_Action_mkGrindStep___closed__5);
+x_12 = ((lean_object*)(l_Lean_Meta_Grind_Action_mkGrindStep___closed__5));
 return x_12;
 }
 else
@@ -1729,7 +1694,7 @@ if (x_14 == 0)
 {
 lean_object* x_15; 
 lean_dec(x_6);
-x_15 = lean_obj_once(&l_Lean_Meta_Grind_Action_mkGrindStep___closed__5, &l_Lean_Meta_Grind_Action_mkGrindStep___closed__5_once, _init_l_Lean_Meta_Grind_Action_mkGrindStep___closed__5);
+x_15 = ((lean_object*)(l_Lean_Meta_Grind_Action_mkGrindStep___closed__5));
 return x_15;
 }
 else
@@ -1806,47 +1771,15 @@ goto _start;
 }
 }
 }
-static lean_object* _init_l_Lean_Meta_Grind_Action_mkGrindSeq___closed__0(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Meta_Grind_Action_mkGrindSeq___closed__1(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = lean_obj_once(&l_Lean_Meta_Grind_Action_mkGrindSeq___closed__0, &l_Lean_Meta_Grind_Action_mkGrindSeq___closed__0_once, _init_l_Lean_Meta_Grind_Action_mkGrindSeq___closed__0);
-x_2 = ((lean_object*)(l_Lean_Meta_Grind_Action_mkGrindStep___closed__4));
-x_3 = lean_box(2);
-x_4 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_4, 0, x_3);
-lean_ctor_set(x_4, 1, x_2);
-lean_ctor_set(x_4, 2, x_1);
-return x_4;
-}
-}
-static lean_object* _init_l_Lean_Meta_Grind_Action_mkGrindSeq___closed__6(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(1u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Action_mkGrindSeq(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
 x_2 = lean_box(0);
 x_3 = l_List_mapTR_loop___at___00Lean_Meta_Grind_Action_mkGrindSeq_spec__0(x_1, x_2);
 x_4 = ((lean_object*)(l_Lean_Meta_Grind_Action_mkGrindStep___closed__4));
 x_5 = lean_box(2);
-x_6 = lean_obj_once(&l_Lean_Meta_Grind_Action_mkGrindSeq___closed__1, &l_Lean_Meta_Grind_Action_mkGrindSeq___closed__1_once, _init_l_Lean_Meta_Grind_Action_mkGrindSeq___closed__1);
+x_6 = ((lean_object*)(l_Lean_Meta_Grind_Action_mkGrindSeq___closed__1));
 x_7 = l_List_intersperseTR___redArg(x_6, x_3);
 x_8 = ((lean_object*)(l_Lean_Meta_Grind_Action_mkGrindSeq___closed__3));
 x_9 = ((lean_object*)(l_Lean_Meta_Grind_Action_mkGrindSeq___closed__5));
@@ -1855,18 +1788,20 @@ x_11 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_11, 0, x_5);
 lean_ctor_set(x_11, 1, x_4);
 lean_ctor_set(x_11, 2, x_10);
-x_12 = lean_obj_once(&l_Lean_Meta_Grind_Action_mkGrindSeq___closed__6, &l_Lean_Meta_Grind_Action_mkGrindSeq___closed__6_once, _init_l_Lean_Meta_Grind_Action_mkGrindSeq___closed__6);
-x_13 = lean_array_push(x_12, x_11);
-x_14 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_14, 0, x_5);
-lean_ctor_set(x_14, 1, x_9);
-lean_ctor_set(x_14, 2, x_13);
-x_15 = lean_array_push(x_12, x_14);
-x_16 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_16, 0, x_5);
-lean_ctor_set(x_16, 1, x_8);
-lean_ctor_set(x_16, 2, x_15);
-return x_16;
+x_12 = lean_unsigned_to_nat(1u);
+x_13 = lean_mk_empty_array_with_capacity(x_12);
+lean_inc_ref(x_13);
+x_14 = lean_array_push(x_13, x_11);
+x_15 = lean_alloc_ctor(1, 3, 0);
+lean_ctor_set(x_15, 0, x_5);
+lean_ctor_set(x_15, 1, x_9);
+lean_ctor_set(x_15, 2, x_14);
+x_16 = lean_array_push(x_13, x_15);
+x_17 = lean_alloc_ctor(1, 3, 0);
+lean_ctor_set(x_17, 0, x_5);
+lean_ctor_set(x_17, 1, x_8);
+lean_ctor_set(x_17, 2, x_16);
+return x_17;
 }
 }
 LEAN_EXPORT uint8_t l_List_beq___at___00Lean_Meta_Grind_Action_mkGrindNext_spec__0(lean_object* x_1, lean_object* x_2) {

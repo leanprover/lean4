@@ -84,8 +84,8 @@ static lean_object* l_Lean_Meta_Grind_Order_instInhabitedStruct_default___closed
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Order_instInhabitedStruct_default;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Order_instInhabitedStruct;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l_Lean_Meta_Grind_Order_instInhabitedState_default___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_Meta_Grind_Order_instInhabitedState_default___closed__0;
+static const lean_array_object l_Lean_Meta_Grind_Order_instInhabitedState_default___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_Lean_Meta_Grind_Order_instInhabitedState_default___closed__0 = (const lean_object*)&l_Lean_Meta_Grind_Order_instInhabitedState_default___closed__0_value;
 static lean_once_cell_t l_Lean_Meta_Grind_Order_instInhabitedState_default___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Meta_Grind_Order_instInhabitedState_default___closed__1;
 static lean_once_cell_t l_Lean_Meta_Grind_Order_instInhabitedState_default___closed__2_once = LEAN_ONCE_CELL_INITIALIZER;
@@ -649,15 +649,6 @@ x_1 = l_Lean_Meta_Grind_Order_instInhabitedStruct_default;
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Meta_Grind_Order_instInhabitedState_default___closed__0(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Lean_Meta_Grind_Order_instInhabitedState_default___closed__1(void) {
 _start:
 {
@@ -681,7 +672,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Lean_Meta_Grind_Order_instInhabitedState_default___closed__2, &l_Lean_Meta_Grind_Order_instInhabitedState_default___closed__2_once, _init_l_Lean_Meta_Grind_Order_instInhabitedState_default___closed__2);
-x_2 = lean_obj_once(&l_Lean_Meta_Grind_Order_instInhabitedState_default___closed__0, &l_Lean_Meta_Grind_Order_instInhabitedState_default___closed__0_once, _init_l_Lean_Meta_Grind_Order_instInhabitedState_default___closed__0);
+x_2 = ((lean_object*)(l_Lean_Meta_Grind_Order_instInhabitedState_default___closed__0));
 x_3 = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);

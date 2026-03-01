@@ -137,8 +137,6 @@ LEAN_EXPORT lean_object* l_Lake_Toml_Value_decodeArray___redArg(lean_object*, le
 LEAN_EXPORT lean_object* l_Lake_Toml_Value_decodeArray(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_Value_instDecodeTomlArray___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_Value_instDecodeTomlArray(lean_object*, lean_object*);
-static lean_once_cell_t l_Lake_Toml_Value_decodeArrayOrSingleton___redArg___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lake_Toml_Value_decodeArrayOrSingleton___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lake_Toml_Value_decodeArrayOrSingleton___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_Value_decodeArrayOrSingleton(lean_object*, lean_object*, lean_object*, lean_object*);
 static const lean_string_object l_Lake_Toml_Value_decodeTable___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 15, .m_capacity = 15, .m_length = 14, .m_data = "expected table"};
@@ -2865,15 +2863,6 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lake_Toml_Value_decodeArrayOrSingleton___redArg___closed__0(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(1u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_Toml_Value_decodeArrayOrSingleton___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -2892,15 +2881,15 @@ lean_object* x_6;
 x_6 = lean_apply_2(x_1, x_2, x_3);
 if (lean_obj_tag(x_6) == 0)
 {
-lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; uint8_t x_17; 
+lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; uint8_t x_18; 
 x_7 = lean_ctor_get(x_6, 0);
 x_8 = lean_ctor_get(x_6, 1);
-x_17 = !lean_is_exclusive(x_6);
-if (x_17 == 0)
+x_18 = !lean_is_exclusive(x_6);
+if (x_18 == 0)
 {
 x_9 = x_6;
-x_10 = x_17;
-goto block_16;
+x_10 = x_18;
+goto block_17;
 }
 else
 {
@@ -2908,128 +2897,19 @@ lean_inc(x_8);
 lean_inc(x_7);
 lean_dec(x_6);
 x_9 = lean_box(0);
-x_10 = x_17;
-goto block_16;
-}
-block_16:
-{
-lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-x_11 = lean_obj_once(&l_Lake_Toml_Value_decodeArrayOrSingleton___redArg___closed__0, &l_Lake_Toml_Value_decodeArrayOrSingleton___redArg___closed__0_once, _init_l_Lake_Toml_Value_decodeArrayOrSingleton___redArg___closed__0);
-x_12 = lean_array_push(x_11, x_7);
-if (x_10 == 0)
-{
-lean_ctor_set(x_9, 0, x_12);
-x_13 = x_9;
-goto block_14;
-}
-else
-{
-lean_object* x_15; 
-x_15 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_15, 0, x_12);
-lean_ctor_set(x_15, 1, x_8);
-x_13 = x_15;
-goto block_14;
-}
-block_14:
-{
-return x_13;
-}
-}
-}
-else
-{
-lean_object* x_18; lean_object* x_19; lean_object* x_20; uint8_t x_21; uint8_t x_26; 
-x_18 = lean_ctor_get(x_6, 0);
-x_19 = lean_ctor_get(x_6, 1);
-x_26 = !lean_is_exclusive(x_6);
-if (x_26 == 0)
-{
-x_20 = x_6;
-x_21 = x_26;
-goto block_25;
-}
-else
-{
-lean_inc(x_19);
-lean_inc(x_18);
-lean_dec(x_6);
-x_20 = lean_box(0);
-x_21 = x_26;
-goto block_25;
-}
-block_25:
-{
-lean_object* x_22; 
-if (x_21 == 0)
-{
-x_22 = x_20;
-goto block_23;
-}
-else
-{
-lean_object* x_24; 
-x_24 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_24, 0, x_18);
-lean_ctor_set(x_24, 1, x_19);
-x_22 = x_24;
-goto block_23;
-}
-block_23:
-{
-return x_22;
-}
-}
-}
-}
-}
-}
-LEAN_EXPORT lean_object* l_Lake_Toml_Value_decodeArrayOrSingleton(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-if (lean_obj_tag(x_3) == 5)
-{
-lean_object* x_5; lean_object* x_6; 
-x_5 = lean_ctor_get(x_3, 1);
-lean_inc_ref(x_5);
-lean_dec_ref(x_3);
-x_6 = l_Lake_Toml_decodeArray___redArg(x_2, x_5, x_4);
-return x_6;
-}
-else
-{
-lean_object* x_7; 
-x_7 = lean_apply_2(x_2, x_3, x_4);
-if (lean_obj_tag(x_7) == 0)
-{
-lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; uint8_t x_18; 
-x_8 = lean_ctor_get(x_7, 0);
-x_9 = lean_ctor_get(x_7, 1);
-x_18 = !lean_is_exclusive(x_7);
-if (x_18 == 0)
-{
-x_10 = x_7;
-x_11 = x_18;
-goto block_17;
-}
-else
-{
-lean_inc(x_9);
-lean_inc(x_8);
-lean_dec(x_7);
-x_10 = lean_box(0);
-x_11 = x_18;
+x_10 = x_18;
 goto block_17;
 }
 block_17:
 {
-lean_object* x_12; lean_object* x_13; lean_object* x_14; 
-x_12 = lean_obj_once(&l_Lake_Toml_Value_decodeArrayOrSingleton___redArg___closed__0, &l_Lake_Toml_Value_decodeArrayOrSingleton___redArg___closed__0_once, _init_l_Lake_Toml_Value_decodeArrayOrSingleton___redArg___closed__0);
-x_13 = lean_array_push(x_12, x_8);
-if (x_11 == 0)
+lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
+x_11 = lean_unsigned_to_nat(1u);
+x_12 = lean_mk_empty_array_with_capacity(x_11);
+x_13 = lean_array_push(x_12, x_7);
+if (x_10 == 0)
 {
-lean_ctor_set(x_10, 0, x_13);
-x_14 = x_10;
+lean_ctor_set(x_9, 0, x_13);
+x_14 = x_9;
 goto block_15;
 }
 else
@@ -3037,7 +2917,7 @@ else
 lean_object* x_16; 
 x_16 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_16, 0, x_13);
-lean_ctor_set(x_16, 1, x_9);
+lean_ctor_set(x_16, 1, x_8);
 x_14 = x_16;
 goto block_15;
 }
@@ -3050,12 +2930,12 @@ return x_14;
 else
 {
 lean_object* x_19; lean_object* x_20; lean_object* x_21; uint8_t x_22; uint8_t x_27; 
-x_19 = lean_ctor_get(x_7, 0);
-x_20 = lean_ctor_get(x_7, 1);
-x_27 = !lean_is_exclusive(x_7);
+x_19 = lean_ctor_get(x_6, 0);
+x_20 = lean_ctor_get(x_6, 1);
+x_27 = !lean_is_exclusive(x_6);
 if (x_27 == 0)
 {
-x_21 = x_7;
+x_21 = x_6;
 x_22 = x_27;
 goto block_26;
 }
@@ -3063,7 +2943,7 @@ else
 {
 lean_inc(x_20);
 lean_inc(x_19);
-lean_dec(x_7);
+lean_dec(x_6);
 x_21 = lean_box(0);
 x_22 = x_27;
 goto block_26;
@@ -3088,6 +2968,117 @@ goto block_24;
 block_24:
 {
 return x_23;
+}
+}
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lake_Toml_Value_decodeArrayOrSingleton(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+if (lean_obj_tag(x_3) == 5)
+{
+lean_object* x_5; lean_object* x_6; 
+x_5 = lean_ctor_get(x_3, 1);
+lean_inc_ref(x_5);
+lean_dec_ref(x_3);
+x_6 = l_Lake_Toml_decodeArray___redArg(x_2, x_5, x_4);
+return x_6;
+}
+else
+{
+lean_object* x_7; 
+x_7 = lean_apply_2(x_2, x_3, x_4);
+if (lean_obj_tag(x_7) == 0)
+{
+lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; uint8_t x_19; 
+x_8 = lean_ctor_get(x_7, 0);
+x_9 = lean_ctor_get(x_7, 1);
+x_19 = !lean_is_exclusive(x_7);
+if (x_19 == 0)
+{
+x_10 = x_7;
+x_11 = x_19;
+goto block_18;
+}
+else
+{
+lean_inc(x_9);
+lean_inc(x_8);
+lean_dec(x_7);
+x_10 = lean_box(0);
+x_11 = x_19;
+goto block_18;
+}
+block_18:
+{
+lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
+x_12 = lean_unsigned_to_nat(1u);
+x_13 = lean_mk_empty_array_with_capacity(x_12);
+x_14 = lean_array_push(x_13, x_8);
+if (x_11 == 0)
+{
+lean_ctor_set(x_10, 0, x_14);
+x_15 = x_10;
+goto block_16;
+}
+else
+{
+lean_object* x_17; 
+x_17 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_17, 0, x_14);
+lean_ctor_set(x_17, 1, x_9);
+x_15 = x_17;
+goto block_16;
+}
+block_16:
+{
+return x_15;
+}
+}
+}
+else
+{
+lean_object* x_20; lean_object* x_21; lean_object* x_22; uint8_t x_23; uint8_t x_28; 
+x_20 = lean_ctor_get(x_7, 0);
+x_21 = lean_ctor_get(x_7, 1);
+x_28 = !lean_is_exclusive(x_7);
+if (x_28 == 0)
+{
+x_22 = x_7;
+x_23 = x_28;
+goto block_27;
+}
+else
+{
+lean_inc(x_21);
+lean_inc(x_20);
+lean_dec(x_7);
+x_22 = lean_box(0);
+x_23 = x_28;
+goto block_27;
+}
+block_27:
+{
+lean_object* x_24; 
+if (x_23 == 0)
+{
+x_24 = x_22;
+goto block_25;
+}
+else
+{
+lean_object* x_26; 
+x_26 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_26, 0, x_20);
+lean_ctor_set(x_26, 1, x_21);
+x_24 = x_26;
+goto block_25;
+}
+block_25:
+{
+return x_24;
 }
 }
 }

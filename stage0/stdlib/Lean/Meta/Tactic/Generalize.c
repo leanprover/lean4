@@ -171,8 +171,8 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_MVarId_generalizeHyp_spec__3(uint8_t, lean_object*, uint8_t, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_MVarId_generalizeHyp_spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l_Lean_MVarId_generalizeHyp___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_MVarId_generalizeHyp___closed__0;
+static const lean_array_object l_Lean_MVarId_generalizeHyp___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_Lean_MVarId_generalizeHyp___closed__0 = (const lean_object*)&l_Lean_MVarId_generalizeHyp___closed__0_value;
 uint8_t l_Array_isEmpty___redArg(lean_object*);
 lean_object* l_Lean_MVarId_revert(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_toSubarray___redArg(lean_object*, lean_object*, lean_object*);
@@ -4576,15 +4576,6 @@ lean_dec_ref(x_2);
 return x_17;
 }
 }
-static lean_object* _init_l_Lean_MVarId_generalizeHyp___closed__0(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_MVarId_generalizeHyp(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, uint8_t x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
 _start:
 {
@@ -4604,7 +4595,7 @@ lean_inc(x_15);
 lean_dec_ref(x_14);
 x_103 = lean_unsigned_to_nat(0u);
 x_104 = lean_array_get_size(x_3);
-x_105 = lean_obj_once(&l_Lean_MVarId_generalizeHyp___closed__0, &l_Lean_MVarId_generalizeHyp___closed__0_once, _init_l_Lean_MVarId_generalizeHyp___closed__0);
+x_105 = ((lean_object*)(l_Lean_MVarId_generalizeHyp___closed__0));
 x_106 = lean_nat_dec_lt(x_103, x_104);
 if (x_106 == 0)
 {

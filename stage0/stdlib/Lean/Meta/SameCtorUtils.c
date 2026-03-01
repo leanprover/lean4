@@ -159,8 +159,8 @@ lean_object* l_Lean_Expr_sort___override(lean_object*);
 static lean_once_cell_t l_Lean_Meta_withSharedCtorIndices___redArg___lam__0___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Meta_withSharedCtorIndices___redArg___lam__0___closed__0;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l_Lean_Meta_withSharedCtorIndices___redArg___lam__0___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_Meta_withSharedCtorIndices___redArg___lam__0___closed__1;
+static const lean_array_object l_Lean_Meta_withSharedCtorIndices___redArg___lam__0___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_Lean_Meta_withSharedCtorIndices___redArg___lam__0___closed__1 = (const lean_object*)&l_Lean_Meta_withSharedCtorIndices___redArg___lam__0___closed__1_value;
 lean_object* l_Lean_Expr_getAppFn(lean_object*);
 lean_object* l_Lean_Expr_constName_x21(lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
@@ -2079,15 +2079,6 @@ x_2 = l_Lean_Expr_sort___override(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Meta_withSharedCtorIndices___redArg___lam__0___closed__1(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Meta_withSharedCtorIndices___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
@@ -2143,7 +2134,7 @@ x_23 = lean_obj_once(&l_Lean_Meta_withSharedCtorIndices___redArg___lam__0___clos
 lean_inc(x_18);
 x_24 = lean_mk_array(x_18, x_23);
 x_25 = l___private_Lean_Expr_0__Lean_Expr_getAppArgsN_loop(x_18, x_13, x_24);
-x_26 = lean_obj_once(&l_Lean_Meta_withSharedCtorIndices___redArg___lam__0___closed__1, &l_Lean_Meta_withSharedCtorIndices___redArg___lam__0___closed__1_once, _init_l_Lean_Meta_withSharedCtorIndices___redArg___lam__0___closed__1);
+x_26 = ((lean_object*)(l_Lean_Meta_withSharedCtorIndices___redArg___lam__0___closed__1));
 x_27 = lean_array_to_list(x_22);
 lean_inc_ref(x_3);
 x_28 = lean_array_to_list(x_3);

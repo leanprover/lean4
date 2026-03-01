@@ -60,10 +60,10 @@ static lean_object* l_IO_AsyncList_waitFind_x3f___redArg___closed__1;
 LEAN_EXPORT lean_object* l_IO_AsyncList_waitFind_x3f___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_AsyncList_waitFind_x3f___redArg___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_AsyncList_waitFind_x3f(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_once_cell_t l_IO_AsyncList_getFinishedPrefix___redArg___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_IO_AsyncList_getFinishedPrefix___redArg___closed__0;
-static lean_once_cell_t l_IO_AsyncList_getFinishedPrefix___redArg___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_IO_AsyncList_getFinishedPrefix___redArg___closed__1;
+static const lean_ctor_object l_IO_AsyncList_getFinishedPrefix___redArg___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 0, .m_other = 2, .m_tag = 0}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)(((size_t)(1) << 1) | 1))}};
+static const lean_object* l_IO_AsyncList_getFinishedPrefix___redArg___closed__0 = (const lean_object*)&l_IO_AsyncList_getFinishedPrefix___redArg___closed__0_value;
+static const lean_ctor_object l_IO_AsyncList_getFinishedPrefix___redArg___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 0, .m_other = 2, .m_tag = 0}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_IO_AsyncList_getFinishedPrefix___redArg___closed__0_value)}};
+static const lean_object* l_IO_AsyncList_getFinishedPrefix___redArg___closed__1 = (const lean_object*)&l_IO_AsyncList_getFinishedPrefix___redArg___closed__1_value;
 LEAN_EXPORT lean_object* l_IO_AsyncList_getFinishedPrefix___redArg(lean_object*);
 uint8_t l_Lean_Server_ServerTask_hasFinished___redArg(lean_object*);
 lean_object* lean_io_wait(lean_object*);
@@ -769,31 +769,6 @@ x_5 = l_IO_AsyncList_waitFind_x3f___redArg(x_3, x_4);
 return x_5;
 }
 }
-static lean_object* _init_l_IO_AsyncList_getFinishedPrefix___redArg___closed__0(void) {
-_start:
-{
-uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = 1;
-x_2 = lean_box(0);
-x_3 = lean_box(x_1);
-x_4 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_4, 0, x_2);
-lean_ctor_set(x_4, 1, x_3);
-return x_4;
-}
-}
-static lean_object* _init_l_IO_AsyncList_getFinishedPrefix___redArg___closed__1(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_obj_once(&l_IO_AsyncList_getFinishedPrefix___redArg___closed__0, &l_IO_AsyncList_getFinishedPrefix___redArg___closed__0_once, _init_l_IO_AsyncList_getFinishedPrefix___redArg___closed__0);
-x_2 = lean_box(0);
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set(x_3, 1, x_1);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l_IO_AsyncList_getFinishedPrefix___redArg(lean_object* x_1) {
 _start:
 {
@@ -977,7 +952,7 @@ goto _start;
 default: 
 {
 lean_object* x_44; 
-x_44 = lean_obj_once(&l_IO_AsyncList_getFinishedPrefix___redArg___closed__1, &l_IO_AsyncList_getFinishedPrefix___redArg___closed__1_once, _init_l_IO_AsyncList_getFinishedPrefix___redArg___closed__1);
+x_44 = ((lean_object*)(l_IO_AsyncList_getFinishedPrefix___redArg___closed__1));
 return x_44;
 }
 }
@@ -1361,7 +1336,7 @@ default:
 lean_object* x_68; 
 lean_dec_ref(x_2);
 lean_dec(x_1);
-x_68 = lean_obj_once(&l_IO_AsyncList_getFinishedPrefix___redArg___closed__1, &l_IO_AsyncList_getFinishedPrefix___redArg___closed__1_once, _init_l_IO_AsyncList_getFinishedPrefix___redArg___closed__1);
+x_68 = ((lean_object*)(l_IO_AsyncList_getFinishedPrefix___redArg___closed__1));
 return x_68;
 }
 }

@@ -163,8 +163,8 @@ static const lean_object* l_Lean_Elab_Command_elabAuxDef___closed__7 = (const le
 static const lean_string_object l_Lean_Elab_Command_elabAuxDef___closed__8_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 7, .m_capacity = 7, .m_length = 6, .m_data = "suffix"};
 static const lean_object* l_Lean_Elab_Command_elabAuxDef___closed__8 = (const lean_object*)&l_Lean_Elab_Command_elabAuxDef___closed__8_value;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l_Lean_Elab_Command_elabAuxDef___closed__9_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_Elab_Command_elabAuxDef___closed__9;
+static const lean_array_object l_Lean_Elab_Command_elabAuxDef___closed__9_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_Lean_Elab_Command_elabAuxDef___closed__9 = (const lean_object*)&l_Lean_Elab_Command_elabAuxDef___closed__9_value;
 static const lean_string_object l_Lean_Elab_Command_elabAuxDef___closed__10_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 12, .m_capacity = 12, .m_length = 11, .m_data = "declaration"};
 static const lean_object* l_Lean_Elab_Command_elabAuxDef___closed__10 = (const lean_object*)&l_Lean_Elab_Command_elabAuxDef___closed__10_value;
 static const lean_string_object l_Lean_Elab_Command_elabAuxDef___closed__11_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 14, .m_capacity = 14, .m_length = 13, .m_data = "declModifiers"};
@@ -478,15 +478,6 @@ goto _start;
 }
 }
 }
-static lean_object* _init_l_Lean_Elab_Command_elabAuxDef___closed__9(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Lean_Elab_Command_elabAuxDef___closed__14(void) {
 _start:
 {
@@ -618,7 +609,7 @@ else
 {
 lean_object* x_90; 
 lean_dec(x_74);
-x_90 = lean_obj_once(&l_Lean_Elab_Command_elabAuxDef___closed__9, &l_Lean_Elab_Command_elabAuxDef___closed__9_once, _init_l_Lean_Elab_Command_elabAuxDef___closed__9);
+x_90 = ((lean_object*)(l_Lean_Elab_Command_elabAuxDef___closed__9));
 x_9 = x_70;
 x_10 = x_71;
 x_11 = x_72;
@@ -678,7 +669,7 @@ else
 {
 lean_object* x_112; 
 lean_dec(x_92);
-x_112 = lean_obj_once(&l_Lean_Elab_Command_elabAuxDef___closed__9, &l_Lean_Elab_Command_elabAuxDef___closed__9_once, _init_l_Lean_Elab_Command_elabAuxDef___closed__9);
+x_112 = ((lean_object*)(l_Lean_Elab_Command_elabAuxDef___closed__9));
 x_70 = x_94;
 x_71 = x_93;
 x_72 = x_96;

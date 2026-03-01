@@ -88,10 +88,8 @@ uint8_t lean_usize_dec_lt(size_t, size_t);
 lean_object* l_Lean_enableRealizationsForConst(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Elab_Mutual_addPreDefAttributes_spec__3___redArg(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Elab_Mutual_addPreDefAttributes_spec__3___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Elab_Mutual_addPreDefAttributes_spec__4___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Elab_Mutual_addPreDefAttributes_spec__4___closed__0;
 lean_object* l_Lean_Meta_generateEagerEqns(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_applyAttributesOf(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Elab_Mutual_addPreDefAttributes_spec__4(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1358,15 +1356,6 @@ lean_dec_ref(x_1);
 return x_10;
 }
 }
-static lean_object* _init_l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Elab_Mutual_addPreDefAttributes_spec__4___closed__0(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(1u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Elab_Mutual_addPreDefAttributes_spec__4(lean_object* x_1, size_t x_2, size_t x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
 _start:
 {
@@ -1398,29 +1387,30 @@ lean_inc(x_15);
 x_16 = l_Lean_Meta_generateEagerEqns(x_15, x_7, x_8, x_9, x_10);
 if (lean_obj_tag(x_16) == 0)
 {
-lean_object* x_17; lean_object* x_18; uint8_t x_19; lean_object* x_20; 
+lean_object* x_17; lean_object* x_18; lean_object* x_19; uint8_t x_20; lean_object* x_21; 
 lean_dec_ref(x_16);
-x_17 = lean_obj_once(&l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Elab_Mutual_addPreDefAttributes_spec__4___closed__0, &l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Elab_Mutual_addPreDefAttributes_spec__4___closed__0_once, _init_l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Elab_Mutual_addPreDefAttributes_spec__4___closed__0);
+x_17 = lean_unsigned_to_nat(1u);
+x_18 = lean_mk_empty_array_with_capacity(x_17);
 lean_inc(x_14);
-x_18 = lean_array_push(x_17, x_14);
-x_19 = 1;
+x_19 = lean_array_push(x_18, x_14);
+x_20 = 1;
 lean_inc(x_10);
 lean_inc_ref(x_9);
 lean_inc(x_8);
 lean_inc_ref(x_7);
 lean_inc(x_6);
 lean_inc_ref(x_5);
-x_20 = l_Lean_Elab_applyAttributesOf(x_18, x_19, x_5, x_6, x_7, x_8, x_9, x_10);
-lean_dec_ref(x_18);
-if (lean_obj_tag(x_20) == 0)
+x_21 = l_Lean_Elab_applyAttributesOf(x_19, x_20, x_5, x_6, x_7, x_8, x_9, x_10);
+lean_dec_ref(x_19);
+if (lean_obj_tag(x_21) == 0)
 {
-lean_object* x_21; size_t x_22; size_t x_23; 
-lean_dec_ref(x_20);
-x_21 = lean_box(0);
-x_22 = 1;
-x_23 = lean_usize_add(x_3, x_22);
-x_3 = x_23;
-x_4 = x_21;
+lean_object* x_22; size_t x_23; size_t x_24; 
+lean_dec_ref(x_21);
+x_22 = lean_box(0);
+x_23 = 1;
+x_24 = lean_usize_add(x_3, x_23);
+x_3 = x_24;
+x_4 = x_22;
 goto _start;
 }
 else
@@ -1431,7 +1421,7 @@ lean_dec(x_8);
 lean_dec_ref(x_7);
 lean_dec(x_6);
 lean_dec_ref(x_5);
-return x_20;
+return x_21;
 }
 }
 else

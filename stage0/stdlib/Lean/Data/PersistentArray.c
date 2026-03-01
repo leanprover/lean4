@@ -25,10 +25,10 @@ LEAN_EXPORT lean_object* l_Lean_PersistentArrayNode_node_elim(lean_object*, lean
 LEAN_EXPORT lean_object* l_Lean_PersistentArrayNode_leaf_elim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArrayNode_leaf_elim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l_Lean_instInhabitedPersistentArrayNode_default___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_instInhabitedPersistentArrayNode_default___closed__0;
-static lean_once_cell_t l_Lean_instInhabitedPersistentArrayNode_default___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_instInhabitedPersistentArrayNode_default___closed__1;
+static const lean_array_object l_Lean_instInhabitedPersistentArrayNode_default___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_Lean_instInhabitedPersistentArrayNode_default___closed__0 = (const lean_object*)&l_Lean_instInhabitedPersistentArrayNode_default___closed__0_value;
+static const lean_ctor_object l_Lean_instInhabitedPersistentArrayNode_default___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 0}, .m_objs = {((lean_object*)&l_Lean_instInhabitedPersistentArrayNode_default___closed__0_value)}};
+static const lean_object* l_Lean_instInhabitedPersistentArrayNode_default___closed__1 = (const lean_object*)&l_Lean_instInhabitedPersistentArrayNode_default___closed__1_value;
 LEAN_EXPORT lean_object* l_Lean_instInhabitedPersistentArrayNode_default(lean_object*);
 static lean_once_cell_t l_Lean_instInhabitedPersistentArrayNode___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_instInhabitedPersistentArrayNode___closed__0;
@@ -39,8 +39,8 @@ LEAN_EXPORT uint8_t l_Lean_PersistentArrayNode_isNode(lean_object*, lean_object*
 LEAN_EXPORT lean_object* l_Lean_PersistentArrayNode_isNode___boxed(lean_object*, lean_object*);
 LEAN_EXPORT size_t l_Lean_PersistentArray_initShift;
 LEAN_EXPORT size_t l_Lean_PersistentArray_branching;
-static lean_once_cell_t l_Lean_instInhabitedPersistentArray_default___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_instInhabitedPersistentArray_default___closed__0;
+static const lean_array_object l_Lean_instInhabitedPersistentArray_default___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_Lean_instInhabitedPersistentArray_default___closed__0 = (const lean_object*)&l_Lean_instInhabitedPersistentArray_default___closed__0_value;
 size_t lean_usize_of_nat(lean_object*);
 static lean_once_cell_t l_Lean_instInhabitedPersistentArray_default___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static size_t l_Lean_instInhabitedPersistentArray_default___closed__1;
@@ -55,16 +55,12 @@ static lean_once_cell_t l_Lean_PersistentArray_empty___closed__0_once = LEAN_ONC
 static lean_object* l_Lean_PersistentArray_empty___closed__0;
 static lean_once_cell_t l_Lean_PersistentArray_empty___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_PersistentArray_empty___closed__1;
-static lean_once_cell_t l_Lean_PersistentArray_empty___closed__2_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_PersistentArray_empty___closed__2;
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_empty(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_PersistentArray_isEmpty___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_isEmpty___redArg___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_PersistentArray_isEmpty(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_isEmpty___boxed(lean_object*, lean_object*);
-static lean_once_cell_t l_Lean_PersistentArray_mkEmptyArray___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_PersistentArray_mkEmptyArray___closed__0;
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_mkEmptyArray(lean_object*);
 size_t lean_usize_shift_left(size_t, size_t);
 LEAN_EXPORT size_t l_Lean_PersistentArray_mul2Shift(size_t, size_t);
@@ -127,8 +123,8 @@ LEAN_EXPORT lean_object* l_Lean_PersistentArray_insertNewLeaf___redArg(lean_obje
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_insertNewLeaf___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_insertNewLeaf(lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_insertNewLeaf___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_once_cell_t l_Lean_PersistentArray_mkNewTail___redArg___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_PersistentArray_mkNewTail___redArg___closed__0;
+static const lean_array_object l_Lean_PersistentArray_mkNewTail___redArg___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_Lean_PersistentArray_mkNewTail___redArg___closed__0 = (const lean_object*)&l_Lean_PersistentArray_mkNewTail___redArg___closed__0_value;
 static lean_once_cell_t l_Lean_PersistentArray_mkNewTail___redArg___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_PersistentArray_mkNewTail___redArg___closed__1;
 size_t lean_usize_add(size_t, size_t);
@@ -559,30 +555,11 @@ x_6 = l_Lean_PersistentArrayNode_ctorElim___redArg(x_3, x_5);
 return x_6;
 }
 }
-static lean_object* _init_l_Lean_instInhabitedPersistentArrayNode_default___closed__0(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_instInhabitedPersistentArrayNode_default___closed__1(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_obj_once(&l_Lean_instInhabitedPersistentArrayNode_default___closed__0, &l_Lean_instInhabitedPersistentArrayNode_default___closed__0_once, _init_l_Lean_instInhabitedPersistentArrayNode_default___closed__0);
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_instInhabitedPersistentArrayNode_default(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_obj_once(&l_Lean_instInhabitedPersistentArrayNode_default___closed__1, &l_Lean_instInhabitedPersistentArrayNode_default___closed__1_once, _init_l_Lean_instInhabitedPersistentArrayNode_default___closed__1);
+x_2 = ((lean_object*)(l_Lean_instInhabitedPersistentArrayNode_default___closed__1));
 return x_2;
 }
 }
@@ -663,15 +640,6 @@ x_1 = 32;
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_instInhabitedPersistentArray_default___closed__0(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 static size_t _init_l_Lean_instInhabitedPersistentArray_default___closed__1(void) {
 _start:
 {
@@ -687,7 +655,7 @@ _start:
 size_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = lean_usize_once(&l_Lean_instInhabitedPersistentArray_default___closed__1, &l_Lean_instInhabitedPersistentArray_default___closed__1_once, _init_l_Lean_instInhabitedPersistentArray_default___closed__1);
 x_2 = lean_unsigned_to_nat(0u);
-x_3 = lean_obj_once(&l_Lean_instInhabitedPersistentArray_default___closed__0, &l_Lean_instInhabitedPersistentArray_default___closed__0_once, _init_l_Lean_instInhabitedPersistentArray_default___closed__0);
+x_3 = ((lean_object*)(l_Lean_instInhabitedPersistentArray_default___closed__0));
 x_4 = lean_obj_once(&l_Lean_instInhabitedPersistentArrayNode___closed__0, &l_Lean_instInhabitedPersistentArrayNode___closed__0_once, _init_l_Lean_instInhabitedPersistentArrayNode___closed__0);
 x_5 = lean_alloc_ctor(0, 4, sizeof(size_t)*1);
 lean_ctor_set(x_5, 0, x_4);
@@ -725,44 +693,37 @@ return x_2;
 static lean_object* _init_l_Lean_PersistentArray_empty___closed__0(void) {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(32u);
 x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
+x_3 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_3, 0, x_2);
+return x_3;
 }
 }
 static lean_object* _init_l_Lean_PersistentArray_empty___closed__1(void) {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_obj_once(&l_Lean_PersistentArray_empty___closed__0, &l_Lean_PersistentArray_empty___closed__0_once, _init_l_Lean_PersistentArray_empty___closed__0);
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_PersistentArray_empty___closed__2(void) {
-_start:
-{
-size_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+size_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = 5;
 x_2 = lean_unsigned_to_nat(0u);
-x_3 = lean_obj_once(&l_Lean_PersistentArray_empty___closed__0, &l_Lean_PersistentArray_empty___closed__0_once, _init_l_Lean_PersistentArray_empty___closed__0);
-x_4 = lean_obj_once(&l_Lean_PersistentArray_empty___closed__1, &l_Lean_PersistentArray_empty___closed__1_once, _init_l_Lean_PersistentArray_empty___closed__1);
-x_5 = lean_alloc_ctor(0, 4, sizeof(size_t)*1);
-lean_ctor_set(x_5, 0, x_4);
-lean_ctor_set(x_5, 1, x_3);
-lean_ctor_set(x_5, 2, x_2);
-lean_ctor_set(x_5, 3, x_2);
-lean_ctor_set_usize(x_5, 4, x_1);
-return x_5;
+x_3 = lean_unsigned_to_nat(32u);
+x_4 = lean_mk_empty_array_with_capacity(x_3);
+x_5 = lean_obj_once(&l_Lean_PersistentArray_empty___closed__0, &l_Lean_PersistentArray_empty___closed__0_once, _init_l_Lean_PersistentArray_empty___closed__0);
+x_6 = lean_alloc_ctor(0, 4, sizeof(size_t)*1);
+lean_ctor_set(x_6, 0, x_5);
+lean_ctor_set(x_6, 1, x_4);
+lean_ctor_set(x_6, 2, x_2);
+lean_ctor_set(x_6, 3, x_2);
+lean_ctor_set_usize(x_6, 4, x_1);
+return x_6;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_empty(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_obj_once(&l_Lean_PersistentArray_empty___closed__2, &l_Lean_PersistentArray_empty___closed__2_once, _init_l_Lean_PersistentArray_empty___closed__2);
+x_2 = lean_obj_once(&l_Lean_PersistentArray_empty___closed__1, &l_Lean_PersistentArray_empty___closed__1_once, _init_l_Lean_PersistentArray_empty___closed__1);
 return x_2;
 }
 }
@@ -804,21 +765,13 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_PersistentArray_mkEmptyArray___closed__0(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(32u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_mkEmptyArray(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; 
-x_2 = lean_obj_once(&l_Lean_PersistentArray_mkEmptyArray___closed__0, &l_Lean_PersistentArray_mkEmptyArray___closed__0_once, _init_l_Lean_PersistentArray_mkEmptyArray___closed__0);
-return x_2;
+lean_object* x_2; lean_object* x_3; 
+x_2 = lean_unsigned_to_nat(32u);
+x_3 = lean_mk_empty_array_with_capacity(x_2);
+return x_3;
 }
 }
 LEAN_EXPORT size_t l_Lean_PersistentArray_mul2Shift(size_t x_1, size_t x_2) {
@@ -1934,15 +1887,6 @@ x_8 = l_Lean_PersistentArray_insertNewLeaf(x_1, x_2, x_6, x_7, x_5);
 return x_8;
 }
 }
-static lean_object* _init_l_Lean_PersistentArray_mkNewTail___redArg___closed__0(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Lean_PersistentArray_mkNewTail___redArg___closed__1(void) {
 _start:
 {
@@ -1998,7 +1942,7 @@ x_16 = l_Lean_PersistentArray_mkNewPath___redArg(x_5, x_3);
 x_17 = lean_array_push(x_15, x_16);
 x_18 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_18, 0, x_17);
-x_19 = lean_obj_once(&l_Lean_PersistentArray_mkNewTail___redArg___closed__0, &l_Lean_PersistentArray_mkNewTail___redArg___closed__0_once, _init_l_Lean_PersistentArray_mkNewTail___redArg___closed__0);
+x_19 = ((lean_object*)(l_Lean_PersistentArray_mkNewTail___redArg___closed__0));
 lean_inc(x_4);
 if (x_7 == 0)
 {
@@ -2202,9 +2146,10 @@ return x_4;
 LEAN_EXPORT lean_object* l___private_Lean_Data_PersistentArray_0__Lean_PersistentArray_emptyArray(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; 
-x_2 = lean_obj_once(&l_Lean_PersistentArray_empty___closed__0, &l_Lean_PersistentArray_empty___closed__0_once, _init_l_Lean_PersistentArray_empty___closed__0);
-return x_2;
+lean_object* x_2; lean_object* x_3; 
+x_2 = lean_unsigned_to_nat(32u);
+x_3 = lean_mk_empty_array_with_capacity(x_2);
+return x_3;
 }
 }
 static lean_object* _init_l_Lean_PersistentArray_popLeaf___redArg___closed__0(void) {
@@ -5226,27 +5171,33 @@ return x_6;
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_filter___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_3 = lean_alloc_closure((void*)(l_Lean_PersistentArray_filter___redArg___lam__0), 3, 1);
 lean_closure_set(x_3, 0, x_2);
-x_4 = lean_unsigned_to_nat(0u);
-x_5 = lean_obj_once(&l_Lean_PersistentArray_empty___closed__2, &l_Lean_PersistentArray_empty___closed__2_once, _init_l_Lean_PersistentArray_empty___closed__2);
-x_6 = ((lean_object*)(l_Lean_PersistentArray_foldl___redArg___closed__9));
-x_7 = l_Lean_PersistentArray_foldlM___redArg(x_6, x_1, x_3, x_5, x_4);
-return x_7;
+x_4 = lean_unsigned_to_nat(32u);
+x_5 = lean_mk_empty_array_with_capacity(x_4);
+lean_dec_ref(x_5);
+x_6 = lean_unsigned_to_nat(0u);
+x_7 = lean_obj_once(&l_Lean_PersistentArray_empty___closed__1, &l_Lean_PersistentArray_empty___closed__1_once, _init_l_Lean_PersistentArray_empty___closed__1);
+x_8 = ((lean_object*)(l_Lean_PersistentArray_foldl___redArg___closed__9));
+x_9 = l_Lean_PersistentArray_foldlM___redArg(x_8, x_1, x_3, x_7, x_6);
+return x_9;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_filter(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
+lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_4 = lean_alloc_closure((void*)(l_Lean_PersistentArray_filter___redArg___lam__0), 3, 1);
 lean_closure_set(x_4, 0, x_3);
-x_5 = lean_unsigned_to_nat(0u);
-x_6 = lean_obj_once(&l_Lean_PersistentArray_empty___closed__2, &l_Lean_PersistentArray_empty___closed__2_once, _init_l_Lean_PersistentArray_empty___closed__2);
-x_7 = ((lean_object*)(l_Lean_PersistentArray_foldl___redArg___closed__9));
-x_8 = l_Lean_PersistentArray_foldlM___redArg(x_7, x_2, x_4, x_6, x_5);
-return x_8;
+x_5 = lean_unsigned_to_nat(32u);
+x_6 = lean_mk_empty_array_with_capacity(x_5);
+lean_dec_ref(x_6);
+x_7 = lean_unsigned_to_nat(0u);
+x_8 = lean_obj_once(&l_Lean_PersistentArray_empty___closed__1, &l_Lean_PersistentArray_empty___closed__1_once, _init_l_Lean_PersistentArray_empty___closed__1);
+x_9 = ((lean_object*)(l_Lean_PersistentArray_foldl___redArg___closed__9));
+x_10 = l_Lean_PersistentArray_foldlM___redArg(x_9, x_2, x_4, x_8, x_7);
+return x_10;
 }
 }
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_PersistentArray_foldlM___at___00Lean_PersistentArray_toArray_spec__0_spec__1___redArg(lean_object* x_1, size_t x_2, size_t x_3, lean_object* x_4) {
@@ -5689,7 +5640,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = lean_unsigned_to_nat(0u);
-x_3 = lean_obj_once(&l_Lean_PersistentArray_mkNewTail___redArg___closed__0, &l_Lean_PersistentArray_mkNewTail___redArg___closed__0_once, _init_l_Lean_PersistentArray_mkNewTail___redArg___closed__0);
+x_3 = ((lean_object*)(l_Lean_PersistentArray_mkNewTail___redArg___closed__0));
 x_4 = l_Lean_PersistentArray_foldlM___at___00Lean_PersistentArray_toArray_spec__0___redArg(x_1, x_3, x_2);
 return x_4;
 }
@@ -8169,10 +8120,13 @@ return x_4;
 LEAN_EXPORT lean_object* l_List_toPArray_x27___redArg(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; 
-x_2 = lean_obj_once(&l_Lean_PersistentArray_empty___closed__2, &l_Lean_PersistentArray_empty___closed__2_once, _init_l_Lean_PersistentArray_empty___closed__2);
-x_3 = l___private_Lean_Data_PersistentArray_0__List_toPArray_x27_loop___redArg(x_1, x_2);
-return x_3;
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_2 = lean_unsigned_to_nat(32u);
+x_3 = lean_mk_empty_array_with_capacity(x_2);
+lean_dec_ref(x_3);
+x_4 = lean_obj_once(&l_Lean_PersistentArray_empty___closed__1, &l_Lean_PersistentArray_empty___closed__1_once, _init_l_Lean_PersistentArray_empty___closed__1);
+x_5 = l___private_Lean_Data_PersistentArray_0__List_toPArray_x27_loop___redArg(x_1, x_4);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_List_toPArray_x27(lean_object* x_1, lean_object* x_2) {

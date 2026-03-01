@@ -256,8 +256,8 @@ static const lean_object* l_Lean_Meta_isDefEqOffset___closed__0 = (const lean_ob
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 static lean_once_cell_t l_Lean_Meta_isDefEqOffset___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Meta_isDefEqOffset___closed__1;
-static lean_once_cell_t l_Lean_Meta_isDefEqOffset___closed__2_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_Meta_isDefEqOffset___closed__2;
+static const lean_closure_object l_Lean_Meta_isDefEqOffset___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*1, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lean_Meta_isDefEqOffset___lam__1___boxed, .m_arity = 6, .m_num_fixed = 1, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1))} };
+static const lean_object* l_Lean_Meta_isDefEqOffset___closed__2 = (const lean_object*)&l_Lean_Meta_isDefEqOffset___closed__2_value;
 lean_object* lean_infer_type(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isExprDefEqAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getConfig___redArg(lean_object*);
@@ -7405,17 +7405,6 @@ x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Meta_isDefEqOffset___closed__2(void) {
-_start:
-{
-uint8_t x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = 0;
-x_2 = lean_box(x_1);
-x_3 = lean_alloc_closure((void*)(l_Lean_Meta_isDefEqOffset___lam__1___boxed), 6, 1);
-lean_closure_set(x_3, 0, x_2);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Meta_isDefEqOffset(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -7714,7 +7703,7 @@ lean_object* x_110;
 lean_dec(x_108);
 lean_dec(x_107);
 lean_dec(x_79);
-x_110 = lean_obj_once(&l_Lean_Meta_isDefEqOffset___closed__2, &l_Lean_Meta_isDefEqOffset___closed__2_once, _init_l_Lean_Meta_isDefEqOffset___closed__2);
+x_110 = ((lean_object*)(l_Lean_Meta_isDefEqOffset___closed__2));
 x_8 = x_110;
 x_9 = x_3;
 x_10 = x_4;
@@ -7934,7 +7923,7 @@ lean_object* x_147;
 lean_dec(x_145);
 lean_dec(x_133);
 lean_dec(x_132);
-x_147 = lean_obj_once(&l_Lean_Meta_isDefEqOffset___closed__2, &l_Lean_Meta_isDefEqOffset___closed__2_once, _init_l_Lean_Meta_isDefEqOffset___closed__2);
+x_147 = ((lean_object*)(l_Lean_Meta_isDefEqOffset___closed__2));
 x_8 = x_147;
 x_9 = x_3;
 x_10 = x_4;

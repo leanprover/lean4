@@ -14,8 +14,8 @@
 extern "C" {
 #endif
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l_Lean_Elab_Structural_instInhabitedRecArgInfo_default___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_Elab_Structural_instInhabitedRecArgInfo_default___closed__0;
+static const lean_array_object l_Lean_Elab_Structural_instInhabitedRecArgInfo_default___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_Lean_Elab_Structural_instInhabitedRecArgInfo_default___closed__0 = (const lean_object*)&l_Lean_Elab_Structural_instInhabitedRecArgInfo_default___closed__0_value;
 extern lean_object* l_Lean_Elab_Structural_instInhabitedIndGroupInst_default;
 static lean_once_cell_t l_Lean_Elab_Structural_instInhabitedRecArgInfo_default___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Elab_Structural_instInhabitedRecArgInfo_default___closed__1;
@@ -162,8 +162,8 @@ lean_object* l_Lean_mkSort(lean_object*);
 static lean_once_cell_t l_Lean_Elab_Structural_RecArgInfo_pickIndicesMajor___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Elab_Structural_RecArgInfo_pickIndicesMajor___closed__1;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l_Lean_Elab_Structural_RecArgInfo_pickIndicesMajor___closed__2_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_Elab_Structural_RecArgInfo_pickIndicesMajor___closed__2;
+static const lean_array_object l_Lean_Elab_Structural_RecArgInfo_pickIndicesMajor___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_Lean_Elab_Structural_RecArgInfo_pickIndicesMajor___closed__2 = (const lean_object*)&l_Lean_Elab_Structural_RecArgInfo_pickIndicesMajor___closed__2_value;
 lean_object* l_Lean_Elab_FixedParamPerm_numFixed(lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_FixedParamPerm_buildArgs___redArg(lean_object*, lean_object*, lean_object*);
@@ -173,22 +173,13 @@ LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00Lean_Elab_Struct
 LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00Lean_Elab_Structural_RecArgInfo_pickIndicesMajor_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Structural_RecArgInfo_indName_x21(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Structural_RecArgInfo_indName_x21___boxed(lean_object*);
-static lean_object* _init_l_Lean_Elab_Structural_instInhabitedRecArgInfo_default___closed__0(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Lean_Elab_Structural_instInhabitedRecArgInfo_default___closed__1(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Elab_Structural_instInhabitedIndGroupInst_default;
 x_2 = lean_unsigned_to_nat(0u);
-x_3 = lean_obj_once(&l_Lean_Elab_Structural_instInhabitedRecArgInfo_default___closed__0, &l_Lean_Elab_Structural_instInhabitedRecArgInfo_default___closed__0_once, _init_l_Lean_Elab_Structural_instInhabitedRecArgInfo_default___closed__0);
+x_3 = ((lean_object*)(l_Lean_Elab_Structural_instInhabitedRecArgInfo_default___closed__0));
 x_4 = lean_box(0);
 x_5 = lean_alloc_ctor(0, 6, 0);
 lean_ctor_set(x_5, 0, x_4);
@@ -1218,15 +1209,6 @@ x_2 = l_Lean_mkSort(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Elab_Structural_RecArgInfo_pickIndicesMajor___closed__2(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Elab_Structural_RecArgInfo_pickIndicesMajor(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -1248,7 +1230,7 @@ lean_dec_ref(x_9);
 x_11 = lean_array_push(x_5, x_4);
 x_12 = lean_array_size(x_11);
 x_13 = lean_array_get_size(x_10);
-x_14 = lean_obj_once(&l_Lean_Elab_Structural_RecArgInfo_pickIndicesMajor___closed__2, &l_Lean_Elab_Structural_RecArgInfo_pickIndicesMajor___closed__2_once, _init_l_Lean_Elab_Structural_RecArgInfo_pickIndicesMajor___closed__2);
+x_14 = ((lean_object*)(l_Lean_Elab_Structural_RecArgInfo_pickIndicesMajor___closed__2));
 x_15 = 0;
 x_16 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Elab_Structural_RecArgInfo_pickIndicesMajor_spec__1(x_10, x_11, x_12, x_15, x_14);
 x_17 = l_WellFounded_opaqueFix_u2083___at___00Lean_Elab_Structural_RecArgInfo_pickIndicesMajor_spec__2___redArg(x_13, x_11, x_3, x_10, x_7, x_14);

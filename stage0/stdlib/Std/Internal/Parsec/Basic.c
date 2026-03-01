@@ -152,13 +152,11 @@ LEAN_EXPORT lean_object* l_Std_Internal_Parsec_manyCore___redArg(lean_object*, l
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_manyCore(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_manyCore___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l_Std_Internal_Parsec_many___redArg___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Std_Internal_Parsec_many___redArg___closed__0;
+static const lean_array_object l_Std_Internal_Parsec_many___redArg___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_Std_Internal_Parsec_many___redArg___closed__0 = (const lean_object*)&l_Std_Internal_Parsec_many___redArg___closed__0_value;
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_many___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_many(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_many___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_once_cell_t l_Std_Internal_Parsec_many1___redArg___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Std_Internal_Parsec_many1___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_many1___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_many1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_many1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2304,20 +2302,11 @@ lean_dec_ref(x_6);
 return x_11;
 }
 }
-static lean_object* _init_l_Std_Internal_Parsec_many___redArg___closed__0(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_many___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; lean_object* x_6; 
-x_5 = lean_obj_once(&l_Std_Internal_Parsec_many___redArg___closed__0, &l_Std_Internal_Parsec_many___redArg___closed__0_once, _init_l_Std_Internal_Parsec_many___redArg___closed__0);
+x_5 = ((lean_object*)(l_Std_Internal_Parsec_many___redArg___closed__0));
 x_6 = l_Std_Internal_Parsec_manyCore___redArg(x_1, x_2, x_3, x_5, x_4);
 return x_6;
 }
@@ -2326,7 +2315,7 @@ LEAN_EXPORT lean_object* l_Std_Internal_Parsec_many(lean_object* x_1, lean_objec
 _start:
 {
 lean_object* x_10; lean_object* x_11; 
-x_10 = lean_obj_once(&l_Std_Internal_Parsec_many___redArg___closed__0, &l_Std_Internal_Parsec_many___redArg___closed__0_once, _init_l_Std_Internal_Parsec_many___redArg___closed__0);
+x_10 = ((lean_object*)(l_Std_Internal_Parsec_many___redArg___closed__0));
 x_11 = l_Std_Internal_Parsec_manyCore___redArg(x_5, x_7, x_8, x_10, x_9);
 return x_11;
 }
@@ -2340,15 +2329,6 @@ lean_dec_ref(x_6);
 return x_10;
 }
 }
-static lean_object* _init_l_Std_Internal_Parsec_many1___redArg___closed__0(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(1u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_many1___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -2357,61 +2337,62 @@ lean_inc_ref(x_3);
 x_5 = lean_apply_1(x_3, x_4);
 if (lean_obj_tag(x_5) == 0)
 {
-lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc(x_6);
 x_7 = lean_ctor_get(x_5, 1);
 lean_inc(x_7);
 lean_dec_ref(x_5);
-x_8 = lean_obj_once(&l_Std_Internal_Parsec_many1___redArg___closed__0, &l_Std_Internal_Parsec_many1___redArg___closed__0_once, _init_l_Std_Internal_Parsec_many1___redArg___closed__0);
-x_9 = lean_array_push(x_8, x_7);
-x_10 = l_Std_Internal_Parsec_manyCore___redArg(x_1, x_2, x_3, x_9, x_6);
-return x_10;
+x_8 = lean_unsigned_to_nat(1u);
+x_9 = lean_mk_empty_array_with_capacity(x_8);
+x_10 = lean_array_push(x_9, x_7);
+x_11 = l_Std_Internal_Parsec_manyCore___redArg(x_1, x_2, x_3, x_10, x_6);
+return x_11;
 }
 else
 {
-lean_object* x_11; lean_object* x_12; lean_object* x_13; uint8_t x_14; uint8_t x_19; 
+lean_object* x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; uint8_t x_20; 
 lean_dec_ref(x_3);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
-x_11 = lean_ctor_get(x_5, 0);
-x_12 = lean_ctor_get(x_5, 1);
-x_19 = !lean_is_exclusive(x_5);
-if (x_19 == 0)
+x_12 = lean_ctor_get(x_5, 0);
+x_13 = lean_ctor_get(x_5, 1);
+x_20 = !lean_is_exclusive(x_5);
+if (x_20 == 0)
 {
-x_13 = x_5;
-x_14 = x_19;
-goto block_18;
+x_14 = x_5;
+x_15 = x_20;
+goto block_19;
 }
 else
 {
+lean_inc(x_13);
 lean_inc(x_12);
-lean_inc(x_11);
 lean_dec(x_5);
-x_13 = lean_box(0);
-x_14 = x_19;
-goto block_18;
+x_14 = lean_box(0);
+x_15 = x_20;
+goto block_19;
 }
-block_18:
+block_19:
 {
-lean_object* x_15; 
-if (x_14 == 0)
+lean_object* x_16; 
+if (x_15 == 0)
 {
-x_15 = x_13;
-goto block_16;
+x_16 = x_14;
+goto block_17;
 }
 else
 {
-lean_object* x_17; 
-x_17 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_17, 0, x_11);
-lean_ctor_set(x_17, 1, x_12);
-x_15 = x_17;
-goto block_16;
+lean_object* x_18; 
+x_18 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_18, 0, x_12);
+lean_ctor_set(x_18, 1, x_13);
+x_16 = x_18;
+goto block_17;
 }
-block_16:
+block_17:
 {
-return x_15;
+return x_16;
 }
 }
 }
@@ -2425,61 +2406,62 @@ lean_inc_ref(x_8);
 x_10 = lean_apply_1(x_8, x_9);
 if (lean_obj_tag(x_10) == 0)
 {
-lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
+lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
 x_11 = lean_ctor_get(x_10, 0);
 lean_inc(x_11);
 x_12 = lean_ctor_get(x_10, 1);
 lean_inc(x_12);
 lean_dec_ref(x_10);
-x_13 = lean_obj_once(&l_Std_Internal_Parsec_many1___redArg___closed__0, &l_Std_Internal_Parsec_many1___redArg___closed__0_once, _init_l_Std_Internal_Parsec_many1___redArg___closed__0);
-x_14 = lean_array_push(x_13, x_12);
-x_15 = l_Std_Internal_Parsec_manyCore___redArg(x_5, x_7, x_8, x_14, x_11);
-return x_15;
+x_13 = lean_unsigned_to_nat(1u);
+x_14 = lean_mk_empty_array_with_capacity(x_13);
+x_15 = lean_array_push(x_14, x_12);
+x_16 = l_Std_Internal_Parsec_manyCore___redArg(x_5, x_7, x_8, x_15, x_11);
+return x_16;
 }
 else
 {
-lean_object* x_16; lean_object* x_17; lean_object* x_18; uint8_t x_19; uint8_t x_24; 
+lean_object* x_17; lean_object* x_18; lean_object* x_19; uint8_t x_20; uint8_t x_25; 
 lean_dec_ref(x_8);
 lean_dec_ref(x_7);
 lean_dec_ref(x_5);
-x_16 = lean_ctor_get(x_10, 0);
-x_17 = lean_ctor_get(x_10, 1);
-x_24 = !lean_is_exclusive(x_10);
-if (x_24 == 0)
+x_17 = lean_ctor_get(x_10, 0);
+x_18 = lean_ctor_get(x_10, 1);
+x_25 = !lean_is_exclusive(x_10);
+if (x_25 == 0)
 {
-x_18 = x_10;
-x_19 = x_24;
-goto block_23;
+x_19 = x_10;
+x_20 = x_25;
+goto block_24;
 }
 else
 {
+lean_inc(x_18);
 lean_inc(x_17);
-lean_inc(x_16);
 lean_dec(x_10);
-x_18 = lean_box(0);
-x_19 = x_24;
-goto block_23;
+x_19 = lean_box(0);
+x_20 = x_25;
+goto block_24;
 }
-block_23:
+block_24:
 {
-lean_object* x_20; 
-if (x_19 == 0)
+lean_object* x_21; 
+if (x_20 == 0)
 {
-x_20 = x_18;
-goto block_21;
+x_21 = x_19;
+goto block_22;
 }
 else
 {
-lean_object* x_22; 
-x_22 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_22, 0, x_16);
-lean_ctor_set(x_22, 1, x_17);
-x_20 = x_22;
-goto block_21;
+lean_object* x_23; 
+x_23 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_23, 0, x_17);
+lean_ctor_set(x_23, 1, x_18);
+x_21 = x_23;
+goto block_22;
 }
-block_21:
+block_22:
 {
-return x_20;
+return x_21;
 }
 }
 }

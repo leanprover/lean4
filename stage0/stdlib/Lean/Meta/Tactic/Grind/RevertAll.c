@@ -99,8 +99,8 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Uns
 uint8_t l_Lean_LocalDecl_isAuxDecl(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_MVarId_revertAll_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l_Lean_MVarId_revertAll___lam__0___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_MVarId_revertAll___lam__0___closed__0;
+static const lean_array_object l_Lean_MVarId_revertAll___lam__0___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_Lean_MVarId_revertAll___lam__0___closed__0 = (const lean_object*)&l_Lean_MVarId_revertAll___lam__0___closed__0_value;
 lean_object* l_Lean_MVarId_checkNotAssigned(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalContext_getFVarIds(lean_object*);
 size_t lean_array_size(lean_object*);
@@ -1480,15 +1480,6 @@ lean_dec_ref(x_1);
 return x_11;
 }
 }
-static lean_object* _init_l_Lean_MVarId_revertAll___lam__0___closed__0(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_MVarId_revertAll___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -1500,7 +1491,7 @@ if (lean_obj_tag(x_8) == 0)
 lean_object* x_9; lean_object* x_10; lean_object* x_11; size_t x_12; size_t x_13; lean_object* x_14; 
 lean_dec_ref(x_8);
 x_9 = lean_ctor_get(x_3, 2);
-x_10 = lean_obj_once(&l_Lean_MVarId_revertAll___lam__0___closed__0, &l_Lean_MVarId_revertAll___lam__0___closed__0_once, _init_l_Lean_MVarId_revertAll___lam__0___closed__0);
+x_10 = ((lean_object*)(l_Lean_MVarId_revertAll___lam__0___closed__0));
 x_11 = l_Lean_LocalContext_getFVarIds(x_9);
 x_12 = lean_array_size(x_11);
 x_13 = 0;

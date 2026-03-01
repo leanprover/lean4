@@ -50,8 +50,8 @@ LEAN_EXPORT lean_object* l_Lake_InputFileConfig_text___proj___boxed(lean_object*
 LEAN_EXPORT lean_object* l_Lake_InputFileConfig_text_instConfigField(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_InputFileConfig_text_instConfigField___boxed(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l_Lake_InputFileConfig___fields___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lake_InputFileConfig___fields___closed__0;
+static const lean_array_object l_Lake_InputFileConfig___fields___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_Lake_InputFileConfig___fields___closed__0 = (const lean_object*)&l_Lake_InputFileConfig___fields___closed__0_value;
 static const lean_string_object l_Lake_InputFileConfig___fields___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 5, .m_capacity = 5, .m_length = 4, .m_data = "path"};
 static const lean_object* l_Lake_InputFileConfig___fields___closed__1 = (const lean_object*)&l_Lake_InputFileConfig___fields___closed__1_value;
 lean_object* l_Lean_Name_mkStr1(lean_object*);
@@ -529,15 +529,6 @@ lean_dec(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lake_InputFileConfig___fields___closed__0(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Lake_InputFileConfig___fields___closed__3(void) {
 _start:
 {
@@ -558,7 +549,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_Lake_InputFileConfig___fields___closed__3, &l_Lake_InputFileConfig___fields___closed__3_once, _init_l_Lake_InputFileConfig___fields___closed__3);
-x_2 = lean_obj_once(&l_Lake_InputFileConfig___fields___closed__0, &l_Lake_InputFileConfig___fields___closed__0_once, _init_l_Lake_InputFileConfig___fields___closed__0);
+x_2 = ((lean_object*)(l_Lake_InputFileConfig___fields___closed__0));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }

@@ -68,8 +68,8 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_PullLetDecls_0__Lean_Compiler_LCNF_PullLetDecls_withCheckpoint_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_PullLetDecls_0__Lean_Compiler_LCNF_PullLetDecls_withCheckpoint_go___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l_Lean_Compiler_LCNF_PullLetDecls_withCheckpoint___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_Compiler_LCNF_PullLetDecls_withCheckpoint___closed__0;
+static const lean_array_object l_Lean_Compiler_LCNF_PullLetDecls_withCheckpoint___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_Lean_Compiler_LCNF_PullLetDecls_withCheckpoint___closed__0 = (const lean_object*)&l_Lean_Compiler_LCNF_PullLetDecls_withCheckpoint___closed__0_value;
 lean_object* lean_st_ref_get(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Array_shrink___redArg(lean_object*, lean_object*);
@@ -879,15 +879,6 @@ lean_dec_ref(x_2);
 return x_6;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_PullLetDecls_withCheckpoint___closed__0(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_PullLetDecls_withCheckpoint(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
@@ -960,7 +951,7 @@ lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean
 x_20 = lean_st_ref_get(x_3);
 x_21 = lean_array_get_size(x_9);
 lean_dec(x_9);
-x_22 = lean_obj_once(&l_Lean_Compiler_LCNF_PullLetDecls_withCheckpoint___closed__0, &l_Lean_Compiler_LCNF_PullLetDecls_withCheckpoint___closed__0_once, _init_l_Lean_Compiler_LCNF_PullLetDecls_withCheckpoint___closed__0);
+x_22 = ((lean_object*)(l_Lean_Compiler_LCNF_PullLetDecls_withCheckpoint___closed__0));
 x_23 = l___private_Lean_Compiler_LCNF_PullLetDecls_0__Lean_Compiler_LCNF_PullLetDecls_withCheckpoint_go(x_17, x_20, x_21, x_11, x_22);
 lean_dec(x_20);
 x_24 = lean_ctor_get(x_23, 0);
@@ -2762,7 +2753,7 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_PullLetDecls_PullM_run___redArg(le
 _start:
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
-x_8 = lean_obj_once(&l_Lean_Compiler_LCNF_PullLetDecls_withCheckpoint___closed__0, &l_Lean_Compiler_LCNF_PullLetDecls_withCheckpoint___closed__0_once, _init_l_Lean_Compiler_LCNF_PullLetDecls_withCheckpoint___closed__0);
+x_8 = ((lean_object*)(l_Lean_Compiler_LCNF_PullLetDecls_withCheckpoint___closed__0));
 x_9 = lean_st_mk_ref(x_8);
 x_10 = lean_box(1);
 x_11 = lean_alloc_ctor(0, 2, 0);

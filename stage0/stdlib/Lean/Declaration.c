@@ -292,8 +292,8 @@ static const lean_object* l_Lean_Declaration_getNames___closed__8 = (const lean_
 static const lean_ctor_object l_Lean_Declaration_getNames___closed__9_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 0, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_Lean_Declaration_getTopLevelNames___closed__1_value),((lean_object*)&l_Lean_Declaration_getNames___closed__8_value)}};
 static const lean_object* l_Lean_Declaration_getNames___closed__9 = (const lean_object*)&l_Lean_Declaration_getNames___closed__9_value;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l_Lean_Declaration_getNames___closed__10_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_Declaration_getNames___closed__10;
+static const lean_array_object l_Lean_Declaration_getNames___closed__10_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_Lean_Declaration_getNames___closed__10 = (const lean_object*)&l_Lean_Declaration_getNames___closed__10_value;
 LEAN_EXPORT lean_object* l_Lean_Declaration_getNames(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Declaration_foldExprM___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Declaration_foldExprM___redArg___lam__3(lean_object*, lean_object*, lean_object*);
@@ -3181,15 +3181,6 @@ goto _start;
 }
 }
 }
-static lean_object* _init_l_Lean_Declaration_getNames___closed__10(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Declaration_getNames(lean_object* x_1) {
 _start:
 {
@@ -3216,7 +3207,7 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8;
 x_6 = lean_ctor_get(x_1, 2);
 lean_inc(x_6);
 lean_dec_ref(x_1);
-x_7 = lean_obj_once(&l_Lean_Declaration_getNames___closed__10, &l_Lean_Declaration_getNames___closed__10_once, _init_l_Lean_Declaration_getNames___closed__10);
+x_7 = ((lean_object*)(l_Lean_Declaration_getNames___closed__10));
 x_8 = l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___00Lean_Declaration_getNames_spec__1(x_6, x_7);
 return x_8;
 }

@@ -213,8 +213,8 @@ LEAN_EXPORT lean_object* l_Std_IterM_first_x3f___boxed(lean_object*, lean_object
 LEAN_EXPORT lean_object* l_Std_IterM_Total_first_x3f___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_IterM_Total_first_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_IterM_Total_first_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_once_cell_t l_Std_IterM_isEmpty___redArg___lam__1___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Std_IterM_isEmpty___redArg___lam__1___closed__0;
+static const lean_ctor_object l_Std_IterM_isEmpty___redArg___lam__1___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 0}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1))}};
+static const lean_object* l_Std_IterM_isEmpty___redArg___lam__1___closed__0 = (const lean_object*)&l_Std_IterM_isEmpty___redArg___lam__1___closed__0_value;
 LEAN_EXPORT lean_object* l_Std_IterM_isEmpty___redArg___lam__1(lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Std_IterM_isEmpty___redArg___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_IterM_isEmpty___redArg(lean_object*, lean_object*, lean_object*);
@@ -3685,22 +3685,11 @@ lean_dec(x_5);
 return x_9;
 }
 }
-static lean_object* _init_l_Std_IterM_isEmpty___redArg___lam__1___closed__0(void) {
-_start:
-{
-uint8_t x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = 0;
-x_2 = lean_box(x_1);
-x_3 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_3, 0, x_2);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l_Std_IterM_isEmpty___redArg___lam__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, uint8_t x_4) {
 _start:
 {
 lean_object* x_5; lean_object* x_6; 
-x_5 = lean_obj_once(&l_Std_IterM_isEmpty___redArg___lam__1___closed__0, &l_Std_IterM_isEmpty___redArg___lam__1___closed__0_once, _init_l_Std_IterM_isEmpty___redArg___lam__1___closed__0);
+x_5 = ((lean_object*)(l_Std_IterM_isEmpty___redArg___lam__1___closed__0));
 x_6 = lean_apply_2(x_1, lean_box(0), x_5);
 return x_6;
 }

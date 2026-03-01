@@ -82,37 +82,35 @@ static lean_once_cell_t l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2_
 static lean_object* l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__4;
 static lean_once_cell_t l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__5_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__5;
-static lean_once_cell_t l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__6_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__6;
-static const lean_string_object l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__7_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 24, .m_capacity = 24, .m_length = 23, .m_data = "A private declaration `"};
-static const lean_object* l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__7 = (const lean_object*)&l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__7_value;
+static const lean_string_object l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__6_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 24, .m_capacity = 24, .m_length = 23, .m_data = "A private declaration `"};
+static const lean_object* l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__6 = (const lean_object*)&l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__6_value;
 lean_object* l_Lean_stringToMessageData(lean_object*);
-static lean_once_cell_t l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__8_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__8;
-static const lean_string_object l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__9_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 79, .m_capacity = 79, .m_length = 78, .m_data = "` (from the current module) exists but would need to be public to access here."};
-static const lean_object* l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__9 = (const lean_object*)&l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__9_value;
-static lean_once_cell_t l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__10_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__10;
-static const lean_string_object l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__11_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 23, .m_capacity = 23, .m_length = 22, .m_data = "A public declaration `"};
-static const lean_object* l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__11 = (const lean_object*)&l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__11_value;
-static lean_once_cell_t l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__12_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__12;
-static const lean_string_object l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__13_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 68, .m_capacity = 68, .m_length = 67, .m_data = "` exists but is imported privately; consider adding `public import "};
-static const lean_object* l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__13 = (const lean_object*)&l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__13_value;
-static lean_once_cell_t l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__14_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__14;
-static const lean_string_object l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__15_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 3, .m_capacity = 3, .m_length = 2, .m_data = "`."};
-static const lean_object* l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__15 = (const lean_object*)&l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__15_value;
-static lean_once_cell_t l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__16_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__16;
-static const lean_string_object l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__17_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 10, .m_capacity = 10, .m_length = 9, .m_data = "` (from `"};
-static const lean_object* l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__17 = (const lean_object*)&l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__17_value;
-static lean_once_cell_t l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__18_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__18;
-static const lean_string_object l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__19_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 54, .m_capacity = 54, .m_length = 53, .m_data = "`) exists but would need to be public to access here."};
-static const lean_object* l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__19 = (const lean_object*)&l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__19_value;
-static lean_once_cell_t l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__20_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__20;
+static lean_once_cell_t l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__7_once = LEAN_ONCE_CELL_INITIALIZER;
+static lean_object* l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__7;
+static const lean_string_object l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__8_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 79, .m_capacity = 79, .m_length = 78, .m_data = "` (from the current module) exists but would need to be public to access here."};
+static const lean_object* l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__8 = (const lean_object*)&l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__8_value;
+static lean_once_cell_t l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__9_once = LEAN_ONCE_CELL_INITIALIZER;
+static lean_object* l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__9;
+static const lean_string_object l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__10_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 23, .m_capacity = 23, .m_length = 22, .m_data = "A public declaration `"};
+static const lean_object* l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__10 = (const lean_object*)&l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__10_value;
+static lean_once_cell_t l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__11_once = LEAN_ONCE_CELL_INITIALIZER;
+static lean_object* l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__11;
+static const lean_string_object l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__12_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 68, .m_capacity = 68, .m_length = 67, .m_data = "` exists but is imported privately; consider adding `public import "};
+static const lean_object* l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__12 = (const lean_object*)&l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__12_value;
+static lean_once_cell_t l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__13_once = LEAN_ONCE_CELL_INITIALIZER;
+static lean_object* l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__13;
+static const lean_string_object l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__14_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 3, .m_capacity = 3, .m_length = 2, .m_data = "`."};
+static const lean_object* l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__14 = (const lean_object*)&l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__14_value;
+static lean_once_cell_t l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__15_once = LEAN_ONCE_CELL_INITIALIZER;
+static lean_object* l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__15;
+static const lean_string_object l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__16_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 10, .m_capacity = 10, .m_length = 9, .m_data = "` (from `"};
+static const lean_object* l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__16 = (const lean_object*)&l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__16_value;
+static lean_once_cell_t l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__17_once = LEAN_ONCE_CELL_INITIALIZER;
+static lean_object* l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__17;
+static const lean_string_object l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__18_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 54, .m_capacity = 54, .m_length = 53, .m_data = "`) exists but would need to be public to access here."};
+static const lean_object* l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__18 = (const lean_object*)&l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__18_value;
+static lean_once_cell_t l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__19_once = LEAN_ONCE_CELL_INITIALIZER;
+static lean_object* l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__19;
 uint8_t l_Lean_Name_isAnonymous(lean_object*);
 lean_object* l_Lean_Environment_setExporting(lean_object*, uint8_t);
 uint8_t l_Lean_Environment_contains(lean_object*, lean_object*, uint8_t);
@@ -936,45 +934,38 @@ return x_3;
 static lean_object* _init_l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__3(void) {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(32u);
 x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
+x_3 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_3, 0, x_2);
+return x_3;
 }
 }
 static lean_object* _init_l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__4(void) {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_obj_once(&l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__3, &l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__3_once, _init_l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__3);
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
+size_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
+x_1 = 5;
+x_2 = lean_unsigned_to_nat(0u);
+x_3 = lean_unsigned_to_nat(32u);
+x_4 = lean_mk_empty_array_with_capacity(x_3);
+x_5 = lean_obj_once(&l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__3, &l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__3_once, _init_l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__3);
+x_6 = lean_alloc_ctor(0, 4, sizeof(size_t)*1);
+lean_ctor_set(x_6, 0, x_5);
+lean_ctor_set(x_6, 1, x_4);
+lean_ctor_set(x_6, 2, x_2);
+lean_ctor_set(x_6, 3, x_2);
+lean_ctor_set_usize(x_6, 4, x_1);
+return x_6;
 }
 }
 static lean_object* _init_l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__5(void) {
 _start:
 {
-size_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = 5;
-x_2 = lean_unsigned_to_nat(0u);
-x_3 = lean_obj_once(&l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__3, &l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__3_once, _init_l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__3);
-x_4 = lean_obj_once(&l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__4, &l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__4_once, _init_l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__4);
-x_5 = lean_alloc_ctor(0, 4, sizeof(size_t)*1);
-lean_ctor_set(x_5, 0, x_4);
-lean_ctor_set(x_5, 1, x_3);
-lean_ctor_set(x_5, 2, x_2);
-lean_ctor_set(x_5, 3, x_2);
-lean_ctor_set_usize(x_5, 4, x_1);
-return x_5;
-}
-}
-static lean_object* _init_l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__6(void) {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = lean_box(1);
-x_2 = lean_obj_once(&l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__5, &l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__5_once, _init_l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__5);
+x_2 = lean_obj_once(&l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__4, &l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__4_once, _init_l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__4);
 x_3 = lean_obj_once(&l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__1, &l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__1_once, _init_l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__1);
 x_4 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_4, 0, x_3);
@@ -983,65 +974,65 @@ lean_ctor_set(x_4, 2, x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__8(void) {
+static lean_object* _init_l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__7(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = ((lean_object*)(l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__7));
+x_1 = ((lean_object*)(l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__6));
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__10(void) {
+static lean_object* _init_l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__9(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = ((lean_object*)(l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__9));
+x_1 = ((lean_object*)(l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__8));
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__12(void) {
+static lean_object* _init_l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__11(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = ((lean_object*)(l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__11));
+x_1 = ((lean_object*)(l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__10));
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__14(void) {
+static lean_object* _init_l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__13(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = ((lean_object*)(l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__13));
+x_1 = ((lean_object*)(l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__12));
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__16(void) {
+static lean_object* _init_l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__15(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = ((lean_object*)(l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__15));
+x_1 = ((lean_object*)(l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__14));
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__18(void) {
+static lean_object* _init_l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__17(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = ((lean_object*)(l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__17));
+x_1 = ((lean_object*)(l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__16));
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__20(void) {
+static lean_object* _init_l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__19(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = ((lean_object*)(l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__19));
+x_1 = ((lean_object*)(l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__18));
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
@@ -1083,7 +1074,7 @@ else
 lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; 
 lean_dec(x_3);
 x_21 = lean_obj_once(&l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__2, &l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__2_once, _init_l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__2);
-x_22 = lean_obj_once(&l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__6, &l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__6_once, _init_l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__6);
+x_22 = lean_obj_once(&l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__5, &l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__5_once, _init_l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__5);
 x_23 = l_Lean_Options_empty;
 x_24 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_24, 0, x_19);
@@ -1101,11 +1092,11 @@ if (lean_obj_tag(x_27) == 0)
 lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; 
 lean_dec_ref(x_6);
 lean_dec(x_4);
-x_28 = lean_obj_once(&l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__8, &l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__8_once, _init_l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__8);
+x_28 = lean_obj_once(&l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__7, &l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__7_once, _init_l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__7);
 x_29 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_29, 0, x_28);
 lean_ctor_set(x_29, 1, x_26);
-x_30 = lean_obj_once(&l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__10, &l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__10_once, _init_l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__10);
+x_30 = lean_obj_once(&l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__9, &l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__9_once, _init_l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__9);
 x_31 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_31, 0, x_29);
 lean_ctor_set(x_31, 1, x_30);
@@ -1134,11 +1125,11 @@ lean_dec(x_4);
 if (x_39 == 0)
 {
 lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; 
-x_40 = lean_obj_once(&l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__12, &l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__12_once, _init_l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__12);
+x_40 = lean_obj_once(&l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__11, &l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__11_once, _init_l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__11);
 x_41 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_41, 0, x_40);
 lean_ctor_set(x_41, 1, x_26);
-x_42 = lean_obj_once(&l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__14, &l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__14_once, _init_l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__14);
+x_42 = lean_obj_once(&l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__13, &l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__13_once, _init_l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__13);
 x_43 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_43, 0, x_41);
 lean_ctor_set(x_43, 1, x_42);
@@ -1146,7 +1137,7 @@ x_44 = l_Lean_MessageData_ofName(x_38);
 x_45 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_45, 0, x_43);
 lean_ctor_set(x_45, 1, x_44);
-x_46 = lean_obj_once(&l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__16, &l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__16_once, _init_l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__16);
+x_46 = lean_obj_once(&l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__15, &l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__15_once, _init_l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__15);
 x_47 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_47, 0, x_45);
 lean_ctor_set(x_47, 1, x_46);
@@ -1160,11 +1151,11 @@ goto block_16;
 else
 {
 lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; 
-x_50 = lean_obj_once(&l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__8, &l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__8_once, _init_l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__8);
+x_50 = lean_obj_once(&l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__7, &l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__7_once, _init_l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__7);
 x_51 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_51, 0, x_50);
 lean_ctor_set(x_51, 1, x_26);
-x_52 = lean_obj_once(&l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__18, &l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__18_once, _init_l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__18);
+x_52 = lean_obj_once(&l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__17, &l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__17_once, _init_l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__17);
 x_53 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_53, 0, x_51);
 lean_ctor_set(x_53, 1, x_52);
@@ -1172,7 +1163,7 @@ x_54 = l_Lean_MessageData_ofName(x_38);
 x_55 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_55, 0, x_53);
 lean_ctor_set(x_55, 1, x_54);
-x_56 = lean_obj_once(&l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__20, &l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__20_once, _init_l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__20);
+x_56 = lean_obj_once(&l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__19, &l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__19_once, _init_l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__2___closed__19);
 x_57 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_57, 0, x_55);
 lean_ctor_set(x_57, 1, x_56);

@@ -333,8 +333,8 @@ lean_object* l_Array_qpartition___redArg(lean_object*, lean_object*, lean_object
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00Lean_Level_normalize_spec__1___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00Lean_Level_normalize_spec__1___redArg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l_Lean_Level_normalize___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_Level_normalize___closed__0;
+static const lean_array_object l_Lean_Level_normalize___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_Lean_Level_normalize___closed__0 = (const lean_object*)&l_Lean_Level_normalize___closed__0_value;
 static const lean_string_object l_Lean_Level_normalize___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 34, .m_capacity = 34, .m_length = 33, .m_data = "unreachable code has been reached"};
 static const lean_object* l_Lean_Level_normalize___closed__2 = (const lean_object*)&l_Lean_Level_normalize___closed__2_value;
 static const lean_string_object l_Lean_Level_normalize___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 21, .m_capacity = 21, .m_length = 20, .m_data = "Lean.Level.normalize"};
@@ -4348,15 +4348,6 @@ lean_dec(x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Level_normalize___closed__0(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Lean_Level_normalize___closed__3(void) {
 _start:
 {
@@ -4390,7 +4381,7 @@ x_6 = lean_ctor_get(x_4, 1);
 lean_inc(x_6);
 lean_dec_ref(x_4);
 x_7 = lean_unsigned_to_nat(0u);
-x_8 = lean_obj_once(&l_Lean_Level_normalize___closed__0, &l_Lean_Level_normalize___closed__0_once, _init_l_Lean_Level_normalize___closed__0);
+x_8 = ((lean_object*)(l_Lean_Level_normalize___closed__0));
 x_9 = l___private_Lean_Level_0__Lean_Level_getMaxArgsAux___at___00Lean_Level_normalize_spec__0(x_5, x_2, x_8);
 x_10 = l___private_Lean_Level_0__Lean_Level_getMaxArgsAux___at___00Lean_Level_normalize_spec__0(x_6, x_2, x_9);
 x_11 = lean_unsigned_to_nat(1u);
@@ -8352,9 +8343,9 @@ goto block_202;
 block_193:
 {
 lean_object* x_186; lean_object* x_187; 
-x_186 = lean_nat_add(x_184, x_185);
+x_186 = lean_nat_add(x_183, x_185);
 lean_dec(x_185);
-lean_dec(x_184);
+lean_dec(x_183);
 if (x_180 == 0)
 {
 lean_ctor_set(x_179, 4, x_159);
@@ -8383,7 +8374,7 @@ lean_object* x_188;
 if (x_169 == 0)
 {
 lean_ctor_set(x_168, 4, x_187);
-lean_ctor_set(x_168, 3, x_183);
+lean_ctor_set(x_168, 3, x_184);
 lean_ctor_set(x_168, 2, x_172);
 lean_ctor_set(x_168, 1, x_171);
 lean_ctor_set(x_168, 0, x_182);
@@ -8397,7 +8388,7 @@ x_190 = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(x_190, 0, x_182);
 lean_ctor_set(x_190, 1, x_171);
 lean_ctor_set(x_190, 2, x_172);
-lean_ctor_set(x_190, 3, x_183);
+lean_ctor_set(x_190, 3, x_184);
 lean_ctor_set(x_190, 4, x_187);
 x_188 = x_190;
 goto block_189;
@@ -8442,8 +8433,8 @@ if (lean_obj_tag(x_174) == 0)
 lean_object* x_198; 
 x_198 = lean_ctor_get(x_174, 0);
 lean_inc(x_198);
-x_183 = x_196;
-x_184 = x_197;
+x_183 = x_197;
+x_184 = x_196;
 x_185 = x_198;
 goto block_193;
 }
@@ -8451,8 +8442,8 @@ else
 {
 lean_object* x_199; 
 x_199 = lean_unsigned_to_nat(0u);
-x_183 = x_196;
-x_184 = x_197;
+x_183 = x_197;
+x_184 = x_196;
 x_185 = x_199;
 goto block_193;
 }

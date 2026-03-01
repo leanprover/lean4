@@ -17,8 +17,8 @@ uint8_t l_Lake_instDecidableEqVerbosity(uint8_t, uint8_t);
 LEAN_EXPORT uint8_t l_Lake_BuildConfig_showProgress(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_BuildConfig_showProgress___boxed(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l_Lake_mkJobQueue___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lake_mkJobQueue___closed__0;
+static const lean_array_object l_Lake_mkJobQueue___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_Lake_mkJobQueue___closed__0 = (const lean_object*)&l_Lake_mkJobQueue___closed__0_value;
 lean_object* lean_st_mk_ref(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_mkJobQueue();
 LEAN_EXPORT lean_object* l_Lake_mkJobQueue___boxed(lean_object*);
@@ -131,20 +131,11 @@ x_3 = lean_box(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lake_mkJobQueue___closed__0(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_mkJobQueue() {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = lean_obj_once(&l_Lake_mkJobQueue___closed__0, &l_Lake_mkJobQueue___closed__0_once, _init_l_Lake_mkJobQueue___closed__0);
+x_2 = ((lean_object*)(l_Lake_mkJobQueue___closed__0));
 x_3 = lean_st_mk_ref(x_2);
 return x_3;
 }

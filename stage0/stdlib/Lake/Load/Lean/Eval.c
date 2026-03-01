@@ -714,8 +714,8 @@ return x_10;
 else
 {
 lean_object* x_11; 
-lean_dec_ref(x_5);
 lean_dec(x_7);
+lean_dec_ref(x_5);
 lean_dec_ref(x_1);
 x_11 = ((lean_object*)(l_Lake_PackageDecl_loadFromEnv___closed__3));
 return x_11;

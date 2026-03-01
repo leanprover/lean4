@@ -78,15 +78,13 @@ static const lean_string_object l_Lean_Server_mkFileProgressNotification___close
 static const lean_object* l_Lean_Server_mkFileProgressNotification___closed__0 = (const lean_object*)&l_Lean_Server_mkFileProgressNotification___closed__0_value;
 LEAN_EXPORT lean_object* l_Lean_Server_mkFileProgressNotification(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_mkFileProgressNotification___boxed(lean_object*, lean_object*);
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l_Lean_Server_mkFileProgressAtPosNotification___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_Server_mkFileProgressAtPosNotification___closed__0;
 lean_object* l_Lean_FileMap_utf8PosToLspPos(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_mkFileProgressAtPosNotification(lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Server_mkFileProgressAtPosNotification___boxed(lean_object*, lean_object*, lean_object*);
-static lean_once_cell_t l_Lean_Server_mkFileProgressDoneNotification___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_Server_mkFileProgressDoneNotification___closed__0;
+static const lean_array_object l_Lean_Server_mkFileProgressDoneNotification___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_Lean_Server_mkFileProgressDoneNotification___closed__0 = (const lean_object*)&l_Lean_Server_mkFileProgressDoneNotification___closed__0_value;
 LEAN_EXPORT lean_object* l_Lean_Server_mkFileProgressDoneNotification(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_mkFileProgressDoneNotification___boxed(lean_object*);
 static const lean_string_object l_Lean_Server_mkApplyWorkspaceEditRequest___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 20, .m_capacity = 20, .m_length = 19, .m_data = "workspace/applyEdit"};
@@ -1350,19 +1348,10 @@ lean_dec_ref(x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Server_mkFileProgressAtPosNotification___closed__0(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(1u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Server_mkFileProgressAtPosNotification(lean_object* x_1, lean_object* x_2, uint8_t x_3) {
 _start:
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
+lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 x_4 = lean_ctor_get(x_1, 3);
 x_5 = lean_ctor_get(x_4, 0);
 lean_inc_ref(x_4);
@@ -1376,11 +1365,12 @@ lean_ctor_set(x_9, 1, x_8);
 x_10 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_10, 0, x_9);
 lean_ctor_set_uint8(x_10, sizeof(void*)*1, x_3);
-x_11 = lean_obj_once(&l_Lean_Server_mkFileProgressAtPosNotification___closed__0, &l_Lean_Server_mkFileProgressAtPosNotification___closed__0_once, _init_l_Lean_Server_mkFileProgressAtPosNotification___closed__0);
-x_12 = lean_array_push(x_11, x_10);
-x_13 = l_Lean_Server_mkFileProgressNotification(x_1, x_12);
+x_11 = lean_unsigned_to_nat(1u);
+x_12 = lean_mk_empty_array_with_capacity(x_11);
+x_13 = lean_array_push(x_12, x_10);
+x_14 = l_Lean_Server_mkFileProgressNotification(x_1, x_13);
 lean_dec_ref(x_1);
-return x_13;
+return x_14;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Server_mkFileProgressAtPosNotification___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -1393,20 +1383,11 @@ lean_dec(x_2);
 return x_5;
 }
 }
-static lean_object* _init_l_Lean_Server_mkFileProgressDoneNotification___closed__0(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Server_mkFileProgressDoneNotification(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = lean_obj_once(&l_Lean_Server_mkFileProgressDoneNotification___closed__0, &l_Lean_Server_mkFileProgressDoneNotification___closed__0_once, _init_l_Lean_Server_mkFileProgressDoneNotification___closed__0);
+x_2 = ((lean_object*)(l_Lean_Server_mkFileProgressDoneNotification___closed__0));
 x_3 = l_Lean_Server_mkFileProgressNotification(x_1, x_2);
 return x_3;
 }

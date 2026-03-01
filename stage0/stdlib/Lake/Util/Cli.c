@@ -133,8 +133,8 @@ LEAN_EXPORT lean_object* l_Lake_collectArgs(lean_object*, lean_object*, lean_obj
 lean_object* lean_array_to_list(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_processOptions___redArg___lam__0(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l_Lake_processOptions___redArg___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lake_processOptions___redArg___closed__0;
+static const lean_array_object l_Lake_processOptions___redArg___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_Lake_processOptions___redArg___closed__0 = (const lean_object*)&l_Lake_processOptions___redArg___closed__0_value;
 LEAN_EXPORT lean_object* l_Lake_processOptions___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_processOptions(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_ArgList_mk(lean_object* x_1) {
@@ -3491,15 +3491,6 @@ x_5 = lean_apply_1(x_3, x_4);
 return x_5;
 }
 }
-static lean_object* _init_l_Lake_processOptions___redArg___closed__0(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_processOptions___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -3509,7 +3500,7 @@ lean_inc(x_4);
 lean_inc_ref(x_2);
 x_5 = lean_alloc_closure((void*)(l_Lake_processOptions___redArg___lam__0), 2, 1);
 lean_closure_set(x_5, 0, x_2);
-x_6 = lean_obj_once(&l_Lake_processOptions___redArg___closed__0, &l_Lake_processOptions___redArg___closed__0_once, _init_l_Lake_processOptions___redArg___closed__0);
+x_6 = ((lean_object*)(l_Lake_processOptions___redArg___closed__0));
 x_7 = l_Lake_collectArgs___redArg(x_1, x_2, x_3, x_6);
 x_8 = lean_apply_4(x_4, lean_box(0), lean_box(0), x_7, x_5);
 return x_8;
@@ -3524,7 +3515,7 @@ lean_inc(x_5);
 lean_inc_ref(x_3);
 x_6 = lean_alloc_closure((void*)(l_Lake_processOptions___redArg___lam__0), 2, 1);
 lean_closure_set(x_6, 0, x_3);
-x_7 = lean_obj_once(&l_Lake_processOptions___redArg___closed__0, &l_Lake_processOptions___redArg___closed__0_once, _init_l_Lake_processOptions___redArg___closed__0);
+x_7 = ((lean_object*)(l_Lake_processOptions___redArg___closed__0));
 x_8 = l_Lake_collectArgs___redArg(x_2, x_3, x_4, x_7);
 x_9 = lean_apply_4(x_5, lean_box(0), lean_box(0), x_8, x_6);
 return x_9;

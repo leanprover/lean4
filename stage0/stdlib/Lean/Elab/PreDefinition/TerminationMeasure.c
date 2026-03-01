@@ -323,8 +323,8 @@ LEAN_EXPORT lean_object* l_Lean_Meta_lambdaBoundedTelescope___at___00Lean_Elab_T
 LEAN_EXPORT lean_object* l_Lean_Meta_lambdaBoundedTelescope___at___00Lean_Elab_TerminationMeasure_delab_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_lambdaBoundedTelescope___at___00Lean_Elab_TerminationMeasure_delab_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l_Lean_Elab_TerminationMeasure_delab___lam__0___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_Elab_TerminationMeasure_delab___lam__0___closed__0;
+static const lean_array_object l_Lean_Elab_TerminationMeasure_delab___lam__0___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_Lean_Elab_TerminationMeasure_delab___lam__0___closed__0 = (const lean_object*)&l_Lean_Elab_TerminationMeasure_delab___lam__0___closed__0_value;
 lean_object* l_Lean_PrettyPrinter_delabCore___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_TerminationMeasure_delab___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_TerminationMeasure_delab___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1524,7 +1524,7 @@ block_41:
 {
 uint8_t x_39; lean_object* x_40; 
 x_39 = 0;
-x_40 = l_Lean_Meta_forallBoundedTelescope___at___00Lean_Elab_TerminationMeasure_elab_spec__0___redArg(x_35, x_38, x_27, x_39, x_39, x_31, x_32, x_29, x_34, x_33, x_28);
+x_40 = l_Lean_Meta_forallBoundedTelescope___at___00Lean_Elab_TerminationMeasure_elab_spec__0___redArg(x_35, x_38, x_27, x_39, x_39, x_31, x_33, x_30, x_28, x_34, x_29);
 return x_40;
 }
 }
@@ -1535,13 +1535,13 @@ if (lean_obj_tag(x_8) == 0)
 lean_object* x_51; lean_object* x_52; 
 x_51 = lean_obj_once(&l_Lean_Elab_TerminationMeasure_elab___lam__1___closed__3, &l_Lean_Elab_TerminationMeasure_elab___lam__1___closed__3_once, _init_l_Lean_Elab_TerminationMeasure_elab___lam__1___closed__3);
 x_52 = l_panic___at___00Lean_Elab_TerminationMeasure_elab_spec__1(x_51);
-x_28 = x_49;
-x_29 = x_46;
-x_30 = lean_box(0);
+x_28 = x_47;
+x_29 = x_49;
+x_30 = x_46;
 x_31 = x_44;
-x_32 = x_45;
-x_33 = x_48;
-x_34 = x_47;
+x_32 = lean_box(0);
+x_33 = x_45;
+x_34 = x_48;
 x_35 = x_52;
 goto block_43;
 }
@@ -1551,13 +1551,13 @@ lean_object* x_53;
 x_53 = lean_ctor_get(x_8, 0);
 lean_inc(x_53);
 lean_dec_ref(x_8);
-x_28 = x_49;
-x_29 = x_46;
-x_30 = lean_box(0);
+x_28 = x_47;
+x_29 = x_49;
+x_30 = x_46;
 x_31 = x_44;
-x_32 = x_45;
-x_33 = x_48;
-x_34 = x_47;
+x_32 = lean_box(0);
+x_33 = x_45;
+x_34 = x_48;
 x_35 = x_53;
 goto block_43;
 }
@@ -3408,21 +3408,12 @@ x_12 = l_Lean_Meta_lambdaBoundedTelescope___at___00Lean_Elab_TerminationMeasure_
 return x_12;
 }
 }
-static lean_object* _init_l_Lean_Elab_TerminationMeasure_delab___lam__0___closed__0(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Elab_TerminationMeasure_delab___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_10 = lean_box(1);
-x_11 = lean_obj_once(&l_Lean_Elab_TerminationMeasure_delab___lam__0___closed__0, &l_Lean_Elab_TerminationMeasure_delab___lam__0___closed__0_once, _init_l_Lean_Elab_TerminationMeasure_delab___lam__0___closed__0);
+x_11 = ((lean_object*)(l_Lean_Elab_TerminationMeasure_delab___lam__0___closed__0));
 x_12 = lean_alloc_closure((void*)(l___private_Lean_Elab_PreDefinition_TerminationMeasure_0__Lean_Elab_TerminationMeasure_delab_go___boxed), 10, 3);
 lean_closure_set(x_12, 0, x_1);
 lean_closure_set(x_12, 1, x_2);

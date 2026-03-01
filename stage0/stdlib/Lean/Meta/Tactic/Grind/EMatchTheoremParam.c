@@ -78,8 +78,8 @@ static lean_object* l_Lean_Meta_Grind_getLocalTheoremAnchors___closed__0;
 static lean_once_cell_t l_Lean_Meta_Grind_getLocalTheoremAnchors___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Meta_Grind_getLocalTheoremAnchors___closed__1;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l_Lean_Meta_Grind_getLocalTheoremAnchors___closed__2_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_Meta_Grind_getLocalTheoremAnchors___closed__2;
+static const lean_array_object l_Lean_Meta_Grind_getLocalTheoremAnchors___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_Lean_Meta_Grind_getLocalTheoremAnchors___closed__2 = (const lean_object*)&l_Lean_Meta_Grind_getLocalTheoremAnchors___closed__2_value;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_getLocalTheoremAnchors(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_getLocalTheoremAnchors___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at___00__private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___00Std_DHashMap_Internal_Raw_u2080_expand___at___00Std_DHashMap_Internal_Raw_u2080_insertIfNew___at___00__private_Lean_Meta_Tactic_Grind_Anchor_0__Lean_Meta_Grind_getNumDigitsForAnchors_go___at___00Lean_Meta_Grind_getNumDigitsForAnchors___at___00Lean_Meta_Grind_getNumDigitsForLocalTheoremAnchors_spec__0_spec__0_spec__2_spec__4_spec__5_spec__7___redArg(lean_object*, lean_object*);
@@ -216,8 +216,8 @@ lean_object* l_Lean_Name_getPrefix(lean_object*);
 uint8_t l_Lean_Name_isPrefixOf(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_unresolveNameGlobal_x3f___at___00Lean_unresolveNameGlobalAvoidingLocals_x3f___at___00Lean_unresolveNameGlobalAvoidingLocals___at___00__private_Lean_Meta_Tactic_Grind_EMatchTheoremParam_0__Lean_Meta_Grind_globalDeclToGrindLemmaSyntax_spec__0_spec__0_spec__2_spec__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l_Lean_unresolveNameGlobal_x3f___at___00Lean_unresolveNameGlobalAvoidingLocals_x3f___at___00Lean_unresolveNameGlobalAvoidingLocals___at___00__private_Lean_Meta_Tactic_Grind_EMatchTheoremParam_0__Lean_Meta_Grind_globalDeclToGrindLemmaSyntax_spec__0_spec__0_spec__2___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_unresolveNameGlobal_x3f___at___00Lean_unresolveNameGlobalAvoidingLocals_x3f___at___00Lean_unresolveNameGlobalAvoidingLocals___at___00__private_Lean_Meta_Tactic_Grind_EMatchTheoremParam_0__Lean_Meta_Grind_globalDeclToGrindLemmaSyntax_spec__0_spec__0_spec__2___closed__0;
+static const lean_array_object l_Lean_unresolveNameGlobal_x3f___at___00Lean_unresolveNameGlobalAvoidingLocals_x3f___at___00Lean_unresolveNameGlobalAvoidingLocals___at___00__private_Lean_Meta_Tactic_Grind_EMatchTheoremParam_0__Lean_Meta_Grind_globalDeclToGrindLemmaSyntax_spec__0_spec__0_spec__2___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_Lean_unresolveNameGlobal_x3f___at___00Lean_unresolveNameGlobalAvoidingLocals_x3f___at___00Lean_unresolveNameGlobalAvoidingLocals___at___00__private_Lean_Meta_Tactic_Grind_EMatchTheoremParam_0__Lean_Meta_Grind_globalDeclToGrindLemmaSyntax_spec__0_spec__0_spec__2___closed__0 = (const lean_object*)&l_Lean_unresolveNameGlobal_x3f___at___00Lean_unresolveNameGlobalAvoidingLocals_x3f___at___00Lean_unresolveNameGlobalAvoidingLocals___at___00__private_Lean_Meta_Tactic_Grind_EMatchTheoremParam_0__Lean_Meta_Grind_globalDeclToGrindLemmaSyntax_spec__0_spec__0_spec__2___closed__0_value;
 lean_object* l_Lean_extractMacroScopes(lean_object*);
 extern lean_object* l_Lean_rootNamespace;
 lean_object* l_Lean_Name_append(lean_object*, lean_object*);
@@ -277,8 +277,8 @@ LEAN_EXPORT lean_object* l_Lean_resolveLocalName___at___00Lean_unresolveNameGlob
 LEAN_EXPORT lean_object* l_Lean_resolveLocalName___at___00Lean_unresolveNameGlobalAvoidingLocals_x3f___at___00Lean_unresolveNameGlobalAvoidingLocals___at___00__private_Lean_Meta_Tactic_Grind_EMatchTheoremParam_0__Lean_Meta_Grind_globalDeclToGrindLemmaSyntax_spec__0_spec__0_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_unresolveNameGlobalAvoidingLocals_x3f___at___00Lean_unresolveNameGlobalAvoidingLocals___at___00__private_Lean_Meta_Tactic_Grind_EMatchTheoremParam_0__Lean_Meta_Grind_globalDeclToGrindLemmaSyntax_spec__0_spec__0___lam__0(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_unresolveNameGlobalAvoidingLocals_x3f___at___00Lean_unresolveNameGlobalAvoidingLocals___at___00__private_Lean_Meta_Tactic_Grind_EMatchTheoremParam_0__Lean_Meta_Grind_globalDeclToGrindLemmaSyntax_spec__0_spec__0___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_once_cell_t l_Lean_unresolveNameGlobalAvoidingLocals_x3f___at___00Lean_unresolveNameGlobalAvoidingLocals___at___00__private_Lean_Meta_Tactic_Grind_EMatchTheoremParam_0__Lean_Meta_Grind_globalDeclToGrindLemmaSyntax_spec__0_spec__0___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_unresolveNameGlobalAvoidingLocals_x3f___at___00Lean_unresolveNameGlobalAvoidingLocals___at___00__private_Lean_Meta_Tactic_Grind_EMatchTheoremParam_0__Lean_Meta_Grind_globalDeclToGrindLemmaSyntax_spec__0_spec__0___closed__0;
+static const lean_closure_object l_Lean_unresolveNameGlobalAvoidingLocals_x3f___at___00Lean_unresolveNameGlobalAvoidingLocals___at___00__private_Lean_Meta_Tactic_Grind_EMatchTheoremParam_0__Lean_Meta_Grind_globalDeclToGrindLemmaSyntax_spec__0_spec__0___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*1, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lean_unresolveNameGlobalAvoidingLocals_x3f___at___00Lean_unresolveNameGlobalAvoidingLocals___at___00__private_Lean_Meta_Tactic_Grind_EMatchTheoremParam_0__Lean_Meta_Grind_globalDeclToGrindLemmaSyntax_spec__0_spec__0___lam__0___boxed, .m_arity = 7, .m_num_fixed = 1, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1))} };
+static const lean_object* l_Lean_unresolveNameGlobalAvoidingLocals_x3f___at___00Lean_unresolveNameGlobalAvoidingLocals___at___00__private_Lean_Meta_Tactic_Grind_EMatchTheoremParam_0__Lean_Meta_Grind_globalDeclToGrindLemmaSyntax_spec__0_spec__0___closed__0 = (const lean_object*)&l_Lean_unresolveNameGlobalAvoidingLocals_x3f___at___00Lean_unresolveNameGlobalAvoidingLocals___at___00__private_Lean_Meta_Tactic_Grind_EMatchTheoremParam_0__Lean_Meta_Grind_globalDeclToGrindLemmaSyntax_spec__0_spec__0___closed__0_value;
 LEAN_EXPORT lean_object* l_Lean_unresolveNameGlobalAvoidingLocals_x3f___at___00Lean_unresolveNameGlobalAvoidingLocals___at___00__private_Lean_Meta_Tactic_Grind_EMatchTheoremParam_0__Lean_Meta_Grind_globalDeclToGrindLemmaSyntax_spec__0_spec__0(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_unresolveNameGlobalAvoidingLocals_x3f___at___00Lean_unresolveNameGlobalAvoidingLocals___at___00__private_Lean_Meta_Tactic_Grind_EMatchTheoremParam_0__Lean_Meta_Grind_globalDeclToGrindLemmaSyntax_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_unresolveNameGlobalAvoidingLocals___at___00__private_Lean_Meta_Tactic_Grind_EMatchTheoremParam_0__Lean_Meta_Grind_globalDeclToGrindLemmaSyntax_spec__0(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -464,8 +464,6 @@ static const lean_ctor_object l___private_Lean_Meta_Tactic_Grind_EMatchTheoremPa
 static const lean_ctor_object l___private_Lean_Meta_Tactic_Grind_EMatchTheoremParam_0__Lean_Meta_Grind_toGrindParam___closed__1_value_aux_2 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l___private_Lean_Meta_Tactic_Grind_EMatchTheoremParam_0__Lean_Meta_Grind_toGrindParam___closed__1_value_aux_1),((lean_object*)&l_Lean_logAt___at___00Lean_log___at___00Lean_logWarning___at___00Lean_checkPrivateInPublic___at___00Lean_resolveGlobalName___at___00__private_Lean_ResolveName_0__Lean_resolveLocalName_loop___at___00Lean_resolveLocalName___at___00Lean_unresolveNameGlobalAvoidingLocals_x3f___at___00Lean_unresolveNameGlobalAvoidingLocals___at___00__private_Lean_Meta_Tactic_Grind_EMatchTheoremParam_0__Lean_Meta_Grind_globalDeclToGrindLemmaSyntax_spec__0_spec__0_spec__1_spec__5_spec__10_spec__14_spec__20_spec__25_spec__27___lam__0___closed__1_value),LEAN_SCALAR_PTR_LITERAL(166, 58, 35, 182, 187, 130, 147, 254)}};
 static const lean_ctor_object l___private_Lean_Meta_Tactic_Grind_EMatchTheoremParam_0__Lean_Meta_Grind_toGrindParam___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l___private_Lean_Meta_Tactic_Grind_EMatchTheoremParam_0__Lean_Meta_Grind_toGrindParam___closed__1_value_aux_2),((lean_object*)&l___private_Lean_Meta_Tactic_Grind_EMatchTheoremParam_0__Lean_Meta_Grind_toGrindParam___closed__0_value),LEAN_SCALAR_PTR_LITERAL(16, 144, 208, 205, 52, 106, 220, 83)}};
 static const lean_object* l___private_Lean_Meta_Tactic_Grind_EMatchTheoremParam_0__Lean_Meta_Grind_toGrindParam___closed__1 = (const lean_object*)&l___private_Lean_Meta_Tactic_Grind_EMatchTheoremParam_0__Lean_Meta_Grind_toGrindParam___closed__1_value;
-static lean_once_cell_t l___private_Lean_Meta_Tactic_Grind_EMatchTheoremParam_0__Lean_Meta_Grind_toGrindParam___closed__2_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l___private_Lean_Meta_Tactic_Grind_EMatchTheoremParam_0__Lean_Meta_Grind_toGrindParam___closed__2;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_EMatchTheoremParam_0__Lean_Meta_Grind_toGrindParam(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_globalDeclToGrindParamSyntax(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_globalDeclToGrindParamSyntax___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3292,15 +3290,6 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Meta_Grind_getLocalTheoremAnchors___closed__2(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_getLocalTheoremAnchors(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
 _start:
 {
@@ -3317,7 +3306,7 @@ x_15 = lean_ctor_get(x_13, 3);
 lean_inc_ref(x_15);
 lean_dec_ref(x_13);
 x_16 = lean_obj_once(&l_Lean_Meta_Grind_getLocalTheoremAnchors___closed__1, &l_Lean_Meta_Grind_getLocalTheoremAnchors___closed__1_once, _init_l_Lean_Meta_Grind_getLocalTheoremAnchors___closed__1);
-x_17 = lean_obj_once(&l_Lean_Meta_Grind_getLocalTheoremAnchors___closed__2, &l_Lean_Meta_Grind_getLocalTheoremAnchors___closed__2_once, _init_l_Lean_Meta_Grind_getLocalTheoremAnchors___closed__2);
+x_17 = ((lean_object*)(l_Lean_Meta_Grind_getLocalTheoremAnchors___closed__2));
 lean_inc(x_10);
 lean_inc_ref(x_9);
 lean_inc(x_8);
@@ -6525,15 +6514,6 @@ lean_dec(x_1);
 return x_8;
 }
 }
-static lean_object* _init_l_Lean_unresolveNameGlobal_x3f___at___00Lean_unresolveNameGlobalAvoidingLocals_x3f___at___00Lean_unresolveNameGlobalAvoidingLocals___at___00__private_Lean_Meta_Tactic_Grind_EMatchTheoremParam_0__Lean_Meta_Grind_globalDeclToGrindLemmaSyntax_spec__0_spec__0_spec__2___closed__0(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_unresolveNameGlobal_x3f___at___00Lean_unresolveNameGlobalAvoidingLocals_x3f___at___00Lean_unresolveNameGlobalAvoidingLocals___at___00__private_Lean_Meta_Tactic_Grind_EMatchTheoremParam_0__Lean_Meta_Grind_globalDeclToGrindLemmaSyntax_spec__0_spec__0_spec__2(lean_object* x_1, uint8_t x_2, uint8_t x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
@@ -6558,7 +6538,7 @@ if (x_3 == 0)
 lean_object* x_40; lean_object* x_41; lean_object* x_42; uint8_t x_43; 
 x_40 = lean_unsigned_to_nat(0u);
 x_41 = lean_array_get_size(x_39);
-x_42 = lean_obj_once(&l_Lean_unresolveNameGlobal_x3f___at___00Lean_unresolveNameGlobalAvoidingLocals_x3f___at___00Lean_unresolveNameGlobalAvoidingLocals___at___00__private_Lean_Meta_Tactic_Grind_EMatchTheoremParam_0__Lean_Meta_Grind_globalDeclToGrindLemmaSyntax_spec__0_spec__0_spec__2___closed__0, &l_Lean_unresolveNameGlobal_x3f___at___00Lean_unresolveNameGlobalAvoidingLocals_x3f___at___00Lean_unresolveNameGlobalAvoidingLocals___at___00__private_Lean_Meta_Tactic_Grind_EMatchTheoremParam_0__Lean_Meta_Grind_globalDeclToGrindLemmaSyntax_spec__0_spec__0_spec__2___closed__0_once, _init_l_Lean_unresolveNameGlobal_x3f___at___00Lean_unresolveNameGlobalAvoidingLocals_x3f___at___00Lean_unresolveNameGlobalAvoidingLocals___at___00__private_Lean_Meta_Tactic_Grind_EMatchTheoremParam_0__Lean_Meta_Grind_globalDeclToGrindLemmaSyntax_spec__0_spec__0_spec__2___closed__0);
+x_42 = ((lean_object*)(l_Lean_unresolveNameGlobal_x3f___at___00Lean_unresolveNameGlobalAvoidingLocals_x3f___at___00Lean_unresolveNameGlobalAvoidingLocals___at___00__private_Lean_Meta_Tactic_Grind_EMatchTheoremParam_0__Lean_Meta_Grind_globalDeclToGrindLemmaSyntax_spec__0_spec__0_spec__2___closed__0));
 x_43 = lean_nat_dec_lt(x_40, x_41);
 if (x_43 == 0)
 {
@@ -8695,23 +8675,12 @@ lean_dec(x_4);
 return x_9;
 }
 }
-static lean_object* _init_l_Lean_unresolveNameGlobalAvoidingLocals_x3f___at___00Lean_unresolveNameGlobalAvoidingLocals___at___00__private_Lean_Meta_Tactic_Grind_EMatchTheoremParam_0__Lean_Meta_Grind_globalDeclToGrindLemmaSyntax_spec__0_spec__0___closed__0(void) {
-_start:
-{
-uint8_t x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = 0;
-x_2 = lean_box(x_1);
-x_3 = lean_alloc_closure((void*)(l_Lean_unresolveNameGlobalAvoidingLocals_x3f___at___00Lean_unresolveNameGlobalAvoidingLocals___at___00__private_Lean_Meta_Tactic_Grind_EMatchTheoremParam_0__Lean_Meta_Grind_globalDeclToGrindLemmaSyntax_spec__0_spec__0___lam__0___boxed), 7, 1);
-lean_closure_set(x_3, 0, x_2);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_unresolveNameGlobalAvoidingLocals_x3f___at___00Lean_unresolveNameGlobalAvoidingLocals___at___00__private_Lean_Meta_Tactic_Grind_EMatchTheoremParam_0__Lean_Meta_Grind_globalDeclToGrindLemmaSyntax_spec__0_spec__0(lean_object* x_1, uint8_t x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
 uint8_t x_8; lean_object* x_9; lean_object* x_10; 
 x_8 = 0;
-x_9 = lean_obj_once(&l_Lean_unresolveNameGlobalAvoidingLocals_x3f___at___00Lean_unresolveNameGlobalAvoidingLocals___at___00__private_Lean_Meta_Tactic_Grind_EMatchTheoremParam_0__Lean_Meta_Grind_globalDeclToGrindLemmaSyntax_spec__0_spec__0___closed__0, &l_Lean_unresolveNameGlobalAvoidingLocals_x3f___at___00Lean_unresolveNameGlobalAvoidingLocals___at___00__private_Lean_Meta_Tactic_Grind_EMatchTheoremParam_0__Lean_Meta_Grind_globalDeclToGrindLemmaSyntax_spec__0_spec__0___closed__0_once, _init_l_Lean_unresolveNameGlobalAvoidingLocals_x3f___at___00Lean_unresolveNameGlobalAvoidingLocals___at___00__private_Lean_Meta_Tactic_Grind_EMatchTheoremParam_0__Lean_Meta_Grind_globalDeclToGrindLemmaSyntax_spec__0_spec__0___closed__0);
+x_9 = ((lean_object*)(l_Lean_unresolveNameGlobalAvoidingLocals_x3f___at___00Lean_unresolveNameGlobalAvoidingLocals___at___00__private_Lean_Meta_Tactic_Grind_EMatchTheoremParam_0__Lean_Meta_Grind_globalDeclToGrindLemmaSyntax_spec__0_spec__0___closed__0));
 x_10 = l_Lean_unresolveNameGlobal_x3f___at___00Lean_unresolveNameGlobalAvoidingLocals_x3f___at___00Lean_unresolveNameGlobalAvoidingLocals___at___00__private_Lean_Meta_Tactic_Grind_EMatchTheoremParam_0__Lean_Meta_Grind_globalDeclToGrindLemmaSyntax_spec__0_spec__0_spec__2(x_1, x_2, x_8, x_9, x_3, x_4, x_5, x_6);
 return x_10;
 }
@@ -10478,28 +10447,20 @@ lean_dec_ref(x_1);
 return x_7;
 }
 }
-static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_EMatchTheoremParam_0__Lean_Meta_Grind_toGrindParam___closed__2(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(1u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_EMatchTheoremParam_0__Lean_Meta_Grind_toGrindParam(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_2 = ((lean_object*)(l___private_Lean_Meta_Tactic_Grind_EMatchTheoremParam_0__Lean_Meta_Grind_toGrindParam___closed__1));
-x_3 = lean_obj_once(&l___private_Lean_Meta_Tactic_Grind_EMatchTheoremParam_0__Lean_Meta_Grind_toGrindParam___closed__2, &l___private_Lean_Meta_Tactic_Grind_EMatchTheoremParam_0__Lean_Meta_Grind_toGrindParam___closed__2_once, _init_l___private_Lean_Meta_Tactic_Grind_EMatchTheoremParam_0__Lean_Meta_Grind_toGrindParam___closed__2);
-x_4 = lean_array_push(x_3, x_1);
-x_5 = lean_box(2);
-x_6 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_6, 0, x_5);
-lean_ctor_set(x_6, 1, x_2);
-lean_ctor_set(x_6, 2, x_4);
-return x_6;
+x_3 = lean_unsigned_to_nat(1u);
+x_4 = lean_mk_empty_array_with_capacity(x_3);
+x_5 = lean_array_push(x_4, x_1);
+x_6 = lean_box(2);
+x_7 = lean_alloc_ctor(1, 3, 0);
+lean_ctor_set(x_7, 0, x_6);
+lean_ctor_set(x_7, 1, x_2);
+lean_ctor_set(x_7, 2, x_5);
+return x_7;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_globalDeclToGrindParamSyntax(lean_object* x_1, lean_object* x_2, uint8_t x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
@@ -10569,16 +10530,17 @@ return x_10;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_EMatchTheoremParam_0__Lean_Meta_Grind_toInstantiateParam(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_2 = ((lean_object*)(l___private_Lean_Meta_Tactic_Grind_EMatchTheoremParam_0__Lean_Meta_Grind_toInstantiateParam___closed__2));
-x_3 = lean_obj_once(&l___private_Lean_Meta_Tactic_Grind_EMatchTheoremParam_0__Lean_Meta_Grind_toGrindParam___closed__2, &l___private_Lean_Meta_Tactic_Grind_EMatchTheoremParam_0__Lean_Meta_Grind_toGrindParam___closed__2_once, _init_l___private_Lean_Meta_Tactic_Grind_EMatchTheoremParam_0__Lean_Meta_Grind_toGrindParam___closed__2);
-x_4 = lean_array_push(x_3, x_1);
-x_5 = lean_box(2);
-x_6 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_6, 0, x_5);
-lean_ctor_set(x_6, 1, x_2);
-lean_ctor_set(x_6, 2, x_4);
-return x_6;
+x_3 = lean_unsigned_to_nat(1u);
+x_4 = lean_mk_empty_array_with_capacity(x_3);
+x_5 = lean_array_push(x_4, x_1);
+x_6 = lean_box(2);
+x_7 = lean_alloc_ctor(1, 3, 0);
+lean_ctor_set(x_7, 0, x_6);
+lean_ctor_set(x_7, 1, x_2);
+lean_ctor_set(x_7, 2, x_5);
+return x_7;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_globalDeclToInstantiateParamSyntax(lean_object* x_1, lean_object* x_2, uint8_t x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {

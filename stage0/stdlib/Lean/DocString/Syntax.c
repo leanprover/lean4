@@ -1066,8 +1066,8 @@ lean_object* l_Lean_Parser_symbol_parenthesizer___boxed(lean_object*, lean_objec
 static const lean_closure_object l_Lean_Doc_Syntax_metadataContents_parenthesizer___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*1, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lean_Parser_symbol_parenthesizer___boxed, .m_arity = 6, .m_num_fixed = 1, .m_objs = {((lean_object*)&l_Lean_Doc_Syntax_metadataContents___closed__0_value)} };
 static const lean_object* l_Lean_Doc_Syntax_metadataContents_parenthesizer___closed__1 = (const lean_object*)&l_Lean_Doc_Syntax_metadataContents_parenthesizer___closed__1_value;
 lean_object* l_Lean_Parser_sepByIndent_parenthesizer___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_once_cell_t l_Lean_Doc_Syntax_metadataContents_parenthesizer___closed__2_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_Doc_Syntax_metadataContents_parenthesizer___closed__2;
+static const lean_closure_object l_Lean_Doc_Syntax_metadataContents_parenthesizer___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*4, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lean_Parser_sepByIndent_parenthesizer___boxed, .m_arity = 9, .m_num_fixed = 4, .m_objs = {((lean_object*)&l_Lean_Doc_Syntax_metadataContents_parenthesizer___closed__0_value),((lean_object*)&l_Lean_Doc_Syntax_metadataContents___closed__0_value),((lean_object*)&l_Lean_Doc_Syntax_metadataContents_parenthesizer___closed__1_value),((lean_object*)(((size_t)(1) << 1) | 1))} };
+static const lean_object* l_Lean_Doc_Syntax_metadataContents_parenthesizer___closed__2 = (const lean_object*)&l_Lean_Doc_Syntax_metadataContents_parenthesizer___closed__2_value;
 lean_object* l_Lean_Parser_Term_structInstFields_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Doc_Syntax_metadataContents_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Doc_Syntax_metadataContents_parenthesizer___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1824,28 +1824,11 @@ x_6 = l_Lean_Doc_Syntax_metadataContents_formatter(x_1, x_2, x_3, x_4);
 return x_6;
 }
 }
-static lean_object* _init_l_Lean_Doc_Syntax_metadataContents_parenthesizer___closed__2(void) {
-_start:
-{
-uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_1 = 1;
-x_2 = ((lean_object*)(l_Lean_Doc_Syntax_metadataContents_parenthesizer___closed__1));
-x_3 = ((lean_object*)(l_Lean_Doc_Syntax_metadataContents___closed__0));
-x_4 = ((lean_object*)(l_Lean_Doc_Syntax_metadataContents_parenthesizer___closed__0));
-x_5 = lean_box(x_1);
-x_6 = lean_alloc_closure((void*)(l_Lean_Parser_sepByIndent_parenthesizer___boxed), 9, 4);
-lean_closure_set(x_6, 0, x_4);
-lean_closure_set(x_6, 1, x_3);
-lean_closure_set(x_6, 2, x_2);
-lean_closure_set(x_6, 3, x_5);
-return x_6;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Doc_Syntax_metadataContents_parenthesizer(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_6; lean_object* x_7; 
-x_6 = lean_obj_once(&l_Lean_Doc_Syntax_metadataContents_parenthesizer___closed__2, &l_Lean_Doc_Syntax_metadataContents_parenthesizer___closed__2_once, _init_l_Lean_Doc_Syntax_metadataContents_parenthesizer___closed__2);
+x_6 = ((lean_object*)(l_Lean_Doc_Syntax_metadataContents_parenthesizer___closed__2));
 x_7 = l_Lean_Parser_Term_structInstFields_parenthesizer(x_6, x_1, x_2, x_3, x_4);
 return x_7;
 }

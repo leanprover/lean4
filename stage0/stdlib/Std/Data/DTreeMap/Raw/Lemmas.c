@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.DTreeMap.Raw.Lemmas
-// Imports: import Std.Data.DTreeMap.Internal.Lemmas public import Std.Data.DTreeMap.Raw.AdditionalOperations import Init.Data.List.Find import Init.Data.List.Pairwise import Init.Data.Prod
+// Imports: import Std.Data.DTreeMap.Internal.Lemmas public import Std.Data.DTreeMap.Raw.AdditionalOperations public import Init.Data.Array.Perm import Init.Data.List.Find import Init.Data.List.Pairwise import Init.Data.Prod
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -72,6 +72,7 @@ return x_5;
 }
 lean_object* runtime_initialize_Std_Data_DTreeMap_Internal_Lemmas(uint8_t builtin);
 lean_object* runtime_initialize_Std_Data_DTreeMap_Raw_AdditionalOperations(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Array_Perm(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_List_Find(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_List_Pairwise(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Prod(uint8_t builtin);
@@ -85,6 +86,10 @@ res = runtime_initialize_Std_Data_DTreeMap_Internal_Lemmas(builtin)
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Std_Data_DTreeMap_Raw_AdditionalOperations(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Array_Perm(builtin)
 ;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -111,6 +116,7 @@ return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Std_Data_DTreeMap_Internal_Lemmas(uint8_t builtin);
 lean_object* initialize_Std_Data_DTreeMap_Raw_AdditionalOperations(uint8_t builtin);
+lean_object* initialize_Init_Data_Array_Perm(uint8_t builtin);
 lean_object* initialize_Init_Data_List_Find(uint8_t builtin);
 lean_object* initialize_Init_Data_List_Pairwise(uint8_t builtin);
 lean_object* initialize_Init_Data_Prod(uint8_t builtin);
@@ -124,6 +130,10 @@ res = initialize_Std_Data_DTreeMap_Internal_Lemmas(builtin)
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Data_DTreeMap_Raw_AdditionalOperations(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Array_Perm(builtin)
 ;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

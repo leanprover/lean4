@@ -168,8 +168,8 @@ static lean_object* l_Lean_Expr_resolveBinderNameHint___closed__0;
 static lean_once_cell_t l_Lean_Expr_resolveBinderNameHint___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Expr_resolveBinderNameHint___closed__1;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l_Lean_Expr_resolveBinderNameHint___closed__2_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_Expr_resolveBinderNameHint___closed__2;
+static const lean_array_object l_Lean_Expr_resolveBinderNameHint___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_Lean_Expr_resolveBinderNameHint___closed__2 = (const lean_object*)&l_Lean_Expr_resolveBinderNameHint___closed__2_value;
 lean_object* lean_st_mk_ref(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_resolveBinderNameHint(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_resolveBinderNameHint___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2294,22 +2294,13 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Expr_resolveBinderNameHint___closed__2(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Expr_resolveBinderNameHint(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_5 = lean_obj_once(&l_Lean_Expr_resolveBinderNameHint___closed__1, &l_Lean_Expr_resolveBinderNameHint___closed__1_once, _init_l_Lean_Expr_resolveBinderNameHint___closed__1);
 x_6 = lean_st_mk_ref(x_5);
-x_7 = lean_obj_once(&l_Lean_Expr_resolveBinderNameHint___closed__2, &l_Lean_Expr_resolveBinderNameHint___closed__2_once, _init_l_Lean_Expr_resolveBinderNameHint___closed__2);
+x_7 = ((lean_object*)(l_Lean_Expr_resolveBinderNameHint___closed__2));
 lean_inc(x_6);
 x_8 = l___private_Lean_Meta_BinderNameHint_0__Lean_Expr_resolveBinderNameHint_go(x_1, x_6, x_7, x_2, x_3);
 if (lean_obj_tag(x_8) == 0)

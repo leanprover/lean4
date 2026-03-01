@@ -1062,8 +1062,6 @@ lean_object* lean_expr_abstract(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_abstract___boxed(lean_object*, lean_object*);
 lean_object* lean_expr_abstract_range(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_abstractRange___boxed(lean_object*, lean_object*, lean_object*);
-static lean_once_cell_t l_Lean_Expr_replaceFVar___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_Expr_replaceFVar___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Expr_replaceFVar(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_replaceFVar___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_replaceFVarId(lean_object*, lean_object*, lean_object*);
@@ -14819,26 +14817,18 @@ lean_dec_ref(x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Expr_replaceFVar___closed__0(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(1u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Expr_replaceFVar(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_4 = lean_obj_once(&l_Lean_Expr_replaceFVar___closed__0, &l_Lean_Expr_replaceFVar___closed__0_once, _init_l_Lean_Expr_replaceFVar___closed__0);
-x_5 = lean_array_push(x_4, x_2);
-x_6 = lean_expr_abstract(x_1, x_5);
-lean_dec_ref(x_5);
-x_7 = lean_expr_instantiate1(x_6, x_3);
+lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
+x_4 = lean_unsigned_to_nat(1u);
+x_5 = lean_mk_empty_array_with_capacity(x_4);
+x_6 = lean_array_push(x_5, x_2);
+x_7 = lean_expr_abstract(x_1, x_6);
 lean_dec_ref(x_6);
-return x_7;
+x_8 = lean_expr_instantiate1(x_7, x_3);
+lean_dec_ref(x_7);
+return x_8;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Expr_replaceFVar___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

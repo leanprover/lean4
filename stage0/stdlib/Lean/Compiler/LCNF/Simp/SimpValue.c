@@ -31,8 +31,8 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_simpAppApp_x3f___redArg___box
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_simpAppApp_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_simpAppApp_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l_Lean_Compiler_LCNF_Simp_simpCtorDiscr_x3f___redArg___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_Compiler_LCNF_Simp_simpCtorDiscr_x3f___redArg___closed__0;
+static const lean_array_object l_Lean_Compiler_LCNF_Simp_simpCtorDiscr_x3f___redArg___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_Lean_Compiler_LCNF_Simp_simpCtorDiscr_x3f___redArg___closed__0 = (const lean_object*)&l_Lean_Compiler_LCNF_Simp_simpCtorDiscr_x3f___redArg___closed__0_value;
 lean_object* lean_st_ref_get(lean_object*);
 lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_Compiler_LCNF_LetValue_toExpr(uint8_t, lean_object*);
@@ -751,15 +751,6 @@ lean_dec(x_1);
 return x_10;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_Simp_simpCtorDiscr_x3f___redArg___closed__0(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_simpCtorDiscr_x3f___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -831,7 +822,7 @@ goto block_35;
 block_35:
 {
 lean_object* x_27; lean_object* x_28; lean_object* x_29; 
-x_27 = lean_obj_once(&l_Lean_Compiler_LCNF_Simp_simpCtorDiscr_x3f___redArg___closed__0, &l_Lean_Compiler_LCNF_Simp_simpCtorDiscr_x3f___redArg___closed__0_once, _init_l_Lean_Compiler_LCNF_Simp_simpCtorDiscr_x3f___redArg___closed__0);
+x_27 = ((lean_object*)(l_Lean_Compiler_LCNF_Simp_simpCtorDiscr_x3f___redArg___closed__0));
 x_28 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_28, 0, x_24);
 lean_ctor_set(x_28, 1, x_27);

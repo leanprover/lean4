@@ -154,8 +154,8 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Congr_0__Lean_MVarId_congr
 LEAN_EXPORT lean_object* l_List_forM___at___00__private_Lean_Meta_Tactic_Congr_0__Lean_MVarId_congrN_go_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Congr_0__Lean_MVarId_congrN_go___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l_Lean_MVarId_congrN___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_MVarId_congrN___closed__0;
+static const lean_array_object l_Lean_MVarId_congrN___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_Lean_MVarId_congrN___closed__0 = (const lean_object*)&l_Lean_MVarId_congrN___closed__0_value;
 lean_object* lean_st_mk_ref(lean_object*);
 lean_object* lean_array_to_list(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_congrN(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3056,8 +3056,8 @@ return x_38;
 }
 else
 {
-lean_dec(x_28);
 lean_dec_ref(x_14);
+lean_dec(x_28);
 lean_del_object(x_15);
 x_17 = x_3;
 x_18 = x_4;
@@ -4254,20 +4254,11 @@ lean_dec(x_3);
 return x_13;
 }
 }
-static lean_object* _init_l_Lean_MVarId_congrN___closed__0(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_MVarId_congrN(lean_object* x_1, lean_object* x_2, uint8_t x_3, uint8_t x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; 
-x_10 = lean_obj_once(&l_Lean_MVarId_congrN___closed__0, &l_Lean_MVarId_congrN___closed__0_once, _init_l_Lean_MVarId_congrN___closed__0);
+x_10 = ((lean_object*)(l_Lean_MVarId_congrN___closed__0));
 x_11 = lean_st_mk_ref(x_10);
 x_12 = l___private_Lean_Meta_Tactic_Congr_0__Lean_MVarId_congrN_go(x_3, x_4, x_2, x_1, x_11, x_5, x_6, x_7, x_8);
 if (lean_obj_tag(x_12) == 0)

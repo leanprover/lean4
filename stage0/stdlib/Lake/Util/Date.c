@@ -111,8 +111,8 @@ lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
 lean_object* l_String_Slice_subslice_x21(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___at___00Lake_Date_ofString_x3f_spec__1___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l_Lake_Date_ofString_x3f___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lake_Date_ofString_x3f___closed__0;
+static const lean_array_object l_Lake_Date_ofString_x3f___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_Lake_Date_ofString_x3f___closed__0 = (const lean_object*)&l_Lake_Date_ofString_x3f___closed__0_value;
 lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* lean_array_to_list(lean_object*);
 lean_object* l_String_Slice_toNat_x3f(lean_object*);
@@ -860,15 +860,6 @@ lean_dec_ref(x_2);
 return x_6;
 }
 }
-static lean_object* _init_l_Lake_Date_ofString_x3f___closed__0(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_Date_ofString_x3f(lean_object* x_1) {
 _start:
 {
@@ -881,7 +872,7 @@ lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
 lean_ctor_set(x_4, 2, x_3);
 x_5 = l_String_Slice_splitToSubslice___at___00Lake_Date_ofString_x3f_spec__0(x_4);
-x_6 = lean_obj_once(&l_Lake_Date_ofString_x3f___closed__0, &l_Lake_Date_ofString_x3f___closed__0_once, _init_l_Lake_Date_ofString_x3f___closed__0);
+x_6 = ((lean_object*)(l_Lake_Date_ofString_x3f___closed__0));
 x_7 = l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___at___00Lake_Date_ofString_x3f_spec__1___redArg(x_1, x_4, x_3, x_5, x_6);
 lean_dec_ref(x_4);
 x_8 = lean_array_to_list(x_7);
@@ -988,8 +979,8 @@ return x_26;
 else
 {
 lean_object* x_27; 
-lean_dec_ref(x_8);
 lean_dec(x_9);
+lean_dec_ref(x_8);
 x_27 = lean_box(0);
 return x_27;
 }

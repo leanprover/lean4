@@ -437,14 +437,14 @@ private def flattenAux (l : Level) (off : Nat) (acc : FlatLevel) : FlatLevel :=
         { acc with
           extra := acc.extra.push ⟨flattenAux l₁ off { constOff := off }, c⟩,
           zeroConds := prevConds.map (·.union c) }
-  | .param p =>
+  | .param p
+  | .mvar ⟨p⟩ =>
     { acc with
       paramOffs :=
         match acc.paramOffs.find? p with
         | none => acc.paramOffs.insert p off
         | some prev => if prev < off then acc.paramOffs.insert p off else acc.paramOffs,
       zeroConds := acc.zeroConds.map (·.insert p) }
-  | .mvar _ => acc -- assume no mvars
 
 private def FlatLevel.merge (l l' : FlatLevel) : FlatLevel :=
   { l with

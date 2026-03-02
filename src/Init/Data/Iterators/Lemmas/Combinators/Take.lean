@@ -49,6 +49,7 @@ theorem Iter.step_take {α β} [Iterator α Id β] {n : Nat}
     cases step.inflate using PlausibleIterStep.casesOn <;>
       simp [PlausibleIterStep.yield, PlausibleIterStep.skip, PlausibleIterStep.done]
 
+@[grind =]
 theorem Iter.atIdxSlow?_take {α β}
     [Iterator α Id β] [Productive α Id] {k l : Nat}
     {it : Iter (α := α) β} :

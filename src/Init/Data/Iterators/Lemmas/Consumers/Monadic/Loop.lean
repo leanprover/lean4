@@ -368,6 +368,19 @@ theorem IterM.fold_hom {m : Type w → Type w'} [Iterator α m β] [Finite α m]
   · rw [ihs ‹_›]
   · simp
 
+theorem IterM.fold_assoc {m : Type w → Type w'} [Iterator α m β] [Finite α m]
+    [Monad m] [LawfulMonad m] [IteratorLoop α m m] [LawfulIteratorLoop α m m]
+    {it : IterM (α := α) m β} {op : β → β → β} [Associative op] :
+    it.fold (init := op b₁ b₂) op = (op b₁ ·) <$> it.fold (init := b₂) op := by
+  induction it using IterM.inductSteps generalizing b₁ b₂ with | step it ihy ihs
+  rw [IterM.fold_eq_match_step, IterM.fold_eq_match_step]
+  simp only [map_eq_pure_bind, bind_assoc]
+  apply bind_congr; intro step
+  split
+  · simp [ihy ‹_›, Associative.assoc]
+  · simp [ihs ‹_›]
+  · simp
+
 theorem IterM.toList_eq_fold {α β : Type w} {m : Type w → Type w'} [Iterator α m β]
     [Finite α m] [Monad m] [LawfulMonad m] [IteratorLoop α m m] [LawfulIteratorLoop α m m]
     {it : IterM (α := α) m β} :
@@ -905,5 +918,49 @@ theorem IterM.isEmpty_eq_match_step {α β : Type w} {m : Type w → Type w'} [M
   split <;> try (simp [*]; done)
   simp only [DefaultConsumers.forIn_eq, *]
   exact IterM.DefaultConsumers.forIn'_eq_forIn' _ this (by simp)
+
+theorem IterM.sum_eq_match_step
+    [Add β] [Zero β] [Associative (α := β) (· + ·)] [LawfulIdentity (α := β) (· + ·) 0]
+    [Monad m] [Iterator α m β] [IteratorLoop α m m] [LawfulIteratorLoop α m m] [LawfulMonad m]
+    [Finite α m] {it : IterM (α := α) m β} :
+    it.sum = (do
+      match (← it.step).inflate.val with
+      | .yield it' out => return out + (← it'.sum)
+      | .skip it' => it'.sum
+      | .done => return 0) := by
+  rw [IterM.sum, IterM.fold_eq_match_step]
+  apply bind_congr; intro step
+  cases step.inflate using PlausibleIterStep.casesOn
+  · have (b : β) : 0 + b = b + 0 := by simp [LawfulLeftIdentity.left_id, LawfulRightIdentity.right_id]
+    simp [IterM.sum, this, IterM.fold_assoc]
+  · simp [IterM.sum]
+  · simp
+
+@[simp, grind =]
+theorem IterM.sum_toList [Monad m] [Add β] [Zero β]
+    [Associative (α := β) (· + ·)]
+    [LawfulIdentity (· + ·) (0 : β)]
+    [Iterator α m β] [IteratorLoop α m m] [LawfulMonad m]
+    [LawfulIteratorLoop α m m] [Iterators.Finite α m] {it : IterM (α := α) m β} :
+    List.sum <$> it.toList = it.sum := by
+  simp only [IterM.sum, ← IterM.foldl_toList, ← List.sum_eq_foldl]
+
+@[simp, grind =]
+theorem IterM.sum_toArray [Monad m] [Add β] [Zero β]
+    [Associative (α := β) (· + ·)]
+    [LawfulIdentity (· + ·) (0 : β)]
+    [Iterator α m β] [IteratorLoop α m m] [LawfulMonad m]
+    [LawfulIteratorLoop α m m] [Iterators.Finite α m] {it : IterM (α := α) m β} :
+    Array.sum <$> it.toArray = it.sum := by
+  simp [← IterM.toArray_toList, IterM.sum_toList]
+
+@[simp, grind =]
+theorem IterM.sum_toListRev [Monad m] [Add β] [Zero β]
+    [Associative (α := β) (· + ·)] [Commutative (α := β) (· + ·)]
+    [LawfulIdentity (· + ·) (0 : β)]
+    [Iterator α m β] [IteratorLoop α m m] [LawfulMonad m]
+    [LawfulIteratorLoop α m m] [Iterators.Finite α m] {it : IterM (α := α) m β} :
+    List.sum <$> it.toListRev = it.sum := by
+  simp [IterM.toListRev_eq, List.sum_reverse, IterM.sum_toList]
 
 end Std

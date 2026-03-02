@@ -434,6 +434,12 @@ theorem Iter.fold_hom {γ₁ : Type x₁} {γ₂ : Type x₂} [Iterator α Id β
   · rw [ihs ‹_›]
   · simp
 
+theorem Iter.fold_assoc [Iterator α Id β] [Finite α Id]
+    [IteratorLoop α Id Id] [LawfulIteratorLoop α Id Id]
+    {it : Iter (α := α) β} {op : β → β → β} [Associative op] :
+    it.fold (init := op b₁ b₂) op = op b₁ (it.fold (init := b₂) op) := by
+  simp [Iter.fold_eq_fold_toIterM, IterM.fold_assoc]
+
 theorem Iter.toList_eq_fold {α β : Type w} [Iterator α Id β]
     [Finite α Id] [IteratorLoop α Id Id] [LawfulIteratorLoop α Id Id]
     {it : Iter (α := α) β} :
@@ -521,7 +527,7 @@ def Iter.size_toArray_eq_size := @size_toArray_eq_length
 @[deprecated Iter.size_toArray_eq_length (since := "2026-01-28")]
 def Iter.size_toArray_eq_count := @size_toArray_eq_length
 
-@[simp]
+@[simp, grind =]
 theorem Iter.length_toList_eq_length {α β : Type w} [Iterator α Id β] [Finite α Id]
     [IteratorLoop α Id Id] [LawfulIteratorLoop α Id Id]
     {it : Iter (α := α) β} :
@@ -983,5 +989,51 @@ theorem Iter.isEmpty_toList {α β : Type w} [Iterator α Id β] [IteratorLoop �
   induction it using Iter.inductSteps with | step it ihy ihs
   rw [isEmpty_eq_match_step, toList_eq_match_step]
   cases it.step using PlausibleIterStep.casesOn <;> simp [*]
+
+theorem Iter.sum_eq_sum_toIterM
+    [Add β] [Zero β]
+    [Iterator α Id β] [IteratorLoop α Id Id] [LawfulIteratorLoop α Id Id]
+    [Finite α Id] {it : Iter (α := α) β} :
+    it.sum = it.toIterM.sum.run := by
+  simp [Iter.sum, IterM.sum, Iter.fold_eq_fold_toIterM]
+
+theorem Iter.sum_eq_match_step
+    [Add β] [Zero β] [Associative (α := β) (· + ·)] [LawfulIdentity (α := β) (· + ·) 0]
+    [Iterator α Id β] [IteratorLoop α Id Id] [LawfulIteratorLoop α Id Id]
+    [Finite α Id] {it : Iter (α := α) β} :
+    it.sum = (match it.step.val with
+      | .yield it' out => out + it'.sum
+      | .skip it' => it'.sum
+      | .done => 0) := by
+  rw [Iter.sum_eq_sum_toIterM, IterM.sum_eq_match_step]
+  simp only [bind_pure_comp, Id.run_bind, Iter.step]
+  cases it.toIterM.step.run.inflate using PlausibleIterStep.casesOn <;> simp [Iter.sum_eq_sum_toIterM]
+
+@[simp, grind =]
+theorem Iter.sum_toList [Add β] [Zero β]
+    [Associative (α := β) (· + ·)]
+    [LawfulIdentity (· + ·) (0 : β)]
+    [Iterator α Id β] [IteratorLoop α Id Id]
+    [LawfulIteratorLoop α Id Id] [Iterators.Finite α Id] {it : Iter (α := α) β} :
+    it.toList.sum = it.sum := by
+  simp only [Iter.sum, ← Iter.foldl_toList, List.sum_eq_foldl]
+
+@[simp, grind =]
+theorem Iter.sum_toArray [Add β] [Zero β]
+    [Associative (α := β) (· + ·)]
+    [LawfulIdentity (· + ·) (0 : β)]
+    [Iterator α Id β] [IteratorLoop α Id Id]
+    [LawfulIteratorLoop α Id Id] [Iterators.Finite α Id] {it : Iter (α := α) β} :
+    it.toArray.sum = it.sum := by
+  simp [← Iter.toArray_toList, Iter.sum_toList]
+
+@[simp, grind =]
+theorem Iter.sum_toListRev [Add β] [Zero β]
+    [Associative (α := β) (· + ·)] [Commutative (α := β) (· + ·)]
+    [LawfulIdentity (· + ·) (0 : β)]
+    [Iterator α Id β] [IteratorLoop α Id Id]
+    [LawfulIteratorLoop α Id Id] [Iterators.Finite α Id] {it : Iter (α := α) β} :
+    it.toListRev.sum = it.sum := by
+  simp [Iter.toListRev_eq, List.sum_reverse, Iter.sum_toList]
 
 end Std

@@ -8,8 +8,10 @@ module
 prelude
 public import Std.Data.Iterators.Producers.Repeat
 public import Init.Data.Iterators.Lemmas.Combinators.Take
+public import Init.Data.Iterators.Consumers.Loop
 import Init.Data.Iterators.Lemmas.Consumers.Access
 import Init.Data.Iterators.Lemmas.Consumers.Collect
+import Init.Data.Iterators.Lemmas.Consumers.Loop
 import Init.Data.Option.Lemmas
 
 @[expose] public section
@@ -39,7 +41,7 @@ theorem Iter.atIdxSlow?_succ_repeat_eq_map {k : Nat} :
   · simp [atIdxSlow?_zero_repeat, Functor.map]
   · simp [*, atIdxSlow?_succ_repeat]
 
-@[simp]
+@[simp, grind =]
 theorem Iter.atIdxSlow?_repeat {n : Nat} :
     (Iter.repeat f init).atIdxSlow? n = some (Nat.repeat f n init) := by
   induction n generalizing init
@@ -55,5 +57,12 @@ theorem Iter.isSome_atIdxSlow?_repeat {k : Nat} :
 theorem Iter.toList_take_repeat_succ {k : Nat} :
     ((Iter.repeat f init).take (k + 1)).toList = init :: ((Iter.repeat f (f init)).take k).toList := by
   rw [toList_eq_match_step, step_take, step_repeat]
+
+@[simp, grind =]
+theorem Iter.length_take_repeat {f : α → α} {init} :
+    (Iter.repeat (init := init) f |>.take n).length = n := by
+  induction n generalizing init
+  · simp [← Iter.length_toList_eq_length]
+  · simp_all [← Iter.length_toList_eq_length, Iter.toList_take_repeat_succ]
 
 end Std

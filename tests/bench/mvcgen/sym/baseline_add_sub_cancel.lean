@@ -20,6 +20,6 @@ def Goal (n : Nat) : Prop := ∀ s post, post () s → Exec s (loop n) post
 set_option maxRecDepth 10000
 set_option maxHeartbeats 10000000
 
-#eval runBenchUsingSym ``Goal [``loop, ``step] solve
-  [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]
+#eval runBenchUsingSym ``Goal [``loop, ``step] (solve · *> return []) `(tactic| fail)
+  [100, 500, 1000]
   -- [1000]

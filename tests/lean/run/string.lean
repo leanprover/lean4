@@ -1,4 +1,5 @@
 module
+set_option cbv.warning false
 
 /-!
 # Tests for `String` functions

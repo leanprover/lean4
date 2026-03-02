@@ -6,16 +6,16 @@ Authors: Paul Reichert
 module
 
 prelude
-import Init.Data.BitVec.Bootstrap
-import Init.Data.BitVec.Lemmas
-import Init.Data.Int.DivMod.Lemmas
-import Init.Data.Int.Pow
-import Init.Data.Nat.Div.Lemmas
-import Init.Data.Nat.Lemmas
-import Init.Data.Nat.Mod
-import Init.Data.Option.Lemmas
-import Init.Data.Range.Polymorphic.BitVec
-import Init.Omega
+public import Init.Data.BitVec.Bootstrap
+public import Init.Data.BitVec.Lemmas
+public import Init.Data.Int.DivMod.Lemmas
+public import Init.Data.Int.Pow
+public import Init.Data.Nat.Div.Lemmas
+public import Init.Data.Nat.Lemmas
+public import Init.Data.Nat.Mod
+public import Init.Data.Option.Lemmas
+public import Init.Data.Range.Polymorphic.BitVec
+public import Init.Omega
 
 /-!
 # Ranges on signed bit vectors

@@ -14,11 +14,15 @@
 extern "C" {
 #endif
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
+static lean_once_cell_t l_Lean_Elab_Term_instInhabitedMatchAltView_default___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Elab_Term_instInhabitedMatchAltView_default___closed__0;
+static lean_once_cell_t l_Lean_Elab_Term_instInhabitedMatchAltView_default___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Elab_Term_instInhabitedMatchAltView_default___closed__1;
-LEAN_EXPORT lean_object* l_Lean_Elab_Term_instInhabitedMatchAltView_default;
-LEAN_EXPORT lean_object* l_Lean_Elab_Term_instInhabitedMatchAltView;
-static lean_object* _init_l_Lean_Elab_Term_instInhabitedMatchAltView_default___closed__0() {
+LEAN_EXPORT lean_object* l_Lean_Elab_Term_instInhabitedMatchAltView_default(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_Term_instInhabitedMatchAltView_default___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_Term_instInhabitedMatchAltView(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_Term_instInhabitedMatchAltView___boxed(lean_object*);
+static lean_object* _init_l_Lean_Elab_Term_instInhabitedMatchAltView_default___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -27,11 +31,11 @@ x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Elab_Term_instInhabitedMatchAltView_default___closed__1() {
+static lean_object* _init_l_Lean_Elab_Term_instInhabitedMatchAltView_default___closed__1(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Elab_Term_instInhabitedMatchAltView_default___closed__0;
+x_1 = lean_obj_once(&l_Lean_Elab_Term_instInhabitedMatchAltView_default___closed__0, &l_Lean_Elab_Term_instInhabitedMatchAltView_default___closed__0_once, _init_l_Lean_Elab_Term_instInhabitedMatchAltView_default___closed__0);
 x_2 = lean_box(0);
 x_3 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_3, 0, x_2);
@@ -41,20 +45,38 @@ lean_ctor_set(x_3, 3, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Elab_Term_instInhabitedMatchAltView_default() {
+LEAN_EXPORT lean_object* l_Lean_Elab_Term_instInhabitedMatchAltView_default(lean_object* x_1) {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Lean_Elab_Term_instInhabitedMatchAltView_default___closed__1;
-return x_1;
+lean_object* x_2; 
+x_2 = lean_obj_once(&l_Lean_Elab_Term_instInhabitedMatchAltView_default___closed__1, &l_Lean_Elab_Term_instInhabitedMatchAltView_default___closed__1_once, _init_l_Lean_Elab_Term_instInhabitedMatchAltView_default___closed__1);
+return x_2;
 }
 }
-static lean_object* _init_l_Lean_Elab_Term_instInhabitedMatchAltView() {
+LEAN_EXPORT lean_object* l_Lean_Elab_Term_instInhabitedMatchAltView_default___boxed(lean_object* x_1) {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Lean_Elab_Term_instInhabitedMatchAltView_default;
-return x_1;
+lean_object* x_2; 
+x_2 = l_Lean_Elab_Term_instInhabitedMatchAltView_default(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Elab_Term_instInhabitedMatchAltView(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Elab_Term_instInhabitedMatchAltView_default(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Elab_Term_instInhabitedMatchAltView___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Elab_Term_instInhabitedMatchAltView(x_1);
+lean_dec(x_1);
+return x_2;
 }
 }
 lean_object* initialize_Lean_Elab_Term(uint8_t builtin);
@@ -66,14 +88,6 @@ _G_initialized = true;
 res = initialize_Lean_Elab_Term(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Elab_Term_instInhabitedMatchAltView_default___closed__0 = _init_l_Lean_Elab_Term_instInhabitedMatchAltView_default___closed__0();
-lean_mark_persistent(l_Lean_Elab_Term_instInhabitedMatchAltView_default___closed__0);
-l_Lean_Elab_Term_instInhabitedMatchAltView_default___closed__1 = _init_l_Lean_Elab_Term_instInhabitedMatchAltView_default___closed__1();
-lean_mark_persistent(l_Lean_Elab_Term_instInhabitedMatchAltView_default___closed__1);
-l_Lean_Elab_Term_instInhabitedMatchAltView_default = _init_l_Lean_Elab_Term_instInhabitedMatchAltView_default();
-lean_mark_persistent(l_Lean_Elab_Term_instInhabitedMatchAltView_default);
-l_Lean_Elab_Term_instInhabitedMatchAltView = _init_l_Lean_Elab_Term_instInhabitedMatchAltView();
-lean_mark_persistent(l_Lean_Elab_Term_instInhabitedMatchAltView);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

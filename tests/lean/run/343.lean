@@ -21,7 +21,7 @@ unif_hint (mvar : CatIsh) where
   Catish.{m, o} =?= mvar |- mvar.Obj =?= CatIsh.{o, m}
 
 structure CtxSyntaxLayerParamsObj where
-  Ct : CatIsh
+  Ct : CatIsh.{m, o}
 
 /-- warning: declaration uses `sorry` -/
 #guard_msgs in

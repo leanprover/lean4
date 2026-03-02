@@ -1,4 +1,6 @@
-To build Lean you should use `make -j -C build/release`.
+(In the following, use `sysctl -n hw.logicalcpu` instead of `nproc` on macOS)
+
+To build Lean you should use `make -j$(nproc) -C build/release`.
 
 ## Running Tests
 
@@ -6,13 +8,13 @@ See `doc/dev/testing.md` for full documentation. Quick reference:
 
 ```bash
 # Full test suite (use after builds to verify correctness)
-make -j -C build/release test ARGS="-j$(nproc)"
+make -j$(nproc) -C build/release test ARGS="-j$(nproc)"
 
 # Specific test by name (supports regex via ctest -R)
-make -j -C build/release test ARGS='-R grind_ematch --output-on-failure'
+make -j$(nproc) -C build/release test ARGS='-R grind_ematch --output-on-failure'
 
 # Rerun only previously failed tests
-make -j -C build/release test ARGS='--rerun-failed --output-on-failure'
+make -j$(nproc) -C build/release test ARGS='--rerun-failed --output-on-failure'
 
 # Single test from tests/lean/run/ (quick check during development)
 cd tests/lean/run && ./test_single.sh example_test.lean
@@ -41,7 +43,7 @@ All new tests should go in `tests/lean/run/`. These tests don't have expected ou
 ## Build System Safety
 
 **NEVER manually delete build directories** (build/, stage0/, stage1/, etc.) even when builds fail.
-- ONLY use the project's documented build command: `make -j -C build/release`
+- ONLY use the project's documented build command: `make -j$(nproc) -C build/release`
 - If a build is broken, ask the user before attempting any manual cleanup
 
 ## LSP and IDE Diagnostics
@@ -59,7 +61,7 @@ Follow the commit convention in `doc/dev/commit_convention.md`.
 **Title format:** `<type>: <subject>` where type is one of: `feat`, `fix`, `doc`, `style`, `refactor`, `test`, `chore`, `perf`.
 Subject should use imperative present tense ("add" not "added"), no capitalization, no trailing period.
 
-**Body format:** The first paragraph must start with "This PR". This paragraph is automatically incorporated into release notes. Use imperative present tense. Include motivation and contrast with previous behavior when relevant.
+**Body format:** The first paragraph must start with "This PR". This paragraph is automatically incorporated into release notes. Use imperative present tense. Include motivation and contrast with previous behavior when relevant. Do NOT use markdown headings (`## Summary`, `## Test plan`, etc.) in PR bodies.
 
 Example:
 ```
@@ -84,6 +86,27 @@ leading quantifiers are stripped when creating a pattern.
 
 If you're unsure which label applies, it's fine to omit the label and let reviewers add it.
 
+## Module System for `src/` Files
+
+Files in `src/Lean/`, `src/Std/`, and `src/lake/Lake/` must have both `module` and `prelude` (CI enforces `^prelude$` on its own line). With `prelude`, nothing is auto-imported — you must explicitly import `Init.*` modules for standard library features. Check existing files in the same directory for the pattern, e.g.:
+
+```lean
+module
+
+prelude
+import Init.While  -- needed for while/repeat
+import Init.Data.String.TakeDrop  -- needed for String.startsWith
+public import Lean.Compiler.NameMangling  -- public if types are used in public signatures
+```
+
+Files outside these directories (e.g. `tests/`, `script/`) use just `module`.
+
 ## CI Log Retrieval
 
 When CI jobs fail, investigate immediately - don't wait for other jobs to complete. Individual job logs are often available even while other jobs are still running. Try `gh run view <run-id> --log` or `gh run view <run-id> --log-failed`, or use `gh run view <run-id> --job=<job-id>` to target the specific failed job. Sleeping is fine when asked to monitor CI and no failures exist yet, but once any job fails, investigate that failure immediately.
+
+## Copyright Headers
+
+New files require a copyright header. To get the year right, always run `date +%Y` rather than relying on memory. The copyright holder should be the author or their current employer — check other recent files by the same author in the repository to determine the correct entity (e.g., "Lean FRO, LLC", "Amazon.com, Inc. or its affiliates").
+
+Test files (in `tests/`) do not need copyright headers.

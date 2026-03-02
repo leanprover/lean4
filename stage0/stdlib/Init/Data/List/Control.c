@@ -37,6 +37,7 @@ LEAN_EXPORT lean_object* l_List_zipWithM_loop___redArg(lean_object*, lean_object
 lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_zipWithM_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
+static lean_once_cell_t l_List_zipWithM___redArg___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_List_zipWithM___redArg___closed__0;
 LEAN_EXPORT lean_object* l_List_zipWithM___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_zipWithM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -50,8 +51,8 @@ LEAN_EXPORT lean_object* l_List_filterM(lean_object*, lean_object*, lean_object*
 LEAN_EXPORT lean_object* l_List_filterRevM___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_filterRevM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_filterMapM_loop___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_filterMapM_loop___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_filterMapM_loop___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_filterMapM_loop___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_filterMapM_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_filterMapM___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_filterMapM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -411,9 +412,9 @@ return x_19;
 else
 {
 lean_inc(x_8);
+lean_dec_ref(x_3);
 lean_dec(x_7);
 lean_dec(x_4);
-lean_dec_ref(x_3);
 lean_dec(x_2);
 lean_dec_ref(x_1);
 x_9 = x_5;
@@ -457,7 +458,7 @@ x_10 = l_List_zipWithM_loop___redArg(x_2, x_6, x_7, x_8, x_9);
 return x_10;
 }
 }
-static lean_object* _init_l_List_zipWithM___redArg___closed__0() {
+static lean_object* _init_l_List_zipWithM___redArg___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -470,7 +471,7 @@ LEAN_EXPORT lean_object* l_List_zipWithM___redArg(lean_object* x_1, lean_object*
 _start:
 {
 lean_object* x_5; lean_object* x_6; 
-x_5 = l_List_zipWithM___redArg___closed__0;
+x_5 = lean_obj_once(&l_List_zipWithM___redArg___closed__0, &l_List_zipWithM___redArg___closed__0_once, _init_l_List_zipWithM___redArg___closed__0);
 x_6 = l_List_zipWithM_loop___redArg(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
@@ -479,7 +480,7 @@ LEAN_EXPORT lean_object* l_List_zipWithM(lean_object* x_1, lean_object* x_2, lea
 _start:
 {
 lean_object* x_9; lean_object* x_10; 
-x_9 = l_List_zipWithM___redArg___closed__0;
+x_9 = lean_obj_once(&l_List_zipWithM___redArg___closed__0, &l_List_zipWithM___redArg___closed__0_once, _init_l_List_zipWithM___redArg___closed__0);
 x_10 = l_List_zipWithM_loop___redArg(x_2, x_6, x_7, x_8, x_9);
 return x_10;
 }
@@ -625,6 +626,15 @@ x_8 = l_List_filterAuxM___redArg(x_2, x_4, x_6, x_7);
 return x_8;
 }
 }
+LEAN_EXPORT lean_object* l_List_filterMapM_loop___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = l_List_filterMapM_loop___redArg___lam__0(x_1, x_2, x_3, x_4, x_5);
+lean_dec(x_5);
+return x_6;
+}
+}
 LEAN_EXPORT lean_object* l_List_filterMapM_loop___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -653,7 +663,7 @@ x_11 = lean_ctor_get(x_3, 1);
 lean_inc(x_11);
 lean_dec_ref(x_3);
 lean_inc(x_2);
-x_12 = lean_alloc_closure((void*)(l_List_filterMapM_loop___redArg___lam__0), 5, 4);
+x_12 = lean_alloc_closure((void*)(l_List_filterMapM_loop___redArg___lam__0___boxed), 5, 4);
 lean_closure_set(x_12, 0, x_1);
 lean_closure_set(x_12, 1, x_2);
 lean_closure_set(x_12, 2, x_11);
@@ -684,15 +694,6 @@ lean_ctor_set(x_8, 1, x_4);
 x_9 = l_List_filterMapM_loop___redArg(x_1, x_2, x_3, x_8);
 return x_9;
 }
-}
-}
-LEAN_EXPORT lean_object* l_List_filterMapM_loop___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-lean_object* x_6; 
-x_6 = l_List_filterMapM_loop___redArg___lam__0(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_5);
-return x_6;
 }
 }
 LEAN_EXPORT lean_object* l_List_filterMapM_loop(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
@@ -1709,8 +1710,6 @@ _G_initialized = true;
 res = initialize_Init_Control_Lawful(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_List_zipWithM___redArg___closed__0 = _init_l_List_zipWithM___redArg___closed__0();
-lean_mark_persistent(l_List_zipWithM___redArg___closed__0);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

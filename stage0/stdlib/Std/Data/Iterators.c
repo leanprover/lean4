@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.Iterators
-// Imports: public import Init.Data.Iterators.Internal public import Std.Data.Iterators.Producers public import Std.Data.Iterators.Combinators public import Std.Data.Iterators.Lemmas
+// Imports: public import Init.Data.Iterators.Internal public import Std.Data.Iterators.Producers public import Std.Data.Iterators.Combinators public import Std.Data.Iterators.Lemmas public import Std.Data.Iterators.Consumers
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -17,6 +17,7 @@ lean_object* initialize_Init_Data_Iterators_Internal(uint8_t builtin);
 lean_object* initialize_Std_Data_Iterators_Producers(uint8_t builtin);
 lean_object* initialize_Std_Data_Iterators_Combinators(uint8_t builtin);
 lean_object* initialize_Std_Data_Iterators_Lemmas(uint8_t builtin);
+lean_object* initialize_Std_Data_Iterators_Consumers(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Data_Iterators(uint8_t builtin) {
 lean_object * res;
@@ -32,6 +33,9 @@ res = initialize_Std_Data_Iterators_Combinators(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Data_Iterators_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Data_Iterators_Consumers(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

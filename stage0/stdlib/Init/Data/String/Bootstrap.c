@@ -95,7 +95,7 @@ lean_object* lean_string_pos_min(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Pos_Raw_Internal_min___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Char_toString(uint32_t);
 LEAN_EXPORT lean_object* l_Char_toString___boxed(lean_object*);
-static lean_object* _init_l_String_instOfNatRaw() {
+static lean_object* _init_l_String_instOfNatRaw(void) {
 _start:
 {
 lean_object* x_1; 

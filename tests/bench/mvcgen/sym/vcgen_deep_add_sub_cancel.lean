@@ -57,6 +57,6 @@ example : Goal 20 := by
   mvcgen' <;> grind
 -/
 
-#eval runBenchUsingTactic ``Goal [``loop, ``step] `(tactic| mvcgen' <;> sorry)
-  [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]
+#eval runBenchUsingTactic ``Goal [``loop, ``step] `(tactic| mvcgen') `(tactic| grind)
+  [100, 500, 1000]
   -- [1000]

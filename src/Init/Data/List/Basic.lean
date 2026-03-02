@@ -2186,7 +2186,7 @@ Examples:
 * `List.intercalate sep [a, b] = a ++ sep ++ b`
 * `List.intercalate sep [a, b, c] = a ++ sep ++ b ++ sep ++ c`
 -/
-def intercalate (sep : List α) (xs : List (List α)) : List α :=
+noncomputable def intercalate (sep : List α) (xs : List (List α)) : List α :=
   (intersperse sep xs).flatten
 
 /-! ### eraseDupsBy -/

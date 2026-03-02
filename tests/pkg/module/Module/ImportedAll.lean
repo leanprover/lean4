@@ -140,7 +140,7 @@ public def pub := priv
 /--
 error: Unknown identifier `priv`
 
-Note: A private declaration `priv✝` (from `Module.Basic`) exists but would need to be public to access here.
+Note: A private declaration `priv` (from `Module.Basic`) exists but would need to be public to access here.
 -/
 #guard_msgs in
 @[expose] public def pub' := priv

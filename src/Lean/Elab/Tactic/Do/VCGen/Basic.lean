@@ -230,17 +230,17 @@ def mkSpecContext (optConfig : Syntax) (lemmas : Syntax) (ignoreStarArg := false
         let info ← getConstInfo declName
         try
           let thm ← mkSpecTheoremFromConst declName
-          specThms := specThms.add thm
+          specThms := specThms.insert thm
         catch _ =>
           simpStuff := simpStuff.push ⟨arg⟩
       | some (.fvar fvar) =>
         let decl ← getFVarLocalDecl (.fvar fvar)
         try
           let thm ← mkSpecTheoremFromLocal fvar
-          specThms := specThms.add thm
+          specThms := specThms.insert thm
         catch _ =>
           simpStuff := simpStuff.push ⟨arg⟩
-      | _ => withRef term <| throwError "Could not resolve {repr term}"
+      | _ => withRef term <| throwError "Could not resolve spec theorem `{term}`"
     else if arg.getKind == ``simpStar then
       starArg := true
       simpStuff := simpStuff.push ⟨arg⟩
@@ -260,7 +260,7 @@ def mkSpecContext (optConfig : Syntax) (lemmas : Syntax) (ignoreStarArg := false
       unless specThms.isErased (.local fvar) do
         try
           let thm ← mkSpecTheoremFromLocal fvar
-          specThms := specThms.add thm
+          specThms := specThms.insert thm
         catch _ => continue
   return {
     config,
@@ -278,7 +278,7 @@ def withLocalSpecs [Monad m] [MonadControlT VCGenM m] (xs : Array Expr) (k : m �
         try
           let thm ← mkSpecTheoremFromLocal x.fvarId! (eval_prio low)
           trace[Elab.Tactic.Do.vcgen] "adding {thm.proof}"
-          withReader (fun ctx => { ctx with specThms := ctx.specThms.add thm }) (loop (i + 1))
+          withReader (fun ctx => { ctx with specThms := ctx.specThms.insert thm }) (loop (i + 1))
         catch ex =>
           match ex with
           | .internal .. => throw ex

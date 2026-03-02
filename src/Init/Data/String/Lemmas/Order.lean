@@ -10,6 +10,7 @@ public import Init.Data.String.Basic
 import Init.Data.String.OrderInstances
 import Init.Data.String.Lemmas.Basic
 import Init.Data.Order.Lemmas
+import Init.Omega
 
 public section
 
@@ -112,6 +113,92 @@ theorem Slice.Pos.ofSliceTo_lt_ofSliceTo_iff {s : Slice} {p : s.Pos}
 theorem Slice.Pos.ofSliceTo_le_ofSliceTo_iff {s : Slice} {p : s.Pos}
     {q r : (s.sliceTo p).Pos} : Slice.Pos.ofSliceTo q ≤ Slice.Pos.ofSliceTo r ↔ q ≤ r := by
   simp [Slice.Pos.le_iff, Pos.Raw.le_iff]
+
+@[simp]
+theorem Slice.Pos.sliceFrom_lt_sliceFrom_iff {s : Slice} {p₀ : s.Pos} {q r : s.Pos} {h₁ h₂} :
+    Pos.sliceFrom p₀ q h₁ < Pos.sliceFrom p₀ r h₂ ↔ q < r := by
+  simp [Slice.Pos.lt_iff, Pos.Raw.lt_iff, Slice.Pos.le_iff, Pos.Raw.le_iff] at h₁ h₂ ⊢
+  omega
+
+@[simp]
+theorem Slice.Pos.sliceFrom_le_sliceFrom_iff {s : Slice} {p₀ : s.Pos} {q r : s.Pos} {h₁ h₂} :
+    Pos.sliceFrom p₀ q h₁ ≤ Pos.sliceFrom p₀ r h₂ ↔ q ≤ r := by
+  simp [Slice.Pos.le_iff, Pos.Raw.le_iff] at h₁ h₂ ⊢
+  omega
+
+@[simp]
+theorem Pos.sliceFrom_lt_sliceFrom_iff {s : String} {p₀ : s.Pos} {q r : s.Pos} {h₁ h₂} :
+    Pos.sliceFrom p₀ q h₁ < Pos.sliceFrom p₀ r h₂ ↔ q < r := by
+  simp [Slice.Pos.lt_iff, Pos.lt_iff, Pos.Raw.lt_iff, Pos.le_iff, Pos.Raw.le_iff] at h₁ h₂ ⊢
+  omega
+
+@[simp]
+theorem Pos.sliceFrom_le_sliceFrom_iff {s : String} {p₀ : s.Pos} {q r : s.Pos} {h₁ h₂} :
+    Pos.sliceFrom p₀ q h₁ ≤ Pos.sliceFrom p₀ r h₂ ↔ q ≤ r := by
+  simp [Slice.Pos.le_iff, Pos.le_iff, Pos.Raw.le_iff] at h₁ h₂ ⊢
+  omega
+
+theorem Slice.Pos.ofSliceFrom_lt_iff {s : Slice} {p₀ : s.Pos} {p : (s.sliceFrom p₀).Pos} {q : s.Pos} :
+    Pos.ofSliceFrom p < q ↔ ∃ h, p < Slice.Pos.sliceFrom p₀ q h := by
+  refine ⟨fun h => ⟨Std.le_of_lt (Std.lt_of_le_of_lt Pos.le_ofSliceFrom h), ?_⟩, fun ⟨h, h'⟩ => ?_⟩
+  · simp +singlePass only [← Pos.sliceFrom_ofSliceFrom (p := p)]
+    rwa [Pos.sliceFrom_lt_sliceFrom_iff]
+  · simp +singlePass only [← Pos.ofSliceFrom_sliceFrom (h := h)]
+    rwa [Pos.ofSliceFrom_lt_ofSliceFrom_iff]
+
+theorem Slice.Pos.le_ofSliceFrom_iff {s : Slice} {p₀ : s.Pos} {p : (s.sliceFrom p₀).Pos} {q : s.Pos} :
+    q ≤ Pos.ofSliceFrom p ↔ ∀ h, Slice.Pos.sliceFrom p₀ q h ≤ p := by
+  simp [← Std.not_lt, Pos.ofSliceFrom_lt_iff]
+
+theorem Slice.Pos.ofSliceFrom_le_iff {s : Slice} {p₀ : s.Pos} {p : (s.sliceFrom p₀).Pos} {q : s.Pos} :
+    Pos.ofSliceFrom p ≤ q ↔ ∃ h, p ≤ Slice.Pos.sliceFrom p₀ q h := by
+  refine ⟨fun h => ⟨Std.le_trans Pos.le_ofSliceFrom h, ?_⟩, fun ⟨h, h'⟩ => ?_⟩
+  · simp +singlePass only [← Pos.sliceFrom_ofSliceFrom (p := p)]
+    rwa [Pos.sliceFrom_le_sliceFrom_iff]
+  · simp +singlePass only [← Pos.ofSliceFrom_sliceFrom (h := h)]
+    rwa [Pos.ofSliceFrom_le_ofSliceFrom_iff]
+
+theorem Slice.Pos.lt_ofSliceFrom_iff {s : Slice} {p₀ : s.Pos} {p : (s.sliceFrom p₀).Pos} {q : s.Pos} :
+    q < Pos.ofSliceFrom p ↔ ∀ h, Slice.Pos.sliceFrom p₀ q h < p := by
+  simp [← Std.not_le, Pos.ofSliceFrom_le_iff]
+
+theorem Pos.ofSliceFrom_lt_iff {s : String} {p₀ : s.Pos} {p : (s.sliceFrom p₀).Pos} {q : s.Pos} :
+    Pos.ofSliceFrom p < q ↔ ∃ h, p < Pos.sliceFrom p₀ q h := by
+  refine ⟨fun h => ⟨Std.le_of_lt (Std.lt_of_le_of_lt Pos.le_ofSliceFrom h), ?_⟩, fun ⟨h, h'⟩ => ?_⟩
+  · simp +singlePass only [← Pos.sliceFrom_ofSliceFrom (p := p)]
+    rwa [Pos.sliceFrom_lt_sliceFrom_iff]
+  · simp +singlePass only [← Pos.ofSliceFrom_sliceFrom (h := h)]
+    rwa [Pos.ofSliceFrom_lt_ofSliceFrom_iff]
+
+theorem Pos.le_ofSliceFrom_iff {s : String} {p₀ : s.Pos} {p : (s.sliceFrom p₀).Pos} {q : s.Pos} :
+    q ≤ Pos.ofSliceFrom p ↔ ∀ h, Pos.sliceFrom p₀ q h ≤ p := by
+  simp [← Std.not_lt, Pos.ofSliceFrom_lt_iff]
+
+theorem Pos.ofSliceFrom_le_iff {s : String} {p₀ : s.Pos} {p : (s.sliceFrom p₀).Pos} {q : s.Pos} :
+    Pos.ofSliceFrom p ≤ q ↔ ∃ h, p ≤ Pos.sliceFrom p₀ q h := by
+  refine ⟨fun h => ⟨Std.le_trans Pos.le_ofSliceFrom h, ?_⟩, fun ⟨h, h'⟩ => ?_⟩
+  · simp +singlePass only [← Pos.sliceFrom_ofSliceFrom (p := p)]
+    rwa [Pos.sliceFrom_le_sliceFrom_iff]
+  · simp +singlePass only [← Pos.ofSliceFrom_sliceFrom (h := h)]
+    rwa [Pos.ofSliceFrom_le_ofSliceFrom_iff]
+
+theorem Pos.lt_ofSliceFrom_iff {s : String} {p₀ : s.Pos} {p : (s.sliceFrom p₀).Pos} {q : s.Pos} :
+    q < Pos.ofSliceFrom p ↔ ∀ h, Pos.sliceFrom p₀ q h < p := by
+  simp [← Std.not_le, Pos.ofSliceFrom_le_iff]
+
+theorem Slice.Pos.ofSliceFrom_next {s : Slice} {p₀ : s.Pos} {p : (s.sliceFrom p₀).Pos} {h} :
+    Pos.ofSliceFrom (p.next h) = (Pos.ofSliceFrom p).next (by simpa [← Pos.ofSliceFrom_inj] using h) := by
+  rw [eq_comm, Pos.next_eq_iff]
+  simp only [Pos.ofSliceFrom_lt_ofSliceFrom_iff, Pos.lt_next, Pos.ofSliceFrom_le_iff,
+    Pos.next_le_iff_lt, true_and]
+  simp [Pos.ofSliceFrom_lt_iff]
+
+theorem Pos.ofSliceFrom_next {s : String} {p₀ : s.Pos} {p : (s.sliceFrom p₀).Pos} {h} :
+    Pos.ofSliceFrom (p.next h) = (Pos.ofSliceFrom p).next (by simpa [← Pos.ofSliceFrom_inj] using h) := by
+  rw [eq_comm, Pos.next_eq_iff]
+  simp only [Pos.ofSliceFrom_lt_ofSliceFrom_iff, Slice.Pos.lt_next, Pos.ofSliceFrom_le_iff,
+    Slice.Pos.next_le_iff_lt, true_and]
+  simp [Pos.ofSliceFrom_lt_iff]
 
 @[simp]
 theorem Slice.Pos.offset_le_rawEndPos {s : Slice} {p : s.Pos} :

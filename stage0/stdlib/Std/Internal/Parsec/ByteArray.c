@@ -18,6 +18,7 @@ LEAN_EXPORT lean_object* l_Std_Internal_Parsec_ByteArray_instInputIteratorUInt8N
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_ByteArray_instInputIteratorUInt8Nat___lam__1(lean_object*);
 uint8_t lean_uint8_of_nat(lean_object*);
+static lean_once_cell_t l_Std_Internal_Parsec_ByteArray_instInputIteratorUInt8Nat___lam__2___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static uint8_t l_Std_Internal_Parsec_ByteArray_instInputIteratorUInt8Nat___lam__2___closed__0;
 lean_object* lean_byte_array_size(lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
@@ -91,7 +92,9 @@ static const lean_string_object l_Std_Internal_Parsec_ByteArray_digit___closed__
 static const lean_object* l_Std_Internal_Parsec_ByteArray_digit___closed__0 = (const lean_object*)&l_Std_Internal_Parsec_ByteArray_digit___closed__0_value;
 static const lean_ctor_object l_Std_Internal_Parsec_ByteArray_digit___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 1}, .m_objs = {((lean_object*)&l_Std_Internal_Parsec_ByteArray_digit___closed__0_value)}};
 static const lean_object* l_Std_Internal_Parsec_ByteArray_digit___closed__1 = (const lean_object*)&l_Std_Internal_Parsec_ByteArray_digit___closed__1_value;
+static lean_once_cell_t l_Std_Internal_Parsec_ByteArray_digit___closed__2_once = LEAN_ONCE_CELL_INITIALIZER;
 static uint8_t l_Std_Internal_Parsec_ByteArray_digit___closed__2;
+static lean_once_cell_t l_Std_Internal_Parsec_ByteArray_digit___closed__3_once = LEAN_ONCE_CELL_INITIALIZER;
 static uint8_t l_Std_Internal_Parsec_ByteArray_digit___closed__3;
 uint8_t lean_uint8_dec_le(uint8_t, uint8_t);
 uint32_t lean_uint8_to_uint32(uint8_t);
@@ -107,27 +110,38 @@ static const lean_string_object l_Std_Internal_Parsec_ByteArray_hexDigit___close
 static const lean_object* l_Std_Internal_Parsec_ByteArray_hexDigit___closed__0 = (const lean_object*)&l_Std_Internal_Parsec_ByteArray_hexDigit___closed__0_value;
 static const lean_ctor_object l_Std_Internal_Parsec_ByteArray_hexDigit___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 1}, .m_objs = {((lean_object*)&l_Std_Internal_Parsec_ByteArray_hexDigit___closed__0_value)}};
 static const lean_object* l_Std_Internal_Parsec_ByteArray_hexDigit___closed__1 = (const lean_object*)&l_Std_Internal_Parsec_ByteArray_hexDigit___closed__1_value;
+static lean_once_cell_t l_Std_Internal_Parsec_ByteArray_hexDigit___closed__2_once = LEAN_ONCE_CELL_INITIALIZER;
 static uint8_t l_Std_Internal_Parsec_ByteArray_hexDigit___closed__2;
+static lean_once_cell_t l_Std_Internal_Parsec_ByteArray_hexDigit___closed__3_once = LEAN_ONCE_CELL_INITIALIZER;
 static uint8_t l_Std_Internal_Parsec_ByteArray_hexDigit___closed__3;
+static lean_once_cell_t l_Std_Internal_Parsec_ByteArray_hexDigit___closed__4_once = LEAN_ONCE_CELL_INITIALIZER;
 static uint8_t l_Std_Internal_Parsec_ByteArray_hexDigit___closed__4;
+static lean_once_cell_t l_Std_Internal_Parsec_ByteArray_hexDigit___closed__5_once = LEAN_ONCE_CELL_INITIALIZER;
 static uint8_t l_Std_Internal_Parsec_ByteArray_hexDigit___closed__5;
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_ByteArray_hexDigit(lean_object*);
 static const lean_string_object l_Std_Internal_Parsec_ByteArray_octDigit___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 21, .m_capacity = 21, .m_length = 20, .m_data = "octal digit expected"};
 static const lean_object* l_Std_Internal_Parsec_ByteArray_octDigit___closed__0 = (const lean_object*)&l_Std_Internal_Parsec_ByteArray_octDigit___closed__0_value;
 static const lean_ctor_object l_Std_Internal_Parsec_ByteArray_octDigit___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 1}, .m_objs = {((lean_object*)&l_Std_Internal_Parsec_ByteArray_octDigit___closed__0_value)}};
 static const lean_object* l_Std_Internal_Parsec_ByteArray_octDigit___closed__1 = (const lean_object*)&l_Std_Internal_Parsec_ByteArray_octDigit___closed__1_value;
+static lean_once_cell_t l_Std_Internal_Parsec_ByteArray_octDigit___closed__2_once = LEAN_ONCE_CELL_INITIALIZER;
 static uint8_t l_Std_Internal_Parsec_ByteArray_octDigit___closed__2;
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_ByteArray_octDigit(lean_object*);
 static const lean_string_object l_Std_Internal_Parsec_ByteArray_asciiLetter___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 22, .m_capacity = 22, .m_length = 21, .m_data = "ASCII letter expected"};
 static const lean_object* l_Std_Internal_Parsec_ByteArray_asciiLetter___closed__0 = (const lean_object*)&l_Std_Internal_Parsec_ByteArray_asciiLetter___closed__0_value;
 static const lean_ctor_object l_Std_Internal_Parsec_ByteArray_asciiLetter___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 1}, .m_objs = {((lean_object*)&l_Std_Internal_Parsec_ByteArray_asciiLetter___closed__0_value)}};
 static const lean_object* l_Std_Internal_Parsec_ByteArray_asciiLetter___closed__1 = (const lean_object*)&l_Std_Internal_Parsec_ByteArray_asciiLetter___closed__1_value;
+static lean_once_cell_t l_Std_Internal_Parsec_ByteArray_asciiLetter___closed__2_once = LEAN_ONCE_CELL_INITIALIZER;
 static uint8_t l_Std_Internal_Parsec_ByteArray_asciiLetter___closed__2;
+static lean_once_cell_t l_Std_Internal_Parsec_ByteArray_asciiLetter___closed__3_once = LEAN_ONCE_CELL_INITIALIZER;
 static uint8_t l_Std_Internal_Parsec_ByteArray_asciiLetter___closed__3;
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_ByteArray_asciiLetter(lean_object*);
+static lean_once_cell_t l___private_Std_Internal_Parsec_ByteArray_0__Std_Internal_Parsec_ByteArray_skipWs___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static uint8_t l___private_Std_Internal_Parsec_ByteArray_0__Std_Internal_Parsec_ByteArray_skipWs___closed__0;
+static lean_once_cell_t l___private_Std_Internal_Parsec_ByteArray_0__Std_Internal_Parsec_ByteArray_skipWs___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static uint8_t l___private_Std_Internal_Parsec_ByteArray_0__Std_Internal_Parsec_ByteArray_skipWs___closed__1;
+static lean_once_cell_t l___private_Std_Internal_Parsec_ByteArray_0__Std_Internal_Parsec_ByteArray_skipWs___closed__2_once = LEAN_ONCE_CELL_INITIALIZER;
 static uint8_t l___private_Std_Internal_Parsec_ByteArray_0__Std_Internal_Parsec_ByteArray_skipWs___closed__2;
+static lean_once_cell_t l___private_Std_Internal_Parsec_ByteArray_0__Std_Internal_Parsec_ByteArray_skipWs___closed__3_once = LEAN_ONCE_CELL_INITIALIZER;
 static uint8_t l___private_Std_Internal_Parsec_ByteArray_0__Std_Internal_Parsec_ByteArray_skipWs___closed__3;
 LEAN_EXPORT lean_object* l___private_Std_Internal_Parsec_ByteArray_0__Std_Internal_Parsec_ByteArray_skipWs(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_ByteArray_ws(lean_object*);
@@ -216,7 +230,7 @@ return x_10;
 }
 }
 }
-static uint8_t _init_l_Std_Internal_Parsec_ByteArray_instInputIteratorUInt8Nat___lam__2___closed__0() {
+static uint8_t _init_l_Std_Internal_Parsec_ByteArray_instInputIteratorUInt8Nat___lam__2___closed__0(void) {
 _start:
 {
 lean_object* x_1; uint8_t x_2; 
@@ -236,7 +250,7 @@ x_5 = lean_nat_dec_lt(x_3, x_4);
 if (x_5 == 0)
 {
 uint8_t x_6; 
-x_6 = l_Std_Internal_Parsec_ByteArray_instInputIteratorUInt8Nat___lam__2___closed__0;
+x_6 = lean_uint8_once(&l_Std_Internal_Parsec_ByteArray_instInputIteratorUInt8Nat___lam__2___closed__0, &l_Std_Internal_Parsec_ByteArray_instInputIteratorUInt8Nat___lam__2___closed__0_once, _init_l_Std_Internal_Parsec_ByteArray_instInputIteratorUInt8Nat___lam__2___closed__0);
 return x_6;
 }
 else
@@ -1036,7 +1050,7 @@ x_4 = l_Std_Internal_Parsec_ByteArray_skipByteChar(x_3, x_2);
 return x_4;
 }
 }
-static uint8_t _init_l_Std_Internal_Parsec_ByteArray_digit___closed__2() {
+static uint8_t _init_l_Std_Internal_Parsec_ByteArray_digit___closed__2(void) {
 _start:
 {
 uint32_t x_1; uint8_t x_2; 
@@ -1045,7 +1059,7 @@ x_2 = lean_uint32_to_uint8(x_1);
 return x_2;
 }
 }
-static uint8_t _init_l_Std_Internal_Parsec_ByteArray_digit___closed__3() {
+static uint8_t _init_l_Std_Internal_Parsec_ByteArray_digit___closed__3(void) {
 _start:
 {
 uint32_t x_1; uint8_t x_2; 
@@ -1075,7 +1089,7 @@ else
 {
 uint8_t x_11; uint8_t x_12; uint8_t x_13; 
 x_11 = lean_byte_array_fget(x_5, x_6);
-x_12 = l_Std_Internal_Parsec_ByteArray_digit___closed__2;
+x_12 = lean_uint8_once(&l_Std_Internal_Parsec_ByteArray_digit___closed__2, &l_Std_Internal_Parsec_ByteArray_digit___closed__2_once, _init_l_Std_Internal_Parsec_ByteArray_digit___closed__2);
 x_13 = lean_uint8_dec_le(x_12, x_11);
 if (x_13 == 0)
 {
@@ -1084,7 +1098,7 @@ goto block_4;
 else
 {
 uint8_t x_14; uint8_t x_15; 
-x_14 = l_Std_Internal_Parsec_ByteArray_digit___closed__3;
+x_14 = lean_uint8_once(&l_Std_Internal_Parsec_ByteArray_digit___closed__3, &l_Std_Internal_Parsec_ByteArray_digit___closed__3_once, _init_l_Std_Internal_Parsec_ByteArray_digit___closed__3);
 x_15 = lean_uint8_dec_le(x_11, x_14);
 if (x_15 == 0)
 {
@@ -1149,7 +1163,7 @@ LEAN_EXPORT lean_object* l___private_Std_Internal_Parsec_ByteArray_0__Std_Intern
 _start:
 {
 uint8_t x_2; uint8_t x_3; lean_object* x_4; 
-x_2 = l_Std_Internal_Parsec_ByteArray_digit___closed__2;
+x_2 = lean_uint8_once(&l_Std_Internal_Parsec_ByteArray_digit___closed__2, &l_Std_Internal_Parsec_ByteArray_digit___closed__2_once, _init_l_Std_Internal_Parsec_ByteArray_digit___closed__2);
 x_3 = lean_uint8_sub(x_1, x_2);
 x_4 = lean_uint8_to_nat(x_3);
 return x_4;
@@ -1184,7 +1198,7 @@ else
 {
 uint8_t x_8; uint8_t x_9; uint8_t x_10; 
 x_8 = lean_byte_array_fget(x_3, x_4);
-x_9 = l_Std_Internal_Parsec_ByteArray_digit___closed__2;
+x_9 = lean_uint8_once(&l_Std_Internal_Parsec_ByteArray_digit___closed__2, &l_Std_Internal_Parsec_ByteArray_digit___closed__2_once, _init_l_Std_Internal_Parsec_ByteArray_digit___closed__2);
 x_10 = lean_uint8_dec_le(x_9, x_8);
 if (x_10 == 0)
 {
@@ -1197,7 +1211,7 @@ return x_11;
 else
 {
 uint8_t x_12; uint8_t x_13; 
-x_12 = l_Std_Internal_Parsec_ByteArray_digit___closed__3;
+x_12 = lean_uint8_once(&l_Std_Internal_Parsec_ByteArray_digit___closed__3, &l_Std_Internal_Parsec_ByteArray_digit___closed__3_once, _init_l_Std_Internal_Parsec_ByteArray_digit___closed__3);
 x_13 = lean_uint8_dec_le(x_8, x_12);
 if (x_13 == 0)
 {
@@ -1311,7 +1325,7 @@ else
 {
 uint8_t x_11; uint8_t x_12; uint8_t x_13; 
 x_11 = lean_byte_array_fget(x_5, x_6);
-x_12 = l_Std_Internal_Parsec_ByteArray_digit___closed__2;
+x_12 = lean_uint8_once(&l_Std_Internal_Parsec_ByteArray_digit___closed__2, &l_Std_Internal_Parsec_ByteArray_digit___closed__2_once, _init_l_Std_Internal_Parsec_ByteArray_digit___closed__2);
 x_13 = lean_uint8_dec_le(x_12, x_11);
 if (x_13 == 0)
 {
@@ -1320,7 +1334,7 @@ goto block_4;
 else
 {
 uint8_t x_14; uint8_t x_15; 
-x_14 = l_Std_Internal_Parsec_ByteArray_digit___closed__3;
+x_14 = lean_uint8_once(&l_Std_Internal_Parsec_ByteArray_digit___closed__3, &l_Std_Internal_Parsec_ByteArray_digit___closed__3_once, _init_l_Std_Internal_Parsec_ByteArray_digit___closed__3);
 x_15 = lean_uint8_dec_le(x_11, x_14);
 if (x_15 == 0)
 {
@@ -1422,7 +1436,7 @@ return x_3;
 }
 }
 }
-static uint8_t _init_l_Std_Internal_Parsec_ByteArray_hexDigit___closed__2() {
+static uint8_t _init_l_Std_Internal_Parsec_ByteArray_hexDigit___closed__2(void) {
 _start:
 {
 uint32_t x_1; uint8_t x_2; 
@@ -1431,7 +1445,7 @@ x_2 = lean_uint32_to_uint8(x_1);
 return x_2;
 }
 }
-static uint8_t _init_l_Std_Internal_Parsec_ByteArray_hexDigit___closed__3() {
+static uint8_t _init_l_Std_Internal_Parsec_ByteArray_hexDigit___closed__3(void) {
 _start:
 {
 uint32_t x_1; uint8_t x_2; 
@@ -1440,7 +1454,7 @@ x_2 = lean_uint32_to_uint8(x_1);
 return x_2;
 }
 }
-static uint8_t _init_l_Std_Internal_Parsec_ByteArray_hexDigit___closed__4() {
+static uint8_t _init_l_Std_Internal_Parsec_ByteArray_hexDigit___closed__4(void) {
 _start:
 {
 uint32_t x_1; uint8_t x_2; 
@@ -1449,7 +1463,7 @@ x_2 = lean_uint32_to_uint8(x_1);
 return x_2;
 }
 }
-static uint8_t _init_l_Std_Internal_Parsec_ByteArray_hexDigit___closed__5() {
+static uint8_t _init_l_Std_Internal_Parsec_ByteArray_hexDigit___closed__5(void) {
 _start:
 {
 uint32_t x_1; uint8_t x_2; 
@@ -1485,7 +1499,7 @@ lean_inc_ref(x_5);
 x_14 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_14, 0, x_5);
 lean_ctor_set(x_14, 1, x_13);
-x_29 = l_Std_Internal_Parsec_ByteArray_digit___closed__2;
+x_29 = lean_uint8_once(&l_Std_Internal_Parsec_ByteArray_digit___closed__2, &l_Std_Internal_Parsec_ByteArray_digit___closed__2_once, _init_l_Std_Internal_Parsec_ByteArray_digit___closed__2);
 x_30 = lean_uint8_dec_le(x_29, x_11);
 if (x_30 == 0)
 {
@@ -1494,7 +1508,7 @@ goto block_28;
 else
 {
 uint8_t x_31; uint8_t x_32; 
-x_31 = l_Std_Internal_Parsec_ByteArray_digit___closed__3;
+x_31 = lean_uint8_once(&l_Std_Internal_Parsec_ByteArray_digit___closed__3, &l_Std_Internal_Parsec_ByteArray_digit___closed__3_once, _init_l_Std_Internal_Parsec_ByteArray_digit___closed__3);
 x_32 = lean_uint8_dec_le(x_11, x_31);
 if (x_32 == 0)
 {
@@ -1519,7 +1533,7 @@ return x_17;
 block_23:
 {
 uint8_t x_19; uint8_t x_20; 
-x_19 = l_Std_Internal_Parsec_ByteArray_hexDigit___closed__2;
+x_19 = lean_uint8_once(&l_Std_Internal_Parsec_ByteArray_hexDigit___closed__2, &l_Std_Internal_Parsec_ByteArray_hexDigit___closed__2_once, _init_l_Std_Internal_Parsec_ByteArray_hexDigit___closed__2);
 x_20 = lean_uint8_dec_le(x_19, x_11);
 if (x_20 == 0)
 {
@@ -1529,7 +1543,7 @@ goto block_4;
 else
 {
 uint8_t x_21; uint8_t x_22; 
-x_21 = l_Std_Internal_Parsec_ByteArray_hexDigit___closed__3;
+x_21 = lean_uint8_once(&l_Std_Internal_Parsec_ByteArray_hexDigit___closed__3, &l_Std_Internal_Parsec_ByteArray_hexDigit___closed__3_once, _init_l_Std_Internal_Parsec_ByteArray_hexDigit___closed__3);
 x_22 = lean_uint8_dec_le(x_11, x_21);
 if (x_22 == 0)
 {
@@ -1546,7 +1560,7 @@ goto block_18;
 block_28:
 {
 uint8_t x_24; uint8_t x_25; 
-x_24 = l_Std_Internal_Parsec_ByteArray_hexDigit___closed__4;
+x_24 = lean_uint8_once(&l_Std_Internal_Parsec_ByteArray_hexDigit___closed__4, &l_Std_Internal_Parsec_ByteArray_hexDigit___closed__4_once, _init_l_Std_Internal_Parsec_ByteArray_hexDigit___closed__4);
 x_25 = lean_uint8_dec_le(x_24, x_11);
 if (x_25 == 0)
 {
@@ -1555,7 +1569,7 @@ goto block_23;
 else
 {
 uint8_t x_26; uint8_t x_27; 
-x_26 = l_Std_Internal_Parsec_ByteArray_hexDigit___closed__5;
+x_26 = lean_uint8_once(&l_Std_Internal_Parsec_ByteArray_hexDigit___closed__5, &l_Std_Internal_Parsec_ByteArray_hexDigit___closed__5_once, _init_l_Std_Internal_Parsec_ByteArray_hexDigit___closed__5);
 x_27 = lean_uint8_dec_le(x_11, x_26);
 if (x_27 == 0)
 {
@@ -1580,7 +1594,7 @@ return x_3;
 }
 }
 }
-static uint8_t _init_l_Std_Internal_Parsec_ByteArray_octDigit___closed__2() {
+static uint8_t _init_l_Std_Internal_Parsec_ByteArray_octDigit___closed__2(void) {
 _start:
 {
 uint32_t x_1; uint8_t x_2; 
@@ -1610,7 +1624,7 @@ else
 {
 uint8_t x_11; uint8_t x_12; uint8_t x_13; 
 x_11 = lean_byte_array_fget(x_5, x_6);
-x_12 = l_Std_Internal_Parsec_ByteArray_digit___closed__2;
+x_12 = lean_uint8_once(&l_Std_Internal_Parsec_ByteArray_digit___closed__2, &l_Std_Internal_Parsec_ByteArray_digit___closed__2_once, _init_l_Std_Internal_Parsec_ByteArray_digit___closed__2);
 x_13 = lean_uint8_dec_le(x_12, x_11);
 if (x_13 == 0)
 {
@@ -1619,7 +1633,7 @@ goto block_4;
 else
 {
 uint8_t x_14; uint8_t x_15; 
-x_14 = l_Std_Internal_Parsec_ByteArray_octDigit___closed__2;
+x_14 = lean_uint8_once(&l_Std_Internal_Parsec_ByteArray_octDigit___closed__2, &l_Std_Internal_Parsec_ByteArray_octDigit___closed__2_once, _init_l_Std_Internal_Parsec_ByteArray_octDigit___closed__2);
 x_15 = lean_uint8_dec_le(x_11, x_14);
 if (x_15 == 0)
 {
@@ -1680,7 +1694,7 @@ return x_3;
 }
 }
 }
-static uint8_t _init_l_Std_Internal_Parsec_ByteArray_asciiLetter___closed__2() {
+static uint8_t _init_l_Std_Internal_Parsec_ByteArray_asciiLetter___closed__2(void) {
 _start:
 {
 uint32_t x_1; uint8_t x_2; 
@@ -1689,7 +1703,7 @@ x_2 = lean_uint32_to_uint8(x_1);
 return x_2;
 }
 }
-static uint8_t _init_l_Std_Internal_Parsec_ByteArray_asciiLetter___closed__3() {
+static uint8_t _init_l_Std_Internal_Parsec_ByteArray_asciiLetter___closed__3(void) {
 _start:
 {
 uint32_t x_1; uint8_t x_2; 
@@ -1725,7 +1739,7 @@ lean_inc_ref(x_5);
 x_14 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_14, 0, x_5);
 lean_ctor_set(x_14, 1, x_13);
-x_24 = l_Std_Internal_Parsec_ByteArray_hexDigit___closed__2;
+x_24 = lean_uint8_once(&l_Std_Internal_Parsec_ByteArray_hexDigit___closed__2, &l_Std_Internal_Parsec_ByteArray_hexDigit___closed__2_once, _init_l_Std_Internal_Parsec_ByteArray_hexDigit___closed__2);
 x_25 = lean_uint8_dec_le(x_24, x_11);
 if (x_25 == 0)
 {
@@ -1734,7 +1748,7 @@ goto block_23;
 else
 {
 uint8_t x_26; uint8_t x_27; 
-x_26 = l_Std_Internal_Parsec_ByteArray_asciiLetter___closed__3;
+x_26 = lean_uint8_once(&l_Std_Internal_Parsec_ByteArray_asciiLetter___closed__3, &l_Std_Internal_Parsec_ByteArray_asciiLetter___closed__3_once, _init_l_Std_Internal_Parsec_ByteArray_asciiLetter___closed__3);
 x_27 = lean_uint8_dec_le(x_11, x_26);
 if (x_27 == 0)
 {
@@ -1759,7 +1773,7 @@ return x_17;
 block_23:
 {
 uint8_t x_19; uint8_t x_20; 
-x_19 = l_Std_Internal_Parsec_ByteArray_hexDigit___closed__4;
+x_19 = lean_uint8_once(&l_Std_Internal_Parsec_ByteArray_hexDigit___closed__4, &l_Std_Internal_Parsec_ByteArray_hexDigit___closed__4_once, _init_l_Std_Internal_Parsec_ByteArray_hexDigit___closed__4);
 x_20 = lean_uint8_dec_le(x_19, x_11);
 if (x_20 == 0)
 {
@@ -1769,7 +1783,7 @@ goto block_4;
 else
 {
 uint8_t x_21; uint8_t x_22; 
-x_21 = l_Std_Internal_Parsec_ByteArray_asciiLetter___closed__2;
+x_21 = lean_uint8_once(&l_Std_Internal_Parsec_ByteArray_asciiLetter___closed__2, &l_Std_Internal_Parsec_ByteArray_asciiLetter___closed__2_once, _init_l_Std_Internal_Parsec_ByteArray_asciiLetter___closed__2);
 x_22 = lean_uint8_dec_le(x_11, x_21);
 if (x_22 == 0)
 {
@@ -1795,7 +1809,7 @@ return x_3;
 }
 }
 }
-static uint8_t _init_l___private_Std_Internal_Parsec_ByteArray_0__Std_Internal_Parsec_ByteArray_skipWs___closed__0() {
+static uint8_t _init_l___private_Std_Internal_Parsec_ByteArray_0__Std_Internal_Parsec_ByteArray_skipWs___closed__0(void) {
 _start:
 {
 uint32_t x_1; uint8_t x_2; 
@@ -1804,7 +1818,7 @@ x_2 = lean_uint32_to_uint8(x_1);
 return x_2;
 }
 }
-static uint8_t _init_l___private_Std_Internal_Parsec_ByteArray_0__Std_Internal_Parsec_ByteArray_skipWs___closed__1() {
+static uint8_t _init_l___private_Std_Internal_Parsec_ByteArray_0__Std_Internal_Parsec_ByteArray_skipWs___closed__1(void) {
 _start:
 {
 uint32_t x_1; uint8_t x_2; 
@@ -1813,7 +1827,7 @@ x_2 = lean_uint32_to_uint8(x_1);
 return x_2;
 }
 }
-static uint8_t _init_l___private_Std_Internal_Parsec_ByteArray_0__Std_Internal_Parsec_ByteArray_skipWs___closed__2() {
+static uint8_t _init_l___private_Std_Internal_Parsec_ByteArray_0__Std_Internal_Parsec_ByteArray_skipWs___closed__2(void) {
 _start:
 {
 uint32_t x_1; uint8_t x_2; 
@@ -1822,7 +1836,7 @@ x_2 = lean_uint32_to_uint8(x_1);
 return x_2;
 }
 }
-static uint8_t _init_l___private_Std_Internal_Parsec_ByteArray_0__Std_Internal_Parsec_ByteArray_skipWs___closed__3() {
+static uint8_t _init_l___private_Std_Internal_Parsec_ByteArray_0__Std_Internal_Parsec_ByteArray_skipWs___closed__3(void) {
 _start:
 {
 uint32_t x_1; uint8_t x_2; 
@@ -1847,22 +1861,22 @@ else
 {
 uint8_t x_11; uint8_t x_12; uint8_t x_13; 
 x_11 = lean_byte_array_fget(x_2, x_3);
-x_12 = l___private_Std_Internal_Parsec_ByteArray_0__Std_Internal_Parsec_ByteArray_skipWs___closed__0;
+x_12 = lean_uint8_once(&l___private_Std_Internal_Parsec_ByteArray_0__Std_Internal_Parsec_ByteArray_skipWs___closed__0, &l___private_Std_Internal_Parsec_ByteArray_0__Std_Internal_Parsec_ByteArray_skipWs___closed__0_once, _init_l___private_Std_Internal_Parsec_ByteArray_0__Std_Internal_Parsec_ByteArray_skipWs___closed__0);
 x_13 = lean_uint8_dec_eq(x_11, x_12);
 if (x_13 == 0)
 {
 uint8_t x_14; uint8_t x_15; 
-x_14 = l___private_Std_Internal_Parsec_ByteArray_0__Std_Internal_Parsec_ByteArray_skipWs___closed__1;
+x_14 = lean_uint8_once(&l___private_Std_Internal_Parsec_ByteArray_0__Std_Internal_Parsec_ByteArray_skipWs___closed__1, &l___private_Std_Internal_Parsec_ByteArray_0__Std_Internal_Parsec_ByteArray_skipWs___closed__1_once, _init_l___private_Std_Internal_Parsec_ByteArray_0__Std_Internal_Parsec_ByteArray_skipWs___closed__1);
 x_15 = lean_uint8_dec_eq(x_11, x_14);
 if (x_15 == 0)
 {
 uint8_t x_16; uint8_t x_17; 
-x_16 = l___private_Std_Internal_Parsec_ByteArray_0__Std_Internal_Parsec_ByteArray_skipWs___closed__2;
+x_16 = lean_uint8_once(&l___private_Std_Internal_Parsec_ByteArray_0__Std_Internal_Parsec_ByteArray_skipWs___closed__2, &l___private_Std_Internal_Parsec_ByteArray_0__Std_Internal_Parsec_ByteArray_skipWs___closed__2_once, _init_l___private_Std_Internal_Parsec_ByteArray_0__Std_Internal_Parsec_ByteArray_skipWs___closed__2);
 x_17 = lean_uint8_dec_eq(x_11, x_16);
 if (x_17 == 0)
 {
 uint8_t x_18; uint8_t x_19; 
-x_18 = l___private_Std_Internal_Parsec_ByteArray_0__Std_Internal_Parsec_ByteArray_skipWs___closed__3;
+x_18 = lean_uint8_once(&l___private_Std_Internal_Parsec_ByteArray_0__Std_Internal_Parsec_ByteArray_skipWs___closed__3, &l___private_Std_Internal_Parsec_ByteArray_0__Std_Internal_Parsec_ByteArray_skipWs___closed__3_once, _init_l___private_Std_Internal_Parsec_ByteArray_0__Std_Internal_Parsec_ByteArray_skipWs___closed__3);
 x_19 = lean_uint8_dec_eq(x_11, x_18);
 if (x_19 == 0)
 {
@@ -2087,7 +2101,7 @@ else
 if (x_25 == 0)
 {
 uint8_t x_27; 
-x_27 = l_Std_Internal_Parsec_ByteArray_instInputIteratorUInt8Nat___lam__2___closed__0;
+x_27 = lean_uint8_once(&l_Std_Internal_Parsec_ByteArray_instInputIteratorUInt8Nat___lam__2___closed__0, &l_Std_Internal_Parsec_ByteArray_instInputIteratorUInt8Nat___lam__2___closed__0_once, _init_l_Std_Internal_Parsec_ByteArray_instInputIteratorUInt8Nat___lam__2___closed__0);
 x_6 = x_27;
 goto block_23;
 }
@@ -2353,7 +2367,7 @@ else
 if (x_24 == 0)
 {
 uint8_t x_25; 
-x_25 = l_Std_Internal_Parsec_ByteArray_instInputIteratorUInt8Nat___lam__2___closed__0;
+x_25 = lean_uint8_once(&l_Std_Internal_Parsec_ByteArray_instInputIteratorUInt8Nat___lam__2___closed__0, &l_Std_Internal_Parsec_ByteArray_instInputIteratorUInt8Nat___lam__2___closed__0_once, _init_l_Std_Internal_Parsec_ByteArray_instInputIteratorUInt8Nat___lam__2___closed__0);
 x_6 = x_25;
 goto block_22;
 }
@@ -2476,7 +2490,7 @@ if (x_5 == 0)
 if (x_27 == 0)
 {
 uint8_t x_29; 
-x_29 = l_Std_Internal_Parsec_ByteArray_instInputIteratorUInt8Nat___lam__2___closed__0;
+x_29 = lean_uint8_once(&l_Std_Internal_Parsec_ByteArray_instInputIteratorUInt8Nat___lam__2___closed__0, &l_Std_Internal_Parsec_ByteArray_instInputIteratorUInt8Nat___lam__2___closed__0_once, _init_l_Std_Internal_Parsec_ByteArray_instInputIteratorUInt8Nat___lam__2___closed__0);
 x_8 = x_29;
 goto block_25;
 }
@@ -2684,7 +2698,7 @@ if (x_5 == 0)
 if (x_27 == 0)
 {
 uint8_t x_29; 
-x_29 = l_Std_Internal_Parsec_ByteArray_instInputIteratorUInt8Nat___lam__2___closed__0;
+x_29 = lean_uint8_once(&l_Std_Internal_Parsec_ByteArray_instInputIteratorUInt8Nat___lam__2___closed__0, &l_Std_Internal_Parsec_ByteArray_instInputIteratorUInt8Nat___lam__2___closed__0_once, _init_l_Std_Internal_Parsec_ByteArray_instInputIteratorUInt8Nat___lam__2___closed__0);
 x_8 = x_29;
 goto block_25;
 }
@@ -3042,7 +3056,7 @@ if (x_5 == 0)
 if (x_26 == 0)
 {
 uint8_t x_27; 
-x_27 = l_Std_Internal_Parsec_ByteArray_instInputIteratorUInt8Nat___lam__2___closed__0;
+x_27 = lean_uint8_once(&l_Std_Internal_Parsec_ByteArray_instInputIteratorUInt8Nat___lam__2___closed__0, &l_Std_Internal_Parsec_ByteArray_instInputIteratorUInt8Nat___lam__2___closed__0_once, _init_l_Std_Internal_Parsec_ByteArray_instInputIteratorUInt8Nat___lam__2___closed__0);
 x_8 = x_27;
 goto block_24;
 }
@@ -3199,20 +3213,6 @@ lean_dec_ref(res);
 res = initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Std_Internal_Parsec_ByteArray_instInputIteratorUInt8Nat___lam__2___closed__0 = _init_l_Std_Internal_Parsec_ByteArray_instInputIteratorUInt8Nat___lam__2___closed__0();
-l_Std_Internal_Parsec_ByteArray_digit___closed__2 = _init_l_Std_Internal_Parsec_ByteArray_digit___closed__2();
-l_Std_Internal_Parsec_ByteArray_digit___closed__3 = _init_l_Std_Internal_Parsec_ByteArray_digit___closed__3();
-l_Std_Internal_Parsec_ByteArray_hexDigit___closed__2 = _init_l_Std_Internal_Parsec_ByteArray_hexDigit___closed__2();
-l_Std_Internal_Parsec_ByteArray_hexDigit___closed__3 = _init_l_Std_Internal_Parsec_ByteArray_hexDigit___closed__3();
-l_Std_Internal_Parsec_ByteArray_hexDigit___closed__4 = _init_l_Std_Internal_Parsec_ByteArray_hexDigit___closed__4();
-l_Std_Internal_Parsec_ByteArray_hexDigit___closed__5 = _init_l_Std_Internal_Parsec_ByteArray_hexDigit___closed__5();
-l_Std_Internal_Parsec_ByteArray_octDigit___closed__2 = _init_l_Std_Internal_Parsec_ByteArray_octDigit___closed__2();
-l_Std_Internal_Parsec_ByteArray_asciiLetter___closed__2 = _init_l_Std_Internal_Parsec_ByteArray_asciiLetter___closed__2();
-l_Std_Internal_Parsec_ByteArray_asciiLetter___closed__3 = _init_l_Std_Internal_Parsec_ByteArray_asciiLetter___closed__3();
-l___private_Std_Internal_Parsec_ByteArray_0__Std_Internal_Parsec_ByteArray_skipWs___closed__0 = _init_l___private_Std_Internal_Parsec_ByteArray_0__Std_Internal_Parsec_ByteArray_skipWs___closed__0();
-l___private_Std_Internal_Parsec_ByteArray_0__Std_Internal_Parsec_ByteArray_skipWs___closed__1 = _init_l___private_Std_Internal_Parsec_ByteArray_0__Std_Internal_Parsec_ByteArray_skipWs___closed__1();
-l___private_Std_Internal_Parsec_ByteArray_0__Std_Internal_Parsec_ByteArray_skipWs___closed__2 = _init_l___private_Std_Internal_Parsec_ByteArray_0__Std_Internal_Parsec_ByteArray_skipWs___closed__2();
-l___private_Std_Internal_Parsec_ByteArray_0__Std_Internal_Parsec_ByteArray_skipWs___closed__3 = _init_l___private_Std_Internal_Parsec_ByteArray_0__Std_Internal_Parsec_ByteArray_skipWs___closed__3();
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

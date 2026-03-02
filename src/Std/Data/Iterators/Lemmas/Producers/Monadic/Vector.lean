@@ -46,7 +46,7 @@ theorem Std.Iterators.Vector.isPlausibleStep_iterFromIdxM_of_lt {xs : Vector β 
 theorem Std.Iterators.Vector.isPlausibleStep_iterFromIdxM_of_not_lt {xs : Vector β n} {pos : Nat}
     (h : ¬ pos < n) :
     (xs.iterFromIdxM m pos).IsPlausibleStep .done := by
-  simp only [IterM.IsPlausibleStep, Iterator.IsPlausibleStep]
+  simp only [IterM.IsPlausibleStep, Iterator.IsPlausibleStep, Types.ArrayIterator.instIterator] -- TODO
   simpa [Vector.iterFromIdxM, Array.iterFromIdxM, Nat.not_lt] using h
 
 theorem Std.Iterators.Vector.isPlausibleStep_iterM_of_pos {xs : Vector β n}

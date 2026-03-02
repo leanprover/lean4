@@ -52,7 +52,7 @@ def max' [LE α] [DecidableLE α] (a b : α) : α :=
 Without the `open scoped` command, Lean would not find the required {lit}`DecidableLE α`
 instance for the opposite order.
 -/
-@[instance_reducible] def LE.opposite (le : LE α) : LE α where
+@[implicit_reducible] def LE.opposite (le : LE α) : LE α where
   le a b := b ≤ a
 
 theorem LE.opposite_def {le : LE α} :
@@ -262,15 +262,18 @@ scoped instance (priority := low) instLawfulOrderOrdOpposite {il : LE α} {io : 
     haveI := il.opposite
     haveI := io.opposite
     LawfulOrderOrd α :=
-      @LawfulOrderOrd.mk α io.opposite il.opposite
-        (by intros a b
-            simp +instances only [LE.opposite, Ord.opposite]
-            try simp [compare, LE.le]
-            apply isLE_compare)
-        (by intros a b
-            simp +instances only [LE.opposite, Ord.opposite]
-            try simp [compare, LE.le]
-            apply isGE_compare)
+  letI i := il.opposite
+  letI j := io.opposite
+  { isLE_compare a b := by
+      unfold LE.opposite Ord.opposite
+      simp only [compare, LE.le]
+      letI := il; letI := io
+      apply isLE_compare
+    isGE_compare a b := by
+      unfold LE.opposite Ord.opposite
+      simp only [compare, LE.le]
+      letI := il; letI := io
+      apply isGE_compare }
 
 scoped instance (priority := low) instLawfulOrderLTOpposite {il : LE α} {it : LT α}
     [LawfulOrderLT α] :

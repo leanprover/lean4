@@ -23,6 +23,11 @@ import Init.Data.List.TakeDrop
 import Init.Data.Nat.Mod
 import Init.Data.Slice.Lemmas
 import Init.Omega
+public import Init.Data.String.Defs
+public import Init.Data.String.Iterate
+import Init.Data.String.Lemmas.Splits
+import Init.Data.String.Termination
+import Init.Data.String.Lemmas.Iterate
 
 set_option linter.missingDocs true
 
@@ -331,11 +336,10 @@ theorem Spec.liftWith_OptionT [Monad m] [WPMonad m ps]
       (wp⟦f (fun x => x.run)⟧ (Q.1, Q.2.2))
       Q := by simp [Triple.iff]
 
-set_option backward.isDefEq.respectTransparency false in
 @[spec]
 theorem Spec.restoreM_StateT [Monad m] [WPMonad m ps] (x : m (α × σ)) :
     Triple
-      (MonadControl.restoreM x : StateT σ m α)
+      (MonadControl.restoreM (m := m) x : StateT σ m α)
       (fun _ => wp⟦x⟧ (fun (a, s) => Q.1 a s, Q.2))
       Q := by simp [Triple.iff]
 
@@ -346,19 +350,17 @@ theorem Spec.restoreM_ReaderT [Monad m] [WPMonad m ps] (x : m α) :
       (fun s => wp⟦x⟧ (fun a => Q.1 a s, Q.2))
       Q := by simp [Triple.iff]
 
-set_option backward.isDefEq.respectTransparency false in
 @[spec]
 theorem Spec.restoreM_ExceptT [Monad m] [WPMonad m ps] (x : m (Except ε α)) :
     Triple (ps := .except ε ps)
-      (MonadControl.restoreM x : ExceptT ε m α)
+      (MonadControl.restoreM (m := m) x : ExceptT ε m α)
       (wp⟦x⟧ (fun e => e.casesOn Q.2.1 Q.1, Q.2.2))
       Q := by simp [Triple.iff]
 
-set_option backward.isDefEq.respectTransparency false in
 @[spec]
 theorem Spec.restoreM_OptionT [Monad m] [WPMonad m ps] (x : m (Option α)) :
     Triple (ps := .except PUnit ps)
-      (MonadControl.restoreM x : OptionT m α)
+      (MonadControl.restoreM (m := m) x : OptionT m α)
       (wp⟦x⟧ (fun e => e.casesOn (Q.2.1 ⟨⟩) Q.1, Q.2.2))
       Q := by simp [Triple.iff]
 
@@ -1994,3 +1996,123 @@ theorem Spec.foldlM_array {α β : Type u} {m : Type u → Type v} {ps : PostSha
   cases xs
   simp
   apply Spec.foldlM_list inv step
+
+/--
+Helper definition for specifying loop invariants for loops with early return.
+
+`for ... in ...` loops with early return of type `γ` elaborate to a call like this:
+```lean
+forIn (β := MProd (Option γ) ...) (b := ⟨none, ...⟩) collection loopBody
+```
+Note that the first component of the `MProd` state tuple is the optional early return value.
+It is `none` as long as there was no early return and `some r` if the loop returned early with `r`.
+
+This function allows to specify different invariants for the loop body depending on whether the loop
+terminated early or not. When there was an early return, the loop has effectively finished, which is
+encoded by the additional `⌜pos = s.endPos⌝` assertion in the invariant. This assertion is vital for
+successfully proving the induction step, as it contradicts with the assumption that
+`pos ≠ s.endPos` of the inductive hypothesis at the start of the loop body, meaning that users
+won't need to prove anything about the bogus case where the loop has returned early yet takes
+another iteration of the loop body.
+-/
+abbrev StringInvariant.withEarlyReturn {s : String}
+  (onContinue : s.Pos → β → Assertion ps)
+  (onReturn : γ → β → Assertion ps)
+  (onExcept : ExceptConds ps := ExceptConds.false) :
+    PostCond (s.Pos × MProd (Option γ) β) ps
+    :=
+  ⟨fun ⟨pos, x, b⟩ => spred(
+        (⌜x = none⌝ ∧ onContinue pos b)
+      ∨ (∃ r, ⌜x = some r⌝ ∧ ⌜pos = s.endPos⌝ ∧ onReturn r b)),
+   onExcept⟩
+
+@[spec]
+theorem Spec.forIn_string
+    {s : String} {init : β} {f : Char → β → m (ForInStep β)}
+    (inv : PostCond (s.Pos × β) ps)
+    (step : ∀ pos b (h : pos ≠ s.endPos),
+      Triple
+        (f (pos.get h) b)
+        (inv.1 (pos, b))
+        (fun r => match r with
+          | .yield b' => inv.1 (pos.next h, b')
+          | .done b' => inv.1 (s.endPos, b'), inv.2)) :
+    Triple (forIn s init f) (inv.1 (s.startPos, init)) (fun b => inv.1 (s.endPos, b), inv.2) := by
+  suffices h : ∀ (p : s.Pos) (t₁ t₂ : String) (h : p.Splits t₁ t₂),
+      Triple (forIn t₂.toList init f) (inv.1 (p, init)) (fun b => inv.1 (s.endPos, b), inv.2) by
+    simpa using h s.startPos _ _ s.splits_startPos
+  intro p
+  induction p using String.Pos.next_induction generalizing init with
+  | next p hp ih =>
+    intro t₁ t₂ hsp
+    obtain ⟨t₂, rfl⟩ := hsp.exists_eq_singleton_append hp
+    simp only [String.toList_append, String.toList_singleton, List.cons_append, List.nil_append,
+      List.forIn_cons]
+    apply Triple.bind
+    case hx => exact step _ _ hp
+    case hf =>
+      intro r
+      split
+      next => apply Triple.pure; simp
+      next b => simp [ih _ _ hsp.next]
+  | endPos => simpa using Triple.pure _ (by simp)
+
+/--
+Helper definition for specifying loop invariants for loops with early return.
+
+`for ... in ...` loops with early return of type `γ` elaborate to a call like this:
+```lean
+forIn (β := MProd (Option γ) ...) (b := ⟨none, ...⟩) collection loopBody
+```
+Note that the first component of the `MProd` state tuple is the optional early return value.
+It is `none` as long as there was no early return and `some r` if the loop returned early with `r`.
+
+This function allows to specify different invariants for the loop body depending on whether the loop
+terminated early or not. When there was an early return, the loop has effectively finished, which is
+encoded by the additional `⌜pos = s.endPos⌝` assertion in the invariant. This assertion is vital for
+successfully proving the induction step, as it contradicts with the assumption that
+`pos ≠ s.endPos` of the inductive hypothesis at the start of the loop body, meaning that users
+won't need to prove anything about the bogus case where the loop has returned early yet takes
+another iteration of the loop body.
+-/
+abbrev StringSliceInvariant.withEarlyReturn {s : String.Slice}
+  (onContinue : s.Pos → β → Assertion ps)
+  (onReturn : γ → β → Assertion ps)
+  (onExcept : ExceptConds ps := ExceptConds.false) :
+    PostCond (s.Pos × MProd (Option γ) β) ps
+    :=
+  ⟨fun ⟨pos, x, b⟩ => spred(
+        (⌜x = none⌝ ∧ onContinue pos b)
+      ∨ (∃ r, ⌜x = some r⌝ ∧ ⌜pos = s.endPos⌝ ∧ onReturn r b)),
+   onExcept⟩
+
+@[spec]
+theorem Spec.forIn_stringSlice
+    {s : String.Slice} {init : β} {f : Char → β → m (ForInStep β)}
+    (inv : PostCond (s.Pos × β) ps)
+    (step : ∀ pos b (h : pos ≠ s.endPos),
+      Triple
+        (f (pos.get h) b)
+        (inv.1 (pos, b))
+        (fun r => match r with
+          | .yield b' => inv.1 (pos.next h, b')
+          | .done b' => inv.1 (s.endPos, b'), inv.2)) :
+    Triple (forIn s init f) (inv.1 (s.startPos, init)) (fun b => inv.1 (s.endPos, b), inv.2) := by
+  suffices h : ∀ (p : s.Pos) (t₁ t₂ : String) (h : p.Splits t₁ t₂),
+      Triple (forIn t₂.toList init f) (inv.1 (p, init)) (fun b => inv.1 (s.endPos, b), inv.2) by
+    simpa using h s.startPos _ _ s.splits_startPos
+  intro p
+  induction p using String.Slice.Pos.next_induction generalizing init with
+  | next p hp ih =>
+    intro t₁ t₂ hsp
+    obtain ⟨t₂, rfl⟩ := hsp.exists_eq_singleton_append hp
+    simp only [String.toList_append, String.toList_singleton, List.cons_append, List.nil_append,
+      List.forIn_cons]
+    apply Triple.bind
+    case hx => exact step _ _ hp
+    case hf =>
+      intro r
+      split
+      next => apply Triple.pure; simp
+      next b => simp [ih _ _ hsp.next]
+  | endPos => simpa using Triple.pure _ (by simp)

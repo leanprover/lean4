@@ -37,6 +37,7 @@ echo "# TEST: Setting variables for lake env"
 test_eq "foo" env env ELAN_TOOLCHAIN=foo $LAKE env printenv ELAN_TOOLCHAIN
 test_out "foo" env env -u LAKE_CACHE_DIR ELAN_HOME=/ ELAN_TOOLCHAIN=foo \
   $LAKE env printenv LAKE_CACHE_DIR
+LAKE_CONFIG=foo test_eq "foo" env printenv LAKE_CONFIG
 LAKE_CACHE_DIR=foo test_eq "foo" env printenv LAKE_CACHE_DIR
 LAKE_CACHE_SERVICE=foo test_eq "foo" env printenv LAKE_CACHE_SERVICE
 LEAN_GITHASH=foo test_eq "foo" env printenv LEAN_GITHASH

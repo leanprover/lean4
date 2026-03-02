@@ -829,6 +829,9 @@ theorem Equiv.beq [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m�
 theorem equiv_of_beq [LawfulBEq α] (h₁ : m₁.WF) (h₂ : m₂.WF) (h : m₁ == m₂) : m₁ ~m m₂ :=
   ⟨HashMap.Raw.equiv_of_beq h₁.1 h₂.1 h⟩
 
+theorem beq_iff_equiv [LawfulBEq α] (h₁ : m₁.WF) (h₂ : m₂.WF) : (m₁ == m₂) ↔ m₁ ~m m₂ :=
+  ⟨equiv_of_beq h₁ h₂, Equiv.beq h₁ h₂⟩
+
 theorem Equiv.beq_congr [EquivBEq α] [LawfulHashable α] {m₃ m₄ : Raw α} (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (h₄ : m₄.WF) (w₁ : m₁ ~m m₃) (w₂ : m₂ ~m m₄) : (m₁ == m₂) = (m₃ == m₄) :=
   HashMap.Raw.Equiv.beq_congr h₁.1 h₂.1 h₃.1 h₄.1 w₁.1 w₂.1
 
@@ -1353,9 +1356,7 @@ theorem ofList_cons {hd : α} {tl : List α} :
 
 theorem ofList_eq_insertMany_empty {l : List α} :
     ofList l = insertMany (∅ : Raw α) l :=
-  match l with
-  | [] => by simp [insertMany_nil .empty]
-  | hd :: tl => by simp [ofList_cons, insertMany_cons .empty]
+  ext HashMap.Raw.unitOfList_eq_insertManyIfNewUnit_empty
 
 @[simp, grind =]
 theorem contains_ofList [EquivBEq α] [LawfulHashable α]
@@ -1538,6 +1539,24 @@ theorem equiv_empty_iff_isEmpty [EquivBEq α] [LawfulHashable α] (h : m.WF) :
 theorem equiv_iff_toList_perm {m₁ m₂ : Raw α} [EquivBEq α] [LawfulHashable α] :
     m₁ ~m m₂ ↔ m₁.toList.Perm m₂.toList :=
   ⟨Equiv.toList_perm, Equiv.of_toList_perm⟩
+
+theorem equiv_iff_forall_mem_iff {m₁ m₂ : Raw α} (h₁ : m₁.WF) (h₂ : m₂.WF) [LawfulBEq α] :
+    m₁ ~m m₂ ↔ (∀ k, k ∈ m₁ ↔ k ∈ m₂) :=
+  ⟨fun h _ => h.mem_iff h₁ h₂, Equiv.of_forall_mem_iff h₁ h₂⟩
+
+theorem insertMany_list_equiv_foldl {l : List α} (h : m.WF) :
+    insertMany m l ~m l.foldl (init := m) fun acc a => acc.insert a := by
+  constructor
+  rw [← List.foldl_hom inner (g₂ := fun acc a => acc.insertIfNew a ())]
+  · exact HashMap.Raw.insertManyIfNewUnit_list_equiv_foldl h.1
+  · exact fun _ _ => rfl
+
+theorem ofList_equiv_foldl {l : List α} :
+    ofList l ~m l.foldl (init := ∅) fun acc a => acc.insert a := by
+  constructor
+  rw [← List.foldl_hom inner (g₂ := fun acc a => acc.insertIfNew a ())]
+  · exact HashMap.Raw.unitOfList_equiv_foldl
+  · exact fun _ _ => rfl
 
 section filter
 

@@ -868,7 +868,8 @@ private def matchEqBwdPat (p : Expr) : M Unit := do
 
 def instantiateGroundTheorem (thm : EMatchTheorem) : M Unit := do
   if (← markTheoremInstance thm.proof #[]) then
-    addNewInstance thm thm.proof 0 []
+    let proof ← thm.getProofWithFreshMVarLevels
+    addNewInstance thm proof 0 []
 
 def ematchTheorem (thm : EMatchTheorem) : M Unit := do
   if (← checkMaxInstancesExceeded) then return ()

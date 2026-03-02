@@ -11,6 +11,12 @@ public section
 namespace Lean.Elab
 open Command Meta
 
+-- We automatically disable the following option for `macro`s but the subsequent `def` both contains
+-- a quotation and is called only by `macro`s, so we disable the option for it manually. Note that
+-- we can't use `in` as it is parsed as a single command and so the option would not influence the
+-- parser.
+set_option internal.parseQuotWithCurrentStage false
+
 /--
 Generates a function `setterName` for updating the `Bool` and `Nat` fields
 of the structure `struct`.

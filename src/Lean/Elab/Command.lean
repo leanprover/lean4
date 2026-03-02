@@ -390,6 +390,10 @@ Disables incremental command reuse *and* reporting for `act` if `cond` is true b
 -/
 def withoutCommandIncrementality (cond : Bool) (act : CommandElabM α) : CommandElabM α := do
   let opts ← getOptions
+  -- Cancel old elaboration when discarding it (for commands without incrementality support)
+  if cond then
+    if let some old := (← read).snap?.bind (·.old?) then
+      old.val.cancelRec
   withReader (fun ctx => { ctx with snap? := ctx.snap?.filter fun snap => Id.run do
     if let some old := snap.old? then
       if cond && opts.getBool `trace.Elab.reuse then

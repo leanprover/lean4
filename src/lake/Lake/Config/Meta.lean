@@ -18,7 +18,7 @@ open Lean Syntax Parser Command
 namespace Lake
 
 public syntax configField :=
-  atomic(nestedDeclModifiers ident,+) declSig (" := " term)?
+  atomic(nestedDeclModifiers atomic(ident " @ ")? ident,+) declSig (" := " term)?
 
 /--
 An tailored `structure` command for producing Lake configuration data types.
@@ -105,9 +105,12 @@ private meta def mkConfigAuxDecls
           : ConfigFieldInfo
         })
         return {cmds, fields}
-      let data ← addName true data id
-      let data ← ids.foldlM (start := 1) (addName false) data
-      return data
+      if h : 0 < ids.size then
+        let data ← addName true data (ids[0]'h)
+        let data ← ids.foldlM (start := 1) (addName false) data
+        return data
+      else
+        return data
   let fieldsId := mkIdentFrom structId <| structId.getId.modifyBase (·.str "_fields")
   let fieldsDef ← `( $[$vis?:visibility]? def $fieldsId:ident := $(data.fields))
   let instId := mkIdentFrom structId <| structId.getId.modifyBase (·.str "instConfigFields")
@@ -121,11 +124,11 @@ private meta def mkConfigAuxDecls
   return data.cmds.push fieldsDef |>.push fieldsInst |>.push infoInst |>.push emptyInst
 
 private meta def mkFieldView (stx : TSyntax ``configField) : MacroM FieldView := withRef stx do
-  let `(configField|$mods:declModifiers $ids,* $bs* : $rty $[:= $val?]?) := stx
+  let `(configField|$mods:declModifiers $[$id? @]? $ids,* $bs* : $rty $[:= $val?]?) := stx
     | Macro.throwError "ill-formed configuration field declaration"
   let bvs ← expandBinders bs
   let type := mkDepArrow bvs rty
-  let some id := ids.getElems[0]?
+  let some id := id? <|> ids.getElems[0]?
     | Macro.throwError "expected a least one field name"
   withRef id.raw do
   let some val := val?

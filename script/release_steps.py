@@ -483,6 +483,39 @@ def execute_release_steps(repo, version, config):
         run_command(f'perl -pi -e \'s/"v4\\.[0-9]+(\\.[0-9]+)?(-rc[0-9]+)?"/"' + version + '"/g\' lakefile.*', cwd=repo_path)
         run_command("lake update", cwd=repo_path, stream_output=True)
 
+    # For reference-manual, update the release notes title to match the target version.
+    # e.g., for a stable release, change "Lean 4.28.0-rc1 (date)" to "Lean 4.28.0 (date)"
+    # e.g., for rc2, change "Lean 4.28.0-rc1 (date)" to "Lean 4.28.0-rc2 (date)"
+    if repo_name == "reference-manual":
+        base_version = version.lstrip('v').split('-')[0]  # "4.28.0"
+        file_name = f"v{base_version.replace('.', '_')}.lean"
+        release_notes_file = repo_path / "Manual" / "Releases" / file_name
+
+        if release_notes_file.exists():
+            is_rc = "-rc" in version
+            if is_rc:
+                # For RC releases, update to the exact RC version
+                display_version = version.lstrip('v')  # "4.28.0-rc2"
+            else:
+                # For stable releases, strip any RC suffix
+                display_version = base_version  # "4.28.0"
+
+            print(blue(f"Updating release notes title in {file_name}..."))
+            content = release_notes_file.read_text()
+            # Match the #doc line title: "Lean X.Y.Z-rcN (date)" or "Lean X.Y.Z (date)"
+            new_content = re.sub(
+                r'(#doc\s+\(Manual\)\s+"Lean\s+)\d+\.\d+\.\d+(-rc\d+)?(\s+\([^)]*\)"\s*=>)',
+                rf'\g<1>{display_version}\3',
+                content
+            )
+            if new_content != content:
+                release_notes_file.write_text(new_content)
+                print(green(f"Updated release notes title to Lean {display_version}"))
+            else:
+                print(green("Release notes title already correct"))
+        else:
+            print(yellow(f"Release notes file {file_name} not found, skipping title update"))
+
     # For mathlib4, update ProofWidgets4 pin (it uses sequential v0.0.X tags, not v4.X.Y)
     if repo_name == "mathlib4":
         print(blue("Checking ProofWidgets4 version pin..."))

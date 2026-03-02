@@ -56,16 +56,6 @@ LEAN_EXPORT lean_object* l_String_instDecidableLeRaw___boxed(lean_object*, lean_
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_String_instDecidableLtRaw(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_instDecidableLtRaw___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_instMinRaw___lam__0(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_instMinRaw___lam__0___boxed(lean_object*, lean_object*);
-static const lean_closure_object l_String_instMinRaw___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_String_instMinRaw___lam__0___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
-static const lean_object* l_String_instMinRaw___closed__0 = (const lean_object*)&l_String_instMinRaw___closed__0_value;
-LEAN_EXPORT const lean_object* l_String_instMinRaw = (const lean_object*)&l_String_instMinRaw___closed__0_value;
-LEAN_EXPORT lean_object* l_String_instMaxRaw___lam__0(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_instMaxRaw___lam__0___boxed(lean_object*, lean_object*);
-static const lean_closure_object l_String_instMaxRaw___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_String_instMaxRaw___lam__0___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
-static const lean_object* l_String_instMaxRaw___closed__0 = (const lean_object*)&l_String_instMaxRaw___closed__0_value;
-LEAN_EXPORT const lean_object* l_String_instMaxRaw = (const lean_object*)&l_String_instMaxRaw___closed__0_value;
 LEAN_EXPORT lean_object* l_String_Pos_Raw_byteDistance(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Pos_Raw_byteDistance___boxed(lean_object*, lean_object*);
 uint8_t lean_string_get_byte_fast(lean_object*, lean_object*);
@@ -217,7 +207,7 @@ lean_dec(x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_String_instLERaw() {
+static lean_object* _init_l_String_instLERaw(void) {
 _start:
 {
 lean_object* x_1; 
@@ -225,7 +215,7 @@ x_1 = lean_box(0);
 return x_1;
 }
 }
-static lean_object* _init_l_String_instLTRaw() {
+static lean_object* _init_l_String_instLTRaw(void) {
 _start:
 {
 lean_object* x_1; 
@@ -269,60 +259,6 @@ lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);
 return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_String_instMinRaw___lam__0(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint8_t x_3; 
-x_3 = lean_nat_dec_le(x_1, x_2);
-if (x_3 == 0)
-{
-lean_inc(x_2);
-return x_2;
-}
-else
-{
-lean_inc(x_1);
-return x_1;
-}
-}
-}
-LEAN_EXPORT lean_object* l_String_instMinRaw___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_String_instMinRaw___lam__0(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_String_instMaxRaw___lam__0(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint8_t x_3; 
-x_3 = lean_nat_dec_le(x_1, x_2);
-if (x_3 == 0)
-{
-lean_inc(x_1);
-return x_1;
-}
-else
-{
-lean_inc(x_2);
-return x_2;
-}
-}
-}
-LEAN_EXPORT lean_object* l_String_instMaxRaw___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_String_instMaxRaw___lam__0(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
-return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_String_Pos_Raw_byteDistance(lean_object* x_1, lean_object* x_2) {

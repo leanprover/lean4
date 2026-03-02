@@ -149,7 +149,7 @@ def eraseCodeDecl (decl : CodeDecl pu) : CompilerM Unit := do
   match decl with
   | .let decl => eraseLetDecl decl
   | .jp decl | .fun decl _ => eraseFunDecl decl
-  | .sset .. | .uset .. => return ()
+  | .sset .. | .uset .. | .inc .. | .dec .. => return ()
 
 /--
 Erase all free variables occurring in `decls` from the local context.
@@ -501,6 +501,12 @@ mutual
       withNormFVarResult (← normFVar fvarId) fun fvarId => do
       withNormFVarResult (← normFVar y) fun y => do
         return code.updateUset! fvarId offset y (← normCodeImp k)
+    | .inc fvarId n check persistent k _ =>
+      withNormFVarResult (← normFVar fvarId) fun fvarId => do
+        return code.updateInc! fvarId n check persistent (← normCodeImp k)
+    | .dec fvarId n check persistent k _ =>
+      withNormFVarResult (← normFVar fvarId) fun fvarId => do
+        return code.updateDec! fvarId n check persistent (← normCodeImp k)
 end
 
 @[inline] def normFunDecl [MonadLiftT CompilerM m] [Monad m] [MonadFVarSubst m pu t] (decl : FunDecl pu) : m (FunDecl pu) := do

@@ -64,7 +64,7 @@ def withLocation (loc : Location) (atLocal : FVarId → TacticM Unit) (atTarget 
     if type then
       withMainContext atTarget
   | Location.wildcard =>
-    let worked ← tryTactic <| withMainContext <| atTarget
+    let worked ← tryTactic <| withSaveInfoContext <| withMainContext <| atTarget
     let g ← try getMainGoal catch _ => return () -- atTarget closed the goal
     g.withContext do
       let mut worked := worked
@@ -72,7 +72,7 @@ def withLocation (loc : Location) (atLocal : FVarId → TacticM Unit) (atTarget 
       for fvarId in (← getLCtx).getFVarIds.reverse do
         if (← fvarId.getDecl).isImplementationDetail then
           continue
-        worked := worked || (← tryTactic <| withMainContext <| atLocal fvarId)
+        worked := worked || (← tryTactic <| withSaveInfoContext <| withMainContext <| atLocal fvarId)
       unless worked do
         failed (← getMainGoal)
 

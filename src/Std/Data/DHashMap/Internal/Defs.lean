@@ -11,6 +11,7 @@ public import Std.Data.DHashMap.RawDef
 public import Std.Data.Internal.List.Defs
 public import Std.Data.DHashMap.Internal.Index
 public import Init.Data.Nat.Power2.Basic
+import Init.Data.List.Impl
 import Init.Omega
 
 public section

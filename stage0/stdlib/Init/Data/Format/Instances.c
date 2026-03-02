@@ -34,8 +34,10 @@ static const lean_object* l_List_format___redArg___closed__5 = (const lean_objec
 static const lean_string_object l_List_format___redArg___closed__6_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 2, .m_capacity = 2, .m_length = 1, .m_data = "]"};
 static const lean_object* l_List_format___redArg___closed__6 = (const lean_object*)&l_List_format___redArg___closed__6_value;
 lean_object* lean_string_length(lean_object*);
+static lean_once_cell_t l_List_format___redArg___closed__7_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_List_format___redArg___closed__7;
 lean_object* lean_nat_to_int(lean_object*);
+static lean_once_cell_t l_List_format___redArg___closed__8_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_List_format___redArg___closed__8;
 static const lean_ctor_object l_List_format___redArg___closed__9_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 3}, .m_objs = {((lean_object*)&l_List_format___redArg___closed__5_value)}};
 static const lean_object* l_List_format___redArg___closed__9 = (const lean_object*)&l_List_format___redArg___closed__9_value;
@@ -70,7 +72,9 @@ static const lean_string_object l_instToFormatProd___redArg___lam__0___closed__0
 static const lean_object* l_instToFormatProd___redArg___lam__0___closed__0 = (const lean_object*)&l_instToFormatProd___redArg___lam__0___closed__0_value;
 static const lean_string_object l_instToFormatProd___redArg___lam__0___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 2, .m_capacity = 2, .m_length = 1, .m_data = ")"};
 static const lean_object* l_instToFormatProd___redArg___lam__0___closed__1 = (const lean_object*)&l_instToFormatProd___redArg___lam__0___closed__1_value;
+static lean_once_cell_t l_instToFormatProd___redArg___lam__0___closed__2_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_instToFormatProd___redArg___lam__0___closed__2;
+static lean_once_cell_t l_instToFormatProd___redArg___lam__0___closed__3_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_instToFormatProd___redArg___lam__0___closed__3;
 static const lean_ctor_object l_instToFormatProd___redArg___lam__0___closed__4_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 3}, .m_objs = {((lean_object*)&l_instToFormatProd___redArg___lam__0___closed__0_value)}};
 static const lean_object* l_instToFormatProd___redArg___lam__0___closed__4 = (const lean_object*)&l_instToFormatProd___redArg___lam__0___closed__4_value;
@@ -97,6 +101,7 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_String_Slice_subslice_x21(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___at___00String_toFormat_spec__1___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
+static lean_once_cell_t l_String_toFormat___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_String_toFormat___closed__0;
 lean_object* lean_string_utf8_byte_size(lean_object*);
 LEAN_EXPORT lean_object* l_String_toFormat(lean_object*);
@@ -138,7 +143,7 @@ x_3 = l_instToFormatOfToString___redArg(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_List_format___redArg___closed__7() {
+static lean_object* _init_l_List_format___redArg___closed__7(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -147,11 +152,11 @@ x_2 = lean_string_length(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_List_format___redArg___closed__8() {
+static lean_object* _init_l_List_format___redArg___closed__8(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_List_format___redArg___closed__7;
+x_1 = lean_obj_once(&l_List_format___redArg___closed__7, &l_List_format___redArg___closed__7_once, _init_l_List_format___redArg___closed__7);
 x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
@@ -171,7 +176,7 @@ else
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; lean_object* x_13; 
 x_4 = ((lean_object*)(l_List_format___redArg___closed__4));
 x_5 = l_Std_Format_joinSep___redArg(x_1, x_2, x_4);
-x_6 = l_List_format___redArg___closed__8;
+x_6 = lean_obj_once(&l_List_format___redArg___closed__8, &l_List_format___redArg___closed__8_once, _init_l_List_format___redArg___closed__8);
 x_7 = ((lean_object*)(l_List_format___redArg___closed__9));
 x_8 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_8, 0, x_7);
@@ -303,7 +308,7 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_instToFormatProd___redArg___lam__0___closed__2() {
+static lean_object* _init_l_instToFormatProd___redArg___lam__0___closed__2(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -312,11 +317,11 @@ x_2 = lean_string_length(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_instToFormatProd___redArg___lam__0___closed__3() {
+static lean_object* _init_l_instToFormatProd___redArg___lam__0___closed__3(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_instToFormatProd___redArg___lam__0___closed__2;
+x_1 = lean_obj_once(&l_instToFormatProd___redArg___lam__0___closed__2, &l_instToFormatProd___redArg___lam__0___closed__2_once, _init_l_instToFormatProd___redArg___lam__0___closed__2);
 x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
@@ -344,7 +349,7 @@ x_11 = lean_apply_1(x_2, x_6);
 x_12 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_12, 0, x_10);
 lean_ctor_set(x_12, 1, x_11);
-x_13 = l_instToFormatProd___redArg___lam__0___closed__3;
+x_13 = lean_obj_once(&l_instToFormatProd___redArg___lam__0___closed__3, &l_instToFormatProd___redArg___lam__0___closed__3_once, _init_l_instToFormatProd___redArg___lam__0___closed__3);
 x_14 = ((lean_object*)(l_instToFormatProd___redArg___lam__0___closed__4));
 x_15 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_15, 0, x_14);
@@ -383,7 +388,7 @@ x_28 = lean_apply_1(x_2, x_22);
 x_29 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_29, 0, x_27);
 lean_ctor_set(x_29, 1, x_28);
-x_30 = l_instToFormatProd___redArg___lam__0___closed__3;
+x_30 = lean_obj_once(&l_instToFormatProd___redArg___lam__0___closed__3, &l_instToFormatProd___redArg___lam__0___closed__3_once, _init_l_instToFormatProd___redArg___lam__0___closed__3);
 x_31 = ((lean_object*)(l_instToFormatProd___redArg___lam__0___closed__4));
 x_32 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_32, 0, x_31);
@@ -741,7 +746,7 @@ lean_dec_ref(x_2);
 return x_6;
 }
 }
-static lean_object* _init_l_String_toFormat___closed__0() {
+static lean_object* _init_l_String_toFormat___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -762,7 +767,7 @@ lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
 lean_ctor_set(x_4, 2, x_3);
 x_5 = l_String_Slice_splitToSubslice___at___00String_toFormat_spec__0(x_4);
-x_6 = l_String_toFormat___closed__0;
+x_6 = lean_obj_once(&l_String_toFormat___closed__0, &l_String_toFormat___closed__0_once, _init_l_String_toFormat___closed__0);
 x_7 = l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___at___00String_toFormat_spec__1___redArg(x_1, x_4, x_3, x_5, x_6);
 lean_dec_ref(x_4);
 x_8 = lean_array_to_list(x_7);
@@ -815,16 +820,6 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Iterators_Consumers_Collect(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_List_format___redArg___closed__7 = _init_l_List_format___redArg___closed__7();
-lean_mark_persistent(l_List_format___redArg___closed__7);
-l_List_format___redArg___closed__8 = _init_l_List_format___redArg___closed__8();
-lean_mark_persistent(l_List_format___redArg___closed__8);
-l_instToFormatProd___redArg___lam__0___closed__2 = _init_l_instToFormatProd___redArg___lam__0___closed__2();
-lean_mark_persistent(l_instToFormatProd___redArg___lam__0___closed__2);
-l_instToFormatProd___redArg___lam__0___closed__3 = _init_l_instToFormatProd___redArg___lam__0___closed__3();
-lean_mark_persistent(l_instToFormatProd___redArg___lam__0___closed__3);
-l_String_toFormat___closed__0 = _init_l_String_toFormat___closed__0();
-lean_mark_persistent(l_String_toFormat___closed__0);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

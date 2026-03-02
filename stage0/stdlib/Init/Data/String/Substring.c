@@ -73,7 +73,9 @@ LEAN_EXPORT lean_object* l_Substring_Raw_extract(lean_object*, lean_object*, lea
 LEAN_EXPORT lean_object* l_Substring_Raw_extract___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lean_substring_extract(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
+static lean_once_cell_t l___private_Init_Data_String_Substring_0__Substring_Raw_splitOn_loop___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Init_Data_String_Substring_0__Substring_Raw_splitOn_loop___closed__0;
+static lean_once_cell_t l___private_Init_Data_String_Substring_0__Substring_Raw_splitOn_loop___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Init_Data_String_Substring_0__Substring_Raw_splitOn_loop___closed__1;
 lean_object* l_List_reverse___redArg(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Substring_0__Substring_Raw_splitOn_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -92,6 +94,7 @@ static const lean_object* l_Substring_Raw_foldl___redArg___closed__1 = (const le
 static const lean_string_object l_Substring_Raw_foldl___redArg___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 14, .m_capacity = 14, .m_length = 13, .m_data = "value is none"};
 static const lean_object* l_Substring_Raw_foldl___redArg___closed__2 = (const lean_object*)&l_Substring_Raw_foldl___redArg___closed__2_value;
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_once_cell_t l_Substring_Raw_foldl___redArg___closed__3_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Substring_Raw_foldl___redArg___closed__3;
 lean_object* l_String_Slice_positions(lean_object*);
 extern lean_object* l_String_instInhabitedSlice;
@@ -1322,7 +1325,7 @@ return x_12;
 }
 }
 }
-static lean_object* _init_l___private_Init_Data_String_Substring_0__Substring_Raw_splitOn_loop___closed__0() {
+static lean_object* _init_l___private_Init_Data_String_Substring_0__Substring_Raw_splitOn_loop___closed__0(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1331,11 +1334,11 @@ x_2 = lean_string_utf8_byte_size(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Init_Data_String_Substring_0__Substring_Raw_splitOn_loop___closed__1() {
+static lean_object* _init_l___private_Init_Data_String_Substring_0__Substring_Raw_splitOn_loop___closed__1(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l___private_Init_Data_String_Substring_0__Substring_Raw_splitOn_loop___closed__0;
+x_1 = lean_obj_once(&l___private_Init_Data_String_Substring_0__Substring_Raw_splitOn_loop___closed__0, &l___private_Init_Data_String_Substring_0__Substring_Raw_splitOn_loop___closed__0_once, _init_l___private_Init_Data_String_Substring_0__Substring_Raw_splitOn_loop___closed__0);
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = ((lean_object*)(l_Substring_Raw_extract___closed__0));
 x_4 = lean_alloc_ctor(0, 3, 0);
@@ -1412,7 +1415,7 @@ goto block_10;
 else
 {
 lean_object* x_58; lean_object* x_59; lean_object* x_64; lean_object* x_65; uint8_t x_71; 
-x_58 = l___private_Init_Data_String_Substring_0__Substring_Raw_splitOn_loop___closed__1;
+x_58 = lean_obj_once(&l___private_Init_Data_String_Substring_0__Substring_Raw_splitOn_loop___closed__1, &l___private_Init_Data_String_Substring_0__Substring_Raw_splitOn_loop___closed__1_once, _init_l___private_Init_Data_String_Substring_0__Substring_Raw_splitOn_loop___closed__1);
 x_64 = lean_nat_sub(x_4, x_5);
 lean_dec(x_5);
 lean_dec(x_4);
@@ -1792,7 +1795,7 @@ lean_dec_ref(x_1);
 return x_7;
 }
 }
-static lean_object* _init_l_Substring_Raw_foldl___redArg___closed__3() {
+static lean_object* _init_l_Substring_Raw_foldl___redArg___closed__3(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
@@ -1860,7 +1863,7 @@ goto block_8;
 block_16:
 {
 lean_object* x_14; lean_object* x_15; 
-x_14 = l_Substring_Raw_foldl___redArg___closed__3;
+x_14 = lean_obj_once(&l_Substring_Raw_foldl___redArg___closed__3, &l_Substring_Raw_foldl___redArg___closed__3_once, _init_l_Substring_Raw_foldl___redArg___closed__3);
 x_15 = l_panic___redArg(x_13, x_14);
 x_4 = x_15;
 goto block_8;
@@ -1922,7 +1925,7 @@ goto block_8;
 block_26:
 {
 lean_object* x_24; lean_object* x_25; 
-x_24 = l_Substring_Raw_foldl___redArg___closed__3;
+x_24 = lean_obj_once(&l_Substring_Raw_foldl___redArg___closed__3, &l_Substring_Raw_foldl___redArg___closed__3_once, _init_l_Substring_Raw_foldl___redArg___closed__3);
 x_25 = l_panic___redArg(x_23, x_24);
 x_4 = x_25;
 goto block_8;
@@ -1997,7 +2000,7 @@ goto block_9;
 block_17:
 {
 lean_object* x_15; lean_object* x_16; 
-x_15 = l_Substring_Raw_foldl___redArg___closed__3;
+x_15 = lean_obj_once(&l_Substring_Raw_foldl___redArg___closed__3, &l_Substring_Raw_foldl___redArg___closed__3_once, _init_l_Substring_Raw_foldl___redArg___closed__3);
 x_16 = l_panic___redArg(x_14, x_15);
 x_5 = x_16;
 goto block_9;
@@ -2059,7 +2062,7 @@ goto block_9;
 block_27:
 {
 lean_object* x_25; lean_object* x_26; 
-x_25 = l_Substring_Raw_foldl___redArg___closed__3;
+x_25 = lean_obj_once(&l_Substring_Raw_foldl___redArg___closed__3, &l_Substring_Raw_foldl___redArg___closed__3_once, _init_l_Substring_Raw_foldl___redArg___closed__3);
 x_26 = l_panic___redArg(x_24, x_25);
 x_5 = x_26;
 goto block_9;
@@ -2174,7 +2177,7 @@ goto block_8;
 block_16:
 {
 lean_object* x_14; lean_object* x_15; 
-x_14 = l_Substring_Raw_foldl___redArg___closed__3;
+x_14 = lean_obj_once(&l_Substring_Raw_foldl___redArg___closed__3, &l_Substring_Raw_foldl___redArg___closed__3_once, _init_l_Substring_Raw_foldl___redArg___closed__3);
 x_15 = l_panic___redArg(x_13, x_14);
 x_4 = x_15;
 goto block_8;
@@ -2236,7 +2239,7 @@ goto block_8;
 block_26:
 {
 lean_object* x_24; lean_object* x_25; 
-x_24 = l_Substring_Raw_foldl___redArg___closed__3;
+x_24 = lean_obj_once(&l_Substring_Raw_foldl___redArg___closed__3, &l_Substring_Raw_foldl___redArg___closed__3_once, _init_l_Substring_Raw_foldl___redArg___closed__3);
 x_25 = l_panic___redArg(x_23, x_24);
 x_4 = x_25;
 goto block_8;
@@ -2311,7 +2314,7 @@ goto block_9;
 block_17:
 {
 lean_object* x_15; lean_object* x_16; 
-x_15 = l_Substring_Raw_foldl___redArg___closed__3;
+x_15 = lean_obj_once(&l_Substring_Raw_foldl___redArg___closed__3, &l_Substring_Raw_foldl___redArg___closed__3_once, _init_l_Substring_Raw_foldl___redArg___closed__3);
 x_16 = l_panic___redArg(x_14, x_15);
 x_5 = x_16;
 goto block_9;
@@ -2373,7 +2376,7 @@ goto block_9;
 block_27:
 {
 lean_object* x_25; lean_object* x_26; 
-x_25 = l_Substring_Raw_foldl___redArg___closed__3;
+x_25 = lean_obj_once(&l_Substring_Raw_foldl___redArg___closed__3, &l_Substring_Raw_foldl___redArg___closed__3_once, _init_l_Substring_Raw_foldl___redArg___closed__3);
 x_26 = l_panic___redArg(x_24, x_25);
 x_5 = x_26;
 goto block_9;
@@ -2464,7 +2467,7 @@ return x_18;
 block_14:
 {
 lean_object* x_11; lean_object* x_12; uint8_t x_13; 
-x_11 = l_Substring_Raw_foldl___redArg___closed__3;
+x_11 = lean_obj_once(&l_Substring_Raw_foldl___redArg___closed__3, &l_Substring_Raw_foldl___redArg___closed__3_once, _init_l_Substring_Raw_foldl___redArg___closed__3);
 x_12 = l_panic___redArg(x_8, x_11);
 x_13 = l_String_Slice_contains___redArg(x_9, x_12, x_10);
 return x_13;
@@ -2531,7 +2534,7 @@ return x_33;
 block_28:
 {
 lean_object* x_25; lean_object* x_26; uint8_t x_27; 
-x_25 = l_Substring_Raw_foldl___redArg___closed__3;
+x_25 = lean_obj_once(&l_Substring_Raw_foldl___redArg___closed__3, &l_Substring_Raw_foldl___redArg___closed__3_once, _init_l_Substring_Raw_foldl___redArg___closed__3);
 x_26 = l_panic___redArg(x_22, x_25);
 x_27 = l_String_Slice_contains___redArg(x_23, x_26, x_24);
 return x_27;
@@ -2603,7 +2606,7 @@ goto block_11;
 block_19:
 {
 lean_object* x_17; lean_object* x_18; 
-x_17 = l_Substring_Raw_foldl___redArg___closed__3;
+x_17 = lean_obj_once(&l_Substring_Raw_foldl___redArg___closed__3, &l_Substring_Raw_foldl___redArg___closed__3_once, _init_l_Substring_Raw_foldl___redArg___closed__3);
 x_18 = l_panic___redArg(x_16, x_17);
 x_3 = x_18;
 goto block_11;
@@ -2665,7 +2668,7 @@ goto block_11;
 block_29:
 {
 lean_object* x_27; lean_object* x_28; 
-x_27 = l_Substring_Raw_foldl___redArg___closed__3;
+x_27 = lean_obj_once(&l_Substring_Raw_foldl___redArg___closed__3, &l_Substring_Raw_foldl___redArg___closed__3_once, _init_l_Substring_Raw_foldl___redArg___closed__3);
 x_28 = l_panic___redArg(x_26, x_27);
 x_3 = x_28;
 goto block_11;
@@ -2914,7 +2917,7 @@ return x_9;
 block_13:
 {
 lean_object* x_11; lean_object* x_12; 
-x_11 = l_Substring_Raw_foldl___redArg___closed__3;
+x_11 = lean_obj_once(&l_Substring_Raw_foldl___redArg___closed__3, &l_Substring_Raw_foldl___redArg___closed__3_once, _init_l_Substring_Raw_foldl___redArg___closed__3);
 x_12 = l_panic___at___00Substring_Raw_Internal_allImpl_spec__1(x_11);
 x_3 = x_12;
 goto block_10;
@@ -3017,7 +3020,7 @@ return x_20;
 block_16:
 {
 lean_object* x_13; lean_object* x_14; uint8_t x_15; 
-x_13 = l_Substring_Raw_foldl___redArg___closed__3;
+x_13 = lean_obj_once(&l_Substring_Raw_foldl___redArg___closed__3, &l_Substring_Raw_foldl___redArg___closed__3_once, _init_l_Substring_Raw_foldl___redArg___closed__3);
 x_14 = l_panic___redArg(x_10, x_13);
 x_15 = l_String_Slice_contains___redArg(x_11, x_14, x_12);
 return x_15;
@@ -3084,7 +3087,7 @@ return x_35;
 block_30:
 {
 lean_object* x_27; lean_object* x_28; uint8_t x_29; 
-x_27 = l_Substring_Raw_foldl___redArg___closed__3;
+x_27 = lean_obj_once(&l_Substring_Raw_foldl___redArg___closed__3, &l_Substring_Raw_foldl___redArg___closed__3_once, _init_l_Substring_Raw_foldl___redArg___closed__3);
 x_28 = l_panic___redArg(x_24, x_27);
 x_29 = l_String_Slice_contains___redArg(x_25, x_28, x_26);
 return x_29;
@@ -3877,7 +3880,7 @@ return x_28;
 block_33:
 {
 lean_object* x_31; lean_object* x_32; 
-x_31 = l_Substring_Raw_foldl___redArg___closed__3;
+x_31 = lean_obj_once(&l_Substring_Raw_foldl___redArg___closed__3, &l_Substring_Raw_foldl___redArg___closed__3_once, _init_l_Substring_Raw_foldl___redArg___closed__3);
 x_32 = l_panic___redArg(x_30, x_31);
 x_17 = x_32;
 goto block_29;
@@ -4008,7 +4011,7 @@ return x_63;
 block_68:
 {
 lean_object* x_66; lean_object* x_67; 
-x_66 = l_Substring_Raw_foldl___redArg___closed__3;
+x_66 = lean_obj_once(&l_Substring_Raw_foldl___redArg___closed__3, &l_Substring_Raw_foldl___redArg___closed__3_once, _init_l_Substring_Raw_foldl___redArg___closed__3);
 x_67 = l_panic___redArg(x_65, x_66);
 x_52 = x_67;
 goto block_64;
@@ -4445,7 +4448,7 @@ goto block_23;
 block_47:
 {
 lean_object* x_45; lean_object* x_46; 
-x_45 = l_Substring_Raw_foldl___redArg___closed__3;
+x_45 = lean_obj_once(&l_Substring_Raw_foldl___redArg___closed__3, &l_Substring_Raw_foldl___redArg___closed__3_once, _init_l_Substring_Raw_foldl___redArg___closed__3);
 x_46 = l_panic___at___00Substring_Raw_Internal_allImpl_spec__1(x_45);
 x_35 = x_46;
 goto block_44;
@@ -4475,7 +4478,7 @@ return x_6;
 block_11:
 {
 lean_object* x_9; lean_object* x_10; 
-x_9 = l_Substring_Raw_foldl___redArg___closed__3;
+x_9 = lean_obj_once(&l_Substring_Raw_foldl___redArg___closed__3, &l_Substring_Raw_foldl___redArg___closed__3_once, _init_l_Substring_Raw_foldl___redArg___closed__3);
 x_10 = l_panic___at___00Substring_Raw_Internal_allImpl_spec__1(x_9);
 x_2 = x_8;
 x_3 = x_10;
@@ -5325,12 +5328,6 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Option_BasicAux(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l___private_Init_Data_String_Substring_0__Substring_Raw_splitOn_loop___closed__0 = _init_l___private_Init_Data_String_Substring_0__Substring_Raw_splitOn_loop___closed__0();
-lean_mark_persistent(l___private_Init_Data_String_Substring_0__Substring_Raw_splitOn_loop___closed__0);
-l___private_Init_Data_String_Substring_0__Substring_Raw_splitOn_loop___closed__1 = _init_l___private_Init_Data_String_Substring_0__Substring_Raw_splitOn_loop___closed__1();
-lean_mark_persistent(l___private_Init_Data_String_Substring_0__Substring_Raw_splitOn_loop___closed__1);
-l_Substring_Raw_foldl___redArg___closed__3 = _init_l_Substring_Raw_foldl___redArg___closed__3();
-lean_mark_persistent(l_Substring_Raw_foldl___redArg___closed__3);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

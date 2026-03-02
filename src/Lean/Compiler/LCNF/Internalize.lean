@@ -166,6 +166,12 @@ partial def internalizeCode (code : Code pu) : InternalizeM pu (Code pu) := do
     withNormFVarResult (← normFVar fvarId) fun fvarId => do
     withNormFVarResult (← normFVar y) fun y => do
       return .uset fvarId offset y (← internalizeCode k)
+  | .inc fvarId n check persistent k _ =>
+    withNormFVarResult (← normFVar fvarId) fun fvarId => do
+      return .inc fvarId n check persistent (← internalizeCode k)
+  | .dec fvarId n check persistent k _ =>
+    withNormFVarResult (← normFVar fvarId) fun fvarId => do
+      return .dec fvarId n check persistent (← internalizeCode k)
 
 end
 
@@ -174,16 +180,22 @@ partial def internalizeCodeDecl (decl : CodeDecl pu) : InternalizeM pu (CodeDecl
   | .let decl => return .let (← internalizeLetDecl decl)
   | .fun decl _ => return .fun (← internalizeFunDecl decl)
   | .jp decl => return .jp (← internalizeFunDecl decl)
-  | .uset var i y _ =>
+  | .uset fvarId i y _ =>
     -- Something weird should be happening if these become erased...
-    let .fvar var ← normFVar var | unreachable!
+    let .fvar fvarId ← normFVar fvarId | unreachable!
     let .fvar y ← normFVar y | unreachable!
-    return .uset var i y
-  | .sset var i offset y ty _ =>
-    let .fvar var ← normFVar var | unreachable!
+    return .uset fvarId i y
+  | .sset fvarId i offset y ty _ =>
+    let .fvar fvarId ← normFVar fvarId | unreachable!
     let .fvar y ← normFVar y | unreachable!
     let ty ← normExpr ty
-    return .sset var i offset y ty
+    return .sset fvarId i offset y ty
+  | .inc fvarId n check offset _ =>
+    let .fvar fvarId ← normFVar fvarId | unreachable!
+    return .inc fvarId n check offset
+  | .dec fvarId n check offset _ =>
+    let .fvar fvarId ← normFVar fvarId | unreachable!
+    return .dec fvarId n check offset
 
 
 end Internalize

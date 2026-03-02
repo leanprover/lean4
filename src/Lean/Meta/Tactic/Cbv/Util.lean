@@ -12,6 +12,14 @@ import Lean.Meta.Sym.InferType
 import Lean.Meta.Sym.AlphaShareBuilder
 import Lean.Meta.Sym.LitValues
 
+/-!
+# Cbv Utility Functions
+
+Predicates for recognizing ground literal values (`isVal`, `isBuiltinValue`) and
+proof terms (`isProofTerm`) in the `SymM` monad. Both are used by `cbvPre` to
+short-circuit before structural dispatch.
+-/
+
 namespace Lean.Meta.Tactic.Cbv
 
 open Lean.Meta.Sym.Simp
@@ -53,6 +61,9 @@ public def isVal (e : Expr) : Bool :=
     isInt64Value
   ].any (· e)
 
+/-- Returns `.rfl (done := true)` for ground literal values of any recognized builtin type,
+preventing the simplifier from recursing into them. For example, this stops the evaluator
+from trying to unfold `OfNat.ofNat 2` further. -/
 public def isBuiltinValue : Simproc := fun e => return .rfl (isVal e)
 
 public def guardSimproc (p : Expr → Bool) (s : Simproc) : Simproc := fun e => do
@@ -86,6 +97,7 @@ def isProof (e : Expr) : Sym.SymM Bool := do
   | .false => return false
   | .undef => isProp (← Sym.inferType e)
 
+/-- Marks proof terms as done so the simplifier does not recurse into them. -/
 public def isProofTerm : Simproc := fun e => do
   return .rfl (← isProof e)
 

@@ -207,7 +207,8 @@ private def elabCtors (indFVars : Array Expr) (params : Array Expr) (r : ElabHea
   let indFamily ← isInductiveFamily params.size indFVar
   r.view.ctors.toList.mapM fun ctorView =>
     withoutExporting (when := isPrivateName ctorView.declName) do
-    Term.withAutoBoundImplicit <| Term.elabBinders ctorView.binders.getArgs fun ctorParams =>
+    let (binders, paramInfoOverrides) ← elabParamInfoUpdates params ctorView.binders.getArgs (fun _ => pure true)
+    Term.withAutoBoundImplicit <| Term.elabBinders binders fun ctorParams =>
       withRef ctorView.ref do
         let elabCtorType : TermElabM Expr := do
           match ctorView.type? with
@@ -218,10 +219,11 @@ private def elabCtors (indFVars : Array Expr) (params : Array Expr) (r : ElabHea
             return mkAppN indFVar params
           | some ctorType =>
             let type ← Term.elabType ctorType
-            trace[Elab.inductive] "elabType {ctorView.declName} : {type} "
+            trace[Elab.inductive] "elabType {ctorView.declName} : {type}"
             Term.synthesizeSyntheticMVars (postpone := .yes)
             let type ← instantiateMVars type
             let type ← checkParamOccs type
+            trace[Elab.inductive] "checkParamOccs {ctorView.declName} : {type}"
             forallTelescopeReducing type fun _ resultingType => do
               unless resultingType.getAppFn == indFVar do
                 throwUnexpectedResultingTypeMismatch resultingType indFVar ctorView.declName ctorType
@@ -262,6 +264,7 @@ private def elabCtors (indFVars : Array Expr) (params : Array Expr) (r : ElabHea
         let type ← mkForallFVars (extraCtorParams ++ ctorParams) type
         let type ← reorderCtorArgs type
         let type ← mkForallFVars params type
+        let type := type.updateForallBinderInfos (params |>.map (fun param => paramInfoOverrides[param]?.map Prod.snd) |>.toList)
         trace[Elab.inductive] "{ctorView.declName} : {type}"
         return { name := ctorView.declName, type }
 where

@@ -13,11 +13,15 @@ public section
 
 namespace Lean.Elab.Tactic.Cbv
 
+open Lean.Meta.Tactic.Cbv
+
 @[builtin_tactic Lean.Parser.Tactic.cbv] def evalCbv : Tactic := fun stx =>
   match stx with
   | `(tactic| cbv) => withMainContext do
+    if cbv.warning.get (← getOptions) then
+      logWarningAt stx "The `cbv` tactic is experimental and still under development. Avoid using it in production projects"
     liftMetaTactic fun mvar => do
-      match (← Lean.Meta.Tactic.Cbv.cbvGoal mvar) with
+      match (← cbvGoal mvar) with
       | .none => return []
       | .some newGoal => return [newGoal]
   | _ => throwUnsupportedSyntax
@@ -25,11 +29,11 @@ namespace Lean.Elab.Tactic.Cbv
 @[builtin_tactic Lean.Parser.Tactic.decide_cbv] def evalDecideCbv : Tactic := fun stx =>
   match stx with
   | `(tactic| decide_cbv) => withMainContext do
+    if cbv.warning.get (← getOptions) then
+      logWarningAt stx "The `decide_cbv` tactic is experimental and still under development. Avoid using it in production projects"
     liftMetaFinishingTactic fun mvar => do
       let [mvar'] ← mvar.applyConst ``of_decide_eq_true | throwError "Could not apply `of_decide_eq_true`"
-      match (← Lean.Meta.Tactic.Cbv.cbvGoalCore mvar') with
-      | .none => return
-      | .some remaining => throwError "Could not evaluate expression to a value: {remaining}"
+      cbvDecideGoal mvar'
   | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Tactic.Cbv

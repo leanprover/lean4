@@ -60,7 +60,7 @@ class NatModule (M : Type u) extends AddCommMonoid M where
   /-- Scalar multiplication by a successor. -/
   add_one_nsmul : ∀ n : Nat, ∀ a : M, (n + 1) • a = n • a + a
 
-attribute [instance_reducible] NatModule.nsmul
+attribute [implicit_reducible] NatModule.nsmul
 attribute [instance 100] NatModule.toAddCommMonoid NatModule.nsmul
 
 /--
@@ -83,7 +83,7 @@ class IntModule (M : Type u) extends AddCommGroup M where
   /-- Scalar multiplication by natural numbers is consistent with scalar multiplication by integers. -/
   zsmul_natCast_eq_nsmul : ∀ n : Nat, ∀ a : M, (n : Int) • a = n • a
 
-attribute [instance_reducible] IntModule.zsmul
+attribute [implicit_reducible] IntModule.zsmul
 attribute [instance 100] IntModule.toAddCommGroup IntModule.zsmul
 
 namespace IntModule

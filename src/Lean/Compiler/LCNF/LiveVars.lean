@@ -63,8 +63,8 @@ where
     match c with
     | .let decl k => (pure <| decl.dependsOn (← read).targetSet) <||> go k
     | .jp decl k => go decl.value <||> (do markJpVisited decl.fvarId; go k)
-    | .uset var _ y k _ | .sset var _ _ y _ k _ =>
-      visitVar var <||> visitVar y <||> go k
+    | .uset fvarId _ y k _ | .sset fvarId _ _ y _ k _ =>
+      visitVar fvarId <||> visitVar y <||> go k
     | .cases c => visitVar c.discr <||> c.alts.anyM (go ·.getCode)
     | .jmp fvarId args =>
       (pure <| args.any (·.dependsOn (← read).targetSet)) <||> do
@@ -76,6 +76,8 @@ where
           go decl.value
     | .return var => visitVar var
     | .unreach .. => return false
+    | .inc (fvarId := fvarId) (k := k) .. | .dec (fvarId := fvarId) (k := k) .. =>
+      visitVar fvarId <||> go k
 
   @[inline]
   visitVar (x : FVarId) : LiveM Bool :=

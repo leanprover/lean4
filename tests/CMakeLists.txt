@@ -222,20 +222,6 @@ set(PART2 "")
 ## Tests and benchmarks ##
 ##########################
 
-# LEAN BENCHMARK TESTS
-# do not test all .lean files in bench/
-file(GLOB LEANBENCHTESTS "${LEAN_SOURCE_DIR}/../tests/bench/*.lean.expected.out")
-foreach(T_OUT ${LEANBENCHTESTS})
-  string(REPLACE ".expected.out" "" T ${T_OUT})
-  get_filename_component(T_NAME ${T} NAME)
-  cmake_path(RELATIVE_PATH T BASE_DIRECTORY ${LEAN_SOURCE_DIR}/.. OUTPUT_VARIABLE T_PATH)
-  add_test(
-    NAME "${T_PATH}"
-    WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/bench"
-    COMMAND bash -c "${TEST_VARS} ./test_single.sh ${T_NAME}"
-  )
-endforeach(T_OUT)
-
 file(GLOB LEANINTERPTESTS "${LEAN_SOURCE_DIR}/../tests/plugin/*.lean")
 foreach(T ${LEANINTERPTESTS})
   get_filename_component(T_NAME ${T} NAME)

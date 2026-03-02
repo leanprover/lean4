@@ -50,9 +50,9 @@ endblock()
 ## Helper functions ##
 ######################
 
-function(check_test_bench_scripts DIR DIR_ABS)
-  set(RUN_TEST "${DIR_ABS}/run_test")
-  set(RUN_BENCH "${DIR_ABS}/run_bench")
+function(check_test_bench_scripts DIR)
+  set(RUN_TEST "${DIR}/run_test")
+  set(RUN_BENCH "${DIR}/run_bench")
 
   set(RUN_TEST_EXISTS FALSE)
   set(RUN_BENCH_EXISTS FALSE)
@@ -64,6 +64,7 @@ function(check_test_bench_scripts DIR DIR_ABS)
   endif()
 
   if(NOT RUN_TEST_EXISTS AND NOT RUN_BENCH_EXISTS)
+    cmake_path(RELATIVE_PATH DIR)
     message(FATAL_ERROR "${DIR}: Found neither a run_test nor a run_bench file")
     return()
   endif()
@@ -77,10 +78,12 @@ endfunction()
 
 function(check_bench_argument DIR ARGS_BENCH RUN_BENCH_EXISTS)
   if(RUN_BENCH_EXISTS AND NOT ARGS_BENCH)
+    cmake_path(RELATIVE_PATH DIR)
     message(FATAL_ERROR "${DIR}: run_bench file found, BENCH argument must be specified")
     return()
   endif()
   if(NOT RUN_BENCH_EXISTS AND ARGS_BENCH)
+    cmake_path(RELATIVE_PATH DIR)
     message(FATAL_ERROR "${DIR}: BENCH argument specified but no run_bench file found")
     return()
   endif()
@@ -115,9 +118,9 @@ endfunction()
 # added to the list specified by the BENCH argument.
 function(add_test_pile DIR GLOB)
   cmake_parse_arguments(ARGS "" BENCH "" ${ARGN})
-  set(DIR_ABS "${CMAKE_CURRENT_SOURCE_DIR}/${DIR}")
+  cmake_path(ABSOLUTE_PATH DIR NORMALIZE)
 
-  check_test_bench_scripts("${DIR}" "${DIR_ABS}")
+  check_test_bench_scripts("${DIR}")
   check_bench_argument("${DIR}" "${ARGS_BENCH}" "${RUN_BENCH_EXISTS}")
 
   # The test files' individual measurement files that will later be combined
@@ -125,38 +128,40 @@ function(add_test_pile DIR GLOB)
   set(MEASUREMENTS_FILES "")
 
   # Iterate over all files matching the glob
-  file(GLOB TEST_FILES "${DIR_ABS}/${GLOB}")
-  foreach(FILE_ABS IN LISTS TEST_FILES)
-    # Path relative to source directory
-    cmake_path(RELATIVE_PATH FILE_ABS BASE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" OUTPUT_VARIABLE FILE)
-    # Path relative to pile directory
-    cmake_path(RELATIVE_PATH FILE_ABS BASE_DIRECTORY "${DIR_ABS}" OUTPUT_VARIABLE FILE_NAME)
+  file(GLOB TEST_FILES "${DIR}/${GLOB}")
+  foreach(FILE IN LISTS TEST_FILES)
+    cmake_path(RELATIVE_PATH FILE OUTPUT_VARIABLE FILE_IN_SOURCE_DIR)
+    cmake_path(RELATIVE_PATH FILE BASE_DIRECTORY "${DIR}" OUTPUT_VARIABLE FILE_IN_DIR)
 
-    if(RUN_TEST_EXISTS AND NOT EXISTS "${FILE_ABS}.no_test")
+    if(FILE_IN_DIR MATCHES "^run_(test|bench)")
+      continue()
+    endif()
+
+    if(RUN_TEST_EXISTS AND NOT EXISTS "${FILE}.no_test")
       add_test(
-        NAME "${FILE}"
-        WORKING_DIRECTORY "${DIR_ABS}"
+        NAME "${FILE_IN_SOURCE_DIR}"
+        WORKING_DIRECTORY "${DIR}"
         # On Windows, we can't call the file directly, hence we always use bash.
-        COMMAND bash "${RUN_TEST}" "${FILE_NAME}"
+        COMMAND bash "${RUN_TEST}" "${FILE_IN_DIR}"
       )
     endif()
 
-    if(RUN_BENCH_EXISTS AND NOT EXISTS "${FILE_ABS}.no_bench")
-      set(MEASUREMENTS_FILE "${FILE_ABS}.measurements.jsonl")
+    if(RUN_BENCH_EXISTS AND NOT EXISTS "${FILE}.no_bench")
+      set(MEASUREMENTS_FILE "${FILE}.measurements.jsonl")
       list(APPEND MEASUREMENTS_FILES "${MEASUREMENTS_FILE}")
       add_custom_command(
         OUTPUT "${MEASUREMENTS_FILE}"
-        WORKING_DIRECTORY "${DIR_ABS}"
+        WORKING_DIRECTORY "${DIR}"
         COMMAND "${CMAKE_COMMAND}" -E remove -f "${MEASUREMENTS_FILE}"
         # On Windows, we can't call the file directly, hence we always use bash.
-        COMMAND bash "${RUN_BENCH}" "${FILE_NAME}"
+        COMMAND bash "${RUN_BENCH}" "${FILE_IN_DIR}"
       )
     endif()
   endforeach()
 
   # Combine measurements
   if(RUN_BENCH_EXISTS)
-    set(MEASUREMENTS_FILE "${DIR_ABS}/measurements.jsonl")
+    set(MEASUREMENTS_FILE "${DIR}/measurements.jsonl")
     list(APPEND "${ARGS_BENCH}" "${MEASUREMENTS_FILE}")
     set("${ARGS_BENCH}" "${${ARGS_BENCH}}" PARENT_SCOPE)
     add_combined_measurements("${MEASUREMENTS_FILE}" "${MEASUREMENTS_FILES}")
@@ -167,16 +172,17 @@ endfunction()
 # alongside any additional files or subdirectories required by that test.
 function(add_test_dir DIR)
   cmake_parse_arguments(ARGS "" BENCH "" ${ARGN})
-  set(DIR_ABS "${CMAKE_CURRENT_SOURCE_DIR}/${DIR}")
+  cmake_path(ABSOLUTE_PATH DIR NORMALIZE)
 
-  check_test_bench_scripts("${DIR}" "${DIR_ABS}")
+  check_test_bench_scripts("${DIR}")
   check_bench_argument("${DIR}" "${ARGS_BENCH}" "${RUN_BENCH_EXISTS}")
 
   # Add as test
   if(RUN_TEST_EXISTS)
+    cmake_path(RELATIVE_PATH DIR OUTPUT_VARIABLE DIR_IN_SOURCE_DIR)
     add_test(
-      NAME "${DIR}"
-      WORKING_DIRECTORY "${DIR_ABS}"
+      NAME "${DIR_IN_SOURCE_DIR}"
+      WORKING_DIRECTORY "${DIR}"
       # On Windows, we can't call the file directly, hence we always use bash.
       COMMAND bash "${RUN_TEST}"
     )
@@ -184,17 +190,27 @@ function(add_test_dir DIR)
 
   # Add as benchmark
   if(RUN_BENCH_EXISTS)
-    set(MEASUREMENTS_FILE "${DIR_ABS}/measurements.jsonl")
+    set(MEASUREMENTS_FILE "${DIR}/measurements.jsonl")
     list(APPEND "${ARGS_BENCH}" "${MEASUREMENTS_FILE}")
     set("${ARGS_BENCH}" "${${ARGS_BENCH}}" PARENT_SCOPE)
     add_custom_command(
       OUTPUT "${MEASUREMENTS_FILE}"
-      WORKING_DIRECTORY "${DIR_ABS}"
+      WORKING_DIRECTORY "${DIR}"
       COMMAND "${CMAKE_COMMAND}" -E remove -f "${MEASUREMENTS_FILE}"
       # On Windows, we can't call the file directly, hence we always use bash.
       COMMAND bash "${RUN_BENCH}"
     )
   endif()
+endfunction()
+
+function(add_dir_of_test_dirs DIR)
+  cmake_path(ABSOLUTE_PATH DIR NORMALIZE)
+  file(GLOB TEST_DIRS "${DIR}/*")
+  foreach(TEST_DIR IN LISTS TEST_DIRS)
+    if(IS_DIRECTORY "${TEST_DIR}")
+      add_test_dir("${TEST_DIR}")
+    endif()
+  endforeach()
 endfunction()
 
 # Benchmarks are split into two parts which should be roughly equal in total runtime.

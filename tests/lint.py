@@ -30,6 +30,7 @@ for dir in (
     "tests/compiler",
     "tests/lean/run",
     "tests/lean/trust0",
+    "tests/plugin",
 ):
     for file in Path().glob(f"{dir}/*"):
         nag("removed dir", file)

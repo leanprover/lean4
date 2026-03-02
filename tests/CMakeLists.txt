@@ -222,17 +222,6 @@ set(PART2 "")
 ## Tests and benchmarks ##
 ##########################
 
-file(GLOB LEANINTERPTESTS "${LEAN_SOURCE_DIR}/../tests/plugin/*.lean")
-foreach(T ${LEANINTERPTESTS})
-  get_filename_component(T_NAME ${T} NAME)
-  cmake_path(RELATIVE_PATH T BASE_DIRECTORY ${LEAN_SOURCE_DIR}/.. OUTPUT_VARIABLE T_PATH)
-  add_test(
-    NAME "${T_PATH}"
-    WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/plugin"
-    COMMAND bash -c "${TEST_VARS} ./test_single.sh ${T_NAME}"
-  )
-endforeach(T)
-
 # LEAN PACKAGE TESTS
 file(GLOB LEANPKGTESTS "${LEAN_SOURCE_DIR}/../tests/pkg/*")
 foreach(T ${LEANPKGTESTS})
@@ -346,6 +335,8 @@ add_test_dir(../doc/examples/compiler)
 add_test_dir(bench/build BENCH PART1)
 add_test_dir(bench/size BENCH PART1)
 add_test_dir(lake_bench/inundation BENCH PART2)
+
+add_dir_of_test_dirs(misc_dir)
 
 #######################
 ## Benchmark targets ##

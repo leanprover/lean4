@@ -222,20 +222,6 @@ set(PART2 "")
 ## Tests and benchmarks ##
 ##########################
 
-# LEAN TESTS
-file(GLOB LEANTESTS "${LEAN_SOURCE_DIR}/../tests/lean/*.lean")
-foreach(T ${LEANTESTS})
-  if(NOT T MATCHES "\\.#")
-    get_filename_component(T_NAME ${T} NAME)
-    cmake_path(RELATIVE_PATH T BASE_DIRECTORY ${LEAN_SOURCE_DIR}/.. OUTPUT_VARIABLE T_PATH)
-    add_test(
-      NAME "${T_PATH}"
-      WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean"
-      COMMAND bash -c "${TEST_VARS} ./test_single.sh ${T_NAME}"
-    )
-  endif()
-endforeach(T)
-
 # LEAN RUN TESTS
 file(GLOB LEANRUNTESTS "${LEAN_SOURCE_DIR}/../tests/lean/run/*.lean")
 foreach(T ${LEANRUNTESTS})

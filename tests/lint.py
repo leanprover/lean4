@@ -22,7 +22,6 @@ def nag(reason: str, path: Path, fatal: bool = True) -> None:
 
 for dir in (
     "tests/compiler",
-    "tests/lean",
     "tests/lean/run",
 ):
     for glob in (
@@ -45,6 +44,7 @@ for file in Path().glob("tests/bench-radar/*"):
 for dir in (
     "tests/bench/cbv",
     "tests/bench/inundation",
+    "tests/lean",
     "tests/lean/trust0",
 ):
     for glob in (

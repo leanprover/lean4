@@ -264,7 +264,7 @@ If profiling is enabled, this will also log the runtime of `k`.
 
 A typical invocation might be:
 ```lean4
-withTraceNode `isPosTrace (msg := (return m!"{ExceptToEmoji.toEmoji ·} checking positivity")) do
+withTraceNode `isPosTrace (msg := (return m!"{exceptBoolEmoji ·} checking positivity")) do
   return 0 < x
 ```
 
@@ -344,6 +344,12 @@ def bombEmoji := "💥️"
 def checkEmoji := "✅️"
 def crossEmoji := "❌️"
 
+/-- Convert a `TraceResult` to its emoji representation. -/
+def TraceResult.toEmoji : TraceResult → String
+  | .success => checkEmoji
+  | .failure => crossEmoji
+  | .error   => bombEmoji
+
 /-- Visualize an `Except _ Bool` using a checkmark or cross.
 
 `bombEmoji` is used for `Except.error`. -/
@@ -367,35 +373,38 @@ def exceptEmoji : Except ε α → String
   | .error _ => crossEmoji
   | .ok _ => checkEmoji
 
-class ExceptToEmoji (ε α : Type) where
-  /-- Visualize an `Except.ok x` using a checkmark or cross.
+/-- Convert an `Except` result to a `TraceResult`.
+`Except.error` always maps to `.error`.
+For `Bool`, `.ok false` maps to `.failure`. For `Option`, `.ok none` maps to `.failure`. -/
+class ExceptToTraceResult (ε α : Type) where
+  toTraceResult : Except ε α → TraceResult
 
-  By convention, `bombEmoji` is used for `Except.error`. -/
-  toEmoji : Except ε α → String
+instance : ExceptToTraceResult ε Bool where
+  toTraceResult
+    | .error _ => .error
+    | .ok true => .success
+    | .ok false => .failure
 
-instance : ExceptToEmoji ε Bool where
-  toEmoji := exceptBoolEmoji
-
-instance : ExceptToEmoji ε (Option α) where
-  toEmoji := exceptOptionEmoji
+instance : ExceptToTraceResult ε (Option α) where
+  toTraceResult
+    | .error _ => .error
+    | .ok (some _) => .success
+    | .ok none => .failure
 
 /--
 Similar to `withTraceNode`, but msg is constructed **before** executing `k`.
 This is important when debugging methods such as `isDefEq`, and we want to generate the message
-before `k` updates the metavariable assignment. The class `ExceptToEmoji` is used to convert
-the result produced by `k` into an emoji (e.g., `💥️`, `✅️`, `❌️`).
+before `k` updates the metavariable assignment. The class `ExceptToTraceResult` is used to convert
+the result produced by `k` into a `TraceResult` (success/failure/error), which is stored in
+`TraceData.result?` and also used to select the emoji prefix (✅️/❌️/💥️).
 
 TODO: find better name for this function.
 -/
 @[inline]
 def withTraceNodeBefore [MonadRef m] [AddMessageContext m] [MonadOptions m]
-    [always : MonadAlwaysExcept ε m] [MonadLiftT BaseIO m] [ExceptToEmoji ε α] (cls : Name)
+    [always : MonadAlwaysExcept ε m] [MonadLiftT BaseIO m] [ExceptToTraceResult ε α] (cls : Name)
     (msg : Unit → m MessageData) (k : m α) (collapsed := true) (tag := "")
-    (mkResult? : Except ε α → Option TraceResult := fun res =>
-      let emoji := ExceptToEmoji.toEmoji res
-      if emoji == checkEmoji then some .success
-      else if emoji == bombEmoji then some .error
-      else some .failure) : m α := do
+    (mkResult : Except ε α → TraceResult := ExceptToTraceResult.toTraceResult) : m α := do
   let opts ← getOptions
   if !opts.hasTrace then
     return (← k)
@@ -417,9 +426,9 @@ where
     unless clsEnabled || aboveThresh do
       modifyTraces (oldTraces ++ ·)
       return (← MonadExcept.ofExcept res)
-    let emoji := ExceptToEmoji.toEmoji res
-    let mut msg := m!"{emoji} {msg}"
-    let mut data : TraceData := { cls, collapsed, tag, result? := mkResult? res }
+    let result := mkResult res
+    let mut msg := m!"{result.toEmoji} {msg}"
+    let mut data : TraceData := { cls, collapsed, tag, result? := some result }
     if trace.profiler.get opts then
       data := { data with startTime := start, stopTime := stop }
     addTraceNode oldTraces data ref msg

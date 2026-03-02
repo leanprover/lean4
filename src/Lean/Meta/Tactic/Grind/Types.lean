@@ -232,6 +232,10 @@ structure State where
   Cached anchors (aka stable hash codes) for terms in the `grind` state.
   -/
   anchors : PHashMap ExprPtr UInt64 := {}
+  /-- Persistent cache for `markNestedSubsingletons` and `markProof` traversals. -/
+  markSubsingletonCache : Std.HashMap ExprPtr Expr := {}
+  /-- Persistent cache for `unfoldReducible` via `transformWithCache`, ensuring pointer stability. -/
+  unfoldReducibleCache : Std.HashMap ExprStructEq Expr := {}
 
 instance : Nonempty State :=
   .intro {}
@@ -712,6 +716,8 @@ structure Canon.State where
   canon      : PHashMap Expr Expr := {}
   proofCanon : PHashMap Expr Expr := {}
   canonArg   : PHashMap CanonArgKey Expr := {}
+  /-- Persistent cache for `canonImpl` visit traversals. -/
+  visitCache : Std.HashMap ExprPtr Expr := {}
   deriving Inhabited
 
 /-- Trace information for a case split. -/

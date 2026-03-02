@@ -58,8 +58,9 @@ def preprocessImpl (e : Expr) : GoalM Simp.Result := do
   let e' ← instantiateMVars r.expr
   -- Remark: `simpCore` unfolds reducible constants, but it does not consistently visit all possible subterms.
   -- So, we must use the following `unfoldReducible` step. It is non-op in most cases
-  let e' ← Sym.unfoldReducible e'
+  let e' ← unfoldReducibleCached e'
   let e' ← abstractNestedProofs e'
+  let e' ← shareCommon e'
   let e' ← markNestedSubsingletons e'
   let e' ← eraseIrrelevantMData e'
   let e' ← foldProjs e'
@@ -70,6 +71,7 @@ def preprocessImpl (e : Expr) : GoalM Simp.Result := do
   let r' ← replacePreMatchCond e'
   let r ← r.mkEqTrans r'
   let e' := r'.expr
+  let e' ← shareCommon e'
   let e' ← canon e'
   let e' ← shareCommon e'
   trace_goal[grind.simp] "{e}\n===>\n{e'}"
@@ -98,6 +100,6 @@ but ensures assumptions made by `grind` are satisfied.
 -/
 def preprocessLight (e : Expr) : GoalM Expr := do
   let e ← instantiateMVars e
-  shareCommon (← canon (← normalizeLevels (← foldProjs (← eraseIrrelevantMData (← markNestedSubsingletons (← Sym.unfoldReducible e))))))
+  shareCommon (← canon (← normalizeLevels (← foldProjs (← eraseIrrelevantMData (← markNestedSubsingletons (← unfoldReducibleCached e))))))
 
 end Lean.Meta.Grind

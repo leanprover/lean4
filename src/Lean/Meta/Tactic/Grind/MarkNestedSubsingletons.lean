@@ -12,6 +12,14 @@ import Lean.Meta.Tactic.Grind.Util
 public section
 namespace Lean.Meta.Grind
 
+/-- Cached variant of `Sym.unfoldReducible` that persists the `transformWithCache` cache across calls,
+ensuring pointer stability for shared sub-expressions. -/
+def unfoldReducibleCached (e : Expr) : GrindM Expr := do
+  let cache := (← get).unfoldReducibleCache
+  let (e', cache') ← Meta.transformWithCache e cache (pre := fun e => Sym.unfoldReducibleStep e)
+  modify fun s => { s with unfoldReducibleCache := cache' }
+  return e'
+
 private abbrev M := StateRefT (Std.HashMap ExprPtr Expr) GrindM
 
 def isMarkedSubsingletonConst (e : Expr) : Bool := Id.run do
@@ -41,7 +49,9 @@ Recall that the congruence closure module has special support for them.
 -- TODO: consider other subsingletons in the future? We decided to not support them to avoid the overhead of
 -- synthesizing `Subsingleton` instances.
 partial def markNestedSubsingletons (e : Expr) : GrindM Expr := do profileitM Exception "grind mark subsingleton" (← getOptions) do
-  visit e |>.run' {}
+  let (r, cache') ← (visit e).run (← get).markSubsingletonCache
+  modify fun s => { s with markSubsingletonCache := cache' }
+  return r
 where
   visit (e : Expr) : M Expr := do
     if isMarkedSubsingletonApp e then
@@ -103,7 +113,7 @@ where
     -/
     /- We must also apply beta-reduction to improve the effectiveness of the congruence closure procedure. -/
     let e ← Core.betaReduce e
-    let e ← Sym.unfoldReducible e
+    let e ← unfoldReducibleCached e
     /- We must mask proofs occurring in `prop` too. -/
     let e ← visit e
     let e ← eraseIrrelevantMData e
@@ -123,6 +133,8 @@ def markProof (e : Expr) : GrindM Expr := do
   if e.isAppOf ``Grind.nestedProof then
     return e -- `e` is already marked
   else
-    markNestedProof e |>.run' {}
+    let (r, cache') ← (markNestedProof e).run (← get).markSubsingletonCache
+    modify fun s => { s with markSubsingletonCache := cache' }
+    return r
 
 end Lean.Meta.Grind

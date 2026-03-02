@@ -242,7 +242,9 @@ private def normOfNatArgs? (args : Array Expr) : MetaM (Option (Array Expr)) := 
 @[export lean_grind_canon]
 partial def canonImpl (e : Expr) : GoalM Expr := do profileitM Exception "grind canon" (← getOptions) do
   trace_goal[grind.debug.canon] "{e}"
-  visit e |>.run' {}
+  let (r, cache') ← (visit e).run (← get').visitCache
+  modify' fun s => { s with visitCache := cache' }
+  return r
 where
   visit (e : Expr) : StateRefT (Std.HashMap ExprPtr Expr) GoalM Expr := do
     unless e.isApp || e.isForall do return e

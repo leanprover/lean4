@@ -47,11 +47,11 @@ of `f`.
 **Marble diagram (without monadic effects):**
 
 ```text
-it                          ---a ---b ---c ---⊥
-it.scanWithPostcondition    -i -a'-ab'-abc'---⊥
+it                          ---a---b---c ---⊥
+it.scanWithPostcondition    -i-a'--b'--c'---⊥
 ```
 
-(given that `a' ← f i a'`, `ab' ← f a' b`, `abc' ← f ab' c'`)
+(given that `a' ← f i a'`, `b' ← f a' b`, `c' ← f ab' c'`)
 
 **Termination properties:**
 
@@ -85,11 +85,11 @@ If `f` is pure, then the simpler variant `it.scan` can be used instead.
 **Marble diagram (without monadic effects):**
 
 ```text
-it           ---a ---b ---c ---⊥
-it.scanM     -i -a'-ab'-abc'---⊥
+it           ---a---b --c ---⊥
+it.scanM     -i-a'--b'--c'---⊥
 ```
 
-(given that `a' ← f i a`, `ab' ← f a' b`, `abc' ← f ab' c`)
+(given that `a' ← f i a`, `b' ← f a' b`, `c' ← f ab' c`)
 
 **Termination properties:**
 

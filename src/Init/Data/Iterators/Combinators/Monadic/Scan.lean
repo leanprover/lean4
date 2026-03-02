@@ -49,9 +49,9 @@ structure ScanM  {β γ : Type w} {n : Type w → Type w''}
   /-- Whether we need to emit the accumulator (i.e. whether this is the first step)-/
   yieldAcc : Bool
 
-/-- Internal implementation of the `scanM` combinator. See `IterM.scanM` for the public API. -/
+/-- Intermediate implementation of the `IterM.scanM` combinator. See `IterM.scanM` for the main API. -/
 @[expose]
-public def IterM.InternalCombinators.scanM [MonadLiftT m n]
+public def IterM.Intermediate.scanM [MonadLiftT m n]
     (f : γ → β → PostconditionT n γ) (acc : γ) (yieldAcc : Bool) (it : IterM (α := α) m β) :
     IterM (α := ScanM α m f) n γ :=
   .mk ⟨it, acc, yieldAcc⟩
@@ -66,31 +66,34 @@ iterator `it`. This is mostly an internal implementation detail used to prove te
 -/
 inductive IsPlausibleStep (it : IterM (α := ScanM α m f) n γ) :
     IterStep (IterM (α := ScanM α m f) n γ) γ → Prop where
-  /-- When `yieldAcc` is true, the step yields the current accumulator and
-      the successor iterator is identical except with `yieldAcc` set to false.
+  /--
+  When `yieldAcc` is true, the step yields the current accumulator and the successor iterator is
+  identical except with `yieldAcc` set to false.
   -/
   | yieldAcc :
       it.internalState.yieldAcc = true →
       IsPlausibleStep it (.yield
-        (IterM.InternalCombinators.scanM f it.internalState.acc false it.internalState.inner)
+        (IterM.Intermediate.scanM f it.internalState.acc false it.internalState.inner)
          it.internalState.acc)
-  /-- When `yieldAcc` is false and the inner iterator yields `b` with successor `it'`,
-      the step yields an `out` satisfying `(f acc b).Property out`, and the successor
-      wraps `it'` with `out` as the new accumulator.
+  /--
+  When `yieldAcc` is false and the inner iterator yields `b` with successor `it'`, the step yields
+  an `out` satisfying `(f acc b).Property out`, and the successor wraps `it'` with `out` as the
+  new accumulator.
   -/
   | yieldNext : ∀ {it' b out},
       it.internalState.yieldAcc = false →
       it.internalState.inner.IsPlausibleStep (.yield it' b) →
       (f it.internalState.acc b).Property out →
-      IsPlausibleStep it (.yield (IterM.InternalCombinators.scanM f out false it') out)
-  /-- When `yieldAcc` is false and the inner iterator skips with successor `it'`,
-      the step skips and the successor wraps `it'` with the same accumulator.
+      IsPlausibleStep it (.yield (IterM.Intermediate.scanM f out false it') out)
+  /--
+  When `yieldAcc` is false and the inner iterator skips with successor `it'`, the step skips and
+  the successor wraps `it'` with the same accumulator.
   -/
   | skip : ∀ {it'},
       it.internalState.yieldAcc = false →
       it.internalState.inner.IsPlausibleStep (.skip it') →
       IsPlausibleStep it
-      (.skip (IterM.InternalCombinators.scanM f it.internalState.acc false it'))
+      (.skip (IterM.Intermediate.scanM f it.internalState.acc false it'))
   /-- When `yieldAcc` is false and the inner iterator is done, the step is done. -/
   | done :
       it.internalState.yieldAcc = false →
@@ -102,7 +105,7 @@ instance instIterator [Monad n] : Iterator (ScanM α m f) n γ where
   step it := do
       if h : it.internalState.yieldAcc = true then
         pure <| .deflate <| .yield
-          (IterM.InternalCombinators.scanM f it.internalState.acc false it.internalState.inner)
+          (IterM.Intermediate.scanM f it.internalState.acc false it.internalState.inner)
           it.internalState.acc
           (.yieldAcc h)
       else
@@ -110,12 +113,12 @@ instance instIterator [Monad n] : Iterator (ScanM α m f) n γ where
         | .yield inner' b hp => do
           let ⟨newAcc, h_acc⟩ ← (f it.internalState.acc b).operation
           pure <| .deflate <| .yield
-            (IterM.InternalCombinators.scanM f newAcc false inner')
+            (IterM.Intermediate.scanM f newAcc false inner')
             newAcc
             (.yieldNext (Bool.of_not_eq_true h) hp h_acc)
         | .skip inner' hp =>
           pure <| .deflate <| .skip
-            (IterM.InternalCombinators.scanM f it.internalState.acc false inner')
+            (IterM.Intermediate.scanM f it.internalState.acc false inner')
             (.skip (Bool.of_not_eq_true h) hp)
         | .done hp =>
           pure <| .deflate <| .done (.done (Bool.of_not_eq_true h) hp)
@@ -148,8 +151,8 @@ private def instFinitenessRelation [Monad n] [Finite α m] : FinitenessRelation 
   subrelation h := by
     obtain ⟨step, hstep, hplaus⟩ := h
     cases hplaus <;> cases hstep
-    case yieldAcc hya => simp [FinRel.of_yieldAcc, IterM.InternalCombinators.scanM, hya]
-    all_goals apply FinRel.of_inner <;> simp only [IterM.InternalCombinators.scanM, *]
+    case yieldAcc hya => simp [FinRel.of_yieldAcc, IterM.Intermediate.scanM, hya]
+    all_goals apply FinRel.of_inner <;> simp only [IterM.Intermediate.scanM, *]
     . exact IterM.isPlausibleSuccessorOf_of_yield ‹_›
     . exact IterM.isPlausibleSuccessorOf_of_skip ‹_›
 
@@ -192,11 +195,11 @@ of `f`.
 **Marble diagram (without monadic effects):**
 
 ```text
-it                          ---a ---b ---c ---⊥
-it.scanWithPostcondition    -i -a'-ab'-abc'---⊥
+it                          ---a---b---c ---⊥
+it.scanWithPostcondition    -i-a'--b'--c'---⊥
 ```
 
-(given that `a' ← f i a'`, `ab' ← f a' b`, `abc' ← f ab' c'`)
+(given that `a' ← f i a'`, `b' ← f a' b`, `c' ← f ab' c'`)
 
 **Termination properties:**
 
@@ -218,7 +221,7 @@ For each value emitted by the base iterator `it`, this combinator calls `f`.
 @[inline, expose]
 def IterM.scanWithPostcondition {n : Type w → Type w''} [MonadLiftT m n]
     (f : γ → β → PostconditionT n γ) (acc : γ) (it : IterM (α := α) m β) :=
-  IterM.InternalCombinators.scanM (n := n) f acc true it
+  IterM.Intermediate.scanM (n := n) f acc true it
 
 /--
 If `it` is an iterator, then `it.scanM f acc` is another iterator that applies a monadic
@@ -233,11 +236,11 @@ If `f` is pure, then the simpler variant `it.scan` can be used instead.
 **Marble diagram (without monadic effects):**
 
 ```text
-it           ---a ---b ---c ---⊥
-it.scanM     -i -a'-ab'-abc'---⊥
+it          ---a---b---c ---⊥
+it.scanM    -i-a'--b'--c'---⊥
 ```
 
-(given that `a' ← f i a`, `ab' ← f a' b`, `abc' ← f ab' c`)
+(given that `a' ← f i a'`, `b' ← f a' b`, `c' ← f ab' c'`)
 
 **Termination properties:**
 
@@ -268,11 +271,11 @@ In situations where `f` is monadic, use `scanM` instead.
 **Marble diagram:**
 
 ```text
-it         ---a ---b ---c ---⊥
-it.scan    -i -a'-ab'-abc'---⊥
+it           ---a---b---c---⊥
+it.scan      -i-a'--b'--c'--⊥
 ```
 
-(given that `f i a = a'`, `f a' b = ab'`, `f ab' c = abc'`)
+(given that `a' := f i a`, `b' := f a' b`, `c' := f ab' c`)
 
 **Termination properties:**
 

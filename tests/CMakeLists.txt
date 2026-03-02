@@ -222,32 +222,6 @@ set(PART2 "")
 ## Tests and benchmarks ##
 ##########################
 
-# LEAN COMPILER TESTS
-file(GLOB LEANCOMPTESTS "${LEAN_SOURCE_DIR}/../tests/compiler/*.lean")
-foreach(T ${LEANCOMPTESTS})
-  get_filename_component(T_NAME ${T} NAME)
-  cmake_path(RELATIVE_PATH T BASE_DIRECTORY ${LEAN_SOURCE_DIR}/.. OUTPUT_VARIABLE T_PATH)
-  add_test(
-    NAME "${T_PATH}"
-    WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/compiler"
-    COMMAND bash -c "${TEST_VARS} ./test_single.sh ${T_NAME}"
-  )
-endforeach(T)
-
-# LEAN INTERPRETER TESTS
-file(GLOB LEANINTERPTESTS "${LEAN_SOURCE_DIR}/../tests/compiler/*.lean")
-foreach(T ${LEANINTERPTESTS})
-  if(NOT EXISTS "${T}.no_interpreter")
-    get_filename_component(T_NAME ${T} NAME)
-    cmake_path(RELATIVE_PATH T BASE_DIRECTORY ${LEAN_SOURCE_DIR}/.. OUTPUT_VARIABLE T_PATH)
-    add_test(
-      NAME "${T_PATH} (interpreted)"
-      WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/compiler"
-      COMMAND bash -c "${TEST_VARS} ./test_single_interpret.sh ${T_NAME}"
-    )
-  endif()
-endforeach(T)
-
 # LEAN BENCHMARK TESTS
 # do not test all .lean files in bench/
 file(GLOB LEANBENCHTESTS "${LEAN_SOURCE_DIR}/../tests/bench/*.lean.expected.out")

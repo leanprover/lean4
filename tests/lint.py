@@ -18,18 +18,6 @@ def nag(reason: str, path: Path, fatal: bool = True) -> None:
         ERROR = True
 
 
-# Directories that should no longer be used but still work for now.
-
-for dir in ("tests/compiler",):
-    for glob in (
-        f"{dir}/*.lean",
-        f"{dir}/*.expected.out",
-        f"{dir}/*.expected.ret",
-    ):
-        for file in Path().glob(glob):
-            nag("deprecated dir", file, fatal=False)
-
-
 # Files and directories that will no longer work.
 
 for file in Path().glob("tests/speedcenter.exec.velcom.yaml"):
@@ -39,7 +27,7 @@ for dir in (
     "tests/bench-radar",
     "tests/bench/cbv",
     "tests/bench/inundation",
-    "tests/compiler/foreign",
+    "tests/compiler",
     "tests/lean/run",
     "tests/lean/trust0",
 ):

@@ -20,10 +20,7 @@ def nag(reason: str, path: Path, fatal: bool = True) -> None:
 
 # Directories that should no longer be used but still work for now.
 
-for dir in (
-    "tests/compiler",
-    "tests/lean/run",
-):
+for dir in ("tests/compiler",):
     for glob in (
         f"{dir}/*.lean",
         f"{dir}/*.expected.out",
@@ -38,15 +35,17 @@ for dir in (
 for file in Path().glob("tests/speedcenter.exec.velcom.yaml"):
     nag("removed file", file)
 
-for file in Path().glob("tests/bench-radar/*"):
-    nag("removed dir", file)
-
 for dir in (
+    "tests/bench-radar",
     "tests/bench/cbv",
     "tests/bench/inundation",
-    "tests/lean",
+    "tests/lean/run",
     "tests/lean/trust0",
 ):
+    for file in Path().glob(f"{dir}/*"):
+        nag("removed dir", file)
+
+for dir in ("tests/lean",):
     for glob in (
         f"{dir}/*.lean",
         f"{dir}/*.expected.out",

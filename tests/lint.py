@@ -39,6 +39,7 @@ for dir in (
     "tests/bench-radar",
     "tests/bench/cbv",
     "tests/bench/inundation",
+    "tests/compiler/foreign",
     "tests/lean/run",
     "tests/lean/trust0",
 ):

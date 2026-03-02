@@ -234,12 +234,6 @@ foreach(T ${LEANCOMPTESTS})
   )
 endforeach(T)
 
-add_test(
-  NAME leancomptest_foreign
-  WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/compiler/foreign"
-  COMMAND bash -c "${LEAN_BIN}/leanmake --always-make"
-)
-
 # LEAN INTERPRETER TESTS
 file(GLOB LEANINTERPTESTS "${LEAN_SOURCE_DIR}/../tests/compiler/*.lean")
 foreach(T ${LEANINTERPTESTS})

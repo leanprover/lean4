@@ -1978,6 +1978,7 @@ theorem Pos.ne_of_lt {s : String} {p q : s.Pos} : p < q → p ≠ q := by
 theorem Pos.lt_of_lt_of_le {s : String} {p q r : s.Pos} : p < q → q ≤ r → p < r := by
   simpa [Pos.lt_iff, Pos.le_iff] using Pos.Raw.lt_of_lt_of_le
 
+@[simp]
 theorem Pos.le_endPos {s : String} (p : s.Pos) : p ≤ s.endPos := by
   simpa [Pos.le_iff] using p.isValid.le_rawEndPos
 

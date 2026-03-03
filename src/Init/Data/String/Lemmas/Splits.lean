@@ -56,11 +56,15 @@ theorem Pos.Splits.cast {s₁ s₂ : String} {p : s₁.Pos} {t₁ t₂ : String}
   splits_cast_iff.mpr
 
 @[simp]
-theorem Slice.Pos.splits_cast_iff {s₁ s₂ : Slice} {h : s₁ = s₂} {p : s₁.Pos} {t₁ t₂ : String} :
+theorem Slice.Pos.splits_cast_iff {s₁ s₂ : Slice} {h : s₁.copy = s₂.copy} {p : s₁.Pos}
+    {t₁ t₂ : String} :
     (p.cast h).Splits t₁ t₂ ↔ p.Splits t₁ t₂ := by
-  subst h; simp
+  constructor
+  · intro ⟨h₁, h₂⟩; exact ⟨h ▸ h₁, by simpa using h₂⟩
+  · intro ⟨h₁, h₂⟩; exact ⟨h.symm ▸ h₁, by simpa using h₂⟩
 
-theorem Slice.Pos.Splits.cast {s₁ s₂ : Slice} {p : s₁.Pos} {t₁ t₂ : String} (h : s₁ = s₂) :
+theorem Slice.Pos.Splits.cast {s₁ s₂ : Slice} {p : s₁.Pos} {t₁ t₂ : String}
+    (h : s₁.copy = s₂.copy) :
     p.Splits t₁ t₂ → (p.cast h).Splits t₁ t₂ :=
   splits_cast_iff.mpr
 

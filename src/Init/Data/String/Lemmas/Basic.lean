@@ -205,9 +205,10 @@ theorem Slice.copy_pos {s : Slice} {p : Pos.Raw} {h : Pos.Raw.IsValidForSlice s 
   simp [String.Pos.ext_iff]
 
 @[simp]
-theorem Slice.cast_pos {s t : Slice} {p : Pos.Raw} {h : Pos.Raw.IsValidForSlice s p} {h' : s = t} :
-    (s.pos p h).cast h' = t.pos p (h' ▸ h) := by
-  simp [Pos.ext_iff]
+theorem Slice.cast_pos {s t : Slice} {p : Pos.Raw} {h : Pos.Raw.IsValidForSlice s p}
+    {h' : s.copy = t.copy} {h'' : Pos.Raw.IsValidForSlice t p} :
+    (s.pos p h).cast h' = t.pos p h'' := by
+  simp [Slice.Pos.ext_iff]
 
 @[simp]
 theorem cast_pos {s t : String} {p : Pos.Raw} {h : Pos.Raw.IsValid s p} {h' : s = t} :

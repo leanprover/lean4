@@ -228,17 +228,17 @@ Given a subslice of {name}`s` and a proof that {lean}`s = t`, obtain the corresp
 -/
 @[inline]
 def cast {s t : Slice} (h : s = t) (sl : s.Subslice) : t.Subslice where
-  startInclusive := sl.startInclusive.cast h
-  endExclusive := sl.endExclusive.cast h
+  startInclusive := sl.startInclusive.cast (congrArg Slice.copy h)
+  endExclusive := sl.endExclusive.cast (congrArg Slice.copy h)
   startInclusive_le_endExclusive := by simpa using sl.startInclusive_le_endExclusive
 
 @[simp]
 theorem startInclusive_cast {s t : Slice} {h : s = t} {sl : s.Subslice} :
-    (sl.cast h).startInclusive = sl.startInclusive.cast h := (rfl)
+    (sl.cast h).startInclusive = sl.startInclusive.cast (congrArg Slice.copy h) := (rfl)
 
 @[simp]
 theorem endExclusive_cast {s t : Slice} {h : s = t} {sl : s.Subslice} :
-    (sl.cast h).endExclusive = sl.endExclusive.cast h := (rfl)
+    (sl.cast h).endExclusive = sl.endExclusive.cast (congrArg Slice.copy h) := (rfl)
 
 @[simp]
 theorem cast_rfl {s : Slice} : Subslice.cast (s := s) rfl = id := by

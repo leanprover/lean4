@@ -1724,14 +1724,15 @@ def pos! (s : String) (off : Pos.Raw) : s.Pos :=
 @[simp]
 theorem offset_pos {s : String} {off : Pos.Raw} {h} : (s.pos off h).offset = off := rfl
 
-/-- Constructs a valid position on `t` from a valid position on `s` and a proof that `s = t`. -/
+/-- Constructs a valid position on `t` from a valid position on `s` and a proof that
+`s.copy = t.copy`. -/
 @[inline]
-def Slice.Pos.cast {s t : Slice} (pos : s.Pos) (h : s = t) : t.Pos where
+def Slice.Pos.cast {s t : Slice} (pos : s.Pos) (h : s.copy = t.copy) : t.Pos where
   offset := pos.offset
-  isValidForSlice := h ▸ pos.isValidForSlice
+  isValidForSlice := Pos.Raw.isValid_copy_iff.mp (h ▸ Pos.Raw.isValid_copy_iff.mpr pos.isValidForSlice)
 
 @[simp]
-theorem Slice.Pos.offset_cast {s t : Slice} {pos : s.Pos} {h : s = t} :
+theorem Slice.Pos.offset_cast {s t : Slice} {pos : s.Pos} {h : s.copy = t.copy} :
     (pos.cast h).offset = pos.offset := (rfl)
 
 @[simp]
@@ -1739,14 +1740,14 @@ theorem Slice.Pos.cast_rfl {s : Slice} {pos : s.Pos} : pos.cast rfl = pos :=
   Slice.Pos.ext (by simp)
 
 @[simp]
-theorem Slice.Pos.cast_le_cast_iff {s t : Slice} {pos pos' : s.Pos} {h : s = t} :
+theorem Slice.Pos.cast_le_cast_iff {s t : Slice} {pos pos' : s.Pos} {h : s.copy = t.copy} :
     pos.cast h ≤ pos'.cast h ↔ pos ≤ pos' := by
-  cases h; simp
+  simp [Slice.Pos.le_iff]
 
 @[simp]
-theorem Slice.Pos.cast_lt_cast_iff {s t : Slice} {pos pos' : s.Pos} {h : s = t} :
+theorem Slice.Pos.cast_lt_cast_iff {s t : Slice} {pos pos' : s.Pos} {h : s.copy = t.copy} :
     pos.cast h < pos'.cast h ↔ pos < pos' := by
-  cases h; simp
+  simp [Slice.Pos.lt_iff]
 
 /-- Constructs a valid position on `t` from a valid position on `s` and a proof that `s = t`. -/
 @[inline]
@@ -2626,7 +2627,7 @@ taking `s.slice! p₀ p₁` already panicked. -/
 @[inline]
 def Slice.Pos.ofSlice! {s : Slice} {p₀ p₁ : s.Pos} (pos : (s.slice! p₀ p₁).Pos) : s.Pos :=
   if h : p₀ ≤ p₁ then
-    ofSlice (h := h) (pos.cast slice_eq_slice!.symm)
+    ofSlice (h := h) (pos.cast (congrArg Slice.copy slice_eq_slice!.symm))
   else
     panic! "Starting position must be less than or equal to end position."
 
@@ -2644,7 +2645,7 @@ taking `s.slice! p₀ p₁` already panicked or if the position is not between `
 def Slice.Pos.slice! {s : Slice} (pos : s.Pos) (p₀ p₁ : s.Pos) :
     (s.slice! p₀ p₁).Pos :=
   if h : p₀ ≤ pos ∧ pos ≤ p₁ then
-    (pos.slice _ _ h.1 h.2).cast slice_eq_slice!
+    (pos.slice _ _ h.1 h.2).cast (congrArg Slice.copy slice_eq_slice!)
   else
     panic! "Starting position must be less than or equal to end position and position must be between starting position and end position."
 

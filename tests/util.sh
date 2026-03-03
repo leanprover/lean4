@@ -1,4 +1,4 @@
-set -eu
+set -e
 
 DIFF="diff -au --strip-trailing-cr --color=always"
 ulimit -S -s ${TEST_STACK_SIZE:-8192}

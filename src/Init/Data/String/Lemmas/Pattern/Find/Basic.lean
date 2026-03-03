@@ -90,15 +90,40 @@ theorem Pattern.Model.posFind?_eq_some_iff {ρ : Type} {pat : ρ} [ForwardPatter
     [∀ s, IteratorLoop (σ s) Id Id] [∀ s, LawfulIteratorLoop (σ s) Id Id]
     [ToForwardSearcher pat σ] [LawfulToForwardSearcherModel pat] {s : Slice} {pos pos' : s.Pos} :
     pos.find? pat = some pos' ↔ pos ≤ pos' ∧ MatchesAt pat pos' ∧ (∀ pos'', pos ≤ pos'' → pos'' < pos' → ¬ MatchesAt pat pos'') := by
-  simp [Pos.find?_eq_find?_sliceFrom, Option.map_eq_some_iff, Pattern.Model.find?_eq_some_iff,
+  simp only [Pos.find?_eq_find?_sliceFrom, Option.map_eq_some_iff, find?_eq_some_iff,
     matchesAt_iff_matchesAt_ofSliceFrom]
   refine ⟨?_, ?_⟩
   · rintro ⟨pos', ⟨h₁, h₂⟩, rfl⟩
     refine ⟨Pos.le_ofSliceFrom, h₁, fun p hp₁ hp₂ => ?_⟩
-    have := h₂ (Pos.sliceFrom _ _ hp₁) (Pos.lt_ofSliceFrom_iff)
+    simpa using h₂ (Pos.sliceFrom _ _ hp₁) (Pos.sliceFrom_lt_iff.2 hp₂)
+  · rintro ⟨h₁, h₂, h₃⟩
+    refine ⟨Pos.sliceFrom _ _ h₁, ⟨by simpa using h₂, fun p hp₁ hp₂ => ?_⟩, by simp⟩
+    exact h₃ (Pos.ofSliceFrom p) Slice.Pos.le_ofSliceFrom (Pos.lt_sliceFrom_iff.1 hp₁) hp₂
 
-  · sorry
+theorem Pattern.Model.posFind?_eq_none_iff {ρ : Type} {pat : ρ} [ForwardPatternModel pat] {σ : Slice → Type}
+    [∀ s, Iterator (σ s) Id (SearchStep s)] [∀ s, Iterators.Finite (σ s) Id]
+    [∀ s, IteratorLoop (σ s) Id Id] [∀ s, LawfulIteratorLoop (σ s) Id Id]
+    [ToForwardSearcher pat σ] [LawfulToForwardSearcherModel pat] {s : Slice} {pos : s.Pos} :
+    pos.find? pat = none ↔ ∀ pos', pos ≤ pos' → ¬ MatchesAt pat pos' := by
+  rw [Pos.find?_eq_find?_sliceFrom, Option.map_eq_none_iff, Pattern.Model.find?_eq_none_iff]
+  simpa only [matchesAt_iff_matchesAt_ofSliceFrom] using ⟨fun h p hp =>
+    by simpa using h (Pos.sliceFrom _ _ hp), fun h p => by simpa using h _ Pos.le_ofSliceFrom⟩
 
 end Slice
+
+theorem Pos.find?_eq_find?_toSlice {ρ : Type} {pat : ρ} {σ : Slice → Type}
+    [∀ s, Iterator (σ s) Id (SearchStep s)] [∀ s, IteratorLoop (σ s) Id Id] [ToForwardSearcher pat σ]
+    {s : String} {p : s.Pos} : p.find? pat = (p.toSlice.find? pat).map Pos.ofToSlice :=
+  (rfl)
+
+theorem find?_eq_find?_toSlice {ρ : Type} {pat : ρ} {σ : Slice → Type}
+    [∀ s, Iterator (σ s) Id (SearchStep s)] [∀ s, IteratorLoop (σ s) Id Id] [ToForwardSearcher pat σ]
+    {s : String} : s.find? pat = (s.toSlice.find? pat).map Pos.ofToSlice :=
+  (rfl)
+
+theorem contains_eq_contains_toSlice {ρ : Type} {pat : ρ} {σ : Slice → Type}
+    [∀ s, Iterator (σ s) Id (SearchStep s)] [∀ s, IteratorLoop (σ s) Id Id] [ToForwardSearcher pat σ]
+    {s : String} : s.contains pat = s.toSlice.contains pat :=
+  (rfl)
 
 end String

@@ -14,6 +14,7 @@ import Init.Data.String.Lemmas.Order
 import Init.Data.String.Termination
 import Init.Data.String.Lemmas.Iterate
 import Init.Grind
+import Init.Data.Option.Lemmas
 
 namespace String.Slice
 
@@ -27,4 +28,18 @@ theorem contains_char_eq {c : Char} {s : Slice} : s.contains c = decide (c ∈ s
   rw [Bool.eq_iff_iff, Pattern.Model.contains_eq_true_iff]
   simp [Pattern.Model.Char.matchesAt_iff, mem_toList_copy_iff_exists_get]
 
-end String.Slice
+end Slice
+
+theorem find?_char_eq_some_iff {c : Char} {s : String} {pos : s.Pos} :
+    s.find? c = some pos ↔
+      ∃ h, pos.get h = c ∧ ∀ pos', (h' : pos' < pos) → pos'.get (Pos.ne_endPos_of_lt h') ≠ c := by
+  simp [find?_eq_find?_toSlice, Option.map_eq_some_iff, Slice.find?_char_eq_some_iff]
+  refine ⟨?_, ?_⟩
+  · rintro ⟨pos, ⟨⟨h, rfl⟩, h'⟩, rfl⟩
+    refine ⟨⟨by simpa [← Pos.ofToSlice_inj] using h, by simp [Pos.get_ofToSlice]⟩, ?_⟩
+    sorry
+  · sorry
+
+
+
+end String

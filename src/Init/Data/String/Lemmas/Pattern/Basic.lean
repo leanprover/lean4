@@ -168,15 +168,9 @@ theorem IsLongestMatchAt.eq {pat : ρ} [ForwardPatternModel pat] {s : Slice} {st
     endPos = endPos' := by
   simpa using h.isLongestMatch_sliceFrom.eq h'.isLongestMatch_sliceFrom
 
-theorem IsLongestMatchAt.ofSliceFrom {pat : ρ} [ForwardPatternModel pat] {s : Slice} {base : s.Pos}
-    {startPos endPos : (s.sliceFrom base).Pos} (h : IsLongestMatchAt pat startPos endPos) :
-    IsLongestMatchAt pat (Pos.ofSliceFrom startPos) (Pos.ofSliceFrom endPos) where
-  le := by simpa using h.le
-  isLongestMatch_sliceFrom := by
-    have := h.isLongestMatch_sliceFrom
-    sorry
-
-
+theorem isLongtestMatchAt_iff_isLongestMatchAt_ofSliceFrom {pat : ρ} [ForwardPatternModel pat]
+    {s : Slice} {base : s.Pos} {startPos endPos : (s.sliceFrom base).Pos} :
+    IsLongestMatchAt pat startPos endPos ↔ IsLongestMatchAt pat (Pos.ofSliceFrom startPos) (Pos.ofSliceFrom endPos) := sorry
 
 theorem IsLongestMatch.isLongestMatchAt_ofSliceFrom {pat : ρ} [ForwardPatternModel pat] {s : Slice}
     {p₀ : s.Pos} {pos : (s.sliceFrom p₀).Pos} (h : IsLongestMatch pat pos) :
@@ -214,10 +208,6 @@ theorem not_matchesAt_endPos {pat : ρ} [ForwardPatternModel pat] {s : Slice} :
   simp only [matchesAt_iff_exists_isMatch, Pos.endPos_le, exists_prop_eq]
   intro h
   simpa [← Pos.ofSliceFrom_inj] using h.ne_startPos
-
-theorem MatchesAt.ofSliceFrom {pat : ρ} [ForwardPatternModel pat] {s : Slice} {base : s.Pos}
-    {pos : (s.sliceFrom base).Pos} (h : MatchesAt pat pos) : MatchesAt pat (Pos.ofSliceFrom pos) :=
-  sorry
 
 theorem matchesAt_iff_matchesAt_ofSliceFrom {pat : ρ} [ForwardPatternModel pat] {s : Slice} {base : s.Pos}
     {pos : (s.sliceFrom base).Pos} : MatchesAt pat pos ↔ MatchesAt pat (Pos.ofSliceFrom pos) := sorry

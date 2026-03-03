@@ -73,4 +73,17 @@ public theorem lawfulForwardPatternModel {pat : Slice} (hpat : pat.isEmpty = fal
 
 end Model.ForwardSliceSearcher
 
+namespace Model.ForwardStringSearcher
+
+open Pattern.ForwardSliceSearcher
+
+public theorem lawfulForwardPatternModel {pat : String} (hpat : pat ≠ "") :
+    LawfulForwardPatternModel pat where
+  dropPrefixOfNonempty?_eq h := rfl
+  startsWith_eq s := isSome_dropPrefix?.symm
+  dropPrefix?_eq_some_iff pos := by
+    simp [ForwardPattern.dropPrefix?, dropPrefix?_eq_some_iff, isLongestMatch_iff hpat]
+
+end Model.ForwardStringSearcher
+
 end String.Slice.Pattern

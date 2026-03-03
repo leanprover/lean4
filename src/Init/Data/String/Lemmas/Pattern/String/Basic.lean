@@ -125,4 +125,105 @@ theorem le_of_matchesAt {pat s : Slice} {pos : s.Pos} (h : pat.isEmpty = false)
 
 end ForwardSliceSearcher
 
+namespace ForwardStringSearcher
+
+instance {pat : String} : ForwardPatternModel pat where
+  Matches s := s ≠ "" ∧ s = pat
+  not_matches_empty := by simp
+
+instance {pat : String} : NoPrefixForwardPatternModel pat :=
+  .of_length_eq (by simp +contextual [ForwardPatternModel.Matches])
+
+theorem isMatch_iff_slice {pat : String} {s : Slice} {pos : s.Pos} :
+    IsMatch (ρ := String) pat pos ↔ IsMatch (ρ := Slice) pat.toSlice pos := by
+  simp only [Model.isMatch_iff, ForwardPatternModel.Matches, copy_toSlice]
+
+theorem isLongestMatch_iff_slice {pat : String} {s : Slice} {pos : s.Pos} :
+    IsLongestMatch (ρ := String) pat pos ↔ IsLongestMatch (ρ := Slice) pat.toSlice pos where
+  mp h := ⟨isMatch_iff_slice.1 h.isMatch, fun p hp hm => h.not_isMatch p hp (isMatch_iff_slice.2 hm)⟩
+  mpr h := ⟨isMatch_iff_slice.2 h.isMatch, fun p hp hm => h.not_isMatch p hp (isMatch_iff_slice.1 hm)⟩
+
+theorem isLongestMatchAt_iff_slice {pat : String} {s : Slice} {pos₁ pos₂ : s.Pos} :
+    IsLongestMatchAt (ρ := String) pat pos₁ pos₂ ↔
+      IsLongestMatchAt (ρ := Slice) pat.toSlice pos₁ pos₂ := by
+  simp [Model.isLongestMatchAt_iff, isLongestMatch_iff_slice]
+
+theorem matchesAt_iff_slice {pat : String} {s : Slice} {pos : s.Pos} :
+    MatchesAt (ρ := String) pat pos ↔ MatchesAt (ρ := Slice) pat.toSlice pos := by
+  simp [matchesAt_iff_exists_isLongestMatchAt, isLongestMatchAt_iff_slice]
+
+private theorem toSlice_isEmpty (h : pat ≠ "") : pat.toSlice.isEmpty = false := by
+  rwa [isEmpty_toSlice, isEmpty_eq_false_iff]
+
+theorem isMatch_iff {pat : String} {s : Slice} {pos : s.Pos} (h : pat ≠ "") :
+    IsMatch pat pos ↔ (s.sliceTo pos).copy = pat := by
+  rw [isMatch_iff_slice, ForwardSliceSearcher.isMatch_iff (toSlice_isEmpty h)]
+  simp
+
+theorem isLongestMatch_iff {pat : String} {s : Slice} {pos : s.Pos} (h : pat ≠ "") :
+    IsLongestMatch pat pos ↔ (s.sliceTo pos).copy = pat := by
+  rw [isLongestMatch_iff_isMatch, isMatch_iff h]
+
+theorem isLongestMatchAt_iff {pat : String} {s : Slice} {pos₁ pos₂ : s.Pos} (h : pat ≠ "") :
+    IsLongestMatchAt pat pos₁ pos₂ ↔ ∃ h, (s.slice pos₁ pos₂ h).copy = pat := by
+  rw [isLongestMatchAt_iff_slice,
+    ForwardSliceSearcher.isLongestMatchAt_iff (toSlice_isEmpty h)]
+  simp
+
+theorem isLongestMatchAt_iff_splits {pat : String} {s : Slice} {pos₁ pos₂ : s.Pos}
+    (h : pat ≠ "") :
+    IsLongestMatchAt pat pos₁ pos₂ ↔
+      ∃ t₁ t₂, pos₁.Splits t₁ (pat ++ t₂) ∧ pos₂.Splits (t₁ ++ pat) t₂ := by
+  rw [isLongestMatchAt_iff_slice,
+    ForwardSliceSearcher.isLongestMatchAt_iff_splits (toSlice_isEmpty h)]
+  simp
+
+theorem isLongestMatchAt_iff_extract {pat : String} {s : Slice} {pos₁ pos₂ : s.Pos}
+    (h : pat ≠ "") :
+    IsLongestMatchAt pat pos₁ pos₂ ↔
+      s.copy.toByteArray.extract pos₁.offset.byteIdx pos₂.offset.byteIdx = pat.toByteArray := by
+  rw [isLongestMatchAt_iff_slice,
+    ForwardSliceSearcher.isLongestMatchAt_iff_extract (toSlice_isEmpty h)]
+  simp
+
+theorem offset_of_isLongestMatchAt {pat : String} {s : Slice} {pos₁ pos₂ : s.Pos}
+    (h : pat ≠ "") (h' : IsLongestMatchAt pat pos₁ pos₂) :
+    pos₂.offset = pos₁.offset.increaseBy pat.utf8ByteSize := by
+  rw [show pat.utf8ByteSize = pat.toSlice.utf8ByteSize from utf8ByteSize_toSlice.symm]
+  exact ForwardSliceSearcher.offset_of_isLongestMatchAt (toSlice_isEmpty h)
+    (isLongestMatchAt_iff_slice.1 h')
+
+theorem matchesAt_iff_splits {pat : String} {s : Slice} {pos : s.Pos} (h : pat ≠ "") :
+    MatchesAt pat pos ↔ ∃ t₁ t₂, pos.Splits t₁ (pat ++ t₂) := by
+  rw [matchesAt_iff_slice,
+    ForwardSliceSearcher.matchesAt_iff_splits (toSlice_isEmpty h)]
+  simp
+
+theorem matchesAt_iff_isLongestMatchAt {pat : String} {s : Slice} {pos : s.Pos}
+    (h : pat ≠ "") :
+    MatchesAt pat pos ↔ ∃ (h : (pos.offset.increaseBy pat.utf8ByteSize).IsValidForSlice s),
+      IsLongestMatchAt pat pos (s.pos _ h) := by
+  have key := ForwardSliceSearcher.matchesAt_iff_isLongestMatchAt (pat := pat.toSlice)
+    (toSlice_isEmpty h) (pos := pos)
+  simp only [utf8ByteSize_toSlice, ← isLongestMatchAt_iff_slice] at key
+  rwa [matchesAt_iff_slice]
+
+theorem matchesAt_iff_getElem {pat : String} {s : Slice} {pos : s.Pos} (h : pat ≠ "") :
+    MatchesAt pat pos ↔
+      ∃ (h : pos.offset.byteIdx + pat.toByteArray.size ≤ s.copy.toByteArray.size),
+        ∀ (j), (hj : j < pat.toByteArray.size) →
+          pat.toByteArray[j] = s.copy.toByteArray[pos.offset.byteIdx + j] := by
+  have key := ForwardSliceSearcher.matchesAt_iff_getElem (pat := pat.toSlice)
+    (toSlice_isEmpty h) (pos := pos)
+  simp only [copy_toSlice] at key
+  rwa [matchesAt_iff_slice]
+
+theorem le_of_matchesAt {pat : String} {s : Slice} {pos : s.Pos} (h : pat ≠ "")
+    (h' : MatchesAt pat pos) : pos.offset.increaseBy pat.utf8ByteSize ≤ s.rawEndPos := by
+  rw [show pat.utf8ByteSize = pat.toSlice.utf8ByteSize from utf8ByteSize_toSlice.symm]
+  exact ForwardSliceSearcher.le_of_matchesAt (toSlice_isEmpty h)
+    (matchesAt_iff_slice.1 h')
+
+end ForwardStringSearcher
+
 end String.Slice.Pattern.Model

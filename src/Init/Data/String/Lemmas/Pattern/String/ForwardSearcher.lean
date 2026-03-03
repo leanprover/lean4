@@ -565,4 +565,33 @@ public theorem lawfulToForwardSearcherModel {pat : Slice} (hpat : pat.isEmpty = 
 
 end ForwardSliceSearcher
 
+namespace ForwardStringSearcher
+
+private theorem isValidSearchFrom_iff_slice {pat : String} {s : Slice} {pos : s.Pos}
+    {l : List (SearchStep s)} :
+    IsValidSearchFrom (ρ := String) pat pos l ↔
+      IsValidSearchFrom (ρ := Slice) pat.toSlice pos l := by
+  constructor
+  · intro h
+    induction h with
+    | endPos => exact .endPos
+    | matched hm _ ih => exact .matched (isLongestMatchAt_iff_slice.1 hm) ih
+    | mismatched hlt hnm _ ih =>
+      exact .mismatched hlt (fun p hp₁ hp₂ hm => hnm p hp₁ hp₂ (matchesAt_iff_slice.2 hm)) ih
+  · intro h
+    induction h with
+    | endPos => exact .endPos
+    | matched hm _ ih => exact .matched (isLongestMatchAt_iff_slice.2 hm) ih
+    | mismatched hlt hnm _ ih =>
+      exact .mismatched hlt (fun p hp₁ hp₂ hm => hnm p hp₁ hp₂ (matchesAt_iff_slice.1 hm)) ih
+
+public theorem lawfulToForwardSearcherModel {pat : String} (hpat : pat ≠ "") :
+    LawfulToForwardSearcherModel pat where
+  isValidSearchFrom_toList s :=
+    isValidSearchFrom_iff_slice.2
+      ((ForwardSliceSearcher.lawfulToForwardSearcherModel
+        (by rwa [isEmpty_toSlice, isEmpty_eq_false_iff])).isValidSearchFrom_toList s)
+
+end ForwardStringSearcher
+
 end String.Slice.Pattern.Model

@@ -1,29 +1,29 @@
 {"textDocument": {"uri": "file:///compNamespace.lean"},
- "position": {"line": 5, "character": 14}}
+ "position": {"line": 5, "character": 15}}
 {"items":
  [{"label": "LongNamespaceExample",
    "kind": 9,
    "detail": "namespace",
-   "data": ["file:///compNamespace.lean", 5, 14, 0]}],
+   "data": ["file:///compNamespace.lean", 5, 15, 0]}],
  "isIncomplete": false}
 Resolution of LongNamespaceExample:
 {"label": "LongNamespaceExample",
  "kind": 9,
  "detail": "namespace",
- "data": ["file:///compNamespace.lean", 5, 14, 0]}
+ "data": ["file:///compNamespace.lean", 5, 15, 0]}
 {"textDocument": {"uri": "file:///compNamespace.lean"},
- "position": {"line": 9, "character": 14}}
+ "position": {"line": 9, "character": 15}}
 {"items":
  [{"label": "LongNamespaceExample",
    "kind": 9,
    "detail": "namespace",
-   "data": ["file:///compNamespace.lean", 9, 14, 0]}],
+   "data": ["file:///compNamespace.lean", 9, 15, 0]}],
  "isIncomplete": false}
 Resolution of LongNamespaceExample:
 {"label": "LongNamespaceExample",
  "kind": 9,
  "detail": "namespace",
- "data": ["file:///compNamespace.lean", 9, 14, 0]}
+ "data": ["file:///compNamespace.lean", 9, 15, 0]}
 {"textDocument": {"uri": "file:///compNamespace.lean"},
  "position": {"line": 13, "character": 11}}
 {"items":
@@ -51,15 +51,15 @@ Resolution of LongNamespaceExample:
  "detail": "namespace",
  "data": ["file:///compNamespace.lean", 16, 16, 0]}
 {"textDocument": {"uri": "file:///compNamespace.lean"},
- "position": {"line": 20, "character": 14}}
+ "position": {"line": 20, "character": 15}}
 {"items":
  [{"label": "LongNamespaceExample",
    "kind": 9,
    "detail": "namespace",
-   "data": ["file:///compNamespace.lean", 20, 14, 0]}],
+   "data": ["file:///compNamespace.lean", 20, 15, 0]}],
  "isIncomplete": false}
 Resolution of LongNamespaceExample:
 {"label": "LongNamespaceExample",
  "kind": 9,
  "detail": "namespace",
- "data": ["file:///compNamespace.lean", 20, 14, 0]}
+ "data": ["file:///compNamespace.lean", 20, 15, 0]}

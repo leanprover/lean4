@@ -10,7 +10,6 @@ public import Lean.Compiler.LCNF.CompilerM
 import Lean.Compiler.LCNF.EmitUtil
 import Lean.Compiler.NameMangling
 import Lean.Compiler.LCNF.PhaseExt
-import Lean.Compiler.LCNF.Toposort
 import Lean.Compiler.ExportAttr
 import Lean.Compiler.ModPkgExt
 import Lean.Compiler.LCNF.SimpleGroundExpr
@@ -958,13 +957,11 @@ def emitMarkPersistent (decl : Decl .impure) : EmitM Unit := do
 def emitDeclInit (decl : Decl .impure) (isBuiltin : Bool) : EmitM Unit := do
   let env ← getEnv
   if (isBuiltin && isIOUnitBuiltinInitFn env decl.name) || isIOUnitInitFn env decl.name then
-    IO.println s!"Emiting {← toCName decl.name}"
     withErrRet do
       emitCName decl.name; emit "()"
     emitLn "lean_dec_ref(res);"
   else if decl.params.isEmpty then
     if let some initFn := (guard isBuiltin *> getBuiltinInitFnNameFor? env decl.name) <|> getInitFnNameFor? env decl.name then
-      IO.println s!"Emiting {← toCName decl.name}"
       withErrRet do
         emitCName initFn; emit "()"
       emitCName decl.name
@@ -975,7 +972,6 @@ def emitDeclInit (decl : Decl .impure) (isBuiltin : Bool) : EmitM Unit := do
         emitMarkPersistent decl
       emitLn "lean_dec_ref(res);"
     else if !(isClosedTermName env decl.name || isSimpleGroundDecl env decl.name) then
-      IO.println s!"Emiting {← toCName decl.name}"
       emitCName decl.name; emit " = "; emitCInitName decl.name; emitLn "();"
       emitMarkPersistent decl
 
@@ -1129,11 +1125,11 @@ def main : EmitM Unit := do
 
 public def emitCForDecls (modName : Name) (decls : Array Name) : CoreM String := do
   let (localDecls, otherModuleDecls) ← collectUsedDecls decls
-  let localDecls ← toposortDecls localDecls
-  for decl in localDecls do
-    let decl ← normalizeFVarIds decl
-    IO.println (← ppDecl' decl .impure)
-  IO.println "=== CUT ==="
+  let env ← getEnv
+  let localDecls := localDecls.qsort fun l r => Id.run do
+    let some lval := getImpureDeclIndex? env l.name | panic! s!"Ahhh {l.name}"
+    let some rval := getImpureDeclIndex? env r.name | panic! s!"Ahhhh {r.name}"
+    return lval < rval
   let (_, { buf }) ←
     main
       |>.run { localDecls, otherModuleDecls, modName }

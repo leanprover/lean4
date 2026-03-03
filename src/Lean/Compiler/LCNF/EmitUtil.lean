@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Compiler.LCNF.CompilerM
 import Lean.Compiler.LCNF.PhaseExt
+import Lean.Compiler.InitAttr
 
 namespace Lean.Compiler.LCNF
 
@@ -32,6 +33,9 @@ where
       if let some decl ← getLocalImpureDecl? name then
         modify fun s => { s with localDecls := s.localDecls.push decl }
         decl.value.forCodeM (·.forM visitCode)
+        let env ← getEnv
+        if let some initializer := getBuiltinInitFnNameFor? env decl.name <|> getInitFnNameFor? env decl.name then
+          go #[initializer]
       else if let some sig ← getImpureSignature? name then
         modify fun s => { s with extSigs := s.extSigs.push sig }
       else

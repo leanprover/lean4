@@ -70,6 +70,9 @@ where
       decl.saveImpure
       let decls ← Compiler.LCNF.addBoxedVersions #[decl]
       let decls ← Compiler.LCNF.runExplicitRc decls
+      for decl in decls do
+        decl.saveImpure
+        modifyEnv fun env => Compiler.LCNF.recordFinalImpureDecl env decl.name
       return decls
 
   addIr (decls : Array (Compiler.LCNF.Decl .impure)) : CoreM Unit := do

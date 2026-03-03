@@ -66,4 +66,9 @@ where
 public def toposortDecls (decls : Array (Decl pu)) : CoreM (Array (Decl pu)) := do
   toposort decls
 
+public def toposortPass : Pass where
+  phase := .impure
+  name := `toposort
+  run := liftM ∘ toposortDecls
+
 end Lean.Compiler.LCNF

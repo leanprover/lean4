@@ -563,6 +563,20 @@ public theorem lawfulToForwardSearcherModel {pat : Slice} (hpat : pat.isEmpty = 
     rw (occs := [1]) [← Invariants.base_start hpat]
     apply Invariants.isValidSearchFrom_toList _ _ rfl rfl
 
+public theorem toList_iter_emptyBefore (s : Slice) (pos : s.Pos) :
+    ∃ l, (Std.Iter.mk (.emptyBefore pos : ForwardSliceSearcher s)).toList =
+      .matched pos pos :: l := by
+  have key : ∃ it', (Std.Iter.mk (.emptyBefore pos : ForwardSliceSearcher s)).step.val =
+      .yield it' (.matched pos pos) := by
+    simp only [Std.Iter.step_eq, Std.Iter.toIterM]
+    split <;>
+      simp only [Id.run_pure, Std.Shrink.inflate_deflate, Std.IterM.Step.toPure_yield,
+        Std.IterM.toIter_mk, Std.PlausibleIterStep.yield] <;>
+      exact ⟨_, rfl⟩
+  obtain ⟨it', h⟩ := key
+  rw [Std.Iter.toList_eq_match_step, h]
+  exact ⟨_, rfl⟩
+
 end ForwardSliceSearcher
 
 namespace ForwardStringSearcher

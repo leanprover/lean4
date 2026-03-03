@@ -9,3 +9,4 @@ prelude
 public import Init.Data.String.Lemmas.Pattern.Find.Basic
 public import Init.Data.String.Lemmas.Pattern.Find.Char
 public import Init.Data.String.Lemmas.Pattern.Find.Pred
+public import Init.Data.String.Lemmas.Pattern.Find.String

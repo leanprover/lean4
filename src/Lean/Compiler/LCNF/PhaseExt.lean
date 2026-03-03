@@ -171,6 +171,9 @@ def getMonoDecl? (declName : Name) : CoreM (Option (Decl .pure)) := do
 def getLocalImpureDecl? (declName : Name) : CoreM (Option (Decl .impure)) := do
   return impureExt.getState (← getEnv) |>.find? declName
 
+def getLocalImpureDecls : CoreM (Array Name) := do
+  return impureExt.getState (← getEnv) |>.toArray |>.map (·.fst)
+
 def getImpureSignature? (declName : Name) : CoreM (Option (Signature .impure)) := do
   return getSigCore? (← getEnv) impureSigExt declName
 

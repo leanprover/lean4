@@ -161,7 +161,7 @@ def builtinPassManager : PassManager := {
     detectSimpleGround,
     inferVisibility (phase := .impure),
     saveImpure, -- End of impure phase
-    toposortPass,
+    --toposortPass,
   ]
 }
 

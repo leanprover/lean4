@@ -16,7 +16,7 @@ import Init.ByCases
 import Init.Data.Iterators.Lemmas.Combinators.FilterMap
 import Init.Data.String.Lemmas.Basic
 import Init.Data.Iterators.Lemmas.Consumers.Loop
-import Init.Data.String.Lemmas.Order
+public import Init.Data.String.Lemmas.Order
 import Init.Data.String.OrderInstances
 import Init.Data.Subtype.Basic
 
@@ -98,6 +98,34 @@ theorem toList_chars {s : Slice} : s.chars.toList = s.copy.toList := by
 theorem mem_toList_copy_iff_exists_get {s : Slice} {c : Char} :
     c ∈ s.copy.toList ↔ ∃ (p : s.Pos) (h : p ≠ s.endPos), p.get h = c := by
   simp [← Model.map_get_positionsFrom_startPos]
+
+theorem Pos.Splits.mem_toList_left_iff {s : Slice} {pos : s.Pos} {t u : String} {c : Char}
+    (hs : pos.Splits t u) :
+    c ∈ t.toList ↔ ∃ pos', ∃ (h : pos' < pos), pos'.get (Pos.ne_endPos_of_lt h) = c := by
+  rw [hs.eq_left pos.splits, mem_toList_copy_iff_exists_get]
+  refine ⟨?_, ?_⟩
+  · rintro ⟨p, hp, hpget⟩
+    have hlt : Pos.ofSliceTo p < pos := by
+      simpa using Pos.ofSliceTo_lt_ofSliceTo_iff.mpr ((Pos.lt_endPos_iff _).mpr hp)
+    exact ⟨_, hlt, by rwa [Pos.get_eq_get_ofSliceTo] at hpget⟩
+  · rintro ⟨pos', hlt, hget⟩
+    exact ⟨pos.sliceTo pos' (Std.le_of_lt hlt),
+      by simpa [← Pos.ofSliceTo_inj] using Std.ne_of_lt hlt,
+      by rw [Slice.Pos.get_eq_get_ofSliceTo]; simpa using hget⟩
+
+theorem Pos.Splits.mem_toList_right_iff {s : Slice} {pos : s.Pos} {t u : String} {c : Char}
+    (hs : pos.Splits t u) :
+    c ∈ u.toList ↔ ∃ pos', ∃ (_ : pos ≤ pos') (h : pos' ≠ s.endPos), pos'.get h = c := by
+  rw [hs.eq_right pos.splits, mem_toList_copy_iff_exists_get]
+  refine ⟨?_, ?_⟩
+  · rintro ⟨p, hp, hpget⟩
+    exact ⟨Pos.ofSliceFrom p, Pos.le_ofSliceFrom,
+      fun h => hp (Pos.ofSliceFrom_inj.mp (h.trans (Pos.ofSliceFrom_endPos (pos := pos)).symm)),
+      by rwa [Pos.get_eq_get_ofSliceFrom] at hpget⟩
+  · rintro ⟨pos', hle, hne, hget⟩
+    exact ⟨pos.sliceFrom pos' hle,
+      fun h => hne (by simpa using congrArg Pos.ofSliceFrom h),
+      by rw [Pos.get_eq_get_ofSliceFrom]; simpa using hget⟩
 
 /--
 A list of all positions strictly before {name}`p`, ordered from largest to smallest.
@@ -233,6 +261,34 @@ theorem toList_chars {s : String} : s.chars.toList = s.toList := by
 theorem mem_toList_iff_exists_get {s : String} {c : Char} :
     c ∈ s.toList ↔ ∃ (p : s.Pos) (h : p ≠ s.endPos), p.get h = c := by
   simp [← Model.map_get_positionsFrom_startPos]
+
+theorem Pos.Splits.mem_toList_left_iff {s : String} {pos : s.Pos} {t u : String} {c : Char}
+    (hs : pos.Splits t u) :
+    c ∈ t.toList ↔ ∃ pos', ∃ (h : pos' < pos), pos'.get (Pos.ne_endPos_of_lt h) = c := by
+  rw [hs.eq_left pos.splits, Slice.mem_toList_copy_iff_exists_get]
+  refine ⟨?_, ?_⟩
+  · rintro ⟨p, hp, hpget⟩
+    have hlt : Pos.ofSliceTo p < pos := by
+      simpa using Pos.ofSliceTo_lt_ofSliceTo_iff.mpr ((Slice.Pos.lt_endPos_iff _).mpr hp)
+    exact ⟨_, hlt, by rwa [Pos.get_eq_get_ofSliceTo] at hpget⟩
+  · rintro ⟨pos', hlt, hget⟩
+    exact ⟨pos.sliceTo pos' (Std.le_of_lt hlt),
+      fun h => Std.ne_of_lt hlt (by simpa using congrArg Pos.ofSliceTo h),
+      by rw [Pos.get_eq_get_ofSliceTo]; simpa using hget⟩
+
+theorem Pos.Splits.mem_toList_right_iff {s : String} {pos : s.Pos} {t u : String} {c : Char}
+    (hs : pos.Splits t u) :
+    c ∈ u.toList ↔ ∃ pos', ∃ (_ : pos ≤ pos') (h : pos' ≠ s.endPos), pos'.get h = c := by
+  rw [hs.eq_right pos.splits, Slice.mem_toList_copy_iff_exists_get]
+  refine ⟨?_, ?_⟩
+  · rintro ⟨p, hp, hpget⟩
+    exact ⟨Pos.ofSliceFrom p, Pos.le_ofSliceFrom,
+      fun h => hp (Pos.ofSliceFrom_inj.mp (h.trans Pos.ofSliceFrom_endPos.symm)),
+      by rwa [Pos.get_eq_get_ofSliceFrom] at hpget⟩
+  · rintro ⟨pos', hle, hne, hget⟩
+    exact ⟨pos.sliceFrom pos' hle,
+      fun h => hne (by simpa using congrArg Pos.ofSliceFrom h),
+      by rw [Pos.get_eq_get_ofSliceFrom]; simpa using hget⟩
 
 /--
 A list of all positions strictly before {name}`p`, ordered from largest to smallest.

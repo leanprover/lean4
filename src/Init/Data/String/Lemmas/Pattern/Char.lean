@@ -61,6 +61,16 @@ theorem matchesAt_iff {c : Char} {s : Slice} {pos : s.Pos} :
     MatchesAt c pos ↔ ∃ (h : pos ≠ s.endPos), pos.get h = c := by
   simp [matchesAt_iff_exists_isLongestMatchAt, isLongestMatchAt_iff, exists_comm]
 
+theorem matchesAt_iff_splits {c : Char} {s : Slice} {pos : s.Pos} :
+    MatchesAt c pos ↔ ∃ t₁ t₂, pos.Splits t₁ (singleton c ++ t₂) := by
+  rw [matchesAt_iff]
+  refine ⟨?_, ?_⟩
+  · rintro ⟨h, rfl⟩
+    exact ⟨_, _, pos.splits_next_right h⟩
+  · rintro ⟨t₁, t₂, hs⟩
+    have hne := hs.ne_endPos_of_singleton
+    exact ⟨hne, (singleton_append_inj.mp (hs.eq_right (pos.splits_next_right hne))).1.symm⟩
+
 theorem not_matchesAt_of_get_ne {c : Char} {s : Slice} {pos : s.Pos} {h : pos ≠ s.endPos}
     (hc : pos.get h ≠ c) : ¬ MatchesAt c pos := by
   simp [matchesAt_iff, hc]

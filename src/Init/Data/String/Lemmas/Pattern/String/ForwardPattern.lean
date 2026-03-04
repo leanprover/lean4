@@ -11,6 +11,7 @@ public import Init.Data.String.Pattern.String
 public import Init.Data.String.Slice
 import all Init.Data.String.Pattern.String
 import all Init.Data.String.Slice
+import Init.Data.String.Lemmas.Pattern.Pred
 import Init.Data.String.Lemmas.Pattern.Memcmp
 import Init.Data.String.Lemmas.Basic
 import Init.Data.ByteArray.Lemmas

@@ -103,6 +103,11 @@ theorem matchesAt_iff_matchesAt_beq {c : Char} {s : Slice} {pos : s.Pos} :
     MatchesAt c pos ↔ MatchesAt (· == c) pos := by
   simp [matchesAt_iff_exists_isLongestMatchAt, isLongestMatchAt_iff_isLongestMatchAt_beq]
 
+theorem matchAt?_eq_matchAt?_beq {c : Char} {s : Slice} {pos : s.Pos} :
+    matchAt? c pos = matchAt? (· == c) pos := by
+  refine Option.ext (fun pos' => ?_)
+  simp [matchAt?_eq_some_iff, isLongestMatchAt_iff_isLongestMatchAt_beq]
+
 theorem isValidSearchFrom_iff_isValidSearchFrom_beq {c : Char} {s : Slice} {p : s.Pos}
     {l : List (SearchStep s)} : IsValidSearchFrom c p l ↔ IsValidSearchFrom (· == c) p l := by
   refine ⟨fun h => ?_, fun h => ?_⟩

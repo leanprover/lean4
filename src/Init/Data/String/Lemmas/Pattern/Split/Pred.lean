@@ -9,7 +9,10 @@ prelude
 public import Init.Data.String.Slice
 public import Init.Data.String.Search
 public import Init.Data.List.SplitOn.Basic
+public import Init.Data.String.Lemmas.Pattern.Split.Basic
+public import Init.Data.String.Lemmas.Pattern.Pred
 import Init.Data.String.Termination
+import all Init.Data.String.Lemmas.Pattern.Split.Basic
 import Init.Data.Order.Lemmas
 import Init.Data.Iterators.Lemmas.Combinators.FilterMap
 import Init.Data.String.Lemmas.Pattern.Split.Basic
@@ -61,25 +64,19 @@ section
 
 open Pattern.Model Pattern.Model.CharPred.Decidable
 
-private theorem split_eq_split_decide {p : Char → Prop} [DecidablePred p] {s : Slice}
+theorem Pattern.Model.split_eq_split_decide {p : Char → Prop} [DecidablePred p] {s : Slice}
     (f curr : s.Pos) (hle : f ≤ curr) :
-    Pattern.Model.split p f curr hle = Pattern.Model.split (decide <| p ·) f curr hle := by
-  induction curr using Pos.next_induction generalizing f with
-  | endPos => simp
-  | next curr hne ih =>
-    by_cases hm : MatchesAt p curr
-    · obtain ⟨⟨endPos, him⟩⟩ := hm
-      obtain ⟨_, rfl, _⟩ := CharPred.Decidable.isLongestMatchAt_iff.mp him
-      rw [split_eq_of_isLongestMatchAt him,
-          split_eq_of_isLongestMatchAt
-            (CharPred.Decidable.isLongestMatchAt_iff_isLongestMatchAt_decide.mp him)]
-      congr 1
-      exact ih _ _
-    · have : ¬MatchesAt (decide <| p ·) curr :=
-        fun h => hm (CharPred.Decidable.matchesAt_iff_matchesAt_decide.mpr h)
-      rw [split_eq_next_of_not_matchesAt hne hm,
-          split_eq_next_of_not_matchesAt hne this]
-      exact ih _ _
+    Model.split p f curr hle = Model.split (decide <| p ·) f curr hle := by
+  fun_induction Model.split p f curr hle with
+  | case1 fr h => simp
+  | case2 fr curr hle h pos h₁ h₂ ih =>
+    conv => rhs; rw [Model.split]
+    simp only [h, ↓reduceDIte]
+    split <;> simp_all [matchAt?_eq_matchAt?_decide]
+  | case3 fr curr hle h pos ih =>
+    conv => rhs; rw [Model.split]
+    simp only [h, ↓reduceDIte]
+    split <;> simp_all [matchAt?_eq_matchAt?_decide]
 
 theorem toList_splitToSubslice_prop {s : Slice} {p : Char → Prop} [DecidablePred p] :
     (s.splitToSubslice p).toList.map (Slice.copy ∘ Subslice.toSlice) =

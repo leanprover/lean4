@@ -9,6 +9,9 @@ prelude
 public import Init.Data.String.Slice
 public import Init.Data.String.Search
 public import Init.Data.List.SplitOn.Basic
+public import Init.Data.String.Lemmas.Pattern.Split.Basic
+public import Init.Data.String.Lemmas.Pattern.Char
+import all Init.Data.String.Lemmas.Pattern.Split.Basic
 import Init.Data.String.Termination
 import Init.Data.Order.Lemmas
 import Init.Data.Iterators.Lemmas.Combinators.FilterMap
@@ -27,31 +30,25 @@ namespace String.Slice
 
 open Pattern.Model Pattern.Model.Char
 
-private theorem split_eq_split_beq {c : Char} {s : Slice}
+theorem Pattern.Model.split_char_eq_split_beq {c : Char} {s : Slice}
     (f curr : s.Pos) (hle : f ≤ curr) :
-    Pattern.Model.split c f curr hle = Pattern.Model.split (· == c) f curr hle := by
-  induction curr using Pos.next_induction generalizing f with
-  | endPos => simp
-  | next curr hne ih =>
-    by_cases hm : MatchesAt c curr
-    · obtain ⟨hne, hget⟩ := matchesAt_iff.mp hm
-      have him := isLongestMatchAt_of_get_eq hget
-      rw [split_eq_of_isLongestMatchAt him,
-          split_eq_of_isLongestMatchAt
-            (isLongestMatchAt_iff_isLongestMatchAt_beq.mp him)]
-      congr 1
-      exact ih _ _
-    · have : ¬MatchesAt (· == c) curr :=
-        fun h => hm (matchesAt_iff_matchesAt_beq.mpr h)
-      rw [split_eq_next_of_not_matchesAt hne hm,
-          split_eq_next_of_not_matchesAt hne this]
-      exact ih _ _
+    Model.split c f curr hle = Model.split (· == c) f curr hle := by
+  fun_induction Model.split c f curr hle with
+  | case1 fr h => simp
+  | case2 fr curr hle h pos h₁ h₂ ih =>
+    conv => rhs; rw [Model.split]
+    simp only [h, ↓reduceDIte]
+    split <;> simp_all [matchAt?_eq_matchAt?_beq]
+  | case3 fr curr hle h pos ih =>
+    conv => rhs; rw [Model.split]
+    simp only [h, ↓reduceDIte]
+    split <;> simp_all [matchAt?_eq_matchAt?_beq]
 
 theorem toList_splitToSubslice_char {s : Slice} {c : Char} :
     (s.splitToSubslice c).toList.map (Slice.copy ∘ Subslice.toSlice) =
       (s.copy.toList.splitOn c).map String.ofList := by
   have : (s.splitToSubslice c).toList = (s.splitToSubslice (· == c)).toList := by
-    simp only [Pattern.toList_splitToSubslice_eq_modelSplit, split_eq_split_beq]
+    simp only [Pattern.toList_splitToSubslice_eq_modelSplit, Pattern.Model.split_char_eq_split_beq]
   simp only [this, List.splitOn_eq_splitOnP, toList_splitToSubslice_bool]
 
 theorem toList_split_char {s : Slice} {c : Char} :

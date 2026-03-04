@@ -6,23 +6,15 @@ Authors: Markus Himmel
 module
 
 prelude
-public import Init.Data.String.Slice
+public import Init.Data.String.Search
 import all Init.Data.String.Slice
-import Init.Data.String.Search
 import Init.ByCases
 import Init.Data.String.Lemmas.Pattern.Find.Basic
-import Init.Data.String.Lemmas.Pattern.String.Basic
 import Init.Data.String.Lemmas.Pattern.String.ForwardSearcher
-import Init.Data.String.Lemmas.Basic
-import Init.Data.String.Lemmas.IsEmpty
-import Init.Data.String.Lemmas.Order
-import Init.Data.String.Termination
-import Init.Data.String.Lemmas.Iterate
 import Init.Data.Iterators.Lemmas.Consumers.Loop
-import Init.Grind
-import Init.Data.Option.Lemmas
-import Init.Data.String.OrderInstances
 import Init.Data.List.Sublist
+
+public section
 
 namespace String.Slice
 

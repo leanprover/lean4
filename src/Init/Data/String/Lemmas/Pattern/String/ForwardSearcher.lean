@@ -8,6 +8,8 @@ module
 prelude
 public import Init.Data.String.Lemmas.Pattern.String.Basic
 public import Init.Data.String.Pattern.String
+public import Init.Data.String.Slice
+import all Init.Data.String.Slice
 import all Init.Data.String.Pattern.String
 import Init.Data.String.Lemmas.IsEmpty
 import Init.Data.Vector.Lemmas
@@ -599,30 +601,11 @@ end ForwardSliceSearcher
 
 namespace ForwardStringSearcher
 
-private theorem isValidSearchFrom_iff_slice {pat : String} {s : Slice} {pos : s.Pos}
-    {l : List (SearchStep s)} :
-    IsValidSearchFrom (ρ := String) pat pos l ↔
-      IsValidSearchFrom (ρ := Slice) pat.toSlice pos l := by
-  constructor
-  · intro h
-    induction h with
-    | endPos => exact .endPos
-    | matched hm _ ih => exact .matched (isLongestMatchAt_iff_toSlice.1 hm) ih
-    | mismatched hlt hnm _ ih =>
-      exact .mismatched hlt (fun p hp₁ hp₂ hm => hnm p hp₁ hp₂ (matchesAt_iff_toSlice.2 hm)) ih
-  · intro h
-    induction h with
-    | endPos => exact .endPos
-    | matched hm _ ih => exact .matched (isLongestMatchAt_iff_toSlice.2 hm) ih
-    | mismatched hlt hnm _ ih =>
-      exact .mismatched hlt (fun p hp₁ hp₂ hm => hnm p hp₁ hp₂ (matchesAt_iff_toSlice.1 hm)) ih
-
 public theorem lawfulToForwardSearcherModel {pat : String} (hpat : pat ≠ "") :
     LawfulToForwardSearcherModel pat where
-  isValidSearchFrom_toList s :=
-    isValidSearchFrom_iff_slice.2
-      ((ForwardSliceSearcher.lawfulToForwardSearcherModel
-        (by rwa [isEmpty_toSlice, isEmpty_eq_false_iff])).isValidSearchFrom_toList s)
+  isValidSearchFrom_toList s := by
+    simpa [toSearcher_eq, isValidSearchFrom_iff_isValidSearchFrom_toSlice] using
+      (ForwardSliceSearcher.lawfulToForwardSearcherModel (by simpa)).isValidSearchFrom_toList (pat := pat.toSlice) (s := s)
 
 public theorem toSearcher_empty (s : Slice) : ToForwardSearcher.toSearcher "" s =
       Std.Iter.mk (.emptyBefore s.startPos : ForwardSliceSearcher s) := by
@@ -631,4 +614,14 @@ public theorem toSearcher_empty (s : Slice) : ToForwardSearcher.toSearcher "" s 
 
 end ForwardStringSearcher
 
-end String.Slice.Pattern.Model
+end Pattern.Model
+
+public theorem contains_string_eq_contains_toSlice {pat : String} {s : Slice} :
+    s.contains pat = s.contains pat.toSlice :=
+  (rfl)
+
+public theorem find?_string_eq_find?_toSlice {pat : String} {s : Slice} :
+    s.find? pat = s.find? pat.toSlice :=
+  (rfl)
+
+end String.Slice

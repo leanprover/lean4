@@ -572,30 +572,18 @@ public theorem toList_emptyBefore_eq (s : Slice) (pos : s.Pos) :
           (Std.Iter.mk (.emptyBefore (pos.next h) : ForwardSliceSearcher s)).toList := by
   by_cases h : pos = s.endPos
   · subst h
-    have hstep : (Std.Iter.mk (.emptyBefore s.endPos : ForwardSliceSearcher s)).step.val =
-        .yield ⟨.atEnd⟩ (.matched s.endPos s.endPos) := by
-      simp only [Std.Iter.step_eq, Std.Iter.toIterM]
-      split
-      · rename_i hc; exact absurd rfl hc
-      · simp only [Id.run_pure, Std.Shrink.inflate_deflate, Std.IterM.Step.toPure_yield,
-          Std.IterM.toIter_mk, Std.PlausibleIterStep.yield]
-    have hstep₂ : (Std.Iter.mk (.atEnd : ForwardSliceSearcher s)).step.val = .done := by
-      simp only [Std.Iter.step_eq, Std.Iter.toIterM, Id.run_pure, Std.Shrink.inflate_deflate]
-      rfl
-    rw [Std.Iter.toList_eq_match_step, hstep]; simp only []
-    rw [Std.Iter.toList_eq_match_step, hstep₂]; simp only [dite_true]
+    rw [Std.Iter.toList_eq_match_step]
+    simp [Std.Iter.step_eq]
+    rw [Std.Iter.toList_eq_match_step]
+    simp [Std.Iter.step_eq]
   · simp only [dif_neg h]
     have hstep : (Std.Iter.mk (.emptyBefore pos : ForwardSliceSearcher s)).step.val =
         .yield ⟨.emptyAt pos h⟩ (.matched pos pos) := by
-      simp only [Std.Iter.step_eq, Std.Iter.toIterM]
-      split
-      · simp only [Id.run_pure, Std.Shrink.inflate_deflate, Std.IterM.Step.toPure_yield,
-          Std.IterM.toIter_mk, Std.PlausibleIterStep.yield]
-      · rename_i hc; exact absurd h hc
+      simp only [Std.Iter.step_eq, Std.Iter.toIterM_mk, Std.IterM.internalState_mk, ne_eq, dite_not]
+      split <;> simp_all
     have hstep₂ : (Std.Iter.mk (.emptyAt pos h : ForwardSliceSearcher s)).step.val =
         .yield ⟨.emptyBefore (pos.next h)⟩ (.rejected pos (pos.next h)) := by
-      simp only [Std.Iter.step_eq, Std.Iter.toIterM, Id.run_pure, Std.Shrink.inflate_deflate,
-        Std.IterM.Step.toPure_yield, Std.IterM.toIter_mk, Std.PlausibleIterStep.yield]
+      simp [Std.Iter.step_eq]
     rw [Std.Iter.toList_eq_match_step, hstep]; simp only []; congr 1
     rw [Std.Iter.toList_eq_match_step, hstep₂]
 

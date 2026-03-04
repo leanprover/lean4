@@ -21,12 +21,6 @@ import Init.Data.String.OrderInstances
 
 namespace String.Slice
 
-theorem find?_eq_find?_decide {p : Char → Prop} [DecidablePred p] {s : Slice} :
-    s.find? p = s.find? (decide <| p ·) := by
-  ext pos
-  simp only [Pattern.Model.find?_eq_some_iff,
-    Pattern.Model.CharPred.Decidable.matchesAt_iff_matchesAt_decide]
-
 theorem find?_bool_eq_some_iff {p : Char → Bool} {s : Slice} {pos : s.Pos} :
     s.find? p = some pos ↔
       ∃ h, p (pos.get h) ∧ ∀ pos', (h' : pos' < pos) → p (pos'.get (Pos.ne_endPos_of_lt h')) = false := by
@@ -35,7 +29,7 @@ theorem find?_bool_eq_some_iff {p : Char → Bool} {s : Slice} {pos : s.Pos} :
 theorem find?_prop_eq_some_iff {p : Char → Prop} [DecidablePred p] {s : Slice} {pos : s.Pos} :
     s.find? p = some pos ↔
       ∃ h, p (pos.get h) ∧ ∀ pos', (h' : pos' < pos) → ¬ p (pos'.get (Pos.ne_endPos_of_lt h')) := by
-  simp only [find?_eq_find?_decide, find?_bool_eq_some_iff, decide_eq_true_eq,
+  simp only [find?_prop_eq_find?_decide, find?_bool_eq_some_iff, decide_eq_true_eq,
     decide_eq_false_iff_not]
 
 theorem find?_bool_eq_some_iff_splits {p : Char → Bool} {s : Slice} {pos : s.Pos} :
@@ -57,12 +51,8 @@ theorem find?_prop_eq_some_iff_splits {p : Char → Prop} [DecidablePred p] {s :
     {pos : s.Pos} :
     s.find? p = some pos ↔
       ∃ t c u, pos.Splits t (singleton c ++ u) ∧ p c ∧ ∀ d ∈ t.toList, ¬ p d := by
-  simp only [find?_eq_find?_decide, find?_bool_eq_some_iff_splits, decide_eq_true_eq,
+  simp only [find?_prop_eq_find?_decide, find?_bool_eq_some_iff_splits, decide_eq_true_eq,
     decide_eq_false_iff_not]
-
-theorem contains_eq_contains_decide {p : Char → Prop} [DecidablePred p] {s : Slice} :
-    s.contains p = s.contains (decide <| p ·) := by
-  simp only [← isSome_find?, find?_eq_find?_decide]
 
 @[simp]
 theorem contains_bool_eq {p : Char → Bool} {s : Slice} : s.contains p = s.copy.toList.any p := by
@@ -74,13 +64,7 @@ theorem contains_bool_eq {p : Char → Bool} {s : Slice} : s.contains p = s.copy
 @[simp]
 theorem contains_prop_eq {p : Char → Prop} [DecidablePred p] {s : Slice} :
     s.contains p = s.copy.toList.any p := by
-  rw [contains_eq_contains_decide, contains_bool_eq]
-
-theorem Pos.find?_eq_find?_decide {p : Char → Prop} [DecidablePred p] {s : Slice}
-    {pos : s.Pos} : pos.find? p = pos.find? (decide <| p ·) := by
-  ext pos'
-  simp only [Pattern.Model.posFind?_eq_some_iff,
-    Pattern.Model.CharPred.Decidable.matchesAt_iff_matchesAt_decide]
+  rw [contains_prop_eq_contains_decide, contains_bool_eq]
 
 theorem Pos.find?_bool_eq_some_iff {p : Char → Bool} {s : Slice} {pos pos' : s.Pos} :
     pos.find? p = some pos' ↔
@@ -148,47 +132,47 @@ theorem Pos.find?_prop_eq_some_iff {p : Char → Prop} [DecidablePred p] {s : Sl
       pos ≤ pos' ∧ (∃ h, p (pos'.get h)) ∧
         ∀ pos'', pos ≤ pos'' → (h' : pos'' < pos') →
           ¬ p (pos''.get (Pos.ne_endPos_of_lt h')) := by
-  simp only [Pos.find?_eq_find?_decide, Pos.find?_bool_eq_some_iff, decide_eq_true_eq,
+  simp only [Pos.find?_prop_eq_find?_decide, Pos.find?_bool_eq_some_iff, decide_eq_true_eq,
     decide_eq_false_iff_not]
 
 theorem Pos.find?_prop_eq_some_iff_splits {p : Char → Prop} [DecidablePred p] {s : Slice}
     {pos : s.Pos} {t u : String} (hs : pos.Splits t u) {pos' : s.Pos} :
     pos.find? p = some pos' ↔
       ∃ v c w, pos'.Splits (t ++ v) (singleton c ++ w) ∧ p c ∧ ∀ d ∈ v.toList, ¬ p d := by
-  simp only [Pos.find?_eq_find?_decide, Pos.find?_bool_eq_some_iff_splits hs, decide_eq_true_eq,
+  simp only [Pos.find?_prop_eq_find?_decide, Pos.find?_bool_eq_some_iff_splits hs, decide_eq_true_eq,
     decide_eq_false_iff_not]
 
 theorem Pos.find?_prop_eq_none_iff {p : Char → Prop} [DecidablePred p] {s : Slice} {pos : s.Pos} :
     pos.find? p = none ↔
       ∀ pos', pos ≤ pos' → (h : pos' ≠ s.endPos) → ¬ p (pos'.get h) := by
-  simp only [Pos.find?_eq_find?_decide, Pos.find?_bool_eq_none_iff, decide_eq_false_iff_not]
+  simp only [Pos.find?_prop_eq_find?_decide, Pos.find?_bool_eq_none_iff, decide_eq_false_iff_not]
 
 theorem Pos.find?_prop_eq_none_iff_of_splits {p : Char → Prop} [DecidablePred p] {s : Slice}
     {pos : s.Pos} {t u : String} (hs : pos.Splits t u) :
     pos.find? p = none ↔ ∀ c ∈ u.toList, ¬ p c := by
-  simp only [Pos.find?_eq_find?_decide, Pos.find?_bool_eq_none_iff_of_splits hs,
+  simp only [Pos.find?_prop_eq_find?_decide, Pos.find?_bool_eq_none_iff_of_splits hs,
     decide_eq_false_iff_not]
 
 end String.Slice
 
 namespace String
 
-theorem Pos.find?_eq_find?_decide {p : Char → Prop} [DecidablePred p] {s : String}
+theorem Pos.find?_prop_eq_find?_decide {p : Char → Prop} [DecidablePred p] {s : String}
     {pos : s.Pos} : pos.find? p = pos.find? (decide <| p ·) := by
   show (pos.toSlice.find? p).map Pos.ofToSlice = (pos.toSlice.find? (decide <| p ·)).map Pos.ofToSlice
   simp only [show pos.toSlice.find? p = pos.toSlice.find? (decide <| p ·) from
-    Slice.Pos.find?_eq_find?_decide]
+    Slice.Pos.find?_prop_eq_find?_decide]
 
-theorem find?_eq_find?_decide {p : Char → Prop} [DecidablePred p] {s : String} :
+theorem find?_prop_eq_find?_decide {p : Char → Prop} [DecidablePred p] {s : String} :
     s.find? p = s.find? (decide <| p ·) := by
   show (s.toSlice.find? p).map Pos.ofToSlice = (s.toSlice.find? (decide <| p ·)).map Pos.ofToSlice
   simp only [show s.toSlice.find? p = s.toSlice.find? (decide <| p ·) from
-    Slice.find?_eq_find?_decide]
+    Slice.find?_prop_eq_find?_decide]
 
-theorem contains_eq_contains_decide {p : Char → Prop} [DecidablePred p] {s : String} :
+theorem contains_prop_eq_contains_decide {p : Char → Prop} [DecidablePred p] {s : String} :
     s.contains p = s.contains (decide <| p ·) := by
   show s.toSlice.contains p = s.toSlice.contains (decide <| p ·)
-  exact Slice.contains_eq_contains_decide
+  exact Slice.contains_prop_eq_contains_decide
 
 theorem Pos.find?_bool_eq_some_iff {p : Char → Bool} {s : String} {pos pos' : s.Pos} :
     pos.find? p = some pos' ↔
@@ -248,26 +232,26 @@ theorem Pos.find?_prop_eq_some_iff {p : Char → Prop} [DecidablePred p] {s : St
       pos ≤ pos' ∧ (∃ h, p (pos'.get h)) ∧
         ∀ pos'', pos ≤ pos'' → (h' : pos'' < pos') →
           ¬ p (pos''.get (Pos.ne_endPos_of_lt h')) := by
-  simp only [Pos.find?_eq_find?_decide, Pos.find?_bool_eq_some_iff, decide_eq_true_eq,
+  simp only [Pos.find?_prop_eq_find?_decide, Pos.find?_bool_eq_some_iff, decide_eq_true_eq,
     decide_eq_false_iff_not]
 
 theorem Pos.find?_prop_eq_some_iff_splits {p : Char → Prop} [DecidablePred p] {s : String}
     {pos : s.Pos} {t u : String} (hs : pos.Splits t u) {pos' : s.Pos} :
     pos.find? p = some pos' ↔
       ∃ v c w, pos'.Splits (t ++ v) (singleton c ++ w) ∧ p c ∧ ∀ d ∈ v.toList, ¬ p d := by
-  simp only [Pos.find?_eq_find?_decide, Pos.find?_bool_eq_some_iff_splits hs, decide_eq_true_eq,
+  simp only [Pos.find?_prop_eq_find?_decide, Pos.find?_bool_eq_some_iff_splits hs, decide_eq_true_eq,
     decide_eq_false_iff_not]
 
 theorem Pos.find?_prop_eq_none_iff {p : Char → Prop} [DecidablePred p] {s : String}
     {pos : s.Pos} :
     pos.find? p = none ↔
       ∀ pos', pos ≤ pos' → (h : pos' ≠ s.endPos) → ¬ p (pos'.get h) := by
-  simp only [Pos.find?_eq_find?_decide, Pos.find?_bool_eq_none_iff, decide_eq_false_iff_not]
+  simp only [Pos.find?_prop_eq_find?_decide, Pos.find?_bool_eq_none_iff, decide_eq_false_iff_not]
 
 theorem Pos.find?_prop_eq_none_iff_of_splits {p : Char → Prop} [DecidablePred p] {s : String}
     {pos : s.Pos} {t u : String} (hs : pos.Splits t u) :
     pos.find? p = none ↔ ∀ c ∈ u.toList, ¬ p c := by
-  simp only [Pos.find?_eq_find?_decide, Pos.find?_bool_eq_none_iff_of_splits hs,
+  simp only [Pos.find?_prop_eq_find?_decide, Pos.find?_bool_eq_none_iff_of_splits hs,
     decide_eq_false_iff_not]
 
 theorem find?_bool_eq_some_iff {p : Char → Bool} {s : String} {pos : s.Pos} :
@@ -298,14 +282,14 @@ theorem find?_bool_eq_some_iff_splits {p : Char → Bool} {s : String} {pos : s.
 theorem find?_prop_eq_some_iff {p : Char → Prop} [DecidablePred p] {s : String} {pos : s.Pos} :
     s.find? p = some pos ↔
       ∃ h, p (pos.get h) ∧ ∀ pos', (h' : pos' < pos) → ¬ p (pos'.get (Pos.ne_endPos_of_lt h')) := by
-  simp only [find?_eq_find?_decide, find?_bool_eq_some_iff, decide_eq_true_eq,
+  simp only [find?_prop_eq_find?_decide, find?_bool_eq_some_iff, decide_eq_true_eq,
     decide_eq_false_iff_not]
 
 theorem find?_prop_eq_some_iff_splits {p : Char → Prop} [DecidablePred p] {s : String}
     {pos : s.Pos} :
     s.find? p = some pos ↔
       ∃ t c u, pos.Splits t (singleton c ++ u) ∧ p c ∧ ∀ d ∈ t.toList, ¬ p d := by
-  simp only [find?_eq_find?_decide, find?_bool_eq_some_iff_splits, decide_eq_true_eq,
+  simp only [find?_prop_eq_find?_decide, find?_bool_eq_some_iff_splits, decide_eq_true_eq,
     decide_eq_false_iff_not]
 
 @[simp]
@@ -315,6 +299,6 @@ theorem contains_bool_eq {p : Char → Bool} {s : String} : s.contains p = s.toL
 @[simp]
 theorem contains_prop_eq {p : Char → Prop} [DecidablePred p] {s : String} :
     s.contains p = s.toList.any p := by
-  rw [contains_eq_contains_decide, contains_bool_eq]
+  rw [contains_prop_eq_contains_decide, contains_bool_eq]
 
 end String

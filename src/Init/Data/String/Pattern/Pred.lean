@@ -81,8 +81,8 @@ instance {p : Char → Prop} [DecidablePred p] : LawfulForwardPattern p where
   dropPrefixOfNonempty?_eq h := LawfulForwardPattern.dropPrefixOfNonempty?_eq (pat := (decide <| p ·)) h
   startsWith_eq s := LawfulForwardPattern.startsWith_eq (pat := (decide <| p ·)) s
 
-instance {p : Char → Prop} [DecidablePred p] : ToForwardSearcher p (ToForwardSearcher.DefaultForwardSearcher p) :=
-  .defaultImplementation
+instance {p : Char → Prop} [DecidablePred p] : ToForwardSearcher p (ToForwardSearcher.DefaultForwardSearcher (decide <| p ·)) where
+  toSearcher s := ToForwardSearcher.toSearcher (decide <| p ·) s
 
 end Decidable
 

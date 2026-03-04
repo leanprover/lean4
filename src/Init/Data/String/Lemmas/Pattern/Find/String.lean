@@ -69,6 +69,16 @@ theorem contains_string_iff {t : String} {s : Slice} :
     simp only [Pattern.Model.contains_eq_true_iff,
       Pattern.Model.ForwardStringSearcher.exists_matchesAt_iff_eq_append ht, isInfix_toList_iff]
 
+@[simp]
+theorem contains_slice_eq_false_iff {t s : Slice} :
+    s.contains t = false ↔ ¬(t.copy.toList <:+: s.copy.toList) :=
+  Bool.eq_false_iff.trans (not_congr contains_slice_iff)
+
+@[simp]
+theorem contains_string_eq_false_iff {t : String} {s : Slice} :
+    s.contains t = false ↔ ¬(t.toList <:+: s.copy.toList) :=
+  Bool.eq_false_iff.trans (not_congr contains_string_iff)
+
 end Slice
 
 @[simp]
@@ -80,5 +90,15 @@ theorem contains_slice_iff {t : Slice} {s : String} :
 theorem contains_string_iff {t s : String} :
     s.contains t ↔ t.toList <:+: s.toList := by
   simp [contains_eq_contains_toSlice, Slice.contains_string_iff, copy_toSlice]
+
+@[simp]
+theorem contains_slice_eq_false_iff {t : Slice} {s : String} :
+    s.contains t = false ↔ ¬(t.copy.toList <:+: s.toList) :=
+  Bool.eq_false_iff.trans (not_congr contains_slice_iff)
+
+@[simp]
+theorem contains_string_eq_false_iff {t s : String} :
+    s.contains t = false ↔ ¬(t.toList <:+: s.toList) :=
+  Bool.eq_false_iff.trans (not_congr contains_string_iff)
 
 end String

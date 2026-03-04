@@ -607,15 +607,15 @@ private theorem isValidSearchFrom_iff_slice {pat : String} {s : Slice} {pos : s.
   · intro h
     induction h with
     | endPos => exact .endPos
-    | matched hm _ ih => exact .matched (isLongestMatchAt_iff_slice.1 hm) ih
+    | matched hm _ ih => exact .matched (isLongestMatchAt_iff_toSlice.1 hm) ih
     | mismatched hlt hnm _ ih =>
-      exact .mismatched hlt (fun p hp₁ hp₂ hm => hnm p hp₁ hp₂ (matchesAt_iff_slice.2 hm)) ih
+      exact .mismatched hlt (fun p hp₁ hp₂ hm => hnm p hp₁ hp₂ (matchesAt_iff_toSlice.2 hm)) ih
   · intro h
     induction h with
     | endPos => exact .endPos
-    | matched hm _ ih => exact .matched (isLongestMatchAt_iff_slice.2 hm) ih
+    | matched hm _ ih => exact .matched (isLongestMatchAt_iff_toSlice.2 hm) ih
     | mismatched hlt hnm _ ih =>
-      exact .mismatched hlt (fun p hp₁ hp₂ hm => hnm p hp₁ hp₂ (matchesAt_iff_slice.1 hm)) ih
+      exact .mismatched hlt (fun p hp₁ hp₂ hm => hnm p hp₁ hp₂ (matchesAt_iff_toSlice.1 hm)) ih
 
 public theorem lawfulToForwardSearcherModel {pat : String} (hpat : pat ≠ "") :
     LawfulToForwardSearcherModel pat where

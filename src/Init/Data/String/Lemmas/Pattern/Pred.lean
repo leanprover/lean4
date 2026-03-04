@@ -219,7 +219,7 @@ theorem takeWhile_prop_eq_takeWhile_decide {p : Char → Prop} [DecidablePred p]
     s.takeWhile p = s.takeWhile (decide <| p ·) := by
   simp only [takeWhile]; exact takeWhileGo_eq s.startPos
 
-theorem all_eq_all_decide {p : Char → Prop} [DecidablePred p] {s : Slice} :
+theorem all_prop_eq_all_decide {p : Char → Prop} [DecidablePred p] {s : Slice} :
     s.all p = s.all (decide <| p ·) := by
   simp only [all, dropWhile_prop_eq_dropWhile_decide]
 

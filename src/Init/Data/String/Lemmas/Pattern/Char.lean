@@ -168,7 +168,7 @@ theorem takeWhile_char_eq_takeWhile_beq {c : Char} {s : Slice} :
     s.takeWhile c = s.takeWhile (· == c) := by
   simp only [takeWhile]; exact takeWhileGo_eq s.startPos
 
-theorem all_eq_all_beq {c : Char} {s : Slice} :
+theorem all_char_eq_all_beq {c : Char} {s : Slice} :
     s.all c = s.all (· == c) := by
   simp only [all, dropWhile_char_eq_dropWhile_beq]
 

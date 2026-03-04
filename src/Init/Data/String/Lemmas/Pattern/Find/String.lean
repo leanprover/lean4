@@ -26,8 +26,6 @@ private theorem contains_eq_true_of_isEmpty {pat : Slice} (hpat : pat.isEmpty = 
     ForwardSliceSearcher.toList_emptyBefore_eq]
   split <;> simp [List.any_cons]
 
--- Pattern-type bridges: String pattern → Slice pattern
-
 open Pattern.Model in
 private theorem contains_string_eq_true_of_empty {pat : String} (hpat : pat = "") (s : Slice) :
     s.contains pat = true := by
@@ -46,7 +44,7 @@ theorem contains_eq_contains_slice {pat : String} {s : Slice} :
     have := ForwardSliceSearcher.lawfulToForwardSearcherModel
       (by rwa [isEmpty_toSlice, isEmpty_eq_false_iff])
     exact Bool.eq_iff_iff.mpr ((contains_eq_true_iff _).trans
-      ((exists_congr fun _ => ForwardStringSearcher.matchesAt_iff_slice).trans
+      ((exists_congr fun _ => ForwardStringSearcher.matchesAt_iff_toSlice).trans
         (contains_eq_true_iff _).symm))
 
 private theorem isInfix_toList_iff {t s : String} :

@@ -587,8 +587,7 @@ public theorem toList_emptyBefore_eq (s : Slice) (pos : s.Pos) :
   rw [Std.Iter.toList_eq_match_step, Std.Iter.step_eq]
   by_cases h : pos = s.endPos
   · simp [h]
-  · simp only [dif_neg h]
-    rw [Std.Iter.toList_eq_match_step]
+  · rw [dif_neg h, Std.Iter.toList_eq_match_step]
     simp [Std.Iter.step_eq, h]
 
 public theorem toSearcher_of_isEmpty {pat : Slice} (hpat : pat.isEmpty = true) (s : Slice) :

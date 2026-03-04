@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+source ../env_test.sh
+source "$TEST_DIR/util.sh"
+
+run_before "$1"
+
+exec_capture "$1" \
+  lean -Dlinter.all=false --run "$1"
+
+check_exit "$1"
+check_out "$1"
+
+run_after "$1"

@@ -13,10 +13,10 @@ def main : IO Unit := do
     hIn.flush
     let some diag ← Ipc.collectDiagnostics 1 "file:///test.lean" 1
       | throw $ userError "Test failed, no diagnostics received."
-    FS.writeFile "content_diag.json.produced" (toString <| toJson (diag : JsonRpc.Message))
+    FS.writeFile "diags.lean.content_diag.json.produced" (toString <| toJson (diag : JsonRpc.Message))
 
     if let Except.ok (refDiag : JsonRpc.Notification PublishDiagnosticsParams) :=
-      (Json.parse $ ←FS.readFile "content_diag.json") >>= fromJson?
+      (Json.parse $ ←FS.readFile "diags.lean.content_diag.json") >>= fromJson?
     then
       assert! (diag == refDiag)
     else

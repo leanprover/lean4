@@ -100,102 +100,102 @@ theorem matchesAt_iff_matchesAt_beq {c : Char} {s : Slice} {pos : s.Pos} :
     MatchesAt c pos ↔ MatchesAt (· == c) pos := by
   simp [matchesAt_iff_exists_isLongestMatchAt, isLongestMatchAt_iff_isLongestMatchAt_beq]
 
-end String.Slice.Pattern.Model.Char
+end Pattern.Model.Char
 
-end -- public section
+theorem startsWith_char_eq_startsWith_beq {c : Char} {s : Slice} :
+    s.startsWith c = s.startsWith (· == c) := (rfl)
 
-/-! ### Slice-level operation bridges -/
+theorem dropPrefix?_char_eq_dropPrefix?_beq {c : Char} {s : Slice} :
+    s.dropPrefix? c = s.dropPrefix? (· == c) := (rfl)
 
-namespace String.Slice
+theorem dropPrefix_char_eq_dropPrefix_beq {c : Char} {s : Slice} :
+    s.dropPrefix c = s.dropPrefix (· == c) := (rfl)
 
--- ForwardPattern bridges
+theorem Pattern.ForwardPattern.dropPrefix?_char_eq_dropPrefix?_beq {c : Char} {s : Slice} :
+    dropPrefix? c s = dropPrefix? (· == c) s := (rfl)
 
-theorem startsWith_eq_startsWith_beq {c : Char} {s : Slice} :
-    s.startsWith c = s.startsWith (· == c) := rfl
-
-theorem dropPrefix?_eq_dropPrefix?_beq {c : Char} {s : Slice} :
-    s.dropPrefix? c = s.dropPrefix? (· == c) := rfl
-
-theorem dropPrefix_eq_dropPrefix_beq {c : Char} {s : Slice} :
-    s.dropPrefix c = s.dropPrefix (· == c) := rfl
-
-private theorem dropWhile_go_beq_eq {c : Char} {s : Slice} (curr : s.Pos) :
+private theorem dropWhileGo_eq {c : Char} {s : Slice} (curr : s.Pos) :
     dropWhile.go s c curr = dropWhile.go s (· == c) curr := by
-  unfold dropWhile.go
-  simp only [show Pattern.ForwardPattern.dropPrefix? c (s.sliceFrom curr) =
-    Pattern.ForwardPattern.dropPrefix? (· == c) (s.sliceFrom curr) from rfl]
-  split
-  · split
-    · exact dropWhile_go_beq_eq ..
-    · rfl
-  · rfl
-termination_by curr
+  fun_induction dropWhile.go s c curr with
+  | case1 pos nextCurr h₁ h₂ ih =>
+    conv => rhs; rw [dropWhile.go]
+    simp [← Pattern.ForwardPattern.dropPrefix?_char_eq_dropPrefix?_beq, h₁, h₂, ih]
+  | case2 pos nextCurr h ih =>
+    conv => rhs; rw [dropWhile.go]
+    simp [← Pattern.ForwardPattern.dropPrefix?_char_eq_dropPrefix?_beq, h, ih]
+  | case3 pos h =>
+    conv => rhs; rw [dropWhile.go]
+    simp [← Pattern.ForwardPattern.dropPrefix?_char_eq_dropPrefix?_beq]
 
-theorem dropWhile_eq_dropWhile_beq {c : Char} {s : Slice} :
+theorem dropWhile_char_eq_dropWhile_beq {c : Char} {s : Slice} :
     s.dropWhile c = s.dropWhile (· == c) := by
-  simp only [dropWhile]; exact dropWhile_go_beq_eq s.startPos
+  simpa only [dropWhile] using dropWhileGo_eq s.startPos
 
-private theorem takeWhile_go_beq_eq {c : Char} {s : Slice} (curr : s.Pos) :
+private theorem takeWhileGo_eq {c : Char} {s : Slice} (curr : s.Pos) :
     takeWhile.go s c curr = takeWhile.go s (· == c) curr := by
-  unfold takeWhile.go
-  simp only [show Pattern.ForwardPattern.dropPrefix? c (s.sliceFrom curr) =
-    Pattern.ForwardPattern.dropPrefix? (· == c) (s.sliceFrom curr) from rfl]
-  split
-  · split
-    · exact takeWhile_go_beq_eq ..
-    · rfl
-  · rfl
-termination_by curr
+  fun_induction takeWhile.go s c curr with
+  | case1 pos nextCurr h₁ h₂ ih =>
+    conv => rhs; rw [takeWhile.go]
+    simp [← Pattern.ForwardPattern.dropPrefix?_char_eq_dropPrefix?_beq, h₁, h₂, ih]
+  | case2 pos nextCurr h ih =>
+    conv => rhs; rw [takeWhile.go]
+    simp [← Pattern.ForwardPattern.dropPrefix?_char_eq_dropPrefix?_beq, h, ih]
+  | case3 pos h =>
+    conv => rhs; rw [takeWhile.go]
+    simp [← Pattern.ForwardPattern.dropPrefix?_char_eq_dropPrefix?_beq]
 
-theorem takeWhile_eq_takeWhile_beq {c : Char} {s : Slice} :
+theorem takeWhile_char_eq_takeWhile_beq {c : Char} {s : Slice} :
     s.takeWhile c = s.takeWhile (· == c) := by
-  simp only [takeWhile]; exact takeWhile_go_beq_eq s.startPos
+  simp only [takeWhile]; exact takeWhileGo_eq s.startPos
 
 theorem all_eq_all_beq {c : Char} {s : Slice} :
     s.all c = s.all (· == c) := by
-  simp only [all, dropWhile_eq_dropWhile_beq]
+  simp only [all, dropWhile_char_eq_dropWhile_beq]
 
--- BackwardPattern bridges
+theorem endsWith_char_eq_endsWith_beq {c : Char} {s : Slice} :
+    s.endsWith c = s.endsWith (· == c) := (rfl)
 
-theorem endsWith_eq_endsWith_beq {c : Char} {s : Slice} :
-    s.endsWith c = s.endsWith (· == c) := rfl
+theorem dropSuffix?_char_eq_dropSuffix?_beq {c : Char} {s : Slice} :
+    s.dropSuffix? c = s.dropSuffix? (· == c) := (rfl)
 
-theorem dropSuffix?_eq_dropSuffix?_beq {c : Char} {s : Slice} :
-    s.dropSuffix? c = s.dropSuffix? (· == c) := rfl
+theorem dropSuffix_char_eq_dropSuffix_beq {c : Char} {s : Slice} :
+    s.dropSuffix c = s.dropSuffix (· == c) := (rfl)
 
-theorem dropSuffix_eq_dropSuffix_beq {c : Char} {s : Slice} :
-    s.dropSuffix c = s.dropSuffix (· == c) := rfl
+theorem Pattern.BackwardPattern.dropSuffix?_char_eq_dropSuffix?_beq {c : Char} {s : Slice} :
+    dropSuffix? c s = dropSuffix? (· == c) s := (rfl)
 
-private theorem dropEndWhile_go_beq_eq {c : Char} {s : Slice} (curr : s.Pos) :
+private theorem dropEndWhileGo_eq {c : Char} {s : Slice} (curr : s.Pos) :
     dropEndWhile.go s c curr = dropEndWhile.go s (· == c) curr := by
-  unfold dropEndWhile.go
-  simp only [show Pattern.BackwardPattern.dropSuffix? c (s.sliceTo curr) =
-    Pattern.BackwardPattern.dropSuffix? (· == c) (s.sliceTo curr) from rfl]
-  split
-  · split
-    · exact dropEndWhile_go_beq_eq ..
-    · rfl
-  · rfl
-termination_by curr.down
+  fun_induction dropEndWhile.go s c curr with
+  | case1 pos nextCurr h₁ h₂ ih =>
+    conv => rhs; rw [dropEndWhile.go]
+    simp [← Pattern.BackwardPattern.dropSuffix?_char_eq_dropSuffix?_beq, h₁, h₂, ih]
+  | case2 pos nextCurr h ih =>
+    conv => rhs; rw [dropEndWhile.go]
+    simp [← Pattern.BackwardPattern.dropSuffix?_char_eq_dropSuffix?_beq, h, ih]
+  | case3 pos h =>
+    conv => rhs; rw [dropEndWhile.go]
+    simp [← Pattern.BackwardPattern.dropSuffix?_char_eq_dropSuffix?_beq]
 
-theorem dropEndWhile_eq_dropEndWhile_beq {c : Char} {s : Slice} :
+theorem dropEndWhile_char_eq_dropEndWhile_beq {c : Char} {s : Slice} :
     s.dropEndWhile c = s.dropEndWhile (· == c) := by
-  simp only [dropEndWhile]; exact dropEndWhile_go_beq_eq s.endPos
+  simpa only [dropEndWhile] using dropEndWhileGo_eq s.endPos
 
-private theorem takeEndWhile_go_beq_eq {c : Char} {s : Slice} (curr : s.Pos) :
+private theorem takeEndWhileGo_eq {c : Char} {s : Slice} (curr : s.Pos) :
     takeEndWhile.go s c curr = takeEndWhile.go s (· == c) curr := by
-  unfold takeEndWhile.go
-  simp only [show Pattern.BackwardPattern.dropSuffix? c (s.sliceTo curr) =
-    Pattern.BackwardPattern.dropSuffix? (· == c) (s.sliceTo curr) from rfl]
-  split
-  · split
-    · exact takeEndWhile_go_beq_eq ..
-    · rfl
-  · rfl
-termination_by curr.down
+  fun_induction takeEndWhile.go s c curr with
+  | case1 pos nextCurr h₁ h₂ ih =>
+    conv => rhs; rw [takeEndWhile.go]
+    simp [← Pattern.BackwardPattern.dropSuffix?_char_eq_dropSuffix?_beq, h₁, h₂, ih]
+  | case2 pos nextCurr h ih =>
+    conv => rhs; rw [takeEndWhile.go]
+    simp [← Pattern.BackwardPattern.dropSuffix?_char_eq_dropSuffix?_beq, h, ih]
+  | case3 pos h =>
+    conv => rhs; rw [takeEndWhile.go]
+    simp [← Pattern.BackwardPattern.dropSuffix?_char_eq_dropSuffix?_beq]
 
-theorem takeEndWhile_eq_takeEndWhile_beq {c : Char} {s : Slice} :
+theorem takeEndWhile_char_eq_takeEndWhile_beq {c : Char} {s : Slice} :
     s.takeEndWhile c = s.takeEndWhile (· == c) := by
-  simp only [takeEndWhile]; exact takeEndWhile_go_beq_eq s.endPos
+  simpa only [takeEndWhile] using takeEndWhileGo_eq s.endPos
 
 end String.Slice

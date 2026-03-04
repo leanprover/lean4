@@ -34,11 +34,11 @@ they must release the reference as many times as they have received it from the 
 structure RpcRef where
   /- NOTE(WN): It is important for this to be a single-field structure
   in order to deserialize as an `Object` on the JS side. -/
-  p : USize
+  __rpcref : USize
   deriving Inhabited, BEq, Hashable, FromJson, ToJson
 
 instance : ToString RpcRef where
-  toString r := toString r.p
+  toString r := toString r.__rpcref
 
 end Lean.Lsp
 

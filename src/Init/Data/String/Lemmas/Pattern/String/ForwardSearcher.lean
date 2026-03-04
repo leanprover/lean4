@@ -563,19 +563,47 @@ public theorem lawfulToForwardSearcherModel {pat : Slice} (hpat : pat.isEmpty = 
     rw (occs := [1]) [← Invariants.base_start hpat]
     apply Invariants.isValidSearchFrom_toList _ _ rfl rfl
 
-public theorem toList_iter_emptyBefore (s : Slice) (pos : s.Pos) :
-    ∃ l, (Std.Iter.mk (.emptyBefore pos : ForwardSliceSearcher s)).toList =
-      .matched pos pos :: l := by
-  have key : ∃ it', (Std.Iter.mk (.emptyBefore pos : ForwardSliceSearcher s)).step.val =
-      .yield it' (.matched pos pos) := by
-    simp only [Std.Iter.step_eq, Std.Iter.toIterM]
-    split <;>
-      simp only [Id.run_pure, Std.Shrink.inflate_deflate, Std.IterM.Step.toPure_yield,
-        Std.IterM.toIter_mk, Std.PlausibleIterStep.yield] <;>
-      exact ⟨_, rfl⟩
-  obtain ⟨it', h⟩ := key
-  rw [Std.Iter.toList_eq_match_step, h]
-  exact ⟨_, rfl⟩
+public theorem toList_emptyBefore_eq (s : Slice) (pos : s.Pos) :
+    (Std.Iter.mk (.emptyBefore pos : ForwardSliceSearcher s)).toList =
+      if h : pos = s.endPos then
+        [.matched pos pos]
+      else
+        .matched pos pos :: .rejected pos (pos.next h) ::
+          (Std.Iter.mk (.emptyBefore (pos.next h) : ForwardSliceSearcher s)).toList := by
+  by_cases h : pos = s.endPos
+  · subst h
+    have hstep : (Std.Iter.mk (.emptyBefore s.endPos : ForwardSliceSearcher s)).step.val =
+        .yield ⟨.atEnd⟩ (.matched s.endPos s.endPos) := by
+      simp only [Std.Iter.step_eq, Std.Iter.toIterM]
+      split
+      · rename_i hc; exact absurd rfl hc
+      · simp only [Id.run_pure, Std.Shrink.inflate_deflate, Std.IterM.Step.toPure_yield,
+          Std.IterM.toIter_mk, Std.PlausibleIterStep.yield]
+    have hstep₂ : (Std.Iter.mk (.atEnd : ForwardSliceSearcher s)).step.val = .done := by
+      simp only [Std.Iter.step_eq, Std.Iter.toIterM, Id.run_pure, Std.Shrink.inflate_deflate]
+      rfl
+    rw [Std.Iter.toList_eq_match_step, hstep]; simp only []
+    rw [Std.Iter.toList_eq_match_step, hstep₂]; simp only [dite_true]
+  · simp only [dif_neg h]
+    have hstep : (Std.Iter.mk (.emptyBefore pos : ForwardSliceSearcher s)).step.val =
+        .yield ⟨.emptyAt pos h⟩ (.matched pos pos) := by
+      simp only [Std.Iter.step_eq, Std.Iter.toIterM]
+      split
+      · simp only [Id.run_pure, Std.Shrink.inflate_deflate, Std.IterM.Step.toPure_yield,
+          Std.IterM.toIter_mk, Std.PlausibleIterStep.yield]
+      · rename_i hc; exact absurd h hc
+    have hstep₂ : (Std.Iter.mk (.emptyAt pos h : ForwardSliceSearcher s)).step.val =
+        .yield ⟨.emptyBefore (pos.next h)⟩ (.rejected pos (pos.next h)) := by
+      simp only [Std.Iter.step_eq, Std.Iter.toIterM, Id.run_pure, Std.Shrink.inflate_deflate,
+        Std.IterM.Step.toPure_yield, Std.IterM.toIter_mk, Std.PlausibleIterStep.yield]
+    rw [Std.Iter.toList_eq_match_step, hstep]; simp only []; congr 1
+    rw [Std.Iter.toList_eq_match_step, hstep₂]
+
+public theorem toSearcher_of_isEmpty {pat : Slice} (hpat : pat.isEmpty = true) (s : Slice) :
+    ToForwardSearcher.toSearcher pat s =
+      Std.Iter.mk (.emptyBefore s.startPos : ForwardSliceSearcher s) := by
+  simp only [ToForwardSearcher.toSearcher, iter,
+    dif_pos (show pat.utf8ByteSize = 0 from by simpa [isEmpty_eq] using hpat)]
 
 end ForwardSliceSearcher
 
@@ -605,6 +633,11 @@ public theorem lawfulToForwardSearcherModel {pat : String} (hpat : pat ≠ "") :
     isValidSearchFrom_iff_slice.2
       ((ForwardSliceSearcher.lawfulToForwardSearcherModel
         (by rwa [isEmpty_toSlice, isEmpty_eq_false_iff])).isValidSearchFrom_toList s)
+
+public theorem toSearcher_empty (s : Slice) : ToForwardSearcher.toSearcher "" s =
+      Std.Iter.mk (.emptyBefore s.startPos : ForwardSliceSearcher s) := by
+  simp only [ToForwardSearcher.toSearcher, ForwardSliceSearcher.iter,
+    dif_pos (show "".toSlice.utf8ByteSize = 0 from by decide)]
 
 end ForwardStringSearcher
 

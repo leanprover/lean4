@@ -80,6 +80,18 @@ theorem matchesAt_iff_splits {pat s : Slice} {pos : s.Pos} (h : pat.isEmpty = fa
   exact ⟨fun ⟨e, t₁, t₂, ht₁, ht₂⟩ => ⟨t₁, t₂, ht₁⟩,
     fun ⟨t₁, t₂, ht⟩ => ⟨ht.rotateRight, t₁, t₂, ht, ht.splits_rotateRight⟩⟩
 
+theorem exists_matchesAt_iff_eq_append {pat s : Slice} (h : pat.isEmpty = false) :
+    (∃ (pos : s.Pos), MatchesAt pat pos) ↔ ∃ t₁ t₂, s.copy = t₁ ++ pat.copy ++ t₂ := by
+  simp only [matchesAt_iff_splits h]
+  constructor
+  · rintro ⟨pos, t₁, t₂, hsplit⟩
+    exact ⟨t₁, t₂, by rw [hsplit.eq_append, append_assoc]⟩
+  · rintro ⟨t₁, t₂, heq⟩
+    have hvalid : t₁.rawEndPos.IsValidForSlice s :=
+      Pos.Raw.isValidForSlice_iff_exists_append.mpr
+        ⟨t₁, pat.copy ++ t₂, by rw [← append_assoc]; exact heq, rfl⟩
+    exact ⟨s.pos _ hvalid, t₁, t₂, ⟨by rw [← append_assoc]; exact heq, by simp⟩⟩
+
 theorem matchesAt_iff_isLongestMatchAt {pat s : Slice} {pos : s.Pos} (h : pat.isEmpty = false) :
     MatchesAt pat pos ↔ ∃ (h : (pos.offset.increaseBy pat.utf8ByteSize).IsValidForSlice s),
       IsLongestMatchAt pat pos (s.pos _ h) := by
@@ -198,6 +210,18 @@ theorem matchesAt_iff_splits {pat : String} {s : Slice} {pos : s.Pos} (h : pat �
   rw [matchesAt_iff_slice,
     ForwardSliceSearcher.matchesAt_iff_splits (toSlice_isEmpty h)]
   simp
+
+theorem exists_matchesAt_iff_eq_append {pat : String} {s : Slice} (h : pat ≠ "") :
+    (∃ (pos : s.Pos), MatchesAt pat pos) ↔ ∃ t₁ t₂, s.copy = t₁ ++ pat ++ t₂ := by
+  simp only [matchesAt_iff_splits h]
+  constructor
+  · rintro ⟨pos, t₁, t₂, hsplit⟩
+    exact ⟨t₁, t₂, by rw [hsplit.eq_append, append_assoc]⟩
+  · rintro ⟨t₁, t₂, heq⟩
+    have hvalid : t₁.rawEndPos.IsValidForSlice s :=
+      Pos.Raw.isValidForSlice_iff_exists_append.mpr
+        ⟨t₁, pat ++ t₂, by rw [← append_assoc]; exact heq, rfl⟩
+    exact ⟨s.pos _ hvalid, t₁, t₂, ⟨by rw [← append_assoc]; exact heq, by simp⟩⟩
 
 theorem matchesAt_iff_isLongestMatchAt {pat : String} {s : Slice} {pos : s.Pos}
     (h : pat ≠ "") :

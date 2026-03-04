@@ -8,6 +8,8 @@ module
 prelude
 public import Init.Data.String.Pattern.Pred
 public import Init.Data.String.Lemmas.Pattern.Basic
+public import Init.Data.String.Slice
+import all Init.Data.String.Slice
 import Init.Data.Option.Lemmas
 import Init.Data.String.Lemmas.Basic
 import Init.Data.String.Lemmas.Order
@@ -148,3 +150,101 @@ theorem matchAt?_eq {s : Slice} {pos : s.Pos} {p : Char → Prop} [DecidablePred
 end Decidable
 
 end String.Slice.Pattern.Model.CharPred
+
+end -- public section
+
+/-! ### Slice-level operation bridges -/
+
+namespace String.Slice
+
+-- ForwardPattern bridges
+
+theorem startsWith_eq_startsWith_decide {p : Char → Prop} [DecidablePred p] {s : Slice} :
+    s.startsWith p = s.startsWith (decide <| p ·) := rfl
+
+theorem dropPrefix?_eq_dropPrefix?_decide {p : Char → Prop} [DecidablePred p] {s : Slice} :
+    s.dropPrefix? p = s.dropPrefix? (decide <| p ·) := rfl
+
+theorem dropPrefix_eq_dropPrefix_decide {p : Char → Prop} [DecidablePred p] {s : Slice} :
+    s.dropPrefix p = s.dropPrefix (decide <| p ·) := rfl
+
+private theorem dropWhile_go_eq {p : Char → Prop} [DecidablePred p] {s : Slice} (curr : s.Pos) :
+    dropWhile.go s p curr = dropWhile.go s (decide <| p ·) curr := by
+  unfold dropWhile.go
+  simp only [show Pattern.ForwardPattern.dropPrefix? p (s.sliceFrom curr) =
+    Pattern.ForwardPattern.dropPrefix? (decide <| p ·) (s.sliceFrom curr) from rfl]
+  split
+  · split
+    · exact dropWhile_go_eq ..
+    · rfl
+  · rfl
+termination_by curr
+
+theorem dropWhile_eq_dropWhile_decide {p : Char → Prop} [DecidablePred p] {s : Slice} :
+    s.dropWhile p = s.dropWhile (decide <| p ·) := by
+  simp only [dropWhile]; exact dropWhile_go_eq s.startPos
+
+private theorem takeWhile_go_eq {p : Char → Prop} [DecidablePred p] {s : Slice} (curr : s.Pos) :
+    takeWhile.go s p curr = takeWhile.go s (decide <| p ·) curr := by
+  unfold takeWhile.go
+  simp only [show Pattern.ForwardPattern.dropPrefix? p (s.sliceFrom curr) =
+    Pattern.ForwardPattern.dropPrefix? (decide <| p ·) (s.sliceFrom curr) from rfl]
+  split
+  · split
+    · exact takeWhile_go_eq ..
+    · rfl
+  · rfl
+termination_by curr
+
+theorem takeWhile_eq_takeWhile_decide {p : Char → Prop} [DecidablePred p] {s : Slice} :
+    s.takeWhile p = s.takeWhile (decide <| p ·) := by
+  simp only [takeWhile]; exact takeWhile_go_eq s.startPos
+
+theorem all_eq_all_decide {p : Char → Prop} [DecidablePred p] {s : Slice} :
+    s.all p = s.all (decide <| p ·) := by
+  simp only [all, dropWhile_eq_dropWhile_decide]
+
+-- BackwardPattern bridges
+
+theorem endsWith_eq_endsWith_decide {p : Char → Prop} [DecidablePred p] {s : Slice} :
+    s.endsWith p = s.endsWith (decide <| p ·) := rfl
+
+theorem dropSuffix?_eq_dropSuffix?_decide {p : Char → Prop} [DecidablePred p] {s : Slice} :
+    s.dropSuffix? p = s.dropSuffix? (decide <| p ·) := rfl
+
+theorem dropSuffix_eq_dropSuffix_decide {p : Char → Prop} [DecidablePred p] {s : Slice} :
+    s.dropSuffix p = s.dropSuffix (decide <| p ·) := rfl
+
+private theorem dropEndWhile_go_eq {p : Char → Prop} [DecidablePred p] {s : Slice} (curr : s.Pos) :
+    dropEndWhile.go s p curr = dropEndWhile.go s (decide <| p ·) curr := by
+  unfold dropEndWhile.go
+  simp only [show Pattern.BackwardPattern.dropSuffix? p (s.sliceTo curr) =
+    Pattern.BackwardPattern.dropSuffix? (decide <| p ·) (s.sliceTo curr) from rfl]
+  split
+  · split
+    · exact dropEndWhile_go_eq ..
+    · rfl
+  · rfl
+termination_by curr.down
+
+theorem dropEndWhile_eq_dropEndWhile_decide {p : Char → Prop} [DecidablePred p] {s : Slice} :
+    s.dropEndWhile p = s.dropEndWhile (decide <| p ·) := by
+  simp only [dropEndWhile]; exact dropEndWhile_go_eq s.endPos
+
+private theorem takeEndWhile_go_eq {p : Char → Prop} [DecidablePred p] {s : Slice} (curr : s.Pos) :
+    takeEndWhile.go s p curr = takeEndWhile.go s (decide <| p ·) curr := by
+  unfold takeEndWhile.go
+  simp only [show Pattern.BackwardPattern.dropSuffix? p (s.sliceTo curr) =
+    Pattern.BackwardPattern.dropSuffix? (decide <| p ·) (s.sliceTo curr) from rfl]
+  split
+  · split
+    · exact takeEndWhile_go_eq ..
+    · rfl
+  · rfl
+termination_by curr.down
+
+theorem takeEndWhile_eq_takeEndWhile_decide {p : Char → Prop} [DecidablePred p] {s : Slice} :
+    s.takeEndWhile p = s.takeEndWhile (decide <| p ·) := by
+  simp only [takeEndWhile]; exact takeEndWhile_go_eq s.endPos
+
+end String.Slice

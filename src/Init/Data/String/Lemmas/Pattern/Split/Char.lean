@@ -13,6 +13,7 @@ import Init.Data.String.Termination
 import Init.Data.Order.Lemmas
 import Init.Data.Iterators.Lemmas.Combinators.FilterMap
 import Init.Data.String.Lemmas.Pattern.Split.Basic
+import Init.Data.String.Lemmas.Pattern.Split.Pred
 import Init.Data.String.Lemmas.Pattern.Char
 import Init.ByCases
 import Init.Data.String.OrderInstances
@@ -26,28 +27,32 @@ namespace String.Slice
 
 open Pattern.Model Pattern.Model.Char
 
+private theorem split_eq_split_beq {c : Char} {s : Slice}
+    (f curr : s.Pos) (hle : f ≤ curr) :
+    Pattern.Model.split c f curr hle = Pattern.Model.split (· == c) f curr hle := by
+  induction curr using Pos.next_induction generalizing f with
+  | endPos => simp
+  | next curr hne ih =>
+    by_cases hm : MatchesAt c curr
+    · obtain ⟨hne, hget⟩ := matchesAt_iff.mp hm
+      have him := isLongestMatchAt_of_get_eq hget
+      rw [split_eq_of_isLongestMatchAt him,
+          split_eq_of_isLongestMatchAt
+            (isLongestMatchAt_iff_isLongestMatchAt_beq.mp him)]
+      congr 1
+      exact ih _ _
+    · have : ¬MatchesAt (· == c) curr :=
+        fun h => hm (matchesAt_iff_matchesAt_beq.mpr h)
+      rw [split_eq_next_of_not_matchesAt hne hm,
+          split_eq_next_of_not_matchesAt hne this]
+      exact ih _ _
+
 theorem toList_splitToSubslice_char {s : Slice} {c : Char} :
     (s.splitToSubslice c).toList.map (Slice.copy ∘ Subslice.toSlice) =
       (s.copy.toList.splitOn c).map String.ofList := by
-  simp only [Pattern.toList_splitToSubslice_eq_modelSplit]
-  suffices ∀ (f p : s.Pos) (hle : f ≤ p) (t₁ t₂ : String),
-      p.Splits t₁ t₂ → (Pattern.Model.split c f p hle).map (copy ∘ Subslice.toSlice) =
-        (t₂.toList.splitOnPPrepend (· == c) (s.subslice f p hle).copy.toList.reverse).map String.ofList by
-    simpa [List.splitOn_eq_splitOnP] using this s.startPos s.startPos (Std.le_refl _) "" s.copy
-  intro f p hle t₁ t₂ hp
-  induction p using Pos.next_induction generalizing f t₁ t₂ with
-  | next p h ih =>
-    obtain ⟨t₂, rfl⟩ := hp.exists_eq_singleton_append h
-    by_cases hpc : p.get h = c
-    · simp [split_eq_of_isLongestMatchAt (isLongestMatchAt_of_get_eq hpc),
-        ih _ (Std.le_refl _) _ _ hp.next,
-        List.splitOnPPrepend_cons_pos (p := (· == c)) (beq_iff_eq.2 hpc)]
-    · rw [split_eq_next_of_not_matchesAt h (not_matchesAt_of_get_ne hpc)]
-      simp only [toList_append, toList_singleton, List.cons_append, List.nil_append, Subslice.copy_eq]
-      rw [ih _ _ _ _ hp.next, List.splitOnPPrepend_cons_neg (by simpa)]
-      have := (splits_slice (Std.le_trans hle (by simp)) (p.slice f (p.next h) hle (by simp))).eq_append
-      simp_all
-  | endPos => simp_all
+  have : (s.splitToSubslice c).toList = (s.splitToSubslice (· == c)).toList := by
+    simp only [Pattern.toList_splitToSubslice_eq_modelSplit, split_eq_split_beq]
+  simp only [this, List.splitOn_eq_splitOnP, toList_splitToSubslice_bool]
 
 theorem toList_split_char {s : Slice} {c : Char} :
     (s.split c).toList.map Slice.copy = (s.copy.toList.splitOn c).map String.ofList := by

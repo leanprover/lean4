@@ -19,6 +19,16 @@ import Init.Data.String.OrderInstances
 
 namespace String.Slice
 
+theorem find?_eq_find?_beq {c : Char} {s : Slice} :
+    s.find? c = s.find? (· == c) := by
+  ext pos
+  simp only [Pattern.Model.find?_eq_some_iff,
+    Pattern.Model.Char.matchesAt_iff_matchesAt_beq]
+
+theorem contains_eq_contains_beq {c : Char} {s : Slice} :
+    s.contains c = s.contains (· == c) := by
+  simp only [← isSome_find?, find?_eq_find?_beq]
+
 theorem find?_char_eq_some_iff {c : Char} {s : Slice} {pos : s.Pos} :
     s.find? c = some pos ↔
       ∃ h, pos.get h = c ∧ ∀ pos', (h' : pos' < pos) → pos'.get (Pos.ne_endPos_of_lt h') ≠ c := by
@@ -41,6 +51,12 @@ theorem find?_char_eq_some_iff_splits {c : Char} {s : Slice} {pos : s.Pos} :
     have hne := hs.ne_endPos_of_singleton
     exact ⟨hne, (singleton_append_inj.mp (hs.eq_right (pos.splits_next_right hne))).1.symm,
       fun pos' hlt hget => hnotin (hs.mem_toList_left_iff.mpr ⟨pos', hlt, hget⟩)⟩
+
+theorem Pos.find?_eq_find?_beq {c : Char} {s : Slice} {pos : s.Pos} :
+    pos.find? c = pos.find? (· == c) := by
+  ext pos'
+  simp only [Pattern.Model.posFind?_eq_some_iff,
+    Pattern.Model.Char.matchesAt_iff_matchesAt_beq]
 
 theorem Pos.find?_char_eq_some_iff {c : Char} {s : Slice} {pos pos' : s.Pos} :
     pos.find? c = some pos' ↔
@@ -142,6 +158,18 @@ theorem Pos.find?_char_eq_none_iff_not_mem_of_splits {c : Char} {s : String} {po
     pos.find? c = none ↔ c ∉ u.toList := by
   rw [Pos.find?_eq_find?_toSlice, Option.map_eq_none_iff]
   exact Slice.Pos.find?_char_eq_none_iff_not_mem_of_splits (Pos.splits_toSlice_iff.mpr hs)
+
+theorem Pos.find?_eq_find?_beq {c : Char} {s : String} {pos : s.Pos} :
+    pos.find? c = pos.find? (· == c) := by
+  simp only [Pos.find?_eq_find?_toSlice, Slice.Pos.find?_eq_find?_beq]
+
+theorem find?_eq_find?_beq {c : Char} {s : String} :
+    s.find? c = s.find? (· == c) := by
+  simp only [find?_eq_find?_toSlice, Slice.find?_eq_find?_beq]
+
+theorem contains_eq_contains_beq {c : Char} {s : String} :
+    s.contains c = s.contains (· == c) := by
+  simp only [contains_eq_contains_toSlice, Slice.contains_eq_contains_beq]
 
 theorem find?_char_eq_some_iff {c : Char} {s : String} {pos : s.Pos} :
     s.find? c = some pos ↔

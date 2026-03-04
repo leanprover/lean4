@@ -8,6 +8,7 @@ module
 prelude
 public import Init.Data.String.Search
 import all Init.Data.String.Slice
+import all Init.Data.String.Pattern.String
 import Init.ByCases
 import Init.Data.String.Lemmas.Pattern.Find.Basic
 import Init.Data.String.Lemmas.Pattern.String.ForwardSearcher
@@ -25,6 +26,8 @@ private theorem contains_eq_true_of_isEmpty {pat : Slice} (hpat : pat.isEmpty = 
     ForwardSliceSearcher.toList_emptyBefore_eq]
   split <;> simp [List.any_cons]
 
+-- Pattern-type bridges: String pattern → Slice pattern
+
 open Pattern.Model in
 private theorem contains_string_eq_true_of_empty {pat : String} (hpat : pat = "") (s : Slice) :
     s.contains pat = true := by
@@ -32,6 +35,19 @@ private theorem contains_string_eq_true_of_empty {pat : String} (hpat : pat = ""
   rw [contains, ← Std.Iter.any_toList, ForwardStringSearcher.toSearcher_empty,
     ForwardSliceSearcher.toList_emptyBefore_eq]
   split <;> simp [List.any_cons]
+
+open Pattern.Model in
+theorem contains_eq_contains_slice {pat : String} {s : Slice} :
+    s.contains pat = s.contains pat.toSlice := by
+  by_cases h : pat = ""
+  · subst h
+    rw [contains_string_eq_true_of_empty rfl s, contains_eq_true_of_isEmpty (by simp) s]
+  · have := ForwardStringSearcher.lawfulToForwardSearcherModel h
+    have := ForwardSliceSearcher.lawfulToForwardSearcherModel
+      (by rwa [isEmpty_toSlice, isEmpty_eq_false_iff])
+    exact Bool.eq_iff_iff.mpr ((contains_eq_true_iff _).trans
+      ((exists_congr fun _ => ForwardStringSearcher.matchesAt_iff_slice).trans
+        (contains_eq_true_iff _).symm))
 
 private theorem isInfix_toList_iff {t s : String} :
     t.toList <:+: s.toList ↔ ∃ s₁ s₂, s = s₁ ++ t ++ s₂ := by
@@ -55,11 +71,7 @@ theorem contains_slice_iff {t s : Slice} :
 @[simp]
 theorem contains_string_iff {t : String} {s : Slice} :
     s.contains t ↔ t.toList <:+: s.copy.toList := by
-  by_cases ht : t = ""
-  · simp [contains_string_eq_true_of_empty ht s, ht]
-  · have := Pattern.Model.ForwardStringSearcher.lawfulToForwardSearcherModel (pat := t) ht
-    simp only [Pattern.Model.contains_eq_true_iff,
-      Pattern.Model.ForwardStringSearcher.exists_matchesAt_iff_eq_append ht, isInfix_toList_iff]
+  simp [contains_eq_contains_slice, contains_slice_iff, copy_toSlice]
 
 @[simp]
 theorem contains_slice_eq_false_iff {t s : Slice} :

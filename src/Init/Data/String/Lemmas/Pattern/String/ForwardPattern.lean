@@ -9,6 +9,7 @@ prelude
 public import Init.Data.String.Lemmas.Pattern.String.Basic
 public import Init.Data.String.Pattern.String
 import all Init.Data.String.Pattern.String
+import all Init.Data.String.Slice
 import Init.Data.String.Lemmas.Pattern.Memcmp
 import Init.Data.String.Lemmas.Basic
 import Init.Data.ByteArray.Lemmas
@@ -87,3 +88,31 @@ public theorem lawfulForwardPatternModel {pat : String} (hpat : pat ≠ "") :
 end Model.ForwardStringSearcher
 
 end String.Slice.Pattern
+
+/-! ### Slice-level operation bridges: String pattern → Slice pattern -/
+
+namespace String.Slice
+
+-- ForwardPattern bridges
+
+theorem startsWith_eq_startsWith_slice {pat : String} {s : Slice} :
+    s.startsWith pat = s.startsWith pat.toSlice := rfl
+
+theorem dropPrefix?_eq_dropPrefix?_slice {pat : String} {s : Slice} :
+    s.dropPrefix? pat = s.dropPrefix? pat.toSlice := rfl
+
+theorem dropPrefix_eq_dropPrefix_slice {pat : String} {s : Slice} :
+    s.dropPrefix pat = s.dropPrefix pat.toSlice := rfl
+
+-- BackwardPattern bridges
+
+theorem endsWith_eq_endsWith_slice {pat : String} {s : Slice} :
+    s.endsWith pat = s.endsWith pat.toSlice := rfl
+
+theorem dropSuffix?_eq_dropSuffix?_slice {pat : String} {s : Slice} :
+    s.dropSuffix? pat = s.dropSuffix? pat.toSlice := rfl
+
+theorem dropSuffix_eq_dropSuffix_slice {pat : String} {s : Slice} :
+    s.dropSuffix pat = s.dropSuffix pat.toSlice := rfl
+
+end String.Slice

@@ -9,7 +9,9 @@ prelude
 public import Init.Data.String.Lemmas.Pattern.String.Basic
 public import Init.Data.String.Pattern.String
 public import Init.Data.String.Slice
+public import Init.Data.String.Search
 import all Init.Data.String.Slice
+import all Init.Data.String.Search
 import all Init.Data.String.Pattern.String
 import Init.Data.String.Lemmas.IsEmpty
 import Init.Data.Vector.Lemmas
@@ -622,6 +624,10 @@ public theorem contains_string_eq_contains_toSlice {pat : String} {s : Slice} :
 
 public theorem find?_string_eq_find?_toSlice {pat : String} {s : Slice} :
     s.find? pat = s.find? pat.toSlice :=
+  (rfl)
+
+public theorem Pos.find?_string_eq_find?_toSlice {pat : String} {s : Slice} {p : s.Pos} :
+    p.find? pat = p.find? pat.toSlice :=
   (rfl)
 
 end String.Slice

@@ -149,24 +149,16 @@ theorem matchAt?_eq {s : Slice} {pos : s.Pos} {p : Char → Prop} [DecidablePred
 
 end Decidable
 
-end String.Slice.Pattern.Model.CharPred
-
-end -- public section
-
-/-! ### Slice-level operation bridges -/
-
-namespace String.Slice
-
--- ForwardPattern bridges
+end Pattern.Model.CharPred
 
 theorem startsWith_eq_startsWith_decide {p : Char → Prop} [DecidablePred p] {s : Slice} :
-    s.startsWith p = s.startsWith (decide <| p ·) := rfl
+    s.startsWith p = s.startsWith (decide <| p ·) := (rfl)
 
 theorem dropPrefix?_eq_dropPrefix?_decide {p : Char → Prop} [DecidablePred p] {s : Slice} :
-    s.dropPrefix? p = s.dropPrefix? (decide <| p ·) := rfl
+    s.dropPrefix? p = s.dropPrefix? (decide <| p ·) := (rfl)
 
 theorem dropPrefix_eq_dropPrefix_decide {p : Char → Prop} [DecidablePred p] {s : Slice} :
-    s.dropPrefix p = s.dropPrefix (decide <| p ·) := rfl
+    s.dropPrefix p = s.dropPrefix (decide <| p ·) := (rfl)
 
 private theorem dropWhile_go_eq {p : Char → Prop} [DecidablePred p] {s : Slice} (curr : s.Pos) :
     dropWhile.go s p curr = dropWhile.go s (decide <| p ·) curr := by
@@ -204,16 +196,14 @@ theorem all_eq_all_decide {p : Char → Prop} [DecidablePred p] {s : Slice} :
     s.all p = s.all (decide <| p ·) := by
   simp only [all, dropWhile_eq_dropWhile_decide]
 
--- BackwardPattern bridges
-
 theorem endsWith_eq_endsWith_decide {p : Char → Prop} [DecidablePred p] {s : Slice} :
-    s.endsWith p = s.endsWith (decide <| p ·) := rfl
+    s.endsWith p = s.endsWith (decide <| p ·) := (rfl)
 
 theorem dropSuffix?_eq_dropSuffix?_decide {p : Char → Prop} [DecidablePred p] {s : Slice} :
-    s.dropSuffix? p = s.dropSuffix? (decide <| p ·) := rfl
+    s.dropSuffix? p = s.dropSuffix? (decide <| p ·) := (rfl)
 
 theorem dropSuffix_eq_dropSuffix_decide {p : Char → Prop} [DecidablePred p] {s : Slice} :
-    s.dropSuffix p = s.dropSuffix (decide <| p ·) := rfl
+    s.dropSuffix p = s.dropSuffix (decide <| p ·) := (rfl)
 
 private theorem dropEndWhile_go_eq {p : Char → Prop} [DecidablePred p] {s : Slice} (curr : s.Pos) :
     dropEndWhile.go s p curr = dropEndWhile.go s (decide <| p ·) curr := by

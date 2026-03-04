@@ -10,8 +10,10 @@ public import Init.Data.String.Pattern.Char
 public import Init.Data.String.Lemmas.Pattern.Basic
 public import Init.Data.String.Slice
 public import Init.Data.String.Lemmas.Pattern.Pred
+public import Init.Data.String.Search
 import all Init.Data.String.Slice
 import all Init.Data.String.Pattern.Char
+import all Init.Data.String.Search
 import Init.Data.Option.Lemmas
 import Init.Data.String.Lemmas.Basic
 import Init.Data.String.Lemmas.Order
@@ -172,6 +174,10 @@ theorem all_eq_all_beq {c : Char} {s : Slice} :
 
 theorem find?_char_eq_find?_beq {c : Char} {s : Slice} :
     s.find? c = s.find? (· == c) :=
+  (rfl)
+
+theorem Pos.find?_char_eq_find?_beq {c : Char} {s : Slice} {p : s.Pos} :
+    p.find? c = p.find? (· == c) :=
   (rfl)
 
 theorem contains_char_eq_contains_beq {c : Char} {s : Slice} :

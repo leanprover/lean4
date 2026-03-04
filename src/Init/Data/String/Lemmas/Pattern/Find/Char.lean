@@ -42,12 +42,6 @@ theorem find?_char_eq_some_iff_splits {c : Char} {s : Slice} {pos : s.Pos} :
     exact ⟨hne, (singleton_append_inj.mp (hs.eq_right (pos.splits_next_right hne))).1.symm,
       fun pos' hlt hget => hnotin (hs.mem_toList_left_iff.mpr ⟨pos', hlt, hget⟩)⟩
 
-theorem Pos.find?_eq_find?_beq {c : Char} {s : Slice} {pos : s.Pos} :
-    pos.find? c = pos.find? (· == c) := by
-  ext pos'
-  simp only [Pattern.Model.posFind?_eq_some_iff,
-    Pattern.Model.Char.matchesAt_iff_matchesAt_beq]
-
 theorem Pos.find?_char_eq_some_iff {c : Char} {s : Slice} {pos pos' : s.Pos} :
     pos.find? c = some pos' ↔
       pos ≤ pos' ∧ (∃ h, pos'.get h = c) ∧
@@ -151,7 +145,7 @@ theorem Pos.find?_char_eq_none_iff_not_mem_of_splits {c : Char} {s : String} {po
 
 theorem Pos.find?_char_eq_find?_beq {c : Char} {s : String} {pos : s.Pos} :
     pos.find? c = pos.find? (· == c) := by
-  simp only [Pos.find?_eq_find?_toSlice, Slice.Pos.find?_eq_find?_beq]
+  simp only [Pos.find?_eq_find?_toSlice, Slice.Pos.find?_char_eq_find?_beq]
 
 theorem find?_char_eq_find?_beq {c : Char} {s : String} :
     s.find? c = s.find? (· == c) := by
@@ -159,7 +153,7 @@ theorem find?_char_eq_find?_beq {c : Char} {s : String} :
 
 theorem contains_char_eq_contains_beq {c : Char} {s : String} :
     s.contains c = s.contains (· == c) := by
-  simp only [contains_eq_contains_toSlice, Slice.contains_eq_contains_beq]
+  simp only [contains_eq_contains_toSlice, Slice.contains_char_eq_contains_beq]
 
 theorem find?_char_eq_some_iff {c : Char} {s : String} {pos : s.Pos} :
     s.find? c = some pos ↔

@@ -435,7 +435,6 @@ theorem Invariants.of_prefixFunction_eq {pat s : Slice} {stackPos needlePos : St
   rw [Nat.sub_add_cancel (by simp at h'; omega)] at this
   exact hk ▸ (h.partialMatch.partialMatch_iff.1 this).2
 
-set_option backward.isDefEq.respectTransparency false in
 theorem Invariants.isValidSearchFrom_toList {pat s : Slice} {stackPos needlePos : String.Pos.Raw}
     (it : Std.Iter (α := ForwardSliceSearcher s) (SearchStep s))
     (h : Invariants pat s needlePos stackPos)

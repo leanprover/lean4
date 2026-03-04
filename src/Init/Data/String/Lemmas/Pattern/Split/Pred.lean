@@ -61,28 +61,33 @@ section
 
 open Pattern.Model Pattern.Model.CharPred.Decidable
 
+private theorem split_eq_split_decide {p : Char → Prop} [DecidablePred p] {s : Slice}
+    (f curr : s.Pos) (hle : f ≤ curr) :
+    Pattern.Model.split p f curr hle = Pattern.Model.split (decide <| p ·) f curr hle := by
+  induction curr using Pos.next_induction generalizing f with
+  | endPos => simp
+  | next curr hne ih =>
+    by_cases hm : MatchesAt p curr
+    · obtain ⟨⟨endPos, him⟩⟩ := hm
+      obtain ⟨_, rfl, _⟩ := CharPred.Decidable.isLongestMatchAt_iff.mp him
+      rw [split_eq_of_isLongestMatchAt him,
+          split_eq_of_isLongestMatchAt
+            (CharPred.Decidable.isLongestMatchAt_iff_isLongestMatchAt_decide.mp him)]
+      congr 1
+      exact ih _ _
+    · have : ¬MatchesAt (decide <| p ·) curr :=
+        fun h => hm (CharPred.Decidable.matchesAt_iff_matchesAt_decide.mpr h)
+      rw [split_eq_next_of_not_matchesAt hne hm,
+          split_eq_next_of_not_matchesAt hne this]
+      exact ih _ _
+
 theorem toList_splitToSubslice_prop {s : Slice} {p : Char → Prop} [DecidablePred p] :
     (s.splitToSubslice p).toList.map (Slice.copy ∘ Subslice.toSlice) =
       (s.copy.toList.splitOnP p).map String.ofList := by
-  simp only [Pattern.toList_splitToSubslice_eq_modelSplit]
-  suffices ∀ (f pos : s.Pos) (hle : f ≤ pos) (t₁ t₂ : String),
-      pos.Splits t₁ t₂ → (Pattern.Model.split p f pos hle).map (copy ∘ Subslice.toSlice) =
-        (t₂.toList.splitOnPPrepend p (s.subslice f pos hle).copy.toList.reverse).map String.ofList by
-    simpa using this s.startPos s.startPos (Std.le_refl _) "" s.copy
-  intro f pos hle t₁ t₂ hp
-  induction pos using Pos.next_induction generalizing f t₁ t₂ with
-  | next pos h ih =>
-    obtain ⟨t₂, rfl⟩ := hp.exists_eq_singleton_append h
-    by_cases hpc : p (pos.get h)
-    · simp [split_eq_of_isLongestMatchAt (isLongestMatchAt_of_get hpc),
-        ih _ (Std.le_refl _) _ _ hp.next,
-        List.splitOnPPrepend_cons_pos (p := (decide <| p ·)) (by simpa using hpc)]
-    · rw [split_eq_next_of_not_matchesAt h (not_matchesAt_of_get hpc)]
-      simp only [toList_append, toList_singleton, List.cons_append, List.nil_append, Subslice.copy_eq]
-      rw [ih _ _ _ _ hp.next, List.splitOnPPrepend_cons_neg (by simpa)]
-      have := (splits_slice (Std.le_trans hle (by simp)) (pos.slice f (pos.next h) hle (by simp))).eq_append
-      simp_all
-  | endPos => simp_all
+  have : (s.splitToSubslice p).toList = (s.splitToSubslice (decide <| p ·)).toList := by
+    simp only [Pattern.toList_splitToSubslice_eq_modelSplit, split_eq_split_decide]
+  rw [this]
+  exact toList_splitToSubslice_bool
 
 theorem toList_split_prop {s : Slice} {p : Char → Prop} [DecidablePred p] :
     (s.split p).toList.map Slice.copy = (s.copy.toList.splitOnP p).map String.ofList := by

@@ -112,6 +112,15 @@ theorem isLongestMatchAt_of_get {p : Char → Prop} [DecidablePred p] {s : Slice
     {h : pos ≠ s.endPos} (hc : p (pos.get h)) : IsLongestMatchAt p pos (pos.next h) :=
   isLongestMatchAt_iff.2 ⟨h, by simp [hc]⟩
 
+theorem matchesAt_iff_matchesAt_decide {p : Char → Prop} [DecidablePred p] {s : Slice}
+    {pos : s.Pos} : MatchesAt p pos ↔ MatchesAt (decide <| p ·) pos := by
+  simp [matchesAt_iff_exists_isLongestMatchAt, isLongestMatchAt_iff_isLongestMatchAt_decide]
+
+theorem matchAt?_eq_matchAt?_decide {p : Char → Prop} [DecidablePred p] {s : Slice}
+    {pos : s.Pos} : matchAt? p pos = matchAt? (decide <| p ·) pos := by
+  ext endPos
+  simp [isLongestMatchAt_iff_isLongestMatchAt_decide]
+
 theorem dropPrefix?_eq_dropPrefix?_decide {p : Char → Prop} [DecidablePred p] :
     ForwardPattern.dropPrefix? p = ForwardPattern.dropPrefix? (decide <| p ·) := rfl
 

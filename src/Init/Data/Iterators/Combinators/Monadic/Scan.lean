@@ -39,7 +39,7 @@ namespace Iterators.Types
 /--
   Internal state for the ScanM combinator
 -/
-structure ScanM  {β γ : Type w} {n : Type w → Type w''}
+structure ScanM {β γ : Type w} {n : Type w → Type w''}
      (α : Type w) (m : Type w → Type w') (f : γ → β → PostconditionT n γ)
      [MonadLiftT m n] where
   /-- Inner iterator -/
@@ -153,8 +153,8 @@ private def instFinitenessRelation [Monad n] [Finite α m] : FinitenessRelation 
     cases hplaus <;> cases hstep
     case yieldAcc hya => simp [FinRel.of_yieldAcc, IterM.Intermediate.scanM, hya]
     all_goals apply FinRel.of_inner <;> simp only [IterM.Intermediate.scanM, *]
-    . exact IterM.isPlausibleSuccessorOf_of_yield ‹_›
-    . exact IterM.isPlausibleSuccessorOf_of_skip ‹_›
+    · exact IterM.isPlausibleSuccessorOf_of_yield ‹_›
+    · exact IterM.isPlausibleSuccessorOf_of_skip ‹_›
 
 instance instFinite [Monad n] [Finite α m] : Finite (ScanM α m f) n :=
   .of_finitenessRelation instFinitenessRelation
@@ -199,7 +199,7 @@ it                          ---a---b---c ---⊥
 it.scanWithPostcondition    -i-a'--b'--c'---⊥
 ```
 
-(given that `a' ← f i a'`, `b' ← f a' b`, `c' ← f ab' c'`)
+(given that `a' ← f i a`, `b' ← f a' b`, `c' ← f b' c`)
 
 **Termination properties:**
 

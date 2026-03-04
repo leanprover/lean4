@@ -51,7 +51,7 @@ theorem IterM.Intermediate.step_scanM
     intro step
     cases step.inflate using PlausibleIterStep.casesOn <;> simp
 
-private theorem IterM.toList_scanWithPostCondition_afterInit
+private theorem IterM.toList_scanWithPostcondition_afterInit
     [Monad m] [LawfulMonad m] [Iterator α Id β] [Finite α Id]
     {f : γ → β → PostconditionT m γ} {init : γ} (it : IterM (α := α) Id β) :
     IterM.toList (IterM.Intermediate.scanM (m := Id) f init false it) =
@@ -90,7 +90,7 @@ private theorem IterM.toList_scan_afterInit
   | ⟨.done, x⟩ => simp_all
 
 @[simp]
-theorem IterM.toList_scanWithPostCondition [Monad m] [LawfulMonad m] [Iterator α Id β] [Finite α Id]
+theorem IterM.toList_scanWithPostcondition [Monad m] [LawfulMonad m] [Iterator α Id β] [Finite α Id]
     {f : γ → β → PostconditionT m γ} {init : γ} (it : IterM (α := α) Id β) :
     (it.scanWithPostcondition f init).toList = it.toList.run.scanlM (f · · |>.run) init := by
   unfold IterM.scanWithPostcondition

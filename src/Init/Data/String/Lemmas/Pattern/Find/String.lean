@@ -48,7 +48,7 @@ private theorem isInfix_toList_iff {t s : String} :
     exact ⟨s₁.toList, s₂.toList, by simp [String.toList_append, List.append_assoc]⟩
 
 @[simp]
-theorem contains_string_eq {t s : Slice} :
+theorem contains_slice_iff {t s : Slice} :
     s.contains t ↔ t.copy.toList <:+: s.copy.toList := by
   by_cases ht : t.isEmpty
   · -- Empty pattern: always contained
@@ -75,44 +75,52 @@ theorem contains_string_eq {t s : Slice} :
         (Pattern.Model.ForwardSliceSearcher.matchesAt_iff_splits ht).mpr
           ⟨s₁, s₂, ⟨by rw [← append_assoc]; exact heq, by simp⟩⟩⟩
 
-end Slice
-
 @[simp]
-theorem contains_string_eq {t s : String} :
-    s.contains t ↔ t.toList <:+: s.toList := by
-  rw [contains]
-  -- Goal: s.toSlice.contains t ↔ t.toList <:+: s.toList
+theorem contains_string_iff {t : String} {s : Slice} :
+    s.contains t ↔ t.toList <:+: s.copy.toList := by
   by_cases ht : t = ""
   · subst ht
     constructor
     · intro _; exact List.nil_infix
     · intro _
-      rw [Slice.contains]
+      rw [contains]
       rw [← Std.Iter.any_toList]
-      simp only [Slice.Pattern.ToForwardSearcher.toSearcher]
-      simp only [Slice.Pattern.ForwardSliceSearcher.iter,
+      simp only [Pattern.ToForwardSearcher.toSearcher]
+      simp only [Pattern.ForwardSliceSearcher.iter,
         dif_pos (show "".toSlice.utf8ByteSize = 0 from by simp)]
       obtain ⟨l, hl⟩ :=
-        Slice.Pattern.Model.ForwardSliceSearcher.toList_iter_emptyBefore s.toSlice s.toSlice.startPos
+        Pattern.Model.ForwardSliceSearcher.toList_iter_emptyBefore s s.startPos
       rw [hl]; simp [List.any_cons]
-  · have := Slice.Pattern.Model.ForwardStringSearcher.lawfulToForwardSearcherModel (pat := t) ht
+  · have := Pattern.Model.ForwardStringSearcher.lawfulToForwardSearcherModel (pat := t) ht
     constructor
     · intro h
-      rw [Slice.Pattern.Model.contains_eq_true_iff] at h
+      rw [Pattern.Model.contains_eq_true_iff] at h
       obtain ⟨pos, hm⟩ := h
-      rw [Slice.Pattern.Model.ForwardStringSearcher.matchesAt_iff_splits ht] at hm
+      rw [Pattern.Model.ForwardStringSearcher.matchesAt_iff_splits ht] at hm
       obtain ⟨t₁, t₂, hsplit⟩ := hm
-      rw [Slice.isInfix_toList_iff]
-      exact ⟨t₁, t₂, by rw [← copy_toSlice (s := s), hsplit.eq_append, append_assoc]⟩
+      rw [isInfix_toList_iff]
+      exact ⟨t₁, t₂, by rw [hsplit.eq_append, append_assoc]⟩
     · intro h
-      rw [Slice.Pattern.Model.contains_eq_true_iff]
-      rw [Slice.isInfix_toList_iff] at h
+      rw [Pattern.Model.contains_eq_true_iff]
+      rw [isInfix_toList_iff] at h
       obtain ⟨s₁, s₂, heq⟩ := h
-      have hvalid : s₁.rawEndPos.IsValidForSlice s.toSlice :=
+      have hvalid : s₁.rawEndPos.IsValidForSlice s :=
         Pos.Raw.isValidForSlice_iff_exists_append.mpr
-          ⟨s₁, t ++ s₂, by rw [copy_toSlice, ← append_assoc]; exact heq, rfl⟩
-      exact ⟨s.toSlice.pos _ hvalid,
-        (Slice.Pattern.Model.ForwardStringSearcher.matchesAt_iff_splits ht).mpr
-          ⟨s₁, s₂, ⟨by rw [copy_toSlice, ← append_assoc]; exact heq, by simp⟩⟩⟩
+          ⟨s₁, t ++ s₂, by rw [← append_assoc]; exact heq, rfl⟩
+      exact ⟨s.pos _ hvalid,
+        (Pattern.Model.ForwardStringSearcher.matchesAt_iff_splits ht).mpr
+          ⟨s₁, s₂, ⟨by rw [← append_assoc]; exact heq, by simp⟩⟩⟩
+
+end Slice
+
+@[simp]
+theorem contains_slice_iff {t : Slice} {s : String} :
+    s.contains t ↔ t.copy.toList <:+: s.toList := by
+  simp [contains_eq_contains_toSlice, Slice.contains_slice_iff, copy_toSlice]
+
+@[simp]
+theorem contains_string_iff {t s : String} :
+    s.contains t ↔ t.toList <:+: s.toList := by
+  simp [contains_eq_contains_toSlice, Slice.contains_string_iff, copy_toSlice]
 
 end String

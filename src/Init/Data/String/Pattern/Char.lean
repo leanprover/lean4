@@ -32,8 +32,8 @@ instance {c : Char} : LawfulForwardPattern c where
   dropPrefixOfNonempty?_eq h := LawfulForwardPattern.dropPrefixOfNonempty?_eq (pat := (· == c)) h
   startsWith_eq s := LawfulForwardPattern.startsWith_eq (pat := (· == c)) s
 
-instance {c : Char} : ToForwardSearcher c (ToForwardSearcher.DefaultForwardSearcher c) :=
-  .defaultImplementation
+instance {c : Char} : ToForwardSearcher c (ToForwardSearcher.DefaultForwardSearcher (· == c)) where
+  toSearcher s := ToForwardSearcher.toSearcher (· == c) s
 
 instance {c : Char} : BackwardPattern c where
   dropSuffixOfNonempty? s h := BackwardPattern.dropSuffixOfNonempty? (· == c) s h

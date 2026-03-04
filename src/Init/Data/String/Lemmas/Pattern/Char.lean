@@ -9,8 +9,9 @@ prelude
 public import Init.Data.String.Pattern.Char
 public import Init.Data.String.Lemmas.Pattern.Basic
 public import Init.Data.String.Slice
-import all Init.Data.String.Slice
 public import Init.Data.String.Lemmas.Pattern.Pred
+import all Init.Data.String.Slice
+import all Init.Data.String.Pattern.Char
 import Init.Data.Option.Lemmas
 import Init.Data.String.Lemmas.Basic
 import Init.Data.String.Lemmas.Order
@@ -57,8 +58,8 @@ instance {c : Char} : LawfulForwardPatternModel c where
   dropPrefix?_eq_some_iff {s} pos := by
     simp [isLongestMatch_iff, ForwardPattern.dropPrefix?, and_comm, eq_comm (b := pos)]
 
-instance {c : Char} : LawfulToForwardSearcherModel c :=
-  .defaultImplementation
+theorem toSearcher_eq {c : Char} {s : Slice} :
+  ToForwardSearcher.toSearcher c s = ToForwardSearcher.toSearcher (· == c) s := (rfl)
 
 theorem matchesAt_iff {c : Char} {s : Slice} {pos : s.Pos} :
     MatchesAt c pos ↔ ∃ (h : pos ≠ s.endPos), pos.get h = c := by
@@ -99,6 +100,23 @@ theorem isLongestMatchAt_iff_isLongestMatchAt_beq {c : Char} {s : Slice}
 theorem matchesAt_iff_matchesAt_beq {c : Char} {s : Slice} {pos : s.Pos} :
     MatchesAt c pos ↔ MatchesAt (· == c) pos := by
   simp [matchesAt_iff_exists_isLongestMatchAt, isLongestMatchAt_iff_isLongestMatchAt_beq]
+
+theorem isValidSearchFrom_iff_isValidSearchFrom_beq {c : Char} {s : Slice} {p : s.Pos}
+    {l : List (SearchStep s)} : IsValidSearchFrom c p l ↔ IsValidSearchFrom (· == c) p l := by
+  refine ⟨fun h => ?_, fun h => ?_⟩
+  · induction h with
+    | endPos => simpa using IsValidSearchFrom.endPos
+    | matched => simp_all [IsValidSearchFrom.matched, isLongestMatchAt_iff_isLongestMatchAt_beq]
+    | mismatched => simp_all [IsValidSearchFrom.mismatched, matchesAt_iff_matchesAt_beq]
+  · induction h with
+    | endPos => simpa using IsValidSearchFrom.endPos
+    | matched => simp_all [IsValidSearchFrom.matched, isLongestMatchAt_iff_isLongestMatchAt_beq]
+    | mismatched => simp_all [IsValidSearchFrom.mismatched, matchesAt_iff_matchesAt_beq]
+
+instance {c : Char} : LawfulToForwardSearcherModel c where
+  isValidSearchFrom_toList s := by
+    simpa [toSearcher_eq, isValidSearchFrom_iff_isValidSearchFrom_beq] using
+      LawfulToForwardSearcherModel.isValidSearchFrom_toList (pat := (· == c)) (s := s)
 
 end Pattern.Model.Char
 
@@ -151,6 +169,14 @@ theorem takeWhile_char_eq_takeWhile_beq {c : Char} {s : Slice} :
 theorem all_eq_all_beq {c : Char} {s : Slice} :
     s.all c = s.all (· == c) := by
   simp only [all, dropWhile_char_eq_dropWhile_beq]
+
+theorem find?_char_eq_find?_beq {c : Char} {s : Slice} :
+    s.find? c = s.find? (· == c) :=
+  (rfl)
+
+theorem contains_char_eq_contains_beq {c : Char} {s : Slice} :
+    s.contains c = s.contains (· == c) :=
+  (rfl)
 
 theorem endsWith_char_eq_endsWith_beq {c : Char} {s : Slice} :
     s.endsWith c = s.endsWith (· == c) := (rfl)

@@ -563,29 +563,33 @@ public theorem lawfulToForwardSearcherModel {pat : Slice} (hpat : pat.isEmpty = 
     rw (occs := [1]) [← Invariants.base_start hpat]
     apply Invariants.isValidSearchFrom_toList _ _ rfl rfl
 
+@[simp]
+public theorem toList_atEnd_eq {s : Slice} :
+    (Std.Iter.mk (.atEnd : ForwardSliceSearcher s)).toList = [] := by
+  rw [Std.Iter.toList_eq_match_step]
+  simp [Std.Iter.step_eq]
+
+@[simp]
+public theorem toList_emptyAt_eq (s : Slice) (pos : s.Pos) (h : pos ≠ s.endPos) :
+    (Std.Iter.mk (.emptyAt pos h : ForwardSliceSearcher s)).toList =
+      .rejected pos (pos.next h) ::
+        (Std.Iter.mk (.emptyBefore (pos.next h) : ForwardSliceSearcher s)).toList := by
+  rw [Std.Iter.toList_eq_match_step]
+  simp [Std.Iter.step_eq]
+
 public theorem toList_emptyBefore_eq (s : Slice) (pos : s.Pos) :
     (Std.Iter.mk (.emptyBefore pos : ForwardSliceSearcher s)).toList =
       if h : pos = s.endPos then
         [.matched pos pos]
       else
-        .matched pos pos :: .rejected pos (pos.next h) ::
-          (Std.Iter.mk (.emptyBefore (pos.next h) : ForwardSliceSearcher s)).toList := by
+        .matched pos pos ::
+          (Std.Iter.mk (.emptyAt pos h : ForwardSliceSearcher s)).toList := by
+  rw [Std.Iter.toList_eq_match_step, Std.Iter.step_eq]
   by_cases h : pos = s.endPos
-  · subst h
-    rw [Std.Iter.toList_eq_match_step]
-    simp [Std.Iter.step_eq]
-    rw [Std.Iter.toList_eq_match_step]
-    simp [Std.Iter.step_eq]
+  · simp [h]
   · simp only [dif_neg h]
-    have hstep : (Std.Iter.mk (.emptyBefore pos : ForwardSliceSearcher s)).step.val =
-        .yield ⟨.emptyAt pos h⟩ (.matched pos pos) := by
-      simp only [Std.Iter.step_eq, Std.Iter.toIterM_mk, Std.IterM.internalState_mk, ne_eq, dite_not]
-      split <;> simp_all
-    have hstep₂ : (Std.Iter.mk (.emptyAt pos h : ForwardSliceSearcher s)).step.val =
-        .yield ⟨.emptyBefore (pos.next h)⟩ (.rejected pos (pos.next h)) := by
-      simp [Std.Iter.step_eq]
-    rw [Std.Iter.toList_eq_match_step, hstep]; simp only []; congr 1
-    rw [Std.Iter.toList_eq_match_step, hstep₂]
+    rw [Std.Iter.toList_eq_match_step]
+    simp [Std.Iter.step_eq, h]
 
 public theorem toSearcher_of_isEmpty {pat : Slice} (hpat : pat.isEmpty = true) (s : Slice) :
     ToForwardSearcher.toSearcher pat s =

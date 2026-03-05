@@ -7,6 +7,8 @@ module
 
 prelude
 public import Init.Data.String.Slice
+public import Init.Data.String.Search
+public import Init.Data.String.Lemmas.Splits
 import all Init.Data.String.Slice
 import all Init.Data.String.Search
 import Init.Data.String.Lemmas.Pattern.Find.Basic
@@ -18,6 +20,8 @@ import Init.Data.String.Lemmas.Iterate
 import Init.Grind
 import Init.Data.Option.Lemmas
 import Init.Data.String.OrderInstances
+
+public section
 
 namespace String.Slice
 
@@ -178,7 +182,7 @@ theorem Pos.find?_bool_eq_some_iff {p : Char → Bool} {s : String} {pos pos' : 
     pos.find? p = some pos' ↔
       pos ≤ pos' ∧ (∃ h, p (pos'.get h)) ∧
         ∀ pos'', pos ≤ pos'' → (h' : pos'' < pos') →
-          p (pos''.get (Pos.ne_endPos_of_lt h')) = false := by
+          p (pos''.get (by exact Pos.ne_endPos_of_lt h')) = false := by
   simp only [Pos.find?_eq_find?_toSlice, Option.map_eq_some_iff,
     Slice.Pos.find?_bool_eq_some_iff, endPos_toSlice]
   refine ⟨?_, ?_⟩
@@ -231,7 +235,7 @@ theorem Pos.find?_prop_eq_some_iff {p : Char → Prop} [DecidablePred p] {s : St
     pos.find? p = some pos' ↔
       pos ≤ pos' ∧ (∃ h, p (pos'.get h)) ∧
         ∀ pos'', pos ≤ pos'' → (h' : pos'' < pos') →
-          ¬ p (pos''.get (Pos.ne_endPos_of_lt h')) := by
+          ¬ p (pos''.get (by exact Pos.ne_endPos_of_lt h')) := by
   simp only [Pos.find?_prop_eq_find?_decide, Pos.find?_bool_eq_some_iff, decide_eq_true_eq,
     decide_eq_false_iff_not]
 
@@ -256,7 +260,7 @@ theorem Pos.find?_prop_eq_none_iff_of_splits {p : Char → Prop} [DecidablePred 
 
 theorem find?_bool_eq_some_iff {p : Char → Bool} {s : String} {pos : s.Pos} :
     s.find? p = some pos ↔
-      ∃ h, p (pos.get h) ∧ ∀ pos', (h' : pos' < pos) → p (pos'.get (Pos.ne_endPos_of_lt h')) = false := by
+      ∃ h, p (pos.get h) ∧ ∀ pos', (h' : pos' < pos) → p (pos'.get (by exact Pos.ne_endPos_of_lt h')) = false := by
   simp only [find?_eq_find?_toSlice, Option.map_eq_some_iff, Slice.find?_bool_eq_some_iff,
     endPos_toSlice, exists_and_right]
   refine ⟨?_, ?_⟩
@@ -281,7 +285,7 @@ theorem find?_bool_eq_some_iff_splits {p : Char → Bool} {s : String} {pos : s.
 
 theorem find?_prop_eq_some_iff {p : Char → Prop} [DecidablePred p] {s : String} {pos : s.Pos} :
     s.find? p = some pos ↔
-      ∃ h, p (pos.get h) ∧ ∀ pos', (h' : pos' < pos) → ¬ p (pos'.get (Pos.ne_endPos_of_lt h')) := by
+      ∃ h, p (pos.get h) ∧ ∀ pos', (h' : pos' < pos) → ¬ p (pos'.get (by exact Pos.ne_endPos_of_lt h')) := by
   simp only [find?_prop_eq_find?_decide, find?_bool_eq_some_iff, decide_eq_true_eq,
     decide_eq_false_iff_not]
 

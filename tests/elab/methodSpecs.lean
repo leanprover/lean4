@@ -110,9 +110,9 @@ error: expected `aS` to be a type class instance, but its type `S` does not look
 
 @[class] inductive indClass where | mk
 /--
-warning: Definition `instIndClass` of class type must be marked with `@[reducible]` or `@[implicit_reducible]`
----
 error: `indClass` is not a structure
+---
+warning: Definition `instIndClass` of class type must be marked with `@[reducible]` or `@[implicit_reducible]`
 -/
 #guard_msgs in @[method_specs] def instIndClass : indClass := .mk
 

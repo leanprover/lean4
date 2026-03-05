@@ -9,6 +9,7 @@ prelude
 public import Lean.Data.LBool
 public import Lean.Meta.Basic
 import Init.Data.Range.Polymorphic.Iterators
+import Lean.OriginalConstKind
 
 public section
 
@@ -387,7 +388,11 @@ mutual
 `n` arguments is a proof.
 -/
 private partial def isProofQuickApp : Expr → Nat → MetaM LBool
-  | .const c lvls,   arity   => do let constType ← inferConstType c lvls; isArrowProposition constType arity
+  | .const c lvls,   arity   => do
+    if getOriginalConstKind? (← getEnv) c matches some .thm then
+      return LBool.true
+    let constType ← inferConstType c lvls
+    isArrowProposition constType arity
   | .fvar fvarId,    arity   => do let fvarType  ← inferFVarType fvarId;  isArrowProposition fvarType arity
   | .mvar mvarId,    arity   => do let mvarType  ← inferMVarType mvarId;  isArrowProposition mvarType arity
   | .app f _,        arity   => isProofQuickApp f (arity+1)

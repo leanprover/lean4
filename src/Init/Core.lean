@@ -1144,7 +1144,7 @@ end Decidable
 section
 variable {p q : Prop}
 /-- Transfer a decidability proof across an equivalence of propositions. -/
-@[inline] def decidable_of_decidable_of_iff [dp : Decidable p] (h : p ↔ q) : Decidable q where
+abbrev decidable_of_decidable_of_iff [dp : Decidable p] (h : p ↔ q) : Decidable q where
   decide := decide p
   reflects_decide :=
     match dp with
@@ -1152,7 +1152,7 @@ variable {p q : Prop}
     | isFalse hp => fun hq => absurd (Iff.mpr h hq) hp
 
 /-- Transfer a decidability proof across an equality of propositions. -/
-@[inline] def decidable_of_decidable_of_eq [Decidable p] (h : p = q) : Decidable q :=
+abbrev decidable_of_decidable_of_eq [Decidable p] (h : p = q) : Decidable q :=
   decidable_of_decidable_of_iff (p := p) (h ▸ Iff.rfl)
 end
 

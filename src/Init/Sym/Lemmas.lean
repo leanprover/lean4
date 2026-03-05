@@ -178,6 +178,10 @@ theorem decide_isTrue_congr (p p' : Prop) (heq : p = p') {inst : Decidable p} {h
 theorem decide_isFalse (p : Prop) {inst : Decidable p} {h : ¬p} : decide p = false := by simp [*]
 theorem decide_isFalse_congr (p p' : Prop) (heq : p = p') {inst : Decidable p} {hnp : ¬p'} : decide p = false := by simp [*]
 
+theorem decide_congr_reduction (p p' : Prop) (heq : p = p') {inst : Decidable p} {inst' : Decidable p'}
+    {b : Bool} {h : inst'.decide = b} : inst.decide = b := by
+  subst heq; cases Subsingleton.allEq inst inst'; assumption
+
 theorem decide_prop_eq_true (p : Prop) {inst : Decidable p} (h : p = True) : decide p = true := by simp [*]
 theorem decide_prop_eq_false (p : Prop) {inst : Decidable p} (h : p = False) : decide p = false := by simp [*]
 

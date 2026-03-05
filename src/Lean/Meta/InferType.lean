@@ -414,7 +414,11 @@ partial def isProofQuick : Expr → MetaM LBool
   | .proj ..          => return LBool.undef
   | .forallE ..       => return LBool.false
   | .mdata _ e        => isProofQuick e
-  | .const c lvls     => do let constType ← inferConstType c lvls; isArrowProposition constType 0
+  | .const c lvls     => do
+    if getOriginalConstKind? (← getEnv) c matches some .thm then
+      return LBool.true
+    let constType ← inferConstType c lvls
+    isArrowProposition constType 0
   | .fvar fvarId      => do let fvarType  ← inferFVarType fvarId;  isArrowProposition fvarType 0
   | .mvar mvarId      => do let mvarType  ← inferMVarType mvarId;  isArrowProposition mvarType 0
   | .app f ..         => isProofQuickApp f 1

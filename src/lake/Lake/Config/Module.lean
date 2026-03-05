@@ -199,20 +199,3 @@ public def dynlibSuffix := "-1"
 
 @[inline] public def nativeFacets (self : Module) (shouldExport : Bool) : Array (ModuleFacet FilePath) :=
   self.lib.nativeFacets shouldExport
-
-/-! ## Trace Helpers -/
-
-public protected def getMTime (self : Module) : IO MTime := do
-  return mixTrace (mixTrace (← getMTime self.oleanFile) (← getMTime self.ileanFile)) (← getMTime self.cFile)
-
-public instance : GetMTime Module := ⟨Module.getMTime⟩
-
-public protected def checkExists (self : Module) : BaseIO Bool := do
-  let bcFileExists? ←
-    if Lean.Internal.hasLLVMBackend () then
-      checkExists self.bcFile
-    else
-      pure true
-  return (← checkExists self.oleanFile) && (← checkExists self.ileanFile) && (← checkExists self.cFile) && bcFileExists?
-
-public instance : CheckExists Module := ⟨Module.checkExists⟩

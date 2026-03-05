@@ -227,13 +227,15 @@ Checks if the `info` is up-to-date by comparing `depTrace` with `depHash`.
 If old mode is enabled (e.g., `--old`), uses the `oldTrace` modification time
 as the point of comparison instead.
 -/
-@[inline] public def checkHashUpToDate
+@[inline, deprecated "Deprecated without replacement." (since := "2025-03-04")]
+public def checkHashUpToDate
   [CheckExists ι] [GetMTime ι]
   (info : ι) (depTrace : BuildTrace) (depHash : Option Hash)
   (oldTrace := depTrace.mtime)
 : JobM Bool := (·.isUpToDate) <$> checkHashUpToDate' info depTrace depHash oldTrace
 
 /--
+**Ror internal use only.**
 Checks whether `info` is up-to-date with the trace.
 If so, replays the log of the trace if available.
 -/
@@ -265,7 +267,7 @@ If so, replays the log of the trace if available.
 : JobM Bool := (·.isUpToDate) <$> savedTrace.replayIfUpToDate' info depTrace oldTrace
 
 /--
-Returns if the saved trace exists and its hash matches `inputHash`.
+Returns `true` if the saved trace exists and its hash matches `inputHash`.
 
 If up-to-date, replays the saved log from the trace and sets the current
 build action to `replay`. Otherwise, if the log is empty and trace is synthetic,
@@ -540,36 +542,35 @@ public def resolveArtifact
 : JobM Artifact := do
   let ws ← getWorkspace
   let path := ws.lakeCache.artifactDir / descr.relPath
-  if let some art ← computeArtifact? descr path then
-    return art
-  else if let some service := service? then
-    if let some service := ws.findCacheService? service.toString then
-      let some scope := scope?
-        | error s!"artifact with associated cache service but no scope"
-      let url := service.artifactUrl descr.hash scope
-      logVerbose s!"\
-        downloaded artifact {descr.hash}\
-        \n  local path: {path}\
-        \n  remote URL: {url}"
-      liftM <| downloadArtifactCore descr.hash url path
-      let r := {read := true, write := false, execution := exe}
-      if let .error e ← IO.setAccessRights path ⟨r, r, r⟩ |>.toBaseIO then
-        logWarning s!"could not mark downloaded artifact read-only: {e}"
-      let some art ← computeArtifact? descr path
-        | error s!"downloaded succeeded, but artifact failed to resolve:\n  {path}"
-      return art
+  match (← getMTime path |>.toBaseIO) with
+  | .ok mtime =>
+    return {descr, path, mtime}
+  | .error (.noFileOrDirectory ..) =>
+    -- we redownload artifacts on any error
+    if let some service := service? then
+      if let some service := ws.findCacheService? service.toString then
+        let some scope := scope?
+          | error s!"artifact with associated cache service but no scope"
+        let url := service.artifactUrl descr.hash scope
+        logVerbose s!"\
+          downloaded artifact {descr.hash}\
+          \n  local path: {path}\
+          \n  remote URL: {url}"
+        liftM <| downloadArtifactCore descr.hash url path
+        let r := {read := true, write := false, execution := exe}
+        if let .error e ← IO.setAccessRights path ⟨r, r, r⟩ |>.toBaseIO then
+          logWarning s!"could not mark downloaded artifact read-only: {e}"
+        match (← getMTime path |>.toBaseIO) with
+        | .ok mtime =>
+          return {descr, path, mtime}
+        | .error e =>
+          error s!"downloaded succeeded, but artifact failed to resolve: {e}"
+      else
+        error s!"artifact cache service is not configured: {service}"
     else
-      error s!"artifact cache service is not configured: {service}"
-  else
-    error s!"artifact not found in cache:\n  {path}"
-where
-  computeArtifact? descr path : BaseIO (Option Artifact) := do
-    if let .ok mtime ← getMTime path |>.toBaseIO then
-      return some {descr, path, mtime}
-    else if (← path.pathExists) then
-      return some {descr, path, mtime := 0}
-    else
-      return none
+      error s!"artifact not found in cache:\n  {path}"
+  | .error e =>
+    error s!"failed to retrieve artifact from cache: {e}"
 
 def resolveArtifactOutput
   (out : Json) (service? : Option CacheServiceName) (scope? : Option CacheServiceScope)
@@ -676,7 +677,7 @@ public def buildArtifactUnlessUpToDate
     if let some outputsRef := pkg.outputsRef? then
       outputsRef.insert inputHash art.descr
     setTrace art.trace
-    return art
+    setMTime art traceFile
   else
     let art ←
       if (← savedTrace.replayIfUpToDate file depTrace) then
@@ -684,7 +685,7 @@ public def buildArtifactUnlessUpToDate
       else
         doBuild depTrace traceFile
     setTrace art.trace
-    return art
+    setMTime art traceFile
 where
   doBuild depTrace traceFile :=
     inline <| buildAction depTrace traceFile do
@@ -693,6 +694,14 @@ where
       clearFileHash file
       removeFileIfExists traceFile
       computeArtifact file ext text
+  setMTime art traceFile := do
+    match (← getMTime traceFile |>.toBaseIO) with
+    | .ok mtime =>
+      return {art with mtime}
+    | .error (.noFileOrDirectory ..) => -- trace file may not exist
+      return art
+    | .error e =>
+      error s!"failed to retrieve artifact modification time: {e}"
 
 /--
 Build `file` using `build` after `dep` completes if the dependency's

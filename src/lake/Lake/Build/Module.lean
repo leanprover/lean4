@@ -668,6 +668,49 @@ private def Module.restoreAllArtifacts (mod : Module) (cached : ModuleOutputArti
 where
   @[inline] restoreSome file art? := art?.mapM (restoreArtifact file ·)
 
+public protected def Module.checkExists (self : Module) (isModule : Bool) : BaseIO Bool := do
+  unless (← self.oleanFile.pathExists) do return false
+  unless (← self.ileanFile.pathExists) do return false
+  unless (← self.cFile.pathExists) do return false
+  if Lean.Internal.hasLLVMBackend () then
+    unless (← self.bcFile.pathExists) do return false
+  if isModule then
+    unless (← self.oleanServerFile.pathExists) do return false
+    unless (← self.oleanPrivateFile.pathExists) do return false
+    unless (← self.irFile.pathExists) do return false
+  return true
+
+@[deprecated Module.checkExists (since := "2025-03-04")]
+public instance : CheckExists Module := ⟨Module.checkExists (isModule := false)⟩
+
+public protected def Module.getMTime (self : Module) (isModule : Bool) : IO MTime := do
+  let mut mtime :=
+    (← getMTime self.oleanFile)
+    |> max (← getMTime self.ileanFile)
+    |> max (← getMTime self.cFile)
+  if Lean.Internal.hasLLVMBackend () then
+    mtime := max mtime (← getMTime self.bcFile)
+  if isModule then
+    mtime := mtime
+    |> max (← getMTime self.oleanServerFile)
+    |> max (← getMTime self.oleanPrivateFile)
+    |> max (← getMTime self.irFile)
+  return mtime
+
+@[deprecated Module.getMTime (since := "2025-03-04")]
+public instance : GetMTime Module := ⟨Module.getMTime (isModule := false)⟩
+
+private def ModuleOutputArtifacts.setMTime (self : ModuleOutputArtifacts) (mtime : MTime) : ModuleOutputArtifacts :=
+  {self with
+    olean := {self.olean with mtime}
+    oleanServer? := self.oleanServer?.map ({· with mtime})
+    oleanPrivate? := self.oleanPrivate?.map ({· with mtime})
+    ilean := {self.ilean with mtime}
+    ir? := self.ir?.map ({· with mtime})
+    c := {self.c with mtime}
+    bc? := self.bc?.map ({· with mtime})
+  }
+
 
 private def Module.mkArtifacts (mod : Module) (srcFile : FilePath) (isModule : Bool) : ModuleArtifacts where
   lean? := srcFile
@@ -746,6 +789,8 @@ private def Module.recBuildLean (mod : Module) : FetchM (Job ModuleOutputArtifac
     let depTrace ← getTrace
     let inputHash := depTrace.hash
     let savedTrace ← readTraceFile mod.traceFile
+    have : CheckExists Module := ⟨Module.checkExists (isModule := setup.isModule)⟩
+    have : GetMTime Module := ⟨Module.getMTime (isModule := setup.isModule)⟩
     let fetchArtsFromCache? restoreAll := do
       let some arts ← getArtifacts? inputHash savedTrace mod.pkg
         | return none
@@ -779,7 +824,13 @@ private def Module.recBuildLean (mod : Module) : FetchM (Job ModuleOutputArtifac
         mod.buildLean depTrace srcFile setup
     if let some ref := mod.pkg.outputsRef? then
       ref.insert inputHash arts.descrs
-    return arts
+    match (← getMTime mod.traceFile |>.toBaseIO) with
+    | .ok mtime =>
+      return arts.setMTime mtime
+    | .error (.noFileOrDirectory ..) => -- trace file may not exist
+      return arts
+    | .error e =>
+      error s!"failed to retrieve module artifact modification time: {e}"
 
 /-- The `ModuleFacetConfig` for the builtin `leanArtsFacet`. -/
 public def Module.leanArtsFacetConfig : ModuleFacetConfig leanArtsFacet :=

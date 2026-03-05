@@ -351,26 +351,29 @@ namespace Cache
   cache.artifactDir / artifactPath contentHash ext
 
 /-- Returns the artifact in the Lake cache corresponding the given artifact description. -/
+@[deprecated "Deprecated without replacelement." (since := "2025-03-04")]
 public def getArtifact? (cache : Cache) (descr : ArtifactDescr) : BaseIO (Option Artifact) := do
   let path := cache.artifactDir / descr.relPath
-  if let .ok mtime ← getMTime path |>.toBaseIO then
-    return some {descr, path, mtime}
-  else if (← path.pathExists) then
-    return some {descr, path, mtime := 0}
-  else
-    return none
+  let .ok mtime ← getMTime path |>.toBaseIO
+    | return none
+  return some {descr, path, mtime}
 
 /-- Returns the artifact in the Lake cache corresponding the given artifact description. Errors if missing. -/
+@[deprecated "Deprecated without replacelement." (since := "2025-03-04")]
 public def getArtifact (cache : Cache) (descr : ArtifactDescr) : EIO String Artifact := do
   let path := cache.artifactDir / descr.relPath
-  if let .ok mtime ← getMTime path |>.toBaseIO then
+  match (← getMTime path |>.toBaseIO) with
+  | .ok mtime =>
     return {descr, path, mtime}
-  else if (← path.pathExists) then
-    return {descr, path, mtime := 0}
-  else
+  | .error (.noFileOrDirectory ..) =>
     error s!"artifact not found in cache: {path}"
+  | .error e =>
+    error s!"failed to retrieve artifact from cache: {e}"
 
-/-- Returns path to the artifact for each output. Errors if any are missing. -/
+/--
+**For internal use only.**
+Returns path to the artifact for each output. Errors if any are missing.
+-/
 public def getArtifactPaths
   (cache : Cache) (descrs : Array ArtifactDescr)
 : LogIO (Vector FilePath descrs.size) := throwIfLogs do

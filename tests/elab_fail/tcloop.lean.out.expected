@@ -1,4 +1,4 @@
-tcloop.lean:14:2: error: failed to synthesize
+tcloop.lean:14:2-14:15: error: failed to synthesize
   B Nat
 (deterministic) timeout at `typeclass`, maximum number of heartbeats (20000) has been reached
 

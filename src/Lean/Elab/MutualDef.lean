@@ -1240,7 +1240,7 @@ where
       if header.kind == .def then
         if warn.classDefReducibility.get (← getOptions) &&
             (← isClass? header.type).isSome /-TODO-/ &&
-            !header.type.getForallBody.getAppFn.constName? matches ``Decidable | ``DecidableEq then
+            !header.type.getForallBody.getAppFn.constName? matches ``Decidable | ``DecidableEq | ``Setoid then
           let status ← getReducibilityStatus header.declName
           unless status matches .reducible | .implicitReducible | .irreducible do
             logWarning m!"Definition `{header.declName}` of class type must be marked with `@[reducible]` or `@[implicit_reducible]`"

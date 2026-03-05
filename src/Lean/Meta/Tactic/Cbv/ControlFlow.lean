@@ -99,24 +99,56 @@ def matchIteDecidableCongr (f α c inst a b c' h inst' : Expr) (fallback : SimpM
 
 /-- Simplify the `Decidable` instance, then try `simpIteDecidable`. -/
 def simpAndMatchIteDecidable (f α c inst a b : Expr) (fallback : SimpM Result) : SimpM Result := do
-  -- Propagate cd from `simp inst`: in another context the instance might simplify differently.
-  match (← simp inst) with
-  | .rfl _ cd =>
-    let r ← matchIteDecidable f α c inst a b inst fallback
-    return if cd && !r.isContextDependent then r.withContextDependent else r
-  | .step inst' _ _ cd =>
-    let r ← matchIteDecidable f α c inst a b inst' fallback
-    return if cd && !r.isContextDependent then r.withContextDependent else r
+  let reduced ← Tactic.Cbv.withCbvOpaqueGuard <| project? inst 0
+  match reduced with
+  | some reduced =>
+    let decide := mkApp2 (mkConst ``decide) c inst
+    let reduced ← share reduced
+    let refl := mkApp2 (.const ``Eq.refl [1]) (mkConst ``Bool) reduced
+    let result ← simp reduced
+    let result ← mkEqTransResult decide reduced refl result
+    let .step bool hbool _ cd := result | unreachable!
+    match_expr bool with
+    | Bool.true =>
+      return .step a (mkApp6 (mkConst ``Sym.ite_of_decide_eq_true f.constLevels!) α c inst a b hbool) (contextDependent := cd)
+    | Bool.false =>
+      return .step b (mkApp6 (mkConst ``Sym.ite_of_decide_eq_false f.constLevels!) α c inst a b hbool) (contextDependent := cd)
+    | _ => fallback
+  | none =>
+    -- Propagate cd from `simp inst`: in another context the instance might simplify differently.
+    match (← simp inst) with
+    | .rfl _ cd =>
+      let r ← matchIteDecidable f α c inst a b inst fallback
+      return if cd && !r.isContextDependent then r.withContextDependent else r
+    | .step inst' _ _ cd =>
+      let r ← matchIteDecidable f α c inst a b inst' fallback
+      return if cd && !r.isContextDependent then r.withContextDependent else r
 
 /-- Like `simpAndMatchIteDecidable`, but for the congruence case where `c` was simplified to `c'`. -/
 def simpAndMatchIteDecidableCongr (f α c inst a b c' h inst' : Expr) (fallback : SimpM Result) : SimpM Result := do
-  match (← simp inst') with
-  | .rfl _ cd =>
-    let r ← matchIteDecidableCongr f α c inst a b c' h inst' fallback
-    return if cd && !r.isContextDependent then r.withContextDependent else r
-  | .step inst'' _ _ cd =>
-    let r ← matchIteDecidableCongr f α c inst a b c' h inst'' fallback
-    return if cd && !r.isContextDependent then r.withContextDependent else r
+  let reduced ← Tactic.Cbv.withCbvOpaqueGuard <| project? inst' 0
+  match reduced with
+  | some reduced =>
+    let decide := mkApp2 (mkConst ``decide) c' inst'
+    let reduced ← share reduced
+    let refl := mkApp2 (.const ``Eq.refl [1]) (mkConst ``Bool) reduced
+    let result ← simp reduced
+    let result ← mkEqTransResult decide reduced refl result
+    let .step bool hbool _ cd := result | unreachable!
+    match_expr bool with
+    | Bool.true =>
+      return .step a (mkApp9 (mkConst ``Sym.ite_of_decide_eq_true_congr f.constLevels!) α c inst a b c' h inst' hbool) (contextDependent := cd)
+    | Bool.false =>
+      return .step b (mkApp9 (mkConst ``Sym.ite_of_decide_eq_false_congr f.constLevels!) α c inst a b c' h inst' hbool) (contextDependent := cd)
+    | _ => fallback
+  | none =>
+    match (← simp inst') with
+    | .rfl _ cd =>
+      let r ← matchIteDecidableCongr f α c inst a b c' h inst' fallback
+      return if cd && !r.isContextDependent then r.withContextDependent else r
+    | .step inst'' _ _ cd =>
+      let r ← matchIteDecidableCongr f α c inst a b c' h inst'' fallback
+      return if cd && !r.isContextDependent then r.withContextDependent else r
 
 /-- Like `simpIte` but also evaluates `Decidable.decide` when the condition does not
 reduce to `True`/`False` directly. -/
@@ -142,14 +174,13 @@ builtin_cbv_simproc ↓ simpIteCbv (@ite _ _ _ _ _) := fun e => do
       else
         -- If we got stuck with simplifying `p` then let's try evaluating the original instance
         simpAndMatchIteDecidable f α c inst a b do
-          -- If we get stuck here, maybe the problem is that we need to look at `Decidable c'`
-          let inst' := mkApp4 (mkConst ``decidable_of_decidable_of_eq) c c' inst h
-          simpAndMatchIteDecidableCongr f α c inst a b c' h inst' do
-            -- If we fail, then we just rewrite `c` to `c'`
-            let e' := e.getBoundedAppFn 4
-            let e' ← mkAppS₄ e' c' inst' a b
-            let h' := mkApp3 (e.replaceFn ``Sym.ite_cond_congr) c' inst' h
-            return .step e' h' (done := true) (contextDependent := cd)
+          -- If we fail, then we just rewrite `c` to `c'`
+          let inst' ← trySynthComputableInstance c'
+          let inst' := inst'.getD <| mkApp4 (mkConst ``decidable_of_decidable_of_eq) c c' inst h
+          let e' := e.getBoundedAppFn 4
+          let e' ← mkAppS₄ e' c' inst' a b
+          let h' := mkApp3 (e.replaceFn ``Sym.ite_cond_congr) c' inst' h
+          return .step e' h' (done := true) (contextDependent := cd)
 
 /-- Reduce `dite` by matching the `Decidable` instance for `isTrue`/`isFalse`. -/
 def matchDIteDecidable (f α c inst a b instToMatch : Expr) (fallback : SimpM Result) : SimpM Result := do
@@ -183,23 +214,65 @@ def matchDIteDecidableCongr (f α c inst a b c' h inst' : Expr) (fallback : Simp
 
 /-- Simplify the `Decidable` instance, then try `simpDIteDecidable`. -/
 def simpAndMatchDIteDecidable (f α c inst a b : Expr) (fallback : SimpM Result) : SimpM Result := do
-  match (← simp inst) with
-  | .rfl _ cd =>
-    let r ← matchDIteDecidable f α c inst a b inst fallback
-    return if cd && !r.isContextDependent then r.withContextDependent else r
-  | .step inst' _ _ cd =>
-    let r ← matchDIteDecidable f α c inst a b inst' fallback
-    return if cd && !r.isContextDependent then r.withContextDependent else r
+  let reduced ← Tactic.Cbv.withCbvOpaqueGuard <| project? inst 0
+  match reduced with
+  | some reduced =>
+    let decide := mkApp2 (mkConst ``decide) c inst
+    let reduced ← share reduced
+    let refl := mkApp2 (.const ``Eq.refl [1]) (mkConst ``Bool) reduced
+    let result ← simp reduced
+    let result ← mkEqTransResult decide reduced refl result
+    let .step bool hbool _ cd := result | unreachable!
+    match_expr bool with
+    | Bool.true =>
+      let h ← shareCommon <| mkApp3 (mkConst ``of_decide_eq_true) c inst hbool
+      let a' ← share <| a.betaRev #[h]
+      return .step a' (mkApp6 (mkConst ``Sym.dite_true f.constLevels!) α c inst a b h) (contextDependent := cd)
+    | Bool.false =>
+      let h ← shareCommon <| mkApp3 (mkConst ``of_decide_eq_false) c inst hbool
+      let b' ← share <| b.betaRev #[h]
+      return .step b' (mkApp6 (mkConst ``Sym.dite_false f.constLevels!) α c inst a b h) (contextDependent := cd)
+    | _ => fallback
+  | none =>
+    match (← simp inst) with
+    | .rfl _ cd =>
+      let r ← matchDIteDecidable f α c inst a b inst fallback
+      return if cd && !r.isContextDependent then r.withContextDependent else r
+    | .step inst' _ _ cd =>
+      let r ← matchDIteDecidable f α c inst a b inst' fallback
+      return if cd && !r.isContextDependent then r.withContextDependent else r
 
 /-- Like `simpAndMatchDIteDecidable`, but for the congruence case where `c` was simplified to `c'`. -/
 def simpAndMatchDIteDecidableCongr (f α c inst a b c' h inst' : Expr) (fallback : SimpM Result) : SimpM Result := do
-  match (← simp inst') with
-  | .rfl _ cd =>
-    let r ← matchDIteDecidableCongr f α c inst a b c' h inst' fallback
-    return if cd && !r.isContextDependent then r.withContextDependent else r
-  | .step inst'' _ _ cd =>
-    let r ← matchDIteDecidableCongr f α c inst a b c' h inst'' fallback
-    return if cd && !r.isContextDependent then r.withContextDependent else r
+  let reduced ← Tactic.Cbv.withCbvOpaqueGuard <| project? inst' 0
+  match reduced with
+  | some reduced =>
+    let decide := mkApp2 (mkConst ``decide) c' inst'
+    let reduced ← share reduced
+    let refl := mkApp2 (.const ``Eq.refl [1]) (mkConst ``Bool) reduced
+    let result ← simp reduced
+    let result ← mkEqTransResult decide reduced refl result
+    let .step bool hbool _ cd := result | unreachable!
+    match_expr bool with
+    | Bool.true =>
+      let hc' ← shareCommon <| mkApp3 (mkConst ``of_decide_eq_true) c' inst' hbool
+      let hc := mkApp4 (mkConst ``Eq.mpr_prop) c c' h hc'
+      let a' ← share <| a.betaRev #[hc]
+      return .step a' (mkApp8 (mkConst ``Sym.dite_true_congr f.constLevels!) α c inst a b c' h hc') (contextDependent := cd)
+    | Bool.false =>
+      let hc' ← shareCommon <| mkApp3 (mkConst ``of_decide_eq_false) c' inst' hbool
+      let hc := mkApp4 (mkConst ``Eq.mpr_prop) c c' h hc'
+      let b' ← share <| b.betaRev #[hc]
+      return .step b' (mkApp8 (mkConst ``Sym.dite_false_congr f.constLevels!) α c inst a b c' h hc') (contextDependent := cd)
+    | _ => fallback
+  | none =>
+    match (← simp inst') with
+    | .rfl _ cd =>
+      let r ← matchDIteDecidableCongr f α c inst a b c' h inst' fallback
+      return if cd && !r.isContextDependent then r.withContextDependent else r
+    | .step inst'' _ _ cd =>
+      let r ← matchDIteDecidableCongr f α c inst a b c' h inst'' fallback
+      return if cd && !r.isContextDependent then r.withContextDependent else r
 
 /-- Like `simpDIte` but also evaluates `Decidable.decide` when the condition does not
 reduce to `True`/`False` directly. -/
@@ -230,16 +303,16 @@ builtin_cbv_simproc ↓ simpDIteCbv (@dite _ _ _ _ _) := fun e => do
       else
         -- If we get stuck after simplifying `p` to `p'`, then we try to evaluate the original instance
         simpAndMatchDIteDecidable f α c inst a b do
-          -- Otherwise, we make `Decidable c'` instance and try to evaluate it instead
-          let inst' := mkApp4 (mkConst ``decidable_of_decidable_of_eq) c c' inst h
-          simpAndMatchDIteDecidableCongr f α c inst a b c' h inst' do
-            let e' := e.getBoundedAppFn 4
-            let h ← shareCommon h
-            let a ← share <| mkLambda `h .default c' (a.betaRev #[mkApp4 (mkConst ``Eq.mpr_prop) c c' h (mkBVar 0)])
-            let b ← share <| mkLambda `h .default (mkNot c') (b.betaRev #[mkApp4 (mkConst ``Eq.mpr_not) c c' h (mkBVar 0)])
-            let e' ← mkAppS₄ e' c' inst' a b
-            let h' := mkApp3 (e.replaceFn ``Sym.dite_cond_congr) c' inst' h
-            return .step e' h' (done := true) (contextDependent := cd)
+          -- Otherwise, we rewrite in the proposition
+          let inst' ← trySynthComputableInstance c'
+          let inst' := inst'.getD <| mkApp4 (mkConst ``decidable_of_decidable_of_eq) c c' inst h
+          let e' := e.getBoundedAppFn 4
+          let h ← shareCommon h
+          let a ← share <| mkLambda `h .default c' (a.betaRev #[mkApp4 (mkConst ``Eq.mpr_prop) c c' h (mkBVar 0)])
+          let b ← share <| mkLambda `h .default (mkNot c') (b.betaRev #[mkApp4 (mkConst ``Eq.mpr_not) c c' h (mkBVar 0)])
+          let e' ← mkAppS₄ e' c' inst' a b
+          let h' := mkApp3 (e.replaceFn ``Sym.dite_cond_congr) c' inst' h
+          return .step e' h' (done := true) (contextDependent := cd)
 
 /-- Reduce `decide` by matching the `Decidable` instance for `isTrue`/`isFalse`. -/
 def matchDecideDecidable (p inst instToMatch : Expr) (fallback : SimpM Result) : SimpM Result := do
@@ -325,9 +398,9 @@ builtin_cbv_simproc ↓ simpDecideCbv (@Decidable.decide _ _) := fun e => do
       else if (← isFalseExpr p') then
         return .step (← getBoolFalseExpr) (mkApp3 (mkConst ``Sym.decide_prop_eq_false) p inst hp) (contextDependent := cd)
       else
-        let inst' ← trySynthComputableInstance p'
-        let inst' := inst'.getD <| mkApp4 (mkConst ``decidable_of_decidable_of_eq) p p' inst hp
-        simpAndMatchDecideDecidableCongr p p' hp inst inst' do
+        simpAndMatchDecideDecidable p inst do
+          let inst' ← trySynthComputableInstance p'
+          let inst' := inst'.getD <| mkApp4 (mkConst ``decidable_of_decidable_of_eq) p p' inst hp
           let res := (mkConst ``Decidable.decide)
           let res ← shareCommon res
           let res ← mkAppS₂ res p' inst'

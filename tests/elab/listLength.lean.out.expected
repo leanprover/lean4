@@ -1,3 +1,5 @@
+[Compiler.inferBorrow] own _x.21: result of function call _x.21
+[Compiler.inferBorrow] own _x.20: result of function call _x.20
 [Compiler.inferBorrow] size: 3
     def f @&xs : tobj :=
       let _x.1 := 2;

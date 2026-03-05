@@ -57,7 +57,10 @@ def checkpoint (stepName : Name) (decls : Array (Decl pu)) (shouldCheck : Bool) 
     withOptions (fun opts => opts.set `pp.motives.pi false) do
       let clsName := `Compiler ++ stepName
       if (← Lean.isTracingEnabledFor clsName) then
-        Lean.addTrace clsName m!"size: {decl.size}\n{← ppDecl' decl (← getPhase)}"
+        if compiler.traceUnnormalized.get (← getOptions) then
+          Lean.addTrace clsName m!"size: {decl.size}\n{← ppDecl decl}"
+        else
+          Lean.addTrace clsName m!"size: {decl.size}\n{← ppDecl' decl (← getPhase)}"
       if shouldCheck then
         decl.check
 

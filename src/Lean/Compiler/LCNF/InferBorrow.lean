@@ -14,6 +14,7 @@ import Std.Data.Iterators.Combinators.Zip
 import Lean.Compiler.LCNF.MonadScope
 import Lean.Compiler.LCNF.FVarUtil
 import Lean.Compiler.LCNF.PhaseExt
+import Lean.Compiler.LCNF.PrettyPrinter
 
 /-!
 This pass is responsible for inferring borrow annotations to the parameters of functions and join
@@ -153,6 +154,48 @@ instance : MonadScope InferM where
   withScope f mx := withReader (fun ctx => { ctx with paramSet := f ctx.paramSet }) mx
 
 /--
+Reasons why a variable is marked as owned during borrow inference.
+-/
+inductive OwnReason where
+  /-- Target or source of a reset/reuse operation. -/
+  | resetReuse (resultFVar : FVarId)
+  /-- Result of a constructor allocation. -/
+  | constructorResult (resultFVar : FVarId)
+  /-- Parameter packed into a constructor. -/
+  | constructorArg (resultFVar : FVarId)
+  /-- Bidirectional ownership propagation through `oproj`. -/
+  | projectionPropagation (resultFVar : FVarId)
+  /-- Result of a function application. -/
+  | functionCallResult (resultFVar : FVarId)
+  /-- Argument to a function whose corresponding parameter is owned. -/
+  | functionCallArg (resultFVar : FVarId)
+  /-- Argument or callee in a call to a free variable. -/
+  | fvarCall (resultFVar : FVarId)
+  /-- Argument in a partial application. -/
+  | partialApplication (resultFVar : FVarId)
+  /-- Tail call preservation for a self-recursive function call. -/
+  | tailCallPreservation (funcName : Name)
+  /-- Argument propagation at a join point jump. -/
+  | jpArgPropagation (jpFVar : FVarId)
+  /-- Tail call preservation at a join point jump. -/
+  | jpTailCallPreservation (jpFVar : FVarId)
+
+def OwnReason.toString (reason : OwnReason) : CompilerM String := do
+  PP.run do
+    match reason with
+    | .resetReuse resultFVar => return s!"used in reset reuse {← PP.ppFVar resultFVar}"
+    | .constructorResult resultFVar => return s!"result of ctor call {← PP.ppFVar resultFVar}"
+    | .constructorArg resultFVar => return s!"argument to constructor call {← PP.ppFVar resultFVar}"
+    | .projectionPropagation resultFVar => return s!"projection propagation {← PP.ppFVar resultFVar}"
+    | .functionCallResult resultFVar => return s!"result of function call {← PP.ppFVar resultFVar}"
+    | .functionCallArg resultFVar => return s!"owned function argument {← PP.ppFVar resultFVar}"
+    | .fvarCall resultFVar => return s!"argument to closure call {← PP.ppFVar resultFVar}"
+    | .partialApplication resultFVar => return s!"argument to pap {← PP.ppFVar resultFVar}"
+    | .tailCallPreservation funcName => return s!"tail call preservation of {funcName}"
+    | .jpArgPropagation jpFVar => return s!"backward propagation from JP {← PP.ppFVar jpFVar}"
+    | .jpTailCallPreservation jpFVar => return s!"JP tail call preservation {← PP.ppFVar jpFVar}"
+
+/--
 Infer the borrowing annotations in a SCC through dataflow analysis.
 -/
 partial def infer (decls : Array (Decl .impure)) : CompilerM ParamMap := do
@@ -170,18 +213,16 @@ where
   step : InferM Unit := do
     (← read).decls.forM collectDecl
 
-  ownFVar (fvarId : FVarId) : InferM Unit := do
-    modify fun s =>
-      if s.owned.contains fvarId then
-        s
-      else
-        { s with owned := s.owned.insert fvarId, modified := true }
+  ownFVar (fvarId : FVarId) (reason : OwnReason) : InferM Unit := do
+    unless (← get).owned.contains fvarId do
+      trace[Compiler.inferBorrow] "own {← PP.run <| PP.ppFVar fvarId}: {← reason.toString}"
+      modify fun s => { s with owned := s.owned.insert fvarId, modified := true }
 
-  ownArg (a : Arg .impure) : InferM Unit := do
-    a.forFVarM ownFVar
+  ownArg (reason : OwnReason) (a : Arg .impure) : InferM Unit := do
+    a.forFVarM (ownFVar · reason)
 
-  ownArgs (as : Array (Arg .impure)) : InferM Unit :=
-    as.forM ownArg
+  ownArgs (reason : OwnReason) (as : Array (Arg .impure)) : InferM Unit :=
+    as.forM (ownArg reason)
 
   isOwned (fvarId : FVarId) : InferM Bool := return (← get).owned.contains fvarId
 
@@ -219,23 +260,25 @@ where
       return sig.params
 
   /-- For each ps[i], if ps[i] is owned, then mark args[i] as owned. -/
-  ownArgsUsingParams (args : Array (Arg .impure)) (ps : Array (Param .impure)) : InferM Unit := do
+  ownArgsUsingParams (args : Array (Arg .impure)) (ps : Array (Param .impure))
+      (reason : OwnReason) : InferM Unit := do
     for h : i in 0...args.size do
       let arg := args[i]
       let p := ps[i]!
-      unless p.borrow || p.type.isScalar do ownArg arg
+      unless p.borrow || p.type.isScalar do ownArg reason arg
 
   /-- For each args[i], if args[i] is owned, then mark ps[i] as owned.
      We use this action to preserve tail calls. That is, if we have
      a tail call `f xs`, if the i-th parameter is borrowed, but `args[i]` is owned
      we would have to insert a `dec args[i]` after `f args` and consequently
      "break" the tail call. -/
-  ownParamsUsingArgs (args : Array (Arg .impure)) (ps : Array (Param .impure)) : InferM Unit :=
+  ownParamsUsingArgs (args : Array (Arg .impure)) (ps : Array (Param .impure))
+      (reason : OwnReason) : InferM Unit :=
     for h : i in 0...args.size do
       let arg := args[i]
       let p := ps[i]!
       if let .fvar x := arg then
-        if (← isOwned x) then ownFVar p.fvarId
+        if (← isOwned x) then ownFVar p.fvarId reason
 
 
   /-- Mark `args[i]` as owned if it is one of the parameters that are currently in scope.
@@ -248,26 +291,27 @@ where
      ret z
      ```
   -/
-  ownArgsIfParam (args : Array (Arg .impure)) : InferM Unit := do
+  ownArgsIfParam (z : FVarId) (args : Array (Arg .impure)) : InferM Unit := do
     for arg in args do
       if let .fvar x := arg then
         if (← read).paramSet.contains x then
-          ownFVar x
+          ownFVar x (.constructorArg z)
 
   collectLetValue (z : FVarId) (v : LetValue .impure) : InferM Unit := do
     match v with
-    | .reset _ x => ownFVar z; ownFVar x
-    | .reuse x _ _ args => ownFVar z; ownFVar x; ownArgsIfParam args
-    | .ctor _ args => ownFVar z; ownArgsIfParam args
+    | .reset _ x => ownFVar z (.resetReuse z); ownFVar x (.resetReuse z)
+    | .reuse x _ _ args => ownFVar z (.resetReuse z); ownFVar x (.resetReuse z); ownArgsIfParam z args
+    | .ctor _ args => ownFVar z (.constructorResult z); ownArgsIfParam z args
     | .oproj _ x _ =>
-      if ← isOwned x then ownFVar z
-      if ← isOwned z then ownFVar x
+      if ← isOwned x then ownFVar z (.projectionPropagation z)
+      if ← isOwned z then ownFVar x (.projectionPropagation z)
     | .fap f args =>
       let ps ← getParamInfo (.decl f)
-      ownFVar z
-      ownArgsUsingParams args ps
-    | .fvar x args => ownFVar z; ownFVar x; ownArgs args
-    | .pap _ args => ownFVar z; ownArgs args
+      ownFVar z (.functionCallResult z)
+      ownArgsUsingParams args ps (.functionCallArg z)
+    | .fvar x args =>
+      ownFVar z (.functionCallResult z); ownFVar x (.fvarCall z); ownArgs (.fvarCall z) args
+    | .pap _ args => ownFVar z (.functionCallResult z); ownArgs (.partialApplication z) args
     | _ => return ()
 
   preserveTailCall (x : FVarId) (v : LetValue .impure) (k : Code .impure) : InferM Unit := do
@@ -277,7 +321,7 @@ where
       -- expanded
       if (← read).currDecl == f && x == ret then
         let ps ← getParamInfo (.decl f)
-        ownParamsUsingArgs args ps
+        ownParamsUsingArgs args ps (.tailCallPreservation f)
     | _, _ => return ()
 
   collectCode (code : Code .impure) : InferM Unit := do
@@ -295,8 +339,8 @@ where
     | .jmp jpId args =>
       let ctx ← read
       let ps ← getParamInfo (.jp ctx.currDecl jpId)
-      ownArgsUsingParams args ps -- for making sure the join point can reuse
-      ownParamsUsingArgs args ps -- for making sure the tail call is preserved
+      ownArgsUsingParams args ps (.jpArgPropagation jpId)
+      ownParamsUsingArgs args ps (.jpTailCallPreservation jpId)
     | .cases cs => cs.alts.forM (·.forCodeM collectCode)
     | .uset _ _ _ k _ | .sset _ _ _ _ _ k _ => collectCode k
     | .return .. | .unreach .. => return ()

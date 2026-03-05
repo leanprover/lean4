@@ -1220,15 +1220,9 @@ where
     for header in headers do
       -- TODO: remove `instance_reducible once the alias is deprecated
       if !header.modifiers.anyAttr (·.name matches `reducible | `implicit_reducible | `instance_reducible | `irreducible) then
-        match header.kind with
-        | .instance =>
+        if header.kind == .instance then
           if !(← isProp header.type) then
             setReducibilityStatus header.declName .implicitReducible
-        | .def =>
-          if warn.classDefReducibility.get (← getOptions) &&
-              (← isClass? header.type).isSome /-TODO-/ && !header.type.getForallBody.getAppFn.constName? matches ``Decidable | ``DecidableEq then
-            logWarning m!"Definition `{header.declName}` of class type must be marked with `@[reducible]` or `@[implicit_reducible]`"
-        | _ => pure ()
 
     if let (#[view], #[declId]) := (views, expandedDeclIds) then
       if Elab.async.get (← getOptions) && view.kind.isTheorem &&
@@ -1238,6 +1232,18 @@ where
         elabAsync headers[0]! view declId
       else elabSync headers
     else elabSync headers
+
+    -- Warn about class-typed `def`s that aren't marked with a reducibility attribute.
+    -- This check runs after elaboration so that attributes applied by other attributes
+    -- (e.g. `to_additive (attr := implicit_reducible)`) are accounted for.
+    for header in headers do
+      if header.kind == .def then
+        if warn.classDefReducibility.get (← getOptions) &&
+            (← isClass? header.type).isSome /-TODO-/ &&
+            !header.type.getForallBody.getAppFn.constName? matches ``Decidable | ``DecidableEq then
+          let status ← getReducibilityStatus header.declName
+          unless status matches .reducible | .implicitReducible | .irreducible do
+            logWarning m!"Definition `{header.declName}` of class type must be marked with `@[reducible]` or `@[implicit_reducible]`"
     for view in views, declId in expandedDeclIds do
       -- NOTE: this should be the full `ref`, and thus needs to be done after any snapshotting
       -- that depends only on a part of the ref

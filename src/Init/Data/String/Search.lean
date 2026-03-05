@@ -278,42 +278,13 @@ def splitInclusive (s : String) (pat : ρ) [ToForwardSearcher pat σ] :=
 def foldlAux {α : Type u} (f : α → Char → α) (s : String) (stopPos : Pos.Raw) (i : Pos.Raw) (a : α) : α :=
   s.slice! (s.pos! i) (s.pos! stopPos) |>.foldl f a
 
-/--
-Folds a function over a string from the start, accumulating a value starting with {name}`init`. The
-accumulated value is combined with each character in order, using {name}`f`.
-
-Examples:
- * {lean}`"coffee tea water".foldl (fun n c => if c.isWhitespace then n + 1 else n) 0 = 2`
- * {lean}`"coffee tea and water".foldl (fun n c => if c.isWhitespace then n + 1 else n) 0 = 3`
- * {lean}`"coffee tea water".foldl (·.push ·) "" = "coffee tea water"`
--/
-@[inline] def foldl {α : Type u} (f : α → Char → α) (init : α) (s : String) : α :=
-  s.toSlice.foldl f init
-
-@[export lean_string_foldl]
-def Internal.foldlImpl (f : String → Char → String) (init : String) (s : String) : String :=
-  String.foldl f init s
-
 @[deprecated String.Slice.foldr (since := "2025-11-25")]
 def foldrAux {α : Type u} (f : Char → α → α) (a : α) (s : String) (i begPos : Pos.Raw) : α :=
   s.slice! (s.pos! begPos) (s.pos! i) |>.foldr f a
 
-/--
-Folds a function over a string from the right, accumulating a value starting with {lean}`init`. The
-accumulated value is combined with each character in reverse order, using {lean}`f`.
-
-Examples:
- * {lean}`"coffee tea water".foldr (fun c n => if c.isWhitespace then n + 1 else n) 0 = 2`
- * {lean}`"coffee tea and water".foldr (fun c n => if c.isWhitespace then n + 1 else n) 0 = 3`
- * {lean}`"coffee tea water".foldr (fun c s => s.push c) "" = "retaw aet eeffoc"`
--/
-@[inline] def foldr {α : Type u} (f : Char → α → α) (init : α) (s : String) : α :=
-  s.toSlice.foldr f init
-
 @[deprecated String.Slice.any (since := "2025-11-25")]
 def anyAux (s : String) (stopPos : Pos.Raw) (p : Char → Bool) (i : Pos.Raw) : Bool :=
   s.slice! (s.pos! i) (s.pos! stopPos) |>.any p
-
 
 /--
 Checks whether a string has a match of the pattern {name}`pat` anywhere.

@@ -190,6 +190,17 @@ theorem forIn_eq_forIn_toList {m : Type u → Type v} [Monad m] [LawfulMonad m] 
     ForIn.forIn s b f = ForIn.forIn s.copy.toList b f := by
   rw [forIn_eq_forIn_chars, ← Std.Iter.forIn_toList, toList_chars]
 
+@[simp]
+theorem foldl_eq_foldl_toList {α : Type u} {f : α → Char → α} {init : α} {s : Slice} :
+    s.foldl f init = s.copy.toList.foldl f init := by
+  rw [foldl, ← Std.Iter.foldl_toList, toList_chars]
+
+@[simp]
+theorem foldr_eq_foldr_toList {α : Type u} {f : Char → α → α} {init : α} {s : Slice} :
+    s.foldr f init = s.copy.toList.foldr f init := by
+  rw [foldr, ← Std.Iter.foldl_toList, toList_revChars, List.foldl_reverse]
+  congr
+
 end Slice
 
 /--
@@ -354,5 +365,15 @@ theorem forIn_eq_forIn_toList {m : Type u → Type v} [Monad m] [LawfulMonad m] 
     {f : Char → β → m (ForInStep β)} :
     ForIn.forIn s b f = ForIn.forIn s.toList b f := by
   rw [forIn_eq_forIn_chars, ← Std.Iter.forIn_toList, toList_chars]
+
+@[simp]
+theorem foldl_eq_foldl_toList {α : Type u} {f : α → Char → α} {init : α} {s : String} :
+    s.foldl f init = s.toList.foldl f init := by
+  simp [foldl]
+
+@[simp]
+theorem foldr_eq_foldr_toList {α : Type u} {f : Char → α → α} {init : α} {s : String} :
+    s.foldr f init = s.toList.foldr f init := by
+  simp [foldr]
 
 end String

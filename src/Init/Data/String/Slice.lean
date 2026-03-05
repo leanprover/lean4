@@ -906,21 +906,20 @@ Examples:
  * {lean}`"12__34".toSlice.isNat = false`
 -/
 @[inline]
-def isNat (s : Slice) : Bool :=
-  if s.isEmpty then
-    false
-  else
-    -- Track: isFirst, lastWasUnderscore, lastCharWasDigit, valid
-    let result := s.foldl (fun (isFirst, lastWasUnderscore, _lastCharWasDigit, valid) c =>
-      let isDigit := c.isDigit
-      let isUnderscore := c = '_'
-      let newValid := valid && (isDigit || isUnderscore) &&
-                      !(isFirst && isUnderscore) &&  -- Cannot start with underscore
-                      !(lastWasUnderscore && isUnderscore)  -- No consecutive underscores
-      (false, isUnderscore, isDigit, newValid))
-      (true, false, false, true)
-    -- Must be valid and last character must have been a digit (not underscore)
-    result.2.2.2 && result.2.2.1
+def isNat (s : Slice) : Bool := Id.run do
+  let mut lastWasDigit := false
+
+  for c in s do
+    if c = '_' then
+      if !lastWasDigit then
+        return false
+      lastWasDigit := false
+    else if c.isDigit then
+      lastWasDigit := true
+    else
+      return false
+
+  lastWasDigit
 
 /--
 Interprets a slice as the decimal representation of a natural number, returning it. Returns

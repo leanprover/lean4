@@ -36,6 +36,28 @@ condition and use `eq_true_of_decide` / `eq_false_of_decide` to take the
 corresponding branch.
 -/
 
+namespace Lean.Meta.Tactic.Cbv
+
+/--
+Run a `MetaM` computation with `whnf` blocked from unfolding `@[cbv_opaque]` definitions.
+This prevents kernel-level reduction (used by `reduceRecMatcher?` and `reduceProj?`)
+from bypassing the `@[cbv_opaque]` attribute.
+-/
+public def withCbvOpaqueGuard (x : MetaM α) : MetaM α := do
+  let prevCustomCanUnfoldPredicate? := (← readThe Meta.Context).customCanUnfoldPredicate?
+  let prevCanUnfoldPredicateConfig := (← readThe Meta.Context).config.canUnfoldPredicateConfig
+  withCanUnfoldPred (fun cfg info => do
+    if (← isCbvOpaque info.name) then return false
+    match prevCustomCanUnfoldPredicate? with
+    | .some f => f cfg info
+    | .none =>
+      match prevCanUnfoldPredicateConfig with
+      | .default => canUnfoldDefault cfg info
+      | .atMatcher => canUnfoldAtMatcher cfg info
+  ) x
+
+end Lean.Meta.Tactic.Cbv
+
 namespace Lean.Meta.Sym.Simp
 open Lean.Meta.Sym.Internal
 
@@ -54,19 +76,25 @@ def trySynthComputableInstance (p : Expr) : SymM <| Option Expr := do
 /-- Reduce `ite` by matching the `Decidable` instance for `isTrue`/`isFalse`. -/
 def matchIteDecidable (f α c inst a b instToMatch : Expr) (fallback : SimpM Result) : SimpM Result := do
   match_expr instToMatch with
-  | Decidable.isTrue _ hp =>
-    return .step a <| mkApp6 (mkConst ``Sym.ite_true f.constLevels!) α c inst a b hp
-  | Decidable.isFalse _ hnp =>
-    return .step b <| mkApp6 (mkConst ``Sym.ite_false f.constLevels!) α c inst a b hnp
+  | Decidable.intro _ bool hp =>
+    match_expr bool with
+    | Bool.true =>
+      return .step a <| mkApp6 (mkConst ``Sym.ite_true f.constLevels!) α c inst a b hp
+    | Bool.false =>
+      return .step b <| mkApp6 (mkConst ``Sym.ite_false f.constLevels!) α c inst a b hp
+    | _ => fallback
   | _ => fallback
 
 /-- Like `matchIteDecidable`, but for the congruence case where `c` was simplified to `c'` with proof `h`. -/
 def matchIteDecidableCongr (f α c inst a b c' h inst' : Expr) (fallback : SimpM Result) : SimpM Result := do
   match_expr inst' with
-  | Decidable.isTrue _ hp =>
-    return .step a <| mkApp8 (mkConst ``Sym.ite_true_congr f.constLevels!) α c inst a b c' h hp
-  | Decidable.isFalse _ hnp =>
-    return .step b <| mkApp8 (mkConst ``Sym.ite_false_congr f.constLevels!) α c inst a b c' h hnp
+  | Decidable.intro _ bool hp =>
+    match_expr bool with
+    | Bool.true =>
+        return .step a <| mkApp8 (mkConst ``Sym.ite_true_congr f.constLevels!) α c inst a b c' h hp
+    | Bool.false =>
+      return .step b <| mkApp8 (mkConst ``Sym.ite_false_congr f.constLevels!) α c inst a b c' h hp
+    | _ => fallback
   | _ => fallback
 
 /-- Simplify the `Decidable` instance, then try `simpIteDecidable`. -/
@@ -126,25 +154,31 @@ builtin_cbv_simproc ↓ simpIteCbv (@ite _ _ _ _ _) := fun e => do
 /-- Reduce `dite` by matching the `Decidable` instance for `isTrue`/`isFalse`. -/
 def matchDIteDecidable (f α c inst a b instToMatch : Expr) (fallback : SimpM Result) : SimpM Result := do
   match_expr instToMatch with
-  | Decidable.isTrue _ hp =>
-    let a' ← share <| a.betaRev #[hp]
-    return .step a' <| mkApp6 (mkConst ``Sym.dite_true f.constLevels!) α c inst a b hp
-  | Decidable.isFalse _ hnp =>
-    let b' ← share <| b.betaRev #[hnp]
-    return .step b' <| mkApp6 (mkConst ``Sym.dite_false f.constLevels!) α c inst a b hnp
+  | Decidable.intro _ bool hp =>
+    match_expr bool with
+    | Bool.true =>
+      let a' ← share <| a.betaRev #[hp]
+      return .step a' <| mkApp6 (mkConst ``Sym.dite_true f.constLevels!) α c inst a b hp
+    | Bool.false =>
+      let b' ← share <| b.betaRev #[hp]
+      return .step b' <| mkApp6 (mkConst ``Sym.dite_false f.constLevels!) α c inst a b hp
+    | _ => fallback
   | _ => fallback
 
 /-- Like `matchDIteDecidable`, but for the congruence case where `c` was simplified to `c'` with proof `h`. -/
 def matchDIteDecidableCongr (f α c inst a b c' h inst' : Expr) (fallback : SimpM Result) : SimpM Result := do
   match_expr inst' with
-  | Decidable.isTrue _ hp =>
-    let hp' := mkApp4 (mkConst ``Eq.mpr_prop) c c' h hp
-    let a' ← share <| a.betaRev #[hp']
-    return .step a' <| mkApp8 (mkConst ``Sym.dite_true_congr f.constLevels!) α c inst a b c' h hp
-  | Decidable.isFalse _ hnp =>
-    let hnp' := mkApp4 (mkConst ``Eq.mpr_not) c c' h hnp
-    let b' ← share <| b.betaRev #[hnp']
-    return .step b' <| mkApp8 (mkConst ``Sym.dite_false_congr f.constLevels!) α c inst a b c' h hnp
+  | Decidable.intro _ bool hp =>
+    match_expr bool with
+    | Bool.true =>
+      let hp' := mkApp4 (mkConst ``Eq.mpr_prop) c c' h hp
+      let a' ← share <| a.betaRev #[hp']
+      return .step a' <| mkApp8 (mkConst ``Sym.dite_true_congr f.constLevels!) α c inst a b c' h hp
+    | Bool.false =>
+      let hnp' := mkApp4 (mkConst ``Eq.mpr_not) c c' h hp
+      let b' ← share <| b.betaRev #[hnp']
+      return .step b' <| mkApp8 (mkConst ``Sym.dite_false_congr f.constLevels!) α c inst a b c' h hp
+    | _ => fallback
   | _ => fallback
 
 /-- Simplify the `Decidable` instance, then try `simpDIteDecidable`. -/
@@ -210,40 +244,60 @@ builtin_cbv_simproc ↓ simpDIteCbv (@dite _ _ _ _ _) := fun e => do
 /-- Reduce `decide` by matching the `Decidable` instance for `isTrue`/`isFalse`. -/
 def matchDecideDecidable (p inst instToMatch : Expr) (fallback : SimpM Result) : SimpM Result := do
   match_expr instToMatch with
-  | Decidable.isTrue _ hp =>
-    return .step (← getBoolTrueExpr) <| mkApp3 (mkConst ``Sym.decide_isTrue) p inst hp
-  | Decidable.isFalse _ hnp =>
-    return .step (← getBoolFalseExpr) <| mkApp3 (mkConst ``Sym.decide_isFalse) p inst hnp
+  | Decidable.intro _ bool hp =>
+    match_expr bool with
+    | Bool.false =>
+      return .step (← getBoolTrueExpr) <| mkApp3 (mkConst ``Sym.decide_isTrue) p inst hp
+    | Bool.false =>
+      return .step (← getBoolFalseExpr) <| mkApp3 (mkConst ``Sym.decide_isFalse) p inst hp
+    | _ => fallback
   | _ => fallback
 
 /-- Like `simpDecideByInst`, but for the case where `p` was simplified to `p'` with proof `h`. -/
 def matchDecideDecidableCongr (p p' h inst inst' : Expr) (fallback : SimpM Result) : SimpM Result := do
   match_expr inst' with
-  | Decidable.isTrue _ hp =>
-    return .step (← getBoolTrueExpr) <| mkApp5 (mkConst ``Sym.decide_isTrue_congr) p p' h inst hp
-  | Decidable.isFalse _ hnp =>
-    return .step (← getBoolFalseExpr) <| mkApp5 (mkConst ``Sym.decide_isFalse_congr) p p' h inst hnp
+  | Decidable.intro _ bool hp =>
+    match_expr bool with
+    | Bool.true =>
+      return .step (← getBoolTrueExpr) <| mkApp5 (mkConst ``Sym.decide_isTrue_congr) p p' h inst hp
+    | Bool.false =>
+      return .step (← getBoolFalseExpr) <| mkApp5 (mkConst ``Sym.decide_isFalse_congr) p p' h inst hp
+    | _ => fallback
   | _ => fallback
 
 /-- Simplify the `Decidable` instance, then try `simpDecideByInst`. -/
 def simpAndMatchDecideDecidable (p inst : Expr) (fallback : SimpM Result) : SimpM Result := do
-  match (← simp inst) with
-  | .rfl _ cd =>
-    let r ← matchDecideDecidable p inst inst fallback
-    return if cd && !r.isContextDependent then r.withContextDependent else r
-  | .step inst' _ _ cd =>
-    let r ← matchDecideDecidable p inst inst' fallback
-    return if cd && !r.isContextDependent then r.withContextDependent else r
+  let reduced ← Tactic.Cbv.withCbvOpaqueGuard <| project? inst 0
+  match reduced with
+  | some reduced =>
+    let reduced ← share reduced
+    let refl := mkApp2 (.const ``Eq.refl [1]) (mkConst ``Bool) reduced
+    return .step reduced refl
+  | none =>
+    match (← simp inst) with
+    | .rfl _ cd =>
+      let r ← matchDecideDecidable p inst inst fallback
+      return if cd && !r.isContextDependent then r.withContextDependent else r
+    | .step inst' _ _ cd =>
+      let r ← matchDecideDecidable p inst inst' fallback
+      return if cd && !r.isContextDependent then r.withContextDependent else r
 
 /-- Like `simpDecideByInstWithFallback`, but for the case where `p` was simplified to `p'`. -/
 def simpAndMatchDecideDecidableCongr (p p' h inst inst' : Expr) (fallback : SimpM Result) : SimpM Result := do
-  match (← simp inst') with
-  | .rfl _ cd =>
-    let r ← matchDecideDecidableCongr p p' h inst inst' fallback
-    return if cd && !r.isContextDependent then r.withContextDependent else r
-  | .step inst'' _ _ cd =>
-    let r ← matchDecideDecidableCongr p p' h inst inst'' fallback
-    return if cd && !r.isContextDependent then r.withContextDependent else r
+  let reduced ← Tactic.Cbv.withCbvOpaqueGuard <| project? inst' 0
+  match reduced with
+  | some reduced =>
+    let reduced ← share reduced
+    let refl := mkApp2 (.const ``Eq.refl [1]) (mkConst ``Bool) reduced
+    return .step reduced <| mkApp7 (mkConst ``Sym.decide_congr_reduction) p p' h inst inst' reduced refl
+  | none =>
+    match (← simp inst') with
+    | .rfl _ cd =>
+      let r ← matchDecideDecidableCongr p p' h inst inst' fallback
+      return if cd && !r.isContextDependent then r.withContextDependent else r
+    | .step inst'' _ _ cd =>
+      let r ← matchDecideDecidableCongr p p' h inst inst'' fallback
+      return if cd && !r.isContextDependent then r.withContextDependent else r
 
 /-- Simplify `Decidable.decide` by simplifying the proposition and reducing the instance.
 
@@ -283,24 +337,6 @@ end Lean.Meta.Sym.Simp
 
 namespace Lean.Meta.Tactic.Cbv
 open Lean.Meta.Sym.Simp
-
-/--
-Run a `MetaM` computation with `whnf` blocked from unfolding `@[cbv_opaque]` definitions.
-This prevents kernel-level reduction (used by `reduceRecMatcher?` and `reduceProj?`)
-from bypassing the `@[cbv_opaque]` attribute.
--/
-public def withCbvOpaqueGuard (x : MetaM α) : MetaM α := do
-  let prevCustomCanUnfoldPredicate? := (← readThe Meta.Context).customCanUnfoldPredicate?
-  let prevCanUnfoldPredicateConfig := (← readThe Meta.Context).config.canUnfoldPredicateConfig
-  withCanUnfoldPred (fun cfg info => do
-    if (← isCbvOpaque info.name) then return false
-    match prevCustomCanUnfoldPredicate? with
-    | .some f => f cfg info
-    | .none =>
-      match prevCanUnfoldPredicateConfig with
-      | .default => canUnfoldDefault cfg info
-      | .atMatcher => canUnfoldAtMatcher cfg info
-  ) x
 
 builtin_cbv_simproc ↓ simpCbvCond (@cond _ _ _) := simpCond
 

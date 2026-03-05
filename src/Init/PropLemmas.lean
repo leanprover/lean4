@@ -665,12 +665,12 @@ theorem Decidable.or_congr_right' [Decidable a] (h : ¬a → (b ↔ c)) : a ∨ 
 **Important**: this function should be used instead of `rw` on `Decidable b`, because the
 kernel will get stuck reducing the usage of `propext` otherwise,
 and `decide` will not work. -/
-@[inline, expose] def decidable_of_iff (a : Prop) (h : a ↔ b) [Decidable a] : Decidable b :=
+abbrev decidable_of_iff (a : Prop) (h : a ↔ b) [Decidable a] : Decidable b :=
   decidable_of_decidable_of_iff h
 
 /-- Transfer decidability of `b` to decidability of `a`, if the propositions are equivalent.
 This is the same as `decidable_of_iff` but the iff is flipped. -/
-@[inline, expose] def decidable_of_iff' (b : Prop) (h : a ↔ b) [Decidable b] : Decidable a :=
+abbrev decidable_of_iff' (b : Prop) (h : a ↔ b) [Decidable b] : Decidable a :=
   decidable_of_decidable_of_iff h.symm
 
 instance Decidable.predToBool (p : α → Prop) [DecidablePred p] :

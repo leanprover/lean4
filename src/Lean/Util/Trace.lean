@@ -255,6 +255,16 @@ instance [always : MonadAlwaysExcept ε m] [STWorld ω m] [BEq α] [Hashable α]
     MonadAlwaysExcept ε (MonadCacheT α β m) where
   except := let _ := always.except; inferInstance
 
+def bombEmoji := "💥️"
+def checkEmoji := "✅️"
+def crossEmoji := "❌️"
+
+/-- Convert a `TraceResult` to its emoji representation. -/
+def TraceResult.toEmoji : TraceResult → String
+  | .success => checkEmoji
+  | .failure => crossEmoji
+  | .error   => bombEmoji
+
 /-- Run the provided action `k`, and log its execution within a trace node.
 
 The message is produced after the action completes, and has access to its return value.
@@ -264,11 +274,15 @@ If profiling is enabled, this will also log the runtime of `k`.
 
 A typical invocation might be:
 ```lean4
-withTraceNode `isPosTrace (msg := (return m!"{exceptBoolEmoji ·} checking positivity")) do
+withTraceNode `isPosTrace
+    (mkResult? := (some ·.toTraceResult))
+    (msg := (return m!"checking positivity")) do
   return 0 < x
 ```
 
-The `cls`, `collapsed`, and `tag` arguments are forwarded to the constructor of `TraceData`.
+The `cls`, `collapsed`, and `tag` arguments are forwarded to the constructor of `TraceData`,
+and `mkResult?` is used to fill `TraceData`'s `result?` field (by default, with `none`).
+If `mkResult?` yields `some _`, the corresponding emoji will be prepended to the message.
 -/
 @[inline]
 def withTraceNode [always : MonadAlwaysExcept ε m] [MonadLiftT BaseIO m] (cls : Name)
@@ -294,7 +308,10 @@ where
       return (← MonadExcept.ofExcept res)
     let ref ← getRef
     let mut m ← try msg res catch _ => pure m!"<exception thrown while producing trace node message>"
-    let mut data : TraceData := { cls, collapsed, tag, result? := mkResult? res }
+    let result? := mkResult? res
+    if let some result := result? then
+      m := m!"{result.toEmoji} {m}"
+    let mut data : TraceData := { cls, collapsed, tag, result? }
     if trace.profiler.get opts then
       data := { data with startTime := start, stopTime := stop }
     addTraceNode oldTraces data ref m
@@ -340,15 +357,6 @@ private meta def expandTraceMacro (id : Syntax) (s : Syntax) : MacroM (TSyntax `
 macro "trace[" id:ident "]" s:(interpolatedStr(term) <|> term) : doElem => do
   expandTraceMacro id s.raw
 
-def bombEmoji := "💥️"
-def checkEmoji := "✅️"
-def crossEmoji := "❌️"
-
-/-- Convert a `TraceResult` to its emoji representation. -/
-def TraceResult.toEmoji : TraceResult → String
-  | .success => checkEmoji
-  | .failure => crossEmoji
-  | .error   => bombEmoji
 
 /-- Visualize an `Except _ Bool` using a checkmark or cross.
 
@@ -391,6 +399,10 @@ instance : ExceptToTraceResult ε (Option α) where
     | .ok (some _) => .success
     | .ok none => .failure
 
+/-- Convert an `Except` to a `TraceResult` using the `ExceptToTraceResult` instance. -/
+def Except.toTraceResult [ExceptToTraceResult ε α] (e : Except ε α) : TraceResult :=
+  ExceptToTraceResult.toTraceResult e
+
 /--
 Similar to `withTraceNode`, but msg is constructed **before** executing `k`.
 This is important when debugging methods such as `isDefEq`, and we want to generate the message
@@ -403,8 +415,7 @@ TODO: find better name for this function.
 @[inline]
 def withTraceNodeBefore [MonadRef m] [AddMessageContext m] [MonadOptions m]
     [always : MonadAlwaysExcept ε m] [MonadLiftT BaseIO m] [ExceptToTraceResult ε α] (cls : Name)
-    (msg : Unit → m MessageData) (k : m α) (collapsed := true) (tag := "")
-    (mkResult : Except ε α → TraceResult := ExceptToTraceResult.toTraceResult) : m α := do
+    (msg : Unit → m MessageData) (k : m α) (collapsed := true) (tag := "") : m α := do
   let opts ← getOptions
   if !opts.hasTrace then
     return (← k)
@@ -426,7 +437,7 @@ where
     unless clsEnabled || aboveThresh do
       modifyTraces (oldTraces ++ ·)
       return (← MonadExcept.ofExcept res)
-    let result := mkResult res
+    let result := ExceptToTraceResult.toTraceResult res
     let mut msg := m!"{result.toEmoji} {msg}"
     let mut data : TraceData := { cls, collapsed, tag, result? := some result }
     if trace.profiler.get opts then

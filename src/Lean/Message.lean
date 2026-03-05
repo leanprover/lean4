@@ -66,13 +66,20 @@ structure NamingContext where
   currNamespace : Name
   openDecls : List OpenDecl
 
-/-- Structured result of a trace node action, set by `withTraceNode` and `withTraceNodeBefore`. -/
+/-- Structured result status of a trace node action, produced by `withTraceNode` and
+`withTraceNodeBefore` and included in the `TraceData` of trace messages. Either
+`.success` (✅️), `.failure` (❌️), or `.error` (💥️).
+
+This is used both to render emojis in trace messages and to allow more
+robust inspection of trace logs via metaprogramming.
+
+See also `Except.toTraceResult` for converting an `Except ε α` to a `TraceResult`. -/
 inductive TraceResult where
-  /-- The traced action succeeded (✅️ checkEmoji). -/
+  /-- The traced action succeeded (✅️, `checkEmoji`). -/
   | success
-  /-- The traced action failed (❌️ crossEmoji). -/
+  /-- The traced action failed (❌️, `crossEmoji`). -/
   | failure
-  /-- An exception was thrown during the traced action (💥️ bombEmoji). -/
+  /-- An exception was thrown during the traced action (💥️, `bombEmoji`). -/
   | error
   deriving Inhabited, BEq, Repr
 

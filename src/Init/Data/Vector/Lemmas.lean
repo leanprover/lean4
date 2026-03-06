@@ -862,7 +862,6 @@ grind_pattern Vector.getElem?_eq_none => xs[i]? where
 theorem getElem?_eq_some_iff {xs : Vector α n} : xs[i]? = some b ↔ ∃ h : i < n, xs[i] = b :=
   _root_.getElem?_eq_some_iff
 
-@[grind →]
 theorem getElem_of_getElem? {xs : Vector α n} : xs[i]? = some a → ∃ h : i < n, xs[i] = a :=
   getElem?_eq_some_iff.mp
 

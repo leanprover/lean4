@@ -236,7 +236,6 @@ theorem getElem?_eq_some_iff {l : List α} : l[i]? = some a ↔ ∃ h : i < l.le
     · match i, h with
       | i + 1, h => simp [getElem?_eq_some_iff, Nat.succ_lt_succ_iff]
 
-@[grind →]
 theorem getElem_of_getElem? {l : List α} : l[i]? = some a → ∃ h : i < l.length, l[i] = a :=
   getElem?_eq_some_iff.mp
 

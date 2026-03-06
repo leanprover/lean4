@@ -41,7 +41,11 @@ def registerNamespace (env : Environment) (n : Name) : Environment :=
 
 /-- Return `true` if `n` is the name of a namespace in `env`. -/
 def isNamespace (env : Environment) (n : Name) : Bool :=
-  (namespacesExt.getState env).contains n
+  (namespacesExt.getState env).contains n ||
+  -- Fallback: check if `n` is a prefix of any imported module name. In module files, namespace
+  -- entries from imports may be missing from the local extension state due to async compilation
+  -- branching combined with the `contains` check in `registerNamespace`.
+  env.header.moduleNames.any (n.isPrefixOf ·)
 
 /-- Return a set containing all namespaces in `env`. -/
 def getNamespaceSet (env : Environment) : NameSSet :=

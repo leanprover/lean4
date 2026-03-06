@@ -670,8 +670,10 @@ inductive ParserResolution where
   | alias (p : ParserAliasValue)
 
 /-- Resolve the given parser name and return a list of candidates. -/
-private def resolveParserNameCore (env : Environment) (opts : Options) (currNamespace : Name)
+private def resolveParserNameCore (env' : Environment) (opts : Options) (currNamespace : Name)
     (openDecls : List OpenDecl) (ident : Ident) : List ParserResolution := Id.run do
+  -- Use non-exporting env so `meta import` constants are visible for parser resolution.
+  let env := env'.setExporting false
   let ⟨.ident (val := val) (preresolved := pre) ..⟩ := ident | return []
 
   let rec isParser (name : Name) : Option Bool :=

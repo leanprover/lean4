@@ -36,7 +36,10 @@ instance : MonadResolveName (M (m := m)) where
 
 def resolveId [MonadOptions m] [MonadResolveName m] (ns : Name) (idStx : Syntax) : m Name := do
   let declName := ns ++ idStx.getId
-  if (← getEnv).contains declName then
+  -- Use non-exporting env so `open` can resolve constants from `meta import` as well.
+  -- In `module` files, `meta import X` puts constants in `base.private` only, and
+  -- `isExporting = true` at the command level checks `base.public`.
+  if (← getEnv).setExporting false |>.contains declName then
     return declName
   else
     withRef idStx <| resolveGlobalConstNoOverloadCore declName
@@ -70,7 +73,13 @@ def resolveNameUsingNamespacesCore [MonadOptions m] [MonadResolveName m]
   else
     withRef idStx do throwError "ambiguous identifier `{idStx.getId}`, possible interpretations: {result.map mkConst}"
 
-def elabOpenDecl [MonadOptions m] [MonadResolveName m] [MonadInfoTree m] (stx : TSyntax ``Parser.Command.openDecl) : m (List OpenDecl) := do
+def elabOpenDecl [MonadOptions m] [MonadResolveName m] [MonadInfoTree m] [MonadTrace m] [MonadFinally m] (stx : TSyntax ``Parser.Command.openDecl) : m (List OpenDecl) := do
+  -- Record open dependencies as public (isExporting = true). In module files, `open` at the
+  -- top level makes constants available for use in public definitions and syntax extensions.
+  -- The dependencies need to be re-exported so downstream importers can use the syntax.
+  let savedExporting := (← getEnv).isExporting
+  modifyEnv (·.setExporting true)
+  try
   StateRefT'.run' (s := { openDecls := (← getOpenDecls), currNamespace := (← getCurrNamespace) }) do
     match stx with
     | `(Parser.Command.openDecl| $nss*) =>
@@ -88,6 +97,7 @@ def elabOpenDecl [MonadOptions m] [MonadResolveName m] [MonadInfoTree m] (stx : 
         let declName ← resolveNameUsingNamespacesCore nss idStx
         if (← getInfoState).enabled then
           addConstInfo idStx declName
+        recordExtraModUseFromDecl declName (isMeta := false)
         addOpenDecl (OpenDecl.explicit idStx.getId declName)
     | `(Parser.Command.openDecl| $ns hiding $ids*) =>
       let ns ← resolveUniqueNamespace ns
@@ -96,6 +106,7 @@ def elabOpenDecl [MonadOptions m] [MonadResolveName m] [MonadInfoTree m] (stx : 
         let declName ← resolveId ns id
         if (← getInfoState).enabled then
           addConstInfo id declName
+        recordExtraModUseFromDecl declName (isMeta := false)
       let ids := ids.map (·.getId) |>.toList
       addOpenDecl (OpenDecl.simple ns ids)
     | `(Parser.Command.openDecl| $ns renaming $[$froms -> $tos],*) =>
@@ -105,9 +116,12 @@ def elabOpenDecl [MonadOptions m] [MonadResolveName m] [MonadInfoTree m] (stx : 
         if (← getInfoState).enabled then
           addConstInfo «from» declName
           addConstInfo to declName
+        recordExtraModUseFromDecl declName (isMeta := false)
         addOpenDecl (OpenDecl.explicit to.getId declName)
     | _ => throwUnsupportedSyntax
     return (← get).openDecls
+  finally
+    modifyEnv (·.setExporting savedExporting)
 
 def resolveNameUsingNamespaces [MonadOptions m] [MonadResolveName m] (nss : List Name) (idStx : Ident) : m Name := do
   StateRefT'.run' (s := { openDecls := (← getOpenDecls), currNamespace := (← getCurrNamespace) }) do

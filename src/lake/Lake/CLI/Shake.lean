@@ -247,16 +247,56 @@ def getDepConstName? (s : State) (ref : Name) : Option Name := do
 def calcNeeds (s : State) (i : ModuleIdx) : Needs := Id.run do
   let env := s.env
   let mut needs := default
+  -- Track the effective visibility of each constant, accounting for same-module references.
+  -- The compiler's `checkMeta` transitively checks accessibility from public constants through
+  -- private same-module constants. We mirror this by propagating `isExported` through
+  -- intra-module reference chains.
+  let mut constVis : Std.HashMap Name NeedsKind := {}
+  let mut sameModuleRefs : Std.HashMap Name (Array Name) := {}
   for ci in env.header.moduleData[i]!.constants do
     -- Added guard for cases like `structure` that are still exported even if private
     let pubCI? := guard (!isPrivateName ci.name) *> (env.setExporting true).find? ci.name
     let k := { isExported := pubCI?.isSome, isMeta := isDeclMeta' env ci.name }
+    constVis := constVis.insert ci.name k
     needs := visitExpr k ci.type needs
     if let some e := ci.value? (allowOpaque := true) then
       -- type and value has identical visibility under `meta`
       let k := if k.isMeta then k else
         if pubCI?.any (·.hasValue (allowOpaque := true)) then .pub else .priv
       needs := visitExpr k e needs
+    -- Collect same-module references for visibility propagation
+    let refs := collectSameModuleRefs ci
+    if !refs.isEmpty then
+      sameModuleRefs := sameModuleRefs.insert ci.name refs
+
+  -- Propagate `isExported` through intra-module reference chains.
+  -- If a public constant A references private constant B (same module), B's external
+  -- dependencies should inherit A's `isExported` flag, mirroring the compiler's `checkMeta`.
+  let mut changed := true
+  while changed do
+    changed := false
+    for (name, refs) in sameModuleRefs do
+      if let some k := constVis[name]? then
+        if k.isExported then
+          for ref in refs do
+            if let some refK := constVis[ref]? then
+              if !refK.isExported then
+                constVis := constVis.insert ref { refK with isExported := true }
+                changed := true
+
+  -- Second pass: re-process constants whose effective visibility was upgraded
+  for ci in env.header.moduleData[i]!.constants do
+    let pubCI? := guard (!isPrivateName ci.name) *> (env.setExporting true).find? ci.name
+    let ownK := { isExported := pubCI?.isSome, isMeta := isDeclMeta' env ci.name : NeedsKind }
+    if let some effK := constVis[ci.name]? then
+      if effK.isExported && !ownK.isExported then
+        let k := { ownK with isExported := true }
+        needs := visitExpr k ci.type needs
+        if let some e := ci.value? (allowOpaque := true) then
+          let k := if k.isMeta then k else
+            if pubCI?.any (·.hasValue (allowOpaque := true)) then .pub else .priv
+          let k := { k with isExported := true }
+          needs := visitExpr k e needs
 
   for use in getExtraModUses env i do
     let j : Nat := env.getModuleIdx? use.module |>.get!
@@ -278,6 +318,22 @@ where
               if s.transDeps[i]!.has k indMod then
                 deps := deps.union k {indMod}
       return deps
+  /-- Collect names of same-module constants referenced by this constant's expressions. -/
+  collectSameModuleRefs (ci : ConstantInfo) : Array Name := Id.run do
+    let env := s.env
+    let mut refs : Array Name := #[]
+    let collect (e : Expr) (refs : Array Name) : Array Name :=
+      Lean.Expr.foldConsts e refs fun c refs => Id.run do
+        let mut refs := refs
+        if let some c := getDepConstName? s c then
+          if let some j := env.getModuleIdxFor? c then
+            if j == i then
+              refs := refs.push c
+        return refs
+    refs := collect ci.type refs
+    if let some e := ci.value? (allowOpaque := true) then
+      refs := collect e refs
+    return refs
 
 abbrev Explanations := Std.HashMap (ModuleIdx × NeedsKind) (Option (Name × Name))
 

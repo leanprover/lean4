@@ -2228,7 +2228,11 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
         const2ModIdx := const2ModIdx.insertIfNew cname modIdx
 
   if isModule then
-    for mod in modules.filter (·.isExported) do
+    -- Include constants from ALL imports (not just `public` ones) in the public constant map.
+    -- This ensures that constants from `meta import` and private `import` are visible during
+    -- elaboration in module files where `isExporting = true`. The `isExported` flag on imports
+    -- controls re-export to downstream modules, not visibility within the current module.
+    for mod in modules do
       let some data := mod.publicModule? | continue
       for cname in data.constNames, cinfo in data.constants do
         match publicConstantMap.getThenInsertIfNew? cname cinfo with

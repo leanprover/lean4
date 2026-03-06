@@ -28,7 +28,7 @@
             llvmPackages.bintools  # wrapped lld
             llvmPackages.llvm  # llvm-symbolizer for asan/lsan
             gdb
-            python3
+            python314
             tree  # for CI
           ];
           # https://github.com/NixOS/nixpkgs/issues/60919

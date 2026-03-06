@@ -97,13 +97,15 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
       endif()
       set(LEANTAR_TARGET ${LEANTAR_TARGET_ARCH}-${LEANTAR_TARGET_OS})
     endif()
-    file(
-      DOWNLOAD
-      https://github.com/digama0/leangz/releases/download/${LEANTAR_VERSION}/leantar-${LEANTAR_VERSION}-${LEANTAR_TARGET}${LEANTAR_ARCHIVE_SUFFIX}
-      ${CMAKE_BINARY_DIR}/leantar${LEANTAR_ARCHIVE_SUFFIX})
-    file(ARCHIVE_EXTRACT
-      INPUT ${CMAKE_BINARY_DIR}/leantar${LEANTAR_ARCHIVE_SUFFIX}
-      DESTINATION ${CMAKE_BINARY_DIR}/leantar)
+    if (NOT EXISTS "${CMAKE_BINARY_DIR}/leantar/leantar-${LEANTAR_VERSION}-${LEANTAR_TARGET}/leantar${CMAKE_EXECUTABLE_SUFFIX}")
+      file(
+        DOWNLOAD
+        https://github.com/digama0/leangz/releases/download/${LEANTAR_VERSION}/leantar-${LEANTAR_VERSION}-${LEANTAR_TARGET}${LEANTAR_ARCHIVE_SUFFIX}
+        ${CMAKE_BINARY_DIR}/leantar${LEANTAR_ARCHIVE_SUFFIX})
+      file(ARCHIVE_EXTRACT
+        INPUT ${CMAKE_BINARY_DIR}/leantar${LEANTAR_ARCHIVE_SUFFIX}
+        DESTINATION ${CMAKE_BINARY_DIR}/leantar)
+    endif()
     set(LEANTAR ${CMAKE_BINARY_DIR}/leantar/leantar-${LEANTAR_VERSION}-${LEANTAR_TARGET}/leantar${CMAKE_EXECUTABLE_SUFFIX})
   endif()
   list(APPEND CL_ARGS -DCADICAL=${CADICAL} -DLEANTAR=${LEANTAR})

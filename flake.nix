@@ -28,6 +28,7 @@
             llvmPackages.bintools  # wrapped lld
             llvmPackages.llvm  # llvm-symbolizer for asan/lsan
             gdb
+            meld
             python314
             tree  # for CI
           ];

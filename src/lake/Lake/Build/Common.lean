@@ -309,7 +309,8 @@ and log are saved to `traceFile`, if the build completes without a fatal error
   let noBuildTraceFile := traceFile.addExtension "nobuild"
   if (← getNoBuild) then
     modify ({· with wantsRebuild := true})
-    writeBuildTrace noBuildTraceFile depTrace Json.null {}
+    if (← traceFile.pathExists) then
+      writeBuildTrace noBuildTraceFile depTrace Json.null {}
     error s!"target is out-of-date and needs to be rebuilt"
   else
     let startTime ← IO.monoMsNow

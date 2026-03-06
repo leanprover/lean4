@@ -12,7 +12,7 @@ grind_pattern List.countP_le_countP => l.countP P, l.countP Q
 
 theorem List.countP_lt_countP (hpq : ∀ x ∈ l, P x → Q x) (y:α) (hx: y ∈ l) (hxP : P y = false) (hxQ : Q y) :
     l.countP P < l.countP Q := by
-  induction l <;> grind
+  induction l <;> grind [List.mem_cons_of_mem]
 
 /--
 info: List.countP_nil: [@List.countP #1 #0 (@List.nil _)]

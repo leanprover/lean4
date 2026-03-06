@@ -279,11 +279,6 @@ theorem isNat_iff {s : String.Slice} :
     rcases r with ⟨r₁, r₂⟩
     simp at hr
     simp [hr] at ⊢ ih
-    change r₂ = true ↔
-            s.isEmpty = false ∧
-              (∀ (c : Char), c ∈ s.copy.toList → c.isDigit = true ∨ c = '_') ∧
-                ¬['_', '_'] <:+: s.copy.toList ∧
-                  ¬s.copy.toList.head? = some '_' ∧ ¬s.copy.toList.getLast? = some '_'
     simp [ih.1]
     refine ⟨fun h => ?_, ?_⟩
     · simp [Option.any_eq_true] at h

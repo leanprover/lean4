@@ -919,7 +919,7 @@ def isNat (s : Slice) : Bool := Id.run do
     else
       return false
 
-  lastWasDigit
+  return lastWasDigit
 
 /--
 Interprets a slice as the decimal representation of a natural number, returning it. Returns

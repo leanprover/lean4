@@ -803,14 +803,15 @@ private def Module.recBuildLean (mod : Module) : FetchM (Job ModuleOutputArtifac
         some <$> mod.restoreNeededArtifacts arts
     let arts ← id do
       if (← mod.pkg.isArtifactCacheWritable) then
-        if let some arts ← fetchArtsFromCache? mod.pkg.restoreAllArtifacts then
+        let restore ← mod.pkg.restoreAllArtifacts
+        if let some arts ← fetchArtsFromCache? restore then
           return arts
         else
           let status ← savedTrace.replayIfUpToDate' (oldTrace := srcTrace.mtime) mod depTrace
           unless status.isUpToDate do
             discard <| mod.buildLean depTrace srcFile setup
           if status.isCacheable then
-            let arts ← mod.cacheOutputArtifacts setup.isModule mod.pkg.restoreAllArtifacts
+            let arts ← mod.cacheOutputArtifacts setup.isModule restore
             (← getLakeCache).writeOutputs mod.pkg.cacheScope inputHash arts.descrs
             return arts
           else

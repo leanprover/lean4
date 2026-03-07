@@ -173,6 +173,16 @@ public def getArtifact? [Bind m] [MonadLiftT BaseIO m] (descr : ArtifactDescr) :
   getLakeCache >>= (·.getArtifact? descr)
 
 /--
+Returns whether the package should restore its artifacts from the Lake artifact cache.
+
+If the package has not configured this option itself through
+{lean}`Package.restoreAllArtifacts?`, this will default to the workspace configuration.
+If not configured at all, this defaults to {lean}`false`.
+-/
+@[inline] public def Package.restoreAllArtifacts [MonadWorkspace m] (self : Package) : m Bool :=
+  (self.restoreAllArtifacts? <|> ·.restoreAllArtifacts? |>.getD false) <$> getWorkspace
+
+/--
 Returns whether the package should retrieve its artifacts from the Lake artifact cache.
 
 If the package has not configured the artifact cache itself through

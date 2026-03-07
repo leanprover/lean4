@@ -654,7 +654,7 @@ public def buildArtifactUnlessUpToDate
         return some art
     let art ← id do
       if (← pkg.isArtifactCacheWritable) then
-        let restore := restore || pkg.restoreAllArtifacts
+        let restore := restore || (← pkg.restoreAllArtifacts)
         if let some art ← fetchArt? restore then
           return art
         else

@@ -14,7 +14,11 @@
  "msg":
  {"tag":
   [{"trace":
-    {"msg": {"tag": [{"expr": {"text": "root"}}, {"text": ""}]},
+    {"msg":
+     {"append":
+      [{"tag": [{"expr": {"text": "✅️"}}, {"text": ""}]},
+       {"tag": [{"expr": {"text": " "}}, {"text": ""}]},
+       {"tag": [{"expr": {"text": "root"}}, {"text": ""}]}]},
      "indent": 0,
      "collapsed": true,
      "cls": "Meta.debug",
@@ -22,7 +26,11 @@
    {"text": ""}]}}
 {"tag":
  [{"trace":
-   {"msg": {"tag": [{"expr": {"text": "root"}}, {"text": ""}]},
+   {"msg":
+    {"append":
+     [{"tag": [{"expr": {"text": "✅️"}}, {"text": ""}]},
+      {"tag": [{"expr": {"text": " "}}, {"text": ""}]},
+      {"tag": [{"expr": {"text": "root"}}, {"text": ""}]}]},
     "indent": 0,
     "collapsed": false,
     "cls": "Meta.debug",
@@ -31,9 +39,12 @@
      [{"tag":
        [{"trace":
          {"msg":
-          {"tag":
-           [{"expr": {"tag": ["highlighted", {"text": "child1"}]}},
-            {"text": ""}]},
+          {"append":
+           [{"tag": [{"expr": {"text": "✅️"}}, {"text": ""}]},
+            {"tag": [{"expr": {"text": " "}}, {"text": ""}]},
+            {"tag":
+             [{"expr": {"tag": ["highlighted", {"text": "child1"}]}},
+              {"text": ""}]}]},
           "indent": 2,
           "collapsed": false,
           "cls": "Meta.debug",
@@ -84,7 +95,11 @@
         {"text": ""}]},
       {"tag":
        [{"trace":
-         {"msg": {"tag": [{"expr": {"text": "child2"}}, {"text": ""}]},
+         {"msg":
+          {"append":
+           [{"tag": [{"expr": {"text": "✅️"}}, {"text": ""}]},
+            {"tag": [{"expr": {"text": " "}}, {"text": ""}]},
+            {"tag": [{"expr": {"text": "child2"}}, {"text": ""}]}]},
           "indent": 2,
           "collapsed": true,
           "cls": "Meta.debug",
@@ -92,7 +107,11 @@
         {"text": ""}]},
       {"tag":
        [{"trace":
-         {"msg": {"tag": [{"expr": {"text": "child3"}}, {"text": ""}]},
+         {"msg":
+          {"append":
+           [{"tag": [{"expr": {"text": "✅️"}}, {"text": ""}]},
+            {"tag": [{"expr": {"text": " "}}, {"text": ""}]},
+            {"tag": [{"expr": {"text": "child3"}}, {"text": ""}]}]},
           "indent": 2,
           "collapsed": true,
           "cls": "Meta.debug",

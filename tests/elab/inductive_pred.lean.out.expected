@@ -61,7 +61,7 @@
           (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) (@OfNat.ofNat Nat (nat_lit 2) (instOfNatNat (nat_lit 2)))
             n_1))
         (mul_left_comm (@OfNat.ofNat Nat (nat_lit 2) (instOfNatNat (nat_lit 2))) n n_1)
-[Meta.IndPredBelow.match] ❌️ @mul'.match_1_1 n
+[Meta.IndPredBelow.match] 💥️ @mul'.match_1_1 n
       (fun m x x_1 => Power2 (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) n m)) m x✝² x✝¹
       (fun h1 =>
         @of_eq_true

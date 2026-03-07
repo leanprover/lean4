@@ -1,10 +1,10 @@
 syntaxPrec.lean:1:17-1:21: error: unexpected token '<|>'; expected ':'
-[Elab.command] @[term_parser 1000]
+[Elab.command] ✅️ @[term_parser 1000]
     public meta def «termFoo*_» : Lean.ParserDescr✝ :=
       ParserDescr.node✝ `«termFoo*_» 1022
         (ParserDescr.binary✝ `andthen (ParserDescr.symbol✝ "foo")
           (ParserDescr.binary✝ `orelse (ParserDescr.nodeWithAntiquot✝ "*" `token.«*» (ParserDescr.symbol✝ "*"))
             ((with_annotate_term"sepBy1(" @ParserDescr.sepBy1✝) (ParserDescr.cat✝ `term 0) ","
               (ParserDescr.symbol✝ ", ") Bool.false✝)))
-[Elab.command] syntax "foo" ("*" <|> term,+) : term
-[Elab.command] 
+[Elab.command] ✅️ syntax "foo" ("*" <|> term,+) : term
+[Elab.command] ✅️ 

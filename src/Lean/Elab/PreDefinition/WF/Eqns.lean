@@ -53,7 +53,7 @@ So we create a unfold equation generator that aliases an existing private `eq_de
 wherever the current module expects it.
 -/
 def copyPrivateUnfoldTheorem : GetUnfoldEqnFn := fun declName => do
-  withTraceNode `ReservedNameAction (pure m!"{exceptOptionEmoji ·} copyPrivateUnfoldTheorem running for {declName}") do
+  withTraceNode `ReservedNameAction (fun _ => pure m!"copyPrivateUnfoldTheorem running for {declName}") do
   let name := mkEqLikeNameFor (← getEnv) declName unfoldThmSuffix
   if let some mod ← findModuleOf? declName then
     let unfoldName' := mkPrivateNameCore mod (.str (privateToUserName declName) unfoldThmSuffix)

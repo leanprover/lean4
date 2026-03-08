@@ -9,6 +9,7 @@ prelude
 public import Lean.Elab.MutualDef
 import Lean.Compiler.Options
 import Lean.Meta.Reduce
+import all Lean.Elab.ErrorUtils
 
 public section
 
@@ -44,15 +45,12 @@ If there would be unsolved-for metavariables, tries hinting that the resulting t
 is a monadic value with the `CommandElabM`, `TermElabM`, or `IO` monads.
 Throws errors if the term is a proof or a type, but lifts props to `Bool` using `mkDecide`.
 -/
-private def elabTermForEval (fvars : Array Expr) (term : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
+private def elabTermForEval (term : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
   let ty ← expectedType?.getDM mkFreshTypeMVar
   let e ← Term.elabTermEnsuringType term ty
   synthesizeWithHinting ty
   let e ← instantiateMVars e
   if (← Term.logUnassignedUsingErrorInfos (← getMVars e)) then throwAbortTerm
-  if e.hasFVar then
-    let fvars := fvars.filter fun fvar => (Lean.collectFVars {} e).fvarSet.contains fvar.fvarId!
-    throwError m!"Cannot evaluate, contains free variables: {MessageData.andList (fvars.map toMessageData).toList}"
   if ← isProof e then
     throwError m!"Cannot evaluate, proofs are not computationally relevant"
   let e ← if (← isProp e) then mkDecide e else pure e
@@ -230,11 +228,15 @@ unsafe def elabEvalCoreUnsafe (bang : Bool) (tk term : Syntax) (expectedType? : 
     try
       -- Generate an action without executing it. We use `withoutModifyingEnv` to ensure
       -- we don't pollute the environment with auxiliary declarations.
-      let act : EvalAction ← withoutModifyingEnv <| runTermElabM fun fvars => do Term.withDeclName (mkPrivateName (← getEnv) declName) do
+      let act : EvalAction ← withoutModifyingEnv <| runTermElabM fun _ => do Term.withDeclName (mkPrivateName (← getEnv) declName) do
         withSaveInfoContext do -- save the environment post-elaboration (for matchers, let rec, etc.)
-          let e ← elabTermForEval fvars term expectedType?
+          let e ← elabTermForEval term expectedType?
           -- If there is an elaboration error, don't evaluate!
           if e.hasSyntheticSorry then throwAbortTerm
+          if e.hasFVar then
+            let fvarIds := (Lean.collectFVars {} e).fvarIds
+            let fvarMsg := MessageData.andList (fvarIds.map fun fvarId => m!"`{Expr.fvar fvarId}`").toList
+            throwError m!"Cannot evaluate, contains free variable{fvarIds.size.plural} {fvarMsg}"
           -- We want `#eval` to work even in the core library, so if `ofFormat` isn't available,
           -- we fall back on a `Format`-based approach.
           if (← getEnv).contains ``Lean.MessageData.ofFormat then

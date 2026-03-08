@@ -199,7 +199,12 @@ Elaborate `variables` and have a specific error about referenced free variables,
 rather than give an "unknown identifier" error while elaborating.
 -/
 section
-variable (n : Nat)
-/-- error: Cannot evaluate, contains free variables: n -/
+variable (m n : Nat) {α : Type} [DecidableEq α] (x y : α)
+/-- error: Cannot evaluate, contains free variable `n` -/
 #guard_msgs in #eval n
+/-- error: Cannot evaluate, contains free variables `m` and `n` -/
+#guard_msgs in #eval m + n
+/-! Picks up on decidable instances from the `Prop`->`Bool` conversion too. -/
+/-- error: Cannot evaluate, contains free variables `α`, `x`, `y`, and `inst✝` -/
+#guard_msgs in #eval x = y
 end

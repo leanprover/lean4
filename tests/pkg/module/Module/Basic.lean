@@ -558,3 +558,6 @@ public def func (ctx : Nat) (operand : OpOperand2) : Nat :=
   match operand.nextUse with
   | none => ctx
   | some _nextPtr => ctx
+
+/-- Setup for #12833. -/
+public def Namespaced.def := 0

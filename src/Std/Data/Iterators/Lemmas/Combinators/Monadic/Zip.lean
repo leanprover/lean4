@@ -42,9 +42,8 @@ theorem IterM.step_intermediateZip [Monad m] [Iterator α₁ m β₁] [Iterator 
     {it₂ : IterM (α := α₂) m β₂} :
     (Intermediate.zip it₁ memo it₂).step = (
       match memo with
-      | none =>
-        it₁.step >>= fun step =>
-        match step.inflate with
+      | none => do
+        match (← it₁.step).inflate with
         | .yield it₁' out hp =>
           pure <| .deflate <| .skip (Intermediate.zip it₁' (some ⟨out, _, _, hp⟩) it₂)
             (.yieldLeft rfl hp)
@@ -53,9 +52,8 @@ theorem IterM.step_intermediateZip [Monad m] [Iterator α₁ m β₁] [Iterator 
             (.skipLeft rfl hp)
         | .done hp =>
           pure <| .deflate <| .done (.doneLeft rfl hp)
-      | some out₁ =>
-        it₂.step >>= fun step =>
-        match step.inflate with
+      | some out₁ => do
+        match (← it₂.step).inflate with
         | .yield it₂' out₂ hp =>
           pure <| .deflate <| .yield (Intermediate.zip it₁ none it₂') (out₁, out₂)
             (.yieldRight rfl hp)

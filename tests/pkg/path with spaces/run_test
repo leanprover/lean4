@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+source ../../env_test.sh
 
 rm -rf .lake/build
 lake exe "path with spaces"

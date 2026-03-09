@@ -50,6 +50,24 @@ endblock()
 ## Helper functions ##
 ######################
 
+function(glob_except OUT DIR GLOB)
+  cmake_parse_arguments(ARGS "" "" EXCEPT ${ARGN})
+  cmake_path(ABSOLUTE_PATH DIR NORMALIZE)
+
+  file(GLOB ALL_FILES "${DIR}/${GLOB}")
+  set(RETAINED_FILES "")
+
+  foreach(FILE IN LISTS ALL_FILES)
+    cmake_path(RELATIVE_PATH FILE BASE_DIRECTORY "${DIR}" OUTPUT_VARIABLE FILE_IN_DIR)
+    if(NOT FILE_IN_DIR IN_LIST ARGS_EXCEPT)
+      list(APPEND RETAINED_FILES "${FILE}")
+    endif()
+  endforeach()
+
+  # Replace with return(PROPAGATE) if we ever update to cmake 3.25+
+  set("${OUT}" "${RETAINED_FILES}" PARENT_SCOPE)
+endfunction()
+
 function(check_test_bench_scripts DIR)
   set(RUN_TEST "${DIR}/run_test")
   set(RUN_BENCH "${DIR}/run_bench")
@@ -117,7 +135,7 @@ endfunction()
 # a single `measurements.jsonl` file in the pile directory, whose path will be
 # added to the list specified by the BENCH argument.
 function(add_test_pile DIR GLOB)
-  cmake_parse_arguments(ARGS "" BENCH "" ${ARGN})
+  cmake_parse_arguments(ARGS "" BENCH EXCEPT ${ARGN})
   cmake_path(ABSOLUTE_PATH DIR NORMALIZE)
 
   check_test_bench_scripts("${DIR}")
@@ -128,7 +146,7 @@ function(add_test_pile DIR GLOB)
   set(MEASUREMENTS_FILES "")
 
   # Iterate over all files matching the glob
-  file(GLOB TEST_FILES "${DIR}/${GLOB}")
+  glob_except(TEST_FILES "${DIR}" "${GLOB}" EXCEPT "${ARGS_EXCEPT}")
   foreach(FILE IN LISTS TEST_FILES)
     cmake_path(RELATIVE_PATH FILE OUTPUT_VARIABLE FILE_IN_SOURCE_DIR)
     cmake_path(RELATIVE_PATH FILE BASE_DIRECTORY "${DIR}" OUTPUT_VARIABLE FILE_IN_DIR)
@@ -204,8 +222,10 @@ function(add_test_dir DIR)
 endfunction()
 
 function(add_dir_of_test_dirs DIR)
+  cmake_parse_arguments(ARGS "" "" EXCEPT ${ARGN})
   cmake_path(ABSOLUTE_PATH DIR NORMALIZE)
-  file(GLOB TEST_DIRS "${DIR}/*")
+
+  glob_except(TEST_DIRS "${DIR}" "*" EXCEPT "${ARGS_EXCEPT}")
   foreach(TEST_DIR IN LISTS TEST_DIRS)
     if(IS_DIRECTORY "${TEST_DIR}")
       add_test_dir("${TEST_DIR}")

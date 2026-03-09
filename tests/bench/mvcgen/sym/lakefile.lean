@@ -27,6 +27,7 @@ lean_lib BaselineBench where
   roots := #[`baseline_add_sub_cancel]
   moreLeanArgs := #["--tstack=100000000"]
 
+@[test_driver]
 lean_lib VCGenTest where
   roots := #[`test_vcgen]
   moreLeanArgs := #["--tstack=100000000"]

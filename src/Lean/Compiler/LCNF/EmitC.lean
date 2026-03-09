@@ -121,6 +121,7 @@ structure Context where
 
 structure State where
   buf : String := ""
+  mangleCache : Std.HashMap Name String := {}
 
 abbrev EmitM := ReaderT Context StateRefT State CompilerM
 
@@ -146,7 +147,13 @@ instance (priority := low) [ToString α] : EmitToString α where
   toEmitString x := return toString x
 
 instance : EmitToString Name where
-  toEmitString v := return v.mangle (pre := "v_")
+  toEmitString v := do
+    modifyGet fun s =>
+      if let some mangled := s.mangleCache[v]? then
+        (mangled, s)
+      else
+        let mangled := v.mangle (pre := "v_")
+        (mangled, { s with mangleCache := s.mangleCache.insert v mangled })
 
 instance : EmitToString FVarId where
   toEmitString fvarId := do EmitToString.toEmitString (← getBinderName fvarId)
@@ -1124,7 +1131,7 @@ public def emitCForDecls (modName : Name) (decls : Array Name) : CoreM String :=
   let env ← getEnv
   let indexMap := getImpureDeclIndices env decls
   let localDecls := localDecls.qsort fun l r => indexMap[l.name]! < indexMap[r.name]!
-  let (_, { buf }) ←
+  let (_, { buf, .. }) ←
     main
       |>.run { localDecls, otherModuleDecls, modName }
       |>.run {}

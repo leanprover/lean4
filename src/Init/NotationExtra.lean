@@ -63,7 +63,7 @@ meta def expandBracketedBinders (combinatorDeclName : Name) (bracketedExplicitBi
   let combinator := mkCIdentFrom (← getRef) combinatorDeclName
   expandBracketedBindersAux combinator #[bracketedExplicitBinders] body
 
-syntax unifConstraint := term unicode(" =?= ", " ≟ ") term
+syntax unifConstraint := term unicode(" ≟ ", " =?= ") term
 syntax unifConstraintElem := colGe unifConstraint ", "?
 
 syntax (docComment)? attrKind "unif_hint" (ppSpace ident)? (ppSpace bracketedBinder)*

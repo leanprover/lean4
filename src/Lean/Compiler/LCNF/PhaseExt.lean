@@ -227,31 +227,23 @@ def getLocalDecl? (declName : Name) : CompilerM (Option ((pu : Purity) × Decl p
   let some decl ← getLocalDeclAt? declName (← getPhase) | return none
   return some ⟨_, decl⟩
 
-structure DeclOrderState where
-  map : PHashMap Name Nat := {}
-  next : Nat := 0
-  deriving Inhabited
-
-private def declOrderReplayFn : ReplayFn DeclOrderState :=
-  fun oldState newState _ otherState =>
-    -- Collect entries added by the parallel task (not in the fork-point state)
-    let newEntries := newState.map.foldl (init := #[]) fun acc k v =>
-      if oldState.map.contains k then acc
-      else acc.push (k, v)
-    -- Sort by original index to preserve relative ordering
-    let newEntries := newEntries.qsort (fun a b => a.2 < b.2)
-    -- Re-index starting from otherState.next
-    newEntries.foldl (init := otherState) fun s (name, _) =>
-      { map := s.map.insert name s.next, next := s.next + 1 }
-
-builtin_initialize declOrderExt : EnvExtension DeclOrderState ←
-  registerEnvExtension (mkInitial := pure {}) (asyncMode := .sync) (replay? := some declOrderReplayFn)
+builtin_initialize declOrderExt : EnvExtension (List Name × NameSet) ← mkDeclSetExt
 
 def recordFinalImpureDecl (env : Environment) (name : Name) : Environment :=
   declOrderExt.modifyState env fun s =>
-    { map := s.map.insert name s.next, next := s.next + 1 }
+    (name :: s.1, s.2.insert name)
 
-def getImpureDeclIndex? (env : Environment) (name : Name) : Option Nat :=
-  declOrderExt.getState env |>.map.find? name
+def getImpureDeclIndices (env : Environment) (targets : Array Name) : Std.HashMap Name Nat := Id.run do
+  let (names, set) := declOrderExt.getState env
+  let mut map := Std.HashMap.emptyWithCapacity set.size
+  let targetSet := Std.HashSet.ofArray targets
+  let mut i := set.size
+  for name in names do
+    if targetSet.contains name then
+      map := map.insert name i
+    assert! i != 0
+    i := i - 1
+  assert! map.size == targets.size
+  return map
 
 end Lean.Compiler.LCNF

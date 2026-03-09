@@ -18,7 +18,7 @@ public def mkDeclSetExt : IO (EnvExtension (List Name × NameSet)) :=
     (replay? := some <| fun oldState newState _ s =>
       let newEntries := newState.1.take (newState.1.length - oldState.1.length)
       newEntries.foldl (init := s) fun s n =>
-        if s.1.contains n then
+        if s.2.contains n then
           s
         else
           (n :: s.1, if newState.2.contains n then s.2.insert n else s.2))

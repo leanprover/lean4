@@ -146,10 +146,19 @@ instance (priority := low) [ToString α] : EmitToString α where
   toEmitString x := return toString x
 
 instance : EmitToString Name where
-  toEmitString v := return v.mangle (pre := "x_")
+  toEmitString v := return v.mangle (pre := "v_")
 
 instance : EmitToString FVarId where
-  toEmitString fvarId := return (← getBinderName fvarId).mangle (pre := "x_")
+  toEmitString fvarId := do EmitToString.toEmitString (← getBinderName fvarId)
+
+def Arg.toCString (a : Arg .impure) : EmitM String := do
+  match a with
+  | .fvar fvarId => EmitToString.toEmitString fvarId
+  | .erased => return "lean_box(0)"
+
+instance : EmitToString (Arg .impure) where
+  toEmitString a := a.toCString
+
 
 @[inline] def emit [EmitToString α] (a : α) : EmitM Unit := do
   let str ← EmitToString.toEmitString a
@@ -171,15 +180,6 @@ def emitCApp2 {α β : Type} [EmitToString α] [EmitToString β] (fn : String) (
 def emitCApp3 {α β γ : Type} [EmitToString α] [EmitToString β] [EmitToString γ] (fn : String)
     (arg1 : α) (arg2 : β) (arg3 : γ) : EmitM Unit := do
   emit fn; emit "("; emit arg1; emit ", "; emit arg2; emit ", "; emit arg3; emit ")"
-
-def Arg.toCString (a : Arg .impure) : EmitM String := do
-  -- TODO: dedup
-  match a with
-  | .fvar fvarId => return (← getBinderName fvarId).mangle (pre := "x_")
-  | .erased => return "lean_box(0)"
-
-instance : EmitToString (Arg .impure) where
-  toEmitString a := a.toCString
 
 def toStringArgs (ys : Array (Arg .impure)) : EmitM (List String) :=
   ys.toList.mapM (·.toCString)
@@ -424,7 +424,6 @@ def paramsWithoutErased (ps : Array (Param .impure)) :=
   ps.filter (!·.type.isErased)
 
 def emitFnDecls : EmitM Unit := do
-  -- TODO: dedup
   (← getOtherModuleDecls).forM fun sig => do
     match getExternNameFor (← getEnv) `c sig.name with
     | some externName => emitExternDecl sig externName
@@ -436,7 +435,6 @@ def emitFnDecls : EmitM Unit := do
 where
   emitExternDecl (sig : Signature .impure) (externName : String) : EmitM Unit := do
     let env ← getEnv
-    -- TODO: understand this
     let extC := isExternC env sig.name
     emitFnDeclAux sig externName extC
 
@@ -453,6 +451,7 @@ where
   emitFnDeclClosed (decl : Decl .impure) (cppBaseName : String) : EmitM Unit := do
     emitLn s!"static lean_once_cell_t {toOnceTokenName cppBaseName} = LEAN_ONCE_CELL_INITIALIZER;"
     emitLn s!"static {decl.type.toCType} {cppBaseName};"
+    emitLn s!"static {decl.type.toCType} {← toCInitName decl.name}(void);"
 
   emitFnDeclStandard (sig : Signature .impure) (isExternal : Bool) : EmitM Unit := do
     let env ← getEnv
@@ -486,9 +485,6 @@ where
           emit ps[i].type.toCType
       emit ")"
     emitLn ";"
-
-def mkConstInitializerName (baseName : String) : String :=
-  "_init_" ++ baseName
 
 def offsetExpression (i : Nat) (offset : Nat) : String :=
   if i > 0 then
@@ -650,7 +646,7 @@ where
     assert! !args.isEmpty
     if args.size > closureMaxArgs then
       withEmitBlock do
-        emit "{ lean_object* _aargs[] = {"; emitArgs args; emitLn "};"
+        emit "lean_object* _aargs[] = {"; emitArgs args; emitLn "};"
         withEmitAssignment do
           emitCApp3 "lean_apply_m" fvarId args.size "_aargs"
     else
@@ -911,7 +907,7 @@ def emitDecl (decl : Decl .impure) : EmitM Unit := do
     emit decl.type.toCType; emit " "
 
     if ps.isEmpty then
-      emit <| mkConstInitializerName baseName
+      emitCInitName decl.name
       emit "(void)"
     else
       emit baseName
@@ -1126,10 +1122,8 @@ def main : EmitM Unit := do
 public def emitCForDecls (modName : Name) (decls : Array Name) : CoreM String := do
   let (localDecls, otherModuleDecls) ← collectUsedDecls decls
   let env ← getEnv
-  let localDecls := localDecls.qsort fun l r => Id.run do
-    let some lval := getImpureDeclIndex? env l.name | panic! s!"Ahhh {l.name}"
-    let some rval := getImpureDeclIndex? env r.name | panic! s!"Ahhhh {r.name}"
-    return lval < rval
+  let indexMap := getImpureDeclIndices env decls
+  let localDecls := localDecls.qsort fun l r => indexMap[l.name]! < indexMap[r.name]!
   let (_, { buf }) ←
     main
       |>.run { localDecls, otherModuleDecls, modName }

@@ -368,7 +368,7 @@ recommended_spelling "not" for "~~~" in [Complement.complement, «term~~~_»]
 
 -- TODO(kmill) remove these after stage0 update. There are builtin macros still using `«term_>=_»`
 @[inherit_doc] infix:50 (priority := low) " >= " => GE.ge
-@[inherit_doc] infix:50 (priority := low) " <= " => GE.ge
+@[inherit_doc] infix:50 (priority := low) " <= " => LE.le
 macro_rules | `($x >= $y)  => `(binrel% GE.ge $x $y)
 macro_rules | `($x <= $y)  => `(binrel% LE.le $x $y)
 

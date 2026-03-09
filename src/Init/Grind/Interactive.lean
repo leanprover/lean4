@@ -177,7 +177,7 @@ syntax (name := next) "next " binderIdent* " => " grindSeq : grind
 `· grindSeq` focuses on the main `grind` goal and tries to solve it using the given
 sequence of `grind` tactics.
 -/
-macro dot:patternIgnore("· " <|> ". ") s:grindSeq : grind => `(grind| next%$dot =>%$dot $s:grindSeq )
+macro dot:unicode("· ", ". ") s:grindSeq : grind => `(grind| next%$dot =>%$dot $s:grindSeq )
 
 /--
 `any_goals tac` applies the tactic `tac` to every goal,

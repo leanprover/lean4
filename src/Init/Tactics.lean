@@ -2421,7 +2421,7 @@ The `method_specs` theorems are created on demand (using the realizable constant
 this simp set should behave the same in all modules. Do not add theorems to it except in the module
 defining the thing you are rewriting.
 -/
-syntax (name := method_specs_simp) "method_specs_simp" (Tactic.simpPre <|> Tactic.simpPost)? patternIgnore("← " <|> "<- ")? (ppSpace prio)? : attr
+syntax (name := method_specs_simp) "method_specs_simp" (Tactic.simpPre <|> Tactic.simpPost)? unicode("← ", "<- ")? (ppSpace prio)? : attr
 
 /--
 Register a theorem as a rewrite rule for `cbv` evaluation of a given definition.
@@ -2431,7 +2431,7 @@ You can instruct `cbv` to rewrite the lemma from right-to-left:
 @[cbv_eval ←] theorem my_thm : rhs = lhs := ...
 ```
 -/
-syntax (name := cbv_eval) "cbv_eval" patternIgnore("← " <|> "<- ")? (ppSpace ident)? : attr
+syntax (name := cbv_eval) "cbv_eval" unicode("← ", "<- ")? (ppSpace ident)? : attr
 
 /-- The possible `norm_cast` kinds: `elim`, `move`, or `squash`. -/
 syntax normCastLabel := &"elim" <|> &"move" <|> &"squash"

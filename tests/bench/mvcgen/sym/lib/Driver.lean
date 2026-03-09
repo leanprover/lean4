@@ -46,7 +46,7 @@ def driver (goal : Name) (unfold : List Name) (n : Nat) (discharge : MetaM (TSyn
   let expr ← SymM.run (shareCommon expr)
   let (_, kernelMs) ← timeItMs (checkWithKernel expr)
   let label := s!"{goal.getPrefix}({n}):"
-  let pad := "".pushn ' ' (22 - min label.length 22)
+  let pad := "".pushn ' ' (24 - min label.length 24)
   let mut msg := s!"{label}{pad}{ms} ms"
   if let some dischargeMs := dischargeMs? then
     msg := msg ++ s!", {mvarIds.length} VCs by {dischargePp}: {dischargeMs} ms"

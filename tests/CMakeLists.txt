@@ -287,6 +287,7 @@ add_test_pile(server_interactive *.lean)
 
 add_test_dir(../doc/examples/compiler)
 add_test_dir(bench/build BENCH PART1)
+add_test_dir(bench/mvcgen/sym BENCH PART2)
 add_test_dir(bench/size BENCH PART1)
 add_test_dir(lake_bench/inundation BENCH PART2)
 

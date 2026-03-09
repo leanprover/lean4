@@ -18,8 +18,13 @@ lean_lib Cases where
 
 @[default_target]
 lean_lib VCGenBench where
-  roots := #[`vcgen_add_sub_cancel, `vcgen_add_sub_cancel_deep, `vcgen_get_throw_set,
+  roots := #[`vcgen_add_sub_cancel, `vcgen_add_sub_cancel_deep,
              `vcgen_pure_precond, `vcgen_reader_state]
+  moreLeanArgs := #["--tstack=100000000"]
+
+-- Excluded from VCGenBench due to pathological instantiateMVars behavior.
+lean_lib VCGenBenchSlow where
+  roots := #[`vcgen_get_throw_set]
   moreLeanArgs := #["--tstack=100000000"]
 
 @[default_target]
@@ -30,4 +35,3 @@ lean_lib BaselineBench where
 @[test_driver]
 lean_lib VCGenTest where
   roots := #[`test_vcgen]
-  moreLeanArgs := #["--tstack=100000000"]

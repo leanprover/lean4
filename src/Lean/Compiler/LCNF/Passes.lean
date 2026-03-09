@@ -85,7 +85,6 @@ def saveImpure : Pass where
   phaseOut := .impure
   name := `saveImpure
   run decls := decls.mapM fun decl => do
-    let decl ← normalizeFVarIds decl
     decl.saveImpure
     modifyEnv fun env => recordFinalImpureDecl env decl.name
     return decl

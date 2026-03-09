@@ -121,7 +121,9 @@ structure Context where
 
 structure State where
   buf : String := ""
-  mangleCache : Std.HashMap Name String := {}
+  varMangleCache : Std.HashMap Name String := {}
+  funMangleCache : Std.HashMap Name String := {}
+  funInitMangleCache : Std.HashMap Name String := {}
 
 abbrev EmitM := ReaderT Context StateRefT State CompilerM
 
@@ -149,11 +151,11 @@ instance (priority := low) [ToString α] : EmitToString α where
 instance : EmitToString Name where
   toEmitString v := do
     modifyGet fun s =>
-      if let some mangled := s.mangleCache[v]? then
+      if let some mangled := s.varMangleCache[v]? then
         (mangled, s)
       else
         let mangled := v.mangle (pre := "v_")
-        (mangled, { s with mangleCache := s.mangleCache.insert v mangled })
+        (mangled, { s with varMangleCache := s.varMangleCache.insert v mangled })
 
 instance : EmitToString FVarId where
   toEmitString fvarId := do EmitToString.toEmitString (← getBinderName fvarId)
@@ -229,23 +231,37 @@ def throwInvalidExportName (n : Name) : EmitM α :=
   throwError s!"invalid export name '{n}'"
 
 def toCName (n : Name) : EmitM String := do
-  let env ← getEnv;
-  -- TODO: we should support simple export names only
-  match getExportNameFor? env n with
-  | some (.str .anonymous s) => return s
-  | some _                   => throwInvalidExportName n
-  | none                     => return if n == `main then leanMainFn else getSymbolStem env n
+  if let some cached := (← get).funMangleCache[n]? then
+    return cached
+  let mangled ← go
+  modify fun s => { s with funMangleCache := s.funMangleCache.insert n mangled }
+  return mangled
+where
+  go : EmitM String := do
+    let env ← getEnv
+    -- TODO: we should support simple export names only
+    match getExportNameFor? env n with
+    | some (.str .anonymous s) => return s
+    | some _                   => throwInvalidExportName n
+    | none                     => return if n == `main then leanMainFn else getSymbolStem env n
 
 def emitCName (n : Name) : EmitM Unit :=
   toCName n >>= emit
 
 def toCInitName (n : Name) : EmitM String := do
-  let env ← getEnv;
-  -- TODO: we should support simple export names only
-  match getExportNameFor? env n with
-  | some (.str .anonymous s) => return "_init_" ++ s
-  | some _                   => throwInvalidExportName n
-  | none                     => return "_init_" ++ getSymbolStem env n
+  if let some cached := (← get).funInitMangleCache[n]? then
+    return cached
+  let mangled ← go
+  modify fun s => { s with funInitMangleCache := s.funInitMangleCache.insert n mangled }
+  return mangled
+where
+  go : EmitM String := do
+    let env ← getEnv;
+    -- TODO: we should support simple export names only
+    match getExportNameFor? env n with
+    | some (.str .anonymous s) => return "_init_" ++ s
+    | some _                   => throwInvalidExportName n
+    | none                     => return "_init_" ++ getSymbolStem env n
 
 def emitCInitName (n : Name) : EmitM Unit :=
   toCInitName n >>= emit

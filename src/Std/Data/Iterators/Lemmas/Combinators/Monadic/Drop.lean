@@ -15,9 +15,8 @@ namespace Std
 
 theorem IterM.step_drop {α m β} [Monad m] [Iterator α m β] {n : Nat}
     {it : IterM (α := α) m β} :
-    (it.drop n).step = (
-      it.step >>= fun x =>
-      match x.inflate with
+    (it.drop n).step = (do
+      match (← it.step).inflate with
       | .yield it' out h =>
         match h' : n with
         | 0 => pure <| .deflate <| .yield (it'.drop 0) out (.yield h (h' ▸ rfl))

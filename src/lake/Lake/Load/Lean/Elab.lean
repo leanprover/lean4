@@ -34,6 +34,8 @@ public def importModulesUsingCache
 : IO Environment := do
   if let some env := (← importEnvCache.get)[imports]? then
     return env
+
+  unsafe enableInitializersExecution  -- needed for `loadExts`
   let env ← importModules (loadExts := true) imports opts trustLevel
   importEnvCache.modify (·.insert imports env)
   return env
@@ -65,7 +67,7 @@ def elabConfigFile
   let input ← IO.FS.readFile configFile
   let inputCtx := Parser.mkInputContext input configFile.toString
   let (header, parserState, messages) ← Parser.parseHeader inputCtx
-  let (env, messages) ← processHeader header leanOpts inputCtx messages
+  let (env, messages) ← StateT.run (processHeader header leanOpts inputCtx) messages
   let env := env.setMainModule configModuleName
 
   -- Configure extensions

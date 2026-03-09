@@ -18,13 +18,13 @@ Author: Leonardo de Moura
 namespace lean {
 static name * g_ind_fresh = nullptr;
 
-/**\ brief Return recursor name for the given inductive datatype name */
+/** \brief Return recursor name for the given inductive datatype name */
 name mk_rec_name(name const & I) {
     return I + name("rec");
 }
 
-/** \brief Return true if the given declaration is a structure */
-bool is_structure_like(environment const & env, name const & decl_name) {
+/** \brief Return true if the given declaration is a non-recursive structure (an inductive type with one constructor and no indices). */
+bool is_non_rec_structure(environment const & env, name const & decl_name) {
     constant_info I = env.get(decl_name);
     if (!I.is_inductive()) return false;
     inductive_val I_val = I.to_inductive_val();

@@ -1,5 +1,9 @@
 # Test Suite
 
+**Warning:** This document is partially outdated.
+It describes the old test suite, which is currently in the process of being replaced.
+The new test suite's documentation can be found at [`tests/README.md`](../../tests/README.md).
+
 After [building Lean](../make/index.md) you can run all the tests using
 ```
 cd build/release

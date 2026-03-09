@@ -69,6 +69,85 @@ lean_dec(x_2);
 return x_7;
 }
 }
+lean_object* runtime_initialize_Init_Data_Repr(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Char_Basic(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_ToString_Basic(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_String_Basic(uint8_t builtin);
+lean_object* runtime_initialize_Init_NotationExtra(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Repr(uint8_t builtin);
+lean_object* runtime_initialize_Init_Omega(uint8_t builtin);
+lean_object* runtime_initialize_Init_RCases(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Nat_Lemmas(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Nat_Bitwise(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Nat_Simproc(uint8_t builtin);
+lean_object* runtime_initialize_Init_WFTactics(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Char_Lemmas(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Nat_ToString(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Init_Data_Repr(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Char_Basic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_ToString_Basic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_String_Basic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_NotationExtra(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Repr(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Omega(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_RCases(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Nat_Lemmas(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Nat_Bitwise(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Nat_Simproc(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_WFTactics(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Char_Lemmas(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Init_Data_Nat_ToString(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Init_Data_Repr(uint8_t builtin);
 lean_object* initialize_Init_Data_Char_Basic(uint8_t builtin);
 lean_object* initialize_Init_Data_ToString_Basic(uint8_t builtin);
@@ -87,46 +166,67 @@ LEAN_EXPORT lean_object* initialize_Init_Data_Nat_ToString(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Repr(builtin);
+res = initialize_Init_Data_Repr(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Char_Basic(builtin);
+res = initialize_Init_Data_Char_Basic(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_ToString_Basic(builtin);
+res = initialize_Init_Data_ToString_Basic(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_String_Basic(builtin);
+res = initialize_Init_Data_String_Basic(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_NotationExtra(builtin);
+res = initialize_Init_NotationExtra(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Repr(builtin);
+res = initialize_Init_Data_Repr(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Omega(builtin);
+res = initialize_Init_Omega(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_RCases(builtin);
+res = initialize_Init_RCases(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Lemmas(builtin);
+res = initialize_Init_Data_Nat_Lemmas(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Bitwise(builtin);
+res = initialize_Init_Data_Nat_Bitwise(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Simproc(builtin);
+res = initialize_Init_Data_Nat_Simproc(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_WFTactics(builtin);
+res = initialize_Init_WFTactics(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Char_Lemmas(builtin);
+res = initialize_Init_Data_Char_Lemmas(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Init_Data_Nat_ToString(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Init_Data_Nat_ToString(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Init_Data_Nat_ToString(builtin);
 }
 #ifdef __cplusplus
 }

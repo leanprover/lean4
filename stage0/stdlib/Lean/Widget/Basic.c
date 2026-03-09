@@ -50,6 +50,30 @@ static const lean_ctor_object l_Lean_Widget_instImpl___closed__1_00___x40_Lean_W
 static const lean_object* l_Lean_Widget_instImpl___closed__1_00___x40_Lean_Widget_Basic_173954553____hygCtx___hyg_3_ = (const lean_object*)&l_Lean_Widget_instImpl___closed__1_00___x40_Lean_Widget_Basic_173954553____hygCtx___hyg_3__value;
 LEAN_EXPORT const lean_object* l_Lean_Widget_instImpl_00___x40_Lean_Widget_Basic_173954553____hygCtx___hyg_3_ = (const lean_object*)&l_Lean_Widget_instImpl___closed__1_00___x40_Lean_Widget_Basic_173954553____hygCtx___hyg_3__value;
 LEAN_EXPORT const lean_object* l_Lean_Widget_instTypeNameTermInfo = (const lean_object*)&l_Lean_Widget_instImpl___closed__1_00___x40_Lean_Widget_Basic_173954553____hygCtx___hyg_3__value;
+lean_object* runtime_initialize_Lean_Elab_InfoTree(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Server_InfoUtils(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lean_Widget_Basic(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Lean_Elab_InfoTree(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Server_InfoUtils(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lean_Widget_Basic(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Lean_Elab_InfoTree(uint8_t builtin);
 lean_object* initialize_Lean_Server_InfoUtils(uint8_t builtin);
 static bool _G_initialized = false;
@@ -57,13 +81,23 @@ LEAN_EXPORT lean_object* initialize_Lean_Widget_Basic(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Elab_InfoTree(builtin);
+res = initialize_Lean_Elab_InfoTree(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Server_InfoUtils(builtin);
+res = initialize_Lean_Server_InfoUtils(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Lean_Widget_Basic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Lean_Widget_Basic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Lean_Widget_Basic(builtin);
 }
 #ifdef __cplusplus
 }

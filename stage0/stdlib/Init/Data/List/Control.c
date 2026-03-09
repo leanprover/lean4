@@ -37,8 +37,8 @@ LEAN_EXPORT lean_object* l_List_zipWithM_loop___redArg(lean_object*, lean_object
 lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_zipWithM_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l_List_zipWithM___redArg___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_List_zipWithM___redArg___closed__0;
+static const lean_array_object l_List_zipWithM___redArg___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_List_zipWithM___redArg___closed__0 = (const lean_object*)&l_List_zipWithM___redArg___closed__0_value;
 LEAN_EXPORT lean_object* l_List_zipWithM___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_zipWithM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_filterAuxM___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
@@ -452,20 +452,11 @@ x_10 = l_List_zipWithM_loop___redArg(x_2, x_6, x_7, x_8, x_9);
 return x_10;
 }
 }
-static lean_object* _init_l_List_zipWithM___redArg___closed__0(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_List_zipWithM___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; lean_object* x_6; 
-x_5 = lean_obj_once(&l_List_zipWithM___redArg___closed__0, &l_List_zipWithM___redArg___closed__0_once, _init_l_List_zipWithM___redArg___closed__0);
+x_5 = ((lean_object*)(l_List_zipWithM___redArg___closed__0));
 x_6 = l_List_zipWithM_loop___redArg(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
@@ -474,7 +465,7 @@ LEAN_EXPORT lean_object* l_List_zipWithM(lean_object* x_1, lean_object* x_2, lea
 _start:
 {
 lean_object* x_9; lean_object* x_10; 
-x_9 = lean_obj_once(&l_List_zipWithM___redArg___closed__0, &l_List_zipWithM___redArg___closed__0_once, _init_l_List_zipWithM___redArg___closed__0);
+x_9 = ((lean_object*)(l_List_zipWithM___redArg___closed__0));
 x_10 = l_List_zipWithM_loop___redArg(x_2, x_6, x_7, x_8, x_9);
 return x_10;
 }
@@ -1618,16 +1609,44 @@ x_7 = l_List_mapTR_loop___redArg(x_5, x_4, x_6);
 return x_7;
 }
 }
+lean_object* runtime_initialize_Init_Control_Lawful(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Init_Data_List_Control(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Init_Control_Lawful(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Init_Data_List_Control(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Init_Control_Lawful(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_List_Control(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Control_Lawful(builtin);
+res = initialize_Init_Control_Lawful(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Init_Data_List_Control(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Init_Data_List_Control(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Init_Data_List_Control(builtin);
 }
 #ifdef __cplusplus
 }

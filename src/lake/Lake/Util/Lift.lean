@@ -32,11 +32,11 @@ public instance (priority := low) [Pure m] [MonadExceptOf ε m] : MonadLiftT (Ex
 
 -- Remark: not necessarily optimal; uses context non-linearly
 public instance (priority := low) [Monad m] [MonadReaderOf ρ m] [MonadLiftT n m] : MonadLiftT (ReaderT ρ n) m where
-  monadLift act := do act (← read)
+  monadLift act := do act.run (← read)
 
 -- Remark: not necessarily optimal; uses state non-linearly
 public instance (priority := low) [Monad m] [MonadStateOf σ m] [MonadLiftT n m] : MonadLiftT (StateT σ n) m where
-  monadLift act := do let (a, s) ← act (← get); set s; pure a
+  monadLift act := do let (a, s) ← act.run (m := n) (← get); set s; pure a
 
 public instance (priority := low) [Monad m] [Alternative m] [MonadLiftT n m] : MonadLiftT (OptionT n) m where
   monadLift act := act.run >>= liftM

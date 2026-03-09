@@ -1,0 +1,34 @@
+Try these:
+  [apply] [grind .] for pattern: [get #1 #3, @some `[Val] #2]
+  [apply] [grind →] for pattern: [find? #1 #3, @some `[Val] #2]
+Try these:
+  [apply] [grind =] for pattern: [Expr.eval #1 (BinOp.simplify #0 #3 #2)]
+  [apply] [grind =_] for pattern: [Expr.eval #1 (Expr.bin #3 #0 #2)]
+Try these:
+  [apply] [grind =] for pattern: [Expr.eval #1 (simplify #0 #2)]
+  [apply] [grind =_] for pattern: [Expr.eval #1 (Expr.una #0 #2)]
+Try this:
+  [apply] [grind .] for pattern: [le #0 #0]
+Try this:
+  [apply] [grind .] for pattern: [le `[[]] #0]
+Try these:
+  [apply] [grind .] for pattern: [le (erase #0 #1) #0]
+  [apply] [grind! .] for pattern: [erase #0 #1]
+Try this:
+  [apply] [grind! .] for pattern: [join #1 #0]
+Try these:
+  [apply] [grind .] for pattern: [le (join #3 #0) #2]
+  [apply] [grind =>] for pattern: [le #3 #2, le (join #3 #0) #2]
+  [apply] [grind! =>] for pattern: [le #3 #2, join #3 #0]
+Try this:
+  [apply] [grind! .] for pattern: [join #1 #0]
+Try these:
+  [apply] [grind .] for pattern: [le (join #0 #3) #2]
+  [apply] [grind =>] for pattern: [le #3 #2, le (join #0 #3) #2]
+  [apply] [grind! =>] for pattern: [le #3 #2, join #0 #3]
+Try these:
+  [apply] [grind .] for pattern: [State.le (@List.cons `[String × Val] (@Prod.mk `[String] `[Val] #2 #1) #0) `[[]]]
+  [apply] [grind! .] for pattern: [@List.cons `[String × Val] (@Prod.mk `[String] `[Val] #2 #1) #0]
+Try these:
+  [apply] [grind .] for pattern: [Bigstep #5 (@Prod.fst `[Stmt] `[List (String × Val)] (constProp #4 #2)) #3]
+  [apply] [grind →] for pattern: [Bigstep #5 #4 #3, State.le #2 #5]

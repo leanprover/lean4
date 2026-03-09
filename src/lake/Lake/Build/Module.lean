@@ -599,36 +599,31 @@ public def Module.cacheOutputHashes (mod : Module) : IO PUnit := do
   if Lean.Internal.hasLLVMBackend () then
     cacheFileHash mod.bcFile
 
-def ModuleOutputDescrs.getArtifactsFrom
-  (cache : Cache) (descrs : ModuleOutputDescrs)
-: EIO String ModuleOutputArtifacts := do
-  let arts : ModuleOutputArtifacts := {
-    olean := ← cache.getArtifact descrs.olean
-    oleanServer? := ← descrs.oleanServer?.mapM cache.getArtifact
-    oleanPrivate? := ← descrs.oleanPrivate?.mapM cache.getArtifact
-    ir? := ← descrs.ir?.mapM cache.getArtifact
-    ilean := ← cache.getArtifact descrs.ilean
-    c :=← cache.getArtifact descrs.c
-    bc? := none
-  }
-  if Lean.Internal.hasLLVMBackend () then
-    let some descr := descrs.bc?
-      | error "LLVM backend enabled but module outputs lack bitcode"
-    return {arts with bc? := some (← cache.getArtifact descr)}
-  else
-    return arts
+def resolveModuleOutputs
+  (out : Json) (service? : Option CacheServiceName) (scope? : Option CacheServiceScope)
+: JobM ModuleOutputArtifacts := do
+  match fromJson? out with
+  | .ok (descrs : ModuleOutputDescrs) => do
+    let arts : ModuleOutputArtifacts := {
+      olean := ← resolve descrs.olean
+      oleanServer? := ← descrs.oleanServer?.mapM resolve
+      oleanPrivate? := ← descrs.oleanPrivate?.mapM resolve
+      ir? := ← descrs.ir?.mapM resolve
+      ilean := ← resolve descrs.ilean
+      c :=← resolve descrs.c
+      bc? := none
+    }
+    if Lean.Internal.hasLLVMBackend () then
+      let some descr := descrs.bc?
+        | error "LLVM backend enabled but module outputs lack bitcode"
+      return {arts with bc? := some (← resolve descr)}
+    else
+      return arts
+  | .error e =>
+    error s!"ill-formed module outputs:\n{out.render.pretty 80 2}\n{e}"
+where @[inline] resolve descr := resolveArtifact descr service? scope?
 
-@[inline] def resolveModuleOutputs?
-   [MonadWorkspace m] [MonadLiftT BaseIO m] [MonadError m] [Monad m]  (outputs : Json)
-: m (Except String ModuleOutputArtifacts) := do
-  match fromJson? outputs with
-  | .ok (descrs : ModuleOutputDescrs) =>
-    descrs.getArtifactsFrom (← getLakeCache) |>.toBaseIO
-  | .error e => return .error s!"ill-formed module outputs: {e}"
-
-instance
-  [MonadWorkspace m] [MonadLiftT BaseIO m] [MonadError m] [Monad m]
-: ResolveOutputs m ModuleOutputArtifacts := ⟨resolveModuleOutputs?⟩
+instance : ResolveOutputs ModuleOutputArtifacts := ⟨resolveModuleOutputs⟩
 
 /-- Save module build artifacts to the local Lake cache. -/
 private def Module.cacheOutputArtifacts
@@ -672,6 +667,49 @@ private def Module.restoreAllArtifacts (mod : Module) (cached : ModuleOutputArti
   }
 where
   @[inline] restoreSome file art? := art?.mapM (restoreArtifact file ·)
+
+public protected def Module.checkExists (self : Module) (isModule : Bool) : BaseIO Bool := do
+  unless (← self.oleanFile.pathExists) do return false
+  unless (← self.ileanFile.pathExists) do return false
+  unless (← self.cFile.pathExists) do return false
+  if Lean.Internal.hasLLVMBackend () then
+    unless (← self.bcFile.pathExists) do return false
+  if isModule then
+    unless (← self.oleanServerFile.pathExists) do return false
+    unless (← self.oleanPrivateFile.pathExists) do return false
+    unless (← self.irFile.pathExists) do return false
+  return true
+
+@[deprecated Module.checkExists (since := "2025-03-04")]
+public instance : CheckExists Module := ⟨Module.checkExists (isModule := false)⟩
+
+public protected def Module.getMTime (self : Module) (isModule : Bool) : IO MTime := do
+  let mut mtime :=
+    (← getMTime self.oleanFile)
+    |> max (← getMTime self.ileanFile)
+    |> max (← getMTime self.cFile)
+  if Lean.Internal.hasLLVMBackend () then
+    mtime := max mtime (← getMTime self.bcFile)
+  if isModule then
+    mtime := mtime
+    |> max (← getMTime self.oleanServerFile)
+    |> max (← getMTime self.oleanPrivateFile)
+    |> max (← getMTime self.irFile)
+  return mtime
+
+@[deprecated Module.getMTime (since := "2025-03-04")]
+public instance : GetMTime Module := ⟨Module.getMTime (isModule := false)⟩
+
+private def ModuleOutputArtifacts.setMTime (self : ModuleOutputArtifacts) (mtime : MTime) : ModuleOutputArtifacts :=
+  {self with
+    olean := {self.olean with mtime}
+    oleanServer? := self.oleanServer?.map ({· with mtime})
+    oleanPrivate? := self.oleanPrivate?.map ({· with mtime})
+    ilean := {self.ilean with mtime}
+    ir? := self.ir?.map ({· with mtime})
+    c := {self.c with mtime}
+    bc? := self.bc?.map ({· with mtime})
+  }
 
 
 private def Module.mkArtifacts (mod : Module) (srcFile : FilePath) (isModule : Bool) : ModuleArtifacts where
@@ -751,9 +789,10 @@ private def Module.recBuildLean (mod : Module) : FetchM (Job ModuleOutputArtifac
     let depTrace ← getTrace
     let inputHash := depTrace.hash
     let savedTrace ← readTraceFile mod.traceFile
-    let cache ← getLakeCache
+    have : CheckExists Module := ⟨Module.checkExists (isModule := setup.isModule)⟩
+    have : GetMTime Module := ⟨Module.getMTime (isModule := setup.isModule)⟩
     let fetchArtsFromCache? restoreAll := do
-      let some arts ← getArtifacts? inputHash savedTrace cache mod.pkg
+      let some arts ← getArtifacts? inputHash savedTrace mod.pkg
         | return none
       unless (← savedTrace.replayOrFetchIfUpToDate inputHash) do
         mod.clearOutputArtifacts
@@ -764,15 +803,16 @@ private def Module.recBuildLean (mod : Module) : FetchM (Job ModuleOutputArtifac
         some <$> mod.restoreNeededArtifacts arts
     let arts ← id do
       if (← mod.pkg.isArtifactCacheWritable) then
-        if let some arts ← fetchArtsFromCache? mod.pkg.restoreAllArtifacts then
+        let restore ← mod.pkg.restoreAllArtifacts
+        if let some arts ← fetchArtsFromCache? restore then
           return arts
         else
           let status ← savedTrace.replayIfUpToDate' (oldTrace := srcTrace.mtime) mod depTrace
           unless status.isUpToDate do
             discard <| mod.buildLean depTrace srcFile setup
           if status.isCacheable then
-            let arts ← mod.cacheOutputArtifacts setup.isModule mod.pkg.restoreAllArtifacts
-            cache.writeOutputs mod.pkg.cacheScope inputHash arts.descrs
+            let arts ← mod.cacheOutputArtifacts setup.isModule restore
+            (← getLakeCache).writeOutputs mod.pkg.cacheScope inputHash arts.descrs
             return arts
           else
             mod.computeArtifacts setup.isModule
@@ -785,7 +825,13 @@ private def Module.recBuildLean (mod : Module) : FetchM (Job ModuleOutputArtifac
         mod.buildLean depTrace srcFile setup
     if let some ref := mod.pkg.outputsRef? then
       ref.insert inputHash arts.descrs
-    return arts
+    match (← getMTime mod.traceFile |>.toBaseIO) with
+    | .ok mtime =>
+      return arts.setMTime mtime
+    | .error (.noFileOrDirectory ..) => -- trace file may not exist
+      return arts
+    | .error e =>
+      error s!"failed to retrieve module artifact modification time: {e}"
 
 /-- The `ModuleFacetConfig` for the builtin `leanArtsFacet`. -/
 public def Module.leanArtsFacetConfig : ModuleFacetConfig leanArtsFacet :=

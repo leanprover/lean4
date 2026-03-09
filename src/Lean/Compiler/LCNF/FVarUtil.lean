@@ -83,12 +83,13 @@ def LetValue.mapFVarM [MonadLiftT CompilerM m] [Monad m] (f : FVarId → m FVarI
     return e.updateReuse! (← f fvarId) i updateHeader (← args.mapM (TraverseFVar.mapFVarM f))
   | .box ty fvarId _ => return e.updateBox! ty (← f fvarId)
   | .unbox fvarId _ => return e.updateUnbox! (← f fvarId)
+  | .isShared fvarId _ => return e.updateIsShared! (← f fvarId)
 
 def LetValue.forFVarM [Monad m] (f : FVarId → m Unit) (e : LetValue pu) : m Unit := do
   match e with
   | .lit .. | .erased => return ()
   | .proj _ _ fvarId _ | .oproj _ fvarId _ | .sproj _ _ fvarId _ | .uproj _ fvarId _
-  | .reset _ fvarId _ | .box _ fvarId _ | .unbox fvarId _ => f fvarId
+  | .reset _ fvarId _ | .box _ fvarId _ | .unbox fvarId _ | .isShared fvarId _ => f fvarId
   | .const _ _ args _ | .pap _ args _ | .fap _ args _ | .ctor _ args _ =>
     args.forM (TraverseFVar.forFVarM f)
   | .fvar fvarId args | .reuse fvarId _ _ args _ => f fvarId; args.forM (TraverseFVar.forFVarM f)
@@ -139,14 +140,20 @@ partial def Code.mapFVarM [MonadLiftT CompilerM m] [Monad m] (f : FVarId → m F
     return Code.updateReturn! c (← f var)
   | .unreach typ =>
     return Code.updateUnreach! c (← Expr.mapFVarM f typ)
+  | .oset fvarId offset y k _ =>
+    return Code.updateOset! c (← f fvarId) offset (← y.mapFVarM f) (← mapFVarM f k)
   | .sset fvarId i offset y ty k _ =>
     return Code.updateSset! c (← f fvarId) i offset (← f y) (← Expr.mapFVarM f ty) (← mapFVarM f k)
   | .uset fvarId offset y k _ =>
     return Code.updateUset! c (← f fvarId) offset (← f y) (← mapFVarM f k)
+  | .setTag fvarId cidx k _ =>
+    return Code.updateSetTag! c (← f fvarId) cidx (← mapFVarM f k)
   | .inc fvarId n check persistent k _ =>
     return Code.updateInc! c (← f fvarId) n check persistent (← mapFVarM f k)
   | .dec fvarId n check persistent k _ =>
     return Code.updateDec! c (← f fvarId) n check persistent (← mapFVarM f k)
+  | .del fvarId k _ =>
+    return Code.updateDel! c (← f fvarId) (← mapFVarM f k)
 
 partial def Code.forFVarM [Monad m] (f : FVarId → m Unit) (c : Code pu) : m Unit := do
   match c with
@@ -182,7 +189,12 @@ partial def Code.forFVarM [Monad m] (f : FVarId → m Unit) (c : Code pu) : m Un
     f fvarId
     f y
     forFVarM f k
-  | .inc (fvarId := fvarId) (k := k) .. | .dec (fvarId := fvarId) (k := k) .. =>
+  | .oset fvarId _ y k _ =>
+    f fvarId
+    y.forFVarM f
+    forFVarM f k
+  | .inc (fvarId := fvarId) (k := k) .. | .dec (fvarId := fvarId) (k := k) ..
+  | .del (fvarId := fvarId) (k := k) .. | .setTag (fvarId := fvarId) (k := k) .. =>
     f fvarId
     forFVarM f k
 
@@ -210,17 +222,22 @@ instance : TraverseFVar (CodeDecl pu) where
     | .jp decl => return .jp (← mapFVarM f decl)
     | .let decl => return .let (← mapFVarM f decl)
     | .uset fvarId i y _ => return .uset (← f fvarId) i (← f y)
+    | .oset fvarId i y _ => return .oset (← f fvarId) i (← y.mapFVarM f)
     | .sset fvarId i offset y ty _ => return .sset (← f fvarId) i offset (← f y) (← mapFVarM f ty)
+    | .setTag fvarId cidx _ => return .setTag (← f fvarId) cidx
     | .inc fvarId n check persistent _ => return .inc (← f fvarId) n check persistent
     | .dec fvarId n check persistent _ => return .dec (← f fvarId) n check persistent
+    | .del fvarId _ => return .del (← f fvarId)
   forFVarM f decl :=
     match decl with
     | .fun decl _ => forFVarM f decl
     | .jp decl => forFVarM f decl
     | .let decl => forFVarM f decl
     | .uset fvarId i y _ => do f fvarId; f y
+    | .oset fvarId i y _ => do f fvarId; y.forFVarM f
     | .sset fvarId i offset y ty _ => do f fvarId; f y; forFVarM f ty
-    | .inc (fvarId := fvarId) .. | .dec (fvarId := fvarId) .. => f fvarId
+    | .inc (fvarId := fvarId) .. | .dec (fvarId := fvarId) .. | .del (fvarId := fvarId) ..
+    | .setTag (fvarId := fvarId) .. => f fvarId
 
 instance : TraverseFVar (Alt pu) where
   mapFVarM f alt := do

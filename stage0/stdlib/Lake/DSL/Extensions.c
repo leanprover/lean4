@@ -145,31 +145,62 @@ x_2 = l_Lake_initFn_00___x40_Lake_DSL_Extensions_3376486231____hygCtx___hyg_2_()
 return x_2;
 }
 }
+lean_object* runtime_initialize_Lean_Environment(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lake_DSL_Extensions(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Lean_Environment(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_Lake_initFn_00___x40_Lake_DSL_Extensions_855666303____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lake_nameExt = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lake_nameExt);
+lean_dec_ref(res);
+res = l_Lake_initFn_00___x40_Lake_DSL_Extensions_4018895451____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lake_dirExt = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lake_dirExt);
+lean_dec_ref(res);
+res = l_Lake_initFn_00___x40_Lake_DSL_Extensions_3376486231____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lake_optsExt = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lake_optsExt);
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lake_DSL_Extensions(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Lean_Environment(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lake_DSL_Extensions(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Environment(builtin);
+res = initialize_Lean_Environment(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-if (builtin) {res = l_Lake_initFn_00___x40_Lake_DSL_Extensions_855666303____hygCtx___hyg_2_();
+res = runtime_initialize_Lake_DSL_Extensions(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
-l_Lake_nameExt = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lake_nameExt);
 lean_dec_ref(res);
-}if (builtin) {res = l_Lake_initFn_00___x40_Lake_DSL_Extensions_4018895451____hygCtx___hyg_2_();
+res = meta_initialize_Lake_DSL_Extensions(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
-l_Lake_dirExt = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lake_dirExt);
 lean_dec_ref(res);
-}if (builtin) {res = l_Lake_initFn_00___x40_Lake_DSL_Extensions_3376486231____hygCtx___hyg_2_();
-if (lean_io_result_is_error(res)) return res;
-l_Lake_optsExt = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lake_optsExt);
-lean_dec_ref(res);
-}return lean_io_result_mk_ok(lean_box(0));
+return initialize_Lake_DSL_Extensions(builtin);
 }
 #ifdef __cplusplus
 }

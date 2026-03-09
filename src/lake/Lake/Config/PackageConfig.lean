@@ -303,9 +303,10 @@ public configuration PackageConfig (p : Name) (n : Name) extends WorkspaceConfig
   artifacts into the build directory. This ensures the build results are available
   to external consumers who expect them in the build directory.
 
-  Defaults to `false`.
+  If `none` (the default), this will follow the workspace's `restoreAllArtifacts` configuration
+  (if set and this package is a dependency). If that is also unset, this will default to `false`.
   -/
-  restoreAllArtifacts : Bool := false
+  restoreAllArtifacts?, restoreAllArtifacts : Option Bool := none
 
   /--
   Whether native libraries (of this package) should be prefixed with `lib` on Windows.

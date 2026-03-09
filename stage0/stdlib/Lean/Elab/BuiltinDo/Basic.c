@@ -51,7 +51,7 @@ return x_15;
 }
 else
 {
-uint8_t x_16; 
+lean_object* x_16; lean_object* x_17; uint8_t x_18; uint8_t x_23; 
 lean_dec(x_10);
 lean_dec_ref(x_9);
 lean_dec(x_8);
@@ -60,20 +60,42 @@ lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec_ref(x_4);
 lean_dec_ref(x_3);
-x_16 = !lean_is_exclusive(x_14);
-if (x_16 == 0)
+x_16 = lean_ctor_get(x_14, 0);
+x_23 = !lean_is_exclusive(x_14);
+if (x_23 == 0)
 {
-return x_14;
+x_17 = x_14;
+x_18 = x_23;
+goto block_22;
 }
 else
 {
-lean_object* x_17; lean_object* x_18; 
-x_17 = lean_ctor_get(x_14, 0);
-lean_inc(x_17);
+lean_inc(x_16);
 lean_dec(x_14);
-x_18 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_18, 0, x_17);
-return x_18;
+x_17 = lean_box(0);
+x_18 = x_23;
+goto block_22;
+}
+block_22:
+{
+lean_object* x_19; 
+if (x_18 == 0)
+{
+x_19 = x_17;
+goto block_20;
+}
+else
+{
+lean_object* x_21; 
+x_21 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_21, 0, x_16);
+x_19 = x_21;
+goto block_20;
+}
+block_20:
+{
+return x_19;
+}
 }
 }
 }
@@ -188,6 +210,30 @@ x_15 = l_Lean_Elab_Do_elabDoIdDecl(x_1, x_2, x_3, x_4, x_14, x_6, x_7, x_8, x_9,
 return x_15;
 }
 }
+lean_object* runtime_initialize_Lean_Elab_Do_Basic(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lean_Elab_BuiltinDo_Basic(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Lean_Elab_Do_Basic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+lean_object* runtime_initialize_Lean_Parser_Do(uint8_t builtin);
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lean_Elab_BuiltinDo_Basic(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+res = runtime_initialize_Lean_Parser_Do(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Lean_Elab_Do_Basic(uint8_t builtin);
 lean_object* initialize_Lean_Parser_Do(uint8_t builtin);
 static bool _G_initialized = false;
@@ -195,13 +241,23 @@ LEAN_EXPORT lean_object* initialize_Lean_Elab_BuiltinDo_Basic(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Elab_Do_Basic(builtin);
+res = initialize_Lean_Elab_Do_Basic(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Parser_Do(builtin);
+res = initialize_Lean_Parser_Do(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Lean_Elab_BuiltinDo_Basic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Lean_Elab_BuiltinDo_Basic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Lean_Elab_BuiltinDo_Basic(builtin);
 }
 #ifdef __cplusplus
 }

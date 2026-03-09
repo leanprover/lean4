@@ -85,6 +85,12 @@ LAKE_CACHE_REVISION_ENDPOINT=bogus test_err 'these environment variables must be
 LAKE_CACHE_REVISION_ENDPOINT=bogus test_err 'these environment variables must be set' \
   cache put bogus.jsonl --scope='bogus'
 
+# Test `cache add` command errors for bad configurations
+test_err '`--scope` and `--repo` require `--service`' \
+  cache add bogus.jsonl --scope='bogus'
+test_err '`--scope` and `--repo` require `--service`' \
+  cache add bogus.jsonl --repo='leanprover/bogus'
+
 # Test revision failure (with Reservoir)
 REV=$(git rev-parse HEAD)
 test_err "revision not found" cache get --repo='leanprover/bogus' --rev='bogus'
@@ -108,40 +114,53 @@ with_bogus_endpoints test_err "failed to upload artifact" \
 LAKE_CONFIG=services.toml test_err "failed to upload artifact" \
   cache put .lake/outputs.jsonl --scope='!/test' --service='bogus'
 
-# Test cache put/get with a custom endpoint
+# Test cache put with a custom endpoint
 with_upload_endpoints test_run cache put .lake/outputs.jsonl --scope='!/test'
 test_cmd rm -rf .lake/build "$LAKE_CACHE_DIR"
+
+# Test download failure with a bogus scope
 with_cdn_endpoints test_err 'failed to download some artifacts' \
   cache get .lake/outputs.jsonl --scope='!/bogus'
-with_cdn_endpoints test_run cache get .lake/outputs.jsonl --scope='!/test'
-test_run build +Test --no-build
+
+# Test on-demand fetch from a custom endpoint
+LAKE_CONFIG=services.toml test_run \
+  cache add .lake/outputs.jsonl --scope='!/test' --service=cdn
+LAKE_CONFIG=services.toml test_run build +Test --no-build -v
 
 # Test that outputs and artifacts are not re-downloaded
-with_cdn_endpoints test_not_out "downloading" cache get .lake/outputs.jsonl --scope='!/test'
-with_cdn_endpoints test_not_out "downloading artifact" cache get --scope='!/test'
-with_cdn_endpoints test_not_out "downloading" cache get --scope='!/test'
+with_cdn_endpoints test_not_out "downloading" \
+  cache get .lake/outputs.jsonl --scope='!/test'
+with_cdn_endpoints test_not_out "downloading artifact" \
+  cache get --download-arts --scope='!/test'
+with_cdn_endpoints test_not_out "downloading" \
+  cache get --download-arts --scope='!/test'
 
 # Test that the revision cache directory for the package is properly created
 test_exp -d $LAKE_CACHE_DIR/revisions/test
 
-# Test `--force-download`
-with_cdn_endpoints test_out "downloading" cache get --scope='!/test' --force-download
+# Test cache get with custom endpoint using `--force-download`
+with_cdn_endpoints test_out "downloading" \
+  cache get --scope='!/test' --force-download --download-arts
+test_run build +Test --no-build
 
 # Test download service configuration through system configuration
 LAKE_CONFIG=services.toml test_out "downloading" \
-  cache get --scope='!/test' --force-download --service=cdn
+  cache get --scope='!/test' --force-download --download-arts --service=cdn
+test_run build +Test --no-build
 
 # Test cache put/get with a set platform/toolchain
 with_upload_endpoints test_run cache put .lake/outputs.jsonl \
   --repo='leanprover/test' --platform=foo --toolchain=bar
+# custom endpoint
 test_cmd rm -rf .lake/build "$LAKE_CACHE_DIR"
 with_cdn_endpoints test_run cache get \
   --repo='leanprover/test' --platform=foo --toolchain=bar
 test_run build +Test --no-build
+# reservoir
 test_cmd rm -rf .lake/build "$LAKE_CACHE_DIR"
 test_run cache get \
   --repo='leanprover/test' --platform=foo --toolchain=bar
-test_run build +Test --no-build
+test_run build +Test --no-build -v # downloads arts
 
 # Test dirty work tree warnings
 test_cmd touch Ignored.lean
@@ -153,7 +172,8 @@ test_cmd git commit -m "v2"
 
 # Test revision search
 test_cmd rm -rf .lake/build "$LAKE_CACHE_DIR"
-with_cdn_endpoints test_err "no outputs found" --wfail cache get --scope='!/test' --max-revs=1
+with_cdn_endpoints test_err "no outputs found" \
+  --wfail cache get --scope='!/test' --max-revs=1
 with_cdn_endpoints test_run cache get --scope='!/test'
 test_run build +Test --no-build
 
@@ -170,12 +190,12 @@ test_fails -f reservoir.toml build @Cli --no-build
 test_err "failed to download artifacts for some dependencies" \
   -f reservoir2.toml cache get --max-revs=1
 test_run -f reservoir.toml cache get --max-revs=1
-test_run -f reservoir.toml build @Cli --no-build
+test_run -f reservoir.toml build @Cli --no-build # downloads arts
 
 # Test Reservoir with `--repo` uses GitHub scope
-test_cmd rm -rf .lake/cache
+test_cmd rm -rf .lake/packages/Cli/.lake/build "$LAKE_CACHE_DIR"
 test_run -d .lake/packages/Cli cache get --repo=leanprover/lean4-cli --max-revs=1
-test_run -d .lake/packages/Cli build --no-build
+test_run -d .lake/packages/Cli build --no-build # downloads arts
 
 # Cleanup
 rm -rf .git produced.out

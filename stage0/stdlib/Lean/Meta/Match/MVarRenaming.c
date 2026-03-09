@@ -236,36 +236,55 @@ return x_5;
 }
 else
 {
-uint8_t x_6; 
+lean_object* x_6; lean_object* x_7; uint8_t x_8; uint8_t x_14; 
 lean_dec_ref(x_2);
-x_6 = !lean_is_exclusive(x_4);
-if (x_6 == 0)
+x_6 = lean_ctor_get(x_4, 0);
+x_14 = !lean_is_exclusive(x_4);
+if (x_14 == 0)
 {
-lean_object* x_7; lean_object* x_8; 
-x_7 = lean_ctor_get(x_4, 0);
-x_8 = l_Lean_mkMVar(x_7);
-lean_ctor_set(x_4, 0, x_8);
-return x_4;
+x_7 = x_4;
+x_8 = x_14;
+goto block_13;
 }
 else
 {
-lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-x_9 = lean_ctor_get(x_4, 0);
-lean_inc(x_9);
+lean_inc(x_6);
 lean_dec(x_4);
-x_10 = l_Lean_mkMVar(x_9);
-x_11 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_11, 0, x_10);
-return x_11;
+x_7 = lean_box(0);
+x_8 = x_14;
+goto block_13;
 }
-}
+block_13:
+{
+lean_object* x_9; lean_object* x_10; 
+x_9 = l_Lean_mkMVar(x_6);
+if (x_8 == 0)
+{
+lean_ctor_set(x_7, 0, x_9);
+x_10 = x_7;
+goto block_11;
 }
 else
 {
 lean_object* x_12; 
+x_12 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_12, 0, x_9);
+x_10 = x_12;
+goto block_11;
+}
+block_11:
+{
+return x_10;
+}
+}
+}
+}
+else
+{
+lean_object* x_15; 
 lean_dec_ref(x_2);
-x_12 = lean_box(0);
-return x_12;
+x_15 = lean_box(0);
+return x_15;
 }
 }
 }
@@ -317,16 +336,44 @@ lean_dec_ref(x_2);
 return x_3;
 }
 }
+lean_object* runtime_initialize_Lean_Util_ReplaceExpr(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_Match_MVarRenaming(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Lean_Util_ReplaceExpr(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lean_Meta_Match_MVarRenaming(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Lean_Util_ReplaceExpr(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Match_MVarRenaming(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Util_ReplaceExpr(builtin);
+res = initialize_Lean_Util_ReplaceExpr(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Lean_Meta_Match_MVarRenaming(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Lean_Meta_Match_MVarRenaming(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Lean_Meta_Match_MVarRenaming(builtin);
 }
 #ifdef __cplusplus
 }

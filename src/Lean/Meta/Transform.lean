@@ -185,17 +185,31 @@ def transform {m} [Monad m] [MonadLiftT MetaM m] [MonadControlT MetaM m]
   return e
 
 /--
-Replaces all free variables in `e` that have let-values with their values.
-The substitution is applied recursively to the values themselves.
+Zeta-reduces `let`/`have` expressions in `e`, and also zeta-delta reduces let-bound variables.
+Removes unused `let`/`have` expressions.
+
+Options:
+- If `zetaDelta` is true (default: true), then zeta-delta reduces (unfolds) let-bound variables.
+- If `zetaHave` is false (default: true), then does not zeta reduce `have` expressions.
+- If `beta` is true (default: true), then beta reduce applications of substituted values
 -/
--- TODO: add options to distinguish zeta and zetaDelta reduction
-def zetaReduce (e : Expr) : MetaM Expr := do
-  let pre (e : Expr) : MetaM TransformStep := do
-    let .fvar fvarId := e | return .continue
-    let some localDecl := (← getLCtx).find? fvarId | return .done e
-    let some value := localDecl.value? | return .done e
-    return .visit (← instantiateMVars value)
-  transform e (pre := pre) (usedLetOnly := true)
+def zetaReduce (e : Expr) (zetaDelta := true) (zetaHave := true) (beta := true) : MetaM Expr := do
+  let n := (← getLCtx).numIndices
+  let unfold? (fvarId : FVarId) : MetaM (Option Expr) := do
+    let some decl ← fvarId.findDecl? | return none
+    if !zetaDelta && decl.index < n then return none
+    -- Values for nondep ldecls created by `transform` are valid.
+    return decl.value? (allowNondep := zetaHave && decl.index ≥ n)
+  if beta then
+    transform e (usedLetOnly := true) (pre := fun e => do
+      let .fvar fvarId := e.getAppFn | return .continue
+      let some value ← unfold? fvarId | return .continue
+      return .visit <| (← instantiateMVars value).beta e.getAppArgs)
+  else
+    transform e (usedLetOnly := true) (pre := fun e => do
+      let .fvar fvarId := e | return .continue
+      let some value ← unfold? fvarId | return .done e
+      return .visit (← instantiateMVars value))
 
 /--
 Zeta-reduces only the specified free variables, applying beta reduction after substitution.

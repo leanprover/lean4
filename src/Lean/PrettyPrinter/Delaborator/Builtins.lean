@@ -46,8 +46,12 @@ def delabFVar : Delab := do
     let l ← fvarId.getDecl
     maybeAddBlockImplicit (mkIdent l.userName)
   catch _ =>
-    -- loose free variable, use internal name
-    maybeAddBlockImplicit <| mkIdent (fvarId.name.replacePrefix `_uniq `_fvar)
+    -- loose free variable
+    if ← getPPOption getPPFVarsAnonymous then
+      -- use internal name like `_fvar.22`
+      maybeAddBlockImplicit <| mkIdent (fvarId.name.replacePrefix `_uniq `_fvar)
+    else
+      maybeAddBlockImplicit <| mkIdent `_fvar._
 
 -- loose bound variable, use pseudo syntax
 @[builtin_delab bvar]
@@ -854,7 +858,7 @@ where
     if i < hNames?.size then
       if let some name := hNames?[i]! then
         let n' ← getUnusedName name body
-        withLocalDecl n' .default (.sort levelZero) (kind := .implDetail) fun _ =>
+        withLocalDecl n' .default (.sort Level.zero) (kind := .implDetail) fun _ =>
           withDummyBinders hNames? body m (acc.push n')
       else
         withDummyBinders hNames? body m (acc.push none)

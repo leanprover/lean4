@@ -1,0 +1,11 @@
+nestedIssueMatch.lean:1:4-1:5: warning: declaration uses `sorry`
+nestedIssueMatch.lean:1:4-1:5: warning: declaration uses `sorry`
+g.eq_1 (n : Nat) :
+  g n.succ =
+    match g n with
+    | 0 => 0
+    | m.succ =>
+      match g (n - m) with
+      | 0 => 0
+      | m.succ => g n
+g.eq_2 : g 0 = 0

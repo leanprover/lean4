@@ -121,6 +121,42 @@ The nightly build system uses branches and tags across two repositories:
 
 When a nightly succeeds with mathlib, all three should point to the same commit. Don't confuse these: branches are in the main lean4 repo, dated tags are in lean4-nightly.
 
+## CI Failures: Investigate Immediately
+
+**CRITICAL: If the checklist reports `❌ CI: X check(s) failing` for any PR, investigate immediately.**
+
+Do NOT:
+- Report it as "CI in progress" or "some checks pending"
+- Wait for the remaining checks to finish before investigating
+- Assume it's a transient failure without checking
+
+DO:
+1. Run `gh pr checks <number> --repo <owner>/<repo>` to see which specific check failed
+2. Run `gh run view <run-id> --repo <owner>/<repo> --log-failed` to see the failure output
+3. Diagnose the failure and report clearly to the user: what failed and why
+4. Propose a fix if one is obvious (e.g., subverso version mismatch, transient elan install error)
+
+The checklist now distinguishes `❌ X check(s) failing, Y still in progress` from `🔄 Y check(s) in progress`.
+Any `❌` in CI status requires immediate investigation — do not move on.
+
+## Waiting for CI or Merges
+
+Use `gh pr checks --watch` to block until a PR's CI checks complete (no polling needed).
+Run these as background bash commands so you get notified when they finish:
+
+```bash
+# Watch CI, then check merge state
+gh pr checks <number> --repo <owner>/<repo> --watch && gh pr view <number> --repo <owner>/<repo> --json state --jq '.state'
+```
+
+For multiple PRs, launch one background command per PR in parallel. When each completes,
+you'll be notified automatically via a task-notification. Do NOT use sleep-based polling
+loops — `--watch` is event-driven and exits as soon as checks finish.
+
+Note: `gh pr checks --watch` exits as soon as ALL checks complete (pass or fail). If some checks
+fail while others are still running, `--watch` will continue until everything settles, then exit
+with a non-zero code. So a background `--watch` finishing = all checks done; check which failed.
+
 ## Error Handling
 
 **CRITICAL**: If something goes wrong or a command fails:

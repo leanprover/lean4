@@ -2302,17 +2302,17 @@ It reduces terms by unfolding definitions using their defining equations and
 applying matcher equations. The unfolding is propositional, so `cbv` also works
 with functions defined via well-founded recursion or partial fixpoints.
 
-`cbv` has built-in support for goals of the form `lhs = rhs`. It proceeds in
-two passes:
-1. Reduce `lhs`. If the result is definitionally equal to `rhs`, close the goal.
-2. Otherwise, reduce `rhs`. If the result is now definitionally equal to the
-   reduced `lhs`, close the goal.
-3. If neither check succeeds, generate a new goal `lhs' = rhs'`, where `lhs'`
-   and `rhs'` are the reduced forms of the original sides.
+`cbv` reduces the goal type (and optionally hypothesis types) using call-by-value
+evaluation. For equation goals (`lhs = rhs`), `cbv` automatically attempts `refl`
+after reduction to close the goal.
 
-`cbv` is therefore not a finishing tactic in general: it may leave a new
-(simpler) equality goal. For goals that are not equalities, `cbv` currently
-leaves the goal unchanged.
+`cbv` supports the standard `at` location syntax:
+- `cbv` — reduce the goal target
+- `cbv at h` — reduce hypothesis `h`
+- `cbv at h |-` — reduce hypothesis `h` and the goal target
+- `cbv at *` — reduce all non-dependent propositional hypotheses and the goal target
+
+`cbv` is not a finishing tactic in general: it may leave a new (simpler) goal.
 
 The proofs produced by `cbv` only use the three standard axioms.
 In particular, they do not require trust in the correctness of the code
@@ -2321,7 +2321,7 @@ generator.
 This tactic is experimental and its behavior is likely to change in upcoming
 releases of Lean.
 -/
-syntax (name := cbv) "cbv" : tactic
+syntax (name := cbv) "cbv" (location)? : tactic
 
 /--
 `decide_cbv` is a finishing tactic that closes goals of the form `p`, where `p`

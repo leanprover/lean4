@@ -8,7 +8,9 @@ module
 prelude
 public import Init.Data.String.Lemmas.Pattern.Basic
 public import Init.Data.String.Slice
+public import Init.Data.String.Search
 import all Init.Data.String.Slice
+import all Init.Data.String.Search
 import Init.Data.Option.Lemmas
 import Init.Data.String.Termination
 import Init.Data.String.Lemmas.Order
@@ -17,6 +19,8 @@ import Init.Data.Order.Lemmas
 import Init.Data.String.OrderInstances
 import Init.Data.Iterators.Lemmas.Basic
 import Init.Data.Iterators.Lemmas.Consumers.Collect
+import Init.Data.Iterators.Lemmas.Combinators.FilterMap
+import Init.Data.String.Lemmas.IsEmpty
 
 set_option doc.verso true
 
@@ -31,111 +35,38 @@ This gives a low-level correctness proof from which higher-level API lemmas can 
 
 namespace String.Slice.Pattern.Model
 
-/--
-Represents a list of subslices of a slice {name}`s`, the first of which starts at the given
-position {name}`startPos`. This is a natural type for a split routine to return.
--/
-@[ext]
-public structure SlicesFrom {s : Slice} (startPos : s.Pos) : Type where
-  l : List s.Subslice
-  any_head? : l.head?.any (·.startInclusive = startPos)
-
-namespace SlicesFrom
-
-/--
-A {name}`SlicesFrom` consisting of a single empty subslice at the position {name}`pos`.
--/
-public def «at» {s : Slice} (pos : s.Pos) : SlicesFrom pos where
-  l := [s.subslice pos pos (Slice.Pos.le_refl _)]
-  any_head? := by simp
-
-@[simp]
-public theorem l_at {s : Slice} (pos : s.Pos) :
-    (SlicesFrom.at pos).l = [s.subslice pos pos (Slice.Pos.le_refl _)] := (rfl)
-
-/--
-Concatenating two {name}`SlicesFrom` yields a {name}`SlicesFrom` from the first position.
--/
-public def append {s : Slice} {p₁ p₂ : s.Pos} (l₁ : SlicesFrom p₁) (l₂ : SlicesFrom p₂) :
-    SlicesFrom p₁ where
-  l := l₁.l ++ l₂.l
-  any_head? := by simpa using Option.any_or_of_any_left l₁.any_head?
-
-@[simp]
-public theorem l_append {s : Slice} {p₁ p₂ : s.Pos} {l₁ : SlicesFrom p₁} {l₂ : SlicesFrom p₂} :
-    (l₁.append l₂).l = l₁.l ++ l₂.l :=
-  (rfl)
-
-/--
-Given a {lean}`SlicesFrom p₂` and a position {name}`p₁` such that {lean}`p₁ ≤ p₂`, obtain a
-{lean}`SlicesFrom p₁` by extending the left end of the first subslice to from {name}`p₂` to
-{name}`p₁`.
--/
-public def extend {s : Slice} (p₁ : s.Pos) {p₂ : s.Pos} (h : p₁ ≤ p₂) (l : SlicesFrom p₂) :
-    SlicesFrom p₁ where
-  l :=
-    match l.l, l.any_head? with
-    | st :: sts, h => st.extendLeft p₁ (by simp_all) :: sts
-  any_head? := by split; simp
-
-@[simp]
-public theorem l_extend {s : Slice} {p₁ p₂ : s.Pos} (h : p₁ ≤ p₂) {l : SlicesFrom p₂} :
-    (l.extend p₁ h).l =
-    match l.l, l.any_head? with
-    | st :: sts, h => st.extendLeft p₁ (by simp_all) :: sts :=
-  (rfl)
-
-@[simp]
-public theorem extend_self {s : Slice} {p₁ : s.Pos} (l : SlicesFrom p₁) :
-    l.extend p₁ (Slice.Pos.le_refl _) = l := by
-  rcases l with ⟨l, h⟩
-  match l, h with
-  | st :: sts, h =>
-    simp at h
-    simp [SlicesFrom.extend, ← h]
-
-@[simp]
-public theorem extend_extend {s : Slice} {p₀ p₁ p₂ : s.Pos} {h : p₀ ≤ p₁} {h' : p₁ ≤ p₂}
-    {l : SlicesFrom p₂} : (l.extend p₁ h').extend p₀ h = l.extend p₀ (Slice.Pos.le_trans h h') := by
-  rcases l with ⟨l, h⟩
-  match l, h with
-  | st :: sts, h => simp [SlicesFrom.extend]
-
-end SlicesFrom
-
-/--
-Noncomputable model implementation of {name}`String.Slice.splitToSubslice` based on
-{name}`ForwardPatternModel`. This is supposed to be simple enough to allow deriving higher-level
-API lemmas about the public splitting functions.
--/
 public protected noncomputable def split {ρ : Type} (pat : ρ) [ForwardPatternModel pat] {s : Slice}
-    (start : s.Pos) : SlicesFrom start :=
-  if h : start = s.endPos then
-    .at start
+    (firstRejected curr : s.Pos) (hle : firstRejected ≤ curr) : List s.Subslice :=
+  if h : curr = s.endPos then
+    [s.subslice _ _ hle]
   else
-    match hd : matchAt? pat start with
+    match hd : matchAt? pat curr with
     | some pos =>
-      have : start < pos := (matchAt?_eq_some_iff.1 hd).lt
-      (SlicesFrom.at start).append (Model.split pat pos)
-    | none => (Model.split pat (start.next h)).extend start (by simp)
-termination_by start
+      have : curr < pos := (matchAt?_eq_some_iff.1 hd).lt
+      s.subslice _ _ hle :: Model.split pat pos pos (Std.le_refl _)
+    | none => Model.split pat firstRejected (curr.next h) (Std.le_trans hle (by simp))
+termination_by curr
 
 @[simp]
-public theorem split_endPos {ρ : Type} {pat : ρ} [ForwardPatternModel pat] {s : Slice} :
-    Model.split pat s.endPos = SlicesFrom.at s.endPos := by
+public theorem split_endPos {ρ : Type} {pat : ρ} [ForwardPatternModel pat] {s : Slice}
+    {firstRejected : s.Pos} :
+    Model.split (s := s) pat firstRejected s.endPos (by simp) = [s.subslice firstRejected s.endPos (by simp)] := by
   simp [Model.split]
 
 public theorem split_eq_of_isLongestMatchAt {ρ : Type} {pat : ρ} [ForwardPatternModel pat]
-    {s : Slice} {start stop : s.Pos} (h : IsLongestMatchAt pat start stop) :
-    Model.split pat start = (SlicesFrom.at start).append (Model.split pat stop) := by
+    {s : Slice} {firstRejected start stop : s.Pos} {hle} (h : IsLongestMatchAt pat start stop) :
+    Model.split pat firstRejected start hle =
+      s.subslice _ _ hle :: Model.split pat stop stop (by exact Std.le_refl _) := by
   rw [Model.split, dif_neg (Slice.Pos.ne_endPos_of_lt h.lt)]
   split
   · congr <;> exact (matchAt?_eq_some_iff.1 ‹_›).eq h
   · simp [matchAt?_eq_some_iff.2 ‹_›] at *
 
-public theorem split_eq_of_not_matchesAt {ρ : Type} {pat : ρ} [ForwardPatternModel pat] {s : Slice}
-    {start stop : s.Pos} (h₀ : start ≤ stop) (h : ∀ p, start ≤ p → p < stop → ¬ MatchesAt pat p) :
-    Model.split pat start = (SlicesFrom.extend start h₀ (Model.split pat stop)) := by
+public theorem split_eq_of_not_matchesAt {ρ : Type} {pat : ρ} [ForwardPatternModel pat]
+    {s : Slice} {firstRejected start} (stop : s.Pos) (h₀ : start ≤ stop) {hle}
+    (h : ∀ p, start ≤ p → p < stop → ¬ MatchesAt pat p) :
+    Model.split pat firstRejected start hle =
+      Model.split pat firstRejected stop (by exact Std.le_trans hle h₀) := by
   induction start using WellFounded.induction Slice.Pos.wellFounded_gt with | h start ih
   by_cases h' : start < stop
   · rw [Model.split, dif_neg (Slice.Pos.ne_endPos_of_lt h')]
@@ -143,12 +74,18 @@ public theorem split_eq_of_not_matchesAt {ρ : Type} {pat : ρ} [ForwardPatternM
     split
     · rename_i heq
       simp [matchAt?_eq_none_iff.2 ‹_›] at heq
-    · rw [ih, SlicesFrom.extend_extend]
-      · simp
-      · simp [h']
-      · refine fun p hp₁ hp₂ => h p (Std.le_of_lt (by simpa using hp₁)) hp₂
+    · rw [ih _ (by simp) (by simpa)]
+      exact fun p hp₁ hp₂ => h p (Std.le_of_lt (by simpa using hp₁)) hp₂
   · obtain rfl : start = stop := Std.le_antisymm h₀ (Std.not_lt.1 h')
     simp
+
+public theorem split_eq_next_of_not_matchesAt {ρ : Type} {pat : ρ} [ForwardPatternModel pat]
+    {s : Slice} {firstRejected start} {hle} (hs : start ≠ s.endPos) (h : ¬ MatchesAt pat start) :
+    Model.split pat firstRejected start hle =
+      Model.split pat firstRejected (start.next hs) (by exact Std.le_trans hle (by simp)) := by
+  refine split_eq_of_not_matchesAt _ (by simp) (fun p hp₁ hp₂ => ?_)
+  obtain rfl : start = p := Std.le_antisymm hp₁ (by simpa using hp₂)
+  exact h
 
 /--
 Splits a slice {name}`s` into subslices from a list of {lean}`SearchStep s`.
@@ -168,30 +105,18 @@ theorem IsValidSearchFrom.splitFromSteps_eq_extend_split {ρ : Type} (pat : ρ)
     [ForwardPatternModel pat] (l : List (SearchStep s)) (pos pos' : s.Pos) (h₀ : pos ≤ pos')
     (h' : ∀ p, pos ≤ p → p < pos' → ¬ MatchesAt pat p)
     (h : IsValidSearchFrom pat pos' l) :
-    splitFromSteps pos l = ((Model.split pat pos').extend pos h₀).l := by
+    splitFromSteps pos l = Model.split pat pos pos' h₀ := by
   induction h generalizing pos with
   | endPos =>
-    simp only [splitFromSteps, Model.split, ↓reduceDIte, SlicesFrom.l_extend, List.head?_cons,
-      Option.any_some]
-    split
-    simp_all only [SlicesFrom.l_at, List.cons.injEq, List.nil_eq, List.head?_cons, Option.any_some,
-      decide_eq_true_eq, heq_eq_eq, and_true]
-    rename_i h
-    simp only [← h.1]
-    ext <;> simp
+    simp [splitFromSteps]
   | matched h valid ih =>
     simp only [splitFromSteps]
-    rw [subslice!_eq_subslice h₀, split_eq_of_isLongestMatchAt h]
-    simp only [SlicesFrom.append, SlicesFrom.at, List.cons_append, List.nil_append,
-      SlicesFrom.l_extend, List.cons.injEq]
-    refine ⟨?_, ?_⟩
-    · ext <;> simp
-    · rw [ih _ (Slice.Pos.le_refl _), SlicesFrom.extend_self]
-      exact fun p hp₁ hp₂ => False.elim (Std.lt_irrefl (Std.lt_of_le_of_lt hp₁ hp₂))
+    rw [subslice!_eq_subslice h₀, split_eq_of_isLongestMatchAt h, ih]
+    simp +contextual [← Std.not_lt]
   | mismatched h rej valid ih =>
     simp only [splitFromSteps]
     rename_i l startPos endPos
-    rw [split_eq_of_not_matchesAt (Std.le_of_lt h) rej, SlicesFrom.extend_extend, ih]
+    rw [split_eq_of_not_matchesAt _ (Std.le_of_lt h) rej, ih]
     intro p hp₁ hp₂
     by_cases hp : p < startPos
     · exact h' p hp₁ hp
@@ -231,10 +156,52 @@ open Model
 public theorem toList_splitToSubslice_eq_modelSplit {ρ : Type} (pat : ρ) [ForwardPatternModel pat]
     {σ : Slice → Type} [ToForwardSearcher pat σ] [∀ s, Std.Iterator (σ s) Id (SearchStep s)]
     [∀ s, Std.Iterators.Finite (σ s) Id] [LawfulToForwardSearcherModel pat] (s : Slice) :
-    (s.splitToSubslice pat).toList = (Model.split pat s.startPos).l := by
+    (s.splitToSubslice pat).toList = Model.split pat s.startPos s.startPos (by exact Std.le_refl _) := by
   rw [toList_splitToSubslice_eq_splitFromSteps, IsValidSearchFrom.splitFromSteps_eq_extend_split pat _
-    s.startPos s.startPos (Std.le_refl _) _ (LawfulToForwardSearcherModel.isValidSearchFrom_toList _),
-    SlicesFrom.extend_self]
+    s.startPos s.startPos (Std.le_refl _) _ (LawfulToForwardSearcherModel.isValidSearchFrom_toList _)]
   simp
 
-end String.Slice.Pattern
+end Pattern
+
+open Pattern
+
+public theorem toList_splitToSubslice_of_isEmpty {ρ : Type} (pat : ρ)
+    [Model.ForwardPatternModel pat] {σ : Slice → Type}
+    [ToForwardSearcher pat σ] [∀ s, Std.Iterator (σ s) Id (SearchStep s)]
+    [∀ s, Std.Iterators.Finite (σ s) Id] [Model.LawfulToForwardSearcherModel pat] {s : Slice}
+    (h : s.isEmpty = true) :
+    (s.splitToSubslice pat).toList = [s.subsliceFrom s.endPos] := by
+  simp [toList_splitToSubslice_eq_modelSplit, Slice.startPos_eq_endPos_iff.2 h]
+
+public theorem toList_split_eq_splitToSubslice {ρ : Type} (pat : ρ) {σ : Slice → Type}
+    [ToForwardSearcher pat σ] [∀ s, Std.Iterator (σ s) Id (SearchStep s)]
+    [∀ s, Std.Iterators.Finite (σ s) Id] {s : Slice} :
+    (s.split pat).toList = (s.splitToSubslice pat).toList.map Subslice.toSlice := by
+  simp [split, Std.Iter.toList_map]
+
+public theorem toList_split_of_isEmpty {ρ : Type} (pat : ρ)
+    [Model.ForwardPatternModel pat] {σ : Slice → Type}
+    [ToForwardSearcher pat σ] [∀ s, Std.Iterator (σ s) Id (SearchStep s)]
+    [∀ s, Std.Iterators.Finite (σ s) Id] [Model.LawfulToForwardSearcherModel pat] {s : Slice}
+    (h : s.isEmpty = true) :
+    (s.split pat).toList.map Slice.copy = [""] := by
+  rw [toList_split_eq_splitToSubslice, toList_splitToSubslice_of_isEmpty _ h]
+  simp
+
+end Slice
+
+open Slice.Pattern
+
+public theorem split_eq_split_toSlice {ρ : Type} {pat : ρ} {σ : Slice → Type}
+    [ToForwardSearcher pat σ] [∀ s, Std.Iterator (σ s) Id (SearchStep s)] {s : String} :
+  s.split pat = s.toSlice.split pat := (rfl)
+
+@[simp]
+public theorem toList_split_empty {ρ : Type} (pat : ρ)
+    [Model.ForwardPatternModel pat] {σ : Slice → Type}
+    [ToForwardSearcher pat σ] [∀ s, Std.Iterator (σ s) Id (SearchStep s)]
+    [∀ s, Std.Iterators.Finite (σ s) Id] [Model.LawfulToForwardSearcherModel pat] :
+    ("".split pat).toList.map Slice.copy = [""] := by
+  rw [split_eq_split_toSlice, Slice.toList_split_of_isEmpty _ (by simp)]
+
+end String

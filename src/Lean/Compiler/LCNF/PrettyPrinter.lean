@@ -94,6 +94,7 @@ def ppLetValue (e : LetValue pu) : M Format := do
     return f!"reuse" ++ (if updateHeader then f!"!" else f!"") ++ f!" {← ppFVar fvarId} in {info}{← ppArgs args}"
   | .box _ fvarId _ => return f!"box {← ppFVar fvarId}"
   | .unbox fvarId _ => return f!"unbox {← ppFVar fvarId}"
+  | .isShared fvarId _ => return f!"isShared {← ppFVar fvarId}"
 
 def ppParam (param : Param pu) : M Format := do
   let borrow := if param.borrow then "@&" else ""
@@ -149,6 +150,10 @@ mutual
         return f!"sset {← ppFVar fvarId}[{i}, {offset}] := {← ppFVar y};" ++ .line ++ (← ppCode k)
     | .uset fvarId i y k _ =>
       return f!"uset {← ppFVar fvarId}[{i}] := {← ppFVar y};" ++ .line ++ (← ppCode k)
+    | .oset fvarId i y k _ =>
+      return f!"oset {← ppFVar fvarId} [{i}] := {← ppArg y};" ++ .line ++ (← ppCode k)
+    | .setTag fvarId cidx k _ =>
+      return f!"setTag {← ppFVar fvarId} := {cidx};" ++ .line ++ (← ppCode k)
     | .inc fvarId n _ _ k _ =>
       if n != 1 then
         return f!"inc[{n}] {← ppFVar fvarId};" ++ .line ++ (← ppCode k)
@@ -159,6 +164,8 @@ mutual
         return f!"dec[{n}] {← ppFVar fvarId};" ++ .line ++ (← ppCode k)
       else
         return f!"dec {← ppFVar fvarId};" ++ .line ++ (← ppCode k)
+    | .del fvarId k _ =>
+      return f!"del {← ppFVar fvarId};" ++ .line ++ (← ppCode k)
 
 
   partial def ppDeclValue (b : DeclValue pu) : M Format := do

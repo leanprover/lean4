@@ -209,7 +209,7 @@ return x_3;
 LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_Snapshot_runCommandElabM___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; lean_object* x_11; lean_object* x_25; 
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; lean_object* x_11; lean_object* x_29; 
 x_5 = lean_ctor_get(x_2, 0);
 x_6 = lean_ctor_get(x_2, 3);
 x_7 = lean_ctor_get(x_1, 0);
@@ -219,23 +219,23 @@ lean_inc_ref(x_8);
 lean_dec_ref(x_1);
 x_9 = lean_unsigned_to_nat(0u);
 x_10 = 0;
-x_25 = l_Lean_Syntax_getPos_x3f(x_7, x_10);
+x_29 = l_Lean_Syntax_getPos_x3f(x_7, x_10);
 lean_dec(x_7);
-if (lean_obj_tag(x_25) == 0)
+if (lean_obj_tag(x_29) == 0)
 {
 x_11 = x_9;
-goto block_24;
+goto block_28;
 }
 else
 {
-lean_object* x_26; 
-x_26 = lean_ctor_get(x_25, 0);
-lean_inc(x_26);
-lean_dec_ref(x_25);
-x_11 = x_26;
-goto block_24;
+lean_object* x_30; 
+x_30 = lean_ctor_get(x_29, 0);
+lean_inc(x_30);
+lean_dec_ref(x_29);
+x_11 = x_30;
+goto block_28;
 }
-block_24:
+block_28:
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
 x_12 = lean_st_mk_ref(x_8);
@@ -261,28 +261,46 @@ lean_inc(x_12);
 x_18 = lean_apply_3(x_3, x_17, x_12, lean_box(0));
 if (lean_obj_tag(x_18) == 0)
 {
-uint8_t x_19; 
-x_19 = !lean_is_exclusive(x_18);
-if (x_19 == 0)
+lean_object* x_19; lean_object* x_20; uint8_t x_21; uint8_t x_27; 
+x_19 = lean_ctor_get(x_18, 0);
+x_27 = !lean_is_exclusive(x_18);
+if (x_27 == 0)
 {
-lean_object* x_20; 
-x_20 = lean_st_ref_get(x_12);
-lean_dec(x_12);
-lean_dec(x_20);
-return x_18;
+x_20 = x_18;
+x_21 = x_27;
+goto block_26;
 }
 else
 {
-lean_object* x_21; lean_object* x_22; lean_object* x_23; 
-x_21 = lean_ctor_get(x_18, 0);
-lean_inc(x_21);
+lean_inc(x_19);
 lean_dec(x_18);
+x_20 = lean_box(0);
+x_21 = x_27;
+goto block_26;
+}
+block_26:
+{
+lean_object* x_22; lean_object* x_23; 
 x_22 = lean_st_ref_get(x_12);
 lean_dec(x_12);
 lean_dec(x_22);
-x_23 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_23, 0, x_21);
+if (x_21 == 0)
+{
+x_23 = x_20;
+goto block_24;
+}
+else
+{
+lean_object* x_25; 
+x_25 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_25, 0, x_19);
+x_23 = x_25;
+goto block_24;
+}
+block_24:
+{
 return x_23;
+}
 }
 }
 else
@@ -393,6 +411,35 @@ lean_dec_ref(x_3);
 return x_6;
 }
 }
+lean_object* runtime_initialize_Lean_Elab_Import(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_Command(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Widget_InteractiveDiagnostic(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lean_Server_Snapshots(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Lean_Elab_Import(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_Command(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Widget_InteractiveDiagnostic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lean_Server_Snapshots(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Lean_Elab_Import(uint8_t builtin);
 lean_object* initialize_Lean_Elab_Command(uint8_t builtin);
 lean_object* initialize_Lean_Widget_InteractiveDiagnostic(uint8_t builtin);
@@ -401,16 +448,27 @@ LEAN_EXPORT lean_object* initialize_Lean_Server_Snapshots(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Elab_Import(builtin);
+res = initialize_Lean_Elab_Import(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Command(builtin);
+res = initialize_Lean_Elab_Command(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Widget_InteractiveDiagnostic(builtin);
+res = initialize_Lean_Widget_InteractiveDiagnostic(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Lean_Server_Snapshots(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Lean_Server_Snapshots(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Lean_Server_Snapshots(builtin);
 }
 #ifdef __cplusplus
 }

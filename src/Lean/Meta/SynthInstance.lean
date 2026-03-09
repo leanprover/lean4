@@ -573,7 +573,7 @@ def generate : SynthM Unit := do
             modify fun s => { s with generatorStack := s.generatorStack.pop }
             return
     discard do withMCtx mctx do
-      withTraceNode `Meta.synthInstance
+      withTraceNode `Meta.synthInstance.apply
         (return m!"{exceptOptionEmoji ·} apply {inst.val} to {← instantiateMVars (← inferType mvar)}") do
       modifyTop fun gNode => { gNode with currInstanceIdx := idx }
       if let some (mctx, subgoals) ← tryResolve mvar inst then
@@ -982,6 +982,7 @@ register_builtin_option trace.Meta.synthInstance : Bool := {
 
 builtin_initialize
   registerTraceClass `Meta.synthPending
+  registerTraceClass `Meta.synthInstance.apply (inherited := true)
   registerTraceClass `Meta.synthInstance.instances (inherited := true)
   registerTraceClass `Meta.synthInstance.tryResolve (inherited := true)
   registerTraceClass `Meta.synthInstance.answer (inherited := true)

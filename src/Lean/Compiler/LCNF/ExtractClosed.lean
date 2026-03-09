@@ -10,6 +10,9 @@ public import Lean.Compiler.ClosedTermCache
 public import Lean.Compiler.NeverExtractAttr
 public import Lean.Compiler.LCNF.Internalize
 public import Lean.Compiler.LCNF.ToExpr
+import Lean.Compiler.LCNF.ElimDead
+import Lean.Compiler.LCNF.DependsOn
+meta import Init.Data.FloatArray.Basic
 
 public section
 
@@ -111,33 +114,94 @@ where
 
 end
 
+/--
+Check if `let decl; k` forms an `Array`, `ByteArray`, or `FloatArray` literal. They consist of some
+initial allocation (`Array.mkEmpty` or `Array.emptyWithCapacity`) followed by a sequence of
+`Array.push` and for the scalar variants finally `ByteArray.mk` or `FloatArray.mk`.
+
+We identify these literals by matching this pattern and ensuring that only the last `push`/`mk` from
+the sequence is used in the final continuation. If that is the case, we can pull out the entire
+literal as one closed declaration. This avoids the quadratic overhead of repeated `Array.push` calls
+on persistent `Array` objects during initialization.
+-/
+def searchArrayLiteral (decl : LetDecl .pure) (k : Code .pure) :
+    M (Option (LetDecl .pure × Code .pure)) := do
+  let .const ``Array.push  _ #[_, .fvar parentId, _] := decl.value | return none
+  let some parentDecl ← findLetDecl? (pu := .pure) parentId | return none
+  match parentDecl.value with
+  | .const ``Array.mkEmpty _ #[_, .fvar sizeFVar]
+  | .const ``Array.emptyWithCapacity _ #[_, .fvar sizeFVar] =>
+    let some (.lit (.nat size)) ← findLetValue? (pu := .pure) sizeFVar | return none
+    identifyChain parentDecl.fvarId decl k {} size
+  | _ => return none
+where
+  identifyChain (prevArrayId : FVarId) (decl : LetDecl .pure) (k : Code .pure)
+      (illegalSet : FVarIdSet) (size : Nat) : M (Option (LetDecl .pure × Code .pure)) := do
+    match size with
+    | 0 => return none
+    | nextSize + 1 =>
+      let .const ``Array.push _ #[_, .fvar arrId, elemArg] := decl.value | return none
+      if arrId != prevArrayId then return none
+      if !(← shouldExtractArg elemArg) then return none
+      if nextSize != 0 then
+        let illegalSet := illegalSet.insert decl.fvarId
+        let .let nextDecl nextK := k | return none
+        identifyChain decl.fvarId nextDecl nextK illegalSet nextSize
+      else
+        let occursCheck (decl : LetDecl .pure) (k : Code .pure) (illegalSet : FVarIdSet) := do
+          if k.dependsOn illegalSet then return none
+          return some (decl, k)
+        -- At this point we can be at the end of an `Array` literal or right before the end of a
+        -- `ByteArray` or `FloatArray` literal, let's check.
+        match k with
+        | .let nextDecl@{ value := .const ``ByteArray.mk _ #[.fvar arrayId] _, .. } nextK
+        | .let nextDecl@{ value := .const ``FloatArray.mk _ #[.fvar arrayId] _, .. } nextK =>
+          if arrayId != decl.fvarId then
+            occursCheck decl k illegalSet
+          else
+            let illegalSet := illegalSet.insert decl.fvarId
+            occursCheck nextDecl nextK illegalSet
+        | _ => occursCheck decl k illegalSet
+
 mutual
 
 partial def visitCode (code : Code .pure) : M (Code .pure) := do
   match code with
   | .let decl k =>
-    if (← shouldExtractLetValue true decl.value) then
-      let ⟨_, decls⟩ ← extractLetValue decl.value |>.run {}
-      let decls := decls.reverse.push (.let decl)
-      let decls ← decls.mapM Internalize.internalizeCodeDecl |>.run' {}
-      let closedCode := attachCodeDecls decls (.return decls.back!.fvarId)
-      let closedExpr := closedCode.toExpr
-      let env ← getEnv
-      let name ← if let some closedTermName := getClosedTermName? env closedExpr then
-        eraseCode closedCode
-        pure closedTermName
+    let visitLetDefault := do
+      if let some (decl, k) ← searchArrayLiteral decl k then
+        let name ← performExtraction decl
+        let decl ← decl.updateValue (.const name [] #[])
+        return code.updateLet! decl (← visitCode k)
+      else if (← shouldExtractLetValue true decl.value) then
+        let name ← performExtraction decl
+        let decl ← decl.updateValue (.const name [] #[])
+        return code.updateLet! decl (← visitCode k)
       else
-        let name := (← read).baseName ++ (`_closed).appendIndexAfter (← get).decls.size
-        cacheClosedTermName env closedExpr name |> setEnv
-        let decl := { name, levelParams := [], type := decl.type, params := #[],
-                      value := .code closedCode, inlineAttr? := some .noinline }
-        decl.saveMono
-        modify fun s => { s with decls := s.decls.push decl }
-        pure name
-      let decl ← decl.updateValue (.const name [] #[])
-      return code.updateLet! decl (← visitCode k)
-    else
-      return code.updateLet! decl (← visitCode k)
+        return code.updateLet! decl (← visitCode k)
+
+    match decl.value with
+    | .const ``Array.mkEmpty _ #[_, .fvar sizeId]
+    | .const ``Array.emptyWithCapacity _ #[_, .fvar sizeId] =>
+      if let some (.lit (.nat n)) ← findLetValue? (pu := .pure) sizeId then
+        if n == 0 then
+          let name ← performExtraction decl
+          let decl ← decl.updateValue (.const name [] #[])
+          return code.updateLet! decl (← visitCode k)
+        else
+          /-
+          Extracting non-empty `Array` initializers on their own often isn't helpful because they
+          will almost always be used later on by other declarations. This most frequently happens in
+          one of two ways:
+          1. They get mutated by some ordinary function in which case they will be copied from the
+             persistent storage anyways.
+          2. They get used by an `Array` literal which builds up an `Array.push` chain that we
+             specifically pattern match on starting with an empty initializer of appropriate size.
+          -/
+          return code.updateLet! decl (← visitCode k)
+      else
+        visitLetDefault
+    | _ => visitLetDefault
   | .fun decl k =>
     let decl ← decl.updateValue (← visitCode decl.value)
     return code.updateFun! decl (← visitCode k)
@@ -148,6 +212,26 @@ partial def visitCode (code : Code .pure) : M (Code .pure) := do
     let alts ← cases.alts.mapMonoM (fun alt => do return alt.updateCode (← visitCode alt.getCode))
     return code.updateAlts! alts
   | .jmp .. | .return _ | .unreach .. => return code
+where
+  performExtraction (decl : LetDecl .pure) : M Name := do
+    let ⟨_, decls⟩ ← extractLetValue decl.value |>.run {}
+    let decls := decls.reverse.push (.let decl)
+    let decls ← decls.mapM Internalize.internalizeCodeDecl |>.run' {}
+    let closedCode := attachCodeDecls decls (.return decls.back!.fvarId)
+    let closedExpr := closedCode.toExpr
+    let env ← getEnv
+    if let some closedTermName := getClosedTermName? env closedExpr then
+      eraseCode closedCode
+      return closedTermName
+    else
+      let name := (← read).baseName ++ (`_closed).appendIndexAfter (← get).decls.size
+      cacheClosedTermName env closedExpr name |> setEnv
+      let decl := { name, levelParams := [], type := decl.type, params := #[],
+                    value := .code closedCode, inlineAttr? := some .noinline }
+      decl.saveMono
+      modify fun s => { s with decls := s.decls.push decl }
+      return name
+
 
 end
 
@@ -159,7 +243,10 @@ end ExtractClosed
 
 partial def Decl.extractClosed (decl : Decl .pure) (sccDecls : Array (Decl .pure)) :
     CompilerM (Array (Decl .pure)) := do
-  let ⟨decl, s⟩ ← ExtractClosed.visitDecl decl |>.run { baseName := decl.name, sccDecls } |>.run {}
+  let mut ⟨decl, s⟩ ← ExtractClosed.visitDecl decl |>.run { baseName := decl.name, sccDecls } |>.run {}
+  if !s.decls.isEmpty then
+    -- Closed term extraction might have left behind dead values.
+    decl ← decl.elimDeadVars
   return s.decls.push decl
 
 def extractClosed : Pass where

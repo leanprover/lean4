@@ -47,7 +47,7 @@ public instance instLawfulOrderBEqOfDecidableLE {α : Type u} [LE α] [Decidable
   beq_iff_le_and_ge := by simp [BEq.beq]
 
 /-- If `LT` can be characterized in terms of a decidable `LE`, then `LT` is decidable either. -/
-@[expose, instance_reducible]
+@[inline, expose, implicit_reducible]
 public def decidableLTOfLE {α : Type u} [LE α] {_ : LT α} [DecidableLE α] [LawfulOrderLT α] :
     DecidableLT α :=
   fun a b =>
@@ -171,7 +171,7 @@ automatically. If it fails, it is necessary to provide some of the fields manual
 * Other proof obligations, namely `le_refl` and `le_trans`, can be omitted if `Refl` and `Trans`
   instances can be synthesized.
 -/
-@[expose, implicit_reducible]
+@[inline, expose, implicit_reducible]
 public def PreorderPackage.ofLE (α : Type u)
     (args : Packages.PreorderOfLEArgs α := by exact {}) : PreorderPackage α where
   toLE := args.le
@@ -256,7 +256,7 @@ automatically. If it fails, it is necessary to provide some of the fields manual
 * Other proof obligations, namely `le_refl`, `le_trans` and `le_antisymm`, can be omitted if `Refl`,
   `Trans` and `Antisymm` instances can be synthesized.
 -/
-@[expose, implicit_reducible]
+@[inline, expose, implicit_reducible]
 public def PartialOrderPackage.ofLE (α : Type u)
     (args : Packages.PartialOrderOfLEArgs α := by exact {}) : PartialOrderPackage α where
   toPreorderPackage := .ofLE α args.toPreorderOfLEArgs
@@ -385,7 +385,7 @@ automatically. If it fails, it is necessary to provide some of the fields manual
 * Other proof obligations, namely `le_total` and `le_trans`, can be omitted if `Total` and `Trans`
   instances can be synthesized.
 -/
-@[expose, implicit_reducible]
+@[inline, expose, implicit_reducible]
 public def LinearPreorderPackage.ofLE (α : Type u)
     (args : Packages.LinearPreorderOfLEArgs α := by exact {}) : LinearPreorderPackage α where
   toPreorderPackage := .ofLE α args.toPreorderOfLEArgs
@@ -487,7 +487,7 @@ automatically. If it fails, it is necessary to provide some of the fields manual
 * Other proof obligations, namely `le_total`, `le_trans` and `le_antisymm`, can be omitted if
   `Total`, `Trans` and `Antisymm` instances can be synthesized.
 -/
-@[expose, implicit_reducible]
+@[inline, expose, implicit_reducible]
 public def LinearOrderPackage.ofLE (α : Type u)
     (args : Packages.LinearOrderOfLEArgs α := by exact {}) : LinearOrderPackage α where
   toLinearPreorderPackage := .ofLE α args.toLinearPreorderOfLEArgs
@@ -647,7 +647,7 @@ automatically. If it fails, it is necessary to provide some of the fields manual
 * Other proof obligations, for example `transOrd`, can be omitted if a matching instance can be
   synthesized.
 -/
-@[expose, instance_reducible]
+@[inline, expose, implicit_reducible]
 public def LinearPreorderPackage.ofOrd (α : Type u)
     (args : Packages.LinearPreorderOfOrdArgs α := by exact {}) : LinearPreorderPackage α :=
   letI := args.ord
@@ -793,7 +793,7 @@ automatically. If it fails, it is necessary to provide some of the fields manual
 * Other proof obligations, such as `transOrd`, can be omitted if matching instances can be
   synthesized.
 -/
-@[expose, instance_reducible]
+@[inline, expose, implicit_reducible]
 public def LinearOrderPackage.ofOrd (α : Type u)
     (args : Packages.LinearOrderOfOrdArgs α := by exact {}) : LinearOrderPackage α :=
   -- set_option backward.isDefEq.respectTransparency false in

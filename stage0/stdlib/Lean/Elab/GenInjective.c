@@ -106,25 +106,47 @@ return x_12;
 }
 else
 {
-uint8_t x_14; 
+lean_object* x_14; lean_object* x_15; uint8_t x_16; uint8_t x_21; 
 lean_dec(x_8);
 lean_dec_ref(x_7);
 lean_dec(x_6);
 lean_dec_ref(x_5);
-x_14 = !lean_is_exclusive(x_10);
-if (x_14 == 0)
+x_14 = lean_ctor_get(x_10, 0);
+x_21 = !lean_is_exclusive(x_10);
+if (x_21 == 0)
 {
-return x_10;
+x_15 = x_10;
+x_16 = x_21;
+goto block_20;
 }
 else
 {
-lean_object* x_15; lean_object* x_16; 
-x_15 = lean_ctor_get(x_10, 0);
-lean_inc(x_15);
+lean_inc(x_14);
 lean_dec(x_10);
-x_16 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_16, 0, x_15);
-return x_16;
+x_15 = lean_box(0);
+x_16 = x_21;
+goto block_20;
+}
+block_20:
+{
+lean_object* x_17; 
+if (x_16 == 0)
+{
+x_17 = x_15;
+goto block_18;
+}
+else
+{
+lean_object* x_19; 
+x_19 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_19, 0, x_14);
+x_17 = x_19;
+goto block_18;
+}
+block_18:
+{
+return x_17;
+}
 }
 }
 }
@@ -183,6 +205,39 @@ x_2 = l___private_Lean_Elab_GenInjective_0__Lean_Elab_Command_elabGenInjectiveTh
 return x_2;
 }
 }
+lean_object* runtime_initialize_Lean_Elab_Command(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_Injective(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_Constructions_CtorIdx(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lean_Elab_GenInjective(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Lean_Elab_Command(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_Injective(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_Constructions_CtorIdx(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Elab_GenInjective_0__Lean_Elab_Command_elabGenInjectiveTheorems___regBuiltin___private_Lean_Elab_GenInjective_0__Lean_Elab_Command_elabGenInjectiveTheorems__1()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lean_Elab_GenInjective(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Lean_Elab_Command(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Injective(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Constructions_CtorIdx(uint8_t builtin);
@@ -191,19 +246,27 @@ LEAN_EXPORT lean_object* initialize_Lean_Elab_GenInjective(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Elab_Command(builtin);
+res = initialize_Lean_Elab_Command(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Injective(builtin);
+res = initialize_Lean_Meta_Injective(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Constructions_CtorIdx(builtin);
+res = initialize_Lean_Meta_Constructions_CtorIdx(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-if (builtin) {res = l___private_Lean_Elab_GenInjective_0__Lean_Elab_Command_elabGenInjectiveTheorems___regBuiltin___private_Lean_Elab_GenInjective_0__Lean_Elab_Command_elabGenInjectiveTheorems__1();
+res = runtime_initialize_Lean_Elab_GenInjective(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-}return lean_io_result_mk_ok(lean_box(0));
+res = meta_initialize_Lean_Elab_GenInjective(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Lean_Elab_GenInjective(builtin);
 }
 #ifdef __cplusplus
 }

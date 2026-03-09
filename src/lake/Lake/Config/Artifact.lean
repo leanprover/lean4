@@ -75,7 +75,7 @@ public structure Artifact extends descr : ArtifactDescr where
   path : FilePath
   /-- The artifact's. This is used, for example, as a caption in traces. -/
   name := path.toString
-  /-- The artifact's modification time (or `0` if unknown). -/
+  /-- The artifact's modification time. -/
   mtime : MTime
   deriving Inhabited, Repr
 

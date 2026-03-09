@@ -56,11 +56,15 @@ theorem Pos.Splits.cast {s₁ s₂ : String} {p : s₁.Pos} {t₁ t₂ : String}
   splits_cast_iff.mpr
 
 @[simp]
-theorem Slice.Pos.splits_cast_iff {s₁ s₂ : Slice} {h : s₁ = s₂} {p : s₁.Pos} {t₁ t₂ : String} :
+theorem Slice.Pos.splits_cast_iff {s₁ s₂ : Slice} {h : s₁.copy = s₂.copy} {p : s₁.Pos}
+    {t₁ t₂ : String} :
     (p.cast h).Splits t₁ t₂ ↔ p.Splits t₁ t₂ := by
-  subst h; simp
+  constructor
+  · intro ⟨h₁, h₂⟩; exact ⟨h ▸ h₁, by simpa using h₂⟩
+  · intro ⟨h₁, h₂⟩; exact ⟨h.symm ▸ h₁, by simpa using h₂⟩
 
-theorem Slice.Pos.Splits.cast {s₁ s₂ : Slice} {p : s₁.Pos} {t₁ t₂ : String} (h : s₁ = s₂) :
+theorem Slice.Pos.Splits.cast {s₁ s₂ : Slice} {p : s₁.Pos} {t₁ t₂ : String}
+    (h : s₁.copy = s₂.copy) :
     p.Splits t₁ t₂ → (p.cast h).Splits t₁ t₂ :=
   splits_cast_iff.mpr
 
@@ -416,14 +420,6 @@ theorem splits_singleton_iff {s : String} {p : s.Pos} {c : Char} {t : String} :
   rw [← Pos.splits_toSlice_iff, Slice.splits_singleton_iff]
   simp [← Pos.ofToSlice_inj]
 
-@[simp]
-theorem Slice.copy_sliceTo_startPos {s : Slice} : (s.sliceTo s.startPos).copy = "" :=
-  s.startPos.splits.eq_left s.splits_startPos
-
-@[simp]
-theorem copy_sliceTo_startPos {s : String} : (s.sliceTo s.startPos).copy = "" :=
-  s.startPos.splits.eq_left s.splits_startPos
-
 theorem Slice.splits_next_startPos {s : Slice} {h : s.startPos ≠ s.endPos} :
     (s.startPos.next h).Splits
       (singleton (s.startPos.get h)) (s.sliceFrom (s.startPos.next h)).copy := by
@@ -596,5 +592,41 @@ theorem Slice.Pos.Splits.copy_sliceTo_eq {s : Slice} {p : s.Pos} (h : p.Splits t
 theorem Slice.Pos.Splits.copy_sliceFrom_eq {s : Slice} {p : s.Pos} (h : p.Splits t₁ t₂) :
     (s.sliceFrom p).copy = t₂ :=
   p.splits.eq_right h
+
+theorem copy_slice_eq_append_of_lt {s : String} {p q : s.Pos} (h : p < q) :
+    (s.slice p q (by exact Std.le_of_lt h)).copy =
+      String.singleton (p.get (by exact Pos.ne_endPos_of_lt h)) ++
+        (s.slice (p.next (by exact Pos.ne_endPos_of_lt h)) q (by simpa)).copy := by
+  have hsp := (s.slice p q (Std.le_of_lt h)).splits_startPos
+  obtain ⟨t₂, ht⟩ := hsp.exists_eq_singleton_append (by simpa [← Pos.ofSlice_inj] using Std.ne_of_lt h)
+  have := (ht ▸ hsp).next.eq_right (Slice.Pos.splits _)
+  simpa [Pos.ofSlice_next, this, Pos.get_eq_get_ofSlice] using ht
+
+@[simp]
+theorem copy_slice_next {s : String} {p : s.Pos} {h} :
+    (s.slice p (p.next h) (by simp)).copy = String.singleton (p.get h) := by
+  rw [copy_slice_eq_append_of_lt (by simp), copy_slice_self, String.append_empty]
+
+theorem splits_slice {s : String} {p₀ p₁ : s.Pos} (h) (p : (s.slice p₀ p₁ h).Pos) :
+    p.Splits (s.slice p₀ (Pos.ofSlice p) Pos.le_ofSlice).copy (s.slice (Pos.ofSlice p) p₁ Pos.ofSlice_le).copy := by
+  simpa using p.splits
+
+theorem Slice.copy_slice_eq_append_of_lt {s : Slice} {p q : s.Pos} (h : p < q) :
+    (s.slice p q (by exact Std.le_of_lt h)).copy =
+      String.singleton (p.get (by exact Pos.ne_endPos_of_lt h)) ++
+        (s.slice (p.next (Pos.ne_endPos_of_lt h)) q (by simpa)).copy := by
+  have hsp := (s.slice p q (Std.le_of_lt h)).splits_startPos
+  obtain ⟨t₂, ht⟩ := hsp.exists_eq_singleton_append (by simpa [← Pos.ofSlice_inj] using Std.ne_of_lt h)
+  have := (ht ▸ hsp).next.eq_right (Slice.Pos.splits _)
+  simpa [Pos.ofSlice_next, this, Pos.get_eq_get_ofSlice] using ht
+
+@[simp]
+theorem Slice.copy_slice_next {s : Slice} {p : s.Pos} {h} :
+    (s.slice p (p.next h) (by simp)).copy = String.singleton (p.get h) := by
+  rw [copy_slice_eq_append_of_lt (by simp), copy_slice_self, String.append_empty]
+
+theorem Slice.splits_slice {s : Slice} {p₀ p₁ : s.Pos} (h) (p : (s.slice p₀ p₁ h).Pos) :
+    p.Splits (s.slice p₀ (Pos.ofSlice p) Pos.le_ofSlice).copy (s.slice (Pos.ofSlice p) p₁ Pos.ofSlice_le).copy := by
+  simpa using p.splits
 
 end String

@@ -352,6 +352,65 @@ x_7 = l___private_Init_Data_Iterators_Lemmas_Combinators_FlatMap_0__Std_Iter_ste
 return x_7;
 }
 }
+lean_object* runtime_initialize_Init_Data_Iterators_Lemmas_Combinators_FilterMap(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Iterators_Combinators_FlatMap(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Iterators_Combinators_FlatMap(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Iterators_Combinators_FilterMap(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Iterators_Consumers_Collect(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Iterators_Lemmas_Combinators_Monadic_FilterMap(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Iterators_Lemmas_Combinators_Monadic_FlatMap(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_List_Monadic(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Option_Lemmas(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Iterators_Lemmas_Combinators_FlatMap(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Init_Data_Iterators_Lemmas_Combinators_FilterMap(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Iterators_Combinators_FlatMap(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Iterators_Combinators_FlatMap(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Iterators_Combinators_FilterMap(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Iterators_Consumers_Collect(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Iterators_Lemmas_Combinators_Monadic_FilterMap(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Iterators_Lemmas_Combinators_Monadic_FlatMap(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_List_Monadic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Option_Lemmas(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Init_Data_Iterators_Lemmas_Combinators_FlatMap(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Init_Data_Iterators_Lemmas_Combinators_FilterMap(uint8_t builtin);
 lean_object* initialize_Init_Data_Iterators_Combinators_FlatMap(uint8_t builtin);
 lean_object* initialize_Init_Data_Iterators_Combinators_FlatMap(uint8_t builtin);
@@ -366,34 +425,51 @@ LEAN_EXPORT lean_object* initialize_Init_Data_Iterators_Lemmas_Combinators_FlatM
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Iterators_Lemmas_Combinators_FilterMap(builtin);
+res = initialize_Init_Data_Iterators_Lemmas_Combinators_FilterMap(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Iterators_Combinators_FlatMap(builtin);
+res = initialize_Init_Data_Iterators_Combinators_FlatMap(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Iterators_Combinators_FlatMap(builtin);
+res = initialize_Init_Data_Iterators_Combinators_FlatMap(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Iterators_Combinators_FilterMap(builtin);
+res = initialize_Init_Data_Iterators_Combinators_FilterMap(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Iterators_Consumers_Collect(builtin);
+res = initialize_Init_Data_Iterators_Consumers_Collect(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Iterators_Lemmas_Combinators_Monadic_FilterMap(builtin);
+res = initialize_Init_Data_Iterators_Lemmas_Combinators_Monadic_FilterMap(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Iterators_Lemmas_Combinators_Monadic_FlatMap(builtin);
+res = initialize_Init_Data_Iterators_Lemmas_Combinators_Monadic_FlatMap(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_List_Monadic(builtin);
+res = initialize_Init_Data_List_Monadic(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Option_Lemmas(builtin);
+res = initialize_Init_Data_Option_Lemmas(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Init_Data_Iterators_Lemmas_Combinators_FlatMap(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Init_Data_Iterators_Lemmas_Combinators_FlatMap(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Init_Data_Iterators_Lemmas_Combinators_FlatMap(builtin);
 }
 #ifdef __cplusplus
 }

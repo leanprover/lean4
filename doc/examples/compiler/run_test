@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+source ../../../tests/env_test.sh
+source "$TEST_DIR/util.sh"
+
+leanmake --always-make bin
+
+exec_capture test.lean \
+  ./build/bin/test hello world
+
+check_exit test.lean
+check_out test.lean

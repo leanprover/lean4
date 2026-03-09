@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.String.Lemmas.Iterate
-// Imports: public import Init.Data.String.Iterate public import Init.Data.Iterators.Consumers.Collect public import Init.Data.String.Lemmas.Splits import all Init.Data.String.Iterate import Init.Data.String.Termination import Init.Data.Iterators.Lemmas.Consumers.Collect import Init.ByCases import Init.Data.Iterators.Lemmas.Combinators.FilterMap import Init.Data.String.Lemmas.Basic import Init.Data.Iterators.Lemmas.Consumers.Loop
+// Imports: public import Init.Data.String.Iterate public import Init.Data.Iterators.Consumers.Collect public import Init.Data.String.Lemmas.Splits import all Init.Data.String.Iterate import Init.Data.String.Termination import Init.Data.Iterators.Lemmas.Consumers.Collect import Init.ByCases import Init.Data.Iterators.Lemmas.Combinators.FilterMap import Init.Data.String.Lemmas.Basic import Init.Data.Iterators.Lemmas.Consumers.Loop public import Init.Data.String.Lemmas.Order import Init.Data.String.OrderInstances import Init.Data.Subtype.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -259,6 +259,85 @@ lean_dec(x_2);
 return x_3;
 }
 }
+lean_object* runtime_initialize_Init_Data_String_Iterate(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Iterators_Consumers_Collect(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_String_Lemmas_Splits(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_String_Iterate(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_String_Termination(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Iterators_Lemmas_Consumers_Collect(uint8_t builtin);
+lean_object* runtime_initialize_Init_ByCases(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Iterators_Lemmas_Combinators_FilterMap(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_String_Lemmas_Basic(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Iterators_Lemmas_Consumers_Loop(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_String_Lemmas_Order(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_String_OrderInstances(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Subtype_Basic(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Init_Data_String_Lemmas_Iterate(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Init_Data_String_Iterate(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Iterators_Consumers_Collect(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_String_Lemmas_Splits(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_String_Iterate(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_String_Termination(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Iterators_Lemmas_Consumers_Collect(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_ByCases(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Iterators_Lemmas_Combinators_FilterMap(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_String_Lemmas_Basic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Iterators_Lemmas_Consumers_Loop(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_String_Lemmas_Order(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_String_OrderInstances(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Subtype_Basic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Init_Data_String_Lemmas_Iterate(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Init_Data_String_Iterate(uint8_t builtin);
 lean_object* initialize_Init_Data_Iterators_Consumers_Collect(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Lemmas_Splits(uint8_t builtin);
@@ -269,42 +348,75 @@ lean_object* initialize_Init_ByCases(uint8_t builtin);
 lean_object* initialize_Init_Data_Iterators_Lemmas_Combinators_FilterMap(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Lemmas_Basic(uint8_t builtin);
 lean_object* initialize_Init_Data_Iterators_Lemmas_Consumers_Loop(uint8_t builtin);
+lean_object* initialize_Init_Data_String_Lemmas_Order(uint8_t builtin);
+lean_object* initialize_Init_Data_String_OrderInstances(uint8_t builtin);
+lean_object* initialize_Init_Data_Subtype_Basic(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_String_Lemmas_Iterate(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_String_Iterate(builtin);
+res = initialize_Init_Data_String_Iterate(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Iterators_Consumers_Collect(builtin);
+res = initialize_Init_Data_Iterators_Consumers_Collect(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_String_Lemmas_Splits(builtin);
+res = initialize_Init_Data_String_Lemmas_Splits(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_String_Iterate(builtin);
+res = initialize_Init_Data_String_Iterate(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_String_Termination(builtin);
+res = initialize_Init_Data_String_Termination(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Iterators_Lemmas_Consumers_Collect(builtin);
+res = initialize_Init_Data_Iterators_Lemmas_Consumers_Collect(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_ByCases(builtin);
+res = initialize_Init_ByCases(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Iterators_Lemmas_Combinators_FilterMap(builtin);
+res = initialize_Init_Data_Iterators_Lemmas_Combinators_FilterMap(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_String_Lemmas_Basic(builtin);
+res = initialize_Init_Data_String_Lemmas_Basic(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Iterators_Lemmas_Consumers_Loop(builtin);
+res = initialize_Init_Data_Iterators_Lemmas_Consumers_Loop(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-return lean_io_result_mk_ok(lean_box(0));
+res = initialize_Init_Data_String_Lemmas_Order(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_String_OrderInstances(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Subtype_Basic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_String_Lemmas_Iterate(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Init_Data_String_Lemmas_Iterate(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Init_Data_String_Lemmas_Iterate(builtin);
 }
 #ifdef __cplusplus
 }

@@ -51,7 +51,7 @@ private structure MonitorContext where
   /-- How often to poll jobs (in milliseconds). -/
   updateFrequency : Nat
 
-@[inline] def MonitorContext.logger (ctx : MonitorContext) : MonadLog BaseIO :=
+@[inline, implicit_reducible] def MonitorContext.logger (ctx : MonitorContext) : MonadLog BaseIO :=
   .stream ctx.out ctx.outLv ctx.useAnsi
 
 /-- State of the Lake build monitor. -/
@@ -70,7 +70,7 @@ private abbrev MonitorM := ReaderT MonitorContext <| StateT MonitorState BaseIO
 @[inline] private def MonitorM.run
   (ctx : MonitorContext) (s : MonitorState) (self : MonitorM α)
 : BaseIO (α × MonitorState) :=
-  self ctx s
+  StateT.run (ReaderT.run self ctx) s
 
 /--
 The ANSI escape sequence for clearing the current line

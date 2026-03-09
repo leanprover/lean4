@@ -13,6 +13,50 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* runtime_initialize_Lean_Widget_InteractiveCode(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Widget_InteractiveDiagnostic(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Widget_InteractiveGoal(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Widget_TaggedText(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Widget_UserWidget(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Widget_Commands(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lean_Widget(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Lean_Widget_InteractiveCode(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Widget_InteractiveDiagnostic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Widget_InteractiveGoal(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Widget_TaggedText(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Widget_UserWidget(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Widget_Commands(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lean_Widget(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Lean_Widget_InteractiveCode(uint8_t builtin);
 lean_object* initialize_Lean_Widget_InteractiveDiagnostic(uint8_t builtin);
 lean_object* initialize_Lean_Widget_InteractiveGoal(uint8_t builtin);
@@ -24,25 +68,39 @@ LEAN_EXPORT lean_object* initialize_Lean_Widget(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Widget_InteractiveCode(builtin);
+res = initialize_Lean_Widget_InteractiveCode(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Widget_InteractiveDiagnostic(builtin);
+res = initialize_Lean_Widget_InteractiveDiagnostic(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Widget_InteractiveGoal(builtin);
+res = initialize_Lean_Widget_InteractiveGoal(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Widget_TaggedText(builtin);
+res = initialize_Lean_Widget_TaggedText(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Widget_UserWidget(builtin);
+res = initialize_Lean_Widget_UserWidget(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Widget_Commands(builtin);
+res = initialize_Lean_Widget_Commands(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Lean_Widget(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Lean_Widget(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Lean_Widget(builtin);
 }
 #ifdef __cplusplus
 }

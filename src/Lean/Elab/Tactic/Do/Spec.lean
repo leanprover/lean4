@@ -223,7 +223,7 @@ public def mSpec (goal : MGoal) (elabSpecAtWP : Expr → n SpecTheorem) (goalTag
   -- Often P or Q are schematic (i.e. an MVar app). Try to solve by rfl.
   -- We do `fullApproxDefEq` here so that `constApprox` is active; this is useful in
   -- `need_const_approx` of `doLogicTests.lean`.
-  let (HPRfl, QQ'Rfl) ← withDefault <| fullApproxDefEq <| do
+  let (HPRfl, QQ'Rfl) ← fullApproxDefEq <| do
     return (← isDefEqGuarded P goal.hyps, ← isDefEqGuarded Q Q')
 
   -- Discharge the validity proof for the spec if not rfl

@@ -49,8 +49,8 @@ static const lean_object* l_WellFounded_opaqueFix_u2083___at___00Std_Time_TimeZo
 LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00Std_Time_TimeZone_convertTZifV1_spec__1___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00Std_Time_TimeZone_convertTZifV1_spec__1___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l_Std_Time_TimeZone_convertTZifV1___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Std_Time_TimeZone_convertTZifV1___closed__0;
+static const lean_array_object l_Std_Time_TimeZone_convertTZifV1___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_Std_Time_TimeZone_convertTZifV1___closed__0 = (const lean_object*)&l_Std_Time_TimeZone_convertTZifV1___closed__0_value;
 static const lean_string_object l_Std_Time_TimeZone_convertTZifV1___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 23, .m_capacity = 23, .m_length = 22, .m_data = "empty transitions for "};
 static const lean_object* l_Std_Time_TimeZone_convertTZifV1___closed__1 = (const lean_object*)&l_Std_Time_TimeZone_convertTZifV1___closed__1_value;
 lean_object* lean_uint32_to_nat(uint32_t);
@@ -408,15 +408,6 @@ lean_dec(x_1);
 return x_6;
 }
 }
-static lean_object* _init_l_Std_Time_TimeZone_convertTZifV1___closed__0(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_convertTZifV1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -426,128 +417,183 @@ x_4 = lean_ctor_get(x_1, 1);
 x_5 = lean_ctor_get_uint32(x_3, 16);
 x_6 = lean_uint32_to_nat(x_5);
 x_7 = lean_unsigned_to_nat(0u);
-x_8 = lean_obj_once(&l_Std_Time_TimeZone_convertTZifV1___closed__0, &l_Std_Time_TimeZone_convertTZifV1___closed__0_once, _init_l_Std_Time_TimeZone_convertTZifV1___closed__0);
+x_8 = ((lean_object*)(l_Std_Time_TimeZone_convertTZifV1___closed__0));
 lean_inc_ref(x_2);
 x_9 = l_WellFounded_opaqueFix_u2083___at___00Std_Time_TimeZone_convertTZifV1_spec__1___redArg(x_6, x_1, x_2, x_7, x_8);
 lean_dec(x_6);
 if (lean_obj_tag(x_9) == 0)
 {
-uint8_t x_10; 
+lean_object* x_10; lean_object* x_11; uint8_t x_12; uint8_t x_17; 
 lean_dec_ref(x_2);
-x_10 = !lean_is_exclusive(x_9);
-if (x_10 == 0)
+x_10 = lean_ctor_get(x_9, 0);
+x_17 = !lean_is_exclusive(x_9);
+if (x_17 == 0)
 {
-return x_9;
+x_11 = x_9;
+x_12 = x_17;
+goto block_16;
 }
 else
 {
-lean_object* x_11; lean_object* x_12; 
-x_11 = lean_ctor_get(x_9, 0);
-lean_inc(x_11);
+lean_inc(x_10);
 lean_dec(x_9);
-x_12 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_12, 0, x_11);
-return x_12;
+x_11 = lean_box(0);
+x_12 = x_17;
+goto block_16;
+}
+block_16:
+{
+lean_object* x_13; 
+if (x_12 == 0)
+{
+x_13 = x_11;
+goto block_14;
+}
+else
+{
+lean_object* x_15; 
+x_15 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_15, 0, x_10);
+x_13 = x_15;
+goto block_14;
+}
+block_14:
+{
+return x_13;
+}
 }
 }
 else
 {
-lean_object* x_13; lean_object* x_14; lean_object* x_15; 
-x_13 = lean_ctor_get(x_9, 0);
-lean_inc(x_13);
+lean_object* x_18; lean_object* x_19; lean_object* x_20; 
+x_18 = lean_ctor_get(x_9, 0);
+lean_inc(x_18);
 lean_dec_ref(x_9);
-x_14 = lean_array_get_size(x_4);
-x_15 = l_WellFounded_opaqueFix_u2083___at___00Std_Time_TimeZone_convertTZifV1_spec__0___redArg(x_14, x_13, x_1, x_7, x_8);
-lean_dec(x_13);
-if (lean_obj_tag(x_15) == 0)
+x_19 = lean_array_get_size(x_4);
+x_20 = l_WellFounded_opaqueFix_u2083___at___00Std_Time_TimeZone_convertTZifV1_spec__0___redArg(x_19, x_18, x_1, x_7, x_8);
+lean_dec(x_18);
+if (lean_obj_tag(x_20) == 0)
 {
-uint8_t x_16; 
+lean_object* x_21; lean_object* x_22; uint8_t x_23; uint8_t x_28; 
 lean_dec_ref(x_2);
-x_16 = !lean_is_exclusive(x_15);
-if (x_16 == 0)
+x_21 = lean_ctor_get(x_20, 0);
+x_28 = !lean_is_exclusive(x_20);
+if (x_28 == 0)
 {
-return x_15;
+x_22 = x_20;
+x_23 = x_28;
+goto block_27;
 }
 else
 {
-lean_object* x_17; lean_object* x_18; 
-x_17 = lean_ctor_get(x_15, 0);
-lean_inc(x_17);
-lean_dec(x_15);
-x_18 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_18, 0, x_17);
-return x_18;
-}
-}
-else
-{
-uint8_t x_19; 
-x_19 = !lean_is_exclusive(x_15);
-if (x_19 == 0)
-{
-lean_object* x_20; lean_object* x_21; 
-x_20 = lean_ctor_get(x_15, 0);
-lean_inc_ref(x_2);
-x_21 = l_Std_Time_TimeZone_convertLocalTimeType(x_7, x_1, x_2);
-if (lean_obj_tag(x_21) == 1)
-{
-lean_object* x_22; lean_object* x_23; 
-lean_dec_ref(x_2);
-x_22 = lean_ctor_get(x_21, 0);
-lean_inc(x_22);
-lean_dec_ref(x_21);
-x_23 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_23, 0, x_22);
-lean_ctor_set(x_23, 1, x_20);
-lean_ctor_set(x_15, 0, x_23);
-return x_15;
-}
-else
-{
-lean_object* x_24; lean_object* x_25; 
-lean_dec(x_21);
+lean_inc(x_21);
 lean_dec(x_20);
-x_24 = ((lean_object*)(l_Std_Time_TimeZone_convertTZifV1___closed__1));
-x_25 = lean_string_append(x_24, x_2);
-lean_dec_ref(x_2);
-lean_ctor_set_tag(x_15, 0);
-lean_ctor_set(x_15, 0, x_25);
-return x_15;
+x_22 = lean_box(0);
+x_23 = x_28;
+goto block_27;
+}
+block_27:
+{
+lean_object* x_24; 
+if (x_23 == 0)
+{
+x_24 = x_22;
+goto block_25;
+}
+else
+{
+lean_object* x_26; 
+x_26 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_26, 0, x_21);
+x_24 = x_26;
+goto block_25;
+}
+block_25:
+{
+return x_24;
+}
 }
 }
 else
 {
-lean_object* x_26; lean_object* x_27; 
-x_26 = lean_ctor_get(x_15, 0);
-lean_inc(x_26);
-lean_dec(x_15);
+lean_object* x_29; lean_object* x_30; uint8_t x_31; uint8_t x_44; 
+x_29 = lean_ctor_get(x_20, 0);
+x_44 = !lean_is_exclusive(x_20);
+if (x_44 == 0)
+{
+x_30 = x_20;
+x_31 = x_44;
+goto block_43;
+}
+else
+{
+lean_inc(x_29);
+lean_dec(x_20);
+x_30 = lean_box(0);
+x_31 = x_44;
+goto block_43;
+}
+block_43:
+{
+lean_object* x_32; 
 lean_inc_ref(x_2);
-x_27 = l_Std_Time_TimeZone_convertLocalTimeType(x_7, x_1, x_2);
-if (lean_obj_tag(x_27) == 1)
+x_32 = l_Std_Time_TimeZone_convertLocalTimeType(x_7, x_1, x_2);
+if (lean_obj_tag(x_32) == 1)
 {
-lean_object* x_28; lean_object* x_29; lean_object* x_30; 
+lean_object* x_33; lean_object* x_34; lean_object* x_35; 
 lean_dec_ref(x_2);
-x_28 = lean_ctor_get(x_27, 0);
-lean_inc(x_28);
-lean_dec_ref(x_27);
-x_29 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_29, 0, x_28);
-lean_ctor_set(x_29, 1, x_26);
-x_30 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_30, 0, x_29);
-return x_30;
+x_33 = lean_ctor_get(x_32, 0);
+lean_inc(x_33);
+lean_dec_ref(x_32);
+x_34 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_34, 0, x_33);
+lean_ctor_set(x_34, 1, x_29);
+if (x_31 == 0)
+{
+lean_ctor_set(x_30, 0, x_34);
+x_35 = x_30;
+goto block_36;
 }
 else
 {
-lean_object* x_31; lean_object* x_32; lean_object* x_33; 
-lean_dec(x_27);
-lean_dec(x_26);
-x_31 = ((lean_object*)(l_Std_Time_TimeZone_convertTZifV1___closed__1));
-x_32 = lean_string_append(x_31, x_2);
+lean_object* x_37; 
+x_37 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_37, 0, x_34);
+x_35 = x_37;
+goto block_36;
+}
+block_36:
+{
+return x_35;
+}
+}
+else
+{
+lean_object* x_38; lean_object* x_39; lean_object* x_40; 
+lean_dec(x_32);
+lean_dec(x_29);
+x_38 = ((lean_object*)(l_Std_Time_TimeZone_convertTZifV1___closed__1));
+x_39 = lean_string_append(x_38, x_2);
 lean_dec_ref(x_2);
-x_33 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_33, 0, x_32);
-return x_33;
+if (x_31 == 0)
+{
+lean_ctor_set_tag(x_30, 0);
+lean_ctor_set(x_30, 0, x_39);
+x_40 = x_30;
+goto block_41;
+}
+else
+{
+lean_object* x_42; 
+x_42 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_42, 0, x_39);
+x_40 = x_42;
+goto block_41;
+}
+block_41:
+{
+return x_40;
+}
 }
 }
 }
@@ -648,6 +694,30 @@ lean_dec_ref(x_1);
 return x_3;
 }
 }
+lean_object* runtime_initialize_Std_Time_Zoned_ZoneRules(uint8_t builtin);
+lean_object* runtime_initialize_Std_Time_Zoned_Database_TzIf(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Std_Time_Zoned_Database_Basic(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Std_Time_Zoned_ZoneRules(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Std_Time_Zoned_Database_TzIf(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Std_Time_Zoned_Database_Basic(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Std_Time_Zoned_ZoneRules(uint8_t builtin);
 lean_object* initialize_Std_Time_Zoned_Database_TzIf(uint8_t builtin);
 static bool _G_initialized = false;
@@ -655,13 +725,23 @@ LEAN_EXPORT lean_object* initialize_Std_Time_Zoned_Database_Basic(uint8_t builti
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Std_Time_Zoned_ZoneRules(builtin);
+res = initialize_Std_Time_Zoned_ZoneRules(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Time_Zoned_Database_TzIf(builtin);
+res = initialize_Std_Time_Zoned_Database_TzIf(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Std_Time_Zoned_Database_Basic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Std_Time_Zoned_Database_Basic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Std_Time_Zoned_Database_Basic(builtin);
 }
 #ifdef __cplusplus
 }

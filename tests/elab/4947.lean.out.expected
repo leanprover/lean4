@@ -1,0 +1,7 @@
+4947.lean:6:41-6:54: warning: This simp argument is unused:
+  Nat.reducePow
+
+Hint: Omit it from the simp argument list.
+  simp only ̵[̵N̵a̵t̵.̵r̵e̵d̵u̵c̵e̵P̵o̵w̵]̵
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`

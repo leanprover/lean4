@@ -13,6 +13,70 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* runtime_initialize_Lake_Load_Config(uint8_t builtin);
+lean_object* runtime_initialize_Lake_Load_Lean(uint8_t builtin);
+lean_object* runtime_initialize_Lake_Load_Lean_Elab(uint8_t builtin);
+lean_object* runtime_initialize_Lake_Load_Lean_Eval(uint8_t builtin);
+lean_object* runtime_initialize_Lake_Load_Manifest(uint8_t builtin);
+lean_object* runtime_initialize_Lake_Load_Materialize(uint8_t builtin);
+lean_object* runtime_initialize_Lake_Load_Package(uint8_t builtin);
+lean_object* runtime_initialize_Lake_Load_Resolve(uint8_t builtin);
+lean_object* runtime_initialize_Lake_Load_Toml(uint8_t builtin);
+lean_object* runtime_initialize_Lake_Load_Workspace(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lake_Load(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Lake_Load_Config(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lake_Load_Lean(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lake_Load_Lean_Elab(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lake_Load_Lean_Eval(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lake_Load_Manifest(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lake_Load_Materialize(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lake_Load_Package(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lake_Load_Resolve(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lake_Load_Toml(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lake_Load_Workspace(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lake_Load(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Lake_Load_Config(uint8_t builtin);
 lean_object* initialize_Lake_Load_Lean(uint8_t builtin);
 lean_object* initialize_Lake_Load_Lean_Elab(uint8_t builtin);
@@ -28,37 +92,55 @@ LEAN_EXPORT lean_object* initialize_Lake_Load(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lake_Load_Config(builtin);
+res = initialize_Lake_Load_Config(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Load_Lean(builtin);
+res = initialize_Lake_Load_Lean(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Load_Lean_Elab(builtin);
+res = initialize_Lake_Load_Lean_Elab(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Load_Lean_Eval(builtin);
+res = initialize_Lake_Load_Lean_Eval(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Load_Manifest(builtin);
+res = initialize_Lake_Load_Manifest(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Load_Materialize(builtin);
+res = initialize_Lake_Load_Materialize(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Load_Package(builtin);
+res = initialize_Lake_Load_Package(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Load_Resolve(builtin);
+res = initialize_Lake_Load_Resolve(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Load_Toml(builtin);
+res = initialize_Lake_Load_Toml(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Load_Workspace(builtin);
+res = initialize_Lake_Load_Workspace(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Lake_Load(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Lake_Load(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Lake_Load(builtin);
 }
 #ifdef __cplusplus
 }

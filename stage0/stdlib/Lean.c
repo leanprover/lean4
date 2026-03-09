@@ -13,6 +13,240 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* runtime_initialize_Init(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Data(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Compiler(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Environment(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Modifiers(uint8_t builtin);
+lean_object* runtime_initialize_Lean_ProjFns(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Runtime(uint8_t builtin);
+lean_object* runtime_initialize_Lean_ResolveName(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Attributes(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Parser(uint8_t builtin);
+lean_object* runtime_initialize_Lean_ReducibilityAttrs(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Class(uint8_t builtin);
+lean_object* runtime_initialize_Lean_LocalContext(uint8_t builtin);
+lean_object* runtime_initialize_Lean_MetavarContext(uint8_t builtin);
+lean_object* runtime_initialize_Lean_AuxRecursor(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Util(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Structure(uint8_t builtin);
+lean_object* runtime_initialize_Lean_PrettyPrinter(uint8_t builtin);
+lean_object* runtime_initialize_Lean_CoreM(uint8_t builtin);
+lean_object* runtime_initialize_Lean_ReservedNameAction(uint8_t builtin);
+lean_object* runtime_initialize_Lean_InternalExceptionId(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Server(uint8_t builtin);
+lean_object* runtime_initialize_Lean_ScopedEnvExtension(uint8_t builtin);
+lean_object* runtime_initialize_Lean_DocString(uint8_t builtin);
+lean_object* runtime_initialize_Lean_DeclarationRange(uint8_t builtin);
+lean_object* runtime_initialize_Lean_LoadDynlib(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Widget(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Log(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Linter(uint8_t builtin);
+lean_object* runtime_initialize_Lean_SubExpr(uint8_t builtin);
+lean_object* runtime_initialize_Lean_LabelAttribute(uint8_t builtin);
+lean_object* runtime_initialize_Lean_AddDecl(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Replay(uint8_t builtin);
+lean_object* runtime_initialize_Lean_PrivateName(uint8_t builtin);
+lean_object* runtime_initialize_Lean_LibrarySuggestions(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Namespace(uint8_t builtin);
+lean_object* runtime_initialize_Lean_EnvExtension(uint8_t builtin);
+lean_object* runtime_initialize_Lean_ErrorExplanation(uint8_t builtin);
+lean_object* runtime_initialize_Lean_DefEqAttrib(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Shell(uint8_t builtin);
+lean_object* runtime_initialize_Lean_ExtraModUses(uint8_t builtin);
+lean_object* runtime_initialize_Lean_OriginalConstKind(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lean(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Init(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Data(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Compiler(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Environment(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Modifiers(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_ProjFns(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Runtime(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_ResolveName(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Attributes(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Parser(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_ReducibilityAttrs(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Class(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_LocalContext(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_MetavarContext(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_AuxRecursor(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Util(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Structure(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_PrettyPrinter(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_CoreM(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_ReservedNameAction(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_InternalExceptionId(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Server(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_ScopedEnvExtension(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_DocString(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_DeclarationRange(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_LoadDynlib(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Widget(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Log(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Linter(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_SubExpr(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_LabelAttribute(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_AddDecl(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Replay(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_PrivateName(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_LibrarySuggestions(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Namespace(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_EnvExtension(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_ErrorExplanation(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_DefEqAttrib(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Shell(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_ExtraModUses(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_OriginalConstKind(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lean(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Init(uint8_t builtin);
 lean_object* initialize_Lean_Data(uint8_t builtin);
 lean_object* initialize_Lean_Compiler(uint8_t builtin);
@@ -62,139 +296,191 @@ LEAN_EXPORT lean_object* initialize_Lean(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin);
+res = initialize_Init(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Data(builtin);
+res = initialize_Lean_Data(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Compiler(builtin);
+res = initialize_Lean_Compiler(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Environment(builtin);
+res = initialize_Lean_Environment(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Modifiers(builtin);
+res = initialize_Lean_Modifiers(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_ProjFns(builtin);
+res = initialize_Lean_ProjFns(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Runtime(builtin);
+res = initialize_Lean_Runtime(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_ResolveName(builtin);
+res = initialize_Lean_ResolveName(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Attributes(builtin);
+res = initialize_Lean_Attributes(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Parser(builtin);
+res = initialize_Lean_Parser(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_ReducibilityAttrs(builtin);
+res = initialize_Lean_ReducibilityAttrs(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab(builtin);
+res = initialize_Lean_Elab(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Class(builtin);
+res = initialize_Lean_Class(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_LocalContext(builtin);
+res = initialize_Lean_LocalContext(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_MetavarContext(builtin);
+res = initialize_Lean_MetavarContext(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_AuxRecursor(builtin);
+res = initialize_Lean_AuxRecursor(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta(builtin);
+res = initialize_Lean_Meta(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Util(builtin);
+res = initialize_Lean_Util(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Structure(builtin);
+res = initialize_Lean_Structure(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_PrettyPrinter(builtin);
+res = initialize_Lean_PrettyPrinter(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_CoreM(builtin);
+res = initialize_Lean_CoreM(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_ReservedNameAction(builtin);
+res = initialize_Lean_ReservedNameAction(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_InternalExceptionId(builtin);
+res = initialize_Lean_InternalExceptionId(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Server(builtin);
+res = initialize_Lean_Server(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_ScopedEnvExtension(builtin);
+res = initialize_Lean_ScopedEnvExtension(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_DocString(builtin);
+res = initialize_Lean_DocString(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_DeclarationRange(builtin);
+res = initialize_Lean_DeclarationRange(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_LoadDynlib(builtin);
+res = initialize_Lean_LoadDynlib(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Widget(builtin);
+res = initialize_Lean_Widget(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Log(builtin);
+res = initialize_Lean_Log(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Linter(builtin);
+res = initialize_Lean_Linter(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_SubExpr(builtin);
+res = initialize_Lean_SubExpr(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_LabelAttribute(builtin);
+res = initialize_Lean_LabelAttribute(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_AddDecl(builtin);
+res = initialize_Lean_AddDecl(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Replay(builtin);
+res = initialize_Lean_Replay(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_PrivateName(builtin);
+res = initialize_Lean_PrivateName(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_LibrarySuggestions(builtin);
+res = initialize_Lean_LibrarySuggestions(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Namespace(builtin);
+res = initialize_Lean_Namespace(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_EnvExtension(builtin);
+res = initialize_Lean_EnvExtension(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_ErrorExplanation(builtin);
+res = initialize_Lean_ErrorExplanation(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_DefEqAttrib(builtin);
+res = initialize_Lean_DefEqAttrib(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Shell(builtin);
+res = initialize_Lean_Shell(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_ExtraModUses(builtin);
+res = initialize_Lean_ExtraModUses(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_OriginalConstKind(builtin);
+res = initialize_Lean_OriginalConstKind(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Lean(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Lean(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Lean(builtin);
 }
 #ifdef __cplusplus
 }

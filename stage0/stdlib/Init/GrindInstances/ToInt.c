@@ -223,6 +223,67 @@ lean_dec(x_1);
 return x_2;
 }
 }
+lean_object* runtime_initialize_Init_Grind_ToInt(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_SInt_Basic(uint8_t builtin);
+lean_object* runtime_initialize_Init_Grind_ToInt(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_BitVec_Bootstrap(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Int_LemmasAux(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Int_Pow(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_SInt_Lemmas(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_UInt_Lemmas(uint8_t builtin);
+lean_object* runtime_initialize_Init_System_Platform(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Init_GrindInstances_ToInt(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Init_Grind_ToInt(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_SInt_Basic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Grind_ToInt(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_BitVec_Bootstrap(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Int_LemmasAux(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Int_Pow(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_SInt_Lemmas(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_UInt_Lemmas(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_System_Platform(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+l_Lean_Grind_instToIntNatCiOfNatInt = _init_l_Lean_Grind_instToIntNatCiOfNatInt();
+lean_mark_persistent(l_Lean_Grind_instToIntNatCiOfNatInt);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Init_GrindInstances_ToInt(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Init_Grind_ToInt(uint8_t builtin);
 lean_object* initialize_Init_Data_SInt_Basic(uint8_t builtin);
 lean_object* initialize_Init_Grind_ToInt(uint8_t builtin);
@@ -237,36 +298,51 @@ LEAN_EXPORT lean_object* initialize_Init_GrindInstances_ToInt(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Grind_ToInt(builtin);
+res = initialize_Init_Grind_ToInt(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_SInt_Basic(builtin);
+res = initialize_Init_Data_SInt_Basic(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Grind_ToInt(builtin);
+res = initialize_Init_Grind_ToInt(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_BitVec_Bootstrap(builtin);
+res = initialize_Init_Data_BitVec_Bootstrap(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Int_LemmasAux(builtin);
+res = initialize_Init_Data_Int_LemmasAux(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Int_Pow(builtin);
+res = initialize_Init_Data_Int_Pow(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_SInt_Lemmas(builtin);
+res = initialize_Init_Data_SInt_Lemmas(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_UInt_Lemmas(builtin);
+res = initialize_Init_Data_UInt_Lemmas(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_System_Platform(builtin);
+res = initialize_Init_System_Platform(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Grind_instToIntNatCiOfNatInt = _init_l_Lean_Grind_instToIntNatCiOfNatInt();
-lean_mark_persistent(l_Lean_Grind_instToIntNatCiOfNatInt);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Init_GrindInstances_ToInt(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Init_GrindInstances_ToInt(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Init_GrindInstances_ToInt(builtin);
 }
 #ifdef __cplusplus
 }

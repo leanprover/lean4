@@ -125,7 +125,7 @@ Examples:
 -/
 @[inline]
 def find? (s : String) (pattern : ρ) [ToForwardSearcher pattern σ] : Option s.Pos :=
-  s.startPos.find? pattern
+  (s.toSlice.find? pattern).map Pos.ofToSlice
 
 /--
 Finds the position of the first match of the pattern {name}`pattern` in a slice {name}`s`. If there
@@ -140,7 +140,7 @@ Examples:
 -/
 @[inline]
 def find (s : String) (pattern : ρ) [ToForwardSearcher pattern σ] : s.Pos :=
-  s.startPos.find pattern
+  Pos.ofToSlice (s.toSlice.find pattern)
 
 /--
 Finds the position of the first match of the pattern {name}`pattern` in a slice {name}`s` that is
@@ -189,7 +189,7 @@ Examples:
 -/
 @[inline]
 def revFind? (s : String) (pattern : ρ) [ToBackwardSearcher pattern σ] : Option s.Pos :=
-  s.endPos.revFind? pattern
+  (s.toSlice.revFind? pattern).map Pos.ofToSlice
 
 @[export lean_string_posof]
 def Internal.posOfImpl (s : String) (c : Char) : Pos.Raw :=

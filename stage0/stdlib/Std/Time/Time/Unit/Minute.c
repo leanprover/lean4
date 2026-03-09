@@ -574,13 +574,14 @@ lean_dec(x_1);
 return x_2;
 }
 }
-lean_object* initialize_Std_Time_Time_Unit_Second(uint8_t builtin);
-static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Std_Time_Time_Unit_Minute(uint8_t builtin) {
+lean_object* runtime_initialize_Std_Time_Time_Unit_Second(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Std_Time_Time_Unit_Minute(uint8_t builtin) {
 lean_object * res;
-if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
-_G_initialized = true;
-res = initialize_Std_Time_Time_Unit_Second(builtin);
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Std_Time_Time_Unit_Second(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_Time_Minute_instLEOrdinal = _init_l_Std_Time_Minute_instLEOrdinal();
@@ -600,6 +601,33 @@ lean_mark_persistent(l_Std_Time_Minute_instLTOffset);
 l_Std_Time_Minute_instLEOffset = _init_l_Std_Time_Minute_instLEOffset();
 lean_mark_persistent(l_Std_Time_Minute_instLEOffset);
 return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Std_Time_Time_Unit_Minute(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
+lean_object* initialize_Std_Time_Time_Unit_Second(uint8_t builtin);
+static bool _G_initialized = false;
+LEAN_EXPORT lean_object* initialize_Std_Time_Time_Unit_Minute(uint8_t builtin) {
+lean_object * res;
+if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_initialized = true;
+res = initialize_Std_Time_Time_Unit_Second(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Std_Time_Time_Unit_Minute(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Std_Time_Time_Unit_Minute(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Std_Time_Time_Unit_Minute(builtin);
 }
 #ifdef __cplusplus
 }

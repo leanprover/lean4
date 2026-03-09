@@ -1,0 +1,14 @@
+treeNode.lean:35:18-35:30: warning: This simp argument is unused:
+  List.flatten
+
+Hint: Omit it from the simp argument list.
+  simp [̵L̵i̵s̵t̵.̵f̵l̵a̵t̵t̵e̵n̵,̵ ̵n̵u̵m̵N̵a̵m̵e̵s̵L̵s̵t̵]̵[̲n̲u̲m̲N̲a̲m̲e̲s̲L̲s̲t̲]̲
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+treeNode.lean:36:22-36:34: warning: This simp argument is unused:
+  List.flatten
+
+Hint: Omit it from the simp argument list.
+  simp [List.f̵l̵a̵t̵t̵e̵n̵,̵ ̵L̵i̵s̵t̵.̵map, numNamesLst, length_treeToList_eq_numNames c, helper cs']
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`

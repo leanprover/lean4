@@ -44,8 +44,8 @@ static const lean_ctor_object l_List_Cursor_current___auto__1___closed__4_value_
 static const lean_ctor_object l_List_Cursor_current___auto__1___closed__4_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_List_Cursor_current___auto__1___closed__4_value_aux_2),((lean_object*)&l_List_Cursor_current___auto__1___closed__3_value),LEAN_SCALAR_PTR_LITERAL(212, 140, 85, 215, 241, 69, 7, 118)}};
 static const lean_object* l_List_Cursor_current___auto__1___closed__4 = (const lean_object*)&l_List_Cursor_current___auto__1___closed__4_value;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l_List_Cursor_current___auto__1___closed__5_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_List_Cursor_current___auto__1___closed__5;
+static const lean_array_object l_List_Cursor_current___auto__1___closed__5_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_List_Cursor_current___auto__1___closed__5 = (const lean_object*)&l_List_Cursor_current___auto__1___closed__5_value;
 static const lean_string_object l_List_Cursor_current___auto__1___closed__6_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 19, .m_capacity = 19, .m_length = 18, .m_data = "tacticSeq1Indented"};
 static const lean_object* l_List_Cursor_current___auto__1___closed__6 = (const lean_object*)&l_List_Cursor_current___auto__1___closed__6_value;
 static const lean_ctor_object l_List_Cursor_current___auto__1___closed__7_value_aux_0 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_List_Cursor_current___auto__1___closed__0_value),LEAN_SCALAR_PTR_LITERAL(70, 193, 83, 126, 233, 67, 208, 165)}};
@@ -214,15 +214,6 @@ x_4 = l_List_Cursor_at___redArg(x_2, x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_List_Cursor_current___auto__1___closed__5(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_List_Cursor_current___auto__1___closed__13(void) {
 _start:
 {
@@ -237,7 +228,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_List_Cursor_current___auto__1___closed__13, &l_List_Cursor_current___auto__1___closed__13_once, _init_l_List_Cursor_current___auto__1___closed__13);
-x_2 = lean_obj_once(&l_List_Cursor_current___auto__1___closed__5, &l_List_Cursor_current___auto__1___closed__5_once, _init_l_List_Cursor_current___auto__1___closed__5);
+x_2 = ((lean_object*)(l_List_Cursor_current___auto__1___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -261,7 +252,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_List_Cursor_current___auto__1___closed__15, &l_List_Cursor_current___auto__1___closed__15_once, _init_l_List_Cursor_current___auto__1___closed__15);
-x_2 = lean_obj_once(&l_List_Cursor_current___auto__1___closed__5, &l_List_Cursor_current___auto__1___closed__5_once, _init_l_List_Cursor_current___auto__1___closed__5);
+x_2 = ((lean_object*)(l_List_Cursor_current___auto__1___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -285,7 +276,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_List_Cursor_current___auto__1___closed__17, &l_List_Cursor_current___auto__1___closed__17_once, _init_l_List_Cursor_current___auto__1___closed__17);
-x_2 = lean_obj_once(&l_List_Cursor_current___auto__1___closed__5, &l_List_Cursor_current___auto__1___closed__5_once, _init_l_List_Cursor_current___auto__1___closed__5);
+x_2 = ((lean_object*)(l_List_Cursor_current___auto__1___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -309,7 +300,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_List_Cursor_current___auto__1___closed__19, &l_List_Cursor_current___auto__1___closed__19_once, _init_l_List_Cursor_current___auto__1___closed__19);
-x_2 = lean_obj_once(&l_List_Cursor_current___auto__1___closed__5, &l_List_Cursor_current___auto__1___closed__5_once, _init_l_List_Cursor_current___auto__1___closed__5);
+x_2 = ((lean_object*)(l_List_Cursor_current___auto__1___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -384,68 +375,88 @@ return x_1;
 LEAN_EXPORT lean_object* l_List_Cursor_tail___redArg(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; uint8_t x_18; 
 x_2 = lean_ctor_get(x_1, 0);
 lean_inc(x_2);
 x_3 = lean_ctor_get(x_1, 1);
 lean_inc(x_3);
 x_4 = l_List_Cursor_current___redArg(x_1);
-x_5 = !lean_is_exclusive(x_1);
-if (x_5 == 0)
+x_18 = !lean_is_exclusive(x_1);
+if (x_18 == 0)
 {
-lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-x_6 = lean_ctor_get(x_1, 1);
-lean_dec(x_6);
-x_7 = lean_ctor_get(x_1, 0);
-lean_dec(x_7);
-x_8 = lean_box(0);
-x_9 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_9, 0, x_4);
-lean_ctor_set(x_9, 1, x_8);
-x_10 = l_List_appendTR___redArg(x_2, x_9);
-if (lean_obj_tag(x_3) == 0)
-{
-lean_ctor_set(x_1, 0, x_10);
-return x_1;
+lean_object* x_19; lean_object* x_20; 
+x_19 = lean_ctor_get(x_1, 1);
+lean_dec(x_19);
+x_20 = lean_ctor_get(x_1, 0);
+lean_dec(x_20);
+x_5 = x_1;
+x_6 = x_18;
+goto block_17;
 }
 else
 {
-lean_object* x_11; 
-x_11 = lean_ctor_get(x_3, 1);
-lean_inc(x_11);
-lean_dec_ref(x_3);
-lean_ctor_set(x_1, 1, x_11);
-lean_ctor_set(x_1, 0, x_10);
-return x_1;
-}
-}
-else
-{
-lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 lean_dec(x_1);
-x_12 = lean_box(0);
-x_13 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_13, 0, x_4);
-lean_ctor_set(x_13, 1, x_12);
-x_14 = l_List_appendTR___redArg(x_2, x_13);
+x_5 = lean_box(0);
+x_6 = x_18;
+goto block_17;
+}
+block_17:
+{
+lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+x_7 = lean_box(0);
+x_8 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_8, 0, x_4);
+lean_ctor_set(x_8, 1, x_7);
+x_9 = l_List_appendTR___redArg(x_2, x_8);
 if (lean_obj_tag(x_3) == 0)
 {
-lean_object* x_15; 
-x_15 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_15, 0, x_14);
-lean_ctor_set(x_15, 1, x_3);
-return x_15;
+lean_object* x_10; 
+if (x_6 == 0)
+{
+lean_ctor_set(x_5, 0, x_9);
+x_10 = x_5;
+goto block_11;
 }
 else
 {
-lean_object* x_16; lean_object* x_17; 
-x_16 = lean_ctor_get(x_3, 1);
-lean_inc(x_16);
+lean_object* x_12; 
+x_12 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_12, 0, x_9);
+lean_ctor_set(x_12, 1, x_3);
+x_10 = x_12;
+goto block_11;
+}
+block_11:
+{
+return x_10;
+}
+}
+else
+{
+lean_object* x_13; lean_object* x_14; 
+x_13 = lean_ctor_get(x_3, 1);
+lean_inc(x_13);
 lean_dec_ref(x_3);
-x_17 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_17, 0, x_14);
-lean_ctor_set(x_17, 1, x_16);
-return x_17;
+if (x_6 == 0)
+{
+lean_ctor_set(x_5, 1, x_13);
+lean_ctor_set(x_5, 0, x_9);
+x_14 = x_5;
+goto block_15;
+}
+else
+{
+lean_object* x_16; 
+x_16 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_16, 0, x_9);
+lean_ctor_set(x_16, 1, x_13);
+x_14 = x_16;
+goto block_15;
+}
+block_15:
+{
+return x_14;
+}
 }
 }
 }
@@ -806,6 +817,119 @@ lean_dec_ref(x_4);
 return x_8;
 }
 }
+lean_object* runtime_initialize_Std_Do_Triple_Basic(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Range_Polymorphic_Iterators(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Range_Polymorphic(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Slice_Array(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Iterators_Lemmas_Combinators_FilterMap(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Range(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Iterators_Lemmas(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_List_Nat_Range(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_List_Nat_TakeDrop(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_List_Range(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_List_TakeDrop(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Nat_Mod(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Slice_Lemmas(uint8_t builtin);
+lean_object* runtime_initialize_Init_Omega(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_String_Defs(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_String_Iterate(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_String_Lemmas_Splits(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_String_Termination(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_String_Lemmas_Iterate(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Std_Do_Triple_SpecLemmas(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Std_Do_Triple_Basic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Range_Polymorphic_Iterators(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Range_Polymorphic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Slice_Array(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Iterators_Lemmas_Combinators_FilterMap(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Range(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Iterators_Lemmas(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_List_Nat_Range(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_List_Nat_TakeDrop(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_List_Range(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_List_TakeDrop(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Nat_Mod(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Slice_Lemmas(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Omega(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_String_Defs(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_String_Iterate(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_String_Lemmas_Splits(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_String_Termination(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_String_Lemmas_Iterate(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Std_Do_Triple_SpecLemmas(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+l_List_Cursor_current___auto__1 = _init_l_List_Cursor_current___auto__1();
+lean_mark_persistent(l_List_Cursor_current___auto__1);
+l_List_Cursor_tail___auto__1 = _init_l_List_Cursor_tail___auto__1();
+lean_mark_persistent(l_List_Cursor_tail___auto__1);
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Std_Do_Triple_Basic(uint8_t builtin);
 lean_object* initialize_Init_Data_Range_Polymorphic_Iterators(uint8_t builtin);
 lean_object* initialize_Init_Data_Range_Polymorphic(uint8_t builtin);
@@ -830,68 +954,91 @@ LEAN_EXPORT lean_object* initialize_Std_Do_Triple_SpecLemmas(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Std_Do_Triple_Basic(builtin);
+res = initialize_Std_Do_Triple_Basic(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Range_Polymorphic_Iterators(builtin);
+res = initialize_Init_Data_Range_Polymorphic_Iterators(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Range_Polymorphic(builtin);
+res = initialize_Init_Data_Range_Polymorphic(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Slice_Array(builtin);
+res = initialize_Init_Data_Slice_Array(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Iterators_Lemmas_Combinators_FilterMap(builtin);
+res = initialize_Init_Data_Iterators_Lemmas_Combinators_FilterMap(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Range(builtin);
+res = initialize_Init_Data_Range(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Iterators_Lemmas(builtin);
+res = initialize_Init_Data_Iterators_Lemmas(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_List_Nat_Range(builtin);
+res = initialize_Init_Data_List_Nat_Range(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_List_Nat_TakeDrop(builtin);
+res = initialize_Init_Data_List_Nat_TakeDrop(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_List_Range(builtin);
+res = initialize_Init_Data_List_Range(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_List_TakeDrop(builtin);
+res = initialize_Init_Data_List_TakeDrop(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Mod(builtin);
+res = initialize_Init_Data_Nat_Mod(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Slice_Lemmas(builtin);
+res = initialize_Init_Data_Slice_Lemmas(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Omega(builtin);
+res = initialize_Init_Omega(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_String_Defs(builtin);
+res = initialize_Init_Data_String_Defs(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_String_Iterate(builtin);
+res = initialize_Init_Data_String_Iterate(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_String_Lemmas_Splits(builtin);
+res = initialize_Init_Data_String_Lemmas_Splits(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_String_Termination(builtin);
+res = initialize_Init_Data_String_Termination(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_String_Lemmas_Iterate(builtin);
+res = initialize_Init_Data_String_Lemmas_Iterate(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_List_Cursor_current___auto__1 = _init_l_List_Cursor_current___auto__1();
-lean_mark_persistent(l_List_Cursor_current___auto__1);
-l_List_Cursor_tail___auto__1 = _init_l_List_Cursor_tail___auto__1();
-lean_mark_persistent(l_List_Cursor_tail___auto__1);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Std_Do_Triple_SpecLemmas(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Std_Do_Triple_SpecLemmas(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Std_Do_Triple_SpecLemmas(builtin);
 }
 #ifdef __cplusplus
 }

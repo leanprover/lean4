@@ -62,11 +62,24 @@ def inlineCandidate? (e : LetValue .pure) : SimpM (Option InlineCandidateInfo) :
       if !decl.inlineIfReduceAttr && decl.recursive then return false
       if mustInline then return true
       /-
-      We don't inline instances tagged with `[inline]/[always_inline]/[inline_if_reduce]` at the base phase
-      We assume that at the base phase these annotations are for the instance methods that have been lambda lifted.
+      We don't inline instances tagged with `[inline]/[always_inline]/[inline_if_reduce]` at the base phase.
+      We assume that at the base phase these annotations are for the instance methods that will be lambda lifted during the base phase.
+      Reason: we eagerly lambda lift local functions occurring at instances before saving their code at
+      the end of the base phase. The goal is to make them cheap to inline in actual code.
+      By inlining their definitions we would be just generating extra work for the lambda lifter.
       -/
       if (← inBasePhase) then
-        if (← isImplicitReducible decl.name) then
+        /-
+        We claim it is correct to use `Meta.isInstance` because
+        1. `shouldInline` is called during LCNF compilation, which runs at `addDecl` time
+        2. Any instance referenced in the code was found by type class resolution during elaboration
+        3. For TC resolution to find it, the scope was active during elaboration
+        4. LCNF compilation happens before the scope changes
+
+        We don't want to use `isImplicitReducible` because some `instanceReducible` declarations are
+        **not** instances.
+        -/
+        if (← Meta.isInstance decl.name) then
           unless decl.name == ``instDecidableEqBool do
             /-
             TODO: remove this hack after we refactor `Decidable` as suggested by Gabriel.

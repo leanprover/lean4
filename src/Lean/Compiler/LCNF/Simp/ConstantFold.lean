@@ -106,6 +106,7 @@ private def getLitAux (fvarId : FVarId) (ofNat : Nat → α) (ofNatName : Name) 
   let some natLit ← getLit fvarId | return none
   return ofNat natLit
 
+@[implicit_reducible]
 def mkNatWrapperInstance (ofNat : Nat → α) (ofNatName : Name) (toNat : α → Nat) : Literal α where
   getLit := (getLitAux · ofNat ofNatName)
   mkLit x := do
@@ -114,6 +115,7 @@ def mkNatWrapperInstance (ofNat : Nat → α) (ofNatName : Name) (toNat : α →
 
 instance : Literal Char := mkNatWrapperInstance Char.ofNat ``Char.ofNat Char.toNat
 
+@[implicit_reducible]
 def mkUIntInstance (matchLit : LitValue → Option α) (litValueCtor : α → LitValue) : Literal α where
   getLit fvarId := do
     let some (.lit litVal) ← findLetValue? (pu := .pure) fvarId | return none

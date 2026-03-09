@@ -13,6 +13,300 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* runtime_initialize_Lean_Meta_Basic(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_LevelDefEq(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_WHNF(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_InferType(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_FunInfo(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_ExprDefEq(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_DecLevel(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_DiscrTree(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_Reduce(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_Instances(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_AbstractMVars(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_SynthInstance(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_AppBuilder(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_Sorry(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_Tactic(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_KAbstract(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_RecursorInfo(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_GeneralizeTelescope(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_Match(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_ReduceEval(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_Closure(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_AbstractNestedProofs(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_LetToHave(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_ForEachExpr(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_Transform(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_PPGoal(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_UnificationHint(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_Inductive(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_SizeOf(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_IndPredBelow(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_Coe(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_CollectFVars(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_GeneralizeVars(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_Injective(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_Structure(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_Constructions(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_CongrTheorems(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_Eqns(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_ExprLens(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_ExprTraverse(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_Eval(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_CoeAttr(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_Iterator(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_LazyDiscrTree(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_LitValues(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_CheckTactic(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_Canonicalizer(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_Diagnostics(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_BinderNameHint(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_TryThis(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_Hint(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_MethodSpecs(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_CtorIdxHInj(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_Sym(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_MonadSimp(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_HaveTelescope(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Lean_Meta_Basic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_LevelDefEq(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_WHNF(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_InferType(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_FunInfo(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_ExprDefEq(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_DecLevel(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_DiscrTree(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_Reduce(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_Instances(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_AbstractMVars(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_SynthInstance(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_AppBuilder(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_Sorry(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_Tactic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_KAbstract(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_RecursorInfo(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_GeneralizeTelescope(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_Match(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_ReduceEval(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_Closure(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_AbstractNestedProofs(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_LetToHave(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_ForEachExpr(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_Transform(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_PPGoal(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_UnificationHint(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_Inductive(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_SizeOf(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_IndPredBelow(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_Coe(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_CollectFVars(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_GeneralizeVars(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_Injective(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_Structure(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_Constructions(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_CongrTheorems(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_Eqns(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_ExprLens(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_ExprTraverse(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_Eval(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_CoeAttr(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_Iterator(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_LazyDiscrTree(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_LitValues(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_CheckTactic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_Canonicalizer(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_Diagnostics(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_BinderNameHint(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_TryThis(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_Hint(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_MethodSpecs(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_CtorIdxHInj(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_Sym(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_MonadSimp(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_HaveTelescope(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lean_Meta(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Lean_Meta_Basic(uint8_t builtin);
 lean_object* initialize_Lean_Meta_LevelDefEq(uint8_t builtin);
 lean_object* initialize_Lean_Meta_WHNF(uint8_t builtin);
@@ -74,175 +368,239 @@ LEAN_EXPORT lean_object* initialize_Lean_Meta(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Meta_Basic(builtin);
+res = initialize_Lean_Meta_Basic(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_LevelDefEq(builtin);
+res = initialize_Lean_Meta_LevelDefEq(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_WHNF(builtin);
+res = initialize_Lean_Meta_WHNF(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_InferType(builtin);
+res = initialize_Lean_Meta_InferType(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_FunInfo(builtin);
+res = initialize_Lean_Meta_FunInfo(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_ExprDefEq(builtin);
+res = initialize_Lean_Meta_ExprDefEq(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_DecLevel(builtin);
+res = initialize_Lean_Meta_DecLevel(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_DiscrTree(builtin);
+res = initialize_Lean_Meta_DiscrTree(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Reduce(builtin);
+res = initialize_Lean_Meta_Reduce(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Instances(builtin);
+res = initialize_Lean_Meta_Instances(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_AbstractMVars(builtin);
+res = initialize_Lean_Meta_AbstractMVars(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_SynthInstance(builtin);
+res = initialize_Lean_Meta_SynthInstance(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_AppBuilder(builtin);
+res = initialize_Lean_Meta_AppBuilder(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Sorry(builtin);
+res = initialize_Lean_Meta_Sorry(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic(builtin);
+res = initialize_Lean_Meta_Tactic(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_KAbstract(builtin);
+res = initialize_Lean_Meta_KAbstract(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_RecursorInfo(builtin);
+res = initialize_Lean_Meta_RecursorInfo(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_GeneralizeTelescope(builtin);
+res = initialize_Lean_Meta_GeneralizeTelescope(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Match(builtin);
+res = initialize_Lean_Meta_Match(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_ReduceEval(builtin);
+res = initialize_Lean_Meta_ReduceEval(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Closure(builtin);
+res = initialize_Lean_Meta_Closure(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_AbstractNestedProofs(builtin);
+res = initialize_Lean_Meta_AbstractNestedProofs(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_LetToHave(builtin);
+res = initialize_Lean_Meta_LetToHave(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_ForEachExpr(builtin);
+res = initialize_Lean_Meta_ForEachExpr(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Transform(builtin);
+res = initialize_Lean_Meta_Transform(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_PPGoal(builtin);
+res = initialize_Lean_Meta_PPGoal(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_UnificationHint(builtin);
+res = initialize_Lean_Meta_UnificationHint(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Inductive(builtin);
+res = initialize_Lean_Meta_Inductive(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_SizeOf(builtin);
+res = initialize_Lean_Meta_SizeOf(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_IndPredBelow(builtin);
+res = initialize_Lean_Meta_IndPredBelow(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Coe(builtin);
+res = initialize_Lean_Meta_Coe(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_CollectFVars(builtin);
+res = initialize_Lean_Meta_CollectFVars(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_GeneralizeVars(builtin);
+res = initialize_Lean_Meta_GeneralizeVars(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Injective(builtin);
+res = initialize_Lean_Meta_Injective(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Structure(builtin);
+res = initialize_Lean_Meta_Structure(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Constructions(builtin);
+res = initialize_Lean_Meta_Constructions(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_CongrTheorems(builtin);
+res = initialize_Lean_Meta_CongrTheorems(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Eqns(builtin);
+res = initialize_Lean_Meta_Eqns(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_ExprLens(builtin);
+res = initialize_Lean_Meta_ExprLens(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_ExprTraverse(builtin);
+res = initialize_Lean_Meta_ExprTraverse(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Eval(builtin);
+res = initialize_Lean_Meta_Eval(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_CoeAttr(builtin);
+res = initialize_Lean_Meta_CoeAttr(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Iterator(builtin);
+res = initialize_Lean_Meta_Iterator(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_LazyDiscrTree(builtin);
+res = initialize_Lean_Meta_LazyDiscrTree(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_LitValues(builtin);
+res = initialize_Lean_Meta_LitValues(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_CheckTactic(builtin);
+res = initialize_Lean_Meta_CheckTactic(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Canonicalizer(builtin);
+res = initialize_Lean_Meta_Canonicalizer(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Diagnostics(builtin);
+res = initialize_Lean_Meta_Diagnostics(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_BinderNameHint(builtin);
+res = initialize_Lean_Meta_BinderNameHint(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_TryThis(builtin);
+res = initialize_Lean_Meta_TryThis(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Hint(builtin);
+res = initialize_Lean_Meta_Hint(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_MethodSpecs(builtin);
+res = initialize_Lean_Meta_MethodSpecs(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_CtorIdxHInj(builtin);
+res = initialize_Lean_Meta_CtorIdxHInj(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Sym(builtin);
+res = initialize_Lean_Meta_Sym(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_MonadSimp(builtin);
+res = initialize_Lean_Meta_MonadSimp(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_HaveTelescope(builtin);
+res = initialize_Lean_Meta_HaveTelescope(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Lean_Meta(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Lean_Meta(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Lean_Meta(builtin);
 }
 #ifdef __cplusplus
 }

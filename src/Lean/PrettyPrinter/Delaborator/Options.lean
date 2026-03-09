@@ -130,6 +130,11 @@ register_builtin_option pp.mvars.delayed : Bool := {
   defValue := false
   descr    := "(pretty printer) display delayed assigned metavariables when true, otherwise display what they are assigned to"
 }
+register_builtin_option pp.fvars.anonymous : Bool := {
+  defValue := true
+  descr    := "(pretty printer) display names for loose free variables (not in the local context) such as `_fvar.22` when true, \
+    and otherwise display them as `_fvar._`. Useful for stabilizing output in `#guard_msgs`."
+}
 register_builtin_option pp.beta : Bool := {
   defValue := false
   descr    := "(pretty printer) apply beta-reduction when pretty printing"
@@ -271,6 +276,7 @@ def getPPMVarsAnonymous (o : Options) : Bool := o.get pp.mvars.anonymous.name (p
 def getPPMVarsLevels (o : Options) : Bool := o.get pp.mvars.levels.name (pp.mvars.levels.defValue && getPPMVarsAnonymous o)
 def getPPMVarsWithType (o : Options) : Bool := o.get pp.mvars.withType.name pp.mvars.withType.defValue
 def getPPMVarsDelayed (o : Options) : Bool := o.get pp.mvars.delayed.name (pp.mvars.delayed.defValue || getPPAll o)
+def getPPFVarsAnonymous (o : Options) : Bool := o.get pp.fvars.anonymous.name pp.fvars.anonymous.defValue
 def getPPBeta (o : Options) : Bool := o.get pp.beta.name pp.beta.defValue
 def getPPSafeShadowing (o : Options) : Bool := o.get pp.safeShadowing.name pp.safeShadowing.defValue
 def getPPProofs (o : Options) : Bool := o.get pp.proofs.name (pp.proofs.defValue || getPPAll o)

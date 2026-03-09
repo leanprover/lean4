@@ -272,6 +272,7 @@ Creates a `MonadStateOf` instance from a reference cell.
 This allows programs written against the [state monad](lean-manual://section/state-monads) API to
 be executed using a mutable reference cell to track the state.
 -/
+@[implicit_reducible]
 def Ref.toMonadStateOf (r : Ref σ α) : MonadStateOf α m where
   get := r.get
   set := r.set

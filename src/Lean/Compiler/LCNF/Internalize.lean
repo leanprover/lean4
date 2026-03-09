@@ -12,17 +12,36 @@ public section
 
 namespace Lean.Compiler.LCNF
 
-private def refreshBinderName (binderName : Name) : CompilerM Name := do
-  match binderName with
-  | .num p _ =>
-    let r := .num p (← get).nextIdx
-    modify fun s => { s with nextIdx := s.nextIdx + 1 }
-    return r
-  | _ => return binderName
-
 namespace Internalize
 
-abbrev InternalizeM (pu : Purity) := StateRefT (FVarSubst pu) CompilerM
+structure Context where
+  uniqueIdents : Bool := false
+
+abbrev InternalizeM (pu : Purity) := ReaderT Context StateRefT (FVarSubst pu) CompilerM
+
+@[inline]
+def InternalizeM.run (x : InternalizeM pu α) (state : FVarSubst pu) (ctx : Context := {}) :
+    CompilerM (α × FVarSubst pu) :=
+  StateRefT'.run (ReaderT.run x ctx) state
+
+@[inline]
+def InternalizeM.run' (x : InternalizeM pu α) (state : FVarSubst pu) (ctx : Context := {}) :
+    CompilerM α :=
+  StateRefT'.run' (ReaderT.run x ctx) state
+
+private def refreshBinderName (binderName : Name) : InternalizeM pu Name := do
+  match binderName with
+  | .num p _ =>
+    let r := .num p (← getThe CompilerM.State).nextIdx
+    modifyThe CompilerM.State fun s => { s with nextIdx := s.nextIdx + 1 }
+    return r
+  | _ =>
+    if (← read).uniqueIdents then
+      let r := .num binderName (← getThe CompilerM.State).nextIdx
+      modifyThe CompilerM.State fun s => { s with nextIdx := s.nextIdx + 1 }
+      return r
+    else
+      return binderName
 
 /--
 The `InternalizeM` monad is a translator. It "translates" the free variables
@@ -120,6 +139,10 @@ private partial def internalizeLetValue (e : LetValue pu) : InternalizeM pu (Let
     match (← normFVar fvarId) with
     | .fvar fvarId' => return e.updateBox! ty fvarId'
     | .erased => return .erased
+  | .isShared fvarId _ =>
+    match (← normFVar fvarId) with
+    | .fvar fvarId' => return e.updateIsShared! fvarId'
+    | .erased => return .erased
 
 def internalizeLetDecl (decl : LetDecl pu) : InternalizeM pu (LetDecl pu) := do
   let binderName ← refreshBinderName decl.binderName
@@ -166,12 +189,22 @@ partial def internalizeCode (code : Code pu) : InternalizeM pu (Code pu) := do
     withNormFVarResult (← normFVar fvarId) fun fvarId => do
     withNormFVarResult (← normFVar y) fun y => do
       return .uset fvarId offset y (← internalizeCode k)
+  | .oset fvarId offset y k _ =>
+    withNormFVarResult (← normFVar fvarId) fun fvarId => do
+      let y ← normArg y
+      return .oset fvarId offset y (← internalizeCode k)
+  | .setTag fvarId cidx k _ =>
+    withNormFVarResult (← normFVar fvarId) fun fvarId => do
+      return .setTag fvarId cidx (← internalizeCode k)
   | .inc fvarId n check persistent k _ =>
     withNormFVarResult (← normFVar fvarId) fun fvarId => do
       return .inc fvarId n check persistent (← internalizeCode k)
   | .dec fvarId n check persistent k _ =>
     withNormFVarResult (← normFVar fvarId) fun fvarId => do
       return .dec fvarId n check persistent (← internalizeCode k)
+  | .del fvarId k _ =>
+    withNormFVarResult (← normFVar fvarId) fun fvarId => do
+      return .del fvarId (← internalizeCode k)
 
 end
 
@@ -180,8 +213,12 @@ partial def internalizeCodeDecl (decl : CodeDecl pu) : InternalizeM pu (CodeDecl
   | .let decl => return .let (← internalizeLetDecl decl)
   | .fun decl _ => return .fun (← internalizeFunDecl decl)
   | .jp decl => return .jp (← internalizeFunDecl decl)
-  | .uset fvarId i y _ =>
+  | .oset fvarId i y _ =>
     -- Something weird should be happening if these become erased...
+    let .fvar fvarId ← normFVar fvarId | unreachable!
+    let y ← normArg y
+    return .oset fvarId i y
+  | .uset fvarId i y _ =>
     let .fvar fvarId ← normFVar fvarId | unreachable!
     let .fvar y ← normFVar y | unreachable!
     return .uset fvarId i y
@@ -190,12 +227,18 @@ partial def internalizeCodeDecl (decl : CodeDecl pu) : InternalizeM pu (CodeDecl
     let .fvar y ← normFVar y | unreachable!
     let ty ← normExpr ty
     return .sset fvarId i offset y ty
+  | .setTag fvarId cidx _ =>
+    let .fvar fvarId ← normFVar fvarId | unreachable!
+    return .setTag fvarId cidx
   | .inc fvarId n check offset _ =>
     let .fvar fvarId ← normFVar fvarId | unreachable!
     return .inc fvarId n check offset
   | .dec fvarId n check offset _ =>
     let .fvar fvarId ← normFVar fvarId | unreachable!
     return .dec fvarId n check offset
+  | .del fvarId _ =>
+    let .fvar fvarId ← normFVar fvarId | unreachable!
+    return .del fvarId
 
 
 end Internalize
@@ -203,12 +246,14 @@ end Internalize
 /--
 Refresh free variables ids in `code`, and store their declarations in the local context.
 -/
-partial def Code.internalize (code : Code pu) (s : FVarSubst pu := {}) : CompilerM (Code pu) :=
-  Internalize.internalizeCode code |>.run' s
+partial def Code.internalize (code : Code pu) (s : FVarSubst pu := {})
+    (uniqueIdents : Bool := false) : CompilerM (Code pu) :=
+  Internalize.internalizeCode code |>.run' s { uniqueIdents }
 
 open Internalize in
-def Decl.internalize (decl : Decl pu) (s : FVarSubst pu := {}): CompilerM (Decl pu) :=
-  go decl |>.run' s
+def Decl.internalize (decl : Decl pu) (s : FVarSubst pu := {}) (uniqueIdents : Bool := false) :
+    CompilerM (Decl pu) :=
+  go decl |>.run' s { uniqueIdents }
 where
   go (decl : Decl pu) : InternalizeM pu (Decl pu) := do
     let type ← internalizeExpr decl.type

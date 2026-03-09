@@ -19,6 +19,7 @@ test_run cache clean
 LAKE_CONFIG=services.toml test_out_diff <(cat << EOF
 cdn
 bogus
+reservoir
 EOF
 ) cache services
 
@@ -250,4 +251,4 @@ if command -v jq > /dev/null; then # skip if no jq found
 fi
 
 # Cleanup
-rm -f produced.out Ignored.lean
+rm -f produced.* Ignored.lean

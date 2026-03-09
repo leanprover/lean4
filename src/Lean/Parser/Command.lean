@@ -186,7 +186,7 @@ def derivingClass    := leading_parser
   optional ("@[" >> nonReservedSymbol "expose" >> "]") >> withForbidden "for" termParser
 def derivingClasses  := sepBy1 derivingClass ", "
 def optDefDeriving   :=
-  optional (ppDedent ppLine >> atomic ("deriving " >> notSymbol "instance") >> derivingClasses)
+  optional (ppDedent ppLine >> atomic ("deriving " >> notSymbol "instance" >> notSymbol "noncomputable") >> derivingClasses)
 def definition     := leading_parser
   "def " >> recover declId skipUntilWsOrDelim >> ppIndent optDeclSig >> declVal >> optDefDeriving
 def «theorem»        := leading_parser
@@ -207,7 +207,7 @@ def ctor             := leading_parser
   atomic (optional docComment >> "\n| ") >>
   ppGroup (declModifiers true >> rawIdent >> optDeclSig)
 def optDeriving      := leading_parser
-  optional (ppLine >> atomic ("deriving " >> notSymbol "instance") >> derivingClasses)
+  optional (ppLine >> atomic ("deriving " >> notSymbol "instance" >> notSymbol "noncomputable") >> derivingClasses)
 def computedField    := leading_parser
   declModifiers true >> ident >> " : " >> termParser >> Term.matchAlts
 def computedFields   := leading_parser
@@ -280,7 +280,7 @@ def «structure»          := leading_parser
   («abbrev» <|> definition <|> «theorem» <|> «opaque» <|> «instance» <|> «axiom» <|> «example» <|>
    «inductive» <|> «coinductive» <|> classInductive <|> «structure»)
 @[builtin_command_parser] def «deriving»     := leading_parser
-  "deriving " >> "instance " >> derivingClasses >> " for " >> sepBy1 (recover termParser skip) ", "
+  "deriving " >> optional "noncomputable " >> "instance " >> derivingClasses >> " for " >> sepBy1 (recover termParser skip) ", "
 def sectionHeader := leading_parser
   optional ("@[" >> nonReservedSymbol "expose" >> "] ") >>
   optional ("public ") >>

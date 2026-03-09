@@ -61,8 +61,8 @@ static const lean_ctor_object l_FloatArray_get___auto__1___closed__4_value_aux_2
 static const lean_ctor_object l_FloatArray_get___auto__1___closed__4_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_FloatArray_get___auto__1___closed__4_value_aux_2),((lean_object*)&l_FloatArray_get___auto__1___closed__3_value),LEAN_SCALAR_PTR_LITERAL(212, 140, 85, 215, 241, 69, 7, 118)}};
 static const lean_object* l_FloatArray_get___auto__1___closed__4 = (const lean_object*)&l_FloatArray_get___auto__1___closed__4_value;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l_FloatArray_get___auto__1___closed__5_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_FloatArray_get___auto__1___closed__5;
+static const lean_array_object l_FloatArray_get___auto__1___closed__5_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_FloatArray_get___auto__1___closed__5 = (const lean_object*)&l_FloatArray_get___auto__1___closed__5_value;
 static const lean_string_object l_FloatArray_get___auto__1___closed__6_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 19, .m_capacity = 19, .m_length = 18, .m_data = "tacticSeq1Indented"};
 static const lean_object* l_FloatArray_get___auto__1___closed__6 = (const lean_object*)&l_FloatArray_get___auto__1___closed__6_value;
 static const lean_ctor_object l_FloatArray_get___auto__1___closed__7_value_aux_0 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_FloatArray_get___auto__1___closed__0_value),LEAN_SCALAR_PTR_LITERAL(70, 193, 83, 126, 233, 67, 208, 165)}};
@@ -417,15 +417,6 @@ x_6 = lean_box_float(x_5);
 return x_6;
 }
 }
-static lean_object* _init_l_FloatArray_get___auto__1___closed__5(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_FloatArray_get___auto__1___closed__13(void) {
 _start:
 {
@@ -440,7 +431,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_FloatArray_get___auto__1___closed__13, &l_FloatArray_get___auto__1___closed__13_once, _init_l_FloatArray_get___auto__1___closed__13);
-x_2 = lean_obj_once(&l_FloatArray_get___auto__1___closed__5, &l_FloatArray_get___auto__1___closed__5_once, _init_l_FloatArray_get___auto__1___closed__5);
+x_2 = ((lean_object*)(l_FloatArray_get___auto__1___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -464,7 +455,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_FloatArray_get___auto__1___closed__15, &l_FloatArray_get___auto__1___closed__15_once, _init_l_FloatArray_get___auto__1___closed__15);
-x_2 = lean_obj_once(&l_FloatArray_get___auto__1___closed__5, &l_FloatArray_get___auto__1___closed__5_once, _init_l_FloatArray_get___auto__1___closed__5);
+x_2 = ((lean_object*)(l_FloatArray_get___auto__1___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -488,7 +479,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_FloatArray_get___auto__1___closed__17, &l_FloatArray_get___auto__1___closed__17_once, _init_l_FloatArray_get___auto__1___closed__17);
-x_2 = lean_obj_once(&l_FloatArray_get___auto__1___closed__5, &l_FloatArray_get___auto__1___closed__5_once, _init_l_FloatArray_get___auto__1___closed__5);
+x_2 = ((lean_object*)(l_FloatArray_get___auto__1___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -512,7 +503,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_obj_once(&l_FloatArray_get___auto__1___closed__19, &l_FloatArray_get___auto__1___closed__19_once, _init_l_FloatArray_get___auto__1___closed__19);
-x_2 = lean_obj_once(&l_FloatArray_get___auto__1___closed__5, &l_FloatArray_get___auto__1___closed__5_once, _init_l_FloatArray_get___auto__1___closed__5);
+x_2 = ((lean_object*)(l_FloatArray_get___auto__1___closed__5));
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -1602,21 +1593,24 @@ lean_dec_ref(x_2);
 return x_3;
 }
 }
-lean_object* initialize_Init_Data_Float(uint8_t builtin);
-lean_object* initialize_Init_Ext(uint8_t builtin);
-lean_object* initialize_Init_GetElem(uint8_t builtin);
-static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Data_FloatArray_Basic(uint8_t builtin) {
+lean_object* runtime_initialize_Init_Data_Float(uint8_t builtin);
+lean_object* runtime_initialize_Init_Ext(uint8_t builtin);
+lean_object* runtime_initialize_Init_GetElem(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Init_Data_FloatArray_Basic(uint8_t builtin) {
 lean_object * res;
-if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
-_G_initialized = true;
-res = initialize_Init_Data_Float(builtin);
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Init_Data_Float(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Ext(builtin);
+res = runtime_initialize_Init_Ext(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_GetElem(builtin);
+res = runtime_initialize_Init_GetElem(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_FloatArray_empty = _init_l_FloatArray_empty();
@@ -1625,6 +1619,13 @@ l_FloatArray_instInhabited = _init_l_FloatArray_instInhabited();
 lean_mark_persistent(l_FloatArray_instInhabited);
 l_FloatArray_instEmptyCollection = _init_l_FloatArray_instEmptyCollection();
 lean_mark_persistent(l_FloatArray_instEmptyCollection);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Init_Data_FloatArray_Basic(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
 l_FloatArray_get___auto__1 = _init_l_FloatArray_get___auto__1();
 lean_mark_persistent(l_FloatArray_get___auto__1);
 l_FloatArray_uset___auto__1 = _init_l_FloatArray_uset___auto__1();
@@ -1632,6 +1633,36 @@ lean_mark_persistent(l_FloatArray_uset___auto__1);
 l_FloatArray_set___auto__1 = _init_l_FloatArray_set___auto__1();
 lean_mark_persistent(l_FloatArray_set___auto__1);
 return lean_io_result_mk_ok(lean_box(0));
+}
+lean_object* initialize_Init_Data_Float(uint8_t builtin);
+lean_object* initialize_Init_Ext(uint8_t builtin);
+lean_object* initialize_Init_GetElem(uint8_t builtin);
+static bool _G_initialized = false;
+LEAN_EXPORT lean_object* initialize_Init_Data_FloatArray_Basic(uint8_t builtin) {
+lean_object * res;
+if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_initialized = true;
+res = initialize_Init_Data_Float(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Ext(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_GetElem(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_FloatArray_Basic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Init_Data_FloatArray_Basic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Init_Data_FloatArray_Basic(builtin);
 }
 #ifdef __cplusplus
 }

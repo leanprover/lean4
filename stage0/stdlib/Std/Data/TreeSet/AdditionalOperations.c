@@ -89,6 +89,30 @@ x_7 = l_Std_DTreeMap_Internal_Impl_getKeyLT___redArg(x_2, x_5, x_4);
 return x_7;
 }
 }
+lean_object* runtime_initialize_Std_Data_TreeSet_Raw_Basic(uint8_t builtin);
+lean_object* runtime_initialize_Std_Data_TreeMap_AdditionalOperations(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Std_Data_TreeSet_AdditionalOperations(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Std_Data_TreeSet_Raw_Basic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Std_Data_TreeMap_AdditionalOperations(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Std_Data_TreeSet_AdditionalOperations(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Std_Data_TreeSet_Raw_Basic(uint8_t builtin);
 lean_object* initialize_Std_Data_TreeMap_AdditionalOperations(uint8_t builtin);
 static bool _G_initialized = false;
@@ -96,13 +120,23 @@ LEAN_EXPORT lean_object* initialize_Std_Data_TreeSet_AdditionalOperations(uint8_
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Std_Data_TreeSet_Raw_Basic(builtin);
+res = initialize_Std_Data_TreeSet_Raw_Basic(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_TreeMap_AdditionalOperations(builtin);
+res = initialize_Std_Data_TreeMap_AdditionalOperations(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Std_Data_TreeSet_AdditionalOperations(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Std_Data_TreeSet_AdditionalOperations(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Std_Data_TreeSet_AdditionalOperations(builtin);
 }
 #ifdef __cplusplus
 }

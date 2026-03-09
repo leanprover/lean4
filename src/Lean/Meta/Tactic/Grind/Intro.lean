@@ -275,7 +275,7 @@ private def assertAt (proof : Expr) (prop : Expr) (generation : Nat) : Action :=
     let goal ← GoalM.run' goal do
       let r ← preprocess prop
       let prop' := r.expr
-      let proof' := mkApp4 (mkConst ``Eq.mp [levelZero]) prop r.expr (← r.getProof) proof
+      let proof' := mkApp4 (mkConst ``Eq.mp [Level.zero]) prop r.expr (← r.getProof) proof
       add prop' proof' generation
     kp goal
 

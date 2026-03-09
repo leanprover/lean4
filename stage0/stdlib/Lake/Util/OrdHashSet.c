@@ -25,8 +25,8 @@ static lean_object* l_Lake_OrdHashSet_empty___closed__0;
 static lean_once_cell_t l_Lake_OrdHashSet_empty___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lake_OrdHashSet_empty___closed__1;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l_Lake_OrdHashSet_empty___closed__2_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lake_OrdHashSet_empty___closed__2;
+static const lean_array_object l_Lake_OrdHashSet_empty___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_Lake_OrdHashSet_empty___closed__2 = (const lean_object*)&l_Lake_OrdHashSet_empty___closed__2_value;
 static lean_once_cell_t l_Lake_OrdHashSet_empty___closed__3_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lake_OrdHashSet_empty___closed__3;
 LEAN_EXPORT lean_object* l_Lake_OrdHashSet_empty(lean_object*, lean_object*, lean_object*);
@@ -188,20 +188,11 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lake_OrdHashSet_empty___closed__2(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Lake_OrdHashSet_empty___closed__3(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_obj_once(&l_Lake_OrdHashSet_empty___closed__2, &l_Lake_OrdHashSet_empty___closed__2_once, _init_l_Lake_OrdHashSet_empty___closed__2);
+x_1 = ((lean_object*)(l_Lake_OrdHashSet_empty___closed__2));
 x_2 = lean_obj_once(&l_Lake_OrdHashSet_empty___closed__1, &l_Lake_OrdHashSet_empty___closed__1_once, _init_l_Lake_OrdHashSet_empty___closed__1);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
@@ -315,37 +306,55 @@ lean_inc_ref(x_2);
 x_7 = l_Std_DHashMap_Internal_Raw_u2080_contains___redArg(x_2, x_1, x_5, x_4);
 if (x_7 == 0)
 {
-uint8_t x_8; 
+lean_object* x_8; uint8_t x_9; uint8_t x_17; 
 lean_inc_ref(x_6);
 lean_inc_ref(x_5);
-x_8 = !lean_is_exclusive(x_3);
-if (x_8 == 0)
+x_17 = !lean_is_exclusive(x_3);
+if (x_17 == 0)
 {
-lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-x_9 = lean_ctor_get(x_3, 1);
-lean_dec(x_9);
-x_10 = lean_ctor_get(x_3, 0);
-lean_dec(x_10);
-x_11 = lean_box(0);
-lean_inc(x_4);
-x_12 = l_Std_DHashMap_Internal_Raw_u2080_insertIfNew___redArg(x_2, x_1, x_5, x_4, x_11);
-x_13 = lean_array_push(x_6, x_4);
-lean_ctor_set(x_3, 1, x_13);
-lean_ctor_set(x_3, 0, x_12);
-return x_3;
+lean_object* x_18; lean_object* x_19; 
+x_18 = lean_ctor_get(x_3, 1);
+lean_dec(x_18);
+x_19 = lean_ctor_get(x_3, 0);
+lean_dec(x_19);
+x_8 = x_3;
+x_9 = x_17;
+goto block_16;
 }
 else
 {
-lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
 lean_dec(x_3);
-x_14 = lean_box(0);
+x_8 = lean_box(0);
+x_9 = x_17;
+goto block_16;
+}
+block_16:
+{
+lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
+x_10 = lean_box(0);
 lean_inc(x_4);
-x_15 = l_Std_DHashMap_Internal_Raw_u2080_insertIfNew___redArg(x_2, x_1, x_5, x_4, x_14);
-x_16 = lean_array_push(x_6, x_4);
-x_17 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_17, 0, x_15);
-lean_ctor_set(x_17, 1, x_16);
-return x_17;
+x_11 = l_Std_DHashMap_Internal_Raw_u2080_insertIfNew___redArg(x_2, x_1, x_5, x_4, x_10);
+x_12 = lean_array_push(x_6, x_4);
+if (x_9 == 0)
+{
+lean_ctor_set(x_8, 1, x_12);
+lean_ctor_set(x_8, 0, x_11);
+x_13 = x_8;
+goto block_14;
+}
+else
+{
+lean_object* x_15; 
+x_15 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_15, 0, x_11);
+lean_ctor_set(x_15, 1, x_12);
+x_13 = x_15;
+goto block_14;
+}
+block_14:
+{
+return x_13;
+}
 }
 }
 else
@@ -1439,16 +1448,44 @@ lean_dec_ref(x_2);
 return x_6;
 }
 }
+lean_object* runtime_initialize_Std_Data_HashSet_Basic(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lake_Util_OrdHashSet(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Std_Data_HashSet_Basic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lake_Util_OrdHashSet(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Std_Data_HashSet_Basic(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lake_Util_OrdHashSet(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Std_Data_HashSet_Basic(builtin);
+res = initialize_Std_Data_HashSet_Basic(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Lake_Util_OrdHashSet(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Lake_Util_OrdHashSet(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Lake_Util_OrdHashSet(builtin);
 }
 #ifdef __cplusplus
 }

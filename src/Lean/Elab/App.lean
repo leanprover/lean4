@@ -1247,7 +1247,7 @@ inductive LValResolution where
   /-- When applied to `f`, effectively expands to `BaseStruct.fieldName (self := Struct.toBase f)`.
   This is a special named argument where it suppresses any explicit arguments depending on it so that type parameters don't need to be supplied. -/
   | projFn   (baseStructName : Name) (structName : Name) (fieldName : Name)
-  /-- Similar to `projFn`, but for extracting field indexed by `idx`. Works for structure-like inductive types in general. -/
+  /-- Similar to `projFn`, but for extracting field indexed by `idx`. Works for one-constructor inductive types in general. -/
   | projIdx  (structName : Name) (idx : Nat)
   /-- When applied to `f`, effectively expands to `constName ... (Struct.toBase f)`, with the argument placed in the correct
   positional argument if possible, or otherwise as a named argument. The `Struct.toBase` is not present if `baseStructName == structName`,
@@ -1331,9 +1331,9 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
     if idx == 0 then
       throwError "Invalid projection: Index must be greater than 0"
     let env ← getEnv
-    let failK _ := throwError  "Invalid projection: Projection operates on structure-like types \
-      with fields. The expression{indentExpr e}\nhas type{inlineExpr eType}which does not \
-      have fields."
+    let failK _ := throwError  "Invalid projection: Projections extract constructor fields for \
+      one-constructor inductive types. \
+      The expression{indentExpr e}\nhas type{inlineExpr eType}which is not a one-constructor inductive type."
 
     matchConstStructure eType.getAppFn failK fun _ _ ctorVal => do
       let numFields := ctorVal.numFields
@@ -1347,8 +1347,9 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
           return LValResolution.projIdx structName (idx - 1)
       else
         if numFields == 0 then
-          throwError  m!"Invalid projection: Projection operates on structure-like types with \
-            fields. The expression{indentExpr e}\nhas type{inlineExpr eType}which has no fields."
+          throwError  m!"Invalid projection: Projections extract constructor fields for \
+            one-constructor inductive types. \
+            The expression{indentExpr e}\nhas type{inlineExpr eType}which has no fields."
         let tupleHint ← mkTupleHint eType idx ref
         throwError m!"Invalid projection: Index `{idx}` is invalid for this structure; \
           {numFields.plural "the only valid index is 1" s!"it must be between 1 and {numFields}"}"

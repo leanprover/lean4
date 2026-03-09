@@ -31,7 +31,7 @@ private def letValueDepOn (e : LetValue pu) : M Bool :=
   match e with
   | .erased | .lit .. => return false
   | .proj _ _ fvarId _ | .oproj _ fvarId _ | .uproj _ fvarId _ | .sproj _ _ fvarId _
-  | .reset _ fvarId  _ | .box _ fvarId _ | .unbox fvarId _ => fvarDepOn fvarId
+  | .reset _ fvarId  _ | .box _ fvarId _ | .unbox fvarId _ | .isShared fvarId _ => fvarDepOn fvarId
   | .fvar fvarId args | .reuse fvarId _ _ args _ => fvarDepOn fvarId <||> args.anyM argDepOn
   | .const _ _ args _ | .ctor _ args _ | .fap _ args _ | .pap _ args _ => args.anyM argDepOn
 
@@ -46,8 +46,12 @@ private partial def depOn (c : Code pu) : M Bool :=
   | .jmp fvarId args => fvarDepOn fvarId <||> args.anyM argDepOn
   | .return fvarId => fvarDepOn fvarId
   | .unreach _ => return false
-  | .sset fv1 _ _ fv2 _ k _ | .uset fv1 _ fv2 k _ => fvarDepOn fv1 <||> fvarDepOn fv2 <||> depOn k
-  | .inc (fvarId := fvarId) (k := k) .. | .dec (fvarId := fvarId) (k := k) .. =>
+  | .oset fv1 _ fv2 k _ =>
+    fvarDepOn fv1 <||> argDepOn fv2 <||> depOn k
+  | .sset fv1 _ _ fv2 _ k _ | .uset fv1 _ fv2 k _ =>
+    fvarDepOn fv1 <||> fvarDepOn fv2 <||> depOn k
+  | .inc (fvarId := fvarId) (k := k) .. | .dec (fvarId := fvarId) (k := k) ..
+  | .del (fvarId := fvarId) (k := k) .. | .setTag (fvarId := fvarId) (k := k) .. =>
     fvarDepOn fvarId <||> depOn k
 
 @[inline] def Arg.dependsOn (arg : Arg pu) (s : FVarIdSet) :  Bool :=
@@ -66,9 +70,14 @@ def CodeDecl.dependsOn (decl : CodeDecl pu) (s : FVarIdSet) : Bool :=
   match decl with
   | .let decl => decl.dependsOn s
   | .jp decl | .fun decl _ => decl.dependsOn s
-  | .uset (fvarId := fvarId) (y := y) .. | .sset (fvarId := fvarId) (y := y) .. =>
+  | .oset (fvarId := fvarId) (y := y) .. =>
+    s.contains fvarId || y.dependsOn s
+  | .uset (fvarId := fvarId) (y := y) ..
+  | .sset (fvarId := fvarId) (y := y) .. =>
     s.contains fvarId || s.contains y
-  | .inc (fvarId := fvarId) .. | .dec (fvarId := fvarId) .. => s.contains fvarId
+  | .inc (fvarId := fvarId) .. | .dec (fvarId := fvarId) .. | .del (fvarId := fvarId) ..
+  | .setTag (fvarId := fvarId) .. =>
+    s.contains fvarId
 
 /--
 Return `true` is `c` depends on a free variable in `s`.

@@ -309,7 +309,7 @@ typedef struct {
     void *                m_data;
 } lean_external_object;
 
-static inline LEAN_ALWAYS_INLINE bool lean_is_scalar(lean_object * o) { return ((size_t)(o) & 1) == 1; }
+static inline LEAN_ALWAYS_INLINE uint8_t lean_is_scalar(lean_object * o) { return ((size_t)(o) & 1) == 1; }
 static inline lean_object * lean_box(size_t n) { return (lean_object*)(((size_t)(n) << 1) | 1); }
 static inline size_t lean_unbox(lean_object * o) { return (size_t)(o) >> 1; }
 
@@ -440,6 +440,13 @@ static inline void lean_free_small_object(lean_object * o) {
 
 LEAN_EXPORT lean_object * lean_alloc_object(size_t sz);
 LEAN_EXPORT void lean_free_object(lean_object * o);
+
+
+static inline void lean_del_object(lean_object * o) {
+    if (!lean_is_scalar(o)) {
+        lean_free_object(o);
+    }
+}
 
 static inline uint8_t lean_ptr_tag(lean_object * o) {
     return o->m_tag;

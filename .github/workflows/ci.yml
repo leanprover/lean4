@@ -258,8 +258,8 @@ jobs:
                 "check-rebootstrap": level >= 1,
                 "check-stage3": level >= 2,
                 "test": true,
-                // NOTE: `test-speedcenter` currently seems to be broken on `ubuntu-latest`
-                "test-speedcenter": large && level >= 2,
+                // NOTE: `test-bench` currently seems to be broken on `ubuntu-latest`
+                "test-bench": large && level >= 2,
                 // We are not warning-free yet on all platforms, start here
                 "CMAKE_OPTIONS": "-DLEAN_EXTRA_CXX_FLAGS=-Werror",
               },
@@ -269,6 +269,8 @@ jobs:
                 "enabled": level >= 2,
                 "test": true,
                 "CMAKE_PRESET": "reldebug",
+                // * `elab_bench/big_do` crashes with exit code 134
+                "CTEST_OPTIONS": "-E 'elab_bench/big_do'",
               },
               {
                 "name": "Linux fsanitize",

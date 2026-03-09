@@ -1,0 +1,71 @@
+elimTest0 : forall (motive : Nat -> Sort.{u_1}) (x : Nat), (forall (y : Nat), motive y) -> (motive x)
+def elimTest0.{u_1} : (motive : Nat → Sort u_1) → (x : Nat) → ((y : Nat) → motive y) → motive x :=
+fun motive x h_1 => h_1 x
+elimTest1 : forall (α : Type.{u_1}) (β : Type.{u_2}) (motive : (List.{u_1} α) -> (List.{u_2} β) -> Sort.{u_3}) (x : List.{u_1} α) (y : List.{u_2} β), (Unit -> (motive (List.nil.{u_1} α) (List.nil.{u_2} β))) -> (forall (a : α) (as : List.{u_1} α) (b : β) (bs : List.{u_2} β), motive (List.cons.{u_1} α a as) (List.cons.{u_2} β b bs)) -> (forall (a : α) (as : List.{u_1} α), motive (List.cons.{u_1} α a as) (List.nil.{u_2} β)) -> (forall (b : β) (bs : List.{u_2} β), motive (List.nil.{u_1} α) (List.cons.{u_2} β b bs)) -> (motive x y)
+def elimTest1.{u_1, u_2, u_3} : (α : Type u_1) →
+  (β : Type u_2) →
+    (motive : List α → List β → Sort u_3) →
+      (x : List α) →
+        (y : List β) →
+          (Unit → motive [] []) →
+            ((a : α) → (as : List α) → (b : β) → (bs : List β) → motive (a :: as) (b :: bs)) →
+              ((a : α) → (as : List α) → motive (a :: as) []) →
+                ((b : β) → (bs : List β) → motive [] (b :: bs)) → motive x y :=
+fun α β motive x y h_1 h_2 h_3 h_4 =>
+  List.casesOn x (List.casesOn y (h_1 ()) fun head tail => h_4 head tail) fun head tail =>
+    List.casesOn y (h_3 head tail) fun head_1 tail_1 => h_2 head tail head_1 tail_1
+elimTest2 : forall (α : Type.{u_1}) (motive : forall (n : Nat), (Vec.{u_1} α n) -> (Vec.{u_1} α n) -> Sort.{u_2}) (n : Nat) (xs : Vec.{u_1} α n) (ys : Vec.{u_1} α n), (Unit -> (motive ([mdata _inaccessible:1 OfNat.ofNat.{0} Nat 0 (instOfNatNat 0)]) (Vec.nil.{u_1} α) (Vec.nil.{u_1} α))) -> (forall (n : Nat) (x : α) (xs : Vec.{u_1} α n) (y : α) (ys : Vec.{u_1} α n), motive ([mdata _inaccessible:1 HAdd.hAdd.{0, 0, 0} Nat Nat Nat (instHAdd.{0} Nat instAddNat) n (OfNat.ofNat.{0} Nat 1 (instOfNatNat 1))]) (Vec.cons.{u_1} α n x xs) (Vec.cons.{u_1} α n y ys)) -> (motive n xs ys)
+def elimTest2.{u_1, u_2} : (α : Type u_1) →
+  (motive : (n : Nat) → Vec α n → Vec α n → Sort u_2) →
+    (n : Nat) →
+      (xs ys : Vec α n) →
+        (Unit → motive 0 Vec.nil Vec.nil) →
+          ((n : Nat) →
+              (x : α) → (xs : Vec α n) → (y : α) → (ys : Vec α n) → motive (n + 1) (Vec.cons x xs) (Vec.cons y ys)) →
+            motive n xs ys :=
+fun α motive n xs ys h_1 h_2 =>
+  (fun xs_1 =>
+      Vec.casesOn (motive := fun a x => n = a → xs ≍ x → motive n xs ys) xs_1
+        (fun h =>
+          Eq.ndrec (motive := fun n => (xs ys : Vec α n) → xs ≍ Vec.nil → motive n xs ys)
+            (fun xs ys h =>
+              ⋯ ▸
+                Vec.casesOn (motive := fun a x => 0 = a → ys ≍ x → motive 0 Vec.nil ys) ys (fun h h_3 => ⋯ ▸ h_1 ())
+                  (fun {n} a a_1 h => False.elim ⋯) ⋯ ⋯)
+            ⋯ xs ys)
+        fun {n_1} a a_1 h =>
+        Eq.ndrec (motive := fun n => (xs ys : Vec α n) → xs ≍ Vec.cons a a_1 → motive n xs ys)
+          (fun xs ys h =>
+            ⋯ ▸
+              Vec.casesOn (motive := fun a_2 x => n_1 + 1 = a_2 → ys ≍ x → motive (n_1 + 1) (Vec.cons a a_1) ys) ys
+                (fun h => False.elim ⋯)
+                (fun {n} a_2 a_3 h =>
+                  n_1.elimOffset n 1 h fun x =>
+                    Eq.ndrec (motive := fun {n} =>
+                      (a_4 : Vec α n) → ys ≍ Vec.cons a_2 a_4 → motive (n_1 + 1) (Vec.cons a a_1) ys)
+                      (fun a_4 h => ⋯ ▸ h_2 n_1 a a_1 a_2 a_4) x a_3)
+                ⋯ ⋯)
+          ⋯ xs ys)
+    xs ⋯ ⋯
+elimTest3 : forall (α : Type.{u_1}) (β : Type.{u_2}) (motive : (List.{u_1} α) -> (List.{u_2} β) -> Sort.{u_3}) (x : List.{u_1} α) (y : List.{u_2} β), (Unit -> (motive (List.nil.{u_1} α) (List.nil.{u_2} β))) -> (forall (a : α) (b : β), motive (List.cons.{u_1} α a (List.nil.{u_1} α)) (List.cons.{u_2} β b (List.nil.{u_2} β))) -> (forall (a₁ : α) (a₂ : α) (as : List.{u_1} α) (b₁ : β) (b₂ : β) (bs : List.{u_2} β), motive (List.cons.{u_1} α a₁ (List.cons.{u_1} α a₂ as)) (List.cons.{u_2} β b₁ (List.cons.{u_2} β b₂ bs))) -> (forall (as : List.{u_1} α) (bs : List.{u_2} β), motive as bs) -> (motive x y)
+def elimTest3.{u_1, u_2, u_3} : (α : Type u_1) →
+  (β : Type u_2) →
+    (motive : List α → List β → Sort u_3) →
+      (x : List α) →
+        (y : List β) →
+          (Unit → motive [] []) →
+            ((a : α) → (b : β) → motive [a] [b]) →
+              ((a₁ a₂ : α) → (as : List α) → (b₁ b₂ : β) → (bs : List β) → motive (a₁ :: a₂ :: as) (b₁ :: b₂ :: bs)) →
+                ((as : List α) → (bs : List β) → motive as bs) → motive x y :=
+fun α β motive x y h_1 h_2 h_3 h_4 =>
+  List.casesOn x (_sparseCasesOn_112 y (h_1 ()) fun h => h_4 [] y) fun head tail =>
+    List.casesOn tail
+      (_sparseCasesOn_113 y
+        (fun head_1 tail => _sparseCasesOn_112 tail (h_2 head head_1) fun h => h_4 [head] (head_1 :: tail)) fun h =>
+        h_4 [head] y)
+      fun head_1 tail =>
+      _sparseCasesOn_113 y
+        (fun head_2 tail_1 =>
+          _sparseCasesOn_113 tail_1 (fun head_3 tail_2 => h_3 head head_1 tail head_2 head_3 tail_2) fun h =>
+            h_4 (head :: head_1 :: tail) (head_2 :: tail_1))
+        fun h => h_4 (head :: head_1 :: tail) y

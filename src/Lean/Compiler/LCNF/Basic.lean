@@ -219,6 +219,10 @@ inductive LetValue (pu : Purity) where
   | box (ty : Expr) (fvarId : FVarId) (h : pu = .impure := by purity_tac)
   /-- Given `fvarId : [t]object`, obtain the underlying scalar value. -/
   | unbox (fvarId : FVarId) (h : pu = .impure := by purity_tac)
+  /--
+  Return whether the object stored behind `fvarId` is shared or not. The return type is a `UInt8`.
+  -/
+  | isShared (fvarId : FVarId) (h : pu = .impure := by purity_tac)
   deriving Inhabited, BEq, Hashable
 
 def Arg.toLetValue (arg : Arg pu) : LetValue pu :=
@@ -298,7 +302,12 @@ private unsafe def LetValue.updateUnboxImp (e : LetValue pu) (fvarId' : FVarId) 
 
 @[implemented_by LetValue.updateUnboxImp] opaque LetValue.updateUnbox! (e : LetValue pu) (fvarId' : FVarId) : LetValue pu
 
+private unsafe def LetValue.updateIsSharedImp (e : LetValue pu) (fvarId' : FVarId) : LetValue pu :=
+  match e with
+  | .isShared fvarId _ => if fvarId == fvarId' then e else .isShared fvarId'
+  | _ => unreachable!
 
+@[implemented_by LetValue.updateIsSharedImp] opaque LetValue.updateIsShared! (e : LetValue pu) (fvarId' : FVarId) : LetValue pu
 
 private unsafe def LetValue.updateArgsImp (e : LetValue pu) (args' : Array (Arg pu)) : LetValue pu :=
   match e with
@@ -331,6 +340,7 @@ def LetValue.toExpr (e : LetValue pu) : Expr :=
       #[.fvar var, .const i.name [], ToExpr.toExpr updateHeader] ++ (args.map Arg.toExpr)
   | .box ty var _ => mkApp2 (.const `box []) ty (.fvar var)
   | .unbox var _ => mkApp (.const `unbox []) (.fvar var)
+  | .isShared fvarId _ => mkApp (.const `isShared []) (.fvar fvarId)
 
 structure LetDecl (pu : Purity) where
   fvarId : FVarId
@@ -361,10 +371,13 @@ inductive Code (pu : Purity) where
   | cases (cases : Cases pu)
   | return (fvarId : FVarId)
   | unreach (type : Expr)
+  | oset (fvarId : FVarId) (i : Nat) (y : Arg pu) (k : Code pu) (h : pu = .impure := by purity_tac)
   | uset (fvarId : FVarId) (i : Nat) (y : FVarId) (k : Code pu) (h : pu = .impure := by purity_tac)
   | sset (fvarId : FVarId) (i : Nat) (offset : Nat) (y : FVarId) (ty : Expr) (k : Code pu) (h : pu = .impure := by purity_tac)
+  | setTag (fvarId : FVarId) (cidx : Nat) (k : Code pu) (h : pu = .impure := by purity_tac)
   | inc (fvarId : FVarId) (n : Nat) (check : Bool) (persistent : Bool) (k : Code pu) (h : pu = .impure := by purity_tac)
   | dec (fvarId : FVarId) (n : Nat) (check : Bool) (persistent : Bool) (k : Code pu) (h : pu = .impure := by purity_tac)
+  | del (fvarId : FVarId) (k : Code pu) (h : pu = .impure := by purity_tac)
   deriving Inhabited
 
 end
@@ -440,25 +453,32 @@ inductive CodeDecl (pu : Purity) where
   | let (decl : LetDecl pu)
   | fun (decl : FunDecl pu) (h : pu = .pure := by purity_tac)
   | jp (decl : FunDecl pu)
+  | oset (fvarId : FVarId) (i : Nat) (y : Arg pu) (h : pu = .impure := by purity_tac)
   | uset (fvarId : FVarId) (i : Nat) (y : FVarId) (h : pu = .impure := by purity_tac)
   | sset (fvarId : FVarId) (i : Nat) (offset : Nat) (y : FVarId)  (ty : Expr) (h : pu = .impure := by purity_tac)
+  | setTag (fvarId : FVarId) (cidx : Nat) (h : pu = .impure := by purity_tac)
   | inc (fvarId : FVarId) (n : Nat) (check : Bool) (persistent : Bool) (h : pu = .impure := by purity_tac)
   | dec (fvarId : FVarId) (n : Nat) (check : Bool) (persistent : Bool) (h : pu = .impure := by purity_tac)
+  | del (fvarId : FVarId) (h : pu = .impure := by purity_tac)
   deriving Inhabited
 
 def CodeDecl.fvarId : CodeDecl pu → FVarId
   | .let decl | .fun decl _ | .jp decl => decl.fvarId
-  | .uset fvarId .. | .sset fvarId .. | .inc fvarId .. | .dec fvarId .. => fvarId
+  | .uset fvarId .. | .sset fvarId .. | .inc fvarId .. | .dec fvarId .. | .del fvarId ..
+  | .oset fvarId .. | .setTag fvarId .. => fvarId
 
 def Code.toCodeDecl! : Code pu → CodeDecl pu
-| .let decl _ => .let decl
-| .fun decl _ _ => .fun decl
-| .jp decl _ => .jp decl
-| .uset fvarId i y _ _ => .uset fvarId i y
-| .sset fvarId i offset ty y _ _ => .sset fvarId i offset ty y
-| .inc fvarId n check persistent _ _ => .inc fvarId n check persistent
-| .dec fvarId n check persistent _ _ => .dec fvarId n check persistent
-| _ => unreachable!
+  | .let decl _ => .let decl
+  | .fun decl _ _ => .fun decl
+  | .jp decl _ => .jp decl
+  | .oset fvarId i y _ _ => .oset fvarId i y
+  | .uset fvarId i y _ _ => .uset fvarId i y
+  | .sset fvarId i offset ty y _ _ => .sset fvarId i offset ty y
+  | .setTag fvarId cidx _ _ => .setTag fvarId cidx
+  | .inc fvarId n check persistent _ _ => .inc fvarId n check persistent
+  | .dec fvarId n check persistent _ _ => .dec fvarId n check persistent
+  | .del fvarId _ _ => .del fvarId
+  | _ => unreachable!
 
 def attachCodeDecls (decls : Array (CodeDecl pu)) (code : Code pu) : Code pu :=
   go decls.size code
@@ -469,10 +489,13 @@ where
       | .let decl => go (i-1) (.let decl code)
       | .fun decl _ => go (i-1) (.fun decl code)
       | .jp decl => go (i-1) (.jp decl code)
+      | .oset fvarId idx y _ => go (i-1) (.oset fvarId idx y code)
       | .uset fvarId idx y _ => go (i-1) (.uset fvarId idx y code)
       | .sset fvarId idx offset y ty _ => go (i-1) (.sset fvarId idx offset y ty code)
+      | .setTag fvarId cidx _ => go (i-1) (.setTag fvarId cidx code)
       | .inc fvarId n check persistent _ => go (i-1) (.inc fvarId n check persistent code)
       | .dec fvarId n check persistent _ => go (i-1) (.dec fvarId n check persistent code)
+      | .del fvarId _ => go (i-1) (.del fvarId code)
     else
       code
 
@@ -488,14 +511,20 @@ mutual
       | .jmp j₁ as₁, .jmp j₂ as₂ => j₁ == j₂ && as₁ == as₂
       | .return r₁, .return r₂ => r₁ == r₂
       | .unreach t₁, .unreach t₂ => t₁ == t₂
+      | .oset v₁ i₁ y₁ k₁ _, .oset v₂ i₂ y₂ k₂ _ =>
+        v₁ == v₂ && i₁ == i₂ && y₁ == y₂ && eqImp k₁ k₂
       | .uset v₁ i₁ y₁ k₁ _, .uset v₂ i₂ y₂ k₂ _ =>
         v₁ == v₂ && i₁ == i₂ && y₁ == y₂ && eqImp k₁ k₂
       | .sset v₁ i₁ o₁ y₁ ty₁ k₁ _, .sset v₂ i₂ o₂ y₂ ty₂ k₂ _ =>
         v₁ == v₂ && i₁ == i₂ && o₁ == o₂ && y₁ == y₂ && ty₁ == ty₂ && eqImp k₁ k₂
+      | .setTag v₁ c₁ k₁ _, .setTag v₂ c₂ k₂ _ =>
+        v₁ == v₂ && c₁ == c₂ && eqImp k₁ k₂
       | .inc v₁ n₁ c₁ p₁ k₁ _, .inc v₂ n₂ c₂ p₂ k₂ _ =>
         v₁ == v₂ && n₁ == n₂ && c₁ == c₂ && p₁ == p₂ && eqImp k₁ k₂
       | .dec v₁ n₁ c₁ p₁ k₁ _, .dec v₂ n₂ c₂ p₂ k₂ _ =>
         v₁ == v₂ && n₁ == n₂ && c₁ == c₂ && p₁ == p₂ && eqImp k₁ k₂
+      | .del v₁ k₁ _, .del v₂ k₂ _ =>
+        v₁ == v₂ && eqImp k₁ k₂
       | _, _ => false
 
   private unsafe def eqFunDecl (d₁ d₂ : FunDecl pu) : Bool :=
@@ -588,10 +617,13 @@ private unsafe def updateAltImp (alt : Alt pu) (ps' : Array (Param pu)) (k' : Co
   | .let decl k => if ptrEq k k' then c else .let decl k'
   | .fun decl k _ => if ptrEq k k' then c else .fun decl k'
   | .jp decl k => if ptrEq k k' then c else .jp decl k'
+  | .oset fvarId offset y k _ => if ptrEq k k' then c else .oset fvarId offset y k'
   | .sset fvarId i offset y ty k _ => if ptrEq k k' then c else .sset fvarId i offset y ty k'
   | .uset fvarId offset y k _ => if ptrEq k k' then c else .uset fvarId offset y k'
+  | .setTag fvarId cidx k _ => if ptrEq k k' then c else .setTag fvarId cidx k'
   | .inc fvarId n check persistent k _ => if ptrEq k k' then c else .inc fvarId n check persistent k'
   | .dec fvarId n check persistent k _ => if ptrEq k k' then c else .dec fvarId n check persistent k'
+  | .del fvarId k _ => if ptrEq k k' then c else .del fvarId k'
   | _ => unreachable!
 
 @[implemented_by updateContImp] opaque Code.updateCont! (c : Code pu) (k' : Code pu) : Code pu
@@ -635,6 +667,19 @@ private unsafe def updateAltImp (alt : Alt pu) (ps' : Array (Param pu)) (k' : Co
       .sset fvarId' i' offset' y' ty' k'
   | _ => unreachable!
 
+@[inline] private unsafe def updateOsetImp (c : Code pu) (fvarId' : FVarId)
+    (i' : Nat) (y' : Arg pu) (k' : Code pu) : Code pu :=
+  match c with
+  | .oset fvarId i y k _ =>
+    if ptrEq fvarId fvarId' && i == i' && ptrEq y y' && ptrEq k k' then
+      c
+    else
+      .oset fvarId' i' y' k'
+  | _ => unreachable!
+
+@[implemented_by updateOsetImp] opaque Code.updateOset! (c : Code pu) (fvarId' : FVarId)
+    (i' : Nat) (y' : Arg pu) (k' : Code pu) : Code pu
+
 @[implemented_by updateSsetImp] opaque Code.updateSset! (c : Code pu) (fvarId' : FVarId) (i' : Nat)
     (offset' : Nat) (y' : FVarId) (ty' : Expr) (k' : Code pu) : Code pu
 
@@ -650,6 +695,19 @@ private unsafe def updateAltImp (alt : Alt pu) (ps' : Array (Param pu)) (k' : Co
 
 @[implemented_by updateUsetImp] opaque Code.updateUset! (c : Code pu) (fvarId' : FVarId)
     (i' : Nat) (y' : FVarId) (k' : Code pu) : Code pu
+
+@[inline] private unsafe def updateSetTagImp (c : Code pu) (fvarId' : FVarId) (cidx' : Nat)
+    (k' : Code pu) : Code pu :=
+  match c with
+  | .setTag fvarId cidx k _ =>
+    if ptrEq fvarId fvarId' && cidx == cidx' && ptrEq k k' then
+      c
+    else
+      .setTag fvarId' cidx' k'
+  | _ => unreachable!
+
+@[implemented_by updateSetTagImp] opaque Code.updateSetTag! (c : Code pu) (fvarId' : FVarId)
+    (cidx' : Nat) (k' : Code pu) : Code pu
 
 @[inline] private unsafe def updateIncImp (c : Code pu) (fvarId' : FVarId) (n' : Nat)
     (check' : Bool) (persistent' : Bool) (k' : Code pu) : Code pu :=
@@ -684,6 +742,19 @@ private unsafe def updateAltImp (alt : Alt pu) (ps' : Array (Param pu)) (k' : Co
 
 @[implemented_by updateDecImp] opaque Code.updateDec! (c : Code pu) (fvarId' : FVarId) (n' : Nat)
     (check' : Bool) (persistent' : Bool) (k' : Code pu) : Code pu
+
+@[inline] private unsafe def updateDelImp (c : Code pu) (fvarId' : FVarId) (k' : Code pu) :
+    Code pu :=
+  match c with
+  | .del fvarId k _ =>
+    if ptrEq fvarId fvarId' && ptrEq k k' then
+      c
+    else
+      .del fvarId' k'
+  | _ => unreachable!
+
+@[implemented_by updateDelImp] opaque Code.updateDel! (c : Code pu) (fvarId' : FVarId)
+    (k' : Code pu) : Code pu
 
 private unsafe def updateParamCoreImp (p : Param pu) (type : Expr) : Param pu :=
   if ptrEq type p.type then
@@ -753,8 +824,8 @@ partial def Code.size (c : Code pu) : Nat :=
 where
   go (c : Code pu) (n : Nat) : Nat :=
     match c with
-    | .let (k := k) .. | .sset (k := k) .. | .uset (k := k) .. | .inc (k := k) ..
-    | .dec (k := k) .. => go k (n + 1)
+    | .let (k := k) .. | .oset (k := k) .. | .sset (k := k) .. | .uset (k := k) .. | .inc (k := k) ..
+    | .dec (k := k) .. | .setTag (k := k) .. | .del (k := k) .. => go k (n + 1)
     | .jp decl k | .fun decl k _ => go k <| go decl.value n
     | .cases c => c.alts.foldl (init := n+1) fun n alt => go alt.getCode (n+1)
     | .jmp .. => n+1
@@ -772,8 +843,8 @@ where
 
   go (c : Code pu) : EStateM Unit Nat Unit := do
     match c with
-    | .let (k := k) .. | .sset (k := k) .. | .uset (k := k) .. | .inc (k := k) ..
-    | .dec (k := k) .. => inc; go k
+    | .let (k := k) .. | .oset (k := k) .. | .sset (k := k) .. | .uset (k := k) .. | .inc (k := k) ..
+    | .dec (k := k) .. | .setTag (k := k) .. | .del (k := k) .. => inc; go k
     | .jp decl k | .fun decl k _ => inc; go decl.value; go k
     | .cases c => inc; c.alts.forM fun alt => go alt.getCode
     | .jmp .. => inc
@@ -785,8 +856,8 @@ where
   go (c : Code pu) : m Unit := do
     f c
     match c with
-    | .let (k := k) .. | .sset (k := k) .. | .uset (k := k) .. | .inc (k := k) ..
-    | .dec (k := k) .. => go k
+    | .let (k := k) .. | .oset (k := k) .. | .sset (k := k) .. | .uset (k := k) .. | .inc (k := k) ..
+    | .dec (k := k) .. | .setTag (k := k) .. | .del (k := k) .. => go k
     | .fun decl k _ | .jp decl k => go decl.value; go k
     | .cases c => c.alts.forM fun alt => go alt.getCode
     | .unreach .. | .return .. | .jmp .. => return ()
@@ -1053,7 +1124,7 @@ private def collectLetValue (e : LetValue pu) (s : FVarIdHashSet) : FVarIdHashSe
   | .fvar fvarId args => collectArgs args <| s.insert fvarId
   | .const _ _ args _ | .pap _ args _ | .fap _ args _ | .ctor _ args _  => collectArgs args s
   | .proj _ _ fvarId _ | .sproj _ _ fvarId _ | .uproj _ fvarId _ | .oproj _ fvarId _
-  | .reset _ fvarId _  | .box _ fvarId _ | .unbox fvarId _ => s.insert fvarId
+  | .reset _ fvarId _  | .box _ fvarId _ | .unbox fvarId _ | .isShared fvarId _ => s.insert fvarId
   | .lit .. | .erased => s
   | .reuse fvarId _ _ args _ => collectArgs args <| s.insert fvarId
 
@@ -1082,7 +1153,12 @@ partial def Code.collectUsed (code : Code pu) (s : FVarIdHashSet := {}) : FVarId
     let s := s.insert fvarId
     let s := s.insert y
     k.collectUsed s
-  | .inc (fvarId := fvarId) (k := k) .. | .dec (fvarId := fvarId) (k := k) .. =>
+  | .oset fvarId _ y k _ =>
+    let s := s.insert fvarId
+    let s := if let .fvar y := y then s.insert y else s
+    k.collectUsed s
+  | .inc (fvarId := fvarId) (k := k) .. | .dec (fvarId := fvarId) (k := k) ..
+  | .del (fvarId := fvarId) (k := k) .. | .setTag (fvarId := fvarId) (k := k) .. =>
     k.collectUsed <| s.insert fvarId
 end
 
@@ -1095,7 +1171,11 @@ def CodeDecl.collectUsed (codeDecl : CodeDecl pu) (s : FVarIdHashSet := ∅) : F
   | .jp decl | .fun decl _ => decl.collectUsed s
   | .sset (fvarId := fvarId) (y := y) .. | .uset (fvarId := fvarId) (y := y) .. =>
     s.insert fvarId |>.insert y
-  | .inc (fvarId := fvarId) .. | .dec (fvarId := fvarId) .. => s.insert fvarId
+  | .oset (fvarId := fvarId) (y := y) .. =>
+    let s := s.insert fvarId
+    if let .fvar y := y then s.insert y else s
+  | .inc (fvarId := fvarId) .. | .dec (fvarId := fvarId) .. | .setTag (fvarId := fvarId) ..
+  | .del (fvarId := fvarId) .. => s.insert fvarId
 
 /--
 Traverse the given block of potentially mutually recursive functions
@@ -1125,7 +1205,8 @@ where
           modify fun s => s.insert declName
       | _ => pure ()
       visit k
-    | .uset (k := k) .. | .sset (k := k) .. | .inc (k := k) .. | .dec (k := k) .. => visit k
+    | .oset (k := k) .. | .uset (k := k) .. | .sset (k := k) .. | .inc (k := k) ..
+    | .dec (k := k) .. | .del (k := k) .. | .setTag (k := k) .. => visit k
 
   go : StateM NameSet Unit :=
     decls.forM (·.value.forCodeM visit)

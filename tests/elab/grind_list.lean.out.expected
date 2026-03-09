@@ -1,0 +1,17 @@
+Try these:
+  [apply] grind only [= getElem?_replicate, = getElem?_map, = Option.map_some, = Option.map_none, #648a, #929d]
+  [apply] grind only [= getElem?_replicate, = getElem?_map, = Option.map_some, = Option.map_none]
+  [apply] grind =>
+    cases #648a
+    instantiate only [= getElem?_replicate, = getElem?_map]
+    instantiate only [= getElem?_replicate]
+    cases #929d
+    · instantiate only [= Option.map_some]
+    · instantiate only [= Option.map_none]
+private theorem List.map_replicate''.{u_1, u_2} : ∀ {n : Nat} {α : Type u_1} {a : α} {α_1 : Type u_2} {f : α → α_1},
+  map f (replicate n a) = replicate n (f a) :=
+fun {n} {α} {a} {α_1} {f} => map_replicate''._proof_1_1
+Try these:
+  [apply] [grind
+    .] for pattern: [@Membership.mem #2 (List _) _ (@HAppend.hAppend (List _) (List _) (List _) _ #1 (@cons _ #0 (@nil _))) #0]
+  [apply] [grind! .] for pattern: [@HAppend.hAppend (List #2) (List _) (List _) _ #1 (@cons _ #0 (@nil _))]

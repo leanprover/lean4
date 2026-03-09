@@ -20,8 +20,8 @@ lean_object* l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___re
 LEAN_EXPORT lean_object* l_Std_IterM_toArray_go___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_IterM_toArray_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l_Std_IterM_toArray___redArg___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Std_IterM_toArray___redArg___closed__0;
+static const lean_array_object l_Std_IterM_toArray___redArg___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_Std_IterM_toArray___redArg___closed__0 = (const lean_object*)&l_Std_IterM_toArray___redArg___closed__0_value;
 LEAN_EXPORT lean_object* l_Std_IterM_toArray___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_IterM_toArray(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_IterM_Partial_toArray___redArg(lean_object*, lean_object*, lean_object*);
@@ -138,15 +138,6 @@ x_12 = l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___redArg(x
 return x_12;
 }
 }
-static lean_object* _init_l_Std_IterM_toArray___redArg___closed__0(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Std_IterM_toArray___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -159,7 +150,7 @@ lean_dec_ref(x_1);
 x_6 = lean_ctor_get(x_4, 1);
 lean_inc(x_6);
 lean_dec_ref(x_4);
-x_7 = lean_obj_once(&l_Std_IterM_toArray___redArg___closed__0, &l_Std_IterM_toArray___redArg___closed__0_once, _init_l_Std_IterM_toArray___redArg___closed__0);
+x_7 = ((lean_object*)(l_Std_IterM_toArray___redArg___closed__0));
 x_8 = lean_alloc_closure((void*)(l_Std_IterM_toArray_go___redArg___lam__1), 6, 3);
 lean_closure_set(x_8, 0, x_6);
 lean_closure_set(x_8, 1, x_2);
@@ -180,7 +171,7 @@ lean_dec_ref(x_4);
 x_9 = lean_ctor_get(x_7, 1);
 lean_inc(x_9);
 lean_dec_ref(x_7);
-x_10 = lean_obj_once(&l_Std_IterM_toArray___redArg___closed__0, &l_Std_IterM_toArray___redArg___closed__0_once, _init_l_Std_IterM_toArray___redArg___closed__0);
+x_10 = ((lean_object*)(l_Std_IterM_toArray___redArg___closed__0));
 x_11 = lean_alloc_closure((void*)(l_Std_IterM_toArray_go___redArg___lam__1), 6, 3);
 lean_closure_set(x_11, 0, x_9);
 lean_closure_set(x_11, 1, x_5);
@@ -201,7 +192,7 @@ lean_dec_ref(x_1);
 x_6 = lean_ctor_get(x_4, 1);
 lean_inc(x_6);
 lean_dec_ref(x_4);
-x_7 = lean_obj_once(&l_Std_IterM_toArray___redArg___closed__0, &l_Std_IterM_toArray___redArg___closed__0_once, _init_l_Std_IterM_toArray___redArg___closed__0);
+x_7 = ((lean_object*)(l_Std_IterM_toArray___redArg___closed__0));
 x_8 = lean_alloc_closure((void*)(l_Std_IterM_toArray_go___redArg___lam__1), 6, 3);
 lean_closure_set(x_8, 0, x_6);
 lean_closure_set(x_8, 1, x_2);
@@ -222,7 +213,7 @@ lean_dec_ref(x_4);
 x_9 = lean_ctor_get(x_7, 1);
 lean_inc(x_9);
 lean_dec_ref(x_7);
-x_10 = lean_obj_once(&l_Std_IterM_toArray___redArg___closed__0, &l_Std_IterM_toArray___redArg___closed__0_once, _init_l_Std_IterM_toArray___redArg___closed__0);
+x_10 = ((lean_object*)(l_Std_IterM_toArray___redArg___closed__0));
 x_11 = lean_alloc_closure((void*)(l_Std_IterM_toArray_go___redArg___lam__1), 6, 3);
 lean_closure_set(x_11, 0, x_9);
 lean_closure_set(x_11, 1, x_5);
@@ -243,7 +234,7 @@ lean_dec_ref(x_1);
 x_6 = lean_ctor_get(x_4, 1);
 lean_inc(x_6);
 lean_dec_ref(x_4);
-x_7 = lean_obj_once(&l_Std_IterM_toArray___redArg___closed__0, &l_Std_IterM_toArray___redArg___closed__0_once, _init_l_Std_IterM_toArray___redArg___closed__0);
+x_7 = ((lean_object*)(l_Std_IterM_toArray___redArg___closed__0));
 x_8 = lean_alloc_closure((void*)(l_Std_IterM_toArray_go___redArg___lam__1), 6, 3);
 lean_closure_set(x_8, 0, x_6);
 lean_closure_set(x_8, 1, x_2);
@@ -264,7 +255,7 @@ lean_dec_ref(x_4);
 x_10 = lean_ctor_get(x_8, 1);
 lean_inc(x_10);
 lean_dec_ref(x_8);
-x_11 = lean_obj_once(&l_Std_IterM_toArray___redArg___closed__0, &l_Std_IterM_toArray___redArg___closed__0_once, _init_l_Std_IterM_toArray___redArg___closed__0);
+x_11 = ((lean_object*)(l_Std_IterM_toArray___redArg___closed__0));
 x_12 = lean_alloc_closure((void*)(l_Std_IterM_toArray_go___redArg___lam__1), 6, 3);
 lean_closure_set(x_12, 0, x_10);
 lean_closure_set(x_12, 1, x_5);
@@ -279,51 +270,70 @@ _start:
 switch (lean_obj_tag(x_4)) {
 case 0:
 {
-uint8_t x_5; 
+lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; uint8_t x_14; 
 lean_dec(x_3);
-x_5 = !lean_is_exclusive(x_4);
-if (x_5 == 0)
+x_5 = lean_ctor_get(x_4, 0);
+x_6 = lean_ctor_get(x_4, 1);
+x_14 = !lean_is_exclusive(x_4);
+if (x_14 == 0)
 {
-lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_6 = lean_ctor_get(x_4, 0);
-x_7 = lean_ctor_get(x_4, 1);
-lean_ctor_set_tag(x_4, 1);
-lean_ctor_set(x_4, 1, x_1);
-lean_ctor_set(x_4, 0, x_7);
-x_8 = lean_apply_3(x_2, x_6, x_4, lean_box(0));
-return x_8;
+x_7 = x_4;
+x_8 = x_14;
+goto block_13;
 }
 else
 {
-lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
-x_9 = lean_ctor_get(x_4, 0);
-x_10 = lean_ctor_get(x_4, 1);
-lean_inc(x_10);
-lean_inc(x_9);
+lean_inc(x_6);
+lean_inc(x_5);
 lean_dec(x_4);
-x_11 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_11, 0, x_10);
-lean_ctor_set(x_11, 1, x_1);
-x_12 = lean_apply_3(x_2, x_9, x_11, lean_box(0));
-return x_12;
+x_7 = lean_box(0);
+x_8 = x_14;
+goto block_13;
+}
+block_13:
+{
+lean_object* x_9; 
+if (x_8 == 0)
+{
+lean_ctor_set_tag(x_7, 1);
+lean_ctor_set(x_7, 1, x_1);
+lean_ctor_set(x_7, 0, x_6);
+x_9 = x_7;
+goto block_11;
+}
+else
+{
+lean_object* x_12; 
+x_12 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_12, 0, x_6);
+lean_ctor_set(x_12, 1, x_1);
+x_9 = x_12;
+goto block_11;
+}
+block_11:
+{
+lean_object* x_10; 
+x_10 = lean_apply_3(x_2, x_5, x_9, lean_box(0));
+return x_10;
+}
 }
 }
 case 1:
 {
-lean_object* x_13; lean_object* x_14; 
+lean_object* x_15; lean_object* x_16; 
 lean_dec(x_3);
-x_13 = lean_ctor_get(x_4, 0);
-lean_inc(x_13);
+x_15 = lean_ctor_get(x_4, 0);
+lean_inc(x_15);
 lean_dec_ref(x_4);
-x_14 = lean_apply_3(x_2, x_13, x_1, lean_box(0));
-return x_14;
+x_16 = lean_apply_3(x_2, x_15, x_1, lean_box(0));
+return x_16;
 }
 default: 
 {
-lean_object* x_15; 
+lean_object* x_17; 
 lean_dec(x_2);
-x_15 = lean_apply_2(x_3, lean_box(0), x_1);
-return x_15;
+x_17 = lean_apply_2(x_3, lean_box(0), x_1);
+return x_17;
 }
 }
 }
@@ -537,7 +547,7 @@ x_10 = lean_alloc_closure((void*)(l_Std_IterM_toArray_go___redArg___lam__1), 6, 
 lean_closure_set(x_10, 0, x_7);
 lean_closure_set(x_10, 1, x_2);
 lean_closure_set(x_10, 2, x_6);
-x_11 = lean_obj_once(&l_Std_IterM_toArray___redArg___closed__0, &l_Std_IterM_toArray___redArg___closed__0_once, _init_l_Std_IterM_toArray___redArg___closed__0);
+x_11 = ((lean_object*)(l_Std_IterM_toArray___redArg___closed__0));
 x_12 = l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___redArg(x_10, x_3, x_11);
 x_13 = lean_apply_4(x_8, lean_box(0), lean_box(0), x_9, x_12);
 return x_13;
@@ -565,7 +575,7 @@ x_13 = lean_alloc_closure((void*)(l_Std_IterM_toArray_go___redArg___lam__1), 6, 
 lean_closure_set(x_13, 0, x_10);
 lean_closure_set(x_13, 1, x_5);
 lean_closure_set(x_13, 2, x_9);
-x_14 = lean_obj_once(&l_Std_IterM_toArray___redArg___closed__0, &l_Std_IterM_toArray___redArg___closed__0_once, _init_l_Std_IterM_toArray___redArg___closed__0);
+x_14 = ((lean_object*)(l_Std_IterM_toArray___redArg___closed__0));
 x_15 = l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___redArg(x_13, x_6, x_14);
 x_16 = lean_apply_4(x_11, lean_box(0), lean_box(0), x_12, x_15);
 return x_16;
@@ -593,7 +603,7 @@ x_10 = lean_alloc_closure((void*)(l_Std_IterM_toArray_go___redArg___lam__1), 6, 
 lean_closure_set(x_10, 0, x_7);
 lean_closure_set(x_10, 1, x_2);
 lean_closure_set(x_10, 2, x_6);
-x_11 = lean_obj_once(&l_Std_IterM_toArray___redArg___closed__0, &l_Std_IterM_toArray___redArg___closed__0_once, _init_l_Std_IterM_toArray___redArg___closed__0);
+x_11 = ((lean_object*)(l_Std_IterM_toArray___redArg___closed__0));
 x_12 = l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___redArg(x_10, x_3, x_11);
 x_13 = lean_apply_4(x_8, lean_box(0), lean_box(0), x_9, x_12);
 return x_13;
@@ -621,7 +631,7 @@ x_13 = lean_alloc_closure((void*)(l_Std_IterM_toArray_go___redArg___lam__1), 6, 
 lean_closure_set(x_13, 0, x_10);
 lean_closure_set(x_13, 1, x_5);
 lean_closure_set(x_13, 2, x_9);
-x_14 = lean_obj_once(&l_Std_IterM_toArray___redArg___closed__0, &l_Std_IterM_toArray___redArg___closed__0_once, _init_l_Std_IterM_toArray___redArg___closed__0);
+x_14 = ((lean_object*)(l_Std_IterM_toArray___redArg___closed__0));
 x_15 = l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___redArg(x_13, x_6, x_14);
 x_16 = lean_apply_4(x_11, lean_box(0), lean_box(0), x_12, x_15);
 return x_16;
@@ -649,7 +659,7 @@ x_10 = lean_alloc_closure((void*)(l_Std_IterM_toArray_go___redArg___lam__1), 6, 
 lean_closure_set(x_10, 0, x_7);
 lean_closure_set(x_10, 1, x_2);
 lean_closure_set(x_10, 2, x_6);
-x_11 = lean_obj_once(&l_Std_IterM_toArray___redArg___closed__0, &l_Std_IterM_toArray___redArg___closed__0_once, _init_l_Std_IterM_toArray___redArg___closed__0);
+x_11 = ((lean_object*)(l_Std_IterM_toArray___redArg___closed__0));
 x_12 = l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___redArg(x_10, x_3, x_11);
 x_13 = lean_apply_4(x_8, lean_box(0), lean_box(0), x_9, x_12);
 return x_13;
@@ -677,11 +687,45 @@ x_14 = lean_alloc_closure((void*)(l_Std_IterM_toArray_go___redArg___lam__1), 6, 
 lean_closure_set(x_14, 0, x_11);
 lean_closure_set(x_14, 1, x_5);
 lean_closure_set(x_14, 2, x_10);
-x_15 = lean_obj_once(&l_Std_IterM_toArray___redArg___closed__0, &l_Std_IterM_toArray___redArg___closed__0_once, _init_l_Std_IterM_toArray___redArg___closed__0);
+x_15 = ((lean_object*)(l_Std_IterM_toArray___redArg___closed__0));
 x_16 = l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___redArg(x_14, x_7, x_15);
 x_17 = lean_apply_4(x_12, lean_box(0), lean_box(0), x_13, x_16);
 return x_17;
 }
+}
+lean_object* runtime_initialize_Init_Data_Iterators_Consumers_Monadic_Partial(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Iterators_Consumers_Monadic_Total(uint8_t builtin);
+lean_object* runtime_initialize_Init_WFExtrinsicFix(uint8_t builtin);
+lean_object* runtime_initialize_Init_Ext(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Iterators_Consumers_Monadic_Collect(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Init_Data_Iterators_Consumers_Monadic_Partial(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Iterators_Consumers_Monadic_Total(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_WFExtrinsicFix(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Ext(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Init_Data_Iterators_Consumers_Monadic_Collect(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Init_Data_Iterators_Consumers_Monadic_Partial(uint8_t builtin);
 lean_object* initialize_Init_Data_Iterators_Consumers_Monadic_Total(uint8_t builtin);
@@ -692,19 +736,31 @@ LEAN_EXPORT lean_object* initialize_Init_Data_Iterators_Consumers_Monadic_Collec
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Iterators_Consumers_Monadic_Partial(builtin);
+res = initialize_Init_Data_Iterators_Consumers_Monadic_Partial(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Iterators_Consumers_Monadic_Total(builtin);
+res = initialize_Init_Data_Iterators_Consumers_Monadic_Total(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_WFExtrinsicFix(builtin);
+res = initialize_Init_WFExtrinsicFix(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Ext(builtin);
+res = initialize_Init_Ext(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Init_Data_Iterators_Consumers_Monadic_Collect(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Init_Data_Iterators_Consumers_Monadic_Collect(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Init_Data_Iterators_Consumers_Monadic_Collect(builtin);
 }
 #ifdef __cplusplus
 }

@@ -596,11 +596,18 @@ x_59 = lean_ctor_get(x_2, 0);
 x_60 = l_Std_DTreeMap_Internal_Impl_contains___at___00__private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_fvarDepOn_spec__0___redArg(x_59, x_3);
 return x_60;
 }
+case 15:
+{
+lean_object* x_61; uint8_t x_62; 
+x_61 = lean_ctor_get(x_2, 0);
+x_62 = l_Std_DTreeMap_Internal_Impl_contains___at___00__private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_fvarDepOn_spec__0___redArg(x_61, x_3);
+return x_62;
+}
 default: 
 {
-uint8_t x_61; 
-x_61 = 0;
-return x_61;
+uint8_t x_63; 
+x_63 = 0;
+return x_63;
 }
 }
 block_12:
@@ -718,119 +725,134 @@ else
 return x_6;
 }
 }
-case 3:
+case 1:
 {
-lean_object* x_8; lean_object* x_9; uint8_t x_10; 
+lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; 
 x_8 = lean_ctor_get(x_2, 0);
 x_9 = lean_ctor_get(x_2, 1);
-x_10 = l_Std_DTreeMap_Internal_Impl_contains___at___00__private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_fvarDepOn_spec__0___redArg(x_8, x_3);
-if (x_10 == 0)
+x_10 = lean_ctor_get(x_8, 3);
+x_11 = lean_ctor_get(x_8, 4);
+x_12 = l___private_Lean_Expr_0__Lean_Expr_hasAnyFVar_visit___at___00__private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_typeDepOn_spec__0(x_3, x_10);
+if (x_12 == 0)
 {
-lean_object* x_11; lean_object* x_12; uint8_t x_13; 
-x_11 = lean_unsigned_to_nat(0u);
-x_12 = lean_array_get_size(x_9);
-x_13 = lean_nat_dec_lt(x_11, x_12);
+uint8_t x_13; 
+x_13 = l___private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_depOn(x_1, x_11, x_3);
 if (x_13 == 0)
 {
-return x_10;
+x_2 = x_9;
+goto _start;
 }
 else
 {
-if (x_13 == 0)
-{
-return x_10;
-}
-else
-{
-size_t x_14; size_t x_15; uint8_t x_16; 
-x_14 = 0;
-x_15 = lean_usize_of_nat(x_12);
-x_16 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00__private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_letValueDepOn_spec__0___redArg(x_9, x_14, x_15, x_3);
-return x_16;
-}
+return x_13;
 }
 }
 else
 {
-return x_10;
+return x_12;
+}
+}
+case 2:
+{
+lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; uint8_t x_19; 
+x_15 = lean_ctor_get(x_2, 0);
+x_16 = lean_ctor_get(x_2, 1);
+x_17 = lean_ctor_get(x_15, 3);
+x_18 = lean_ctor_get(x_15, 4);
+x_19 = l___private_Lean_Expr_0__Lean_Expr_hasAnyFVar_visit___at___00__private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_typeDepOn_spec__0(x_3, x_17);
+if (x_19 == 0)
+{
+uint8_t x_20; 
+x_20 = l___private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_depOn(x_1, x_18, x_3);
+if (x_20 == 0)
+{
+x_2 = x_16;
+goto _start;
+}
+else
+{
+return x_20;
+}
+}
+else
+{
+return x_19;
+}
+}
+case 3:
+{
+lean_object* x_22; lean_object* x_23; uint8_t x_24; 
+x_22 = lean_ctor_get(x_2, 0);
+x_23 = lean_ctor_get(x_2, 1);
+x_24 = l_Std_DTreeMap_Internal_Impl_contains___at___00__private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_fvarDepOn_spec__0___redArg(x_22, x_3);
+if (x_24 == 0)
+{
+lean_object* x_25; lean_object* x_26; uint8_t x_27; 
+x_25 = lean_unsigned_to_nat(0u);
+x_26 = lean_array_get_size(x_23);
+x_27 = lean_nat_dec_lt(x_25, x_26);
+if (x_27 == 0)
+{
+return x_24;
+}
+else
+{
+if (x_27 == 0)
+{
+return x_24;
+}
+else
+{
+size_t x_28; size_t x_29; uint8_t x_30; 
+x_28 = 0;
+x_29 = lean_usize_of_nat(x_26);
+x_30 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00__private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_letValueDepOn_spec__0___redArg(x_23, x_28, x_29, x_3);
+return x_30;
+}
+}
+}
+else
+{
+return x_24;
 }
 }
 case 4:
 {
-lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; uint8_t x_21; 
-x_17 = lean_ctor_get(x_2, 0);
-x_18 = lean_ctor_get(x_17, 1);
-x_19 = lean_ctor_get(x_17, 2);
-x_20 = lean_ctor_get(x_17, 3);
-x_21 = l___private_Lean_Expr_0__Lean_Expr_hasAnyFVar_visit___at___00__private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_typeDepOn_spec__0(x_3, x_18);
-if (x_21 == 0)
-{
-uint8_t x_22; 
-x_22 = l_Std_DTreeMap_Internal_Impl_contains___at___00__private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_fvarDepOn_spec__0___redArg(x_19, x_3);
-if (x_22 == 0)
-{
-lean_object* x_23; lean_object* x_24; uint8_t x_25; 
-x_23 = lean_unsigned_to_nat(0u);
-x_24 = lean_array_get_size(x_20);
-x_25 = lean_nat_dec_lt(x_23, x_24);
-if (x_25 == 0)
-{
-return x_22;
-}
-else
-{
-if (x_25 == 0)
-{
-return x_22;
-}
-else
-{
-size_t x_26; size_t x_27; uint8_t x_28; 
-x_26 = 0;
-x_27 = lean_usize_of_nat(x_24);
-x_28 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00__private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_depOn_spec__0(x_1, x_20, x_26, x_27, x_3);
-return x_28;
-}
-}
-}
-else
-{
-return x_22;
-}
-}
-else
-{
-return x_21;
-}
-}
-case 5:
-{
-lean_object* x_29; uint8_t x_30; 
-x_29 = lean_ctor_get(x_2, 0);
-x_30 = l_Std_DTreeMap_Internal_Impl_contains___at___00__private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_fvarDepOn_spec__0___redArg(x_29, x_3);
-return x_30;
-}
-case 6:
-{
-uint8_t x_31; 
-x_31 = 0;
-return x_31;
-}
-case 7:
-{
-lean_object* x_32; lean_object* x_33; lean_object* x_34; uint8_t x_35; 
-x_32 = lean_ctor_get(x_2, 0);
-x_33 = lean_ctor_get(x_2, 2);
-x_34 = lean_ctor_get(x_2, 3);
-x_35 = l_Std_DTreeMap_Internal_Impl_contains___at___00__private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_fvarDepOn_spec__0___redArg(x_32, x_3);
+lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; uint8_t x_35; 
+x_31 = lean_ctor_get(x_2, 0);
+x_32 = lean_ctor_get(x_31, 1);
+x_33 = lean_ctor_get(x_31, 2);
+x_34 = lean_ctor_get(x_31, 3);
+x_35 = l___private_Lean_Expr_0__Lean_Expr_hasAnyFVar_visit___at___00__private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_typeDepOn_spec__0(x_3, x_32);
 if (x_35 == 0)
 {
 uint8_t x_36; 
 x_36 = l_Std_DTreeMap_Internal_Impl_contains___at___00__private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_fvarDepOn_spec__0___redArg(x_33, x_3);
 if (x_36 == 0)
 {
-x_2 = x_34;
-goto _start;
+lean_object* x_37; lean_object* x_38; uint8_t x_39; 
+x_37 = lean_unsigned_to_nat(0u);
+x_38 = lean_array_get_size(x_34);
+x_39 = lean_nat_dec_lt(x_37, x_38);
+if (x_39 == 0)
+{
+return x_36;
+}
+else
+{
+if (x_39 == 0)
+{
+return x_36;
+}
+else
+{
+size_t x_40; size_t x_41; uint8_t x_42; 
+x_40 = 0;
+x_41 = lean_usize_of_nat(x_38);
+x_42 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00__private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_depOn_spec__0(x_1, x_34, x_40, x_41, x_3);
+return x_42;
+}
+}
 }
 else
 {
@@ -842,57 +864,33 @@ else
 return x_35;
 }
 }
-case 8:
+case 5:
 {
-lean_object* x_38; lean_object* x_39; lean_object* x_40; uint8_t x_41; 
-x_38 = lean_ctor_get(x_2, 0);
-x_39 = lean_ctor_get(x_2, 3);
-x_40 = lean_ctor_get(x_2, 5);
-x_41 = l_Std_DTreeMap_Internal_Impl_contains___at___00__private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_fvarDepOn_spec__0___redArg(x_38, x_3);
-if (x_41 == 0)
-{
-uint8_t x_42; 
-x_42 = l_Std_DTreeMap_Internal_Impl_contains___at___00__private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_fvarDepOn_spec__0___redArg(x_39, x_3);
-if (x_42 == 0)
-{
-x_2 = x_40;
-goto _start;
+lean_object* x_43; uint8_t x_44; 
+x_43 = lean_ctor_get(x_2, 0);
+x_44 = l_Std_DTreeMap_Internal_Impl_contains___at___00__private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_fvarDepOn_spec__0___redArg(x_43, x_3);
+return x_44;
 }
-else
+case 6:
 {
-return x_42;
+uint8_t x_45; 
+x_45 = 0;
+return x_45;
 }
-}
-else
+case 7:
 {
-return x_41;
-}
-}
-case 9:
+lean_object* x_46; lean_object* x_47; lean_object* x_48; uint8_t x_49; 
+x_46 = lean_ctor_get(x_2, 0);
+x_47 = lean_ctor_get(x_2, 2);
+x_48 = lean_ctor_get(x_2, 3);
+x_49 = l_Std_DTreeMap_Internal_Impl_contains___at___00__private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_fvarDepOn_spec__0___redArg(x_46, x_3);
+if (x_49 == 0)
 {
-lean_object* x_44; lean_object* x_45; uint8_t x_46; 
-x_44 = lean_ctor_get(x_2, 0);
-x_45 = lean_ctor_get(x_2, 2);
-x_46 = l_Std_DTreeMap_Internal_Impl_contains___at___00__private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_fvarDepOn_spec__0___redArg(x_44, x_3);
-if (x_46 == 0)
-{
-x_2 = x_45;
-goto _start;
-}
-else
-{
-return x_46;
-}
-}
-case 10:
-{
-lean_object* x_48; lean_object* x_49; uint8_t x_50; 
-x_48 = lean_ctor_get(x_2, 0);
-x_49 = lean_ctor_get(x_2, 2);
-x_50 = l_Std_DTreeMap_Internal_Impl_contains___at___00__private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_fvarDepOn_spec__0___redArg(x_48, x_3);
+uint8_t x_50; 
+x_50 = l___private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_argDepOn___redArg(x_47, x_3);
 if (x_50 == 0)
 {
-x_2 = x_49;
+x_2 = x_48;
 goto _start;
 }
 else
@@ -900,31 +898,93 @@ else
 return x_50;
 }
 }
-default: 
+else
 {
-lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; uint8_t x_56; 
+return x_49;
+}
+}
+case 8:
+{
+lean_object* x_52; lean_object* x_53; lean_object* x_54; uint8_t x_55; 
 x_52 = lean_ctor_get(x_2, 0);
-x_53 = lean_ctor_get(x_2, 1);
-x_54 = lean_ctor_get(x_52, 3);
-x_55 = lean_ctor_get(x_52, 4);
-x_56 = l___private_Lean_Expr_0__Lean_Expr_hasAnyFVar_visit___at___00__private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_typeDepOn_spec__0(x_3, x_54);
+x_53 = lean_ctor_get(x_2, 2);
+x_54 = lean_ctor_get(x_2, 3);
+x_55 = l_Std_DTreeMap_Internal_Impl_contains___at___00__private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_fvarDepOn_spec__0___redArg(x_52, x_3);
+if (x_55 == 0)
+{
+uint8_t x_56; 
+x_56 = l_Std_DTreeMap_Internal_Impl_contains___at___00__private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_fvarDepOn_spec__0___redArg(x_53, x_3);
 if (x_56 == 0)
 {
-uint8_t x_57; 
-x_57 = l___private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_depOn(x_1, x_55, x_3);
-if (x_57 == 0)
-{
-x_2 = x_53;
+x_2 = x_54;
 goto _start;
 }
 else
 {
-return x_57;
+return x_56;
 }
 }
 else
 {
-return x_56;
+return x_55;
+}
+}
+case 9:
+{
+lean_object* x_58; lean_object* x_59; lean_object* x_60; uint8_t x_61; 
+x_58 = lean_ctor_get(x_2, 0);
+x_59 = lean_ctor_get(x_2, 3);
+x_60 = lean_ctor_get(x_2, 5);
+x_61 = l_Std_DTreeMap_Internal_Impl_contains___at___00__private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_fvarDepOn_spec__0___redArg(x_58, x_3);
+if (x_61 == 0)
+{
+uint8_t x_62; 
+x_62 = l_Std_DTreeMap_Internal_Impl_contains___at___00__private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_fvarDepOn_spec__0___redArg(x_59, x_3);
+if (x_62 == 0)
+{
+x_2 = x_60;
+goto _start;
+}
+else
+{
+return x_62;
+}
+}
+else
+{
+return x_61;
+}
+}
+case 13:
+{
+lean_object* x_64; lean_object* x_65; uint8_t x_66; 
+x_64 = lean_ctor_get(x_2, 0);
+x_65 = lean_ctor_get(x_2, 1);
+x_66 = l_Std_DTreeMap_Internal_Impl_contains___at___00__private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_fvarDepOn_spec__0___redArg(x_64, x_3);
+if (x_66 == 0)
+{
+x_2 = x_65;
+goto _start;
+}
+else
+{
+return x_66;
+}
+}
+default: 
+{
+lean_object* x_68; lean_object* x_69; uint8_t x_70; 
+x_68 = lean_ctor_get(x_2, 0);
+x_69 = lean_ctor_get(x_2, 2);
+x_70 = l_Std_DTreeMap_Internal_Impl_contains___at___00__private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_fvarDepOn_spec__0___redArg(x_68, x_3);
+if (x_70 == 0)
+{
+x_2 = x_69;
+goto _start;
+}
+else
+{
+return x_70;
 }
 }
 }
@@ -1142,71 +1202,99 @@ x_4 = lean_ctor_get(x_2, 0);
 x_5 = l___private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_LetDecl_depOn(x_1, x_4, x_3);
 return x_5;
 }
-case 3:
+case 1:
 {
-lean_object* x_6; lean_object* x_7; uint8_t x_8; 
+lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
 x_6 = lean_ctor_get(x_2, 0);
-x_7 = lean_ctor_get(x_2, 2);
-x_8 = l_Std_DTreeMap_Internal_Impl_contains___at___00__private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_fvarDepOn_spec__0___redArg(x_6, x_3);
-if (x_8 == 0)
+x_7 = lean_ctor_get(x_6, 3);
+x_8 = lean_ctor_get(x_6, 4);
+x_9 = l___private_Lean_Expr_0__Lean_Expr_hasAnyFVar_visit___at___00__private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_typeDepOn_spec__0(x_3, x_7);
+if (x_9 == 0)
 {
-uint8_t x_9; 
-x_9 = l_Std_DTreeMap_Internal_Impl_contains___at___00__private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_fvarDepOn_spec__0___redArg(x_7, x_3);
-return x_9;
+uint8_t x_10; 
+x_10 = l___private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_depOn(x_1, x_8, x_3);
+return x_10;
 }
 else
 {
-return x_8;
+return x_9;
+}
+}
+case 2:
+{
+lean_object* x_11; lean_object* x_12; lean_object* x_13; uint8_t x_14; 
+x_11 = lean_ctor_get(x_2, 0);
+x_12 = lean_ctor_get(x_11, 3);
+x_13 = lean_ctor_get(x_11, 4);
+x_14 = l___private_Lean_Expr_0__Lean_Expr_hasAnyFVar_visit___at___00__private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_typeDepOn_spec__0(x_3, x_12);
+if (x_14 == 0)
+{
+uint8_t x_15; 
+x_15 = l___private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_depOn(x_1, x_13, x_3);
+return x_15;
+}
+else
+{
+return x_14;
+}
+}
+case 3:
+{
+lean_object* x_16; lean_object* x_17; uint8_t x_18; 
+x_16 = lean_ctor_get(x_2, 0);
+x_17 = lean_ctor_get(x_2, 2);
+x_18 = l_Std_DTreeMap_Internal_Impl_contains___at___00__private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_fvarDepOn_spec__0___redArg(x_16, x_3);
+if (x_18 == 0)
+{
+uint8_t x_19; 
+x_19 = l___private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_argDepOn___redArg(x_17, x_3);
+return x_19;
+}
+else
+{
+return x_18;
 }
 }
 case 4:
 {
-lean_object* x_10; lean_object* x_11; uint8_t x_12; 
-x_10 = lean_ctor_get(x_2, 0);
-x_11 = lean_ctor_get(x_2, 3);
-x_12 = l_Std_DTreeMap_Internal_Impl_contains___at___00__private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_fvarDepOn_spec__0___redArg(x_10, x_3);
-if (x_12 == 0)
+lean_object* x_20; lean_object* x_21; uint8_t x_22; 
+x_20 = lean_ctor_get(x_2, 0);
+x_21 = lean_ctor_get(x_2, 2);
+x_22 = l_Std_DTreeMap_Internal_Impl_contains___at___00__private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_fvarDepOn_spec__0___redArg(x_20, x_3);
+if (x_22 == 0)
 {
-uint8_t x_13; 
-x_13 = l_Std_DTreeMap_Internal_Impl_contains___at___00__private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_fvarDepOn_spec__0___redArg(x_11, x_3);
-return x_13;
+uint8_t x_23; 
+x_23 = l_Std_DTreeMap_Internal_Impl_contains___at___00__private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_fvarDepOn_spec__0___redArg(x_21, x_3);
+return x_23;
 }
 else
 {
-return x_12;
+return x_22;
 }
 }
 case 5:
 {
-lean_object* x_14; uint8_t x_15; 
-x_14 = lean_ctor_get(x_2, 0);
-x_15 = l_Std_DTreeMap_Internal_Impl_contains___at___00__private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_fvarDepOn_spec__0___redArg(x_14, x_3);
-return x_15;
-}
-case 6:
+lean_object* x_24; lean_object* x_25; uint8_t x_26; 
+x_24 = lean_ctor_get(x_2, 0);
+x_25 = lean_ctor_get(x_2, 3);
+x_26 = l_Std_DTreeMap_Internal_Impl_contains___at___00__private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_fvarDepOn_spec__0___redArg(x_24, x_3);
+if (x_26 == 0)
 {
-lean_object* x_16; uint8_t x_17; 
-x_16 = lean_ctor_get(x_2, 0);
-x_17 = l_Std_DTreeMap_Internal_Impl_contains___at___00__private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_fvarDepOn_spec__0___redArg(x_16, x_3);
-return x_17;
-}
-default: 
-{
-lean_object* x_18; lean_object* x_19; lean_object* x_20; uint8_t x_21; 
-x_18 = lean_ctor_get(x_2, 0);
-x_19 = lean_ctor_get(x_18, 3);
-x_20 = lean_ctor_get(x_18, 4);
-x_21 = l___private_Lean_Expr_0__Lean_Expr_hasAnyFVar_visit___at___00__private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_typeDepOn_spec__0(x_3, x_19);
-if (x_21 == 0)
-{
-uint8_t x_22; 
-x_22 = l___private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_depOn(x_1, x_20, x_3);
-return x_22;
+uint8_t x_27; 
+x_27 = l_Std_DTreeMap_Internal_Impl_contains___at___00__private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_fvarDepOn_spec__0___redArg(x_25, x_3);
+return x_27;
 }
 else
 {
-return x_21;
+return x_26;
 }
+}
+default: 
+{
+lean_object* x_28; uint8_t x_29; 
+x_28 = lean_ctor_get(x_2, 0);
+x_29 = l_Std_DTreeMap_Internal_Impl_contains___at___00__private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_fvarDepOn_spec__0___redArg(x_28, x_3);
+return x_29;
 }
 }
 }
@@ -1243,16 +1331,44 @@ x_6 = lean_box(x_5);
 return x_6;
 }
 }
+lean_object* runtime_initialize_Lean_Compiler_LCNF_Basic(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lean_Compiler_LCNF_DependsOn(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Lean_Compiler_LCNF_Basic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lean_Compiler_LCNF_DependsOn(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Lean_Compiler_LCNF_Basic(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Compiler_LCNF_DependsOn(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Compiler_LCNF_Basic(builtin);
+res = initialize_Lean_Compiler_LCNF_Basic(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Lean_Compiler_LCNF_DependsOn(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Lean_Compiler_LCNF_DependsOn(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Lean_Compiler_LCNF_DependsOn(builtin);
 }
 #ifdef __cplusplus
 }

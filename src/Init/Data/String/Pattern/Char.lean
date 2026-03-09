@@ -6,12 +6,7 @@ Authors: Henrik Böving, Markus Himmel
 module
 
 prelude
-public import Init.Data.String.Pattern.Basic
-import Init.Data.String.Lemmas.FindPos
-import Init.Data.String.Termination
-import Init.Data.String.Lemmas.IsEmpty
-import Init.Data.String.Lemmas.Order
-import Init.Data.Option.Lemmas
+public import Init.Data.String.Pattern.Pred
 
 set_option doc.verso true
 
@@ -26,75 +21,31 @@ namespace String.Slice.Pattern
 namespace Char
 
 instance {c : Char} : ForwardPattern c where
-  dropPrefixOfNonempty? s h :=
-    if s.startPos.get (by exact Slice.startPos_ne_endPos h) = c then
-      some (s.startPos.next (by exact Slice.startPos_ne_endPos h))
-    else
-      none
-  dropPrefix? s :=
-    if h : s.startPos = s.endPos then
-      none
-    else if s.startPos.get h = c then
-      some (s.startPos.next h)
-    else
-      none
-  startsWith s :=
-    if h : s.startPos = s.endPos then
-      false
-    else
-      s.startPos.get h = c
+  dropPrefixOfNonempty? s h := ForwardPattern.dropPrefixOfNonempty? (· == c) s h
+  dropPrefix? s := ForwardPattern.dropPrefix? (· == c) s
+  startsWith s := ForwardPattern.startsWith (· == c) s
 
 instance {c : Char} : StrictForwardPattern c where
-  ne_startPos {s h q} := by
-    simp only [ForwardPattern.dropPrefixOfNonempty?, Option.ite_none_right_eq_some,
-      Option.some.injEq, ne_eq, and_imp]
-    rintro _ rfl
-    simp
+  ne_startPos h q := StrictForwardPattern.ne_startPos (pat := (· == c)) h q
 
 instance {c : Char} : LawfulForwardPattern c where
-  dropPrefixOfNonempty?_eq {s h} := by
-    simp [ForwardPattern.dropPrefixOfNonempty?, ForwardPattern.dropPrefix?,
-      Slice.startPos_eq_endPos_iff, h]
-  startsWith_eq {s} := by
-    simp only [ForwardPattern.startsWith, ForwardPattern.dropPrefix?]
-    split <;> (try split) <;> simp_all
+  dropPrefixOfNonempty?_eq h := LawfulForwardPattern.dropPrefixOfNonempty?_eq (pat := (· == c)) h
+  startsWith_eq s := LawfulForwardPattern.startsWith_eq (pat := (· == c)) s
 
-instance {c : Char} : ToForwardSearcher c (ToForwardSearcher.DefaultForwardSearcher c) :=
-  .defaultImplementation
+instance {c : Char} : ToForwardSearcher c (ToForwardSearcher.DefaultForwardSearcher (· == c)) where
+  toSearcher s := ToForwardSearcher.toSearcher (· == c) s
 
 instance {c : Char} : BackwardPattern c where
-  dropSuffixOfNonempty? s h :=
-    if (s.endPos.prev (Ne.symm (by exact Slice.startPos_ne_endPos h))).get (by simp) = c then
-      some (s.endPos.prev (Ne.symm (by exact Slice.startPos_ne_endPos h)))
-    else
-      none
-  dropSuffix? s :=
-    if h : s.endPos = s.startPos then
-      none
-    else if (s.endPos.prev h).get (by simp) = c then
-      some (s.endPos.prev h)
-    else
-      none
-  endsWith s :=
-    if h : s.endPos = s.startPos then
-      false
-    else
-      (s.endPos.prev h).get (by simp) = c
+  dropSuffixOfNonempty? s h := BackwardPattern.dropSuffixOfNonempty? (· == c) s h
+  dropSuffix? s := BackwardPattern.dropSuffix? (· == c) s
+  endsWith s := BackwardPattern.endsWith (· == c) s
 
 instance {c : Char} : StrictBackwardPattern c where
-  ne_endPos {s h q} := by
-    simp only [BackwardPattern.dropSuffixOfNonempty?, Option.ite_none_right_eq_some,
-      Option.some.injEq, ne_eq, and_imp]
-    rintro _ rfl
-    simp
+  ne_endPos h q := StrictBackwardPattern.ne_endPos (pat := (· == c)) h q
 
 instance {c : Char} : LawfulBackwardPattern c where
-  dropSuffixOfNonempty?_eq {s h} := by
-    simp [BackwardPattern.dropSuffixOfNonempty?, BackwardPattern.dropSuffix?,
-      Eq.comm (a := s.endPos), Slice.startPos_eq_endPos_iff, h]
-  endsWith_eq {s} := by
-    simp only [BackwardPattern.endsWith, BackwardPattern.dropSuffix?]
-    split <;> (try split) <;> simp_all
+  dropSuffixOfNonempty?_eq h := LawfulBackwardPattern.dropSuffixOfNonempty?_eq (pat := (· == c)) h
+  endsWith_eq s := LawfulBackwardPattern.endsWith_eq (pat := (· == c)) s
 
 instance {c : Char} : ToBackwardSearcher c (ToBackwardSearcher.DefaultBackwardSearcher c) :=
   .defaultImplementation

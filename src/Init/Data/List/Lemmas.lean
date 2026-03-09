@@ -236,7 +236,6 @@ theorem getElem?_eq_some_iff {l : List α} : l[i]? = some a ↔ ∃ h : i < l.le
     · match i, h with
       | i + 1, h => simp [getElem?_eq_some_iff, Nat.succ_lt_succ_iff]
 
-@[grind →]
 theorem getElem_of_getElem? {l : List α} : l[i]? = some a → ∃ h : i < l.length, l[i] = a :=
   getElem?_eq_some_iff.mp
 
@@ -1394,7 +1393,7 @@ theorem head_filter_of_pos {p : α → Bool} {l : List α} (w : l ≠ []) (h : p
 
 @[simp] theorem filter_sublist {p : α → Bool} : ∀ {l : List α}, filter p l <+ l
   | [] => .slnil
-  | a :: l => by rw [filter]; split <;> simp [Sublist.cons, Sublist.cons₂, filter_sublist]
+  | a :: l => by rw [filter]; split <;> simp [Sublist.cons, Sublist.cons_cons, filter_sublist]
 
 /-! ### filterMap -/
 
@@ -1837,6 +1836,11 @@ theorem append_eq_map_iff {f : α → β} :
 theorem sum_append [Add α] [Zero α] [Std.LawfulLeftIdentity (α := α) (· + ·) 0]
     [Std.Associative (α := α) (· + ·)] {l₁ l₂ : List α} : (l₁ ++ l₂).sum = l₁.sum + l₂.sum := by
   induction l₁ generalizing l₂ <;> simp_all [Std.Associative.assoc, Std.LawfulLeftIdentity.left_id]
+
+@[simp, grind =]
+theorem sum_singleton [Add α] [Zero α] [Std.LawfulRightIdentity (· + ·) (0 : α)] {x : α} :
+    [x].sum = x := by
+  simp [List.sum_eq_foldr, Std.LawfulRightIdentity.right_id x]
 
 @[simp, grind =]
 theorem sum_reverse [Zero α] [Add α] [Std.Associative (α := α) (· + ·)]
@@ -2727,6 +2731,31 @@ theorem foldr_assoc {op : α → α → α} [ha : Std.Associative op] :
     simp only [foldr_cons, ha.assoc]
     rw [foldr_assoc]
 
+theorem foldl_eq_apply_foldr {xs : List α} {f : α → α → α}
+    [Std.Associative f] [Std.LawfulRightIdentity f init] :
+    xs.foldl f x = f x (xs.foldr f init) := by
+  induction xs generalizing x
+  · simp [Std.LawfulRightIdentity.right_id]
+  · simp [foldl_assoc, *]
+
+theorem foldr_eq_apply_foldl {xs : List α} {f : α → α → α}
+    [Std.Associative f] [Std.LawfulLeftIdentity f init] :
+    xs.foldr f x = f (xs.foldl f init) x := by
+  have : Std.Associative (fun x y => f y x) := ⟨by simp [Std.Associative.assoc]⟩
+  have : Std.RightIdentity (fun x y => f y x) init := ⟨⟩
+  have : Std.LawfulRightIdentity (fun x y => f y x) init := ⟨by simp [Std.LawfulLeftIdentity.left_id]⟩
+  rw [← List.reverse_reverse (as := xs), foldr_reverse, foldl_eq_apply_foldr, foldl_reverse]
+
+theorem foldr_eq_foldl {xs : List α} {f : α → α → α}
+    [Std.Associative f] [Std.LawfulIdentity f init] :
+    xs.foldr f init = xs.foldl f init := by
+  simp [foldl_eq_apply_foldr, Std.LawfulLeftIdentity.left_id]
+
+theorem sum_eq_foldl [Zero α] [Add α] [Std.Associative (α := α) (· + ·)]
+    [Std.LawfulIdentity (· + ·) (0 : α)] {xs : List α} :
+    xs.sum = xs.foldl (init := 0) (· + ·) := by
+  simp [sum_eq_foldr, foldl_eq_apply_foldr, Std.LawfulLeftIdentity.left_id]
+
 -- The argument `f : α₁ → α₂` is intentionally explicit, as it is sometimes not found by unification.
 theorem foldl_hom (f : α₁ → α₂) {g₁ : α₁ → β → α₁} {g₂ : α₂ → β → α₂} {l : List β} {init : α₁}
     (H : ∀ x y, g₂ (f x) y = f (g₁ x y)) : l.foldl g₂ (f init) = f (l.foldl g₁ init) := by
@@ -3124,7 +3153,7 @@ theorem dropLast_concat_getLast : ∀ {l : List α} (h : l ≠ []), dropLast l +
   | [], h => absurd rfl h
   | [_], _ => rfl
   | _ :: b :: l, _ => by
-    rw [dropLast_cons₂, cons_append, getLast_cons (cons_ne_nil _ _)]
+    rw [dropLast_cons_cons, cons_append, getLast_cons (cons_ne_nil _ _)]
     congr
     exact dropLast_concat_getLast (cons_ne_nil b l)
 
@@ -3743,5 +3772,29 @@ theorem get_mem : ∀ (l : List α) n, get l n ∈ l
 
 theorem mem_iff_get {a} {l : List α} : a ∈ l ↔ ∃ n, get l n = a :=
   ⟨get_of_mem, fun ⟨_, e⟩ => e ▸ get_mem ..⟩
+
+/-! ### `intercalate` -/
+
+@[simp]
+theorem intercalate_nil {ys : List α} : ys.intercalate [] = [] := rfl
+
+@[simp]
+theorem intercalate_singleton {ys xs : List α} : ys.intercalate [xs] = xs := by
+  simp [intercalate]
+
+@[simp]
+theorem intercalate_cons_cons {ys l l' : List α} {zs : List (List α)} :
+    ys.intercalate (l :: l' :: zs) = l ++ ys ++ ys.intercalate (l' :: zs) := by
+  simp [intercalate]
+
+@[simp]
+theorem intercalate_cons_cons_left {ys l : List α} {x : α} {zs : List (List α)} :
+    ys.intercalate ((x :: l) :: zs) = x :: ys.intercalate (l :: zs) := by
+  cases zs <;> simp
+
+theorem intercalate_cons_of_ne_nil {ys l : List α} {zs : List (List α)} (h : zs ≠ []) :
+    ys.intercalate (l :: zs) = l ++ ys ++ ys.intercalate zs :=
+  match zs, h with
+  | l'::zs, _ => by simp
 
 end List

@@ -234,6 +234,39 @@ lean_dec_ref(x_1);
 return x_3;
 }
 }
+lean_object* runtime_initialize_Init_System_IO(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_ToString_Macro(uint8_t builtin);
+lean_object* runtime_initialize_Init_System_Platform(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lake_Util_NativeLib(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Init_System_IO(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_ToString_Macro(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_System_Platform(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+l_Lake_sharedLibExt = _init_l_Lake_sharedLibExt();
+lean_mark_persistent(l_Lake_sharedLibExt);
+l_Lake_sharedLibPathEnvVar = _init_l_Lake_sharedLibPathEnvVar();
+lean_mark_persistent(l_Lake_sharedLibPathEnvVar);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lake_Util_NativeLib(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Init_System_IO(uint8_t builtin);
 lean_object* initialize_Init_Data_ToString_Macro(uint8_t builtin);
 lean_object* initialize_Init_System_Platform(uint8_t builtin);
@@ -242,20 +275,27 @@ LEAN_EXPORT lean_object* initialize_Lake_Util_NativeLib(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_System_IO(builtin);
+res = initialize_Init_System_IO(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_ToString_Macro(builtin);
+res = initialize_Init_Data_ToString_Macro(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_System_Platform(builtin);
+res = initialize_Init_System_Platform(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lake_sharedLibExt = _init_l_Lake_sharedLibExt();
-lean_mark_persistent(l_Lake_sharedLibExt);
-l_Lake_sharedLibPathEnvVar = _init_l_Lake_sharedLibPathEnvVar();
-lean_mark_persistent(l_Lake_sharedLibPathEnvVar);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Lake_Util_NativeLib(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Lake_Util_NativeLib(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Lake_Util_NativeLib(builtin);
 }
 #ifdef __cplusplus
 }

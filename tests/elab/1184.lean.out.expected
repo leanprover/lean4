@@ -1,0 +1,7 @@
+1184.lean:4:30-4:31: warning: This simp argument is unused:
+  h
+
+Hint: Omit it from the simp argument list.
+  simp (disch := assumption) ̵[̵h̵]̵
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`

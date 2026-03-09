@@ -266,6 +266,7 @@ export NoNatZeroDivisors (no_nat_zero_divisors)
 namespace NoNatZeroDivisors
 
 /-- Alternative constructor for `NoNatZeroDivisors` when we have an `IntModule`. -/
+@[implicit_reducible]
 def mk' {α} [IntModule α]
     (eq_zero_of_mul_eq_zero : ∀ (k : Nat) (a : α), k ≠ 0 → k • a = 0 → a = 0) :
     NoNatZeroDivisors α where

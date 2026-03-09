@@ -165,7 +165,7 @@ private def mkContext
   let h := mkLetOfMap polyDecls h (cond prime `p' `p) (mkConst ``Int.Linear.Poly) fun p => toExpr <| p.renameVars varRename
   let h := h.abstract #[ctxVar]
   if h.hasLooseBVars then
-    let ctxType := mkApp (mkConst ``RArray [levelZero]) Int.mkType
+    let ctxType := mkApp (mkConst ``RArray [Level.zero]) Int.mkType
     let ctxVal ← toContextExprCore vars Int.mkType
     return .letE (cond prime `ctx' `ctx) ctxType ctxVal h (nondep := false)
   else
@@ -183,7 +183,7 @@ private def mkRingContext (h : Expr) : ProofM Expr := do
   let h := mkLetOfMap (← get).ringPolyDecls h `rp (mkConst ``Grind.CommRing.Poly) fun p => toExpr <| p.renameVars varRename
   let h := h.abstract #[(← read).ringCtx]
   if h.hasLooseBVars then
-    let ctxType := mkApp (mkConst ``RArray [levelZero]) Int.mkType
+    let ctxType := mkApp (mkConst ``RArray [Level.zero]) Int.mkType
     let ctxVal ← toContextExprCore vars Int.mkType
     return .letE `rctx ctxType ctxVal h (nondep := false)
   else

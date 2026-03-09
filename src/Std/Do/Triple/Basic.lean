@@ -54,6 +54,9 @@ namespace Triple
 theorem iff [WP m ps] {α : Type u} {x : m α} {P : Assertion ps} {Q : PostCond α ps} :
     (Triple x P Q) ↔ (P ⊢ₛ wp⟦x⟧ Q) := by rfl
 
+theorem of_entails_wp [WP m ps] {α : Type u} {x : m α} {P : Assertion ps} {Q : PostCond α ps} (h : P ⊢ₛ wp⟦x⟧ Q):
+    Triple x P Q := h
+
 theorem iff_conseq [WP m ps] {α : Type u} {x : m α} {P : Assertion ps} {Q : PostCond α ps} :
     (Triple x P Q) ↔ (∀ ⦃P' Q'⦄, (P' ⊢ₛ P) → (Q ⊢ₚ Q') → P' ⊢ₛ wp⟦x⟧ Q') := by
   constructor

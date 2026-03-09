@@ -54,10 +54,10 @@ LEAN_EXPORT lean_object* l_Subarray_get_x21___boxed(lean_object*, lean_object*, 
 LEAN_EXPORT lean_object* l_Subarray_popFront___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Subarray_popFront(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_once_cell_t l_Subarray_empty___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Subarray_empty___closed__0;
-static lean_once_cell_t l_Subarray_empty___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Subarray_empty___closed__1;
+static const lean_array_object l_Subarray_empty___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_Subarray_empty___closed__0 = (const lean_object*)&l_Subarray_empty___closed__0_value;
+static const lean_ctor_object l_Subarray_empty___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*3 + 0, .m_other = 3, .m_tag = 0}, .m_objs = {((lean_object*)&l_Subarray_empty___closed__0_value),((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)(((size_t)(0) << 1) | 1))}};
+static const lean_object* l_Subarray_empty___closed__1 = (const lean_object*)&l_Subarray_empty___closed__1_value;
 LEAN_EXPORT lean_object* l_Subarray_empty(lean_object*);
 static lean_once_cell_t l_Subarray_instEmptyCollection___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Subarray_instEmptyCollection___closed__0;
@@ -691,38 +691,57 @@ return x_1;
 }
 else
 {
-uint8_t x_6; 
+lean_object* x_6; uint8_t x_7; uint8_t x_14; 
 lean_inc(x_4);
 lean_inc(x_3);
 lean_inc_ref(x_2);
-x_6 = !lean_is_exclusive(x_1);
-if (x_6 == 0)
+x_14 = !lean_is_exclusive(x_1);
+if (x_14 == 0)
 {
-lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-x_7 = lean_ctor_get(x_1, 2);
-lean_dec(x_7);
-x_8 = lean_ctor_get(x_1, 1);
-lean_dec(x_8);
-x_9 = lean_ctor_get(x_1, 0);
-lean_dec(x_9);
-x_10 = lean_unsigned_to_nat(1u);
-x_11 = lean_nat_add(x_3, x_10);
-lean_dec(x_3);
-lean_ctor_set(x_1, 1, x_11);
-return x_1;
+lean_object* x_15; lean_object* x_16; lean_object* x_17; 
+x_15 = lean_ctor_get(x_1, 2);
+lean_dec(x_15);
+x_16 = lean_ctor_get(x_1, 1);
+lean_dec(x_16);
+x_17 = lean_ctor_get(x_1, 0);
+lean_dec(x_17);
+x_6 = x_1;
+x_7 = x_14;
+goto block_13;
 }
 else
 {
-lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 lean_dec(x_1);
-x_12 = lean_unsigned_to_nat(1u);
-x_13 = lean_nat_add(x_3, x_12);
+x_6 = lean_box(0);
+x_7 = x_14;
+goto block_13;
+}
+block_13:
+{
+lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+x_8 = lean_unsigned_to_nat(1u);
+x_9 = lean_nat_add(x_3, x_8);
 lean_dec(x_3);
-x_14 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_14, 0, x_2);
-lean_ctor_set(x_14, 1, x_13);
-lean_ctor_set(x_14, 2, x_4);
-return x_14;
+if (x_7 == 0)
+{
+lean_ctor_set(x_6, 1, x_9);
+x_10 = x_6;
+goto block_11;
+}
+else
+{
+lean_object* x_12; 
+x_12 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_12, 0, x_2);
+lean_ctor_set(x_12, 1, x_9);
+lean_ctor_set(x_12, 2, x_4);
+x_10 = x_12;
+goto block_11;
+}
+block_11:
+{
+return x_10;
+}
 }
 }
 }
@@ -735,33 +754,11 @@ x_3 = l_Subarray_popFront___redArg(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Subarray_empty___closed__0(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Subarray_empty___closed__1(void) {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_obj_once(&l_Subarray_empty___closed__0, &l_Subarray_empty___closed__0_once, _init_l_Subarray_empty___closed__0);
-x_3 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set(x_3, 1, x_1);
-lean_ctor_set(x_3, 2, x_1);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l_Subarray_empty(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_obj_once(&l_Subarray_empty___closed__1, &l_Subarray_empty___closed__1_once, _init_l_Subarray_empty___closed__1);
+x_2 = ((lean_object*)(l_Subarray_empty___closed__1));
 return x_2;
 }
 }
@@ -2806,6 +2803,30 @@ return x_53;
 }
 }
 }
+lean_object* runtime_initialize_Init_Data_Array_Basic(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Slice_Operations(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Array_Subarray(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Init_Data_Array_Basic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Slice_Operations(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Init_Data_Array_Subarray(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin);
 lean_object* initialize_Init_Data_Slice_Operations(uint8_t builtin);
 static bool _G_initialized = false;
@@ -2813,13 +2834,23 @@ LEAN_EXPORT lean_object* initialize_Init_Data_Array_Subarray(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Array_Basic(builtin);
+res = initialize_Init_Data_Array_Basic(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Slice_Operations(builtin);
+res = initialize_Init_Data_Slice_Operations(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Init_Data_Array_Subarray(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Init_Data_Array_Subarray(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Init_Data_Array_Subarray(builtin);
 }
 #ifdef __cplusplus
 }

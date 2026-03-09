@@ -13,6 +13,320 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* runtime_initialize_Lean_Elab_Import(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_Exception(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_Config(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_Command(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_Term(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_App(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_Binders(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_BinderPredicates(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_LetRec(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_Frontend(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_BuiltinNotation(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_Declaration(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_Tactic(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_Match(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_Quotation(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_Syntax(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_Do(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_StructInst(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_StructInstHint(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_MutualInductive(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_Inductive(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_Structure(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_Print(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_MutualDef(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_AuxDef(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_PreDefinition(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_Deriving(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_DeclarationRange(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_Extra(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_GenInjective(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_BuiltinTerm(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_Arg(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_PatternVar(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_ElabRules(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_Macro(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_Notation(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_Mixfix(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_MacroRules(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_BuiltinCommand(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_AssertExists(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_Command_WithWeakNamespace(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_BuiltinEvalCommand(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_RecAppSyntax(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_Eval(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_Calc(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_InheritDoc(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_ParseImportsFast(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_GuardMsgs(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_CheckTactic(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_MatchExpr(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_Tactic_Doc(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_Time(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_RecommendedSpelling(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_InfoTrees(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_ErrorExplanation(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_DocString(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_DocString_Builtin(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_Parallel(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_BuiltinDo(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_Idbg(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lean_Elab(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Lean_Elab_Import(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_Exception(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_Config(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_Command(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_Term(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_App(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_Binders(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_BinderPredicates(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_LetRec(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_Frontend(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_BuiltinNotation(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_Declaration(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_Tactic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_Match(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_Quotation(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_Syntax(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_Do(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_StructInst(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_StructInstHint(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_MutualInductive(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_Inductive(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_Structure(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_Print(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_MutualDef(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_AuxDef(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_PreDefinition(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_Deriving(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_DeclarationRange(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_Extra(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_GenInjective(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_BuiltinTerm(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_Arg(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_PatternVar(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_ElabRules(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_Macro(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_Notation(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_Mixfix(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_MacroRules(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_BuiltinCommand(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_AssertExists(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_Command_WithWeakNamespace(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_BuiltinEvalCommand(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_RecAppSyntax(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_Eval(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_Calc(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_InheritDoc(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_ParseImportsFast(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_GuardMsgs(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_CheckTactic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_MatchExpr(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_Tactic_Doc(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_Time(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_RecommendedSpelling(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_InfoTrees(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_ErrorExplanation(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_DocString(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_DocString_Builtin(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_Parallel(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_BuiltinDo(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_Idbg(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lean_Elab(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Lean_Elab_Import(uint8_t builtin);
 lean_object* initialize_Lean_Elab_Exception(uint8_t builtin);
 lean_object* initialize_Lean_Elab_Config(uint8_t builtin);
@@ -78,187 +392,255 @@ LEAN_EXPORT lean_object* initialize_Lean_Elab(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Elab_Import(builtin);
+res = initialize_Lean_Elab_Import(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Exception(builtin);
+res = initialize_Lean_Elab_Exception(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Config(builtin);
+res = initialize_Lean_Elab_Config(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Command(builtin);
+res = initialize_Lean_Elab_Command(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Term(builtin);
+res = initialize_Lean_Elab_Term(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_App(builtin);
+res = initialize_Lean_Elab_App(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Binders(builtin);
+res = initialize_Lean_Elab_Binders(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_BinderPredicates(builtin);
+res = initialize_Lean_Elab_BinderPredicates(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_LetRec(builtin);
+res = initialize_Lean_Elab_LetRec(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Frontend(builtin);
+res = initialize_Lean_Elab_Frontend(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_BuiltinNotation(builtin);
+res = initialize_Lean_Elab_BuiltinNotation(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Declaration(builtin);
+res = initialize_Lean_Elab_Declaration(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic(builtin);
+res = initialize_Lean_Elab_Tactic(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Match(builtin);
+res = initialize_Lean_Elab_Match(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Quotation(builtin);
+res = initialize_Lean_Elab_Quotation(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Syntax(builtin);
+res = initialize_Lean_Elab_Syntax(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Do(builtin);
+res = initialize_Lean_Elab_Do(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_StructInst(builtin);
+res = initialize_Lean_Elab_StructInst(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_StructInstHint(builtin);
+res = initialize_Lean_Elab_StructInstHint(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_MutualInductive(builtin);
+res = initialize_Lean_Elab_MutualInductive(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Inductive(builtin);
+res = initialize_Lean_Elab_Inductive(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Structure(builtin);
+res = initialize_Lean_Elab_Structure(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Print(builtin);
+res = initialize_Lean_Elab_Print(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_MutualDef(builtin);
+res = initialize_Lean_Elab_MutualDef(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_AuxDef(builtin);
+res = initialize_Lean_Elab_AuxDef(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_PreDefinition(builtin);
+res = initialize_Lean_Elab_PreDefinition(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Deriving(builtin);
+res = initialize_Lean_Elab_Deriving(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_DeclarationRange(builtin);
+res = initialize_Lean_Elab_DeclarationRange(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Extra(builtin);
+res = initialize_Lean_Elab_Extra(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_GenInjective(builtin);
+res = initialize_Lean_Elab_GenInjective(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_BuiltinTerm(builtin);
+res = initialize_Lean_Elab_BuiltinTerm(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Arg(builtin);
+res = initialize_Lean_Elab_Arg(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_PatternVar(builtin);
+res = initialize_Lean_Elab_PatternVar(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_ElabRules(builtin);
+res = initialize_Lean_Elab_ElabRules(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Macro(builtin);
+res = initialize_Lean_Elab_Macro(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Notation(builtin);
+res = initialize_Lean_Elab_Notation(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Mixfix(builtin);
+res = initialize_Lean_Elab_Mixfix(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_MacroRules(builtin);
+res = initialize_Lean_Elab_MacroRules(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_BuiltinCommand(builtin);
+res = initialize_Lean_Elab_BuiltinCommand(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_AssertExists(builtin);
+res = initialize_Lean_Elab_AssertExists(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Command_WithWeakNamespace(builtin);
+res = initialize_Lean_Elab_Command_WithWeakNamespace(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_BuiltinEvalCommand(builtin);
+res = initialize_Lean_Elab_BuiltinEvalCommand(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_RecAppSyntax(builtin);
+res = initialize_Lean_Elab_RecAppSyntax(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Eval(builtin);
+res = initialize_Lean_Elab_Eval(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Calc(builtin);
+res = initialize_Lean_Elab_Calc(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_InheritDoc(builtin);
+res = initialize_Lean_Elab_InheritDoc(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_ParseImportsFast(builtin);
+res = initialize_Lean_Elab_ParseImportsFast(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_GuardMsgs(builtin);
+res = initialize_Lean_Elab_GuardMsgs(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_CheckTactic(builtin);
+res = initialize_Lean_Elab_CheckTactic(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_MatchExpr(builtin);
+res = initialize_Lean_Elab_MatchExpr(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_Doc(builtin);
+res = initialize_Lean_Elab_Tactic_Doc(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Time(builtin);
+res = initialize_Lean_Elab_Time(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_RecommendedSpelling(builtin);
+res = initialize_Lean_Elab_RecommendedSpelling(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_InfoTrees(builtin);
+res = initialize_Lean_Elab_InfoTrees(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_ErrorExplanation(builtin);
+res = initialize_Lean_Elab_ErrorExplanation(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_DocString(builtin);
+res = initialize_Lean_Elab_DocString(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_DocString_Builtin(builtin);
+res = initialize_Lean_Elab_DocString_Builtin(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Parallel(builtin);
+res = initialize_Lean_Elab_Parallel(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_BuiltinDo(builtin);
+res = initialize_Lean_Elab_BuiltinDo(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Idbg(builtin);
+res = initialize_Lean_Elab_Idbg(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Lean_Elab(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Lean_Elab(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Lean_Elab(builtin);
 }
 #ifdef __cplusplus
 }

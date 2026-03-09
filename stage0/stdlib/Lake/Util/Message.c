@@ -99,7 +99,7 @@ return x_4;
 LEAN_EXPORT lean_object* l_Lake_mkExceptionMessage(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; lean_object* x_8; lean_object* x_14; lean_object* x_25; 
+lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; lean_object* x_8; lean_object* x_14; lean_object* x_28; 
 x_3 = lean_ctor_get(x_1, 1);
 lean_inc_ref(x_3);
 x_4 = lean_ctor_get(x_1, 2);
@@ -107,22 +107,22 @@ lean_inc_ref(x_4);
 lean_dec_ref(x_1);
 x_5 = l_Lean_Exception_getRef(x_2);
 x_6 = 0;
-x_25 = l_Lean_Syntax_getPos_x3f(x_5, x_6);
-if (lean_obj_tag(x_25) == 0)
+x_28 = l_Lean_Syntax_getPos_x3f(x_5, x_6);
+if (lean_obj_tag(x_28) == 0)
 {
-lean_object* x_26; 
-x_26 = lean_unsigned_to_nat(0u);
-x_14 = x_26;
-goto block_24;
+lean_object* x_29; 
+x_29 = lean_unsigned_to_nat(0u);
+x_14 = x_29;
+goto block_27;
 }
 else
 {
-lean_object* x_27; 
-x_27 = lean_ctor_get(x_25, 0);
-lean_inc(x_27);
-lean_dec_ref(x_25);
-x_14 = x_27;
-goto block_24;
+lean_object* x_30; 
+x_30 = lean_ctor_get(x_28, 0);
+lean_inc(x_30);
+lean_dec_ref(x_28);
+x_14 = x_30;
+goto block_27;
 }
 block_13:
 {
@@ -141,7 +141,7 @@ lean_ctor_set_uint8(x_12, sizeof(void*)*5 + 1, x_9);
 lean_ctor_set_uint8(x_12, sizeof(void*)*5 + 2, x_6);
 return x_12;
 }
-block_24:
+block_27:
 {
 lean_object* x_15; lean_object* x_16; 
 lean_inc_ref(x_4);
@@ -160,32 +160,48 @@ goto block_13;
 }
 else
 {
-uint8_t x_18; 
-x_18 = !lean_is_exclusive(x_16);
-if (x_18 == 0)
+lean_object* x_18; lean_object* x_19; uint8_t x_20; uint8_t x_26; 
+x_18 = lean_ctor_get(x_16, 0);
+x_26 = !lean_is_exclusive(x_16);
+if (x_26 == 0)
 {
-lean_object* x_19; lean_object* x_20; 
-x_19 = lean_ctor_get(x_16, 0);
-x_20 = l_Lean_FileMap_toPosition(x_4, x_19);
-lean_dec(x_19);
-lean_ctor_set(x_16, 0, x_20);
-x_7 = x_15;
-x_8 = x_16;
-goto block_13;
+x_19 = x_16;
+x_20 = x_26;
+goto block_25;
 }
 else
 {
-lean_object* x_21; lean_object* x_22; lean_object* x_23; 
-x_21 = lean_ctor_get(x_16, 0);
-lean_inc(x_21);
+lean_inc(x_18);
 lean_dec(x_16);
-x_22 = l_Lean_FileMap_toPosition(x_4, x_21);
-lean_dec(x_21);
-x_23 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_23, 0, x_22);
+x_19 = lean_box(0);
+x_20 = x_26;
+goto block_25;
+}
+block_25:
+{
+lean_object* x_21; lean_object* x_22; 
+x_21 = l_Lean_FileMap_toPosition(x_4, x_18);
+lean_dec(x_18);
+if (x_20 == 0)
+{
+lean_ctor_set(x_19, 0, x_21);
+x_22 = x_19;
+goto block_23;
+}
+else
+{
+lean_object* x_24; 
+x_24 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_24, 0, x_21);
+x_22 = x_24;
+goto block_23;
+}
+block_23:
+{
 x_7 = x_15;
-x_8 = x_23;
+x_8 = x_22;
 goto block_13;
+}
 }
 }
 }
@@ -511,16 +527,44 @@ lean_dec_ref(x_1);
 return x_3;
 }
 }
+lean_object* runtime_initialize_Lean_Parser_Basic(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lake_Util_Message(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Lean_Parser_Basic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lake_Util_Message(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Lean_Parser_Basic(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lake_Util_Message(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Parser_Basic(builtin);
+res = initialize_Lean_Parser_Basic(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Lake_Util_Message(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Lake_Util_Message(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Lake_Util_Message(builtin);
 }
 #ifdef __cplusplus
 }

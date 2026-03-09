@@ -63,7 +63,7 @@ def notFollowedByRedefinedTermToken :=
   -- an "open" command follows the `do`-block.
   -- If we don't add `do`, then users would have to indent `do` blocks or use `{ ... }`.
   notFollowedBy ("set_option" <|> "open" <|> "if" <|> "match" <|> "match_expr" <|> "let" <|> "let_expr" <|> "have" <|>
-      "do" <|> "dbg_trace" <|> "assert!" <|> "debug_assert!" <|> "for" <|> "unless" <|> "return" <|> symbol "try")
+      "do" <|> "dbg_trace" <|> "idbg" <|> "assert!" <|> "debug_assert!" <|> "for" <|> "unless" <|> "return" <|> symbol "try")
     "token at 'do' element"
 
 @[builtin_doElem_parser] def doLet      := leading_parser

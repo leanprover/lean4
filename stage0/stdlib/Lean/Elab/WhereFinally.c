@@ -199,33 +199,54 @@ return x_18;
 }
 else
 {
-uint8_t x_19; 
+lean_object* x_19; uint8_t x_20; uint8_t x_27; 
 lean_dec(x_10);
 lean_dec_ref(x_2);
-x_19 = !lean_is_exclusive(x_1);
-if (x_19 == 0)
+x_27 = !lean_is_exclusive(x_1);
+if (x_27 == 0)
 {
-lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
-x_20 = lean_ctor_get(x_1, 1);
-lean_dec(x_20);
-x_21 = lean_ctor_get(x_1, 0);
-lean_dec(x_21);
-x_22 = lean_box(0);
-lean_ctor_set(x_1, 1, x_22);
-lean_ctor_set(x_1, 0, x_3);
-x_23 = lean_apply_2(x_6, lean_box(0), x_1);
-return x_23;
+lean_object* x_28; lean_object* x_29; 
+x_28 = lean_ctor_get(x_1, 1);
+lean_dec(x_28);
+x_29 = lean_ctor_get(x_1, 0);
+lean_dec(x_29);
+x_19 = x_1;
+x_20 = x_27;
+goto block_26;
 }
 else
 {
-lean_object* x_24; lean_object* x_25; lean_object* x_26; 
 lean_dec(x_1);
-x_24 = lean_box(0);
+x_19 = lean_box(0);
+x_20 = x_27;
+goto block_26;
+}
+block_26:
+{
+lean_object* x_21; lean_object* x_22; 
+x_21 = lean_box(0);
+if (x_20 == 0)
+{
+lean_ctor_set(x_19, 1, x_21);
+lean_ctor_set(x_19, 0, x_3);
+x_22 = x_19;
+goto block_24;
+}
+else
+{
+lean_object* x_25; 
 x_25 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_25, 0, x_3);
-lean_ctor_set(x_25, 1, x_24);
-x_26 = lean_apply_2(x_6, lean_box(0), x_25);
-return x_26;
+lean_ctor_set(x_25, 1, x_21);
+x_22 = x_25;
+goto block_24;
+}
+block_24:
+{
+lean_object* x_23; 
+x_23 = lean_apply_2(x_6, lean_box(0), x_22);
+return x_23;
+}
 }
 }
 }
@@ -238,16 +259,44 @@ x_5 = l_Lean_Elab_mkWhereFinallyView___redArg(x_2, x_3, x_4);
 return x_5;
 }
 }
+lean_object* runtime_initialize_Lean_Parser_Term(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lean_Elab_WhereFinally(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Lean_Parser_Term(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lean_Elab_WhereFinally(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Lean_Parser_Term(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_WhereFinally(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Parser_Term(builtin);
+res = initialize_Lean_Parser_Term(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Lean_Elab_WhereFinally(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Lean_Elab_WhereFinally(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Lean_Elab_WhereFinally(builtin);
 }
 #ifdef __cplusplus
 }

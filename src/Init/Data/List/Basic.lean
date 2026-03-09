@@ -135,7 +135,11 @@ protected def beq [BEq α] : List α → List α → Bool
 @[simp] theorem beq_nil_nil [BEq α] : List.beq ([] : List α) ([] : List α) = true := rfl
 @[simp] theorem beq_cons_nil [BEq α] {a : α} {as : List α} : List.beq (a::as) [] = false := rfl
 @[simp] theorem beq_nil_cons [BEq α] {a : α} {as : List α} : List.beq [] (a::as) = false := rfl
-theorem beq_cons₂ [BEq α] {a b : α} {as bs : List α} : List.beq (a::as) (b::bs) = (a == b && List.beq as bs) := rfl
+theorem beq_cons_cons [BEq α] {a b : α} {as bs : List α} : List.beq (a::as) (b::bs) = (a == b && List.beq as bs) := rfl
+
+@[deprecated beq_cons_cons (since := "2026-02-26")]
+theorem beq_cons₂ [BEq α] {a b : α} {as bs : List α} :
+    List.beq (a::as) (b::bs) = (a == b && List.beq as bs) := beq_cons_cons
 
 instance [BEq α] : BEq (List α) := ⟨List.beq⟩
 
@@ -175,7 +179,10 @@ Examples:
 @[simp, grind =] theorem isEqv_nil_nil : isEqv ([] : List α) [] eqv = true := rfl
 @[simp, grind =] theorem isEqv_nil_cons : isEqv ([] : List α) (a::as) eqv = false := rfl
 @[simp, grind =] theorem isEqv_cons_nil : isEqv (a::as : List α) [] eqv = false := rfl
-@[grind =] theorem isEqv_cons₂ : isEqv (a::as) (b::bs) eqv = (eqv a b && isEqv as bs eqv) := rfl
+@[grind =] theorem isEqv_cons_cons : isEqv (a::as) (b::bs) eqv = (eqv a b && isEqv as bs eqv) := rfl
+
+@[deprecated isEqv_cons_cons (since := "2026-02-26")]
+theorem isEqv_cons₂ : isEqv (a::as) (b::bs) eqv = (eqv a b && isEqv as bs eqv) := isEqv_cons_cons
 
 
 /-! ## Lexicographic ordering -/
@@ -1048,8 +1055,11 @@ def dropLast {α} : List α → List α
 @[simp, grind =] theorem dropLast_nil : ([] : List α).dropLast = [] := rfl
 @[simp, grind =] theorem dropLast_singleton : [x].dropLast = [] := rfl
 
-@[simp, grind =] theorem dropLast_cons₂ :
+@[simp, grind =] theorem dropLast_cons_cons :
     (x::y::zs).dropLast = x :: (y::zs).dropLast := rfl
+
+@[deprecated dropLast_cons_cons (since := "2026-02-26")]
+theorem dropLast_cons₂ : (x::y::zs).dropLast = x :: (y::zs).dropLast := dropLast_cons_cons
 
 -- Later this can be proved by `simp` via `[List.length_dropLast, List.length_cons, Nat.add_sub_cancel]`,
 -- but we need this while bootstrapping `Array`.
@@ -1085,7 +1095,11 @@ inductive Sublist {α} : List α → List α → Prop
   /-- If `l₁` is a subsequence of `l₂`, then it is also a subsequence of `a :: l₂`. -/
   | cons a : Sublist l₁ l₂ → Sublist l₁ (a :: l₂)
   /-- If `l₁` is a subsequence of `l₂`, then `a :: l₁` is a subsequence of `a :: l₂`. -/
-  | cons₂ a : Sublist l₁ l₂ → Sublist (a :: l₁) (a :: l₂)
+  | cons_cons a : Sublist l₁ l₂ → Sublist (a :: l₁) (a :: l₂)
+
+set_option linter.missingDocs false in
+@[deprecated Sublist.cons_cons (since := "2026-02-26"), match_pattern]
+abbrev Sublist.cons₂ := @Sublist.cons_cons
 
 @[inherit_doc] scoped infixl:50 " <+ " => Sublist
 
@@ -1143,8 +1157,12 @@ def isPrefixOf [BEq α] : List α → List α → Bool
 @[simp, grind =] theorem isPrefixOf_nil_left [BEq α] : isPrefixOf ([] : List α) l = true := by
   simp [isPrefixOf]
 @[simp, grind =] theorem isPrefixOf_cons_nil [BEq α] : isPrefixOf (a::as) ([] : List α) = false := rfl
-@[grind =] theorem isPrefixOf_cons₂ [BEq α] {a : α} :
+@[grind =] theorem isPrefixOf_cons_cons [BEq α] {a : α} :
     isPrefixOf (a::as) (b::bs) = (a == b && isPrefixOf as bs) := rfl
+
+@[deprecated isPrefixOf_cons_cons (since := "2026-02-26")]
+theorem isPrefixOf_cons₂ [BEq α] {a : α} :
+    isPrefixOf (a::as) (b::bs) = (a == b && isPrefixOf as bs) := isPrefixOf_cons_cons
 
 /--
 If the first list is a prefix of the second, returns the result of dropping the prefix.
@@ -2164,9 +2182,15 @@ def intersperse (sep : α) : (l : List α) → List α
   | x::xs => x :: sep :: intersperse sep xs
 
 @[simp] theorem intersperse_nil {sep : α} : ([] : List α).intersperse sep = [] := rfl
-@[simp] theorem intersperse_single {x : α} {sep : α} : [x].intersperse sep = [x] := rfl
-@[simp] theorem intersperse_cons₂ {x : α} {y : α} {zs : List α} {sep : α} :
+@[simp] theorem intersperse_singleton {x : α} {sep : α} : [x].intersperse sep = [x] := rfl
+@[deprecated intersperse_singleton (since := "2026-02-26")]
+theorem intersperse_single {x : α} {sep : α} : [x].intersperse sep = [x] := rfl
+@[simp] theorem intersperse_cons_cons {x : α} {y : α} {zs : List α} {sep : α} :
     (x::y::zs).intersperse sep = x::sep::((y::zs).intersperse sep) := rfl
+
+@[deprecated intersperse_cons_cons (since := "2026-02-26")]
+theorem intersperse_cons₂ {x : α} {y : α} {zs : List α} {sep : α} :
+    (x::y::zs).intersperse sep = x::sep::((y::zs).intersperse sep) := intersperse_cons_cons
 
 /-! ### intercalate -/
 

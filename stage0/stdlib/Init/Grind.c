@@ -13,6 +13,135 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* runtime_initialize_Init_Grind_Norm(uint8_t builtin);
+lean_object* runtime_initialize_Init_Grind_Tactics(uint8_t builtin);
+lean_object* runtime_initialize_Init_Grind_Lemmas(uint8_t builtin);
+lean_object* runtime_initialize_Init_Grind_Cases(uint8_t builtin);
+lean_object* runtime_initialize_Init_Grind_Propagator(uint8_t builtin);
+lean_object* runtime_initialize_Init_Grind_Util(uint8_t builtin);
+lean_object* runtime_initialize_Init_Grind_Offset(uint8_t builtin);
+lean_object* runtime_initialize_Init_Grind_PP(uint8_t builtin);
+lean_object* runtime_initialize_Init_Grind_Ring(uint8_t builtin);
+lean_object* runtime_initialize_Init_Grind_Module(uint8_t builtin);
+lean_object* runtime_initialize_Init_Grind_Ordered(uint8_t builtin);
+lean_object* runtime_initialize_Init_Grind_Ext(uint8_t builtin);
+lean_object* runtime_initialize_Init_Grind_ToInt(uint8_t builtin);
+lean_object* runtime_initialize_Init_Grind_ToIntLemmas(uint8_t builtin);
+lean_object* runtime_initialize_Init_Grind_Attr(uint8_t builtin);
+lean_object* runtime_initialize_Init_Grind_AC(uint8_t builtin);
+lean_object* runtime_initialize_Init_Grind_Injective(uint8_t builtin);
+lean_object* runtime_initialize_Init_Grind_Order(uint8_t builtin);
+lean_object* runtime_initialize_Init_Grind_Interactive(uint8_t builtin);
+lean_object* runtime_initialize_Init_Grind_Lint(uint8_t builtin);
+lean_object* runtime_initialize_Init_Grind_Annotated(uint8_t builtin);
+lean_object* runtime_initialize_Init_Grind_FieldNormNum(uint8_t builtin);
+lean_object* runtime_initialize_Init_Grind_Config(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Init_Grind(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Init_Grind_Norm(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Grind_Tactics(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Grind_Lemmas(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Grind_Cases(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Grind_Propagator(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Grind_Util(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Grind_Offset(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Grind_PP(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Grind_Ring(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Grind_Module(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Grind_Ordered(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Grind_Ext(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Grind_ToInt(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Grind_ToIntLemmas(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Grind_Attr(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Grind_AC(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Grind_Injective(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Grind_Order(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Grind_Interactive(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Grind_Lint(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Grind_Annotated(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Grind_FieldNormNum(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Grind_Config(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Init_Grind(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Init_Grind_Norm(uint8_t builtin);
 lean_object* initialize_Init_Grind_Tactics(uint8_t builtin);
 lean_object* initialize_Init_Grind_Lemmas(uint8_t builtin);
@@ -41,76 +170,107 @@ LEAN_EXPORT lean_object* initialize_Init_Grind(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Grind_Norm(builtin);
+res = initialize_Init_Grind_Norm(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Grind_Tactics(builtin);
+res = initialize_Init_Grind_Tactics(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Grind_Lemmas(builtin);
+res = initialize_Init_Grind_Lemmas(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Grind_Cases(builtin);
+res = initialize_Init_Grind_Cases(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Grind_Propagator(builtin);
+res = initialize_Init_Grind_Propagator(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Grind_Util(builtin);
+res = initialize_Init_Grind_Util(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Grind_Offset(builtin);
+res = initialize_Init_Grind_Offset(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Grind_PP(builtin);
+res = initialize_Init_Grind_PP(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Grind_Ring(builtin);
+res = initialize_Init_Grind_Ring(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Grind_Module(builtin);
+res = initialize_Init_Grind_Module(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Grind_Ordered(builtin);
+res = initialize_Init_Grind_Ordered(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Grind_Ext(builtin);
+res = initialize_Init_Grind_Ext(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Grind_ToInt(builtin);
+res = initialize_Init_Grind_ToInt(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Grind_ToIntLemmas(builtin);
+res = initialize_Init_Grind_ToIntLemmas(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Grind_Attr(builtin);
+res = initialize_Init_Grind_Attr(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Grind_AC(builtin);
+res = initialize_Init_Grind_AC(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Grind_Injective(builtin);
+res = initialize_Init_Grind_Injective(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Grind_Order(builtin);
+res = initialize_Init_Grind_Order(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Grind_Interactive(builtin);
+res = initialize_Init_Grind_Interactive(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Grind_Lint(builtin);
+res = initialize_Init_Grind_Lint(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Grind_Annotated(builtin);
+res = initialize_Init_Grind_Annotated(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Grind_FieldNormNum(builtin);
+res = initialize_Init_Grind_FieldNormNum(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Grind_Config(builtin);
+res = initialize_Init_Grind_Config(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Init_Grind(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Init_Grind(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Init_Grind(builtin);
 }
 #ifdef __cplusplus
 }

@@ -61,10 +61,10 @@ you can then put `my_name/lean4:my-tag` in your `lean-toolchain` file in a proje
 
 ### VS Code
 
-There is a `lean.code-workspace` file that correctly sets up VS Code with workspace roots for the stage0/stage1 setup described above as well as with other settings.
-You should always load it when working on Lean, such as by invoking
+There is a `.vscode/` directory that correctly sets up VS Code with settings, tasks, and recommended extensions.
+Simply open the repository folder in VS Code, such as by invoking
 ```
-code lean.code-workspace
+code .
 ```
 on the command line.
 

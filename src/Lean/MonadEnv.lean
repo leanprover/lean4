@@ -147,7 +147,7 @@ def getConstInfoRec [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m
 /--
 Matches if `e` is a constant that is an inductive type with one constructor.
 Such types can be used with primitive projections.
-See also `Lean.matchConstStructLike` for a more restrictive version.
+See also `Lean.matchConstNonRecStructure` for a more restrictive version.
 -/
 @[inline] def matchConstStructure [Monad m] [MonadEnv m] [MonadError m] (e : Expr) (failK : Unit → m α) (k : InductiveVal → List Level → ConstructorVal → m α) : m α :=
   matchConstInduct e failK fun ival us => do
@@ -159,11 +159,11 @@ See also `Lean.matchConstStructLike` for a more restrictive version.
       | _ => failK ()
 
 /--
-Matches if `e` is a constant that is an non-recursive inductive type with no indices and with one constructor.
-Such a type satisfies `Lean.isStructureLike`.
+Matches if `e` is a constant that is a non-recursive inductive type with no indices and with one constructor.
+Such a type satisfies `Lean.isNonRecStructure`.
 See also `Lean.matchConstStructure` for a less restrictive version.
 -/
-@[inline] def matchConstStructureLike [Monad m] [MonadEnv m] [MonadError m] (e : Expr) (failK : Unit → m α) (k : InductiveVal → List Level → ConstructorVal → m α) : m α :=
+@[inline] def matchConstNonRecStructure [Monad m] [MonadEnv m] [MonadError m] (e : Expr) (failK : Unit → m α) (k : InductiveVal → List Level → ConstructorVal → m α) : m α :=
   matchConstInduct e failK fun ival us => do
     if ival.isRec || ival.numIndices != 0 then failK ()
     else match ival.ctors with

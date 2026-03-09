@@ -374,29 +374,51 @@ _start:
 {
 if (lean_obj_tag(x_1) == 1)
 {
-uint8_t x_2; 
-x_2 = !lean_is_exclusive(x_1);
-if (x_2 == 0)
+lean_object* x_2; lean_object* x_3; uint8_t x_4; uint8_t x_9; 
+x_2 = lean_ctor_get(x_1, 0);
+x_9 = !lean_is_exclusive(x_1);
+if (x_9 == 0)
 {
-return x_1;
+x_3 = x_1;
+x_4 = x_9;
+goto block_8;
 }
 else
 {
-lean_object* x_3; lean_object* x_4; 
-x_3 = lean_ctor_get(x_1, 0);
-lean_inc(x_3);
+lean_inc(x_2);
 lean_dec(x_1);
-x_4 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_4, 0, x_3);
-return x_4;
+x_3 = lean_box(0);
+x_4 = x_9;
+goto block_8;
 }
-}
-else
+block_8:
 {
 lean_object* x_5; 
-lean_dec(x_1);
-x_5 = lean_box(0);
+if (x_4 == 0)
+{
+x_5 = x_3;
+goto block_6;
+}
+else
+{
+lean_object* x_7; 
+x_7 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_7, 0, x_2);
+x_5 = x_7;
+goto block_6;
+}
+block_6:
+{
 return x_5;
+}
+}
+}
+else
+{
+lean_object* x_10; 
+lean_dec(x_1);
+x_10 = lean_box(0);
+return x_10;
 }
 }
 }
@@ -419,21 +441,43 @@ return x_2;
 }
 else
 {
-uint8_t x_3; 
-x_3 = !lean_is_exclusive(x_1);
-if (x_3 == 0)
+lean_object* x_3; lean_object* x_4; uint8_t x_5; uint8_t x_10; 
+x_3 = lean_ctor_get(x_1, 0);
+x_10 = !lean_is_exclusive(x_1);
+if (x_10 == 0)
 {
-return x_1;
+x_4 = x_1;
+x_5 = x_10;
+goto block_9;
 }
 else
 {
-lean_object* x_4; lean_object* x_5; 
-x_4 = lean_ctor_get(x_1, 0);
-lean_inc(x_4);
+lean_inc(x_3);
 lean_dec(x_1);
-x_5 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_5, 0, x_4);
-return x_5;
+x_4 = lean_box(0);
+x_5 = x_10;
+goto block_9;
+}
+block_9:
+{
+lean_object* x_6; 
+if (x_5 == 0)
+{
+x_6 = x_4;
+goto block_7;
+}
+else
+{
+lean_object* x_8; 
+x_8 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_8, 0, x_3);
+x_6 = x_8;
+goto block_7;
+}
+block_7:
+{
+return x_6;
+}
 }
 }
 }
@@ -491,16 +535,44 @@ x_9 = lean_apply_4(x_6, lean_box(0), lean_box(0), x_4, x_8);
 return x_9;
 }
 }
+lean_object* runtime_initialize_Init_Data_String_Basic(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lean_Data_LOption(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Init_Data_String_Basic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lean_Data_LOption(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Init_Data_String_Basic(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Data_LOption(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_String_Basic(builtin);
+res = initialize_Init_Data_String_Basic(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Lean_Data_LOption(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Lean_Data_LOption(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Lean_Data_LOption(builtin);
 }
 #ifdef __cplusplus
 }

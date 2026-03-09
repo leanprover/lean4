@@ -1,0 +1,10 @@
+grind_11124.lean:48:8-48:16: warning: declaration uses `sorry`
+grind_11124.lean:53:8-53:37: warning: declaration uses `sorry`
+grind_11124.lean:63:8-63:23: warning: declaration uses `sorry`
+grind_11124.lean:65:8-65:23: warning: declaration uses `sorry`
+grind_11124.lean:67:8-67:22: warning: declaration uses `sorry`
+grind_11124.lean:70:8-70:27: warning: declaration uses `sorry`
+grind_11124.lean:73:8-73:18: warning: declaration uses `sorry`
+grind_11124.lean:98:4-98:8: warning: declaration uses `sorry`
+grind_11124.lean:102:0-102:8: warning: declaration uses `sorry`
+grind_11124.lean:104:8-104:21: warning: declaration uses `sorry`

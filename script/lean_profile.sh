@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Profile a Lean binary with demangled names.
 #
 # Usage:

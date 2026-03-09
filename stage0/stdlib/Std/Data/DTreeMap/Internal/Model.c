@@ -1816,42 +1816,59 @@ _start:
 {
 if (lean_obj_tag(x_1) == 0)
 {
-uint8_t x_2; 
-x_2 = !lean_is_exclusive(x_1);
-if (x_2 == 0)
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; uint8_t x_15; 
+x_2 = lean_ctor_get(x_1, 0);
+x_3 = lean_ctor_get(x_1, 1);
+x_4 = lean_ctor_get(x_1, 2);
+x_5 = lean_ctor_get(x_1, 3);
+x_6 = lean_ctor_get(x_1, 4);
+x_15 = !lean_is_exclusive(x_1);
+if (x_15 == 0)
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_3 = lean_ctor_get(x_1, 3);
-x_4 = lean_ctor_get(x_1, 4);
-x_5 = l_Std_DTreeMap_Internal_Impl_reverse___redArg(x_4);
-x_6 = l_Std_DTreeMap_Internal_Impl_reverse___redArg(x_3);
-lean_ctor_set(x_1, 4, x_6);
-lean_ctor_set(x_1, 3, x_5);
-return x_1;
+x_7 = x_1;
+x_8 = x_15;
+goto block_14;
 }
 else
 {
-lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
-x_7 = lean_ctor_get(x_1, 0);
-x_8 = lean_ctor_get(x_1, 1);
-x_9 = lean_ctor_get(x_1, 2);
-x_10 = lean_ctor_get(x_1, 3);
-x_11 = lean_ctor_get(x_1, 4);
-lean_inc(x_11);
-lean_inc(x_10);
-lean_inc(x_9);
-lean_inc(x_8);
-lean_inc(x_7);
+lean_inc(x_6);
+lean_inc(x_5);
+lean_inc(x_4);
+lean_inc(x_3);
+lean_inc(x_2);
 lean_dec(x_1);
-x_12 = l_Std_DTreeMap_Internal_Impl_reverse___redArg(x_11);
-x_13 = l_Std_DTreeMap_Internal_Impl_reverse___redArg(x_10);
-x_14 = lean_alloc_ctor(0, 5, 0);
-lean_ctor_set(x_14, 0, x_7);
-lean_ctor_set(x_14, 1, x_8);
-lean_ctor_set(x_14, 2, x_9);
-lean_ctor_set(x_14, 3, x_12);
-lean_ctor_set(x_14, 4, x_13);
-return x_14;
+x_7 = lean_box(0);
+x_8 = x_15;
+goto block_14;
+}
+block_14:
+{
+lean_object* x_9; lean_object* x_10; lean_object* x_11; 
+x_9 = l_Std_DTreeMap_Internal_Impl_reverse___redArg(x_6);
+x_10 = l_Std_DTreeMap_Internal_Impl_reverse___redArg(x_5);
+if (x_8 == 0)
+{
+lean_ctor_set(x_7, 4, x_10);
+lean_ctor_set(x_7, 3, x_9);
+x_11 = x_7;
+goto block_12;
+}
+else
+{
+lean_object* x_13; 
+x_13 = lean_alloc_ctor(0, 5, 0);
+lean_ctor_set(x_13, 0, x_2);
+lean_ctor_set(x_13, 1, x_3);
+lean_ctor_set(x_13, 2, x_4);
+lean_ctor_set(x_13, 3, x_9);
+lean_ctor_set(x_13, 4, x_10);
+x_11 = x_13;
+goto block_12;
+}
+block_12:
+{
+return x_11;
+}
 }
 }
 else
@@ -4975,21 +4992,43 @@ return x_5;
 }
 else
 {
-uint8_t x_6; 
-x_6 = !lean_is_exclusive(x_2);
-if (x_6 == 0)
+lean_object* x_6; lean_object* x_7; uint8_t x_8; uint8_t x_13; 
+x_6 = lean_ctor_get(x_2, 0);
+x_13 = !lean_is_exclusive(x_2);
+if (x_13 == 0)
 {
-return x_2;
+x_7 = x_2;
+x_8 = x_13;
+goto block_12;
 }
 else
 {
-lean_object* x_7; lean_object* x_8; 
-x_7 = lean_ctor_get(x_2, 0);
-lean_inc(x_7);
+lean_inc(x_6);
 lean_dec(x_2);
-x_8 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_8, 0, x_7);
-return x_8;
+x_7 = lean_box(0);
+x_8 = x_13;
+goto block_12;
+}
+block_12:
+{
+lean_object* x_9; 
+if (x_8 == 0)
+{
+x_9 = x_7;
+goto block_10;
+}
+else
+{
+lean_object* x_11; 
+x_11 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_11, 0, x_6);
+x_9 = x_11;
+goto block_10;
+}
+block_10:
+{
+return x_9;
+}
 }
 }
 }
@@ -5066,22 +5105,44 @@ return x_9;
 }
 else
 {
-uint8_t x_10; 
+lean_object* x_10; lean_object* x_11; uint8_t x_12; uint8_t x_17; 
 lean_dec_ref(x_2);
-x_10 = !lean_is_exclusive(x_7);
-if (x_10 == 0)
+x_10 = lean_ctor_get(x_7, 0);
+x_17 = !lean_is_exclusive(x_7);
+if (x_17 == 0)
 {
-return x_7;
+x_11 = x_7;
+x_12 = x_17;
+goto block_16;
 }
 else
 {
-lean_object* x_11; lean_object* x_12; 
-x_11 = lean_ctor_get(x_7, 0);
-lean_inc(x_11);
+lean_inc(x_10);
 lean_dec(x_7);
-x_12 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_12, 0, x_11);
-return x_12;
+x_11 = lean_box(0);
+x_12 = x_17;
+goto block_16;
+}
+block_16:
+{
+lean_object* x_13; 
+if (x_12 == 0)
+{
+x_13 = x_11;
+goto block_14;
+}
+else
+{
+lean_object* x_15; 
+x_15 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_15, 0, x_10);
+x_13 = x_15;
+goto block_14;
+}
+block_14:
+{
+return x_13;
+}
 }
 }
 }
@@ -6107,6 +6168,40 @@ lean_dec_ref(x_3);
 return x_11;
 }
 }
+lean_object* runtime_initialize_Std_Data_DTreeMap_Internal_WF_Defs(uint8_t builtin);
+lean_object* runtime_initialize_Std_Data_DTreeMap_Internal_Cell(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Nat_Linear(uint8_t builtin);
+lean_object* runtime_initialize_Init_Omega(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Std_Data_DTreeMap_Internal_Model(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Std_Data_DTreeMap_Internal_WF_Defs(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Std_Data_DTreeMap_Internal_Cell(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Nat_Linear(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Omega(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Std_Data_DTreeMap_Internal_Model(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Std_Data_DTreeMap_Internal_WF_Defs(uint8_t builtin);
 lean_object* initialize_Std_Data_DTreeMap_Internal_Cell(uint8_t builtin);
 lean_object* initialize_Init_Data_Nat_Linear(uint8_t builtin);
@@ -6116,19 +6211,31 @@ LEAN_EXPORT lean_object* initialize_Std_Data_DTreeMap_Internal_Model(uint8_t bui
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Std_Data_DTreeMap_Internal_WF_Defs(builtin);
+res = initialize_Std_Data_DTreeMap_Internal_WF_Defs(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_DTreeMap_Internal_Cell(builtin);
+res = initialize_Std_Data_DTreeMap_Internal_Cell(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Linear(builtin);
+res = initialize_Init_Data_Nat_Linear(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Omega(builtin);
+res = initialize_Init_Omega(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Std_Data_DTreeMap_Internal_Model(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Std_Data_DTreeMap_Internal_Model(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Std_Data_DTreeMap_Internal_Model(builtin);
 }
 #ifdef __cplusplus
 }

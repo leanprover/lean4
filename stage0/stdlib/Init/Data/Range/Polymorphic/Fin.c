@@ -273,6 +273,57 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
+lean_object* runtime_initialize_Init_Data_Range_Polymorphic_Instances(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Fin_OverflowAware(uint8_t builtin);
+lean_object* runtime_initialize_Init_Grind(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Fin_Lemmas(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Int_OfNat(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Nat_Linear(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Option_Lemmas(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Range_Polymorphic_Fin(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Init_Data_Range_Polymorphic_Instances(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Fin_OverflowAware(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Grind(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Fin_Lemmas(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Int_OfNat(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Nat_Linear(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Option_Lemmas(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+l_Fin_instLeast_x3fOfNatNat = _init_l_Fin_instLeast_x3fOfNatNat();
+lean_mark_persistent(l_Fin_instLeast_x3fOfNatNat);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Init_Data_Range_Polymorphic_Fin(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Init_Data_Range_Polymorphic_Instances(uint8_t builtin);
 lean_object* initialize_Init_Data_Fin_OverflowAware(uint8_t builtin);
 lean_object* initialize_Init_Grind(uint8_t builtin);
@@ -285,30 +336,43 @@ LEAN_EXPORT lean_object* initialize_Init_Data_Range_Polymorphic_Fin(uint8_t buil
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Range_Polymorphic_Instances(builtin);
+res = initialize_Init_Data_Range_Polymorphic_Instances(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Fin_OverflowAware(builtin);
+res = initialize_Init_Data_Fin_OverflowAware(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Grind(builtin);
+res = initialize_Init_Grind(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Fin_Lemmas(builtin);
+res = initialize_Init_Data_Fin_Lemmas(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Int_OfNat(builtin);
+res = initialize_Init_Data_Int_OfNat(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Linear(builtin);
+res = initialize_Init_Data_Nat_Linear(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Option_Lemmas(builtin);
+res = initialize_Init_Data_Option_Lemmas(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Fin_instLeast_x3fOfNatNat = _init_l_Fin_instLeast_x3fOfNatNat();
-lean_mark_persistent(l_Fin_instLeast_x3fOfNatNat);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Init_Data_Range_Polymorphic_Fin(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Init_Data_Range_Polymorphic_Fin(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Init_Data_Range_Polymorphic_Fin(builtin);
 }
 #ifdef __cplusplus
 }

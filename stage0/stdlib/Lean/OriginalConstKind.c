@@ -280,30 +280,47 @@ return x_8;
 }
 else
 {
-uint8_t x_12; 
-x_12 = !lean_is_exclusive(x_11);
-if (x_12 == 0)
+lean_object* x_12; lean_object* x_13; uint8_t x_14; uint8_t x_21; 
+x_12 = lean_ctor_get(x_11, 0);
+x_21 = !lean_is_exclusive(x_11);
+if (x_21 == 0)
 {
-lean_object* x_13; uint8_t x_14; lean_object* x_15; 
-x_13 = lean_ctor_get(x_11, 0);
-x_14 = lean_ctor_get_uint8(x_13, sizeof(void*)*3);
-lean_dec(x_13);
-x_15 = lean_box(x_14);
-lean_ctor_set(x_11, 0, x_15);
-return x_11;
+x_13 = x_11;
+x_14 = x_21;
+goto block_20;
 }
 else
 {
-lean_object* x_16; uint8_t x_17; lean_object* x_18; lean_object* x_19; 
-x_16 = lean_ctor_get(x_11, 0);
-lean_inc(x_16);
+lean_inc(x_12);
 lean_dec(x_11);
-x_17 = lean_ctor_get_uint8(x_16, sizeof(void*)*3);
-lean_dec(x_16);
-x_18 = lean_box(x_17);
+x_13 = lean_box(0);
+x_14 = x_21;
+goto block_20;
+}
+block_20:
+{
+uint8_t x_15; lean_object* x_16; lean_object* x_17; 
+x_15 = lean_ctor_get_uint8(x_12, sizeof(void*)*3);
+lean_dec(x_12);
+x_16 = lean_box(x_15);
+if (x_14 == 0)
+{
+lean_ctor_set(x_13, 0, x_16);
+x_17 = x_13;
+goto block_18;
+}
+else
+{
+lean_object* x_19; 
 x_19 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_19, 0, x_18);
-return x_19;
+lean_ctor_set(x_19, 0, x_16);
+x_17 = x_19;
+goto block_18;
+}
+block_18:
+{
+return x_17;
+}
 }
 }
 }
@@ -401,6 +418,36 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
+lean_object* runtime_initialize_Lean_Environment(uint8_t builtin);
+lean_object* runtime_initialize_Lean_EnvExtension(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lean_OriginalConstKind(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Lean_Environment(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_EnvExtension(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_OriginalConstKind_0__Lean_initFn_00___x40_Lean_OriginalConstKind_2239415342____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+l___private_Lean_OriginalConstKind_0__Lean_privateConstKindsExt = lean_io_result_get_value(res);
+lean_mark_persistent(l___private_Lean_OriginalConstKind_0__Lean_privateConstKindsExt);
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lean_OriginalConstKind(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Lean_Environment(uint8_t builtin);
 lean_object* initialize_Lean_EnvExtension(uint8_t builtin);
 static bool _G_initialized = false;
@@ -408,18 +455,23 @@ LEAN_EXPORT lean_object* initialize_Lean_OriginalConstKind(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Environment(builtin);
+res = initialize_Lean_Environment(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_EnvExtension(builtin);
+res = initialize_Lean_EnvExtension(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-if (builtin) {res = l___private_Lean_OriginalConstKind_0__Lean_initFn_00___x40_Lean_OriginalConstKind_2239415342____hygCtx___hyg_2_();
+res = runtime_initialize_Lean_OriginalConstKind(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
-l___private_Lean_OriginalConstKind_0__Lean_privateConstKindsExt = lean_io_result_get_value(res);
-lean_mark_persistent(l___private_Lean_OriginalConstKind_0__Lean_privateConstKindsExt);
 lean_dec_ref(res);
-}return lean_io_result_mk_ok(lean_box(0));
+res = meta_initialize_Lean_OriginalConstKind(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Lean_OriginalConstKind(builtin);
 }
 #ifdef __cplusplus
 }

@@ -235,6 +235,91 @@ lean_dec(x_1);
 return x_4;
 }
 }
+lean_object* runtime_initialize_Init_Data_Fin_OverflowAware(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Function(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Char_Lemmas(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Char_Order(uint8_t builtin);
+lean_object* runtime_initialize_Init_Grind(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Char_Basic(uint8_t builtin);
+lean_object* runtime_initialize_Init_ByCases(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Fin_Lemmas(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Int_OfNat(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Nat_Linear(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Nat_Simproc(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Option_Lemmas(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_UInt_Lemmas(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Char_Ordinal(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Init_Data_Fin_OverflowAware(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Function(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Char_Lemmas(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Char_Order(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Grind(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Char_Basic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_ByCases(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Fin_Lemmas(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Int_OfNat(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Nat_Linear(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Nat_Simproc(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Option_Lemmas(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_UInt_Lemmas(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+l_Char_numSurrogates = _init_l_Char_numSurrogates();
+lean_mark_persistent(l_Char_numSurrogates);
+l_Char_numCodePoints = _init_l_Char_numCodePoints();
+lean_mark_persistent(l_Char_numCodePoints);
+l_Char_succ_x3f___closed__0___boxed__const__1 = _init_l_Char_succ_x3f___closed__0___boxed__const__1();
+lean_mark_persistent(l_Char_succ_x3f___closed__0___boxed__const__1);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Init_Data_Char_Ordinal(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Init_Data_Fin_OverflowAware(uint8_t builtin);
 lean_object* initialize_Init_Data_Function(uint8_t builtin);
 lean_object* initialize_Init_Data_Char_Lemmas(uint8_t builtin);
@@ -253,52 +338,67 @@ LEAN_EXPORT lean_object* initialize_Init_Data_Char_Ordinal(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Fin_OverflowAware(builtin);
+res = initialize_Init_Data_Fin_OverflowAware(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Function(builtin);
+res = initialize_Init_Data_Function(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Char_Lemmas(builtin);
+res = initialize_Init_Data_Char_Lemmas(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Char_Order(builtin);
+res = initialize_Init_Data_Char_Order(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Grind(builtin);
+res = initialize_Init_Grind(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Char_Basic(builtin);
+res = initialize_Init_Data_Char_Basic(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_ByCases(builtin);
+res = initialize_Init_ByCases(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Fin_Lemmas(builtin);
+res = initialize_Init_Data_Fin_Lemmas(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Int_OfNat(builtin);
+res = initialize_Init_Data_Int_OfNat(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Linear(builtin);
+res = initialize_Init_Data_Nat_Linear(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Simproc(builtin);
+res = initialize_Init_Data_Nat_Simproc(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Option_Lemmas(builtin);
+res = initialize_Init_Data_Option_Lemmas(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_UInt_Lemmas(builtin);
+res = initialize_Init_Data_UInt_Lemmas(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Char_numSurrogates = _init_l_Char_numSurrogates();
-lean_mark_persistent(l_Char_numSurrogates);
-l_Char_numCodePoints = _init_l_Char_numCodePoints();
-lean_mark_persistent(l_Char_numCodePoints);
-l_Char_succ_x3f___closed__0___boxed__const__1 = _init_l_Char_succ_x3f___closed__0___boxed__const__1();
-lean_mark_persistent(l_Char_succ_x3f___closed__0___boxed__const__1);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Init_Data_Char_Ordinal(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Init_Data_Char_Ordinal(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Init_Data_Char_Ordinal(builtin);
 }
 #ifdef __cplusplus
 }

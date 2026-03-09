@@ -1,0 +1,16 @@
+gring_11543.lean:7:8-7:21: warning: declaration uses `sorry`
+gring_11543.lean:17:8-17:22: warning: declaration uses `sorry`
+gring_11543.lean:40:9-40:44: warning: declaration uses `sorry`
+gring_11543.lean:48:9-48:28: warning: declaration uses `sorry`
+gring_11543.lean:58:8-58:25: warning: declaration uses `sorry`
+gring_11543.lean:65:9-65:30: warning: declaration uses `sorry`
+gring_11543.lean:74:8-74:20: warning: declaration uses `sorry`
+gring_11543.lean:91:8-91:22: warning: declaration uses `sorry`
+gring_11543.lean:123:8-123:28: warning: declaration uses `sorry`
+gring_11543.lean:173:52-173:66: warning: This simp argument is unused:
+  add_sub_cancel
+
+Hint: Omit it from the simp argument list.
+  simp only [mul_sub_left_distrib, ← add_sub_assoc, a̵d̵d̵_̵s̵u̵b̵_̵c̵a̵n̵c̵e̵l̵,̵ ̵tsub_le_iff_right] at this
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`

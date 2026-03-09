@@ -1,0 +1,14 @@
+968.lean:3:39-3:48: warning: This simp argument is unused:
+  and_assoc
+
+Hint: Omit it from the simp argument list.
+  simp only [and_comm, and_left_comm,̵ ̵a̵n̵d̵_̵a̵s̵s̵o̵c̵]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+968.lean:7:39-7:48: warning: This simp argument is unused:
+  and_assoc
+
+Hint: Omit it from the simp argument list.
+  simp only [and_comm, and_left_comm,̵ ̵a̵n̵d̵_̵a̵s̵s̵o̵c̵]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`

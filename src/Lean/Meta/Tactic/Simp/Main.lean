@@ -390,8 +390,8 @@ def simpForall (e : Expr) : SimpM Result := withParent e do
         let p₂ := rd.expr
         let q₁ := mkLambda e.bindingName! e.bindingInfo! p₁ e.bindingBody!
         let result ← withLocalDecl e.bindingName! e.bindingInfo! p₂ fun a => withNewLemmas #[a] do
-          let prop := mkSort levelZero
-          let h₁_substr_a := mkApp6 (mkConst ``Eq.substr [levelOne]) prop (mkLambda `x .default prop (mkBVar 0)) p₂ p₁ h₁ a
+          let prop := mkSort Level.zero
+          let h₁_substr_a := mkApp6 (mkConst ``Eq.substr [Level.one]) prop (mkLambda `x .default prop (mkBVar 0)) p₂ p₁ h₁ a
           let q_h₁_substr_a := e.bindingBody!.instantiate1 h₁_substr_a
           let rb ← simp q_h₁_substr_a
           let h₂ ← mkLambdaFVars #[a] (← rb.getProof)
@@ -806,7 +806,7 @@ This method assumes `mvarId` is not assigned, and we are already using `mvarId`s
 def applySimpResult (mvarId : MVarId) (val : Expr) (type : Expr) (r : Simp.Result) (mayCloseGoal := true) : MetaM (Option (Expr × Expr)) := do
   if mayCloseGoal && r.expr.isFalse then
     match r.proof? with
-    | some eqProof => mvarId.assign (← mkFalseElim (← mvarId.getType) (mkApp4 (mkConst ``Eq.mp [levelZero]) type r.expr eqProof val))
+    | some eqProof => mvarId.assign (← mkFalseElim (← mvarId.getType) (mkApp4 (mkConst ``Eq.mp [Level.zero]) type r.expr eqProof val))
     | none => mvarId.assign (← mkFalseElim (← mvarId.getType) val)
     return none
   else

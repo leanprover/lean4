@@ -1,0 +1,11 @@
+lazyListRotateUnfoldProof.lean:18:4-18:10: warning: declaration uses `sorry`
+lazyListRotateUnfoldProof.lean:18:4-18:10: warning: declaration uses `sorry`
+lazyListRotateUnfoldProof.lean:18:4-18:10: warning: declaration uses `sorry`
+lazyListRotateUnfoldProof.lean:21:44-21:59: warning: This simp argument is unused:
+  LazyList.length
+
+Hint: Omit it from the simp argument list.
+  simp +arith [̵L̵a̵z̵y̵L̵i̵s̵t̵.̵l̵e̵n̵g̵t̵h̵]̵ ̵at h
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+lazyListRotateUnfoldProof.lean:27:8-27:18: warning: declaration uses `sorry`

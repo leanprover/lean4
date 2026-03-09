@@ -66,15 +66,9 @@ jobs:
           brew install ccache tree zstd coreutils gmp libuv
         if: runner.os == 'macOS'
       - name: Checkout
-        if: (!endsWith(matrix.os, '-with-cache'))
         uses: actions/checkout@v6
         with:
           # the default is to use a virtual merge commit between the PR and master: just use the PR
-          ref: ${{ github.event.pull_request.head.sha }}
-      - name: Namespace Checkout
-        if: endsWith(matrix.os, '-with-cache')
-        uses: namespacelabs/nscloud-checkout-action@v8
-        with:
           ref: ${{ github.event.pull_request.head.sha }}
       - name: Open Nix shell once
         run: true
@@ -85,7 +79,7 @@ jobs:
       - name: CI Merge Checkout
         run: |
           git fetch --depth=1 origin ${{ github.sha }}
-          git checkout FETCH_HEAD flake.nix flake.lock script/prepare-* tests/lean/run/importStructure.lean
+          git checkout FETCH_HEAD flake.nix flake.lock script/prepare-* tests/elab/importStructure.lean
         if: github.event_name == 'pull_request'
       # (needs to be after "Checkout" so files don't get overridden)
       - name: Setup emsdk
@@ -235,25 +229,21 @@ jobs:
         # prefix `if` above with `always` so it's run even if tests failed
         if: always() && steps.test.conclusion != 'skipped'
       - name: Check Test Binary
-        run: ${{ matrix.binary-check }} tests/compiler/534.lean.out
+        run: ${{ matrix.binary-check }} tests/compile/534.lean.out
         if: (!matrix.cross) && steps.test.conclusion != 'skipped'
       - name: Build Stage 2
         run: |
           make -C build -j$NPROC stage2
-        if: matrix.test-speedcenter
+        if: matrix.test-bench
       - name: Check Stage 3
         run: |
           make -C build -j$NPROC check-stage3
         if: matrix.check-stage3
-      - name: Test Speedcenter Benchmarks
+      - name: Test Benchmarks
         run: |
-          # Necessary for some timing metrics but does not work on Namespace runners
-          # and we just want to test that the benchmarks run at all here
-          #echo -1 | sudo tee /proc/sys/kernel/perf_event_paranoid
-          export BUILD=$PWD/build PATH=$PWD/build/stage1/bin:$PATH
-          cd tests/bench
-          nix shell .#temci -c temci exec --config speedcenter.yaml --included_blocks fast --runs 1
-        if: matrix.test-speedcenter
+          cd tests
+          nix develop -c make -C ../build -j$NPROC bench
+        if: matrix.test-bench
       - name: Check rebootstrap
         run: |
           set -e

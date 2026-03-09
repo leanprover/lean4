@@ -1,0 +1,7 @@
+issue7318.lean:27:38-27:50: warning: This simp argument is unused:
+  Q_of_decide'
+
+Hint: Omit it from the simp argument list.
+  simp (discharger := native_decide) [Q_of_decide'̵,̵ ̵Q̵_̵o̵f̵_̵d̵e̵c̵i̵d̵e̵]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`

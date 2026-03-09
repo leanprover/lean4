@@ -32,24 +32,46 @@ LEAN_EXPORT lean_object* l_Lake_fetchOrCreate___boxed(lean_object*, lean_object*
 LEAN_EXPORT lean_object* l_Lake_instMonadStore1OfMonadStore1Of___redArg(lean_object* x_1) {
 _start:
 {
-uint8_t x_2; 
-x_2 = !lean_is_exclusive(x_1);
-if (x_2 == 0)
+lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; uint8_t x_10; 
+x_2 = lean_ctor_get(x_1, 0);
+x_3 = lean_ctor_get(x_1, 1);
+x_10 = !lean_is_exclusive(x_1);
+if (x_10 == 0)
 {
-return x_1;
+x_4 = x_1;
+x_5 = x_10;
+goto block_9;
 }
 else
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = lean_ctor_get(x_1, 0);
-x_4 = lean_ctor_get(x_1, 1);
-lean_inc(x_4);
 lean_inc(x_3);
+lean_inc(x_2);
 lean_dec(x_1);
-x_5 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_5, 0, x_3);
-lean_ctor_set(x_5, 1, x_4);
-return x_5;
+x_4 = lean_box(0);
+x_5 = x_10;
+goto block_9;
+}
+block_9:
+{
+lean_object* x_6; 
+if (x_5 == 0)
+{
+x_6 = x_4;
+goto block_7;
+}
+else
+{
+lean_object* x_8; 
+x_8 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_8, 0, x_2);
+lean_ctor_set(x_8, 1, x_3);
+x_6 = x_8;
+goto block_7;
+}
+block_7:
+{
+return x_6;
+}
 }
 }
 }
@@ -81,39 +103,53 @@ return x_4;
 LEAN_EXPORT lean_object* l_Lake_instMonadStore1OfOfMonadDStore___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-uint8_t x_3; 
-x_3 = !lean_is_exclusive(x_2);
-if (x_3 == 0)
+lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; uint8_t x_13; 
+x_3 = lean_ctor_get(x_2, 0);
+x_4 = lean_ctor_get(x_2, 1);
+x_13 = !lean_is_exclusive(x_2);
+if (x_13 == 0)
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_4 = lean_ctor_get(x_2, 0);
-x_5 = lean_ctor_get(x_2, 1);
-lean_inc(x_1);
-x_6 = lean_alloc_closure((void*)(l_Lake_instMonadStore1OfOfMonadDStore___redArg___lam__0), 3, 2);
-lean_closure_set(x_6, 0, x_5);
-lean_closure_set(x_6, 1, x_1);
-x_7 = lean_apply_1(x_4, x_1);
-lean_ctor_set(x_2, 1, x_6);
-lean_ctor_set(x_2, 0, x_7);
-return x_2;
+x_5 = x_2;
+x_6 = x_13;
+goto block_12;
 }
 else
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
-x_8 = lean_ctor_get(x_2, 0);
-x_9 = lean_ctor_get(x_2, 1);
-lean_inc(x_9);
-lean_inc(x_8);
+lean_inc(x_4);
+lean_inc(x_3);
 lean_dec(x_2);
+x_5 = lean_box(0);
+x_6 = x_13;
+goto block_12;
+}
+block_12:
+{
+lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 lean_inc(x_1);
-x_10 = lean_alloc_closure((void*)(l_Lake_instMonadStore1OfOfMonadDStore___redArg___lam__0), 3, 2);
-lean_closure_set(x_10, 0, x_9);
-lean_closure_set(x_10, 1, x_1);
-x_11 = lean_apply_1(x_8, x_1);
-x_12 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_12, 0, x_11);
-lean_ctor_set(x_12, 1, x_10);
-return x_12;
+x_7 = lean_alloc_closure((void*)(l_Lake_instMonadStore1OfOfMonadDStore___redArg___lam__0), 3, 2);
+lean_closure_set(x_7, 0, x_4);
+lean_closure_set(x_7, 1, x_1);
+x_8 = lean_apply_1(x_3, x_1);
+if (x_6 == 0)
+{
+lean_ctor_set(x_5, 1, x_7);
+lean_ctor_set(x_5, 0, x_8);
+x_9 = x_5;
+goto block_10;
+}
+else
+{
+lean_object* x_11; 
+x_11 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_11, 0, x_8);
+lean_ctor_set(x_11, 1, x_7);
+x_9 = x_11;
+goto block_10;
+}
+block_10:
+{
+return x_9;
+}
 }
 }
 }
@@ -295,16 +331,44 @@ lean_dec(x_5);
 return x_8;
 }
 }
+lean_object* runtime_initialize_Init_Prelude(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lake_Util_Store(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Init_Prelude(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lake_Util_Store(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Init_Prelude(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lake_Util_Store(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Prelude(builtin);
+res = initialize_Init_Prelude(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Lake_Util_Store(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Lake_Util_Store(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Lake_Util_Store(builtin);
 }
 #ifdef __cplusplus
 }

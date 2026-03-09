@@ -742,7 +742,7 @@ def setPostponed (postponed : PersistentArray PostponedEntry) : MetaM Unit :=
   for the inductive datatype `inductName`.
 
   Recall we have three different settings: `.none` (never use it), `.all` (always use it), `.notClasses`
-  (enabled only for structure-like inductive types that are not classes).
+  (enabled only for non-recursive structure types that are not classes).
 
   The parameter `inductName` affects the result only if the current setting is `.notClasses`.
 -/
@@ -2293,7 +2293,7 @@ Return `true` if `indVal` is an inductive predicate. That is, `inductive` type i
 def isInductivePredicateVal (indVal : InductiveVal) : MetaM Bool := do
   forallTelescopeReducing indVal.type fun _ type => do
     match (← whnfD type) with
-    | .sort u .. => return u == levelZero
+    | .sort u .. => return u == Level.zero
     | _ => return false
 
 /--

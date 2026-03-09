@@ -242,16 +242,6 @@ set(PART2 "")
 ## Tests and benchmarks ##
 ##########################
 
-# LEAN PACKAGE TESTS
-file(GLOB LEANPKGTESTS "${LEAN_SOURCE_DIR}/../tests/pkg/*")
-foreach(T ${LEANPKGTESTS})
-  if(EXISTS "${T}/test.sh")
-    get_filename_component(T_NAME ${T} NAME)
-    cmake_path(RELATIVE_PATH T BASE_DIRECTORY ${LEAN_SOURCE_DIR}/.. OUTPUT_VARIABLE T_PATH)
-    add_test(NAME "${T_PATH}" WORKING_DIRECTORY "${T}" COMMAND bash -c "${TEST_VARS} ./test.sh")
-  endif()
-endforeach(T)
-
 # Create a lake test for each test and examples subdirectory of `lake`
 # which contains a `test.sh` file, excluding the following test(s):
 # bootstrap: too slow
@@ -313,6 +303,35 @@ add_test_dir(bench/size BENCH PART1)
 add_test_dir(lake_bench/inundation BENCH PART2)
 
 add_dir_of_test_dirs(misc_dir)
+add_dir_of_test_dirs(
+  pkg
+  EXCEPT
+    "path with spaces"
+    builtin_attr
+    cbv_attr
+    debug
+    def_clash
+    deriving
+    frontend
+    initialize
+    leanchecker
+    linter_set
+    misc
+    mod_clash
+    module
+    prv
+    rebuild
+    setup
+    signal
+    structure_docstrings
+    test_extern
+    user_attr
+    user_attr_app
+    user_ext # Test started being nondeterministic
+    user_opt
+    user_plugin
+    ver_clash
+)
 
 #######################
 ## Benchmark targets ##

@@ -107,19 +107,19 @@ def balanceL (k : α) (v : β k) (l r : Impl α β) (hlb : Balanced l) (hrb : Ba
       .inner 3 lrk lrv (.inner 1 lk lv .leaf .leaf) (.inner 1 k v .leaf .leaf)
     | inner _ lk lv ll@(.inner _ _ _ _ _) .leaf =>
       .inner 3 lk lv ll (.inner 1 k v .leaf .leaf)
-    | inner ls lk lv (.inner lls _ _ _ _) (.inner lrs _ _ _ _) => False.elim ✓
+    | inner _ _ _ (.inner _ _ _ _ _) (.inner _ _ _ _ _) => panic! "balanceL input was not balanced"
   | inner rs _ _ _ _ => match l with
     | leaf => .inner (1 + rs) k v .leaf r
     | inner ls lk lv ll lr =>
-      if hlsd : delta * rs < ls then match ll, lr with
+      if _ : delta * rs < ls then match ll, lr with
         | inner lls _ _ _ _, inner lrs lrk lrv lrl lrr =>
           if lrs < ratio * lls then
             .inner (1 + ls + rs) lk lv ll (.inner (1 + rs + lrs) k v (inner lrs lrk lrv lrl lrr) r)
           else
             .inner (1 + ls + rs) lrk lrv (.inner (1 + lls + lrl.size) lk lv ll lrl)
               (.inner (1 + rs + lrr.size) k v lrr r)
-        | inner _ _ _ _ _, leaf => False.elim ✓
-        | leaf, _ => False.elim ✓
+        | inner _ _ _ _ _, leaf => panic! "balanceL input was not balanced"
+        | leaf, _ => panic! "balanceL input was not balanced"
         else .inner (1 + ls + rs) k v (.inner ls lk lv ll lr) r
 
 /--
@@ -137,20 +137,20 @@ def balanceLErase (k : α) (v : β k) (l r : Impl α β) (hlb : Balanced l) (hrb
       .inner 3 lrk lrv (.inner 1 lk lv .leaf .leaf) (.inner 1 k v .leaf .leaf)
     | inner _ lk lv ll@(.inner _ _ _ _ _) .leaf =>
       .inner 3 lk lv ll (.inner 1 k v .leaf .leaf)
-    | inner ls lk lv ll@(.inner lls _ _ _ _) lr@(.inner lrs lrk lrv lrl lrr) =>
+    | inner ls lk lv ll@(.inner _ _ _ _ _) lr@(.inner lrs _ _ _ _) =>
       .inner (1 + ls) lk lv ll (.inner (1 + lrs) k v lr .leaf)
   | (inner rs _ _ _ _) => match l with
     | leaf => .inner (1 + rs) k v .leaf r
     | (inner ls lk lv ll lr) =>
-      if hlsd : delta * rs < ls then match ll, lr with
+      if _ : delta * rs < ls then match ll, lr with
         | inner lls _ _ _ _, inner lrs lrk lrv lrl lrr =>
           if lrs < ratio * lls then
             .inner (1 + ls + rs) lk lv ll (.inner (1 + rs + lrs) k v lr r)
           else
             .inner (1 + ls + rs) lrk lrv (.inner (1 + lls + lrl.size) lk lv ll lrl)
               (.inner (1 + rs + lrr.size) k v lrr r)
-        | inner _ _ _ _ _, leaf => False.elim ✓
-        | leaf, _ => False.elim ✓
+        | inner _ _ _ _ _, leaf => panic! "balanceLErase input was not balanced"
+        | leaf, _ => panic! "balanceLErase input was not balanced"
       else .inner (1 + ls + rs) k v l r
 
 /--
@@ -201,20 +201,20 @@ def balanceR (k : α) (v : β k) (l r : Impl α β) (hlb : Balanced l) (hrb : Ba
     | inner _ rk rv .leaf rr@(.inner _ _ _ _ _) => .inner 3 rk rv (.inner 1 k v .leaf .leaf) rr
     | inner _ rk rv (.inner _ rlk rlv _ _) .leaf => .inner 3 rlk rlv (.inner 1 k v .leaf .leaf)
         (.inner 1 rk rv .leaf .leaf)
-    | inner rs rk rv (.inner rls rlk rlv rll rlr) (.inner rrs _ _ _ _) =>
-      False.elim ✓
+    | inner _ _ _ (.inner _ _ _ _ _) (.inner _ _ _ _ _) =>
+      panic! "balanceR input was not balanced"
   | inner ls _ _ _ _ => match r with
     | leaf => .inner (1 + ls) k v l .leaf
     | inner rs rk rv rl rr =>
-      if hrsd : rs > delta * ls then match rl, rr with
+      if _ : rs > delta * ls then match rl, rr with
         | inner rls rlk rlv rll rlr, .inner rrs _ _ _ _ =>
           if rls < ratio * rrs then
             .inner (1 + ls + rs) rk rv (.inner (1 + ls + rls) k v l (.inner rls rlk rlv rll rlr)) rr
           else
             .inner (1 + ls + rs) rlk rlv (.inner (1 + ls + rll.size) k v l rll)
               (.inner (1 + rrs + rlr.size) rk rv rlr rr)
-        | inner _ _ _ _ _, leaf => False.elim ✓
-        | leaf, _ => False.elim ✓
+        | inner _ _ _ _ _, leaf => panic! "balanceR input was not balanced"
+        | leaf, _ => panic! "balanceR input was not balanced"
       else .inner (1 + ls + rs) k v l (inner rs rk rv rl rr)
 
 /--
@@ -231,20 +231,20 @@ def balanceRErase (k : α) (v : β k) (l r : Impl α β) (hlb : Balanced l) (hrb
     | inner _ rk rv .leaf rr@(.inner _ _ _ _ _) => .inner 3 rk rv (.inner 1 k v .leaf .leaf) rr
     | inner _ rk rv (.inner _ rlk rlv _ _) .leaf => .inner 3 rlk rlv (.inner 1 k v .leaf .leaf)
         (.inner 1 rk rv .leaf .leaf)
-    | inner rs rk rv rl@(.inner rls rlk rlv rll rlr) rr@(.inner rrs _ _ _ _) =>
+    | inner rs rk rv rl@(.inner rls _ _ _ _) rr@(.inner _ _ _ _ _) =>
       .inner (1 + rs) rk rv (.inner (1 + rls) k v .leaf rl) rr
   | inner ls _ _ _ _ => match r with
     | leaf => .inner (1 + ls) k v l .leaf
     | inner rs rk rv rl rr =>
-      if hrsd : rs > delta * ls then match rl, rr with
+      if _ : rs > delta * ls then match rl, rr with
         | inner rls rlk rlv rll rlr, .inner rrs _ _ _ _ =>
           if rls < ratio * rrs then
             .inner (1 + ls + rs) rk rv (.inner (1 + ls + rls) k v l rl) rr
           else
             .inner (1 + ls + rs) rlk rlv (.inner (1 + ls + rll.size) k v l rll)
               (.inner (1 + rrs + rlr.size) rk rv rlr rr)
-        | inner _ _ _ _ _ , leaf => False.elim ✓
-        | leaf, _ => False.elim ✓
+        | inner _ _ _ _ _, leaf => panic! "balanceRErase input was not balanced"
+        | leaf, _ => panic! "balanceRErase input was not balanced"
       else .inner (1 + ls + rs) k v l r
 
 /--
@@ -293,7 +293,7 @@ def balance (k : α) (v : β k) (l r : Impl α β) (hl : Balanced l) (hr : Balan
     | .inner _ rk rv .leaf rr@(.inner _ _ _ _ _) => .inner 3 rk rv (.inner 1 k v .leaf .leaf) rr
     | .inner _ rk rv (.inner _ rlk rlv _ _) .leaf => .inner 3 rlk rlv (.inner 1 k v .leaf .leaf)
         (.inner 1 rk rv .leaf .leaf)
-    | .inner rs rk rv (.inner rls rlk rlv rll rlr) rr@(.inner rrs _ _ _ _) =>
+    | .inner rs rk rv (.inner rls rlk rlv rll rlr) rr@(.inner _ _ _ _ _) =>
         .inner (1 + rs) rk rv (.inner (1 + rls) k v .leaf (.inner rls rlk rlv rll rlr)) rr
   | .inner ls lk lv ll lr =>
     match r with
@@ -303,10 +303,10 @@ def balance (k : α) (v : β k) (l r : Impl α β) (hl : Balanced l) (hr : Balan
       | .leaf, .inner _ lrk lrv _ _ => .inner 3 lrk lrv (.inner 1 lk lv .leaf .leaf)
           (.inner 1 k v .leaf .leaf)
       | .inner _ _ _ _ _, .leaf => .inner 3 lk lv ll (.inner 1 k v .leaf .leaf)
-      | .inner lls _ _ _ _, .inner lrs lrk lrv lrl lrr =>
+      | .inner _ _ _ _ _, .inner lrs lrk lrv lrl lrr =>
         .inner (1 + ls) lk lv ll (.inner (1 + lrs) k v (.inner lrs lrk lrv lrl lrr) .leaf)
     | .inner rs rk rv rl rr =>
-      if h₁ : delta * ls < rs then
+      if _ : delta * ls < rs then
         match rl, rr with
         | .inner rls rlk rlv rll rlr, .inner rrs _ _ _ _ =>
           if rls < ratio * rrs then
@@ -314,17 +314,9 @@ def balance (k : α) (v : β k) (l r : Impl α β) (hl : Balanced l) (hr : Balan
           else
             .inner (1 + ls + rs) rlk rlv (.inner (1 + ls + rll.size) k v l rll)
               (.inner (1 + rrs + rlr.size) rk rv rlr rr)
-        | inner _ _ _ _ _, .leaf => False.elim (by
-          simp only [balanced_inner_iff, size_inner, size_leaf, balancedAtRoot_zero_iff'] at hr
-          simp only [delta] at h₁
-          have := hl.one_le
-          omega)
-        | .leaf, _ => False.elim (by
-          simp only [balanced_inner_iff, size_leaf, balancedAtRoot_zero_iff] at hr
-          simp only [delta] at h₁
-          have := hl.one_le
-          omega)
-      else if h₂ : delta * rs < ls then
+        | inner _ _ _ _ _, .leaf => panic! "balance input was not balanced"
+        | .leaf, _ => panic! "balance input was not balanced"
+      else if _ : delta * rs < ls then
         match ll, lr with
         | .inner lls _ _ _ _, .inner lrs lrk lrv lrl lrr =>
           if lrs < ratio * lls then
@@ -332,16 +324,8 @@ def balance (k : α) (v : β k) (l r : Impl α β) (hl : Balanced l) (hr : Balan
           else
             .inner (1 + ls + rs) lrk lrv (.inner (1 + lls + lrl.size) lk lv ll lrl)
               (.inner (1 + rs + lrr.size) k v lrr r)
-        | inner _ _ _ _ _, .leaf => False.elim (by
-          simp only [balanced_inner_iff, size_inner, size_leaf, balancedAtRoot_zero_iff'] at hl
-          simp only [delta] at h₂
-          have := hr.one_le
-          omega)
-        | .leaf, _ => False.elim (by
-          simp only [balanced_inner_iff, size_leaf, balancedAtRoot_zero_iff] at hl
-          simp only [delta] at h₂
-          have := hr.one_le
-          omega)
+        | inner _ _ _ _ _, .leaf => panic! "balance input was not balanced"
+        | .leaf, _ => panic! "balance input was not balanced"
       else
         .inner (1 + ls + rs) k v l r
 
@@ -521,13 +505,13 @@ theorem size_rotateR {k : α} {v : β k} {lk : α} {lv : β lk} {ll lr : Impl α
 def balanceₘ (k : α) (v : β k) (l r : Impl α β) : Impl α β :=
   if l.size + r.size ≤ 1 then
     bin k v l r
-  else if h : r.size > delta * l.size then
+  else if _ : r.size > delta * l.size then
     match r with
-    | leaf => False.elim <| by simp [size_leaf] at h
+    | leaf => panic! "balanceₘ input was not balanced"
     | inner _ rk rv rl rr => rotateL k v l rk rv rl rr
-  else if h : l.size > delta * r.size then
+  else if _ : l.size > delta * r.size then
     match l with
-    | leaf => False.elim <| by simp [size_leaf] at h
+    | leaf => panic! "balanceₘ input was not balanced"
     | inner _ lk lv ll lr => rotateR k v lk lv ll lr r
   else
     bin k v l  r
@@ -676,7 +660,8 @@ theorem balanceL_eq_balanceLErase {k : α} {v : β k} {l r : Impl α β} {hlb hr
     balanceL k v l r hlb hrb hlr = balanceLErase k v l r hlb hrb hlr.erase := by
   fun_cases balanceL
   all_goals dsimp only [balanceLErase]
-  all_goals simp only [↓reduceDIte, ↓reduceIte, *]
+  all_goals try simp only [↓reduceDIte, ↓reduceIte, *]
+  all_goals (exfalso; tree_tac)
 
 theorem balanceLErase_eq_balanceL! {k : α} {v : β k} {l r : Impl α β} {hlb hrb hlr} :
     balanceLErase k v l r hlb hrb hlr = balanceL! k v l r := by
@@ -684,7 +669,7 @@ theorem balanceLErase_eq_balanceL! {k : α} {v : β k} {l r : Impl α β} {hlb h
   all_goals dsimp only [balanceLErase]
   all_goals simp only [*]
   all_goals dsimp only [dreduceDIte, dreduceIte]
-  all_goals contradiction
+  all_goals (exfalso; tree_tac)
 
 theorem balanceL!_eq_balance! {k : α} {v : β k} {l r : Impl α β} (hlb : l.Balanced)
     (hrb : r.Balanced) (hlr : BalanceLErasePrecond l.size r.size) :
@@ -698,8 +683,9 @@ theorem balanceL!_eq_balance! {k : α} {v : β k} {l r : Impl α β} (hlb : l.Ba
 
 theorem balanceR_eq_balanceRErase {k : α} {v : β k} {l r : Impl α β} {hlb hrb hlr} :
     balanceR k v l r hlb hrb hlr = balanceRErase k v l r hlb hrb hlr.erase := by
-  fun_cases balanceR <;>
-    simp only [balanceRErase, ↓reduceDIte, ↓reduceIte, *]
+  fun_cases balanceR
+  all_goals try simp only [balanceRErase, ↓reduceDIte, ↓reduceIte, *]
+  all_goals (exfalso; tree_tac)
 
 theorem balanceRErase_eq_balanceR! {k : α} {v : β k} {l r : Impl α β} {hlb hrb hlr} :
     balanceRErase k v l r hlb hrb hlr = balanceR! k v l r := by
@@ -707,7 +693,7 @@ theorem balanceRErase_eq_balanceR! {k : α} {v : β k} {l r : Impl α β} {hlb h
   all_goals dsimp only [balanceRErase, balanceR!]
   all_goals simp only [*]
   all_goals dsimp only [dreduceDIte, dreduceIte]
-  all_goals contradiction
+  all_goals (exfalso; tree_tac)
 
 theorem balanceR!_eq_balance! {k : α} {v : β k} {l r : Impl α β} (hlb : l.Balanced)
     (hrb : r.Balanced) (hlr : BalanceLErasePrecond r.size l.size) :
@@ -721,8 +707,8 @@ theorem balance_eq_balance! {k : α} {v : β k} {l r : Impl α β} {hlb hrb hlr}
     balance k v l r hlb hrb hlr = balance! k v l r := by
   fun_cases balance!
   all_goals dsimp only [balance]
-  all_goals simp only [↓reduceDIte, ↓reduceIte, *]
-  all_goals contradiction
+  all_goals try simp only [↓reduceDIte, ↓reduceIte, *]
+  all_goals (exfalso; tree_tac)
 
 theorem balance_eq_inner [Ord α] {sz k v} {l r : Impl α β}
     (hl : (inner sz k v l r).Balanced) {h} :
@@ -741,11 +727,13 @@ theorem balance!_desc {k : α} {v : β k} {l r : Impl α β} (hlb : l.Balanced) 
   fun_cases balanceₘ k v l r
   · rw [if_pos ‹_›, bin, balanced_inner_iff]
     exact ⟨rfl, hlb, hrb, Or.inl ‹_›, rfl⟩
+  · exfalso; simp only [size_leaf] at *; omega
   · rw [if_neg ‹_›, dif_pos ‹_›]
     simp only [size_rotateL (.left ‹_›), size_bin, size_inner]
     rw [← Balanced.eq ‹_›]
     refine ⟨rfl, ?_⟩
     apply balanced_rotateL <;> assumption
+  · exfalso; simp only [size_leaf] at *; omega
   · rw [if_neg ‹_›, dif_neg ‹_›, dif_pos ‹_›]
     simp only [size_rotateR (.right ‹_›), size_bin, size_inner]
     rw [← Balanced.eq ‹_›]

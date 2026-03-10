@@ -126,8 +126,8 @@ private def elabPatterns (patternStxs : Array Syntax) (numDiscrs : Nat) (matchTy
     let patternStxs ← Term.checkNumPatterns numDiscrs patternStxs
     for h : idx in *...patternStxs.size do
       let patternStx := patternStxs[idx]
-      matchType ← whnf matchType
-      let .forallE _ discrType matchTypeBody _ := matchType
+      matchType ← whnfD matchType
+      let .lam _ discrType matchTypeBody _ := matchType
         | throwError "unexpected match type {matchType}"
       let pattern ← Term.withSynthesize <| Term.withPatternElabConfig <| Term.elabTermEnsuringType patternStx discrType
       patterns  := patterns.push pattern
@@ -152,7 +152,7 @@ private def mkDepMatchMotive (discrs : Array Term.Discr) (body : Expr) : TermEla
     let earlierDiscrs := discrs[:idx].toArray.map (·.expr) |>.reverse
     let discrType := if earlierDiscrs.isEmpty then discrType else discrType.abstract earlierDiscrs
     let userName ← mkUserNameFor discr.expr
-    matchType := mkForall userName .default discrType matchType
+    matchType := mkLambda userName .default discrType matchType
   return matchType
 
 def withElaboratedLHS {α} (patternVarDecls : Array Term.PatternVarDecl) (patternStxs : Array Syntax)
@@ -189,13 +189,12 @@ private def elabMatchAlts (discrs : Array Term.Discr) (alts : Array DoMatchAltVi
 
 private def compileMatch (discrs : Array Term.Discr) (matchType : Expr) (lhss : List AltLHS)
     (rhss : Array Expr) : DoElabM Expr := do
-  let numDiscrs := discrs.size
   let matcherName ← Term.mkAuxName `match
   let matcherResult ← Meta.Match.mkMatcher { matcherName, matchType, lhss, discrInfos := discrs.map fun discr => { hName? := discr.h?.map (·.getId) } }
   Term.reportMatcherResultErrors lhss matcherResult
   matcherResult.addMatcher
-  let motive ← forallBoundedTelescope matchType numDiscrs fun xs matchType => mkLambdaFVars xs matchType
-  let r := mkApp matcherResult.matcher motive
+  -- matchType is already a type family (lambda), so use it directly as the motive
+  let r := mkApp matcherResult.matcher matchType
   let r := mkAppN r (discrs.map (·.expr))
   let r := mkAppN r rhss
   trace[Elab.do.match] "result: {r}"

@@ -1139,8 +1139,8 @@ def withCleanLCtxFor (m : MkMatcherInput) (k : MetaM α) : MetaM α := do
   withLCtx lctx localInstances k
 
 /--
-Create a dependent matcher for `matchType` where `matchType` is of the form
-`(a_1 : A_1) -> (a_2 : A_2[a_1]) -> ... -> (a_n : A_n[a_1, a_2, ... a_{n-1}]) -> B[a_1, ..., a_n]`
+Create a dependent matcher for `matchType` where `matchType` is a type family (lambda) of the form
+`fun (a_1 : A_1) (a_2 : A_2[a_1]) ... (a_n : A_n[a_1, a_2, ... a_{n-1}]) => B[a_1, ..., a_n]`
 where `n = numDiscrs`, and the `lhss` are the left-hand-sides of the `match`-expression alternatives.
 Each `AltLHS` has a list of local declarations and a list of patterns.
 The number of patterns must be the same in each `AltLHS`.
@@ -1152,7 +1152,7 @@ def mkMatcher (input : MkMatcherInput) : MetaM MatcherResult := withCleanLCtxFor
   let {matcherName, matchType, discrInfos, lhss, isSplitter} := input
   let numDiscrs := discrInfos.size
   checkNumPatterns numDiscrs lhss
-  forallBoundedTelescope matchType numDiscrs fun discrs matchTypeBody => do
+  lambdaBoundedTelescope matchType numDiscrs fun discrs matchTypeBody => do
   /- We generate an matcher that can eliminate using different motives with different universe levels.
      `uElim` is the universe level the caller wants to eliminate to.
      If it is not Level.zero, we create a matcher that can eliminate in any universe level.
@@ -1202,7 +1202,7 @@ def mkMatcher (input : MkMatcherInput) : MetaM MatcherResult := withCleanLCtxFor
   trace[Meta.Match.debug] "motiveType: {motiveType}"
   withLocalDeclD `motive motiveType fun motive => do
   if discrInfos.any fun info => info.hName?.isSome then
-    forallBoundedTelescope matchType numDiscrs fun discrs' _ => do
+    lambdaBoundedTelescope matchType numDiscrs fun discrs' _ => do
     let (mvarType, isEqMask) ← withEqs discrs discrs' discrInfos fun eqs => do
       let mvarType ← mkForallFVars eqs (mkAppN motive discrs')
       let isEqMask ← eqs.mapM fun eq => return (← inferType eq).isEq
@@ -1253,8 +1253,9 @@ def getMkMatcherInputInContext (matcherApp : MatcherApp) (unfoldNamed : Bool) : 
       if let some idx := matcherInfo.uElimPos?
       then mkLevelParam matcherConst.levelParams.toArray[idx]!
       else Level.zero
+    -- Extract discriminant types from matcher's Pi type, build a lambda (type family)
     forallBoundedTelescope matcherType (some matcherInfo.numDiscrs) fun discrs _ => do
-    mkForallFVars discrs (mkConst ``PUnit [u])
+    mkLambdaFVars discrs (mkConst ``PUnit [u])
 
   let matcherType ← instantiateForall matcherType matcherApp.discrs
   let lhss ← forallBoundedTelescope matcherType (some matcherApp.alts.size) fun alts _ =>

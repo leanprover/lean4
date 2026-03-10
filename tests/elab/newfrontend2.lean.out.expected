@@ -2,10 +2,16 @@ if (0 == 1) = true then true else false : Bool
 foo (some x) x : Nat
 let x := 1;
 x + 1 : Nat
+newfrontend2.lean:19:24-19:31: warning: Pi type syntax for match motive is deprecated; use a type family (lambda) instead.
+Deprecated: (x : T) → BodyType
+Preferred:  fun (x : T) => BodyType
 match 1 with
 | x => x + 1 : Int
 let x := 1;
 x + 1 : Nat
+newfrontend2.lean:21:24-21:31: warning: Pi type syntax for match motive is deprecated; use a type family (lambda) instead.
+Deprecated: (x : T) → BodyType
+Preferred:  fun (x : T) => BodyType
 match 1 with
 | x => x + 1 : Int
 fun x1 x2 => g (x1, 1) x2 : Nat → Nat → Nat

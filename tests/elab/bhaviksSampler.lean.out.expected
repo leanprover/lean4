@@ -1,3 +1,9 @@
+bhaviksSampler.lean:44:2-44:38: warning: Pi type syntax for match motive is deprecated; use a type family (lambda) instead.
+Deprecated: (x : T) → BodyType
+Preferred:  fun (x : T) => BodyType
+bhaviksSampler.lean:51:2-51:37: warning: Pi type syntax for match motive is deprecated; use a type family (lambda) instead.
+Deprecated: (x : T) → BodyType
+Preferred:  fun (x : T) => BodyType
 bhaviksSampler.lean:98:4-98:11: warning: declaration uses `sorry`
 bhaviksSampler.lean:98:4-98:11: warning: declaration uses `sorry`
 bhaviksSampler.lean:117:4-117:8: warning: declaration uses `sorry`

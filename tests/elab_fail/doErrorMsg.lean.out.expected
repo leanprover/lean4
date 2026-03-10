@@ -54,6 +54,9 @@ but is expected to have type
   Nat
 in the application
   Prod.mk false
+doErrorMsg.lean:31:2-31:26: warning: Pi type syntax for match motive is deprecated; use a type family (lambda) instead.
+Deprecated: (x : T) → BodyType
+Preferred:  fun (x : T) => BodyType
 doErrorMsg.lean:32:3-32:13: error: Type mismatch
   n
 has type

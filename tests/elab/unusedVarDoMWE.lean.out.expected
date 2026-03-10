@@ -1,0 +1,3 @@
+unusedVarDoMWE.lean:42:16-42:32: warning: Pi type syntax for match motive is deprecated; use a type family (lambda) instead.
+Deprecated: (x : T) → BodyType
+Preferred:  fun (x : T) => BodyType

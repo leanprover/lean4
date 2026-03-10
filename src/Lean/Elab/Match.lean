@@ -101,14 +101,47 @@ private partial def elabMatchTypeAndDiscrs (discrStxs : Array Syntax) (matchOptM
   else
     -- motive := leading_parser atomic ("(" >> nonReservedSymbol "motive" >> " := ") >> termParser >> ")"
     let matchTypeStx := matchOptMotive[0][3]
-    -- User provides motive as Pi type, e.g., `(b : Bool) → Nat`
-    let matchTypePi ← elabType matchTypeStx
-    let (discrs, isDep) ← elabDiscrsWithMatchType matchTypePi
-    -- Convert Pi type to lambda (type family) for internal representation
-    let matchType ← piTypeToTypeFamily matchTypePi discrStxs.size
-    return { discrs := discrs, matchType := matchType, isDep := isDep, alts := matchAltViews }
+    -- Use elabTerm to accept both Pi types and lambdas (type families)
+    let matchTypeExpr ← elabTerm matchTypeStx none
+    let matchTypeWhnf ← whnf matchTypeExpr
+    if matchTypeWhnf.isLambda then
+      -- New preferred style: motive is a type family (lambda)
+      let (discrs, isDep) ← elabDiscrsWithTypeFamily matchTypeExpr
+      return { discrs := discrs, matchType := matchTypeExpr, isDep := isDep, alts := matchAltViews }
+    else if matchTypeWhnf.isForall then
+      -- Deprecated style: motive is a Pi type
+      logWarningAt matchTypeStx m!"Pi type syntax for match motive is deprecated; use a type family (lambda) instead.\n\
+        Deprecated: (x : T) → BodyType\n\
+        Preferred:  fun (x : T) => BodyType"
+      let (discrs, isDep) ← elabDiscrsWithMatchType matchTypeExpr
+      -- Convert Pi type to lambda (type family) for internal representation
+      let matchType ← piTypeToTypeFamily matchTypeExpr discrStxs.size
+      return { discrs := discrs, matchType := matchType, isDep := isDep, alts := matchAltViews }
+    else
+      throwError "Invalid motive: expected a type family (lambda) or Pi type with arity {discrStxs.size}"
 where
-  /-- Elaborate discriminants when the match-type has been explicitly provided by the user as a Pi type. -/
+  /-- Elaborate discriminants when the motive is a type family (lambda). -/
+  elabDiscrsWithTypeFamily (matchType : Expr) : TermElabM (Array Discr × Bool) := do
+    let mut discrs := #[]
+    let mut i := 0
+    let mut matchType := matchType
+    let mut isDep := false
+    for discrStx in discrStxs do
+      i := i + 1
+      matchType ← whnf matchType
+      match matchType with
+      | Expr.lam _ d b _ =>
+        let discr ← fullApproxDefEq <| elabTermEnsuringType discrStx[1] d
+        trace[Elab.match] "discr #{i} {discr} : {d}"
+        if b.hasLooseBVars then
+          isDep := true
+        matchType := b.instantiate1 discr
+        discrs := discrs.push { expr := discr }
+      | _ =>
+        throwError "Invalid motive: type family with arity {discrStxs.size} expected"
+    return (discrs, isDep)
+
+  /-- Elaborate discriminants when the match-type has been explicitly provided by the user as a Pi type (deprecated). -/
   elabDiscrsWithMatchType (matchType : Expr) : TermElabM (Array Discr × Bool) := do
     let mut discrs := #[]
     let mut i := 0

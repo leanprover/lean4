@@ -1,0 +1,9 @@
+issue10424.lean:59:48-59:64: warning: Pi type syntax for match motive is deprecated; use a type family (lambda) instead.
+Deprecated: (x : T) → BodyType
+Preferred:  fun (x : T) => BodyType
+issue10424.lean:69:61-69:77: warning: Pi type syntax for match motive is deprecated; use a type family (lambda) instead.
+Deprecated: (x : T) → BodyType
+Preferred:  fun (x : T) => BodyType
+issue10424.lean:94:61-94:77: warning: Pi type syntax for match motive is deprecated; use a type family (lambda) instead.
+Deprecated: (x : T) → BodyType
+Preferred:  fun (x : T) => BodyType

@@ -1,0 +1,3 @@
+doForInvariant.lean:55:8-60:29: warning: Pi type syntax for match motive is deprecated; use a type family (lambda) instead.
+Deprecated: (x : T) → BodyType
+Preferred:  fun (x : T) => BodyType

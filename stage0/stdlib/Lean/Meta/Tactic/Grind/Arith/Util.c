@@ -2372,29 +2372,30 @@ x_11 = lean_int_dec_eq(x_9, x_10);
 lean_dec(x_10);
 if (x_11 == 0)
 {
-lean_object* x_12; lean_object* x_13; lean_object* x_14; 
-x_12 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_12, 0, x_9);
-lean_ctor_set(x_12, 1, x_3);
-x_13 = lean_array_push(x_6, x_12);
+lean_object* x_12; 
 if (x_8 == 0)
 {
-lean_ctor_set(x_7, 1, x_13);
-x_14 = x_7;
+lean_ctor_set(x_7, 1, x_3);
+lean_ctor_set(x_7, 0, x_9);
+x_12 = x_7;
 goto block_16;
 }
 else
 {
 lean_object* x_17; 
 x_17 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_17, 0, x_5);
-lean_ctor_set(x_17, 1, x_13);
-x_14 = x_17;
+lean_ctor_set(x_17, 0, x_9);
+lean_ctor_set(x_17, 1, x_3);
+x_12 = x_17;
 goto block_16;
 }
 block_16:
 {
-lean_object* x_15; 
+lean_object* x_13; lean_object* x_14; lean_object* x_15; 
+x_13 = lean_array_push(x_6, x_12);
+x_14 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_14, 0, x_5);
+lean_ctor_set(x_14, 1, x_13);
 x_15 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_15, 0, x_14);
 return x_15;

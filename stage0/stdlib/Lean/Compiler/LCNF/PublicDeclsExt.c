@@ -49,8 +49,8 @@ static const lean_ctor_object l_Lean_Compiler_LCNF_isDeclPublic___closed__0_valu
 static const lean_object* l_Lean_Compiler_LCNF_isDeclPublic___closed__0 = (const lean_object*)&l_Lean_Compiler_LCNF_isDeclPublic___closed__0_value;
 static const lean_string_object l_Lean_Compiler_LCNF_isDeclPublic___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 7, .m_capacity = 7, .m_length = 6, .m_data = "_boxed"};
 static const lean_object* l_Lean_Compiler_LCNF_isDeclPublic___closed__1 = (const lean_object*)&l_Lean_Compiler_LCNF_isDeclPublic___closed__1_value;
-lean_object* l_Lean_Environment_header(lean_object*);
 lean_object* l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Environment_header(lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Compiler_LCNF_isDeclPublic(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_isDeclPublic___boxed(lean_object*, lean_object*);
@@ -359,21 +359,19 @@ return x_2;
 LEAN_EXPORT uint8_t l_Lean_Compiler_LCNF_isDeclPublic(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; uint8_t x_4; 
-x_3 = l_Lean_Environment_header(x_1);
-x_4 = lean_ctor_get_uint8(x_3, sizeof(void*)*7 + 4);
-lean_dec_ref(x_3);
-if (x_4 == 0)
+lean_object* x_3; lean_object* x_12; uint8_t x_13; 
+x_12 = l_Lean_Environment_header(x_1);
+x_13 = lean_ctor_get_uint8(x_12, sizeof(void*)*7 + 4);
+lean_dec_ref(x_12);
+if (x_13 == 0)
 {
-uint8_t x_5; 
+uint8_t x_14; 
 lean_dec_ref(x_1);
-x_5 = 1;
-return x_5;
+x_14 = 1;
+return x_14;
 }
 else
 {
-lean_object* x_6; lean_object* x_7; 
-x_6 = ((lean_object*)(l_Lean_Compiler_LCNF_isDeclPublic___closed__0));
 if (lean_obj_tag(x_2) == 1)
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; 
@@ -383,36 +381,37 @@ x_17 = ((lean_object*)(l_Lean_Compiler_LCNF_isDeclPublic___closed__1));
 x_18 = lean_string_dec_eq(x_16, x_17);
 if (x_18 == 0)
 {
-x_7 = x_2;
-goto block_14;
+x_3 = x_2;
+goto block_11;
 }
 else
 {
-x_7 = x_15;
-goto block_14;
+x_3 = x_15;
+goto block_11;
 }
 }
 else
 {
-x_7 = x_2;
-goto block_14;
+x_3 = x_2;
+goto block_11;
 }
-block_14:
+}
+block_11:
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; 
-x_8 = l___private_Lean_Compiler_LCNF_PublicDeclsExt_0__Lean_Compiler_LCNF_publicDeclsExt;
-x_9 = lean_ctor_get(x_8, 2);
+lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; 
+x_4 = l___private_Lean_Compiler_LCNF_PublicDeclsExt_0__Lean_Compiler_LCNF_publicDeclsExt;
+x_5 = lean_ctor_get(x_4, 2);
+lean_inc(x_5);
+x_6 = ((lean_object*)(l_Lean_Compiler_LCNF_isDeclPublic___closed__0));
+x_7 = lean_box(0);
+x_8 = l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___redArg(x_6, x_4, x_1, x_5, x_7);
+lean_dec(x_5);
+x_9 = lean_ctor_get(x_8, 1);
 lean_inc(x_9);
-x_10 = lean_box(0);
-x_11 = l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___redArg(x_6, x_8, x_1, x_9, x_10);
+lean_dec(x_8);
+x_10 = l_Lean_NameSet_contains(x_9, x_3);
 lean_dec(x_9);
-x_12 = lean_ctor_get(x_11, 1);
-lean_inc(x_12);
-lean_dec(x_11);
-x_13 = l_Lean_NameSet_contains(x_12, x_7);
-lean_dec(x_12);
-return x_13;
-}
+return x_10;
 }
 }
 }

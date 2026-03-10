@@ -103,7 +103,7 @@ LEAN_EXPORT lean_object* l_Std_StreamMap_size___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_StreamMap_size___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_StreamMap_size(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_StreamMap_size___boxed(lean_object*, lean_object*, lean_object*);
-uint8_t l_Array_isEmpty___redArg(lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_StreamMap_isEmpty___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_StreamMap_isEmpty___redArg___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Std_StreamMap_isEmpty(lean_object*, lean_object*, lean_object*);
@@ -560,105 +560,103 @@ return x_6;
 LEAN_EXPORT lean_object* l_Std_StreamMap_selector___redArg(lean_object* x_1) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; size_t x_7; size_t x_8; lean_object* x_9; lean_object* x_10; 
-x_7 = lean_array_size(x_1);
-x_8 = 0;
-x_9 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Std_StreamMap_selector_spec__0___redArg(x_7, x_8, x_1);
-x_10 = l_Std_Internal_IO_Async_Selectable_combine___redArg(x_9);
-if (lean_obj_tag(x_10) == 0)
+lean_object* x_3; size_t x_6; size_t x_7; lean_object* x_8; lean_object* x_9; 
+x_6 = lean_array_size(x_1);
+x_7 = 0;
+x_8 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Std_StreamMap_selector_spec__0___redArg(x_6, x_7, x_1);
+x_9 = l_Std_Internal_IO_Async_Selectable_combine___redArg(x_8);
+if (lean_obj_tag(x_9) == 0)
 {
-lean_object* x_11; lean_object* x_12; uint8_t x_13; uint8_t x_18; 
-x_11 = lean_ctor_get(x_10, 0);
-x_18 = !lean_is_exclusive(x_10);
-if (x_18 == 0)
+lean_object* x_10; lean_object* x_11; uint8_t x_12; uint8_t x_17; 
+x_10 = lean_ctor_get(x_9, 0);
+x_17 = !lean_is_exclusive(x_9);
+if (x_17 == 0)
 {
-x_12 = x_10;
-x_13 = x_18;
-goto block_17;
+x_11 = x_9;
+x_12 = x_17;
+goto block_16;
 }
 else
 {
-lean_inc(x_11);
-lean_dec(x_10);
-x_12 = lean_box(0);
-x_13 = x_18;
-goto block_17;
+lean_inc(x_10);
+lean_dec(x_9);
+x_11 = lean_box(0);
+x_12 = x_17;
+goto block_16;
 }
-block_17:
+block_16:
 {
-lean_object* x_14; 
-if (x_13 == 0)
+lean_object* x_13; 
+if (x_12 == 0)
 {
-lean_ctor_set_tag(x_12, 1);
-x_14 = x_12;
-goto block_15;
+lean_ctor_set_tag(x_11, 1);
+x_13 = x_11;
+goto block_14;
 }
 else
 {
-lean_object* x_16; 
-x_16 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_16, 0, x_11);
-x_14 = x_16;
-goto block_15;
+lean_object* x_15; 
+x_15 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_15, 0, x_10);
+x_13 = x_15;
+goto block_14;
 }
-block_15:
+block_14:
 {
-x_3 = x_14;
-x_4 = lean_box(0);
-goto block_6;
+x_3 = x_13;
+goto block_5;
 }
 }
 }
 else
 {
-lean_object* x_19; lean_object* x_20; uint8_t x_21; uint8_t x_26; 
-x_19 = lean_ctor_get(x_10, 0);
-x_26 = !lean_is_exclusive(x_10);
-if (x_26 == 0)
+lean_object* x_18; lean_object* x_19; uint8_t x_20; uint8_t x_25; 
+x_18 = lean_ctor_get(x_9, 0);
+x_25 = !lean_is_exclusive(x_9);
+if (x_25 == 0)
 {
-x_20 = x_10;
-x_21 = x_26;
-goto block_25;
+x_19 = x_9;
+x_20 = x_25;
+goto block_24;
 }
 else
 {
-lean_inc(x_19);
-lean_dec(x_10);
-x_20 = lean_box(0);
-x_21 = x_26;
-goto block_25;
+lean_inc(x_18);
+lean_dec(x_9);
+x_19 = lean_box(0);
+x_20 = x_25;
+goto block_24;
 }
-block_25:
+block_24:
 {
-lean_object* x_22; 
-if (x_21 == 0)
+lean_object* x_21; 
+if (x_20 == 0)
 {
-lean_ctor_set_tag(x_20, 0);
-x_22 = x_20;
-goto block_23;
+lean_ctor_set_tag(x_19, 0);
+x_21 = x_19;
+goto block_22;
 }
 else
 {
-lean_object* x_24; 
-x_24 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_24, 0, x_19);
-x_22 = x_24;
-goto block_23;
+lean_object* x_23; 
+x_23 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_23, 0, x_18);
+x_21 = x_23;
+goto block_22;
 }
-block_23:
+block_22:
 {
-x_3 = x_22;
-x_4 = lean_box(0);
-goto block_6;
+x_3 = x_21;
+goto block_5;
 }
 }
 }
-block_6:
+block_5:
 {
-lean_object* x_5; 
-x_5 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_5, 0, x_3);
-return x_5;
+lean_object* x_4; 
+x_4 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_4, 0, x_3);
+return x_4;
 }
 }
 }
@@ -959,9 +957,11 @@ return x_4;
 LEAN_EXPORT uint8_t l_Std_StreamMap_isEmpty___redArg(lean_object* x_1) {
 _start:
 {
-uint8_t x_2; 
-x_2 = l_Array_isEmpty___redArg(x_1);
-return x_2;
+lean_object* x_2; lean_object* x_3; uint8_t x_4; 
+x_2 = lean_array_get_size(x_1);
+x_3 = lean_unsigned_to_nat(0u);
+x_4 = lean_nat_dec_eq(x_2, x_3);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Std_StreamMap_isEmpty___redArg___boxed(lean_object* x_1) {
@@ -978,7 +978,7 @@ LEAN_EXPORT uint8_t l_Std_StreamMap_isEmpty(lean_object* x_1, lean_object* x_2, 
 _start:
 {
 uint8_t x_4; 
-x_4 = l_Array_isEmpty___redArg(x_3);
+x_4 = l_Std_StreamMap_isEmpty___redArg(x_3);
 return x_4;
 }
 }

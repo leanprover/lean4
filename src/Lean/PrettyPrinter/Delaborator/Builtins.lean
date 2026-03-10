@@ -858,7 +858,7 @@ where
     if i < hNames?.size then
       if let some name := hNames?[i]! then
         let n' ← getUnusedName name body
-        withLocalDecl n' .default (.sort levelZero) (kind := .implDetail) fun _ =>
+        withLocalDecl n' .default (.sort Level.zero) (kind := .implDetail) fun _ =>
           withDummyBinders hNames? body m (acc.push n')
       else
         withDummyBinders hNames? body m (acc.push none)

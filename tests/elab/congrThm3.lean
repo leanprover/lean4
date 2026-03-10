@@ -21,4 +21,4 @@ info: ∀ {α : Type} (xs xs_1 : Array α) (e_xs : xs = xs_1) (i i_1 : USize) (e
   xs.uget i h = xs_1.uget i_1 ⋯
 -/
 #guard_msgs in
-#eval test (mkConst ``Array.uget [levelZero])
+#eval test (mkConst ``Array.uget [Level.zero])

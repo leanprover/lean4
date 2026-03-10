@@ -49,7 +49,7 @@ size_t lean_usize_of_nat(lean_object*);
 lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Array_min___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_min(lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Array_isEmpty___redArg(lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_min_x3f___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_min_x3f(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_max___redArg(lean_object*, lean_object*);
@@ -125,23 +125,25 @@ return x_5;
 LEAN_EXPORT lean_object* l_Array_min_x3f___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-uint8_t x_3; 
-x_3 = l_Array_isEmpty___redArg(x_2);
-if (x_3 == 0)
+lean_object* x_3; lean_object* x_4; uint8_t x_5; 
+x_3 = lean_array_get_size(x_2);
+x_4 = lean_unsigned_to_nat(0u);
+x_5 = lean_nat_dec_eq(x_3, x_4);
+if (x_5 == 0)
 {
-lean_object* x_4; lean_object* x_5; 
-x_4 = l_Array_min___redArg(x_1, x_2);
-x_5 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_5, 0, x_4);
-return x_5;
+lean_object* x_6; lean_object* x_7; 
+x_6 = l_Array_min___redArg(x_1, x_2);
+x_7 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_7, 0, x_6);
+return x_7;
 }
 else
 {
-lean_object* x_6; 
+lean_object* x_8; 
 lean_dec_ref(x_2);
 lean_dec(x_1);
-x_6 = lean_box(0);
-return x_6;
+x_8 = lean_box(0);
+return x_8;
 }
 }
 }
@@ -214,23 +216,25 @@ return x_5;
 LEAN_EXPORT lean_object* l_Array_max_x3f___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-uint8_t x_3; 
-x_3 = l_Array_isEmpty___redArg(x_2);
-if (x_3 == 0)
+lean_object* x_3; lean_object* x_4; uint8_t x_5; 
+x_3 = lean_array_get_size(x_2);
+x_4 = lean_unsigned_to_nat(0u);
+x_5 = lean_nat_dec_eq(x_3, x_4);
+if (x_5 == 0)
 {
-lean_object* x_4; lean_object* x_5; 
-x_4 = l_Array_max___redArg(x_1, x_2);
-x_5 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_5, 0, x_4);
-return x_5;
+lean_object* x_6; lean_object* x_7; 
+x_6 = l_Array_max___redArg(x_1, x_2);
+x_7 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_7, 0, x_6);
+return x_7;
 }
 else
 {
-lean_object* x_6; 
+lean_object* x_8; 
 lean_dec_ref(x_2);
 lean_dec(x_1);
-x_6 = lean_box(0);
-return x_6;
+x_8 = lean_box(0);
+return x_8;
 }
 }
 }

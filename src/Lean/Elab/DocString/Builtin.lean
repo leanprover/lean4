@@ -917,7 +917,11 @@ def lean (name : Option Ident := none) (error warning : flag false) («show» : 
   let scopes := (← get).scopes
   let (cmds, cmdState, trees) ← withSaveInfoContext do
     let mut cmdState : Command.State := { env, maxRecDepth := ← MonadRecDepth.getMaxRecDepth, scopes }
-    let mut pstate : Parser.ModuleParserState := {pos := pos, recovering := false}
+    let mut pstate : Parser.ModuleParserState := {
+      pos
+      recovering := false
+      hasLeading := false
+    }
     let mut cmds := #[]
     repeat
       let scope := cmdState.scopes.head!

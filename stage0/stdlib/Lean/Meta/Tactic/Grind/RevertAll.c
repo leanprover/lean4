@@ -925,80 +925,76 @@ return x_5;
 LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00Lean_MVarId_markAccessible_spec__1___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_6; lean_object* x_7; uint8_t x_12; 
-x_12 = lean_nat_dec_lt(x_3, x_1);
-if (x_12 == 0)
+lean_object* x_6; uint8_t x_11; 
+x_11 = lean_nat_dec_lt(x_3, x_1);
+if (x_11 == 0)
 {
-lean_object* x_13; 
+lean_object* x_12; 
 lean_dec(x_3);
-x_13 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_13, 0, x_4);
-return x_13;
+x_12 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_12, 0, x_4);
+return x_12;
 }
 else
 {
-lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
-x_14 = lean_nat_sub(x_2, x_3);
-x_15 = lean_unsigned_to_nat(1u);
-x_16 = lean_nat_sub(x_14, x_15);
-lean_dec(x_14);
+lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
+x_13 = lean_nat_sub(x_2, x_3);
+x_14 = lean_unsigned_to_nat(1u);
+x_15 = lean_nat_sub(x_13, x_14);
+lean_dec(x_13);
 lean_inc_ref(x_4);
-x_17 = l_Lean_LocalContext_getAt_x3f(x_4, x_16);
-lean_dec(x_16);
-if (lean_obj_tag(x_17) == 0)
+x_16 = l_Lean_LocalContext_getAt_x3f(x_4, x_15);
+lean_dec(x_15);
+if (lean_obj_tag(x_16) == 0)
 {
 x_6 = x_4;
-x_7 = lean_box(0);
-goto block_11;
+goto block_10;
 }
 else
 {
-lean_object* x_18; uint8_t x_19; 
-x_18 = lean_ctor_get(x_17, 0);
-lean_inc(x_18);
-lean_dec_ref(x_17);
-x_19 = l_Lean_LocalDecl_isImplementationDetail(x_18);
-if (x_19 == 0)
+lean_object* x_17; uint8_t x_18; 
+x_17 = lean_ctor_get(x_16, 0);
+lean_inc(x_17);
+lean_dec_ref(x_16);
+x_18 = l_Lean_LocalDecl_isImplementationDetail(x_17);
+if (x_18 == 0)
 {
-lean_object* x_20; uint8_t x_21; 
-x_20 = l_Lean_LocalDecl_userName(x_18);
-x_21 = l_Lean_Name_hasMacroScopes(x_20);
-if (x_21 == 0)
+lean_object* x_19; uint8_t x_20; 
+x_19 = l_Lean_LocalDecl_userName(x_17);
+x_20 = l_Lean_Name_hasMacroScopes(x_19);
+if (x_20 == 0)
 {
-lean_object* x_22; lean_object* x_23; lean_object* x_24; 
-x_22 = l_Lean_Meta_Grind_markGrindName(x_20);
-x_23 = l_Lean_LocalDecl_fvarId(x_18);
-lean_dec(x_18);
-x_24 = l_Lean_LocalContext_setUserName(x_4, x_23, x_22);
-x_6 = x_24;
-x_7 = lean_box(0);
-goto block_11;
+lean_object* x_21; lean_object* x_22; lean_object* x_23; 
+x_21 = l_Lean_Meta_Grind_markGrindName(x_19);
+x_22 = l_Lean_LocalDecl_fvarId(x_17);
+lean_dec(x_17);
+x_23 = l_Lean_LocalContext_setUserName(x_4, x_22, x_21);
+x_6 = x_23;
+goto block_10;
 }
 else
 {
-lean_dec(x_20);
-lean_dec(x_18);
+lean_dec(x_19);
+lean_dec(x_17);
 x_6 = x_4;
-x_7 = lean_box(0);
-goto block_11;
+goto block_10;
 }
 }
 else
 {
-lean_dec(x_18);
+lean_dec(x_17);
 x_6 = x_4;
-x_7 = lean_box(0);
-goto block_11;
+goto block_10;
 }
 }
 }
-block_11:
+block_10:
 {
-lean_object* x_8; lean_object* x_9; 
-x_8 = lean_unsigned_to_nat(1u);
-x_9 = lean_nat_add(x_3, x_8);
+lean_object* x_7; lean_object* x_8; 
+x_7 = lean_unsigned_to_nat(1u);
+x_8 = lean_nat_add(x_3, x_7);
 lean_dec(x_3);
-x_3 = x_9;
+x_3 = x_8;
 x_4 = x_6;
 goto _start;
 }

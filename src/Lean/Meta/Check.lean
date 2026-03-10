@@ -329,8 +329,8 @@ where
 Throw an exception if `e` is not type correct.
 -/
 def check (e : Expr) : MetaM Unit :=
-  withTraceNode `Meta.check (fun res =>
-      return m!"{if res.isOk then checkEmoji else crossEmoji} {e}") do
+  withTraceNode `Meta.check (fun _ =>
+      return m!"{e}") do
     try
       withTransparency TransparencyMode.all $ checkAux e
     catch ex =>

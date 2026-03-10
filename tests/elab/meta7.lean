@@ -124,7 +124,7 @@ trace: [Meta.debug] ----- tst4 -----
 
 def tst5 : MetaM Unit := do
 print "----- tst5 -----";
-let prop := mkSort levelZero;
+let prop := mkSort Level.zero;
 withLocalDeclD `p prop fun p =>
 withLocalDeclD `q prop fun q => do
 withLocalDeclD `h₁ p fun h₁ => do
@@ -278,11 +278,11 @@ def tst12 : MetaM Unit := do
   let nat := mkConst `Nat
   withLocalDeclD `x nat fun x =>
   withLocalDeclD `y nat fun y => do
-  let val ← mkAppM' (mkConst `Add.add [levelZero]) #[mkNatLit 10, y];
+  let val ← mkAppM' (mkConst `Add.add [Level.zero]) #[mkNatLit 10, y];
   check val; print val
-  let val ← mkAppM' (mkApp (mkConst ``Add.add [levelZero]) (mkConst ``Int)) #[mkApp (mkConst ``Int.ofNat) (mkNatLit 10), mkApp (mkConst ``Int.ofNat) y];
+  let val ← mkAppM' (mkApp (mkConst ``Add.add [Level.zero]) (mkConst ``Int)) #[mkApp (mkConst ``Int.ofNat) (mkNatLit 10), mkApp (mkConst ``Int.ofNat) y];
   check val; print val
-  let val ← mkAppOptM' (mkConst `Add.add [levelZero]) #[mkConst  ``Nat, none, mkNatLit 10, y];
+  let val ← mkAppOptM' (mkConst `Add.add [Level.zero]) #[mkConst  ``Nat, none, mkNatLit 10, y];
   check val; print val
   pure ()
 

@@ -1,3 +1,5 @@
+set_option warn.classDefReducibility false
+
 /-!
 This is a minimization of an issue widely seen in Mathlib after
 https://github.com/leanprover/lean4/pull/2793.

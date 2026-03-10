@@ -1,5 +1,7 @@
 import Lean.Hygiene
 
+set_option warn.classDefReducibility false
+
 def otherInhabited : Inhabited Nat := ⟨42⟩
 
 def f := Id.run do

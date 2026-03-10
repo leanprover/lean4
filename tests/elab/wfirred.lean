@@ -107,3 +107,27 @@ example : foo = bar := rfl
 
 unseal foo bar in
 example : foo = bar := rfl
+
+/-!
+Tests that reducibility attributes set by the user are preserved for WF-recursive functions.
+In particular, `@[instance_reducible]` (alias for `@[implicit_reducible]`) should not be
+overridden by the default `@[irreducible]` that WF recursion sets. See issue #7082.
+-/
+
+@[instance_reducible] def baz : Nat → Nat → Nat
+  | 0,  m => m
+  | n+1, m => baz n (m + n)
+termination_by n m => (n, m)
+
+/-- info: @[implicit_reducible] def baz : Nat → Nat → Nat -/
+#guard_msgs in
+#print sig baz
+
+@[implicit_reducible] def qux : Nat → Nat → Nat
+  | 0,  m => m
+  | n+1, m => qux n (m + n)
+termination_by n m => (n, m)
+
+/-- info: @[implicit_reducible] def qux : Nat → Nat → Nat -/
+#guard_msgs in
+#print sig qux

@@ -34,7 +34,7 @@ error: (kernel) invalid projection
     safety := .safe
     value :=
       mkProj ``Exists 0 <|
-        mkApp4 (mkConst ``Exists.intro [levelOne])
+        mkApp4 (mkConst ``Exists.intro [Level.one])
           (mkConst ``Nat)
           (mkLambda `x .default (mkConst ``Nat) (mkConst ``True))
           (mkConst ``Nat.zero)
@@ -54,7 +54,7 @@ error: (kernel) invalid projection
     safety := .safe
     value :=
       mkProj ``Subtype 0 <|
-        mkApp4 (mkConst ``Subtype.mk [levelOne])
+        mkApp4 (mkConst ``Subtype.mk [Level.one])
           (mkConst ``Nat)
           (mkLambda `x .default (mkConst ``Nat) (mkConst ``True))
           (mkConst ``Nat.zero)
@@ -80,14 +80,14 @@ error: (kernel) invalid projection
     levelParams := []
     type :=
       mkForall `h .default
-        (mkApp2 (mkConst ``Exists [levelOne]) (mkConst ``Nat) (mkLambda `x .default (mkConst ``Nat) (mkConst ``True)))
-        (mkApp3 (mkConst ``Eq [levelZero])
+        (mkApp2 (mkConst ``Exists [Level.one]) (mkConst ``Nat) (mkLambda `x .default (mkConst ``Nat) (mkConst ``True)))
+        (mkApp3 (mkConst ``Eq [Level.zero])
           (mkConst ``True)
           (mkProj ``Exists 1 (mkBVar 0))
           (mkProj ``Exists 1 (mkBVar 0)))
     value := mkLambda `h .default
-      (mkApp2 (mkConst ``Exists [levelOne]) (mkConst ``Nat) (mkLambda `x .default (mkConst ``Nat) (mkConst ``True)))
-      (mkApp2 (mkConst ``Eq.refl [levelZero]) (mkConst ``True) (mkProj ``Exists 1 (mkBVar 0)))
+      (mkApp2 (mkConst ``Exists [Level.one]) (mkConst ``Nat) (mkLambda `x .default (mkConst ``Nat) (mkConst ``True)))
+      (mkApp2 (mkConst ``Eq.refl [Level.zero]) (mkConst ``True) (mkProj ``Exists 1 (mkBVar 0)))
   }
 
 /-!
@@ -100,12 +100,12 @@ error: (kernel) invalid projection
     levelParams := []
     type :=
       mkForall `h .default
-        (mkApp2 (mkConst ``Subtype [levelOne]) (mkConst ``Nat) (mkLambda `x .default (mkConst ``Nat) (mkConst ``True)))
-        (mkApp3 (mkConst ``Eq [levelZero])
+        (mkApp2 (mkConst ``Subtype [Level.one]) (mkConst ``Nat) (mkLambda `x .default (mkConst ``Nat) (mkConst ``True)))
+        (mkApp3 (mkConst ``Eq [Level.zero])
           (mkConst ``True)
           (mkProj ``Subtype 1 (mkBVar 0))
           (mkProj ``Subtype 1 (mkBVar 0)))
     value := mkLambda `h .default
-      (mkApp2 (mkConst ``Subtype [levelOne]) (mkConst ``Nat) (mkLambda `x .default (mkConst ``Nat) (mkConst ``True)))
-      (mkApp2 (mkConst ``Eq.refl [levelZero]) (mkConst ``True) (mkProj ``Subtype 1 (mkBVar 0)))
+      (mkApp2 (mkConst ``Subtype [Level.one]) (mkConst ``Nat) (mkLambda `x .default (mkConst ``Nat) (mkConst ``True)))
+      (mkApp2 (mkConst ``Eq.refl [Level.zero]) (mkConst ``True) (mkProj ``Subtype 1 (mkBVar 0)))
   }

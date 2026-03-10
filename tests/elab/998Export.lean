@@ -18,7 +18,7 @@ namespace Export
 
 structure State where
   names : Alloc Name := ⟨(∅ : Std.HashMap Name Nat).insert Name.anonymous 0, 1⟩
-  levels : Alloc Level := ⟨(∅ : Std.HashMap Level Nat).insert levelZero 0, 1⟩
+  levels : Alloc Level := ⟨(∅ : Std.HashMap Level Nat).insert Level.zero 0, 1⟩
   exprs : Alloc Expr
   defs : Std.HashSet Name
   stk : Array (Bool × Entry)

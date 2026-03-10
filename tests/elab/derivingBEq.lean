@@ -1,5 +1,7 @@
 module
 
+set_option warn.classDefReducibility false
+
 set_option deriving.beq.linear_construction_threshold 1000
 
 public section

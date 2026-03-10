@@ -13,12 +13,7 @@ opaque myOpaqueBool : Bool
 
 /--
 error: `decide_cbv` failed: could not reduce the expression to a boolean value; got stuck at: ⏎
-  Decidable.rec (fun h => false) (fun h => true)
-    (match myOpaqueBool, true with
-    | false, false => isTrue ⋯
-    | false, true => isFalse ⋯
-    | true, false => isFalse ⋯
-    | true, true => isTrue ⋯)
+  decide (myOpaqueBool = true)
 -/
 #guard_msgs (error) in
 example : myOpaqueBool = true := by decide_cbv

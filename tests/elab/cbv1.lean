@@ -230,7 +230,13 @@ theorem or_test_1 : (1 < 2 ∨ (10000).factorial = 0) = True := by cbv
 
 /--
 info: theorem or_test_1 : (1 < 2 ∨ 10000! = 0) = True :=
-Lean.Sym.or_eq_true_left (1 < 2) (10000! = 0) (Lean.Sym.Nat.lt_eq_true 1 2 (eagerReduce (Eq.refl true)))
+of_eq_true
+  (Eq.trans
+    (congrFun'
+      (congrArg Eq
+        (Lean.Sym.or_eq_true_left (1 < 2) (10000! = 0) (Lean.Sym.Nat.lt_eq_true 1 2 (eagerReduce (Eq.refl true)))))
+      True)
+    (eq_self True))
 -/
 #guard_msgs in
 #print or_test_1
@@ -239,8 +245,14 @@ theorem or_test_2 : (3 < 2 ∨ 1 < 2) = True := by cbv
 
 /--
 info: theorem or_test_2 : (3 < 2 ∨ 1 < 2) = True :=
-Eq.trans (Lean.Sym.or_eq_right (3 < 2) (1 < 2) (Lean.Sym.Nat.lt_eq_false 3 2 (eagerReduce (Eq.refl false))))
-  (Lean.Sym.Nat.lt_eq_true 1 2 (eagerReduce (Eq.refl true)))
+of_eq_true
+  (Eq.trans
+    (congrFun'
+      (congrArg Eq
+        (Eq.trans (Lean.Sym.or_eq_right (3 < 2) (1 < 2) (Lean.Sym.Nat.lt_eq_false 3 2 (eagerReduce (Eq.refl false))))
+          (Lean.Sym.Nat.lt_eq_true 1 2 (eagerReduce (Eq.refl true)))))
+      True)
+    (eq_self True))
 -/
 #guard_msgs in
 #print or_test_2
@@ -249,8 +261,14 @@ theorem or_test_3 : (3 < 2 ∨ 5 < 4) = False := by cbv
 
 /--
 info: theorem or_test_3 : (3 < 2 ∨ 5 < 4) = False :=
-Eq.trans (Lean.Sym.or_eq_right (3 < 2) (5 < 4) (Lean.Sym.Nat.lt_eq_false 3 2 (eagerReduce (Eq.refl false))))
-  (Lean.Sym.Nat.lt_eq_false 5 4 (eagerReduce (Eq.refl false)))
+of_eq_true
+  (Eq.trans
+    (congrFun'
+      (congrArg Eq
+        (Eq.trans (Lean.Sym.or_eq_right (3 < 2) (5 < 4) (Lean.Sym.Nat.lt_eq_false 3 2 (eagerReduce (Eq.refl false))))
+          (Lean.Sym.Nat.lt_eq_false 5 4 (eagerReduce (Eq.refl false)))))
+      False)
+    (eq_self False))
 -/
 #guard_msgs in
 #print or_test_3
@@ -259,7 +277,13 @@ theorem and_test_1 : (3 < 2 ∧ (10000).factorial = 0) = False := by cbv
 
 /--
 info: theorem and_test_1 : (3 < 2 ∧ 10000! = 0) = False :=
-Lean.Sym.and_eq_false_left (3 < 2) (10000! = 0) (Lean.Sym.Nat.lt_eq_false 3 2 (eagerReduce (Eq.refl false)))
+of_eq_true
+  (Eq.trans
+    (congrFun'
+      (congrArg Eq
+        (Lean.Sym.and_eq_false_left (3 < 2) (10000! = 0) (Lean.Sym.Nat.lt_eq_false 3 2 (eagerReduce (Eq.refl false)))))
+      False)
+    (eq_self False))
 -/
 #guard_msgs in
 #print and_test_1
@@ -268,8 +292,14 @@ theorem and_test_2 : (1 < 2 ∧ 3 < 4) = True := by cbv
 
 /--
 info: theorem and_test_2 : (1 < 2 ∧ 3 < 4) = True :=
-Eq.trans (Lean.Sym.and_eq_left (1 < 2) (3 < 4) (Lean.Sym.Nat.lt_eq_true 1 2 (eagerReduce (Eq.refl true))))
-  (Lean.Sym.Nat.lt_eq_true 3 4 (eagerReduce (Eq.refl true)))
+of_eq_true
+  (Eq.trans
+    (congrFun'
+      (congrArg Eq
+        (Eq.trans (Lean.Sym.and_eq_left (1 < 2) (3 < 4) (Lean.Sym.Nat.lt_eq_true 1 2 (eagerReduce (Eq.refl true))))
+          (Lean.Sym.Nat.lt_eq_true 3 4 (eagerReduce (Eq.refl true)))))
+      True)
+    (eq_self True))
 -/
 #guard_msgs in
 #print and_test_2
@@ -278,8 +308,14 @@ theorem and_test_3 : (1 < 2 ∧ 5 < 4) = False := by cbv
 
 /--
 info: theorem and_test_3 : (1 < 2 ∧ 5 < 4) = False :=
-Eq.trans (Lean.Sym.and_eq_left (1 < 2) (5 < 4) (Lean.Sym.Nat.lt_eq_true 1 2 (eagerReduce (Eq.refl true))))
-  (Lean.Sym.Nat.lt_eq_false 5 4 (eagerReduce (Eq.refl false)))
+of_eq_true
+  (Eq.trans
+    (congrFun'
+      (congrArg Eq
+        (Eq.trans (Lean.Sym.and_eq_left (1 < 2) (5 < 4) (Lean.Sym.Nat.lt_eq_true 1 2 (eagerReduce (Eq.refl true))))
+          (Lean.Sym.Nat.lt_eq_false 5 4 (eagerReduce (Eq.refl false)))))
+      False)
+    (eq_self False))
 -/
 #guard_msgs in
 #print and_test_3
@@ -288,7 +324,14 @@ theorem or_and : (1 < 2 ∨ (3 < 2 ∧ (10000).factorial = 0)) = True := by cbv
 
 /--
 info: theorem or_and : (1 < 2 ∨ 3 < 2 ∧ 10000! = 0) = True :=
-Lean.Sym.or_eq_true_left (1 < 2) (3 < 2 ∧ 10000! = 0) (Lean.Sym.Nat.lt_eq_true 1 2 (eagerReduce (Eq.refl true)))
+of_eq_true
+  (Eq.trans
+    (congrFun'
+      (congrArg Eq
+        (Lean.Sym.or_eq_true_left (1 < 2) (3 < 2 ∧ 10000! = 0)
+          (Lean.Sym.Nat.lt_eq_true 1 2 (eagerReduce (Eq.refl true)))))
+      True)
+    (eq_self True))
 -/
 #guard_msgs in
 #print or_and
@@ -297,7 +340,14 @@ theorem and_or : (3 < 2 ∧ (1 < 2 ∨ (10000).factorial = 0)) = False := by cbv
 
 /--
 info: theorem and_or : (3 < 2 ∧ (1 < 2 ∨ 10000! = 0)) = False :=
-Lean.Sym.and_eq_false_left (3 < 2) (1 < 2 ∨ 10000! = 0) (Lean.Sym.Nat.lt_eq_false 3 2 (eagerReduce (Eq.refl false)))
+of_eq_true
+  (Eq.trans
+    (congrFun'
+      (congrArg Eq
+        (Lean.Sym.and_eq_false_left (3 < 2) (1 < 2 ∨ 10000! = 0)
+          (Lean.Sym.Nat.lt_eq_false 3 2 (eagerReduce (Eq.refl false)))))
+      False)
+    (eq_self False))
 -/
 #guard_msgs in
 #print and_or

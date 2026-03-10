@@ -344,8 +344,6 @@ lean_inc(x_36);
 x_40 = l_Lean_Elab_Tactic_Do_ProofMode_focusHyp(x_36, x_37, x_39, x_4);
 if (lean_obj_tag(x_40) == 0)
 {
-if (lean_obj_tag(x_40) == 0)
-{
 lean_object* x_41; 
 lean_inc(x_38);
 lean_inc(x_37);
@@ -499,15 +497,6 @@ return x_61;
 }
 }
 }
-}
-}
-else
-{
-lean_dec(x_39);
-lean_dec(x_38);
-lean_dec(x_37);
-lean_dec(x_36);
-return x_40;
 }
 }
 else

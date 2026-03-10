@@ -1,3 +1,5 @@
+set_option warn.classDefReducibility false
+
 /-!
 This is a minimization of a problem in Mathlib where a simp lemma `foo` would not fire,
 but variants:

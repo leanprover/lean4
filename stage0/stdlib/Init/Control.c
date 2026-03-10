@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Control
-// Imports: public import Init.Control.Basic public import Init.Control.State public import Init.Control.StateRef public import Init.Control.Id public import Init.Control.Except public import Init.Control.Reader public import Init.Control.Option public import Init.Control.Lawful public import Init.Control.StateCps public import Init.Control.ExceptCps public import Init.Control.MonadAttach public import Init.Control.EState
+// Imports: public import Init.Control.Basic public import Init.Control.State public import Init.Control.StateRef public import Init.Control.Id public import Init.Control.Except public import Init.Control.Reader public import Init.Control.Option public import Init.Control.Lawful public import Init.Control.StateCps public import Init.Control.ExceptCps public import Init.Control.MonadAttach public import Init.Control.EState public import Init.Control.Do
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -25,6 +25,7 @@ lean_object* runtime_initialize_Init_Control_StateCps(uint8_t builtin);
 lean_object* runtime_initialize_Init_Control_ExceptCps(uint8_t builtin);
 lean_object* runtime_initialize_Init_Control_MonadAttach(uint8_t builtin);
 lean_object* runtime_initialize_Init_Control_EState(uint8_t builtin);
+lean_object* runtime_initialize_Init_Control_Do(uint8_t builtin);
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Control(uint8_t builtin) {
 lean_object * res;
@@ -78,6 +79,10 @@ res = runtime_initialize_Init_Control_EState(builtin)
 ;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = runtime_initialize_Init_Control_Do(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
 }
 static bool _G_meta_initialized = false;
@@ -99,6 +104,7 @@ lean_object* initialize_Init_Control_StateCps(uint8_t builtin);
 lean_object* initialize_Init_Control_ExceptCps(uint8_t builtin);
 lean_object* initialize_Init_Control_MonadAttach(uint8_t builtin);
 lean_object* initialize_Init_Control_EState(uint8_t builtin);
+lean_object* initialize_Init_Control_Do(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Control(uint8_t builtin) {
 lean_object * res;
@@ -149,6 +155,10 @@ res = initialize_Init_Control_MonadAttach(builtin)
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Control_EState(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Control_Do(builtin)
 ;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

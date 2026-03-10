@@ -1,3 +1,5 @@
+set_option warn.classDefReducibility false
+
 section algebra_hierarchy_classes_to_comm_ring
 
 class Semiring (α : Type) extends Add α, Mul α, Zero α, One α

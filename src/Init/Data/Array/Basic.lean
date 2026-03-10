@@ -148,6 +148,9 @@ end List
 
 namespace Array
 
+@[simp, grind =] theorem getElem!_toList [Inhabited α] {xs : Array α} {i : Nat} : xs.toList[i]! = xs[i]! := by
+  rw [List.getElem!_toArray]
+
 theorem size_eq_length_toList {xs : Array α} : xs.size = xs.toList.length := rfl
 
 /-! ### Externs -/
@@ -283,7 +286,7 @@ Examples:
  * `#[1, 2].isEmpty = false`
  * `#[()].isEmpty = false`
 -/
-@[expose]
+@[expose, inline]
 def isEmpty (xs : Array α) : Bool :=
   xs.size = 0
 
@@ -377,6 +380,7 @@ Returns the last element of an array, or panics if the array is empty.
 Safer alternatives include `Array.back`, which requires a proof the array is non-empty, and
 `Array.back?`, which returns an `Option`.
 -/
+@[inline]
 def back! [Inhabited α] (xs : Array α) : α :=
   xs[xs.size - 1]!
 
@@ -386,6 +390,7 @@ Returns the last element of an array, given a proof that the array is not empty.
 See `Array.back!` for the version that panics if the array is empty, or `Array.back?` for the
 version that returns an option.
 -/
+@[inline]
 def back (xs : Array α) (h : 0 < xs.size := by get_elem_tactic) : α :=
   xs[xs.size - 1]'(Nat.sub_one_lt_of_lt h)
 
@@ -395,6 +400,7 @@ Returns the last element of an array, or `none` if the array is empty.
 See `Array.back!` for the version that panics if the array is empty, or `Array.back` for the version
 that requires a proof the array is non-empty.
 -/
+@[inline]
 def back? (xs : Array α) : Option α :=
   xs[xs.size - 1]?
 

@@ -28,7 +28,7 @@ public def reduceSparseCasesOn (mvarId : MVarId) : MetaM (Array MVarId) := do
   lhs.withApp fun f xs => do
   let .const matchDeclName _  := f | throwError "Not a const application"
   let some sparseCasesOnInfo ← getSparseCasesOnInfo matchDeclName | throwError "Not a sparse casesOn application"
-  withTraceNode `Meta.Match.matchEqs (msg := (return m!"{exceptEmoji ·} splitSparseCasesOn")) do
+  withTraceNode `Meta.Match.matchEqs (msg := (fun _ => return m!"splitSparseCasesOn")) do
   if xs.size < sparseCasesOnInfo.arity then
     throwError "Not enough arguments for sparse casesOn application"
   let majorIdx := sparseCasesOnInfo.majorPos
@@ -52,7 +52,7 @@ public def splitSparseCasesOn (mvarId : MVarId) : MetaM (Array MVarId) := do
   lhs.withApp fun f xs => do
   let .const matchDeclName _  := f | throwError "Not a const application"
   let some sparseCasesOnInfo ← getSparseCasesOnInfo matchDeclName | throwError "Not a sparse casesOn application"
-  withTraceNode `Meta.Match.matchEqs (msg := (return m!"{exceptEmoji ·} splitSparseCasesOn")) do
+  withTraceNode `Meta.Match.matchEqs (msg := (fun _ => return m!"splitSparseCasesOn")) do
   try
     trace[Meta.Match.matchEqs] "splitSparseCasesOn running on\n{mvarId}"
     if xs.size < sparseCasesOnInfo.arity then

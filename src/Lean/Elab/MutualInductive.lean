@@ -737,7 +737,7 @@ private partial def simplifyResultingUniverse (u : Level) (paramConst := false) 
     -- If there's a variable, then these dominate at infinity; constants can be eliminated
     if (acc.any fun l _ => varies l) then acc.filter (fun l _ => varies l) else acc
   let germMax (acc : LevelMap Nat) : Level :=
-    (simpAcc acc).fold (init := levelZero) fun u l offset => mkLevelMax' u (l.addOffset offset)
+    (simpAcc acc).fold (init := Level.zero) fun u l offset => mkLevelMax' u (l.addOffset offset)
   let accInsert (acc : LevelMap Nat) (u : Level) (offset : Nat) : LevelMap Nat :=
     acc.alter u (fun offset? => some (max (offset?.getD 0) offset))
   -- Simplifies `u+offset`, accumulating `max` arguments in `acc`.
@@ -748,7 +748,7 @@ private partial def simplifyResultingUniverse (u : Level) (paramConst := false) 
     | .max a b => simp b offset (simp a offset acc)
     | .imax a b =>
       if b.isAlwaysZero then
-        accInsert acc levelZero offset
+        accInsert acc Level.zero offset
       else if a.isAlwaysZero || b.isNeverZero then
         simp b offset (simp a offset acc)
       else
@@ -796,7 +796,7 @@ private structure AccLevelState where
   /--
   The constraint `u ≤ ?r + k` is represented by `levels[u] := k`.
   When `k` is negative, this represents `u + (-k) ≤ ?r`.
-  The level `u` is either a parameter, metavariable, or `levelZero`.
+  The level `u` is either a parameter, metavariable, or `Level.zero`.
 
   When `k ≥ 0`, this is potentially a "bad" level constraint.
   -/
@@ -951,8 +951,8 @@ private def inferResultingUniverse (views : Array InductiveView)
   -- For `Prop` candidates, need to examine `u` itself, rather than `univForInfer` (which has been simplified).
   if let Level.mvar mvarId := u.normalize then
     if ← isPropCandidate numParams indTypes indFVars then
-      -- May as well assign now, since `levelZero` is already normalized.
-      assignLevelMVar mvarId levelZero
+      -- May as well assign now, since `Level.zero` is already normalized.
+      assignLevelMVar mvarId Level.zero
       return { u := u, assign? := none }
   -- Proceed with non-`Prop`-candidate case.
   let univForInfer ← withViewTypeRef views <| processResultingUniverseForInference u
@@ -975,13 +975,13 @@ private def inferResultingUniverse (views : Array InductiveView)
       (l, k) :: parts
   trace[Elab.inductive] "inferResultingUniverse r: {r}, rOffset: {rOffset}, rConstraints: {rConstraints}"
   /- Compute the inferred `r` -/
-  let rInferred := Level.normalize <| rConstraints.foldl (init := levelZero) fun u' (level, k) =>
+  let rInferred := Level.normalize <| rConstraints.foldl (init := Level.zero) fun u' (level, k) =>
     -- If `k ≤ 0`, then add `level + (-k) ≤ ?r` constraint, otherwise add `level ≤ ?r`.
     mkLevelMax' u' <| level.addOffset (-k).toNat
   let uInferred := (u.replace fun v => if v == r then some rInferred else none).normalize
   /- Analyze "bad" constraints if there are any, and report an error if needed. -/
   if rConstraints.any (fun (_, k) => k > 0) then
-    let uAtZero := u.replace fun v => if v == r then some levelZero else none
+    let uAtZero := u.replace fun v => if v == r then some Level.zero else none
     /- For "bad" level constraints (those of the form `l ≤ ?r + k` where `k > 0`),
     we add `rOffset - k` to both sides to get the ideal constraint. -/
     let uIdeal := Level.normalize <| rConstraints.foldl (init := uAtZero) fun u' (level, k) =>

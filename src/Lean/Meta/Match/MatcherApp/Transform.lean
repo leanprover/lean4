@@ -146,7 +146,7 @@ def refineThrough (matcherApp : MatcherApp) (e : Expr) : MetaM (Array Expr) :=
     let matcherLevels ← match matcherApp.uElimPos? with
       | none     => pure matcherApp.matcherLevels
       | some pos =>
-        pure <| matcherApp.matcherLevels.set! pos levelZero
+        pure <| matcherApp.matcherLevels.set! pos Level.zero
     let motive ← mkLambdaFVars motiveArgs eEq
     let aux := mkAppN (mkConst matcherApp.matcherName matcherLevels.toList) matcherApp.params
     let aux := mkApp aux motive
@@ -333,7 +333,7 @@ def transform
                         catch _ => throwError "unexpected matcher application, insufficient number of parameters in alternative"
               let alt' ← onAlt altIdx altType altParams alt
               mkLambdaFVars (ys ++ ys2 ++ ys3 ++ ys4) alt'
-        let alt' ← if splitterAltInfo.hasUnitThunk then
+        if splitterAltInfo.hasUnitThunk then
           -- The splitter expects a thunked alternative, but we don't want the `x : Unit` to be in
           -- the context (e.g. in functional induction), so use Function.const rather than a lambda
           mkAppM ``Function.const #[mkConst ``Unit, alt']
@@ -421,7 +421,7 @@ def inferMatchType (matcherApp : MatcherApp) : MetaM MatcherApp := do
   matcherApp.transform (useSplitter := true)
     (onMotive := fun motiveArgs body => do
       let extraParams ← arrowDomainsN nExtra body
-      let propMotive ← mkLambdaFVars motiveArgs (.sort levelZero)
+      let propMotive ← mkLambdaFVars motiveArgs (.sort Level.zero)
       let propAlts ← matcherApp.alts.mapM fun termAlt =>
         lambdaTelescope termAlt fun xs termAltBody => do
           -- We have alt parameters and parameters corresponding to the extra args
@@ -436,7 +436,7 @@ def inferMatchType (matcherApp : MatcherApp) : MetaM MatcherApp := do
           mkLambdaFVars xs1 altType
       let matcherLevels ← match matcherApp.uElimPos? with
         | none     => pure matcherApp.matcherLevels
-        | some pos => pure <| matcherApp.matcherLevels.set! pos levelOne
+        | some pos => pure <| matcherApp.matcherLevels.set! pos Level.one
       let typeMatcherApp := { matcherApp with
         motive := propMotive
         matcherLevels := matcherLevels

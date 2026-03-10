@@ -362,8 +362,7 @@ def Flatten.instProductivenessRelation [Monad m] [Iterator α m (IterM (α := α
     case innerDone =>
       apply Flatten.productiveRel_of_right₂
 
-@[no_expose]
-public def Flatten.instProductive [Monad m] [Iterator α m (IterM (α := α₂) m β)] [Iterator α₂ m β]
+public theorem Flatten.instProductive [Monad m] [Iterator α m (IterM (α := α₂) m β)] [Iterator α₂ m β]
     [Finite α m] [Productive α₂ m] : Productive (Flatten α α₂ β m) m :=
   .of_productivenessRelation instProductivenessRelation
 

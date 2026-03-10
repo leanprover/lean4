@@ -36,22 +36,22 @@ structure S' extends A Nat where
 (x := true) -- error type mismatch
 
 structure S extends A Nat where
-(x : Bool := true) -- error omit type
+(x : Bool := true) -- error type mismatch
 
 structure S'' where
 (x : Nat := true) -- error type mismatch
 
-private structure S where
+private structure Spriv where
 private mk :: (x : Nat)
 
-private structure S where
+private structure Spriv where
 protected mk :: (x : Nat)
 
-private structure S where
+private structure Spriv where
 protected (x : Nat)
 
-private structure S where
+private structure Spriv where
 mk2 :: (x : Nat)
 
-#check S
+#check Spriv
 #check S.mk2

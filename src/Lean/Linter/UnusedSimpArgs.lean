@@ -42,7 +42,7 @@ private def warnUnused (stx : Syntax) (i : Nat) : CoreM Unit := do
 
 def unusedSimpArgs : Linter where
   run cmdStx := do
-    if !Tactic.linter.unusedSimpArgs.get (← getOptions) then return
+    if !getLinterValue Tactic.linter.unusedSimpArgs (← getLinterOptions) then return
     let some cmdStxRange := cmdStx.getRange?  | return
 
     let infoTrees := (← get).infoState.trees.toArray

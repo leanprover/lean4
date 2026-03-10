@@ -7,3 +7,4 @@ Note: Use `set_option synthInstance.maxHeartbeats <num>` to set the limit.
 Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
 
 Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+tcloop.lean:13:0-14:15: warning: Definition `f` of class type must be marked with `@[reducible]` or `@[implicit_reducible]`

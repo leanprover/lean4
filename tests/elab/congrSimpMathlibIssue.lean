@@ -1,5 +1,7 @@
 import Lean.Elab.Term
 
+set_option warn.classDefReducibility false
+
 /-!
 # Turán's theorem
 -/

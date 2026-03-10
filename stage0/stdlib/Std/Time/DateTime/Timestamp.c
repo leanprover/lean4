@@ -422,11 +422,11 @@ return x_25;
 block_35:
 {
 lean_object* x_33; lean_object* x_34; 
-x_33 = l_Std_Time_instToStringDuration_leftPad(x_30, x_32);
+x_33 = l_Std_Time_instToStringDuration_leftPad(x_31, x_32);
 lean_dec_ref(x_32);
-x_34 = lean_string_append(x_31, x_33);
+x_34 = lean_string_append(x_29, x_33);
 lean_dec_ref(x_33);
-x_8 = x_29;
+x_8 = x_30;
 x_9 = x_34;
 goto block_28;
 }
@@ -452,9 +452,9 @@ lean_object* x_46; lean_object* x_47;
 x_46 = lean_nat_abs(x_38);
 lean_dec(x_38);
 x_47 = l_Nat_reprFast(x_46);
-x_29 = x_40;
-x_30 = x_44;
-x_31 = x_43;
+x_29 = x_43;
+x_30 = x_40;
+x_31 = x_44;
 x_32 = x_47;
 goto block_35;
 }
@@ -472,9 +472,9 @@ lean_dec(x_50);
 x_53 = l_Nat_reprFast(x_52);
 x_54 = lean_string_append(x_51, x_53);
 lean_dec_ref(x_53);
-x_29 = x_40;
-x_30 = x_44;
-x_31 = x_43;
+x_29 = x_43;
+x_30 = x_40;
+x_31 = x_44;
 x_32 = x_54;
 goto block_35;
 }

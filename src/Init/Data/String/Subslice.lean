@@ -223,21 +223,21 @@ theorem extendLeft_self {s : Slice} {sl : s.Subslice} :
   ext <;> simp
 
 /--
-Given a subslice of {name}`s` and a proof that {lean}`s = t`, obtain the corresponding subslice of
-{name}`t`.
+Given a subslice of {name}`s` and a proof that {lean}`s.copy = t.copy`, obtain the corresponding
+subslice of {name}`t`.
 -/
 @[inline]
-def cast {s t : Slice} (h : s = t) (sl : s.Subslice) : t.Subslice where
+def cast {s t : Slice} (h : s.copy = t.copy) (sl : s.Subslice) : t.Subslice where
   startInclusive := sl.startInclusive.cast h
   endExclusive := sl.endExclusive.cast h
   startInclusive_le_endExclusive := by simpa using sl.startInclusive_le_endExclusive
 
 @[simp]
-theorem startInclusive_cast {s t : Slice} {h : s = t} {sl : s.Subslice} :
+theorem startInclusive_cast {s t : Slice} {h : s.copy = t.copy} {sl : s.Subslice} :
     (sl.cast h).startInclusive = sl.startInclusive.cast h := (rfl)
 
 @[simp]
-theorem endExclusive_cast {s t : Slice} {h : s = t} {sl : s.Subslice} :
+theorem endExclusive_cast {s t : Slice} {h : s.copy = t.copy} {sl : s.Subslice} :
     (sl.cast h).endExclusive = sl.endExclusive.cast h := (rfl)
 
 @[simp]

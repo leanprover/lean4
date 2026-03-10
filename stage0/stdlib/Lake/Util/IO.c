@@ -161,128 +161,125 @@ return x_3;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lake_removeDirAllIfExists_spec__0(lean_object* x_1, size_t x_2, size_t x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_6; lean_object* x_7; uint8_t x_12; 
-x_12 = lean_usize_dec_lt(x_3, x_2);
-if (x_12 == 0)
+lean_object* x_6; uint8_t x_11; 
+x_11 = lean_usize_dec_lt(x_3, x_2);
+if (x_11 == 0)
 {
-lean_object* x_13; 
-x_13 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_13, 0, x_4);
-return x_13;
+lean_object* x_12; 
+x_12 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_12, 0, x_4);
+return x_12;
 }
 else
 {
-lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
-x_14 = lean_box(0);
-x_15 = lean_array_uget_borrowed(x_1, x_3);
-lean_inc(x_15);
-x_16 = l_IO_FS_DirEntry_path(x_15);
-x_17 = lean_io_symlink_metadata(x_16);
-if (lean_obj_tag(x_17) == 0)
+lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
+x_13 = lean_box(0);
+x_14 = lean_array_uget_borrowed(x_1, x_3);
+lean_inc(x_14);
+x_15 = l_IO_FS_DirEntry_path(x_14);
+x_16 = lean_io_symlink_metadata(x_15);
+if (lean_obj_tag(x_16) == 0)
 {
-lean_object* x_18; uint8_t x_19; uint8_t x_20; uint8_t x_21; 
-x_18 = lean_ctor_get(x_17, 0);
-lean_inc(x_18);
-lean_dec_ref(x_17);
-x_19 = lean_ctor_get_uint8(x_18, sizeof(void*)*2 + 16);
-lean_dec(x_18);
-x_20 = 0;
-x_21 = l_IO_FS_instBEqFileType_beq(x_19, x_20);
-if (x_21 == 0)
+lean_object* x_17; uint8_t x_18; uint8_t x_19; uint8_t x_20; 
+x_17 = lean_ctor_get(x_16, 0);
+lean_inc(x_17);
+lean_dec_ref(x_16);
+x_18 = lean_ctor_get_uint8(x_17, sizeof(void*)*2 + 16);
+lean_dec(x_17);
+x_19 = 0;
+x_20 = l_IO_FS_instBEqFileType_beq(x_18, x_19);
+if (x_20 == 0)
+{
+lean_object* x_21; 
+x_21 = l_Lake_removeFileIfExists(x_15);
+lean_dec_ref(x_15);
+if (lean_obj_tag(x_21) == 0)
+{
+lean_dec_ref(x_21);
+x_6 = x_13;
+goto block_10;
+}
+else
+{
+return x_21;
+}
+}
+else
 {
 lean_object* x_22; 
-x_22 = l_Lake_removeFileIfExists(x_16);
-lean_dec_ref(x_16);
+x_22 = l_Lake_removeDirAllIfExists(x_15);
+lean_dec_ref(x_15);
 if (lean_obj_tag(x_22) == 0)
 {
 lean_dec_ref(x_22);
-x_6 = x_14;
-x_7 = lean_box(0);
-goto block_11;
+x_6 = x_13;
+goto block_10;
 }
 else
 {
 return x_22;
 }
 }
+}
 else
 {
-lean_object* x_23; 
-x_23 = l_Lake_removeDirAllIfExists(x_16);
-lean_dec_ref(x_16);
-if (lean_obj_tag(x_23) == 0)
+lean_object* x_23; lean_object* x_24; uint8_t x_25; uint8_t x_30; 
+lean_dec_ref(x_15);
+x_23 = lean_ctor_get(x_16, 0);
+x_30 = !lean_is_exclusive(x_16);
+if (x_30 == 0)
+{
+x_24 = x_16;
+x_25 = x_30;
+goto block_29;
+}
+else
+{
+lean_inc(x_23);
+lean_dec(x_16);
+x_24 = lean_box(0);
+x_25 = x_30;
+goto block_29;
+}
+block_29:
+{
+if (lean_obj_tag(x_23) == 11)
 {
 lean_dec_ref(x_23);
-x_6 = x_14;
-x_7 = lean_box(0);
-goto block_11;
+lean_del_object(x_24);
+x_6 = x_13;
+goto block_10;
 }
 else
 {
-return x_23;
-}
-}
+lean_object* x_26; 
+if (x_25 == 0)
+{
+x_26 = x_24;
+goto block_27;
 }
 else
 {
-lean_object* x_24; lean_object* x_25; uint8_t x_26; uint8_t x_31; 
-lean_dec_ref(x_16);
-x_24 = lean_ctor_get(x_17, 0);
-x_31 = !lean_is_exclusive(x_17);
-if (x_31 == 0)
+lean_object* x_28; 
+x_28 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_28, 0, x_23);
+x_26 = x_28;
+goto block_27;
+}
+block_27:
 {
-x_25 = x_17;
-x_26 = x_31;
-goto block_30;
+return x_26;
 }
-else
+}
+}
+}
+}
+block_10:
 {
-lean_inc(x_24);
-lean_dec(x_17);
-x_25 = lean_box(0);
-x_26 = x_31;
-goto block_30;
-}
-block_30:
-{
-if (lean_obj_tag(x_24) == 11)
-{
-lean_dec_ref(x_24);
-lean_del_object(x_25);
-x_6 = x_14;
-x_7 = lean_box(0);
-goto block_11;
-}
-else
-{
-lean_object* x_27; 
-if (x_26 == 0)
-{
-x_27 = x_25;
-goto block_28;
-}
-else
-{
-lean_object* x_29; 
-x_29 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_29, 0, x_24);
-x_27 = x_29;
-goto block_28;
-}
-block_28:
-{
-return x_27;
-}
-}
-}
-}
-}
-block_11:
-{
-size_t x_8; size_t x_9; 
-x_8 = 1;
-x_9 = lean_usize_add(x_3, x_8);
-x_3 = x_9;
+size_t x_7; size_t x_8; 
+x_7 = 1;
+x_8 = lean_usize_add(x_3, x_7);
+x_3 = x_8;
 x_4 = x_6;
 goto _start;
 }

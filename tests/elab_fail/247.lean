@@ -1,4 +1,5 @@
 import Lean
+set_option backward.do.legacy false
 
 namespace Lean.Meta
 

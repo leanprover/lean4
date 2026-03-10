@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data
-// Imports: public import Lean.Data.AssocList public import Lean.Data.Format public import Lean.Data.Json public import Lean.Data.JsonRpc public import Lean.Data.KVMap public import Lean.Data.LBool public import Lean.Data.LOption public import Lean.Data.Lsp public import Lean.Data.Name public import Lean.Data.NameMap public import Lean.Data.OpenDecl public import Lean.Data.Options public import Lean.Data.PersistentArray public import Lean.Data.PersistentHashMap public import Lean.Data.PersistentHashSet public import Lean.Data.Position public import Lean.Data.PrefixTree public import Lean.Data.SMap public import Lean.Data.Trie public import Lean.Data.NameTrie public import Lean.Data.RBTree public import Lean.Data.RBMap public import Lean.Data.RArray
+// Imports: public import Lean.Data.AssocList public import Lean.Data.Format public import Lean.Data.Json public import Lean.Data.JsonRpc public import Lean.Data.KVMap public import Lean.Data.LBool public import Lean.Data.LOption public import Lean.Data.Lsp public import Lean.Data.Name public import Lean.Data.NameMap public import Lean.Data.OpenDecl public import Lean.Data.Options public import Lean.Data.PersistentArray public import Lean.Data.PersistentHashMap public import Lean.Data.PersistentHashSet public import Lean.Data.Position public import Lean.Data.PrefixTree public import Lean.Data.SMap public import Lean.Data.Trie public import Lean.Data.NameTrie public import Lean.Data.RBTree public import Lean.Data.RBMap public import Lean.Data.RArray public import Lean.Data.Iterators
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -36,6 +36,7 @@ lean_object* runtime_initialize_Lean_Data_NameTrie(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Data_RBTree(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Data_RBMap(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Data_RArray(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Data_Iterators(uint8_t builtin);
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Data(uint8_t builtin) {
 lean_object * res;
@@ -133,6 +134,10 @@ res = runtime_initialize_Lean_Data_RArray(builtin)
 ;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = runtime_initialize_Lean_Data_Iterators(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
 }
 static bool _G_meta_initialized = false;
@@ -165,6 +170,7 @@ lean_object* initialize_Lean_Data_NameTrie(uint8_t builtin);
 lean_object* initialize_Lean_Data_RBTree(uint8_t builtin);
 lean_object* initialize_Lean_Data_RBMap(uint8_t builtin);
 lean_object* initialize_Lean_Data_RArray(uint8_t builtin);
+lean_object* initialize_Lean_Data_Iterators(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Data(uint8_t builtin) {
 lean_object * res;
@@ -259,6 +265,10 @@ res = initialize_Lean_Data_RBMap(builtin)
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Data_RArray(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Data_Iterators(builtin)
 ;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

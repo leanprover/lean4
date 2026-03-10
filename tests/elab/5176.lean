@@ -1,3 +1,5 @@
+set_option warn.classDefReducibility false
+
 class Foo where
 
 class Bar extends Foo where

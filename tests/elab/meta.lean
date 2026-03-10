@@ -84,7 +84,7 @@ def proveGoal : MetaM Unit := do
   IO.println (← ppGoal m)
   IO.println "-----"
   -- The `apply` tactic generates 0 or more subgoals
-  let [m] ← m.apply (mkConst ``Eq.symm [levelOne]) | throwError "unexpected number of subgoals"
+  let [m] ← m.apply (mkConst ``Eq.symm [Level.one]) | throwError "unexpected number of subgoals"
   IO.println (← ppGoal m)
   IO.println "-----"
   m.assumption

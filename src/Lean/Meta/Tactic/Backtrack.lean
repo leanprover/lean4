@@ -110,25 +110,25 @@ private def run (goals : List MVarId) (n : Nat) (curr acc : List MVarId) : MetaM
     cfg.proc goals curr
   catch e =>
     withTraceNode trace
-      (return m!"{exceptEmoji ·} BacktrackConfig.proc failed: {e.toMessageData}") do
+      (fun _ => return m!"BacktrackConfig.proc failed: {e.toMessageData}") do
     throw e
   match procResult? with
   | some curr' => run goals n curr' acc
   | none =>
   match curr with
   -- If there are no active goals, return the accumulated goals.
-  | [] => withTraceNode trace (return m!"{exceptEmoji ·} success!") do
+  | [] => withTraceNode trace (fun _ => return m!"success!") do
       return acc.reverse
   | g :: gs =>
   -- Discard any goals which have already been assigned.
   if ← g.isAssigned then
-    withTraceNode trace (return m!"{exceptEmoji ·} discarding already assigned goal {g}") do
+    withTraceNode trace (fun _ => return m!"discarding already assigned goal {g}") do
       run goals (n+1) gs acc
   else
   withTraceNode trace
     -- Note: the `addMessageContextFull` ensures we show the goal using the mvar context before
     -- the `do` block below runs, potentially unifying mvars in the goal.
-    (return m!"{exceptEmoji ·} working on: {← addMessageContextFull g}")
+    (fun _ => return m!"working on: {← addMessageContextFull g}")
     do
       -- Check if we should suspend the search here:
       if (← cfg.suspend g) then

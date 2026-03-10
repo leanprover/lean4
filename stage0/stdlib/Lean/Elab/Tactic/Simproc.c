@@ -1954,8 +1954,8 @@ goto block_20;
 }
 else
 {
-lean_dec(x_25);
 lean_dec_ref(x_24);
+lean_dec(x_25);
 lean_dec_ref(x_23);
 lean_dec_ref(x_22);
 lean_del_object(x_7);

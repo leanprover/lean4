@@ -213,7 +213,7 @@ def getDecl? (declName : Name) : CompilerM (Option ((pu : Purity) × Decl pu)) :
   let some decl ← getDeclAt? declName (← getPhase) | return none
   return some ⟨_, decl⟩
 
-def getLocalDeclAt? (declName : Name) (phase : Phase) : CompilerM (Option (Decl phase.toPurity)) := do
+def getLocalDeclAt? (declName : Name) (phase : Phase) : CompilerM (Option (Decl phase.toPurity)) :=
   match phase with
   | .base => return baseExt.getState (← getEnv) |>.find? declName
   | .mono => return monoExt.getState (← getEnv) |>.find? declName

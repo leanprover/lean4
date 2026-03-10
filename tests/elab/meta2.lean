@@ -27,7 +27,7 @@ def succ  := mkConst `Nat.succ
 def zero  := mkConst `Nat.zero
 def add   := mkConst `Nat.add
 def io    := mkConst `IO
-def type  := mkSort levelOne
+def type  := mkSort Level.one
 def boolFalse := mkConst `Bool.false
 def boolTrue := mkConst `Bool.true
 
@@ -548,21 +548,21 @@ print "----- tst29 -----";
 let u  := mkLevelParam `u;
 let v  := mkLevelParam `v;
 let u1 := mkLevelSucc u;
-let m  := mkLevelMax levelOne u1;
+let m  := mkLevelMax Level.one u1;
 print (norm m);
 checkM $ pure $ norm m == u1;
-let m  := mkLevelMax u1 levelOne;
+let m  := mkLevelMax u1 Level.one;
 print (norm m);
 checkM $ pure $ norm m == u1;
-let m  := mkLevelMax (mkLevelMax levelOne (mkLevelSucc u1)) (mkLevelSucc levelOne);
+let m  := mkLevelMax (mkLevelMax Level.one (mkLevelSucc u1)) (mkLevelSucc Level.one);
 checkM $ pure $ norm m == mkLevelSucc u1;
 print m;
 print (norm m);
-let m  := mkLevelMax (mkLevelMax (mkLevelSucc (mkLevelSucc u1)) (mkLevelSucc u1)) (mkLevelSucc levelOne);
+let m  := mkLevelMax (mkLevelMax (mkLevelSucc (mkLevelSucc u1)) (mkLevelSucc u1)) (mkLevelSucc Level.one);
 print m;
 print (norm m);
 checkM $ pure $ norm m == mkLevelSucc (mkLevelSucc u1);
-let m  := mkLevelMax (mkLevelMax (mkLevelSucc v) (mkLevelSucc u1)) (mkLevelSucc levelOne);
+let m  := mkLevelMax (mkLevelMax (mkLevelSucc v) (mkLevelSucc u1)) (mkLevelSucc Level.one);
 print m;
 print (norm m);
 pure ()
@@ -620,7 +620,7 @@ let aeqb ← mkEq a b;
 withLocalDeclD `h2 aeqb $ fun h2 => do
 let t ← mkEq (mkApp2 add a a) a;
 print t;
-let motive := mkLambda `x BinderInfo.default nat (mkApp3 (mkConst `Eq [levelOne]) nat (mkApp2 add a (mkBVar 0)) a);
+let motive := mkLambda `x BinderInfo.default nat (mkApp3 (mkConst `Eq [Level.one]) nat (mkApp2 add a (mkBVar 0)) a);
 withLocalDeclD `h1 t $ fun h1 => do
 let r ← mkEqNDRec motive h1 h2;
 print r;
@@ -647,8 +647,8 @@ withLocalDeclD `h2 aeqb $ fun h2 => do
 let t ← mkEq (mkApp2 add a a) a;
 let motive :=
   mkLambda `x BinderInfo.default nat $
-  mkLambda `h BinderInfo.default (mkApp3 (mkConst `Eq [levelOne]) nat a (mkBVar 0)) $
-    (mkApp3 (mkConst `Eq [levelOne]) nat (mkApp2 add a (mkBVar 1)) a);
+  mkLambda `h BinderInfo.default (mkApp3 (mkConst `Eq [Level.one]) nat a (mkBVar 0)) $
+    (mkApp3 (mkConst `Eq [Level.one]) nat (mkApp2 add a (mkBVar 1)) a);
 withLocalDeclD `h1 t $ fun h1 => do
 let r ← mkEqRec motive h1 h2;
 print r;
@@ -667,7 +667,7 @@ trace: [Meta.debug] ----- tst33 -----
 
 def tst34 : MetaM Unit := do
 print "----- tst34 -----";
-let type := mkSort levelOne;
+let type := mkSort Level.one;
 withLocalDeclD `α type $ fun α => do
   let m ← mkFreshExprMVar type;
   let t ← mkLambdaFVars #[α] (← mkArrow m m);
@@ -683,7 +683,7 @@ trace: [Meta.debug] ----- tst34 -----
 
 def tst35 : MetaM Unit := do
 print "----- tst35 -----";
-let type := mkSort levelOne;
+let type := mkSort Level.one;
 withLocalDeclD `α type $ fun α => do
   let m1 ← mkFreshExprMVar type;
   let m2 ← mkFreshExprMVar (← mkArrow nat type);
@@ -709,13 +709,13 @@ trace: [Meta.debug] ----- tst35 -----
 
 def tst36 : MetaM Unit := do
 print "----- tst36 -----";
-let type := mkSort levelOne;
+let type := mkSort Level.one;
 let m1 ← mkFreshExprMVar (← mkArrow type type);
 withLocalDeclD `α type $ fun α => do
   let m2 ← mkFreshExprMVar type;
   let t  ← mkAppM `Id #[m2];
   checkM $ approxDefEq $ isDefEq (mkApp m1 α) t;
-  checkM $ approxDefEq $ isDefEq m1 (mkConst `Id [levelZero]);
+  checkM $ approxDefEq $ isDefEq m1 (mkConst `Id [Level.zero]);
   pure ()
 
 /-- trace: [Meta.debug] ----- tst36 ----- -/

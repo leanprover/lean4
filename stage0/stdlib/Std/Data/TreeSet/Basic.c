@@ -3390,9 +3390,9 @@ goto block_65;
 block_55:
 {
 lean_object* x_48; lean_object* x_49; 
-x_48 = lean_nat_add(x_45, x_47);
+x_48 = lean_nat_add(x_46, x_47);
 lean_dec(x_47);
-lean_dec(x_45);
+lean_dec(x_46);
 if (x_42 == 0)
 {
 lean_ctor_set(x_41, 4, x_9);
@@ -3421,7 +3421,7 @@ lean_object* x_50;
 if (x_31 == 0)
 {
 lean_ctor_set(x_30, 4, x_49);
-lean_ctor_set(x_30, 3, x_46);
+lean_ctor_set(x_30, 3, x_45);
 lean_ctor_set(x_30, 2, x_35);
 lean_ctor_set(x_30, 1, x_34);
 lean_ctor_set(x_30, 0, x_44);
@@ -3435,7 +3435,7 @@ x_52 = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(x_52, 0, x_44);
 lean_ctor_set(x_52, 1, x_34);
 lean_ctor_set(x_52, 2, x_35);
-lean_ctor_set(x_52, 3, x_46);
+lean_ctor_set(x_52, 3, x_45);
 lean_ctor_set(x_52, 4, x_49);
 x_50 = x_52;
 goto block_51;
@@ -3483,8 +3483,8 @@ if (lean_obj_tag(x_37) == 0)
 lean_object* x_61; 
 x_61 = lean_ctor_get(x_37, 0);
 lean_inc(x_61);
-x_45 = x_60;
-x_46 = x_59;
+x_45 = x_59;
+x_46 = x_60;
 x_47 = x_61;
 goto block_55;
 }
@@ -3492,8 +3492,8 @@ else
 {
 lean_object* x_62; 
 x_62 = lean_unsigned_to_nat(0u);
-x_45 = x_60;
-x_46 = x_59;
+x_45 = x_59;
+x_46 = x_60;
 x_47 = x_62;
 goto block_55;
 }
@@ -4052,9 +4052,9 @@ goto block_204;
 block_195:
 {
 lean_object* x_188; lean_object* x_189; 
-x_188 = lean_nat_add(x_185, x_187);
+x_188 = lean_nat_add(x_186, x_187);
 lean_dec(x_187);
-lean_dec(x_185);
+lean_dec(x_186);
 if (x_182 == 0)
 {
 lean_ctor_set(x_181, 4, x_161);
@@ -4083,7 +4083,7 @@ lean_object* x_190;
 if (x_171 == 0)
 {
 lean_ctor_set(x_170, 4, x_189);
-lean_ctor_set(x_170, 3, x_186);
+lean_ctor_set(x_170, 3, x_185);
 lean_ctor_set(x_170, 2, x_174);
 lean_ctor_set(x_170, 1, x_173);
 lean_ctor_set(x_170, 0, x_184);
@@ -4097,7 +4097,7 @@ x_192 = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(x_192, 0, x_184);
 lean_ctor_set(x_192, 1, x_173);
 lean_ctor_set(x_192, 2, x_174);
-lean_ctor_set(x_192, 3, x_186);
+lean_ctor_set(x_192, 3, x_185);
 lean_ctor_set(x_192, 4, x_189);
 x_190 = x_192;
 goto block_191;
@@ -4142,8 +4142,8 @@ if (lean_obj_tag(x_176) == 0)
 lean_object* x_200; 
 x_200 = lean_ctor_get(x_176, 0);
 lean_inc(x_200);
-x_185 = x_199;
-x_186 = x_198;
+x_185 = x_198;
+x_186 = x_199;
 x_187 = x_200;
 goto block_195;
 }
@@ -4151,8 +4151,8 @@ else
 {
 lean_object* x_201; 
 x_201 = lean_unsigned_to_nat(0u);
-x_185 = x_199;
-x_186 = x_198;
+x_185 = x_198;
+x_186 = x_199;
 x_187 = x_201;
 goto block_195;
 }

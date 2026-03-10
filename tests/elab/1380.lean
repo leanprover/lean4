@@ -17,7 +17,7 @@ trace: [Meta.Tactic.simp.unify] eq_self:1000, failed to unify
       ?a = ?a
     with
       v₂ = v₁
-[Meta.Tactic.simp.discharge] Nat.ne_of_gt discharge ✅️
+[Meta.Tactic.simp.discharge] ✅️ Nat.ne_of_gt discharge ✅️
       v₁ < v₂
   [Meta.Tactic.simp.rewrite] hv:1000:
         v₁ < v₂

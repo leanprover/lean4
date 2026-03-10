@@ -68,15 +68,18 @@ LEAN_EXPORT const lean_object* l___private_Lake_CLI_Help_0__Lake_helpClean = (co
 static const lean_string_object l___private_Lake_CLI_Help_0__Lake_helpShake___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 1473, .m_capacity = 1473, .m_length = 1472, .m_data = "Minimize imports in Lean source files\n\nUSAGE:\n  lake shake [OPTIONS] [<MODULE>...]\n\nChecks the current project for unused imports by analyzing generated `.olean`\nfiles to deduce required imports and ensuring that every import contributes\nsome constant or other elaboration dependency.\n\nARGUMENTS:\n  <MODULE>              A module path like `Mathlib`. All files transitively\n                        reachable from the provided module(s) will be checked.\n                        If not specified, uses the package's default targets.\n\nOPTIONS:\n  --force               Skip the `lake build --no-build` sanity check\n  --keep-implied        Preserve imports implied by other imports\n  --keep-prefix         Prefer parent module imports over specific submodules\n  --keep-public         Preserve all `public` imports for API stability\n  --add-public          Add new imports as `public` if they were in the\n                        original public closure\n  --explain             Show which constants require each import\n  --fix                 Apply suggested fixes directly to source files\n  --gh-style            Output in GitHub problem matcher format\n\nANNOTATIONS:\n  Source files can contain special comments to control shake behavior:\n\n  * `module -- shake: keep-downstream`\n    Preserves this module in all downstream modules\n\n  * `module -- shake: keep-all`\n    Preserves all existing imports in this module\n\n  * `import X -- shake: keep`\n    Preserves this specific import"};
 static const lean_object* l___private_Lake_CLI_Help_0__Lake_helpShake___closed__0 = (const lean_object*)&l___private_Lake_CLI_Help_0__Lake_helpShake___closed__0_value;
 LEAN_EXPORT const lean_object* l___private_Lake_CLI_Help_0__Lake_helpShake = (const lean_object*)&l___private_Lake_CLI_Help_0__Lake_helpShake___closed__0_value;
-static const lean_string_object l___private_Lake_CLI_Help_0__Lake_helpCacheCli___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 395, .m_capacity = 395, .m_length = 394, .m_data = "Manage the Lake cache\n\nUSAGE:\n  lake cache <COMMAND>\n\nCOMMANDS:\n  get [<mappings>]      download artifacts into the local Lake cache\n  put <mappings>        upload artifacts to a remote cache\n  clean                 removes ALL froms the local Lake cache\n  services              print configured remote cache services\n\nSee `lake cache help <command>` for more information on a specific command."};
+static const lean_string_object l___private_Lake_CLI_Help_0__Lake_helpCacheCli___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 474, .m_capacity = 474, .m_length = 473, .m_data = "Manage the Lake cache\n\nUSAGE:\n  lake cache <COMMAND>\n\nCOMMANDS:\n  get [<mappings>]      download build outputs into the local Lake cache\n  put <mappings>        upload build ouptuts to a remote cache\n  add <mappings>        add input-to-output mappings to the Lake cache\n  clean                 removes ALL froms the local Lake cache\n  services              print configured remote cache services\n\nSee `lake cache help <command>` for more information on a specific command."};
 static const lean_object* l___private_Lake_CLI_Help_0__Lake_helpCacheCli___closed__0 = (const lean_object*)&l___private_Lake_CLI_Help_0__Lake_helpCacheCli___closed__0_value;
 LEAN_EXPORT const lean_object* l___private_Lake_CLI_Help_0__Lake_helpCacheCli = (const lean_object*)&l___private_Lake_CLI_Help_0__Lake_helpCacheCli___closed__0_value;
-static const lean_string_object l___private_Lake_CLI_Help_0__Lake_helpCacheGet___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 2483, .m_capacity = 2483, .m_length = 2482, .m_data = "Download artifacts from a remote service into the Lake cache\n\nUSAGE:\n  lake cache get [<mappings>]\n\nOPTIONS:\n  --max-revs=<n>                  backtrack up to n revisions (default: 100)\n  --rev=<commit-hash>             uses this exact revision to lookup artifacts\n  --repo=<github-repo>            GitHub repository of the package or a fork\n  --platform=<target-triple>      with Reservoir or --repo, sets the platform\n  --toolchain=<name>              with Reservoir or --repo, sets the toolchain\n  --scope=<remote-scope>          scope for a custom endpoint\n\nDownloads artifacts for packages in the workspace from a remote cache service.\nThe cache service used can be specifed via the `--service` option. Otherwise,\nLake will the system default, or, if none is configured, Reservoir. See\n`lake cache services` for more information on how to configure services.\n\nIf an input-to-outputs mappings file, `--scope`, or `--repo` is provided,\nLake will download artifacts for the root package. Otherwise, it will use\nReservoir to download artifacts for each dependency in workspace (in order).\nNon-Reservoir dependencies will be skipped.\n\nTo determine the artifacts to download, Lake searches for input-to-output\nmappings for a given build of the package via the cache service. This mapping\nis identified by a Git revision and prefixed with a scope derived from the\npackage's name, GitHub repository, Lean toolchain, and current platform.\nThe exact configuration can be customized using options.\n\nFor Reservoir, setting `--repo` will make Lake lookup artifacts for the root\npackage by a repository name, rather than the package's. This can be used to\ndownload artifacts for a fork of the Reservoir package (if such artifacts are\navailable). The `--platform` and `--toolchain` options can be used to download\nartifacts for a different platform/toolchain configuration than Lake detects.\nFor a custom endpoint, the full prefix Lake uses can be set via  `--scope`.\n\nIf `--rev` is not set, Lake uses the package's current revision to lookup\nartifacts. If no mappings are found, Lake will backtrack the Git history up to\n`--max-revs`, looking for a revision with mappings. If `--max-revs` is 0, Lake\nwill search the repository's entire history (or as far as Git will allow).\n\nIf a download for an artifact fails or the download process for a whole\npackage fails, Lake will report this and continue on to the next. Once done,\nif any download failed, Lake will exit with a nonzero status code."};
+static const lean_string_object l___private_Lake_CLI_Help_0__Lake_helpCacheGet___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 2977, .m_capacity = 2977, .m_length = 2976, .m_data = "Download build outputs from a remote service into the Lake cache\n\nUSAGE:\n  lake cache get [<mappings>]\n\nOPTIONS:\n  --max-revs=<n>                  backtrack up to n revisions (default: 100)\n  --rev=<commit-hash>             uses this exact revision to lookup artifacts\n  --service=<name>                cache service to fetch from\n  --repo=<github-repo>            GitHub repository of the package or a fork\n  --platform=<target-triple>      with Reservoir or --repo, sets the platform\n  --toolchain=<name>              with Reservoir or --repo, sets the toolchain\n  --scope=<remote-scope>          scope for a custom endpoint\n  --download-arts                 download artifacts now, not on demand\n  --force-download                redownload existing files\n\nDownloads build outputs for packages in the workspace from a remote cache\nservice. The cache service used can be specifed via the `--service` option.\nOtherwise, Lake will the system default, or, if none is configured, Reservoir.\nSee `lake cache services` for more information on how to configure services.\n\nIf an input-to-outputs mappings file, `--scope`, or `--repo` is provided,\nLake will download build outputs for the root package. Otherwise, it will use\nReservoir to download outputs for each dependency in the workspace (in order).\nNon-Reservoir dependencies will be skipped.\n\nTo determine what to download, Lake searches for input-to-output mappings for\na given build of the package via the cache service. This mapping is identified\nby a Git revision and prefixed with a scope derived from the package's name,\nGitHub repository, Lean toolchain, and current platform. The exact configuration\ncan be customized using options.\n\nFor Reservoir, setting `--repo` will cause Lake to lookup outputs for the root\npackage by a repository name, rather than the package's. This can be used to\ndownload outputs for a fork of the Reservoir package (if such artifacts are\navailable). The `--platform` and `--toolchain` options can be used to download\nartifacts for a different platform/toolchain configuration than Lake detects.\nFor a custom endpoint, the full prefix Lake uses can be set via  `--scope`.\n\nIf `--rev` is not set, Lake uses the package's current revision to lookup\nartifacts. If no mappings are found, Lake will backtrack the Git history up to\n`--max-revs`, looking for a revision with mappings. If `--max-revs` is 0, Lake\nwill search the repository's entire history (or as far as Git will allow).\n\nWith a named service and without a mappings file, Lake will only download\nthe input-to-output mappings for packages. It will delay downloading of the\ncorresponding artifacts to the next `lake build` that requires them. Using\n`--download-arts` will force Lake to download all artifacts eagerly.\n\nIf a download for an artifact fails or the download process for a whole\npackage fails, Lake will report this and continue on to the next. Once done,\nif any download failed, Lake will exit with a nonzero status code."};
 static const lean_object* l___private_Lake_CLI_Help_0__Lake_helpCacheGet___closed__0 = (const lean_object*)&l___private_Lake_CLI_Help_0__Lake_helpCacheGet___closed__0_value;
 LEAN_EXPORT const lean_object* l___private_Lake_CLI_Help_0__Lake_helpCacheGet = (const lean_object*)&l___private_Lake_CLI_Help_0__Lake_helpCacheGet___closed__0_value;
-static const lean_string_object l___private_Lake_CLI_Help_0__Lake_helpCachePut___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 1800, .m_capacity = 1800, .m_length = 1799, .m_data = "Upload artifacts from the Lake cache to a remote service\n\nUSAGE:\n  lake cache put <mappings> <scope-option>\n\nUploads the input-to-outputs mappings contained in the specified file along\nwith the corresponding output artifacts to a remote cache. The cache service\nused via be specified via `--service` option. If not specifed, Lake will used\nthe system default, or error if none is configured. See `lake cache services`\nfor more information on how to configure services.\n\nFiles are uploaded using the AWS Signature Version 4 authentication protocol\nvia `curl`. Thus, the service should generally be an S3-compatible bucket. The\nauthentication key is set via the `LAKE_CACHE_KEY` environment variable.\n\nSince Lake does not currently use cryptographically secure hashes for\nartifacts and outputs, uploads to the cache are prefixed with a scope to avoid\nclashes. This scope is configured with the following options:\n\n  --scope=<remote-scope>          sets a fixed scope\n  --repo=<github-repo>            uses the repository + toolchain & platform\n  --toolchain=<name>              with --repo, sets the toolchain\n  --platform=<target-triple>      with --repo, sets the platform\n\nAt least one of `--scope` or `--repo` must be set. If `--repo` is used, Lake\nwill produce a scope by augmenting the repository with toolchain and platform\ninformation as it deems necessary. If `--scope` is set, Lake will use the\nspecified scope verbatim.\n\nArtifacts are uploaded to the artifact endpoint with a file name derived\nfrom their Lake content hash (and prefixed by the repository or scope).\nThe mappings file is uploaded to the revision endpoint with a file name\nderived from the package's current Git revision (and prefixed by the\nfull scope). As such, the command will warn if the work tree currently\nhas changes."};
+static const lean_string_object l___private_Lake_CLI_Help_0__Lake_helpCachePut___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 1820, .m_capacity = 1820, .m_length = 1819, .m_data = "Upload build outputs from the Lake cache to a remote service\n\nUSAGE:\n  lake cache put <mappings> <scope-option>\n\nUploads the input-to-output mappings contained in the specified file along\nwith the corresponding output artifacts to a remote cache. The cache service\nused via be specified via `--service` option. If not specifed, Lake will used\nthe system default, or error if none is configured. See the help page of\n`lake cache services` for more information on how to configure services.\n\nFiles are uploaded using the AWS Signature Version 4 authentication protocol\nvia `curl`. Thus, the service should generally be an S3-compatible bucket. The\nauthentication key is set via the `LAKE_CACHE_KEY` environment variable.\n\nSince Lake does not currently use cryptographically secure hashes for\nartifacts and outputs, uploads to the cache are prefixed with a scope to avoid\nclashes. This scope is configured with the following options:\n\n  --scope=<remote-scope>          sets a fixed scope\n  --repo=<github-repo>            uses the repository + toolchain & platform\n  --toolchain=<name>              with --repo, sets the toolchain\n  --platform=<target-triple>      with --repo, sets the platform\n\nAt least one of `--scope` or `--repo` must be set. If `--repo` is used, Lake\nwill produce a scope by augmenting the repository with toolchain and platform\ninformation as it deems necessary. If `--scope` is set, Lake will use the\nspecified scope verbatim.\n\nArtifacts are uploaded to the artifact endpoint with a file name derived\nfrom their Lake content hash (and prefixed by the repository or scope).\nThe mappings file is uploaded to the revision endpoint with a file name\nderived from the package's current Git revision (and prefixed by the\nfull scope). As such, the command will warn if the work tree currently\nhas changes."};
 static const lean_object* l___private_Lake_CLI_Help_0__Lake_helpCachePut___closed__0 = (const lean_object*)&l___private_Lake_CLI_Help_0__Lake_helpCachePut___closed__0_value;
 LEAN_EXPORT const lean_object* l___private_Lake_CLI_Help_0__Lake_helpCachePut = (const lean_object*)&l___private_Lake_CLI_Help_0__Lake_helpCachePut___closed__0_value;
+static const lean_string_object l___private_Lake_CLI_Help_0__Lake_helpCacheAdd___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 1010, .m_capacity = 1010, .m_length = 1009, .m_data = "Addd input-to-output mappings to the Lake cache\n\nUSAGE:\n  lake cache add <mappings>\n\nOPTIONS:\n  --service=<name>                cache service to fetch from on demand\n  --scope=<remote-scope>          the prefix of artifacts within the service\n  --repo=<github-repo>            for Reservoir, a GitHub repository scope\n\nReads a list of input-to-output mapppings from the provided file and adds\nthem to the local Lake cache. If `--service` is provided, the output artifacts\ncan then be fetched lazily from that service during a Lake build. The service\nmust either be `reservoir` or  be configured through the Lake system\nconfiguration (see the help page of `lake cache services` for details).\n\nSince Lake does not currently use cryptographically secure hashes for\nartifacts and outputs, artifacts in a cache service are prefixed with a scope\nto avoid clashes. For Reservoir, this scope can either be a package (set via\n`--scope`) or a repository (set via `--repo`). For S3 services, both options\nare synonymous."};
+static const lean_object* l___private_Lake_CLI_Help_0__Lake_helpCacheAdd___closed__0 = (const lean_object*)&l___private_Lake_CLI_Help_0__Lake_helpCacheAdd___closed__0_value;
+LEAN_EXPORT const lean_object* l___private_Lake_CLI_Help_0__Lake_helpCacheAdd = (const lean_object*)&l___private_Lake_CLI_Help_0__Lake_helpCacheAdd___closed__0_value;
 static const lean_string_object l___private_Lake_CLI_Help_0__Lake_helpCacheClean___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 275, .m_capacity = 275, .m_length = 274, .m_data = "Removes ALL files from the local Lake cache\n\nUSAGE:\n  lake cache clean\n\nDeletes the configured Lake cache directory. If a workspace configuration\nexists, this will delete the cache directory it uses. Otherwise, it will\ndelete the default Lake cache directory for the system."};
 static const lean_object* l___private_Lake_CLI_Help_0__Lake_helpCacheClean___closed__0 = (const lean_object*)&l___private_Lake_CLI_Help_0__Lake_helpCacheClean___closed__0_value;
 LEAN_EXPORT const lean_object* l___private_Lake_CLI_Help_0__Lake_helpCacheClean = (const lean_object*)&l___private_Lake_CLI_Help_0__Lake_helpCacheClean___closed__0_value;
@@ -123,10 +126,12 @@ static const lean_string_object l_Lake_helpCache___closed__0_value = {.m_header 
 static const lean_object* l_Lake_helpCache___closed__0 = (const lean_object*)&l_Lake_helpCache___closed__0_value;
 static const lean_string_object l_Lake_helpCache___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 4, .m_capacity = 4, .m_length = 3, .m_data = "put"};
 static const lean_object* l_Lake_helpCache___closed__1 = (const lean_object*)&l_Lake_helpCache___closed__1_value;
-static const lean_string_object l_Lake_helpCache___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 6, .m_capacity = 6, .m_length = 5, .m_data = "clean"};
+static const lean_string_object l_Lake_helpCache___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 4, .m_capacity = 4, .m_length = 3, .m_data = "add"};
 static const lean_object* l_Lake_helpCache___closed__2 = (const lean_object*)&l_Lake_helpCache___closed__2_value;
-static const lean_string_object l_Lake_helpCache___closed__3_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 9, .m_capacity = 9, .m_length = 8, .m_data = "services"};
+static const lean_string_object l_Lake_helpCache___closed__3_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 6, .m_capacity = 6, .m_length = 5, .m_data = "clean"};
 static const lean_object* l_Lake_helpCache___closed__3 = (const lean_object*)&l_Lake_helpCache___closed__3_value;
+static const lean_string_object l_Lake_helpCache___closed__4_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 9, .m_capacity = 9, .m_length = 8, .m_data = "services"};
+static const lean_object* l_Lake_helpCache___closed__4 = (const lean_object*)&l_Lake_helpCache___closed__4_value;
 LEAN_EXPORT lean_object* l_Lake_helpCache(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_helpCache___boxed(lean_object*);
 static const lean_string_object l_Lake_help___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 4, .m_capacity = 4, .m_length = 3, .m_data = "new"};
@@ -273,36 +278,48 @@ x_8 = ((lean_object*)(l_Lake_helpCache___closed__3));
 x_9 = lean_string_dec_eq(x_1, x_8);
 if (x_9 == 0)
 {
-lean_object* x_10; 
-x_10 = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpCacheCli___closed__0));
-return x_10;
-}
-else
-{
-lean_object* x_11; 
-x_11 = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpCacheServices___closed__0));
-return x_11;
-}
-}
-else
+lean_object* x_10; uint8_t x_11; 
+x_10 = ((lean_object*)(l_Lake_helpCache___closed__4));
+x_11 = lean_string_dec_eq(x_1, x_10);
+if (x_11 == 0)
 {
 lean_object* x_12; 
-x_12 = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpCacheClean___closed__0));
+x_12 = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpCacheCli___closed__0));
 return x_12;
-}
 }
 else
 {
 lean_object* x_13; 
-x_13 = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpCachePut___closed__0));
+x_13 = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpCacheServices___closed__0));
 return x_13;
 }
 }
 else
 {
 lean_object* x_14; 
-x_14 = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpCacheGet___closed__0));
+x_14 = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpCacheClean___closed__0));
 return x_14;
+}
+}
+else
+{
+lean_object* x_15; 
+x_15 = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpCacheAdd___closed__0));
+return x_15;
+}
+}
+else
+{
+lean_object* x_16; 
+x_16 = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpCachePut___closed__0));
+return x_16;
+}
+}
+else
+{
+lean_object* x_17; 
+x_17 = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpCacheGet___closed__0));
+return x_17;
 }
 }
 }
@@ -394,7 +411,7 @@ x_31 = lean_string_dec_eq(x_1, x_30);
 if (x_31 == 0)
 {
 lean_object* x_32; uint8_t x_33; 
-x_32 = ((lean_object*)(l_Lake_helpCache___closed__2));
+x_32 = ((lean_object*)(l_Lake_helpCache___closed__3));
 x_33 = lean_string_dec_eq(x_1, x_32);
 if (x_33 == 0)
 {

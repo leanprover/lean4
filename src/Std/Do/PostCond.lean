@@ -210,41 +210,28 @@ theorem ExceptConds.fst_and {x₁ x₂ : ExceptConds (.except ε ps)} : (x₁ �
 @[simp]
 theorem ExceptConds.snd_and {x₁ x₂ : ExceptConds (.except ε ps)} : (x₁ ∧ₑ x₂).snd = (x₁.snd ∧ₑ x₂.snd) := rfl
 
-@[simp]
-theorem ExceptConds.and_true {x : ExceptConds ps} : x ∧ₑ ExceptConds.true ⊢ₑ x := by
+theorem ExceptConds.and_elim_left {ps : PostShape} (x y : ExceptConds ps) :
+    (x ∧ₑ y) ⊢ₑ x := by
   induction ps
   case pure => trivial
-  case arg ih => exact ih
-  case except ε ps ih =>
-    simp_all only [true, and, const]
-    constructor <;> simp only [SPred.and_true.mp, implies_true, ih]
+  case arg ih => exact ih _ _
+  case except ε ps ih => exact ⟨fun _ => SPred.and_elim_l, ih _ _⟩
 
-@[simp]
-theorem ExceptConds.true_and {x : ExceptConds ps} : ExceptConds.true ∧ₑ x ⊢ₑ x := by
+theorem ExceptConds.and_elim_right {ps : PostShape} (x y : ExceptConds ps) :
+    (x ∧ₑ y) ⊢ₑ y := by
   induction ps
   case pure => trivial
-  case arg ih => exact ih
-  case except ε ps ih =>
-    simp_all only [true, and, const]
-    constructor <;> simp only [SPred.true_and.mp, implies_true, ih]
+  case arg ih => exact ih _ _
+  case except ε ps ih => exact ⟨fun _ => SPred.and_elim_r, ih _ _⟩
 
-@[simp]
-theorem ExceptConds.and_false {x : ExceptConds ps} : x ∧ₑ ExceptConds.false ⊢ₑ ExceptConds.false := by
-  induction ps
-  case pure => trivial
-  case arg ih => exact ih
-  case except ε ps ih =>
-    simp_all only [false, and, const]
-    constructor <;> simp only [SPred.and_false.mp, implies_true, ih]
-
-@[simp]
-theorem ExceptConds.false_and {x : ExceptConds ps} : ExceptConds.false ∧ₑ x ⊢ₑ ExceptConds.false := by
-  induction ps
-  case pure => trivial
-  case arg ih => exact ih
-  case except ε ps ih =>
-    simp_all only [and, false, const]
-    constructor <;> simp only [SPred.false_and.mp, implies_true, ih]
+@[simp] theorem ExceptConds.and_true {x : ExceptConds ps} : x ∧ₑ ExceptConds.true ⊢ₑ x :=
+  and_elim_left _ _
+@[simp] theorem ExceptConds.true_and {x : ExceptConds ps} : ExceptConds.true ∧ₑ x ⊢ₑ x :=
+  and_elim_right _ _
+@[simp] theorem ExceptConds.and_false {x : ExceptConds ps} : x ∧ₑ ExceptConds.false ⊢ₑ ExceptConds.false :=
+  and_elim_right _ _
+@[simp] theorem ExceptConds.false_and {x : ExceptConds ps} : ExceptConds.false ∧ₑ x ⊢ₑ ExceptConds.false :=
+  and_elim_left _ _
 
 theorem ExceptConds.and_eq_left {ps : PostShape} {p q : ExceptConds ps} (h : p ⊢ₑ q) :
     p = (p ∧ₑ q) := by

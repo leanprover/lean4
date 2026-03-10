@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Reservoir
-// Imports: public import Lake.Util.JsonObject public import Lake.Util.Version public import Lake.Config.Env public import Lake.Util.Reservoir import Lake.Util.Url
+// Imports: import Init.Control.Do public import Lake.Util.JsonObject public import Lake.Util.Version public import Lake.Config.Env public import Lake.Util.Reservoir import Lake.Util.Url
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -916,8 +916,8 @@ lean_object* x_32; lean_object* x_33;
 x_32 = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(x_32, 0, x_9);
 lean_ctor_set(x_32, 1, x_28);
-lean_ctor_set(x_32, 2, x_30);
-lean_ctor_set(x_32, 3, x_29);
+lean_ctor_set(x_32, 2, x_29);
+lean_ctor_set(x_32, 3, x_30);
 lean_ctor_set(x_32, 4, x_31);
 if (x_27 == 0)
 {
@@ -947,8 +947,8 @@ if (lean_obj_tag(x_40) == 0)
 {
 lean_object* x_41; 
 x_41 = lean_box(0);
-x_29 = x_38;
-x_30 = x_37;
+x_29 = x_37;
+x_30 = x_38;
 x_31 = x_41;
 goto block_36;
 }
@@ -998,8 +998,8 @@ lean_object* x_48;
 x_48 = lean_ctor_get(x_43, 0);
 lean_inc(x_48);
 lean_dec_ref(x_43);
-x_29 = x_38;
-x_30 = x_37;
+x_29 = x_37;
+x_30 = x_38;
 x_31 = x_48;
 goto block_36;
 }
@@ -5374,6 +5374,7 @@ x_6 = l_Lake_Reservoir_fetchPkgVersions(x_1, x_2, x_3, x_4);
 return x_6;
 }
 }
+lean_object* runtime_initialize_Init_Control_Do(uint8_t builtin);
 lean_object* runtime_initialize_Lake_Util_JsonObject(uint8_t builtin);
 lean_object* runtime_initialize_Lake_Util_Version(uint8_t builtin);
 lean_object* runtime_initialize_Lake_Config_Env(uint8_t builtin);
@@ -5384,6 +5385,10 @@ LEAN_EXPORT lean_object* runtime_initialize_Lake_Reservoir(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+res = runtime_initialize_Init_Control_Do(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = runtime_initialize_Lake_Util_JsonObject(builtin)
 ;
 if (lean_io_result_is_error(res)) return res;
@@ -5417,6 +5422,7 @@ if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_meta_initialized = true;
 return lean_io_result_mk_ok(lean_box(0));
 }
+lean_object* initialize_Init_Control_Do(uint8_t builtin);
 lean_object* initialize_Lake_Util_JsonObject(uint8_t builtin);
 lean_object* initialize_Lake_Util_Version(uint8_t builtin);
 lean_object* initialize_Lake_Config_Env(uint8_t builtin);
@@ -5427,6 +5433,10 @@ LEAN_EXPORT lean_object* initialize_Lake_Reservoir(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
+res = initialize_Init_Control_Do(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Lake_Util_JsonObject(builtin)
 ;
 if (lean_io_result_is_error(res)) return res;

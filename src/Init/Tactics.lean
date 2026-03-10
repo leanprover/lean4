@@ -577,7 +577,7 @@ If `thm` is a theorem `a = b`, then as a rewrite rule,
 * `thm` means to replace `a` with `b`, and
 * `← thm` means to replace `b` with `a`.
 -/
-syntax rwRule    := patternIgnore("← " <|> "<- ")? term
+syntax rwRule    := unicode("← ", "<- ")? term
 /-- A `rwRuleSeq` is a list of `rwRule` in brackets. -/
 syntax rwRuleSeq := " [" withoutPosition(rwRule,*,?) "]"
 
@@ -653,7 +653,7 @@ A simp lemma specification is:
 * optional `←` to use the lemma backward
 * `thm` for the theorem to rewrite with
 -/
-syntax simpLemma := ppGroup((simpPre <|> simpPost)? patternIgnore("← " <|> "<- ")? term)
+syntax simpLemma := ppGroup((simpPre <|> simpPost)? unicode("← ", "<- ")? term)
 /-- An erasure specification `-thm` says to remove `thm` from the simp set -/
 syntax simpErase := "-" term:max
 /-- The simp lemma specification `*` means to rewrite with all hypotheses -/
@@ -2302,17 +2302,17 @@ It reduces terms by unfolding definitions using their defining equations and
 applying matcher equations. The unfolding is propositional, so `cbv` also works
 with functions defined via well-founded recursion or partial fixpoints.
 
-`cbv` has built-in support for goals of the form `lhs = rhs`. It proceeds in
-two passes:
-1. Reduce `lhs`. If the result is definitionally equal to `rhs`, close the goal.
-2. Otherwise, reduce `rhs`. If the result is now definitionally equal to the
-   reduced `lhs`, close the goal.
-3. If neither check succeeds, generate a new goal `lhs' = rhs'`, where `lhs'`
-   and `rhs'` are the reduced forms of the original sides.
+`cbv` reduces the goal type (and optionally hypothesis types) using call-by-value
+evaluation. For equation goals (`lhs = rhs`), `cbv` automatically attempts `refl`
+after reduction to close the goal.
 
-`cbv` is therefore not a finishing tactic in general: it may leave a new
-(simpler) equality goal. For goals that are not equalities, `cbv` currently
-leaves the goal unchanged.
+`cbv` supports the standard `at` location syntax:
+- `cbv` — reduce the goal target
+- `cbv at h` — reduce hypothesis `h`
+- `cbv at h |-` — reduce hypothesis `h` and the goal target
+- `cbv at *` — reduce all non-dependent propositional hypotheses and the goal target
+
+`cbv` is not a finishing tactic in general: it may leave a new (simpler) goal.
 
 The proofs produced by `cbv` only use the three standard axioms.
 In particular, they do not require trust in the correctness of the code
@@ -2321,7 +2321,7 @@ generator.
 This tactic is experimental and its behavior is likely to change in upcoming
 releases of Lean.
 -/
-syntax (name := cbv) "cbv" : tactic
+syntax (name := cbv) "cbv" (location)? : tactic
 
 /--
 `decide_cbv` is a finishing tactic that closes goals of the form `p`, where `p`
@@ -2395,7 +2395,7 @@ If there are several with the same priority, it is uses the "most recent one". E
   cases d <;> rfl
 ```
 -/
-syntax (name := simp) "simp" (Tactic.simpPre <|> Tactic.simpPost)? patternIgnore("← " <|> "<- ")? (ppSpace prio)? : attr
+syntax (name := simp) "simp" (Tactic.simpPre <|> Tactic.simpPost)? unicode("← ", "<- ")? (ppSpace prio)? : attr
 
 /--
 Theorems tagged with the `wf_preprocess` attribute are used during the processing of functions defined
@@ -2409,7 +2409,7 @@ that diverges as compiled to be accepted without an explicit `partial` keyword, 
 remove irrelevant subterms or change the evaluation order by hiding terms under binders. Therefore
 avoid tagging theorems with `[wf_preprocess]` unless they preserve also operational behavior.
 -/
-syntax (name := wf_preprocess) "wf_preprocess" (Tactic.simpPre <|> Tactic.simpPost)? patternIgnore("← " <|> "<- ")? (ppSpace prio)? : attr
+syntax (name := wf_preprocess) "wf_preprocess" (Tactic.simpPre <|> Tactic.simpPost)? unicode("← ", "<- ")? (ppSpace prio)? : attr
 
 /--
 Theorems tagged with the `method_specs_simp` attribute are used by `@[method_specs]` to further
@@ -2421,7 +2421,7 @@ The `method_specs` theorems are created on demand (using the realizable constant
 this simp set should behave the same in all modules. Do not add theorems to it except in the module
 defining the thing you are rewriting.
 -/
-syntax (name := method_specs_simp) "method_specs_simp" (Tactic.simpPre <|> Tactic.simpPost)? patternIgnore("← " <|> "<- ")? (ppSpace prio)? : attr
+syntax (name := method_specs_simp) "method_specs_simp" (Tactic.simpPre <|> Tactic.simpPost)? unicode("← ", "<- ")? (ppSpace prio)? : attr
 
 /--
 Register a theorem as a rewrite rule for `cbv` evaluation of a given definition.
@@ -2431,7 +2431,7 @@ You can instruct `cbv` to rewrite the lemma from right-to-left:
 @[cbv_eval ←] theorem my_thm : rhs = lhs := ...
 ```
 -/
-syntax (name := cbv_eval) "cbv_eval" patternIgnore("← " <|> "<- ")? (ppSpace ident)? : attr
+syntax (name := cbv_eval) "cbv_eval" unicode("← ", "<- ")? (ppSpace ident)? : attr
 
 /-- The possible `norm_cast` kinds: `elim`, `move`, or `squash`. -/
 syntax normCastLabel := &"elim" <|> &"move" <|> &"squash"

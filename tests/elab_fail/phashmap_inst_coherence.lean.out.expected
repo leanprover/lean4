@@ -1,3 +1,4 @@
+phashmap_inst_coherence.lean:8:0-9:30: warning: Definition `natDiffHash` of class type must be marked with `@[reducible]` or `@[implicit_reducible]`
 phashmap_inst_coherence.lean:12:53-12:54: error: Application type mismatch: The argument
   m
 has type

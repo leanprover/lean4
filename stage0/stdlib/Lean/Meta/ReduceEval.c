@@ -3717,8 +3717,8 @@ return x_54;
 else
 {
 lean_object* x_55; 
-lean_dec(x_14);
 lean_dec_ref(x_13);
+lean_dec(x_14);
 lean_dec_ref(x_12);
 lean_del_object(x_9);
 x_55 = l___private_Lean_Meta_ReduceEval_0__Lean_Meta_throwFailedToEval___redArg(x_1, x_2, x_3, x_4, x_5);

@@ -8,7 +8,7 @@ termination_by n
 example : f 1 = f 1 := by cbv
 
 /--
-trace: ⊢ 1 = 2
+trace: ⊢ False
 ---
 warning: declaration uses `sorry`
 -/

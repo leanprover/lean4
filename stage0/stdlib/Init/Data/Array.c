@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Array
-// Imports: public import Init.Data.Array.Basic public import Init.Data.Array.QSort public import Init.Data.Array.BinSearch public import Init.Data.Array.InsertionSort public import Init.Data.Array.DecidableEq public import Init.Data.Array.Mem public import Init.Data.Array.Attach public import Init.Data.Array.BasicAux public import Init.Data.Array.Lemmas public import Init.Data.Array.TakeDrop public import Init.Data.Array.Bootstrap public import Init.Data.Array.GetLit public import Init.Data.Array.MapIdx public import Init.Data.Array.Set public import Init.Data.Array.Monadic public import Init.Data.Array.FinRange public import Init.Data.Array.Perm public import Init.Data.Array.Find public import Init.Data.Array.Lex public import Init.Data.Array.Range public import Init.Data.Array.Erase public import Init.Data.Array.Zip public import Init.Data.Array.InsertIdx public import Init.Data.Array.Extract public import Init.Data.Array.MinMax public import Init.Data.Array.Nat public import Init.Data.Array.Int public import Init.Data.Array.Count
+// Imports: public import Init.Data.Array.Basic public import Init.Data.Array.QSort public import Init.Data.Array.BinSearch public import Init.Data.Array.InsertionSort public import Init.Data.Array.DecidableEq public import Init.Data.Array.Mem public import Init.Data.Array.Attach public import Init.Data.Array.BasicAux public import Init.Data.Array.Lemmas public import Init.Data.Array.TakeDrop public import Init.Data.Array.Bootstrap public import Init.Data.Array.GetLit public import Init.Data.Array.MapIdx public import Init.Data.Array.Set public import Init.Data.Array.Monadic public import Init.Data.Array.FinRange public import Init.Data.Array.Perm public import Init.Data.Array.Find public import Init.Data.Array.Lex public import Init.Data.Array.Range public import Init.Data.Array.Erase public import Init.Data.Array.Zip public import Init.Data.Array.InsertIdx public import Init.Data.Array.Extract public import Init.Data.Array.MinMax public import Init.Data.Array.Nat public import Init.Data.Array.Int public import Init.Data.Array.Count public import Init.Data.Array.Sort
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -41,6 +41,7 @@ lean_object* runtime_initialize_Init_Data_Array_MinMax(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Array_Nat(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Array_Int(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Array_Count(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Array_Sort(uint8_t builtin);
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Array(uint8_t builtin) {
 lean_object * res;
@@ -158,6 +159,10 @@ res = runtime_initialize_Init_Data_Array_Count(builtin)
 ;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Array_Sort(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
 }
 static bool _G_meta_initialized = false;
@@ -195,6 +200,7 @@ lean_object* initialize_Init_Data_Array_MinMax(uint8_t builtin);
 lean_object* initialize_Init_Data_Array_Nat(uint8_t builtin);
 lean_object* initialize_Init_Data_Array_Int(uint8_t builtin);
 lean_object* initialize_Init_Data_Array_Count(uint8_t builtin);
+lean_object* initialize_Init_Data_Array_Sort(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Array(uint8_t builtin) {
 lean_object * res;
@@ -309,6 +315,10 @@ res = initialize_Init_Data_Array_Int(builtin)
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Array_Count(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Array_Sort(builtin)
 ;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

@@ -200,30 +200,14 @@ goto block_41;
 }
 block_41:
 {
-uint64_t x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
+uint64_t x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; uint64_t x_31; uint64_t x_32; uint8_t x_33; 
 x_19 = lean_unbox_uint64(x_4);
 x_20 = lean_int64_to_int_sint(x_19);
 x_21 = l___private_Std_Time_Zoned_Database_Windows_0__Std_Time_Database_Windows_getZoneRules_toLocalTime(x_16);
 lean_dec(x_16);
-if (x_18 == 0)
-{
-lean_ctor_set(x_17, 1, x_21);
-lean_ctor_set(x_17, 0, x_20);
-x_22 = x_17;
-goto block_39;
-}
-else
-{
-lean_object* x_40; 
-x_40 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_40, 0, x_20);
-lean_ctor_set(x_40, 1, x_21);
-x_22 = x_40;
-goto block_39;
-}
-block_39:
-{
-lean_object* x_23; uint64_t x_31; uint64_t x_32; uint8_t x_33; 
+x_22 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_22, 0, x_20);
+lean_ctor_set(x_22, 1, x_21);
 x_23 = lean_array_push(x_5, x_22);
 x_31 = lean_unbox_uint64(x_15);
 x_32 = lean_unbox_uint64(x_4);
@@ -237,33 +221,52 @@ x_36 = lean_int64_dec_le(x_34, x_35);
 if (x_36 == 0)
 {
 lean_object* x_37; 
+lean_del_object(x_17);
 lean_del_object(x_12);
-lean_del_object(x_6);
 lean_dec(x_4);
-x_37 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_37, 0, x_15);
-lean_ctor_set(x_37, 1, x_23);
+if (x_7 == 0)
+{
+lean_ctor_set(x_6, 1, x_23);
+lean_ctor_set(x_6, 0, x_15);
+x_37 = x_6;
+goto block_39;
+}
+else
+{
+lean_object* x_40; 
+x_40 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_40, 0, x_15);
+lean_ctor_set(x_40, 1, x_23);
+x_37 = x_40;
+goto block_39;
+}
+block_39:
+{
 x_2 = x_37;
 goto _start;
+}
 }
 else
 {
 lean_dec(x_15);
+lean_del_object(x_6);
 goto block_30;
 }
 }
 else
 {
 lean_dec(x_15);
+lean_del_object(x_6);
 goto block_30;
 }
 block_30:
 {
 lean_object* x_24; 
-if (x_7 == 0)
+if (x_18 == 0)
 {
-lean_ctor_set(x_6, 1, x_23);
-x_24 = x_6;
+lean_ctor_set(x_17, 1, x_23);
+lean_ctor_set(x_17, 0, x_4);
+x_24 = x_17;
 goto block_28;
 }
 else
@@ -295,7 +298,6 @@ goto block_26;
 block_26:
 {
 return x_25;
-}
 }
 }
 }
@@ -507,24 +509,24 @@ goto block_29;
 block_29:
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; uint8_t x_27; 
-x_15 = lean_ctor_get(x_12, 1);
+x_15 = lean_ctor_get(x_9, 1);
 lean_inc(x_15);
-lean_dec(x_12);
-x_16 = lean_ctor_get(x_9, 1);
-x_27 = !lean_is_exclusive(x_9);
+lean_dec(x_9);
+x_16 = lean_ctor_get(x_12, 1);
+x_27 = !lean_is_exclusive(x_12);
 if (x_27 == 0)
 {
 lean_object* x_28; 
-x_28 = lean_ctor_get(x_9, 0);
+x_28 = lean_ctor_get(x_12, 0);
 lean_dec(x_28);
-x_17 = x_9;
+x_17 = x_12;
 x_18 = x_27;
 goto block_26;
 }
 else
 {
 lean_inc(x_16);
-lean_dec(x_9);
+lean_dec(x_12);
 x_17 = lean_box(0);
 x_18 = x_27;
 goto block_26;
@@ -532,11 +534,10 @@ goto block_26;
 block_26:
 {
 lean_object* x_19; lean_object* x_20; 
-x_19 = l___private_Std_Time_Zoned_Database_Windows_0__Std_Time_Database_Windows_getZoneRules_toLocalTime(x_16);
-lean_dec(x_16);
+x_19 = l___private_Std_Time_Zoned_Database_Windows_0__Std_Time_Database_Windows_getZoneRules_toLocalTime(x_15);
+lean_dec(x_15);
 if (x_18 == 0)
 {
-lean_ctor_set(x_17, 1, x_15);
 lean_ctor_set(x_17, 0, x_19);
 x_20 = x_17;
 goto block_24;
@@ -546,7 +547,7 @@ else
 lean_object* x_25; 
 x_25 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_25, 0, x_19);
-lean_ctor_set(x_25, 1, x_15);
+lean_ctor_set(x_25, 1, x_16);
 x_20 = x_25;
 goto block_24;
 }

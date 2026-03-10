@@ -35,33 +35,45 @@ private def normalizeAlt (e : Expr) (numParams : Nat) : MetaM Expr :=
         Meta.mkLambdaFVars (xs ++ ys) (mkAppN e ys)
 
 /--
-Inline auxiliary `matcher` applications.
+Inline auxiliary `matcher` applications and matcher-like declarations (e.g. `match_on_same_ctor.het`)
 -/
 partial def inlineMatchers (e : Expr) : CoreM Expr :=
   Meta.MetaM.run' <| Meta.transform e fun e => do
     let .const declName us := e.getAppFn | return .continue
-    let some info ← Meta.getMatcherInfo? declName | return .continue
-    let numArgs := e.getAppNumArgs
-    if numArgs > info.arity then
-      return .continue
-    else if numArgs < info.arity then
-      Meta.forallBoundedTelescope (← Meta.inferType e) (info.arity - numArgs) fun xs _ =>
-        return .visit (← Meta.mkLambdaFVars xs (mkAppN e xs))
+    if let some info ← Meta.getMatcherInfo? declName then
+      let numArgs := e.getAppNumArgs
+      if numArgs > info.arity then
+        return .continue
+      else if numArgs < info.arity then
+        Meta.forallBoundedTelescope (← Meta.inferType e) (info.arity - numArgs) fun xs _ =>
+          return .visit (← Meta.mkLambdaFVars xs (mkAppN e xs))
+      else
+        let mut args := e.getAppArgs
+        let altNumParams := info.altNumParams
+        let rec inlineMatcher (i : Nat) (args : Array Expr) (letFVars : Array Expr) : MetaM Expr := do
+          if h : i < altNumParams.size then
+            let altIdx := i + info.getFirstAltPos
+            let numParams := altNumParams[i]
+            let alt ← normalizeAlt args[altIdx]! numParams
+            Meta.withLetDecl (← mkFreshUserName `_alt) (← Meta.inferType alt) alt fun altFVar =>
+              inlineMatcher (i+1) (args.set! altIdx altFVar) (letFVars.push altFVar)
+          else
+            let info ← getConstInfo declName
+            let value := (← Core.instantiateValueLevelParams info us).beta args
+            Meta.mkLetFVars letFVars value
+        return .visit (← inlineMatcher 0 args #[])
+    else if ← Meta.isMatcherLike declName then
+      let info ← getConstInfo declName
+      let value ← Core.instantiateValueLevelParams info us
+      /-
+      Currently the only declarations that are "matcher like" are `match_on_same_ctor.het`, for them
+      each alternative is used uniquely so we can just beta reduce without introducing code
+      duplication. If more "matcher like" things are introduced we might have to extend this with a
+      generalized notion of matcher information.
+      -/
+      return .visit (value.beta e.getAppArgs)
     else
-      let mut args := e.getAppArgs
-      let altNumParams := info.altNumParams
-      let rec inlineMatcher (i : Nat) (args : Array Expr) (letFVars : Array Expr) : MetaM Expr := do
-        if h : i < altNumParams.size then
-          let altIdx := i + info.getFirstAltPos
-          let numParams := altNumParams[i]
-          let alt ← normalizeAlt args[altIdx]! numParams
-          Meta.withLetDecl (← mkFreshUserName `_alt) (← Meta.inferType alt) alt fun altFVar =>
-            inlineMatcher (i+1) (args.set! altIdx altFVar) (letFVars.push altFVar)
-        else
-          let info ← getConstInfo declName
-          let value := (← Core.instantiateValueLevelParams info us).beta args
-          Meta.mkLetFVars letFVars value
-      return .visit (← inlineMatcher 0 args #[])
+      return .continue
 
 /--
 Replace nested occurrences of `unsafeRec` names with the safe ones.

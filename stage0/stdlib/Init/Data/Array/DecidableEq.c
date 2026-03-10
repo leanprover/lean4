@@ -40,7 +40,6 @@ LEAN_EXPORT uint8_t l_Array_instDecidableEmpEq___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Array_instDecidableEmpEq___redArg___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Array_instDecidableEmpEq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_instDecidableEmpEq___boxed(lean_object*, lean_object*);
-uint8_t l_Array_isEmpty___redArg(lean_object*);
 LEAN_EXPORT uint8_t l_Array_instDecidableEqEmpImpl___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Array_instDecidableEqEmpImpl___redArg___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Array_instDecidableEqEmpImpl(lean_object*, lean_object*);
@@ -344,9 +343,11 @@ return x_4;
 LEAN_EXPORT uint8_t l_Array_instDecidableEqEmpImpl___redArg(lean_object* x_1) {
 _start:
 {
-uint8_t x_2; 
-x_2 = l_Array_isEmpty___redArg(x_1);
-return x_2;
+lean_object* x_2; lean_object* x_3; uint8_t x_4; 
+x_2 = lean_array_get_size(x_1);
+x_3 = lean_unsigned_to_nat(0u);
+x_4 = lean_nat_dec_eq(x_2, x_3);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Array_instDecidableEqEmpImpl___redArg___boxed(lean_object* x_1) {
@@ -362,9 +363,11 @@ return x_3;
 LEAN_EXPORT uint8_t l_Array_instDecidableEqEmpImpl(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-uint8_t x_3; 
-x_3 = l_Array_isEmpty___redArg(x_2);
-return x_3;
+lean_object* x_3; lean_object* x_4; uint8_t x_5; 
+x_3 = lean_array_get_size(x_2);
+x_4 = lean_unsigned_to_nat(0u);
+x_5 = lean_nat_dec_eq(x_3, x_4);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Array_instDecidableEqEmpImpl___boxed(lean_object* x_1, lean_object* x_2) {
@@ -380,9 +383,11 @@ return x_4;
 LEAN_EXPORT uint8_t l_Array_instDecidableEmpEqImpl___redArg(lean_object* x_1) {
 _start:
 {
-uint8_t x_2; 
-x_2 = l_Array_isEmpty___redArg(x_1);
-return x_2;
+lean_object* x_2; lean_object* x_3; uint8_t x_4; 
+x_2 = lean_array_get_size(x_1);
+x_3 = lean_unsigned_to_nat(0u);
+x_4 = lean_nat_dec_eq(x_2, x_3);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Array_instDecidableEmpEqImpl___redArg___boxed(lean_object* x_1) {
@@ -398,9 +403,11 @@ return x_3;
 LEAN_EXPORT uint8_t l_Array_instDecidableEmpEqImpl(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-uint8_t x_3; 
-x_3 = l_Array_isEmpty___redArg(x_2);
-return x_3;
+lean_object* x_3; lean_object* x_4; uint8_t x_5; 
+x_3 = lean_array_get_size(x_2);
+x_4 = lean_unsigned_to_nat(0u);
+x_5 = lean_nat_dec_eq(x_3, x_4);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Array_instDecidableEmpEqImpl___boxed(lean_object* x_1, lean_object* x_2) {

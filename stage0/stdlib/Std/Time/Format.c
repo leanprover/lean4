@@ -3138,7 +3138,7 @@ goto block_75;
 }
 block_75:
 {
-lean_object* x_33; lean_object* x_34; lean_object* x_35; uint8_t x_36; uint8_t x_37; uint8_t x_48; lean_object* x_49; lean_object* x_50; uint8_t x_55; lean_object* x_64; lean_object* x_65; lean_object* x_66; uint8_t x_71; 
+lean_object* x_33; lean_object* x_34; lean_object* x_35; uint8_t x_36; uint8_t x_37; lean_object* x_48; lean_object* x_49; uint8_t x_50; uint8_t x_55; lean_object* x_64; lean_object* x_65; lean_object* x_66; uint8_t x_71; 
 x_33 = lean_ctor_get(x_30, 0);
 lean_inc(x_33);
 x_34 = lean_ctor_get(x_30, 1);
@@ -3233,12 +3233,12 @@ block_54:
 {
 lean_object* x_51; lean_object* x_52; uint8_t x_53; 
 x_51 = lean_obj_once(&l_Std_Time_PlainDate_format___lam__0___closed__2, &l_Std_Time_PlainDate_format___lam__0___closed__2_once, _init_l_Std_Time_PlainDate_format___lam__0___closed__2);
-x_52 = lean_int_mod(x_50, x_51);
-lean_dec(x_50);
-x_53 = lean_int_dec_eq(x_52, x_49);
+x_52 = lean_int_mod(x_49, x_51);
 lean_dec(x_49);
+x_53 = lean_int_dec_eq(x_52, x_48);
+lean_dec(x_48);
 lean_dec(x_52);
-x_36 = x_48;
+x_36 = x_50;
 x_37 = x_53;
 goto block_47;
 }
@@ -3268,9 +3268,9 @@ if (x_62 == 0)
 {
 if (x_59 == 0)
 {
-x_48 = x_55;
-x_49 = x_58;
-x_50 = x_33;
+x_48 = x_58;
+x_49 = x_33;
+x_50 = x_55;
 goto block_54;
 }
 else
@@ -3283,9 +3283,9 @@ goto block_47;
 }
 else
 {
-x_48 = x_55;
-x_49 = x_58;
-x_50 = x_33;
+x_48 = x_58;
+x_49 = x_33;
+x_50 = x_55;
 goto block_54;
 }
 }

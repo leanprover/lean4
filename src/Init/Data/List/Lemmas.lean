@@ -236,7 +236,6 @@ theorem getElem?_eq_some_iff {l : List α} : l[i]? = some a ↔ ∃ h : i < l.le
     · match i, h with
       | i + 1, h => simp [getElem?_eq_some_iff, Nat.succ_lt_succ_iff]
 
-@[grind →]
 theorem getElem_of_getElem? {l : List α} : l[i]? = some a → ∃ h : i < l.length, l[i] = a :=
   getElem?_eq_some_iff.mp
 
@@ -936,6 +935,12 @@ theorem getElem_zero_eq_head {l : List α} (h : 0 < l.length) :
   cases l with
   | nil => simp at h
   | cons _ _ => simp
+
+theorem head!_eq_getElem! [Inhabited α] {l : List α} : head! l = l[0]! := by
+  cases l <;> rfl
+
+theorem headD_eq_getD {l : List α} {fallback} : headD l fallback = l.getD 0 fallback := by
+  cases l <;> rfl
 
 theorem head_eq_iff_head?_eq_some {xs : List α} (h) : xs.head h = a ↔ xs.head? = some a := by
   cases xs with

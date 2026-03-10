@@ -1,3 +1,4 @@
+set_option backward.do.legacy false
 --
 
 def f1 :=

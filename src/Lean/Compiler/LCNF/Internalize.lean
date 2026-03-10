@@ -12,17 +12,36 @@ public section
 
 namespace Lean.Compiler.LCNF
 
-private def refreshBinderName (binderName : Name) : CompilerM Name := do
-  match binderName with
-  | .num p _ =>
-    let r := .num p (← get).nextIdx
-    modify fun s => { s with nextIdx := s.nextIdx + 1 }
-    return r
-  | _ => return binderName
-
 namespace Internalize
 
-abbrev InternalizeM (pu : Purity) := StateRefT (FVarSubst pu) CompilerM
+structure Context where
+  uniqueIdents : Bool := false
+
+abbrev InternalizeM (pu : Purity) := ReaderT Context StateRefT (FVarSubst pu) CompilerM
+
+@[inline]
+def InternalizeM.run (x : InternalizeM pu α) (state : FVarSubst pu) (ctx : Context := {}) :
+    CompilerM (α × FVarSubst pu) :=
+  StateRefT'.run (ReaderT.run x ctx) state
+
+@[inline]
+def InternalizeM.run' (x : InternalizeM pu α) (state : FVarSubst pu) (ctx : Context := {}) :
+    CompilerM α :=
+  StateRefT'.run' (ReaderT.run x ctx) state
+
+private def refreshBinderName (binderName : Name) : InternalizeM pu Name := do
+  match binderName with
+  | .num p _ =>
+    let r := .num p (← getThe CompilerM.State).nextIdx
+    modifyThe CompilerM.State fun s => { s with nextIdx := s.nextIdx + 1 }
+    return r
+  | _ =>
+    if (← read).uniqueIdents then
+      let r := .num binderName (← getThe CompilerM.State).nextIdx
+      modifyThe CompilerM.State fun s => { s with nextIdx := s.nextIdx + 1 }
+      return r
+    else
+      return binderName
 
 /--
 The `InternalizeM` monad is a translator. It "translates" the free variables
@@ -227,12 +246,14 @@ end Internalize
 /--
 Refresh free variables ids in `code`, and store their declarations in the local context.
 -/
-partial def Code.internalize (code : Code pu) (s : FVarSubst pu := {}) : CompilerM (Code pu) :=
-  Internalize.internalizeCode code |>.run' s
+partial def Code.internalize (code : Code pu) (s : FVarSubst pu := {})
+    (uniqueIdents : Bool := false) : CompilerM (Code pu) :=
+  Internalize.internalizeCode code |>.run' s { uniqueIdents }
 
 open Internalize in
-def Decl.internalize (decl : Decl pu) (s : FVarSubst pu := {}): CompilerM (Decl pu) :=
-  go decl |>.run' s
+def Decl.internalize (decl : Decl pu) (s : FVarSubst pu := {}) (uniqueIdents : Bool := false) :
+    CompilerM (Decl pu) :=
+  go decl |>.run' s { uniqueIdents }
 where
   go (decl : Decl pu) : InternalizeM pu (Decl pu) := do
     let type ← internalizeExpr decl.type

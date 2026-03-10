@@ -63,7 +63,9 @@ def addPreDefAttributes (preDefs : Array PreDefinition) : TermElabM Unit := do
   a wrong setting and creates bad `defEq` equations.
   -/
   for preDef in preDefs do
-    unless preDef.modifiers.attrs.any fun a => a.name = `reducible || a.name = `semireducible do
+    unless preDef.modifiers.attrs.any fun a =>
+        a.name = `reducible || a.name = `semireducible ||
+        a.name = `instance_reducible || a.name = `implicit_reducible do
       setIrreducibleAttribute preDef.declName
 
   /-

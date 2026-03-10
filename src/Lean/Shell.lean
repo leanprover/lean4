@@ -545,7 +545,7 @@ def shellMain (args : List String) (opts : ShellOptions) : IO UInt32 := do
         | IO.eprintln s!"failed to create '{c}'"
           return 1
       profileitIO "C code generation" opts.leanOpts do
-        let data ← IO.ofExcept <| IR.emitC env mainModuleName
+        let data ← IR.emitC env mainModuleName
         out.write data.toUTF8
     if let some bc := opts.bcFileName? then
       initLLVM

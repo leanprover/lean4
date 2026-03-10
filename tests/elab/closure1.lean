@@ -27,7 +27,7 @@ instance : Coe Name LMVarId where
 def tst1 : MetaM Unit := do
 let u := mkLevelParam `u
 let v := mkLevelMVar  `v
-let m1 ← mkFreshExprMVar (mkSort levelOne)
+let m1 ← mkFreshExprMVar (mkSort Level.one)
 withLocalDeclD `α (mkSort u) $ fun α => do
 withLocalDeclD `β (mkSort v) $ fun β => do
 let m2 ← mkFreshExprMVar (← mkArrow α m1)
@@ -53,8 +53,8 @@ withLocalDeclD `α (mkSort (mkLevelSucc u)) $ fun α => do
 withLocalDeclD `v1 (mkApp2 (mkConst `Vec [u]) α (mkNatLit 10)) $ fun v1 =>
 withLetDecl `n (mkConst `Nat) (mkNatLit 10) $ fun n =>
 withLocalDeclD `v2 (mkApp2 (mkConst `Vec [u]) α n) $ fun v2 => do
-let m ← mkFreshExprMVar (← mkArrow (mkApp2 (mkConst `Vec [u]) α (mkNatLit 10)) (mkSort levelZero))
-withLocalDeclD `p (mkSort levelZero) $ fun p => do
+let m ← mkFreshExprMVar (← mkArrow (mkApp2 (mkConst `Vec [u]) α (mkNatLit 10)) (mkSort Level.zero))
+withLocalDeclD `p (mkSort Level.zero) $ fun p => do
 let t ← mkEq v1 v2
 let t := mkApp2 (mkConst `And) t (mkApp2 (mkConst `Or) (mkApp m v2) p)
 let e ← mkAuxDefinitionFor `foo2 t

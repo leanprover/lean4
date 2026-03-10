@@ -479,6 +479,24 @@ def execute_release_steps(repo, version, config):
         print(blue("Updating lakefile.toml..."))
         run_command(f'perl -pi -e \'s/"v4\\.[0-9]+(\\.[0-9]+)?(-rc[0-9]+)?"/"' + version + '"/g\' lakefile.*', cwd=repo_path)
         run_command("lake update", cwd=repo_path, stream_output=True)
+    elif repo_name == "verso":
+        # verso has nested Lake projects in test-projects/ that each have their own
+        # lake-manifest.json with a subverso pin. After updating the root manifest via
+        # `lake update`, sync the de-modulized subverso rev into all sub-manifests.
+        # The sub-projects use an old toolchain (v4.21.0) that doesn't support module/prelude
+        # syntax, so they need the de-modulized version (tagged no-modules/<root-rev>).
+        # The "SubVerso version consistency" CI check accepts either the root or de-modulized rev.
+        run_command("lake update", cwd=repo_path, stream_output=True)
+        print(blue("Syncing de-modulized subverso rev to test-project sub-manifests..."))
+        sync_script = (
+            'ROOT_REV=$(jq -r \'.packages[] | select(.name == "subverso") | .rev\' lake-manifest.json); '
+            'SUBVERSO_URL=$(jq -r \'.packages[] | select(.name == "subverso") | .url\' lake-manifest.json); '
+            'DEMOD_REV=$(git ls-remote "$SUBVERSO_URL" "refs/tags/no-modules/$ROOT_REV" | awk \'{print $1}\'); '
+            'find test-projects -name lake-manifest.json -print0 | '
+            'xargs -0 -I{} sh -c \'jq --arg rev "$DEMOD_REV" \'.packages |= map(if .name == "subverso" then .rev = $rev else . end)\' "{}" > /tmp/lm_tmp.json && mv /tmp/lm_tmp.json "{}"\''
+        )
+        run_command(sync_script, cwd=repo_path)
+        print(green("Synced de-modulized subverso rev to all test-project sub-manifests"))
     elif dependencies:
         run_command(f'perl -pi -e \'s/"v4\\.[0-9]+(\\.[0-9]+)?(-rc[0-9]+)?"/"' + version + '"/g\' lakefile.*', cwd=repo_path)
         run_command("lake update", cwd=repo_path, stream_output=True)

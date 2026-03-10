@@ -26,7 +26,7 @@ def mkType (w : Expr) : Expr := mkApp (.const ``BitVec []) w
 def mkInstMul (w : Expr) : Expr := mkApp (.const ``BitVec.instMul []) w
 
 def mkInstHMul (w : Expr) : Expr :=
-  mkApp2 (mkConst ``instHMul [levelZero]) (BitVec.mkType w) (mkInstMul w)
+  mkApp2 (mkConst ``instHMul [Level.zero]) (BitVec.mkType w) (mkInstMul w)
 
 end BitVec
 

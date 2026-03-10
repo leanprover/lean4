@@ -42,6 +42,8 @@ LEAN_EXPORT uint8_t l_Char_isAlpha(uint32_t);
 LEAN_EXPORT lean_object* l_Char_isAlpha___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Char_isDigit(uint32_t);
 LEAN_EXPORT lean_object* l_Char_isDigit___boxed(lean_object*);
+LEAN_EXPORT uint8_t l_Char_isHexDigit(uint32_t);
+LEAN_EXPORT lean_object* l_Char_isHexDigit___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Char_isAlphanum(uint32_t);
 LEAN_EXPORT lean_object* l_Char_isAlphanum___boxed(lean_object*);
 uint32_t lean_uint32_add(uint32_t, uint32_t);
@@ -366,6 +368,88 @@ uint32_t x_2; uint8_t x_3; lean_object* x_4;
 x_2 = lean_unbox_uint32(x_1);
 lean_dec(x_1);
 x_3 = l_Char_isDigit(x_2);
+x_4 = lean_box(x_3);
+return x_4;
+}
+}
+LEAN_EXPORT uint8_t l_Char_isHexDigit(uint32_t x_1) {
+_start:
+{
+uint8_t x_2; uint8_t x_8; uint32_t x_14; uint8_t x_15; 
+x_14 = 48;
+x_15 = lean_uint32_dec_le(x_14, x_1);
+if (x_15 == 0)
+{
+x_8 = x_15;
+goto block_13;
+}
+else
+{
+uint32_t x_16; uint8_t x_17; 
+x_16 = 57;
+x_17 = lean_uint32_dec_le(x_1, x_16);
+x_8 = x_17;
+goto block_13;
+}
+block_7:
+{
+if (x_2 == 0)
+{
+uint32_t x_3; uint8_t x_4; 
+x_3 = 65;
+x_4 = lean_uint32_dec_le(x_3, x_1);
+if (x_4 == 0)
+{
+return x_4;
+}
+else
+{
+uint32_t x_5; uint8_t x_6; 
+x_5 = 70;
+x_6 = lean_uint32_dec_le(x_1, x_5);
+return x_6;
+}
+}
+else
+{
+return x_2;
+}
+}
+block_13:
+{
+if (x_8 == 0)
+{
+uint32_t x_9; uint8_t x_10; 
+x_9 = 97;
+x_10 = lean_uint32_dec_le(x_9, x_1);
+if (x_10 == 0)
+{
+x_2 = x_10;
+goto block_7;
+}
+else
+{
+uint32_t x_11; uint8_t x_12; 
+x_11 = 102;
+x_12 = lean_uint32_dec_le(x_1, x_11);
+x_2 = x_12;
+goto block_7;
+}
+}
+else
+{
+return x_8;
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l_Char_isHexDigit___boxed(lean_object* x_1) {
+_start:
+{
+uint32_t x_2; uint8_t x_3; lean_object* x_4; 
+x_2 = lean_unbox_uint32(x_1);
+lean_dec(x_1);
+x_3 = l_Char_isHexDigit(x_2);
 x_4 = lean_box(x_3);
 return x_4;
 }

@@ -17,6 +17,12 @@ register_builtin_option compiler.check : Bool := {
   descr    := "type check code after each compiler step (this is useful for debugging purses)"
 }
 
+register_builtin_option compiler.traceUnnormalized : Bool := {
+  defValue := false
+  descr    := "don't normalize declarations before tracing them at each pipeline step (this is \
+    useful for debugging purposes)"
+}
+
 register_builtin_option compiler.checkMeta : Bool := {
   defValue := true
   descr := "Check that `meta` declarations only refer to other `meta` declarations and ditto for \

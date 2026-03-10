@@ -979,8 +979,8 @@ return x_26;
 else
 {
 lean_object* x_27; 
-lean_dec(x_9);
 lean_dec_ref(x_8);
+lean_dec(x_9);
 x_27 = lean_box(0);
 return x_27;
 }

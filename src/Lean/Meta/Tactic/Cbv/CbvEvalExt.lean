@@ -35,11 +35,13 @@ open Lean.Meta.Sym.Simp
 
 /--
   Entry of the `CbvEvalExtension`.
-  Consists of the precomputed `Theorem` object and a name of the head function appearing on the left-hand side of the theorem.
+  Consists of name of the theorem used, the precomputed `Theorem` object 
+  and a name of the head function appearing on the left-hand side of the theorem.
 -/
 structure CbvEvalEntry where
-  appFn : Name
-  thm  : Theorem
+  origin : Name
+  appFn  : Name
+  thm    : Theorem
   deriving BEq, Inhabited
 
 /-- Create a `CbvEvalEntry` from a theorem declaration. When `inv = true`, creates an
@@ -62,15 +64,38 @@ def mkCbvTheoremFromConst (declName : Name) (inv : Bool := false) : MetaM CbvEva
       thmDeclName ← mkAuxLemma (kind? := `_cbv_eval) cinfo.levelParams invType invVal
     return (constName, thmDeclName)
   let thm ← mkTheoremFromDecl thmDeclName
-  return ⟨fnName, thm⟩
+  return ⟨declName, fnName, thm⟩
 
 structure CbvEvalState where
-  lemmas : NameMap Theorems := {}
+  lemmas  : NameMap Theorems := {}
+  entries : NameMap <| Array CbvEvalEntry := {}
   deriving Inhabited
 
 def CbvEvalState.addEntry (s : CbvEvalState) (e : CbvEvalEntry) : CbvEvalState :=
-  let existing := (s.lemmas.find? e.appFn).getD {}
-  { s with lemmas := s.lemmas.insert e.appFn (existing.insert e.thm) }
+  let lemmas := (s.lemmas.find? e.appFn).getD {}
+  let entries := (s.entries.find? e.appFn).getD {}
+  { s with
+    lemmas  := s.lemmas.insert e.appFn (lemmas.insert e.thm)
+    entries := s.entries.insert e.appFn <| entries.push e}
+
+/-- Rebuild the `Theorems` for a given `appFn` from the entries that target it. -/
+private def CbvEvalState.rebuildLemmas (entries : NameMap <| Array CbvEvalEntry) (appFn : Name) (lemmas : NameMap Theorems) : NameMap Theorems := 
+  let appFnEntries := entries.getD appFn #[] 
+  if appFnEntries.isEmpty then
+    lemmas.erase appFn
+  else
+    lemmas.insert appFn (appFnEntries.foldl (fun thms e => thms.insert e.thm) {})
+
+/-- Erase a theorem from the state. Returns `none` if the theorem is not found. -/
+def CbvEvalState.erase (s : CbvEvalState) (declName : Name) : Option CbvEvalState := do
+  let (appFn, oldEntries) ← s.entries.foldl (init := none) fun acc appFn entries =>
+    if acc.isSome then acc
+    else if entries.any (·.origin == declName) then some (appFn, entries)
+    else none
+  let newEntries := oldEntries.filter (·.origin != declName)
+  let entries := if newEntries.isEmpty then s.entries.erase appFn
+    else s.entries.insert appFn newEntries
+  return { lemmas := rebuildLemmas entries appFn s.lemmas, entries }
 
 abbrev CbvEvalExtension := SimpleScopedEnvExtension CbvEvalEntry CbvEvalState
 
@@ -99,6 +124,11 @@ builtin_initialize
       let inv := !stx[1].isNone
       let (entry, _) ← MetaM.run (mkCbvTheoremFromConst lemmaName (inv := inv)) {}
       cbvEvalExt.add entry kind
+    erase := fun declName => do
+      let s := cbvEvalExt.getState (← getEnv)
+      match s.erase declName with
+      | some s' => modifyEnv fun env => cbvEvalExt.modifyState env fun _ => s'
+      | none => logWarning m!"`{.ofConstName declName}` does not have the `[cbv_eval]` attribute"
   }
 
 end Lean.Meta.Tactic.Cbv

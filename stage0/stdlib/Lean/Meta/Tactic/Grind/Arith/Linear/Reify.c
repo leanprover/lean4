@@ -427,7 +427,7 @@ goto block_25;
 block_25:
 {
 uint8_t x_16; 
-x_16 = lean_ctor_get_uint8(x_13, sizeof(void*)*11 + 14);
+x_16 = lean_ctor_get_uint8(x_13, sizeof(void*)*11 + 15);
 lean_dec(x_13);
 if (x_16 == 0)
 {
@@ -631,7 +631,7 @@ block_57:
 {
 lean_object* x_34; lean_object* x_35; 
 lean_inc_ref(x_1);
-x_34 = l_Lean_mkApp8(x_27, x_16, x_28, x_32, x_31, x_30, x_29, x_33, x_1);
+x_34 = l_Lean_mkApp8(x_27, x_16, x_28, x_31, x_30, x_29, x_32, x_33, x_1);
 lean_inc(x_12);
 lean_inc_ref(x_11);
 lean_inc(x_10);
@@ -760,10 +760,10 @@ lean_object* x_63; lean_object* x_64;
 x_63 = lean_obj_once(&l___private_Lean_Meta_Tactic_Grind_Arith_Linear_Reify_0__Lean_Meta_Grind_Arith_Linear_assertNatCastNonneg___closed__10, &l___private_Lean_Meta_Tactic_Grind_Arith_Linear_Reify_0__Lean_Meta_Grind_Arith_Linear_assertNatCastNonneg___closed__10_once, _init_l___private_Lean_Meta_Tactic_Grind_Arith_Linear_Reify_0__Lean_Meta_Grind_Arith_Linear_assertNatCastNonneg___closed__10);
 x_64 = l_panic___at___00__private_Lean_Meta_Tactic_Grind_Arith_Linear_Reify_0__Lean_Meta_Grind_Arith_Linear_assertNatCastNonneg_spec__0(x_63);
 x_28 = x_58;
-x_29 = x_62;
+x_29 = x_60;
 x_30 = x_59;
-x_31 = x_60;
-x_32 = x_61;
+x_31 = x_61;
+x_32 = x_62;
 x_33 = x_64;
 goto block_57;
 }
@@ -774,10 +774,10 @@ x_65 = lean_ctor_get(x_23, 0);
 lean_inc(x_65);
 lean_dec_ref(x_23);
 x_28 = x_58;
-x_29 = x_62;
+x_29 = x_60;
 x_30 = x_59;
-x_31 = x_60;
-x_32 = x_61;
+x_31 = x_61;
+x_32 = x_62;
 x_33 = x_65;
 goto block_57;
 }
@@ -790,8 +790,8 @@ lean_object* x_71; lean_object* x_72;
 x_71 = lean_obj_once(&l___private_Lean_Meta_Tactic_Grind_Arith_Linear_Reify_0__Lean_Meta_Grind_Arith_Linear_assertNatCastNonneg___closed__10, &l___private_Lean_Meta_Tactic_Grind_Arith_Linear_Reify_0__Lean_Meta_Grind_Arith_Linear_assertNatCastNonneg___closed__10_once, _init_l___private_Lean_Meta_Tactic_Grind_Arith_Linear_Reify_0__Lean_Meta_Grind_Arith_Linear_assertNatCastNonneg___closed__10);
 x_72 = l_panic___at___00__private_Lean_Meta_Tactic_Grind_Arith_Linear_Reify_0__Lean_Meta_Grind_Arith_Linear_assertNatCastNonneg_spec__0(x_71);
 x_58 = x_67;
-x_59 = x_70;
-x_60 = x_68;
+x_59 = x_68;
+x_60 = x_70;
 x_61 = x_69;
 x_62 = x_72;
 goto block_66;
@@ -803,8 +803,8 @@ x_73 = lean_ctor_get(x_21, 0);
 lean_inc(x_73);
 lean_dec_ref(x_21);
 x_58 = x_67;
-x_59 = x_70;
-x_60 = x_68;
+x_59 = x_68;
+x_60 = x_70;
 x_61 = x_69;
 x_62 = x_73;
 goto block_66;
@@ -4464,8 +4464,8 @@ return x_137;
 else
 {
 lean_object* x_139; 
-lean_dec(x_138);
 lean_dec_ref(x_137);
+lean_dec(x_138);
 x_139 = l___private_Lean_Meta_Tactic_Grind_Arith_Linear_Reify_0__Lean_Meta_Grind_Arith_Linear_reify_x3f_asTopVar(x_2, x_3, x_1, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14);
 return x_139;
 }

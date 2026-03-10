@@ -449,41 +449,134 @@ structure S4 extends S2, S3
 
 end TestO2
 
+namespace TestOptParam
+
+/-!
+All fields are in scope when elaborating default values.
+-/
+structure Loop where
+  x : Nat := y
+  y : Nat := x
+  deriving Repr
+
+/-- info: { x := 1, y := 1 } -/
+#guard_msgs in #eval { x := 1 : Loop }
+/-- info: { x := 2, y := 2 } -/
+#guard_msgs in #eval { y := 2 : Loop }
+/-- info: { x := 1, y := 2 } -/
+#guard_msgs in #eval { x := 1, y := 2 : Loop }
+
+/-!
+Testing a loop that goes through the parent structure.
+-/
+structure Base where
+  x : Nat
+  y : Nat := x
+  deriving Repr
+structure Loop2 extends Base where
+  x := y
+  deriving Repr
+/-- info: { toBase := { x := 1, y := 1 } } -/
+#guard_msgs in #eval { x := 1 : Loop2 }
+/-- info: { toBase := { x := 2, y := 2 } } -/
+#guard_msgs in #eval { y := 2 : Loop2 }
+
+/-!
+Restating the type of an inherited field is OK
+-/
+structure RestateType extends Base where
+  x : Nat := 1
+  deriving Repr
+/-- info: { toBase := { x := 1, y := 1 } } -/
+#guard_msgs in #eval { : RestateType }
+
+/-!
+Restating the type of an inherited field is a valid
+way to change the binder names.
+-/
+structure A (m : Type → Type) where
+  map (f : α → β) : m α → m β
+structure A' extends A List where
+  map {α β} (g : α → β) (xs : List α) : List β := List.map g xs
+
+/-- info: A'.mk (A.mk fun {α β} g xs => List.map g xs) : A' -/
+#guard_msgs in #check { : A'}
+
+/-!
+Default values cannot refer to the field.
+-/
+/-- error: Unknown identifier `x` -/
+#guard_msgs in
+structure InapplicableDefault1 where
+  x : Nat := x + 1
+
+/-!
+Default values can refer to later fields.
+-/
+structure ApplicableDefault2 where
+  x : Nat := y + 1
+  y : Fin 2
+
+/-!
+Default values cannot refer to later fields if they depend on the field.
+-/
+/-- error: Unknown identifier `y` -/
+#guard_msgs in
+structure InpplicableDefault3 where
+  x : Nat := y + 1
+  y : Fin x
+
+/-!
+Default values cannot refer to the field, even for inherited fields.
+-/
+structure Base2 where
+  x : Nat
+/-- error: Unknown identifier `x` -/
+#guard_msgs in
+structure InapplicableDefault2 extends Base2 where
+  x := x
+
+end TestOptParam
+
 /-!
 Some failures from unsupported autoparams
 -/
 namespace TestFail1
 
-/-- error: Invalid field declaration: Type must be provided when auto-param tactic is used -/
+/-- error: Failed to infer type of field `x` -/
 #guard_msgs in
 structure F1 where
   x := by exact 0
 
 structure F2 where
   x (n : Nat) : Nat
-/-- error: Omit the type of field `x` to set its auto-param tactic -/
+/--
+error: Invalid field: Uexpected type for field `x` when setting auto-param tactic for inherited field
+-/
 #guard_msgs in
 structure F3 extends F2 where
   x : Nat → Nat := by exact 0
 
-/-- error: Invalid field: Unexpected binders when setting auto-param tactic for inherited field -/
+/--
+error: Invalid field: Unexpected binders for field `x` when setting auto-param tactic for inherited field
+-/
 #guard_msgs in
 structure F4 extends F2 where
   x (n : Nat) := by exact 0
 
-/-- error: A new default value for field `x` has already been set in this structure -/
+/-- error: A default value for field `x` has already been set for this structure -/
 #guard_msgs in
 structure F5 extends F2 where
   x := by exact 0
   x := by exact 0
 
-/-- error: A new default value for field `x` has already been set in this structure -/
+/-- error: A default value for field `x` has already been set for this structure -/
 #guard_msgs in
 structure F6 extends F2 where
   x := id
   x := by exact 0
 
-/-- error: A new default value for field `x` has already been set in this structure -/
+/-- error: A default value for field `x` has already been set for this structure -/
 #guard_msgs in
 structure F7 extends F2 where
   x := by exact 0

@@ -8174,7 +8174,7 @@ static lean_object* _init_l_Lean_Parser_Term_doPatDecl___closed__3(void) {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_obj_once(&l_Lean_Parser_Term_doIdDecl___closed__3, &l_Lean_Parser_Term_doIdDecl___closed__3_once, _init_l_Lean_Parser_Term_doIdDecl___closed__3);
+x_1 = lean_obj_once(&l_Lean_Parser_Term_doIdDecl___closed__4, &l_Lean_Parser_Term_doIdDecl___closed__4_once, _init_l_Lean_Parser_Term_doIdDecl___closed__4);
 x_2 = lean_obj_once(&l_Lean_Parser_Term_liftMethod___closed__4, &l_Lean_Parser_Term_liftMethod___closed__4_once, _init_l_Lean_Parser_Term_liftMethod___closed__4);
 x_3 = l_Lean_Parser_andthen(x_2, x_1);
 return x_3;
@@ -8519,7 +8519,7 @@ static lean_object* _init_l_Lean_Parser_Term_doPatDecl_formatter___closed__1(voi
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_obj_once(&l_Lean_Parser_Term_doIdDecl_formatter___closed__4, &l_Lean_Parser_Term_doIdDecl_formatter___closed__4_once, _init_l_Lean_Parser_Term_doIdDecl_formatter___closed__4);
+x_1 = lean_obj_once(&l_Lean_Parser_Term_doIdDecl_formatter___closed__5, &l_Lean_Parser_Term_doIdDecl_formatter___closed__5_once, _init_l_Lean_Parser_Term_doIdDecl_formatter___closed__5);
 x_2 = ((lean_object*)(l_Lean_Parser_Term_liftMethod_formatter___closed__1));
 x_3 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_andthen_formatter___boxed), 7, 2);
 lean_closure_set(x_3, 0, x_2);
@@ -8841,7 +8841,7 @@ static lean_object* _init_l_Lean_Parser_Term_doPatDecl_parenthesizer___closed__1
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_obj_once(&l_Lean_Parser_Term_doIdDecl_parenthesizer___closed__4, &l_Lean_Parser_Term_doIdDecl_parenthesizer___closed__4_once, _init_l_Lean_Parser_Term_doIdDecl_parenthesizer___closed__4);
+x_1 = lean_obj_once(&l_Lean_Parser_Term_doIdDecl_parenthesizer___closed__5, &l_Lean_Parser_Term_doIdDecl_parenthesizer___closed__5_once, _init_l_Lean_Parser_Term_doIdDecl_parenthesizer___closed__5);
 x_2 = ((lean_object*)(l_Lean_Parser_Term_liftMethod_parenthesizer___closed__1));
 x_3 = lean_alloc_closure((void*)(l_Lean_Parser_Term_doIdDecl_parenthesizer___lam__0___boxed), 7, 2);
 lean_closure_set(x_3, 0, x_2);

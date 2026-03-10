@@ -801,7 +801,7 @@ def consts := ["_private.«external:file:///Users/paul/code/lean4/tests/bench/wo
  "List.dropLastTR",
  "Lean.ScopedEnvExtension.Descr.name._autoParam",
  "USize.toISize_and",
- "Lean.instExceptToEmojiOption",
+ "Lean.instExceptToTraceResultOption",
  "_private.Init.Data.Nat.Lemmas.0.Nat.min_assoc.match_1_1",
  "Lean.PersistentArray.root",
  "List.set_drop",

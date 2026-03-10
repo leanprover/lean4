@@ -145,7 +145,7 @@ return s.getUnusedLevelParam
 /- Return `Prop` if `inProf == true` and `Sort u` otherwise, where `u` is a fresh universe level parameter. -/
 private def mkElimSort (majors : List Expr) (lhss : List AltLHS) (inProp : Bool) : MetaM Expr := do
 if inProp then
-  return mkSort levelZero
+  return mkSort Level.zero
 else
   let v ← getUnusedLevelParam majors lhss
   return mkSort $ v

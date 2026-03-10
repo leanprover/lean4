@@ -1,5 +1,7 @@
 module
 
+set_option warn.classDefReducibility false
+
 inductive Foo (α : Type u) (β : Type v) where
   | mk₁ : α → Foo α β
   | mk₂ : List β → Foo α β

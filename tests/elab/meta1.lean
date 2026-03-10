@@ -19,7 +19,7 @@ unsafe def tstIsProp (e : Expr) : CoreM Unit := do
   IO.println (toString e ++ ", isProp: " ++ toString b)
 
 def t1 : Expr :=
-let map  := mkConst `List.map [levelOne, levelOne];
+let map  := mkConst `List.map [Level.one, Level.one];
 let nat  := mkConst `Nat [];
 let bool := mkConst `Bool [];
 mkAppN map #[nat, bool]
@@ -29,7 +29,7 @@ mkAppN map #[nat, bool]
 #eval tstInferType t1
 
 def t2 : Expr :=
-let prop := mkSort levelZero;
+let prop := mkSort Level.zero;
 mkForall `x BinderInfo.default prop prop
 
 /-- info: Prop -> Prop : Type -/
@@ -70,12 +70,12 @@ set_option pp.all true
 #check @List.cons Nat
 
 def t6 : Expr :=
-let map  := mkConst `List.map [levelOne, levelOne];
+let map  := mkConst `List.map [Level.one, Level.one];
 let nat  := mkConst `Nat [];
 let add  := mkConst `Nat.add [];
 let f    := mkLambda `x BinderInfo.default nat (mkAppN add #[mkBVar 0, mkLit (Literal.natVal 1)]);
-let cons := mkApp (mkConst `List.cons [levelZero]) nat;
-let nil  := mkApp (mkConst `List.nil [levelZero]) nat;
+let cons := mkApp (mkConst `List.cons [Level.zero]) nat;
+let nil  := mkApp (mkConst `List.nil [Level.zero]) nat;
 let one  := mkLit (Literal.natVal 1);
 let four := mkLit (Literal.natVal 4);
 let xs   := mkApp (mkApp cons one) (mkApp (mkApp cons four) nil);
@@ -95,13 +95,13 @@ info: List.map.{1, 1} Nat Nat (fun (x : Nat) => Nat.add x 1) (List.cons.{0} Nat 
 
 /-- info: Prop : Type -/
 #guard_msgs in
-#eval tstInferType $ mkSort levelZero
+#eval tstInferType $ mkSort Level.zero
 
 /--
 info: fun {a : Type} (x : a) (xs : List.{0} a) => xs : forall {a : Type}, a -> (List.{0} a) -> (List.{0} a)
 -/
 #guard_msgs in
-#eval tstInferType $ mkLambda `a BinderInfo.implicit (mkSort levelOne) (mkLambda `x BinderInfo.default (mkBVar 0) (mkLambda `xs BinderInfo.default (mkApp (mkConst `List [levelZero]) (mkBVar 1)) (mkBVar 0)))
+#eval tstInferType $ mkLambda `a BinderInfo.implicit (mkSort Level.one) (mkLambda `x BinderInfo.default (mkBVar 0) (mkLambda `xs BinderInfo.default (mkApp (mkConst `List [Level.zero]) (mkBVar 1)) (mkBVar 0)))
 
 def t7 : Expr :=
 let nat  := mkConst `Nat [];
@@ -132,7 +132,7 @@ mkLet `x nat one (mkAppN add #[one, mkBVar 0])
 
 def t9 : Expr :=
 let nat  := mkConst `Nat [];
-mkLet `a (mkSort levelOne) nat (mkForall `x BinderInfo.default (mkBVar 0) (mkBVar 1))
+mkLet `a (mkSort Level.one) nat (mkForall `x BinderInfo.default (mkBVar 0) (mkBVar 1))
 
 /-- info: let a : Type := Nat; a -> a : Type -/
 #guard_msgs in
@@ -156,7 +156,7 @@ mkLet `a (mkSort levelOne) nat (mkForall `x BinderInfo.default (mkBVar 0) (mkBVa
 
 def t10 : Expr :=
 let nat  := mkConst `Nat [];
-let refl := mkApp (mkConst `Eq.refl [levelOne]) nat;
+let refl := mkApp (mkConst `Eq.refl [Level.one]) nat;
 mkLambda `a BinderInfo.default nat (mkApp refl (mkBVar 0))
 
 /-- info: fun (a : Nat) => Eq.refl.{1} Nat a : forall (a : Nat), Eq.{1} Nat a a -/
@@ -178,23 +178,23 @@ mkLambda `a BinderInfo.default nat (mkApp refl (mkBVar 0))
 -- Example where isPropQuick fails
 /-- info: id.{0} Prop (And True True), isProp: true -/
 #guard_msgs in
-#eval tstIsProp (mkAppN (mkConst `id [levelZero]) #[mkSort levelZero, mkAppN (mkConst `And []) #[mkConst `True [], mkConst
+#eval tstIsProp (mkAppN (mkConst `id [Level.zero]) #[mkSort Level.zero, mkAppN (mkConst `And []) #[mkConst `True [], mkConst
  `True []]])
 
 /-- info: Eq.{1} Nat 0 1, isProp: true -/
 #guard_msgs in
-#eval tstIsProp (mkAppN (mkConst `Eq [levelOne]) #[mkConst `Nat [], mkLit (Literal.natVal 0), mkLit (Literal.natVal 1)])
+#eval tstIsProp (mkAppN (mkConst `Eq [Level.one]) #[mkConst `Nat [], mkLit (Literal.natVal 0), mkLit (Literal.natVal 1)])
 
 /-- info: forall (x : Nat), Eq.{1} Nat x 1, isProp: true -/
 #guard_msgs in
 #eval tstIsProp $
   mkForall `x BinderInfo.default (mkConst `Nat [])
-    (mkAppN (mkConst `Eq [levelOne]) #[mkConst `Nat [], mkBVar 0, mkLit (Literal.natVal 1)])
+    (mkAppN (mkConst `Eq [Level.one]) #[mkConst `Nat [], mkBVar 0, mkLit (Literal.natVal 1)])
 
 /-- info: (fun (x : Nat) => Eq.{1} Nat x 1) 0, isProp: true -/
 #guard_msgs in
 #eval tstIsProp $
   mkApp
     (mkLambda `x BinderInfo.default (mkConst `Nat [])
-      (mkAppN (mkConst `Eq [levelOne]) #[mkConst `Nat [], mkBVar 0, mkLit (Literal.natVal 1)]))
+      (mkAppN (mkConst `Eq [Level.one]) #[mkConst `Nat [], mkBVar 0, mkLit (Literal.natVal 1)]))
     (mkLit (Literal.natVal 0))

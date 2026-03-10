@@ -1,5 +1,6 @@
 import Std.Tactic.Do
 import Std
+set_option backward.do.legacy false
 
 open Std Do
 
@@ -165,7 +166,7 @@ theorem nodup_twice_correct_invariants_multiple_with (l : List Int) : nodup_twic
 /--
 error: Lacking definitions for the following invariants.
 
-  Invariant l (MProd (Option Bool) (HashSet Int)) PostShape.pure
+  Invariant l (Option Bool × HashSet Int) PostShape.pure
 -/
 #guard_msgs in
 theorem nodup_twice_missing_one_invariant (l : List Int) : nodup_twice l ↔ l.Nodup := by
@@ -182,9 +183,9 @@ theorem nodup_twice_missing_one_invariant (l : List Int) : nodup_twice l ↔ l.N
 /--
 error: Lacking definitions for the following invariants.
 
-  Invariant l (MProd (Option Bool) (HashSet Int)) PostShape.pure
+  Invariant l (Option Bool × HashSet Int) PostShape.pure
   ⏎
-  Invariant l (MProd (Option Bool) (HashSet Int)) PostShape.pure
+  Invariant l (Option Bool × HashSet Int) PostShape.pure
 -/
 #guard_msgs in
 theorem nodup_twice_missing_two_invariants (l : List Int) : nodup_twice l ↔ l.Nodup := by

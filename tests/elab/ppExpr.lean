@@ -12,15 +12,15 @@ def test (e : Expr) : MetaM Unit := do
 #eval test (mkBVar 0)
 
 -- anonymous binder
-#eval test (mkLambda Name.anonymous BinderInfo.default (mkSort levelZero) (mkBVar 0))
+#eval test (mkLambda Name.anonymous BinderInfo.default (mkSort Level.zero) (mkBVar 0))
 
 -- pp annotations
 #eval test $
-  mkAppN (mkConst `id [levelOne]) #[
+  mkAppN (mkConst `id [Level.one]) #[
     mkConst `Nat,
-    mkMData (KVMap.empty.set `pp.explicit true) $ mkAppN (mkConst `id [levelOne]) #[
+    mkMData (KVMap.empty.set `pp.explicit true) $ mkAppN (mkConst `id [Level.one]) #[
       mkConst `Nat,
-      mkAppN (mkConst `id [levelOne]) #[
+      mkAppN (mkConst `id [Level.one]) #[
         mkConst `Nat,
         mkConst `Nat.zero
   ]]]

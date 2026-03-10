@@ -2,6 +2,8 @@ module
 
 /-! Applying `[instance]` after the fact should check for appropriate reducibility. -/
 
+/-- warning: Definition `unexposed` of class type must be marked with `@[reducible]` or `@[implicit_reducible]` -/
+#guard_msgs in
 public def unexposed : Inhabited Nat := inferInstance
 
 /-- warning: instance `unexposed` must be marked with `@[expose]` -/
@@ -12,6 +14,8 @@ attribute [instance] unexposed
 #guard_msgs in
 attribute [local instance] unexposed
 
+/-- warning: Definition `exposed` of class type must be marked with `@[reducible]` or `@[implicit_reducible]` -/
+#guard_msgs in
 @[expose]
 public def exposed : Inhabited Nat := inferInstance
 

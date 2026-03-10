@@ -1,3 +1,5 @@
+set_option warn.classDefReducibility false
+
 class magma (α) where op : α → α → α
 
 infix:70 " ⋆ " => magma.op (self := inferInstance)

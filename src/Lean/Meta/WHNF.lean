@@ -169,7 +169,7 @@ def mkProjFn (ctorVal : ConstructorVal) (us : List Level) (params : Array Expr) 
     | some projFn => return mkApp (mkAppN (mkConst projFn us) params) major
 
 /--
-  If `major` is not a constructor application, and its type is a structure `C ...`, then return `C.mk major.1 ... major.n`
+  If `major` is not a constructor application, and its type is a non-recursive structure `C ...`, then return `C.mk major.1 ... major.n`
 
   \pre `inductName` is `C`.
 
@@ -178,7 +178,7 @@ private def toCtorWhenStructure (inductName : Name) (major : Expr) : MetaM Expr 
   unless (← useEtaStruct inductName) do
     return major
   let env ← getEnv
-  if !isStructureLike env inductName then
+  if !isNonRecStructure env inductName then
     return major
   else if let some _ ← isConstructorApp? major then
     return major
@@ -190,7 +190,7 @@ private def toCtorWhenStructure (inductName : Name) (major : Expr) : MetaM Expr 
       return major
     match majorType.getAppFn with
     | Expr.const d us =>
-      if (← whnfD (← inferType majorType)) == mkSort levelZero then
+      if (← whnfD (← inferType majorType)) == mkSort Level.zero then
         return major -- We do not perform eta for propositions, see implementation in the kernel
       else
         let some ctorName ← getFirstCtor d | pure major
@@ -348,7 +348,7 @@ mutual
             unless projInfo.fromClass do return none
             -- First check whether `e`s instance is stuck.
             if let some major := args[projInfo.numParams]? then
-              if let some mvarId ← getStuckMVar? major then
+              if let some mvarId ← getStuckMVar? (← whnf major) then
                 return mvarId
             /-
             Then, recurse on the explicit arguments
@@ -366,7 +366,7 @@ mutual
           else if let some auxInfo ← getAuxParentProjectionInfo? fName then
             unless auxInfo.fromClass do return none
             if let some major := args[auxInfo.numParams]? then
-              if let some mvarId ← getStuckMVar? major then
+              if let some mvarId ← getStuckMVar? (← whnf major) then
                 return mvarId
             return none
           else

@@ -54,13 +54,13 @@ withReader
   (tryCatch (tryFinally x printTraces) (fun _ => IO.println "ERROR"))
 
 /--
-info: [module] message
+info: [module] 💥️ message
   [module] hello
                world
   [bughunt] at test2
 ERROR
 ---
-trace: [module] message
+trace: [module] 💥️ message
   [module] hello
                world
   [bughunt] at test2
@@ -69,7 +69,7 @@ trace: [module] message
 #eval run (tst3 true)
 
 /--
-info: [module] message
+info: [module] ✅️ message
   [module] hello
                world
   [bughunt] at test2
@@ -79,7 +79,7 @@ info: [module] message
              world
 [bughunt] at end of tst3
 ---
-trace: [module] message
+trace: [module] ✅️ message
   [module] hello
                world
   [bughunt] at test2

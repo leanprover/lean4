@@ -495,9 +495,9 @@ if (x_8 == 0)
 {
 uint32_t x_9; uint32_t x_10; uint8_t x_11; 
 lean_dec(x_4);
-x_9 = 46;
-x_10 = lean_string_utf8_get_fast(x_2, x_3);
-x_11 = lean_uint32_dec_eq(x_10, x_9);
+x_9 = lean_string_utf8_get_fast(x_2, x_3);
+x_10 = 46;
+x_11 = lean_uint32_dec_eq(x_9, x_10);
 if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; 

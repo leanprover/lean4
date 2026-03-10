@@ -856,83 +856,81 @@ return x_33;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_PersistentHashMap_foldlMAux___at___00Lean_PersistentHashMap_foldlM___at___00Lean_LibrarySuggestions_localSymbolFrequencyMap_spec__1_spec__1_spec__2___redArg(lean_object* x_1, lean_object* x_2, size_t x_3, size_t x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
 _start:
 {
-lean_object* x_11; lean_object* x_12; lean_object* x_17; uint8_t x_20; 
-x_20 = lean_usize_dec_eq(x_3, x_4);
-if (x_20 == 0)
+lean_object* x_11; lean_object* x_16; uint8_t x_19; 
+x_19 = lean_usize_dec_eq(x_3, x_4);
+if (x_19 == 0)
 {
-lean_object* x_21; 
-x_21 = lean_array_uget_borrowed(x_2, x_3);
-switch (lean_obj_tag(x_21)) {
+lean_object* x_20; 
+x_20 = lean_array_uget_borrowed(x_2, x_3);
+switch (lean_obj_tag(x_20)) {
 case 0:
 {
-lean_object* x_22; lean_object* x_23; lean_object* x_24; 
-x_22 = lean_ctor_get(x_21, 0);
-x_23 = lean_ctor_get(x_21, 1);
+lean_object* x_21; lean_object* x_22; lean_object* x_23; 
+x_21 = lean_ctor_get(x_20, 0);
+x_22 = lean_ctor_get(x_20, 1);
 lean_inc_ref(x_1);
 lean_inc(x_9);
 lean_inc_ref(x_8);
 lean_inc(x_7);
 lean_inc_ref(x_6);
-lean_inc(x_23);
 lean_inc(x_22);
-x_24 = lean_apply_8(x_1, x_5, x_22, x_23, x_6, x_7, x_8, x_9, lean_box(0));
-x_17 = x_24;
-goto block_19;
+lean_inc(x_21);
+x_23 = lean_apply_8(x_1, x_5, x_21, x_22, x_6, x_7, x_8, x_9, lean_box(0));
+x_16 = x_23;
+goto block_18;
 }
 case 1:
 {
-lean_object* x_25; lean_object* x_26; 
-x_25 = lean_ctor_get(x_21, 0);
+lean_object* x_24; lean_object* x_25; 
+x_24 = lean_ctor_get(x_20, 0);
 lean_inc(x_9);
 lean_inc_ref(x_8);
 lean_inc(x_7);
 lean_inc_ref(x_6);
-lean_inc(x_25);
+lean_inc(x_24);
 lean_inc_ref(x_1);
-x_26 = l_Lean_PersistentHashMap_foldlMAux___at___00Lean_PersistentHashMap_foldlM___at___00Lean_LibrarySuggestions_localSymbolFrequencyMap_spec__1_spec__1___redArg(x_1, x_25, x_5, x_6, x_7, x_8, x_9);
-x_17 = x_26;
-goto block_19;
+x_25 = l_Lean_PersistentHashMap_foldlMAux___at___00Lean_PersistentHashMap_foldlM___at___00Lean_LibrarySuggestions_localSymbolFrequencyMap_spec__1_spec__1___redArg(x_1, x_24, x_5, x_6, x_7, x_8, x_9);
+x_16 = x_25;
+goto block_18;
 }
 default: 
 {
 x_11 = x_5;
-x_12 = lean_box(0);
-goto block_16;
+goto block_15;
 }
 }
 }
 else
 {
-lean_object* x_27; 
+lean_object* x_26; 
 lean_dec(x_9);
 lean_dec_ref(x_8);
 lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec_ref(x_1);
-x_27 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_27, 0, x_5);
-return x_27;
+x_26 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_26, 0, x_5);
+return x_26;
 }
-block_16:
+block_15:
 {
-size_t x_13; size_t x_14; 
-x_13 = 1;
-x_14 = lean_usize_add(x_3, x_13);
-x_3 = x_14;
+size_t x_12; size_t x_13; 
+x_12 = 1;
+x_13 = lean_usize_add(x_3, x_12);
+x_3 = x_13;
 x_5 = x_11;
 goto _start;
 }
-block_19:
+block_18:
 {
-if (lean_obj_tag(x_17) == 0)
+if (lean_obj_tag(x_16) == 0)
 {
-lean_object* x_18; 
-x_18 = lean_ctor_get(x_17, 0);
-lean_inc(x_18);
-lean_dec_ref(x_17);
-x_11 = x_18;
-x_12 = lean_box(0);
-goto block_16;
+lean_object* x_17; 
+x_17 = lean_ctor_get(x_16, 0);
+lean_inc(x_17);
+lean_dec_ref(x_16);
+x_11 = x_17;
+goto block_15;
 }
 else
 {
@@ -941,7 +939,7 @@ lean_dec_ref(x_8);
 lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec_ref(x_1);
-return x_17;
+return x_16;
 }
 }
 }

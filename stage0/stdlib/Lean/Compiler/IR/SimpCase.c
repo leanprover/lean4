@@ -22,7 +22,8 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_a
 lean_object* lean_array_get_size(lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 extern lean_object* l_Lean_IR_instInhabitedAlt_default__1;
-lean_object* l_Array_back_x21___redArg(lean_object*, lean_object*);
+lean_object* lean_nat_sub(lean_object*, lean_object*);
+lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_pop(lean_object*);
 lean_object* l_Lean_IR_Alt_body(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
@@ -76,29 +77,29 @@ return x_7;
 LEAN_EXPORT lean_object* l_Lean_IR_ensureHasDefault(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; uint8_t x_13; 
+lean_object* x_2; lean_object* x_3; uint8_t x_15; 
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = lean_array_get_size(x_1);
-x_13 = lean_nat_dec_lt(x_2, x_3);
-if (x_13 == 0)
+x_15 = lean_nat_dec_lt(x_2, x_3);
+if (x_15 == 0)
 {
-goto block_12;
+goto block_14;
 }
 else
 {
-if (x_13 == 0)
+if (x_15 == 0)
 {
-goto block_12;
+goto block_14;
 }
 else
 {
-size_t x_14; size_t x_15; uint8_t x_16; 
-x_14 = 0;
-x_15 = lean_usize_of_nat(x_3);
-x_16 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Lean_IR_ensureHasDefault_spec__0(x_1, x_14, x_15);
-if (x_16 == 0)
+size_t x_16; size_t x_17; uint8_t x_18; 
+x_16 = 0;
+x_17 = lean_usize_of_nat(x_3);
+x_18 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Lean_IR_ensureHasDefault_spec__0(x_1, x_16, x_17);
+if (x_18 == 0)
 {
-goto block_12;
+goto block_14;
 }
 else
 {
@@ -106,23 +107,26 @@ return x_1;
 }
 }
 }
-block_12:
+block_14:
 {
 lean_object* x_4; uint8_t x_5; 
 x_4 = lean_unsigned_to_nat(2u);
 x_5 = lean_nat_dec_lt(x_3, x_4);
 if (x_5 == 0)
 {
-lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
+lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_6 = l_Lean_IR_instInhabitedAlt_default__1;
-x_7 = l_Array_back_x21___redArg(x_6, x_1);
-x_8 = lean_array_pop(x_1);
-x_9 = l_Lean_IR_Alt_body(x_7);
-lean_dec(x_7);
-x_10 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_10, 0, x_9);
-x_11 = lean_array_push(x_8, x_10);
-return x_11;
+x_7 = lean_unsigned_to_nat(1u);
+x_8 = lean_nat_sub(x_3, x_7);
+x_9 = lean_array_get(x_6, x_1, x_8);
+lean_dec(x_8);
+x_10 = lean_array_pop(x_1);
+x_11 = l_Lean_IR_Alt_body(x_9);
+lean_dec(x_9);
+x_12 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_12, 0, x_11);
+x_13 = lean_array_push(x_10, x_12);
+return x_13;
 }
 else
 {

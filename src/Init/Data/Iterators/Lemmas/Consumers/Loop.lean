@@ -32,7 +32,7 @@ theorem Iter.forIn'_eq {α β : Type w} [Iterator α Id β] [Finite α Id]
       IterM.DefaultConsumers.forIn' (n := m) (fun _ _ f x => f x.run) γ (fun _ _ _ => True)
         it.toIterM init _ (fun _ => id)
           (fun out h acc => return ⟨← f out (Iter.isPlausibleIndirectOutput_iff_isPlausibleIndirectOutput_toIterM.mpr h) acc, trivial⟩) := by
-  simp +instances only [instForIn', ForIn'.forIn', IteratorLoop.finiteForIn']
+  simp +instances only [ForIn'.forIn']
   have : ∀ a b c, f a b c = (Subtype.val <$> (⟨·, trivial⟩) <$> f a b c) := by simp
   simp +singlePass only [this]
   rw [hl.lawful (fun _ _ f x => f x.run) (wf := IteratorLoop.wellFounded_of_finite)]
@@ -81,7 +81,7 @@ theorem Iter.forIn'_eq_forIn'_toIterM {α β : Type w} [Iterator α Id β]
       letI : ForIn' m (IterM (α := α) Id β) β _ := IterM.instForIn'
       ForIn'.forIn' it.toIterM init
         (fun out h acc => f out (isPlausibleIndirectOutput_iff_isPlausibleIndirectOutput_toIterM.mpr h) acc) := by
-  simp +instances [ForIn'.forIn', Iter.instForIn', IterM.instForIn', monadLift]
+  simp +instances [ForIn'.forIn', monadLift]
 
 theorem Iter.forIn_eq_forIn_toIterM {α β : Type w} [Iterator α Id β]
     [Finite α Id] {m : Type w → Type w''} [Monad m] [LawfulMonad m]
@@ -395,7 +395,7 @@ theorem Iter.fold_eq_fold_toIterM {α β : Type w} {γ : Type w} [Iterator α Id
     [Finite α Id] [IteratorLoop α Id Id]
     {f : γ → β → γ} {init : γ} {it : Iter (α := α) β} :
     it.fold (init := init) f = (it.toIterM.fold (init := init) f).run := by
-  rw [fold_eq_foldM, foldM_eq_foldM_toIterM, IterM.fold_eq_foldM]; rfl
+  rw [fold_eq_foldM, foldM_eq_foldM_toIterM, IterM.fold_eq_foldM]
 
 @[simp]
 theorem Iter.forIn_pure_yield_eq_fold {α β : Type w} {γ : Type x} [Iterator α Id β]

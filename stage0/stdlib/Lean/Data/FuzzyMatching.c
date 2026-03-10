@@ -212,6 +212,10 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Range_Basic_0__Std_Legacy_Range_f
 LEAN_EXPORT lean_object* l___private_Init_Data_Range_Basic_0__Std_Legacy_Range_forIn_x27_loop___at___00__private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_fuzzyMatchCore_spec__6___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Range_Basic_0__Std_Legacy_Range_forIn_x27_loop___at___00__private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_fuzzyMatchCore_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Range_Basic_0__Std_Legacy_Range_forIn_x27_loop___at___00__private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_fuzzyMatchCore_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_once_cell_t l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_fuzzyMatchCore___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
+static lean_object* l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_fuzzyMatchCore___closed__0;
+static lean_once_cell_t l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_fuzzyMatchCore___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
+static lean_object* l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_fuzzyMatchCore___closed__1;
 lean_object* lean_mk_array(lean_object*, lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_fuzzyMatchCore(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1329,7 +1333,7 @@ return x_5;
 LEAN_EXPORT uint8_t l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_iterateLookaround___at___00__private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_stringInfo_spec__0___lam__0(lean_object* x_1, uint32_t x_2, lean_object* x_3) {
 _start:
 {
-uint8_t x_4; lean_object* x_5; lean_object* x_6; lean_object* x_21; 
+lean_object* x_4; uint8_t x_5; lean_object* x_6; lean_object* x_21; 
 if (lean_obj_tag(x_1) == 0)
 {
 lean_object* x_36; 
@@ -1386,17 +1390,17 @@ goto block_35;
 }
 block_20:
 {
-if (x_4 == 2)
+if (x_5 == 2)
 {
 uint8_t x_7; 
 lean_dec(x_6);
-lean_dec(x_5);
+lean_dec(x_4);
 x_7 = 2;
 return x_7;
 }
 else
 {
-if (lean_obj_tag(x_5) == 0)
+if (lean_obj_tag(x_4) == 0)
 {
 uint8_t x_8; 
 lean_dec(x_6);
@@ -1406,9 +1410,9 @@ return x_8;
 else
 {
 lean_object* x_9; uint8_t x_10; 
-x_9 = lean_ctor_get(x_5, 0);
+x_9 = lean_ctor_get(x_4, 0);
 lean_inc(x_9);
-lean_dec_ref(x_5);
+lean_dec_ref(x_4);
 x_10 = lean_unbox(x_9);
 if (x_10 == 2)
 {
@@ -1420,7 +1424,7 @@ return x_11;
 }
 else
 {
-if (x_4 == 0)
+if (x_5 == 0)
 {
 uint8_t x_12; 
 lean_dec(x_9);
@@ -1484,8 +1488,8 @@ if (lean_obj_tag(x_3) == 0)
 {
 lean_object* x_23; 
 x_23 = lean_box(0);
-x_4 = x_22;
-x_5 = x_21;
+x_4 = x_21;
+x_5 = x_22;
 x_6 = x_23;
 goto block_20;
 }
@@ -1531,8 +1535,8 @@ goto block_31;
 }
 block_31:
 {
-x_4 = x_22;
-x_5 = x_21;
+x_4 = x_21;
+x_5 = x_22;
 x_6 = x_30;
 goto block_20;
 }
@@ -2594,7 +2598,7 @@ goto block_128;
 }
 block_128:
 {
-uint8_t x_18; uint16_t x_19; lean_object* x_20; uint16_t x_21; uint16_t x_22; lean_object* x_23; uint16_t x_41; lean_object* x_42; uint16_t x_43; uint16_t x_46; uint8_t x_109; 
+uint8_t x_18; uint16_t x_19; lean_object* x_20; uint16_t x_21; lean_object* x_22; uint16_t x_23; uint16_t x_41; lean_object* x_42; uint16_t x_43; uint16_t x_46; uint8_t x_109; 
 x_18 = 0;
 x_19 = lean_uint16_once(&l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_Score_awful___closed__1, &l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_Score_awful___closed__1_once, _init_l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_Score_awful___closed__1);
 x_20 = lean_unsigned_to_nat(1u);
@@ -2660,12 +2664,12 @@ x_30 = lean_box(x_21);
 x_31 = lean_array_set(x_14, x_29, x_30);
 x_32 = lean_nat_add(x_29, x_20);
 lean_dec(x_29);
-x_33 = lean_box(x_22);
+x_33 = lean_box(x_23);
 x_34 = lean_array_set(x_31, x_32, x_33);
 lean_dec(x_32);
 if (x_17 == 0)
 {
-lean_ctor_set(x_16, 1, x_23);
+lean_ctor_set(x_16, 1, x_22);
 lean_ctor_set(x_16, 0, x_34);
 x_35 = x_16;
 goto block_38;
@@ -2675,7 +2679,7 @@ else
 lean_object* x_39; 
 x_39 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_39, 0, x_34);
-lean_ctor_set(x_39, 1, x_23);
+lean_ctor_set(x_39, 1, x_22);
 x_35 = x_39;
 goto block_38;
 }
@@ -2694,8 +2698,8 @@ block_45:
 uint16_t x_44; 
 x_44 = l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_Score_map___at___00__private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_fuzzyMatchCore_spec__2(x_7, x_10, x_43);
 x_21 = x_41;
-x_22 = x_44;
-x_23 = x_42;
+x_22 = x_42;
+x_23 = x_44;
 goto block_40;
 }
 block_108:
@@ -2713,8 +2717,8 @@ x_55 = l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_fuzzyMatchCore_
 if (x_55 == 0)
 {
 x_21 = x_46;
-x_22 = x_19;
-x_23 = x_15;
+x_22 = x_15;
+x_23 = x_19;
 goto block_40;
 }
 else
@@ -2744,8 +2748,8 @@ x_71 = lean_int16_dec_eq(x_70, x_19);
 if (x_71 == 0)
 {
 x_21 = x_46;
-x_22 = x_70;
-x_23 = x_62;
+x_22 = x_62;
+x_23 = x_70;
 goto block_40;
 }
 else
@@ -2754,8 +2758,8 @@ lean_object* x_72; uint16_t x_73;
 x_72 = lean_obj_once(&l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_Score_ofInt16_x21___closed__3, &l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_Score_ofInt16_x21___closed__3_once, _init_l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_Score_ofInt16_x21___closed__3);
 x_73 = l_panic___at___00__private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_fuzzyMatchCore_spec__1(x_72);
 x_21 = x_46;
-x_22 = x_73;
-x_23 = x_62;
+x_22 = x_62;
+x_23 = x_73;
 goto block_40;
 }
 }
@@ -2857,15 +2861,15 @@ return x_10;
 }
 else
 {
-lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; uint8_t x_31; 
+lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; uint8_t x_40; 
 x_15 = lean_ctor_get(x_10, 0);
 x_16 = lean_ctor_get(x_10, 1);
-x_31 = !lean_is_exclusive(x_10);
-if (x_31 == 0)
+x_40 = !lean_is_exclusive(x_10);
+if (x_40 == 0)
 {
 x_17 = x_10;
-x_18 = x_31;
-goto block_30;
+x_18 = x_40;
+goto block_39;
 }
 else
 {
@@ -2873,10 +2877,10 @@ lean_inc(x_16);
 lean_inc(x_15);
 lean_dec(x_10);
 x_17 = lean_box(0);
-x_18 = x_31;
-goto block_30;
+x_18 = x_40;
+goto block_39;
 }
-block_30:
+block_39:
 {
 lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; 
 x_19 = lean_unsigned_to_nat(1u);
@@ -2893,28 +2897,68 @@ lean_ctor_set(x_23, 2, x_19);
 if (x_18 == 0)
 {
 x_24 = x_17;
-goto block_28;
+goto block_37;
 }
 else
 {
-lean_object* x_29; 
-x_29 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_29, 0, x_15);
-lean_ctor_set(x_29, 1, x_16);
-x_24 = x_29;
-goto block_28;
+lean_object* x_38; 
+x_38 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_38, 0, x_15);
+lean_ctor_set(x_38, 1, x_16);
+x_24 = x_38;
+goto block_37;
 }
-block_28:
+block_37:
 {
-lean_object* x_25; lean_object* x_26; 
+lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; uint8_t x_29; uint8_t x_36; 
 lean_inc(x_11);
 x_25 = l___private_Init_Data_Range_Basic_0__Std_Legacy_Range_forIn_x27_loop___at___00__private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_fuzzyMatchCore_spec__5___redArg(x_3, x_11, x_4, x_5, x_6, x_7, x_8, x_23, x_24, x_11);
 lean_dec_ref(x_23);
-x_26 = lean_nat_add(x_11, x_13);
+x_26 = lean_ctor_get(x_25, 0);
+x_27 = lean_ctor_get(x_25, 1);
+x_36 = !lean_is_exclusive(x_25);
+if (x_36 == 0)
+{
+x_28 = x_25;
+x_29 = x_36;
+goto block_35;
+}
+else
+{
+lean_inc(x_27);
+lean_inc(x_26);
+lean_dec(x_25);
+x_28 = lean_box(0);
+x_29 = x_36;
+goto block_35;
+}
+block_35:
+{
+lean_object* x_30; 
+if (x_29 == 0)
+{
+x_30 = x_28;
+goto block_33;
+}
+else
+{
+lean_object* x_34; 
+x_34 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_34, 0, x_26);
+lean_ctor_set(x_34, 1, x_27);
+x_30 = x_34;
+goto block_33;
+}
+block_33:
+{
+lean_object* x_31; 
+x_31 = lean_nat_add(x_11, x_13);
 lean_dec(x_11);
-x_10 = x_25;
-x_11 = x_26;
+x_10 = x_30;
+x_11 = x_31;
 goto _start;
+}
+}
 }
 }
 }
@@ -2951,15 +2995,15 @@ return x_10;
 }
 else
 {
-lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; uint8_t x_31; 
+lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; uint8_t x_40; 
 x_15 = lean_ctor_get(x_10, 0);
 x_16 = lean_ctor_get(x_10, 1);
-x_31 = !lean_is_exclusive(x_10);
-if (x_31 == 0)
+x_40 = !lean_is_exclusive(x_10);
+if (x_40 == 0)
 {
 x_17 = x_10;
-x_18 = x_31;
-goto block_30;
+x_18 = x_40;
+goto block_39;
 }
 else
 {
@@ -2967,10 +3011,10 @@ lean_inc(x_16);
 lean_inc(x_15);
 lean_dec(x_10);
 x_17 = lean_box(0);
-x_18 = x_31;
-goto block_30;
+x_18 = x_40;
+goto block_39;
 }
-block_30:
+block_39:
 {
 lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; 
 x_19 = lean_unsigned_to_nat(1u);
@@ -2987,27 +3031,67 @@ lean_ctor_set(x_23, 2, x_19);
 if (x_18 == 0)
 {
 x_24 = x_17;
-goto block_28;
+goto block_37;
 }
 else
 {
-lean_object* x_29; 
-x_29 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_29, 0, x_15);
-lean_ctor_set(x_29, 1, x_16);
-x_24 = x_29;
-goto block_28;
+lean_object* x_38; 
+x_38 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_38, 0, x_15);
+lean_ctor_set(x_38, 1, x_16);
+x_24 = x_38;
+goto block_37;
 }
-block_28:
+block_37:
 {
-lean_object* x_25; lean_object* x_26; lean_object* x_27; 
+lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; uint8_t x_29; uint8_t x_36; 
 lean_inc(x_11);
 x_25 = l___private_Init_Data_Range_Basic_0__Std_Legacy_Range_forIn_x27_loop___at___00__private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_fuzzyMatchCore_spec__5___redArg(x_1, x_11, x_2, x_3, x_4, x_5, x_6, x_23, x_24, x_11);
 lean_dec_ref(x_23);
-x_26 = lean_nat_add(x_11, x_13);
+x_26 = lean_ctor_get(x_25, 0);
+x_27 = lean_ctor_get(x_25, 1);
+x_36 = !lean_is_exclusive(x_25);
+if (x_36 == 0)
+{
+x_28 = x_25;
+x_29 = x_36;
+goto block_35;
+}
+else
+{
+lean_inc(x_27);
+lean_inc(x_26);
+lean_dec(x_25);
+x_28 = lean_box(0);
+x_29 = x_36;
+goto block_35;
+}
+block_35:
+{
+lean_object* x_30; 
+if (x_29 == 0)
+{
+x_30 = x_28;
+goto block_33;
+}
+else
+{
+lean_object* x_34; 
+x_34 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_34, 0, x_26);
+lean_ctor_set(x_34, 1, x_27);
+x_30 = x_34;
+goto block_33;
+}
+block_33:
+{
+lean_object* x_31; lean_object* x_32; 
+x_31 = lean_nat_add(x_11, x_13);
 lean_dec(x_11);
-x_27 = l___private_Init_Data_Range_Basic_0__Std_Legacy_Range_forIn_x27_loop___at___00__private_Init_Data_Range_Basic_0__Std_Legacy_Range_forIn_x27_loop___at___00__private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_fuzzyMatchCore_spec__6_spec__6___redArg(x_7, x_8, x_1, x_2, x_3, x_4, x_5, x_6, x_9, x_25, x_26);
-return x_27;
+x_32 = l___private_Init_Data_Range_Basic_0__Std_Legacy_Range_forIn_x27_loop___at___00__private_Init_Data_Range_Basic_0__Std_Legacy_Range_forIn_x27_loop___at___00__private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_fuzzyMatchCore_spec__6_spec__6___redArg(x_7, x_8, x_1, x_2, x_3, x_4, x_5, x_6, x_9, x_30, x_31);
+return x_32;
+}
+}
 }
 }
 }
@@ -3126,12 +3210,12 @@ x_51 = lean_unbox(x_50);
 if (x_51 == 2)
 {
 uint16_t x_52; uint16_t x_53; uint16_t x_54; uint16_t x_55; 
-lean_dec(x_16);
-lean_dec(x_10);
+lean_dec(x_17);
+lean_dec(x_13);
 x_52 = lean_uint16_once(&l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_instInhabitedScore_default___closed__0, &l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_instInhabitedScore_default___closed__0_once, _init_l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_instInhabitedScore_default___closed__0);
 x_53 = lean_uint16_once(&l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_fuzzyMatchCore_skipPenalty___closed__0, &l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_fuzzyMatchCore_skipPenalty___closed__0_once, _init_l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_fuzzyMatchCore_skipPenalty___closed__0);
-x_54 = lean_unbox(x_13);
-lean_dec(x_13);
+x_54 = lean_unbox(x_16);
+lean_dec(x_16);
 x_55 = lean_int16_add(x_54, x_53);
 lean_inc(x_4);
 x_22 = x_4;
@@ -3142,11 +3226,11 @@ goto block_47;
 else
 {
 uint16_t x_56; uint16_t x_57; 
-x_56 = lean_unbox(x_13);
-lean_dec(x_13);
-x_57 = lean_unbox(x_16);
+x_56 = lean_unbox(x_16);
 lean_dec(x_16);
-x_22 = x_10;
+x_57 = lean_unbox(x_17);
+lean_dec(x_17);
+x_22 = x_13;
 x_23 = x_56;
 x_24 = x_57;
 goto block_47;
@@ -3155,18 +3239,18 @@ goto block_47;
 else
 {
 uint16_t x_58; uint16_t x_59; 
-x_58 = lean_unbox(x_13);
-lean_dec(x_13);
-x_59 = lean_unbox(x_16);
+x_58 = lean_unbox(x_16);
 lean_dec(x_16);
-x_22 = x_10;
+x_59 = lean_unbox(x_17);
+lean_dec(x_17);
+x_22 = x_13;
 x_23 = x_58;
 x_24 = x_59;
 goto block_47;
 }
 block_47:
 {
-lean_object* x_25; lean_object* x_26; uint8_t x_27; uint8_t x_28; uint16_t x_29; uint16_t x_30; uint16_t x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; 
+lean_object* x_25; lean_object* x_26; uint8_t x_27; uint8_t x_28; uint16_t x_29; uint16_t x_30; uint16_t x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; 
 x_25 = lean_box(x_20);
 x_26 = lean_array_get_borrowed(x_25, x_1, x_4);
 x_27 = lean_nat_dec_eq(x_4, x_21);
@@ -3175,13 +3259,14 @@ x_29 = l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_fuzzyMatchCore_
 x_30 = lean_int16_add(x_24, x_29);
 x_31 = lean_int16_add(x_30, x_23);
 x_32 = lean_box(x_31);
-x_33 = lean_array_set(x_17, x_4, x_32);
-x_34 = lean_box(x_30);
+x_33 = lean_array_set(x_10, x_4, x_32);
+x_34 = lean_box(x_23);
+x_35 = lean_box(x_30);
 if (x_19 == 0)
 {
-lean_ctor_set(x_18, 1, x_33);
+lean_ctor_set(x_18, 1, x_35);
 lean_ctor_set(x_18, 0, x_34);
-x_35 = x_18;
+x_36 = x_18;
 goto block_45;
 }
 else
@@ -3189,18 +3274,17 @@ else
 lean_object* x_46; 
 x_46 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_46, 0, x_34);
-lean_ctor_set(x_46, 1, x_33);
-x_35 = x_46;
+lean_ctor_set(x_46, 1, x_35);
+x_36 = x_46;
 goto block_45;
 }
 block_45:
 {
-lean_object* x_36; lean_object* x_37; 
-x_36 = lean_box(x_23);
+lean_object* x_37; 
 if (x_15 == 0)
 {
-lean_ctor_set(x_14, 1, x_35);
-lean_ctor_set(x_14, 0, x_36);
+lean_ctor_set(x_14, 1, x_36);
+lean_ctor_set(x_14, 0, x_22);
 x_37 = x_14;
 goto block_43;
 }
@@ -3208,8 +3292,8 @@ else
 {
 lean_object* x_44; 
 x_44 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_44, 0, x_36);
-lean_ctor_set(x_44, 1, x_35);
+lean_ctor_set(x_44, 0, x_22);
+lean_ctor_set(x_44, 1, x_36);
 x_37 = x_44;
 goto block_43;
 }
@@ -3219,7 +3303,7 @@ lean_object* x_38;
 if (x_12 == 0)
 {
 lean_ctor_set(x_11, 1, x_37);
-lean_ctor_set(x_11, 0, x_22);
+lean_ctor_set(x_11, 0, x_33);
 x_38 = x_11;
 goto block_41;
 }
@@ -3227,7 +3311,7 @@ else
 {
 lean_object* x_42; 
 x_42 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_42, 0, x_22);
+lean_ctor_set(x_42, 0, x_33);
 lean_ctor_set(x_42, 1, x_37);
 x_38 = x_42;
 goto block_41;
@@ -3260,10 +3344,35 @@ lean_dec_ref(x_1);
 return x_5;
 }
 }
+static lean_object* _init_l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_fuzzyMatchCore___closed__0(void) {
+_start:
+{
+uint16_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = lean_uint16_once(&l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_instInhabitedScore_default___closed__0, &l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_instInhabitedScore_default___closed__0_once, _init_l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_instInhabitedScore_default___closed__0);
+x_2 = lean_box(x_1);
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_4, 0, x_2);
+lean_ctor_set(x_4, 1, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_fuzzyMatchCore___closed__1(void) {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_obj_once(&l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_fuzzyMatchCore___closed__0, &l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_fuzzyMatchCore___closed__0_once, _init_l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_fuzzyMatchCore___closed__0);
+x_2 = lean_unsigned_to_nat(0u);
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_2);
+lean_ctor_set(x_3, 1, x_1);
+return x_3;
+}
+}
 LEAN_EXPORT lean_object* l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_fuzzyMatchCore(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-uint16_t x_5; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; uint16_t x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; uint8_t x_36; uint8_t x_64; 
+uint16_t x_5; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; uint16_t x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; uint8_t x_32; uint8_t x_60; 
 x_12 = lean_string_length(x_1);
 x_13 = lean_string_length(x_2);
 x_14 = lean_nat_mul(x_12, x_13);
@@ -3280,45 +3389,35 @@ x_24 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_24, 0, x_17);
 lean_ctor_set(x_24, 1, x_13);
 lean_ctor_set(x_24, 2, x_23);
-x_25 = lean_box(x_18);
+x_25 = lean_obj_once(&l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_fuzzyMatchCore___closed__1, &l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_fuzzyMatchCore___closed__1_once, _init_l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_fuzzyMatchCore___closed__1);
 x_26 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_26, 0, x_25);
-lean_ctor_set(x_26, 1, x_22);
-x_27 = lean_box(x_18);
-x_28 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_28, 0, x_27);
-lean_ctor_set(x_28, 1, x_26);
-x_29 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_29, 0, x_17);
-lean_ctor_set(x_29, 1, x_28);
-x_30 = l___private_Init_Data_Range_Basic_0__Std_Legacy_Range_forIn_x27_loop___at___00__private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_fuzzyMatchCore_spec__0___redArg(x_4, x_24, x_29, x_17);
+lean_ctor_set(x_26, 0, x_22);
+lean_ctor_set(x_26, 1, x_25);
+x_27 = l___private_Init_Data_Range_Basic_0__Std_Legacy_Range_forIn_x27_loop___at___00__private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_fuzzyMatchCore_spec__0___redArg(x_4, x_24, x_26, x_17);
 lean_dec_ref(x_24);
-x_31 = lean_ctor_get(x_30, 1);
-lean_inc(x_31);
-x_32 = lean_ctor_get(x_31, 1);
-lean_inc(x_32);
-lean_dec(x_31);
-x_33 = lean_ctor_get(x_30, 0);
-lean_inc(x_33);
-lean_dec_ref(x_30);
-x_34 = lean_ctor_get(x_32, 1);
-x_64 = !lean_is_exclusive(x_32);
-if (x_64 == 0)
+x_28 = lean_ctor_get(x_27, 1);
+lean_inc(x_28);
+x_29 = lean_ctor_get(x_27, 0);
+lean_inc(x_29);
+lean_dec_ref(x_27);
+x_30 = lean_ctor_get(x_28, 0);
+x_60 = !lean_is_exclusive(x_28);
+if (x_60 == 0)
 {
-lean_object* x_65; 
-x_65 = lean_ctor_get(x_32, 0);
-lean_dec(x_65);
-x_35 = x_32;
-x_36 = x_64;
-goto block_63;
+lean_object* x_61; 
+x_61 = lean_ctor_get(x_28, 1);
+lean_dec(x_61);
+x_31 = x_28;
+x_32 = x_60;
+goto block_59;
 }
 else
 {
-lean_inc(x_34);
-lean_dec(x_32);
-x_35 = lean_box(0);
-x_36 = x_64;
-goto block_63;
+lean_inc(x_30);
+lean_dec(x_28);
+x_31 = lean_box(0);
+x_32 = x_60;
+goto block_59;
 }
 block_11:
 {
@@ -3340,81 +3439,81 @@ x_10 = lean_box(0);
 return x_10;
 }
 }
-block_63:
+block_59:
 {
-uint16_t x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; 
-x_37 = lean_uint16_once(&l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_Score_awful___closed__1, &l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_Score_awful___closed__1_once, _init_l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_Score_awful___closed__1);
-x_38 = lean_box(x_37);
-x_39 = lean_mk_array(x_16, x_38);
-x_40 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_40, 0, x_17);
-lean_ctor_set(x_40, 1, x_12);
-lean_ctor_set(x_40, 2, x_23);
-if (x_36 == 0)
+uint16_t x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; 
+x_33 = lean_uint16_once(&l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_Score_awful___closed__1, &l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_Score_awful___closed__1_once, _init_l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_Score_awful___closed__1);
+x_34 = lean_box(x_33);
+x_35 = lean_mk_array(x_16, x_34);
+x_36 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_36, 0, x_17);
+lean_ctor_set(x_36, 1, x_12);
+lean_ctor_set(x_36, 2, x_23);
+if (x_32 == 0)
 {
-lean_ctor_set(x_35, 1, x_20);
-lean_ctor_set(x_35, 0, x_39);
-x_41 = x_35;
-goto block_61;
+lean_ctor_set(x_31, 1, x_20);
+lean_ctor_set(x_31, 0, x_35);
+x_37 = x_31;
+goto block_57;
 }
 else
 {
-lean_object* x_62; 
-x_62 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_62, 0, x_39);
-lean_ctor_set(x_62, 1, x_20);
-x_41 = x_62;
-goto block_61;
+lean_object* x_58; 
+x_58 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_58, 0, x_35);
+lean_ctor_set(x_58, 1, x_20);
+x_37 = x_58;
+goto block_57;
 }
-block_61:
+block_57:
 {
-lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; uint16_t x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; uint16_t x_56; uint16_t x_57; uint8_t x_58; 
-x_42 = l___private_Init_Data_Range_Basic_0__Std_Legacy_Range_forIn_x27_loop___at___00__private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_fuzzyMatchCore_spec__6___redArg(x_2, x_1, x_3, x_4, x_34, x_33, x_12, x_13, x_40, x_41, x_17);
-lean_dec_ref(x_40);
-lean_dec(x_33);
-lean_dec(x_34);
-x_43 = lean_ctor_get(x_42, 0);
-lean_inc(x_43);
-lean_dec_ref(x_42);
-x_44 = lean_nat_sub(x_12, x_23);
-x_45 = lean_nat_sub(x_13, x_23);
-x_46 = l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_instInhabitedScore_default;
-x_47 = lean_nat_mul(x_44, x_13);
-lean_dec(x_44);
-x_48 = lean_nat_mul(x_47, x_15);
-lean_dec(x_47);
-x_49 = lean_nat_mul(x_45, x_15);
-lean_dec(x_45);
-x_50 = lean_nat_add(x_48, x_49);
-lean_dec(x_49);
-lean_dec(x_48);
-x_51 = lean_box(x_46);
-x_52 = lean_array_get(x_51, x_43, x_50);
-x_53 = lean_nat_add(x_50, x_23);
-lean_dec(x_50);
-x_54 = lean_box(x_46);
-x_55 = lean_array_get(x_54, x_43, x_53);
-lean_dec(x_53);
+lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; uint16_t x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; uint16_t x_52; uint16_t x_53; uint8_t x_54; 
+x_38 = l___private_Init_Data_Range_Basic_0__Std_Legacy_Range_forIn_x27_loop___at___00__private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_fuzzyMatchCore_spec__6___redArg(x_2, x_1, x_3, x_4, x_29, x_30, x_12, x_13, x_36, x_37, x_17);
+lean_dec_ref(x_36);
+lean_dec(x_30);
+lean_dec(x_29);
+x_39 = lean_ctor_get(x_38, 0);
+lean_inc(x_39);
+lean_dec_ref(x_38);
+x_40 = lean_nat_sub(x_12, x_23);
+x_41 = lean_nat_sub(x_13, x_23);
+x_42 = l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_instInhabitedScore_default;
+x_43 = lean_nat_mul(x_40, x_13);
+lean_dec(x_40);
+x_44 = lean_nat_mul(x_43, x_15);
 lean_dec(x_43);
-x_56 = lean_unbox(x_52);
-x_57 = lean_unbox(x_55);
-x_58 = lean_int16_dec_le(x_56, x_57);
-if (x_58 == 0)
+x_45 = lean_nat_mul(x_41, x_15);
+lean_dec(x_41);
+x_46 = lean_nat_add(x_44, x_45);
+lean_dec(x_45);
+lean_dec(x_44);
+x_47 = lean_box(x_42);
+x_48 = lean_array_get(x_47, x_39, x_46);
+x_49 = lean_nat_add(x_46, x_23);
+lean_dec(x_46);
+x_50 = lean_box(x_42);
+x_51 = lean_array_get(x_50, x_39, x_49);
+lean_dec(x_49);
+lean_dec(x_39);
+x_52 = lean_unbox(x_48);
+x_53 = lean_unbox(x_51);
+x_54 = lean_int16_dec_le(x_52, x_53);
+if (x_54 == 0)
 {
-uint16_t x_59; 
-lean_dec(x_55);
-x_59 = lean_unbox(x_52);
-lean_dec(x_52);
-x_5 = x_59;
+uint16_t x_55; 
+lean_dec(x_51);
+x_55 = lean_unbox(x_48);
+lean_dec(x_48);
+x_5 = x_55;
 goto block_11;
 }
 else
 {
-uint16_t x_60; 
-lean_dec(x_52);
-x_60 = lean_unbox(x_55);
-lean_dec(x_55);
-x_5 = x_60;
+uint16_t x_56; 
+lean_dec(x_48);
+x_56 = lean_unbox(x_51);
+lean_dec(x_51);
+x_5 = x_56;
 goto block_11;
 }
 }
@@ -3582,64 +3681,72 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_FuzzyMatching_fuzzyMatchScore_x3f(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-double x_3; double x_4; lean_object* x_11; lean_object* x_29; lean_object* x_30; uint8_t x_31; 
-x_29 = lean_string_utf8_byte_size(x_1);
-x_30 = lean_unsigned_to_nat(0u);
-x_31 = lean_nat_dec_eq(x_29, x_30);
-if (x_31 == 0)
+double x_3; double x_4; lean_object* x_11; lean_object* x_12; uint8_t x_13; 
+x_11 = lean_string_utf8_byte_size(x_1);
+x_12 = lean_unsigned_to_nat(0u);
+x_13 = lean_nat_dec_eq(x_11, x_12);
+if (x_13 == 0)
 {
-lean_object* x_32; lean_object* x_33; uint8_t x_34; 
-x_32 = lean_string_length(x_2);
-x_33 = lean_string_length(x_1);
-x_34 = lean_nat_dec_lt(x_32, x_33);
+lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_33; 
+x_14 = lean_string_length(x_2);
+x_15 = lean_string_length(x_1);
+x_33 = lean_nat_dec_lt(x_14, x_15);
+if (x_33 == 0)
+{
+uint8_t x_34; 
+x_34 = l_String_charactersIn(x_1, x_2);
 if (x_34 == 0)
 {
-uint8_t x_35; 
-x_35 = l_String_charactersIn(x_1, x_2);
-if (x_35 == 0)
-{
-lean_object* x_36; 
-x_36 = lean_box(0);
-return x_36;
+lean_object* x_35; 
+x_35 = lean_box(0);
+return x_35;
 }
 else
 {
-if (x_31 == 0)
+if (x_13 == 0)
 {
-lean_object* x_37; lean_object* x_38; lean_object* x_39; 
-x_37 = l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_iterateLookaround___at___00__private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_stringInfo_spec__0(x_1);
-x_38 = l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_iterateLookaround___at___00__private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_stringInfo_spec__0(x_2);
-x_39 = l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_fuzzyMatchCore(x_1, x_2, x_37, x_38);
-lean_dec_ref(x_38);
+lean_object* x_36; lean_object* x_37; lean_object* x_38; 
+x_36 = l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_iterateLookaround___at___00__private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_stringInfo_spec__0(x_1);
+x_37 = l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_iterateLookaround___at___00__private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_stringInfo_spec__0(x_2);
+x_38 = l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_fuzzyMatchCore(x_1, x_2, x_36, x_37);
 lean_dec_ref(x_37);
-if (lean_obj_tag(x_39) == 1)
+lean_dec_ref(x_36);
+if (lean_obj_tag(x_38) == 1)
 {
-lean_object* x_40; uint8_t x_41; 
-x_40 = lean_ctor_get(x_39, 0);
-lean_inc(x_40);
-lean_dec_ref(x_39);
-x_41 = lean_nat_dec_eq(x_33, x_32);
-if (x_41 == 0)
+lean_object* x_39; uint8_t x_40; 
+x_39 = lean_ctor_get(x_38, 0);
+lean_inc(x_39);
+lean_dec_ref(x_38);
+x_40 = lean_nat_dec_eq(x_15, x_14);
+if (x_40 == 0)
 {
-x_11 = x_40;
-goto block_28;
+x_16 = x_39;
+goto block_32;
 }
 else
 {
-lean_object* x_42; lean_object* x_43; 
-x_42 = lean_obj_once(&l_Lean_FuzzyMatching_fuzzyMatchScore_x3f___closed__2, &l_Lean_FuzzyMatching_fuzzyMatchScore_x3f___closed__2_once, _init_l_Lean_FuzzyMatching_fuzzyMatchScore_x3f___closed__2);
-x_43 = lean_int_mul(x_40, x_42);
-lean_dec(x_40);
-x_11 = x_43;
-goto block_28;
+lean_object* x_41; lean_object* x_42; 
+x_41 = lean_obj_once(&l_Lean_FuzzyMatching_fuzzyMatchScore_x3f___closed__2, &l_Lean_FuzzyMatching_fuzzyMatchScore_x3f___closed__2_once, _init_l_Lean_FuzzyMatching_fuzzyMatchScore_x3f___closed__2);
+x_42 = lean_int_mul(x_39, x_41);
+lean_dec(x_39);
+x_16 = x_42;
+goto block_32;
+}
+}
+else
+{
+lean_object* x_43; 
+lean_dec(x_38);
+x_43 = lean_box(0);
+return x_43;
 }
 }
 else
 {
 lean_object* x_44; 
-lean_dec(x_39);
 x_44 = lean_box(0);
 return x_44;
+}
 }
 }
 else
@@ -3648,20 +3755,50 @@ lean_object* x_45;
 x_45 = lean_box(0);
 return x_45;
 }
+block_32:
+{
+lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; double x_25; lean_object* x_26; double x_27; double x_28; double x_29; double x_30; uint8_t x_31; 
+x_17 = lean_unsigned_to_nat(4u);
+x_18 = lean_nat_mul(x_17, x_15);
+x_19 = lean_unsigned_to_nat(1u);
+x_20 = lean_nat_add(x_15, x_19);
+x_21 = lean_nat_mul(x_15, x_20);
+lean_dec(x_20);
+x_22 = lean_nat_shiftr(x_21, x_19);
+lean_dec(x_21);
+x_23 = lean_nat_sub(x_22, x_19);
+lean_dec(x_22);
+x_24 = lean_nat_add(x_18, x_23);
+lean_dec(x_23);
+lean_dec(x_18);
+x_25 = l_Float_ofInt(x_16);
+lean_dec(x_16);
+x_26 = lean_nat_to_int(x_24);
+x_27 = l_Float_ofInt(x_26);
+lean_dec(x_26);
+x_28 = lean_float_div(x_25, x_27);
+x_29 = lean_float_once(&l_Lean_FuzzyMatching_fuzzyMatchScore_x3f___closed__0, &l_Lean_FuzzyMatching_fuzzyMatchScore_x3f___closed__0_once, _init_l_Lean_FuzzyMatching_fuzzyMatchScore_x3f___closed__0);
+x_30 = lean_float_once(&l_Lean_FuzzyMatching_fuzzyMatchScore_x3f___closed__1, &l_Lean_FuzzyMatching_fuzzyMatchScore_x3f___closed__1_once, _init_l_Lean_FuzzyMatching_fuzzyMatchScore_x3f___closed__1);
+x_31 = lean_float_decLe(x_30, x_28);
+if (x_31 == 0)
+{
+x_3 = x_29;
+x_4 = x_30;
+goto block_10;
+}
+else
+{
+x_3 = x_29;
+x_4 = x_28;
+goto block_10;
+}
 }
 }
 else
 {
 lean_object* x_46; 
-x_46 = lean_box(0);
+x_46 = lean_obj_once(&l_Lean_FuzzyMatching_fuzzyMatchScore_x3f___closed__3, &l_Lean_FuzzyMatching_fuzzyMatchScore_x3f___closed__3_once, _init_l_Lean_FuzzyMatching_fuzzyMatchScore_x3f___closed__3);
 return x_46;
-}
-}
-else
-{
-lean_object* x_47; 
-x_47 = lean_obj_once(&l_Lean_FuzzyMatching_fuzzyMatchScore_x3f___closed__3, &l_Lean_FuzzyMatching_fuzzyMatchScore_x3f___closed__3_once, _init_l_Lean_FuzzyMatching_fuzzyMatchScore_x3f___closed__3);
-return x_47;
 }
 block_10:
 {
@@ -3682,45 +3819,6 @@ x_8 = lean_box_float(x_3);
 x_9 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_9, 0, x_8);
 return x_9;
-}
-}
-block_28:
-{
-lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; double x_21; lean_object* x_22; double x_23; double x_24; double x_25; double x_26; uint8_t x_27; 
-x_12 = lean_unsigned_to_nat(4u);
-x_13 = lean_string_length(x_1);
-x_14 = lean_nat_mul(x_12, x_13);
-x_15 = lean_unsigned_to_nat(1u);
-x_16 = lean_nat_add(x_13, x_15);
-x_17 = lean_nat_mul(x_13, x_16);
-lean_dec(x_16);
-x_18 = lean_nat_shiftr(x_17, x_15);
-lean_dec(x_17);
-x_19 = lean_nat_sub(x_18, x_15);
-lean_dec(x_18);
-x_20 = lean_nat_add(x_14, x_19);
-lean_dec(x_19);
-lean_dec(x_14);
-x_21 = l_Float_ofInt(x_11);
-lean_dec(x_11);
-x_22 = lean_nat_to_int(x_20);
-x_23 = l_Float_ofInt(x_22);
-lean_dec(x_22);
-x_24 = lean_float_div(x_21, x_23);
-x_25 = lean_float_once(&l_Lean_FuzzyMatching_fuzzyMatchScore_x3f___closed__0, &l_Lean_FuzzyMatching_fuzzyMatchScore_x3f___closed__0_once, _init_l_Lean_FuzzyMatching_fuzzyMatchScore_x3f___closed__0);
-x_26 = lean_float_once(&l_Lean_FuzzyMatching_fuzzyMatchScore_x3f___closed__1, &l_Lean_FuzzyMatching_fuzzyMatchScore_x3f___closed__1_once, _init_l_Lean_FuzzyMatching_fuzzyMatchScore_x3f___closed__1);
-x_27 = lean_float_decLe(x_26, x_24);
-if (x_27 == 0)
-{
-x_3 = x_25;
-x_4 = x_26;
-goto block_10;
-}
-else
-{
-x_3 = x_25;
-x_4 = x_24;
-goto block_10;
 }
 }
 }

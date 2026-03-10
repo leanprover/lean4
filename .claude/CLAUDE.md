@@ -40,6 +40,10 @@ When asked to implement new features:
 - ONLY use the project's documented build command: `make -j$(nproc) -C build/release`
 - If a build is broken, ask the user before attempting any manual cleanup
 
+## stage0 Is a Copy of src
+
+**Never manually edit files under `stage0/`.** The `stage0/` directory is a snapshot of `src/` produced by `make update-stage0`. To change anything in stage0 (CMakeLists.txt, C++ source, etc.), edit the corresponding file in `src/` and let `update-stage0` propagate it.
+
 ## LSP and IDE Diagnostics
 
 After rebuilding, LSP diagnostics may be stale until the user interacts with files. Trust command-line test results over IDE diagnostics.

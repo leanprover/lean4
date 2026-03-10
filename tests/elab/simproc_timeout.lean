@@ -1,3 +1,5 @@
+set_option warn.classDefReducibility false
+
 -- Minimisation of a timeout triggered by leanprover/lean4#3124
 -- in Mathlib.Computability.PartrecCode
 

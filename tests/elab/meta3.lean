@@ -23,7 +23,7 @@ do let v? ← getExprMVarAssignment? m.mvarId!;
 
 def nat  := mkConst `Nat
 def succ := mkConst `Nat.succ
-def add  := mkAppN (mkConst `Add.add [levelZero]) #[nat, mkConst `Nat.add]
+def add  := mkAppN (mkConst `Add.add [Level.zero]) #[nat, mkConst `Nat.add]
 
 def tst1 : MetaM Unit :=
 do let d : DiscrTree Nat := {};

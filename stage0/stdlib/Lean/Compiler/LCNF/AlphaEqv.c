@@ -3438,21 +3438,21 @@ return x_202;
 block_12:
 {
 uint8_t x_10; 
-x_10 = l_Lean_Compiler_LCNF_AlphaEqv_eqvFVar(x_7, x_5, x_6);
-lean_dec(x_5);
+x_10 = l_Lean_Compiler_LCNF_AlphaEqv_eqvFVar(x_8, x_7, x_9);
 lean_dec(x_7);
+lean_dec(x_8);
 if (x_10 == 0)
 {
-lean_dec_ref(x_9);
-lean_dec_ref(x_8);
-lean_dec(x_6);
+lean_dec(x_9);
+lean_dec_ref(x_6);
+lean_dec_ref(x_5);
 return x_10;
 }
 else
 {
-x_2 = x_8;
-x_3 = x_9;
-x_4 = x_6;
+x_2 = x_6;
+x_3 = x_5;
+x_4 = x_9;
 goto _start;
 }
 }
@@ -3460,11 +3460,11 @@ block_21:
 {
 if (x_20 == 0)
 {
-lean_dec_ref(x_18);
-lean_dec_ref(x_17);
+lean_dec(x_18);
+lean_dec(x_17);
 lean_dec(x_16);
-lean_dec(x_15);
-lean_dec(x_13);
+lean_dec_ref(x_15);
+lean_dec_ref(x_13);
 return x_20;
 }
 else
@@ -3475,18 +3475,18 @@ if (x_19 == 0)
 {
 x_5 = x_13;
 x_6 = x_15;
-x_7 = x_16;
-x_8 = x_17;
+x_7 = x_17;
+x_8 = x_16;
 x_9 = x_18;
 goto block_12;
 }
 else
 {
-lean_dec_ref(x_18);
-lean_dec_ref(x_17);
+lean_dec(x_18);
+lean_dec(x_17);
 lean_dec(x_16);
-lean_dec(x_15);
-lean_dec(x_13);
+lean_dec_ref(x_15);
+lean_dec_ref(x_13);
 return x_14;
 }
 }
@@ -3494,19 +3494,19 @@ else
 {
 if (x_19 == 0)
 {
-lean_dec_ref(x_18);
-lean_dec_ref(x_17);
+lean_dec(x_18);
+lean_dec(x_17);
 lean_dec(x_16);
-lean_dec(x_15);
-lean_dec(x_13);
+lean_dec_ref(x_15);
+lean_dec_ref(x_13);
 return x_19;
 }
 else
 {
 x_5 = x_13;
 x_6 = x_15;
-x_7 = x_16;
-x_8 = x_17;
+x_7 = x_17;
+x_8 = x_16;
 x_9 = x_18;
 goto block_12;
 }
@@ -3534,12 +3534,12 @@ if (x_24 == 0)
 {
 if (x_29 == 0)
 {
-x_13 = x_27;
+x_13 = x_31;
 x_14 = x_25;
-x_15 = x_32;
+x_15 = x_26;
 x_16 = x_22;
-x_17 = x_26;
-x_18 = x_31;
+x_17 = x_27;
+x_18 = x_32;
 x_19 = x_30;
 x_20 = x_33;
 goto block_21;
@@ -3556,12 +3556,12 @@ return x_24;
 }
 else
 {
-x_13 = x_27;
+x_13 = x_31;
 x_14 = x_25;
-x_15 = x_32;
+x_15 = x_26;
 x_16 = x_22;
-x_17 = x_26;
-x_18 = x_31;
+x_17 = x_27;
+x_18 = x_32;
 x_19 = x_30;
 x_20 = x_29;
 goto block_21;

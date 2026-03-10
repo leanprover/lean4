@@ -1,3 +1,5 @@
+set_option warn.classDefReducibility false
+
 variable {α : Type _} (r : α → α → Prop) (π : α → α)
 
 inductive rel : α → α → Prop

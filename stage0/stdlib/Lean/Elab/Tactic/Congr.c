@@ -315,13 +315,13 @@ return x_13;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Lean_Elab_Tactic_evalCongr(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
 _start:
 {
-lean_object* x_11; uint8_t x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
+lean_object* x_11; uint8_t x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
 x_11 = ((lean_object*)(l_Lean_Elab_Tactic_Lean_Elab_Tactic_evalCongr___closed__4));
 lean_inc(x_1);
 x_12 = l_Lean_Syntax_isOfKind(x_1, x_11);
 if (x_12 == 0)
 {
-lean_object* x_27; 
+lean_object* x_26; 
 lean_dec(x_9);
 lean_dec_ref(x_8);
 lean_dec(x_7);
@@ -331,25 +331,25 @@ lean_dec_ref(x_4);
 lean_dec(x_3);
 lean_dec_ref(x_2);
 lean_dec(x_1);
-x_27 = l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Elab_Tactic_Lean_Elab_Tactic_evalCongr_spec__0___redArg();
-return x_27;
+x_26 = l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Elab_Tactic_Lean_Elab_Tactic_evalCongr_spec__0___redArg();
+return x_26;
 }
 else
 {
-lean_object* x_28; lean_object* x_29; uint8_t x_30; 
-x_28 = lean_unsigned_to_nat(1u);
-x_29 = l_Lean_Syntax_getArg(x_1, x_28);
+lean_object* x_27; lean_object* x_28; uint8_t x_29; 
+x_27 = lean_unsigned_to_nat(1u);
+x_28 = l_Lean_Syntax_getArg(x_1, x_27);
 lean_dec(x_1);
-x_30 = l_Lean_Syntax_isNone(x_29);
+x_29 = l_Lean_Syntax_isNone(x_28);
+if (x_29 == 0)
+{
+uint8_t x_30; 
+lean_inc(x_28);
+x_30 = l_Lean_Syntax_matchesNull(x_28, x_27);
 if (x_30 == 0)
 {
-uint8_t x_31; 
-lean_inc(x_29);
-x_31 = l_Lean_Syntax_matchesNull(x_29, x_28);
-if (x_31 == 0)
-{
-lean_object* x_32; 
-lean_dec(x_29);
+lean_object* x_31; 
+lean_dec(x_28);
 lean_dec(x_9);
 lean_dec_ref(x_8);
 lean_dec(x_7);
@@ -358,17 +358,17 @@ lean_dec(x_5);
 lean_dec_ref(x_4);
 lean_dec(x_3);
 lean_dec_ref(x_2);
-x_32 = l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Elab_Tactic_Lean_Elab_Tactic_evalCongr_spec__0___redArg();
-return x_32;
+x_31 = l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Elab_Tactic_Lean_Elab_Tactic_evalCongr_spec__0___redArg();
+return x_31;
 }
 else
 {
-lean_object* x_33; lean_object* x_34; lean_object* x_35; 
-x_33 = lean_unsigned_to_nat(0u);
-x_34 = l_Lean_Syntax_getArg(x_29, x_33);
-lean_dec(x_29);
-x_35 = l_Lean_TSyntax_getNat(x_34);
-lean_dec(x_34);
+lean_object* x_32; lean_object* x_33; lean_object* x_34; 
+x_32 = lean_unsigned_to_nat(0u);
+x_33 = l_Lean_Syntax_getArg(x_28, x_32);
+lean_dec(x_28);
+x_34 = l_Lean_TSyntax_getNat(x_33);
+lean_dec(x_33);
 x_13 = x_3;
 x_14 = x_8;
 x_15 = x_7;
@@ -376,17 +376,16 @@ x_16 = x_6;
 x_17 = x_9;
 x_18 = x_4;
 x_19 = x_2;
-x_20 = lean_box(0);
-x_21 = x_5;
-x_22 = x_35;
-goto block_26;
+x_20 = x_5;
+x_21 = x_34;
+goto block_25;
 }
 }
 else
 {
-lean_object* x_36; 
-lean_dec(x_29);
-x_36 = lean_unsigned_to_nat(1000000u);
+lean_object* x_35; 
+lean_dec(x_28);
+x_35 = lean_unsigned_to_nat(1000000u);
 x_13 = x_3;
 x_14 = x_8;
 x_15 = x_7;
@@ -394,21 +393,20 @@ x_16 = x_6;
 x_17 = x_9;
 x_18 = x_4;
 x_19 = x_2;
-x_20 = lean_box(0);
-x_21 = x_5;
-x_22 = x_36;
-goto block_26;
+x_20 = x_5;
+x_21 = x_35;
+goto block_25;
 }
 }
-block_26:
+block_25:
 {
-lean_object* x_23; lean_object* x_24; lean_object* x_25; 
-x_23 = lean_box(x_12);
-x_24 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_Lean_Elab_Tactic_evalCongr___lam__0___boxed), 11, 2);
-lean_closure_set(x_24, 0, x_22);
-lean_closure_set(x_24, 1, x_23);
-x_25 = l_Lean_Elab_Tactic_withMainContext___redArg(x_24, x_19, x_13, x_18, x_21, x_16, x_15, x_14, x_17);
-return x_25;
+lean_object* x_22; lean_object* x_23; lean_object* x_24; 
+x_22 = lean_box(x_12);
+x_23 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_Lean_Elab_Tactic_evalCongr___lam__0___boxed), 11, 2);
+lean_closure_set(x_23, 0, x_21);
+lean_closure_set(x_23, 1, x_22);
+x_24 = l_Lean_Elab_Tactic_withMainContext___redArg(x_23, x_19, x_13, x_18, x_20, x_16, x_15, x_14, x_17);
+return x_24;
 }
 }
 }

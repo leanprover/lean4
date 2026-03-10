@@ -33,12 +33,18 @@ Benchmarks belonging to the old framework are not included in this description.
 - `compile_bench`:
   Benchmarks that compile lean files and measure the execution of the resulting binary,
   as well as optionally run the same lean file through the interpreter.
+  These are also executed as part of the test suite, and `.out.expected` files are ignored when benchmarking.
+- `docparse`:
+  Docstring parsing tests.
 - `elab`:
   Tests that elaborate lean files without executing them, verifying the resulting output.
 - `elab_fail`:
   Like `elab`, but expecting an exit code of 1 instead of 0.
 - `elab_bench`:
   Like `elab`, but measuring the elaboration performance.
+  These are also executed as part of the test suite, and `.out.expected` files are ignored when benchmarking.
+- `server`, `server_interactive`:
+  Test LSP server requests.
 - `lake_bench`:
   Benchmark directories that measure lake performance.
 - `misc`:
@@ -94,7 +100,7 @@ Run an individual benchmark by `cd`-ing into its directory and then using
 ./run_bench testfile # in a test pile
 ```
 
-## How to write a test or benchmark?
+## How to write a test?
 
 If your test fits one of the existing test piles:
 
@@ -118,6 +124,28 @@ Otherwise, create a new test directory or pile:
 4. Document the new directory in this readme file
    by updating the directory structure section above.
 5. Optionally update [`lint.py`](lint.py) if it makes sense.
+
+## How to write a benchmark?
+
+When writing a benchmark, consider that most benchmarks are also executed as tests.
+You can check that this is the case if a `run_test` script exists next to the `run_bench` script in the directory.
+When run as benchmark, the problem instance should be large enough to result in reliable measurements.
+When run as test, the problem instance should be as small as possible, but large enough to still test the different code paths.
+
+The main mechanism to scale problem instances is the `TEST_BENCH` environment variable.
+It is unset in tests and set to `1` in benchmarks.
+Inside your benchmark, check whether the variable exists and adjust the problem size accordingly.
+
+Inside the `compile_bench` directory, there is a second mechanism:
+Using a `.init.sh` file to pass command line arguments to your test.
+This is useful if you also want to generate graphs for your parametric benchmarks.
+See [`tests/compile_bench/binarytrees.lean`](tests/compile_bench/binarytrees.lean) as an example.
+
+If you want custom metrics aside from the usual `instructions`, `wall-clock`, ...
+inside the `elab_bench` or `compile_bench` directories,
+you can print them to stdout in the format `measurement: <name> <value>[ <unit>]`,
+e.g. `measurement: size 1337 B` or `measurement: iterations 42`.
+See [`tests/compile_bench/ilean_roundtrip.lean`](tests/compile_bench/ilean_roundtrip.lean) as an example.
 
 ## How to fix existing tests after your change breaks them?
 
@@ -251,3 +279,35 @@ These bash variables (set via `<file>.init.sh`) are used by the run script:
 - `TEST_ARGS`:
   A bash array of arguments to the compiled (or interpreted) program.
   Check `TEST_BENCH` if you want to specify more intense parameters for benchmarks.
+
+## The `interactive` test pile
+
+These tests are designed to test LSP server requests at a given position in the input file.
+Each `.lean` file contains comments that indicate how to simulate a client request at a position,
+using a `--^` point to the line position.
+
+Example:
+
+```lean,ignore
+open Foo in
+theorem tst2 (h : a ≤ b) : a + 2 ≤ b + 2 :=
+Bla.
+  --^ completion
+```
+
+In this example, the test driver will simulate an auto-completion request at `Bla.`.
+The expected output is stored in the corresponding `.out.expected` file
+in the json format that is part of the
+[Language Server Protocol](https://microsoft.github.io/language-server-protocol/).
+
+This can also be used to test the following additional requests:
+
+```
+--^ textDocument/hover
+--^ textDocument/typeDefinition
+--^ textDocument/definition
+--^ $/lean/plainGoal
+--^ $/lean/plainTermGoal
+--^ insert: ...
+--^ collectDiagnostics
+```

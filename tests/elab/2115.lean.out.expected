@@ -1,8 +1,12 @@
+2115.lean:16:0-16:36: warning: Definition `foo` of class type must be marked with `@[reducible]` or `@[implicit_reducible]`
 def foo : {α : Type} → [D α] → A α :=
 fun {α : Type} [inst : D α] => @inferInstance.{1} (A α) (@B.toA α (@D.toB α inst))
+2115.lean:21:0-21:36: warning: Definition `bla` of class type must be marked with `@[reducible]` or `@[implicit_reducible]`
 def bla : {α : Type} → [D α] → A α :=
 fun {α : Type} [inst : D α] => @inferInstance.{1} (A α) (@C.toA α (@D.toC α inst))
+2115.lean:26:0-26:36: warning: Definition `boo` of class type must be marked with `@[reducible]` or `@[implicit_reducible]`
 def boo : {α : Type} → [D α] → A α :=
 fun {α : Type} [inst : D α] => @inferInstance.{1} (A α) (@B.toA α (@D.toB α inst))
+2115.lean:31:0-31:37: warning: Definition `boo2` of class type must be marked with `@[reducible]` or `@[implicit_reducible]`
 def boo2 : {α : Type} → [D α] → A α :=
 fun {α : Type} [inst : D α] => @inferInstance.{1} (A α) (@C.toA α (@D.toC α inst))

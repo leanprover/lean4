@@ -10,7 +10,7 @@ no fields.
 structure MyEmpty where
 
 /--
-error: Invalid projection: Projection operates on structure-like types with fields. The expression
+error: Invalid projection: Projections extract constructor fields for one-constructor inductive types. The expression
   { }
 has type `MyEmpty` which has no fields.
 -/
@@ -21,7 +21,7 @@ inductive T where
   | a
 
 /--
-error: Invalid projection: Projection operates on structure-like types with fields. The expression
+error: Invalid projection: Projections extract constructor fields for one-constructor inductive types. The expression
   T.a
 has type `T` which has no fields.
 -/

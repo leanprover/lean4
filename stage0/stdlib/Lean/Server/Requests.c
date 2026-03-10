@@ -275,12 +275,12 @@ LEAN_EXPORT lean_object* l_Lean_Server_RequestM_withWaitFindSnapAtPos___redArg(l
 LEAN_EXPORT lean_object* l_Lean_Server_RequestM_withWaitFindSnapAtPos___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_RequestM_withWaitFindSnapAtPos(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_RequestM_withWaitFindSnapAtPos___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l___private_Lean_Server_Requests_0__Lean_Server_RequestM_findCmdParsedSnap_containsHoverPos(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Server_Requests_0__Lean_Server_RequestM_findCmdParsedSnap_containsHoverPos___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getPos_x3f(lean_object*, uint8_t);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Lean_Server_Requests_0__Lean_Server_RequestM_findCmdParsedSnap_isAfterHoverPos(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Requests_0__Lean_Server_RequestM_findCmdParsedSnap_isAfterHoverPos___boxed(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l___private_Lean_Server_Requests_0__Lean_Server_RequestM_findCmdParsedSnap_containsHoverPos(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Server_Requests_0__Lean_Server_RequestM_findCmdParsedSnap_containsHoverPos___boxed(lean_object*, lean_object*, lean_object*);
 static lean_once_cell_t l___private_Lean_Server_Requests_0__Lean_Server_RequestM_findCmdParsedSnap_go___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Lean_Server_Requests_0__Lean_Server_RequestM_findCmdParsedSnap_go___closed__0;
 LEAN_EXPORT lean_object* l___private_Lean_Server_Requests_0__Lean_Server_RequestM_findCmdParsedSnap_go(lean_object*, lean_object*, lean_object*);
@@ -1520,12 +1520,12 @@ return x_14;
 else
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
-x_15 = lean_box(x_11);
+x_15 = lean_box(x_8);
 x_16 = lean_alloc_closure((void*)(l_Lean_Language_SnapshotTree_foldInfosInRange___redArg___lam__0___boxed), 6, 3);
 lean_closure_set(x_16, 0, x_1);
 lean_closure_set(x_16, 1, x_15);
 lean_closure_set(x_16, 2, x_2);
-x_17 = lean_box(x_11);
+x_17 = lean_box(x_8);
 x_18 = lean_alloc_closure((void*)(l_Lean_Language_SnapshotTree_foldInfosInRange___redArg___lam__1___boxed), 4, 3);
 lean_closure_set(x_18, 0, x_16);
 lean_closure_set(x_18, 1, x_4);
@@ -1692,7 +1692,7 @@ return x_13;
 else
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; 
-x_14 = lean_box(x_10);
+x_14 = lean_box(x_7);
 x_15 = lean_alloc_closure((void*)(l_Lean_Language_SnapshotTree_collectMessagesInRange___lam__0___boxed), 3, 2);
 lean_closure_set(x_15, 0, x_3);
 lean_closure_set(x_15, 1, x_14);
@@ -3886,6 +3886,43 @@ x_6 = l_Lean_Server_RequestM_withWaitFindSnapAtPos(x_1, x_2, x_3, x_4);
 return x_6;
 }
 }
+LEAN_EXPORT uint8_t l___private_Lean_Server_Requests_0__Lean_Server_RequestM_findCmdParsedSnap_isAfterHoverPos(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; uint8_t x_4; lean_object* x_5; 
+x_3 = lean_ctor_get(x_2, 1);
+x_4 = 1;
+x_5 = l_Lean_Syntax_getPos_x3f(x_3, x_4);
+if (lean_obj_tag(x_5) == 1)
+{
+lean_object* x_6; uint8_t x_7; 
+x_6 = lean_ctor_get(x_5, 0);
+lean_inc(x_6);
+lean_dec_ref(x_5);
+x_7 = lean_nat_dec_lt(x_1, x_6);
+lean_dec(x_6);
+return x_7;
+}
+else
+{
+uint8_t x_8; 
+lean_dec(x_5);
+x_8 = 0;
+return x_8;
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_Server_Requests_0__Lean_Server_RequestM_findCmdParsedSnap_isAfterHoverPos___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; lean_object* x_4; 
+x_3 = l___private_Lean_Server_Requests_0__Lean_Server_RequestM_findCmdParsedSnap_isAfterHoverPos(x_1, x_2);
+lean_dec_ref(x_2);
+lean_dec(x_1);
+x_4 = lean_box(x_3);
+return x_4;
+}
+}
 LEAN_EXPORT uint8_t l___private_Lean_Server_Requests_0__Lean_Server_RequestM_findCmdParsedSnap_containsHoverPos(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -3926,43 +3963,6 @@ lean_dec(x_2);
 lean_dec_ref(x_1);
 x_5 = lean_box(x_4);
 return x_5;
-}
-}
-LEAN_EXPORT uint8_t l___private_Lean_Server_Requests_0__Lean_Server_RequestM_findCmdParsedSnap_isAfterHoverPos(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; uint8_t x_4; lean_object* x_5; 
-x_3 = lean_ctor_get(x_2, 1);
-x_4 = 1;
-x_5 = l_Lean_Syntax_getPos_x3f(x_3, x_4);
-if (lean_obj_tag(x_5) == 1)
-{
-lean_object* x_6; uint8_t x_7; 
-x_6 = lean_ctor_get(x_5, 0);
-lean_inc(x_6);
-lean_dec_ref(x_5);
-x_7 = lean_nat_dec_lt(x_1, x_6);
-lean_dec(x_6);
-return x_7;
-}
-else
-{
-uint8_t x_8; 
-lean_dec(x_5);
-x_8 = 0;
-return x_8;
-}
-}
-}
-LEAN_EXPORT lean_object* l___private_Lean_Server_Requests_0__Lean_Server_RequestM_findCmdParsedSnap_isAfterHoverPos___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint8_t x_3; lean_object* x_4; 
-x_3 = l___private_Lean_Server_Requests_0__Lean_Server_RequestM_findCmdParsedSnap_isAfterHoverPos(x_1, x_2);
-lean_dec_ref(x_2);
-lean_dec(x_1);
-x_4 = lean_box(x_3);
-return x_4;
 }
 }
 static lean_object* _init_l___private_Lean_Server_Requests_0__Lean_Server_RequestM_findCmdParsedSnap_go___closed__0(void) {
@@ -10143,80 +10143,78 @@ return x_30;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_PersistentHashMap_foldlMAux___at___00Lean_PersistentHashMap_foldlM___at___00Lean_PersistentHashMap_forM___at___00Lean_Server_handleOnDidChange_spec__0_spec__0_spec__1_spec__2___redArg(lean_object* x_1, lean_object* x_2, size_t x_3, size_t x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_14; uint8_t x_17; 
-x_17 = lean_usize_dec_eq(x_3, x_4);
-if (x_17 == 0)
+lean_object* x_8; lean_object* x_13; uint8_t x_16; 
+x_16 = lean_usize_dec_eq(x_3, x_4);
+if (x_16 == 0)
 {
-lean_object* x_18; 
-x_18 = lean_array_uget_borrowed(x_2, x_3);
-switch (lean_obj_tag(x_18)) {
+lean_object* x_17; 
+x_17 = lean_array_uget_borrowed(x_2, x_3);
+switch (lean_obj_tag(x_17)) {
 case 0:
 {
-lean_object* x_19; lean_object* x_20; lean_object* x_21; 
-x_19 = lean_ctor_get(x_18, 0);
-x_20 = lean_ctor_get(x_18, 1);
+lean_object* x_18; lean_object* x_19; lean_object* x_20; 
+x_18 = lean_ctor_get(x_17, 0);
+x_19 = lean_ctor_get(x_17, 1);
 lean_inc_ref(x_1);
 lean_inc_ref(x_6);
-lean_inc(x_20);
 lean_inc(x_19);
-x_21 = lean_apply_5(x_1, x_5, x_19, x_20, x_6, lean_box(0));
-x_14 = x_21;
-goto block_16;
+lean_inc(x_18);
+x_20 = lean_apply_5(x_1, x_5, x_18, x_19, x_6, lean_box(0));
+x_13 = x_20;
+goto block_15;
 }
 case 1:
 {
-lean_object* x_22; lean_object* x_23; 
-x_22 = lean_ctor_get(x_18, 0);
+lean_object* x_21; lean_object* x_22; 
+x_21 = lean_ctor_get(x_17, 0);
 lean_inc_ref(x_6);
-lean_inc(x_22);
+lean_inc(x_21);
 lean_inc_ref(x_1);
-x_23 = l_Lean_PersistentHashMap_foldlMAux___at___00Lean_PersistentHashMap_foldlM___at___00Lean_PersistentHashMap_forM___at___00Lean_Server_handleOnDidChange_spec__0_spec__0_spec__1___redArg(x_1, x_22, x_5, x_6);
-x_14 = x_23;
-goto block_16;
+x_22 = l_Lean_PersistentHashMap_foldlMAux___at___00Lean_PersistentHashMap_foldlM___at___00Lean_PersistentHashMap_forM___at___00Lean_Server_handleOnDidChange_spec__0_spec__0_spec__1___redArg(x_1, x_21, x_5, x_6);
+x_13 = x_22;
+goto block_15;
 }
 default: 
 {
 x_8 = x_5;
-x_9 = lean_box(0);
-goto block_13;
+goto block_12;
 }
 }
 }
 else
 {
-lean_object* x_24; 
+lean_object* x_23; 
 lean_dec_ref(x_6);
 lean_dec_ref(x_1);
-x_24 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_24, 0, x_5);
-return x_24;
+x_23 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_23, 0, x_5);
+return x_23;
 }
-block_13:
+block_12:
 {
-size_t x_10; size_t x_11; 
-x_10 = 1;
-x_11 = lean_usize_add(x_3, x_10);
-x_3 = x_11;
+size_t x_9; size_t x_10; 
+x_9 = 1;
+x_10 = lean_usize_add(x_3, x_9);
+x_3 = x_10;
 x_5 = x_8;
 goto _start;
 }
-block_16:
+block_15:
 {
-if (lean_obj_tag(x_14) == 0)
+if (lean_obj_tag(x_13) == 0)
 {
-lean_object* x_15; 
-x_15 = lean_ctor_get(x_14, 0);
-lean_inc(x_15);
-lean_dec_ref(x_14);
-x_8 = x_15;
-x_9 = lean_box(0);
-goto block_13;
+lean_object* x_14; 
+x_14 = lean_ctor_get(x_13, 0);
+lean_inc(x_14);
+lean_dec_ref(x_13);
+x_8 = x_14;
+goto block_12;
 }
 else
 {
 lean_dec_ref(x_6);
 lean_dec_ref(x_1);
-return x_14;
+return x_13;
 }
 }
 }

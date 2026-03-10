@@ -265,7 +265,7 @@ def ident : Parser Name := do
   return xs.foldl .str $ .mkSimple head
 
 def patchUri (s : String) : IO String := do
-  let patterns := #["/src/Init/", "/src/Lean/", "/src/Std/", "/tests/lean/interactive/"]
+  let patterns := #["/src/Init/", "/src/Lean/", "/src/Std/", "/tests/misc_dir/"]
   let some path := System.Uri.fileUriToPath? s
     | return s
   let path ← try

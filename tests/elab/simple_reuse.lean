@@ -12,6 +12,7 @@ trace: [Compiler.inferBorrow] size: 5
       | Option.some =>
         let _x.2 := 0;
         return _x.2
+[Compiler.inferBorrow] own _x.23: result of function call _x.23
 [Compiler.inferBorrow] size: 1
     def isNone α @&x : UInt8 :=
       let _x.1 := isNone._redArg x;

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler
-// Imports: public import Lean.Compiler.InlineAttrs public import Lean.Compiler.Specialize public import Lean.Compiler.ClosedTermCache public import Lean.Compiler.ExternAttr public import Lean.Compiler.ImplementedByAttr public import Lean.Compiler.NeverExtractAttr public import Lean.Compiler.IR public import Lean.Compiler.CSimpAttr public import Lean.Compiler.FFI public import Lean.Compiler.MetaAttr public import Lean.Compiler.NoncomputableAttr public import Lean.Compiler.Main public import Lean.Compiler.Old
+// Imports: public import Lean.Compiler.InlineAttrs public import Lean.Compiler.Specialize public import Lean.Compiler.ClosedTermCache public import Lean.Compiler.ExternAttr public import Lean.Compiler.ImplementedByAttr public import Lean.Compiler.NeverExtractAttr public import Lean.Compiler.IR public import Lean.Compiler.CSimpAttr public import Lean.Compiler.FFI public import Lean.Compiler.MetaAttr public import Lean.Compiler.NoncomputableAttr public import Lean.Compiler.Main public import Lean.Compiler.NameDemangling public import Lean.Compiler.Old
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -25,6 +25,7 @@ lean_object* runtime_initialize_Lean_Compiler_FFI(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Compiler_MetaAttr(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Compiler_NoncomputableAttr(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Compiler_Main(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Compiler_NameDemangling(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Compiler_Old(uint8_t builtin);
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Compiler(uint8_t builtin) {
@@ -79,6 +80,10 @@ res = runtime_initialize_Lean_Compiler_Main(builtin)
 ;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = runtime_initialize_Lean_Compiler_NameDemangling(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = runtime_initialize_Lean_Compiler_Old(builtin)
 ;
 if (lean_io_result_is_error(res)) return res;
@@ -104,6 +109,7 @@ lean_object* initialize_Lean_Compiler_FFI(uint8_t builtin);
 lean_object* initialize_Lean_Compiler_MetaAttr(uint8_t builtin);
 lean_object* initialize_Lean_Compiler_NoncomputableAttr(uint8_t builtin);
 lean_object* initialize_Lean_Compiler_Main(uint8_t builtin);
+lean_object* initialize_Lean_Compiler_NameDemangling(uint8_t builtin);
 lean_object* initialize_Lean_Compiler_Old(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Compiler(uint8_t builtin) {
@@ -155,6 +161,10 @@ res = initialize_Lean_Compiler_NoncomputableAttr(builtin)
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Compiler_Main(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Compiler_NameDemangling(builtin)
 ;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

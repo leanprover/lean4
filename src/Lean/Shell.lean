@@ -450,7 +450,6 @@ where
     eprint s!"error: argument value for '-{opt}' is too large\n"
     throw 1
 
-set_option trace.Compiler.saveMono true in
 @[export lean_shell_main]
 def shellMain (args : List String) (opts : ShellOptions) : IO UInt32 := do
   if opts.printPrefix then

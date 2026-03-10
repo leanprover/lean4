@@ -1,1 +1,1 @@
-fail_if_success lean -z
+run_fail lean -z

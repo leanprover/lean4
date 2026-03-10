@@ -6,8 +6,7 @@ source "$TEST_DIR/util.sh"
 # TODO: investigate or work around
 export ASAN_OPTIONS=detect_leaks=0
 
-exec_capture "$1" \
+capture_only "$1" \
   lean -Dlinter.all=false --run run_test.lean "$1"
-
-check_exit "$1"
-check_out "$1"
+check_exit_is_success
+check_out_file

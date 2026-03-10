@@ -431,6 +431,10 @@ def mkFreshUserName (n : Name) : CoreM Name :=
 @[inline] def CoreM.run' (x : CoreM α) (ctx : Context) (s : State) : EIO Exception α :=
   Prod.fst <$> x.run ctx s
 
+/--
+Run a `CoreM` monad in IO.
+Note that the value of `ctx.initHeartbeats` is ignored and replaced with `IO.getNumHeartbeats`.
+-/
 @[inline] def CoreM.toIO (x : CoreM α) (ctx : Context) (s : State) : IO (α × State) := do
   match (← (x.run { ctx with initHeartbeats := (← IO.getNumHeartbeats) } s).toIO') with
   | Except.error (Exception.error _ msg)   => throw <| IO.userError (← msg.toString)
@@ -440,7 +444,7 @@ def mkFreshUserName (n : Name) : CoreM Name :=
 @[inline] def CoreM.toIO' (x : CoreM α) (ctx : Context) (s : State) : IO α :=
   (·.1) <$> x.toIO ctx s
 
--- withIncRecDepth for a monad `m` such that `[MonadControlT CoreM n]`
+/-- withIncRecDepth for a monad `m` such that `[MonadControlT CoreM n]`. -/
 protected def withIncRecDepth [Monad m] [MonadControlT CoreM m] (x : m α) : m α :=
   controlAt CoreM fun runInBase => withIncRecDepth (runInBase x)
 

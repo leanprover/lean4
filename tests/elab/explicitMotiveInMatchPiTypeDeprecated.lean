@@ -1,14 +1,12 @@
 /-!
-# Deprecation warnings for Pi type motives in match expressions
+# Pi type motives in match expressions are no longer supported
 
-This file tests that Pi type motives emit a deprecation warning.
-The preferred style is to use a type family (lambda) instead.
+This file tests that Pi type motives emit an error.
+The correct style is to use a type family (lambda) instead.
 -/
 
 /--
-warning: Pi type syntax for match motive is deprecated; use a type family (lambda) instead.
-Deprecated: (x : T) → BodyType
-Preferred:  fun (x : T) => BodyType
+error: Invalid motive: expected a type family (lambda) with arity 1
 -/
 #guard_msgs in
 def t3f5 (b : Bool) : Nat :=
@@ -22,9 +20,7 @@ def tNatfString (b : Bool) : Type :=
   | false => String
 
 /--
-warning: Pi type syntax for match motive is deprecated; use a type family (lambda) instead.
-Deprecated: (x : T) → BodyType
-Preferred:  fun (x : T) => BodyType
+error: Invalid motive: expected a type family (lambda) with arity 1
 -/
 #guard_msgs in
 def t3fHello (b : Bool) : tNatfString b :=

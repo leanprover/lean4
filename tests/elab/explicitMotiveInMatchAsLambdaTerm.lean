@@ -22,7 +22,7 @@ def tNatfString (b : Bool) : Type :=
   | false => String
 
 def t3fHello (b : Bool) : tNatfString b :=
-  match (motive := fun (b2 : Bool) => tNatfString b2) b with
+  match (motive := tNatfString b with
   | true => (3 : Nat)
   | false => "Hello"
 

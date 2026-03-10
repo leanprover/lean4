@@ -791,7 +791,7 @@ class task_manager {
                 // idle before picking up new work.
                 // But during shutdown, we skip this throttling:
                 // because the finalizer might have called m_queue_cv.notify_all() for the last
-                // time, we don't want to get stuck behind the wait(). 
+                // time, we don't want to get stuck behind the wait().
                 if (!m_shutting_down &&
                     m_std_workers.size() - m_idle_std_workers >= m_max_std_workers) {
                     m_queue_cv.wait(lock);
@@ -2194,6 +2194,35 @@ extern "C" LEAN_EXPORT uint32 lean_string_utf8_get(b_obj_arg s, b_obj_arg i0) {
         return lean_char_default_value();
 }
 
+extern "C" LEAN_EXPORT uint32_t lean_string_utf8_get_faster_cold(char const * str, size_t i, size_t size, unsigned char c) {
+    /* one continuation (0x80 to 0x7FF) */
+    if ((c & 0xe0) == 0xc0 && i + 1 < size) {
+        unsigned c1 = static_cast<unsigned char>(str[i+1]);
+        uint32_t result = ((c & 0x1f) << 6) | (c1 & 0x3f);
+        if (result >= 0x80) {
+            return result;
+        }
+    }
+
+    /* two continuations (0x800 to 0xD7FF and 0xE000 to 0xFFFF) */
+    if ((c & 0xf0) == 0xe0 && i + 2 < size) {
+        unsigned c1 = static_cast<unsigned char>(str[i+1]);
+        unsigned c2 = static_cast<unsigned char>(str[i+2]);
+        uint32_t result = ((c & 0x0f) << 12) | ((c1 & 0x3f) << 6) | (c2 & 0x3f);
+        if (result >= 0x800 && (result < 0xD800 || result > 0xDFFF)) {
+            return result;
+        }
+    }
+
+    unsigned c1 = static_cast<unsigned char>(str[i+1]);
+    unsigned c2 = static_cast<unsigned char>(str[i+2]);
+    unsigned c3 = static_cast<unsigned char>(str[i+3]);
+    uint32_t result = ((c & 0x07) << 18) | ((c1 & 0x3f) << 12) | ((c2 & 0x3f) << 6) | (c3 & 0x3f);
+    if (result >= 0x10000 && result <= 0x10FFFF) {
+        return result;
+    }
+}
+
 extern "C" LEAN_EXPORT uint32_t lean_string_utf8_get_fast_cold(char const * str, size_t i, size_t size, unsigned char c) {
     /* one continuation (0x80 to 0x7FF) */
     if ((c & 0xe0) == 0xc0 && i + 1 < size) {
@@ -2293,6 +2322,12 @@ extern "C" LEAN_EXPORT obj_res lean_string_utf8_next(b_obj_arg s, b_obj_arg i0) 
     if ((c & 0xf8) == 0xf0) return lean_box(i+4);
     /* invalid UTF-8 encoded string */
     return lean_box(i+1);
+}
+
+extern "C" LEAN_EXPORT obj_res lean_string_utf8_next_faster_cold(size_t i, unsigned char c) {
+    if ((c & 0xe0) == 0xc0) return lean_box(i+2);
+    if ((c & 0xf0) == 0xe0) return lean_box(i+3);
+    return lean_box(i+4);
 }
 
 extern "C" LEAN_EXPORT obj_res lean_string_utf8_next_fast_cold(size_t i, unsigned char c) {

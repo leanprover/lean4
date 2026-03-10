@@ -1146,11 +1146,11 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_obj
 x_6 = lean_string_to_utf8(x_5);
 lean_dec_ref(x_5);
 lean_inc_ref(x_6);
-x_7 = lean_array_push(x_4, x_6);
+x_7 = lean_array_push(x_3, x_6);
 x_8 = lean_byte_array_size(x_6);
 lean_dec_ref(x_6);
-x_9 = lean_nat_add(x_3, x_8);
-lean_dec(x_3);
+x_9 = lean_nat_add(x_4, x_8);
+lean_dec(x_4);
 x_10 = lean_obj_once(&l_Std_Http_Request_instEncodeV11Head___lam__0___closed__0, &l_Std_Http_Request_instEncodeV11Head___lam__0___closed__0_once, _init_l_Std_Http_Request_instEncodeV11Head___lam__0___closed__0);
 x_11 = lean_array_push(x_7, x_10);
 x_12 = lean_obj_once(&l_Std_Http_Request_instEncodeV11Head___lam__0___closed__1, &l_Std_Http_Request_instEncodeV11Head___lam__0___closed__1_once, _init_l_Std_Http_Request_instEncodeV11Head___lam__0___closed__1);
@@ -1197,8 +1197,8 @@ case 0:
 {
 lean_object* x_36; 
 x_36 = ((lean_object*)(l_Std_Http_Request_instToStringHead___lam__0___closed__2));
-x_3 = x_35;
-x_4 = x_34;
+x_3 = x_34;
+x_4 = x_35;
 x_5 = x_36;
 goto block_15;
 }
@@ -1206,8 +1206,8 @@ case 1:
 {
 lean_object* x_37; 
 x_37 = ((lean_object*)(l_Std_Http_Request_instToStringHead___lam__0___closed__3));
-x_3 = x_35;
-x_4 = x_34;
+x_3 = x_34;
+x_4 = x_35;
 x_5 = x_37;
 goto block_15;
 }
@@ -1215,8 +1215,8 @@ case 2:
 {
 lean_object* x_38; 
 x_38 = ((lean_object*)(l_Std_Http_Request_instToStringHead___lam__0___closed__4));
-x_3 = x_35;
-x_4 = x_34;
+x_3 = x_34;
+x_4 = x_35;
 x_5 = x_38;
 goto block_15;
 }
@@ -1224,8 +1224,8 @@ default:
 {
 lean_object* x_39; 
 x_39 = ((lean_object*)(l_Std_Http_Request_instToStringHead___lam__0___closed__5));
-x_3 = x_35;
-x_4 = x_34;
+x_3 = x_34;
+x_4 = x_35;
 x_5 = x_39;
 goto block_15;
 }

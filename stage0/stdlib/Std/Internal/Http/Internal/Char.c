@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Internal.Http.Internal.Char
-// Imports: public import Init.Data.String
+// Imports: public import Init.Data.Char public import Init.Data.String public import Init.Data.Int public import Init.Grind
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -50,6 +50,14 @@ LEAN_EXPORT uint8_t l_Std_Http_Internal_Char_quotedPairChar(uint32_t);
 LEAN_EXPORT lean_object* l_Std_Http_Internal_Char_quotedPairChar___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Std_Http_Internal_Char_quotedStringChar(uint32_t);
 LEAN_EXPORT lean_object* l_Std_Http_Internal_Char_quotedStringChar___boxed(lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Internal_Http_Internal_Char_0__Std_Http_Internal_Char_qdtext_match__1_splitter___redArg(uint32_t, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Internal_Http_Internal_Char_0__Std_Http_Internal_Char_qdtext_match__1_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Internal_Http_Internal_Char_0__Std_Http_Internal_Char_qdtext_match__1_splitter(lean_object*, uint32_t, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Internal_Http_Internal_Char_0__Std_Http_Internal_Char_qdtext_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Internal_Http_Internal_Char_0__Std_Http_Internal_Char_quotedPairChar_match__1_splitter___redArg(uint32_t, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Internal_Http_Internal_Char_0__Std_Http_Internal_Char_quotedPairChar_match__1_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Internal_Http_Internal_Char_0__Std_Http_Internal_Char_quotedPairChar_match__1_splitter(lean_object*, uint32_t, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Internal_Http_Internal_Char_0__Std_Http_Internal_Char_quotedPairChar_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_Http_Internal_Char_fieldVchar(uint32_t);
 LEAN_EXPORT lean_object* l_Std_Http_Internal_Char_fieldVchar___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Std_Http_Internal_Char_fieldContent(uint32_t);
@@ -835,6 +843,240 @@ lean_dec(x_1);
 x_3 = l_Std_Http_Internal_Char_quotedStringChar(x_2);
 x_4 = lean_box(x_3);
 return x_4;
+}
+}
+LEAN_EXPORT lean_object* l___private_Std_Internal_Http_Internal_Char_0__Std_Http_Internal_Char_qdtext_match__1_splitter___redArg(uint32_t x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+uint32_t x_6; uint8_t x_7; 
+x_6 = 9;
+x_7 = lean_uint32_dec_eq(x_1, x_6);
+if (x_7 == 0)
+{
+uint32_t x_8; uint8_t x_9; 
+lean_dec(x_2);
+x_8 = 32;
+x_9 = lean_uint32_dec_eq(x_1, x_8);
+if (x_9 == 0)
+{
+uint32_t x_10; uint8_t x_11; 
+lean_dec(x_3);
+x_10 = 33;
+x_11 = lean_uint32_dec_eq(x_1, x_10);
+if (x_11 == 0)
+{
+lean_object* x_12; lean_object* x_13; 
+lean_dec(x_4);
+x_12 = lean_box_uint32(x_1);
+x_13 = lean_apply_4(x_5, x_12, lean_box(0), lean_box(0), lean_box(0));
+return x_13;
+}
+else
+{
+lean_object* x_14; lean_object* x_15; 
+lean_dec(x_5);
+x_14 = lean_box(0);
+x_15 = lean_apply_1(x_4, x_14);
+return x_15;
+}
+}
+else
+{
+lean_object* x_16; lean_object* x_17; 
+lean_dec(x_5);
+lean_dec(x_4);
+x_16 = lean_box(0);
+x_17 = lean_apply_1(x_3, x_16);
+return x_17;
+}
+}
+else
+{
+lean_object* x_18; lean_object* x_19; 
+lean_dec(x_5);
+lean_dec(x_4);
+lean_dec(x_3);
+x_18 = lean_box(0);
+x_19 = lean_apply_1(x_2, x_18);
+return x_19;
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Std_Internal_Http_Internal_Char_0__Std_Http_Internal_Char_qdtext_match__1_splitter___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+uint32_t x_6; lean_object* x_7; 
+x_6 = lean_unbox_uint32(x_1);
+lean_dec(x_1);
+x_7 = l___private_Std_Internal_Http_Internal_Char_0__Std_Http_Internal_Char_qdtext_match__1_splitter___redArg(x_6, x_2, x_3, x_4, x_5);
+return x_7;
+}
+}
+LEAN_EXPORT lean_object* l___private_Std_Internal_Http_Internal_Char_0__Std_Http_Internal_Char_qdtext_match__1_splitter(lean_object* x_1, uint32_t x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+uint32_t x_7; uint8_t x_8; 
+x_7 = 9;
+x_8 = lean_uint32_dec_eq(x_2, x_7);
+if (x_8 == 0)
+{
+uint32_t x_9; uint8_t x_10; 
+lean_dec(x_3);
+x_9 = 32;
+x_10 = lean_uint32_dec_eq(x_2, x_9);
+if (x_10 == 0)
+{
+uint32_t x_11; uint8_t x_12; 
+lean_dec(x_4);
+x_11 = 33;
+x_12 = lean_uint32_dec_eq(x_2, x_11);
+if (x_12 == 0)
+{
+lean_object* x_13; lean_object* x_14; 
+lean_dec(x_5);
+x_13 = lean_box_uint32(x_2);
+x_14 = lean_apply_4(x_6, x_13, lean_box(0), lean_box(0), lean_box(0));
+return x_14;
+}
+else
+{
+lean_object* x_15; lean_object* x_16; 
+lean_dec(x_6);
+x_15 = lean_box(0);
+x_16 = lean_apply_1(x_5, x_15);
+return x_16;
+}
+}
+else
+{
+lean_object* x_17; lean_object* x_18; 
+lean_dec(x_6);
+lean_dec(x_5);
+x_17 = lean_box(0);
+x_18 = lean_apply_1(x_4, x_17);
+return x_18;
+}
+}
+else
+{
+lean_object* x_19; lean_object* x_20; 
+lean_dec(x_6);
+lean_dec(x_5);
+lean_dec(x_4);
+x_19 = lean_box(0);
+x_20 = lean_apply_1(x_3, x_19);
+return x_20;
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Std_Internal_Http_Internal_Char_0__Std_Http_Internal_Char_qdtext_match__1_splitter___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+uint32_t x_7; lean_object* x_8; 
+x_7 = lean_unbox_uint32(x_2);
+lean_dec(x_2);
+x_8 = l___private_Std_Internal_Http_Internal_Char_0__Std_Http_Internal_Char_qdtext_match__1_splitter(x_1, x_7, x_3, x_4, x_5, x_6);
+return x_8;
+}
+}
+LEAN_EXPORT lean_object* l___private_Std_Internal_Http_Internal_Char_0__Std_Http_Internal_Char_quotedPairChar_match__1_splitter___redArg(uint32_t x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+uint32_t x_5; uint8_t x_6; 
+x_5 = 9;
+x_6 = lean_uint32_dec_eq(x_1, x_5);
+if (x_6 == 0)
+{
+uint32_t x_7; uint8_t x_8; 
+lean_dec(x_2);
+x_7 = 32;
+x_8 = lean_uint32_dec_eq(x_1, x_7);
+if (x_8 == 0)
+{
+lean_object* x_9; lean_object* x_10; 
+lean_dec(x_3);
+x_9 = lean_box_uint32(x_1);
+x_10 = lean_apply_3(x_4, x_9, lean_box(0), lean_box(0));
+return x_10;
+}
+else
+{
+lean_object* x_11; lean_object* x_12; 
+lean_dec(x_4);
+x_11 = lean_box(0);
+x_12 = lean_apply_1(x_3, x_11);
+return x_12;
+}
+}
+else
+{
+lean_object* x_13; lean_object* x_14; 
+lean_dec(x_4);
+lean_dec(x_3);
+x_13 = lean_box(0);
+x_14 = lean_apply_1(x_2, x_13);
+return x_14;
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Std_Internal_Http_Internal_Char_0__Std_Http_Internal_Char_quotedPairChar_match__1_splitter___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+uint32_t x_5; lean_object* x_6; 
+x_5 = lean_unbox_uint32(x_1);
+lean_dec(x_1);
+x_6 = l___private_Std_Internal_Http_Internal_Char_0__Std_Http_Internal_Char_quotedPairChar_match__1_splitter___redArg(x_5, x_2, x_3, x_4);
+return x_6;
+}
+}
+LEAN_EXPORT lean_object* l___private_Std_Internal_Http_Internal_Char_0__Std_Http_Internal_Char_quotedPairChar_match__1_splitter(lean_object* x_1, uint32_t x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+uint32_t x_6; uint8_t x_7; 
+x_6 = 9;
+x_7 = lean_uint32_dec_eq(x_2, x_6);
+if (x_7 == 0)
+{
+uint32_t x_8; uint8_t x_9; 
+lean_dec(x_3);
+x_8 = 32;
+x_9 = lean_uint32_dec_eq(x_2, x_8);
+if (x_9 == 0)
+{
+lean_object* x_10; lean_object* x_11; 
+lean_dec(x_4);
+x_10 = lean_box_uint32(x_2);
+x_11 = lean_apply_3(x_5, x_10, lean_box(0), lean_box(0));
+return x_11;
+}
+else
+{
+lean_object* x_12; lean_object* x_13; 
+lean_dec(x_5);
+x_12 = lean_box(0);
+x_13 = lean_apply_1(x_4, x_12);
+return x_13;
+}
+}
+else
+{
+lean_object* x_14; lean_object* x_15; 
+lean_dec(x_5);
+lean_dec(x_4);
+x_14 = lean_box(0);
+x_15 = lean_apply_1(x_3, x_14);
+return x_15;
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Std_Internal_Http_Internal_Char_0__Std_Http_Internal_Char_quotedPairChar_match__1_splitter___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+uint32_t x_6; lean_object* x_7; 
+x_6 = lean_unbox_uint32(x_2);
+lean_dec(x_2);
+x_7 = l___private_Std_Internal_Http_Internal_Char_0__Std_Http_Internal_Char_quotedPairChar_match__1_splitter(x_1, x_6, x_3, x_4, x_5);
+return x_7;
 }
 }
 LEAN_EXPORT uint8_t l_Std_Http_Internal_Char_fieldVchar(uint32_t x_1) {
@@ -3537,13 +3779,28 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
+lean_object* runtime_initialize_Init_Data_Char(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_String(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Int(uint8_t builtin);
+lean_object* runtime_initialize_Init_Grind(uint8_t builtin);
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Std_Internal_Http_Internal_Char(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+res = runtime_initialize_Init_Data_Char(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = runtime_initialize_Init_Data_String(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Int(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Grind(builtin)
 ;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -3556,13 +3813,28 @@ if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_meta_initialized = true;
 return lean_io_result_mk_ok(lean_box(0));
 }
+lean_object* initialize_Init_Data_Char(uint8_t builtin);
 lean_object* initialize_Init_Data_String(uint8_t builtin);
+lean_object* initialize_Init_Data_Int(uint8_t builtin);
+lean_object* initialize_Init_Grind(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Internal_Http_Internal_Char(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
+res = initialize_Init_Data_Char(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Init_Data_String(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Int(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Grind(builtin)
 ;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

@@ -377,8 +377,8 @@ where
 
   groundNameMkStrToCLit (args : Array (Name × UInt64)) : GroundM String := do
     assert! args.size > 0
-    if args.size == 1 then
-      let (ref, hash) := args[0]!
+    if h : args.size = 1 then
+      let (ref, hash) := args[0]
       let hash := uint64ToByteArrayLE hash
       compileCtor 1 #[.tagged 0, .reference ref] #[] hash
     else
@@ -413,15 +413,19 @@ where
     let scalarArgs : Array String := Id.run do
       let chunks := scalarArgs.size / 8
       let mut packed := Array.emptyWithCapacity chunks
-      for idx in 0...chunks do
-        let b1 := scalarArgs[idx * 8]!
-        let b2 := scalarArgs[idx * 8 + 1]!
-        let b3 := scalarArgs[idx * 8 + 2]!
-        let b4 := scalarArgs[idx * 8 + 3]!
-        let b5 := scalarArgs[idx * 8 + 4]!
-        let b6 := scalarArgs[idx * 8 + 5]!
-        let b7 := scalarArgs[idx * 8 + 6]!
-        let b8 := scalarArgs[idx * 8 + 7]!
+      for h : idx in 0...chunks do
+        have : idx * 8 + 7 < scalarArgs.size := by
+          have : idx < scalarArgs.size / 8 := Std.Rco.lt_upper_of_mem h
+          simp at this
+          omega
+        let b1 := scalarArgs[idx * 8]
+        let b2 := scalarArgs[idx * 8 + 1]
+        let b3 := scalarArgs[idx * 8 + 2]
+        let b4 := scalarArgs[idx * 8 + 3]
+        let b5 := scalarArgs[idx * 8 + 4]
+        let b6 := scalarArgs[idx * 8 + 5]
+        let b7 := scalarArgs[idx * 8 + 6]
+        let b8 := scalarArgs[idx * 8 + 7]
         let lit := s!"LEAN_SCALAR_PTR_LITERAL({b1}, {b2}, {b3}, {b4}, {b5}, {b6}, {b7}, {b8})"
         packed := packed.push lit
       return packed
@@ -755,10 +759,10 @@ where
   ```
   -/
   overwriteParam (ps : Array (Param .impure)) (args : Array (Arg .impure)) : Bool := Id.run do
-    for h : i in 0...ps.size do
+    for h1 : i in 0...ps.size do
       let p := ps[i]
-      for j in (i+1)...ps.size do
-        if paramEqArg p args[j]! then
+      for h2 : j in (i+1)...args.size do
+        if paramEqArg p args[j] then
           return true
     return false
 

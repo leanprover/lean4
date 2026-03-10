@@ -450,6 +450,7 @@ where
     eprint s!"error: argument value for '-{opt}' is too large\n"
     throw 1
 
+set_option trace.Compiler.saveMono true in
 @[export lean_shell_main]
 def shellMain (args : List String) (opts : ShellOptions) : IO UInt32 := do
   if opts.printPrefix then
@@ -545,7 +546,7 @@ def shellMain (args : List String) (opts : ShellOptions) : IO UInt32 := do
         | IO.eprintln s!"failed to create '{c}'"
           return 1
       profileitIO "C code generation" opts.leanOpts do
-        let data ← IO.ofExcept <| IR.emitC env mainModuleName
+        let data ← IR.emitC env mainModuleName
         out.write data.toUTF8
     if let some bc := opts.bcFileName? then
       initLLVM

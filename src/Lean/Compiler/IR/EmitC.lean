@@ -1005,9 +1005,9 @@ def main : M Unit := do
 
 end EmitC
 
-def emitC (env : Environment) (modName : Name) : Except String String :=
+def emitC (env : Environment) (modName : Name) : IO String :=
   match EmitC.main { env, modName } |>.run "" with
-  | EStateM.Result.ok    _   s => Except.ok s
-  | EStateM.Result.error err _ => Except.error err
+  | EStateM.Result.ok    _   s => return s
+  | EStateM.Result.error err _ => throw <| .userError err
 
 end Lean.IR

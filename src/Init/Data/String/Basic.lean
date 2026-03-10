@@ -1175,7 +1175,7 @@ theorem Pos.Raw.isValidForSlice_sliceTo {s : Slice} {p : s.Pos} {off : Pos.Raw} 
   · simpa using h₁
   · simpa using h₃
 
-@[extern "lean_string_utf8_get_fast", expose]
+@[extern "lean_string_utf8_get_faster", expose]
 def decodeChar (s : @& String) (byteIdx : @& Nat) (h : (s.toByteArray.utf8DecodeChar? byteIdx).isSome) : Char :=
   s.toByteArray.utf8DecodeChar byteIdx h
 
@@ -1681,7 +1681,7 @@ def Slice.pos! (s : Slice) (off : String.Pos.Raw) : s.Pos :=
 
 /-- Advances a valid position on a string to the next valid position, given a proof that the
 position is not the past-the-end position, which guarantees that such a position exists. -/
-@[expose, extern "lean_string_utf8_next_fast", tagged_return]
+@[expose, extern "lean_string_utf8_next_faster", tagged_return]
 def Pos.next {s : @& String} (pos : @& s.Pos) (h : pos ≠ s.endPos) : s.Pos :=
   ofToSlice (Slice.Pos.next pos.toSlice (ne_of_apply_ne Pos.ofToSlice (by simpa)))
 

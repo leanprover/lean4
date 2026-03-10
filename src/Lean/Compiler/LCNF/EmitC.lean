@@ -26,6 +26,13 @@ namespace Lean.Compiler.LCNF
 
 def leanMainFn := "_lean_main"
 
+private def intercalateArray (sep : String) (args : Array String) : String := Id.run do
+  if args.isEmpty then return ""
+  let mut r := args[0]!
+  for h : i in 1...args.size do
+    r := r ++ sep ++ args[i]
+  return r
+
 namespace ImpureType
 
 def Lean.Expr.toCType : Expr → String
@@ -332,7 +339,7 @@ where
       let funPtr := s!"(void*){← toCName func}"
       let arity := (← getImpureSignature? func).get!.params.size
       let args ← args.mapM groundArgToCLit
-      let argArray := String.intercalate "," args.toList
+      let argArray := intercalateArray "," args
       mkValueCLit
         "lean_closure_object"
         s!"\{.m_header = {header}, .m_fun = {funPtr}, .m_arity = {arity}, .m_num_fixed = {numFixed}, .m_objs = \{{argArray}} }"
@@ -343,7 +350,7 @@ where
       let leanArrayTag := 246
       let header := mkHeader s!"sizeof(lean_array_object) + sizeof(void*)*{elems.size}" 0 leanArrayTag
       let elemLits ← elems.mapM groundArgToCLit
-      let dataArray := String.intercalate "," elemLits.toList
+      let dataArray := intercalateArray "," elemLits
       mkValueCLit
         "lean_array_object"
         s!"\{.m_header = {header}, .m_size = {elems.size}, .m_capacity = {elems.size}, .m_data = \{{dataArray}}}"
@@ -352,7 +359,7 @@ where
       let elemSize : Nat := 1
       let header := mkHeader s!"sizeof(lean_sarray_object) + {data.size}" elemSize leanScalarArrayTag
       let dataLits := data.map toString
-      let dataArray := String.intercalate "," dataLits.toList
+      let dataArray := intercalateArray "," dataLits
       mkValueCLit
         "lean_sarray_object"
         s!"\{.m_header = {header}, .m_size = {data.size}, .m_capacity = {data.size}, .m_data = \{{dataArray}}}"
@@ -429,7 +436,7 @@ where
         let lit := s!"LEAN_SCALAR_PTR_LITERAL({b1}, {b2}, {b3}, {b4}, {b5}, {b6}, {b7}, {b8})"
         packed := packed.push lit
       return packed
-    let argArray := String.intercalate "," (objArgs ++ usizeArgs ++ scalarArgs).toList
+    let argArray := intercalateArray "," (objArgs ++ usizeArgs ++ scalarArgs)
     return s!"\{.m_header = {header}, .m_objs = \{{argArray}}}"
 
   mkCtorHeader (numObjs : Nat) (usize : Nat) (ssize : Nat) (tag : Nat) : String :=

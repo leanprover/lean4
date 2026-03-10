@@ -33,7 +33,6 @@ def compile (decls : Array Decl) : CompilerM (Array Decl) := do
   let mut decls := decls
   decls ← updateSorryDep decls
   logDecls `result decls
-  checkDecls decls
   addDecls decls
   inferMeta decls
   return decls

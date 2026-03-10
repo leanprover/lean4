@@ -26,13 +26,7 @@ protected theorem lt_or_eq_of_le {n m : Int} (h : n ≤ m) : n < m ∨ n = m := 
 
 theorem compare_eq_ite_lt (a b : Int) :
     compare a b = if a < b then .lt else if b < a then .gt else .eq := by
-  simp only [compare, compareOfLessAndEq]
-  split
-  · rfl
-  next h =>
-    match Int.lt_or_eq_of_le (Int.not_lt.1 h) with
-    | .inl h => simp [h, Int.ne_of_gt h]
-    | .inr rfl => simp
+  simp only [compare, compareOfLT]
 
 theorem compare_eq_ite_le (a b : Int) :
     compare a b = if a ≤ b then if b ≤ a then .eq else .lt else .gt := by

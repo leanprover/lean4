@@ -10,6 +10,7 @@ import Init.ByCases
 import Init.Ext
 public import Init.PropLemmas
 public import Init.Data.Char.Basic
+public import Init.Data.Order.Classes
 import Init.Classical
 
 public section
@@ -305,6 +306,17 @@ end Lemmas
 end Ordering
 
 /--
+Uses decidable less-than relation to find an `Ordering`.
+
+In particular, if `x < y` then the result is `Ordering.lt`. If `x > y` then the result is
+`Ordering.gt`. Otherwise, it is `Ordering.eq`.
+-/
+@[inline, expose] def compareOfLT {α} [LT α] [DecidableLT α] (x y : α) : Ordering :=
+  if x < y then Ordering.lt
+  else if y < x then Ordering.gt
+  else Ordering.eq
+
+/--
 Uses decidable less-than and equality relations to find an `Ordering`.
 
 In particular, if `x < y` then the result is `Ordering.lt`. If `x = y` then the result is
@@ -312,7 +324,8 @@ In particular, if `x < y` then the result is `Ordering.lt`. If `x = y` then the 
 
 `compareOfLessAndBEq` uses `BEq` instead of `DecidableEq`.
 -/
-@[inline, expose] def compareOfLessAndEq {α} (x y : α) [LT α] [Decidable (x < y)] [DecidableEq α] : Ordering :=
+@[deprecated compareOfLT (since := "2026-03-10"), inline, expose]
+def compareOfLessAndEq {α} (x y : α) [LT α] [Decidable (x < y)] [DecidableEq α] : Ordering :=
   if x < y then Ordering.lt
   else if x = y then Ordering.eq
   else Ordering.gt
@@ -348,6 +361,60 @@ theorem compareLex_eq_eq {α} {cmp₁ cmp₂} {a b : α} :
     compareLex cmp₁ cmp₂ a b = .eq ↔ cmp₁ a b = .eq ∧ cmp₂ a b = .eq := by
   simp [compareLex]
 
+theorem compareOfLT_eq_swap {α : Type u} [LT α] [DecidableLT α]
+    (asymm : Std.Asymm (α := α) (· < ·) := by infer_instance) {x y : α} :
+    compareOfLT x y = (compareOfLT y x).swap := by
+  simp only [compareOfLT]
+  split
+  · rename_i h
+    simp only [asymm.asymm _ _ h, ↓reduceIte, Ordering.swap_gt]
+  · split <;> rfl
+
+@[simp]
+theorem compareOfLT_eq_lt {α : Type u} [LT α] [DecidableLT α] {x y : α} :
+    compareOfLT x y = .lt ↔ x < y := by
+  rw [compareOfLT]
+  repeat split <;> simp [*]
+
+@[simp]
+theorem compareOfLT_eq_gt {α : Type u} [LT α] [DecidableLT α]
+    (asymm : Std.Asymm (α := α) (· < ·) := by infer_instance) {x y : α} :
+    compareOfLT x y = .gt ↔ y < x := by
+  rw [compareOfLT_eq_swap, Ordering.swap_eq_gt, compareOfLT_eq_lt]
+
+@[simp]
+theorem compareOfLT_eq_eq {α : Type u} [LT α] [DecidableLT α]
+    (asymm : Std.Asymm (α := α) (· < ·) := by infer_instance)
+    (trichotomous : Std.Trichotomous (α := α) (· < ·) := by infer_instance) {x y : α} :
+    compareOfLT x y = .eq ↔ x = y := by
+  rw [compareOfLT]
+  repeat' split
+  case isFalse.isFalse hlt hgt =>
+    simp only [true_iff]
+    exact trichotomous.trichotomous _ _ hlt hgt
+  case _ hlt | _ hlt =>
+    simp only [reduceCtorEq, false_iff]
+    rintro rfl
+    exact asymm.asymm _ _ hlt hlt
+
+theorem isLE_compareOfLT {α : Type u} [LT α] [LE α] [DecidableLT α]
+    (total : Std.Total (α := α) (· ≤ ·) := by infer_instance)
+    [Std.LawfulOrderLT α] {x y : α} :
+    (compareOfLT x y).isLE ↔ x ≤ y := by
+  have : Std.Asymm (α := α) (· < ·) := ⟨by simp +contextual [Std.LawfulOrderLT.lt_iff]⟩
+  rw [Ordering.isLE_iff_ne_gt, compareOfLT_eq_gt, Std.LawfulOrderLT.lt_iff]
+  simp [total.total]
+
+theorem isGE_compareOfLT {α : Type u} [LT α] [LE α] [DecidableLT α]
+    (total : Std.Total (α := α) (· ≤ ·) := by infer_instance)
+    [Std.LawfulOrderLT α] {x y : α} :
+    (compareOfLT x y).isGE ↔ y ≤ x := by
+  have : Std.Asymm (α := α) (· < ·) := ⟨by simp +contextual [Std.LawfulOrderLT.lt_iff]⟩
+  rw [compareOfLT_eq_swap, Ordering.isGE_swap, isLE_compareOfLT]
+
+set_option linter.deprecated false
+
+@[deprecated compareOfLT_eq_swap (since := "2026-03-10")]
 theorem compareOfLessAndEq_eq_swap_of_lt_iff_not_gt_and_ne {α : Type u} [LT α] [DecidableLT α] [DecidableEq α]
     (h : ∀ x y : α, x < y ↔ ¬ y < x ∧ x ≠ y) {x y : α} :
     compareOfLessAndEq x y = (compareOfLessAndEq y x).swap := by
@@ -364,6 +431,7 @@ theorem compareOfLessAndEq_eq_swap_of_lt_iff_not_gt_and_ne {α : Type u} [LT α]
       replace h' := (h y x).mpr ⟨h', Ne.symm h''⟩
       simp only [h', ↓reduceIte, Ordering.swap_lt]
 
+@[deprecated "Use `Std.lt_iff_le_and_ne` instead" (since := "2026-03-10")]
 theorem lt_iff_not_gt_and_ne_of_antisymm_of_total_of_not_le
     {α : Type u} [LT α] [LE α] [DecidableLT α] [DecidableEq α]
     (antisymm : ∀ {x y : α}, x ≤ y → y ≤ x → x = y)
@@ -377,6 +445,7 @@ theorem lt_iff_not_gt_and_ne_of_antisymm_of_total_of_not_le
   · intro ⟨h₁, h₂⟩ h₃
     exact h₂ (antisymm h₁ h₃)
 
+@[deprecated compareOfLT_eq_swap (since := "2026-03-10")]
 theorem compareOfLessAndEq_eq_swap
     {α : Type u} [LT α] [LE α] [DecidableLT α] [DecidableEq α]
     (antisymm : ∀ {x y : α}, x ≤ y → y ≤ x → x = y)
@@ -385,13 +454,14 @@ theorem compareOfLessAndEq_eq_swap
   apply compareOfLessAndEq_eq_swap_of_lt_iff_not_gt_and_ne
   exact lt_iff_not_gt_and_ne_of_antisymm_of_total_of_not_le antisymm total not_le
 
-@[simp]
+@[deprecated compareOfLT_eq_lt (since := "2026-03-10"), simp]
 theorem compareOfLessAndEq_eq_lt
     {α : Type u} [LT α] [LE α] [DecidableLT α] [DecidableEq α] {x y : α} :
     compareOfLessAndEq x y = .lt ↔ x < y := by
   rw [compareOfLessAndEq]
   repeat' split <;> simp_all
 
+@[deprecated compareOfLT_eq_eq (since := "2026-03-10")]
 theorem compareOfLessAndEq_eq_eq
     {α : Type u} [LT α] [LE α] [DecidableLT α] [DecidableLE α] [DecidableEq α]
     (refl : ∀ (x : α), x ≤ x) (not_le : ∀ {x y : α}, ¬ x ≤ y ↔ y < x) {x y : α} :
@@ -404,6 +474,7 @@ theorem compareOfLessAndEq_eq_eq
   simp [← not_le] at hlt
   exact hlt (refl x)
 
+@[deprecated compareOfLT_eq_gt (since := "2026-03-10")]
 theorem compareOfLessAndEq_eq_gt_of_lt_iff_not_gt_and_ne
     {α : Type u} [LT α] [LE α] [DecidableLT α] [DecidableEq α] {x y : α}
     (h : ∀ x y : α, x < y ↔ ¬ y < x ∧ x ≠ y) :
@@ -411,6 +482,7 @@ theorem compareOfLessAndEq_eq_gt_of_lt_iff_not_gt_and_ne
   rw [compareOfLessAndEq_eq_swap_of_lt_iff_not_gt_and_ne h, Ordering.swap_eq_gt]
   exact compareOfLessAndEq_eq_lt
 
+@[deprecated compareOfLT_eq_gt (since := "2026-03-10")]
 theorem compareOfLessAndEq_eq_gt
     {α : Type u} [LT α] [LE α] [DecidableLT α] [DecidableEq α]
     (antisymm : ∀ {x y : α}, x ≤ y → y ≤ x → x = y)
@@ -419,6 +491,7 @@ theorem compareOfLessAndEq_eq_gt
   apply compareOfLessAndEq_eq_gt_of_lt_iff_not_gt_and_ne
   exact lt_iff_not_gt_and_ne_of_antisymm_of_total_of_not_le antisymm total not_le
 
+@[deprecated isLE_compareOfLT (since := "2026-03-10")]
 theorem isLE_compareOfLessAndEq
     {α : Type u} [LT α] [LE α] [DecidableLT α] [DecidableLE α] [DecidableEq α]
     (antisymm : ∀ {x y : α}, x ≤ y → y ≤ x → x = y)
@@ -437,6 +510,7 @@ theorem isLE_compareOfLessAndEq
     · exact Or.inr <| antisymm hle hge
     · exact Or.inl <| not_le.mp hge
 
+@[deprecated isGE_compareOfLT (since := "2026-03-10"), simp]
 theorem isGE_compareOfLessAndEq
     {α : Type u} [LT α] [LE α] [DecidableLT α] [DecidableLE α] [DecidableEq α]
     (antisymm : ∀ {x y : α}, x ≤ y → y ≤ x → x = y)
@@ -478,10 +552,10 @@ Examples:
   compare (f x) (f y)
 
 instance : Ord Nat where
-  compare x y := compareOfLessAndEq x y
+  compare x y := compareOfLT x y
 
 instance : Ord Int where
-  compare x y := compareOfLessAndEq x y
+  compare x y := compareOfLT x y
 
 instance : Ord Bool where
   compare
@@ -493,10 +567,10 @@ instance (n : Nat) : Ord (Fin n) where
   compare x y := compare x.val y.val
 
 instance : Ord Char where
-  compare x y := compareOfLessAndEq x y
+  compare x y := compareOfLT x y
 
 instance {n} : Ord (BitVec n) where
-  compare x y := compareOfLessAndEq x y
+  compare x y := compareOfLT x y
 
 instance [Ord α] : Ord (Option α) where
   compare

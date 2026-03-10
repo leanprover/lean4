@@ -376,23 +376,21 @@ theorem Mon.revlex_k_eq_revlex (m₁ m₂ : Mon) : m₁.revlex_k m₂ = m₁.rev
 
 theorem Mon.grevlex_k_eq_grevlex (m₁ m₂ : Mon) : m₁.grevlex_k m₂ = m₁.grevlex m₂ := by
   unfold grevlex_k grevlex; simp [revlex_k_eq_revlex]
-  simp [*, compare, compareOfLessAndEq]
-  split
+  simp [*, compare, compareOfLT]
+  repeat' split
   next h =>
     have h₁ : Nat.blt m₁.degree m₂.degree = true := by simp [h]
     have h₂ : Nat.beq m₁.degree m₂.degree = false := by rw [← Bool.not_eq_true, Nat.beq_eq]; omega
     simp [degree_k_eq_degree, h₁, h₂]
   next h =>
-    split
-    next h' =>
-      have h₂ : Nat.beq m₁.degree m₂.degree = true := by rw [Nat.beq_eq, h']
-      simp [degree_k_eq_degree, h₂]
-    next h' =>
-      have h₁ : Nat.blt m₁.degree m₂.degree = false := by
-        rw [← Bool.not_eq_true, Nat.blt_eq]; assumption
-      have h₂ : Nat.beq m₁.degree m₂.degree = false := by
-        rw [← Bool.not_eq_true, Nat.beq_eq]; assumption
-      simp [degree_k_eq_degree, h₁, h₂]
+    have h₁ : Nat.blt m₁.degree m₂.degree = false := by
+      rw [← Bool.not_eq_true, Nat.blt_eq]; assumption
+    have h₂ : Nat.beq m₁.degree m₂.degree = false := by rw [← Bool.not_eq_true, Nat.beq_eq]; omega
+    simp [degree_k_eq_degree, h₁, h₂]
+  next h₁ h₂ =>
+    have h' : m₁.degree = m₂.degree := Trichotomous.trichotomous _ _ h₁ h₂
+    have h : Nat.beq m₁.degree m₂.degree = true := by rw [Nat.beq_eq, h']
+    simp [degree_k_eq_degree, h]
 
 inductive Poly where
   | num (k : Int)

@@ -26,10 +26,11 @@ namespace BitVec
 variable {n : Nat}
 
 instance : TransOrd (BitVec n) :=
-  TransOrd.compareOfLessAndEq_of_antisymm_of_trans_of_total_of_not_le
-    BitVec.le_antisymm BitVec.le_trans BitVec.le_total BitVec.not_le
+  transCmp_compareOfLT { asymm _ _ := BitVec.lt_asymm }
+    { trans {_ _ _} := by simpa only [BitVec.not_lt] using flip BitVec.le_trans }
 
 instance : LawfulEqOrd (BitVec n) where
-  eq_of_compare h := compareOfLessAndEq_eq_eq BitVec.le_refl BitVec.not_le |>.mp h
+  eq_of_compare h := compareOfLT_eq_eq { asymm _ _ := BitVec.lt_asymm }
+    { trichotomous _ _ h₁ h₂ := BitVec.le_antisymm (BitVec.not_lt.mp h₂) (BitVec.not_lt.mp h₁) } |>.mp h
 
 end BitVec

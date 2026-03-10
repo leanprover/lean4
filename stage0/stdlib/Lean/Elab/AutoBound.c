@@ -56,12 +56,12 @@ extern lean_object* l_String_instInhabitedSlice;
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at___00__private_Lean_Elab_AutoBound_0__Lean_Elab_isValidAutoBoundSuffix_spec__1(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
-lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
+lean_object* lean_string_utf8_next_faster(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Slice_0__String_Slice_dropWhile_go___at___00__private_Lean_Elab_AutoBound_0__Lean_Elab_isValidAutoBoundSuffix_spec__0(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
+uint32_t lean_string_utf8_get_faster(lean_object*, lean_object*);
 uint8_t l_Lean_isSubScriptAlnum(uint32_t);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 uint8_t lean_uint32_dec_le(uint32_t, uint32_t);
@@ -356,7 +356,7 @@ lean_dec(x_17);
 if (x_18 == 0)
 {
 uint32_t x_19; uint8_t x_20; uint32_t x_27; uint8_t x_28; 
-x_19 = lean_string_utf8_get_fast(x_3, x_6);
+x_19 = lean_string_utf8_get_faster(x_3, x_6);
 x_27 = 48;
 x_28 = lean_uint32_dec_le(x_27, x_19);
 if (x_28 == 0)
@@ -418,7 +418,7 @@ return x_7;
 block_13:
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; 
-x_8 = lean_string_utf8_next_fast(x_3, x_6);
+x_8 = lean_string_utf8_next_faster(x_3, x_6);
 x_9 = lean_nat_sub(x_8, x_6);
 lean_dec(x_6);
 x_10 = lean_nat_add(x_2, x_9);

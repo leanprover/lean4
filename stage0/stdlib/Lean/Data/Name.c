@@ -81,10 +81,10 @@ lean_object* l_String_Slice_Pos_get_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_isInternal___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Name_isInternalOrNum(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_isInternalOrNum___boxed(lean_object*);
-lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
+lean_object* lean_string_utf8_next_faster(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Slice_0__String_Slice_dropWhile_go___at___00__private_Lean_Data_Name_0__Lean_Name_isInternalDetail_matchPrefix_spec__0(lean_object*, lean_object*);
-uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
+uint32_t lean_string_utf8_get_faster(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_le(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Slice_0__String_Slice_dropWhile_go___at___00__private_Lean_Data_Name_0__Lean_Name_isInternalDetail_matchPrefix_spec__0___boxed(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
@@ -1154,7 +1154,7 @@ lean_dec(x_15);
 if (x_16 == 0)
 {
 uint32_t x_17; uint8_t x_18; uint32_t x_22; uint8_t x_23; 
-x_17 = lean_string_utf8_get_fast(x_3, x_6);
+x_17 = lean_string_utf8_get_faster(x_3, x_6);
 x_22 = 48;
 x_23 = lean_uint32_dec_le(x_22, x_17);
 if (x_23 == 0)
@@ -1203,7 +1203,7 @@ return x_7;
 block_13:
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; 
-x_8 = lean_string_utf8_next_fast(x_3, x_6);
+x_8 = lean_string_utf8_next_faster(x_3, x_6);
 x_9 = lean_nat_sub(x_8, x_6);
 lean_dec(x_6);
 x_10 = lean_nat_add(x_2, x_9);

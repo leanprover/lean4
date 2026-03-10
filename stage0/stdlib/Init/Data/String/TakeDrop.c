@@ -47,7 +47,7 @@ LEAN_EXPORT lean_object* l_String_takeEndWhile(lean_object*, lean_object*, lean_
 LEAN_EXPORT lean_object* l_String_takeEndWhile___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_String_Slice_posLE(lean_object*, lean_object*);
-uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
+uint32_t lean_string_utf8_get_faster(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Slice_0__String_Slice_takeEndWhile_go___at___00String_takeRightWhile_spec__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_takeRightWhile(lean_object*, lean_object*);
@@ -93,7 +93,7 @@ lean_object* l_String_Slice_Pattern_CharPred_instForwardPatternForallCharBool(le
 static lean_once_cell_t l_String_trimAsciiStart___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_String_trimAsciiStart___closed__0;
 LEAN_EXPORT lean_object* l_String_trimAsciiStart(lean_object*);
-lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
+lean_object* lean_string_utf8_next_faster(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Slice_0__String_Slice_dropWhile_go___at___00String_trimLeft_spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Slice_0__String_Slice_dropWhile_go___at___00String_trimLeft_spec__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_trimLeft(lean_object*);
@@ -610,7 +610,7 @@ lean_dec(x_8);
 x_14 = l_String_Slice_posLE(x_11, x_13);
 lean_dec_ref(x_11);
 x_15 = lean_nat_add(x_5, x_14);
-x_16 = lean_string_utf8_get_fast(x_4, x_15);
+x_16 = lean_string_utf8_get_faster(x_4, x_15);
 lean_dec(x_15);
 x_17 = lean_box_uint32(x_16);
 lean_inc_ref(x_1);
@@ -893,7 +893,7 @@ x_12 = lean_nat_sub(x_8, x_11);
 lean_dec(x_8);
 x_13 = l_String_Slice_posLE(x_7, x_12);
 x_14 = lean_nat_add(x_5, x_13);
-x_15 = lean_string_utf8_get_fast(x_4, x_14);
+x_15 = lean_string_utf8_get_faster(x_4, x_14);
 lean_dec(x_14);
 x_16 = lean_box_uint32(x_15);
 lean_inc_ref(x_1);
@@ -1366,7 +1366,7 @@ x_11 = lean_nat_sub(x_7, x_10);
 lean_dec(x_7);
 x_12 = l_String_Slice_posLE(x_6, x_11);
 x_18 = lean_nat_add(x_4, x_12);
-x_19 = lean_string_utf8_get_fast(x_3, x_18);
+x_19 = lean_string_utf8_get_faster(x_3, x_18);
 lean_dec(x_18);
 x_26 = 32;
 x_27 = lean_uint32_dec_eq(x_19, x_26);
@@ -1551,7 +1551,7 @@ lean_dec(x_17);
 if (x_18 == 0)
 {
 uint32_t x_19; uint8_t x_20; uint32_t x_26; uint8_t x_27; 
-x_19 = lean_string_utf8_get_fast(x_3, x_6);
+x_19 = lean_string_utf8_get_faster(x_3, x_6);
 x_26 = 32;
 x_27 = lean_uint32_dec_eq(x_19, x_26);
 if (x_27 == 0)
@@ -1603,7 +1603,7 @@ return x_7;
 block_13:
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; 
-x_8 = lean_string_utf8_next_fast(x_3, x_6);
+x_8 = lean_string_utf8_next_faster(x_3, x_6);
 x_9 = lean_nat_sub(x_8, x_6);
 lean_dec(x_6);
 x_10 = lean_nat_add(x_2, x_9);

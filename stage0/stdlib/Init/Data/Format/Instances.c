@@ -94,9 +94,9 @@ lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___at___00String_toFormat_spec__1___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
+uint32_t lean_string_utf8_get_faster(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
-lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
+lean_object* lean_string_utf8_next_faster(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_String_Slice_subslice_x21(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___at___00String_toFormat_spec__1___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -615,12 +615,12 @@ if (x_20 == 0)
 {
 uint32_t x_21; uint32_t x_22; uint8_t x_23; 
 x_21 = 10;
-x_22 = lean_string_utf8_get_fast(x_1, x_14);
+x_22 = lean_string_utf8_get_faster(x_1, x_14);
 x_23 = lean_uint32_dec_eq(x_22, x_21);
 if (x_23 == 0)
 {
 lean_object* x_24; lean_object* x_25; 
-x_24 = lean_string_utf8_next_fast(x_1, x_14);
+x_24 = lean_string_utf8_next_faster(x_1, x_14);
 lean_dec(x_14);
 if (x_16 == 0)
 {
@@ -646,7 +646,7 @@ goto _start;
 else
 {
 lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; 
-x_29 = lean_string_utf8_next_fast(x_1, x_14);
+x_29 = lean_string_utf8_next_faster(x_1, x_14);
 x_30 = lean_nat_sub(x_29, x_14);
 x_31 = lean_nat_add(x_14, x_30);
 lean_dec(x_30);

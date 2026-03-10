@@ -90,9 +90,9 @@ static const lean_closure_object l_Lake_ArtifactDescr_instToJson___closed__0_val
 static const lean_object* l_Lake_ArtifactDescr_instToJson___closed__0 = (const lean_object*)&l_Lake_ArtifactDescr_instToJson___closed__0_value;
 LEAN_EXPORT const lean_object* l_Lake_ArtifactDescr_instToJson = (const lean_object*)&l_Lake_ArtifactDescr_instToJson___closed__0_value;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
+uint32_t lean_string_utf8_get_faster(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
-lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
+lean_object* lean_string_utf8_next_faster(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00Lake_ArtifactDescr_ofFilePath_x3f_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00Lake_ArtifactDescr_ofFilePath_x3f_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static const lean_string_object l_Lake_ArtifactDescr_ofFilePath_x3f___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 49, .m_capacity = 49, .m_length = 48, .m_data = "expected artifact file name to be a content hash"};
@@ -495,14 +495,14 @@ if (x_8 == 0)
 {
 uint32_t x_9; uint32_t x_10; uint8_t x_11; 
 lean_dec(x_4);
-x_9 = lean_string_utf8_get_fast(x_2, x_3);
+x_9 = lean_string_utf8_get_faster(x_2, x_3);
 x_10 = 46;
 x_11 = lean_uint32_dec_eq(x_9, x_10);
 if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; 
 x_12 = lean_box(0);
-x_13 = lean_string_utf8_next_fast(x_2, x_3);
+x_13 = lean_string_utf8_next_faster(x_2, x_3);
 lean_dec(x_3);
 x_3 = x_13;
 x_4 = x_12;
@@ -595,7 +595,7 @@ goto block_18;
 block_18:
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; uint64_t x_14; lean_object* x_15; 
-x_11 = lean_string_utf8_next_fast(x_1, x_2);
+x_11 = lean_string_utf8_next_faster(x_1, x_2);
 lean_dec(x_2);
 x_12 = lean_string_utf8_extract(x_1, x_11, x_3);
 lean_dec_ref(x_1);

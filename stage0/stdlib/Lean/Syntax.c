@@ -280,9 +280,9 @@ static const lean_ctor_object l_Lean_Syntax_rewriteBottomUp___closed__9_value = 
 static const lean_object* l_Lean_Syntax_rewriteBottomUp___closed__9 = (const lean_object*)&l_Lean_Syntax_rewriteBottomUp___closed__9_value;
 LEAN_EXPORT lean_object* l_Lean_Syntax_rewriteBottomUp(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Syntax_0__Lean_Syntax_updateInfo(lean_object*, lean_object*, lean_object*);
-uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
+uint32_t lean_string_utf8_get_faster(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
-lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
+lean_object* lean_string_utf8_next_faster(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Syntax_0__Lean_Syntax_chooseNiceTrailStop_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Syntax_0__Lean_Syntax_chooseNiceTrailStop_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_string_is_valid_pos(lean_object*, lean_object*);
@@ -3657,14 +3657,14 @@ uint32_t x_10; lean_object* x_11; uint32_t x_12; uint8_t x_13;
 lean_dec(x_5);
 x_10 = 10;
 x_11 = lean_nat_add(x_2, x_4);
-x_12 = lean_string_utf8_get_fast(x_3, x_11);
+x_12 = lean_string_utf8_get_faster(x_3, x_11);
 x_13 = lean_uint32_dec_eq(x_12, x_10);
 if (x_13 == 0)
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; 
 lean_dec(x_4);
 x_14 = lean_box(0);
-x_15 = lean_string_utf8_next_fast(x_3, x_11);
+x_15 = lean_string_utf8_next_faster(x_3, x_11);
 lean_dec(x_11);
 x_16 = lean_nat_sub(x_15, x_2);
 x_4 = x_16;

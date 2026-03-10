@@ -36,9 +36,9 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___at___00Lake_Toml_Time_ofString_x3f_spec__3___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
+uint32_t lean_string_utf8_get_faster(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
-lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
+lean_object* lean_string_utf8_next_faster(lean_object*, lean_object*);
 lean_object* l_String_Slice_subslice_x21(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___at___00Lake_Toml_Time_ofString_x3f_spec__3___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___at___00Lake_Toml_Time_ofString_x3f_spec__1___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -370,13 +370,13 @@ uint32_t x_22; lean_object* x_23; uint32_t x_24; uint8_t x_25;
 lean_dec(x_20);
 x_22 = 46;
 x_23 = lean_nat_add(x_9, x_5);
-x_24 = lean_string_utf8_get_fast(x_8, x_23);
+x_24 = lean_string_utf8_get_faster(x_8, x_23);
 x_25 = lean_uint32_dec_eq(x_24, x_22);
 if (x_25 == 0)
 {
 lean_object* x_26; lean_object* x_27; lean_object* x_28; 
 lean_dec(x_5);
-x_26 = lean_string_utf8_next_fast(x_8, x_23);
+x_26 = lean_string_utf8_next_faster(x_8, x_23);
 lean_dec(x_23);
 x_27 = lean_nat_sub(x_26, x_9);
 if (x_7 == 0)
@@ -403,7 +403,7 @@ goto _start;
 else
 {
 lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; 
-x_32 = lean_string_utf8_next_fast(x_8, x_23);
+x_32 = lean_string_utf8_next_faster(x_8, x_23);
 x_33 = lean_nat_sub(x_32, x_23);
 lean_dec(x_23);
 x_34 = lean_nat_add(x_5, x_33);
@@ -523,12 +523,12 @@ if (x_20 == 0)
 {
 uint32_t x_21; uint32_t x_22; uint8_t x_23; 
 x_21 = 58;
-x_22 = lean_string_utf8_get_fast(x_1, x_14);
+x_22 = lean_string_utf8_get_faster(x_1, x_14);
 x_23 = lean_uint32_dec_eq(x_22, x_21);
 if (x_23 == 0)
 {
 lean_object* x_24; lean_object* x_25; 
-x_24 = lean_string_utf8_next_fast(x_1, x_14);
+x_24 = lean_string_utf8_next_faster(x_1, x_14);
 lean_dec(x_14);
 if (x_16 == 0)
 {
@@ -554,7 +554,7 @@ goto _start;
 else
 {
 lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; 
-x_29 = lean_string_utf8_next_fast(x_1, x_14);
+x_29 = lean_string_utf8_next_faster(x_1, x_14);
 x_30 = lean_nat_sub(x_29, x_14);
 x_31 = lean_nat_add(x_14, x_30);
 lean_dec(x_30);
@@ -650,7 +650,7 @@ if (x_8 == 0)
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_9 = lean_nat_add(x_5, x_2);
 lean_dec(x_2);
-x_10 = lean_string_utf8_next_fast(x_4, x_9);
+x_10 = lean_string_utf8_next_faster(x_4, x_9);
 lean_dec(x_9);
 x_11 = lean_nat_sub(x_10, x_5);
 x_12 = lean_unsigned_to_nat(1u);
@@ -1710,13 +1710,13 @@ uint32_t x_23; lean_object* x_24; uint32_t x_25; uint8_t x_26;
 lean_dec(x_21);
 x_23 = 43;
 x_24 = lean_nat_add(x_9, x_5);
-x_25 = lean_string_utf8_get_fast(x_8, x_24);
+x_25 = lean_string_utf8_get_faster(x_8, x_24);
 x_26 = lean_uint32_dec_eq(x_25, x_23);
 if (x_26 == 0)
 {
 lean_object* x_27; lean_object* x_28; lean_object* x_29; 
 lean_dec(x_5);
-x_27 = lean_string_utf8_next_fast(x_8, x_24);
+x_27 = lean_string_utf8_next_faster(x_8, x_24);
 lean_dec(x_24);
 x_28 = lean_nat_sub(x_27, x_9);
 if (x_7 == 0)
@@ -1743,7 +1743,7 @@ goto _start;
 else
 {
 lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; 
-x_33 = lean_string_utf8_next_fast(x_8, x_24);
+x_33 = lean_string_utf8_next_faster(x_8, x_24);
 x_34 = lean_nat_sub(x_33, x_24);
 lean_dec(x_24);
 x_35 = lean_nat_add(x_5, x_34);
@@ -1864,7 +1864,7 @@ lean_dec(x_29);
 if (x_30 == 0)
 {
 uint32_t x_31; uint8_t x_32; uint32_t x_39; uint8_t x_40; 
-x_31 = lean_string_utf8_get_fast(x_1, x_14);
+x_31 = lean_string_utf8_get_faster(x_1, x_14);
 x_39 = 84;
 x_40 = lean_uint32_dec_eq(x_31, x_39);
 if (x_40 == 0)
@@ -1891,7 +1891,7 @@ if (x_34 == 0)
 {
 lean_object* x_35; lean_object* x_36; 
 lean_del_object(x_15);
-x_35 = lean_string_utf8_next_fast(x_1, x_14);
+x_35 = lean_string_utf8_next_faster(x_1, x_14);
 lean_dec(x_14);
 x_36 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_36, 0, x_13);
@@ -1925,7 +1925,7 @@ goto block_12;
 block_26:
 {
 lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
-x_17 = lean_string_utf8_next_fast(x_1, x_14);
+x_17 = lean_string_utf8_next_faster(x_1, x_14);
 x_18 = lean_nat_sub(x_17, x_14);
 x_19 = lean_nat_add(x_14, x_18);
 lean_dec(x_18);
@@ -2031,13 +2031,13 @@ uint32_t x_23; lean_object* x_24; uint32_t x_25; uint8_t x_26;
 lean_dec(x_21);
 x_23 = 45;
 x_24 = lean_nat_add(x_9, x_5);
-x_25 = lean_string_utf8_get_fast(x_8, x_24);
+x_25 = lean_string_utf8_get_faster(x_8, x_24);
 x_26 = lean_uint32_dec_eq(x_25, x_23);
 if (x_26 == 0)
 {
 lean_object* x_27; lean_object* x_28; lean_object* x_29; 
 lean_dec(x_5);
-x_27 = lean_string_utf8_next_fast(x_8, x_24);
+x_27 = lean_string_utf8_next_faster(x_8, x_24);
 lean_dec(x_24);
 x_28 = lean_nat_sub(x_27, x_9);
 if (x_7 == 0)
@@ -2064,7 +2064,7 @@ goto _start;
 else
 {
 lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; 
-x_33 = lean_string_utf8_next_fast(x_8, x_24);
+x_33 = lean_string_utf8_next_faster(x_8, x_24);
 x_34 = lean_nat_sub(x_33, x_24);
 lean_dec(x_24);
 x_35 = lean_nat_add(x_5, x_34);
@@ -2164,13 +2164,13 @@ if (x_8 == 0)
 lean_object* x_9; uint32_t x_10; uint32_t x_11; uint8_t x_12; 
 x_9 = lean_nat_add(x_5, x_2);
 lean_dec(x_2);
-x_10 = lean_string_utf8_get_fast(x_4, x_9);
+x_10 = lean_string_utf8_get_faster(x_4, x_9);
 x_11 = 58;
 x_12 = lean_uint32_dec_eq(x_10, x_11);
 if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; 
-x_13 = lean_string_utf8_next_fast(x_4, x_9);
+x_13 = lean_string_utf8_next_faster(x_4, x_9);
 lean_dec(x_9);
 x_14 = lean_nat_sub(x_13, x_5);
 x_2 = x_14;

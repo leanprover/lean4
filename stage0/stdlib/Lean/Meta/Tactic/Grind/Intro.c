@@ -57,8 +57,8 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_preprocessHypothesis___boxed(lean_obj
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
-lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
-uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
+lean_object* lean_string_utf8_next_faster(lean_object*, lean_object*);
+uint32_t lean_string_utf8_get_faster(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Meta_Tactic_Grind_Intro_0__Lean_Meta_Grind_mkBaseName_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_uint32_dec_le(uint32_t, uint32_t);
@@ -985,9 +985,9 @@ x_23 = lean_nat_dec_eq(x_1, x_22);
 x_24 = 1;
 x_25 = lean_nat_add(x_3, x_5);
 lean_dec(x_5);
-x_26 = lean_string_utf8_next_fast(x_4, x_25);
+x_26 = lean_string_utf8_next_faster(x_4, x_25);
 x_27 = lean_nat_sub(x_26, x_3);
-x_28 = lean_string_utf8_get_fast(x_4, x_25);
+x_28 = lean_string_utf8_get_faster(x_4, x_25);
 lean_dec(x_25);
 x_66 = 48;
 x_67 = lean_uint32_dec_le(x_66, x_28);
@@ -1228,14 +1228,14 @@ if (x_8 == 0)
 {
 uint32_t x_9; uint32_t x_10; uint8_t x_11; 
 lean_dec(x_4);
-x_9 = lean_string_utf8_get_fast(x_2, x_3);
+x_9 = lean_string_utf8_get_faster(x_2, x_3);
 x_10 = 95;
 x_11 = lean_uint32_dec_eq(x_9, x_10);
 if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; 
 x_12 = lean_box(0);
-x_13 = lean_string_utf8_next_fast(x_2, x_3);
+x_13 = lean_string_utf8_next_faster(x_2, x_3);
 lean_dec(x_3);
 x_3 = x_13;
 x_4 = x_12;
@@ -1363,7 +1363,7 @@ x_52 = lean_nat_dec_eq(x_50, x_51);
 if (x_52 == 0)
 {
 lean_object* x_53; lean_object* x_54; lean_object* x_55; uint8_t x_56; 
-x_53 = lean_string_utf8_next_fast(x_36, x_50);
+x_53 = lean_string_utf8_next_faster(x_36, x_50);
 x_54 = lean_nat_sub(x_51, x_53);
 x_55 = lean_unsigned_to_nat(0u);
 x_56 = lean_nat_dec_eq(x_54, x_55);

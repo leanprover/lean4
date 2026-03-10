@@ -14,8 +14,8 @@
 extern "C" {
 #endif
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
-uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
+lean_object* lean_string_utf8_next_faster(lean_object*, lean_object*);
+uint32_t lean_string_utf8_get_faster(lean_object*, lean_object*);
 lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeAux(lean_object*, uint32_t);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_CompletionItemCompression_0__Lean_Lsp_ResolvableCompletionList_compressItemDataFast___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_CompletionItemCompression_0__Lean_Lsp_ResolvableCompletionList_compressItemDataFast___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -128,8 +128,8 @@ x_7 = lean_nat_dec_eq(x_3, x_1);
 if (x_7 == 0)
 {
 lean_object* x_8; uint32_t x_9; lean_object* x_10; lean_object* x_11; 
-x_8 = lean_string_utf8_next_fast(x_2, x_3);
-x_9 = lean_string_utf8_get_fast(x_2, x_3);
+x_8 = lean_string_utf8_next_faster(x_2, x_3);
+x_9 = lean_string_utf8_get_faster(x_2, x_3);
 x_10 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeAux(x_4, x_9);
 x_11 = lean_apply_4(x_6, x_8, x_10, lean_box(0), lean_box(0));
 return x_11;
@@ -160,8 +160,8 @@ x_7 = lean_nat_dec_eq(x_3, x_1);
 if (x_7 == 0)
 {
 lean_object* x_8; uint32_t x_9; lean_object* x_10; lean_object* x_11; 
-x_8 = lean_string_utf8_next_fast(x_2, x_3);
-x_9 = lean_string_utf8_get_fast(x_2, x_3);
+x_8 = lean_string_utf8_next_faster(x_2, x_3);
+x_9 = lean_string_utf8_get_faster(x_2, x_3);
 x_10 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeAux(x_4, x_9);
 x_11 = lean_apply_4(x_6, x_8, x_10, lean_box(0), lean_box(0));
 return x_11;
@@ -400,8 +400,8 @@ x_7 = lean_nat_dec_eq(x_3, x_1);
 if (x_7 == 0)
 {
 lean_object* x_8; uint32_t x_9; lean_object* x_10; lean_object* x_11; 
-x_8 = lean_string_utf8_next_fast(x_2, x_3);
-x_9 = lean_string_utf8_get_fast(x_2, x_3);
+x_8 = lean_string_utf8_next_faster(x_2, x_3);
+x_9 = lean_string_utf8_get_faster(x_2, x_3);
 x_10 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeAux(x_4, x_9);
 x_11 = lean_apply_4(x_6, x_8, x_10, lean_box(0), lean_box(0));
 return x_11;
@@ -738,8 +738,8 @@ x_7 = lean_nat_dec_eq(x_3, x_1);
 if (x_7 == 0)
 {
 lean_object* x_8; uint32_t x_9; lean_object* x_10; lean_object* x_11; 
-x_8 = lean_string_utf8_next_fast(x_2, x_3);
-x_9 = lean_string_utf8_get_fast(x_2, x_3);
+x_8 = lean_string_utf8_next_faster(x_2, x_3);
+x_9 = lean_string_utf8_get_faster(x_2, x_3);
 x_10 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeAux(x_4, x_9);
 x_11 = lean_apply_4(x_6, x_8, x_10, lean_box(0), lean_box(0));
 return x_11;
@@ -770,8 +770,8 @@ x_7 = lean_nat_dec_eq(x_3, x_1);
 if (x_7 == 0)
 {
 lean_object* x_8; uint32_t x_9; lean_object* x_10; lean_object* x_11; 
-x_8 = lean_string_utf8_next_fast(x_2, x_3);
-x_9 = lean_string_utf8_get_fast(x_2, x_3);
+x_8 = lean_string_utf8_next_faster(x_2, x_3);
+x_9 = lean_string_utf8_get_faster(x_2, x_3);
 x_10 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeAux(x_4, x_9);
 x_11 = lean_apply_4(x_6, x_8, x_10, lean_box(0), lean_box(0));
 return x_11;
@@ -1487,8 +1487,8 @@ lean_dec(x_7);
 if (x_8 == 0)
 {
 lean_object* x_9; uint32_t x_10; lean_object* x_11; 
-x_9 = lean_string_utf8_next_fast(x_2, x_3);
-x_10 = lean_string_utf8_get_fast(x_2, x_3);
+x_9 = lean_string_utf8_next_faster(x_2, x_3);
+x_10 = lean_string_utf8_get_faster(x_2, x_3);
 lean_dec(x_3);
 x_11 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeAux(x_4, x_10);
 x_3 = x_9;

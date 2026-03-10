@@ -16,7 +16,7 @@ extern "C" {
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
-lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
+lean_object* lean_string_utf8_next_faster(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Model_positionsFrom(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Model_positionsFrom___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Lemmas_Iterate_0__Std_Iter_toArray__eq__match__step_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -46,7 +46,7 @@ if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 x_8 = lean_nat_add(x_4, x_2);
-x_9 = lean_string_utf8_next_fast(x_3, x_8);
+x_9 = lean_string_utf8_next_faster(x_3, x_8);
 lean_dec(x_8);
 x_10 = lean_nat_sub(x_9, x_4);
 x_11 = l_String_Slice_Model_positionsFrom(x_1, x_10);
@@ -166,7 +166,7 @@ x_4 = lean_nat_dec_eq(x_2, x_3);
 if (x_4 == 0)
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_5 = lean_string_utf8_next_fast(x_1, x_2);
+x_5 = lean_string_utf8_next_faster(x_1, x_2);
 x_6 = l_String_Model_positionsFrom(x_1, x_5);
 x_7 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_7, 0, x_2);

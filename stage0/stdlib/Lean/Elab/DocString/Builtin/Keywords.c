@@ -717,9 +717,9 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_toArray___at___00__private_Lea
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_toArray___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_kwImpl_spec__9___redArg___boxed(lean_object*);
 lean_object* l_String_Slice_toString(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_kwImpl_spec__1___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
+lean_object* lean_string_utf8_next_faster(lean_object*, lean_object*);
 lean_object* l_String_Slice_subslice_x21(lean_object*, lean_object*, lean_object*);
-uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
+uint32_t lean_string_utf8_get_faster(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___at___00__private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_kwImpl_spec__1___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentArray_push___redArg(lean_object*, lean_object*);
@@ -19279,7 +19279,7 @@ lean_dec(x_35);
 if (x_36 == 0)
 {
 uint32_t x_37; uint8_t x_38; uint32_t x_44; uint8_t x_45; 
-x_37 = lean_string_utf8_get_fast(x_1, x_15);
+x_37 = lean_string_utf8_get_faster(x_1, x_15);
 x_44 = 32;
 x_45 = lean_uint32_dec_eq(x_37, x_44);
 if (x_45 == 0)
@@ -19337,7 +19337,7 @@ goto block_13;
 block_27:
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
-x_18 = lean_string_utf8_next_fast(x_1, x_15);
+x_18 = lean_string_utf8_next_faster(x_1, x_15);
 x_19 = lean_nat_sub(x_18, x_15);
 x_20 = lean_nat_add(x_15, x_19);
 lean_dec(x_19);
@@ -19379,7 +19379,7 @@ if (x_28 == 0)
 {
 lean_object* x_29; lean_object* x_30; 
 lean_del_object(x_16);
-x_29 = lean_string_utf8_next_fast(x_1, x_15);
+x_29 = lean_string_utf8_next_faster(x_1, x_15);
 lean_dec(x_15);
 x_30 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_30, 0, x_14);

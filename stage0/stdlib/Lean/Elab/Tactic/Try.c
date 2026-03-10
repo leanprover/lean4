@@ -1492,9 +1492,9 @@ uint8_t lean_string_memcmp(lean_object*, lean_object*, lean_object*, lean_object
 lean_object* l_String_Slice_pos_x21(lean_object*, lean_object*);
 lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_runParserCategory(lean_object*, lean_object*, lean_object*, lean_object*);
-uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
+uint32_t lean_string_utf8_get_faster(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
-lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
+lean_object* lean_string_utf8_next_faster(lean_object*, lean_object*);
 lean_object* l_String_Slice_subslice_x21(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Elab_Tactic_Try_0__Lean_Elab_Tactic_Try_expandUserTactic_spec__1___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___00__private_Lean_Elab_Tactic_Try_0__Lean_Elab_Tactic_Try_expandUserTactic_spec__2___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -13353,12 +13353,12 @@ if (x_40 == 0)
 {
 uint32_t x_41; uint32_t x_42; uint8_t x_43; 
 x_41 = 10;
-x_42 = lean_string_utf8_get_fast(x_1, x_34);
+x_42 = lean_string_utf8_get_faster(x_1, x_34);
 x_43 = lean_uint32_dec_eq(x_42, x_41);
 if (x_43 == 0)
 {
 lean_object* x_44; lean_object* x_45; 
-x_44 = lean_string_utf8_next_fast(x_1, x_34);
+x_44 = lean_string_utf8_next_faster(x_1, x_34);
 lean_dec(x_34);
 if (x_36 == 0)
 {
@@ -13384,7 +13384,7 @@ goto _start;
 else
 {
 lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; 
-x_49 = lean_string_utf8_next_fast(x_1, x_34);
+x_49 = lean_string_utf8_next_faster(x_1, x_34);
 x_50 = lean_nat_sub(x_49, x_34);
 x_51 = lean_nat_add(x_34, x_50);
 lean_dec(x_50);

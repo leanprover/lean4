@@ -138,8 +138,8 @@ static const lean_string_object l_WellFounded_opaqueFix_u2083___at___00Lean_IR_E
 static const lean_object* l_WellFounded_opaqueFix_u2083___at___00Lean_IR_EmitC_quoteString_spec__0___redArg___closed__6 = (const lean_object*)&l_WellFounded_opaqueFix_u2083___at___00Lean_IR_EmitC_quoteString_spec__0___redArg___closed__6_value;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
-uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
+lean_object* lean_string_utf8_next_faster(lean_object*, lean_object*);
+uint32_t lean_string_utf8_get_faster(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 lean_object* lean_uint32_to_nat(uint32_t);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
@@ -1669,8 +1669,8 @@ lean_dec(x_7);
 if (x_8 == 0)
 {
 lean_object* x_9; uint32_t x_10; uint32_t x_11; uint8_t x_12; 
-x_9 = lean_string_utf8_next_fast(x_2, x_3);
-x_10 = lean_string_utf8_get_fast(x_2, x_3);
+x_9 = lean_string_utf8_next_faster(x_2, x_3);
+x_10 = lean_string_utf8_get_faster(x_2, x_3);
 lean_dec(x_3);
 x_11 = 10;
 x_12 = lean_uint32_dec_eq(x_10, x_11);

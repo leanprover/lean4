@@ -104,9 +104,9 @@ LEAN_EXPORT lean_object* l_Lean_Name_escapePart(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Name_escapePart___boxed(lean_object*, lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at___00__private_Init_Data_ToString_Name_0__Lean_Name_toStringWithSep_maybeEscape_spec__2(lean_object*);
-lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
+lean_object* lean_string_utf8_next_faster(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Slice_0__String_Slice_dropWhile_go___at___00__private_Init_Data_ToString_Name_0__Lean_Name_toStringWithSep_maybeEscape_spec__1(lean_object*, lean_object*);
-uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
+uint32_t lean_string_utf8_get_faster(lean_object*, lean_object*);
 uint8_t l_Lean_isSubScriptAlnum(uint32_t);
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Slice_0__String_Slice_dropWhile_go___at___00__private_Init_Data_ToString_Name_0__Lean_Name_toStringWithSep_maybeEscape_spec__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_WellFounded_opaqueFix_u2083___at___00String_Slice_contains___at___00__private_Init_Data_ToString_Name_0__Lean_Name_toStringWithSep_maybeEscape_spec__0_spec__0___redArg(lean_object*, lean_object*, uint8_t);
@@ -1682,7 +1682,7 @@ lean_dec(x_17);
 if (x_18 == 0)
 {
 uint32_t x_19; uint8_t x_20; uint8_t x_32; uint32_t x_43; uint8_t x_44; 
-x_19 = lean_string_utf8_get_fast(x_3, x_6);
+x_19 = lean_string_utf8_get_faster(x_3, x_6);
 x_43 = 65;
 x_44 = lean_uint32_dec_le(x_43, x_19);
 if (x_44 == 0)
@@ -1826,7 +1826,7 @@ return x_7;
 block_13:
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; 
-x_8 = lean_string_utf8_next_fast(x_3, x_6);
+x_8 = lean_string_utf8_next_faster(x_3, x_6);
 x_9 = lean_nat_sub(x_8, x_6);
 lean_dec(x_6);
 x_10 = lean_nat_add(x_2, x_9);
@@ -1884,13 +1884,13 @@ if (x_8 == 0)
 lean_object* x_9; uint32_t x_10; uint32_t x_11; uint8_t x_12; 
 x_9 = lean_nat_add(x_5, x_2);
 lean_dec(x_2);
-x_10 = lean_string_utf8_get_fast(x_4, x_9);
+x_10 = lean_string_utf8_get_faster(x_4, x_9);
 x_11 = 187;
 x_12 = lean_uint32_dec_eq(x_10, x_11);
 if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; 
-x_13 = lean_string_utf8_next_fast(x_4, x_9);
+x_13 = lean_string_utf8_next_faster(x_4, x_9);
 lean_dec(x_9);
 x_14 = lean_nat_sub(x_13, x_5);
 x_2 = x_14;

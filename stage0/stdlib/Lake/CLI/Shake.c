@@ -450,9 +450,9 @@ lean_object* l_Lean_Message_toString(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Shake_0__Lake_Shake_parseHeaderFromString___lam__0(uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Shake_0__Lake_Shake_parseHeaderFromString___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
+uint32_t lean_string_utf8_get_faster(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
-lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
+lean_object* lean_string_utf8_next_faster(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lake_CLI_Shake_0__Lake_Shake_parseHeaderFromString_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lake_CLI_Shake_0__Lake_Shake_parseHeaderFromString_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_PersistentArray_forM___at___00Lean_MessageLog_forM___at___00__private_Lake_CLI_Shake_0__Lake_Shake_parseHeaderFromString_spec__2_spec__3_spec__5(lean_object*, lean_object*, size_t, size_t, lean_object*);
@@ -6667,7 +6667,7 @@ if (x_9 == 0)
 lean_object* x_10; uint32_t x_11; uint32_t x_12; uint8_t x_13; 
 lean_dec(x_5);
 x_10 = lean_nat_add(x_2, x_4);
-x_11 = lean_string_utf8_get_fast(x_3, x_10);
+x_11 = lean_string_utf8_get_faster(x_3, x_10);
 x_12 = 10;
 x_13 = lean_uint32_dec_eq(x_11, x_12);
 if (x_13 == 0)
@@ -6675,7 +6675,7 @@ if (x_13 == 0)
 lean_object* x_14; lean_object* x_15; lean_object* x_16; 
 lean_dec(x_4);
 x_14 = lean_box(0);
-x_15 = lean_string_utf8_next_fast(x_3, x_10);
+x_15 = lean_string_utf8_next_faster(x_3, x_10);
 lean_dec(x_10);
 x_16 = lean_nat_sub(x_15, x_2);
 x_4 = x_16;
@@ -12134,7 +12134,7 @@ x_9 = lean_ctor_get(x_1, 0);
 x_10 = lean_ctor_get(x_1, 1);
 x_11 = lean_nat_add(x_10, x_6);
 lean_dec(x_6);
-x_12 = lean_string_utf8_next_fast(x_9, x_11);
+x_12 = lean_string_utf8_next_faster(x_9, x_11);
 lean_dec(x_11);
 x_13 = lean_nat_sub(x_12, x_10);
 if (x_8 == 0)

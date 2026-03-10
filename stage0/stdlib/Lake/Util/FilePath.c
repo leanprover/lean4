@@ -30,7 +30,7 @@ lean_object* lean_string_utf8_set(lean_object*, lean_object*, uint32_t);
 lean_object* l_Char_utf8Size(uint32_t);
 LEAN_EXPORT lean_object* l_String_mapAux___at___00Lake_mkRelPathString_spec__0(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
+uint32_t lean_string_utf8_get_faster(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 extern uint8_t l_System_Platform_isWindows;
 LEAN_EXPORT lean_object* l_Lake_mkRelPathString(lean_object*);
@@ -245,7 +245,7 @@ x_10 = lean_nat_dec_eq(x_2, x_9);
 if (x_10 == 0)
 {
 uint32_t x_11; uint32_t x_12; uint8_t x_13; 
-x_11 = lean_string_utf8_get_fast(x_1, x_2);
+x_11 = lean_string_utf8_get_faster(x_1, x_2);
 x_12 = 92;
 x_13 = lean_uint32_dec_eq(x_11, x_12);
 if (x_13 == 0)

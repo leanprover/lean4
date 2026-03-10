@@ -26,7 +26,7 @@ LEAN_EXPORT lean_object* l_String_Slice_positions___boxed(lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
-lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
+lean_object* lean_string_utf8_next_faster(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_PosIterator_instIteratorSubtypePosNeEndPosOfPure___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_PosIterator_instIteratorSubtypePosNeEndPosOfPure___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_PosIterator_instIteratorSubtypePosNeEndPosOfPure___redArg(lean_object*, lean_object*);
@@ -112,7 +112,7 @@ LEAN_EXPORT lean_object* l_String_Slice_RevByteIterator_instIteratorLoopUInt8OfM
 LEAN_EXPORT lean_object* l_String_Slice_RevByteIterator_instIteratorLoopUInt8OfMonad(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_RevByteIterator_instForInCharOfMonad___redArg___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_RevByteIterator_instForInCharOfMonad___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*);
-uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
+uint32_t lean_string_utf8_get_faster(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_RevByteIterator_instForInCharOfMonad___redArg___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_RevByteIterator_instForInCharOfMonad___redArg___lam__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_RevByteIterator_instForInCharOfMonad___redArg___lam__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -251,7 +251,7 @@ if (x_8 == 0)
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_9 = lean_nat_add(x_5, x_3);
-x_10 = lean_string_utf8_next_fast(x_4, x_9);
+x_10 = lean_string_utf8_next_faster(x_4, x_9);
 lean_dec(x_9);
 x_11 = lean_nat_sub(x_10, x_5);
 x_12 = lean_alloc_ctor(0, 2, 0);
@@ -407,7 +407,7 @@ if (x_16 == 0)
 {
 lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
 x_17 = lean_nat_add(x_12, x_7);
-x_18 = lean_string_utf8_next_fast(x_11, x_17);
+x_18 = lean_string_utf8_next_faster(x_11, x_17);
 lean_dec(x_17);
 x_19 = lean_nat_sub(x_18, x_12);
 x_20 = lean_alloc_ctor(0, 2, 0);
@@ -517,7 +517,7 @@ if (x_8 == 0)
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_9 = lean_nat_add(x_5, x_2);
 lean_dec(x_2);
-x_10 = lean_string_utf8_next_fast(x_4, x_9);
+x_10 = lean_string_utf8_next_faster(x_4, x_9);
 lean_dec(x_9);
 x_11 = lean_nat_sub(x_10, x_5);
 x_12 = lean_unsigned_to_nat(1u);
@@ -1573,13 +1573,13 @@ if (x_14 == 0)
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; uint32_t x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
 x_15 = lean_nat_add(x_11, x_6);
-x_16 = lean_string_utf8_next_fast(x_10, x_15);
+x_16 = lean_string_utf8_next_faster(x_10, x_15);
 x_17 = lean_nat_sub(x_16, x_11);
 x_18 = lean_alloc_closure((void*)(l_String_Slice_RevByteIterator_instForInCharOfMonad___redArg___lam__1), 4, 3);
 lean_closure_set(x_18, 0, x_2);
 lean_closure_set(x_18, 1, x_9);
 lean_closure_set(x_18, 2, x_17);
-x_19 = lean_string_utf8_get_fast(x_10, x_15);
+x_19 = lean_string_utf8_get_faster(x_10, x_15);
 lean_dec(x_15);
 x_20 = lean_box_uint32(x_19);
 x_21 = lean_apply_2(x_3, x_20, x_7);
@@ -1668,9 +1668,9 @@ if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; uint32_t x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
 x_12 = lean_nat_add(x_8, x_3);
-x_13 = lean_string_utf8_next_fast(x_7, x_12);
+x_13 = lean_string_utf8_next_faster(x_7, x_12);
 x_14 = lean_nat_sub(x_13, x_8);
-x_15 = lean_string_utf8_get_fast(x_7, x_12);
+x_15 = lean_string_utf8_get_faster(x_7, x_12);
 lean_dec(x_12);
 x_16 = lean_box_uint32(x_15);
 x_17 = lean_apply_2(x_2, x_4, x_16);
@@ -1734,7 +1734,7 @@ x_11 = lean_unsigned_to_nat(1u);
 x_12 = lean_nat_sub(x_3, x_11);
 x_13 = l_String_Slice_posLE(x_1, x_12);
 x_14 = lean_nat_add(x_10, x_13);
-x_15 = lean_string_utf8_get_fast(x_9, x_14);
+x_15 = lean_string_utf8_get_faster(x_9, x_14);
 lean_dec(x_14);
 x_16 = lean_box_uint32(x_15);
 x_17 = lean_apply_2(x_2, x_16, x_4);
@@ -1988,12 +1988,12 @@ x_11 = lean_nat_dec_eq(x_7, x_1);
 if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; uint32_t x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
-x_12 = lean_string_utf8_next_fast(x_2, x_7);
+x_12 = lean_string_utf8_next_faster(x_2, x_7);
 x_13 = lean_alloc_closure((void*)(l_String_Slice_RevByteIterator_instForInCharOfMonad___redArg___lam__1), 4, 3);
 lean_closure_set(x_13, 0, x_3);
 lean_closure_set(x_13, 1, x_10);
 lean_closure_set(x_13, 2, x_12);
-x_14 = lean_string_utf8_get_fast(x_2, x_7);
+x_14 = lean_string_utf8_get_faster(x_2, x_7);
 x_15 = lean_box_uint32(x_14);
 x_16 = lean_apply_2(x_4, x_15, x_8);
 lean_inc(x_5);

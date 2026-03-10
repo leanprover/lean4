@@ -29,7 +29,7 @@ LEAN_EXPORT lean_object* l_String_Pos_appendRight___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_String_Pos_appendRight___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_String_Pos_appendRight(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Pos_appendRight___boxed(lean_object*, lean_object*, lean_object*);
-uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
+uint32_t lean_string_utf8_get_faster(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Pos_modify___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Pos_modify(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Pos_toModifyOfLE___redArg(lean_object*);
@@ -193,7 +193,7 @@ LEAN_EXPORT lean_object* l_String_Pos_modify___redArg(lean_object* x_1, lean_obj
 _start:
 {
 uint32_t x_4; lean_object* x_5; lean_object* x_6; uint32_t x_7; lean_object* x_8; 
-x_4 = lean_string_utf8_get_fast(x_1, x_2);
+x_4 = lean_string_utf8_get_faster(x_1, x_2);
 x_5 = lean_box_uint32(x_4);
 x_6 = lean_apply_1(x_3, x_5);
 x_7 = lean_unbox_uint32(x_6);
@@ -206,7 +206,7 @@ LEAN_EXPORT lean_object* l_String_Pos_modify(lean_object* x_1, lean_object* x_2,
 _start:
 {
 uint32_t x_5; lean_object* x_6; lean_object* x_7; uint32_t x_8; lean_object* x_9; 
-x_5 = lean_string_utf8_get_fast(x_1, x_2);
+x_5 = lean_string_utf8_get_faster(x_1, x_2);
 x_6 = lean_box_uint32(x_5);
 x_7 = lean_apply_1(x_3, x_6);
 x_8 = lean_unbox_uint32(x_7);
@@ -254,7 +254,7 @@ LEAN_EXPORT lean_object* l_String_Pos_pastModify___redArg(lean_object* x_1, lean
 _start:
 {
 uint32_t x_4; lean_object* x_5; lean_object* x_6; uint32_t x_7; lean_object* x_8; lean_object* x_9; 
-x_4 = lean_string_utf8_get_fast(x_1, x_2);
+x_4 = lean_string_utf8_get_faster(x_1, x_2);
 x_5 = lean_box_uint32(x_4);
 x_6 = lean_apply_1(x_3, x_5);
 x_7 = lean_unbox_uint32(x_6);
@@ -279,7 +279,7 @@ LEAN_EXPORT lean_object* l_String_Pos_pastModify(lean_object* x_1, lean_object* 
 _start:
 {
 uint32_t x_5; lean_object* x_6; lean_object* x_7; uint32_t x_8; lean_object* x_9; lean_object* x_10; 
-x_5 = lean_string_utf8_get_fast(x_1, x_2);
+x_5 = lean_string_utf8_get_faster(x_1, x_2);
 x_6 = lean_box_uint32(x_5);
 x_7 = lean_apply_1(x_3, x_6);
 x_8 = lean_unbox_uint32(x_7);
@@ -375,7 +375,7 @@ x_5 = lean_nat_dec_eq(x_3, x_4);
 if (x_5 == 0)
 {
 uint32_t x_6; lean_object* x_7; lean_object* x_8; uint32_t x_9; lean_object* x_10; uint32_t x_11; lean_object* x_12; lean_object* x_13; 
-x_6 = lean_string_utf8_get_fast(x_2, x_3);
+x_6 = lean_string_utf8_get_faster(x_2, x_3);
 x_7 = lean_box_uint32(x_6);
 lean_inc_ref(x_1);
 x_8 = lean_apply_1(x_1, x_7);

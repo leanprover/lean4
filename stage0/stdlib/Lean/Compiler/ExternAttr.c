@@ -164,8 +164,8 @@ lean_object* l_Lean_ParametricAttribute_getParam_x3f___redArg(lean_object*, lean
 LEAN_EXPORT lean_object* l_Lean_getExternAttrData_x3f(lean_object*, lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
-lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
+uint32_t lean_string_utf8_get_faster(lean_object*, lean_object*);
+lean_object* lean_string_utf8_next_faster(lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 lean_object* lean_uint32_to_nat(uint32_t);
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -1582,7 +1582,7 @@ lean_object* x_10; lean_object* x_11; uint32_t x_12; uint8_t x_13; uint32_t x_24
 x_10 = lean_unsigned_to_nat(1u);
 x_11 = lean_nat_sub(x_1, x_10);
 lean_dec(x_1);
-x_12 = lean_string_utf8_get_fast(x_2, x_3);
+x_12 = lean_string_utf8_get_faster(x_2, x_3);
 x_24 = 48;
 x_25 = lean_uint32_dec_le(x_24, x_12);
 if (x_25 == 0)
@@ -1612,7 +1612,7 @@ return x_14;
 else
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
-x_15 = lean_string_utf8_next_fast(x_2, x_3);
+x_15 = lean_string_utf8_next_faster(x_2, x_3);
 lean_dec(x_3);
 x_16 = lean_unsigned_to_nat(10u);
 x_17 = lean_nat_mul(x_4, x_16);
@@ -1676,7 +1676,7 @@ lean_object* x_10; lean_object* x_11; uint32_t x_12; uint32_t x_17; uint8_t x_18
 x_10 = lean_unsigned_to_nat(1u);
 x_11 = lean_nat_sub(x_2, x_10);
 lean_dec(x_2);
-x_12 = lean_string_utf8_get_fast(x_3, x_4);
+x_12 = lean_string_utf8_get_faster(x_3, x_4);
 x_17 = 35;
 x_18 = lean_uint32_dec_eq(x_12, x_17);
 if (x_18 == 0)
@@ -1688,7 +1688,7 @@ else
 if (x_9 == 0)
 {
 lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; 
-x_19 = lean_string_utf8_next_fast(x_3, x_4);
+x_19 = lean_string_utf8_next_faster(x_3, x_4);
 lean_dec(x_4);
 lean_inc_ref(x_3);
 x_20 = l_String_Pos_remainingBytes(x_3, x_19);
@@ -1717,7 +1717,7 @@ goto block_16;
 block_16:
 {
 lean_object* x_13; lean_object* x_14; 
-x_13 = lean_string_utf8_next_fast(x_3, x_4);
+x_13 = lean_string_utf8_next_faster(x_3, x_4);
 lean_dec(x_4);
 x_14 = lean_string_push(x_5, x_12);
 x_2 = x_11;

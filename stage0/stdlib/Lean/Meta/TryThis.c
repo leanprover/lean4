@@ -218,7 +218,7 @@ uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_String_Slice_posLE(lean_object*, lean_object*);
-uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
+uint32_t lean_string_utf8_get_faster(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00String_Slice_revFind_x3f___at___00__private_Lean_Meta_TryThis_0__Lean_Meta_Tactic_TryThis_getIndentAndColumn_findLineStart_spec__0_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00String_Slice_revFind_x3f___at___00__private_Lean_Meta_TryThis_0__Lean_Meta_Tactic_TryThis_getIndentAndColumn_findLineStart_spec__0_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*);
@@ -229,7 +229,7 @@ lean_object* l_String_Slice_Pos_next_x21(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_TryThis_0__Lean_Meta_Tactic_TryThis_getIndentAndColumn_findLineStart(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00String_Slice_revFind_x3f___at___00__private_Lean_Meta_TryThis_0__Lean_Meta_Tactic_TryThis_getIndentAndColumn_findLineStart_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00String_Slice_revFind_x3f___at___00__private_Lean_Meta_TryThis_0__Lean_Meta_Tactic_TryThis_getIndentAndColumn_findLineStart_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
+lean_object* lean_string_utf8_next_faster(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00Lean_Meta_Tactic_TryThis_getIndentAndColumn_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00Lean_Meta_Tactic_TryThis_getIndentAndColumn_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_String_Slice_pos_x21(lean_object*, lean_object*);
@@ -995,7 +995,7 @@ lean_dec(x_11);
 x_14 = l_String_Slice_posLE(x_10, x_13);
 lean_dec_ref(x_10);
 x_15 = lean_nat_add(x_7, x_14);
-x_16 = lean_string_utf8_get_fast(x_6, x_15);
+x_16 = lean_string_utf8_get_faster(x_6, x_15);
 lean_dec(x_15);
 x_17 = lean_uint32_dec_eq(x_16, x_8);
 if (x_17 == 0)
@@ -1142,7 +1142,7 @@ if (x_8 == 0)
 lean_object* x_9; uint32_t x_10; uint32_t x_11; uint8_t x_12; 
 lean_dec(x_3);
 x_9 = lean_nat_add(x_5, x_2);
-x_10 = lean_string_utf8_get_fast(x_4, x_9);
+x_10 = lean_string_utf8_get_faster(x_4, x_9);
 x_11 = 32;
 x_12 = lean_uint32_dec_eq(x_10, x_11);
 if (x_12 == 0)
@@ -1160,7 +1160,7 @@ if (x_8 == 0)
 lean_object* x_14; lean_object* x_15; lean_object* x_16; 
 lean_dec(x_2);
 x_14 = lean_box(0);
-x_15 = lean_string_utf8_next_fast(x_4, x_9);
+x_15 = lean_string_utf8_next_faster(x_4, x_9);
 lean_dec(x_9);
 x_16 = lean_nat_sub(x_15, x_5);
 x_2 = x_16;

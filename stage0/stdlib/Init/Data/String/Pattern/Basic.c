@@ -61,7 +61,7 @@ LEAN_EXPORT lean_object* l_String_Slice_Pattern_ToForwardSearcher_instInhabitedD
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_ToForwardSearcher_DefaultForwardSearcher_iter(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_ToForwardSearcher_DefaultForwardSearcher_iter___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
+lean_object* lean_string_utf8_next_faster(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_ToForwardSearcher_DefaultForwardSearcher_instIteratorIdSearchStepOfForwardPattern___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_ToForwardSearcher_DefaultForwardSearcher_instIteratorIdSearchStepOfForwardPattern___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_ToForwardSearcher_DefaultForwardSearcher_instIteratorIdSearchStepOfForwardPattern(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -749,7 +749,7 @@ x_14 = lean_apply_2(x_11, x_13, lean_box(0));
 if (lean_obj_tag(x_14) == 0)
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
-x_15 = lean_string_utf8_next_fast(x_4, x_12);
+x_15 = lean_string_utf8_next_faster(x_4, x_12);
 lean_dec(x_12);
 lean_dec_ref(x_4);
 x_16 = lean_nat_sub(x_15, x_5);
@@ -966,7 +966,7 @@ x_20 = lean_apply_2(x_17, x_19, lean_box(0));
 if (lean_obj_tag(x_20) == 0)
 {
 lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 
-x_21 = lean_string_utf8_next_fast(x_9, x_18);
+x_21 = lean_string_utf8_next_faster(x_9, x_18);
 lean_dec(x_18);
 lean_dec_ref(x_9);
 x_22 = lean_nat_sub(x_21, x_10);

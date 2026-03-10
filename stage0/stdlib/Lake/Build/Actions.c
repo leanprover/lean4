@@ -46,8 +46,8 @@ lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Json_parse(lean_object*);
 lean_object* l_Lean_instFromJsonSerialMessage_fromJson(lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
-lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
+uint32_t lean_string_utf8_get_faster(lean_object*, lean_object*);
+lean_object* lean_string_utf8_next_faster(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_String_Slice_subslice_x21(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00Lake_compileLeanModule_spec__1___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -517,12 +517,12 @@ if (x_59 == 0)
 {
 uint32_t x_60; uint32_t x_61; uint8_t x_62; 
 x_60 = 10;
-x_61 = lean_string_utf8_get_fast(x_2, x_53);
+x_61 = lean_string_utf8_get_faster(x_2, x_53);
 x_62 = lean_uint32_dec_eq(x_61, x_60);
 if (x_62 == 0)
 {
 lean_object* x_63; lean_object* x_64; 
-x_63 = lean_string_utf8_next_fast(x_2, x_53);
+x_63 = lean_string_utf8_next_faster(x_2, x_53);
 lean_dec(x_53);
 if (x_55 == 0)
 {
@@ -548,7 +548,7 @@ goto _start;
 else
 {
 lean_object* x_68; lean_object* x_69; lean_object* x_70; lean_object* x_71; lean_object* x_72; 
-x_68 = lean_string_utf8_next_fast(x_2, x_53);
+x_68 = lean_string_utf8_next_faster(x_2, x_53);
 x_69 = lean_nat_sub(x_68, x_53);
 x_70 = lean_nat_add(x_53, x_69);
 lean_dec(x_69);
@@ -1458,8 +1458,8 @@ lean_dec(x_7);
 if (x_8 == 0)
 {
 lean_object* x_9; uint32_t x_10; uint32_t x_11; uint8_t x_16; 
-x_9 = lean_string_utf8_next_fast(x_2, x_3);
-x_10 = lean_string_utf8_get_fast(x_2, x_3);
+x_9 = lean_string_utf8_next_faster(x_2, x_3);
+x_10 = lean_string_utf8_get_faster(x_2, x_3);
 lean_dec(x_3);
 x_11 = 92;
 x_16 = lean_uint32_dec_eq(x_10, x_11);

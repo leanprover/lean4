@@ -133,7 +133,7 @@ LEAN_EXPORT lean_object* l_String_Slice_slice_x21(lean_object*, lean_object*, le
 LEAN_EXPORT lean_object* l_String_Slice_slice_x21___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_replaceStartEnd_x21(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_replaceStartEnd_x21___boxed(lean_object*, lean_object*, lean_object*);
-uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
+uint32_t lean_string_utf8_get_faster(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_decodeChar___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint32_t l_String_Slice_Pos_get___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pos_get___redArg___boxed(lean_object*, lean_object*);
@@ -260,7 +260,7 @@ static lean_once_cell_t l_String_Slice_pos_x21___closed__2_once = LEAN_ONCE_CELL
 static lean_object* l_String_Slice_pos_x21___closed__2;
 LEAN_EXPORT lean_object* l_String_Slice_pos_x21(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_pos_x21___boxed(lean_object*, lean_object*);
-lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
+lean_object* lean_string_utf8_next_faster(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Pos_next___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Pos_next_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Pos_next_x3f___boxed(lean_object*, lean_object*);
@@ -2443,7 +2443,7 @@ LEAN_EXPORT lean_object* l_String_decodeChar___boxed(lean_object* x_1, lean_obje
 _start:
 {
 uint32_t x_4; lean_object* x_5; 
-x_4 = lean_string_utf8_get_fast(x_1, x_2);
+x_4 = lean_string_utf8_get_faster(x_1, x_2);
 lean_dec(x_2);
 lean_dec_ref(x_1);
 x_5 = lean_box_uint32(x_4);
@@ -2457,7 +2457,7 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5; uint32_t x_6;
 x_3 = lean_ctor_get(x_1, 0);
 x_4 = lean_ctor_get(x_1, 1);
 x_5 = lean_nat_add(x_4, x_2);
-x_6 = lean_string_utf8_get_fast(x_3, x_5);
+x_6 = lean_string_utf8_get_faster(x_3, x_5);
 lean_dec(x_5);
 return x_6;
 }
@@ -2480,7 +2480,7 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; uint32_t x_7;
 x_4 = lean_ctor_get(x_1, 0);
 x_5 = lean_ctor_get(x_1, 1);
 x_6 = lean_nat_add(x_5, x_2);
-x_7 = lean_string_utf8_get_fast(x_4, x_6);
+x_7 = lean_string_utf8_get_faster(x_4, x_6);
 lean_dec(x_6);
 return x_7;
 }
@@ -2510,7 +2510,7 @@ if (x_7 == 0)
 {
 lean_object* x_8; uint32_t x_9; lean_object* x_10; lean_object* x_11; 
 x_8 = lean_nat_add(x_4, x_2);
-x_9 = lean_string_utf8_get_fast(x_3, x_8);
+x_9 = lean_string_utf8_get_faster(x_3, x_8);
 lean_dec(x_8);
 x_10 = lean_box_uint32(x_9);
 x_11 = lean_alloc_ctor(1, 1, 0);
@@ -2591,7 +2591,7 @@ if (x_7 == 0)
 {
 lean_object* x_8; uint32_t x_9; 
 x_8 = lean_nat_add(x_4, x_2);
-x_9 = lean_string_utf8_get_fast(x_3, x_8);
+x_9 = lean_string_utf8_get_faster(x_3, x_8);
 lean_dec(x_8);
 return x_9;
 }
@@ -2685,7 +2685,7 @@ LEAN_EXPORT uint32_t l_String_Pos_get___redArg(lean_object* x_1, lean_object* x_
 _start:
 {
 uint32_t x_3; 
-x_3 = lean_string_utf8_get_fast(x_1, x_2);
+x_3 = lean_string_utf8_get_faster(x_1, x_2);
 return x_3;
 }
 }
@@ -2704,7 +2704,7 @@ LEAN_EXPORT uint32_t l_String_Pos_get(lean_object* x_1, lean_object* x_2, lean_o
 _start:
 {
 uint32_t x_4; 
-x_4 = lean_string_utf8_get_fast(x_1, x_2);
+x_4 = lean_string_utf8_get_faster(x_1, x_2);
 return x_4;
 }
 }
@@ -3677,7 +3677,7 @@ LEAN_EXPORT lean_object* l_String_Pos_next___boxed(lean_object* x_1, lean_object
 _start:
 {
 lean_object* x_4; 
-x_4 = lean_string_utf8_next_fast(x_1, x_2);
+x_4 = lean_string_utf8_next_faster(x_1, x_2);
 lean_dec(x_2);
 lean_dec_ref(x_1);
 return x_4;
@@ -4292,7 +4292,7 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_obj
 x_3 = lean_ctor_get(x_1, 0);
 x_4 = lean_ctor_get(x_1, 1);
 x_5 = lean_nat_add(x_4, x_2);
-x_6 = lean_string_utf8_next_fast(x_3, x_5);
+x_6 = lean_string_utf8_next_faster(x_3, x_5);
 lean_dec(x_5);
 x_7 = lean_nat_sub(x_6, x_4);
 return x_7;
@@ -4315,7 +4315,7 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_obj
 x_4 = lean_ctor_get(x_1, 0);
 x_5 = lean_ctor_get(x_1, 1);
 x_6 = lean_nat_add(x_5, x_2);
-x_7 = lean_string_utf8_next_fast(x_4, x_6);
+x_7 = lean_string_utf8_next_faster(x_4, x_6);
 lean_dec(x_6);
 x_8 = lean_nat_sub(x_7, x_5);
 return x_8;
@@ -5508,7 +5508,7 @@ block_17:
 lean_object* x_13; lean_object* x_14; lean_object* x_15; 
 x_13 = lean_nat_add(x_5, x_2);
 lean_dec(x_2);
-x_14 = lean_string_utf8_next_fast(x_4, x_13);
+x_14 = lean_string_utf8_next_faster(x_4, x_13);
 lean_dec(x_13);
 x_15 = lean_nat_sub(x_14, x_5);
 x_2 = x_15;

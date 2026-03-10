@@ -792,9 +792,9 @@ static lean_object* l_Lean_Parser_Tactic_Doc_getTacticExtensions___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_Doc_getTacticExtensions(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_binSearchAux___at___00Lean_Parser_Tactic_Doc_getTacticExtensions_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_binSearchAux___at___00Lean_Parser_Tactic_Doc_getTacticExtensions_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
+lean_object* lean_string_utf8_next_faster(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Slice_0__String_Slice_dropWhile_go___at___00__private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_getTacticExtensionString_indentLine_spec__0(lean_object*, lean_object*);
-uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
+uint32_t lean_string_utf8_get_faster(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Slice_0__String_Slice_dropWhile_go___at___00__private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_getTacticExtensionString_indentLine_spec__0___boxed(lean_object*, lean_object*);
 static const lean_string_object l___private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_getTacticExtensionString_indentLine___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 2, .m_capacity = 2, .m_length = 1, .m_data = "\n"};
@@ -9075,7 +9075,7 @@ lean_dec(x_17);
 if (x_18 == 0)
 {
 uint32_t x_19; uint8_t x_20; uint32_t x_26; uint8_t x_27; 
-x_19 = lean_string_utf8_get_fast(x_3, x_6);
+x_19 = lean_string_utf8_get_faster(x_3, x_6);
 x_26 = 32;
 x_27 = lean_uint32_dec_eq(x_19, x_26);
 if (x_27 == 0)
@@ -9127,7 +9127,7 @@ return x_7;
 block_13:
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; 
-x_8 = lean_string_utf8_next_fast(x_3, x_6);
+x_8 = lean_string_utf8_next_faster(x_3, x_6);
 x_9 = lean_nat_sub(x_8, x_6);
 lean_dec(x_6);
 x_10 = lean_nat_add(x_2, x_9);
@@ -9281,12 +9281,12 @@ if (x_20 == 0)
 {
 uint32_t x_21; uint32_t x_22; uint8_t x_23; 
 x_21 = 10;
-x_22 = lean_string_utf8_get_fast(x_1, x_14);
+x_22 = lean_string_utf8_get_faster(x_1, x_14);
 x_23 = lean_uint32_dec_eq(x_22, x_21);
 if (x_23 == 0)
 {
 lean_object* x_24; lean_object* x_25; 
-x_24 = lean_string_utf8_next_fast(x_1, x_14);
+x_24 = lean_string_utf8_next_faster(x_1, x_14);
 lean_dec(x_14);
 if (x_16 == 0)
 {
@@ -9312,7 +9312,7 @@ goto _start;
 else
 {
 lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; 
-x_29 = lean_string_utf8_next_fast(x_1, x_14);
+x_29 = lean_string_utf8_next_faster(x_1, x_14);
 x_30 = lean_nat_sub(x_29, x_14);
 x_31 = lean_nat_add(x_14, x_30);
 lean_dec(x_30);
@@ -9612,7 +9612,7 @@ x_11 = lean_nat_sub(x_7, x_10);
 lean_dec(x_7);
 x_12 = l_String_Slice_posLE(x_6, x_11);
 x_18 = lean_nat_add(x_4, x_12);
-x_19 = lean_string_utf8_get_fast(x_3, x_18);
+x_19 = lean_string_utf8_get_faster(x_3, x_18);
 lean_dec(x_18);
 x_26 = 32;
 x_27 = lean_uint32_dec_eq(x_19, x_26);

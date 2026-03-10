@@ -880,8 +880,8 @@ LEAN_EXPORT lean_object* l_Lean_indentD(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_indentExpr(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Message_0__Lean_MessageData_formatExpensively(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Message_0__Lean_MessageData_formatExpensively___boxed(lean_object*, lean_object*, lean_object*);
-uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
-lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
+uint32_t lean_string_utf8_get_faster(lean_object*, lean_object*);
+lean_object* lean_string_utf8_next_faster(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_WellFounded_opaqueFix_u2083___at___00String_Slice_contains___at___00Lean_inlineExpr_spec__0_spec__0___redArg(lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00String_Slice_contains___at___00Lean_inlineExpr_spec__0_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_String_Slice_contains___at___00Lean_inlineExpr_spec__0(lean_object*);
@@ -12634,13 +12634,13 @@ if (x_8 == 0)
 lean_object* x_9; uint32_t x_10; uint32_t x_11; uint8_t x_12; 
 x_9 = lean_nat_add(x_5, x_2);
 lean_dec(x_2);
-x_10 = lean_string_utf8_get_fast(x_4, x_9);
+x_10 = lean_string_utf8_get_faster(x_4, x_9);
 x_11 = 10;
 x_12 = lean_uint32_dec_eq(x_10, x_11);
 if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; 
-x_13 = lean_string_utf8_next_fast(x_4, x_9);
+x_13 = lean_string_utf8_next_faster(x_4, x_9);
 lean_dec(x_9);
 x_14 = lean_nat_sub(x_13, x_5);
 x_2 = x_14;
@@ -13280,12 +13280,12 @@ if (x_22 == 0)
 {
 uint32_t x_23; uint32_t x_24; uint8_t x_25; 
 x_23 = 10;
-x_24 = lean_string_utf8_get_fast(x_1, x_16);
+x_24 = lean_string_utf8_get_faster(x_1, x_16);
 x_25 = lean_uint32_dec_eq(x_24, x_23);
 if (x_25 == 0)
 {
 lean_object* x_26; lean_object* x_27; 
-x_26 = lean_string_utf8_next_fast(x_1, x_16);
+x_26 = lean_string_utf8_next_faster(x_1, x_16);
 lean_dec(x_16);
 if (x_18 == 0)
 {
@@ -13311,7 +13311,7 @@ goto _start;
 else
 {
 lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; 
-x_31 = lean_string_utf8_next_fast(x_1, x_16);
+x_31 = lean_string_utf8_next_faster(x_1, x_16);
 x_32 = lean_nat_sub(x_31, x_16);
 x_33 = lean_nat_add(x_16, x_32);
 lean_dec(x_32);

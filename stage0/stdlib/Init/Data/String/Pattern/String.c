@@ -64,7 +64,7 @@ LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardSliceSearcher_instInhabit
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardSliceSearcher_iter___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardSliceSearcher_iter(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardSliceSearcher_iter___boxed(lean_object*, lean_object*);
-lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
+lean_object* lean_string_utf8_next_faster(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_String_Slice_pos_x21(lean_object*, lean_object*);
 lean_object* l_String_Slice_posGE___redArg(lean_object*, lean_object*);
@@ -702,7 +702,7 @@ lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean
 x_22 = lean_ctor_get(x_1, 0);
 x_23 = lean_ctor_get(x_1, 1);
 x_24 = lean_nat_add(x_23, x_19);
-x_25 = lean_string_utf8_next_fast(x_22, x_24);
+x_25 = lean_string_utf8_next_faster(x_22, x_24);
 lean_dec(x_24);
 x_26 = lean_nat_sub(x_25, x_23);
 lean_inc(x_26);
@@ -1524,7 +1524,7 @@ lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean
 x_30 = lean_ctor_get(x_2, 0);
 x_31 = lean_ctor_get(x_2, 1);
 x_32 = lean_nat_add(x_31, x_27);
-x_33 = lean_string_utf8_next_fast(x_30, x_32);
+x_33 = lean_string_utf8_next_faster(x_30, x_32);
 lean_dec(x_32);
 x_34 = lean_nat_sub(x_33, x_31);
 lean_inc(x_34);

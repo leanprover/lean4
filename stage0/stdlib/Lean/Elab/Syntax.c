@@ -492,9 +492,9 @@ static lean_object* l_Lean_Elab_Term_elabParserName___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_elabParserName(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_elabParserName___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
+lean_object* lean_string_utf8_next_faster(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_WellFounded_opaqueFix_u2083___at___00String_Slice_contains___at___00__private_Lean_Elab_Syntax_0__Lean_Elab_Term_toParserDescr_isValidAtom_spec__0_spec__0___redArg(lean_object*, lean_object*, uint8_t);
-uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
+uint32_t lean_string_utf8_get_faster(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00String_Slice_contains___at___00__private_Lean_Elab_Syntax_0__Lean_Elab_Term_toParserDescr_isValidAtom_spec__0_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_String_Slice_contains___at___00__private_Lean_Elab_Syntax_0__Lean_Elab_Term_toParserDescr_isValidAtom_spec__0(lean_object*);
@@ -8759,7 +8759,7 @@ if (x_8 == 0)
 lean_object* x_9; uint8_t x_10; uint32_t x_15; uint8_t x_16; uint32_t x_22; uint8_t x_23; 
 x_9 = lean_nat_add(x_5, x_2);
 lean_dec(x_2);
-x_15 = lean_string_utf8_get_fast(x_4, x_9);
+x_15 = lean_string_utf8_get_faster(x_4, x_9);
 x_22 = 32;
 x_23 = lean_uint32_dec_eq(x_15, x_22);
 if (x_23 == 0)
@@ -8780,7 +8780,7 @@ block_14:
 if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; 
-x_11 = lean_string_utf8_next_fast(x_4, x_9);
+x_11 = lean_string_utf8_next_faster(x_4, x_9);
 lean_dec(x_9);
 x_12 = lean_nat_sub(x_11, x_5);
 x_2 = x_12;
@@ -16986,7 +16986,7 @@ x_10 = lean_nat_dec_eq(x_2, x_9);
 if (x_10 == 0)
 {
 uint32_t x_11; uint8_t x_12; uint8_t x_15; uint32_t x_22; uint8_t x_23; 
-x_11 = lean_string_utf8_get_fast(x_1, x_2);
+x_11 = lean_string_utf8_get_faster(x_1, x_2);
 x_22 = 32;
 x_23 = lean_uint32_dec_eq(x_11, x_22);
 if (x_23 == 0)

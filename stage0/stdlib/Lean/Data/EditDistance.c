@@ -22,11 +22,11 @@ lean_object* lean_string_utf8_byte_size(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* lean_nat_mod(lean_object*, lean_object*);
 lean_object* l_Fin_add(lean_object*, lean_object*, lean_object*);
-lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
+lean_object* lean_string_utf8_next_faster(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___at___00Lean_EditDistance_levenshtein_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
-uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
+uint32_t lean_string_utf8_get_faster(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___at___00Lean_EditDistance_levenshtein_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
@@ -145,8 +145,8 @@ x_35 = lean_array_fget_borrowed(x_3, x_19);
 x_36 = lean_nat_add(x_35, x_17);
 x_37 = lean_array_fget_borrowed(x_8, x_12);
 x_38 = lean_nat_add(x_37, x_17);
-x_42 = lean_string_utf8_get_fast(x_5, x_4);
-x_43 = lean_string_utf8_get_fast(x_1, x_11);
+x_42 = lean_string_utf8_get_faster(x_5, x_4);
+x_43 = lean_string_utf8_get_faster(x_1, x_11);
 x_44 = lean_uint32_dec_eq(x_42, x_43);
 if (x_44 == 0)
 {
@@ -170,7 +170,7 @@ block_30:
 {
 lean_object* x_21; lean_object* x_22; lean_object* x_23; 
 x_21 = lean_array_fset(x_8, x_19, x_20);
-x_22 = lean_string_utf8_next_fast(x_1, x_11);
+x_22 = lean_string_utf8_next_faster(x_1, x_11);
 lean_dec(x_11);
 if (x_14 == 0)
 {
@@ -532,7 +532,7 @@ goto block_58;
 block_58:
 {
 lean_object* x_35; lean_object* x_48; uint8_t x_49; 
-x_35 = lean_string_utf8_next_fast(x_1, x_17);
+x_35 = lean_string_utf8_next_faster(x_1, x_17);
 lean_dec(x_17);
 x_48 = lean_array_get_size(x_32);
 x_49 = lean_nat_dec_lt(x_25, x_48);
@@ -921,7 +921,7 @@ goto block_58;
 block_58:
 {
 lean_object* x_35; lean_object* x_48; uint8_t x_49; 
-x_35 = lean_string_utf8_next_fast(x_3, x_17);
+x_35 = lean_string_utf8_next_faster(x_3, x_17);
 lean_dec(x_17);
 x_48 = lean_array_get_size(x_32);
 x_49 = lean_nat_dec_lt(x_25, x_48);

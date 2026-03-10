@@ -474,7 +474,6 @@ where
   emitFnDeclClosed (decl : Decl .impure) (cppBaseName : String) : EmitM Unit := do
     emitLn s!"static lean_once_cell_t {toOnceTokenName cppBaseName} = LEAN_ONCE_CELL_INITIALIZER;"
     emitLn s!"static {decl.type.toCType} {cppBaseName};"
-    emitLn s!"static {decl.type.toCType} {← toCInitName decl.name}(void);"
 
   emitFnDeclStandard (sig : Signature .impure) (isExternal : Bool) : EmitM Unit := do
     let env ← getEnv

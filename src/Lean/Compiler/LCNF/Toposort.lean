@@ -26,9 +26,9 @@ structure TopoState (pu : Purity) where
   seen : Std.HashSet Name
   order : Array (Decl pu)
 
-abbrev ToposortM pu := ReaderT (TopoCtx pu) StateRefT (TopoState pu) CoreM
+abbrev ToposortM pu := ReaderT (TopoCtx pu) StateRefT (TopoState pu) CompilerM
 
-partial def toposort (decls : Array (Decl pu)) : CoreM (Array (Decl pu)) := do
+partial def toposort (decls : Array (Decl pu)) : CompilerM (Array (Decl pu)) := do
   let declsMap := .ofArray <| decls.map fun d => (d.name, d)
   let (_, s) ← go decls |>.run { declsMap } |>.run {
     seen := .emptyWithCapacity decls.size,
@@ -63,12 +63,12 @@ where
    if let some d := (← read).declsMap[declName]? then
      process d
 
-public def toposortDecls (decls : Array (Decl pu)) : CoreM (Array (Decl pu)) := do
+public def toposortDecls (decls : Array (Decl pu)) : CompilerM (Array (Decl pu)) := do
   toposort decls
 
 public def toposortPass : Pass where
   phase := .impure
   name := `toposort
-  run := liftM ∘ toposortDecls
+  run := toposortDecls
 
 end Lean.Compiler.LCNF

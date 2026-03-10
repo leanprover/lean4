@@ -23,15 +23,15 @@ namespace Lean.Compiler.LCNF
 /--
 Set of public declarations whose base bodies should be exported to other modules
 -/
-private builtin_initialize baseTransparentDeclsExt : EnvExtension (List Name × NameSet) ← mkDeclSetExt
+private builtin_initialize baseTransparentDeclsExt : EnvExtension (List Name × NameSet) ← mkOrderedDeclSetExt
 /--
 Set of public declarations whose mono bodies should be exported to other modules
 -/
-private builtin_initialize monoTransparentDeclsExt : EnvExtension (List Name × NameSet) ← mkDeclSetExt
+private builtin_initialize monoTransparentDeclsExt : EnvExtension (List Name × NameSet) ← mkOrderedDeclSetExt
 /--
 Set of public declarations whose impure bodies should be exported to other modules
 -/
-private builtin_initialize impureTransparentDeclsExt : EnvExtension (List Name × NameSet) ← mkDeclSetExt
+private builtin_initialize impureTransparentDeclsExt : EnvExtension (List Name × NameSet) ← mkOrderedDeclSetExt
 
 private def getTransparencyExt : Phase → EnvExtension (List Name × NameSet)
   | .base => baseTransparentDeclsExt
@@ -227,7 +227,7 @@ def getLocalDecl? (declName : Name) : CompilerM (Option ((pu : Purity) × Decl p
   let some decl ← getLocalDeclAt? declName (← getPhase) | return none
   return some ⟨_, decl⟩
 
-builtin_initialize declOrderExt : EnvExtension (List Name × NameSet) ← mkDeclSetExt
+builtin_initialize declOrderExt : EnvExtension (List Name × NameSet) ← mkOrderedDeclSetExt
 
 def recordFinalImpureDecl (env : Environment) (name : Name) : Environment :=
   declOrderExt.modifyState env fun s =>

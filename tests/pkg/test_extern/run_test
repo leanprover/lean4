@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-
-exit 0  # TODO: flaky test disabled
+source ../../env_test.sh
 
 # We need a package test because we need multiple files with imports.
 # Currently the other package tests all succeed,
@@ -11,6 +10,8 @@ exit 0  # TODO: flaky test disabled
 # that took care of all this!
 
 rm -rf .lake/build
+
+# TODO Use and/or emulate the helper functions from util.sh?
 
 # Function to process the output
 verify_output() {

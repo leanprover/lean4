@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+source ../../env_test.sh
 set -euo pipefail
 
 # Deermine shared library extension
@@ -51,8 +52,7 @@ lake env lean --run testEnv.lean $ENV_PLUGIN 2>&1 | diff <(echo "$ENV_EXPECTED_O
 
 # Test failure to load environment plugin without `withImporting`
 lean --run test.lean $ENV_PLUGIN >/dev/null 2>&1 && {
-  echo "Loading environment plugin without importing succeeded unexpectedly."
-  exit 1
+  fail "Loading environment plugin without importing succeeded unexpectedly."
 } || true
 
 # Print success

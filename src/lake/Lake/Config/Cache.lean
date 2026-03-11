@@ -166,8 +166,7 @@ where go as o := do
   match o with
   | .null =>
     return as
-  | .bool b =>
-    logError s!"unsupported output: {b}"
+  | .bool _ => -- boolean metadata is allowed (as of 2025-03-13)
     return as
   | .num o =>
     match Hash.ofJsonNumber? o with

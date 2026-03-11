@@ -513,7 +513,6 @@ in either the saved trace file or in the cached input-to-content mapping.
   [ResolveOutputs α] (inputHash : Hash) (savedTrace : SavedTrace) (pkg : Package)
 : JobM (Option α) := do
   let cache ← getLakeCache
-  let updateCache ← pkg.isArtifactCacheWritable
   if let some out ← cache.readOutputs? pkg.cacheScope inputHash then
     try
       return some (← resolveOutputs out.data out.service? out.scope?)
@@ -528,7 +527,7 @@ in either the saved trace file or in the cached input-to-content mapping.
       if let some out := data.outputs? then
         try
           let arts ← resolveOutputs out none none
-          if updateCache then
+          if (← pkg.isArtifactCacheWritable) then
             if let .error e ← (cache.writeOutputs pkg.cacheScope inputHash out).toBaseIO then
               logWarning s!"could not write outputs to cache: {e}"
           return some arts
@@ -573,7 +572,8 @@ public def resolveArtifact
   | .error e =>
     error s!"failed to retrieve artifact from cache: {e}"
 
-def resolveArtifactOutput
+/-- **For internal use only.** -/
+public def resolveArtifactOutput
   (out : Json) (service? : Option CacheServiceName) (scope? : Option CacheServiceScope)
   (exe := false)
 : JobM Artifact := do
@@ -675,8 +675,9 @@ public def buildArtifactUnlessUpToDate
           if let some art ← fetchArt? (restore := true) then
             return art
         doBuild depTrace traceFile
-    if let some outputsRef := pkg.outputsRef? then
-      outputsRef.insert inputHash art.descr
+    if pkg.isRoot then
+      if let some outputsRef := (← getBuildContext).outputsRef? then
+        outputsRef.insert inputHash art.descr
     setTrace art.trace
     setMTime art traceFile
   else

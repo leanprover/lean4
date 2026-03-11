@@ -78,16 +78,6 @@ public structure Package where
   testDriver : String := config.testDriver
   /-- The driver used for `lake lint` when this package is the workspace root. -/
   lintDriver : String := config.lintDriver
-  /--
-  Input-to-output(s) map for hashes of package artifacts.
-  If `none`, the artifact cache is disabled for the package.
-  -/
-  inputsRef? : Option CacheRef := none
-  /--
-  Input-to-output(s) map for hashes of package artifacts.
-  If `none`, the artifact cache is disabled for the package.
-  -/
-  outputsRef? : Option CacheRef := none
 
 deriving Inhabited
 

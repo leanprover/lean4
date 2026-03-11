@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 source ../../env_test.sh
-./clean.sh
 
 # This directory contains a unified version of the "ring example"
 # developed by Kim across the following 4 repositories:
@@ -25,12 +24,15 @@ source ../../env_test.sh
 # Since committing a Git repository to a Git repository is not well-supported,
 # We reinitialize the repositories on each test.
 
+# Stolen from the lake test suite
+UNAME="$(uname)"
 if [ "$UNAME" = Darwin ] || [ "$UNAME" = FreeBSD ]; then
   sed_i() { sed -i '' "$@"; }
 else
   sed_i() { sed -i "$@"; }
 fi
 
+# Stolen from the lake test suite
 init_git() {
   echo "# initialize test repository"
   set -x
@@ -42,6 +44,8 @@ init_git() {
   git commit -m "initial commit"
   set +x
 }
+
+./clean.sh
 
 pushd DiamondExample-A
 sed_i s/add_left_comm/poorly_named_lemma/ DiamondExampleA/Ring/Lemmas.lean

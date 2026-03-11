@@ -11,6 +11,7 @@ public import Init.Data.OfScientific
 public import Init.Data.Int.DivMod.Basic
 public import Init.Data.String.Defs
 public import Init.Data.ToString.Macro
+public import Init.Data.ToString.Extra
 import Init.Data.Hashable
 import Init.Data.Int.DivMod.Bootstrap
 import Init.Data.Int.DivMod.Lemmas

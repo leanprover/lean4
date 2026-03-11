@@ -41,6 +41,14 @@ private def join (l : List String) : String :=
 private local instance : Append String where
   append := String.Internal.append
 
+private local instance : ToString Int where
+  toString
+    | Int.ofNat m   => toString m
+    | Int.negSucc m => "-" ++ toString (m + 1)
+
+private local instance : Append String where
+  append := String.Internal.append
+
 instance : ToString LinearCombo where
   toString lc := private
     s!"{lc.const}{join <| lc.coeffs.toList.zipIdx.map fun ⟨c, i⟩ => s!" + {c} * x{i+1}"}"

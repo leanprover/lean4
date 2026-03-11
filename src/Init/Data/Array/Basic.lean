@@ -2151,7 +2151,4 @@ protected def repr {α : Type u} [Repr α] (xs : Array α) : Std.Format :=
 instance {α : Type u} [Repr α] : Repr (Array α) where
   reprPrec xs _ := Array.repr xs
 
-instance [ToString α] : ToString (Array α) where
-  toString xs := String.Internal.append "#" (toString xs.toList)
-
 end Array

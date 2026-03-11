@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.Data.UInt.Basic
+public import Init.Data.ToString.Extra
 
 @[expose] public section
 

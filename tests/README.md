@@ -179,7 +179,7 @@ The most notable ones are:
 - `SCRIPT_DIR`: Absolute path to the `script` directory.
 - `TEST_BENCH`: Set to `1` if we're currently executing a benchmark, unset otherwise.
 
-Finally, the run script should source `"$TEST_DIR/util.sh"`,
+It also sources `"$TEST_DIR/util.sh"`,
 which provides a few utility functions and also uses `set` to set sensible bash defaults.
 See `util.sh` for the available utility functions.
 

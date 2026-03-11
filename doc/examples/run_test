@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 source ../../tests/env_test.sh
-source "$TEST_DIR/util.sh"
 
 capture_only "$1" \
   lean -Dlinter.all=false "$1"

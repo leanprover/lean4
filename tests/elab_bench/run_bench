@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 source ../env_bench.sh
-source "$TEST_DIR/util.sh"
 source_init "$1"
 
 run_before "$1"

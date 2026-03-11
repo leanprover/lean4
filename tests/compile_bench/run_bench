@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 source ../env_bench.sh
-source "$TEST_DIR/util.sh"
 source_init "$1"
 
 if [[ -f "$1.do_compile_bench" ]]; then DO_COMPILE=1

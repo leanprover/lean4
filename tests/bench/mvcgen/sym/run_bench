@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 source ../../../env_bench.sh
-source "$TEST_DIR/util.sh"
 
 rm -f measurements.jsonl
 

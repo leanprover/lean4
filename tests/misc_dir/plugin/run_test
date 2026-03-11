@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 source ../../env_test.sh
-source "$TEST_DIR/util.sh"
 
 # LEAN_EXPORTING needs to be defined for .c files included in shared libraries
 lean --c=SnakeLinter.c SnakeLinter.lean

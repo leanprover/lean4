@@ -10,6 +10,7 @@ public import Lean.Compiler.NoncomputableAttr
 public import Lean.Util.NumApps
 public import Lean.Meta.Eqns
 public import Lean.Elab.RecAppSyntax
+public import Lean.Meta.InstanceNormalForm
 public import Lean.Elab.DefView
 
 public section
@@ -180,6 +181,17 @@ private def addNonRecAux (docCtx : LocalContext × LocalInstances) (preDef : Pre
     (all : List Name) (applyAttrAfterCompilation := true) (cacheProofs := true) (cleanupValue := false)
     (isRecursive := false) : TermElabM Unit :=
   withRef preDef.ref do
+    let preDef ←
+      if preDef.kind == .instance && !(← Meta.isProp preDef.type) && «instance».normalForm.get (← getOptions) then
+        try
+          let value ← forallTelescopeReducing preDef.type fun xs expectedType => do
+            let inst := preDef.value.beta xs
+            mkLambdaFVars xs <| ← withNewMCtxDepth <| Meta.normalizeInstance inst expectedType
+          pure { preDef with value }
+        catch e =>
+          logWarning m!"instance normal form normalization failed: {e.toMessageData}"
+          pure preDef
+      else pure preDef
     let preDef ← abstractNestedProofs (cache := cacheProofs) preDef
     let preDef ← letToHaveType preDef
     let preDef ← if cleanupValue then letToHaveValue preDef else pure preDef

@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+source ../../env_test.sh
 
 # The test covers the behavior of transitively importing multiple modules
 # that have a definition with the same name.
@@ -18,18 +19,19 @@
 # Modules `UseBarA` and `UseBarB` use them (privately), and `TestLocalUse`
 # imports both.
 
-source ../../lake/tests/common.sh
-
 ./clean.sh
 
 # Test the behavior when multiple copies of the same definition (`foo`)
 # are seen by Lean (e.g., via importing two modules which define them).
-test_err "environment already contains 'foo'" build TestFoo
+capture_fail lake build TestFoo
+check_out_contains "environment already contains 'foo'"
 
 # Test the behavior when multiple copies of the same definition (`foo`) exist
 # in different packages but are not visible to any one module.
-test_out "fooA; fooB" exe TestUse
+capture lake exe TestUse
+check_out_contains "fooA; fooB"
 
 # Test the behavior when multiple copies of the same definition (`foo`) exist
 # in the same package but are not visible to any one module.
-test_err "lp_test_bar" build TestLocalUse
+capture_fail lake build TestLocalUse
+check_out_contains "lp_test_bar"

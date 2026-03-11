@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
+source ../../env_test.sh
 
 rm -rf .lake/build
 lake build release
 
 # Create a named pipe for communication
-PIPE=$(mktemp -u)
+PIPE="$TMP_DIR/pipe"
 mkfifo "$PIPE"
 
 # Run release in the background, redirect stdout to the pipe
@@ -35,9 +36,6 @@ echo "Started process with PID: $PID"
         echo "Failed to read first line"
     fi
 }
-
-# Clean up the pipe
-rm -f "$PIPE"
 
 # Wait for process to finish
 echo "Waiting for process $PID to finish..."

@@ -306,7 +306,7 @@ add_dir_of_test_dirs(misc_dir)
 add_dir_of_test_dirs(
   pkg
   EXCEPT
-    signal
+    signal # Test appears to be broken
     structure_docstrings
     test_extern
     user_attr

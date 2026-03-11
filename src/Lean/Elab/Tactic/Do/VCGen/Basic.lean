@@ -73,6 +73,10 @@ structure State where
   -/
   invariants : Array MVarId := #[]
   /--
+  Holes of witness type that have been generated so far.
+  -/
+  witnesses : Array MVarId := #[]
+  /--
   The verification conditions that have been generated so far.
   -/
   vcs : Array MVarId := #[]
@@ -104,8 +108,11 @@ def addSubGoalAsVC (goal : MVarId) : VCGenM PUnit := do
   -- VC to the user as-is, without abstracting any variables in the local context.
   -- This only makes sense for synthetic opaque metavariables.
   goal.setKind .syntheticOpaque
-  if isMVCGenInvariantType (← getEnv) ty then
+  let env ← getEnv
+  if isMVCGenInvariantType env ty then
     modify fun s => { s with invariants := s.invariants.push goal }
+  else if isMVCGenWitnessType env ty then
+    modify fun s => { s with witnesses := s.witnesses.push goal }
   else
     modify fun s => { s with vcs := s.vcs.push goal }
 

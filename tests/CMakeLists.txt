@@ -306,7 +306,6 @@ add_dir_of_test_dirs(misc_dir)
 add_dir_of_test_dirs(
   pkg
   EXCEPT
-    misc
     mod_clash
     module
     prv

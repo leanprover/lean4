@@ -14,6 +14,9 @@ public meta import Lean.Meta.Match.Rewrite
 public meta import Lean.Elab.Tactic.Do.VCGen.Split
 meta import Lean.Meta.Sym.Pattern
 meta import Lean.Meta.Sym.Simp.DiscrTree
+public meta import Lean.Meta.Tactic.Grind.Main
+public meta import Lean.Meta.Tactic.Grind.Solve
+meta import Lean.Elab.Tactic.Grind
 
 open Lean Parser Meta Elab Tactic Sym
 open Lean.Elab.Tactic.Do.SpecAttr
@@ -488,7 +491,7 @@ public structure VCGen.State where
   -/
   vcs : Array MVarId := #[]
 
-abbrev VCGenM := ReaderT VCGen.Context (StateRefT VCGen.State SymM)
+abbrev VCGenM := ReaderT VCGen.Context (StateRefT VCGen.State Grind.GrindM)
 
 namespace VCGen
 
@@ -606,6 +609,16 @@ meta partial def reduceProjBeta? (e : Expr) : SymM (Option Expr) :=
           pure (some (.letE x ty val body' nondep))
       | _ => pure lastReduction
 
+structure WorkItem where
+  mvarId : MVarId
+  grindGoal? : Option Grind.Goal := none
+
+@[inline] meta def WorkItem.withMVarId (item : WorkItem) (newGoal : MVarId) : WorkItem :=
+  { item with mvarId := newGoal, grindGoal? := item.grindGoal?.map fun g => { g with mvarId := newGoal } }
+
+@[inline] meta def WorkItem.forkTo (item : WorkItem) (subgoals : List MVarId) : List WorkItem :=
+  subgoals.map item.withMVarId
+
 inductive SolveResult where
   /-- `target` was not of the form `H ⊢ₛ T`. -/
   | noEntailment (target : Expr)
@@ -619,7 +632,7 @@ inductive SolveResult where
   -/
   | noSpecFoundForProgram (e : Expr) (monad : Expr) (thms : Array SpecTheoremNew)
   /-- Successfully discharged the goal. These are the subgoals. -/
-  | goals (subgoals : List MVarId)
+  | goals (subgoals : List WorkItem)
 
 open Sym Sym.Internal
 -- The following function is vendored until it is made public:
@@ -652,6 +665,20 @@ open Sym Sym.Internal
 meta def mkAppNS [Monad m] [Internal.MonadShareCommon m] (f : Expr) (args : Array Expr) : m Expr :=
   mkAppRangeS f 0 args.size args
 
+/-- Internalize pending hypotheses in the grind state before forking to multiple subgoals.
+If `processHypotheses` discovers a contradiction (`inconsistent = true`), the E-graph state
+contains stale proof data (the contradiction proof targets the parent's mvar, not the children's).
+In that case, restore the pre-internalization state so each child can discover the contradiction
+independently and construct its own proof via `closeGoal`. -/
+meta def internalizePending (item : WorkItem) : VCGenM WorkItem := do
+  if let some grindGoal := item.grindGoal? then
+    let saved := grindGoal
+    let grindGoal ← Grind.processHypotheses grindGoal
+    if grindGoal.inconsistent then
+      return { item with grindGoal? := some saved }
+    return { item with grindGoal? := some grindGoal }
+  return item
+
 /--
 The main VC generation function.
 Looks at a goal of the form `P ⊢ₛ T`. Then
@@ -659,7 +686,8 @@ Looks at a goal of the form `P ⊢ₛ T`. Then
 * If `T` is of the form `wp⟦e⟧ Q s₁ ... sₙ`, look up a spec theorem for `e`. Produce the backward
   rule to apply this spec theorem and then apply it ot the goal.
 -/
-meta def solve (goal : MVarId) : VCGenM SolveResult := goal.withContext do
+meta def solve (item : WorkItem) : VCGenM SolveResult := item.mvarId.withContext do
+  let goal := item.mvarId
   let target ← goal.getType
   trace[Elab.Tactic.Do.vcgen] "target: {target}"
   -- There are two layers of preprocessing before we get to taking apart program syntax.
@@ -669,16 +697,16 @@ meta def solve (goal : MVarId) : VCGenM SolveResult := goal.withContext do
 
   if target.isForall then
     let IntrosResult.goal _ goal ← Sym.intros goal | throwError "Failed to introduce binders for {target}"
-    return .goals [goal]
+    return .goals [item.withMVarId goal]
 
   let f := target.getAppFn
   if f.isConstOf ``Triple then
     let goal ← tripleOfWP goal
-    return .goals [goal]
+    return .goals [item.withMVarId goal]
 
   if f.isConstOf ``PostCond.entails then
     let goal ← decomposePostCondEntails goal
-    return .goals [goal]
+    return .goals [item.withMVarId goal]
 
   let_expr ent@SPred.entails σs H T := target | return .noEntailment target
   -- The goal is of the form `H ⊢ₛ T`. Try some reductions to expose `wp⟦e⟧ Q s₁ ... sₙ` in `T`.
@@ -689,7 +717,7 @@ meta def solve (goal : MVarId) : VCGenM SolveResult := goal.withContext do
     -- extra state arg `s` to reduce away the lambda.
     let .goals [goal] ← (← read).entailsConsIntroRule.apply goal
       | throwError "Applying {.ofConstName ``SPred.entails_cons_intro} to {target} failed. It should not."
-    return .goals [goal]
+    return .goals [item.withMVarId goal]
 
   /-
   Do a very targeted simplification to turn `H ⊢ₛ (fun _ => T, Q.snd).fst s` into `H ⊢ₛ T`, and
@@ -710,7 +738,7 @@ meta def solve (goal : MVarId) : VCGenM SolveResult := goal.withContext do
   let T? ← reduceProjBeta? T
   if H?.isSome || T?.isSome then
     let goal ← goal.replaceTargetDefEq (← Sym.Internal.mkAppS₃ ent σs (H?.getD H) (T?.getD T))
-    return .goals [goal]
+    return .goals [item.withMVarId goal]
 
   -- Look for program syntax in `T`.
   T.withApp fun head args => do
@@ -741,59 +769,109 @@ meta def solve (goal : MVarId) : VCGenM SolveResult := goal.withContext do
     let T ← mkAppNS head (args.set! 2 wp)
     let target ← mkAppS₃ ent σs H T
     let goal ← goal.replaceTargetDefEq target
-    return .goals [goal]
+    return .goals [item.withMVarId goal]
 
   -- Hard-code match splitting for `ite` for now.
   if f.isAppOf ``ite then
+    -- Internalize pending hypotheses before forking
+    let item ← internalizePending item
     let some info ← Lean.Elab.Tactic.Do.getSplitInfo? e | return .noStrategyForProgram e
     let rule ← mkBackwardRuleFromSplitInfoCached info m σs ps instWP excessArgs
-    let ApplyResult.goals goals ← rule.apply goal
+    let ApplyResult.goals goals ← rule.apply item.mvarId
       | throwError "Failed to apply split rule for {indentExpr e}"
-    return .goals goals
+    return .goals (item.forkTo goals)
 
   -- Apply registered specifications (both triple and simp specs use cached backward rules).
   if f.isConst || f.isFVar then
+    -- Internalize pending hypotheses before potential multi-goal fork
+    let item ← internalizePending item
     trace[Elab.Tactic.Do.vcgen] "Applying a spec for {e}. Excess args: {excessArgs}"
     match ← (← read).specThms.findSpecs e with
     | .error thms => return .noSpecFoundForProgram e m thms
     | .ok thm =>
     trace[Elab.Tactic.Do.vcgen] "Spec for {e}: {thm.proof}"
     let rule ← mkBackwardRuleFromSpecCached thm m σs ps instWP excessArgs
-    let ApplyResult.goals goals ← rule.apply goal
+    let ApplyResult.goals goals ← rule.apply item.mvarId
       | throwError "Failed to apply rule {thm.proof} for {indentExpr e}"
-    return .goals goals
+    return .goals (item.forkTo goals)
 
   return .noStrategyForProgram e
 
 /--
-Called when decomposing the goal further did not succeed; in this case we emit a VC for the goal.
+Resolve delayed metavariable assignments in `e`.
+Grind uses delayed mvar assignments internally for proof construction; these must be resolved
+before the proof can pass the kernel type checker.
+Reimplements the logic of `Lean.Meta.Grind.resolveDelayedMVarAssignments` (which is private).
 -/
-meta def emitVC (goal : MVarId) : VCGenM Unit := do
-  let ty ← goal.getType
-  goal.setKind .syntheticOpaque
-  if ty.isAppOf ``Std.Do.Invariant then
-    modify fun s => { s with invariants := s.invariants.push goal }
-  else
-    modify fun s => { s with vcs := s.vcs.push goal }
+private meta partial def resolveDelayedAssignments (e : Expr) : MetaM Expr := do
+  if !e.hasMVar then return e
+  for mvarId in (e.collectMVars {}).result do
+    if let some { fvars, mvarIdPending } ← getDelayedMVarAssignment? mvarId then
+      if let some val ← getExprMVarAssignment? mvarIdPending then
+        let pendingDecl ← mvarIdPending.getDecl
+        let val ← resolveDelayedAssignments (← instantiateMVars val)
+        mvarId.assign (pendingDecl.lctx.mkLambda fvars val)
+  instantiateMVars e
 
-meta def work (goal : MVarId) : VCGenM Unit := do
+/--
+Called when decomposing the goal further did not succeed; in this case we emit a VC for the goal.
+In grind mode, tries to solve the VC using the accumulated `Grind.Goal` state (E-graph) via
+`Grind.processHypotheses` + `Grind.solve`. Uses `withNewMCtxDepth` to protect parent mvars
+from grind's `isDefEq` calls, and resolves delayed assignments before exiting.
+-/
+meta def emitVC (item : WorkItem) : VCGenM Unit := do
+  let ty ← item.mvarId.getType
+  if ty.isAppOf ``Std.Do.Invariant then
+    item.mvarId.setKind .syntheticOpaque
+    modify fun s => { s with invariants := s.invariants.push item.mvarId }
+  else if let some grindGoal := item.grindGoal? then
+    let solved ← item.mvarId.withContext do
+      let type ← item.mvarId.getType
+      try
+        let val? ← withNewMCtxDepth do
+          let mvar' ← mkFreshExprSyntheticOpaqueMVar type
+          let grindGoal' := { grindGoal with mvarId := mvar'.mvarId! }
+          -- Internalize new hypotheses. This may discover contradictions and
+          -- assign mvar' directly via closeGoal.
+          let grindGoal' ← Grind.processHypotheses grindGoal'
+          unless ← mvar'.mvarId!.isAssigned do
+            discard <| Grind.solve grindGoal'
+          if ← mvar'.mvarId!.isAssigned then
+            let val ← instantiateMVars mvar'
+            let val ← resolveDelayedAssignments val
+            if val.hasMVar then pure none
+            else pure (some val)
+          else
+            pure none
+        match val? with
+        | some val => item.mvarId.assign val; pure true
+        | none => pure false
+      catch _ => pure false
+    unless solved do
+      item.mvarId.setKind .syntheticOpaque
+      modify fun s => { s with vcs := s.vcs.push item.mvarId }
+  else
+    item.mvarId.setKind .syntheticOpaque
+    modify fun s => { s with vcs := s.vcs.push item.mvarId }
+
+meta def work (item : WorkItem) : VCGenM Unit := do
   -- Normalize universe levels (one-time, cold path) so that backward rule pattern matching
   -- is structural. E.g., `max u v` and `max v u` get a canonical representation.
   let goal ← do
-    let goal ← preprocessMVar goal
+    let goal ← preprocessMVar item.mvarId
     let target ← goal.getType
     let target' ← normalizeLevelsExpr target
     if isSameExpr target target' then pure goal
     else liftMetaM <| goal.replaceTargetDefEq target'
-  let mut worklist := Std.Queue.empty.enqueue goal
-  -- while let some (goal, worklist') := worklist.dequeue? do
+  let item := item.withMVarId goal
+  let mut worklist := Std.Queue.empty.enqueue item
   repeat do
-    let some (goal, worklist') := worklist.dequeue? | break
+    let some (item, worklist') := worklist.dequeue? | break
     worklist := worklist'
-    let res ← solve goal
+    let res ← solve item
     match res with
     | .noEntailment .. | .noProgramFoundInTarget .. =>
-      emitVC goal
+      emitVC item
     | .noSpecFoundForProgram prog _ #[] =>
       throwError "No spec found for program {prog}."
     | .noSpecFoundForProgram prog monad thms =>
@@ -811,9 +889,16 @@ public structure Result where
 Generate verification conditions for a goal of the form `P ⊢ₛ wp⟦e⟧ Q s₁ ... sₙ` by repeatedly
 decomposing `e` using registered `@[spec]` theorems.
 Return the VCs and invariant goals.
+When `grindMode` is true, integrates grind into the VCGen loop for incremental context
+internalization, avoiding O(n) re-internalization per VC.
 -/
-public meta partial def main (goal : MVarId) (ctx : Context) : SymM Result := do
-  let ((), state) ← StateRefT'.run (ReaderT.run (work goal) ctx) {}
+public meta partial def main (goal : MVarId) (ctx : Context) (grindMode : Bool := false) : Grind.GrindM Result := do
+  let grindGoal? ← if grindMode then
+    let g ← Grind.mkGoalCore goal
+    some <$> Grind.processHypotheses g
+  else pure none
+  let item : WorkItem := { mvarId := goal, grindGoal? }
+  let ((), state) ← StateRefT'.run (ReaderT.run (work item) ctx) {}
   _ ← state.invariants.mapIdxM fun idx mv => do
     mv.setTag (Name.mkSimple ("inv" ++ toString (idx + 1)))
   _ ← state.vcs.mapIdxM fun idx mv => do
@@ -891,14 +976,43 @@ meta def mkSpecContext (lemmas : Syntax) (ignoreStarArg := false) : TacticM VCGe
 end VCGen
 
 syntax (name := mvcgen') "mvcgen'"
-  (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*,?) "] ")? : tactic
+  (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*,?) "] ")?
+  (&" with " tactic)? : tactic
 
 @[tactic mvcgen']
 public meta def elabMVCGen' : Tactic := fun stx => withMainContext do
   let ctx ← VCGen.mkSpecContext stx[1]
   let goal ← getMainGoal
-  let { invariants, vcs } ← SymM.run <| VCGen.main goal ctx
-  replaceMainGoal (invariants ++ vcs).toList
+  let withClause := stx[2]
+  let hasWithClause := withClause.getNumArgs != 0
+  -- When (" with " tactic)? matches, stx[2] is a nullKind node with 2 children:
+  --   stx[2][0] = "with" keyword, stx[2][1] = the tactic
+  let isGrind := hasWithClause && withClause[1].getKind == ``Lean.Parser.Tactic.grind
+  let params ← if isGrind then
+    -- Parse the full grind configuration syntax: grind optConfig only? [params]? (=> seq)?
+    let grindStx := withClause[1]
+    let `(tactic| grind $config:optConfig $[only%$only]? $[ [$grindParams:grindParam,*] ]? $[=> $_:grindSeq]?) := grindStx
+      | throwUnsupportedSyntax
+    let grindConfig ← elabGrindConfig config
+    mkGrindParams grindConfig only.isSome (grindParams.getD {}).getElems goal
+  else
+    Grind.mkDefaultParams {}
+  -- FIXME: Expose grind's internal simp step limit as a user-facing option instead of hardcoding.
+  -- Grind's `simpCore` uses the default `Simp.Config.maxSteps` (100k) which is too low for large
+  -- unrolled goals (fails around n=400 for GetThrowSet).
+  let params := { params with norm := ← params.norm.setConfig { params.norm.config with maxSteps := 10000000 } }
+  let result ← Grind.GrindM.run (VCGen.main goal ctx isGrind) params
+  let vcs ← if !isGrind then
+    if hasWithClause then
+      let tac := withClause[1]
+      let mut remaining : Array MVarId := #[]
+      for vc in result.vcs do
+        remaining := remaining ++ (← evalTacticAt tac vc).toArray
+      pure remaining
+    else pure result.vcs
+  else
+    pure result.vcs
+  replaceMainGoal (result.invariants ++ vcs).toList
 
 /-!
 Local tests for faster iteration:

@@ -240,13 +240,15 @@ def setComputedFields (computedFields : Array (Name × Array Name)) : MetaM Unit
     mkComputedFieldOverrides indName computedFieldNames
 
   -- Once all the implemented_by infrastructure is set up, compile everything.
-  for (indName, _) in computedFields do
-    compileDecls #[mkCasesOnName indName ++ `_override]
+  compileDecls <| computedFields.map fun (indName, _) =>
+    mkCasesOnName indName ++ `_override
 
+  let mut toCompile := #[]
   for (declName, computedFields) in computedFields do
     let ind ← getConstInfoInduct declName
     for ctor in ind.ctors do
-      compileDecls #[ctor ++ `_override]
+      toCompile := toCompile.push (ctor ++ `_override)
     for fieldName in computedFields do
       unless isExtern (← getEnv) fieldName do
-        compileDecls #[fieldName ++ `_override]
+        toCompile := toCompile.push <| fieldName ++ `_override
+  compileDecls toCompile

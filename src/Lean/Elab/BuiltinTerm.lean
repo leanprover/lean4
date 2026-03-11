@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Meta.Diagnostics
+public import Lean.Meta.InstanceNormalForm
 public import Lean.Elab.Open
 public import Lean.Elab.SetOption
 public import Lean.Elab.Eval
@@ -322,7 +323,8 @@ private def mkSilentAnnotationIfHole (e : Expr) : TermElabM Expr := do
     discard <| isDefEq type expectedType
   let type ← instantiateMVars type
   let inst ← synthInstance type
-  let inst ← whnfI inst
+  -- Normalize to instance normal form.
+  let inst ← withNewMCtxDepth <| normalizeInstance inst type
   ensureHasType expectedType? inst
 
 @[builtin_term_elab clear] def elabClear : TermElab := fun stx expectedType? => do

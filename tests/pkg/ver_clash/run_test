@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-source ../../lake/tests/common.sh
+source ../../env_test.sh
 ./clean.sh
 
 # This directory contains a unified version of the "ring example"
@@ -25,9 +25,27 @@ source ../../lake/tests/common.sh
 # Since committing a Git repository to a Git repository is not well-supported,
 # We reinitialize the repositories on each test.
 
+if [ "$UNAME" = Darwin ] || [ "$UNAME" = FreeBSD ]; then
+  sed_i() { sed -i '' "$@"; }
+else
+  sed_i() { sed -i "$@"; }
+fi
+
+init_git() {
+  echo "# initialize test repository"
+  set -x
+  git init
+  git checkout -b master
+  git config user.name test
+  git config user.email test@example.com
+  git add --all
+  git commit -m "initial commit"
+  set +x
+}
+
 pushd DiamondExample-A
 sed_i s/add_left_comm/poorly_named_lemma/ DiamondExampleA/Ring/Lemmas.lean
-$LAKE update
+lake update
 init_git
 git tag v1
 sed_i s/poorly_named_lemma/add_left_comm/ DiamondExampleA/Ring/Lemmas.lean
@@ -36,30 +54,30 @@ git tag v2
 popd
 
 pushd DiamondExample-B
-$LAKE update
+lake update
 init_git
 popd
 
 pushd DiamondExample-C
 sed_i s/v2/v1/ lakefile.toml
 sed_i s/add_left_comm/poorly_named_lemma/ DiamondExampleC/MainResult.lean
-$LAKE update
+lake update
 init_git
 git tag v1
 sed_i s/v1/v2/ lakefile.toml
 sed_i s/poorly_named_lemma/add_left_comm/ DiamondExampleC/MainResult.lean
-$LAKE update
+lake update
 git commit -am "use v2"
 git tag v2
 popd
 
 pushd DiamondExample-D
 sed_i s/v2/v1/ lakefile.toml
-$LAKE update
+lake update
 init_git
 git tag v1
 sed_i s/v1/v2/ lakefile.toml
-$LAKE update
+lake update
 git commit -am "use v2"
 git tag v2
 popd
@@ -72,20 +90,23 @@ pushd DiamondExample-D
 
 # Test build succeeds on v1
 git switch v1 --detach
-test_run build
+run lake build
 
 # Test build fails on v2
 git switch v2 --detach
-test_err 'Unknown identifier `poorly_named_lemma`' build
+capture_fail lake build
+check_out_contains 'Unknown identifier `poorly_named_lemma`'
 
 # Test build with different package names
 sed_i '/name/ s/A/A-v1/' .lake/packages/DiamondExample-B/lakefile.toml
 sed_i '/name/ s/A/A-v2/' .lake/packages/DiamondExample-C/lakefile.toml
-test_run update
-test_err 'could not disambiguate the module `DiamondExampleA.Ring.Lemmas`' build
+run lake update
+
+capture_fail lake build
+check_out_contains 'could not disambiguate the module `DiamondExampleA.Ring.Lemmas`'
 
 popd
 
 # Cleanup
 rm -rf DiamondExample-*/.git
-rm -f produced.out
+rm -rf DiamondExample-*/.lake

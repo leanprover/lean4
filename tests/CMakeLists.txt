@@ -309,7 +309,6 @@ add_dir_of_test_dirs(
     signal # Test appears to be broken
     test_extern # Flaky
     user_ext # Test started being nondeterministic
-    ver_clash
 )
 
 #######################

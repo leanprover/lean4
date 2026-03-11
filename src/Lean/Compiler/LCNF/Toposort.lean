@@ -60,8 +60,8 @@ where
     | _ => return ()
 
   visitConst (declName : Name) : ToposortM pu Unit := do
-   if let some d := (← read).declsMap[declName]? then
-     process d
+    if let some d := (← read).declsMap[declName]? then
+      process d
 
 public def toposortDecls (decls : Array (Decl pu)) : CompilerM (Array (Decl pu)) := do
   toposort decls

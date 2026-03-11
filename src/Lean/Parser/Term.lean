@@ -782,7 +782,7 @@ This ensures that sub-instance projections immediately reduce to the canonical
 sub-instance.
 -/
 @[builtin_term_parser] def «inferInstanceAs» := leading_parser
-  "inferInstanceAs " >> termParser argPrec
+  "inferInstanceAs" >> ((" <| " >> termParser minPrec) <|> (ppSpace >> termParser argPrec))
 /--
 `value_of% x` elaborates to the value of `x`, which can be a local or global definition.
 -/

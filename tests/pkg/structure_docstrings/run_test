@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -e
+source ../../env_test.sh
 
 rm -rf .lake/build
 LEAN_ABORT_ON_PANIC=1 lake build

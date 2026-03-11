@@ -196,7 +196,7 @@ does.) Example:
 #check inferInstanceAs (Inhabited Nat) -- Inhabited Nat
 ```
 -/
-abbrev inferInstanceAs (α : Sort u) [i : α] : α := i
+abbrev «inferInstanceAs» (α : Sort u) [i : α] : α := i
 
 
 

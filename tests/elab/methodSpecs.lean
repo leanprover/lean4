@@ -117,6 +117,7 @@ warning: Definition `instIndClass` of class type must be marked with `@[reducibl
 #guard_msgs in @[method_specs] def instIndClass : indClass := .mk
 
 -- This used to fail until we eta-reduced the field values
+set_option «instance».normalForm false in
 @[method_specs] instance anotherInstBEqL [BEq α] : BEq (L α) := ⟨fun x y => L.beqImpl x y⟩
 
 def L.badBeqImpl {α : Type u} : L α → L α → Bool

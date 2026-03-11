@@ -774,6 +774,16 @@ In particular, it is like a unary operation with a fixed parameter `b`, where on
 @[builtin_term_parser] def noImplicitLambda := leading_parser
   "no_implicit_lambda% " >> termParser maxPrec
 /--
+`inferInstanceAs α` synthesizes a value of type `α` by typeclass inference, then
+unfolds it one level to its constructor form. This is like `inferInstance` except that
+`α` is given explicitly instead of being inferred from the target type, and the
+result is the unfolded constructor application rather than an opaque reference.
+This ensures that sub-instance projections immediately reduce to the canonical
+sub-instance.
+-/
+@[builtin_term_parser] def «inferInstanceAs» := leading_parser
+  "inferInstanceAs " >> termParser argPrec
+/--
 `value_of% x` elaborates to the value of `x`, which can be a local or global definition.
 -/
 @[builtin_term_parser] def valueOf := leading_parser

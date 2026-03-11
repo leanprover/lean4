@@ -313,6 +313,16 @@ private def mkSilentAnnotationIfHole (e : Expr) : TermElabM Expr := do
     return val
   | _ => panic! "resolveId? returned an unexpected expression"
 
+@[builtin_term_elab Lean.Parser.Term.inferInstanceAs] def elabInferInstanceAs : TermElab := fun stx expectedType? => do
+  let type ← withSynthesize (postpone := .yes) <| elabType stx[1]
+  -- Unify with expected type to resolve metavariables (e.g., `_` placeholders)
+  if let some expectedType := expectedType? then
+    discard <| isDefEq type expectedType
+  let type ← instantiateMVars type
+  let inst ← synthInstance type
+  let inst ← whnfI inst
+  ensureHasType expectedType? inst
+
 @[builtin_term_elab clear] def elabClear : TermElab := fun stx expectedType? => do
   let some (.fvar fvarId) ← isLocalIdent? stx[1]
     | throwErrorAt stx[1] "not in scope"

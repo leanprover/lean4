@@ -688,6 +688,7 @@ After leaving the loop, the cursor's prefix is `xs` and the suffix is empty.
 During the induction step, the invariant holds for a suffix with head element `x`.
 After running the loop body, the invariant then holds after shifting `x` to the prefix.
 -/
+@[mvcgen_invariant_type]
 abbrev Invariant {α : Type u₁} (xs : List α) (β : Type u₂) (ps : PostShape.{max u₁ u₂}) :=
   PostCond (List.Cursor xs × β) ps
 
@@ -1998,6 +1999,18 @@ theorem Spec.foldlM_array {α β : Type u} {m : Type u → Type v} {ps : PostSha
   apply Spec.foldlM_list inv step
 
 /--
+The type of loop invariants used by the specifications of `for ... in ...` loops over strings.
+A loop invariant is a `PostCond` that takes as parameters
+
+* A `String.Pos` representing the current position in the string `s`.
+* A state tuple of type `β`, which will be a nesting of `MProd`s representing the elaboration of
+  `let mut` variables and early return.
+-/
+@[mvcgen_invariant_type]
+abbrev StringInvariant (s : String) (β : Type u) (ps : PostShape.{u}) :=
+  PostCond (s.Pos × β) ps
+
+/--
 Helper definition for specifying loop invariants for loops with early return.
 
 `for ... in ...` loops with early return of type `γ` elaborate to a call like this:
@@ -2019,7 +2032,7 @@ abbrev StringInvariant.withEarlyReturn {s : String}
   (onContinue : s.Pos → β → Assertion ps)
   (onReturn : γ → β → Assertion ps)
   (onExcept : ExceptConds ps := ExceptConds.false) :
-    PostCond (s.Pos × MProd (Option γ) β) ps
+    StringInvariant s (MProd (Option γ) β) ps
     :=
   ⟨fun ⟨pos, x, b⟩ => spred(
         (⌜x = none⌝ ∧ onContinue pos b)
@@ -2029,7 +2042,7 @@ abbrev StringInvariant.withEarlyReturn {s : String}
 @[spec]
 theorem Spec.forIn_string
     {s : String} {init : β} {f : Char → β → m (ForInStep β)}
-    (inv : PostCond (s.Pos × β) ps)
+    (inv : StringInvariant s β ps)
     (step : ∀ pos b (h : pos ≠ s.endPos),
       Triple
         (f (pos.get h) b)
@@ -2058,6 +2071,18 @@ theorem Spec.forIn_string
   | endPos => simpa using Triple.pure _ (by simp)
 
 /--
+The type of loop invariants used by the specifications of `for ... in ...` loops over string slices.
+A loop invariant is a `PostCond` that takes as parameters
+
+* A `String.Slice.Pos` representing the current position in the string slice `s`.
+* A state tuple of type `β`, which will be a nesting of `MProd`s representing the elaboration of
+  `let mut` variables and early return.
+-/
+@[mvcgen_invariant_type]
+abbrev StringSliceInvariant (s : String.Slice) (β : Type u) (ps : PostShape.{u}) :=
+  PostCond (s.Pos × β) ps
+
+/--
 Helper definition for specifying loop invariants for loops with early return.
 
 `for ... in ...` loops with early return of type `γ` elaborate to a call like this:
@@ -2079,7 +2104,7 @@ abbrev StringSliceInvariant.withEarlyReturn {s : String.Slice}
   (onContinue : s.Pos → β → Assertion ps)
   (onReturn : γ → β → Assertion ps)
   (onExcept : ExceptConds ps := ExceptConds.false) :
-    PostCond (s.Pos × MProd (Option γ) β) ps
+    StringSliceInvariant s (MProd (Option γ) β) ps
     :=
   ⟨fun ⟨pos, x, b⟩ => spred(
         (⌜x = none⌝ ∧ onContinue pos b)
@@ -2089,7 +2114,7 @@ abbrev StringSliceInvariant.withEarlyReturn {s : String.Slice}
 @[spec]
 theorem Spec.forIn_stringSlice
     {s : String.Slice} {init : β} {f : Char → β → m (ForInStep β)}
-    (inv : PostCond (s.Pos × β) ps)
+    (inv : StringSliceInvariant s β ps)
     (step : ∀ pos b (h : pos ≠ s.endPos),
       Triple
         (f (pos.get h) b)

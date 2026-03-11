@@ -262,10 +262,9 @@ builtin_initialize mvcgenInvariantAttr : TagAttribute ←
 
 /--
 Returns `true` if `ty` is an application of a type tagged with `@[mvcgen_invariant_type]`.
-Falls back to checking for `Std.Do.Invariant` for bootstrapping purposes.
 -/
 def isMVCGenInvariantType (env : Environment) (ty : Expr) : Bool :=
   if let .const name .. := ty.getAppFn then
-    mvcgenInvariantAttr.hasTag env name || name == ``Std.Do.Invariant
+    mvcgenInvariantAttr.hasTag env name
   else
     false

@@ -94,6 +94,9 @@ builtin_initialize declMapExt : SimplePersistentEnvExtension Decl DeclMap ←
           if isDeclMeta env d.name then
             return d
           guard <| Compiler.LCNF.isDeclPublic env d.name
+          -- TODO: boxed `[extern]`s are created eagerly by lean but
+          if Compiler.LCNF.isBoxedName d.name then
+            return d
           -- Bodies of imported IR decls are not relevant for codegen, only interpretation
           match d with
           | .fdecl f xs ty b info =>

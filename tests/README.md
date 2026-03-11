@@ -1,9 +1,6 @@
 # Test suite
 
 This directory contains the lean test and benchmark suite.
-It is currently in the process of being migrated to the framework described in this file.
-Some tests still use the previous framework,
-which is partially documented in [testing.md](../doc/dev/testing.md).
 
 The test suite consists of two types of directories: Test directories and test piles.
 
@@ -45,12 +42,17 @@ Benchmarks belonging to the old framework are not included in this description.
   These are also executed as part of the test suite, and `.out.expected` files are ignored when benchmarking.
 - `server`, `server_interactive`:
   Test LSP server requests.
+- `lake:`
+  Test suite for lake.
+  It is mostly isolated from the rest of the test suite and follows its own conventions.
 - `lake_bench`:
   Benchmark directories that measure lake performance.
 - `misc`:
   A collection of miscellaneous small test scripts.
 - `misc_bench`:
   A collection of miscellaneous small benchmark scripts.
+- `pkg`:
+  Tests that run in lake packages.
 
 ## How to run the test suite?
 

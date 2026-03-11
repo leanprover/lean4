@@ -18,6 +18,9 @@ Each case exercises a different aspect of the VC generation:
 - `GetThrowSet`: Exception handling with `ExceptT`/`StateM`
 - `PurePrecond`: Pure hypotheses `⌜φ⌝` in preconditions
 - `ReaderState`: `ReaderT`/`StateM` combination
+- `DiteSplit`: Dependent if-then-else (`if h : cond then ...`)
+- `MatchSplit`: Pattern matching in monadic programs
+- `MatchSplitState`: Match on state variable (discriminant = excess state arg)
 -/
 
 open Lean Parser Meta Elab Tactic Sym Std Do SpecAttr
@@ -42,3 +45,12 @@ open PurePrecond in
 
 open ReaderState in
 #eval runBenchUsingTactic ``Goal [``loop, ``step] `(tactic| mvcgen') `(tactic| sorry) [10]
+
+open DiteSplit in
+#eval runBenchUsingTactic ``Goal [``loop, ``step] `(tactic| mvcgen') `(tactic| sorry) [10]
+
+open MatchSplit in
+#eval runBenchUsingTactic ``Goal [``loop, ``step] `(tactic| mvcgen') `(tactic| sorry) [10]
+
+open MatchSplitState in
+#eval runBenchUsingTactic ``Goal [``loop, ``step] `(tactic| mvcgen') `(tactic| grind) [10]

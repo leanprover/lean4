@@ -35,4 +35,10 @@ register_builtin_option compiler.relaxedMetaCheck : Bool := {
   descr := "Allow mixed `meta`/non-`meta` references in the same module. References to imports are unaffected."
 }
 
+register_builtin_option compiler.ignoreBorrowAnnotation : Bool := {
+  defValue := false
+  descr := "Ignore user defined borrow inference annotations. This is useful for export/extern \
+    forward declarations"
+}
+
 end Lean.Compiler

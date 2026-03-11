@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -euo pipefail
+source ../../env_test.sh
 
 # Test that Lean will use the specified olean from `setup.json`
 lean Dep.lean -o Dep.olean

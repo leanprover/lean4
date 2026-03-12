@@ -564,30 +564,32 @@ meta def mkBackwardRuleForSplit (splitInfo : SplitInfo) (m σs ps instWP : Expr)
       let wpApplyQ := mkAppN wpApplyQ ss
       mkApp3 (mkConst ``SPred.entails [u]) σs P wpApplyQ
     let goal := goalWithProg rawProg
-    -- Introduce hypothesis fvars whose types are metavariables, assigned during the
-    -- `splitFn` pass when the actual VC proposition types are discovered via `rwIfOrMatcher`.
+    -- We will have one subgoal per alt. We need to introduce these subgoals als local hypotheses.
+    -- For match, it's difficult to know the exact locals of these subgoals before splitting.
+    -- Hence we leave the exact shape of the subgoals as metavariables and fill them when
+    -- constructing the proof in the alt body.
     let numAlts := match splitInfo with
       | .ite _ | .dite _ => 2
       | .matcher matcherApp => matcherApp.alts.size
-    let mut hypTypeMVars := #[]
+    let mut subgoals := #[]
     for _ in [:numAlts] do
-      hypTypeMVars := hypTypeMVars.push (← liftMetaM <| mkFreshExprMVar (some (mkSort 0)))
-    let hypNamesTypes := hypTypeMVars.mapIdx fun i mv => ((`h).appendIndexAfter (i+1), mv)
-    withLocalDeclsDND hypNamesTypes fun hyps => do
+      subgoals := subgoals.push (← liftMetaM <| mkFreshExprMVar (some (mkSort 0)))
+    let namedSubgoals := subgoals.mapIdx fun i mv => ((`h).appendIndexAfter (i+1), mv)
+    withLocalDeclsDND namedSubgoals fun subgoalHyps => do
     let prf ← liftMetaM <| splitFn goal fun idx params _bodyType => do
       let res ← rwIfOrMatcher idx rawProg
       if res.proof?.isNone then
         throwError "mkBackwardRuleForSplit: rwIfOrMatcher failed for alt {idx}"
-      -- Assign the hypothesis type metavariable to the discovered VC proposition
+      -- Assign the metavariable of the discovered subgoal
       let hypBodyType := replaceProgInGoal goal res.expr
       let hypType ← mkForallFVars params hypBodyType
-      hypTypeMVars[idx]!.mvarId!.assign hypType
-      let hypProof := mkAppN hyps[idx]! params
+      subgoals[idx]!.mvarId!.assign hypType
+      let hypProof := mkAppN subgoalHyps[idx]! params
       let context ← withLocalDecl `e .default mα fun e =>
         mkLambdaFVars #[e] (replaceProgInGoal goal e)
       let res ← Simp.mkCongrArg context res
       res.mkEqMPR hypProof
-    mkLambdaFVars (#[α] ++ splitFVars ++ ss ++ #[P, Q] ++ hyps) prf
+    mkLambdaFVars (#[α] ++ splitFVars ++ ss ++ #[P, Q] ++ subgoalHyps) prf
   let prf ← instantiateMVars prf
   let res ← abstractMVars prf
   let expr ← normalizeLevelsExpr res.expr

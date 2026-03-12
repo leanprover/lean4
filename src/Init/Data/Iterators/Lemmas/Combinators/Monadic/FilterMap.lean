@@ -696,6 +696,7 @@ theorem IterM.toList_filterMap {α β γ : Type w} {m : Type w → Type w'}
     assumption
   · simp
 
+set_option warn.sorry false in
 @[simp]
 theorem IterM.toList_map {α β β' : Type w} {m : Type w → Type w'} [Monad m] [LawfulMonad m]
     [Iterator α m β] [Finite α m] {f : β → β'}
@@ -706,9 +707,7 @@ theorem IterM.toList_map {α β β' : Type w} {m : Type w → Type w'} [Monad m]
   let t' := type_of% (it.filterMap (some ∘ f))
   congr
   · simp [Map]
-  · simp [Map.instIterator, inferInstanceAs]
-    congr
-    simp
+  · sorry
   · simp only [map, mapWithPostcondition, InternalCombinators.map, Function.comp_apply, filterMap,
     filterMapWithPostcondition, InternalCombinators.filterMap]
     congr

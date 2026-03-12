@@ -54,27 +54,27 @@ def altInfos (info : SplitInfo) : Array (Nat × Expr) := match info with
 def splitWith
   {n} [MonadLiftT MetaM n] [MonadControlT MetaM n] [Monad n] [MonadError n] [MonadEnv n] [MonadLog n]
   [AddMessageContext n] [MonadOptions n]
-  (info : SplitInfo) (resTy : Expr) (onAlt : Name → Expr → Nat → Array Expr → n Expr) (useSplitter := false) : n Expr := match info with
+  (info : SplitInfo) (resTy : Expr) (onAlt : Name → Expr → Nat → MatcherApp.TransformAltFVars → n Expr) (useSplitter := false) : n Expr := match info with
   | ite e => do
     let u ← getLevel resTy
     let c := e.getArg! 1
     let h := e.getArg! 2
     if useSplitter then -- dite is the "splitter" for ite
       let n ← liftMetaM <| mkFreshUserName `h
-      let t ← withLocalDecl n .default c fun h => do mkLambdaFVars #[h] (← onAlt `isTrue resTy 0 #[])
-      let e ← withLocalDecl n .default (mkNot c) fun h => do mkLambdaFVars #[h] (← onAlt `isFalse resTy 1 #[])
+      let t ← withLocalDecl n .default c fun h => do mkLambdaFVars #[h] (← onAlt `isTrue resTy 0 { fields := #[h] })
+      let e ← withLocalDecl n .default (mkNot c) fun h => do mkLambdaFVars #[h] (← onAlt `isFalse resTy 1 { fields := #[h] })
       return mkApp5 (mkConst ``_root_.dite [u]) resTy c h t e
     else
-      let t ← onAlt `isTrue resTy 0 #[]
-      let e ← onAlt `isFalse resTy 1 #[]
+      let t ← onAlt `isTrue resTy 0 { fields := #[] }
+      let e ← onAlt `isFalse resTy 1 { fields := #[] }
       return mkApp5 (mkConst ``_root_.ite [u]) resTy c h t e
   | dite e => do
     let u ← getLevel resTy
     let c := e.getArg! 1
     let h := e.getArg! 2
     let n ← liftMetaM <| mkFreshUserName `h
-    let t ← withLocalDecl n .default c fun h => do mkLambdaFVars #[h] (← onAlt `isTrue resTy 0 #[h])
-    let e ← withLocalDecl n .default (mkNot c) fun h => do mkLambdaFVars #[h] (← onAlt `isFalse resTy 1 #[h])
+    let t ← withLocalDecl n .default c fun h => do mkLambdaFVars #[h] (← onAlt `isTrue resTy 0 { args := #[h], fields := #[h] })
+    let e ← withLocalDecl n .default (mkNot c) fun h => do mkLambdaFVars #[h] (← onAlt `isFalse resTy 1 { args := #[h], fields := #[h] })
     return mkApp5 (mkConst ``_root_.dite [u]) resTy c h t e
   | matcher matcherApp => do
     let mask := matcherApp.discrs.map (·.isFVar)
@@ -83,8 +83,8 @@ def splitWith
     (·.toExpr) <$> matcherApp.transform
       (useSplitter := useSplitter) (addEqualities := useSplitter) -- (freshenNames := true)
       (onMotive := fun xs _body => pure (absMotiveBody.instantiateRev (Array.mask mask xs)))
-      (onAlt := fun idx expAltType params _alt => do
-        onAlt ((`h).appendIndexAfter (idx+1)) expAltType idx params)
+      (onAlt := fun idx expAltType altFVars _alt => do
+        onAlt ((`h).appendIndexAfter (idx+1)) expAltType idx altFVars)
 
 def simpDiscrs? (info : SplitInfo) (e : Expr) : SimpM (Option Simp.Result) := match info with
   | dite _ | ite _ => return none -- Tricky because we need to simultaneously rewrite  `[Decidable c]`

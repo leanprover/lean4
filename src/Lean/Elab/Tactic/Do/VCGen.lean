@@ -192,7 +192,8 @@ where
     -- Last resort: Split match
     trace[Elab.Tactic.Do.vcgen] "split match: {e}"
     burnOne
-    return ← info.splitWith goal.toExpr (useSplitter := true) fun altSuff expAltType idx params => do
+    return ← info.splitWith goal.toExpr (useSplitter := true) fun altSuff expAltType idx altFVars => do
+      let params := altFVars.altParams
       burnOne
       let some goal := parseMGoal? expAltType
         | throwError "Bug in `mvcgen`: Expected alt type {expAltType} could not be parsed as an MGoal."
@@ -253,8 +254,8 @@ where
       mkFreshExprSyntheticOpaqueMVar hypsTy (name.appendIndexAfter i)
 
     let (joinPrf, joinGoal) ← forallBoundedTelescope joinTy numJoinParams fun joinParams _body => do
-      let φ ← info.splitWith (mkSort .zero) fun _suff _expAltType idx altParams =>
-        return mkAppN hypsMVars[idx]! (joinParams ++ altParams)
+      let φ ← info.splitWith (mkSort .zero) fun _suff _expAltType idx altFVars =>
+        return mkAppN hypsMVars[idx]! (joinParams ++ altFVars.altParams)
       withLocalDecl (← mkFreshUserName `h) .default φ fun h => do
         -- NB: `mkJoinGoal` is not quite `goal.withNewProg` because we only take 4 args and clear
         -- the stateful hypothesis of the goal.

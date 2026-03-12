@@ -32,7 +32,7 @@ Normalize an instance value to "instance normal form":
 This ensures that sub-instance projections (e.g., `instRing.toSemiring`) immediately
 reduce to the canonical sub-instance, rather than requiring unfolding through helper functions.
 -/
-partial def normalizeInstance (inst expectedType : Expr) : MetaM Expr := withReducible do
+partial def normalizeInstance (inst expectedType : Expr) (canonicalize : Bool) : MetaM Expr := withReducible do
   withTraceNode `Meta.instanceNormalForm
       (fun e => return m!"{exceptEmoji e} type: {expectedType}") do
   let some className ← isClass? expectedType
@@ -41,17 +41,22 @@ partial def normalizeInstance (inst expectedType : Expr) : MetaM Expr := withRed
   if ← isProp expectedType then
     return inst
 
-  -- Try to synthesize a total replacement for this term.
-  try
-    match ← trySynthInstance expectedType with
-    | .some new =>
-      if ← withDefault <| isDefEq inst new then
-        trace[Meta.instanceNormalForm] "replaced with synthesized instance"
-        return new
-      else
-        trace[Meta.instanceNormalForm] "synthesized instance is not defeq, proceeding to constructor normalization"
-    | _ => pure ()
-  catch _ => pure ()
+  if canonicalize then
+    -- Try to synthesize a total replacement for this term.
+    try
+      match ← trySynthInstance expectedType with
+      | .some new =>
+        if ← withDefault <| isDefEq inst new then
+          trace[Meta.instanceNormalForm] "replaced with synthesized instance"
+          return new
+        else
+          trace[Meta.instanceNormalForm] "synthesized instance is not defeq, proceeding to constructor normalization"
+      | _ => pure ()
+    catch _ => pure ()
+  else
+    if (← inst.getAppFn.constName?.mapM (isInstance ·)).any id then
+      trace[Meta.instanceNormalForm] "already in normal form, skipping"
+      return inst
   -- Try to reduce it to a constructor.
   (← whnfI inst).withApp fun f args => do
     let .const c _ := f
@@ -78,7 +83,7 @@ partial def normalizeInstance (inst expectedType : Expr) : MetaM Expr := withRed
         mvarId.assign arg
       -- Recurse into instance arguments of the constructor
       else if bi.isInstImplicit then
-        mvarId.assign (← normalizeInstance arg argExpectedType)
+        mvarId.assign (← normalizeInstance arg argExpectedType canonicalize)
       else
         -- For data fields, assign directly.
         mvarId.assign arg

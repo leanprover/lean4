@@ -6,8 +6,8 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Init.Data.Nat.Induction
 public import Init.Data.NeZero
+public import Init.WF
 meta import Init.MetaTypes
 import Init.WFTactics
 

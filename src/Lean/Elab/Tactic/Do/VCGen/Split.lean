@@ -61,10 +61,10 @@ def expr : SplitInfo → Expr
 Introduces fvars for all varying parts of a `SplitInfo` and provides the abstract
 `SplitInfo` and fvars to the continuation.
 
-For `ite`/`dite`, introduces `c : Prop`, `dec : Decidable c`, `t : mα` (or `t : c → mα`),
-`e : mα` (or `e : ¬c → mα`).
+For `ite`/`dite`, introduces `c : Prop`, `dec : Decidable c`, `t : resTy` (or `t : c → resTy`),
+`e : resTy` (or `e : ¬c → resTy`).
 For `matcher`, introduces discriminant fvars and alternative fvars, builds a non-dependent
-motive `fun _ ... _ => mα`, and adjusts matcher universe levels.
+motive `fun _ ... _ => resTy`, and adjusts matcher universe levels.
 
 The abstract `SplitInfo` satisfies `abstractInfo.toExpr = abstractProgram`.
 
@@ -73,39 +73,39 @@ lambda alts (e.g. for `splitWith`/`matcherApp.transform`) should patch them back
 `{ abstractMatcherApp with alts := origMatcherApp.alts }`.
 -/
 def withAbstract {n} {α} [MonadLiftT MetaM n] [MonadControlT MetaM n] [Monad n] [Inhabited α]
-    (info : SplitInfo) (mα : Expr)
+    (info : SplitInfo) (resTy : Expr)
     (k : (abstractInfo : SplitInfo) → (splitFVars : Array Expr) → n α) : n α :=
   match info with
   | .ite _ =>
     withLocalDeclD `c (mkSort 0) fun c =>
     withLocalDeclD `dec (mkApp (mkConst ``Decidable) c) fun dec =>
-    withLocalDeclD `t mα fun t =>
-    withLocalDeclD `e mα fun e => do
-    let u ← liftMetaM <| getLevel mα
-    k (.ite <| mkApp5 (mkConst ``_root_.ite [u]) mα c dec t e) #[c, dec, t, e]
+    withLocalDeclD `t resTy fun t =>
+    withLocalDeclD `e resTy fun e => do
+    let u ← liftMetaM <| getLevel resTy
+    k (.ite <| mkApp5 (mkConst ``_root_.ite [u]) resTy c dec t e) #[c, dec, t, e]
   | .dite _ =>
     withLocalDeclD `c (mkSort 0) fun c =>
     withLocalDeclD `dec (mkApp (mkConst ``Decidable) c) fun dec => do
-    let tTy ← liftMetaM <| mkArrow c mα
-    let eTy ← liftMetaM <| mkArrow (mkNot c) mα
+    let tTy ← liftMetaM <| mkArrow c resTy
+    let eTy ← liftMetaM <| mkArrow (mkNot c) resTy
     withLocalDeclD `t tTy fun t =>
     withLocalDeclD `e eTy fun e => do
-    let u ← liftMetaM <| getLevel mα
-    k (.dite <| mkApp5 (mkConst ``_root_.dite [u]) mα c dec t e) #[c, dec, t, e]
+    let u ← liftMetaM <| getLevel resTy
+    k (.dite <| mkApp5 (mkConst ``_root_.dite [u]) resTy c dec t e) #[c, dec, t, e]
   | .matcher matcherApp => do
     let discrNamesTypes ← matcherApp.discrs.mapIdxM fun i discr => do
       return ((`discr).appendIndexAfter (i+1), ← liftMetaM <| inferType discr)
     withLocalDeclsDND discrNamesTypes fun discrs => do
-    -- Non-dependent motive: fun _ ... _ => mα
+    -- Non-dependent motive: fun _ ... _ => resTy
     let motive ← liftMetaM <| lambdaTelescope matcherApp.motive fun motiveArgs _ =>
-      mkLambdaFVars motiveArgs mα
+      mkLambdaFVars motiveArgs resTy
     -- The matcher's universe levels include a `uElimPos` slot for the elimination target level.
-    -- Our abstract motive `fun _ ... _ => mα` may target a different level than the original
-    -- dependent motive, so we update `matcherLevels[uElimPos]` to `getLevel mα`.
+    -- Our abstract motive `fun _ ... _ => resTy` may target a different level than the original
+    -- dependent motive, so we update `matcherLevels[uElimPos]` to `getLevel resTy`.
     let matcherLevels ← match matcherApp.uElimPos? with
       | none => pure matcherApp.matcherLevels
       | some pos => do
-        let uElim ← liftMetaM <| getLevel mα
+        let uElim ← liftMetaM <| getLevel resTy
         pure <| matcherApp.matcherLevels.set! pos uElim
     -- Build partial application to infer alt types
     let matcherPartial := mkAppN (mkConst matcherApp.matcherName matcherLevels.toList) matcherApp.params
@@ -119,7 +119,7 @@ def withAbstract {n} {α} [MonadLiftT MetaM n] [MonadControlT MetaM n] [Monad n]
       matcherLevels := matcherLevels
       discrs        := discrs
       motive        := motive
-      alts          := alts
+      alts          := alts -- (← liftMetaM <| alts.mapM etaExpand)
       remaining     := #[]
     }
     k (.matcher abstractMatcherApp) (discrs ++ alts)

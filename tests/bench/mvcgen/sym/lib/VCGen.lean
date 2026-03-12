@@ -400,89 +400,43 @@ open Lean.Elab.Tactic.Do in
 /--
 CPS helper that introduces local fvars for a split and provides a uniform splitter.
 
-**Example.** For `SplitInfo.matcher` with `match s with | 0 => ... | n+1 => ...`:
-- `splitFVars` = `#[discr₁, alt₁, alt₂]` where `discr₁ : Nat` is the discriminant fvar
-  and `alt₁ alt₂ : mα` are the alternative fvars.
-- `matchingProg` = `Nat.casesOn mα discr₁ alt₁ (fun n => alt₂)` (the abstract program).
-- `splitFn goal onAlt` builds a splitter proof (`Nat.casesOn.splitter`) with motive
-  `fun d => (discr₁ = d) → goal`. Each alt receives structural params + equation hypotheses.
+Uses `SplitInfo.withAbstract` to open a context where discriminants and alternatives
+are fvars. Then provides a `splitFn` that builds the splitting proof:
+- For `ite`/`dite`: uses `dite` as the splitter (condition proofs as params).
+- For `matcher`: delegates to `SplitInfo.splitWith` / `matcherApp.transform`.
 
-The continuation `k` receives:
-- `matchingProg`: the abstract program expression (e.g. `ite mα c dec t e` or `matcher discrs alts`)
-- `splitFVars`: the fvars introduced for the split (to be abstracted over in the final lemma)
-- `splitFn`: a function that, given a goal expression and an `onAlt` callback, constructs the
-  splitting proof. The `onAlt` callback receives the alt index, an array of params (condition
-  proofs for ite, pattern vars + equality proofs for matchers) that `rwIfOrMatcher` can find via
-  `findLocalDeclWithType?` / `assumption`, and the per-alt body type from the splitter telescope.
+The continuation `k` receives `abstractProg` (the abstract program expression, i.e.
+`abstractInfo.expr`), `splitFVars` (fvars to abstract over), and `splitFn` (builds
+the splitting proof).
 -/
-private meta def withSplitterAndLocals {α} [Inhabited α] (splitInfo : SplitInfo) (mα : Expr) (v : Level)
-    (k : (matchingProg : Expr) → (splitFVars : Array Expr) →
+private meta def withSplitterAndLocals {α} [Inhabited α] (splitInfo : SplitInfo) (mα : Expr)
+    (k : (abstractProg : Expr) → (splitFVars : Array Expr) →
          (splitFn : (goal : Expr) → (onAlt : Nat → Array Expr → Expr → MetaM Expr) → MetaM Expr) →
          SymM α) : SymM α := do
-  match splitInfo with
-  | .ite _ =>
-    withLocalDeclD `c (mkSort 0) fun c => do
-    withLocalDeclD `dec (mkApp (mkConst ``Decidable) c) fun dec => do
-    withLocalDeclD `t mα fun t => do
-    withLocalDeclD `e mα fun e => do
-    let rawProg := mkApp5 (mkConst ``ite [v.succ]) mα c dec t e
-    k rawProg #[c, dec, t, e] fun goal onAlt => do
-      let ht ← withLocalDecl `h .default c fun h => do
-        mkLambdaFVars #[h] (← onAlt 0 #[h] goal)
-      let he ← withLocalDecl `h .default (mkNot c) fun h => do
-        mkLambdaFVars #[h] (← onAlt 1 #[h] goal)
-      return mkApp5 (mkConst ``dite [0]) goal c dec ht he
-  | .dite _ =>
-    withLocalDeclD `c (mkSort 0) fun c => do
-    withLocalDeclD `dec (mkApp (mkConst ``Decidable) c) fun dec => do
-    withLocalDeclD `t (← liftMetaM <| mkArrow c mα) fun t => do
-    withLocalDeclD `e (← liftMetaM <| mkArrow (mkNot c) mα) fun e => do
-    let rawProg := mkApp5 (mkConst ``dite [v.succ]) mα c dec t e
-    k rawProg #[c, dec, t, e] fun goal onAlt => do
-      let ht ← withLocalDecl `h .default c fun h => do
-        mkLambdaFVars #[h] (← onAlt 0 #[h] goal)
-      let he ← withLocalDecl `h .default (mkNot c) fun h => do
-        mkLambdaFVars #[h] (← onAlt 1 #[h] goal)
-      return mkApp5 (mkConst ``dite [0]) goal c dec ht he
-  | .matcher matcherApp => do
-    -- Introduce fvar discriminants
-    let discrNamesTypes ← matcherApp.discrs.mapIdxM fun i discr => do
-      return ((`discr).appendIndexAfter (i+1), ← Sym.inferType discr)
-    withLocalDeclsDND discrNamesTypes fun discrs => do
-    -- Non-dependent motive: fun _ ... _ => mα
-    let motive ← liftMetaM <| lambdaTelescope matcherApp.motive fun motiveArgs _ =>
-      mkLambdaFVars motiveArgs mα
-    -- The matcher's universe levels include a `uElimPos` slot for the elimination target level.
-    -- Our abstract motive `fun _ ... _ => mα` may target a different level than the original
-    -- dependent motive, so we update `matcherLevels[uElimPos]` to `getLevel mα`.
-    let matcherLevels ← match matcherApp.uElimPos? with
-      | none => pure matcherApp.matcherLevels
-      | some pos => do
-        let uElim ← liftMetaM <| getLevel mα
-        pure <| matcherApp.matcherLevels.set! pos uElim
-    -- Build matcher partial application (params + motive + discrs, without alts)
-    let matcherPartial := mkAppN (mkConst matcherApp.matcherName matcherLevels.toList) matcherApp.params
-    let matcherPartial := mkApp matcherPartial motive
-    let matcherPartial := mkAppN matcherPartial discrs
-    -- Infer alt types and introduce fvar alts
-    let origAltTypes ← liftMetaM <| inferArgumentTypesN matcherApp.alts.size matcherPartial
-    let altNamesTypes := origAltTypes.mapIdx fun i ty => ((`alt).appendIndexAfter (i+1), ty)
-    withLocalDeclsDND altNamesTypes fun alts => do
-    let rawProg := mkAppN matcherPartial alts
-    let splitFVars := discrs ++ alts
-    -- Build splitting proof via SplitInfo.splitWith, delegating to matcherApp.transform.
-    -- We construct an abstract MatcherApp with fvar discriminants and abstract motive,
-    -- keeping the original concrete alts (needed by transform's `instantiateLambda`).
-    let abstractMatcherApp : MatcherApp := {
-      matcherApp with
-      discrs    := discrs
-      motive    := motive
-      remaining := #[]
-    }
-    k rawProg splitFVars fun goal onAlt =>
-      SplitInfo.splitWith (.matcher abstractMatcherApp) goal
-        (fun _name expAltType idx params => onAlt idx params expAltType)
-        (useSplitter := true)
+  splitInfo.withAbstract mα fun abstractInfo splitFVars => do
+  let abstractProg := match abstractInfo with
+    | .ite e | .dite e => e
+    | .matcher matcherApp => matcherApp.toExpr
+  let splitFn : (goal : Expr) → (onAlt : Nat → Array Expr → Expr → MetaM Expr) → MetaM Expr :=
+    match abstractInfo with
+    | .ite e | .dite e =>
+      let c := e.getArg! 1
+      let dec := e.getArg! 2
+      fun goal onAlt => do
+        let ht ← withLocalDecl `h .default c fun h => do
+          mkLambdaFVars #[h] (← onAlt 0 #[h] goal)
+        let he ← withLocalDecl `h .default (mkNot c) fun h => do
+          mkLambdaFVars #[h] (← onAlt 1 #[h] goal)
+        return mkApp5 (mkConst ``dite [0]) goal c dec ht he
+    | .matcher abstractMatcherApp =>
+      fun goal onAlt => do
+        -- Patch fvar alts back to original lambda alts for splitWith/matcherApp.transform
+        let .matcher origMatcherApp := splitInfo | unreachable!
+        let splitMatcherApp := { abstractMatcherApp with alts := origMatcherApp.alts }
+        SplitInfo.splitWith (.matcher splitMatcherApp) goal
+          (fun _name expAltType idx params => onAlt idx params expAltType)
+          (useSplitter := true)
+  k abstractProg splitFVars splitFn
 
 open Lean.Elab.Tactic.Do in
 /--
@@ -502,7 +456,7 @@ meta def mkBackwardRuleForSplit (splitInfo : SplitInfo) (m σs ps instWP : Expr)
   let preprocessExpr : Expr → SymM Expr := shareCommon <=< liftMetaM ∘ unfoldReducible
   -- Extract the program expression from a goal-shaped expression.
   let extractProgFromGoal (goal : Expr) : Expr :=
-    goal.getAppArgs[2]!.getAppArgs[2]!.getAppArgs[4]!
+    goal.getArg! 2 |>.getArg! 2 |>.getArg! 4
   -- Replace the program expression in a goal-shaped expression:
   --   SPred.entails σs P (mkAppN (PredTrans.apply ps α (WP.wp m ps instWP α PROG) Q) ss)
   -- Built by `goalWithProg`, so the structure is fixed.
@@ -519,7 +473,7 @@ meta def mkBackwardRuleForSplit (splitInfo : SplitInfo) (m σs ps instWP : Expr)
     let v := us[1]!
     withLocalDeclD `α (mkSort u.succ) fun α => do
     let mα ← preprocessExpr <| mkApp m α
-    withSplitterAndLocals splitInfo mα v fun rawProg splitFVars splitFn => do
+    withSplitterAndLocals splitInfo mα fun abstractProg splitFVars splitFn => do
     let excessArgNamesTypes ← excessArgs.mapM fun arg => return (`s, ← Meta.inferType arg)
     withLocalDeclsDND excessArgNamesTypes fun ss => do
     withLocalDeclD `P (← preprocessExpr <| mkApp (mkConst ``SPred [u]) σs) fun P => do
@@ -529,7 +483,7 @@ meta def mkBackwardRuleForSplit (splitInfo : SplitInfo) (m σs ps instWP : Expr)
       let wpApplyQ := mkApp4 (mkConst ``PredTrans.apply [u]) ps α wp Q
       let wpApplyQ := mkAppN wpApplyQ ss
       mkApp3 (mkConst ``SPred.entails [u]) σs P wpApplyQ
-    let goal := goalWithProg rawProg
+    let goal := goalWithProg abstractProg
     -- We will have one subgoal per alt. We need to introduce these subgoals als local hypotheses.
     -- For match, it's difficult to know the exact locals of these subgoals before splitting.
     -- Hence we leave the exact shape of the subgoals as metavariables and fill them when

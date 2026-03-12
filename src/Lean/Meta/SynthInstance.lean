@@ -327,13 +327,17 @@ def getSubgoals (lctx : LocalContext) (localInsts : LocalInstances) (xs : Array 
       instType := b
       mvars := mvars.push mvar
     else
-      instType ← whnf (instType.instantiateRev subst)
+      instType := instType.instantiateRev subst
       instVal := instVal.instantiateRev subst
       subst := #[]
-      unless instType.isForall do break
+      let instTypeWhnf ← whnf instType
+      if instTypeWhnf.isForall then
+        instType := instTypeWhnf
+      else
+        break
   return {
-    instVal := instVal.instantiateRev subst
-    instTypeBody := instType.instantiateRev subst
+    instVal := instVal
+    instTypeBody := instType
     subgoals := inst.synthOrder.map (mvars[·]!) |>.toList
   }
 

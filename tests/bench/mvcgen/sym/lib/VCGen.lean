@@ -470,56 +470,19 @@ private meta def withSplitterAndLocals {α} [Inhabited α] (splitInfo : SplitInf
     withLocalDeclsDND altNamesTypes fun alts => do
     let rawProg := mkAppN matcherPartial alts
     let splitFVars := discrs ++ alts
-    -- Build the splitting function using the splitter (bypasses MatcherApp.transform)
-    let splitFn (goal : Expr) (onAlt : Nat → Array Expr → Expr → MetaM Expr) : MetaM Expr := do
-      -- Build splitter motive with equality hypotheses:
-      --   fun d₁...dₙ => (discr₁ = d₁) → ... → (discrₙ = dₙ) → goal
-      -- The motive body is the original `goal` (no discriminant substitution), keeping
-      -- the backward rule generic over excess state args. When an excess arg coincides
-      -- with a discriminant at the call site, both fvars unify to the same expression.
-      -- The equation hypotheses (discr = pattern) are available for the discharge tactic.
-      let splitterMotive ← do
-        let discrNamesTypes ← discrs.mapM fun d => return (`d, ← inferType d)
-        withLocalDeclsDND discrNamesTypes fun ds => do
-          let mut body := goal
-          for i in (List.range discrs.size).reverse do
-            let discrTy ← inferType ds[i]!
-            let lvl ← getLevel discrTy
-            let eqType := mkApp3 (mkConst ``Eq [lvl]) discrTy discrs[i]! ds[i]!
-            body ← mkArrow eqType body
-          mkLambdaFVars ds body
-      -- Set eliminator level to 0 (Prop)
-      let splitterLevels ← match matcherApp.uElimPos? with
-        | none => pure matcherApp.matcherLevels
-        | some pos => pure <| matcherApp.matcherLevels.set! pos .zero
-      -- Look up splitter
-      let matchEqns ← Match.getEquationsFor matcherApp.matcherName
-      let splitter := matchEqns.splitterName
-      -- Build splitter partial application
-      let splitterPartial := mkAppN (mkConst splitter splitterLevels.toList) matcherApp.params
-      let splitterPartial := mkApp splitterPartial splitterMotive
-      let splitterPartial := mkAppN splitterPartial discrs
-      -- Infer splitter alt types
-      let splitterAltTypes ← inferArgumentTypesN matcherApp.alts.size splitterPartial
-      -- Number of forall params per alt: structural params + equality params
-      let numTeleParams := matcherApp.altNumParams.map (· + discrs.size)
-      -- Build each splitter alt
-      let mut splitterAlts := #[]
-      for idx in [:matcherApp.alts.size] do
-        let altType := splitterAltTypes[idx]!
-        let numParams := numTeleParams[idx]!
-        let alt ← forallBoundedTelescope altType (some numParams) fun xs bodyType => do
-          let prf ← onAlt idx xs bodyType
-          mkLambdaFVars xs prf
-        splitterAlts := splitterAlts.push alt
-      -- Combine: splitter params motive discrs alts... Eq.refls...
-      let mut prf := mkAppN splitterPartial splitterAlts
-      for discr in discrs do
-        let discrTy ← inferType discr
-        let lvl ← getLevel discrTy
-        prf := mkApp prf (mkApp2 (mkConst ``Eq.refl [lvl]) discrTy discr)
-      return prf
-    k rawProg splitFVars splitFn
+    -- Build splitting proof via SplitInfo.splitWith, delegating to matcherApp.transform.
+    -- We construct an abstract MatcherApp with fvar discriminants and abstract motive,
+    -- keeping the original concrete alts (needed by transform's `instantiateLambda`).
+    let abstractMatcherApp : MatcherApp := {
+      matcherApp with
+      discrs    := discrs
+      motive    := motive
+      remaining := #[]
+    }
+    k rawProg splitFVars fun goal onAlt =>
+      SplitInfo.splitWith (.matcher abstractMatcherApp) goal
+        (fun _name expAltType idx params => onAlt idx params expAltType)
+        (useSplitter := true)
 
 open Lean.Elab.Tactic.Do in
 /--
@@ -537,6 +500,9 @@ opens the splitter telescope. No branching on split kind is needed in this funct
 -/
 meta def mkBackwardRuleForSplit (splitInfo : SplitInfo) (m σs ps instWP : Expr) (excessArgs : Array Expr) : SymM BackwardRule := do
   let preprocessExpr : Expr → SymM Expr := shareCommon <=< liftMetaM ∘ unfoldReducible
+  -- Extract the program expression from a goal-shaped expression.
+  let extractProgFromGoal (goal : Expr) : Expr :=
+    goal.getAppArgs[2]!.getAppArgs[2]!.getAppArgs[4]!
   -- Replace the program expression in a goal-shaped expression:
   --   SPred.entails σs P (mkAppN (PredTrans.apply ps α (WP.wp m ps instWP α PROG) Q) ss)
   -- Built by `goalWithProg`, so the structure is fixed.
@@ -576,17 +542,19 @@ meta def mkBackwardRuleForSplit (splitInfo : SplitInfo) (m σs ps instWP : Expr)
       subgoals := subgoals.push (← liftMetaM <| mkFreshExprMVar (some (mkSort 0)))
     let namedSubgoals := subgoals.mapIdx fun i mv => ((`h).appendIndexAfter (i+1), mv)
     withLocalDeclsDND namedSubgoals fun subgoalHyps => do
-    let prf ← liftMetaM <| splitFn goal fun idx params _bodyType => do
-      let res ← rwIfOrMatcher idx rawProg
+    -- For ite/dite, bodyType = goal. For matchers, bodyType = expAltType from
+    -- splitWith (discriminant fvars replaced by patterns via motive substitution).
+    let prf ← liftMetaM <| splitFn goal fun idx params bodyType => do
+      let res ← rwIfOrMatcher idx (extractProgFromGoal bodyType)
       if res.proof?.isNone then
         throwError "mkBackwardRuleForSplit: rwIfOrMatcher failed for alt {idx}"
       -- Assign the metavariable of the discovered subgoal
-      let hypBodyType := replaceProgInGoal goal res.expr
+      let hypBodyType := replaceProgInGoal bodyType res.expr
       let hypType ← mkForallFVars params hypBodyType
       subgoals[idx]!.mvarId!.assign hypType
       let hypProof := mkAppN subgoalHyps[idx]! params
       let context ← withLocalDecl `e .default mα fun e =>
-        mkLambdaFVars #[e] (replaceProgInGoal goal e)
+        mkLambdaFVars #[e] (replaceProgInGoal bodyType e)
       let res ← Simp.mkCongrArg context res
       res.mkEqMPR hypProof
     mkLambdaFVars (#[α] ++ splitFVars ++ ss ++ #[P, Q] ++ subgoalHyps) prf

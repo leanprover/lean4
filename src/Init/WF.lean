@@ -509,7 +509,7 @@ Strong induction on the natural numbers.
 The induction hypothesis is that all numbers less than a given number satisfy the motive, which
 should be demonstrated for the given number.
 -/
-@[elab_as_elim, macro_inline] protected def Nat.strongRecOn
+@[elab_as_elim] protected def Nat.strongRecOn
     {motive : Nat → Sort u}
     (n : Nat)
     (ind : ∀ n, (∀ m, m < n → motive m) → motive n) : motive n :=

@@ -164,10 +164,10 @@ public def mkModuleInitializationPrefix (phases : IRPhases) : String :=
   | .all      => ""
 
 public def mkModuleInitializationFunctionName (moduleName : Name) (pkg? : Option PkgId := none) (phases : IRPhases := .all) : String :=
-  mkModuleInitializationPrefix phases ++ "initialize_" ++ mkModuleInitializationStem moduleName pkg?
-
-public def mkPackageSymbolPrefix (pkg? : Option PkgId) : String :=
-  pkg?.elim "l_" (s!"lp_{·.mangle}_")
+  mkModuleInitializationPrefix phases ++
+    match pkg? with
+    | none => moduleName.mangle "initialize_"
+    | some pkg => (Name.mkStr1 pkg |>.appendCore moduleName).mangle "initializep_"
 
 -- assumes `s` has been generated `Name.mangle n ""`
 def Name.demangleAux (s : String) (p₀ : s.Pos) (res : Name)

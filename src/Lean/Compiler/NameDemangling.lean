@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2026 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Kim Morrison
+Authors: Kim Morrison, Robin Arnez
 -/
 module
 
@@ -140,14 +140,19 @@ def splitPrefix (nm : Name) : Option (String × Name) := do
     return (pfx, .num nm i)
   | .anonymous => none
 
-def demangleWithPkg (s : String) (normalPrefix packagePrefix : String) : Option String := do
+def demangleWithPkg (s : String) (normalPrefix packagePrefix : String) (postprocess : Bool) :
+    Option String := do
   if let some s := s.dropPrefix? normalPrefix then
     let name ← Name.demangle? s.copy
-    return postprocessNameParts (nameToNameParts name).toSubarray
+    return if postprocess then
+      postprocessNameParts (nameToNameParts name).toSubarray
+    else name.toString
   else if let some s := s.dropPrefix? packagePrefix then
     let name ← Name.demangle? s.copy
     let (pkg, name) ← splitPrefix name
-    return postprocessNameParts (nameToNameParts name).toSubarray ++ s!" ({pkg})"
+    return if postprocess then
+      postprocessNameParts (nameToNameParts name).toSubarray ++ s!" ({pkg})"
+    else s!"{name} ({pkg})"
   else
     none
 
@@ -165,15 +170,16 @@ def demangleCore (s : String) : Option String := do
       return s!"<apply/{rest}>"
   if s == "_lean_main" then
     return "[lean] main"
-  if let some res := demangleWithPkg s "l_" "lp_" then
+  if let some res := demangleWithPkg s "l_" "lp_" (postprocess := true) then
     return res
-  if let some res := demangleWithPkg s "_init_l_" "_init_lp_" then
+  if let some res := demangleWithPkg s "_init_l_" "_init_lp_" (postprocess := true) then
     return s!"[init] {res}"
   if let some res := s.dropPrefix? "_init_" then
     -- exported name
     return s!"[init] {res}"
   let (phases, s) := consumeModuleInitializationPrefix s
-  if let some res := demangleWithPkg s "initialize_" "initializep_" then
+  -- module names don't require post-processing
+  if let some res := demangleWithPkg s "initialize_" "initializep_" (postprocess := false) then
     match phases with
     | .runtime => return s!"[runtime_module_init] {res}"
     | .comptime => return s!"[meta_module_init] {res}"

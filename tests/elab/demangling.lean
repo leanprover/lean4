@@ -55,11 +55,19 @@ _init_ prefixes
   let mangled := Name.mangle `std.Lean.Meta.foo "lp_"
   demangleSymbol ("_init_" ++ mangled) == "[init] Lean.Meta.foo (std)"
 
+#guard demangleSymbol "_init_lean_test_fn" == "[init] lean_test_fn"
+
 /-!
 initialize_ prefixes
 -/
 
 #guard demangleSymbol "initialize_Init_Control_Basic" == "[module_init] Init.Control.Basic"
+#guard demangleSymbol "meta_initialize_Init_Control_Basic" == "[meta_module_init] Init.Control.Basic"
+#guard demangleSymbol "runtime_initialize_Init_Control_Basic" == "[runtime_module_init] Init.Control.Basic"
+
+#guard demangleSymbol "initializep_std_Init_Control_Basic" == "[module_init] Init.Control.Basic (std)"
+#guard demangleSymbol "meta_initializep_std_Init_Control_Basic" == "[meta_module_init] Init.Control.Basic (std)"
+#guard demangleSymbol "runtime_initializep_std_Init_Control_Basic" == "[runtime_module_init] Init.Control.Basic (std)"
 
 /-!
 lean_apply_N and _lean_main
@@ -78,9 +86,7 @@ lean_apply_N and _lean_main
   demangleSymbol (mangled ++ ".cold.1") == "Lean.Meta.foo [arity↓] .cold.1"
 
 #guard demangleSymbol "l_Lean_Meta_foo.cold" == "Lean.Meta.foo .cold"
-
 #guard demangleSymbol "lean_apply_5.cold.1" == "<apply/5> .cold.1"
-
 #guard demangleSymbol "_lean_main.cold.1" == "[lean] main .cold.1"
 
 /-!

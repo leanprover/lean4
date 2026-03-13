@@ -134,16 +134,17 @@ partial def normLevel (u : Level) : M Level := do
     | u => return u
 
 partial def normExpr (e : Expr) : M Expr := do
-  -- Assume instances of the same type are always equal.
-  if let some c := e.getAppFn'.constName? then
-    let ctx ← read
-    if isInstanceCore ctx.env c then
-      let n := Name.mkNum `_tc ctx.idx
-      return mkFVar { name := n }
   match e with
     | .const _ us      => return e.updateConst! (← us.mapM normLevel)
     | .sort u          => return e.updateSort! (← normLevel u)
-    | .app f a         => return e.updateApp! (← normExpr f) (← normExpr a)
+    | .app f a         => return e.updateApp! (← normExpr f) <| ← do
+      -- Assume instances of the same type are always equal.
+      if let some c := a.getLambdaBody'.getAppFn'.constName? then
+        let ctx ← read
+        if isInstanceCore ctx.env c then
+          let n := Name.mkNum `_tc ctx.idx
+          return mkFVar { name := n }
+      normExpr a
     | .letE _ t v b _  => return e.updateLetE! (← normExpr t) (← normExpr v) (← normExpr b)
     | .forallE _ d b _ => return e.updateForallE! (← normExpr d) (← normExpr b)
     | .lam _ d b _     => return e.updateLambdaE! (← normExpr d) (← normExpr b)

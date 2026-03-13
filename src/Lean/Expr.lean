@@ -1100,6 +1100,15 @@ def getNumHeadForalls : Expr → Nat
   | forallE _ _ body _ => getNumHeadForalls body + 1
   | _ => 0
 
+def getLambdaBody : Expr → Expr
+  | lam _ _ b _ => getLambdaBody b
+  | e           => e
+
+def getLambdaBody' : Expr → Expr
+  | mdata _ b   => getLambdaBody' b
+  | lam _ _ b _ => getLambdaBody' b
+  | e           => e
+
 /--
 If the given expression is a sequence of
 function applications `f a₁ .. aₙ`, return `f`.

@@ -4,11 +4,11 @@ This directory contains the lean test and benchmark suite.
 
 The test suite consists of two types of directories: Test directories and test piles.
 
-A **test directory** is a directory containing a `run_test` and/or a `run_bench` script.
+A **test directory** is a directory containing a `run_test.sh` and/or a `run_bench.sh` script.
 It represents a single test or benchmark, depending on which script is present.
 The run scripts are executed once with their working directory set to the test directory.
 
-A **test pile** is also a directory containing a `run_test` and/or a `run_bench` script.
+A **test pile** is also a directory containing a `run_test.sh` and/or a `run_bench.sh` script.
 Here however, each file of a directory-specific extension (usually `.lean`) represents a single test or benchmark.
 The run scripts are executed once for each test file with their working directory set to the pile directory.
 Often, additional supplementary files are placed next to the test files and interpreted by the run scripts.
@@ -70,11 +70,19 @@ CTEST_PARALLEL_LEVEL="$(nproc)" CTEST_OUTPUT_ON_FAILURE=1 \
 make -C build/release -j "$(nproc)" test ARGS="--rerun-failed"
 ```
 
-Run an individual test by `cd`-ing into its directory and then using
+Run an individual test using one of these commands:
 
 ```sh
-./run_test # in a test directory
-./run_test testfile # in a test pile
+CTEST_PARALLEL_LEVEL="$(nproc)" CTEST_OUTPUT_ON_FAILURE=1 \
+make -C build/release -j "$(nproc)" test ARGS="-R <regex>"
+
+# For a specific stage
+CTEST_PARALLEL_LEVEL="$(nproc)" CTEST_OUTPUT_ON_FAILURE=1 \
+make -C build/release/stage1 -j "$(nproc)" test ARGS="-R <regex>"
+
+# Manually, without ctest
+tests/with_stage1_test_env.sh path/to/test/directory/run_test.sh
+tests/with_stage1_test_env.sh path/to/test/pile/run_test.sh testfile
 ```
 
 ## How to run the bench suite?
@@ -95,11 +103,11 @@ make -C build/release -j "$(nproc)" bench-part2 # produces tests/part2.measureme
 
 Make sure not to specify `-j "$(nproc)"` when running the bench suite manually inside `build/release/stage<n>`.
 
-Run an individual benchmark by `cd`-ing into its directory and then using
+Run an individual benchmark manually using
 
 ```sh
-./run_bench # in a test directory
-./run_bench testfile # in a test pile
+tests/with_stage1_bench_env.sh path/to/test/directory/run_bench.sh
+tests/with_stage1_bench_env.sh path/to/test/pile/run_bench.sh testfile
 ```
 
 ## How to write a test?
@@ -120,7 +128,7 @@ If your test should be part of one of the existing test directories:
 Otherwise, create a new test directory or pile:
 
 1. Decide on a place to put the new directory.
-2. Write a `run_test` and/or `run_bench` script.
+2. Write a `run_test.sh` and/or `run_bench.sh` script.
 3. Add the directory to the [`CMakeLists.txt`](CMakeLists.txt) file,
    next to the other tests near the bottom.
 4. Document the new directory in this readme file
@@ -130,7 +138,7 @@ Otherwise, create a new test directory or pile:
 ## How to write a benchmark?
 
 When writing a benchmark, consider that most benchmarks are also executed as tests.
-You can check that this is the case if a `run_test` script exists next to the `run_bench` script in the directory.
+You can check that this is the case if a `run_test.sh` script exists next to the `run_bench.sh` script in the directory.
 When run as benchmark, the problem instance should be large enough to result in reliable measurements.
 When run as test, the problem instance should be as small as possible, but large enough to still test the different code paths.
 
@@ -167,33 +175,29 @@ Some test directories or test piles strip or modify certain flaky or nondetermin
 
 ## How to write a test or bench run script?
 
-Test and bench scripts must be named `run_test` and `run_bench` respectively.
-They must be executable and start with the shebang `#!/usr/bin/env bash`.
-Immediately afterwards, they must source `env_test.sh` or `env_bench.sh` respectively
-using a relative path.
+Test and bench scripts must be named `run_test.sh` and `run_bench.sh` respectively.
+They are sourced by the `with_*_env.sh` script,
+which provides a set of environment variables and definitions.
+Because of this, they require no shebang and should not be executable.
 
-The `env_*.sh` files set some build related environment variables,
-plus a set of test suite related environment variables
-document at the top of [`CMakeLists.txt`](CMakeLists.txt).
-The most notable ones are:
+The most notable environment variables are:
 
 - `TEST_DIR`: Absolute path to the `tests` directory.
 - `SCRIPT_DIR`: Absolute path to the `script` directory.
 - `TEST_BENCH`: Set to `1` if we're currently executing a benchmark, unset otherwise.
 
-It also sources `"$TEST_DIR/util.sh"`,
+The definitions come from `util.sh`,
 which provides a few utility functions and also uses `set` to set sensible bash defaults.
-See `util.sh` for the available utility functions.
 
 The run scripts are always executed with their working directory set to their surrounding directory.
-Inside a test pile, `run_test` and `run_bench` receive
+Inside a test pile, `run_test.sh` and `run_bench.sh` receive
 a relative path to the file under test as their first (and only) argument.
 Inside a test directory, they receive no arguments.
 
-A test succeeds iff the `run_test` script exits with exit code 0.
+A test succeeds iff the `run_test.sh` script exits with exit code 0.
 A benchmark additionally must produce a measurements file:
-Inside a test pile, `run_bench testfile` is expected to produce a `testfile.measurments.jsonl` file.
-Inside a test directory, `run_bench` is expected to produce a `measurements.jsonl` file.
+Inside a test pile, `run_bench.sh` is expected to produce a `<testfile>.measurments.jsonl` file.
+Inside a test directory, `run_bench.sh` is expected to produce a `measurements.jsonl` file.
 
 ## The `elab*` test pile
 

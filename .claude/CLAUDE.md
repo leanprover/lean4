@@ -20,7 +20,8 @@ CTEST_PARALLEL_LEVEL="$(nproc)" CTEST_OUTPUT_ON_FAILURE=1 \
 make -C build/release -j "$(nproc)" test ARGS='--rerun-failed'
 
 # Single test from tests/foo/bar/ (quick check during development)
-cd tests/foo/bar && ./run_test example_test.lean
+CTEST_PARALLEL_LEVEL="$(nproc)" CTEST_OUTPUT_ON_FAILURE=1 \
+make -C build/release -j "$(nproc)" test ARGS=-R testname'
 ```
 
 ## New features

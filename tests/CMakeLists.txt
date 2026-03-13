@@ -38,12 +38,15 @@ string(APPEND TEST_VARS " LEANC_OPTS='${LEANC_OPTS}'")
 # LEANC_OPTS in CXX is necessary for macOS c++ to find its headers
 string(APPEND TEST_VARS " CXX='${CMAKE_CXX_COMPILER} ${LEANC_OPTS}'")
 
+set(WITH_TEST_ENV "${CMAKE_CURRENT_SOURCE_DIR}/with_stage${STAGE}_test_env.sh")
+set(WITH_BENCH_ENV "${CMAKE_CURRENT_SOURCE_DIR}/with_stage${STAGE}_bench_env.sh")
+
 string(APPEND TEST_VARS " TEST_BENCH=")
-configure_file(env.sh.in "${CMAKE_CURRENT_SOURCE_DIR}/env_test.sh")
+configure_file(with_env.sh.in "${WITH_TEST_ENV}")
 
 block()
   string(APPEND TEST_VARS " TEST_BENCH=1")
-  configure_file(env.sh.in "${CMAKE_CURRENT_SOURCE_DIR}/env_bench.sh")
+  configure_file(with_env.sh.in "${WITH_BENCH_ENV}")
 endblock()
 
 ######################
@@ -69,8 +72,8 @@ function(glob_except OUT DIR GLOB)
 endfunction()
 
 function(check_test_bench_scripts DIR)
-  set(RUN_TEST "${DIR}/run_test")
-  set(RUN_BENCH "${DIR}/run_bench")
+  set(RUN_TEST "${DIR}/run_test.sh")
+  set(RUN_BENCH "${DIR}/run_bench.sh")
 
   set(RUN_TEST_EXISTS FALSE)
   set(RUN_BENCH_EXISTS FALSE)
@@ -125,10 +128,10 @@ endfunction()
 # represents a separate test (or benchmark). The directory may also contain
 # additional files or subdirectories required by the individual test files.
 #
-# If a run_test script is present, each test file will be added as a test. Tests
+# If a run_test.sh script is present, each test file will be added as a test. Tests
 # can be disabled on a per-file basis by creating a `<file>.no_test` file.
 #
-# If a run_bench script is present, each test file will be added as a benchmark.
+# If a run_bench.sh script is present, each test file will be added as a benchmark.
 # Benchmarks can be disabled on a per-file basis by creating a `<file>.no_bench`
 # file. CMake expects the bench script to produce a `<file>.measurements.jsonl`
 # file next to the test file. The individual measurements will be combined into
@@ -160,7 +163,7 @@ function(add_test_pile DIR GLOB)
         NAME "${FILE_IN_SOURCE_DIR}"
         WORKING_DIRECTORY "${DIR}"
         # On Windows, we can't call the file directly, hence we always use bash.
-        COMMAND bash "${RUN_TEST}" "${FILE_IN_DIR}"
+        COMMAND bash "${WITH_TEST_ENV}" "${RUN_TEST}" "${FILE_IN_DIR}"
       )
     endif()
 
@@ -172,7 +175,7 @@ function(add_test_pile DIR GLOB)
         WORKING_DIRECTORY "${DIR}"
         COMMAND "${CMAKE_COMMAND}" -E remove -f "${MEASUREMENTS_FILE}"
         # On Windows, we can't call the file directly, hence we always use bash.
-        COMMAND bash "${RUN_BENCH}" "${FILE_IN_DIR}"
+        COMMAND bash "${WITH_BENCH_ENV}" "${RUN_BENCH}" "${FILE_IN_DIR}"
       )
     endif()
   endforeach()
@@ -202,7 +205,7 @@ function(add_test_dir DIR)
       NAME "${DIR_IN_SOURCE_DIR}"
       WORKING_DIRECTORY "${DIR}"
       # On Windows, we can't call the file directly, hence we always use bash.
-      COMMAND bash "${RUN_TEST}"
+      COMMAND bash "${WITH_TEST_ENV}" "${RUN_TEST}"
     )
   endif()
 
@@ -216,7 +219,7 @@ function(add_test_dir DIR)
       WORKING_DIRECTORY "${DIR}"
       COMMAND "${CMAKE_COMMAND}" -E remove -f "${MEASUREMENTS_FILE}"
       # On Windows, we can't call the file directly, hence we always use bash.
-      COMMAND bash "${RUN_BENCH}"
+      COMMAND bash "${WITH_BENCH_ENV}" "${RUN_BENCH}"
     )
   endif()
 endfunction()

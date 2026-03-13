@@ -35,4 +35,9 @@ register_builtin_option compiler.relaxedMetaCheck : Bool := {
   descr := "Allow mixed `meta`/non-`meta` references in the same module. References to imports are unaffected."
 }
 
+register_builtin_option compiler.postponeCompile : Bool := {
+  defValue := true
+  descr := "Internal. Toggle experimental `leanir` separate compilation."
+}
+
 end Lean.Compiler

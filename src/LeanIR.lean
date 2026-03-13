@@ -16,8 +16,9 @@ import all Lean.Compiler.CSimpAttr
 import Lean.Compiler.IR.EmitC
 import Lean.Language.Lean
 import Lean.Compiler.LCNF.PhaseExt
+import Lean.Compiler.LCNF.Main
 
-open Lean
+open Lean Compiler LCNF
 
 def mkIRData (env : Environment) : IO ModuleData := do
   -- TODO: should we use a more specific/efficient data format for IR?
@@ -94,13 +95,10 @@ public def main (args : List String) : IO UInt32 := do
   let some modIdx := env.getModuleIdx? mod
     | throw <| IO.userError s!"module '{mod}' not found"
 
-  let decls := postponedCompileDeclsExt.getModuleEntries env modIdx
-  let env := postponedCompileDeclsExt.setState env (decls.foldl (fun s e => s.insert e.declName e) {})
-
-  let decls := Compiler.LCNF.impureSigExt.getModuleEntries env modIdx
+  let decls := impureSigExt.getModuleEntries env modIdx
   let decls := decls.filter (isExtern env ·.name)
-  let env := decls.foldl (fun env decl => Compiler.LCNF.impureSigExt.addEntry env decl) env
-  let env := decls.foldl (fun env decl => Compiler.LCNF.setDeclPublic env decl.name) env
+  let env := decls.foldl (fun env decl => impureSigExt.addEntry env decl) env
+  let env := decls.foldl (fun env decl => setDeclPublic env decl.name) env
 
   -- Fill `declMapExt` with functions compiled already in `lean` so the set of "local" decls is
   -- unchanged and also for calculation of `extraConstNames` above
@@ -118,18 +116,18 @@ public def main (args : List String) : IO UInt32 := do
   let _ : MonadExceptOf _ CoreM := MonadAlwaysExcept.except
   let res? ← EIO.toBaseIO <| Core.CoreM.run (ctx := { fileName := irFile, fileMap := default, options := opts })
       (s := { env }) try
-    let decls := postponedCompileDeclsExt.getModuleEntries (← getEnv) modIdx
-    modifyEnv (postponedCompileDeclsExt.setState · (decls.foldl (fun s e => s.insert e.declName e) {}))
+    let decls := postponedCompileDeclsExt.getModuleEntries env modIdx
+    -- Load postponed decls and iterate over them, removing each entry to avoid infinite recursion.
+    -- NOTE: `decls` is in the original order of declarations so initializing and managing the
+    -- extension would not be necessary for that, we could just leave it empty. However, there are
+    -- cases like a `[csimp]` replacement being defined below the original function in the same file
+    -- where allowing `LCNF.main` to reorder compilation based on dependencies seems to be the
+    -- simpler solution (as we may make the csimp replacement before the replacement has been
+    -- compiled).
+    modifyEnv (postponedCompileDeclsExt.setState · (decls.foldl (fun s e => e.declNames.foldl (·.insert · e) s) {}))
     for decl in decls do
-      if !(postponedCompileDeclsExt.getState (← getEnv) |>.contains decl.declName) then
-        continue
-      match (← getConstInfo decl.declName) with
-      | .defnInfo info =>
-        modifyEnv (postponedCompileDeclsExt.modifyState · fun s => info.all.foldl (·.erase) s)
-        doCompile (logErrors := decl.logErrors) info.all.toArray
-      | _ =>
-        modifyEnv (postponedCompileDeclsExt.modifyState · fun s => s.erase decl.declName)
-        doCompile (logErrors := decl.logErrors) #[decl.declName]
+      for decl in decl.declNames do
+        resumeCompilation decl
   catch e =>
     unless e.isInterrupt do
       logError e.toMessageData
@@ -156,11 +154,3 @@ public def main (args : List String) : IO UInt32 := do
 
   displayCumulativeProfilingTimes
   return 0
-where doCompile logErrors decls := do
-  let state ← Core.saveState
-  try
-    compileDeclsImpl decls
-  catch e =>
-    state.restore
-    if logErrors then
-      throw e

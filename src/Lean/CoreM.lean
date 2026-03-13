@@ -692,27 +692,6 @@ def traceBlock (tag : String) (t : Task α) : CoreM α := do
     profileitM Exception "blocked" (← getOptions) do
       IO.wait t
 
-register_builtin_option compiler.postponeCompile : Bool := {
-  defValue := true
-}
-
-structure PostponedCompileDecl where
-  declName : Name
-  logErrors : Bool
-deriving BEq, Hashable
-
-builtin_initialize postponedCompileDeclsExt : SimplePersistentEnvExtension PostponedCompileDecl (NameMap PostponedCompileDecl) ←
-  registerSimplePersistentEnvExtension {
-    addImportedFn := fun _ => {}
-    addEntryFn    := fun s e => s.insert e.declName e
-    toArrayFn     := fun es => es.toArray
-    asyncMode     := .sync
-    replay?       := some <| SimplePersistentEnvExtension.replayOfFilter
-      (!·.contains ·.declName) (fun s e => s.insert e.declName e)
-    exportEntriesFnEx? := some fun _ _ es lvl =>
-      if lvl == .private then es.toArray else #[]
-  }
-
 /--
 This ref exists to break a linking cycle that goes as follows:
 - We start in `Environment.lean`, there we have functions referencing the compiler such as
@@ -727,22 +706,15 @@ breaks the cycle by making `compileDeclsImpl` a "dynamic" call through the ref t
 to the linker. In the compiler there is a matching `builtin_initialize` to set this ref to the
 actual implementation of compileDeclsRef.
 -/
-builtin_initialize compileDeclsRef : IO.Ref (Array Name → CoreM Unit) ←
-  IO.mkRef (fun _ => throwError m!"call to compileDecls with uninitialized compileDeclsRef")
+builtin_initialize compileDeclsRef : IO.Ref (Array Name → (mayPostpone : Bool) → CoreM Unit) ←
+  IO.mkRef (fun _ _ => throwError m!"call to compileDecls with uninitialized compileDeclsRef")
 
-def compileDeclsImpl (declNames : Array Name) : CoreM Unit := do
-  (← compileDeclsRef.get) declNames
+private def compileDeclsImpl (declNames : Array Name) (mayPostpone : Bool) : CoreM Unit := do
+  (← compileDeclsRef.get) declNames mayPostpone
 
 -- `ref?` is used for error reporting if available
 def compileDecls (decls : Array Name) (logErrors := true) (mayPostpone := true) : CoreM Unit := do
   let env ← getEnv
-  if mayPostpone && env.header.isModule && (← compiler.postponeCompile.getM) then
-    for decl in decls do
-      trace[Compiler.init] "postponing compilation of {decl}"
-      modifyEnv (postponedCompileDeclsExt.addEntry · { declName := decl, logErrors })
-    if !decls.any (isMarkedMeta env) && (← compiler.postponeCompile.getM) then
-      return
-
   if !Elab.async.get (← getOptions) then
     let _ ← traceBlock "compiler env" (← getEnv).checked
     doCompile
@@ -770,7 +742,7 @@ where doCompile := do
   withoutExporting do
     let state ← Core.saveState
     try
-      compileDeclsImpl decls
+      compileDeclsImpl decls mayPostpone
     catch e =>
       state.restore
       for decl in decls do

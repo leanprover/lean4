@@ -14,6 +14,7 @@ import Init.Data.String.Search
 import Init.Data.String.TakeDrop
 import Init.System.Platform
 import Lean.CoreM
+import Lean.Compiler.Options
 
 /-! # Common Build Actions
 Low level actions to build common Lean artifacts via the Lean toolchain.
@@ -41,7 +42,7 @@ public def compileLeanModule
     createParentDirs ileanFile
     args := args ++ #["-i", ileanFile.toString]
   let opts := setup.options.toOptions
-  let postponeCompile := setup.isModule && compiler.postponeCompile.get opts
+  let postponeCompile := setup.isModule && Compiler.compiler.postponeCompile.get opts
   if !postponeCompile then
     if let some cFile := arts.c? then
       createParentDirs cFile

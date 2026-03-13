@@ -708,11 +708,11 @@ breaks the cycle by making `compileDeclsImpl` a "dynamic" call through the ref t
 to the linker. In the compiler there is a matching `builtin_initialize` to set this ref to the
 actual implementation of compileDeclsRef.
 -/
-builtin_initialize compileDeclsRef : IO.Ref (Array Name → CoreM Unit) ←
-  IO.mkRef (fun _ => throwError m!"call to compileDecls with uninitialized compileDeclsRef")
+builtin_initialize compileDeclsRef : IO.Ref (Array Name → Options → CoreM Unit) ←
+  IO.mkRef (fun _ _ => throwError m!"call to compileDecls with uninitialized compileDeclsRef")
 
 private def compileDeclsImpl (declNames : Array Name) : CoreM Unit := do
-  (← compileDeclsRef.get) declNames
+  (← compileDeclsRef.get) declNames {}
 
 -- `ref?` is used for error reporting if available
 def compileDecls (decls : Array Name) (logErrors := true) : CoreM Unit := do

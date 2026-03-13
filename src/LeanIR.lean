@@ -128,7 +128,7 @@ public def main (args : List String) : IO UInt32 := do
     for decl in decls do
       for decl in decl.declNames do
         try
-          resumeCompilation decl
+          resumeCompilation decl (← getOptions)
         finally
           addTraceAsMessages
       for msg in (← Core.getAndEmptyMessageLog).unreported do

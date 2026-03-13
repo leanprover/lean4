@@ -80,7 +80,8 @@ def isValidMainType (type : Expr) : Bool :=
 
 structure PostponedCompileDecls where
   declNames : Array Name
-deriving BEq, Hashable
+  options : Options
+deriving BEq
 
 /--
 Saves postponed `compileDecls` calls.
@@ -101,16 +102,18 @@ builtin_initialize postponedCompileDeclsExt : SimplePersistentEnvExtension Postp
       if lvl == .private then es.toArray else #[]
   }
 
-def resumeCompilation (declName : Name) : CoreM Unit := do
+def resumeCompilation (declName : Name) (baseOpts : Options) : CoreM Unit := do
   let some decls := postponedCompileDeclsExt.getState (← getEnv) |>.find? declName | return
+  let opts := baseOpts.mergeBy (fun _ base _ => base) decls.options
+  let opts := compiler.postponeCompile.set opts false
   modifyEnv (postponedCompileDeclsExt.modifyState · fun s => decls.declNames.foldl (·.erase) s)
-  withOptions (compiler.postponeCompile.set · false) do
+  withOptions (fun _ => opts) do
   Core.prependError m!"Failed to compile `{declName}`" do
-    (← compileDeclsRef.get) decls.declNames
+    (← compileDeclsRef.get) decls.declNames baseOpts
 
 namespace PassManager
 
-partial def run (declNames : Array Name) : CompilerM Unit := withAtLeastMaxRecDepth 8192 do
+partial def run (declNames : Array Name) (baseOpts : Options) : CompilerM Unit := withAtLeastMaxRecDepth 8192 do
   /-
   Note: we need to increase the recursion depth because we currently do to save phase1
   declarations in .olean files. Then, we have to recursively compile all dependencies,
@@ -141,7 +144,7 @@ partial def run (declNames : Array Name) : CompilerM Unit := withAtLeastMaxRecDe
 
   -- Now that we have done all input checks, check for postponement
   if (← getEnv).header.isModule && (← compiler.postponeCompile.getM) then
-    modifyEnv (postponedCompileDeclsExt.addEntry · { declNames := decls.map (·.name) })
+    modifyEnv (postponedCompileDeclsExt.addEntry · { declNames := decls.map (·.name), options := ← getOptions })
     -- meta defs are compiled locally so they are available for execution/compilation without
     -- importing `.ir` but still marked for `leanir` compilation so that we do not have to persist
     -- module-local compilation information between the two processes
@@ -157,7 +160,7 @@ partial def run (declNames : Array Name) : CompilerM Unit := withAtLeastMaxRecDe
       let .let { value := .const c .., .. } .. := c | return
       -- Need to do some lookups to get the actual name passed to `compileDecls`
       let c := Compiler.getImplementedBy? (← getEnv) c |>.getD c
-      resumeCompilation c
+      resumeCompilation c baseOpts
 
   let decls := markRecDecls decls
   let manager ← getPassManager
@@ -199,9 +202,9 @@ where
 
 end PassManager
 
-def main (declNames : Array Name) : CoreM Unit := do
+def main (declNames : Array Name) (baseOpts : Options) : CoreM Unit := do
   withTraceNode `Compiler (fun _ => return m!"compiling: {declNames}") do
-    CompilerM.run <| PassManager.run declNames
+    CompilerM.run <| PassManager.run declNames baseOpts
 
 builtin_initialize
   compileDeclsRef.set main

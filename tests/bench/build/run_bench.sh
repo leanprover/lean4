@@ -51,6 +51,7 @@ echo ">"
 # calling lake in its current working directory.
 mv lakeprof.log "$SRC_DIR"
 pushd "$SRC_DIR"
+lakeprof report -prc > lakeprof_report.txt
 lakeprof report -pj | jq '{metric: "build/lakeprof/longest build path//wall-clock", value: .[-1][2], unit: "s"}' -c >> "$OUT"
 lakeprof report -rj | jq '{metric: "build/lakeprof/longest rebuild path//wall-clock", value: .[-1][2], unit: "s"}' -c >> "$OUT"
 popd

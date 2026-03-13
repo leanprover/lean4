@@ -5,6 +5,8 @@ This test checks that the compiler successfully removes void arguments from join
 impure phase.
 -/
 
+set_option compiler.postponeCompile false
+
 public section
 
 inductive Enum where

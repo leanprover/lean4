@@ -654,13 +654,14 @@ section NotificationHandling
 def handleRpcRelease (p : Lsp.RpcReleaseParams) : WorkerM Unit := do
   -- NOTE(WN): when the worker restarts e.g. due to changed imports, we may receive `rpc/release`
   -- for the previous RPC session. This is fine, just ignore.
+  let ctx ← read
   if let some seshRef := (← get).rpcSessions.get? p.sessionId then
     let monoMsNow ← IO.monoMsNow
     let wireFormat ← seshRef.modifyGet fun st =>
       (st.objects.wireFormat, st.keptAlive monoMsNow)
     for ref in p.refs do
       let .ok p := ref.getObjVal? wireFormat.refFieldName >>= fromJson?
-        | throwServerError s!"malformed RPC ref: (wire format {toJson wireFormat}) {ref.compress}"
+        | ctx.hLog.putStrLn s!"malformed RPC ref (wire format {toJson wireFormat}): {ref.compress}"
       seshRef.modify fun st =>
         let (_, objects) := rpcReleaseRef ⟨p⟩ |>.run st.objects
         { st with objects }

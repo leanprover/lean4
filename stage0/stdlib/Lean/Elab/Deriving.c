@@ -33,64 +33,49 @@ LEAN_EXPORT lean_object* runtime_initialize_Lean_Elab_Deriving(uint8_t builtin) 
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Lean_Elab_Deriving_Basic(builtin)
-;
+res = runtime_initialize_Lean_Elab_Deriving_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Elab_Deriving_Util(builtin)
-;
+res = runtime_initialize_Lean_Elab_Deriving_Util(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Elab_Deriving_Inhabited(builtin)
-;
+res = runtime_initialize_Lean_Elab_Deriving_Inhabited(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Elab_Deriving_Nonempty(builtin)
-;
+res = runtime_initialize_Lean_Elab_Deriving_Nonempty(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Elab_Deriving_TypeName(builtin)
-;
+res = runtime_initialize_Lean_Elab_Deriving_TypeName(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Elab_Deriving_BEq(builtin)
-;
+res = runtime_initialize_Lean_Elab_Deriving_BEq(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Elab_Deriving_DecEq(builtin)
-;
+res = runtime_initialize_Lean_Elab_Deriving_DecEq(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Elab_Deriving_Repr(builtin)
-;
+res = runtime_initialize_Lean_Elab_Deriving_Repr(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Elab_Deriving_FromToJson(builtin)
-;
+res = runtime_initialize_Lean_Elab_Deriving_FromToJson(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Elab_Deriving_SizeOf(builtin)
-;
+res = runtime_initialize_Lean_Elab_Deriving_SizeOf(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Elab_Deriving_Hashable(builtin)
-;
+res = runtime_initialize_Lean_Elab_Deriving_Hashable(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Elab_Deriving_Ord(builtin)
-;
+res = runtime_initialize_Lean_Elab_Deriving_Ord(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Elab_Deriving_ToExpr(builtin)
-;
+res = runtime_initialize_Lean_Elab_Deriving_ToExpr(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Elab_Deriving_ReflBEq(builtin)
-;
+res = runtime_initialize_Lean_Elab_Deriving_ReflBEq(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Elab_Deriving_LawfulBEq(builtin)
-;
+res = runtime_initialize_Lean_Elab_Deriving_LawfulBEq(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -122,72 +107,55 @@ LEAN_EXPORT lean_object* initialize_Lean_Elab_Deriving(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Elab_Deriving_Basic(builtin)
-;
+res = initialize_Lean_Elab_Deriving_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Deriving_Util(builtin)
-;
+res = initialize_Lean_Elab_Deriving_Util(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Deriving_Inhabited(builtin)
-;
+res = initialize_Lean_Elab_Deriving_Inhabited(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Deriving_Nonempty(builtin)
-;
+res = initialize_Lean_Elab_Deriving_Nonempty(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Deriving_TypeName(builtin)
-;
+res = initialize_Lean_Elab_Deriving_TypeName(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Deriving_BEq(builtin)
-;
+res = initialize_Lean_Elab_Deriving_BEq(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Deriving_DecEq(builtin)
-;
+res = initialize_Lean_Elab_Deriving_DecEq(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Deriving_Repr(builtin)
-;
+res = initialize_Lean_Elab_Deriving_Repr(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Deriving_FromToJson(builtin)
-;
+res = initialize_Lean_Elab_Deriving_FromToJson(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Deriving_SizeOf(builtin)
-;
+res = initialize_Lean_Elab_Deriving_SizeOf(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Deriving_Hashable(builtin)
-;
+res = initialize_Lean_Elab_Deriving_Hashable(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Deriving_Ord(builtin)
-;
+res = initialize_Lean_Elab_Deriving_Ord(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Deriving_ToExpr(builtin)
-;
+res = initialize_Lean_Elab_Deriving_ToExpr(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Deriving_ReflBEq(builtin)
-;
+res = initialize_Lean_Elab_Deriving_ReflBEq(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Deriving_LawfulBEq(builtin)
-;
+res = initialize_Lean_Elab_Deriving_LawfulBEq(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Elab_Deriving(builtin)
-;
+res = runtime_initialize_Lean_Elab_Deriving(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_Lean_Elab_Deriving(builtin)
-;
+res = meta_initialize_Lean_Elab_Deriving(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_Lean_Elab_Deriving(builtin);

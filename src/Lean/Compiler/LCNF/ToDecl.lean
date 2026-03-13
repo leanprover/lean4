@@ -7,10 +7,13 @@ module
 prelude
 public import Lean.Compiler.InitAttr
 public import Lean.Compiler.LCNF.ToLCNF
+import Lean.Compiler.Options
 import Lean.Meta.Transform
 import Lean.Meta.Match.MatcherInfo
 import Init.While
+
 public section
+
 namespace Lean.Compiler.LCNF
 /--
 Inline constants tagged with the `[macro_inline]` attribute occurring in `e`.
@@ -127,10 +130,11 @@ def toDecl (declName : Name) : CompilerM (Decl .pure) := do
   let paramsFromTypeBinders (expr : Expr) : CompilerM (Array (Param .pure)) := do
     let mut params := #[]
     let mut currentExpr := expr
+    let ignoreBorrow := compiler.ignoreBorrowAnnotation.get (← getOptions)
     repeat
       match currentExpr with
       | .forallE binderName type body _ =>
-        let borrow := isMarkedBorrowed type
+        let borrow := !ignoreBorrow && isMarkedBorrowed type
         params := params.push (← mkParam binderName type borrow)
         currentExpr := body
       | _ => break
@@ -156,12 +160,15 @@ def toDecl (declName : Name) : CompilerM (Decl .pure) := do
       let value ← macroInline value
       return (type, value)
     let code ← toLCNF value
-    let decl ← if let .fun decl (.return _) := code then
+    let mut decl ← if let .fun decl (.return _) := code then
       eraseFunDecl decl (recursive := false)
       pure { name := declName, params := decl.params, type, value := .code decl.value, levelParams := info.levelParams, safe, inlineAttr? : Decl .pure }
     else
       pure { name := declName, params := #[], type, value := .code code, levelParams := info.levelParams, safe, inlineAttr? }
     /- `toLCNF` may eta-reduce simple declarations. -/
-    decl.etaExpand
+    decl ← decl.etaExpand
+    if compiler.ignoreBorrowAnnotation.get (← getOptions) then
+      decl := { decl with params := ← decl.params.mapM (·.updateBorrow false) }
+    return decl
 
 end Lean.Compiler.LCNF

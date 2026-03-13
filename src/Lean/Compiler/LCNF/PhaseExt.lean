@@ -23,15 +23,15 @@ namespace Lean.Compiler.LCNF
 /--
 Set of public declarations whose base bodies should be exported to other modules
 -/
-private builtin_initialize baseTransparentDeclsExt : EnvExtension (List Name × NameSet) ← mkDeclSetExt
+private builtin_initialize baseTransparentDeclsExt : EnvExtension (List Name × NameSet) ← mkOrderedDeclSetExt
 /--
 Set of public declarations whose mono bodies should be exported to other modules
 -/
-private builtin_initialize monoTransparentDeclsExt : EnvExtension (List Name × NameSet) ← mkDeclSetExt
+private builtin_initialize monoTransparentDeclsExt : EnvExtension (List Name × NameSet) ← mkOrderedDeclSetExt
 /--
 Set of public declarations whose impure bodies should be exported to other modules
 -/
-private builtin_initialize impureTransparentDeclsExt : EnvExtension (List Name × NameSet) ← mkDeclSetExt
+private builtin_initialize impureTransparentDeclsExt : EnvExtension (List Name × NameSet) ← mkOrderedDeclSetExt
 
 private def getTransparencyExt : Phase → EnvExtension (List Name × NameSet)
   | .base => baseTransparentDeclsExt
@@ -171,6 +171,9 @@ def getMonoDecl? (declName : Name) : CoreM (Option (Decl .pure)) := do
 def getLocalImpureDecl? (declName : Name) : CoreM (Option (Decl .impure)) := do
   return impureExt.getState (← getEnv) |>.find? declName
 
+def getLocalImpureDecls : CoreM (Array Name) := do
+  return impureExt.getState (← getEnv) |>.toArray |>.map (·.fst)
+
 def getImpureSignature? (declName : Name) : CoreM (Option (Signature .impure)) := do
   return getSigCore? (← getEnv) impureSigExt declName
 
@@ -223,5 +226,24 @@ def getLocalDeclAt? (declName : Name) (phase : Phase) : CompilerM (Option (Decl 
 def getLocalDecl? (declName : Name) : CompilerM (Option ((pu : Purity) × Decl pu)) := do
   let some decl ← getLocalDeclAt? declName (← getPhase) | return none
   return some ⟨_, decl⟩
+
+builtin_initialize declOrderExt : EnvExtension (List Name × NameSet) ← mkOrderedDeclSetExt
+
+def recordFinalImpureDecl (env : Environment) (name : Name) : Environment :=
+  declOrderExt.modifyState env fun s =>
+    (name :: s.1, s.2.insert name)
+
+def getImpureDeclIndices (env : Environment) (targets : Array Name) : Std.HashMap Name Nat := Id.run do
+  let (names, set) := declOrderExt.getState env
+  let mut map := Std.HashMap.emptyWithCapacity set.size
+  let targetSet := Std.HashSet.ofArray targets
+  let mut i := set.size
+  for name in names do
+    if targetSet.contains name then
+      map := map.insert name i
+    assert! i != 0
+    i := i - 1
+  assert! map.size == targets.size
+  return map
 
 end Lean.Compiler.LCNF

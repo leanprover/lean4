@@ -20,7 +20,7 @@ lean_lib Cases where
 lean_lib VCGenBench where
   roots := #[`vcgen_add_sub_cancel, `vcgen_add_sub_cancel_deep, `vcgen_add_sub_cancel_simp,
              `vcgen_get_throw_set, `vcgen_get_throw_set_grind, `vcgen_pure_precond,
-             `vcgen_reader_state]
+             `vcgen_reader_state, `vcgen_match_split]
   moreLeanArgs := #["--tstack=100000000"]
 
 @[default_target]

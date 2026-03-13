@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 source ../env_test.sh
-source "$TEST_DIR/util.sh"
 source_init "$1"
 
 if [[ -f "$1.do_compile_test" ]]; then DO_COMPILE=1
@@ -23,11 +22,12 @@ if [[ -n $DO_COMPILE ]]; then
 
   lean --c="$1.c" "${TEST_LEAN_ARGS[@]}" "$1" || fail "Failed to compile $1 into $1.c"
   leanc ${LEANC_OPTS-} -O3 -DNDEBUG -o "$1.out" "${TEST_LEANC_ARGS[@]}" "$1.c" || fail "Failed to compile $1.c"
-  exec_capture "$1" "./$1.out" "${TEST_ARGS[@]}"
 
-  normalize_measurements "$1"
-  check_exit "$1"
-  check_out "$1"
+  capture_only "$1" \
+    "./$1.out" "${TEST_ARGS[@]}"
+  check_exit_is "${TEST_EXIT:-0}"
+  normalize_measurements
+  check_out_file
 
   run_after "$1"
 fi
@@ -36,12 +36,11 @@ if [[ -n $DO_INTERPRET ]]; then
   echo "Interpreting lean file"
   run_before "$1"
 
-  exec_capture "$1" \
+  capture_only "$1" \
     lean -Dlinter.all=false "${TEST_LEANI_ARGS[@]}" --run "$1" "${TEST_ARGS[@]}"
-
-  normalize_measurements "$1"
-  check_exit "$1"
-  check_out "$1"
+  check_exit_is "${TEST_EXIT:-0}"
+  normalize_measurements
+  check_out_file
 
   run_after "$1"
 fi

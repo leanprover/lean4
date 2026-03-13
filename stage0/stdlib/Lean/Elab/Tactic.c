@@ -69,208 +69,157 @@ LEAN_EXPORT lean_object* runtime_initialize_Lean_Elab_Tactic(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Lean_Elab_Tactic_Basic(builtin)
-;
+res = runtime_initialize_Lean_Elab_Tactic_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Elab_Tactic_ElabTerm(builtin)
-;
+res = runtime_initialize_Lean_Elab_Tactic_ElabTerm(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Elab_Tactic_Induction(builtin)
-;
+res = runtime_initialize_Lean_Elab_Tactic_Induction(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Elab_Tactic_Generalize(builtin)
-;
+res = runtime_initialize_Lean_Elab_Tactic_Generalize(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Elab_Tactic_Injection(builtin)
-;
+res = runtime_initialize_Lean_Elab_Tactic_Injection(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Elab_Tactic_Match(builtin)
-;
+res = runtime_initialize_Lean_Elab_Tactic_Match(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Elab_Tactic_Rewrite(builtin)
-;
+res = runtime_initialize_Lean_Elab_Tactic_Rewrite(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Elab_Tactic_Location(builtin)
-;
+res = runtime_initialize_Lean_Elab_Tactic_Location(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Elab_Tactic_SimpTrace(builtin)
-;
+res = runtime_initialize_Lean_Elab_Tactic_SimpTrace(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Elab_Tactic_Simp(builtin)
-;
+res = runtime_initialize_Lean_Elab_Tactic_Simp(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Elab_Tactic_Simproc(builtin)
-;
+res = runtime_initialize_Lean_Elab_Tactic_Simproc(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Elab_Tactic_CbvSimproc(builtin)
-;
+res = runtime_initialize_Lean_Elab_Tactic_CbvSimproc(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Elab_Tactic_BuiltinTactic(builtin)
-;
+res = runtime_initialize_Lean_Elab_Tactic_BuiltinTactic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Elab_Tactic_Split(builtin)
-;
+res = runtime_initialize_Lean_Elab_Tactic_Split(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Elab_Tactic_Conv(builtin)
-;
+res = runtime_initialize_Lean_Elab_Tactic_Conv(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Elab_Tactic_Delta(builtin)
-;
+res = runtime_initialize_Lean_Elab_Tactic_Delta(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Elab_Tactic_Meta(builtin)
-;
+res = runtime_initialize_Lean_Elab_Tactic_Meta(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Elab_Tactic_Unfold(builtin)
-;
+res = runtime_initialize_Lean_Elab_Tactic_Unfold(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Elab_Tactic_Calc(builtin)
-;
+res = runtime_initialize_Lean_Elab_Tactic_Calc(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Elab_Tactic_Congr(builtin)
-;
+res = runtime_initialize_Lean_Elab_Tactic_Congr(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Elab_Tactic_Guard(builtin)
-;
+res = runtime_initialize_Lean_Elab_Tactic_Guard(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Elab_Tactic_RCases(builtin)
-;
+res = runtime_initialize_Lean_Elab_Tactic_RCases(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Elab_Tactic_Repeat(builtin)
-;
+res = runtime_initialize_Lean_Elab_Tactic_Repeat(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Elab_Tactic_Ext(builtin)
-;
+res = runtime_initialize_Lean_Elab_Tactic_Ext(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Elab_Tactic_Change(builtin)
-;
+res = runtime_initialize_Lean_Elab_Tactic_Change(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Elab_Tactic_FalseOrByContra(builtin)
-;
+res = runtime_initialize_Lean_Elab_Tactic_FalseOrByContra(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Elab_Tactic_Omega(builtin)
-;
+res = runtime_initialize_Lean_Elab_Tactic_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Elab_Tactic_Simpa(builtin)
-;
+res = runtime_initialize_Lean_Elab_Tactic_Simpa(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Elab_Tactic_NormCast(builtin)
-;
+res = runtime_initialize_Lean_Elab_Tactic_NormCast(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Elab_Tactic_Symm(builtin)
-;
+res = runtime_initialize_Lean_Elab_Tactic_Symm(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Elab_Tactic_SolveByElim(builtin)
-;
+res = runtime_initialize_Lean_Elab_Tactic_SolveByElim(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Elab_Tactic_LibrarySearch(builtin)
-;
+res = runtime_initialize_Lean_Elab_Tactic_LibrarySearch(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Elab_Tactic_ShowTerm(builtin)
-;
+res = runtime_initialize_Lean_Elab_Tactic_ShowTerm(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Elab_Tactic_Rfl(builtin)
-;
+res = runtime_initialize_Lean_Elab_Tactic_Rfl(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Elab_Tactic_Rewrites(builtin)
-;
+res = runtime_initialize_Lean_Elab_Tactic_Rewrites(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Elab_Tactic_DiscrTreeKey(builtin)
-;
+res = runtime_initialize_Lean_Elab_Tactic_DiscrTreeKey(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Elab_Tactic_BVDecide(builtin)
-;
+res = runtime_initialize_Lean_Elab_Tactic_BVDecide(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Elab_Tactic_BoolToPropSimps(builtin)
-;
+res = runtime_initialize_Lean_Elab_Tactic_BoolToPropSimps(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Elab_Tactic_Classical(builtin)
-;
+res = runtime_initialize_Lean_Elab_Tactic_Classical(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Elab_Tactic_Grind(builtin)
-;
+res = runtime_initialize_Lean_Elab_Tactic_Grind(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Elab_Tactic_Monotonicity(builtin)
-;
+res = runtime_initialize_Lean_Elab_Tactic_Monotonicity(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Elab_Tactic_Try(builtin)
-;
+res = runtime_initialize_Lean_Elab_Tactic_Try(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Elab_Tactic_AsAuxLemma(builtin)
-;
+res = runtime_initialize_Lean_Elab_Tactic_AsAuxLemma(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Elab_Tactic_TreeTacAttr(builtin)
-;
+res = runtime_initialize_Lean_Elab_Tactic_TreeTacAttr(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Elab_Tactic_ExposeNames(builtin)
-;
+res = runtime_initialize_Lean_Elab_Tactic_ExposeNames(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Elab_Tactic_SimpArith(builtin)
-;
+res = runtime_initialize_Lean_Elab_Tactic_SimpArith(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Elab_Tactic_Show(builtin)
-;
+res = runtime_initialize_Lean_Elab_Tactic_Show(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Elab_Tactic_Lets(builtin)
-;
+res = runtime_initialize_Lean_Elab_Tactic_Lets(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Elab_Tactic_Do(builtin)
-;
+res = runtime_initialize_Lean_Elab_Tactic_Do(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Elab_Tactic_Decide(builtin)
-;
+res = runtime_initialize_Lean_Elab_Tactic_Decide(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Elab_Tactic_Cbv(builtin)
-;
+res = runtime_initialize_Lean_Elab_Tactic_Cbv(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -338,216 +287,163 @@ LEAN_EXPORT lean_object* initialize_Lean_Elab_Tactic(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Elab_Tactic_Basic(builtin)
-;
+res = initialize_Lean_Elab_Tactic_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_ElabTerm(builtin)
-;
+res = initialize_Lean_Elab_Tactic_ElabTerm(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_Induction(builtin)
-;
+res = initialize_Lean_Elab_Tactic_Induction(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_Generalize(builtin)
-;
+res = initialize_Lean_Elab_Tactic_Generalize(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_Injection(builtin)
-;
+res = initialize_Lean_Elab_Tactic_Injection(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_Match(builtin)
-;
+res = initialize_Lean_Elab_Tactic_Match(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_Rewrite(builtin)
-;
+res = initialize_Lean_Elab_Tactic_Rewrite(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_Location(builtin)
-;
+res = initialize_Lean_Elab_Tactic_Location(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_SimpTrace(builtin)
-;
+res = initialize_Lean_Elab_Tactic_SimpTrace(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_Simp(builtin)
-;
+res = initialize_Lean_Elab_Tactic_Simp(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_Simproc(builtin)
-;
+res = initialize_Lean_Elab_Tactic_Simproc(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_CbvSimproc(builtin)
-;
+res = initialize_Lean_Elab_Tactic_CbvSimproc(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_BuiltinTactic(builtin)
-;
+res = initialize_Lean_Elab_Tactic_BuiltinTactic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_Split(builtin)
-;
+res = initialize_Lean_Elab_Tactic_Split(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_Conv(builtin)
-;
+res = initialize_Lean_Elab_Tactic_Conv(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_Delta(builtin)
-;
+res = initialize_Lean_Elab_Tactic_Delta(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_Meta(builtin)
-;
+res = initialize_Lean_Elab_Tactic_Meta(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_Unfold(builtin)
-;
+res = initialize_Lean_Elab_Tactic_Unfold(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_Calc(builtin)
-;
+res = initialize_Lean_Elab_Tactic_Calc(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_Congr(builtin)
-;
+res = initialize_Lean_Elab_Tactic_Congr(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_Guard(builtin)
-;
+res = initialize_Lean_Elab_Tactic_Guard(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_RCases(builtin)
-;
+res = initialize_Lean_Elab_Tactic_RCases(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_Repeat(builtin)
-;
+res = initialize_Lean_Elab_Tactic_Repeat(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_Ext(builtin)
-;
+res = initialize_Lean_Elab_Tactic_Ext(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_Change(builtin)
-;
+res = initialize_Lean_Elab_Tactic_Change(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_FalseOrByContra(builtin)
-;
+res = initialize_Lean_Elab_Tactic_FalseOrByContra(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_Omega(builtin)
-;
+res = initialize_Lean_Elab_Tactic_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_Simpa(builtin)
-;
+res = initialize_Lean_Elab_Tactic_Simpa(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_NormCast(builtin)
-;
+res = initialize_Lean_Elab_Tactic_NormCast(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_Symm(builtin)
-;
+res = initialize_Lean_Elab_Tactic_Symm(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_SolveByElim(builtin)
-;
+res = initialize_Lean_Elab_Tactic_SolveByElim(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_LibrarySearch(builtin)
-;
+res = initialize_Lean_Elab_Tactic_LibrarySearch(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_ShowTerm(builtin)
-;
+res = initialize_Lean_Elab_Tactic_ShowTerm(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_Rfl(builtin)
-;
+res = initialize_Lean_Elab_Tactic_Rfl(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_Rewrites(builtin)
-;
+res = initialize_Lean_Elab_Tactic_Rewrites(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_DiscrTreeKey(builtin)
-;
+res = initialize_Lean_Elab_Tactic_DiscrTreeKey(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_BVDecide(builtin)
-;
+res = initialize_Lean_Elab_Tactic_BVDecide(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_BoolToPropSimps(builtin)
-;
+res = initialize_Lean_Elab_Tactic_BoolToPropSimps(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_Classical(builtin)
-;
+res = initialize_Lean_Elab_Tactic_Classical(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_Grind(builtin)
-;
+res = initialize_Lean_Elab_Tactic_Grind(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_Monotonicity(builtin)
-;
+res = initialize_Lean_Elab_Tactic_Monotonicity(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_Try(builtin)
-;
+res = initialize_Lean_Elab_Tactic_Try(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_AsAuxLemma(builtin)
-;
+res = initialize_Lean_Elab_Tactic_AsAuxLemma(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_TreeTacAttr(builtin)
-;
+res = initialize_Lean_Elab_Tactic_TreeTacAttr(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_ExposeNames(builtin)
-;
+res = initialize_Lean_Elab_Tactic_ExposeNames(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_SimpArith(builtin)
-;
+res = initialize_Lean_Elab_Tactic_SimpArith(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_Show(builtin)
-;
+res = initialize_Lean_Elab_Tactic_Show(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_Lets(builtin)
-;
+res = initialize_Lean_Elab_Tactic_Lets(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_Do(builtin)
-;
+res = initialize_Lean_Elab_Tactic_Do(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_Decide(builtin)
-;
+res = initialize_Lean_Elab_Tactic_Decide(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_Cbv(builtin)
-;
+res = initialize_Lean_Elab_Tactic_Cbv(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Elab_Tactic(builtin)
-;
+res = runtime_initialize_Lean_Elab_Tactic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_Lean_Elab_Tactic(builtin)
-;
+res = meta_initialize_Lean_Elab_Tactic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_Lean_Elab_Tactic(builtin);

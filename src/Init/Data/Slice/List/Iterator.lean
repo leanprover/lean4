@@ -11,6 +11,7 @@ public import Init.Data.Iterators.Producers.List
 public import Init.Data.Iterators.Combinators.Take
 import all Init.Data.Range.Polymorphic.Basic
 public import Init.Data.Slice.Operations
+public import Init.Data.ToString.Extra
 
 public section
 

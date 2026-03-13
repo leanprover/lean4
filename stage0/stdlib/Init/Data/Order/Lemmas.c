@@ -20,56 +20,62 @@ LEAN_EXPORT lean_object* l_Classical_Order_instLT(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_instMaxSubtypeOfMaxEqOr___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_instMaxSubtypeOfMaxEqOr___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_instMaxSubtypeOfMaxEqOr(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_instTransLeOfIsPreorder(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Std_instTransLeOfIsPreorder(lean_object* v_00_u03b1_1_, lean_object* v_inst_2_, lean_object* v_inst_3_){
 _start:
 {
-return lean_box(0);
+lean_object* v___x_4_; 
+v___x_4_ = lean_box(0);
+return v___x_4_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_instTransLtOfLeOfLawfulOrderLT(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l_Std_instTransLtOfLeOfLawfulOrderLT(lean_object* v_00_u03b1_5_, lean_object* v_inst_6_, lean_object* v_inst_7_, lean_object* v_inst_8_, lean_object* v_inst_9_){
 _start:
 {
-return lean_box(0);
+lean_object* v___x_10_; 
+v___x_10_ = lean_box(0);
+return v___x_10_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_instTransNotLtOfLawfulOrderLTOfTotalOfLe(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+LEAN_EXPORT lean_object* l_Std_instTransNotLtOfLawfulOrderLTOfTotalOfLe(lean_object* v_00_u03b1_11_, lean_object* v_x_12_, lean_object* v_inst_13_, lean_object* v_inst_14_, lean_object* v_inst_15_, lean_object* v_inst_16_){
 _start:
 {
-return lean_box(0);
+lean_object* v___x_17_; 
+v___x_17_ = lean_box(0);
+return v___x_17_;
 }
 }
-LEAN_EXPORT lean_object* l_Classical_Order_instLT(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Classical_Order_instLT(lean_object* v_00_u03b1_18_, lean_object* v_inst_19_){
 _start:
 {
-lean_object* x_3; 
-x_3 = lean_box(0);
-return x_3;
+lean_object* v___x_20_; 
+v___x_20_ = lean_box(0);
+return v___x_20_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_instMaxSubtypeOfMaxEqOr___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Std_instMaxSubtypeOfMaxEqOr___redArg___lam__0(lean_object* v_inst_21_, lean_object* v_a_22_, lean_object* v_b_23_){
 _start:
 {
-lean_object* x_4; 
-x_4 = lean_apply_2(x_1, x_2, x_3);
-return x_4;
+lean_object* v___x_24_; 
+v___x_24_ = lean_apply_2(v_inst_21_, v_a_22_, v_b_23_);
+return v___x_24_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_instMaxSubtypeOfMaxEqOr___redArg(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_instMaxSubtypeOfMaxEqOr___redArg(lean_object* v_inst_25_){
 _start:
 {
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Std_instMaxSubtypeOfMaxEqOr___redArg___lam__0), 3, 1);
-lean_closure_set(x_2, 0, x_1);
-return x_2;
+lean_object* v___f_26_; 
+v___f_26_ = lean_alloc_closure((void*)(l_Std_instMaxSubtypeOfMaxEqOr___redArg___lam__0), 3, 1);
+lean_closure_set(v___f_26_, 0, v_inst_25_);
+return v___f_26_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_instMaxSubtypeOfMaxEqOr(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Std_instMaxSubtypeOfMaxEqOr(lean_object* v_00_u03b1_27_, lean_object* v_inst_28_, lean_object* v_inst_29_, lean_object* v_P_30_){
 _start:
 {
-lean_object* x_5; 
-x_5 = lean_alloc_closure((void*)(l_Std_instMaxSubtypeOfMaxEqOr___redArg___lam__0), 3, 1);
-lean_closure_set(x_5, 0, x_2);
-return x_5;
+lean_object* v___f_31_; 
+v___f_31_ = lean_alloc_closure((void*)(l_Std_instMaxSubtypeOfMaxEqOr___redArg___lam__0), 3, 1);
+lean_closure_set(v___f_31_, 0, v_inst_28_);
+return v___f_31_;
 }
 }
 lean_object* runtime_initialize_Init_Data_Order_Factories(uint8_t builtin);
@@ -82,24 +88,19 @@ LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Order_Lemmas(uint8_t built
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Init_Data_Order_Factories(builtin)
-;
+res = runtime_initialize_Init_Data_Order_Factories(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Order_Factories(builtin)
-;
+res = runtime_initialize_Init_Data_Order_Factories(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Classical(builtin)
-;
+res = runtime_initialize_Init_Classical(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_BEq(builtin)
-;
+res = runtime_initialize_Init_Data_BEq(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Bool(builtin)
-;
+res = runtime_initialize_Init_Data_Bool(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -121,32 +122,25 @@ LEAN_EXPORT lean_object* initialize_Init_Data_Order_Lemmas(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Order_Factories(builtin)
-;
+res = initialize_Init_Data_Order_Factories(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Order_Factories(builtin)
-;
+res = initialize_Init_Data_Order_Factories(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Classical(builtin)
-;
+res = initialize_Init_Classical(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_BEq(builtin)
-;
+res = initialize_Init_Data_BEq(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Bool(builtin)
-;
+res = initialize_Init_Data_Bool(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Order_Lemmas(builtin)
-;
+res = runtime_initialize_Init_Data_Order_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_Init_Data_Order_Lemmas(builtin)
-;
+res = meta_initialize_Init_Data_Order_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_Init_Data_Order_Lemmas(builtin);

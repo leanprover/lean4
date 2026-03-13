@@ -20,45 +20,45 @@ LEAN_EXPORT lean_object* l_String_instOrd___lam__0___boxed(lean_object*, lean_ob
 static const lean_closure_object l_String_instOrd___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_String_instOrd___lam__0___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_String_instOrd___closed__0 = (const lean_object*)&l_String_instOrd___closed__0_value;
 LEAN_EXPORT const lean_object* l_String_instOrd = (const lean_object*)&l_String_instOrd___closed__0_value;
-LEAN_EXPORT uint8_t l_String_instOrd___lam__0(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT uint8_t l_String_instOrd___lam__0(lean_object* v_x_1_, lean_object* v_y_2_){
 _start:
 {
-uint8_t x_3; 
-x_3 = lean_string_dec_lt(x_1, x_2);
-if (x_3 == 0)
+uint8_t v___x_3_; 
+v___x_3_ = lean_string_dec_lt(v_x_1_, v_y_2_);
+if (v___x_3_ == 0)
 {
-uint8_t x_4; 
-x_4 = lean_string_dec_eq(x_1, x_2);
-if (x_4 == 0)
+uint8_t v___x_4_; 
+v___x_4_ = lean_string_dec_eq(v_x_1_, v_y_2_);
+if (v___x_4_ == 0)
 {
-uint8_t x_5; 
-x_5 = 2;
-return x_5;
+uint8_t v___x_5_; 
+v___x_5_ = 2;
+return v___x_5_;
 }
 else
 {
-uint8_t x_6; 
-x_6 = 1;
-return x_6;
+uint8_t v___x_6_; 
+v___x_6_ = 1;
+return v___x_6_;
 }
 }
 else
 {
-uint8_t x_7; 
-x_7 = 0;
-return x_7;
+uint8_t v___x_7_; 
+v___x_7_ = 0;
+return v___x_7_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_String_instOrd___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_String_instOrd___lam__0___boxed(lean_object* v_x_8_, lean_object* v_y_9_){
 _start:
 {
-uint8_t x_3; lean_object* x_4; 
-x_3 = l_String_instOrd___lam__0(x_1, x_2);
-lean_dec_ref(x_2);
-lean_dec_ref(x_1);
-x_4 = lean_box(x_3);
-return x_4;
+uint8_t v_res_10_; lean_object* v_r_11_; 
+v_res_10_ = l_String_instOrd___lam__0(v_x_8_, v_y_9_);
+lean_dec_ref(v_y_9_);
+lean_dec_ref(v_x_8_);
+v_r_11_ = lean_box(v_res_10_);
+return v_r_11_;
 }
 }
 lean_object* runtime_initialize_Init_Data_Order_Ord(uint8_t builtin);
@@ -70,20 +70,16 @@ LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Ord_String(uint8_t builtin
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Init_Data_Order_Ord(builtin)
-;
+res = runtime_initialize_Init_Data_Order_Ord(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_String_Basic(builtin)
-;
+res = runtime_initialize_Init_Data_String_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Char_Lemmas(builtin)
-;
+res = runtime_initialize_Init_Data_Char_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_String_Lemmas(builtin)
-;
+res = runtime_initialize_Init_Data_String_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -104,28 +100,22 @@ LEAN_EXPORT lean_object* initialize_Init_Data_Ord_String(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Order_Ord(builtin)
-;
+res = initialize_Init_Data_Order_Ord(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_String_Basic(builtin)
-;
+res = initialize_Init_Data_String_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Char_Lemmas(builtin)
-;
+res = initialize_Init_Data_Char_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_String_Lemmas(builtin)
-;
+res = initialize_Init_Data_String_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Ord_String(builtin)
-;
+res = runtime_initialize_Init_Data_Ord_String(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_Init_Data_Ord_String(builtin)
-;
+res = meta_initialize_Init_Data_Ord_String(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_Init_Data_Ord_String(builtin);

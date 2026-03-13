@@ -15,32 +15,32 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Std_Internal_idToMonad___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_idToMonad(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_idToMonad___redArg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Std_Internal_idToMonad___redArg(lean_object* v_inst_1_, lean_object* v_x_2_){
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_3);
-lean_dec_ref(x_1);
-x_4 = lean_ctor_get(x_3, 1);
-lean_inc(x_4);
-lean_dec_ref(x_3);
-x_5 = lean_apply_2(x_4, lean_box(0), x_2);
-return x_5;
+lean_object* v_toApplicative_3_; lean_object* v_toPure_4_; lean_object* v___x_5_; 
+v_toApplicative_3_ = lean_ctor_get(v_inst_1_, 0);
+lean_inc_ref(v_toApplicative_3_);
+lean_dec_ref(v_inst_1_);
+v_toPure_4_ = lean_ctor_get(v_toApplicative_3_, 1);
+lean_inc(v_toPure_4_);
+lean_dec_ref(v_toApplicative_3_);
+v___x_5_ = lean_apply_2(v_toPure_4_, lean_box(0), v_x_2_);
+return v___x_5_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_idToMonad(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Std_Internal_idToMonad(lean_object* v_m_6_, lean_object* v_inst_7_, lean_object* v_00_u03b1_8_, lean_object* v_x_9_){
 _start:
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_5 = lean_ctor_get(x_2, 0);
-lean_inc_ref(x_5);
-lean_dec_ref(x_2);
-x_6 = lean_ctor_get(x_5, 1);
-lean_inc(x_6);
-lean_dec_ref(x_5);
-x_7 = lean_apply_2(x_6, lean_box(0), x_4);
-return x_7;
+lean_object* v_toApplicative_10_; lean_object* v_toPure_11_; lean_object* v___x_12_; 
+v_toApplicative_10_ = lean_ctor_get(v_inst_7_, 0);
+lean_inc_ref(v_toApplicative_10_);
+lean_dec_ref(v_inst_7_);
+v_toPure_11_ = lean_ctor_get(v_toApplicative_10_, 1);
+lean_inc(v_toPure_11_);
+lean_dec_ref(v_toApplicative_10_);
+v___x_12_ = lean_apply_2(v_toPure_11_, lean_box(0), v_x_9_);
+return v___x_12_;
 }
 }
 lean_object* runtime_initialize_Init_Control_Lawful_MonadLift(uint8_t builtin);
@@ -49,8 +49,7 @@ LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Iterators_Internal_LawfulM
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Init_Control_Lawful_MonadLift(builtin)
-;
+res = runtime_initialize_Init_Control_Lawful_MonadLift(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -68,16 +67,13 @@ LEAN_EXPORT lean_object* initialize_Init_Data_Iterators_Internal_LawfulMonadLift
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Control_Lawful_MonadLift(builtin)
-;
+res = initialize_Init_Control_Lawful_MonadLift(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Iterators_Internal_LawfulMonadLiftFunction(builtin)
-;
+res = runtime_initialize_Init_Data_Iterators_Internal_LawfulMonadLiftFunction(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_Init_Data_Iterators_Internal_LawfulMonadLiftFunction(builtin)
-;
+res = meta_initialize_Init_Data_Iterators_Internal_LawfulMonadLiftFunction(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_Init_Data_Iterators_Internal_LawfulMonadLiftFunction(builtin);

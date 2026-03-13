@@ -30,52 +30,40 @@ LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Int(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Init_Data_Int_Basic(builtin)
-;
+res = runtime_initialize_Init_Data_Int_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Int_Bitwise(builtin)
-;
+res = runtime_initialize_Init_Data_Int_Bitwise(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Int_Compare(builtin)
-;
+res = runtime_initialize_Init_Data_Int_Compare(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Int_DivMod(builtin)
-;
+res = runtime_initialize_Init_Data_Int_DivMod(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Int_Gcd(builtin)
-;
+res = runtime_initialize_Init_Data_Int_Gcd(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Int_Lemmas(builtin)
-;
+res = runtime_initialize_Init_Data_Int_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Int_LemmasAux(builtin)
-;
+res = runtime_initialize_Init_Data_Int_LemmasAux(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Int_Order(builtin)
-;
+res = runtime_initialize_Init_Data_Int_Order(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Int_Pow(builtin)
-;
+res = runtime_initialize_Init_Data_Int_Pow(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Int_Cooper(builtin)
-;
+res = runtime_initialize_Init_Data_Int_Cooper(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Int_Linear(builtin)
-;
+res = runtime_initialize_Init_Data_Int_Linear(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Int_OfNat(builtin)
-;
+res = runtime_initialize_Init_Data_Int_OfNat(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -104,60 +92,46 @@ LEAN_EXPORT lean_object* initialize_Init_Data_Int(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Int_Basic(builtin)
-;
+res = initialize_Init_Data_Int_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Int_Bitwise(builtin)
-;
+res = initialize_Init_Data_Int_Bitwise(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Int_Compare(builtin)
-;
+res = initialize_Init_Data_Int_Compare(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Int_DivMod(builtin)
-;
+res = initialize_Init_Data_Int_DivMod(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Int_Gcd(builtin)
-;
+res = initialize_Init_Data_Int_Gcd(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Int_Lemmas(builtin)
-;
+res = initialize_Init_Data_Int_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Int_LemmasAux(builtin)
-;
+res = initialize_Init_Data_Int_LemmasAux(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Int_Order(builtin)
-;
+res = initialize_Init_Data_Int_Order(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Int_Pow(builtin)
-;
+res = initialize_Init_Data_Int_Pow(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Int_Cooper(builtin)
-;
+res = initialize_Init_Data_Int_Cooper(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Int_Linear(builtin)
-;
+res = initialize_Init_Data_Int_Linear(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Int_OfNat(builtin)
-;
+res = initialize_Init_Data_Int_OfNat(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Int(builtin)
-;
+res = runtime_initialize_Init_Data_Int(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_Init_Data_Int(builtin)
-;
+res = meta_initialize_Init_Data_Int(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_Init_Data_Int(builtin);

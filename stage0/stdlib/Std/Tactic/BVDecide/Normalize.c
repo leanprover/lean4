@@ -23,24 +23,19 @@ LEAN_EXPORT lean_object* runtime_initialize_Std_Tactic_BVDecide_Normalize(uint8_
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Std_Tactic_BVDecide_Normalize_BitVec(builtin)
-;
+res = runtime_initialize_Std_Tactic_BVDecide_Normalize_BitVec(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Tactic_BVDecide_Normalize_Bool(builtin)
-;
+res = runtime_initialize_Std_Tactic_BVDecide_Normalize_Bool(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Tactic_BVDecide_Normalize_Canonicalize(builtin)
-;
+res = runtime_initialize_Std_Tactic_BVDecide_Normalize_Canonicalize(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Tactic_BVDecide_Normalize_Equal(builtin)
-;
+res = runtime_initialize_Std_Tactic_BVDecide_Normalize_Equal(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Tactic_BVDecide_Normalize_Prop(builtin)
-;
+res = runtime_initialize_Std_Tactic_BVDecide_Normalize_Prop(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -62,32 +57,25 @@ LEAN_EXPORT lean_object* initialize_Std_Tactic_BVDecide_Normalize(uint8_t builti
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Std_Tactic_BVDecide_Normalize_BitVec(builtin)
-;
+res = initialize_Std_Tactic_BVDecide_Normalize_BitVec(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Tactic_BVDecide_Normalize_Bool(builtin)
-;
+res = initialize_Std_Tactic_BVDecide_Normalize_Bool(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Tactic_BVDecide_Normalize_Canonicalize(builtin)
-;
+res = initialize_Std_Tactic_BVDecide_Normalize_Canonicalize(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Tactic_BVDecide_Normalize_Equal(builtin)
-;
+res = initialize_Std_Tactic_BVDecide_Normalize_Equal(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Tactic_BVDecide_Normalize_Prop(builtin)
-;
+res = initialize_Std_Tactic_BVDecide_Normalize_Prop(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Tactic_BVDecide_Normalize(builtin)
-;
+res = runtime_initialize_Std_Tactic_BVDecide_Normalize(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_Std_Tactic_BVDecide_Normalize(builtin)
-;
+res = meta_initialize_Std_Tactic_BVDecide_Normalize(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_Std_Tactic_BVDecide_Normalize(builtin);

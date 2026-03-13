@@ -64,188 +64,142 @@ LEAN_EXPORT lean_object* runtime_initialize_Init_Data(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Init_Data_Nat(builtin)
-;
+res = runtime_initialize_Init_Data_Nat(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Bool(builtin)
-;
+res = runtime_initialize_Init_Data_Bool(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_BitVec(builtin)
-;
+res = runtime_initialize_Init_Data_BitVec(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Cast(builtin)
-;
+res = runtime_initialize_Init_Data_Cast(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Char(builtin)
-;
+res = runtime_initialize_Init_Data_Char(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_String(builtin)
-;
+res = runtime_initialize_Init_Data_String(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_List(builtin)
-;
+res = runtime_initialize_Init_Data_List(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Int(builtin)
-;
+res = runtime_initialize_Init_Data_Int(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Array(builtin)
-;
+res = runtime_initialize_Init_Data_Array(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Array_Subarray_Split(builtin)
-;
+res = runtime_initialize_Init_Data_Array_Subarray_Split(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_ByteArray(builtin)
-;
+res = runtime_initialize_Init_Data_ByteArray(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_FloatArray(builtin)
-;
+res = runtime_initialize_Init_Data_FloatArray(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Fin(builtin)
-;
+res = runtime_initialize_Init_Data_Fin(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_UInt(builtin)
-;
+res = runtime_initialize_Init_Data_UInt(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_SInt(builtin)
-;
+res = runtime_initialize_Init_Data_SInt(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Float(builtin)
-;
+res = runtime_initialize_Init_Data_Float(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Float32(builtin)
-;
+res = runtime_initialize_Init_Data_Float32(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Option(builtin)
-;
+res = runtime_initialize_Init_Data_Option(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Ord(builtin)
-;
+res = runtime_initialize_Init_Data_Ord(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Random(builtin)
-;
+res = runtime_initialize_Init_Data_Random(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_ToString(builtin)
-;
+res = runtime_initialize_Init_Data_ToString(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Range(builtin)
-;
+res = runtime_initialize_Init_Data_Range(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Hashable(builtin)
-;
+res = runtime_initialize_Init_Data_Hashable(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_LawfulHashable(builtin)
-;
+res = runtime_initialize_Init_Data_LawfulHashable(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_OfScientific(builtin)
-;
+res = runtime_initialize_Init_Data_OfScientific(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Format(builtin)
-;
+res = runtime_initialize_Init_Data_Format(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Stream(builtin)
-;
+res = runtime_initialize_Init_Data_Stream(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Prod(builtin)
-;
+res = runtime_initialize_Init_Data_Prod(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_AC(builtin)
-;
+res = runtime_initialize_Init_Data_AC(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Queue(builtin)
-;
+res = runtime_initialize_Init_Data_Queue(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Sum(builtin)
-;
+res = runtime_initialize_Init_Data_Sum(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_BEq(builtin)
-;
+res = runtime_initialize_Init_Data_BEq(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Subtype(builtin)
-;
+res = runtime_initialize_Init_Data_Subtype(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_ULift(builtin)
-;
+res = runtime_initialize_Init_Data_ULift(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_PLift(builtin)
-;
+res = runtime_initialize_Init_Data_PLift(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Zero(builtin)
-;
+res = runtime_initialize_Init_Data_Zero(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_NeZero(builtin)
-;
+res = runtime_initialize_Init_Data_NeZero(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Function(builtin)
-;
+res = runtime_initialize_Init_Data_Function(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_RArray(builtin)
-;
+res = runtime_initialize_Init_Data_RArray(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Vector(builtin)
-;
+res = runtime_initialize_Init_Data_Vector(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Iterators(builtin)
-;
+res = runtime_initialize_Init_Data_Iterators(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Range_Polymorphic(builtin)
-;
+res = runtime_initialize_Init_Data_Range_Polymorphic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Slice(builtin)
-;
+res = runtime_initialize_Init_Data_Slice(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Order(builtin)
-;
+res = runtime_initialize_Init_Data_Order(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Rat(builtin)
-;
+res = runtime_initialize_Init_Data_Rat(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Dyadic(builtin)
-;
+res = runtime_initialize_Init_Data_Dyadic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -308,196 +262,148 @@ LEAN_EXPORT lean_object* initialize_Init_Data(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Nat(builtin)
-;
+res = initialize_Init_Data_Nat(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Bool(builtin)
-;
+res = initialize_Init_Data_Bool(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_BitVec(builtin)
-;
+res = initialize_Init_Data_BitVec(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Cast(builtin)
-;
+res = initialize_Init_Data_Cast(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Char(builtin)
-;
+res = initialize_Init_Data_Char(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_String(builtin)
-;
+res = initialize_Init_Data_String(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_List(builtin)
-;
+res = initialize_Init_Data_List(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Int(builtin)
-;
+res = initialize_Init_Data_Int(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Array(builtin)
-;
+res = initialize_Init_Data_Array(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Array_Subarray_Split(builtin)
-;
+res = initialize_Init_Data_Array_Subarray_Split(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_ByteArray(builtin)
-;
+res = initialize_Init_Data_ByteArray(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_FloatArray(builtin)
-;
+res = initialize_Init_Data_FloatArray(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Fin(builtin)
-;
+res = initialize_Init_Data_Fin(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_UInt(builtin)
-;
+res = initialize_Init_Data_UInt(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_SInt(builtin)
-;
+res = initialize_Init_Data_SInt(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Float(builtin)
-;
+res = initialize_Init_Data_Float(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Float32(builtin)
-;
+res = initialize_Init_Data_Float32(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Option(builtin)
-;
+res = initialize_Init_Data_Option(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Ord(builtin)
-;
+res = initialize_Init_Data_Ord(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Random(builtin)
-;
+res = initialize_Init_Data_Random(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_ToString(builtin)
-;
+res = initialize_Init_Data_ToString(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Range(builtin)
-;
+res = initialize_Init_Data_Range(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Hashable(builtin)
-;
+res = initialize_Init_Data_Hashable(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_LawfulHashable(builtin)
-;
+res = initialize_Init_Data_LawfulHashable(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_OfScientific(builtin)
-;
+res = initialize_Init_Data_OfScientific(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Format(builtin)
-;
+res = initialize_Init_Data_Format(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Stream(builtin)
-;
+res = initialize_Init_Data_Stream(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Prod(builtin)
-;
+res = initialize_Init_Data_Prod(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_AC(builtin)
-;
+res = initialize_Init_Data_AC(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Queue(builtin)
-;
+res = initialize_Init_Data_Queue(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Sum(builtin)
-;
+res = initialize_Init_Data_Sum(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_BEq(builtin)
-;
+res = initialize_Init_Data_BEq(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Subtype(builtin)
-;
+res = initialize_Init_Data_Subtype(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_ULift(builtin)
-;
+res = initialize_Init_Data_ULift(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_PLift(builtin)
-;
+res = initialize_Init_Data_PLift(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Zero(builtin)
-;
+res = initialize_Init_Data_Zero(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_NeZero(builtin)
-;
+res = initialize_Init_Data_NeZero(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Function(builtin)
-;
+res = initialize_Init_Data_Function(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_RArray(builtin)
-;
+res = initialize_Init_Data_RArray(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Vector(builtin)
-;
+res = initialize_Init_Data_Vector(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Iterators(builtin)
-;
+res = initialize_Init_Data_Iterators(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Range_Polymorphic(builtin)
-;
+res = initialize_Init_Data_Range_Polymorphic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Slice(builtin)
-;
+res = initialize_Init_Data_Slice(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Order(builtin)
-;
+res = initialize_Init_Data_Order(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Rat(builtin)
-;
+res = initialize_Init_Data_Rat(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Dyadic(builtin)
-;
+res = initialize_Init_Data_Dyadic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data(builtin)
-;
+res = runtime_initialize_Init_Data(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_Init_Data(builtin)
-;
+res = meta_initialize_Init_Data(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_Init_Data(builtin);

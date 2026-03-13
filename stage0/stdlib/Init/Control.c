@@ -31,56 +31,43 @@ LEAN_EXPORT lean_object* runtime_initialize_Init_Control(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Init_Control_Basic(builtin)
-;
+res = runtime_initialize_Init_Control_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Control_State(builtin)
-;
+res = runtime_initialize_Init_Control_State(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Control_StateRef(builtin)
-;
+res = runtime_initialize_Init_Control_StateRef(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Control_Id(builtin)
-;
+res = runtime_initialize_Init_Control_Id(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Control_Except(builtin)
-;
+res = runtime_initialize_Init_Control_Except(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Control_Reader(builtin)
-;
+res = runtime_initialize_Init_Control_Reader(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Control_Option(builtin)
-;
+res = runtime_initialize_Init_Control_Option(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Control_Lawful(builtin)
-;
+res = runtime_initialize_Init_Control_Lawful(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Control_StateCps(builtin)
-;
+res = runtime_initialize_Init_Control_StateCps(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Control_ExceptCps(builtin)
-;
+res = runtime_initialize_Init_Control_ExceptCps(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Control_MonadAttach(builtin)
-;
+res = runtime_initialize_Init_Control_MonadAttach(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Control_EState(builtin)
-;
+res = runtime_initialize_Init_Control_EState(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Control_Do(builtin)
-;
+res = runtime_initialize_Init_Control_Do(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -110,64 +97,49 @@ LEAN_EXPORT lean_object* initialize_Init_Control(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Control_Basic(builtin)
-;
+res = initialize_Init_Control_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Control_State(builtin)
-;
+res = initialize_Init_Control_State(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Control_StateRef(builtin)
-;
+res = initialize_Init_Control_StateRef(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Control_Id(builtin)
-;
+res = initialize_Init_Control_Id(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Control_Except(builtin)
-;
+res = initialize_Init_Control_Except(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Control_Reader(builtin)
-;
+res = initialize_Init_Control_Reader(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Control_Option(builtin)
-;
+res = initialize_Init_Control_Option(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Control_Lawful(builtin)
-;
+res = initialize_Init_Control_Lawful(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Control_StateCps(builtin)
-;
+res = initialize_Init_Control_StateCps(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Control_ExceptCps(builtin)
-;
+res = initialize_Init_Control_ExceptCps(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Control_MonadAttach(builtin)
-;
+res = initialize_Init_Control_MonadAttach(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Control_EState(builtin)
-;
+res = initialize_Init_Control_EState(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Control_Do(builtin)
-;
+res = initialize_Init_Control_Do(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Control(builtin)
-;
+res = runtime_initialize_Init_Control(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_Init_Control(builtin)
-;
+res = meta_initialize_Init_Control(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_Init_Control(builtin);

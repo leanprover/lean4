@@ -21,16 +21,13 @@ LEAN_EXPORT lean_object* runtime_initialize_Init_Data_String_Lemmas_Pattern_Spli
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Init_Data_String_Lemmas_Pattern_Split_Basic(builtin)
-;
+res = runtime_initialize_Init_Data_String_Lemmas_Pattern_Split_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_String_Lemmas_Pattern_Split_Char(builtin)
-;
+res = runtime_initialize_Init_Data_String_Lemmas_Pattern_Split_Char(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_String_Lemmas_Pattern_Split_Pred(builtin)
-;
+res = runtime_initialize_Init_Data_String_Lemmas_Pattern_Split_Pred(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -50,24 +47,19 @@ LEAN_EXPORT lean_object* initialize_Init_Data_String_Lemmas_Pattern_Split(uint8_
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_String_Lemmas_Pattern_Split_Basic(builtin)
-;
+res = initialize_Init_Data_String_Lemmas_Pattern_Split_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_String_Lemmas_Pattern_Split_Char(builtin)
-;
+res = initialize_Init_Data_String_Lemmas_Pattern_Split_Char(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_String_Lemmas_Pattern_Split_Pred(builtin)
-;
+res = initialize_Init_Data_String_Lemmas_Pattern_Split_Pred(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_String_Lemmas_Pattern_Split(builtin)
-;
+res = runtime_initialize_Init_Data_String_Lemmas_Pattern_Split(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_Init_Data_String_Lemmas_Pattern_Split(builtin)
-;
+res = meta_initialize_Init_Data_String_Lemmas_Pattern_Split(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_Init_Data_String_Lemmas_Pattern_Split(builtin);

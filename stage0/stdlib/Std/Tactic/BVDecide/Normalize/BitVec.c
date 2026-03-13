@@ -25,32 +25,25 @@ LEAN_EXPORT lean_object* runtime_initialize_Std_Tactic_BVDecide_Normalize_BitVec
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Init_Data_BitVec_Bitblast(builtin)
-;
+res = runtime_initialize_Init_Data_BitVec_Bitblast(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_AC(builtin)
-;
+res = runtime_initialize_Init_Data_AC(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Tactic_BVDecide_Normalize_Bool(builtin)
-;
+res = runtime_initialize_Std_Tactic_BVDecide_Normalize_Bool(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Tactic_BVDecide_Normalize_Canonicalize(builtin)
-;
+res = runtime_initialize_Std_Tactic_BVDecide_Normalize_Canonicalize(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_SInt_Basic(builtin)
-;
+res = runtime_initialize_Init_Data_SInt_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_ByCases(builtin)
-;
+res = runtime_initialize_Init_ByCases(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Omega(builtin)
-;
+res = runtime_initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -74,40 +67,31 @@ LEAN_EXPORT lean_object* initialize_Std_Tactic_BVDecide_Normalize_BitVec(uint8_t
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_BitVec_Bitblast(builtin)
-;
+res = initialize_Init_Data_BitVec_Bitblast(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_AC(builtin)
-;
+res = initialize_Init_Data_AC(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Tactic_BVDecide_Normalize_Bool(builtin)
-;
+res = initialize_Std_Tactic_BVDecide_Normalize_Bool(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Tactic_BVDecide_Normalize_Canonicalize(builtin)
-;
+res = initialize_Std_Tactic_BVDecide_Normalize_Canonicalize(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_SInt_Basic(builtin)
-;
+res = initialize_Init_Data_SInt_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_ByCases(builtin)
-;
+res = initialize_Init_ByCases(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Omega(builtin)
-;
+res = initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Tactic_BVDecide_Normalize_BitVec(builtin)
-;
+res = runtime_initialize_Std_Tactic_BVDecide_Normalize_BitVec(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_Std_Tactic_BVDecide_Normalize_BitVec(builtin)
-;
+res = meta_initialize_Std_Tactic_BVDecide_Normalize_BitVec(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_Std_Tactic_BVDecide_Normalize_BitVec(builtin);

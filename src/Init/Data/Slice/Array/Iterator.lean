@@ -10,6 +10,7 @@ public import Init.Data.Slice.Operations
 import all Init.Data.Range.Polymorphic.Basic
 import Init.Omega
 public import Init.Data.Array.Subarray
+public import Init.Data.ToString.Extra
 
 public section
 

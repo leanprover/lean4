@@ -20,57 +20,57 @@ LEAN_EXPORT lean_object* l___private_Init_Data_ByteArray_Lemmas_0__ByteArray_set
 LEAN_EXPORT lean_object* l___private_Init_Data_ByteArray_Lemmas_0__ByteArray_set_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_ByteArray_Lemmas_0__ByteArray_size_match__1_splitter___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_ByteArray_Lemmas_0__ByteArray_size_match__1_splitter(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_ByteArray_Lemmas_0__ByteArray_set_match__1_splitter___redArg(lean_object* x_1, lean_object* x_2, uint8_t x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l___private_Init_Data_ByteArray_Lemmas_0__ByteArray_set_match__1_splitter___redArg(lean_object* v_x_1_, lean_object* v_x_2_, uint8_t v_x_3_, lean_object* v_h__1_4_){
 _start:
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_5 = lean_byte_array_data(x_1);
-x_6 = lean_box(x_3);
-x_7 = lean_apply_4(x_4, x_5, x_2, x_6, lean_box(0));
-return x_7;
+lean_object* v_data_5_; lean_object* v___x_6_; lean_object* v___x_7_; 
+v_data_5_ = lean_byte_array_data(v_x_1_);
+v___x_6_ = lean_box(v_x_3_);
+v___x_7_ = lean_apply_4(v_h__1_4_, v_data_5_, v_x_2_, v___x_6_, lean_box(0));
+return v___x_7_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_ByteArray_Lemmas_0__ByteArray_set_match__1_splitter___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l___private_Init_Data_ByteArray_Lemmas_0__ByteArray_set_match__1_splitter___redArg___boxed(lean_object* v_x_8_, lean_object* v_x_9_, lean_object* v_x_10_, lean_object* v_h__1_11_){
 _start:
 {
-uint8_t x_5; lean_object* x_6; 
-x_5 = lean_unbox(x_3);
-x_6 = l___private_Init_Data_ByteArray_Lemmas_0__ByteArray_set_match__1_splitter___redArg(x_1, x_2, x_5, x_4);
-return x_6;
+uint8_t v_x_31__boxed_12_; lean_object* v_res_13_; 
+v_x_31__boxed_12_ = lean_unbox(v_x_10_);
+v_res_13_ = l___private_Init_Data_ByteArray_Lemmas_0__ByteArray_set_match__1_splitter___redArg(v_x_8_, v_x_9_, v_x_31__boxed_12_, v_h__1_11_);
+return v_res_13_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_ByteArray_Lemmas_0__ByteArray_set_match__1_splitter(lean_object* x_1, lean_object* x_2, lean_object* x_3, uint8_t x_4, lean_object* x_5, lean_object* x_6) {
+LEAN_EXPORT lean_object* l___private_Init_Data_ByteArray_Lemmas_0__ByteArray_set_match__1_splitter(lean_object* v_motive_14_, lean_object* v_x_15_, lean_object* v_x_16_, uint8_t v_x_17_, lean_object* v_x_18_, lean_object* v_h__1_19_){
 _start:
 {
-lean_object* x_7; 
-x_7 = l___private_Init_Data_ByteArray_Lemmas_0__ByteArray_set_match__1_splitter___redArg(x_2, x_3, x_4, x_6);
-return x_7;
+lean_object* v___x_20_; 
+v___x_20_ = l___private_Init_Data_ByteArray_Lemmas_0__ByteArray_set_match__1_splitter___redArg(v_x_15_, v_x_16_, v_x_17_, v_h__1_19_);
+return v___x_20_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_ByteArray_Lemmas_0__ByteArray_set_match__1_splitter___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+LEAN_EXPORT lean_object* l___private_Init_Data_ByteArray_Lemmas_0__ByteArray_set_match__1_splitter___boxed(lean_object* v_motive_21_, lean_object* v_x_22_, lean_object* v_x_23_, lean_object* v_x_24_, lean_object* v_x_25_, lean_object* v_h__1_26_){
 _start:
 {
-uint8_t x_7; lean_object* x_8; 
-x_7 = lean_unbox(x_4);
-x_8 = l___private_Init_Data_ByteArray_Lemmas_0__ByteArray_set_match__1_splitter(x_1, x_2, x_3, x_7, x_5, x_6);
-return x_8;
+uint8_t v_x_46__boxed_27_; lean_object* v_res_28_; 
+v_x_46__boxed_27_ = lean_unbox(v_x_24_);
+v_res_28_ = l___private_Init_Data_ByteArray_Lemmas_0__ByteArray_set_match__1_splitter(v_motive_21_, v_x_22_, v_x_23_, v_x_46__boxed_27_, v_x_25_, v_h__1_26_);
+return v_res_28_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_ByteArray_Lemmas_0__ByteArray_size_match__1_splitter___redArg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l___private_Init_Data_ByteArray_Lemmas_0__ByteArray_size_match__1_splitter___redArg(lean_object* v_x_29_, lean_object* v_h__1_30_){
 _start:
 {
-lean_object* x_3; lean_object* x_4; 
-x_3 = lean_byte_array_data(x_1);
-x_4 = lean_apply_1(x_2, x_3);
-return x_4;
+lean_object* v_data_31_; lean_object* v___x_32_; 
+v_data_31_ = lean_byte_array_data(v_x_29_);
+v___x_32_ = lean_apply_1(v_h__1_30_, v_data_31_);
+return v___x_32_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_ByteArray_Lemmas_0__ByteArray_size_match__1_splitter(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Init_Data_ByteArray_Lemmas_0__ByteArray_size_match__1_splitter(lean_object* v_motive_33_, lean_object* v_x_34_, lean_object* v_h__1_35_){
 _start:
 {
-lean_object* x_4; 
-x_4 = l___private_Init_Data_ByteArray_Lemmas_0__ByteArray_size_match__1_splitter___redArg(x_2, x_3);
-return x_4;
+lean_object* v___x_36_; 
+v___x_36_ = l___private_Init_Data_ByteArray_Lemmas_0__ByteArray_size_match__1_splitter___redArg(v_x_34_, v_h__1_35_);
+return v___x_36_;
 }
 }
 lean_object* runtime_initialize_Init_Data_ByteArray_Basic(uint8_t builtin);
@@ -84,28 +84,22 @@ LEAN_EXPORT lean_object* runtime_initialize_Init_Data_ByteArray_Lemmas(uint8_t b
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Init_Data_ByteArray_Basic(builtin)
-;
+res = runtime_initialize_Init_Data_ByteArray_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_ByCases(builtin)
-;
+res = runtime_initialize_Init_ByCases(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Array_Bootstrap(builtin)
-;
+res = runtime_initialize_Init_Data_Array_Bootstrap(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Array_Extract(builtin)
-;
+res = runtime_initialize_Init_Data_Array_Extract(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Array_Lemmas(builtin)
-;
+res = runtime_initialize_Init_Data_Array_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Omega(builtin)
-;
+res = runtime_initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -128,36 +122,28 @@ LEAN_EXPORT lean_object* initialize_Init_Data_ByteArray_Lemmas(uint8_t builtin) 
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_ByteArray_Basic(builtin)
-;
+res = initialize_Init_Data_ByteArray_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_ByCases(builtin)
-;
+res = initialize_Init_ByCases(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Array_Bootstrap(builtin)
-;
+res = initialize_Init_Data_Array_Bootstrap(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Array_Extract(builtin)
-;
+res = initialize_Init_Data_Array_Extract(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Array_Lemmas(builtin)
-;
+res = initialize_Init_Data_Array_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Omega(builtin)
-;
+res = initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_ByteArray_Lemmas(builtin)
-;
+res = runtime_initialize_Init_Data_ByteArray_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_Init_Data_ByteArray_Lemmas(builtin)
-;
+res = meta_initialize_Init_Data_ByteArray_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_Init_Data_ByteArray_Lemmas(builtin);

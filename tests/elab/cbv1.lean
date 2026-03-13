@@ -106,29 +106,26 @@ example : removeVowels "abcdef" = "bcdf" := by
   conv =>
     lhs
     cbv
-  rfl
 
 example : removeVowels "abcdef\nghijklm" = "bcdf\nghjklm" := by
   conv =>
     lhs
     cbv
-  rfl
+
 example : removeVowels "aaaaa" = "" := by
   conv =>
     lhs
     cbv
-  rfl
+
 example : removeVowels "aaBAA" = "B" := by
   conv =>
     lhs
     cbv
-  rfl
 
 example : removeVowels "zbcd" = "zbcd" := by
   conv =>
     lhs
     cbv
-  rfl
 
 def Nat.factorial : Nat → Nat
   | 0 => 1

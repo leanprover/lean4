@@ -20,197 +20,203 @@ static const lean_object* l_Lean_Meta_TransparencyMode_instHashable__lean___clos
 LEAN_EXPORT const lean_object* l_Lean_Meta_TransparencyMode_instHashable__lean = (const lean_object*)&l_Lean_Meta_TransparencyMode_instHashable__lean___closed__0_value;
 LEAN_EXPORT uint8_t l_Lean_Meta_TransparencyMode_lt(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_lt___boxed(lean_object*, lean_object*);
-LEAN_EXPORT uint64_t l_Lean_Meta_TransparencyMode_hash(uint8_t x_1) {
+LEAN_EXPORT uint64_t l_Lean_Meta_TransparencyMode_hash(uint8_t v_x_1_){
 _start:
 {
-switch (x_1) {
+switch(v_x_1_)
+{
 case 0:
 {
-uint64_t x_2; 
-x_2 = 7;
-return x_2;
+uint64_t v___x_2_; 
+v___x_2_ = 7ULL;
+return v___x_2_;
 }
 case 1:
 {
-uint64_t x_3; 
-x_3 = 11;
-return x_3;
+uint64_t v___x_3_; 
+v___x_3_ = 11ULL;
+return v___x_3_;
 }
 case 2:
 {
-uint64_t x_4; 
-x_4 = 13;
-return x_4;
+uint64_t v___x_4_; 
+v___x_4_ = 13ULL;
+return v___x_4_;
 }
 case 3:
 {
-uint64_t x_5; 
-x_5 = 17;
-return x_5;
+uint64_t v___x_5_; 
+v___x_5_ = 17ULL;
+return v___x_5_;
 }
 default: 
 {
-uint64_t x_6; 
-x_6 = 19;
-return x_6;
+uint64_t v___x_6_; 
+v___x_6_ = 19ULL;
+return v___x_6_;
 }
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_hash___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_hash___boxed(lean_object* v_x_7_){
 _start:
 {
-uint8_t x_2; uint64_t x_3; lean_object* x_4; 
-x_2 = lean_unbox(x_1);
-x_3 = l_Lean_Meta_TransparencyMode_hash(x_2);
-x_4 = lean_box_uint64(x_3);
-return x_4;
+uint8_t v_x_64__boxed_8_; uint64_t v_res_9_; lean_object* v_r_10_; 
+v_x_64__boxed_8_ = lean_unbox(v_x_7_);
+v_res_9_ = l_Lean_Meta_TransparencyMode_hash(v_x_64__boxed_8_);
+v_r_10_ = lean_box_uint64(v_res_9_);
+return v_r_10_;
 }
 }
-LEAN_EXPORT uint8_t l_Lean_Meta_TransparencyMode_lt(uint8_t x_1, uint8_t x_2) {
+LEAN_EXPORT uint8_t l_Lean_Meta_TransparencyMode_lt(uint8_t v_x_13_, uint8_t v_x_14_){
 _start:
 {
-switch (x_2) {
+switch(v_x_14_)
+{
 case 4:
 {
-uint8_t x_3; 
-x_3 = 0;
-return x_3;
+uint8_t v___x_15_; 
+v___x_15_ = 0;
+return v___x_15_;
 }
 case 2:
 {
-switch (x_1) {
+switch(v_x_13_)
+{
 case 4:
 {
-uint8_t x_4; 
-x_4 = 1;
-return x_4;
+uint8_t v___x_16_; 
+v___x_16_ = 1;
+return v___x_16_;
 }
 case 2:
 {
-uint8_t x_5; 
-x_5 = 0;
-return x_5;
+uint8_t v___x_17_; 
+v___x_17_ = 0;
+return v___x_17_;
 }
 case 3:
 {
-uint8_t x_6; 
-x_6 = 0;
-return x_6;
+uint8_t v___x_18_; 
+v___x_18_ = 0;
+return v___x_18_;
 }
 default: 
 {
-uint8_t x_7; 
-x_7 = 0;
-return x_7;
+uint8_t v___x_19_; 
+v___x_19_ = 0;
+return v___x_19_;
 }
 }
 }
 case 3:
 {
-switch (x_1) {
+switch(v_x_13_)
+{
 case 4:
 {
-uint8_t x_8; 
-x_8 = 1;
-return x_8;
+uint8_t v___x_20_; 
+v___x_20_ = 1;
+return v___x_20_;
 }
 case 2:
 {
-uint8_t x_9; 
-x_9 = 1;
-return x_9;
+uint8_t v___x_21_; 
+v___x_21_ = 1;
+return v___x_21_;
 }
 case 3:
 {
-uint8_t x_10; 
-x_10 = 0;
-return x_10;
+uint8_t v___x_22_; 
+v___x_22_ = 0;
+return v___x_22_;
 }
 default: 
 {
-uint8_t x_11; 
-x_11 = 0;
-return x_11;
+uint8_t v___x_23_; 
+v___x_23_ = 0;
+return v___x_23_;
 }
 }
 }
 case 0:
 {
-switch (x_1) {
+switch(v_x_13_)
+{
 case 4:
 {
-uint8_t x_12; 
-x_12 = 1;
-return x_12;
+uint8_t v___x_24_; 
+v___x_24_ = 1;
+return v___x_24_;
 }
 case 2:
 {
-uint8_t x_13; 
-x_13 = 1;
-return x_13;
+uint8_t v___x_25_; 
+v___x_25_ = 1;
+return v___x_25_;
 }
 case 3:
 {
-uint8_t x_14; 
-x_14 = 1;
-return x_14;
+uint8_t v___x_26_; 
+v___x_26_ = 1;
+return v___x_26_;
 }
 case 1:
 {
-uint8_t x_15; 
-x_15 = 1;
-return x_15;
+uint8_t v___x_27_; 
+v___x_27_ = 1;
+return v___x_27_;
 }
 default: 
 {
-uint8_t x_16; 
-x_16 = 0;
-return x_16;
+uint8_t v___x_28_; 
+v___x_28_ = 0;
+return v___x_28_;
 }
 }
 }
 default: 
 {
-switch (x_1) {
+switch(v_x_13_)
+{
 case 4:
 {
-uint8_t x_17; 
-x_17 = 1;
-return x_17;
+uint8_t v___x_29_; 
+v___x_29_ = 1;
+return v___x_29_;
 }
 case 2:
 {
-uint8_t x_18; 
-x_18 = 1;
-return x_18;
+uint8_t v___x_30_; 
+v___x_30_ = 1;
+return v___x_30_;
 }
 case 3:
 {
-uint8_t x_19; 
-x_19 = 1;
-return x_19;
+uint8_t v___x_31_; 
+v___x_31_ = 1;
+return v___x_31_;
 }
 default: 
 {
-uint8_t x_20; 
-x_20 = 0;
-return x_20;
+uint8_t v___x_32_; 
+v___x_32_ = 0;
+return v___x_32_;
 }
 }
 }
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_lt___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_lt___boxed(lean_object* v_x_33_, lean_object* v_x_34_){
 _start:
 {
-uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
-x_3 = lean_unbox(x_1);
-x_4 = lean_unbox(x_2);
-x_5 = l_Lean_Meta_TransparencyMode_lt(x_3, x_4);
-x_6 = lean_box(x_5);
-return x_6;
+uint8_t v_x_104__boxed_35_; uint8_t v_x_105__boxed_36_; uint8_t v_res_37_; lean_object* v_r_38_; 
+v_x_104__boxed_35_ = lean_unbox(v_x_33_);
+v_x_105__boxed_36_ = lean_unbox(v_x_34_);
+v_res_37_ = l_Lean_Meta_TransparencyMode_lt(v_x_104__boxed_35_, v_x_105__boxed_36_);
+v_r_38_ = lean_box(v_res_37_);
+return v_r_38_;
 }
 }
 lean_object* runtime_initialize_Init_Data_UInt_Basic(uint8_t builtin);
@@ -220,12 +226,10 @@ LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_TransparencyMode(uint8_t b
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Init_Data_UInt_Basic(builtin)
-;
+res = runtime_initialize_Init_Data_UInt_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_MetaTypes(builtin)
-;
+res = runtime_initialize_Init_MetaTypes(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -244,20 +248,16 @@ LEAN_EXPORT lean_object* initialize_Lean_Meta_TransparencyMode(uint8_t builtin) 
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_UInt_Basic(builtin)
-;
+res = initialize_Init_Data_UInt_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_MetaTypes(builtin)
-;
+res = initialize_Init_MetaTypes(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Meta_TransparencyMode(builtin)
-;
+res = runtime_initialize_Lean_Meta_TransparencyMode(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_Lean_Meta_TransparencyMode(builtin)
-;
+res = meta_initialize_Lean_Meta_TransparencyMode(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_Lean_Meta_TransparencyMode(builtin);

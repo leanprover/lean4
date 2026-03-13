@@ -1,9 +1,7 @@
 #!/usr/bin/env bash
 source ../../tests/env_test.sh
-source "$TEST_DIR/util.sh"
 
-exec_capture "$1" \
+capture_only "$1" \
   lean -Dlinter.all=false "$1"
-
-check_exit "$1"
-check_out "$1"
+check_exit_is_success
+check_out_file

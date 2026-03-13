@@ -522,7 +522,7 @@ example (p : Nat → Prop) [DecidablePred p] (n : Nat) :
   apply Id.of_wp_run_eq h
   mvcgen
   case inv1 =>
-    exact Invariant.withEarlyReturn
+    exact Invariant.withEarlyReturnNewDo
       (onReturn := fun ret _ => ⌜ret = false ∧ ¬ ∀ i < n, p i⌝)
       (onContinue := fun xs _ => ⌜∀ i, i ∈ xs.prefix → p i⌝)
   all_goals simp_all [-Classical.not_forall]; try grind

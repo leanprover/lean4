@@ -21,16 +21,13 @@ LEAN_EXPORT lean_object* runtime_initialize_Init_Data_String_Lemmas_Basic(uint8_
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Init_Data_String_Basic(builtin)
-;
+res = runtime_initialize_Init_Data_String_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_ByteArray_Lemmas(builtin)
-;
+res = runtime_initialize_Init_Data_ByteArray_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Nat_MinMax(builtin)
-;
+res = runtime_initialize_Init_Data_Nat_MinMax(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -50,24 +47,19 @@ LEAN_EXPORT lean_object* initialize_Init_Data_String_Lemmas_Basic(uint8_t builti
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_String_Basic(builtin)
-;
+res = initialize_Init_Data_String_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_ByteArray_Lemmas(builtin)
-;
+res = initialize_Init_Data_ByteArray_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Nat_MinMax(builtin)
-;
+res = initialize_Init_Data_Nat_MinMax(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_String_Lemmas_Basic(builtin)
-;
+res = runtime_initialize_Init_Data_String_Lemmas_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_Init_Data_String_Lemmas_Basic(builtin)
-;
+res = meta_initialize_Init_Data_String_Lemmas_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_Init_Data_String_Lemmas_Basic(builtin);

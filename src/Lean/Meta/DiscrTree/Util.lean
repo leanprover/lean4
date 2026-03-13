@@ -14,9 +14,14 @@ Monadically fold the keys and values stored in a `Trie`.
 -/
 partial def foldM [Monad m] (initialKeys : Array Key)
     (f : σ → Array Key → α → m σ) : (init : σ) → Trie α → m σ
-  | init, Trie.node vs children => do
+  | init, .empty => pure init
+  | init, .values vs t => do
     let s ← vs.foldlM (init := init) fun s v => f s initialKeys v
-    children.foldlM (init := s) fun s (k, t) =>
+    t.foldM initialKeys f s
+  | init, .path ks t =>
+    t.foldM (initialKeys ++ ks) f init
+  | init, .branch children =>
+    children.foldlM (init := init) fun s (k, t) =>
       t.foldM (initialKeys.push k) f s
 
 /--
@@ -30,9 +35,13 @@ def fold (initialKeys : Array Key) (f : σ → Array Key → α → σ) (init : 
 Monadically fold the values stored in a `Trie`.
 -/
 partial def foldValuesM [Monad m] (f : σ → α → m σ) : (init : σ) → Trie α → m σ
-  | init, node vs children => do
+  | init, .empty => pure init
+  | init, .values vs t => do
     let s ← vs.foldlM (init := init) f
-    children.foldlM (init := s) fun s (_, c) => c.foldValuesM (init := s) f
+    t.foldValuesM (init := s) f
+  | init, .path _ t => t.foldValuesM (init := init) f
+  | init, .branch children =>
+    children.foldlM (init := init) fun s (_, c) => c.foldValuesM (init := s) f
 
 /--
 Fold the values stored in a `Trie`.
@@ -45,8 +54,11 @@ def foldValues (f : σ → α → σ) (init : σ) (t : Trie α) : σ :=
 The number of values stored in a `Trie`.
 -/
 partial def size : Trie α → Nat
-  | Trie.node vs children =>
-    children.foldl (init := vs.size) fun n (_, c) => n + size c
+  | .empty => 0
+  | .values vs t => vs.size + size t
+  | .path _ t => size t
+  | .branch children =>
+    children.foldl (init := 0) fun n (_, c) => n + size c
 
 end Trie
 
@@ -115,8 +127,11 @@ variable {m : Type → Type} [Monad m]
 partial def Trie.mapArraysM (t : DiscrTree.Trie α) (f : Array α → m (Array β)) :
     m (DiscrTree.Trie β) :=
   match t with
-  | .node vs children =>
-    return .node (← f vs) (← children.mapM fun (k, t') => do pure (k, ← t'.mapArraysM f))
+  | .empty => return .empty
+  | .values vs t => return .values (← f vs) (← t.mapArraysM f)
+  | .path ks t => return .path ks (← t.mapArraysM f)
+  | .branch children =>
+    return .branch (← children.mapM fun (k, t') => do pure (k, ← t'.mapArraysM f))
 
 /-- Apply a monadic function to the array of values at each node in a `DiscrTree`. -/
 def mapArraysM (d : DiscrTree α) (f : Array α → m (Array β)) : m (DiscrTree β) := do

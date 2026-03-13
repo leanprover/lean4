@@ -146,44 +146,65 @@ def pushArgsTodo (todo : Array Expr) (e : Expr) : Array Expr :=
   | _ => todo
 
 partial def getMatchLoop (todo : Array Expr) (c : Trie α) (result : Array α) : Array α :=
-  match c with
-  | .node vs cs =>
-    let csize := cs.size
-    if todo.isEmpty then
-      result ++ vs
-    else if h : csize = 0 then
-      result
-    else
-      let e     := todo.back!
-      let todo  := todo.pop
-      let first := cs[0] /- Recall that `Key.star` is the minimal key -/
-      if csize = 1 then
-        /- Special case: only one child node -/
-        if first.1 == .star then
-          getMatchLoop todo first.2 result
-        else if first.1 == getKey e then
-          getMatchLoop (pushArgsTodo todo e) first.2 result
-        else
-          result
+  if todo.isEmpty then
+    result ++ getValues c
+  else
+    match c with
+    | .empty => result
+    | .values _ t => getMatchLoop todo t result
+    | .branch cs =>
+      let csize := cs.size
+      if h : csize = 0 then
+        result
       else
-        /- We must always visit `Key.star` edges since they are wildcards.
-          Thus, `todo` is not used linearly when there is `Key.star` edge
-          and there is an edge for `k` and `k != Key.star`. -/
-        let result := if first.1 == .star then
-          getMatchLoop todo first.2 result
+        let e     := todo.back!
+        let todo  := todo.pop
+        let first := cs[0] /- Recall that `Key.star` is the minimal key -/
+        if csize = 1 then
+          /- Special case: only one child node -/
+          if first.1 == .star then
+            getMatchLoop todo first.2 result
+          else if first.1 == getKey e then
+            getMatchLoop (pushArgsTodo todo e) first.2 result
+          else
+            result
         else
-          result
-        match findKey? cs (getKey e) with
-        | none   => result
-        | some c => getMatchLoop (pushArgsTodo todo e) c.2 result
+          /- We must always visit `Key.star` edges since they are wildcards.
+            Thus, `todo` is not used linearly when there is `Key.star` edge
+            and there is an edge for `k` and `k != Key.star`. -/
+          let result := if first.1 == .star then
+            getMatchLoop todo first.2 result
+          else
+            result
+          match findKey? cs (getKey e) with
+          | none   => result
+          | some c => getMatchLoop (pushArgsTodo todo e) c.2 result
+    | .path ks t =>
+      let rec loop (todo : Array Expr) (result : Array α) (i : Nat) : Array α :=
+        if h : i < ks.size then
+          if todo.isEmpty then
+            result
+          else
+            let e     := todo.back!
+            let todo  := todo.pop
+            let k'    := ks[i]
+            if k' == .star then
+              loop todo result (i + 1)
+            else if k' == getKey e then
+              loop (pushArgsTodo todo e) result (i + 1)
+            else
+              result
+        else
+          getMatchLoop todo t result
+      loop todo result 0
 
 /--
 Retrieves all values whose patterns match the expression `e`.
 -/
 public def getMatch (d : DiscrTree α) (e : Expr) : Array α :=
   let result := match d.root.find? .star with
-  | none              => .mkEmpty initCapacity
-  | some (.node vs _) => vs
+  | none   => .mkEmpty initCapacity
+  | some t => getValues t
   match d.root.find? (getKey e) with
   | none   => result
   | some c => getMatchLoop (pushArgsTodo #[] e) c result

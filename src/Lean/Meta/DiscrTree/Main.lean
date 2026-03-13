@@ -429,27 +429,27 @@ private abbrev getUnifyKeyArgs (e : Expr) (root : Bool) : MetaM (Key × Array Ex
 private def getStarResult (d : DiscrTree α) : Array α :=
   let result : Array α := .mkEmpty initCapacity
   match d.root.find? .star with
-  | none                  => result
-  | some (.node vs _) => result ++ vs
+  | none   => result
+  | some t => result ++ getValues t
 
 private abbrev findKey (cs : Array (Key × Trie α)) (k : Key) : Option (Key × Trie α) :=
   cs.binSearch (k, default) (fun a b => a.1 < b.1)
 
 private partial def getMatchLoop (todo : Array Expr) (c : Trie α) (result : Array α) : MetaM (Array α) := do
-  match c with
-  | .node vs cs =>
-    if todo.isEmpty then
-      return result ++ vs
-    else if cs.isEmpty then
-      return result
-    else
+  if todo.isEmpty then
+    return result ++ getValues c
+  else
+    match c with
+    | .empty => return result
+    | .values _ t => getMatchLoop todo t result
+    | .branch cs =>
+      if cs.isEmpty then return result else -- should not happen
       let e     := todo.back!
       let todo  := todo.pop
       let first := cs[0]! /- Recall that `Key.star` is the minimal key -/
-      let (k, args) ← getMatchKeyArgs e (root := false)
       /- We must always visit `Key.star` edges since they are wildcards.
-         Thus, `todo` is not used linearly when there is `Key.star` edge
-         and there is an edge for `k` and `k != Key.star`. -/
+        Thus, `todo` is not used linearly when there is `Key.star` edge
+        and there is an edge for `k` and `k != Key.star`. -/
       let visitStar (result : Array α) : MetaM (Array α) :=
         if first.1 == .star then
           getMatchLoop todo first.2 result
@@ -459,10 +459,38 @@ private partial def getMatchLoop (todo : Array Expr) (c : Trie α) (result : Arr
         match findKey cs k with
         | none   => return result
         | some c => getMatchLoop (todo ++ args) c.2 result
+      let (k, args) ← getMatchKeyArgs e (root := false)
       let result ← visitStar result
       match k with
       | .star  => return result
       | _      => visitNonStar k args result
+    | .path ks t =>
+      let rec loop (todo : Array Expr) (result : Array α) (i : Nat) : MetaM (Array α) := do
+        -- the following logic is a copy of the .branch case, as if `cs` is a singleton
+        if h : i < ks.size then
+          if todo.isEmpty then
+            return result
+          let e     := todo.back!
+          let todo  := todo.pop
+          let k'    := ks[i]
+          let visitStar (result : Array α) : MetaM (Array α) :=
+            if k' == .star then
+              loop todo result (i + 1)
+            else
+              return result
+          let visitNonStar (k : Key) (args : Array Expr) (result : Array α) : MetaM (Array α) :=
+            if k == k' then
+              loop (todo ++ args) result (i + 1)
+            else
+              return result
+          let (k, args) ← getMatchKeyArgs e (root := false)
+          let result ← visitStar result
+          match k with
+            | .star => return result
+            | _     => visitNonStar k args result
+        else
+          getMatchLoop todo t result
+      loop todo result 0
 
 private def getMatchRoot (d : DiscrTree α) (k : Key) (args : Array Expr) (result : Array α) : MetaM (Array α) :=
   match d.root.find? k with
@@ -544,8 +572,11 @@ private partial def getAllValuesForKey (d : DiscrTree α) (k : Key) (result : Ar
 where
   go (trie : Trie α) (result : Array α) : Array α := Id.run do
     match trie with
-    | .node vs cs =>
-      let mut result := result ++ vs
+    | .empty => return result
+    | .values vs t => go t (result ++ vs)
+    | .path _ t => go t result
+    | .branch cs =>
+      let mut result := result
       for (_, trie) in cs do
         result := go trie result
       return result
@@ -576,33 +607,66 @@ partial def getUnify (d : DiscrTree α) (e : Expr) : MetaM (Array α) :=
       | some c => process 0 args c result
 where
   process (skip : Nat) (todo : Array Expr) (c : Trie α) (result : Array α) : MetaM (Array α) := do
-    match skip, c with
-    | skip+1, .node _  cs =>
-      if cs.isEmpty then
-        return result
-      else
-        cs.foldlM (init := result) fun result ⟨k, c⟩ => process (skip + k.arity) todo c result
-    | 0, .node vs cs => do
-      if todo.isEmpty then
-        return result ++ vs
-      else if cs.isEmpty then
-        return result
-      else
-        let e     := todo.back!
-        let todo  := todo.pop
-        let (k, args) ← getUnifyKeyArgs e (root := false)
-        let visitStar (result : Array α) : MetaM (Array α) :=
-          let first := cs[0]!
-          if first.1 == .star then
-            process 0 todo first.2 result
-          else
+    if skip == 0 && todo.isEmpty then
+      return result ++ getValues c
+    else match c with
+      | .empty => return result
+      | .values _ t => process skip todo t result
+      | .branch cs =>
+        match skip with
+        | skip+1 =>
+          if cs.isEmpty then
             return result
-        let visitNonStar (k : Key) (args : Array Expr) (result : Array α) : MetaM (Array α) :=
-          match findKey cs k with
-          | none   => return result
-          | some c => process 0 (todo ++ args) c.2 result
-        match k with
-        | .star  => cs.foldlM (init := result) fun result ⟨k, c⟩ => process k.arity todo c result
-        | _      => visitNonStar k args (← visitStar result)
+          else
+            cs.foldlM (init := result) fun result ⟨k, c⟩ => process (skip + k.arity) todo c result
+        | 0 => do
+          if cs.isEmpty then return result else -- should not happen
+          let e     := todo.back!
+          let todo  := todo.pop
+          let (k, args) ← getUnifyKeyArgs e (root := false)
+          let visitStar (result : Array α) : MetaM (Array α) :=
+            let first := cs[0]!
+            if first.1 == .star then
+              process 0 todo first.2 result
+            else
+              return result
+          let visitNonStar (k : Key) (args : Array Expr) (result : Array α) : MetaM (Array α) :=
+            match findKey cs k with
+            | none   => return result
+            | some c => process 0 (todo ++ args) c.2 result
+          match k with
+          | .star  => cs.foldlM (init := result) fun result ⟨k, c⟩ => process k.arity todo c result
+          | _      => visitNonStar k args (← visitStar result)
+      | .path ks t =>
+        let rec loop (skip : Nat) (todo : Array Expr) (result : Array α) (i : Nat) : MetaM (Array α) :=
+          if h : i < ks.size then
+            match skip with
+            | skip+1 =>
+                let k' := ks[i]
+                loop (skip + k'.arity) todo result (i + 1)
+            | 0 => do
+              if todo.isEmpty then
+                return result
+              else
+                let e     := todo.back!
+                let todo  := todo.pop
+                let k'    := ks[i]
+                let visitStar (result : Array α) : MetaM (Array α) :=
+                  if k' == .star then
+                    loop 0 todo result (i + 1)
+                  else
+                    return result
+                let visitNonStar (k : Key) (args : Array Expr) (result : Array α) : MetaM (Array α) :=
+                  if k' == k then
+                    loop 0 (todo ++ args) result (i + 1)
+                  else
+                    return result
+                let (k, args) ← getUnifyKeyArgs e (root := false)
+                match k with
+                | .star  => loop k'.arity todo result (i + 1)
+                | _      => visitNonStar k args (← visitStar result)
+          else
+            process skip todo t result
+        loop skip todo result 0
 
 end Lean.Meta.DiscrTree

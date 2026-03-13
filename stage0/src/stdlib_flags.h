@@ -11,6 +11,7 @@ options get_default_options() {
     opts = opts.update({"debug", "terminalTacticsAsSorry"}, false);
     // switch to `true` for ABI-breaking changes affecting meta code;
     // see also next option!
+    // please update stage0
     opts = opts.update({"interpreter", "prefer_native"}, false);
     // switch to `false` when enabling `prefer_native` should also affect use
     // of built-in parsers in quotations; this is usually the case, but setting

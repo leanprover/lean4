@@ -32,13 +32,29 @@ If clients want to release the object associated with an `RpcRef`,
 they must release the reference as many times as they have received it from the server.
 -/
 structure RpcRef where
-  /- NOTE(WN): It is important for this to be a single-field structure
-  in order to deserialize as an `Object` on the JS side. -/
-  __rpcref : USize
-  deriving Inhabited, BEq, Hashable, FromJson, ToJson
+  p : USize
+  deriving Inhabited, BEq, Hashable
 
 instance : ToString RpcRef where
-  toString r := toString r.__rpcref
+  toString r := toString r.p
+
+/-- The *RPC wire format* specifies how user data is encoded in RPC requests. -/
+inductive RpcWireFormat where
+  /-- Version `0` uses JSON.
+  Serialized RPC data is stored directly in `RpcCallParams.params` and in `JsonRpc.Response.result`
+  (as opposed to being wrapped in additional metadata).
+  General types (except RPC references) are (de)serialized via `ToJson/FromJson`.
+  RPC references are serialized as `{"p": n}`. -/
+  | v0
+  /-- Version `1` is like `0`,
+  except that RPC references are serialized as `{"__rpcref": n}`. -/
+  | v1
+  deriving FromJson, ToJson
+
+@[inline]
+def RpcWireFormat.refFieldName : RpcWireFormat → String
+  | .v0 => "p"
+  | .v1 => "__rpcref"
 
 end Lean.Lsp
 
@@ -90,6 +106,8 @@ structure RpcObjectStore : Type where
   Value to use for the next fresh `RpcRef`, monotonically increasing.
   -/
   nextRef : USize := 0
+  /-- The RPC wire format (see `RpcCallParams`) to follow. -/
+  wireFormat : Lsp.RpcWireFormat := .v1
 
 def rpcStoreRef [TypeName α] (obj : WithRpcRef α) : StateM RpcObjectStore Lsp.RpcRef := do
   let st ← get
@@ -200,7 +218,13 @@ instance [TypeName α] : RpcEncodable (WithRpcRef α) :=
   { rpcEncode, rpcDecode }
 where
   -- separate definitions to prevent inlining
-  rpcEncode r := toJson <$> rpcStoreRef r
-  rpcDecode j := do rpcGetRef α (← fromJson? j)
+  rpcEncode r := do
+    let ref ← rpcStoreRef r
+    let fieldName := (← get).wireFormat.refFieldName
+    return Json.mkObj [(fieldName, toJson ref.p)]
+  rpcDecode j := do
+    let fieldName := (← read).wireFormat.refFieldName
+    let p ← j.getObjValAs? USize fieldName
+    rpcGetRef α ⟨p⟩
 
 end Lean.Server

@@ -46,6 +46,12 @@ def normalizedRef (ref : RpcRef) : NormalizeM RpcRef := do
       })
   return ⟨ptr⟩
 
+-- Test-only instances using the most recent version of the RPC wire format.
+instance : ToJson RpcRef where
+  toJson r := Json.mkObj [("__rpcref", toJson r.p)]
+instance : FromJson RpcRef where
+  fromJson? j := return ⟨← j.getObjValAs? USize "__rpcref"⟩
+
 structure SubexprInfo where
   info : RpcRef
   subexprPos : String

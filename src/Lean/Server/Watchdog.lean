@@ -1602,6 +1602,7 @@ def mkLeanServerCapabilities : ServerCapabilities := {
     moduleHierarchyProvider? := some {}
     rpcProvider? := some {
       highlightMatchesProvider? := some {}
+      rpcWireFormat? := some .v1
     }
   }
 }
@@ -1739,7 +1740,7 @@ def initAndRunWatchdog (args : List String) (i o : FS.Stream) : IO Unit := do
       capabilities := mkLeanServerCapabilities
       serverInfo?  := some {
         name     := "Lean 4 Server"
-        version? := "0.4.0"
+        version? := "0.3.0"
       }
       : InitializeResult
     }

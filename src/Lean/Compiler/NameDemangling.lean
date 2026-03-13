@@ -55,25 +55,32 @@ def isSpecIndex (c : NamePart) : Bool :=
   | NamePart.str s => (s.dropPrefix? "spec_").any isAllDigits
   | _ => false
 
+/-- Returns the length of the private prefix, if existing. -/
 def findPrivate? (parts : Subarray NamePart) : Option Nat := do
   guard <| parts.size >= 3 && parts[0]? matches some (NamePart.str "_private")
   for h : i in *...parts.size do
     if parts[i] matches .num 0 then
-      return i
+      return i + 1
   none
 
+/-- Returns the start position of the macro scope suffix, if existing. -/
 def findMacroScopes? (parts : Subarray NamePart) : Option Nat := do
   guard <| parts.size >= 3 && parts[parts.size - 2]? matches some (.str "_hyg") &&
     parts[parts.size - 1]? matches some (.num _)
-  for h : i in *...parts.size do
-    if parts[i] matches .str "_@" then
+  let mut i := parts.size - 2
+  while i ≠ 0 do
+    i := i - 1
+    if parts[i]! matches .str "_@" then
       return i
   none
 
+/--
+Returns the index of the `_at_` token corresponding to a `spec_N`.
+This process can be compared to finding the opening parenthesis corresponding to a
+closing parenthesis (`_at_` being the opening parenthesis and `spec_N` the closing one).
+-/
 def findAtToken? (parts : Subarray NamePart) : Option Nat := do
-  -- this process can be compared to finding the opening parenthesis corresponding
-  -- to a closing parenthesis (`_at_` being the opening parenthesis and `spec_N` the closing one)
-  let mut i := parts.size - 1
+  let mut i := parts.size
   let mut specCount := 1
   while i ≠ 0 do
     i := i - 1
@@ -116,12 +123,12 @@ partial def postprocessNameParts (parts : Subarray NamePart) (inSpec : Bool := f
   -- `_private.X.0.foo._at_.bar.spec_0` gets attributed to `foo` and not to the whole thing
   if let some i := findPrivate? parts then
     flags := flags.push "private"
-    parts := parts.drop i
+    parts := parts[i...*]
   let res := (namePartsToName parts).toString
     -- we add flags from the back to the front so reverse for a reasonable order
   return if flags.isEmpty then res else s!"{res} [{String.intercalate ", " flags.toListRev}]"
 
-/-- Split off the first name component -/
+/-- Split off the first name component (package names are encoded as string prefix components). -/
 def splitPrefix (nm : Name) : Option (String × Name) := do
   match nm with
   | .str .anonymous s => some (s, .anonymous)

@@ -11,6 +11,7 @@ import Init.Data.String.TakeDrop
 import Init.Data.String.Search
 import Init.Data.String.Iterate
 import Init.Data.Range.Polymorphic.Iterators
+import Init.Data.Slice.Array
 import Lean.Data.NameTrie
 public import Lean.Compiler.NameMangling
 
@@ -31,7 +32,7 @@ where
     | .str pre s, acc => go pre (NamePart.str s :: acc)
     | .num pre n, acc => go pre (NamePart.num n :: acc)
 
-def namePartsToName (parts : Array NamePart) : Name :=
+def namePartsToName (parts : Subarray NamePart) : Name :=
   parts.foldl (fun acc p =>
     match p with
     | .str s => acc.mkStr s
@@ -54,49 +55,73 @@ def isSpecIndex (c : NamePart) : Bool :=
   | NamePart.str s => (s.dropPrefix? "spec_").any isAllDigits
   | _ => false
 
-def findPrivate? (comps : Array NamePart) : Option Nat := do
-  guard <| comps.size >= 3 && comps[0]? == some (.str "_private")
-  comps.idxOf? (.num 0) |>.map (· + 1)
+def findPrivate? (parts : Subarray NamePart) : Option Nat := do
+  guard <| parts.size >= 3 && parts[0]? matches some (NamePart.str "_private")
+  for h : i in *...parts.size do
+    if parts[i] matches .num 0 then
+      return i
+  none
 
-def findMacroScopes? (comps : Array NamePart) : Option Nat := do
-  guard <| comps.size >= 3 && comps[comps.size - 2]? == some (.str "_hyg") &&
-    comps.back? matches some (.num _)
-  comps.idxOf? (.str "_@")
+def findMacroScopes? (parts : Subarray NamePart) : Option Nat := do
+  guard <| parts.size >= 3 && parts[parts.size - 2]? matches some (.str "_hyg") &&
+    parts[parts.size - 1]? matches some (.num _)
+  for h : i in *...parts.size do
+    if parts[i] matches .str "_@" then
+      return i
+  none
 
-partial def postprocessNameParts (parts : Array NamePart) (fullName : Bool := true) :
+def findAtToken? (parts : Subarray NamePart) : Option Nat := do
+  -- this process can be compared to finding the opening parenthesis corresponding
+  -- to a closing parenthesis (`_at_` being the opening parenthesis and `spec_N` the closing one)
+  let mut i := parts.size - 1
+  let mut specCount := 1
+  while i ≠ 0 do
+    i := i - 1
+    if parts[i]! matches .str "_at_" then
+      specCount := specCount - 1
+      if specCount = 0 then
+        return i
+    if isSpecIndex parts[i]! then
+      specCount := specCount + 1
+  none
+
+partial def postprocessNameParts (parts : Subarray NamePart) (inSpec : Bool := false) :
     String := Id.run do
   let mut parts := parts
   let mut flags := #[]
-  -- _boxed suffix is independent from macro scopes and can only occur at the top level
-  if fullName && parts.back? == some (.str "_boxed") then
+  -- Handle suffixes
+  -- Note: the_boxed suffix is independent from macro scopes and can only occur at the top level
+  if !inSpec && parts[parts.size - 1]? matches some (.str "_boxed") then
     flags := flags.push "boxed"
-    parts := parts.pop
-  if parts.back?.any isSpecIndex then
-    if let some idx := parts.idxOf? (.str "_at_") then
-      let before := parts.take idx
-      let after := parts.extract (idx + 1) (parts.size - 1)
-      let res := postprocessNameParts before ++ " spec at " ++ postprocessNameParts after
-      if flags.isEmpty then
-        return res
-      else
-        return s!"{res} [{String.intercalate ", " flags.toList}]"
+    parts := parts[*...parts.size - 1]
+  if let some i := findMacroScopes? parts then
+    parts := parts[*...i]
+  repeat
+    let some part := parts[parts.size - 1]? | break
+    let some suffix := matchSuffix part | break
+    parts := parts[*...parts.size - 1]
+    unless flags.contains suffix do
+      flags := flags.push suffix
+  if parts[parts.size - 1]?.any isSpecIndex then
+    if let some idx := findAtToken? parts[*...parts.size - 1] then
+      let before := parts[*...idx]
+      let after := parts[(idx + 1)...parts.size - 1]
+      let beforeRes := postprocessNameParts before (inSpec := true)
+      let afterRes := postprocessNameParts after (inSpec := true)
+      let res := s!"{beforeRes} spec at {afterRes}"
+      -- we add flags from the back to the front so reverse for a reasonable order
+      return if flags.isEmpty then res else s!"{res} [{String.intercalate ", " flags.toListRev}]"
+  -- Handle the private prefix
+  -- We need to handle prefixes after specializations to make sure that the `_private`s in
+  -- `_private.X.0.foo._at_.bar.spec_0` gets attributed to `foo` and not to the whole thing
   if let some i := findPrivate? parts then
     flags := flags.push "private"
     parts := parts.drop i
-  if let some i := findMacroScopes? parts then
-    parts := parts.take i
-  repeat
-    let some part := parts.back? | break
-    let some suffix := matchSuffix part | break
-    parts := parts.pop
-    unless flags.contains suffix do
-      flags := flags.push suffix
-  let nameStr := (namePartsToName parts).toString
-  if flags.isEmpty then
-    return nameStr
-  else
-    return s!"{nameStr} [{String.intercalate ", " flags.toList}]"
+  let res := (namePartsToName parts).toString
+    -- we add flags from the back to the front so reverse for a reasonable order
+  return if flags.isEmpty then res else s!"{res} [{String.intercalate ", " flags.toListRev}]"
 
+/-- Split off the first name component -/
 def splitPrefix (nm : Name) : Option (String × Name) := do
   match nm with
   | .str .anonymous s => some (s, .anonymous)
@@ -111,11 +136,11 @@ def splitPrefix (nm : Name) : Option (String × Name) := do
 def demangleWithPkg (s : String) (normalPrefix packagePrefix : String) : Option String := do
   if let some s := s.dropPrefix? normalPrefix then
     let name ← Name.demangle? s.copy
-    return postprocessNameParts (nameToNameParts name)
+    return postprocessNameParts (nameToNameParts name).toSubarray
   else if let some s := s.dropPrefix? packagePrefix then
     let name ← Name.demangle? s.copy
     let (pkg, name) ← splitPrefix name
-    return postprocessNameParts (nameToNameParts name) ++ s!" ({pkg})"
+    return postprocessNameParts (nameToNameParts name).toSubarray ++ s!" ({pkg})"
   else
     none
 
@@ -126,11 +151,6 @@ def consumeModuleInitializationPrefix (s : String) : IRPhases × String :=
     (.runtime, s.copy)
   else
     (.all, s)
-
-def stripColdSuffix (s : String) : String × String :=
-  match s.find? ".cold" with
-  | some pos => (s.extract s.startPos pos, s.extract pos s.endPos)
-  | none => (s, "")
 
 def demangleCore (s : String) : Option String := do
   if let some rest := s.dropPrefix? "lean_apply_" then
@@ -152,6 +172,11 @@ def demangleCore (s : String) : Option String := do
     | .comptime => return s!"[meta_module_init] {res}"
     | .all => return s!"[module_init] {res}"
   none
+
+def stripColdSuffix (s : String) : String × String :=
+  match s.find? ".cold" with
+  | some pos => (s.extract s.startPos pos, s.extract pos s.endPos)
+  | none => (s, "")
 
 public def demangleSymbol (symbol : String) : Option String := do
   if symbol.isEmpty then none

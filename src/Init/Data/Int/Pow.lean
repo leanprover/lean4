@@ -124,7 +124,7 @@ protected theorem sq_nonneg (m : Int) : 0 ≤ m ^ 2 := by
   · apply Int.mul_nonneg <;> simp
   · apply Int.mul_nonneg_of_nonpos_of_nonpos <;> exact negSucc_le_zero _
 
-@[deprecated sq_nonneg (since := "2026-03-13")]
+@[deprecated Int.sq_nonneg (since := "2026-03-13")]
 protected theorem sq_nonnneg (m : Int) : 0 ≤ m ^ 2 := Int.sq_nonneg m
 
 protected theorem pow_nonneg_of_even {m : Int} {n : Nat} (h : n % 2 = 0) : 0 ≤ m ^ n := by

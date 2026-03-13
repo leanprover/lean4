@@ -32,13 +32,12 @@ Use a monadic action that may throw an exception as an action that may return an
 def run {ε α : Type u} [Monad m] (x : ExceptCpsT ε m α) : m (Except ε α) :=
   x _ (fun a => pure (Except.ok a)) (fun e => pure (Except.error e))
 
-set_option linter.unusedVariables false in  -- `s` unused
 /--
 Use a monadic action that may throw an exception by providing explicit success and failure
 continuations.
 -/
 @[always_inline, inline]
-def runK {ε α : Type u} (x : ExceptCpsT ε m α) (s : ε) (ok : α → m β) (error : ε → m β) : m β :=
+def runK {ε α : Type u} (x : ExceptCpsT ε m α) (ok : α → m β) (error : ε → m β) : m β :=
   x _ ok error
 
 /--

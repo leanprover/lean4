@@ -232,7 +232,7 @@ theorem toArray_mk {xs : Array α} (h : xs.size = n) : (Vector.mk xs h).toArray 
       ((xs.swapAt! i x).fst, Vector.mk (xs.swapAt! i x).snd (by simp [h])) := rfl
 
 @[simp] theorem take_mk {xs : Array α} (h : xs.size = n) {i} :
-    (Vector.mk xs h).take i = Vector.mk (xs.take i) (by simp [h]) := rfl
+    (Vector.mk xs h).take i = Vector.mk (xs.take i) (by simp [h, Array.take_eq_extract]) := rfl
 
 @[simp] theorem zipIdx_mk {xs : Array α} (h : xs.size = n) (k : Nat := 0) :
     (Vector.mk xs h).zipIdx k = Vector.mk (xs.zipIdx k) (by simp [h]) := rfl
@@ -303,7 +303,7 @@ theorem toArray_mk {xs : Array α} (h : xs.size = n) : (Vector.mk xs h).toArray 
 
 set_option linter.indexVariables false in
 @[simp, grind =] theorem toArray_drop {xs : Vector α n} {i} :
-    (xs.drop i).toArray = xs.toArray.extract i n := by
+    (xs.drop i).toArray = xs.toArray.drop i := by
   simp [drop]
 
 @[simp, grind =] theorem toArray_empty : (#v[] : Vector α 0).toArray = #[] := rfl
@@ -567,7 +567,7 @@ theorem toList_append {xs : Vector α m} {ys : Vector α n} :
 
 @[simp] theorem toList_drop {xs : Vector α n} {i} :
     (xs.drop i).toList = xs.toList.drop i := by
-  simp [toList, List.take_of_length_le]
+  simp [toList]
 
 theorem toList_empty : (#v[] : Vector α 0).toList = [] := rfl
 
@@ -593,7 +593,7 @@ theorem toList_cast {xs : Vector α n} (h : n = m) :
 
 theorem toList_extract {xs : Vector α n} {start stop} :
     (xs.extract start stop).toList = (xs.toList.drop start).take (stop - start) := by
-  simp [toList]
+  simp [toList, List.extract_eq_take_drop]
 
 theorem toList_map {f : α → β} {xs : Vector α n} :
     (xs.map f).toList = xs.toList.map f := by simp [toList]
@@ -2323,7 +2323,7 @@ set_option linter.indexVariables false in
 
 @[grind =] theorem extract_empty {start stop : Nat} :
     (#v[] : Vector α 0).extract start stop = #v[].cast (by simp) := by
-  simp
+  simp [List.extract_eq_take_drop]
 
 /-! ### foldlM and foldrM -/
 
@@ -3006,7 +3006,7 @@ set_option backward.isDefEq.respectTransparency false in
 
 set_option linter.indexVariables false in
 theorem take_size {as : Vector α n} : as.take n = as.cast (by simp) := by
-  simp
+  simp [take_eq_extract]
 
 /-! ### swap -/
 
@@ -3050,13 +3050,13 @@ theorem swap_comm {xs : Vector α n} {i j : Nat} (hi hj) :
 @[simp, grind =] theorem getElem_take {xs : Vector α n} {j : Nat} (hi : i < min j n) :
     (xs.take j)[i] = xs[i] := by
   cases xs
-  simp
+  simp [take_eq_extract]
 
 /-! ### drop -/
 
 @[grind =] theorem getElem_drop {xs : Vector α n} {j : Nat} (hi : i < n - j) :
     (xs.drop j)[i] = xs[j + i] := by
-  simp
+  simp [drop_eq_cast_extract]
 
 /-! ### Decidable quantifiers. -/
 

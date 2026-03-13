@@ -25,6 +25,7 @@ public import Init.Data.List.Notation
 public import Init.Data.List.Pairwise
 public import Init.Data.List.Sublist
 public import Init.Data.List.TakeDrop
+public import Init.Data.List.Extract
 public import Init.Data.List.Zip
 public import Init.Data.List.Perm
 public import Init.Data.List.Sort

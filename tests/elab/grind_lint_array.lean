@@ -23,5 +23,11 @@ import Lean.Elab.Tactic.Grind.LintExceptions
 #guard_msgs in
 #grind_lint inspect (min := 22) Array.getElem_zero_filterMap
 
+-- TODO: Is `Array.drop_append_size` reasonable at 35?
+-- This seems to be worse than `List.drop_append_length` because
+-- `#[]` is actually `[].toArray`, triggering more instantiations.
+#guard_msgs in
+#grind_lint inspect  (min := 35)Array.drop_append_size
+
 #guard_msgs in
 #grind_lint check (min := 20) in Array

@@ -479,7 +479,7 @@ theorem false_of_mem_extract_findIdx {xs : Array α} {p : α → Bool} (h : x �
 @[simp, grind =] theorem findIdx_extract {xs : Array α} {i : Nat} {p : α → Bool} :
     (xs.extract 0 i).findIdx p = min i (xs.findIdx p) := by
   cases xs
-  simp
+  simp [List.extract_eq_drop_take']
 
 @[simp] theorem min_findIdx_findIdx {xs : Array α} {p q : α → Bool} :
     min (xs.findIdx p) (xs.findIdx q) = xs.findIdx (fun a => p a || q a) := by

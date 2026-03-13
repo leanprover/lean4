@@ -959,10 +959,10 @@ Examples:
 -/
 -- This is only an abbreviation for the operation in terms of `drop` and `take`.
 -- We do not prove properties of extract itself.
-abbrev extract (l : List α) (start : Nat := 0) (stop : Nat := l.length) : List α :=
+def extract (l : List α) (start : Nat := 0) (stop : Nat := l.length) : List α :=
   (l.drop start).take (stop - start)
 
-@[simp] theorem extract_eq_take_drop {l : List α} {start stop : Nat} :
+theorem extract_eq_take_drop {l : List α} {start stop : Nat} :
     l.extract start stop = (l.drop start).take (stop - start) := rfl
 
 set_option linter.missingDocs false in

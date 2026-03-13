@@ -208,9 +208,9 @@ vector then the vector is returned unchanged.
 We immediately simplify this to the `extract` operation, so there is no verification API for this function.
 -/
 @[inline, expose] def take (xs : Vector α n) (i : Nat) : Vector α (min i n) :=
-  ⟨xs.toArray.take i, by simp⟩
+  ⟨xs.toArray.take i, by simp [Array.take_eq_extract]⟩
 
-@[simp] theorem take_eq_extract (xs : Vector α n) (i : Nat) : xs.take i = xs.extract 0 i := rfl
+theorem take_eq_extract (xs : Vector α n) (i : Nat) : xs.take i = xs.extract 0 i := rfl
 
 /--
 Deletes the first `i` elements of a vector. If `i` is greater than or equal to the size of the
@@ -219,12 +219,12 @@ vector then the empty vector is returned.
 We immediately simplify this to the `extract` operation, so there is no verification API for this function.
 -/
 @[inline, expose] def drop (xs : Vector α n) (i : Nat) : Vector α (n - i) :=
-  ⟨xs.toArray.drop i, by simp⟩
+  ⟨xs.toArray.drop i, by simp [Array.drop_eq_extract]⟩
 
 set_option linter.indexVariables false in
-@[simp] theorem drop_eq_cast_extract (xs : Vector α n) (i : Nat) :
+theorem drop_eq_cast_extract (xs : Vector α n) (i : Nat) :
     xs.drop i = (xs.extract i).cast (by simp) := by
-  simp [drop, extract, Vector.cast]
+  simp [drop, extract, Vector.cast, Array.drop_eq_extract]
 
 /--
 Shrinks a vector to the first `m` elements, by repeatedly popping the last element.
@@ -232,7 +232,7 @@ Shrinks a vector to the first `m` elements, by repeatedly popping the last eleme
 We immediately simplify this to the `extract` operation, so there is no verification API for this function.
 -/
 @[inline, expose] def shrink (xs : Vector α n) (i : Nat) : Vector α (min i n) :=
-  ⟨xs.toArray.shrink i, by simp⟩
+  ⟨xs.toArray.shrink i, by simp [Array.take_eq_extract]⟩
 
 @[simp] theorem shrink_eq_take (xs : Vector α n) (i : Nat) : xs.shrink i = xs.take i := by
   simp [shrink, take]

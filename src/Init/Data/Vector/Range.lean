@@ -180,8 +180,6 @@ theorem self_mem_range_succ {n : Nat} : n ∈ range (n + 1) := by simp
 
 @[simp] theorem take_range {n i : Nat} : take (range n) i = range (min i n) := by
   ext <;> simp
-  erw [getElem_extract] -- Why is an `erw` needed here? This should be by simp!
-  simp
 
 @[simp] theorem find?_range_eq_some {n : Nat} {i : Nat} {p : Nat → Bool} :
     (range n).find? p = some i ↔ p i ∧ i ∈ range n ∧ ∀ j, j < i → !p j := by

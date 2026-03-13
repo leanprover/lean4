@@ -141,7 +141,7 @@ theorem take_zipWith : (zipWith f as bs).take i = zipWith f (as.take i) (bs.take
 theorem extract_zipWith : (zipWith f as bs).extract i j = zipWith f (as.extract i j) (bs.extract i j) := by
   cases as
   cases bs
-  simp [List.drop_zipWith, List.take_zipWith]
+  simp [List.drop_zipWith, List.take_zipWith, List.extract_eq_drop_take']
 
 @[grind =]
 theorem zipWith_append {f : α → β → γ} {as as' : Array α} {bs bs' : Array β}

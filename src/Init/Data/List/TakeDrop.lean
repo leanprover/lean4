@@ -262,10 +262,10 @@ theorem dropLast_eq_take {l : List α} : l.dropLast = l.take (l.length - 1) := b
 theorem drop_eq_extract {l : List α} {k : Nat} :
     l.drop k = l.extract k := by
   induction l generalizing k
-  case nil => simp
+  case nil => simp [List.extract_eq_take_drop]
   case cons _ _ ih =>
     match k with
-    | 0 => simp
+    | 0 => simp [List.extract_eq_take_drop]
     | _ + 1 =>
       simp only [List.drop_succ_cons, List.length_cons, ih]
       simp only [List.extract_eq_take_drop, List.drop_succ_cons, Nat.succ_sub_succ]

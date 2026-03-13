@@ -222,7 +222,7 @@ grind_pattern extract_extract => (as.extract i j).extract k l where
 
 theorem extract_eq_empty_of_eq_empty {as : Array α} {i j : Nat} (h : as = #[]) :
     as.extract i j = #[] := by
-  simp [h]
+  simp [h, List.extract_eq_drop_take']
 
 theorem ne_empty_of_extract_ne_empty {as : Array α} {i j : Nat} (h : as.extract i j ≠ #[]) :
     as ≠ #[] :=
@@ -304,7 +304,7 @@ theorem extract_append_right {as bs : Array α} :
 theorem extract_eq_extract_right {as : Array α} {i j j' : Nat} :
     as.extract i j = as.extract i j' ↔ min (j - i) (as.size - i) = min (j' - i) (as.size - i) := by
   rcases as with ⟨as⟩
-  simp
+  simp [List.extract_eq_take_drop]
 
 theorem extract_eq_extract_left {as : Array α} {i i' j : Nat} :
     as.extract i j = as.extract i' j ↔ min j as.size - i = min j as.size - i' := by
@@ -328,7 +328,8 @@ theorem extract_add_left {as : Array α} {i j k : Nat} :
 theorem mem_extract_iff_getElem {as : Array α} {a : α} {i j : Nat} :
     a ∈ as.extract i j ↔ ∃ (k : Nat) (hm : k < min j as.size - i), as[i + k] = a := by
   rcases as with ⟨as⟩
-  simp [List.mem_take_iff_getElem]
+  simp only [List.extract_toArray, List.extract_eq_drop_take', List.mem_toArray,
+    List.mem_drop_iff_getElem, List.getElem_take, List.length_take, List.size_toArray]
   constructor <;>
   · rintro ⟨k, h, rfl⟩
     exact ⟨k, by omega, rfl⟩
@@ -337,7 +338,7 @@ theorem set_eq_push_extract_append_extract {as : Array α} {i : Nat} (h : i < as
     as.set i a = (as.extract 0 i).push a ++ (as.extract (i + 1) as.size) := by
   rcases as with ⟨as⟩
   simp at h
-  simp [List.set_eq_take_append_cons_drop, h, List.take_of_length_le]
+  simp [List.set_eq_take_append_cons_drop, h, List.take_of_length_le, List.extract_eq_drop_take']
 
 @[grind =]
 theorem extract_reverse {as : Array α} {i j : Nat} :
@@ -453,7 +454,7 @@ theorem popWhile_replicate {p : α → Bool} :
 theorem extract_takeWhile {as : Array α} {i : Nat} :
     (as.takeWhile p).extract 0 i = (as.extract 0 i).takeWhile p := by
   rcases as with ⟨as⟩
-  simp [List.take_takeWhile]
+  simp [List.take_takeWhile, List.extract_eq_drop_take']
 
 @[simp] theorem all_takeWhile {as : Array α} :
     (as.takeWhile p).all p = true := by
@@ -470,6 +471,6 @@ theorem extract_takeWhile {as : Array α} {i : Nat} :
 theorem takeWhile_eq_extract_findIdx_not {xs : Array α} {p : α → Bool} :
     takeWhile p xs = xs.extract 0 (xs.findIdx (fun a => !p a)) := by
   rcases xs with ⟨xs⟩
-  simp [List.takeWhile_eq_take_findIdx_not]
+  simp [List.takeWhile_eq_take_findIdx_not, List.extract_eq_drop_take']
 
 end Array

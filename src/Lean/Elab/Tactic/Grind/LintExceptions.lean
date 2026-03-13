@@ -33,4 +33,6 @@ import Lean.Elab.Tactic.Grind.Lint
 #grind_lint skip Std.HashMap.getElem_filterMap'
 #grind_lint skip Std.TreeMap.getElem_filterMap'
 
+#grind_lint skip Array.drop_append_size
+
 #grind_lint skip suffix sizeOf_spec

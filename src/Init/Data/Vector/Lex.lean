@@ -243,7 +243,7 @@ theorem lex_eq_false_iff_exists [BEq α] [PartialEquivBEq α] (lt : α → α �
         (∃ (i : Nat) (h : i < n),(∀ j, (hj : j < i) → xs[j] == ys[j]) ∧ lt ys[i] xs[i]) := by
   rcases xs with ⟨xs, rfl⟩
   rcases ys with ⟨ys, n₂⟩
-  simp_all [Array.lex_eq_false_iff_exists]
+  simp_all [Array.lex_eq_false_iff_exists, Array.take_eq_extract]
 
 protected theorem lt_iff_exists [LT α] {xs ys : Vector α n} :
     xs < ys ↔
@@ -260,7 +260,7 @@ protected theorem le_iff_exists [LT α]
         (∃ (i : Nat) (h : i < n), (∀ j, (hj : j < i) → xs[j] = ys[j]) ∧ xs[i] < ys[i]) := by
   rcases xs with ⟨xs, rfl⟩
   rcases ys with ⟨ys, n₂⟩
-  simp [Array.le_iff_exists, ← n₂]
+  simp [Array.le_iff_exists, Array.take_eq_extract, ← n₂]
 
 theorem append_left_lt [LT α] {xs : Vector α n} {ys ys' : Vector α m} (h : ys < ys') :
     xs ++ ys < xs ++ ys' := by

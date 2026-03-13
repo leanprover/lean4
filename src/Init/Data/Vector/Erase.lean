@@ -31,7 +31,7 @@ open Nat
 theorem eraseIdx_eq_take_drop_succ {xs : Vector α n} {i : Nat} (h) :
     xs.eraseIdx i = (xs.take i ++ xs.drop (i + 1)).cast (by omega) := by
   rcases xs with ⟨xs, rfl⟩
-  simp [Array.eraseIdx_eq_take_drop_succ, *]
+  simp [Array.eraseIdx_eq_take_drop_succ, Array.drop_eq_extract, *]
 
 @[grind =]
 theorem getElem?_eraseIdx {xs : Vector α n} {i : Nat} (h : i < n) {j : Nat} :

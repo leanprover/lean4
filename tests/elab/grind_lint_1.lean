@@ -107,15 +107,12 @@ info: instantiating `Array.findIdx_empty` triggers 20 additional `grind` theorem
 ---
 info: instantiating `Array.findIdx_singleton` triggers 16 additional `grind` theorem instantiations
 ---
-info: instantiating `Array.getElem_eraseIdx` triggers 17 additional `grind` theorem instantiations
----
 info: Try this:
   [apply] #grind_lint check  (min := 15) in Array
   #grind_lint inspect Array.back?_empty
   #grind_lint inspect Array.count_empty
   #grind_lint inspect Array.findIdx_empty
   #grind_lint inspect Array.findIdx_singleton
-  #grind_lint inspect Array.getElem_eraseIdx
 -/
 #guard_msgs in
-#grind_lint check (min := 15) in Array
+#grind_lint check  (min := 15) in Array

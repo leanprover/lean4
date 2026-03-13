@@ -2854,11 +2854,15 @@ theorem getElem?_extract {xs : Array α} {start stop : Nat} :
 
 @[simp] theorem toList_extract {xs : Array α} {start stop : Nat} :
     (xs.extract start stop).toList = xs.toList.extract start stop := by
-  apply List.ext_getElem
-  · simp only [length_toList, size_extract, List.length_take, List.length_drop]
-    omega
-  · intro n h₁ h₂
-    simp
+  apply List.ext_getElem <;> simp [List.extract_eq_drop_take']
+
+@[simp] theorem toList_take {xs : Array α} {stop : Nat} :
+    (xs.take stop).toList = xs.toList.take stop := by
+  apply List.ext_getElem <;> simp [take_eq_extract, List.extract_eq_drop_take']
+
+@[simp] theorem toList_drop {xs : Array α} {start : Nat} :
+    (xs.drop start).toList = xs.toList.drop start := by
+  apply List.ext_getElem <;> simp [drop_eq_extract, List.extract_eq_drop_take']
 
 @[simp] theorem extract_size {xs : Array α} : xs.extract 0 xs.size = xs := by
   apply ext
@@ -2919,7 +2923,7 @@ theorem getElem_shrink {xs : Array α} {i j : Nat} (h : j < (xs.shrink i).size) 
   simp [shrink]
 
 @[simp] theorem shrink_eq_take {xs : Array α} {i : Nat} : xs.shrink i = xs.take i := by
-  ext <;> simp [size_shrink, getElem_shrink]
+  ext <;> simp [size_shrink, getElem_shrink, take_eq_extract]
 
 theorem toList_shrink {xs : Array α} {i : Nat} : (xs.shrink i).toList = xs.toList.take i := by
   simp
@@ -3011,9 +3015,9 @@ theorem foldrM_start_stop {m} [Monad m] {xs : Array α} {f : α → β → m β}
   subst hstart hstop w
   rcases xs with ⟨xs⟩
   rw [foldlM_start_stop, List.extract_toArray]
-  simp only [List.size_toArray, List.length_take, List.length_drop, List.foldlM_toArray']
+  simp only [List.size_toArray, List.foldlM_toArray']
   rw [foldlM_start_stop, List.extract_toArray]
-  simp only [List.size_toArray, List.length_take, List.length_drop, List.foldlM_toArray']
+  simp only [List.size_toArray, List.foldlM_toArray']
   congr
   funext b a
   simp_all
@@ -3025,9 +3029,9 @@ theorem foldrM_start_stop {m} [Monad m] {xs : Array α} {f : α → β → m β}
   subst hstart hstop w
   rcases xs with ⟨xs⟩
   rw [foldrM_start_stop, List.extract_toArray]
-  simp only [List.size_toArray, List.length_take, List.length_drop, List.foldrM_toArray']
+  simp only [List.size_toArray, List.foldrM_toArray']
   rw [foldrM_start_stop, List.extract_toArray]
-  simp only [List.size_toArray, List.length_take, List.length_drop, List.foldrM_toArray']
+  simp only [List.size_toArray, List.foldrM_toArray']
   congr
   funext b a
   simp_all
@@ -4207,7 +4211,7 @@ theorem replace_append_right {xs ys : Array α} (h : ¬ a ∈ xs) :
 theorem replace_extract {xs : Array α} {i : Nat} :
     (xs.extract 0 i).replace a b = (xs.replace a b).extract 0 i := by
   rcases xs with ⟨xs⟩
-  simp [List.replace_take]
+  simp [List.replace_take, List.extract_eq_drop_take']
 
 @[simp] theorem replace_replicate_self {a : α} (h : 0 < n) :
     (replicate n a).replace a b = #[b] ++ replicate (n - 1) a := by
@@ -4554,7 +4558,12 @@ Our goal is to have `simp` "pull `List.toArray` outwards" as much as possible.
 
 theorem toListRev_toArray {l : List α} : l.toArray.toListRev = l.reverse := by simp
 
-@[grind =] theorem take_toArray {l : List α} {i : Nat} : l.toArray.take i = (l.take i).toArray := by
+@[simp, grind =] theorem take_toArray {l : List α} {i : Nat} : l.toArray.take i = (l.take i).toArray := by
+  simp [take_eq_extract, List.extract_eq_drop_take']
+
+@[simp, grind =] theorem drop_toArray {l : List α} {start : Nat} :
+    l.toArray.drop start = (l.drop start).toArray := by
+  apply ext'
   simp
 
 @[simp, grind =] theorem mapM_toArray [Monad m] [LawfulMonad m] {f : α → m β} {l : List α} :

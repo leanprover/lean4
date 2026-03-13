@@ -465,9 +465,10 @@ Examples:
 * `#["red", "green", "blue"].take 2 = #["red", "green"]`
 * `#["red", "green", "blue"].take 5 = #["red", "green", "blue"]`
 -/
-abbrev take (xs : Array α) (i : Nat) : Array α := extract xs 0 i
+@[expose]
+def take (xs : Array α) (i : Nat) : Array α := extract xs 0 i
 
-@[simp, grind =] theorem take_eq_extract {xs : Array α} {i : Nat} : xs.take i = xs.extract 0 i := rfl
+theorem take_eq_extract {xs : Array α} {i : Nat} : xs.take i = xs.extract 0 i := rfl
 
 /--
 Removes the first `i` elements of `xs`. If `xs` has fewer than `i` elements, the new array is empty.
@@ -479,9 +480,10 @@ Examples:
 * `#["red", "green", "blue"].drop 2 = #["blue"]`
 * `#["red", "green", "blue"].drop 5 = #[]`
 -/
-abbrev drop (xs : Array α) (i : Nat) : Array α := extract xs i xs.size
+@[expose]
+def drop (xs : Array α) (i : Nat) : Array α := extract xs i xs.size
 
-@[simp, grind =] theorem drop_eq_extract {xs : Array α} {i : Nat} : xs.drop i = xs.extract i xs.size := rfl
+theorem drop_eq_extract {xs : Array α} {i : Nat} : xs.drop i = xs.extract i xs.size := rfl
 
 @[inline]
 unsafe def modifyMUnsafe [Monad m] (xs : Array α) (i : Nat) (f : α → m α) : m (Array α) := do

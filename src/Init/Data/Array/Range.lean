@@ -195,7 +195,7 @@ theorem not_mem_range_self {n : Nat} : n ∉ range n := by simp
 theorem self_mem_range_succ {n : Nat} : n ∈ range (n + 1) := by simp
 
 @[simp, grind =] theorem take_range {i n : Nat} : take (range n) i = range (min i n) := by
-  ext <;> simp
+  ext <;> simp [take_eq_extract]
 
 @[simp, grind =] theorem find?_range_eq_some {n : Nat} {i : Nat} {p : Nat → Bool} :
     (range n).find? p = some i ↔ p i ∧ i ∈ range n ∧ ∀ j, j < i → !p j := by

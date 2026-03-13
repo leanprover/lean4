@@ -154,7 +154,8 @@ theorem append_eq_fastAppend : @ByteArray.append = @ByteArray.fastAppend := by
   funext a b
   ext1
   apply Array.ext'
-  simp [ByteArray.fastAppend, copySlice, ← size_data, - Array.append_assoc]
+  simp [ByteArray.fastAppend, copySlice, ← size_data, - Array.append_assoc,
+    List.extract_eq_take_drop]
 
 -- Needs to come after the `csimp` lemma
 instance : Append ByteArray where

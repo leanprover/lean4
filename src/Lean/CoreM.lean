@@ -709,6 +709,8 @@ builtin_initialize postponedCompileDeclsExt : SimplePersistentEnvExtension Postp
     asyncMode     := .sync
     replay?       := some <| SimplePersistentEnvExtension.replayOfFilter
       (!·.contains ·.declName) (fun s e => s.insert e.declName e)
+    exportEntriesFnEx? := some fun _ _ es lvl =>
+      if lvl == .private then es.toArray else #[]
   }
 
 /--

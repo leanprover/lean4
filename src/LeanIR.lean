@@ -64,6 +64,7 @@ public def main (args : List String) : IO UInt32 := do
     opts ← setConfigOption opts optArg
   -- Already checked in `lean` and could fail on now-private imports
   opts := Compiler.compiler.checkMeta.set opts false
+  opts := maxHeartbeats.set opts 0
 
   --initSearchPathInternal  -- TODO
   initSearchPath (← getBuildDir)
@@ -114,7 +115,7 @@ public def main (args : List String) : IO UInt32 := do
   let some mod := env.header.moduleData[modIdx]? | unreachable!
   -- Make sure we record the actual IR dependencies, not ourselves
   let env := { env with base.private.header.imports := mod.imports }
-  let _ : MonadAlwaysExcept _ CoreM := inferInstance
+  let _ : MonadExceptOf _ CoreM := MonadAlwaysExcept.except
   let res? ← EIO.toBaseIO <| Core.CoreM.run (ctx := { fileName := irFile, fileMap := default, options := opts })
       (s := { env }) try
     let decls := postponedCompileDeclsExt.getModuleEntries (← getEnv) modIdx

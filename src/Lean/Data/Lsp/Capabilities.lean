@@ -70,7 +70,7 @@ structure LeanClientCapabilities where
   -/
   silentDiagnosticSupport? : Option Bool := none
   /--
-  The latest RPC wire format (see `RpcCallParams`) supported by the client.
+  The latest RPC wire format supported by the client.
   Defaults to `v0` when `none`.
   -/
   rpcWireFormat? : Option RpcWireFormat := none

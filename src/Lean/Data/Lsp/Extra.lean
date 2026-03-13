@@ -133,7 +133,7 @@ structure HighlightMatchesOptions where
 structure RpcOptions where
   highlightMatchesProvider? : Option HighlightMatchesOptions := none
   /--
-  The latest RPC wire format (see `RpcCallParams`) supported by the server.
+  The latest RPC wire format supported by the server.
   Defaults to `v0` when `none`.
   -/
   rpcWireFormat? : Option RpcWireFormat := none

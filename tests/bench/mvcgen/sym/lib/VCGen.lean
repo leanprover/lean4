@@ -798,26 +798,13 @@ meta def solve (item : WorkItem) : VCGenM SolveResult := item.mvarId.withContext
   return .noStrategyForProgram e
 
 /--
-Resolve delayed metavariable assignments in `e`.
-Grind uses delayed mvar assignments internally for proof construction; these must be resolved
-before the proof can pass the kernel type checker.
-Reimplements the logic of `Lean.Meta.Grind.resolveDelayedMVarAssignments` (which is private).
--/
-private meta partial def resolveDelayedAssignments (e : Expr) : MetaM Expr := do
-  if !e.hasMVar then return e
-  for mvarId in (e.collectMVars {}).result do
-    if let some { fvars, mvarIdPending } ← getDelayedMVarAssignment? mvarId then
-      if let some val ← getExprMVarAssignment? mvarIdPending then
-        let pendingDecl ← mvarIdPending.getDecl
-        let val ← resolveDelayedAssignments (← instantiateMVars val)
-        mvarId.assign (pendingDecl.lctx.mkLambda fvars val)
-  instantiateMVars e
-
-/--
 Called when decomposing the goal further did not succeed; in this case we emit a VC for the goal.
 In grind mode, tries to solve the VC using the accumulated `Grind.Goal` state (E-graph) via
-`Grind.processHypotheses` + `Grind.solve`. Uses `withNewMCtxDepth` to protect parent mvars
-from grind's `isDefEq` calls, and resolves delayed assignments before exiting.
+`Grind.withProtectedMCtx` + `Grind.processHypotheses` + `Grind.solve`.
+`withProtectedMCtx` handles `withNewMCtxDepth` isolation, delayed assignment resolution, and
+optional proof abstraction.
+If grind fails (or `withProtectedMCtx` admits on exception), we undo the assignment and fall back
+to emitting an unsolved VC.
 -/
 meta def emitVC (item : WorkItem) : VCGenM Unit := do
   let ty ← item.mvarId.getType
@@ -825,28 +812,21 @@ meta def emitVC (item : WorkItem) : VCGenM Unit := do
     item.mvarId.setKind .syntheticOpaque
     modify fun s => { s with invariants := s.invariants.push item.mvarId }
   else if let some grindGoal := item.grindGoal? then
-    let solved ← item.mvarId.withContext do
-      let type ← item.mvarId.getType
-      try
-        let val? ← withNewMCtxDepth do
-          let mvar' ← mkFreshExprSyntheticOpaqueMVar type
-          let grindGoal' := { grindGoal with mvarId := mvar'.mvarId! }
-          -- Internalize new hypotheses. This may discover contradictions and
-          -- assign mvar' directly via closeGoal.
-          let grindGoal' ← Grind.processHypotheses grindGoal'
-          unless ← mvar'.mvarId!.isAssigned do
-            discard <| Grind.solve grindGoal'
-          if ← mvar'.mvarId!.isAssigned then
-            let val ← instantiateMVars mvar'
-            let val ← resolveDelayedAssignments val
-            if val.hasMVar then pure none
-            else pure (some val)
-          else
-            pure none
-        match val? with
-        | some val => item.mvarId.assign val; pure true
-        | none => pure false
-      catch _ => pure false
+    let config ← Grind.getConfig
+    -- Save mctx so we can undo if withProtectedMCtx admits on exception
+    let savedMCtx ← getMCtx
+    let solved ← tryCatchRuntimeEx
+        (do
+          Grind.withProtectedMCtx config item.mvarId fun mvarId' => do
+            let grindGoal' := { grindGoal with mvarId := mvarId' }
+            let grindGoal' ← Grind.processHypotheses grindGoal'
+            unless ← mvarId'.isAssigned do
+              discard <| Grind.solve grindGoal'
+          pure true)
+        fun _ => do
+          -- withProtectedMCtx admits on exception; undo the admit
+          setMCtx savedMCtx
+          pure false
     unless solved do
       item.mvarId.setKind .syntheticOpaque
       modify fun s => { s with vcs := s.vcs.push item.mvarId }

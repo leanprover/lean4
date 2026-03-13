@@ -719,6 +719,7 @@ partial def main (args : List String) : IO Unit := do
       }
       lean? := some {
         silentDiagnosticSupport? := some true
+        rpcWireFormat? := some .v1
       }
     }
     Ipc.writeRequest ⟨0, "initialize", { initializationOptions?, capabilities : InitializeParams }⟩

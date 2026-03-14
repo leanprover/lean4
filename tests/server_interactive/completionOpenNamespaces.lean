@@ -14,3 +14,6 @@ def c2 : Nat := verySpecificDefinitionNameOfCompletionOpenNamespaces
 
 def c3 : Nat := verySpecificDefinitionNameOfCompletionOpenNamespacesPriv
                                                                      --^ completion
+
+def c4 : Nat := B2.verySpecificDefinitionNameOfCompletionOpenNamespacesPriv
+                                                                        --^ completion

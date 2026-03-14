@@ -117,11 +117,13 @@ section Utils
     Remark: `danglingDot == true` when the completion point is an identifier followed by `.`.
   -/
   private def matchDecl? (ns : Name) (id : Name) (danglingDot : Bool) (declName : Name) : MetaM (Option Name) := do
+    let mut isPrivate := false
     let some declName ←
       if isPrivateName declName then
         match (← normPrivateName? declName) with
         | some userName =>
-          if ns == userName.getPrefix then
+          if ns.isAnonymous || ns.isPrefixOf userName then
+            isPrivate := true
             pure <| some userName
           else
             pure none
@@ -152,7 +154,7 @@ section Utils
           return some <| .mkSimple s₂
         else
           return none
-      else if p₁.isAnonymous then
+      else if p₁.isAnonymous && !isPrivate then
         -- If `id` is namespace-less, also fuzzy-match declaration names in arbitrary namespaces
         -- (but don't match the namespace itself).
         -- Penalize score by component length of added namespace.

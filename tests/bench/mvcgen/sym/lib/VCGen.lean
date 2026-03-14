@@ -500,6 +500,12 @@ public structure VCGen.State where
   The verification conditions that have been generated so far.
   -/
   vcs : Array MVarId := #[]
+  /--
+  Persistent cache for the `Sym.Simp` simplifier used to pre-simplify hypotheses
+  before grind internalization. Threading this cache across VCGen iterations avoids
+  re-simplifying shared subexpressions (e.g., `s + 1 + 1 + ...` chains).
+  -/
+  simpState : Sym.Simp.State := {}
 
 abbrev VCGenM := ReaderT VCGen.Context (StateRefT VCGen.State Grind.GrindM)
 
@@ -678,13 +684,80 @@ open Sym Sym.Internal
 meta def mkAppNS [Monad m] [Internal.MonadShareCommon m] (f : Expr) (args : Array Expr) : m Expr :=
   mkAppRangeS f 0 args.size args
 
+/--
+A `Sym.Simp` post-simproc that reassociates Nat addition to fold nested literal additions.
+Rewrites `(a + m) + n` → `a + (m + n)` when `m` and `n` are Nat literals, using `Nat.add_assoc`.
+Since `m + n` reduces to a literal by kernel computation, this collapses chains like
+`s + 1 + 1 + 1` into `s + 3` in a single step.
+-/
+private meta def getNatLit? (e : Expr) : Option Nat := do
+  let_expr OfNat.ofNat _ n _ := e | failure
+  let .lit (.natVal n) := n | failure
+  return n
+
+meta def reassocNatAdd : Sym.Simp.Simproc := fun e => do
+  let_expr HAdd.hAdd α _ _ inst ab n := e | return .rfl
+  let_expr Nat := α | return .rfl
+  let some nVal := getNatLit? n | return .rfl
+  let_expr HAdd.hAdd _ _ _ _ a m := ab | return .rfl
+  let some mVal := getNatLit? m | return .rfl
+  -- (a + m) + n → a + (m + n), with m + n folded to a literal
+  let sumExpr ← share <| toExpr (mVal + nVal)
+  let result ← share <| mkApp6 (mkConst ``HAdd.hAdd [0, 0, 0]) α α α inst a sumExpr
+  -- Proof: Nat.add_assoc a m n : (a + m) + n = a + (m + n)
+  let proof := mkApp3 (mkConst ``Nat.add_assoc) a m n
+  return .step result proof
+
+/--
+Simplify types of not-yet-internalized hypotheses in the grind goal using `Sym.simp`.
+Only hypotheses with index `≥ grindGoal.nextDeclIdx` are simplified, since earlier ones
+have already been internalized into grind's E-graph.
+Returns the (possibly updated) `MVarId`.
+-/
+meta def simpNewHyps (mvarId : MVarId) (nextDeclIdx : Nat) (methods : Sym.Simp.Methods) : VCGenM MVarId := do
+  mvarId.withContext do
+  let lctx ← getLCtx
+  let mut mvarId := mvarId
+  for decl in lctx do
+    if decl.index < nextDeclIdx then continue
+    if decl.isImplementationDetail then continue
+    let simpState := (← get).simpState
+    let (result, simpState') ← Sym.Simp.SimpM.run (Sym.Simp.simp decl.type) methods {} simpState
+    modify fun s => { s with simpState := simpState' }
+    match result with
+    | .rfl _ => pure ()
+    | .step newType _proof _ =>
+      mvarId ← mvarId.replaceLocalDeclDefEq decl.fvarId newType
+  return mvarId
+
+/--
+Simplify the goal target using `Sym.simp` with the persistent cache.
+This normalizes excess state args like `s + 1 + 1 + ...` → `s + k` in the target
+before grind processes it.
+-/
+meta def simpTarget (mvarId : MVarId) (methods : Sym.Simp.Methods) : VCGenM MVarId := do
+  let target ← mvarId.getType
+  let simpState := (← get).simpState
+  let (result, simpState') ← Sym.Simp.SimpM.run (Sym.Simp.simp target) methods {} simpState
+  modify fun s => { s with simpState := simpState' }
+  match result with
+  | .rfl _ => return mvarId
+  | .step newTarget _proof _ =>
+    mvarId.replaceTargetDefEq newTarget
+
 /-- Internalize pending hypotheses in the grind state before forking to multiple subgoals.
 If `processHypotheses` discovers a contradiction (`inconsistent = true`), the E-graph state
 contains stale proof data (the contradiction proof targets the parent's mvar, not the children's).
 In that case, restore the pre-internalization state so each child can discover the contradiction
-independently and construct its own proof via `closeGoal`. -/
+independently and construct its own proof via `closeGoal`.
+
+-/
 meta def internalizePending (item : WorkItem) : VCGenM WorkItem := do
   if let some grindGoal := item.grindGoal? then
+    -- Simplify new hypothesis types before grind internalizes them
+    let methods : Sym.Simp.Methods := { post := reassocNatAdd }
+    let mvarId ← simpNewHyps item.mvarId grindGoal.nextDeclIdx methods
+    let grindGoal := { grindGoal with mvarId }
     let saved := grindGoal
     let grindGoal ← Grind.processHypotheses grindGoal
     if grindGoal.inconsistent then
@@ -824,12 +897,18 @@ meta def emitVC (item : WorkItem) : VCGenM Unit := do
     item.mvarId.setKind .syntheticOpaque
     modify fun s => { s with invariants := s.invariants.push item.mvarId }
   else if let some grindGoal := item.grindGoal? then
+    -- Simplify new hypothesis types and goal target before grind processes the VC
+    let methods : Sym.Simp.Methods := { post := reassocNatAdd }
+    let mvarId ← simpNewHyps item.mvarId grindGoal.nextDeclIdx methods
+    -- Also simplify the goal target (excess state args contain growing s+1+1+... chains)
+    let mvarId ← simpTarget mvarId methods
+    let grindGoal := { grindGoal with mvarId }
     let config ← Grind.getConfig
     -- Save mctx so we can undo if withProtectedMCtx admits on exception
     let savedMCtx ← getMCtx
     let solved ← tryCatchRuntimeEx
         (do
-          Grind.withProtectedMCtx config item.mvarId fun mvarId' => do
+          Grind.withProtectedMCtx config mvarId fun mvarId' => do
             let grindGoal' := { grindGoal with mvarId := mvarId' }
             let grindGoal' ← Grind.processHypotheses grindGoal'
             unless ← mvarId'.isAssigned do
@@ -840,8 +919,8 @@ meta def emitVC (item : WorkItem) : VCGenM Unit := do
           setMCtx savedMCtx
           pure false
     unless solved do
-      item.mvarId.setKind .syntheticOpaque
-      modify fun s => { s with vcs := s.vcs.push item.mvarId }
+      mvarId.setKind .syntheticOpaque
+      modify fun s => { s with vcs := s.vcs.push mvarId }
   else
     item.mvarId.setKind .syntheticOpaque
     modify fun s => { s with vcs := s.vcs.push item.mvarId }

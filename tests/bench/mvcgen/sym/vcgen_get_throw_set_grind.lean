@@ -14,5 +14,4 @@ set_option maxHeartbeats 100000000
 -- Benchmark `mvcgen' with grind`: grind integrated into VCGen loop for incremental
 -- context internalization. This avoids O(n) re-internalization per VC.
 #eval runBenchUsingTactic ``Goal [``loop, ``step] `(tactic| mvcgen' with grind) `(tactic| fail)
-  -- [100]
-  [100, 500, 1000]
+  [100, 250, 500]

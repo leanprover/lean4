@@ -162,7 +162,6 @@ ExternalProject_Add(
   CONFIGURE_HANDLED_BY_BUILD ON
   INSTALL_COMMAND ""
   DEPENDS ${EXTRA_DEPENDS}
-  STEP_TARGETS configure
 )
 ExternalProject_Add(
   stage2
@@ -177,7 +176,6 @@ ExternalProject_Add(
   INSTALL_COMMAND ""
   DEPENDS stage1
   EXCLUDE_FROM_ALL ON
-  STEP_TARGETS configure
 )
 ExternalProject_Add(
   stage3
@@ -192,7 +190,6 @@ ExternalProject_Add(
   INSTALL_COMMAND ""
   DEPENDS stage2
   EXCLUDE_FROM_ALL ON
-  STEP_TARGETS configure
 )
 
 # targets forwarded to appropriate stages

@@ -100,7 +100,8 @@ builtin_initialize postponedCompileDeclsExt : SimplePersistentEnvExtension Postp
 def resumeCompilation (declName : Name) : CoreM Unit := do
   let some decls := postponedCompileDeclsExt.getState (← getEnv) |>.find? declName | return
   modifyEnv (postponedCompileDeclsExt.modifyState · fun s => decls.declNames.foldl (·.erase) s)
-  (← compileDeclsRef.get) decls.declNames (mayPostpone := false)
+  Core.prependError m!"Failed to compile `{declName}`" do
+    (← compileDeclsRef.get) decls.declNames (mayPostpone := false)
 
 namespace PassManager
 

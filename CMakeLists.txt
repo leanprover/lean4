@@ -67,6 +67,7 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
       PREFIX cadical
       GIT_REPOSITORY https://github.com/arminbiere/cadical
       GIT_TAG rel-2.1.2
+      UPDATE_DISCONNECTED ON
       CONFIGURE_COMMAND ""
       BUILD_COMMAND
         $(MAKE) -f ${CMAKE_SOURCE_DIR}/src/cadical.mk CMAKE_EXECUTABLE_SUFFIX=${CMAKE_EXECUTABLE_SUFFIX}
@@ -123,6 +124,7 @@ if(USE_MIMALLOC)
     PREFIX mimalloc
     GIT_REPOSITORY https://github.com/microsoft/mimalloc
     GIT_TAG v2.2.3
+    UPDATE_DISCONNECTED ON
     # just download, we compile it as part of each stage as it is small
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ""

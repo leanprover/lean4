@@ -811,6 +811,7 @@ file(
   "${LEAN_SOURCE_DIR}/LeanChecker*.lean"
   "${LEAN_SOURCE_DIR}/LeanChecker/**/*.lean"
   "${LEAN_SOURCE_DIR}/Leanc.lean"
+  "${LEAN_SOURCE_DIR}/lake/*.lean"
   "${LEAN_SOURCE_DIR}/lake/**/*.lean"
 )
 set(STDLIB_BUILD_STAMP "${CMAKE_BINARY_DIR}/lib/lean/.make_stdlib.stamp")
@@ -825,12 +826,12 @@ if(EXISTS "${LEAN_SOURCE_DIR}/lake-manifest.json")
   list(APPEND STDLIB_BUILD_DEPS "${LEAN_SOURCE_DIR}/lake-manifest.json")
 endif()
 if(PREV_STAGE)
-  list(APPEND STDLIB_BUILD_DEPS "${PREV_STAGE}/bin/lean")
+  list(APPEND STDLIB_BUILD_DEPS "${PREV_STAGE}/bin/lean${PREV_STAGE_CMAKE_EXECUTABLE_SUFFIX}")
 endif()
 if(USE_LAKE)
   list(APPEND STDLIB_BUILD_DEPS "${CMAKE_BINARY_DIR}/lakefile.toml")
   if(PREV_STAGE)
-    list(APPEND STDLIB_BUILD_DEPS "${PREV_STAGE}/bin/lake")
+    list(APPEND STDLIB_BUILD_DEPS "${PREV_STAGE}/bin/lake${PREV_STAGE_CMAKE_EXECUTABLE_SUFFIX}")
   endif()
 endif()
 

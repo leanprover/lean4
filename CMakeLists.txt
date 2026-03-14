@@ -143,6 +143,8 @@ if(NOT STAGE1_PREV_STAGE)
     # (however, CI will override this as we need to embed the githash into the stage 1 library built
     # by stage 0)
     CMAKE_ARGS -DSTAGE=0 -DUSE_GITHASH=OFF ${PLATFORM_ARGS} ${STAGE0_ARGS}
+    BUILD_ALWAYS
+      ON # cmake doesn't auto-detect changes without a download method
     CONFIGURE_HANDLED_BY_BUILD ON
     INSTALL_COMMAND
       "" # skip install

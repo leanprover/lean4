@@ -817,14 +817,21 @@ set(STDLIB_BUILD_STAMP "${CMAKE_BINARY_DIR}/lib/lean/.make_stdlib.stamp")
 set(
   STDLIB_BUILD_DEPS
   ${STDLIB_SOURCE_FILES}
-  "${LEAN_SOURCE_DIR}/lake-manifest.json"
   "${LEAN_SOURCE_DIR}/lakefile.toml.in"
   "${CMAKE_BINARY_DIR}/stdlib.make"
   "${CMAKE_BINARY_DIR}/leanc.sh"
-  "${PREV_STAGE}/bin/lean"
 )
+if(EXISTS "${LEAN_SOURCE_DIR}/lake-manifest.json")
+  list(APPEND STDLIB_BUILD_DEPS "${LEAN_SOURCE_DIR}/lake-manifest.json")
+endif()
+if(PREV_STAGE)
+  list(APPEND STDLIB_BUILD_DEPS "${PREV_STAGE}/bin/lean")
+endif()
 if(USE_LAKE)
-  list(APPEND STDLIB_BUILD_DEPS "${CMAKE_BINARY_DIR}/lakefile.toml" "${PREV_STAGE}/bin/lake")
+  list(APPEND STDLIB_BUILD_DEPS "${CMAKE_BINARY_DIR}/lakefile.toml")
+  if(PREV_STAGE)
+    list(APPEND STDLIB_BUILD_DEPS "${PREV_STAGE}/bin/lake")
+  endif()
 endif()
 
 add_custom_command(

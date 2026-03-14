@@ -36,7 +36,7 @@ register_builtin_option compiler.relaxedMetaCheck : Bool := {
 }
 
 register_builtin_option compiler.postponeCompile : Bool := {
-  defValue := true
+  defValue := false
   descr := "Internal. Toggle experimental `leanir` separate compilation."
 }
 

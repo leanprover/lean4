@@ -383,7 +383,7 @@ inductive Expr where
   | lam (binderName : Name) (binderType : Expr) (body : Expr) (binderInfo : BinderInfo)
 
   /--
-  A dependent arrow `(a : α) → β)` (aka forall-expression) where `β` may dependent
+  A dependent arrow `(a : α) → β)` (aka forall-expression) where `β` may depend
   on `a`. Note that this constructor is also used to represent non-dependent arrows
   where `β` does not depend on `a`.
 

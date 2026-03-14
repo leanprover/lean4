@@ -325,7 +325,7 @@ inductive Expr where
   occurrence is not bound by an earlier `lam`, `forallE`, or `letE`
   constructor and its binder exists in a local context only.
 
-  Note that Lean uses the *locally nameless approach*. See [McBride and McKinna](https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.365.2479&rep=rep1&type=pdf)
+  Note that Lean uses the *locally nameless approach*. See [McBride and McKinna](https://doi.org/10.1145/1017472.1017477)
   for additional details.
 
   When "visiting" the body of a binding expression (i.e. `lam`, `forallE`, or `letE`),

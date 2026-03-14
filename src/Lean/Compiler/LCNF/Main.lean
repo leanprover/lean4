@@ -83,6 +83,9 @@ deriving BEq, Hashable
 
 /--
 Saves postponed `compileDecls` calls.
+
+We use this state both in `lean` when doing post-hoc compilation of non-meta declarations on `#eval`
+etc. as well as in `leanir` to do separate compilation of all defs.
 -/
 builtin_initialize postponedCompileDeclsExt : SimplePersistentEnvExtension PostponedCompileDecls (NameMap PostponedCompileDecls) ←
   registerSimplePersistentEnvExtension {

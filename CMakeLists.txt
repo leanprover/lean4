@@ -37,6 +37,17 @@ endforeach()
 include(ExternalProject)
 project(LEAN CXX C)
 
+if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.27)
+  set(LEAN_UPDATE_DISCONNECTED_DEFAULT ON)
+else()
+  set(LEAN_UPDATE_DISCONNECTED_DEFAULT OFF)
+endif()
+option(
+  LEAN_UPDATE_DISCONNECTED
+  "skip ExternalProject update steps during incremental builds"
+  ${LEAN_UPDATE_DISCONNECTED_DEFAULT}
+)
+
 if(NOT (DEFINED STAGE0_CMAKE_EXECUTABLE_SUFFIX))
   set(STAGE0_CMAKE_EXECUTABLE_SUFFIX "${CMAKE_EXECUTABLE_SUFFIX}")
 endif()
@@ -67,7 +78,7 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
       PREFIX cadical
       GIT_REPOSITORY https://github.com/arminbiere/cadical
       GIT_TAG rel-2.1.2
-      UPDATE_DISCONNECTED ON
+      UPDATE_DISCONNECTED ${LEAN_UPDATE_DISCONNECTED}
       CONFIGURE_COMMAND ""
       BUILD_COMMAND
         $(MAKE) -f ${CMAKE_SOURCE_DIR}/src/cadical.mk CMAKE_EXECUTABLE_SUFFIX=${CMAKE_EXECUTABLE_SUFFIX}
@@ -124,7 +135,7 @@ if(USE_MIMALLOC)
     PREFIX mimalloc
     GIT_REPOSITORY https://github.com/microsoft/mimalloc
     GIT_TAG v2.2.3
-    UPDATE_DISCONNECTED ON
+    UPDATE_DISCONNECTED ${LEAN_UPDATE_DISCONNECTED}
     # just download, we compile it as part of each stage as it is small
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ""

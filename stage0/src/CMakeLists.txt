@@ -814,10 +814,19 @@ file(
   "${LEAN_SOURCE_DIR}/lake/*.lean"
   "${LEAN_SOURCE_DIR}/lake/**/*.lean"
 )
+set(STDLIB_BOOTSTRAP_SOURCE_FILES)
+if(STAGE EQUAL 0)
+  file(
+    GLOB_RECURSE STDLIB_BOOTSTRAP_SOURCE_FILES
+    CONFIGURE_DEPENDS
+    "${LEAN_SOURCE_DIR}/../stdlib/**/*.c"
+  )
+endif()
 set(STDLIB_BUILD_STAMP "${CMAKE_BINARY_DIR}/lib/lean/.make_stdlib.stamp")
 set(
   STDLIB_BUILD_DEPS
   ${STDLIB_SOURCE_FILES}
+  ${STDLIB_BOOTSTRAP_SOURCE_FILES}
   "${LEAN_SOURCE_DIR}/lakefile.toml.in"
   "${CMAKE_BINARY_DIR}/stdlib.make"
   "${CMAKE_BINARY_DIR}/leanc.sh"

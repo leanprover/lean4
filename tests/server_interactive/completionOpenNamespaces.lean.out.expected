@@ -1,11 +1,11 @@
 {"textDocument": {"uri": "file:///completionOpenNamespaces.lean"},
- "position": {"line": 4, "character": 68}}
+ "position": {"line": 11, "character": 68}}
 {"items":
  [{"label": "verySpecificDefinitionNameOfCompletionOpenNamespaces",
    "kind": 21,
    "data":
    ["file:///completionOpenNamespaces.lean",
-    4,
+    11,
     68,
     0,
     "cA.B1.verySpecificDefinitionNameOfCompletionOpenNamespaces"]}],
@@ -16,7 +16,10 @@ Resolution of verySpecificDefinitionNameOfCompletionOpenNamespaces:
  "detail": "Nat",
  "data":
  ["file:///completionOpenNamespaces.lean",
-  4,
+  11,
   68,
   0,
   "cA.B1.verySpecificDefinitionNameOfCompletionOpenNamespaces"]}
+{"textDocument": {"uri": "file:///completionOpenNamespaces.lean"},
+ "position": {"line": 14, "character": 72}}
+{"items": [], "isIncomplete": false}

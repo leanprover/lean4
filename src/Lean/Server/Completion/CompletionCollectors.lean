@@ -125,6 +125,8 @@ section Utils
       else
         pure none
       | return none
+    if !(ns.isAnonymous || ns.isPrefixOf declName) then
+      return none
     let declName :=
       if ns.isAnonymous then
         declName

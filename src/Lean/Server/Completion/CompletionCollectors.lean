@@ -119,7 +119,14 @@ section Utils
   private def matchDecl? (ns : Name) (id : Name) (danglingDot : Bool) (declName : Name) : MetaM (Option Name) := do
     let some declName ←
       if isPrivateName declName then
-        normPrivateName? declName
+        match (← normPrivateName? declName) with
+        | some userName =>
+          if ns == userName.getPrefix then
+            pure <| some userName
+          else
+            pure none
+        | none =>
+          pure none
       else if ns.isAnonymous || ns.isPrefixOf declName then
         pure <| some declName
       else

@@ -20,7 +20,7 @@ lake update -q
 
 # Build plugins
 lake build
-PKG=user__plugin # mangled
+PKG=_user__plugin # mangled
 LIB_DIR=.lake/build/lib
 check_plugin () {
   plugin=$1

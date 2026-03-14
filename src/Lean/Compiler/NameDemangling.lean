@@ -143,11 +143,11 @@ def splitPrefix (nm : Name) : Option (String × Name) := do
 def demangleWithPkg (s : String) (normalPrefix packagePrefix : String) (postprocess : Bool) :
     Option String := do
   if let some s := s.dropPrefix? normalPrefix then
-    let name ← Name.demangle? s.copy
-    return if postprocess then
-      postprocessNameParts (nameToNameParts name).toSubarray
-    else name.toString
-  else if let some s := s.dropPrefix? packagePrefix then
+    if let some name := Name.demangle? s.copy then
+      return if postprocess then
+        postprocessNameParts (nameToNameParts name).toSubarray
+      else name.toString
+  if let some s := s.dropPrefix? packagePrefix then
     let name ← Name.demangle? s.copy
     let (pkg, name) ← splitPrefix name
     return if postprocess then

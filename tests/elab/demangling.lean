@@ -65,9 +65,9 @@ initialize_ prefixes
 #guard demangleSymbol "meta_initialize_Init_Control_Basic" == "[meta_module_init] Init.Control.Basic"
 #guard demangleSymbol "runtime_initialize_Init_Control_Basic" == "[runtime_module_init] Init.Control.Basic"
 
-#guard demangleSymbol "initializep_std_Init_Control_Basic" == "[module_init] Init.Control.Basic (std)"
-#guard demangleSymbol "meta_initializep_std_Init_Control_Basic" == "[meta_module_init] Init.Control.Basic (std)"
-#guard demangleSymbol "runtime_initializep_std_Init_Control_Basic" == "[runtime_module_init] Init.Control.Basic (std)"
+#guard demangleSymbol "initialize__std_Init_Control_Basic" == "[module_init] Init.Control.Basic (std)"
+#guard demangleSymbol "meta_initialize__std_Init_Control_Basic" == "[meta_module_init] Init.Control.Basic (std)"
+#guard demangleSymbol "runtime_initialize__std_Init_Control_Basic" == "[runtime_module_init] Init.Control.Basic (std)"
 
 /-!
 lean_apply_N and _lean_main

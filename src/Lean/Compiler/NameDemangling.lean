@@ -179,7 +179,7 @@ def demangleCore (s : String) : Option String := do
     return s!"[init] {res}"
   let (phases, s) := consumeModuleInitializationPrefix s
   -- module names don't require post-processing
-  if let some res := demangleWithPkg s "initialize_" "initializep_" (postprocess := false) then
+  if let some res := demangleWithPkg s "initialize_" "initialize__" (postprocess := false) then
     match phases with
     | .runtime => return s!"[runtime_module_init] {res}"
     | .comptime => return s!"[meta_module_init] {res}"

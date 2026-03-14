@@ -18,13 +18,6 @@ Try this:
 grind_qsort.lean:55:8-55:40: warning: declaration uses `sorry`
 grind_qsort.lean:62:8-62:40: warning: declaration uses `sorry`
 grind_qsort.lean:68:8-68:34: warning: declaration uses `sorry`
-grind_qsort.lean:74:39-74:60: warning: This simp argument is unused:
-  List.getElem?_toArray
-
-Hint: Omit it from the simp argument list.
-  simp_all only [perm_iff_toList_perm, L̵i̵s̵t̵.̵g̵e̵t̵E̵l̵e̵m̵?̵_̵t̵o̵A̵r̵r̵a̵y̵,̵ ̵List.extract_toArray, List.extract_eq_take_drop]
-
-Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
 Try these:
   [apply] [grind .] for pattern: [@Perm #7 (@extract _ #6 #3 #2) (@extract _ #5 #3 #2)]
   [apply] [grind =>] for pattern: [@Perm #7 #6 #5, @Perm _ (@extract _ #6 #3 #2) (@extract _ #5 #3 #2)]

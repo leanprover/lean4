@@ -87,6 +87,8 @@ option(USE_GITHASH "GIT_HASH" ON)
 option(INSTALL_LICENSE "INSTALL_LICENSE" ON)
 # When ON we install a copy of cadical
 option(INSTALL_CADICAL "Install a copy of cadical" ON)
+# When ON we install a copy of leantar
+option(INSTALL_LEANTAR "Install a copy of leantar" ON)
 
 # FLAGS for disabling optimizations and debugging
 option(FREE_VAR_RANGE_OPT "FREE_VAR_RANGE_OPT" ON)
@@ -757,6 +759,14 @@ if(STAGE GREATER 0 AND CADICAL AND INSTALL_CADICAL)
   add_dependencies(leancpp copy-cadical)
 endif()
 
+if(STAGE GREATER 0 AND LEANTAR AND INSTALL_LEANTAR)
+  add_custom_target(
+    copy-leantar
+    COMMAND cmake -E copy_if_different "${LEANTAR}" "${CMAKE_BINARY_DIR}/bin/leantar${CMAKE_EXECUTABLE_SUFFIX}"
+  )
+  add_dependencies(leancpp copy-leantar)
+endif()
+
 # MSYS2 bash usually handles Windows paths relatively well, but not when putting them in the PATH
 string(REGEX REPLACE "^([a-zA-Z]):" "/\\1" LEAN_BIN "${CMAKE_BINARY_DIR}/bin")
 
@@ -911,6 +921,10 @@ install(DIRECTORY "${CMAKE_BINARY_DIR}/bin/" USE_SOURCE_PERMISSIONS DESTINATION 
 
 if(STAGE GREATER 0 AND CADICAL AND INSTALL_CADICAL)
   install(PROGRAMS "${CADICAL}" DESTINATION bin)
+endif()
+
+if(STAGE GREATER 0 AND LEANTAR AND INSTALL_LEANTAR)
+  install(PROGRAMS "${LEANTAR}" DESTINATION bin)
 endif()
 
 add_custom_target(

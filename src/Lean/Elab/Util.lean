@@ -159,10 +159,10 @@ def expandMacroImpl? (env : Environment) : Syntax → MacroM (Option (Name × Ex
       let stx' ← withFreshMacroScope (e.value stx)
       if !e.isBuiltin then
         modify fun st => { st with expandedMacroDecls := e.declName :: st.expandedMacroDecls }
-      return (e.declName, Except.ok stx')
+      return some (e.declName, Except.ok stx')
     catch
       | Macro.Exception.unsupportedSyntax => pure ()
-      | ex                                => return (e.declName, Except.error ex)
+      | ex                                => return some (e.declName, Except.error ex)
   return none
 
 class MonadMacroAdapter (m : Type → Type) extends MonadQuotation m where

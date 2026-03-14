@@ -103,7 +103,7 @@ $(OUTLIB)/libleanshared$(SO): ${LIB}/lean/libLean.a.export.trace
 $(OUTLIB)/libLake_shared$(SO): ${LIB}/lean/libLean.a.export.trace ${LIB}/lean/libLake.a.export.trace
 $(OUTBIN)/lake$(EXE): ${LIB}/temp/LakeMain.c.o.export.trace
 $(OUTBIN)/leanc$(EXE): $(OUTARC)/libLeanc.a.trace
-${CMAKE_BINARY_DIR}/bin/leanir${CMAKE_EXECUTABLE_SUFFIX}: ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}/libLeanIR.a.trace
+$(OUTBIN)/leanir$(EXE): $(OUTARC)/libLeanIR.a.trace
 $(OUTBIN)/leanchecker$(EXE): $(OUTARC)/libLeanChecker.a.trace
 endif
 
@@ -196,15 +196,15 @@ $(OUTBIN)/leanc$(EXE): $(OUTARC)/libLeanc.a
 	$(link-preamble)
 	$(LEANC_SH) $< ${CMAKE_EXE_LINKER_FLAGS_MAKE} ${LEAN_EXE_LINKER_FLAGS} ${LEANC_OPTS} -o $@
 
-${CMAKE_BINARY_DIR}/bin/leanir${CMAKE_EXECUTABLE_SUFFIX}: ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}/libLeanIR.a
+leanc: $(OUTBIN)/leanc$(EXE)
+
+$(OUTBIN)/leanir$(EXE): $(OUTARC)/libLeanIR.a
 	@echo "[    ] Building $@"
 # on Windows, must remove file before writing a new one (since the old one may be in use)
 	@rm -f $@
 	"${CMAKE_BINARY_DIR}/leanc.sh" $< ${CMAKE_EXE_LINKER_FLAGS_MAKE} ${LEAN_EXE_LINKER_FLAGS} -o $@
 
-leanir: ${CMAKE_BINARY_DIR}/bin/leanir${CMAKE_EXECUTABLE_SUFFIX}
-
-leanc: $(OUTBIN)/leanc$(EXE)
+leanir: $(OUTBIN)/leanir$(EXE)
 
 $(OUTBIN)/leanchecker$(EXE): $(OUTARC)/libLeanChecker.a $(OUTLIB)/libLake_shared$(SO)
 	$(link-preamble)

@@ -51,136 +51,103 @@ LEAN_EXPORT lean_object* runtime_initialize_Lake_Util(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Lake_Util_Binder(builtin)
-;
+res = runtime_initialize_Lake_Util_Binder(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lake_Util_Casing(builtin)
-;
+res = runtime_initialize_Lake_Util_Casing(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lake_Util_Cli(builtin)
-;
+res = runtime_initialize_Lake_Util_Cli(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lake_Util_Cycle(builtin)
-;
+res = runtime_initialize_Lake_Util_Cycle(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lake_Util_Date(builtin)
-;
+res = runtime_initialize_Lake_Util_Date(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lake_Util_EquipT(builtin)
-;
+res = runtime_initialize_Lake_Util_EquipT(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lake_Util_Error(builtin)
-;
+res = runtime_initialize_Lake_Util_Error(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lake_Util_EStateT(builtin)
-;
+res = runtime_initialize_Lake_Util_EStateT(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lake_Util_Exit(builtin)
-;
+res = runtime_initialize_Lake_Util_Exit(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lake_Util_Family(builtin)
-;
+res = runtime_initialize_Lake_Util_Family(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lake_Util_FilePath(builtin)
-;
+res = runtime_initialize_Lake_Util_FilePath(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lake_Util_Git(builtin)
-;
+res = runtime_initialize_Lake_Util_Git(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lake_Util_IO(builtin)
-;
+res = runtime_initialize_Lake_Util_IO(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lake_Util_JsonObject(builtin)
-;
+res = runtime_initialize_Lake_Util_JsonObject(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lake_Util_Lift(builtin)
-;
+res = runtime_initialize_Lake_Util_Lift(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lake_Util_Lock(builtin)
-;
+res = runtime_initialize_Lake_Util_Lock(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lake_Util_Log(builtin)
-;
+res = runtime_initialize_Lake_Util_Log(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lake_Util_MainM(builtin)
-;
+res = runtime_initialize_Lake_Util_MainM(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lake_Util_Message(builtin)
-;
+res = runtime_initialize_Lake_Util_Message(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lake_Util_Name(builtin)
-;
+res = runtime_initialize_Lake_Util_Name(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lake_Util_NativeLib(builtin)
-;
+res = runtime_initialize_Lake_Util_NativeLib(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lake_Util_Opaque(builtin)
-;
+res = runtime_initialize_Lake_Util_Opaque(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lake_Util_OrderedTagAttribute(builtin)
-;
+res = runtime_initialize_Lake_Util_OrderedTagAttribute(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lake_Util_OrdHashSet(builtin)
-;
+res = runtime_initialize_Lake_Util_OrdHashSet(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lake_Util_Proc(builtin)
-;
+res = runtime_initialize_Lake_Util_Proc(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lake_Util_RBArray(builtin)
-;
+res = runtime_initialize_Lake_Util_RBArray(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lake_Util_Reservoir(builtin)
-;
+res = runtime_initialize_Lake_Util_Reservoir(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lake_Util_Store(builtin)
-;
+res = runtime_initialize_Lake_Util_Store(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lake_Util_StoreInsts(builtin)
-;
+res = runtime_initialize_Lake_Util_StoreInsts(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lake_Util_String(builtin)
-;
+res = runtime_initialize_Lake_Util_String(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lake_Util_Task(builtin)
-;
+res = runtime_initialize_Lake_Util_Task(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lake_Util_Url(builtin)
-;
+res = runtime_initialize_Lake_Util_Url(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lake_Util_Version(builtin)
-;
+res = runtime_initialize_Lake_Util_Version(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -230,144 +197,109 @@ LEAN_EXPORT lean_object* initialize_Lake_Util(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lake_Util_Binder(builtin)
-;
+res = initialize_Lake_Util_Binder(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Util_Casing(builtin)
-;
+res = initialize_Lake_Util_Casing(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Util_Cli(builtin)
-;
+res = initialize_Lake_Util_Cli(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Util_Cycle(builtin)
-;
+res = initialize_Lake_Util_Cycle(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Util_Date(builtin)
-;
+res = initialize_Lake_Util_Date(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Util_EquipT(builtin)
-;
+res = initialize_Lake_Util_EquipT(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Util_Error(builtin)
-;
+res = initialize_Lake_Util_Error(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Util_EStateT(builtin)
-;
+res = initialize_Lake_Util_EStateT(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Util_Exit(builtin)
-;
+res = initialize_Lake_Util_Exit(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Util_Family(builtin)
-;
+res = initialize_Lake_Util_Family(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Util_FilePath(builtin)
-;
+res = initialize_Lake_Util_FilePath(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Util_Git(builtin)
-;
+res = initialize_Lake_Util_Git(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Util_IO(builtin)
-;
+res = initialize_Lake_Util_IO(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Util_JsonObject(builtin)
-;
+res = initialize_Lake_Util_JsonObject(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Util_Lift(builtin)
-;
+res = initialize_Lake_Util_Lift(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Util_Lock(builtin)
-;
+res = initialize_Lake_Util_Lock(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Util_Log(builtin)
-;
+res = initialize_Lake_Util_Log(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Util_MainM(builtin)
-;
+res = initialize_Lake_Util_MainM(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Util_Message(builtin)
-;
+res = initialize_Lake_Util_Message(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Util_Name(builtin)
-;
+res = initialize_Lake_Util_Name(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Util_NativeLib(builtin)
-;
+res = initialize_Lake_Util_NativeLib(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Util_Opaque(builtin)
-;
+res = initialize_Lake_Util_Opaque(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Util_OrderedTagAttribute(builtin)
-;
+res = initialize_Lake_Util_OrderedTagAttribute(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Util_OrdHashSet(builtin)
-;
+res = initialize_Lake_Util_OrdHashSet(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Util_Proc(builtin)
-;
+res = initialize_Lake_Util_Proc(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Util_RBArray(builtin)
-;
+res = initialize_Lake_Util_RBArray(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Util_Reservoir(builtin)
-;
+res = initialize_Lake_Util_Reservoir(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Util_Store(builtin)
-;
+res = initialize_Lake_Util_Store(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Util_StoreInsts(builtin)
-;
+res = initialize_Lake_Util_StoreInsts(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Util_String(builtin)
-;
+res = initialize_Lake_Util_String(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Util_Task(builtin)
-;
+res = initialize_Lake_Util_Task(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Util_Url(builtin)
-;
+res = initialize_Lake_Util_Url(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Util_Version(builtin)
-;
+res = initialize_Lake_Util_Version(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lake_Util(builtin)
-;
+res = runtime_initialize_Lake_Util(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_Lake_Util(builtin)
-;
+res = meta_initialize_Lake_Util(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_Lake_Util(builtin);

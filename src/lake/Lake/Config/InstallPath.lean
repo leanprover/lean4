@@ -65,6 +65,10 @@ public def leanirExe (sysroot : FilePath) :=
 public def leancExe (sysroot : FilePath) :=
   sysroot / "bin" / "leanc" |>.addExtension FilePath.exeExtension
 
+/-- Standard path of `leantar` in a Lean installation. -/
+public def leantarExe (sysroot : FilePath) :=
+  sysroot / "bin" / "leantar" |>.addExtension FilePath.exeExtension
+
 /-- Standard path of `llvm-ar` in a Lean installation. -/
 public def leanArExe (sysroot : FilePath) :=
   sysroot / "bin" / "llvm-ar" |>.addExtension FilePath.exeExtension
@@ -100,6 +104,7 @@ public structure LeanInstall where
   lean := leanExe sysroot
   leanir := leanirExe sysroot
   leanc := leancExe sysroot
+  leantar := leantarExe sysroot
   sharedLib := leanSharedLibDir sysroot / leanSharedLib
   initSharedLib := leanSharedLibDir sysroot / initSharedLib
   ar : FilePath := "ar"

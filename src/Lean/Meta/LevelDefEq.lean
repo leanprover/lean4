@@ -132,7 +132,7 @@ mutual
   partial def isLevelDefEqAuxImpl : Level → Level → MetaM Bool
     | Level.succ lhs, Level.succ rhs => isLevelDefEqAux lhs rhs
     | lhs, rhs =>
-      withTraceNode `Meta.isLevelDefEq (return m!"{exceptBoolEmoji ·} {lhs} =?= {rhs}") do
+      withTraceNode `Meta.isLevelDefEq (fun _ => return m!"{lhs} =?= {rhs}") do
       if lhs.getLevelOffset == rhs.getLevelOffset then
         return lhs.getOffset == rhs.getOffset
       else

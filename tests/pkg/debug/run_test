@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+source ../../env_test.sh
+
+rm -rf .lake/build
+
+run lake exe release
+run_fail lake exe debug

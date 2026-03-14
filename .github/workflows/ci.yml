@@ -166,7 +166,7 @@ jobs:
       # 0: PRs without special label
       # 1: PRs with `merge-ci` label, merge queue checks, master commits
       # 2: nightlies
-      # 3: PRs with `release-ci` label, full releases
+      # 3: PRs with `release-ci` or `lake-ci` label, full releases
       - name: Set check level
         id: set-level
         # We do not use github.event.pull_request.labels.*.name here because
@@ -175,6 +175,7 @@ jobs:
         run: |
           check_level=0
           fast=false
+          lake_ci=false
 
           if [[ -n "${{ steps.set-release.outputs.RELEASE_TAG }}" || -n "${{ steps.set-release-custom.outputs.RELEASE_TAG }}" ]]; then
             check_level=3
@@ -189,13 +190,19 @@ jobs:
             elif echo "$labels" | grep -q "merge-ci"; then
               check_level=1
             fi
+            if echo "$labels" | grep -q "lake-ci"; then
+              lake_ci=true
+            fi
             if echo "$labels" | grep -q "fast-ci"; then
               fast=true
             fi
           fi
 
-          echo "check-level=$check_level" >> "$GITHUB_OUTPUT"
-          echo "fast=$fast" >> "$GITHUB_OUTPUT"
+          {
+            echo "check-level=$check_level"
+            echo "fast=$fast"
+            echo "lake-ci=$lake_ci"
+          } >> "$GITHUB_OUTPUT"
         env:
           GH_TOKEN: ${{ github.token }}
 
@@ -206,6 +213,7 @@ jobs:
           script: |
             const level = ${{ steps.set-level.outputs.check-level }};
             const fast = ${{ steps.set-level.outputs.fast }};
+            const lakeCi = "${{ steps.set-level.outputs.lake-ci }}" == "true";
             console.log(`level: ${level}, fast: ${fast}`);
             // use large runners where available (original repo)
             let large = ${{ github.repository == 'leanprover/lean4' }};
@@ -377,6 +385,11 @@ jobs:
               if (job["prepare-llvm"]) {
                 // `USE_LAKE` is not compatible with `prepare-llvm` currently
                 job["CMAKE_OPTIONS"] = (job["CMAKE_OPTIONS"] ? job["CMAKE_OPTIONS"] + " " : "") + "-DUSE_LAKE=OFF";
+              }
+            }
+            if (lakeCi) {
+              for (const job of matrix) {
+                job["CMAKE_OPTIONS"] = (job["CMAKE_OPTIONS"] ? job["CMAKE_OPTIONS"] + " " : "") + "-DLAKE_CI=ON";
               }
             }
             console.log(`matrix:\n${JSON.stringify(matrix, null, 2)}`);

@@ -13,7 +13,7 @@ import Lean.Compiler.Options
 import Lean.Compiler.IR.CompilerM
 
 import all Lean.Compiler.CSimpAttr
-import Lean.Compiler.IR.EmitC
+import Lean.Compiler.LCNF.EmitC
 import Lean.Language.Lean
 import Lean.Compiler.LCNF.PhaseExt
 import Lean.Compiler.LCNF.Main
@@ -58,7 +58,7 @@ public def main (args : List String) : IO UInt32 := do
     return 1
 
   let setup ← ModuleSetup.load setupFile
-  let mod := setup.name
+  let modName := setup.name
 
   let mut opts := setup.options.toOptions
   for optArg in optArgs do
@@ -71,14 +71,14 @@ public def main (args : List String) : IO UInt32 := do
   initSearchPath (← getBuildDir)
   -- Provide access to private scope of target module but no others; provide all IR
   let env ← profileitIO "import" opts <| withImporting do
-    let imports := #[{ module := mod, importAll := true, isMeta := true }]
+    let imports := #[{ module := modName, importAll := true, isMeta := true }]
     -- `private` because inlining may make ext data from private imports transitively required
     -- no `arts` yet because they are for `exported`
     let (_, s) ← importModulesCore (globalLevel := .private) /-(arts := setup.importArts)-/ imports |>.run
-    let s := { s with moduleNameMap := s.moduleNameMap.modify mod fun m => if m.module == mod then { m with irPhases := .runtime } else { m with irPhases := .all } }
+    let s := { s with moduleNameMap := s.moduleNameMap.modify modName fun m => if m.module == modName then { m with irPhases := .runtime } else { m with irPhases := .all } }
     -- level exported because otherwise we would try to load the current module's `.ir`
     finalizeImport (leakEnv := true) (loadExts := false) (level := .exported) s imports opts
-  let env := env.setMainModule mod
+  let env := env.setMainModule modName
 
   let is := Lean.Compiler.CSimp.ext.ext.toEnvExtension.getState env
   let newState ← Lean.Compiler.CSimp.ext.ext.addImportedFn is.importedEntries { env := env, opts := {} }
@@ -92,8 +92,8 @@ public def main (args : List String) : IO UInt32 := do
   let newState ← classExtension.addImportedFn is.importedEntries { env := env, opts := {} }
   let env := classExtension.toEnvExtension.setState (asyncMode := .sync) env { is with state := newState }
 
-  let some modIdx := env.getModuleIdx? mod
-    | throw <| IO.userError s!"module '{mod}' not found"
+  let some modIdx := env.getModuleIdx? modName
+    | throw <| IO.userError s!"module '{modName}' not found"
 
   let decls := impureSigExt.getModuleEntries env modIdx
   let decls := decls.filter (isExtern env ·.name)
@@ -149,8 +149,10 @@ public def main (args : List String) : IO UInt32 := do
   let .ok out ← IO.FS.Handle.mk c .write |>.toBaseIO
     | IO.eprintln s!"failed to create '{c}'"
       return 1
-  let data ← IO.ofExcept <| IR.emitC env env.mainModule
-  out.write data.toUTF8
+  profileitIO "C code generation" opts do
+    let data ← Compiler.LCNF.emitC modName
+      |>.toIO' { fileName := irFile, fileMap := default } { env }
+    out.write data.toUTF8
 
   displayCumulativeProfilingTimes
   return 0

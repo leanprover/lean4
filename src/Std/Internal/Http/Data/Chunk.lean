@@ -87,13 +87,13 @@ def ofString! (s : String) : ExtensionName :=
 end ExtensionName
 
 /--
-A proposition asserting that `s` is a valid extension value, meaning it can be correctly encoded and
-decoded as either a token or a quoted-string.
+A proposition asserting that `s` is a valid extension value, meaning every character passes
+`Char.quotedStringChar` (i.e. is `qdtext` or a valid `quoted-pair` payload).
 
 Reference: https://httpwg.org/specs/rfc9112.html#chunked.extension
 -/
 abbrev IsValidExtensionValue (s : String) : Prop :=
-  (quoteHttpString? s).isSome
+  s.toList.all Char.quotedStringChar
 
 /--
 A validated chunk extension value that ensures all characters conform to HTTP standards per RFC 9112 §7.1.1.
@@ -115,30 +115,29 @@ structure ExtensionValue where
   /--
   The proof that it's a valid extension value.
   -/
-  validExtensionValue : IsValidExtensionValue value := by decide
+  isValidExtensionValue : IsValidExtensionValue value := by decide
 deriving Repr, DecidableEq, BEq
 
 namespace ExtensionValue
 
 instance : Inhabited ExtensionValue where
-  default := ⟨"", by native_decide⟩
+  default := ⟨"", by decide⟩
 
 instance : ToString ExtensionValue where
   toString v := v.value
 
 /--
 Quotes an extension value if it contains non-token characters, otherwise returns it as-is.
-
 -/
 def quote (s : ExtensionValue) : String :=
-  quoteHttpString? s.value |>.get s.validExtensionValue
+  quoteHttpString s.value s.isValidExtensionValue
 
 /--
 Attempts to create an `ExtensionValue` from a `String`, returning `none` if the string contains
 characters that cannot be encoded as an HTTP quoted-string.
 -/
 def ofString? (s : String) : Option ExtensionValue :=
-  if h : (quoteHttpString? s).isSome then
+  if h : IsValidExtensionValue s then
     some ⟨s, h⟩
   else
     none

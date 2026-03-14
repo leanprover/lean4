@@ -46,6 +46,12 @@ def normalizedRef (ref : RpcRef) : NormalizeM RpcRef := do
       })
   return ⟨ptr⟩
 
+-- Test-only instances using the most recent version of the RPC wire format.
+instance : ToJson RpcRef where
+  toJson r := Json.mkObj [("__rpcref", toJson r.p)]
+instance : FromJson RpcRef where
+  fromJson? j := return ⟨← j.getObjValAs? USize "__rpcref"⟩
+
 structure SubexprInfo where
   info : RpcRef
   subexprPos : String
@@ -713,6 +719,7 @@ partial def main (args : List String) : IO Unit := do
       }
       lean? := some {
         silentDiagnosticSupport? := some true
+        rpcWireFormat? := some .v1
       }
     }
     Ipc.writeRequest ⟨0, "initialize", { initializationOptions?, capabilities : InitializeParams }⟩

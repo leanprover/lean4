@@ -24,28 +24,22 @@ LEAN_EXPORT lean_object* runtime_initialize_Std_Internal_Http_Data(uint8_t built
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Std_Internal_Http_Data_Method(builtin)
-;
+res = runtime_initialize_Std_Internal_Http_Data_Method(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Internal_Http_Data_Version(builtin)
-;
+res = runtime_initialize_Std_Internal_Http_Data_Version(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Internal_Http_Data_Request(builtin)
-;
+res = runtime_initialize_Std_Internal_Http_Data_Request(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Internal_Http_Data_Response(builtin)
-;
+res = runtime_initialize_Std_Internal_Http_Data_Response(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Internal_Http_Data_Status(builtin)
-;
+res = runtime_initialize_Std_Internal_Http_Data_Status(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Internal_Http_Data_Chunk(builtin)
-;
+res = runtime_initialize_Std_Internal_Http_Data_Chunk(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -68,36 +62,28 @@ LEAN_EXPORT lean_object* initialize_Std_Internal_Http_Data(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Std_Internal_Http_Data_Method(builtin)
-;
+res = initialize_Std_Internal_Http_Data_Method(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Internal_Http_Data_Version(builtin)
-;
+res = initialize_Std_Internal_Http_Data_Version(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Internal_Http_Data_Request(builtin)
-;
+res = initialize_Std_Internal_Http_Data_Request(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Internal_Http_Data_Response(builtin)
-;
+res = initialize_Std_Internal_Http_Data_Response(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Internal_Http_Data_Status(builtin)
-;
+res = initialize_Std_Internal_Http_Data_Status(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Internal_Http_Data_Chunk(builtin)
-;
+res = initialize_Std_Internal_Http_Data_Chunk(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Internal_Http_Data(builtin)
-;
+res = runtime_initialize_Std_Internal_Http_Data(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_Std_Internal_Http_Data(builtin)
-;
+res = meta_initialize_Std_Internal_Http_Data(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_Std_Internal_Http_Data(builtin);

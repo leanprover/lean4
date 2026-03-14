@@ -1,10 +1,3 @@
-ac_expr.lean:95:16-95:22: warning: This simp argument is unused:
-  denote
-
-Hint: Omit it from the simp argument list.
-  simp [d̵e̵n̵o̵t̵e̵,̵ ̵ih]
-
-Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
 theorem ex₂ : ∀ (x₁ x₂ x₃ x₄ : Nat), x₁ + x₂ + (x₃ + x₄) = x₃ + x₁ + x₂ + x₄ :=
 fun x₁ x₂ x₃ x₄ =>
   Expr.eq_of_sort_flat

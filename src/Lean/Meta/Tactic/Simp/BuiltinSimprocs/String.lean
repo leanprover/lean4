@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Char
+import Lean.Meta.StringLitProof
 
 public section
 
@@ -57,6 +58,7 @@ builtin_dsimproc [simp, seval] reduceSingleton (String.singleton _) := fun e => 
   let some m ← fromExpr? e.appArg! | return .continue
   evalPropStep e (op n m)
 
+
 @[inline] def reduceBoolPred (declName : Name) (arity : Nat) (op : String → String → Bool) (e : Expr) : SimpM DStep := do
   unless e.isAppOfArity declName arity do return .continue
   let some n ← fromExpr? e.appFn!.appArg! | return .continue
@@ -67,8 +69,18 @@ builtin_simproc [simp, seval] reduceLT  (( _ : String) < _)  := reduceBinPred ``
 builtin_simproc [simp, seval] reduceLE  (( _ : String) ≤ _)  := reduceBinPred ``LE.le 4 (. ≤ .)
 builtin_simproc [simp, seval] reduceGT  (( _ : String) > _)  := reduceBinPred ``GT.gt 4 (. > .)
 builtin_simproc [simp, seval] reduceGE  (( _ : String) ≥ _)  := reduceBinPred ``GE.ge 4 (. ≥ .)
-builtin_simproc [simp, seval] reduceEq  (( _ : String) = _)  := reduceBinPred ``Eq 3 (. = .)
-builtin_simproc [simp, seval] reduceNe  (( _ : String) ≠ _)  := reduceBinPred ``Ne 3 (. ≠ .)
+
+builtin_simproc [simp, seval] reduceEq (( _ : String) = _) := fun e => do
+  unless e.isAppOfArity ``Eq 3 do return .continue
+  let some n ← fromExpr? e.appFn!.appArg! | return .continue
+  let some m ← fromExpr? e.appArg! | return .continue
+  evalEqPropStep e (n = m) (mkStringLitNeProof n m)
+
+builtin_simproc [simp, seval] reduceNe (( _ : String) ≠ _) := fun e => do
+  unless e.isAppOfArity ``Ne 3 do return .continue
+  let some n ← fromExpr? e.appFn!.appArg! | return .continue
+  let some m ← fromExpr? e.appArg! | return .continue
+  evalNePropStep e (n ≠ m) (mkStringLitNeProof n m)
 builtin_dsimproc [simp, seval] reduceBEq  (( _ : String) == _)  := reduceBoolPred ``BEq.beq 4 (. == .)
 builtin_dsimproc [simp, seval] reduceBNe  (( _ : String) != _)  := reduceBoolPred ``bne 4 (. != .)
 

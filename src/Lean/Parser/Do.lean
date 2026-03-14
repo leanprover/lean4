@@ -86,7 +86,7 @@ def doIdDecl   := leading_parser
   atomic (ident >> optType >> ppSpace >> leftArrow) >>
   doElemParser
 def doPatDecl  := leading_parser
-  atomic (termParser >> ppSpace >> leftArrow) >>
+  atomic (termParser >> optType >> ppSpace >> leftArrow) >>
   doElemParser >> optional ((checkColGe >> " | " >> doSeqIndent) >> optional (checkColGe >> doSeqIndent))
 @[builtin_doElem_parser] def doLetArrow      := leading_parser withPosition <|
   "let " >> optional "mut " >> (doIdDecl <|> doPatDecl)

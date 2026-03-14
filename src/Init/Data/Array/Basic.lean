@@ -148,6 +148,9 @@ end List
 
 namespace Array
 
+@[simp, grind =] theorem getElem!_toList [Inhabited α] {xs : Array α} {i : Nat} : xs.toList[i]! = xs[i]! := by
+  rw [List.getElem!_toArray]
+
 theorem size_eq_length_toList {xs : Array α} : xs.size = xs.toList.length := rfl
 
 /-! ### Externs -/
@@ -2147,8 +2150,5 @@ protected def repr {α : Type u} [Repr α] (xs : Array α) : Std.Format :=
 
 instance {α : Type u} [Repr α] : Repr (Array α) where
   reprPrec xs _ := Array.repr xs
-
-instance [ToString α] : ToString (Array α) where
-  toString xs := String.Internal.append "#" (toString xs.toList)
 
 end Array

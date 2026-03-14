@@ -24,115 +24,115 @@ LEAN_EXPORT lean_object* l_Lean_Meta_MonadSimp_Result_step_elim___redArg(lean_ob
 LEAN_EXPORT lean_object* l_Lean_Meta_MonadSimp_Result_step_elim(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_MonadSimp_instInhabitedResult_default;
 LEAN_EXPORT lean_object* l_Lean_Meta_MonadSimp_instInhabitedResult;
-LEAN_EXPORT lean_object* l_Lean_Meta_MonadSimp_Result_ctorIdx(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Meta_MonadSimp_Result_ctorIdx(lean_object* v_x_1_){
 _start:
 {
-if (lean_obj_tag(x_1) == 0)
+if (lean_obj_tag(v_x_1_) == 0)
 {
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
+lean_object* v___x_2_; 
+v___x_2_ = lean_unsigned_to_nat(0u);
+return v___x_2_;
 }
 else
 {
-lean_object* x_3; 
-x_3 = lean_unsigned_to_nat(1u);
-return x_3;
+lean_object* v___x_3_; 
+v___x_3_ = lean_unsigned_to_nat(1u);
+return v___x_3_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_MonadSimp_Result_ctorIdx___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Meta_MonadSimp_Result_ctorIdx___boxed(lean_object* v_x_4_){
 _start:
 {
-lean_object* x_2; 
-x_2 = l_Lean_Meta_MonadSimp_Result_ctorIdx(x_1);
-lean_dec(x_1);
-return x_2;
+lean_object* v_res_5_; 
+v_res_5_ = l_Lean_Meta_MonadSimp_Result_ctorIdx(v_x_4_);
+lean_dec(v_x_4_);
+return v_res_5_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_MonadSimp_Result_ctorElim___redArg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_Meta_MonadSimp_Result_ctorElim___redArg(lean_object* v_t_6_, lean_object* v_k_7_){
 _start:
 {
-if (lean_obj_tag(x_1) == 0)
+if (lean_obj_tag(v_t_6_) == 0)
 {
-return x_2;
+return v_k_7_;
 }
 else
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_3);
-x_4 = lean_ctor_get(x_1, 1);
-lean_inc_ref(x_4);
-lean_dec_ref(x_1);
-x_5 = lean_apply_2(x_2, x_3, x_4);
-return x_5;
+lean_object* v_e_8_; lean_object* v_h_9_; lean_object* v___x_10_; 
+v_e_8_ = lean_ctor_get(v_t_6_, 0);
+lean_inc_ref(v_e_8_);
+v_h_9_ = lean_ctor_get(v_t_6_, 1);
+lean_inc_ref(v_h_9_);
+lean_dec_ref(v_t_6_);
+v___x_10_ = lean_apply_2(v_k_7_, v_e_8_, v_h_9_);
+return v___x_10_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_MonadSimp_Result_ctorElim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l_Lean_Meta_MonadSimp_Result_ctorElim(lean_object* v_motive_11_, lean_object* v_ctorIdx_12_, lean_object* v_t_13_, lean_object* v_h_14_, lean_object* v_k_15_){
 _start:
 {
-lean_object* x_6; 
-x_6 = l_Lean_Meta_MonadSimp_Result_ctorElim___redArg(x_3, x_5);
-return x_6;
+lean_object* v___x_16_; 
+v___x_16_ = l_Lean_Meta_MonadSimp_Result_ctorElim___redArg(v_t_13_, v_k_15_);
+return v___x_16_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_MonadSimp_Result_ctorElim___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l_Lean_Meta_MonadSimp_Result_ctorElim___boxed(lean_object* v_motive_17_, lean_object* v_ctorIdx_18_, lean_object* v_t_19_, lean_object* v_h_20_, lean_object* v_k_21_){
 _start:
 {
-lean_object* x_6; 
-x_6 = l_Lean_Meta_MonadSimp_Result_ctorElim(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_2);
-return x_6;
+lean_object* v_res_22_; 
+v_res_22_ = l_Lean_Meta_MonadSimp_Result_ctorElim(v_motive_17_, v_ctorIdx_18_, v_t_19_, v_h_20_, v_k_21_);
+lean_dec(v_ctorIdx_18_);
+return v_res_22_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_MonadSimp_Result_rfl_elim___redArg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_Meta_MonadSimp_Result_rfl_elim___redArg(lean_object* v_t_23_, lean_object* v_rfl_24_){
 _start:
 {
-lean_object* x_3; 
-x_3 = l_Lean_Meta_MonadSimp_Result_ctorElim___redArg(x_1, x_2);
-return x_3;
+lean_object* v___x_25_; 
+v___x_25_ = l_Lean_Meta_MonadSimp_Result_ctorElim___redArg(v_t_23_, v_rfl_24_);
+return v___x_25_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_MonadSimp_Result_rfl_elim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Lean_Meta_MonadSimp_Result_rfl_elim(lean_object* v_motive_26_, lean_object* v_t_27_, lean_object* v_h_28_, lean_object* v_rfl_29_){
 _start:
 {
-lean_object* x_5; 
-x_5 = l_Lean_Meta_MonadSimp_Result_ctorElim___redArg(x_2, x_4);
-return x_5;
+lean_object* v___x_30_; 
+v___x_30_ = l_Lean_Meta_MonadSimp_Result_ctorElim___redArg(v_t_27_, v_rfl_29_);
+return v___x_30_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_MonadSimp_Result_step_elim___redArg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_Meta_MonadSimp_Result_step_elim___redArg(lean_object* v_t_31_, lean_object* v_step_32_){
 _start:
 {
-lean_object* x_3; 
-x_3 = l_Lean_Meta_MonadSimp_Result_ctorElim___redArg(x_1, x_2);
-return x_3;
+lean_object* v___x_33_; 
+v___x_33_ = l_Lean_Meta_MonadSimp_Result_ctorElim___redArg(v_t_31_, v_step_32_);
+return v___x_33_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_MonadSimp_Result_step_elim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Lean_Meta_MonadSimp_Result_step_elim(lean_object* v_motive_34_, lean_object* v_t_35_, lean_object* v_h_36_, lean_object* v_step_37_){
 _start:
 {
-lean_object* x_5; 
-x_5 = l_Lean_Meta_MonadSimp_Result_ctorElim___redArg(x_2, x_4);
-return x_5;
+lean_object* v___x_38_; 
+v___x_38_ = l_Lean_Meta_MonadSimp_Result_ctorElim___redArg(v_t_35_, v_step_37_);
+return v___x_38_;
 }
 }
-static lean_object* _init_l_Lean_Meta_MonadSimp_instInhabitedResult_default(void) {
+static lean_object* _init_l_Lean_Meta_MonadSimp_instInhabitedResult_default(void){
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
+lean_object* v___x_39_; 
+v___x_39_ = lean_box(0);
+return v___x_39_;
 }
 }
-static lean_object* _init_l_Lean_Meta_MonadSimp_instInhabitedResult(void) {
+static lean_object* _init_l_Lean_Meta_MonadSimp_instInhabitedResult(void){
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
+lean_object* v___x_40_; 
+v___x_40_ = lean_box(0);
+return v___x_40_;
 }
 }
 lean_object* runtime_initialize_Lean_Expr(uint8_t builtin);
@@ -141,8 +141,7 @@ LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_MonadSimp(uint8_t builtin)
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Lean_Expr(builtin)
-;
+res = runtime_initialize_Lean_Expr(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Meta_MonadSimp_instInhabitedResult_default = _init_l_Lean_Meta_MonadSimp_instInhabitedResult_default();
@@ -164,16 +163,13 @@ LEAN_EXPORT lean_object* initialize_Lean_Meta_MonadSimp(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Expr(builtin)
-;
+res = initialize_Lean_Expr(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Meta_MonadSimp(builtin)
-;
+res = runtime_initialize_Lean_Meta_MonadSimp(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_Lean_Meta_MonadSimp(builtin)
-;
+res = meta_initialize_Lean_Meta_MonadSimp(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_Lean_Meta_MonadSimp(builtin);

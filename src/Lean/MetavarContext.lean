@@ -400,6 +400,12 @@ def MetavarContext.getDelayedMVarAssignmentCore? (mctx : MetavarContext) (mvarId
 def MetavarContext.getDelayedMVarAssignmentExp (mctx : MetavarContext) (mvarId : MVarId) : Option DelayedMetavarAssignment :=
   mctx.dAssignment.find? mvarId
 
+@[export lean_delayed_mvar_assignment_fvars]
+def DelayedMetavarAssignment.fvarsExp (d : DelayedMetavarAssignment) : Array Expr := d.fvars
+
+@[export lean_delayed_mvar_assignment_mvar_id_pending]
+def DelayedMetavarAssignment.mvarIdPendingExp (d : DelayedMetavarAssignment) : MVarId := d.mvarIdPending
+
 def getDelayedMVarAssignment? [Monad m] [MonadMCtx m] (mvarId : MVarId) : m (Option DelayedMetavarAssignment) :=
   return (← getMCtx).getDelayedMVarAssignmentCore? mvarId
 

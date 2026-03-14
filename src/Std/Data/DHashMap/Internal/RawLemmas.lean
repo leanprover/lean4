@@ -1431,7 +1431,7 @@ end monadic
 omit [Hashable α] [BEq α] in
 theorem any_toList {p : (a : α) → β a → Bool} :
     m.1.toList.any (fun x => p x.1 x.2) = m.1.any p := by
-  simp only [Raw.any, ForIn.forIn, bind_pure_comp, map_pure, Id.run_bind]
+  simp only [Raw.any, ForIn.forIn, Id.run_bind]
   rw [forIn_eq_forIn_toList, forIn_eq_forIn']
   induction m.val.toList with
   | nil => simp
@@ -1503,7 +1503,7 @@ variable {β : Type v} (m : Raw₀ α (fun _ => β))
 omit [Hashable α] [BEq α] in
 theorem any_toList {p : (_ : α) → β → Bool} :
     (Raw.Const.toList m.1).any (fun x => p x.1 x.2) = m.1.any p := by
-  simp only [Raw.any, ForIn.forIn, bind_pure_comp, map_pure, Id.run_bind]
+  simp only [Raw.any, ForIn.forIn, Id.run_bind]
   rw [forIn_eq_forIn_toList, forIn_eq_forIn']
   induction Raw.Const.toList m.1 with
   | nil => simp
@@ -1568,7 +1568,7 @@ theorem any_eq_false' [LawfulBEq α] {p : (_ : α) → β → Bool} (h : m.1.WF)
 omit [BEq α] [Hashable α] in
 theorem all_toList {p : (_ : α) → β → Bool} :
     (Raw.Const.toList m.1).all (fun x => p x.1 x.2) = m.1.all p := by
-  simp only [Raw.all, ForIn.forIn, Bool.not_eq_true, bind_pure_comp, map_pure, Id.run_bind]
+  simp only [Raw.all, ForIn.forIn, Bool.not_eq_true, Id.run_bind]
   rw [forIn_eq_forIn_toList, forIn_eq_forIn']
   induction Raw.Const.toList m.1 with
   | nil => simp

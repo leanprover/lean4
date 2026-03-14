@@ -16,38 +16,38 @@ extern "C" {
 LEAN_EXPORT lean_object* l_Std_Iter_zip___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iter_zip(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iter_zip___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Iter_zip___redArg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Std_Iter_zip___redArg(lean_object* v_left_1_, lean_object* v_right_2_){
 _start:
 {
-lean_object* x_3; lean_object* x_4; 
-x_3 = lean_box(0);
-x_4 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_4, 0, x_1);
-lean_ctor_set(x_4, 1, x_3);
-lean_ctor_set(x_4, 2, x_2);
-return x_4;
+lean_object* v___x_3_; lean_object* v___x_4_; 
+v___x_3_ = lean_box(0);
+v___x_4_ = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(v___x_4_, 0, v_left_1_);
+lean_ctor_set(v___x_4_, 1, v___x_3_);
+lean_ctor_set(v___x_4_, 2, v_right_2_);
+return v___x_4_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Iter_zip(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
+LEAN_EXPORT lean_object* l_Std_Iter_zip(lean_object* v_00_u03b1_u2081_5_, lean_object* v_00_u03b2_u2081_6_, lean_object* v_00_u03b1_u2082_7_, lean_object* v_00_u03b2_u2082_8_, lean_object* v_inst_9_, lean_object* v_inst_10_, lean_object* v_left_11_, lean_object* v_right_12_){
 _start:
 {
-lean_object* x_9; lean_object* x_10; 
-x_9 = lean_box(0);
-x_10 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_10, 0, x_7);
-lean_ctor_set(x_10, 1, x_9);
-lean_ctor_set(x_10, 2, x_8);
-return x_10;
+lean_object* v___x_13_; lean_object* v___x_14_; 
+v___x_13_ = lean_box(0);
+v___x_14_ = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(v___x_14_, 0, v_left_11_);
+lean_ctor_set(v___x_14_, 1, v___x_13_);
+lean_ctor_set(v___x_14_, 2, v_right_12_);
+return v___x_14_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Iter_zip___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
+LEAN_EXPORT lean_object* l_Std_Iter_zip___boxed(lean_object* v_00_u03b1_u2081_15_, lean_object* v_00_u03b2_u2081_16_, lean_object* v_00_u03b1_u2082_17_, lean_object* v_00_u03b2_u2082_18_, lean_object* v_inst_19_, lean_object* v_inst_20_, lean_object* v_left_21_, lean_object* v_right_22_){
 _start:
 {
-lean_object* x_9; 
-x_9 = l_Std_Iter_zip(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
-lean_dec(x_6);
-lean_dec(x_5);
-return x_9;
+lean_object* v_res_23_; 
+v_res_23_ = l_Std_Iter_zip(v_00_u03b1_u2081_15_, v_00_u03b2_u2081_16_, v_00_u03b1_u2082_17_, v_00_u03b2_u2082_18_, v_inst_19_, v_inst_20_, v_left_21_, v_right_22_);
+lean_dec(v_inst_20_);
+lean_dec(v_inst_19_);
+return v_res_23_;
 }
 }
 lean_object* runtime_initialize_Std_Data_Iterators_Combinators_Monadic_Zip(uint8_t builtin);
@@ -56,8 +56,7 @@ LEAN_EXPORT lean_object* runtime_initialize_Std_Data_Iterators_Combinators_Zip(u
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Std_Data_Iterators_Combinators_Monadic_Zip(builtin)
-;
+res = runtime_initialize_Std_Data_Iterators_Combinators_Monadic_Zip(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -75,16 +74,13 @@ LEAN_EXPORT lean_object* initialize_Std_Data_Iterators_Combinators_Zip(uint8_t b
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Std_Data_Iterators_Combinators_Monadic_Zip(builtin)
-;
+res = initialize_Std_Data_Iterators_Combinators_Monadic_Zip(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Data_Iterators_Combinators_Zip(builtin)
-;
+res = runtime_initialize_Std_Data_Iterators_Combinators_Zip(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_Std_Data_Iterators_Combinators_Zip(builtin)
-;
+res = meta_initialize_Std_Data_Iterators_Combinators_Zip(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_Std_Data_Iterators_Combinators_Zip(builtin);

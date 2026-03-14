@@ -51,136 +51,103 @@ LEAN_EXPORT lean_object* runtime_initialize_Lean_Util(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Lean_Util_CollectFVars(builtin)
-;
+res = runtime_initialize_Lean_Util_CollectFVars(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Util_CollectLevelParams(builtin)
-;
+res = runtime_initialize_Lean_Util_CollectLevelParams(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Util_CollectMVars(builtin)
-;
+res = runtime_initialize_Lean_Util_CollectMVars(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Util_CollectLevelMVars(builtin)
-;
+res = runtime_initialize_Lean_Util_CollectLevelMVars(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Util_CollectLooseBVars(builtin)
-;
+res = runtime_initialize_Lean_Util_CollectLooseBVars(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Util_FindMVar(builtin)
-;
+res = runtime_initialize_Lean_Util_FindMVar(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Util_FindLevelMVar(builtin)
-;
+res = runtime_initialize_Lean_Util_FindLevelMVar(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Util_MonadCache(builtin)
-;
+res = runtime_initialize_Lean_Util_MonadCache(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Util_PPExt(builtin)
-;
+res = runtime_initialize_Lean_Util_PPExt(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Util_Path(builtin)
-;
+res = runtime_initialize_Lean_Util_Path(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Util_Profile(builtin)
-;
+res = runtime_initialize_Lean_Util_Profile(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Util_RecDepth(builtin)
-;
+res = runtime_initialize_Lean_Util_RecDepth(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Util_ShareCommon(builtin)
-;
+res = runtime_initialize_Lean_Util_ShareCommon(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Util_Sorry(builtin)
-;
+res = runtime_initialize_Lean_Util_Sorry(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Util_Trace(builtin)
-;
+res = runtime_initialize_Lean_Util_Trace(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Util_FindExpr(builtin)
-;
+res = runtime_initialize_Lean_Util_FindExpr(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Util_ReplaceExpr(builtin)
-;
+res = runtime_initialize_Lean_Util_ReplaceExpr(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Util_ForEachExpr(builtin)
-;
+res = runtime_initialize_Lean_Util_ForEachExpr(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Util_ForEachExprWhere(builtin)
-;
+res = runtime_initialize_Lean_Util_ForEachExprWhere(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Util_ReplaceLevel(builtin)
-;
+res = runtime_initialize_Lean_Util_ReplaceLevel(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Util_FoldConsts(builtin)
-;
+res = runtime_initialize_Lean_Util_FoldConsts(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Util_SCC(builtin)
-;
+res = runtime_initialize_Lean_Util_SCC(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Util_TestExtern(builtin)
-;
+res = runtime_initialize_Lean_Util_TestExtern(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Util_OccursCheck(builtin)
-;
+res = runtime_initialize_Lean_Util_OccursCheck(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Util_HasConstCache(builtin)
-;
+res = runtime_initialize_Lean_Util_HasConstCache(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Util_Heartbeats(builtin)
-;
+res = runtime_initialize_Lean_Util_Heartbeats(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Util_SafeExponentiation(builtin)
-;
+res = runtime_initialize_Lean_Util_SafeExponentiation(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Util_NumObjs(builtin)
-;
+res = runtime_initialize_Lean_Util_NumObjs(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Util_NumApps(builtin)
-;
+res = runtime_initialize_Lean_Util_NumApps(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Util_FVarSubset(builtin)
-;
+res = runtime_initialize_Lean_Util_FVarSubset(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Util_SortExprs(builtin)
-;
+res = runtime_initialize_Lean_Util_SortExprs(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Util_Reprove(builtin)
-;
+res = runtime_initialize_Lean_Util_Reprove(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Util_ParamMinimizer(builtin)
-;
+res = runtime_initialize_Lean_Util_ParamMinimizer(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -230,144 +197,109 @@ LEAN_EXPORT lean_object* initialize_Lean_Util(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Util_CollectFVars(builtin)
-;
+res = initialize_Lean_Util_CollectFVars(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Util_CollectLevelParams(builtin)
-;
+res = initialize_Lean_Util_CollectLevelParams(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Util_CollectMVars(builtin)
-;
+res = initialize_Lean_Util_CollectMVars(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Util_CollectLevelMVars(builtin)
-;
+res = initialize_Lean_Util_CollectLevelMVars(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Util_CollectLooseBVars(builtin)
-;
+res = initialize_Lean_Util_CollectLooseBVars(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Util_FindMVar(builtin)
-;
+res = initialize_Lean_Util_FindMVar(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Util_FindLevelMVar(builtin)
-;
+res = initialize_Lean_Util_FindLevelMVar(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Util_MonadCache(builtin)
-;
+res = initialize_Lean_Util_MonadCache(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Util_PPExt(builtin)
-;
+res = initialize_Lean_Util_PPExt(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Util_Path(builtin)
-;
+res = initialize_Lean_Util_Path(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Util_Profile(builtin)
-;
+res = initialize_Lean_Util_Profile(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Util_RecDepth(builtin)
-;
+res = initialize_Lean_Util_RecDepth(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Util_ShareCommon(builtin)
-;
+res = initialize_Lean_Util_ShareCommon(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Util_Sorry(builtin)
-;
+res = initialize_Lean_Util_Sorry(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Util_Trace(builtin)
-;
+res = initialize_Lean_Util_Trace(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Util_FindExpr(builtin)
-;
+res = initialize_Lean_Util_FindExpr(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Util_ReplaceExpr(builtin)
-;
+res = initialize_Lean_Util_ReplaceExpr(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Util_ForEachExpr(builtin)
-;
+res = initialize_Lean_Util_ForEachExpr(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Util_ForEachExprWhere(builtin)
-;
+res = initialize_Lean_Util_ForEachExprWhere(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Util_ReplaceLevel(builtin)
-;
+res = initialize_Lean_Util_ReplaceLevel(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Util_FoldConsts(builtin)
-;
+res = initialize_Lean_Util_FoldConsts(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Util_SCC(builtin)
-;
+res = initialize_Lean_Util_SCC(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Util_TestExtern(builtin)
-;
+res = initialize_Lean_Util_TestExtern(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Util_OccursCheck(builtin)
-;
+res = initialize_Lean_Util_OccursCheck(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Util_HasConstCache(builtin)
-;
+res = initialize_Lean_Util_HasConstCache(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Util_Heartbeats(builtin)
-;
+res = initialize_Lean_Util_Heartbeats(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Util_SafeExponentiation(builtin)
-;
+res = initialize_Lean_Util_SafeExponentiation(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Util_NumObjs(builtin)
-;
+res = initialize_Lean_Util_NumObjs(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Util_NumApps(builtin)
-;
+res = initialize_Lean_Util_NumApps(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Util_FVarSubset(builtin)
-;
+res = initialize_Lean_Util_FVarSubset(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Util_SortExprs(builtin)
-;
+res = initialize_Lean_Util_SortExprs(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Util_Reprove(builtin)
-;
+res = initialize_Lean_Util_Reprove(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Util_ParamMinimizer(builtin)
-;
+res = initialize_Lean_Util_ParamMinimizer(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Util(builtin)
-;
+res = runtime_initialize_Lean_Util(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_Lean_Util(builtin)
-;
+res = meta_initialize_Lean_Util(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_Lean_Util(builtin);

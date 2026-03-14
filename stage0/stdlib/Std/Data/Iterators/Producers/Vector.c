@@ -19,64 +19,64 @@ LEAN_EXPORT lean_object* l_Vector_iterFromIdx___boxed(lean_object*, lean_object*
 LEAN_EXPORT lean_object* l_Vector_iter___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Vector_iter(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Vector_iter___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Vector_iterFromIdx___redArg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Vector_iterFromIdx___redArg(lean_object* v_xs_1_, lean_object* v_pos_2_){
 _start:
 {
-lean_object* x_3; 
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
+lean_object* v___x_3_; 
+v___x_3_ = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(v___x_3_, 0, v_xs_1_);
+lean_ctor_set(v___x_3_, 1, v_pos_2_);
+return v___x_3_;
 }
 }
-LEAN_EXPORT lean_object* l_Vector_iterFromIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Vector_iterFromIdx(lean_object* v_n_4_, lean_object* v_00_u03b1_5_, lean_object* v_xs_6_, lean_object* v_pos_7_){
 _start:
 {
-lean_object* x_5; 
-x_5 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_5, 0, x_3);
-lean_ctor_set(x_5, 1, x_4);
-return x_5;
+lean_object* v___x_8_; 
+v___x_8_ = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(v___x_8_, 0, v_xs_6_);
+lean_ctor_set(v___x_8_, 1, v_pos_7_);
+return v___x_8_;
 }
 }
-LEAN_EXPORT lean_object* l_Vector_iterFromIdx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Vector_iterFromIdx___boxed(lean_object* v_n_9_, lean_object* v_00_u03b1_10_, lean_object* v_xs_11_, lean_object* v_pos_12_){
 _start:
 {
-lean_object* x_5; 
-x_5 = l_Vector_iterFromIdx(x_1, x_2, x_3, x_4);
-lean_dec(x_1);
-return x_5;
+lean_object* v_res_13_; 
+v_res_13_ = l_Vector_iterFromIdx(v_n_9_, v_00_u03b1_10_, v_xs_11_, v_pos_12_);
+lean_dec(v_n_9_);
+return v_res_13_;
 }
 }
-LEAN_EXPORT lean_object* l_Vector_iter___redArg(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Vector_iter___redArg(lean_object* v_xs_14_){
 _start:
 {
-lean_object* x_2; lean_object* x_3; 
-x_2 = lean_unsigned_to_nat(0u);
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
+lean_object* v___x_15_; lean_object* v___x_16_; 
+v___x_15_ = lean_unsigned_to_nat(0u);
+v___x_16_ = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(v___x_16_, 0, v_xs_14_);
+lean_ctor_set(v___x_16_, 1, v___x_15_);
+return v___x_16_;
 }
 }
-LEAN_EXPORT lean_object* l_Vector_iter(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Vector_iter(lean_object* v_n_17_, lean_object* v_00_u03b1_18_, lean_object* v_xs_19_){
 _start:
 {
-lean_object* x_4; lean_object* x_5; 
-x_4 = lean_unsigned_to_nat(0u);
-x_5 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_5, 0, x_3);
-lean_ctor_set(x_5, 1, x_4);
-return x_5;
+lean_object* v___x_20_; lean_object* v___x_21_; 
+v___x_20_ = lean_unsigned_to_nat(0u);
+v___x_21_ = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(v___x_21_, 0, v_xs_19_);
+lean_ctor_set(v___x_21_, 1, v___x_20_);
+return v___x_21_;
 }
 }
-LEAN_EXPORT lean_object* l_Vector_iter___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Vector_iter___boxed(lean_object* v_n_22_, lean_object* v_00_u03b1_23_, lean_object* v_xs_24_){
 _start:
 {
-lean_object* x_4; 
-x_4 = l_Vector_iter(x_1, x_2, x_3);
-lean_dec(x_1);
-return x_4;
+lean_object* v_res_25_; 
+v_res_25_ = l_Vector_iter(v_n_22_, v_00_u03b1_23_, v_xs_24_);
+lean_dec(v_n_22_);
+return v_res_25_;
 }
 }
 lean_object* runtime_initialize_Init_Data_Vector_Basic(uint8_t builtin);
@@ -86,12 +86,10 @@ LEAN_EXPORT lean_object* runtime_initialize_Std_Data_Iterators_Producers_Vector(
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Init_Data_Vector_Basic(builtin)
-;
+res = runtime_initialize_Init_Data_Vector_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Data_Iterators_Producers_Array(builtin)
-;
+res = runtime_initialize_Std_Data_Iterators_Producers_Array(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -110,20 +108,16 @@ LEAN_EXPORT lean_object* initialize_Std_Data_Iterators_Producers_Vector(uint8_t 
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Vector_Basic(builtin)
-;
+res = initialize_Init_Data_Vector_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_Iterators_Producers_Array(builtin)
-;
+res = initialize_Std_Data_Iterators_Producers_Array(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Data_Iterators_Producers_Vector(builtin)
-;
+res = runtime_initialize_Std_Data_Iterators_Producers_Vector(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_Std_Data_Iterators_Producers_Vector(builtin)
-;
+res = meta_initialize_Std_Data_Iterators_Producers_Vector(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_Std_Data_Iterators_Producers_Vector(builtin);

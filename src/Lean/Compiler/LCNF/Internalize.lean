@@ -32,14 +32,10 @@ def InternalizeM.run' (x : InternalizeM pu α) (state : FVarSubst pu) (ctx : Con
 private def refreshBinderName (binderName : Name) : InternalizeM pu Name := do
   match binderName with
   | .num p _ =>
-    let r := .num p (← getThe CompilerM.State).nextIdx
-    modifyThe CompilerM.State fun s => { s with nextIdx := s.nextIdx + 1 }
-    return r
+    return .num p (← modifyGetThe CompilerM.State fun s => (s.nextIdx, { s with nextIdx := s.nextIdx + 1 }))
   | _ =>
     if (← read).uniqueIdents then
-      let r := .num binderName (← getThe CompilerM.State).nextIdx
-      modifyThe CompilerM.State fun s => { s with nextIdx := s.nextIdx + 1 }
-      return r
+      return .num binderName (← modifyGetThe CompilerM.State fun s => (s.nextIdx, { s with nextIdx := s.nextIdx + 1 }))
     else
       return binderName
 
@@ -59,7 +55,10 @@ private def mkNewFVarId (fvarId : FVarId) : InternalizeM pu FVarId := do
   addFVarSubst fvarId fvarId'
   return fvarId'
 
-private partial def internalizeExpr (e : Expr) : InternalizeM pu Expr :=
+private partial def internalizeExpr (e : Expr) : InternalizeM pu Expr := do
+  if pu == .impure then
+    -- impure types don't contain fvars
+    return e
   go e
 where
   goApp (e : Expr) : InternalizeM pu Expr := do

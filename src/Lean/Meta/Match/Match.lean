@@ -431,7 +431,7 @@ private def isCtorIdxHasNotBit? (e : Expr) : Option FVarId := do
 
 private partial def contradiction (mvarId : MVarId) : MetaM Bool := do
   mvarId.withContext do
-    withTraceNode `Meta.Match.match (msg := (return m!"{exceptBoolEmoji ·} Match.contradiction")) do
+    withTraceNode `Meta.Match.match (msg := (fun _ => return m!"Match.contradiction")) do
     trace[Meta.Match.match] m!"Match.contradiction:\n{mvarId}"
     if (← mvarId.contradictionCore {}) then
       trace[Meta.Match.match] "Contradiction found!"
@@ -937,7 +937,7 @@ private def processFirstVarDone (p : Problem) : Problem :=
 private def tracedForM (xs : Array α) (process : α → StateRefT State MetaM Unit) : StateRefT State MetaM Unit :=
   if xs.size > 1 then
     for x in xs, i in [:xs.size] do
-      withTraceNode `Meta.Match.match (msg := (return m!"{exceptEmoji ·} subgoal {i+1}/{xs.size}")) do
+      withTraceNode `Meta.Match.match (msg := (fun _ => return m!"subgoal {i+1}/{xs.size}")) do
         process x
   else
     for x in xs do

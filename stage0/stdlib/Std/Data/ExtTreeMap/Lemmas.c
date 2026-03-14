@@ -15,35 +15,35 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l___private_Std_Data_ExtTreeMap_Lemmas_0__GetElem_x3f_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Data_ExtTreeMap_Lemmas_0__GetElem_x3f_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Std_Data_ExtTreeMap_Lemmas_0__GetElem_x3f_match__1_splitter___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Std_Data_ExtTreeMap_Lemmas_0__GetElem_x3f_match__1_splitter___redArg(lean_object* v_x_1_, lean_object* v_h__1_2_, lean_object* v_h__2_3_){
 _start:
 {
-if (lean_obj_tag(x_1) == 0)
+if (lean_obj_tag(v_x_1_) == 0)
 {
-lean_object* x_4; lean_object* x_5; 
-lean_dec(x_2);
-x_4 = lean_box(0);
-x_5 = lean_apply_1(x_3, x_4);
-return x_5;
+lean_object* v___x_4_; lean_object* v___x_5_; 
+lean_dec(v_h__1_2_);
+v___x_4_ = lean_box(0);
+v___x_5_ = lean_apply_1(v_h__2_3_, v___x_4_);
+return v___x_5_;
 }
 else
 {
-lean_object* x_6; lean_object* x_7; 
-lean_dec(x_3);
-x_6 = lean_ctor_get(x_1, 0);
-lean_inc(x_6);
-lean_dec_ref(x_1);
-x_7 = lean_apply_1(x_2, x_6);
-return x_7;
+lean_object* v_val_6_; lean_object* v___x_7_; 
+lean_dec(v_h__2_3_);
+v_val_6_ = lean_ctor_get(v_x_1_, 0);
+lean_inc(v_val_6_);
+lean_dec_ref(v_x_1_);
+v___x_7_ = lean_apply_1(v_h__1_2_, v_val_6_);
+return v___x_7_;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Std_Data_ExtTreeMap_Lemmas_0__GetElem_x3f_match__1_splitter(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l___private_Std_Data_ExtTreeMap_Lemmas_0__GetElem_x3f_match__1_splitter(lean_object* v_elem_8_, lean_object* v_motive_9_, lean_object* v_x_10_, lean_object* v_h__1_11_, lean_object* v_h__2_12_){
 _start:
 {
-lean_object* x_6; 
-x_6 = l___private_Std_Data_ExtTreeMap_Lemmas_0__GetElem_x3f_match__1_splitter___redArg(x_3, x_4, x_5);
-return x_6;
+lean_object* v___x_13_; 
+v___x_13_ = l___private_Std_Data_ExtTreeMap_Lemmas_0__GetElem_x3f_match__1_splitter___redArg(v_x_10_, v_h__1_11_, v_h__2_12_);
+return v___x_13_;
 }
 }
 lean_object* runtime_initialize_Std_Data_ExtDTreeMap_Lemmas(uint8_t builtin);
@@ -54,16 +54,13 @@ LEAN_EXPORT lean_object* runtime_initialize_Std_Data_ExtTreeMap_Lemmas(uint8_t b
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Std_Data_ExtDTreeMap_Lemmas(builtin)
-;
+res = runtime_initialize_Std_Data_ExtDTreeMap_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Data_ExtTreeMap_Basic(builtin)
-;
+res = runtime_initialize_Std_Data_ExtTreeMap_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_List_Pairwise(builtin)
-;
+res = runtime_initialize_Init_Data_List_Pairwise(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -83,24 +80,19 @@ LEAN_EXPORT lean_object* initialize_Std_Data_ExtTreeMap_Lemmas(uint8_t builtin) 
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Std_Data_ExtDTreeMap_Lemmas(builtin)
-;
+res = initialize_Std_Data_ExtDTreeMap_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_ExtTreeMap_Basic(builtin)
-;
+res = initialize_Std_Data_ExtTreeMap_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_List_Pairwise(builtin)
-;
+res = initialize_Init_Data_List_Pairwise(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Data_ExtTreeMap_Lemmas(builtin)
-;
+res = runtime_initialize_Std_Data_ExtTreeMap_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_Std_Data_ExtTreeMap_Lemmas(builtin)
-;
+res = meta_initialize_Std_Data_ExtTreeMap_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_Std_Data_ExtTreeMap_Lemmas(builtin);

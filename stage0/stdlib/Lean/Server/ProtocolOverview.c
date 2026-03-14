@@ -13,6 +13,10 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
+lean_object* lean_array_push(lean_object*, lean_object*);
+lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_ProtocolExtensionKind_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_ProtocolExtensionKind_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_ProtocolExtensionKind_ctorElim___redArg(lean_object*, lean_object*);
@@ -47,7 +51,6 @@ static const lean_string_object l___private_Lean_Server_ProtocolOverview_0__Lean
 static const lean_object* l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__1 = (const lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__1_value;
 static const lean_string_object l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 31, .m_capacity = 31, .m_length = 30, .m_data = "lazyTraceChildrenToInteractive"};
 static const lean_object* l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__2 = (const lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__2_value;
-lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 static const lean_ctor_object l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__3_value_aux_0 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__0_value),LEAN_SCALAR_PTR_LITERAL(70, 193, 83, 126, 233, 67, 208, 165)}};
 static const lean_ctor_object l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__3_value_aux_1 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__3_value_aux_0),((lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__1_value),LEAN_SCALAR_PTR_LITERAL(242, 47, 106, 136, 147, 253, 78, 115)}};
 static const lean_ctor_object l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__3_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__3_value_aux_1),((lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__2_value),LEAN_SCALAR_PTR_LITERAL(159, 130, 120, 1, 150, 16, 102, 224)}};
@@ -86,7 +89,6 @@ static const lean_string_object l___private_Lean_Server_ProtocolOverview_0__Lean
 static const lean_object* l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__17 = (const lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__17_value;
 static const lean_string_object l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__18_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 17, .m_capacity = 17, .m_length = 16, .m_data = "msgToInteractive"};
 static const lean_object* l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__18 = (const lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__18_value;
-lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 static const lean_ctor_object l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__19_value_aux_0 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__0_value),LEAN_SCALAR_PTR_LITERAL(70, 193, 83, 126, 233, 67, 208, 165)}};
 static const lean_ctor_object l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__19_value_aux_1 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__19_value_aux_0),((lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__1_value),LEAN_SCALAR_PTR_LITERAL(242, 47, 106, 136, 147, 253, 78, 115)}};
 static const lean_ctor_object l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__19_value_aux_2 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__19_value_aux_1),((lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__17_value),LEAN_SCALAR_PTR_LITERAL(58, 49, 5, 23, 81, 95, 242, 98)}};
@@ -147,8 +149,6 @@ static const lean_ctor_object l___private_Lean_Server_ProtocolOverview_0__Lean_S
 static const lean_object* l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__41 = (const lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__41_value;
 static const lean_string_object l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__42_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 21, .m_capacity = 21, .m_length = 20, .m_data = "$/lean/waitForILeans"};
 static const lean_object* l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__42 = (const lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__42_value;
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-lean_object* lean_array_push(lean_object*, lean_object*);
 static const lean_array_object l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__43_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*1, .m_other = 0, .m_tag = 246}, .m_size = 1, .m_capacity = 1, .m_data = {((lean_object*)(((size_t)(1) << 1) | 1))}};
 static const lean_object* l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__43 = (const lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__43_value;
 static const lean_string_object l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__44_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 139, .m_capacity = 139, .m_length = 138, .m_data = "Not used in the editor. Emitted in interactive tests to wait for all .ileans in the project and the .ilean of the given file to be loaded."};
@@ -668,329 +668,332 @@ static const lean_object* l___private_Lean_Server_ProtocolOverview_0__Lean_Serve
 static const lean_array_object l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__287_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*59, .m_other = 0, .m_tag = 246}, .m_size = 59, .m_capacity = 59, .m_data = {((lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__241_value),((lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__260_value),((lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__264_value),((lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__268_value),((lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__272_value),((lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__276_value),((lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__286_value),((lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__199_value),((lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__203_value),((lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__207_value),((lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__211_value),((lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__229_value),((lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__233_value),((lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__237_value),((lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__172_value),((lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__176_value),((lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__180_value),((lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__184_value),((lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__188_value),((lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__192_value),((lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__195_value),((lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__153_value),((lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__157_value),((lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__161_value),((lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__168_value),((lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__134_value),((lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__141_value),((lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__145_value),((lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__149_value),((lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__106_value),((lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__110_value),((lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__114_value),((lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__118_value),((lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__122_value),((lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__126_value),((lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__130_value),((lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__90_value),((lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__94_value),((lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__98_value),((lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__102_value),((lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__75_value),((lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__79_value),((lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__82_value),((lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__86_value),((lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__46_value),((lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__50_value),((lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__54_value),((lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__58_value),((lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__62_value),((lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__66_value),((lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__70_value),((lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__27_value),((lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__31_value),((lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__36_value),((lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__41_value),((lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__6_value),((lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__11_value),((lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__16_value),((lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__22_value)}};
 static const lean_object* l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__287 = (const lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__287_value;
 LEAN_EXPORT const lean_object* l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview = (const lean_object*)&l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_protocolOverview___closed__287_value;
-LEAN_EXPORT lean_object* l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_ProtocolExtensionKind_ctorIdx(lean_object* x_1) {
+LEAN_EXPORT lean_object* l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_ProtocolExtensionKind_ctorIdx(lean_object* v_x_1_){
 _start:
 {
-switch (lean_obj_tag(x_1)) {
+switch(lean_obj_tag(v_x_1_))
+{
 case 0:
 {
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
+lean_object* v___x_2_; 
+v___x_2_ = lean_unsigned_to_nat(0u);
+return v___x_2_;
 }
 case 1:
 {
-lean_object* x_3; 
-x_3 = lean_unsigned_to_nat(1u);
-return x_3;
+lean_object* v___x_3_; 
+v___x_3_ = lean_unsigned_to_nat(1u);
+return v___x_3_;
 }
 case 2:
 {
-lean_object* x_4; 
-x_4 = lean_unsigned_to_nat(2u);
-return x_4;
+lean_object* v___x_4_; 
+v___x_4_ = lean_unsigned_to_nat(2u);
+return v___x_4_;
 }
 case 3:
 {
-lean_object* x_5; 
-x_5 = lean_unsigned_to_nat(3u);
-return x_5;
+lean_object* v___x_5_; 
+v___x_5_ = lean_unsigned_to_nat(3u);
+return v___x_5_;
 }
 case 4:
 {
-lean_object* x_6; 
-x_6 = lean_unsigned_to_nat(4u);
-return x_6;
+lean_object* v___x_6_; 
+v___x_6_ = lean_unsigned_to_nat(4u);
+return v___x_6_;
 }
 default: 
 {
-lean_object* x_7; 
-x_7 = lean_unsigned_to_nat(5u);
-return x_7;
+lean_object* v___x_7_; 
+v___x_7_ = lean_unsigned_to_nat(5u);
+return v___x_7_;
 }
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_ProtocolExtensionKind_ctorIdx___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_ProtocolExtensionKind_ctorIdx___boxed(lean_object* v_x_8_){
 _start:
 {
-lean_object* x_2; 
-x_2 = l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_ProtocolExtensionKind_ctorIdx(x_1);
-lean_dec(x_1);
-return x_2;
+lean_object* v_res_9_; 
+v_res_9_ = l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_ProtocolExtensionKind_ctorIdx(v_x_8_);
+lean_dec(v_x_8_);
+return v_res_9_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_ProtocolExtensionKind_ctorElim___redArg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_ProtocolExtensionKind_ctorElim___redArg(lean_object* v_t_10_, lean_object* v_k_11_){
 _start:
 {
-switch (lean_obj_tag(x_1)) {
+switch(lean_obj_tag(v_t_10_))
+{
 case 2:
 {
-lean_object* x_3; lean_object* x_4; 
-x_3 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_3);
-lean_dec_ref(x_1);
-x_4 = lean_apply_1(x_2, x_3);
-return x_4;
+lean_object* v_fieldNames_12_; lean_object* v___x_13_; 
+v_fieldNames_12_ = lean_ctor_get(v_t_10_, 0);
+lean_inc_ref(v_fieldNames_12_);
+lean_dec_ref(v_t_10_);
+v___x_13_ = lean_apply_1(v_k_11_, v_fieldNames_12_);
+return v___x_13_;
 }
 case 3:
 {
-lean_object* x_5; lean_object* x_6; 
-x_5 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_5);
-lean_dec_ref(x_1);
-x_6 = lean_apply_1(x_2, x_5);
-return x_6;
+lean_object* v_fieldNames_14_; lean_object* v___x_15_; 
+v_fieldNames_14_ = lean_ctor_get(v_t_10_, 0);
+lean_inc_ref(v_fieldNames_14_);
+lean_dec_ref(v_t_10_);
+v___x_15_ = lean_apply_1(v_k_11_, v_fieldNames_14_);
+return v___x_15_;
 }
 case 4:
 {
-lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-x_7 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_7);
-x_8 = lean_ctor_get(x_1, 1);
-lean_inc_ref(x_8);
-lean_dec_ref(x_1);
-x_9 = lean_apply_2(x_2, x_7, x_8);
-return x_9;
+lean_object* v_parameterFieldNames_16_; lean_object* v_responseFieldNames_17_; lean_object* v___x_18_; 
+v_parameterFieldNames_16_ = lean_ctor_get(v_t_10_, 0);
+lean_inc_ref(v_parameterFieldNames_16_);
+v_responseFieldNames_17_ = lean_ctor_get(v_t_10_, 1);
+lean_inc_ref(v_responseFieldNames_17_);
+lean_dec_ref(v_t_10_);
+v___x_18_ = lean_apply_2(v_k_11_, v_parameterFieldNames_16_, v_responseFieldNames_17_);
+return v___x_18_;
 }
 case 5:
 {
-lean_object* x_10; lean_object* x_11; 
-x_10 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_10);
-lean_dec_ref(x_1);
-x_11 = lean_apply_1(x_2, x_10);
-return x_11;
+lean_object* v_description_19_; lean_object* v___x_20_; 
+v_description_19_ = lean_ctor_get(v_t_10_, 0);
+lean_inc_ref(v_description_19_);
+lean_dec_ref(v_t_10_);
+v___x_20_ = lean_apply_1(v_k_11_, v_description_19_);
+return v___x_20_;
 }
 default: 
 {
-lean_dec(x_1);
-return x_2;
+lean_dec(v_t_10_);
+return v_k_11_;
 }
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_ProtocolExtensionKind_ctorElim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_ProtocolExtensionKind_ctorElim(lean_object* v_motive_21_, lean_object* v_ctorIdx_22_, lean_object* v_t_23_, lean_object* v_h_24_, lean_object* v_k_25_){
 _start:
 {
-lean_object* x_6; 
-x_6 = l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_ProtocolExtensionKind_ctorElim___redArg(x_3, x_5);
-return x_6;
+lean_object* v___x_26_; 
+v___x_26_ = l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_ProtocolExtensionKind_ctorElim___redArg(v_t_23_, v_k_25_);
+return v___x_26_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_ProtocolExtensionKind_ctorElim___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_ProtocolExtensionKind_ctorElim___boxed(lean_object* v_motive_27_, lean_object* v_ctorIdx_28_, lean_object* v_t_29_, lean_object* v_h_30_, lean_object* v_k_31_){
 _start:
 {
-lean_object* x_6; 
-x_6 = l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_ProtocolExtensionKind_ctorElim(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_2);
-return x_6;
+lean_object* v_res_32_; 
+v_res_32_ = l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_ProtocolExtensionKind_ctorElim(v_motive_27_, v_ctorIdx_28_, v_t_29_, v_h_30_, v_k_31_);
+lean_dec(v_ctorIdx_28_);
+return v_res_32_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_ProtocolExtensionKind_standard_elim___redArg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_ProtocolExtensionKind_standard_elim___redArg(lean_object* v_t_33_, lean_object* v_standard_34_){
 _start:
 {
-lean_object* x_3; 
-x_3 = l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_ProtocolExtensionKind_ctorElim___redArg(x_1, x_2);
-return x_3;
+lean_object* v___x_35_; 
+v___x_35_ = l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_ProtocolExtensionKind_ctorElim___redArg(v_t_33_, v_standard_34_);
+return v___x_35_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_ProtocolExtensionKind_standard_elim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_ProtocolExtensionKind_standard_elim(lean_object* v_motive_36_, lean_object* v_t_37_, lean_object* v_h_38_, lean_object* v_standard_39_){
 _start:
 {
-lean_object* x_5; 
-x_5 = l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_ProtocolExtensionKind_ctorElim___redArg(x_2, x_4);
-return x_5;
+lean_object* v___x_40_; 
+v___x_40_ = l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_ProtocolExtensionKind_ctorElim___redArg(v_t_37_, v_standard_39_);
+return v___x_40_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_ProtocolExtensionKind_leanSpecificMethod_elim___redArg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_ProtocolExtensionKind_leanSpecificMethod_elim___redArg(lean_object* v_t_41_, lean_object* v_leanSpecificMethod_42_){
 _start:
 {
-lean_object* x_3; 
-x_3 = l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_ProtocolExtensionKind_ctorElim___redArg(x_1, x_2);
-return x_3;
+lean_object* v___x_43_; 
+v___x_43_ = l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_ProtocolExtensionKind_ctorElim___redArg(v_t_41_, v_leanSpecificMethod_42_);
+return v___x_43_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_ProtocolExtensionKind_leanSpecificMethod_elim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_ProtocolExtensionKind_leanSpecificMethod_elim(lean_object* v_motive_44_, lean_object* v_t_45_, lean_object* v_h_46_, lean_object* v_leanSpecificMethod_47_){
 _start:
 {
-lean_object* x_5; 
-x_5 = l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_ProtocolExtensionKind_ctorElim___redArg(x_2, x_4);
-return x_5;
+lean_object* v___x_48_; 
+v___x_48_ = l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_ProtocolExtensionKind_ctorElim___redArg(v_t_45_, v_leanSpecificMethod_47_);
+return v___x_48_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_ProtocolExtensionKind_extendedParameterType_elim___redArg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_ProtocolExtensionKind_extendedParameterType_elim___redArg(lean_object* v_t_49_, lean_object* v_extendedParameterType_50_){
 _start:
 {
-lean_object* x_3; 
-x_3 = l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_ProtocolExtensionKind_ctorElim___redArg(x_1, x_2);
-return x_3;
+lean_object* v___x_51_; 
+v___x_51_ = l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_ProtocolExtensionKind_ctorElim___redArg(v_t_49_, v_extendedParameterType_50_);
+return v___x_51_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_ProtocolExtensionKind_extendedParameterType_elim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_ProtocolExtensionKind_extendedParameterType_elim(lean_object* v_motive_52_, lean_object* v_t_53_, lean_object* v_h_54_, lean_object* v_extendedParameterType_55_){
 _start:
 {
-lean_object* x_5; 
-x_5 = l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_ProtocolExtensionKind_ctorElim___redArg(x_2, x_4);
-return x_5;
+lean_object* v___x_56_; 
+v___x_56_ = l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_ProtocolExtensionKind_ctorElim___redArg(v_t_53_, v_extendedParameterType_55_);
+return v___x_56_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_ProtocolExtensionKind_extendedResponseType_elim___redArg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_ProtocolExtensionKind_extendedResponseType_elim___redArg(lean_object* v_t_57_, lean_object* v_extendedResponseType_58_){
 _start:
 {
-lean_object* x_3; 
-x_3 = l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_ProtocolExtensionKind_ctorElim___redArg(x_1, x_2);
-return x_3;
+lean_object* v___x_59_; 
+v___x_59_ = l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_ProtocolExtensionKind_ctorElim___redArg(v_t_57_, v_extendedResponseType_58_);
+return v___x_59_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_ProtocolExtensionKind_extendedResponseType_elim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_ProtocolExtensionKind_extendedResponseType_elim(lean_object* v_motive_60_, lean_object* v_t_61_, lean_object* v_h_62_, lean_object* v_extendedResponseType_63_){
 _start:
 {
-lean_object* x_5; 
-x_5 = l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_ProtocolExtensionKind_ctorElim___redArg(x_2, x_4);
-return x_5;
+lean_object* v___x_64_; 
+v___x_64_ = l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_ProtocolExtensionKind_ctorElim___redArg(v_t_61_, v_extendedResponseType_63_);
+return v___x_64_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_ProtocolExtensionKind_extendedParameterAndResponseType_elim___redArg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_ProtocolExtensionKind_extendedParameterAndResponseType_elim___redArg(lean_object* v_t_65_, lean_object* v_extendedParameterAndResponseType_66_){
 _start:
 {
-lean_object* x_3; 
-x_3 = l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_ProtocolExtensionKind_ctorElim___redArg(x_1, x_2);
-return x_3;
+lean_object* v___x_67_; 
+v___x_67_ = l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_ProtocolExtensionKind_ctorElim___redArg(v_t_65_, v_extendedParameterAndResponseType_66_);
+return v___x_67_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_ProtocolExtensionKind_extendedParameterAndResponseType_elim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_ProtocolExtensionKind_extendedParameterAndResponseType_elim(lean_object* v_motive_68_, lean_object* v_t_69_, lean_object* v_h_70_, lean_object* v_extendedParameterAndResponseType_71_){
 _start:
 {
-lean_object* x_5; 
-x_5 = l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_ProtocolExtensionKind_ctorElim___redArg(x_2, x_4);
-return x_5;
+lean_object* v___x_72_; 
+v___x_72_ = l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_ProtocolExtensionKind_ctorElim___redArg(v_t_69_, v_extendedParameterAndResponseType_71_);
+return v___x_72_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_ProtocolExtensionKind_standardViolation_elim___redArg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_ProtocolExtensionKind_standardViolation_elim___redArg(lean_object* v_t_73_, lean_object* v_standardViolation_74_){
 _start:
 {
-lean_object* x_3; 
-x_3 = l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_ProtocolExtensionKind_ctorElim___redArg(x_1, x_2);
-return x_3;
+lean_object* v___x_75_; 
+v___x_75_ = l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_ProtocolExtensionKind_ctorElim___redArg(v_t_73_, v_standardViolation_74_);
+return v___x_75_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_ProtocolExtensionKind_standardViolation_elim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_ProtocolExtensionKind_standardViolation_elim(lean_object* v_motive_76_, lean_object* v_t_77_, lean_object* v_h_78_, lean_object* v_standardViolation_79_){
 _start:
 {
-lean_object* x_5; 
-x_5 = l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_ProtocolExtensionKind_ctorElim___redArg(x_2, x_4);
-return x_5;
+lean_object* v___x_80_; 
+v___x_80_ = l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_ProtocolExtensionKind_ctorElim___redArg(v_t_77_, v_standardViolation_79_);
+return v___x_80_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_MessageOverview_ctorIdx(lean_object* x_1) {
+LEAN_EXPORT lean_object* l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_MessageOverview_ctorIdx(lean_object* v_x_81_){
 _start:
 {
-switch (lean_obj_tag(x_1)) {
+switch(lean_obj_tag(v_x_81_))
+{
 case 0:
 {
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
+lean_object* v___x_82_; 
+v___x_82_ = lean_unsigned_to_nat(0u);
+return v___x_82_;
 }
 case 1:
 {
-lean_object* x_3; 
-x_3 = lean_unsigned_to_nat(1u);
-return x_3;
+lean_object* v___x_83_; 
+v___x_83_ = lean_unsigned_to_nat(1u);
+return v___x_83_;
 }
 default: 
 {
-lean_object* x_4; 
-x_4 = lean_unsigned_to_nat(2u);
-return x_4;
+lean_object* v___x_84_; 
+v___x_84_ = lean_unsigned_to_nat(2u);
+return v___x_84_;
 }
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_MessageOverview_ctorIdx___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_MessageOverview_ctorIdx___boxed(lean_object* v_x_85_){
 _start:
 {
-lean_object* x_2; 
-x_2 = l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_MessageOverview_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
+lean_object* v_res_86_; 
+v_res_86_ = l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_MessageOverview_ctorIdx(v_x_85_);
+lean_dec_ref(v_x_85_);
+return v_res_86_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_MessageOverview_ctorElim___redArg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_MessageOverview_ctorElim___redArg(lean_object* v_t_87_, lean_object* v_k_88_){
 _start:
 {
-lean_object* x_3; lean_object* x_4; 
-x_3 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_3);
-lean_dec_ref(x_1);
-x_4 = lean_apply_1(x_2, x_3);
-return x_4;
+lean_object* v_o_89_; lean_object* v___x_90_; 
+v_o_89_ = lean_ctor_get(v_t_87_, 0);
+lean_inc_ref(v_o_89_);
+lean_dec_ref(v_t_87_);
+v___x_90_ = lean_apply_1(v_k_88_, v_o_89_);
+return v___x_90_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_MessageOverview_ctorElim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_MessageOverview_ctorElim(lean_object* v_motive_91_, lean_object* v_ctorIdx_92_, lean_object* v_t_93_, lean_object* v_h_94_, lean_object* v_k_95_){
 _start:
 {
-lean_object* x_6; 
-x_6 = l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_MessageOverview_ctorElim___redArg(x_3, x_5);
-return x_6;
+lean_object* v___x_96_; 
+v___x_96_ = l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_MessageOverview_ctorElim___redArg(v_t_93_, v_k_95_);
+return v___x_96_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_MessageOverview_ctorElim___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_MessageOverview_ctorElim___boxed(lean_object* v_motive_97_, lean_object* v_ctorIdx_98_, lean_object* v_t_99_, lean_object* v_h_100_, lean_object* v_k_101_){
 _start:
 {
-lean_object* x_6; 
-x_6 = l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_MessageOverview_ctorElim(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_2);
-return x_6;
+lean_object* v_res_102_; 
+v_res_102_ = l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_MessageOverview_ctorElim(v_motive_97_, v_ctorIdx_98_, v_t_99_, v_h_100_, v_k_101_);
+lean_dec(v_ctorIdx_98_);
+return v_res_102_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_MessageOverview_request_elim___redArg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_MessageOverview_request_elim___redArg(lean_object* v_t_103_, lean_object* v_request_104_){
 _start:
 {
-lean_object* x_3; 
-x_3 = l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_MessageOverview_ctorElim___redArg(x_1, x_2);
-return x_3;
+lean_object* v___x_105_; 
+v___x_105_ = l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_MessageOverview_ctorElim___redArg(v_t_103_, v_request_104_);
+return v___x_105_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_MessageOverview_request_elim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_MessageOverview_request_elim(lean_object* v_motive_106_, lean_object* v_t_107_, lean_object* v_h_108_, lean_object* v_request_109_){
 _start:
 {
-lean_object* x_5; 
-x_5 = l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_MessageOverview_ctorElim___redArg(x_2, x_4);
-return x_5;
+lean_object* v___x_110_; 
+v___x_110_ = l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_MessageOverview_ctorElim___redArg(v_t_107_, v_request_109_);
+return v___x_110_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_MessageOverview_rpcRequest_elim___redArg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_MessageOverview_rpcRequest_elim___redArg(lean_object* v_t_111_, lean_object* v_rpcRequest_112_){
 _start:
 {
-lean_object* x_3; 
-x_3 = l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_MessageOverview_ctorElim___redArg(x_1, x_2);
-return x_3;
+lean_object* v___x_113_; 
+v___x_113_ = l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_MessageOverview_ctorElim___redArg(v_t_111_, v_rpcRequest_112_);
+return v___x_113_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_MessageOverview_rpcRequest_elim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_MessageOverview_rpcRequest_elim(lean_object* v_motive_114_, lean_object* v_t_115_, lean_object* v_h_116_, lean_object* v_rpcRequest_117_){
 _start:
 {
-lean_object* x_5; 
-x_5 = l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_MessageOverview_ctorElim___redArg(x_2, x_4);
-return x_5;
+lean_object* v___x_118_; 
+v___x_118_ = l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_MessageOverview_ctorElim___redArg(v_t_115_, v_rpcRequest_117_);
+return v___x_118_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_MessageOverview_notification_elim___redArg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_MessageOverview_notification_elim___redArg(lean_object* v_t_119_, lean_object* v_notification_120_){
 _start:
 {
-lean_object* x_3; 
-x_3 = l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_MessageOverview_ctorElim___redArg(x_1, x_2);
-return x_3;
+lean_object* v___x_121_; 
+v___x_121_ = l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_MessageOverview_ctorElim___redArg(v_t_119_, v_notification_120_);
+return v___x_121_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_MessageOverview_notification_elim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_MessageOverview_notification_elim(lean_object* v_motive_122_, lean_object* v_t_123_, lean_object* v_h_124_, lean_object* v_notification_125_){
 _start:
 {
-lean_object* x_5; 
-x_5 = l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_MessageOverview_ctorElim___redArg(x_2, x_4);
-return x_5;
+lean_object* v___x_126_; 
+v___x_126_ = l___private_Lean_Server_ProtocolOverview_0__Lean_Server_Overview_MessageOverview_ctorElim___redArg(v_t_123_, v_notification_125_);
+return v___x_126_;
 }
 }
 lean_object* runtime_initialize_Lean_Server_FileWorker_WidgetRequests(uint8_t builtin);
@@ -1000,12 +1003,10 @@ LEAN_EXPORT lean_object* runtime_initialize_Lean_Server_ProtocolOverview(uint8_t
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Lean_Server_FileWorker_WidgetRequests(builtin)
-;
+res = runtime_initialize_Lean_Server_FileWorker_WidgetRequests(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Widget_UserWidget(builtin)
-;
+res = runtime_initialize_Lean_Widget_UserWidget(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -1024,20 +1025,16 @@ LEAN_EXPORT lean_object* initialize_Lean_Server_ProtocolOverview(uint8_t builtin
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Server_FileWorker_WidgetRequests(builtin)
-;
+res = initialize_Lean_Server_FileWorker_WidgetRequests(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Widget_UserWidget(builtin)
-;
+res = initialize_Lean_Widget_UserWidget(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Server_ProtocolOverview(builtin)
-;
+res = runtime_initialize_Lean_Server_ProtocolOverview(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_Lean_Server_ProtocolOverview(builtin)
-;
+res = meta_initialize_Lean_Server_ProtocolOverview(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_Lean_Server_ProtocolOverview(builtin);

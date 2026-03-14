@@ -24,29 +24,28 @@ def elimTest2.{u_1, u_2} : (α : Type u_1) →
               (x : α) → (xs : Vec α n) → (y : α) → (ys : Vec α n) → motive (n + 1) (Vec.cons x xs) (Vec.cons y ys)) →
             motive n xs ys :=
 fun α motive n xs ys h_1 h_2 =>
-  (fun xs_1 =>
-      Vec.casesOn (motive := fun a x => n = a → xs ≍ x → motive n xs ys) xs_1
-        (fun h =>
-          Eq.ndrec (motive := fun n => (xs ys : Vec α n) → xs ≍ Vec.nil → motive n xs ys)
-            (fun xs ys h =>
-              ⋯ ▸
-                Vec.casesOn (motive := fun a x => 0 = a → ys ≍ x → motive 0 Vec.nil ys) ys (fun h h_3 => ⋯ ▸ h_1 ())
-                  (fun {n} a a_1 h => False.elim ⋯) ⋯ ⋯)
-            ⋯ xs ys)
-        fun {n_1} a a_1 h =>
-        Eq.ndrec (motive := fun n => (xs ys : Vec α n) → xs ≍ Vec.cons a a_1 → motive n xs ys)
-          (fun xs ys h =>
-            ⋯ ▸
-              Vec.casesOn (motive := fun a_2 x => n_1 + 1 = a_2 → ys ≍ x → motive (n_1 + 1) (Vec.cons a a_1) ys) ys
-                (fun h => False.elim ⋯)
-                (fun {n} a_2 a_3 h =>
-                  n_1.elimOffset n 1 h fun x =>
-                    Eq.ndrec (motive := fun {n} =>
-                      (a_4 : Vec α n) → ys ≍ Vec.cons a_2 a_4 → motive (n_1 + 1) (Vec.cons a a_1) ys)
-                      (fun a_4 h => ⋯ ▸ h_2 n_1 a a_1 a_2 a_4) x a_3)
-                ⋯ ⋯)
-          ⋯ xs ys)
-    xs ⋯ ⋯
+  Vec.casesOn (motive := fun a x => n = a → xs ≍ x → motive n xs ys) xs
+    (fun h =>
+      Eq.ndrec (motive := fun n => (xs ys : Vec α n) → xs ≍ Vec.nil → motive n xs ys)
+        (fun xs ys h =>
+          ⋯ ▸
+            Vec.casesOn (motive := fun a x => 0 = a → ys ≍ x → motive 0 Vec.nil ys) ys (fun h h_3 => ⋯ ▸ h_1 ())
+              (fun {n} a a_1 h => False.elim ⋯) ⋯ ⋯)
+        ⋯ xs ys)
+    (fun {n_1} a a_1 h =>
+      Eq.ndrec (motive := fun n => (xs ys : Vec α n) → xs ≍ Vec.cons a a_1 → motive n xs ys)
+        (fun xs ys h =>
+          ⋯ ▸
+            Vec.casesOn (motive := fun a_2 x => n_1 + 1 = a_2 → ys ≍ x → motive (n_1 + 1) (Vec.cons a a_1) ys) ys
+              (fun h => False.elim ⋯)
+              (fun {n} a_2 a_3 h =>
+                n_1.elimOffset n 1 h fun x =>
+                  Eq.ndrec (motive := fun {n} =>
+                    (a_4 : Vec α n) → ys ≍ Vec.cons a_2 a_4 → motive (n_1 + 1) (Vec.cons a a_1) ys)
+                    (fun a_4 h => ⋯ ▸ h_2 n_1 a a_1 a_2 a_4) x a_3)
+              ⋯ ⋯)
+        ⋯ xs ys)
+    ⋯ ⋯
 elimTest3 : forall (α : Type.{u_1}) (β : Type.{u_2}) (motive : (List.{u_1} α) -> (List.{u_2} β) -> Sort.{u_3}) (x : List.{u_1} α) (y : List.{u_2} β), (Unit -> (motive (List.nil.{u_1} α) (List.nil.{u_2} β))) -> (forall (a : α) (b : β), motive (List.cons.{u_1} α a (List.nil.{u_1} α)) (List.cons.{u_2} β b (List.nil.{u_2} β))) -> (forall (a₁ : α) (a₂ : α) (as : List.{u_1} α) (b₁ : β) (b₂ : β) (bs : List.{u_2} β), motive (List.cons.{u_1} α a₁ (List.cons.{u_1} α a₂ as)) (List.cons.{u_2} β b₁ (List.cons.{u_2} β b₂ bs))) -> (forall (as : List.{u_1} α) (bs : List.{u_2} β), motive as bs) -> (motive x y)
 def elimTest3.{u_1, u_2, u_3} : (α : Type u_1) →
   (β : Type u_2) →

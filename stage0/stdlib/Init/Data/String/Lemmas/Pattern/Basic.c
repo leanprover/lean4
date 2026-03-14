@@ -18,93 +18,94 @@ LEAN_EXPORT lean_object* l___private_Init_Data_String_Lemmas_Pattern_Basic_0__St
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Lemmas_Pattern_Basic_0__String_Slice_Pattern_ToForwardSearcher_DefaultForwardSearcher_instIteratorIdSearchStepOfForwardPattern_match__3_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Lemmas_Pattern_Basic_0__Std_Iter_toArray__eq__match__step_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Lemmas_Pattern_Basic_0__Std_Iter_toArray__eq__match__step_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_String_Lemmas_Pattern_Basic_0__String_Slice_Pattern_ToForwardSearcher_DefaultForwardSearcher_instIteratorIdSearchStepOfForwardPattern_match__3_splitter___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Init_Data_String_Lemmas_Pattern_Basic_0__String_Slice_Pattern_ToForwardSearcher_DefaultForwardSearcher_instIteratorIdSearchStepOfForwardPattern_match__3_splitter___redArg(lean_object* v_x_1_, lean_object* v_h__1_2_, lean_object* v_h__2_3_){
 _start:
 {
-if (lean_obj_tag(x_1) == 0)
+if (lean_obj_tag(v_x_1_) == 0)
 {
-lean_object* x_4; 
-lean_dec(x_2);
-x_4 = lean_apply_1(x_3, lean_box(0));
-return x_4;
+lean_object* v___x_4_; 
+lean_dec(v_h__1_2_);
+v___x_4_ = lean_apply_1(v_h__2_3_, lean_box(0));
+return v___x_4_;
 }
 else
 {
-lean_object* x_5; lean_object* x_6; 
-lean_dec(x_3);
-x_5 = lean_ctor_get(x_1, 0);
-lean_inc(x_5);
-lean_dec_ref(x_1);
-x_6 = lean_apply_2(x_2, x_5, lean_box(0));
-return x_6;
+lean_object* v_val_5_; lean_object* v___x_6_; 
+lean_dec(v_h__2_3_);
+v_val_5_ = lean_ctor_get(v_x_1_, 0);
+lean_inc(v_val_5_);
+lean_dec_ref(v_x_1_);
+v___x_6_ = lean_apply_2(v_h__1_2_, v_val_5_, lean_box(0));
+return v___x_6_;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_String_Lemmas_Pattern_Basic_0__String_Slice_Pattern_ToForwardSearcher_DefaultForwardSearcher_instIteratorIdSearchStepOfForwardPattern_match__3_splitter(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
+LEAN_EXPORT lean_object* l___private_Init_Data_String_Lemmas_Pattern_Basic_0__String_Slice_Pattern_ToForwardSearcher_DefaultForwardSearcher_instIteratorIdSearchStepOfForwardPattern_match__3_splitter(lean_object* v_00_u03c1_7_, lean_object* v_pat_8_, lean_object* v_s_9_, lean_object* v_it_10_, lean_object* v_motive_11_, lean_object* v_x_12_, lean_object* v_h__1_13_, lean_object* v_h__2_14_){
 _start:
 {
-lean_object* x_9; 
-x_9 = l___private_Init_Data_String_Lemmas_Pattern_Basic_0__String_Slice_Pattern_ToForwardSearcher_DefaultForwardSearcher_instIteratorIdSearchStepOfForwardPattern_match__3_splitter___redArg(x_6, x_7, x_8);
-return x_9;
+lean_object* v___x_15_; 
+v___x_15_ = l___private_Init_Data_String_Lemmas_Pattern_Basic_0__String_Slice_Pattern_ToForwardSearcher_DefaultForwardSearcher_instIteratorIdSearchStepOfForwardPattern_match__3_splitter___redArg(v_x_12_, v_h__1_13_, v_h__2_14_);
+return v___x_15_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_String_Lemmas_Pattern_Basic_0__String_Slice_Pattern_ToForwardSearcher_DefaultForwardSearcher_instIteratorIdSearchStepOfForwardPattern_match__3_splitter___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
+LEAN_EXPORT lean_object* l___private_Init_Data_String_Lemmas_Pattern_Basic_0__String_Slice_Pattern_ToForwardSearcher_DefaultForwardSearcher_instIteratorIdSearchStepOfForwardPattern_match__3_splitter___boxed(lean_object* v_00_u03c1_16_, lean_object* v_pat_17_, lean_object* v_s_18_, lean_object* v_it_19_, lean_object* v_motive_20_, lean_object* v_x_21_, lean_object* v_h__1_22_, lean_object* v_h__2_23_){
 _start:
 {
-lean_object* x_9; 
-x_9 = l___private_Init_Data_String_Lemmas_Pattern_Basic_0__String_Slice_Pattern_ToForwardSearcher_DefaultForwardSearcher_instIteratorIdSearchStepOfForwardPattern_match__3_splitter(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
-lean_dec(x_4);
-lean_dec_ref(x_3);
-lean_dec(x_2);
-return x_9;
+lean_object* v_res_24_; 
+v_res_24_ = l___private_Init_Data_String_Lemmas_Pattern_Basic_0__String_Slice_Pattern_ToForwardSearcher_DefaultForwardSearcher_instIteratorIdSearchStepOfForwardPattern_match__3_splitter(v_00_u03c1_16_, v_pat_17_, v_s_18_, v_it_19_, v_motive_20_, v_x_21_, v_h__1_22_, v_h__2_23_);
+lean_dec(v_it_19_);
+lean_dec_ref(v_s_18_);
+lean_dec(v_pat_17_);
+return v_res_24_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_String_Lemmas_Pattern_Basic_0__Std_Iter_toArray__eq__match__step_match__1_splitter___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l___private_Init_Data_String_Lemmas_Pattern_Basic_0__Std_Iter_toArray__eq__match__step_match__1_splitter___redArg(lean_object* v_x_25_, lean_object* v_h__1_26_, lean_object* v_h__2_27_, lean_object* v_h__3_28_){
 _start:
 {
-switch (lean_obj_tag(x_1)) {
+switch(lean_obj_tag(v_x_25_))
+{
 case 0:
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-lean_dec(x_4);
-lean_dec(x_3);
-x_5 = lean_ctor_get(x_1, 0);
-lean_inc(x_5);
-x_6 = lean_ctor_get(x_1, 1);
-lean_inc(x_6);
-lean_dec_ref(x_1);
-x_7 = lean_apply_2(x_2, x_5, x_6);
-return x_7;
+lean_object* v_it_29_; lean_object* v_out_30_; lean_object* v___x_31_; 
+lean_dec(v_h__3_28_);
+lean_dec(v_h__2_27_);
+v_it_29_ = lean_ctor_get(v_x_25_, 0);
+lean_inc(v_it_29_);
+v_out_30_ = lean_ctor_get(v_x_25_, 1);
+lean_inc(v_out_30_);
+lean_dec_ref(v_x_25_);
+v___x_31_ = lean_apply_2(v_h__1_26_, v_it_29_, v_out_30_);
+return v___x_31_;
 }
 case 1:
 {
-lean_object* x_8; lean_object* x_9; 
-lean_dec(x_4);
-lean_dec(x_2);
-x_8 = lean_ctor_get(x_1, 0);
-lean_inc(x_8);
-lean_dec_ref(x_1);
-x_9 = lean_apply_1(x_3, x_8);
-return x_9;
+lean_object* v_it_32_; lean_object* v___x_33_; 
+lean_dec(v_h__3_28_);
+lean_dec(v_h__1_26_);
+v_it_32_ = lean_ctor_get(v_x_25_, 0);
+lean_inc(v_it_32_);
+lean_dec_ref(v_x_25_);
+v___x_33_ = lean_apply_1(v_h__2_27_, v_it_32_);
+return v___x_33_;
 }
 default: 
 {
-lean_object* x_10; lean_object* x_11; 
-lean_dec(x_3);
-lean_dec(x_2);
-x_10 = lean_box(0);
-x_11 = lean_apply_1(x_4, x_10);
-return x_11;
+lean_object* v___x_34_; lean_object* v___x_35_; 
+lean_dec(v_h__2_27_);
+lean_dec(v_h__1_26_);
+v___x_34_ = lean_box(0);
+v___x_35_ = lean_apply_1(v_h__3_28_, v___x_34_);
+return v___x_35_;
 }
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_String_Lemmas_Pattern_Basic_0__Std_Iter_toArray__eq__match__step_match__1_splitter(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+LEAN_EXPORT lean_object* l___private_Init_Data_String_Lemmas_Pattern_Basic_0__Std_Iter_toArray__eq__match__step_match__1_splitter(lean_object* v_00_u03b1_36_, lean_object* v_00_u03b2_37_, lean_object* v_motive_38_, lean_object* v_x_39_, lean_object* v_h__1_40_, lean_object* v_h__2_41_, lean_object* v_h__3_42_){
 _start:
 {
-lean_object* x_8; 
-x_8 = l___private_Init_Data_String_Lemmas_Pattern_Basic_0__Std_Iter_toArray__eq__match__step_match__1_splitter___redArg(x_4, x_5, x_6, x_7);
-return x_8;
+lean_object* v___x_43_; 
+v___x_43_ = l___private_Init_Data_String_Lemmas_Pattern_Basic_0__Std_Iter_toArray__eq__match__step_match__1_splitter___redArg(v_x_39_, v_h__1_40_, v_h__2_41_, v_h__3_42_);
+return v___x_43_;
 }
 }
 lean_object* runtime_initialize_Init_Data_String_Pattern_Basic(uint8_t builtin);
@@ -125,56 +126,43 @@ LEAN_EXPORT lean_object* runtime_initialize_Init_Data_String_Lemmas_Pattern_Basi
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Init_Data_String_Pattern_Basic(builtin)
-;
+res = runtime_initialize_Init_Data_String_Pattern_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_String_Lemmas_Splits(builtin)
-;
+res = runtime_initialize_Init_Data_String_Lemmas_Splits(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Iterators_Consumers_Collect(builtin)
-;
+res = runtime_initialize_Init_Data_Iterators_Consumers_Collect(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_String_Pattern_Basic(builtin)
-;
+res = runtime_initialize_Init_Data_String_Pattern_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_String_OrderInstances(builtin)
-;
+res = runtime_initialize_Init_Data_String_OrderInstances(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_String_Lemmas_IsEmpty(builtin)
-;
+res = runtime_initialize_Init_Data_String_Lemmas_IsEmpty(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_String_Lemmas_Basic(builtin)
-;
+res = runtime_initialize_Init_Data_String_Lemmas_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_String_Lemmas_Order(builtin)
-;
+res = runtime_initialize_Init_Data_String_Lemmas_Order(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_String_Termination(builtin)
-;
+res = runtime_initialize_Init_Data_String_Termination(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Order_Lemmas(builtin)
-;
+res = runtime_initialize_Init_Data_Order_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_ByCases(builtin)
-;
+res = runtime_initialize_Init_ByCases(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Option_Lemmas(builtin)
-;
+res = runtime_initialize_Init_Data_Option_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Iterators_Lemmas_Consumers_Collect(builtin)
-;
+res = runtime_initialize_Init_Data_Iterators_Lemmas_Consumers_Collect(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -204,64 +192,49 @@ LEAN_EXPORT lean_object* initialize_Init_Data_String_Lemmas_Pattern_Basic(uint8_
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_String_Pattern_Basic(builtin)
-;
+res = initialize_Init_Data_String_Pattern_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_String_Lemmas_Splits(builtin)
-;
+res = initialize_Init_Data_String_Lemmas_Splits(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Iterators_Consumers_Collect(builtin)
-;
+res = initialize_Init_Data_Iterators_Consumers_Collect(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_String_Pattern_Basic(builtin)
-;
+res = initialize_Init_Data_String_Pattern_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_String_OrderInstances(builtin)
-;
+res = initialize_Init_Data_String_OrderInstances(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_String_Lemmas_IsEmpty(builtin)
-;
+res = initialize_Init_Data_String_Lemmas_IsEmpty(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_String_Lemmas_Basic(builtin)
-;
+res = initialize_Init_Data_String_Lemmas_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_String_Lemmas_Order(builtin)
-;
+res = initialize_Init_Data_String_Lemmas_Order(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_String_Termination(builtin)
-;
+res = initialize_Init_Data_String_Termination(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Order_Lemmas(builtin)
-;
+res = initialize_Init_Data_Order_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_ByCases(builtin)
-;
+res = initialize_Init_ByCases(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Option_Lemmas(builtin)
-;
+res = initialize_Init_Data_Option_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Iterators_Lemmas_Consumers_Collect(builtin)
-;
+res = initialize_Init_Data_Iterators_Lemmas_Consumers_Collect(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_String_Lemmas_Pattern_Basic(builtin)
-;
+res = runtime_initialize_Init_Data_String_Lemmas_Pattern_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_Init_Data_String_Lemmas_Pattern_Basic(builtin)
-;
+res = meta_initialize_Init_Data_String_Lemmas_Pattern_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_Init_Data_String_Lemmas_Pattern_Basic(builtin);

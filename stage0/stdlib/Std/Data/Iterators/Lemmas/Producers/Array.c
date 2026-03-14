@@ -24,28 +24,22 @@ LEAN_EXPORT lean_object* runtime_initialize_Std_Data_Iterators_Lemmas_Producers_
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Std_Data_Iterators_Lemmas_Consumers_Collect(builtin)
-;
+res = runtime_initialize_Std_Data_Iterators_Lemmas_Consumers_Collect(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Data_Iterators_Lemmas_Consumers_Loop(builtin)
-;
+res = runtime_initialize_Std_Data_Iterators_Lemmas_Consumers_Loop(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_List_TakeDrop(builtin)
-;
+res = runtime_initialize_Init_Data_List_TakeDrop(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Data_Iterators_Producers_Array(builtin)
-;
+res = runtime_initialize_Std_Data_Iterators_Producers_Array(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Iterators_Producers_List(builtin)
-;
+res = runtime_initialize_Init_Data_Iterators_Producers_List(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Data_Iterators_Lemmas_Producers_Monadic_Array(builtin)
-;
+res = runtime_initialize_Std_Data_Iterators_Lemmas_Producers_Monadic_Array(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -68,36 +62,28 @@ LEAN_EXPORT lean_object* initialize_Std_Data_Iterators_Lemmas_Producers_Array(ui
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Std_Data_Iterators_Lemmas_Consumers_Collect(builtin)
-;
+res = initialize_Std_Data_Iterators_Lemmas_Consumers_Collect(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_Iterators_Lemmas_Consumers_Loop(builtin)
-;
+res = initialize_Std_Data_Iterators_Lemmas_Consumers_Loop(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_List_TakeDrop(builtin)
-;
+res = initialize_Init_Data_List_TakeDrop(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_Iterators_Producers_Array(builtin)
-;
+res = initialize_Std_Data_Iterators_Producers_Array(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Iterators_Producers_List(builtin)
-;
+res = initialize_Init_Data_Iterators_Producers_List(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_Iterators_Lemmas_Producers_Monadic_Array(builtin)
-;
+res = initialize_Std_Data_Iterators_Lemmas_Producers_Monadic_Array(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Data_Iterators_Lemmas_Producers_Array(builtin)
-;
+res = runtime_initialize_Std_Data_Iterators_Lemmas_Producers_Array(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_Std_Data_Iterators_Lemmas_Producers_Array(builtin)
-;
+res = meta_initialize_Std_Data_Iterators_Lemmas_Producers_Array(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_Std_Data_Iterators_Lemmas_Producers_Array(builtin);

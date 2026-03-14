@@ -18,6 +18,8 @@ import Lean.Meta.Tactic.Grind.ForallProp
 import Lean.Meta.Tactic.Grind.CtorIdx
 import Lean.Meta.Tactic.Grind.Intro
 import Lean.Meta.Tactic.Grind.Solve
+import Lean.Meta.Tactic.Grind.EMatch
+import Lean.Meta.Tactic.Grind.MarkNestedSubsingletons
 import Lean.Meta.Tactic.Grind.Internalize
 import Lean.Meta.Tactic.Grind.SimpUtil
 import Lean.Meta.Tactic.Grind.LawfulEqCmp
@@ -237,6 +239,55 @@ def Result.toMessageData (result : Result) : MetaM MessageData := do
   return MessageData.joinSep msgs m!"\n"
 
 /--
+Walks the proof term collecting `Origin`s of E-matching instances that appear,
+using the `mdata` markers placed by `markTheoremInstanceProof`.
+-/
+private partial def collectUsedOrigins (e : Expr) (map : EMatch.InstanceMap) : Std.HashSet Origin :=
+  let (_, s) := go e |>.run ({}, {})
+  s.2
+where
+  go (e : Expr) : StateM (Std.HashSet ExprPtr × Std.HashSet Origin) Unit := do
+    if isMarkedSubsingletonApp e then return ()
+    if (← get).1.contains { expr := e } then return ()
+    modify fun (v, o) => (v.insert { expr := e }, o)
+    if let some uniqueId := EMatch.isTheoremInstanceProof? e then
+      if let some thm := map[uniqueId]? then
+        modify fun (v, o) => (v, o.insert thm.origin)
+    match e with
+    | .lam _ d b _
+    | .forallE _ d b _ => go d; go b
+    | .proj _ _ b
+    | .mdata _ b       => go b
+    | .letE _ t v b _  => go t; go v; go b
+    | .app f a         => go f; go a
+    | _ => return ()
+
+/--
+Checks whether any E-matching lemmas were activated but do not appear in the final proof term.
+Controlled by `set_option grind.unusedLemmaThreshold`.
+Uses grind's instance-marking infrastructure for precise tracking.
+-/
+def checkUnusedActivations (mvarId : MVarId) (counters : Counters) : GrindM Unit := do
+  let threshold := grind.unusedLemmaThreshold.get (← getOptions)
+  if threshold == 0 then return ()
+  let proof ← instantiateMVars (mkMVar mvarId)
+  let map := (← get).instanceMap
+  let usedOrigins := collectUsedOrigins proof map
+  let mut unused : Array (Name × Nat) := #[]
+  for (origin, count) in counters.thm do
+    if count < threshold then continue
+    match origin with
+    | .decl declName =>
+      unless usedOrigins.contains origin do
+        unused := unused.push (declName, count)
+    | _ => pure ()
+  unless unused.isEmpty do
+    let sorted := unused.qsort fun (_, c₁) (_, c₂) => c₁ > c₂
+    let data ← sorted.mapM fun (declName, counter) =>
+      return .trace { cls := `thm } m!"{declName} ↦ {counter}" #[]
+    logWarning <| .trace { cls := `grind } "grind: activated but unused E-matching lemmas" data
+
+/--
 When `Config.revert := false`, we preprocess the hypotheses, and add them to the `grind` state.
 It starts at `goal.nextDeclIdx`. If `num?` is `some num`, then at most `num` local declarations are processed.
 Otherwise, all remaining local declarations are processed.
@@ -300,9 +351,15 @@ def GrindM.runAtGoal (mvarId : MVarId) (params : Params) (k : Goal → GrindM α
   go.run params (evalTactic? := evalTactic?)
 
 def main (mvarId : MVarId) (params : Params) : MetaM Result := do profileitM Exception "grind" (← getOptions) do
+  let params := if grind.unusedLemmaThreshold.get (← getOptions) > 0 then
+    { params with config.markInstances := true }
+  else params
   GrindM.runAtGoal mvarId params fun goal => do
     let failure? ← solve goal
-    mkResult params failure?
+    let result ← mkResult params failure?
+    if failure?.isNone then
+      checkUnusedActivations mvarId result.counters
+    return result
 
 /--
 Resolves delayed metavariable assignments created inside the current `withNewMCtxDepth` block.

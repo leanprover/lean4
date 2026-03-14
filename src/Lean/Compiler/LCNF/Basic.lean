@@ -850,9 +850,11 @@ where
     | .jmp .. => inc
     | .return .. | unreach .. => return ()
 
+@[inline]
 partial def Code.forM [Monad m] (c : Code pu) (f : Code pu → m Unit) : m Unit :=
   go c
 where
+  @[specialize]
   go (c : Code pu) : m Unit := do
     f c
     match c with

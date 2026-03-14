@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 source ../../env_bench.sh
-source "$TEST_DIR/util.sh"
 
 STAGE_THIS="stage$STAGE"
 STAGE_NEXT="stage$((STAGE + 1))"

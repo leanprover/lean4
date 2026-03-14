@@ -114,7 +114,7 @@ where
 
   tryCandidate candidate : MetaM Bool :=
     withTraceNode `Meta.isDefEq.hint
-      (return m!"{exceptBoolEmoji ·} hint {candidate} at {t} =?= {s}") do
+      (fun _ => return m!"hint {candidate} at {t} =?= {s}") do
     checkpointDefEq do
       let cinfo ← getConstInfo candidate
       let us ← cinfo.levelParams.mapM fun _ => mkFreshLevelMVar

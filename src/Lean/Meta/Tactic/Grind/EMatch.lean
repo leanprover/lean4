@@ -481,7 +481,7 @@ where
   go (proof prop : Expr) : M Unit := do
     let mut proof := proof
     let mut prop := prop
-    if (← getConfig).trace then
+    if (← getConfig).trace || (← getConfig).markInstances then
       /-
       **Note**: It is incorrect to use `mkFreshId` here because we use `withFreshNGen` at
       `instantiateTheorem`. So, we generate an unique id by using the number of instances generated so far.
@@ -927,7 +927,7 @@ private def ematchCore (extraThms : Array EMatchTheorem) : GoalM InstanceMap := 
 
 /--
 Performs one round of E-matching, and returns `true` if new instances were generated.
-Recall that the mapping is nonempty only if tracing is enabled.
+Recall that the mapping is nonempty only if tracing or instance marking is enabled.
 -/
 def ematch' (extraThms : Array EMatchTheorem := #[]) : GoalM (Bool × InstanceMap) := do
   let numInstances := (← get).ematch.numInstances
@@ -943,6 +943,8 @@ def ematch' (extraThms : Array EMatchTheorem := #[]) : GoalM (Bool × InstanceMa
     and we may have pending facts to process.
     -/
     processNewFacts
+  if (← getConfig).markInstances then
+    modifyThe Grind.State fun s => { s with instanceMap := s.instanceMap.insertMany map.toArray }
   return (progress, map)
 
 /--
@@ -954,7 +956,9 @@ def ematch (extraThms : Array EMatchTheorem := #[]) : GoalM Bool :=
 /-- Performs one round of E-matching using the giving theorems, and returns `true` if new instances were generated. -/
 def ematchOnly (thms : Array EMatchTheorem) : GoalM Bool := do
   let numInstances := (← get).ematch.numInstances
-  go |>.run'
+  let (_, s) ← go |>.run
+  if (← getConfig).markInstances then
+    modifyThe Grind.State fun st => { st with instanceMap := st.instanceMap.insertMany s.instanceMap.toArray }
   return (← get).ematch.numInstances != numInstances
 where
   go : EMatch.M Unit := do profileitM Exception "grind ematch" (← getOptions) do

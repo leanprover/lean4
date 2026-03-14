@@ -169,7 +169,7 @@ def addDecl (decl : Declaration) (forceExpose := false) : CoreM Unit :=
 where
   doAdd := do
     profileitM Exception "type checking" (← getOptions) do
-      withTraceNode `Kernel (return m!"{exceptEmoji ·} typechecking declarations {decl.getTopLevelNames}") do
+      withTraceNode `Kernel (fun _ => return m!"typechecking declarations {decl.getTopLevelNames}") do
         warnIfUsesSorry decl
         try
           let env ← (← getEnv).addDeclAux (← getOptions) decl (← read).cancelTk?

@@ -22,20 +22,16 @@ LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Iterators_Lemmas_Consumers
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Init_Data_Iterators_Lemmas_Consumers_Monadic(builtin)
-;
+res = runtime_initialize_Init_Data_Iterators_Lemmas_Consumers_Monadic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Iterators_Lemmas_Consumers_Collect(builtin)
-;
+res = runtime_initialize_Init_Data_Iterators_Lemmas_Consumers_Collect(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Iterators_Lemmas_Consumers_Loop(builtin)
-;
+res = runtime_initialize_Init_Data_Iterators_Lemmas_Consumers_Loop(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Iterators_Lemmas_Consumers_Access(builtin)
-;
+res = runtime_initialize_Init_Data_Iterators_Lemmas_Consumers_Access(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -56,28 +52,22 @@ LEAN_EXPORT lean_object* initialize_Init_Data_Iterators_Lemmas_Consumers(uint8_t
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Iterators_Lemmas_Consumers_Monadic(builtin)
-;
+res = initialize_Init_Data_Iterators_Lemmas_Consumers_Monadic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Iterators_Lemmas_Consumers_Collect(builtin)
-;
+res = initialize_Init_Data_Iterators_Lemmas_Consumers_Collect(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Iterators_Lemmas_Consumers_Loop(builtin)
-;
+res = initialize_Init_Data_Iterators_Lemmas_Consumers_Loop(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Iterators_Lemmas_Consumers_Access(builtin)
-;
+res = initialize_Init_Data_Iterators_Lemmas_Consumers_Access(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Iterators_Lemmas_Consumers(builtin)
-;
+res = runtime_initialize_Init_Data_Iterators_Lemmas_Consumers(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_Init_Data_Iterators_Lemmas_Consumers(builtin)
-;
+res = meta_initialize_Init_Data_Iterators_Lemmas_Consumers(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_Init_Data_Iterators_Lemmas_Consumers(builtin);

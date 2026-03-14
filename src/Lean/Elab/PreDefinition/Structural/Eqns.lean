@@ -73,7 +73,7 @@ Creates the proof of the unfolding theorem for `declName` with type `type`. It
    is solved using `rfl` or `contradiction`.
 -/
 partial def mkProof (declName : Name) (type : Expr) : MetaM Expr := do
-  withTraceNode `Elab.definition.structural.eqns (return m!"{exceptEmoji ·} proving:{indentExpr type}") do
+  withTraceNode `Elab.definition.structural.eqns (fun _ => return m!"proving:{indentExpr type}") do
     prependError m!"failed to generate equational theorem for `{.ofConstName declName}`" do
     withNewMCtxDepth do
       let main ← mkFreshExprSyntheticOpaqueMVar type
@@ -83,7 +83,7 @@ partial def mkProof (declName : Name) (type : Expr) : MetaM Expr := do
       instantiateMVars main
 where
   goUnfold (mvarId : MVarId) : MetaM Unit := do
-    withTraceNode `Elab.definition.structural.eqns (return m!"{exceptEmoji ·} goUnfold:\n{MessageData.ofGoal mvarId}") do
+    withTraceNode `Elab.definition.structural.eqns (fun _ => return m!"goUnfold:\n{MessageData.ofGoal mvarId}") do
     let mvarId' ← mvarId.withContext do
       -- This should now be headed by `.brecOn`
       let goal ← mvarId.getType
@@ -110,7 +110,7 @@ where
     go mvarId'
 
   go (mvarId : MVarId) : MetaM Unit := do
-    withTraceNode `Elab.definition.structural.eqns (return m!"{exceptEmoji ·} step:\n{MessageData.ofGoal mvarId}") do
+    withTraceNode `Elab.definition.structural.eqns (fun _ => return m!"step:\n{MessageData.ofGoal mvarId}") do
       if (← tryURefl mvarId) then
         trace[Elab.definition.structural.eqns] "tryURefl succeeded"
         return ()

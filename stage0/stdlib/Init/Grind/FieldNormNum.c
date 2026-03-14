@@ -15,60 +15,60 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Lean_Grind_Field_NormNum_ofRat___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Field_NormNum_ofRat(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_Field_NormNum_ofRat___redArg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_Grind_Field_NormNum_ofRat___redArg(lean_object* v_inst_1_, lean_object* v_r_2_){
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
-x_3 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_3);
-x_4 = lean_ctor_get(x_3, 0);
-lean_inc_ref(x_4);
-x_5 = lean_ctor_get(x_1, 2);
-lean_inc(x_5);
-lean_dec_ref(x_1);
-x_6 = lean_ctor_get(x_3, 3);
-lean_inc(x_6);
-lean_dec_ref(x_3);
-x_7 = lean_ctor_get(x_2, 0);
-lean_inc(x_7);
-x_8 = lean_ctor_get(x_2, 1);
-lean_inc(x_8);
-lean_dec_ref(x_2);
-x_9 = lean_ctor_get(x_4, 2);
-lean_inc(x_9);
-lean_dec_ref(x_4);
-x_10 = lean_apply_1(x_6, x_7);
-x_11 = lean_apply_1(x_9, x_8);
-x_12 = lean_apply_2(x_5, x_10, x_11);
-return x_12;
+lean_object* v_toCommRing_3_; lean_object* v_toSemiring_4_; lean_object* v_toDiv_5_; lean_object* v_intCast_6_; lean_object* v_num_7_; lean_object* v_den_8_; lean_object* v_natCast_9_; lean_object* v___x_10_; lean_object* v___x_11_; lean_object* v___x_12_; 
+v_toCommRing_3_ = lean_ctor_get(v_inst_1_, 0);
+lean_inc_ref(v_toCommRing_3_);
+v_toSemiring_4_ = lean_ctor_get(v_toCommRing_3_, 0);
+lean_inc_ref(v_toSemiring_4_);
+v_toDiv_5_ = lean_ctor_get(v_inst_1_, 2);
+lean_inc(v_toDiv_5_);
+lean_dec_ref(v_inst_1_);
+v_intCast_6_ = lean_ctor_get(v_toCommRing_3_, 3);
+lean_inc(v_intCast_6_);
+lean_dec_ref(v_toCommRing_3_);
+v_num_7_ = lean_ctor_get(v_r_2_, 0);
+lean_inc(v_num_7_);
+v_den_8_ = lean_ctor_get(v_r_2_, 1);
+lean_inc(v_den_8_);
+lean_dec_ref(v_r_2_);
+v_natCast_9_ = lean_ctor_get(v_toSemiring_4_, 2);
+lean_inc(v_natCast_9_);
+lean_dec_ref(v_toSemiring_4_);
+v___x_10_ = lean_apply_1(v_intCast_6_, v_num_7_);
+v___x_11_ = lean_apply_1(v_natCast_9_, v_den_8_);
+v___x_12_ = lean_apply_2(v_toDiv_5_, v___x_10_, v___x_11_);
+return v___x_12_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Grind_Field_NormNum_ofRat(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Lean_Grind_Field_NormNum_ofRat(lean_object* v_00_u03b1_13_, lean_object* v_inst_14_, lean_object* v_r_15_){
 _start:
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-x_4 = lean_ctor_get(x_2, 0);
-lean_inc_ref(x_4);
-x_5 = lean_ctor_get(x_4, 0);
-lean_inc_ref(x_5);
-x_6 = lean_ctor_get(x_2, 2);
-lean_inc(x_6);
-lean_dec_ref(x_2);
-x_7 = lean_ctor_get(x_4, 3);
-lean_inc(x_7);
-lean_dec_ref(x_4);
-x_8 = lean_ctor_get(x_3, 0);
-lean_inc(x_8);
-x_9 = lean_ctor_get(x_3, 1);
-lean_inc(x_9);
-lean_dec_ref(x_3);
-x_10 = lean_ctor_get(x_5, 2);
-lean_inc(x_10);
-lean_dec_ref(x_5);
-x_11 = lean_apply_1(x_7, x_8);
-x_12 = lean_apply_1(x_10, x_9);
-x_13 = lean_apply_2(x_6, x_11, x_12);
-return x_13;
+lean_object* v_toCommRing_16_; lean_object* v_toSemiring_17_; lean_object* v_toDiv_18_; lean_object* v_intCast_19_; lean_object* v_num_20_; lean_object* v_den_21_; lean_object* v_natCast_22_; lean_object* v___x_23_; lean_object* v___x_24_; lean_object* v___x_25_; 
+v_toCommRing_16_ = lean_ctor_get(v_inst_14_, 0);
+lean_inc_ref(v_toCommRing_16_);
+v_toSemiring_17_ = lean_ctor_get(v_toCommRing_16_, 0);
+lean_inc_ref(v_toSemiring_17_);
+v_toDiv_18_ = lean_ctor_get(v_inst_14_, 2);
+lean_inc(v_toDiv_18_);
+lean_dec_ref(v_inst_14_);
+v_intCast_19_ = lean_ctor_get(v_toCommRing_16_, 3);
+lean_inc(v_intCast_19_);
+lean_dec_ref(v_toCommRing_16_);
+v_num_20_ = lean_ctor_get(v_r_15_, 0);
+lean_inc(v_num_20_);
+v_den_21_ = lean_ctor_get(v_r_15_, 1);
+lean_inc(v_den_21_);
+lean_dec_ref(v_r_15_);
+v_natCast_22_ = lean_ctor_get(v_toSemiring_17_, 2);
+lean_inc(v_natCast_22_);
+lean_dec_ref(v_toSemiring_17_);
+v___x_23_ = lean_apply_1(v_intCast_19_, v_num_20_);
+v___x_24_ = lean_apply_1(v_natCast_22_, v_den_21_);
+v___x_25_ = lean_apply_2(v_toDiv_18_, v___x_23_, v___x_24_);
+return v___x_25_;
 }
 }
 lean_object* runtime_initialize_Init_Grind_Ring_Field(uint8_t builtin);
@@ -81,24 +81,19 @@ LEAN_EXPORT lean_object* runtime_initialize_Init_Grind_FieldNormNum(uint8_t buil
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Init_Grind_Ring_Field(builtin)
-;
+res = runtime_initialize_Init_Grind_Ring_Field(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Rat_Basic(builtin)
-;
+res = runtime_initialize_Init_Data_Rat_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Rat_Lemmas(builtin)
-;
+res = runtime_initialize_Init_Data_Rat_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_ByCases(builtin)
-;
+res = runtime_initialize_Init_ByCases(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Omega(builtin)
-;
+res = runtime_initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -120,32 +115,25 @@ LEAN_EXPORT lean_object* initialize_Init_Grind_FieldNormNum(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Grind_Ring_Field(builtin)
-;
+res = initialize_Init_Grind_Ring_Field(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Rat_Basic(builtin)
-;
+res = initialize_Init_Data_Rat_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Rat_Lemmas(builtin)
-;
+res = initialize_Init_Data_Rat_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_ByCases(builtin)
-;
+res = initialize_Init_ByCases(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Omega(builtin)
-;
+res = initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Grind_FieldNormNum(builtin)
-;
+res = runtime_initialize_Init_Grind_FieldNormNum(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_Init_Grind_FieldNormNum(builtin)
-;
+res = meta_initialize_Init_Grind_FieldNormNum(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_Init_Grind_FieldNormNum(builtin);

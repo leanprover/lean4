@@ -52,8 +52,8 @@ Try this: simp (config := { unfoldPartialApp := true }) only [f1, modify, modify
       let s ← get
       set (g s)
 [Meta.Tactic.simp.rewrite] unfold StateT.bind, StateT.bind get fun s => set (g s) ==> fun s => do
-      let __discr ← get s
-      match __discr with
+      let __x ← get s
+      match __x with
         | (a, s) => (fun s => set (g s)) a s
 [Meta.Tactic.simp.rewrite] unfold getThe, getThe Nat s ==> MonadStateOf.get s
 [Meta.Tactic.simp.rewrite] unfold StateT.get, StateT.get s ==> pure (s, s)

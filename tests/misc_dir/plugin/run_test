@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 source ../../env_test.sh
-source "$TEST_DIR/util.sh"
 
 # LEAN_EXPORTING needs to be defined for .c files included in shared libraries
 lean --c=SnakeLinter.c SnakeLinter.lean
 leanc ${LEANC_OPTS-} -O3 -DNDEBUG -DLEAN_EXPORTING -shared -o SnakeLinter.so SnakeLinter.c
 
-exec_capture SnakeLinter.lean lean -Dlinter.all=false --plugin=SnakeLinter.so SnakeLinter.lean
-check_exit SnakeLinter.lean 1
-check_out SnakeLinter.lean
+capture_only SnakeLinter.lean \
+  lean -Dlinter.all=false --plugin=SnakeLinter.so SnakeLinter.lean
+check_exit_is_fail
+check_out_file

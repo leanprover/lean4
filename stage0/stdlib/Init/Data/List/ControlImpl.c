@@ -13,16 +13,16 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* l_List_reverse___redArg(lean_object*);
 lean_object* l_id___boxed(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
+lean_object* l___private_Init_Data_List_Impl_0__List_flatMapTR_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static const lean_closure_object l_List_flatMapMTR_loop___redArg___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*1, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_id___boxed, .m_arity = 2, .m_num_fixed = 1, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1))} };
 static const lean_object* l_List_flatMapMTR_loop___redArg___closed__0 = (const lean_object*)&l_List_flatMapMTR_loop___redArg___closed__0_value;
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static const lean_array_object l_List_flatMapMTR_loop___redArg___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
 static const lean_object* l_List_flatMapMTR_loop___redArg___closed__1 = (const lean_object*)&l_List_flatMapMTR_loop___redArg___closed__1_value;
-lean_object* l_List_reverse___redArg(lean_object*);
-lean_object* l___private_Init_Data_List_Impl_0__List_flatMapTR_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_flatMapMTR_loop___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_flatMapMTR_loop___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_flatMapMTR_loop___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_flatMapMTR_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_flatMapMTR___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_flatMapMTR(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -30,147 +30,147 @@ LEAN_EXPORT lean_object* l___private_Init_Data_List_ControlImpl_0__List_flatMapM
 LEAN_EXPORT lean_object* l___private_Init_Data_List_ControlImpl_0__List_flatMapM_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_List_ControlImpl_0__List_flatMapMTR_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_List_ControlImpl_0__List_flatMapMTR_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_flatMapMTR_loop___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_List_flatMapMTR_loop___redArg(lean_object* v_inst_4_, lean_object* v_f_5_, lean_object* v_x_6_, lean_object* v_x_7_){
 _start:
 {
-if (lean_obj_tag(x_3) == 0)
+if (lean_obj_tag(v_x_6_) == 0)
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-x_5 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_5);
-lean_dec(x_2);
-lean_dec_ref(x_1);
-x_6 = lean_ctor_get(x_5, 1);
-lean_inc(x_6);
-lean_dec_ref(x_5);
-x_7 = l_List_reverse___redArg(x_4);
-x_8 = ((lean_object*)(l_List_flatMapMTR_loop___redArg___closed__0));
-x_9 = ((lean_object*)(l_List_flatMapMTR_loop___redArg___closed__1));
-x_10 = l___private_Init_Data_List_Impl_0__List_flatMapTR_go(lean_box(0), lean_box(0), x_8, x_7, x_9);
-x_11 = lean_apply_2(x_6, lean_box(0), x_10);
-return x_11;
+lean_object* v_toApplicative_8_; lean_object* v_toPure_9_; lean_object* v___x_10_; lean_object* v___x_11_; lean_object* v___x_12_; lean_object* v___x_13_; lean_object* v___x_14_; 
+v_toApplicative_8_ = lean_ctor_get(v_inst_4_, 0);
+lean_inc_ref(v_toApplicative_8_);
+lean_dec(v_f_5_);
+lean_dec_ref(v_inst_4_);
+v_toPure_9_ = lean_ctor_get(v_toApplicative_8_, 1);
+lean_inc(v_toPure_9_);
+lean_dec_ref(v_toApplicative_8_);
+v___x_10_ = l_List_reverse___redArg(v_x_7_);
+v___x_11_ = ((lean_object*)(l_List_flatMapMTR_loop___redArg___closed__0));
+v___x_12_ = ((lean_object*)(l_List_flatMapMTR_loop___redArg___closed__1));
+v___x_13_ = l___private_Init_Data_List_Impl_0__List_flatMapTR_go(lean_box(0), lean_box(0), v___x_11_, v___x_10_, v___x_12_);
+v___x_14_ = lean_apply_2(v_toPure_9_, lean_box(0), v___x_13_);
+return v___x_14_;
 }
 else
 {
-lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
-x_12 = lean_ctor_get(x_1, 1);
-lean_inc(x_12);
-x_13 = lean_ctor_get(x_3, 0);
-lean_inc(x_13);
-x_14 = lean_ctor_get(x_3, 1);
-lean_inc(x_14);
-lean_dec_ref(x_3);
-lean_inc(x_2);
-x_15 = lean_alloc_closure((void*)(l_List_flatMapMTR_loop___redArg___lam__0), 5, 4);
-lean_closure_set(x_15, 0, x_4);
-lean_closure_set(x_15, 1, x_1);
-lean_closure_set(x_15, 2, x_2);
-lean_closure_set(x_15, 3, x_14);
-x_16 = lean_apply_1(x_2, x_13);
-x_17 = lean_apply_4(x_12, lean_box(0), lean_box(0), x_16, x_15);
-return x_17;
+lean_object* v_toBind_15_; lean_object* v_head_16_; lean_object* v_tail_17_; lean_object* v___f_18_; lean_object* v___x_19_; lean_object* v___x_20_; 
+v_toBind_15_ = lean_ctor_get(v_inst_4_, 1);
+lean_inc(v_toBind_15_);
+v_head_16_ = lean_ctor_get(v_x_6_, 0);
+lean_inc(v_head_16_);
+v_tail_17_ = lean_ctor_get(v_x_6_, 1);
+lean_inc(v_tail_17_);
+lean_dec_ref(v_x_6_);
+lean_inc(v_f_5_);
+v___f_18_ = lean_alloc_closure((void*)(l_List_flatMapMTR_loop___redArg___lam__0), 5, 4);
+lean_closure_set(v___f_18_, 0, v_x_7_);
+lean_closure_set(v___f_18_, 1, v_inst_4_);
+lean_closure_set(v___f_18_, 2, v_f_5_);
+lean_closure_set(v___f_18_, 3, v_tail_17_);
+v___x_19_ = lean_apply_1(v_f_5_, v_head_16_);
+v___x_20_ = lean_apply_4(v_toBind_15_, lean_box(0), lean_box(0), v___x_19_, v___f_18_);
+return v___x_20_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_List_flatMapMTR_loop___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l_List_flatMapMTR_loop___redArg___lam__0(lean_object* v_x_21_, lean_object* v_inst_22_, lean_object* v_f_23_, lean_object* v_tail_24_, lean_object* v_bs_x27_25_){
 _start:
 {
-lean_object* x_6; lean_object* x_7; 
-x_6 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_6, 0, x_5);
-lean_ctor_set(x_6, 1, x_1);
-x_7 = l_List_flatMapMTR_loop___redArg(x_2, x_3, x_4, x_6);
-return x_7;
+lean_object* v___x_26_; lean_object* v___x_27_; 
+v___x_26_ = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(v___x_26_, 0, v_bs_x27_25_);
+lean_ctor_set(v___x_26_, 1, v_x_21_);
+v___x_27_ = l_List_flatMapMTR_loop___redArg(v_inst_22_, v_f_23_, v_tail_24_, v___x_26_);
+return v___x_27_;
 }
 }
-LEAN_EXPORT lean_object* l_List_flatMapMTR_loop(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+LEAN_EXPORT lean_object* l_List_flatMapMTR_loop(lean_object* v_m_28_, lean_object* v_inst_29_, lean_object* v_00_u03b1_30_, lean_object* v_00_u03b2_31_, lean_object* v_f_32_, lean_object* v_x_33_, lean_object* v_x_34_){
 _start:
 {
-lean_object* x_8; 
-x_8 = l_List_flatMapMTR_loop___redArg(x_2, x_5, x_6, x_7);
-return x_8;
+lean_object* v___x_35_; 
+v___x_35_ = l_List_flatMapMTR_loop___redArg(v_inst_29_, v_f_32_, v_x_33_, v_x_34_);
+return v___x_35_;
 }
 }
-LEAN_EXPORT lean_object* l_List_flatMapMTR___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_List_flatMapMTR___redArg(lean_object* v_inst_36_, lean_object* v_f_37_, lean_object* v_as_38_){
 _start:
 {
-lean_object* x_4; lean_object* x_5; 
-x_4 = lean_box(0);
-x_5 = l_List_flatMapMTR_loop___redArg(x_1, x_2, x_3, x_4);
-return x_5;
+lean_object* v___x_39_; lean_object* v___x_40_; 
+v___x_39_ = lean_box(0);
+v___x_40_ = l_List_flatMapMTR_loop___redArg(v_inst_36_, v_f_37_, v_as_38_, v___x_39_);
+return v___x_40_;
 }
 }
-LEAN_EXPORT lean_object* l_List_flatMapMTR(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+LEAN_EXPORT lean_object* l_List_flatMapMTR(lean_object* v_m_41_, lean_object* v_inst_42_, lean_object* v_00_u03b1_43_, lean_object* v_00_u03b2_44_, lean_object* v_f_45_, lean_object* v_as_46_){
 _start:
 {
-lean_object* x_7; lean_object* x_8; 
-x_7 = lean_box(0);
-x_8 = l_List_flatMapMTR_loop___redArg(x_2, x_5, x_6, x_7);
-return x_8;
+lean_object* v___x_47_; lean_object* v___x_48_; 
+v___x_47_ = lean_box(0);
+v___x_48_ = l_List_flatMapMTR_loop___redArg(v_inst_42_, v_f_45_, v_as_46_, v___x_47_);
+return v___x_48_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_List_ControlImpl_0__List_flatMapM_match__1_splitter___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l___private_Init_Data_List_ControlImpl_0__List_flatMapM_match__1_splitter___redArg(lean_object* v_x_49_, lean_object* v_x_50_, lean_object* v_h__1_51_, lean_object* v_h__2_52_){
 _start:
 {
-if (lean_obj_tag(x_1) == 0)
+if (lean_obj_tag(v_x_49_) == 0)
 {
-lean_object* x_5; 
-lean_dec(x_4);
-x_5 = lean_apply_1(x_3, x_2);
-return x_5;
+lean_object* v___x_53_; 
+lean_dec(v_h__2_52_);
+v___x_53_ = lean_apply_1(v_h__1_51_, v_x_50_);
+return v___x_53_;
 }
 else
 {
-lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-lean_dec(x_3);
-x_6 = lean_ctor_get(x_1, 0);
-lean_inc(x_6);
-x_7 = lean_ctor_get(x_1, 1);
-lean_inc(x_7);
-lean_dec_ref(x_1);
-x_8 = lean_apply_3(x_4, x_6, x_7, x_2);
-return x_8;
+lean_object* v_head_54_; lean_object* v_tail_55_; lean_object* v___x_56_; 
+lean_dec(v_h__1_51_);
+v_head_54_ = lean_ctor_get(v_x_49_, 0);
+lean_inc(v_head_54_);
+v_tail_55_ = lean_ctor_get(v_x_49_, 1);
+lean_inc(v_tail_55_);
+lean_dec_ref(v_x_49_);
+v___x_56_ = lean_apply_3(v_h__2_52_, v_head_54_, v_tail_55_, v_x_50_);
+return v___x_56_;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_List_ControlImpl_0__List_flatMapM_match__1_splitter(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+LEAN_EXPORT lean_object* l___private_Init_Data_List_ControlImpl_0__List_flatMapM_match__1_splitter(lean_object* v_00_u03b1_57_, lean_object* v_00_u03b2_58_, lean_object* v_motive_59_, lean_object* v_x_60_, lean_object* v_x_61_, lean_object* v_h__1_62_, lean_object* v_h__2_63_){
 _start:
 {
-lean_object* x_8; 
-x_8 = l___private_Init_Data_List_ControlImpl_0__List_flatMapM_match__1_splitter___redArg(x_4, x_5, x_6, x_7);
-return x_8;
+lean_object* v___x_64_; 
+v___x_64_ = l___private_Init_Data_List_ControlImpl_0__List_flatMapM_match__1_splitter___redArg(v_x_60_, v_x_61_, v_h__1_62_, v_h__2_63_);
+return v___x_64_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_List_ControlImpl_0__List_flatMapMTR_match__1_splitter___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l___private_Init_Data_List_ControlImpl_0__List_flatMapMTR_match__1_splitter___redArg(lean_object* v_x_65_, lean_object* v_x_66_, lean_object* v_h__1_67_, lean_object* v_h__2_68_){
 _start:
 {
-if (lean_obj_tag(x_1) == 0)
+if (lean_obj_tag(v_x_65_) == 0)
 {
-lean_object* x_5; 
-lean_dec(x_4);
-x_5 = lean_apply_1(x_3, x_2);
-return x_5;
+lean_object* v___x_69_; 
+lean_dec(v_h__2_68_);
+v___x_69_ = lean_apply_1(v_h__1_67_, v_x_66_);
+return v___x_69_;
 }
 else
 {
-lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-lean_dec(x_3);
-x_6 = lean_ctor_get(x_1, 0);
-lean_inc(x_6);
-x_7 = lean_ctor_get(x_1, 1);
-lean_inc(x_7);
-lean_dec_ref(x_1);
-x_8 = lean_apply_3(x_4, x_6, x_7, x_2);
-return x_8;
+lean_object* v_head_70_; lean_object* v_tail_71_; lean_object* v___x_72_; 
+lean_dec(v_h__1_67_);
+v_head_70_ = lean_ctor_get(v_x_65_, 0);
+lean_inc(v_head_70_);
+v_tail_71_ = lean_ctor_get(v_x_65_, 1);
+lean_inc(v_tail_71_);
+lean_dec_ref(v_x_65_);
+v___x_72_ = lean_apply_3(v_h__2_68_, v_head_70_, v_tail_71_, v_x_66_);
+return v___x_72_;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_List_ControlImpl_0__List_flatMapMTR_match__1_splitter(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+LEAN_EXPORT lean_object* l___private_Init_Data_List_ControlImpl_0__List_flatMapMTR_match__1_splitter(lean_object* v_00_u03b1_73_, lean_object* v_00_u03b2_74_, lean_object* v_motive_75_, lean_object* v_x_76_, lean_object* v_x_77_, lean_object* v_h__1_78_, lean_object* v_h__2_79_){
 _start:
 {
-lean_object* x_8; 
-x_8 = l___private_Init_Data_List_ControlImpl_0__List_flatMapMTR_match__1_splitter___redArg(x_4, x_5, x_6, x_7);
-return x_8;
+lean_object* v___x_80_; 
+v___x_80_ = l___private_Init_Data_List_ControlImpl_0__List_flatMapMTR_match__1_splitter___redArg(v_x_76_, v_x_77_, v_h__1_78_, v_h__2_79_);
+return v___x_80_;
 }
 }
 lean_object* runtime_initialize_Init_Data_List_Control(uint8_t builtin);
@@ -180,12 +180,10 @@ LEAN_EXPORT lean_object* runtime_initialize_Init_Data_List_ControlImpl(uint8_t b
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Init_Data_List_Control(builtin)
-;
+res = runtime_initialize_Init_Data_List_Control(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_List_Impl(builtin)
-;
+res = runtime_initialize_Init_Data_List_Impl(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -204,20 +202,16 @@ LEAN_EXPORT lean_object* initialize_Init_Data_List_ControlImpl(uint8_t builtin) 
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_List_Control(builtin)
-;
+res = initialize_Init_Data_List_Control(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_List_Impl(builtin)
-;
+res = initialize_Init_Data_List_Impl(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_List_ControlImpl(builtin)
-;
+res = runtime_initialize_Init_Data_List_ControlImpl(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_Init_Data_List_ControlImpl(builtin)
-;
+res = meta_initialize_Init_Data_List_ControlImpl(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_Init_Data_List_ControlImpl(builtin);

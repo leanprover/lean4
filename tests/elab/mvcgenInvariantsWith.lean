@@ -1,5 +1,6 @@
 import Std.Tactic.Do
 import Std
+set_option backward.do.legacy false
 
 open Std Do
 
@@ -19,7 +20,7 @@ theorem nodup_correct_vanilla (l : List Int) : nodup l ↔ l.Nodup := by
   apply Id.of_wp_run_eq h
   mvcgen
   case inv1 =>
-    exact Invariant.withEarlyReturn
+    exact Invariant.withEarlyReturnNewDo
       (onReturn := fun ret seen => ⌜ret = false ∧ ¬l.Nodup⌝)
       (onContinue := fun traversalState seen =>
         ⌜(∀ x, x ∈ seen ↔ x ∈ traversalState.prefix) ∧ traversalState.prefix.Nodup⌝)
@@ -29,7 +30,7 @@ theorem nodup_correct_invariants (l : List Int) : nodup l ↔ l.Nodup := by
   generalize h : nodup l = r
   apply Id.of_wp_run_eq h
   mvcgen invariants
-  · Invariant.withEarlyReturn
+  · Invariant.withEarlyReturnNewDo
    (onReturn := fun ret seen => ⌜ret = false ∧ ¬l.Nodup⌝) -- minimal indentation here is part of the test
    (onContinue := fun traversalState seen =>
    ⌜(∀ x, x ∈ seen ↔ x ∈ traversalState.prefix) ∧ traversalState.prefix.Nodup⌝)
@@ -39,7 +40,7 @@ theorem nodup_correct_invariants_with_pretac (l : List Int) : nodup l ↔ l.Nodu
   generalize h : nodup l = r
   apply Id.of_wp_run_eq h
   mvcgen invariants
-  · Invariant.withEarlyReturn
+  · Invariant.withEarlyReturnNewDo
       (onReturn := fun ret seen => ⌜ret = false ∧ ¬l.Nodup⌝)
       (onContinue := fun traversalState seen =>
         ⌜(∀ x, x ∈ seen ↔ x ∈ traversalState.prefix) ∧ traversalState.prefix.Nodup⌝)
@@ -50,7 +51,7 @@ theorem nodup_correct_invariants_with_cases (l : List Int) : nodup l ↔ l.Nodup
   apply Id.of_wp_run_eq h
   mvcgen
   invariants
-  · Invariant.withEarlyReturn
+  · Invariant.withEarlyReturnNewDo
       (onReturn := fun ret seen => ⌜ret = false ∧ ¬l.Nodup⌝)
       (onContinue := fun traversalState seen =>
         ⌜(∀ x, x ∈ seen ↔ x ∈ traversalState.prefix) ∧ traversalState.prefix.Nodup⌝)
@@ -66,7 +67,7 @@ theorem nodup_correct_invariants_with_pretac_cases (l : List Int) : nodup l ↔ 
   apply Id.of_wp_run_eq h
   mvcgen
   invariants
-  · Invariant.withEarlyReturn
+  · Invariant.withEarlyReturnNewDo
       (onReturn := fun ret seen => ⌜ret = false ∧ ¬l.Nodup⌝)
       (onContinue := fun traversalState seen =>
         ⌜(∀ x, x ∈ seen ↔ x ∈ traversalState.prefix) ∧ traversalState.prefix.Nodup⌝)
@@ -80,7 +81,7 @@ theorem nodup_correct_invariants_with_cases_error (l : List Int) : nodup l ↔ l
   apply Id.of_wp_run_eq h
   mvcgen
   invariants
-  · Invariant.withEarlyReturn
+  · Invariant.withEarlyReturnNewDo
       (onReturn := fun ret seen => ⌜ret = false ∧ ¬l.Nodup⌝)
       (onContinue := fun traversalState seen =>
         ⌜(∀ x, x ∈ seen ↔ x ∈ traversalState.prefix) ∧ traversalState.prefix.Nodup⌝)
@@ -137,11 +138,11 @@ theorem nodup_twice_correct_invariants_with (l : List Int) : nodup_twice l ↔ l
   apply Id.of_wp_run_eq h
   mvcgen
   invariants
-  · Invariant.withEarlyReturn
+  · Invariant.withEarlyReturnNewDo
       (onReturn := fun ret seen => ⌜ret = false ∧ ¬l.Nodup⌝)
       (onContinue := fun traversalState seen =>
         ⌜(∀ x, x ∈ seen ↔ x ∈ traversalState.prefix) ∧ traversalState.prefix.Nodup⌝)
-  · Invariant.withEarlyReturn
+  · Invariant.withEarlyReturnNewDo
       (onReturn := fun ret seen => ⌜ret = false ∧ ¬l.Nodup⌝)
       (onContinue := fun traversalState seen =>
         ⌜(∀ x, x ∈ seen ↔ x ∈ traversalState.prefix) ∧ traversalState.prefix.Nodup⌝)
@@ -152,11 +153,11 @@ theorem nodup_twice_correct_invariants_multiple_with (l : List Int) : nodup_twic
   apply Id.of_wp_run_eq h
   mvcgen
   invariants
-  · Invariant.withEarlyReturn
+  · Invariant.withEarlyReturnNewDo
       (onReturn := fun ret seen => ⌜ret = false ∧ ¬l.Nodup⌝)
       (onContinue := fun traversalState seen =>
         ⌜(∀ x, x ∈ seen ↔ x ∈ traversalState.prefix) ∧ traversalState.prefix.Nodup⌝)
-  · Invariant.withEarlyReturn
+  · Invariant.withEarlyReturnNewDo
       (onReturn := fun ret seen => ⌜ret = false ∧ ¬l.Nodup⌝)
       (onContinue := fun traversalState seen =>
         ⌜(∀ x, x ∈ seen ↔ x ∈ traversalState.prefix) ∧ traversalState.prefix.Nodup⌝)
@@ -165,7 +166,7 @@ theorem nodup_twice_correct_invariants_multiple_with (l : List Int) : nodup_twic
 /--
 error: Lacking definitions for the following invariants.
 
-  Invariant l (MProd (Option Bool) (HashSet Int)) PostShape.pure
+  Invariant l (Option Bool × HashSet Int) PostShape.pure
 -/
 #guard_msgs in
 theorem nodup_twice_missing_one_invariant (l : List Int) : nodup_twice l ↔ l.Nodup := by
@@ -173,7 +174,7 @@ theorem nodup_twice_missing_one_invariant (l : List Int) : nodup_twice l ↔ l.N
   apply Id.of_wp_run_eq h
   mvcgen
   invariants
-  · Invariant.withEarlyReturn
+  · Invariant.withEarlyReturnNewDo
       (onReturn := fun ret seen => ⌜ret = false ∧ ¬l.Nodup⌝)
       (onContinue := fun traversalState seen =>
         ⌜(∀ x, x ∈ seen ↔ x ∈ traversalState.prefix) ∧ traversalState.prefix.Nodup⌝)
@@ -182,9 +183,9 @@ theorem nodup_twice_missing_one_invariant (l : List Int) : nodup_twice l ↔ l.N
 /--
 error: Lacking definitions for the following invariants.
 
-  Invariant l (MProd (Option Bool) (HashSet Int)) PostShape.pure
+  Invariant l (Option Bool × HashSet Int) PostShape.pure
   ⏎
-  Invariant l (MProd (Option Bool) (HashSet Int)) PostShape.pure
+  Invariant l (Option Bool × HashSet Int) PostShape.pure
 -/
 #guard_msgs in
 theorem nodup_twice_missing_two_invariants (l : List Int) : nodup_twice l ↔ l.Nodup := by

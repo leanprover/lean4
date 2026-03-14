@@ -21,16 +21,13 @@ LEAN_EXPORT lean_object* runtime_initialize_Lean_Server_CodeActions(uint8_t buil
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Lean_Server_CodeActions_Attr(builtin)
-;
+res = runtime_initialize_Lean_Server_CodeActions_Attr(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Server_CodeActions_Basic(builtin)
-;
+res = runtime_initialize_Lean_Server_CodeActions_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Server_CodeActions_Provider(builtin)
-;
+res = runtime_initialize_Lean_Server_CodeActions_Provider(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -50,24 +47,19 @@ LEAN_EXPORT lean_object* initialize_Lean_Server_CodeActions(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Server_CodeActions_Attr(builtin)
-;
+res = initialize_Lean_Server_CodeActions_Attr(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Server_CodeActions_Basic(builtin)
-;
+res = initialize_Lean_Server_CodeActions_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Server_CodeActions_Provider(builtin)
-;
+res = initialize_Lean_Server_CodeActions_Provider(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Server_CodeActions(builtin)
-;
+res = runtime_initialize_Lean_Server_CodeActions(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_Lean_Server_CodeActions(builtin)
-;
+res = meta_initialize_Lean_Server_CodeActions(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_Lean_Server_CodeActions(builtin);

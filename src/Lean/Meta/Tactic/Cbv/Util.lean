@@ -101,4 +101,11 @@ def isProof (e : Expr) : Sym.SymM Bool := do
 public def isProofTerm : Simproc := fun e => do
   return .rfl (← isProof e)
 
+/-- Extract elements from a `List.cons`/`List.nil` chain. -/
+public partial def getListLitElems (e : Expr) (acc : Array Expr := #[]) : Option <| Array Expr :=
+  match_expr e with
+  | List.nil _ => some acc
+  | List.cons _ a as => getListLitElems as <| acc.push a
+  | _ => none
+
 end Lean.Meta.Tactic.Cbv

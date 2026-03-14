@@ -1,31 +1,31 @@
-[Elab.step] expected type: Prop, term
+[Elab.step] ✅️ expected type: Prop, term
     True
   [Elab.step.result] True
-[Elab.step] expected type: True, term
+[Elab.step] ✅️ expected type: True, term
     by
       skip
       trivial
   [Elab.step.result] ?m
-[Elab.step] 
+[Elab.step] ✅️ 
       skip
       trivial
-  [Elab.step] 
+  [Elab.step] ✅️ 
         skip
         trivial
-    [Elab.step] skip
-    [Elab.step] trivial
-      [Elab.step] (apply And.intro✝) <;> trivial
-        [Elab.step] focus
+    [Elab.step] ✅️ skip
+    [Elab.step] ✅️ trivial
+      [Elab.step] 💥️ (apply And.intro✝) <;> trivial
+        [Elab.step] 💥️ focus
               apply And.intro✝
               with_annotate_state"<;>" skip
               all_goals trivial
-          [Elab.step] 
+          [Elab.step] 💥️ 
                 apply And.intro✝
                 with_annotate_state"<;>" skip
                 all_goals trivial
-            [Elab.step] 
+            [Elab.step] 💥️ 
                   apply And.intro✝
                   with_annotate_state"<;>" skip
                   all_goals trivial
-              [Elab.step] apply And.intro✝
-      [Elab.step] apply True.intro✝
+              [Elab.step] 💥️ apply And.intro✝
+      [Elab.step] ✅️ apply True.intro✝

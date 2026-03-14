@@ -330,7 +330,7 @@ inductive Expr where
 
   When "visiting" the body of a binding expression (i.e. `lam`, `forallE`, or `letE`),
   bound variables are converted into free variables using a unique identifier,
-  and their user-facing name, type, value (for `LetE`), and binder annotation
+  and their user-facing name, type, value (for `letE`), and binder annotation
   are stored in the `LocalContext`.
   -/
   | fvar (fvarId : FVarId)

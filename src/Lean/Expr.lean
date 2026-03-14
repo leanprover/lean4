@@ -301,8 +301,8 @@ inductive Expr where
   of a variable in the expression where there is a variable binder
   above it (i.e. introduced by a `lam`, `forallE`, or `letE`).
 
-  The `deBruijnIndex` parameter is the *de-Bruijn* index for the bound
-  variable. See [the Wikipedia page on de-Bruijn indices](https://en.wikipedia.org/wiki/De_Bruijn_index)
+  The `deBruijnIndex` parameter is the *de Bruijn* index for the bound
+  variable. See [the Wikipedia page on de Bruijn indices](https://en.wikipedia.org/wiki/De_Bruijn_index)
   for additional information.
 
   For example, consider the expression `fun x : Nat => forall y : Nat, x = y`.
@@ -321,8 +321,8 @@ inductive Expr where
   | bvar (deBruijnIndex : Nat)
 
   /--
-  The `fvar` constructor represent free variables. These *free* variable
-  occurrences are not bound by an earlier `lam`, `forallE`, or `letE`
+  The `fvar` constructor represent free variables. Such a *free* variable
+  occurrence is not bound by an earlier `lam`, `forallE`, or `letE`
   constructor and its binder exists in a local context only.
 
   Note that Lean uses the *locally nameless approach*. See [McBride and McKinna](https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.365.2479&rep=rep1&type=pdf)

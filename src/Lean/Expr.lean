@@ -321,7 +321,7 @@ inductive Expr where
   | bvar (deBruijnIndex : Nat)
 
   /--
-  The `fvar` constructor represent free variables. Such a *free* variable
+  The `fvar` constructor represents free variables. Such a *free* variable
   occurrence is not bound by an earlier `lam`, `forallE`, or `letE`
   constructor and its binder exists in a local context only.
 

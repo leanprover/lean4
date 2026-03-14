@@ -363,7 +363,7 @@ inductive Expr where
   A function application.
 
   For example, the natural number one, i.e. `Nat.succ Nat.zero` is represented as
-  ``Expr.app (.const `Nat.succ []) (.const .zero [])``.
+  ``Expr.app (.const `Nat.succ []) (.const `Nat.zero [])``.
   Note that multiple arguments are represented using partial application.
 
   For example, the two argument application `f x y` is represented as

@@ -117,11 +117,19 @@ section Utils
     Remark: `danglingDot == true` when the completion point is an identifier followed by `.`.
   -/
   private def matchDecl? (ns : Name) (id : Name) (danglingDot : Bool) (declName : Name) : MetaM (Option Name) := do
-    let some declName ← normPrivateName? declName
+    let some declName ←
+      if isPrivateName declName then
+        normPrivateName? declName
+      else if ns.isAnonymous || ns.isPrefixOf declName then
+        pure <| some declName
+      else
+        pure none
       | return none
-    if !ns.isPrefixOf declName then
-      return none
-    let declName := declName.replacePrefix ns Name.anonymous
+    let declName :=
+      if ns.isAnonymous then
+        declName
+      else
+        declName.replacePrefix ns Name.anonymous
     if danglingDot then
       -- If the input is `id.` and `declName` is of the form `id.atomic`, complete with `atomicName`
       if id.isPrefixOf declName then

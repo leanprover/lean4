@@ -90,6 +90,7 @@ public def main (args : List String) : IO UInt32 := do
   let env ← initExt Lean.Compiler.CSimp.ext.ext env
   let env ← initExt Meta.instanceExtension.ext env
   let env ← initExt classExtension env
+  let env ← initExt Meta.Match.Extension.extension env
 
   let some modIdx := env.getModuleIdx? modName
     | throw <| IO.userError s!"module '{modName}' not found"

@@ -499,40 +499,69 @@ public def cacheArtifact
 /-- **For internal use only.** -/
 public class ResolveOutputs (α : Type) where
   /-- **For internal use only.** -/
-  resolveOutputs (out : Json)
-    (service? : Option CacheServiceName) (scope? : Option CacheServiceScope) : JobM α
+  resolveOutputs (out : CacheOutput) : JobM α
+
 
 open ResolveOutputs in
 /--
-Retrieve artifacts from the Lake cache using the outputs stored
-in either the saved trace file or in the cached input-to-content mapping.
+Retrieve artifacts from the Lake cache using only the outputs
+stored in the cached input-to-content mapping.
 
 **For internal use only.**
 -/
-@[specialize] public nonrec def getArtifacts?
-  [ResolveOutputs α] (inputHash : Hash) (savedTrace : SavedTrace) (pkg : Package)
+@[specialize] private def getArtifactsUsingCache?
+  [ResolveOutputs α] (inputHash : Hash) (pkg : Package)
 : JobM (Option α) := do
-  let cache ← getLakeCache
-  if let some out ← cache.readOutputs? pkg.cacheScope inputHash then
+  if let some out ← (← getLakeCache).readOutputs? pkg.cacheScope inputHash then
     try
-      return some (← resolveOutputs out.data out.service? out.scope?)
+      return some (← resolveOutputs out)
     catch e =>
       let log ← takeLogFrom e
       let msg := s!"input '{inputHash.toString.take 7}' found in package artifact cache, \
         but some output(s) have issues:"
       let msg := log.entries.foldl (s!"{·}\n- {·.message}") msg
       logWarning msg
+      return none
+  else
+    return none
+
+open ResolveOutputs in
+/--
+Retrieve artifacts from the Lake cache using only the outputs stored in the saved trace file.
+
+**For internal use only.**
+-/
+@[specialize] public def getArtifactsUsingTrace?
+  [ResolveOutputs α] (inputHash : Hash) (savedTrace : SavedTrace) (pkg : Package)
+: JobM (Option α) := do
   if let .ok data := savedTrace then
     if data.depHash == inputHash then
       if let some out := data.outputs? then
         try
-          let arts ← resolveOutputs out none none
+          let arts ← resolveOutputs (.ofData out)
           if (← pkg.isArtifactCacheWritable) then
-            if let .error e ← (cache.writeOutputs pkg.cacheScope inputHash out).toBaseIO then
+            let act := (← getLakeCache).writeOutputs pkg.cacheScope inputHash out
+            if let .error e ← act.toBaseIO then
               logWarning s!"could not write outputs to cache: {e}"
           return some arts
         catch e =>
           dropLogFrom e
+  return none
+
+open ResolveOutputs in
+/--
+Retrieve artifacts from the Lake cache using the outputs stored in either
+the saved trace file or (unless `traceOnly` is `true`) in the cached input-to-content mapping.
+
+**For internal use only.**
+-/
+@[inline] public nonrec def getArtifacts?
+  [ResolveOutputs α] (inputHash : Hash) (savedTrace : SavedTrace) (pkg : Package)
+: JobM (Option α) := do
+  if let some a ← getArtifactsUsingCache? inputHash pkg then
+    return some a
+  if let some a ← getArtifactsUsingTrace? inputHash savedTrace pkg then
+    return some a
   return none
 
 /-- **For internal use only.** -/
@@ -548,6 +577,7 @@ public def resolveArtifact
   | .error (.noFileOrDirectory ..) =>
     -- we redownload artifacts on any error
     if let some service := service? then
+      updateAction .fetch
       if let some service := ws.findCacheService? service.toString then
         let some scope := scope?
           | error s!"artifact with associated cache service but no scope"
@@ -573,19 +603,16 @@ public def resolveArtifact
     error s!"failed to retrieve artifact from cache: {e}"
 
 /-- **For internal use only.** -/
-public def resolveArtifactOutput
-  (out : Json) (service? : Option CacheServiceName) (scope? : Option CacheServiceScope)
-  (exe := false)
-: JobM Artifact := do
-  match fromJson? out with
-  | .ok descr => resolveArtifact descr service? scope? exe
-  | .error e => error s!"ill-formed artifact output:\n{out.render.pretty 80 2}\n{e}"
+public def resolveArtifactOutput (out : CacheOutput) (exe := false) : JobM Artifact := do
+  match fromJson? out.data with
+  | .ok descr => resolveArtifact descr out.service? out.scope? exe
+  | .error e => error s!"ill-formed artifact output:\n{out.data.render.pretty 80 2}\n{e}"
 
 set_option linter.unusedVariables false in
 /-- An artifact equipped with information about whether it is executable. -/
 def XArtifact (exe : Bool) := Artifact
 
-instance : ResolveOutputs (XArtifact exe) := ⟨resolveArtifactOutput (exe := exe)⟩
+instance : ResolveOutputs (XArtifact exe) := ⟨(resolveArtifactOutput (exe := exe))⟩
 
 /--
 Construct an artifact from a path outside the Lake artifact cache.

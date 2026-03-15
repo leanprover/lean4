@@ -624,39 +624,40 @@ def ModuleOutputDescrs.resolve
     return arts
 where @[inline] resolve descr := resolveArtifact descr service? scope?
 
-def resolveModuleOutputs
-  (out : Json) (service? : Option CacheServiceName) (scope? : Option CacheServiceScope)
-: JobM ModuleOutputArtifacts := do
-  match fromJson? out with
-  | .ok (descrs : ModuleOutputDescrs) => descrs.resolve service? scope?
-  | .error e => error s!"ill-formed module outputs:\n{out.render.pretty 80 2}\n{e}"
-where @[inline] resolve descr := resolveArtifact descr service? scope?
+def resolveModuleOutputArtifacts (out : CacheOutput) : JobM ModuleOutputArtifacts := do
+  match fromJson? out.data with
+  | .ok (descrs : ModuleOutputDescrs) => descrs.resolve out.service? out.scope?
+  | .error e => error s!"ill-formed module outputs:\n{out.data.render.pretty 80 2}\n{e}"
 
-instance : ResolveOutputs ModuleOutputArtifacts := ⟨resolveModuleOutputs⟩
+instance : ResolveOutputs ModuleOutputArtifacts := ⟨resolveModuleOutputArtifacts⟩
 
-def resolveModuleLtarOrOutputs
-  (out : Json) (service? : Option CacheServiceName) (scope? : Option CacheServiceScope)
-: JobM (Sum Artifact ModuleOutputArtifacts) := do
-  if let .str descr := out then
+inductive ModuleOutputs
+| ltar (art : Artifact)
+| arts (arts : ModuleOutputArtifacts)
+
+instance : Coe ModuleOutputArtifacts ModuleOutputs := ⟨.arts⟩
+
+def resolveModuleOutputs (out : CacheOutput) : JobM ModuleOutputs := do
+  if let .str descr := out.data then
     match ArtifactDescr.ofFilePath? descr with
     | .ok descr =>
-      return .inl (← resolveArtifact descr service? scope?)
+      return .ltar (← resolveArtifact descr out.service? out.scope?)
     | .error e =>
-      error s!"ill-formed module archive output:\n{out.render.pretty 80 2}\n{e}"
+      error s!"ill-formed module archive output:\n{out.data.render.pretty 80 2}\n{e}"
   else
-    match fromJson? out with
+    match fromJson? out.data with
     | .ok (descrs : ModuleOutputDescrs) =>
       if let some descr := descrs.ltar? then
         try
-          .inr <$> descrs.resolve service? scope?
+          descrs.resolve out.service? out.scope?
         catch e =>
           dropLogFrom e
-          return .inl (← resolveArtifact descr service? scope?)
+          return .ltar (← resolveArtifact descr out.service? out.scope?)
       else
-        .inr <$> descrs.resolve service? scope?
-    | .error e => error s!"ill-formed module outputs:\n{out.render.pretty 80 2}\n{e}"
+        descrs.resolve out.service? out.scope?
+    | .error e => error s!"ill-formed module outputs:\n{out.data.render.pretty 80 2}\n{e}"
 
-instance : ResolveOutputs (Sum Artifact ModuleOutputArtifacts) := ⟨resolveModuleLtarOrOutputs⟩
+instance : ResolveOutputs ModuleOutputs := ⟨resolveModuleOutputs⟩
 
 /-- Save module build artifacts to the local Lake cache. -/
 private def Module.cacheOutputArtifacts
@@ -891,31 +892,40 @@ private def Module.recBuildLean (mod : Module) : FetchM (Job ModuleOutputArtifac
     have : CheckExists Module := ⟨Module.checkExists (isModule := setup.isModule)⟩
     have : GetMTime Module := ⟨Module.getMTime (isModule := setup.isModule)⟩
     let fetchArtsFromCache? savedTrace restoreAll : JobM (Sum ModuleOutputArtifacts SavedTrace) := do
-      let restoreArts arts :=
-        if restoreAll then
-          mod.restoreAllArtifacts arts
-        else
-          mod.restoreNeededArtifacts arts
       let some ltarOrArts ← getArtifacts? inputHash savedTrace mod.pkg
         | return .inr savedTrace
-      match (ltarOrArts : Sum Artifact ModuleOutputArtifacts)  with
-      | .inl ltar =>
+      match (ltarOrArts : ModuleOutputs)  with
+      | .ltar ltar =>
         mod.clearOutputArtifacts
         mod.unpackLtar ltar.path
+        -- Note: This branch implies that only the ltar output is (validly) cached.
+        -- Thus, we use only the new trace unpacked from the ltar to resolve further artifacts.
         let savedTrace ← readTraceFile mod.traceFile
-        if let some (arts : ModuleOutputArtifacts) ← getArtifacts? inputHash savedTrace mod.pkg then
-          .inl <$> restoreArts {arts with ltar? := some ltar}
+        let arts? ← getArtifactsUsingTrace? inputHash savedTrace mod.pkg
+        if let some (arts : ModuleOutputArtifacts) := arts? then
+          -- on initial unpack from cache ensure all artifacts uniformly
+          -- end up in the build directory and, if writable, the cache
+          let arts ← mod.restoreAllArtifacts {arts with ltar? := some ltar}
+          if (← mod.pkg.isArtifactCacheWritable) then
+            .inl <$> mod.cacheOutputArtifacts setup.isModule restoreAll
+          else
+            return .inl arts
         else
           return .inr savedTrace
-      | .inr arts =>
+      | .arts arts =>
         unless (← savedTrace.replayOrFetchIfUpToDate inputHash) do
           mod.clearOutputArtifacts
           writeFetchTrace mod.traceFile inputHash (toJson arts.descrs)
-        .inl <$> restoreArts arts
+        let arts ←
+          if restoreAll then
+            mod.restoreAllArtifacts arts
+          else
+            mod.restoreNeededArtifacts arts
+        return .inl arts
     let arts ← id do
+      let savedTrace ← readTraceFile mod.traceFile
       if (← mod.pkg.isArtifactCacheWritable) then
         let restore ← mod.pkg.restoreAllArtifacts
-        let savedTrace ← readTraceFile mod.traceFile
         match (← fetchArtsFromCache? savedTrace restore) with
         | .inl arts =>
           return arts
@@ -933,33 +943,36 @@ private def Module.recBuildLean (mod : Module) : FetchM (Job ModuleOutputArtifac
           else
             mod.computeArtifacts setup.isModule
       else
-        let savedTrace ← readTraceFile mod.traceFile
         if (← savedTrace.replayIfUpToDate (oldTrace := srcTrace.mtime) mod depTrace) then
           unless (← mod.checkArtifactsExsist setup.isModule) do
             mod.unpackLtar mod.ltarFile
           mod.computeArtifacts setup.isModule
         else
           if (← mod.pkg.isArtifactCacheReadable) then
-            match ( ← fetchArtsFromCache? savedTrace true) with
+            match (← fetchArtsFromCache? savedTrace true) with
             | .inl arts =>
                return arts
             | .inr savedTrace =>
               if (← savedTrace.replayIfUpToDate (oldTrace := srcTrace.mtime) mod depTrace) then
                 mod.computeArtifacts setup.isModule
               else
-                 mod.buildLean depTrace srcFile setup
+                mod.buildLean depTrace srcFile setup
           else
             mod.buildLean depTrace srcFile setup
     let arts ← id do
       if mod.pkg.isRoot then
         if let some ref := (← getBuildContext).outputsRef? then
-          let ltar ← id do
-            if (← mod.ltarFile.pathExists) then
-              computeArtifact mod.ltarFile "ltar"
-            else
-              mod.packLtar arts
-          ref.insert inputHash ltar.descr
-          return {arts with ltar? := some ltar}
+          if let some ltar := arts.ltar? then
+            ref.insert inputHash ltar.descr
+            return arts
+          else
+            let ltar ← id do
+              if (← mod.ltarFile.pathExists) then
+                computeArtifact mod.ltarFile "ltar"
+              else
+                mod.packLtar arts
+            ref.insert inputHash ltar.descr
+            return {arts with ltar? := some ltar}
       return arts
     match (← getMTime mod.traceFile |>.toBaseIO) with
     | .ok mtime =>

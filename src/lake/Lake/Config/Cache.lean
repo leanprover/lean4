@@ -296,7 +296,8 @@ public structure CacheOutput where
 
 namespace CacheOutput
 
-@[inline] def ofData (data : Json) : CacheOutput := {data}
+/-- **For internal use only.** -/
+@[inline] public def ofData (data : Json) : CacheOutput := {data}
 
 public protected def toJson (out : CacheOutput) : Json := Id.run do
   let mut obj :=

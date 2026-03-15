@@ -4674,7 +4674,7 @@ inductive Name where
   /-- The "anonymous" name. -/
   | anonymous : Name
   /--
-  A string name. The name `Lean.Meta.run` is represented at
+  A string name. The name `Lean.Meta.run` is represented as
   ```lean
   .str (.str (.str .anonymous "Lean") "Meta") "run"
   ```

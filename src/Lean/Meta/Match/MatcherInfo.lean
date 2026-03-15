@@ -115,20 +115,21 @@ structure Entry where
   info : MatcherInfo
 
 structure State where
-  map : PHashMap Name MatcherInfo := {}
+  map : SMap Name MatcherInfo := {}
 
 instance : Inhabited State := ⟨{}⟩
 
 def State.addEntry (s : State) (e : Entry) : State := { s with map  := s.map.insert e.name e.info }
+def State.switch (s : State) : State :=  { s with map := s.map.switch }
 
-private builtin_initialize extension : SimplePersistentEnvExtension Entry State ←
+builtin_initialize extension : SimplePersistentEnvExtension Entry State ←
   registerSimplePersistentEnvExtension {
     addEntryFn    := State.addEntry
-    addImportedFn := fun _ => {}
+    addImportedFn := fun es => (mkStateFromImportedEntries State.addEntry {} es).switch
     asyncMode     := .async .mainEnv
     exportEntriesFnEx? := some fun env _ entries _ =>
       -- Do not export info for private defs
-      entries.filter (env.contains (skipRealize := false) ·.name) |>.toArray.qsort (Name.quickLt ·.name ·.name)
+      entries.filter (env.contains (skipRealize := false) ·.name) |>.toArray
   }
 
 def addMatcherInfo (env : Environment) (matcherName : Name) (info : MatcherInfo) : Environment :=
@@ -139,12 +140,7 @@ def getMatcherInfo? (env : Environment) (declName : Name) : Option MatcherInfo :
   -- avoid blocking on async decls whose names look nothing like matchers
   let .str _ s := declName.eraseMacroScopes | none
   guard <| s.startsWith "match_"
-  match env.getModuleIdxFor? declName with
-  | some modIdx =>
-    extension.getModuleEntries env modIdx
-      |>.binSearch { name := declName, info := default } (Name.quickLt ·.name ·.name)
-      |>.map (·.info)
-  | none        => (extension.getState (asyncDecl := declName) env).map.find? declName
+  (extension.getState (asyncDecl := declName) env).map.find? declName
 
 end Extension
 

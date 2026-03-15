@@ -802,13 +802,13 @@ endif()
 file(
   GLOB_RECURSE STDLIB_SOURCE_FILES
   CONFIGURE_DEPENDS
-  "${LEAN_SOURCE_DIR}/Init*.lean"
+  "${LEAN_SOURCE_DIR}/Init/*.lean"
   "${LEAN_SOURCE_DIR}/Init/**/*.lean"
-  "${LEAN_SOURCE_DIR}/Std*.lean"
+  "${LEAN_SOURCE_DIR}/Std/*.lean"
   "${LEAN_SOURCE_DIR}/Std/**/*.lean"
-  "${LEAN_SOURCE_DIR}/Lean*.lean"
+  "${LEAN_SOURCE_DIR}/Lean/*.lean"
   "${LEAN_SOURCE_DIR}/Lean/**/*.lean"
-  "${LEAN_SOURCE_DIR}/LeanChecker*.lean"
+  "${LEAN_SOURCE_DIR}/LeanChecker/*.lean"
   "${LEAN_SOURCE_DIR}/LeanChecker/**/*.lean"
   "${LEAN_SOURCE_DIR}/Leanc.lean"
   "${LEAN_SOURCE_DIR}/lake/*.lean"
@@ -819,6 +819,7 @@ if(STAGE EQUAL 0)
   file(
     GLOB_RECURSE STDLIB_BOOTSTRAP_SOURCE_FILES
     CONFIGURE_DEPENDS
+    "${LEAN_SOURCE_DIR}/../stdlib/*.c"
     "${LEAN_SOURCE_DIR}/../stdlib/**/*.c"
   )
 endif()

@@ -921,7 +921,6 @@ private def Module.recBuildLean (mod : Module) : FetchM (Job ModuleOutputArtifac
           return arts
         | .inr savedTrace =>
           let status ← savedTrace.replayIfUpToDate' (oldTrace := srcTrace.mtime) mod depTrace
-          logInfo s!"saved trace up-to-date? {status.isUpToDate}"
           if status.isUpToDate then
             unless (← mod.checkArtifactsExsist setup.isModule) do
               mod.unpackLtar mod.ltarFile
@@ -954,7 +953,6 @@ private def Module.recBuildLean (mod : Module) : FetchM (Job ModuleOutputArtifac
     let arts ← id do
       if mod.pkg.isRoot then
         if let some ref := (← getBuildContext).outputsRef? then
-          logInfo "writing module outputs"
           let ltar ← id do
             if (← mod.ltarFile.pathExists) then
               computeArtifact mod.ltarFile "ltar"

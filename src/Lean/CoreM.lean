@@ -11,8 +11,6 @@ public import Lean.ResolveName
 public import Lean.Language.Basic
 import Init.While
 import Lean.Compiler.NoncomputableAttr
-import Lean.Compiler.MetaAttr
-import Lean.Util.ForEachExpr
 
 public section
 

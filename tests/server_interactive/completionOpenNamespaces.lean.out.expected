@@ -24,24 +24,24 @@ Resolution of verySpecificDefinitionNameOfCompletionOpenNamespaces:
  "position": {"line": 14, "character": 71}}
 {"items": [], "isIncomplete": false}
 {"textDocument": {"uri": "file:///completionOpenNamespaces.lean"},
- "position": {"line": 16, "character": 74}}
+ "position": {"line": 17, "character": 74}}
 {"items":
- [{"label": "B2.verySpecificDefinitionNameOfCompletionOpenNamespacesPrivate",
+ [{"label": "verySpecificDefinitionNameOfCompletionOpenNamespacesPrivate",
    "kind": 21,
    "data":
    ["file:///completionOpenNamespaces.lean",
-    16,
+    17,
     74,
     0,
-    "cA.B2.verySpecificDefinitionNameOfCompletionOpenNamespacesPrivate"]}],
+    "c_private.«external:file:///completionOpenNamespaces.lean».0.A.B2.verySpecificDefinitionNameOfCompletionOpenNamespacesPrivate"]}],
  "isIncomplete": false}
-Resolution of B2.verySpecificDefinitionNameOfCompletionOpenNamespacesPrivate:
-{"label": "B2.verySpecificDefinitionNameOfCompletionOpenNamespacesPrivate",
+Resolution of verySpecificDefinitionNameOfCompletionOpenNamespacesPrivate:
+{"label": "verySpecificDefinitionNameOfCompletionOpenNamespacesPrivate",
  "kind": 21,
  "detail": "Nat",
  "data":
  ["file:///completionOpenNamespaces.lean",
-  16,
+  17,
   74,
   0,
-  "cA.B2.verySpecificDefinitionNameOfCompletionOpenNamespacesPrivate"]}
+  "c_private.«external:file:///completionOpenNamespaces.lean».0.A.B2.verySpecificDefinitionNameOfCompletionOpenNamespacesPrivate"]}

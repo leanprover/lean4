@@ -46,4 +46,9 @@ register_builtin_option compiler.postponeCompile : Bool := {
   descr := "Internal. Toggle experimental `leanir` separate compilation."
 }
 
+register_builtin_option compiler.inLeanIR : Bool := {
+  defValue := false
+  descr := "Internal. Indicates whether the compiler is currently running in `leanir`."
+}
+
 end Lean.Compiler

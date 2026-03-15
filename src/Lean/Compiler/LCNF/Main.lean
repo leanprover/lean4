@@ -104,12 +104,13 @@ builtin_initialize postponedCompileDeclsExt : SimplePersistentEnvExtension Postp
 def resumeCompilation (declName : Name) : CoreM Unit := do
   let some decls := postponedCompileDeclsExt.getState (← getEnv) |>.find? declName | return
   modifyEnv (postponedCompileDeclsExt.modifyState · fun s => decls.declNames.foldl (·.erase) s)
+  withOptions (compiler.postponeCompile.set · false) do
   Core.prependError m!"Failed to compile `{declName}`" do
-    (← compileDeclsRef.get) decls.declNames (mayPostpone := false)
+    (← compileDeclsRef.get) decls.declNames
 
 namespace PassManager
 
-partial def run (declNames : Array Name) (mayPostpone : Bool) : CompilerM Unit := withAtLeastMaxRecDepth 8192 do
+partial def run (declNames : Array Name) : CompilerM Unit := withAtLeastMaxRecDepth 8192 do
   /-
   Note: we need to increase the recursion depth because we currently do to save phase1
   declarations in .olean files. Then, we have to recursively compile all dependencies,
@@ -139,7 +140,7 @@ partial def run (declNames : Array Name) (mayPostpone : Bool) : CompilerM Unit :
     checkMeta decl
 
   -- Now that we have done all input checks, check for postponement
-  if mayPostpone && (← getEnv).header.isModule && (← compiler.postponeCompile.getM) then
+  if (← getEnv).header.isModule && (← compiler.postponeCompile.getM) then
     modifyEnv (postponedCompileDeclsExt.addEntry · { declNames := decls.map (·.name) })
     -- meta defs are compiled locally so they are available for execution/compilation without
     -- importing `.ir` but still marked for `leanir` compilation so that we do not have to persist
@@ -198,9 +199,9 @@ where
 
 end PassManager
 
-def main (declNames : Array Name) (mayPostpone : Bool) : CoreM Unit := do
+def main (declNames : Array Name) : CoreM Unit := do
   withTraceNode `Compiler (fun _ => return m!"compiling: {declNames}") do
-    CompilerM.run <| PassManager.run declNames mayPostpone
+    CompilerM.run <| PassManager.run declNames
 
 builtin_initialize
   compileDeclsRef.set main

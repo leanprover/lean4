@@ -66,8 +66,7 @@ public def main (args : List String) : IO UInt32 := do
   let mut opts := setup.options.toOptions
   for optArg in optArgs do
     opts ← setConfigOption opts optArg
-  -- Already checked in `lean` and could fail on now-private imports
-  opts := Compiler.compiler.checkMeta.set opts false
+  opts := Compiler.compiler.inLeanIR.set opts true
   opts := maxHeartbeats.set opts 0
 
   --initSearchPathInternal  -- TODO

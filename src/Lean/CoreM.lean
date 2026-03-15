@@ -708,14 +708,14 @@ breaks the cycle by making `compileDeclsImpl` a "dynamic" call through the ref t
 to the linker. In the compiler there is a matching `builtin_initialize` to set this ref to the
 actual implementation of compileDeclsRef.
 -/
-builtin_initialize compileDeclsRef : IO.Ref (Array Name → (mayPostpone : Bool) → CoreM Unit) ←
-  IO.mkRef (fun _ _ => throwError m!"call to compileDecls with uninitialized compileDeclsRef")
+builtin_initialize compileDeclsRef : IO.Ref (Array Name → CoreM Unit) ←
+  IO.mkRef (fun _ => throwError m!"call to compileDecls with uninitialized compileDeclsRef")
 
-private def compileDeclsImpl (declNames : Array Name) (mayPostpone : Bool) : CoreM Unit := do
-  (← compileDeclsRef.get) declNames mayPostpone
+private def compileDeclsImpl (declNames : Array Name) : CoreM Unit := do
+  (← compileDeclsRef.get) declNames
 
 -- `ref?` is used for error reporting if available
-def compileDecls (decls : Array Name) (logErrors := true) (mayPostpone := true) : CoreM Unit := do
+def compileDecls (decls : Array Name) (logErrors := true) : CoreM Unit := do
   let env ← getEnv
   if !Elab.async.get (← getOptions) then
     let _ ← traceBlock "compiler env" (← getEnv).checked
@@ -744,7 +744,7 @@ where doCompile := do
   withoutExporting do
     let state ← Core.saveState
     try
-      compileDeclsImpl decls mayPostpone
+      compileDeclsImpl decls
     catch e =>
       state.restore
       for decl in decls do
@@ -752,8 +752,8 @@ where doCompile := do
       if logErrors then
         throw e
 
-def compileDecl (decl : Declaration) (logErrors mayPostpone := true) : CoreM Unit := do
-  compileDecls (Compiler.getDeclNamesForCodeGen decl) logErrors mayPostpone
+def compileDecl (decl : Declaration) (logErrors := true) : CoreM Unit := do
+  compileDecls (Compiler.getDeclNamesForCodeGen decl) logErrors
 
 def getDiag (opts : Options) : Bool :=
   diagnostics.get opts

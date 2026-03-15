@@ -827,7 +827,9 @@ set(
   STDLIB_BUILD_DEPS
   ${STDLIB_SOURCE_FILES}
   ${STDLIB_BOOTSTRAP_SOURCE_FILES}
+  "${LEAN_SOURCE_DIR}/bin/leanmake"
   "${LEAN_SOURCE_DIR}/lakefile.toml.in"
+  "${CMAKE_BINARY_DIR}/share/lean/lean.mk"
   "${CMAKE_BINARY_DIR}/stdlib.make"
   "${CMAKE_BINARY_DIR}/leanc.sh"
 )

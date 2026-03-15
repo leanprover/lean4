@@ -82,17 +82,14 @@ public def main (args : List String) : IO UInt32 := do
     finalizeImport (leakEnv := true) (loadExts := false) (level := .exported) s imports opts
   let env := env.setMainModule modName
 
-  let is := Lean.Compiler.CSimp.ext.ext.toEnvExtension.getState env
-  let newState ← Lean.Compiler.CSimp.ext.ext.addImportedFn is.importedEntries { env := env, opts := {} }
-  let env := Lean.Compiler.CSimp.ext.ext.toEnvExtension.setState (asyncMode := .sync) env { is with state := newState }
+  let initExt {α β σ} [Inhabited σ] (ext : PersistentEnvExtension α β σ) (env : Environment) : IO Environment := do
+    let s := ext.toEnvExtension.getState env
+    let newState ← ext.addImportedFn s.importedEntries { env := env, opts := {} }
+    return ext.toEnvExtension.setState (asyncMode := .sync) env { s with state := newState }
 
-  let is := Meta.instanceExtension.ext.toEnvExtension.getState env
-  let newState ← Meta.instanceExtension.ext.addImportedFn is.importedEntries { env := env, opts := {} }
-  let env := Meta.instanceExtension.ext.toEnvExtension.setState (asyncMode := .sync) env { is with state := newState }
-
-  let is := classExtension.toEnvExtension.getState env
-  let newState ← classExtension.addImportedFn is.importedEntries { env := env, opts := {} }
-  let env := classExtension.toEnvExtension.setState (asyncMode := .sync) env { is with state := newState }
+  let env ← initExt Lean.Compiler.CSimp.ext.ext env
+  let env ← initExt Meta.instanceExtension.ext env
+  let env ← initExt classExtension env
 
   let some modIdx := env.getModuleIdx? modName
     | throw <| IO.userError s!"module '{modName}' not found"

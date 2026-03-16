@@ -9,7 +9,7 @@ all: run run-local
 lake:
 	$(LAKE) --dir=lib build
 
-LIB_NAME=rffi_RFFI
+LIB_NAME=_rffi_RFFI
 
 OUT_DIR = out
 LEAN_SYSROOT ?= $(shell lean --print-prefix)

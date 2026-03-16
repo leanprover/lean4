@@ -33,6 +33,7 @@ Mangling simple identifiers with optional number components and preceding unders
 Escape sequences in mangled identifiers.
 -/
 
+#eval checkMangle `a_b "a__b"
 #eval checkMangle `«ÿ» "00_xff"
 #eval checkMangle `«α₁» "00_u03b1_u2081"
 #eval checkMangle `«𝒫» "00_U0001d4ab"
@@ -64,7 +65,6 @@ Trailing underscores in names
 Empty name components
 -/
 
-#eval checkMangle `a_b "a__b"
 #eval checkMangle `a.«».b "a_00_b"
 #eval checkMangle `«».b "00_b"
 #eval checkMangle `b_.«» "b___00"
@@ -86,6 +86,7 @@ Consecutive number components
 Preceding number components
 -/
 
+#eval checkMangle (.num .anonymous 4) "4_"
 #eval checkMangle (.str (.num .anonymous 4) "hi") "4__hi"
 
 /-!

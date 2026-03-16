@@ -66,4 +66,4 @@ public def getSymbolStem (env : Environment) (declName : Name) : String :=
     match env.getModuleIdxFor? declName with
     | some idx => env.getModulePackageByIdx? idx
     | none => env.getModulePackage?
-  declName.mangle (mkPackageSymbolPrefix pkg?)
+  mkPackageSymbolName declName pkg?

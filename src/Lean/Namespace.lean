@@ -45,7 +45,7 @@ private builtin_initialize namespacesExt : PersistentEnvExtension Name Name Stat
       let entries := s.map₂.toArray.map (·.1)
       entries.qsort (·.quickLt)
     -- Namespaces from local helper constants can be disregarded in other environment branches. We
-    -- do *not* want `getNamespaceSet` to have to wait on all prior branches.
+    -- do *not* want `getNamespaces` to have to wait on all prior branches.
     asyncMode       := .local
   }
 
@@ -61,6 +61,6 @@ public def registerNamespace (env : Environment) (n : Name) : Environment :=
 public def isNamespace (env : Environment) (n : Name) : Bool :=
   namespacesExt.getState env |>.contains n
 
-/-- Returns a set (more specifically, a map to namespace visibility) containing all namespaces in `env`. -/
-public def getNamespaceSet (env : Environment) : SMap Name Visibility :=
-  namespacesExt.getState env
+/-- Returns an iterator over all namespaces in `env`. -/
+def getNamespaces (env : Environment) :=
+  namespacesExt.getState env |>.iter.map (·.1)

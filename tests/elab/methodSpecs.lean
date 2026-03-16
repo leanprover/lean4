@@ -109,7 +109,11 @@ error: expected `aS` to be a type class instance, but its type `S` does not look
 #guard_msgs in @[method_specs] def aS : S := ⟨1⟩
 
 @[class] inductive indClass where | mk
-/-- error: `indClass` is not a structure -/
+/--
+error: `indClass` is not a structure
+---
+warning: Definition `instIndClass` of class type must be marked with `@[reducible]` or `@[implicit_reducible]`
+-/
 #guard_msgs in @[method_specs] def instIndClass : indClass := .mk
 
 -- This used to fail until we eta-reduced the field values

@@ -105,6 +105,10 @@ public def isRootArtifactCacheWritable (ws : Workspace) : Bool :=
 public abbrev isRootArtifactCacheEnabled (ws : Workspace) : Bool :=
   ws.isRootArtifactCacheWritable
 
+/-- Whether artifacts should be restored by default from the Lake cache for packages in the workspace. -/
+@[inline] public def restoreAllArtifacts? (ws : Workspace) : Option Bool :=
+  ws.root.restoreAllArtifacts?
+
 /-- Returns the toolchain identifier for the Lake cache corresponding the workspace's toolchain. -/
 @[inline] public def cacheToolchain (ws : Workspace) : CacheToolchain :=
   ws.lakeEnv.cacheToolchain

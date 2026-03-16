@@ -21,7 +21,12 @@ has type
   Bool
 but is expected to have type
   Nat
-struct1.lean:39:5-39:9: error: Omit the type of field `x` to set its default value
+struct1.lean:39:1-39:2: error: Type mismatch
+  true
+has type
+  Bool
+but is expected to have type
+  Nat
 struct1.lean:42:12-42:16: error: Type mismatch
   true
 has type
@@ -34,5 +39,5 @@ Hint: Remove `private` modifier from constructor
   p̵r̵i̵v̵a̵t̵e̵ ̵mk ::
 struct1.lean:48:0-48:15: error: Constructor cannot be `protected` because this structure is `private`
 struct1.lean:51:0-51:19: error: Field cannot be marked `protected` because this structure is `private`
-S : Type
-S.mk2 (x : Nat) : S
+Spriv : Type
+struct1.lean:57:7-57:12: error(lean.unknownIdentifier): Unknown constant `S.mk2`

@@ -118,7 +118,7 @@ private def withBelowDict [Inhabited α] (below : Expr) (numIndParams : Nat)
   The dictionary is built using the `PProd` (`And` for inductive predicates).
   We keep searching it until we find `C recArg`, where `C` is the auxiliary fresh variable created at `withBelowDict`.  -/
 partial def toBelow (below : Expr) (numIndParams : Nat) (positions : Positions) (fnIndex : Nat) (recArg : Expr) : MetaM Expr := do
-  withTraceNode `Elab.definition.structural (return m!"{exceptEmoji ·} searching IH for {recArg} in {←inferType below}") do
+  withTraceNode `Elab.definition.structural (fun _ => return m!"searching IH for {recArg} in {←inferType below}") do
     withBelowDict below numIndParams positions fun Cs belowDict =>
       toBelowAux Cs[fnIndex]! belowDict recArg below
 

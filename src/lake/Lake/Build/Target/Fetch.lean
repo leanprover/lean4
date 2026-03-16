@@ -100,27 +100,27 @@ Fetches the target specified by this key, resolving gaps as needed.
 variable (root : BuildKey) in
 private def BuildKey.fetchCore
   (self : BuildKey)
-: FetchM (Job (BuildData self)) := do
+: FetchM (Job (BuildData self)) :=
   match self with
-  | module modName =>
+  | module modName => do
     let some mod ← findModule? modName
       | error s!"invalid target '{root}': module '{modName}' not found in workspace"
     return cast (by simp) <| Job.pure mod
-  | package pkgName =>
+  | package pkgName => do
     let some pkg ← findPackageByKey? pkgName
       | error s!"invalid target '{root}': package '{pkgName}' not found in workspace"
     return cast (by simp) <| Job.pure pkg.toPackage
-  | packageModule pkgName modName =>
+  | packageModule pkgName modName => do
     let some pkg ← findPackageByKey? pkgName
       | error s!"invalid target '{root}': package '{pkgName}' not found in workspace"
     let some mod := pkg.findTargetModule? modName
       | error s!"invalid target '{root}': module '{modName}' not found in package '{pkg.prettyName}'"
     return cast (by simp) <| Job.pure mod
-  | packageTarget pkgName target =>
+  | packageTarget pkgName target => do
     let some pkg ← findPackageByKey? pkgName
       | error s!"invalid target '{root}': package '{pkgName}' not found in workspace"
     fetch <| pkg.target target
-  | facet target facetName =>
+  | facet target facetName => do
       let job ← target.fetchCore
       let kind := job.kind
       if h : kind.isAnonymous then

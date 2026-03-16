@@ -18,35 +18,27 @@ def nag(reason: str, path: Path, fatal: bool = True) -> None:
         ERROR = True
 
 
-# Directories that should no longer be used but still work for now.
-
-for dir in (
-    "tests/compiler",
-    "tests/lean",
-    "tests/lean/run",
-):
-    for glob in (
-        f"{dir}/*.lean",
-        f"{dir}/*.expected.out",
-        f"{dir}/*.expected.ret",
-    ):
-        for file in Path().glob(glob):
-            nag("deprecated dir", file, fatal=False)
-
-
 # Files and directories that will no longer work.
 
 for file in Path().glob("tests/speedcenter.exec.velcom.yaml"):
     nag("removed file", file)
 
-for file in Path().glob("tests/bench-radar/*"):
-    nag("removed dir", file)
-
 for dir in (
+    "tests/bench-radar",
     "tests/bench/cbv",
     "tests/bench/inundation",
+    "tests/compiler",
+    "tests/lean/docparse",
+    "tests/lean/interactive",
+    "tests/lean/run",
+    "tests/lean/server",
     "tests/lean/trust0",
+    "tests/plugin",
 ):
+    for file in Path().glob(f"{dir}/*"):
+        nag("removed dir", file)
+
+for dir in ("tests/lean",):
     for glob in (
         f"{dir}/*.lean",
         f"{dir}/*.expected.out",
@@ -59,11 +51,17 @@ for dir in (
 # Files that use the old naming convention in the new directories.
 
 for dir in (
+    "doc/examples",
     "tests/compile",
     "tests/compile_bench",
+    "tests/docparse",
     "tests/elab",
     "tests/elab_bench",
     "tests/elab_fail",
+    "tests/misc",
+    "tests/misc_bench",
+    "tests/server",
+    "tests/server_interactive",
 ):
     for glob in (
         f"{dir}/*.no_interpreter",

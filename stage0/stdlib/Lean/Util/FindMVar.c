@@ -13,199 +13,200 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Lean_FindMVar_visit(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_FindMVar_main(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_hasExprMVar(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_FindMVar_main(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_FindMVar_visit(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_FindMVar_visit___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_FindMVar_main___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_findMVar_x3f(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_FindMVar_main(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Lean_FindMVar_main(lean_object* v_p_1_, lean_object* v_x_2_, lean_object* v_a_3_){
 _start:
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-switch (lean_obj_tag(x_2)) {
+lean_object* v_d_5_; lean_object* v_b_6_; lean_object* v___y_7_; 
+switch(lean_obj_tag(v_x_2_))
+{
 case 11:
 {
-lean_object* x_10; lean_object* x_11; 
-x_10 = lean_ctor_get(x_2, 2);
-lean_inc_ref(x_10);
-lean_dec_ref(x_2);
-x_11 = l_Lean_FindMVar_visit(x_1, x_10, x_3);
-return x_11;
+lean_object* v_struct_10_; lean_object* v___x_11_; 
+v_struct_10_ = lean_ctor_get(v_x_2_, 2);
+lean_inc_ref(v_struct_10_);
+lean_dec_ref(v_x_2_);
+v___x_11_ = l_Lean_FindMVar_visit(v_p_1_, v_struct_10_, v_a_3_);
+return v___x_11_;
 }
 case 7:
 {
-lean_object* x_12; lean_object* x_13; 
-x_12 = lean_ctor_get(x_2, 1);
-lean_inc_ref(x_12);
-x_13 = lean_ctor_get(x_2, 2);
-lean_inc_ref(x_13);
-lean_dec_ref(x_2);
-x_4 = x_12;
-x_5 = x_13;
-x_6 = x_3;
-goto block_9;
+lean_object* v_binderType_12_; lean_object* v_body_13_; 
+v_binderType_12_ = lean_ctor_get(v_x_2_, 1);
+lean_inc_ref(v_binderType_12_);
+v_body_13_ = lean_ctor_get(v_x_2_, 2);
+lean_inc_ref(v_body_13_);
+lean_dec_ref(v_x_2_);
+v_d_5_ = v_binderType_12_;
+v_b_6_ = v_body_13_;
+v___y_7_ = v_a_3_;
+goto v___jp_4_;
 }
 case 6:
 {
-lean_object* x_14; lean_object* x_15; 
-x_14 = lean_ctor_get(x_2, 1);
-lean_inc_ref(x_14);
-x_15 = lean_ctor_get(x_2, 2);
-lean_inc_ref(x_15);
-lean_dec_ref(x_2);
-x_4 = x_14;
-x_5 = x_15;
-x_6 = x_3;
-goto block_9;
+lean_object* v_binderType_14_; lean_object* v_body_15_; 
+v_binderType_14_ = lean_ctor_get(v_x_2_, 1);
+lean_inc_ref(v_binderType_14_);
+v_body_15_ = lean_ctor_get(v_x_2_, 2);
+lean_inc_ref(v_body_15_);
+lean_dec_ref(v_x_2_);
+v_d_5_ = v_binderType_14_;
+v_b_6_ = v_body_15_;
+v___y_7_ = v_a_3_;
+goto v___jp_4_;
 }
 case 8:
 {
-lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
-x_16 = lean_ctor_get(x_2, 1);
-lean_inc_ref(x_16);
-x_17 = lean_ctor_get(x_2, 2);
-lean_inc_ref(x_17);
-x_18 = lean_ctor_get(x_2, 3);
-lean_inc_ref(x_18);
-lean_dec_ref(x_2);
-lean_inc_ref(x_1);
-x_19 = l_Lean_FindMVar_visit(x_1, x_16, x_3);
-lean_inc_ref(x_1);
-x_20 = l_Lean_FindMVar_visit(x_1, x_17, x_19);
-lean_dec(x_19);
-x_21 = l_Lean_FindMVar_visit(x_1, x_18, x_20);
-lean_dec(x_20);
-return x_21;
+lean_object* v_type_16_; lean_object* v_value_17_; lean_object* v_body_18_; lean_object* v___x_19_; lean_object* v___x_20_; lean_object* v___x_21_; 
+v_type_16_ = lean_ctor_get(v_x_2_, 1);
+lean_inc_ref(v_type_16_);
+v_value_17_ = lean_ctor_get(v_x_2_, 2);
+lean_inc_ref(v_value_17_);
+v_body_18_ = lean_ctor_get(v_x_2_, 3);
+lean_inc_ref(v_body_18_);
+lean_dec_ref(v_x_2_);
+lean_inc_ref(v_p_1_);
+v___x_19_ = l_Lean_FindMVar_visit(v_p_1_, v_type_16_, v_a_3_);
+lean_inc_ref(v_p_1_);
+v___x_20_ = l_Lean_FindMVar_visit(v_p_1_, v_value_17_, v___x_19_);
+lean_dec(v___x_19_);
+v___x_21_ = l_Lean_FindMVar_visit(v_p_1_, v_body_18_, v___x_20_);
+lean_dec(v___x_20_);
+return v___x_21_;
 }
 case 5:
 {
-lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 
-x_22 = lean_ctor_get(x_2, 0);
-lean_inc_ref(x_22);
-x_23 = lean_ctor_get(x_2, 1);
-lean_inc_ref(x_23);
-lean_dec_ref(x_2);
-lean_inc_ref(x_1);
-x_24 = l_Lean_FindMVar_visit(x_1, x_22, x_3);
-x_25 = l_Lean_FindMVar_visit(x_1, x_23, x_24);
-lean_dec(x_24);
-return x_25;
+lean_object* v_fn_22_; lean_object* v_arg_23_; lean_object* v___x_24_; lean_object* v___x_25_; 
+v_fn_22_ = lean_ctor_get(v_x_2_, 0);
+lean_inc_ref(v_fn_22_);
+v_arg_23_ = lean_ctor_get(v_x_2_, 1);
+lean_inc_ref(v_arg_23_);
+lean_dec_ref(v_x_2_);
+lean_inc_ref(v_p_1_);
+v___x_24_ = l_Lean_FindMVar_visit(v_p_1_, v_fn_22_, v_a_3_);
+v___x_25_ = l_Lean_FindMVar_visit(v_p_1_, v_arg_23_, v___x_24_);
+lean_dec(v___x_24_);
+return v___x_25_;
 }
 case 10:
 {
-lean_object* x_26; lean_object* x_27; 
-x_26 = lean_ctor_get(x_2, 1);
-lean_inc_ref(x_26);
-lean_dec_ref(x_2);
-x_27 = l_Lean_FindMVar_visit(x_1, x_26, x_3);
-return x_27;
+lean_object* v_expr_26_; lean_object* v___x_27_; 
+v_expr_26_ = lean_ctor_get(v_x_2_, 1);
+lean_inc_ref(v_expr_26_);
+lean_dec_ref(v_x_2_);
+v___x_27_ = l_Lean_FindMVar_visit(v_p_1_, v_expr_26_, v_a_3_);
+return v___x_27_;
 }
 case 2:
 {
-if (lean_obj_tag(x_3) == 0)
+if (lean_obj_tag(v_a_3_) == 0)
 {
-lean_object* x_28; lean_object* x_29; uint8_t x_30; 
-x_28 = lean_ctor_get(x_2, 0);
-lean_inc(x_28);
-lean_dec_ref(x_2);
-lean_inc(x_28);
-x_29 = lean_apply_1(x_1, x_28);
-x_30 = lean_unbox(x_29);
-if (x_30 == 0)
+lean_object* v_mvarId_28_; lean_object* v___x_29_; uint8_t v___x_30_; 
+v_mvarId_28_ = lean_ctor_get(v_x_2_, 0);
+lean_inc(v_mvarId_28_);
+lean_dec_ref(v_x_2_);
+lean_inc(v_mvarId_28_);
+v___x_29_ = lean_apply_1(v_p_1_, v_mvarId_28_);
+v___x_30_ = lean_unbox(v___x_29_);
+if (v___x_30_ == 0)
 {
-lean_dec(x_28);
-return x_3;
+lean_dec(v_mvarId_28_);
+return v_a_3_;
 }
 else
 {
-lean_object* x_31; 
-x_31 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_31, 0, x_28);
-return x_31;
+lean_object* v___x_31_; 
+v___x_31_ = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(v___x_31_, 0, v_mvarId_28_);
+return v___x_31_;
 }
 }
 else
 {
-lean_dec_ref(x_2);
-lean_dec_ref(x_1);
-lean_inc_ref(x_3);
-return x_3;
+lean_dec_ref(v_x_2_);
+lean_dec_ref(v_p_1_);
+lean_inc_ref(v_a_3_);
+return v_a_3_;
 }
 }
 default: 
 {
-lean_dec_ref(x_2);
-lean_dec_ref(x_1);
-lean_inc(x_3);
-return x_3;
+lean_dec_ref(v_x_2_);
+lean_dec_ref(v_p_1_);
+lean_inc(v_a_3_);
+return v_a_3_;
 }
 }
-block_9:
+v___jp_4_:
 {
-lean_object* x_7; lean_object* x_8; 
-lean_inc_ref(x_1);
-x_7 = l_Lean_FindMVar_visit(x_1, x_4, x_6);
-x_8 = l_Lean_FindMVar_visit(x_1, x_5, x_7);
-lean_dec(x_7);
-return x_8;
+lean_object* v___x_8_; lean_object* v___x_9_; 
+lean_inc_ref(v_p_1_);
+v___x_8_ = l_Lean_FindMVar_visit(v_p_1_, v_d_5_, v___y_7_);
+v___x_9_ = l_Lean_FindMVar_visit(v_p_1_, v_b_6_, v___x_8_);
+lean_dec(v___x_8_);
+return v___x_9_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_FindMVar_visit(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Lean_FindMVar_visit(lean_object* v_p_32_, lean_object* v_e_33_, lean_object* v_s_34_){
 _start:
 {
-if (lean_obj_tag(x_3) == 0)
+if (lean_obj_tag(v_s_34_) == 0)
 {
-uint8_t x_4; 
-x_4 = l_Lean_Expr_hasExprMVar(x_2);
-if (x_4 == 0)
+uint8_t v___x_35_; 
+v___x_35_ = l_Lean_Expr_hasExprMVar(v_e_33_);
+if (v___x_35_ == 0)
 {
-lean_dec_ref(x_2);
-lean_dec_ref(x_1);
-return x_3;
+lean_dec_ref(v_e_33_);
+lean_dec_ref(v_p_32_);
+return v_s_34_;
 }
 else
 {
-lean_object* x_5; 
-x_5 = l_Lean_FindMVar_main(x_1, x_2, x_3);
-return x_5;
+lean_object* v___x_36_; 
+v___x_36_ = l_Lean_FindMVar_main(v_p_32_, v_e_33_, v_s_34_);
+return v___x_36_;
 }
 }
 else
 {
-lean_dec_ref(x_2);
-lean_dec_ref(x_1);
-lean_inc_ref(x_3);
-return x_3;
+lean_dec_ref(v_e_33_);
+lean_dec_ref(v_p_32_);
+lean_inc_ref(v_s_34_);
+return v_s_34_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_FindMVar_visit___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Lean_FindMVar_visit___boxed(lean_object* v_p_37_, lean_object* v_e_38_, lean_object* v_s_39_){
 _start:
 {
-lean_object* x_4; 
-x_4 = l_Lean_FindMVar_visit(x_1, x_2, x_3);
-lean_dec(x_3);
-return x_4;
+lean_object* v_res_40_; 
+v_res_40_ = l_Lean_FindMVar_visit(v_p_37_, v_e_38_, v_s_39_);
+lean_dec(v_s_39_);
+return v_res_40_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_FindMVar_main___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Lean_FindMVar_main___boxed(lean_object* v_p_41_, lean_object* v_x_42_, lean_object* v_a_43_){
 _start:
 {
-lean_object* x_4; 
-x_4 = l_Lean_FindMVar_main(x_1, x_2, x_3);
-lean_dec(x_3);
-return x_4;
+lean_object* v_res_44_; 
+v_res_44_ = l_Lean_FindMVar_main(v_p_41_, v_x_42_, v_a_43_);
+lean_dec(v_a_43_);
+return v_res_44_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Expr_findMVar_x3f(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_Expr_findMVar_x3f(lean_object* v_e_45_, lean_object* v_p_46_){
 _start:
 {
-lean_object* x_3; lean_object* x_4; 
-x_3 = lean_box(0);
-x_4 = l_Lean_FindMVar_main(x_2, x_1, x_3);
-return x_4;
+lean_object* v___x_47_; lean_object* v___x_48_; 
+v___x_47_ = lean_box(0);
+v___x_48_ = l_Lean_FindMVar_main(v_p_46_, v_e_45_, v___x_47_);
+return v___x_48_;
 }
 }
 lean_object* runtime_initialize_Lean_Expr(uint8_t builtin);
@@ -214,8 +215,7 @@ LEAN_EXPORT lean_object* runtime_initialize_Lean_Util_FindMVar(uint8_t builtin) 
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Lean_Expr(builtin)
-;
+res = runtime_initialize_Lean_Expr(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -233,16 +233,13 @@ LEAN_EXPORT lean_object* initialize_Lean_Util_FindMVar(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Expr(builtin)
-;
+res = initialize_Lean_Expr(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Util_FindMVar(builtin)
-;
+res = runtime_initialize_Lean_Util_FindMVar(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_Lean_Util_FindMVar(builtin)
-;
+res = meta_initialize_Lean_Util_FindMVar(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_Lean_Util_FindMVar(builtin);

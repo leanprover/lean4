@@ -15,24 +15,24 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Std_Iter_drop___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iter_drop(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Iter_drop___redArg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Std_Iter_drop___redArg(lean_object* v_n_1_, lean_object* v_it_2_){
 _start:
 {
-lean_object* x_3; 
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
+lean_object* v___x_3_; 
+v___x_3_ = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(v___x_3_, 0, v_n_1_);
+lean_ctor_set(v___x_3_, 1, v_it_2_);
+return v___x_3_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Iter_drop(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Std_Iter_drop(lean_object* v_00_u03b1_4_, lean_object* v_00_u03b2_5_, lean_object* v_n_6_, lean_object* v_it_7_){
 _start:
 {
-lean_object* x_5; 
-x_5 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_5, 0, x_3);
-lean_ctor_set(x_5, 1, x_4);
-return x_5;
+lean_object* v___x_8_; 
+v___x_8_ = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(v___x_8_, 0, v_n_6_);
+lean_ctor_set(v___x_8_, 1, v_it_7_);
+return v___x_8_;
 }
 }
 lean_object* runtime_initialize_Std_Data_Iterators_Combinators_Monadic_Drop(uint8_t builtin);
@@ -41,8 +41,7 @@ LEAN_EXPORT lean_object* runtime_initialize_Std_Data_Iterators_Combinators_Drop(
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Std_Data_Iterators_Combinators_Monadic_Drop(builtin)
-;
+res = runtime_initialize_Std_Data_Iterators_Combinators_Monadic_Drop(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -60,16 +59,13 @@ LEAN_EXPORT lean_object* initialize_Std_Data_Iterators_Combinators_Drop(uint8_t 
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Std_Data_Iterators_Combinators_Monadic_Drop(builtin)
-;
+res = initialize_Std_Data_Iterators_Combinators_Monadic_Drop(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Data_Iterators_Combinators_Drop(builtin)
-;
+res = runtime_initialize_Std_Data_Iterators_Combinators_Drop(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_Std_Data_Iterators_Combinators_Drop(builtin)
-;
+res = meta_initialize_Std_Data_Iterators_Combinators_Drop(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_Std_Data_Iterators_Combinators_Drop(builtin);

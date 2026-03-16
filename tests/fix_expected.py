@@ -2,6 +2,7 @@
 
 import argparse
 import os
+import shutil
 import subprocess
 from pathlib import Path
 
@@ -13,7 +14,14 @@ parser = argparse.ArgumentParser(
     description="Interactively create, fix, and remove *.out.expected files "
     "based on their corresponding *.out.produced files."
 )
+parser.add_argument(
+    "-f",
+    "--force",
+    action="store_true",
+    help="automatically accept all suggested changes without user interaction",
+)
 args = parser.parse_args()
+force: bool = args.force
 
 
 def prompt(message: str, options: str = "Yn") -> str:
@@ -25,6 +33,10 @@ def prompt(message: str, options: str = "Yn") -> str:
 
     options = options.lower()
     options_display = "/".join(c.upper() if c == default else c for c in options)
+
+    if force and default:
+        print(f"{message} [{options_display}]: selected {default} due to --force")
+        return default
 
     while True:
         response = input(f"{message} [{options_display}]: ").strip().lower()
@@ -54,6 +66,11 @@ def compare_and_merge(
 
     print(f"{produced_file} differs from {expected_file}")
 
+    if force:
+        print(f"Automatically updating {expected_file} due to --force")
+        shutil.copy(produced_file, expected_file)
+        return
+
     # This is the opposite direction of the tests' diff output, but meld puts
     # the cursor into the right file by default, and only saves the file with
     # the cursor when pressing Ctrl+S, so this order is more convenient for
@@ -69,7 +86,7 @@ def create_or_ignore(
     print(f"{produced_file} is not empty.")
     answer = prompt("Create expected file, ignore, or do nothing?", "Ein")
     if answer == "e":
-        produced_file.copy(expected_file)
+        shutil.copy(produced_file, expected_file)
     elif answer == "i":
         ignored_file.touch()
 

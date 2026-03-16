@@ -36,76 +36,58 @@ LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_Sym_Simp(uint8_t builtin) 
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Lean_Meta_Sym_Simp_App(builtin)
-;
+res = runtime_initialize_Lean_Meta_Sym_Simp_App(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Meta_Sym_Simp_CongrInfo(builtin)
-;
+res = runtime_initialize_Lean_Meta_Sym_Simp_CongrInfo(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Meta_Sym_Simp_DiscrTree(builtin)
-;
+res = runtime_initialize_Lean_Meta_Sym_Simp_DiscrTree(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Meta_Sym_Simp_Main(builtin)
-;
+res = runtime_initialize_Lean_Meta_Sym_Simp_Main(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Meta_Sym_Simp_Result(builtin)
-;
+res = runtime_initialize_Lean_Meta_Sym_Simp_Result(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Meta_Sym_Simp_Rewrite(builtin)
-;
+res = runtime_initialize_Lean_Meta_Sym_Simp_Rewrite(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Meta_Sym_Simp_SimpM(builtin)
-;
+res = runtime_initialize_Lean_Meta_Sym_Simp_SimpM(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Meta_Sym_Simp_Simproc(builtin)
-;
+res = runtime_initialize_Lean_Meta_Sym_Simp_Simproc(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Meta_Sym_Simp_Theorems(builtin)
-;
+res = runtime_initialize_Lean_Meta_Sym_Simp_Theorems(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Meta_Sym_Simp_Have(builtin)
-;
+res = runtime_initialize_Lean_Meta_Sym_Simp_Have(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Meta_Sym_Simp_Lambda(builtin)
-;
+res = runtime_initialize_Lean_Meta_Sym_Simp_Lambda(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Meta_Sym_Simp_Forall(builtin)
-;
+res = runtime_initialize_Lean_Meta_Sym_Simp_Forall(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Meta_Sym_Simp_Debug(builtin)
-;
+res = runtime_initialize_Lean_Meta_Sym_Simp_Debug(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Meta_Sym_Simp_EvalGround(builtin)
-;
+res = runtime_initialize_Lean_Meta_Sym_Simp_EvalGround(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Meta_Sym_Simp_Discharger(builtin)
-;
+res = runtime_initialize_Lean_Meta_Sym_Simp_Discharger(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Meta_Sym_Simp_ControlFlow(builtin)
-;
+res = runtime_initialize_Lean_Meta_Sym_Simp_ControlFlow(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Meta_Sym_Simp_Goal(builtin)
-;
+res = runtime_initialize_Lean_Meta_Sym_Simp_Goal(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Meta_Sym_Simp_Telescope(builtin)
-;
+res = runtime_initialize_Lean_Meta_Sym_Simp_Telescope(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -140,84 +122,64 @@ LEAN_EXPORT lean_object* initialize_Lean_Meta_Sym_Simp(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Meta_Sym_Simp_App(builtin)
-;
+res = initialize_Lean_Meta_Sym_Simp_App(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Sym_Simp_CongrInfo(builtin)
-;
+res = initialize_Lean_Meta_Sym_Simp_CongrInfo(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Sym_Simp_DiscrTree(builtin)
-;
+res = initialize_Lean_Meta_Sym_Simp_DiscrTree(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Sym_Simp_Main(builtin)
-;
+res = initialize_Lean_Meta_Sym_Simp_Main(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Sym_Simp_Result(builtin)
-;
+res = initialize_Lean_Meta_Sym_Simp_Result(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Sym_Simp_Rewrite(builtin)
-;
+res = initialize_Lean_Meta_Sym_Simp_Rewrite(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Sym_Simp_SimpM(builtin)
-;
+res = initialize_Lean_Meta_Sym_Simp_SimpM(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Sym_Simp_Simproc(builtin)
-;
+res = initialize_Lean_Meta_Sym_Simp_Simproc(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Sym_Simp_Theorems(builtin)
-;
+res = initialize_Lean_Meta_Sym_Simp_Theorems(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Sym_Simp_Have(builtin)
-;
+res = initialize_Lean_Meta_Sym_Simp_Have(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Sym_Simp_Lambda(builtin)
-;
+res = initialize_Lean_Meta_Sym_Simp_Lambda(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Sym_Simp_Forall(builtin)
-;
+res = initialize_Lean_Meta_Sym_Simp_Forall(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Sym_Simp_Debug(builtin)
-;
+res = initialize_Lean_Meta_Sym_Simp_Debug(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Sym_Simp_EvalGround(builtin)
-;
+res = initialize_Lean_Meta_Sym_Simp_EvalGround(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Sym_Simp_Discharger(builtin)
-;
+res = initialize_Lean_Meta_Sym_Simp_Discharger(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Sym_Simp_ControlFlow(builtin)
-;
+res = initialize_Lean_Meta_Sym_Simp_ControlFlow(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Sym_Simp_Goal(builtin)
-;
+res = initialize_Lean_Meta_Sym_Simp_Goal(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Sym_Simp_Telescope(builtin)
-;
+res = initialize_Lean_Meta_Sym_Simp_Telescope(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Meta_Sym_Simp(builtin)
-;
+res = runtime_initialize_Lean_Meta_Sym_Simp(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_Lean_Meta_Sym_Simp(builtin)
-;
+res = meta_initialize_Lean_Meta_Sym_Simp(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_Lean_Meta_Sym_Simp(builtin);

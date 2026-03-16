@@ -18,52 +18,52 @@ LEAN_EXPORT lean_object* l_Std_Iter_stepSize___redArg(lean_object*, lean_object*
 LEAN_EXPORT lean_object* l_Std_Iter_stepSize___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iter_stepSize(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iter_stepSize___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Iter_stepSize___redArg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Std_Iter_stepSize___redArg(lean_object* v_it_1_, lean_object* v_n_2_){
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_3 = lean_unsigned_to_nat(0u);
-x_4 = lean_unsigned_to_nat(1u);
-x_5 = lean_nat_sub(x_2, x_4);
-x_6 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_6, 0, x_3);
-lean_ctor_set(x_6, 1, x_5);
-lean_ctor_set(x_6, 2, x_1);
-return x_6;
+lean_object* v___x_3_; lean_object* v___x_4_; lean_object* v___x_5_; lean_object* v___x_6_; 
+v___x_3_ = lean_unsigned_to_nat(0u);
+v___x_4_ = lean_unsigned_to_nat(1u);
+v___x_5_ = lean_nat_sub(v_n_2_, v___x_4_);
+v___x_6_ = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(v___x_6_, 0, v___x_3_);
+lean_ctor_set(v___x_6_, 1, v___x_5_);
+lean_ctor_set(v___x_6_, 2, v_it_1_);
+return v___x_6_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Iter_stepSize___redArg___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Std_Iter_stepSize___redArg___boxed(lean_object* v_it_7_, lean_object* v_n_8_){
 _start:
 {
-lean_object* x_3; 
-x_3 = l_Std_Iter_stepSize___redArg(x_1, x_2);
-lean_dec(x_2);
-return x_3;
+lean_object* v_res_9_; 
+v_res_9_ = l_Std_Iter_stepSize___redArg(v_it_7_, v_n_8_);
+lean_dec(v_n_8_);
+return v_res_9_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Iter_stepSize(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+LEAN_EXPORT lean_object* l_Std_Iter_stepSize(lean_object* v_00_u03b1_10_, lean_object* v_00_u03b2_11_, lean_object* v_inst_12_, lean_object* v_inst_13_, lean_object* v_it_14_, lean_object* v_n_15_){
 _start:
 {
-lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-x_7 = lean_unsigned_to_nat(0u);
-x_8 = lean_unsigned_to_nat(1u);
-x_9 = lean_nat_sub(x_6, x_8);
-x_10 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_10, 0, x_7);
-lean_ctor_set(x_10, 1, x_9);
-lean_ctor_set(x_10, 2, x_5);
-return x_10;
+lean_object* v___x_16_; lean_object* v___x_17_; lean_object* v___x_18_; lean_object* v___x_19_; 
+v___x_16_ = lean_unsigned_to_nat(0u);
+v___x_17_ = lean_unsigned_to_nat(1u);
+v___x_18_ = lean_nat_sub(v_n_15_, v___x_17_);
+v___x_19_ = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(v___x_19_, 0, v___x_16_);
+lean_ctor_set(v___x_19_, 1, v___x_18_);
+lean_ctor_set(v___x_19_, 2, v_it_14_);
+return v___x_19_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Iter_stepSize___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+LEAN_EXPORT lean_object* l_Std_Iter_stepSize___boxed(lean_object* v_00_u03b1_20_, lean_object* v_00_u03b2_21_, lean_object* v_inst_22_, lean_object* v_inst_23_, lean_object* v_it_24_, lean_object* v_n_25_){
 _start:
 {
-lean_object* x_7; 
-x_7 = l_Std_Iter_stepSize(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_6);
-lean_dec_ref(x_4);
-lean_dec(x_3);
-return x_7;
+lean_object* v_res_26_; 
+v_res_26_ = l_Std_Iter_stepSize(v_00_u03b1_20_, v_00_u03b2_21_, v_inst_22_, v_inst_23_, v_it_24_, v_n_25_);
+lean_dec(v_n_25_);
+lean_dec_ref(v_inst_23_);
+lean_dec(v_inst_22_);
+return v_res_26_;
 }
 }
 lean_object* runtime_initialize_Std_Data_Iterators_Combinators_Monadic_StepSize(uint8_t builtin);
@@ -72,8 +72,7 @@ LEAN_EXPORT lean_object* runtime_initialize_Std_Data_Iterators_Combinators_StepS
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Std_Data_Iterators_Combinators_Monadic_StepSize(builtin)
-;
+res = runtime_initialize_Std_Data_Iterators_Combinators_Monadic_StepSize(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -91,16 +90,13 @@ LEAN_EXPORT lean_object* initialize_Std_Data_Iterators_Combinators_StepSize(uint
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Std_Data_Iterators_Combinators_Monadic_StepSize(builtin)
-;
+res = initialize_Std_Data_Iterators_Combinators_Monadic_StepSize(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Data_Iterators_Combinators_StepSize(builtin)
-;
+res = runtime_initialize_Std_Data_Iterators_Combinators_StepSize(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_Std_Data_Iterators_Combinators_StepSize(builtin)
-;
+res = meta_initialize_Std_Data_Iterators_Combinators_StepSize(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_Std_Data_Iterators_Combinators_StepSize(builtin);

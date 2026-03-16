@@ -26,36 +26,28 @@ LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Iterators_Lemmas_Combinato
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Init_Data_Iterators_Combinators_Attach(builtin)
-;
+res = runtime_initialize_Init_Data_Iterators_Combinators_Attach(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Iterators_Combinators_Attach(builtin)
-;
+res = runtime_initialize_Init_Data_Iterators_Combinators_Attach(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Iterators_Combinators_Monadic_Attach(builtin)
-;
+res = runtime_initialize_Init_Data_Iterators_Combinators_Monadic_Attach(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Iterators_Lemmas_Consumers_Collect(builtin)
-;
+res = runtime_initialize_Init_Data_Iterators_Lemmas_Consumers_Collect(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Array_Attach(builtin)
-;
+res = runtime_initialize_Init_Data_Array_Attach(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Iterators_Consumers_Loop(builtin)
-;
+res = runtime_initialize_Init_Data_Iterators_Consumers_Loop(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Iterators_Lemmas_Combinators_Monadic_Attach(builtin)
-;
+res = runtime_initialize_Init_Data_Iterators_Lemmas_Combinators_Monadic_Attach(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Iterators_Lemmas_Consumers_Loop(builtin)
-;
+res = runtime_initialize_Init_Data_Iterators_Lemmas_Consumers_Loop(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -80,44 +72,34 @@ LEAN_EXPORT lean_object* initialize_Init_Data_Iterators_Lemmas_Combinators_Attac
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Iterators_Combinators_Attach(builtin)
-;
+res = initialize_Init_Data_Iterators_Combinators_Attach(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Iterators_Combinators_Attach(builtin)
-;
+res = initialize_Init_Data_Iterators_Combinators_Attach(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Iterators_Combinators_Monadic_Attach(builtin)
-;
+res = initialize_Init_Data_Iterators_Combinators_Monadic_Attach(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Iterators_Lemmas_Consumers_Collect(builtin)
-;
+res = initialize_Init_Data_Iterators_Lemmas_Consumers_Collect(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Array_Attach(builtin)
-;
+res = initialize_Init_Data_Array_Attach(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Iterators_Consumers_Loop(builtin)
-;
+res = initialize_Init_Data_Iterators_Consumers_Loop(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Iterators_Lemmas_Combinators_Monadic_Attach(builtin)
-;
+res = initialize_Init_Data_Iterators_Lemmas_Combinators_Monadic_Attach(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Iterators_Lemmas_Consumers_Loop(builtin)
-;
+res = initialize_Init_Data_Iterators_Lemmas_Consumers_Loop(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Iterators_Lemmas_Combinators_Attach(builtin)
-;
+res = runtime_initialize_Init_Data_Iterators_Lemmas_Combinators_Attach(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_Init_Data_Iterators_Lemmas_Combinators_Attach(builtin)
-;
+res = meta_initialize_Init_Data_Iterators_Lemmas_Combinators_Attach(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_Init_Data_Iterators_Lemmas_Combinators_Attach(builtin);

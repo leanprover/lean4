@@ -690,7 +690,7 @@ def withSimpDiagnostics (x : TacticM Simp.Diagnostics) : TacticM Unit := do
       simpLocation ctx simprocs discharge? (expandOptLocation stx[5])
   if tactic.simp.trace.get (← getOptions) then
     traceSimpCall stx stats.usedTheorems
-  else if linter.unusedSimpArgs.get (← getOptions) then
+  else if Linter.getLinterValue linter.unusedSimpArgs (← Linter.getLinterOptions) then
     withRef stx do
       warnUnusedSimpArgs simpArgs stats.usedTheorems
   return stats.diag
@@ -707,7 +707,7 @@ def withSimpDiagnostics (x : TacticM Simp.Diagnostics) : TacticM Unit := do
   | some mvarId => replaceMainGoal [mvarId]
   if tactic.simp.trace.get (← getOptions) then
     traceSimpCall stx stats.usedTheorems
-  else if linter.unusedSimpArgs.get (← getOptions) then
+  else if Linter.getLinterValue linter.unusedSimpArgs (← Linter.getLinterOptions) then
     withRef stx do
       warnUnusedSimpArgs simpArgs stats.usedTheorems
   return stats.diag

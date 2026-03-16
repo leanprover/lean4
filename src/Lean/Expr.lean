@@ -447,18 +447,24 @@ inductive Expr where
 
   /--
   Projection-expressions. They are redundant, but are used to create more compact
-  terms, speedup reduction, and implement eta for structures.
-  The type of `struct` must be an structure-like inductive type. That is, it has only one
-  constructor, is not recursive, and it is not an inductive predicate. The kernel and elaborators
-  check whether the `typeName` matches the type of `struct`, and whether the (zero-based) index
-  is valid (i.e., it is smaller than the number of constructor fields).
-  When exporting Lean developments to other systems, `proj` can be replaced with `typeName`.`rec`
+  terms, speed up reduction, and implement eta for structures.
+  The type of `struct` must be a one-constructor inductive type.
+  If `I.mk` is the constructor of an `m`-parameter inductive type `I`,
+  then ``.proj `I k (@I.mk p1 ... pm f0 f1 ...)`` is definitionally equal to `fk`.
+
+  The kernel and elaborator check whether the `typeName` matches the type of `struct`,
+  whether the zero-based index is valid (it must be smaller than the number of constructor fields),
+  and whether the projection itself is valid (for inductive predicates, the fields must be propositions).
+  When exporting Lean developments to other systems, `proj` can be replaced with `typeName.rec`
   applications.
+  Non-recursive structures (one-constructor inductive types with no indices) have an eta rule:
+  if `e : I p1 ... pm`, then `e` and `@I.mk p1 ... pm e.1 e.2 ... e.n` are definitionally equal.
 
   Example, given `a : Nat × Bool`, `a.1` is represented as
   ```
   .proj `Prod 0 a
   ```
+  and `a` is definitionally equal to `@Prod.mk Nat Bool a.1 a.2` by the structure eta rule.
   -/
   | proj (typeName : Name) (idx : Nat) (struct : Expr)
 with

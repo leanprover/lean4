@@ -78,16 +78,6 @@ public structure Package where
   testDriver : String := config.testDriver
   /-- The driver used for `lake lint` when this package is the workspace root. -/
   lintDriver : String := config.lintDriver
-  /--
-  Input-to-output(s) map for hashes of package artifacts.
-  If `none`, the artifact cache is disabled for the package.
-  -/
-  inputsRef? : Option CacheRef := none
-  /--
-  Input-to-output(s) map for hashes of package artifacts.
-  If `none`, the artifact cache is disabled for the package.
-  -/
-  outputsRef? : Option CacheRef := none
 
 deriving Inhabited
 
@@ -384,9 +374,9 @@ The package's `buildDir` joined with its `nativeLibDir` configuration.
 @[inline] public def enableArtifactCache? (self : Package) : Option Bool :=
   self.config.enableArtifactCache?
 
-/-- The package's `restoreAllArtifacts` configuration. -/
-@[inline] public def restoreAllArtifacts (self : Package) : Bool :=
-  self.config.restoreAllArtifacts
+/-- The package's `restoreAllArtifacts?` configuration. -/
+@[inline] public def restoreAllArtifacts? (self : Package) : Option Bool :=
+  self.config.restoreAllArtifacts?
 
 /-- The directory within the Lake cache were package-scoped files are stored. -/
 public def cacheScope (self : Package) : String :=

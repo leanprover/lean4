@@ -120,8 +120,8 @@ where
       trace[Meta.isDefEq.eta.struct] "failed, insufficient number of arguments at{indentExpr b}"
       return false
     else
-      if !isStructureLike (← getEnv) ctorVal.induct then
-        trace[Meta.isDefEq.eta.struct] "failed, type is not a structure{indentExpr b}"
+      if !isNonRecStructure (← getEnv) ctorVal.induct then
+        trace[Meta.isDefEq.eta.struct] "failed, type is not a non-recursive structure{indentExpr b}"
         return false
       else if (← isDefEq (← inferType a) (← inferType b)) then
         checkpointDefEq do
@@ -2095,9 +2095,9 @@ where
       assign `?m`.
       -/
       return false
-    let some ctorVal := getStructureLikeCtor? (← getEnv) structName | return false
+    let some ctorVal := getNonRecStructureCtor? (← getEnv) structName | return false
     if ctorVal.numFields != 1 then
-      return false -- It is not a structure with a single field.
+      return false -- It is not a non-recursive structure with a single field.
     let sType ← whnf (← inferType s)
     let sTypeFn := sType.getAppFn
     if !sTypeFn.isConstOf structName then
@@ -2133,7 +2133,7 @@ private def isDefEqApp (t s : Expr) : MetaM Bool := do
 /-- Return `true` if the type of the given expression is an inductive datatype with a single constructor with no fields. -/
 private def isDefEqUnitLike (t : Expr) (s : Expr) : MetaM Bool := do
   let tType ← whnf (← inferType t)
-  matchConstStructureLike tType.getAppFn (fun _ => return false) fun _ _ ctorVal => do
+  matchConstNonRecStructure tType.getAppFn (fun _ => return false) fun _ _ ctorVal => do
     if ctorVal.numFields != 0 then
       return false
     else if (← useEtaStruct ctorVal.induct) then

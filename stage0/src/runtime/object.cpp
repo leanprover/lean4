@@ -31,7 +31,13 @@ Author: Leonardo de Moura
 #if LEAN_SUPPORTS_BACKTRACE
 #include <execinfo.h>
 #include <unistd.h>
-#include "runtime/demangle.h"
+// Lean-exported demangler from Lean.Compiler.NameDemangling.
+// Declared as a weak symbol so leanrt doesn't require libLean at link time.
+// When the Lean demangler is linked in, it overrides this stub.
+extern "C" __attribute__((weak)) lean_object * lean_demangle_bt_line_cstr(lean_object * s) {
+    lean_dec(s);
+    return lean_mk_string("");
+}
 #endif
 
 // HACK: for unknown reasons, std::isnan(x) fails on msys64 because math.h
@@ -137,13 +143,20 @@ static void print_backtrace(bool force_stderr) {
     if (char ** symbols = backtrace_symbols(bt_buf, nptrs)) {
         bool raw = getenv("LEAN_BACKTRACE_RAW");
         for (int i = 0; i < nptrs; i++) {
-            char * demangled = raw ? nullptr : lean_demangle_bt_line(symbols[i]);
-            if (demangled) {
-                panic_eprintln(demangled, force_stderr);
-                free(demangled);
-            } else {
-                panic_eprintln(symbols[i], force_stderr);
+            if (!raw) {
+                lean_object * line_obj = lean_mk_string(symbols[i]);
+                lean_object * result = lean_demangle_bt_line_cstr(line_obj);
+                char const * result_str = lean_string_cstr(result);
+                if (result_str[0] != '\0') {
+                    panic_eprintln(result_str, force_stderr);
+                    lean_dec(result);
+                    lean_dec(line_obj);
+                    continue;
+                }
+                lean_dec(result);
+                lean_dec(line_obj);
             }
+            panic_eprintln(symbols[i], force_stderr);
         }
         // According to `man backtrace`, each `symbols[i]` should NOT be freed
         free(symbols);

@@ -1,3 +1,4 @@
+set_option backward.do.legacy false
 def f : IO Nat := do
   IO.println "hello"
   IO.getStdin
@@ -25,5 +26,8 @@ def g3 : ExceptT String (StateT Nat Id) String := do
 
 example : Nat := Id.run do
   let mut n : Nat := 0
+  n := false
+  n : Char := false
   (n, _) := (false, false)
+  ((n : Char), _) := (false, false)
   n

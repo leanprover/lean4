@@ -15,6 +15,9 @@ Passed to `grind` using, for example, the `grind (config := { matchEqs := true }
 structure Config where
   /-- If `trace` is `true`, `grind` records used E-matching theorems and case-splits. -/
   trace : Bool := false
+  /-- If `markInstances` is `true`, E-matching proofs are marked with instance IDs
+  for precise tracking of which theorems appear in the final proof. -/
+  markInstances : Bool := false
   /-- If `lax` is `true`, `grind` will silently ignore any parameters referring to non-existent theorems
   or for which no patterns can be generated. -/
   lax : Bool := false

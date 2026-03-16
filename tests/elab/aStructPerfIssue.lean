@@ -1,3 +1,5 @@
+set_option warn.classDefReducibility false
+
 noncomputable section
 namespace MWE
 

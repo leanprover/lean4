@@ -127,9 +127,9 @@ def mkArrows (αs : Array Expr) (β : Expr) : SymM Expr := do
   go αs.size β (Nat.le_refl _)
 where
   go (i : Nat) (β : Expr) (h : i ≤ αs.size) : SymM Expr := do
-    match i with
-    | 0 => return β
-    | i+1 => go i (← mkForallS `a .default αs[i] β) (by omega)
+    match i, h with
+    | 0, _ => return β
+    | i+1, h => go i (← mkForallS `a .default αs[i] β) (by omega)
 
 /--
 Transform a `have`-telescope into a parallel beta-application.

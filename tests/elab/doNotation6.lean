@@ -1,3 +1,4 @@
+set_option backward.do.legacy false
 abbrev M := StateRefT Nat IO
 
 def testM {α} [ToString α] [BEq α] (init : Nat) (expected : α) (x : M α): IO Unit := do
@@ -18,6 +19,7 @@ let v ←
     return x
   catch _ =>
     return 1
+pure v
 
 def f2 (xs : List Nat) : M Nat := do
 let mut sum := 0

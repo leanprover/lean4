@@ -13,35 +13,35 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* l_List_ofFn___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_finRange___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_List_finRange___lam__0___boxed(lean_object*);
 static const lean_closure_object l_List_finRange___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_List_finRange___lam__0___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_List_finRange___closed__0 = (const lean_object*)&l_List_finRange___closed__0_value;
-lean_object* l_List_ofFn___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_finRange(lean_object*);
-LEAN_EXPORT lean_object* l_List_finRange___lam__0(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_List_finRange___lam__0(lean_object* v_i_1_){
 _start:
 {
-lean_inc(x_1);
-return x_1;
+lean_inc(v_i_1_);
+return v_i_1_;
 }
 }
-LEAN_EXPORT lean_object* l_List_finRange___lam__0___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_List_finRange___lam__0___boxed(lean_object* v_i_2_){
 _start:
 {
-lean_object* x_2; 
-x_2 = l_List_finRange___lam__0(x_1);
-lean_dec(x_1);
-return x_2;
+lean_object* v_res_3_; 
+v_res_3_ = l_List_finRange___lam__0(v_i_2_);
+lean_dec(v_i_2_);
+return v_res_3_;
 }
 }
-LEAN_EXPORT lean_object* l_List_finRange(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_List_finRange(lean_object* v_n_5_){
 _start:
 {
-lean_object* x_2; lean_object* x_3; 
-x_2 = ((lean_object*)(l_List_finRange___closed__0));
-x_3 = l_List_ofFn___redArg(x_1, x_2);
-return x_3;
+lean_object* v___f_6_; lean_object* v___x_7_; 
+v___f_6_ = ((lean_object*)(l_List_finRange___closed__0));
+v___x_7_ = l_List_ofFn___redArg(v_n_5_, v___f_6_);
+return v___x_7_;
 }
 }
 lean_object* runtime_initialize_Init_Data_List_OfFn(uint8_t builtin);
@@ -53,20 +53,16 @@ LEAN_EXPORT lean_object* runtime_initialize_Init_Data_List_FinRange(uint8_t buil
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Init_Data_List_OfFn(builtin)
-;
+res = runtime_initialize_Init_Data_List_OfFn(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_List_Control(builtin)
-;
+res = runtime_initialize_Init_Data_List_Control(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_List_OfFn(builtin)
-;
+res = runtime_initialize_Init_Data_List_OfFn(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_List_Monadic(builtin)
-;
+res = runtime_initialize_Init_Data_List_Monadic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -87,28 +83,22 @@ LEAN_EXPORT lean_object* initialize_Init_Data_List_FinRange(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_List_OfFn(builtin)
-;
+res = initialize_Init_Data_List_OfFn(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_List_Control(builtin)
-;
+res = initialize_Init_Data_List_Control(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_List_OfFn(builtin)
-;
+res = initialize_Init_Data_List_OfFn(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_List_Monadic(builtin)
-;
+res = initialize_Init_Data_List_Monadic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_List_FinRange(builtin)
-;
+res = runtime_initialize_Init_Data_List_FinRange(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_Init_Data_List_FinRange(builtin)
-;
+res = meta_initialize_Init_Data_List_FinRange(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_Init_Data_List_FinRange(builtin);

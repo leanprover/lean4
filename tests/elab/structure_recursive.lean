@@ -133,7 +133,7 @@ structure Exists' {α : Sort _} (p : α → Prop) : Prop where
   h : p x
 
 /-!
-Testing numeric projections on recursive inductive types now that the elaborator isn't restricted to structure-likes.
+Testing numeric projections on recursive inductive types now that the elaborator isn't restricted to non-recursive structures.
 -/
 inductive I1 where
   | mk (x : Nat) (xs : I1)

@@ -13,6 +13,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* l_Lean_Name_mkStr1(lean_object*);
+lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 static const lean_string_object l_Std_Tactic_Do_mgoalHyp___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 9, .m_capacity = 9, .m_length = 8, .m_data = "mgoalHyp"};
 static const lean_object* l_Std_Tactic_Do_mgoalHyp___closed__0 = (const lean_object*)&l_Std_Tactic_Do_mgoalHyp___closed__0_value;
 static const lean_string_object l_Std_Tactic_Do_mgoalHyp___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 4, .m_capacity = 4, .m_length = 3, .m_data = "Std"};
@@ -21,7 +23,6 @@ static const lean_string_object l_Std_Tactic_Do_mgoalHyp___closed__2_value = {.m
 static const lean_object* l_Std_Tactic_Do_mgoalHyp___closed__2 = (const lean_object*)&l_Std_Tactic_Do_mgoalHyp___closed__2_value;
 static const lean_string_object l_Std_Tactic_Do_mgoalHyp___closed__3_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 3, .m_capacity = 3, .m_length = 2, .m_data = "Do"};
 static const lean_object* l_Std_Tactic_Do_mgoalHyp___closed__3 = (const lean_object*)&l_Std_Tactic_Do_mgoalHyp___closed__3_value;
-lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 static const lean_ctor_object l_Std_Tactic_Do_mgoalHyp___closed__4_value_aux_0 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_Std_Tactic_Do_mgoalHyp___closed__1_value),LEAN_SCALAR_PTR_LITERAL(48, 144, 193, 124, 159, 137, 91, 218)}};
 static const lean_ctor_object l_Std_Tactic_Do_mgoalHyp___closed__4_value_aux_1 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_Std_Tactic_Do_mgoalHyp___closed__4_value_aux_0),((lean_object*)&l_Std_Tactic_Do_mgoalHyp___closed__2_value),LEAN_SCALAR_PTR_LITERAL(77, 161, 28, 104, 237, 118, 82, 71)}};
 static const lean_ctor_object l_Std_Tactic_Do_mgoalHyp___closed__4_value_aux_2 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_Std_Tactic_Do_mgoalHyp___closed__4_value_aux_1),((lean_object*)&l_Std_Tactic_Do_mgoalHyp___closed__3_value),LEAN_SCALAR_PTR_LITERAL(193, 32, 213, 253, 69, 208, 115, 14)}};
@@ -29,7 +30,6 @@ static const lean_ctor_object l_Std_Tactic_Do_mgoalHyp___closed__4_value = {.m_h
 static const lean_object* l_Std_Tactic_Do_mgoalHyp___closed__4 = (const lean_object*)&l_Std_Tactic_Do_mgoalHyp___closed__4_value;
 static const lean_string_object l_Std_Tactic_Do_mgoalHyp___closed__5_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 8, .m_capacity = 8, .m_length = 7, .m_data = "andthen"};
 static const lean_object* l_Std_Tactic_Do_mgoalHyp___closed__5 = (const lean_object*)&l_Std_Tactic_Do_mgoalHyp___closed__5_value;
-lean_object* l_Lean_Name_mkStr1(lean_object*);
 static const lean_ctor_object l_Std_Tactic_Do_mgoalHyp___closed__6_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_Std_Tactic_Do_mgoalHyp___closed__5_value),LEAN_SCALAR_PTR_LITERAL(40, 255, 78, 30, 143, 119, 117, 174)}};
 static const lean_object* l_Std_Tactic_Do_mgoalHyp___closed__6 = (const lean_object*)&l_Std_Tactic_Do_mgoalHyp___closed__6_value;
 static const lean_string_object l_Std_Tactic_Do_mgoalHyp___closed__7_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 6, .m_capacity = 6, .m_length = 5, .m_data = "ident"};
@@ -103,8 +103,7 @@ LEAN_EXPORT lean_object* runtime_initialize_Std_Tactic_Do_ProofMode(uint8_t buil
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Std_Do_SPred_SPred(builtin)
-;
+res = runtime_initialize_Std_Do_SPred_SPred(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -122,16 +121,13 @@ LEAN_EXPORT lean_object* initialize_Std_Tactic_Do_ProofMode(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Std_Do_SPred_SPred(builtin)
-;
+res = initialize_Std_Do_SPred_SPred(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Tactic_Do_ProofMode(builtin)
-;
+res = runtime_initialize_Std_Tactic_Do_ProofMode(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_Std_Tactic_Do_ProofMode(builtin)
-;
+res = meta_initialize_Std_Tactic_Do_ProofMode(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_Std_Tactic_Do_ProofMode(builtin);

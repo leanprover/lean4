@@ -17,37 +17,37 @@ LEAN_EXPORT lean_object* l_Std_Iter_attachWith___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iter_attachWith___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iter_attachWith(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iter_attachWith___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Iter_attachWith___redArg(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Iter_attachWith___redArg(lean_object* v_it_1_){
 _start:
 {
-lean_inc(x_1);
-return x_1;
+lean_inc(v_it_1_);
+return v_it_1_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Iter_attachWith___redArg___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Iter_attachWith___redArg___boxed(lean_object* v_it_2_){
 _start:
 {
-lean_object* x_2; 
-x_2 = l_Std_Iter_attachWith___redArg(x_1);
-lean_dec(x_1);
-return x_2;
+lean_object* v_res_3_; 
+v_res_3_ = l_Std_Iter_attachWith___redArg(v_it_2_);
+lean_dec(v_it_2_);
+return v_res_3_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Iter_attachWith(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+LEAN_EXPORT lean_object* l_Std_Iter_attachWith(lean_object* v_00_u03b1_4_, lean_object* v_00_u03b2_5_, lean_object* v_inst_6_, lean_object* v_it_7_, lean_object* v_P_8_, lean_object* v_h_9_){
 _start:
 {
-lean_inc(x_4);
-return x_4;
+lean_inc(v_it_7_);
+return v_it_7_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Iter_attachWith___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+LEAN_EXPORT lean_object* l_Std_Iter_attachWith___boxed(lean_object* v_00_u03b1_10_, lean_object* v_00_u03b2_11_, lean_object* v_inst_12_, lean_object* v_it_13_, lean_object* v_P_14_, lean_object* v_h_15_){
 _start:
 {
-lean_object* x_7; 
-x_7 = l_Std_Iter_attachWith(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_4);
-lean_dec(x_3);
-return x_7;
+lean_object* v_res_16_; 
+v_res_16_ = l_Std_Iter_attachWith(v_00_u03b1_10_, v_00_u03b2_11_, v_inst_12_, v_it_13_, v_P_14_, v_h_15_);
+lean_dec(v_it_13_);
+lean_dec(v_inst_12_);
+return v_res_16_;
 }
 }
 lean_object* runtime_initialize_Init_Data_Iterators_Combinators_Monadic_Attach(uint8_t builtin);
@@ -56,8 +56,7 @@ LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Iterators_Combinators_Atta
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Init_Data_Iterators_Combinators_Monadic_Attach(builtin)
-;
+res = runtime_initialize_Init_Data_Iterators_Combinators_Monadic_Attach(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -75,16 +74,13 @@ LEAN_EXPORT lean_object* initialize_Init_Data_Iterators_Combinators_Attach(uint8
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Iterators_Combinators_Monadic_Attach(builtin)
-;
+res = initialize_Init_Data_Iterators_Combinators_Monadic_Attach(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Iterators_Combinators_Attach(builtin)
-;
+res = runtime_initialize_Init_Data_Iterators_Combinators_Attach(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_Init_Data_Iterators_Combinators_Attach(builtin)
-;
+res = meta_initialize_Init_Data_Iterators_Combinators_Attach(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_Init_Data_Iterators_Combinators_Attach(builtin);

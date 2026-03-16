@@ -49,6 +49,7 @@ instance : Monad Id where
 /--
 The identity monad has a `bind` operator.
 -/
+@[implicit_reducible]
 def hasBind : Bind Id :=
   inferInstance
 
@@ -58,7 +59,7 @@ Runs a computation in the identity monad.
 This function is the identity function. Because its parameter has type `Id α`, it causes
 `do`-notation in its arguments to use the `Monad Id` instance.
 -/
-@[always_inline, inline, expose]
+@[always_inline, inline, expose, implicit_reducible]
 protected def run (x : Id α) : α := x
 
 instance [OfNat α n] : OfNat (Id α) n :=

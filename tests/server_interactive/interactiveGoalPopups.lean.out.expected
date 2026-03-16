@@ -1,0 +1,72 @@
+{"textDocument": {"uri": "file:///interactiveGoalPopups.lean"},
+ "position": {"line": 14, "character": 2}}
+{"goals":
+ [{"type":
+   {"tag":
+    [{"subexprPos": "/", "info": {"__rpcref": "4"}}, {"text": "MyTrue"}]},
+   "mvarId": "[anonymous]",
+   "isRemoved": true,
+   "hyps":
+   [{"type":
+     {"tag":
+      [{"subexprPos": "/", "info": {"__rpcref": "0"}}, {"text": "MyNat"}]},
+     "names": ["x"],
+     "fvarIds": []},
+    {"type":
+     {"tag":
+      [{"subexprPos": "/", "info": {"__rpcref": "1"}},
+       {"append":
+        [{"text": "MyEq "},
+         {"tag":
+          [{"subexprPos": "/0/1", "info": {"__rpcref": "2"}}, {"text": "x"}]},
+         {"text": " "},
+         {"tag":
+          [{"subexprPos": "/1", "info": {"__rpcref": "3"}}, {"text": "x"}]}]}]},
+     "names": ["h"],
+     "fvarIds": []}],
+   "goalPrefix": "⊢ ",
+   "ctx": {"__rpcref": "5"}}]}
+Popups for type of x:
+Popup for MyNat:
+{"__rpcref": "0"}
+{"type":
+ {"tag": [{"subexprPos": "/", "info": {"__rpcref": "0"}}, {"text": "Type"}]},
+ "exprExplicit": {"text": "MyNat"},
+ "doc": "MyNat doc "}
+Popups for type of h:
+Popup for MyEq x x:
+{"__rpcref": "1"}
+{"type":
+ {"tag": [{"subexprPos": "/", "info": {"__rpcref": "0"}}, {"text": "Prop"}]},
+ "exprExplicit":
+ {"append":
+  [{"text": "@"},
+   {"tag":
+    [{"subexprPos": "/0/0/0", "info": {"__rpcref": "1"}}, {"text": "MyEq"}]},
+   {"text": " "},
+   {"tag":
+    [{"subexprPos": "/0/0/1", "info": {"__rpcref": "2"}}, {"text": "MyNat"}]},
+   {"text": " "},
+   {"tag": [{"subexprPos": "/0/1", "info": {"__rpcref": "3"}}, {"text": "x"}]},
+   {"text": " "},
+   {"tag": [{"subexprPos": "/1", "info": {"__rpcref": "4"}}, {"text": "x"}]}]},
+ "doc": null}
+Popup for x:
+{"__rpcref": "2"}
+{"type":
+ {"tag": [{"subexprPos": "/", "info": {"__rpcref": "0"}}, {"text": "MyNat"}]},
+ "exprExplicit": {"text": "x"},
+ "doc": null}
+Popup for x:
+{"__rpcref": "3"}
+{"type":
+ {"tag": [{"subexprPos": "/", "info": {"__rpcref": "0"}}, {"text": "MyNat"}]},
+ "exprExplicit": {"text": "x"},
+ "doc": null}
+Popups for type of goal:
+Popup for MyTrue:
+{"__rpcref": "4"}
+{"type":
+ {"tag": [{"subexprPos": "/", "info": {"__rpcref": "0"}}, {"text": "Prop"}]},
+ "exprExplicit": {"text": "MyTrue"},
+ "doc": "MyTrue doc "}

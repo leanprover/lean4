@@ -1,4 +1,5 @@
 import Lean
+set_option backward.do.legacy false
 /-!
 # Tests of the various `let` options
 -/
@@ -117,6 +118,13 @@ example (p : Nat × Nat) : True :=
 `+postponeValue`, example from `Lean.Elab.Term.Do.ToTerm.mkJoinPoint`.
 -/
 /--
+error: Type mismatch
+  jp ()
+has type
+  IO (IO.Ref Bool)
+but is expected to have type
+  IO Unit
+---
 error: Type mismatch
   jp ()
 has type

@@ -33,14 +33,26 @@ theorem ite_cond_congr {α : Sort u} (c : Prop) {inst : Decidable c} (a b : α)
 theorem ite_true {α : Sort u} (c : Prop) {inst : Decidable c} (a b : α) {ht : c} : @ite α c inst a b = a := by
   simp [*]
 
+theorem ite_true_congr {α : Sort u} (c : Prop) {inst : Decidable c} (a b : α) (c' : Prop) (h : c = c') {ht : c'} : @ite α c inst a b = a := by
+  simp [*]
+
 theorem ite_false {α : Sort u} (c : Prop) {inst : Decidable c} (a b : α) {ht : ¬ c} : @ite α c inst a b = b := by
+  simp [*]
+
+theorem ite_false_congr {α : Sort u} (c : Prop) {inst : Decidable c} (a b : α) (c' : Prop) (h : c = c') {ht : ¬ c'} : @ite α c inst a b = b := by
   simp [*]
 
 theorem dite_true {α : Sort u} (c : Prop) {inst : Decidable c} (a : c → α) (b : ¬ c → α) {ht : c} : @dite α c inst a b = a ht := by
   simp [*]
 
+theorem dite_true_congr {α : Sort u} (c : Prop) {inst : Decidable c} (a : c → α) (b : ¬ c → α) (c' : Prop) (h : c = c') {ht : c'} : @dite α c inst a b = a (h.mpr_prop ht) := by
+  subst h; simp [*]
+
 theorem dite_false {α : Sort u} (c : Prop) {inst : Decidable c} (a : c → α) (b : ¬ c → α) {ht : ¬ c} : @dite α c inst a b = b ht := by
   simp [*]
+
+theorem dite_false_congr {α : Sort u} (c : Prop) {inst : Decidable c} (a : c → α) (b : ¬ c → α) (c' : Prop) (h : c = c') {ht : ¬ c'} : @dite α c inst a b = b (h.mpr_not ht) := by
+  subst h; simp [*]
 
 theorem dite_cond_congr {α : Sort u} (c : Prop) {inst : Decidable c} (a : c → α) (b : ¬ c → α)
     (c' : Prop) {inst' : Decidable c'} (h : c = c')

@@ -18,30 +18,30 @@ lean_object* l_Rat_inv(lean_object*);
 lean_object* l_Rat_toDyadic(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Dyadic_invAtPrec(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Dyadic_invAtPrec___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Dyadic_invAtPrec(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Dyadic_invAtPrec(lean_object* v_x_1_, lean_object* v_prec_2_){
 _start:
 {
-if (lean_obj_tag(x_1) == 0)
+if (lean_obj_tag(v_x_1_) == 0)
 {
-return x_1;
+return v_x_1_;
 }
 else
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = l_Dyadic_toRat(x_1);
-x_4 = l_Rat_inv(x_3);
-x_5 = l_Rat_toDyadic(x_4, x_2);
-return x_5;
+lean_object* v___x_3_; lean_object* v___x_4_; lean_object* v___x_5_; 
+v___x_3_ = l_Dyadic_toRat(v_x_1_);
+v___x_4_ = l_Rat_inv(v___x_3_);
+v___x_5_ = l_Rat_toDyadic(v___x_4_, v_prec_2_);
+return v___x_5_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Dyadic_invAtPrec___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Dyadic_invAtPrec___boxed(lean_object* v_x_6_, lean_object* v_prec_7_){
 _start:
 {
-lean_object* x_3; 
-x_3 = l_Dyadic_invAtPrec(x_1, x_2);
-lean_dec(x_2);
-return x_3;
+lean_object* v_res_8_; 
+v_res_8_ = l_Dyadic_invAtPrec(v_x_6_, v_prec_7_);
+lean_dec(v_prec_7_);
+return v_res_8_;
 }
 }
 lean_object* runtime_initialize_Init_Data_Dyadic_Basic(uint8_t builtin);
@@ -51,12 +51,10 @@ LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Dyadic_Inv(uint8_t builtin
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Init_Data_Dyadic_Basic(builtin)
-;
+res = runtime_initialize_Init_Data_Dyadic_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Rat_Lemmas(builtin)
-;
+res = runtime_initialize_Init_Data_Rat_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -75,20 +73,16 @@ LEAN_EXPORT lean_object* initialize_Init_Data_Dyadic_Inv(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Dyadic_Basic(builtin)
-;
+res = initialize_Init_Data_Dyadic_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Rat_Lemmas(builtin)
-;
+res = initialize_Init_Data_Rat_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Dyadic_Inv(builtin)
-;
+res = runtime_initialize_Init_Data_Dyadic_Inv(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_Init_Data_Dyadic_Inv(builtin)
-;
+res = meta_initialize_Init_Data_Dyadic_Inv(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_Init_Data_Dyadic_Inv(builtin);

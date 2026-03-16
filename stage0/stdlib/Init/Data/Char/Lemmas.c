@@ -16,22 +16,28 @@ extern "C" {
 LEAN_EXPORT lean_object* l_Char_leTrans;
 LEAN_EXPORT lean_object* l_Char_ltTrans;
 LEAN_EXPORT lean_object* l_Char_notLTTrans;
-static lean_object* _init_l_Char_leTrans(void) {
+static lean_object* _init_l_Char_leTrans(void){
 _start:
 {
-return lean_box(0);
+lean_object* v___x_1_; 
+v___x_1_ = lean_box(0);
+return v___x_1_;
 }
 }
-static lean_object* _init_l_Char_ltTrans(void) {
+static lean_object* _init_l_Char_ltTrans(void){
 _start:
 {
-return lean_box(0);
+lean_object* v___x_2_; 
+v___x_2_ = lean_box(0);
+return v___x_2_;
 }
 }
-static lean_object* _init_l_Char_notLTTrans(void) {
+static lean_object* _init_l_Char_notLTTrans(void){
 _start:
 {
-return lean_box(0);
+lean_object* v___x_3_; 
+v___x_3_ = lean_box(0);
+return v___x_3_;
 }
 }
 lean_object* runtime_initialize_Init_Data_Char_Basic(uint8_t builtin);
@@ -43,20 +49,16 @@ LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Char_Lemmas(uint8_t builti
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Init_Data_Char_Basic(builtin)
-;
+res = runtime_initialize_Init_Data_Char_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Char_Basic(builtin)
-;
+res = runtime_initialize_Init_Data_Char_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Ext(builtin)
-;
+res = runtime_initialize_Init_Ext(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_UInt_Lemmas(builtin)
-;
+res = runtime_initialize_Init_Data_UInt_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Char_leTrans = _init_l_Char_leTrans();
@@ -80,28 +82,22 @@ LEAN_EXPORT lean_object* initialize_Init_Data_Char_Lemmas(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Char_Basic(builtin)
-;
+res = initialize_Init_Data_Char_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Char_Basic(builtin)
-;
+res = initialize_Init_Data_Char_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Ext(builtin)
-;
+res = initialize_Init_Ext(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_UInt_Lemmas(builtin)
-;
+res = initialize_Init_Data_UInt_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Char_Lemmas(builtin)
-;
+res = runtime_initialize_Init_Data_Char_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_Init_Data_Char_Lemmas(builtin)
-;
+res = meta_initialize_Init_Data_Char_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_Init_Data_Char_Lemmas(builtin);

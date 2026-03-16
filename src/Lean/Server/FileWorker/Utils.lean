@@ -83,12 +83,12 @@ namespace RpcSession
 def keepAliveTimeMs : Nat :=
   30000
 
-def new : IO (UInt64 × RpcSession) := do
+def new (wireFormat : Lsp.RpcWireFormat) : IO (UInt64 × RpcSession) := do
   /- We generate a random ID to ensure that session IDs do not repeat across re-initializations
   and worker restarts. Otherwise, the client may attempt to use outdated references. -/
   let newId ← ByteArray.toUInt64LE! <$> IO.getRandomBytes 8
   let newSesh := {
-    objects := {}
+    objects := { wireFormat }
     expireTime := (← IO.monoMsNow) + keepAliveTimeMs
   }
   return (newId, newSesh)

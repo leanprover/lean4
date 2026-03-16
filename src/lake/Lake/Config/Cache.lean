@@ -6,6 +6,7 @@ Authors: Mac Malone
 module
 
 prelude
+import Init.Control.Do
 public import Lake.Util.Log
 public import Lake.Util.Version
 public import Lake.Config.Artifact
@@ -165,8 +166,7 @@ where go as o := do
   match o with
   | .null =>
     return as
-  | .bool b =>
-    logError s!"unsupported output: {b}"
+  | .bool _ => -- boolean metadata is allowed (as of 2025-03-13)
     return as
   | .num o =>
     match Hash.ofJsonNumber? o with
@@ -296,7 +296,8 @@ public structure CacheOutput where
 
 namespace CacheOutput
 
-@[inline] def ofData (data : Json) : CacheOutput := {data}
+/-- **For internal use only.** -/
+@[inline] public def ofData (data : Json) : CacheOutput := {data}
 
 public protected def toJson (out : CacheOutput) : Json := Id.run do
   let mut obj :=

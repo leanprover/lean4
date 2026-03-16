@@ -20,76 +20,76 @@ LEAN_EXPORT lean_object* l_instStreamRawChar___lam__0(lean_object*);
 static const lean_closure_object l_instStreamRawChar___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_instStreamRawChar___lam__0, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_instStreamRawChar___closed__0 = (const lean_object*)&l_instStreamRawChar___closed__0_value;
 LEAN_EXPORT const lean_object* l_instStreamRawChar = (const lean_object*)&l_instStreamRawChar___closed__0_value;
-LEAN_EXPORT lean_object* l_instStreamRawChar___lam__0(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_instStreamRawChar___lam__0(lean_object* v_s_1_){
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; uint8_t x_18; 
-x_2 = lean_ctor_get(x_1, 0);
-x_3 = lean_ctor_get(x_1, 1);
-x_4 = lean_ctor_get(x_1, 2);
-x_18 = !lean_is_exclusive(x_1);
-if (x_18 == 0)
+lean_object* v_str_2_; lean_object* v_startPos_3_; lean_object* v_stopPos_4_; lean_object* v___x_6_; uint8_t v_isShared_7_; uint8_t v_isSharedCheck_18_; 
+v_str_2_ = lean_ctor_get(v_s_1_, 0);
+v_startPos_3_ = lean_ctor_get(v_s_1_, 1);
+v_stopPos_4_ = lean_ctor_get(v_s_1_, 2);
+v_isSharedCheck_18_ = !lean_is_exclusive(v_s_1_);
+if (v_isSharedCheck_18_ == 0)
 {
-x_5 = x_1;
-x_6 = x_18;
-goto block_17;
+v___x_6_ = v_s_1_;
+v_isShared_7_ = v_isSharedCheck_18_;
+goto v_resetjp_5_;
 }
 else
 {
-lean_inc(x_4);
-lean_inc(x_3);
-lean_inc(x_2);
-lean_dec(x_1);
-x_5 = lean_box(0);
-x_6 = x_18;
-goto block_17;
+lean_inc(v_stopPos_4_);
+lean_inc(v_startPos_3_);
+lean_inc(v_str_2_);
+lean_dec(v_s_1_);
+v___x_6_ = lean_box(0);
+v_isShared_7_ = v_isSharedCheck_18_;
+goto v_resetjp_5_;
 }
-block_17:
+v_resetjp_5_:
 {
-uint8_t x_7; 
-x_7 = lean_nat_dec_lt(x_3, x_4);
-if (x_7 == 0)
+uint8_t v___x_8_; 
+v___x_8_ = lean_nat_dec_lt(v_startPos_3_, v_stopPos_4_);
+if (v___x_8_ == 0)
 {
-lean_object* x_8; 
-lean_del_object(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
-lean_dec_ref(x_2);
-x_8 = lean_box(0);
-return x_8;
-}
-else
-{
-uint32_t x_9; lean_object* x_10; lean_object* x_11; 
-x_9 = lean_string_utf8_get(x_2, x_3);
-x_10 = lean_string_utf8_next(x_2, x_3);
-lean_dec(x_3);
-if (x_6 == 0)
-{
-lean_ctor_set(x_5, 1, x_10);
-x_11 = x_5;
-goto block_15;
+lean_object* v___x_9_; 
+lean_del_object(v___x_6_);
+lean_dec(v_stopPos_4_);
+lean_dec(v_startPos_3_);
+lean_dec_ref(v_str_2_);
+v___x_9_ = lean_box(0);
+return v___x_9_;
 }
 else
 {
-lean_object* x_16; 
-x_16 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_16, 0, x_2);
-lean_ctor_set(x_16, 1, x_10);
-lean_ctor_set(x_16, 2, x_4);
-x_11 = x_16;
-goto block_15;
-}
-block_15:
+uint32_t v___x_10_; lean_object* v___x_11_; lean_object* v___x_13_; 
+v___x_10_ = lean_string_utf8_get(v_str_2_, v_startPos_3_);
+v___x_11_ = lean_string_utf8_next(v_str_2_, v_startPos_3_);
+lean_dec(v_startPos_3_);
+if (v_isShared_7_ == 0)
 {
-lean_object* x_12; lean_object* x_13; lean_object* x_14; 
-x_12 = lean_box_uint32(x_9);
-x_13 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_13, 0, x_12);
-lean_ctor_set(x_13, 1, x_11);
-x_14 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_14, 0, x_13);
-return x_14;
+lean_ctor_set(v___x_6_, 1, v___x_11_);
+v___x_13_ = v___x_6_;
+goto v_reusejp_12_;
+}
+else
+{
+lean_object* v_reuseFailAlloc_17_; 
+v_reuseFailAlloc_17_ = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(v_reuseFailAlloc_17_, 0, v_str_2_);
+lean_ctor_set(v_reuseFailAlloc_17_, 1, v___x_11_);
+lean_ctor_set(v_reuseFailAlloc_17_, 2, v_stopPos_4_);
+v___x_13_ = v_reuseFailAlloc_17_;
+goto v_reusejp_12_;
+}
+v_reusejp_12_:
+{
+lean_object* v___x_14_; lean_object* v___x_15_; lean_object* v___x_16_; 
+v___x_14_ = lean_box_uint32(v___x_10_);
+v___x_15_ = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(v___x_15_, 0, v___x_14_);
+lean_ctor_set(v___x_15_, 1, v___x_13_);
+v___x_16_ = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(v___x_16_, 0, v___x_15_);
+return v___x_16_;
 }
 }
 }
@@ -102,12 +102,10 @@ LEAN_EXPORT lean_object* runtime_initialize_Init_Data_String_Stream(uint8_t buil
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Init_Data_String_Basic(builtin)
-;
+res = runtime_initialize_Init_Data_String_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Stream(builtin)
-;
+res = runtime_initialize_Init_Data_Stream(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -126,20 +124,16 @@ LEAN_EXPORT lean_object* initialize_Init_Data_String_Stream(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_String_Basic(builtin)
-;
+res = initialize_Init_Data_String_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Stream(builtin)
-;
+res = initialize_Init_Data_Stream(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_String_Stream(builtin)
-;
+res = runtime_initialize_Init_Data_String_Stream(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_Init_Data_String_Stream(builtin)
-;
+res = meta_initialize_Init_Data_String_Stream(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_Init_Data_String_Stream(builtin);

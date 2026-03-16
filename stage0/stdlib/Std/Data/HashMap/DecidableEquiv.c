@@ -13,66 +13,66 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+uint8_t l_Std_DHashMap_Internal_Raw_u2080_beq___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_HashMap_instDecidableEquivOfLawfulBEq___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashMap_instDecidableEquivOfLawfulBEq___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Std_DHashMap_Internal_Raw_u2080_beq___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_HashMap_instDecidableEquivOfLawfulBEq___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashMap_instDecidableEquivOfLawfulBEq___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_HashMap_instDecidableEquivOfLawfulBEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashMap_instDecidableEquivOfLawfulBEq___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Std_HashMap_instDecidableEquivOfLawfulBEq___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT uint8_t l_Std_HashMap_instDecidableEquivOfLawfulBEq___redArg___lam__0(lean_object* v_inst_1_, lean_object* v_k_2_, lean_object* v___y_3_, lean_object* v___y_4_){
 _start:
 {
-lean_object* x_5; uint8_t x_6; 
-x_5 = lean_apply_2(x_1, x_3, x_4);
-x_6 = lean_unbox(x_5);
-return x_6;
+lean_object* v___x_5_; uint8_t v___x_6_; 
+v___x_5_ = lean_apply_2(v_inst_1_, v___y_3_, v___y_4_);
+v___x_6_ = lean_unbox(v___x_5_);
+return v___x_6_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_HashMap_instDecidableEquivOfLawfulBEq___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Std_HashMap_instDecidableEquivOfLawfulBEq___redArg___lam__0___boxed(lean_object* v_inst_7_, lean_object* v_k_8_, lean_object* v___y_9_, lean_object* v___y_10_){
 _start:
 {
-uint8_t x_5; lean_object* x_6; 
-x_5 = l_Std_HashMap_instDecidableEquivOfLawfulBEq___redArg___lam__0(x_1, x_2, x_3, x_4);
-lean_dec(x_2);
-x_6 = lean_box(x_5);
-return x_6;
+uint8_t v_res_11_; lean_object* v_r_12_; 
+v_res_11_ = l_Std_HashMap_instDecidableEquivOfLawfulBEq___redArg___lam__0(v_inst_7_, v_k_8_, v___y_9_, v___y_10_);
+lean_dec(v_k_8_);
+v_r_12_ = lean_box(v_res_11_);
+return v_r_12_;
 }
 }
-LEAN_EXPORT uint8_t l_Std_HashMap_instDecidableEquivOfLawfulBEq___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT uint8_t l_Std_HashMap_instDecidableEquivOfLawfulBEq___redArg(lean_object* v_inst_13_, lean_object* v_inst_14_, lean_object* v_inst_15_, lean_object* v_m_u2081_16_, lean_object* v_m_u2082_17_){
 _start:
 {
-lean_object* x_6; uint8_t x_7; 
-x_6 = lean_alloc_closure((void*)(l_Std_HashMap_instDecidableEquivOfLawfulBEq___redArg___lam__0___boxed), 4, 1);
-lean_closure_set(x_6, 0, x_3);
-x_7 = l_Std_DHashMap_Internal_Raw_u2080_beq___redArg(x_1, x_2, x_6, x_4, x_5);
-return x_7;
+lean_object* v___f_18_; uint8_t v_this_19_; 
+v___f_18_ = lean_alloc_closure((void*)(l_Std_HashMap_instDecidableEquivOfLawfulBEq___redArg___lam__0___boxed), 4, 1);
+lean_closure_set(v___f_18_, 0, v_inst_15_);
+v_this_19_ = l_Std_DHashMap_Internal_Raw_u2080_beq___redArg(v_inst_13_, v_inst_14_, v___f_18_, v_m_u2081_16_, v_m_u2082_17_);
+return v_this_19_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_HashMap_instDecidableEquivOfLawfulBEq___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l_Std_HashMap_instDecidableEquivOfLawfulBEq___redArg___boxed(lean_object* v_inst_20_, lean_object* v_inst_21_, lean_object* v_inst_22_, lean_object* v_m_u2081_23_, lean_object* v_m_u2082_24_){
 _start:
 {
-uint8_t x_6; lean_object* x_7; 
-x_6 = l_Std_HashMap_instDecidableEquivOfLawfulBEq___redArg(x_1, x_2, x_3, x_4, x_5);
-x_7 = lean_box(x_6);
-return x_7;
+uint8_t v_res_25_; lean_object* v_r_26_; 
+v_res_25_ = l_Std_HashMap_instDecidableEquivOfLawfulBEq___redArg(v_inst_20_, v_inst_21_, v_inst_22_, v_m_u2081_23_, v_m_u2082_24_);
+v_r_26_ = lean_box(v_res_25_);
+return v_r_26_;
 }
 }
-LEAN_EXPORT uint8_t l_Std_HashMap_instDecidableEquivOfLawfulBEq(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
+LEAN_EXPORT uint8_t l_Std_HashMap_instDecidableEquivOfLawfulBEq(lean_object* v_00_u03b1_27_, lean_object* v_00_u03b2_28_, lean_object* v_inst_29_, lean_object* v_inst_30_, lean_object* v_inst_31_, lean_object* v_inst_32_, lean_object* v_inst_33_, lean_object* v_m_u2081_34_, lean_object* v_m_u2082_35_){
 _start:
 {
-uint8_t x_10; 
-x_10 = l_Std_HashMap_instDecidableEquivOfLawfulBEq___redArg(x_3, x_5, x_6, x_8, x_9);
-return x_10;
+uint8_t v___x_36_; 
+v___x_36_ = l_Std_HashMap_instDecidableEquivOfLawfulBEq___redArg(v_inst_29_, v_inst_31_, v_inst_32_, v_m_u2081_34_, v_m_u2082_35_);
+return v___x_36_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_HashMap_instDecidableEquivOfLawfulBEq___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
+LEAN_EXPORT lean_object* l_Std_HashMap_instDecidableEquivOfLawfulBEq___boxed(lean_object* v_00_u03b1_37_, lean_object* v_00_u03b2_38_, lean_object* v_inst_39_, lean_object* v_inst_40_, lean_object* v_inst_41_, lean_object* v_inst_42_, lean_object* v_inst_43_, lean_object* v_m_u2081_44_, lean_object* v_m_u2082_45_){
 _start:
 {
-uint8_t x_10; lean_object* x_11; 
-x_10 = l_Std_HashMap_instDecidableEquivOfLawfulBEq(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
-x_11 = lean_box(x_10);
-return x_11;
+uint8_t v_res_46_; lean_object* v_r_47_; 
+v_res_46_ = l_Std_HashMap_instDecidableEquivOfLawfulBEq(v_00_u03b1_37_, v_00_u03b2_38_, v_inst_39_, v_inst_40_, v_inst_41_, v_inst_42_, v_inst_43_, v_m_u2081_44_, v_m_u2082_45_);
+v_r_47_ = lean_box(v_res_46_);
+return v_r_47_;
 }
 }
 lean_object* runtime_initialize_Std_Data_DHashMap_DecidableEquiv(uint8_t builtin);
@@ -82,12 +82,10 @@ LEAN_EXPORT lean_object* runtime_initialize_Std_Data_HashMap_DecidableEquiv(uint
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Std_Data_DHashMap_DecidableEquiv(builtin)
-;
+res = runtime_initialize_Std_Data_DHashMap_DecidableEquiv(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Data_HashMap_Basic(builtin)
-;
+res = runtime_initialize_Std_Data_HashMap_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -106,20 +104,16 @@ LEAN_EXPORT lean_object* initialize_Std_Data_HashMap_DecidableEquiv(uint8_t buil
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Std_Data_DHashMap_DecidableEquiv(builtin)
-;
+res = initialize_Std_Data_DHashMap_DecidableEquiv(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_HashMap_Basic(builtin)
-;
+res = initialize_Std_Data_HashMap_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Data_HashMap_DecidableEquiv(builtin)
-;
+res = runtime_initialize_Std_Data_HashMap_DecidableEquiv(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_Std_Data_HashMap_DecidableEquiv(builtin)
-;
+res = meta_initialize_Std_Data_HashMap_DecidableEquiv(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_Std_Data_HashMap_DecidableEquiv(builtin);

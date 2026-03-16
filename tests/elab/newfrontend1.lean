@@ -1,3 +1,5 @@
+set_option warn.classDefReducibility false
+
 def x := 1
 
 #check x

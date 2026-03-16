@@ -15,11 +15,7 @@ extern "C" {
 #endif
 lean_object* l_BitVec_ofNat(lean_object*, lean_object*);
 lean_object* l_BitVec_mul(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_instCommRingBitVec___lam__0(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_instCommRingBitVec___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_BitVec_ofInt(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_instCommRingBitVec___lam__1(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_instCommRingBitVec___lam__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_BitVec_add___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_BitVec_mul___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_BitVec_instNatCast___lam__0___boxed(lean_object*, lean_object*);
@@ -29,98 +25,102 @@ lean_object* l_instHAdd___redArg___lam__0(lean_object*, lean_object*, lean_objec
 lean_object* l_BitVec_neg___boxed(lean_object*, lean_object*);
 lean_object* l_BitVec_sub___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_BitVec_ofInt___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_instCommRingBitVec___lam__0(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_instCommRingBitVec___lam__0___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_instCommRingBitVec___lam__1(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_instCommRingBitVec___lam__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_instCommRingBitVec(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_instCommRingBitVec___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Lean_Grind_instCommRingBitVec___lam__0(lean_object* v_w_1_, lean_object* v_x1_2_, lean_object* v_x2_3_){
 _start:
 {
-lean_object* x_4; lean_object* x_5; 
-x_4 = l_BitVec_ofNat(x_1, x_2);
-x_5 = l_BitVec_mul(x_1, x_4, x_3);
-lean_dec(x_4);
-return x_5;
+lean_object* v___x_4_; lean_object* v___x_5_; 
+v___x_4_ = l_BitVec_ofNat(v_w_1_, v_x1_2_);
+v___x_5_ = l_BitVec_mul(v_w_1_, v___x_4_, v_x2_3_);
+lean_dec(v___x_4_);
+return v___x_5_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Grind_instCommRingBitVec___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Lean_Grind_instCommRingBitVec___lam__0___boxed(lean_object* v_w_6_, lean_object* v_x1_7_, lean_object* v_x2_8_){
 _start:
 {
-lean_object* x_4; 
-x_4 = l_Lean_Grind_instCommRingBitVec___lam__0(x_1, x_2, x_3);
-lean_dec(x_3);
-lean_dec(x_2);
-lean_dec(x_1);
-return x_4;
+lean_object* v_res_9_; 
+v_res_9_ = l_Lean_Grind_instCommRingBitVec___lam__0(v_w_6_, v_x1_7_, v_x2_8_);
+lean_dec(v_x2_8_);
+lean_dec(v_x1_7_);
+lean_dec(v_w_6_);
+return v_res_9_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Grind_instCommRingBitVec___lam__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Lean_Grind_instCommRingBitVec___lam__1(lean_object* v_w_10_, lean_object* v_x1_11_, lean_object* v_x2_12_){
 _start:
 {
-lean_object* x_4; lean_object* x_5; 
-x_4 = l_BitVec_ofInt(x_1, x_2);
-x_5 = l_BitVec_mul(x_1, x_4, x_3);
-lean_dec(x_4);
-return x_5;
+lean_object* v___x_13_; lean_object* v___x_14_; 
+v___x_13_ = l_BitVec_ofInt(v_w_10_, v_x1_11_);
+v___x_14_ = l_BitVec_mul(v_w_10_, v___x_13_, v_x2_12_);
+lean_dec(v___x_13_);
+return v___x_14_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Grind_instCommRingBitVec___lam__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Lean_Grind_instCommRingBitVec___lam__1___boxed(lean_object* v_w_15_, lean_object* v_x1_16_, lean_object* v_x2_17_){
 _start:
 {
-lean_object* x_4; 
-x_4 = l_Lean_Grind_instCommRingBitVec___lam__1(x_1, x_2, x_3);
-lean_dec(x_3);
-lean_dec(x_2);
-lean_dec(x_1);
-return x_4;
+lean_object* v_res_18_; 
+v_res_18_ = l_Lean_Grind_instCommRingBitVec___lam__1(v_w_15_, v_x1_16_, v_x2_17_);
+lean_dec(v_x2_17_);
+lean_dec(v_x1_16_);
+lean_dec(v_w_15_);
+return v_res_18_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Grind_instCommRingBitVec(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Grind_instCommRingBitVec(lean_object* v_w_19_){
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
-lean_inc(x_1);
-x_2 = lean_alloc_closure((void*)(l_Lean_Grind_instCommRingBitVec___lam__0___boxed), 3, 1);
-lean_closure_set(x_2, 0, x_1);
-lean_inc(x_1);
-x_3 = lean_alloc_closure((void*)(l_Lean_Grind_instCommRingBitVec___lam__1___boxed), 3, 1);
-lean_closure_set(x_3, 0, x_1);
-lean_inc(x_1);
-x_4 = lean_alloc_closure((void*)(l_BitVec_add___boxed), 3, 1);
-lean_closure_set(x_4, 0, x_1);
-lean_inc(x_1);
-x_5 = lean_alloc_closure((void*)(l_BitVec_mul___boxed), 3, 1);
-lean_closure_set(x_5, 0, x_1);
-lean_inc(x_1);
-x_6 = lean_alloc_closure((void*)(l_BitVec_instNatCast___lam__0___boxed), 2, 1);
-lean_closure_set(x_6, 0, x_1);
-lean_inc(x_1);
-x_7 = lean_alloc_closure((void*)(l_BitVec_instOfNat___boxed), 2, 1);
-lean_closure_set(x_7, 0, x_1);
-lean_inc(x_1);
-x_8 = lean_alloc_closure((void*)(l_BitVec_instPowNat___lam__0___boxed), 3, 1);
-lean_closure_set(x_8, 0, x_1);
-x_9 = lean_alloc_closure((void*)(l_instHAdd___redArg___lam__0), 3, 1);
-lean_closure_set(x_9, 0, x_8);
-lean_inc(x_1);
-x_10 = lean_alloc_closure((void*)(l_BitVec_neg___boxed), 2, 1);
-lean_closure_set(x_10, 0, x_1);
-lean_inc(x_1);
-x_11 = lean_alloc_closure((void*)(l_BitVec_sub___boxed), 3, 1);
-lean_closure_set(x_11, 0, x_1);
-x_12 = lean_alloc_closure((void*)(l_BitVec_ofInt___boxed), 2, 1);
-lean_closure_set(x_12, 0, x_1);
-x_13 = lean_alloc_ctor(0, 6, 0);
-lean_ctor_set(x_13, 0, x_4);
-lean_ctor_set(x_13, 1, x_5);
-lean_ctor_set(x_13, 2, x_6);
-lean_ctor_set(x_13, 3, x_7);
-lean_ctor_set(x_13, 4, x_2);
-lean_ctor_set(x_13, 5, x_9);
-x_14 = lean_alloc_ctor(0, 5, 0);
-lean_ctor_set(x_14, 0, x_13);
-lean_ctor_set(x_14, 1, x_10);
-lean_ctor_set(x_14, 2, x_11);
-lean_ctor_set(x_14, 3, x_12);
-lean_ctor_set(x_14, 4, x_3);
-return x_14;
+lean_object* v___f_20_; lean_object* v___f_21_; lean_object* v___x_22_; lean_object* v___x_23_; lean_object* v___f_24_; lean_object* v___x_25_; lean_object* v___f_26_; lean_object* v___f_27_; lean_object* v___x_28_; lean_object* v___x_29_; lean_object* v___x_30_; lean_object* v___x_31_; lean_object* v___x_32_; 
+lean_inc(v_w_19_);
+v___f_20_ = lean_alloc_closure((void*)(l_Lean_Grind_instCommRingBitVec___lam__0___boxed), 3, 1);
+lean_closure_set(v___f_20_, 0, v_w_19_);
+lean_inc(v_w_19_);
+v___f_21_ = lean_alloc_closure((void*)(l_Lean_Grind_instCommRingBitVec___lam__1___boxed), 3, 1);
+lean_closure_set(v___f_21_, 0, v_w_19_);
+lean_inc(v_w_19_);
+v___x_22_ = lean_alloc_closure((void*)(l_BitVec_add___boxed), 3, 1);
+lean_closure_set(v___x_22_, 0, v_w_19_);
+lean_inc(v_w_19_);
+v___x_23_ = lean_alloc_closure((void*)(l_BitVec_mul___boxed), 3, 1);
+lean_closure_set(v___x_23_, 0, v_w_19_);
+lean_inc(v_w_19_);
+v___f_24_ = lean_alloc_closure((void*)(l_BitVec_instNatCast___lam__0___boxed), 2, 1);
+lean_closure_set(v___f_24_, 0, v_w_19_);
+lean_inc(v_w_19_);
+v___x_25_ = lean_alloc_closure((void*)(l_BitVec_instOfNat___boxed), 2, 1);
+lean_closure_set(v___x_25_, 0, v_w_19_);
+lean_inc(v_w_19_);
+v___f_26_ = lean_alloc_closure((void*)(l_BitVec_instPowNat___lam__0___boxed), 3, 1);
+lean_closure_set(v___f_26_, 0, v_w_19_);
+v___f_27_ = lean_alloc_closure((void*)(l_instHAdd___redArg___lam__0), 3, 1);
+lean_closure_set(v___f_27_, 0, v___f_26_);
+lean_inc(v_w_19_);
+v___x_28_ = lean_alloc_closure((void*)(l_BitVec_neg___boxed), 2, 1);
+lean_closure_set(v___x_28_, 0, v_w_19_);
+lean_inc(v_w_19_);
+v___x_29_ = lean_alloc_closure((void*)(l_BitVec_sub___boxed), 3, 1);
+lean_closure_set(v___x_29_, 0, v_w_19_);
+v___x_30_ = lean_alloc_closure((void*)(l_BitVec_ofInt___boxed), 2, 1);
+lean_closure_set(v___x_30_, 0, v_w_19_);
+v___x_31_ = lean_alloc_ctor(0, 6, 0);
+lean_ctor_set(v___x_31_, 0, v___x_22_);
+lean_ctor_set(v___x_31_, 1, v___x_23_);
+lean_ctor_set(v___x_31_, 2, v___f_24_);
+lean_ctor_set(v___x_31_, 3, v___x_25_);
+lean_ctor_set(v___x_31_, 4, v___f_20_);
+lean_ctor_set(v___x_31_, 5, v___f_27_);
+v___x_32_ = lean_alloc_ctor(0, 5, 0);
+lean_ctor_set(v___x_32_, 0, v___x_31_);
+lean_ctor_set(v___x_32_, 1, v___x_28_);
+lean_ctor_set(v___x_32_, 2, v___x_29_);
+lean_ctor_set(v___x_32_, 3, v___x_30_);
+lean_ctor_set(v___x_32_, 4, v___f_21_);
+return v___x_32_;
 }
 }
 lean_object* runtime_initialize_Init_GrindInstances_ToInt(uint8_t builtin);
@@ -135,32 +135,25 @@ LEAN_EXPORT lean_object* runtime_initialize_Init_GrindInstances_Ring_BitVec(uint
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Init_GrindInstances_ToInt(builtin)
-;
+res = runtime_initialize_Init_GrindInstances_ToInt(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_BitVec_Basic(builtin)
-;
+res = runtime_initialize_Init_Data_BitVec_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Grind_ToInt(builtin)
-;
+res = runtime_initialize_Init_Grind_ToInt(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_BitVec_Lemmas(builtin)
-;
+res = runtime_initialize_Init_Data_BitVec_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Grind_Ring_Basic(builtin)
-;
+res = runtime_initialize_Init_Grind_Ring_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_BitVec_Bootstrap(builtin)
-;
+res = runtime_initialize_Init_Data_BitVec_Bootstrap(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Grind_Ring_ToInt(builtin)
-;
+res = runtime_initialize_Init_Grind_Ring_ToInt(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -184,40 +177,31 @@ LEAN_EXPORT lean_object* initialize_Init_GrindInstances_Ring_BitVec(uint8_t buil
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_GrindInstances_ToInt(builtin)
-;
+res = initialize_Init_GrindInstances_ToInt(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_BitVec_Basic(builtin)
-;
+res = initialize_Init_Data_BitVec_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Grind_ToInt(builtin)
-;
+res = initialize_Init_Grind_ToInt(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_BitVec_Lemmas(builtin)
-;
+res = initialize_Init_Data_BitVec_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Grind_Ring_Basic(builtin)
-;
+res = initialize_Init_Grind_Ring_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_BitVec_Bootstrap(builtin)
-;
+res = initialize_Init_Data_BitVec_Bootstrap(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Grind_Ring_ToInt(builtin)
-;
+res = initialize_Init_Grind_Ring_ToInt(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_GrindInstances_Ring_BitVec(builtin)
-;
+res = runtime_initialize_Init_GrindInstances_Ring_BitVec(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_Init_GrindInstances_Ring_BitVec(builtin)
-;
+res = meta_initialize_Init_GrindInstances_Ring_BitVec(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_Init_GrindInstances_Ring_BitVec(builtin);

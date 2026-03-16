@@ -435,7 +435,13 @@ private def mkSizeOfSpecTheorem (indInfo : InductiveVal) (sizeOfFns : Array Name
     let fields := xs[ctorInfo.numParams...*]
     let ctorApp := mkAppN (mkConst ctorName us) xs
     mkLocalInstances params fun localInsts => do
-      let lhs ← mkAppM ``SizeOf.sizeOf #[ctorApp]
+      let ctorAppType ← inferType ctorApp
+      let ctorAppTypeArgs := ctorAppType.getAppArgs
+      let indicesFromType := ctorAppTypeArgs[indInfo.numParams...*]
+      let instDeclName := indInfo.name ++ `_sizeOf_inst
+      let inst := mkAppN (mkConst instDeclName us) (params ++ indicesFromType ++ localInsts)
+      let u ← getLevel ctorAppType
+      let lhs := mkApp3 (mkConst ``SizeOf.sizeOf [u]) ctorAppType inst ctorApp
       let mut rhs ← mkNumeral (mkConst ``Nat) 1
       for field in fields do
         unless (← ignoreField field) do

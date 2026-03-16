@@ -64,7 +64,7 @@ public structure LakeOptions where
   offline : Bool := false
   outputsFile? : Option FilePath := none
   forceDownload : Bool := false
-  downloadArts : Bool := false
+  mappingsOnly : Bool := false
   service? : Option String := none
   scope? : Option CacheServiceScope := none
   platform? : Option CachePlatform := none
@@ -249,7 +249,8 @@ def lakeLongOption : (opt : String) → CliM PUnit
 | "--wfail"       => modifyThe LakeOptions ({· with failLv := .warning})
 | "--iofail"      => modifyThe LakeOptions ({· with failLv := .info})
 | "--force-download" => modifyThe LakeOptions ({· with forceDownload := true})
-| "--download-arts" => modifyThe LakeOptions ({· with downloadArts := true})
+| "--download-arts" => modifyThe LakeOptions ({· with mappingsOnly := false})
+| "--mappings-only" => modifyThe LakeOptions ({· with mappingsOnly := true})
 | "--service" => do
   let service ← takeOptArg "--service" "service name"
   modifyThe LakeOptions ({· with service? := some service})
@@ -409,6 +410,8 @@ protected def get : CliM PUnit := do
   let ws ← loadWorkspace cfg
   let cache := ws.lakeCache
   if let some file := mappings? then liftM (m := LoggerIO) do
+    if opts.mappingsOnly then
+      error "`--mappings-only` is not supported with a mappings file; use `lake cache add` instead"
     if opts.platform?.isSome || opts.toolchain?.isSome then
       logWarning "the `--platform` and `--toolchain` options do nothing for `cache get` with a mappings file"
       if opts.failLv ≤ .warning then
@@ -441,6 +444,9 @@ protected def get : CliM PUnit := do
         match ws.lakeEnv.cacheArtifactEndpoint?, ws.lakeEnv.cacheRevisionEndpoint? with
         | some artifactEndpoint, some revisionEndpoint =>
           logWarning endpointDeprecation
+          if opts.mappingsOnly then
+            error "`--mappings-only` requires services to be configured
+              via the Lake system configuration (not enviroment variables)"
           return .downloadService artifactEndpoint revisionEndpoint ws.lakeEnv.cacheService?
         | none, none =>
             return ws.defaultCacheService
@@ -469,7 +475,7 @@ protected def get : CliM PUnit := do
         else
           findOutputs cache service pkg remoteScope opts platform toolchain
       cache.writeMap pkg.cacheScope map service.name? (some remoteScope)
-      if opts.downloadArts || service.name?.isNone then
+      unless opts.mappingsOnly do
         let descrs ← map.collectOutputDescrs
         service.downloadArtifacts descrs cache remoteScope opts.forceDownload
     else if service.isReservoir then
@@ -483,7 +489,7 @@ protected def get : CliM PUnit := do
         try
           let map ← findOutputs cache service pkg remoteScope opts platform toolchain
           cache.writeMap pkg.cacheScope map service.name? (some remoteScope)
-          if opts.downloadArts || service.name?.isNone then
+          unless opts.mappingsOnly do
             let descrs ← map.collectOutputDescrs
             service.downloadArtifacts descrs cache remoteScope opts.forceDownload
           return ok

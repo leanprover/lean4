@@ -492,8 +492,9 @@ def execute_release_steps(repo, version, config):
             'ROOT_REV=$(jq -r \'.packages[] | select(.name == "subverso") | .rev\' lake-manifest.json); '
             'SUBVERSO_URL=$(jq -r \'.packages[] | select(.name == "subverso") | .url\' lake-manifest.json); '
             'DEMOD_REV=$(git ls-remote "$SUBVERSO_URL" "refs/tags/no-modules/$ROOT_REV" | awk \'{print $1}\'); '
-            'find test-projects -name lake-manifest.json -print0 | '
-            'xargs -0 -I{} sh -c \'jq --arg rev "$DEMOD_REV" \'.packages |= map(if .name == "subverso" then .rev = $rev else . end)\' "{}" > /tmp/lm_tmp.json && mv /tmp/lm_tmp.json "{}"\''
+            'find test-projects -name lake-manifest.json -print0 | while IFS= read -r -d \'\' f; do '
+            'jq --arg rev "$DEMOD_REV" \'.packages |= map(if .name == "subverso" then .rev = $rev else . end)\' "$f" > /tmp/lm_tmp.json && mv /tmp/lm_tmp.json "$f"; '
+            'done'
         )
         run_command(sync_script, cwd=repo_path)
         print(green("Synced de-modulized subverso rev to all test-project sub-manifests"))

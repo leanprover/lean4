@@ -126,6 +126,9 @@ Its trace just includes its dependencies.
 -/
 builtin_facet leanArts : Module => ModuleOutputArtifacts
 
+/-- A compressed archive (produced via `leantar`) of the module's build artifacts. -/
+builtin_facet ltar : Module => FilePath
+
 /-- The `olean` file produced by `lean`. -/
 builtin_facet olean : Module => FilePath
 

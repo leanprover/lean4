@@ -629,6 +629,7 @@ export Bool (cond_eq_if cond_eq_ite xor and or not)
 This should not be turned on globally as an instance because it degrades performance in Mathlib,
 but may be used locally.
 -/
+@[implicit_reducible]
 def boolPredToPred : Coe (α → Bool) (α  → Prop) where
   coe r := fun a => Eq (r a) true
 

@@ -1,3 +1,5 @@
+set_option warn.classDefReducibility false
+
 /-!
 # Testing for timeouts in typeclass synthesis
 

@@ -661,7 +661,7 @@ theorem minKey?_eq_minEntry?_map_fst {l : Impl α β} : l.minKey? = l.minEntry?.
 theorem minKey_eq_minEntry_fst {l : Impl α β} {he} : l.minKey he = (l.minEntry he).fst := by
   induction l, he using minKey.induct_unfolding <;> simp only [minEntry] <;> trivial
 
-theorem minKey!_eq_get!_minKey? [Inhabited α] {l : Impl α β} :
+theorem minKey!_eq_getElem!_minKey? [Inhabited α] {l : Impl α β} :
     l.minKey! = l.minKey?.get! := by
   induction l using minKey!.induct_unfolding <;> simp only [minKey?] <;> trivial
 
@@ -1011,7 +1011,6 @@ theorem getEntryGT?_eq_getEntryGT?ₘ [Ord α] (k : α) (t : Impl α β) :
     getEntryGT? k t = getEntryGT?ₘ k t := by
   rw [getEntryGT?_eq_getEntryGT?ₘ', getEntryGT?ₘ', getEntryGT?ₘ, explore_eq_applyPartition] <;> simp
 
-set_option backward.whnf.reducibleClassField false in
 theorem getEntryLT?_eq_getEntryGT?_reverse [o : Ord α] [TransOrd α] {t : Impl α β} {k : α} :
     getEntryLT? k t = @getEntryGT? α β o.opposite k t.reverse := by
   rw [getEntryLT?, @getEntryGT?.eq_def, Ord.opposite]
@@ -1019,7 +1018,6 @@ theorem getEntryLT?_eq_getEntryGT?_reverse [o : Ord α] [TransOrd α] {t : Impl 
     simp only [*, getEntryLT?.go, reverse, getEntryGT?.go, OrientedCmp.eq_swap (b := k),
       Ordering.swap]
 
-set_option backward.whnf.reducibleClassField false in
 theorem getEntryLE?_eq_getEntryGE?_reverse [o : Ord α] [TransOrd α] {t : Impl α β} {k : α} :
     getEntryLE? k t = @getEntryGE? α β o.opposite k t.reverse := by
   rw [getEntryLE?, @getEntryGE?.eq_def, Ord.opposite]

@@ -351,8 +351,8 @@ def tryResolve (mvar : Expr) (inst : Instance) : MetaM (Option (MetavarContext �
   let localInsts ← getLocalInstances
   forallTelescopeReducing mvarType fun xs mvarTypeBody => do
     let { subgoals, instVal, instTypeBody } ← getSubgoals lctx localInsts xs inst
-    withTraceNode `Meta.synthInstance.tryResolve (withMCtx (← getMCtx) do
-        return m!"{exceptOptionEmoji ·} {← instantiateMVars mvarTypeBody} ≟ {← instantiateMVars instTypeBody}") do
+    withTraceNode `Meta.synthInstance.tryResolve (fun _ => do withMCtx (← getMCtx) do
+        return m!"{← instantiateMVars mvarTypeBody} ≟ {← instantiateMVars instTypeBody}") do
     if (← isDefEq mvarTypeBody instTypeBody) then
       /-
       We set `etaReduce := true`.
@@ -425,7 +425,7 @@ def addAnswer (cNode : ConsumerNode) : SynthM Unit := do
     trace[Meta.synthInstance.answer] "{crossEmoji} {← instantiateMVars (← inferType cNode.mvar)}{Format.line}(size: {cNode.size} ≥ {(← read).maxResultSize})"
   else
     withTraceNode `Meta.synthInstance.answer
-      (fun _ => return m!"{checkEmoji} {← instantiateMVars (← inferType cNode.mvar)}") do
+      (fun _ => return m!"{← instantiateMVars (← inferType cNode.mvar)}") do
     let answer ← mkAnswer cNode
     -- Remark: `answer` does not contain assignable or assigned metavariables.
     let key := cNode.key
@@ -574,7 +574,7 @@ def generate : SynthM Unit := do
             return
     discard do withMCtx mctx do
       withTraceNode `Meta.synthInstance.apply
-        (return m!"{exceptOptionEmoji ·} apply {inst.val} to {← instantiateMVars (← inferType mvar)}") do
+        (fun _ => return m!"apply {inst.val} to {← instantiateMVars (← inferType mvar)}") do
       modifyTop fun gNode => { gNode with currInstanceIdx := idx }
       if let some (mctx, subgoals) ← tryResolve mvar inst then
         consume { key, mvar, subgoals, mctx, size := 0 }
@@ -875,7 +875,7 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
   let opts ← getOptions
   let maxResultSize := maxResultSize?.getD (synthInstance.maxSize.get opts)
   withTraceNode `Meta.synthInstance
-    (return m!"{exceptOptionEmoji ·} {← instantiateMVars type}") do
+    (fun _ => return m!"{← instantiateMVars type}") do
   withConfig (fun config => { config with isDefEqStuckEx := true, transparency := TransparencyMode.instances,
                                           foApprox := true, ctxApprox := true, constApprox := false, univApprox := false }) do
   withInTypeClassResolution do

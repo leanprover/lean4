@@ -38,84 +38,64 @@ LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Vector(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Init_Data_Vector_Basic(builtin)
-;
+res = runtime_initialize_Init_Data_Vector_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Vector_Lemmas(builtin)
-;
+res = runtime_initialize_Init_Data_Vector_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Vector_Lex(builtin)
-;
+res = runtime_initialize_Init_Data_Vector_Lex(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Vector_MapIdx(builtin)
-;
+res = runtime_initialize_Init_Data_Vector_MapIdx(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Vector_Count(builtin)
-;
+res = runtime_initialize_Init_Data_Vector_Count(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Vector_DecidableEq(builtin)
-;
+res = runtime_initialize_Init_Data_Vector_DecidableEq(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Vector_Zip(builtin)
-;
+res = runtime_initialize_Init_Data_Vector_Zip(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Vector_OfFn(builtin)
-;
+res = runtime_initialize_Init_Data_Vector_OfFn(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Vector_Range(builtin)
-;
+res = runtime_initialize_Init_Data_Vector_Range(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Vector_Erase(builtin)
-;
+res = runtime_initialize_Init_Data_Vector_Erase(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Vector_Monadic(builtin)
-;
+res = runtime_initialize_Init_Data_Vector_Monadic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Vector_InsertIdx(builtin)
-;
+res = runtime_initialize_Init_Data_Vector_InsertIdx(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Vector_FinRange(builtin)
-;
+res = runtime_initialize_Init_Data_Vector_FinRange(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Vector_Extract(builtin)
-;
+res = runtime_initialize_Init_Data_Vector_Extract(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Vector_Perm(builtin)
-;
+res = runtime_initialize_Init_Data_Vector_Perm(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Vector_Find(builtin)
-;
+res = runtime_initialize_Init_Data_Vector_Find(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Vector_Algebra(builtin)
-;
+res = runtime_initialize_Init_Data_Vector_Algebra(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Vector_Stream(builtin)
-;
+res = runtime_initialize_Init_Data_Vector_Stream(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Vector_Nat(builtin)
-;
+res = runtime_initialize_Init_Data_Vector_Nat(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Vector_Int(builtin)
-;
+res = runtime_initialize_Init_Data_Vector_Int(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -152,92 +132,70 @@ LEAN_EXPORT lean_object* initialize_Init_Data_Vector(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Vector_Basic(builtin)
-;
+res = initialize_Init_Data_Vector_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Vector_Lemmas(builtin)
-;
+res = initialize_Init_Data_Vector_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Vector_Lex(builtin)
-;
+res = initialize_Init_Data_Vector_Lex(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Vector_MapIdx(builtin)
-;
+res = initialize_Init_Data_Vector_MapIdx(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Vector_Count(builtin)
-;
+res = initialize_Init_Data_Vector_Count(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Vector_DecidableEq(builtin)
-;
+res = initialize_Init_Data_Vector_DecidableEq(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Vector_Zip(builtin)
-;
+res = initialize_Init_Data_Vector_Zip(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Vector_OfFn(builtin)
-;
+res = initialize_Init_Data_Vector_OfFn(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Vector_Range(builtin)
-;
+res = initialize_Init_Data_Vector_Range(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Vector_Erase(builtin)
-;
+res = initialize_Init_Data_Vector_Erase(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Vector_Monadic(builtin)
-;
+res = initialize_Init_Data_Vector_Monadic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Vector_InsertIdx(builtin)
-;
+res = initialize_Init_Data_Vector_InsertIdx(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Vector_FinRange(builtin)
-;
+res = initialize_Init_Data_Vector_FinRange(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Vector_Extract(builtin)
-;
+res = initialize_Init_Data_Vector_Extract(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Vector_Perm(builtin)
-;
+res = initialize_Init_Data_Vector_Perm(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Vector_Find(builtin)
-;
+res = initialize_Init_Data_Vector_Find(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Vector_Algebra(builtin)
-;
+res = initialize_Init_Data_Vector_Algebra(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Vector_Stream(builtin)
-;
+res = initialize_Init_Data_Vector_Stream(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Vector_Nat(builtin)
-;
+res = initialize_Init_Data_Vector_Nat(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Vector_Int(builtin)
-;
+res = initialize_Init_Data_Vector_Int(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Vector(builtin)
-;
+res = runtime_initialize_Init_Data_Vector(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_Init_Data_Vector(builtin)
-;
+res = meta_initialize_Init_Data_Vector(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_Init_Data_Vector(builtin);

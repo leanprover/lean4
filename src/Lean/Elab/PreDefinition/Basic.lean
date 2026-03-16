@@ -11,7 +11,6 @@ public import Lean.Util.NumApps
 public import Lean.Meta.Eqns
 public import Lean.Elab.RecAppSyntax
 public import Lean.Elab.DefView
-
 public section
 
 namespace Lean.Elab

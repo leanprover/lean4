@@ -2,3 +2,4 @@
   P 37
 
 Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+2273.lean:24:0-24:31: warning: Definition `instP` of class type must be marked with `@[reducible]` or `@[implicit_reducible]`

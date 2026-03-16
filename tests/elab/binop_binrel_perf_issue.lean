@@ -1,3 +1,5 @@
+set_option warn.classDefReducibility false
+
 /-!
 This is a minimization of an `isDefEq` timeout from Mathlib.Algebra.Module.Submodule.Localization,
 where it is reasonably fast with `set_option backward.isDefEq.lazyWhnfCore false`,

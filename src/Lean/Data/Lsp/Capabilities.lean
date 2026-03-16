@@ -69,6 +69,11 @@ structure LeanClientCapabilities where
   If `none` or `false`, silent diagnostics will not be served to the client.
   -/
   silentDiagnosticSupport? : Option Bool := none
+  /--
+  The latest RPC wire format supported by the client.
+  Defaults to `v0` when `none`.
+  -/
+  rpcWireFormat? : Option RpcWireFormat := none
   deriving ToJson, FromJson
 
 structure ClientCapabilities where
@@ -85,6 +90,13 @@ def ClientCapabilities.silentDiagnosticSupport (c : ClientCapabilities) : Bool :
   let some silentDiagnosticSupport := lean.silentDiagnosticSupport?
     | return false
   return silentDiagnosticSupport
+
+def ClientCapabilities.rpcWireFormat (c : ClientCapabilities) : RpcWireFormat := Id.run do
+  let some lean := c.lean?
+    | return .v0
+  let some v := lean.rpcWireFormat?
+    | return .v0
+  return v
 
 structure LeanServerCapabilities where
   moduleHierarchyProvider? : Option ModuleHierarchyOptions

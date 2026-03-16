@@ -15,51 +15,52 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l___private_Std_Sat_AIG_LawfulOperator_0__Std_Sat_AIG_toGraphviz_go_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Sat_AIG_LawfulOperator_0__Std_Sat_AIG_toGraphviz_go_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Std_Sat_AIG_LawfulOperator_0__Std_Sat_AIG_toGraphviz_go_match__1_splitter___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l___private_Std_Sat_AIG_LawfulOperator_0__Std_Sat_AIG_toGraphviz_go_match__1_splitter___redArg(lean_object* v_x_1_, lean_object* v_h__1_2_, lean_object* v_h__2_3_, lean_object* v_h__3_4_){
 _start:
 {
-switch (lean_obj_tag(x_1)) {
+switch(lean_obj_tag(v_x_1_))
+{
 case 0:
 {
-lean_object* x_5; 
-lean_dec(x_4);
-lean_dec(x_3);
-x_5 = lean_apply_1(x_2, lean_box(0));
-return x_5;
+lean_object* v___x_5_; 
+lean_dec(v_h__3_4_);
+lean_dec(v_h__2_3_);
+v___x_5_ = lean_apply_1(v_h__1_2_, lean_box(0));
+return v___x_5_;
 }
 case 1:
 {
-lean_object* x_6; lean_object* x_7; 
-lean_dec(x_4);
-lean_dec(x_2);
-x_6 = lean_ctor_get(x_1, 0);
-lean_inc(x_6);
-lean_dec_ref(x_1);
-x_7 = lean_apply_2(x_3, x_6, lean_box(0));
-return x_7;
+lean_object* v_idx_6_; lean_object* v___x_7_; 
+lean_dec(v_h__3_4_);
+lean_dec(v_h__1_2_);
+v_idx_6_ = lean_ctor_get(v_x_1_, 0);
+lean_inc(v_idx_6_);
+lean_dec_ref(v_x_1_);
+v___x_7_ = lean_apply_2(v_h__2_3_, v_idx_6_, lean_box(0));
+return v___x_7_;
 }
 default: 
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-lean_dec(x_3);
-lean_dec(x_2);
-x_8 = lean_ctor_get(x_1, 0);
-lean_inc(x_8);
-x_9 = lean_ctor_get(x_1, 1);
-lean_inc(x_9);
-lean_dec_ref(x_1);
-x_10 = lean_apply_3(x_4, x_8, x_9, lean_box(0));
-return x_10;
+lean_object* v_l_8_; lean_object* v_r_9_; lean_object* v___x_10_; 
+lean_dec(v_h__2_3_);
+lean_dec(v_h__1_2_);
+v_l_8_ = lean_ctor_get(v_x_1_, 0);
+lean_inc(v_l_8_);
+v_r_9_ = lean_ctor_get(v_x_1_, 1);
+lean_inc(v_r_9_);
+lean_dec_ref(v_x_1_);
+v___x_10_ = lean_apply_3(v_h__3_4_, v_l_8_, v_r_9_, lean_box(0));
+return v___x_10_;
 }
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Std_Sat_AIG_LawfulOperator_0__Std_Sat_AIG_toGraphviz_go_match__1_splitter(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+LEAN_EXPORT lean_object* l___private_Std_Sat_AIG_LawfulOperator_0__Std_Sat_AIG_toGraphviz_go_match__1_splitter(lean_object* v_00_u03b1_11_, lean_object* v_motive_12_, lean_object* v_x_13_, lean_object* v_h__1_14_, lean_object* v_h__2_15_, lean_object* v_h__3_16_){
 _start:
 {
-lean_object* x_7; 
-x_7 = l___private_Std_Sat_AIG_LawfulOperator_0__Std_Sat_AIG_toGraphviz_go_match__1_splitter___redArg(x_3, x_4, x_5, x_6);
-return x_7;
+lean_object* v___x_17_; 
+v___x_17_ = l___private_Std_Sat_AIG_LawfulOperator_0__Std_Sat_AIG_toGraphviz_go_match__1_splitter___redArg(v_x_13_, v_h__1_14_, v_h__2_15_, v_h__3_16_);
+return v___x_17_;
 }
 }
 lean_object* runtime_initialize_Std_Sat_AIG_Basic(uint8_t builtin);
@@ -69,12 +70,10 @@ LEAN_EXPORT lean_object* runtime_initialize_Std_Sat_AIG_LawfulOperator(uint8_t b
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Std_Sat_AIG_Basic(builtin)
-;
+res = runtime_initialize_Std_Sat_AIG_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Omega(builtin)
-;
+res = runtime_initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -93,20 +92,16 @@ LEAN_EXPORT lean_object* initialize_Std_Sat_AIG_LawfulOperator(uint8_t builtin) 
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Std_Sat_AIG_Basic(builtin)
-;
+res = initialize_Std_Sat_AIG_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Omega(builtin)
-;
+res = initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Sat_AIG_LawfulOperator(builtin)
-;
+res = runtime_initialize_Std_Sat_AIG_LawfulOperator(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_Std_Sat_AIG_LawfulOperator(builtin)
-;
+res = meta_initialize_Std_Sat_AIG_LawfulOperator(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_Std_Sat_AIG_LawfulOperator(builtin);

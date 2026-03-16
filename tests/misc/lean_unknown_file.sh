@@ -1,1 +1,1 @@
-fail_if_success lean lean_unknown_file.sh.doesnotexist.lean
+run_fail lean lean_unknown_file.sh.doesnotexist.lean

@@ -1,0 +1,2 @@
+Tree.node (Tree.node (Tree.leaf) 1 "one" (Tree.leaf)) 2 "two" (Tree.node (Tree.leaf) 3 "three" (Tree.leaf))
+[(1, "one"), (2, "two"), (3, "three")]

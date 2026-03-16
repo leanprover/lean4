@@ -17,7 +17,7 @@ trace: [Meta.Tactic.simp.rewrite] h₁:1000:
       k ≤ v - 1
     ==>
       True
-[Meta.Tactic.simp.discharge] succ_pred_eq_of_pos discharge ✅️
+[Meta.Tactic.simp.discharge] ✅️ succ_pred_eq_of_pos discharge ✅️
       0 < v
   [Meta.Tactic.simp.rewrite] h₂:1000:
         0 < v
@@ -57,7 +57,7 @@ trace: [Meta.Tactic.simp.rewrite] h₁:1000:
       k ≤ v - 1
     ==>
       True
-[Meta.Tactic.simp.discharge] succ_pred_eq_of_pos discharge ✅️
+[Meta.Tactic.simp.discharge] ✅️ succ_pred_eq_of_pos discharge ✅️
       0 < v
   [Meta.Tactic.simp.rewrite] h₂:1000:
         0 < v
@@ -95,7 +95,7 @@ trace: [Meta.Tactic.simp.rewrite] h₁:1000:
       k ≤ v - 1
     ==>
       True
-[Meta.Tactic.simp.discharge] succ_pred_eq_of_pos discharge ✅️
+[Meta.Tactic.simp.discharge] ✅️ succ_pred_eq_of_pos discharge ✅️
       0 < v
   [Meta.Tactic.simp.rewrite] h₂:1000:
         0 < v

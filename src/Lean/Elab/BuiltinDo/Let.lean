@@ -145,13 +145,13 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
       | _, _ => pure xType?
     elabDoIdDecl x xType? rhs (declareMutVar? letOrReassign.getLetMutTk? x <| dec.continueWithUnit)
       (kind := dec.kind)
-  | `(doPatDecl| _%$pattern ← $rhs) =>
+  | `(doPatDecl| _%$pattern $[: $patType?]? ← $rhs) =>
     let x := mkIdentFrom pattern (← mkFreshUserName `__x)
-    elabDoIdDecl x none rhs dec.continueWithUnit (kind := dec.kind)
-  | `(doPatDecl| $pattern:term ← $rhs $[| $otherwise? $(rest?)?]?) =>
+    elabDoIdDecl x patType? rhs dec.continueWithUnit (kind := dec.kind)
+  | `(doPatDecl| $pattern:term $[: $patType?]? ← $rhs $[| $otherwise? $(rest?)?]?) =>
     let rest? := rest?.join
     let x := mkIdentFrom pattern (← mkFreshUserName `__x)
-    elabDoIdDecl x none rhs do
+    elabDoIdDecl x patType? rhs do
       match letOrReassign, otherwise? with
       | .let mutTk?, some otherwise =>
         elabDoElem (← `(doElem| let $[mut%$mutTk?]? $pattern:term := $x | $otherwise $(rest?)?)) dec

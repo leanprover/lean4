@@ -22,6 +22,9 @@ options get_default_options() {
     opts = opts.update({"quotPrecheck"}, true);
 
     opts = opts.update({"pp", "rawOnError"}, true);
+
+    // temporarily restrict new do elaborator to core, i.e. stage 0
+    opts = opts.update({"backward", "do", "legacy"}, false);
 #endif
     return opts;
 }

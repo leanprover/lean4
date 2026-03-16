@@ -363,7 +363,7 @@ theorem toArray_mapFinIdxM [Monad m] [LawfulMonad m] {xs : Vector α n}
       = Array.mapFinIdxM.map xs.toArray (fun i x h => f i x (size_toArray xs ▸ h))
         i j (size_toArray _ ▸ inv) bs.toArray := by
     match i with
-    | 0 => simp only [mapFinIdxM.map, map_pure, Array.mapFinIdxM.map, Nat.sub_zero]
+    | 0 => simp [mapFinIdxM.map, map_pure, Array.mapFinIdxM.map, Nat.sub_zero]
     | k + 1 =>
       simp only [mapFinIdxM.map, map_bind, Array.mapFinIdxM.map, getElem_toArray]
       conv => lhs; arg 2; intro; rw [go]

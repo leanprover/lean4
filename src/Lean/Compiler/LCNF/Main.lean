@@ -38,6 +38,7 @@ def shouldGenerateCode (declName : Name) : CoreM Bool := do
   if hasMacroInlineAttribute env declName then return false
   if (getImplementedBy? env declName).isSome then return false
   if (← Meta.isMatcher declName) then return false
+  if (← Meta.isMatcherLike declName) then return false
   if isCasesOnLike env declName then return false
   -- TODO: check if type class instance
   return true
@@ -57,7 +58,10 @@ def checkpoint (stepName : Name) (decls : Array (Decl pu)) (shouldCheck : Bool) 
     withOptions (fun opts => opts.set `pp.motives.pi false) do
       let clsName := `Compiler ++ stepName
       if (← Lean.isTracingEnabledFor clsName) then
-        Lean.addTrace clsName m!"size: {decl.size}\n{← ppDecl' decl (← getPhase)}"
+        if compiler.traceUnnormalized.get (← getOptions) then
+          Lean.addTrace clsName m!"size: {decl.size}\n{← ppDecl decl}"
+        else
+          Lean.addTrace clsName m!"size: {decl.size}\n{← ppDecl' decl (← getPhase)}"
       if shouldCheck then
         decl.check
 

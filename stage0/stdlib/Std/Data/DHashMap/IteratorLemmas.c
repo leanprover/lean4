@@ -27,40 +27,31 @@ LEAN_EXPORT lean_object* runtime_initialize_Std_Data_DHashMap_IteratorLemmas(uin
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Std_Data_Iterators(builtin)
-;
+res = runtime_initialize_Std_Data_Iterators(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Data_DHashMap_Iterator(builtin)
-;
+res = runtime_initialize_Std_Data_DHashMap_Iterator(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Data_DHashMap_Basic(builtin)
-;
+res = runtime_initialize_Std_Data_DHashMap_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Data_DHashMap_Raw(builtin)
-;
+res = runtime_initialize_Std_Data_DHashMap_Raw(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Data_DHashMap_Iterator(builtin)
-;
+res = runtime_initialize_Std_Data_DHashMap_Iterator(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Iterators_Lemmas_Combinators(builtin)
-;
+res = runtime_initialize_Init_Data_Iterators_Lemmas_Combinators(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Data_DHashMap_Internal_Defs(builtin)
-;
+res = runtime_initialize_Std_Data_DHashMap_Internal_Defs(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Data_DHashMap_RawLemmas(builtin)
-;
+res = runtime_initialize_Std_Data_DHashMap_RawLemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Data_DHashMap_Lemmas(builtin)
-;
+res = runtime_initialize_Std_Data_DHashMap_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -86,48 +77,37 @@ LEAN_EXPORT lean_object* initialize_Std_Data_DHashMap_IteratorLemmas(uint8_t bui
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Std_Data_Iterators(builtin)
-;
+res = initialize_Std_Data_Iterators(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_DHashMap_Iterator(builtin)
-;
+res = initialize_Std_Data_DHashMap_Iterator(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_DHashMap_Basic(builtin)
-;
+res = initialize_Std_Data_DHashMap_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_DHashMap_Raw(builtin)
-;
+res = initialize_Std_Data_DHashMap_Raw(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_DHashMap_Iterator(builtin)
-;
+res = initialize_Std_Data_DHashMap_Iterator(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Iterators_Lemmas_Combinators(builtin)
-;
+res = initialize_Init_Data_Iterators_Lemmas_Combinators(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_DHashMap_Internal_Defs(builtin)
-;
+res = initialize_Std_Data_DHashMap_Internal_Defs(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_DHashMap_RawLemmas(builtin)
-;
+res = initialize_Std_Data_DHashMap_RawLemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_DHashMap_Lemmas(builtin)
-;
+res = initialize_Std_Data_DHashMap_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Data_DHashMap_IteratorLemmas(builtin)
-;
+res = runtime_initialize_Std_Data_DHashMap_IteratorLemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_Std_Data_DHashMap_IteratorLemmas(builtin)
-;
+res = meta_initialize_Std_Data_DHashMap_IteratorLemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_Std_Data_DHashMap_IteratorLemmas(builtin);

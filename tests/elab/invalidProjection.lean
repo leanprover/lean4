@@ -41,9 +41,9 @@ Hint: n-tuples in Lean are actually nested pairs. To access the third component 
 example (x : Nat × Nat × Nat) := x.3
 
 /--
-error: Invalid projection: Projection operates on structure-like types with fields. The expression
+error: Invalid projection: Projections extract constructor fields for one-constructor inductive types. The expression
   h
-has type `Nat` which does not have fields.
+has type `Nat` which is not a one-constructor inductive type.
 -/
 #guard_msgs in
 example (h : Nat) := h.2

@@ -1,5 +1,7 @@
 import Init.Control.Option
 
+set_option warn.classDefReducibility false
+
 
 universe u v
 

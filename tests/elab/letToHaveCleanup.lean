@@ -1,4 +1,5 @@
 import Lean
+set_option backward.do.legacy false
 /-!
 ## Checking that let-to-have is applied to definitions and equation lemmas
 -/
@@ -274,16 +275,15 @@ fun {α} x y => do
   if a = true then
       have arr : Array α := #[];
       do
-      let r ←
-        forIn (*...10) arr fun i r =>
-            have arr : Array α := r;
+      let __s ←
+        forIn (*...10) arr fun i __s =>
+            have arr : Array α := __s;
             do
             let __do_lift ← y i
             have b : α := __do_lift
             have arr : Array α := arr.push b
-            pure PUnit.unit
             pure (ForInStep.yield arr)
-      have arr : Array α := r
+      have arr : Array α := __s
       pure arr
     else pure #[]
 -/

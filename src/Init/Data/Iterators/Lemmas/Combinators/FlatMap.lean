@@ -121,22 +121,22 @@ public theorem Iter.step_flatMapAfterM {α : Type w} {β : Type w} {α₂ : Type
     [Monad m] [MonadAttach m] [LawfulMonad m] [WeaklyLawfulMonadAttach m] [Iterator α Id β] [Iterator α₂ m γ]
     {f : β → m (IterM (α := α₂) m γ)} {it₁ : Iter (α := α) β} {it₂ : Option (IterM (α := α₂) m γ)} :
   (it₁.flatMapAfterM f it₂).step = (do
-    match it₂ with
+    match hit : it₂ with
     | none =>
       match it₁.step with
       | .yield it₁' b h =>
         let fx ← MonadAttach.attach (f b)
-        return .deflate (.skip (it₁'.flatMapAfterM f (some fx.val)) (.outerYield_flatMapM_pure h fx.property))
-      | .skip it₁' h => return .deflate (.skip (it₁'.flatMapAfterM f none) (.outerSkip_flatMapM_pure h))
-      | .done h => return .deflate (.done (.outerDone_flatMapM_pure h))
+        return .deflate (.skip (it₁'.flatMapAfterM f (some fx.val)) (hit ▸ .outerYield_flatMapM_pure h fx.property))
+      | .skip it₁' h => return .deflate (.skip (it₁'.flatMapAfterM f it₂) (hit ▸ .outerSkip_flatMapM_pure h))
+      | .done h => return .deflate (.done (hit ▸ .outerDone_flatMapM_pure h))
     | some it₂ =>
       match (← it₂.step).inflate with
       | .yield it₂' out h =>
-        return .deflate (.yield (it₁.flatMapAfterM f (some it₂')) out (.innerYield_flatMapM_pure h))
+        return .deflate (.yield (it₁.flatMapAfterM f (some it₂')) out (hit ▸ .innerYield_flatMapM_pure h))
       | .skip it₂' h =>
-        return .deflate (.skip (it₁.flatMapAfterM f (some it₂')) (.innerSkip_flatMapM_pure h))
+        return .deflate (.skip (it₁.flatMapAfterM f (some it₂')) (hit ▸ .innerSkip_flatMapM_pure h))
       | .done h =>
-        return .deflate (.skip (it₁.flatMapAfterM f none) (.innerDone_flatMapM_pure h))) := by
+        return .deflate (.skip (it₁.flatMapAfterM f none) (hit ▸ .innerDone_flatMapM_pure h))) := by
   simp only [flatMapAfterM, IterM.step_flatMapAfterM, Iter.step_mapWithPostcondition,
     PostconditionT.operation_pure]
   split
@@ -232,7 +232,6 @@ public theorem Iter.toArray_flatMapM {α α₂ β γ : Type w} {m : Type w → T
     (it₁.flatMapM f).toArray = Array.flatten <$> (it₁.mapM fun b => do (← f b).toArray).toArray := by
   simp [flatMapM, toArray_flatMapAfterM]
 
-set_option backward.isDefEq.respectTransparency false in
 public theorem Iter.toList_flatMapAfter {α α₂ β γ : Type w} [Iterator α Id β] [Iterator α₂ Id γ]
     [Finite α Id] [Finite α₂ Id]
     {f : β → Iter (α := α₂) γ} {it₁ : Iter (α := α) β} {it₂ : Option (Iter (α := α₂) γ)} :
@@ -241,9 +240,9 @@ public theorem Iter.toList_flatMapAfter {α α₂ β γ : Type w} [Iterator α I
       | some it₂ => it₂.toList ++
           (it₁.map fun b => (f b).toList).toList.flatten := by
   simp only [flatMapAfter, Iter.toList, toIterM_toIter, IterM.toList_flatMapAfter]
-  cases it₂ <;> simp [map, IterM.toList_map_eq_toList_mapM, - IterM.toList_map]
+  unfold Iter.toList
+  cases it₂ <;> simp [map]
 
-set_option backward.isDefEq.respectTransparency false in
 public theorem Iter.toArray_flatMapAfter {α α₂ β γ : Type w} [Iterator α Id β] [Iterator α₂ Id γ]
     [Finite α Id] [Finite α₂ Id]
     {f : β → Iter (α := α₂) γ} {it₁ : Iter (α := α) β} {it₂ : Option (Iter (α := α₂) γ)} :
@@ -252,6 +251,7 @@ public theorem Iter.toArray_flatMapAfter {α α₂ β γ : Type w} [Iterator α 
       | some it₂ => it₂.toArray ++
           (it₁.map fun b => (f b).toArray).toArray.flatten := by
   simp only [flatMapAfter, Iter.toArray, toIterM_toIter, IterM.toArray_flatMapAfter]
+  unfold Iter.toArray
   cases it₂ <;> simp [map, IterM.toArray_map_eq_toArray_mapM, - IterM.toArray_map]
 
 public theorem Iter.toList_flatMap {α α₂ β γ : Type w} [Iterator α Id β] [Iterator α₂ Id γ]

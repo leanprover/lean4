@@ -147,7 +147,7 @@ public theorem LawfulOrderMin.of_min_le {α : Type u} [Min α] [LE α]
 This lemma characterizes in terms of `LE α` when a `Max α` instance "behaves like a supremum
 operator".
 -/
-public def LawfulOrderSup.of_le {α : Type u} [Max α] [LE α]
+public theorem LawfulOrderSup.of_le {α : Type u} [Max α] [LE α]
     (max_le_iff : ∀ a b c : α, max a b ≤ c ↔ a ≤ c ∧ b ≤ c) : LawfulOrderSup α where
   max_le_iff := max_le_iff
 
@@ -159,7 +159,7 @@ instances.
 
 The produced instance entails `LawfulOrderSup α` and `MaxEqOr α`.
 -/
-public def LawfulOrderMax.of_max_le_iff {α : Type u} [Max α] [LE α]
+public theorem LawfulOrderMax.of_max_le_iff {α : Type u} [Max α] [LE α]
     (max_le_iff : ∀ a b c : α, max a b ≤ c ↔ a ≤ c ∧ b ≤ c := by exact LawfulOrderInf.le_min_iff)
     (max_eq_or : ∀ a b : α, max a b = a ∨ max a b = b := by exact MaxEqOr.max_eq_or) :
     LawfulOrderMax α where
@@ -196,7 +196,7 @@ Creates a *total* `LE α` instance from an `LT α` instance.
 
 This only makes sense for asymmetric `LT α` instances (see `Std.Asymm`).
 -/
-@[inline]
+@[inline, implicit_reducible, expose]
 public def _root_.LE.ofLT (α : Type u) [LT α] : LE α where
   le a b := ¬ b < a
 
@@ -208,7 +208,7 @@ public instance LawfulOrderLT.of_lt {α : Type u} [LT α] [i : Asymm (α := α) 
     haveI := LE.ofLT α
     LawfulOrderLT α :=
   letI := LE.ofLT α
-  { lt_iff a b := by simp +instances [LE.ofLT, LE.le]; apply Asymm.asymm }
+  { lt_iff a b := by simp [LE.le]; apply Asymm.asymm }
 
 /--
 If an `LT α` instance is asymmetric and its negation is transitive, then `LE.ofLT α` represents a
@@ -253,8 +253,7 @@ public theorem LawfulOrderInf.of_lt {α : Type u} [Min α] [LT α]
   letI := LE.ofLT α
   { le_min_iff a b c := by
       open Classical in
-      simp +instances only [LE.ofLT, LE.le]
-      simp [← not_or, Decidable.not_iff_not]
+      simp only [LE.le, ← not_or, Decidable.not_iff_not]
       simpa [Decidable.imp_iff_not_or] using min_lt_iff a b c }
 
 /--
@@ -276,15 +275,14 @@ public theorem LawfulOrderMin.of_lt {α : Type u} [Min α] [LT α]
 This lemma characterizes in terms of `LT α` when a `Max α` instance
 "behaves like an supremum operator" with respect to `LE.ofLT α`.
 -/
-public def LawfulOrderSup.of_lt {α : Type u} [Max α] [LT α]
+public theorem LawfulOrderSup.of_lt {α : Type u} [Max α] [LT α]
     (lt_max_iff : ∀ a b c : α, c < max a b ↔ c < a ∨ c < b) :
     haveI := LE.ofLT α
     LawfulOrderSup α :=
   letI := LE.ofLT α
   { max_le_iff a b c := by
       open Classical in
-      simp +instances only [LE.ofLT, LE.le]
-      simp [← not_or, Decidable.not_iff_not]
+      simp only [LE.le, ← not_or, Decidable.not_iff_not]
       simpa [Decidable.imp_iff_not_or] using lt_max_iff a b c }
 
 /--
@@ -293,7 +291,7 @@ Derives a `LawfulOrderMax α` instance for `LE.ofLT` from two properties involvi
 
 The produced instance entails `LawfulOrderSup α` and `MaxEqOr α`.
 -/
-public def LawfulOrderMax.of_lt {α : Type u} [Max α] [LT α]
+public theorem LawfulOrderMax.of_lt {α : Type u} [Max α] [LT α]
     (lt_max_iff : ∀ a b c : α, c < max a b ↔ c < a ∨ c < b)
     (max_eq_or : ∀ a b : α, max a b = a ∨ max a b = b) :
     haveI := LE.ofLT α

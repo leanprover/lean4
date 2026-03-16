@@ -18,39 +18,39 @@ lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* lean_nat_land(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Nat_instDecidableIsPowerOfTwo(lean_object*);
 LEAN_EXPORT lean_object* l_Nat_instDecidableIsPowerOfTwo___boxed(lean_object*);
-LEAN_EXPORT uint8_t l_Nat_instDecidableIsPowerOfTwo(lean_object* x_1) {
+LEAN_EXPORT uint8_t l_Nat_instDecidableIsPowerOfTwo(lean_object* v_n_1_){
 _start:
 {
-lean_object* x_2; uint8_t x_3; 
-x_2 = lean_unsigned_to_nat(0u);
-x_3 = lean_nat_dec_eq(x_1, x_2);
-if (x_3 == 0)
+lean_object* v___x_2_; uint8_t v___x_3_; 
+v___x_2_ = lean_unsigned_to_nat(0u);
+v___x_3_ = lean_nat_dec_eq(v_n_1_, v___x_2_);
+if (v___x_3_ == 0)
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
-x_4 = lean_unsigned_to_nat(1u);
-x_5 = lean_nat_sub(x_1, x_4);
-x_6 = lean_nat_land(x_1, x_5);
-lean_dec(x_5);
-x_7 = lean_nat_dec_eq(x_6, x_2);
-lean_dec(x_6);
-return x_7;
+lean_object* v___x_4_; lean_object* v___x_5_; lean_object* v___x_6_; uint8_t v___x_7_; 
+v___x_4_ = lean_unsigned_to_nat(1u);
+v___x_5_ = lean_nat_sub(v_n_1_, v___x_4_);
+v___x_6_ = lean_nat_land(v_n_1_, v___x_5_);
+lean_dec(v___x_5_);
+v___x_7_ = lean_nat_dec_eq(v___x_6_, v___x_2_);
+lean_dec(v___x_6_);
+return v___x_7_;
 }
 else
 {
-uint8_t x_8; 
-x_8 = 0;
-return x_8;
+uint8_t v___x_8_; 
+v___x_8_ = 0;
+return v___x_8_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Nat_instDecidableIsPowerOfTwo___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Nat_instDecidableIsPowerOfTwo___boxed(lean_object* v_n_9_){
 _start:
 {
-uint8_t x_2; lean_object* x_3; 
-x_2 = l_Nat_instDecidableIsPowerOfTwo(x_1);
-lean_dec(x_1);
-x_3 = lean_box(x_2);
-return x_3;
+uint8_t v_res_10_; lean_object* v_r_11_; 
+v_res_10_ = l_Nat_instDecidableIsPowerOfTwo(v_n_9_);
+lean_dec(v_n_9_);
+v_r_11_ = lean_box(v_res_10_);
+return v_r_11_;
 }
 }
 lean_object* runtime_initialize_Init_Data_Nat_Power2_Basic(uint8_t builtin);
@@ -68,44 +68,34 @@ LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Nat_Power2_Lemmas(uint8_t 
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Init_Data_Nat_Power2_Basic(builtin)
-;
+res = runtime_initialize_Init_Data_Nat_Power2_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Nat_Log2(builtin)
-;
+res = runtime_initialize_Init_Data_Nat_Log2(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Nat_Power2_Basic(builtin)
-;
+res = runtime_initialize_Init_Data_Nat_Power2_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_PropLemmas(builtin)
-;
+res = runtime_initialize_Init_PropLemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_ByCases(builtin)
-;
+res = runtime_initialize_Init_ByCases(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Int_Pow(builtin)
-;
+res = runtime_initialize_Init_Data_Int_Pow(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Nat_Bitwise_Lemmas(builtin)
-;
+res = runtime_initialize_Init_Data_Nat_Bitwise_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Nat_Lemmas(builtin)
-;
+res = runtime_initialize_Init_Data_Nat_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Omega(builtin)
-;
+res = runtime_initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_RCases(builtin)
-;
+res = runtime_initialize_Init_RCases(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -132,52 +122,40 @@ LEAN_EXPORT lean_object* initialize_Init_Data_Nat_Power2_Lemmas(uint8_t builtin)
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Nat_Power2_Basic(builtin)
-;
+res = initialize_Init_Data_Nat_Power2_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Log2(builtin)
-;
+res = initialize_Init_Data_Nat_Log2(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Power2_Basic(builtin)
-;
+res = initialize_Init_Data_Nat_Power2_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_PropLemmas(builtin)
-;
+res = initialize_Init_PropLemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_ByCases(builtin)
-;
+res = initialize_Init_ByCases(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Int_Pow(builtin)
-;
+res = initialize_Init_Data_Int_Pow(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Bitwise_Lemmas(builtin)
-;
+res = initialize_Init_Data_Nat_Bitwise_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Lemmas(builtin)
-;
+res = initialize_Init_Data_Nat_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Omega(builtin)
-;
+res = initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_RCases(builtin)
-;
+res = initialize_Init_RCases(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Nat_Power2_Lemmas(builtin)
-;
+res = runtime_initialize_Init_Data_Nat_Power2_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_Init_Data_Nat_Power2_Lemmas(builtin)
-;
+res = meta_initialize_Init_Data_Nat_Power2_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_Init_Data_Nat_Power2_Lemmas(builtin);

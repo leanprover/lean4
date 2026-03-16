@@ -1,3 +1,5 @@
+set_option warn.classDefReducibility false
+
 class MyMod :=
 (a : Nat)
 

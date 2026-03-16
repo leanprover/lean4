@@ -97,7 +97,7 @@ builtin_initialize declMapExt : SimplePersistentEnvExtension Decl DeclMap ←
           -- TODO: boxed `[extern]`s are created eagerly by lean but we need to see their IR in
           -- leanir. It would be nicer to make them part of standard `compileDecls` so they can be
           -- postponed like anyone else.
-          if Compiler.LCNF.isBoxedName d.name then
+          if Compiler.LCNF.isBoxedName d.name && isExtern env d.name.getPrefix then
             return d
           -- Bodies of imported IR decls are not relevant for codegen, only interpretation
           match d with

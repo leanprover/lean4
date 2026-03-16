@@ -6,8 +6,13 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Init.Data.Int.Linear
 public import Init.GrindInstances.ToInt
+public import Init.Data.Nat.Div.Basic
+import Init.ByCases
+import Init.Data.Int.DivMod.Lemmas
+import Init.Data.Int.LemmasAux
+import Init.Data.Int.Pow
+import Init.Omega
 
 public section
 

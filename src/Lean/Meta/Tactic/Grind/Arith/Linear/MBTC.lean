@@ -9,7 +9,7 @@ public import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.MBTC
 import Lean.Meta.Tactic.Grind.Arith.ModelUtil
 import Lean.Meta.Tactic.Grind.Arith.Linear.Model
-import Lean.Meta.Tactic.Grind.Arith.Linear.PropagateEq
+import Lean.Meta.Tactic.Grind.Arith.Linear.LinearM
 public section
 namespace Lean.Meta.Grind.Arith.Linear
 

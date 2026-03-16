@@ -197,7 +197,7 @@ def getCongrSimpKinds (f : Expr) (info : FunInfo) : MetaM (Array CongrArgKind) :
       result := result.push .fixed
     else if info.paramInfo[i].isProp then
       result := result.push .cast
-    else if info.paramInfo[i].isInstImplicit then
+    else if info.paramInfo[i].isInstance then
       if let some mask := mask? then
         if h2 : i < mask.size then
           if mask[i] then
@@ -226,7 +226,7 @@ def getCongrSimpKindsForArgZero (info : FunInfo) : MetaM (Array CongrArgKind) :=
       result := result.push .eq
     else if info.paramInfo[i].isProp then
       result := result.push .cast
-    else if info.paramInfo[i].isInstImplicit then
+    else if info.paramInfo[i].isInstance then
       if shouldUseSubsingletonInst info result i then
         result := result.push .subsingletonInst
       else

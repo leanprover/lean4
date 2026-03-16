@@ -6,7 +6,6 @@ Authors: Wojciech Różowski
 module
 
 prelude
-public import Std.Data.DTreeMap.Internal.Lemmas
 public import Std.Data.DTreeMap.Raw
 
 public section

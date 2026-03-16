@@ -7,6 +7,9 @@ module
 
 prelude
 public import Init.Data.Format.Basic
+public import Init.Control.Id
+public import Init.Data.UInt.BasicAux
+import Init.Data.Char.Basic
 
 public section
 open Sum Subtype Nat

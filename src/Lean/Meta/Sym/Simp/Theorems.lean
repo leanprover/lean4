@@ -24,6 +24,7 @@ structure Theorem where
   pattern : Pattern
   /-- Right-hand side of the equation. -/
   rhs     : Expr
+  deriving Inhabited
 
 instance : BEq Theorem where
   beq thm₁ thm₂ := thm₁.expr == thm₂.expr

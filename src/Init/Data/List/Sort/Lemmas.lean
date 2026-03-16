@@ -6,10 +6,17 @@ Authors: Kim Morrison, Eric Wieser, François G. Dorais
 module
 
 prelude
-public import Init.Data.List.Perm
 public import Init.Data.List.Sort.Basic
 import all Init.Data.List.Sort.Basic
-public import Init.Data.List.Nat.Range
+public import Init.BinderPredicates
+public import Init.Data.Bool
+import Init.Data.List.Nat.Range
+import Init.Data.List.Pairwise
+import Init.Data.List.Perm
+import Init.Data.List.Range
+import Init.Data.List.Sublist
+import Init.Data.Nat.Linear
+import Init.Data.Prod
 
 public section
 
@@ -445,7 +452,7 @@ theorem sublist_mergeSort
     have h' := sublist_mergeSort trans total hc h
     rw [h₂] at h'
     exact h'.middle a
-  | _, _, @Sublist.cons₂ _ l₁ l₂ a h => by
+  | _, _, @Sublist.cons_cons _ l₁ l₂ a h => by
     rename_i hc
     obtain ⟨l₃, l₄, h₁, h₂, h₃⟩ := mergeSort_cons trans total a l₂
     rw [h₁]
@@ -453,7 +460,7 @@ theorem sublist_mergeSort
     rw [h₂] at h'
     simp only [Bool.not_eq_true', tail_cons] at h₃ h'
     exact
-      sublist_append_of_sublist_right (Sublist.cons₂ a
+      sublist_append_of_sublist_right (Sublist.cons_cons a
         ((fun w => Sublist.of_sublist_append_right w h') fun b m₁ m₃ =>
           (Bool.eq_not_self true).mp ((rel_of_pairwise_cons hc m₁).symm.trans (h₃ b m₃))))
 

@@ -30,12 +30,12 @@ then returns `f`. Otherwise, returns `e`.
 Returns the original expression when not reducible to enable pointer equality checks.
 -/
 public def etaReduce (e : Expr) : Expr :=
-  go e 0
+  if e.isLambda then go e 0 else e
 where
   go (body : Expr) (n : Nat) : Expr :=
     match body with
     | .lam _ _ b _ => go b (n+1)
-    | _ => if n == 0 then e else etaReduceAux body n 0 e
+    | _ => etaReduceAux body n 0 e
 
 /-- Returns `true` if `e` can be eta-reduced. Uses pointer equality for efficiency. -/
 public def isEtaReducible (e : Expr) : Bool :=

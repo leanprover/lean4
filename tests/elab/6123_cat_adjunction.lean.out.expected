@@ -1,0 +1,15 @@
+6123_cat_adjunction.lean:141:14-141:16: warning: declaration uses `sorry`
+6123_cat_adjunction.lean:147:4-147:9: warning: declaration uses `sorry`
+6123_cat_adjunction.lean:202:4-202:9: warning: declaration uses `sorry`
+6123_cat_adjunction.lean:241:17-241:24: warning: declaration uses `sorry`
+6123_cat_adjunction.lean:412:4-412:7: warning: declaration uses `sorry`
+6123_cat_adjunction.lean:414:4-414:10: warning: declaration uses `sorry`
+6123_cat_adjunction.lean:416:4-416:17: warning: declaration uses `sorry`
+6123_cat_adjunction.lean:439:4-439:34: warning: declaration uses `sorry`
+6123_cat_adjunction.lean:443:4-443:41: warning: declaration uses `sorry`
+6123_cat_adjunction.lean:448:4-448:35: warning: declaration uses `sorry`
+6123_cat_adjunction.lean:472:4-472:23: warning: declaration uses `sorry`
+6123_cat_adjunction.lean:472:4-472:23: warning: declaration uses `sorry`
+6123_cat_adjunction.lean:472:4-472:23: warning: declaration uses `sorry`
+6123_cat_adjunction.lean:488:4-488:35: warning: declaration uses `sorry`
+6123_cat_adjunction.lean:488:4-488:35: warning: declaration uses `sorry`

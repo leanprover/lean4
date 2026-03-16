@@ -8,10 +8,11 @@ module
 
 prelude
 
-import Init.Data.Ord
 public import Lean.DocString.Types
 public import Init.Data.String.TakeDrop
 public import Init.Data.String.Search
+import Init.Data.ToString.Macro
+import Init.While
 
 set_option linter.missingDocs true
 

@@ -1,0 +1,16 @@
+def g : (i j k : Nat) →
+  (a : Array.{0} Nat) →
+    (h₁ : @LT.lt.{0} Nat instLTNat i k) →
+      (h₂ : @LT.lt.{0} Nat instLTNat k j) → (h₃ : @LT.lt.{0} Nat instLTNat j (@Array.size.{0} Nat a)) → Nat :=
+fun (i j k : Nat) (a : Array.{0} Nat) (h₁ : @LT.lt.{0} Nat instLTNat i k) (h₂ : @LT.lt.{0} Nat instLTNat k j)
+    (h₃ : @LT.lt.{0} Nat instLTNat j (@Array.size.{0} Nat a)) =>
+  have vj : Nat :=
+    @GetElem.getElem.{0, 0, 0} (Array.{0} Nat) Nat Nat
+      (fun (xs : Array.{0} Nat) (i : Nat) => @LT.lt.{0} Nat instLTNat i (@Array.size.{0} Nat xs))
+      (@Array.instGetElemNatLtSize.{0} Nat) a j h₃;
+  have vi : Nat :=
+    @GetElem.getElem.{0, 0, 0} (Array.{0} Nat) Nat Nat
+      (fun (xs : Array.{0} Nat) (i : Nat) => @LT.lt.{0} Nat instLTNat i (@Array.size.{0} Nat xs))
+      (@Array.instGetElemNatLtSize.{0} Nat) a i (g._proof_2 i j k a h₁ h₂ h₃);
+  @HAdd.hAdd.{0, 0, 0} Nat Nat Nat (@instHAdd.{0} Nat instAddNat) vi vj
+g._proof_1 (i j k : Nat) (a : Array Nat) (h₁ : i < k) (h₂ : k < j) (h₃ : j < a.size) : ¬i < a.size → False

@@ -11,7 +11,6 @@ public import Lean.Meta.Tactic.UnifyEq
 public import Lean.Meta.Tactic.Simp.Arith
 public import Lean.Meta.Tactic.Simp.Attr
 public import Lean.Meta.BinderNameHint
-import Lean.Meta.FunInfo
 import Lean.Meta.WHNF
 public section
 namespace Lean.Meta.Simp
@@ -631,7 +630,7 @@ def dischargeDefault? (e : Expr) : SimpM (Option Expr) := do
     if let some r ← dischargeEqnThmHypothesis? e then return some r
   let r ← simp e
   if let some p ← dischargeRfl r.expr then
-    return some (mkApp4 (mkConst ``Eq.mpr [levelZero]) e r.expr (← r.getProof) p)
+    return some (mkApp4 (mkConst ``Eq.mpr [Level.zero]) e r.expr (← r.getProof) p)
   else if r.expr.isTrue then
     return some (← mkOfEqTrue (← r.getProof))
   else

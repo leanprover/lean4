@@ -7,14 +7,10 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Arith.Linear.LinearM
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Reify
-import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
 import Lean.Meta.Tactic.Grind.Arith.Linear.Den
-import Lean.Meta.Tactic.Grind.Arith.Linear.Var
 import Lean.Meta.Tactic.Grind.Arith.Linear.StructId
 import Lean.Meta.Tactic.Grind.Arith.Linear.Reify
-import Lean.Meta.Tactic.Grind.Arith.Linear.DenoteExpr
 import Lean.Meta.Tactic.Grind.Arith.Linear.Proof
-import Lean.Meta.Tactic.Grind.Arith.Linear.OfNatModule
 namespace Lean.Meta.Grind.Arith.Linear
 
 def isInstOf (fn? : Option Expr) (inst : Expr) : Bool :=

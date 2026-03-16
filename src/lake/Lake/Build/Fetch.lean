@@ -25,7 +25,7 @@ using the `fetch` function defined in this module.
 namespace Lake
 
 /-- A type alias for `Option Package` that assists monad type class synthesis. -/
-@[expose] public def CurrPackage := Option Package
+@[expose] public abbrev CurrPackage := Option Package
 
 /-- Run the action `x` with `pkg?` as the current package or no package if `none`. -/
 @[inline] public def withCurrPackage? [MonadWithReader CurrPackage m] (pkg? : Option Package) (x : m α): m α :=
@@ -48,7 +48,7 @@ public abbrev RecBuildT (m : Type → Type) :=
 
 /-- Build cycle error message. -/
 public def buildCycleError (cycle : Cycle BuildKey) : String :=
-  s!"build cycle detected:\n{inline <| formatCycle cycle}"
+  s!"build cycle detected:\n{formatCycle cycle}"
 
 public instance [Monad m] [MonadError m] : MonadCycleOf BuildKey (RecBuildT m) where
   throwCycle cycle := error (buildCycleError cycle)

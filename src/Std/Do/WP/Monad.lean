@@ -51,28 +51,22 @@ theorem WPMonad.wp_seq [Monad m] [WPMonad m ps] (f : m (α → β)) (x : m α) :
 open WPMonad
 
 instance Id.instWPMonad : WPMonad Id .pure where
-  wp_pure a := by simp only [wp, PredTrans.pure, Pure.pure, Id.run]
-  wp_bind x f := by simp only [wp, PredTrans.pure, Bind.bind, Id.run, PredTrans.bind]
+  wp_pure a := by simp [wp]
+  wp_bind x f := by simp [wp]
 
 instance StateT.instWPMonad [Monad m] [WPMonad m ps] : WPMonad (StateT σ m) (.arg σ ps) where
-  wp_pure a := by ext; simp only [wp, pure, StateT.pure, WPMonad.wp_pure, PredTrans.pure,
-    PredTrans.pushArg_apply]
-  wp_bind x f := by ext; simp only [wp, bind, StateT.bind, WPMonad.wp_bind, PredTrans.bind,
-    PredTrans.pushArg_apply]
+  wp_pure a := by ext; simp [wp, wp_pure]
+  wp_bind x f := by ext; simp [wp, wp_bind]
 
 instance ReaderT.instWPMonad [Monad m] [WPMonad m ps] : WPMonad (ReaderT ρ m) (.arg ρ ps) where
-  wp_pure a := by ext; simp only [wp, pure, ReaderT.pure, WPMonad.wp_pure, PredTrans.pure,
-    PredTrans.pushArg_apply, PredTrans.map_apply]
-  wp_bind x f := by ext; simp only [wp, bind, ReaderT.bind, WPMonad.wp_bind, PredTrans.bind,
-    PredTrans.pushArg_apply, PredTrans.map_apply]
+  wp_pure a := by ext; simp [wp, wp_pure]
+  wp_bind x f := by ext; simp [wp, wp_bind]
 
 instance ExceptT.instWPMonad [Monad m] [WPMonad m ps] : WPMonad (ExceptT ε m) (.except ε ps) where
-  wp_pure a := by ext; simp only [wp, pure, ExceptT.pure, ExceptT.mk, WPMonad.wp_pure,
-    PredTrans.pure, PredTrans.pushExcept_apply]
+  wp_pure a := by ext; simp [wp, wp_pure]
   wp_bind x f := by
     ext Q
-    simp only [wp, bind, ExceptT.bind, ExceptT.mk, WPMonad.wp_bind, PredTrans.bind,
-      ExceptT.bindCont, PredTrans.pushExcept_apply]
+    simp only [wp, ExceptT.run_bind, wp_bind, PredTrans.apply_pushExcept, PredTrans.apply_Bind_bind]
     congr
     ext b
     cases b
@@ -80,11 +74,10 @@ instance ExceptT.instWPMonad [Monad m] [WPMonad m ps] : WPMonad (ExceptT ε m) (
     case ok a => rfl
 
 instance OptionT.instWPMonad [Monad m] [WPMonad m ps] : WPMonad (OptionT m) (.except PUnit ps) where
-  wp_pure a := by ext; simp only [wp, pure, OptionT.pure, OptionT.mk, WPMonad.wp_pure,
-    PredTrans.pure, PredTrans.pushOption_apply]
+  wp_pure a := by ext; simp [wp, wp_pure]
   wp_bind x f := by
     ext Q
-    simp only [wp, bind, OptionT.bind, OptionT.mk, WPMonad.wp_bind, PredTrans.bind, PredTrans.pushOption_apply]
+    simp only [wp, OptionT.run_bind, Option.elimM, Option.elim, wp_bind, PredTrans.apply_pushOption, PredTrans.apply_Bind_bind]
     congr
     ext b
     cases b
@@ -92,12 +85,12 @@ instance OptionT.instWPMonad [Monad m] [WPMonad m ps] : WPMonad (OptionT m) (.ex
     case some a => rfl
 
 instance EStateM.instWPMonad : WPMonad (EStateM ε σ) (.except ε (.arg σ .pure)) where
-  wp_pure a := by simp only [wp, pure, EStateM.pure, PredTrans.pure]
+  wp_pure a := by ext Q : 1; simp only [wp, EStateM.run_pure, PredTrans.apply_Pure_pure]; rfl
   wp_bind x f := by
     ext Q : 2
-    simp only [wp, bind, EStateM.bind, PredTrans.bind]
-    ext s : 1
-    cases (x s) <;> rfl
+    simp only [wp, EStateM.run_bind, PredTrans.apply_Bind_bind]
+    simp only [PredTrans.apply]
+    cases (x.run _) <;> rfl
 
 instance Except.instWPMonad : WPMonad (Except ε) (.except ε .pure) where
   wp_pure a := rfl

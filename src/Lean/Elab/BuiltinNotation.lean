@@ -11,6 +11,7 @@ public import Lean.Elab.Eval
 public import Lean.Elab.Binders
 public import Lean.IdentifierSuggestion
 meta import Lean.Parser.Do
+import Lean.Compiler.BorrowedAnnotation
 
 public section
 
@@ -541,8 +542,8 @@ private def withLocalIdentFor (stx : Term) (e : Expr) (k : Term → TermElabM Ex
   let mut mStx := stx[2]
   if mStx.getKind == ``Lean.Parser.Term.macroDollarArg then
     mStx := mStx[1]
-  let m ← elabTerm mStx (← mkArrow (mkSort levelOne) (mkSort levelOne))
-  let ω ← mkFreshExprMVar (mkSort levelOne)
+  let m ← elabTerm mStx (← mkArrow (mkSort Level.one) (mkSort Level.one))
+  let ω ← mkFreshExprMVar (mkSort Level.one)
   let stWorld ← mkAppM ``STWorld #[ω, m]
   discard <| mkInstMVar stWorld
   mkAppM ``StateRefT' #[ω, σ, m]

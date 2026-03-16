@@ -1,0 +1,59 @@
+private def ackermann_fuel''._unary : (n : Nat) ×' (m : Nat) ×' (fuel : Nat) ×' g n m < fuel → Nat :=
+WellFounded.Nat.fix
+  (fun x => PSigma.casesOn x fun n m => PSigma.casesOn m fun m fuel => PSigma.casesOn fuel fun fuel h => fuel)
+  fun _x a =>
+  PSigma.casesOn (motive := fun _x =>
+    ((y : (n : Nat) ×' (m : Nat) ×' (fuel : Nat) ×' g n m < fuel) →
+        InvImage (fun x1 x2 => x1 < x2)
+            (fun x => PSigma.casesOn x fun n m => PSigma.casesOn m fun m fuel => PSigma.casesOn fuel fun fuel h => fuel)
+            y _x →
+          Nat) →
+      Nat)
+    _x
+    (fun n m a =>
+      PSigma.casesOn (motive := fun m =>
+        ((y : (n : Nat) ×' (m : Nat) ×' (fuel : Nat) ×' g n m < fuel) →
+            InvImage (fun x1 x2 => x1 < x2)
+                (fun x =>
+                  PSigma.casesOn x fun n m => PSigma.casesOn m fun m fuel => PSigma.casesOn fuel fun fuel h => fuel)
+                y ⟨n, m⟩ →
+              Nat) →
+          Nat)
+        m
+        (fun m fuel a =>
+          PSigma.casesOn (motive := fun fuel =>
+            ((y : (n : Nat) ×' (m : Nat) ×' (fuel : Nat) ×' g n m < fuel) →
+                InvImage (fun x1 x2 => x1 < x2)
+                    (fun x =>
+                      PSigma.casesOn x fun n m => PSigma.casesOn m fun m fuel => PSigma.casesOn fuel fun fuel h => fuel)
+                    y ⟨n, ⟨m, fuel⟩⟩ →
+                  Nat) →
+              Nat)
+            fuel
+            (fun fuel h a =>
+              (match (motive :=
+                  (x x_1 x_2 : Nat) →
+                    (x_3 : g x x_1 < x_2) →
+                      ((y : (n : Nat) ×' (m : Nat) ×' (fuel : Nat) ×' g n m < fuel) →
+                          InvImage (fun x1 x2 => x1 < x2)
+                              (fun x =>
+                                PSigma.casesOn x fun n m =>
+                                  PSigma.casesOn m fun m fuel => PSigma.casesOn fuel fun fuel h => fuel)
+                              y ⟨x, ⟨x_1, ⟨x_2, x_3⟩⟩⟩ →
+                            Nat) →
+                        Nat)
+                  n, m, fuel, h with
+                | 0, m, x, x_1 => fun x => m + 1
+                | n.succ, 0, f, h => fun x =>
+                  x ⟨n, ⟨1, ⟨f - 1, ackermann_fuel''._unary._proof_1 n f⟩⟩⟩ (ackermann_fuel''._unary._proof_2 n f h)
+                | n.succ, m.succ, f, h => fun x =>
+                  x
+                    ⟨n,
+                      ⟨x ⟨n + 1, ⟨m, ⟨f - 1, ackermann_fuel''._unary._proof_3 n m f⟩⟩⟩
+                          (ackermann_fuel''._unary._proof_4 n m f h),
+                        ⟨f - 1, ackermann_fuel''._unary._proof_6 n m f h x⟩⟩⟩
+                    (ackermann_fuel''._unary._proof_8 n m f h x))
+                a)
+            a)
+        a)
+    a

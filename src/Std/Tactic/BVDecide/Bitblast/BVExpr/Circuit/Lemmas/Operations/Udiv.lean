@@ -14,6 +14,8 @@ public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.GetL
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Udiv
 import all Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Udiv
 public import Std.Tactic.BVDecide.Normalize.BitVec
+import Init.ByCases
+import Init.Data.Nat.Linear
 
 @[expose] public section
 

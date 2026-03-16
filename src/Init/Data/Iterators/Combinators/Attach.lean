@@ -7,7 +7,6 @@ module
 
 prelude
 public import Init.Data.Iterators.Combinators.Monadic.Attach
-public import Init.Data.Iterators.Combinators.FilterMap
 
 public section
 

@@ -4,12 +4,17 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Carneiro, Leonardo de Moura
 -/
 module
-
 prelude
-public import Init.Data.Nat.Lemmas
 public import Init.Ext
-import Init.Data.Order.Lemmas
-
+public import Init.Data.Nat.Div.Basic
+public import Init.Data.Order.Classes
+public import Init.NotationExtra
+import Init.ByCases
+import Init.Data.Nat.Lemmas
+import Init.Data.Nat.Linear
+import Init.Omega
+import Init.TacticsExtra
+import Init.Hints
 @[expose] public section
 
 open Std
@@ -118,7 +123,7 @@ For example, for `x : Fin k` and `n : Nat`,
 it causes `x < n` to be elaborated as `x < ↑n` rather than `↑x < n`,
 silently introducing wraparound arithmetic.
 -/
-@[expose]
+@[expose, implicit_reducible]
 def instNatCast (n : Nat) [NeZero n] : NatCast (Fin n) where
   natCast a := Fin.ofNat n a
 
@@ -140,7 +145,7 @@ This is not a global instance, but may be activated locally via `open Fin.IntCas
 
 See the doc-string for `Fin.NatCast.instNatCast` for more details.
 -/
-@[expose]
+@[expose, implicit_reducible]
 def instIntCast (n : Nat) [NeZero n] : IntCast (Fin n) where
   intCast := Fin.intCast
 
@@ -986,13 +991,13 @@ For the induction:
   let rec go (j : Nat) (h) (h2 : i ≤ j) (x : motive ⟨j, h⟩) : motive i :=
     if hi : i.1 = j then _root_.cast (by simp [← hi]) x
     else match j with
-      | 0 => by omega
+      | 0 => False.elim (by omega)
       | j + 1 => go j (by omega) (by omega) (cast ⟨j, by omega⟩ x)
   go _ _ (by omega) last
 
 @[simp, grind =] theorem reverseInduction_last {n : Nat} {motive : Fin (n + 1) → Sort _} {zero succ} :
     (reverseInduction zero succ (Fin.last n) : motive (Fin.last n)) = zero := by
-  rw [reverseInduction, reverseInduction.go]; simp
+  rw [reverseInduction, reverseInduction.go]; simp; rfl
 
 private theorem reverseInduction_castSucc_aux {n : Nat} {motive : Fin (n + 1) → Sort _} {succ}
     (i : Fin n) (j : Nat) (h) (h2 : i.1 < j) (zero : motive ⟨j, h⟩) :
@@ -1003,9 +1008,9 @@ private theorem reverseInduction_castSucc_aux {n : Nat} {motive : Fin (n + 1) �
   | succ j ih =>
     rw [reverseInduction.go, dif_neg (by exact Nat.ne_of_lt h2)]
     by_cases hij : i = j
-    · subst hij; simp [reverseInduction.go]
-    dsimp only
-    rw [ih _ _ (by omega), eq_comm, reverseInduction.go, dif_neg (by change i.1 + 1 ≠ _; omega)]
+    · subst hij; simp [reverseInduction.go]; rfl
+    · dsimp only
+      rw [ih _ _ (by omega), eq_comm, reverseInduction.go, dif_neg (by change i.1 + 1 ≠ _; omega)]
 
 @[simp, grind =] theorem reverseInduction_castSucc {n : Nat} {motive : Fin (n + 1) → Sort _} {zero succ}
     (i : Fin n) : reverseInduction (motive := motive) zero succ (castSucc i) =

@@ -30,6 +30,14 @@ def dbgTraceIfShared {α : Type u} (s : String) (a : α) : α := a
 @[never_extract, extern "lean_dbg_stack_trace"]
 def dbgStackTrace {α : Type u} (f : Unit → α) : α := f ()
 
+/--
+Print stack trace to stderr before evaluating given closure if `cond` is true.
+Currently supported on Linux only.
+-/
+@[never_extract]
+def dbgStackTraceIf {α : Type u} (cond : Bool) (f : Unit → α) : α :=
+  if cond then dbgStackTrace f else f ()
+
 @[extern "lean_dbg_sleep"]
 def dbgSleep {α : Type u} (ms : UInt32) (f : Unit → α) : α := f ()
 

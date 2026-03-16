@@ -9,6 +9,7 @@ prelude
 public import Lean.Elab.Tactic.BVDecide.Frontend.BVDecide.SatAtBVLogical
 public import Lean.Elab.Tactic.BVDecide.Frontend.Normalize
 public import Lean.Elab.Tactic.BVDecide.Frontend.LRAT
+import Lean.Meta.Native
 
 public section
 
@@ -283,27 +284,15 @@ def LratCert.toReflectionProof (cert : LratCert) (cfg : TacticContext)
 
   let reflectedExpr := mkConst cfg.exprDef
   let certExpr := mkConst cfg.certDef
+  let reflectionTerm := mkApp2 (mkConst ``verifyBVExpr) reflectedExpr certExpr
 
-  withTraceNode `Meta.Tactic.sat (fun _ => return "Compiling reflection proof term") do
-    let auxValue := mkApp2 (mkConst ``verifyBVExpr) reflectedExpr certExpr
-    mkAuxDecl cfg.reflectionDef auxValue (mkConst ``Bool)
-
-  let auxType ← mkEq (mkConst cfg.reflectionDef) (toExpr true)
-  let auxProof :=
-    mkApp3
-      (mkConst ``Lean.ofReduceBool)
-      (mkConst cfg.reflectionDef)
-      (toExpr true)
-      (← mkEqRefl (toExpr true))
-  try
-    let auxLemma ←
-      -- disable async TC so we can catch its exceptions
-      withOptions (Elab.async.set · false) do
-        withTraceNode `Meta.Tactic.sat (fun _ => return "Verifying LRAT certificate") do
-          mkAuxLemma [] auxType auxProof
-    return mkApp3 (mkConst ``unsat_of_verifyBVExpr_eq_true) reflectedExpr certExpr (mkConst auxLemma)
-  catch e =>
-    throwError m!"Failed to check the LRAT certificate in the kernel:\n{e.toMessageData}"
+  withTraceNode `Meta.Tactic.sat (fun _ => return "Compiling and evaluating reflection proof term") do
+    match (← nativeEqTrue `bv_decide reflectionTerm (axiomDeclRange? := (← getRef))) with
+    | .notTrue =>
+      throwError m!"Tactic `bv_decide` failed: The LRAT certificate could not be verified; \
+        evaluating the following term returned `false`:{indentExpr reflectionTerm}"
+    | .success auxProof =>
+      return mkApp3 (mkConst ``unsat_of_verifyBVExpr_eq_true) reflectedExpr certExpr auxProof
 where
   /--
   Add an auxiliary declaration. Only used to create constants that appear in our reflection proof.

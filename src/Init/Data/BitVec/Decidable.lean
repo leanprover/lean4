@@ -7,8 +7,11 @@ Authors: Joe Hendrix, Harun Khan, Alex Keizer, Abdalrhman M Mohamed, Siddharth B
 module
 
 prelude
-public import Init.Data.BitVec.Bootstrap
 import Init.Ext
+public import Init.Data.BitVec.Basic
+public import Init.PropLemmas
+import Init.Classical
+import Init.Data.BitVec.Bootstrap
 
 public section
 

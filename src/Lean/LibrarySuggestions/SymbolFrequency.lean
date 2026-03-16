@@ -6,11 +6,7 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Lean.CoreM
 public import Lean.Meta.Basic
-import Lean.Meta.InferType
-import Lean.Meta.FunInfo
-import Lean.AddDecl
 import Lean.LibrarySuggestions.Basic
 
 /-!

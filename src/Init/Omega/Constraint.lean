@@ -6,8 +6,13 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Omega.LinearCombo
-public import Init.Omega.Int
+public import Init.Omega.Coeffs
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.Data.ToString.Macro
+import Init.Omega.Int
+import Init.PropLemmas
+import Init.RCases
 
 public section
 
@@ -46,6 +51,11 @@ namespace Constraint
 
 private local instance : Append String where
   append := String.Internal.append
+
+private local instance : ToString Int where
+  toString
+    | Int.ofNat m   => toString m
+    | Int.negSucc m => "-" ++ toString (m + 1)
 
 instance : ToString Constraint where
   toString := private fun

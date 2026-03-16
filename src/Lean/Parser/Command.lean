@@ -8,7 +8,6 @@ module
 prelude
 public import Lean.Parser.Do
 import Lean.DocString.Parser
-meta import Lean.Parser.Basic
 
 public section
 
@@ -57,7 +56,7 @@ multiple times in the same file.
 -/
 @[builtin_command_parser]
 def moduleDoc := leading_parser ppDedent <|
-  "/-!" >> Doc.Parser.ifVerso versoCommentBody commentBody >> ppLine
+  "/-!" >> Doc.Parser.ifVersoModuleDocs versoCommentBody commentBody >> ppLine
 
 
 def namedPrio := leading_parser
@@ -187,7 +186,7 @@ def derivingClass    := leading_parser
   optional ("@[" >> nonReservedSymbol "expose" >> "]") >> withForbidden "for" termParser
 def derivingClasses  := sepBy1 derivingClass ", "
 def optDefDeriving   :=
-  optional (ppDedent ppLine >> atomic ("deriving " >> notSymbol "instance") >> derivingClasses)
+  optional (ppDedent ppLine >> atomic ("deriving " >> notSymbol "instance" >> notSymbol "noncomputable") >> derivingClasses)
 def definition     := leading_parser
   "def " >> recover declId skipUntilWsOrDelim >> ppIndent optDeclSig >> declVal >> optDefDeriving
 def «theorem»        := leading_parser
@@ -208,7 +207,7 @@ def ctor             := leading_parser
   atomic (optional docComment >> "\n| ") >>
   ppGroup (declModifiers true >> rawIdent >> optDeclSig)
 def optDeriving      := leading_parser
-  optional (ppLine >> atomic ("deriving " >> notSymbol "instance") >> derivingClasses)
+  optional (ppLine >> atomic ("deriving " >> notSymbol "instance" >> notSymbol "noncomputable") >> derivingClasses)
 def computedField    := leading_parser
   declModifiers true >> ident >> " : " >> termParser >> Term.matchAlts
 def computedFields   := leading_parser
@@ -281,7 +280,7 @@ def «structure»          := leading_parser
   («abbrev» <|> definition <|> «theorem» <|> «opaque» <|> «instance» <|> «axiom» <|> «example» <|>
    «inductive» <|> «coinductive» <|> classInductive <|> «structure»)
 @[builtin_command_parser] def «deriving»     := leading_parser
-  "deriving " >> "instance " >> derivingClasses >> " for " >> sepBy1 (recover termParser skip) ", "
+  "deriving " >> optional "noncomputable " >> "instance " >> derivingClasses >> " for " >> sepBy1 (recover termParser skip) ", "
 def sectionHeader := leading_parser
   optional ("@[" >> nonReservedSymbol "expose" >> "] ") >>
   optional ("public ") >>
@@ -965,20 +964,6 @@ Note that the error name is not relativized to the current namespace.
 -/
 @[builtin_command_parser] def registerErrorExplanationStx := leading_parser
   optional docComment >> "register_error_explanation " >> ident >> termParser
-
-/--
-Returns syntax for `private` or `public` visibility depending on `isPublic`. This function should be
-used to generate visibility syntax for declarations that is independent of the presence of
-`public section`s.
--/
-def visibility.ofBool (isPublic : Bool) : TSyntax ``visibility :=
-  Unhygienic.run <| if isPublic then `(visibility| public) else `(visibility| private)
-
-/--
-Returns syntax for `private` if `attrKind` is `local` and `public` otherwise.
--/
-def visibility.ofAttrKind (attrKind : TSyntax ``Term.attrKind) : TSyntax ``visibility :=
-  visibility.ofBool <| !attrKind matches `(attrKind| local)
 
 end Command
 

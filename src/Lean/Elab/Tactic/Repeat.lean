@@ -13,6 +13,18 @@ public section
 
 namespace Lean.Elab.Tactic
 
+@[builtin_tactic tacticRepeat_]
+def evalRepeat : Tactic := fun stx => do
+  match stx with
+  | `(tactic| repeat $tac:tacticSeq) =>
+    withoutRecover do
+      while true do
+          try
+            evalTactic tac
+          catch _ =>
+            break
+  | _ => throwUnsupportedSyntax
+
 @[builtin_tactic repeat']
 def evalRepeat' : Tactic := fun stx => do
   match stx with

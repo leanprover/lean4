@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Grind.Types
-import Lean.Meta.Tactic.Grind.Arith.Util
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.ToInt
 import Lean.Meta.Tactic.Grind.Arith.Linear.StructId
 public section

@@ -9,13 +9,17 @@ prelude
 public import Init.Data.UInt.Basic
 import all Init.Data.UInt.Basic
 import all Init.Data.UInt.BasicAux
-public import Init.Data.Fin.Bitwise
 import all Init.Data.Fin.Bitwise
 import all Init.Data.BitVec.BasicAux
 import all Init.Data.BitVec.Basic
-public import Init.Data.BitVec.Lemmas
-public import Init.System.Platform
-import Init.Data.Order.Lemmas
+public import Init.Data.Nat.Div.Lemmas
+public import Init.Data.Order.Classes
+public import Init.Ext
+import Init.ByCases
+import Init.Data.BitVec.Bootstrap
+import Init.Data.BitVec.Lemmas
+import Init.Data.Int.DivMod.Lemmas
+import Init.System.Platform
 
 public section
 

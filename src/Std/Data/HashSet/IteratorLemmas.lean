@@ -6,14 +6,12 @@ Authors: Paul Reichert
 module
 
 prelude
-import Init.Data.Iterators.Lemmas.Combinators
 
 import Std.Data.DHashMap.IteratorLemmas
 import all Std.Data.HashMap.IteratorLemmas
 public import Std.Data.HashSet.Iterator
 import all Std.Data.HashSet.Iterator
 import Std.Data.HashSet.RawLemmas
-import Std.Data.HashSet.Lemmas
 import all Std.Data.DHashMap.Basic
 
 namespace Std.HashSet.Raw

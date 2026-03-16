@@ -9,8 +9,9 @@ prelude
 public import Std.Data.Iterators.Producers.Slice
 import all Std.Data.Iterators.Producers.Slice
 public import Init.Data.Slice.Lemmas
+import Init.Data.Slice.InternalLemmas
 
-@[expose] public section
+public section
 
 namespace Std.Slice
 
@@ -27,21 +28,47 @@ theorem iter_eq_toIteratorIter {γ : Type u} {s : Slice γ}
     s.iter = ToIterator.iter s := by
   simp [Internal.iter_eq_iter, Internal.iter_eq_toIteratorIter]
 
-theorem size_eq_count_iter [ToIterator (Slice γ) Id α β]
-    [Iterator α Id β] {s : Slice γ}
-    [Finite α Id]
-    [IteratorLoop α Id Id] [LawfulIteratorLoop α Id Id]
-    [SliceSize γ] [LawfulSliceSize γ] :
-    s.size = s.iter.count := by
-  simp [Internal.iter_eq_iter, Internal.size_eq_count_iter]
+theorem forIn_iter {γ : Type u} {β : Type v}
+    {m : Type w → Type x} [Monad m] {δ : Type w}
+    [ToIterator (Slice γ) Id α β]
+    [Iterator α Id β] [IteratorLoop α Id m]
+    {s : Slice γ} {init : δ} {f : β → δ → m (ForInStep δ)} :
+    ForIn.forIn s.iter init f = ForIn.forIn s init f := by
+  simp [Internal.iter_eq_iter, Internal.forIn_iter]
 
-theorem count_iter_eq_size [ToIterator (Slice γ) Id α β]
+theorem foldlM_iter [Monad m] [ToIterator (Slice γ) Id α β]
+    [Iterator α Id β] [IteratorLoop α Id m]
+    {s : Slice γ} {init : δ} {f : δ → β → m δ} :
+    s.iter.foldM (init := init) f = s.foldlM (init := init) f := by
+  simp [Internal.iter_eq_iter, Internal.foldlM_iter]
+
+theorem foldl_iter [ToIterator (Slice γ) Id α β]
+    [Iterator α Id β] [IteratorLoop α Id Id]
+    {s : Slice γ} {init : δ} {f : δ → β → δ} :
+    s.iter.fold (init := init) f = s.foldl (init := init) f := by
+  simp [Internal.iter_eq_iter, Internal.foldl_iter]
+
+theorem size_eq_length_iter [ToIterator (Slice γ) Id α β]
     [Iterator α Id β] {s : Slice γ}
     [Finite α Id]
     [IteratorLoop α Id Id] [LawfulIteratorLoop α Id Id]
     [SliceSize γ] [LawfulSliceSize γ] :
-    s.iter.count = s.size :=
-  size_eq_count_iter.symm
+    s.size = s.iter.length := by
+  simp [Internal.iter_eq_iter, Internal.size_eq_length_iter]
+
+@[deprecated size_eq_length_iter (since := "2026-01-28")]
+def size_eq_count_iter := @size_eq_length_iter
+
+theorem length_iter_eq_size [ToIterator (Slice γ) Id α β]
+    [Iterator α Id β] {s : Slice γ}
+    [Finite α Id]
+    [IteratorLoop α Id Id] [LawfulIteratorLoop α Id Id]
+    [SliceSize γ] [LawfulSliceSize γ] :
+    s.iter.length = s.size :=
+  size_eq_length_iter.symm
+
+@[deprecated length_iter_eq_size (since := "2026-01-28")]
+def count_iter_eq_size := @length_iter_eq_size
 
 @[simp]
 theorem toArray_iter {s : Slice γ} [ToIterator (Slice γ) Id α β]
@@ -82,5 +109,15 @@ theorem toListRev_eq_toListRev_iter {s : Slice γ} [ToIterator (Slice γ) Id α 
     [Iterator α Id β] [Finite α Id] :
     s.toListRev = s.iter.toListRev := by
   simp
+
+theorem fold_iter [ToIterator (Slice γ) Id α β]
+    [Iterator α Id β] [IteratorLoop α Id Id] [Iterators.Finite α Id] {s : Slice γ} :
+    s.iter.fold (init := init) f = s.foldl (init := init) f := by
+  simp [Internal.iter_eq_iter, Internal.fold_iter]
+
+theorem foldM_iter {m : Type w → Type w'} [Monad m] [ToIterator (Slice γ) Id α β]
+    [Iterator α Id β] [IteratorLoop α Id m] [Iterators.Finite α Id] {s : Slice γ} {f : δ → β → m δ} :
+    s.iter.foldM (init := init) f = s.foldlM (init := init) f := by
+  simp [Internal.iter_eq_iter, Internal.foldM_iter]
 
 end Std.Slice

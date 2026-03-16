@@ -6,12 +6,15 @@ Authors: Leonardo de Moura
 module
 
 prelude
+public import Init.Control.Do
 public import Lean.Data.LOption
 public import Lean.Class
 public import Lean.ReducibilityAttrs
 public import Lean.Util.MonadBacktrack
 public import Lean.Compiler.InlineAttrs
 public import Lean.Meta.TransparencyMode
+import Init.Data.Range.Polymorphic.Iterators
+import Init.While
 
 public section
 
@@ -80,7 +83,7 @@ Configuration flags for the `MetaM` monad.
 Many of them are used to control the `isDefEq` function that checks whether two terms are definitionally equal or not.
 Recall that when `isDefEq` is trying to check whether
 `?m@C a₁ ... aₙ` and `t` are definitionally equal (`?m@C a₁ ... aₙ =?= t`), where
-`?m@C` as a shorthand for `C |- ?m : t` where `t` is the type of `?m`.
+`?m@C` as a shorthand for `C |- ?m : ty` where `ty` is the type of `?m`.
 We solve it using the assignment `?m := fun a₁ ... aₙ => t` if
 1) `a₁ ... aₙ` are pairwise distinct free variables that are ​*not*​ let-variables.
 2) `a₁ ... aₙ` are not in `C`
@@ -241,6 +244,8 @@ structure ParamInfo where
     This information affects the generation of congruence theorems.
   -/
   isDecInst      : Bool       := false
+  /-- `isInstance` is true if the parameter type is a class instance. -/
+  isInstance     : Bool       := false
   /--
     `higherOrderOutParam` is true if this parameter is a higher-order output parameter
     of local instance.
@@ -738,7 +743,7 @@ def setPostponed (postponed : PersistentArray PostponedEntry) : MetaM Unit :=
   for the inductive datatype `inductName`.
 
   Recall we have three different settings: `.none` (never use it), `.all` (always use it), `.notClasses`
-  (enabled only for structure-like inductive types that are not classes).
+  (enabled only for non-recursive structure types that are not classes).
 
   The parameter `inductName` affects the result only if the current setting is `.notClasses`.
 -/
@@ -1096,6 +1101,13 @@ Similar to `Expr.abstract`, but handles metavariables correctly.
 -/
 def _root_.Lean.Expr.abstractM (e : Expr) (xs : Array Expr) : MetaM Expr :=
   e.abstractRangeM xs.size xs
+
+/--
+Replace occurrences of the free variables `fvars` in `e` with `vs`.
+Similar to `Expr.replaceFVars`, but handles metavariables correctly.
+-/
+def _root_.Lean.Expr.replaceFVarsM (e : Expr) (fvars : Array Expr) (vs : Array Expr) : MetaM Expr :=
+  return (← e.abstractM fvars).instantiateRev vs
 
 /--
 Collect forward dependencies for the free variables in `toRevert`.
@@ -1892,10 +1904,9 @@ def mapLetDecl [MonadLiftT MetaM n] (name : Name) (type : Expr) (val : Expr) (k 
 Runs `k x` with the local declaration `<name> : <type> := <val>` added to the local context, where `x` is the new free variable.
 Afterwards, the local declaration is zeta-reduced into the result.
 -/
-def mapLetDeclZeta [MonadLiftT MetaM n] (name : Name) (type rhs : Expr) (k : Expr → n Expr) : n Expr := do
-  withLetDecl (n:=n) name type rhs fun x => do
-    let e ← elimMVarDeps #[x] (← k x)
-    return e.replaceFVar x rhs
+def mapLetDeclZeta [MonadLiftT MetaM n] (name : Name) (type rhs : Expr) (k : Expr → n Expr) (nondep : Bool := false) (kind : LocalDeclKind := .default) : n Expr := do
+  withLetDecl (n:=n) name type rhs (nondep := nondep) (kind := kind) fun x => do
+    (← k x).replaceFVarsM #[x] #[rhs]
 
 def withLocalInstancesImp (decls : List LocalDecl) (k : MetaM α) : MetaM α := do
   let mut localInsts := (← read).localInstances
@@ -2283,7 +2294,7 @@ Return `true` if `indVal` is an inductive predicate. That is, `inductive` type i
 def isInductivePredicateVal (indVal : InductiveVal) : MetaM Bool := do
   forallTelescopeReducing indVal.type fun _ type => do
     match (← whnfD type) with
-    | .sort u .. => return u == levelZero
+    | .sort u .. => return u == Level.zero
     | _ => return false
 
 /--

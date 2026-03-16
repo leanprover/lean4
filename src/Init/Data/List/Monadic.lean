@@ -7,9 +7,9 @@ module
 
 prelude
 public import Init.Data.List.Attach
-public import Init.Data.List.OfFn
-public import Init.Data.Array.Bootstrap
 import all Init.Data.List.Control
+import Init.Data.Array.Bootstrap
+import Init.Data.Bool
 
 public section
 

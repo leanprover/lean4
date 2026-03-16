@@ -15,6 +15,9 @@ Passed to `grind` using, for example, the `grind (config := { matchEqs := true }
 structure Config where
   /-- If `trace` is `true`, `grind` records used E-matching theorems and case-splits. -/
   trace : Bool := false
+  /-- If `markInstances` is `true`, E-matching proofs are marked with instance IDs
+  for precise tracking of which theorems appear in the final proof. -/
+  markInstances : Bool := false
   /-- If `lax` is `true`, `grind` will silently ignore any parameters referring to non-existent theorems
   or for which no patterns can be generated. -/
   lax : Bool := false
@@ -213,6 +216,11 @@ structure Config where
   reducible declarations are always unfolded in those contexts.
   -/
   reducible := true
+  /--
+  Maximum number of library suggestions to use. If `none`, uses the default limit.
+  Only relevant when `suggestions` is `true`.
+  -/
+  maxSuggestions : Option Nat := none
   deriving Inhabited, BEq
 
 /--
@@ -242,12 +250,14 @@ structure NoopConfig extends Config where
   extAll    := false
   etaStruct := false
   funext    := false
+  funCC     := false
 
   -- Disable all solver modules
   ring      := false
   linarith  := false
   lia       := false
   ac        := false
+  order     := false
 
 /--
 A `grind` configuration that only uses `cutsat` and splitting.
@@ -258,6 +268,24 @@ We don't currently have a mechanism to enable only a small set of lemmas.
 -- This is a `structure` rather than `def` so we can use `declare_config_elab`.
 structure CutsatConfig extends NoopConfig where
   lia := true
+  -- Allow the default number of splits.
+  splits := ({} : Config).splits
+
+/--
+A `grind` configuration that only uses `linarith`.
+-/
+-- This is a `structure` rather than `def` so we can use `declare_config_elab`.
+structure LinarithConfig extends NoopConfig where
+  linarith := true
+  -- Allow the default number of splits.
+  splits := ({} : Config).splits
+
+/--
+A `grind` configuration that only uses `order`.
+-/
+-- This is a `structure` rather than `def` so we can use `declare_config_elab`.
+structure OrderConfig extends NoopConfig where
+  order := true
   -- Allow the default number of splits.
   splits := ({} : Config).splits
 

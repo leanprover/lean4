@@ -42,6 +42,12 @@ echo nightly-2024-10-01 > a/lean-toolchain
 echo nightly-2024-01-10 > b/lean-toolchain
 test_update leanprover/lean4:nightly-2024-10-01
 
+# Test nightly revision comparison
+./clean.sh
+echo nightly-2024-10-01-rev1 > a/lean-toolchain
+echo nightly-2024-01-10 > b/lean-toolchain
+test_update leanprover/lean4:nightly-2024-10-01-rev1
+
 # Test up-to-date root
 ./clean.sh
 echo v4.4.0 > a/lean-toolchain

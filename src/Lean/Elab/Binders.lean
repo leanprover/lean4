@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lean.Elab.Match
-meta import Lean.Parser.Tactic
 import Lean.Linter.Basic
 
 public section
@@ -575,7 +574,7 @@ private def checkMatchAltPatternCounts (matchAlts : Syntax) (numDiscrs : Nat) (e
   let sepPats (pats : List Syntax) := MessageData.joinSep (pats.map toMessageData) ", "
   let maxDiscrs? ← forallTelescopeReducing expectedType fun xs e =>
     if e.getAppFn.isMVar then pure none else pure (some xs.size)
-  let matchAltViews := matchAlts[0].getArgs.filterMap getMatchAlt
+  let matchAltViews := matchAlts[0].getArgs.filterMap (getMatchAlt `term)
   let numPatternsStr (n : Nat) := s!"{n} {if n == 1 then "pattern" else "patterns"}"
   if h : matchAltViews.size > 0 then
     if let some maxDiscrs := maxDiscrs? then

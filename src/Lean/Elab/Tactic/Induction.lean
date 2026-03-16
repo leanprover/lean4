@@ -10,8 +10,10 @@ import Lean.Parser.Tactic
 public import Lean.Meta.Tactic.ElimInfo
 public import Lean.Elab.Tactic.ElabTerm
 import Lean.Meta.Tactic.FunIndCollect
-import Lean.Elab.App
-import Lean.Elab.Tactic.Generalize
+import Init.Data.Nat.Order
+import Init.Data.Order.Lemmas
+import Lean.Elab.Binders
+import Lean.Meta.Tactic.Generalize
 
 
 public section

@@ -1,0 +1,2 @@
+4585.lean:1:0-1:7: warning: declaration uses `sorry`
+4585.lean:9:0-9:7: warning: declaration uses `sorry`

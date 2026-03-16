@@ -6,7 +6,12 @@ Author: Leonardo de Moura
 module
 
 prelude
-public import Init.Data.Nat.Linear
+public import Init.GetElem
+public import Init.WFTactics
+import Init.ByCases
+import Init.Classical
+import Init.Data.Array.Basic
+import Init.Data.Nat.Linear
 
 public section
 

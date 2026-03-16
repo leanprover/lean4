@@ -7,6 +7,8 @@ module
 
 prelude
 public import Std.Sat.AIG.Cached
+import Init.Data.Nat.Order
+import Init.Data.Order.Lemmas
 
 @[expose] public section
 

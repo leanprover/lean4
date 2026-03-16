@@ -7,6 +7,9 @@ module
 
 prelude
 public import Init.Simproc
+public import Init.Grind.Tactics
+public import Init.MetaTypes
+import Init.Data.Nat.Bitwise.Basic
 
 @[expose] public section
 
@@ -126,7 +129,7 @@ end Tactic
 Theorems tagged with the `bv_normalize` attribute are used during the rewriting step of the
 `bv_decide` tactic.
 -/
-syntax (name := bv_normalize) "bv_normalize" (Tactic.simpPre <|> Tactic.simpPost)? patternIgnore("← " <|> "<- ")? (ppSpace prio)? : attr
+syntax (name := bv_normalize) "bv_normalize" (Tactic.simpPre <|> Tactic.simpPost)? unicode("← ", "<- ")? (ppSpace prio)? : attr
 
 /--
 Auxiliary attribute for builtin `bv_normalize` simprocs.

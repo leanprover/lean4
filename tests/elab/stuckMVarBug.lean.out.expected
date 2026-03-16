@@ -1,0 +1,2 @@
+stuckMVarBug.lean:6:11-6:19: warning: instance `A.Mul` must be marked with `@[reducible]` or `@[implicit_reducible]`
+stuckMVarBug.lean:11:11-11:19: warning: instance `B.Mul` must be marked with `@[reducible]` or `@[implicit_reducible]`

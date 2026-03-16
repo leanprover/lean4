@@ -8,7 +8,6 @@ prelude
 public import Init.Grind.Ring.CommSemiringAdapter
 public import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Poly
-import Lean.Data.PersistentArray
 public section
 
 namespace Lean.Meta.Grind.Arith.CommRing

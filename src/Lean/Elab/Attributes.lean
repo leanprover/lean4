@@ -9,6 +9,7 @@ prelude
 public import Lean.Elab.Util
 public import Lean.Compiler.InitAttr
 import Lean.Parser.Term
+public import Init.Data.Format.Macro
 
 public section
 namespace Lean.Elab

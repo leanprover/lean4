@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Data.Trie
 public import Lean.DocString.Extension
+import Init.Data.String.OrderInstances
 
 public section
 
@@ -555,7 +556,7 @@ def withCacheFn (parserName : Name) (p : ParserFn) : ParserFn := fun c s => Id.r
   let s := withStackDrop initStackSz p c { s with lhsPrec := 0, errorMsg := none }
   if s.stxStack.raw.size != initStackSz + 1 then
     panic! s!"withCacheFn: unexpected stack growth {s.stxStack.raw}"
-  { s with cache.parserCache := s.cache.parserCache.insert key ⟨s.stxStack.back, s.lhsPrec, s.pos, s.errorMsg⟩ }
+  return { s with cache.parserCache := s.cache.parserCache.insert key ⟨s.stxStack.back, s.lhsPrec, s.pos, s.errorMsg⟩ }
 
 @[inherit_doc withCacheFn, builtin_doc]
 def withCache (parserName : Name) : Parser → Parser := withFn (withCacheFn parserName)

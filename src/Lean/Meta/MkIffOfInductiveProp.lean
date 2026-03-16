@@ -13,10 +13,8 @@ module
 prelude
 
 public import Lean.Meta.Basic
-import Lean.Elab.Term.TermElabM
 import Lean.Elab.Tactic.Basic
 import Lean.Meta.Tactic.Apply
-import Lean.Meta.Tactic.Intro
 import Lean.Meta.Tactic.Cases
 
 
@@ -285,22 +283,17 @@ private def toInductive (mvar : MVarId) (cs : List Name)
       let subgoals ← nCasesSum n mvar h
       let _ ← (cs.zip (subgoals.zip s)).mapM fun ⟨constr_name, ⟨h, mv⟩, bs, e⟩ ↦ do
         let n := (bs.filter id).length
-        let (mvar', _fvars, numHEqs) ← match e with
+        let (mvar', _fvars) ← match e with
         | none =>
             let (id, fvarIds) ← nCasesProd (n-1) mv h
-            pure ⟨id, fvarIds, 0⟩
+            pure ⟨id, fvarIds⟩
         | some 0 => do let ⟨mvar', fvars⟩ ← nCasesProd n mv h
                           let mvar'' ← mvar'.tryClear fvars.getLast!
-                          pure ⟨mvar'', fvars, 0⟩
+                          pure ⟨mvar'', fvars⟩
         | some (e + 1) => do
           let (mv', fvars) ← nCasesProd n mv h
           let lastfv := fvars.getLast!
           let (mv2, fvars') ← nCasesProd e mv' lastfv
-          let numHEqs ← mv2.withContext do
-            let fvarTypes ← fvars'.mapM (·.getType)
-            let res := fvarTypes.map (·.isAppOf `HEq)
-            let res := res.filter id
-            pure res.length
 
           /- `fvars'.foldlM subst mv2` fails when we have dependent equalities (`HEq`).
           `subst` will change the dependent hypotheses, so that the `uniq` local names
@@ -310,12 +303,11 @@ private def toInductive (mvar : MVarId) (cs : List Name)
             let ⟨fv, mv'⟩ ← mv.intro1
             let #[res] ← mv'.cases fv | throwError "expected one case subgoal"
             return res.mvarId) mv3
-          pure (mv4, fvars, numHEqs)
+          pure (mv4, fvars)
         mvar'.withContext do
           let fvarIds := (← getLCtx).getFVarIds.toList
           let gs := fvarIds.take gs.length
-          let hs := fvarIds.extract (fvarIds.length - (n + numHEqs)) (fvarIds.length - numHEqs)
-          let m := gs.map some ++ listBoolMerge bs hs
+          let m := gs.map some ++ listBoolMerge bs _fvars
           let args ← m.mapM fun a ↦
             match a with
             | some v => pure (mkFVar v)

@@ -26,7 +26,7 @@ def mkType (w : Expr) : Expr := mkApp (.const ``BitVec []) w
 def mkInstMul (w : Expr) : Expr := mkApp (.const ``BitVec.instMul []) w
 
 def mkInstHMul (w : Expr) : Expr :=
-  mkApp2 (mkConst ``instHMul [levelZero]) (BitVec.mkType w) (mkInstMul w)
+  mkApp2 (mkConst ``instHMul [Level.zero]) (BitVec.mkType w) (mkInstMul w)
 
 end BitVec
 
@@ -329,7 +329,7 @@ def bvAcNfTarget (mvarId : MVarId)
   let simpCtx ← Simp.mkContext
       (simpTheorems  := {})
       (congrTheorems := (← getSimpCongrTheorems))
-      (config        := { Simp.neutralConfig with maxSteps})
+      (config        := { Simp.neutralConfig with maxSteps, instances := true })
   let tgt ← instantiateMVars (← mvarId.getType)
   let (res, _) ← Simp.main tgt simpCtx (methods := { post := bvAcNfpost })
   applySimpResultToTarget mvarId tgt res
@@ -341,7 +341,7 @@ def bvAcNfHypMeta (goal : MVarId) (fvarId : FVarId)
     let simpCtx ← Simp.mkContext
       (simpTheorems  := {})
       (congrTheorems := (← getSimpCongrTheorems))
-      (config        := { Simp.neutralConfig with maxSteps})
+      (config        := { Simp.neutralConfig with maxSteps, instances := true })
     let tgt ← instantiateMVars (← fvarId.getType)
     let (res, _) ← Simp.main tgt simpCtx (methods := { post := bvAcNfpost })
     return (← applySimpResultToLocalDecl goal fvarId res false).map (·.snd)

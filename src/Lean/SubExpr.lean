@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Meta.Basic
+public import Init.Data.Format.Macro
 
 public section
 

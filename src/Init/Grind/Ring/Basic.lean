@@ -6,9 +6,15 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Data.Int.LemmasAux
-public import Init.TacticsExtra
 public import Init.Grind.Module.Basic
+import Init.ByCases
+import Init.Data.Int.DivMod.Lemmas
+import Init.Data.Int.LemmasAux
+import Init.Data.Int.Pow
+import Init.Data.Nat.Div.Lemmas
+import Init.Data.Nat.Lemmas
+import Init.Omega
+import Init.RCases
 
 public section
 
@@ -88,6 +94,8 @@ class Semiring (α : Type u) extends Add α, Mul α where
   -/
   nsmul_eq_natCast_mul : ∀ n : Nat, ∀ a : α, n • a = Nat.cast n * a := by intros; rfl
 
+attribute [implicit_reducible] Semiring.npow Semiring.ofNat Semiring.natCast
+
 /--
 A ring, i.e. a type equipped with addition, negation, multiplication, and a map from the integers,
 satisfying appropriate compatibilities.
@@ -111,6 +119,8 @@ class Ring (α : Type u) extends Semiring α, Neg α, Sub α where
   intCast_ofNat : ∀ n : Nat, Int.cast (OfNat.ofNat (α := Int) n) = OfNat.ofNat (α := α) n := by intros; rfl
   /-- The canonical map from the integers is consistent with negation. -/
   intCast_neg : ∀ i : Int, Int.cast (R := α) (-i) = -Int.cast i := by intros; rfl
+
+attribute [implicit_reducible] Ring.intCast Ring.zsmul
 
 /--
 A commutative semiring, i.e. a semiring with commutative multiplication.
@@ -491,6 +501,7 @@ private theorem mk'_aux {x y : Nat} (p : Nat) (h : y ≤ x) :
       omega
 
 /-- Alternative constructor when `α` is a `Ring`. -/
+@[implicit_reducible]
 def mk' (p : Nat) (α : Type u) [Ring α]
     (ofNat_eq_zero_iff : ∀ (x : Nat), OfNat.ofNat (α := α) x = 0 ↔ x % p = 0) : IsCharP α p where
   ofNat_ext_iff {x y} := by

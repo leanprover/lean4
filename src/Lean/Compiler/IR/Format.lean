@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Compiler.IR.Basic
+import Init.Data.Format.Macro
 
 public section
 

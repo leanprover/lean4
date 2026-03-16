@@ -8,6 +8,7 @@ prelude
 public import Lean.Meta.Tactic.Grind.Arith.Linear.Types
 import Lean.Meta.Tactic.Grind.Arith.Linear.Model
 import Lean.Meta.Tactic.Grind.Arith.Util
+import Init.Omega
 public section
 namespace Lean.Meta.Grind.Arith.Linear
 

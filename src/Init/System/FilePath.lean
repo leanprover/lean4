@@ -6,9 +6,11 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 module
 
 prelude
-public import Init.Data.String.Basic
 import Init.Data.String.Modify
 import Init.Data.String.Search
+public import Init.Data.ToString.Basic
+import Init.Data.Iterators.Consumers.Collect
+import Init.System.Platform
 
 public section
 

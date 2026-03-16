@@ -11,7 +11,7 @@ IMPORTANT: Keep this documentation up-to-date when modifying the script's behavi
 What this script does:
 1. Validates preliminary Lean4 release infrastructure:
    - Checks that the release branch (releases/vX.Y.0) exists
-   - Verifies CMake version settings are correct
+   - Verifies CMake version settings are correct (both src/ and stage0/)
    - Confirms the release tag exists
    - Validates the release page exists on GitHub (created automatically by CI after tag push)
    - Checks the release notes page on lean-lang.org (updated while bumping the `reference-manual` repository)
@@ -326,6 +326,42 @@ def check_cmake_version(repo_url, branch, version_major, version_minor, github_t
     print(f"  ✅ CMake version settings are correct in {cmake_file_path}")
     return True
 
+def check_stage0_version(repo_url, branch, version_major, version_minor, github_token):
+    """Verify that stage0/src/CMakeLists.txt has the same version as src/CMakeLists.txt.
+
+    The stage0 pre-built binaries stamp .olean headers with their baked-in version.
+    If stage0 has a different version (e.g. from a 'begin development cycle' bump),
+    the release tarball will contain .olean files with the wrong version.
+    """
+    stage0_cmake = "stage0/src/CMakeLists.txt"
+    content = get_branch_content(repo_url, branch, stage0_cmake, github_token)
+    if content is None:
+        print(f"  ❌ Could not retrieve {stage0_cmake} from {branch}")
+        return False
+
+    errors = []
+    for line in content.splitlines():
+        stripped = line.strip()
+        if stripped.startswith("set(LEAN_VERSION_MAJOR "):
+            actual = stripped.split()[-1].rstrip(")")
+            if actual != str(version_major):
+                errors.append(f"LEAN_VERSION_MAJOR: expected {version_major}, found {actual}")
+        elif stripped.startswith("set(LEAN_VERSION_MINOR "):
+            actual = stripped.split()[-1].rstrip(")")
+            if actual != str(version_minor):
+                errors.append(f"LEAN_VERSION_MINOR: expected {version_minor}, found {actual}")
+
+    if errors:
+        print(f"  ❌ stage0 version mismatch in {stage0_cmake}:")
+        for error in errors:
+            print(f"     {error}")
+        print(f"     The stage0 compiler stamps .olean headers with its baked-in version.")
+        print(f"     Run `make update-stage0` to rebuild stage0 with the correct version.")
+        return False
+
+    print(f"  ✅ stage0 version matches in {stage0_cmake}")
+    return True
+
 def extract_org_repo_from_url(repo_url):
     """Extract the 'org/repo' part from a GitHub URL."""
     if repo_url.startswith("https://github.com/"):
@@ -441,7 +477,10 @@ def get_pr_ci_status(repo_url, pr_number, github_token):
     conclusions = [run['conclusion'] for run in check_runs if run.get('status') == 'completed']
     in_progress = [run for run in check_runs if run.get('status') in ['queued', 'in_progress']]
 
+    failed = sum(1 for c in conclusions if c in ['failure', 'timed_out', 'action_required'])
     if in_progress:
+        if failed > 0:
+            return "failure", f"{failed} check(s) failing, {len(in_progress)} still in progress"
         return "pending", f"{len(in_progress)} check(s) in progress"
 
     if not conclusions:
@@ -450,7 +489,6 @@ def get_pr_ci_status(repo_url, pr_number, github_token):
     if all(c == 'success' for c in conclusions):
         return "success", f"All {len(conclusions)} checks passed"
 
-    failed = sum(1 for c in conclusions if c in ['failure', 'timed_out', 'action_required'])
     if failed > 0:
         return "failure", f"{failed} check(s) failed"
 
@@ -680,6 +718,9 @@ def main():
         # Check CMake version settings
         if not check_cmake_version(lean_repo_url, branch_name, version_major, version_minor, github_token):
             lean4_success = False
+        # Check that stage0 version matches (stage0 stamps .olean headers with its version)
+        if not check_stage0_version(lean_repo_url, branch_name, version_major, version_minor, github_token):
+            lean4_success = False
 
     # Check for tag and release page
     if not tag_exists(lean_repo_url, toolchain, github_token):
@@ -836,6 +877,14 @@ def main():
             continue
         print(f"  ✅ On compatible toolchain (>= {toolchain})")
 
+        # For reference-manual, check that the release notes title is correct BEFORE tagging.
+        # This catches the case where the toolchain bump PR was merged without updating
+        # the release notes title (e.g., still showing "-rc1" for a stable release).
+        if name == "reference-manual":
+            if not check_reference_manual_release_title(url, toolchain, branch, github_token):
+                repo_status[name] = False
+                continue
+
         # Special handling for ProofWidgets4
         if name == "ProofWidgets4":
             if not check_proofwidgets4_release(url, toolchain, github_token):
@@ -916,8 +965,8 @@ def main():
             
             print(f"  ✅ Bump branch {bump_branch} exists")
             
-            # For batteries and mathlib4, update the lean-toolchain to the latest nightly
-            if branch_created and name in ["batteries", "mathlib4"]:
+            # Update the lean-toolchain to the latest nightly for newly created bump branches
+            if branch_created:
                 latest_nightly = get_latest_nightly_tag(github_token)
                 if latest_nightly:
                     nightly_toolchain = f"leanprover/lean4:{latest_nightly}"
@@ -957,14 +1006,15 @@ def main():
         # Find the actual minor version in CMakeLists.txt
         for line in cmake_lines:
             if line.strip().startswith("set(LEAN_VERSION_MINOR "):
-                actual_minor = int(line.split()[-1].rstrip(")"))
+                m = re.search(r'set\(LEAN_VERSION_MINOR\s+(\d+)', line)
+                actual_minor = int(m.group(1)) if m else 0
                 version_minor_correct = actual_minor >= next_minor
                 break
         else:
             version_minor_correct = False
             
         is_release_correct = any(
-            l.strip().startswith("set(LEAN_VERSION_IS_RELEASE 0)") 
+            re.match(r'set\(LEAN_VERSION_IS_RELEASE\s+0[\s)]', l.strip())
             for l in cmake_lines
         )
         

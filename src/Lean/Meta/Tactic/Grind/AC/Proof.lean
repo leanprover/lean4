@@ -11,6 +11,8 @@ import Lean.Meta.Tactic.Grind.Diseq
 import Lean.Meta.Tactic.Grind.ProofUtil
 import Lean.Meta.Tactic.Grind.AC.ToExpr
 import Lean.Meta.Tactic.Grind.AC.VarRename
+import Init.Data.Nat.Order
+import Init.Data.Order.Lemmas
 public section
 namespace Lean.Meta.Grind.AC
 open Lean.Grind

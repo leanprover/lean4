@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.Util
+public import Init.Data.Option.Basic
 
 public section
 
@@ -171,6 +172,9 @@ instance (priority := low) [GetElem coll idx elem valid] [∀ xs i, Decidable (v
   have : Decidable (dom c i) := .isTrue h
   rw [getElem?_def]
   exact dif_pos h
+
+grind_pattern getElem?_pos => c[i] where
+  guard dom c i
 
 @[simp, grind =] theorem getElem?_neg [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
     (c : cont) (i : idx) (h : ¬dom c i) : c[i]? = none := by

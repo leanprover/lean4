@@ -6,7 +6,10 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Init.Data.Nat.Linear
+public import Init.Grind.Tactics
+import Init.Data.Nat.Linear
+import Init.NotationExtra
+import Init.WFTactics
 
 public section
 

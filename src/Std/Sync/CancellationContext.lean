@@ -6,12 +6,8 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Std.Data
-public import Init.System.Promise
-public import Init.Data.Queue
-public import Std.Sync.Mutex
 public import Std.Sync.CancellationToken
-public import Std.Internal.Async.Select
+public import Init.Data.Ord.UInt
 
 public section
 

@@ -7,7 +7,8 @@ Authors: Gabriel Ebner
 module
 
 prelude
-public import Init.Core
+public import Init.Prelude
+import Init.Core
 
 public section
 
@@ -46,6 +47,7 @@ Creates a `TypeName` instance.
 For safety, it is required that the constant `typeName` is definitionally equal
 to `α`.
 -/
+@[implicit_reducible]
 unsafe def TypeName.mk (α : Type u) (typeName : Name) : TypeName α :=
   ⟨unsafeCast typeName⟩
 

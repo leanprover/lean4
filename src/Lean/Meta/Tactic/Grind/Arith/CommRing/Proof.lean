@@ -11,11 +11,11 @@ public import Lean.Meta.Tactic.Grind.Arith.CommRing.NonCommSemiringM
 import Lean.Data.RArray
 import Lean.Meta.Tactic.Grind.Diseq
 import Lean.Meta.Tactic.Grind.ProofUtil
-import Lean.Meta.Tactic.Grind.Arith.Util
 import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
-import Lean.Meta.Tactic.Grind.Arith.CommRing.SafePoly
 import Lean.Meta.Tactic.Grind.Arith.CommRing.ToExpr
 import Lean.Meta.Tactic.Grind.Arith.CommRing.VarRename
+import Init.Data.Nat.Order
+import Init.Data.Order.Lemmas
 public section
 namespace Lean.Meta.Grind.Arith.CommRing
 /--

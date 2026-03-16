@@ -9,11 +9,20 @@ prelude
 import all Init.Data.BitVec.Basic
 import all Init.Data.BitVec.BasicAux
 public import Init.Data.Fin.Lemmas
-public import Init.Data.Int.Bitwise.Lemmas
-public import Init.Data.Int.LemmasAux
-public import Init.Data.BitVec.Bootstrap
 public import Init.Data.List.BasicAux
 import Init.Data.List.Lemmas
+public import Init.Data.BitVec.Basic
+import Init.ByCases
+import Init.Data.BitVec.Bootstrap
+import Init.Data.Int.Bitwise.Lemmas
+import Init.Data.Int.DivMod.Lemmas
+import Init.Data.Int.LemmasAux
+import Init.Data.Int.Pow
+import Init.Data.Nat.Div.Lemmas
+import Init.Data.Nat.MinMax
+import Init.Data.Nat.Mod
+import Init.Data.Nat.Simproc
+import Init.TacticsExtra
 
 public section
 
@@ -2572,6 +2581,19 @@ theorem msb_signExtend {x : BitVec w} :
   · simp [h, BitVec.msb, getMsbD_signExtend, show v - w = 0 by omega]
   · simp [h, BitVec.msb, getMsbD_signExtend, show ¬ (v - w = 0) by omega]
 
+/-- Sign-extending to `w + n` bits, extracting bits `[w - 1 + n..n]`, and setting width
+back to `w` is equivalent to arithmetic right shift by `n`, since both sides discard the `n`
+least significant bits and replicate the sign bit into the upper bits. -/
+@[simp]
+theorem signExtend_extractLsb_setWidth {x : BitVec w} {n : Nat} :
+    ((x.signExtend (w + n)).extractLsb (w - 1 + n) n).setWidth w = x.sshiftRight n := by
+  ext i hi
+  simp only [getElem_sshiftRight, getElem_setWidth, getLsbD_extract,
+    Nat.add_sub_cancel, show i ≤ w - 1 by omega, decide_true, getLsbD_signExtend,
+    Bool.true_and]
+  by_cases hni : n + i < w
+  <;> (simp [hni]; omega)
+
 /-- Sign extending to a width smaller than the starting width is a truncation. -/
 theorem signExtend_eq_setWidth_of_le (x : BitVec w) {v : Nat} (hv : v ≤ w) :
   x.signExtend v = x.setWidth v := by
@@ -2764,6 +2786,14 @@ theorem msb_append {x : BitVec w} {y : BitVec v} :
   rw [getElem_append] -- Why does this not work with `simp [getElem_append]`?
   simp
 
+theorem append_of_zero_width (x : BitVec w) (y : BitVec v) (h : w = 0) :
+    (x ++ y) = y.cast (by simp [h]) := by
+  ext i ih
+  subst h
+  simp [← getLsbD_eq_getElem, getLsbD_append]
+  omega
+
+set_option backward.isDefEq.respectTransparency false in
 @[grind =]
 theorem toInt_append {x : BitVec n} {y : BitVec m} :
     (x ++ y).toInt = if n == 0 then y.toInt else (2 ^ m) * x.toInt + y.toNat := by
@@ -2989,6 +3019,34 @@ theorem extractLsb'_append_extractLsb'_eq_extractLsb' {x : BitVec w} (h : start�
   intro hi
   congr 1
   omega
+
+theorem append_extractLsb'_of_lt {x : BitVec (x_len * w)} :
+    (x.extractLsb' ((x_len - 1) * w) w ++ x.extractLsb' 0 ((x_len - 1) * w)).cast hcast = x := by
+  ext i hi
+  simp only [getElem_cast, getElem_append, getElem_extractLsb', Nat.zero_add, dite_eq_ite]
+  rw [← getLsbD_eq_getElem, ite_eq_left_iff, Nat.not_lt]
+  intros
+  simp only [show (x_len - 1) * w + (i - (x_len - 1) * w) = i by omega]
+
+
+theorem extractLsb'_append_of_lt {x : BitVec (k * w)} {y : BitVec w} (hlt : i < k) :
+    extractLsb' (i * w) w (y ++ x) = extractLsb' (i * w) w x := by
+  ext j hj
+  simp only [← getLsbD_eq_getElem, getLsbD_extractLsb', hj, decide_true, getLsbD_append,
+    Bool.true_and, ite_eq_left_iff, Nat.not_lt]
+  intros h
+  by_cases hw0 : w = 0
+  · subst hw0
+    simp
+  · have : i * w ≤ (k - 1) * w := Nat.mul_le_mul_right w (by omega)
+    have h' : i * w + j < (k - 1 + 1) * w := by simp [Nat.add_mul]; omega
+    rw [Nat.sub_one_add_one (by omega)] at h'
+    omega
+
+theorem extractLsb'_append_of_eq {x : BitVec (k * w)} {y : BitVec w} (heq : i = k) :
+    extractLsb' (i * w) w (y ++ x) = y := by
+  ext j hj
+  simp [← getLsbD_eq_getElem, getLsbD_append, hj, heq]
 
 /-- Combine adjacent `~~~ (extractLsb _)'` operations into a single `~~~ (extractLsb _)'`. -/
 theorem not_extractLsb'_append_not_extractLsb'_eq_not_extractLsb' {x : BitVec w} (h : start₂ = start₁ + len₁) :

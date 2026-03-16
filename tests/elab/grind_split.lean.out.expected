@@ -1,0 +1,251 @@
+[grind.eqc] (p ∨ q) = True
+[grind.eqc] (p ∨ ¬q) = True
+[grind.eqc] (¬p ∨ q) = True
+[grind.eqc] (¬p ∨ ¬q) = True
+[grind.split] ¬p ∨ ¬q, generation: 0
+[grind.eqc] p = False
+[grind.eqc] (p ∨ q) = q
+[grind.eqc] (¬q) = False
+[grind.eqc] (p ∨ ¬q) = ¬q
+[grind.eqc] q = False
+[grind.eqc] (p ∨ q) = p
+[grind.eqc] (¬p) = False
+[grind.eqc] (¬p ∨ q) = q
+[grind.eqc] (if p then a else b) = c
+[grind.eqc] R a = True
+[grind.eqc] R b = True
+[grind.eqc] R c = False
+grind_split.lean:32:0-32:7: warning: declaration uses `sorry`
+[grind] working on goal `grind`
+[grind.eqc] HasType e t₁ = True
+[grind.eqc] HasType e t₂ = True
+[grind.eqc] (t₁ = t₂) = False
+[grind.split] HasType e t₂, generation: 0
+[grind] working on goal `grind.1`
+[grind.eqc] e = Expr.nat v
+[grind.eqc] t₂ = Ty.nat
+[grind.eqc] ⋯ ≍ ⋯
+[grind.eqc] HasType (Expr.nat v) Ty.nat = True
+[grind.split] HasType e t₁, generation: 0
+[grind] working on goal `grind.1.1`
+[grind.eqc] e = Expr.nat v_1
+[grind.eqc] v = v_1
+[grind.eqc] t₁ = Ty.nat
+[grind.eqc] (t₁ = t₂) = True
+[grind] closed `grind.1.1`
+[grind] working on goal `grind.1.2`
+[grind.eqc] HasType a Ty.nat = True
+[grind.eqc] HasType b Ty.nat = True
+[grind.eqc] e = a.plus b
+[grind] closed `grind.1.2`
+[grind] working on goal `grind.1.3`
+[grind.eqc] e = Expr.bool v_1
+[grind] closed `grind.1.3`
+[grind] working on goal `grind.1.4`
+[grind.eqc] HasType a Ty.bool = True
+[grind.eqc] HasType b Ty.bool = True
+[grind.eqc] e = a.and b
+[grind] closed `grind.1.4`
+[grind] working on goal `grind.2`
+[grind.eqc] HasType a Ty.nat = True
+[grind.eqc] HasType b Ty.nat = True
+[grind.eqc] e = a.plus b
+[grind.eqc] t₂ = Ty.nat
+[grind.eqc] ⋯ ≍ ⋯
+[grind.eqc] HasType (a.plus b) Ty.nat = True
+[grind.eqc] (HasType a Ty.nat → HasType b Ty.nat → HasType (a.plus b) Ty.nat) = True
+[grind.eqc] (HasType a Ty.nat → HasType b Ty.nat → HasType (a.plus b) Ty.nat) =
+      (HasType b Ty.nat → HasType (a.plus b) Ty.nat)
+[grind.split] HasType e t₁, generation: 0
+[grind] working on goal `grind.2.1`
+[grind.eqc] e = Expr.nat v
+[grind] closed `grind.2.1`
+[grind] working on goal `grind.2.2`
+[grind.eqc] HasType a_1 Ty.nat = True
+[grind.eqc] HasType b_1 Ty.nat = True
+[grind.eqc] e = a_1.plus b_1
+[grind.eqc] b = b_1
+[grind.eqc] a = a_1
+[grind.eqc] t₁ = Ty.nat
+[grind.eqc] (t₁ = t₂) = True
+[grind] closed `grind.2.2`
+[grind] working on goal `grind.2.3`
+[grind.eqc] e = Expr.bool v
+[grind] closed `grind.2.3`
+[grind] working on goal `grind.2.4`
+[grind.eqc] HasType a_1 Ty.bool = True
+[grind.eqc] HasType b_1 Ty.bool = True
+[grind.eqc] e = a_1.and b_1
+[grind] closed `grind.2.4`
+[grind] working on goal `grind.3`
+[grind.eqc] e = Expr.bool v
+[grind.eqc] t₂ = Ty.bool
+[grind.eqc] ⋯ ≍ ⋯
+[grind.eqc] HasType (Expr.bool v) Ty.bool = True
+[grind.split] HasType e t₁, generation: 0
+[grind] working on goal `grind.3.1`
+[grind.eqc] e = Expr.nat v_1
+[grind] closed `grind.3.1`
+[grind] working on goal `grind.3.2`
+[grind.eqc] HasType a Ty.nat = True
+[grind.eqc] HasType b Ty.nat = True
+[grind.eqc] e = a.plus b
+[grind] closed `grind.3.2`
+[grind] working on goal `grind.3.3`
+[grind.eqc] e = Expr.bool v_1
+[grind.eqc] v = v_1
+[grind.eqc] t₁ = Ty.bool
+[grind.eqc] (t₁ = t₂) = True
+[grind] closed `grind.3.3`
+[grind] working on goal `grind.3.4`
+[grind.eqc] HasType a Ty.bool = True
+[grind.eqc] HasType b Ty.bool = True
+[grind.eqc] e = a.and b
+[grind] closed `grind.3.4`
+[grind] working on goal `grind.4`
+[grind.eqc] HasType a Ty.bool = True
+[grind.eqc] HasType b Ty.bool = True
+[grind.eqc] e = a.and b
+[grind.eqc] t₂ = Ty.bool
+[grind.eqc] ⋯ ≍ ⋯
+[grind.eqc] HasType (a.and b) Ty.bool = True
+[grind.eqc] (HasType a Ty.bool → HasType b Ty.bool → HasType (a.and b) Ty.bool) = True
+[grind.eqc] (HasType a Ty.bool → HasType b Ty.bool → HasType (a.and b) Ty.bool) =
+      (HasType b Ty.bool → HasType (a.and b) Ty.bool)
+[grind.split] HasType e t₁, generation: 0
+[grind] working on goal `grind.4.1`
+[grind.eqc] e = Expr.nat v
+[grind] closed `grind.4.1`
+[grind] working on goal `grind.4.2`
+[grind.eqc] HasType a_1 Ty.nat = True
+[grind.eqc] HasType b_1 Ty.nat = True
+[grind.eqc] e = a_1.plus b_1
+[grind] closed `grind.4.2`
+[grind] working on goal `grind.4.3`
+[grind.eqc] e = Expr.bool v
+[grind] closed `grind.4.3`
+[grind] working on goal `grind.4.4`
+[grind.eqc] HasType a_1 Ty.bool = True
+[grind.eqc] HasType b_1 Ty.bool = True
+[grind.eqc] e = a_1.and b_1
+[grind.eqc] b = b_1
+[grind.eqc] a = a_1
+[grind.eqc] t₁ = Ty.bool
+[grind.eqc] (t₁ = t₂) = True
+[grind] closed `grind.4.4`
+[grind] working on goal `grind`
+[grind.eqc] HasType e t₁ = True
+[grind.eqc] HasType e t₂ = True
+[grind.eqc] (t₁ = t₂) = False
+[grind.split] HasType e t₂, generation: 0
+[grind] working on goal `grind.1`
+[grind.eqc] e = Expr.nat v
+[grind.eqc] t₂ = Ty.nat
+[grind.eqc] ⋯ ≍ ⋯
+[grind.eqc] HasType (Expr.nat v) Ty.nat = True
+[grind.split] HasType e t₁, generation: 0
+[grind] working on goal `grind.1.1`
+[grind.eqc] e = Expr.nat v_1
+[grind.eqc] v = v_1
+[grind.eqc] t₁ = Ty.nat
+[grind.eqc] (t₁ = t₂) = True
+[grind] closed `grind.1.1`
+[grind] working on goal `grind.1.2`
+[grind.eqc] HasType a Ty.nat = True
+[grind.eqc] HasType b Ty.nat = True
+[grind.eqc] e = a.plus b
+[grind] closed `grind.1.2`
+[grind] working on goal `grind.1.3`
+[grind.eqc] e = Expr.bool v_1
+[grind] closed `grind.1.3`
+[grind] working on goal `grind.1.4`
+[grind.eqc] HasType a Ty.bool = True
+[grind.eqc] HasType b Ty.bool = True
+[grind.eqc] e = a.and b
+[grind] closed `grind.1.4`
+[grind] working on goal `grind.2`
+[grind.eqc] HasType a Ty.nat = True
+[grind.eqc] HasType b Ty.nat = True
+[grind.eqc] e = a.plus b
+[grind.eqc] t₂ = Ty.nat
+[grind.eqc] ⋯ ≍ ⋯
+[grind.eqc] HasType (a.plus b) Ty.nat = True
+[grind.split] HasType e t₁, generation: 0
+[grind] working on goal `grind.2.1`
+[grind.eqc] e = Expr.nat v
+[grind] closed `grind.2.1`
+[grind] working on goal `grind.2.2`
+[grind.eqc] HasType a_1 Ty.nat = True
+[grind.eqc] HasType b_1 Ty.nat = True
+[grind.eqc] e = a_1.plus b_1
+[grind.eqc] b = b_1
+[grind.eqc] a = a_1
+[grind.eqc] t₁ = Ty.nat
+[grind.eqc] (t₁ = t₂) = True
+[grind] closed `grind.2.2`
+[grind] working on goal `grind.2.3`
+[grind.eqc] e = Expr.bool v
+[grind] closed `grind.2.3`
+[grind] working on goal `grind.2.4`
+[grind.eqc] HasType a_1 Ty.bool = True
+[grind.eqc] HasType b_1 Ty.bool = True
+[grind.eqc] e = a_1.and b_1
+[grind] closed `grind.2.4`
+[grind] working on goal `grind.3`
+[grind.eqc] e = Expr.bool v
+[grind.eqc] t₂ = Ty.bool
+[grind.eqc] ⋯ ≍ ⋯
+[grind.eqc] HasType (Expr.bool v) Ty.bool = True
+[grind.split] HasType e t₁, generation: 0
+[grind] working on goal `grind.3.1`
+[grind.eqc] e = Expr.nat v_1
+[grind] closed `grind.3.1`
+[grind] working on goal `grind.3.2`
+[grind.eqc] HasType a Ty.nat = True
+[grind.eqc] HasType b Ty.nat = True
+[grind.eqc] e = a.plus b
+[grind] closed `grind.3.2`
+[grind] working on goal `grind.3.3`
+[grind.eqc] e = Expr.bool v_1
+[grind.eqc] v = v_1
+[grind.eqc] t₁ = Ty.bool
+[grind.eqc] (t₁ = t₂) = True
+[grind] closed `grind.3.3`
+[grind] working on goal `grind.3.4`
+[grind.eqc] HasType a Ty.bool = True
+[grind.eqc] HasType b Ty.bool = True
+[grind.eqc] e = a.and b
+[grind] closed `grind.3.4`
+[grind] working on goal `grind.4`
+[grind.eqc] HasType a Ty.bool = True
+[grind.eqc] HasType b Ty.bool = True
+[grind.eqc] e = a.and b
+[grind.eqc] t₂ = Ty.bool
+[grind.eqc] ⋯ ≍ ⋯
+[grind.eqc] HasType (a.and b) Ty.bool = True
+[grind.split] HasType e t₁, generation: 0
+[grind] working on goal `grind.4.1`
+[grind.eqc] e = Expr.nat v
+[grind] closed `grind.4.1`
+[grind] working on goal `grind.4.2`
+[grind.eqc] HasType a_1 Ty.nat = True
+[grind.eqc] HasType b_1 Ty.nat = True
+[grind.eqc] e = a_1.plus b_1
+[grind] closed `grind.4.2`
+[grind] working on goal `grind.4.3`
+[grind.eqc] e = Expr.bool v
+[grind] closed `grind.4.3`
+[grind] working on goal `grind.4.4`
+[grind.eqc] HasType a_1 Ty.bool = True
+[grind.eqc] HasType b_1 Ty.bool = True
+[grind.eqc] e = a_1.and b_1
+[grind.eqc] b = b_1
+[grind.eqc] a = a_1
+[grind.eqc] t₁ = Ty.bool
+[grind.eqc] (t₁ = t₂) = True
+[grind] closed `grind.4.4`
+[grind] working on goal `grind`
+[grind.eqc] HasType e t₁ = True
+[grind.eqc] HasType e t₂ = True
+[grind.eqc] (t₁ = t₂) = False
+grind_split.lean:63:0-63:7: warning: declaration uses `sorry`

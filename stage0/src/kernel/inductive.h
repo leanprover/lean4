@@ -19,8 +19,8 @@ bool is_recursor(environment const & env, name const & n);
     Otherwise, return none. */
 optional<name> is_constructor_app(environment const & env, expr const & e);
 
-/** \brief Return true if the given declaration is a structure */
-bool is_structure_like(environment const & env, name const & decl_name);
+/** \brief Return true if the given declaration is a non-recursive structure (an inductive type with one constructor and no indices). */
+bool is_non_rec_structure(environment const & env, name const & decl_name);
 
 /* Auxiliary function for to_cnstr_when_K */
 optional<expr> mk_nullary_cnstr(environment const & env, expr const & type, unsigned num_params);
@@ -57,12 +57,12 @@ expr string_lit_to_constructor(expr const & e);
 /* Auxiliary method for \c to_cnstr_when_structure, convert `e` into `mk e.1 ... e.n` */
 expr expand_eta_struct(environment const & env, expr const & e_type, expr const & e);
 
-/* If `e` is not a constructor application and its type `C ...` is a structure, return `C.mk e.1 ... e.n`,
+/* If `e` is not a constructor application and its type `C ...` is a non-recursive structure, return `C.mk e.1 ... e.n`,
    where `C.mk` is `C`s constructor. */
 template<typename WHNF, typename INFER>
 inline expr to_cnstr_when_structure(environment const & env, name const & induct_name, expr const & e,
                                     WHNF const & whnf, INFER const & infer_type) {
-    if (!is_structure_like(env, induct_name) || is_constructor_app(env, e))
+    if (!is_non_rec_structure(env, induct_name) || is_constructor_app(env, e))
         return e;
     expr e_type = whnf(infer_type(e));
     if (!is_constant(get_app_fn(e_type), induct_name))

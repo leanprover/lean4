@@ -20,8 +20,10 @@ public theorem Types.ListIterator.stepAsHetT_iterM [LawfulMonad m] {l : List β}
     (l.iterM m).stepAsHetT = (match l with
       | [] => pure .done
       | x :: xs => pure (.yield (xs.iterM m) x)) := by
-  simp only [List.iterM, IterM.mk, HetT.ext_iff, Equivalence.property_step, IterM.IsPlausibleStep,
-    Iterator.IsPlausibleStep, Equivalence.prun_step]
+  simp only [List.iterM, HetT.ext_iff, Equivalence.property_step, IterM.IsPlausibleStep,
+    Equivalence.prun_step,
+    -- TODO: get rid of these
+    Iterator.IsPlausibleStep, ListIterator.instIterator]
   refine ⟨?_, ?_⟩
   · ext step
     cases step
@@ -34,6 +36,6 @@ public theorem Types.ListIterator.stepAsHetT_iterM [LawfulMonad m] {l : List β}
     · cases l <;> simp [Pure.pure]
   · intro β f
     simp only [IterM.step, Iterator.step, pure_bind]
-    cases l <;> simp [Pure.pure, IterM.mk]
+    cases l <;> simp [Pure.pure]
 
 end Std

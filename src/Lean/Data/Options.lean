@@ -9,6 +9,7 @@ prelude
 public import Lean.ImportingFlag
 public import Lean.Data.KVMap
 public import Lean.Data.NameMap.Basic
+import Init.Data.ToString.Macro
 
 public section
 

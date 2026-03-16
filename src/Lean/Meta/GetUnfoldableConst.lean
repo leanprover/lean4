@@ -5,19 +5,24 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.GlobalInstances
+public import Lean.Meta.Basic
 public section
 namespace Lean.Meta
 
+/--
+Implements the `TransparencyMode` hierarchy for unfolding decisions.
+See `TransparencyMode` and `ReducibilityStatus` for the design rationale.
+-/
 private def canUnfoldDefault (cfg : Config) (info : ConstantInfo) : CoreM Bool := do
   match cfg.transparency with
   | .none => return false
   | .all  => return true
   | .default => return !(← isIrreducible info.name)
   | m =>
-    if (← isReducible info.name) then
+    let status ← getReducibilityStatus info.name
+    if status == .reducible then
       return true
-    else if m == .instances && isGlobalInstance (← getEnv) info.name then
+    else if m == .instances && status == .implicitReducible then
       return true
     else
       return false

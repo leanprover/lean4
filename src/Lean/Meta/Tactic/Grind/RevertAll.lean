@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Revert
+import Init.Data.Range.Polymorphic.Iterators
 public section
 namespace Lean.Meta.Grind
 

@@ -7,7 +7,6 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Types
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
-import Lean.Meta.Tactic.Grind.ProveEq
 import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Var

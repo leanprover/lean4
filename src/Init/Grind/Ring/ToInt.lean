@@ -7,12 +7,15 @@ module
 
 prelude
 public import Init.Grind.Ring.Basic
+import Init.Conv
+import Init.Data.Int.Pow
 
 public section
 
 namespace Lean.Grind
 
 /-- A `ToInt` instance on a semiring preserves powers if it preserves numerals and multiplication. -/
+@[implicit_reducible]
 def ToInt.pow_of_semiring [Semiring α] [ToInt α I] [ToInt.OfNat α I] [ToInt.Mul α I]
     (h₁ : I.isFinite) : ToInt.Pow α I where
   toInt_pow x n := by

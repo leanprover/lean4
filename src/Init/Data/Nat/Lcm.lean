@@ -6,7 +6,10 @@ Authors: Jeremy Avigad, Leonardo de Moura, Mario Carneiro, Markus Himmel
 module
 
 prelude
-public import Init.Data.Nat.Lemmas
+public import Init.Data.Nat.Gcd
+import Init.Data.Nat.Dvd
+import Init.Data.Nat.Lemmas
+import Init.RCases
 
 public section
 

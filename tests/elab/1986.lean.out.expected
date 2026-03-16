@@ -1,0 +1,13 @@
+1986.lean:66:19-66:29: warning: @HasSup.sup does not have a doc string
+1986.lean:69:19-69:29: warning: @HasInf.inf does not have a doc string
+1986.lean:136:9-136:17: warning: declaration uses `sorry`
+1986.lean:136:9-136:17: warning: declaration uses `sorry`
+1986.lean:136:9-136:17: warning: declaration uses `sorry`
+1986.lean:142:9-142:21: warning: declaration uses `sorry`
+1986.lean:162:9-162:17: warning: declaration uses `sorry`
+1986.lean:165:9-165:17: warning: declaration uses `sorry`
+1986.lean:177:9-177:24: warning: declaration uses `sorry`
+1986.lean:177:9-177:24: warning: declaration uses `sorry`
+1986.lean:177:9-177:24: warning: declaration uses `sorry`
+1986.lean:177:9-177:24: warning: declaration uses `sorry`
+1986.lean:189:9-189:16: warning: declaration uses `sorry`

@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Grind.Types
-import Lean.Meta.Tactic.Grind.Internalize
 public section
 namespace Lean.Meta.Grind
 

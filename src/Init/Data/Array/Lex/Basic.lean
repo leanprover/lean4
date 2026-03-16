@@ -6,9 +6,10 @@ Author: Kim Morrison
 module
 
 prelude
-public import Init.Data.Range.Polymorphic.Iterators
-public import Init.Data.Range.Polymorphic.Nat
-import Init.Data.Iterators.Consumers
+public import Init.Data.Range.Polymorphic.RangeIterator
+import Init.Data.Range.Polymorphic.Iterators
+import Init.Data.Range.Polymorphic.Nat
+import Init.Omega
 
 public section
 

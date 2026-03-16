@@ -10,10 +10,17 @@ import all Init.Data.Nat.Bitwise.Basic
 public import Init.Data.SInt.Basic
 import all Init.Data.SInt.Basic
 import all Init.Data.BitVec.Basic
-public import Init.Data.BitVec.Bitblast
 import all Init.Data.UInt.Basic
-public import Init.Data.UInt.Lemmas
-import Init.Data.Order.Lemmas
+public import Init.Data.BitVec.Lemmas
+public import Init.Data.Int.Order
+import Init.ByCases
+import Init.Data.BitVec.Bitblast
+import Init.Data.BitVec.Bootstrap
+import Init.Data.Int.DivMod.Lemmas
+import Init.Data.Int.LemmasAux
+import Init.Data.Int.Pow
+import Init.Data.UInt.Lemmas
+import Init.System.Platform
 
 public section
 

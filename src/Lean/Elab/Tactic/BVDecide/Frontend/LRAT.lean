@@ -63,7 +63,7 @@ where
     else
       return option
 
-/-- An LRAT proof read from a file. This will get parsed using ofReduceBool. -/
+/-- An LRAT proof read from a file. This will get parsed using native evaluation. -/
 abbrev LratCert := String
 
 instance : ToExpr LRAT.IntAction where

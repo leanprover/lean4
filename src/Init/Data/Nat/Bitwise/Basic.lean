@@ -6,7 +6,10 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Init.Data.Nat.Div.Basic
+public import Init.Grind.Tactics
+import Init.Data.Nat.Div.Basic
+meta import Init.MetaTypes
+import Init.WFTactics
 
 public section
 

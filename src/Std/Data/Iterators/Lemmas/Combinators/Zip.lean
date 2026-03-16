@@ -9,6 +9,11 @@ prelude
 public import Std.Data.Iterators.Combinators.Zip
 public import Std.Data.Iterators.Lemmas.Combinators.Monadic.Zip
 public import Init.Data.Iterators.Lemmas.Combinators.Take
+import Init.Data.Iterators.Lemmas.Basic
+import Init.Data.Iterators.Lemmas.Consumers.Access
+import Init.Data.Iterators.Lemmas.Consumers.Collect
+import Init.Data.List.ToArray
+import Init.Data.List.Zip
 
 @[expose] public section
 
@@ -184,9 +189,9 @@ theorem Iter.atIdxSlow?_intermediateZip [Iterator α₁ Id β₁] [Iterator α�
         | n' + 1 => do return (← it₁.atIdxSlow? n', ← it₂.atIdxSlow? (n' + 1))) := by
   generalize h : Intermediate.zip it₁ memo it₂ = it
   revert h it₁ memo it₂
-  fun_induction it.atIdxSlow? n
+  induction n, it using atIdxSlow?.induct_unfolding
   rintro it₁ memo it₂ rfl
-  case case1 it it' out h h' =>
+  case yield_zero it it' out h h' =>
     rw [atIdxSlow?]
     simp only [Option.pure_def, Option.bind_eq_bind]
     simp only [step_intermediateZip, PlausibleIterStep.skip, PlausibleIterStep.done,
@@ -195,9 +200,9 @@ theorem Iter.atIdxSlow?_intermediateZip [Iterator α₁ Id β₁] [Iterator α�
     · split at h' <;> cases h'
     · split at h' <;> cases h'
       rename_i hs₂
-      rw [atIdxSlow?, hs₂]
+      rw [atIdxSlow?_eq_match, hs₂]
       simp
-  case case2 it it' out h  h' n ih =>
+  case yield_succ it it' out h  h' n ih =>
     rintro it₁ memo it₂ rfl
     simp only [Nat.succ_eq_add_one, Option.pure_def, Option.bind_eq_bind]
     cases memo
@@ -211,8 +216,8 @@ theorem Iter.atIdxSlow?_intermediateZip [Iterator α₁ Id β₁] [Iterator α�
       split at h' <;> cases h'
       rename_i hs₂
       simp only [ih rfl, Option.pure_def, Option.bind_eq_bind]
-      rw [atIdxSlow?.eq_def (it := it₂), hs₂]
-  case case3 it it' h h' ih =>
+      rw [atIdxSlow?_eq_match (it := it₂), hs₂]
+  case skip_case it it' h h' ih =>
     rintro it₁ memo it₂ rfl
     obtain ⟨it₁', memo', it₂', rfl⟩ := Intermediate.zip_surj it'
     specialize ih rfl
@@ -223,19 +228,19 @@ theorem Iter.atIdxSlow?_intermediateZip [Iterator α₁ Id β₁] [Iterator α�
     · split at h' <;> rename_i hs₁
       · simp only [IterStep.skip.injEq, Intermediate.zip_inj] at h'
         obtain ⟨rfl, rfl, rfl⟩ := h'
-        simp only [ih, Option.pure_def, Option.bind_eq_bind, atIdxSlow?.eq_def (it := it₁), hs₁]
+        simp only [ih, Option.pure_def, Option.bind_eq_bind, atIdxSlow?_eq_match (it := it₁), hs₁]
         split <;> rfl
       · simp only [IterStep.skip.injEq, Intermediate.zip_inj] at h'
         obtain ⟨rfl, rfl, rfl⟩ := h'
-        simp [ih, atIdxSlow?.eq_def (it := it₁), hs₁]
+        simp [ih, atIdxSlow?_eq_match (it := it₁), hs₁]
       · cases h'
     · split at h' <;> rename_i hs₂ <;> (try cases h')
       simp only [IterStep.skip.injEq, Intermediate.zip_inj] at h'
       obtain ⟨rfl, rfl, rfl⟩ := h'
-      simp [ih, atIdxSlow?.eq_def (it := it₂), hs₂]
-  case case4 it _ h =>
+      simp [ih, atIdxSlow?_eq_match (it := it₂), hs₂]
+  case done_case it _ h =>
     rintro it₁ memo it₂ rfl
-    rw [atIdxSlow?]
+    rw [atIdxSlow?_eq_match]
     simp only [step_intermediateZip] at h
     cases memo
     case none =>
@@ -247,7 +252,7 @@ theorem Iter.atIdxSlow?_intermediateZip [Iterator α₁ Id β₁] [Iterator α�
       simp only at h
       split at h <;> cases h
       rename_i hs₂
-      simp only [atIdxSlow?.eq_def (it := it₂), hs₂, Option.pure_def, Option.bind_eq_bind,
+      simp only [atIdxSlow?_eq_match (it := it₂), hs₂, Option.pure_def, Option.bind_eq_bind,
         Option.bind_none, Option.bind_fun_none]
       split <;> rfl
 

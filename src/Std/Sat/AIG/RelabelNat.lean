@@ -7,6 +7,8 @@ module
 
 prelude
 public import Std.Sat.AIG.Relabel
+import Init.ByCases
+import Init.Omega
 
 @[expose] public section
 

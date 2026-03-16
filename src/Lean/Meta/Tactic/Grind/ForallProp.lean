@@ -5,17 +5,15 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Tactic.Grind.Types
 public import Init.Grind.Propagator
 import Init.Simproc
 import Init.Grind.Norm
-import Lean.Meta.Tactic.Grind.PropagatorAttr
-import Lean.Meta.Tactic.Grind.Propagate
 import Lean.Meta.Tactic.Grind.Internalize
-import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.Anchor
 import Lean.Meta.Tactic.Grind.EqResolution
 import Lean.Meta.Tactic.Grind.SynthInstance
+public import Lean.Meta.Tactic.Grind.PropagatorAttr
+import Init.Grind.Lemmas
 public section
 namespace Lean.Meta.Grind
 /--

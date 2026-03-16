@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.DTreeMap.Internal.Balanced
-// Imports: public import Init.Data.AC public import Std.Data.DTreeMap.Internal.Def
+// Imports: public import Init.Data.AC public import Std.Data.DTreeMap.Internal.Def import Init.Omega import Init.RCases
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,8 +13,40 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* runtime_initialize_Init_Data_AC(uint8_t builtin);
+lean_object* runtime_initialize_Std_Data_DTreeMap_Internal_Def(uint8_t builtin);
+lean_object* runtime_initialize_Init_Omega(uint8_t builtin);
+lean_object* runtime_initialize_Init_RCases(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Std_Data_DTreeMap_Internal_Balanced(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Init_Data_AC(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Std_Data_DTreeMap_Internal_Def(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Omega(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_RCases(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Std_Data_DTreeMap_Internal_Balanced(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Init_Data_AC(uint8_t builtin);
 lean_object* initialize_Std_Data_DTreeMap_Internal_Def(uint8_t builtin);
+lean_object* initialize_Init_Omega(uint8_t builtin);
+lean_object* initialize_Init_RCases(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Data_DTreeMap_Internal_Balanced(uint8_t builtin) {
 lean_object * res;
@@ -26,7 +58,19 @@ lean_dec_ref(res);
 res = initialize_Std_Data_DTreeMap_Internal_Def(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-return lean_io_result_mk_ok(lean_box(0));
+res = initialize_Init_Omega(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_RCases(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Std_Data_DTreeMap_Internal_Balanced(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Std_Data_DTreeMap_Internal_Balanced(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Std_Data_DTreeMap_Internal_Balanced(builtin);
 }
 #ifdef __cplusplus
 }

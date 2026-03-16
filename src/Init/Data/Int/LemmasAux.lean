@@ -6,7 +6,10 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Data.Int.Pow
+public import Init.Data.Int.Lemmas
+import Init.ByCases
+import Init.Data.Int.Pow
+import Init.Omega
 
 public section
 

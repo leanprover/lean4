@@ -1,0 +1,10 @@
+grind_ring_2.lean:9:0-9:7: warning: declaration uses `sorry`
+grind_ring_2.lean:22:0-22:7: warning: declaration uses `sorry`
+grind_ring_2.lean:32:0-32:7: warning: declaration uses `sorry`
+grind_ring_2.lean:112:0-112:7: warning: declaration uses `sorry`
+grind_ring_2.lean:131:2-131:14: warning: `cutsat` has been deprecated, use `lia` instead
+Try this:
+  [apply] lia +ring
+grind_ring_2.lean:170:2-170:8: warning: `cutsat` has been deprecated, use `lia` instead
+Try this:
+  [apply] lia

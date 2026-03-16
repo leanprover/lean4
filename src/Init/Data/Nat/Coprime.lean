@@ -7,6 +7,7 @@ module
 prelude
 
 public import Init.Data.Nat.Gcd
+import Init.Data.Nat.Dvd
 
 public section
 

@@ -1,0 +1,9 @@
+2736.lean:37:0-37:8: warning: declaration uses `sorry`
+2736.lean:37:0-37:8: warning: declaration uses `sorry`
+instSemiringNat.toMulOneClass
+Distrib.rightDistribClass Nat
+2736.lean:49:8-49:11: warning: declaration uses `sorry`
+ex1 : ∀ (a b : ?m), (a + 1) * b = a * b + b
+add_one_mul : ∀ (a b : ?m), (a + 1) * b = a * b + b
+@add_one_mul : ∀ {α : Type} [inst : Add α] [inst_1 : MulOneClass α] [RightDistribClass α] (a b : α),
+  (a + 1) * b = a * b + b

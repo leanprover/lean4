@@ -20,36 +20,54 @@ lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_delete___boxed(l
 lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_performRupAdd___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_performRatAdd___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_instFormulaPosFinDefaultClause(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_instFormulaPosFinDefaultClause(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_instFormulaPosFinDefaultClause(lean_object* v_n_1_){
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-lean_inc(x_1);
-x_2 = lean_alloc_closure((void*)(l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_toList___boxed), 2, 1);
-lean_closure_set(x_2, 0, x_1);
-lean_inc(x_1);
-x_3 = lean_alloc_closure((void*)(l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_ofArray), 2, 1);
-lean_closure_set(x_3, 0, x_1);
-lean_inc(x_1);
-x_4 = lean_alloc_closure((void*)(l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_insert___boxed), 3, 1);
-lean_closure_set(x_4, 0, x_1);
-lean_inc(x_1);
-x_5 = lean_alloc_closure((void*)(l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_delete___boxed), 3, 1);
-lean_closure_set(x_5, 0, x_1);
-lean_inc(x_1);
-x_6 = lean_alloc_closure((void*)(l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_performRupAdd___boxed), 4, 1);
-lean_closure_set(x_6, 0, x_1);
-x_7 = lean_alloc_closure((void*)(l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_performRatAdd___boxed), 6, 1);
-lean_closure_set(x_7, 0, x_1);
-x_8 = lean_alloc_ctor(0, 6, 0);
-lean_ctor_set(x_8, 0, x_2);
-lean_ctor_set(x_8, 1, x_3);
-lean_ctor_set(x_8, 2, x_4);
-lean_ctor_set(x_8, 3, x_5);
-lean_ctor_set(x_8, 4, x_6);
-lean_ctor_set(x_8, 5, x_7);
-return x_8;
+lean_object* v___x_2_; lean_object* v___x_3_; lean_object* v___x_4_; lean_object* v___x_5_; lean_object* v___x_6_; lean_object* v___x_7_; lean_object* v___x_8_; 
+lean_inc(v_n_1_);
+v___x_2_ = lean_alloc_closure((void*)(l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_toList___boxed), 2, 1);
+lean_closure_set(v___x_2_, 0, v_n_1_);
+lean_inc(v_n_1_);
+v___x_3_ = lean_alloc_closure((void*)(l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_ofArray), 2, 1);
+lean_closure_set(v___x_3_, 0, v_n_1_);
+lean_inc(v_n_1_);
+v___x_4_ = lean_alloc_closure((void*)(l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_insert___boxed), 3, 1);
+lean_closure_set(v___x_4_, 0, v_n_1_);
+lean_inc(v_n_1_);
+v___x_5_ = lean_alloc_closure((void*)(l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_delete___boxed), 3, 1);
+lean_closure_set(v___x_5_, 0, v_n_1_);
+lean_inc(v_n_1_);
+v___x_6_ = lean_alloc_closure((void*)(l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_performRupAdd___boxed), 4, 1);
+lean_closure_set(v___x_6_, 0, v_n_1_);
+v___x_7_ = lean_alloc_closure((void*)(l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_performRatAdd___boxed), 6, 1);
+lean_closure_set(v___x_7_, 0, v_n_1_);
+v___x_8_ = lean_alloc_ctor(0, 6, 0);
+lean_ctor_set(v___x_8_, 0, v___x_2_);
+lean_ctor_set(v___x_8_, 1, v___x_3_);
+lean_ctor_set(v___x_8_, 2, v___x_4_);
+lean_ctor_set(v___x_8_, 3, v___x_5_);
+lean_ctor_set(v___x_8_, 4, v___x_6_);
+lean_ctor_set(v___x_8_, 5, v___x_7_);
+return v___x_8_;
 }
+}
+lean_object* runtime_initialize_Std_Tactic_BVDecide_LRAT_Internal_Formula_RatAddSound(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Std_Tactic_BVDecide_LRAT_Internal_Formula_Instance(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Std_Tactic_BVDecide_LRAT_Internal_Formula_RatAddSound(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Std_Tactic_BVDecide_LRAT_Internal_Formula_Instance(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Std_Tactic_BVDecide_LRAT_Internal_Formula_RatAddSound(uint8_t builtin);
 static bool _G_initialized = false;
@@ -60,7 +78,13 @@ _G_initialized = true;
 res = initialize_Std_Tactic_BVDecide_LRAT_Internal_Formula_RatAddSound(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Std_Tactic_BVDecide_LRAT_Internal_Formula_Instance(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Std_Tactic_BVDecide_LRAT_Internal_Formula_Instance(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Std_Tactic_BVDecide_LRAT_Internal_Formula_Instance(builtin);
 }
 #ifdef __cplusplus
 }

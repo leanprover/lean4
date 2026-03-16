@@ -10,6 +10,7 @@ public import Lake.Config.Workspace
 import Lake.Config.Monad
 import Lake.Build.Job.Monad
 import Lake.Build.Index
+import Init.Omega
 
 /-! # Build Runner
 
@@ -50,7 +51,7 @@ private structure MonitorContext where
   /-- How often to poll jobs (in milliseconds). -/
   updateFrequency : Nat
 
-@[inline] def MonitorContext.logger (ctx : MonitorContext) : MonadLog BaseIO :=
+@[inline, implicit_reducible] def MonitorContext.logger (ctx : MonitorContext) : MonadLog BaseIO :=
   .stream ctx.out ctx.outLv ctx.useAnsi
 
 /-- State of the Lake build monitor. -/
@@ -69,7 +70,7 @@ private abbrev MonitorM := ReaderT MonitorContext <| StateT MonitorState BaseIO
 @[inline] private def MonitorM.run
   (ctx : MonitorContext) (s : MonitorState) (self : MonitorM α)
 : BaseIO (α × MonitorState) :=
-  self ctx s
+  StateT.run (ReaderT.run self ctx) s
 
 /--
 The ANSI escape sequence for clearing the current line
@@ -262,7 +263,7 @@ def Workspace.saveOutputs
   [logger : MonadLog BaseIO] (ws : Workspace)
   (out : IO.FS.Stream) (outputsFile : FilePath) (isVerbose : Bool)
 : BaseIO Unit := do
-  unless ws.isRootArtifactCacheEnabled do
+  unless ws.isRootArtifactCacheWritable do
     logWarning s!"{ws.root.prettyName}: \
       the artifact cache is not enabled for this package, so the artifacts described \
       by the mappings produced by `-o` will not necessarily be available in the cache."

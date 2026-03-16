@@ -6,17 +6,16 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Sym.SymM
-public import Lean.Meta.Tactic.Simp.Types
 public import Lean.Meta.Tactic.Grind.Attr
 public import Lean.Meta.Tactic.Grind.CheckResult
-public import Lean.Meta.Tactic.Grind.Extension
 public import Init.Data.Queue
-import Lean.HeadIndex
-import Lean.Meta.Tactic.Grind.ExtAttr
 import Lean.Meta.AbstractNestedProofs
 import Lean.Meta.Match.MatchEqsExt
-import Lean.PrettyPrinter
-meta import Lean.Parser.Do
+public import Init.Grind.Config
+import Init.Data.Nat.Linear
+meta import Init.Data.String.Basic
+import Init.Omega
+import Lean.Util.ShareCommon
 public section
 namespace Lean.Meta.Grind
 export Sym (isSameExpr hashPtrExpr ExprPtr shareCommon shareCommonInc)
@@ -77,6 +76,11 @@ register_builtin_option grind.debug.proofs : Bool := {
 register_builtin_option grind.warning : Bool := {
   defValue := false
   descr    := "generate a warning whenever `grind` is used"
+}
+
+register_builtin_option grind.unusedLemmaThreshold : Nat := {
+  defValue := 0
+  descr    := "report E-matching lemmas activated at least this many times but not used in the proof (0 = disabled)"
 }
 
 /--
@@ -233,6 +237,9 @@ structure State where
   Cached anchors (aka stable hash codes) for terms in the `grind` state.
   -/
   anchors : PHashMap ExprPtr UInt64 := {}
+  /-- Accumulated E-matching instance map for precise unused lemma tracking.
+  Only populated when `config.markInstances` is `true`. -/
+  instanceMap : Std.HashMap Name EMatchTheorem := {}
 
 instance : Nonempty State :=
   .intro {}
@@ -1679,6 +1686,9 @@ def addTheoremInstance (thm : EMatchTheorem) (proof : Expr) (prop : Expr) (gener
     modify fun s => { s with
       ematch.delayedThmInsts := s.ematch.delayedThmInsts.insert { expr := guard } thms
       ematch.numDelayedInstances := s.ematch.numDelayedInstances + 1
+      -- Bump numInstances for delayed instances too, so that uniqueId generation
+      -- in EMatch.instantiateTheorem' doesn't produce collisions.
+      ematch.numInstances := s.ematch.numInstances + 1
     }
 
 def DelayedTheoremInstance.check (delayed : DelayedTheoremInstance) : GoalM Unit := do
@@ -1965,7 +1975,10 @@ def SolverExtension.markTerm (ext : SolverExtension σ) (e : Expr) : GoalM Unit 
     | .nil => return .next id e .nil
     | .next id' e' sTerms' =>
       if id == id' then
-        (← solverExtensionsRef.get)[id]!.newEq e e'
+        -- Skip if `e` and `e'` have different types (e.g., they were merged via `HEq` from `cast`).
+        -- This can happen when we have heterogenous equalities in an equivalence class containing types such as `Fin n` and `Fin m`
+        if (← pure !root.heqProofs <||> hasSameType e e') then
+          (← solverExtensionsRef.get)[id]!.newEq e e'
         return sTerms
       else if id < id' then
         return .next id e sTerms
@@ -2045,7 +2058,11 @@ where
     match p with
     | .nil => return ()
     | .eq solverId lhs rhs rest =>
-      (← solverExtensionsRef.get)[solverId]!.newEq lhs rhs
+      -- Skip if `lhs` and `rhs` have different types (e.g., they were merged via `HEq` from `cast`).
+      -- This can happen when we have heterogenous equalities in an equivalence class containing types such as `Fin n` and `Fin m`
+      let root ← getRootENode lhs
+      if (← pure !root.heqProofs <||> hasSameType lhs rhs) then
+        (← solverExtensionsRef.get)[solverId]!.newEq lhs rhs
       go rest
     | .diseqs solverId parentSet rest =>
       forEachDiseq parentSet (propagateDiseqOf solverId)

@@ -9,6 +9,7 @@ prelude
 public import Lean.Elab.Util
 public import Lean.Parser.Command
 meta import Lean.Parser.Command
+import Init.Omega
 
 public section
 

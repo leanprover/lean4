@@ -8,9 +8,9 @@ prelude
 public import Lean.Util.SortExprs
 public import Lean.Meta.KExprMap
 import Lean.Data.RArray
-import Lean.Meta.AppBuilder
 import Lean.Meta.NatInstTesters
 import Lean.Meta.Offset
+public import Init.Data.Nat.Linear
 public section
 namespace Nat.Linear
 

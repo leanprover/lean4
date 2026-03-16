@@ -6,9 +6,9 @@ Authors: Mac Malone
 module
 
 prelude
-public import Init.Prelude
 public meta import Init.Data.ToString.Name
 import Init.Data.ToString
+public import Init.Notation
 
 /-!
 # Open Type Families in Lean

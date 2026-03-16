@@ -377,7 +377,7 @@ OPTIONS:
   --platform=<target-triple>      with Reservoir or --repo, sets the platform
   --toolchain=<name>              with Reservoir or --repo, sets the toolchain
   --scope=<remote-scope>          scope for a custom endpoint
-  --download-arts                 download artifacts now, not on demand
+  --mappings-only                 only download mappings, delay artifacts
   --force-download                redownload existing files
 
 Downloads build outputs for packages in the workspace from a remote cache
@@ -408,10 +408,9 @@ artifacts. If no mappings are found, Lake will backtrack the Git history up to
 `--max-revs`, looking for a revision with mappings. If `--max-revs` is 0, Lake
 will search the repository's entire history (or as far as Git will allow).
 
-With a named service and without a mappings file, Lake will only download
-the input-to-output mappings for packages. It will delay downloading of the
-corresponding artifacts to the next `lake build` that requires them. Using
-`--download-arts` will force Lake to download all artifacts eagerly.
+By default, Lake will download both the input-to-output mappings and the
+output artifacts for a package. By using `--mappings-onlys`, Lake will only
+download the mappings abd delay downloading artifacts until they are needed.
 
 If a download for an artifact fails or the download process for a whole
 package fails, Lake will report this and continue on to the next. Once done,

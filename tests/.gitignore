@@ -2,8 +2,7 @@
 /with_*_env.sh
 
 # Created by test suite
-*.out.produced
-*.exit.produced
+*.produced
 
 # Created by bench suite
 *.measurements.jsonl

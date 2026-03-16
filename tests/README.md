@@ -209,13 +209,14 @@ These files are available to configure a test:
 
 - `<file>.before.sh`:
   This file is executed before the test/benchmark.
-  Create or set up temporary resources used by the test here.
-  Usually, it is better to create temporary files or directories inside the test itself,
-  so they're also available when opening the file in your editor.
+  Delete temporary resources created by previous test runs here if necessary.
+  Don't create temporary resources here, the test file should do so itself if possible.
+  That way, they're also available when opening the file in your editor.
 
 - `<file>.after.sh`:
   This file is executed after the test/benchmark.
-  Delete temporary resources used by the test here.
+  Don't delete temporary resources here; do so in `<file>.before.sh` if necessary.
+  Instead, add any temporary resources to the directory's `.gitignore` file.
 
 - `<file>.out.expected`:
   The test fails if its stdout and stderr doesn't match this file's contents.
@@ -250,13 +251,14 @@ These files are available to configure a test:
 
 - `<file>.before.sh`:
   This file is executed before the test/benchmark.
-  Create or set up temporary resources used by the test here.
-  Usually, it is better to create temporary files or directories inside the test itself,
-  so they're also available when opening the file in your editor.
+  Delete temporary resources created by previous test runs here if necessary.
+  Don't create temporary resources here, the test file should do so itself if possible.
+  That way, they're also available when opening the file in your editor.
 
 - `<file>.after.sh`:
   This file is executed after the test/benchmark.
-  Delete temporary resources used by the test here.
+  Don't delete temporary resources here; do so in `<file>.before.sh` if necessary.
+  Instead, add any temporary resources to the directory's `.gitignore` file.
 
 - `<file>.out.expected`:
   The test fails if its stdout and stderr doesn't match this file's contents.

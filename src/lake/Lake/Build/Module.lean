@@ -825,7 +825,6 @@ def Module.unpackLtar (self : Module) (ltar : FilePath) : JobM Unit := do
   let args := #[
     "-C", self.leanLibDir.toString,
     "-C", self.irDir.toString,
-    "-C", (← getLakeCache).artifactDir.toString,
     "-x", ltar.toString
   ]
   proc (quiet := true) {cmd := (← getLeantar).toString, args}

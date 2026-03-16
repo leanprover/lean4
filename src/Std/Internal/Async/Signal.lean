@@ -159,9 +159,12 @@ deriving Repr, DecidableEq, BEq
 namespace Signal
 
 /--
-Converts a `Signal` to its corresponding `Int32` value as defined in the libc `signal.h` or `man 7 signal`.
+Converts a `Signal` to its corresponding `Int32` value as defined in `man 7 signal`.
+
+These values are then mapped to the underlying architecture's values in runtime/uv/signal.cpp,
+so make sure to update that whenever you update this code.
 -/
-def toInt32 : Signal → Int32
+private def toInt32 : Signal → Int32
   | .sighup => 1
   | .sigint => 2
   | .sigquit => 3

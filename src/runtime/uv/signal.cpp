@@ -70,6 +70,32 @@ void handle_signal_event(uv_signal_t* handle, int signum) {
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_mk(uint32_t signum_obj, uint8_t repeating) {
     int signum = (int)(int32_t)signum_obj;
 
+    // See toInt32 in Std.Internal.IO.Async.Signal
+    switch (signum) {
+        case 1: signum = SIGHUP; break;
+        case 2: signum = SIGINT; break;
+        case 3: signum = SIGQUIT; break;
+        case 5: signum = SIGTRAP; break;
+        case 6: signum = SIGABRT; break;
+        case 10: signum = SIGUSR1; break;
+        case 12: signum = SIGUSR2; break;
+        case 14: signum = SIGALRM; break;
+        case 15: signum = SIGTERM; break;
+        case 17: signum = SIGCHLD; break;
+        case 18: signum = SIGCONT; break;
+        case 20: signum = SIGTSTP; break;
+        case 21: signum = SIGTTIN; break;
+        case 22: signum = SIGTTOU; break;
+        case 23: signum = SIGURG; break;
+        case 24: signum = SIGXCPU; break;
+        case 25: signum = SIGXFSZ; break;
+        case 26: signum = SIGVTALRM; break;
+        case 27: signum = SIGPROF; break;
+        case 28: signum = SIGWINCH; break;
+        case 29: signum = SIGIO; break;
+        case 31: signum = SIGSYS; break;
+    }
+
     lean_uv_signal_object * signal = (lean_uv_signal_object*)malloc(sizeof(lean_uv_signal_object));
     signal->m_signum = signum;
     signal->m_repeating = repeating;

@@ -153,6 +153,7 @@ def foldProjs (e : Expr) : MetaM Expr := do
       return .done e
   Meta.transform e (post := post)
 
+set_option compiler.ignoreBorrowAnnotation true in
 /--
 Normalizes the given expression using the `grind` simplification theorems and simprocs.
 This function is used for normalizing E-matching patterns. Note that it does not return a proof.

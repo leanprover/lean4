@@ -227,6 +227,7 @@ def SimpM.run' (x : SimpM α) (methods : Methods := {}) (config : Config := {}) 
   let initialLCtxSize := (← getLCtx).decls.size
   x methods.toMethodsRef { initialLCtxSize, config } |>.run' {}
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_sym_simp"] -- Forward declaration
 opaque simp : Simproc
 

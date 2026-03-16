@@ -573,6 +573,7 @@ structure DefEqM.Context where
 
 abbrev DefEqM := ReaderT DefEqM.Context SymM
 
+set_option compiler.ignoreBorrowAnnotation true in
 /--
 Structural definitional equality. It is much cheaper than `isDefEq`.
 

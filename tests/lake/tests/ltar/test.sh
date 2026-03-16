@@ -27,6 +27,13 @@ test_cmd rm .lake/build/lib/lean/Test.olean
 test_out "leantar" build +Test --no-build -v
 test_exp -f .lake/build/lib/lean/Test.olean
 
+# Test that Lake unpacks an modification time up-to-date archive
+# when the module's artifacts and trace are missing with `--old`
+test_cmd rm .lake/build/lib/lean/Test.olean .lake/build/lib/lean/Test.trace
+test_fails build +Test --no-build -v
+test_out "leantar" build +Test --no-build --old -v
+test_exp -f .lake/build/lib/lean/Test.olean
+
 # Test caching and restoring the `ltar`
 LAKE_ARTIFACT_CACHE=true test_run build +Test -v
 test_cmd ls .lake/cache/artifacts/*.ltar

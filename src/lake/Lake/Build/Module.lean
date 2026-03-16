@@ -724,18 +724,23 @@ public protected def Module.checkExists (self : Module) (isModule : Bool) : Base
 public instance : CheckExists Module := ⟨Module.checkExists (isModule := false)⟩
 
 public protected def Module.getMTime (self : Module) (isModule : Bool) : IO MTime := do
-  let mut mtime :=
-    (← getMTime self.oleanFile)
-    |> max (← getMTime self.ileanFile)
-    |> max (← getMTime self.cFile)
-  if Lean.Internal.hasLLVMBackend () then
-    mtime := max mtime (← getMTime self.bcFile)
-  if isModule then
-    mtime := mtime
-    |> max (← getMTime self.oleanServerFile)
-    |> max (← getMTime self.oleanPrivateFile)
-    |> max (← getMTime self.irFile)
-  return mtime
+  try
+    let mut mtime :=
+      (← getMTime self.oleanFile)
+      |> max (← getMTime self.ileanFile)
+      |> max (← getMTime self.cFile)
+    if Lean.Internal.hasLLVMBackend () then
+      mtime := max mtime (← getMTime self.bcFile)
+    if isModule then
+      mtime := mtime
+      |> max (← getMTime self.oleanServerFile)
+      |> max (← getMTime self.oleanPrivateFile)
+      |> max (← getMTime self.irFile)
+    return mtime
+  catch e =>
+    try getMTime self.ltarFile catch
+    | .noFileOrDirectory .. => throw e
+    | e => throw e
 
 @[deprecated Module.getMTime (since := "2025-03-04")]
 public instance : GetMTime Module := ⟨Module.getMTime (isModule := false)⟩

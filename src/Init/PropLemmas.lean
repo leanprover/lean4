@@ -100,10 +100,10 @@ theorem or_rotate : a ∨ b ∨ c ↔ b ∨ c ∨ a := by simp only [or_left_com
 theorem or_iff_left  (hb : ¬b) : a ∨ b ↔ a := or_iff_left_iff_imp.mpr  hb.elim
 theorem or_iff_right (ha : ¬a) : a ∨ b ↔ b := or_iff_right_iff_imp.mpr ha.elim
 
-@[simp] theorem imp_or_left_iff_true {P Q : Prop} : (P → P ∨ Q) ↔ True := by
+theorem imp_or_left_iff_true {P Q : Prop} : (P → P ∨ Q) ↔ True := by
   simpa using Or.inl
 
-@[simp] theorem imp_or_right_iff_true {P Q : Prop} : (Q → P ∨ Q) ↔ True := by
+theorem imp_or_right_iff_true {P Q : Prop} : (Q → P ∨ Q) ↔ True := by
   simpa using Or.inr
 
 /-! ## distributivity -/

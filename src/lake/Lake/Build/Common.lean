@@ -660,10 +660,16 @@ If `text := true`, `file` is hashed as a text file rather than a binary file.
 If `restore := true`, if `file` is missing but the artifact is in the cache,
 it will be copied to the `file`. This function will also return `file` rather
 than the path to the cached artifact.
+
+If `exe := true`, the `file` will be marked executable.
+
+If `platformIndependent := true`, the artifact will be included in
+platform-independent caches.
 -/
 public def buildArtifactUnlessUpToDate
   (file : FilePath) (build : JobM PUnit)
   (text := false) (ext := "art") (restore := false) (exe := false)
+  (platformIndependent := false)
 : JobM Artifact := do
   let depTrace ← getTrace
   let traceFile := FilePath.mk <| file.toString ++ ".trace"
@@ -704,7 +710,7 @@ public def buildArtifactUnlessUpToDate
         doBuild depTrace traceFile
     if pkg.isRoot then
       if let some outputsRef := (← getBuildContext).outputsRef? then
-        outputsRef.insert inputHash art.descr
+        outputsRef.insert inputHash art.descr platformIndependent
     setTrace art.trace
     setMTime art traceFile
   else

@@ -981,7 +981,7 @@ where
               computeArtifact mod.ltarFile "ltar"
             else
               mod.packLtar arts
-          ref.insert inputHash ltar.descr
+          ref.insert inputHash ltar.descr (mod.platformIndependent.getD false)
           return {arts with ltar? := some ltar}
     return arts
   adjustMTime arts : JobM ModuleOutputArtifacts := do

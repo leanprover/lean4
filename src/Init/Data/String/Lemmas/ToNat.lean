@@ -103,6 +103,15 @@ theorem suffix_iff_exists_append {l₁ l₂ : List α} : l₁ <:+ l₂ ↔ ∃ l
   · rintro ⟨l₃, rfl⟩
     exact suffix_append l₃ l₁
 
+theorem prefix_iff_exists_append {l₁ l₂ : List α} : l₁ <+: l₂ ↔ ∃ l₃, l₂ = l₁ ++ l₃ := by
+  refine ⟨?_, ?_⟩
+  · rw [prefix_iff_eq_append]
+    intro h
+    rw [← h]
+    simp
+  · rintro ⟨l₃, rfl⟩
+    exact prefix_append l₁ l₃
+
 theorem suffix_append_self_iff {l₁ l₂ m : List α} : l₁ ++ m <:+ l₂ ++ m ↔ l₁ <:+ l₂ := by
   simp only [suffix_iff_exists_append]
   refine ⟨?_, ?_⟩
@@ -125,145 +134,207 @@ theorem suffix_append_inj_of_length_eq {l₁ l₂ m₁ m₂ : List α} (hm : m�
 theorem singleton_suffix_iff_getLast?_eq_some {a : α} {l : List α} : [a] <:+ l ↔ l.getLast? = some a := by
   rw [suffix_iff_exists_append, getLast?_eq_some_iff]
 
+theorem singleton_prefix_iff_head?_eq_some {a : α} {l : List α} : [a] <+: l ↔ l.head? = some a := by
+  simp [prefix_iff_exists_append, head?_eq_some_iff]
+
 end List
 
 public section
 
 namespace String.Slice
 
+structure NoRepetition {α : Type u} (a : α) (l : List α) : Prop where
+  not_isInfix : ¬ [a, a] <:+: l
+
+theorem noRepetition_iff {α : Type u} {a : α} {l : List α} : NoRepetition a l ↔ ¬ [a, a] <:+: l :=
+  ⟨fun ⟨h⟩ => h, fun h => ⟨h⟩⟩
+
+theorem NoRepetition.right_of_append {α : Type u} {a : α} {l m : List α} :
+    NoRepetition a (l ++ m) → NoRepetition a m := by
+  simpa [noRepetition_iff] using mt List.infix_append_of_infix_right
+
+theorem NoRepetition.left_of_append {α : Type u} {a : α} {l m : List α} :
+    NoRepetition a (l ++ m) → NoRepetition a l := by
+  simpa [noRepetition_iff] using mt List.infix_append_of_infix_left
+
+theorem not_noRepetition_append_of_right {α : Type u} {a : α} {l m : List α} :
+    ¬ NoRepetition a m → ¬ NoRepetition a (l ++ m) :=
+  mt NoRepetition.right_of_append
+
+theorem not_noRepetition_append_of_left {α : Type u} {a : α} {l m : List α} :
+    ¬ NoRepetition a l → ¬ NoRepetition a (l ++ m) :=
+  mt NoRepetition.left_of_append
+
+theorem not_noRepetition_append_singleton_of_suffix {α : Type u} {a : α} {l : List α}
+    (h : [a] <:+ l) : ¬ NoRepetition a (l ++ [a]) := by
+  simpa [noRepetition_iff] using (List.suffix_append_self_iff.2 h).isInfix
+
+theorem NoRepetition.not_isSuffix_of_append_singleton {α : Type u} {a : α} {l : List α} :
+    NoRepetition a (l ++ [a]) → ¬ [a] <:+ l := by
+  simpa using mt not_noRepetition_append_singleton_of_suffix
+
+theorem NoRepetition.append_singleton_of_not_suffix {α : Type u} {a : α} {l : List α}
+    (h : NoRepetition a l) (h' : ¬ [a] <:+ l) : NoRepetition a (l ++ [a]) := by
+  simp only [noRepetition_iff, List.infix_append_singleton_iff, not_or] at ⊢ h
+  exact ⟨h, by rwa [← List.singleton_append, List.suffix_append_self_iff]⟩
+
+theorem NoRepetition.append_singleton_of_ne {α : Type u} {a b : α} {l : List α}
+    (h : NoRepetition a l) (h' : a ≠ b) : NoRepetition a (l ++ [b]) := by
+  simp [noRepetition_iff, List.infix_append_singleton_iff] at ⊢ h
+  refine ⟨h, ?_⟩
+  rw [← List.singleton_append, List.suffix_append_inj_of_length_eq (by simp)]
+  simp [h']
+
+@[simp]
+theorem noRepetition_singleton {α : Type u} {a b : α} : NoRepetition a [b] := by
+  simpa [noRepetition_iff] using fun h => by simpa using h.length_le
+
+theorem noRepetition_cons_append_append_iff {α : Type u} {a : α} {l : List α} :
+    NoRepetition a (a :: (l ++ [a])) ↔
+      l ≠ [] ∧ ¬ [a, a] <:+: l ∧ l.head? ≠ some a ∧ l.getLast? ≠ some a := by
+  simp only [noRepetition_iff, List.infix_cons_iff, List.cons_prefix_cons, true_and,
+    List.infix_append_singleton_iff, not_or, ne_eq, ← List.singleton_prefix_iff_head?_eq_some,
+    ← List.singleton_suffix_iff_getLast?_eq_some]
+  conv => enter [1, 2, 2]; rw [← List.singleton_append, List.suffix_append_self_iff]
+  refine ⟨fun ⟨h₁, h₂, h₃⟩ => ⟨?_, h₂, ?_, h₃⟩, fun ⟨h₁, h₂, h₃, h₄⟩ => ⟨?_, h₂, h₄⟩⟩
+  · rintro rfl
+    simp_all
+  · exact fun h => h₁ (List.prefix_append_of_prefix h)
+  · cases l <;> simp_all
+
+@[simp]
+theorem List.suffix_cons_append {a : α} {l m : List α} : m <:+ a :: (l ++ m) := by
+  rw [← List.cons_append]
+  exact List.suffix_append (a :: l) m
+
+@[simp]
+theorem List.singleton_suffix_append_singleton_iff {a b : α} {l : List α} :
+    [a] <:+ l ++ [b] ↔ a = b := by
+  refine ⟨fun h => Eq.symm ?_, by rintro rfl; simp⟩
+  simpa [List.suffix_iff_exists_append] using h
+
+@[simp]
+theorem List.singleton_suffix_cons_append_singleton_iff {a b c : α} {l : List α} :
+    [a] <:+ b :: (l ++ [c]) ↔ a = c := by
+  rw [← List.cons_append]
+  exact singleton_suffix_append_singleton_iff
+
+@[simp]
+theorem imp_or_left_iff_true {P Q : Prop} : (P → P ∨ Q) ↔ True := by
+  simpa using Or.inl
+
+@[simp]
+theorem imp_or_right_iff_true {P Q : Prop} : (Q → P ∨ Q) ↔ True := by
+  simpa using Or.inr
+
+@[simp]
+theorem forall_or_imp_or_self_right_right {P Q R : α → Prop} :
+    (∀ a, P a ∨ Q a → R a ∨ Q a) ↔ (∀ a, P a → R a ∨ Q a) := by
+  simp only [or_imp, imp_or_right_iff_true, and_true]
+
+@[simp]
+theorem forall_or_imp_or_self_right_left {P Q R : α → Prop} :
+    (∀ a, P a ∨ Q a → Q a ∨ R a) ↔ (∀ a, P a → Q a ∨ R a) := by
+  simp only [or_imp, imp_or_left_iff_true, and_true]
+
+@[simp]
+theorem forall_or_imp_or_self_left_right {P Q R : α → Prop} :
+    (∀ a, Q a ∨ P a → R a ∨ Q a) ↔ (∀ a, P a → R a ∨ Q a) := by
+  simp only [or_imp, imp_or_right_iff_true, true_and]
+
+@[simp]
+theorem forall_or_imp_or_self_left_left {P Q R : α → Prop} :
+    (∀ a, Q a ∨ P a → Q a ∨ R a) ↔ (∀ a, P a → Q a ∨ R a) := by
+  simp only [or_imp, imp_or_left_iff_true, true_and]
+
+@[simp] theorem forall_eq_or_imp' {P Q : α → Prop} {a' : α} :
+    (∀ (a : α), a' = a ∨ Q a → P a) ↔ P a' ∧ ∀ (a : α), Q a → P a := by
+  simp only [or_imp, forall_and, forall_eq']
+
+@[simp] theorem forall_or_eq_imp {P Q : α → Prop} :
+    (∀ a, Q a ∨ a = a' → P a) ↔ (∀ a, Q a → P a) ∧ P a' := by
+  simp only [or_imp, forall_and, forall_eq]
+
+@[simp] theorem forall_or_eq_imp' {P Q : α → Prop} :
+    (∀ a, Q a ∨ a' = a → P a) ↔ (∀ a, Q a → P a) ∧ P a' := by
+  simp only [or_imp, forall_and, forall_eq']
+
 open Std.Do in
 set_option mvcgen.warning false in
-theorem isNat_iff {s : String.Slice} :
+theorem isNat_iff' {s : String.Slice} :
     s.isNat = true ↔
-        s.isEmpty = false ∧
+        s.copy.toList ≠ [] ∧
         (∀ c ∈ s.copy.toList, c.isDigit ∨ c = '_') ∧
-        ¬(['_', '_'] <:+: s.copy.toList) ∧
-        s.copy.toList.head? ≠ some '_' ∧
-        s.copy.toList.getLast? ≠ some '_' := by
+        NoRepetition '_' ('_' :: s.copy.toList ++ ['_']) := by
   generalize h : s.isNat = res
   apply Id.of_wp_run_eq h
-  mvcgen
-  case vc1.inv =>
-    exact StringSliceInvariant.withEarlyReturn
-      (fun pos lastWasDigit => ⌜∀ t₁ t₂, pos.Splits t₁ t₂ →
-          (lastWasDigit = t₁.toList.getLast?.any Char.isDigit ∧ (∀ c ∈ t₁.toList, c.isDigit ∨ c = '_') ∧ ¬(['_', '_'] <:+: t₁.toList)
-          ∧ t₁.toList.head?.all (· != '_'))⌝)
-      (fun res lastWasDigit => ⌜res = false ∧ ((∃ c ∈ s.copy.toList, c.isDigit = false ∧ c ≠ '_') ∨ s.copy.toList.head? = some '_' ∨ ['_', '_'] <:+: s.copy.toList)⌝)
-  next pos _ hp lastWasDigit hget hl ih =>
-    subst lastWasDigit
-    simp [hp] at ⊢ ih hl
-    obtain ⟨t₁, t₂, h⟩ : ∃ t₁ t₂, pos.Splits t₁ t₂ := ⟨_, _, pos.splits⟩
-    obtain ⟨t₂, rfl⟩ := h.exists_eq_singleton_append hp
-    by_cases hp' : pos = s.startPos
-    · subst hp'
-      simp at h
-      refine Or.inr (Or.inl ?_)
-      rw [← h.2]
-      simp [hget]
-    · obtain ⟨t₁, rfl⟩ := h.exists_eq_append_singleton_of_ne_startPos hp'
-      have := ih.2 _ _ h
-      simp [hl] at this
-      have hx := this.2.1 ((pos.prev hp').get (by simp)) (by simp)
-      simp [this.1] at hx
-      rw [hx, hget] at h
-      refine Or.inr (Or.inr ?_)
-      rw [h.eq_append]
-      simp only [↓Char.isValue, String.reduceSingleton, toList_append, String.reduceToList,
-        List.cons_append, List.nil_append, List.append_assoc]
-      apply List.infix_append_of_infix_right
-      apply List.IsPrefix.isInfix
-      simp
-  next pos _ hp lastWasDigit hget hl ih =>
-    subst lastWasDigit
-    simp [hp] at ⊢ ih hl
-    simp [hl] at ih
-    intro t₁ t₂ h
-    obtain ⟨t₁, rfl⟩ := h.exists_eq_append_singleton hp
-    have := ih.2 _ _ h.of_next
-    simp [Option.all_eq_true, Option.any_eq_true] at this
-    simp [hget]
-    refine ⟨?_, ?_⟩
-    · rintro c (hc|rfl)
-      · exact this.2.1 _ hc
-      · simp
-    · generalize t₁.toList = l at *
-      match l with
-      | [] => simp at this
-      | x::l =>
-        simp at this
-        simp [this.2.2]
-        rw [← List.cons_append, List.infix_append_singleton_iff, not_or]
-        simp [this.2.2.1]
-        rw [← List.cons_append, ← List.singleton_append, List.suffix_append_self_iff,
-          List.singleton_suffix_iff_getLast?_eq_some]
-        obtain ⟨c, hc, hc'⟩ := this.1
-        simp [hc]
-        rintro rfl
-        simp at hc'
-  next pos _ hp lastWasDigit hget hget' ih =>
-    subst lastWasDigit
-    simp [hp] at ⊢ ih
-    intro t₁ t₂ h
-    obtain ⟨t₁, rfl⟩ := h.exists_eq_append_singleton hp
-    have := ih.2 _ _ h.of_next
-    simp [hget']
-    refine ⟨?_, ?_, ?_⟩
-    · rintro c (hc|rfl)
-      · exact this.2.1 _ hc
-      · simp [hget']
-    · rw [List.infix_append_singleton_iff]
-      simp [this.2.2.1]
-      rw [← List.singleton_append, List.suffix_append_inj_of_length_eq (by simp)]
-      simp [Ne.symm hget]
-    · match ht : t₁.toList.head? with
-      | none => simp [hget]
-      | some q => simpa [ht] using this.2.2.2
-  next pos _ hp lastWasDigit hget hget' ih =>
-    subst lastWasDigit
-    simp
-    obtain ⟨t₁, t₂, h⟩ : ∃ t₁ t₂, pos.Splits t₁ t₂ := ⟨_, _, pos.splits⟩
-    obtain ⟨t₂, rfl⟩ := h.exists_eq_singleton_append hp
-    refine Or.inl ?_
-    simp [h.eq_append]
-    exact ⟨pos.get hp, by simp [hget', hget]⟩
+  simp only [↓Char.isValue, Bool.not_eq_eq_eq_not, Bool.not_true, forIn_eq_forIn_toList, ne_eq,
+    WP.bind, SPred.entails_nil, SPred.down_pure, forall_const]
+  mvcgen invariants
+  | inv1 => Invariant.withEarlyReturnNewDo
+      (fun cursor lastWasDigit => ⌜lastWasDigit = ¬ (['_'] <:+ ('_' :: cursor.prefix)) ∧
+        (∀ c ∈ cursor.prefix, c.isDigit ∨ c = '_') ∧ NoRepetition '_' ('_' :: cursor.prefix)⌝)
+      (fun res lastWasDigit => ⌜res = false ∧
+        ((∃ c ∈ s.copy.toList, c.isDigit = false ∧ c ≠ '_') ∨ ¬ NoRepetition '_' ('_' :: s.copy.toList))⌝)
+  next pref c suff h b hc h₁ h₂ =>
+    subst hc
+    simp only [h₁, ↓Char.isValue, eq_iff_iff, false_iff, Decidable.not_not,
+      reduceCtorEq, h, List.mem_append, List.mem_cons, ne_eq, false_and, and_false, exists_const,
+      or_false, Option.some.injEq, Bool.false_eq, true_and, and_self_left, exists_eq_left,
+      false_or] at ⊢ h₂
+    rw [List.append_cons, ← List.cons_append, ← List.cons_append]
+    exact Or.inr (not_noRepetition_append_of_left (not_noRepetition_append_singleton_of_suffix h₂.2.1))
+  next pref c suff h b hc h₁ h₂ =>
+    subst hc
+    simp only [h₁, ↓Char.isValue, eq_iff_iff, true_iff, reduceCtorEq, h, List.mem_append,
+      List.mem_cons, ne_eq, false_and, and_false, exists_const, or_false, Bool.false_eq_true,
+      List.suffix_cons_append, not_true_eq_false, List.not_mem_nil,
+      forall_or_imp_or_self_right_right, true_and] at ⊢ h₂
+    refine ⟨h₂.2.2.1, ?_⟩
+    rw [← List.cons_append]
+    exact NoRepetition.append_singleton_of_not_suffix h₂.2.2.2 h₂.2.1
+  next pref c suff h b hc hc' h₁ =>
+    simp only [↓Char.isValue, eq_iff_iff, reduceCtorEq, h, List.mem_append, List.mem_cons, ne_eq,
+      false_and, and_false, exists_const, or_false, List.singleton_suffix_cons_append_singleton_iff,
+      Ne.symm hc, not_false_eq_true, List.not_mem_nil, forall_or_eq_imp, hc', true_or, and_true,
+      true_and] at ⊢ h₁
+    refine ⟨h₁.2.2.1, ?_⟩
+    rw [← List.cons_append]
+    exact NoRepetition.append_singleton_of_ne h₁.2.2.2 (Ne.symm hc)
+  next pref c suff h b hc hc' h₁ => simpa [h] using Or.inl ⟨c, by simp_all⟩
   next => simp
-  next r hr ih =>
-    rcases r with ⟨r₁, r₂⟩
-    simp at hr
-    simp [hr] at ⊢ ih
-    simp [ih.1]
-    refine ⟨fun h => ?_, ?_⟩
-    · simp [Option.any_eq_true] at h
-      obtain ⟨c, ⟨hc₁, hc₂⟩⟩ := h
-      have := s.copy.toList.getLast?_isSome
-      simp [hc₁] at this
-      simp [Option.all_eq_true] at ih
-      refine ⟨this, ih.2.1, ih.2.2.1, ?_, ?_⟩
-      · match hx : s.copy.toList.head? with
-        | none => simp
-        | some z => simpa using ih.2.2.2 _ hx
-      · simp [hc₁]
-        rintro rfl
-        simp at hc₂
-    · rintro ⟨h₁, h₂, h₃, h₄, h₅⟩
-      simp [Option.any_eq_true]
-      match hy : s.copy.toList.getLast? with
-      | none => simp [h₁] at hy
-      | some z =>
-        simp
-        have := ih.2.1 _ (List.mem_of_getLast? hy)
-        simp [hy] at h₅
-        simpa [h₅] using this
-  next _ r hr ih =>
-    simp [hr] at ⊢ ih
-    simp [ih.1]
-    obtain (⟨c, hc₁, hc₂, hc₃⟩|h|h) := ih.2
-    · intro hemp hcont
-      have := hcont c hc₁
-      simp [hc₂, hc₃] at this
-    · intro hemp h₁ h₂ h₃
-      simp [h] at h₃
-    · simp [h]
+  next r b h₁ h₂ =>
+    simp only [h₁, reduceCtorEq, ↓Char.isValue, eq_iff_iff, false_and, Option.some.injEq, ne_eq,
+      true_and, exists_eq_left', false_or] at h₂
+    simp only [h₂.1, Bool.false_eq_true, toList_eq_nil_iff, copy_eq_empty_iff, Bool.not_eq_true,
+      ↓Char.isValue, List.cons_append, false_iff, not_and]
+    intro hx hy
+    obtain (⟨c, hc₁, hc₂, hc₃⟩|hn) := h₂.2
+    · have := hy c
+      simp_all
+    · rw [← List.cons_append]
+      exact not_noRepetition_append_of_left hn
+  next r h₁ h₂ =>
+    generalize s.copy.toList = l at *
+    simp only [h₁, ↓Char.isValue, eq_iff_iff, true_and, reduceCtorEq, ne_eq, false_and,
+      exists_const, or_false, List.cons_append] at ⊢ h₂
+    rw [h₂.1]
+    refine ⟨fun h => ⟨?_, h₂.2.1, ?_⟩, fun ⟨h₁, _, h₂⟩ => ?_⟩
+    · rintro rfl
+      simp at h
+    · rw [← List.cons_append]
+      apply NoRepetition.append_singleton_of_not_suffix h₂.2.2 h
+    · rw [← List.cons_append] at h₂
+      exact h₂.not_isSuffix_of_append_singleton
+
+theorem isNat_iff {s : String.Slice} :
+    s.isNat = true ↔
+      s.isEmpty = false ∧
+      (∀ c ∈ s.copy.toList, c.isDigit ∨ c = '_') ∧
+      ¬ ['_', '_'] <:+: s.copy.toList ∧
+      s.copy.toList.head? ≠ some '_' ∧
+      s.copy.toList.getLast? ≠ some '_' := by
+  simp +contextual [isNat_iff', noRepetition_cons_append_append_iff]
 
 theorem isNat_of_isDigit {s : String.Slice} (hne : s.isEmpty = false)
     (hdigit : ∀ c ∈ s.copy.toList, c.isDigit) : s.isNat = true := by

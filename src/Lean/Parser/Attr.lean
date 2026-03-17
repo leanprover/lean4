@@ -54,7 +54,7 @@ def externEntry := leading_parser
   nonReservedSymbol "extern" >> many (ppSpace >> externEntry)
 
 /--
-Declare this tactic to be an alias or alternative form of an existing tactic.
+Declares this tactic to be an alias or alternative form of an existing tactic.
 
 This has the following effects:
  * The alias relationship is saved
@@ -64,12 +64,25 @@ This has the following effects:
   "tactic_alt" >> ppSpace >> ident
 
 /--
-Add one or more tags to a tactic.
+Adds one or more tags to a tactic.
 
 Tags should be applied to the canonical names for tactics.
 -/
 @[builtin_attr_parser] def «tactic_tag» := leading_parser
   "tactic_tag" >> many1 (ppSpace >> ident)
+
+/--
+Sets the tactic's name.
+
+Ordinarily, tactic names are automatically set to the first token in the tactic's parser. If this
+process fails, or if the tactic's name should be multiple tokens (e.g. `let rec`), then this
+attribute can be used to provide a name.
+
+The tactic's name is used in documentation as well as in completion. Thus, the name should be a
+valid prefix of the tactic's syntax.
+-/
+@[builtin_attr_parser] def «tactic_name» := leading_parser
+  "tactic_name" >> ppSpace >> (ident <|> strLit)
 
 end Attr
 

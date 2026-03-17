@@ -3,16 +3,13 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joachim Breitner
 -/
-
 module
-
 prelude
 public import Lean.Meta.Tactic.Simp.Simproc
 import Init.Simproc
 import Lean.Meta.Constructions.CtorIdx
-
+import Lean.Meta.CtorRecognizer
 open Lean Meta Simp
-
 public section
 
 /--

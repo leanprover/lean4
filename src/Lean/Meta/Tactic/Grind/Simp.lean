@@ -11,6 +11,7 @@ public import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Tactic.Grind.MatchDiscrOnly
 import Lean.Meta.Tactic.Grind.MarkNestedSubsingletons
+import Lean.Meta.Sym.Util
 public section
 namespace Lean.Meta.Grind
 
@@ -57,12 +58,12 @@ def preprocessImpl (e : Expr) : GoalM Simp.Result := do
   let e' ← instantiateMVars r.expr
   -- Remark: `simpCore` unfolds reducible constants, but it does not consistently visit all possible subterms.
   -- So, we must use the following `unfoldReducible` step. It is non-op in most cases
-  let e' ← unfoldReducible e'
+  let e' ← Sym.unfoldReducible e'
   let e' ← abstractNestedProofs e'
   let e' ← markNestedSubsingletons e'
   let e' ← eraseIrrelevantMData e'
   let e' ← foldProjs e'
-  let e' ← normalizeLevels e'
+  let e' ← Sym.normalizeLevels e'
   let r' ← eraseSimpMatchDiscrsOnly e'
   let r ← r.mkEqTrans r'
   let e' := r'.expr
@@ -78,7 +79,7 @@ def pushNewFact' (prop : Expr) (proof : Expr) (generation : Nat := 0) : GoalM Un
   let r ← preprocess prop
   let prop' := r.expr
   let proof := if let some h := r.proof? then
-    mkApp4 (mkConst ``Eq.mp [levelZero]) prop prop' h proof
+    mkApp4 (mkConst ``Eq.mp [Level.zero]) prop prop' h proof
   else
     proof
   trace[grind.debug.pushNewFact] "{prop} ==> {prop'}"
@@ -97,6 +98,6 @@ but ensures assumptions made by `grind` are satisfied.
 -/
 def preprocessLight (e : Expr) : GoalM Expr := do
   let e ← instantiateMVars e
-  shareCommon (← canon (← normalizeLevels (← foldProjs (← eraseIrrelevantMData (← markNestedSubsingletons (← unfoldReducible e))))))
+  shareCommon (← canon (← Sym.normalizeLevels (← foldProjs (← eraseIrrelevantMData (← markNestedSubsingletons (← Sym.unfoldReducible e))))))
 
 end Lean.Meta.Grind

@@ -6,15 +6,17 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Simp.Simproc
-import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.MatchDiscrOnly
-import Lean.Meta.Tactic.Grind.MatchCond
 import Lean.Meta.Tactic.Grind.ForallProp
 import Lean.Meta.Tactic.Grind.Arith.Simproc
 import Lean.Meta.Tactic.Simp.BuiltinSimprocs.List
 import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Core
 import Lean.Meta.Tactic.Grind.Util
+import Lean.Meta.Sym.Util
 import Init.Grind.Norm
+public import Init.Grind.Config
+import Init.ByCases
+import Lean.Meta.Tactic.Simp.Main
 public section
 namespace Lean.Meta.Grind
 
@@ -136,7 +138,7 @@ builtin_simproc_decl reduceCtorEqCheap (_ = _) := fun e => do
     return .done { expr := mkConst ``False, proof? := (← withDefault <| mkEqFalse' (← mkLambdaFVars #[h] (← mkNoConfusion (mkConst ``False) h))) }
 
 builtin_dsimproc_decl unfoldReducibleSimproc (_) := fun e => do
-  unfoldReducibleStep e
+  Sym.unfoldReducibleStep e
 
 /-- Returns the array of simprocs used by `grind`. -/
 protected def getSimprocs : MetaM (Array Simprocs) := do

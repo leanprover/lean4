@@ -7,6 +7,9 @@ module
 
 prelude
 public import Init.Data.List.FinRange
+import Init.Data.Fin.Lemmas
+import Init.Data.List.Lemmas
+import Init.Omega
 
 public section
 
@@ -431,7 +434,8 @@ theorem dfoldRev_add
         (dfoldRev m (α := fun i h => α (n + i)) (fun i h => f (n + i) (by omega)) init) := by
   induction m with
   | zero => simp; rfl
-  | succ m ih => simp [← Nat.add_assoc, ih]
+  | succ m ih =>
+    simp [← Nat.add_assoc, ih]
 
 end Nat
 

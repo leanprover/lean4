@@ -11,7 +11,7 @@ IMPORTANT: Keep this documentation up-to-date when modifying the script's behavi
 What this script does:
 1. Validates preliminary Lean4 release infrastructure:
    - Checks that the release branch (releases/vX.Y.0) exists
-   - Verifies CMake version settings are correct
+   - Verifies CMake version settings are correct (both src/ and stage0/)
    - Confirms the release tag exists
    - Validates the release page exists on GitHub (created automatically by CI after tag push)
    - Checks the release notes page on lean-lang.org (updated while bumping the `reference-manual` repository)
@@ -185,6 +185,30 @@ def get_release_notes(tag_name):
     except Exception:
         return None
 
+def check_release_notes_file_exists(toolchain, github_token):
+    """Check if the release notes file exists in the reference-manual repository.
+
+    For -rc1 releases, this checks that the release notes have been created.
+    For subsequent RCs and stable releases, release notes should already exist.
+
+    Returns tuple (exists: bool, is_rc1: bool) where is_rc1 indicates if this is
+    the first release candidate (when release notes need to be written).
+    """
+    # Determine the release notes file path
+    # e.g., v4.28.0-rc1 -> Manual/Releases/v4_28_0.lean
+    base_version = strip_rc_suffix(toolchain.lstrip('v'))  # "4.28.0"
+    file_name = f"v{base_version.replace('.', '_')}.lean"  # "v4_28_0.lean"
+    file_path = f"Manual/Releases/{file_name}"
+
+    is_rc1 = toolchain.endswith("-rc1")
+
+    repo_url = "https://github.com/leanprover/reference-manual"
+
+    # Check if the file exists on main branch
+    content = get_branch_content(repo_url, "main", file_path, github_token)
+
+    return (content is not None, is_rc1)
+
 def get_branch_content(repo_url, branch, file_path, github_token):
     api_url = repo_url.replace("https://github.com/", "https://api.github.com/repos/") + f"/contents/{file_path}?ref={branch}"
     headers = {'Authorization': f'token {github_token}'} if github_token else {}
@@ -302,6 +326,42 @@ def check_cmake_version(repo_url, branch, version_major, version_minor, github_t
     print(f"  ✅ CMake version settings are correct in {cmake_file_path}")
     return True
 
+def check_stage0_version(repo_url, branch, version_major, version_minor, github_token):
+    """Verify that stage0/src/CMakeLists.txt has the same version as src/CMakeLists.txt.
+
+    The stage0 pre-built binaries stamp .olean headers with their baked-in version.
+    If stage0 has a different version (e.g. from a 'begin development cycle' bump),
+    the release tarball will contain .olean files with the wrong version.
+    """
+    stage0_cmake = "stage0/src/CMakeLists.txt"
+    content = get_branch_content(repo_url, branch, stage0_cmake, github_token)
+    if content is None:
+        print(f"  ❌ Could not retrieve {stage0_cmake} from {branch}")
+        return False
+
+    errors = []
+    for line in content.splitlines():
+        stripped = line.strip()
+        if stripped.startswith("set(LEAN_VERSION_MAJOR "):
+            actual = stripped.split()[-1].rstrip(")")
+            if actual != str(version_major):
+                errors.append(f"LEAN_VERSION_MAJOR: expected {version_major}, found {actual}")
+        elif stripped.startswith("set(LEAN_VERSION_MINOR "):
+            actual = stripped.split()[-1].rstrip(")")
+            if actual != str(version_minor):
+                errors.append(f"LEAN_VERSION_MINOR: expected {version_minor}, found {actual}")
+
+    if errors:
+        print(f"  ❌ stage0 version mismatch in {stage0_cmake}:")
+        for error in errors:
+            print(f"     {error}")
+        print(f"     The stage0 compiler stamps .olean headers with its baked-in version.")
+        print(f"     Run `make update-stage0` to rebuild stage0 with the correct version.")
+        return False
+
+    print(f"  ✅ stage0 version matches in {stage0_cmake}")
+    return True
+
 def extract_org_repo_from_url(repo_url):
     """Extract the 'org/repo' part from a GitHub URL."""
     if repo_url.startswith("https://github.com/"):
@@ -417,7 +477,10 @@ def get_pr_ci_status(repo_url, pr_number, github_token):
     conclusions = [run['conclusion'] for run in check_runs if run.get('status') == 'completed']
     in_progress = [run for run in check_runs if run.get('status') in ['queued', 'in_progress']]
 
+    failed = sum(1 for c in conclusions if c in ['failure', 'timed_out', 'action_required'])
     if in_progress:
+        if failed > 0:
+            return "failure", f"{failed} check(s) failing, {len(in_progress)} still in progress"
         return "pending", f"{len(in_progress)} check(s) in progress"
 
     if not conclusions:
@@ -426,7 +489,6 @@ def get_pr_ci_status(repo_url, pr_number, github_token):
     if all(c == 'success' for c in conclusions):
         return "success", f"All {len(conclusions)} checks passed"
 
-    failed = sum(1 for c in conclusions if c in ['failure', 'timed_out', 'action_required'])
     if failed > 0:
         return "failure", f"{failed} check(s) failed"
 
@@ -500,6 +562,76 @@ def check_proofwidgets4_release(repo_url, target_toolchain, github_token):
     print(f"  ❌ No recent ProofWidgets4 release uses toolchain >= {target_toolchain}")
     print(f"     You will need to create and push a tag v0.0.{next_version}")
     return False
+
+def check_reference_manual_release_title(repo_url, toolchain, pr_branch, github_token):
+    """Check if the reference-manual release notes title matches the release type.
+
+    For RC releases (e.g., v4.27.0-rc1), the title should contain the exact RC suffix.
+    For final releases (e.g., v4.27.0), the title should NOT contain any "-rc".
+
+    Returns True if check passes or is not applicable, False if title needs updating.
+    """
+    is_rc = is_release_candidate(toolchain)
+
+    # For RC releases, get the base version and RC suffix
+    # e.g., "v4.27.0-rc1" -> version="4.27.0", rc_suffix="-rc1"
+    if is_rc:
+        parts = toolchain.lstrip('v').split('-', 1)
+        version = parts[0]
+        rc_suffix = '-' + parts[1] if len(parts) > 1 else ''
+    else:
+        version = toolchain.lstrip('v')
+        rc_suffix = ''
+
+    # Construct the release notes file path (e.g., Manual/Releases/v4_27_0.lean for v4.27.0)
+    file_name = f"v{version.replace('.', '_')}.lean"  # "v4_27_0.lean"
+    file_path = f"Manual/Releases/{file_name}"
+
+    # Try to get the file from the PR branch first, then fall back to main branch
+    content = get_branch_content(repo_url, pr_branch, file_path, github_token)
+    if content is None:
+        # Try the default branch
+        content = get_branch_content(repo_url, "main", file_path, github_token)
+
+    if content is None:
+        print(f"  ⚠️  Could not check release notes file: {file_path}")
+        return True  # Don't block on this
+
+    # Look for the #doc line with the title
+    for line in content.splitlines():
+        if line.strip().startswith('#doc') and 'Manual' in line:
+            has_rc_in_title = '-rc' in line.lower()
+
+            if is_rc:
+                # For RC releases, title should contain the exact RC suffix (e.g., "-rc1")
+                # Use regex to match exact suffix followed by non-digit (to avoid -rc1 matching -rc10)
+                # Pattern matches the RC suffix followed by a non-digit or end-of-string context
+                # e.g., "-rc1" followed by space, quote, paren, or similar
+                exact_match = re.search(rf'{re.escape(rc_suffix)}(?![0-9])', line, re.IGNORECASE)
+                if exact_match:
+                    print(f"  ✅ Release notes title correctly shows {rc_suffix}")
+                    return True
+                elif has_rc_in_title:
+                    print(f"  ❌ Release notes title shows wrong RC version (expected {rc_suffix})")
+                    print(f"     Update {file_path} to use '{rc_suffix}' in the title")
+                    return False
+                else:
+                    print(f"  ❌ Release notes title missing RC suffix")
+                    print(f"     Update {file_path} to include '{rc_suffix}' in the title")
+                    return False
+            else:
+                # For final releases, title should NOT contain -rc
+                if has_rc_in_title:
+                    print(f"  ❌ Release notes title still shows RC version")
+                    print(f"     Update {file_path} to remove '-rcN' from the title")
+                    return False
+                else:
+                    print(f"  ✅ Release notes title is updated for final release")
+                    return True
+
+    # If we didn't find the #doc line, don't block
+    print(f"  ⚠️  Could not find release notes title in {file_path}")
+    return True
 
 def run_mathlib_verify_version_tags(toolchain, verbose=False):
     """Run mathlib4's verify_version_tags.py script to validate the release tag.
@@ -586,6 +718,9 @@ def main():
         # Check CMake version settings
         if not check_cmake_version(lean_repo_url, branch_name, version_major, version_minor, github_token):
             lean4_success = False
+        # Check that stage0 version matches (stage0 stamps .olean headers with its version)
+        if not check_stage0_version(lean_repo_url, branch_name, version_major, version_minor, github_token):
+            lean4_success = False
 
     # Check for tag and release page
     if not tag_exists(lean_repo_url, toolchain, github_token):
@@ -643,6 +778,27 @@ def main():
         print(f"  ⚠️  Release notes page title mismatch. Expected prefix '{expected_title_prefix}', got '{actual_title}'. Check {release_notes_url}")
     else:
         print(f"  ✅ Release notes page title looks good ('{actual_title}').")
+
+    # Check if release notes file exists in reference-manual repository
+    # For -rc1 releases, this is when release notes need to be written
+    # For subsequent RCs and stable releases, they should already exist
+    release_notes_exists, is_rc1 = check_release_notes_file_exists(toolchain, github_token)
+    base_version = strip_rc_suffix(toolchain.lstrip('v'))
+    release_notes_file = f"Manual/Releases/v{base_version.replace('.', '_')}.lean"
+
+    if not release_notes_exists:
+        if is_rc1:
+            print(f"  ❌ Release notes file not found: {release_notes_file}")
+            print(f"     This is an -rc1 release, so release notes need to be written.")
+            print(f"     Run `script/release_notes.py --since <previous_version>` to generate them.")
+            print(f"     See doc/dev/release_checklist.md section 'Writing the release notes' for details.")
+            lean4_success = False
+        else:
+            print(f"  ❌ Release notes file not found: {release_notes_file}")
+            print(f"     Release notes should have been created for -rc1. Check the reference-manual repository.")
+            lean4_success = False
+    else:
+        print(f"  ✅ Release notes file exists: {release_notes_file}")
 
     repo_status["lean4"] = lean4_success
 
@@ -709,12 +865,25 @@ def main():
                     print(f"     ⚠️  CI: {ci_message}")
                 else:
                     print(f"     ❓ CI: {ci_message}")
+
+                # For reference-manual, check that the release notes title has been updated
+                if name == "reference-manual":
+                    pr_branch = f"bump_to_{toolchain}"
+                    check_reference_manual_release_title(url, toolchain, pr_branch, github_token)
             else:
                 print(f"  ❌ PR with title '{pr_title}' does not exist")
                 print(f"     Run `script/release_steps.py {toolchain} {name}` to create it")
             repo_status[name] = False
             continue
         print(f"  ✅ On compatible toolchain (>= {toolchain})")
+
+        # For reference-manual, check that the release notes title is correct BEFORE tagging.
+        # This catches the case where the toolchain bump PR was merged without updating
+        # the release notes title (e.g., still showing "-rc1" for a stable release).
+        if name == "reference-manual":
+            if not check_reference_manual_release_title(url, toolchain, branch, github_token):
+                repo_status[name] = False
+                continue
 
         # Special handling for ProofWidgets4
         if name == "ProofWidgets4":
@@ -796,8 +965,8 @@ def main():
             
             print(f"  ✅ Bump branch {bump_branch} exists")
             
-            # For batteries and mathlib4, update the lean-toolchain to the latest nightly
-            if branch_created and name in ["batteries", "mathlib4"]:
+            # Update the lean-toolchain to the latest nightly for newly created bump branches
+            if branch_created:
                 latest_nightly = get_latest_nightly_tag(github_token)
                 if latest_nightly:
                     nightly_toolchain = f"leanprover/lean4:{latest_nightly}"
@@ -837,14 +1006,15 @@ def main():
         # Find the actual minor version in CMakeLists.txt
         for line in cmake_lines:
             if line.strip().startswith("set(LEAN_VERSION_MINOR "):
-                actual_minor = int(line.split()[-1].rstrip(")"))
+                m = re.search(r'set\(LEAN_VERSION_MINOR\s+(\d+)', line)
+                actual_minor = int(m.group(1)) if m else 0
                 version_minor_correct = actual_minor >= next_minor
                 break
         else:
             version_minor_correct = False
             
         is_release_correct = any(
-            l.strip().startswith("set(LEAN_VERSION_IS_RELEASE 0)") 
+            re.match(r'set\(LEAN_VERSION_IS_RELEASE\s+0[\s)]', l.strip())
             for l in cmake_lines
         )
         

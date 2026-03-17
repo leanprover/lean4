@@ -6,8 +6,12 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Data.Vector.Lemmas
-public import Init.Data.Array.Extract
+public import Init.Data.Vector.Basic
+import Init.ByCases
+import Init.Data.Array.Bootstrap
+import Init.Data.Array.Extract
+import Init.Data.Vector.Lemmas
+import Init.Omega
 
 public section
 

@@ -8,12 +8,12 @@ prelude
 public import Init.Grind.Lemmas
 public import Lean.Meta.Tactic.Grind.Action
 import Lean.Meta.Tactic.Apply
-import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Tactic.Grind.CasesMatch
 import Lean.Meta.Tactic.Grind.Injection
 import Lean.Meta.Tactic.Grind.Core
 import Lean.Meta.Tactic.Grind.RevertAll
+import Init.Grind.Util
 public section
 namespace Lean.Meta.Grind
 
@@ -275,7 +275,7 @@ private def assertAt (proof : Expr) (prop : Expr) (generation : Nat) : Action :=
     let goal ← GoalM.run' goal do
       let r ← preprocess prop
       let prop' := r.expr
-      let proof' := mkApp4 (mkConst ``Eq.mp [levelZero]) prop r.expr (← r.getProof) proof
+      let proof' := mkApp4 (mkConst ``Eq.mp [Level.zero]) prop r.expr (← r.getProof) proof
       add prop' proof' generation
     kp goal
 

@@ -9,3 +9,4 @@ prelude
 public import Init.Data.Char.Basic
 public import Init.Data.Char.Lemmas
 public import Init.Data.Char.Order
+public import Init.Data.Char.Ordinal

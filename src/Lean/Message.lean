@@ -12,6 +12,8 @@ public import Init.Data.Slice.Array
 public import Lean.Util.PPExt
 public import Lean.Util.Sorry
 import Init.Data.String.Search
+import Init.Data.Format.Macro
+import Init.Data.Iterators.Consumers.Collect
 
 public section
 
@@ -64,9 +66,29 @@ structure NamingContext where
   currNamespace : Name
   openDecls : List OpenDecl
 
+/-- Structured result status of a trace node action, produced by `withTraceNode` and
+`withTraceNodeBefore` and included in the `TraceData` of trace messages. Either
+`.success` (✅️), `.failure` (❌️), or `.error` (💥️).
+
+This is used both to render emojis in trace messages and to allow more
+robust inspection of trace logs via metaprogramming.
+
+See also `Except.toTraceResult` for converting an `Except ε α` to a `TraceResult`. -/
+inductive TraceResult where
+  /-- The traced action succeeded (✅️, `checkEmoji`). -/
+  | success
+  /-- The traced action failed (❌️, `crossEmoji`). -/
+  | failure
+  /-- An exception was thrown during the traced action (💥️, `bombEmoji`). -/
+  | error
+  deriving Inhabited, BEq, Repr
+
 structure TraceData where
   /-- Trace class, e.g. `Elab.step`. -/
   cls       : Name
+  /-- Structured success/failure result set by `withTraceNode`/`withTraceNodeBefore`.
+  `none` for trace nodes not created by these functions (e.g. `addTrace`, diagnostic nodes). -/
+  result?   : Option TraceResult := none
   /-- Start time in seconds; 0 if unknown to avoid `Option` allocation. -/
   startTime : Float := 0
   /-- Stop time in seconds; 0 if unknown to avoid `Option` allocation. -/
@@ -247,7 +269,7 @@ def ofConstName (constName : Name) (fullNames : Bool := false) : MessageData :=
       let msg ← ofFormatWithInfos <$> match ctx? with
         | .none => pure (format constName)
         | .some ctx =>
-          let ctx := if fullNames then { ctx with opts := ctx.opts.insert `pp.fullNames fullNames } else ctx
+          let ctx := if fullNames then { ctx with opts := ctx.opts.set `pp.fullNames fullNames } else ctx
           ppConstNameWithInfos ctx constName
       return Dynamic.mk msg)
     (fun _ => false)
@@ -613,6 +635,9 @@ def errorsToInfos (log : MessageLog) : MessageLog :=
 def getInfoMessages (log : MessageLog) : MessageLog :=
   { unreported := log.unreported.filter fun m => match m.severity with | MessageSeverity.information => true | _ => false }
 
+def getWarningMessages (log : MessageLog) : MessageLog :=
+  { unreported := log.unreported.filter fun m => match m.severity with | MessageSeverity.warning => true | _ => false }
+
 def forM {m : Type → Type} [Monad m] (log : MessageLog) (f : Message → m Unit) : m Unit :=
   log.unreported.forM f
 
@@ -772,7 +797,7 @@ def toMessageData (e : Kernel.Exception) (opts : Options) : MessageData :=
     | Declaration.thmDecl { name := n, type := type, .. }  => process n type
     | _ => "(kernel) declaration type mismatch" -- TODO fix type checker, type mismatch for mutual decls does not have enough information
   | declHasMVars env constName _        => mkCtx env {} opts m!"(kernel) declaration has metavariables '{.ofConstName constName true}'"
-  | declHasFVars env constName _        => mkCtx env {} opts m!"(kernel) declaration has free variables '{.ofConstName constName true}'"
+  | declHasFVars env constName e        => mkCtx env {} opts m!"(kernel) declaration has free variables '{.ofConstName constName true}', expression: {indentExpr e}"
   | funExpected env lctx e              => mkCtx env lctx opts m!"(kernel) function expected{indentExpr e}"
   | typeExpected env lctx e             => mkCtx env lctx opts m!"(kernel) type expected{indentExpr e}"
   | letTypeMismatch  env lctx n _ _     => mkCtx env lctx opts m!"(kernel) let-declaration type mismatch '{n}'"

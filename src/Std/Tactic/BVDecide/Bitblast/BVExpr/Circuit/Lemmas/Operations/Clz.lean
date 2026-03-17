@@ -8,6 +8,9 @@ module
 prelude
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Clz
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Const
+import Init.Data.BitVec.Lemmas
+import Init.Data.Int.Pow
+import Init.Omega
 
 @[expose] public section
 
@@ -29,9 +32,6 @@ namespace BVExpr
 
 namespace bitblast
 namespace blastClz
-
-example (x : Nat) (hx : 0 < x) : ∃ y, x = y + 1 := by
-  exact Nat.exists_eq_add_one.mpr hx
 
 theorem go_denote_eq {w : Nat} (aig : AIG α)
     (acc : AIG.RefVec aig w) (xc : AIG.RefVec aig w) (x : BitVec w) (assign : α → Bool)

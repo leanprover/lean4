@@ -4,14 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Lean.Elab.Deriving.Basic
 public import Lean.Elab.PreDefinition.Main
 import all Lean.Elab.ErrorUtils
-
 public section
-
 namespace Lean.Elab
 open Lean.Parser.Term
 
@@ -564,7 +561,7 @@ private def elabFunValues (headers : Array DefViewElabHeader) (vars : Array Expr
           withExporting do
             let type ← instantiateMVars type
             Meta.check type
-        if linter.unusedSectionVars.get (← getOptions) && !header.type.hasSorry && !val.hasSorry then
+        if Linter.getLinterValue linter.unusedSectionVars (← Linter.getLinterOptions) && !header.type.hasSorry && !val.hasSorry then
           let unusedVars ← vars.filterMapM fun var => do
             let varDecl ← var.fvarId!.getDecl
             return if sc.includedVars.contains varDecl.userName ||
@@ -968,30 +965,18 @@ structure LetRecClosure where
 private def mkLetRecClosureFor (toLift : LetRecToLift) (freeVars : Array FVarId) : TermElabM LetRecClosure := do
   let lctx := toLift.lctx
   withLCtx lctx toLift.localInstances do
-  lambdaTelescope toLift.val fun xs val => do
-    /-
-      Recall that `toLift.type` and `toLift.value` may have different binder annotations.
-      See issue #1377 for an example.
-    -/
-    let userNameAndBinderInfos ← forallBoundedTelescope toLift.type xs.size fun xs _ =>
-      xs.mapM fun x => do
-        let localDecl ← x.fvarId!.getDecl
-        return (localDecl.userName, localDecl.binderInfo)
-    /- Auxiliary map for preserving binder user-facing names and `BinderInfo` for types. -/
-    let mut userNameBinderInfoMap : FVarIdMap (Name × BinderInfo) := {}
-    for x in xs, (userName, bi) in userNameAndBinderInfos do
-      userNameBinderInfoMap := userNameBinderInfoMap.insert x.fvarId! (userName, bi)
-    let type ← instantiateForall toLift.type xs
+  /-
+    Recall that `toLift.type` and `toLift.value` may have different binder annotations.
+    See issue #1377 for an example.
+  -/
+  let lambdaArity := toLift.val.getNumHeadLambdas
+  forallBoundedTelescope toLift.type lambdaArity fun xs type => do
+    let val := toLift.val.beta xs
     let lctx ← getLCtx
     let s ← mkClosureFor freeVars <| xs.map fun x => lctx.get! x.fvarId!
-    /- Apply original type binder info and user-facing names to local declarations. -/
-    let typeLocalDecls := s.localDecls.map fun localDecl =>
-      if let some (userName, bi) := userNameBinderInfoMap.get? localDecl.fvarId then
-        localDecl.setBinderInfo bi |>.setUserName userName
-      else
-        localDecl
-    let type := Closure.mkForall typeLocalDecls <| Closure.mkForall s.newLetDecls type
-    let val  := Closure.mkLambda s.localDecls <| Closure.mkLambda s.newLetDecls val
+    let cleanLocalDecls := s.localDecls.map fun decl => decl.setType <| decl.type.cleanupAnnotations
+    let type := Closure.mkForall s.localDecls <| Closure.mkForall s.newLetDecls type
+    let val  := Closure.mkLambda cleanLocalDecls <| Closure.mkLambda s.newLetDecls val
     let c    := mkAppN (Lean.mkConst toLift.declName) s.exprArgs
     toLift.mvarId.assign c
     return {
@@ -1092,8 +1077,8 @@ def pushLetRecs (preDefs : Array PreDefinition) (letRecClosures : List LetRecClo
       ref         := c.ref
       declName    := c.toLift.declName
       levelParams := [] -- we set it later
-      binders     := mkNullNode -- No docstrings, so we don't need these
-      modifiers   := { modifiers with attrs := c.toLift.attrs }
+      binders     := c.toLift.binders
+      modifiers   := { modifiers with attrs := c.toLift.attrs, docString? := c.toLift.docString? }
       kind, type, value,
       termination := c.toLift.termination
     }
@@ -1187,6 +1172,11 @@ private def checkAllDeclNamesDistinct (preDefs : Array PreDefinition) : TermElab
 structure AsyncBodyInfo where
 deriving TypeName
 
+register_builtin_option warn.classDefReducibility : Bool := {
+  defValue := true
+  descr    := "warn when a `def` of class type is not marked `@[reducible]` or `@[implicit_reducible]`"
+}
+
 register_builtin_option warn.exposeOnPrivate : Bool := {
   defValue := true
   descr    := "warn about uses of `@[expose]` on private declarations"
@@ -1224,6 +1214,16 @@ where
     withSaveInfoContext do  -- save adjusted env in info tree
     let headers ← elabHeaders views expandedDeclIds bodyPromises tacPromises
     let headers ← levelMVarToParamHeaders views headers
+
+    -- Now that we have elaborated types, default data instances to `[implicit_reducible]`. This
+    -- should happen before attribute application as `[instance]` will check for it.
+    for header in headers do
+      -- TODO: remove `instance_reducible once the alias is deprecated
+      if !header.modifiers.anyAttr (·.name matches `reducible | `implicit_reducible | `instance_reducible | `irreducible) then
+        if header.kind == .instance then
+          if !(← isProp header.type) then
+            setReducibilityStatus header.declName .implicitReducible
+
     if let (#[view], #[declId]) := (views, expandedDeclIds) then
       if Elab.async.get (← getOptions) && view.kind.isTheorem &&
           !deprecated.oldSectionVars.get (← getOptions) &&
@@ -1232,6 +1232,18 @@ where
         elabAsync headers[0]! view declId
       else elabSync headers
     else elabSync headers
+
+    -- Warn about class-typed `def`s that aren't marked with a reducibility attribute.
+    -- This check runs after elaboration so that attributes applied by other attributes
+    -- (e.g. `to_additive (attr := implicit_reducible)`) are accounted for.
+    for header in headers do
+      if header.kind == .def then
+        if warn.classDefReducibility.get (← getOptions) &&
+            (← isClass? header.type).isSome /-TODO-/ &&
+            !header.type.getForallBody.getAppFn.constName? matches ``Decidable | ``DecidableEq | ``Setoid then
+          let status ← getReducibilityStatus header.declName
+          unless status matches .reducible | .implicitReducible | .irreducible do
+            logWarning m!"Definition `{header.declName}` of class type must be marked with `@[reducible]` or `@[implicit_reducible]`"
     for view in views, declId in expandedDeclIds do
       -- NOTE: this should be the full `ref`, and thus needs to be done after any snapshotting
       -- that depends only on a part of the ref

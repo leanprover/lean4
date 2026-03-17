@@ -31,6 +31,13 @@ Author: Leonardo de Moura
 #if LEAN_SUPPORTS_BACKTRACE
 #include <execinfo.h>
 #include <unistd.h>
+// Lean-exported demangler from Lean.Compiler.NameDemangling.
+// Declared as a weak symbol so leanrt doesn't require libLean at link time.
+// When the Lean demangler is linked in, it overrides this stub.
+extern "C" __attribute__((weak)) lean_object * lean_demangle_bt_line_cstr(lean_object * s) {
+    lean_dec(s);
+    return lean_mk_string("");
+}
 #endif
 
 // HACK: for unknown reasons, std::isnan(x) fails on msys64 because math.h
@@ -134,7 +141,21 @@ static void print_backtrace(bool force_stderr) {
     void * bt_buf[100];
     int nptrs = backtrace(bt_buf, sizeof(bt_buf) / sizeof(void *));
     if (char ** symbols = backtrace_symbols(bt_buf, nptrs)) {
+        bool raw = getenv("LEAN_BACKTRACE_RAW");
         for (int i = 0; i < nptrs; i++) {
+            if (!raw) {
+                lean_object * line_obj = lean_mk_string(symbols[i]);
+                lean_object * result = lean_demangle_bt_line_cstr(line_obj);
+                char const * result_str = lean_string_cstr(result);
+                if (result_str[0] != '\0') {
+                    panic_eprintln(result_str, force_stderr);
+                    lean_dec(result);
+                    lean_dec(line_obj);
+                    continue;
+                }
+                lean_dec(result);
+                lean_dec(line_obj);
+            }
             panic_eprintln(symbols[i], force_stderr);
         }
         // According to `man backtrace`, each `symbols[i]` should NOT be freed
@@ -754,14 +775,25 @@ class task_manager {
             unique_lock<mutex> lock(m_mutex);
             m_idle_std_workers++;
             while (true) {
-                if (m_queues_size == 0 && m_shutting_down) {
-                    break;
+                if (m_queues_size == 0) {
+                    if (m_shutting_down) {
+                        // We're done
+                        break;
+                    }
+                    // Wait for new tasks
+                    m_queue_cv.wait(lock);
+                    continue;
                 }
-                if (m_queues_size == 0 ||
-                        // If we have reached the maximum number of standard workers (because the
-                        // maximum was decreased by `task_get`), wait for someone else to become
-                        // idle before picking up new work.
-                        m_std_workers.size() - m_idle_std_workers >= m_max_std_workers) {
+
+                // There's work to be done.
+                // If we have reached the maximum number of standard workers (because the
+                // maximum was decreased by `task_get`), wait for someone else to become
+                // idle before picking up new work.
+                // But during shutdown, we skip this throttling:
+                // because the finalizer might have called m_queue_cv.notify_all() for the last
+                // time, we don't want to get stuck behind the wait(). 
+                if (!m_shutting_down &&
+                    m_std_workers.size() - m_idle_std_workers >= m_max_std_workers) {
                     m_queue_cv.wait(lock);
                     continue;
                 }
@@ -2613,6 +2645,11 @@ extern "C" LEAN_EXPORT obj_res lean_copy_expand_array(obj_arg a, bool expand) {
     return r;
 }
 
+__attribute__((noinline))
+extern "C" LEAN_EXPORT obj_res lean_copy_expand_array_nonlinear(obj_arg a, bool expand) {
+    return lean_copy_expand_array(a, expand);
+}
+
 extern "C" LEAN_EXPORT object * lean_array_push(obj_arg a, obj_arg v) {
     object * r;
     if (lean_is_exclusive(a)) {
@@ -2621,7 +2658,7 @@ extern "C" LEAN_EXPORT object * lean_array_push(obj_arg a, obj_arg v) {
         else
             r = lean_copy_expand_array(a, true);
     } else {
-        r = lean_copy_expand_array(a, lean_array_capacity(a) < 2*lean_array_size(a) + 1);
+        r = lean_copy_expand_array_nonlinear(a, lean_array_capacity(a) < 2*lean_array_size(a) + 1);
     }
     lean_assert(lean_array_capacity(r) > lean_array_size(r));
     size_t & sz  = lean_to_array(r)->m_size;
@@ -2649,7 +2686,7 @@ extern "C" LEAN_EXPORT uint8 lean_name_eq(b_lean_obj_arg n1, b_lean_obj_arg n2) 
             if (!lean_string_eq(lean_ctor_get(n1, 1), lean_ctor_get(n2, 1)))
                 return false;
         } else {
-            if (!lean_nat_eq(lean_ctor_get(n1, 1), lean_ctor_get(n1, 1)))
+            if (!lean_nat_eq(lean_ctor_get(n1, 1), lean_ctor_get(n2, 1)))
                 return false;
         }
         n1 = lean_ctor_get(n1, 0);
@@ -2736,4 +2773,102 @@ void finalize_object() {
     delete g_ext_classes;
     delete g_ext_classes_mutex;
 }
+
+void lock_simple_atomic(std::atomic<int>& lock) {
+    while (true) {
+        lock.wait(1);
+        int should = 0;
+        if (lock.compare_exchange_strong(should, 1)) {
+            break;
+        }
+    }
+}
+
+void unlock_simple_atomic(std::atomic<int>& lock) {
+    lock.store(0);
+    lock.notify_one();
+}
+
+extern "C" LEAN_EXPORT lean_object* lean_obj_once_cold(lean_object** loc, lean_once_cell_t* tok, lean_object* (*init)(void)) {
+    lock_simple_atomic(tok->lock);
+    if (tok->state.load() != 1) {
+        *loc = init();
+        lean_mark_persistent(*loc);
+        tok->state.store(1);
+    }
+    unlock_simple_atomic(tok->lock);
+    return *loc;
+}
+
+extern "C" LEAN_EXPORT uint8_t lean_uint8_once_cold(uint8_t* loc, lean_once_cell_t* tok, uint8_t (*init)(void)) {
+    lock_simple_atomic(tok->lock);
+    if (tok->state.load() != 1) {
+        *loc = init();
+        tok->state.store(1);
+    }
+    unlock_simple_atomic(tok->lock);
+    return *loc;
+}
+
+extern "C" LEAN_EXPORT uint16_t lean_uint16_once_cold(uint16_t* loc, lean_once_cell_t* tok, uint16_t (*init)(void)) {
+    lock_simple_atomic(tok->lock);
+    if (tok->state.load() != 1) {
+        *loc = init();
+        tok->state.store(1);
+    }
+    unlock_simple_atomic(tok->lock);
+    return *loc;
+}
+
+extern "C" LEAN_EXPORT uint32_t lean_uint32_once_cold(uint32_t* loc, lean_once_cell_t* tok, uint32_t (*init)(void)) {
+    lock_simple_atomic(tok->lock);
+    if (tok->state.load() != 1) {
+        *loc = init();
+        tok->state.store(1);
+    }
+    unlock_simple_atomic(tok->lock);
+    return *loc;
+}
+
+extern "C" LEAN_EXPORT uint64_t lean_uint64_once_cold(uint64_t* loc, lean_once_cell_t* tok, uint64_t (*init)(void)) {
+    lock_simple_atomic(tok->lock);
+    if (tok->state.load() != 1) {
+        *loc = init();
+        tok->state.store(1);
+    }
+    unlock_simple_atomic(tok->lock);
+    return *loc;
+}
+
+extern "C" LEAN_EXPORT size_t lean_usize_once_cold(size_t* loc, lean_once_cell_t* tok, size_t (*init)(void)) {
+    lock_simple_atomic(tok->lock);
+    if (tok->state.load() != 1) {
+        *loc = init();
+        tok->state.store(1);
+    }
+    unlock_simple_atomic(tok->lock);
+    return *loc;
+}
+
+extern "C" LEAN_EXPORT float lean_float32_once_cold(float* loc, lean_once_cell_t* tok, float (*init)(void)) {
+    lock_simple_atomic(tok->lock);
+    if (tok->state.load() != 1) {
+        *loc = init();
+        tok->state.store(1);
+    }
+    unlock_simple_atomic(tok->lock);
+    return *loc;
+}
+
+extern "C" LEAN_EXPORT double lean_float_once_cold(double* loc, lean_once_cell_t* tok, double (*init)(void)) {
+    lock_simple_atomic(tok->lock);
+    if (tok->state.load() != 1) {
+        *loc = init();
+        tok->state.store(1);
+    }
+    unlock_simple_atomic(tok->lock);
+    return *loc;
+}
+
+
 }

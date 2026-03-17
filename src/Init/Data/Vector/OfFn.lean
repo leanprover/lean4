@@ -7,7 +7,11 @@ module
 
 prelude
 import all Init.Data.Vector.Basic
-public import Init.Data.Vector.Monadic
+public import Init.Data.Array.OfFn
+public import Init.Data.Vector.Basic
+import Init.Data.Fin.Lemmas
+import Init.Data.Vector.Monadic
+import Init.TacticsExtra
 
 public section
 
@@ -37,6 +41,11 @@ theorem mem_ofFn {n} {f : Fin n → α} {a : α} : a ∈ ofFn f ↔ ∃ i, f i =
   · rintro ⟨i, rfl⟩
     apply mem_of_getElem (i := i) <;> simp
 
+@[simp, grind =]
+theorem map_ofFn {f : Fin n → α} {g : α → β} :
+    (Vector.ofFn f).map g = Vector.ofFn (g ∘ f) := by
+  simp [← Vector.toArray_inj]
+
 @[grind =] theorem back_ofFn {n} [NeZero n] {f : Fin n → α} :
     (ofFn f).back = f ⟨n - 1, by have := NeZero.ne n; omega⟩ := by
   simp [back]
@@ -58,6 +67,11 @@ theorem ofFn_succ' {f : Fin (n+1) → α} :
     ofFn f = (#v[f 0] ++ ofFn (fun i => f i.succ)).cast (by omega) := by
   apply Vector.toArray_inj.mp
   simp [Array.ofFn_succ']
+
+@[simp]
+theorem ofFn_getElem {xs : Vector α n} :
+    Vector.ofFn (fun i : Fin n => xs[i.val]) = xs := by
+  ext; simp
 
 /-! ### ofFnM -/
 

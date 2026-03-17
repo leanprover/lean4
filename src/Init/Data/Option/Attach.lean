@@ -6,8 +6,12 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Data.Option.Array
 public import Init.Data.Array.Attach
+public import Init.Data.Option.Lemmas
+import Init.Data.Bool
+import Init.Data.Option.Array
+import Init.Data.Option.List
+import Init.Data.Subtype.Basic
 
 public section
 

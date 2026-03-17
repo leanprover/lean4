@@ -6,7 +6,17 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 module
 
 prelude
-public import Init.Data.List.Find
+public import Init.Data.List.Lemmas
+public import Init.Data.Nat.MinMax
+import Init.ByCases
+import Init.Data.Bool
+import Init.Data.List.Find
+import Init.Data.List.Sublist
+import Init.Data.List.TakeDrop
+import Init.Data.List.Zip
+import Init.Data.Nat.Lemmas
+import Init.Data.Option.Lemmas
+import Init.Omega
 
 public section
 
@@ -137,9 +147,14 @@ theorem take_append {l₁ l₂ : List α} {i : Nat} :
       congr 1
       omega
 
+@[grind =]
 theorem take_append_of_le_length {l₁ l₂ : List α} {i : Nat} (h : i ≤ l₁.length) :
     (l₁ ++ l₂).take i = l₁.take i := by
   simp [take_append, Nat.sub_eq_zero_of_le h]
+
+@[grind =]
+theorem take_append_length {l₁ l₂ : List α} : (l₁ ++ l₂).take l₁.length = l₁ := by
+  simp
 
 /-- Taking the first `l₁.length + i` elements in `l₁ ++ l₂` is the same as appending the first
 `i` elements of `l₂` to `l₁`. -/
@@ -192,7 +207,7 @@ theorem take_eq_dropLast {l : List α} {i : Nat} (h : i + 1 = l.length) :
     · cases as with
       | nil => simp_all
       | cons b bs =>
-        simp only [take_succ_cons, dropLast_cons₂]
+        simp only [take_succ_cons, dropLast_cons_cons]
         rw [ih]
         simpa using h
 
@@ -304,7 +319,6 @@ theorem drop_length_cons {l : List α} (h : l ≠ []) (a : α) :
 
 /-- Dropping the elements up to `i` in `l₁ ++ l₂` is the same as dropping the elements up to `i`
 in `l₁`, dropping the elements up to `i - l₁.length` in `l₂`, and appending them. -/
-@[grind =]
 theorem drop_append {l₁ l₂ : List α} {i : Nat} :
     drop i (l₁ ++ l₂) = drop i l₁ ++ drop (i - l₁.length) l₂ := by
   induction l₁ generalizing i
@@ -315,9 +329,14 @@ theorem drop_append {l₁ l₂ : List α} {i : Nat} :
       congr 1
       omega
 
+@[grind =]
 theorem drop_append_of_le_length {l₁ l₂ : List α} {i : Nat} (h : i ≤ l₁.length) :
     (l₁ ++ l₂).drop i = l₁.drop i ++ l₂ := by
   simp [drop_append, Nat.sub_eq_zero_of_le h]
+
+@[grind =]
+theorem drop_append_length {l₁ l₂ : List α} : (l₁ ++ l₂).drop l₁.length = l₂ := by
+  simp [List.drop_append_of_le_length (Nat.le_refl _)]
 
 /-- Dropping the elements up to `l₁.length + i` in `l₁ + l₂` is the same as dropping the elements
 up to `i` in `l₂`. -/
@@ -364,9 +383,25 @@ theorem drop_take : ∀ {i j : Nat} {l : List α}, drop i (take j l) = take (j -
     simp only [take_succ_cons, drop_succ_cons, drop_take, take_eq_take_iff, length_drop]
     omega
 
-@[simp] theorem drop_take_self : drop i (take i l) = [] := by
+@[simp, grind =] theorem drop_take_self : drop i (take i l) = [] := by
   rw [drop_take]
   simp
+
+set_option doc.verso true in
+/--
+This lemma will be renamed to {lit}`List.extract_eq_drop_take` as soon as the current deprecated
+lemma {name}`List.extract_eq_drop_take` has been removed.
+-/
+theorem extract_eq_drop_take' {l : List α} {start stop : Nat} :
+    l.extract start stop = (l.take stop).drop start := by
+  simp only [take_drop]
+  by_cases start ≤ stop
+  · rw [add_sub_of_le ‹_›]
+  · have h₁ : stop - start = 0 := by omega
+    have h₂ : min stop l.length ≤ stop := by omega
+    simp only [Nat.add_zero, List.drop_take_self, List.nil_eq, List.drop_eq_nil_iff,
+      List.length_take, ge_iff_le, h₁]
+    omega
 
 @[simp]
 theorem drop_eq_drop_iff :

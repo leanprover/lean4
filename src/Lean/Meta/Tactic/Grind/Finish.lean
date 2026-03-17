@@ -8,7 +8,6 @@ prelude
 public import Lean.Meta.Tactic.Grind.Action
 import Lean.Meta.Tactic.Grind.EMatchAction
 import Lean.Meta.Tactic.Grind.Split
-import Lean.Meta.Tactic.Grind.Intro
 namespace Lean.Meta.Grind.Action
 
 public abbrev maxIterationsDefault := 10000 -- **TODO**: Add option

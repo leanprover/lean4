@@ -6,12 +6,11 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Lean.Elab.Command
 public import Lean.Meta.Eval
 public import Lean.Meta.CompletionName
-public import Lean.Linter.Deprecated
 public import Init.Data.Random
 public import Lean.Elab.Tactic.Grind.Annotated
+import Init.Omega
 
 /-!
 # An API for library suggestion algorithms.
@@ -66,7 +65,7 @@ unsafe def fold {α : Type} (f : Name → α → MetaM α) (e : Expr) (acc : α)
     | .app f a           =>
       let fi ← getFunInfo f (some 1)
       if fi.paramInfo[0]!.isInstImplicit then
-        -- Don't visit implicit arguments.
+        -- Don't visit instance implicit arguments.
         visit f acc
       else
         visit a (← visit f acc)
@@ -76,7 +75,7 @@ unsafe def fold {α : Type} (f : Name → α → MetaM α) (e : Expr) (acc : α)
         return acc
       else
         modify fun s => { s with visitedConsts := s.visitedConsts.insert c }
-        if ← isInstance c then
+        if ← isImplicitReducible c then
           return acc
         else
           f c acc
@@ -316,10 +315,11 @@ builtin_initialize typePrefixDenyListExt : SimplePersistentEnvExtension Name (Li
 def isDeniedModule (env : Environment) (moduleName : Name) : Bool :=
   (moduleDenyListExt.getState env).any fun p => moduleName.anyS (· == p)
 
-def isDeniedPremise (env : Environment) (name : Name) : Bool := Id.run do
+def isDeniedPremise (env : Environment) (name : Name) (allowPrivate : Bool := false) : Bool := Id.run do
   if name == ``sorryAx then return true
-  if name.isInternalDetail then return true
-  if Lean.Meta.isInstanceCore env name then return true
+  -- Allow private names through if allowPrivate is set (e.g., for currentFile selector)
+  if name.isInternalDetail && !(allowPrivate && isPrivateName name) then return true
+  if isImplicitReducibleCore env name then return true
   if Lean.Linter.isDeprecated env name then return true
   if (nameDenyListExt.getState env).any (fun p => name.anyS (· == p)) then return true
   if let some moduleIdx := env.getModuleIdxFor? name then
@@ -358,14 +358,14 @@ def currentFile : Selector := fun _ cfg => do
   let max := cfg.maxSuggestions
   -- Use map₂ from the staged map, which contains locally defined constants
   let mut suggestions := #[]
-  for (name, ci) in env.constants.map₂.toList do
+  for (name, _) in env.constants.map₂ do
     if suggestions.size >= max then
       break
-    if isDeniedPremise env name then
+    -- Allow private names since they're accessible from the current module
+    if isDeniedPremise env name (allowPrivate := true) then
       continue
-    match ci with
-    | .thmInfo _ => suggestions := suggestions.push { name := name, score := 1.0 }
-    | _ => continue
+    if wasOriginallyTheorem env name then
+      suggestions := suggestions.push { name := name, score := 1.0 }
   return suggestions
 
 builtin_initialize librarySuggestionsExt : SimplePersistentEnvExtension Name (Option Name) ←
@@ -426,9 +426,7 @@ def elabSetLibrarySuggestions : CommandElab
     -- Generate a fresh name for the selector definition
     let name ← liftMacroM <| Macro.addMacroScope `_librarySuggestions
     -- Elaborate the definition with the library_suggestions attribute
-    -- Note: @[expose] public, to ensure visibility across module boundaries
-    -- Use fully qualified `Lean.LibrarySuggestions.Selector` for module compatibility
-    elabCommand (← `(@[expose, library_suggestions] public def $(mkIdent name) : Lean.LibrarySuggestions.Selector := $selector))
+    elabCommand (← `(@[library_suggestions] public meta def $(mkIdent name) : Selector := $selector))
   | _ => throwUnsupportedSyntax
 
 open Lean.Elab.Tactic in

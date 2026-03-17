@@ -8,6 +8,8 @@ module
 prelude
 public import Init.Grind.Ring.OfScientific
 public import Init.Data.Rat.Lemmas
+import Init.Data.Int.DivMod.Lemmas
+import Init.Data.Int.Lemmas
 
 public section
 

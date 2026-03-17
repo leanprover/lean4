@@ -7,8 +7,6 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Types
 import Init.Grind.Util
-import Lean.Meta.Tactic.Grind.Proof
-import Lean.Meta.Tactic.Grind.MatchCond
 import Lean.Meta.Tactic.Grind.Util
 namespace Lean.Meta.Grind
 /-!
@@ -119,7 +117,7 @@ def checkProofs : GoalM Unit := do
 
 /-- Checks invariants if `grind.debug` is enabled. -/
 public def checkInvariants (expensive := false) : GoalM Unit := do
-  if grind.debug.get (← getOptions) then
+  if (← isDebugEnabled) then
     for e in (← getExprs) do
       let node ← getENode e
       checkParents node.self

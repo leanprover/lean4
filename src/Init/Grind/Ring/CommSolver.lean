@@ -5,13 +5,23 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Init.Data.Hashable
 public import Init.Data.Ord.Basic
 public import Init.Grind.Ring.Field
 public import Init.Grind.Ordered.Ring
 public import Init.GrindInstances.Ring.Int
 import all Init.Data.Ord.Basic
 import Init.LawfulBEqTactics
+public import Init.Classical
+public import Init.Data.Bool
+public import Init.Data.Int.DivMod.Lemmas
+public import Init.Data.RArray
+public import Init.Ext
+import Init.Data.Hashable
+import Init.Data.Int.LemmasAux
+import Init.Data.Nat.Linear
+import Init.Grind.Ordered.Order
+import Init.Omega
+import Init.WFTactics
 
 @[expose] public section
 
@@ -766,7 +776,7 @@ def Poly.cancelVar (c : Int) (x : Var) (p : Poly) : Poly :=
           (fun _ _ _ _ => a.toPoly_k.pow k)
           (fun _ _ _ _ => a.toPoly_k.pow k)
           (fun _ _ _ => a.toPoly_k.pow k)
-          a) = match (generalizing := false) a with
+          a) = match a with
             | num n => Poly.num (n ^ k)
             | .intCast n => .num (n^k)
             | .natCast n => .num (n^k)

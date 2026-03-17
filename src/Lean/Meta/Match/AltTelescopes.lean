@@ -6,11 +6,12 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Meta.Basic
 public import Lean.Meta.Match.MatcherInfo
 import Lean.Meta.Match.NamedPatterns
 import Lean.Meta.MatchUtil
 import Lean.Meta.AppBuilder
+import Init.Data.Nat.Order
+import Init.Data.Order.Lemmas
 
 public section
 

@@ -10,6 +10,7 @@ public import Std.Data
 public import Init.Data.Queue
 public import Std.Sync.Mutex
 public import Std.Internal.Async.Select
+public import Init.Data.ToString.Macro
 
 public section
 

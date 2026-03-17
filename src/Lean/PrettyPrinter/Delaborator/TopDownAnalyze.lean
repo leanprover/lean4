@@ -317,7 +317,7 @@ def checkKnowsType : AnalyzeM Unit := do
     throw $ Exception.internal analyzeFailureId
 
 def annotateBoolAt (n : Name) (pos : Pos) : AnalyzeM Unit := do
-  let opts := (← get).annotations.getD pos {} |>.setBool n true
+  let opts := (← get).annotations.getD pos {} |>.set n true
   trace[pp.analyze.annotate] "{pos} {n}"
   modify fun s => { s with annotations := s.annotations.insert pos opts }
 

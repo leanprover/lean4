@@ -8,6 +8,7 @@ module
 
 prelude
 public import Lean.Meta.Hint
+import Init.Data.String.OrderInstances
 
 public section
 

@@ -7,6 +7,8 @@ module
 
 prelude
 public import Lean.Compiler.LCNF.CompilerM
+import Init.Data.Fin.Lemmas
+import Init.Omega
 
 public section
 
@@ -15,6 +17,20 @@ namespace Lean.Compiler.LCNF
 @[expose] def Phase.toNat : Phase → Nat
   | .base => 0
   | .mono => 1
+  | .impure => 2
+
+instance : ToString Phase where
+  toString
+    | .base => "base"
+    | .mono => "mono"
+    | .impure => "impure"
+
+def Phase.withPurityCheck [Inhabited α] (pp : Phase) (ip : Purity)
+    (x : pp.toPurity = ip → α) : α :=
+  if h : pp.toPurity = ip then
+    x h
+  else
+    panic! s!"Compiler error: {pp} is not equivalent to IR phase {ip}, this is a bug"
 
 instance : LT Phase where
   lt l r := l.toNat < r.toNat
@@ -60,7 +76,7 @@ structure Pass where
   /--
   The actual pass function, operating on the `Decl`s.
   -/
-  run : Array Decl → CompilerM (Array Decl)
+  run : Array (Decl phase.toPurity) → CompilerM (Array (Decl phaseOut.toPurity))
 
 instance : Inhabited Pass where
   default := { phase := .base, name := default, run := fun decls => return decls }
@@ -85,18 +101,23 @@ The `PassManager` used to store all `Pass`es that will be run within
 pipeline.
 -/
 structure PassManager where
+  /-- Passes that happen during the LCNF base phase -/
   basePasses : Array Pass
+  /-- Passes that happen during the LCNF mono phase before lambda lifting -/
   monoPasses : Array Pass
+  /--
+  Passes that happen during the LCNF mono phase after lambda lifting. Note that lifted lambdas will
+  have been lifted out of the SCC they originated from if possible.
+  -/
+  monoPassesNoLambda : Array Pass
+  /-- Passes that happen during the LCNF impure phase. -/
+  impurePasses : Array Pass
   deriving Inhabited
-
-instance : ToString Phase where
-  toString
-    | .base => "base"
-    | .mono => "mono"
 
 namespace Pass
 
-def mkPerDeclaration (name : Name) (run : Decl → CompilerM Decl) (phase : Phase) (occurrence : Nat := 0) : Pass where
+def mkPerDeclaration (name : Name) (phase : Phase)
+    (run : Decl phase.toPurity → CompilerM (Decl phase.toPurity)) (occurrence : Nat := 0) : Pass where
   occurrence := occurrence
   phase := phase
   name := name
@@ -114,6 +135,7 @@ private def validatePasses (phase : Phase) (passes : Array Pass) : CoreM Unit :=
 def validate (manager : PassManager) : CoreM Unit := do
   validatePasses .base manager.basePasses
   validatePasses .mono manager.monoPasses
+  validatePasses .mono manager.monoPassesNoLambda
 
 def findOccurrenceBounds (targetName : Name) (passes : Array Pass) : CoreM (Nat × Nat) := do
   let mut lowest := none
@@ -188,6 +210,8 @@ def run (manager : PassManager) (installer : PassInstaller) : CoreM PassManager 
     return { manager with basePasses := (← installer.install manager.basePasses) }
   | .mono =>
     return { manager with monoPasses := (← installer.install manager.monoPasses) }
+  | .impure =>
+    return { manager with impurePasses := (← installer.install manager.impurePasses) }
 
 private unsafe def getPassInstallerUnsafe (declName : Name) : CoreM PassInstaller := do
   ofExcept <| (← getEnv).evalConstCheck PassInstaller (← getOptions) ``PassInstaller declName

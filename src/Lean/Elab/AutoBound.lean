@@ -6,8 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Data.Options
-public import Lean.Message
 public import Lean.Meta.Hint
 
 public section

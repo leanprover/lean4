@@ -8,6 +8,8 @@ module
 prelude
 public import Std.Tactic.BVDecide.LRAT.Internal.Convert
 public import Std.Tactic.BVDecide.LRAT.Internal.LRATCheckerSound
+public import Std.Tactic.BVDecide.LRAT.Internal.CompactLRATChecker
+import Std.Tactic.BVDecide.LRAT.Internal.CompactLRATCheckerSound
 
 @[expose] public section
 
@@ -21,29 +23,13 @@ open Std.Sat
 namespace Std.Tactic.BVDecide
 namespace LRAT
 
-open Std.Tactic.BVDecide.LRAT.Internal in
+open Std.Tactic.BVDecide.LRAT.Internal
 /--
 Check whether `lratProof` is a valid LRAT certificate for the unsatisfiability of `cnf`.
 -/
 def check (lratProof : Array IntAction) (cnf : CNF Nat) : Bool :=
   let internalFormula := CNF.convertLRAT cnf
-  let lratProof := lratProof.toList
-  let lratProof := lratProof.map (intActionToDefaultClauseAction _)
-  let lratProof :=
-    lratProof.filterMap
-      (fun actOpt =>
-        match actOpt with
-        | none => none
-        | some (LRAT.Action.addEmpty id rupHints) => some (LRAT.Action.addEmpty id rupHints)
-        | some (LRAT.Action.addRup id c rupHints) => some (LRAT.Action.addRup id c rupHints)
-        | some (LRAT.Action.del ids) => some (LRAT.Action.del ids)
-        | some (LRAT.Action.addRat id c pivot rupHints ratHints) =>
-          if pivot ∈ Clause.toList c then
-            some (LRAT.Action.addRat id c pivot rupHints ratHints)
-          else
-            none
-      )
-  let checkerResult := lratChecker internalFormula lratProof
+  let checkerResult := compactLratChecker internalFormula lratProof
   checkerResult = .success
 
 open Std.Tactic.BVDecide.LRAT.Internal in
@@ -53,33 +39,13 @@ If the `check` functions succeeds on `lratProof` and `cnf` then the `cnf` is uns
 theorem check_sound (lratProof : Array IntAction) (cnf : CNF Nat) :
     check lratProof cnf → cnf.Unsat := by
   intro h1
-  unfold check at h1
-  simp only [decide_eq_true_eq] at h1
-  have h2 :=
-    lratCheckerSound
-      _
-      (by apply CNF.convertLRAT_readyForRupAdd)
-      (by apply CNF.convertLRAT_readyForRatAdd)
-      _
-      (by
-        intro action h
-        simp only [List.filterMap_map, List.mem_filterMap, Function.comp_apply] at h
-        rcases h with ⟨WellFormedActions, _, h2⟩
-        split at h2
-        . contradiction
-        . simp only [Option.some.injEq] at h2
-          simp [← h2, WellFormedAction]
-        . simp only [Option.some.injEq] at h2
-          simp [← h2, WellFormedAction]
-        . simp only [Option.some.injEq] at h2
-          simp [← h2, WellFormedAction]
-        . simp only [Option.ite_none_right_eq_some, Option.some.injEq] at h2
-          rcases h2 with ⟨hleft, hright⟩
-          simp [WellFormedAction, hleft, ← hright, Clause.limplies_iff_mem]
-      )
-      h1
   apply CNF.unsat_of_convertLRAT_unsat
-  assumption
+  unfold check at h1
+  simp at h1
+  apply compactLratChecker_sound (proof := lratProof)
+  · apply CNF.convertLRAT_readyForRupAdd
+  · apply CNF.convertLRAT_readyForRatAdd
+  · assumption
 
 end LRAT
 end Std.Tactic.BVDecide

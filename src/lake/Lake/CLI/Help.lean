@@ -8,7 +8,6 @@ module
 prelude
 public import Init.Data.ToString
 import Lake.Version
-import Init.Data.String.Basic
 
 namespace Lake
 
@@ -30,6 +29,7 @@ COMMANDS:
   lint                  lint the package using the configured lint driver
   check-lint            check if there is a properly configured lint driver
   clean                 remove build outputs
+  shake                 minimize imports in source files
   env <cmd> <args>...   execute a command in Lake's environment
   lean <file>           elaborate a Lean file in Lake's context
   update                update dependencies and save them to the manifest
@@ -271,13 +271,13 @@ package or its dependencies. It merely verifies that one is specified.
 "
 
 def helpPack :=
-"Pack build artifacts into a archive for distribution
+"Pack build artifacts into an archive for distribution
 
 USAGE:
   lake pack [<file.tgz>]
 
 Packs the root package's `buildDir` into a gzip tar archive using `tar`.
-If a path for the archive is not specified, creates a archive in the package's
+If a path for the archive is not specified, creates an archive in the package's
 Lake directory (`.lake`) named according to its `buildArchive` setting.
 
 Does NOT build any artifacts. It just packs the existing ones."
@@ -310,6 +310,44 @@ USAGE:
 If no package is specified, deletes the build directories of every package in
 the workspace. Otherwise, just deletes those of the specified packages."
 
+def helpShake :=
+"Minimize imports in Lean source files
+
+USAGE:
+  lake shake [OPTIONS] [<MODULE>...]
+
+Checks the current project for unused imports by analyzing generated `.olean`
+files to deduce required imports and ensuring that every import contributes
+some constant or other elaboration dependency.
+
+ARGUMENTS:
+  <MODULE>              A module path like `Mathlib`. All files transitively
+                        reachable from the provided module(s) will be checked.
+                        If not specified, uses the package's default targets.
+
+OPTIONS:
+  --force               Skip the `lake build --no-build` sanity check
+  --keep-implied        Preserve imports implied by other imports
+  --keep-prefix         Prefer parent module imports over specific submodules
+  --keep-public         Preserve all `public` imports for API stability
+  --add-public          Add new imports as `public` if they were in the
+                        original public closure
+  --explain             Show which constants require each import
+  --fix                 Apply suggested fixes directly to source files
+  --gh-style            Output in GitHub problem matcher format
+
+ANNOTATIONS:
+  Source files can contain special comments to control shake behavior:
+
+  * `module -- shake: keep-downstream`
+    Preserves this module in all downstream modules
+
+  * `module -- shake: keep-all`
+    Preserves all existing imports in this module
+
+  * `import X -- shake: keep`
+    Preserves this specific import"
+
 def helpCacheCli :=
 "Manage the Lake cache
 
@@ -317,13 +355,16 @@ USAGE:
   lake cache <COMMAND>
 
 COMMANDS:
-  get [<mappings>]      download artifacts into the Lake cache
-  put <mappings>        upload artifacts to a remote cache
+  get [<mappings>]      download build outputs into the local Lake cache
+  put <mappings>        upload build ouptuts to a remote cache
+  add <mappings>        add input-to-output mappings to the Lake cache
+  clean                 removes ALL froms the local Lake cache
+  services              print configured remote cache services
 
 See `lake cache help <command>` for more information on a specific command."
 
 def helpCacheGet :=
-"Download artifacts from a remote service into the Lake cache
+"Download build outputs from a remote service into the Lake cache
 
 USAGE:
   lake cache get [<mappings>]
@@ -331,33 +372,33 @@ USAGE:
 OPTIONS:
   --max-revs=<n>                  backtrack up to n revisions (default: 100)
   --rev=<commit-hash>             uses this exact revision to lookup artifacts
+  --service=<name>                cache service to fetch from
   --repo=<github-repo>            GitHub repository of the package or a fork
   --platform=<target-triple>      with Reservoir or --repo, sets the platform
   --toolchain=<name>              with Reservoir or --repo, sets the toolchain
   --scope=<remote-scope>          scope for a custom endpoint
+  --mappings-only                 only download mappings, delay artifacts
+  --force-download                redownload existing files
 
-Downloads artifacts for packages in the workspace from a remote cache service.
-The cache service used can be configured via the environment variables:
-
-  LAKE_CACHE_ARTIFACT_ENDPOINT  base URL for artifact downloads
-  LAKE_CACHE_REVISION_ENDPOINT  base URL for the mapping download
-
-If neither of these are set, Lake will use Reservoir.
+Downloads build outputs for packages in the workspace from a remote cache
+service. The cache service used can be specifed via the `--service` option.
+Otherwise, Lake will the system default, or, if none is configured, Reservoir.
+See `lake cache services` for more information on how to configure services.
 
 If an input-to-outputs mappings file, `--scope`, or `--repo` is provided,
-Lake will download artifacts for the root package. Otherwise, it will use
-Reservoir to download artifacts for each dependency in workspace (in order).
+Lake will download build outputs for the root package. Otherwise, it will use
+Reservoir to download outputs for each dependency in the workspace (in order).
 Non-Reservoir dependencies will be skipped.
 
-To determine the artifacts to download, Lake searches for input-to-output
-mappings for a given build of the package via the cache service. This mapping
-is identified by a Git revision and prefixed with a scope derived from the
-package's name, GitHub repository, Lean toolchain, and current platform.
-The exact configuration can be customized using options.
+To determine what to download, Lake searches for input-to-output mappings for
+a given build of the package via the cache service. This mapping is identified
+by a Git revision and prefixed with a scope derived from the package's name,
+GitHub repository, Lean toolchain, and current platform. The exact configuration
+can be customized using options.
 
-For Reservoir, setting `--repo` will make Lake lookup artifacts for the root
+For Reservoir, setting `--repo` will cause Lake to lookup outputs for the root
 package by a repository name, rather than the package's. This can be used to
-download artifacts for a fork of the Reservoir package (if such artifacts are
+download outputs for a fork of the Reservoir package (if such artifacts are
 available). The `--platform` and `--toolchain` options can be used to download
 artifacts for a different platform/toolchain configuration than Lake detects.
 For a custom endpoint, the full prefix Lake uses can be set via  `--scope`.
@@ -367,30 +408,33 @@ artifacts. If no mappings are found, Lake will backtrack the Git history up to
 `--max-revs`, looking for a revision with mappings. If `--max-revs` is 0, Lake
 will search the repository's entire history (or as far as Git will allow).
 
+By default, Lake will download both the input-to-output mappings and the
+output artifacts for a package. By using `--mappings-onlys`, Lake will only
+download the mappings abd delay downloading artifacts until they are needed.
+
 If a download for an artifact fails or the download process for a whole
 package fails, Lake will report this and continue on to the next. Once done,
 if any download failed, Lake will exit with a nonzero status code."
 
 def helpCachePut :=
-"Upload artifacts from the Lake cache to a remote service
+"Upload build outputs from the Lake cache to a remote service
 
 USAGE:
   lake cache put <mappings> <scope-option>
 
-Uploads the input-to-outputs mappings contained in the specified file along
+Uploads the input-to-output mappings contained in the specified file along
 with the corresponding output artifacts to a remote cache. The cache service
-used is configured via the environment variables:
-
-  LAKE_CACHE_KEY                  authentication key for requests
-  LAKE_CACHE_ARTIFACT_ENDPOINT    base URL for artifact uploads
-  LAKE_CACHE_REVISION_ENDPOINT    base URL for the mapping upload
+used via be specified via `--service` option. If not specifed, Lake will used
+the system default, or error if none is configured. See the help page of
+`lake cache services` for more information on how to configure services.
 
 Files are uploaded using the AWS Signature Version 4 authentication protocol
-via `curl`. Thus, the service should generally be an S3-compatible bucket.
+via `curl`. Thus, the service should generally be an S3-compatible bucket. The
+authentication key is set via the `LAKE_CACHE_KEY` environment variable.
 
 Since Lake does not currently use cryptographically secure hashes for
 artifacts and outputs, uploads to the cache are prefixed with a scope to avoid
-clashes. This scoped is configured with the following options:
+clashes. This scope is configured with the following options:
 
   --scope=<remote-scope>          sets a fixed scope
   --repo=<github-repo>            uses the repository + toolchain & platform
@@ -408,6 +452,63 @@ The mappings file is uploaded to the revision endpoint with a file name
 derived from the package's current Git revision (and prefixed by the
 full scope). As such, the command will warn if the work tree currently
 has changes."
+
+def helpCacheAdd :=
+"Addd input-to-output mappings to the Lake cache
+
+USAGE:
+  lake cache add <mappings>
+
+OPTIONS:
+  --service=<name>                cache service to fetch from on demand
+  --scope=<remote-scope>          the prefix of artifacts within the service
+  --repo=<github-repo>            for Reservoir, a GitHub repository scope
+
+Reads a list of input-to-output mapppings from the provided file and adds
+them to the local Lake cache. If `--service` is provided, the output artifacts
+can then be fetched lazily from that service during a Lake build. The service
+must either be `reservoir` or  be configured through the Lake system
+configuration (see the help page of `lake cache services` for details).
+
+Since Lake does not currently use cryptographically secure hashes for
+artifacts and outputs, artifacts in a cache service are prefixed with a scope
+to avoid clashes. For Reservoir, this scope can either be a package (set via
+`--scope`) or a repository (set via `--repo`). For S3 services, both options
+are synonymous."
+
+def helpCacheClean :=
+"Removes ALL files from the local Lake cache
+
+USAGE:
+  lake cache clean
+
+Deletes the configured Lake cache directory. If a workspace configuration
+exists, this will delete the cache directory it uses. Otherwise, it will
+delete the default Lake cache directory for the system."
+
+def helpCacheServices :=
+"Print configured remote cache services
+
+USAGE:
+  lake cache services
+
+Prints the name of each configured remote cache services (one per line).
+Additional services can be added by modifying the system Lake configuration.
+The exact location of the this configuration file is system dependent and can
+be set by `LAKE_CONFIG`, but it is usually located at `~/.lake/config.toml`.
+
+The configuration of the system cache could look something like the following:
+
+  cache.defaultService = \"my-s3\"
+  cache.defaultUploadService = \"my-s3\"
+
+  [[cache.service]]
+  name = \"my-s3\"
+  kind = \"s3\"
+  artifactEndpoint = \"https://my-s3.com/a0\"
+  revisionEndpoint = \"https://my-s3.com/r0\"
+
+If no `cache.defaultService` is configured, Lake will use Reservoir by default."
 
 def helpScriptCli :=
 "Manage Lake scripts
@@ -539,6 +640,9 @@ public def helpScript : (cmd : String) → String
 public def helpCache : (cmd : String) → String
 | "get"                 => helpCacheGet
 | "put"                 => helpCachePut
+| "add"                 => helpCacheAdd
+| "clean"               => helpCacheClean
+| "services"            => helpCacheServices
 | _                     => helpCacheCli
 
 public def help : (cmd : String) → String
@@ -557,6 +661,7 @@ public def help : (cmd : String) → String
 | "lint"                => helpLint
 | "check-lint"          => helpCheckLint
 | "clean"               => helpClean
+| "shake"               => helpShake
 | "script"              => helpScriptCli
 | "scripts"             => helpScriptList
 | "run"                 => helpScriptRun

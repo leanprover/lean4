@@ -97,6 +97,8 @@ def mkTagDeclarationExtension (name : Name := by exact decl_name%)
     addEntryFn    := fun s n => s.insert n,
     toArrayFn     := fun es => es.toArray.qsort Name.quickLt
     asyncMode
+    replay?       := some <|
+      SimplePersistentEnvExtension.replayOfFilter (!·.contains ·) (·.insert ·)
   }
 
 namespace TagDeclarationExtension
@@ -105,9 +107,13 @@ instance : Inhabited TagDeclarationExtension :=
   inferInstanceAs (Inhabited (SimplePersistentEnvExtension Name NameSet))
 
 def tag (ext : TagDeclarationExtension) (env : Environment) (declName : Name) : Environment :=
-  have : Inhabited Environment := ⟨env⟩
-  assert! env.getModuleIdxFor? declName |>.isNone -- See comment at `TagDeclarationExtension`
-  ext.addEntry (asyncDecl := declName) env declName
+  if declName.isAnonymous then
+    -- This case might happen on partial elaboration; ignore instead of triggering any panics below
+    env
+  else
+    have : Inhabited Environment := ⟨env⟩
+    assert! env.getModuleIdxFor? declName |>.isNone -- See comment at `TagDeclarationExtension`
+    ext.addEntry (asyncDecl := declName) env declName
 
 def isTagged (ext : TagDeclarationExtension) (env : Environment) (declName : Name)
     (asyncMode := ext.toEnvExtension.asyncMode) : Bool :=

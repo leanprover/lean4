@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Meta.Tactic.Util
+import Init.While
 
 public section
 

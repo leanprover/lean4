@@ -6,9 +6,10 @@ Author: Leonardo de Moura
 module
 
 prelude
-public import Init.Control.State
 public import Init.Data.Int.Basic
 public import Init.Data.String.Bootstrap
+import Init.Control.State
+import Init.Data.Nat.Bitwise.Basic
 
 public section
 
@@ -413,7 +414,7 @@ Renders a `Format` to a string.
 -/
 def pretty (f : Format) (width : Nat := defWidth) (indent : Nat := 0) (column := 0) : String :=
   let act : StateM State Unit := prettyM f width indent
-  State.out <| act (State.mk "" column) |>.snd
+  State.out <| act.run (State.mk "" column) |>.snd
 
 end Format
 

@@ -7,6 +7,7 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.MarkNestedSubsingletons
+import Init.Omega
 namespace Lean.Meta.Grind
 
 /-!
@@ -74,9 +75,9 @@ public partial def getAnchor (e : Expr) : GrindM UInt64 := do
           let arg := args[i]
           if h : i < pinfos.size then
             let info := pinfos[i]
-            -- **Note**: we ignore implicit instances we computing stable hash codes
+            -- **Note**: we ignore instances we computing stable hash codes
             -- TODO: evaluate whether we should ignore regular implicit arguments too.
-            unless info.isInstImplicit do
+            unless info.isImplicit do
               r := mix r (← getAnchor arg)
           else
             r := mix r (← getAnchor arg)

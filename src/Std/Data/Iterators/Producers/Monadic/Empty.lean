@@ -7,7 +7,6 @@ module
 
 prelude
 public import Init.Data.Iterators.Consumers.Loop
-public import Init.Data.Iterators.Internal.Termination
 
 @[expose] public section
 
@@ -35,7 +34,7 @@ Returns an iterator that terminates immediately.
 -/
 @[always_inline, inline]
 def IterM.empty (m : Type w → Type w') (β : Type w) :=
-  IterM.mk (Iterators.Types.Empty.mk (m := m) (β := β)) m β
+  (⟨Iterators.Types.Empty.mk (m := m) (β := β)⟩ : IterM m β)
 
 namespace Iterators.Types
 
@@ -49,7 +48,7 @@ instance Empty.instIterator [Monad m] : Iterator (Empty m β) m β where
 
 private def Empty.instFinitenessRelation [Monad m] :
     FinitenessRelation (Empty m β) m where
-  rel := emptyRelation
+  Rel := emptyRelation
   wf := emptyWf.wf
   subrelation {it it'} h := by
     obtain ⟨step, h, h'⟩ := h

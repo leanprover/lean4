@@ -5,7 +5,11 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Init.Data.List.BasicAux
+public import Init.Data.Nat.Linear
+import Init.ByCases
+import Init.Data.List.BasicAux
+import Init.Data.Prod
+import Init.Meta
 public section
 namespace Nat.SOM
 

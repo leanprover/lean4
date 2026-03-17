@@ -8,7 +8,6 @@ module
 prelude
 public import Init.Data.Option.Lemmas
 public import Init.Data.Iterators.Consumers.Loop
-public import Init.Data.Iterators.Internal.Termination
 
 @[expose] public section
 
@@ -68,10 +67,9 @@ Right now, the compiler does not unbox the internal state, leading to worse perf
 possible.
 -/
 @[always_inline, inline]
-def IterM.zip
-    (left : IterM (α := α₁) m β₁) (right : IterM (α := α₂) m β₂) :
+def IterM.zip (left : IterM (α := α₁) m β₁) (right : IterM (α := α₂) m β₂) :
     IterM (α := Types.Zip α₁ m α₂ β₂) m (β₁ × β₂) :=
-  .mk ⟨left, none, right⟩ m _
+  ⟨⟨left, none, right⟩⟩
 
 namespace Iterators.Types
 
@@ -152,7 +150,7 @@ theorem Zip.rel₁_of_right [Finite α₁ m] [Productive α₂ m]
 
 def Zip.instFinitenessRelation₁ [Monad m] [Finite α₁ m] [Productive α₂ m] :
     FinitenessRelation (Zip α₁ m α₂ β₂) m where
-  rel := Zip.Rel₁ m
+  Rel := Zip.Rel₁ m
   wf := by
     apply InvImage.wf
     refine ⟨fun (a, b) => Prod.lexAccessible (WellFounded.apply ?_ a) (WellFounded.apply ?_) b⟩
@@ -218,7 +216,7 @@ theorem Zip.rel₂_of_left [Productive α₁ m] [Finite α₂ m]
 
 def Zip.instFinitenessRelation₂ [Monad m] [Productive α₁ m] [Finite α₂ m] :
     FinitenessRelation (Zip α₁ m α₂ β₂) m where
-  rel := Zip.Rel₂ m
+  Rel := Zip.Rel₂ m
   wf := by
     apply InvImage.wf
     refine ⟨fun (a, b) => Prod.lexAccessible (WellFounded.apply ?_ a) (WellFounded.apply ?_) b⟩
@@ -285,7 +283,7 @@ theorem Zip.rel₃_of_right [Productive α₁ m] [Productive α₂ m]
 
 def Zip.instProductivenessRelation [Monad m] [Productive α₁ m] [Productive α₂ m] :
     ProductivenessRelation (Zip α₁ m α₂ β₂) m where
-  rel := Zip.Rel₃ m
+  Rel := Zip.Rel₃ m
   wf := by
     apply InvImage.wf
     refine ⟨fun (a, b) => Prod.lexAccessible (WellFounded.apply ?_ a) (WellFounded.apply ?_) b⟩

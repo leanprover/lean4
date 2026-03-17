@@ -6,8 +6,12 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Data.Int.DivMod.Lemmas
 import Init.LawfulBEqTactics
+public import Init.Data.Int.DivMod.Basic
+public meta import Init.Grind.Tactics
+import Init.ByCases
+import Init.Data.Int.DivMod.Lemmas
+import Init.Omega
 
 public section
 
@@ -346,6 +350,7 @@ theorem wrap_toInt (I : IntInterval) [ToInt α I] (x : α) :
 
 /-- Construct a `ToInt.Sub` instance from a `ToInt.Add` and `ToInt.Neg` instance and
 a `sub_eq_add_neg` assumption. -/
+@[implicit_reducible]
 def Sub.of_sub_eq_add_neg {α : Type u} [_root_.Add α] [_root_.Neg α] [_root_.Sub α]
     (sub_eq_add_neg : ∀ x y : α, x - y = x + -y)
     {I : IntInterval} (h : I.isFinite) [ToInt α I] [Add α I] [Neg α I] : ToInt.Sub α I where

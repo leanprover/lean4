@@ -52,13 +52,6 @@ def MVarId.congr? (mvarId : MVarId) : MetaM (Option (List MVarId)) :=
     applyCongrThm? mvarId congrThm
 
 /--
-Try to apply a `simp` congruence theorem and throw an error if it fails.
--/
-def MVarId.congr (mvarId : MVarId) : MetaM (List MVarId) := do
-  let some mvarIds ← mvarId.congr? | throwError "Failed to apply `simp` congruence theorem"
-  return mvarIds
-
-/--
 Try to apply a `hcongr` congruence theorem, and then tries to close resulting goals
 using `Eq.refl`, `HEq.refl`, and assumption.
 -/
@@ -112,7 +105,8 @@ def MVarId.congrN (mvarId : MVarId) (depth : Nat := 1000000) (closePre := true) 
   return s.toList
 where
   post (mvarId : MVarId) : StateRefT (Array MVarId) MetaM Unit := do
-    if closePost && (← getTransparency) != .reducible then
+    let mode ← getTransparency
+    if closePost && mode != .reducible && mode != .none then
       if let some mvarId ← mvarId.congrPre then
         modify (·.push mvarId)
     else

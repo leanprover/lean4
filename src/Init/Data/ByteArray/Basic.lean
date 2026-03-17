@@ -6,9 +6,12 @@ Author: Leonardo de Moura
 module
 
 prelude
-public import Init.Data.UInt.Basic
 import all Init.Data.UInt.BasicAux
-public import Init.Data.Array.Extract
+public import Init.Data.Array.DecidableEq
+public import Init.Data.List.Attach
+import Init.Data.Array.Bootstrap
+import Init.Data.Array.Lemmas
+import Init.Omega
 
 set_option doc.verso true
 
@@ -269,8 +272,10 @@ unsafe def foldlMUnsafe {β : Type v} {m : Type v → Type w} [Monad m] (f : β 
   if start < stop then
     if stop ≤ as.size then
       fold (USize.ofNat start) (USize.ofNat stop) init
-    else
+    else if start < as.size then
       fold (USize.ofNat start) (USize.ofNat as.size) init
+    else
+      pure init
   else
     pure init
 
@@ -464,5 +469,3 @@ def prevn : Iterator → Nat → Iterator
 
 end Iterator
 end ByteArray
-
-instance : ToString ByteArray := ⟨fun bs => bs.toList.toString⟩

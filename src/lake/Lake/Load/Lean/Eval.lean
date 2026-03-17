@@ -6,10 +6,9 @@ Authors: Mac Malone
 module
 
 prelude
-public import Lean.Environment
 public import Lake.Config.Workspace
-import Lake.DSL.Attributes
 import Lean.DocString
+import Lake.DSL.AttributesCore
 
 /-! # Lean Configuration Evaluator
 
@@ -166,10 +165,6 @@ public def Package.loadFromEnv
         error s!"{self.prettyName}: cannot both set lintDriver and use @[lint_driver]"
     else
       pure self.config.lintDriver
-
-  -- Deprecation warnings
-  unless self.config.manifestFile.isNone do
-    logWarning s!"{self.prettyName}: package configuration option 'manifestFile' is deprecated"
 
   -- Fill in the Package
   return {self with

@@ -5,9 +5,11 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Init.ByCases
-public import Init.Grind.Util
 public import Init.Grind.Ring.Basic
+public import Init.NotationExtra
+import Init.ByCases
+import Init.Classical
+import Init.Data.Bool
 public section
 namespace Lean.Grind
 

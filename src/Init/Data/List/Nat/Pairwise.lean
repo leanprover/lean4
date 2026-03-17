@@ -6,7 +6,12 @@ Authors: Mario Carneiro, James Gallicchio
 module
 
 prelude
-public import Init.Data.List.Nat.TakeDrop
+public import Init.NotationExtra
+import Init.Data.Fin.Lemmas
+import Init.Data.List.Nat.TakeDrop
+import Init.Data.List.Pairwise
+import Init.Data.List.Sublist
+import Init.Data.List.TakeDrop
 
 public section
 
@@ -33,7 +38,7 @@ theorem map_getElem_sublist {l : List α} {is : List (Fin l.length)} (h : is.Pai
     simp only [Fin.getElem_fin, map_cons]
     have := IH h.of_cons (hd+1) (pairwise_cons.mp h).1
     specialize his hd (.head _)
-    have := (drop_eq_getElem_cons ..).symm ▸ this.cons₂ (get l hd)
+    have := (drop_eq_getElem_cons ..).symm ▸ this.cons_cons (get l hd)
     have := Sublist.append (nil_sublist (take hd l |>.drop j)) this
     rwa [nil_append, ← (drop_append_of_le_length ?_), take_append_drop] at this
     simp [Nat.min_eq_left (Nat.le_of_lt hd.isLt), his]
@@ -48,10 +53,12 @@ theorem sublist_eq_map_getElem {l l' : List α} (h : l' <+ l) : ∃ is : List (F
   | cons _ _ IH =>
     let ⟨is, IH⟩ := IH
     refine ⟨is.map (·.succ), ?_⟩
+    set_option backward.isDefEq.respectTransparency false in
     simpa [Function.comp_def, pairwise_map]
-  | cons₂ _ _ IH =>
+  | cons_cons _ _ IH =>
     rcases IH with ⟨is,IH⟩
     refine ⟨⟨0, by simp [Nat.zero_lt_succ]⟩ :: is.map (·.succ), ?_⟩
+    set_option backward.isDefEq.respectTransparency false in
     simp [Function.comp_def, pairwise_map, IH, ← get_eq_getElem, get_cons_zero, get_cons_succ']
 
 set_option linter.listVariables false in

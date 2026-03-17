@@ -7,11 +7,8 @@ module
 prelude
 public import Lean.Meta.Basic
 import Lean.Meta.Tactic.Refl
-import Lean.Meta.Tactic.Cases
-import Lean.Meta.Tactic.Assumption
-import Lean.Meta.Tactic.Simp.Main
-import Lean.Meta.SameCtorUtils
 import Lean.Meta.Constructions.CtorIdx
+import Lean.Meta.Tactic.Subst
 namespace Lean.Meta
 
 def hinjSuffix := "hinj"

@@ -13,6 +13,7 @@ public import Lean.Util.Heartbeats
 import Init.Grind.Util
 import Init.Try
 import Lean.Elab.Tactic.Basic
+import Init.Omega
 
 public section
 
@@ -83,9 +84,8 @@ def tryDischarger (mvarId : MVarId) : MetaM (Option (List MVarId)) := do
     let tacStx ← `(tactic| try?)
     let remainingGoals ← Elab.Term.TermElabM.run' <| Elab.Tactic.run subgoal do
       -- Suppress info messages from try?
-      let initialLog ← Core.getMessageLog
-      Elab.Tactic.evalTactic tacStx
-      Core.setMessageLog initialLog
+      Elab.Tactic.withSuppressedMessages do
+        Elab.Tactic.evalTactic tacStx
     if remainingGoals.isEmpty then
       return some []
     else
@@ -138,7 +138,9 @@ to find candidate lemmas.
 open LazyDiscrTree (InitEntry findMatches)
 
 private def addImport (name : Name) (constInfo : ConstantInfo) :
-    MetaM (Array (InitEntry (Name × DeclMod))) :=
+    MetaM (Array (InitEntry (Name × DeclMod))) := do
+  -- Don't report deprecated lemmas.
+  if Linter.isDeprecated (← getEnv) name then return #[]
   -- Don't report lemmas from metaprogramming namespaces.
   if name.isMetaprogramming then return #[] else
   forallTelescope constInfo.type fun _ type => do
@@ -221,11 +223,6 @@ def mkHeartbeatCheck (leavePercent : Nat) : MetaM (MetaM Bool) := do
     else do
       return (← getRemainingHeartbeats) < hbThreshold
 
-private def librarySearchEmoji : Except ε (Option α) → String
-| .error _ => bombEmoji
-| .ok (some _) => crossEmoji
-| .ok none => checkEmoji
-
 /--
 Interleave x y interleaves the elements of x and y until one is empty and then returns
 final elements in other list.
@@ -289,8 +286,6 @@ def librarySearchSymm (searchFn : CandidateFinder) (goal : MVarId) : MetaM (Arra
   else
     pure $ l1.map (coreGoalCtx, ·)
 
-private def emoji (e : Except ε α) := if e.toBool then checkEmoji else crossEmoji
-
 /-- Create lemma from name and mod. -/
 def mkLibrarySearchLemma (lem : Name) (mod : DeclMod) : MetaM Expr := do
   let lem ← mkConstWithFreshMVarLevels lem
@@ -317,7 +312,7 @@ private def librarySearchLemma (cfg : ApplyConfig) (act : List MVarId → MetaM 
   let ((goal, mctx), (name, mod)) := cand
   let ppMod (mod : DeclMod) : MessageData :=
         match mod with | .none => "" | .mp => " with mp" | .mpr => " with mpr"
-  withTraceNode `Tactic.librarySearch (return m!"{emoji ·} trying {name}{ppMod mod} ") do
+  withTraceNode `Tactic.librarySearch (fun _ => return m!"trying {name}{ppMod mod} ") do
     setMCtx mctx
     let lem ← mkLibrarySearchLemma name mod
     let newGoals ← goal.apply lem cfg
@@ -369,7 +364,7 @@ private def librarySearch' (goal : MVarId)
     (includeStar : Bool := true)
     (collectAll : Bool := false) :
     MetaM (Option (Array (List MVarId × MetavarContext))) := do
-  withTraceNode `Tactic.librarySearch (return m!"{librarySearchEmoji ·} {← goal.getType}") do
+  withTraceNode `Tactic.librarySearch (fun _ => return m!"{← goal.getType}") do
   profileitM Exception "librarySearch" (← getOptions) do
     let cfg : ApplyConfig := { allowSynthFailures := true }
     let shouldAbort ← mkHeartbeatCheck leavePercentHeartbeats

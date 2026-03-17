@@ -88,9 +88,9 @@ private def mkDischargeWrapper (optDischargeSyntax : Syntax) : TacticM Simp.Disc
 -/
 def elabSimpConfig (optConfig : Syntax) (kind : SimpKind) : TacticM Meta.Simp.Config := do
   match kind with
-  | .simp    => elabSimpConfigCore optConfig
-  | .simpAll => return (← elabSimpConfigCtxCore optConfig).toConfig
-  | .dsimp   => return { (← elabDSimpConfigCore optConfig) with }
+    | .simp    => elabSimpConfigCore optConfig
+    | .simpAll => pure (← elabSimpConfigCtxCore optConfig).toConfig
+    | .dsimp   => pure { (← elabDSimpConfigCore optConfig) with }
 
 inductive ResolveSimpIdResult where
   | none
@@ -416,6 +416,28 @@ structure MkSimpContextResult where
   /-- The elaborated simp arguments with syntax -/
   simpArgs         : Array (Syntax × ElabSimpArgResult) := #[]
 
+/-- Add all definitions from the current file to unfold. -/
+def elabSimpLocals (thms : SimpTheorems) (kind : SimpKind) : MetaM SimpTheorems := do
+  let env ← getEnv
+  let mut thms := thms
+  for (name, ci) in env.constants.map₂.toList do
+    -- Skip internal details, but allow private names (which are accessible from current module)
+    if name.isInternalDetail && !isPrivateName name then continue
+    if (← isImplicitReducible name) then continue
+    match ci with
+    | .defnInfo _ =>
+      -- Definitions are added to unfold
+      try
+        if kind == .dsimp then
+          thms := thms.addDeclToUnfoldCore name
+        else
+          let entries ← mkSimpEntryOfDeclToUnfold name
+          for entry in entries do
+            thms := thms.addSimpEntry entry
+      catch _ => pure () -- Skip definitions that can't be added
+    | _ => continue
+  return thms
+
 /--
    Create the `Simp.Context` for the `simp`, `dsimp`, and `simp_all` tactics.
    If `kind != SimpKind.simp`, the `discharge` option must be `none`
@@ -437,14 +459,18 @@ def mkSimpContext (stx : Syntax) (eraseLocal : Bool) (kind := SimpKind.simp)
       throwError "Tactic `dsimp` does not support the `discharger' option"
   let dischargeWrapper ← mkDischargeWrapper stx[2]
   let simpOnly := !stx[simpOnlyPos].isNone
-  let simpTheorems ← if simpOnly then
+  let mut simpTheorems ← if simpOnly then
     simpOnlyBuiltins.foldlM (·.addConst ·) ({} : SimpTheorems)
   else
     simpTheorems
   let simprocs ← if simpOnly then pure {} else Simp.getSimprocs
   let congrTheorems ← getSimpCongrTheorems
+  let config ← elabSimpConfig stx[1] (kind := kind)
+  -- Add local definitions if +locals is enabled
+  if config.locals then
+    simpTheorems ← elabSimpLocals simpTheorems kind
   let ctx ← Simp.mkContext
-     (config := (← elabSimpConfig stx[1] (kind := kind)))
+     (config := config)
      (simpTheorems := #[simpTheorems])
      congrTheorems
   let r ← elabSimpArgs stx[4] (eraseLocal := eraseLocal) (kind := kind) (simprocs := #[simprocs]) (ignoreStarArg := ignoreStarArg) ctx
@@ -664,7 +690,7 @@ def withSimpDiagnostics (x : TacticM Simp.Diagnostics) : TacticM Unit := do
       simpLocation ctx simprocs discharge? (expandOptLocation stx[5])
   if tactic.simp.trace.get (← getOptions) then
     traceSimpCall stx stats.usedTheorems
-  else if linter.unusedSimpArgs.get (← getOptions) then
+  else if Linter.getLinterValue linter.unusedSimpArgs (← Linter.getLinterOptions) then
     withRef stx do
       warnUnusedSimpArgs simpArgs stats.usedTheorems
   return stats.diag
@@ -681,7 +707,7 @@ def withSimpDiagnostics (x : TacticM Simp.Diagnostics) : TacticM Unit := do
   | some mvarId => replaceMainGoal [mvarId]
   if tactic.simp.trace.get (← getOptions) then
     traceSimpCall stx stats.usedTheorems
-  else if linter.unusedSimpArgs.get (← getOptions) then
+  else if Linter.getLinterValue linter.unusedSimpArgs (← Linter.getLinterOptions) then
     withRef stx do
       warnUnusedSimpArgs simpArgs stats.usedTheorems
   return stats.diag

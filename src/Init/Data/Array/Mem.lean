@@ -6,7 +6,11 @@ Authors: Leonardo de Moura, Joachim Breitner
 module
 
 prelude
-public import Init.Data.List.BasicAux
+public import Init.Data.Array.Basic
+public import Init.WFTactics
+import Init.Data.List.BasicAux
+import Init.Data.Nat.Linear
+meta import Init.MetaTypes
 
 public section
 

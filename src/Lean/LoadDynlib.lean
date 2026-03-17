@@ -8,6 +8,7 @@ module
 prelude
 public import Init.System.IO
 import Init.Data.String.TakeDrop
+import Init.Data.ToString.Macro
 
 public section
 

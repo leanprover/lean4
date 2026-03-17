@@ -6,10 +6,10 @@ Author: Leonardo de Moura
 module
 
 prelude
-public import Init.Data.Format.Macro
-public import Init.Data.Format.Instances
-public import Init.Meta
 import Init.Data.ToString.Name
+public import Init.Data.ToString.Basic
+import Init.Data.Format.Instances
+import Init.Data.Format.Macro
 
 public section
 

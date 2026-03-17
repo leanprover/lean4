@@ -7,10 +7,8 @@ module
 prelude
 public import Init.Grind.Ring.Basic
 public import Init.Simproc
-public import Lean.Meta.Tactic.Simp.Simproc
 public import Lean.Meta.Tactic.Grind.SynthInstance
 import Init.Grind.Ring.Field
-import Init.Grind.FieldNormNum
 import Lean.Meta.Tactic.Grind.Arith.FieldNormNum
 public section
 namespace Lean.Meta.Grind.Arith

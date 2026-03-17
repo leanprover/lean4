@@ -6,7 +6,6 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Iterators.Internal.Termination
 public import Init.Data.Iterators.Consumers.Monadic.Access
 public import Init.Data.Iterators.Consumers.Monadic.Collect
 public import Init.Data.Iterators.Consumers.Monadic.Loop
@@ -81,13 +80,13 @@ instance StepSizeIterator.instIterator [Iterator α m β] [IteratorAccess α m] 
 
 def StepSizeIterator.instFinitenessRelation [Iterator α m β] [IteratorAccess α m] [Monad m]
     [Finite α m] : FinitenessRelation (Types.StepSizeIterator α m β) m where
-  rel := InvImage WellFoundedRelation.rel (fun it => it.internalState.inner.finitelyManySteps)
+  Rel := InvImage WellFoundedRelation.rel (fun it => it.internalState.inner.finitelyManySteps)
   wf := by
     apply InvImage.wf
     apply WellFoundedRelation.wf
   subrelation {it it'} h := by
     obtain ⟨step, hs, h⟩ := h
-    simp only [IterM.IsPlausibleStep, Iterator.IsPlausibleStep] at h
+    simp only [IterM.IsPlausibleStep, Iterator.IsPlausibleStep, instIterator] at h -- TODO
     simp only [InvImage]
     obtain ⟨⟨n, it⟩⟩ := it
     simp only at ⊢ h
@@ -115,12 +114,12 @@ instance StepSizeIterator.instFinite [Iterator α m β] [IteratorAccess α m] [M
 
 def StepSizeIterator.instProductivenessRelation [Iterator α m β] [IteratorAccess α m] [Monad m]
     [Productive α m] : ProductivenessRelation (Types.StepSizeIterator α m β) m where
-  rel := InvImage WellFoundedRelation.rel (fun it => it.internalState.inner.finitelyManySkips)
+  Rel := InvImage WellFoundedRelation.rel (fun it => it.internalState.inner.finitelyManySkips)
   wf := by
     apply InvImage.wf
     apply WellFoundedRelation.wf
   subrelation {it it'} h := by
-    simp only [IterM.IsPlausibleSkipSuccessorOf, IterM.IsPlausibleStep, Iterator.IsPlausibleStep] at h
+    simp only [IterM.IsPlausibleSkipSuccessorOf, IterM.IsPlausibleStep, Iterator.IsPlausibleStep, instIterator] at h -- TODO
     simp only [InvImage]
     obtain ⟨⟨n, it⟩⟩ := it
     simp only [IterStep.mapIterator_skip, Function.comp_apply] at ⊢ h

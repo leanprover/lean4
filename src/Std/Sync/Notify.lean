@@ -43,7 +43,7 @@ def Notify.Consumer.resolve (c : Consumer α) (x : α) : BaseIO Bool := do
     waiter.race lose win
 
 /--
-The central state structure for an a `Notify`.
+The central state structure for a `Notify`.
 -/
 structure Notify.State where
 

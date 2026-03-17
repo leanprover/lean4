@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.Control.Lawful.Basic
+public import Init.Ext
 
 public section
 

@@ -10,6 +10,9 @@ public import Init.Data.Iterators.Consumers.Monadic.Partial
 public import Init.Data.Iterators.Internal.LawfulMonadLiftFunction
 public import Init.WFExtrinsicFix
 public import Init.Data.Iterators.Consumers.Monadic.Total
+import Init.PropLemmas
+
+set_option linter.missingDocs true
 
 public section
 
@@ -70,6 +73,9 @@ provided by the standard library.
 @[ext]
 class IteratorLoop (α : Type w) (m : Type w → Type w') {β : Type w} [Iterator α m β]
     (n : Type x → Type x') where
+  /--
+  Iteration over the iterator `it` in the manner expected by `for` loops.
+  -/
   forIn : ∀ (_liftBind : (γ : Type w) → (δ : Type x) → (γ → n δ) → m γ → n δ) (γ : Type x),
       (plausible_forInStep : β → γ → ForInStep γ → Prop) →
       (it : IterM (α := α) m β) → γ →
@@ -82,7 +88,9 @@ end Typeclasses
 structure IteratorLoop.WithWF (α : Type w) (m : Type w → Type w') {β : Type w} [Iterator α m β]
     {γ : Type x} (PlausibleForInStep : β → γ → ForInStep γ → Prop)
     (hwf : IteratorLoop.WellFounded α m PlausibleForInStep) where
+  /-- Internal implementation detail of the iterator library. -/
   it : IterM (α := α) m β
+  /-- Internal implementation detail of the iterator library. -/
   acc : γ
 
 instance IteratorLoop.WithWF.instWellFoundedRelation
@@ -151,7 +159,7 @@ This is the default implementation of the `IteratorLoop` class.
 It simply iterates through the iterator using `IterM.step`. For certain iterators, more efficient
 implementations are possible and should be used instead.
 -/
-@[always_inline, inline, expose]
+@[always_inline, inline, expose, implicit_reducible]
 def IteratorLoop.defaultImplementation {α : Type w} {m : Type w → Type w'} {n : Type x → Type x'}
     [Monad n] [Iterator α m β] :
     IteratorLoop α m n where
@@ -163,6 +171,7 @@ Asserts that a given `IteratorLoop` instance is equal to `IteratorLoop.defaultIm
 -/
 class LawfulIteratorLoop (α : Type w) (m : Type w → Type w') (n : Type x → Type x')
     [Monad m] [Monad n] [Iterator α m β] [i : IteratorLoop α m n] where
+  /-- The implementation of `IteratorLoop.forIn` in `i` is equal to the default implementation. -/
   lawful lift [LawfulMonadLiftBindFunction lift] γ it init
       (Pl : β → γ → ForInStep γ → Prop) (wf : IteratorLoop.WellFounded α m Pl)
       (f : (b : β) → it.IsPlausibleIndirectOutput b → (c : γ) → n (Subtype (Pl b c))) :
@@ -177,8 +186,8 @@ instance instLawfulIteratorLoopDefaultImplementation (α : Type w) (m : Type w �
   constructor; simp
 
 theorem IteratorLoop.wellFounded_of_finite {m : Type w → Type w'}
-    {α β : Type w} {γ : Type x} [Iterator α m β] [Finite α m] :
-    WellFounded α m (γ := γ) fun _ _ _ => True := by
+    {α β : Type w} {γ : Type x} [Iterator α m β] [Finite α m] {P : β → γ → ForInStep γ → Prop} :
+    WellFounded α m (γ := γ) P := by
   apply Subrelation.wf
     (r := InvImage IterM.TerminationMeasures.Finite.Rel (fun p => p.1.finitelyManySteps))
   · intro p' p h
@@ -189,10 +198,20 @@ theorem IteratorLoop.wellFounded_of_finite {m : Type w → Type w'}
   · apply InvImage.wf
     exact WellFoundedRelation.wf
 
+theorem IteratorLoop.wellFounded_of_productive {α β : Type w} {m : Type w → Type w'}
+    [Iterator α m β] [IteratorLoop α m m] [Productive α m] {P : β → γ → ForInStep γ → Prop}
+    (hp : ∀ {b g s}, P b g s → s matches ForInStep.done ..) :
+    WellFounded α m (γ := γ) P := by
+  rw [WellFounded]
+  unfold IteratorLoop.rel
+  have {b g q} : ¬ P b g (ForInStep.yield q) := fun h => by simpa using hp h
+  simp only [and_false, exists_false, false_or, this]
+  exact Subrelation.wf And.left (InvImage.wf Prod.fst Productive.wf)
+
 /--
 This `ForIn'`-style loop construct traverses a finite iterator using an `IteratorLoop` instance.
 -/
-@[always_inline, inline]
+@[always_inline, inline, expose, implicit_reducible]
 def IteratorLoop.finiteForIn' {m : Type w → Type w'} {n : Type x → Type x'}
     {α : Type w} {β : Type w} [Iterator α m β] [IteratorLoop α m n] [Monad n]
     (lift : ∀ γ δ, (γ → n δ) → m γ → n δ) :
@@ -205,7 +224,7 @@ A `ForIn'` instance for iterators. Its generic membership relation is not easy t
 so this is not marked as `instance`. This way, more convenient instances can be built on top of it
 or future library improvements will make it more comfortable.
 -/
-@[always_inline, inline]
+@[always_inline, inline, expose, implicit_reducible]
 def IterM.instForIn' {m : Type w → Type w'} {n : Type w → Type w''}
     {α : Type w} {β : Type w} [Iterator α m β] [IteratorLoop α m n] [Monad n]
     [MonadLiftT m n] :
@@ -219,14 +238,16 @@ instance IterM.instForInOfIteratorLoop {m : Type w → Type w'} {n : Type w → 
   haveI : ForIn' n (IterM (α := α) m β) β _ := IterM.instForIn'
   instForInOfForIn'
 
-@[always_inline, inline]
+/-- Internal implementation detail of the iterator library. -/
+@[always_inline, inline, expose, implicit_reducible]
 def IterM.Partial.instForIn' {m : Type w → Type w'} {n : Type w → Type w''}
     {α : Type w} {β : Type w} [Iterator α m β] [IteratorLoop α m n] [MonadLiftT m n] [Monad n] :
     ForIn' n (IterM.Partial (α := α) m β) β ⟨fun it out => it.it.IsPlausibleIndirectOutput out⟩ where
   forIn' it init f :=
     haveI := @IterM.instForIn'; forIn' it.it init f
 
-@[always_inline, inline]
+/-- Internal implementation detail of the iterator library. -/
+@[always_inline, inline, expose, implicit_reducible]
 def IterM.Total.instForIn' {m : Type w → Type w'} {n : Type w → Type w''}
     {α : Type w} {β : Type w} [Iterator α m β] [IteratorLoop α m n] [MonadLiftT m n] [Monad n]
     [Finite α m] :
@@ -892,6 +913,76 @@ def IterM.Total.find? {α β : Type w} {m : Type w → Type w'} [Monad m] [Itera
     m (Option β) :=
   it.it.find? f
 
+/--
+Returns the first output of the iterator, or `none` if no such output is found.
+
+`O(|it|)` since the iterator may skip an unknown number of times before returning a result.
+Short-circuits upon encountering the first result. Only the first element of `it` is examined.
+
+If the iterator is not productive, this function might run forever. The variant
+`it.ensureTermination.first?` always terminates after finitely many steps.
+
+Examples:
+* `([7, 6].iterM Id).first? = pure (some 7)`
+* `([].iterM Id).first? = pure none`
+-/
+@[inline]
+def IterM.first? {α β : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β]
+    [IteratorLoop α m m] (it : IterM (α := α) m β) : m (Option β) :=
+  IteratorLoop.forIn (fun _ _ => flip Bind.bind) _ (fun b _ s => s = ForInStep.done (some b)) it
+    none (fun b _ _ => pure ⟨ForInStep.done (some b), rfl⟩)
+
+/--
+Returns the first output of the iterator, or `none` if no such output is found.
+
+`O(|it|)` since the iterator may skip an unknown number of times before returning a result.
+Short-circuits upon encountering the first result. The elements in `it` are examined in order of
+iteration.
+
+This variant terminates after finitely many steps and requires a proof that the iterator is
+productive. If such a proof is not available, consider using `IterM.first?`.
+
+Examples:
+* `([7, 6].iterM Id).first? = pure (some 7)`
+* `([].iterM Id).first? = pure none`
+-/
+@[inline]
+def IterM.Total.first? {α β : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β]
+    [IteratorLoop α m m] [Productive α m] (it : IterM.Total (α := α) m β) : m (Option β) :=
+  it.it.first?
+
+set_option doc.verso true in
+/--
+Returns {lean}`ULift.up true` if the iterator {name}`it` yields no values.
+
+{lit}`O(|it|)` since the iterator may skip an unknown number of times before returning a result.
+Short-circuits upon encountering the first result. Only the first element of {name}`it` is examined.
+
+If the iterator is not productive, this function might run forever. The variant
+{lit}`it.ensureTermination.isEmpty` always terminates after finitely many steps.
+-/
+@[always_inline]
+def IterM.isEmpty {α β : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β]
+    [IteratorLoop α m m] (it : IterM (α := α) m β) : m (ULift Bool) :=
+  IteratorLoop.forIn (fun _ _ => flip Bind.bind) _ (fun _ _ s => s = ForInStep.done (.up false)) it
+    (.up true) (fun _ _ _ => pure ⟨ForInStep.done (.up false), rfl⟩)
+
+set_option doc.verso true in
+/--
+Returns {lean}`ULift.up true` if the iterator {name}`it` yields no values.
+
+{lit}`O(|it|)` since the iterator may skip an unknown number of times before returning a result.
+Short-circuits upon encountering the first result. Only the first element of {name}`it` is examined.
+
+This variant terminates after finitely many steps and requires a proof that the iterator is
+finite. If such a proof is not available, consider using {name}`IterM.isEmpty`.
+-/
+@[always_inline, inline]
+def IterM.Total.isEmpty {α β : Type w} {m : Type w → Type w'} [Monad m]
+    [Iterator α m β] [IteratorLoop α m m] [Productive α m] (it : IterM.Total (α := α) m β) :
+    m (ULift Bool) :=
+  it.it.isEmpty
+
 section Count
 
 /--
@@ -902,21 +993,15 @@ Steps through the whole iterator, counting the number of outputs emitted.
 This function's runtime is linear in the number of steps taken by the iterator.
 -/
 @[always_inline, inline]
-def IterM.count {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
+def IterM.length {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
     [IteratorLoop α m m] [Monad m] (it : IterM (α := α) m β) : m (ULift Nat) :=
   it.fold (init := .up 0) fun acc _ => .up (acc.down + 1)
 
-/--
-Steps through the whole iterator, counting the number of outputs emitted.
+@[inline, inherit_doc IterM.length, deprecated IterM.length (since := "2026-01-28"), expose]
+def IterM.count := @IterM.length
 
-**Performance**:
-
-This function's runtime is linear in the number of steps taken by the iterator.
--/
-@[always_inline, inline, deprecated IterM.count (since := "2025-10-29")]
-def IterM.size {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
-    [IteratorLoop α m m] [Monad m] (it : IterM (α := α) m β) : m (ULift Nat) :=
-  it.count
+@[inline, inherit_doc IterM.length, deprecated IterM.length (since := "2025-10-29"), expose]
+def IterM.size := @IterM.length
 
 /--
 Steps through the whole iterator, counting the number of outputs emitted.
@@ -925,7 +1010,7 @@ Steps through the whole iterator, counting the number of outputs emitted.
 
 This function's runtime is linear in the number of steps taken by the iterator.
 -/
-@[always_inline, inline, deprecated IterM.count (since := "2025-12-04")]
+@[always_inline, inline, deprecated IterM.length (since := "2025-12-04")]
 def IterM.Partial.count {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
     [IteratorLoop α m m] [Monad m] (it : IterM.Partial (α := α) m β) : m (ULift Nat) :=
   it.it.fold (init := .up 0) fun acc _ => .up (acc.down + 1)
@@ -937,10 +1022,10 @@ Steps through the whole iterator, counting the number of outputs emitted.
 
 This function's runtime is linear in the number of steps taken by the iterator.
 -/
-@[always_inline, inline, deprecated IterM.Partial.count (since := "2025-10-29")]
+@[always_inline, inline, deprecated IterM.length (since := "2025-10-29")]
 def IterM.Partial.size {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
     [IteratorLoop α m m] [Monad m] (it : IterM.Partial (α := α) m β) : m (ULift Nat) :=
-  it.it.count
+  it.it.length
 
 end Count
 

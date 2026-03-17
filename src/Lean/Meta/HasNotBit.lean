@@ -7,7 +7,6 @@ Authors: Joachim Breitner
 module
 prelude
 public import Lean.Meta.Basic
-import Lean.Util.Recognizers
 import Lean.Meta.MatchUtil
 
 /-!

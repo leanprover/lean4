@@ -6,8 +6,9 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Option.Lemmas
 public import Init.Data.Order.Classes
+public import Init.Classical
+import Init.Data.Option.Lemmas
 
 public section
 
@@ -240,14 +241,21 @@ This propositional typeclass ensures that `UpwardEnumerable.succ?` will never re
 In other words, it ensures that there will always be a successor.
 -/
 class InfinitelyUpwardEnumerable (α : Type u) [UpwardEnumerable α] where
+  /--
+  Every element of `α` has a successor.
+  -/
   isSome_succ? : ∀ a : α, (UpwardEnumerable.succ? a).isSome
 
 /--
 This propositional typeclass ensures that `UpwardEnumerable.succ?` is injective.
 -/
 class LinearlyUpwardEnumerable (α : Type u) [UpwardEnumerable α] where
+  /-- The implementation of `UpwardEnumerable.succ?` for `α` is injective. -/
   eq_of_succ?_eq : ∀ a b : α, UpwardEnumerable.succ? a = UpwardEnumerable.succ? b → a = b
 
+/--
+If a type is infinitely upwardly enumerable, then every element has a successor.
+-/
 theorem UpwardEnumerable.isSome_succ? {α : Type u} [UpwardEnumerable α]
     [InfinitelyUpwardEnumerable α] {a : α} : (succ? a).isSome :=
   InfinitelyUpwardEnumerable.isSome_succ? a
@@ -430,6 +438,7 @@ protected theorem UpwardEnumerable.le_iff {α : Type u} [LE α] [UpwardEnumerabl
     [LawfulUpwardEnumerableLE α] {a b : α} : a ≤ b ↔ UpwardEnumerable.LE a b :=
   LawfulUpwardEnumerableLE.le_iff a b
 
+@[expose, implicit_reducible]
 def UpwardEnumerable.instLETransOfLawfulUpwardEnumerableLE {α : Type u} [LE α]
     [UpwardEnumerable α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] :
     Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·) where
@@ -494,12 +503,13 @@ protected theorem UpwardEnumerable.lt_succ_iff {α : Type u} [UpwardEnumerable �
       ← succMany?_eq_some_iff_succMany] at hn
     exact ⟨n, hn⟩
 
+@[expose, implicit_reducible]
 def UpwardEnumerable.instLTTransOfLawfulUpwardEnumerableLT {α : Type u} [LT α]
     [UpwardEnumerable α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α] :
     Trans (α := α) (· < ·) (· < ·) (· < ·) where
   trans := by simpa [UpwardEnumerable.lt_iff] using @UpwardEnumerable.lt_trans
 
-def UpwardEnumerable.instLawfulOrderLTOfLawfulUpwardEnumerableLT {α : Type u} [LT α] [LE α]
+theorem UpwardEnumerable.instLawfulOrderLTOfLawfulUpwardEnumerableLT {α : Type u} [LT α] [LE α]
     [UpwardEnumerable α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
     [LawfulUpwardEnumerableLE α] :
     LawfulOrderLT α where

@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Meta.Match.MatcherInfo
 public import Lean.DefEqAttrib
+public import Lean.Meta.RecExt
 public import Lean.Meta.LetToHave
 import Lean.Meta.AppBuilder
 
@@ -39,26 +40,6 @@ This is implemented by
  * when realizing them lazily, reset the options to their default
 -/
 def eqnAffectingOptions : Array (Lean.Option Bool) := #[backward.eqns.nonrecursive, backward.eqns.deepRecursiveSplit]
-
-/--
-Environment extension for storing which declarations are recursive.
-This information is populated by the `PreDefinition` module, but the simplifier
-uses when unfolding declarations.
--/
-builtin_initialize recExt : TagDeclarationExtension ←
-  mkTagDeclarationExtension `recExt (asyncMode := .async .asyncEnv)
-
-/--
-Marks the given declaration as recursive.
--/
-def markAsRecursive (declName : Name) : CoreM Unit :=
-  modifyEnv (recExt.tag · declName)
-
-/--
-Returns `true` if `declName` was defined using well-founded recursion, or structural recursion.
--/
-def isRecursiveDefinition (declName : Name) : CoreM Bool :=
-  return recExt.isTagged (← getEnv) declName
 
 def eqnThmSuffixBase := "eq"
 def eqnThmSuffixBasePrefix := eqnThmSuffixBase ++ "_"
@@ -323,7 +304,7 @@ def getUnfoldEqnFor? (declName : Name) (nonRec := false) : MetaM (Option Name) :
 
 builtin_initialize
   registerReservedNameAction fun name => do
-    withTraceNode `ReservedNameAction (pure m!"{exceptBoolEmoji ·} Lean.Meta.Eqns reserved name action for {name}") do
+    withTraceNode `ReservedNameAction (fun _ => pure m!"Lean.Meta.Eqns reserved name action for {name}") do
       if let some (declName, suffix) := declFromEqLikeName (← getEnv) name then
         if name == mkEqLikeNameFor (← getEnv) declName suffix then
           if isEqnReservedNameSuffix suffix then

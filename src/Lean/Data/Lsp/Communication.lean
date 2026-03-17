@@ -10,6 +10,7 @@ prelude
 public import Lean.Data.JsonRpc
 import Init.Data.String.TakeDrop
 import Init.Data.String.Search
+import Init.Data.Iterators.Consumers.Collect
 
 public section
 

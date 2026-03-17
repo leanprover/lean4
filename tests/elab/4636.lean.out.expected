@@ -1,0 +1,2 @@
+4636.lean:3:2-3:12: warning: `[deprecated]` attribute should specify either a new name or a deprecation message
+4636.lean:3:2-3:12: warning: `[deprecated]` attribute should specify the date or library version at which the deprecation was introduced, using `(since := "...")`

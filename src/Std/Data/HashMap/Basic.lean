@@ -7,6 +7,7 @@ module
 
 prelude
 public import Std.Data.DHashMap.Basic
+public import Init.Data.List.Impl
 
 @[expose] public section
 
@@ -108,7 +109,7 @@ instance : LawfulSingleton (α × β) (HashMap α β) := ⟨fun _ => rfl⟩
   ⟨replaced, ⟨r⟩⟩
 
 /--
-Checks whether a key is present in a map, returning the associate value, and inserts a value for
+Checks whether a key is present in a map, returning the associated value, and inserts a value for
 the key if it was not found.
 
 If the returned value is `some v`, then the returned map is unaltered. If it is `none`, then the
@@ -283,7 +284,7 @@ instance [BEq α] [Hashable α] : Inter (HashMap α β) := ⟨inter⟩
 
 instance [BEq α] [BEq β] : BEq (HashMap α β) := ⟨beq⟩
 
-@[inherit_doc DHashMap.inter, inline] def diff [BEq α] [Hashable α] (m₁ m₂ : HashMap α β) : HashMap α β :=
+@[inherit_doc DHashMap.diff, inline] def diff [BEq α] [Hashable α] (m₁ m₂ : HashMap α β) : HashMap α β :=
   ⟨DHashMap.diff m₁.inner m₂.inner⟩
 
 instance [BEq α] [Hashable α] : SDiff (HashMap α β) := ⟨diff⟩

@@ -6,8 +6,17 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Data.List.Nat.TakeDrop
 import Init.Data.Order.Lemmas
+public import Init.Data.BEq
+public import Init.Data.Order.Classes
+public import Init.Ext
+public import Init.NotationExtra
+import Init.ByCases
+import Init.Data.Bool
+import Init.Data.List.Nat.TakeDrop
+import Init.Data.List.TakeDrop
+import Init.Data.Nat.Lemmas
+import Init.TacticsExtra
 
 public section
 
@@ -85,7 +94,7 @@ theorem cons_lex_cons_iff : Lex r (a :: l₁) (b :: l₂) ↔ r a b ∨ a = b �
 
 theorem cons_lt_cons_iff [LT α] {a b} {l₁ l₂ : List α} :
     (a :: l₁) < (b :: l₂) ↔ a < b ∨ a = b ∧ l₁ < l₂ := by
-  dsimp only [instLT, List.lt]
+  simp only [LT.lt, List.lt]
   simp [cons_lex_cons_iff]
 
 @[simp] theorem cons_lt_cons_self [LT α] [i₀ : Std.Irrefl (· < · : α → α → Prop)] {l₁ l₂ : List α} :
@@ -101,7 +110,7 @@ theorem cons_le_cons_iff [LT α]
     [i₂ : Std.Trichotomous (· < · : α → α → Prop)]
     {a b} {l₁ l₂ : List α} :
     (a :: l₁) ≤ (b :: l₂) ↔ a < b ∨ a = b ∧ l₁ ≤ l₂ := by
-  dsimp only [instLE, instLT, List.le, List.lt]
+  simp only [LE.le, LT.lt, List.le, List.lt]
   open Classical in
   simp only [not_cons_lex_cons_iff, ne_eq]
   constructor
@@ -176,7 +185,7 @@ theorem lex_trans {r : α → α → Prop}
 protected theorem lt_trans [LT α]
     [i₁ : Trans (· < · : α → α → Prop) (· < ·) (· < ·)]
     {l₁ l₂ l₃ : List α} (h₁ : l₁ < l₂) (h₂ : l₂ < l₃) : l₁ < l₃ := by
-  simp only [instLT, List.lt] at h₁ h₂ ⊢
+  simp only [LT.lt, List.lt] at h₁ h₂ ⊢
   exact lex_trans (fun h₁ h₂ => i₁.trans h₁ h₂) h₁ h₂
 
 instance [LT α] [Trans (· < · : α → α → Prop) (· < ·) (· < ·)] :

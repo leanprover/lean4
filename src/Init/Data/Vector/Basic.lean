@@ -7,11 +7,15 @@ Authors: Shreyas Srinivas, François G. Dorais, Kim Morrison
 module
 
 prelude
-public import Init.Data.Array.InsertIdx
-public import Init.Data.Array.Range
-public import Init.Data.Range
 -- TODO: Making this private leads to a panic in Init.Grind.Ring.Poly.
-public import Init.Data.Slice.Array.Iterator
+import Init.Data.Array.Nat
+public import Init.Data.Array.DecidableEq
+public import Init.Data.Range.Polymorphic.RangeIterator
+import Init.Data.Array.InsertIdx
+import Init.Data.Array.MapIdx
+import Init.Data.Range.Polymorphic.Iterators
+import Init.Data.Range.Polymorphic.Nat
+import Init.Omega
 
 public section
 
@@ -274,7 +278,7 @@ def mapFinIdxM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m]
     (xs : Vector α n) (f : (i : Nat) → α → (h : i < n) → m β) : m (Vector β n) :=
   let rec @[specialize] map (i : Nat) (j : Nat) (inv : i + j = n) (ys : Vector β (n - i)) : m (Vector β n) := do
     match i, inv with
-    | 0,    _  => pure ys
+    | 0,   inv => return ys.cast (by omega)
     | i+1, inv =>
       have j_lt : j < n := by
         rw [← inv, Nat.add_assoc, Nat.add_comm 1 j, Nat.add_comm]

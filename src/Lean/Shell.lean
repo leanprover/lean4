@@ -10,7 +10,8 @@ import Lean.Elab.Frontend
 import Lean.Elab.ParseImportsFast
 import Lean.Server.Watchdog
 import Lean.Server.FileWorker
-import Lean.Compiler.IR.EmitC
+import Lean.Compiler.LCNF.EmitC
+import Init.System.Platform
 
 /-  Lean companion to  `shell.cpp` -/
 
@@ -284,7 +285,7 @@ def setConfigOption (opts : Options) (arg : String) : IO Options := do
     else
       -- More options may be registered by imports, so we leave validating them to the elaborator.
       -- This (minor) duplication may be resolved later.
-      return opts.insert name val
+      return opts.set name val
 
 /--
 Process a command-line option parsed by the C++ shell.
@@ -544,7 +545,8 @@ def shellMain (args : List String) (opts : ShellOptions) : IO UInt32 := do
         | IO.eprintln s!"failed to create '{c}'"
           return 1
       profileitIO "C code generation" opts.leanOpts do
-        let data ← IO.ofExcept <| IR.emitC env mainModuleName
+        let data ← Compiler.LCNF.emitC mainModuleName
+          |>.toIO' { fileName, fileMap := default } { env }
         out.write data.toUTF8
     if let some bc := opts.bcFileName? then
       initLLVM

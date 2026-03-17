@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Data.Lsp.LanguageFeatures
+import Init.Omega
 
 namespace Lean.Lsp.ResolvableCompletionList
 
@@ -14,7 +15,7 @@ namespace Lean.Lsp.ResolvableCompletionList
 def compressItemDataFast (acc : String) (data : ResolvableCompletionItemData) :
     String := Id.run do
   let mut acc := acc ++ "["
-  acc := Json.renderString data.mod.toString acc
+  acc := Json.renderString data.uri acc
   acc := acc ++ "," ++ data.pos.line.repr
   acc := acc ++ "," ++ data.pos.character.repr
   if let some cPos := data.cPos? then

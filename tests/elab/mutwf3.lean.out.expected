@@ -1,0 +1,650 @@
+def Ex1.f._mutual.{u_1} : {α : Type u_1} →
+  (x : (_ : Nat) ×' (_ : α) ×' α ⊕' (_ : α) ×' (_ : Nat) ×' α ⊕' (_ : α) ×' (_ : α) ×' Nat) →
+    PSum.casesOn x (fun _x => α) fun _x => PSum.casesOn _x (fun _x => α × α) fun _x => α :=
+fun {α} =>
+  ⋯.fix fun x a =>
+    PSum.casesOn (motive := fun x =>
+      ((y : (_ : Nat) ×' (_ : α) ×' α ⊕' (_ : α) ×' (_ : Nat) ×' α ⊕' (_ : α) ×' (_ : α) ×' Nat) →
+          (invImage
+                  (fun x =>
+                    PSum.casesOn x (fun _x => PSigma.casesOn _x fun a a_1 => PSigma.casesOn a_1 fun a_2 a_3 => (a, 2))
+                      fun _x =>
+                      PSum.casesOn _x (fun _x => PSigma.casesOn _x fun a a_1 => PSigma.casesOn a_1 fun a a_2 => (a, 1))
+                        fun _x => PSigma.casesOn _x fun a a_1 => PSigma.casesOn a_1 fun a a_2 => (a_2, 0))
+                  Prod.instWellFoundedRelation).1
+              y x →
+            PSum.casesOn y (fun _x => α) fun _x => PSum.casesOn _x (fun _x => α × α) fun _x => α) →
+        PSum.casesOn x (fun _x => α) fun _x => PSum.casesOn _x (fun _x => α × α) fun _x => α)
+      x
+      (fun _x a =>
+        PSigma.casesOn (motive := fun _x =>
+          ((y : (_ : Nat) ×' (_ : α) ×' α ⊕' (_ : α) ×' (_ : Nat) ×' α ⊕' (_ : α) ×' (_ : α) ×' Nat) →
+              (invImage
+                      (fun x =>
+                        PSum.casesOn x
+                          (fun _x => PSigma.casesOn _x fun a a_1 => PSigma.casesOn a_1 fun a_2 a_3 => (a, 2)) fun _x =>
+                          PSum.casesOn _x
+                            (fun _x => PSigma.casesOn _x fun a a_1 => PSigma.casesOn a_1 fun a a_2 => (a, 1)) fun _x =>
+                            PSigma.casesOn _x fun a a_1 => PSigma.casesOn a_1 fun a a_2 => (a_2, 0))
+                      Prod.instWellFoundedRelation).1
+                  y (PSum.inl _x) →
+                PSum.casesOn y (fun _x => α) fun _x => PSum.casesOn _x (fun _x => α × α) fun _x => α) →
+            α)
+          _x
+          (fun a a_1 a_2 =>
+            PSigma.casesOn (motive := fun a_3 =>
+              ((y : (_ : Nat) ×' (_ : α) ×' α ⊕' (_ : α) ×' (_ : Nat) ×' α ⊕' (_ : α) ×' (_ : α) ×' Nat) →
+                  (invImage
+                          (fun x =>
+                            PSum.casesOn x
+                              (fun _x => PSigma.casesOn _x fun a a_4 => PSigma.casesOn a_4 fun a_5 a_6 => (a, 2))
+                              fun _x =>
+                              PSum.casesOn _x
+                                (fun _x => PSigma.casesOn _x fun a a_4 => PSigma.casesOn a_4 fun a a_5 => (a, 1))
+                                fun _x => PSigma.casesOn _x fun a a_4 => PSigma.casesOn a_4 fun a a_5 => (a_5, 0))
+                          Prod.instWellFoundedRelation).1
+                      y (PSum.inl ⟨a, a_3⟩) →
+                    PSum.casesOn y (fun _x => α) fun _x => PSum.casesOn _x (fun _x => α × α) fun _x => α) →
+                α)
+              a_1
+              (fun a_3 a_4 a_5 =>
+                (match (motive :=
+                    (x : Nat) →
+                      (x_1 x_2 : α) →
+                        ((y : (_ : Nat) ×' (_ : α) ×' α ⊕' (_ : α) ×' (_ : Nat) ×' α ⊕' (_ : α) ×' (_ : α) ×' Nat) →
+                            (invImage
+                                    (fun x =>
+                                      PSum.casesOn x
+                                        (fun _x =>
+                                          PSigma.casesOn _x fun a a_6 => PSigma.casesOn a_6 fun a_7 a_8 => (a, 2))
+                                        fun _x =>
+                                        PSum.casesOn _x
+                                          (fun _x =>
+                                            PSigma.casesOn _x fun a a_6 => PSigma.casesOn a_6 fun a a_7 => (a, 1))
+                                          fun _x =>
+                                          PSigma.casesOn _x fun a a_6 => PSigma.casesOn a_6 fun a a_7 => (a_7, 0))
+                                    Prod.instWellFoundedRelation).1
+                                y (PSum.inl ⟨x, ⟨x_1, x_2⟩⟩) →
+                              PSum.casesOn y (fun _x => α) fun _x => PSum.casesOn _x (fun _x => α × α) fun _x => α) →
+                          α)
+                    a, a_3, a_4 with
+                  | 0, a, b => fun x => a
+                  | n, a, b => fun x => (x (PSum.inr (PSum.inl ⟨a, ⟨n, b⟩⟩)) ⋯).fst)
+                  a_5)
+              a_2)
+          a)
+      (fun _x a =>
+        PSum.casesOn (motive := fun _x =>
+          ((y : (_ : Nat) ×' (_ : α) ×' α ⊕' (_ : α) ×' (_ : Nat) ×' α ⊕' (_ : α) ×' (_ : α) ×' Nat) →
+              (invImage
+                      (fun x =>
+                        PSum.casesOn x
+                          (fun _x => PSigma.casesOn _x fun a a_1 => PSigma.casesOn a_1 fun a_2 a_3 => (a, 2)) fun _x =>
+                          PSum.casesOn _x
+                            (fun _x => PSigma.casesOn _x fun a a_1 => PSigma.casesOn a_1 fun a a_2 => (a, 1)) fun _x =>
+                            PSigma.casesOn _x fun a a_1 => PSigma.casesOn a_1 fun a a_2 => (a_2, 0))
+                      Prod.instWellFoundedRelation).1
+                  y (PSum.inr _x) →
+                PSum.casesOn y (fun _x => α) fun _x => PSum.casesOn _x (fun _x => α × α) fun _x => α) →
+            PSum.casesOn (PSum.inr _x) (fun _x => α) fun _x => PSum.casesOn _x (fun _x => α × α) fun _x => α)
+          _x
+          (fun _x a =>
+            PSigma.casesOn (motive := fun _x =>
+              ((y : (_ : Nat) ×' (_ : α) ×' α ⊕' (_ : α) ×' (_ : Nat) ×' α ⊕' (_ : α) ×' (_ : α) ×' Nat) →
+                  (invImage
+                          (fun x =>
+                            PSum.casesOn x
+                              (fun _x => PSigma.casesOn _x fun a a_1 => PSigma.casesOn a_1 fun a_2 a_3 => (a, 2))
+                              fun _x =>
+                              PSum.casesOn _x
+                                (fun _x => PSigma.casesOn _x fun a a_1 => PSigma.casesOn a_1 fun a a_2 => (a, 1))
+                                fun _x => PSigma.casesOn _x fun a a_1 => PSigma.casesOn a_1 fun a a_2 => (a_2, 0))
+                          Prod.instWellFoundedRelation).1
+                      y (PSum.inr (PSum.inl _x)) →
+                    PSum.casesOn y (fun _x => α) fun _x => PSum.casesOn _x (fun _x => α × α) fun _x => α) →
+                α × α)
+              _x
+              (fun a a_1 a_2 =>
+                PSigma.casesOn (motive := fun a_3 =>
+                  ((y : (_ : Nat) ×' (_ : α) ×' α ⊕' (_ : α) ×' (_ : Nat) ×' α ⊕' (_ : α) ×' (_ : α) ×' Nat) →
+                      (invImage
+                              (fun x =>
+                                PSum.casesOn x
+                                  (fun _x => PSigma.casesOn _x fun a a_4 => PSigma.casesOn a_4 fun a_5 a_6 => (a, 2))
+                                  fun _x =>
+                                  PSum.casesOn _x
+                                    (fun _x => PSigma.casesOn _x fun a a_4 => PSigma.casesOn a_4 fun a a_5 => (a, 1))
+                                    fun _x => PSigma.casesOn _x fun a a_4 => PSigma.casesOn a_4 fun a a_5 => (a_5, 0))
+                              Prod.instWellFoundedRelation).1
+                          y (PSum.inr (PSum.inl ⟨a, a_3⟩)) →
+                        PSum.casesOn y (fun _x => α) fun _x => PSum.casesOn _x (fun _x => α × α) fun _x => α) →
+                    α × α)
+                  a_1
+                  (fun a_3 a_4 a_5 =>
+                    (match (motive :=
+                        (x : α) →
+                          (x_1 : Nat) →
+                            (x_2 : α) →
+                              ((y :
+                                    (_ : Nat) ×' (_ : α) ×' α ⊕'
+                                      (_ : α) ×' (_ : Nat) ×' α ⊕' (_ : α) ×' (_ : α) ×' Nat) →
+                                  (invImage
+                                          (fun x =>
+                                            PSum.casesOn x
+                                              (fun _x =>
+                                                PSigma.casesOn _x fun a a_6 => PSigma.casesOn a_6 fun a_7 a_8 => (a, 2))
+                                              fun _x =>
+                                              PSum.casesOn _x
+                                                (fun _x =>
+                                                  PSigma.casesOn _x fun a a_6 => PSigma.casesOn a_6 fun a a_7 => (a, 1))
+                                                fun _x =>
+                                                PSigma.casesOn _x fun a a_6 => PSigma.casesOn a_6 fun a a_7 => (a_7, 0))
+                                          Prod.instWellFoundedRelation).1
+                                      y (PSum.inr (PSum.inl ⟨x, ⟨x_1, x_2⟩⟩)) →
+                                    PSum.casesOn y (fun _x => α) fun _x =>
+                                      PSum.casesOn _x (fun _x => α × α) fun _x => α) →
+                                α × α)
+                        a, a_3, a_4 with
+                      | a, 0, b => fun x => (a, b)
+                      | a, n, b => fun x => (x (PSum.inr (PSum.inr ⟨a, ⟨b, n⟩⟩)) ⋯, a))
+                      a_5)
+                  a_2)
+              a)
+          (fun _x a =>
+            PSigma.casesOn (motive := fun _x =>
+              ((y : (_ : Nat) ×' (_ : α) ×' α ⊕' (_ : α) ×' (_ : Nat) ×' α ⊕' (_ : α) ×' (_ : α) ×' Nat) →
+                  (invImage
+                          (fun x =>
+                            PSum.casesOn x
+                              (fun _x => PSigma.casesOn _x fun a a_1 => PSigma.casesOn a_1 fun a_2 a_3 => (a, 2))
+                              fun _x =>
+                              PSum.casesOn _x
+                                (fun _x => PSigma.casesOn _x fun a a_1 => PSigma.casesOn a_1 fun a a_2 => (a, 1))
+                                fun _x => PSigma.casesOn _x fun a a_1 => PSigma.casesOn a_1 fun a a_2 => (a_2, 0))
+                          Prod.instWellFoundedRelation).1
+                      y (PSum.inr (PSum.inr _x)) →
+                    PSum.casesOn y (fun _x => α) fun _x => PSum.casesOn _x (fun _x => α × α) fun _x => α) →
+                α)
+              _x
+              (fun a a_1 a_2 =>
+                PSigma.casesOn (motive := fun a_3 =>
+                  ((y : (_ : Nat) ×' (_ : α) ×' α ⊕' (_ : α) ×' (_ : Nat) ×' α ⊕' (_ : α) ×' (_ : α) ×' Nat) →
+                      (invImage
+                              (fun x =>
+                                PSum.casesOn x
+                                  (fun _x => PSigma.casesOn _x fun a a_4 => PSigma.casesOn a_4 fun a_5 a_6 => (a, 2))
+                                  fun _x =>
+                                  PSum.casesOn _x
+                                    (fun _x => PSigma.casesOn _x fun a a_4 => PSigma.casesOn a_4 fun a a_5 => (a, 1))
+                                    fun _x => PSigma.casesOn _x fun a a_4 => PSigma.casesOn a_4 fun a a_5 => (a_5, 0))
+                              Prod.instWellFoundedRelation).1
+                          y (PSum.inr (PSum.inr ⟨a, a_3⟩)) →
+                        PSum.casesOn y (fun _x => α) fun _x => PSum.casesOn _x (fun _x => α × α) fun _x => α) →
+                    α)
+                  a_1
+                  (fun a_3 a_4 a_5 =>
+                    (match (motive :=
+                        (x x_1 : α) →
+                          (x_2 : Nat) →
+                            ((y : (_ : Nat) ×' (_ : α) ×' α ⊕' (_ : α) ×' (_ : Nat) ×' α ⊕' (_ : α) ×' (_ : α) ×' Nat) →
+                                (invImage
+                                        (fun x =>
+                                          PSum.casesOn x
+                                            (fun _x =>
+                                              PSigma.casesOn _x fun a a_6 => PSigma.casesOn a_6 fun a_7 a_8 => (a, 2))
+                                            fun _x =>
+                                            PSum.casesOn _x
+                                              (fun _x =>
+                                                PSigma.casesOn _x fun a a_6 => PSigma.casesOn a_6 fun a a_7 => (a, 1))
+                                              fun _x =>
+                                              PSigma.casesOn _x fun a a_6 => PSigma.casesOn a_6 fun a a_7 => (a_7, 0))
+                                        Prod.instWellFoundedRelation).1
+                                    y (PSum.inr (PSum.inr ⟨x, ⟨x_1, x_2⟩⟩)) →
+                                  PSum.casesOn y (fun _x => α) fun _x =>
+                                    PSum.casesOn _x (fun _x => α × α) fun _x => α) →
+                              α)
+                        a, a_3, a_4 with
+                      | _a, b, 0 => fun x => b
+                      | a, b, n.succ => fun x => x (PSum.inl ⟨n, ⟨a, b⟩⟩) ⋯)
+                      a_5)
+                  a_2)
+              a)
+          a)
+      a
+def Ex2.f._mutual.{u_1} : {α : Type u_1} →
+  (x : (_ : Nat) ×' (_ : α) ×' α ⊕' (_ : α) ×' (_ : Nat) ×' α ⊕' (_ : α) ×' (_ : α) ×' Nat) →
+    PSum.casesOn x (fun _x => α) fun _x => PSum.casesOn _x (fun _x => α × α) fun _x => α :=
+fun {α} =>
+  ⋯.fix fun x a =>
+    PSum.casesOn (motive := fun x =>
+      ((y : (_ : Nat) ×' (_ : α) ×' α ⊕' (_ : α) ×' (_ : Nat) ×' α ⊕' (_ : α) ×' (_ : α) ×' Nat) →
+          (invImage
+                  (fun x =>
+                    PSum.casesOn x (fun _x => PSigma.casesOn _x fun a a_1 => PSigma.casesOn a_1 fun a_2 a_3 => (a, 2))
+                      fun _x =>
+                      PSum.casesOn _x (fun _x => PSigma.casesOn _x fun a a_1 => PSigma.casesOn a_1 fun a a_2 => (a, 1))
+                        fun _x => PSigma.casesOn _x fun a a_1 => PSigma.casesOn a_1 fun a a_2 => (a_2, 0))
+                  Prod.instWellFoundedRelation).1
+              y x →
+            PSum.casesOn y (fun _x => α) fun _x => PSum.casesOn _x (fun _x => α × α) fun _x => α) →
+        PSum.casesOn x (fun _x => α) fun _x => PSum.casesOn _x (fun _x => α × α) fun _x => α)
+      x
+      (fun _x a =>
+        PSigma.casesOn (motive := fun _x =>
+          ((y : (_ : Nat) ×' (_ : α) ×' α ⊕' (_ : α) ×' (_ : Nat) ×' α ⊕' (_ : α) ×' (_ : α) ×' Nat) →
+              (invImage
+                      (fun x =>
+                        PSum.casesOn x
+                          (fun _x => PSigma.casesOn _x fun a a_1 => PSigma.casesOn a_1 fun a_2 a_3 => (a, 2)) fun _x =>
+                          PSum.casesOn _x
+                            (fun _x => PSigma.casesOn _x fun a a_1 => PSigma.casesOn a_1 fun a a_2 => (a, 1)) fun _x =>
+                            PSigma.casesOn _x fun a a_1 => PSigma.casesOn a_1 fun a a_2 => (a_2, 0))
+                      Prod.instWellFoundedRelation).1
+                  y (PSum.inl _x) →
+                PSum.casesOn y (fun _x => α) fun _x => PSum.casesOn _x (fun _x => α × α) fun _x => α) →
+            α)
+          _x
+          (fun a a_1 a_2 =>
+            PSigma.casesOn (motive := fun a_3 =>
+              ((y : (_ : Nat) ×' (_ : α) ×' α ⊕' (_ : α) ×' (_ : Nat) ×' α ⊕' (_ : α) ×' (_ : α) ×' Nat) →
+                  (invImage
+                          (fun x =>
+                            PSum.casesOn x
+                              (fun _x => PSigma.casesOn _x fun a a_4 => PSigma.casesOn a_4 fun a_5 a_6 => (a, 2))
+                              fun _x =>
+                              PSum.casesOn _x
+                                (fun _x => PSigma.casesOn _x fun a a_4 => PSigma.casesOn a_4 fun a a_5 => (a, 1))
+                                fun _x => PSigma.casesOn _x fun a a_4 => PSigma.casesOn a_4 fun a a_5 => (a_5, 0))
+                          Prod.instWellFoundedRelation).1
+                      y (PSum.inl ⟨a, a_3⟩) →
+                    PSum.casesOn y (fun _x => α) fun _x => PSum.casesOn _x (fun _x => α × α) fun _x => α) →
+                α)
+              a_1
+              (fun a_3 a_4 a_5 =>
+                (match (motive :=
+                    (x : Nat) →
+                      (x_1 x_2 : α) →
+                        ((y : (_ : Nat) ×' (_ : α) ×' α ⊕' (_ : α) ×' (_ : Nat) ×' α ⊕' (_ : α) ×' (_ : α) ×' Nat) →
+                            (invImage
+                                    (fun x =>
+                                      PSum.casesOn x
+                                        (fun _x =>
+                                          PSigma.casesOn _x fun a a_6 => PSigma.casesOn a_6 fun a_7 a_8 => (a, 2))
+                                        fun _x =>
+                                        PSum.casesOn _x
+                                          (fun _x =>
+                                            PSigma.casesOn _x fun a a_6 => PSigma.casesOn a_6 fun a a_7 => (a, 1))
+                                          fun _x =>
+                                          PSigma.casesOn _x fun a a_6 => PSigma.casesOn a_6 fun a a_7 => (a_7, 0))
+                                    Prod.instWellFoundedRelation).1
+                                y (PSum.inl ⟨x, ⟨x_1, x_2⟩⟩) →
+                              PSum.casesOn y (fun _x => α) fun _x => PSum.casesOn _x (fun _x => α × α) fun _x => α) →
+                          α)
+                    a, a_3, a_4 with
+                  | 0, a, b => fun x => a
+                  | n, a, b => fun x => (x (PSum.inr (PSum.inl ⟨a, ⟨n, b⟩⟩)) ⋯).fst)
+                  a_5)
+              a_2)
+          a)
+      (fun _x a =>
+        PSum.casesOn (motive := fun _x =>
+          ((y : (_ : Nat) ×' (_ : α) ×' α ⊕' (_ : α) ×' (_ : Nat) ×' α ⊕' (_ : α) ×' (_ : α) ×' Nat) →
+              (invImage
+                      (fun x =>
+                        PSum.casesOn x
+                          (fun _x => PSigma.casesOn _x fun a a_1 => PSigma.casesOn a_1 fun a_2 a_3 => (a, 2)) fun _x =>
+                          PSum.casesOn _x
+                            (fun _x => PSigma.casesOn _x fun a a_1 => PSigma.casesOn a_1 fun a a_2 => (a, 1)) fun _x =>
+                            PSigma.casesOn _x fun a a_1 => PSigma.casesOn a_1 fun a a_2 => (a_2, 0))
+                      Prod.instWellFoundedRelation).1
+                  y (PSum.inr _x) →
+                PSum.casesOn y (fun _x => α) fun _x => PSum.casesOn _x (fun _x => α × α) fun _x => α) →
+            PSum.casesOn (PSum.inr _x) (fun _x => α) fun _x => PSum.casesOn _x (fun _x => α × α) fun _x => α)
+          _x
+          (fun _x a =>
+            PSigma.casesOn (motive := fun _x =>
+              ((y : (_ : Nat) ×' (_ : α) ×' α ⊕' (_ : α) ×' (_ : Nat) ×' α ⊕' (_ : α) ×' (_ : α) ×' Nat) →
+                  (invImage
+                          (fun x =>
+                            PSum.casesOn x
+                              (fun _x => PSigma.casesOn _x fun a a_1 => PSigma.casesOn a_1 fun a_2 a_3 => (a, 2))
+                              fun _x =>
+                              PSum.casesOn _x
+                                (fun _x => PSigma.casesOn _x fun a a_1 => PSigma.casesOn a_1 fun a a_2 => (a, 1))
+                                fun _x => PSigma.casesOn _x fun a a_1 => PSigma.casesOn a_1 fun a a_2 => (a_2, 0))
+                          Prod.instWellFoundedRelation).1
+                      y (PSum.inr (PSum.inl _x)) →
+                    PSum.casesOn y (fun _x => α) fun _x => PSum.casesOn _x (fun _x => α × α) fun _x => α) →
+                α × α)
+              _x
+              (fun a a_1 a_2 =>
+                PSigma.casesOn (motive := fun a_3 =>
+                  ((y : (_ : Nat) ×' (_ : α) ×' α ⊕' (_ : α) ×' (_ : Nat) ×' α ⊕' (_ : α) ×' (_ : α) ×' Nat) →
+                      (invImage
+                              (fun x =>
+                                PSum.casesOn x
+                                  (fun _x => PSigma.casesOn _x fun a a_4 => PSigma.casesOn a_4 fun a_5 a_6 => (a, 2))
+                                  fun _x =>
+                                  PSum.casesOn _x
+                                    (fun _x => PSigma.casesOn _x fun a a_4 => PSigma.casesOn a_4 fun a a_5 => (a, 1))
+                                    fun _x => PSigma.casesOn _x fun a a_4 => PSigma.casesOn a_4 fun a a_5 => (a_5, 0))
+                              Prod.instWellFoundedRelation).1
+                          y (PSum.inr (PSum.inl ⟨a, a_3⟩)) →
+                        PSum.casesOn y (fun _x => α) fun _x => PSum.casesOn _x (fun _x => α × α) fun _x => α) →
+                    α × α)
+                  a_1
+                  (fun a_3 a_4 a_5 =>
+                    (match (motive :=
+                        (x : α) →
+                          (x_1 : Nat) →
+                            (x_2 : α) →
+                              ((y :
+                                    (_ : Nat) ×' (_ : α) ×' α ⊕'
+                                      (_ : α) ×' (_ : Nat) ×' α ⊕' (_ : α) ×' (_ : α) ×' Nat) →
+                                  (invImage
+                                          (fun x =>
+                                            PSum.casesOn x
+                                              (fun _x =>
+                                                PSigma.casesOn _x fun a a_6 => PSigma.casesOn a_6 fun a_7 a_8 => (a, 2))
+                                              fun _x =>
+                                              PSum.casesOn _x
+                                                (fun _x =>
+                                                  PSigma.casesOn _x fun a a_6 => PSigma.casesOn a_6 fun a a_7 => (a, 1))
+                                                fun _x =>
+                                                PSigma.casesOn _x fun a a_6 => PSigma.casesOn a_6 fun a a_7 => (a_7, 0))
+                                          Prod.instWellFoundedRelation).1
+                                      y (PSum.inr (PSum.inl ⟨x, ⟨x_1, x_2⟩⟩)) →
+                                    PSum.casesOn y (fun _x => α) fun _x =>
+                                      PSum.casesOn _x (fun _x => α × α) fun _x => α) →
+                                α × α)
+                        a, a_3, a_4 with
+                      | a, 0, b => fun x => (a, b)
+                      | a, n, b => fun x => (x (PSum.inr (PSum.inr ⟨a, ⟨b, n⟩⟩)) ⋯, a))
+                      a_5)
+                  a_2)
+              a)
+          (fun _x a =>
+            PSigma.casesOn (motive := fun _x =>
+              ((y : (_ : Nat) ×' (_ : α) ×' α ⊕' (_ : α) ×' (_ : Nat) ×' α ⊕' (_ : α) ×' (_ : α) ×' Nat) →
+                  (invImage
+                          (fun x =>
+                            PSum.casesOn x
+                              (fun _x => PSigma.casesOn _x fun a a_1 => PSigma.casesOn a_1 fun a_2 a_3 => (a, 2))
+                              fun _x =>
+                              PSum.casesOn _x
+                                (fun _x => PSigma.casesOn _x fun a a_1 => PSigma.casesOn a_1 fun a a_2 => (a, 1))
+                                fun _x => PSigma.casesOn _x fun a a_1 => PSigma.casesOn a_1 fun a a_2 => (a_2, 0))
+                          Prod.instWellFoundedRelation).1
+                      y (PSum.inr (PSum.inr _x)) →
+                    PSum.casesOn y (fun _x => α) fun _x => PSum.casesOn _x (fun _x => α × α) fun _x => α) →
+                α)
+              _x
+              (fun a a_1 a_2 =>
+                PSigma.casesOn (motive := fun a_3 =>
+                  ((y : (_ : Nat) ×' (_ : α) ×' α ⊕' (_ : α) ×' (_ : Nat) ×' α ⊕' (_ : α) ×' (_ : α) ×' Nat) →
+                      (invImage
+                              (fun x =>
+                                PSum.casesOn x
+                                  (fun _x => PSigma.casesOn _x fun a a_4 => PSigma.casesOn a_4 fun a_5 a_6 => (a, 2))
+                                  fun _x =>
+                                  PSum.casesOn _x
+                                    (fun _x => PSigma.casesOn _x fun a a_4 => PSigma.casesOn a_4 fun a a_5 => (a, 1))
+                                    fun _x => PSigma.casesOn _x fun a a_4 => PSigma.casesOn a_4 fun a a_5 => (a_5, 0))
+                              Prod.instWellFoundedRelation).1
+                          y (PSum.inr (PSum.inr ⟨a, a_3⟩)) →
+                        PSum.casesOn y (fun _x => α) fun _x => PSum.casesOn _x (fun _x => α × α) fun _x => α) →
+                    α)
+                  a_1
+                  (fun a_3 a_4 a_5 =>
+                    (match (motive :=
+                        (x x_1 : α) →
+                          (x_2 : Nat) →
+                            ((y : (_ : Nat) ×' (_ : α) ×' α ⊕' (_ : α) ×' (_ : Nat) ×' α ⊕' (_ : α) ×' (_ : α) ×' Nat) →
+                                (invImage
+                                        (fun x =>
+                                          PSum.casesOn x
+                                            (fun _x =>
+                                              PSigma.casesOn _x fun a a_6 => PSigma.casesOn a_6 fun a_7 a_8 => (a, 2))
+                                            fun _x =>
+                                            PSum.casesOn _x
+                                              (fun _x =>
+                                                PSigma.casesOn _x fun a a_6 => PSigma.casesOn a_6 fun a a_7 => (a, 1))
+                                              fun _x =>
+                                              PSigma.casesOn _x fun a a_6 => PSigma.casesOn a_6 fun a a_7 => (a_7, 0))
+                                        Prod.instWellFoundedRelation).1
+                                    y (PSum.inr (PSum.inr ⟨x, ⟨x_1, x_2⟩⟩)) →
+                                  PSum.casesOn y (fun _x => α) fun _x =>
+                                    PSum.casesOn _x (fun _x => α × α) fun _x => α) →
+                              α)
+                        a, a_3, a_4 with
+                      | a, b, 0 => fun x => b
+                      | a, b, n.succ => fun x => x (PSum.inl ⟨n, ⟨a, b⟩⟩) ⋯)
+                      a_5)
+                  a_2)
+              a)
+          a)
+      a
+def Ex3.f._mutual.{u_1} : {α : Type u_1} →
+  (x : (_ : Nat) ×' (_ : α) ×' α ⊕' (_ : α) ×' (_ : Nat) ×' α ⊕' (_ : α) ×' (_ : α) ×' Nat) →
+    PSum.casesOn x (fun _x => α) fun _x => PSum.casesOn _x (fun _x => α × α) fun _x => α :=
+fun {α} =>
+  ⋯.fix fun x a =>
+    PSum.casesOn (motive := fun x =>
+      ((y : (_ : Nat) ×' (_ : α) ×' α ⊕' (_ : α) ×' (_ : Nat) ×' α ⊕' (_ : α) ×' (_ : α) ×' Nat) →
+          (invImage
+                  (fun x =>
+                    PSum.casesOn x
+                      (fun _x => PSigma.casesOn _x fun a a_1 => PSigma.casesOn a_1 fun a_2 a_3 => (a, 1, 0)) fun _x =>
+                      PSum.casesOn _x
+                        (fun _x => PSigma.casesOn _x fun a a_1 => PSigma.casesOn a_1 fun a a_2 => (a, 0, 1)) fun _x =>
+                        PSigma.casesOn _x fun a a_1 => PSigma.casesOn a_1 fun a a_2 => (a_2, 0, 0))
+                  Prod.instWellFoundedRelation).1
+              y x →
+            PSum.casesOn y (fun _x => α) fun _x => PSum.casesOn _x (fun _x => α × α) fun _x => α) →
+        PSum.casesOn x (fun _x => α) fun _x => PSum.casesOn _x (fun _x => α × α) fun _x => α)
+      x
+      (fun _x a =>
+        PSigma.casesOn (motive := fun _x =>
+          ((y : (_ : Nat) ×' (_ : α) ×' α ⊕' (_ : α) ×' (_ : Nat) ×' α ⊕' (_ : α) ×' (_ : α) ×' Nat) →
+              (invImage
+                      (fun x =>
+                        PSum.casesOn x
+                          (fun _x => PSigma.casesOn _x fun a a_1 => PSigma.casesOn a_1 fun a_2 a_3 => (a, 1, 0))
+                          fun _x =>
+                          PSum.casesOn _x
+                            (fun _x => PSigma.casesOn _x fun a a_1 => PSigma.casesOn a_1 fun a a_2 => (a, 0, 1))
+                            fun _x => PSigma.casesOn _x fun a a_1 => PSigma.casesOn a_1 fun a a_2 => (a_2, 0, 0))
+                      Prod.instWellFoundedRelation).1
+                  y (PSum.inl _x) →
+                PSum.casesOn y (fun _x => α) fun _x => PSum.casesOn _x (fun _x => α × α) fun _x => α) →
+            α)
+          _x
+          (fun a a_1 a_2 =>
+            PSigma.casesOn (motive := fun a_3 =>
+              ((y : (_ : Nat) ×' (_ : α) ×' α ⊕' (_ : α) ×' (_ : Nat) ×' α ⊕' (_ : α) ×' (_ : α) ×' Nat) →
+                  (invImage
+                          (fun x =>
+                            PSum.casesOn x
+                              (fun _x => PSigma.casesOn _x fun a a_4 => PSigma.casesOn a_4 fun a_5 a_6 => (a, 1, 0))
+                              fun _x =>
+                              PSum.casesOn _x
+                                (fun _x => PSigma.casesOn _x fun a a_4 => PSigma.casesOn a_4 fun a a_5 => (a, 0, 1))
+                                fun _x => PSigma.casesOn _x fun a a_4 => PSigma.casesOn a_4 fun a a_5 => (a_5, 0, 0))
+                          Prod.instWellFoundedRelation).1
+                      y (PSum.inl ⟨a, a_3⟩) →
+                    PSum.casesOn y (fun _x => α) fun _x => PSum.casesOn _x (fun _x => α × α) fun _x => α) →
+                α)
+              a_1
+              (fun a_3 a_4 a_5 =>
+                (match (motive :=
+                    (x : Nat) →
+                      (x_1 x_2 : α) →
+                        ((y : (_ : Nat) ×' (_ : α) ×' α ⊕' (_ : α) ×' (_ : Nat) ×' α ⊕' (_ : α) ×' (_ : α) ×' Nat) →
+                            (invImage
+                                    (fun x =>
+                                      PSum.casesOn x
+                                        (fun _x =>
+                                          PSigma.casesOn _x fun a a_6 => PSigma.casesOn a_6 fun a_7 a_8 => (a, 1, 0))
+                                        fun _x =>
+                                        PSum.casesOn _x
+                                          (fun _x =>
+                                            PSigma.casesOn _x fun a a_6 => PSigma.casesOn a_6 fun a a_7 => (a, 0, 1))
+                                          fun _x =>
+                                          PSigma.casesOn _x fun a a_6 => PSigma.casesOn a_6 fun a a_7 => (a_7, 0, 0))
+                                    Prod.instWellFoundedRelation).1
+                                y (PSum.inl ⟨x, ⟨x_1, x_2⟩⟩) →
+                              PSum.casesOn y (fun _x => α) fun _x => PSum.casesOn _x (fun _x => α × α) fun _x => α) →
+                          α)
+                    a, a_3, a_4 with
+                  | 0, a, b => fun x => a
+                  | n, a, b => fun x => (x (PSum.inr (PSum.inl ⟨a, ⟨n, b⟩⟩)) ⋯).fst)
+                  a_5)
+              a_2)
+          a)
+      (fun _x a =>
+        PSum.casesOn (motive := fun _x =>
+          ((y : (_ : Nat) ×' (_ : α) ×' α ⊕' (_ : α) ×' (_ : Nat) ×' α ⊕' (_ : α) ×' (_ : α) ×' Nat) →
+              (invImage
+                      (fun x =>
+                        PSum.casesOn x
+                          (fun _x => PSigma.casesOn _x fun a a_1 => PSigma.casesOn a_1 fun a_2 a_3 => (a, 1, 0))
+                          fun _x =>
+                          PSum.casesOn _x
+                            (fun _x => PSigma.casesOn _x fun a a_1 => PSigma.casesOn a_1 fun a a_2 => (a, 0, 1))
+                            fun _x => PSigma.casesOn _x fun a a_1 => PSigma.casesOn a_1 fun a a_2 => (a_2, 0, 0))
+                      Prod.instWellFoundedRelation).1
+                  y (PSum.inr _x) →
+                PSum.casesOn y (fun _x => α) fun _x => PSum.casesOn _x (fun _x => α × α) fun _x => α) →
+            PSum.casesOn (PSum.inr _x) (fun _x => α) fun _x => PSum.casesOn _x (fun _x => α × α) fun _x => α)
+          _x
+          (fun _x a =>
+            PSigma.casesOn (motive := fun _x =>
+              ((y : (_ : Nat) ×' (_ : α) ×' α ⊕' (_ : α) ×' (_ : Nat) ×' α ⊕' (_ : α) ×' (_ : α) ×' Nat) →
+                  (invImage
+                          (fun x =>
+                            PSum.casesOn x
+                              (fun _x => PSigma.casesOn _x fun a a_1 => PSigma.casesOn a_1 fun a_2 a_3 => (a, 1, 0))
+                              fun _x =>
+                              PSum.casesOn _x
+                                (fun _x => PSigma.casesOn _x fun a a_1 => PSigma.casesOn a_1 fun a a_2 => (a, 0, 1))
+                                fun _x => PSigma.casesOn _x fun a a_1 => PSigma.casesOn a_1 fun a a_2 => (a_2, 0, 0))
+                          Prod.instWellFoundedRelation).1
+                      y (PSum.inr (PSum.inl _x)) →
+                    PSum.casesOn y (fun _x => α) fun _x => PSum.casesOn _x (fun _x => α × α) fun _x => α) →
+                α × α)
+              _x
+              (fun a a_1 a_2 =>
+                PSigma.casesOn (motive := fun a_3 =>
+                  ((y : (_ : Nat) ×' (_ : α) ×' α ⊕' (_ : α) ×' (_ : Nat) ×' α ⊕' (_ : α) ×' (_ : α) ×' Nat) →
+                      (invImage
+                              (fun x =>
+                                PSum.casesOn x
+                                  (fun _x => PSigma.casesOn _x fun a a_4 => PSigma.casesOn a_4 fun a_5 a_6 => (a, 1, 0))
+                                  fun _x =>
+                                  PSum.casesOn _x
+                                    (fun _x => PSigma.casesOn _x fun a a_4 => PSigma.casesOn a_4 fun a a_5 => (a, 0, 1))
+                                    fun _x =>
+                                    PSigma.casesOn _x fun a a_4 => PSigma.casesOn a_4 fun a a_5 => (a_5, 0, 0))
+                              Prod.instWellFoundedRelation).1
+                          y (PSum.inr (PSum.inl ⟨a, a_3⟩)) →
+                        PSum.casesOn y (fun _x => α) fun _x => PSum.casesOn _x (fun _x => α × α) fun _x => α) →
+                    α × α)
+                  a_1
+                  (fun a_3 a_4 a_5 =>
+                    (match (motive :=
+                        (x : α) →
+                          (x_1 : Nat) →
+                            (x_2 : α) →
+                              ((y :
+                                    (_ : Nat) ×' (_ : α) ×' α ⊕'
+                                      (_ : α) ×' (_ : Nat) ×' α ⊕' (_ : α) ×' (_ : α) ×' Nat) →
+                                  (invImage
+                                          (fun x =>
+                                            PSum.casesOn x
+                                              (fun _x =>
+                                                PSigma.casesOn _x fun a a_6 =>
+                                                  PSigma.casesOn a_6 fun a_7 a_8 => (a, 1, 0))
+                                              fun _x =>
+                                              PSum.casesOn _x
+                                                (fun _x =>
+                                                  PSigma.casesOn _x fun a a_6 =>
+                                                    PSigma.casesOn a_6 fun a a_7 => (a, 0, 1))
+                                                fun _x =>
+                                                PSigma.casesOn _x fun a a_6 =>
+                                                  PSigma.casesOn a_6 fun a a_7 => (a_7, 0, 0))
+                                          Prod.instWellFoundedRelation).1
+                                      y (PSum.inr (PSum.inl ⟨x, ⟨x_1, x_2⟩⟩)) →
+                                    PSum.casesOn y (fun _x => α) fun _x =>
+                                      PSum.casesOn _x (fun _x => α × α) fun _x => α) →
+                                α × α)
+                        a, a_3, a_4 with
+                      | a, 0, b => fun x => (a, b)
+                      | a, n, b => fun x => (x (PSum.inr (PSum.inr ⟨a, ⟨b, n⟩⟩)) ⋯, a))
+                      a_5)
+                  a_2)
+              a)
+          (fun _x a =>
+            PSigma.casesOn (motive := fun _x =>
+              ((y : (_ : Nat) ×' (_ : α) ×' α ⊕' (_ : α) ×' (_ : Nat) ×' α ⊕' (_ : α) ×' (_ : α) ×' Nat) →
+                  (invImage
+                          (fun x =>
+                            PSum.casesOn x
+                              (fun _x => PSigma.casesOn _x fun a a_1 => PSigma.casesOn a_1 fun a_2 a_3 => (a, 1, 0))
+                              fun _x =>
+                              PSum.casesOn _x
+                                (fun _x => PSigma.casesOn _x fun a a_1 => PSigma.casesOn a_1 fun a a_2 => (a, 0, 1))
+                                fun _x => PSigma.casesOn _x fun a a_1 => PSigma.casesOn a_1 fun a a_2 => (a_2, 0, 0))
+                          Prod.instWellFoundedRelation).1
+                      y (PSum.inr (PSum.inr _x)) →
+                    PSum.casesOn y (fun _x => α) fun _x => PSum.casesOn _x (fun _x => α × α) fun _x => α) →
+                α)
+              _x
+              (fun a a_1 a_2 =>
+                PSigma.casesOn (motive := fun a_3 =>
+                  ((y : (_ : Nat) ×' (_ : α) ×' α ⊕' (_ : α) ×' (_ : Nat) ×' α ⊕' (_ : α) ×' (_ : α) ×' Nat) →
+                      (invImage
+                              (fun x =>
+                                PSum.casesOn x
+                                  (fun _x => PSigma.casesOn _x fun a a_4 => PSigma.casesOn a_4 fun a_5 a_6 => (a, 1, 0))
+                                  fun _x =>
+                                  PSum.casesOn _x
+                                    (fun _x => PSigma.casesOn _x fun a a_4 => PSigma.casesOn a_4 fun a a_5 => (a, 0, 1))
+                                    fun _x =>
+                                    PSigma.casesOn _x fun a a_4 => PSigma.casesOn a_4 fun a a_5 => (a_5, 0, 0))
+                              Prod.instWellFoundedRelation).1
+                          y (PSum.inr (PSum.inr ⟨a, a_3⟩)) →
+                        PSum.casesOn y (fun _x => α) fun _x => PSum.casesOn _x (fun _x => α × α) fun _x => α) →
+                    α)
+                  a_1
+                  (fun a_3 a_4 a_5 =>
+                    (match (motive :=
+                        (x x_1 : α) →
+                          (x_2 : Nat) →
+                            ((y : (_ : Nat) ×' (_ : α) ×' α ⊕' (_ : α) ×' (_ : Nat) ×' α ⊕' (_ : α) ×' (_ : α) ×' Nat) →
+                                (invImage
+                                        (fun x =>
+                                          PSum.casesOn x
+                                            (fun _x =>
+                                              PSigma.casesOn _x fun a a_6 =>
+                                                PSigma.casesOn a_6 fun a_7 a_8 => (a, 1, 0))
+                                            fun _x =>
+                                            PSum.casesOn _x
+                                              (fun _x =>
+                                                PSigma.casesOn _x fun a a_6 =>
+                                                  PSigma.casesOn a_6 fun a a_7 => (a, 0, 1))
+                                              fun _x =>
+                                              PSigma.casesOn _x fun a a_6 =>
+                                                PSigma.casesOn a_6 fun a a_7 => (a_7, 0, 0))
+                                        Prod.instWellFoundedRelation).1
+                                    y (PSum.inr (PSum.inr ⟨x, ⟨x_1, x_2⟩⟩)) →
+                                  PSum.casesOn y (fun _x => α) fun _x =>
+                                    PSum.casesOn _x (fun _x => α × α) fun _x => α) →
+                              α)
+                        a, a_3, a_4 with
+                      | a, b, 0 => fun x => b
+                      | a, b, n.succ => fun x => x (PSum.inl ⟨n, ⟨a, b⟩⟩) ⋯)
+                      a_5)
+                  a_2)
+              a)
+          a)
+      a

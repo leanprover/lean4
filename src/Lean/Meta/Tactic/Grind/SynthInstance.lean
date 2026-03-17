@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Grind.Types
-import Lean.Meta.SynthInstance
 public section
 namespace Lean.Meta.Grind
 /--
@@ -20,7 +19,7 @@ The following table is used to bypass synthInstance for the builtin cases.
 private def builtinInsts : Std.HashMap Expr Expr :=
   let nat := Nat.mkType
   let int := Int.mkType
-  let us  := [levelZero, levelZero, levelZero]
+  let us  := [Level.zero, Level.zero, Level.zero]
   Std.HashMap.ofList [
     (mkApp3 (mkConst ``HAdd us) nat nat nat, Nat.mkInstHAdd),
     (mkApp3 (mkConst ``HSub us) nat nat nat, Nat.mkInstHSub),

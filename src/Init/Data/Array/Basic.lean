@@ -6,11 +6,15 @@ Authors: Leonardo de Moura
 module
 
 prelude
+public import Init.Control.Do
 public import Init.GetElem
 public import Init.Data.List.ToArrayImpl
 import all Init.Data.List.ToArrayImpl
 public import Init.Data.Array.Set
 import all Init.Data.Array.Set
+public import Init.WF
+meta import Init.MetaTypes
+import Init.WFTactics
 
 public section
 
@@ -144,6 +148,9 @@ end List
 
 namespace Array
 
+@[simp, grind =] theorem getElem!_toList [Inhabited α] {xs : Array α} {i : Nat} : xs.toList[i]! = xs[i]! := by
+  rw [List.getElem!_toArray]
+
 theorem size_eq_length_toList {xs : Array α} : xs.size = xs.toList.length := rfl
 
 /-! ### Externs -/
@@ -166,6 +173,15 @@ This avoids overhead due to unboxing a `Nat` used as an index.
 @[extern "lean_array_uget", simp, expose]
 def uget (xs : @& Array α) (i : USize) (h : i.toNat < xs.size) : α :=
   xs[i.toNat]
+
+/--
+Version of `Array.uget` that does not increment the reference count of its result.
+
+This is only intended for direct use by the compiler.
+-/
+@[extern "lean_array_uget_borrowed"]
+unsafe opaque ugetBorrowed (xs : @& Array α) (i : USize) (h : i.toNat < xs.size) : α :=
+  xs.uget i h
 
 /--
 Low-level modification operator which is as fast as a C array write. The modification is performed
@@ -270,7 +286,7 @@ Examples:
  * `#[1, 2].isEmpty = false`
  * `#[()].isEmpty = false`
 -/
-@[expose]
+@[expose, inline]
 def isEmpty (xs : Array α) : Bool :=
   xs.size = 0
 
@@ -364,6 +380,7 @@ Returns the last element of an array, or panics if the array is empty.
 Safer alternatives include `Array.back`, which requires a proof the array is non-empty, and
 `Array.back?`, which returns an `Option`.
 -/
+@[inline]
 def back! [Inhabited α] (xs : Array α) : α :=
   xs[xs.size - 1]!
 
@@ -373,6 +390,7 @@ Returns the last element of an array, given a proof that the array is not empty.
 See `Array.back!` for the version that panics if the array is empty, or `Array.back?` for the
 version that returns an option.
 -/
+@[inline]
 def back (xs : Array α) (h : 0 < xs.size := by get_elem_tactic) : α :=
   xs[xs.size - 1]'(Nat.sub_one_lt_of_lt h)
 
@@ -382,6 +400,7 @@ Returns the last element of an array, or `none` if the array is empty.
 See `Array.back!` for the version that panics if the array is empty, or `Array.back` for the version
 that requires a proof the array is non-empty.
 -/
+@[inline]
 def back? (xs : Array α) : Option α :=
   xs[xs.size - 1]?
 
@@ -589,8 +608,10 @@ unsafe def foldlMUnsafe {α : Type u} {β : Type v} {m : Type v → Type w} [Mon
   if start < stop then
     if stop ≤ as.size then
       fold (USize.ofNat start) (USize.ofNat stop) init
-    else
+    else if start < as.size then
       fold (USize.ofNat start) (USize.ofNat as.size) init
+    else
+      pure init
   else
     pure init
 
@@ -2120,7 +2141,7 @@ Examples:
 
 /-! ### Repr and ToString -/
 
-protected def Array.repr {α : Type u} [Repr α] (xs : Array α) : Std.Format :=
+protected def repr {α : Type u} [Repr α] (xs : Array α) : Std.Format :=
   let _ : Std.ToFormat α := ⟨repr⟩
   if xs.size == 0 then
     "#[]"
@@ -2129,8 +2150,5 @@ protected def Array.repr {α : Type u} [Repr α] (xs : Array α) : Std.Format :=
 
 instance {α : Type u} [Repr α] : Repr (Array α) where
   reprPrec xs _ := Array.repr xs
-
-instance [ToString α] : ToString (Array α) where
-  toString xs := String.Internal.append "#" (toString xs.toList)
 
 end Array

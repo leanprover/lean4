@@ -532,6 +532,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_try_accept(b_obj_arg socket) {
     event_loop_lock(&global_ev);
 
     if (tcp_socket->m_promise_accept != nullptr) {
+        event_loop_unlock(&global_ev);
         return lean_io_result_mk_error(lean_decode_uv_error(UV_EALREADY, mk_string("parallel accept is not allowed! consider binding multiple sockets to the same address and accepting on them instead")));
     }
 

@@ -7,12 +7,12 @@ module
 
 prelude
 public import Lake.Util.Log
-import Lake.Config.Dynlib
 import Lake.Util.Proc
-import Lake.Util.NativeLib
 import Lake.Util.FilePath
 import Lake.Util.IO
 import Init.Data.String.Search
+import Init.Data.String.TakeDrop
+import Init.System.Platform
 
 /-! # Common Build Actions
 Low level actions to build common Lean artifacts via the Lean toolchain.

@@ -160,7 +160,7 @@ def ParserExtension.addEntryImpl (s : State) (e : Entry) : State :=
   | Entry.token tk =>
     match addTokenConfig s.tokens tk with
     | Except.ok tokens => { s with tokens }
-    | _                => unreachable!
+    | Except.error e   => panic! s!"ParserExtension.addEntryImpl: {e}"
   | Entry.kind k =>
     { s with kinds := s.kinds.insert k }
   | Entry.category catName declName behavior =>
@@ -170,7 +170,7 @@ def ParserExtension.addEntryImpl (s : State) (e : Entry) : State :=
   | Entry.parser catName declName leading parser prio =>
     match addParser s.categories catName declName leading parser prio with
     | Except.ok categories => { s with categories }
-    | _ => unreachable!
+    | Except.error e       => panic! s!"ParserExtension.addEntryImpl: {e}"
 
 /-- Parser aliases for making `ParserDescr` extensible -/
 inductive AliasValue (α : Type) where
@@ -367,16 +367,20 @@ def leadingIdentBehavior (env : Environment) (catName : Name) : LeadingIdentBeha
   | none     => LeadingIdentBehavior.default
   | some cat => cat.behavior
 
-unsafe def evalParserConstUnsafe (declName : Name) : ParserFn := fun ctx s => unsafeBaseIO do
+unsafe def evalParserConstUnsafe (declName : Name) (evalFallback? : Option ParserFn := none) : ParserFn := fun ctx s => unsafeBaseIO do
   let categories := (parserExtension.getState ctx.env).categories
   match (← (mkParserOfConstant categories declName { env := ctx.env, opts := ctx.options }).toBaseIO) with
   | .ok (_, p) =>
     -- We should manually register `p`'s tokens before invoking it as it might not be part of any syntax category (yet)
     return adaptUncacheableContextFn (fun ctx => { ctx with tokens := p.info.collectTokens [] |>.foldl (fun tks tk => tks.insert tk tk) ctx.tokens }) p.fn ctx s
-  | .error e   => return s.mkUnexpectedError e.toString
+  | .error e   =>
+    if let some evalFallback := evalFallback? then
+      return evalFallback ctx s
+    else
+      return s.mkUnexpectedError e.toString
 
 @[implemented_by evalParserConstUnsafe]
-opaque evalParserConst (declName : Name) : ParserFn
+opaque evalParserConst (declName : Name) (evalFallback? : Option ParserFn := none) : ParserFn
 
 register_builtin_option internal.parseQuotWithCurrentStage : Bool := {
   defValue := false
@@ -387,8 +391,12 @@ register_builtin_option internal.parseQuotWithCurrentStage : Bool := {
 def evalInsideQuot (declName : Name) : Parser → Parser := withFn fun f c s =>
   if c.quotDepth > 0 && !c.suppressInsideQuot && internal.parseQuotWithCurrentStage.get c.options && c.env.contains declName then
     adaptUncacheableContextFn (fun ctx =>
-      { ctx with options := ctx.options.setBool `interpreter.prefer_native false })
-      (evalParserConst declName) c s
+      { ctx with options := ctx.options.set `interpreter.prefer_native false })
+      -- HACK: silently fall back to running compiled `f` on eval error, otherwise parser imported
+      -- but not meta imported can lead to silent backtracking and confusing errors such as
+      -- "unexpected token `by`". Note that the above `contains` already sets a silent fallback for
+      -- "not imported at all".
+      (evalParserConst (evalFallback? := some f) declName) c s
   else
     f c s
 
@@ -696,8 +704,9 @@ private def resolveParserNameCore (env : Environment) (opts : Options) (currName
   return []
 
 /-- Resolve the given parser name and return a list of candidates. -/
-def ParserContext.resolveParserName (ctx : ParserContext) (id : Ident) : List ParserResolution :=
-  Parser.resolveParserNameCore ctx.env ctx.options ctx.currNamespace ctx.openDecls id
+def ParserContext.resolveParserName (ctx : ParserContext) (id : Ident) (unsetExporting := false) : List ParserResolution :=
+  let env := if unsetExporting then ctx.env.setExporting false else ctx.env
+  Parser.resolveParserNameCore env ctx.options ctx.currNamespace ctx.openDecls id
 
 /-- Resolve the given parser name and return a list of candidates. -/
 def resolveParserName (id : Ident) : CoreM (List ParserResolution) :=
@@ -710,14 +719,14 @@ def parserOfStackFn (offset : Nat) : ParserFn := fun ctx s => Id.run do
   let parserName@(.ident ..) := stack.get! (stack.size - offset - 1)
     | s.mkUnexpectedError ("failed to determine parser using syntax stack, the specified element on the stack is not an identifier")
   let iniSz := s.stackSize
-  let s ← match ctx.resolveParserName ⟨parserName⟩ with
+  let s ← match ctx.resolveParserName ⟨parserName⟩ (unsetExporting := true) with
     | [.category cat] =>
       categoryParserFn cat ctx s
     | [.parser parserName _] =>
       adaptUncacheableContextFn (fun ctx =>
         -- static quotations such as `(e) do not use the interpreter unless the above option is set,
         -- so for consistency neither should dynamic quotations using this function
-        { ctx with options := ctx.options.setBool `interpreter.prefer_native (!internal.parseQuotWithCurrentStage.get ctx.options) })
+        { ctx with options := ctx.options.set `interpreter.prefer_native (!internal.parseQuotWithCurrentStage.get ctx.options) })
         (evalParserConst parserName) ctx s
     | [.alias alias] =>
       match alias with

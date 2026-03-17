@@ -180,4 +180,20 @@ def isMatcherAppCore (env : Environment) (e : Expr) : Bool :=
 def isMatcherApp [Monad m] [MonadEnv m] (e : Expr) : m Bool :=
   return isMatcherAppCore (← getEnv) e
 
+/--
+Tag extension for declarations that should be inlined like matchers during LCNF conversion,
+but are not matchers themselves (e.g. the `.het` auxiliaries from `mkCasesOnSameCtor`).
+-/
+builtin_initialize matcherLikeExt : TagDeclarationExtension ←
+  mkTagDeclarationExtension (asyncMode := .sync)
+
+def markMatcherLike (env : Environment) (declName : Name) : Environment :=
+  matcherLikeExt.tag env declName
+
+def isMatcherLikeCore (env : Environment) (declName : Name) : Bool :=
+  matcherLikeExt.isTagged env declName
+
+def isMatcherLike [Monad m] [MonadEnv m] (declName : Name) : m Bool :=
+  return isMatcherLikeCore (← getEnv) declName
+
 end Lean.Meta

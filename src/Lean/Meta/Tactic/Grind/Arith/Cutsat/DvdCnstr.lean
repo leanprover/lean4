@@ -9,13 +9,14 @@ public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Types
 import Init.Data.Int.OfNat
 import Init.Grind.Propagator
 import Lean.Meta.Tactic.Grind.Simp
-import Lean.Meta.Tactic.Grind.PropagatorAttr
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Var
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Nat
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Proof
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Norm
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.CommRing
 import Lean.Meta.NatInstTesters
+public import Lean.Meta.Tactic.Grind.PropagatorAttr
+import Init.Data.Nat.Dvd
 public section
 namespace Lean.Meta.Grind.Arith.Cutsat
 

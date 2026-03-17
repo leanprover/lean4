@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.Data.String.Slice
+import Init.Data.Option.BasicAux
 
 /-!
 # The `Substring` type

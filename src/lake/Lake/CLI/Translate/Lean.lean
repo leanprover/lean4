@@ -8,7 +8,6 @@ module
 prelude
 public import Lake.Config.Package
 import Lake.DSL.Syntax
-import Lake.Config.Package
 meta import Lean.Parser.Module
 meta import Lake.Config.LeanLibConfig
 meta import Lake.Config.LeanExeConfig
@@ -221,7 +220,6 @@ protected def PathPatDescr.toLean? (p : PathPatDescr) : Option Term :=
 
 instance : ToLean? PathPatDescr := ⟨PathPatDescr.toLean?⟩
 
-set_option linter.deprecated false in
 @[inline] protected def PartialBuildKey.toLean (k : PartialBuildKey) : Term :=
   go k []
 where

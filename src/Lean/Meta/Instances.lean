@@ -4,14 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Init.Data.Range.Polymorphic.Stream
-public import Lean.Meta.DiscrTree
+public import Lean.Meta.DiscrTree.Main
 public import Lean.Meta.CollectMVars
-
+import Init.While
+import Lean.OriginalConstKind
+import Lean.ProjFns
 public section
-
 namespace Lean.Meta
 
 register_builtin_option synthInstance.checkSynthOrder : Bool := {
@@ -77,8 +77,8 @@ structure Instances where
 
 def addInstanceEntry (d : Instances) (e : InstanceEntry) : Instances :=
   match e.globalName? with
-  | some n => { d with discrTree := d.discrTree.insertCore e.keys e, instanceNames := d.instanceNames.insert n e, erased := d.erased.erase n }
-  | none   => { d with discrTree := d.discrTree.insertCore e.keys e }
+  | some n => { d with discrTree := d.discrTree.insertKeyValue e.keys e, instanceNames := d.instanceNames.insert n e, erased := d.erased.erase n }
+  | none   => { d with discrTree := d.discrTree.insertKeyValue e.keys e }
 
 def Instances.eraseCore (d : Instances) (declName : Name) : Instances :=
   { d with erased := d.erased.insert declName, instanceNames := d.instanceNames.erase declName }
@@ -232,10 +232,42 @@ private partial def computeSynthOrder (inst : Expr) (projInfo? : Option Projecti
 def addInstance (declName : Name) (attrKind : AttributeKind) (prio : Nat) : MetaM Unit := do
   let c ← mkConstWithLevelParams declName
   let keys ← mkInstanceKey c
-  addGlobalInstance declName attrKind
+  let status ← getReducibilityStatus declName
+  unless status matches .reducible | .implicitReducible do
+    let info ← getConstInfo declName
+    if info.isDefinition then
+      logWarning m!"instance `{declName}` must be marked with `@[reducible]` or `@[implicit_reducible]`"
+    else if wasOriginallyDefn (← getEnv) declName then
+      logWarning m!"instance `{declName}` must be marked with `@[expose]`"
   let projInfo? ← getProjectionFnInfo? declName
   let synthOrder ← computeSynthOrder c projInfo?
   instanceExtension.add { keys, val := c, priority := prio, globalName? := declName, attrKind, synthOrder } attrKind
+
+/-
+Adds instance **and** marks it with reducibility status `@[implicit_reducible]`. We use this function
+to elaborate `instance` command.
+
+**Note**: We used to check whether `declName` had `instance` reducibility by using `isInstance declName`.
+However, this was not a robust solution because:
+
+- We have scoped instances, and `isInstance declName` returns true only if the scope is active.
+
+- We have auxiliary declarations used to construct instances manually, such as:
+  ```
+  def lt_wfRel : WellFoundedRelation Nat
+  ```
+  `isInstance` also returns `false` for this kind of declaration.
+
+In both cases, the declaration may be (or may have been) used to construct an instance, but `isInstance`
+returns `false`. We claim it is a mistake to check the reducibility status using `isInstance`.
+`isInstance` indicates whether a declaration is available for the type class resolution mechanism,
+not its transparency status.
+
+Thus, we added a new transparency setting and set it here.
+-/
+def registerInstance (declName : Name) (attrKind : AttributeKind) (prio : Nat) : MetaM Unit := do
+  setReducibilityStatus declName .implicitReducible
+  addInstance declName attrKind prio
 
 /--
 Registers type class instances.

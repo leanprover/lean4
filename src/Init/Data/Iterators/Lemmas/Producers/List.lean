@@ -6,9 +6,9 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Iterators.Lemmas.Consumers.Collect
 public import Init.Data.Iterators.Producers.List
-public import Init.Data.Iterators.Lemmas.Producers.Monadic.List
+import Init.Data.Iterators.Lemmas.Consumers.Collect
+import Init.Data.Iterators.Lemmas.Producers.Monadic.List
 
 @[expose] public section
 
@@ -26,13 +26,12 @@ variable {β : Type w}
 @[simp]
 theorem List.step_iter_nil :
     (([] : List β).iter).step = ⟨.done, rfl⟩ := by
-  simp [Iter.step, IterM.step, Iterator.step, List.iter, List.iterM, IterM.mk]
+  simp [Iter.step, IterM.step, Iterator.step, List.iter, List.iterM]
 
 @[simp]
 theorem List.step_iter_cons {x : β} {xs : List β} :
     ((x :: xs).iter).step = ⟨.yield xs.iter x, rfl⟩ := by
-  simp [List.iter, List.iterM, IterM.mk, IterM.toIter, Iter.step, Iter.toIterM, IterM.step,
-    Iterator.step]
+  simp [List.iter, List.iterM, IterM.toIter, Iter.step_eq]
 
 @[simp, grind =]
 theorem List.toArray_iter {l : List β} :

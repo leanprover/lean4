@@ -8,8 +8,10 @@ module
 prelude
 public import Lean.Compiler.IR.Format
 public import Lean.Compiler.ExportAttr
-public import Lean.Compiler.LCNF.PhaseExt
+public import Lean.Compiler.LCNF.PublicDeclsExt
 import Lean.Compiler.InitAttr
+import Init.Data.Format.Macro
+import Lean.Compiler.LCNF.Types
 
 public section
 
@@ -44,7 +46,7 @@ def log (entry : LogEntry) : CompilerM Unit :=
 def tracePrefixOptionName := `trace.compiler.ir
 
 private def isLogEnabledFor (opts : Options) (optName : Name) : Bool :=
-  match opts.find optName with
+  match opts.get? optName with
   | some (DataValue.ofBool v) => v
   | _     => opts.getBool tracePrefixOptionName
 
@@ -115,10 +117,10 @@ private def exportIREntries (env : Environment) : Array (Name × Array EnvExtens
   -- safety: cast to erased type
   let irEntries : Array EnvExtensionEntry := unsafe unsafeCast <| sortDecls irDecls
 
-  -- see `regularInitAttr.filterExport`
-  let initDecls : Array (Name × Name) := regularInitAttr.ext.getState env
-      |>.2.foldl (fun a n p => a.push (n, p)) #[]
-      |>.qsort (fun a b => Name.quickLt a.1 b.1)
+  -- save all initializers independent of meta/private. Non-meta initializers will only be used when
+  -- .ir is actually loaded, and private ones iff visible.
+  let initDecls : Array (Name × Name) :=
+    regularInitAttr.ext.exportEntriesFn env (regularInitAttr.ext.getState env) .private
   -- safety: cast to erased type
   let initDecls : Array EnvExtensionEntry := unsafe unsafeCast initDecls
 
@@ -139,20 +141,10 @@ def findEnvDecl (env : Environment) (declName : Name) (includeServer := false): 
 private def findInterpDecl (env : Environment) (declName : Name) : Option Decl :=
   findEnvDecl (includeServer := true) env declName
 
-namespace ExplicitBoxing
-
-def mkBoxedName (n : Name) : Name :=
-  Name.mkStr n "_boxed"
-
-def isBoxedName (name : Name) : Bool :=
-  name matches .str _ "_boxed"
-
-end ExplicitBoxing
-
 /-- Like ``findInterpDecl env (declName ++ `_boxed)`` but with optimized negative lookup. -/
 @[export lean_ir_find_env_decl_boxed]
 private def findInterpDeclBoxed (env : Environment) (declName : Name) : Option Decl :=
-  let boxed := ExplicitBoxing.mkBoxedName declName
+  let boxed := Compiler.LCNF.mkBoxedName declName
   -- Important: get module index of base name, not boxed version. Usually the interpreter never
   -- does negative lookups except in the case of `call_boxed` which must check whether a boxed
   -- version exists. If `declName` exists as an imported declaration but `declName'` doesn't, the
@@ -186,7 +178,7 @@ def getDecl (n : Name) : CompilerM Decl := do
 def findLocalDecl (n : Name) : CompilerM (Option Decl) :=
   return declMapExt.getState (← getEnv) |>.find? n
 
-/-- Returns the list of IR declarations in declaration order. -/
+/-- Returns the list of IR declarations in reverse declaration order. -/
 def getDecls (env : Environment) : List Decl :=
   declMapExt.getEntries env
 

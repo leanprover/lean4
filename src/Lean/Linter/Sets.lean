@@ -8,6 +8,8 @@ module
 prelude
 public meta import Lean.Linter.Basic
 public meta import Lean.Elab.Command
+public import Init.Notation
+import Lean.Data.KVMap
 
 public section
 

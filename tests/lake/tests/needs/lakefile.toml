@@ -1,0 +1,9 @@
+name = "test"
+
+[[require]]
+name = "dep"
+path = "dep"
+
+[[lean_exe]]
+name = "modA"
+needs = ["+Dep.A:olean"]

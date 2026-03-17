@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Meta.AppBuilder
 public import Lean.Meta.Canonicalizer
+public import Init.Omega
 
 public section
 

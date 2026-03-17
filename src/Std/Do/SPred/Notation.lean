@@ -6,8 +6,8 @@ Authors: Lars König, Sebastian Graf
 module
 
 prelude
-public import Std.Do.SPred.SPred
 public meta import Std.Do.SPred.Notation.Basic
+public import Std.Do.SPred.Notation.Basic
 
 public section
 

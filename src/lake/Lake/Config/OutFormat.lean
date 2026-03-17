@@ -25,9 +25,15 @@ export ToText (toText)
 
 public instance (priority := 0) [ToString α] : ToText α := ⟨toString⟩
 
+@[inline] public def listToLines (as : List α) (f : α → String) : String :=
+  as.foldl (s!"{·}{f ·}\n") "" |>.dropEnd 1 |>.copy
+
+@[inline] public def arrayToLines (as : Array α) (f : α → String) : String :=
+  as.foldl (s!"{·}{f ·}\n") "" |>.dropEnd 1 |>.copy
+
 public instance : ToText Json := ⟨Json.compress⟩
-public instance [ToText α] : ToText (List α) := ⟨(·.foldl (s!"{·}{toText ·}\n") "" |>.dropEnd 1 |>.copy)⟩
-public instance [ToText α] : ToText (Array α) := ⟨(·.foldl (s!"{·}{toText ·}\n") "" |>.dropEnd 1 |>.copy)⟩
+public instance [ToText α] : ToText (List α) := ⟨(listToLines · toText)⟩
+public instance [ToText α] : ToText (Array α) := ⟨(arrayToLines · toText)⟩
 
 /-- Class used to format target output as text for `lake query`. -/
 public class QueryText (α : Type u) where
@@ -38,6 +44,8 @@ export QueryText (queryText)
 
 public instance (priority := 0) : QueryText α := ⟨fun _ => ""⟩
 public instance (priority := low) [ToText α] : QueryText α := ⟨toText⟩
+public instance [QueryText α] : QueryText (List α) := ⟨(listToLines · queryText)⟩
+public instance [QueryText α] : QueryText (Array α) := ⟨(arrayToLines · queryText)⟩
 public instance : QueryText Unit := ⟨fun _ => ""⟩
 
 attribute [deprecated QueryText (since := "2025-07-25")] ToText
@@ -51,6 +59,8 @@ export QueryJson (queryJson)
 
 public instance (priority := 0) : QueryJson α := ⟨fun _ => .null⟩
 public instance (priority := low) [ToJson α] : QueryJson α := ⟨toJson⟩
+public instance [QueryJson α] : QueryJson (List α) := ⟨(Json.arr <| ·.toArray.map queryJson)⟩
+public instance [QueryJson α] : QueryJson (Array α) := ⟨(Json.arr <| ·.map queryJson)⟩
 public instance : QueryJson Unit := ⟨fun _ => .null⟩
 
 /-- Class used to format target output for `lake query`. -/

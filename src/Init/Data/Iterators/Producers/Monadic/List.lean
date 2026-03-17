@@ -7,7 +7,7 @@ module
 
 prelude
 public import Init.Data.Iterators.Consumers
-public import Init.Data.Iterators.Internal.Termination
+import Init.Data.Nat.Lemmas
 
 @[expose] public section
 
@@ -49,7 +49,7 @@ The non-monadic version of this iterator is `List.iter`.
 @[always_inline, inline]
 def _root_.List.iterM {α : Type w} (l : List α) (m : Type w → Type w') [Pure m] :
     IterM (α := ListIterator α) m α :=
-  .mk { list := l } m α
+  ⟨{ list := l }⟩
 
 namespace Iterators.Types
 
@@ -61,16 +61,16 @@ instance ListIterator.instIterator {α : Type w} [Pure m] : Iterator (ListIterat
     | .done => it.internalState.list = []
   step it := pure (match it with
         | ⟨⟨[]⟩⟩ => .deflate ⟨.done, rfl⟩
-        | ⟨⟨x :: xs⟩⟩ => .deflate ⟨.yield (.mk ⟨xs⟩ m α) x, rfl⟩)
+        | ⟨⟨x :: xs⟩⟩ => .deflate ⟨.yield ⟨⟨xs⟩⟩ x, rfl⟩)
 
 private def ListIterator.instFinitenessRelation [Pure m] :
     FinitenessRelation (ListIterator α) m where
-  rel := InvImage WellFoundedRelation.rel (ListIterator.list ∘ IterM.internalState)
+  Rel := InvImage WellFoundedRelation.rel (ListIterator.list ∘ IterM.internalState)
   wf := InvImage.wf _ WellFoundedRelation.wf
   subrelation {it it'} h := by
     simp_wf
     obtain ⟨step, h, h'⟩ := h
-    cases step <;> simp_all [IterStep.successor, IterM.IsPlausibleStep, Iterator.IsPlausibleStep]
+    cases step <;> simp_all [IterStep.successor, IterM.IsPlausibleStep, Iterator.IsPlausibleStep, instIterator]
 
 instance ListIterator.instFinite [Pure m] : Finite (ListIterator α) m :=
   by exact Finite.of_finitenessRelation ListIterator.instFinitenessRelation

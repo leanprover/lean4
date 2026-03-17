@@ -58,6 +58,7 @@ def embeddedConstraintPass : Pass where
           failIfUnchanged := false,
           implicitDefEqProofs := false, -- leanprover/lean4/pull/7509
           maxSteps := cfg.maxSteps,
+          instances := true
         })
         (simpTheorems := relevantHyps)
         (congrTheorems := (← getSimpCongrTheorems))

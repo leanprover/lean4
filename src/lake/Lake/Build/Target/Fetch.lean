@@ -15,8 +15,7 @@ open Lean
 
 namespace Lake
 
-set_option linter.deprecated false in
-variable (defaultPkg : Package) (root : BuildKey) in
+variable (defaultPkg : Package) (root : PartialBuildKey) in
 private def PartialBuildKey.fetchInCoreAux
   (self : PartialBuildKey) (facetless : Bool := false)
 : FetchM ((key : BuildKey) × Job (BuildData key)) := do
@@ -24,7 +23,7 @@ private def PartialBuildKey.fetchInCoreAux
   | .module modName =>
     let some mod ← findModule? modName
       | error s!"invalid target '{root}': module '{modName}' not found in workspace"
-    return ⟨.module modName, cast (by simp) <| Job.pure mod⟩
+    return ⟨.packageModule mod.pkg.keyName modName, cast (by simp) <| Job.pure mod⟩
   | .package pkgName =>
     let pkg ← resolveTargetPackageD pkgName
     return ⟨.package pkg.keyName, cast (by simp) <| Job.pure pkg⟩
@@ -98,31 +97,30 @@ Fetches the target specified by this key, resolving gaps as needed.
 @[inline] public def PartialBuildKey.fetchIn (defaultPkg : Package) (self : PartialBuildKey) : FetchM OpaqueJob :=
   (·.2.toOpaque) <$> fetchInCore defaultPkg self
 
-set_option linter.deprecated false in
 variable (root : BuildKey) in
 private def BuildKey.fetchCore
   (self : BuildKey)
-: FetchM (Job (BuildData self)) := do
+: FetchM (Job (BuildData self)) :=
   match self with
-  | module modName =>
+  | module modName => do
     let some mod ← findModule? modName
       | error s!"invalid target '{root}': module '{modName}' not found in workspace"
     return cast (by simp) <| Job.pure mod
-  | package pkgName =>
-    let some pkg ← findPackage? pkgName
+  | package pkgName => do
+    let some pkg ← findPackageByKey? pkgName
       | error s!"invalid target '{root}': package '{pkgName}' not found in workspace"
     return cast (by simp) <| Job.pure pkg.toPackage
-  | packageModule pkgName modName =>
-    let some pkg ← findPackage? pkgName
+  | packageModule pkgName modName => do
+    let some pkg ← findPackageByKey? pkgName
       | error s!"invalid target '{root}': package '{pkgName}' not found in workspace"
     let some mod := pkg.findTargetModule? modName
-      | error s!"invalid target '{root}': module '{modName}' not found in package '{pkg.name}'"
+      | error s!"invalid target '{root}': module '{modName}' not found in package '{pkg.prettyName}'"
     return cast (by simp) <| Job.pure mod
-  | packageTarget pkgName target =>
-    let some pkg ← findPackage? pkgName
+  | packageTarget pkgName target => do
+    let some pkg ← findPackageByKey? pkgName
       | error s!"invalid target '{root}': package '{pkgName}' not found in workspace"
     fetch <| pkg.target target
-  | facet target facetName =>
+  | facet target facetName => do
       let job ← target.fetchCore
       let kind := job.kind
       if h : kind.isAnonymous then

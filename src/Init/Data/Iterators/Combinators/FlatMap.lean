@@ -6,8 +6,8 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Iterators.Combinators.FilterMap
 public import Init.Data.Iterators.Combinators.Monadic.FlatMap
+import Init.Data.Iterators.Combinators.FilterMap
 
 set_option doc.verso true
 

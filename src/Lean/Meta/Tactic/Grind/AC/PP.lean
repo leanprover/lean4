@@ -7,6 +7,7 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.AC.DenoteExpr
+import Init.Omega
 public section
 namespace Lean.Meta.Grind.AC
 

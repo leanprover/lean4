@@ -8,6 +8,7 @@ module
 prelude
 public import Std.Do
 public import Std.Tactic.Do.ProofMode -- For (meta) importing `mgoalStx`; otherwise users might experience
+public import Init.Data.Array.GetLit
                                       -- a broken goal view due to the builtin delaborator for `MGoalEntails`
 
 @[expose] public section
@@ -59,7 +60,7 @@ Theorems tagged with the `spec` attribute are used by the `mspec` and `mvcgen` t
   simp set of `mvcgen` that is used within `wp⟦·⟧` contexts to simplify match discriminants and
   applications of constants.
 -/
-syntax (name := spec) "spec" (Tactic.simpPre <|> Tactic.simpPost)? patternIgnore("← " <|> "<- ")? (ppSpace prio)? : attr
+syntax (name := spec) "spec" (ppSpace prio)? : attr
 
 end Attr
 
@@ -290,6 +291,7 @@ syntax "∀" binderIdent : mintroPat
 @[tactic_alt Lean.Parser.Tactic.mintroMacro]
 syntax (name := mintro) "mintro" (ppSpace colGt mintroPat)+ : tactic
 
+@[tactic_alt Lean.Parser.Tactic.mintroMacro]
 macro (name := mintroError) "mintro" : tactic => Macro.throwError "`mintro` expects at least one pattern"
 
 macro_rules
@@ -362,14 +364,29 @@ macro "mvcgen_trivial" : tactic =>
   )
 
 /--
-An invariant alternative of the form `· term`, one per invariant goal.
+A goal section alternative of the form `· term`, one per goal.
+Used by both `invariants` and `witnesses` sections.
 -/
-syntax invariantDotAlt := ppDedent(ppLine) cdotTk (colGe term)
+syntax goalDotAlt := ppDedent(ppLine) cdotTk (colGe term)
 
 /--
-An invariant alternative of the form `| inv<n> a b c => term`, one per invariant goal.
+A goal section alternative of the form `| label<n> a b c => term`, one per goal.
+Used by both `invariants` and `witnesses` sections.
 -/
-syntax invariantCaseAlt := ppDedent(ppLine) "| " caseArg " => " (colGe term)
+syntax goalCaseAlt := ppDedent(ppLine) "| " caseArg " => " (colGe term)
+
+/--
+The contextual keyword ` witnesses `.
+-/
+syntax witnessesKW := &"witnesses "
+
+/--
+After `mvcgen [...]`, there can be an optional `witnesses` followed by either
+* a bulleted list of witnesses `· term; · term`.
+* a labelled list of witnesses `| witness1 => term; witness2 a b c => term`, which is useful for
+  naming inaccessibles.
+-/
+syntax witnessAlts := witnessesKW withPosition((colGe (goalDotAlt <|> goalCaseAlt))*)
 
 /--
 Either the contextual keyword ` invariants ` or its tracing form ` invariants? ` which suggests
@@ -378,14 +395,14 @@ skeletons for missing invariants as a hint.
 syntax invariantsKW := &"invariants " <|> &"invariants? "
 
 /--
-After `mvcgen [...]`, there can be an optional `invariants` followed by either
+After `mvcgen [...] witnesses ...`, there can be an optional `invariants` followed by either
 * a bulleted list of invariants `· term; · term`.
 * a labelled list of invariants `| inv1 => term; inv2 a b c => term`, which is useful for naming
   inaccessibles.
 The tracing variant ` invariants? ` will suggest a skeleton for missing invariants; see the
 docstring for `mvcgen`.
 -/
-syntax invariantAlts := invariantsKW withPosition((colGe (invariantDotAlt <|> invariantCaseAlt))*)
+syntax invariantAlts := invariantsKW withPosition((colGe (goalDotAlt <|> goalCaseAlt))*)
 
 /--
 In induction alternative, which can have 1 or more cases on the left
@@ -402,7 +419,7 @@ syntax vcAlts := "with " (ppSpace colGt tactic)? withPosition((colGe vcAlt)*)
 @[tactic_alt Lean.Parser.Tactic.mvcgenMacro]
 syntax (name := mvcgen) "mvcgen" optConfig
   (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*,?) "] ")?
-  (invariantAlts)? (vcAlts)? : tactic
+  (witnessAlts)? (invariantAlts)? (vcAlts)? : tactic
 
 /--
 A hint tactic that expands to `mvcgen invariants?`.

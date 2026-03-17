@@ -11,6 +11,8 @@ public import Std.Data.DHashMap.Basic
 import all Std.Data.DHashMap.Internal.Defs
 public import Std.Data.DHashMap.Internal.HashesTo
 public import Std.Data.DHashMap.Internal.AssocList.Lemmas
+import Init.Data.Array.Bootstrap
+import Init.Data.UInt.Lemmas
 
 @[expose] public section
 

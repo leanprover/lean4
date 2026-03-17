@@ -7,9 +7,11 @@ module
 
 prelude
 public import Init.Control.Lawful.Basic
-public import Init.Data.Subtype.Basic
-public import Init.PropLemmas
 public import Init.Control.Lawful.MonadLift.Basic
+public import Init.Ext
+public import Init.NotationExtra
+import Init.Data.Subtype.Basic
+import Init.PropLemmas
 
 public section
 
@@ -72,7 +74,7 @@ def PostconditionT.liftWithProperty {α : Type w} {m : Type w → Type w'} {P : 
   ⟨P, x⟩
 
 /--
-Given a function `f : α → β`, returns a a function `PostconditionT m α → PostconditionT m β`,
+Given a function `f : α → β`, returns a function `PostconditionT m α → PostconditionT m β`,
 turning `PostconditionT m` into a functor.
 
 The postcondition of the `x.map f` states that the return value is the image under `f` of some
@@ -85,7 +87,7 @@ protected def PostconditionT.map {m : Type w → Type w'} [Functor m] {α : Type
     (fun a => ⟨f a.val, _, rfl⟩) <$> x.operation⟩
 
 /--
-Given a function `α → PostconditionT m β`, returns a a function
+Given a function `α → PostconditionT m β`, returns a function
 `PostconditionT m α → PostconditionT m β`, turning `PostconditionT m` into a monad.
 -/
 @[always_inline, inline, expose]
@@ -271,6 +273,12 @@ theorem PostconditionT.run_bind' {m : Type w → Type w'} [Monad m] [LawfulMonad
   run_bind
 
 @[simp]
+protected theorem PostconditionT.run_pure {m : Type w → Type w'} [Monad m] [LawfulMonad m]
+    {α : Type w} {x : α} :
+    (pure x : PostconditionT m α).run = pure x := by
+  simp [run_eq_map]
+
+@[simp]
 theorem PostconditionT.property_lift {m : Type w → Type w'} [Functor m] {α : Type w}
     {x : m α} : (lift x : PostconditionT m α).Property = (fun _ => True) := by
   rfl
@@ -286,6 +294,12 @@ theorem PostconditionT.run_attachLift {m : Type w → Type w'} [Monad m] [MonadA
     [WeaklyLawfulMonadAttach m] {α : Type w}
     {x : m α} : (attachLift x).run = x := by
   simp [attachLift, run_eq_map, WeaklyLawfulMonadAttach.map_attach]
+
+@[simp]
+theorem PostconditionT.operation_attachLift {m : Type w → Type w'} [Monad m] [MonadAttach m]
+    {α : Type w} {x : m α} : (attachLift x : PostconditionT m α).operation =
+      MonadAttach.attach x := by
+  rfl
 
 instance {m : Type w → Type w'} {n : Type w → Type w''} [MonadLift m n] :
     MonadLift (PostconditionT m) (PostconditionT n) where

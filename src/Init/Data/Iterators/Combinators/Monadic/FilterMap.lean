@@ -6,9 +6,9 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Iterators.Consumers.Loop
 public import Init.Data.Iterators.PostconditionMonad
-public import Init.Data.Iterators.Internal.Termination
+public import Init.Data.Iterators.Consumers.Monadic.Loop
+import Init.PropLemmas
 
 public section
 
@@ -64,14 +64,14 @@ def IterM.InternalCombinators.filterMap {α β γ : Type w} {m : Type w → Type
     {n : Type w → Type w''} (lift : ⦃α : Type w⦄ → m α → n α)
     [Iterator α m β] (f : β → PostconditionT n (Option γ))
     (it : IterM (α := α) m β) : IterM (α := FilterMap α m n lift f) n γ :=
-  .mk ⟨it⟩ n γ
+  ⟨⟨it⟩⟩
 
 @[always_inline, inline, expose]
 def IterM.InternalCombinators.map {α β γ : Type w} {m : Type w → Type w'}
     {n : Type w → Type w''} [Monad n] (lift : ⦃α : Type w⦄ → m α → n α)
     [Iterator α m β] (f : β → PostconditionT n γ)
     (it : IterM (α := α) m β) : IterM (α := Map α m n lift f) n γ :=
-  .mk ⟨it⟩ n γ
+  ⟨⟨it⟩⟩
 
 /--
 *Note: This is a very general combinator that requires an advanced understanding of monads,
@@ -172,7 +172,7 @@ private def FilterMap.instFinitenessRelation {α β γ : Type w} {m : Type w →
     {n : Type w → Type w''} [Monad n] [Iterator α m β] {lift : ⦃α : Type w⦄ → m α → n α}
     {f : β → PostconditionT n (Option γ)} [Finite α m] :
     FinitenessRelation (FilterMap α m n lift f) n where
-  rel := InvImage IterM.IsPlausibleSuccessorOf (FilterMap.inner ∘ IterM.internalState)
+  Rel := InvImage IterM.IsPlausibleSuccessorOf (FilterMap.inner ∘ IterM.internalState)
   wf := InvImage.wf _ Finite.wf
   subrelation {it it'} h := by
     obtain ⟨step, h, h'⟩ := h
@@ -205,7 +205,7 @@ private def Map.instProductivenessRelation {α β γ : Type w} {m : Type w → T
     {n : Type w → Type w''} [Monad n] [Iterator α m β] {lift : ⦃α : Type w⦄ → m α → n α}
     {f : β → PostconditionT n γ} [Productive α m] :
     ProductivenessRelation (Map α m n lift f) n where
-  rel := InvImage IterM.IsPlausibleSkipSuccessorOf (FilterMap.inner ∘ IterM.internalState)
+  Rel := InvImage IterM.IsPlausibleSkipSuccessorOf (FilterMap.inner ∘ IterM.internalState)
   wf := InvImage.wf _ Productive.wf
   subrelation {it it'} h := by
     cases h

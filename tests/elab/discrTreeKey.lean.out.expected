@@ -1,0 +1,36 @@
+Nat.mul_one (n : Nat) : n * 1 = n
+Nat.not_le {a b : Nat} : ¬a ≤ b ↔ b < a
+and_not_self {a : Prop} : ¬(a ∧ ¬a)
+Nat.add_one_ne_zero (n : Nat) : n + 1 ≠ 0
+Nat.zero_le (n : Nat) : 0 ≤ n
+@LE.le Nat _ 0 _
+Nat.succ_eq_add_one (n : Nat) : n.succ = n + 1
+succ _
+Nat.pred_succ (n : Nat) : n.succ.pred = n
+pred _
+List.getElem?_nil.{u_1} {α : Type u_1} {i : Nat} : [][i]? = none
+@getElem? (List _) Nat _ _ _ (@nil _) _
+List.or_cons {a : Bool} {l : List Bool} : (a :: l).or = (a || l.or)
+List.or (@cons Bool _ _)
+List.not_mem_nil.{u_1} {α : Type u_1} {a : α} : ¬a ∈ []
+@Membership.mem _ (List _) _ (@nil _) _
+List.mem_cons.{u_1} {α✝ : Type u_1} {b : α✝} {l : List α✝} {a : α✝} : a ∈ b :: l ↔ a = b ∨ a ∈ l
+@Membership.mem _ (List _) _ (@cons _ _ _) _
+List.singleton_append.{u_1} {α✝ : Type u_1} {x : α✝} {l : List α✝} : [x] ++ l = x :: l
+@HAppend.hAppend (List _) (List _) (List _) _ (@cons _ _ (@nil _)) _
+List.append_nil.{u} {α : Type u} (as : List α) : as ++ [] = as
+@Eq (List _) (@HAppend.hAppend (List _) (List _) (List _) _ _ _) (@nil _)
+List.mapM_nil.{u_1, u_2, u_3} {m : Type u_1 → Type u_2} {α : Type u_3} {β : Type u_1} [Monad m] {f : α → m β} :
+  mapM f [] = pure []
+@mapM _ _ _ _ _ (@nil _)
+Nat.instIdempotentOpGcd : Std.IdempotentOp gcd
+@Std.IdempotentOp Nat gcd
+List.instDecidableMemOfLawfulBEq.{u} {α : Type u} [BEq α] [LawfulBEq α] (a : α) (as : List α) : Decidable (a ∈ as)
+Decidable (@Membership.mem _ (List _) _ _ _)
+List.instForIn'InferInstanceMembershipOfMonad.{u_1, u_2, u_3} {m : Type u_1 → Type u_2} {α : Type u_3} [Monad m] :
+  ForIn' m (List α) α inferInstance
+ForIn' _ (List _) _ (@instMembership _)
+@Eq Nat (bar _ (@OfNat.ofNat Nat _ _)) (@default Nat _)
+bar _ _
+@Exists Nat <other>
+@Eq Nat _ 0

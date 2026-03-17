@@ -6,9 +6,11 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 module
 
 prelude
-public import Init.Data.String.Basic
 import Init.Data.String.Modify
 import Init.Data.String.Search
+public import Init.Data.ToString.Basic
+import Init.Data.Iterators.Consumers.Collect
+import Init.System.Platform
 
 public section
 
@@ -150,7 +152,7 @@ def parent (p : FilePath) : Option FilePath :=
 /--
 Extracts the last element of a path if it is a file or directory name.
 
-Returns `none ` if the last entry is a special name (such as `.` or `..`) or if the path is the root
+Returns `none` if the last entry is a special name (such as `.` or `..`) or if the path is the root
 directory.
 -/
 def fileName (p : FilePath) : Option String :=

@@ -69,9 +69,11 @@ theorem em (p : Prop) : p ∨ ¬p :=
 theorem exists_true_of_nonempty {α : Sort u} : Nonempty α → ∃ _ : α, True
   | ⟨x⟩ => ⟨x, trivial⟩
 
+@[implicit_reducible]
 noncomputable def inhabited_of_nonempty {α : Sort u} (h : Nonempty α) : Inhabited α :=
   ⟨choice h⟩
 
+@[implicit_reducible]
 noncomputable def inhabited_of_exists {α : Sort u} {p : α → Prop} (h : ∃ x, p x) : Inhabited α :=
   inhabited_of_nonempty (Exists.elim h (fun w _ => ⟨w⟩))
 
@@ -81,6 +83,7 @@ noncomputable scoped instance (priority := low) propDecidable (a : Prop) : Decid
     | Or.inl h => ⟨isTrue h⟩
     | Or.inr h => ⟨isFalse h⟩
 
+@[implicit_reducible]
 noncomputable def decidableInhabited (a : Prop) : Inhabited (Decidable a) where
   default := inferInstance
 
@@ -102,7 +105,7 @@ noncomputable def strongIndefiniteDescription {α : Sort u} (p : α → Prop) (h
       ⟨xp.val, fun _ => xp.property⟩)
     (fun hp => ⟨choice h, fun h => absurd h hp⟩)
 
-/-- the Hilbert epsilon Function -/
+/-- The Hilbert epsilon function. -/
 noncomputable def epsilon {α : Sort u} [h : Nonempty α] (p : α → Prop) : α :=
   (strongIndefiniteDescription p h).val
 
@@ -142,6 +145,7 @@ is classically true but not constructively. -/
 
 /-- Transfer decidability of `¬ p` to decidability of `p`. -/
 -- This can not be an instance as it would be tried everywhere.
+@[implicit_reducible]
 def decidable_of_decidable_not (p : Prop) [h : Decidable (¬ p)] : Decidable p :=
   match h with
   | isFalse h => isTrue (Classical.not_not.mp h)

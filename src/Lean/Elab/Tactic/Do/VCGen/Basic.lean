@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Elab.Tactic.Simp
 public import Lean.Elab.Tactic.Do.Attr
+import Init.Omega
 
 public section
 
@@ -72,6 +73,10 @@ structure State where
   -/
   invariants : Array MVarId := #[]
   /--
+  Holes of witness type that have been generated so far.
+  -/
+  witnesses : Array MVarId := #[]
+  /--
   The verification conditions that have been generated so far.
   -/
   vcs : Array MVarId := #[]
@@ -94,16 +99,20 @@ def ifOutOfFuel (x : VCGenM α) (k : VCGenM α) : VCGenM α := do
 def addSubGoalAsVC (goal : MVarId) : VCGenM PUnit := do
   goal.freshenLCtxUserNamesSinceIdx (← read).initialCtxSize
   let ty ← goal.getType
-  if ty.isAppOf ``Std.Do.PostCond || ty.isAppOf ``Std.Do.SPred then
-    -- Here we make `mvar` a synthetic opaque goal upon discharge failure.
-    -- This is the right call for (previously natural) holes such as loop invariants, which
-    -- would otherwise lead to spurious instantiations and unwanted renamings (when leaving the
-    -- scope of a local).
-    -- But it's wrong for, e.g., schematic variables. The latter should never be PostConds,
-    -- Invariants or SPreds, hence the condition.
-    goal.setKind .syntheticOpaque
-  if ty.isAppOf ``Std.Do.Invariant then
+  -- Here we make `mvar` a synthetic opaque goal upon discharge failure.
+  -- This is the right call for (previously natural) holes such as loop invariants, which
+  -- would otherwise lead to spurious instantiations and unwanted renamings (when leaving the
+  -- scope of a local).
+  -- We also do this for, e.g. schematic variables. One reason is that at this point, we have
+  -- already tried to assign them by unification. Another reason is that we want to display the
+  -- VC to the user as-is, without abstracting any variables in the local context.
+  -- This only makes sense for synthetic opaque metavariables.
+  goal.setKind .syntheticOpaque
+  let env ← getEnv
+  if isMVCGenInvariantType env ty then
     modify fun s => { s with invariants := s.invariants.push goal }
+  else if isMVCGenWitnessType env ty then
+    modify fun s => { s with witnesses := s.witnesses.push goal }
   else
     modify fun s => { s with vcs := s.vcs.push goal }
 
@@ -214,7 +223,7 @@ def mkSpecContext (optConfig : Syntax) (lemmas : Syntax) (ignoreStarArg := false
               mkSpecTheoremFromConst declName
             else
               withRef id <| throwUnknownConstant id.getId.eraseMacroScopes
-        specThms := specThms.eraseCore specThm.proof
+        specThms := specThms.erase specThm.proof
       catch _ =>
         simpStuff := simpStuff.push ⟨arg⟩ -- simp tracks its own erase stuff
     else if arg.getKind == ``simpLemma then
@@ -228,17 +237,17 @@ def mkSpecContext (optConfig : Syntax) (lemmas : Syntax) (ignoreStarArg := false
         let info ← getConstInfo declName
         try
           let thm ← mkSpecTheoremFromConst declName
-          specThms := addSpecTheoremEntry specThms thm
+          specThms := specThms.insert thm
         catch _ =>
           simpStuff := simpStuff.push ⟨arg⟩
       | some (.fvar fvar) =>
         let decl ← getFVarLocalDecl (.fvar fvar)
         try
           let thm ← mkSpecTheoremFromLocal fvar
-          specThms := addSpecTheoremEntry specThms thm
+          specThms := specThms.insert thm
         catch _ =>
           simpStuff := simpStuff.push ⟨arg⟩
-      | _ => withRef term <| throwError "Could not resolve {repr term}"
+      | _ => withRef term <| throwError "Could not resolve spec theorem `{term}`"
     else if arg.getKind == ``simpStar then
       starArg := true
       simpStuff := simpStuff.push ⟨arg⟩
@@ -258,7 +267,7 @@ def mkSpecContext (optConfig : Syntax) (lemmas : Syntax) (ignoreStarArg := false
       unless specThms.isErased (.local fvar) do
         try
           let thm ← mkSpecTheoremFromLocal fvar
-          specThms := addSpecTheoremEntry specThms thm
+          specThms := specThms.insert thm
         catch _ => continue
   return {
     config,
@@ -267,3 +276,20 @@ def mkSpecContext (optConfig : Syntax) (lemmas : Syntax) (ignoreStarArg := false
     simprocs := res.simprocs
     initialCtxSize := (← getLCtx).numIndices
   }
+
+def withLocalSpecs [Monad m] [MonadControlT VCGenM m] (xs : Array Expr) (k : m α) : m α :=
+  controlAt VCGenM fun runInBase => do
+    let rec loop i : VCGenM _ := do
+      if h : i < xs.size then
+        let x := xs[i]
+        try
+          let thm ← mkSpecTheoremFromLocal x.fvarId! (eval_prio low)
+          trace[Elab.Tactic.Do.vcgen] "adding {thm.proof}"
+          withReader (fun ctx => { ctx with specThms := ctx.specThms.insert thm }) (loop (i + 1))
+        catch ex =>
+          match ex with
+          | .internal .. => throw ex
+          | .error ..    => loop (i + 1)
+      else
+        runInBase k
+    loop 0

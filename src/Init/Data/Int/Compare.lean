@@ -7,8 +7,8 @@ module
 
 prelude
 public import Init.Data.Ord.Basic
+public import Init.Data.Order.ClassesExtra
 import all Init.Data.Ord.Basic
-public import Init.Data.Int.Order
 import Init.Omega
 
 public section
@@ -73,5 +73,9 @@ protected theorem isGE_compare {a b : Int} :
     (compare a b).isGE ↔ b ≤ a := by
   rw [← Int.compare_swap, Ordering.isGE_swap]
   exact Int.isLE_compare
+
+public instance : Std.LawfulOrderOrd Int where
+  isLE_compare _ _ := Int.isLE_compare
+  isGE_compare _ _ := Int.isGE_compare
 
 end Int

@@ -33,11 +33,26 @@ structure Import where
   deriving Repr, Inhabited, ToJson, FromJson,
     BEq, Hashable -- needed by Lake (in `Lake.Load.Elab.Lean`)
 
+-- TODO: move further up into `Init` by using simpler representation for `imports`
+@[extern "lean_idbg_client_loop"]
+public opaque Idbg.idbgClientLoop {α : Type} [Nonempty α]
+  (siteId : String) (imports : Array Import) (apply : α → String) : IO Unit
+
 instance : Coe Name Import := ⟨({module := ·})⟩
 
 instance : ToString Import := ⟨fun imp =>
   s!"{if imp.isExported then "public " else ""}{if imp.isMeta then "meta " else ""}import \
     {if imp.importAll then "all " else ""}{imp.module}"⟩
+
+/-- Phases for which some IR is available for execution. -/
+inductive IRPhases where
+  /-- Available for execution in the final native code. -/
+  | runtime
+  /-- Available for execution during elaboration. -/
+  | comptime
+  /-- Available during run time and compile time. -/
+  | all
+deriving Inhabited, BEq, Repr
 
 /-- Abstract structure of a module's header. -/
 structure ModuleHeader where

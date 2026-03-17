@@ -6,6 +6,8 @@ Authors: Paul Reichert
 module
 
 prelude
+public import Init.Data.Iterators.Lemmas.Consumers
 public import Std.Data.Iterators.Lemmas.Consumers.Monadic
 public import Std.Data.Iterators.Lemmas.Consumers.Collect
 public import Std.Data.Iterators.Lemmas.Consumers.Loop
+public import Std.Data.Iterators.Lemmas.Consumers.Set

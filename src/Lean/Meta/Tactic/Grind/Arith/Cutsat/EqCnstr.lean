@@ -17,6 +17,7 @@ import Lean.Meta.Tactic.Grind.Arith.Cutsat.CommRing
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Norm
 import Lean.Meta.Tactic.Grind.Arith.EvalNum
 import Lean.Meta.NatInstTesters
+import Init.Omega
 public section
 namespace Lean.Meta.Grind.Arith.Cutsat
 

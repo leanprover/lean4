@@ -6,8 +6,15 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Data.List.Nat.Basic
-public import Init.Data.List.Nat.TakeDrop
+public import Init.Data.Function
+public import Init.Ext
+public import Init.NotationExtra
+import Init.Data.List.Nat.Basic
+import Init.Data.List.Nat.TakeDrop
+import Init.Data.List.Sublist
+import Init.Data.List.TakeDrop
+import Init.Data.Nat.Lemmas
+import Init.Omega
 
 public section
 
@@ -130,6 +137,14 @@ theorem prefix_take_iff {xs ys : List α} {i : Nat} : xs <+: ys.take i ↔ xs <+
 theorem suffix_iff_eq_drop : l₁ <:+ l₂ ↔ l₁ = drop (length l₂ - length l₁) l₂ :=
   ⟨fun h => append_cancel_left <| (suffix_iff_eq_append.1 h).trans (take_append_drop _ _).symm,
     fun e => e.symm ▸ drop_suffix _ _⟩
+
+theorem prefix_map_iff_of_injective {f : α → β} (hf : Function.Injective f) :
+    l₁.map f <+: l₂.map f ↔ l₁ <+: l₂ := by
+  simp [prefix_iff_eq_take, ← map_take, map_inj_right hf]
+
+theorem suffix_map_iff_of_injective {f : α → β} (hf : Function.Injective f) :
+    l₁.map f <:+ l₂.map f ↔ l₁ <:+ l₂ := by
+  simp [suffix_iff_eq_drop, ← map_drop, map_inj_right hf]
 
 @[grind =] theorem prefix_take_le_iff {xs : List α} (hm : i < xs.length) :
     xs.take i <+: xs.take j ↔ i ≤ j := by

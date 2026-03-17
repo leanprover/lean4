@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Attributes
+import Lean.Meta.RecExt
 
 public section
 
@@ -33,14 +34,8 @@ private def isValidMacroInline (declName : Name) : CoreM Bool := do
   unless info.all.length = 1 do
     -- We do not allow `[macro_inline]` attributes at mutual recursive definitions
     return false
-  let env ← getEnv
-  let isRec (declName' : Name) : Bool :=
-    isBRecOnRecursor env declName' ||
-    declName' == ``WellFounded.fix ||
-    declName' == ``WellFounded.Nat.fix ||
-    declName' == declName ++ `_unary -- Auxiliary declaration created by `WF` module
-  if Option.isSome <| info.value.find? fun e => e.isConst && isRec e.constName! then
-    -- It contains a `brecOn` or `WellFounded.fix` application. So, it should be recursvie
+  if (← Meta.isRecursiveDefinition declName) then
+    -- It is recursive
     return false
   return true
 

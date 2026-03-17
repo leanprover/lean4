@@ -6,7 +6,10 @@ Authors: Gabriel Ebner, Robin Arnez
 module
 
 prelude
-public import Init.Data.Nat.Linear
+public import Init.Grind.Tactics
+import Init.Data.Nat.Div.Basic
+import Init.NotationExtra
+import Init.WFTactics
 
 public section
 

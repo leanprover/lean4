@@ -29,7 +29,7 @@ def main (args : List String) : IO Unit := do
     if !msgs.toList.isEmpty then -- skip this file if there are parse errors
       msgs.forM fun msg => msg.toString >>= IO.println
       throw <| .userError "parse errors in file"
-    let `(header| $[module%$moduleTk?]? $imps:import*) := header
+    let `(header| $[module%$moduleTk?]? $[prelude%$preludeTk?]? $imps:import*) := header
       | throw <| .userError s!"unexpected header syntax of {path}"
     if moduleTk?.isSome then
       continue
@@ -38,11 +38,11 @@ def main (args : List String) : IO Unit := do
     let startPos := header.raw.getPos? |>.getD parserState.pos
 
     let dummyEnv ← mkEmptyEnvironment
-    let (initCmd, parserState', _) :=
+    let (initCmd, parserState', msgs') :=
       Parser.parseCommand inputCtx { env := dummyEnv, options := {} } parserState msgs
 
-    -- insert section if any trailing command
-    if !initCmd.isOfKind ``Parser.Command.eoi then
+    -- insert section if any trailing command (or error, which could be from an unknown command)
+    if !initCmd.isOfKind ``Parser.Command.eoi || msgs'.hasErrors then
       let insertPos? :=
           -- put below initial module docstring if any
           guard (initCmd.isOfKind ``Parser.Command.moduleDoc) *> initCmd.getTailPos? <|>
@@ -57,19 +57,21 @@ def main (args : List String) : IO Unit := do
         sec := "\n\n" ++ sec
       if insertPos?.isNone then
         sec := sec ++ "\n\n"
-      text := text.extract 0 insertPos ++ sec ++ text.extract insertPos text.rawEndPos
+      let insertPos := text.pos! insertPos
+      text := text.extract text.startPos insertPos ++ sec ++ text.extract insertPos text.endPos
 
     -- prepend each import with `public `
     for imp in imps.reverse do
       let insertPos := imp.raw.getPos?.get!
       let prfx := if doMeta then "public meta " else "public "
-      text := text.extract 0 insertPos ++ prfx ++ text.extract insertPos text.rawEndPos
+      let insertPos := text.pos! insertPos
+      text := text.extract text.startPos insertPos ++ prfx ++ text.extract insertPos text.endPos
 
     -- insert `module` header
-    let mut initText := text.extract 0 startPos
-    if !initText.trim.isEmpty then
+    let mut initText := text.extract text.startPos (text.pos! startPos)
+    if !initText.trimAscii.isEmpty then
       -- If there is a header comment, preserve it and put `module` in the line after
-      initText := initText.trimRight ++ "\n"
-    text := initText ++ "module\n\n" ++ text.extract startPos text.rawEndPos
+      initText := initText.trimAsciiEnd.toString ++ "\n"
+    text := initText ++ "module\n\n" ++ text.extract (text.pos! startPos) text.endPos
 
     IO.FS.writeFile path text

@@ -7,7 +7,7 @@ module
 
 prelude
 public import Init.Data.Iterators.Consumers
-public import Init.Data.Iterators.Internal.Termination
+import Init.Omega
 
 @[expose] public section
 
@@ -55,7 +55,7 @@ The pure version of this iterator is `Array.iterFromIdx`.
 def _root_.Array.iterFromIdxM {α : Type w} (array : Array α) (m : Type w → Type w') (pos : Nat)
     [Pure m] :
     IterM (α := ArrayIterator α) m α :=
-  .mk { array := array, pos := pos } m α
+  ⟨{ array := array, pos := pos }⟩
 
 /--
 Returns a finite monadic iterator for the given array.
@@ -93,7 +93,7 @@ instance ArrayIterator.instIterator {α : Type w} [Pure m] : Iterator (ArrayIter
 
 private def ArrayIterator.instFinitenessRelation [Pure m] :
     FinitenessRelation (ArrayIterator α) m where
-  rel := InvImage WellFoundedRelation.rel
+  Rel := InvImage WellFoundedRelation.rel
       (fun it => it.internalState.array.size - it.internalState.pos)
   wf := InvImage.wf _ WellFoundedRelation.wf
   subrelation {it it'} h := by

@@ -6,12 +6,13 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Grind.Arith.Linear.LinearM
-import Lean.Meta.Tactic.Grind.Simp
 import Init.Grind.Module.OfNatModule
 import Init.Grind.Module.NatModuleNorm
 import Lean.Meta.Tactic.Grind.Diseq
-import Lean.Meta.Tactic.Grind.Proof
 import Lean.Meta.Tactic.Grind.Arith.Linear.ToExpr
+import Init.Data.Nat.Order
+import Init.Data.Order.Lemmas
+import Lean.Data.RArray
 public section
 namespace Lean.Meta.Grind.Arith.Linear
 

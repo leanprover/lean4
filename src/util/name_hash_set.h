@@ -8,5 +8,5 @@ Author: Daniel Selsam
 #include <unordered_set>
 #include "util/name.h"
 namespace lean {
-typedef std::unordered_set<name, name_hash_fn, name_eq_fn> name_hash_set;
+typedef lean::unordered_set<name, name_hash_fn, name_eq_fn> name_hash_set;
 }

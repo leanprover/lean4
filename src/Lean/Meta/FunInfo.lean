@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Meta.InferType
+import Init.Data.Range.Polymorphic.Iterators
 
 public section
 
@@ -85,26 +86,50 @@ private def getFunInfoAux (fn : Expr) (maxArgs? : Option Nat) : MetaM FunInfo :=
           let dependsOnHigherOrderOutParam :=
             !higherOrderOutParams.isEmpty
             && Option.isSome (decl.type.find? fun e => e.isFVar && higherOrderOutParams.contains e.fvarId!)
+          let className? ← isClass? decl.type
+          /-
+          **Note**: We use `isClass? decl.type` instead of relying solely on binder annotations
+          (`[...]`) because users sometimes use implicit binders for class types when the instance
+          is already available from context. For example:
+          ```
+          structure OrdSet (α : Type) [Hashable α] [BEq α] where ...
+          def OrdSet.insert {_ : Hashable α} {_ : BEq α} (s : OrdSet α) (a : α) : OrdSet α := ...
+          ```
+          Here, `Hashable` and `BEq` are classes, but implicit binders are used because the
+          instances come from `OrdSet`'s parameters.
+
+          However, we also require the binder to be non-explicit because structures extending
+          classes use explicit binders for their constructor parameters:
+          ```
+          structure MyGroupTopology (α : Type) extends MyTopology α, IsContinuousMul α
+          -- Constructor type:
+          -- MyGroupTopology.mk (toMyTopology : MyTopology α) (toIsContinuousMul : IsContinuousMul α) : ...
+          ```
+          These explicit parameters should not be treated as instances for automation purposes.
+
+          -/
+          let isInstance := className?.isSome && !decl.binderInfo.isExplicit
           paramInfo := updateHasFwdDeps paramInfo backDeps
           paramInfo := paramInfo.push {
-            backDeps, dependsOnHigherOrderOutParam
+            backDeps, dependsOnHigherOrderOutParam, isInstance
             binderInfo := decl.binderInfo
             isProp     := (← isProp decl.type)
             isDecInst  := (← forallTelescopeReducing decl.type fun _ type => return type.isAppOf ``Decidable)
           }
-          if decl.binderInfo == .instImplicit then
-            /- Collect higher order output parameters of this class -/
-            if let some className ← isClass? decl.type then
-              if let some outParamPositions := getOutParamPositions? (← getEnv) className then
-                unless outParamPositions.isEmpty do
-                  let args := decl.type.getAppArgs
-                  for h2 : i in *...args.size do
-                    if outParamPositions.contains i then
-                      let arg := args[i]
-                      if let some idx := fvars.idxOf? arg then
-                        if (← whnf (← inferType arg)).isForall then
-                          paramInfo := paramInfo.modify idx fun info => { info with higherOrderOutParam := true }
-                          higherOrderOutParams := higherOrderOutParams.insert arg.fvarId!
+          if isInstance then
+            /- Collect higher order output parameters of this class IF `isInstance` is `true` -/
+            let some className := className? | unreachable!
+            /- Collect higher order output parameters of this class IF `isInstance` is `true` -/
+            if let some outParamPositions := getOutParamPositions? (← getEnv) className then
+              unless outParamPositions.isEmpty do
+                let args := decl.type.getAppArgs
+                for h2 : i in *...args.size do
+                  if outParamPositions.contains i then
+                    let arg := args[i]
+                    if let some idx := fvars.idxOf? arg then
+                      if (← whnf (← inferType arg)).isForall then
+                        paramInfo := paramInfo.modify idx fun info => { info with higherOrderOutParam := true }
+                        higherOrderOutParams := higherOrderOutParams.insert arg.fvarId!
         let resultDeps := collectDeps fvars type
         paramInfo := updateHasFwdDeps paramInfo resultDeps
         return { resultDeps, paramInfo }

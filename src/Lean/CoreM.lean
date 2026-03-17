@@ -9,6 +9,8 @@ prelude
 public import Lean.Util.RecDepth
 public import Lean.ResolveName
 public import Lean.Language.Basic
+import Init.While
+import Lean.Compiler.NoncomputableAttr
 
 public section
 
@@ -429,6 +431,10 @@ def mkFreshUserName (n : Name) : CoreM Name :=
 @[inline] def CoreM.run' (x : CoreM α) (ctx : Context) (s : State) : EIO Exception α :=
   Prod.fst <$> x.run ctx s
 
+/--
+Run a `CoreM` monad in IO.
+Note that the value of `ctx.initHeartbeats` is ignored and replaced with `IO.getNumHeartbeats`.
+-/
 @[inline] def CoreM.toIO (x : CoreM α) (ctx : Context) (s : State) : IO (α × State) := do
   match (← (x.run { ctx with initHeartbeats := (← IO.getNumHeartbeats) } s).toIO') with
   | Except.error (Exception.error _ msg)   => throw <| IO.userError (← msg.toString)
@@ -438,7 +444,7 @@ def mkFreshUserName (n : Name) : CoreM Name :=
 @[inline] def CoreM.toIO' (x : CoreM α) (ctx : Context) (s : State) : IO α :=
   (·.1) <$> x.toIO ctx s
 
--- withIncRecDepth for a monad `m` such that `[MonadControlT CoreM n]`
+/-- withIncRecDepth for a monad `m` such that `[MonadControlT CoreM n]`. -/
 protected def withIncRecDepth [Monad m] [MonadControlT CoreM m] (x : m α) : m α :=
   controlAt CoreM fun runInBase => withIncRecDepth (runInBase x)
 
@@ -543,10 +549,12 @@ def logSnapshotTask (task : Language.SnapshotTask Language.SnapshotTree) : CoreM
 /-- Wraps the given action for use in `EIO.asTask` etc., discarding its final monadic state. -/
 def wrapAsync {α : Type} (act : α → CoreM β) (cancelTk? : Option IO.CancelToken) :
     CoreM (α → EIO Exception β) := do
-  let (childNGen, parentNGen) := (← getDeclNGen).mkChild
-  setDeclNGen parentNGen
+  let (childNGen, parentNGen) := (← getNGen).mkChild
+  setNGen parentNGen
+  let (childDeclNGen, parentDeclNGen) := (← getDeclNGen).mkChild
+  setDeclNGen parentDeclNGen
   let st ← get
-  let st := { st with auxDeclNGen := childNGen }
+  let st := { st with auxDeclNGen := childDeclNGen, ngen := childNGen }
   let ctx ← read
   let ctx := { ctx with cancelTk? }
   let heartbeats := (← IO.getNumHeartbeats) - ctx.initHeartbeats
@@ -738,6 +746,8 @@ where doCompile := do
       compileDeclsImpl decls
     catch e =>
       state.restore
+      for decl in decls do
+        modifyEnv (addNoncomputable · decl)
       if logErrors then
         throw e
 

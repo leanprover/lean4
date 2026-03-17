@@ -8,6 +8,7 @@ module
 prelude
 public import Std.Tactic.BVDecide.Normalize
 public import Lean.Elab.Tactic.BVDecide.Frontend.Attr
+import Init.Omega
 
 public section
 

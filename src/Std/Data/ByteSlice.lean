@@ -10,6 +10,7 @@ public import Init.Data.ByteArray
 public import Init.Data.Slice.Basic
 public import Init.Data.Slice.Notation
 public import Init.Data.Range.Polymorphic.Nat
+import Init.Omega
 
 /-!
 This module defines the `ByteSlice` structure. It's a modified version of the `SubArray` code,

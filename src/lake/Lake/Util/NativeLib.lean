@@ -7,6 +7,8 @@ module
 
 prelude
 public import Init.System.IO
+import Init.Data.ToString.Macro
+import Init.System.Platform
 
 open System
 namespace Lake

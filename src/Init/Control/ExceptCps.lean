@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.Control.Lawful.Basic
+import Init.SimpLemmas
 
 public section
 

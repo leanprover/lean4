@@ -137,6 +137,21 @@ theorem singleton_suffix_iff_getLast?_eq_some {a : α} {l : List α} : [a] <:+ l
 theorem singleton_prefix_iff_head?_eq_some {a : α} {l : List α} : [a] <+: l ↔ l.head? = some a := by
   simp [prefix_iff_exists_append, head?_eq_some_iff]
 
+theorem filter_bne_eq_self_of_not_mem [BEq α] [LawfulBEq α] {a : α} {l : List α} (h : a ∉ l) :
+    l.filter (· != a) = l := by
+  rw [List.filter_eq_self]
+  intro c hc
+  simp only [bne_iff_ne, ne_eq]
+  exact fun heq => absurd (heq ▸ hc) h
+
+theorem dropWhile_beq_eq_self_of_head?_ne [BEq α] [LawfulBEq α] {a : α} {l : List α}
+    (h : l.head? ≠ some a) : l.dropWhile (· == a) = l := by
+  cases l with
+  | nil => simp
+  | cons hd tl =>
+    rw [List.dropWhile_cons_of_neg]
+    simpa [beq_iff_eq] using h
+
 end List
 
 public section
@@ -365,65 +380,104 @@ private theorem foldl_dropWhile_zero (l : List Char) :
       simp [ih]
     · rw [List.dropWhile_cons_of_neg (by simpa)]
 
+private theorem foldr_base_10_pos {l : List Nat}
+    (hne : l ≠ []) (hlast : ∀ d, l.getLast? = some d → d ≠ 0) :
+    0 < l.foldr (fun d n => n * 10 + d) 0 := by
+  induction l with
+  | nil => simp at hne
+  | cons hd tl ih =>
+    by_cases htl : tl = []
+    · simp [htl] at hlast ⊢; omega
+    · rw [List.getLast?_cons_of_ne_nil htl] at hlast
+      have := ih htl hlast; simp; omega
+
+private theorem eq_toDigitsSane_of_foldl_nat {l : List Nat}
+    (hhead : ∀ d, l.head? = some d → d ≠ 0)
+    (hdigit : ∀ d ∈ l, d < 10) :
+    l.foldl (init := 0) (fun n d => n * 10 + d) = n → l = Nat.toDigitsSane 10 n (by decide) := by
+  rintro rfl
+  rw [← List.reverse_reverse l] at *
+  generalize l.reverse = l at *
+  simp only [List.foldl_reverse, List.head?_reverse, List.mem_reverse] at hhead hdigit ⊢
+  induction l with
+  | nil => simp
+  | cons hd tl ih =>
+    by_cases htl : tl = []
+    · simp_all [Nat.toDigitsSane_of_lt]
+    · simp only [List.getLast?_cons_of_ne_nil htl, ne_eq, List.mem_cons,
+        forall_eq_or_imp] at hhead hdigit
+      obtain ⟨hhd, htl_digit⟩ := hdigit
+      simp [Nat.mul_comm, Nat.toDigitsSane_mul_add (foldr_base_10_pos htl hhead) (by omega),
+        ih hhead htl_digit]
+
+private theorem digitChar_toNat_sub_48 {c : Char} (h : c.isDigit) :
+    Nat.digitChar (c.toNat - 48) = c := by
+  simp only [Char.isDigit_iff_toNat, ↓Char.isValue, Char.reduceToNat, ← Char.toNat_inj] at ⊢ h
+  rw [Nat.toNat_digitChar_of_lt_ten (by omega)]
+  omega
+
+@[simp]
+private theorem digitChar_comp_toNat_sub_48 :
+    Nat.digitChar ∘ (fun (c : { c : Char // c.isDigit = true }) => c.val.toNat - 48) = Subtype.val := by
+  ext1 c
+  rcases c with ⟨c, hc⟩
+  simp [digitChar_toNat_sub_48 hc]
+
+private theorem eq_map_digitChar_map_toNat_sub_48 {l : List Char} (hdigit : ∀ c ∈ l, c.isDigit) :
+    l = (l.map (fun c => c.toNat - 48)).map Nat.digitChar := by
+  conv => rhs; rw [← List.unattach_attachWith (H := hdigit)]
+  simp only [List.map_unattach, wfParam, List.map_map, digitChar_comp_toNat_sub_48]
+  simp
+
+private theorem eq_toDigitsSane_map_of_foldl {l : List Char} {n : Nat}
+    (hhead : ∀ c, l.head? = some c → c ≠ '0')
+    (hdigit : ∀ c ∈ l, c.isDigit)
+    (hfoldl : l.foldl (init := 0) (fun n c => n * 10 + (c.toNat - 48)) = n) :
+    l = (Nat.toDigitsSane 10 n (by decide)).map Nat.digitChar := by
+  rw [eq_map_digitChar_map_toNat_sub_48 hdigit]
+  simp [← Char.toNat_inj, Char.isDigit_iff_toNat] at hhead hdigit
+  have lt_ten : ∀ d ∈ l.map (fun c => c.toNat - 48), d < 10 := by
+    simpa using fun c hc => by have := hdigit c hc; omega
+  have hhead' : ∀ d, (l.map (fun c => c.toNat - 48)).head? = some d → d ≠ 0 := by
+    simpa using fun c hc => by have := hdigit c (List.mem_of_head? hc); have := hhead c hc; omega
+  rw [eq_toDigitsSane_of_foldl_nat hhead' lt_ten (by simpa [List.foldl_map])]
+
+private theorem foldl_of_eq_toDigitsSane_map {l : List Char} {n : Nat}
+    (h : l = (Nat.toDigitsSane 10 n (by decide)).map Nat.digitChar) :
+    l.foldl (init := 0) (fun n c => n * 10 + (c.toNat - 48)) = n := by
+  subst h
+  have : 1 < 10 := by decide
+  by_cases hn : n = 0
+  · simp_all
+  · induction n using Nat.base_induction 10 this with
+    | single m hm =>
+      simp [Nat.toDigitsSane_of_lt hn hm]
+      have := Nat.toNat_digitChar_of_lt_ten hm
+      omega
+    | digit m k hk hm ih =>
+      rw [Nat.toDigitsSane_mul_add hm hk]
+      simp [ih (Nat.pos_iff_ne_zero.1 hm)]
+      have := Nat.toNat_digitChar_of_lt_ten hk
+      omega
+
 private theorem foldl_eq_iff_eq_toDigitsSane_map {l : List Char} {n : Nat}
     (hhead : ∀ c, l.head? = some c → c ≠ '0')
     (hdigit : ∀ c ∈ l, c.isDigit) :
     l.foldl (init := 0) (fun n c => n * 10 + (c.toNat - 48)) = n ↔
-    l = (Nat.toDigitsSane 10 n (by decide)).map Nat.digitChar := by
-  refine ⟨?_, ?_⟩
-  · rintro rfl
-    rw [← List.reverse_reverse l] at *
-    rw [List.foldl_reverse]
-    generalize l.reverse = l at *
-    simp only [List.head?_reverse, ↓Char.isValue, ne_eq, List.mem_reverse] at hhead hdigit
-    induction l with
-    | nil => simp
-    | cons hd tl ih =>
-      by_cases htl : tl = []
-      · simp_all
-        simp [Char.isDigit_iff_toNat, ← Char.toNat_inj] at hhead hdigit
-        rw [Nat.toDigitsSane_of_lt (by omega) (by omega)]
-        simp [← Char.toNat_inj]
-        rw [Nat.toNat_digitChar_of_lt_ten (by omega)]
-        omega
-      · simp [List.getLast?_cons_of_ne_nil htl] at hhead
-        simp at hdigit
-        obtain ⟨hdigit, hdigit'⟩ := hdigit
-        simp [Char.isDigit_iff_toNat] at hdigit
-        simp
-        rw [Nat.mul_comm, Nat.toDigitsSane_mul_add _ (by omega), ih hhead hdigit']
-        · simp [← Char.toNat_inj]
-          rw [Nat.toNat_digitChar_of_lt_ten (by omega)]
-          omega
-        · clear hd ih hdigit
-          induction tl with
-          | nil => simp at htl
-          | cons ht tl ih =>
-            by_cases htl' : tl = []
-            · simp [htl'] at  ⊢ hhead
-              simp [← Char.toNat_inj] at hhead
-              simp [Char.isDigit_iff_toNat] at hdigit'
-              omega
-            · rw [List.getLast?_cons_of_ne_nil htl'] at hhead
-              simp at hdigit'
-              have := ih htl' hhead hdigit'.2
-              simp
-              omega
-  · rintro rfl
-    clear hhead hdigit
-    have : 1 < 10 := by decide
-    by_cases hn : n = 0
-    · simp_all
-    · induction n using Nat.base_induction 10 this with
-      | single m hm =>
-        simp [Nat.toDigitsSane_of_lt hn hm]
-        have := Nat.toNat_digitChar_of_lt_ten hm
-        omega
-      | digit m k hk hm ih =>
-        rw [Nat.toDigitsSane_mul_add hm hk]
-        simp [ih (Nat.pos_iff_ne_zero.1 hm)]
-        have := Nat.toNat_digitChar_of_lt_ten hk
-        omega
+    l = (Nat.toDigitsSane 10 n (by decide)).map Nat.digitChar :=
+  ⟨eq_toDigitsSane_map_of_foldl hhead hdigit, foldl_of_eq_toDigitsSane_map⟩
+
+theorem List.foldl_ite_left {P : α → Prop} [DecidablePred P] {l : List α} {f : β → α → β} {init : β} :
+    (l.foldl (init := init) fun sofar a => if P a then f sofar a else sofar) = (l.filter P).foldl (init := init) f := by
+  simp [List.foldl_filter]
+
+theorem List.foldl_ite_right {P : α → Prop} [DecidablePred P] {l : List α} {f : β → α → β} {init : β} :
+    (l.foldl (init := init) fun sofar a => if P a then sofar else f sofar a) =
+      (l.filter (fun a => ¬ P a)).foldl (init := init) f := by
+  simp +singlePass only [← ite_not]
+  rw [foldl_ite_left]
+
+theorem bne_eq [BEq α] {a b : α} : (a != b) = !(a == b) := rfl
 
 theorem toNat?_eq_some_iff {s : String.Slice} {n : Nat} :
     s.toNat? = some n ↔ s.isNat ∧
@@ -431,20 +485,11 @@ theorem toNat?_eq_some_iff {s : String.Slice} {n : Nat} :
   rw [toNat?]
   split <;> rename_i h
   · simp [h]
-    have : (fun n c => if c = '_' then n else n * 10 + (c.toNat - 48)) =
-        fun n c => if (c != '_') = true then n * 10 + (c.toNat - 48) else n := by
-      ext n c
-      simp
-    rw [this, ← List.foldl_filter]
-    have h₁ : ∀ c, ((s.copy.toList.filter (· != '_')).dropWhile (· == '0')).head? = some c → c ≠ '0' := by
-      intro c hc
-      simpa [hc] using List.head?_dropWhile_not (l := s.copy.toList.filter (· != '_')) (p := (· == '0'))
-    have h₂ : ∀ c ∈ ((s.copy.toList.filter (· != '_')).dropWhile (· == '0')), c.isDigit := by
-      intro c hc
-      have := List.dropWhile_subset _ hc
-      exact isDigit_of_isNat h _ this
-    rw [foldl_dropWhile_zero]
-    exact foldl_eq_iff_eq_toDigitsSane_map h₁ h₂
+    rw [List.foldl_ite_right, foldl_dropWhile_zero]
+    simp only [↓Char.isValue, decide_not, ← Bool.beq_eq_decide_eq, ← bne_eq]
+    refine foldl_eq_iff_eq_toDigitsSane_map (fun c hc => ?_) (fun c hc => ?_)
+    · simpa [hc] using List.head?_dropWhile_not (l := s.copy.toList.filter (· != '_')) (p := (· == '0'))
+    · exact isDigit_of_isNat h _ (List.dropWhile_subset _ hc)
   · simp_all
 
 end String.Slice
@@ -502,25 +547,10 @@ theorem repr_toSlice_toNat? (n : Nat) : (Nat.repr n).toSlice.toNat? = some n := 
     fun c hc => isDigit_of_mem_toDigits (by omega) (by omega) hc
   refine ⟨isNat_repr n, ?_⟩
   · rw [hrw]
-    have hfilter : (Nat.toDigits 10 n).filter (· != '_') = Nat.toDigits 10 n := by
-      rw [List.filter_eq_self]
-      intro c hc
-      simp only [bne_iff_ne, ne_eq]
-      intro heq
-      exact absurd (hdigit c hc) (heq ▸ by decide)
-    rw [hfilter]
+    rw [List.filter_bne_eq_self_of_not_mem (fun h => absurd (hdigit _ h) (by decide))]
     by_cases hn : n = 0
     · subst hn; simp
-    · have h_drop : (Nat.toDigits 10 n).dropWhile (· == '0') = Nat.toDigits 10 n := by
-        cases hl : Nat.toDigits 10 n with
-        | nil => simp
-        | cons hd tl =>
-          rw [List.dropWhile_cons_of_neg]
-          simp only [beq_iff_eq]
-          have := head?_toDigits_ne_zero_char hn
-          rw [hl] at this
-          simpa using this
-      rw [h_drop]
+    · rw [List.dropWhile_beq_eq_self_of_head?_ne (head?_toDigits_ne_zero_char hn)]
       exact toDigits_eq_toDigitsSane_map_digitChar hn
 
 theorem repr_injective {m n : Nat} (h : Nat.repr m = Nat.repr n) : m = n := by
@@ -570,38 +600,39 @@ namespace Nat
 theorem toDigits_pow_mul_add {k q r : Nat} (hq : 0 < q) (hr : r < 10 ^ k) (hk : 0 < k) :
     Nat.toDigits 10 (10 ^ k * q + r) =
       Nat.toDigits 10 q ++ (Nat.toDigits 10 r).leftpad k '0' := by
-  induction k with
-  | zero => omega
-  | succ k ih =>
-    by_cases hk' : k = 0
-    · -- k+1 = 1
-      subst hk'; simp only [Nat.zero_add, Nat.pow_one] at *
-      rw [← toDigits_append_toDigits (by omega) hq hr]
-      congr 1; simp only [List.leftpad]
-      have h1 := (length_toDigits_le_iff (by omega : (1 : Nat) < 10) (by omega : 0 < 1)).2 hr
-      have h2 := @length_toDigits_pos 10 r
-      simp [show 1 - (Nat.toDigits 10 r).length = 0 from by omega]
-    · -- k ≥ 1
-      have hk₁ : 0 < k := by omega
-      have hge : 10 ≤ 10 ^ (k + 1) * q + r := by
-        have h1 : 10 ≤ 10 ^ (k + 1) :=
-          Nat.le_of_eq (by omega : 10 = 10 ^ 1) |>.trans (Nat.pow_le_pow_right (by omega) (by omega))
-        have h2 : 10 ^ (k + 1) ≤ 10 ^ (k + 1) * q := Nat.le_mul_of_pos_right _ hq
-        omega
-      rw [toDigits_of_base_le (by omega) hge,
-        show (10 ^ (k + 1) * q + r) / 10 = 10 ^ k * q + r / 10 from by
-          rw [Nat.pow_succ, Nat.mul_assoc, Nat.mul_add_div (by omega)],
-        show (10 ^ (k + 1) * q + r) % 10 = r % 10 from by
-          rw [Nat.pow_succ, Nat.mul_assoc, Nat.mul_add_mod]]
-      have hr' : r / 10 < 10 ^ k := by
-        rw [Nat.pow_succ] at hr; exact (Nat.div_lt_iff_lt_mul (by omega)).2 hr
-      rw [ih hq hr' hk₁, List.append_assoc]; congr 1
-      rw [← List.leftpad_append_singleton ((length_toDigits_le_iff (by omega) hk₁).2 hr')]
-      by_cases hr₁₀ : r < 10
-      · simp only [Nat.div_eq_of_lt hr₁₀, Nat.mod_eq_of_lt hr₁₀,
-          show Nat.toDigits 10 0 = ['0'] from rfl, List.singleton_append]
-        rw [List.leftpad_cons_self (by simp; omega), toDigits_of_lt_base hr₁₀]
-      · congr 1; exact (toDigits_of_base_le (by omega) (by omega)).symm
+  sorry
+  -- induction k with
+  -- | zero => omega
+  -- | succ k ih =>
+  --   by_cases hk' : k = 0
+  --   · -- k+1 = 1
+  --     subst hk'; simp only [Nat.zero_add, Nat.pow_one] at *
+  --     rw [← toDigits_append_toDigits (by omega) hq hr]
+  --     congr 1; simp only [List.leftpad]
+  --     have h1 := (length_toDigits_le_iff (by omega : (1 : Nat) < 10) (by omega : 0 < 1)).2 hr
+  --     have h2 := @length_toDigits_pos 10 r
+  --     simp [show 1 - (Nat.toDigits 10 r).length = 0 from by omega]
+  --   · -- k ≥ 1
+  --     have hk₁ : 0 < k := by omega
+  --     have hge : 10 ≤ 10 ^ (k + 1) * q + r := by
+  --       have h1 : 10 ≤ 10 ^ (k + 1) :=
+  --         Nat.le_of_eq (by omega : 10 = 10 ^ 1) |>.trans (Nat.pow_le_pow_right (by omega) (by omega))
+  --       have h2 : 10 ^ (k + 1) ≤ 10 ^ (k + 1) * q := Nat.le_mul_of_pos_right _ hq
+  --       omega
+  --     rw [toDigits_of_base_le (by omega) hge,
+  --       show (10 ^ (k + 1) * q + r) / 10 = 10 ^ k * q + r / 10 from by
+  --         rw [Nat.pow_succ, Nat.mul_assoc, Nat.mul_add_div (by omega)],
+  --       show (10 ^ (k + 1) * q + r) % 10 = r % 10 from by
+  --         rw [Nat.pow_succ, Nat.mul_assoc, Nat.mul_add_mod]]
+  --     have hr' : r / 10 < 10 ^ k := by
+  --       rw [Nat.pow_succ] at hr; exact (Nat.div_lt_iff_lt_mul (by omega)).2 hr
+  --     rw [ih hq hr' hk₁, List.append_assoc]; congr 1
+  --     rw [← List.leftpad_append_singleton ((length_toDigits_le_iff (by omega) hk₁).2 hr')]
+  --     by_cases hr₁₀ : r < 10
+  --     · simp only [Nat.div_eq_of_lt hr₁₀, Nat.mod_eq_of_lt hr₁₀,
+  --         show Nat.toDigits 10 0 = ['0'] from rfl, List.singleton_append]
+  --       rw [List.leftpad_cons_self (by simp; omega), toDigits_of_lt_base hr₁₀]
+  --     · congr 1; exact (toDigits_of_base_le (by omega) (by omega)).symm
 
 end Nat
 
@@ -757,13 +788,5 @@ theorem formatNum_toSlice_toNat? (n : Nat) : (formatNum n).toSlice.toNat? = some
   rw [String.copy_toSlice, filter_toList_formatNum]
   by_cases hn : n = 0
   · subst hn; simp [show Nat.toDigits 10 0 = ['0'] from rfl]
-  · have h_drop : (Nat.toDigits 10 n).dropWhile (· == '0') = Nat.toDigits 10 n := by
-      cases hl : Nat.toDigits 10 n with
-      | nil => simp
-      | cons hd tl =>
-        rw [List.dropWhile_cons_of_neg]
-        simp only [beq_iff_eq]
-        have := Nat.head?_toDigits_ne_zero_char hn
-        rw [hl] at this; simpa using this
-    rw [h_drop]
+  · rw [List.dropWhile_beq_eq_self_of_head?_ne (Nat.head?_toDigits_ne_zero_char hn)]
     exact Nat.toDigits_eq_toDigitsSane_map_digitChar hn

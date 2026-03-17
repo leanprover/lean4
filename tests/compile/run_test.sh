@@ -23,9 +23,9 @@ if [[ -n $DO_COMPILE ]]; then
 
   capture_only "$1" \
     "./$1.out" "${TEST_ARGS[@]}"
-  check_exit_is "${TEST_EXIT:-0}"
   normalize_measurements
   check_out_file
+  check_exit_is "${TEST_EXIT:-0}"
 
   run_after "$1"
 fi
@@ -36,9 +36,9 @@ if [[ -n $DO_INTERPRET ]]; then
 
   capture_only "$1" \
     lean -Dlinter.all=false "${TEST_LEANI_ARGS[@]}" --run "$1" "${TEST_ARGS[@]}"
-  check_exit_is "${TEST_EXIT:-0}"
   normalize_measurements
   check_out_file
+  check_exit_is "${TEST_EXIT:-0}"
 
   run_after "$1"
 fi

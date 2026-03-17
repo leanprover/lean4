@@ -4,5 +4,5 @@ leanc ${LEANC_OPTS-} -O3 -DNDEBUG -DLEAN_EXPORTING -shared -o SnakeLinter.so Sna
 
 capture_only SnakeLinter.lean \
   lean -Dlinter.all=false --plugin=SnakeLinter.so SnakeLinter.lean
-check_exit_is_fail
 check_out_file
+check_exit_is_fail

@@ -226,7 +226,7 @@ public def PackageEntry.materialize
 : LoggerIO MaterializedDep :=
   match manifestEntry.src with
   | .path (dir := relPkgDir) .. =>
-    mkDep relPkgDir ""
+    mkDep (wsDir / relPkgDir) relPkgDir ""
   | .git (url := url) (rev := rev) (subDir? := subDir?) .. => do
     let sname := manifestEntry.name.toString (escape := false)
     let relGitDir := relPkgsDir / sname
@@ -249,12 +249,12 @@ public def PackageEntry.materialize
       let url := lakeEnv.pkgUrlMap.find? manifestEntry.name |>.getD url
       cloneGitPkg sname repo url rev
     let relPkgDir := match subDir? with | .some subDir => relGitDir / subDir | .none => relGitDir
-    mkDep relPkgDir (Git.filterUrl? url |>.getD "")
+    mkDep gitDir relPkgDir (Git.filterUrl? url |>.getD "")
 where
-  @[inline] mkDep relPkgDir remoteUrl : LoggerIO MaterializedDep := do
+  @[inline] mkDep pkgDir relPkgDir remoteUrl : LoggerIO MaterializedDep := do
     let manifest? ← id do
       if let some manifestFile := manifestEntry.manifestFile? then
-        Manifest.load manifestFile |>.toBaseIO
+        Manifest.load (pkgDir / manifestFile) |>.toBaseIO
       else
         return .error (.noFileOrDirectory "" 0 "")
     return {relPkgDir, remoteUrl, manifest?, manifestEntry}

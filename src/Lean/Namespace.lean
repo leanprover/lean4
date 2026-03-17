@@ -15,7 +15,7 @@ Map from namespace name to (max) visibility of (any) defining module. Namespaces
 visibility of their own. We use this information to avoid redeclaring namespaces that would always
 be provided by an import anyway.
 -/
-abbrev State := SMap Name Visibility
+abbrev State := SMap Name Environment.Visibility
 
 /--
 Environment extension for tracking all `namespace` declared by users.
@@ -31,7 +31,7 @@ private builtin_initialize namespacesExt : PersistentEnvExtension Name Name Stat
       6.18% of the runtime is here. It was 9.31% before the `HashMap` optimization.
       -/
       let capacity := as.foldl (init := 0) fun r e => r + e.size
-      let mut map : Std.HashMap Name Visibility := Std.HashMap.emptyWithCapacity capacity
+      let mut map : Std.HashMap Name Environment.Visibility := Std.HashMap.emptyWithCapacity capacity
       for mod in env.header.modules, modEntries in as do
         let vis := if mod.isExported then .public else .private
         for e in modEntries do
@@ -62,5 +62,5 @@ public def isNamespace (env : Environment) (n : Name) : Bool :=
   namespacesExt.getState env |>.contains n
 
 /-- Returns an iterator over all namespaces in `env`. -/
-def getNamespaces (env : Environment) :=
+public def getNamespaces (env : Environment) :=
   namespacesExt.getState env |>.iter.map (·.1)

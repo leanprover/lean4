@@ -159,7 +159,7 @@ def toDecl (declName : Name) : CompilerM (Decl .pure) := do
       /- Recall that `inlineMatchers` may have exposed `ite`s and `dite`s which are tagged as `[macro_inline]`. -/
       let value ← macroInline value
       return (type, value)
-    let code ← toLCNF value
+    let code ← toLCNF value type
     let mut decl ← if let .fun decl (.return _) := code then
       eraseFunDecl decl (recursive := false)
       pure { name := declName, params := decl.params, type, value := .code decl.value, levelParams := info.levelParams, safe, inlineAttr? : Decl .pure }

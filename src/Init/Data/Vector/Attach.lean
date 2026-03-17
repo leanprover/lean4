@@ -100,7 +100,7 @@ Unsafe implementation of `attachWith`, taking advantage of the fact that the rep
 
 @[simp] theorem pmap_push {P : α → Prop} {f : ∀ a, P a → β} {a : α} {xs : Vector α n} {h : ∀ b ∈ xs.push a, P b} :
     pmap f (xs.push a) h =
-      (pmap f xs (fun a m => by simp at h; exact h a (.inl m))).push (f a (h a (by simp))) := by
+      (pmap f xs (fun a m => by simp at h; exact h.1 _ m)).push (f a (h a (by simp))) := by
   simp [pmap]
 
 @[simp] theorem attach_empty : (#v[] : Vector α 0).attach = #v[] := rfl
@@ -147,7 +147,7 @@ theorem attachWith_congr {xs ys : Vector α n} (w : xs = ys) {P : α → Prop} {
 
 @[simp] theorem attachWith_push {a : α} {xs : Vector α n} {P : α → Prop} {H : ∀ x ∈ xs.push a, P x} :
     (xs.push a).attachWith P H =
-      (xs.attachWith P (fun x h => by simp at H; exact H x (.inl h))).push ⟨a, H a (by simp)⟩ := by
+      (xs.attachWith P (fun x h => by simp at H; exact H.1 _ h)).push ⟨a, H a (by simp)⟩ := by
   rcases xs with ⟨xs, rfl⟩
   simp
 

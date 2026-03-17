@@ -17,6 +17,9 @@ WRAPPER_PREFIX = Path(os.environ["WRAPPER_PREFIX"])
 # Other config
 BENCHMARK = "build"
 
+sys.path.append(str(TEST_DIR))
+import measure  # noqa: E402
+
 
 def save_measurement(metric: str, value: float, unit: str | None = None) -> None:
     data = {"metric": metric, "value": value}
@@ -55,16 +58,17 @@ def count_bytes(module: str, path: Path, suffix: str) -> None:
 
 
 def run_leanir(module: str) -> None:
-    stdout, stderr = run_capture(
-        f"{TEST_DIR}/measure.py",
-        *("-t", f"{BENCHMARK}/module/ir/{module}"),
-        *("-o", f"{WRAPPER_OUT}", "-a"),
-        *("-m", "instructions"),
-        *("-m", "cycles"),
-        "--",
-        f"leanir",
-        *sys.argv[1:],
-        *("-Dprofiler=true", "-Dprofiler.threshold=9999999"),
+    stdout, stderr = measure.main(
+        cmd=[
+            "leanir",
+            *sys.argv[1:],
+            *("-Dprofiler=true", "-Dprofiler.threshold=9999999"),
+        ],
+        output=WRAPPER_OUT,
+        topics=[f"{BENCHMARK}/module/ir/{module}"],
+        metrics={"instructions", "cycles"},
+        append=True,
+        capture=True,
     )
 
     # Output of `leanir -Dprofiler=true`
@@ -91,6 +95,7 @@ def main() -> None:
 
     count_bytes(module, args.ir, ".ir")
     count_bytes(module, args.c, ".c")
+
 
 if __name__ == "__main__":
     main()

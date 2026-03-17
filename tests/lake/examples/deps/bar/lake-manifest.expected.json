@@ -1,4 +1,4 @@
-{"version": "1.1.0",
+{"version": "1.2.0",
  "packagesDir": ".lake/packages",
  "packages":
  [{"type": "path",
@@ -30,4 +30,5 @@
    "dir": "../foo/../b/../root",
    "configFile": "lakefile.lean"}],
  "name": "bar",
- "lakeDir": ".lake"}
+ "lakeDir": ".lake",
+ "fixedToolchain": false}

@@ -384,7 +384,7 @@ instance : HAdd PlainTime Duration PlainTime where
    hAdd pt d := PlainTime.ofNanoseconds (d.toNanoseconds + pt.toNanoseconds)
 
 instance : HSub PlainTime Duration PlainTime where
-   hSub pt d := PlainTime.ofNanoseconds (d.toNanoseconds - pt.toNanoseconds)
+   hSub pt d := PlainTime.ofNanoseconds (pt.toNanoseconds - d.toNanoseconds)
 
 end Duration
 end Time

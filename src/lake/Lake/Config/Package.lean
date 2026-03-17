@@ -45,7 +45,7 @@ public structure Package where
   /-- The path to the package's configuration file (relative to `dir`). -/
   relConfigFile : FilePath
   /-- The path to the package's JSON manifest of remote dependencies (relative to `dir`). -/
-  relManifestFile : FilePath := config.manifestFile.getD defaultManifestFile |>.normalize
+  relManifestFile : FilePath := defaultManifestFile
   /-- The package's scope (e.g., in Reservoir). -/
   scope : String
   /-- The URL to this package's Git remote. -/
@@ -243,6 +243,10 @@ public def id? (self : Package) : Option PkgId :=
 /-- Whether the package's  has been configured with `platformIndependent = true`. -/
 @[inline] public def isPlatformIndependent (self : Package) : Bool :=
   self.config.platformIndependent == some true
+
+/-- The package's `fixedToolchain` configuration. -/
+@[inline] public def fixedToolchain (self : Package) : Bool :=
+  self.config.fixedToolchain
 
 /-- The package's `releaseRepo`/`releaseRepo?` configuration. -/
 @[inline] public def releaseRepo? (self : Package) : Option String :=

@@ -50,8 +50,9 @@ That is, Lake ignores the `-` suffix.
 **v1.x.x** (versioned by a string)
 - `"1.0.0"`: Switches to a semantic versioning scheme
 - `"1.1.0"`: Add optional `scope` package entry field
+- `"1.2.0"`: Add optional `fixedToolchain` manifest field
 -/
-@[inline] public def Manifest.version : StdVer := {major := 1, minor := 1}
+@[inline] public def Manifest.version : StdVer := {major := 1, minor := 2}
 
 /-- Manifest version `0.6.0` package entry. For backwards compatibility. -/
 private inductive PackageEntryV6
@@ -84,7 +85,9 @@ public structure PackageEntry where
   name : Name
   scope : String := ""
   inherited : Bool
+  /-- The relative path within the package directory to the Lake configuration file. -/
   configFile : FilePath := defaultConfigFile
+  /-- The relative path within the package directory to the Lake manifest file. -/
   manifestFile? : Option FilePath := none
   src : PackageEntrySrc
   deriving Inhabited
@@ -139,7 +142,7 @@ public protected def fromJson? (json : Json) : Except String PackageEntry := do
       | _ =>
         throw s!"unknown package entry type '{type}'"
     return {
-      name, scope, inherited,
+      name, scope, inherited
       configFile, manifestFile? := manifestFile, src
       : PackageEntry
     }
@@ -172,6 +175,7 @@ end PackageEntry
 public structure Manifest where
   name : Name
   lakeDir : FilePath
+  fixedToolchain : Bool
   packagesDir? : Option FilePath := none
   packages : Array PackageEntry := #[]
 
@@ -184,6 +188,7 @@ public def addPackage (entry : PackageEntry) (self : Manifest) : Manifest :=
 public protected def toJson (self : Manifest) : Json :=
   Json.mkObj [
     ("version", toJson version),
+    ("fixedToolchain", toJson self.fixedToolchain),
     ("name", toJson self.name),
     ("lakeDir", toJson self.lakeDir),
     ("packagesDir", toJson self.packagesDir?),
@@ -217,11 +222,12 @@ private def getPackages (ver : StdVer) (obj : JsonObject) : Except String (Array
 public protected def fromJson? (json : Json) : Except String Manifest := do
   let obj ← JsonObject.fromJson? json
   let ver ← getVersion obj
+  let fixedToolchain ← obj.getD "fixedToolchain" false
   let name ← obj.getD "name" Name.anonymous
   let lakeDir ← obj.getD "lakeDir" defaultLakeDir
   let packagesDir? ← obj.get? "packagesDir"
   let packages ← getPackages ver obj
-  return {name, lakeDir, packagesDir?, packages}
+  return {name, lakeDir, packagesDir?, packages, fixedToolchain}
 
 public instance : FromJson Manifest := ⟨Manifest.fromJson?⟩
 

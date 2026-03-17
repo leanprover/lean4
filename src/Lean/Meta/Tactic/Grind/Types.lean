@@ -1359,6 +1359,7 @@ partial def getCongrRoot (e : Expr) : GoalM Expr := do
 def isInconsistent : GoalM Bool :=
   return (← get).inconsistent
 
+set_option compiler.ignoreBorrowAnnotation true in
 /--
 Returns a proof that `a = b`.
 It assumes `a` and `b` are in the same equivalence class, and have the same type.
@@ -1367,6 +1368,7 @@ It assumes `a` and `b` are in the same equivalence class, and have the same type
 @[extern "lean_grind_mk_eq_proof"]
 opaque mkEqProof (a b : Expr) : GoalM Expr
 
+set_option compiler.ignoreBorrowAnnotation true in
 /--
 Returns a proof that `a ≍ b`.
 It assumes `a` and `b` are in the same equivalence class.
@@ -1376,14 +1378,17 @@ It assumes `a` and `b` are in the same equivalence class.
 opaque mkHEqProof (a b : Expr) : GoalM Expr
 
 -- Forward definition
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_grind_process_new_facts"]
 opaque processNewFacts : GoalM Unit
 
 -- Forward definition
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_grind_internalize"]
 opaque internalize (e : Expr) (generation : Nat) (parent? : Option Expr := none) : GoalM Unit
 
 -- Forward definition
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_grind_preprocess"]
 opaque preprocess : Expr → GoalM Simp.Result
 
@@ -1729,6 +1734,7 @@ def withoutModifyingState (x : GoalM α) : GoalM α := do
   finally
     set saved
 
+set_option compiler.ignoreBorrowAnnotation true in
 /-- Canonicalizes nested types, type formers, and instances in `e`. -/
 @[extern "lean_grind_canon"] -- Forward definition
 opaque canon (e : Expr) : GoalM Expr

@@ -392,7 +392,7 @@ def serviceNotFound (service : String) (configuredServices : Array CacheServiceC
     configuredServices.foldl (· ++ s!"  {·.name}") msg
 
 @[inline] private def cacheToolchain (pkg : Package) (toolchain : CacheToolchain) : CacheToolchain :=
-  if pkg.bootstrap then .none else toolchain
+  if pkg.fixedToolchain || pkg.bootstrap then .none else toolchain
 
 @[inline] private def cachePlatform (pkg : Package) (platform : CachePlatform) : CachePlatform :=
   if pkg.isPlatformIndependent then .none else platform

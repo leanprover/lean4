@@ -295,9 +295,11 @@ Executes `x` using a `MetaM` configuration for inferred from `Simp.Config`.
 @[inline] def withSimpMetaConfig (x : SimpM α) : SimpM α := do
   withConfigWithKey (← readThe Simp.Context).metaConfig x
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_simp"]
 opaque simp (e : Expr) : SimpM Result
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_dsimp"]
 opaque dsimp (e : Expr) : SimpM Expr
 

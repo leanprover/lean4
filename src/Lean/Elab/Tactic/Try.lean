@@ -787,6 +787,7 @@ where
           throw ex
 
 -- `evalSuggest` implementation
+set_option compiler.ignoreBorrowAnnotation true in
 @[export lean_eval_suggest_tactic]
 private partial def evalSuggestImpl : TryTactic := fun tac => do
   trace[try.debug] "{tac}"

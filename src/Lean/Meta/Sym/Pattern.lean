@@ -785,6 +785,7 @@ def isDefEqApp (tFn : Expr) (t : Expr) (s : Expr) (_ : tFn = t.getAppFn) : DefEq
   let numArgs := t.getAppNumArgs
   isDefEqAppWithInfo t s (numArgs - 1) info
 
+set_option compiler.ignoreBorrowAnnotation true in
 /--
 `isDefEqMain` implementation.
 -/

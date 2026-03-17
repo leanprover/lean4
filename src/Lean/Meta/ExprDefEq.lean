@@ -1126,6 +1126,7 @@ def checkAssignment (mvarId : MVarId) (fvars : Array Expr) (v : Expr) : MetaM (O
       return none
     return some v
 
+set_option compiler.ignoreBorrowAnnotation true in
 -- Implementation for `_root_.Lean.MVarId.checkedAssign`
 @[export lean_checked_assign]
 def checkedAssignImpl (mvarId : MVarId) (val : Expr) : MetaM Bool := do
@@ -2233,6 +2234,7 @@ private def whnfCoreAtDefEq (e : Expr) : MetaM Expr := do
   else
     whnfCore e
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[export lean_is_expr_def_eq]
 partial def isExprDefEqAuxImpl (t : Expr) (s : Expr) : MetaM Bool := withIncRecDepth do
   withTraceNodeBefore `Meta.isDefEq (fun _ => return m!"{t} =?= {s}") do

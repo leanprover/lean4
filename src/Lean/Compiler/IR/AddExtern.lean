@@ -21,6 +21,7 @@ public section
 
 namespace Lean.IR
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[export lean_add_extern]
 def addExtern (declName : Name) (externAttrData : ExternAttrData) : CoreM Unit := do
   if !isPrivateName declName then

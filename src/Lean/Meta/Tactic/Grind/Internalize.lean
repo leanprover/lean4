@@ -535,6 +535,7 @@ private def internalizeOfNatFinBitVecLiteral (e : Expr) (generation : Nat) (pare
   updateIndicesFound (.const ``OfNat.ofNat)
   activateTheorems ``OfNat.ofNat generation
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[export lean_grind_internalize]
 private partial def internalizeImpl (e : Expr) (generation : Nat) (parent? : Option Expr := none) : GoalM Unit := withIncRecDepth do
   if (← alreadyInternalized e) then

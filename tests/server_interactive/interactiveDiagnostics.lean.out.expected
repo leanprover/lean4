@@ -40,7 +40,8 @@
    [{"tag": [{"expr": {"text": "declaration uses `"}}, {"text": ""}]},
     {"tag":
      [{"expr":
-       {"tag": [{"subexprPos": "/", "info": {"p": "0"}}, {"text": "sorry"}]}},
+       {"tag":
+        [{"subexprPos": "/", "info": {"__rpcref": "0"}}, {"text": "sorry"}]}},
       {"text": ""}]},
     {"tag": [{"expr": {"text": "`"}}, {"text": ""}]}]},
   "fullRange":
@@ -85,7 +86,8 @@
    [{"expr":
      {"append":
       [{"text": "Nat : "},
-       {"tag": [{"subexprPos": "/1", "info": {"p": "0"}}, {"text": "Type"}]}]}},
+       {"tag":
+        [{"subexprPos": "/1", "info": {"__rpcref": "0"}}, {"text": "Type"}]}]}},
     {"text": ""}]},
   "fullRange":
   {"start": {"line": 6, "character": 0}, "end": {"line": 6, "character": 6}}}]

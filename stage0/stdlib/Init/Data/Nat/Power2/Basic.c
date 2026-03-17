@@ -21,68 +21,68 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Power2_Basic_0__Nat_nextPower
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Power2_Basic_0__Nat_nextPowerOfTwo_go___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_nextPowerOfTwo(lean_object*);
 LEAN_EXPORT lean_object* l_Nat_nextPowerOfTwo___boxed(lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Power2_Basic_0__Nat_nextPowerOfTwo_go___redArg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Power2_Basic_0__Nat_nextPowerOfTwo_go___redArg(lean_object* v_n_1_, lean_object* v_power_2_){
 _start:
 {
-uint8_t x_3; 
-x_3 = lean_nat_dec_lt(x_2, x_1);
-if (x_3 == 0)
+uint8_t v___x_3_; 
+v___x_3_ = lean_nat_dec_lt(v_power_2_, v_n_1_);
+if (v___x_3_ == 0)
 {
-return x_2;
+return v_power_2_;
 }
 else
 {
-lean_object* x_4; lean_object* x_5; 
-x_4 = lean_unsigned_to_nat(2u);
-x_5 = lean_nat_mul(x_2, x_4);
-lean_dec(x_2);
-x_2 = x_5;
+lean_object* v___x_4_; lean_object* v___x_5_; 
+v___x_4_ = lean_unsigned_to_nat(2u);
+v___x_5_ = lean_nat_mul(v_power_2_, v___x_4_);
+lean_dec(v_power_2_);
+v_power_2_ = v___x_5_;
 goto _start;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Power2_Basic_0__Nat_nextPowerOfTwo_go___redArg___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Power2_Basic_0__Nat_nextPowerOfTwo_go___redArg___boxed(lean_object* v_n_7_, lean_object* v_power_8_){
 _start:
 {
-lean_object* x_3; 
-x_3 = l___private_Init_Data_Nat_Power2_Basic_0__Nat_nextPowerOfTwo_go___redArg(x_1, x_2);
-lean_dec(x_1);
-return x_3;
+lean_object* v_res_9_; 
+v_res_9_ = l___private_Init_Data_Nat_Power2_Basic_0__Nat_nextPowerOfTwo_go___redArg(v_n_7_, v_power_8_);
+lean_dec(v_n_7_);
+return v_res_9_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Power2_Basic_0__Nat_nextPowerOfTwo_go(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Power2_Basic_0__Nat_nextPowerOfTwo_go(lean_object* v_n_10_, lean_object* v_power_11_, lean_object* v_h_12_){
 _start:
 {
-lean_object* x_4; 
-x_4 = l___private_Init_Data_Nat_Power2_Basic_0__Nat_nextPowerOfTwo_go___redArg(x_1, x_2);
-return x_4;
+lean_object* v___x_13_; 
+v___x_13_ = l___private_Init_Data_Nat_Power2_Basic_0__Nat_nextPowerOfTwo_go___redArg(v_n_10_, v_power_11_);
+return v___x_13_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Power2_Basic_0__Nat_nextPowerOfTwo_go___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Power2_Basic_0__Nat_nextPowerOfTwo_go___boxed(lean_object* v_n_14_, lean_object* v_power_15_, lean_object* v_h_16_){
 _start:
 {
-lean_object* x_4; 
-x_4 = l___private_Init_Data_Nat_Power2_Basic_0__Nat_nextPowerOfTwo_go(x_1, x_2, x_3);
-lean_dec(x_1);
-return x_4;
+lean_object* v_res_17_; 
+v_res_17_ = l___private_Init_Data_Nat_Power2_Basic_0__Nat_nextPowerOfTwo_go(v_n_14_, v_power_15_, v_h_16_);
+lean_dec(v_n_14_);
+return v_res_17_;
 }
 }
-LEAN_EXPORT lean_object* l_Nat_nextPowerOfTwo(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Nat_nextPowerOfTwo(lean_object* v_n_18_){
 _start:
 {
-lean_object* x_2; lean_object* x_3; 
-x_2 = lean_unsigned_to_nat(1u);
-x_3 = l___private_Init_Data_Nat_Power2_Basic_0__Nat_nextPowerOfTwo_go___redArg(x_1, x_2);
-return x_3;
+lean_object* v___x_19_; lean_object* v___x_20_; 
+v___x_19_ = lean_unsigned_to_nat(1u);
+v___x_20_ = l___private_Init_Data_Nat_Power2_Basic_0__Nat_nextPowerOfTwo_go___redArg(v_n_18_, v___x_19_);
+return v___x_20_;
 }
 }
-LEAN_EXPORT lean_object* l_Nat_nextPowerOfTwo___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Nat_nextPowerOfTwo___boxed(lean_object* v_n_21_){
 _start:
 {
-lean_object* x_2; 
-x_2 = l_Nat_nextPowerOfTwo(x_1);
-lean_dec(x_1);
-return x_2;
+lean_object* v_res_22_; 
+v_res_22_ = l_Nat_nextPowerOfTwo(v_n_21_);
+lean_dec(v_n_21_);
+return v_res_22_;
 }
 }
 lean_object* runtime_initialize_Init_Grind_Tactics(uint8_t builtin);
@@ -94,20 +94,16 @@ LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Nat_Power2_Basic(uint8_t b
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Init_Grind_Tactics(builtin)
-;
+res = runtime_initialize_Init_Grind_Tactics(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Nat_Linear(builtin)
-;
+res = runtime_initialize_Init_Data_Nat_Linear(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_NotationExtra(builtin)
-;
+res = runtime_initialize_Init_NotationExtra(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_WFTactics(builtin)
-;
+res = runtime_initialize_Init_WFTactics(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -128,28 +124,22 @@ LEAN_EXPORT lean_object* initialize_Init_Data_Nat_Power2_Basic(uint8_t builtin) 
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Grind_Tactics(builtin)
-;
+res = initialize_Init_Grind_Tactics(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Linear(builtin)
-;
+res = initialize_Init_Data_Nat_Linear(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_NotationExtra(builtin)
-;
+res = initialize_Init_NotationExtra(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_WFTactics(builtin)
-;
+res = initialize_Init_WFTactics(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Nat_Power2_Basic(builtin)
-;
+res = runtime_initialize_Init_Data_Nat_Power2_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_Init_Data_Nat_Power2_Basic(builtin)
-;
+res = meta_initialize_Init_Data_Nat_Power2_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_Init_Data_Nat_Power2_Basic(builtin);

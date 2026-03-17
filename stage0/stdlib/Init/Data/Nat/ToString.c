@@ -19,54 +19,54 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Nat_ToString_0__Nat_toDigitsCore_
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_ToString_0__Nat_toDigitsCore_match__1_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_ToString_0__Nat_toDigitsCore_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_ToString_0__Nat_toDigitsCore_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Nat_ToString_0__Nat_toDigitsCore_match__1_splitter___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Nat_ToString_0__Nat_toDigitsCore_match__1_splitter___redArg(lean_object* v_x_1_, lean_object* v_x_2_, lean_object* v_x_3_, lean_object* v_h__1_4_, lean_object* v_h__2_5_){
 _start:
 {
-lean_object* x_6; uint8_t x_7; 
-x_6 = lean_unsigned_to_nat(0u);
-x_7 = lean_nat_dec_eq(x_1, x_6);
-if (x_7 == 1)
+lean_object* v_zero_6_; uint8_t v_isZero_7_; 
+v_zero_6_ = lean_unsigned_to_nat(0u);
+v_isZero_7_ = lean_nat_dec_eq(v_x_1_, v_zero_6_);
+if (v_isZero_7_ == 1)
 {
-lean_object* x_8; 
-lean_dec(x_5);
-x_8 = lean_apply_2(x_4, x_2, x_3);
-return x_8;
+lean_object* v___x_8_; 
+lean_dec(v_h__2_5_);
+v___x_8_ = lean_apply_2(v_h__1_4_, v_x_2_, v_x_3_);
+return v___x_8_;
 }
 else
 {
-lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-lean_dec(x_4);
-x_9 = lean_unsigned_to_nat(1u);
-x_10 = lean_nat_sub(x_1, x_9);
-x_11 = lean_apply_3(x_5, x_10, x_2, x_3);
-return x_11;
+lean_object* v_one_9_; lean_object* v_n_10_; lean_object* v___x_11_; 
+lean_dec(v_h__1_4_);
+v_one_9_ = lean_unsigned_to_nat(1u);
+v_n_10_ = lean_nat_sub(v_x_1_, v_one_9_);
+v___x_11_ = lean_apply_3(v_h__2_5_, v_n_10_, v_x_2_, v_x_3_);
+return v___x_11_;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Nat_ToString_0__Nat_toDigitsCore_match__1_splitter___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Nat_ToString_0__Nat_toDigitsCore_match__1_splitter___redArg___boxed(lean_object* v_x_12_, lean_object* v_x_13_, lean_object* v_x_14_, lean_object* v_h__1_15_, lean_object* v_h__2_16_){
 _start:
 {
-lean_object* x_6; 
-x_6 = l___private_Init_Data_Nat_ToString_0__Nat_toDigitsCore_match__1_splitter___redArg(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_1);
-return x_6;
+lean_object* v_res_17_; 
+v_res_17_ = l___private_Init_Data_Nat_ToString_0__Nat_toDigitsCore_match__1_splitter___redArg(v_x_12_, v_x_13_, v_x_14_, v_h__1_15_, v_h__2_16_);
+lean_dec(v_x_12_);
+return v_res_17_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Nat_ToString_0__Nat_toDigitsCore_match__1_splitter(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Nat_ToString_0__Nat_toDigitsCore_match__1_splitter(lean_object* v_motive_18_, lean_object* v_x_19_, lean_object* v_x_20_, lean_object* v_x_21_, lean_object* v_h__1_22_, lean_object* v_h__2_23_){
 _start:
 {
-lean_object* x_7; 
-x_7 = l___private_Init_Data_Nat_ToString_0__Nat_toDigitsCore_match__1_splitter___redArg(x_2, x_3, x_4, x_5, x_6);
-return x_7;
+lean_object* v___x_24_; 
+v___x_24_ = l___private_Init_Data_Nat_ToString_0__Nat_toDigitsCore_match__1_splitter___redArg(v_x_19_, v_x_20_, v_x_21_, v_h__1_22_, v_h__2_23_);
+return v___x_24_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Nat_ToString_0__Nat_toDigitsCore_match__1_splitter___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Nat_ToString_0__Nat_toDigitsCore_match__1_splitter___boxed(lean_object* v_motive_25_, lean_object* v_x_26_, lean_object* v_x_27_, lean_object* v_x_28_, lean_object* v_h__1_29_, lean_object* v_h__2_30_){
 _start:
 {
-lean_object* x_7; 
-x_7 = l___private_Init_Data_Nat_ToString_0__Nat_toDigitsCore_match__1_splitter(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_2);
-return x_7;
+lean_object* v_res_31_; 
+v_res_31_ = l___private_Init_Data_Nat_ToString_0__Nat_toDigitsCore_match__1_splitter(v_motive_25_, v_x_26_, v_x_27_, v_x_28_, v_h__1_29_, v_h__2_30_);
+lean_dec(v_x_26_);
+return v_res_31_;
 }
 }
 lean_object* runtime_initialize_Init_Data_Repr(uint8_t builtin);
@@ -87,56 +87,43 @@ LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Nat_ToString(uint8_t built
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Init_Data_Repr(builtin)
-;
+res = runtime_initialize_Init_Data_Repr(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Char_Basic(builtin)
-;
+res = runtime_initialize_Init_Data_Char_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_ToString_Basic(builtin)
-;
+res = runtime_initialize_Init_Data_ToString_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_String_Basic(builtin)
-;
+res = runtime_initialize_Init_Data_String_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_NotationExtra(builtin)
-;
+res = runtime_initialize_Init_NotationExtra(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Repr(builtin)
-;
+res = runtime_initialize_Init_Data_Repr(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Omega(builtin)
-;
+res = runtime_initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_RCases(builtin)
-;
+res = runtime_initialize_Init_RCases(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Nat_Lemmas(builtin)
-;
+res = runtime_initialize_Init_Data_Nat_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Nat_Bitwise(builtin)
-;
+res = runtime_initialize_Init_Data_Nat_Bitwise(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Nat_Simproc(builtin)
-;
+res = runtime_initialize_Init_Data_Nat_Simproc(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_WFTactics(builtin)
-;
+res = runtime_initialize_Init_WFTactics(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Char_Lemmas(builtin)
-;
+res = runtime_initialize_Init_Data_Char_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -166,64 +153,49 @@ LEAN_EXPORT lean_object* initialize_Init_Data_Nat_ToString(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Repr(builtin)
-;
+res = initialize_Init_Data_Repr(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Char_Basic(builtin)
-;
+res = initialize_Init_Data_Char_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_ToString_Basic(builtin)
-;
+res = initialize_Init_Data_ToString_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_String_Basic(builtin)
-;
+res = initialize_Init_Data_String_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_NotationExtra(builtin)
-;
+res = initialize_Init_NotationExtra(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Repr(builtin)
-;
+res = initialize_Init_Data_Repr(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Omega(builtin)
-;
+res = initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_RCases(builtin)
-;
+res = initialize_Init_RCases(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Lemmas(builtin)
-;
+res = initialize_Init_Data_Nat_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Bitwise(builtin)
-;
+res = initialize_Init_Data_Nat_Bitwise(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Simproc(builtin)
-;
+res = initialize_Init_Data_Nat_Simproc(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_WFTactics(builtin)
-;
+res = initialize_Init_WFTactics(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Char_Lemmas(builtin)
-;
+res = initialize_Init_Data_Char_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Nat_ToString(builtin)
-;
+res = runtime_initialize_Init_Data_Nat_ToString(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_Init_Data_Nat_ToString(builtin)
-;
+res = meta_initialize_Init_Data_Nat_ToString(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_Init_Data_Nat_ToString(builtin);

@@ -176,7 +176,7 @@ builtin_cbv_simproc ↓ simpDIteCbv (@dite _ _ _ _ _) := fun e => do
         let b ← share <| b.betaRev #[h']
         return .step b <| mkApp (e.replaceFn ``dite_cond_eq_false) h
       else
-        -- If we get stuck after simplifying `p` to `p'`, then we try to evaluate the original instance 
+        -- If we get stuck after simplifying `p` to `p'`, then we try to evaluate the original instance
         simpAndMatchDIteDecidable f α c inst a b do
           -- Otherwise, we make `Decidable c'` instance and try to evaluate it instead
           let inst' := mkApp4 (mkConst ``decidable_of_decidable_of_eq) c c' inst h
@@ -286,6 +286,7 @@ builtin_cbv_simproc ↓ simpCbvCond (@cond _ _ _) := simpCond
 
 public def reduceRecMatcher : Simproc := fun e => do
   if let some e' ← withCbvOpaqueGuard <| reduceRecMatcher? e then
+    trace[Meta.Tactic.cbv.rewrite] "recMatcher:{indentExpr e}\n==>{indentExpr e'}"
     return .step e' (← Sym.mkEqRefl e')
   else
     return .rfl
@@ -306,9 +307,12 @@ public def tryMatcher : Simproc := fun e => do
   let some info ← getMatcherInfo? appFn | return .rfl
   let start := info.numParams + 1
   let stop  := start + info.numDiscrs
-  (simpAppArgRange · start stop)
+  let result ← (simpAppArgRange · start stop)
     >> tryMatchEquations appFn
       <|> reduceRecMatcher
         <| e
+  if let .step e' .. := result then
+    trace[Meta.Tactic.cbv.controlFlow] "match `{appFn}`:{indentExpr e}\n==>{indentExpr e'}"
+  return result
 
 end Lean.Meta.Tactic.Cbv

@@ -25,7 +25,7 @@ theorem nodup_correct (l : List Int) : nodup l ↔ l.Nodup := by
   apply Id.of_wp_run_eq h
   mvcgen
   case inv1 =>
-    exact Invariant.withEarlyReturn
+    exact Invariant.withEarlyReturnNewDo
       (onReturn := fun ret seen => ⌜ret = false ∧ ¬l.Nodup⌝)
       (onContinue := fun traversalState seen =>
         ⌜(∀ x, x ∈ seen ↔ x ∈ traversalState.prefix) ∧ traversalState.prefix.Nodup⌝)

@@ -1,2 +1,2 @@
-lean --githash
-lean -g
+run lean --githash
+run lean -g

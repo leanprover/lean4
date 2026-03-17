@@ -19,54 +19,54 @@ LEAN_EXPORT lean_object* l___private_Std_Data_Iterators_Lemmas_Producers_Repeat_
 LEAN_EXPORT lean_object* l___private_Std_Data_Iterators_Lemmas_Producers_Repeat_0__Nat_repeat_match__1_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Data_Iterators_Lemmas_Producers_Repeat_0__Nat_repeat_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Data_Iterators_Lemmas_Producers_Repeat_0__Nat_repeat_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Std_Data_Iterators_Lemmas_Producers_Repeat_0__Nat_repeat_match__1_splitter___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l___private_Std_Data_Iterators_Lemmas_Producers_Repeat_0__Nat_repeat_match__1_splitter___redArg(lean_object* v_x_1_, lean_object* v_x_2_, lean_object* v_h__1_3_, lean_object* v_h__2_4_){
 _start:
 {
-lean_object* x_5; uint8_t x_6; 
-x_5 = lean_unsigned_to_nat(0u);
-x_6 = lean_nat_dec_eq(x_1, x_5);
-if (x_6 == 1)
+lean_object* v_zero_5_; uint8_t v_isZero_6_; 
+v_zero_5_ = lean_unsigned_to_nat(0u);
+v_isZero_6_ = lean_nat_dec_eq(v_x_1_, v_zero_5_);
+if (v_isZero_6_ == 1)
 {
-lean_object* x_7; 
-lean_dec(x_4);
-x_7 = lean_apply_1(x_3, x_2);
-return x_7;
+lean_object* v___x_7_; 
+lean_dec(v_h__2_4_);
+v___x_7_ = lean_apply_1(v_h__1_3_, v_x_2_);
+return v___x_7_;
 }
 else
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-lean_dec(x_3);
-x_8 = lean_unsigned_to_nat(1u);
-x_9 = lean_nat_sub(x_1, x_8);
-x_10 = lean_apply_2(x_4, x_9, x_2);
-return x_10;
+lean_object* v_one_8_; lean_object* v_n_9_; lean_object* v___x_10_; 
+lean_dec(v_h__1_3_);
+v_one_8_ = lean_unsigned_to_nat(1u);
+v_n_9_ = lean_nat_sub(v_x_1_, v_one_8_);
+v___x_10_ = lean_apply_2(v_h__2_4_, v_n_9_, v_x_2_);
+return v___x_10_;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Std_Data_Iterators_Lemmas_Producers_Repeat_0__Nat_repeat_match__1_splitter___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l___private_Std_Data_Iterators_Lemmas_Producers_Repeat_0__Nat_repeat_match__1_splitter___redArg___boxed(lean_object* v_x_11_, lean_object* v_x_12_, lean_object* v_h__1_13_, lean_object* v_h__2_14_){
 _start:
 {
-lean_object* x_5; 
-x_5 = l___private_Std_Data_Iterators_Lemmas_Producers_Repeat_0__Nat_repeat_match__1_splitter___redArg(x_1, x_2, x_3, x_4);
-lean_dec(x_1);
-return x_5;
+lean_object* v_res_15_; 
+v_res_15_ = l___private_Std_Data_Iterators_Lemmas_Producers_Repeat_0__Nat_repeat_match__1_splitter___redArg(v_x_11_, v_x_12_, v_h__1_13_, v_h__2_14_);
+lean_dec(v_x_11_);
+return v_res_15_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Std_Data_Iterators_Lemmas_Producers_Repeat_0__Nat_repeat_match__1_splitter(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+LEAN_EXPORT lean_object* l___private_Std_Data_Iterators_Lemmas_Producers_Repeat_0__Nat_repeat_match__1_splitter(lean_object* v_00_u03b1_16_, lean_object* v_motive_17_, lean_object* v_x_18_, lean_object* v_x_19_, lean_object* v_h__1_20_, lean_object* v_h__2_21_){
 _start:
 {
-lean_object* x_7; 
-x_7 = l___private_Std_Data_Iterators_Lemmas_Producers_Repeat_0__Nat_repeat_match__1_splitter___redArg(x_3, x_4, x_5, x_6);
-return x_7;
+lean_object* v___x_22_; 
+v___x_22_ = l___private_Std_Data_Iterators_Lemmas_Producers_Repeat_0__Nat_repeat_match__1_splitter___redArg(v_x_18_, v_x_19_, v_h__1_20_, v_h__2_21_);
+return v___x_22_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Std_Data_Iterators_Lemmas_Producers_Repeat_0__Nat_repeat_match__1_splitter___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+LEAN_EXPORT lean_object* l___private_Std_Data_Iterators_Lemmas_Producers_Repeat_0__Nat_repeat_match__1_splitter___boxed(lean_object* v_00_u03b1_23_, lean_object* v_motive_24_, lean_object* v_x_25_, lean_object* v_x_26_, lean_object* v_h__1_27_, lean_object* v_h__2_28_){
 _start:
 {
-lean_object* x_7; 
-x_7 = l___private_Std_Data_Iterators_Lemmas_Producers_Repeat_0__Nat_repeat_match__1_splitter(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_3);
-return x_7;
+lean_object* v_res_29_; 
+v_res_29_ = l___private_Std_Data_Iterators_Lemmas_Producers_Repeat_0__Nat_repeat_match__1_splitter(v_00_u03b1_23_, v_motive_24_, v_x_25_, v_x_26_, v_h__1_27_, v_h__2_28_);
+lean_dec(v_x_25_);
+return v_res_29_;
 }
 }
 lean_object* runtime_initialize_Std_Data_Iterators_Producers_Repeat(uint8_t builtin);
@@ -79,24 +79,19 @@ LEAN_EXPORT lean_object* runtime_initialize_Std_Data_Iterators_Lemmas_Producers_
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Std_Data_Iterators_Producers_Repeat(builtin)
-;
+res = runtime_initialize_Std_Data_Iterators_Producers_Repeat(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Iterators_Lemmas_Combinators_Take(builtin)
-;
+res = runtime_initialize_Init_Data_Iterators_Lemmas_Combinators_Take(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Iterators_Lemmas_Consumers_Access(builtin)
-;
+res = runtime_initialize_Init_Data_Iterators_Lemmas_Consumers_Access(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Iterators_Lemmas_Consumers_Collect(builtin)
-;
+res = runtime_initialize_Init_Data_Iterators_Lemmas_Consumers_Collect(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Option_Lemmas(builtin)
-;
+res = runtime_initialize_Init_Data_Option_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -118,32 +113,25 @@ LEAN_EXPORT lean_object* initialize_Std_Data_Iterators_Lemmas_Producers_Repeat(u
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Std_Data_Iterators_Producers_Repeat(builtin)
-;
+res = initialize_Std_Data_Iterators_Producers_Repeat(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Iterators_Lemmas_Combinators_Take(builtin)
-;
+res = initialize_Init_Data_Iterators_Lemmas_Combinators_Take(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Iterators_Lemmas_Consumers_Access(builtin)
-;
+res = initialize_Init_Data_Iterators_Lemmas_Consumers_Access(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Iterators_Lemmas_Consumers_Collect(builtin)
-;
+res = initialize_Init_Data_Iterators_Lemmas_Consumers_Collect(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Option_Lemmas(builtin)
-;
+res = initialize_Init_Data_Option_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Data_Iterators_Lemmas_Producers_Repeat(builtin)
-;
+res = runtime_initialize_Std_Data_Iterators_Lemmas_Producers_Repeat(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_Std_Data_Iterators_Lemmas_Producers_Repeat(builtin)
-;
+res = meta_initialize_Std_Data_Iterators_Lemmas_Producers_Repeat(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_Std_Data_Iterators_Lemmas_Producers_Repeat(builtin);

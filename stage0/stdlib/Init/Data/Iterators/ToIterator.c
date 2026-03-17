@@ -23,88 +23,88 @@ LEAN_EXPORT lean_object* l_Std_ToIterator_ofM(lean_object*, lean_object*, lean_o
 LEAN_EXPORT lean_object* l_Std_ToIterator_of___redArg___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ToIterator_of___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_ToIterator_of(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_ToIterator_iterM___redArg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Std_ToIterator_iterM___redArg(lean_object* v_x_1_, lean_object* v_inst_2_){
 _start:
 {
-lean_object* x_3; 
-x_3 = lean_apply_1(x_2, x_1);
-return x_3;
+lean_object* v___x_3_; 
+v___x_3_ = lean_apply_1(v_inst_2_, v_x_1_);
+return v___x_3_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_ToIterator_iterM(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+LEAN_EXPORT lean_object* l_Std_ToIterator_iterM(lean_object* v_00_u03b3_4_, lean_object* v_m_5_, lean_object* v_00_u03b1_6_, lean_object* v_00_u03b2_7_, lean_object* v_x_8_, lean_object* v_inst_9_){
 _start:
 {
-lean_object* x_7; 
-x_7 = lean_apply_1(x_6, x_5);
-return x_7;
+lean_object* v___x_10_; 
+v___x_10_ = lean_apply_1(v_inst_9_, v_x_8_);
+return v___x_10_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_ToIterator_iter___redArg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Std_ToIterator_iter___redArg(lean_object* v_inst_11_, lean_object* v_x_12_){
 _start:
 {
-lean_object* x_3; 
-x_3 = lean_apply_1(x_1, x_2);
-return x_3;
+lean_object* v___x_13_; 
+v___x_13_ = lean_apply_1(v_inst_11_, v_x_12_);
+return v___x_13_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_ToIterator_iter(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l_Std_ToIterator_iter(lean_object* v_00_u03b3_14_, lean_object* v_00_u03b1_15_, lean_object* v_00_u03b2_16_, lean_object* v_inst_17_, lean_object* v_x_18_){
 _start:
 {
-lean_object* x_6; 
-x_6 = lean_apply_1(x_4, x_5);
-return x_6;
+lean_object* v___x_19_; 
+v___x_19_ = lean_apply_1(v_inst_17_, v_x_18_);
+return v___x_19_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_ToIterator_ofM___redArg___lam__0(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Std_ToIterator_ofM___redArg___lam__0(lean_object* v_iterM_20_, lean_object* v_x_21_){
 _start:
 {
-lean_object* x_3; 
-x_3 = lean_apply_1(x_1, x_2);
-return x_3;
+lean_object* v___x_22_; 
+v___x_22_ = lean_apply_1(v_iterM_20_, v_x_21_);
+return v___x_22_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_ToIterator_ofM___redArg(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_ToIterator_ofM___redArg(lean_object* v_iterM_23_){
 _start:
 {
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Std_ToIterator_ofM___redArg___lam__0), 2, 1);
-lean_closure_set(x_2, 0, x_1);
-return x_2;
+lean_object* v___f_24_; 
+v___f_24_ = lean_alloc_closure((void*)(l_Std_ToIterator_ofM___redArg___lam__0), 2, 1);
+lean_closure_set(v___f_24_, 0, v_iterM_23_);
+return v___f_24_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_ToIterator_ofM(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l_Std_ToIterator_ofM(lean_object* v_00_u03b3_25_, lean_object* v_m_26_, lean_object* v_00_u03b2_27_, lean_object* v_00_u03b1_28_, lean_object* v_iterM_29_){
 _start:
 {
-lean_object* x_6; 
-x_6 = lean_alloc_closure((void*)(l_Std_ToIterator_ofM___redArg___lam__0), 2, 1);
-lean_closure_set(x_6, 0, x_5);
-return x_6;
+lean_object* v___f_30_; 
+v___f_30_ = lean_alloc_closure((void*)(l_Std_ToIterator_ofM___redArg___lam__0), 2, 1);
+lean_closure_set(v___f_30_, 0, v_iterM_29_);
+return v___f_30_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_ToIterator_of___redArg___lam__0(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Std_ToIterator_of___redArg___lam__0(lean_object* v_iter_31_, lean_object* v_x_32_){
 _start:
 {
-lean_object* x_3; 
-x_3 = lean_apply_1(x_1, x_2);
-return x_3;
+lean_object* v___x_33_; 
+v___x_33_ = lean_apply_1(v_iter_31_, v_x_32_);
+return v___x_33_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_ToIterator_of___redArg(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_ToIterator_of___redArg(lean_object* v_iter_34_){
 _start:
 {
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Std_ToIterator_of___redArg___lam__0), 2, 1);
-lean_closure_set(x_2, 0, x_1);
-return x_2;
+lean_object* v___f_35_; 
+v___f_35_ = lean_alloc_closure((void*)(l_Std_ToIterator_of___redArg___lam__0), 2, 1);
+lean_closure_set(v___f_35_, 0, v_iter_34_);
+return v___f_35_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_ToIterator_of(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Std_ToIterator_of(lean_object* v_00_u03b3_36_, lean_object* v_00_u03b2_37_, lean_object* v_00_u03b1_38_, lean_object* v_iter_39_){
 _start:
 {
-lean_object* x_5; 
-x_5 = lean_alloc_closure((void*)(l_Std_ToIterator_of___redArg___lam__0), 2, 1);
-lean_closure_set(x_5, 0, x_4);
-return x_5;
+lean_object* v___f_40_; 
+v___f_40_ = lean_alloc_closure((void*)(l_Std_ToIterator_of___redArg___lam__0), 2, 1);
+lean_closure_set(v___f_40_, 0, v_iter_39_);
+return v___f_40_;
 }
 }
 lean_object* runtime_initialize_Init_Data_Iterators_Basic(uint8_t builtin);
@@ -113,8 +113,7 @@ LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Iterators_ToIterator(uint8
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Init_Data_Iterators_Basic(builtin)
-;
+res = runtime_initialize_Init_Data_Iterators_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -132,16 +131,13 @@ LEAN_EXPORT lean_object* initialize_Init_Data_Iterators_ToIterator(uint8_t built
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Iterators_Basic(builtin)
-;
+res = initialize_Init_Data_Iterators_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Iterators_ToIterator(builtin)
-;
+res = runtime_initialize_Init_Data_Iterators_ToIterator(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_Init_Data_Iterators_ToIterator(builtin)
-;
+res = meta_initialize_Init_Data_Iterators_ToIterator(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_Init_Data_Iterators_ToIterator(builtin);

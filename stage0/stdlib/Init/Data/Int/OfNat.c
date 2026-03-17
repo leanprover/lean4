@@ -14,37 +14,37 @@
 extern "C" {
 #endif
 lean_object* lean_nat_to_int(lean_object*);
+uint8_t lean_int_dec_le(lean_object*, lean_object*);
 static lean_once_cell_t l_Int_Nonneg_num__cert___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Int_Nonneg_num__cert___closed__0;
-uint8_t lean_int_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Int_Nonneg_num__cert(lean_object*);
 LEAN_EXPORT lean_object* l_Int_Nonneg_num__cert___boxed(lean_object*);
-static lean_object* _init_l_Int_Nonneg_num__cert___closed__0(void) {
+static lean_object* _init_l_Int_Nonneg_num__cert___closed__0(void){
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_nat_to_int(x_1);
-return x_2;
+lean_object* v___x_1_; lean_object* v___x_2_; 
+v___x_1_ = lean_unsigned_to_nat(0u);
+v___x_2_ = lean_nat_to_int(v___x_1_);
+return v___x_2_;
 }
 }
-LEAN_EXPORT uint8_t l_Int_Nonneg_num__cert(lean_object* x_1) {
+LEAN_EXPORT uint8_t l_Int_Nonneg_num__cert(lean_object* v_a_3_){
 _start:
 {
-lean_object* x_2; uint8_t x_3; 
-x_2 = lean_obj_once(&l_Int_Nonneg_num__cert___closed__0, &l_Int_Nonneg_num__cert___closed__0_once, _init_l_Int_Nonneg_num__cert___closed__0);
-x_3 = lean_int_dec_le(x_2, x_1);
-return x_3;
+lean_object* v___x_4_; uint8_t v___x_5_; 
+v___x_4_ = lean_obj_once(&l_Int_Nonneg_num__cert___closed__0, &l_Int_Nonneg_num__cert___closed__0_once, _init_l_Int_Nonneg_num__cert___closed__0);
+v___x_5_ = lean_int_dec_le(v___x_4_, v_a_3_);
+return v___x_5_;
 }
 }
-LEAN_EXPORT lean_object* l_Int_Nonneg_num__cert___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Int_Nonneg_num__cert___boxed(lean_object* v_a_6_){
 _start:
 {
-uint8_t x_2; lean_object* x_3; 
-x_2 = l_Int_Nonneg_num__cert(x_1);
-lean_dec(x_1);
-x_3 = lean_box(x_2);
-return x_3;
+uint8_t v_res_7_; lean_object* v_r_8_; 
+v_res_7_ = l_Int_Nonneg_num__cert(v_a_6_);
+lean_dec(v_a_6_);
+v_r_8_ = lean_box(v_res_7_);
+return v_r_8_;
 }
 }
 lean_object* runtime_initialize_Init_GrindInstances_ToInt(uint8_t builtin);
@@ -59,32 +59,25 @@ LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Int_OfNat(uint8_t builtin)
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Init_GrindInstances_ToInt(builtin)
-;
+res = runtime_initialize_Init_GrindInstances_ToInt(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Nat_Div_Basic(builtin)
-;
+res = runtime_initialize_Init_Data_Nat_Div_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_ByCases(builtin)
-;
+res = runtime_initialize_Init_ByCases(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Int_DivMod_Lemmas(builtin)
-;
+res = runtime_initialize_Init_Data_Int_DivMod_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Int_LemmasAux(builtin)
-;
+res = runtime_initialize_Init_Data_Int_LemmasAux(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Int_Pow(builtin)
-;
+res = runtime_initialize_Init_Data_Int_Pow(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Omega(builtin)
-;
+res = runtime_initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -108,40 +101,31 @@ LEAN_EXPORT lean_object* initialize_Init_Data_Int_OfNat(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_GrindInstances_ToInt(builtin)
-;
+res = initialize_Init_GrindInstances_ToInt(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Div_Basic(builtin)
-;
+res = initialize_Init_Data_Nat_Div_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_ByCases(builtin)
-;
+res = initialize_Init_ByCases(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Int_DivMod_Lemmas(builtin)
-;
+res = initialize_Init_Data_Int_DivMod_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Int_LemmasAux(builtin)
-;
+res = initialize_Init_Data_Int_LemmasAux(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Int_Pow(builtin)
-;
+res = initialize_Init_Data_Int_Pow(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Omega(builtin)
-;
+res = initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Int_OfNat(builtin)
-;
+res = runtime_initialize_Init_Data_Int_OfNat(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_Init_Data_Int_OfNat(builtin)
-;
+res = meta_initialize_Init_Data_Int_OfNat(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_Init_Data_Int_OfNat(builtin);

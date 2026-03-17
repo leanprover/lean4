@@ -89,6 +89,25 @@ def normalPair : Nat × Nat := (10, 20)
 example : normalPair.1 = 10 := by cbv
 example : normalPair.2 = 20 := by cbv
 
+/-! `@[cbv_opaque]` takes precedence over `@[cbv_eval]`. -/
+
+@[cbv_opaque] def opaqueAdd (a b : Nat) : Nat := a + b
+@[cbv_eval] theorem opaqueAdd_eq (a b : Nat) : opaqueAdd a b = a + b := rfl
+
+/--
+error: unsolved goals
+⊢ opaqueAdd 1 2 = 3
+-/
+#guard_msgs in
+example : opaqueAdd 1 2 = 3 := by conv => lhs; cbv
+
+/-! `@[cbv_eval]` works on bare constants (no arguments). -/
+
+def bareConst : Nat := 2 + 3
+@[cbv_eval] theorem bareConst_eq : bareConst = 5 := rfl
+
+example : bareConst = 5 := by conv => lhs; cbv
+
 /-! The kernel's `isDefEq` in `cbvGoalCore` still closes `@[cbv_opaque]` goals. -/
 
 example : secret = 42 := by cbv

@@ -15,67 +15,68 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l___private_Init_Grind_ToIntLemmas_0__Lean_Grind_IntInterval_lo_x3f_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Grind_ToIntLemmas_0__Lean_Grind_IntInterval_lo_x3f_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Grind_ToIntLemmas_0__Lean_Grind_IntInterval_lo_x3f_match__1_splitter___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l___private_Init_Grind_ToIntLemmas_0__Lean_Grind_IntInterval_lo_x3f_match__1_splitter___redArg(lean_object* v_i_1_, lean_object* v_h__1_2_, lean_object* v_h__2_3_, lean_object* v_h__3_4_, lean_object* v_h__4_5_){
 _start:
 {
-switch (lean_obj_tag(x_1)) {
+switch(lean_obj_tag(v_i_1_))
+{
 case 0:
 {
-lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
-x_6 = lean_ctor_get(x_1, 0);
-lean_inc(x_6);
-x_7 = lean_ctor_get(x_1, 1);
-lean_inc(x_7);
-lean_dec_ref(x_1);
-x_8 = lean_apply_2(x_2, x_6, x_7);
-return x_8;
+lean_object* v_lo_6_; lean_object* v_hi_7_; lean_object* v___x_8_; 
+lean_dec(v_h__4_5_);
+lean_dec(v_h__3_4_);
+lean_dec(v_h__2_3_);
+v_lo_6_ = lean_ctor_get(v_i_1_, 0);
+lean_inc(v_lo_6_);
+v_hi_7_ = lean_ctor_get(v_i_1_, 1);
+lean_inc(v_hi_7_);
+lean_dec_ref(v_i_1_);
+v___x_8_ = lean_apply_2(v_h__1_2_, v_lo_6_, v_hi_7_);
+return v___x_8_;
 }
 case 1:
 {
-lean_object* x_9; lean_object* x_10; 
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_2);
-x_9 = lean_ctor_get(x_1, 0);
-lean_inc(x_9);
-lean_dec_ref(x_1);
-x_10 = lean_apply_1(x_3, x_9);
-return x_10;
+lean_object* v_lo_9_; lean_object* v___x_10_; 
+lean_dec(v_h__4_5_);
+lean_dec(v_h__3_4_);
+lean_dec(v_h__1_2_);
+v_lo_9_ = lean_ctor_get(v_i_1_, 0);
+lean_inc(v_lo_9_);
+lean_dec_ref(v_i_1_);
+v___x_10_ = lean_apply_1(v_h__2_3_, v_lo_9_);
+return v___x_10_;
 }
 case 2:
 {
-lean_object* x_11; lean_object* x_12; 
-lean_dec(x_5);
-lean_dec(x_3);
-lean_dec(x_2);
-x_11 = lean_ctor_get(x_1, 0);
-lean_inc(x_11);
-lean_dec_ref(x_1);
-x_12 = lean_apply_1(x_4, x_11);
-return x_12;
+lean_object* v_hi_11_; lean_object* v___x_12_; 
+lean_dec(v_h__4_5_);
+lean_dec(v_h__2_3_);
+lean_dec(v_h__1_2_);
+v_hi_11_ = lean_ctor_get(v_i_1_, 0);
+lean_inc(v_hi_11_);
+lean_dec_ref(v_i_1_);
+v___x_12_ = lean_apply_1(v_h__3_4_, v_hi_11_);
+return v___x_12_;
 }
 default: 
 {
-lean_object* x_13; lean_object* x_14; 
-lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
-x_13 = lean_box(0);
-x_14 = lean_apply_1(x_5, x_13);
-return x_14;
+lean_object* v___x_13_; lean_object* v___x_14_; 
+lean_dec(v_h__3_4_);
+lean_dec(v_h__2_3_);
+lean_dec(v_h__1_2_);
+v___x_13_ = lean_box(0);
+v___x_14_ = lean_apply_1(v_h__4_5_, v___x_13_);
+return v___x_14_;
 }
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Grind_ToIntLemmas_0__Lean_Grind_IntInterval_lo_x3f_match__1_splitter(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+LEAN_EXPORT lean_object* l___private_Init_Grind_ToIntLemmas_0__Lean_Grind_IntInterval_lo_x3f_match__1_splitter(lean_object* v_motive_15_, lean_object* v_i_16_, lean_object* v_h__1_17_, lean_object* v_h__2_18_, lean_object* v_h__3_19_, lean_object* v_h__4_20_){
 _start:
 {
-lean_object* x_7; 
-x_7 = l___private_Init_Grind_ToIntLemmas_0__Lean_Grind_IntInterval_lo_x3f_match__1_splitter___redArg(x_2, x_3, x_4, x_5, x_6);
-return x_7;
+lean_object* v___x_21_; 
+v___x_21_ = l___private_Init_Grind_ToIntLemmas_0__Lean_Grind_IntInterval_lo_x3f_match__1_splitter___redArg(v_i_16_, v_h__1_17_, v_h__2_18_, v_h__3_19_, v_h__4_20_);
+return v___x_21_;
 }
 }
 lean_object* runtime_initialize_Init_Grind_ToInt(uint8_t builtin);
@@ -86,16 +87,13 @@ LEAN_EXPORT lean_object* runtime_initialize_Init_Grind_ToIntLemmas(uint8_t built
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Init_Grind_ToInt(builtin)
-;
+res = runtime_initialize_Init_Grind_ToInt(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Grind_ToInt(builtin)
-;
+res = runtime_initialize_Init_Grind_ToInt(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Option_Basic(builtin)
-;
+res = runtime_initialize_Init_Data_Option_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -115,24 +113,19 @@ LEAN_EXPORT lean_object* initialize_Init_Grind_ToIntLemmas(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Grind_ToInt(builtin)
-;
+res = initialize_Init_Grind_ToInt(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Grind_ToInt(builtin)
-;
+res = initialize_Init_Grind_ToInt(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Option_Basic(builtin)
-;
+res = initialize_Init_Data_Option_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Grind_ToIntLemmas(builtin)
-;
+res = runtime_initialize_Init_Grind_ToIntLemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_Init_Grind_ToIntLemmas(builtin)
-;
+res = meta_initialize_Init_Grind_ToIntLemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_Init_Grind_ToIntLemmas(builtin);

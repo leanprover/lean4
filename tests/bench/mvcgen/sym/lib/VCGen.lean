@@ -155,6 +155,28 @@ meta def SpecTheoremsNew.findSpecs (database : SpecTheoremsNew) (e : Expr) :
 
 end Lean.Elab.Tactic.Do.SpecAttr
 
+
+-- Normalize universe levels in an expression so that `max u v` and `max v u` have a canonical
+-- representation. This is needed because backward rule pattern matching is structural and
+-- level expressions from different sources (e.g., instance synthesis, type inference) may have
+-- different but equivalent `max` orderings.
+meta def normalizeLevelsExpr (e : Expr) : CoreM Expr :=
+  Core.transform e (pre := fun e => do
+    match e with
+    | .sort u => return .done <| e.updateSort! u.normalize
+    | .const _ us => return .done <| e.updateConst! (us.map Level.normalize)
+    | _ => return .continue)
+
+/-- Build goal: `P ⊢ₛ wp⟦prog⟧ Q ss...`. Meant to be partially applied for convenience. -/
+private meta def mkGoal (u v : Level) (m σs ps instWP α : Expr) (ss : Array Expr) (P Q : Expr) (prog : Expr) : Expr :=
+  mkApp3 (mkConst ``SPred.entails [u]) σs P
+    (mkAppN (mkApp4 (mkConst ``PredTrans.apply [u]) ps α
+      (mkApp5 (mkConst ``WP.wp [u, v]) m ps instWP α prog) Q) ss)
+
+/-- Extract the program from a goal built by `mkGoal`. -/
+private meta def extractProgFromGoal (goal : Expr) : Expr :=
+  goal.getArg! 2 |>.getArg! 2 |>.getArg! 4
+
 /--
 Create a backward rule for the `SpecTheoremNew` that was looked up in the database.
 In order for the backward rule to apply, we need to instantiate both `m` and `ps` with the ones
@@ -217,18 +239,6 @@ prf : ∀ (α : Type) (x : StateT Nat Id α) (β : Type) (f : α → StateT Nat 
 We are still investigating how to get rid of more unfolding overhead, such as for `wp` and
 `List.rec`.
 -/
-
--- Normalize universe levels in an expression so that `max u v` and `max v u` have a canonical
--- representation. This is needed because backward rule pattern matching is structural and
--- level expressions from different sources (e.g., instance synthesis, type inference) may have
--- different but equivalent `max` orderings.
-meta def normalizeLevelsExpr (e : Expr) : CoreM Expr :=
-  Core.transform e (pre := fun e => do
-    match e with
-    | .sort u => return .done <| e.updateSort! u.normalize
-    | .const _ us => return .done <| e.updateConst! (us.map Level.normalize)
-    | _ => return .continue)
-
 meta def mkBackwardRuleFromSpec (specThm : SpecTheoremNew) (m σs ps instWP : Expr) (excessArgs : Array Expr) : SymM BackwardRule := do
   let preprocessExpr : Expr → SymM Expr := shareCommon <=< liftMetaM ∘ unfoldReducible
   -- Create a backward rule for the spec we look up in the database.
@@ -398,54 +408,54 @@ meta def mkBackwardRuleFromSimpSpec (specThm : SpecTheoremNew) (m σs ps instWP 
 
 open Lean.Elab.Tactic.Do in
 /--
-Creates a reusable backward rule for `ite`. It proves a theorem of the following form:
-```
-example {m} {σ} {ps} [WP m (.arg σ ps)] -- These are fixed. The other arguments are parameters of the rule:
-  {α} {c : Prop} [Decidable c] {t e : m α} {s : σ} {P : Assertion ps} {Q : PostCond α (.arg σ ps)}
-  (hthen : P ⊢ₛ wp⟦t⟧ Q s) (helse : P ⊢ₛ wp⟦e⟧ Q s)
-  : P ⊢ₛ wp⟦ite c t e⟧ Q s
-```
+Creates a reusable backward rule for splitting `ite`, `dite`, or matchers.
+
+Uses `SplitInfo.withAbstract` to open fvars for the split, then `SplitInfo.splitWith`
+to build the splitting proof. Hypothesis types are discovered via `rwIfOrMatcher` inside
+the splitter telescope.
 -/
-meta def mkBackwardRuleForIte (m σs ps instWP : Expr) (excessArgs : Array Expr) : SymM BackwardRule := do
+meta def mkBackwardRuleForSplit (splitInfo : SplitInfo) (m σs ps instWP : Expr) (excessArgs : Array Expr) : SymM BackwardRule := do
   let preprocessExpr : Expr → SymM Expr := shareCommon <=< liftMetaM ∘ unfoldReducible
-  let prf ← do
-    let us := instWP.getAppFn.constLevels!
-    let u := us[0]!
-    let v := us[1]!
+  let us := instWP.getAppFn.constLevels!
+  let u := us[0]!
+  let v := us[1]!
+  let prf ←
     withLocalDeclD `α (mkSort u.succ) fun α => do
     let mα ← preprocessExpr <| mkApp m α
-    withLocalDeclD `c (mkSort 0) fun c => do
-    withLocalDeclD `dec (mkApp (mkConst ``Decidable) c) fun dec => do
-    withLocalDeclD `t mα fun t => do
-    withLocalDeclD `e mα fun e => do
-    let prog ← preprocessExpr (mkApp5 (mkConst ``ite [v.succ]) mα c dec t e)
-    let excessArgNamesTypes ← excessArgs.mapM fun arg =>
-      return (`s, ← Meta.inferType arg)
+    splitInfo.withAbstract mα fun abstractInfo splitFVars => do
+    -- Eta-reduce alts so the backward rule pattern uses clean fvar alts, avoiding expensive
+    -- higher-order unification. The alts are eta-expanded in `withAbstract` so that
+    -- `splitWith`/`matcherApp.transform` can `instantiateLambda` them.
+    let abstractProg := match abstractInfo with
+      | .ite e | .dite e => e
+      | .matcher matcherApp =>
+        { matcherApp with alts := matcherApp.alts.map Expr.eta }.toExpr
+    let excessArgNamesTypes ← excessArgs.mapM fun arg => return (`s, ← Meta.inferType arg)
     withLocalDeclsDND excessArgNamesTypes fun ss => do
     withLocalDeclD `P (← preprocessExpr <| mkApp (mkConst ``SPred [u]) σs) fun P => do
     withLocalDeclD `Q (← preprocessExpr <| mkApp2 (mkConst ``PostCond [u]) α ps) fun Q => do
-    let goalWithProg prog :=
-      let wp := mkApp5 (mkConst ``WP.wp [u, v]) m ps instWP α prog
-      let wpApplyQ := mkApp4 (mkConst ``PredTrans.apply [u]) ps α wp Q  -- wp⟦prog⟧ Q
-      let wpApplyQ := mkAppN wpApplyQ ss  -- wp⟦prog⟧ Q s₁ ... sₙ
-      mkApp3 (mkConst ``SPred.entails [u]) σs P wpApplyQ
-    let thenType ← mkArrow c (goalWithProg t)
-    withLocalDeclD `hthen (← preprocessExpr thenType) fun hthen => do
-    let elseType ← mkArrow (mkNot c) (goalWithProg e)
-    withLocalDeclD `helse (← preprocessExpr elseType) fun helse => do
-    let onAlt (hc : Expr) (hcase : Expr) := do
-      let res ← rwIfWith hc prog
-      -- When `rw` fails, it returns `proof? := none`. We throw an error.
-      if res.proof?.isNone then
-        throwError "`rwIfWith` failed to rewrite {indentExpr e}."
-      -- context = fun e => P ⊢ₛ wp⟦e⟧ Q s₁ ... sₙ
-      let context ← withLocalDecl `e .default mα fun e => mkLambdaFVars #[e] (goalWithProg e)
-      let res ← Simp.mkCongrArg context res
-      res.mkEqMPR hcase
-    let ht ← withLocalDecl `h .default c fun h => do mkLambdaFVars #[h] (← onAlt h (mkApp hthen h))
-    let he ← withLocalDecl `h .default (mkNot c) fun h => do mkLambdaFVars #[h] (← onAlt h (mkApp helse h))
-    let prf := mkApp5 (mkConst ``dite [0]) (goalWithProg prog) c dec ht he
-    mkLambdaFVars (#[α, c, dec, t, e] ++ ss ++ #[P, Q, hthen, helse]) prf
+    let mkGoal := mkGoal u v m σs ps instWP α ss P Q
+    -- Subgoal types are synthetic opaque metavariables, filled in the `splitWith` callback below.
+    -- Synthetic opaque so that `rwIfOrMatcher`'s `assumption` tactic cannot assign them.
+    let subgoals ← splitInfo.altInfos.mapM fun _ =>
+      liftMetaM <| mkFreshExprSyntheticOpaqueMVar (mkSort 0)
+    let namedSubgoals := subgoals.mapIdx fun i mv => ((`h).appendIndexAfter (i+1), mv)
+    withLocalDeclsDND namedSubgoals fun subgoalHyps => do
+    let prf ← liftMetaM <|
+      abstractInfo.splitWith
+        (useSplitter := true)
+        (mkGoal abstractProg)
+        (fun _name bodyType idx altFVars => do
+          let prog := extractProgFromGoal bodyType
+          let res ← rwIfOrMatcher idx prog
+          if res.proof?.isNone then
+            throwError "mkBackwardRuleForSplit: rwIfOrMatcher failed for alt {idx}\n{indentExpr prog}"
+          let boundFVars := altFVars.all
+          subgoals[idx]!.mvarId!.assign (← mkForallFVars boundFVars (mkGoal res.expr))
+          let context ← withLocalDecl `e .default mα fun e =>
+            mkLambdaFVars #[e] (mkGoal e)
+          (← Simp.mkCongrArg context res).mkEqMPR (mkAppN subgoalHyps[idx]! boundFVars))
+    mkLambdaFVars (#[α] ++ splitFVars ++ ss ++ #[P, Q] ++ subgoalHyps) prf
   let prf ← instantiateMVars prf
   let res ← abstractMVars prf
   let expr ← normalizeLevelsExpr res.expr
@@ -516,12 +526,15 @@ meta def mkBackwardRuleFromSpecCached (specThm : SpecTheoremNew) (m σs ps instW
   return res
 
 open Lean.Elab.Tactic.Do in
-/-- See the documentation for `SpecTheoremNew.mkBackwardRuleForIte` for more details. -/
+/-- Creates and caches a backward rule for splitting `ite`, `dite`, or matchers. -/
 meta def mkBackwardRuleFromSplitInfoCached (splitInfo : SplitInfo) (m σs ps instWP : Expr) (excessArgs : Array Expr) : _root_.VCGenM BackwardRule := do
-  unless splitInfo matches .ite .. do throwError "Only `ite` is currently supported for splitting."
-  let mkRuleSlow := mkBackwardRuleForIte m σs ps instWP excessArgs
+  let cacheKey := match splitInfo with
+    | .ite .. => ``ite
+    | .dite .. => ``dite
+    | .matcher matcherApp => matcherApp.matcherName
+  let mkRuleSlow := mkBackwardRuleForSplit splitInfo m σs ps instWP excessArgs
   let s ← get
-  let (res, splitBackwardRuleCache) ← s.splitBackwardRuleCache.getDM (``ite, m, excessArgs.size) mkRuleSlow
+  let (res, splitBackwardRuleCache) ← s.splitBackwardRuleCache.getDM (cacheKey, m, excessArgs.size) mkRuleSlow
   set { s with splitBackwardRuleCache }
   return res
 
@@ -743,9 +756,8 @@ meta def solve (goal : MVarId) : VCGenM SolveResult := goal.withContext do
     let goal ← goal.replaceTargetDefEq target
     return .goals [goal]
 
-  -- Hard-code match splitting for `ite` for now.
-  if f.isAppOf ``ite then
-    let some info ← Lean.Elab.Tactic.Do.getSplitInfo? e | return .noStrategyForProgram e
+  -- Split ite/dite/match
+  if let some info ← liftMetaM <| Lean.Elab.Tactic.Do.getSplitInfo? e then
     let rule ← mkBackwardRuleFromSplitInfoCached info m σs ps instWP excessArgs
     let ApplyResult.goals goals ← rule.apply goal
       | throwError "Failed to apply split rule for {indentExpr e}"

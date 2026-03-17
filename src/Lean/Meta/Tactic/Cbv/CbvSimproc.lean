@@ -256,16 +256,20 @@ def cbvSimprocDispatch (tree : DiscrTree CbvSimprocEntry)
     (erased : PHashSet Name) : Simproc := fun e => do
   let candidates := Sym.getMatchWithExtra tree e
   if candidates.isEmpty then
-    trace[Debug.Meta.Tactic.cbv.simprocs] "no cbv simprocs found for {e}"
     return .rfl
   for (entry, numExtra) in candidates do
     unless erased.contains entry.declName do
-      let result ← if numExtra == 0 then
-        entry.proc e
-      else
-        simpOverApplied e numExtra entry.proc
+      let simprocName := (privateToUserName entry.declName).replacePrefix `Lean.Meta.Sym.Simp .anonymous |>.replacePrefix `Lean.Meta.Tactic.Cbv .anonymous
+      let result ← withTraceNode `Meta.Tactic.cbv.simprocs (fun
+          | .ok (Result.step e' ..) => return m!"simproc {simprocName}:{indentExpr e}\n==>{indentExpr e'}"
+          | .ok (Result.rfl true)   => return m!"simproc {simprocName}: done{indentExpr e}"
+          | .ok _                   => return m!"simproc {simprocName}: no change"
+          | .error err              => return m!"simproc {simprocName}: {err.toMessageData}") do
+        if numExtra == 0 then
+          entry.proc e
+        else
+          simpOverApplied e numExtra entry.proc
       if result matches .step _ _ _ then
-        trace[Debug.Meta.Tactic.cbv.simprocs] "cbv simproc `{entry.declName}` result {e} => {result.getResultExpr e}"
         return result
       if result matches .rfl (done := true) then
         return result

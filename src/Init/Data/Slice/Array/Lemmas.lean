@@ -28,7 +28,6 @@ open Std Std.Iterators Std.PRange Std.Slice
 
 namespace SubarrayIterator
 
-set_option backward.isDefEq.respectTransparency false in
 theorem step_eq {it : Iter (α := SubarrayIterator α) α} :
     it.step = if h : it.1.xs.start < it.1.xs.stop then
         haveI := it.1.xs.start_le_stop
@@ -215,7 +214,6 @@ public theorem Array.stop_toSubarray {xs : Array α} {lo hi : Nat} :
     (xs.toSubarray lo hi).stop = min hi xs.size := by
   simp [toSubarray_eq_min, Subarray.stop]
 
-set_option backward.whnf.reducibleClassField false in
 public theorem Subarray.toList_eq {xs : Subarray α} :
     xs.toList = (xs.array.extract xs.start xs.stop).toList := by
   let aslice := xs

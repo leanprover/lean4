@@ -248,7 +248,16 @@ instance : HasModel Int8 (BitVec 8) where
   le_iff_encode_le := by simp [LE.le, Int8.le]
   lt_iff_encode_lt := by simp [LT.lt, Int8.lt]
 
-set_option backward.whnf.reducibleClassField false in
+private theorem succ?_eq_minValueSealed {x : Int8} :
+    UpwardEnumerable.succ? x = if x + 1 = minValueSealed then none else some (x + 1) :=
+  (rfl)
+
+private theorem succMany?_eq_maxValueSealed {i : Int8} :
+    UpwardEnumerable.succMany? n i =
+      have := i.minValue_le_toInt
+      if h : i.toInt + n ≤ maxValueSealed.toInt then some (.ofIntLE _ (by omega) (maxValueSealed_def ▸ h)) else none :=
+  (rfl)
+
 theorem instUpwardEnumerable_eq :
     instUpwardEnumerable = HasModel.instUpwardEnumerable := by
   apply UpwardEnumerable.ext
@@ -256,16 +265,16 @@ theorem instUpwardEnumerable_eq :
     apply HasModel.succ?_eq_of_technicalCondition
     simp [HasModel.encode, succ?, ← Int8.toBitVec_inj, toBitVec_minValueSealed_eq_intMinSealed]
   · ext
-    simp +instances [HasModel.succMany?_eq, instUpwardEnumerable, HasModel.encode, HasModel.decode,
+    simp [HasModel.succMany?_eq, succMany?_eq_maxValueSealed, HasModel.encode, HasModel.decode,
       ← toInt_toBitVec, toBitVec_maxValueSealed_eq_intMaxSealed, ofIntLE_eq_ofInt]
 
 
 instance : LawfulUpwardEnumerable Int8 := by
-  simp +instances only [instUpwardEnumerable_eq]
+  rw [instUpwardEnumerable_eq]
   infer_instance
 
 instance : LawfulUpwardEnumerableLE Int8 := by
-  simp +instances only [instUpwardEnumerable_eq]
+  rw [instUpwardEnumerable_eq]
   infer_instance
 
 public instance instRxcHasSize : Rxc.HasSize Int8 where
@@ -277,7 +286,7 @@ theorem instRxcHasSize_eq :
     ← toInt_toBitVec, HasModel.toNat_toInt_add_one_sub_toInt (Nat.zero_lt_succ _)]
 
 public instance instRxcLawfulHasSize : Rxc.LawfulHasSize Int8 := by
-  simp +instances only [instUpwardEnumerable_eq, instRxcHasSize_eq]
+  rw [instUpwardEnumerable_eq, instRxcHasSize_eq]
   infer_instance
 public instance : Rxc.IsAlwaysFinite Int8 := by exact inferInstance
 
@@ -294,7 +303,7 @@ theorem instRxiHasSize_eq :
     HasModel.encode, HasModel.toNat_two_pow_sub_one_sub_toInt (show 8 > 0 by omega)]
 
 public instance instRxiLawfulHasSize : Rxi.LawfulHasSize Int8 := by
-  simp +instances only [instUpwardEnumerable_eq, instRxiHasSize_eq]
+  rw [instUpwardEnumerable_eq, instRxiHasSize_eq]
   infer_instance
 public instance instRxiIsAlwaysFinite : Rxi.IsAlwaysFinite Int8 := by exact inferInstance
 
@@ -344,7 +353,6 @@ instance : HasModel Int16 (BitVec 16) where
   le_iff_encode_le := by simp [LE.le, Int16.le]
   lt_iff_encode_lt := by simp [LT.lt, Int16.lt]
 
-set_option backward.whnf.reducibleClassField false in
 theorem instUpwardEnumerable_eq :
     instUpwardEnumerable = HasModel.instUpwardEnumerable := by
   apply UpwardEnumerable.ext
@@ -440,7 +448,6 @@ instance : HasModel Int32 (BitVec 32) where
   le_iff_encode_le := by simp [LE.le, Int32.le]
   lt_iff_encode_lt := by simp [LT.lt, Int32.lt]
 
-set_option backward.whnf.reducibleClassField false in
 theorem instUpwardEnumerable_eq :
     instUpwardEnumerable = HasModel.instUpwardEnumerable := by
   apply UpwardEnumerable.ext
@@ -536,7 +543,6 @@ instance : HasModel Int64 (BitVec 64) where
   le_iff_encode_le := by simp [LE.le, Int64.le]
   lt_iff_encode_lt := by simp [LT.lt, Int64.lt]
 
-set_option backward.whnf.reducibleClassField false in
 theorem instUpwardEnumerable_eq :
     instUpwardEnumerable = HasModel.instUpwardEnumerable := by
   apply UpwardEnumerable.ext
@@ -637,7 +643,6 @@ instance : HasModel ISize (BitVec System.Platform.numBits) where
   le_iff_encode_le := by simp [LE.le, ISize.le]
   lt_iff_encode_lt := by simp [LT.lt, ISize.lt]
 
-set_option backward.whnf.reducibleClassField false in
 theorem instUpwardEnumerable_eq :
     instUpwardEnumerable = HasModel.instUpwardEnumerable := by
   apply UpwardEnumerable.ext

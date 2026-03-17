@@ -23,24 +23,19 @@ LEAN_EXPORT lean_object* runtime_initialize_Std_Data_Iterators_Combinators_Monad
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Std_Data_Iterators_Combinators_Monadic_TakeWhile(builtin)
-;
+res = runtime_initialize_Std_Data_Iterators_Combinators_Monadic_TakeWhile(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Data_Iterators_Combinators_Monadic_Drop(builtin)
-;
+res = runtime_initialize_Std_Data_Iterators_Combinators_Monadic_Drop(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Data_Iterators_Combinators_Monadic_DropWhile(builtin)
-;
+res = runtime_initialize_Std_Data_Iterators_Combinators_Monadic_DropWhile(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Data_Iterators_Combinators_Monadic_StepSize(builtin)
-;
+res = runtime_initialize_Std_Data_Iterators_Combinators_Monadic_StepSize(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Data_Iterators_Combinators_Monadic_Zip(builtin)
-;
+res = runtime_initialize_Std_Data_Iterators_Combinators_Monadic_Zip(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -62,32 +57,25 @@ LEAN_EXPORT lean_object* initialize_Std_Data_Iterators_Combinators_Monadic(uint8
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Std_Data_Iterators_Combinators_Monadic_TakeWhile(builtin)
-;
+res = initialize_Std_Data_Iterators_Combinators_Monadic_TakeWhile(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_Iterators_Combinators_Monadic_Drop(builtin)
-;
+res = initialize_Std_Data_Iterators_Combinators_Monadic_Drop(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_Iterators_Combinators_Monadic_DropWhile(builtin)
-;
+res = initialize_Std_Data_Iterators_Combinators_Monadic_DropWhile(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_Iterators_Combinators_Monadic_StepSize(builtin)
-;
+res = initialize_Std_Data_Iterators_Combinators_Monadic_StepSize(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_Iterators_Combinators_Monadic_Zip(builtin)
-;
+res = initialize_Std_Data_Iterators_Combinators_Monadic_Zip(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Data_Iterators_Combinators_Monadic(builtin)
-;
+res = runtime_initialize_Std_Data_Iterators_Combinators_Monadic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_Std_Data_Iterators_Combinators_Monadic(builtin)
-;
+res = meta_initialize_Std_Data_Iterators_Combinators_Monadic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_Std_Data_Iterators_Combinators_Monadic(builtin);

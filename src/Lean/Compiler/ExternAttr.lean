@@ -56,6 +56,7 @@ private def syntaxToExternAttrData (stx : Syntax) : AttrM ExternAttrData := do
   return { entries := entries.toList }
 
 -- Forward declaration
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_add_extern"]
 opaque addExtern (declName : Name) (externAttrData : ExternAttrData) : CoreM Unit
 

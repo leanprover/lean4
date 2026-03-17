@@ -105,7 +105,7 @@ def nodup (l : List Int) : Bool := Id.run do
 info: Try this:
   [apply] invariants
   ·
-    Invariant.withEarlyReturn (onReturn := fun r letMuts => ⌜(r = true ↔ l.Nodup) ∧ l.Nodup⌝) (onContinue :=
+    Invariant.withEarlyReturnNewDo (onReturn := fun r letMuts => ⌜(r = true ↔ l.Nodup) ∧ l.Nodup⌝) (onContinue :=
       fun xs letMuts => ⌜xs.prefix = [] ∧ letMuts = ∅ ∨ xs.suffix = [] ∧ l.Nodup⌝)
 -/
 #guard_msgs (info) in
@@ -132,14 +132,14 @@ def nodup_twice (l : List Int) : Bool := Id.run do
 info: Try this:
   [apply] invariants
   ·
-    Invariant.withEarlyReturn (onReturn := fun r letMuts =>
+    Invariant.withEarlyReturnNewDo (onReturn := fun r letMuts =>
       spred({ down := r = true ↔ l.Nodup } ∧ Prod.fst ?inv2 ({ «prefix» := [], suffix := l, property := ⋯ }, none, ∅)))
       (onContinue := fun xs letMuts =>
       spred({ down := xs.prefix = [] ∧ letMuts = ∅ } ∨
           ⌜xs.suffix = []⌝ ∧
             { down := True } ∧ Prod.fst ?inv2 ({ «prefix» := [], suffix := l, property := ⋯ }, none, ∅)))
   ·
-    Invariant.withEarlyReturn (onReturn := fun r letMuts => ⌜(r = true ↔ l.Nodup) ∧ l.Nodup⌝) (onContinue :=
+    Invariant.withEarlyReturnNewDo (onReturn := fun r letMuts => ⌜(r = true ↔ l.Nodup) ∧ l.Nodup⌝) (onContinue :=
       fun xs letMuts => ⌜xs.prefix = [] ∧ letMuts = ∅ ∨ xs.suffix = [] ∧ l.Nodup⌝)
 -/
 #guard_msgs (info) in
@@ -190,7 +190,7 @@ def mkFreshN_early_return (n : Nat) : AppM (List Nat) := do
 info: Try this:
   [apply] invariants
   ·
-    Invariant.withEarlyReturn (onReturn := fun r letMuts => ⌜r.Nodup ∧ letMuts.toList.Nodup⌝) (onContinue :=
+    Invariant.withEarlyReturnNewDo (onReturn := fun r letMuts => ⌜r.Nodup ∧ letMuts.toList.Nodup⌝) (onContinue :=
       fun xs letMuts => ⌜xs.prefix = [] ∧ letMuts = acc✝ ∨ xs.suffix = [] ∧ letMuts.toList.Nodup⌝)
 -/
 #guard_msgs (info) in
@@ -207,7 +207,7 @@ def earlyReturnWithoutLetMut (l : List Int) : Bool := Id.run do
 info: Try this:
   [apply] invariants
   ·
-    Invariant.withEarlyReturn (onReturn := fun r letMuts => ⌜r = true⌝) (onContinue := fun xs letMuts =>
+    Invariant.withEarlyReturnNewDo (onReturn := fun r letMuts => ⌜r = true⌝) (onContinue := fun xs letMuts =>
       ⌜xs.prefix = [] ∨ xs.suffix = []⌝)
 -/
 #guard_msgs (info) in
@@ -273,7 +273,7 @@ def polyNodup [Monad m] (l : List Int) : m Bool := do
 info: Try this:
   [apply] invariants
   ·
-    Invariant.withEarlyReturn (onReturn := fun r letMuts => ⌜(r = true ↔ l.Nodup) ∧ l.Nodup⌝) (onContinue :=
+    Invariant.withEarlyReturnNewDo (onReturn := fun r letMuts => ⌜(r = true ↔ l.Nodup) ∧ l.Nodup⌝) (onContinue :=
       fun xs letMuts => ⌜xs.prefix = [] ∧ letMuts = seen✝ ∨ xs.suffix = [] ∧ l.Nodup⌝)
 -/
 #guard_msgs (info) in

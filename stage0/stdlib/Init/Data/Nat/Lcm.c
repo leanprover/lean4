@@ -18,26 +18,26 @@ lean_object* lean_nat_gcd(lean_object*, lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_lcm(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_lcm___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Nat_lcm(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Nat_lcm(lean_object* v_m_1_, lean_object* v_n_2_){
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = lean_nat_mul(x_1, x_2);
-x_4 = lean_nat_gcd(x_1, x_2);
-x_5 = lean_nat_div(x_3, x_4);
-lean_dec(x_4);
-lean_dec(x_3);
-return x_5;
+lean_object* v___x_3_; lean_object* v___x_4_; lean_object* v___x_5_; 
+v___x_3_ = lean_nat_mul(v_m_1_, v_n_2_);
+v___x_4_ = lean_nat_gcd(v_m_1_, v_n_2_);
+v___x_5_ = lean_nat_div(v___x_3_, v___x_4_);
+lean_dec(v___x_4_);
+lean_dec(v___x_3_);
+return v___x_5_;
 }
 }
-LEAN_EXPORT lean_object* l_Nat_lcm___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Nat_lcm___boxed(lean_object* v_m_6_, lean_object* v_n_7_){
 _start:
 {
-lean_object* x_3; 
-x_3 = l_Nat_lcm(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
-return x_3;
+lean_object* v_res_8_; 
+v_res_8_ = l_Nat_lcm(v_m_6_, v_n_7_);
+lean_dec(v_n_7_);
+lean_dec(v_m_6_);
+return v_res_8_;
 }
 }
 lean_object* runtime_initialize_Init_Data_Nat_Gcd(uint8_t builtin);
@@ -49,20 +49,16 @@ LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Nat_Lcm(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Init_Data_Nat_Gcd(builtin)
-;
+res = runtime_initialize_Init_Data_Nat_Gcd(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Nat_Dvd(builtin)
-;
+res = runtime_initialize_Init_Data_Nat_Dvd(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Nat_Lemmas(builtin)
-;
+res = runtime_initialize_Init_Data_Nat_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_RCases(builtin)
-;
+res = runtime_initialize_Init_RCases(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -83,28 +79,22 @@ LEAN_EXPORT lean_object* initialize_Init_Data_Nat_Lcm(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Nat_Gcd(builtin)
-;
+res = initialize_Init_Data_Nat_Gcd(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Dvd(builtin)
-;
+res = initialize_Init_Data_Nat_Dvd(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Lemmas(builtin)
-;
+res = initialize_Init_Data_Nat_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_RCases(builtin)
-;
+res = initialize_Init_RCases(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Nat_Lcm(builtin)
-;
+res = runtime_initialize_Init_Data_Nat_Lcm(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_Init_Data_Nat_Lcm(builtin)
-;
+res = meta_initialize_Init_Data_Nat_Lcm(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_Init_Data_Nat_Lcm(builtin);

@@ -109,7 +109,7 @@ where
     let e ← eraseIrrelevantMData e
     /- We must fold kernel projections like it is done in the preprocessor. -/
     let e ← foldProjs e
-    normalizeLevels e
+    Sym.normalizeLevels e
 
 private def markNestedProof (e : Expr) : M Expr := do
   let prop ← inferType e

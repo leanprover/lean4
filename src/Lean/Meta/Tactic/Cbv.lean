@@ -15,7 +15,11 @@ public section
 namespace Lean
 
 builtin_initialize registerTraceClass `Meta.Tactic.cbv
+builtin_initialize registerTraceClass `Meta.Tactic.cbv.rewrite (inherited := true)
+builtin_initialize registerTraceClass `Meta.Tactic.cbv.unfold (inherited := true)
+builtin_initialize registerTraceClass `Meta.Tactic.cbv.controlFlow (inherited := true)
+builtin_initialize registerTraceClass `Meta.Tactic.cbv.simprocs (inherited := true)
 builtin_initialize registerTraceClass `Debug.Meta.Tactic.cbv
-builtin_initialize registerTraceClass `Debug.Meta.Tactic.cbv.simprocs (inherited := true)
+builtin_initialize registerTraceClass `Debug.Meta.Tactic.cbv.reduce (inherited := true)
 
 end Lean

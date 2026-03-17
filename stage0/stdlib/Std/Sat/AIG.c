@@ -32,60 +32,46 @@ LEAN_EXPORT lean_object* runtime_initialize_Std_Sat_AIG(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Std_Sat_AIG_Basic(builtin)
-;
+res = runtime_initialize_Std_Sat_AIG_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Sat_AIG_LawfulOperator(builtin)
-;
+res = runtime_initialize_Std_Sat_AIG_LawfulOperator(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Sat_AIG_Lemmas(builtin)
-;
+res = runtime_initialize_Std_Sat_AIG_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Sat_AIG_Cached(builtin)
-;
+res = runtime_initialize_Std_Sat_AIG_Cached(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Sat_AIG_CachedLemmas(builtin)
-;
+res = runtime_initialize_Std_Sat_AIG_CachedLemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Sat_AIG_CachedGates(builtin)
-;
+res = runtime_initialize_Std_Sat_AIG_CachedGates(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Sat_AIG_CachedGatesLemmas(builtin)
-;
+res = runtime_initialize_Std_Sat_AIG_CachedGatesLemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Sat_AIG_CNF(builtin)
-;
+res = runtime_initialize_Std_Sat_AIG_CNF(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Sat_AIG_Relabel(builtin)
-;
+res = runtime_initialize_Std_Sat_AIG_Relabel(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Sat_AIG_RelabelNat(builtin)
-;
+res = runtime_initialize_Std_Sat_AIG_RelabelNat(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Sat_AIG_RefVec(builtin)
-;
+res = runtime_initialize_Std_Sat_AIG_RefVec(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Sat_AIG_RefVecOperator(builtin)
-;
+res = runtime_initialize_Std_Sat_AIG_RefVecOperator(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Sat_AIG_LawfulVecOperator(builtin)
-;
+res = runtime_initialize_Std_Sat_AIG_LawfulVecOperator(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Sat_AIG_If(builtin)
-;
+res = runtime_initialize_Std_Sat_AIG_If(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -116,68 +102,52 @@ LEAN_EXPORT lean_object* initialize_Std_Sat_AIG(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Std_Sat_AIG_Basic(builtin)
-;
+res = initialize_Std_Sat_AIG_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Sat_AIG_LawfulOperator(builtin)
-;
+res = initialize_Std_Sat_AIG_LawfulOperator(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Sat_AIG_Lemmas(builtin)
-;
+res = initialize_Std_Sat_AIG_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Sat_AIG_Cached(builtin)
-;
+res = initialize_Std_Sat_AIG_Cached(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Sat_AIG_CachedLemmas(builtin)
-;
+res = initialize_Std_Sat_AIG_CachedLemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Sat_AIG_CachedGates(builtin)
-;
+res = initialize_Std_Sat_AIG_CachedGates(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Sat_AIG_CachedGatesLemmas(builtin)
-;
+res = initialize_Std_Sat_AIG_CachedGatesLemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Sat_AIG_CNF(builtin)
-;
+res = initialize_Std_Sat_AIG_CNF(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Sat_AIG_Relabel(builtin)
-;
+res = initialize_Std_Sat_AIG_Relabel(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Sat_AIG_RelabelNat(builtin)
-;
+res = initialize_Std_Sat_AIG_RelabelNat(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Sat_AIG_RefVec(builtin)
-;
+res = initialize_Std_Sat_AIG_RefVec(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Sat_AIG_RefVecOperator(builtin)
-;
+res = initialize_Std_Sat_AIG_RefVecOperator(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Sat_AIG_LawfulVecOperator(builtin)
-;
+res = initialize_Std_Sat_AIG_LawfulVecOperator(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Sat_AIG_If(builtin)
-;
+res = initialize_Std_Sat_AIG_If(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Sat_AIG(builtin)
-;
+res = runtime_initialize_Std_Sat_AIG(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_Std_Sat_AIG(builtin)
-;
+res = meta_initialize_Std_Sat_AIG(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_Std_Sat_AIG(builtin);

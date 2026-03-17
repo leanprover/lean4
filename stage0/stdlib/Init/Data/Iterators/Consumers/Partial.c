@@ -17,36 +17,36 @@ LEAN_EXPORT lean_object* l_Std_Iter_allowNontermination___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iter_allowNontermination___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iter_allowNontermination(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iter_allowNontermination___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Iter_allowNontermination___redArg(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Iter_allowNontermination___redArg(lean_object* v_it_1_){
 _start:
 {
-lean_inc(x_1);
-return x_1;
+lean_inc(v_it_1_);
+return v_it_1_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Iter_allowNontermination___redArg___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Iter_allowNontermination___redArg___boxed(lean_object* v_it_2_){
 _start:
 {
-lean_object* x_2; 
-x_2 = l_Std_Iter_allowNontermination___redArg(x_1);
-lean_dec(x_1);
-return x_2;
+lean_object* v_res_3_; 
+v_res_3_ = l_Std_Iter_allowNontermination___redArg(v_it_2_);
+lean_dec(v_it_2_);
+return v_res_3_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Iter_allowNontermination(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Std_Iter_allowNontermination(lean_object* v_00_u03b1_4_, lean_object* v_00_u03b2_5_, lean_object* v_it_6_){
 _start:
 {
-lean_inc(x_3);
-return x_3;
+lean_inc(v_it_6_);
+return v_it_6_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Iter_allowNontermination___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Std_Iter_allowNontermination___boxed(lean_object* v_00_u03b1_7_, lean_object* v_00_u03b2_8_, lean_object* v_it_9_){
 _start:
 {
-lean_object* x_4; 
-x_4 = l_Std_Iter_allowNontermination(x_1, x_2, x_3);
-lean_dec(x_3);
-return x_4;
+lean_object* v_res_10_; 
+v_res_10_ = l_Std_Iter_allowNontermination(v_00_u03b1_7_, v_00_u03b2_8_, v_it_9_);
+lean_dec(v_it_9_);
+return v_res_10_;
 }
 }
 lean_object* runtime_initialize_Init_Data_Iterators_Basic(uint8_t builtin);
@@ -55,8 +55,7 @@ LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Iterators_Consumers_Partia
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Init_Data_Iterators_Basic(builtin)
-;
+res = runtime_initialize_Init_Data_Iterators_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -74,16 +73,13 @@ LEAN_EXPORT lean_object* initialize_Init_Data_Iterators_Consumers_Partial(uint8_
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Iterators_Basic(builtin)
-;
+res = initialize_Init_Data_Iterators_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Iterators_Consumers_Partial(builtin)
-;
+res = runtime_initialize_Init_Data_Iterators_Consumers_Partial(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_Init_Data_Iterators_Consumers_Partial(builtin)
-;
+res = meta_initialize_Init_Data_Iterators_Consumers_Partial(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_Init_Data_Iterators_Consumers_Partial(builtin);

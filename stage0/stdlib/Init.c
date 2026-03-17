@@ -60,172 +60,130 @@ LEAN_EXPORT lean_object* runtime_initialize_Init(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Init_Prelude(builtin)
-;
+res = runtime_initialize_Init_Prelude(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Notation(builtin)
-;
+res = runtime_initialize_Init_Notation(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Tactics(builtin)
-;
+res = runtime_initialize_Init_Tactics(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_TacticsExtra(builtin)
-;
+res = runtime_initialize_Init_TacticsExtra(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_ByCases(builtin)
-;
+res = runtime_initialize_Init_ByCases(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_RCases(builtin)
-;
+res = runtime_initialize_Init_RCases(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Core(builtin)
-;
+res = runtime_initialize_Init_Core(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Control(builtin)
-;
+res = runtime_initialize_Init_Control(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_WF(builtin)
-;
+res = runtime_initialize_Init_WF(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_WFComputable(builtin)
-;
+res = runtime_initialize_Init_WFComputable(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_WFTactics(builtin)
-;
+res = runtime_initialize_Init_WFTactics(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data(builtin)
-;
+res = runtime_initialize_Init_Data(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_System(builtin)
-;
+res = runtime_initialize_Init_System(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Util(builtin)
-;
+res = runtime_initialize_Init_Util(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Dynamic(builtin)
-;
+res = runtime_initialize_Init_Dynamic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_ShareCommon(builtin)
-;
+res = runtime_initialize_Init_ShareCommon(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_MetaTypes(builtin)
-;
+res = runtime_initialize_Init_MetaTypes(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Meta(builtin)
-;
+res = runtime_initialize_Init_Meta(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_NotationExtra(builtin)
-;
+res = runtime_initialize_Init_NotationExtra(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_SimpLemmas(builtin)
-;
+res = runtime_initialize_Init_SimpLemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_PropLemmas(builtin)
-;
+res = runtime_initialize_Init_PropLemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Hints(builtin)
-;
+res = runtime_initialize_Init_Hints(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Conv(builtin)
-;
+res = runtime_initialize_Init_Conv(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Guard(builtin)
-;
+res = runtime_initialize_Init_Guard(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Simproc(builtin)
-;
+res = runtime_initialize_Init_Simproc(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_CbvSimproc(builtin)
-;
+res = runtime_initialize_Init_CbvSimproc(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_SizeOfLemmas(builtin)
-;
+res = runtime_initialize_Init_SizeOfLemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_BinderPredicates(builtin)
-;
+res = runtime_initialize_Init_BinderPredicates(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Ext(builtin)
-;
+res = runtime_initialize_Init_Ext(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Omega(builtin)
-;
+res = runtime_initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_MacroTrace(builtin)
-;
+res = runtime_initialize_Init_MacroTrace(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Grind(builtin)
-;
+res = runtime_initialize_Init_Grind(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_GrindInstances(builtin)
-;
+res = runtime_initialize_Init_GrindInstances(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Sym(builtin)
-;
+res = runtime_initialize_Init_Sym(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_While(builtin)
-;
+res = runtime_initialize_Init_While(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Syntax(builtin)
-;
+res = runtime_initialize_Init_Syntax(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Internal(builtin)
-;
+res = runtime_initialize_Init_Internal(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Try(builtin)
-;
+res = runtime_initialize_Init_Try(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_BinderNameHint(builtin)
-;
+res = runtime_initialize_Init_BinderNameHint(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Task(builtin)
-;
+res = runtime_initialize_Init_Task(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_MethodSpecsSimp(builtin)
-;
+res = runtime_initialize_Init_MethodSpecsSimp(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_LawfulBEqTactics(builtin)
-;
+res = runtime_initialize_Init_LawfulBEqTactics(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -236,8 +194,7 @@ LEAN_EXPORT lean_object* meta_initialize_Init(uint8_t builtin) {
 lean_object * res;
 if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_meta_initialized = true;
-res = runtime_initialize_Init_Try(builtin)
-;
+res = runtime_initialize_Init_Try(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -290,184 +247,139 @@ LEAN_EXPORT lean_object* initialize_Init(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Prelude(builtin)
-;
+res = initialize_Init_Prelude(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Notation(builtin)
-;
+res = initialize_Init_Notation(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Tactics(builtin)
-;
+res = initialize_Init_Tactics(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_TacticsExtra(builtin)
-;
+res = initialize_Init_TacticsExtra(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_ByCases(builtin)
-;
+res = initialize_Init_ByCases(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_RCases(builtin)
-;
+res = initialize_Init_RCases(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Core(builtin)
-;
+res = initialize_Init_Core(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Control(builtin)
-;
+res = initialize_Init_Control(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_WF(builtin)
-;
+res = initialize_Init_WF(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_WFComputable(builtin)
-;
+res = initialize_Init_WFComputable(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_WFTactics(builtin)
-;
+res = initialize_Init_WFTactics(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data(builtin)
-;
+res = initialize_Init_Data(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_System(builtin)
-;
+res = initialize_Init_System(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Util(builtin)
-;
+res = initialize_Init_Util(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Dynamic(builtin)
-;
+res = initialize_Init_Dynamic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_ShareCommon(builtin)
-;
+res = initialize_Init_ShareCommon(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_MetaTypes(builtin)
-;
+res = initialize_Init_MetaTypes(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Meta(builtin)
-;
+res = initialize_Init_Meta(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_NotationExtra(builtin)
-;
+res = initialize_Init_NotationExtra(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_SimpLemmas(builtin)
-;
+res = initialize_Init_SimpLemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_PropLemmas(builtin)
-;
+res = initialize_Init_PropLemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Hints(builtin)
-;
+res = initialize_Init_Hints(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Conv(builtin)
-;
+res = initialize_Init_Conv(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Guard(builtin)
-;
+res = initialize_Init_Guard(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Simproc(builtin)
-;
+res = initialize_Init_Simproc(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_CbvSimproc(builtin)
-;
+res = initialize_Init_CbvSimproc(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_SizeOfLemmas(builtin)
-;
+res = initialize_Init_SizeOfLemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_BinderPredicates(builtin)
-;
+res = initialize_Init_BinderPredicates(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Ext(builtin)
-;
+res = initialize_Init_Ext(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Omega(builtin)
-;
+res = initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_MacroTrace(builtin)
-;
+res = initialize_Init_MacroTrace(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Grind(builtin)
-;
+res = initialize_Init_Grind(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_GrindInstances(builtin)
-;
+res = initialize_Init_GrindInstances(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Sym(builtin)
-;
+res = initialize_Init_Sym(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_While(builtin)
-;
+res = initialize_Init_While(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Syntax(builtin)
-;
+res = initialize_Init_Syntax(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Internal(builtin)
-;
+res = initialize_Init_Internal(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Try(builtin)
-;
+res = initialize_Init_Try(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Try(builtin)
-;
+res = initialize_Init_Try(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_BinderNameHint(builtin)
-;
+res = initialize_Init_BinderNameHint(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Task(builtin)
-;
+res = initialize_Init_Task(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_MethodSpecsSimp(builtin)
-;
+res = initialize_Init_MethodSpecsSimp(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_LawfulBEqTactics(builtin)
-;
+res = initialize_Init_LawfulBEqTactics(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init(builtin)
-;
+res = runtime_initialize_Init(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_Init(builtin)
-;
+res = meta_initialize_Init(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_Init(builtin);

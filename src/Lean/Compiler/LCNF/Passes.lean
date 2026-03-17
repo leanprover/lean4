@@ -85,7 +85,9 @@ def saveImpure : Pass where
   phaseOut := .impure
   name := `saveImpure
   run decls := decls.mapM fun decl => do
-    (← normalizeFVarIds decl).saveImpure
+    let decl ← normalizeFVarIds decl
+    decl.saveImpure
+    modifyEnv fun env => recordFinalImpureDecl env decl.name
     return decl
   shouldAlwaysRunCheck := true
 
@@ -160,8 +162,8 @@ def builtinPassManager : PassManager := {
     pushProj (occurrence := 1),
     detectSimpleGround,
     inferVisibility (phase := .impure),
-    saveImpure, -- End of impure phase
     toposortPass,
+    saveImpure, -- End of impure phase
   ]
 }
 

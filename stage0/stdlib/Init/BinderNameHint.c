@@ -17,38 +17,38 @@ LEAN_EXPORT lean_object* l_binderNameHint___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_binderNameHint___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_binderNameHint(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_binderNameHint___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_binderNameHint___redArg(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_binderNameHint___redArg(lean_object* v_e_1_){
 _start:
 {
-lean_inc(x_1);
-return x_1;
+lean_inc(v_e_1_);
+return v_e_1_;
 }
 }
-LEAN_EXPORT lean_object* l_binderNameHint___redArg___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_binderNameHint___redArg___boxed(lean_object* v_e_2_){
 _start:
 {
-lean_object* x_2; 
-x_2 = l_binderNameHint___redArg(x_1);
-lean_dec(x_1);
-return x_2;
+lean_object* v_res_3_; 
+v_res_3_ = l_binderNameHint___redArg(v_e_2_);
+lean_dec(v_e_2_);
+return v_res_3_;
 }
 }
-LEAN_EXPORT lean_object* l_binderNameHint(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+LEAN_EXPORT lean_object* l_binderNameHint(lean_object* v_00_u03b1_4_, lean_object* v_00_u03b2_5_, lean_object* v_00_u03b3_6_, lean_object* v_v_7_, lean_object* v_binder_8_, lean_object* v_e_9_){
 _start:
 {
-lean_inc(x_6);
-return x_6;
+lean_inc(v_e_9_);
+return v_e_9_;
 }
 }
-LEAN_EXPORT lean_object* l_binderNameHint___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+LEAN_EXPORT lean_object* l_binderNameHint___boxed(lean_object* v_00_u03b1_10_, lean_object* v_00_u03b2_11_, lean_object* v_00_u03b3_12_, lean_object* v_v_13_, lean_object* v_binder_14_, lean_object* v_e_15_){
 _start:
 {
-lean_object* x_7; 
-x_7 = l_binderNameHint(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_4);
-return x_7;
+lean_object* v_res_16_; 
+v_res_16_ = l_binderNameHint(v_00_u03b1_10_, v_00_u03b2_11_, v_00_u03b3_12_, v_v_13_, v_binder_14_, v_e_15_);
+lean_dec(v_e_15_);
+lean_dec(v_binder_14_);
+lean_dec(v_v_13_);
+return v_res_16_;
 }
 }
 lean_object* runtime_initialize_Init_Prelude(uint8_t builtin);
@@ -58,12 +58,10 @@ LEAN_EXPORT lean_object* runtime_initialize_Init_BinderNameHint(uint8_t builtin)
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Init_Prelude(builtin)
-;
+res = runtime_initialize_Init_Prelude(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Tactics(builtin)
-;
+res = runtime_initialize_Init_Tactics(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -82,20 +80,16 @@ LEAN_EXPORT lean_object* initialize_Init_BinderNameHint(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Prelude(builtin)
-;
+res = initialize_Init_Prelude(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Tactics(builtin)
-;
+res = initialize_Init_Tactics(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_BinderNameHint(builtin)
-;
+res = runtime_initialize_Init_BinderNameHint(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_Init_BinderNameHint(builtin)
-;
+res = meta_initialize_Init_BinderNameHint(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_Init_BinderNameHint(builtin);

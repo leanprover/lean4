@@ -315,7 +315,7 @@ partial def foldAndCollect (oldIH newIH : FVarId) (isRecCall : Expr → Option E
             -- statement and the inferred alt types
             let dummyGoal := mkConst ``True []
             mkArrow eTypeAbst dummyGoal)
-          (onAlt := fun _altIdx altType _altParams alt => do
+          (onAlt := fun _altIdx altType _altFVars alt => do
             lambdaTelescope1 alt fun oldIH' alt => do
               forallBoundedTelescope altType (some 1) fun newIH' _goal' => do
                 let #[newIH'] := newIH' | unreachable!
@@ -333,7 +333,7 @@ partial def foldAndCollect (oldIH newIH : FVarId) (isRecCall : Expr → Option E
           (onMotive := fun _motiveArgs motiveBody => do
             let some (_extra, body) := motiveBody.arrow? | throwError "motive not an arrow"
             M.eval (foldAndCollect oldIH newIH isRecCall body))
-          (onAlt := fun _altIdx altType _altParams alt => do
+          (onAlt := fun _altIdx altType _altFVars alt => do
             lambdaTelescope1 alt fun oldIH' alt => do
             -- We don't have suitable newIH around here, but we don't care since
             -- we just want to fold calls. So lets create a fake one.
@@ -691,7 +691,7 @@ partial def buildInductionBody (toErase toClear : Array FVarId) (goal : Expr)
         (addEqualities := true)
         (onParams := (foldAndCollect oldIH newIH isRecCall ·))
         (onMotive := fun xs _body => pure (absMotiveBody.beta (Array.mask mask xs)))
-        (onAlt := fun altIdx expAltType _altParams alt => M2.branch do
+        (onAlt := fun altIdx expAltType _altFVars alt => M2.branch do
           lambdaTelescope1 alt fun oldIH' alt => do
             forallBoundedTelescope expAltType (some 1) fun newIH' goal' => do
               let #[newIH'] := newIH' | unreachable!
@@ -714,7 +714,7 @@ partial def buildInductionBody (toErase toClear : Array FVarId) (goal : Expr)
         (addEqualities := true)
         (onParams := (foldAndCollect oldIH newIH isRecCall ·))
         (onMotive := fun xs _body => pure (absMotiveBody.beta (Array.mask mask xs)))
-        (onAlt := fun altIdx expAltType _altParams alt => M2.branch do
+        (onAlt := fun altIdx expAltType _altFVars alt => M2.branch do
           withRewrittenMotiveArg expAltType (rwMatcher altIdx) fun expAltType' =>
             buildInductionBody toErase toClear expAltType' oldIH newIH isRecCall alt)
       return matcherApp'.toExpr

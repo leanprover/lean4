@@ -22,20 +22,16 @@ LEAN_EXPORT lean_object* runtime_initialize_Std_Data_DTreeMap_Internal_Ordered(u
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Std_Data_DTreeMap_Internal_Def(builtin)
-;
+res = runtime_initialize_Std_Data_DTreeMap_Internal_Def(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Data_Internal_Cut(builtin)
-;
+res = runtime_initialize_Std_Data_Internal_Cut(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_List_Pairwise(builtin)
-;
+res = runtime_initialize_Init_Data_List_Pairwise(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_List_Sublist(builtin)
-;
+res = runtime_initialize_Init_Data_List_Sublist(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -56,28 +52,22 @@ LEAN_EXPORT lean_object* initialize_Std_Data_DTreeMap_Internal_Ordered(uint8_t b
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Std_Data_DTreeMap_Internal_Def(builtin)
-;
+res = initialize_Std_Data_DTreeMap_Internal_Def(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_Internal_Cut(builtin)
-;
+res = initialize_Std_Data_Internal_Cut(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_List_Pairwise(builtin)
-;
+res = initialize_Init_Data_List_Pairwise(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_List_Sublist(builtin)
-;
+res = initialize_Init_Data_List_Sublist(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Data_DTreeMap_Internal_Ordered(builtin)
-;
+res = runtime_initialize_Std_Data_DTreeMap_Internal_Ordered(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_Std_Data_DTreeMap_Internal_Ordered(builtin)
-;
+res = meta_initialize_Std_Data_DTreeMap_Internal_Ordered(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_Std_Data_DTreeMap_Internal_Ordered(builtin);

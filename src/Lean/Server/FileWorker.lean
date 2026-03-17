@@ -654,15 +654,17 @@ section NotificationHandling
 def handleRpcRelease (p : Lsp.RpcReleaseParams) : WorkerM Unit := do
   -- NOTE(WN): when the worker restarts e.g. due to changed imports, we may receive `rpc/release`
   -- for the previous RPC session. This is fine, just ignore.
+  let ctx ← read
   if let some seshRef := (← get).rpcSessions.get? p.sessionId then
     let monoMsNow ← IO.monoMsNow
-    let discardRefs : StateM RpcObjectStore Unit := do
-      for ref in p.refs do
-        discard do rpcReleaseRef ref
-    seshRef.modify fun st =>
-      let st := st.keptAlive monoMsNow
-      let ((), objects) := discardRefs.run st.objects
-      { st with objects }
+    let wireFormat ← seshRef.modifyGet fun st =>
+      (st.objects.wireFormat, st.keptAlive monoMsNow)
+    for ref in p.refs do
+      let .ok p := ref.getObjVal? wireFormat.refFieldName >>= fromJson?
+        | ctx.hLog.putStrLn s!"malformed RPC ref (wire format {toJson wireFormat}): {ref.compress}"
+      seshRef.modify fun st =>
+        let (_, objects) := rpcReleaseRef ⟨p⟩ |>.run st.objects
+        { st with objects }
 
 def handleRpcKeepAlive (p : Lsp.RpcKeepAliveParams) : WorkerM Unit := do
   match (← get).rpcSessions.get? p.sessionId with
@@ -676,7 +678,8 @@ end NotificationHandling
 section RequestHandling
 
 def handleRpcConnect (_ : RpcConnectParams) : WorkerM RpcConnected := do
-  let (newId, newSesh) ← RpcSession.new
+  let wireFormat := (← read).initParams.capabilities.rpcWireFormat
+  let (newId, newSesh) ← RpcSession.new wireFormat
   let newSeshRef ← IO.mkRef newSesh
   modify fun st => { st with rpcSessions := st.rpcSessions.insert newId newSeshRef }
   return { sessionId := newId }

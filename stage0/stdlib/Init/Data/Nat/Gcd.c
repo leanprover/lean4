@@ -13,78 +13,78 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* lean_nat_gcd(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Nat_gcd___boxed(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
+lean_object* lean_nat_gcd(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Nat_gcd___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_dvdProdDvdOfDvdProd___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_dvdProdDvdOfDvdProd___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_dvdProdDvdOfDvdProd(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_dvdProdDvdOfDvdProd___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Nat_gcd___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Nat_gcd___boxed(lean_object* v_m_3_, lean_object* v_n_4_){
 _start:
 {
-lean_object* x_3; 
-x_3 = lean_nat_gcd(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
-return x_3;
+lean_object* v_res_5_; 
+v_res_5_ = lean_nat_gcd(v_m_3_, v_n_4_);
+lean_dec(v_n_4_);
+lean_dec(v_m_3_);
+return v_res_5_;
 }
 }
-LEAN_EXPORT lean_object* l_Nat_dvdProdDvdOfDvdProd___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Nat_dvdProdDvdOfDvdProd___redArg(lean_object* v_k_6_, lean_object* v_m_7_, lean_object* v_n_8_){
 _start:
 {
-lean_object* x_4; lean_object* x_5; uint8_t x_6; 
-x_4 = lean_nat_gcd(x_1, x_2);
-x_5 = lean_unsigned_to_nat(0u);
-x_6 = lean_nat_dec_eq(x_4, x_5);
-if (x_6 == 0)
+lean_object* v___x_9_; lean_object* v___x_10_; uint8_t v___x_11_; 
+v___x_9_ = lean_nat_gcd(v_k_6_, v_m_7_);
+v___x_10_ = lean_unsigned_to_nat(0u);
+v___x_11_ = lean_nat_dec_eq(v___x_9_, v___x_10_);
+if (v___x_11_ == 0)
 {
-lean_object* x_7; lean_object* x_8; 
-lean_dec(x_3);
-x_7 = lean_nat_div(x_1, x_4);
-x_8 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_8, 0, x_4);
-lean_ctor_set(x_8, 1, x_7);
-return x_8;
+lean_object* v___x_12_; lean_object* v___x_13_; 
+lean_dec(v_n_8_);
+v___x_12_ = lean_nat_div(v_k_6_, v___x_9_);
+v___x_13_ = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(v___x_13_, 0, v___x_9_);
+lean_ctor_set(v___x_13_, 1, v___x_12_);
+return v___x_13_;
 }
 else
 {
-lean_object* x_9; 
-lean_dec(x_4);
-x_9 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_9, 0, x_5);
-lean_ctor_set(x_9, 1, x_3);
-return x_9;
+lean_object* v___x_14_; 
+lean_dec(v___x_9_);
+v___x_14_ = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(v___x_14_, 0, v___x_10_);
+lean_ctor_set(v___x_14_, 1, v_n_8_);
+return v___x_14_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Nat_dvdProdDvdOfDvdProd___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Nat_dvdProdDvdOfDvdProd___redArg___boxed(lean_object* v_k_15_, lean_object* v_m_16_, lean_object* v_n_17_){
 _start:
 {
-lean_object* x_4; 
-x_4 = l_Nat_dvdProdDvdOfDvdProd___redArg(x_1, x_2, x_3);
-lean_dec(x_2);
-lean_dec(x_1);
-return x_4;
+lean_object* v_res_18_; 
+v_res_18_ = l_Nat_dvdProdDvdOfDvdProd___redArg(v_k_15_, v_m_16_, v_n_17_);
+lean_dec(v_m_16_);
+lean_dec(v_k_15_);
+return v_res_18_;
 }
 }
-LEAN_EXPORT lean_object* l_Nat_dvdProdDvdOfDvdProd(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Nat_dvdProdDvdOfDvdProd(lean_object* v_k_19_, lean_object* v_m_20_, lean_object* v_n_21_, lean_object* v_h_22_){
 _start:
 {
-lean_object* x_5; 
-x_5 = l_Nat_dvdProdDvdOfDvdProd___redArg(x_1, x_2, x_3);
-return x_5;
+lean_object* v___x_23_; 
+v___x_23_ = l_Nat_dvdProdDvdOfDvdProd___redArg(v_k_19_, v_m_20_, v_n_21_);
+return v___x_23_;
 }
 }
-LEAN_EXPORT lean_object* l_Nat_dvdProdDvdOfDvdProd___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Nat_dvdProdDvdOfDvdProd___boxed(lean_object* v_k_24_, lean_object* v_m_25_, lean_object* v_n_26_, lean_object* v_h_27_){
 _start:
 {
-lean_object* x_5; 
-x_5 = l_Nat_dvdProdDvdOfDvdProd(x_1, x_2, x_3, x_4);
-lean_dec(x_2);
-lean_dec(x_1);
-return x_5;
+lean_object* v_res_28_; 
+v_res_28_ = l_Nat_dvdProdDvdOfDvdProd(v_k_24_, v_m_25_, v_n_26_, v_h_27_);
+lean_dec(v_m_25_);
+lean_dec(v_k_24_);
+return v_res_28_;
 }
 }
 lean_object* runtime_initialize_Init_NotationExtra(uint8_t builtin);
@@ -97,24 +97,19 @@ LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Nat_Gcd(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Init_NotationExtra(builtin)
-;
+res = runtime_initialize_Init_NotationExtra(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Nat_Div_Basic(builtin)
-;
+res = runtime_initialize_Init_Data_Nat_Div_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Nat_Dvd(builtin)
-;
+res = runtime_initialize_Init_Data_Nat_Dvd(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_RCases(builtin)
-;
+res = runtime_initialize_Init_RCases(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_WFTactics(builtin)
-;
+res = runtime_initialize_Init_WFTactics(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -136,32 +131,25 @@ LEAN_EXPORT lean_object* initialize_Init_Data_Nat_Gcd(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_NotationExtra(builtin)
-;
+res = initialize_Init_NotationExtra(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Div_Basic(builtin)
-;
+res = initialize_Init_Data_Nat_Div_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Dvd(builtin)
-;
+res = initialize_Init_Data_Nat_Dvd(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_RCases(builtin)
-;
+res = initialize_Init_RCases(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_WFTactics(builtin)
-;
+res = initialize_Init_WFTactics(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Nat_Gcd(builtin)
-;
+res = runtime_initialize_Init_Data_Nat_Gcd(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_Init_Data_Nat_Gcd(builtin)
-;
+res = meta_initialize_Init_Data_Nat_Gcd(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_Init_Data_Nat_Gcd(builtin);

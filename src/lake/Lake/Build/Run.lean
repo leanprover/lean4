@@ -260,14 +260,14 @@ public def monitorJobs
 public def noBuildCode : ExitCode := 3
 
 def Workspace.saveOutputs
-  [logger : MonadLog BaseIO] (ws : Workspace)
+  [logger : MonadLog BaseIO] (ws : Workspace) (outputsRef? : Option CacheRef)
   (out : IO.FS.Stream) (outputsFile : FilePath) (isVerbose : Bool)
 : BaseIO Unit := do
   unless ws.isRootArtifactCacheWritable do
     logWarning s!"{ws.root.prettyName}: \
       the artifact cache is not enabled for this package, so the artifacts described \
       by the mappings produced by `-o` will not necessarily be available in the cache."
-  if let some ref := ws.root.outputsRef? then
+  if let some ref := outputsRef? then
     match (← (← ref.get).writeFile outputsFile {}) with
     | .ok _ log =>
       if !log.isEmpty && isVerbose then
@@ -314,27 +314,34 @@ def monitorJob (ctx : MonitorContext) (job : Job α) : BaseIO (BuildResult α) :
   else
     return {toMonitorResult := result, out := .error "build failed"}
 
-def mkBuildContext' (ws : Workspace) (cfg : BuildConfig) (jobs : JobQueue) : BuildContext where
+def mkBuildContext'
+  (ws : Workspace) (cfg : BuildConfig) (jobs : JobQueue)
+: BaseIO BuildContext := return {
   opaqueWs := ws
   toBuildConfig := cfg
+  outputsRef? := ← id do
+    if cfg.outputsFile?.isSome then
+      some <$> CacheRef.mk
+    else
+      return none
   registeredJobs := jobs
   leanTrace := .ofHash (pureHash ws.lakeEnv.leanGithash)
     s!"Lean {Lean.versionStringCore}, commit {ws.lakeEnv.leanGithash}"
+}
 
 def Workspace.startBuild
-  (ws : Workspace)  (cfg : BuildConfig) (jobs : JobQueue) (build : FetchM α)
-  (caption := "job computation")
+  (bctx : BuildContext) (build : FetchM α) (caption := "job computation")
 : BaseIO (Job α) := do
-  let bctx := mkBuildContext' ws cfg jobs
   let compute := Job.async build (caption := caption)
   compute.run.run'.run bctx |>.run nilTrace
 
-def Workspace.finalizeBuild
-  (ws : Workspace) (cfg : BuildConfig) (ctx : MonitorContext) (result : BuildResult α)
+def finalizeBuild
+  (cfg : BuildConfig) (bctx : BuildContext ) (mctx : MonitorContext) (result : BuildResult α)
 : IO α := do
-  reportResult cfg ctx.out result
+  reportResult cfg mctx.out result
   if let some outputsFile := cfg.outputsFile? then
-    ws.saveOutputs (logger := ctx.logger) ctx.out outputsFile (cfg.verbosity matches .verbose)
+    bctx.workspace.saveOutputs (logger := mctx.logger)
+      bctx.outputsRef? mctx.out outputsFile (cfg.verbosity matches .verbose)
   match result.out with
   | .ok a =>
     return a
@@ -354,9 +361,10 @@ public def Workspace.runFetchM
 : IO α := do
   let jobs ← mkJobQueue
   let mctx ← mkMonitorContext cfg jobs
-  let job ← ws.startBuild cfg jobs build caption
+  let bctx ← mkBuildContext' ws cfg jobs
+  let job ← startBuild bctx build caption
   let result ← monitorJob mctx job
-  ws.finalizeBuild cfg mctx result
+  finalizeBuild cfg bctx mctx result
 
 def monitorBuild (mctx : MonitorContext) (job : Job (Job α)) : BaseIO (BuildResult α) := do
   let result ← monitorJob mctx job
@@ -382,7 +390,8 @@ public def Workspace.checkNoBuild
   let jobs ← mkJobQueue
   let cfg := {noBuild := true}
   let mctx ← mkMonitorContext cfg jobs
-  let job ← ws.startBuild cfg jobs build
+  let bctx ← mkBuildContext' ws cfg jobs
+  let job ← startBuild bctx build
   let result ← monitorBuild mctx job
   return result.isOk -- `isOk` means no failures, and thus no `--no-build` failures
 
@@ -392,9 +401,10 @@ public def Workspace.runBuild
 : IO α := do
   let jobs ← mkJobQueue
   let mctx ← mkMonitorContext cfg jobs
-  let job ← ws.startBuild cfg jobs build
+  let bctx ← mkBuildContext' ws cfg jobs
+  let job ← startBuild bctx build
   let result ← monitorBuild mctx job
-  ws.finalizeBuild cfg mctx result
+  finalizeBuild cfg bctx mctx result
 
 /-- Produce a build job in the Lake monad's workspace and await the result. -/
 @[inline] public def runBuild

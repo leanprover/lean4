@@ -202,6 +202,47 @@ private def forallAltTelescope'
   ) k
 
 /--
+Fvars/exprs introduced in the telescope of a matcher alternative during `transform`.
+
+* `args` are the values passed to `instantiateLambda` on the original alt. They usually
+  coincide with `fields`, but may include non-fvar values (e.g. `Unit.unit` for thunked alts).
+* `fields` are the constructor-field fvars (proper fvar subset of `args`).
+* `overlaps` are overlap-parameter fvars (splitter path only, for non-`casesOn` splitters).
+* `discrEqs` are discriminant-equation fvars from the matcher's own type (`numDiscrEqs`).
+* `extraEqs` are equation fvars added by the `addEqualities` flag.
+
+**Example.** `transform` with `addEqualities := true` on a `Nat.casesOn` application
+`Nat.casesOn (motive := …) n alt₀ alt₁` opens alt telescopes:
+```
+Alt 0 (zero):  (heq : n = Nat.zero) → motive Nat.zero
+  ⟹ { args := #[], fields := #[], extraEqs := #[heq] }
+
+Alt 1 (succ):  (k : Nat) → (heq : n = Nat.succ k) → motive (Nat.succ k)
+  ⟹ { args := #[k], fields := #[k], extraEqs := #[heq] }
+```
+-/
+structure TransformAltFVars where
+  /-- Arguments for `instantiateLambda` on the original alternative (see example above).
+  May include non-fvar values like `Unit.unit` for thunked alternatives. -/
+  args : Array Expr := #[]
+  /-- Constructor field fvars, i.e. the proper fvar subset of `args` (see example above). -/
+  fields : Array Expr
+  /-- Overlap parameter fvars (non-casesOn splitters only). -/
+  overlaps : Array Expr := #[]
+  /-- Discriminant equation fvars from the matcher's own type (`numDiscrEqs`). -/
+  discrEqs : Array Expr := #[]
+  /-- Extra equation fvars added by `addEqualities` (see `heq` in the example above). -/
+  extraEqs : Array Expr := #[]
+
+/-- The `altParams` that were used for `instantiateLambda alt altParams` inside `transform`. -/
+def TransformAltFVars.altParams (fvars : TransformAltFVars) : Array Expr :=
+  fvars.args ++ fvars.discrEqs
+
+/-- All proper fvars in binding order, matching the lambdas that `transform` wraps around the alt result. -/
+def TransformAltFVars.all (fvars : TransformAltFVars) : Array Expr :=
+  fvars.fields ++ fvars.overlaps ++ fvars.discrEqs ++ fvars.extraEqs
+
+/--
 Performs a possibly type-changing transformation to a `MatcherApp`.
 
 * `onParams` is run on each parameter and discriminant
@@ -229,7 +270,7 @@ def transform
     (addEqualities : Bool := false)
     (onParams : Expr → n Expr := pure)
     (onMotive : Array Expr → Expr → n Expr := fun _ e => pure e)
-    (onAlt : Nat → Expr → Array Expr → Expr → n Expr := fun _ _ _ e => pure e)
+    (onAlt : Nat → Expr → TransformAltFVars → Expr → n Expr := fun _ _ _ e => pure e)
     (onRemaining : Array Expr → n (Array Expr) := pure) :
     n MatcherApp := do
 
@@ -331,7 +372,7 @@ def transform
               let altParams := args ++ ys3
               let alt ← try instantiateLambda alt altParams
                         catch _ => throwError "unexpected matcher application, insufficient number of parameters in alternative"
-              let alt' ← onAlt altIdx altType altParams alt
+              let alt' ← onAlt altIdx altType { args, fields := ys, overlaps := ys2, discrEqs := ys3, extraEqs := ys4 } alt
               mkLambdaFVars (ys ++ ys2 ++ ys3 ++ ys4) alt'
         if splitterAltInfo.hasUnitThunk then
           -- The splitter expects a thunked alternative, but we don't want the `x : Unit` to be in
@@ -372,7 +413,7 @@ def transform
           let names ← lambdaTelescope alt fun xs _ => xs.mapM (·.fvarId!.getUserName)
           withUserNames xs names do
             let alt ← instantiateLambda alt xs
-            let alt' ← onAlt altIdx altType xs alt
+            let alt' ← onAlt altIdx altType { args := xs, fields := xs, extraEqs := ys4 } alt
             mkLambdaFVars (xs ++ ys4) alt'
       alts' := alts'.push alt'
 
@@ -446,7 +487,7 @@ def inferMatchType (matcherApp : MatcherApp) : MetaM MatcherApp := do
       }
       mkArrowN extraParams typeMatcherApp.toExpr
     )
-    (onAlt := fun _altIdx expAltType _altParams alt => do
+    (onAlt := fun _altIdx expAltType _altFVars alt => do
       let altType ← inferType alt
       let eq ← mkEq expAltType altType
       let proof ← mkFreshExprSyntheticOpaqueMVar eq

@@ -57,160 +57,121 @@ LEAN_EXPORT lean_object* runtime_initialize_Lean_Compiler_LCNF(uint8_t builtin) 
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Lean_Compiler_LCNF_AlphaEqv(builtin)
-;
+res = runtime_initialize_Lean_Compiler_LCNF_AlphaEqv(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Compiler_LCNF_Basic(builtin)
-;
+res = runtime_initialize_Lean_Compiler_LCNF_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Compiler_LCNF_Bind(builtin)
-;
+res = runtime_initialize_Lean_Compiler_LCNF_Bind(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Compiler_LCNF_Check(builtin)
-;
+res = runtime_initialize_Lean_Compiler_LCNF_Check(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Compiler_LCNF_CompilerM(builtin)
-;
+res = runtime_initialize_Lean_Compiler_LCNF_CompilerM(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Compiler_LCNF_CSE(builtin)
-;
+res = runtime_initialize_Lean_Compiler_LCNF_CSE(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Compiler_LCNF_DependsOn(builtin)
-;
+res = runtime_initialize_Lean_Compiler_LCNF_DependsOn(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Compiler_LCNF_ElimDead(builtin)
-;
+res = runtime_initialize_Lean_Compiler_LCNF_ElimDead(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Compiler_LCNF_FixedParams(builtin)
-;
+res = runtime_initialize_Lean_Compiler_LCNF_FixedParams(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Compiler_LCNF_InferType(builtin)
-;
+res = runtime_initialize_Lean_Compiler_LCNF_InferType(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Compiler_LCNF_JoinPoints(builtin)
-;
+res = runtime_initialize_Lean_Compiler_LCNF_JoinPoints(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Compiler_LCNF_LCtx(builtin)
-;
+res = runtime_initialize_Lean_Compiler_LCNF_LCtx(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Compiler_LCNF_Level(builtin)
-;
+res = runtime_initialize_Lean_Compiler_LCNF_Level(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Compiler_LCNF_Main(builtin)
-;
+res = runtime_initialize_Lean_Compiler_LCNF_Main(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Compiler_LCNF_Passes(builtin)
-;
+res = runtime_initialize_Lean_Compiler_LCNF_Passes(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Compiler_LCNF_PassManager(builtin)
-;
+res = runtime_initialize_Lean_Compiler_LCNF_PassManager(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Compiler_LCNF_PhaseExt(builtin)
-;
+res = runtime_initialize_Lean_Compiler_LCNF_PhaseExt(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Compiler_LCNF_PrettyPrinter(builtin)
-;
+res = runtime_initialize_Lean_Compiler_LCNF_PrettyPrinter(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Compiler_LCNF_PullFunDecls(builtin)
-;
+res = runtime_initialize_Lean_Compiler_LCNF_PullFunDecls(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Compiler_LCNF_PullLetDecls(builtin)
-;
+res = runtime_initialize_Lean_Compiler_LCNF_PullLetDecls(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Compiler_LCNF_ReduceJpArity(builtin)
-;
+res = runtime_initialize_Lean_Compiler_LCNF_ReduceJpArity(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Compiler_LCNF_Simp(builtin)
-;
+res = runtime_initialize_Lean_Compiler_LCNF_Simp(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Compiler_LCNF_Specialize(builtin)
-;
+res = runtime_initialize_Lean_Compiler_LCNF_Specialize(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Compiler_LCNF_SpecInfo(builtin)
-;
+res = runtime_initialize_Lean_Compiler_LCNF_SpecInfo(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Compiler_LCNF_ToDecl(builtin)
-;
+res = runtime_initialize_Lean_Compiler_LCNF_ToDecl(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Compiler_LCNF_ToExpr(builtin)
-;
+res = runtime_initialize_Lean_Compiler_LCNF_ToExpr(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Compiler_LCNF_ToLCNF(builtin)
-;
+res = runtime_initialize_Lean_Compiler_LCNF_ToLCNF(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Compiler_LCNF_Types(builtin)
-;
+res = runtime_initialize_Lean_Compiler_LCNF_Types(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Compiler_LCNF_Util(builtin)
-;
+res = runtime_initialize_Lean_Compiler_LCNF_Util(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Compiler_LCNF_ConfigOptions(builtin)
-;
+res = runtime_initialize_Lean_Compiler_LCNF_ConfigOptions(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Compiler_LCNF_MonoTypes(builtin)
-;
+res = runtime_initialize_Lean_Compiler_LCNF_MonoTypes(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Compiler_LCNF_ToMono(builtin)
-;
+res = runtime_initialize_Lean_Compiler_LCNF_ToMono(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Compiler_LCNF_MonadScope(builtin)
-;
+res = runtime_initialize_Lean_Compiler_LCNF_MonadScope(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Compiler_LCNF_Closure(builtin)
-;
+res = runtime_initialize_Lean_Compiler_LCNF_Closure(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Compiler_LCNF_LambdaLifting(builtin)
-;
+res = runtime_initialize_Lean_Compiler_LCNF_LambdaLifting(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Compiler_LCNF_ReduceArity(builtin)
-;
+res = runtime_initialize_Lean_Compiler_LCNF_ReduceArity(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Compiler_LCNF_Probing(builtin)
-;
+res = runtime_initialize_Lean_Compiler_LCNF_Probing(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Compiler_LCNF_Irrelevant(builtin)
-;
+res = runtime_initialize_Lean_Compiler_LCNF_Irrelevant(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Compiler_LCNF_SplitSCC(builtin)
-;
+res = runtime_initialize_Lean_Compiler_LCNF_SplitSCC(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -266,168 +227,127 @@ LEAN_EXPORT lean_object* initialize_Lean_Compiler_LCNF(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Compiler_LCNF_AlphaEqv(builtin)
-;
+res = initialize_Lean_Compiler_LCNF_AlphaEqv(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Compiler_LCNF_Basic(builtin)
-;
+res = initialize_Lean_Compiler_LCNF_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Compiler_LCNF_Bind(builtin)
-;
+res = initialize_Lean_Compiler_LCNF_Bind(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Compiler_LCNF_Check(builtin)
-;
+res = initialize_Lean_Compiler_LCNF_Check(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Compiler_LCNF_CompilerM(builtin)
-;
+res = initialize_Lean_Compiler_LCNF_CompilerM(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Compiler_LCNF_CSE(builtin)
-;
+res = initialize_Lean_Compiler_LCNF_CSE(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Compiler_LCNF_DependsOn(builtin)
-;
+res = initialize_Lean_Compiler_LCNF_DependsOn(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Compiler_LCNF_ElimDead(builtin)
-;
+res = initialize_Lean_Compiler_LCNF_ElimDead(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Compiler_LCNF_FixedParams(builtin)
-;
+res = initialize_Lean_Compiler_LCNF_FixedParams(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Compiler_LCNF_InferType(builtin)
-;
+res = initialize_Lean_Compiler_LCNF_InferType(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Compiler_LCNF_JoinPoints(builtin)
-;
+res = initialize_Lean_Compiler_LCNF_JoinPoints(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Compiler_LCNF_LCtx(builtin)
-;
+res = initialize_Lean_Compiler_LCNF_LCtx(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Compiler_LCNF_Level(builtin)
-;
+res = initialize_Lean_Compiler_LCNF_Level(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Compiler_LCNF_Main(builtin)
-;
+res = initialize_Lean_Compiler_LCNF_Main(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Compiler_LCNF_Passes(builtin)
-;
+res = initialize_Lean_Compiler_LCNF_Passes(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Compiler_LCNF_PassManager(builtin)
-;
+res = initialize_Lean_Compiler_LCNF_PassManager(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Compiler_LCNF_PhaseExt(builtin)
-;
+res = initialize_Lean_Compiler_LCNF_PhaseExt(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Compiler_LCNF_PrettyPrinter(builtin)
-;
+res = initialize_Lean_Compiler_LCNF_PrettyPrinter(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Compiler_LCNF_PullFunDecls(builtin)
-;
+res = initialize_Lean_Compiler_LCNF_PullFunDecls(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Compiler_LCNF_PullLetDecls(builtin)
-;
+res = initialize_Lean_Compiler_LCNF_PullLetDecls(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Compiler_LCNF_ReduceJpArity(builtin)
-;
+res = initialize_Lean_Compiler_LCNF_ReduceJpArity(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Compiler_LCNF_Simp(builtin)
-;
+res = initialize_Lean_Compiler_LCNF_Simp(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Compiler_LCNF_Specialize(builtin)
-;
+res = initialize_Lean_Compiler_LCNF_Specialize(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Compiler_LCNF_SpecInfo(builtin)
-;
+res = initialize_Lean_Compiler_LCNF_SpecInfo(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Compiler_LCNF_ToDecl(builtin)
-;
+res = initialize_Lean_Compiler_LCNF_ToDecl(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Compiler_LCNF_ToExpr(builtin)
-;
+res = initialize_Lean_Compiler_LCNF_ToExpr(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Compiler_LCNF_ToLCNF(builtin)
-;
+res = initialize_Lean_Compiler_LCNF_ToLCNF(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Compiler_LCNF_Types(builtin)
-;
+res = initialize_Lean_Compiler_LCNF_Types(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Compiler_LCNF_Util(builtin)
-;
+res = initialize_Lean_Compiler_LCNF_Util(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Compiler_LCNF_ConfigOptions(builtin)
-;
+res = initialize_Lean_Compiler_LCNF_ConfigOptions(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Compiler_LCNF_MonoTypes(builtin)
-;
+res = initialize_Lean_Compiler_LCNF_MonoTypes(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Compiler_LCNF_ToMono(builtin)
-;
+res = initialize_Lean_Compiler_LCNF_ToMono(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Compiler_LCNF_MonadScope(builtin)
-;
+res = initialize_Lean_Compiler_LCNF_MonadScope(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Compiler_LCNF_Closure(builtin)
-;
+res = initialize_Lean_Compiler_LCNF_Closure(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Compiler_LCNF_LambdaLifting(builtin)
-;
+res = initialize_Lean_Compiler_LCNF_LambdaLifting(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Compiler_LCNF_ReduceArity(builtin)
-;
+res = initialize_Lean_Compiler_LCNF_ReduceArity(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Compiler_LCNF_Probing(builtin)
-;
+res = initialize_Lean_Compiler_LCNF_Probing(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Compiler_LCNF_Irrelevant(builtin)
-;
+res = initialize_Lean_Compiler_LCNF_Irrelevant(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Compiler_LCNF_SplitSCC(builtin)
-;
+res = initialize_Lean_Compiler_LCNF_SplitSCC(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Compiler_LCNF(builtin)
-;
+res = runtime_initialize_Lean_Compiler_LCNF(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_Lean_Compiler_LCNF(builtin)
-;
+res = meta_initialize_Lean_Compiler_LCNF(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_Lean_Compiler_LCNF(builtin);

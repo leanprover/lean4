@@ -2,7 +2,7 @@ module
 
 set_option cbv.warning false
 
-@[cbv_opaque] public def f2 (x : Nat) :=
+public def f2 (x : Nat) :=
   x + 1
 
 private axiom myAx :  f2 x = x + 1

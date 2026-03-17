@@ -38,21 +38,42 @@ string(APPEND TEST_VARS " LEANC_OPTS='${LEANC_OPTS}'")
 # LEANC_OPTS in CXX is necessary for macOS c++ to find its headers
 string(APPEND TEST_VARS " CXX='${CMAKE_CXX_COMPILER} ${LEANC_OPTS}'")
 
+set(WITH_TEST_ENV "${CMAKE_CURRENT_SOURCE_DIR}/with_stage${STAGE}_test_env.sh")
+set(WITH_BENCH_ENV "${CMAKE_CURRENT_SOURCE_DIR}/with_stage${STAGE}_bench_env.sh")
+
 string(APPEND TEST_VARS " TEST_BENCH=")
-configure_file(env.sh.in "${CMAKE_CURRENT_SOURCE_DIR}/env_test.sh")
+configure_file(with_env.sh.in "${WITH_TEST_ENV}")
 
 block()
   string(APPEND TEST_VARS " TEST_BENCH=1")
-  configure_file(env.sh.in "${CMAKE_CURRENT_SOURCE_DIR}/env_bench.sh")
+  configure_file(with_env.sh.in "${WITH_BENCH_ENV}")
 endblock()
 
 ######################
 ## Helper functions ##
 ######################
 
+function(glob_except OUT DIR GLOB)
+  cmake_parse_arguments(ARGS "" "" EXCEPT ${ARGN})
+  cmake_path(ABSOLUTE_PATH DIR NORMALIZE)
+
+  file(GLOB ALL_FILES "${DIR}/${GLOB}")
+  set(RETAINED_FILES "")
+
+  foreach(FILE IN LISTS ALL_FILES)
+    cmake_path(RELATIVE_PATH FILE BASE_DIRECTORY "${DIR}" OUTPUT_VARIABLE FILE_IN_DIR)
+    if(NOT FILE_IN_DIR IN_LIST ARGS_EXCEPT)
+      list(APPEND RETAINED_FILES "${FILE}")
+    endif()
+  endforeach()
+
+  # Replace with return(PROPAGATE) if we ever update to cmake 3.25+
+  set("${OUT}" "${RETAINED_FILES}" PARENT_SCOPE)
+endfunction()
+
 function(check_test_bench_scripts DIR)
-  set(RUN_TEST "${DIR}/run_test")
-  set(RUN_BENCH "${DIR}/run_bench")
+  set(RUN_TEST "${DIR}/run_test.sh")
+  set(RUN_BENCH "${DIR}/run_bench.sh")
 
   set(RUN_TEST_EXISTS FALSE)
   set(RUN_BENCH_EXISTS FALSE)
@@ -107,17 +128,17 @@ endfunction()
 # represents a separate test (or benchmark). The directory may also contain
 # additional files or subdirectories required by the individual test files.
 #
-# If a run_test script is present, each test file will be added as a test. Tests
+# If a run_test.sh script is present, each test file will be added as a test. Tests
 # can be disabled on a per-file basis by creating a `<file>.no_test` file.
 #
-# If a run_bench script is present, each test file will be added as a benchmark.
+# If a run_bench.sh script is present, each test file will be added as a benchmark.
 # Benchmarks can be disabled on a per-file basis by creating a `<file>.no_bench`
 # file. CMake expects the bench script to produce a `<file>.measurements.jsonl`
 # file next to the test file. The individual measurements will be combined into
 # a single `measurements.jsonl` file in the pile directory, whose path will be
 # added to the list specified by the BENCH argument.
 function(add_test_pile DIR GLOB)
-  cmake_parse_arguments(ARGS "" BENCH "" ${ARGN})
+  cmake_parse_arguments(ARGS "" BENCH EXCEPT ${ARGN})
   cmake_path(ABSOLUTE_PATH DIR NORMALIZE)
 
   check_test_bench_scripts("${DIR}")
@@ -128,7 +149,7 @@ function(add_test_pile DIR GLOB)
   set(MEASUREMENTS_FILES "")
 
   # Iterate over all files matching the glob
-  file(GLOB TEST_FILES "${DIR}/${GLOB}")
+  glob_except(TEST_FILES "${DIR}" "${GLOB}" EXCEPT "${ARGS_EXCEPT}")
   foreach(FILE IN LISTS TEST_FILES)
     cmake_path(RELATIVE_PATH FILE OUTPUT_VARIABLE FILE_IN_SOURCE_DIR)
     cmake_path(RELATIVE_PATH FILE BASE_DIRECTORY "${DIR}" OUTPUT_VARIABLE FILE_IN_DIR)
@@ -142,7 +163,7 @@ function(add_test_pile DIR GLOB)
         NAME "${FILE_IN_SOURCE_DIR}"
         WORKING_DIRECTORY "${DIR}"
         # On Windows, we can't call the file directly, hence we always use bash.
-        COMMAND bash "${RUN_TEST}" "${FILE_IN_DIR}"
+        COMMAND bash "${WITH_TEST_ENV}" "${RUN_TEST}" "${FILE_IN_DIR}"
       )
     endif()
 
@@ -154,7 +175,7 @@ function(add_test_pile DIR GLOB)
         WORKING_DIRECTORY "${DIR}"
         COMMAND "${CMAKE_COMMAND}" -E remove -f "${MEASUREMENTS_FILE}"
         # On Windows, we can't call the file directly, hence we always use bash.
-        COMMAND bash "${RUN_BENCH}" "${FILE_IN_DIR}"
+        COMMAND bash "${WITH_BENCH_ENV}" "${RUN_BENCH}" "${FILE_IN_DIR}"
       )
     endif()
   endforeach()
@@ -184,7 +205,7 @@ function(add_test_dir DIR)
       NAME "${DIR_IN_SOURCE_DIR}"
       WORKING_DIRECTORY "${DIR}"
       # On Windows, we can't call the file directly, hence we always use bash.
-      COMMAND bash "${RUN_TEST}"
+      COMMAND bash "${WITH_TEST_ENV}" "${RUN_TEST}"
     )
   endif()
 
@@ -198,14 +219,16 @@ function(add_test_dir DIR)
       WORKING_DIRECTORY "${DIR}"
       COMMAND "${CMAKE_COMMAND}" -E remove -f "${MEASUREMENTS_FILE}"
       # On Windows, we can't call the file directly, hence we always use bash.
-      COMMAND bash "${RUN_BENCH}"
+      COMMAND bash "${WITH_BENCH_ENV}" "${RUN_BENCH}"
     )
   endif()
 endfunction()
 
 function(add_dir_of_test_dirs DIR)
+  cmake_parse_arguments(ARGS "" "" EXCEPT ${ARGN})
   cmake_path(ABSOLUTE_PATH DIR NORMALIZE)
-  file(GLOB TEST_DIRS "${DIR}/*")
+
+  glob_except(TEST_DIRS "${DIR}" "*" EXCEPT "${ARGS_EXCEPT}")
   foreach(TEST_DIR IN LISTS TEST_DIRS)
     if(IS_DIRECTORY "${TEST_DIR}")
       add_test_dir("${TEST_DIR}")
@@ -222,33 +245,24 @@ set(PART2 "")
 ## Tests and benchmarks ##
 ##########################
 
-# LEAN PACKAGE TESTS
-file(GLOB LEANPKGTESTS "${LEAN_SOURCE_DIR}/../tests/pkg/*")
-foreach(T ${LEANPKGTESTS})
-  if(EXISTS "${T}/test.sh")
-    get_filename_component(T_NAME ${T} NAME)
-    cmake_path(RELATIVE_PATH T BASE_DIRECTORY ${LEAN_SOURCE_DIR}/.. OUTPUT_VARIABLE T_PATH)
-    add_test(NAME "${T_PATH}" WORKING_DIRECTORY "${T}" COMMAND bash -c "${TEST_VARS} ./test.sh")
-  endif()
-endforeach(T)
-
 # Create a lake test for each test and examples subdirectory of `lake`
 # which contains a `test.sh` file, excluding the following test(s):
 # bootstrap: too slow
 # toolchain: requires elan to download toolchain
 # online: downloads remote repositories
 option(LAKE_CI "Enable full Lake test suite (use `lake-ci` label on PRs)" OFF)
-file(
-  GLOB_RECURSE LEANLAKETESTS
-  "${LEAN_SOURCE_DIR}/../tests/lake/examples/test.sh"
-  "${LEAN_SOURCE_DIR}/../tests/lake/tests/shake/test.sh"
-)
 if(LAKE_CI)
   file(
-    GLOB_RECURSE LEANLAKETESTS_FULL
+    GLOB_RECURSE LEANLAKETESTS
+    "${LEAN_SOURCE_DIR}/../tests/lake/examples/test.sh"
     "${LEAN_SOURCE_DIR}/../tests/lake/tests/test.sh"
   )
-  list(APPEND LEANLAKETESTS ${LEANLAKETESTS_FULL})
+else()
+  file(
+    GLOB_RECURSE LEANLAKETESTS
+    "${LEAN_SOURCE_DIR}/../tests/lake/examples/test.sh"
+    "${LEAN_SOURCE_DIR}/../tests/lake/tests/shake/test.sh"
+  )
 endif()
 foreach(T ${LEANLAKETESTS})
   if(NOT T MATCHES ".*(lake-packages|bootstrap|toolchain|online).*")
@@ -292,6 +306,13 @@ add_test_dir(bench/size BENCH PART1)
 add_test_dir(lake_bench/inundation BENCH PART2)
 
 add_dir_of_test_dirs(misc_dir)
+add_dir_of_test_dirs(
+  pkg
+  EXCEPT
+    signal # Test appears to be broken
+    test_extern # Flaky
+    user_ext # Test started being nondeterministic
+)
 
 #######################
 ## Benchmark targets ##

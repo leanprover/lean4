@@ -20,31 +20,31 @@ uint8_t l_Std_Tactic_BVDecide_LRAT_Internal_compactLratChecker(lean_object*, lea
 uint8_t l_Std_Tactic_BVDecide_LRAT_Internal_instDecidableEqResult(uint8_t, uint8_t);
 LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_LRAT_check(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_check___boxed(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_LRAT_check(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_LRAT_check(lean_object* v_lratProof_1_, lean_object* v_cnf_2_){
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; uint8_t x_8; uint8_t x_9; 
-lean_inc_ref(x_2);
-x_3 = l_Std_Tactic_BVDecide_LRAT_Internal_CNF_convertLRAT(x_2);
-x_4 = l_Std_Sat_CNF_numLiterals(x_2);
-lean_dec_ref(x_2);
-x_5 = lean_unsigned_to_nat(1u);
-x_6 = lean_nat_add(x_4, x_5);
-lean_dec(x_4);
-x_7 = l_Std_Tactic_BVDecide_LRAT_Internal_compactLratChecker(x_6, x_3, x_1);
-x_8 = 0;
-x_9 = l_Std_Tactic_BVDecide_LRAT_Internal_instDecidableEqResult(x_7, x_8);
-return x_9;
+lean_object* v_internalFormula_3_; lean_object* v___x_4_; lean_object* v___x_5_; lean_object* v___x_6_; uint8_t v_checkerResult_7_; uint8_t v___x_8_; uint8_t v___x_9_; 
+lean_inc_ref(v_cnf_2_);
+v_internalFormula_3_ = l_Std_Tactic_BVDecide_LRAT_Internal_CNF_convertLRAT(v_cnf_2_);
+v___x_4_ = l_Std_Sat_CNF_numLiterals(v_cnf_2_);
+lean_dec_ref(v_cnf_2_);
+v___x_5_ = lean_unsigned_to_nat(1u);
+v___x_6_ = lean_nat_add(v___x_4_, v___x_5_);
+lean_dec(v___x_4_);
+v_checkerResult_7_ = l_Std_Tactic_BVDecide_LRAT_Internal_compactLratChecker(v___x_6_, v_internalFormula_3_, v_lratProof_1_);
+v___x_8_ = 0;
+v___x_9_ = l_Std_Tactic_BVDecide_LRAT_Internal_instDecidableEqResult(v_checkerResult_7_, v___x_8_);
+return v___x_9_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_check___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_check___boxed(lean_object* v_lratProof_10_, lean_object* v_cnf_11_){
 _start:
 {
-uint8_t x_3; lean_object* x_4; 
-x_3 = l_Std_Tactic_BVDecide_LRAT_check(x_1, x_2);
-lean_dec_ref(x_1);
-x_4 = lean_box(x_3);
-return x_4;
+uint8_t v_res_12_; lean_object* v_r_13_; 
+v_res_12_ = l_Std_Tactic_BVDecide_LRAT_check(v_lratProof_10_, v_cnf_11_);
+lean_dec_ref(v_lratProof_10_);
+v_r_13_ = lean_box(v_res_12_);
+return v_r_13_;
 }
 }
 lean_object* runtime_initialize_Std_Tactic_BVDecide_LRAT_Internal_Convert(uint8_t builtin);
@@ -56,20 +56,16 @@ LEAN_EXPORT lean_object* runtime_initialize_Std_Tactic_BVDecide_LRAT_Checker(uin
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Std_Tactic_BVDecide_LRAT_Internal_Convert(builtin)
-;
+res = runtime_initialize_Std_Tactic_BVDecide_LRAT_Internal_Convert(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Tactic_BVDecide_LRAT_Internal_LRATCheckerSound(builtin)
-;
+res = runtime_initialize_Std_Tactic_BVDecide_LRAT_Internal_LRATCheckerSound(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Tactic_BVDecide_LRAT_Internal_CompactLRATChecker(builtin)
-;
+res = runtime_initialize_Std_Tactic_BVDecide_LRAT_Internal_CompactLRATChecker(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Tactic_BVDecide_LRAT_Internal_CompactLRATCheckerSound(builtin)
-;
+res = runtime_initialize_Std_Tactic_BVDecide_LRAT_Internal_CompactLRATCheckerSound(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -90,28 +86,22 @@ LEAN_EXPORT lean_object* initialize_Std_Tactic_BVDecide_LRAT_Checker(uint8_t bui
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Std_Tactic_BVDecide_LRAT_Internal_Convert(builtin)
-;
+res = initialize_Std_Tactic_BVDecide_LRAT_Internal_Convert(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Tactic_BVDecide_LRAT_Internal_LRATCheckerSound(builtin)
-;
+res = initialize_Std_Tactic_BVDecide_LRAT_Internal_LRATCheckerSound(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Tactic_BVDecide_LRAT_Internal_CompactLRATChecker(builtin)
-;
+res = initialize_Std_Tactic_BVDecide_LRAT_Internal_CompactLRATChecker(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Tactic_BVDecide_LRAT_Internal_CompactLRATCheckerSound(builtin)
-;
+res = initialize_Std_Tactic_BVDecide_LRAT_Internal_CompactLRATCheckerSound(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Tactic_BVDecide_LRAT_Checker(builtin)
-;
+res = runtime_initialize_Std_Tactic_BVDecide_LRAT_Checker(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_Std_Tactic_BVDecide_LRAT_Checker(builtin)
-;
+res = meta_initialize_Std_Tactic_BVDecide_LRAT_Checker(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_Std_Tactic_BVDecide_LRAT_Checker(builtin);

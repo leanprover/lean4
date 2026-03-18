@@ -276,7 +276,7 @@ theorem find?_replicate :
 -- This isn't a `@[simp]` lemma since there is already a lemma for `l.find? p = none` for any `l`.
 theorem find?_replicate_eq_none_iff {n : Nat} {a : α} {p : α → Bool} :
     (replicate n a).find? p = none ↔ n = 0 ∨ !p a := by
-  simp [Classical.or_iff_not_imp_left]
+  simp [Classical.or_iff_not_imp_left, forall_eq_apply_imp_iff]
 
 @[simp] theorem find?_replicate_eq_some_iff {n : Nat} {a b : α} {p : α → Bool} :
     (replicate n a).find? p = some b ↔ n ≠ 0 ∧ p a ∧ a = b := by

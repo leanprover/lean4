@@ -2093,7 +2093,7 @@ theorem Spec.forIn_string
       split
       next => apply Triple.pure; simp
       next b => simp [ih _ _ hsp.next]
-  | endPos => simpa using Triple.pure _ (by simp)
+  | endPos => simpa [forall_eq_apply_imp_iff] using Triple.pure _ (by simp)
 
 /--
 The type of loop invariants used by the specifications of `for ... in ...` loops over string slices.
@@ -2178,4 +2178,4 @@ theorem Spec.forIn_stringSlice
       split
       next => apply Triple.pure; simp
       next b => simp [ih _ _ hsp.next]
-  | endPos => simpa using Triple.pure _ (by simp)
+  | endPos => simpa [forall_eq_apply_imp_iff] using Triple.pure _ (by simp)

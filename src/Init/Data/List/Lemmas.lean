@@ -3327,7 +3327,7 @@ theorem all_eq_not_any_not {l : List α} {p : α → Bool} : l.all p = !l.any (!
 
 @[simp] theorem any_replicate {n : Nat} {a : α} :
     (replicate n a).any f = if n = 0 then false else f a := by
-  cases n <;> simp [replicate_succ]
+  cases n <;> simp [replicate_succ, forall_eq_apply_imp_iff]
 
 @[simp] theorem all_replicate {n : Nat} {a : α} :
     (replicate n a).all f = if n = 0 then true else f a := by

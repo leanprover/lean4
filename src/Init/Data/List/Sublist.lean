@@ -431,7 +431,7 @@ theorem sublist_cons_iff {a : α} {l l'} :
 theorem cons_sublist_iff {a : α} {l l'} :
     a :: l <+ l' ↔ ∃ r₁ r₂, l' = r₁ ++ r₂ ∧ a ∈ r₁ ∧ l <+ r₂ := by
   induction l' with
-  | nil => simp
+  | nil => simp [forall_eq_apply_imp_iff]
   | cons a' l' ih =>
     constructor
     · intro w

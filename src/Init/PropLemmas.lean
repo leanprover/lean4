@@ -420,7 +420,7 @@ theorem forall_apply_eq_imp_iff {f : α → β} {p : β → Prop} :
     (∀ b a, f a = b → p b) ↔ ∀ a, p (f a) :=
   ⟨fun h a => h (f a) a rfl, fun h _ a hab => hab ▸ h a⟩
 
-@[simp] theorem forall_eq_apply_imp_iff {f : α → β} {p : β → Prop} :
+theorem forall_eq_apply_imp_iff {f : α → β} {p : β → Prop} :
     (∀ b a, b = f a → p b) ↔ ∀ a, p (f a) :=
   ⟨fun h a => h (f a) a rfl, fun h _ a hab => hab ▸ h a⟩
 

@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include <utility>
 #include <vector>
 #include <iostream>
+#include <cstring>
 #ifdef LEAN_WINDOWS
 #include <windows.h>
 #else
@@ -165,6 +166,30 @@ void lthread::join() { m_imp->join(); }
 extern "C" LEAN_EXPORT lean_obj_res lean_internal_set_thread_stack_size(size_t sz) {
     lthread::set_thread_stack_size(sz);
     return lean_box(0);
+}
+
+extern "C" LEAN_EXPORT lean_object * lean_run_main(lean_object * (*main_fn)(int, char **), int argc, char ** argv) {
+#ifdef LEAN_MULTI_THREAD
+    const char * stack_size_env = std::getenv("LEAN_STACK_SIZE_KB");
+    if (stack_size_env) {
+        size_t sz = std::strtoull(stack_size_env, nullptr, 10);
+        sz = sz / 4 * 4 * 1024; // as in `Shell`
+        if (sz > 0) {
+            lthread::set_thread_stack_size(sz);
+        }
+    }
+    const char * use_thread_env = std::getenv("LEAN_MAIN_USE_THREAD");
+    if (use_thread_env && std::strcmp(use_thread_env, "0") == 0) {
+        return main_fn(argc, argv);
+    }
+    // Start new thread to use given/default stack size
+    lean_object * res = nullptr;
+    lthread t([&]() { res = main_fn(argc, argv); });
+    t.join();
+    return res;
+#else
+    return main_fn(argc, argv);
+#endif
 }
 
 LEAN_THREAD_VALUE(bool, g_finalizing, false);

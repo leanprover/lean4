@@ -31,7 +31,7 @@ abort on files with invalid UTF-8.
 opaque decodeLossyUTF8 (a : @& ByteArray) : String
 
 /- Runs the `main` function of the module with `args` using the Lean interpreter. -/
-@[extern "lean_run_main"]
+@[extern "lean_eval_main"]
 opaque runMain (env : @& Environment) (opts : @& Options) (args : @& List String) : BaseIO UInt32
 
 /--

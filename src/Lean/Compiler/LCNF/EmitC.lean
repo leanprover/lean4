@@ -1077,23 +1077,11 @@ where
       "#if defined(WIN32) || defined(_WIN32)",
       "#include <windows.h>",
       "#endif",
-      "int main(int argc, char ** argv) {",
-      "#if defined(WIN32) || defined(_WIN32)",
-      "  SetErrorMode(SEM_FAILCRITICALERRORS);",
-      "  SetConsoleOutputCP(CP_UTF8);",
-      "#endif",
-      "  lean_object* in; lean_object* res;",
-      "  argv = lean_setup_args(argc, argv);",
-      if usesLeanAPI then "  lean_initialize();" else "  lean_initialize_runtime_module();",
-      s!"  res = {← getModInitFn (phases := if env.header.isModule then .runtime else .all)}(1 /* builtin */);",
-      "  lean_io_mark_end_initialization();",
-      "  if (lean_io_result_is_ok(res)) {",
-      "    lean_dec_ref(res);",
-      "    lean_init_task_manager();",
+      "lean_object* run_main(int argc, char ** argv) {"
     ]
     if ps.size == 2 then
       emitLns [
-        "    in = lean_box(0);",
+        "    lean_object* in = lean_box(0);",
         "    int i = argc;",
         "    while (i > 1) {",
         "      lean_object* n;",
@@ -1102,10 +1090,27 @@ where
         "      in = n;",
         "    }"
       ]
-      emitLn <| "    res = " ++ leanMainFn ++ "(in);"
+      emitLn <| "    return " ++ leanMainFn ++ "(in);"
     else
-      emitLn <| "    res = " ++ leanMainFn ++ "();"
-    emitLn "  }"
+      emitLn <| "    return " ++ leanMainFn ++ "();"
+    emitLns [
+      "}",
+      "int main(int argc, char ** argv) {",
+      "#if defined(WIN32) || defined(_WIN32)",
+      "  SetErrorMode(SEM_FAILCRITICALERRORS);",
+      "  SetConsoleOutputCP(CP_UTF8);",
+      "#endif",
+      "  lean_object* res;",
+      "  argv = lean_setup_args(argc, argv);",
+      if usesLeanAPI then "  lean_initialize();" else "  lean_initialize_runtime_module();",
+      s!"  res = {← getModInitFn (phases := if env.header.isModule then .runtime else .all)}(1 /* builtin */);",
+      "  lean_io_mark_end_initialization();",
+      "  if (lean_io_result_is_ok(res)) {",
+      "    lean_dec_ref(res);",
+      "    lean_init_task_manager();",
+      "    res = lean_run_main(&run_main, argc, argv);",
+      "  }"
+    ]
     -- `IO _`
     let retTy := env.find? `main |>.get! |>.type |>.getForallBody
     -- either `UInt32` or `(P)Unit`

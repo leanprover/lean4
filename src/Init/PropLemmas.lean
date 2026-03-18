@@ -444,7 +444,6 @@ theorem forall_or_imp_or_self_right_right {P Q R : α → Prop} :
     (∀ a, P a ∨ Q a → R a ∨ Q a) ↔ (∀ a, P a → R a ∨ Q a) := by
   simp only [or_imp, imp_or_right_iff_true, and_true]
 
-@[simp]
 theorem forall_or_imp_or_self_right_left {P Q R : α → Prop} :
     (∀ a, P a ∨ Q a → Q a ∨ R a) ↔ (∀ a, P a → Q a ∨ R a) := by
   simp only [or_imp, imp_or_left_iff_true, and_true]

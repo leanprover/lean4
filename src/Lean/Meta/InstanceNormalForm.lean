@@ -19,9 +19,9 @@ register_builtin_option «instance».normalForm : Bool := {
   descr := "normalize instance bodies to constructor-based normal form"
 }
 
-register_builtin_option «instance».normalForm.wrapFields.instances : Bool := {
+register_builtin_option «instance».normalForm.wrapInstances : Bool := {
   defValue := true
-  descr := "wrap instance fields in implicit_reducible auxiliary definitions to fix their types"
+  descr := "wrap non-reducible instances in auxiliary definitions to fix their types"
 }
 
 register_builtin_option «instance».normalForm.wrapFields.data : Bool := {
@@ -53,13 +53,17 @@ partial def normalizeInstance (inst expectedType : Expr) : MetaM Expr := withTra
   let some className ← isClass? expectedType
     | return inst
   trace[Meta.instanceNormalForm] "class is {className}"
-  if ← isProp expectedType then
-    return inst
 
   let instType ← inferType inst
   if ← isDefEq instType expectedType then
     trace[Meta.instanceNormalForm] "already compatible, returning as is: {inst}"
     return inst
+
+  if ← isProp expectedType then
+    if «instance».normalForm.wrapInstances.get (← getOptions) then
+      return (← mkAuxTheorem expectedType inst (zetaDelta := true))
+    else
+      return inst
 
   -- Try to reduce it to a constructor.
   let inst ← whnf inst
@@ -67,7 +71,7 @@ partial def normalizeInstance (inst expectedType : Expr) : MetaM Expr := withTra
     let some (.ctorInfo ci) ← f.constName?.mapM getConstInfo
       | do
         trace[Meta.instanceNormalForm] "did not reduce to constructor application, returning/wrapping as is: {inst}"
-        if «instance».normalForm.wrapFields.instances.get (← getOptions) then
+        if «instance».normalForm.wrapInstances.get (← getOptions) then
           let instType ← inferType inst
           if ← isDefEq expectedType instType then
             return inst

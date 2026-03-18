@@ -225,7 +225,7 @@ public theorem IsLinearPreorder.of_lt {α : Type u} [LT α]
       apply Or.symm
       open Classical in simpa [LE.ofLT, Decidable.imp_iff_not_or] using lt_asymm.asymm a b
     le_refl a := by
-      open Classical in simpa [LE.ofLT] using lt_asymm.asymm a a }
+      open Classical in simpa [LE.ofLT, imp_not_self] using lt_asymm.asymm a a }
 
 /--
 If an `LT α` instance is asymmetric and its negation is transitive and antisymmetric, then

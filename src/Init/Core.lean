@@ -1729,7 +1729,7 @@ theorem not_not_of_not_imp : ¬(a → b) → ¬¬a := mt Not.elim
 
 theorem not_of_not_imp {a : Prop} : ¬(a → b) → ¬b := mt fun h _ => h
 
-@[simp] theorem imp_not_self : (a → ¬a) ↔ ¬a := Iff.intro (fun h ha => h ha ha) (fun h _ => h)
+theorem imp_not_self : (a → ¬a) ↔ ¬a := Iff.intro (fun h ha => h ha ha) (fun h _ => h)
 
 theorem imp_intro {α β : Prop} (h : α) : β → α := fun _ => h
 

@@ -670,7 +670,7 @@ theorem all_iff_forall {p : α → Bool} {as : Array α} {start stop} :
 
 @[simp] theorem all_eq_true {p : α → Bool} {as : Array α} :
     as.all p = true ↔ ∀ (i : Nat) (_ : i < as.size), p as[i] := by
-  simp [all_iff_forall]
+  simp [all_iff_forall, forall_self_imp]
 
 @[simp] theorem all_eq_false {p : α → Bool} {as : Array α} :
     as.all p = false ↔ ∃ (i : Nat) (_ : i < as.size), ¬p as[i] := by

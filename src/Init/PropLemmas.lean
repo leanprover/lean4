@@ -437,7 +437,7 @@ theorem forall_prop_of_false {p : Prop} {q : p → Prop} (hn : ¬p) : (∀ h' : 
 @[simp] theorem exists_and_self (P : Prop) (Q : P → Prop) : ((∃ p, Q p) ∧ P) ↔ ∃ p, Q p :=
   ⟨fun ⟨h, _⟩ => h, fun ⟨p, q⟩ => ⟨⟨p, q⟩, p⟩⟩
 
-@[simp] theorem forall_self_imp (P : Prop) (Q : P → Prop) : (∀ p : P, P → Q p) ↔ ∀ p, Q p :=
+theorem forall_self_imp (P : Prop) (Q : P → Prop) : (∀ p : P, P → Q p) ↔ ∀ p, Q p :=
   ⟨fun h p => h p p, fun h _ p => h p⟩
 
 @[simp]

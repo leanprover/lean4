@@ -1123,7 +1123,7 @@ theorem any_iff_exists {p : α → Bool} {xs : Vector α n} :
 theorem all_iff_forall {p : α → Bool} {xs : Vector α n} :
     xs.all p ↔ ∀ (i : Nat) (_ : i < n), p xs[i] := by
   rcases xs with ⟨xs, rfl⟩
-  simp [Array.all_iff_forall]
+  simp [Array.all_iff_forall, forall_self_imp]
 
 theorem any_eq_true {p : α → Bool} {xs : Vector α n} :
     xs.any p = true ↔ ∃ (i : Nat) (_ : i < n), p xs[i] := by

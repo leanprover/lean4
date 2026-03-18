@@ -81,6 +81,7 @@ partial def normalizeInstance (inst expectedType : Expr) : MetaM Expr := withTra
             let name ← mkAuxDeclName
             let wrapped ← mkAuxDefinition name expectedType inst
             setReducibilityStatus name .implicitReducible
+            enableRealizationsForConst name
             return wrapped
         else
           return inst
@@ -124,6 +125,7 @@ partial def normalizeInstance (inst expectedType : Expr) : MetaM Expr := withTra
             else
               let name ← mkAuxDeclName
               mvarId.assign (← mkAuxDefinition name argExpectedType arg)
+              enableRealizationsForConst name
           else
             mvarId.assign arg
       return mkAppN f (← mvars.mapM instantiateMVars)

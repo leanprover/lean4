@@ -114,7 +114,10 @@ def measure_perf(cmd: list[str], events: set[str], capture: bool) -> MeasureResu
         # Execute command
         result = subprocess.run(cmd, env=env, capture_output=capture, encoding="utf-8")
         if result.returncode != 0:
-            sys.exit(result.returncode)
+            if capture:
+                print(result.stdout, end="", file=sys.stdout)
+                print(result.stderr, end="", file=sys.stderr)
+            raise SystemExit(result.returncode)
 
         # Collect results
         perf: PerfResults = {}

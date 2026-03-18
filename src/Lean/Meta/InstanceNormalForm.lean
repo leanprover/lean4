@@ -56,11 +56,13 @@ partial def normalizeInstance (inst expectedType : Expr) : MetaM Expr := withRed
   if ← isProp expectedType then
     return inst
 
+  withTransparency .instances do
+
   -- Try to synthesize a total replacement for this term.
   try
     match ← trySynthInstance expectedType with
     | .some new =>
-      if ← withDefault <| isDefEq inst new then
+      if ← isDefEq inst new then
         trace[Meta.instanceNormalForm] "replaced with synthesized instance"
         return new
       else
@@ -68,7 +70,7 @@ partial def normalizeInstance (inst expectedType : Expr) : MetaM Expr := withRed
     | _ => pure ()
   catch _ => pure ()
   -- Try to reduce it to a constructor.
-  (← whnfI inst).withApp fun f args => do
+  (← whnf inst).withApp fun f args => do
     let .const c _ := f
       | trace[Meta.instanceNormalForm] "does not reduce to a constructor application, skipping"
         return inst
@@ -97,7 +99,7 @@ partial def normalizeInstance (inst expectedType : Expr) : MetaM Expr := withRed
           -- Or does `mkAuxTheorem` help prevent leakage?
           if «instance».normalForm.wrapFields.proofs.get (← getOptions) then
             let argType ← inferType arg
-            if ← withTransparency .instances <| isDefEq argExpectedType argType then
+            if ← isDefEq argExpectedType argType then
               mvarId.assign arg
             else
               mvarId.assign (← mkAuxTheorem argExpectedType arg (zetaDelta := true))
@@ -108,7 +110,7 @@ partial def normalizeInstance (inst expectedType : Expr) : MetaM Expr := withRed
           let normalized ← normalizeInstance arg argExpectedType
           if «instance».normalForm.wrapFields.instances.get (← getOptions) then
             let normalizedType ← inferType normalized
-            if ← withDefault <| isDefEq argExpectedType normalizedType then
+            if ← isDefEq argExpectedType normalizedType then
               mvarId.assign normalized
             else
               let name ← mkAuxDeclName
@@ -121,7 +123,7 @@ partial def normalizeInstance (inst expectedType : Expr) : MetaM Expr := withRed
           -- For data fields, assign directly or wrap in aux def to fix types.
           if «instance».normalForm.wrapFields.data.get (← getOptions) then
             let argType ← inferType arg
-            if ← withDefault <| isDefEq argExpectedType argType then
+            if ← isDefEq argExpectedType argType then
               mvarId.assign arg
             else
               let name ← mkAuxDeclName

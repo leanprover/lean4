@@ -37,6 +37,63 @@ theorem isDigit_digitChar : n.digitChar.isDigit = decide (n < 10) :=
     simp only [digitChar, ↓reduceIte, Nat.reduceEqDiff]
     (repeat' split) <;> simp
 
+private theorem digitChar_iff_aux :
+    ∀ n, (n.digitChar = '0' ↔ n = 0) ∧ (n.digitChar = '1' ↔ n = 1) ∧
+         (n.digitChar = '2' ↔ n = 2) ∧ (n.digitChar = '3' ↔ n = 3) ∧
+         (n.digitChar = '4' ↔ n = 4) ∧ (n.digitChar = '5' ↔ n = 5) ∧
+         (n.digitChar = '6' ↔ n = 6) ∧ (n.digitChar = '7' ↔ n = 7) ∧
+         (n.digitChar = '8' ↔ n = 8) ∧ (n.digitChar = '9' ↔ n = 9) ∧
+         (n.digitChar = 'a' ↔ n = 10) ∧ (n.digitChar = 'b' ↔ n = 11) ∧
+         (n.digitChar = 'c' ↔ n = 12) ∧ (n.digitChar = 'd' ↔ n = 13) ∧
+         (n.digitChar = 'e' ↔ n = 14) ∧ (n.digitChar = 'f' ↔ n = 15) ∧
+         (n.digitChar = '*' ↔ 16 ≤ n)
+  | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | _ + 16 => by simp [digitChar]
+
+@[simp] theorem digitChar_eq_zero : n.digitChar = '0' ↔ n = 0 := (digitChar_iff_aux n).1
+@[simp] theorem digitChar_eq_one : n.digitChar = '1' ↔ n = 1 := (digitChar_iff_aux n).2.1
+@[simp] theorem digitChar_eq_two : n.digitChar = '2' ↔ n = 2 := (digitChar_iff_aux n).2.2.1
+@[simp] theorem digitChar_eq_three : n.digitChar = '3' ↔ n = 3 := (digitChar_iff_aux n).2.2.2.1
+@[simp] theorem digitChar_eq_four : n.digitChar = '4' ↔ n = 4 := (digitChar_iff_aux n).2.2.2.2.1
+@[simp] theorem digitChar_eq_five : n.digitChar = '5' ↔ n = 5 := (digitChar_iff_aux n).2.2.2.2.2.1
+@[simp] theorem digitChar_eq_six : n.digitChar = '6' ↔ n = 6 := (digitChar_iff_aux n).2.2.2.2.2.2.1
+@[simp] theorem digitChar_eq_seven : n.digitChar = '7' ↔ n = 7 := (digitChar_iff_aux n).2.2.2.2.2.2.2.1
+@[simp] theorem digitChar_eq_eight : n.digitChar = '8' ↔ n = 8 := (digitChar_iff_aux n).2.2.2.2.2.2.2.2.1
+@[simp] theorem digitChar_eq_nine : n.digitChar = '9' ↔ n = 9 := (digitChar_iff_aux n).2.2.2.2.2.2.2.2.2.1
+@[simp] theorem digitChar_eq_a : n.digitChar = 'a' ↔ n = 10 := (digitChar_iff_aux n).2.2.2.2.2.2.2.2.2.2.1
+@[simp] theorem digitChar_eq_b : n.digitChar = 'b' ↔ n = 11 := (digitChar_iff_aux n).2.2.2.2.2.2.2.2.2.2.2.1
+@[simp] theorem digitChar_eq_c : n.digitChar = 'c' ↔ n = 12 := (digitChar_iff_aux n).2.2.2.2.2.2.2.2.2.2.2.2.1
+@[simp] theorem digitChar_eq_d : n.digitChar = 'd' ↔ n = 13 := (digitChar_iff_aux n).2.2.2.2.2.2.2.2.2.2.2.2.2.1
+@[simp] theorem digitChar_eq_e : n.digitChar = 'e' ↔ n = 14 := (digitChar_iff_aux n).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+@[simp] theorem digitChar_eq_f : n.digitChar = 'f' ↔ n = 15 := (digitChar_iff_aux n).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+@[simp] theorem digitChar_eq_star : n.digitChar = '*' ↔ 16 ≤ n := (digitChar_iff_aux n).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
+
+@[simp] theorem zero_eq_digitChar : '0' = n.digitChar ↔ n = 0 := digitChar_eq_zero |> eq_comm.trans
+@[simp] theorem one_eq_digitChar : '1' = n.digitChar ↔ n = 1 := digitChar_eq_one |> eq_comm.trans
+@[simp] theorem two_eq_digitChar : '2' = n.digitChar ↔ n = 2 := digitChar_eq_two |> eq_comm.trans
+@[simp] theorem three_eq_digitChar : '3' = n.digitChar ↔ n = 3 := digitChar_eq_three |> eq_comm.trans
+@[simp] theorem four_eq_digitChar : '4' = n.digitChar ↔ n = 4 := digitChar_eq_four |> eq_comm.trans
+@[simp] theorem five_eq_digitChar : '5' = n.digitChar ↔ n = 5 := digitChar_eq_five |> eq_comm.trans
+@[simp] theorem six_eq_digitChar : '6' = n.digitChar ↔ n = 6 := digitChar_eq_six |> eq_comm.trans
+@[simp] theorem seven_eq_digitChar : '7' = n.digitChar ↔ n = 7 := digitChar_eq_seven |> eq_comm.trans
+@[simp] theorem eight_eq_digitChar : '8' = n.digitChar ↔ n = 8 := digitChar_eq_eight |> eq_comm.trans
+@[simp] theorem nine_eq_digitChar : '9' = n.digitChar ↔ n = 9 := digitChar_eq_nine |> eq_comm.trans
+@[simp] theorem a_eq_digitChar : 'a' = n.digitChar ↔ n = 10 := digitChar_eq_a |> eq_comm.trans
+@[simp] theorem b_eq_digitChar : 'b' = n.digitChar ↔ n = 11 := digitChar_eq_b |> eq_comm.trans
+@[simp] theorem c_eq_digitChar : 'c' = n.digitChar ↔ n = 12 := digitChar_eq_c |> eq_comm.trans
+@[simp] theorem d_eq_digitChar : 'd' = n.digitChar ↔ n = 13 := digitChar_eq_d |> eq_comm.trans
+@[simp] theorem e_eq_digitChar : 'e' = n.digitChar ↔ n = 14 := digitChar_eq_e |> eq_comm.trans
+@[simp] theorem f_eq_digitChar : 'f' = n.digitChar ↔ n = 15 := digitChar_eq_f |> eq_comm.trans
+@[simp] theorem star_eq_digitChar : '*' = n.digitChar ↔ 16 ≤ n := digitChar_eq_star |> eq_comm.trans
+
+/-- Auxiliary theorem for `Nat.reduceDigitCharEq` simproc. -/
+protected theorem digitChar_ne {n : Nat} (c : Char)
+    (h : c != '0' && c != '1' && c != '2' && c != '3' && c != '4' && c != '5' &&
+         c != '6' && c != '7' && c != '8' && c != '9' && c != 'a' && c != 'b' &&
+         c != 'c' && c != 'd' && c != 'e' && c != 'f' && c != '*') : n.digitChar ≠ c := by
+  rintro rfl
+  match n with
+  | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | _ + 16 => simp [digitChar] at h
+
 private theorem isDigit_of_mem_toDigitsCore
     (hc : c ∈ cs → c.isDigit) (hb₁ : 0 < b) (hb₂ : b ≤ 10) (h : c ∈ toDigitsCore b fuel n cs) :
     c.isDigit := by

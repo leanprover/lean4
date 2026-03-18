@@ -59,7 +59,7 @@ terminates.
 @[simp, grind =] theorem attach_some {x : α} :
     (some x).attach = some ⟨x, rfl⟩ := rfl
 @[simp, grind =] theorem attachWith_some {x : α} {P : α → Prop} (h : ∀ (b : α), some x = some b → P b) :
-    (some x).attachWith P h = some ⟨x, by simpa using h⟩ := rfl
+    (some x).attachWith P h = some ⟨x, by simpa [forall_eq'] using h⟩ := rfl
 
 theorem attach_congr {o₁ o₂ : Option α} (h : o₁ = o₂) :
     o₁.attach = o₂.attach.map (fun x => ⟨x.1, h ▸ x.2⟩) := by

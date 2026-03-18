@@ -328,7 +328,7 @@ theorem not_forall_of_exists_not {p : α → Prop} : (∃ x, ¬p x) → ¬∀ x,
 @[simp] theorem forall_eq {p : α → Prop} {a' : α} : (∀ a, a = a' → p a) ↔ p a' :=
   ⟨fun h => h a' rfl, fun h _ e => e.symm ▸ h⟩
 
-@[simp] theorem forall_eq' {a' : α} : (∀ a, a' = a → p a) ↔ p a' := by simp [@eq_comm _ a']
+theorem forall_eq' {a' : α} : (∀ a, a' = a → p a) ↔ p a' := by simp [@eq_comm _ a']
 
 @[simp] theorem exists_eq : ∃ a, a = a' := ⟨_, rfl⟩
 
@@ -417,10 +417,12 @@ theorem exists_comm {p : α → β → Prop} : (∃ a b, p a b) ↔ (∃ b a, p 
   ⟨fun ⟨a, b, h⟩ => ⟨b, a, h⟩, fun ⟨b, a, h⟩ => ⟨a, b, h⟩⟩
 
 @[simp] theorem forall_apply_eq_imp_iff {f : α → β} {p : β → Prop} :
-    (∀ b a, f a = b → p b) ↔ ∀ a, p (f a) := by simp [forall_comm]
+    (∀ b a, f a = b → p b) ↔ ∀ a, p (f a) :=
+  ⟨fun h a => h (f a) a rfl, fun h _ a hab => hab ▸ h a⟩
 
 @[simp] theorem forall_eq_apply_imp_iff {f : α → β} {p : β → Prop} :
-    (∀ b a, b = f a → p b) ↔ ∀ a, p (f a) := by simp [forall_comm]
+    (∀ b a, b = f a → p b) ↔ ∀ a, p (f a) :=
+  ⟨fun h a => h (f a) a rfl, fun h _ a hab => hab ▸ h a⟩
 
 @[simp] theorem forall_apply_eq_imp_iff₂ {f : α → β} {p : α → Prop} {q : β → Prop} :
     (∀ b a, p a → f a = b → q b) ↔ ∀ a, p a → q (f a) :=

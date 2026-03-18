@@ -504,9 +504,9 @@ protected theorem le_iff_exists [LT α]
   · simp only [isEqv_eq, beq_iff_eq, decide_eq_true_eq]
     simp only [eq_comm]
     conv => lhs; simp +singlePass [exists_comm]
-  · simpa using Std.Irrefl.irrefl
-  · simpa using Std.Asymm.asymm
-  · simpa using Std.Trichotomous.trichotomous
+  · simpa [forall_eq'] using Std.Irrefl.irrefl
+  · simpa [forall_eq'] using Std.Asymm.asymm
+  · simpa [forall_eq'] using Std.Trichotomous.trichotomous
 
 theorem append_left_lt [LT α] {l₁ l₂ l₃ : List α} (h : l₂ < l₃) :
     l₁ ++ l₂ < l₁ ++ l₃ := by

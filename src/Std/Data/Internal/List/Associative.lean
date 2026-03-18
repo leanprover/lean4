@@ -8537,7 +8537,7 @@ theorem minKey?_eraseKey_eq_iff_beq_minKey?_eq_false [Ord α] [TransOrd α] [BEq
   · simp_all [minKey?_eq_none_iff_isEmpty]
   · simp only [minKey?_eq_some_iff_getKey?_eq_self_and_forall, getKey?_eraseKey,
       containsKey_eraseKey, hd, hd.eraseKey] at ⊢ h
-    simp_all
+    simp_all [forall_eq']
 
 theorem minKey?_eraseKey_eq_of_beq_minKey?_eq_false [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     {k} {l : List ((a : α) × β a)} (hd : DistinctKeys l)

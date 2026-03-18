@@ -210,11 +210,11 @@ theorem bind_eq_some_iff : x.bind f = some b ↔ ∃ a, x = some a ∧ f a = som
   cases x <;> simp
 
 @[simp] theorem bind_eq_none_iff {o : Option α} {f : α → Option β} :
-    o.bind f = none ↔ ∀ a, o = some a → f a = none := by cases o <;> simp
+    o.bind f = none ↔ ∀ a, o = some a → f a = none := by cases o <;> simp [forall_eq']
 
 theorem bind_eq_none' {o : Option α} {f : α → Option β} :
     o.bind f = none ↔ ∀ b a, o = some a → f a ≠ some b := by
-  cases o <;> simp [eq_none_iff_forall_ne_some]
+  cases o <;> simp [eq_none_iff_forall_ne_some, forall_eq']
 
 @[grind =] theorem mem_bind_iff {o : Option α} {f : α → Option β} :
     b ∈ o.bind f ↔ ∃ a, a ∈ o ∧ b ∈ f a := by
@@ -233,7 +233,7 @@ grind_pattern bind_assoc => (x.bind f).bind g where
 
 theorem bind_congr {α β} {o : Option α} {f g : α → Option β} :
     (h : ∀ a, o = some a → f a = g a) → o.bind f = o.bind g := by
-  cases o <;> simp
+  cases o <;> simp [forall_eq']
 
 @[grind =]
 theorem isSome_bind {α β : Type _} (x : Option α) (f : α → Option β) :
@@ -378,7 +378,7 @@ theorem isSome_of_isSome_filter (p : α → Bool) (o : Option α) (h : (o.filter
 
 @[simp] theorem filter_eq_none_iff {o : Option α} {p : α → Bool} :
     o.filter p = none ↔ ∀ a, o = some a → ¬ p a := by
-  cases o <;> simp [filter_some]
+  cases o <;> simp [filter_some, forall_eq']
 
 @[simp] theorem filter_eq_some_iff {o : Option α} {p : α → Bool} :
     o.filter p = some a ↔ o = some a ∧ p a := by
@@ -396,7 +396,7 @@ theorem isSome_of_isSome_filter (p : α → Bool) (o : Option α) (h : (o.filter
 
 theorem filter_some_eq_some : Option.filter p (some a) = some a ↔ p a := by simp
 
-theorem filter_some_eq_none : Option.filter p (some a) = none ↔ ¬p a := by simp
+theorem filter_some_eq_none : Option.filter p (some a) = none ↔ ¬p a := by simp [forall_eq']
 
 @[grind =]
 theorem mem_filter_iff {p : α → Bool} {a : α} {o : Option α} :
@@ -475,7 +475,7 @@ theorem eq_some_of_filter_eq_some {o : Option α} {a : α} (h : o.filter p = som
 
 theorem all_eq_true (p : α → Bool) (x : Option α) :
     x.all p = true ↔ ∀ y, x = some y → p y := by
-  cases x <;> simp
+  cases x <;> simp [forall_eq']
 
 theorem all_eq_true_iff_get (p : α → Bool) (x : Option α) :
     x.all p = true ↔ (h : x.isSome) → p (x.get h) := by
@@ -499,7 +499,7 @@ theorem any_eq_true_iff_get (p : α → Bool) (x : Option α) :
 
 theorem any_eq_false (p : α → Bool) (x : Option α) :
     x.any p = false ↔ ∀ y, x = some y → p y = false := by
-  cases x <;> simp
+  cases x <;> simp [forall_eq']
 
 theorem any_eq_false_iff_get (p : α → Bool) (x : Option α) :
     x.any p = false ↔ (h : x.isSome) → p (x.get h) = false := by

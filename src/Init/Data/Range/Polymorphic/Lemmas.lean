@@ -1611,7 +1611,7 @@ public theorem toList_eq_nil_iff [LE α] [LT α] [DecidableLT α] [UpwardEnumera
     r.toList = [] ↔ ∀ a, UpwardEnumerable.succ? r.lower = some a → ¬ (a < r.upper) := by
   rw [Internal.toList_eq_toList_iter, Rxo.Iterator.toList_eq_match, Internal.iter]
   simp only
-  split <;> rename_i heq <;> simp [heq]
+  split <;> rename_i heq <;> simp [heq, forall_eq']
 
 public theorem toArray_eq_empty_iff [LE α] [LT α] [DecidableLT α] [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α] [Rxo.IsAlwaysFinite α] :

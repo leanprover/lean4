@@ -137,7 +137,7 @@ theorem Pairwise.of_map {S : β → β → Prop} (f : α → β) (H : ∀ a b : 
     simp only [e, false_implies, implies_true, true_and, IH, reduceCtorEq]
   | some b =>
     rw [filterMap_cons_some e]
-    simpa [IH, e] using fun _ =>
+    simpa [IH, e, forall_eq'] using fun _ =>
       ⟨fun h a ha b hab => h _ _ ha hab, fun h a b ha hab => h _ ha _ hab⟩
 
 @[grind <=] theorem Pairwise.filterMap {S : β → β → Prop} (f : α → Option β)
@@ -148,7 +148,7 @@ theorem Pairwise.of_map {S : β → β → Prop} (f : α → β) (H : ∀ a b : 
 @[grind =] theorem pairwise_filter {p : α → Bool} {l : List α} :
     Pairwise R (filter p l) ↔ Pairwise (fun x y => p x → p y → R x y) l := by
   rw [← filterMap_eq_filter, pairwise_filterMap]
-  simp
+  simp [forall_eq']
 
 @[grind ←] theorem Pairwise.filter (p : α → Bool) : Pairwise R l → Pairwise R (filter p l) :=
   Pairwise.sublist filter_sublist

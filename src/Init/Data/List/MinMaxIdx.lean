@@ -333,7 +333,7 @@ protected theorem minIdxOn_eq_zero_iff [LE β] [DecidableLE β] [IsLinearPreorde
   · intro h
     cases ys
     · simp [minIdxOn.go]
-    · simpa [minIdxOn.go_eq, List.le_apply_minOn_iff] using h
+    · simpa [minIdxOn.go_eq, List.le_apply_minOn_iff, forall_eq_or_imp] using h
 
 section Append
 

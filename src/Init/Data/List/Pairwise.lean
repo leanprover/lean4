@@ -264,7 +264,7 @@ theorem pairwise_of_forall_mem_list {l : List α} {r : α → α → Prop} (h : 
   induction l with
   | nil => simp
   | cons a l ihl =>
-    obtain ⟨_, hl⟩ : p a ∧ ∀ b, b ∈ l → p b := by simpa using h
+    obtain ⟨_, hl⟩ : p a ∧ ∀ b, b ∈ l → p b := by simpa [forall_eq_or_imp] using h
     simp only [pmap_cons, pairwise_cons, mem_pmap, forall_exists_index, ihl hl, and_congr_left_iff]
     refine fun _ => ⟨fun H b hb _ hpb => H _ _ hb rfl, ?_⟩
     rintro H _ b hb rfl
@@ -353,7 +353,7 @@ theorem Nodup.count [BEq α] [LawfulBEq α] {a : α} {l : List α} (h : Nodup l)
     rw [count_eq_zero.mpr ?_, count_eq_zero.mpr ?_]
     · exact h.2.1.1
     · intro w
-      simpa using h.2.2 _ w
+      simpa [forall_eq_or_imp] using h.2.2 _ w
   · rw [count_eq_zero_of_not_mem h']
 
 grind_pattern Nodup.count => count a l, Nodup l

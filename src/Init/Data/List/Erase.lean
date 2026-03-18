@@ -296,7 +296,7 @@ theorem eraseP_comm {l : List α} (h : ∀ a ∈ l, ¬ p a ∨ ¬ q a) :
     simp only [eraseP_cons]
     by_cases h₁ : p a
     · by_cases h₂ : q a
-      · simp_all
+      · simp_all [forall_eq_or_imp]
       · simp [h₁, h₂]
     · by_cases h₂ : q a
       · simp [h₁, h₂]

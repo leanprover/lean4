@@ -108,7 +108,7 @@ theorem le_min?_iff [Min α] [LE α] [LawfulOrderInf α] :
       simp [eq]
     | cons z xs ih =>
       simp at eq
-      simp [ih _ eq, le_min_iff, and_assoc]
+      simp [ih _ eq, le_min_iff, and_assoc, forall_eq_or_imp]
 
 theorem min?_eq_some_iff [Min α] [LE α] {xs : List α} [IsLinearOrder α] [LawfulOrderMin α] :
     xs.min? = some a ↔ a ∈ xs ∧ ∀ b, b ∈ xs → a ≤ b := by
@@ -318,7 +318,7 @@ theorem max?_le_iff [Max α] [LE α] [LawfulOrderSup α] :
       simp [eq]
     | cons z xs ih =>
       simp at eq
-      simp [ih _ eq, max_le_iff, and_assoc]
+      simp [ih _ eq, max_le_iff, and_assoc, forall_eq_or_imp]
 
 theorem max?_eq_some_iff [Max α] [LE α] {xs : List α} [IsLinearOrder (α)]
     [LawfulOrderMax α] : xs.max? = some a ↔ a ∈ xs ∧ ∀ b, b ∈ xs → b ≤ a := by

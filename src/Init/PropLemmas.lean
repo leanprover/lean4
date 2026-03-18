@@ -356,7 +356,7 @@ theorem forall_eq' {a' : α} : (∀ a, a' = a → p a) ↔ p a' := by simp [@eq_
 @[simp] theorem exists_prop_eq' {p : (a : α) → a' = a → Prop} :
     (∃ (a : α) (h : a' = a), p a h) ↔ p a' rfl := by simp [@eq_comm _ a']
 
-@[simp] theorem forall_eq_or_imp {P Q : α → Prop} :
+theorem forall_eq_or_imp {P Q : α → Prop} :
     (∀ a, a = a' ∨ Q a → P a) ↔ P a' ∧ ∀ a, Q a → P a := by
   simp only [or_imp, forall_and, forall_eq]
 

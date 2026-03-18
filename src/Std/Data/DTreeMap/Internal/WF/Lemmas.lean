@@ -205,7 +205,7 @@ theorem toListModel_filter_gt_of_lt [Ord α] [TransOrd α] {k : α → Ordering}
       l.toListModel.filter (k ·.1 == .gt) := by
   rw [toListModel_inner, List.filter_append, (List.filter_eq_nil_iff (l := _ :: _)).2,
     List.append_nil]
-  simpa [hcmp] using Ordered.compare_right_not_beq_gt ho (Ordering.isLE_of_eq_lt hcmp)
+  simpa [hcmp, forall_eq_or_imp] using Ordered.compare_right_not_beq_gt ho (Ordering.isLE_of_eq_lt hcmp)
 
 theorem toListModel_find?_of_gt [Ord α] [TransOrd α] {k : α → Ordering} [IsStrictCut compare k]
     {sz k' v' l r} (hcmp : k k' = .gt) (ho : (inner sz k' v' l r).Ordered) :

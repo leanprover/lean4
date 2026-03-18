@@ -560,7 +560,7 @@ theorem isEmpty_iff_length_eq_zero {l : List α} : l.isEmpty ↔ l.length = 0 :=
 
 @[grind =] theorem any_eq {l : List α} : l.any p = decide (∃ x, x ∈ l ∧ p x) := by induction l <;> simp [*]
 
-@[grind =] theorem all_eq {l : List α} : l.all p = decide (∀ x, x ∈ l → p x) := by induction l <;> simp [*]
+@[grind =] theorem all_eq {l : List α} : l.all p = decide (∀ x, x ∈ l → p x) := by induction l <;> simp [forall_eq_or_imp, *]
 
 theorem decide_exists_mem {l : List α} {p : α → Prop} [DecidablePred p] :
     decide (∃ x, x ∈ l ∧ p x) = l.any p := by
@@ -1139,7 +1139,7 @@ theorem eq_nil_of_map_eq_nil {f : α → β} {l : List α} (h : map f l = []) : 
   map_eq_nil_iff.mp h
 
 @[simp] theorem map_inj_left {f g : α → β} : map f l = map g l ↔ ∀ a ∈ l, f a = g a := by
-  induction l <;> simp_all
+  induction l <;> simp_all [forall_eq_or_imp]
 
 theorem map_inj_right {f : α → β} (w : ∀ x y, f x = f y → x = y) : map f l = map f l' ↔ l = l' := by
   induction l generalizing l' with
@@ -1184,7 +1184,7 @@ theorem map_eq_cons_iff' {f : α → β} {l : List α} :
   simp [map_eq_cons_iff]
 
 theorem map_eq_map_iff : map f l = map g l ↔ ∀ a ∈ l, f a = g a := by
-  induction l <;> simp
+  induction l <;> simp [forall_eq_or_imp]
 
 theorem map_eq_iff : map f l = l' ↔ ∀ i : Nat, l'[i]? = l[i]?.map f := by
   constructor
@@ -1278,7 +1278,7 @@ grind_pattern List.length_filter_le => (l.filter p).length
 
 @[simp]
 theorem filter_eq_self {l} : filter p l = l ↔ ∀ a ∈ l, p a := by
-  induction l with simp
+  induction l with simp [forall_eq_or_imp]
   | cons a l ih =>
     cases h : p a <;> simp [*]
     intro h; exact Nat.lt_irrefl _ (h ▸ length_filter_le p l)
@@ -1377,7 +1377,7 @@ theorem filter_eq_cons_iff {l} {a} {as} :
         obtain ⟨rfl, rfl⟩ := h
         exact ⟨[], l, by simp [w]⟩
       · obtain ⟨l₁, l₂, rfl, w₁, w₂, w₃⟩ := ih h
-        exact ⟨x :: l₁, l₂, by simp_all⟩
+        exact ⟨x :: l₁, l₂, by simp_all [forall_eq_or_imp]⟩
   · rintro ⟨l₁, l₂, rfl, h₁, h, h₂⟩
     simp [h₂, filter_eq_nil_iff.mpr h₁, h]
 
@@ -1557,7 +1557,7 @@ theorem filterMap_eq_cons_iff {l} {b} {bs} :
         intro w
         specialize ih w
         obtain ⟨l₁, a', l₂, rfl, w₁, w₂, w₃⟩ := ih
-        exact ⟨a :: l₁, a', l₂, by simp_all⟩
+        exact ⟨a :: l₁, a', l₂, by simp_all [forall_eq_or_imp]⟩
       | some b =>
         simp only [filterMap_cons_some h, cons.injEq, and_imp]
         rintro rfl rfl
@@ -1917,7 +1917,7 @@ theorem eq_nil_or_concat : ∀ l : List α, l = [] ∨ ∃ l' b, l = concat l' b
   | _ :: _ => by simp [mem_flatten, or_and_right, exists_or]
 
 @[simp] theorem flatten_eq_nil_iff {L : List (List α)} : L.flatten = [] ↔ ∀ l ∈ L, l = [] := by
-  induction L <;> simp_all
+  induction L <;> simp_all [forall_eq_or_imp]
 
 theorem nil_eq_flatten_iff {L : List (List α)} : [] = L.flatten ↔ ∀ l ∈ L, l = [] := by
   simp
@@ -1994,7 +1994,7 @@ theorem flatten_eq_cons_iff {xss : List (List α)} {y : α} {ys : List α} :
       obtain (⟨rfl, h⟩ | ⟨z⟩) := h
       · obtain ⟨as, bs, cs, rfl, _, rfl⟩ := ih h
         refine ⟨[] :: as, bs, cs, ?_⟩
-        simpa
+        simpa [forall_eq_or_imp]
       · obtain ⟨as', rfl, rfl⟩ := z
         refine ⟨[], as', xss, ?_⟩
         simp
@@ -3601,7 +3601,7 @@ theorem insert_append_of_not_mem_left {l₁ l₂ : List α} (h : ¬ a ∈ l₂) 
 
 @[simp] theorem all_insert {l : List α} {a : α} :
     (l.insert a).all f = (f a && l.all f) := by
-  simp [all_eq]
+  simp [all_eq, forall_eq_or_imp]
 
 end insert
 

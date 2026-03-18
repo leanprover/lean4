@@ -52,7 +52,7 @@ theorem exists_of_findSome?_eq_some {l : List α} {f : α → Option β} (w : l.
     split at w <;> simp_all
 
 @[simp, grind =] theorem findSome?_eq_none_iff : findSome? p l = none ↔ ∀ x ∈ l, p x = none := by
-  induction l <;> simp [findSome?_cons]; split <;> simp [*]
+  induction l <;> simp [findSome?_cons, forall_eq_or_imp]; split <;> simp [*]
 
 @[simp] theorem findSome?_isSome_iff {f : α → Option β} {l : List α} :
     (l.findSome? f).isSome ↔ ∃ x, x ∈ l ∧ (f x).isSome := by
@@ -237,7 +237,7 @@ grind_pattern IsInfix.findSome?_eq_none => l₁ <+: l₂, l₁.findSome? f
   simp [find?, h]
 
 @[simp, grind =] theorem find?_eq_none : find? p l = none ↔ ∀ x ∈ l, ¬ p x := by
-  induction l <;> simp [find?_cons]; split <;> simp [*]
+  induction l <;> simp [find?_cons, forall_eq_or_imp]; split <;> simp [*]
 
 theorem find?_eq_some_iff_append :
     xs.find? p = some b ↔ p b ∧ ∃ as bs, xs = as ++ b :: bs ∧ ∀ a ∈ as, !p a := by
@@ -597,7 +597,7 @@ theorem findIdx_eq_length {p : α → Bool} {xs : List α} :
   | cons x xs ih =>
     rw [findIdx_cons, length_cons]
     simp only [cond_eq_ite]
-    split <;> simp_all
+    split <;> simp_all [forall_eq_or_imp]
 
 theorem findIdx_eq_length_of_false {p : α → Bool} {xs : List α} (h : ∀ x ∈ xs, p x = false) :
     xs.findIdx p = xs.length := by
@@ -755,7 +755,7 @@ theorem findIdx?_eq_none_iff {xs : List α} {p : α → Bool} :
   | nil => simp_all
   | cons x xs ih =>
     simp only [findIdx?_cons]
-    split <;> simp_all
+    split <;> simp_all [forall_eq_or_imp]
 
 @[simp, grind =]
 theorem findIdx?_isSome {xs : List α} {p : α → Bool} :

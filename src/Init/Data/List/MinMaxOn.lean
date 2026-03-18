@@ -142,7 +142,7 @@ protected theorem apply_minOn_le_of_mem [LE β] [DecidableLE β] [IsLinearPreord
     · simp only [mem_cons] at hx
       simp_all
     · rename_i x y _ ih
-      simp at ih ⊢
+      simp [forall_eq_or_imp] at ih ⊢
       rcases mem_cons.mp hx with rfl | hx
       · exact le_trans ih.1 apply_minOn_le_left
       · rcases mem_cons.mp hx with rfl | hx
@@ -159,7 +159,7 @@ protected theorem le_apply_minOn_iff [LE β] [DecidableLE β] [IsLinearPreorder 
     induction xs generalizing x
     · simp
     · rw [foldl_cons, foldl_assoc, le_apply_minOn_iff]
-      simp_all
+      simp_all [forall_eq_or_imp]
 
 protected theorem apply_minOn_le_iff [LE β] [DecidableLE β] [IsLinearPreorder β]
     {xs : List α} {f : α → β} (h : xs ≠ []) {b : β} :
@@ -239,7 +239,7 @@ protected theorem minOn_eq_head [LE β] [DecidableLE β] [IsLinearPreorder β]
     induction xs
     · simp
     · simp only [foldl_cons, head_cons]
-      rw [minOn_eq_left] <;> simp_all
+      rw [minOn_eq_left] <;> simp_all [forall_eq_or_imp]
 
 protected theorem min_map
     [LE β] [DecidableLE β] [Min β] [IsLinearPreorder β] [LawfulOrderLeftLeaningMin β] {xs : List α}

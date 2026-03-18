@@ -20,7 +20,11 @@ Author: Leonardo de Moura
 #include "runtime/stack_overflow.h"
 
 #ifndef LEAN_DEFAULT_THREAD_STACK_SIZE
-#define LEAN_DEFAULT_THREAD_STACK_SIZE 8*1024*1024 // 8Mb
+#ifdef LEAN_EMSCRIPTEN
+#define LEAN_DEFAULT_THREAD_STACK_SIZE 8*1024*1024 // 8MB for 32-bit
+#else
+#define LEAN_DEFAULT_THREAD_STACK_SIZE 1024*1024*1024 // 1GB for 64-bit
+#endif
 #endif
 
 namespace lean {

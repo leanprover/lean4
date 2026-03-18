@@ -262,5 +262,47 @@ Adds new case-splits using model-based theory combination.
 -/
 syntax (name := mbtc) "mbtc" : grind
 
+/-- `intro x₁ ... xₙ` introduces binders and internalizes them into the E-graph.
+Only available in `sym =>` mode.
+`intro` with no arguments introduces one binder with an inaccessible name.
+Use `intro (internalize := false)` or `intro~` to skip internalization. -/
+syntax (name := symIntro) "intro" (ppSpace "(" &"internalize" " := " (&"true" <|> &"false") ")")? (ppSpace colGt binderIdent)* : grind
+
+/-- `intro~ x₁ ... xₙ` is shorthand for `intro (internalize := false)`. -/
+syntax (name := symIntroLight) "intro" noWs "~" (ppSpace colGt binderIdent)* : grind
+
+macro_rules
+| `(grind| intro~ $ids*) => `(grind| intro (internalize := false) $ids*)
+
+/-- `intros` introduces all remaining binders and internalizes them.
+Only available in `sym =>` mode.
+Use `intros (internalize := false)` or `intros~` to skip internalization. -/
+syntax (name := symIntros) "intros" (ppSpace "(" &"internalize" " := " (&"true" <|> &"false") ")")? : grind
+
+/-- `intros~` is shorthand for `intros (internalize := false)`. -/
+syntax (name := symIntrosLight) "intros" noWs "~" : grind
+
+macro_rules
+| `(grind| intros~) => `(grind| intros (internalize := false))
+
+/-- `apply t` applies theorem `t` as a backward rule.
+Only available in `sym =>` mode.
+When used with `repeat`, the backward rule is cached for efficiency. -/
+syntax (name := symApply) "apply " term : grind
+
+/-- `internalize` internalizes hypotheses into the grind E-graph.
+Only available in `sym =>` mode.
+- `internalize` internalizes the next hypothesis.
+- `internalize <num>` internalizes the next `<num>` hypotheses. -/
+syntax (name := symInternalize) "internalize" (ppSpace num)? : grind
+
+/-- `internalize_all` internalizes all pending hypotheses into the grind E-graph.
+Only available in `sym =>` mode. -/
+syntax (name := symInternalizeAll) "internalize_all" : grind
+
+/-- `by_contra` applies proof by contradiction, negating the target and making it `False`.
+Only available in `sym =>` mode. -/
+syntax (name := symByContra) "by_contra" : grind
+
 end Grind
 end Lean.Parser.Tactic

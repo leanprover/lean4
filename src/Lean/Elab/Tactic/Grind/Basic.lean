@@ -8,6 +8,8 @@ prelude
 public import Lean.Elab.Tactic.Basic
 public import Lean.Meta.Tactic.Grind.Main
 import Lean.Meta.Tactic.Grind.Intro
+public import Lean.Meta.Sym.Apply
+public import Lean.Meta.Sym.Util
 import Init.Omega
 public section
 namespace Lean.Elab.Tactic.Grind
@@ -18,13 +20,21 @@ structure Context extends Tactic.Context where
   sctx    : Meta.Sym.Context
   methods : Grind.Methods
   params  : Grind.Params
+  sym     : Bool := false
 
 open Meta.Grind (Goal)
+
+structure Cache where
+  /-- Cache for `BackwardRule`s created from declaration names (sym mode only). -/
+  backwardRuleName : PHashMap Name Sym.BackwardRule := {}
+  /-- Cache for `BackwardRule`s created from elaborated terms, keyed by syntax byte position range (sym mode only). -/
+  backwardRuleSyntax : PHashMap (Nat × Nat) Sym.BackwardRule := {}
 
 structure State where
   symState   : Meta.Sym.State
   grindState : Meta.Grind.State
   goals      : List Goal
+  cache      : Cache := {}
 
 structure SavedState where
   term   : Term.SavedState
@@ -377,7 +387,7 @@ def mkEvalTactic' (elaborator : Name) (params : Params) : TermElabM (Goal → TS
 def mkEvalTactic (params : Params) : TacticM (Goal → TSyntax `grind → GrindM (List Goal)) := do
   mkEvalTactic' (← read).elaborator params
 
-def GrindTacticM.runAtGoal (mvarId : MVarId) (params : Params) (k : GrindTacticM α) : TacticM (α × State) := do
+def GrindTacticM.runAtGoal (mvarId : MVarId) (params : Params) (k : GrindTacticM α) (sym : Bool := false) : TacticM (α × State) := do
   let evalTactic ← mkEvalTactic params
   /-
   **Note**: We don't want to close branches using `sorry` after applying `intros + assertAll`.
@@ -385,10 +395,17 @@ def GrindTacticM.runAtGoal (mvarId : MVarId) (params : Params) (k : GrindTacticM
   -/
   let params' := { params with config.useSorry := false }
   let (methods, ctx, sctx, state) ← liftMetaM <| GrindM.runAtGoal mvarId params' (evalTactic? := some evalTactic) fun goal => do
-      let a : Action := Action.intros 0 >> Action.assertAll
-      let goals ← match (← a.run goal) with
-        | .closed _ => pure []
-        | .stuck gs => pure gs
+      let goals ←
+        if sym then
+          /- In sym mode, skip eager intros + by-contradiction. The user controls intro/internalize.
+             Preprocess for maximal term sharing, required by Sym operations (introN, BackwardRule.apply, etc.). -/
+          let mvarId ← Sym.preprocessMVar goal.mvarId
+          pure [{ goal with mvarId }]
+        else
+          let a : Action := Action.intros 0 >> Action.assertAll
+          match (← a.run goal) with
+          | .closed _ => pure []
+          | .stuck gs => pure gs
       let methods ← getMethods
       let ctx ← readThe Meta.Grind.Context
       /- Restore original config -/
@@ -398,6 +415,6 @@ def GrindTacticM.runAtGoal (mvarId : MVarId) (params : Params) (k : GrindTacticM
       let symState ← getThe Sym.State
       return (methods, ctx, sctx, { grindState, symState, goals })
   let tctx ← read
-  k { tctx with methods, ctx, sctx, params } |>.run state
+  k { tctx with methods, ctx, sctx, params, sym } |>.run state
 
 end Lean.Elab.Tactic.Grind

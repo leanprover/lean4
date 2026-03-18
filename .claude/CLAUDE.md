@@ -1,6 +1,11 @@
 (In the following, use `sysctl -n hw.logicalcpu` instead of `nproc` on macOS)
 
+## Building
+
 To build Lean you should use `make -j$(nproc) -C build/release`.
+
+The build uses `ccache`, and in a sandbox `ccache` may complain about read-only file systems.
+Use `CCACHE_READONLY` and `CCACHE_TEMPDIR` instead of disabling ccache completely.
 
 ## Running Tests
 

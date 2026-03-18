@@ -440,7 +440,6 @@ theorem forall_prop_of_false {p : Prop} {q : p → Prop} (hn : ¬p) : (∀ h' : 
 theorem forall_self_imp (P : Prop) (Q : P → Prop) : (∀ p : P, P → Q p) ↔ ∀ p, Q p :=
   ⟨fun h p => h p p, fun h _ p => h p⟩
 
-@[simp]
 theorem forall_or_imp_or_self_right_right {P Q R : α → Prop} :
     (∀ a, P a ∨ Q a → R a ∨ Q a) ↔ (∀ a, P a → R a ∨ Q a) := by
   simp only [or_imp, imp_or_right_iff_true, and_true]

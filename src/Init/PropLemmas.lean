@@ -364,7 +364,7 @@ theorem forall_eq_or_imp' {P Q : α → Prop} {a' : α} :
     (∀ (a : α), a' = a ∨ Q a → P a) ↔ P a' ∧ ∀ (a : α), Q a → P a := by
   simp only [or_imp, forall_and, forall_eq']
 
-@[simp] theorem forall_or_eq_imp {P Q : α → Prop} :
+theorem forall_or_eq_imp {P Q : α → Prop} :
     (∀ a, Q a ∨ a = a' → P a) ↔ (∀ a, Q a → P a) ∧ P a' := by
   simp only [or_imp, forall_and, forall_eq]
 

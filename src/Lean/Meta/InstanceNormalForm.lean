@@ -56,17 +56,11 @@ partial def normalizeInstance (inst expectedType : Expr) : MetaM Expr := withTra
   if ← isProp expectedType then
     return inst
 
-  -- Try to synthesize a total replacement for this term.
-  try
-    match ← trySynthInstance expectedType with
-    | .some new =>
-      if ← isDefEq inst new then
-        trace[Meta.instanceNormalForm] "replaced with synthesized instance"
-        return new
-      else
-        trace[Meta.instanceNormalForm] "synthesized instance is not defeq, proceeding to constructor normalization"
-    | _ => pure ()
-  catch _ => pure ()
+  let instType ← inferType inst
+  if ← isDefEq instType expectedType then
+    trace[Meta.instanceNormalForm] "already compatible, returning as is: {inst}"
+    return inst
+
   -- Try to reduce it to a constructor.
   let inst ← whnf inst
   inst.withApp fun f args => do

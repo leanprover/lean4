@@ -20,17 +20,17 @@ register_builtin_option «instance».normalForm : Bool := {
 }
 
 register_builtin_option «instance».normalForm.wrapFields.instances : Bool := {
-  defValue := false
+  defValue := true
   descr := "wrap instance fields in implicit_reducible auxiliary definitions to fix their types"
 }
 
 register_builtin_option «instance».normalForm.wrapFields.data : Bool := {
-  defValue := false
+  defValue := true
   descr := "wrap data fields in auxiliary definitions to fix their types"
 }
 
 register_builtin_option «instance».normalForm.wrapFields.proofs : Bool := {
-  defValue := false
+  defValue := true
   descr := "wrap proof fields in auxiliary theorems to fix their types"
 }
 

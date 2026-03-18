@@ -229,6 +229,7 @@ private inductive MulEqProof where
   | mulVar (k : Int) (a : Expr) (h : Expr)
   | none
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_cutsat_eq_cnstr_to_proof"] -- forward definition
 private opaque EqCnstr.toExprProof (c' : EqCnstr) : ProofM Expr
 

@@ -2613,9 +2613,9 @@ goto v_resetjp_911_;
 v_resetjp_911_:
 {
 lean_object* v_buildDir_914_; lean_object* v_binDir_915_; lean_object* v_weakLinkArgs_916_; lean_object* v___x_917_; lean_object* v___x_918_; lean_object* v___x_919_; lean_object* v___x_920_; lean_object* v___x_921_; lean_object* v___x_922_; lean_object* v___x_923_; lean_object* v___x_924_; lean_object* v___x_925_; uint8_t v___x_926_; uint8_t v___x_927_; lean_object* v___x_928_; lean_object* v___x_929_; lean_object* v___x_931_; 
-v_buildDir_914_ = lean_ctor_get(v_config_852_, 6);
+v_buildDir_914_ = lean_ctor_get(v_config_852_, 5);
 lean_inc_ref(v_buildDir_914_);
-v_binDir_915_ = lean_ctor_get(v_config_852_, 9);
+v_binDir_915_ = lean_ctor_get(v_config_852_, 8);
 lean_inc_ref(v_binDir_915_);
 lean_dec_ref(v_config_852_);
 v_weakLinkArgs_916_ = lean_ctor_get(v_toLeanConfig_908_, 9);

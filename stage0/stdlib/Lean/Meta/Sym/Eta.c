@@ -63,6 +63,7 @@ size_t lean_ptr_addr(lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* l_Lean_Expr_mdata___override(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_proj___override(lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_Expr_isLambda(lean_object*);
 uint8_t l_Lean_Expr_hasLooseBVars(lean_object*);
 uint8_t l___private_Lean_Meta_Sym_ExprPtr_0__Lean_Meta_Sym_isSameExpr_unsafe__1(lean_object*, lean_object*);
 lean_object* lean_find_expr(lean_object*, lean_object*);
@@ -289,41 +290,40 @@ goto _start;
 }
 else
 {
-lean_object* v___x_28_; uint8_t v___x_29_; 
+lean_object* v___x_28_; lean_object* v___x_29_; 
 v___x_28_ = lean_unsigned_to_nat(0u);
-v___x_29_ = lean_nat_dec_eq(v_n_23_, v___x_28_);
-if (v___x_29_ == 0)
+v___x_29_ = l___private_Lean_Meta_Sym_Eta_0__Lean_Meta_Sym_etaReduceAux(v_body_22_, v_n_23_, v___x_28_, v_e_21_);
+return v___x_29_;
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Sym_Eta_0__Lean_Meta_Sym_etaReduce_go___boxed(lean_object* v_e_30_, lean_object* v_body_31_, lean_object* v_n_32_){
+_start:
 {
-lean_object* v___x_30_; 
-v___x_30_ = l___private_Lean_Meta_Sym_Eta_0__Lean_Meta_Sym_etaReduceAux(v_body_22_, v_n_23_, v___x_28_, v_e_21_);
-return v___x_30_;
+lean_object* v_res_33_; 
+v_res_33_ = l___private_Lean_Meta_Sym_Eta_0__Lean_Meta_Sym_etaReduce_go(v_e_30_, v_body_31_, v_n_32_);
+lean_dec_ref(v_body_31_);
+lean_dec_ref(v_e_30_);
+return v_res_33_;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_Sym_etaReduce(lean_object* v_e_34_){
+_start:
+{
+uint8_t v___x_35_; 
+v___x_35_ = l_Lean_Expr_isLambda(v_e_34_);
+if (v___x_35_ == 0)
+{
+lean_inc_ref(v_e_34_);
+return v_e_34_;
 }
 else
 {
-lean_dec(v_n_23_);
-lean_inc_ref(v_e_21_);
-return v_e_21_;
-}
-}
-}
-}
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Sym_Eta_0__Lean_Meta_Sym_etaReduce_go___boxed(lean_object* v_e_31_, lean_object* v_body_32_, lean_object* v_n_33_){
-_start:
-{
-lean_object* v_res_34_; 
-v_res_34_ = l___private_Lean_Meta_Sym_Eta_0__Lean_Meta_Sym_etaReduce_go(v_e_31_, v_body_32_, v_n_33_);
-lean_dec_ref(v_body_32_);
-lean_dec_ref(v_e_31_);
-return v_res_34_;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_Sym_etaReduce(lean_object* v_e_35_){
-_start:
-{
 lean_object* v___x_36_; lean_object* v___x_37_; 
 v___x_36_ = lean_unsigned_to_nat(0u);
-v___x_37_ = l___private_Lean_Meta_Sym_Eta_0__Lean_Meta_Sym_etaReduce_go(v_e_35_, v_e_35_, v___x_36_);
+v___x_37_ = l___private_Lean_Meta_Sym_Eta_0__Lean_Meta_Sym_etaReduce_go(v_e_34_, v_e_34_, v___x_36_);
 return v___x_37_;
+}
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Meta_Sym_etaReduce___boxed(lean_object* v_e_38_){

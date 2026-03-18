@@ -34109,7 +34109,7 @@ _start:
 lean_object* v___x_12669_; lean_object* v___x_12670_; lean_object* v___x_12671_; lean_object* v___x_12672_; lean_object* v___x_12673_; lean_object* v___x_12674_; 
 v___x_12669_ = ((lean_object*)(l_Lean_Meta_Grind_foldEqc___redArg___closed__2));
 v___x_12670_ = lean_unsigned_to_nat(2u);
-v___x_12671_ = lean_unsigned_to_nat(1527u);
+v___x_12671_ = lean_unsigned_to_nat(1532u);
 v___x_12672_ = ((lean_object*)(l_Lean_Meta_Grind_foldEqc___redArg___closed__1));
 v___x_12673_ = ((lean_object*)(l_Lean_Meta_Grind_foldEqc___redArg___closed__0));
 v___x_12674_ = l_mkPanicMessageWithDecl(v___x_12673_, v___x_12672_, v___x_12671_, v___x_12670_, v___x_12669_);

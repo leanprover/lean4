@@ -171,8 +171,8 @@ private def reuseManifest
     logWarning s!"{rootName}: ignoring previous manifest because it failed to load: {e}"
 
 /-- Add a package dependency's manifest entries to the update state. -/
-private def addDependencyEntries (pkg : Package) : UpdateT LoggerIO PUnit := do
-  match (← Manifest.load pkg.manifestFile |>.toBaseIO) with
+private def addDependencyEntries (pkg : Package) (matDep : MaterializedDep) : UpdateT LoggerIO PUnit := do
+  match matDep.manifest? with
   | .ok manifest =>
     manifest.packages.forM fun entry => do
       unless (← getThe (NameMap PackageEntry)).contains entry.name do
@@ -210,6 +210,36 @@ Used, for instance, if the toolchain is updated and no Elan is detected.
 -/
 def restartCode : ExitCode := 4
 
+/-- The toolchain information of a package. -/
+private structure ToolchainCandidate where
+  /-- The name of the package which provided the toolchain candidate. -/
+  src : Name
+  /-- The version of the toolchain candidate. -/
+  ver : ToolchainVer
+  /-- Whether the candidate toolchain been fixed to particular version. -/
+  fixed : Bool := false
+
+private structure ToolchainState where
+  /-- The name of depedency which provided the current candidate toolchain. -/
+  src : Name
+  /-- The current candidate toolchain version (if any). -/
+  tc? : Option ToolchainVer
+  /-- Incompatible candidate toolchains (if any). -/
+  clashes : Array ToolchainCandidate
+  /--
+  Whether the candidate toolchain been fixed to particular version.
+  If `false`, the search will update the toolchain further where possible.
+  -/
+  fixed : Bool
+
+@[inline] def ToolchainState.replace
+  (src : Name) (tc? : Option ToolchainVer) (fixed : Bool) (self : ToolchainState)
+: ToolchainState := {self with src, tc?, fixed}
+
+@[inline] def ToolchainState.addClash
+  (src : Name) (ver : ToolchainVer) (fixed : Bool) (self : ToolchainState)
+: ToolchainState := {self with clashes := self.clashes.push {src, ver, fixed}}
+
 /--
 Update the workspace's `lean-toolchain` if necessary.
 
@@ -222,23 +252,38 @@ def Workspace.updateToolchain
 : LoggerIO PUnit := do
   let rootToolchainFile := ws.root.dir / toolchainFileName
   let rootTc? ← ToolchainVer.ofDir? ws.dir
-  let (src, tc?, tcs) ← rootDeps.foldlM (init := (ws.root.baseName, rootTc?, #[])) fun s dep => do
+  let s : ToolchainState := ⟨ws.root.baseName, rootTc?, #[], ws.root.fixedToolchain⟩
+  let ⟨src, tc?, tcs, fixed⟩ ← rootDeps.foldlM (init := s) fun s dep => do
     let depTc? ← ToolchainVer.ofDir? (ws.dir / dep.relPkgDir)
     let some depTc := depTc?
       | return s
-    let (src, tc?, tcs) := s
-    let some tc := tc?
-      | return (dep.name, depTc?, tcs)
-    if depTc ≤ tc then
-      return (src, tc, tcs)
-    else if tc < depTc then
-      return (dep.name, depTc, tcs)
+    let some tc := s.tc?
+      | return s.replace dep.name depTc? dep.fixedToolchain
+    if dep.fixedToolchain then
+      if s.fixed then
+        if tc = depTc then
+          return s
+        else
+          return s.addClash dep.name depTc dep.fixedToolchain -- true
+      else
+        if tc ≤ depTc then
+          return s.replace dep.name depTc dep.fixedToolchain -- true
+        else
+          return s.addClash dep.name depTc dep.fixedToolchain -- true
     else
-      return (src, tc, tcs.push (dep.name, depTc))
+      if depTc ≤ tc then
+        return s
+      else if !s.fixed && tc < depTc then
+        return s.replace dep.name depTc dep.fixedToolchain -- false
+      else
+        return s.addClash dep.name depTc dep.fixedToolchain -- false
   if 0 < tcs.size then
     let s := "toolchain not updated; multiple toolchain candidates:"
-    let s := if let some tc := tc? then s!"{s}\n  {tc}\n    from {src}" else s
-    let s := tcs.foldl (init := s) fun s (d, tc) => s!"{s}\n  {tc}\n    from {d}"
+    let addEntry s tc src fixed :=
+      let fixed := if fixed then " (fixed toolchain)" else ""
+      s!"{s}\n  {tc}\n    from {src}{fixed}"
+    let s := if let some tc := tc? then addEntry s tc src fixed else s
+    let s := tcs.foldl (init := s) fun s ⟨src, tc, fixed⟩ => addEntry s tc src fixed
     logWarning s
   else if let some tc := tc? then
     if rootTc?.any (· == tc) then
@@ -333,7 +378,7 @@ where
     loadUpdatedDep wsIdx dep matDep
   @[inline] loadUpdatedDep wsIdx dep matDep : StateT Workspace (UpdateT LoggerIO) Package  := do
     let depPkg ← loadDepPackage wsIdx matDep dep.opts leanOpts true
-    addDependencyEntries depPkg
+    addDependencyEntries depPkg matDep
     return depPkg
 
 /-- Write package entries to the workspace manifest. -/
@@ -347,6 +392,7 @@ def Workspace.writeManifest
     | none => arr -- should only be the case for the root
   let manifest : Manifest := {
     name := ws.root.baseName
+    fixedToolchain := ws.root.fixedToolchain
     lakeDir := ws.relLakeDir
     packagesDir? := ws.relPkgsDir
     packages := manifestEntries

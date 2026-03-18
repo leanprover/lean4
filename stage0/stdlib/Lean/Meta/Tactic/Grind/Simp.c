@@ -43,7 +43,7 @@ lean_object* l_Lean_Meta_Grind_abstractNestedProofs___redArg(lean_object*, lean_
 lean_object* l_Lean_Meta_Grind_markNestedSubsingletons(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_eraseIrrelevantMData(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_foldProjs(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_Grind_normalizeLevels(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Sym_normalizeLevels(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_eraseSimpMatchDiscrsOnly(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Simp_Result_mkEqTrans(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_replacePreMatchCond(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1380,7 +1380,7 @@ lean_inc(v_a_550_);
 lean_dec_ref(v___x_549_);
 lean_inc(v_a_532_);
 lean_inc_ref(v_a_531_);
-v___x_551_ = l_Lean_Meta_Grind_normalizeLevels(v_a_550_, v_a_531_, v_a_532_);
+v___x_551_ = l_Lean_Meta_Sym_normalizeLevels(v_a_550_, v_a_531_, v_a_532_);
 if (lean_obj_tag(v___x_551_) == 0)
 {
 lean_object* v_a_552_; lean_object* v___x_553_; 
@@ -2787,7 +2787,7 @@ lean_inc(v_a_909_);
 lean_dec_ref(v___x_908_);
 lean_inc(v_a_898_);
 lean_inc_ref(v_a_897_);
-v___x_910_ = l_Lean_Meta_Grind_normalizeLevels(v_a_909_, v_a_897_, v_a_898_);
+v___x_910_ = l_Lean_Meta_Sym_normalizeLevels(v_a_909_, v_a_897_, v_a_898_);
 if (lean_obj_tag(v___x_910_) == 0)
 {
 lean_object* v_a_911_; lean_object* v___x_912_; 

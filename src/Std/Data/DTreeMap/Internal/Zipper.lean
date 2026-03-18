@@ -623,7 +623,6 @@ theorem RxoIterator.step_cons_of_isLT_eq_false [Ord α] {upper : α} {h : (compa
   rw [step, h]
   simp only [Bool.false_eq_true, ↓reduceIte]
 
-set_option backward.isDefEq.respectTransparency false in
 @[simp]
 theorem RxoIterator.val_run_step_toIterM_iter [Ord α] {z : RxoIterator α β} : (⟨z⟩ : Iter (α := RxoIterator α β) ((a : α) × β a)).toIterM.step.run.inflate.val = z.step := by
   rw [IterM.step]

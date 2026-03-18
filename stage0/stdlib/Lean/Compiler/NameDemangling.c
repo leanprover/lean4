@@ -341,7 +341,6 @@ LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lean_C
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_NameDemangling_0__Lean_Name_Demangle_extractSymbol(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_Demangle_demangleBtLine(lean_object*);
 LEAN_EXPORT lean_object* lean_demangle_bt_line_cstr(lean_object*);
-LEAN_EXPORT lean_object* lean_demangle_symbol_cstr(lean_object*);
 LEAN_EXPORT lean_object* l_String_dropPrefix_x3f___at___00__private_Lean_Compiler_NameDemangling_0__Lean_Name_Demangle_dropPrefix_x3f_spec__0___redArg(lean_object* v_pre_1_, lean_object* v_s_2_){
 _start:
 {
@@ -6300,27 +6299,6 @@ v_val_1845_ = lean_ctor_get(v___x_1843_, 0);
 lean_inc(v_val_1845_);
 lean_dec_ref(v___x_1843_);
 return v_val_1845_;
-}
-}
-}
-LEAN_EXPORT lean_object* lean_demangle_symbol_cstr(lean_object* v_symbol_1846_){
-_start:
-{
-lean_object* v___x_1847_; 
-v___x_1847_ = l_Lean_Name_Demangle_demangleSymbol(v_symbol_1846_);
-if (lean_obj_tag(v___x_1847_) == 0)
-{
-lean_object* v___x_1848_; 
-v___x_1848_ = ((lean_object*)(l___private_Lean_Compiler_NameDemangling_0__Lean_Name_Demangle_formatNameParts___closed__0));
-return v___x_1848_;
-}
-else
-{
-lean_object* v_val_1849_; 
-v_val_1849_ = lean_ctor_get(v___x_1847_, 0);
-lean_inc(v_val_1849_);
-lean_dec_ref(v___x_1847_);
-return v_val_1849_;
 }
 }
 }

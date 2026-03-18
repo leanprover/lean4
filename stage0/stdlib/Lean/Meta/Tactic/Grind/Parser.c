@@ -507,7 +507,7 @@ static lean_once_cell_t l_Lean_Parser_Command_grindPattern___closed__10_once = L
 static lean_object* l_Lean_Parser_Command_grindPattern___closed__10;
 static lean_once_cell_t l_Lean_Parser_Command_grindPattern___closed__11_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Parser_Command_grindPattern___closed__11;
-static const lean_string_object l_Lean_Parser_Command_grindPattern___closed__12_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 2, .m_capacity = 2, .m_length = 1, .m_data = ","};
+static const lean_string_object l_Lean_Parser_Command_grindPattern___closed__12_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 3, .m_capacity = 3, .m_length = 2, .m_data = ", "};
 static const lean_object* l_Lean_Parser_Command_grindPattern___closed__12 = (const lean_object*)&l_Lean_Parser_Command_grindPattern___closed__12_value;
 static lean_once_cell_t l_Lean_Parser_Command_grindPattern___closed__13_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Parser_Command_grindPattern___closed__13;

@@ -535,7 +535,7 @@ _start:
 lean_object* v_root_80_; lean_object* v_config_81_; uint8_t v_bootstrap_82_; 
 v_root_80_ = lean_ctor_get(v_ws_79_, 0);
 v_config_81_ = lean_ctor_get(v_root_80_, 6);
-v_bootstrap_82_ = lean_ctor_get_uint8(v_config_81_, sizeof(void*)*27);
+v_bootstrap_82_ = lean_ctor_get_uint8(v_config_81_, sizeof(void*)*26);
 return v_bootstrap_82_;
 }
 }
@@ -631,7 +631,7 @@ if (lean_obj_tag(v_enableArtifactCache_x3f_108_) == 0)
 lean_object* v_root_109_; lean_object* v_config_110_; lean_object* v_enableArtifactCache_x3f_111_; 
 v_root_109_ = lean_ctor_get(v_ws_106_, 0);
 v_config_110_ = lean_ctor_get(v_root_109_, 6);
-v_enableArtifactCache_x3f_111_ = lean_ctor_get(v_config_110_, 25);
+v_enableArtifactCache_x3f_111_ = lean_ctor_get(v_config_110_, 24);
 lean_inc(v_enableArtifactCache_x3f_111_);
 return v_enableArtifactCache_x3f_111_;
 }
@@ -662,7 +662,7 @@ if (lean_obj_tag(v_enableArtifactCache_x3f_116_) == 0)
 lean_object* v_root_117_; lean_object* v_config_118_; lean_object* v_enableArtifactCache_x3f_119_; 
 v_root_117_ = lean_ctor_get(v_ws_114_, 0);
 v_config_118_ = lean_ctor_get(v_root_117_, 6);
-v_enableArtifactCache_x3f_119_ = lean_ctor_get(v_config_118_, 25);
+v_enableArtifactCache_x3f_119_ = lean_ctor_get(v_config_118_, 24);
 if (lean_obj_tag(v_enableArtifactCache_x3f_119_) == 0)
 {
 uint8_t v___x_120_; 
@@ -707,7 +707,7 @@ if (lean_obj_tag(v_enableArtifactCache_x3f_130_) == 0)
 lean_object* v_root_131_; lean_object* v_config_132_; lean_object* v_enableArtifactCache_x3f_133_; 
 v_root_131_ = lean_ctor_get(v_ws_128_, 0);
 v_config_132_ = lean_ctor_get(v_root_131_, 6);
-v_enableArtifactCache_x3f_133_ = lean_ctor_get(v_config_132_, 25);
+v_enableArtifactCache_x3f_133_ = lean_ctor_get(v_config_132_, 24);
 if (lean_obj_tag(v_enableArtifactCache_x3f_133_) == 0)
 {
 uint8_t v___x_134_; 
@@ -765,7 +765,7 @@ _start:
 lean_object* v_root_148_; lean_object* v_config_149_; lean_object* v_restoreAllArtifacts_x3f_150_; 
 v_root_148_ = lean_ctor_get(v_ws_147_, 0);
 v_config_149_ = lean_ctor_get(v_root_148_, 6);
-v_restoreAllArtifacts_x3f_150_ = lean_ctor_get(v_config_149_, 26);
+v_restoreAllArtifacts_x3f_150_ = lean_ctor_get(v_config_149_, 25);
 lean_inc(v_restoreAllArtifacts_x3f_150_);
 return v_restoreAllArtifacts_x3f_150_;
 }
@@ -4249,8 +4249,8 @@ lean_object* v___x_1242_; lean_object* v_config_1243_; lean_object* v_dir_1244_;
 v___x_1242_ = lean_array_uget_borrowed(v_as_1237_, v_i_1238_);
 v_config_1243_ = lean_ctor_get(v___x_1242_, 6);
 v_dir_1244_ = lean_ctor_get(v___x_1242_, 4);
-v_buildDir_1245_ = lean_ctor_get(v_config_1243_, 6);
-v_binDir_1246_ = lean_ctor_get(v_config_1243_, 9);
+v_buildDir_1245_ = lean_ctor_get(v_config_1243_, 5);
+v_binDir_1246_ = lean_ctor_get(v_config_1243_, 8);
 lean_inc_ref(v_buildDir_1245_);
 v___x_1247_ = l_System_FilePath_normalize(v_buildDir_1245_);
 lean_inc_ref(v_dir_1244_);
@@ -4349,8 +4349,8 @@ lean_object* v___x_1282_; lean_object* v_config_1283_; lean_object* v_dir_1284_;
 v___x_1282_ = lean_array_uget_borrowed(v_as_1277_, v_i_1278_);
 v_config_1283_ = lean_ctor_get(v___x_1282_, 6);
 v_dir_1284_ = lean_ctor_get(v___x_1282_, 4);
-v_buildDir_1285_ = lean_ctor_get(v_config_1283_, 6);
-v_leanLibDir_1286_ = lean_ctor_get(v_config_1283_, 7);
+v_buildDir_1285_ = lean_ctor_get(v_config_1283_, 5);
+v_leanLibDir_1286_ = lean_ctor_get(v_config_1283_, 6);
 lean_inc_ref(v_buildDir_1285_);
 v___x_1287_ = l_System_FilePath_normalize(v_buildDir_1285_);
 lean_inc_ref(v_dir_1284_);
@@ -4463,7 +4463,7 @@ else
 lean_object* v_config_1331_; lean_object* v_dir_1332_; lean_object* v_srcDir_1333_; lean_object* v_srcDir_1334_; lean_object* v___x_1335_; lean_object* v___x_1336_; lean_object* v___x_1337_; lean_object* v___x_1338_; 
 v_config_1331_ = lean_ctor_get(v_x2_1317_, 6);
 v_dir_1332_ = lean_ctor_get(v_x2_1317_, 4);
-v_srcDir_1333_ = lean_ctor_get(v_config_1331_, 5);
+v_srcDir_1333_ = lean_ctor_get(v_config_1331_, 4);
 v_srcDir_1334_ = lean_ctor_get(v_config_1327_, 1);
 lean_inc_ref(v_srcDir_1333_);
 v___x_1335_ = l_System_FilePath_normalize(v_srcDir_1333_);
@@ -4621,8 +4621,8 @@ v___x_1394_ = lean_usize_sub(v_i_1389_, v___x_1393_);
 v___x_1395_ = lean_array_uget_borrowed(v_as_1388_, v___x_1394_);
 v_config_1396_ = lean_ctor_get(v___x_1395_, 6);
 v_dir_1397_ = lean_ctor_get(v___x_1395_, 4);
-v_buildDir_1398_ = lean_ctor_get(v_config_1396_, 6);
-v_nativeLibDir_1399_ = lean_ctor_get(v_config_1396_, 8);
+v_buildDir_1398_ = lean_ctor_get(v_config_1396_, 5);
+v_nativeLibDir_1399_ = lean_ctor_get(v_config_1396_, 7);
 lean_inc_ref(v_buildDir_1398_);
 v___x_1400_ = l_System_FilePath_normalize(v_buildDir_1398_);
 lean_inc_ref(v_dir_1397_);
@@ -4802,7 +4802,7 @@ if (lean_obj_tag(v_enableArtifactCache_x3f_1479_) == 0)
 {
 lean_object* v_config_1536_; lean_object* v_enableArtifactCache_x3f_1537_; 
 v_config_1536_ = lean_ctor_get(v_root_1477_, 6);
-v_enableArtifactCache_x3f_1537_ = lean_ctor_get(v_config_1536_, 25);
+v_enableArtifactCache_x3f_1537_ = lean_ctor_get(v_config_1536_, 24);
 if (lean_obj_tag(v_enableArtifactCache_x3f_1537_) == 1)
 {
 lean_object* v_val_1538_; uint8_t v___x_1539_; 
@@ -4876,7 +4876,7 @@ v___jp_1513_:
 {
 lean_object* v_config_1515_; uint8_t v_bootstrap_1516_; lean_object* v___x_1517_; lean_object* v___x_1518_; lean_object* v___x_1519_; lean_object* v___x_1520_; lean_object* v___x_1521_; lean_object* v___x_1522_; lean_object* v___x_1523_; lean_object* v___x_1524_; lean_object* v___x_1525_; lean_object* v___x_1526_; lean_object* v___x_1527_; lean_object* v___x_1528_; 
 v_config_1515_ = lean_ctor_get(v_root_1477_, 6);
-v_bootstrap_1516_ = lean_ctor_get_uint8(v_config_1515_, sizeof(void*)*27);
+v_bootstrap_1516_ = lean_ctor_get_uint8(v_config_1515_, sizeof(void*)*26);
 v___x_1517_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_1517_, 0, v___x_1512_);
 lean_ctor_set(v___x_1517_, 1, v___y_1514_);

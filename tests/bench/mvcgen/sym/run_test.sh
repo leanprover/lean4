@@ -1,0 +1,2 @@
+# Limit threads to avoid exhausting memory with the large thread stack.
+LEAN_NUM_THREADS=1 lake test

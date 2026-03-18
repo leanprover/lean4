@@ -70,17 +70,20 @@ There are also places where we deviate from strict call-by-value semantics:
 
 ## Attributes
 
-- `@[cbv_opaque]`: prevents `cbv` from unfolding a definition. The constant is
-  returned as-is without attempting any rewrite rules, equation or unfold theorems.
+- `@[cbv_opaque]`: prevents `cbv` from unfolding a definition. Equation theorems,
+  unfold theorems, and kernel reduction are all suppressed. However, `@[cbv_eval]`
+  rules can still fire on an `@[cbv_opaque]` constant, allowing users to provide
+  custom rewrite rules without exposing the full definition.
 - `@[cbv_eval]`: registers a theorem as a custom rewrite rule for `cbv`. The
   theorem must be an unconditional equality whose LHS is an application of a
   constant. Use `@[cbv_eval ←]` to rewrite right-to-left. These rules are tried
-  before equation theorems.
+  before equation theorems and can override `@[cbv_opaque]`.
 
 ## Unfolding order
 
-For a constant application, `handleApp` first checks `@[cbv_opaque]` — if the
-constant is opaque, it is returned as-is immediately. Otherwise it tries in order:
+For a constant application, `handleApp` first checks `@[cbv_opaque]`. If the
+constant is opaque, only `@[cbv_eval]` rewrite rules are attempted; the result
+is marked done regardless of whether a rule fires. Otherwise it tries in order:
 1. `@[cbv_eval]` rewrite rules
 2. Equation theorems (e.g. `foo.eq_1`, `foo.eq_2`)
 3. Unfold equations
@@ -127,13 +130,6 @@ def tryUnfold : Simproc := fun e => do
     trace[Meta.Tactic.cbv.unfold] "unfold `{appFn}`:{indentExpr e}\n==>{indentExpr e'}"
   return result
 
-/-- Try equation theorems, then unfold equations. Skip `@[cbv_opaque]` constants. -/
-def handleConstApp : Simproc := fun e => do
-  if (← isCbvOpaque e.getAppFn.constName!) then
-    return .rfl (done := true)
-  else
-    tryEquations <|> tryUnfold <| e
-
 def betaReduce : Simproc := fun e => do
   -- TODO: Improve term sharing
   let new := e.headBeta
@@ -149,9 +145,14 @@ def tryCbvTheorems : Simproc := fun e => do
     trace[Meta.Tactic.cbv.rewrite] "@[cbv_eval] `{fnName}`:{indentExpr e}\n==>{indentExpr e'}"
   return result
 
+/-- Try equation theorems, then unfold equations. -/
+def handleConstApp : Simproc := fun e => do
+  tryEquations <|> tryUnfold <| e
+
 /--
-Post-pass handler for applications. For a constant-headed application, checks
-`@[cbv_opaque]` first, then tries `@[cbv_eval]` rules, equation/unfold theorems,
+Post-pass handler for applications. For a constant-headed application, if the
+constant is `@[cbv_opaque]`, only `@[cbv_eval]` rules are tried (and the result
+is marked done). Otherwise tries `@[cbv_eval]` rules, equation/unfold theorems,
 and `reduceRecMatcher`. For a lambda-headed application, beta-reduces.
 -/
 def handleApp : Simproc := fun e => do
@@ -160,15 +161,17 @@ def handleApp : Simproc := fun e => do
   match fn with
   | .const constName _ =>
     if (← isCbvOpaque constName) then
-      return .rfl (done := true)
+      return (← tryCbvTheorems e).markAsDone
     let info ← getConstInfo constName
     tryCbvTheorems <|> (guardSimproc (fun _ => info.hasValue) handleConstApp) <|> reduceRecMatcher <| e
   | .lam .. => betaReduce e
   | _ => return .rfl
 
-def isOpaqueConst : Simproc := fun e => do
+def handleOpaqueConst : Simproc := fun e => do
   let .const constName _ := e | return .rfl
-  return .rfl (← isCbvOpaque constName)
+  if (← isCbvOpaque constName) then
+    return (← tryCbvTheorems e).markAsDone
+  return .rfl
 
 def foldLit : Simproc := fun e => do
   let some n := e.rawNatLit? | return .rfl
@@ -279,7 +282,7 @@ def cbvPreStep : Simproc := fun e => do
   match e with
   | .lit .. => foldLit e
   | .proj .. => handleProj e
-  | .const .. => isOpaqueConst >> (tryCbvTheorems <|> handleConst) <| e
+  | .const .. => handleOpaqueConst >> (tryCbvTheorems <|> handleConst) <| e
   | .app .. => tryMatcher <|> simplifyAppFn <| e
   | .letE .. =>
     if e.letNondep! then

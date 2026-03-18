@@ -89,16 +89,11 @@ def normalPair : Nat × Nat := (10, 20)
 example : normalPair.1 = 10 := by cbv
 example : normalPair.2 = 20 := by cbv
 
-/-! `@[cbv_opaque]` takes precedence over `@[cbv_eval]`. -/
+/-! `@[cbv_eval]` can override `@[cbv_opaque]`. -/
 
 @[cbv_opaque] def opaqueAdd (a b : Nat) : Nat := a + b
 @[cbv_eval] theorem opaqueAdd_eq (a b : Nat) : opaqueAdd a b = a + b := rfl
 
-/--
-error: unsolved goals
-⊢ opaqueAdd 1 2 = 3
--/
-#guard_msgs in
 example : opaqueAdd 1 2 = 3 := by conv => lhs; cbv
 
 /-! `@[cbv_eval]` works on bare constants (no arguments). -/
@@ -112,3 +107,67 @@ example : bareConst = 5 := by conv => lhs; cbv
 
 example : secret = 42 := by cbv
 example : secretPair.1 = 10 := by cbv
+
+/-! ## Interaction of `@[cbv_opaque]` and `@[cbv_eval]` -/
+
+/-! `@[cbv_eval]` on an opaque bare constant rewrites it. -/
+
+@[cbv_opaque] def opaqueConst : Nat := 99
+@[cbv_eval] theorem opaqueConst_eq : opaqueConst = 99 := rfl
+
+example : opaqueConst = 99 := by conv => lhs; cbv
+
+/-! `@[cbv_eval]` on an opaque function fires and the result is further reduced. -/
+
+@[cbv_opaque] def opaqueMul (a b : Nat) : Nat := a * b
+@[cbv_eval] theorem opaqueMul_eq (a b : Nat) : opaqueMul a b = a * b := rfl
+
+example : opaqueMul 3 4 + 1 = 13 := by conv => lhs; cbv
+
+/-! Without `@[cbv_eval]`, an opaque constant stays stuck (cbv_opaque alone blocks). -/
+
+@[cbv_opaque] def pureOpaque : Nat := 7
+
+/--
+error: unsolved goals
+⊢ pureOpaque = 7
+-/
+#guard_msgs in
+example : pureOpaque = 7 := by conv => lhs; cbv
+
+/-! `@[cbv_eval ←]` (inverted) also works with `@[cbv_opaque]`. -/
+
+@[cbv_opaque] def opaqueAlias : Nat := 42
+@[cbv_eval ←] theorem opaqueAlias_eq : 42 = opaqueAlias := rfl
+
+example : opaqueAlias = 42 := by conv => lhs; cbv
+
+/-! `@[cbv_opaque]` with `@[cbv_eval]` still prevents unfolding of the definition itself. -/
+
+@[cbv_opaque] def opaquePartial (n : Nat) : Nat := n * n
+-- Only provide a rule for the specific case n=5
+@[cbv_eval] theorem opaquePartial_5 : opaquePartial 5 = 25 := rfl
+
+example : opaquePartial 5 = 25 := by conv => lhs; cbv
+
+-- No rule for n=3, so it stays stuck
+/--
+error: unsolved goals
+⊢ opaquePartial 3 = 9
+-/
+#guard_msgs in
+example : opaquePartial 3 = 9 := by conv => lhs; cbv
+
+/-! Opaque constant used as argument to a non-opaque function stays opaque. -/
+
+def double (n : Nat) : Nat := n + n
+
+/--
+error: unsolved goals
+⊢ (match pureOpaque, pureOpaque with
+    | a, Nat.zero => a
+    | a, b.succ => (a.add b).succ) =
+    14
+-/
+#guard_msgs in
+example : double pureOpaque = 14 := by conv => lhs; cbv

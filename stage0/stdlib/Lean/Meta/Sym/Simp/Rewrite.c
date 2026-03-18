@@ -3121,7 +3121,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Sym_Simp_Theorems_rewrite(lean_object* v_th
 _start:
 {
 lean_object* v___x_1072_; lean_object* v___x_1073_; size_t v_sz_1074_; size_t v___x_1075_; lean_object* v___x_1076_; 
-lean_inc_ref(v_e_1061_);
 v___x_1072_ = l_Lean_Meta_Sym_Simp_Theorems_getMatchWithExtra(v_thms_1059_, v_e_1061_);
 v___x_1073_ = ((lean_object*)(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Meta_Sym_Simp_Theorems_rewrite_spec__0___closed__0));
 v_sz_1074_ = lean_array_size(v___x_1072_);

@@ -760,6 +760,7 @@ have to hard-code the true arity of these definitions here, and make sure the C 
 We have used another hack based on `IO.Ref`s in the past, it was safer but less efficient.
 -/
 
+set_option compiler.ignoreBorrowAnnotation true in
 /--
 Reduces an expression to its *weak head normal form*.
 This is when the "head" of the top-level expression has been fully reduced.
@@ -768,6 +769,7 @@ The result may contain subexpressions that have not been reduced.
 See `Lean.Meta.whnfImp` for the implementation.
 -/
 @[extern "lean_whnf"] opaque whnf : Expr → MetaM Expr
+set_option compiler.ignoreBorrowAnnotation true in
 /--
 Returns the inferred type of the given expression. Assumes the expression is type-correct.
 
@@ -822,8 +824,11 @@ def e3 : Expr := .app (.const ``Nat.zero []) (.const ``Nat.zero [])
 See `Lean.Meta.inferTypeImp` for the implementation of `inferType`.
 -/
 @[extern "lean_infer_type"] opaque inferType : Expr → MetaM Expr
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_is_expr_def_eq"] opaque isExprDefEqAux : Expr → Expr → MetaM Bool
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_is_level_def_eq"] opaque isLevelDefEqAux : Level → Level → MetaM Bool
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_synth_pending"] protected opaque synthPending : MVarId → MetaM Bool
 
 def whnfForall (e : Expr) : MetaM Expr := do
@@ -2498,6 +2503,7 @@ def isDefEqD (t s : Expr) : MetaM Bool :=
 def isDefEqI (t s : Expr) : MetaM Bool :=
   withReducibleAndInstances <| isDefEq t s
 
+set_option compiler.ignoreBorrowAnnotation true in
 /--
 Returns `true` if `mvarId := val` was successfully assigned.
 This method uses the same assignment validation performed by `isDefEq`, but it does not check whether the types match.

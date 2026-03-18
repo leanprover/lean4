@@ -623,6 +623,7 @@ private def evalSuggestSimpAllTrace : TryTactic := fun tac => do
   | _ => throwUnsupportedSyntax
 
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_eval_suggest_tactic"] -- forward definition to avoid mutual block
 opaque evalSuggest : TryTactic
 

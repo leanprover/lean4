@@ -68,11 +68,22 @@ partial def normalizeInstance (inst expectedType : Expr) : MetaM Expr := withTra
     | _ => pure ()
   catch _ => pure ()
   -- Try to reduce it to a constructor.
-  (← whnf inst).withApp fun f args => do
-    let .const c _ := f
-      | throwError "instance normal form: expected constructor application, got {inst}"
-    let .ctorInfo ci ← getConstInfo c
-      | throwError "instance normal form: expected constructor application, got {inst}"
+  let inst ← whnf inst
+  inst.withApp fun f args => do
+    let some (.ctorInfo ci) ← f.constName?.mapM getConstInfo
+      | do
+        trace[Meta.instanceNormalForm] "did not reduce to constructor application, returning/wrapping as is: {inst}"
+        if «instance».normalForm.wrapFields.instances.get (← getOptions) then
+          let instType ← inferType inst
+          if ← isDefEq expectedType instType then
+            return inst
+          else
+            let name ← mkAuxDeclName
+            let wrapped ← mkAuxDefinition name expectedType inst
+            setReducibilityStatus name .implicitReducible
+            return wrapped
+        else
+          return inst
     let (mvars, _, cls) ← forallMetaTelescope (← inferType f)
     if h₁ : args.size ≠ mvars.size then
       throwError "instance normal form: incorrect number of arguments for \
@@ -80,7 +91,7 @@ partial def normalizeInstance (inst expectedType : Expr) : MetaM Expr := withTra
     else
       unless ← isDefEq expectedType cls do
         throwError "instance normal form: `{expectedType}` does not unify with the conclusion of \
-          `{.ofConstName c}`"
+          `{.ofConstName ci.name}`"
       for h₂ : i in ci.numParams...args.size do
         have : i < mvars.size := by
           simp only [ne_eq, Decidable.not_not] at h₁
@@ -103,18 +114,7 @@ partial def normalizeInstance (inst expectedType : Expr) : MetaM Expr := withTra
             mvarId.assign arg
         -- Recurse into instance arguments of the constructor
         else if (← isClass? argExpectedType).isSome then
-          let normalized ← normalizeInstance arg argExpectedType
-          if «instance».normalForm.wrapFields.instances.get (← getOptions) then
-            let normalizedType ← inferType normalized
-            if ← isDefEq argExpectedType normalizedType then
-              mvarId.assign normalized
-            else
-              let name ← mkAuxDeclName
-              let wrapped ← mkAuxDefinition name argExpectedType normalized
-              setReducibilityStatus name .implicitReducible
-              mvarId.assign wrapped
-          else
-            mvarId.assign normalized
+          mvarId.assign (← normalizeInstance arg argExpectedType)
         else
           -- For data fields, assign directly or wrap in aux def to fix types.
           if «instance».normalForm.wrapFields.data.get (← getOptions) then

@@ -78,7 +78,7 @@ theorem unsat_def (f : CNF α) : Unsat f ↔ (∀ a, eval a f = false) := by rfl
 
 
 @[simp] theorem not_unsat_empty : ¬Unsat (.empty : CNF α) :=
-  fun h => by simp [unsat_def] at h
+  fun h => by simp [unsat_def, forall_const] at h
 
 @[simp] theorem sat_empty {assign : α → Bool} : Sat assign (.empty : CNF α) := by
   simp [sat_def]

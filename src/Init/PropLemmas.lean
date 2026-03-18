@@ -317,7 +317,7 @@ theorem exists_or : (∃ x, p x ∨ q x) ↔ (∃ x, p x) ∨ ∃ x, q x :=
 
 @[simp] theorem exists_false : ¬(∃ _a : α, False) := fun ⟨_, h⟩ => h
 
-@[simp] theorem forall_const (α : Sort _) [i : Nonempty α] : (α → b) ↔ b :=
+theorem forall_const (α : Sort _) [i : Nonempty α] : (α → b) ↔ b :=
   ⟨i.elim, fun hb _ => hb⟩
 
 theorem Exists.nonempty : (∃ x, p x) → Nonempty α | ⟨x, _⟩ => ⟨x⟩

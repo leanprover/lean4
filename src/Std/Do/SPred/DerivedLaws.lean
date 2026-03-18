@@ -169,7 +169,7 @@ theorem and_right_comm : (P ∧ Q) ∧ R ⊣⊢ₛ (P ∧ R) ∧ Q := and_assoc.
 /-! # Working with entailment -/
 
 -- NB: We cannot currently make the following lemma @[grind =]; we are blocked on #9623.
-theorem entails_pure_elim_cons {σ : Type u} [Inhabited σ] (P Q : Prop) : entails ⌜P⌝ (σs := σ::σs) ⌜Q⌝ ↔ entails ⌜P⌝ (σs := σs) ⌜Q⌝ := by simp [entails]
+theorem entails_pure_elim_cons {σ : Type u} [Inhabited σ] (P Q : Prop) : entails ⌜P⌝ (σs := σ::σs) ⌜Q⌝ ↔ entails ⌜P⌝ (σs := σs) ⌜Q⌝ := by simp [entails, forall_const]
 @[simp] theorem entails_true_intro (P Q : SPred σs) : (⊢ₛ P → Q) ↔ (P ⊢ₛ Q) := Iff.intro (fun h => (and_intro true_intro .rfl).trans (imp_elim h)) (fun h => imp_intro (and_elim_r.trans h))
 -- The following lemmas work around a DefEq incompleteness that would be fixed by #9015.
 @[simp] theorem entails_1 {P Q : SPred [σ]} : SPred.entails P Q ↔ (∀ s, (P s).down → (Q s).down) := iff_of_eq rfl

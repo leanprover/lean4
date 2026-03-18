@@ -44,7 +44,7 @@ def min' [LE α] [DecidableLE α] (a b : α) : α :=
 
 open scoped Std.OppositeOrderInstances in
 def max' [LE α] [DecidableLE α] (a b : α) : α :=
-  letI : LE α := (inferInstanceAs (LE α)).opposite
+  letI : LE α := (inferInstance : LE α).opposite
   -- `DecidableLE` for the opposite order is derived automatically via `OppositeOrderInstances`
   min' a b
 ```

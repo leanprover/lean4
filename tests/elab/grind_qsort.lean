@@ -56,14 +56,20 @@ theorem _root_.List.Perm.take_of_getElem {l₁ l₂ : List α} (h : l₁ ~ l₂)
     (w : ∀ j, i ≤ j → (_ : j < l₁.length) → l₁[j] = l₂[j]'(by have := h.length_eq; omega)) :
     l₁.take i ~ l₂.take i := by
   apply h.take_of_getElem?
-  sorry
+  intro j hij
+  by_cases h_length₁ : j < l₁.length
+  <;> have h_length₂ := h.length_eq ▸ h_length₁
+  <;> grind
 
 /-- Variant of `List.Perm.drop` specifying the permutation is constant before `i` elementwise. -/
 theorem _root_.List.Perm.drop_of_getElem {l₁ l₂ : List α} (h : l₁ ~ l₂) {i : Nat}
     (w : ∀ j, j < i → (_ : j < l₁.length) → l₁[j] = l₂[j]'(by have := h.length_eq; omega)) :
     l₁.drop i ~ l₂.drop i := by
   apply h.drop_of_getElem?
-  sorry
+  intro j hij
+  by_cases h_length₁ : j < l₁.length
+  <;> have h_length₂ := h.length_eq ▸ h_length₁
+  <;> grind
 
 theorem _root_.Array.Perm.extract' {xs ys : Array α} (h : xs ~ ys) {lo hi : Nat}
     (wlo : ∀ i, i < lo → (_ : i < xs.size) → xs[i] = ys[i]'(by have := h.size_eq; omega))
@@ -71,9 +77,8 @@ theorem _root_.Array.Perm.extract' {xs ys : Array α} (h : xs ~ ys) {lo hi : Nat
     xs.extract lo hi ~ ys.extract lo hi := by
   rcases xs with ⟨xs⟩
   rcases ys with ⟨ys⟩
-  simp_all only [perm_iff_toList_perm, List.getElem?_toArray, List.extract_toArray,
-    List.extract_eq_take_drop]
-  apply List.Perm.take_of_getElem (w := fun i h₁ h₂ => by simpa using whi (lo + i) (by omega) sorry)
+  simp_all only [perm_iff_toList_perm, List.extract_toArray, List.extract_eq_drop_take]
+  apply List.Perm.take_of_getElem (w := fun i h₁ h₂ => by simpa using whi (lo + i) (by omega) (by grind))
   apply List.Perm.drop_of_getElem (w := wlo)
   simpa using List.perm_iff_toArray_perm.mpr h
 

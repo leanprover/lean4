@@ -15,9 +15,6 @@ Try this:
   [apply] [grind .] for pattern: [@Perm #1 #0 #0]
 Try this:
   [apply] [grind .] for pattern: [@Vector.Perm #2 #1 #0 #0]
-grind_qsort.lean:55:8-55:40: warning: declaration uses `sorry`
-grind_qsort.lean:62:8-62:40: warning: declaration uses `sorry`
-grind_qsort.lean:68:8-68:34: warning: declaration uses `sorry`
 Try these:
   [apply] [grind .] for pattern: [@Perm #7 (@extract _ #6 #3 #2) (@extract _ #5 #3 #2)]
   [apply] [grind =>] for pattern: [@Perm #7 #6 #5, @Perm _ (@extract _ #6 #3 #2) (@extract _ #5 #3 #2)]
@@ -41,7 +38,7 @@ Try these:
   [apply] [grind =] for pattern: [@getElem (Vector #12 #8) `[Nat] _ _ _ (@qsort.sort _ #11 #8 #7 #10 #9 #3 #5 #4) #2 #0]
   [apply] [grind
     =>] for pattern: [@LE.le `[Nat] `[instLENat] #10 #9, @LE.le `[Nat] `[instLENat] (#10 + 1) #8, @LE.le `[Nat] `[instLENat] (#9 + 1) #2, @getElem (Vector #12 _) `[Nat] _ _ _ (@qsort.sort _ #11 #8 #7 #10 #9 #3 #5 #4) #2 #0]
-grind_qsort.lean:158:9-158:24: warning: this parameter is redundant, environment already contains `_private.elab.grind_qsort.0.Array.qsort_sort_perm` annotated with `@[grind]`
+grind_qsort.lean:163:9-163:24: warning: this parameter is redundant, environment already contains `_private.elab.grind_qsort.0.Array.qsort_sort_perm` annotated with `@[grind]`
 [grind.ematch.pattern] qpartition.eq_1: [@qpartition #8 #7 #6 #5 #4 #3 #2 #1 #0]
 [grind.ematch.pattern] qpartition_loop_spec₁: [@getElem (Vector #23 #19) `[Nat] _ _ _ #6 #2 _,
      @getElem (Vector _ _) `[Nat] _ _ _ #6 #7 #4,

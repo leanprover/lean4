@@ -3704,6 +3704,8 @@ class Pure (f : Type u → Type v) where
 
 export Pure (pure)
 
+attribute [match_pattern] Pure.pure
+
 /--
 A functor in the sense used in functional programming, which means a function `f : Type u → Type v`
 has a way of mapping a function over its contents. This `map` operator is written `<$>`, and

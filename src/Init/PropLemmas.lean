@@ -416,7 +416,7 @@ theorem forall_comm {p : α → β → Prop} : (∀ a b, p a b) ↔ (∀ b a, p 
 theorem exists_comm {p : α → β → Prop} : (∃ a b, p a b) ↔ (∃ b a, p a b) :=
   ⟨fun ⟨a, b, h⟩ => ⟨b, a, h⟩, fun ⟨b, a, h⟩ => ⟨a, b, h⟩⟩
 
-@[simp] theorem forall_apply_eq_imp_iff {f : α → β} {p : β → Prop} :
+theorem forall_apply_eq_imp_iff {f : α → β} {p : β → Prop} :
     (∀ b a, f a = b → p b) ↔ ∀ a, p (f a) :=
   ⟨fun h a => h (f a) a rfl, fun h _ a hab => hab ▸ h a⟩
 

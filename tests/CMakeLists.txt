@@ -41,7 +41,6 @@ string(APPEND TEST_VARS " CXX='${CMAKE_CXX_COMPILER} ${LEANC_OPTS}'")
 set(WITH_TEST_ENV "${CMAKE_CURRENT_SOURCE_DIR}/with_stage${STAGE}_test_env.sh")
 set(WITH_BENCH_ENV "${CMAKE_CURRENT_SOURCE_DIR}/with_stage${STAGE}_bench_env.sh")
 
-string(APPEND TEST_VARS " TEST_BENCH=")
 configure_file(with_env.sh.in "${WITH_TEST_ENV}")
 
 block()

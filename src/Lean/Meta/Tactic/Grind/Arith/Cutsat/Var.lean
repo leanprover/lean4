@@ -12,6 +12,7 @@ import Lean.Meta.IntInstTesters
 public section
 namespace Lean.Meta.Grind.Arith.Cutsat
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_cutsat_propagate_nonlinear"]
 opaque propagateNonlinearTerm (y : Var) (x : Var) : GoalM Bool
 

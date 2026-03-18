@@ -109,4 +109,23 @@ where
 public def _root_.Lean.MVarId.checkMaxShared (mvarId : MVarId) (msg := "") : SymM Unit := do
   (← mvarId.getDecl).type.checkMaxShared msg
 
+/-- Quick filter for checking whether we can skip `normalizeLevels`. -/
+def levelsAlreadyNormalized (e : Expr) : Bool :=
+  Option.isNone <| e.find? fun
+    | .const _ us => us.any (! ·.isAlreadyNormalizedCheap)
+    | .sort u => !u.isAlreadyNormalizedCheap
+    | _ => false
+
+/--
+Normalizes universe levels in constants and sorts.
+-/
+public def normalizeLevels (e : Expr) : CoreM Expr := do
+  if levelsAlreadyNormalized e then return e
+  let pre (e : Expr) := do
+    match e with
+    | .sort u => return .done <| e.updateSort! u.normalize
+    | .const _ us => return .done <| e.updateConst! (us.map Level.normalize)
+    | _ => return .continue
+  Core.transform e (pre := pre)
+
 end Lean.Meta.Sym

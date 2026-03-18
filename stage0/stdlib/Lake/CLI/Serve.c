@@ -702,7 +702,7 @@ lean_inc(v_val_243_);
 lean_dec_ref(v_fst_237_);
 v_root_244_ = lean_ctor_get(v_val_243_, 0);
 v_config_245_ = lean_ctor_get(v_root_244_, 6);
-v_moreGlobalServerArgs_246_ = lean_ctor_get(v_config_245_, 4);
+v_moreGlobalServerArgs_246_ = lean_ctor_get(v_config_245_, 3);
 lean_inc_ref(v_moreGlobalServerArgs_246_);
 v___x_247_ = l_Lake_Workspace_augmentedEnvVars(v_val_243_);
 v_fst_211_ = v___x_247_;

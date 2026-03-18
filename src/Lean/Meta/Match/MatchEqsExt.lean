@@ -46,12 +46,14 @@ Forward definition of `getEquationsForImpl`.
 We want to use `getEquationsFor` in the simplifier,
 getEquationsFor` depends on `mkEquationsFor` which uses the simplifier.
 -/
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_get_match_equations_for"]
 opaque getEquationsFor (matchDeclName : Name) : MetaM MatchEqns
 
 /-
 Forward definition of `genMatchCongrEqnsImpl`.
 -/
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_get_congr_match_equations_for"]
 opaque genMatchCongrEqns (matchDeclName : Name) : MetaM (Array Name)
 

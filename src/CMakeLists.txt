@@ -118,6 +118,9 @@ option(USE_LAKE_CACHE "Use the Lake artifact cache for stage 1 builds (requires 
 set(LEAN_EXTRA_MAKE_OPTS "" CACHE STRING "extra options to lean --make")
 set(LEANC_CC ${CMAKE_C_COMPILER} CACHE STRING "C compiler to use in `leanc`")
 
+# Temporary, core-only flags. Must be synced with stdlib_flags.h.
+string(APPEND LEAN_EXTRA_MAKE_OPTS " -Dbackward.do.legacy=false")
+
 if(LAZY_RC MATCHES "ON")
   set(LEAN_LAZY_RC "#define LEAN_LAZY_RC")
 endif()

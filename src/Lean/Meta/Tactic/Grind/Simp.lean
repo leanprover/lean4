@@ -63,7 +63,7 @@ def preprocessImpl (e : Expr) : GoalM Simp.Result := do
   let e' ← markNestedSubsingletons e'
   let e' ← eraseIrrelevantMData e'
   let e' ← foldProjs e'
-  let e' ← normalizeLevels e'
+  let e' ← Sym.normalizeLevels e'
   let r' ← eraseSimpMatchDiscrsOnly e'
   let r ← r.mkEqTrans r'
   let e' := r'.expr
@@ -98,6 +98,6 @@ but ensures assumptions made by `grind` are satisfied.
 -/
 def preprocessLight (e : Expr) : GoalM Expr := do
   let e ← instantiateMVars e
-  shareCommon (← canon (← normalizeLevels (← foldProjs (← eraseIrrelevantMData (← markNestedSubsingletons (← Sym.unfoldReducible e))))))
+  shareCommon (← canon (← Sym.normalizeLevels (← foldProjs (← eraseIrrelevantMData (← markNestedSubsingletons (← Sym.unfoldReducible e))))))
 
 end Lean.Meta.Grind

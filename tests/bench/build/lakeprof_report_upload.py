@@ -22,7 +22,7 @@ def run_stdout(*command: str, cwd: Path | None = None) -> str:
 
 sha = run_stdout("git", "rev-parse", "@", cwd=src_dir).strip()
 base_url = f"https://speed.lean-lang.org/lean4-out/{sha}"
-report = run_stdout("lakeprof", "report", "-prc", cwd=src_dir)
+report = (src_dir / "lakeprof_report.txt").read_text()
 
 template = template_file.read_text()
 template = template.replace("__BASE_URL__", json.dumps(base_url))

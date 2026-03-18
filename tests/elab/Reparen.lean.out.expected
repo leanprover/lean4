@@ -2983,7 +2983,7 @@ Examples:
  * `([] : List String).length = 0`
  * `["green", "brown"].length = 2`
 -/
-def List.length : List α → Nat
+@[implicit_reducible] def List.length : List α → Nat
   | nil       => 0
   | cons _ as => HAdd.hAdd (  length as)1
 

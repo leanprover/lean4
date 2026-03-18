@@ -9,6 +9,7 @@ prelude
 public import Std.Internal.Http.Data.Extensions
 public import Std.Internal.Http.Data.Method
 public import Std.Internal.Http.Data.Version
+public import Std.Internal.Http.Data.Headers
 
 public section
 
@@ -50,6 +51,11 @@ structure Request.Head where
   The raw request-target string (commonly origin-form path/query, `"*"`, or authority-form).
   -/
   uri : String
+
+  /--
+  Collection of HTTP headers for the request (Content-Type, Authorization, etc.).
+  -/
+  headers : Headers := .empty
 deriving Inhabited, Repr
 
 /--
@@ -93,6 +99,8 @@ instance : ToString Head where
     toString req.method ++ " " ++
     toString req.uri ++ " " ++
     toString req.version ++
+    "\r\n" ++
+    toString req.headers ++
     "\r\n"
 
 open Internal in
@@ -103,6 +111,8 @@ instance : Encode .v11 Head where
     let buffer := buffer.writeString req.uri
     let buffer := buffer.writeChar ' '
     let buffer := Encode.encode (v := .v11) buffer req.version
+    let buffer := buffer.writeString "\r\n"
+    let buffer := Encode.encode (v := .v11) buffer req.headers
     buffer.writeString "\r\n"
 
 /--
@@ -136,6 +146,43 @@ Sets the request target/URI for the request being built.
 -/
 def uri (builder : Builder) (uri : String) : Builder :=
   { builder with line := { builder.line with uri := uri } }
+
+/--
+Sets the headers for the request being built.
+-/
+def headers (builder : Builder) (headers : Headers) : Builder :=
+  { builder with line := { builder.line with headers } }
+
+/--
+Adds a single header to the request being built.
+-/
+def header (builder : Builder) (key : Header.Name) (value : Header.Value) : Builder :=
+  { builder with line := { builder.line with headers := builder.line.headers.insert key value } }
+
+/--
+Adds a single header to the request being built, panics if the header is invalid.
+-/
+def header! (builder : Builder) (key : String) (value : String) : Builder :=
+  let key := Header.Name.ofString! key
+  let value := Header.Value.ofString! value
+  { builder with line := { builder.line with headers := builder.line.headers.insert key value } }
+
+/--
+Adds a single header to the request being built.
+Returns `none` if the header name or value is invalid.
+-/
+def header? (builder : Builder) (key : String) (value : String) : Option Builder := do
+  let key ← Header.Name.ofString? key
+  let value ← Header.Value.ofString? value
+  pure <| { builder with line := { builder.line with headers := builder.line.headers.insert key value } }
+
+/--
+Adds a header to the request being built only if the Option Header.Value is some.
+-/
+def headerOpt (builder : Builder) (key : Header.Name) (value : Option Header.Value) : Builder :=
+  match value with
+  | some v => builder.header key v
+  | none => builder
 
 /--
 Inserts a typed extension value into the request being built.

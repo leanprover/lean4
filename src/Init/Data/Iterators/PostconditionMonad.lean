@@ -273,6 +273,12 @@ theorem PostconditionT.run_bind' {m : Type w → Type w'} [Monad m] [LawfulMonad
   run_bind
 
 @[simp]
+protected theorem PostconditionT.run_pure {m : Type w → Type w'} [Monad m] [LawfulMonad m]
+    {α : Type w} {x : α} :
+    (pure x : PostconditionT m α).run = pure x := by
+  simp [run_eq_map]
+
+@[simp]
 theorem PostconditionT.property_lift {m : Type w → Type w'} [Functor m] {α : Type w}
     {x : m α} : (lift x : PostconditionT m α).Property = (fun _ => True) := by
   rfl

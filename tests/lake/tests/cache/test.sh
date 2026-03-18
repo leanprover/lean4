@@ -47,7 +47,6 @@ test_run build Test:static --no-build --wfail
 test_out 'Replayed Test:c.o' build +Test:o -v
 
 # Verify that a rebuild with the cache disabled is a no-op
-touch .lake/build/ir/Test.c # avoid mod time fallback if trace is missing
 test_run -f disabled.toml build +Test:o --no-build --wfail
 test_run -f disabled.toml build Test:static --no-build --wfail
 
@@ -196,6 +195,11 @@ test_exp -f .lake/outputs.jsonl
 test_lines 3 .lake/outputs.jsonl
 test_run build Test:static -o .lake/outputs.jsonl
 test_lines 6 .lake/outputs.jsonl
+
+# Test that platform-dependent outputs are not included
+# in the mappings file for platform-independent packages
+test_run -f platformIndependent.toml build Test:static -o .lake/outputs.jsonl
+test_lines 3 .lake/outputs.jsonl
 
 # Verify that `lake cache clean` deletes the cache directory
 test_exp -d "$CACHE_DIR"

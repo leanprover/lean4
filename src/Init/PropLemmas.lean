@@ -72,6 +72,12 @@ theorem and_and_right : (a ∧ b) ∧ c ↔ (a ∧ c) ∧ b ∧ c := by rw [and_
 theorem and_iff_left  (hb : b) : a ∧ b ↔ a := Iff.intro And.left  (And.intro · hb)
 theorem and_iff_right (ha : a) : a ∧ b ↔ b := Iff.intro And.right (And.intro ha ·)
 
+@[simp] theorem and_imp_left_iff_true {P Q : Prop} : (P ∧ Q → P) ↔ True := by
+  simpa using And.left
+
+@[simp] theorem and_imp_right_iff_true {P Q : Prop} : (P ∧ Q → Q) ↔ True := by
+  simp
+
 /-! ## or -/
 
 theorem or_self_iff : a ∨ a ↔ a := or_self _ ▸ .rfl
@@ -93,6 +99,12 @@ theorem or_rotate : a ∨ b ∨ c ↔ b ∨ c ∨ a := by simp only [or_left_com
 
 theorem or_iff_left  (hb : ¬b) : a ∨ b ↔ a := or_iff_left_iff_imp.mpr  hb.elim
 theorem or_iff_right (ha : ¬a) : a ∨ b ↔ b := or_iff_right_iff_imp.mpr ha.elim
+
+@[simp] theorem imp_or_left_iff_true {P Q : Prop} : (P → P ∨ Q) ↔ True := by
+  simpa using Or.inl
+
+@[simp] theorem imp_or_right_iff_true {P Q : Prop} : (Q → P ∨ Q) ↔ True := by
+  simpa using Or.inr
 
 /-! ## distributivity -/
 
@@ -344,11 +356,33 @@ theorem not_forall_of_exists_not {p : α → Prop} : (∃ x, ¬p x) → ¬∀ x,
 @[simp] theorem exists_prop_eq' {p : (a : α) → a' = a → Prop} :
     (∃ (a : α) (h : a' = a), p a h) ↔ p a' rfl := by simp [@eq_comm _ a']
 
-@[simp] theorem forall_eq_or_imp : (∀ a, a = a' ∨ q a → p a) ↔ p a' ∧ ∀ a, q a → p a := by
+@[simp] theorem forall_eq_or_imp {P Q : α → Prop} :
+    (∀ a, a = a' ∨ Q a → P a) ↔ P a' ∧ ∀ a, Q a → P a := by
   simp only [or_imp, forall_and, forall_eq]
+
+@[simp] theorem forall_eq_or_imp' {P Q : α → Prop} {a' : α} :
+    (∀ (a : α), a' = a ∨ Q a → P a) ↔ P a' ∧ ∀ (a : α), Q a → P a := by
+  simp only [or_imp, forall_and, forall_eq']
+
+@[simp] theorem forall_or_eq_imp {P Q : α → Prop} :
+    (∀ a, Q a ∨ a = a' → P a) ↔ (∀ a, Q a → P a) ∧ P a' := by
+  simp only [or_imp, forall_and, forall_eq]
+
+@[simp] theorem forall_or_eq_imp' {P Q : α → Prop} :
+    (∀ a, Q a ∨ a' = a → P a) ↔ (∀ a, Q a → P a) ∧ P a' := by
+  simp only [or_imp, forall_and, forall_eq']
 
 @[simp] theorem exists_eq_or_imp : (∃ a, (a = a' ∨ q a) ∧ p a) ↔ p a' ∨ ∃ a, q a ∧ p a := by
   simp only [or_and_right, exists_or, exists_eq_left]
+
+@[simp] theorem exists_eq_or_imp' : (∃ a, (a' = a ∨ q a) ∧ p a) ↔ p a' ∨ ∃ a, q a ∧ p a := by
+  simp only [or_and_right, exists_or, exists_eq_left']
+
+@[simp] theorem exists_or_eq_imp : (∃ a, (q a ∨ a = a') ∧ p a) ↔ (∃ a, q a ∧ p a) ∨ p a' := by
+  simp only [or_and_right, exists_or, exists_eq_left]
+
+@[simp] theorem exists_or_eq_imp' : (∃ a, (q a ∨ a' = a) ∧ p a) ↔ (∃ a, q a ∧ p a) ∨ p a' := by
+  simp only [or_and_right, exists_or, exists_eq_left']
 
 @[simp] theorem exists_eq_right_right : (∃ (a : α), p a ∧ q a ∧ a = a') ↔ p a' ∧ q a' := by
   simp [← and_assoc]
@@ -403,6 +437,26 @@ theorem forall_prop_of_false {p : Prop} {q : p → Prop} (hn : ¬p) : (∀ h' : 
 
 @[simp] theorem forall_self_imp (P : Prop) (Q : P → Prop) : (∀ p : P, P → Q p) ↔ ∀ p, Q p :=
   ⟨fun h p => h p p, fun h _ p => h p⟩
+
+@[simp]
+theorem forall_or_imp_or_self_right_right {P Q R : α → Prop} :
+    (∀ a, P a ∨ Q a → R a ∨ Q a) ↔ (∀ a, P a → R a ∨ Q a) := by
+  simp only [or_imp, imp_or_right_iff_true, and_true]
+
+@[simp]
+theorem forall_or_imp_or_self_right_left {P Q R : α → Prop} :
+    (∀ a, P a ∨ Q a → Q a ∨ R a) ↔ (∀ a, P a → Q a ∨ R a) := by
+  simp only [or_imp, imp_or_left_iff_true, and_true]
+
+@[simp]
+theorem forall_or_imp_or_self_left_right {P Q R : α → Prop} :
+    (∀ a, Q a ∨ P a → R a ∨ Q a) ↔ (∀ a, P a → R a ∨ Q a) := by
+  simp only [or_imp, imp_or_right_iff_true, true_and]
+
+@[simp]
+theorem forall_or_imp_or_self_left_left {P Q R : α → Prop} :
+    (∀ a, Q a ∨ P a → Q a ∨ R a) ↔ (∀ a, P a → Q a ∨ R a) := by
+  simp only [or_imp, imp_or_left_iff_true, true_and]
 
 end quantifiers
 

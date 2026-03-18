@@ -89,25 +89,32 @@ public structure MaterializedDep where
   Used as the endpoint from which to fetch cloud releases for the package.
   -/
   remoteUrl : String
+  /-- The manifest for the dependency or the error produced when trying to load it. -/
+  manifest? : Except IO.Error Manifest
   /-- The manifest entry for the dependency. -/
   manifestEntry : PackageEntry
   deriving Inhabited
 
 namespace MaterializedDep
 
-@[inline] public def name (self : MaterializedDep) :=
+@[inline] public def name (self : MaterializedDep) : Name :=
   self.manifestEntry.name
 
-@[inline] public def scope (self : MaterializedDep) :=
+@[inline] public def scope (self : MaterializedDep) : String :=
   self.manifestEntry.scope
 
 /-- Path to the dependency's configuration file (relative to `relPkgDir`). -/
-@[inline] public def manifestFile? (self : MaterializedDep) :=
+@[inline] public def manifestFile? (self : MaterializedDep) : Option FilePath :=
   self.manifestEntry.manifestFile?
 
 /-- Path to the dependency's configuration file (relative to `relPkgDir`). -/
-@[inline] public def configFile (self : MaterializedDep) :=
+@[inline] public def configFile (self : MaterializedDep) : FilePath :=
   self.manifestEntry.configFile
+
+public def fixedToolchain (self : MaterializedDep) : Bool :=
+  match self.manifest? with
+  | .ok manifest => manifest.fixedToolchain
+  | _ => false
 
 end MaterializedDep
 
@@ -148,7 +155,7 @@ public def Dependency.materialize
     match src with
     | .path dir =>
       let relPkgDir := relParentDir / dir
-      return mkDep relPkgDir "" (.path relPkgDir)
+      mkDep (wsDir / relPkgDir) relPkgDir "" (.path relPkgDir)
     | .git url inputRev? subDir? => do
       let sname := dep.name.toString (escape := false)
       let repoUrl := Git.filterUrl? url |>.getD ""
@@ -196,16 +203,19 @@ public def Dependency.materialize
     | _ => error s!"{pkg.fullName}: Git source not found on Reservoir"
 where
   materializeGit name relPkgDir gitUrl remoteUrl inputRev? subDir? : LoggerIO MaterializedDep := do
-    let repo := GitRepo.mk (wsDir / relPkgDir)
+    let pkgDir := wsDir / relPkgDir
+    let repo := GitRepo.mk pkgDir
     let gitUrl := lakeEnv.pkgUrlMap.find? dep.name |>.getD gitUrl
     materializeGitRepo name repo gitUrl inputRev?
     let rev ← repo.getHeadRevision
     let relPkgDir := if let some subDir := subDir? then relPkgDir / subDir else relPkgDir
-    return mkDep relPkgDir remoteUrl <| .git gitUrl rev inputRev? subDir?
-  @[inline] mkDep relPkgDir remoteUrl src : MaterializedDep := {
-    relPkgDir, remoteUrl,
-    manifestEntry := {name := dep.name, scope := dep.scope, inherited, src}
-  }
+    mkDep pkgDir relPkgDir remoteUrl <| .git gitUrl rev inputRev? subDir?
+  @[inline] mkDep pkgDir relPkgDir remoteUrl src : LoggerIO MaterializedDep := do
+    return {
+      relPkgDir, remoteUrl
+      manifest? :=  ← Manifest.load (pkgDir / defaultManifestFile) |>.toBaseIO
+      manifestEntry := {name := dep.name, scope := dep.scope, inherited, src}
+    }
 
 /--
 Materializes a manifest package entry, cloning and/or checking it out as necessary.
@@ -216,7 +226,7 @@ public def PackageEntry.materialize
 : LoggerIO MaterializedDep :=
   match manifestEntry.src with
   | .path (dir := relPkgDir) .. =>
-    return mkDep relPkgDir ""
+    mkDep (wsDir / relPkgDir) relPkgDir ""
   | .git (url := url) (rev := rev) (subDir? := subDir?) .. => do
     let sname := manifestEntry.name.toString (escape := false)
     let relGitDir := relPkgsDir / sname
@@ -239,7 +249,12 @@ public def PackageEntry.materialize
       let url := lakeEnv.pkgUrlMap.find? manifestEntry.name |>.getD url
       cloneGitPkg sname repo url rev
     let relPkgDir := match subDir? with | .some subDir => relGitDir / subDir | .none => relGitDir
-    return mkDep relPkgDir (Git.filterUrl? url |>.getD "")
+    mkDep gitDir relPkgDir (Git.filterUrl? url |>.getD "")
 where
-  @[inline] mkDep relPkgDir remoteUrl : MaterializedDep :=
-    {relPkgDir, remoteUrl, manifestEntry}
+  @[inline] mkDep pkgDir relPkgDir remoteUrl : LoggerIO MaterializedDep := do
+    let manifest? ← id do
+      if let some manifestFile := manifestEntry.manifestFile? then
+        Manifest.load (pkgDir / manifestFile) |>.toBaseIO
+      else
+        return .error (.noFileOrDirectory "" 0 "")
+    return {relPkgDir, remoteUrl, manifest?, manifestEntry}

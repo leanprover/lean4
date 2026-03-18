@@ -333,11 +333,7 @@ public def demangleBtLine (line : String) : Option String := do
   return pfx ++ demangled ++ sfx
 
 @[export lean_demangle_bt_line_cstr]
-def demangleBtLineCStr (line : @& String) : String :=
+def demangleBtLineCStr (line : String) : String :=
   (demangleBtLine line).getD ""
-
-@[export lean_demangle_symbol_cstr]
-def demangleSymbolCStr (symbol : @& String) : String :=
-  (demangleSymbol symbol).getD ""
 
 end Lean.Name.Demangle

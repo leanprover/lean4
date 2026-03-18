@@ -10895,7 +10895,7 @@ _start:
 lean_object* v___x_3716_; lean_object* v___x_3717_; lean_object* v___x_3718_; lean_object* v___x_3719_; lean_object* v___x_3720_; lean_object* v___x_3721_; 
 v___x_3716_ = ((lean_object*)(l_Lean_PrettyPrinter_Formatter_symbolNoAntiquot_formatter___closed__6));
 v___x_3717_ = lean_unsigned_to_nat(38u);
-v___x_3718_ = lean_unsigned_to_nat(443u);
+v___x_3718_ = lean_unsigned_to_nat(445u);
 v___x_3719_ = ((lean_object*)(l_Lean_PrettyPrinter_Formatter_symbolNoAntiquot_formatter___closed__5));
 v___x_3720_ = ((lean_object*)(l_Lean_PrettyPrinter_Formatter_symbolNoAntiquot_formatter___closed__4));
 v___x_3721_ = l_mkPanicMessageWithDecl(v___x_3720_, v___x_3719_, v___x_3718_, v___x_3717_, v___x_3716_);
@@ -11100,7 +11100,7 @@ _start:
 lean_object* v___x_3809_; lean_object* v___x_3810_; lean_object* v___x_3811_; lean_object* v___x_3812_; lean_object* v___x_3813_; lean_object* v___x_3814_; 
 v___x_3809_ = ((lean_object*)(l_Lean_PrettyPrinter_Formatter_symbolNoAntiquot_formatter___closed__6));
 v___x_3810_ = lean_unsigned_to_nat(38u);
-v___x_3811_ = lean_unsigned_to_nat(463u);
+v___x_3811_ = lean_unsigned_to_nat(465u);
 v___x_3812_ = ((lean_object*)(l_Lean_PrettyPrinter_Formatter_unicodeSymbolNoAntiquot_formatter___closed__2));
 v___x_3813_ = ((lean_object*)(l_Lean_PrettyPrinter_Formatter_symbolNoAntiquot_formatter___closed__4));
 v___x_3814_ = l_mkPanicMessageWithDecl(v___x_3813_, v___x_3812_, v___x_3811_, v___x_3810_, v___x_3809_);

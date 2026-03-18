@@ -11,7 +11,6 @@ public import Lean.Data.Lsp.Basic
 public import Lean.Expr
 public import Init.Data.String.Search
 public import Init.Data.Array.GetLit
-meta import Lean.Data.Json.FromToJson.Basic
 
 public section
 

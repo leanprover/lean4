@@ -9,7 +9,6 @@ prelude
 import Lean.Server.CodeActions
 import Lean.Meta.Tactic.ExposeNames
 public import Lean.Widget.UserWidget
-meta import Lean.Widget.UserWidget
 
 public section
 

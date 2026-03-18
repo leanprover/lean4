@@ -47,7 +47,7 @@ Normalize an instance value to "instance normal form":
 This ensures that sub-instance projections (e.g., `instRing.toSemiring`) immediately
 reduce to the canonical sub-instance, rather than requiring unfolding through helper functions.
 -/
-partial def normalizeInstance (inst expectedType : Expr) : MetaM Expr := withReducible do
+partial def normalizeInstance (inst expectedType : Expr) : MetaM Expr := withTransparency .instances do
   withTraceNode `Meta.instanceNormalForm
       (fun _ => return m!"type: {expectedType}") do
   let some className ← isClass? expectedType
@@ -55,8 +55,6 @@ partial def normalizeInstance (inst expectedType : Expr) : MetaM Expr := withRed
   trace[Meta.instanceNormalForm] "class is {className}"
   if ← isProp expectedType then
     return inst
-
-  withTransparency .instances do
 
   -- Try to synthesize a total replacement for this term.
   try
@@ -72,11 +70,9 @@ partial def normalizeInstance (inst expectedType : Expr) : MetaM Expr := withRed
   -- Try to reduce it to a constructor.
   (← whnf inst).withApp fun f args => do
     let .const c _ := f
-      | trace[Meta.instanceNormalForm] "does not reduce to a constructor application, skipping"
-        return inst
+      | throwError "instance normal form: expected constructor application, got {inst}"
     let .ctorInfo ci ← getConstInfo c
-      | trace[Meta.instanceNormalForm] "reduces to {c}, not a constructor, skipping"
-        return inst
+      | throwError "instance normal form: expected constructor application, got {inst}"
     let (mvars, _, cls) ← forallMetaTelescope (← inferType f)
     if h₁ : args.size ≠ mvars.size then
       throwError "instance normal form: incorrect number of arguments for \

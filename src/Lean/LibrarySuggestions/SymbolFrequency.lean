@@ -66,11 +66,13 @@ Helper function for running `MetaM` code during module export, when there is not
 Panics on errors.
 -/
 unsafe def _root_.Lean.Environment.unsafeRunMetaM [Inhabited α] (env : Environment) (x : MetaM α) : α :=
-   match unsafeEIO ((((withoutExporting x).run' {} {}).run' { fileName := "symbolFrequency", fileMap := default } { env })) with
-   | Except.ok a => a
-   | Except.error ex => panic! match unsafeIO ex.toMessageData.toString with
-     | Except.ok s => s
-     | Except.error ex => ex.toString
+  match unsafeEIO (do
+    ((withoutExporting x).run' {} {}).run'
+      { fileName := "symbolFrequency", fileMap := default, initHeartbeats := ← IO.getNumHeartbeats } { env }) with
+  | Except.ok a => a
+  | Except.error ex => panic! match unsafeIO ex.toMessageData.toString with
+    | Except.ok s => s
+    | Except.error ex => ex.toString
 
 /--
 The state is just an array of array of maps.

@@ -225,6 +225,23 @@ Returns the position after the longest prefix of {name}`s` for which {name}`pat`
   Pos.ofToSlice (s.toSlice.skipPrefixWhile pat)
 
 /--
+If {name}`pat` matches at {name}`pos`, returns the position after the end of the match.
+Returns {name}`none` otherwise.
+
+This function is generic over all currently supported patterns.
+-/
+@[inline]
+def Pos.skip? {s : String} (pos : s.Pos) (pat : ρ) [ForwardPattern pat] : Option s.Pos :=
+  (pos.toSlice.skip? pat).map Pos.ofToSlice
+
+/--
+Advances {name}`pos` as long as {name}`pat` matches.
+-/
+@[inline]
+def Pos.skipWhile {s : String} (pos : s.Pos) (pat : ρ) [ForwardPattern pat] : s.Pos :=
+  Pos.ofToSlice (pos.toSlice.skipWhile pat)
+
+/--
 Checks whether the first string ({name}`s`) begins with the pattern ({name}`pat`).
 
 {name (scope := "Init.Data.String.TakeDrop")}`String.isPrefixOf` is a version that takes the
@@ -289,6 +306,23 @@ Returns the position at the start of the longest suffix of {name}`s` for which {
 -/
 @[inline] def skipSuffixWhile (s : String) (pat : ρ) [BackwardPattern pat] : s.Pos :=
   Pos.ofToSlice (s.toSlice.skipSuffixWhile pat)
+
+/--
+If {name}`pat` matches at {name}`pos`, returns the position after the end of the match.
+Returns {name}`none` otherwise.
+
+This function is generic over all currently supported patterns.
+-/
+@[inline]
+def Pos.revSkip? {s : String} (pos : s.Pos) (pat : ρ) [ForwardPattern pat] : Option s.Pos :=
+  (pos.toSlice.revSkip? pat).map Pos.ofToSlice
+
+/--
+Rewinds {name}`pos` as long as {name}`pat` matches.
+-/
+@[inline]
+def Pos.revSkipWhile {s : String} (pos : s.Pos) (pat : ρ) [BackwardPattern pat] : s.Pos :=
+  Pos.ofToSlice (pos.toSlice.revSkipWhile pat)
 
 /--
 Removes trailing whitespace from a string by returning a slice whose end position is the last

@@ -143,40 +143,6 @@ def find (s : String) (pattern : ρ) [ToForwardSearcher pattern σ] : s.Pos :=
   Pos.ofToSlice (s.toSlice.find pattern)
 
 /--
-If {name}`pat` matches at {name}`pos`, returns the position after the end of the match.
-Returns {name}`none` otherwise.
-
-This function is generic over all currently supported patterns.
--/
-@[inline]
-def Pos.skip? {s : String} (pos : s.Pos) (pat : ρ) [ForwardPattern pat] : Option s.Pos :=
-  (pos.toSlice.skip? pat).map Pos.ofToSlice
-
-/--
-Advances {name}`pos` as long as {name}`pat` matches.
--/
-@[inline]
-def Pos.skipWhile {s : String} (pos : s.Pos) (pat : ρ) [ForwardPattern pat] : s.Pos :=
-  Pos.ofToSlice (pos.toSlice.skipWhile pat)
-
-/--
-If {name}`pat` matches at {name}`pos`, returns the position after the end of the match.
-Returns {name}`none` otherwise.
-
-This function is generic over all currently supported patterns.
--/
-@[inline]
-def Pos.revSkip? {s : String} (pos : s.Pos) (pat : ρ) [ForwardPattern pat] : Option s.Pos :=
-  (pos.toSlice.revSkip? pat).map Pos.ofToSlice
-
-/--
-Rewinds {name}`pos` as long as {name}`pat` matches.
--/
-@[inline]
-def Pos.revSkipWhile {s : String} (pos : s.Pos) (pat : ρ) [BackwardPattern pat] : s.Pos :=
-  Pos.ofToSlice (pos.toSlice.revSkipWhile pat)
-
-/--
 Finds the position of the first match of the pattern {name}`pattern` in a slice {name}`s` that is
 strictly before {name}`pos`. If there is no such match {lean}`none` is returned.
 

@@ -75,6 +75,7 @@ srcDir = "lake"
 # Build Lake and all its submodules (which may not be imported elsewhere)
 globs = ["Lake.*"]
 defaultFacets = ["static", "static.export"]
+plugins = ["${PREV_STAGE}/lib/lean/libLake_shared${CMAKE_SHARED_LIBRARY_SUFFIX}"]
 
 [[lean_lib]]
 name = "LakeMain"

@@ -117,6 +117,7 @@ def main() -> None:
     parser.add_argument("--setup", type=Path)
     parser.add_argument("--i", "-i", type=Path)
     parser.add_argument("--o", "-o", type=Path)
+    parser.add_argument("--plugin", type=Path)
     args, _ = parser.parse_known_args()
 
     lean: Path = args.lean

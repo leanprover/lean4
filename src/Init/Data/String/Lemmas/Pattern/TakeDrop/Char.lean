@@ -44,14 +44,8 @@ end Slice
 
 theorem skipPrefix?_char_eq_some_iff {c : Char} {s : String} {pos : s.Pos} :
     s.skipPrefix? c = some pos ↔ ∃ h, pos = s.startPos.next h ∧ s.startPos.get h = c := by
-  simp only [skipPrefix?_eq_skipPrefix?_toSlice, Option.map_eq_some_iff,
-    Slice.skipPrefix?_char_eq_some_iff, startPos_toSlice, Pos.get_toSlice, endPos_toSlice, ne_eq,
-    Pos.toSlice_inj, startPos_eq_endPos_iff, Pos.isAtEnd_iff]
-  refine ⟨?_, ?_⟩
-  · rintro ⟨pos, ⟨⟨h, rfl, rfl⟩, rfl⟩⟩
-    simpa
-  · rintro ⟨h, rfl, rfl⟩
-    simpa using ⟨s.startPos.toSlice.next (by simpa [Pos.toSlice_inj]), by simpa [Pos.toSlice_inj]⟩
+  simp [skipPrefix?_eq_skipPrefix?_toSlice, Slice.skipPrefix?_char_eq_some_iff, ← Pos.toSlice_inj,
+    Pos.toSlice_next]
 
 theorem startsWith_char_iff_get {c : Char} {s : String} :
     s.startsWith c ↔ ∃ h, s.startPos.get h = c := by

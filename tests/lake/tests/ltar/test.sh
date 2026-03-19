@@ -45,6 +45,15 @@ test_exp -f .lake/build/ir/Test.ltar
 rm -rf .lake/build .lake/cache/artifacts/*.[!l]*
 test_out "leantar" build +Test --no-build -v
 
+# Test caching an `ltar` through `-o` (with `restoreAllArtifacts = true`)
+# This tests caching the ltar from within `Module.packLtar`
+rm -rf .lake/cache .lake/build
+test_run -f restoreAll.toml build +Test -v --wfail
+test_exp ! -f .lake/build/ir/Test.ltar
+test_run -f restoreAll.toml build +Test -v --wfail -o .lake/outputs.jsonl
+test_cmd ls .lake/cache/artifacts/*.ltar
+test_exp -f .lake/build/ir/Test.ltar
+
 # Test producing an `ltar` without already restored artifacts
 rm -rf .lake/cache .lake/build
 LAKE_ARTIFACT_CACHE=true test_run build +Test -v

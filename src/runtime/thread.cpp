@@ -101,8 +101,10 @@ struct lthread::imp {
 
     imp(runnable const & p) {
         runnable * f = new std::function<void()>(mk_thread_proc(p, get_max_heartbeat()));
+        // Without `IS_A_RESERVATION`, `m_thread_stack_size` would be the initial *commit* size,
+        // quickly exhausting the available address space with our large default stack size.
         m_thread = CreateThread(nullptr, m_thread_stack_size,
-                                _main, f, 0, nullptr);
+                                _main, f, STACK_SIZE_PARAM_IS_A_RESERVATION, nullptr);
         if (m_thread == NULL) {
             throw exception("failed to create thread");
         }

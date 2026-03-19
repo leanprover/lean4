@@ -706,6 +706,11 @@ theorem infix_refl (l : List α) : l <:+: l := prefix_rfl.isInfix
 
 grind_pattern suffix_cons => _ <:+ a :: l
 
+@[simp]
+theorem suffix_cons_append {a : α} {l₁ l₂ : List α} : l₂ <:+ a :: (l₁ ++ l₂) := by
+  rw [← List.cons_append]
+  exact List.suffix_append (a :: l₁) l₂
+
 theorem infix_cons : l₁ <:+: l₂ → l₁ <:+: a :: l₂ := fun ⟨l₁', l₂', h⟩ => ⟨a :: l₁', l₂', h ▸ rfl⟩
 
 theorem infix_concat : l₁ <:+: l₂ → l₁ <:+: concat l₂ a := fun ⟨l₁', l₂', h⟩ =>
@@ -971,6 +976,9 @@ theorem infix_concat_iff {l₁ l₂ : List α} {a : α} :
     l₁ <:+: l₂ ++ [a] ↔ l₁ <:+ l₂ ++ [a] ∨ l₁ <:+: l₂ := by
   rw [← reverse_infix, reverse_concat, infix_cons_iff, reverse_infix,
     ← reverse_prefix, reverse_concat]
+
+theorem infix_append_singleton_iff {a : α} {l₁ l₂ : List α} : l₁ <:+: l₂ ++ [a] ↔ l₁ <:+: l₂ ∨ l₁ <:+ (l₂ ++ [a]) := by
+  rw [infix_concat_iff, or_comm]
 
 theorem prefix_iff_getElem? {l₁ l₂ : List α} :
     l₁ <+: l₂ ↔ ∀ i (h : i < l₁.length), l₂[i]? = some l₁[i] := by
@@ -1298,6 +1306,12 @@ theorem prefix_iff_eq_append : l₁ <+: l₂ ↔ l₁ ++ drop (length l₁) l₂
 theorem prefix_iff_eq_take : l₁ <+: l₂ ↔ l₁ = take (length l₁) l₂ :=
   ⟨fun h => append_cancel_right <| (prefix_iff_eq_append.1 h).trans (take_append_drop _ _).symm,
     fun e => e.symm ▸ take_prefix _ _⟩
+
+theorem prefix_iff_exists_append_eq {l₁ l₂ : List α} : l₁ <+: l₂ ↔ ∃ l₃, l₁ ++ l₃ = l₂ :=
+  Iff.rfl
+
+theorem prefix_iff_exists_eq_append {l₁ l₂ : List α} : l₁ <+: l₂ ↔ ∃ l₃, l₂ = l₁ ++ l₃ := by
+  simp [prefix_iff_exists_append_eq, eq_comm]
 
 -- See `Init.Data.List.Nat.Sublist` for `suffix_iff_eq_append`, `prefix_take_iff`, and `suffix_iff_eq_drop`.
 

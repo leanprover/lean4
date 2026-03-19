@@ -207,4 +207,121 @@ theorem append_sublist_of_sublist_right {xs ys zs : List α} (h : zs <+ ys) :
   · rintro ⟨rfl, rfl⟩
     simp
 
+theorem suffix_iff_exists_append {l₁ l₂ : List α} : l₁ <:+ l₂ ↔ ∃ l₃, l₂ = l₃ ++ l₁ := by
+  refine ⟨?_, ?_⟩
+  · rw [suffix_iff_eq_append]
+    intro h
+    rw [← h]
+    simp
+  · rintro ⟨l₃, rfl⟩
+    exact suffix_append l₃ l₁
+
+theorem suffix_iff_exists_append_eq {l₁ l₂ : List α} : l₁ <:+ l₂ ↔ ∃ l₃, l₃ ++ l₁ = l₂ :=
+  Iff.rfl
+
+theorem suffix_append_self_iff {l₁ l₂ l₃ : List α} : l₁ ++ l₃ <:+ l₂ ++ l₃ ↔ l₁ <:+ l₂ := by
+  simp only [suffix_iff_exists_append]
+  refine ⟨?_, ?_⟩
+  · rintro ⟨l₄, h⟩
+    refine ⟨l₄, by simpa [← List.append_assoc] using h⟩
+  · rintro ⟨l₄, rfl⟩
+    refine ⟨l₄, by simp⟩
+
+theorem prefix_self_append_iff {l₁ l₂ l₃ : List α} : l₃ ++ l₁ <+: l₃ ++ l₂ ↔ l₁ <+: l₂ := by
+  constructor
+  · rintro ⟨t, h⟩
+    exact ⟨t, List.append_cancel_left (by rwa [List.append_assoc] at h)⟩
+  · rintro ⟨t, h⟩
+    exact ⟨t, by rw [List.append_assoc, h]⟩
+
+theorem suffix_append_inj_of_length_eq {l₁ l₂ s₁ s₂ : List α} (hs : s₁.length = s₂.length) :
+    l₁ ++ s₁ <:+ l₂ ++ s₂ ↔ l₁ <:+ l₂ ∧ s₁ = s₂ := by
+  simp only [suffix_iff_exists_append]
+  refine ⟨?_, ?_⟩
+  · rintro ⟨l₃, h⟩
+    rw [← List.append_assoc] at h
+    obtain ⟨rfl, rfl⟩ := List.append_inj' h hs.symm
+    refine ⟨⟨l₃, by simp⟩, by simp⟩
+  · rintro ⟨⟨l₃, rfl⟩, rfl⟩
+    refine ⟨l₃, by simp⟩
+
+theorem prefix_append_inj_of_length_eq {l₁ l₂ s₁ s₂ : List α} (hs : s₁.length = s₂.length) :
+    s₁ ++ l₁ <+: s₂ ++ l₂ ↔ s₁ = s₂ ∧ l₁ <+: l₂ := by
+  constructor
+  · rintro ⟨t, h⟩
+    rw [List.append_assoc] at h
+    obtain ⟨rfl, rfl⟩ := List.append_inj h.symm hs.symm
+    exact ⟨rfl, ⟨t, rfl⟩⟩
+  · rintro ⟨rfl, t, rfl⟩
+    exact ⟨t, by simp⟩
+
+theorem singleton_suffix_iff_getLast?_eq_some {a : α} {l : List α} : [a] <:+ l ↔ l.getLast? = some a := by
+  rw [suffix_iff_exists_append, getLast?_eq_some_iff]
+
+theorem singleton_prefix_iff_head?_eq_some {a : α} {l : List α} : [a] <+: l ↔ l.head? = some a := by
+  simp [prefix_iff_exists_eq_append, head?_eq_some_iff]
+
+@[simp]
+theorem singleton_prefix_cons_iff {a b : α} {l : List α} : [a] <+: b :: l ↔ a = b := by
+  simp [cons_prefix_cons]
+
+@[simp]
+theorem singleton_suffix_append_singleton_iff {a b : α} {l : List α} :
+    [a] <:+ l ++ [b] ↔ a = b := by
+  refine ⟨fun h => Eq.symm ?_, by rintro rfl; simp⟩
+  simpa [List.suffix_iff_exists_append] using h
+
+@[simp]
+theorem singleton_suffix_cons_append_singleton_iff {a b c : α} {l : List α} :
+    [a] <:+ b :: (l ++ [c]) ↔ a = c := by
+  rw [← List.cons_append]
+  exact singleton_suffix_append_singleton_iff
+
+theorem infix_append_iff {α : Type u} {l xs ys : List α} : l <:+: xs ++ ys ↔
+    l <:+: xs ∨ l <:+: ys ∨ (∃ l₁ l₂, l = l₁ ++ l₂ ∧ l₁ <:+ xs ∧ l₂ <+: ys) := by
+  constructor
+  · rintro ⟨s, t, ht⟩
+    rcases List.append_eq_append_iff.mp ht with ⟨as, hxs, _⟩ | ⟨bs, hsl, hys⟩
+    · exact Or.inl ⟨s, as, hxs.symm⟩
+    · rcases List.append_eq_append_iff.mp hsl with ⟨cs, hxs', hl⟩ | ⟨ds, _, hbs⟩
+      · exact Or.inr (Or.inr ⟨cs, bs, hl,
+          List.suffix_iff_exists_append.mpr ⟨s, hxs'⟩,
+          List.prefix_iff_exists_eq_append.mpr ⟨t, hys⟩⟩)
+      · exact Or.inr (Or.inl ⟨ds, t, by rw [hys, ← hbs]⟩)
+  · rintro (⟨s, t, ht⟩ | ⟨s, t, ht⟩ | ⟨l₁, l₂, rfl, hl₁, hl₂⟩)
+    · exact ⟨s, t ++ ys, by rw [← List.append_assoc, ht]⟩
+    · exact ⟨xs ++ s, t, by
+        rw [List.append_assoc] at ht
+        rw [List.append_assoc (xs ++ s), List.append_assoc xs, ht]⟩
+    · rw [List.suffix_iff_exists_append] at hl₁
+      rw [List.prefix_iff_exists_eq_append] at hl₂
+      obtain ⟨s, hxs⟩ := hl₁
+      obtain ⟨t, hys⟩ := hl₂
+      exact ⟨s, t, by rw [← List.append_assoc s l₁, List.append_assoc (s ++ l₁), hxs, hys]⟩
+
+theorem infix_append_iff_ne_nil {α : Type u} {l xs ys : List α} : l <:+: xs ++ ys ↔
+    l <:+: xs ∨ l <:+: ys ∨ (∃ l₁ l₂, l₁ ≠ [] ∧ l₂ ≠ [] ∧ l = l₁ ++ l₂ ∧ l₁ <:+ xs ∧ l₂ <+: ys) := by
+  rw [List.infix_append_iff]
+  constructor
+  · rintro (h | h | ⟨l₁, l₂, hl, hl₁, hl₂⟩)
+    · exact Or.inl h
+    · exact Or.inr (Or.inl h)
+    · cases l₁ with
+      | nil =>
+        simp only [List.nil_append] at hl
+        subst hl
+        exact Or.inr (Or.inl hl₂.isInfix)
+      | cons hd tl =>
+        cases l₂ with
+        | nil =>
+          simp only [List.append_nil] at hl
+          subst hl
+          exact Or.inl hl₁.isInfix
+        | cons hd' tl' =>
+          exact Or.inr (Or.inr ⟨_, _, List.cons_ne_nil _ _, List.cons_ne_nil _ _, hl, hl₁, hl₂⟩)
+  · rintro (h | h | ⟨l₁, l₂, -, -, hl, hl₁, hl₂⟩)
+    · exact Or.inl h
+    · exact Or.inr (Or.inl h)
+    · exact Or.inr (Or.inr ⟨l₁, l₂, hl, hl₁, hl₂⟩)
+
 end List

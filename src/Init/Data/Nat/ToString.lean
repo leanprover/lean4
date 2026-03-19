@@ -94,6 +94,14 @@ protected theorem digitChar_ne {n : Nat} (c : Char)
   match n with
   | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | _ + 16 => simp [digitChar] at h
 
+theorem toNat_digitChar_of_lt_ten {n : Nat} (hn : n < 10) : n.digitChar.toNat = 48 + n :=
+  match n with
+  | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 => by simp [digitChar]
+  | _ + 10 => by omega
+
+theorem toNat_digitChar_sub_48_of_lt_ten {n : Nat} (hn : n < 10) : n.digitChar.toNat - 48 = n := by
+  simp [toNat_digitChar_of_lt_ten hn]
+
 private theorem isDigit_of_mem_toDigitsCore
     (hc : c ∈ cs → c.isDigit) (hb₁ : 0 < b) (hb₂ : b ≤ 10) (h : c ∈ toDigitsCore b fuel n cs) :
     c.isDigit := by
@@ -250,5 +258,16 @@ theorem length_repr_pos {n : Nat} :
 theorem length_repr_le_iff {n k : Nat} (h : 0 < k) :
     n.repr.length ≤ k ↔ n < 10 ^ k := by
   simpa [repr_eq_ofList_toDigits] using length_toDigits_le_iff (by omega) h
+
+theorem base_induction {P : Nat → Prop} {n : Nat} (b : Nat) (hb : 1 < b) (single : ∀ m, m < b → P m)
+    (digit : ∀ m k, k < b → 0 < m → P m → P (b * m + k)) : P n := by
+  induction n using Nat.strongRecOn with | ind n ih
+  rcases Nat.lt_or_ge n b with hn | hn
+  · exact single _ hn
+  · have := Nat.div_add_mod n b
+    rw [← this]
+    apply digit _ _ (Nat.mod_lt _ (by omega)) _ (ih _ _)
+    · exact Nat.div_pos_iff.mpr ⟨by omega, hn⟩
+    · exact Nat.div_lt_self (by omega) (by omega)
 
 end Nat

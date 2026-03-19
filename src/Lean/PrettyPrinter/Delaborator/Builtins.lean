@@ -12,6 +12,7 @@ public import Lean.Meta.Structure
 public import Lean.PrettyPrinter.Formatter
 public import Lean.PrettyPrinter.Parenthesizer
 meta import Lean.Parser.Command
+meta import Lean.PrettyPrinter.Delaborator.DeclWithSig
 
 public section
 
@@ -1546,11 +1547,6 @@ def delabSorry : Delab := whenPPOption getPPNotation <| whenNotPPOption getPPExp
         `(sorry)
   else
     withOverApp 2 `(sorry)
-
-open Parser Command Term in
-@[run_builtin_parser_attribute_hooks]
--- use `termParser` instead of `declId` so we can reuse `delabConst`
-private meta def declSigWithId := leading_parser termParser maxPrec >> declSig
 
 private unsafe def evalSyntaxConstantUnsafe (env : Environment) (opts : Options) (constName : Name) : ExceptT String Id Syntax :=
   env.evalConstCheck Syntax opts ``Syntax constName

@@ -39,9 +39,9 @@ theorem startsWith_iff {pat s : Slice} : startsWith pat s ↔ ∃ t, s.copy = pa
   · rintro ⟨t, rfl⟩
     simp [-size_toByteArray, ByteArray.extract_append]
 
-theorem dropPrefix?_eq_some_iff {pat s : Slice} {pos : s.Pos} :
-    dropPrefix? pat s = some pos ↔ (s.sliceTo pos).copy = pat.copy := by
-  fun_cases dropPrefix? with
+theorem skipPrefix?_eq_some_iff {pat s : Slice} {pos : s.Pos} :
+    skipPrefix? pat s = some pos ↔ (s.sliceTo pos).copy = pat.copy := by
+  fun_cases skipPrefix? with
   | case1 h =>
     simp only [offset_startPos, Pos.Raw.offsetBy_zero, Option.some.injEq]
     obtain ⟨t, ht⟩ := startsWith_iff.1 h
@@ -58,8 +58,8 @@ theorem dropPrefix?_eq_some_iff {pat s : Slice} {pos : s.Pos} :
     have := h (s.sliceFrom pos).copy
     simp [← heq, pos.splits.eq_append] at this
 
-theorem isSome_dropPrefix? {pat s : Slice} : (dropPrefix? pat s).isSome = startsWith pat s := by
-  fun_cases dropPrefix? <;> simp_all
+theorem isSome_skipPrefix? {pat s : Slice} : (skipPrefix? pat s).isSome = startsWith pat s := by
+  fun_cases skipPrefix? <;> simp_all
 
 end ForwardSliceSearcher
 
@@ -69,10 +69,10 @@ open Pattern.ForwardSliceSearcher
 
 public theorem lawfulForwardPatternModel {pat : Slice} (hpat : pat.isEmpty = false) :
     LawfulForwardPatternModel pat where
-  dropPrefixOfNonempty?_eq h := rfl
-  startsWith_eq s := isSome_dropPrefix?.symm
-  dropPrefix?_eq_some_iff pos := by
-    simp [ForwardPattern.dropPrefix?, dropPrefix?_eq_some_iff, isLongestMatch_iff hpat]
+  skipPrefixOfNonempty?_eq h := rfl
+  startsWith_eq s := isSome_skipPrefix?.symm
+  skipPrefix?_eq_some_iff pos := by
+    simp [ForwardPattern.skipPrefix?, skipPrefix?_eq_some_iff, isLongestMatch_iff hpat]
 
 end Model.ForwardSliceSearcher
 
@@ -82,10 +82,10 @@ open Pattern.ForwardSliceSearcher
 
 public theorem lawfulForwardPatternModel {pat : String} (hpat : pat ≠ "") :
     LawfulForwardPatternModel pat where
-  dropPrefixOfNonempty?_eq h := rfl
-  startsWith_eq s := isSome_dropPrefix?.symm
-  dropPrefix?_eq_some_iff pos := by
-    simp [ForwardPattern.dropPrefix?, dropPrefix?_eq_some_iff, isLongestMatch_iff hpat]
+  skipPrefixOfNonempty?_eq h := rfl
+  startsWith_eq s := isSome_skipPrefix?.symm
+  skipPrefix?_eq_some_iff pos := by
+    simp [ForwardPattern.skipPrefix?, skipPrefix?_eq_some_iff, isLongestMatch_iff hpat]
 
 end Model.ForwardStringSearcher
 
@@ -100,22 +100,22 @@ public theorem dropPrefix?_string_eq_dropPrefix?_toSlice {pat : String} {s : Sli
 public theorem dropPrefix_string_eq_dropPrefix_toSlice {pat : String} {s : Slice} :
     s.dropPrefix pat = s.dropPrefix pat.toSlice := (rfl)
 
-public theorem Pattern.ForwardPattern.dropPrefix?_string_eq_dropPrefix?_toSlice
+public theorem Pattern.ForwardPattern.skipPrefix?_string_eq_skipPrefix?_toSlice
     {pat : String} {s : Slice} :
-    dropPrefix? pat s = dropPrefix? pat.toSlice s := (rfl)
+    skipPrefix? pat s = skipPrefix? pat.toSlice s := (rfl)
 
 private theorem dropWhileGo_string_eq {pat : String} {s : Slice} (curr : s.Pos) :
     dropWhile.go s pat curr = dropWhile.go s pat.toSlice curr := by
   fun_induction dropWhile.go s pat curr with
   | case1 pos nextCurr h₁ h₂ ih =>
     conv => rhs; rw [dropWhile.go]
-    simp [← Pattern.ForwardPattern.dropPrefix?_string_eq_dropPrefix?_toSlice, h₁, h₂, ih]
+    simp [← Pattern.ForwardPattern.skipPrefix?_string_eq_skipPrefix?_toSlice, h₁, h₂, ih]
   | case2 pos nextCurr h ih =>
     conv => rhs; rw [dropWhile.go]
-    simp [← Pattern.ForwardPattern.dropPrefix?_string_eq_dropPrefix?_toSlice, h, ih]
+    simp [← Pattern.ForwardPattern.skipPrefix?_string_eq_skipPrefix?_toSlice, h, ih]
   | case3 pos h =>
     conv => rhs; rw [dropWhile.go]
-    simp [← Pattern.ForwardPattern.dropPrefix?_string_eq_dropPrefix?_toSlice]
+    simp [← Pattern.ForwardPattern.skipPrefix?_string_eq_skipPrefix?_toSlice]
 
 public theorem dropWhile_string_eq_dropWhile_toSlice {pat : String} {s : Slice} :
     s.dropWhile pat = s.dropWhile pat.toSlice := by
@@ -126,13 +126,13 @@ private theorem takeWhileGo_string_eq {pat : String} {s : Slice} (curr : s.Pos) 
   fun_induction takeWhile.go s pat curr with
   | case1 pos nextCurr h₁ h₂ ih =>
     conv => rhs; rw [takeWhile.go]
-    simp [← Pattern.ForwardPattern.dropPrefix?_string_eq_dropPrefix?_toSlice, h₁, h₂, ih]
+    simp [← Pattern.ForwardPattern.skipPrefix?_string_eq_skipPrefix?_toSlice, h₁, h₂, ih]
   | case2 pos nextCurr h ih =>
     conv => rhs; rw [takeWhile.go]
-    simp [← Pattern.ForwardPattern.dropPrefix?_string_eq_dropPrefix?_toSlice, h, ih]
+    simp [← Pattern.ForwardPattern.skipPrefix?_string_eq_skipPrefix?_toSlice, h, ih]
   | case3 pos h =>
     conv => rhs; rw [takeWhile.go]
-    simp [← Pattern.ForwardPattern.dropPrefix?_string_eq_dropPrefix?_toSlice]
+    simp [← Pattern.ForwardPattern.skipPrefix?_string_eq_skipPrefix?_toSlice]
 
 public theorem takeWhile_string_eq_takeWhile_toSlice {pat : String} {s : Slice} :
     s.takeWhile pat = s.takeWhile pat.toSlice := by

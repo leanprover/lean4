@@ -57,8 +57,8 @@ theorem isLongestMatchAt_of_get {p : Char → Bool} {s : Slice} {pos : s.Pos} {h
   isLongestMatchAt_iff.2 ⟨h, by simp [hc]⟩
 
 instance {p : Char → Bool} : LawfulForwardPatternModel p where
-  dropPrefix?_eq_some_iff {s} pos := by
-    simp [isLongestMatch_iff, ForwardPattern.dropPrefix?, and_comm, eq_comm (b := pos)]
+  skipPrefix?_eq_some_iff {s} pos := by
+    simp [isLongestMatch_iff, ForwardPattern.skipPrefix?, and_comm, eq_comm (b := pos)]
 
 instance {p : Char → Bool} : LawfulToForwardSearcherModel p :=
   .defaultImplementation
@@ -126,13 +126,13 @@ theorem matchAt?_eq_matchAt?_decide {p : Char → Prop} [DecidablePred p] {s : S
   ext endPos
   simp [isLongestMatchAt_iff_isLongestMatchAt_decide]
 
-theorem dropPrefix?_eq_dropPrefix?_decide {p : Char → Prop} [DecidablePred p] :
-    ForwardPattern.dropPrefix? p = ForwardPattern.dropPrefix? (decide <| p ·) := rfl
+theorem skipPrefix?_eq_skipPrefix?_decide {p : Char → Prop} [DecidablePred p] :
+    ForwardPattern.skipPrefix? p = ForwardPattern.skipPrefix? (decide <| p ·) := rfl
 
 instance {p : Char → Prop} [DecidablePred p] : LawfulForwardPatternModel p where
-  dropPrefix?_eq_some_iff {s} pos := by
-    rw [dropPrefix?_eq_dropPrefix?_decide, isLongestMatch_iff_isLongestMatch_decide]
-    exact LawfulForwardPatternModel.dropPrefix?_eq_some_iff ..
+  skipPrefix?_eq_some_iff {s} pos := by
+    rw [skipPrefix?_eq_skipPrefix?_decide, isLongestMatch_iff_isLongestMatch_decide]
+    exact LawfulForwardPatternModel.skipPrefix?_eq_some_iff ..
 
 theorem toSearcher_eq {p : Char → Prop} [DecidablePred p] {s : Slice} :
     ToForwardSearcher.toSearcher p s = ToForwardSearcher.toSearcher (decide <| p ·) s := (rfl)
@@ -181,22 +181,22 @@ theorem dropPrefix?_prop_eq_dropPrefix?_decide {p : Char → Prop} [DecidablePre
 theorem dropPrefix_prop_eq_dropPrefix_decide {p : Char → Prop} [DecidablePred p] {s : Slice} :
     s.dropPrefix p = s.dropPrefix (decide <| p ·) := (rfl)
 
-theorem Pattern.ForwardPattern.dropPrefix?_prop_eq_dropPrefix?_decide
+theorem Pattern.ForwardPattern.skipPrefix?_prop_eq_skipPrefix?_decide
     {p : Char → Prop} [DecidablePred p] {s : Slice} :
-    dropPrefix? p s = dropPrefix? (decide <| p ·) s := (rfl)
+    skipPrefix? p s = skipPrefix? (decide <| p ·) s := (rfl)
 
 private theorem dropWhileGo_eq {p : Char → Prop} [DecidablePred p] {s : Slice} (curr : s.Pos) :
     dropWhile.go s p curr = dropWhile.go s (decide <| p ·) curr := by
   fun_induction dropWhile.go s p curr with
   | case1 pos nextCurr h₁ h₂ ih =>
     conv => rhs; rw [dropWhile.go]
-    simp [← Pattern.ForwardPattern.dropPrefix?_prop_eq_dropPrefix?_decide, h₁, h₂, ih]
+    simp [← Pattern.ForwardPattern.skipPrefix?_prop_eq_skipPrefix?_decide, h₁, h₂, ih]
   | case2 pos nextCurr h ih =>
     conv => rhs; rw [dropWhile.go]
-    simp [← Pattern.ForwardPattern.dropPrefix?_prop_eq_dropPrefix?_decide, h, ih]
+    simp [← Pattern.ForwardPattern.skipPrefix?_prop_eq_skipPrefix?_decide, h, ih]
   | case3 pos h =>
     conv => rhs; rw [dropWhile.go]
-    simp [← Pattern.ForwardPattern.dropPrefix?_prop_eq_dropPrefix?_decide]
+    simp [← Pattern.ForwardPattern.skipPrefix?_prop_eq_skipPrefix?_decide]
 
 theorem dropWhile_prop_eq_dropWhile_decide {p : Char → Prop} [DecidablePred p] {s : Slice} :
     s.dropWhile p = s.dropWhile (decide <| p ·) := by
@@ -207,13 +207,13 @@ private theorem takeWhileGo_eq {p : Char → Prop} [DecidablePred p] {s : Slice}
   fun_induction takeWhile.go s p curr with
   | case1 pos nextCurr h₁ h₂ ih =>
     conv => rhs; rw [takeWhile.go]
-    simp [← Pattern.ForwardPattern.dropPrefix?_prop_eq_dropPrefix?_decide, h₁, h₂, ih]
+    simp [← Pattern.ForwardPattern.skipPrefix?_prop_eq_skipPrefix?_decide, h₁, h₂, ih]
   | case2 pos nextCurr h ih =>
     conv => rhs; rw [takeWhile.go]
-    simp [← Pattern.ForwardPattern.dropPrefix?_prop_eq_dropPrefix?_decide, h, ih]
+    simp [← Pattern.ForwardPattern.skipPrefix?_prop_eq_skipPrefix?_decide, h, ih]
   | case3 pos h =>
     conv => rhs; rw [takeWhile.go]
-    simp [← Pattern.ForwardPattern.dropPrefix?_prop_eq_dropPrefix?_decide]
+    simp [← Pattern.ForwardPattern.skipPrefix?_prop_eq_skipPrefix?_decide]
 
 theorem takeWhile_prop_eq_takeWhile_decide {p : Char → Prop} [DecidablePred p] {s : Slice} :
     s.takeWhile p = s.takeWhile (decide <| p ·) := by

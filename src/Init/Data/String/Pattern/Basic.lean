@@ -106,20 +106,24 @@ class ForwardPattern {ρ : Type} (pat : ρ) where
   Checks whether the slice starts with the pattern. If it does, the slice is returned with the
   prefix removed; otherwise the result is {name}`none`.
   -/
-  dropPrefix? : (s : Slice) →  Option s.Pos
+  skipPrefix? : (s : Slice) →  Option s.Pos
   /--
   Checks whether the slice starts with the pattern. If it does, the slice is returned with the
   prefix removed; otherwise the result is {name}`none`.
   -/
-  dropPrefixOfNonempty? : (s : Slice) → (h : s.isEmpty = false) → Option s.Pos := fun s _ => dropPrefix? s
+  skipPrefixOfNonempty? : (s : Slice) → (h : s.isEmpty = false) → Option s.Pos := fun s _ => skipPrefix? s
   /--
   Checks whether the slice starts with the pattern.
   -/
-  startsWith : (s : Slice) → Bool := fun s => (dropPrefix? s).isSome
+  startsWith : (s : Slice) → Bool := fun s => (skipPrefix? s).isSome
+
+@[deprecated ForwardPattern.dropPrefix? (since := "2026-03-19")]
+def ForwardPattern.dropPrefix? {ρ : Type} (pat : ρ) [ForwardPattern pat] (s : Slice) : Option s.Pos :=
+  ForwardPattern.skipPrefix? pat s
 
 /--
-A lawful forward pattern is one where the three functions {name}`ForwardPattern.dropPrefix?`,
-{name}`ForwardPattern.dropPrefixOfNonempty?` and {name}`ForwardPattern.startsWith` agree for any
+A lawful forward pattern is one where the three functions {name}`ForwardPattern.skipPrefix?`,
+{name}`ForwardPattern.skipPrefixOfNonempty?` and {name}`ForwardPattern.startsWith` agree for any
 given input slice.
 
 Note that this is a relatively weak condition. It is non-uniform in the sense that the functions
@@ -127,14 +131,14 @@ can still return completely different results on different slices, even if they 
 string.
 
 There is a stronger lawfulness typeclass {lit}`LawfulForwardPatternModel` that asserts that the
-{name}`ForwardPattern.dropPrefix?` function behaves like a function that drops the longest prefix
+{name}`ForwardPattern.skipPrefix?` function behaves like a function that drops the longest prefix
 according to some notion of matching.
 -/
 class LawfulForwardPattern {ρ : Type} (pat : ρ) [ForwardPattern pat] : Prop where
-  dropPrefixOfNonempty?_eq {s : Slice} (h) :
-    ForwardPattern.dropPrefixOfNonempty? pat s h = ForwardPattern.dropPrefix? pat s
+  skipPrefixOfNonempty?_eq {s : Slice} (h) :
+    ForwardPattern.skipPrefixOfNonempty? pat s h = ForwardPattern.skipPrefix? pat s
   startsWith_eq (s : Slice) :
-    ForwardPattern.startsWith pat s = (ForwardPattern.dropPrefix? pat s).isSome
+    ForwardPattern.startsWith pat s = (ForwardPattern.skipPrefix? pat s).isSome
 
 /--
 A strict forward pattern is one which never drops an empty prefix.
@@ -144,7 +148,7 @@ iterator.
 -/
 class StrictForwardPattern {ρ : Type} (pat : ρ) [ForwardPattern pat] : Prop where
   ne_startPos {s : Slice} (h) (q) :
-    ForwardPattern.dropPrefixOfNonempty? pat s h = some q → q ≠ s.startPos
+    ForwardPattern.skipPrefixOfNonempty? pat s h = some q → q ≠ s.startPos
 
 /--
 Provides a conversion from a pattern to an iterator of {name}`SearchStep` that searches for matches
@@ -188,11 +192,11 @@ instance (s : Slice) [ForwardPattern pat] :
     Std.Iterator (DefaultForwardSearcher pat s) Id (SearchStep s) where
   IsPlausibleStep it
     | .yield it' (.rejected p₁ p₂) => ∃ (h : it.internalState.currPos ≠ s.endPos),
-      ForwardPattern.dropPrefixOfNonempty? pat (s.sliceFrom it.internalState.currPos) (by simpa) = none ∧
+      ForwardPattern.skipPrefixOfNonempty? pat (s.sliceFrom it.internalState.currPos) (by simpa) = none ∧
       p₁ = it.internalState.currPos ∧ p₂ = it.internalState.currPos.next h ∧
       it'.internalState.currPos = it.internalState.currPos.next h
     | .yield it' (.matched p₁ p₂) => ∃ (h : it.internalState.currPos ≠ s.endPos), ∃ pos,
-      ForwardPattern.dropPrefixOfNonempty? pat (s.sliceFrom it.internalState.currPos) (by simpa) = some pos ∧
+      ForwardPattern.skipPrefixOfNonempty? pat (s.sliceFrom it.internalState.currPos) (by simpa) = some pos ∧
       p₁ = it.internalState.currPos ∧ p₂ = Slice.Pos.ofSliceFrom pos ∧
       it'.internalState.currPos = Slice.Pos.ofSliceFrom pos
     | .done => it.internalState.currPos = s.endPos
@@ -201,7 +205,7 @@ instance (s : Slice) [ForwardPattern pat] :
     if h : it.internalState.currPos = s.endPos then
       pure (.deflate ⟨.done, by simp [h]⟩)
     else
-      match h' : ForwardPattern.dropPrefixOfNonempty? pat (s.sliceFrom it.internalState.currPos) (by simpa) with
+      match h' : ForwardPattern.skipPrefixOfNonempty? pat (s.sliceFrom it.internalState.currPos) (by simpa) with
       | some pos =>
         pure (.deflate ⟨.yield ⟨⟨Slice.Pos.ofSliceFrom pos⟩⟩
           (.matched it.internalState.currPos (Slice.Pos.ofSliceFrom pos)), by simp [h, h']⟩)

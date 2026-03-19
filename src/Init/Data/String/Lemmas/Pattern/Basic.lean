@@ -272,14 +272,14 @@ supplied by the {name}`ForwardPatternModel` instance.
 -/
 class LawfulForwardPatternModel {ρ : Type} (pat : ρ) [ForwardPattern pat]
     [ForwardPatternModel pat] : Prop extends LawfulForwardPattern pat where
-  dropPrefix?_eq_some_iff (pos) : ForwardPattern.dropPrefix? pat s = some pos ↔ IsLongestMatch pat pos
+  skipPrefix?_eq_some_iff (pos) : ForwardPattern.skipPrefix? pat s = some pos ↔ IsLongestMatch pat pos
 
 open Classical in
-theorem LawfulForwardPatternModel.dropPrefix?_eq_none_iff {ρ : Type} {pat : ρ} [ForwardPattern pat] [ForwardPatternModel pat]
+theorem LawfulForwardPatternModel.skipPrefix?_eq_none_iff {ρ : Type} {pat : ρ} [ForwardPattern pat] [ForwardPatternModel pat]
     [LawfulForwardPatternModel pat] {s : Slice} {p₀ : s.Pos} :
-    ForwardPattern.dropPrefix? pat (s.sliceFrom p₀) = none ↔ ¬ MatchesAt pat p₀ := by
+    ForwardPattern.skipPrefix? pat (s.sliceFrom p₀) = none ↔ ¬ MatchesAt pat p₀ := by
   rw [← Decidable.not_iff_not]
-  simp [Option.ne_none_iff_exists', LawfulForwardPatternModel.dropPrefix?_eq_some_iff]
+  simp [Option.ne_none_iff_exists', LawfulForwardPatternModel.skipPrefix?_eq_some_iff]
   refine ⟨fun ⟨p, hp⟩ => ?_, fun ⟨p, hp⟩ => ?_⟩
   · exact ⟨Slice.Pos.ofSliceFrom p, hp.isLongestMatchAt_ofSliceFrom⟩
   · exact ⟨p₀.sliceFrom p hp.le, hp.isLongestMatch_sliceFrom⟩
@@ -358,8 +358,8 @@ theorem LawfulToForwardSearcherModel.defaultImplementation {pat : ρ} [ForwardPa
           Std.PlausibleIterStep.yield, Std.IterStep.yield.injEq] at heq
         rw [← heq.1, ← heq.2]
         apply IsValidSearchFrom.matched
-        · rw [LawfulForwardPattern.dropPrefixOfNonempty?_eq,
-            LawfulForwardPatternModel.dropPrefix?_eq_some_iff] at heq'
+        · rw [LawfulForwardPattern.skipPrefixOfNonempty?_eq,
+            LawfulForwardPatternModel.skipPrefix?_eq_some_iff] at heq'
           exact heq'.isLongestMatchAt_ofSliceFrom
         · simp only [Std.IterM.toIter]
           apply ih
@@ -372,8 +372,8 @@ theorem LawfulToForwardSearcherModel.defaultImplementation {pat : ρ} [ForwardPa
         apply IsValidSearchFrom.mismatched (by simp) _ (ih _ (by simp))
         intro p' hp' hp''
         obtain rfl : pos = p' := Std.le_antisymm hp' (by simpa using hp'')
-        rwa [LawfulForwardPattern.dropPrefixOfNonempty?_eq,
-          LawfulForwardPatternModel.dropPrefix?_eq_none_iff] at heq'
+        rwa [LawfulForwardPattern.skipPrefixOfNonempty?_eq,
+          LawfulForwardPatternModel.skipPrefix?_eq_none_iff] at heq'
     · split at heq <;> simp at heq
     · split at heq <;> simp at heq
 

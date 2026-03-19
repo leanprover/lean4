@@ -21,15 +21,15 @@ namespace String.Slice.Pattern
 namespace Char
 
 instance {c : Char} : ForwardPattern c where
-  dropPrefixOfNonempty? s h := ForwardPattern.dropPrefixOfNonempty? (· == c) s h
-  dropPrefix? s := ForwardPattern.dropPrefix? (· == c) s
+  skipPrefixOfNonempty? s h := ForwardPattern.skipPrefixOfNonempty? (· == c) s h
+  skipPrefix? s := ForwardPattern.skipPrefix? (· == c) s
   startsWith s := ForwardPattern.startsWith (· == c) s
 
 instance {c : Char} : StrictForwardPattern c where
   ne_startPos h q := StrictForwardPattern.ne_startPos (pat := (· == c)) h q
 
 instance {c : Char} : LawfulForwardPattern c where
-  dropPrefixOfNonempty?_eq h := LawfulForwardPattern.dropPrefixOfNonempty?_eq (pat := (· == c)) h
+  skipPrefixOfNonempty?_eq h := LawfulForwardPattern.skipPrefixOfNonempty?_eq (pat := (· == c)) h
   startsWith_eq s := LawfulForwardPattern.startsWith_eq (pat := (· == c)) s
 
 instance {c : Char} : ToForwardSearcher c (ToForwardSearcher.DefaultForwardSearcher (· == c)) where

@@ -280,7 +280,7 @@ def startsWith (pat : Slice) (s : Slice) : Bool :=
     false
 
 @[inline]
-def dropPrefix? (pat : Slice) (s : Slice) : Option s.Pos :=
+def skipPrefix? (pat : Slice) (s : Slice) : Option s.Pos :=
   if startsWith pat s then
     some <| s.pos! <| pat.rawEndPos.offsetBy s.startPos.offset
   else
@@ -288,14 +288,14 @@ def dropPrefix? (pat : Slice) (s : Slice) : Option s.Pos :=
 
 instance {pat : Slice} : ForwardPattern pat where
   startsWith := startsWith pat
-  dropPrefix? := dropPrefix? pat
+  skipPrefix? := skipPrefix? pat
 
 instance {pat : String} : ToForwardSearcher pat ForwardSliceSearcher where
   toSearcher := iter pat.toSlice
 
 instance {pat : String} : ForwardPattern pat where
   startsWith := startsWith pat.toSlice
-  dropPrefix? := dropPrefix? pat.toSlice
+  skipPrefix? := skipPrefix? pat.toSlice
 
 end ForwardSliceSearcher
 

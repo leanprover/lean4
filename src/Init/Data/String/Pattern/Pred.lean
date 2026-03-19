@@ -30,12 +30,12 @@ namespace CharPred
 
 @[default_instance]
 instance {p : Char → Bool} : ForwardPattern p where
-  dropPrefixOfNonempty? s h :=
+  skipPrefixOfNonempty? s h :=
     if p (s.startPos.get (Slice.startPos_ne_endPos h)) then
       some (s.startPos.next (Slice.startPos_ne_endPos h))
     else
       none
-  dropPrefix? s :=
+  skipPrefix? s :=
     if h : s.startPos = s.endPos then
       none
     else if p (s.startPos.get h) then
@@ -50,17 +50,17 @@ instance {p : Char → Bool} : ForwardPattern p where
 
 instance {p : Char → Bool} : StrictForwardPattern p where
   ne_startPos {s h q} := by
-    simp only [ForwardPattern.dropPrefixOfNonempty?, Option.ite_none_right_eq_some,
+    simp only [ForwardPattern.skipPrefixOfNonempty?, Option.ite_none_right_eq_some,
       Option.some.injEq, ne_eq, and_imp]
     rintro _ rfl
     simp
 
 instance {p : Char → Bool} : LawfulForwardPattern p where
-  dropPrefixOfNonempty?_eq {s} h := by
-    simp [ForwardPattern.dropPrefixOfNonempty?, ForwardPattern.dropPrefix?,
+  skipPrefixOfNonempty?_eq {s} h := by
+    simp [ForwardPattern.skipPrefixOfNonempty?, ForwardPattern.skipPrefix?,
       Slice.startPos_eq_endPos_iff, h]
   startsWith_eq s := by
-    simp only [ForwardPattern.startsWith, ForwardPattern.dropPrefix?]
+    simp only [ForwardPattern.startsWith, ForwardPattern.skipPrefix?]
     split <;> (try split) <;> simp_all
 
 @[default_instance]
@@ -70,15 +70,15 @@ instance {p : Char → Bool} : ToForwardSearcher p (ToForwardSearcher.DefaultFor
 namespace Decidable
 
 instance {p : Char → Prop} [DecidablePred p] : ForwardPattern p where
-  dropPrefixOfNonempty? s h := ForwardPattern.dropPrefixOfNonempty? (decide <| p ·) s h
-  dropPrefix? s := ForwardPattern.dropPrefix? (decide <| p ·) s
+  skipPrefixOfNonempty? s h := ForwardPattern.skipPrefixOfNonempty? (decide <| p ·) s h
+  skipPrefix? s := ForwardPattern.skipPrefix? (decide <| p ·) s
   startsWith s := ForwardPattern.startsWith (decide <| p ·) s
 
 instance {p : Char → Prop} [DecidablePred p] : StrictForwardPattern p where
   ne_startPos h q := StrictForwardPattern.ne_startPos (pat := (decide <| p ·)) h q
 
 instance {p : Char → Prop} [DecidablePred p] : LawfulForwardPattern p where
-  dropPrefixOfNonempty?_eq h := LawfulForwardPattern.dropPrefixOfNonempty?_eq (pat := (decide <| p ·)) h
+  skipPrefixOfNonempty?_eq h := LawfulForwardPattern.skipPrefixOfNonempty?_eq (pat := (decide <| p ·)) h
   startsWith_eq s := LawfulForwardPattern.startsWith_eq (pat := (decide <| p ·)) s
 
 instance {p : Char → Prop} [DecidablePred p] : ToForwardSearcher p (ToForwardSearcher.DefaultForwardSearcher (decide <| p ·)) where

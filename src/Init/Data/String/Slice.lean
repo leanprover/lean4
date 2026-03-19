@@ -344,7 +344,7 @@ Examples:
 -/
 @[inline]
 def dropPrefix? (s : Slice) (pat : ρ) [ForwardPattern pat] : Option Slice :=
-  (ForwardPattern.dropPrefix? pat s).map s.sliceFrom
+  (ForwardPattern.skipPrefix? pat s).map s.sliceFrom
 
 /--
 If {name}`pat` matches a prefix of {name}`s`, returns the remainder. Returns {name}`s` unmodified
@@ -416,7 +416,7 @@ def dropWhile (s : Slice) (pat : ρ) [ForwardPattern pat] : Slice :=
 where
   @[specialize pat]
   go (curr : s.Pos) : Slice :=
-    if let some nextCurr := ForwardPattern.dropPrefix? pat (s.sliceFrom curr) then
+    if let some nextCurr := ForwardPattern.skipPrefix? pat (s.sliceFrom curr) then
       if curr < Pos.ofSliceFrom nextCurr then
         go (Pos.ofSliceFrom nextCurr)
       else
@@ -476,7 +476,7 @@ def takeWhile (s : Slice) (pat : ρ) [ForwardPattern pat] : Slice :=
 where
   @[specialize pat]
   go (curr : s.Pos) : Slice :=
-    if let some nextCurr := ForwardPattern.dropPrefix? pat (s.sliceFrom curr) then
+    if let some nextCurr := ForwardPattern.skipPrefix? pat (s.sliceFrom curr) then
       if curr < Pos.ofSliceFrom nextCurr then
         go (Pos.ofSliceFrom nextCurr)
       else

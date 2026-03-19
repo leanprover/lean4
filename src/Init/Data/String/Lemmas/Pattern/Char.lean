@@ -57,8 +57,8 @@ theorem isLongestMatchAt_of_get_eq {c : Char} {s : Slice} {pos : s.Pos} {h : pos
   isLongestMatchAt_iff.2 ⟨h, by simp [hc]⟩
 
 instance {c : Char} : LawfulForwardPatternModel c where
-  dropPrefix?_eq_some_iff {s} pos := by
-    simp [isLongestMatch_iff, ForwardPattern.dropPrefix?, and_comm, eq_comm (b := pos)]
+  skipPrefix?_eq_some_iff {s} pos := by
+    simp [isLongestMatch_iff, ForwardPattern.skipPrefix?, and_comm, eq_comm (b := pos)]
 
 theorem toSearcher_eq {c : Char} {s : Slice} :
   ToForwardSearcher.toSearcher c s = ToForwardSearcher.toSearcher (· == c) s := (rfl)
@@ -136,21 +136,21 @@ theorem dropPrefix?_char_eq_dropPrefix?_beq {c : Char} {s : Slice} :
 theorem dropPrefix_char_eq_dropPrefix_beq {c : Char} {s : Slice} :
     s.dropPrefix c = s.dropPrefix (· == c) := (rfl)
 
-theorem Pattern.ForwardPattern.dropPrefix?_char_eq_dropPrefix?_beq {c : Char} {s : Slice} :
-    dropPrefix? c s = dropPrefix? (· == c) s := (rfl)
+theorem Pattern.ForwardPattern.skipPrefix?_char_eq_skipPrefix?_beq {c : Char} {s : Slice} :
+    skipPrefix? c s = skipPrefix? (· == c) s := (rfl)
 
 private theorem dropWhileGo_eq {c : Char} {s : Slice} (curr : s.Pos) :
     dropWhile.go s c curr = dropWhile.go s (· == c) curr := by
   fun_induction dropWhile.go s c curr with
   | case1 pos nextCurr h₁ h₂ ih =>
     conv => rhs; rw [dropWhile.go]
-    simp [← Pattern.ForwardPattern.dropPrefix?_char_eq_dropPrefix?_beq, h₁, h₂, ih]
+    simp [← Pattern.ForwardPattern.skipPrefix?_char_eq_skipPrefix?_beq, h₁, h₂, ih]
   | case2 pos nextCurr h ih =>
     conv => rhs; rw [dropWhile.go]
-    simp [← Pattern.ForwardPattern.dropPrefix?_char_eq_dropPrefix?_beq, h, ih]
+    simp [← Pattern.ForwardPattern.skipPrefix?_char_eq_skipPrefix?_beq, h, ih]
   | case3 pos h =>
     conv => rhs; rw [dropWhile.go]
-    simp [← Pattern.ForwardPattern.dropPrefix?_char_eq_dropPrefix?_beq]
+    simp [← Pattern.ForwardPattern.skipPrefix?_char_eq_skipPrefix?_beq]
 
 theorem dropWhile_char_eq_dropWhile_beq {c : Char} {s : Slice} :
     s.dropWhile c = s.dropWhile (· == c) := by
@@ -161,13 +161,13 @@ private theorem takeWhileGo_eq {c : Char} {s : Slice} (curr : s.Pos) :
   fun_induction takeWhile.go s c curr with
   | case1 pos nextCurr h₁ h₂ ih =>
     conv => rhs; rw [takeWhile.go]
-    simp [← Pattern.ForwardPattern.dropPrefix?_char_eq_dropPrefix?_beq, h₁, h₂, ih]
+    simp [← Pattern.ForwardPattern.skipPrefix?_char_eq_skipPrefix?_beq, h₁, h₂, ih]
   | case2 pos nextCurr h ih =>
     conv => rhs; rw [takeWhile.go]
-    simp [← Pattern.ForwardPattern.dropPrefix?_char_eq_dropPrefix?_beq, h, ih]
+    simp [← Pattern.ForwardPattern.skipPrefix?_char_eq_skipPrefix?_beq, h, ih]
   | case3 pos h =>
     conv => rhs; rw [takeWhile.go]
-    simp [← Pattern.ForwardPattern.dropPrefix?_char_eq_dropPrefix?_beq]
+    simp [← Pattern.ForwardPattern.skipPrefix?_char_eq_skipPrefix?_beq]
 
 theorem takeWhile_char_eq_takeWhile_beq {c : Char} {s : Slice} :
     s.takeWhile c = s.takeWhile (· == c) := by

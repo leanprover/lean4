@@ -1,0 +1,186 @@
+theorem bne_eq [BEq α] {a b : α} : (a != b) = !(a == b) := rfl
+
+namespace Nat
+
+theorem toNat_digitChar_of_lt_ten {n : Nat} (hn : n < 10) : n.digitChar.toNat = 48 + n :=
+  match n with
+  | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 => by simp [digitChar]
+  | _ + 10 => by omega
+
+theorem toNat_digitChar_sub_48_of_lt_ten {n : Nat} (hn : n < 10) : n.digitChar.toNat - 48 = n := by
+  simp [toNat_digitChar_of_lt_ten hn]
+
+@[simp]
+theorem Nat.digitChar_eq_zero_iff {n : Nat} : n.digitChar = '0' ↔ n = 0 :=
+  match n with
+  | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | _ + 16 => by simp [digitChar]
+
+theorem base_induction {P : Nat → Prop} {n : Nat} (b : Nat) (hb : 1 < b) (single : ∀ m, m < b → P m)
+    (digit : ∀ m k, k < b → 0 < m → P m → P (b * m + k)) : P n := by
+  induction n using Nat.strongRecOn with | ind n ih
+  by_cases hn : n < b
+  · exact single _ hn
+  · have := Nat.div_add_mod n b
+    rw [← this]
+    apply digit _ _ (Nat.mod_lt _ (by omega)) _ (ih _ _)
+    · exact Nat.div_pos (Nat.not_lt.1 hn) (by omega)
+    · exact Nat.div_lt_self (by omega) (by omega)
+
+end Nat
+
+namespace Char
+
+@[simp]
+theorem val_toNat {c : Char} : c.val.toNat = c.toNat := rfl
+
+theorem val_inj {c d : Char} : c.val = d.val ↔ c = d :=
+  Char.ext_iff.symm
+
+theorem toNat_inj {c d : Char} : c.toNat = d.toNat ↔ c = d := by
+  simp [← Char.val_toNat, ← Char.val_inj, ← UInt32.toNat_inj]
+
+theorem isDigit_iff_toNat {c : Char} : c.isDigit ↔ '0'.toNat ≤ c.toNat ∧ c.toNat ≤ '9'.toNat := by
+  simp [isDigit, UInt32.le_iff_toNat_le]
+
+end Char
+
+namespace List
+
+theorem getLast?_cons_of_ne_nil {x : α} {xs : List α} (h : xs ≠ []) : (x::xs).getLast? = xs.getLast? := by
+  cases xs <;> simp_all
+
+theorem infix_append_singleton_iff {a : α} {l m : List α} : l <:+: m ++ [a] ↔ l <:+: m ∨ l <:+ (m ++ [a]) := by
+  rw [← List.reverse_infix, List.reverse_append, List.reverse_singleton, List.singleton_append,
+    List.infix_cons_iff, ← List.singleton_append]
+  rw (occs := [1]) [← List.reverse_singleton]
+  rw [← List.reverse_append, List.reverse_prefix, List.reverse_infix, or_comm]
+
+theorem suffix_iff_exists_append {l₁ l₂ : List α} : l₁ <:+ l₂ ↔ ∃ l₃, l₂ = l₃ ++ l₁ := by
+  refine ⟨?_, ?_⟩
+  · rw [suffix_iff_eq_append]
+    intro h
+    rw [← h]
+    simp
+  · rintro ⟨l₃, rfl⟩
+    exact suffix_append l₃ l₁
+
+theorem prefix_iff_exists_append_eq {l₁ l₂ : List α} : l₁ <+: l₂ ↔ ∃ l₃, l₁ ++ l₃ = l₂ :=
+  Iff.rfl
+
+theorem prefix_iff_exists_eq_append {l₁ l₂ : List α} : l₁ <+: l₂ ↔ ∃ l₃, l₂ = l₁ ++ l₃ := by
+  simp [prefix_iff_exists_append_eq, eq_comm]
+
+theorem suffix_append_self_iff {l₁ l₂ m : List α} : l₁ ++ m <:+ l₂ ++ m ↔ l₁ <:+ l₂ := by
+  simp only [suffix_iff_exists_append]
+  refine ⟨?_, ?_⟩
+  · rintro ⟨l₃, h⟩
+    refine ⟨l₃, by simpa [← List.append_assoc] using h⟩
+  · rintro ⟨l₃, rfl⟩
+    refine ⟨l₃, by simp⟩
+
+theorem suffix_append_inj_of_length_eq {l₁ l₂ m₁ m₂ : List α} (hm : m₁.length = m₂.length) :
+    l₁ ++ m₁ <:+ l₂ ++ m₂ ↔ l₁ <:+ l₂ ∧ m₁ = m₂ := by
+  simp only [suffix_iff_exists_append]
+  refine ⟨?_, ?_⟩
+  · rintro ⟨l₃, h⟩
+    rw [← List.append_assoc] at h
+    obtain ⟨rfl, rfl⟩ := List.append_inj' h hm.symm
+    refine ⟨⟨l₃, by simp⟩, by simp⟩
+  · rintro ⟨⟨l₃, rfl⟩, rfl⟩
+    refine ⟨l₃, by simp⟩
+
+theorem singleton_suffix_iff_getLast?_eq_some {a : α} {l : List α} : [a] <:+ l ↔ l.getLast? = some a := by
+  rw [suffix_iff_exists_append, getLast?_eq_some_iff]
+
+theorem singleton_prefix_iff_head?_eq_some {a : α} {l : List α} : [a] <+: l ↔ l.head? = some a := by
+  simp [prefix_iff_exists_eq_append, head?_eq_some_iff]
+
+theorem infix_append_iff {α : Type u} {l m n : List α} : l <:+: m ++ n ↔
+    l <:+: m ∨ l <:+: n ∨ (∃ l₁ l₂, l = l₁ ++ l₂ ∧ l₁ <:+ m ∧ l₂ <+: n) := by
+  constructor
+  · rintro ⟨s, t, ht⟩
+    rcases List.append_eq_append_iff.mp ht with ⟨as, hm, _⟩ | ⟨bs, hsl, hn⟩
+    · exact Or.inl ⟨s, as, hm.symm⟩
+    · rcases List.append_eq_append_iff.mp hsl with ⟨cs, hm', hl⟩ | ⟨ds, _, hbs⟩
+      · exact Or.inr (Or.inr ⟨cs, bs, hl,
+          List.suffix_iff_exists_append.mpr ⟨s, hm'⟩,
+          List.prefix_iff_exists_eq_append.mpr ⟨t, hn⟩⟩)
+      · exact Or.inr (Or.inl ⟨ds, t, by rw [hn, ← hbs]⟩)
+  · rintro (⟨s, t, ht⟩ | ⟨s, t, ht⟩ | ⟨l₁, l₂, rfl, hl₁, hl₂⟩)
+    · exact ⟨s, t ++ n, by rw [← List.append_assoc, ht]⟩
+    · exact ⟨m ++ s, t, by
+        rw [List.append_assoc] at ht
+        rw [List.append_assoc (m ++ s), List.append_assoc m, ht]⟩
+    · rw [List.suffix_iff_exists_append] at hl₁
+      rw [List.prefix_iff_exists_eq_append] at hl₂
+      obtain ⟨s, hm⟩ := hl₁
+      obtain ⟨t, hn⟩ := hl₂
+      exact ⟨s, t, by rw [← List.append_assoc s l₁, List.append_assoc (s ++ l₁), hm, hn]⟩
+
+theorem infix_append_iff_ne_nil {α : Type u} {l m n : List α} : l <:+: m ++ n ↔
+    l <:+: m ∨ l <:+: n ∨ (∃ l₁ l₂, l₁ ≠ [] ∧ l₂ ≠ [] ∧ l = l₁ ++ l₂ ∧ l₁ <:+ m ∧ l₂ <+: n) := by
+  rw [List.infix_append_iff]
+  constructor
+  · rintro (h | h | ⟨l₁, l₂, hl, hl₁, hl₂⟩)
+    · exact Or.inl h
+    · exact Or.inr (Or.inl h)
+    · by_cases h₁ : l₁ = []
+      · subst h₁
+        simp only [List.nil_append] at hl
+        subst hl
+        exact Or.inr (Or.inl hl₂.isInfix)
+      · by_cases h₂ : l₂ = []
+        · subst h₂
+          simp only [List.append_nil] at hl
+          subst hl
+          exact Or.inl hl₁.isInfix
+        · exact Or.inr (Or.inr ⟨l₁, l₂, h₁, h₂, hl, hl₁, hl₂⟩)
+  · rintro (h | h | ⟨l₁, l₂, -, -, hl, hl₁, hl₂⟩)
+    · exact Or.inl h
+    · exact Or.inr (Or.inl h)
+    · exact Or.inr (Or.inr ⟨l₁, l₂, hl, hl₁, hl₂⟩)
+
+theorem filter_bne_eq_self_of_not_mem [BEq α] [LawfulBEq α] {a : α} {l : List α} (h : a ∉ l) :
+    l.filter (· != a) = l := by
+  rw [List.filter_eq_self]
+  intro c hc
+  simp only [bne_iff_ne, ne_eq]
+  exact fun heq => absurd (heq ▸ hc) h
+
+theorem dropWhile_beq_eq_self_of_head?_ne [BEq α] [LawfulBEq α] {a : α} {l : List α}
+    (h : l.head? ≠ some a) : l.dropWhile (· == a) = l := by
+  cases l with
+  | nil => simp
+  | cons hd tl =>
+    rw [List.dropWhile_cons_of_neg]
+    simpa [beq_iff_eq] using h
+
+theorem foldl_ite_left {P : α → Prop} [DecidablePred P] {l : List α} {f : β → α → β} {init : β} :
+    (l.foldl (init := init) fun sofar a => if P a then f sofar a else sofar) = (l.filter P).foldl (init := init) f := by
+  simp [List.foldl_filter]
+
+theorem foldl_ite_right {P : α → Prop} [DecidablePred P] {l : List α} {f : β → α → β} {init : β} :
+    (l.foldl (init := init) fun sofar a => if P a then sofar else f sofar a) =
+      (l.filter (fun a => ¬ P a)).foldl (init := init) f := by
+  simp +singlePass only [← ite_not]
+  rw [foldl_ite_left]
+
+@[simp]
+theorem suffix_cons_append {a : α} {l m : List α} : m <:+ a :: (l ++ m) := by
+  rw [← List.cons_append]
+  exact List.suffix_append (a :: l) m
+
+@[simp]
+theorem singleton_suffix_append_singleton_iff {a b : α} {l : List α} :
+    [a] <:+ l ++ [b] ↔ a = b := by
+  refine ⟨fun h => Eq.symm ?_, by rintro rfl; simp⟩
+  simpa [List.suffix_iff_exists_append] using h
+
+@[simp]
+theorem singleton_suffix_cons_append_singleton_iff {a b c : α} {l : List α} :
+    [a] <:+ b :: (l ++ [c]) ↔ a = c := by
+  rw [← List.cons_append]
+  exact singleton_suffix_append_singleton_iff
+
+end List
+

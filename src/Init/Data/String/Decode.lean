@@ -64,7 +64,7 @@ public theorem Char.utf8Size_eq (c : Char) : c.utf8Size = 1 ∨ c.utf8Size = 2 �
   match c.utf8Size, c.utf8Size_pos, c.utf8Size_le_four with
   | 1, _, _ | 2, _, _ | 3, _, _ | 4, _, _ => simp
 
-theorem Char.toNat_val_le {c : Char} : c.val.toNat ≤ 0x10ffff := by
+theorem Char.toNat_le {c : Char} : c.toNat ≤ 0x10ffff := by
   have := c.valid
   simp [UInt32.isValidChar, Nat.isValidChar] at this
   omega
@@ -193,10 +193,10 @@ theorem helper₄ (s : Nat) (c : BitVec w₀) (v : BitVec w') (w : Nat) :
 -- TODO: possibly it makes sense to factor out this proof
 theorem String.toBitVec_getElem_utf8EncodeChar_zero_of_utf8Size_eq_one {c : Char} (h : c.utf8Size = 1) :
     ((String.utf8EncodeChar c)[0]'(by simp [h])).toBitVec = 0#1 ++ c.val.toBitVec.extractLsb' 0 7 := by
-  have h₀ : c.val.toNat < 128 := by
-    suffices c.val.toNat ≤ 127 by omega
+  have h₀ : c.toNat < 128 := by
+    suffices c.toNat ≤ 127 by omega
     simpa [Char.utf8Size_eq_one_iff, UInt32.le_iff_toNat_le] using h
-  have h₁ : c.val.toNat < 256 := by omega
+  have h₁ : c.toNat < 256 := by omega
   rw [← BitVec.toNat_inj, BitVec.toNat_append]
   simp [-Char.toUInt8_val, utf8EncodeChar_eq_singleton h, Nat.mod_eq_of_lt h₀, Nat.mod_eq_of_lt h₁]
 
@@ -977,9 +977,9 @@ theorem assemble₄_eq_some_iff_utf8EncodeChar_eq {w x y z : UInt8} {c : Char} :
         BitVec.extractLsb'_append_extractLsb'_eq_extractLsb' (by simp),
         BitVec.extractLsb'_append_extractLsb'_eq_extractLsb' (by simp),
         ← BitVec.setWidth_eq_extractLsb' (by simp), BitVec.setWidth_setWidth_eq_self]
-      have := c.toNat_val_le
+      have := c.toNat_le
       simp only [Nat.reduceAdd, BitVec.lt_def, UInt32.toNat_toBitVec, BitVec.toNat_twoPow,
-        Nat.reducePow, Nat.reduceMod, gt_iff_lt]
+        Nat.reducePow, Nat.reduceMod, gt_iff_lt, Char.toNat_val]
       omega
 
 theorem verify₄_eq_isSome_assemble₄ {w x y z : UInt8} :

@@ -100,43 +100,38 @@ public theorem dropPrefix?_string_eq_dropPrefix?_toSlice {pat : String} {s : Sli
 public theorem dropPrefix_string_eq_dropPrefix_toSlice {pat : String} {s : Slice} :
     s.dropPrefix pat = s.dropPrefix pat.toSlice := (rfl)
 
+public theorem skipPrefix?_string_eq_skipPrefix?_toSlice {pat : String} {s : Slice} :
+    s.skipPrefix? pat = s.skipPrefix? pat.toSlice := (rfl)
+
 public theorem Pattern.ForwardPattern.skipPrefix?_string_eq_skipPrefix?_toSlice
     {pat : String} {s : Slice} :
     skipPrefix? pat s = skipPrefix? pat.toSlice s := (rfl)
 
-private theorem dropWhileGo_string_eq {pat : String} {s : Slice} (curr : s.Pos) :
-    dropWhile.go s pat curr = dropWhile.go s pat.toSlice curr := by
-  fun_induction dropWhile.go s pat curr with
+public theorem Pos.skipWhile_string_eq_skipWhile_toSlice {pat : String} {s : Slice}
+    (curr : s.Pos) :
+    Pos.skipWhile curr pat = Pos.skipWhile curr pat.toSlice := by
+  fun_induction Pos.skipWhile curr pat with
   | case1 pos nextCurr h₁ h₂ ih =>
-    conv => rhs; rw [dropWhile.go]
+    conv => rhs; rw [Pos.skipWhile]
     simp [← Pattern.ForwardPattern.skipPrefix?_string_eq_skipPrefix?_toSlice, h₁, h₂, ih]
   | case2 pos nextCurr h ih =>
-    conv => rhs; rw [dropWhile.go]
+    conv => rhs; rw [Pos.skipWhile]
     simp [← Pattern.ForwardPattern.skipPrefix?_string_eq_skipPrefix?_toSlice, h, ih]
   | case3 pos h =>
-    conv => rhs; rw [dropWhile.go]
+    conv => rhs; rw [Pos.skipWhile]
     simp [← Pattern.ForwardPattern.skipPrefix?_string_eq_skipPrefix?_toSlice]
+
+public theorem skipPrefixWhile_string_eq_skipPrefixWhile_toSlice {pat : String} {s : Slice} :
+    s.skipPrefixWhile pat = s.skipPrefixWhile pat.toSlice :=
+  Pos.skipWhile_string_eq_skipWhile_toSlice s.startPos
 
 public theorem dropWhile_string_eq_dropWhile_toSlice {pat : String} {s : Slice} :
     s.dropWhile pat = s.dropWhile pat.toSlice := by
-  simpa only [dropWhile] using dropWhileGo_string_eq s.startPos
-
-private theorem takeWhileGo_string_eq {pat : String} {s : Slice} (curr : s.Pos) :
-    takeWhile.go s pat curr = takeWhile.go s pat.toSlice curr := by
-  fun_induction takeWhile.go s pat curr with
-  | case1 pos nextCurr h₁ h₂ ih =>
-    conv => rhs; rw [takeWhile.go]
-    simp [← Pattern.ForwardPattern.skipPrefix?_string_eq_skipPrefix?_toSlice, h₁, h₂, ih]
-  | case2 pos nextCurr h ih =>
-    conv => rhs; rw [takeWhile.go]
-    simp [← Pattern.ForwardPattern.skipPrefix?_string_eq_skipPrefix?_toSlice, h, ih]
-  | case3 pos h =>
-    conv => rhs; rw [takeWhile.go]
-    simp [← Pattern.ForwardPattern.skipPrefix?_string_eq_skipPrefix?_toSlice]
+  simp only [dropWhile]; exact congrArg _ skipPrefixWhile_string_eq_skipPrefixWhile_toSlice
 
 public theorem takeWhile_string_eq_takeWhile_toSlice {pat : String} {s : Slice} :
     s.takeWhile pat = s.takeWhile pat.toSlice := by
-  simp only [takeWhile]; exact takeWhileGo_string_eq s.startPos
+  simp only [takeWhile]; exact congrArg _ skipPrefixWhile_string_eq_skipPrefixWhile_toSlice
 
 public theorem all_string_eq_all_toSlice {pat : String} {s : Slice} :
     s.all pat = s.all pat.toSlice := by
@@ -145,48 +140,43 @@ public theorem all_string_eq_all_toSlice {pat : String} {s : Slice} :
 public theorem endsWith_string_eq_endsWith_toSlice {pat : String} {s : Slice} :
     s.endsWith pat = s.endsWith pat.toSlice := (rfl)
 
+public theorem skipSuffix?_string_eq_skipSuffix?_toSlice {pat : String} {s : Slice} :
+    s.skipSuffix? pat = s.skipSuffix? pat.toSlice := (rfl)
+
 public theorem dropSuffix?_string_eq_dropSuffix?_toSlice {pat : String} {s : Slice} :
     s.dropSuffix? pat = s.dropSuffix? pat.toSlice := (rfl)
 
 public theorem dropSuffix_string_eq_dropSuffix_toSlice {pat : String} {s : Slice} :
     s.dropSuffix pat = s.dropSuffix pat.toSlice := (rfl)
 
-public theorem Pattern.BackwardPattern.dropSuffix?_string_eq_dropSuffix?_toSlice
+public theorem Pattern.BackwardPattern.skipSuffix?_string_eq_skipSuffix?_toSlice
     {pat : String} {s : Slice} :
-    dropSuffix? pat s = dropSuffix? pat.toSlice s := (rfl)
+    skipSuffix? pat s = skipSuffix? pat.toSlice s := (rfl)
 
-private theorem dropEndWhileGo_string_eq {pat : String} {s : Slice} (curr : s.Pos) :
-    dropEndWhile.go s pat curr = dropEndWhile.go s pat.toSlice curr := by
-  fun_induction dropEndWhile.go s pat curr with
+public theorem Pos.revSkipWhile_string_eq_revSkipWhile_toSlice {pat : String} {s : Slice}
+    (curr : s.Pos) :
+    Pos.revSkipWhile curr pat = Pos.revSkipWhile curr pat.toSlice := by
+  fun_induction Pos.revSkipWhile curr pat with
   | case1 pos nextCurr h₁ h₂ ih =>
-    conv => rhs; rw [dropEndWhile.go]
-    simp [← Pattern.BackwardPattern.dropSuffix?_string_eq_dropSuffix?_toSlice, h₁, h₂, ih]
+    conv => rhs; rw [Pos.revSkipWhile]
+    simp [← Pattern.BackwardPattern.skipSuffix?_string_eq_skipSuffix?_toSlice, h₁, h₂, ih]
   | case2 pos nextCurr h ih =>
-    conv => rhs; rw [dropEndWhile.go]
-    simp [← Pattern.BackwardPattern.dropSuffix?_string_eq_dropSuffix?_toSlice, h, ih]
+    conv => rhs; rw [Pos.revSkipWhile]
+    simp [← Pattern.BackwardPattern.skipSuffix?_string_eq_skipSuffix?_toSlice, h, ih]
   | case3 pos h =>
-    conv => rhs; rw [dropEndWhile.go]
-    simp [← Pattern.BackwardPattern.dropSuffix?_string_eq_dropSuffix?_toSlice]
+    conv => rhs; rw [Pos.revSkipWhile]
+    simp [← Pattern.BackwardPattern.skipSuffix?_string_eq_skipSuffix?_toSlice]
+
+public theorem skipSuffixWhile_string_eq_skipSuffixWhile_toSlice {pat : String} {s : Slice} :
+    s.skipSuffixWhile pat = s.skipSuffixWhile pat.toSlice :=
+  Pos.revSkipWhile_string_eq_revSkipWhile_toSlice s.endPos
 
 public theorem dropEndWhile_string_eq_dropEndWhile_toSlice {pat : String} {s : Slice} :
     s.dropEndWhile pat = s.dropEndWhile pat.toSlice := by
-  simpa only [dropEndWhile] using dropEndWhileGo_string_eq s.endPos
-
-private theorem takeEndWhileGo_string_eq {pat : String} {s : Slice} (curr : s.Pos) :
-    takeEndWhile.go s pat curr = takeEndWhile.go s pat.toSlice curr := by
-  fun_induction takeEndWhile.go s pat curr with
-  | case1 pos nextCurr h₁ h₂ ih =>
-    conv => rhs; rw [takeEndWhile.go]
-    simp [← Pattern.BackwardPattern.dropSuffix?_string_eq_dropSuffix?_toSlice, h₁, h₂, ih]
-  | case2 pos nextCurr h ih =>
-    conv => rhs; rw [takeEndWhile.go]
-    simp [← Pattern.BackwardPattern.dropSuffix?_string_eq_dropSuffix?_toSlice, h, ih]
-  | case3 pos h =>
-    conv => rhs; rw [takeEndWhile.go]
-    simp [← Pattern.BackwardPattern.dropSuffix?_string_eq_dropSuffix?_toSlice]
+  simp only [dropEndWhile]; exact congrArg _ skipSuffixWhile_string_eq_skipSuffixWhile_toSlice
 
 public theorem takeEndWhile_string_eq_takeEndWhile_toSlice {pat : String} {s : Slice} :
     s.takeEndWhile pat = s.takeEndWhile pat.toSlice := by
-  simpa only [takeEndWhile] using takeEndWhileGo_string_eq s.endPos
+  simp only [takeEndWhile]; exact congrArg _ skipSuffixWhile_string_eq_skipSuffixWhile_toSlice
 
 end String.Slice

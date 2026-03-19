@@ -840,18 +840,7 @@ Examples:
 -/
 @[inline]
 def takeEndWhile (s : Slice) (pat : ρ) [BackwardPattern pat] : Slice :=
-  go s.endPos
-where
-  @[specialize pat]
-  go (curr : s.Pos) : Slice :=
-    if let some nextCurr := BackwardPattern.skipSuffix? pat (s.sliceTo curr) then
-      if Pos.ofSliceTo nextCurr < curr then
-        go (Pos.ofSliceTo nextCurr)
-      else
-        s.sliceFrom curr
-    else
-      s.sliceFrom curr
-  termination_by curr.down
+  s.sliceFrom (s.skipSuffixWhile pat)
 
 /--
 Finds the position of the first match of the pattern {name}`pat` in a slice, starting

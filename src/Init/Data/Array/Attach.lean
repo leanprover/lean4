@@ -98,7 +98,7 @@ well-founded recursion mechanism to prove that the function terminates.
 
 @[simp] theorem pmap_push {P : α → Prop} (f : ∀ a, P a → β) (a : α) (xs : Array α) (h : ∀ b ∈ xs.push a, P b) :
     pmap f (xs.push a) h =
-      (pmap f xs (fun a m => by simp at h; exact h.1 _ m)).push (f a (h a (by simp))) := by
+      (pmap f xs (fun a m => by simp [forall_or_eq_imp] at h; exact h.1 _ m)).push (f a (h a (by simp))) := by
   simp [pmap]
 
 @[simp] theorem attach_empty : (#[] : Array α).attach = #[] := rfl
@@ -153,7 +153,7 @@ theorem attachWith_congr {xs ys : Array α} (w : xs = ys) {P : α → Prop} {H :
 
 @[simp] theorem attachWith_push {a : α} {xs : Array α} {P : α → Prop} {H : ∀ x ∈ xs.push a, P x} :
     (xs.push a).attachWith P H =
-      (xs.attachWith P (fun x h => by simp at H; exact H.1 _ h)).push ⟨a, H a (by simp)⟩ := by
+      (xs.attachWith P (fun x h => by simp [forall_or_eq_imp] at H; exact H.1 _ h)).push ⟨a, H a (by simp)⟩ := by
   cases xs
   simp
 

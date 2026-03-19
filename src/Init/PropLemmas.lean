@@ -100,10 +100,10 @@ theorem or_rotate : a ∨ b ∨ c ↔ b ∨ c ∨ a := by simp only [or_left_com
 theorem or_iff_left  (hb : ¬b) : a ∨ b ↔ a := or_iff_left_iff_imp.mpr  hb.elim
 theorem or_iff_right (ha : ¬a) : a ∨ b ↔ b := or_iff_right_iff_imp.mpr ha.elim
 
-@[simp] theorem imp_or_left_iff_true {P Q : Prop} : (P → P ∨ Q) ↔ True := by
+theorem imp_or_left_iff_true {P Q : Prop} : (P → P ∨ Q) ↔ True := by
   simpa using Or.inl
 
-@[simp] theorem imp_or_right_iff_true {P Q : Prop} : (Q → P ∨ Q) ↔ True := by
+theorem imp_or_right_iff_true {P Q : Prop} : (Q → P ∨ Q) ↔ True := by
   simpa using Or.inr
 
 /-! ## distributivity -/
@@ -360,15 +360,15 @@ theorem not_forall_of_exists_not {p : α → Prop} : (∃ x, ¬p x) → ¬∀ x,
     (∀ a, a = a' ∨ Q a → P a) ↔ P a' ∧ ∀ a, Q a → P a := by
   simp only [or_imp, forall_and, forall_eq]
 
-@[simp] theorem forall_eq_or_imp' {P Q : α → Prop} {a' : α} :
+theorem forall_eq_or_imp' {P Q : α → Prop} {a' : α} :
     (∀ (a : α), a' = a ∨ Q a → P a) ↔ P a' ∧ ∀ (a : α), Q a → P a := by
   simp only [or_imp, forall_and, forall_eq']
 
-@[simp] theorem forall_or_eq_imp {P Q : α → Prop} :
+theorem forall_or_eq_imp {P Q : α → Prop} :
     (∀ a, Q a ∨ a = a' → P a) ↔ (∀ a, Q a → P a) ∧ P a' := by
   simp only [or_imp, forall_and, forall_eq]
 
-@[simp] theorem forall_or_eq_imp' {P Q : α → Prop} :
+theorem forall_or_eq_imp' {P Q : α → Prop} :
     (∀ a, Q a ∨ a' = a → P a) ↔ (∀ a, Q a → P a) ∧ P a' := by
   simp only [or_imp, forall_and, forall_eq']
 
@@ -438,22 +438,18 @@ theorem forall_prop_of_false {p : Prop} {q : p → Prop} (hn : ¬p) : (∀ h' : 
 @[simp] theorem forall_self_imp (P : Prop) (Q : P → Prop) : (∀ p : P, P → Q p) ↔ ∀ p, Q p :=
   ⟨fun h p => h p p, fun h _ p => h p⟩
 
-@[simp]
 theorem forall_or_imp_or_self_right_right {P Q R : α → Prop} :
     (∀ a, P a ∨ Q a → R a ∨ Q a) ↔ (∀ a, P a → R a ∨ Q a) := by
   simp only [or_imp, imp_or_right_iff_true, and_true]
 
-@[simp]
 theorem forall_or_imp_or_self_right_left {P Q R : α → Prop} :
     (∀ a, P a ∨ Q a → Q a ∨ R a) ↔ (∀ a, P a → Q a ∨ R a) := by
   simp only [or_imp, imp_or_left_iff_true, and_true]
 
-@[simp]
 theorem forall_or_imp_or_self_left_right {P Q R : α → Prop} :
     (∀ a, Q a ∨ P a → R a ∨ Q a) ↔ (∀ a, P a → R a ∨ Q a) := by
   simp only [or_imp, imp_or_right_iff_true, true_and]
 
-@[simp]
 theorem forall_or_imp_or_self_left_left {P Q R : α → Prop} :
     (∀ a, Q a ∨ P a → Q a ∨ R a) ↔ (∀ a, P a → Q a ∨ R a) := by
   simp only [or_imp, imp_or_left_iff_true, true_and]

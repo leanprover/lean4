@@ -77,6 +77,8 @@ example : singleton c ++ s = singleton d ++ t ↔ c = d ∧ s = t := by simp onl
 example : s ++ t = s ↔ t = "" := by simp only [String.simpEq]
 example : s ++ t = t ↔ s = "" := by simp only [String.simpEq]
 
+example : "" ++ ("_" ++ s) = String.singleton c ++ t ↔ '_' = c ∧ s = t := by simp only [String.simpEq]
+
 example : "Hello, " ++ s ++ "!" = "Hello, world!" ↔ s = "world" := by simp only [String.simpEq]
 example : s.push c = "Test me" ↔ s = "Test m" ∧ c = 'e' := by simp only [String.simpEq]
 example : singleton c ++ s = "Test me" ↔ c = 'T' ∧ s = "est me" := by simp only [String.simpEq]

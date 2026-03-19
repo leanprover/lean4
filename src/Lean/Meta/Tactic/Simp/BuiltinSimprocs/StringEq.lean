@@ -314,7 +314,6 @@ def ErasureResult.map₂
   | .result x y, .noErased => .result (f x r.toAny) (f y r.toAny)
   | .result x y, .result x' y' => .result (f x x') (f y y')
 
---set_option trace.compiler.ir.result true in
 def ExprStructure.removeErased : ExprStructure ty → ErasureResult ty
   -- String
   | .stringAppend a b => .map₂ .stringAppend id id a b a.removeErased b.removeErased
@@ -322,18 +321,17 @@ def ExprStructure.removeErased : ExprStructure ty → ErasureResult ty
   | .singleton c => c.removeErased.map .singleton
   | .ofList l => l.removeErased.map .ofList
   | .stringLit s =>
-    if s.startInclusive = s.str.startPos ∧ s.endExclusive = s.str.endPos then
-      .noErased
-    else if s.isEmpty then
+    if s.isEmpty then
       .empty
+    else if s.startInclusive = s.str.startPos ∧ s.endExclusive = s.str.endPos then
+      .noErased
     else
       .result (.stringLit s.copy) (.stringLit s)
   | .anyString _ => .noErased
   | .erasedString _ => .empty
   -- List Char
-  | .nil => .noErased
-  | .cons c l => .map₂ .cons (.cons · .nil) id c l c.removeErased
-    (if l matches .nil then .empty else l.removeErased)
+  | .nil => .empty
+  | .cons c l => .map₂ .cons (.cons · .nil) id c l c.removeErased l.removeErased
   | .listAppend a b => .map₂ .listAppend id id a b a.removeErased b.removeErased
   | .toList l => l.removeErased.map .toList
   | .anyList _ => .noErased

@@ -8,11 +8,10 @@ module
 prelude
 public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Char
 import Init.Data.String.SimpEq
+import Init.Data.String.Lemmas.Basic
 import Init.Data.String.Lemmas.FindPos
 import Init.While
 public meta import Lean.Elab.Command
-
-meta section
 
 namespace String
 
@@ -101,8 +100,29 @@ def ExprStructure.isEmpty : ExprStructure ty → Bool
   | .anyChar _ => false
   | .erasedChar _=> false
 
+def ExprStructure.allErased : ExprStructure ty → Bool
+  -- String
+  | .stringAppend a b => a.allErased && b.allErased
+  | .push s c => s.allErased && c.allErased
+  | .singleton c => c.allErased
+  | .ofList l => l.allErased
+  | .stringLit s => s.isEmpty
+  | .anyString _ => false
+  | .erasedString _=> true
+  -- List Char
+  | .nil => true
+  | .cons c l => c.allErased && l.allErased
+  | .listAppend a b => a.allErased && b.allErased
+  | .toList s => s.allErased
+  | .anyList _ => false
+  | .erasedList _=> true
+  -- Char
+  | .charLit _ => false
+  | .anyChar _ => false
+  | .erasedChar _=> true
+
 def listAppendInst : Expr :=
-  mkApp2 (.const ``instHAppendOfAppend [0]) (.app (mkConst ``List) (mkConst ``Char))
+  mkApp2 (.const ``instHAppendOfAppend [0]) (.app (.const ``List [0]) (mkConst ``Char))
     (.app (.const ``List.instAppend [0]) (mkConst ``Char))
 
 def stringAppendInst : Expr :=
@@ -250,28 +270,29 @@ def ExprStructure.toAny (x : ExprStructure ty) : ExprStructure ty :=
 inductive ErasureResult (ty : ExprType) where
   | empty
   | noErased
-  | result (x : ExprStructure ty)
+  | result (erased unerased : ExprStructure ty)
 
 @[inline]
-def ErasureResult.valueD (x : ErasureResult ty) (default : ExprStructure ty) :
+def ErasureResult.erasedValueD (x : ErasureResult ty) (default : ExprStructure ty) :
     ExprStructure ty :=
   match x with
-  | .result x => x
+  | .result x _ => x
+  | .noErased => default.toAny
+  | .empty => default
+
+@[inline]
+def ErasureResult.unerasedValueD (x : ErasureResult ty) (default : ExprStructure ty) :
+    ExprStructure ty :=
+  match x with
+  | .result _ x => x
+  | .noErased => default.toAny
   | _ => default
-
-@[inline]
-def ErasureResult.elim (x : ErasureResult ty) (empty noErased : ExprStructure ty) :
-    ExprStructure ty :=
-  match x with
-  | .empty => empty
-  | .noErased => noErased
-  | .result x => x
 
 @[inline]
 def ErasureResult.withErased (x : ErasureResult ty) (val : ExprStructure ty) :
     ErasureResult ty :=
   match x with
-  | .noErased => .result val.toAny
+  | .noErased => .result val.toAny val.toAny
   | x => x
 
 @[inline]
@@ -279,23 +300,30 @@ def ErasureResult.map (f : ExprStructure ty → ExprStructure ty') :
     ErasureResult ty → ErasureResult ty'
   | .empty => .empty
   | .noErased => .noErased
-  | .result x => .result (f x)
+  | .result x y => .result (f x) (f y)
 
+@[specialize]
+def ErasureResult.map₂
+    (f : ExprStructure ty → ExprStructure ty' → ExprStructure ty'')
+    (lonly : ExprStructure ty → ExprStructure ty'')
+    (ronly : ExprStructure ty' → ExprStructure ty'')
+    (l : ExprStructure ty) (r : ExprStructure ty') :
+    ErasureResult ty → ErasureResult ty' → ErasureResult ty''
+  | .empty, .empty => .empty
+  | .empty, .noErased => .result (ronly r.toAny) (f l r.toAny)
+  | .empty, .result x y => .result (ronly x) (f l y)
+  | .noErased, .empty => .result (lonly l.toAny) (f l.toAny r)
+  | .noErased, .noErased => .noErased
+  | .noErased, .result x y => .result (f l.toAny x) (f l.toAny y)
+  | .result x y, .empty => .result (lonly x) (f y r)
+  | .result x y, .noErased => .result (f x r.toAny) (f y r.toAny)
+  | .result x y, .result x' y' => .result (f x x') (f y y')
+
+--set_option trace.compiler.ir.result true in
 def ExprStructure.removeErased : ExprStructure ty → ErasureResult ty
   -- String
-  | .stringAppend a b =>
-    match a.removeErased, b.removeErased with
-    | .empty, res => res.withErased b
-    | res, .empty => res.withErased a
-    | .noErased, .noErased => .noErased
-    | res, res' => .result (.stringAppend (res.valueD a) (res'.valueD b))
-  | .push s c =>
-    match s.removeErased, c.removeErased with
-    | .empty, .empty => .empty
-    | .empty, res => (res.withErased c).map .singleton
-    | res, .empty => res.withErased s
-    | .noErased, .noErased => .noErased
-    | res, res' => .result (.push (res.valueD s) (res'.valueD c))
+  | .stringAppend a b => .map₂ .stringAppend id id a b a.removeErased b.removeErased
+  | .push s c => .map₂ .push id .singleton s c s.removeErased c.removeErased
   | .singleton c => c.removeErased.map .singleton
   | .ofList l => l.removeErased.map .ofList
   | .stringLit s =>
@@ -304,23 +332,14 @@ def ExprStructure.removeErased : ExprStructure ty → ErasureResult ty
     else if s.isEmpty then
       .empty
     else
-      .result (.stringLit s.copy)
+      .result (.stringLit s.copy) (.stringLit s)
   | .anyString _ => .noErased
   | .erasedString _ => .empty
   -- List Char
   | .nil => .noErased
-  | .cons c l =>
-    match c.removeErased, l.removeErased with
-    | .empty, res => if l matches .nil then .empty else res.withErased l
-    | .noErased, .empty | .result c, .empty => .result (.cons c .nil)
-    | .noErased, .noErased => .noErased
-    | res, res' => .result (.cons (res.valueD c) (res'.valueD l))
-  | .listAppend a b =>
-    match a.removeErased, b.removeErased with
-    | .empty, res => res.withErased b
-    | res, .empty => res.withErased a
-    | .noErased, .noErased => .noErased
-    | res, res' => .result (.listAppend (res.valueD a) (res'.valueD b))
+  | .cons c l => .map₂ .cons (.cons · .nil) id c l c.removeErased
+    (if l matches .nil then .empty else l.removeErased)
+  | .listAppend a b => .map₂ .listAppend id id a b a.removeErased b.removeErased
   | .toList l => l.removeErased.map .toList
   | .anyList _ => .noErased
   | .erasedList _ => .empty
@@ -329,11 +348,33 @@ def ExprStructure.removeErased : ExprStructure ty → ErasureResult ty
   | .anyChar _ => .noErased
   | .erasedChar _ => .empty
 
-def ExprStructure.removeErasedTop (e : ExprStructure .string) : ExprStructure .string :=
+def ExprStructure.removeErasedTop (e : ExprStructure .string) :
+    ExprStructure .string × ExprStructure .string :=
   match e.removeErased with
-  | .empty => .stringLit ""
-  | .noErased => e.toAny
-  | .result x => x
+  | .empty => (.stringLit "", e)
+  | .noErased => (e.toAny, e.toAny)
+  | .result x y => (x, y)
+
+def ExprStructure.unerase : ExprStructure ty → ExprStructure ty
+  -- String
+  | .stringAppend a b => .stringAppend a.unerase b.unerase
+  | .push s c => .push s.unerase c.unerase
+  | .singleton c => .singleton c.unerase
+  | .ofList l => .ofList l.unerase
+  | .stringLit s => .stringLit s.str.toSlice
+  | .anyString s => .anyString s
+  | .erasedString s => .anyString s
+  -- List Char
+  | .nil => .nil
+  | .cons c l => .cons c.unerase l.unerase
+  | .listAppend a b => .listAppend a.unerase b.unerase
+  | .toList l => .toList l.unerase
+  | .anyList l => .anyList l
+  | .erasedList l => .anyList l
+  -- Char
+  | .charLit c => .charLit c
+  | .anyChar c => .anyChar c
+  | .erasedChar c => .anyChar c
 
 inductive CancelElement where
   | cons (l r : Expr)
@@ -342,7 +383,7 @@ inductive CancelElement where
   | char (e : Expr)
 deriving Repr
 
-def cancelElementToStruct (as : Array CancelElement) : Expr :=
+def cancelElementsToStructExpr (as : Array CancelElement) : Expr :=
   as.foldr (init := mkConst ``Cancellation.nil) fun
     | .cons l r, s => mkApp3 (mkConst ``Cancellation.cons) l r s
     | .string e, s => mkApp2 (mkConst ``Cancellation.string) e s
@@ -383,6 +424,124 @@ def ExprStructure.elements : ExprStructure ty → List Element
   -- Char
   | .charLit c => [.char (mkCharLit c.toNat)]
   | .anyChar c | .erasedChar c => [.char c]
+
+def ExprStructure.elementsWithoutErased : ExprStructure ty → List Element
+  -- String
+  | .stringAppend a b => a.elementsWithoutErased ++ b.elementsWithoutErased
+  | .push s c => s.elementsWithoutErased ++ c.elementsWithoutErased
+  | .singleton c => c.elementsWithoutErased
+  | .ofList l => l.elementsWithoutErased
+  | .stringLit s => s.copy.toList.map (fun c => .char (mkCharLit c.toNat))
+  | .anyString s => [.string s]
+  | .erasedString _ => []
+  -- List Char
+  | .nil => []
+  | .cons c l => c.elementsWithoutErased ++ l.elementsWithoutErased
+  | .listAppend a b => a.elementsWithoutErased ++ b.elementsWithoutErased
+  | .toList s => s.elementsWithoutErased
+  | .anyList l => [.list l]
+  | .erasedList _ => []
+  -- Char
+  | .charLit c => [.char (mkCharLit c.toNat)]
+  | .anyChar c => [.char c]
+  | .erasedChar _ => []
+
+def ErasureResult.erasedElements (res : ErasureResult ty) (e : ExprStructure ty) :
+    List Element :=
+  match res with
+  | .empty => []
+  | .noErased => e.toAny.elements
+  | .result x _ => x.elements
+
+def ErasureResult.unerasedValue (res : ErasureResult ty) (e : ExprStructure ty) :
+    ExprStructure ty :=
+  match res with
+  | .empty => e
+  | .noErased => e.toAny
+  | .result _ y => y
+
+@[local simp]
+theorem ExprStructure.elementsWithoutErased_toAny (e : ExprStructure ty) :
+    e.toAny.elementsWithoutErased = e.toAny.elements := by
+  fun_cases toAny <;> rfl
+
+@[local simp]
+theorem ExprStructure.toExpr_toAny (e : ExprStructure ty) :
+    e.toAny.toExpr = e.toExpr := by
+  fun_cases toAny <;> rfl
+
+theorem ErasureResult.erasedElements_map
+    {f : ExprStructure ty → ExprStructure ty'}
+    {e : ExprStructure ty} {res : ErasureResult ty}
+    (hf : ∀ e, (f e).elements = e.elements)
+    (hf' : ∀ e, (f e).elementsWithoutErased = e.elementsWithoutErased)
+    (hres : res.erasedElements e = (res.unerasedValue e).elementsWithoutErased) :
+    (map f res).erasedElements (f e) = ((map f res).unerasedValue (f e)).elementsWithoutErased := by
+  fun_cases map <;> simp_all [erasedElements, unerasedValue]
+
+theorem ErasureResult.erasedElements_map₂
+    {f : ExprStructure ty → ExprStructure ty' → ExprStructure ty''}
+    {lonly : ExprStructure ty → ExprStructure ty''}
+    {ronly : ExprStructure ty' → ExprStructure ty''}
+    {l : ExprStructure ty} {r : ExprStructure ty'}
+    {lres : ErasureResult ty} {rres : ErasureResult ty'}
+    (hf : ∀ e e', (f e e').elements = e.elements ++ e'.elements)
+    (hf' : ∀ e e', (f e e').elementsWithoutErased = e.elementsWithoutErased ++ e'.elementsWithoutErased)
+    (hlonly : ∀ e, (lonly e).elements = e.elements)
+    (hronly : ∀ e, (ronly e).elements = e.elements)
+    (hlres : lres.erasedElements l = (lres.unerasedValue l).elementsWithoutErased)
+    (hrres : rres.erasedElements r = (rres.unerasedValue r).elementsWithoutErased) :
+    (map₂ f lonly ronly l r lres rres).erasedElements (f l r) =
+      ((map₂ f lonly ronly l r lres rres).unerasedValue (f l r)).elementsWithoutErased := by
+  fun_cases map₂ <;> simp_all [erasedElements, unerasedValue]
+
+theorem ExprStructure.erasedElements_removeErased (e : ExprStructure ty) :
+    e.removeErased.erasedElements e = (e.removeErased.unerasedValue e).elementsWithoutErased := by
+  fun_induction removeErased with
+  | case1 | case2 | case3 | case4 | case12 | case13 =>
+    simp [ErasureResult.erasedElements_map, ErasureResult.erasedElements_map₂, elements,
+      elementsWithoutErased, *]
+  | case5 | case6 | case7 | case8 | case9 | case10 | case14 | case15 | case16 | case17 | case18 =>
+    simp_all [ErasureResult.erasedElements, elements, ErasureResult.unerasedValue,
+      elementsWithoutErased]
+  | case11 =>
+    apply ErasureResult.erasedElements_map₂ <;> try simp [elements, elementsWithoutErased, *]
+    split <;> simp_all [ErasureResult.erasedElements, ErasureResult.unerasedValue,
+      elementsWithoutErased]
+
+theorem ErasureResult.toExpr_unerasedValue_map
+    {f : ExprStructure ty → ExprStructure ty'} {g : Expr}
+    {e : ExprStructure ty} {res : ErasureResult ty}
+    (hf : ∀ e, (f e).toExpr = g.app e.toExpr)
+    (hres : (res.unerasedValue e).toExpr = e.toExpr) :
+    ((map f res).unerasedValue (f e)).toExpr = g.app e.toExpr := by
+  fun_cases map <;> simp_all [unerasedValue]
+
+theorem ErasureResult.toExpr_unerasedValue_map₂
+    {f : ExprStructure ty → ExprStructure ty' → ExprStructure ty''} {g : Expr}
+    {lonly : ExprStructure ty → ExprStructure ty''}
+    {ronly : ExprStructure ty' → ExprStructure ty''}
+    {l : ExprStructure ty} {r : ExprStructure ty'}
+    {lres : ErasureResult ty} {rres : ErasureResult ty'}
+    (hf : ∀ e e', (f e e').toExpr = mkApp2 g e.toExpr e'.toExpr)
+    (hlres : (lres.unerasedValue l).toExpr = l.toExpr)
+    (hrres : (rres.unerasedValue r).toExpr = r.toExpr) :
+    ((map₂ f lonly ronly l r lres rres).unerasedValue (f l r)).toExpr =
+      mkApp2 g l.toExpr r.toExpr := by
+  fun_cases map₂ <;> simp_all [unerasedValue]
+
+theorem ExprStructure.toExpr_unerasedValue (e : ExprStructure ty) :
+    (e.removeErased.unerasedValue e).toExpr = e.toExpr := by
+  fun_induction removeErased with
+  | case1 | case2 | case12 =>
+    apply ErasureResult.toExpr_unerasedValue_map₂ <;> simp [toExpr, *]
+  | case3 | case4 | case13 =>
+    apply ErasureResult.toExpr_unerasedValue_map <;> simp [toExpr, *]
+  | case5 | case6 | case7 | case8 | case9 | case10 | case14 | case15 | case16 | case17 | case18 =>
+    simp [ErasureResult.unerasedValue]
+  | case11 =>
+    apply ErasureResult.toExpr_unerasedValue_map₂ <;> try simp [toExpr, *]
+    split <;> simp_all [ErasureResult.unerasedValue]
 
 @[local simp]
 theorem ExprStructure.elements_char_ne_nil (e : ExprStructure .char) :
@@ -425,6 +584,7 @@ theorem ExprStructure.elements_litChar (s : String.Slice) (p : s.str.Pos) (h : p
     (litChar s p h).elements = [.char (mkCharLit (p.get h).toNat)] := by
   fun_cases litChar <;> simp [elements]
 
+/-- Depth-first expression tree traverser -/
 @[unbox]
 structure Traverser where
   {type : ExprType}
@@ -453,6 +613,48 @@ def Path.toStruct : Path ty → ExprStructure ty → ExprStructure .string
   | .pushChar parent s, c => parent.toStruct (.push s c)
   | .consChar parent l, c => parent.toStruct (.cons c l)
   | .litChar parent s _ _, _ => parent.toStruct (.stringLit s)
+
+def Path.toStructUnerasePrefix : Path ty → ExprStructure ty → ExprStructure .string
+  | .root, e => e
+  -- String
+  | .stringAppendLeft parent right, left => parent.toStructUnerasePrefix (.stringAppend left right)
+  | .stringAppendRight parent left, right => parent.toStructUnerasePrefix (.stringAppend left.unerase right)
+  | .push parent c, s => parent.toStructUnerasePrefix (.push s c)
+  | .toList parent, s => parent.toStructUnerasePrefix (.toList s)
+  -- List Char
+  | .cons parent c, l => parent.toStructUnerasePrefix (.cons c.unerase l)
+  | .listAppendLeft parent right, left => parent.toStructUnerasePrefix (.listAppend left right)
+  | .listAppendRight parent left, right => parent.toStructUnerasePrefix (.listAppend left.unerase right)
+  | .ofList parent, l => parent.toStructUnerasePrefix (.ofList l)
+  -- Char
+  | .singletonChar parent, c => parent.toStructUnerasePrefix (.singleton c)
+  | .pushChar parent s, c => parent.toStructUnerasePrefix (.push s.unerase c)
+  | .consChar parent l, c => parent.toStructUnerasePrefix (.cons c l)
+  | .litChar parent s _ _, _ =>
+    parent.toStructUnerasePrefix
+      (.stringLit { s with
+        startInclusive := s.str.startPos, startInclusive_le_endExclusive := by simp })
+
+def Path.toStructUneraseSuffix : Path ty → ExprStructure ty → ExprStructure .string
+  | .root, e => e
+  -- String
+  | .stringAppendLeft parent right, left => parent.toStructUneraseSuffix (.stringAppend left right.unerase)
+  | .stringAppendRight parent left, right => parent.toStructUneraseSuffix (.stringAppend left right)
+  | .push parent c, s => parent.toStructUneraseSuffix (.push s c.unerase)
+  | .toList parent, s => parent.toStructUneraseSuffix (.toList s)
+  -- List Char
+  | .cons parent c, l => parent.toStructUneraseSuffix (.cons c l)
+  | .listAppendLeft parent right, left => parent.toStructUneraseSuffix (.listAppend left right.unerase)
+  | .listAppendRight parent left, right => parent.toStructUneraseSuffix (.listAppend left right)
+  | .ofList parent, l => parent.toStructUneraseSuffix (.ofList l)
+  -- Char
+  | .singletonChar parent, c => parent.toStructUneraseSuffix (.singleton c)
+  | .pushChar parent s, c => parent.toStructUneraseSuffix (.push s c)
+  | .consChar parent l, c => parent.toStructUneraseSuffix (.cons c l.unerase)
+  | .litChar parent s _ _, _ =>
+    parent.toStructUneraseSuffix
+      (.stringLit { s with
+        endExclusive := s.str.endPos, startInclusive_le_endExclusive := by simp })
 
 def Path.prefix : Path ty → List Element
   | .root => []
@@ -790,7 +992,10 @@ def cancelLeft (a b : ExprStructure .string) :
       match ta', tb' with
       | .inl ta', .inl tb' =>
         if obviousCharDiseq ta.expr tb.expr then
-          return (els, ta.path.toStruct ta.expr, tb.path.toStruct tb.expr)
+          -- for the char diseq procedure we need that only one half is erased
+          -- if the other half is already erased, then unerase it
+          return (els, ta'.path.toStructUneraseSuffix ta'.expr.unerase,
+            tb'.path.toStructUneraseSuffix tb'.expr.unerase)
         ta := ta'; tb := tb'
         continue
       | .inl ta', .inr b' => return (els, ta'.path.toStruct ta'.expr, b')
@@ -842,7 +1047,11 @@ def cancelRight (a b : ExprStructure .string) :
       match ta', tb' with
       | .inl ta', .inl tb' =>
         if obviousCharDiseq ta.expr tb.expr then
-          return (els, ta.path.toStruct ta.expr, tb.path.toStruct tb.expr)
+          -- for the char diseq procedure we need that only one half is erased
+          -- if the other half is already erased, then unerase it
+          logInfo s!"{repr tb'}"
+          return (els, ta'.path.toStructUnerasePrefix ta'.expr.unerase,
+            tb'.path.toStructUnerasePrefix tb'.expr.unerase)
         ta := ta'; tb := tb'
         continue
       | .inl ta', .inr b' => return (els, ta'.path.toStruct ta'.expr, b')
@@ -859,40 +1068,19 @@ def cancelRight (a b : ExprStructure .string) :
     return (els, ta.path.toStruct ta.expr, tb.path.toStruct tb.expr)
   unreachable!
 
-def abc : String := ""
+def mkEvalNilRefl (structExpr : Expr) : Expr :=
+  mkApp2 (.const ``Eq.refl [1]) (.app (.const ``List [0]) (mkConst ``Char))
+    (mkApp2 (mkConst ``StringStructure.eval) structExpr
+      (.app (.const ``List.nil [0]) (mkConst ``Char)))
 
-local elab "#test_cancel " l:term ", " r:term : command => do
-  Elab.Command.runTermElabM fun _ => do
-    let l ← Elab.Term.elabTermEnsuringType l (mkConst ``String)
-    let r ← Elab.Term.elabTermEnsuringType r (mkConst ``String)
-    Elab.Term.synthesizeSyntheticMVarsUsingDefault
-    withNewMCtxDepth do
-    withReducible do
-    let l ← createStringStructure l
-    let r ← createStringStructure r
-    logInfo l.toStructExpr
-    logInfo r.toStructExpr
-    let (els, l, r) ← cancelLeft l r
-    let (els', l, r) ← cancelRight l r
-    let l := l.removeErased.elim (.stringLit "") l
-    let r := r.removeErased.elim (.stringLit "") r
-    logInfo m!"Left cancel:{indentExpr (cancelElementToStruct els)}\n\
-               Right cancel:{indentExpr (cancelElementToStruct els'.reverse)}\n\
-               Left-hand side:{indentExpr l.toExpr}\n\
-               Right-hand side:{indentExpr r.toExpr}\n"
-
-variable (s : String) in
-#test_cancel "hi something something hd", "h".push 'i' ++ s ++ "hd"
-
-variable (s : String) (l : List Char) in
-#test_cancel (String.ofList ('a' :: 'b' :: l)).push 'b' ++ String.singleton 'a', "ab" ++ s ++ "ba"
-
-#eval withReducible <|
-  cancelLeft (.stringAppend (.stringLit "hi") (.anyString (.const ``abc []))) (.stringLit "hi there")
+def collectCancelEqs (a : Array CancelElement) : Array Expr :=
+  a.filterMap fun
+    | .cons a b => some <| mkApp3 (.const ``Eq [1]) (mkConst ``Char) a b
+    | _ => none
 
 public section
 
-builtin_simproc simpEq ((_ : String) = _) := fun e => do
+builtin_simproc simpEq ((_ : String) = _) := fun e => withNewMCtxDepth do
   unless e.isAppOfArity ``Eq 3 do return .continue
   let lhs := e.appFn!.appArg!
   let rhs := e.appArg!
@@ -905,4 +1093,56 @@ builtin_simproc simpEq ((_ : String) = _) := fun e => do
   if lhsStruct matches .anyString _ && rhsStruct matches .anyString _ then
     -- nothing to match on
     return .continue
-  return .continue
+  let (els, lhsStruct, rhsStruct) ← cancelLeft lhsStruct rhsStruct
+  if let some (.cons c₁@(mkCharLit a) c₂@(mkCharLit b)) := els.back? then
+    if Char.ofNat a != Char.ofNat b then
+      -- char diseq left
+      let (lhsStructErased, lhsStruct) := lhsStruct.removeErasedTop
+      let (rhsStructErased, rhsStruct) := rhsStruct.removeErasedTop
+      let proof := mkApp10 (mkConst ``StringStructure.denote_ne_left)
+        lhsStruct.toStructExpr rhsStruct.toStructExpr
+        lhsStructErased.toStructExpr rhsStructErased.toStructExpr
+        (cancelElementsToStructExpr els.pop) c₁ c₂ reflBoolFalse
+        (mkEvalNilRefl lhsStruct.toStructExpr) (mkEvalNilRefl rhsStruct.toStructExpr)
+      return .done { expr := mkConst ``False, proof? := proof }
+  if lhsStruct.allErased && rhsStruct.allErased then
+    let eqs := collectCancelEqs els
+    if eqs.isEmpty then
+      -- equality modulo associativity
+      let proof := mkApp3 (mkConst ``StringStructure.denote_eq)
+        lhsStruct.toStructExpr rhsStruct.toStructExpr (mkEvalNilRefl lhsStruct.toStructExpr)
+      return .done { expr := mkConst ``True, proof? := proof }
+    -- reduction to character equalities
+    let proof := mkApp5 (mkConst ``StringStructure.denote_char_inj)
+      lhsStruct.toStructExpr rhsStruct.toStructExpr (cancelElementsToStructExpr els)
+      (mkEvalNilRefl lhsStruct.toStructExpr) (mkEvalNilRefl rhsStruct.toStructExpr)
+    return .visit { expr := mkAndN eqs.toList, proof? := proof }
+  let (els', lhsStruct, rhsStruct) ← cancelRight lhsStruct rhsStruct
+  logInfo s!"{repr rhsStruct}"
+  if let some (.cons c₁@(mkCharLit a) c₂@(mkCharLit b)) := els'.back? then
+    if Char.ofNat a != Char.ofNat b then
+      -- char diseq right
+      let (lhsStructErased, lhsStruct) := lhsStruct.removeErasedTop
+      let (rhsStructErased, rhsStruct) := rhsStruct.removeErasedTop
+      let proof := mkApp10 (mkConst ``StringStructure.denote_ne_right)
+        lhsStruct.toStructExpr rhsStruct.toStructExpr
+        lhsStructErased.toStructExpr rhsStructErased.toStructExpr
+        (cancelElementsToStructExpr els'.pop.reverse) c₁ c₂ reflBoolFalse
+        (mkEvalNilRefl lhsStruct.toStructExpr) (mkEvalNilRefl rhsStruct.toStructExpr)
+      return .done { expr := mkConst ``False, proof? := proof }
+  if els.isEmpty && els'.isEmpty then
+    return .continue
+  let (lhsStructErased, lhsStruct) := lhsStruct.removeErasedTop
+  let (rhsStructErased, rhsStruct) := rhsStruct.removeErasedTop
+  -- general case: equality of characters + center string equalities
+  let proof := mkApp8 (mkConst ``StringStructure.denote_cancel)
+    lhsStruct.toStructExpr rhsStruct.toStructExpr
+    lhsStructErased.toStructExpr rhsStructErased.toStructExpr
+    (cancelElementsToStructExpr els) (cancelElementsToStructExpr els'.reverse)
+    (mkEvalNilRefl lhsStruct.toStructExpr) (mkEvalNilRefl rhsStruct.toStructExpr)
+  let eqs := collectCancelEqs els
+  let eqs' := collectCancelEqs els'.reverse
+  let lhsMid := lhsStructErased.toExpr
+  let rhsMid := rhsStructErased.toExpr
+  let midEq := mkApp3 (.const ``Eq [1]) (mkConst ``String) lhsMid rhsMid
+  return .visit { expr := mkAndN (eqs.toList ++ midEq :: eqs'.toList), proof? := proof }

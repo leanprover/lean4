@@ -198,10 +198,10 @@ theorem StringStructure.denote_eq (l l' : StringStructure)
     (l.denote = l'.denote) = True := by
   simpa [String.toList_inj] using h
 
-theorem StringStructure.denote_ne_left (lhsStruct rhsStruct : StringStructure)
-    (l l' : List Char) (lcancel : Cancellation) (c c' : Char) (hc : c.toNat.beq c'.toNat = false)
-    (hlhs : lhsStruct.eval [] = lcancel.evalLeft (c :: l) := by eq_refl)
-    (hrhs : rhsStruct.eval [] = lcancel.evalRight (c' :: l') := by eq_refl) :
+theorem StringStructure.denote_ne_left (lhsStruct rhsStruct lhsMid rhsMid : StringStructure)
+    (lcancel : Cancellation) (c c' : Char) (hc : c.toNat.beq c'.toNat = false)
+    (hlhs : lhsStruct.eval [] = lcancel.evalLeft (c :: lhsMid.eval []))
+    (hrhs : rhsStruct.eval [] = lcancel.evalRight (c' :: rhsMid.eval [])) :
     (lhsStruct.denote = rhsStruct.denote) = False := by
   simp only [eval_eq_append_toList_denote, List.append_eq, List.append_nil] at hlhs hrhs
   simp only [← toList_inj, hlhs, hrhs, eq_iff_iff, iff_false]
@@ -212,8 +212,8 @@ theorem StringStructure.denote_ne_left (lhsStruct rhsStruct : StringStructure)
 
 theorem StringStructure.denote_ne_right (lhsStruct rhsStruct lhsMid rhsMid : StringStructure)
     (rcancel : Cancellation) (c c' : Char) (hc : c.toNat.beq c'.toNat = false)
-    (hlhs : lhsStruct.eval [] = lhsMid.eval (c :: rcancel.evalLeft []) := by eq_refl)
-    (hrhs : rhsStruct.eval [] = rhsMid.eval (c' :: rcancel.evalRight []) := by eq_refl) :
+    (hlhs : lhsStruct.eval [] = lhsMid.eval (c :: rcancel.evalLeft []))
+    (hrhs : rhsStruct.eval [] = rhsMid.eval (c' :: rcancel.evalRight [])) :
     (lhsStruct.denote = rhsStruct.denote) = False := by
   simp only [eval_eq_append_toList_denote, List.append_eq, List.append_nil] at hlhs hrhs
   simp only [← toList_inj, hlhs, hrhs, eq_iff_iff, iff_false]

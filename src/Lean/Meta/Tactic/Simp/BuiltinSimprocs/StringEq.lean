@@ -11,7 +11,6 @@ import Init.Data.String.SimpEq
 import Init.Data.String.Lemmas.Basic
 import Init.Data.String.Lemmas.FindPos
 import Init.While
-public meta import Lean.Elab.Command
 
 namespace String
 
@@ -187,8 +186,8 @@ protected def ExprStructure.toExpr : ExprStructure ty → Expr
     mkApp2 cons c.toExpr l.toExpr
   | .listAppend a b =>
     let listAppend :=  mkApp4 (.const ``HAppend.hAppend [0, 0, 0])
-      (.app (mkConst ``List) (mkConst ``Char)) (.app (mkConst ``List) (mkConst ``Char))
-      (.app (mkConst ``List) (mkConst ``Char)) listAppendInst
+      (.app (.const ``List [0]) (mkConst ``Char)) (.app (.const ``List [0]) (mkConst ``Char))
+      (.app (.const ``List [0]) (mkConst ``Char)) listAppendInst
     mkApp2 listAppend a.toExpr b.toExpr
   | .toList s => .app (mkConst ``String.toList) s.toExpr
   | .anyList l => l
@@ -1049,7 +1048,6 @@ def cancelRight (a b : ExprStructure .string) :
         if obviousCharDiseq ta.expr tb.expr then
           -- for the char diseq procedure we need that only one half is erased
           -- if the other half is already erased, then unerase it
-          logInfo s!"{repr tb'}"
           return (els, ta'.path.toStructUnerasePrefix ta'.expr.unerase,
             tb'.path.toStructUnerasePrefix tb'.expr.unerase)
         ta := ta'; tb := tb'
@@ -1118,7 +1116,6 @@ builtin_simproc simpEq ((_ : String) = _) := fun e => withNewMCtxDepth do
       (mkEvalNilRefl lhsStruct.toStructExpr) (mkEvalNilRefl rhsStruct.toStructExpr)
     return .visit { expr := mkAndN eqs.toList, proof? := proof }
   let (els', lhsStruct, rhsStruct) ← cancelRight lhsStruct rhsStruct
-  logInfo s!"{repr rhsStruct}"
   if let some (.cons c₁@(mkCharLit a) c₂@(mkCharLit b)) := els'.back? then
     if Char.ofNat a != Char.ofNat b then
       -- char diseq right

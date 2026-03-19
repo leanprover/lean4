@@ -14,6 +14,7 @@ public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.SInt
 public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Int
 public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Char
 public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.String
+public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.StringEq
 public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.BitVec
 public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.List
 public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Array

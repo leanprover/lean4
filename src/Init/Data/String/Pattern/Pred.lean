@@ -88,12 +88,12 @@ end Decidable
 
 @[default_instance]
 instance {p : Char → Bool} : BackwardPattern p where
-  dropSuffixOfNonempty? s h :=
+  skipSuffixOfNonempty? s h :=
     if p ((s.endPos.prev (Ne.symm (by exact Slice.startPos_ne_endPos h))).get (by simp)) then
       some (s.endPos.prev (Ne.symm (by exact Slice.startPos_ne_endPos h)))
     else
       none
-  dropSuffix? s :=
+  skipSuffix? s :=
     if h : s.endPos = s.startPos then
       none
     else if p ((s.endPos.prev h).get (by simp)) then
@@ -108,17 +108,17 @@ instance {p : Char → Bool} : BackwardPattern p where
 
 instance {p : Char → Bool} : StrictBackwardPattern p where
   ne_endPos {s h q} := by
-    simp only [BackwardPattern.dropSuffixOfNonempty?, Option.ite_none_right_eq_some,
+    simp only [BackwardPattern.skipSuffixOfNonempty?, Option.ite_none_right_eq_some,
       Option.some.injEq, ne_eq, and_imp]
     rintro _ rfl
     simp
 
 instance {p : Char → Bool} : LawfulBackwardPattern p where
-  dropSuffixOfNonempty?_eq {s h} := by
-    simp [BackwardPattern.dropSuffixOfNonempty?, BackwardPattern.dropSuffix?,
+  skipSuffixOfNonempty?_eq {s h} := by
+    simp [BackwardPattern.skipSuffixOfNonempty?, BackwardPattern.skipSuffix?,
       Eq.comm (a := s.endPos), Slice.startPos_eq_endPos_iff, h]
   endsWith_eq {s} := by
-    simp only [BackwardPattern.endsWith, BackwardPattern.dropSuffix?]
+    simp only [BackwardPattern.endsWith, BackwardPattern.skipSuffix?]
     split <;> (try split) <;> simp_all
 
 @[default_instance]
@@ -128,15 +128,15 @@ instance {p : Char → Bool} : ToBackwardSearcher p (ToBackwardSearcher.DefaultB
 namespace Decidable
 
 instance {p : Char → Prop} [DecidablePred p] : BackwardPattern p where
-  dropSuffixOfNonempty? s h := BackwardPattern.dropSuffixOfNonempty? (decide <| p ·) s h
-  dropSuffix? s := BackwardPattern.dropSuffix? (decide <| p ·) s
+  skipSuffixOfNonempty? s h := BackwardPattern.skipSuffixOfNonempty? (decide <| p ·) s h
+  skipSuffix? s := BackwardPattern.skipSuffix? (decide <| p ·) s
   endsWith s := BackwardPattern.endsWith (decide <| p ·) s
 
 instance {p : Char → Prop} [DecidablePred p] : StrictBackwardPattern p where
   ne_endPos h q := StrictBackwardPattern.ne_endPos (pat := (decide <| p ·)) h q
 
 instance {p : Char → Prop} [DecidablePred p] : LawfulBackwardPattern p where
-  dropSuffixOfNonempty?_eq h := LawfulBackwardPattern.dropSuffixOfNonempty?_eq (pat := (decide <| p ·)) h
+  skipSuffixOfNonempty?_eq h := LawfulBackwardPattern.skipSuffixOfNonempty?_eq (pat := (decide <| p ·)) h
   endsWith_eq s := LawfulBackwardPattern.endsWith_eq (pat := (decide <| p ·)) s
 
 instance {p : Char → Prop} [DecidablePred p] : ToBackwardSearcher p (ToBackwardSearcher.DefaultBackwardSearcher p) :=

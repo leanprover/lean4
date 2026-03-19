@@ -36,15 +36,15 @@ instance {c : Char} : ToForwardSearcher c (ToForwardSearcher.DefaultForwardSearc
   toSearcher s := ToForwardSearcher.toSearcher (· == c) s
 
 instance {c : Char} : BackwardPattern c where
-  dropSuffixOfNonempty? s h := BackwardPattern.dropSuffixOfNonempty? (· == c) s h
-  dropSuffix? s := BackwardPattern.dropSuffix? (· == c) s
+  skipSuffixOfNonempty? s h := BackwardPattern.skipSuffixOfNonempty? (· == c) s h
+  skipSuffix? s := BackwardPattern.skipSuffix? (· == c) s
   endsWith s := BackwardPattern.endsWith (· == c) s
 
 instance {c : Char} : StrictBackwardPattern c where
   ne_endPos h q := StrictBackwardPattern.ne_endPos (pat := (· == c)) h q
 
 instance {c : Char} : LawfulBackwardPattern c where
-  dropSuffixOfNonempty?_eq h := LawfulBackwardPattern.dropSuffixOfNonempty?_eq (pat := (· == c)) h
+  skipSuffixOfNonempty?_eq h := LawfulBackwardPattern.skipSuffixOfNonempty?_eq (pat := (· == c)) h
   endsWith_eq s := LawfulBackwardPattern.endsWith_eq (pat := (· == c)) s
 
 instance {c : Char} : ToBackwardSearcher c (ToBackwardSearcher.DefaultBackwardSearcher c) :=

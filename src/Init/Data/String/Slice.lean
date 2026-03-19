@@ -329,6 +329,26 @@ def splitInclusive (s : Slice) (pat : ρ) [ToForwardSearcher pat σ] :
   { internalState := .operating s.startPos (ToForwardSearcher.toSearcher pat s) }
 
 /--
+If {name}`pat` matches a prefix of {name}`s`, returns the position at the start of the remainder.
+Returns {name}`none` otherwise.
+
+This function is generic over all currently supported patterns.
+-/
+@[inline]
+def skipPrefix? (s : Slice) (pat : ρ) [ForwardPattern pat] : Option s.Pos :=
+  ForwardPattern.skipPrefix? pat s
+
+/--
+If {name}`pat` matches a prefix at {name}`pos`, returns the position after the end of the match.
+Returns {name}`none` otherwise.
+
+This function is generic over all currently supported patterns.
+-/
+@[inline]
+def Pos.skip? {s : Slice} (pos : s.Pos) (pat : ρ) [ForwardPattern pat] : Option s.Pos :=
+  ((s.sliceFrom pos).skipPrefix? pat).map Pos.ofSliceFrom
+
+/--
 If {name}`pat` matches a prefix of {name}`s`, returns the remainder. Returns {name}`none` otherwise.
 
 Use {name (scope := "Init.Data.String.Slice")}`String.Slice.dropPrefix` to return the slice
@@ -344,7 +364,7 @@ Examples:
 -/
 @[inline]
 def dropPrefix? (s : Slice) (pat : ρ) [ForwardPattern pat] : Option Slice :=
-  (ForwardPattern.skipPrefix? pat s).map s.sliceFrom
+  (s.skipPrefix? pat).map s.sliceFrom
 
 /--
 If {name}`pat` matches a prefix of {name}`s`, returns the remainder. Returns {name}`s` unmodified
@@ -401,6 +421,28 @@ def drop (s : Slice) (n : Nat) : Slice :=
   s.sliceFrom (s.startPos.nextn n)
 
 /--
+Advances {name}`pos` as long as {name}`pat` matches.
+-/
+@[specialize pat]
+def Pos.skipWhile {s : Slice} (pos : s.Pos) (pat : ρ) [ForwardPattern pat] : s.Pos :=
+  if let some nextCurr := ForwardPattern.skipPrefix? pat (s.sliceFrom pos) then
+    if pos < Pos.ofSliceFrom nextCurr then
+      skipWhile (Pos.ofSliceFrom nextCurr) pat
+    else
+      pos
+  else
+    pos
+termination_by pos
+
+/--
+Returns the position after the longest prefix of {name}`s` for which {name}`pat` matches
+(potentially repeatedly).
+-/
+@[inline]
+def skipPrefixWhile (s : Slice) (pat : ρ) [ForwardPattern pat] : s.Pos :=
+  s.startPos.skipWhile pat
+
+/--
 Creates a new slice that contains the longest prefix of {name}`s` for which {name}`pat` matched
 (potentially repeatedly).
 
@@ -412,18 +454,7 @@ Examples:
 -/
 @[inline]
 def dropWhile (s : Slice) (pat : ρ) [ForwardPattern pat] : Slice :=
-  go s.startPos
-where
-  @[specialize pat]
-  go (curr : s.Pos) : Slice :=
-    if let some nextCurr := ForwardPattern.skipPrefix? pat (s.sliceFrom curr) then
-      if curr < Pos.ofSliceFrom nextCurr then
-        go (Pos.ofSliceFrom nextCurr)
-      else
-        s.sliceFrom curr
-    else
-      s.sliceFrom curr
-  termination_by curr
+  s.sliceFrom (s.skipPrefixWhile pat)
 
 /--
 Removes leading whitespace from a slice by moving its start position to the first non-whitespace
@@ -472,18 +503,7 @@ Examples:
 -/
 @[inline]
 def takeWhile (s : Slice) (pat : ρ) [ForwardPattern pat] : Slice :=
-  go s.startPos
-where
-  @[specialize pat]
-  go (curr : s.Pos) : Slice :=
-    if let some nextCurr := ForwardPattern.skipPrefix? pat (s.sliceFrom curr) then
-      if curr < Pos.ofSliceFrom nextCurr then
-        go (Pos.ofSliceFrom nextCurr)
-      else
-        s.sliceTo curr
-    else
-      s.sliceTo curr
-  termination_by curr
+  s.sliceTo (s.skipPrefixWhile pat)
 
 /--
 Finds the position of the first match of the pattern {name}`pat` in a slice {name}`s`. If there
@@ -669,6 +689,26 @@ def revSplit (s : Slice) (pat : ρ) [ToBackwardSearcher pat σ] :
   { internalState := .operating s.endPos (ToBackwardSearcher.toSearcher pat s) }
 
 /--
+If {name}`pat` matches a suffix of {name}`s`, returns the position at the beginning of the suffix.
+Returns {name}`none` otherwise.
+
+This function is generic over all currently supported patterns.
+-/
+@[inline]
+def skipSuffix? (s : Slice) (pat : ρ) [BackwardPattern pat] : Option s.Pos :=
+  BackwardPattern.skipSuffix? pat s
+
+/--
+If {name}`pat` matches a suffix at {name}`pos`, returns the position at the beginning of the match.
+Returns {name}`none` otherwise.
+
+This function is generic over all currently supported patterns.
+-/
+@[inline]
+def Pos.revSkip? {s : Slice} (pos : s.Pos) (pat : ρ) [ForwardPattern pat] : Option s.Pos :=
+  ((s.sliceFrom pos).skipPrefix? pat).map Pos.ofSliceFrom
+
+/--
 If {name}`pat` matches a suffix of {name}`s`, returns the remainder. Returns {name}`none` otherwise.
 
 Use {name (scope := "Init.Data.String.Slice")}`String.Slice.dropSuffix` to return the slice
@@ -684,7 +724,7 @@ Examples:
 -/
 @[inline]
 def dropSuffix? (s : Slice) (pat : ρ) [BackwardPattern pat] : Option Slice :=
-  (BackwardPattern.dropSuffix? pat s).map s.sliceTo
+  (s.skipSuffix? pat).map s.sliceTo
 
 /--
 If {name}`pat` matches a suffix of {name}`s`, returns the remainder. Returns {name}`s` unmodified
@@ -720,6 +760,28 @@ def dropEnd (s : Slice) (n : Nat) : Slice :=
   s.sliceTo (s.endPos.prevn n)
 
 /--
+Rewinds {name}`pos` as long as {name}`pat` matches.
+-/
+@[specialize pat]
+def Pos.revSkipWhile {s : Slice} (pos : s.Pos) (pat : ρ) [BackwardPattern pat] : s.Pos :=
+  if let some nextCurr := BackwardPattern.skipSuffix? pat (s.sliceTo pos) then
+    if Pos.ofSliceTo nextCurr < pos then
+      revSkipWhile (Pos.ofSliceTo nextCurr) pat
+    else
+      pos
+  else
+    pos
+termination_by pos.down
+
+/--
+Returns the position a the start of the longest suffix of {name}`s` for which {name}`pat` matches
+(potentially repeatedly).
+-/
+@[inline]
+def skipSuffixWhile (s : Slice) (pat : ρ) [BackwardPattern pat] : s.Pos :=
+  s.endPos.revSkipWhile pat
+
+/--
 Creates a new slice that contains the longest suffix of {name}`s` for which {name}`pat` matched
 (potentially repeatedly).
 
@@ -730,18 +792,7 @@ Examples:
 -/
 @[inline]
 def dropEndWhile (s : Slice) (pat : ρ) [BackwardPattern pat] : Slice :=
-  go s.endPos
-where
-  @[specialize pat]
-  go (curr : s.Pos) : Slice :=
-    if let some nextCurr := BackwardPattern.dropSuffix? pat (s.sliceTo curr) then
-      if Pos.ofSliceTo nextCurr < curr then
-        go (Pos.ofSliceTo nextCurr)
-      else
-        s.sliceTo curr
-    else
-      s.sliceTo curr
-  termination_by curr.down
+  s.sliceTo (s.skipSuffixWhile pat)
 
 /--
 Removes trailing whitespace from a slice by moving its end position to the last non-whitespace
@@ -793,7 +844,7 @@ def takeEndWhile (s : Slice) (pat : ρ) [BackwardPattern pat] : Slice :=
 where
   @[specialize pat]
   go (curr : s.Pos) : Slice :=
-    if let some nextCurr := BackwardPattern.dropSuffix? pat (s.sliceTo curr) then
+    if let some nextCurr := BackwardPattern.skipSuffix? pat (s.sliceTo curr) then
       if Pos.ofSliceTo nextCurr < curr then
         go (Pos.ofSliceTo nextCurr)
       else

@@ -316,7 +316,7 @@ def endsWith (pat : Slice) (s : Slice) : Bool :=
     false
 
 @[inline]
-def dropSuffix? (pat : Slice) (s : Slice) : Option s.Pos :=
+def skipSuffix? (pat : Slice) (s : Slice) : Option s.Pos :=
   if endsWith pat s then
     some <| s.pos! <| s.endPos.offset.unoffsetBy pat.rawEndPos
   else
@@ -324,11 +324,11 @@ def dropSuffix? (pat : Slice) (s : Slice) : Option s.Pos :=
 
 instance {pat : Slice} : BackwardPattern pat where
   endsWith := endsWith pat
-  dropSuffix? := dropSuffix? pat
+  skipSuffix? := skipSuffix? pat
 
 instance {pat : String} : BackwardPattern pat where
   endsWith := endsWith pat.toSlice
-  dropSuffix? := dropSuffix? pat.toSlice
+  skipSuffix? := skipSuffix? pat.toSlice
 
 end BackwardSliceSearcher
 

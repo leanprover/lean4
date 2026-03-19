@@ -316,20 +316,20 @@ class BackwardPattern {ρ : Type} (pat : ρ) where
   Checks whether the slice ends with the pattern. If it does, the slice is returned with the
   suffix removed; otherwise the result is {name}`none`.
   -/
-  dropSuffix? : (s : Slice) → Option s.Pos
+  skipSuffix? : (s : Slice) → Option s.Pos
   /--
   Checks whether the slice ends with the pattern. If it does, the slice is returned with the
   suffix removed; otherwise the result is {name}`none`.
   -/
-  dropSuffixOfNonempty? : (s : Slice) → (h : s.isEmpty = false) → Option s.Pos := fun s _ => dropSuffix? s
+  skipSuffixOfNonempty? : (s : Slice) → (h : s.isEmpty = false) → Option s.Pos := fun s _ => skipSuffix? s
   /--
   Checks whether the slice ends with the pattern.
   -/
-  endsWith : Slice → Bool := fun s => (dropSuffix? s).isSome
+  endsWith : Slice → Bool := fun s => (skipSuffix? s).isSome
 
 /--
-A lawful backward pattern is one where the three functions {name}`BackwardPattern.dropSuffix?`,
-{name}`BackwardPattern.dropSuffixOfNonempty?` and {name}`BackwardPattern.endsWith` agree for any
+A lawful backward pattern is one where the three functions {name}`BackwardPattern.skipSuffix?`,
+{name}`BackwardPattern.skipSuffixOfNonempty?` and {name}`BackwardPattern.endsWith` agree for any
 given input slice.
 
 Note that this is a relatively weak condition. It is non-uniform in the sense that the functions
@@ -337,14 +337,14 @@ can still return completely different results on different slices, even if they 
 string.
 
 There is a stronger lawfulness typeclass {lit}`LawfulBackwardPatternModel` that asserts that the
-{name}`BackwardPattern.dropSuffix?` function behaves like a function that drops the longest prefix
+{name}`BackwardPattern.skipSuffix?` function behaves like a function that skips the longest prefix
 according to some notion of matching.
 -/
 class LawfulBackwardPattern {ρ : Type} (pat : ρ) [BackwardPattern pat] : Prop where
-  dropSuffixOfNonempty?_eq {s : Slice} (h) :
-    BackwardPattern.dropSuffixOfNonempty? pat s h = BackwardPattern.dropSuffix? pat s
+  skipSuffixOfNonempty?_eq {s : Slice} (h) :
+    BackwardPattern.skipSuffixOfNonempty? pat s h = BackwardPattern.skipSuffix? pat s
   endsWith_eq (s : Slice) :
-    BackwardPattern.endsWith pat s = (BackwardPattern.dropSuffix? pat s).isSome
+    BackwardPattern.endsWith pat s = (BackwardPattern.skipSuffix? pat s).isSome
 
 /--
 A strict backward pattern is one which never drops an empty suffix.
@@ -354,7 +354,7 @@ iterator.
 -/
 class StrictBackwardPattern {ρ : Type} (pat : ρ) [BackwardPattern pat] : Prop where
   ne_endPos {s : Slice} (h) (q) :
-    BackwardPattern.dropSuffixOfNonempty? pat s h = some q → q ≠ s.endPos
+    BackwardPattern.skipSuffixOfNonempty? pat s h = some q → q ≠ s.endPos
 
 /--
 Provides a conversion from a pattern to an iterator of {name}`SearchStep` searching for matches of
@@ -398,11 +398,11 @@ instance (s : Slice) [BackwardPattern pat] :
     Std.Iterator (DefaultBackwardSearcher pat s) Id (SearchStep s) where
   IsPlausibleStep it
     | .yield it' (.rejected p₁ p₂) => ∃ (h : it.internalState.currPos ≠ s.startPos),
-      BackwardPattern.dropSuffixOfNonempty? pat (s.sliceTo it.internalState.currPos) (by simpa) = none ∧
+      BackwardPattern.skipSuffixOfNonempty? pat (s.sliceTo it.internalState.currPos) (by simpa) = none ∧
       p₁ = it.internalState.currPos.prev h ∧ p₂ = it.internalState.currPos  ∧
       it'.internalState.currPos = it.internalState.currPos.prev h
     | .yield it' (.matched p₁ p₂) => ∃ (h : it.internalState.currPos ≠ s.startPos), ∃ pos,
-      BackwardPattern.dropSuffixOfNonempty? pat (s.sliceTo it.internalState.currPos) (by simpa) = some pos ∧
+      BackwardPattern.skipSuffixOfNonempty? pat (s.sliceTo it.internalState.currPos) (by simpa) = some pos ∧
       p₁ = Slice.Pos.ofSliceTo pos ∧ p₂ = it.internalState.currPos  ∧
       it'.internalState.currPos = Slice.Pos.ofSliceTo pos
     | .done => it.internalState.currPos = s.startPos
@@ -411,7 +411,7 @@ instance (s : Slice) [BackwardPattern pat] :
     if h : it.internalState.currPos = s.startPos then
       pure (.deflate ⟨.done, by simp [h]⟩)
     else
-      match h' : BackwardPattern.dropSuffixOfNonempty? pat (s.sliceTo it.internalState.currPos) (by simpa) with
+      match h' : BackwardPattern.skipSuffixOfNonempty? pat (s.sliceTo it.internalState.currPos) (by simpa) with
       | some pos =>
         pure (.deflate ⟨.yield ⟨⟨Slice.Pos.ofSliceTo pos⟩⟩
           (.matched (Slice.Pos.ofSliceTo pos) it.internalState.currPos), by simp [h, h']⟩)

@@ -809,7 +809,7 @@ builtin_simproc simpEq ((_ : String) = _) := fun e => withNewMCtxDepth do
     return .continue
   let (lhsStructErased, lhsStruct) := lhsStruct.removeErasedTop
   let (rhsStructErased, rhsStruct) := rhsStruct.removeErasedTop
-  -- general case: equality of characters + center string equalities
+  -- general case: equality of characters + center string equality
   let proof := mkApp8 (mkConst ``StringStructure.denote_cancel)
     lhsStruct.toStructExpr rhsStruct.toStructExpr
     lhsStructErased.toStructExpr rhsStructErased.toStructExpr

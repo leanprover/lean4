@@ -50,7 +50,6 @@ theorem NoRepetition.not_isSuffix_of_append_singleton {α : Type u} {a : α} {l 
 theorem NoRepetition.append_singleton_of_not_suffix {α : Type u} {a : α} {l : List α}
     (h : NoRepetition a l) (h' : ¬ [a] <:+ l) : NoRepetition a (l ++ [a]) := by
   simp only [noRepetition_iff, List.infix_concat_iff, not_or] at ⊢ h
-
   exact ⟨by rwa [← List.singleton_append, List.suffix_append_self_iff], h⟩
 
 theorem NoRepetition.append_singleton_of_ne {α : Type u} {a b : α} {l : List α}

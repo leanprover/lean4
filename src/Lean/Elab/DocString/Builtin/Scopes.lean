@@ -7,7 +7,7 @@ module
 prelude
 
 public import Lean.Elab.DocString
-import Lean.Elab.DocString.Builtin.Parsing
+public import Lean.Elab.DocString.Builtin.Parsing
 
 namespace Lean.Doc
 open Lean.Parser

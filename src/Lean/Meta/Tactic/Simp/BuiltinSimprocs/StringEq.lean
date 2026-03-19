@@ -21,10 +21,7 @@ inductive ExprType where
   | string
   | list
   | char
-deriving DecidableEq, Repr
-
-deriving instance Repr for String.Pos
-deriving instance Repr for Slice
+deriving DecidableEq
 
 -- Regarding erased parts: erased parts indicate what has been cancelled out in the
 -- `cancelLeft` / `cancelRight` procedures; we treat the like `anyXYZ` but don't allow them
@@ -53,7 +50,6 @@ inductive ExprStructure : ExprType → Type where
   | charLit (c : Char) : ExprStructure .char
   | anyChar (c : Expr) : ExprStructure .char
   | erasedChar (c : Expr) : ExprStructure .char
-deriving Repr
 
 -- TODO: make this a computed field (private inductives can't have computed fields???)
 def ExprStructure.maxDepth : ExprStructure ty → Nat
@@ -389,169 +385,6 @@ def cancelElementsToStructExpr (as : Array CancelElement) : Expr :=
     | .list e, s => mkApp2 (mkConst ``Cancellation.list) e s
     | .char e, s => mkApp2 (mkConst ``Cancellation.char) e s
 
-inductive Element where
-  | string (e : Expr)
-  | list (e : Expr)
-  | char (e : Expr)
-
-def CancelElement.left : CancelElement → Element
-  | .cons l _ => .char l
-  | .string e => .string e
-  | .list e => .list e
-  | .char e => .char e
-
-def CancelElement.right : CancelElement → Element
-  | .cons _ r => .char r
-  | .string e => .string e
-  | .list e => .list e
-  | .char e => .char e
-
-def ExprStructure.elements : ExprStructure ty → List Element
-  -- String
-  | .stringAppend a b => a.elements ++ b.elements
-  | .push s c => s.elements ++ c.elements
-  | .singleton c => c.elements
-  | .ofList l => l.elements
-  | .stringLit s => s.str.toList.map (fun c => .char (mkCharLit c.toNat))
-  | .anyString s | .erasedString s => [.string s]
-  -- List Char
-  | .nil => []
-  | .cons c l => c.elements ++ l.elements
-  | .listAppend a b => a.elements ++ b.elements
-  | .toList s => s.elements
-  | .anyList l | .erasedList l => [.list l]
-  -- Char
-  | .charLit c => [.char (mkCharLit c.toNat)]
-  | .anyChar c | .erasedChar c => [.char c]
-
-def ExprStructure.elementsWithoutErased : ExprStructure ty → List Element
-  -- String
-  | .stringAppend a b => a.elementsWithoutErased ++ b.elementsWithoutErased
-  | .push s c => s.elementsWithoutErased ++ c.elementsWithoutErased
-  | .singleton c => c.elementsWithoutErased
-  | .ofList l => l.elementsWithoutErased
-  | .stringLit s => s.copy.toList.map (fun c => .char (mkCharLit c.toNat))
-  | .anyString s => [.string s]
-  | .erasedString _ => []
-  -- List Char
-  | .nil => []
-  | .cons c l => c.elementsWithoutErased ++ l.elementsWithoutErased
-  | .listAppend a b => a.elementsWithoutErased ++ b.elementsWithoutErased
-  | .toList s => s.elementsWithoutErased
-  | .anyList l => [.list l]
-  | .erasedList _ => []
-  -- Char
-  | .charLit c => [.char (mkCharLit c.toNat)]
-  | .anyChar c => [.char c]
-  | .erasedChar _ => []
-
-def ErasureResult.erasedElements (res : ErasureResult ty) (e : ExprStructure ty) :
-    List Element :=
-  match res with
-  | .empty => []
-  | .noErased => e.toAny.elements
-  | .result x _ => x.elements
-
-def ErasureResult.unerasedValue (res : ErasureResult ty) (e : ExprStructure ty) :
-    ExprStructure ty :=
-  match res with
-  | .empty => e
-  | .noErased => e.toAny
-  | .result _ y => y
-
-@[local simp]
-theorem ExprStructure.elementsWithoutErased_toAny (e : ExprStructure ty) :
-    e.toAny.elementsWithoutErased = e.toAny.elements := by
-  fun_cases toAny <;> rfl
-
-@[local simp]
-theorem ExprStructure.toExpr_toAny (e : ExprStructure ty) :
-    e.toAny.toExpr = e.toExpr := by
-  fun_cases toAny <;> rfl
-
-theorem ErasureResult.erasedElements_map
-    {f : ExprStructure ty → ExprStructure ty'}
-    {e : ExprStructure ty} {res : ErasureResult ty}
-    (hf : ∀ e, (f e).elements = e.elements)
-    (hf' : ∀ e, (f e).elementsWithoutErased = e.elementsWithoutErased)
-    (hres : res.erasedElements e = (res.unerasedValue e).elementsWithoutErased) :
-    (map f res).erasedElements (f e) = ((map f res).unerasedValue (f e)).elementsWithoutErased := by
-  fun_cases map <;> simp_all [erasedElements, unerasedValue]
-
-theorem ErasureResult.erasedElements_map₂
-    {f : ExprStructure ty → ExprStructure ty' → ExprStructure ty''}
-    {lonly : ExprStructure ty → ExprStructure ty''}
-    {ronly : ExprStructure ty' → ExprStructure ty''}
-    {l : ExprStructure ty} {r : ExprStructure ty'}
-    {lres : ErasureResult ty} {rres : ErasureResult ty'}
-    (hf : ∀ e e', (f e e').elements = e.elements ++ e'.elements)
-    (hf' : ∀ e e', (f e e').elementsWithoutErased = e.elementsWithoutErased ++ e'.elementsWithoutErased)
-    (hlonly : ∀ e, (lonly e).elements = e.elements)
-    (hronly : ∀ e, (ronly e).elements = e.elements)
-    (hlres : lres.erasedElements l = (lres.unerasedValue l).elementsWithoutErased)
-    (hrres : rres.erasedElements r = (rres.unerasedValue r).elementsWithoutErased) :
-    (map₂ f lonly ronly l r lres rres).erasedElements (f l r) =
-      ((map₂ f lonly ronly l r lres rres).unerasedValue (f l r)).elementsWithoutErased := by
-  fun_cases map₂ <;> simp_all [erasedElements, unerasedValue]
-
-theorem ExprStructure.erasedElements_removeErased (e : ExprStructure ty) :
-    e.removeErased.erasedElements e = (e.removeErased.unerasedValue e).elementsWithoutErased := by
-  fun_induction removeErased with
-  | case1 | case2 | case3 | case4 | case12 | case13 =>
-    simp [ErasureResult.erasedElements_map, ErasureResult.erasedElements_map₂, elements,
-      elementsWithoutErased, *]
-  | case5 | case6 | case7 | case8 | case9 | case10 | case14 | case15 | case16 | case17 | case18 =>
-    simp_all [ErasureResult.erasedElements, elements, ErasureResult.unerasedValue,
-      elementsWithoutErased]
-  | case11 =>
-    apply ErasureResult.erasedElements_map₂ <;> try simp [elements, elementsWithoutErased, *]
-    split <;> simp_all [ErasureResult.erasedElements, ErasureResult.unerasedValue,
-      elementsWithoutErased]
-
-theorem ErasureResult.toExpr_unerasedValue_map
-    {f : ExprStructure ty → ExprStructure ty'} {g : Expr}
-    {e : ExprStructure ty} {res : ErasureResult ty}
-    (hf : ∀ e, (f e).toExpr = g.app e.toExpr)
-    (hres : (res.unerasedValue e).toExpr = e.toExpr) :
-    ((map f res).unerasedValue (f e)).toExpr = g.app e.toExpr := by
-  fun_cases map <;> simp_all [unerasedValue]
-
-theorem ErasureResult.toExpr_unerasedValue_map₂
-    {f : ExprStructure ty → ExprStructure ty' → ExprStructure ty''} {g : Expr}
-    {lonly : ExprStructure ty → ExprStructure ty''}
-    {ronly : ExprStructure ty' → ExprStructure ty''}
-    {l : ExprStructure ty} {r : ExprStructure ty'}
-    {lres : ErasureResult ty} {rres : ErasureResult ty'}
-    (hf : ∀ e e', (f e e').toExpr = mkApp2 g e.toExpr e'.toExpr)
-    (hlres : (lres.unerasedValue l).toExpr = l.toExpr)
-    (hrres : (rres.unerasedValue r).toExpr = r.toExpr) :
-    ((map₂ f lonly ronly l r lres rres).unerasedValue (f l r)).toExpr =
-      mkApp2 g l.toExpr r.toExpr := by
-  fun_cases map₂ <;> simp_all [unerasedValue]
-
-theorem ExprStructure.toExpr_unerasedValue (e : ExprStructure ty) :
-    (e.removeErased.unerasedValue e).toExpr = e.toExpr := by
-  fun_induction removeErased with
-  | case1 | case2 | case12 =>
-    apply ErasureResult.toExpr_unerasedValue_map₂ <;> simp [toExpr, *]
-  | case3 | case4 | case13 =>
-    apply ErasureResult.toExpr_unerasedValue_map <;> simp [toExpr, *]
-  | case5 | case6 | case7 | case8 | case9 | case10 | case14 | case15 | case16 | case17 | case18 =>
-    simp [ErasureResult.unerasedValue]
-  | case11 =>
-    apply ErasureResult.toExpr_unerasedValue_map₂ <;> try simp [toExpr, *]
-    split <;> simp_all [ErasureResult.unerasedValue]
-
-@[local simp]
-theorem ExprStructure.elements_char_ne_nil (e : ExprStructure .char) :
-    e.elements ≠ [] := by
-  cases e <;> simp [elements]
-
-@[local simp]
-theorem ExprStructure.isEmpty_iff_elements_eq_nil (e : ExprStructure ty) :
-    e.isEmpty ↔ e.elements = [] := by
-  fun_induction isEmpty <;> simp_all [elements]
-
 inductive Path : ExprType → Type where
   | root : Path .string
   | stringAppendLeft (parent : Path .string) (right : ExprStructure .string) : Path .string
@@ -569,7 +402,6 @@ inductive Path : ExprType → Type where
   | consChar (parent : Path .list) (l : ExprStructure .list) : Path .char
   | litChar (parent : Path .string) (s : String.Slice) (p : s.str.Pos)
     (h : p ≠ s.str.endPos) : Path .char
-deriving Repr
 
 def ExprStructure.litChar (s : String.Slice) (p : s.str.Pos) (h : p ≠ s.str.endPos) :
     ExprStructure .char :=
@@ -578,22 +410,14 @@ def ExprStructure.litChar (s : String.Slice) (p : s.str.Pos) (h : p ≠ s.str.en
   else
     .erasedChar (mkCharLit (p.get h).toNat)
 
-@[local simp]
-theorem ExprStructure.elements_litChar (s : String.Slice) (p : s.str.Pos) (h : p ≠ s.str.endPos) :
-    (litChar s p h).elements = [.char (mkCharLit (p.get h).toNat)] := by
-  fun_cases litChar <;> simp [elements]
-
 /-- Depth-first expression tree traverser -/
 @[unbox]
 structure Traverser where
   {type : ExprType}
   path : Path type
   expr : ExprStructure type
-  of_eq_litChar (pa s p h) (h' : type = .char) :
-    h' ▸ path = .litChar pa s p h → expr = h' ▸ .litChar s p h
-deriving Repr
 
-def Traverser.root (e : ExprStructure .string) : Traverser := ⟨.root, e, nofun⟩
+def Traverser.root (e : ExprStructure .string) : Traverser := ⟨.root, e⟩
 
 def Path.toStruct : Path ty → ExprStructure ty → ExprStructure .string
   | .root, e => e
@@ -655,141 +479,76 @@ def Path.toStructUneraseSuffix : Path ty → ExprStructure ty → ExprStructure 
       (.stringLit { s with
         endExclusive := s.str.endPos, startInclusive_le_endExclusive := by simp })
 
-def Path.prefix : Path ty → List Element
-  | .root => []
-  -- String
-  | .stringAppendLeft parent _ => parent.prefix
-  | .stringAppendRight parent left => parent.prefix ++ left.elements
-  | .push parent _ => parent.prefix
-  | .toList parent => parent.prefix
-  -- List Char
-  | .cons parent c => parent.prefix ++ c.elements
-  | .listAppendLeft parent _ => parent.prefix
-  | .listAppendRight parent left => parent.prefix ++ left.elements
-  | .ofList parent => parent.prefix
-  -- Char
-  | .singletonChar parent => parent.prefix
-  | .pushChar parent s => parent.prefix ++ s.elements
-  | .consChar parent _ => parent.prefix
-  | .litChar parent s p _ =>
-    parent.prefix ++ (s.str.sliceTo p).copy.toList.map (.char <| mkCharLit ·.toNat)
-
-def Path.suffix : Path ty → List Element
-  | .root => []
-  -- String
-  | .stringAppendLeft parent right => right.elements ++ parent.suffix
-  | .stringAppendRight parent _ => parent.suffix
-  | .push parent c => c.elements ++ parent.suffix
-  | .toList parent => parent.suffix
-  -- List Char
-  | .cons parent _ => parent.suffix
-  | .listAppendLeft parent right => right.elements ++ parent.suffix
-  | .listAppendRight parent _ => parent.suffix
-  | .ofList parent => parent.suffix
-  -- Char
-  | .singletonChar parent => parent.suffix
-  | .pushChar parent _ => parent.suffix
-  | .consChar parent l => l.elements ++ parent.suffix
-  | .litChar parent s p h =>
-    (s.str.sliceFrom (p.next h)).copy.toList.map (.char <| mkCharLit ·.toNat) ++ parent.suffix
-
-theorem Path.elements_toStruct (t : Traverser) :
-    (t.path.toStruct t.expr).elements = t.path.prefix ++ (t.expr.elements ++ t.path.suffix) := by
-  rcases t with ⟨path, expr, h⟩; dsimp only
-  fun_induction toStruct with (try simp [Path.prefix, Path.suffix, ExprStructure.elements, *]; done)
-  | case13 parent s p hp expr ih =>
-    specialize h parent s p hp rfl rfl
-    simp only [ne_eq, reduceCtorEq, forall_false, implies_true, ih, h]
-    simp [ExprStructure.elements, Path.prefix, Path.suffix]
-    conv => lhs; rw [String.Pos.eq_copy_sliceTo_append_get hp]
-    simp
-
 def Traverser.visitLeft : Traverser → Option Traverser
-  | ⟨p, .stringAppend l r, _⟩ =>
+  | ⟨p, .stringAppend l r⟩ =>
     if l.isEmpty then
-      some ⟨.stringAppendRight p l, r, nofun⟩
+      some ⟨.stringAppendRight p l, r⟩
     else
-      some ⟨.stringAppendLeft p r, l, nofun⟩
-  | ⟨p, .push s c, _⟩ =>
+      some ⟨.stringAppendLeft p r, l⟩
+  | ⟨p, .push s c⟩ =>
     if s.isEmpty then
-      some ⟨.pushChar p s, c, nofun⟩
+      some ⟨.pushChar p s, c⟩
     else
-      some ⟨.push p c, s, nofun⟩
-  | ⟨p, .ofList l, _⟩ => some ⟨.ofList p, l, nofun⟩
-  | ⟨p, .singleton c, _⟩ => some ⟨.singletonChar p, c, nofun⟩
-  | ⟨p, .stringLit s, _⟩ =>
+      some ⟨.push p c, s⟩
+  | ⟨p, .ofList l⟩ => some ⟨.ofList p, l⟩
+  | ⟨p, .singleton c⟩ => some ⟨.singletonChar p, c⟩
+  | ⟨p, .stringLit s⟩ =>
     if h : s.str.isEmpty then
       none
     else
       have h : s.str.startPos ≠ s.str.endPos := by simpa using h
-      some ⟨.litChar p s s.str.startPos h, .litChar _ _ h, by rintro _ _ _ _ _ ⟨⟩; rfl⟩
-  | ⟨p, .cons c l, _⟩ => some ⟨.consChar p l, c, nofun⟩
-  | ⟨p, .listAppend l r, _⟩ =>
+      some ⟨.litChar p s s.str.startPos h, .litChar _ _ h⟩
+  | ⟨p, .cons c l⟩ => some ⟨.consChar p l, c⟩
+  | ⟨p, .listAppend l r⟩ =>
     if l.isEmpty then
-      some ⟨.listAppendRight p l, r, nofun⟩
+      some ⟨.listAppendRight p l, r⟩
     else
-      some ⟨.listAppendLeft p r, l, nofun⟩
-  | ⟨p, .toList s, _⟩ => some ⟨.toList p, s, nofun⟩
-  | ⟨p, .anyString _, _⟩ => none
-  | ⟨p, .erasedString _, _⟩ => none
-  | ⟨p, .nil, _⟩ => none
-  | ⟨p, .anyList l, _⟩ => none
-  | ⟨p, .erasedList _, _⟩ => none
-  | ⟨p, .charLit c, _⟩ => none
-  | ⟨p, .anyChar c, _⟩ => none
-  | ⟨p, .erasedChar c, _⟩ => none
-
-theorem Traverser.toStruct_of_visitLeft_eq_some {t t' : Traverser}
-    (h : t.visitLeft = some t') : t.path.toStruct t.expr = t'.path.toStruct t'.expr := by
-  revert h; fun_cases visitLeft <;> rintro ⟨⟩ <;> simp [Path.toStruct]
-
-theorem Traverser.prefix_visitLeft_eq {t t' : Traverser}
-    (h : t.visitLeft = some t') : t'.path.prefix = t.path.prefix := by
-  revert h; fun_cases visitLeft <;> rintro ⟨⟩ <;> simp_all [Path.prefix]
+      some ⟨.listAppendLeft p r, l⟩
+  | ⟨p, .toList s⟩ => some ⟨.toList p, s⟩
+  | ⟨p, .anyString _⟩ => none
+  | ⟨p, .erasedString _⟩ => none
+  | ⟨p, .nil⟩ => none
+  | ⟨p, .anyList l⟩ => none
+  | ⟨p, .erasedList _⟩ => none
+  | ⟨p, .charLit c⟩ => none
+  | ⟨p, .anyChar c⟩ => none
+  | ⟨p, .erasedChar c⟩ => none
 
 def Traverser.visitRight : Traverser → Option Traverser
-  | ⟨p, .stringAppend l r, _⟩ =>
+  | ⟨p, .stringAppend l r⟩ =>
     if r.isEmpty then
-      some ⟨.stringAppendLeft p r, l, nofun⟩
+      some ⟨.stringAppendLeft p r, l⟩
     else
-      some ⟨.stringAppendRight p l, r, nofun⟩
-  | ⟨p, .push s c, _⟩ => some ⟨.pushChar p s, c, nofun⟩
-  | ⟨p, .ofList l, _⟩ => some ⟨.ofList p, l, nofun⟩
-  | ⟨p, .singleton c, _⟩ => some ⟨.singletonChar p, c, nofun⟩
-  | ⟨p, .stringLit s, _⟩ =>
+      some ⟨.stringAppendRight p l, r⟩
+  | ⟨p, .push s c⟩ => some ⟨.pushChar p s, c⟩
+  | ⟨p, .ofList l⟩ => some ⟨.ofList p, l⟩
+  | ⟨p, .singleton c⟩ => some ⟨.singletonChar p, c⟩
+  | ⟨p, .stringLit s⟩ =>
     if h : s.str.isEmpty then
       none
     else
       have h : s.str.endPos ≠ s.str.startPos := by rw [ne_comm]; simpa using h
       have h' : s.str.endPos.prev h ≠ s.str.endPos := by simp
-      some ⟨.litChar p s _ h', .litChar _ _ h', by rintro _ _ _ _ _ ⟨⟩; rfl⟩
-  | ⟨p, .cons c l, _⟩ =>
+      some ⟨.litChar p s _ h', .litChar _ _ h'⟩
+  | ⟨p, .cons c l⟩ =>
     if l.isEmpty then
-      some ⟨.consChar p l, c, nofun⟩
+      some ⟨.consChar p l, c⟩
     else
-      some ⟨.cons p c, l, nofun⟩
-  | ⟨p, .listAppend l r, _⟩ =>
+      some ⟨.cons p c, l⟩
+  | ⟨p, .listAppend l r⟩ =>
     if r.isEmpty then
-      some ⟨.listAppendLeft p r, l, nofun⟩
+      some ⟨.listAppendLeft p r, l⟩
     else
-      some ⟨.listAppendRight p l, r, nofun⟩
-  | ⟨p, .toList s, _⟩ => some ⟨.toList p, s, nofun⟩
-  | ⟨p, .anyString _, _⟩ => none
-  | ⟨p, .erasedString _, _⟩ => none
-  | ⟨p, .nil, _⟩ => none
-  | ⟨p, .anyList l, _⟩ => none
-  | ⟨p, .erasedList _, _⟩ => none
-  | ⟨p, .charLit c, _⟩ => none
-  | ⟨p, .anyChar c, _⟩ => none
-  | ⟨p, .erasedChar c, _⟩ => none
-
-theorem Traverser.toStruct_of_visitRight_eq_some {t t' : Traverser}
-    (h : t.visitRight = some t') : t.path.toStruct t.expr = t'.path.toStruct t'.expr := by
-  revert h; fun_cases visitRight <;> rintro ⟨⟩ <;> simp [Path.toStruct]
-
-theorem Traverser.suffix_visitRight_eq {t t' : Traverser}
-    (h : t.visitRight = some t') : t'.path.suffix = t.path.suffix := by
-  revert h; fun_cases visitRight <;> rintro ⟨⟩ <;> simp_all [Path.suffix]
+      some ⟨.listAppendRight p l, r⟩
+  | ⟨p, .toList s⟩ => some ⟨.toList p, s⟩
+  | ⟨p, .anyString _⟩ => none
+  | ⟨p, .erasedString _⟩ => none
+  | ⟨p, .nil⟩ => none
+  | ⟨p, .anyList l⟩ => none
+  | ⟨p, .erasedList _⟩ => none
+  | ⟨p, .charLit c⟩ => none
+  | ⟨p, .anyChar c⟩ => none
+  | ⟨p, .erasedChar c⟩ => none
 
 def Path.nextLeft : Path ty → ExprStructure ty → Traverser ⊕ ExprStructure .string
   | .root, e => .inr e
@@ -798,10 +557,10 @@ def Path.nextLeft : Path ty → ExprStructure ty → Traverser ⊕ ExprStructure
     if right.isEmpty then
       parent.nextLeft (.stringAppend left right)
     else
-      .inl ⟨.stringAppendRight parent left, right, nofun⟩
+      .inl ⟨.stringAppendRight parent left, right⟩
   | .stringAppendRight parent left, right =>
     parent.nextLeft (.stringAppend left right)
-  | .push parent c, s => .inl ⟨.pushChar parent s, c, nofun⟩
+  | .push parent c, s => .inl ⟨.pushChar parent s, c⟩
   | .toList parent, s => parent.nextLeft (.toList s)
   -- List Char
   | .cons parent c, l => parent.nextLeft (.cons c l)
@@ -809,7 +568,7 @@ def Path.nextLeft : Path ty → ExprStructure ty → Traverser ⊕ ExprStructure
     if right.isEmpty then
       parent.nextLeft (.listAppend left right)
     else
-      .inl ⟨.listAppendRight parent left, right, nofun⟩
+      .inl ⟨.listAppendRight parent left, right⟩
   | .listAppendRight parent left, right =>
     parent.nextLeft (.listAppend left right)
   | .ofList parent, l => parent.nextLeft (.ofList l)
@@ -820,7 +579,7 @@ def Path.nextLeft : Path ty → ExprStructure ty → Traverser ⊕ ExprStructure
     if l.isEmpty then
       parent.nextLeft (.cons c l)
     else
-      .inl ⟨.cons parent c, l, nofun⟩
+      .inl ⟨.cons parent c, l⟩
   | .litChar parent s p h, _ =>
     let s := { s with
       startInclusive := if p.next h ≤ s.endExclusive then p.next h else s.startInclusive,
@@ -828,47 +587,7 @@ def Path.nextLeft : Path ty → ExprStructure ty → Traverser ⊕ ExprStructure
     if h'' : p.next h = s.str.endPos then
       parent.nextLeft (.stringLit s)
     else
-      .inl ⟨.litChar parent s (p.next h) h'', .litChar s (p.next h) h'', by rintro _ _ _ _ _ ⟨⟩; rfl⟩
-
-theorem Path.nextLeft_matches_inl_iff {p : Path ty} {e : ExprStructure ty} :
-    p.nextLeft e matches .inl _ ↔ p.suffix ≠ [] := by
-  fun_induction nextLeft <;> simp_all +zetaDelta [suffix]
-
-theorem Path.prefix_nextLeft {t t' : Traverser} (h' : t.path.nextLeft t.expr = .inl t') :
-    t'.path.prefix = t.path.prefix ++ t.expr.elements := by
-  rcases t with ⟨path, expr, h⟩; revert h'; dsimp only
-  fun_induction nextLeft with
-    (try (first | rintro ⟨⟩ | intro) <;> simp_all [Path.prefix, ExprStructure.elements]; done)
-  | case16 parent s p hp s' hp' c ih =>
-    cases h _ _ _ _ rfl rfl; clear h
-    intro h'; rw [ih nofun h']; clear ih h'
-    simp only [ExprStructure.elements, Path.prefix, List.append_assoc, List.append_cancel_left_eq]
-    conv => lhs; rw [String.Pos.eq_copy_sliceTo_append_get hp, hp']
-    simp [s']
-  | case17 parent s p hp s' hp' c =>
-    cases h _ _ _ _ rfl rfl; clear h
-    rintro ⟨⟩; dsimp only
-    simp only [Path.prefix, ExprStructure.elements_litChar, List.append_assoc,
-      List.append_cancel_left_eq]
-    have : (s.str.sliceTo (p.next hp)).copy = (s.str.sliceTo p).copy ++ String.singleton (p.get hp) := by
-      rw [sliceTo_copy_eq_iff_exists_splits]
-      exact ⟨_, p.splits_next hp⟩
-    simp [s', this]
-
-theorem Path.suffix_nextLeft {t t' : Traverser} (h' : t.path.nextLeft t.expr = .inl t') :
-    t'.expr.elements ++ t'.path.suffix = t.path.suffix := by
-  rcases t with ⟨path, expr, h⟩; revert h'; dsimp only
-  fun_induction nextLeft with
-    (try (first | rintro ⟨⟩ | intro) <;> simp_all +zetaDelta [Path.suffix]; done)
-  | case17 parent s p hp s' hp' c =>
-    cases h _ _ _ _ rfl rfl; clear h
-    rintro ⟨⟩; dsimp only
-    simp only [ExprStructure.elements_litChar, suffix, List.cons_append, List.nil_append]
-    have : (s.str.sliceFrom (p.next hp)).copy =
-        String.singleton ((p.next hp).get hp') ++ (s.str.sliceFrom ((p.next hp).next hp')).copy := by
-      apply Pos.Splits.copy_sliceFrom_eq
-      exact (p.next hp).splits_next_right hp'
-    simp [s', this]
+      .inl ⟨.litChar parent s (p.next h) h'', .litChar s (p.next h) h''⟩
 
 def Path.nextRight : Path ty → ExprStructure ty → Traverser ⊕ ExprStructure .string
   | .root, e => .inr e
@@ -879,18 +598,18 @@ def Path.nextRight : Path ty → ExprStructure ty → Traverser ⊕ ExprStructur
     if left.isEmpty then
       parent.nextRight (.stringAppend left right)
     else
-      .inl ⟨.stringAppendLeft parent right, left, nofun⟩
+      .inl ⟨.stringAppendLeft parent right, left⟩
   | .push parent c, s => parent.nextRight (.push s c)
   | .toList parent, s => parent.nextRight (.toList s)
   -- List Char
-  | .cons parent c, l => .inl ⟨.consChar parent l, c, nofun⟩
+  | .cons parent c, l => .inl ⟨.consChar parent l, c⟩
   | .listAppendLeft parent right, left =>
     parent.nextRight (.listAppend left right)
   | .listAppendRight parent left, right =>
     if left.isEmpty then
       parent.nextRight (.listAppend left right)
     else
-      .inl ⟨.listAppendLeft parent right, left, nofun⟩
+      .inl ⟨.listAppendLeft parent right, left⟩
   | .ofList parent, l => parent.nextRight (.ofList l)
   -- Char
   | .singletonChar parent, c => parent.nextRight (.singleton c)
@@ -898,7 +617,7 @@ def Path.nextRight : Path ty → ExprStructure ty → Traverser ⊕ ExprStructur
     if s.isEmpty then
       parent.nextRight (.push s c)
     else
-      .inl ⟨.push parent c, s, nofun⟩
+      .inl ⟨.push parent c, s⟩
   | .consChar parent l, c => parent.nextRight (.cons c l)
   | .litChar parent s p _, _ =>
     let s := { s with
@@ -908,48 +627,7 @@ def Path.nextRight : Path ty → ExprStructure ty → Traverser ⊕ ExprStructur
       parent.nextRight (.stringLit s)
     else
       .inl ⟨.litChar parent s (p.prev h) (by simp +zetaDelta),
-        .litChar s (p.prev h) (by simp +zetaDelta), by rintro _ _ _ _ _ ⟨⟩; rfl⟩
-
-theorem Path.nextRight_matches_inl_iff {p : Path ty} {e : ExprStructure ty} :
-    p.nextRight e matches .inl _ ↔ p.prefix ≠ [] := by
-  fun_induction nextRight <;> simp_all +zetaDelta [Path.prefix]
-
-theorem Path.suffix_nextRight {t t' : Traverser} (h' : t.path.nextRight t.expr = .inl t') :
-    t'.path.suffix = t.expr.elements ++ t.path.suffix := by
-  rcases t with ⟨path, expr, h⟩; revert h'; dsimp only
-  fun_induction nextRight with
-    (try (first | rintro ⟨⟩ | intro) <;> simp_all [Path.suffix, ExprStructure.elements]; done)
-  | case16 parent s p hp s' hp' c ih =>
-    cases h _ _ _ _ rfl rfl; clear h
-    intro h'; rw [ih nofun h']; clear ih h'
-    simp only [ExprStructure.elements, ExprStructure.elements_litChar, suffix, List.cons_append,
-      List.nil_append]
-    conv => lhs; rw [String.Pos.eq_copy_sliceTo_append_get hp]
-    simp [← hp', s']
-  | case17 parent s p hp hp' c =>
-    cases h _ _ _ _ rfl rfl; clear h
-    rintro ⟨⟩; dsimp only
-    simp only [suffix, ExprStructure.elements_litChar, List.cons_append, List.nil_append]
-    have : (s.str.sliceFrom p).copy = String.singleton (p.get hp) ++ (s.str.sliceFrom (p.next hp)).copy := by
-      apply Pos.Splits.copy_sliceFrom_eq
-      exact p.splits_next_right hp
-    simp +zetaDelta [this]
-
-theorem Path.prefix_nextRight {t t' : Traverser} (h' : t.path.nextRight t.expr = .inl t') :
-    t'.path.prefix ++ t'.expr.elements = t.path.prefix := by
-  rcases t with ⟨path, expr, h⟩; revert h'; dsimp only
-  fun_induction nextRight with
-    (try (first | rintro ⟨⟩ | intro) <;> simp_all +zetaDelta [Path.prefix]; done)
-  | case17 parent s p hp s' hp' c =>
-    cases h _ _ _ _ rfl rfl; clear h
-    rintro ⟨⟩; dsimp only
-    simp only [Path.prefix, ExprStructure.elements_litChar, List.append_assoc,
-      List.append_cancel_left_eq]
-    have : (s.str.sliceTo p).copy = (s.str.sliceTo (p.prev hp')).copy ++
-        String.singleton ((p.prev hp').get (by simp)) := by
-      apply Pos.Splits.copy_sliceTo_eq
-      exact p.splits_prev_right hp'
-    simp +zetaDelta [this]
+        .litChar s (p.prev h) (by simp +zetaDelta)⟩
 
 def obviousCharDiseq (a : ExprStructure ty) (b : ExprStructure ty') : Bool :=
   match a, b with

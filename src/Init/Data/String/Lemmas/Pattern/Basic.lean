@@ -193,6 +193,13 @@ theorem IsLongestMatch.isLongestMatchAt_ofSliceFrom {pat : ρ} [ForwardPatternMo
   le := Slice.Pos.le_ofSliceFrom
   isLongestMatch_sliceFrom := by simpa
 
+@[simp]
+theorem isLongestMatchAt_startPos_iff {pat : ρ} [ForwardPatternModel pat] {s : Slice} {endPos : s.Pos} :
+    IsLongestMatchAt pat s.startPos endPos ↔ IsLongestMatch pat endPos := by
+  simpa [isLongestMatchAt_iff] using
+    ⟨fun h => isLongestMatch_of_eq (by simp) (by simp) h,
+     fun h => isLongestMatch_of_eq (by simp) (by simp) h⟩
+
 /--
 Predicate stating that there is a (longest) match starting at the given position.
 -/
@@ -275,7 +282,7 @@ class LawfulForwardPatternModel {ρ : Type} (pat : ρ) [ForwardPattern pat]
   skipPrefix?_eq_some_iff (pos) : ForwardPattern.skipPrefix? pat s = some pos ↔ IsLongestMatch pat pos
 
 open Classical in
-theorem LawfulForwardPatternModel.skipPrefix?_eq_none_iff {ρ : Type} {pat : ρ} [ForwardPattern pat] [ForwardPatternModel pat]
+theorem LawfulForwardPatternModel.skipPrefix?_sliceFrom_eq_none_iff {ρ : Type} {pat : ρ} [ForwardPattern pat] [ForwardPatternModel pat]
     [LawfulForwardPatternModel pat] {s : Slice} {p₀ : s.Pos} :
     ForwardPattern.skipPrefix? pat (s.sliceFrom p₀) = none ↔ ¬ MatchesAt pat p₀ := by
   rw [← Decidable.not_iff_not]
@@ -283,6 +290,12 @@ theorem LawfulForwardPatternModel.skipPrefix?_eq_none_iff {ρ : Type} {pat : ρ}
   refine ⟨fun ⟨p, hp⟩ => ?_, fun ⟨p, hp⟩ => ?_⟩
   · exact ⟨Slice.Pos.ofSliceFrom p, hp.isLongestMatchAt_ofSliceFrom⟩
   · exact ⟨p₀.sliceFrom p hp.le, hp.isLongestMatch_sliceFrom⟩
+
+theorem LawfulForwardPatternModel.skipPrefix?_eq_none_iff {ρ : Type} {pat : ρ} [ForwardPattern pat] [ForwardPatternModel pat]
+    [LawfulForwardPatternModel pat] {s : Slice} :
+    ForwardPattern.skipPrefix? pat s = none ↔ ¬ MatchesAt pat s.startPos := by
+  conv => lhs; rw [← sliceFrom_startPos (s := s)]
+  simp [skipPrefix?_sliceFrom_eq_none_iff]
 
 /--
 Inductive predicate stating that a list of search steps represents a valid search from a given
@@ -373,7 +386,7 @@ theorem LawfulToForwardSearcherModel.defaultImplementation {pat : ρ} [ForwardPa
         intro p' hp' hp''
         obtain rfl : pos = p' := Std.le_antisymm hp' (by simpa using hp'')
         rwa [LawfulForwardPattern.skipPrefixOfNonempty?_eq,
-          LawfulForwardPatternModel.skipPrefix?_eq_none_iff] at heq'
+          LawfulForwardPatternModel.skipPrefix?_sliceFrom_eq_none_iff] at heq'
     · split at heq <;> simp at heq
     · split at heq <;> simp at heq
 

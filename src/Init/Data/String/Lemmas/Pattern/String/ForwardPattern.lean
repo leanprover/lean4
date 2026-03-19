@@ -61,6 +61,15 @@ theorem skipPrefix?_eq_some_iff {pat s : Slice} {pos : s.Pos} :
 theorem isSome_skipPrefix? {pat s : Slice} : (skipPrefix? pat s).isSome = startsWith pat s := by
   fun_cases skipPrefix? <;> simp_all
 
+public theorem startsWith_of_isEmpty {pat s : Slice} (hpat : pat.isEmpty = true) :
+    ForwardPattern.startsWith pat s = true := by
+  suffices pat.copy = "" by simp [ForwardPattern.startsWith, startsWith_iff, this]
+  simpa
+
+public theorem skipPrefix?_of_isEmpty {pat s : Slice} (hpat : pat.isEmpty = true) :
+    ForwardPattern.skipPrefix? pat s = some s.startPos := by
+  simpa [ForwardPattern.skipPrefix?, skipPrefix?_eq_some_iff]
+
 end ForwardSliceSearcher
 
 namespace Model.ForwardSliceSearcher

@@ -55,6 +55,12 @@ theorem isLongestMatchAt_iff_splits {pat s : Slice} {pos₁ pos₂ : s.Pos} (h :
       pos₂.Splits (t₁ ++ pat.copy) t₂ := by
   simp only [isLongestMatchAt_iff h, copy_slice_eq_iff_splits]
 
+theorem isLongestMatch_iff_splits {pat s : Slice} {pos : s.Pos} (h : pat.isEmpty = false) :
+    IsLongestMatch pat pos ↔ ∃ t, pos.Splits pat.copy t := by
+  simp only [← isLongestMatchAt_startPos_iff, isLongestMatchAt_iff_splits h, splits_startPos_iff,
+    and_assoc, exists_and_left, exists_eq_left, empty_append]
+  exact ⟨fun ⟨h, _, h'⟩ => ⟨h, h'⟩, fun ⟨h, h'⟩ => ⟨h, h'.eq_append.symm, h'⟩⟩
+
 theorem isLongestMatchAt_iff_extract {pat s : Slice} {pos₁ pos₂ : s.Pos} (h : pat.isEmpty = false) :
     IsLongestMatchAt pat pos₁ pos₂ ↔
       s.copy.toByteArray.extract pos₁.offset.byteIdx pos₂.offset.byteIdx = pat.copy.toByteArray := by

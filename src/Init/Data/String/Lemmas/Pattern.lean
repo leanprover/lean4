@@ -13,3 +13,4 @@ public import Init.Data.String.Lemmas.Pattern.Char
 public import Init.Data.String.Lemmas.Pattern.String
 public import Init.Data.String.Lemmas.Pattern.Split
 public import Init.Data.String.Lemmas.Pattern.Find
+public import Init.Data.String.Lemmas.Pattern.TakeDrop

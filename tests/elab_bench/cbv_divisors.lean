@@ -24,7 +24,8 @@ def runProblem (n : Nat) : MetaM Unit := do
 def runCbvTests : MetaM Unit := do
   IO.println "=== Call-By-Value Tactic Tests ==="
   IO.println ""
-  for n in List.range 200 do
+  let bench := (← IO.getEnv "TEST_BENCH") == some "1"
+  for n in List.range (if bench then 200 else 10) do
     runProblem n
 
 #eval runCbvTests

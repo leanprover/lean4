@@ -324,7 +324,8 @@ private def mkSilentAnnotationIfHole (e : Expr) : TermElabM Expr := do
   let type ← instantiateMVars type
   let inst ← synthInstance type
   -- Normalize to instance normal form.
-  let inst ← withNewMCtxDepth <| normalizeInstance inst expectedType
+  let compile := !(← read).isNoncomputableSection && !(← read).declName?.any (Lean.isNoncomputable (← getEnv))
+  let inst ← withNewMCtxDepth <| normalizeInstance inst expectedType (compile := compile)
   ensureHasType expectedType? inst
 
 @[builtin_term_elab clear] def elabClear : TermElab := fun stx expectedType? => do

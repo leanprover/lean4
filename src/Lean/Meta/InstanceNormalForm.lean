@@ -47,7 +47,7 @@ Normalize an instance value to "instance normal form":
 This ensures that sub-instance projections (e.g., `instRing.toSemiring`) immediately
 reduce to the canonical sub-instance, rather than requiring unfolding through helper functions.
 -/
-partial def normalizeInstance (inst expectedType : Expr) : MetaM Expr := withTransparency .instances do
+partial def normalizeInstance (inst expectedType : Expr) (compile : Bool := true) : MetaM Expr := withTransparency .instances do
   withTraceNode `Meta.instanceNormalForm
       (fun _ => return m!"type: {expectedType}") do
   let some className ← isClass? expectedType
@@ -77,7 +77,7 @@ partial def normalizeInstance (inst expectedType : Expr) : MetaM Expr := withTra
             return inst
           else
             let name ← mkAuxDeclName
-            let wrapped ← mkAuxDefinition name expectedType inst
+            let wrapped ← mkAuxDefinition name expectedType inst (compile := compile)
             setReducibilityStatus name .implicitReducible
             enableRealizationsForConst name
             return wrapped
@@ -113,7 +113,7 @@ partial def normalizeInstance (inst expectedType : Expr) : MetaM Expr := withTra
             mvarId.assign arg
         -- Recurse into instance arguments of the constructor
         else if (← isClass? argExpectedType).isSome then
-          mvarId.assign (← normalizeInstance arg argExpectedType)
+          mvarId.assign (← normalizeInstance arg argExpectedType (compile := compile))
         else
           -- For data fields, assign directly or wrap in aux def to fix types.
           if «instance».normalForm.wrapFields.data.get (← getOptions) then
@@ -122,7 +122,7 @@ partial def normalizeInstance (inst expectedType : Expr) : MetaM Expr := withTra
               mvarId.assign arg
             else
               let name ← mkAuxDeclName
-              mvarId.assign (← mkAuxDefinition name argExpectedType arg)
+              mvarId.assign (← mkAuxDefinition name argExpectedType arg (compile := compile))
               enableRealizationsForConst name
           else
             mvarId.assign arg

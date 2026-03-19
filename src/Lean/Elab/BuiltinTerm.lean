@@ -322,6 +322,16 @@ private def mkSilentAnnotationIfHole (e : Expr) : TermElabM Expr := do
   -- Unify with expected type to resolve metavariables (e.g., `_` placeholders)
   discard <| isDefEq type expectedType
   let type ← instantiateMVars type
+  -- Rebuild type with fresh synthetic mvars for instance-implicit args, so that
+  -- synthesis is not influenced by the expected type's instance choices.
+  let type ← do
+    let fn := type.getAppFn
+    let args := type.getAppArgs
+    let (mvars, bis, _) ← forallMetaTelescope (← inferType fn)
+    for i in [:args.size] do
+      unless bis[i]!.isInstImplicit do
+        mvars[i]!.mvarId!.assign args[i]!
+    instantiateMVars (mkAppN fn mvars)
   let inst ← synthInstance type
   -- Normalize to instance normal form.
   let compile := !(← read).isNoncomputableSection && !(← read).declName?.any (Lean.isNoncomputable (← getEnv))

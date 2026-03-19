@@ -18,6 +18,8 @@ instance [MyMonad m] : MyMonad (MyStateRefT σ m) :=
 instance [MyMonad m] [MyLawful m] : MyLawful (MyReaderT ρ m) where
   law := trivial
 
---set_option backward.isDefEq.respectTransparency false in
+instance [MyMonad m] [MyLawful m] : MyLawful (MyStateRefT σ m) :=
+  inferInstanceAs (MyLawful (MyReaderT σ m))
+
 instance [MyMonad m] [MyLawful m] : MyLawful (MyStateRefT σ m) :=
   inferInstanceAs (MyLawful (MyReaderT _ _))

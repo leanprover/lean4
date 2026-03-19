@@ -19,6 +19,7 @@ import Init.Data.Nat.Bitwise
 import Init.Data.Nat.Simproc
 import Init.WFTactics
 import Init.Data.Char.Lemmas
+import Init.Data.Nat.Div.Lemmas
 
 public section
 
@@ -118,6 +119,11 @@ private theorem isDigit_of_mem_toDigitsCore
 theorem isDigit_of_mem_toDigits (hb₁ : 0 < b) (hb₂ : b ≤ 10) (hc : c ∈ toDigits b n) : c.isDigit :=
   isDigit_of_mem_toDigitsCore (fun _ => by contradiction) hb₁ hb₂ hc
 
+@[simp]
+theorem underscore_not_in_toDigits {n : Nat} : ¬'_' ∈ Nat.toDigits 10 n := by
+  intro h
+  simpa using isDigit_of_mem_toDigits (by decide) (by decide) h
+
 private theorem toDigitsCore_of_lt_base (hb : n < b) (hf : n < fuel) :
     toDigitsCore b fuel n cs = n.digitChar :: cs := by
   unfold toDigitsCore
@@ -194,6 +200,11 @@ theorem length_toDigits_pos {b n : Nat} :
   · rw [toDigitsCore_eq_toDigitsCore_nil_append]
     simp
 
+@[simp]
+theorem toDigits_ne_nil {n b : Nat} : Nat.toDigits b n ≠ [] := by
+  rw [← List.length_pos_iff]
+  exact Nat.length_toDigits_pos
+
 theorem length_toDigits_le_iff {n k : Nat} (hb : 1 < b) (h : 0 < k) :
     (Nat.toDigits b n).length ≤ k ↔ n < b ^ k := by
   match k with
@@ -218,6 +229,14 @@ theorem length_toDigits_le_iff {n k : Nat} (hb : 1 < b) (h : 0 < k) :
 theorem repr_eq_ofList_toDigits {n : Nat} :
     n.repr = .ofList (toDigits 10 n) :=
   (rfl)
+
+@[simp]
+theorem toList_repr {n : Nat} : n.repr.toList = Nat.toDigits 10 n := by
+  simp [repr_eq_ofList_toDigits]
+
+@[simp]
+theorem repr_ne_empty {n : Nat} : n.repr ≠ "" := by
+  simp [← String.toList_inj]
 
 theorem toString_eq_ofList_toDigits {n : Nat} :
     toString n = .ofList (toDigits 10 n) :=
@@ -258,5 +277,58 @@ theorem length_repr_pos {n : Nat} :
 theorem length_repr_le_iff {n k : Nat} (h : 0 < k) :
     n.repr.length ≤ k ↔ n < 10 ^ k := by
   simpa [repr_eq_ofList_toDigits] using length_toDigits_le_iff (by omega) h
+
+/--
+Transforms a list of characters into a natural number, *assuming that all characters are in the
+range from `'0'` to `'9'`*.
+-/
+def ofDigitChars (b : Nat) (l : List Char) (init : Nat) : Nat :=
+  l.foldl (init := init) (fun sofar c => b * sofar + (c.toNat - '0'.toNat))
+
+theorem ofDigitChars_eq_foldl {b : Nat} {l : List Char} {init : Nat} :
+    ofDigitChars b l init = l.foldl (init := init) (fun sofar c => b * sofar + (c.toNat - '0'.toNat)) :=
+  (rfl)
+
+@[simp]
+theorem ofDigitChars_nil {init : Nat} : ofDigitChars b [] init = init := by
+  simp [ofDigitChars]
+
+theorem ofDigitChars_cons {c : Char} {cs : List Char} {init : Nat} :
+    ofDigitChars b (c::cs) init = ofDigitChars b cs (b * init + (c.toNat - '0'.toNat)) := by
+  simp [ofDigitChars]
+
+theorem ofDigitChars_cons_digitChar_of_lt_ten {n : Nat} (hn : n < 10) {cs : List Char} {init : Nat} :
+    ofDigitChars 10 (n.digitChar :: cs) init = ofDigitChars 10 cs (10 * init + n) := by
+  simp [ofDigitChars_cons, Nat.toNat_digitChar_sub_48_of_lt_ten hn]
+
+theorem ofDigitChars_eq_ofDigitChars_zero {l : List Char} {init : Nat} :
+    ofDigitChars 10 l init = 10 ^ l.length * init + ofDigitChars 10 l 0 := by
+  induction l generalizing init with
+  | nil => simp [ofDigitChars]
+  | cons hd tl ih =>
+    simp only [ofDigitChars, ↓Char.isValue, Char.reduceToNat, List.foldl_cons, List.length_cons,
+      Nat.mul_zero, Nat.zero_add] at ⊢ ih
+    rw [ih, ih (init := hd.toNat - 48), Nat.pow_succ, Nat.mul_add, Nat.mul_assoc, Nat.add_assoc]
+
+theorem ofDigitChars_append {l m : List Char} (init : Nat) :
+    ofDigitChars b (l ++ m) init = ofDigitChars b m (ofDigitChars b l init) := by
+  simp [ofDigitChars]
+
+@[simp]
+theorem ofDigitChars_replicate_zero {n : Nat} : ofDigitChars b (List.replicate n '0') init = b ^ n * init := by
+  induction n generalizing init with
+  | zero => simp
+  | succ n ih => simp [List.replicate_succ, ofDigitChars_cons, ih, Nat.pow_succ, Nat.mul_assoc]
+
+@[simp]
+theorem ofDigitChars_toDigits {n : Nat} : ofDigitChars 10 (toDigits 10 n) 0 = n := by
+  have : 1 < 10 := by decide
+  induction n using base_induction 10 this with
+  | single m hm =>
+    simp [Nat.toDigits_of_lt_base hm, ofDigitChars_cons_digitChar_of_lt_ten hm]
+  | digit m k hk hm ih =>
+    rw [← Nat.toDigits_append_toDigits this hm hk,
+      ofDigitChars_append, ih, Nat.toDigits_of_lt_base hk,
+      ofDigitChars_cons_digitChar_of_lt_ten hk, ofDigitChars_nil]
 
 end Nat

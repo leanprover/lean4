@@ -259,15 +259,4 @@ theorem length_repr_le_iff {n k : Nat} (h : 0 < k) :
     n.repr.length ≤ k ↔ n < 10 ^ k := by
   simpa [repr_eq_ofList_toDigits] using length_toDigits_le_iff (by omega) h
 
-theorem base_induction {P : Nat → Prop} {n : Nat} (b : Nat) (hb : 1 < b) (single : ∀ m, m < b → P m)
-    (digit : ∀ m k, k < b → 0 < m → P m → P (b * m + k)) : P n := by
-  induction n using Nat.strongRecOn with | ind n ih
-  rcases Nat.lt_or_ge n b with hn | hn
-  · exact single _ hn
-  · have := Nat.div_add_mod n b
-    rw [← this]
-    apply digit _ _ (Nat.mod_lt _ (by omega)) _ (ih _ _)
-    · exact Nat.div_pos_iff.mpr ⟨by omega, hn⟩
-    · exact Nat.div_lt_self (by omega) (by omega)
-
 end Nat

@@ -21,7 +21,6 @@ import Init.Data.String.Lemmas.FindPos
 import Init.Data.List.Sublist
 import Init.Data.List.Nat.Sublist
 
-public section
 
 theorem bne_eq [BEq α] {a b : α} : (a != b) = !(a == b) := rfl
 
@@ -40,35 +39,6 @@ theorem Nat.digitChar_eq_zero_iff {n : Nat} : n.digitChar = '0' ↔ n = 0 :=
   match n with
   | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | _ + 16 => by simp [digitChar]
 
-def toDigitsSane (b : Nat) (n : Nat) (hb : 1 < b) : List Nat :=
-  if h : n = 0 then
-    []
-  else
-    have : n / b < n := Nat.div_lt_self (by omega) hb
-    toDigitsSane b (n / b) hb ++ [n % b]
-
-@[simp]
-theorem toDigitsSane_zero {b : Nat} {hb : 1 < b} : toDigitsSane b 0 hb = [] := by
-  simp [toDigitsSane]
-
-@[simp]
-theorem toDigitsSane_eq_nil_iff {b : Nat} {hb : 1 < b} {n : Nat} :
-    toDigitsSane b n hb = [] ↔ n = 0 := by
-  fun_induction toDigitsSane with simp_all
-
-theorem toDigitsSane_mul_add {b n k : Nat} {hb : 1 < b} (hn : 0 < n) (hk : k < b) :
-    toDigitsSane b (b * n + k) hb = toDigitsSane b n hb ++ [k] := by
-  rw [toDigitsSane, dif_neg]
-  · simp [Nat.mod_eq_of_lt hk]
-    rw [Nat.mul_add_div (by omega), Nat.div_eq_zero_iff.2 (Or.inr hk), Nat.add_zero]
-  · rw [Nat.add_eq_zero_iff, Nat.mul_eq_zero]
-    omega
-
-theorem toDigitsSane_of_lt {b k : Nat} {hb : 1 < b} (hk₀ : k ≠ 0) (hk : k < b) :
-    toDigitsSane b k hb = [k] := by
-  rw [toDigitsSane, dif_neg hk₀, toDigitsSane, dif_pos (Nat.div_eq_zero_iff.2 (Or.inr hk))]
-  simp [Nat.mod_eq_of_lt hk]
-
 theorem base_induction {P : Nat → Prop} {n : Nat} (b : Nat) (hb : 1 < b) (single : ∀ m, m < b → P m)
     (digit : ∀ m k, k < b → 0 < m → P m → P (b * m + k)) : P n := by
   induction n using Nat.strongRecOn with | ind n ih
@@ -81,8 +51,6 @@ theorem base_induction {P : Nat → Prop} {n : Nat} (b : Nat) (hb : 1 < b) (sing
     · exact Nat.div_lt_self (by omega) (by omega)
 
 end Nat
-
-end -- public section
 
 namespace Char
 
@@ -221,9 +189,77 @@ theorem foldl_ite_right {P : α → Prop} [DecidablePred P] {l : List α} {f : �
   simp +singlePass only [← ite_not]
   rw [foldl_ite_left]
 
+@[simp]
+theorem suffix_cons_append {a : α} {l m : List α} : m <:+ a :: (l ++ m) := by
+  rw [← List.cons_append]
+  exact List.suffix_append (a :: l) m
+
+@[simp]
+theorem singleton_suffix_append_singleton_iff {a b : α} {l : List α} :
+    [a] <:+ l ++ [b] ↔ a = b := by
+  refine ⟨fun h => Eq.symm ?_, by rintro rfl; simp⟩
+  simpa [List.suffix_iff_exists_append] using h
+
+@[simp]
+theorem singleton_suffix_cons_append_singleton_iff {a b c : α} {l : List α} :
+    [a] <:+ b :: (l ++ [c]) ↔ a = c := by
+  rw [← List.cons_append]
+  exact singleton_suffix_append_singleton_iff
+
 end List
 
-public section
+namespace Nat
+
+def ofDigitChars (b : Nat) (l : List Char) (init : Nat) : Nat :=
+  l.foldl (init := init) (fun sofar c => b * sofar + (c.toNat - '0'.toNat))
+
+theorem ofDigitChars_eq_foldl {b : Nat} {l : List Char} {init : Nat} :
+    ofDigitChars b l init = l.foldl (init := init) (fun sofar c => b * sofar + (c.toNat - '0'.toNat)) :=
+  (rfl)
+
+@[simp]
+theorem ofDigitChars_nil {init : Nat} : ofDigitChars b [] init = init := by
+  simp [ofDigitChars]
+
+theorem ofDigitChars_cons {c : Char} {cs : List Char} {init : Nat} :
+    ofDigitChars b (c::cs) init = ofDigitChars b cs (b * init + (c.toNat - '0'.toNat)) := by
+  simp [ofDigitChars]
+
+theorem ofDigitChars_cons_digitChar_of_lt_ten {n : Nat} (hn : n < 10) {cs : List Char} {init : Nat} :
+    ofDigitChars 10 (n.digitChar :: cs) init = ofDigitChars 10 cs (10 * init + n) := by
+  simp [ofDigitChars_cons, Nat.toNat_digitChar_sub_48_of_lt_ten hn]
+
+theorem ofDigitChars_eq_ofDigitChars_zero {l : List Char} {init : Nat} :
+    ofDigitChars 10 l init = 10 ^ l.length * init + ofDigitChars 10 l 0 := by
+  induction l generalizing init with
+  | nil => simp [ofDigitChars]
+  | cons hd tl ih =>
+    simp only [ofDigitChars, ↓Char.isValue, Char.reduceToNat, List.foldl_cons, List.length_cons,
+      Nat.mul_zero, Nat.zero_add] at ⊢ ih
+    rw [ih, ih (init := hd.toNat - 48), Nat.pow_succ, Nat.mul_add, Nat.mul_assoc, Nat.add_assoc]
+
+theorem ofDigitChars_append {l m : List Char} (init : Nat) :
+    ofDigitChars b (l ++ m) init = ofDigitChars b m (ofDigitChars b l init) := by
+  simp [ofDigitChars]
+
+@[simp]
+theorem ofDigitChars_replicate_zero {n : Nat} : ofDigitChars b (List.replicate n '0') init = b ^ n * init := by
+  induction n generalizing init with
+  | zero => simp
+  | succ n ih => simp [List.replicate_succ, ofDigitChars_cons, ih, Nat.pow_succ, Nat.mul_assoc]
+
+@[simp]
+theorem ofDigitChars_toDigits {n : Nat} : ofDigitChars 10 (toDigits 10 n) 0 = n := by
+  have : 1 < 10 := by decide
+  induction n using base_induction 10 this with
+  | single m hm =>
+    simp [Nat.toDigits_of_lt_base hm, ofDigitChars_cons_digitChar_of_lt_ten hm]
+  | digit m k hk hm ih =>
+    rw [← Nat.toDigits_append_toDigits this hm hk,
+      ofDigitChars_append, ih, Nat.toDigits_of_lt_base hk,
+      ofDigitChars_cons_digitChar_of_lt_ten hk, ofDigitChars_nil]
+
+end Nat
 
 namespace String.Slice
 
@@ -300,63 +336,6 @@ theorem noRepetition_append_cons_of_noRepetition_append_singleton {α : Type u} 
       simp
     | b::b'::bs, _, c::cs, _ => simp at h₁
   rwa [← List.singleton_append, List.suffix_append_self_iff]
-
-@[simp]
-theorem List.suffix_cons_append {a : α} {l m : List α} : m <:+ a :: (l ++ m) := by
-  rw [← List.cons_append]
-  exact List.suffix_append (a :: l) m
-
-@[simp]
-theorem List.singleton_suffix_append_singleton_iff {a b : α} {l : List α} :
-    [a] <:+ l ++ [b] ↔ a = b := by
-  refine ⟨fun h => Eq.symm ?_, by rintro rfl; simp⟩
-  simpa [List.suffix_iff_exists_append] using h
-
-@[simp]
-theorem List.singleton_suffix_cons_append_singleton_iff {a b c : α} {l : List α} :
-    [a] <:+ b :: (l ++ [c]) ↔ a = c := by
-  rw [← List.cons_append]
-  exact singleton_suffix_append_singleton_iff
-
-@[simp]
-theorem imp_or_left_iff_true {P Q : Prop} : (P → P ∨ Q) ↔ True := by
-  simpa using Or.inl
-
-@[simp]
-theorem imp_or_right_iff_true {P Q : Prop} : (Q → P ∨ Q) ↔ True := by
-  simpa using Or.inr
-
-@[simp]
-theorem forall_or_imp_or_self_right_right {P Q R : α → Prop} :
-    (∀ a, P a ∨ Q a → R a ∨ Q a) ↔ (∀ a, P a → R a ∨ Q a) := by
-  simp only [or_imp, imp_or_right_iff_true, and_true]
-
-@[simp]
-theorem forall_or_imp_or_self_right_left {P Q R : α → Prop} :
-    (∀ a, P a ∨ Q a → Q a ∨ R a) ↔ (∀ a, P a → Q a ∨ R a) := by
-  simp only [or_imp, imp_or_left_iff_true, and_true]
-
-@[simp]
-theorem forall_or_imp_or_self_left_right {P Q R : α → Prop} :
-    (∀ a, Q a ∨ P a → R a ∨ Q a) ↔ (∀ a, P a → R a ∨ Q a) := by
-  simp only [or_imp, imp_or_right_iff_true, true_and]
-
-@[simp]
-theorem forall_or_imp_or_self_left_left {P Q R : α → Prop} :
-    (∀ a, Q a ∨ P a → Q a ∨ R a) ↔ (∀ a, P a → Q a ∨ R a) := by
-  simp only [or_imp, imp_or_left_iff_true, true_and]
-
-@[simp] theorem forall_eq_or_imp' {P Q : α → Prop} {a' : α} :
-    (∀ (a : α), a' = a ∨ Q a → P a) ↔ P a' ∧ ∀ (a : α), Q a → P a := by
-  simp only [or_imp, forall_and, forall_eq']
-
-@[simp] theorem forall_or_eq_imp {P Q : α → Prop} :
-    (∀ a, Q a ∨ a = a' → P a) ↔ (∀ a, Q a → P a) ∧ P a' := by
-  simp only [or_imp, forall_and, forall_eq]
-
-@[simp] theorem forall_or_eq_imp' {P Q : α → Prop} :
-    (∀ a, Q a ∨ a' = a → P a) ↔ (∀ a, Q a → P a) ∧ P a' := by
-  simp only [or_imp, forall_and, forall_eq']
 
 open Std.Do in
 set_option mvcgen.warning false in
@@ -454,52 +433,18 @@ theorem isSome_toNat? {s : String.Slice} : s.toNat?.isSome = s.isNat := by
 theorem isNat_of_toNat?_eq_some {s : String.Slice} (h : s.toNat? = some n) : s.isNat = true := by
   simp [← isSome_toNat?, h]
 
-def parseNat (l : List Char) (init : Nat) : Nat :=
-  l.foldl (init := init) (fun sofar c => 10 * sofar + (c.toNat - '0'.toNat))
-
-@[simp]
-theorem parseNat_nil {init : Nat} : parseNat [] init = init := by
-  simp [parseNat]
-
-theorem parseNat_cons {c : Char} {cs : List Char} {init : Nat} :
-    parseNat (c::cs) init = parseNat cs (10 * init + (c.toNat - '0'.toNat)) := by
-  simp [parseNat]
-
-theorem parseNat_cons_digitChar_of_lt_ten {n : Nat} (hn : n < 10) {cs : List Char} {init : Nat} :
-    parseNat (n.digitChar :: cs) init = parseNat cs (10 * init + n) := by
-  simp [parseNat_cons, Nat.toNat_digitChar_sub_48_of_lt_ten hn]
-
-theorem parseNat_eq_parseNat_zero {l : List Char} {init : Nat} :
-    parseNat l init = 10 ^ l.length * init + parseNat l 0 := by
-  induction l generalizing init with
-  | nil => simp [parseNat]
-  | cons hd tl ih =>
-    simp only [parseNat, ↓Char.isValue, Char.reduceToNat, List.foldl_cons, List.length_cons,
-      Nat.mul_zero, Nat.zero_add] at ⊢ ih
-    rw [ih, ih (init := hd.toNat - 48), Nat.pow_succ, Nat.mul_add, Nat.mul_assoc, Nat.add_assoc]
-
-theorem parseNat_append {l m : List Char} (init : Nat) :
-    parseNat (l ++ m) init = parseNat m (parseNat l init) := by
-  simp [parseNat]
-
-theorem toNat?_eq_some_parseNat {s : String.Slice} (h : s.isNat = true) :
-    s.toNat? = some (parseNat (s.copy.toList.filter (· != '_')) 0) := by
-  rw [toNat?, if_pos h, Option.some.injEq]
-  simp [parseNat, ↓Char.isValue, Char.reduceToNat, foldl_eq_foldl_toList, List.foldl_ite_right,
-    bne_eq, Bool.beq_eq_decide_eq, Nat.mul_comm 10]
-
-@[simp]
-theorem parseNat_replicate_zero {n : Nat} : parseNat (List.replicate n '0') init = 10 ^ n * init := by
-  induction n generalizing init with
-  | zero => simp
-  | succ n ih => simp [List.replicate_succ, parseNat_cons, ih, Nat.pow_succ, Nat.mul_assoc]
-
 @[simp]
 theorem toNat?_eq_none_iff {s : String.Slice} : s.toNat? = none ↔ s.isNat = false := by
   simp [← Option.isNone_iff_eq_none, ← Option.not_isSome, isSome_toNat?]
 
 theorem toNat?_eq_none {s : String.Slice} (h : s.isNat = false) : s.toNat? = none :=
   toNat?_eq_none_iff.2 h
+
+theorem toNat?_eq_some_ofDigitChars {s : String.Slice} (h : s.isNat = true) :
+    s.toNat? = some (Nat.ofDigitChars 10 (s.copy.toList.filter (· != '_')) 0) := by
+  rw [toNat?, if_pos h, Option.some.injEq]
+  simp [Nat.ofDigitChars_eq_foldl, ↓Char.isValue, Char.reduceToNat, foldl_eq_foldl_toList, List.foldl_ite_right,
+    bne_eq, Bool.beq_eq_decide_eq, Nat.mul_comm 10]
 
 end String.Slice
 
@@ -524,19 +469,8 @@ theorem underscore_not_in_toDigits {n : Nat} : ¬'_' ∈ Nat.toDigits 10 n := by
   simpa using isDigit_of_mem_toDigits (by decide) (by decide) h
 
 @[simp]
-theorem parseNat_toDigits {n : Nat} : String.Slice.parseNat (Nat.toDigits 10 n) 0 = n := by
-  have : 1 < 10 := by decide
-  induction n using base_induction 10 this with
-  | single m hm =>
-    simp [Nat.toDigits_of_lt_base hm, String.Slice.parseNat_cons_digitChar_of_lt_ten hm]
-  | digit m k hk hm ih =>
-    rw [← Nat.toDigits_append_toDigits this hm hk,
-      String.Slice.parseNat_append, ih, Nat.toDigits_of_lt_base hk,
-      String.Slice.parseNat_cons_digitChar_of_lt_ten hk, String.Slice.parseNat_nil]
-
-@[simp]
 theorem repr_toSlice_toNat? (n : Nat) : (Nat.repr n).toSlice.toNat? = some n := by
-  simp [String.Slice.toNat?_eq_some_parseNat (isNat_repr _), Option.some.injEq]
+  simp [String.Slice.toNat?_eq_some_ofDigitChars (isNat_repr _), Option.some.injEq]
   rw [List.filter_bne_eq_self_of_not_mem (by simp)]
   simp
 
@@ -562,14 +496,6 @@ theorem toNat?_map_repr_eq_some_self {s : String} :
 
 end String.Slice
 
-namespace List
-
-theorem mem_leftpad {n : Nat} {a c : α} {l : List α} (h : c ∈ l.leftpad n a) : c = a ∨ c ∈ l := by
-  simp only [leftpad, mem_append, mem_replicate] at h
-  exact h.elim (fun ⟨_, h⟩ => .inl h) .inr
-
-end List
-
 namespace String.Slice
 
 theorem isNat_append_underscore_append {s t : String}
@@ -589,12 +515,12 @@ theorem toNat?_append_underscore_append_eq_some {s t : String} {n m : Nat}
     (hs : s.toSlice.toNat? = some n) (ht : t.toSlice.toNat? = some m) :
     (s ++ "_" ++ t).toSlice.toNat? =
       some (10 ^ (t.toList.filter (· != '_')).length * n + m) := by
-  rw [toNat?_eq_some_parseNat (isNat_append_underscore_append
+  rw [toNat?_eq_some_ofDigitChars (isNat_append_underscore_append
     (isNat_of_toNat?_eq_some hs) (isNat_of_toNat?_eq_some ht))]
-  simp [toNat?_eq_some_parseNat (isNat_of_toNat?_eq_some hs), Option.some.injEq] at hs
-  simp [toNat?_eq_some_parseNat (isNat_of_toNat?_eq_some ht), Option.some.injEq] at ht
-  simp [parseNat_append, hs]
-  rw [parseNat_eq_parseNat_zero, ht]
+  simp [toNat?_eq_some_ofDigitChars (isNat_of_toNat?_eq_some hs), Option.some.injEq] at hs
+  simp [toNat?_eq_some_ofDigitChars (isNat_of_toNat?_eq_some ht), Option.some.injEq] at ht
+  simp [Nat.ofDigitChars_append, hs]
+  rw [Nat.ofDigitChars_eq_ofDigitChars_zero, ht]
 
 end String.Slice
 
@@ -610,8 +536,8 @@ theorem toDigits_ne_nil {n b : Nat} : Nat.toDigits b n ≠ [] := by
 
 private theorem toNat?_ofList_leftpad3_toDigits (m : Nat) :
     (String.ofList ((Nat.toDigits 10 m).leftpad 3 '0')).toSlice.toNat? = some m := by
-  rw [String.Slice.toNat?_eq_some_parseNat, Option.some.injEq, List.filter_bne_eq_self_of_not_mem (by simp)]
-  · simp [String.Slice.parseNat_append]
+  rw [String.Slice.toNat?_eq_some_ofDigitChars, Option.some.injEq, List.filter_bne_eq_self_of_not_mem (by simp)]
+  · simp [Nat.ofDigitChars_append]
   · apply String.Slice.isNat_of_isDigit
     · simp [← String.toList_inj]
     · simp only [List.leftpad, ↓Char.isValue, String.ofList_append, String.copy_toSlice,

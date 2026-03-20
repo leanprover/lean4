@@ -240,7 +240,7 @@ jobs:
                 // portable release build: use channel with older glibc (2.26)
                 "name": "Linux release",
                 // usually not a bottleneck so make exclusive to `fast-ci`
-                "os": large && fast ? "nscloud-ubuntu-22.04-amd64-8x16-with-cache" : "ubuntu-latest",
+                "os": large && fast ? "nscloud-ubuntu-24.04-amd64-8x16-with-cache" : "ubuntu-latest",
                 "release": true,
                 // Special handling for release jobs. We want:
                 // 1. To run it in PRs so developers get PR toolchains (so secondary without tests is sufficient)
@@ -261,7 +261,7 @@ jobs:
               },
               {
                 "name": "Linux Lake",
-                "os": large ? "nscloud-ubuntu-22.04-amd64-8x16-with-cache" : "ubuntu-latest",
+                "os": large ? "nscloud-ubuntu-24.04-amd64-8x16-with-cache" : "ubuntu-latest",
                 "enabled": true,
                 "check-rebootstrap": level >= 1,
                 "check-stage3": level >= 2,
@@ -273,7 +273,7 @@ jobs:
               },
               {
                 "name": "Linux Lake (Cached)",
-                "os": large ? "nscloud-ubuntu-22.04-amd64-8x16-with-cache" : "ubuntu-latest",
+                "os": large ? "nscloud-ubuntu-24.04-amd64-8x16-with-cache" : "ubuntu-latest",
                 "enabled": true,
                 "check-rebootstrap": level >= 1,
                 "check-stage3": level >= 2,
@@ -295,7 +295,7 @@ jobs:
               {
                 "name": "Linux fsanitize",
                 // Always run on large if available, more reliable regarding timeouts
-                "os": large ? "nscloud-ubuntu-22.04-amd64-16x32-with-cache" : "ubuntu-latest",
+                "os": large ? "nscloud-ubuntu-24.04-amd64-16x32-with-cache" : "ubuntu-latest",
                 "enabled": level >= 2,
                 // do not fail nightlies on this for now
                 "secondary": level <= 2,

@@ -202,8 +202,8 @@ jobs:
         run: |
           curl --version
           cd src
-          ../build/stage0/bin/lake build -o ../build/lake-mappings.jsonl
-          ../build/stage1/bin/lake cache put ../build/lake-mappings.jsonl --repo=${{ github.repository }}
+          time ../build/stage0/bin/lake build -o ../build/lake-mappings.jsonl
+          time ../build/stage1/bin/lake cache put ../build/lake-mappings.jsonl --repo=${{ github.repository }}
         env:
           LAKE_CACHE_KEY: ${{ secrets.LAKE_CACHE_KEY }}
           LAKE_CACHE_ARTIFACT_ENDPOINT: ${{ vars.LAKE_CACHE_ENDPOINT }}/a1

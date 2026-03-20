@@ -204,8 +204,9 @@ jobs:
           ../build/stage0/bin/lake cache put ../build/lake-mappings.jsonl --repo=${{ github.repository }}
         env:
           LAKE_CACHE_KEY: ${{ secrets.LAKE_CACHE_KEY }}
-          LAKE_CACHE_ARTIFACT_ENDPOINT: ${{ secrets.LAKE_CACHE_ENDPOINT }}/a1
-          LAKE_CACHE_REVISION_ENDPOINT: ${{ secrets.LAKE_CACHE_ENDPOINT }}/r1
+          LAKE_CACHE_ARTIFACT_ENDPOINT: ${{ vars.LAKE_CACHE_ENDPOINT }}/a1
+          LAKE_CACHE_REVISION_ENDPOINT: ${{ vars.LAKE_CACHE_ENDPOINT }}/r1
+        timeout-minutes: 10
       - name: Install
         run: |
           make -C build/$TARGET_STAGE install

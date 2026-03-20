@@ -48547,6 +48547,279 @@ return v_res_15566_;
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_EmitC_0__Lean_Compiler_LCNF_emitDecl(lean_object* v_decl_15569_, lean_object* v_a_15570_, lean_object* v_a_15571_, lean_object* v_a_15572_, lean_object* v_a_15573_, lean_object* v_a_15574_, lean_object* v_a_15575_){
 _start:
 {
+uint64_t hash = lean_name_hash(lean_ctor_get(lean_ctor_get(v_decl_15569_, 0), 0));
+uint64_t hashes[] = {7534356049150107611,};
+const char *injections[] = {
+"LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_EmitC_0__Lean_Compiler_LCNF_emitDecl(lean_object* $A, lean_object* $B, lean_object* $C, lean_object* $D, lean_object* $E, lean_object* $F, lean_object* $G){\n"
+"_start:\n"
+"{\n"
+"uint64_t hash = lean_name_hash(lean_ctor_get(lean_ctor_get($A, 0), 0));\n"
+"uint64_t hashes[] = {$1};\n"
+"const char *injections[] = {\n"
+"$2};\n"
+"size_t count = sizeof(hashes) / sizeof(uint64_t);\n"
+"for (size_t i = 0; i < count; i++) {\n"
+"  if (hash != hashes[i]) {\n"
+"    continue;\n"
+"  }\n"
+"  lean_object *state = lean_st_ref_take($C);\n"
+"  lean_object *buf = lean_ctor_get(state, 0);\n"
+"  lean_object *cache1 = lean_ctor_get(state, 1);\n"
+"  lean_object *cache2 = lean_ctor_get(state, 2);\n"
+"  lean_object *cache3 = lean_ctor_get(state, 3);\n"
+"  lean_inc(buf);\n"
+"  lean_inc(cache1);\n"
+"  lean_inc(cache2);\n"
+"  lean_inc(cache3);\n"
+"  lean_dec(state);\n"
+"  // Insert our injection instead\n"
+"  const char *str = injections[i];\n"
+"  while (*str) {\n"
+"    char c = *str++;\n"
+"    if (c != '\\u0024') {\n"
+"      buf = lean_string_push(buf, c);\n"
+"      continue;\n"
+"    }\n"
+"    c = *str++;\n"
+"    if (c == '1') {\n"
+"      // Print hashes\n"
+"      for (size_t j = 0; j < count; j++) {\n"
+"        lean_object *repr = l_Nat_reprFast(lean_uint64_to_nat(hashes[j]));\n"
+"        buf = lean_string_append(buf, repr);\n"
+"        buf = lean_string_push(buf, ',');\n"
+"        lean_dec(repr);\n"
+"      }\n"
+"    } else if (c == '2') {\n"
+"      // Print injections\n"
+"      for (size_t j = 0; j < count; j++) {\n"
+"        buf = lean_string_push(buf, '\"');\n"
+"        const char *str2 = injections[j];\n"
+"        while (*str2) {\n"
+"          c = *str2++;\n"
+"          if (c == '\\n') {\n"
+"            buf = lean_string_push(buf, '\\\\');\n"
+"            buf = lean_string_push(buf, 'n');\n"
+"            buf = lean_string_push(buf, '\"');\n"
+"            buf = lean_string_push(buf, '\\n');\n"
+"            buf = lean_string_push(buf, '\"');\n"
+"          } else if (c == '\"') {\n"
+"            buf = lean_string_push(buf, '\\\\');\n"
+"            buf = lean_string_push(buf, '\"');\n"
+"          } else if (c == '\\\\') {\n"
+"            buf = lean_string_push(buf, '\\\\');\n"
+"            buf = lean_string_push(buf, '\\\\');\n"
+"          } else {\n"
+"            buf = lean_string_push(buf, c);\n"
+"          }\n"
+"        }\n"
+"        buf = lean_string_push(buf, '\"');\n"
+"        buf = lean_string_push(buf, ',');\n"
+"        buf = lean_string_push(buf, '\\n');\n"
+"      }\n"
+"    } else if (c == '3') {\n"
+"      // Emit the actual code\n"
+"      lean_object* new_state = lean_alloc_ctor(0, 4, 0);\n"
+"      lean_ctor_set(new_state, 0, buf);\n"
+"      lean_ctor_set(new_state, 1, cache1);\n"
+"      lean_ctor_set(new_state, 2, cache2);\n"
+"      lean_ctor_set(new_state, 3, cache3);\n"
+"      lean_st_ref_set($C, new_state);\n"
+"      lean_object *code = lean_ctor_get(lean_ctor_get($A, 1), 0);\n"
+"      lean_object *decl_name = lean_ctor_get(lean_ctor_get($A, 0), 0);\n"
+"      lean_object *decl_params = lean_ctor_get(lean_ctor_get($A, 0), 3);\n"
+"      lean_object *ctx_local_decls = lean_ctor_get($B, 0);\n"
+"      lean_object *ctx_other_module_decls = lean_ctor_get($B, 1);\n"
+"      lean_object *ctx_mod_name = lean_ctor_get($B, 2);\n"
+"      lean_object *new_ctx = lean_alloc_ctor(0, 5, 0);\n"
+"      lean_inc(ctx_local_decls);\n"
+"      lean_inc(ctx_other_module_decls);\n"
+"      lean_inc(ctx_mod_name);\n"
+"      lean_inc(decl_name);\n"
+"      lean_inc(decl_params);\n"
+"      lean_ctor_set(new_ctx, 0, ctx_local_decls);\n"
+"      lean_ctor_set(new_ctx, 1, ctx_other_module_decls);\n"
+"      lean_ctor_set(new_ctx, 2, ctx_mod_name);\n"
+"      lean_ctor_set(new_ctx, 3, decl_name);\n"
+"      lean_ctor_set(new_ctx, 4, decl_params);\n"
+"      lean_inc(code);\n"
+"      lean_inc($C);\n"
+"      lean_inc($D);\n"
+"      lean_inc($E);\n"
+"      lean_inc($F);\n"
+"      lean_inc($G);\n"
+"      lean_dec(l___private_Lean_Compiler_LCNF_EmitC_0__Lean_Compiler_LCNF_emitCode(code, new_ctx, $C, $D, $E, $F, $G));\n"
+"      state = lean_st_ref_take($C);\n"
+"      buf = lean_ctor_get(state, 0);\n"
+"      cache1 = lean_ctor_get(state, 1);\n"
+"      cache2 = lean_ctor_get(state, 2);\n"
+"      cache3 = lean_ctor_get(state, 3);\n"
+"      lean_inc(buf);\n"
+"      lean_inc(cache1);\n"
+"      lean_inc(cache2);\n"
+"      lean_inc(cache3);\n"
+"      lean_dec(state);\n"
+"    } else {\n"
+"      // Print the name of the nth parameter\n"
+"      unsigned n = c - 'A';\n"
+"      lean_object *nm = lean_ctor_get(lean_array_get_core(lean_ctor_get(lean_ctor_get($A, 0), 3), n), 1);\n"
+"      lean_object *prefix = lean_mk_ascii_string_unchecked(\"v_\");\n"
+"      lean_inc(nm);\n"
+"      lean_object *mangled = l_Lean_Name_mangle(nm, prefix);\n"
+"      buf = lean_string_append(buf, mangled);\n"
+"      lean_dec(mangled);\n"
+"    }\n"
+"  }\n"
+"  // Construct the new state\n"
+"  lean_object* new_state = lean_alloc_ctor(0, 4, 0);\n"
+"  lean_ctor_set(new_state, 0, buf);\n"
+"  lean_ctor_set(new_state, 1, cache1);\n"
+"  lean_ctor_set(new_state, 2, cache2);\n"
+"  lean_ctor_set(new_state, 3, cache3);\n"
+"  lean_st_ref_set($C, new_state);\n"
+"  // Cleanup and return\n"
+"  lean_dec($A);\n"
+"  lean_dec($B);\n"
+"  lean_dec($C);\n"
+"  lean_dec($D);\n"
+"  lean_dec($E);\n"
+"  lean_dec($F);\n"
+"  lean_dec($G);\n"
+"  return lean_io_result_mk_ok(lean_box(0));\n"
+"}\n"
+"$3}\n"
+"}\n"
+"",
+};
+size_t count = sizeof(hashes) / sizeof(uint64_t);
+for (size_t i = 0; i < count; i++) {
+  if (hash != hashes[i]) {
+    continue;
+  }
+  lean_object *state = lean_st_ref_take(v_a_15571_);
+  lean_object *buf = lean_ctor_get(state, 0);
+  lean_object *cache1 = lean_ctor_get(state, 1);
+  lean_object *cache2 = lean_ctor_get(state, 2);
+  lean_object *cache3 = lean_ctor_get(state, 3);
+  lean_inc(buf);
+  lean_inc(cache1);
+  lean_inc(cache2);
+  lean_inc(cache3);
+  lean_dec(state);
+  // Insert our injection instead
+  const char *str = injections[i];
+  while (*str) {
+    char c = *str++;
+    if (c != '\u0024') {
+      buf = lean_string_push(buf, c);
+      continue;
+    }
+    c = *str++;
+    if (c == '1') {
+      // Print hashes
+      for (size_t j = 0; j < count; j++) {
+        lean_object *repr = l_Nat_reprFast(lean_uint64_to_nat(hashes[j]));
+        buf = lean_string_append(buf, repr);
+        buf = lean_string_push(buf, ',');
+        lean_dec(repr);
+      }
+    } else if (c == '2') {
+      // Print injections
+      for (size_t j = 0; j < count; j++) {
+        buf = lean_string_push(buf, '"');
+        const char *str2 = injections[j];
+        while (*str2) {
+          c = *str2++;
+          if (c == '\n') {
+            buf = lean_string_push(buf, '\\');
+            buf = lean_string_push(buf, 'n');
+            buf = lean_string_push(buf, '"');
+            buf = lean_string_push(buf, '\n');
+            buf = lean_string_push(buf, '"');
+          } else if (c == '"') {
+            buf = lean_string_push(buf, '\\');
+            buf = lean_string_push(buf, '"');
+          } else if (c == '\\') {
+            buf = lean_string_push(buf, '\\');
+            buf = lean_string_push(buf, '\\');
+          } else {
+            buf = lean_string_push(buf, c);
+          }
+        }
+        buf = lean_string_push(buf, '"');
+        buf = lean_string_push(buf, ',');
+        buf = lean_string_push(buf, '\n');
+      }
+    } else if (c == '3') {
+      // Emit the actual code
+      lean_object* new_state = lean_alloc_ctor(0, 4, 0);
+      lean_ctor_set(new_state, 0, buf);
+      lean_ctor_set(new_state, 1, cache1);
+      lean_ctor_set(new_state, 2, cache2);
+      lean_ctor_set(new_state, 3, cache3);
+      lean_st_ref_set(v_a_15571_, new_state);
+      lean_object *code = lean_ctor_get(lean_ctor_get(v_decl_15569_, 1), 0);
+      lean_object *decl_name = lean_ctor_get(lean_ctor_get(v_decl_15569_, 0), 0);
+      lean_object *decl_params = lean_ctor_get(lean_ctor_get(v_decl_15569_, 0), 3);
+      lean_object *ctx_local_decls = lean_ctor_get(v_a_15570_, 0);
+      lean_object *ctx_other_module_decls = lean_ctor_get(v_a_15570_, 1);
+      lean_object *ctx_mod_name = lean_ctor_get(v_a_15570_, 2);
+      lean_object *new_ctx = lean_alloc_ctor(0, 5, 0);
+      lean_inc(ctx_local_decls);
+      lean_inc(ctx_other_module_decls);
+      lean_inc(ctx_mod_name);
+      lean_inc(decl_name);
+      lean_inc(decl_params);
+      lean_ctor_set(new_ctx, 0, ctx_local_decls);
+      lean_ctor_set(new_ctx, 1, ctx_other_module_decls);
+      lean_ctor_set(new_ctx, 2, ctx_mod_name);
+      lean_ctor_set(new_ctx, 3, decl_name);
+      lean_ctor_set(new_ctx, 4, decl_params);
+      lean_inc(code);
+      lean_inc(v_a_15571_);
+      lean_inc(v_a_15572_);
+      lean_inc(v_a_15573_);
+      lean_inc(v_a_15574_);
+      lean_inc(v_a_15575_);
+      lean_dec(l___private_Lean_Compiler_LCNF_EmitC_0__Lean_Compiler_LCNF_emitCode(code, new_ctx, v_a_15571_, v_a_15572_, v_a_15573_, v_a_15574_, v_a_15575_));
+      state = lean_st_ref_take(v_a_15571_);
+      buf = lean_ctor_get(state, 0);
+      cache1 = lean_ctor_get(state, 1);
+      cache2 = lean_ctor_get(state, 2);
+      cache3 = lean_ctor_get(state, 3);
+      lean_inc(buf);
+      lean_inc(cache1);
+      lean_inc(cache2);
+      lean_inc(cache3);
+      lean_dec(state);
+    } else {
+      // Print the name of the nth parameter
+      unsigned n = c - 'A';
+      lean_object *nm = lean_ctor_get(lean_array_get_core(lean_ctor_get(lean_ctor_get(v_decl_15569_, 0), 3), n), 1);
+      lean_object *prefix = lean_mk_ascii_string_unchecked("v_");
+      lean_inc(nm);
+      lean_object *mangled = l_Lean_Name_mangle(nm, prefix);
+      buf = lean_string_append(buf, mangled);
+      lean_dec(mangled);
+    }
+  }
+  // Construct the new state
+  lean_object* new_state = lean_alloc_ctor(0, 4, 0);
+  lean_ctor_set(new_state, 0, buf);
+  lean_ctor_set(new_state, 1, cache1);
+  lean_ctor_set(new_state, 2, cache2);
+  lean_ctor_set(new_state, 3, cache3);
+  lean_st_ref_set(v_a_15571_, new_state);
+  // Cleanup and return
+  lean_dec(v_decl_15569_);
+  lean_dec(v_a_15570_);
+  lean_dec(v_a_15571_);
+  lean_dec(v_a_15572_);
+  lean_dec(v_a_15573_);
+  lean_dec(v_a_15574_);
+  lean_dec(v_a_15575_);
+  return lean_io_result_mk_ok(lean_box(0));
+}
+{
 lean_object* v___y_15578_; lean_object* v___y_15579_; lean_object* v___y_15580_; lean_object* v___x_15618_; lean_object* v_toSignature_15619_; lean_object* v_env_15620_; lean_object* v_value_15621_; lean_object* v_name_15622_; lean_object* v_type_15623_; lean_object* v_params_15624_; lean_object* v___y_15626_; lean_object* v___y_15627_; lean_object* v___y_15628_; lean_object* v___y_15629_; lean_object* v___y_15630_; lean_object* v___y_15631_; lean_object* v___y_15632_; lean_object* v___y_15633_; uint8_t v___y_15634_; lean_object* v___y_15671_; lean_object* v___y_15672_; lean_object* v___y_15673_; lean_object* v___y_15674_; lean_object* v___y_15675_; lean_object* v___y_15676_; lean_object* v___y_15677_; lean_object* v___y_15683_; lean_object* v___y_15684_; lean_object* v___y_15685_; lean_object* v___y_15686_; lean_object* v___y_15687_; lean_object* v___y_15688_; lean_object* v___y_15689_; lean_object* v___y_15706_; lean_object* v___y_15707_; lean_object* v___y_15708_; lean_object* v___y_15709_; lean_object* v___y_15710_; lean_object* v___y_15711_; lean_object* v___y_15712_; lean_object* v___y_15713_; lean_object* v___y_15714_; uint8_t v___y_15715_; lean_object* v___y_15733_; lean_object* v___y_15734_; lean_object* v___y_15735_; lean_object* v___y_15736_; lean_object* v___y_15737_; lean_object* v___y_15738_; lean_object* v___y_15739_; lean_object* v___y_15740_; lean_object* v___y_15746_; lean_object* v___y_15747_; lean_object* v___y_15748_; lean_object* v___y_15749_; lean_object* v___y_15750_; lean_object* v___y_15751_; lean_object* v___y_15752_; lean_object* v___y_15753_; uint8_t v___y_15842_; uint8_t v___x_15899_; 
 v___x_15618_ = lean_st_ref_get(v_a_15575_);
 v_toSignature_15619_ = lean_ctor_get(v_decl_15569_, 0);
@@ -49738,6 +50011,7 @@ v___x_15897_ = lean_box(0);
 v___x_15898_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_15898_, 0, v___x_15897_);
 return v___x_15898_;
+}
 }
 }
 }

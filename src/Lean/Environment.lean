@@ -112,6 +112,10 @@ namespace ExtensionStates
 @[inline] def push (s : ExtensionStates) (v : EnvExtensionState) : ExtensionStates :=
   { s with base := s.base.push v }
 
+/-- Set directly in the base array, bypassing the overlay. For use during import initialization. -/
+@[inline] def setBase (s : ExtensionStates) (i : Nat) (v : EnvExtensionState) : ExtensionStates :=
+  { s with base := s.base.set! i v }
+
 /-- Modify directly in the base array, bypassing the overlay. For use during import initialization. -/
 @[inline] def modifyBase [Inhabited EnvExtensionState] (s : ExtensionStates) (i : Nat) (f : EnvExtensionState → EnvExtensionState) : ExtensionStates :=
   { s with base := s.base.modify i f }
@@ -1374,6 +1378,13 @@ private unsafe def modifyStateImpl {σ : Type} (ext : EnvExtension σ) (exts : E
   else
     panic! invalidExtMsg
 
+/-- Like `setStateImpl` but writes directly to the base array. For use during import initialization. -/
+private unsafe def setStateBaseImpl {σ} (ext : EnvExtension σ) (exts : ExtensionStates) (s : σ) : ExtensionStates :=
+  if ext.idx < exts.size then
+    exts.setBase ext.idx (unsafeCast s)
+  else
+    panic! invalidExtMsg
+
 /-- Like `modifyStateImpl` but writes directly to the base array. For use during import initialization. -/
 private unsafe def modifyStateBaseImpl {σ : Type} (ext : EnvExtension σ) (exts : ExtensionStates) (f : σ → σ) : ExtensionStates :=
   if ext.idx < exts.size then
@@ -1454,6 +1465,15 @@ different environment branches are reconciled.
 -/
 def setState {σ : Type} (ext : EnvExtension σ) (env : Environment) (s : σ) (asyncMode := ext.asyncMode) : Environment :=
   inline <| modifyState (asyncMode := asyncMode) ext env fun _ => s
+
+/--
+Like `setState` but writes directly to the base array, bypassing the overlay.
+For use during import initialization only (before any forking occurs).
+-/
+def setStateBase {σ : Type} (ext : EnvExtension σ) (env : Environment) (s : σ) : Environment :=
+  -- safety: `ext`'s constructor is private, so we can assume the entry at `ext.idx` is of type `σ`
+  env.modifyCheckedAsync fun env =>
+    { env with extensions := unsafe ext.setStateBaseImpl env.extensions s }
 
 -- `unsafe` fails to infer `Nonempty` here
 private unsafe def getStateUnsafe {σ : Type} [Inhabited σ] (ext : EnvExtension σ)
@@ -1953,7 +1973,7 @@ where
       let prevSize := (← persistentEnvExtensionsRef.get).size
       let prevAttrSize ← getNumBuiltinAttributes
       let newState ← extDescr.addImportedFn s.importedEntries { env := env, opts := opts }
-      let mut env := extDescr.toEnvExtension.setState (asyncMode := .sync) env { s with state := newState }
+      let mut env := extDescr.toEnvExtension.setStateBase env { s with state := newState }
       if extDescr.name == `Lean.regularInitAttr then
         -- Run `[init]` attributes now. We do this after `setState` so `runInitAttrs` can access
         -- `getModule(IR)Entries` but we should also do it before attempting to run user-defined
@@ -2442,6 +2462,8 @@ def displayStats (env : Environment) : IO Unit := do
   IO.println ("number of buckets for imported consts: " ++ toString env.constants.numBuckets);
   IO.println ("trust level:                           " ++ toString env.header.trustLevel);
   IO.println ("number of extensions:                  " ++ toString env.base.private.extensions.size);
+  let overlayCount := env.base.private.extensions.overlay.foldl (fun n _ _ => n + 1) 0
+  IO.println ("extensions in overlay:                 " ++ toString overlayCount);
   pExtDescrs.forM fun extDescr => do
     IO.println ("extension '" ++ toString extDescr.name ++ "'")
     -- get state from `checked` at the end if `async`; it would otherwise panic

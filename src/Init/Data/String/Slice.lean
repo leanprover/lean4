@@ -945,7 +945,6 @@ Examples:
  * {lean}`"123_".toSlice.isNat = false`
  * {lean}`"12__34".toSlice.isNat = false`
 -/
-@[inline]
 def isNat (s : Slice) : Bool := Id.run do
   let mut lastWasDigit := false
 

@@ -205,7 +205,7 @@ macro:1 x:grind tk:" <;> " y:grind:2 : grind => `(grind|
     with_annotate_state $tk skip
     all_goals $y:grind)
 
-/-- `first | tac | ...` runs each `tac` until one succeeds, or else fails. -/
+/-- `first (tac) ...` runs each `tac` until one succeeds, or else fails. -/
 syntax (name := first) "first " withPosition((ppDedent(ppLine) colGe "(" grindSeq ")")+) : grind
 
 /-- `try tac` runs `tac` and succeeds even if `tac` failed. -/

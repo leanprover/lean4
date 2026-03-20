@@ -47,13 +47,14 @@ structure LinearCombo where
   coeffs : Coeffs := []
 deriving DecidableEq, Repr
 
+namespace LinearCombo
+
 private def join (l : List String) : String :=
   l.foldl (init := "") (fun sofar next => String.Internal.append sofar next)
 
 instance : ToString LinearCombo where
   toString lc := private
     s!"{lc.const}{join <| lc.coeffs.toList.zipIdx.map fun ⟨c, i⟩ => s!" + {c} * x{i+1}"}"
-namespace LinearCombo
 
 instance : Inhabited LinearCombo := ⟨{const := 1}⟩
 

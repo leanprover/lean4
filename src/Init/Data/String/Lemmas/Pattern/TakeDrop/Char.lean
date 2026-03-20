@@ -40,6 +40,10 @@ theorem startsWith_char_eq_head? {c : Char} {s : Slice} :
   simp only [← toList_inj, toList_append, toList_singleton, List.cons_append, List.nil_append]
   cases h : s.copy.toList <;> simp_all [← ofList_inj]
 
+theorem eq_append_of_dropPrefix?_char_eq_some {c : Char} {s res : Slice} (h : s.dropPrefix? c = some res) :
+    s.copy = singleton c ++ res.copy := by
+  simpa [ForwardPatternModel.Matches] using Pattern.Model.eq_append_of_dropPrefix?_eq_some h
+
 end Slice
 
 theorem skipPrefix?_char_eq_some_iff {c : Char} {s : String} {pos : s.Pos} :
@@ -58,5 +62,10 @@ theorem startsWith_char_eq_false_iff_get {c : Char} {s : String} :
 theorem startsWith_char_eq_head? {c : Char} {s : String} :
     s.startsWith c = (s.toList.head? == some c) := by
   simp [startsWith_eq_startsWith_toSlice, Slice.startsWith_char_eq_head?]
+
+theorem eq_append_of_dropPrefix?_char_eq_some {c : Char} {s : String} {res : Slice} (h : s.dropPrefix? c = some res) :
+    s = singleton c ++ res.copy := by
+  rw [dropPrefix?_eq_dropPrefix?_toSlice] at h
+  simpa using Slice.eq_append_of_dropPrefix?_char_eq_some h
 
 end String

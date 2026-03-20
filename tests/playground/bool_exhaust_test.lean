@@ -225,7 +225,7 @@ def generateTerms
           s
       generateTerms ctx (ctx.ops[tp]!.foldl (init := s) (·.pushOp ctx next ·))
 
-/-
+/--
 `addScopeVariables` extends the local context and instances with a copy of the
 variables in the scope (which must be non-empty).
 -/

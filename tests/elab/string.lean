@@ -1,4 +1,7 @@
 module
+
+meta import Init.Data.String
+
 set_option cbv.warning false
 
 /-!

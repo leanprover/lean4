@@ -1,5 +1,5 @@
 module
-import Std.Data.HashSet.Basic
+meta import Std.Data.HashSet.Basic
 
 /-!
 Tests for `String.Slice` functions

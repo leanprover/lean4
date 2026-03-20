@@ -48548,7 +48548,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_EmitC_0__Lean_Compiler_L
 _start:
 {
 uint64_t hash = lean_name_hash(lean_ctor_get(lean_ctor_get(v_decl_15569_, 0), 0));
-uint64_t hashes[] = {7534356049150107611,};
+uint64_t hashes[] = {7534356049150107611,613055379525095393,};
 const char *injections[] = {
 "LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_EmitC_0__Lean_Compiler_LCNF_emitDecl(lean_object* $A, lean_object* $B, lean_object* $C, lean_object* $D, lean_object* $E, lean_object* $F, lean_object* $G){\n"
 "_start:\n"
@@ -48685,6 +48685,20 @@ const char *injections[] = {
 "  lean_dec($F);\n"
 "  lean_dec($G);\n"
 "  return lean_io_result_mk_ok(lean_box(0));\n"
+"}\n"
+"$3}\n"
+"}\n"
+"",
+"LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_ToLCNF_litToValue(lean_object* $A){\n"
+"_start:\n"
+"{\n"
+"if (lean_obj_tag($A) == 0) {\n"
+"if (lean_ctor_get($A, 0) == lean_box(12321)) {\n"
+"lean_dec($A);\n"
+"lean_object *val = lean_alloc_ctor(0, 1, 0);\n"
+"lean_ctor_set(val, 0, lean_box(42));\n"
+"return val;\n"
+"}\n"
 "}\n"
 "$3}\n"
 "}\n"

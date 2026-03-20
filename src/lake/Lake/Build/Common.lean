@@ -574,7 +574,7 @@ public def resolveArtifact
   match (← getMTime path |>.toBaseIO) with
   | .ok mtime =>
     return {descr, path, mtime}
-  | .error (.noFileOrDirectory ..) =>
+  | .error (.noFileOrDirectory ..) => withLogErrorPos do
     -- we redownload artifacts on any error
     if let some service := service? then
       updateAction .fetch

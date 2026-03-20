@@ -558,9 +558,10 @@ public def downloadArtifactCore (hash : Hash) (url : String) (path : FilePath) :
   download url path
   let actualHash ← computeFileHash path
   if actualHash != hash then
-    logError s!"{path}: downloaded artifact does not have the expected hash"
+    let errPos ← getLogPos
+    logError s!"{path}: downloaded artifact hash mismatch, got {actualHash}"
     IO.FS.removeFile path
-    failure
+    throw errPos
 
 /-- Uploads a file to an online bucket using the Amazon S3 protocol. -/
 def uploadS3

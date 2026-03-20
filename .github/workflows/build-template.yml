@@ -200,8 +200,8 @@ jobs:
         if: matrix.name == 'Linux Lake' && !cancelled() && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
         run: |
           cd src
-          ../build/stage0/bin/lake build -o build/lake-mappings.jsonl
-          ../build/stage0/bin/lake cache put build/lake-mappings.jsonl --repo=${{ github.repository }}
+          ../build/stage0/bin/lake build -o ../build/lake-mappings.jsonl
+          ../build/stage0/bin/lake cache put ../build/lake-mappings.jsonl --repo=${{ github.repository }}
         env:
           LAKE_CACHE_KEY: ${{ secrets.LAKE_CACHE_KEY }}
           LAKE_CACHE_ARTIFACT_ENDPOINT: ${{ secrets.LAKE_CACHE_ENDPOINT }}/a1

@@ -199,6 +199,7 @@ jobs:
         # shutdown. Also, since this needs access to secrets, it cannot be run on forks.
         if: matrix.name == 'Linux Lake' && !cancelled() && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
         run: |
+          curl --version
           cd src
           ../build/stage0/bin/lake build -o ../build/lake-mappings.jsonl
           ../build/stage1/bin/lake cache put ../build/lake-mappings.jsonl --repo=${{ github.repository }}

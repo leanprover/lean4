@@ -701,8 +701,9 @@ public def uploadArtifact
 /-! ## Multi-Artifact Transfer -/
 
 private inductive TransferKind
-| get
-| put
+  | get
+  | put
+  deriving DecidableEq
 
 private structure TransferInfo where
   url : String
@@ -719,7 +720,7 @@ private structure TransferState where
   numSuccesses : Nat := 0
 
 private partial def monitorTransferLoop
-  (cfg : TransferConfig) (h : IO.FS.Handle) (s : TransferState)
+  (cfg : TransferConfig) (h hOut : IO.FS.Handle) (s : TransferState)
 : LoggerIO TransferState := do
   let line ← h.getLine
   if line.trimAscii.isEmpty then
@@ -728,48 +729,61 @@ private partial def monitorTransferLoop
     let s ← (·.2) <$> StateT.run (s := s) do
       match Json.parse line >>= fromJson? with
       | .ok (res : JsonObject) =>
-        let some {url, path, descr} := getInfo? res
+        let some info@{url, path, descr} := getInfo? res
           | logError s!"{cfg.scope}: unidentifiable transfer completed: {line.trimAscii}"
             modify ({· with didError := true})
             return
         match res.get "http_code" with
         | .ok 200
         | .ok 201 =>
-          let action := match cfg.kind with | .get => "downloaded" | .put => "uploaded"
-          logInfo s!"{cfg.scope}: {action} artifact {descr.hash}\
-            \n  local path: {path}\
-            \n  remote URL: {url}"
-          let actualHash ← computeFileHash path
-          if actualHash != descr.hash then
-            logError s!"downloaded artifact does not have the expected hash"
-            IO.FS.removeFile path
-            modify ({· with didError := true})
-          else
+          match cfg.kind with
+          | .get =>
+            logInfo s!"{cfg.scope}: downloaded artifact {descr.hash}\
+              \n  local path: {path}\
+              \n  remote URL: {url}"
+            let actualHash ← computeFileHash path
+            if actualHash != descr.hash then
+              logError s!"{path}: downloaded artifact hash mismatch, got {actualHash}"
+              IO.FS.removeFile path
+              modify ({· with didError := true})
+            else
+              modify fun s => {s with numSuccesses := s.numSuccesses + 1}
+          | .put =>
+            logInfo s!"{cfg.scope}: uploaded artifact {descr.hash}\
+              \n  local path: {path}\
+              \n  remote URL: {url}"
             modify fun s => {s with numSuccesses := s.numSuccesses + 1}
         | code? =>
-          let msg? := res.getAs String "errormsg"
-          logError (mkFailureMsg descr.hash code? msg?)
-          if cfg.kind matches .get then
+          logFailure info code? res line
+          if cfg.kind = .get then
             -- `curl --remove-on-error` can already do this, but only from 7.83 onwards
             removeFileIfExists path
           modify ({· with didError := true})
       | .error e =>
         logError s!"curl produced invalid JSON: {e}; received: {line.trimAscii}"
         modify ({· with didError := true})
-    monitorTransferLoop cfg h s
+    monitorTransferLoop cfg h hOut s
 where
   getInfo? res :=
     match res.getAs Nat "urlnum" with
     | .ok i => cfg.infos[i]?
     | _ => none
-  mkFailureMsg hash code?  msg? : String := Id.run do
+  logFailure info code? res line : LoggerIO Unit := do
     let action := match cfg.kind with | .get => "download" | .put => "upload"
-    let mut msg := s!"{cfg.scope}: failed to {action} artifact {hash}"
+    let mut msg := s!"{cfg.scope}: failed to {action} artifact {info.descr.hash}"
     if let .ok code := code? then
       msg := s!"{msg} (status code: {code})"
-    if let .ok errMsg := msg? then
-      msg := s!"{msg}: {errMsg}"
-    return msg
+    if let .ok errMsg := res.getAs String "errormsg" then
+      msg := s!"{msg}\n  curl error: {errMsg}"
+    msg := s!"{msg}\
+      \n  local path: {info.path}\
+      \n  remote URL: {info.url}"
+    if let .ok size := res.getAs Nat "size_download" then
+      if size > 0 then
+        if let some s := String.fromUTF8? (← hOut.read size.toUSize) then
+          msg := s!"{msg}\nunexpected response:\n{s}"
+    msg := s!"{msg}\ncurl JSON:\n{line.trimAsciiEnd}"
+    logError msg
 
 private def monitorTransfer
   (cfg : TransferConfig) (args : Array String)
@@ -778,7 +792,7 @@ private def monitorTransfer
     cmd := "curl", args
     stdout := .piped, stderr := .piped
   }
-  let s ← monitorTransferLoop cfg child.stderr {}
+  let s ← monitorTransferLoop cfg child.stderr child.stdout {}
   let rc ← child.wait
   let stdout ← child.stdout.readToEnd
   let mut didError := s.didError

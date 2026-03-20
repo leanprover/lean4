@@ -126,9 +126,11 @@ error: Invalid pattern: Expected a constructor or constant marked with `[match_p
 
 Hint: Using one of these would be valid:
   [apply] `Std.DHashMap.Internal.AssocList.cons`
+  [apply] `String.Internal.SimpEq.ListStructure.cons`
   [apply] `List.Pairwise.cons`
   [apply] `Lean.Grind.AC.Seq.cons`
   [apply] `List.Lex.cons`
+  [apply] `String.Internal.SimpEq.Cancellation.cons`
   [apply] `List.Sublist.below.cons`
   [apply] `List.Perm.cons`
   [apply] `List.Sublist.cons`
@@ -158,9 +160,11 @@ error: Invalid pattern: Expected a constructor or constant marked with `[match_p
 
 Hint: Using one of these would be valid:
   [apply] `Std.DHashMap.Internal.AssocList.cons`
+  [apply] `String.Internal.SimpEq.ListStructure.cons`
   [apply] `List.Pairwise.cons`
   [apply] `Lean.Grind.AC.Seq.cons`
   [apply] `List.Lex.cons`
+  [apply] `String.Internal.SimpEq.Cancellation.cons`
   [apply] `List.Sublist.below.cons`
   [apply] `List.Perm.cons`
   [apply] `List.Sublist.cons`

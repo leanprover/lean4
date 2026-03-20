@@ -110,7 +110,7 @@ theorem startsWith_prop_eq_head? {P : Char → Prop} [DecidablePred P] {s : Stri
     s.startsWith P = s.toList.head?.any (decide <| P ·) := by
   simp [startsWith_eq_startsWith_toSlice, Slice.startsWith_prop_eq_head?]
 
-theorem eq_append_of_dropPrefix?_prop_beq_some {P : Char → Prop} [DecidablePred P] {s : String} {res : Slice}
+theorem eq_append_of_dropPrefix?_prop_eq_some {P : Char → Prop} [DecidablePred P] {s : String} {res : Slice}
     (h : s.dropPrefix? P = some res) : ∃ c, s = singleton c ++ res.copy ∧ P c := by
   rw [dropPrefix?_eq_dropPrefix?_toSlice] at h
   simpa using Slice.eq_append_of_dropPrefix_prop_eq_some h

@@ -232,8 +232,7 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
       assert! matchInfo.altInfos == splitterAltInfos
       -- This match statement does not need a splitter, we can use itself for that.
       -- (We still have to generate a declaration to satisfy the realizable constant)
-      setInlineAttribute splitterName
-      addAndCompile (logCompileErrors := false) <| Declaration.defnDecl {
+      let decl := Declaration.defnDecl {
         name        := splitterName
         levelParams := constInfo.levelParams
         type        := constInfo.type
@@ -241,6 +240,9 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
         hints       := .abbrev
         safety      := .safe
       }
+      addDecl decl
+      setInlineAttribute splitterName
+      compileDecl (logErrors := false) decl
     let result := { eqnNames, splitterName, splitterMatchInfo }
     registerMatchEqns matchDeclName result
 

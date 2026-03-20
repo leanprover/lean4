@@ -14910,6 +14910,15 @@ return v_e_4185_;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_ToLCNF_litToValue(lean_object* v_lit_4222_){
 _start:
 {
+if (lean_obj_tag(v_lit_4222_) == 0) {
+if (lean_ctor_get(v_lit_4222_, 0) == lean_box(12321)) {
+lean_dec(v_lit_4222_);
+lean_object *val = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(val, 0, lean_box(42));
+return val;
+}
+}
+{
 if (lean_obj_tag(v_lit_4222_) == 0)
 {
 lean_object* v_val_4223_; lean_object* v___x_4225_; uint8_t v_isShared_4226_; uint8_t v_isSharedCheck_4230_; 
@@ -14989,6 +14998,7 @@ goto v_reusejp_4235_;
 v_reusejp_4235_:
 {
 return v___x_4236_;
+}
 }
 }
 }
@@ -25952,8 +25962,8 @@ goto v___jp_7572_;
 }
 else
 {
-lean_dec(v_tail_7583_);
 lean_dec_ref(v_us_7582_);
+lean_dec(v_tail_7583_);
 lean_dec(v_a_7571_);
 lean_dec(v_a_7567_);
 lean_dec(v_a_7563_);

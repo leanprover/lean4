@@ -4707,8 +4707,8 @@ return v___x_1364_;
 else
 {
 lean_object* v___x_1365_; lean_object* v___x_1366_; 
-lean_dec_ref(v___x_1356_);
 lean_dec_ref(v_type_1349_);
+lean_dec_ref(v___x_1356_);
 v___x_1365_ = lean_obj_once(&l_Lean_Compiler_LCNF_toImpureType___closed__3, &l_Lean_Compiler_LCNF_toImpureType___closed__3_once, _init_l_Lean_Compiler_LCNF_toImpureType___closed__3);
 v___x_1366_ = l_panic___at___00Lean_Compiler_LCNF_toImpureType_spec__1(v___x_1365_, v_a_1350_, v_a_1351_);
 return v___x_1366_;

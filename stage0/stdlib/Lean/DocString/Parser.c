@@ -16018,8 +16018,8 @@ goto v___jp_5765_;
 }
 else
 {
-lean_dec_ref(v_kind_5781_);
 lean_dec(v_pre_5782_);
+lean_dec_ref(v_kind_5781_);
 lean_dec(v___x_5777_);
 lean_dec_ref(v_a_5763_);
 lean_dec_ref(v_p_5762_);

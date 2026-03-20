@@ -3192,8 +3192,8 @@ goto v___jp_959_;
 v___jp_950_:
 {
 uint64_t v___x_954_; uint64_t v___x_955_; uint64_t v___x_956_; uint64_t v___x_957_; lean_object* v___x_958_; 
-v___x_954_ = lean_uint64_mix_hash(v___y_951_, v___y_953_);
-v___x_955_ = lean_uint64_mix_hash(v___y_952_, v___x_954_);
+v___x_954_ = lean_uint64_mix_hash(v___y_952_, v___y_953_);
+v___x_955_ = lean_uint64_mix_hash(v___y_951_, v___x_954_);
 v___x_956_ = lean_uint64_mix_hash(v___x_949_, v___x_955_);
 v___x_957_ = lean_uint64_mix_hash(v___x_948_, v___x_956_);
 v___x_958_ = lean_alloc_ctor(3, 3, 9);
@@ -3214,8 +3214,8 @@ case 0:
 {
 uint64_t v_hashCode_962_; 
 v_hashCode_962_ = lean_ctor_get_uint64(v_rhs_947_, sizeof(void*)*2);
-v___y_951_ = v___x_961_;
-v___y_952_ = v___y_960_;
+v___y_951_ = v___y_960_;
+v___y_952_ = v___x_961_;
 v___y_953_ = v_hashCode_962_;
 goto v___jp_950_;
 }
@@ -3223,8 +3223,8 @@ case 1:
 {
 uint64_t v_hashCode_963_; 
 v_hashCode_963_ = lean_ctor_get_uint64(v_rhs_947_, sizeof(void*)*2);
-v___y_951_ = v___x_961_;
-v___y_952_ = v___y_960_;
+v___y_951_ = v___y_960_;
+v___y_952_ = v___x_961_;
 v___y_953_ = v_hashCode_963_;
 goto v___jp_950_;
 }
@@ -3232,8 +3232,8 @@ case 3:
 {
 uint64_t v_hashCode_964_; 
 v_hashCode_964_ = lean_ctor_get_uint64(v_rhs_947_, sizeof(void*)*3);
-v___y_951_ = v___x_961_;
-v___y_952_ = v___y_960_;
+v___y_951_ = v___y_960_;
+v___y_952_ = v___x_961_;
 v___y_953_ = v_hashCode_964_;
 goto v___jp_950_;
 }
@@ -3241,8 +3241,8 @@ case 4:
 {
 uint64_t v_hashCode_965_; 
 v_hashCode_965_ = lean_ctor_get_uint64(v_rhs_947_, sizeof(void*)*3);
-v___y_951_ = v___x_961_;
-v___y_952_ = v___y_960_;
+v___y_951_ = v___y_960_;
+v___y_952_ = v___x_961_;
 v___y_953_ = v_hashCode_965_;
 goto v___jp_950_;
 }
@@ -3250,8 +3250,8 @@ case 5:
 {
 uint64_t v_hashCode_966_; 
 v_hashCode_966_ = lean_ctor_get_uint64(v_rhs_947_, sizeof(void*)*5);
-v___y_951_ = v___x_961_;
-v___y_952_ = v___y_960_;
+v___y_951_ = v___y_960_;
+v___y_952_ = v___x_961_;
 v___y_953_ = v_hashCode_966_;
 goto v___jp_950_;
 }
@@ -3259,8 +3259,8 @@ default:
 {
 uint64_t v_hashCode_967_; 
 v_hashCode_967_ = lean_ctor_get_uint64(v_rhs_947_, sizeof(void*)*4);
-v___y_951_ = v___x_961_;
-v___y_952_ = v___y_960_;
+v___y_951_ = v___y_960_;
+v___y_952_ = v___x_961_;
 v___y_953_ = v_hashCode_967_;
 goto v___jp_950_;
 }

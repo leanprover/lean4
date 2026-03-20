@@ -5080,8 +5080,8 @@ return v___x_1485_;
 }
 else
 {
-lean_dec(v_a_1486_);
 lean_dec_ref(v___x_1485_);
+lean_dec(v_a_1486_);
 v_p_1461_ = v_p_1484_;
 goto _start;
 }

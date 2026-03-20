@@ -2019,8 +2019,8 @@ if (v___x_742_ == 0)
 lean_dec_ref(v___x_741_);
 lean_dec(v_head_727_);
 lean_del_object(v___x_725_);
-lean_dec(v_head_723_);
 lean_dec_ref(v_tail_717_);
+lean_dec(v_head_723_);
 lean_dec_ref(v_alt_710_);
 lean_dec_ref(v_codomain_709_);
 lean_dec(v_u_708_);
@@ -2044,8 +2044,8 @@ lean_dec_ref(v___x_744_);
 lean_dec_ref(v_arg_743_);
 lean_dec(v_head_727_);
 lean_del_object(v___x_725_);
-lean_dec_ref(v_tail_717_);
 lean_dec(v_head_723_);
+lean_dec_ref(v_tail_717_);
 lean_dec_ref(v_alt_710_);
 lean_dec_ref(v_codomain_709_);
 lean_dec(v_u_708_);
@@ -2072,8 +2072,8 @@ lean_dec_ref(v_arg_746_);
 lean_dec_ref(v_arg_743_);
 lean_dec(v_head_727_);
 lean_del_object(v___x_725_);
-lean_dec_ref(v_tail_717_);
 lean_dec(v_head_723_);
+lean_dec_ref(v_tail_717_);
 lean_dec_ref(v_alt_710_);
 lean_dec_ref(v_codomain_709_);
 lean_dec(v_u_708_);
@@ -8615,15 +8615,15 @@ v___jp_3197_:
 {
 lean_object* v___x_3204_; lean_object* v___x_3205_; lean_object* v___x_3206_; 
 lean_inc(v_i_3185_);
-v___x_3204_ = l_List_get_x21Internal___redArg(v___x_3195_, v___y_3198_, v_i_3185_);
-lean_dec(v___y_3198_);
+v___x_3204_ = l_List_get_x21Internal___redArg(v___x_3195_, v___y_3199_, v_i_3185_);
+lean_dec(v___y_3199_);
 v___x_3205_ = l_Lean_Expr_bindingName_x21(v_a_3194_);
 lean_dec(v_a_3194_);
 lean_inc(v___y_3203_);
 lean_inc_ref(v___y_3202_);
 lean_inc(v___y_3201_);
 lean_inc_ref(v___y_3200_);
-v___x_3206_ = l_Lean_Meta_withLocalDeclD___at___00Lean_Meta_ArgsPacker_Unary_uncurryType_spec__1___redArg(v___x_3205_, v___x_3204_, v___y_3199_, v___y_3200_, v___y_3201_, v___y_3202_, v___y_3203_);
+v___x_3206_ = l_Lean_Meta_withLocalDeclD___at___00Lean_Meta_ArgsPacker_Unary_uncurryType_spec__1___redArg(v___x_3205_, v___x_3204_, v___y_3198_, v___y_3200_, v___y_3201_, v___y_3202_, v___y_3203_);
 if (lean_obj_tag(v___x_3206_) == 0)
 {
 lean_object* v_a_3207_; lean_object* v___x_3208_; lean_object* v___x_3209_; 
@@ -8721,8 +8721,8 @@ return v___x_3229_;
 }
 else
 {
-v___y_3198_ = v_a_3218_;
-v___y_3199_ = v___f_3219_;
+v___y_3198_ = v___f_3219_;
+v___y_3199_ = v_a_3218_;
 v___y_3200_ = v___y_3212_;
 v___y_3201_ = v___y_3213_;
 v___y_3202_ = v___y_3214_;

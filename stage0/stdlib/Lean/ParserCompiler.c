@@ -5652,7 +5652,7 @@ lean_inc(v_constName_2013_);
 v___x_2058_ = l_Lean_getConstInfo___at___00Lean_ParserCompiler_registerParserCompiler_spec__0(v_constName_2013_, v___y_2017_, v___y_2018_);
 if (lean_obj_tag(v___x_2058_) == 0)
 {
-lean_object* v_a_2059_; lean_object* v___x_2060_; lean_object* v___y_2062_; uint8_t v___y_2063_; uint8_t v___y_2064_; uint8_t v___y_2065_; lean_object* v___x_2068_; uint8_t v___y_2070_; uint8_t v___x_2120_; 
+lean_object* v_a_2059_; lean_object* v___x_2060_; uint8_t v___y_2062_; lean_object* v___y_2063_; uint8_t v___y_2064_; uint8_t v___y_2065_; lean_object* v___x_2068_; uint8_t v___y_2070_; uint8_t v___x_2120_; 
 v_a_2059_ = lean_ctor_get(v___x_2058_, 0);
 lean_inc(v_a_2059_);
 lean_dec_ref(v___x_2058_);
@@ -5680,10 +5680,10 @@ v___jp_2061_:
 if (v___y_2065_ == 0)
 {
 lean_object* v___x_2066_; lean_object* v___x_2067_; 
-lean_dec_ref(v___y_2062_);
+lean_dec_ref(v___y_2063_);
 v___x_2066_ = ((lean_object*)(l_Lean_ParserCompiler_registerParserCompiler___redArg___lam__0___closed__9));
 v___x_2067_ = l_Lean_evalConstCheck___at___00Lean_ParserCompiler_registerParserCompiler_spec__1___redArg(v___x_2066_, v_constName_2013_, v___y_2017_, v___y_2018_);
-v___y_2021_ = v___y_2063_;
+v___y_2021_ = v___y_2062_;
 v___y_2022_ = v___y_2064_;
 v___y_2023_ = v___x_2067_;
 goto v___jp_2020_;
@@ -5691,9 +5691,9 @@ goto v___jp_2020_;
 else
 {
 lean_dec(v_constName_2013_);
-v___y_2021_ = v___y_2063_;
+v___y_2021_ = v___y_2062_;
 v___y_2022_ = v___y_2064_;
-v___y_2023_ = v___y_2062_;
+v___y_2023_ = v___y_2063_;
 goto v___jp_2020_;
 }
 }
@@ -5915,8 +5915,8 @@ if (v___x_2118_ == 0)
 {
 uint8_t v___x_2119_; 
 v___x_2119_ = l_Lean_Exception_isRuntime(v_a_2117_);
-v___y_2062_ = v___x_2116_;
-v___y_2063_ = v___y_2070_;
+v___y_2062_ = v___y_2070_;
+v___y_2063_ = v___x_2116_;
 v___y_2064_ = v___x_2071_;
 v___y_2065_ = v___x_2119_;
 goto v___jp_2061_;
@@ -5924,8 +5924,8 @@ goto v___jp_2061_;
 else
 {
 lean_dec(v_a_2117_);
-v___y_2062_ = v___x_2116_;
-v___y_2063_ = v___y_2070_;
+v___y_2062_ = v___y_2070_;
+v___y_2063_ = v___x_2116_;
 v___y_2064_ = v___x_2071_;
 v___y_2065_ = v___x_2118_;
 goto v___jp_2061_;

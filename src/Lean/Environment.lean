@@ -81,6 +81,50 @@ opaque EnvExtensionStateSpec : (α : Type) × Inhabited α := ⟨Unit, ⟨()⟩�
 @[expose] def EnvExtensionState : Type := EnvExtensionStateSpec.fst
 instance : Inhabited EnvExtensionState := EnvExtensionStateSpec.snd
 
+/--
+Sparse copy-on-write container for environment extension states.
+Stores an immutable base array (shared across forks) and a small persistent overlay
+of modifications. Reads check the overlay first, falling back to the base.
+-/
+structure ExtensionStates where
+  /-- Immutable base state, typically set at import time. -/
+  base    : Array EnvExtensionState
+  /-- Sparse overlay of modified extensions. -/
+  overlay : Lean.PersistentHashMap Nat EnvExtensionState := {}
+  deriving Inhabited
+
+namespace ExtensionStates
+
+@[inline] def size (s : ExtensionStates) : Nat := s.base.size
+
+@[inline] def get (s : ExtensionStates) (i : Nat) (h : i < s.size) : EnvExtensionState :=
+  s.overlay.find? i |>.getD s.base[i]
+
+@[inline] def get! [Inhabited EnvExtensionState] (s : ExtensionStates) (i : Nat) : EnvExtensionState :=
+  s.overlay.find? i |>.getD s.base[i]!
+
+@[inline] def set (s : ExtensionStates) (i : Nat) (v : EnvExtensionState) : ExtensionStates :=
+  { s with overlay := s.overlay.insert i v }
+
+@[inline] def modify [Inhabited EnvExtensionState] (s : ExtensionStates) (i : Nat) (f : EnvExtensionState → EnvExtensionState) : ExtensionStates :=
+  { s with overlay := s.overlay.insert i (f (s.get! i)) }
+
+@[inline] def push (s : ExtensionStates) (v : EnvExtensionState) : ExtensionStates :=
+  { s with base := s.base.push v }
+
+/-- Modify directly in the base array, bypassing the overlay. For use during import initialization. -/
+@[inline] def modifyBase [Inhabited EnvExtensionState] (s : ExtensionStates) (i : Nat) (f : EnvExtensionState → EnvExtensionState) : ExtensionStates :=
+  { s with base := s.base.modify i f }
+
+/-- Create from a plain array (no overlay). -/
+@[inline] def ofArray (arr : Array EnvExtensionState) : ExtensionStates :=
+  { base := arr }
+
+end ExtensionStates
+
+instance : GetElem ExtensionStates Nat EnvExtensionState fun s i => i < s.size where
+  getElem s i h := s.get i h
+
 @[expose] def ModuleIdx := Nat
   deriving BEq, ToString, Hashable
 
@@ -259,12 +303,12 @@ structure Environment where
   /--
   Environment extensions. It also includes user-defined extensions.
   -/
-  private extensions      : Array EnvExtensionState
+  private extensions      : ExtensionStates
   /--
   Additional imported environment extension state for the interpreter. Access via
   `getModuleIREntries`.
   -/
-  private irBaseExts      : Array EnvExtensionState
+  private irBaseExts      : ExtensionStates
   /-- The header contains additional information that is set at import time. -/
   header                  : EnvironmentHeader := private_decl% {}
 deriving Nonempty
@@ -440,7 +484,7 @@ private structure AsyncConst where
   Reported extension state eventually fulfilled by promise; may be missing for tasks (e.g. kernel
   checking, synchronous decl addition) that can eagerly guarantee they will not report any state.
   -/
-  exts?       : Option (Task (Array EnvExtensionState))
+  exts?       : Option (Task ExtensionStates)
   /--
   `Task AsyncConsts` except for problematic recursion. The set of nested constants created while
   elaborating this constant.
@@ -571,7 +615,7 @@ structure Environment where
   identical to `base.extensions` in other contexts. Access via
   `getModuleEntries (level := .server)`.
   -/
-  private serverBaseExts : Array EnvExtensionState := private_decl% base.private.extensions
+  private serverBaseExts : ExtensionStates := private_decl% base.private.extensions
   /--
   Kernel environment task that is fulfilled when all asynchronously elaborated declarations are
   finished, containing the resulting environment. Also collects the environment extension state of
@@ -944,7 +988,7 @@ def PromiseCheckedResult.commitChecked (res : PromiseCheckedResult) (env : Envir
 private structure ConstPromiseVal where
   privateConstInfo     : ConstantInfo
   exportedConstInfo    : ConstantInfo
-  exts                 : Array EnvExtensionState
+  exts                 : ExtensionStates
   nestedConsts         : VisibilityMap AsyncConsts
 deriving Nonempty
 
@@ -1301,10 +1345,10 @@ private builtin_initialize envExtensionsRef : IO.Ref (Array (EnvExtension EnvExt
   user-defined environment extensions. When this happens, we must adjust the size of the `env.extensions`.
   This method is invoked when processing `import`s.
 -/
-partial def ensureExtensionsArraySize (exts : Array EnvExtensionState) : IO (Array EnvExtensionState) := do
+partial def ensureExtensionsArraySize (exts : ExtensionStates) : IO ExtensionStates := do
   loop exts.size exts
 where
-  loop (i : Nat) (exts : Array EnvExtensionState) : IO (Array EnvExtensionState) := do
+  loop (i : Nat) (exts : ExtensionStates) : IO ExtensionStates := do
     let envExtensions ← envExtensionsRef.get
     if h : i < envExtensions.size then
       let s ← envExtensions[i].mkInitial
@@ -1315,34 +1359,40 @@ where
 
 private def invalidExtMsg := "invalid environment extension has been accessed"
 
-private unsafe def setStateImpl {σ} (ext : EnvExtension σ) (exts : Array EnvExtensionState) (s : σ) : Array EnvExtensionState :=
-  if h : ext.idx < exts.size then
+private unsafe def setStateImpl {σ} (ext : EnvExtension σ) (exts : ExtensionStates) (s : σ) : ExtensionStates :=
+  if ext.idx < exts.size then
     exts.set ext.idx (unsafeCast s)
   else
-    -- do not return an empty array on panic, avoiding follow-up out-of-bounds accesses
-    have : Inhabited (Array EnvExtensionState) := ⟨exts⟩
     panic! invalidExtMsg
 
-private unsafe def modifyStateImpl {σ : Type} (ext : EnvExtension σ) (exts : Array EnvExtensionState) (f : σ → σ) : Array EnvExtensionState :=
+private unsafe def modifyStateImpl {σ : Type} (ext : EnvExtension σ) (exts : ExtensionStates) (f : σ → σ) : ExtensionStates :=
   if ext.idx < exts.size then
     exts.modify ext.idx fun s =>
       let s : σ := unsafeCast s
       let s : σ := f s
       unsafeCast s
   else
-    -- do not return an empty array on panic, avoiding follow-up out-of-bounds accesses
-    have : Inhabited (Array EnvExtensionState) := ⟨exts⟩
     panic! invalidExtMsg
 
-private unsafe def getStateImpl {σ} [Inhabited σ] (ext : EnvExtension σ) (exts : Array EnvExtensionState) : σ :=
+/-- Like `modifyStateImpl` but writes directly to the base array. For use during import initialization. -/
+private unsafe def modifyStateBaseImpl {σ : Type} (ext : EnvExtension σ) (exts : ExtensionStates) (f : σ → σ) : ExtensionStates :=
+  if ext.idx < exts.size then
+    exts.modifyBase ext.idx fun s =>
+      let s : σ := unsafeCast s
+      let s : σ := f s
+      unsafeCast s
+  else
+    panic! invalidExtMsg
+
+private unsafe def getStateImpl {σ} [Inhabited σ] (ext : EnvExtension σ) (exts : ExtensionStates) : σ :=
   if h : ext.idx < exts.size then
     unsafeCast exts[ext.idx]
   else
     panic! invalidExtMsg
 
-def mkInitialExtStates : IO (Array EnvExtensionState) := do
+def mkInitialExtStates : IO ExtensionStates := do
   let exts ← envExtensionsRef.get
-  exts.mapM fun ext => ext.mkInitial
+  return .ofArray (← exts.mapM fun ext => ext.mkInitial)
 
 /--
 Checks whether `modifyState (asyncDecl := declName)` may be called on an async environment
@@ -1492,7 +1542,7 @@ def registerEnvExtension {σ : Type} (mkInitial : IO σ)
   EnvExtension.envExtensionsRef.modify fun exts => exts.push (unsafe unsafeCast ext)
   pure ext
 
-private def mkInitialExtensionStates : IO (Array EnvExtensionState) := EnvExtension.mkInitialExtStates
+private def mkInitialExtensionStates : IO ExtensionStates := EnvExtension.mkInitialExtStates
 
 @[export lean_mk_empty_environment]
 def mkEmptyEnvironment (trustLevel : UInt32 := 0) : IO Environment := do
@@ -1845,14 +1895,14 @@ def mkExtNameMap (startingAt : Nat) : IO (Std.HashMap Name Nat) := do
     result := result.insert descr.name i
   return result
 
-private def setImportedEntries (states : Array EnvExtensionState) (mods : Array ModuleData)
-    (startingAt : Nat := 0) : IO (Array EnvExtensionState) := do
+private def setImportedEntries (states : ExtensionStates) (mods : Array ModuleData)
+    (startingAt : Nat := 0) : IO ExtensionStates := do
   let mut states := states
   let extDescrs ← persistentEnvExtensionsRef.get
   /- For extensions starting at `startingAt`, ensure their `importedEntries` array have size `mods.size`. -/
   for extDescr in extDescrs[startingAt...*] do
-    -- safety: as in `modifyState`
-    states := unsafe extDescr.toEnvExtension.modifyStateImpl states fun s =>
+    -- safety: as in `modifyState`; write to base since this is import-time initialization
+    states := unsafe extDescr.toEnvExtension.modifyStateBaseImpl states fun s =>
       { s with importedEntries := .replicate mods.size #[] }
   /- For each module `mod`, and `mod.entries`, if the extension name is one of the extensions after `startingAt`, set `entries` -/
   let extNameIdx ← mkExtNameMap startingAt
@@ -1860,8 +1910,8 @@ private def setImportedEntries (states : Array EnvExtensionState) (mods : Array 
     let mod := mods[modIdx]
     for (extName, entries) in mod.entries do
       if let some entryIdx := extNameIdx[extName]? then
-        -- safety: as in `modifyState`
-        states := unsafe extDescrs[entryIdx]!.toEnvExtension.modifyStateImpl states fun s =>
+        -- safety: as in `modifyState`; write to base since this is import-time initialization
+        states := unsafe extDescrs[entryIdx]!.toEnvExtension.modifyStateBaseImpl states fun s =>
           { s with importedEntries := s.importedEntries.set! modIdx entries }
   return states
 

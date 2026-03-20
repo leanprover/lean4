@@ -41,6 +41,11 @@ For performance we:
   particular when `f` is partially applied we ensure that all arguments are owned.
 - When passing a parameter into a constructor we ensure it is passed as owned so we do not have
   to `inc` before calling the constructor.
+
+Furthermore, the performance related heuristics will be ignored if there is a user-defined
+borrow annotation. This allows the user to override the ABI of their function in exchange for
+potentially worse code in the function that is being analyzed. Doing so can benefit other functions
+that call the current one and thus reduce overall RC pressure.
 -/
 
 namespace Lean.Compiler.LCNF
@@ -56,11 +61,25 @@ inductive Key where
 
 end ParamMap
 
-abbrev ParamMap := Std.HashMap ParamMap.Key (Array (Param .impure))
+structure ParamMap where
+  map : Std.HashMap ParamMap.Key (Array (Param .impure)) := {}
+  /--
+  The set of fvars that were already annotated as borrowed before arriving at this pass. We try to
+  preserve the annotations here if possible.
+  -/
+  annoatedBorrows : Std.HashSet FVarId := {}
 
-/-- Mark parameters that take a reference as borrow -/
-def initBorrow (ps : Array (Param .impure)) : Array (Param .impure) :=
-  ps.map fun p => { p with borrow := p.type.isPossibleRef }
+namespace ParamMap
+
+@[inline]
+def insert (pm : ParamMap) (k : Key) (ps : Array (Param .impure)) : ParamMap :=
+  { pm with map := pm.map.insert k ps }
+
+@[inline]
+def erase (pm : ParamMap) (k : Key) : ParamMap :=
+  { pm with map := pm.map.erase k }
+
+end ParamMap
 
 abbrev InitM := StateRefT ParamMap CompilerM
 
@@ -73,7 +92,12 @@ where
       match decl.value with
       | .code code =>
         let exported := isExport (← getEnv) decl.name
-        modify fun m => m.insert (.decl decl.name) (initParamsIfNotExported exported decl.params)
+        modify fun m =>
+          { m with
+            map := m.map.insert (.decl decl.name) (initParamsIfNotExported exported decl.params),
+            annoatedBorrows := decl.params.foldl (init := m.annoatedBorrows) fun acc p =>
+              if p.borrow then acc.insert p.fvarId else acc
+          }
         goCode decl.name code
       | .extern .. => return ()
 
@@ -89,7 +113,12 @@ where
   goCode (declName : Name) (code : Code .impure) : InitM Unit := do
     match code with
     | .jp decl k =>
-      modify fun m => m.insert (.jp declName decl.fvarId) (initParams decl.params)
+      modify fun m =>
+        { m with
+          map := m.map.insert (.jp declName decl.fvarId) (initParams decl.params),
+          annoatedBorrows := decl.params.foldl (init := m.annoatedBorrows) fun acc p =>
+            if p.borrow then acc.insert p.fvarId else acc
+        }
       goCode declName decl.value
       goCode declName k
     | .cases cs => cs.alts.forM (·.forCodeM (goCode declName))
@@ -105,7 +134,7 @@ partial def apply (decls : Array (Decl .impure)) (map : ParamMap) : CompilerM (A
     match decl.value with
     | .code code =>
       let code ← go decl.name code
-      let newParams ← updateParams decl.params map[ParamMap.Key.decl decl.name]!
+      let newParams ← updateParams decl.params map.map[ParamMap.Key.decl decl.name]!
       return { decl with value := .code code, params := newParams }
     | _ => return decl
 where
@@ -119,7 +148,7 @@ where
   go (declName : Name) (code : Code .impure) : CompilerM (Code .impure) := do
     match code with
     | .jp decl k =>
-      let ps ← updateParams decl.params map[ParamMap.Key.jp declName decl.fvarId]!
+      let ps ← updateParams decl.params map.map[ParamMap.Key.jp declName decl.fvarId]!
       let decl ← decl.update decl.type ps (← go declName decl.value)
       return code.updateFun! decl (← go declName k)
     | .cases cs => return code.updateAlts! <| ← cs.alts.mapMonoM (·.mapCodeM (go declName))
@@ -166,8 +195,10 @@ inductive OwnReason where
   | constructorResult (resultFVar : FVarId)
   /-- Parameter packed into a constructor. -/
   | constructorArg (resultFVar : FVarId)
-  /-- Bidirectional ownership propagation through `oproj`. -/
-  | projectionPropagation (resultFVar : FVarId)
+  /-- Forward ownership propagation through `oproj`. -/
+  | forwardProjectionProp (resultFVar : FVarId)
+  /-- Backward ownership propagation through `oproj`. -/
+  | backwardProjectionProp (resultFVar : FVarId)
   /-- Result of a function application. -/
   | functionCallResult (resultFVar : FVarId)
   /-- Argument to a function whose corresponding parameter is owned. -/
@@ -189,7 +220,8 @@ def OwnReason.toString (reason : OwnReason) : CompilerM String := do
     | .resetReuse resultFVar => return s!"used in reset reuse {← PP.ppFVar resultFVar}"
     | .constructorResult resultFVar => return s!"result of ctor call {← PP.ppFVar resultFVar}"
     | .constructorArg resultFVar => return s!"argument to constructor call {← PP.ppFVar resultFVar}"
-    | .projectionPropagation resultFVar => return s!"projection propagation {← PP.ppFVar resultFVar}"
+    | .forwardProjectionProp resultFVar => return s!"fwd projection propagation {← PP.ppFVar resultFVar}"
+    | .backwardProjectionProp resultFVar => return s!"bkwd projection propagation {← PP.ppFVar resultFVar}"
     | .functionCallResult resultFVar => return s!"result of function call {← PP.ppFVar resultFVar}"
     | .functionCallArg resultFVar => return s!"owned function argument {← PP.ppFVar resultFVar}"
     | .fvarCall resultFVar => return s!"argument to closure call {← PP.ppFVar resultFVar}"
@@ -197,6 +229,29 @@ def OwnReason.toString (reason : OwnReason) : CompilerM String := do
     | .tailCallPreservation funcName => return s!"tail call preservation of {funcName}"
     | .jpArgPropagation jpFVar => return s!"backward propagation from JP {← PP.ppFVar jpFVar}"
     | .jpTailCallPreservation jpFVar => return s!"JP tail call preservation {← PP.ppFVar jpFVar}"
+
+/--
+Determine whether an `OwnReason` is necessary for correctness (forced) or just an optimization
+(not-forced). If we attempt to own a variable that has been previously annotated as borrow for a
+non-forced reason we ignore it.
+-/
+def OwnReason.isForced (reason : OwnReason) : Bool :=
+  match reason with
+  -- All of these reasons propagate through ABI decisions and can thus safely be ignored as they
+  -- will be accounted for by the reference counting pass.
+  | .constructorArg .. | .functionCallArg .. | .fvarCall .. | .partialApplication ..
+  | .jpArgPropagation ..
+  -- If a projection of a value is used in an owned fashion that does not necessarily mean we have
+  -- to make the value itself owned. Note that this will however prevent potential reset-reuse
+  -- opportunities.
+  | .backwardProjectionProp .. => false
+  -- Results of functions and constructors are naturally owned.
+  | .constructorResult .. | .functionCallResult ..
+  -- We cannot pass borrowed values to reset or have borrow annotations destroy tail calls for
+  -- correctness reasons.
+  | .resetReuse .. | .tailCallPreservation .. | .jpTailCallPreservation ..
+  -- If a value is owned and we project from it its projectee is always owned as well.
+  | .forwardProjectionProp .. => true
 
 /--
 Infer the borrowing annotations in a SCC through dataflow analysis.
@@ -218,8 +273,11 @@ where
 
   ownFVar (fvarId : FVarId) (reason : OwnReason) : InferM Unit := do
     unless (← get).owned.contains fvarId do
-      trace[Compiler.inferBorrow] "own {← PP.run <| PP.ppFVar fvarId}: {← reason.toString}"
-      modify fun s => { s with owned := s.owned.insert fvarId, modified := true }
+      if !reason.isForced && (← get).paramMap.annoatedBorrows.contains fvarId then
+        trace[Compiler.inferBorrow] "user annotation blocked owning {← PP.run <| PP.ppFVar fvarId}: {← reason.toString}"
+      else
+        trace[Compiler.inferBorrow] "own {← PP.run <| PP.ppFVar fvarId}: {← reason.toString}"
+        modify fun s => { s with owned := s.owned.insert fvarId, modified := true }
 
   ownArg (reason : OwnReason) (a : Arg .impure) : InferM Unit := do
     a.forFVarM (ownFVar · reason)
@@ -240,7 +298,7 @@ where
 
   /-- Updates `map[k]` using the current set of `owned` variables. -/
   updateParamMap (k : ParamMap.Key) : InferM Unit := do
-    if let some ps := (← get).paramMap[k]? then
+    if let some ps := (← get).paramMap.map[k]? then
       -- This is to ensure linearity over ps in the following code, if you know how to make this
       -- linear in a nice fashion please make a PR
       modify fun s => { s with paramMap := s.paramMap.erase k }
@@ -255,7 +313,7 @@ where
       modify fun s => { s with paramMap := s.paramMap.insert k ps }
 
   getParamInfo (k : ParamMap.Key) : InferM (Array (Param .impure)) := do
-    match (← get).paramMap[k]? with
+    match (← get).paramMap.map[k]? with
     | some ps => return ps
     | none =>
       let .decl fn := k | unreachable!
@@ -306,8 +364,8 @@ where
     | .reuse x _ _ args => ownFVar z (.resetReuse z); ownFVar x (.resetReuse z); ownArgsIfParam z args
     | .ctor _ args => ownFVar z (.constructorResult z); ownArgsIfParam z args
     | .oproj _ x _ =>
-      if ← isOwned x then ownFVar z (.projectionPropagation z)
-      if ← isOwned z then ownFVar x (.projectionPropagation z)
+      if ← isOwned x then ownFVar z (.forwardProjectionProp z)
+      if ← isOwned z then ownFVar x (.backwardProjectionProp z)
     | .fap f args =>
       let ps ← getParamInfo (.decl f)
       ownFVar z (.functionCallResult z)

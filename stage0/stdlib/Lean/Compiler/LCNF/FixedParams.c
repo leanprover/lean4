@@ -1517,8 +1517,8 @@ return v___x_422_;
 else
 {
 lean_dec(v_value_353_);
-lean_dec_ref(v_value_351_);
 lean_dec_ref(v_decl_352_);
+lean_dec_ref(v_value_351_);
 lean_dec_ref(v_a_341_);
 lean_dec_ref(v_decl_340_);
 v___y_344_ = v_a_342_;

@@ -756,16 +756,16 @@ lean_object* v___x_226_; lean_object* v___x_227_; lean_object* v___x_228_; lean_
 v___x_226_ = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(v___x_226_, 0, v___y_225_);
 v___x_227_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v___x_227_, 0, v___y_221_);
+lean_ctor_set(v___x_227_, 0, v___y_223_);
 lean_ctor_set(v___x_227_, 1, v___x_226_);
 v___x_228_ = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(v___x_228_, 0, v___x_227_);
-lean_ctor_set(v___x_228_, 1, v___y_224_);
+lean_ctor_set(v___x_228_, 1, v___y_222_);
 v___x_229_ = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(v___x_229_, 0, v___y_223_);
+lean_ctor_set(v___x_229_, 0, v___y_221_);
 lean_ctor_set(v___x_229_, 1, v___x_228_);
 v___x_230_ = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(v___x_230_, 0, v___y_222_);
+lean_ctor_set(v___x_230_, 0, v___y_224_);
 lean_ctor_set(v___x_230_, 1, v___x_229_);
 v___x_231_ = l_Lean_Json_mkObj(v___x_230_);
 return v___x_231_;
@@ -818,10 +818,10 @@ if (v_showValueInHoverText_219_ == 0)
 {
 lean_object* v___x_267_; 
 v___x_267_ = ((lean_object*)(l_Lean_Meta_Tactic_TryThis_SuggestionStyle_value___closed__8));
-v___y_221_ = v___x_266_;
-v___y_222_ = v___x_235_;
-v___y_223_ = v___x_265_;
-v___y_224_ = v___x_262_;
+v___y_221_ = v___x_265_;
+v___y_222_ = v___x_262_;
+v___y_223_ = v___x_266_;
+v___y_224_ = v___x_235_;
 v___y_225_ = v___x_267_;
 goto v___jp_220_;
 }
@@ -834,10 +834,10 @@ v___x_270_ = lean_string_append(v___x_268_, v___x_269_);
 lean_dec_ref(v___x_269_);
 v___x_271_ = ((lean_object*)(l_Lean_Meta_Tactic_TryThis_SuggestionStyle_value___closed__10));
 v___x_272_ = lean_string_append(v___x_270_, v___x_271_);
-v___y_221_ = v___x_266_;
-v___y_222_ = v___x_235_;
-v___y_223_ = v___x_265_;
-v___y_224_ = v___x_262_;
+v___y_221_ = v___x_265_;
+v___y_222_ = v___x_262_;
+v___y_223_ = v___x_266_;
+v___y_224_ = v___x_235_;
 v___y_225_ = v___x_272_;
 goto v___jp_220_;
 }

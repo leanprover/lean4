@@ -411,8 +411,9 @@ lean_dec(v_a_34_);
 lean_dec_ref(v_a_33_);
 lean_dec(v_a_32_);
 lean_dec_ref(v_a_31_);
-v___x_72_ = lean_alloc_ctor(0, 0, 1);
+v___x_72_ = lean_alloc_ctor(0, 0, 2);
 lean_ctor_set_uint8(v___x_72_, 0, v___x_71_);
+lean_ctor_set_uint8(v___x_72_, 1, v___x_71_);
 if (v_isShared_69_ == 0)
 {
 lean_ctor_set_tag(v___x_68_, 0);
@@ -465,10 +466,11 @@ v_resetjp_79_:
 {
 uint8_t v___x_82_; lean_object* v___x_83_; lean_object* v___x_85_; 
 v___x_82_ = 0;
-v___x_83_ = lean_alloc_ctor(1, 2, 1);
+v___x_83_ = lean_alloc_ctor(1, 2, 2);
 lean_ctor_set(v___x_83_, 0, v_result_76_);
 lean_ctor_set(v___x_83_, 1, v_a_78_);
 lean_ctor_set_uint8(v___x_83_, sizeof(void*)*2, v___x_82_);
+lean_ctor_set_uint8(v___x_83_, sizeof(void*)*2 + 1, v___x_82_);
 if (v_isShared_81_ == 0)
 {
 lean_ctor_set(v___x_80_, 0, v___x_83_);
@@ -1195,10 +1197,11 @@ v_resetjp_260_:
 {
 uint8_t v___x_263_; lean_object* v___x_264_; lean_object* v___x_266_; 
 v___x_263_ = 0;
-v___x_264_ = lean_alloc_ctor(1, 2, 1);
+v___x_264_ = lean_alloc_ctor(1, 2, 2);
 lean_ctor_set(v___x_264_, 0, v_result_252_);
 lean_ctor_set(v___x_264_, 1, v_a_259_);
 lean_ctor_set_uint8(v___x_264_, sizeof(void*)*2, v___x_263_);
+lean_ctor_set_uint8(v___x_264_, sizeof(void*)*2 + 1, v___x_263_);
 if (v_isShared_262_ == 0)
 {
 lean_ctor_set(v___x_261_, 0, v___x_264_);

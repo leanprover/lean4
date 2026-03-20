@@ -33,7 +33,7 @@ uint8_t lean_int_dec_eq(lean_object*, lean_object*);
 lean_object* l_Std_Time_Internal_Bounded_LE_instOfNatHAddIntCast(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Time_Internal_UnitVal_sub___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Time_Internal_UnitVal_add___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_Time_Internal_UnitVal_instToString___lam__0___boxed(lean_object*);
+lean_object* l_Int_repr___boxed(lean_object*);
 static const lean_closure_object l_Std_Time_Millisecond_instReprOrdinal___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Std_Time_Internal_Bounded_instRepr___lam__0___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_Std_Time_Millisecond_instReprOrdinal___closed__0 = (const lean_object*)&l_Std_Time_Millisecond_instReprOrdinal___closed__0_value;
 LEAN_EXPORT const lean_object* l_Std_Time_Millisecond_instReprOrdinal = (const lean_object*)&l_Std_Time_Millisecond_instReprOrdinal___closed__0_value;
@@ -103,7 +103,7 @@ static const lean_object* l_Std_Time_Millisecond_instNegOffset___closed__0 = (co
 LEAN_EXPORT const lean_object* l_Std_Time_Millisecond_instNegOffset = (const lean_object*)&l_Std_Time_Millisecond_instNegOffset___closed__0_value;
 LEAN_EXPORT lean_object* l_Std_Time_Millisecond_instLEOffset;
 LEAN_EXPORT lean_object* l_Std_Time_Millisecond_instLTOffset;
-static const lean_closure_object l_Std_Time_Millisecond_instToStringOffset___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Std_Time_Internal_UnitVal_instToString___lam__0___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
+static const lean_closure_object l_Std_Time_Millisecond_instToStringOffset___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Int_repr___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_Std_Time_Millisecond_instToStringOffset___closed__0 = (const lean_object*)&l_Std_Time_Millisecond_instToStringOffset___closed__0_value;
 LEAN_EXPORT const lean_object* l_Std_Time_Millisecond_instToStringOffset = (const lean_object*)&l_Std_Time_Millisecond_instToStringOffset___closed__0_value;
 LEAN_EXPORT uint8_t l_Std_Time_Millisecond_instDecidableLeOffset(lean_object*, lean_object*);

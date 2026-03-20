@@ -1521,7 +1521,7 @@ v_reusejp_509_:
 {
 uint8_t v___x_511_; lean_object* v___x_512_; 
 v___x_511_ = 0;
-v___x_512_ = l_Lean_Meta_forallBoundedTelescope___at___00Lean_Elab_TerminationMeasure_elab_spec__0___redArg(v___y_506_, v___x_510_, v___f_498_, v___x_511_, v___x_511_, v___y_501_, v___y_505_, v___y_504_, v___y_500_, v___y_502_, v___y_503_);
+v___x_512_ = l_Lean_Meta_forallBoundedTelescope___at___00Lean_Elab_TerminationMeasure_elab_spec__0___redArg(v___y_506_, v___x_510_, v___f_498_, v___x_511_, v___x_511_, v___y_503_, v___y_501_, v___y_502_, v___y_500_, v___y_504_, v___y_505_);
 return v___x_512_;
 }
 }
@@ -1533,11 +1533,11 @@ lean_object* v___x_521_; lean_object* v___x_522_;
 v___x_521_ = lean_obj_once(&l_Lean_Elab_TerminationMeasure_elab___lam__1___closed__3, &l_Lean_Elab_TerminationMeasure_elab___lam__1___closed__3_once, _init_l_Lean_Elab_TerminationMeasure_elab___lam__1___closed__3);
 v___x_522_ = l_panic___at___00Lean_Elab_TerminationMeasure_elab_spec__1(v___x_521_);
 v___y_500_ = v___y_518_;
-v___y_501_ = v___y_515_;
-v___y_502_ = v___y_519_;
-v___y_503_ = v___y_520_;
-v___y_504_ = v___y_517_;
-v___y_505_ = v___y_516_;
+v___y_501_ = v___y_516_;
+v___y_502_ = v___y_517_;
+v___y_503_ = v___y_515_;
+v___y_504_ = v___y_519_;
+v___y_505_ = v___y_520_;
 v___y_506_ = v___x_522_;
 goto v___jp_499_;
 }
@@ -1548,11 +1548,11 @@ v_val_523_ = lean_ctor_get(v_type_x27_478_, 0);
 lean_inc(v_val_523_);
 lean_dec_ref(v_type_x27_478_);
 v___y_500_ = v___y_518_;
-v___y_501_ = v___y_515_;
-v___y_502_ = v___y_519_;
-v___y_503_ = v___y_520_;
-v___y_504_ = v___y_517_;
-v___y_505_ = v___y_516_;
+v___y_501_ = v___y_516_;
+v___y_502_ = v___y_517_;
+v___y_503_ = v___y_515_;
+v___y_504_ = v___y_519_;
+v___y_505_ = v___y_520_;
 v___y_506_ = v_val_523_;
 goto v___jp_499_;
 }

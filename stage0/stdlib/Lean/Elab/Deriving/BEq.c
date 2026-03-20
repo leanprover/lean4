@@ -13773,9 +13773,9 @@ v___x_4622_ = l_Lean_getMainModule___at___00__private_Lean_Elab_Deriving_BEq_0__
 v_a_4623_ = lean_ctor_get(v___x_4622_, 0);
 lean_inc(v_a_4623_);
 lean_dec_ref(v___x_4622_);
-v___y_4578_ = v_instName_4615_;
+v___y_4578_ = v_a_4619_;
 v___y_4579_ = v___x_4621_;
-v___y_4580_ = v_a_4619_;
+v___y_4580_ = v_instName_4615_;
 v_a_4581_ = v_a_4623_;
 goto v___jp_4577_;
 }
@@ -13784,9 +13784,9 @@ else
 lean_object* v_val_4624_; 
 v_val_4624_ = lean_ctor_get(v_quotContext_x3f_4620_, 0);
 lean_inc(v_val_4624_);
-v___y_4578_ = v_instName_4615_;
+v___y_4578_ = v_a_4619_;
 v___y_4579_ = v___x_4621_;
-v___y_4580_ = v_a_4619_;
+v___y_4580_ = v_instName_4615_;
 v_a_4581_ = v_val_4624_;
 goto v___jp_4577_;
 }
@@ -14000,7 +14000,7 @@ v___x_4592_ = l_Lean_Syntax_node1(v___y_4579_, v___x_4589_, v___x_4591_);
 v___x_4593_ = ((lean_object*)(l___private_Lean_Elab_Deriving_BEq_0__Lean_Elab_Deriving_BEq_mkBEqInstance___lam__1___closed__9));
 v___x_4594_ = lean_obj_once(&l___private_Lean_Elab_Deriving_BEq_0__Lean_Elab_Deriving_BEq_mkBEqInstance___lam__1___closed__11, &l___private_Lean_Elab_Deriving_BEq_0__Lean_Elab_Deriving_BEq_mkBEqInstance___lam__1___closed__11_once, _init_l___private_Lean_Elab_Deriving_BEq_0__Lean_Elab_Deriving_BEq_mkBEqInstance___lam__1___closed__11);
 v___x_4595_ = ((lean_object*)(l___private_Lean_Elab_Deriving_BEq_0__Lean_Elab_Deriving_BEq_mkBEqInstance___lam__1___closed__12));
-v___x_4596_ = l_Lean_addMacroScope(v_a_4581_, v___x_4595_, v___y_4580_);
+v___x_4596_ = l_Lean_addMacroScope(v_a_4581_, v___x_4595_, v___y_4578_);
 v___x_4597_ = lean_box(0);
 lean_inc(v___y_4579_);
 v___x_4598_ = lean_alloc_ctor(3, 4, 0);
@@ -14019,7 +14019,7 @@ lean_inc(v___y_4579_);
 v___x_4603_ = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(v___x_4603_, 0, v___y_4579_);
 lean_ctor_set(v___x_4603_, 1, v___x_4602_);
-v___x_4604_ = lean_mk_syntax_ident(v___y_4578_);
+v___x_4604_ = lean_mk_syntax_ident(v___y_4580_);
 lean_inc(v___y_4579_);
 v___x_4605_ = l_Lean_Syntax_node1(v___y_4579_, v___x_4587_, v___x_4604_);
 v___x_4606_ = l_Lean_Syntax_node5(v___y_4579_, v___x_4583_, v___x_4584_, v___x_4586_, v___x_4601_, v___x_4603_, v___x_4605_);

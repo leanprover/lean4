@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Grind.Ordered.Linarith
-// Imports: public import Init.Grind.Ordered.Ring public import Init.Grind.Ring.Field import all Init.Data.Ord.Basic import all Init.Data.AC import Init.LawfulBEqTactics public import Init.Data.Bool public import Init.Data.RArray import Init.Data.Int.DivMod.Lemmas import Init.Data.Nat.Lemmas import Init.Grind.Ordered.Order import Init.Omega import Init.WFTactics
+// Imports: public import Init.Grind.Ordered.Ring public import Init.Grind.Ring.Field import all Init.Data.Ord.Basic import all Init.Data.AC import Init.LawfulBEqTactics public import Init.Data.Bool public import Init.Data.RArray import Init.Data.Int.DivMod.Lemmas import Init.Data.Nat.Lemmas import Init.Grind.Ordered.Order import Init.Omega import Init.WFTactics import Init.Data.Int.Repr
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1744,7 +1744,7 @@ v___jp_531_:
 {
 lean_object* v___x_536_; lean_object* v___x_537_; lean_object* v___x_538_; lean_object* v___x_539_; lean_object* v___x_540_; lean_object* v___x_541_; lean_object* v___x_542_; lean_object* v___x_543_; lean_object* v___x_544_; uint8_t v___x_545_; lean_object* v___x_546_; lean_object* v___x_547_; 
 v___x_536_ = lean_alloc_ctor(5, 2, 0);
-lean_ctor_set(v___x_536_, 0, v___y_532_);
+lean_ctor_set(v___x_536_, 0, v___y_534_);
 lean_ctor_set(v___x_536_, 1, v___y_535_);
 lean_inc(v___y_533_);
 v___x_537_ = lean_alloc_ctor(5, 2, 0);
@@ -1764,7 +1764,7 @@ v___x_543_ = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(v___x_543_, 0, v___x_541_);
 lean_ctor_set(v___x_543_, 1, v___x_542_);
 v___x_544_ = lean_alloc_ctor(4, 2, 0);
-lean_ctor_set(v___x_544_, 0, v___y_534_);
+lean_ctor_set(v___x_544_, 0, v___y_532_);
 lean_ctor_set(v___x_544_, 1, v___x_543_);
 v___x_545_ = 0;
 v___x_546_ = lean_alloc_ctor(6, 1, 1);
@@ -1787,9 +1787,9 @@ v___x_554_ = l_Int_repr(v_k_527_);
 lean_dec(v_k_527_);
 v___x_555_ = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(v___x_555_, 0, v___x_554_);
-v___y_532_ = v___x_551_;
+v___y_532_ = v___y_549_;
 v___y_533_ = v___x_550_;
-v___y_534_ = v___y_549_;
+v___y_534_ = v___x_551_;
 v___y_535_ = v___x_555_;
 goto v___jp_531_;
 }
@@ -1801,9 +1801,9 @@ lean_dec(v_k_527_);
 v___x_557_ = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(v___x_557_, 0, v___x_556_);
 v___x_558_ = l_Repr_addAppParen(v___x_557_, v___x_530_);
-v___y_532_ = v___x_551_;
+v___y_532_ = v___y_549_;
 v___y_533_ = v___x_550_;
-v___y_534_ = v___y_549_;
+v___y_534_ = v___x_551_;
 v___y_535_ = v___x_558_;
 goto v___jp_531_;
 }
@@ -3818,6 +3818,7 @@ lean_object* runtime_initialize_Init_Data_Nat_Lemmas(uint8_t builtin);
 lean_object* runtime_initialize_Init_Grind_Ordered_Order(uint8_t builtin);
 lean_object* runtime_initialize_Init_Omega(uint8_t builtin);
 lean_object* runtime_initialize_Init_WFTactics(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Int_Repr(uint8_t builtin);
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Grind_Ordered_Linarith(uint8_t builtin) {
 lean_object * res;
@@ -3859,6 +3860,9 @@ lean_dec_ref(res);
 res = runtime_initialize_Init_WFTactics(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Int_Repr(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 l_Lean_Grind_Linarith_instInhabitedExpr_default = _init_l_Lean_Grind_Linarith_instInhabitedExpr_default();
 lean_mark_persistent(l_Lean_Grind_Linarith_instInhabitedExpr_default);
 l_Lean_Grind_Linarith_instInhabitedExpr = _init_l_Lean_Grind_Linarith_instInhabitedExpr();
@@ -3884,6 +3888,7 @@ lean_object* initialize_Init_Data_Nat_Lemmas(uint8_t builtin);
 lean_object* initialize_Init_Grind_Ordered_Order(uint8_t builtin);
 lean_object* initialize_Init_Omega(uint8_t builtin);
 lean_object* initialize_Init_WFTactics(uint8_t builtin);
+lean_object* initialize_Init_Data_Int_Repr(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Grind_Ordered_Linarith(uint8_t builtin) {
 lean_object * res;
@@ -3923,6 +3928,9 @@ res = initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_WFTactics(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Int_Repr(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Grind_Ordered_Linarith(builtin);

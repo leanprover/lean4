@@ -46,7 +46,9 @@ def runProblem (n : Nat) : MetaM Unit := do
 def runBenchmarks : MetaM Unit := do
   IO.println "=== Merge Sort CBV Benchmarks ==="
   IO.println ""
-  for n in [10, 25, 50, 75, 100, 125, 175] do
+  let bench := (← IO.getEnv "TEST_BENCH") == some "1"
+  let sizes := if bench then [10, 25, 50, 75, 100, 125, 175] else [10]
+  for n in sizes do
     runProblem n
 
 #eval runBenchmarks

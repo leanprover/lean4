@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Grind.Ring.CommSolver
-// Imports: public import Init.Data.Ord.Basic public import Init.Grind.Ring.Field public import Init.Grind.Ordered.Ring public import Init.GrindInstances.Ring.Int import all Init.Data.Ord.Basic import Init.LawfulBEqTactics public import Init.Classical public import Init.Data.Bool public import Init.Data.Int.DivMod.Lemmas public import Init.Data.RArray public import Init.Ext import Init.Data.Hashable import Init.Data.Int.LemmasAux import Init.Data.Nat.Linear import Init.Grind.Ordered.Order import Init.Omega import Init.WFTactics
+// Imports: public import Init.Data.Ord.Basic public import Init.Grind.Ring.Field public import Init.Grind.Ordered.Ring public import Init.GrindInstances.Ring.Int import all Init.Data.Ord.Basic import Init.LawfulBEqTactics public import Init.Classical public import Init.Data.Bool public import Init.Data.Int.DivMod.Lemmas public import Init.Data.RArray public import Init.Ext import Init.Data.Hashable import Init.Data.Int.LemmasAux import Init.Data.Nat.Linear import Init.Grind.Ordered.Order import Init.Omega import Init.WFTactics import Init.Data.Int.Repr
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -5092,8 +5092,8 @@ goto v_reusejp_1567_;
 }
 v_reusejp_1567_:
 {
-v___y_1549_ = v___x_1563_;
-v___y_1550_ = v___y_1562_;
+v___y_1549_ = v___y_1562_;
+v___y_1550_ = v___x_1563_;
 v___y_1551_ = v___x_1568_;
 goto v___jp_1548_;
 }
@@ -5123,8 +5123,8 @@ v_reusejp_1572_:
 {
 lean_object* v___x_1574_; 
 v___x_1574_ = l_Repr_addAppParen(v___x_1573_, v___x_1570_);
-v___y_1549_ = v___x_1563_;
-v___y_1550_ = v___y_1562_;
+v___y_1549_ = v___y_1562_;
+v___y_1550_ = v___x_1563_;
 v___y_1551_ = v___x_1574_;
 goto v___jp_1548_;
 }
@@ -5162,25 +5162,25 @@ v___jp_1585_:
 {
 lean_object* v___x_1590_; lean_object* v___x_1591_; lean_object* v___x_1592_; lean_object* v___x_1593_; lean_object* v___x_1594_; lean_object* v___x_1595_; lean_object* v___x_1596_; lean_object* v___x_1597_; uint8_t v___x_1598_; lean_object* v___x_1599_; lean_object* v___x_1600_; 
 v___x_1590_ = lean_alloc_ctor(5, 2, 0);
-lean_ctor_set(v___x_1590_, 0, v___y_1588_);
+lean_ctor_set(v___x_1590_, 0, v___y_1587_);
 lean_ctor_set(v___x_1590_, 1, v___y_1589_);
-lean_inc(v___y_1586_);
+lean_inc(v___y_1588_);
 v___x_1591_ = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(v___x_1591_, 0, v___x_1590_);
-lean_ctor_set(v___x_1591_, 1, v___y_1586_);
+lean_ctor_set(v___x_1591_, 1, v___y_1588_);
 v___x_1592_ = l_Lean_Grind_CommRing_instReprMon_repr(v_v_1582_, v___x_1584_);
 v___x_1593_ = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(v___x_1593_, 0, v___x_1591_);
 lean_ctor_set(v___x_1593_, 1, v___x_1592_);
 v___x_1594_ = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(v___x_1594_, 0, v___x_1593_);
-lean_ctor_set(v___x_1594_, 1, v___y_1586_);
+lean_ctor_set(v___x_1594_, 1, v___y_1588_);
 v___x_1595_ = l_Lean_Grind_CommRing_instReprPoly_repr(v_p_1583_, v___x_1584_);
 v___x_1596_ = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(v___x_1596_, 0, v___x_1594_);
 lean_ctor_set(v___x_1596_, 1, v___x_1595_);
 v___x_1597_ = lean_alloc_ctor(4, 2, 0);
-lean_ctor_set(v___x_1597_, 0, v___y_1587_);
+lean_ctor_set(v___x_1597_, 0, v___y_1586_);
 lean_ctor_set(v___x_1597_, 1, v___x_1596_);
 v___x_1598_ = 0;
 v___x_1599_ = lean_alloc_ctor(6, 1, 1);
@@ -5203,9 +5203,9 @@ v___x_1607_ = l_Int_repr(v_k_1581_);
 lean_dec(v_k_1581_);
 v___x_1608_ = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(v___x_1608_, 0, v___x_1607_);
-v___y_1586_ = v___x_1603_;
-v___y_1587_ = v___y_1602_;
-v___y_1588_ = v___x_1604_;
+v___y_1586_ = v___y_1602_;
+v___y_1587_ = v___x_1604_;
+v___y_1588_ = v___x_1603_;
 v___y_1589_ = v___x_1608_;
 goto v___jp_1585_;
 }
@@ -5217,9 +5217,9 @@ lean_dec(v_k_1581_);
 v___x_1610_ = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(v___x_1610_, 0, v___x_1609_);
 v___x_1611_ = l_Repr_addAppParen(v___x_1610_, v___x_1584_);
-v___y_1586_ = v___x_1603_;
-v___y_1587_ = v___y_1602_;
-v___y_1588_ = v___x_1604_;
+v___y_1586_ = v___y_1602_;
+v___y_1587_ = v___x_1604_;
+v___y_1588_ = v___x_1603_;
 v___y_1589_ = v___x_1611_;
 goto v___jp_1585_;
 }
@@ -5229,10 +5229,10 @@ v___jp_1548_:
 {
 lean_object* v___x_1552_; lean_object* v___x_1553_; uint8_t v___x_1554_; lean_object* v___x_1555_; lean_object* v___x_1556_; 
 v___x_1552_ = lean_alloc_ctor(5, 2, 0);
-lean_ctor_set(v___x_1552_, 0, v___y_1549_);
+lean_ctor_set(v___x_1552_, 0, v___y_1550_);
 lean_ctor_set(v___x_1552_, 1, v___y_1551_);
 v___x_1553_ = lean_alloc_ctor(4, 2, 0);
-lean_ctor_set(v___x_1553_, 0, v___y_1550_);
+lean_ctor_set(v___x_1553_, 0, v___y_1549_);
 lean_ctor_set(v___x_1553_, 1, v___x_1552_);
 v___x_1554_ = 0;
 v___x_1555_ = lean_alloc_ctor(6, 1, 1);
@@ -12158,6 +12158,7 @@ lean_object* runtime_initialize_Init_Data_Nat_Linear(uint8_t builtin);
 lean_object* runtime_initialize_Init_Grind_Ordered_Order(uint8_t builtin);
 lean_object* runtime_initialize_Init_Omega(uint8_t builtin);
 lean_object* runtime_initialize_Init_WFTactics(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Int_Repr(uint8_t builtin);
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Grind_Ring_CommSolver(uint8_t builtin) {
 lean_object * res;
@@ -12214,6 +12215,9 @@ lean_dec_ref(res);
 res = runtime_initialize_Init_WFTactics(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Int_Repr(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 l_Lean_Grind_CommRing_instInhabitedExpr_default = _init_l_Lean_Grind_CommRing_instInhabitedExpr_default();
 lean_mark_persistent(l_Lean_Grind_CommRing_instInhabitedExpr_default);
 l_Lean_Grind_CommRing_instInhabitedExpr = _init_l_Lean_Grind_CommRing_instInhabitedExpr();
@@ -12254,6 +12258,7 @@ lean_object* initialize_Init_Data_Nat_Linear(uint8_t builtin);
 lean_object* initialize_Init_Grind_Ordered_Order(uint8_t builtin);
 lean_object* initialize_Init_Omega(uint8_t builtin);
 lean_object* initialize_Init_WFTactics(uint8_t builtin);
+lean_object* initialize_Init_Data_Int_Repr(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Grind_Ring_CommSolver(uint8_t builtin) {
 lean_object * res;
@@ -12308,6 +12313,9 @@ res = initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_WFTactics(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Int_Repr(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Grind_Ring_CommSolver(builtin);

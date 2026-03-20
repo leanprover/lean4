@@ -70,15 +70,17 @@ CTEST_PARALLEL_LEVEL="$(nproc)" CTEST_OUTPUT_ON_FAILURE=1 \
 make -C build/release -j "$(nproc)" test ARGS="--rerun-failed"
 ```
 
-Run an individual test using one of these commands:
+Run an individual test using one of these commands.
+Note that regex arguments to `-R` need to be double-quoted
+if they contain any special shell characters like `|`.
 
 ```sh
 CTEST_PARALLEL_LEVEL="$(nproc)" CTEST_OUTPUT_ON_FAILURE=1 \
-make -C build/release -j "$(nproc)" test ARGS="-R <regex>"
+make -C build/release -j "$(nproc)" test ARGS="-R '<regex>'"
 
 # For a specific stage
 CTEST_PARALLEL_LEVEL="$(nproc)" CTEST_OUTPUT_ON_FAILURE=1 \
-make -C build/release/stage1 -j "$(nproc)" test ARGS="-R <regex>"
+make -C build/release/stage1 -j "$(nproc)" test ARGS="-R '<regex>'"
 
 # Manually, without ctest
 tests/with_stage1_test_env.sh path/to/test/directory/run_test.sh
@@ -103,7 +105,8 @@ make -C build/release -j "$(nproc)" bench-part2 # produces tests/part2.measureme
 
 Make sure not to specify `-j "$(nproc)"` when running the bench suite manually inside `build/release/stage<n>`.
 
-Run an individual benchmark manually using
+Run an individual benchmark manually using one of these commands.
+Note that the `run_bench.sh` arguments are relative to the test directory, not the current working directory.
 
 ```sh
 tests/with_stage1_bench_env.sh path/to/test/directory/run_bench.sh
@@ -144,7 +147,11 @@ When run as test, the problem instance should be as small as possible, but large
 
 The main mechanism to scale problem instances is the `TEST_BENCH` environment variable.
 It is unset in tests and set to `1` in benchmarks.
-Inside your benchmark, check whether the variable exists and adjust the problem size accordingly.
+Inside your benchmark, check whether the variable exists and adjust the problem size accordingly:
+
+```lean
+let bench := (← IO.getEnv "TEST_BENCH") == some "1"
+```
 
 Inside the `compile_bench` directory, there is a second mechanism:
 Using a `.init.sh` file to pass command line arguments to your test.

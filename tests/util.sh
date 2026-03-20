@@ -92,6 +92,7 @@ function capture_only {
   # since $TMP_DIR is already specific to this test run.
   CAPTURED="${1:-"$TMP_DIR/tmp"}"; shift
   EXIT=0; (set -x; "${@}" > "$CAPTURED.out.produced" 2>&1) || EXIT="$?"
+  cat "$CAPTURED.out.produced"
 }
 
 # Run a command, capturing its output and failing if the command fails.

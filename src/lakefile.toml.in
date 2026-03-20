@@ -75,6 +75,9 @@ srcDir = "lake"
 # Build Lake and all its submodules (which may not be imported elsewhere)
 globs = ["Lake.*"]
 defaultFacets = ["static", "static.export"]
+# Load the previous stage's lake native code into lake's build process in order to prevent ABI
+# breakages from affecting bootstrapping.
+moreLeanArgs = ["--plugin", "${PREV_STAGE}/lib/lean/libLake_shared${CMAKE_SHARED_LIBRARY_SUFFIX}"]
 
 [[lean_lib]]
 name = "LakeMain"

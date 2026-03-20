@@ -183,7 +183,9 @@ set_option maxHeartbeats 400000
 def runCbvTests : MetaM Unit := do
   IO.println "=== Call-By-Value Tactic Tests ==="
   IO.println ""
-  for n in [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 150, 200, 250, 300, 350, 400, 450, 500, 600, 700, 800, 900, 1000] do
+  let bench := (← IO.getEnv "TEST_BENCH") == some "1"
+  let ns := if bench then [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 150, 200, 250, 300, 350, 400, 450, 500, 600, 700, 800, 900, 1000] else [10]
+  for n in ns do
     runSingleTest n
 
 def runDecideTests : MetaM Unit := do

@@ -9,8 +9,10 @@ def bench (pattern : String) : TermElabM Unit := do
   let env ← getEnv
   -- IO.println s!"{env.constants.size} decls"
   let list := env.constants.toList |>.map fun (n, _) => n.toString
-  IO.println s!"Matching {list.length * TURNS} decls"
-  for _ in 0...TURNS do
+  let bench := (← IO.getEnv "TEST_BENCH") == some "1"
+  let turns := if bench then TURNS else 1
+  IO.println s!"Matching {list.length * turns} decls"
+  for _ in 0...turns do
     let mut n := 0
     for name in list do
       if pattern.charactersIn name then n := n + 1

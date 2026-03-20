@@ -16,18 +16,31 @@ See `tests/README.md` for full documentation. Quick reference:
 CTEST_PARALLEL_LEVEL="$(nproc)" CTEST_OUTPUT_ON_FAILURE=1 \
 make -C build/release -j "$(nproc)" test
 
-# Specific test by name (supports regex via ctest -R)
+# Specific test by name (supports regex via ctest -R; double-quote special chars like |)
 CTEST_PARALLEL_LEVEL="$(nproc)" CTEST_OUTPUT_ON_FAILURE=1 \
-make -C build/release -j "$(nproc)" test ARGS='-R grind_ematch'
+make -C build/release -j "$(nproc)" test ARGS="-R 'grind_ematch'"
+
+# Multiple tests matching a pattern
+CTEST_PARALLEL_LEVEL="$(nproc)" CTEST_OUTPUT_ON_FAILURE=1 \
+make -C build/release -j "$(nproc)" test ARGS="-R 'treemap|phashmap'"
 
 # Rerun only previously failed tests
 CTEST_PARALLEL_LEVEL="$(nproc)" CTEST_OUTPUT_ON_FAILURE=1 \
 make -C build/release -j "$(nproc)" test ARGS='--rerun-failed'
 
-# Single test from tests/foo/bar/ (quick check during development)
-CTEST_PARALLEL_LEVEL="$(nproc)" CTEST_OUTPUT_ON_FAILURE=1 \
-make -C build/release -j "$(nproc)" test ARGS=-R testname'
+# Run a test manually without ctest (test pile: pass filename relative to the pile dir)
+tests/with_stage1_test_env.sh tests/elab_bench/run_bench.sh cbv_decide.lean
+tests/with_stage1_test_env.sh tests/elab/run_test.sh grind_indexmap.lean
 ```
+
+## Benchmark vs Test Problem Sizes
+
+Benchmarks are also run as tests. Use the `TEST_BENCH` environment variable (unset in tests, set to `1` in benchmarks) to scale problem sizes:
+
+- In `compile_bench` `.init.sh` files: check `$TEST_BENCH` and set `TEST_ARGS` accordingly
+- In `elab_bench` Lean files: use `(← IO.getEnv "TEST_BENCH") == some "1"` to switch between small (test) and large (bench) inputs
+
+See `tests/README.md` for the full benchmark writing guide.
 
 ## Testing stage 2
 

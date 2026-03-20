@@ -11,7 +11,6 @@ capture_only "$1" \
 normalize_mvar_suffixes
 normalize_reference_urls
 extract_measurements "$TOPIC"
-check_out_file
 check_exit_is_success
 
 run_after "$1"

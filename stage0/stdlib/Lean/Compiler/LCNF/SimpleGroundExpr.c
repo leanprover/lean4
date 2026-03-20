@@ -9311,8 +9311,8 @@ goto v___jp_2671_;
 }
 else
 {
-lean_dec_ref(v_fn_2695_);
 lean_dec(v_pre_2712_);
+lean_dec_ref(v_fn_2695_);
 lean_dec_ref(v___x_2711_);
 lean_dec(v_fvarId_2710_);
 lean_del_object(v___x_2698_);
@@ -9463,8 +9463,8 @@ goto v___jp_2671_;
 }
 else
 {
-lean_dec(v_pre_2758_);
 lean_dec_ref(v_fn_2695_);
+lean_dec(v_pre_2758_);
 lean_dec_ref(v___x_2757_);
 lean_dec(v_fvarId_2674_);
 lean_dec_ref(v_k_2658_);

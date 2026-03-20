@@ -313,10 +313,11 @@ v_resetjp_26_:
 {
 uint8_t v___x_29_; lean_object* v___x_30_; lean_object* v___x_32_; 
 v___x_29_ = 0;
-v___x_30_ = lean_alloc_ctor(1, 2, 1);
+v___x_30_ = lean_alloc_ctor(1, 2, 2);
 lean_ctor_set(v___x_30_, 0, v_a_23_);
 lean_ctor_set(v___x_30_, 1, v_a_25_);
 lean_ctor_set_uint8(v___x_30_, sizeof(void*)*2, v___x_29_);
+lean_ctor_set_uint8(v___x_30_, sizeof(void*)*2 + 1, v___x_29_);
 if (v_isShared_28_ == 0)
 {
 lean_ctor_set(v___x_27_, 0, v___x_30_);
@@ -637,10 +638,11 @@ v_resetjp_200_:
 {
 uint8_t v___x_203_; lean_object* v___x_204_; lean_object* v___x_206_; 
 v___x_203_ = 0;
-v___x_204_ = lean_alloc_ctor(1, 2, 1);
+v___x_204_ = lean_alloc_ctor(1, 2, 2);
 lean_ctor_set(v___x_204_, 0, v_a_197_);
 lean_ctor_set(v___x_204_, 1, v_a_199_);
 lean_ctor_set_uint8(v___x_204_, sizeof(void*)*2, v___x_203_);
+lean_ctor_set_uint8(v___x_204_, sizeof(void*)*2 + 1, v___x_203_);
 if (v_isShared_202_ == 0)
 {
 lean_ctor_set(v___x_201_, 0, v___x_204_);
@@ -916,10 +918,11 @@ v_resetjp_315_:
 {
 uint8_t v___x_318_; lean_object* v___x_319_; lean_object* v___x_321_; 
 v___x_318_ = 0;
-v___x_319_ = lean_alloc_ctor(1, 2, 1);
+v___x_319_ = lean_alloc_ctor(1, 2, 2);
 lean_ctor_set(v___x_319_, 0, v_a_312_);
 lean_ctor_set(v___x_319_, 1, v_a_314_);
 lean_ctor_set_uint8(v___x_319_, sizeof(void*)*2, v___x_318_);
+lean_ctor_set_uint8(v___x_319_, sizeof(void*)*2 + 1, v___x_318_);
 if (v_isShared_317_ == 0)
 {
 lean_ctor_set(v___x_316_, 0, v___x_319_);
@@ -1316,10 +1319,11 @@ v_resetjp_480_:
 {
 uint8_t v___x_483_; lean_object* v___x_484_; lean_object* v___x_486_; 
 v___x_483_ = 0;
-v___x_484_ = lean_alloc_ctor(1, 2, 1);
+v___x_484_ = lean_alloc_ctor(1, 2, 2);
 lean_ctor_set(v___x_484_, 0, v_a_477_);
 lean_ctor_set(v___x_484_, 1, v_a_479_);
 lean_ctor_set_uint8(v___x_484_, sizeof(void*)*2, v___x_483_);
+lean_ctor_set_uint8(v___x_484_, sizeof(void*)*2 + 1, v___x_483_);
 if (v_isShared_482_ == 0)
 {
 lean_ctor_set(v___x_481_, 0, v___x_484_);
@@ -1750,10 +1754,11 @@ v_resetjp_666_:
 {
 uint8_t v___x_669_; lean_object* v___x_670_; lean_object* v___x_672_; 
 v___x_669_ = 0;
-v___x_670_ = lean_alloc_ctor(1, 2, 1);
+v___x_670_ = lean_alloc_ctor(1, 2, 2);
 lean_ctor_set(v___x_670_, 0, v_a_663_);
 lean_ctor_set(v___x_670_, 1, v_a_665_);
 lean_ctor_set_uint8(v___x_670_, sizeof(void*)*2, v___x_669_);
+lean_ctor_set_uint8(v___x_670_, sizeof(void*)*2 + 1, v___x_669_);
 if (v_isShared_668_ == 0)
 {
 lean_ctor_set(v___x_667_, 0, v___x_670_);

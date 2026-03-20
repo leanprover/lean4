@@ -584,9 +584,9 @@ v___jp_150_:
 lean_object* v_leanLibDir_152_; lean_object* v_cc_153_; lean_object* v_ccLinkSharedFlags_154_; lean_object* v___x_155_; lean_object* v___x_156_; lean_object* v___x_157_; lean_object* v___x_158_; lean_object* v___x_159_; lean_object* v___x_160_; lean_object* v___x_161_; 
 v_leanLibDir_152_ = lean_ctor_get(v_lean_149_, 3);
 lean_inc_ref(v_leanLibDir_152_);
-v_cc_153_ = lean_ctor_get(v_lean_149_, 13);
+v_cc_153_ = lean_ctor_get(v_lean_149_, 14);
 lean_inc_ref(v_cc_153_);
-v_ccLinkSharedFlags_154_ = lean_ctor_get(v_lean_149_, 19);
+v_ccLinkSharedFlags_154_ = lean_ctor_get(v_lean_149_, 20);
 lean_inc_ref(v_ccLinkSharedFlags_154_);
 lean_dec_ref(v_lean_149_);
 v___x_155_ = l_Array_append___redArg(v___y_151_, v_weakArgs_128_);

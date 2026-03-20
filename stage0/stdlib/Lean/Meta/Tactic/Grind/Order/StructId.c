@@ -1907,8 +1907,8 @@ lean_dec(v_a_292_);
 lean_dec(v_a_290_);
 lean_del_object(v___x_287_);
 lean_dec(v_val_285_);
-lean_dec(v_val_279_);
 lean_dec_ref(v_a_275_);
+lean_dec(v_val_279_);
 lean_del_object(v___x_271_);
 lean_dec(v_val_269_);
 lean_dec(v_a_262_);
@@ -2125,8 +2125,8 @@ return v___x_513_;
 else
 {
 lean_object* v_a_516_; lean_object* v___x_518_; uint8_t v_isShared_519_; uint8_t v_isSharedCheck_523_; 
-lean_dec(v_val_279_);
 lean_dec_ref(v_a_275_);
+lean_dec(v_val_279_);
 lean_del_object(v___x_271_);
 lean_dec(v_val_269_);
 lean_dec(v_a_262_);

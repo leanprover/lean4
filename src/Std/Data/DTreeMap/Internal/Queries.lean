@@ -122,6 +122,10 @@ def getD [Ord α] [LawfulEqOrd α] (t : Impl α β) (k : α) (fallback : β k) :
     | .gt => getD r k fallback
     | .eq => cast (congrArg β (compare_eq_iff_eq.mp h).symm) v'
 
+/-- Implementation detail of the tree map -/
+noncomputable def getV [Ord α] [LawfulEqOrd α] (t : Impl α β) (k : α) [Nonempty (β k)] : β k :=
+  t.getD k Classical.ofNonempty
+
 /-- Returns the entry (key-value pair) for the key `k`, or `none` if such a key does not exist. -/
 def getEntry? [Ord α] (t : Impl α β) (k : α) : Option ((a : α) × β a) :=
   match t with
@@ -162,6 +166,11 @@ def getEntryD [Ord α] (t : Impl α β) (k : α) (fallback : (a : α) × β a) :
     | .eq => ⟨k', v'⟩
 
 /-- Implementation detail of the tree map -/
+noncomputable def getEntryV [Ord α] [Nonempty ((a : α) × β a)] (t : Impl α β) (k : α) :
+    (a : α) × β a :=
+  t.getEntryD k Classical.ofNonempty
+
+/-- Implementation detail of the tree map -/
 def getKey? [Ord α] (t : Impl α β) (k : α) : Option α :=
   match t with
   | .leaf => none
@@ -199,6 +208,11 @@ def getKeyD [Ord α] (t : Impl α β) (k : α) (fallback : α) : α :=
     | .lt => getKeyD l k fallback
     | .gt => getKeyD r k fallback
     | .eq => k'
+
+/-- Implementation detail of the tree map -/
+noncomputable def getKeyV [Ord α] (t : Impl α β) (k : α) : α :=
+  haveI : Nonempty α := ⟨k⟩
+  t.getKeyD k Classical.ofNonempty
 
 namespace Const
 
@@ -240,6 +254,10 @@ def getD [Ord α] (t : Impl α δ) (k : α) (fallback : δ) : δ :=
     | .lt => getD l k fallback
     | .gt => getD r k fallback
     | .eq => v'
+
+/-- Implementation detail of the tree map -/
+noncomputable def getV [Ord α] [Nonempty δ] (t : Impl α δ) (k : α) : δ :=
+  Const.getD t k Classical.ofNonempty
 
 end Const
 
@@ -375,6 +393,10 @@ def minEntryD : Impl α β → (a : α) × β a → (a : α) × β a
   | .inner _ _ _ l@(.inner ..) _, fallback => l.minEntryD fallback
 
 /-- Implementation detail of the tree map -/
+noncomputable def minEntryV [Nonempty ((a : α) × β a)] (t : Impl α β) : (a : α) × β a :=
+  t.minEntryD Classical.ofNonempty
+
+/-- Implementation detail of the tree map -/
 def maxEntry? : Impl α β → Option ((a : α) × β a)
   | .leaf => none
   | .inner _ k v _ .leaf => some ⟨k, v⟩
@@ -396,6 +418,10 @@ def maxEntryD : Impl α β → (a : α) × β a → (a : α) × β a
   | .leaf, fallback => fallback
   | .inner _ k v _ .leaf, _ => ⟨k, v⟩
   | .inner _ _ _ _ r@(.inner ..), fallback => r.maxEntryD fallback
+
+/-- Implementation detail of the tree map -/
+noncomputable def maxEntryV [Nonempty ((a : α) × β a)] (t : Impl α β) : (a : α) × β a :=
+  t.maxEntryD Classical.ofNonempty
 
 /-- Implementation detail of the tree map -/
 def minKey? : Impl α β → Option α
@@ -421,6 +447,10 @@ def minKeyD : Impl α β → α → α
   | .inner _ _ _ l@(.inner ..) _, fallback => l.minKeyD fallback
 
 /-- Implementation detail of the tree map -/
+noncomputable def minKeyV [Nonempty α] (t : Impl α β) : α :=
+  t.minKeyD Classical.ofNonempty
+
+/-- Implementation detail of the tree map -/
 def maxKey? : Impl α β → Option α
   | .leaf => none
   | .inner _ k _ _ .leaf => some k
@@ -442,6 +472,10 @@ def maxKeyD : Impl α β → α → α
   | .leaf, fallback => fallback
   | .inner _ k _ _ .leaf, _ => k
   | .inner _ _ _ _ r@(.inner ..), fallback => r.maxKeyD fallback
+
+/-- Implementation detail of the tree map -/
+noncomputable def maxKeyV [Nonempty α] (t : Impl α β) : α :=
+  t.maxKeyD Classical.ofNonempty
 
 attribute [Std.Internal.tree_tac] Nat.compare_eq_gt Nat.compare_eq_lt Nat.compare_eq_eq
 
@@ -481,6 +515,10 @@ def entryAtIdxD : Impl α β → Nat → (a : α) × β a → (a : α) × β a
     | .gt => r.entryAtIdxD (n - l.size - 1) fallback
 
 /-- Implementation detail of the tree map -/
+noncomputable def entryAtIdxV [Nonempty ((a : α) × β a)] (t : Impl α β) (i : Nat) : (a : α) × β a :=
+  t.entryAtIdxD i Classical.ofNonempty
+
+/-- Implementation detail of the tree map -/
 def keyAtIdx : (t : Impl α β) → (hl : t.Balanced) → (n : Nat) → (h : n < t.size) → α
   | .inner _ k _ l' r', hl, n, h =>
     match h : compare n l'.size with
@@ -515,6 +553,10 @@ def keyAtIdxD : Impl α β → Nat → α → α
     | .lt => keyAtIdxD l n fallback
     | .eq => k
     | .gt => keyAtIdxD r (n - l.size - 1) fallback
+
+/-- Implementation detail of the tree map -/
+noncomputable def keyAtIdxV [Nonempty α] (t : Impl α β) (i : Nat) : α :=
+  t.keyAtIdxD i Classical.ofNonempty
 
 /-- Implementation detail of the tree map -/
 @[inline]
@@ -601,6 +643,26 @@ def getEntryLED [Ord α] (k : α) (t : Impl α β) (fallback : (a : α) × β a)
 @[inline]
 def getEntryLTD [Ord α] (k : α) (t : Impl α β) (fallback : (a : α) × β a) : (a : α) × β a :=
   t.getEntryLT? k |>.getD fallback
+
+/-- Implementation detail of the tree map -/
+noncomputable def getEntryGEV [Ord α] [Nonempty ((a : α) × β a)] (k : α) (t : Impl α β) :
+    (a : α) × β a :=
+  getEntryGED k t Classical.ofNonempty
+
+/-- Implementation detail of the tree map -/
+noncomputable def getEntryGTV [Ord α] [Nonempty ((a : α) × β a)] (k : α) (t : Impl α β) :
+    (a : α) × β a :=
+  getEntryGTD k t Classical.ofNonempty
+
+/-- Implementation detail of the tree map -/
+noncomputable def getEntryLEV [Ord α] [Nonempty ((a : α) × β a)] (k : α) (t : Impl α β) :
+    (a : α) × β a :=
+  getEntryLED k t Classical.ofNonempty
+
+/-- Implementation detail of the tree map -/
+noncomputable def getEntryLTV [Ord α] [Nonempty ((a : α) × β a)] (k : α) (t : Impl α β) :
+    (a : α) × β a :=
+  getEntryLTD k t Classical.ofNonempty
 
 /-- Implementation detail of the tree map -/
 def getEntryGE [Ord α] [TransOrd α] (k : α) :
@@ -743,6 +805,22 @@ def getKeyLTD [Ord α] (k : α) (t : Impl α β) (fallback : α) : α :=
   t.getKeyLT? k |>.getD fallback
 
 /-- Implementation detail of the tree map -/
+noncomputable def getKeyGEV [Ord α] [Nonempty α] (k : α) (t : Impl α β) : α :=
+  getKeyGED k t Classical.ofNonempty
+
+/-- Implementation detail of the tree map -/
+noncomputable def getKeyGTV [Ord α] [Nonempty α] (k : α) (t : Impl α β) : α :=
+  getKeyGTD k t Classical.ofNonempty
+
+/-- Implementation detail of the tree map -/
+noncomputable def getKeyLEV [Ord α] [Nonempty α] (k : α) (t : Impl α β) : α :=
+  getKeyLED k t Classical.ofNonempty
+
+/-- Implementation detail of the tree map -/
+noncomputable def getKeyLTV [Ord α] [Nonempty α] (k : α) (t : Impl α β) : α :=
+  getKeyLTD k t Classical.ofNonempty
+
+/-- Implementation detail of the tree map -/
 def getKeyGE [Ord α] [TransOrd α] (k : α) :
     (t : Impl α β) → (ho : t.Ordered) → (he : ∃ a ∈ t, (compare a k).isGE) → α
   | .leaf, _, he => False.elim <| by obtain ⟨_, ha, _⟩ := he; cases ha
@@ -824,6 +902,10 @@ def minEntryD : Impl α β → α × β → α × β
   | .inner _ _ _ l@(.inner ..) _, fallback => minEntryD l fallback
 
 /-- Implementation detail of the tree map -/
+noncomputable def minEntryV [Nonempty (α × β)] (t : Impl α β) : α × β :=
+  minEntryD t Classical.ofNonempty
+
+/-- Implementation detail of the tree map -/
 def maxEntry? : Impl α β → Option (α × β)
   | .leaf => none
   | .inner _ k v _ .leaf => some ⟨k, v⟩
@@ -845,6 +927,10 @@ def maxEntryD : Impl α β → α × β → α × β
   | .leaf, fallback => fallback
   | .inner _ k v _ .leaf, _ => ⟨k, v⟩
   | .inner _ _ _ _ r@(.inner ..), fallback => maxEntryD r fallback
+
+/-- Implementation detail of the tree map -/
+noncomputable def maxEntryV [Nonempty (α × β)] (t : Impl α β) : α × β :=
+  maxEntryD t Classical.ofNonempty
 
 /-- Implementation detail of the tree map -/
 @[inline]
@@ -882,6 +968,10 @@ def entryAtIdxD : Impl α β → Nat → α × β → α × β
     | .lt => entryAtIdxD l n fallback
     | .eq => ⟨k, v⟩
     | .gt => entryAtIdxD r (n - l.size - 1) fallback
+
+/-- Implementation detail of the tree map -/
+noncomputable def entryAtIdxV [Nonempty (α × β)] (t : Impl α β) (i : Nat) : α × β :=
+  entryAtIdxD t i Classical.ofNonempty
 
 /-- Implementation detail of the tree map -/
 @[inline]
@@ -968,6 +1058,22 @@ def getEntryLED [Ord α] (k : α) (t : Impl α β) (fallback : α × β) : α ×
 @[inline]
 def getEntryLTD [Ord α] (k : α) (t : Impl α β) (fallback : α × β) : α × β :=
   getEntryLT? k t |>.getD fallback
+
+/-- Implementation detail of the tree map -/
+noncomputable def getEntryGEV [Ord α] [Nonempty (α × β)] (k : α) (t : Impl α β) : α × β :=
+  getEntryGED k t Classical.ofNonempty
+
+/-- Implementation detail of the tree map -/
+noncomputable def getEntryGTV [Ord α] [Nonempty (α × β)] (k : α) (t : Impl α β) : α × β :=
+  getEntryGTD k t Classical.ofNonempty
+
+/-- Implementation detail of the tree map -/
+noncomputable def getEntryLEV [Ord α] [Nonempty (α × β)] (k : α) (t : Impl α β) : α × β :=
+  getEntryLED k t Classical.ofNonempty
+
+/-- Implementation detail of the tree map -/
+noncomputable def getEntryLTV [Ord α] [Nonempty (α × β)] (k : α) (t : Impl α β) : α × β :=
+  getEntryLTD k t Classical.ofNonempty
 
 /-- Implementation detail of the tree map -/
 def getEntryGE [Ord α] [TransOrd α] (k : α) :

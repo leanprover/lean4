@@ -72,16 +72,19 @@ theorem toList_eq {α : Type u} {it : Iter (α := SubarrayIterator α) α} :
   induction it using Iter.inductSteps with | step it ihy ihs
   rw [Iter.toList_eq_match_step, SubarrayIterator.val_step_eq]
   by_cases h : it.internalState.xs.start < it.internalState.xs.stop
-  · simp [h]
+  · simp only [h, ↓reduceDIte, getElem_eq_getElemV]
     have := it.1.xs.start_le_stop
     have := it.1.xs.stop_le_array_size
     rw [ihy (out := it.internalState.xs.array[it.internalState.xs.start])]
     · simp only [Subarray.start]
       rw (occs := [2]) [List.drop_eq_getElem_cons]; rotate_left
       · rw [List.length_take]
-        simp [it.internalState.xs.stop_le_array_size]
+        simp only [Array.length_toList, it.internalState.xs.stop_le_array_size, Nat.min_eq_left]
         exact h
       · simp [Subarray.array, Subarray.stop]
+        rw [List.getElemV_take]
+        · simp
+        · exact h
     · simp only [Iter.IsPlausibleStep, IterM.IsPlausibleStep, Iterator.IsPlausibleStep, instIteratorSubarrayIteratorId, -- TODO
       IterStep.mapIterator_yield, SubarrayIterator.step]
       rw [dif_pos]; rotate_left; exact h
@@ -99,6 +102,19 @@ def count_eq := @length_eq
 end SubarrayIterator
 
 namespace Subarray
+
+instance : LawfulGetElemV (Subarray α) Nat α _ where
+  getElemV_def := by
+    intro _ xs i
+    have h₁ : xs｢i｣ = if h : xs.start + i < xs.stop then xs.array｢xs.start + i｣ else Classical.ofNonempty := by
+      simp [getElemV]
+    have h₂ : xs[i]? = if h : xs.start + i < xs.stop then some (xs.array[xs.start + i]'(Nat.lt_of_lt_of_le h xs.stop_le_array_size)) else none := by
+      conv => lhs; simp only [getElem?_def]
+      conv => rhs; simp only [getElem?_def]
+      conv => lhs; simp only [getElem]; simp only [get]
+      simp only [size_eq, Nat.lt_sub_iff_add_lt, Nat.add_comm i]
+    rw [h₁, h₂]
+    split <;> simp
 
 theorem Internal.iter_eq {α : Type u} {s : Subarray α} :
     Internal.iter s = ⟨⟨s⟩⟩ :=
@@ -230,6 +246,11 @@ public theorem Subarray.toList_eq {xs : Subarray α} :
       simp [Subarray.start, Subarray.stop, *, Subarray.array]
     · intros
       simp [Subarray.array, Subarray.start, Subarray.stop]
+      rw [List.getElemV_take, List.getElemV_take, Array.getElemV_toList, List.getElemV_drop, Array.getElemV_toList]
+      · rename_i h
+        simp at h; omega
+      · rename_i h
+        simp at h; omega
   simp [this, ListSlice.toList_eq, lslice]
 
 -- TODO: The current `List.extract_eq_drop_take` should be called `List.extract_eq_take_drop`
@@ -269,13 +290,29 @@ public theorem Subarray.getElem_eq_getElem_array {xs : Subarray α} {h : i < xs.
     xs[i] = xs.array[xs.start + i]'(by simp only [size_eq] at h; have := xs.stop_le_array_size; omega) := by
   rfl
 
+public theorem Subarray.getElemV_eq_getElemV_array {_ : Nonempty α} {xs : Subarray α} {i : Nat}
+    (h : i < xs.size) :
+    xs｢i｣ = xs.array｢xs.start + i｣ := by
+  simpa using Subarray.getElem_eq_getElem_array (h := h)
+
+public theorem Subarray.getElemV_toList {xs : Subarray α} (h : i < xs.size) :
+    haveI : Nonempty α := ⟨xs[i]⟩
+    xs.toList｢i｣ = xs｢i｣ := by
+  have h' : xs.start + i < xs.stop := by simpa [size_eq, Nat.lt_sub_iff_add_lt, Nat.add_comm] using h
+  simp [getElemV_eq_getElemV_array h, toList_eq_drop_take, List.getElemV_take h']
+
 public theorem Subarray.getElem_toList {xs : Subarray α} {h : i < xs.toList.length} :
     xs.toList[i]'h = xs[i]'(by simpa using h) := by
-  simp [getElem_eq_getElem_array, toList_eq_drop_take]
+  simpa using getElemV_toList (by simpa using h)
+
+public theorem Subarray.getElemV_eq_getElemV_toList {xs : Subarray α} (h : i < xs.size) :
+    haveI : Nonempty α := ⟨xs[i]⟩
+    xs｢i｣ = xs.toList｢i｣ :=
+  (getElemV_toList h).symm
 
 public theorem Subarray.getElem_eq_getElem_toList {xs : Subarray α} {h : i < xs.size} :
     xs[i]'h = xs.toList[i]'(by simpa using h) := by
-  rw [getElem_toList]
+  simpa using getElemV_eq_getElemV_toList h
 
 @[simp, grind =]
 public theorem Subarray.toList_drop {xs : Subarray α} :

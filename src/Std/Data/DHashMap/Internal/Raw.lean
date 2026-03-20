@@ -79,6 +79,10 @@ theorem contains_eq [BEq α] [Hashable α] {m : Raw α β} (h : m.WF) {a : α} :
     m.contains a = Raw₀.contains ⟨m, h.size_buckets_pos⟩ a := by
   simp [Raw.contains, h.size_buckets_pos]
 
+theorem getV_eq [BEq α] [Hashable α] [LawfulBEq α] {m : Raw α β} (h : m.WF) {a : α}
+    [Nonempty (β a)] : m.getV a = Raw₀.getV ⟨m, h.size_buckets_pos⟩ a := by
+  simp [Raw.getV, h.size_buckets_pos]
+
 theorem get_eq [BEq α] [Hashable α] [LawfulBEq α] {m : Raw α β} {a : α} {h : a ∈ m} :
     m.get a h = Raw₀.get ⟨m, by change dite .. = true at h; split at h <;> simp_all⟩ a
       (by change dite .. = true at h; split at h <;> simp_all) := (rfl)
@@ -95,6 +99,10 @@ theorem getKey?_eq [BEq α] [Hashable α] {m : Raw α β} (h : m.WF) {a : α} :
     m.getKey? a = Raw₀.getKey? ⟨m, h.size_buckets_pos⟩ a := by
   simp [Raw.getKey?, h.size_buckets_pos]
 
+theorem getKeyV_eq [BEq α] [Hashable α] {m : Raw α β} (h : m.WF) {a : α} :
+    m.getKeyV a = Raw₀.getKeyV ⟨m, h.size_buckets_pos⟩ a := by
+  simp [Raw.getKeyV, h.size_buckets_pos]
+
 theorem getKey_eq [BEq α] [Hashable α] {m : Raw α β} {a : α} {h : a ∈ m} :
     m.getKey a h = Raw₀.getKey ⟨m, by change dite .. = true at h; split at h <;> simp_all⟩ a
       (by change dite .. = true at h; split at h <;> simp_all) := (rfl)
@@ -106,6 +114,15 @@ theorem getKeyD_eq [BEq α] [Hashable α] {m : Raw α β} (h : m.WF) {a fallback
 theorem getKey!_eq [BEq α] [Hashable α] [Inhabited α] {m : Raw α β} (h : m.WF) {a : α} :
     m.getKey! a = Raw₀.getKey! ⟨m, h.size_buckets_pos⟩ a := by
   simp [Raw.getKey!, h.size_buckets_pos]
+
+theorem getEntryV_eq [BEq α] [Hashable α] [Nonempty ((a : α) × β a)] {m : Raw α β}
+    (h : m.WF) {a : α} : m.getEntryV a = Raw₀.getEntryV ⟨m, h.size_buckets_pos⟩ a := by
+  simp [Raw.getEntryV, h.size_buckets_pos]
+
+theorem getEntry_eq [BEq α] [Hashable α] {m : Raw α β} {a : α} {h : a ∈ m} :
+    m.getEntry a h =
+      Raw₀.getEntry ⟨m, by change dite .. = true at h; split at h <;> simp_all⟩ a
+        (by change dite .. = true at h; split at h <;> simp_all) := (rfl)
 
 theorem erase_eq [BEq α] [Hashable α] {m : Raw α β} (h : m.WF) {a : α} :
     m.erase a = Raw₀.erase ⟨m, h.size_buckets_pos⟩ a := by
@@ -204,6 +221,10 @@ theorem Const.unitOfArray_eq [BEq α] [Hashable α] {a : Array α} :
 theorem Const.get?_eq [BEq α] [Hashable α] {m : Raw α (fun _ => β)} (h : m.WF) {a : α} :
     Raw.Const.get? m a = Raw₀.Const.get? ⟨m, h.size_buckets_pos⟩ a := by
   simp [Raw.Const.get?, h.size_buckets_pos]
+
+theorem Const.getV_eq [BEq α] [Hashable α] [Nonempty β] {m : Raw α (fun _ => β)} (h : m.WF)
+    {a : α} : Raw.Const.getV m a = Raw₀.Const.getV ⟨m, h.size_buckets_pos⟩ a := by
+  simp [Raw.Const.getV, h.size_buckets_pos]
 
 theorem Const.get_eq [BEq α] [Hashable α] {m : Raw α (fun _ => β)} {a : α} {h : a ∈ m} :
     Raw.Const.get m a h = Raw₀.Const.get

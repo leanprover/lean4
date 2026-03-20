@@ -47,11 +47,18 @@ theorem ofFn_add {n m} {f : Fin (n + m) → α} :
   | zero => simp
   | succ m ih => simp [ofFn_succ, ih]
 
-@[simp, grind =] theorem _root_.List.toArray_ofFn {f : Fin n → α} : (List.ofFn f).toArray = Array.ofFn f := by
-  ext <;> simp
+@[simp, grind =] theorem _root_.List.toArray_ofFn {f : Fin n → α} :
+    (List.ofFn f).toArray = Array.ofFn f := by
+  ext i h₁ h₂
+  · simp
+  · simp only [getElem_eq_getElemV, List.getElemV_toArray]
+    rw [getElemV_ofFn, List.getElemV_ofFn]
+    simpa using h₁
 
 @[simp, grind =] theorem toList_ofFn {f : Fin n → α} : (Array.ofFn f).toList = List.ofFn f := by
-  apply List.ext_getElem <;> simp
+  apply List.ext_getElemV
+  · simp
+  · simp +contextual
 
 theorem ofFn_succ' {f : Fin (n+1) → α} :
     ofFn f = #[f 0] ++ ofFn (fun i => f i.succ) := by
@@ -61,19 +68,28 @@ theorem ofFn_succ' {f : Fin (n+1) → α} :
 @[simp]
 theorem ofFn_getElem {xs : Array α} :
     Array.ofFn (fun i : Fin xs.size => xs[i.val]) = xs := by
-  ext <;> simp
+  ext
+  · simp
+  · simp [getElem_eq_getElemV, getElemV_ofFn, *]
 
 @[simp]
 theorem ofFn_eq_empty_iff {f : Fin n → α} : ofFn f = #[] ↔ n = 0 := by
   rw [← Array.toList_inj]
   simp
 
+/-
+PLOG(mem_ofFn):
+I'm surprised that this `rw [getElemV_ofFn]` does not spawn a subgoal.
+I suspect it's related to unification inside proof terms, if that's a thing.
+`simp` doesn't seem to be able to do this.
+-/
+
 @[simp 500, grind =]
 theorem mem_ofFn {n} {f : Fin n → α} {a : α} : a ∈ ofFn f ↔ ∃ i, f i = a := by
   constructor
   · intro w
     obtain ⟨i, h, rfl⟩ := getElem_of_mem w
-    exact ⟨⟨i, by simpa using h⟩, by simp⟩
+    exact ⟨⟨i, by simpa using h⟩, by simp only [getElem_eq_getElemV]; rw [getElemV_ofFn]⟩
   · rintro ⟨i, rfl⟩
     apply mem_of_getElem (i := i) <;> simp
 

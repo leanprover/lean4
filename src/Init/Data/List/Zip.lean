@@ -9,6 +9,7 @@ prelude
 public import Init.Data.Function
 public import Init.Ext
 public import Init.NotationExtra
+public import Init.Data.List.BasicAux
 import Init.Data.List.Lemmas
 import Init.Data.List.TakeDrop
 import Init.Data.Option.Lemmas
@@ -96,11 +97,18 @@ theorem head?_zipWith {f : α → β → γ} :
       | some a, some b => some (f a b) | _, _ => none := by
   simp [head?_eq_getElem?, getElem?_zipWith]
 
-@[grind =]
 theorem head_zipWith {f : α → β → γ} (h):
     (List.zipWith f as bs).head h = f (as.head (by rintro rfl; simp_all)) (bs.head (by rintro rfl; simp_all)) := by
   apply Option.some.inj
   rw [← head?_eq_some_head, head?_zipWith, head?_eq_some_head, head?_eq_some_head]
+
+@[grind =]
+theorem headV_zipWith {f : α → β → γ} (h : (List.zipWith f as bs) ≠ []) :
+    haveI : Nonempty α := ⟨as.head (by rintro rfl; simp_all)⟩
+    haveI : Nonempty β := ⟨bs.head (by rintro rfl; simp_all)⟩
+    haveI : Nonempty γ := ⟨f Classical.ofNonempty Classical.ofNonempty⟩
+    (List.zipWith f as bs).headV = f as.headV bs.headV := by
+  simpa using head_zipWith h
 
 @[simp, grind =]
 theorem zipWith_map {μ} {f : γ → δ → μ} {g : α → γ} {h : β → δ} {l₁ : List α} {l₂ : List β} :

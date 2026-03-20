@@ -56,7 +56,7 @@ theorem getElem_take' {xs : List α} {i j : Nat} (hi : i < xs.length) (hj : i < 
 
 /-- The `i`-th element of a list coincides with the `i`-th element of any of its prefixes of
 length `> i`. Version designed to rewrite from the small list to the big list. -/
-@[simp, grind =] theorem getElem_take {xs : List α} {j i : Nat} {h : i < (xs.take j).length} :
+theorem getElem_take {xs : List α} {j i : Nat} {h : i < (xs.take j).length} :
     (xs.take j)[i] =
     xs[i]'(Nat.lt_of_lt_of_le h (length_take_le' _ _)) := by
   rw [length_take, Nat.lt_min] at h; rw [getElem_take' (xs := xs) _ h.1]
@@ -71,6 +71,19 @@ theorem getElem?_take_eq_none {l : List α} {i j : Nat} (h : i ≤ j) :
   next h => exact getElem?_take_of_lt h
   next h => exact getElem?_take_eq_none (Nat.le_of_not_lt h)
 
+/-- The `i`-th element of a list coincides with the `i`-th element of any of its prefixes of
+length `> i`. Version designed to rewrite from the small list to the big list. -/
+@[simp, grind =]
+theorem getElemV_take {_ : Nonempty α} {xs : List α} {j i : Nat} (h : i < j) :
+    (xs.take j)｢i｣ = xs｢i｣ := by
+  simp [getElemV_def, h]
+
+/-- The `i`-th element of a list coincides with the `i`-th element of any of its prefixes of
+length `> i`. Version designed to rewrite from the big list to the small list. -/
+theorem getElemV_take' {_ : Nonempty α} {xs : List α} {i j : Nat} (hj : i < j) :
+    xs｢i｣ = (xs.take j)｢i｣ := by
+  simp [getElemV_take hj]
+
 theorem head?_take {l : List α} {i : Nat} :
     (l.take i).head? = if i = 0 then none else l.head? := by
   simp [head?_eq_getElem?, getElem?_take]
@@ -83,6 +96,17 @@ theorem head_take {l : List α} {i : Nat} (h : l.take i ≠ []) :
   apply Option.some_inj.1
   rw [← head?_eq_some_head, ← head?_eq_some_head, head?_take, if_neg]
   simp_all
+
+/-
+PLOG(getLast?_take):
+two-level simpa
+-/
+
+theorem headV_take {l : List α} {i : Nat} (h : i ≠ 0 ∧ l ≠ []) :
+    haveI : Nonempty α := ⟨(l.take i).head (by simpa using h)⟩
+    (l.take i).headV = l.headV := by
+  have := head_take (l := l) (i := i) (by simpa using h)
+  simpa
 
 theorem getLast?_take {l : List α} : (l.take i).getLast? = if i = 0 then none else l[i - 1]?.or l.getLast? := by
   rw [getLast?_eq_getElem?, getElem?_take, length_take]
@@ -103,10 +127,21 @@ theorem getLast_take {l : List α} (h : l.take i ≠ []) :
   simp [length_take, Nat.min_def]
   simp at h
   split
-  · rw [getElem?_eq_getElem (by omega)]
+  · rw [getElem?_eq_some_getElemV _ _ (by omega)]
     simp
-  · rw [getElem?_eq_none (by omega), getLast_eq_getElem]
+  · rw [getElem?_eq_none (by omega), getLastV_eq_getElemV]
     simp
+
+/-
+PLOG(getLastV_take):
+two-level simpa
+-/
+
+theorem getLastV_take {l : List α} {i : Nat} (h : i ≠ 0 ∧ l ≠ []) :
+    haveI : Nonempty α := ⟨(l.take i).head (by simpa using h)⟩
+    (l.take i).getLastV = l[i - 1]?.getD l.getLastV := by
+  have := getLast_take (l := l) (i := i) (by simpa using h)
+  simpa
 
 @[grind =]
 theorem take_take : ∀ {i j} {l : List α}, take i (take j l) = take (min i j) l
@@ -243,7 +278,7 @@ theorem getElem_drop' {xs : List α} {i j : Nat} (h : i + j < xs.length) :
 
 /-- The `i + j`-th element of a list coincides with the `j`-th element of the list obtained by
 dropping the first `i` elements. Version designed to rewrite from the small list to the big list. -/
-@[simp, grind =] theorem getElem_drop {xs : List α} {i : Nat} {j : Nat} {h : j < (xs.drop i).length} :
+theorem getElem_drop {xs : List α} {i : Nat} {j : Nat} {h : j < (xs.drop i).length} :
     (xs.drop i)[j] = xs[i + j]'(by
       rw [Nat.add_comm]
       exact Nat.add_lt_of_lt_sub (length_drop ▸ h)) := by
@@ -260,34 +295,73 @@ theorem getElem?_drop {xs : List α} {i j : Nat} : (xs.drop i)[j]? = xs[i + j]? 
     rw [Nat.add_comm] at h
     apply Nat.lt_sub_of_add_lt h
 
+/-- The `i + j`-th element of a list coincides with the `j`-th element of the list obtained by
+dropping the first `i` elements. Version designed to rewrite from the small list to the big list. -/
+@[simp, grind =]
+theorem getElemV_drop {_ : Nonempty α} {xs : List α} {i j : Nat} :
+    (xs.drop i)｢j｣ = xs｢i + j｣ := by
+  simp [getElemV_def, getElem?_drop]
+
+/-- The `i + j`-th element of a list coincides with the `j`-th element of the list obtained by
+dropping the first `i` elements. Version designed to rewrite from the big list to the small list. -/
+theorem getElemV_drop' {xs : List α} {i j : Nat} (h : i + j < xs.length) :
+    haveI : Nonempty α := ⟨xs[i + j]⟩
+    xs｢i + j｣ = (xs.drop i)｢j｣ := by
+  simp [getElemV_drop]
+
+/-
+PLOG(mem_take_iff_getElemV):
+Could not use `rfl` in `rintro` on `getElemV (take i l) j = a` because `a` occurs in the `Nonempty`
+proof term. So we must use `▸`.
+Moreover, `getElemV_take` needs an explicit bounds proof using `omega`.
+-/
+
+theorem mem_take_iff_getElemV {l : List α} {a : α} :
+    a ∈ l.take i ↔ ∃ (j : Nat), j < min i l.length ∧ l｢j｣ = a := by
+  rw [mem_iff_getElemV]
+  constructor
+  · rintro ⟨j, hm, h⟩
+    simp at hm
+    refine h ▸ ⟨j, by omega, by rw [getElemV_take (by omega)]⟩
+  · rintro ⟨j, hm, h⟩
+    refine h ▸ ⟨j, by simpa, by rw [getElemV_take (by omega)]⟩
+
+/-
+PLOG(mem_take_iff_getElem):
+used `← exists_prop` b/c/ of spurious dependency
+-/
+
 theorem mem_take_iff_getElem {l : List α} {a : α} :
     a ∈ l.take i ↔ ∃ (j : Nat) (hm : j < min i l.length), l[j] = a := by
-  rw [mem_iff_getElem]
+  simpa [← exists_prop] using mem_take_iff_getElemV
+
+theorem mem_drop_iff_getElemV {l : List α} {a : α} :
+    a ∈ l.drop i ↔ ∃ (j : Nat), j + i < l.length ∧ l｢i + j｣ = a := by
+  rw [mem_iff_getElemV]
   constructor
-  · rintro ⟨j, hm, rfl⟩
+  · rintro ⟨i, hm, h⟩
     simp at hm
-    refine ⟨j, by omega, by rw [getElem_take]⟩
-  · rintro ⟨j, hm, rfl⟩
-    refine ⟨j, by simpa, by rw [getElem_take]⟩
+    refine h ▸ ⟨i, by omega, by rw [getElemV_drop]⟩
+  · rintro ⟨i, hm, h⟩
+    refine h ▸ ⟨i, by simp; omega, by rw [getElemV_drop]⟩
 
 theorem mem_drop_iff_getElem {l : List α} {a : α} :
     a ∈ l.drop i ↔ ∃ (j : Nat) (hm : j + i < l.length), l[i + j] = a := by
-  rw [mem_iff_getElem]
-  constructor
-  · rintro ⟨i, hm, rfl⟩
-    simp at hm
-    refine ⟨i, by omega, by rw [getElem_drop]⟩
-  · rintro ⟨i, hm, rfl⟩
-    refine ⟨i, by simp; omega, by rw [getElem_drop]⟩
+  simpa [← exists_prop] using mem_drop_iff_getElemV
 
 @[simp] theorem head?_drop {l : List α} {i : Nat} :
     (l.drop i).head? = l[i]? := by
   rw [head?_eq_getElem?, getElem?_drop, Nat.add_zero]
 
-@[simp] theorem head_drop {l : List α} {i : Nat} (h : l.drop i ≠ []) :
+theorem head_drop {l : List α} {i : Nat} (h : l.drop i ≠ []) :
     (l.drop i).head h = l[i]'(by simp_all) := by
   have w : i < l.length := length_lt_of_drop_ne_nil h
-  simp [w, head_eq_iff_head?_eq_some]
+  simp [w, headV_eq_iff_head?_eq_some]
+
+@[simp] theorem headV_drop {l : List α} {i : Nat} (h : i < l.length) :
+    haveI : Nonempty α := ⟨l[i]⟩
+    (l.drop i).headV = l｢i｣ := by
+  simp [h, headV_eq_iff_head?_eq_some]
 
 theorem getLast?_drop {l : List α} : (l.drop i).getLast? = if l.length ≤ i then none else l.getLast? := by
   rw [getLast?_eq_getElem?, getElem?_drop]
@@ -298,12 +372,24 @@ theorem getLast?_drop {l : List α} : (l.drop i).getLast? = if l.length ≤ i th
     congr
     omega
 
+/-
+PLOG(getLastV_drop):
+simplifying `h` using `drop_eq_nil_iff` destroyed the proof needed for applying a lemma.
+Question:  Why can't I just write `simp only [← ..., h, h']`?
+-/
+
+@[simp, grind =] theorem getLastV_drop {l : List α} (h : l.drop i ≠ []) :
+    haveI : Nonempty α := ⟨(l.drop i).head h⟩
+    (l.drop i).getLastV = l.getLastV := by
+  apply Option.some_inj.1
+  have h' : l ≠ [] := List.ne_nil_of_drop_ne_nil h
+  simp only [← getLast?_eq_some_getLastV h, ← getLast?_eq_some_getLastV h', getLast?_drop, ite_eq_right_iff]
+  simp only [ne_eq, drop_eq_nil_iff] at h
+  omega
+
 @[simp, grind =] theorem getLast_drop {l : List α} (h : l.drop i ≠ []) :
     (l.drop i).getLast h = l.getLast (ne_nil_of_length_pos (by simp at h; omega)) := by
-  simp only [ne_eq, drop_eq_nil_iff] at h
-  apply Option.some_inj.1
-  simp only [← getLast?_eq_some_getLast, getLast?_drop, ite_eq_right_iff]
-  omega
+  simpa using getLastV_drop h
 
 theorem drop_length_cons {l : List α} (h : l ≠ []) (a : α) :
     (a :: l).drop l.length = [l.getLast h] := by
@@ -596,7 +682,6 @@ theorem lt_length_left_of_zipWith {f : α → β → γ} {i : Nat} {l : List α}
 theorem lt_length_right_of_zipWith {f : α → β → γ} {i : Nat} {l : List α} {l' : List β}
     (h : i < (zipWith f l l').length) : i < l'.length := by rw [length_zipWith] at h; omega
 
-@[simp, grind =]
 theorem getElem_zipWith {f : α → β → γ} {l : List α} {l' : List β}
     {i : Nat} {h : i < (zipWith f l l').length} :
     (zipWith f l l')[i] =
@@ -607,6 +692,19 @@ theorem getElem_zipWith {f : α → β → γ} {l : List α} {l' : List β}
   exact
     ⟨l[i]'(lt_length_left_of_zipWith h), l'[i],
       by rw [getElem?_eq_getElem], by rw [getElem?_eq_getElem this]; exact ⟨rfl, rfl⟩⟩
+
+/-
+PLOG(getElemV_zipWith):
+seems like the proof obligations are similarly numerous but in other locations.
+-/
+
+@[simp, grind =]
+theorem getElemV_zipWith {f : α → β → γ} {l : List α} {l' : List β}
+    {i : Nat} (hl : i < l.length) (hl' : i < l'.length) :
+    haveI : i < (zipWith f l l').length := by simpa [Nat.lt_min] using And.intro hl hl'
+    (zipWith f l l')｢i｣ = f l｢i｣ l'｢i｣ := by
+  haveI : i < (zipWith f l l').length := by simpa [Nat.lt_min] using And.intro hl hl'
+  simpa using getElem_zipWith (h := this)
 
 theorem zipWith_eq_zipWith_take_min : ∀ {l₁ : List α} {l₂ : List β},
     zipWith f l₁ l₂ = zipWith f (l₁.take (min l₁.length l₂.length)) (l₂.take (min l₁.length l₂.length))
@@ -651,6 +749,14 @@ theorem getElem_zip {l : List α} {l' : List β} {i : Nat} {h : i < (zip l l').l
     (zip l l')[i] =
       (l[i]'(lt_length_left_of_zip h), l'[i]'(lt_length_right_of_zip h)) :=
   getElem_zipWith (h := h)
+
+@[simp, grind =]
+theorem getElemV_zip {l : List α} {l' : List β}
+    {i : Nat} (hl : i < l.length) (hl' : i < l'.length) :
+    haveI : i < (zip l l').length := by simpa [Nat.lt_min] using And.intro hl hl'
+    (zip l l')｢i｣ = (l｢i｣, l'｢i｣) := by
+  haveI : i < (zip l l').length := by simpa [Nat.lt_min] using And.intro hl hl'
+  simpa using getElem_zip (h := this)
 
 theorem zip_eq_zip_take_min : ∀ {l₁ : List α} {l₂ : List β},
     zip l₁ l₂ = zip (l₁.take (min l₁.length l₂.length)) (l₂.take (min l₁.length l₂.length))

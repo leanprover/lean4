@@ -35,7 +35,12 @@ theorem denote_mkAtom_cached {aig : AIG α} {hit} :
   have := hit.hvalid
   simp only [denote_mkAtom]
   unfold denote denote.go
-  split <;> simp_all
+  split
+  · simp_all
+  · simp_all
+  · rename_i lhs' rhs' heq'
+    simp only [getElem_eq_getElemV] at lhs' rhs' heq'
+    simp_all
 
 /--
 `mkAtomCached` does not modify the input AIG upon a cache hit.
@@ -57,16 +62,16 @@ theorem mkAtomCached_miss_aig (aig : AIG α) (hcache : aig.cache.get? (.atom var
 The AIG produced by `AIG.mkAtomCached` agrees with the input AIG on all indices that are valid for
 both.
 -/
-theorem mkAtomCached_decl_eq (aig : AIG α) (var : α) (idx : Nat) {h : idx < aig.decls.size}
-    {hbound} :
-    (aig.mkAtomCached var).aig.decls[idx]'hbound = aig.decls[idx] := by
+theorem mkAtomCached_decl_eq (aig : AIG α) (var : α) (idx : Nat) (h : idx < aig.decls.size) :
+    (aig.mkAtomCached var).aig.decls｢idx｣ = aig.decls｢idx｣ := by
   match hcache : aig.cache.get? (.atom var) with
   | some gate =>
     have := mkAtomCached_hit_aig aig hcache
     simp [this]
   | none =>
     have := mkAtomCached_miss_aig aig hcache
-    simp only [this, Array.getElem_push]
+    have h' : idx < aig.decls.size + 1 := Nat.lt_trans h (Nat.lt_add_one _)
+    simp only [this, Array.getElemV_push h']
     split
     · rfl
     · contradiction
@@ -125,7 +130,12 @@ theorem denote_mkGate_cached {aig : AIG α} {input} {hit} :
   conv =>
     lhs
     unfold denote denote.go
-  split <;> simp_all [denote]
+  split
+  · simp_all
+  · simp_all
+  · rename_i lhs' rhs' heq'
+    simp only [getElem_eq_getElemV] at lhs' rhs' heq'
+    simp_all [denote]
 
 theorem mkGateCached.go_le_size (aig : AIG α) (input : BinaryInput aig) :
     aig.decls.size ≤ (go aig input).aig.decls.size := by
@@ -148,7 +158,7 @@ theorem mkGateCached_le_size (aig : AIG α) (input : BinaryInput aig) :
   · apply mkGateCached.go_le_size
 
 theorem mkGateCached.go_decl_eq (aig : AIG α) (input : BinaryInput aig) :
-    ∀ (idx : Nat) (h1) (h2), (go aig input).aig.decls[idx]'h1 = aig.decls[idx]'h2 := by
+    ∀ (idx : Nat), idx < aig.decls.size → (go aig input).aig.decls｢idx｣ = aig.decls｢idx｣ := by
     generalize hres : go aig input = res
     unfold go at hres
     dsimp only at hres
@@ -177,16 +187,17 @@ theorem mkGateCached.go_decl_eq (aig : AIG α) (input : BinaryInput aig) :
             simp
         · rw [← hres]
           dsimp only
-          intro idx h1 h2
-          rw [Array.getElem_push]
-          simp [h2]
+          intro idx h
+          rw [Array.getElemV_push]
+          · simp [h]
+          · exact Nat.lt_trans h (Nat.lt_add_one _)
 
 /--
 The AIG produced by `AIG.mkGateCached` agrees with the input AIG on all indices that are valid for
 both.
 -/
 theorem mkGateCached_decl_eq (aig : AIG α) (input : BinaryInput aig) :
-    ∀ (idx : Nat) (h1) (h2), (aig.mkGateCached input).aig.decls[idx]'h1 = aig.decls[idx]'h2 := by
+    ∀ (idx : Nat), idx < aig.decls.size → (aig.mkGateCached input).aig.decls｢idx｣ = aig.decls｢idx｣ := by
     generalize hres : mkGateCached aig input = res
     unfold mkGateCached at hres
     dsimp only at hres
@@ -195,12 +206,14 @@ theorem mkGateCached_decl_eq (aig : AIG α) (input : BinaryInput aig) :
       rw [← hres]
       intros
       rw [mkGateCached.go_decl_eq]
+      assumption
 
 instance : LawfulOperator α BinaryInput mkGateCached where
   le_size := mkGateCached_le_size
   decl_eq := by
     intros
     apply mkGateCached_decl_eq
+    assumption
 
 theorem mkGateCached.go_eval_eq_mkGate_eval {aig : AIG α} {input : BinaryInput aig} :
     ⟦go aig input, assign⟧ = ⟦aig.mkGate input, assign⟧ := by

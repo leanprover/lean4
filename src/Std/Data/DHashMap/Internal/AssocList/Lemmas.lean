@@ -109,6 +109,12 @@ theorem getEntryD_eq [BEq α] {l : AssocList α β} {a : α} {fallback : (a : α
     simp only [getEntryD, ih, toList_cons, getEntryD_cons, Bool.ite_eq_cond_iff]
 
 @[simp]
+theorem getEntry_eq_getEntryD_ofNonempty [BEq α] {l : AssocList α β} {a : α} {h} :
+    haveI : Nonempty _ := ⟨l.getEntry a h⟩
+    l.getEntry a h = l.getEntryD a Classical.ofNonempty := by
+  simp only [getEntry_eq, getEntryD_eq, getEntry_eq_getEntryV, getEntryV_eq_getEntryD_ofNonempty]
+
+@[simp]
 theorem getEntry!_eq [BEq α] {l : AssocList α β} {a : α} [Inhabited ((a : α) × β a)] :
     l.getEntry! a = List.getEntry! a l.toList := by
   induction l

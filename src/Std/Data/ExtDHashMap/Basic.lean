@@ -196,6 +196,11 @@ def getD [LawfulBEq α] (m : ExtDHashMap α β)
     (a : α) (fallback : β a) : β a :=
   m.lift (fun m => m.getD a fallback) (fun m m' (h : m ~m m') => h.getD_eq)
 
+@[expose, inherit_doc DHashMap.getV]
+noncomputable def getV [LawfulBEq α] (m : ExtDHashMap α β) (a : α)
+    [Nonempty (β a)] : β a :=
+  m.getD a Classical.ofNonempty
+
 @[inline, inherit_doc DHashMap.erase]
 def erase [EquivBEq α] [LawfulHashable α] (m : ExtDHashMap α β) (a : α) :
     ExtDHashMap α β :=
@@ -223,6 +228,11 @@ def getD [EquivBEq α] [LawfulHashable α]
     (m : ExtDHashMap α (fun _ => β)) (a : α) (fallback : β) : β :=
   m.lift (fun m => DHashMap.Const.getD m a fallback)
     (fun m m' (h : m ~m m') => h.constGetD_eq)
+
+@[expose, inherit_doc ExtDHashMap.getV]
+noncomputable def getV [EquivBEq α] [LawfulHashable α] [Nonempty β]
+    (m : ExtDHashMap α (fun _ => β)) (a : α) : β :=
+  Const.getD m a Classical.ofNonempty
 
 @[inline, inherit_doc DHashMap.Const.get!]
 def get! [EquivBEq α] [LawfulHashable α] [Inhabited β]
@@ -264,6 +274,11 @@ def getKey! [EquivBEq α] [LawfulHashable α] [Inhabited α] (m : ExtDHashMap α
 def getKeyD [EquivBEq α] [LawfulHashable α] (m : ExtDHashMap α β) (a : α) (fallback : α) : α :=
   m.lift (fun m => m.getKeyD a fallback)
     (fun m m' (h : m ~m m') => h.getKeyD_eq)
+
+@[expose, inherit_doc DHashMap.getKeyV]
+noncomputable def getKeyV [EquivBEq α] [LawfulHashable α] (m : ExtDHashMap α β) (a : α) : α :=
+  haveI : Nonempty α := ⟨a⟩
+  m.getKeyD a Classical.ofNonempty
 
 @[inline, inherit_doc DHashMap.size]
 def size [EquivBEq α] [LawfulHashable α] (m : ExtDHashMap α β) : Nat :=

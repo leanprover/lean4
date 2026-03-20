@@ -37,15 +37,17 @@ theorem emptyWithCapacity_eq : emptyWithCapacity (aig := aig) c = empty := by
 @[inline]
 def cast' {aig1 aig2 : AIG α} (s : RefVec aig1 len)
     (h :
-      (∀ {i : Nat} (h : i < len), s.refs[i].gate < aig1.decls.size)
-        → ∀ {i : Nat} (h : i < len), s.refs[i].gate < aig2.decls.size) :
+      (∀ {i : Nat}, i < len → s.refs｢i｣.gate < aig1.decls.size)
+        → ∀ {i : Nat}, i < len → s.refs｢i｣.gate < aig2.decls.size) :
     RefVec aig2 len :=
   { s with
     hrefs := by
       intros
       apply h
-      intros
-      apply s.hrefs
+      · intros
+        apply s.hrefs
+        assumption
+      · assumption
   }
 
 @[inline]
@@ -56,11 +58,12 @@ def cast {aig1 aig2 : AIG α} (s : RefVec aig1 len) (h : aig1.decls.size ≤ aig
     specialize hall hi
     omega
 
+-- TODO: V-ify `get`
 @[inline]
 def get (s : RefVec aig len) (idx : Nat) (hidx : idx < len) : Ref aig :=
   let ⟨refs, hrefs⟩ := s
   let ref := refs[idx]
-  ⟨ref.gate, ref.invert, hrefs ..⟩
+  ⟨ref.gate, ref.invert, by simpa [ref] using hrefs hidx⟩
 
 @[inline]
 def push (s : RefVec aig len) (ref : AIG.Ref aig) : RefVec aig (len + 1) :=
@@ -69,9 +72,10 @@ def push (s : RefVec aig len) (ref : AIG.Ref aig) : RefVec aig (len + 1) :=
     refs.push (.mk ref.gate ref.invert),
     by
       intro i hi
-      simp only [Vector.getElem_push hi]
+      simp only [Vector.getElemV_push hi]
       split
       · apply hrefs
+        assumption
       · simp [Ref.hgate]
   ⟩
 
@@ -98,7 +102,7 @@ theorem get_push_ref_lt (s : RefVec aig len) (ref : AIG.Ref aig) (idx : Nat)
   cases ref
   simp only
   rw [Vector.getElem_push_lt]
-  · simp
+  · simp [hidx]
   · simp [hidx]
 
 @[simp]
@@ -118,11 +122,13 @@ def append (lhs : RefVec aig lw) (rhs : RefVec aig rw) : RefVec aig (lw + rw) :=
     by
       intro i h
       by_cases hsplit : i < lw
-      · rw [Vector.getElem_append_left]
-        apply hl
-        omega
-      · rw [Vector.getElem_append_right]
+      · rw [Vector.getElemV_append_left]
+        · apply hl
+          omega
+        · assumption
+      · rw [Vector.getElemV_append_right]
         · apply hr
+          omega
         · omega
   ⟩
 
@@ -137,11 +143,11 @@ theorem get_append (lhs : RefVec aig lw) (rhs : RefVec aig rw) (idx : Nat)
   simp only [get, append]
   split
   · simp [Ref.mk.injEq]
-    rw [Vector.getElem_append_left]
+    rw [Vector.getElemV_append_left]
     · simp
     · assumption
-  · simp only [Ref.mk.injEq]
-    rw [Vector.getElem_append_right]
+  · simp only [Ref.mk.injEq, getElem_eq_getElemV]
+    rw [Vector.getElemV_append_right]
     · simp
     · omega
 
@@ -170,7 +176,7 @@ where
   go (aig : AIG α) (s : RefVec aig len) (idx : Nat) (acc : Nat) : Nat :=
     if h : idx < len then
       let ref := s.refs[idx]
-      let decl := aig.decls[ref.gate]'(s.hrefs h)
+      let decl := aig.decls[ref.gate]'(by simpa [ref] using s.hrefs h)
       match decl with
       | .false => go aig s (idx + 1) (acc + 1)
       | _ => go aig s (idx + 1) acc

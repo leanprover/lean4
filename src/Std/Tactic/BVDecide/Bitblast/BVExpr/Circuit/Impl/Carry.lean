@@ -67,18 +67,18 @@ theorem go_le_size {aig : AIG α} {cin} {lhs rhs : AIG.RefVec aig w} :
 termination_by w - curr
 
 theorem go_decl_eq {aig : AIG α} {cin} {lhs rhs : AIG.RefVec aig w} :
-    ∀ (idx : Nat) (h1) (h2),
-        (go aig lhs rhs curr cin).aig.decls[idx]'h2 = aig.decls[idx]'h1 := by
+    ∀ (idx : Nat), (h : idx < aig.decls.size) →
+        (go aig lhs rhs curr cin).aig.decls｢idx｣ = aig.decls｢idx｣ := by
   generalize hgo : go aig lhs rhs curr cin = res
   unfold go at hgo
   dsimp only at hgo
   split at hgo
   · rw [← hgo]
     intros
-    rw [go_decl_eq]
-    rw [AIG.LawfulOperator.decl_eq (f := mkFullAdderCarry)]
-    apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := mkFullAdderCarry)
-    assumption
+    rw [go_decl_eq, AIG.LawfulOperator.decl_eq (f := mkFullAdderCarry)]
+    · assumption
+    · apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := mkFullAdderCarry)
+      assumption
   · simp [← hgo]
 termination_by w - curr
 
@@ -93,6 +93,7 @@ instance : AIG.LawfulOperator α OverflowInput mkOverflowBit where
     unfold mkOverflowBit
     dsimp only
     rw [go_decl_eq]
+    assumption
 
 end mkOverflowBit
 

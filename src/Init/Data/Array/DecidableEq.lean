@@ -61,6 +61,10 @@ theorem isEqv_iff_rel {xs ys : Array α} {r} :
     simp only [isEqv, ← h, ↓reduceDIte]
     exact isEqvAux_of_rel h (by simp [h]) w⟩
 
+theorem isEqv_iff_relV [Nonempty α] {xs ys : Array α} {r : α → α → Bool} :
+    Array.isEqv xs ys r ↔ ∃ h : xs.size = ys.size, ∀ (i : Nat), i < xs.size → r xs｢i｣ ys｢i｣ := by
+  simp only [isEqv_iff_rel, getElem_eq_getElemV]
+
 theorem isEqv_eq_decide (xs ys : Array α) (r) :
     Array.isEqv xs ys r =
       if h : xs.size = ys.size then decide (∀ (i : Nat) (h' : i < xs.size), r (xs[i]) (ys[i]'(h ▸ h'))) else false := by
@@ -68,15 +72,21 @@ theorem isEqv_eq_decide (xs ys : Array α) (r) :
   · simp only [h, Bool.true_eq]
     simp only [isEqv_iff_rel] at h
     obtain ⟨h, w⟩ := h
-    simp [h, w]
+    simpa [h] using w
   · let h' := h
     simp only [Bool.not_eq_true] at h
     simp only [h, Bool.false_eq, dite_eq_right_iff, decide_eq_false_iff_not, Classical.not_forall,
       Bool.not_eq_true]
     simpa [isEqv_iff_rel] using h'
 
+theorem isEqv_eq_decideV [Nonempty α] (xs ys : Array α) (r : α → α → Bool) :
+    Array.isEqv xs ys r =
+      if xs.size = ys.size then decide (∀ (i : Nat), i < xs.size → r xs｢i｣ ys｢i｣) else false := by
+  simp only [isEqv_eq_decide, getElem_eq_getElemV]
+  split <;> simp_all
+
 @[simp, grind =] theorem isEqv_toList [BEq α] (xs ys : Array α) : (xs.toList.isEqv ys.toList r) = (xs.isEqv ys r) := by
-  simp [isEqv_eq_decide, List.isEqv_eq_decide, Array.size]; rfl
+  simp [isEqv_eq_decide, List.isEqv_eq_decide, Array.size]
 
 theorem eq_of_isEqv [DecidableEq α] (xs ys : Array α) (h : Array.isEqv xs ys (fun x y => x = y)) : xs = ys := by
   have ⟨h, h'⟩ := rel_of_isEqv h
@@ -153,8 +163,13 @@ theorem beq_eq_decide [BEq α] (xs ys : Array α) :
       decide (∀ (i : Nat) (h' : i < xs.size), xs[i] == ys[i]'(h ▸ h')) else false := by
   simp [BEq.beq, isEqv_eq_decide]
 
+theorem beq_eq_decideV [Nonempty α] [BEq α] (xs ys : Array α) :
+    (xs == ys) =
+      if xs.size = ys.size then decide (∀ (i : Nat), i < xs.size → xs｢i｣ == ys｢i｣) else false := by
+  simp [BEq.beq, isEqv_eq_decideV]
+
 @[simp, grind =] theorem beq_toList [BEq α] (xs ys : Array α) : (xs.toList == ys.toList) = (xs == ys) := by
-  simp [beq_eq_decide, List.beq_eq_decide, Array.size]; rfl
+  simp [beq_eq_decide, List.beq_eq_decide, Array.size]
 
 end Array
 

@@ -42,7 +42,7 @@ namespace Cache
 
 abbrev Inv (assign : Assignment) (aig : AIG BVBit) (cache : Cache aig) : Prop :=
   ∀ k (h1 : k ∈ cache.map), ∀ (i : Nat) (h2 : i < k.w),
-    ⟦aig, ⟨(cache.map.get k h1)[i].gate, (cache.map.get k h1)[i].invert, cache.hbound ..⟩, assign.toAIGAssignment⟧
+    ⟦aig, ⟨(cache.map.get k h1)｢i｣.gate, (cache.map.get k h1)｢i｣.invert, cache.hbound _ h1 h2⟩, assign.toAIGAssignment⟧
       =
     (k.expr.eval assign).getLsbD i
 
@@ -72,30 +72,26 @@ theorem Inv_insert (cache : Cache aig) (expr : BVExpr w) (refs : AIG.RefVec aig 
     subst hkeq
     replace hexpr := eq_of_heq hexpr
     subst hexpr
-    have : ((cache.insert expr refs).map.get ⟨w, expr⟩ hk) = refs.refs := by
+    have : ((cache.insert expr refs).map.getV ⟨w, expr⟩) = refs.refs := by
       unfold Cache.insert
-      apply Std.DHashMap.get_insert_self
+      apply Std.DHashMap.getV_insert_self
     specialize hrefs i hi
     rw [← hrefs]
-    congr 3
-    all_goals
-      rw [getElem_congr_coll]
-      exact this
+    congr 4 <;> simp [this]
   · have hmem : k ∈ cache.map := by
       unfold Cache.insert at hk
       apply Std.DHashMap.mem_of_mem_insert
       · exact hk
       · simp [heq]
-    have : ((cache.insert expr refs).map.get k hk) = cache.map.get k hmem := by
+    have : ((cache.insert expr refs).map.getV k) = cache.map.get k hmem := by
       unfold Cache.insert
-      rw [Std.DHashMap.get_insert]
+      rw [Std.DHashMap.getV_insert]
       simp [heq]
     specialize hinv k hmem i hi
     rw [← hinv]
     congr 3
     all_goals
-      rw [getElem_congr_coll]
-      exact this
+      simp [this]
 
 theorem get?_eq_some_iff (cache : Cache aig) (expr : BVExpr w) :
     cache.get? expr = some refs ↔ cache.map.get? ⟨w, expr⟩ = some refs.refs := by
@@ -113,14 +109,14 @@ theorem denote_eq_eval_of_get?_eq_some_of_Inv (cache : Cache aig) (expr : BVExpr
   have hmem : ⟨w, expr⟩ ∈ cache.map := by
     rw [Std.DHashMap.mem_iff_contains, Std.DHashMap.contains_eq_isSome_get?]
     simp [hsome]
-  have : refs = cache.map.get ⟨w, expr⟩ hmem := by
-    rw [Std.DHashMap.get?_eq_some_get (h := hmem)] at hsome
+  have : refs = cache.map.getV ⟨w, expr⟩ := by
+    rw [Std.DHashMap.get?_eq_some_getV (h' := hmem)] at hsome
     simp only [Option.some.injEq] at hsome
     rw [hsome]
   specialize hinv ⟨w, expr⟩ hmem i h
   rw [← hinv]
   subst this
-  congr
+  simp [RefVec.get]
 
 end Cache
 
@@ -142,9 +138,10 @@ theorem go_denote_mem_prefix (aig : AIG BVBit) (expr : BVExpr w) (assign : Assig
   apply denote.eq_of_isPrefix (entry := ⟨aig, start, inv, hstart⟩)
   apply IsPrefix.of
   · intros
-    apply go_decl_eq
-  · intros
     apply (go aig expr cache).result.property
+  · intros
+    apply go_decl_eq
+    assumption
 
 theorem goCache_denote_mem_prefix (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment)
     (cache : Cache aig) (start : Nat) (hstart) :
@@ -158,12 +155,12 @@ theorem goCache_denote_mem_prefix (aig : AIG BVBit) (expr : BVExpr w) (assign : 
   apply denote.eq_of_isPrefix (entry := ⟨aig, start, inv, hstart⟩)
   apply IsPrefix.of
   · intros
-    apply goCache_decl_eq
-  · intros
     apply (goCache aig expr cache).result.property
+  · intros
+    apply goCache_decl_eq
+    assumption
 
 set_option maxHeartbeats 400000
-set_option backward.dsimp.instances true in -- **TODO**: Try to remove it.
 mutual
 
 
@@ -515,9 +512,10 @@ theorem bitblast_aig_IsPrefix (aig : AIG BVBit) (input : WithCache (BVExpr w) ai
     IsPrefix aig.decls (bitblast aig input).result.val.aig.decls := by
   apply IsPrefix.of
   · intros
-    apply bitblast_decl_eq
-  · intros
     apply (bitblast aig input).result.property
+  · intros
+    apply bitblast_decl_eq
+    assumption
 
 theorem bitblast_denote_mem_prefix (aig : AIG BVBit) (input : WithCache (BVExpr w) aig)
     (assign : Assignment) (start : Nat) (hstart) :

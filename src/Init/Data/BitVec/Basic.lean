@@ -116,6 +116,14 @@ section getElem
 instance : GetElem (BitVec w) Nat Bool fun _ i => i < w where
   getElem xs i h := xs.getLsb ⟨i, h⟩
 
+noncomputable instance : GetElemV (BitVec w) Nat Bool where
+  getElemV x i := if h : i < w then x[i] else Classical.ofNonempty
+
+instance : LawfulGetElemV (BitVec w) Nat Bool fun _ i => i < w where
+  getElemV_def x i := by
+    simp only [getElemV, getElem?, decidableGetElem?]
+    split <;> rfl
+
 /-- We prefer `x[i]` as the simp normal form for `getLsb'` -/
 @[simp, grind =] theorem getLsb_eq_getElem (x : BitVec w) (i : Fin w) :
     x.getLsb i = x[i] := rfl
@@ -124,13 +132,22 @@ instance : GetElem (BitVec w) Nat Bool fun _ i => i < w where
 @[simp, grind =] theorem getLsb?_eq_getElem? (x : BitVec w) (i : Nat) :
     x.getLsb? i = x[i]? := rfl
 
-@[grind =_] -- Activate when we see `x.toNat.testBit i`.
+-- Activate when we see `x.toNat.testBit i`.
 theorem getElem_eq_testBit_toNat (x : BitVec w) (i : Nat) (h : i < w) :
   x[i] = x.toNat.testBit i := rfl
 
-@[simp, grind =]
+@[grind =_]
+theorem getElemV_eq_testBit_toNat (x : BitVec w) (i : Nat) (h : i < w) :
+    x｢i｣ = x.toNat.testBit i := by
+  simpa using getElem_eq_testBit_toNat _ _ h
+
 theorem getLsbD_eq_getElem {x : BitVec w} {i : Nat} (h : i < w) :
     x.getLsbD i = x[i] := rfl
+
+@[simp, grind =]
+theorem getLsbD_eq_getElemV {x : BitVec w} {i : Nat} (h : i < w) :
+    x.getLsbD i = x｢i｣ := by
+  simpa using getLsbD_eq_getElem h
 
 end getElem
 

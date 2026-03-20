@@ -41,10 +41,10 @@ instance : AIG.LawfulVecOperator α AIG.BinaryRefVec blastSub where
   decl_eq := by
     intros
     unfold blastSub
-    rw [AIG.LawfulVecOperator.decl_eq (f := blastAdd)]
-    rw [AIG.LawfulVecOperator.decl_eq (f := blastNeg)]
-    apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := blastNeg)
-    assumption
+    rw [AIG.LawfulVecOperator.decl_eq (f := blastAdd), AIG.LawfulVecOperator.decl_eq (f := blastNeg)]
+    · assumption
+    · apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := blastNeg)
+      assumption
 
 
 end bitblast

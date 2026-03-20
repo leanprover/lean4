@@ -63,8 +63,9 @@ def bitblast (aig : AIG BVBit) (input : BVExpr.WithCache BVPred aig) : Return ai
     ⟨⟨⟨aig, res⟩, hrefs⟩, cache⟩
 
 theorem bitblast_decl_eq (aig : AIG BVBit) (input : BVExpr.WithCache BVPred aig) :
-    ∀ (idx : Nat) (h1) (h2), (bitblast aig input).result.val.aig.decls[idx]'h2 = aig.decls[idx]'h1 := by
-  intro idx h1 h2
+    ∀ (idx : Nat), (h : idx < aig.decls.size) →
+      (bitblast aig input).result.val.aig.decls｢idx｣ = aig.decls｢idx｣ := by
+  intro idx h1
   rcases input with ⟨pred, cache⟩
   unfold BVPred.bitblast
   cases pred with
@@ -72,9 +73,8 @@ theorem bitblast_decl_eq (aig : AIG BVBit) (input : BVExpr.WithCache BVPred aig)
     cases op with
     | eq =>
       dsimp only
-      rw [AIG.LawfulOperator.decl_eq (f := mkEq)]
-      rw [BVExpr.bitblast_decl_eq]
-      rw [BVExpr.bitblast_decl_eq]
+      rw [AIG.LawfulOperator.decl_eq (f := mkEq), BVExpr.bitblast_decl_eq, BVExpr.bitblast_decl_eq]
+      · assumption
       · apply BVExpr.bitblast_lt_size_of_lt_aig_size
         assumption
       · apply BVExpr.bitblast_lt_size_of_lt_aig_size
@@ -82,9 +82,10 @@ theorem bitblast_decl_eq (aig : AIG BVBit) (input : BVExpr.WithCache BVPred aig)
         assumption
     | ult =>
       simp only
-      rw [AIG.LawfulOperator.decl_eq (f := mkUlt)]
-      rw [BVExpr.bitblast_decl_eq]
-      rw [BVExpr.bitblast_decl_eq]
+      rw [AIG.LawfulOperator.decl_eq (f := mkUlt),
+        BVExpr.bitblast_decl_eq,
+        BVExpr.bitblast_decl_eq]
+      · assumption
       · apply BVExpr.bitblast_lt_size_of_lt_aig_size
         assumption
       · apply BVExpr.bitblast_lt_size_of_lt_aig_size
@@ -93,6 +94,7 @@ theorem bitblast_decl_eq (aig : AIG BVBit) (input : BVExpr.WithCache BVPred aig)
   | getLsbD expr idx =>
     simp only
     rw [BVExpr.bitblast_decl_eq]
+    assumption
 
 theorem bitblast_le_size (aig : AIG BVBit) (input : BVExpr.WithCache BVPred aig) :
     aig.decls.size ≤ (bitblast aig input).result.val.aig.decls.size := by

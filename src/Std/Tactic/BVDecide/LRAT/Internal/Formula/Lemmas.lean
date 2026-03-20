@@ -110,6 +110,9 @@ theorem size_ofArray_fold_fn {n : Nat} (assignments : Array Assignment)
   rw [ofArray_fold_fn.eq_def]
   grind
 
+example (h : i < n) (h' : (Array.replicate n (5 : Nat))｢i｣ = 0) : 5 = 0 := by
+  grind
+
 theorem readyForRupAdd_ofArray {n : Nat} (arr : Array (Option (DefaultClause n))) :
     ReadyForRupAdd (ofArray arr) := by
   constructor
@@ -123,13 +126,14 @@ theorem readyForRupAdd_ofArray {n : Nat} (arr : Array (Option (DefaultClause n))
     apply Exists.intro hsize
     let ModifiedAssignmentsInvariant (assignments : Array Assignment) : Prop :=
       ∃ hsize : assignments.size = n,
-        ∀ i : PosFin n, ∀ b : Bool, hasAssignment b (assignments[i.1]'(by rw [hsize]; exact i.2.2)) →
+        ∀ i : PosFin n, ∀ b : Bool, hasAssignment b assignments｢i.1｣ →
         (unit (i, b)) ∈ toList (ofArray arr)
     have hb : ModifiedAssignmentsInvariant (.replicate n unassigned) := by
       have hsize : (Array.replicate n unassigned).size = n := by simp only [Array.size_replicate]
       apply Exists.intro hsize
       intro i b h
-      by_cases hb : b <;> simp [hasAssignment, hb, hasPosAssignment, hasNegAssignment] at h
+      have : i.val < n := i.property.2
+      by_cases hb : b <;> simp [hasAssignment, hb, hasPosAssignment, hasNegAssignment, this] at h
     have hl (acc : Array Assignment) (ih : ModifiedAssignmentsInvariant acc) (cOpt : Option (DefaultClause n))
       (cOpt_in_arr : cOpt ∈ arr.toList) : ModifiedAssignmentsInvariant (ofArray_fold_fn acc cOpt) := by
       have hsize : (ofArray_fold_fn acc cOpt).size = n := by rw [size_ofArray_fold_fn, ih.1]
@@ -148,7 +152,7 @@ theorem readyForRupAdd_ofArray {n : Nat} (arr : Array (Option (DefaultClause n))
           rcases ih with ⟨hsize, ih⟩
           by_cases i = l.1
           next i_eq_l =>
-            simp only [i_eq_l, Array.getElem_modify_self] at h
+            simp only [i_eq_l, Array.getElemV_modify_self, l.property.2, hsize] at h
             by_cases b
             next b_eq_true =>
               rw [isUnit_iff, DefaultClause.toList] at heq
@@ -171,7 +175,7 @@ theorem readyForRupAdd_ofArray {n : Nat} (arr : Array (Option (DefaultClause n))
           rcases ih with ⟨hsize, ih⟩
           by_cases i = l.1
           next i_eq_l =>
-            simp only [i_eq_l, Array.getElem_modify_self] at h
+            simp only [i_eq_l, Array.getElemV_modify_self, l.property.2, hsize] at h
             by_cases b
             next b_eq_true =>
               simp only [hasAssignment, b_eq_true, ite_true, hasPos_addNeg] at h

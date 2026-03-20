@@ -9,6 +9,7 @@ prelude
 import all Init.Data.UInt.BasicAux
 public import Init.Data.Array.DecidableEq
 public import Init.Data.List.Attach
+public import Init.Data.Option.BasicAux
 import Init.Data.Array.Bootstrap
 import Init.Data.Array.Lemmas
 import Init.Omega
@@ -84,6 +85,22 @@ instance : GetElem ByteArray Nat UInt8 fun xs i => i < xs.size where
 
 instance : GetElem ByteArray USize UInt8 fun xs i => i.toFin < xs.size where
   getElem xs i h := xs.uget i h
+
+noncomputable instance : GetElemV ByteArray Nat UInt8 where
+  getElemV xs i := xs[i]?.getV
+
+noncomputable instance : GetElemV ByteArray USize UInt8 where
+  getElemV xs i := xs[i]?.getV
+
+instance : LawfulGetElemV ByteArray Nat UInt8 _ where
+  getElemV_def := by
+    intros
+    simp [getElemV, Option.getV_eq_get?]; rfl
+
+instance : LawfulGetElemV ByteArray USize UInt8 _ where
+  getElemV_def := by
+    intros
+    simp [getElemV, Option.getV_eq_get?]; rfl
 
 /--
 Replaces the byte at the given index.

@@ -36,6 +36,7 @@ instance : AIG.LawfulVecOperator α AIG.RefVec blastNot where
     intros
     unfold blastNot
     apply AIG.LawfulVecOperator.decl_eq (f := AIG.RefVec.map)
+    assumption
 
 end bitblast
 end BVExpr

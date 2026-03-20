@@ -161,10 +161,17 @@ Tries to retrieve the mapping for the given key, panicking if no such mapping is
 @[inline] def get! [Inhabited β] (m : HashMap α β) (a : α) : β :=
   DHashMap.Const.get! m.inner a
 
+@[inherit_doc DHashMap.Const.getV]
+noncomputable def getV [Nonempty β] (m : HashMap α β) (a : α) : β :=
+  m.getD a Classical.ofNonempty
+
 instance [BEq α] [Hashable α] : GetElem? (HashMap α β) α β (fun m a => a ∈ m) where
   getElem m a h := m.get a h
   getElem? m a := m.get? a
   getElem! m a := m.get! a
+
+noncomputable instance : GetElemV (HashMap α β) α β where
+  getElemV m a := m.getV a
 
 @[inline, inherit_doc DHashMap.getKey?] def getKey? (m : HashMap α β) (a : α) : Option α :=
   DHashMap.getKey? m.inner a
@@ -177,6 +184,11 @@ instance [BEq α] [Hashable α] : GetElem? (HashMap α β) α β (fun m a => a �
 
 @[inline, inherit_doc DHashMap.getKey!] def getKey! [Inhabited α] (m : HashMap α β) (a : α) : α :=
   DHashMap.getKey! m.inner a
+
+@[inherit_doc DHashMap.getKeyV]
+noncomputable def getKeyV (m : HashMap α β) (a : α) : α :=
+  haveI : Nonempty α := ⟨a⟩
+  m.getKeyD a Classical.ofNonempty
 
 @[cbv_opaque, inline, inherit_doc DHashMap.erase] def erase (m : HashMap α β) (a : α) :
     HashMap α β :=

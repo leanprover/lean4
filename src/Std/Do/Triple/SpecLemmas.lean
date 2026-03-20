@@ -111,7 +111,7 @@ def Cursor.tail (s : Cursor l) (h : 0 < s.suffix.length := by get_elem_tactic) :
   , suffix := s.suffix.tail
   , property := by
       have : s.suffix ≠ [] := by simp only [List.ne_nil_iff_length_pos, h]
-      simp [current, ←List.head_eq_getElem this, s.property] }
+      simp [current, List.getElemV_zero, this, s.property] }
 
 @[simp, grind =] theorem Cursor.prefix_at (l : List α) : (Cursor.at l n).prefix = l.take n := rfl
 @[simp, grind =] theorem Cursor.suffix_at (l : List α) : (Cursor.at l n).suffix = l.drop n := rfl
@@ -120,7 +120,7 @@ def Cursor.tail (s : Cursor l) (h : 0 < s.suffix.length := by get_elem_tactic) :
   induction n with simp_all [Cursor.current]
 @[simp, grind =] theorem Cursor.tail_at (l : List α) (h : n < l.length) :
     (Cursor.at l n).tail (by simpa using Nat.sub_lt_sub_right (Nat.le_refl n) h) = Cursor.at l (n + 1) := by
-  simp [Cursor.tail, Cursor.at, Cursor.current]
+  simp [Cursor.tail, Cursor.at, Cursor.current, List.take_succ_eq_append_getElem h]
 
 /--
 The position of the cursor in the list.

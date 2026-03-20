@@ -88,6 +88,18 @@ theorem getElem_cons {b : Bool} {n} {x : BitVec n} {i : Nat} (h : i < n + 1) :
     have p2 : i - n ≠ 0 := by omega
     simp [p1, p2, Nat.testBit_bool_toNat]
 
+/-
+PLOG(getElemV_cons):
+* spurious dependency (that's why `← dite_eq_ite`)
+* `getElemV_pos` requires manual arguments `(cons b x)` and `i`
+-/
+
+@[grind =]
+theorem getElemV_cons {b : Bool} {n} {x : BitVec n} {i : Nat} (h : i < n + 1) :
+    (cons b x)｢i｣ = if i = n then b else x｢i｣ := by
+  rw [getElemV_pos (cons b x) i h, getElem_cons h]
+  simp [← dite_eq_ite]
+
 private theorem lt_two_pow_of_le {x m n : Nat} (lt : x < 2 ^ m) (le : m ≤ n) : x < 2 ^ n :=
   Nat.lt_of_lt_of_le lt (Nat.pow_le_pow_right (by trivial : 0 < 2) le)
 
@@ -113,19 +125,25 @@ theorem ofNat_toNat (m : Nat) (x : BitVec n) : BitVec.ofNat m x.toNat = setWidth
   simp only [toNat_ofNat, toNat_setWidth]
 
 @[grind =]
+theorem getElemV_setWidth' (x : BitVec w) (i : Nat) (h : w ≤ v) (hi : i < v) :
+    (setWidth' h x)｢i｣ = x.getLsbD i := by
+  rw [getElemV_eq_testBit_toNat _ _ hi, toNat_setWidth', getLsbD]
+
 theorem getElem_setWidth' (x : BitVec w) (i : Nat) (h : w ≤ v) (hi : i < v) :
     (setWidth' h x)[i] = x.getLsbD i := by
-  rw [getElem_eq_testBit_toNat, toNat_setWidth', getLsbD]
+  simpa using getElemV_setWidth' x i h hi
 
 @[simp, grind =]
-theorem getElem_setWidth (m : Nat) (x : BitVec n) (i : Nat) (h : i < m) :
-    (setWidth m x)[i] = x.getLsbD i := by
+theorem getElemV_setWidth (m : Nat) (x : BitVec n) (i : Nat) (h : i < m) :
+    (setWidth m x)｢i｣ = x.getLsbD i := by
   rw [setWidth]
   split
-  · rw [getElem_setWidth']
-  · simp only [ofNat_toNat, getElem_eq_testBit_toNat, toNat_setWidth, Nat.testBit_mod_two_pow,
-      getLsbD, Bool.and_eq_right_iff_imp, decide_eq_true_eq]
-    omega
+  · rw [getElemV_setWidth' x i ‹_› h]
+  · simp [ofNat_toNat, getElemV_eq_testBit_toNat, getLsbD, *]
+
+theorem getElem_setWidth (m : Nat) (x : BitVec n) (i : Nat) (h : i < m) :
+    (setWidth m x)[i] = x.getLsbD i := by
+  simpa using getElemV_setWidth _ _ _ h
 
 -- Later this is provable by `grind`, so doesn't need an annotation.
 @[simp] theorem cons_msb_setWidth (x : BitVec (w+1)) : (cons x.msb (x.setWidth w)) = x := by

@@ -182,6 +182,10 @@ def get! [LawfulEqCmp cmp] (t : Raw α β cmp) (a : α) [Inhabited (β a)]  : β
 def getD [LawfulEqCmp cmp] (t : Raw α β cmp) (a : α) (fallback : β a) : β a :=
   letI : Ord α := ⟨cmp⟩; t.inner.getD a fallback
 
+@[inherit_doc DTreeMap.getV]
+noncomputable def getV [LawfulEqCmp cmp] (t : Raw α β cmp) (a : α) [Nonempty (β a)] : β a :=
+  t.getD a Classical.ofNonempty
+
 @[inline, inherit_doc DTreeMap.getEntry?]
 def getEntry? (t : Raw α β cmp) (a : α) : Option ((a : α) × β a) :=
   letI : Ord α := ⟨cmp⟩; t.inner.getEntry? a
@@ -197,6 +201,11 @@ def getEntry! [Inhabited ((a : α) × β a)](t : Raw α β cmp) (a : α) : (a : 
 @[inline, inherit_doc DTreeMap.getEntryD]
 def getEntryD (t : Raw α β cmp) (a : α) (fallback : (a : α) × β a) : (a : α) × β a :=
   letI : Ord α := ⟨cmp⟩; t.inner.getEntryD a fallback
+
+@[inherit_doc DTreeMap.getEntryV]
+noncomputable def getEntryV [Nonempty ((a : α) × β a)] (t : Raw α β cmp) (a : α) :
+    (a : α) × β a :=
+  t.getEntryD a Classical.ofNonempty
 
 @[inline, inherit_doc DTreeMap.getKey?]
 def getKey? (t : Raw α β cmp) (a : α) : Option α :=
@@ -214,6 +223,11 @@ def getKey! [Inhabited α] (t : Raw α β cmp) (a : α) : α :=
 def getKeyD (t : Raw α β cmp) (a : α) (fallback : α) : α :=
   letI : Ord α := ⟨cmp⟩; t.inner.getKeyD a fallback
 
+@[inherit_doc DTreeMap.getKeyV]
+noncomputable def getKeyV (t : Raw α β cmp) (a : α) : α :=
+  haveI : Nonempty α := ⟨a⟩
+  t.getKeyD a Classical.ofNonempty
+
 @[inline, inherit_doc DTreeMap.minEntry?]
 def minEntry? (t : Raw α β cmp) : Option ((a : α) × β a) :=
   letI : Ord α := ⟨cmp⟩; t.inner.minEntry?
@@ -229,6 +243,10 @@ def minEntry! [Inhabited ((a : α) × β a)] (t : Raw α β cmp) : (a : α) × �
 @[inline, inherit_doc DTreeMap.minEntryD]
 def minEntryD (t : Raw α β cmp) (fallback : (a : α) × β a) : (a : α) × β a :=
   letI : Ord α := ⟨cmp⟩; t.inner.minEntryD fallback
+
+@[inherit_doc DTreeMap.minEntryV]
+noncomputable def minEntryV [Nonempty ((a : α) × β a)] (t : Raw α β cmp) : (a : α) × β a :=
+  t.minEntryD Classical.ofNonempty
 
 @[inline, inherit_doc DTreeMap.maxEntry?]
 def maxEntry? (t : Raw α β cmp) : Option ((a : α) × β a) :=
@@ -246,6 +264,10 @@ def maxEntry! [Inhabited ((a : α) × β a)] (t : Raw α β cmp) : (a : α) × �
 def maxEntryD (t : Raw α β cmp) (fallback : (a : α) × β a) : (a : α) × β a :=
   letI : Ord α := ⟨cmp⟩; t.inner.maxEntryD fallback
 
+@[inherit_doc DTreeMap.maxEntryV]
+noncomputable def maxEntryV [Nonempty ((a : α) × β a)] (t : Raw α β cmp) : (a : α) × β a :=
+  t.maxEntryD Classical.ofNonempty
+
 @[inline, inherit_doc DTreeMap.minKey?]
 def minKey? (t : Raw α β cmp) : Option α :=
   letI : Ord α := ⟨cmp⟩; t.inner.minKey?
@@ -261,6 +283,10 @@ def minKeyD (t : Raw α β cmp) (fallback : α) : α :=
 @[inline, inherit_doc DTreeMap.minKey!]
 def minKey! [Inhabited α] (t : Raw α β cmp) : α :=
   letI : Ord α := ⟨cmp⟩; t.inner.minKey!
+
+@[inherit_doc DTreeMap.minKeyV]
+noncomputable def minKeyV [Nonempty α] (t : Raw α β cmp) : α :=
+  t.minKeyD Classical.ofNonempty
 
 @[inline, inherit_doc DTreeMap.maxKey?]
 def maxKey? (t : Raw α β cmp) : Option α :=
@@ -278,6 +304,10 @@ def maxKey! [Inhabited α] (t : Raw α β cmp) : α :=
 def maxKeyD (t : Raw α β cmp) (fallback : α) : α :=
   letI : Ord α := ⟨cmp⟩; t.inner.maxKeyD fallback
 
+@[inherit_doc DTreeMap.maxKeyV]
+noncomputable def maxKeyV [Nonempty α] (t : Raw α β cmp) : α :=
+  t.maxKeyD Classical.ofNonempty
+
 @[inline, inherit_doc DTreeMap.entryAtIdx?]
 def entryAtIdx? (t : Raw α β cmp) (n : Nat) : Option ((a : α) × β a) :=
   letI : Ord α := ⟨cmp⟩; t.inner.entryAtIdx? n
@@ -294,6 +324,11 @@ def entryAtIdx! [Inhabited ((a : α) × β a)] (t : Raw α β cmp) (n : Nat) : (
 def entryAtIdxD (t : Raw α β cmp) (n : Nat) (fallback : (a : α) × β a) : (a : α) × β a :=
   letI : Ord α := ⟨cmp⟩; t.inner.entryAtIdxD n fallback
 
+@[inherit_doc DTreeMap.entryAtIdxV]
+noncomputable def entryAtIdxV [Nonempty ((a : α) × β a)] (t : Raw α β cmp) (n : Nat) :
+    (a : α) × β a :=
+  t.entryAtIdxD n Classical.ofNonempty
+
 @[inline, inherit_doc DTreeMap.keyAtIdx?]
 def keyAtIdx? (t : Raw α β cmp) (n : Nat) : Option α :=
   letI : Ord α := ⟨cmp⟩; Impl.keyAtIdx? t.inner n
@@ -309,6 +344,10 @@ def keyAtIdx! [Inhabited α] (t : Raw α β cmp) (n : Nat) : α :=
 @[inline, inherit_doc DTreeMap.keyAtIdxD]
 def keyAtIdxD (t : Raw α β cmp) (n : Nat) (fallback : α) : α :=
   letI : Ord α := ⟨cmp⟩; t.inner.keyAtIdxD n fallback
+
+@[inherit_doc DTreeMap.keyAtIdxV]
+noncomputable def keyAtIdxV [Nonempty α] (t : Raw α β cmp) (n : Nat) : α :=
+  t.keyAtIdxD n Classical.ofNonempty
 
 @[inline, inherit_doc DTreeMap.getEntryGE?]
 def getEntryGE? (t : Raw α β cmp) (k : α) : Option ((a : α) × β a) :=
@@ -362,6 +401,26 @@ def getEntryLED (t : Raw α β cmp) (k : α) (fallback : (a : α) × β a) : (a 
 def getEntryLTD (t : Raw α β cmp) (k : α) (fallback : (a : α) × β a) : (a : α) × β a :=
   letI : Ord α := ⟨cmp⟩; Impl.getEntryLTD k t.inner fallback
 
+@[inherit_doc DTreeMap.getEntryGEV]
+noncomputable def getEntryGEV [Nonempty ((a : α) × β a)] (t : Raw α β cmp) (k : α) :
+    (a : α) × β a :=
+  t.getEntryGED k Classical.ofNonempty
+
+@[inherit_doc DTreeMap.getEntryGTV]
+noncomputable def getEntryGTV [Nonempty ((a : α) × β a)] (t : Raw α β cmp) (k : α) :
+    (a : α) × β a :=
+  t.getEntryGTD k Classical.ofNonempty
+
+@[inherit_doc DTreeMap.getEntryLEV]
+noncomputable def getEntryLEV [Nonempty ((a : α) × β a)] (t : Raw α β cmp) (k : α) :
+    (a : α) × β a :=
+  t.getEntryLED k Classical.ofNonempty
+
+@[inherit_doc DTreeMap.getEntryLTV]
+noncomputable def getEntryLTV [Nonempty ((a : α) × β a)] (t : Raw α β cmp) (k : α) :
+    (a : α) × β a :=
+  t.getEntryLTD k Classical.ofNonempty
+
 @[inline, inherit_doc DTreeMap.getKeyGE?]
 def getKeyGE? (t : Raw α β cmp) (k : α) : Option α :=
   letI : Ord α := ⟨cmp⟩; t.inner.getKeyGE? k
@@ -414,6 +473,22 @@ def getKeyLED (t : Raw α β cmp) (k : α) (fallback : α) : α :=
 def getKeyLTD (t : Raw α β cmp) (k : α) (fallback : α) : α :=
   letI : Ord α := ⟨cmp⟩; Impl.getKeyLTD k t.inner fallback
 
+@[inherit_doc DTreeMap.getKeyGEV]
+noncomputable def getKeyGEV [Nonempty α] (t : Raw α β cmp) (k : α) : α :=
+  t.getKeyGED k Classical.ofNonempty
+
+@[inherit_doc DTreeMap.getKeyGTV]
+noncomputable def getKeyGTV [Nonempty α] (t : Raw α β cmp) (k : α) : α :=
+  t.getKeyGTD k Classical.ofNonempty
+
+@[inherit_doc DTreeMap.getKeyLEV]
+noncomputable def getKeyLEV [Nonempty α] (t : Raw α β cmp) (k : α) : α :=
+  t.getKeyLED k Classical.ofNonempty
+
+@[inherit_doc DTreeMap.getKeyLTV]
+noncomputable def getKeyLTV [Nonempty α] (t : Raw α β cmp) (k : α) : α :=
+  t.getKeyLTD k Classical.ofNonempty
+
 namespace Const
 
 variable {β : Type v}
@@ -440,6 +515,10 @@ def get! [Inhabited β] (t : Raw α β cmp) (a : α) : β :=
 def getD (t : Raw α β cmp) (a : α) (fallback : β) : β :=
   letI : Ord α := ⟨cmp⟩; Impl.Const.getD t.inner a fallback
 
+@[inherit_doc DTreeMap.Const.getV]
+noncomputable def getV [Nonempty β] (t : Raw α β cmp) (a : α) : β :=
+  letI : Ord α := ⟨cmp⟩; Const.getD t a Classical.ofNonempty
+
 @[inline, inherit_doc DTreeMap.Const.minEntry?]
 def minEntry? (t : Raw α β cmp) : Option (α × β) :=
   letI : Ord α := ⟨cmp⟩; Impl.Const.minEntry? t.inner
@@ -456,6 +535,10 @@ def minEntry! [Inhabited (α × β)] (t : Raw α β cmp) : α × β :=
 def minEntryD (t : Raw α β cmp) (fallback : α × β) : α × β :=
   letI : Ord α := ⟨cmp⟩; Impl.Const.minEntryD t.inner fallback
 
+@[inherit_doc DTreeMap.Const.minEntryV]
+noncomputable def minEntryV [Nonempty (α × β)] (t : Raw α β cmp) : α × β :=
+  minEntryD t Classical.ofNonempty
+
 @[inline, inherit_doc DTreeMap.Const.maxEntry?]
 def maxEntry? (t : Raw α β cmp) : Option (α × β) :=
   letI : Ord α := ⟨cmp⟩; Impl.Const.maxEntry? t.inner
@@ -467,6 +550,10 @@ def maxEntry! [Inhabited (α × β)] (t : Raw α β cmp) : α × β :=
 @[inline, inherit_doc DTreeMap.Const.maxEntryD]
 def maxEntryD (t : Raw α β cmp) (fallback : α × β) : α × β :=
   letI : Ord α := ⟨cmp⟩; Impl.Const.maxEntryD t.inner fallback
+
+@[inherit_doc DTreeMap.Const.maxEntryV]
+noncomputable def maxEntryV [Nonempty (α × β)] (t : Raw α β cmp) : α × β :=
+  maxEntryD t Classical.ofNonempty
 
 @[inline, inherit_doc DTreeMap.Const.entryAtIdx?]
 def entryAtIdx? (t : Raw α β cmp) (n : Nat) : Option (α × β) :=
@@ -484,6 +571,10 @@ def entryAtIdx! [Inhabited (α × β)] (t : Raw α β cmp) (n : Nat) : α × β 
 def entryAtIdxD (t : Raw α β cmp) (n : Nat)
     (fallback : α × β) : α × β :=
   letI : Ord α := ⟨cmp⟩; Impl.Const.entryAtIdxD t.inner n fallback
+
+@[inherit_doc DTreeMap.Const.entryAtIdxV]
+noncomputable def entryAtIdxV [Nonempty (α × β)] (t : Raw α β cmp) (n : Nat) : α × β :=
+  entryAtIdxD t n Classical.ofNonempty
 
 @[inline, inherit_doc DTreeMap.Const.getEntryGE?]
 def getEntryGE? (t : Raw α β cmp) (k : α) : Option (α × β) :=
@@ -536,6 +627,22 @@ def getEntryLED (t : Raw α β cmp) (k : α) (fallback : α × β) : α × β :=
 @[inline, inherit_doc DTreeMap.Const.getEntryLTD]
 def getEntryLTD (t : Raw α β cmp) (k : α) (fallback : α × β) : α × β :=
   letI : Ord α := ⟨cmp⟩; Impl.Const.getEntryLTD k t.inner fallback
+
+@[inherit_doc DTreeMap.Const.getEntryGEV]
+noncomputable def getEntryGEV [Nonempty (α × β)] (t : Raw α β cmp) (k : α) : α × β :=
+  getEntryGED t k Classical.ofNonempty
+
+@[inherit_doc DTreeMap.Const.getEntryGTV]
+noncomputable def getEntryGTV [Nonempty (α × β)] (t : Raw α β cmp) (k : α) : α × β :=
+  getEntryGTD t k Classical.ofNonempty
+
+@[inherit_doc DTreeMap.Const.getEntryLEV]
+noncomputable def getEntryLEV [Nonempty (α × β)] (t : Raw α β cmp) (k : α) : α × β :=
+  getEntryLED t k Classical.ofNonempty
+
+@[inherit_doc DTreeMap.Const.getEntryLTV]
+noncomputable def getEntryLTV [Nonempty (α × β)] (t : Raw α β cmp) (k : α) : α × β :=
+  getEntryLTD t k Classical.ofNonempty
 
 end Const
 

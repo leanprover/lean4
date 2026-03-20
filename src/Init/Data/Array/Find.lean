@@ -136,9 +136,14 @@ theorem getElem_zero_flatten.proof {xss : Array (Array α)} (h : 0 < xss.flatten
   exact ⟨xs, m, by simpa using h⟩
 
 @[grind =]
+theorem getElemV_zero_flatten {xss : Array (Array α)} (h : 0 < xss.flatten.size) :
+    haveI : Nonempty α := ⟨(xss.findSome? fun xs => xs[0]?).get (getElem_zero_flatten.proof h)⟩
+    (flatten xss)｢0｣ = (xss.findSome? fun xs => xs[0]?).getV := by
+  simp [← getElem?_zero_flatten xss]
+
 theorem getElem_zero_flatten {xss : Array (Array α)} (h) :
     (flatten xss)[0] = (xss.findSome? fun xs => xs[0]?).get (getElem_zero_flatten.proof h) := by
-  simp [← getElem?_zero_flatten xss]
+  simpa using getElemV_zero_flatten h
 
 @[grind =]
 theorem findSome?_replicate : findSome? f (replicate n a) = if n = 0 then none else f a := by
@@ -226,11 +231,16 @@ theorem mem_of_find?_eq_some {xs : Array α} (h : find? p xs = some a) : a ∈ x
   simp at h
   simpa using List.mem_of_find?_eq_some h
 
-theorem get_find?_mem {xs : Array α} (h) : (xs.find? p).get h ∈ xs := by
+theorem getV_find?_mem {xs : Array α} {p : α → Bool} (h : (xs.find? p).isSome) :
+    haveI : Nonempty α := ⟨(xs.find? p).get h⟩
+    (xs.find? p).getV ∈ xs := by
   cases xs
-  simp [List.get_find?_mem]
+  simpa using List.getV_find?_mem (by simpa using h)
 
-grind_pattern get_find?_mem => (xs.find? p).get h
+grind_pattern getV_find?_mem => haveI : Nonempty α := _; (xs.find? p).getV
+
+theorem get_find?_mem {xs : Array α} (h) : (xs.find? p).get h ∈ xs := by
+  simpa using getV_find?_mem h
 
 @[simp, grind =] theorem find?_filter {xs : Array α} (p q : α → Bool) :
     (xs.filter p).find? q = xs.find? (fun a => p a ∧ q a) := by
@@ -240,11 +250,23 @@ grind_pattern get_find?_mem => (xs.find? p).get h
     (xs.filter p)[0]? = xs.find? p := by
   cases xs; simp [← List.head?_eq_getElem?]
 
-@[simp, grind =] theorem getElem_zero_filter {p : α → Bool} {xs : Array α} (h) :
+/-
+PLOG(getElem_zero_filter):
+* There's no `Array.ne_empty_iff_size_pos`.
+* Side condition needs annoying manual proof, creating the need for simp squashing, rw, simpa.
+Update: This was a false-positive. Adding `List.headV_filter` to the simp set closed th goal.
+-/
+
+@[simp, grind =] theorem getElemV_zero_filter {_ : Nonempty α} {p : α → Bool} {xs : Array α} :
+    (xs.filter p)｢0｣ =
+      (xs.find? p).getV := by
+  cases xs
+  simp [List.getElemV_zero_eq_headV, List.headV_filter]
+
+theorem getElem_zero_filter {p : α → Bool} {xs : Array α} (h) :
     (xs.filter p)[0] =
       (xs.find? p).get (by cases xs; simpa [← List.countP_eq_length_filter] using h) := by
-  cases xs
-  simp [List.getElem_zero_eq_head]
+  simp
 
 @[simp, grind =] theorem back?_filter {p : α → Bool} {xs : Array α} : (xs.filter p).back? = xs.findRev? p := by
   cases xs; simp
@@ -335,9 +357,31 @@ theorem find?_replicate_eq_none_iff {n : Nat} {a : α} {p : α → Bool} :
     (replicate n a).find? p = some b ↔ n ≠ 0 ∧ p a ∧ a = b := by
   simp [← List.toArray_replicate]
 
+/-
+PLOG(getV_find?_replicate):
+Not sure if it's good that `isSome find?` is simplified to `∃`.
+-/
+
+@[simp] theorem getV_find?_replicate {n : Nat} {a : α} {p : α → Bool}
+    (h : p a ∧ 0 < n) :
+    haveI : Nonempty α := ⟨a⟩
+    ((replicate n a).find? p).getV = a := by
+  simp [← List.toArray_replicate]
+  rwa [List.getV_find?_replicate]
+
+/-
+PLOG(get_find?_replicate):
+Because the `V` counterpart has a more reasonable (but syntactically different) hypothesis,
+it takes some manual work to prove it.
+-/
+
 @[simp] theorem get_find?_replicate {n : Nat} {a : α} {p : α → Bool} (h) :
     ((replicate n a).find? p).get h = a := by
-  simp [← List.toArray_replicate]
+  simp only [Option.get_eq_getV]
+  apply getV_find?_replicate
+  simp only [find?_isSome, mem_replicate, ne_eq] at h
+  obtain ⟨a', h, pa'⟩ := h
+  simp_all [Nat.ne_zero_iff_zero_lt]
 
 @[grind =]
 theorem find?_pmap {P : α → Prop} {f : (a : α) → P a → β} {xs : Array α}
@@ -345,6 +389,11 @@ theorem find?_pmap {P : α → Prop} {f : (a : α) → P a → β} {xs : Array �
     (xs.pmap f H).find? p = (xs.attach.find? (fun ⟨a, m⟩ => p (f a (H a m)))).map fun ⟨a, m⟩ => f a (H a m) := by
   simp only [pmap_eq_map_attach, find?_map]
   rfl
+
+/-
+PLOG(find?_eq_some_iff_getElem):
+TODO: missing V counterpart
+-/
 
 theorem find?_eq_some_iff_getElem {xs : Array α} {p : α → Bool} {b : α} :
     xs.find? p = some b ↔ p b ∧ ∃ i h, xs[i] = b ∧ ∀ j : Nat, (hj : j < i) → !p xs[j] := by
@@ -364,6 +413,17 @@ theorem findIdx_singleton {a : α} {p : α → Bool} :
 theorem findIdx_of_getElem?_eq_some {xs : Array α} (w : xs[xs.findIdx p]? = some y) : p y := by
   rcases xs with ⟨xs⟩
   exact List.findIdx_of_getElem?_eq_some (by simpa using w)
+
+/-
+PLOG(findIdx_getElemV):
+Because I haven't provided `Array.getElem?_eq_some_getElemV` so far, the proof uses
+the un-namespaced general version, which is worse in infering `c` and `i`.
+-/
+
+theorem findIdx_getElemV {p : α → Bool} {xs : Array α}
+    {w : xs.findIdx p < xs.size} :
+    p xs｢xs.findIdx p｣ := by
+  exact xs.findIdx_of_getElem?_eq_some (getElem?_eq_some_getElemV w)
 
 theorem findIdx_getElem {xs : Array α} {w : xs.findIdx p < xs.size} :
     p xs[xs.findIdx p] :=
@@ -407,41 +467,62 @@ theorem findIdx_lt_size {p : α → Bool} {xs : Array α} :
 
 grind_pattern findIdx_lt_size => xs.findIdx p, xs.size
 
-/-- `p` does not hold for elements with indices less than `xs.findIdx p`. -/
-theorem not_of_lt_findIdx {p : α → Bool} {xs : Array α} {i : Nat} (h : i < xs.findIdx p) :
-    p (xs[i]'(Nat.le_trans h findIdx_le_size)) = false := by
+theorem not_getElemV_of_lt_findIdx {_ : Nonempty α} {p : α → Bool} {xs : Array α} {i : Nat}
+    (h : i < xs.findIdx p) :
+    p xs｢i｣ = false := by
   rcases xs with ⟨xs⟩
   simpa using List.not_of_lt_findIdx (by simpa using h)
 
-grind_pattern not_of_lt_findIdx => xs.findIdx p, xs[i]
+grind_pattern not_getElemV_of_lt_findIdx => xs.findIdx p, xs｢i｣
 
-/-- If `¬ p xs[j]` for all `j < i`, then `i ≤ xs.findIdx p`. -/
-theorem le_findIdx_of_not {p : α → Bool} {xs : Array α} {i : Nat} (h : i < xs.size)
-    (h2 : ∀ j (hji : j < i), p (xs[j]'(Nat.lt_trans hji h)) = false) : i ≤ xs.findIdx p := by
+/-- `p` does not hold for elements with indices less than `xs.findIdx p`. -/
+theorem not_of_lt_findIdx {p : α → Bool} {xs : Array α} {i : Nat} (h : i < xs.findIdx p) :
+    p (xs[i]'(Nat.le_trans h findIdx_le_size)) = false := by
+  simpa using not_getElemV_of_lt_findIdx h
+
+theorem le_findIdx_of_not_getElemV {p : α → Bool} {xs : Array α} {i : Nat}
+    (h : i < xs.size) (h2 : ∀ j (hji : j < i), p xs｢j｣ = false) :
+    i ≤ xs.findIdx p := by
   apply Decidable.byContradiction
   intro f
   simp only [Nat.not_le] at f
   exact absurd (@findIdx_getElem _ p xs (Nat.lt_trans f h)) (by simpa using h2 (xs.findIdx p) f)
 
-/-- If `¬ p xs[j]` for all `j ≤ i`, then `i < xs.findIdx p`. -/
-theorem lt_findIdx_of_not {p : α → Bool} {xs : Array α} {i : Nat} (h : i < xs.size)
-    (h2 : ∀ j (hji : j ≤ i), ¬p (xs[j]'(Nat.lt_of_le_of_lt hji h))) : i < xs.findIdx p := by
+/-- If `¬ p xs[j]` for all `j < i`, then `i ≤ xs.findIdx p`. -/
+theorem le_findIdx_of_not {p : α → Bool} {xs : Array α} {i : Nat} (h : i < xs.size)
+    (h2 : ∀ j (hji : j < i), p (xs[j]'(Nat.lt_trans hji h)) = false) : i ≤ xs.findIdx p :=
+  le_findIdx_of_not_getElemV h (by simpa using h2)
+
+theorem lt_findIdx_of_not_getElemV {p : α → Bool} {xs : Array α} {i : Nat}
+    (h : i < xs.size) (h2 : ∀ j (hji : j ≤ i), ¬p xs｢j｣) :
+    i < xs.findIdx p := by
   apply Decidable.byContradiction
   intro f
   simp only [Nat.not_lt] at f
-  exact absurd (@findIdx_getElem _ p xs (Nat.lt_of_le_of_lt f h)) (h2 (xs.findIdx p) f)
+  exact absurd (@findIdx_getElemV _ p xs (Nat.lt_of_le_of_lt f h)) (h2 (xs.findIdx p) f)
 
-set_option backward.isDefEq.respectTransparency false in
-/-- `xs.findIdx p = i` iff `p xs[i]` and `¬ p xs [j]` for all `j < i`. -/
-theorem findIdx_eq {p : α → Bool} {xs : Array α} {i : Nat} (h : i < xs.size) :
-    xs.findIdx p = i ↔ p xs[i] ∧ ∀ j (hji : j < i), p (xs[j]'(Nat.lt_trans hji h)) = false := by
-  refine ⟨fun f ↦ ⟨f ▸ (@findIdx_getElem _ p xs (f ▸ h)), fun _ hji ↦ not_of_lt_findIdx (f ▸ hji)⟩,
+/-- If `¬ p xs[j]` for all `j ≤ i`, then `i < xs.findIdx p`. -/
+theorem lt_findIdx_of_not {p : α → Bool} {xs : Array α} {i : Nat} (h : i < xs.size)
+    (h2 : ∀ j (hji : j ≤ i), ¬p (xs[j]'(Nat.lt_of_le_of_lt hji h))) : i < xs.findIdx p :=
+  lt_findIdx_of_not_getElemV h (by simpa using h2)
+
+/-- `xs.findIdx p = i` iff `p xs｢i｣` and `¬ p xs ｢j｣` for all `j < i`. -/
+theorem findIdx_eq_iff_getElemV {p : α → Bool} {xs : Array α} {i : Nat}
+    (h : i < xs.size) :
+    haveI : Nonempty α := ⟨xs[i]'h⟩
+    xs.findIdx p = i ↔ p xs｢i｣ ∧ ∀ j, j < i → p xs｢j｣ = false := by
+  refine ⟨fun f ↦ ⟨f ▸ (@findIdx_getElemV _ p xs (f ▸ h)), fun _ hji ↦ not_getElemV_of_lt_findIdx (f ▸ hji)⟩,
     fun ⟨_, h2⟩ ↦ ?_⟩
-  apply Nat.le_antisymm _ (le_findIdx_of_not h h2)
+  apply Nat.le_antisymm _ (le_findIdx_of_not_getElemV h h2)
   apply Decidable.byContradiction
   intro h3
   simp at h3
-  simp_all [not_of_lt_findIdx h3]
+  simp_all [not_getElemV_of_lt_findIdx h3]
+
+/-- `xs.findIdx p = i` iff `p xs[i]` and `¬ p xs [j]` for all `j < i`. -/
+theorem findIdx_eq {p : α → Bool} {xs : Array α} {i : Nat} (h : i < xs.size) :
+    xs.findIdx p = i ↔ p xs[i] ∧ ∀ j (hji : j < i), p (xs[j]'(Nat.lt_trans hji h)) = false := by
+  simpa using findIdx_eq_iff_getElemV h
 
 @[grind =]
 theorem findIdx_append {p : α → Bool} {xs ys : Array α} :

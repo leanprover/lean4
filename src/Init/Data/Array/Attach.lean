@@ -255,14 +255,21 @@ theorem getElem?_pmap {p : α → Prop} {f : ∀ a, p a → β} {xs : Array α} 
     (pmap f xs h)[i]? = Option.pmap f xs[i]? fun x H => h x (mem_of_getElem? H) := by
   cases xs; simp
 
--- The argument `f` is explicit to allow rewriting from right to left.
 @[simp, grind =]
+theorem getElemV_pmap {p : α → Prop} (f : ∀ a, p a → β) {xs : Array α} (h : ∀ a ∈ xs, p a)
+    {i : Nat} (hn : i < xs.size) :
+    haveI : Nonempty β := ⟨f (xs[i]'hn) (h _ (getElem_mem hn))⟩
+    (pmap f xs h)｢i｣ = f xs｢i｣ (h _ (getElemV_mem hn)) := by
+  cases xs
+  simp [List.getElemV_pmap _ _ (by simpa using hn)]
+
+-- The argument `f` is explicit to allow rewriting from right to left.
 theorem getElem_pmap {p : α → Prop} (f : ∀ a, p a → β) {xs : Array α} (h : ∀ a ∈ xs, p a) {i : Nat}
     (hi : i < (pmap f xs h).size) :
     (pmap f xs h)[i] =
       f (xs[i]'(@size_pmap _ _ p f xs h ▸ hi))
         (h _ (getElem_mem (@size_pmap _ _ p f xs h ▸ hi))) := by
-  cases xs; simp
+  simpa using getElemV_pmap f h (by simpa using hi)
 
 @[simp, grind =]
 theorem getElem?_attachWith {xs : Array α} {i : Nat} {P : α → Prop} {H : ∀ a ∈ xs, P a} :
@@ -275,27 +282,78 @@ theorem getElem?_attach {xs : Array α} {i : Nat} :
   getElem?_attachWith
 
 @[simp, grind =]
+theorem getElemV_attachWith {xs : Array α} {P : α → Prop} {H : ∀ a ∈ xs, P a}
+    {i : Nat} (h : i < xs.size) :
+    haveI : Nonempty { x // P x } := ⟨⟨xs[i]'h, H _ (getElem_mem h)⟩⟩
+    (xs.attachWith P H)｢i｣ = ⟨xs｢i｣, H _ (getElemV_mem h)⟩ := by
+  cases xs
+  simp [List.getElemV_attachWith (by simpa using h)]
+
 theorem getElem_attachWith {xs : Array α} {P : α → Prop} {H : ∀ a ∈ xs, P a}
     {i : Nat} (h : i < (xs.attachWith P H).size) :
-    (xs.attachWith P H)[i] = ⟨xs[i]'(by simpa using h), H _ (getElem_mem (by simpa using h))⟩ :=
-  getElem_pmap _ _ h
+    (xs.attachWith P H)[i] = ⟨xs[i]'(by simpa using h), H _ (getElem_mem (by simpa using h))⟩ := by
+  simpa using getElemV_attachWith (by simpa using h)
 
 @[simp, grind =]
+theorem getElemV_attach {xs : Array α} {i : Nat} (h : i < xs.size) :
+    haveI : Nonempty { x // x ∈ xs } := ⟨⟨xs[i]'h, getElem_mem h⟩⟩
+    xs.attach｢i｣ = ⟨xs｢i｣, getElemV_mem h⟩ := by
+  cases xs
+  simp only [List.attach_toArray, List.attachWith_mem_toArray, List.getElemV_toArray]
+  rwa [List.getElemV_map, List.getElemV_attach]
+  simpa using h
+
 theorem getElem_attach {xs : Array α} {i : Nat} (h : i < xs.attach.size) :
-    xs.attach[i] = ⟨xs[i]'(by simpa using h), getElem_mem (by simpa using h)⟩ :=
-  getElem_attachWith h
+    xs.attach[i] = ⟨xs[i]'(by simpa using h), getElem_mem (by simpa using h)⟩ := by
+  simpa using getElemV_attach (by simpa using h)
+
+/-
+PLOG(pmap_attach):
+difficulty: `f` has a dependent proof parameter that prevents from `rw`'in its argument.
+But I want to apply `getElemV_pmap` in it; this lemma requires an bounds proof.
+Therefore, `simp` doesn't know how to synthesize the bounds proof.
+The best solution I could come up with: Use `rw` inside `conv`.
+-/
 
 @[simp] theorem pmap_attach {xs : Array α} {p : {x // x ∈ xs} → Prop} {f : ∀ a, p a → β} (H) :
     pmap f xs.attach H =
       xs.pmap (P := fun a => ∃ h : a ∈ xs, p ⟨a, h⟩)
         (fun a h => f ⟨a, h.1⟩ h.2) (fun a h => ⟨h, H ⟨a, h⟩ (by simp)⟩) := by
-  ext <;> simp
+  ext
+  · simp
+  · simp only [getElem_eq_getElemV]
+    rw [getElemV_pmap (p := p) _ (by simp [H]) (by simp_all)]
+    conv =>
+      lhs; congr
+      rw [getElemV_attach]
+      · skip
+      · tactic =>
+        simp only [size_pmap] at *
+        assumption
+    rw [getElemV_pmap]
+    simp only [size_pmap] at *
+    assumption
+
+/-
+PLOG(pmap_attachWith):
+One difficulty: `ext` generates anonymous hypotheses and the goal depends on them (via proof terms).
+Therefore, `simp at *` doesn't simplify them.
+But even without that problem, passing the right proofs isn't trivial with `simp` here.
+-/
 
 @[simp] theorem pmap_attachWith {xs : Array α} {p : {x // q x} → Prop} {f : ∀ a, p a → β} (H₁ H₂) :
     pmap f (xs.attachWith q H₁) H₂ =
       xs.pmap (P := fun a => ∃ h : q a, p ⟨a, h⟩)
         (fun a h => f ⟨a, h.1⟩ h.2) (fun a h => ⟨H₁ _ h, H₂ ⟨a, H₁ _ h⟩ (by simpa)⟩) := by
-  ext <;> simp
+  ext
+  · simp
+  · rename_i hi₁ hi₂
+    simp only [size_pmap, size_attachWith] at hi₁ hi₂
+    simp only [getElem_eq_getElemV]
+    rw [getElemV_pmap _ , getElemV_pmap]
+    conv => lhs; congr; rw [getElemV_attachWith (by assumption)]
+    · exact hi₁
+    · simpa
 
 theorem foldl_pmap {xs : Array α} {P : α → Prop} {f : (a : α) → P a → β}
     (H : ∀ (a : α), a ∈ xs → P a) (g : γ → β → γ) (x : γ) :
@@ -359,10 +417,25 @@ theorem foldr_attach {xs : Array α} {f : α → β → β} {b : β} :
   ext
   simpa using fun a => List.mem_of_getElem? a
 
+/-
+PLOG(attach_map):
+Again: resorting to `rw`.
+-/
+
 theorem attach_map {xs : Array α} {f : α → β} :
     (xs.map f).attach = xs.attach.map (fun ⟨x, h⟩ => ⟨f x, mem_map_of_mem h⟩) := by
   cases xs
-  ext <;> simp
+  ext
+  · simp
+  · simp only [getElem_eq_getElemV, List.attach_toArray, List.attachWith_mem_toArray,
+      List.map_toArray, List.map_map, List.getElemV_toArray]
+    rw [List.getElemV_map, getElemV_attach]
+    simp only [List.map_toArray, List.getElemV_toArray, Function.comp_apply]
+    rw [List.getElemV_map, List.getElemV_attach]
+    all_goals
+      simp only [size_attach, List.map_toArray, List.size_toArray, List.length_map,
+        List.attach_toArray, List.attachWith_mem_toArray, List.map_map, List.length_attach] at *
+      assumption
 
 theorem attachWith_map {xs : Array α} {f : α → β} {P : β → Prop} (H : ∀ (b : β), b ∈ xs.map f → P b) :
     (xs.map f).attachWith P H = (xs.attachWith (P ∘ f) (fun _ h => H _ (mem_map_of_mem h))).map
@@ -380,13 +453,37 @@ theorem map_attachWith_eq_pmap {xs : Array α} {P : α → Prop} {H : ∀ (a : �
     (xs.attachWith P H).map f =
       xs.pmap (fun a (h : a ∈ xs ∧ P a) => f ⟨a, H _ h.1⟩) (fun a h => ⟨h, H a h⟩) := by
   cases xs
-  ext <;> simp
+  ext
+  · simp
+  · simp only [List.attachWith_toArray, List.map_toArray, List.map_attachWith, getElem_eq_getElemV,
+      List.getElemV_toArray, List.pmap_toArray]
+    rw [List.getElemV_map, List.getElemV_pmap]
+    · simp only [List.attachWith_toArray, List.map_toArray, List.map_attachWith, List.size_toArray,
+        List.length_map, List.length_attach, List.pmap_toArray, List.length_pmap] at *
+      conv => lhs; congr; rw [List.getElemV_attach (by simpa)]
+    all_goals
+      simp only [List.attachWith_toArray, List.map_toArray, List.map_attachWith, List.size_toArray,
+        List.length_map, List.length_attach, List.pmap_toArray, List.length_pmap] at *
+      assumption
 
 /-- See also `pmap_eq_map_attach` for writing `pmap` in terms of `map` and `attach`. -/
 theorem map_attach_eq_pmap {xs : Array α} {f : { x // x ∈ xs } → β} :
     xs.attach.map f = xs.pmap (fun a h => f ⟨a, h⟩) (fun _ => id) := by
   cases xs
-  ext <;> simp
+  ext
+  · simp
+  · simp only [List.attach_toArray, List.attachWith_mem_toArray, List.map_toArray, List.map_map,
+      getElem_eq_getElemV, List.getElemV_toArray, List.pmap_toArray]
+    rw [List.getElemV_map, List.getElemV_pmap]
+    · simp only [List.attach_toArray, List.attachWith_mem_toArray, List.map_toArray, List.map_map,
+        List.size_toArray, List.length_map, List.length_attach, List.pmap_toArray, List.length_pmap,
+        Function.comp_apply] at *
+      conv => lhs; congr; rw [List.getElemV_attach (by simpa)]
+    all_goals
+      simp only [List.attach_toArray, List.attachWith_mem_toArray, List.map_toArray, List.map_map,
+        List.size_toArray, List.length_map, List.length_attach, List.pmap_toArray,
+        List.length_pmap] at *
+      assumption
 
 @[grind =]
 theorem attach_filterMap {xs : Array α} {f : α → Option β} :
@@ -609,10 +706,16 @@ def unattach {α : Type _} {p : α → Prop} (xs : Array { x // p x }) : Array �
     xs.unattach[i]? = xs[i]?.map Subtype.val := by
   simp [unattach]
 
-@[simp] theorem getElem_unattach
+@[simp] theorem getElemV_unattach
+    {p : α → Prop} {xs : Array { x // p x }} (i : Nat) (h : i < xs.size) :
+    haveI : Nonempty α := ⟨(xs[i]'h).1⟩
+    xs.unattach｢i｣ = (xs｢i｣).1 := by
+  simp [unattach, getElemV_map _ h]
+
+theorem getElem_unattach
     {p : α → Prop} {xs : Array { x // p x }} (i : Nat) (h : i < xs.unattach.size) :
     xs.unattach[i] = (xs[i]'(by simpa using h)).1 := by
-  simp [unattach]
+  simpa using getElemV_unattach i (by simpa using h)
 
 /-! ### Recognizing higher order functions using a function that only depends on the value. -/
 

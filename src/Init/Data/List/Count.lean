@@ -141,6 +141,10 @@ theorem boole_getElem_le_countP {p : α → Bool} {l : List α} {i : Nat} (h : i
       specialize ih h
       exact le_add_right_of_le ih
 
+theorem boole_getElemV_le_countP {p : α → Bool} {l : List α} {i : Nat} (h : i < l.length) :
+    (if p l｢i｣ then 1 else 0) ≤ l.countP p := by
+  simpa using boole_getElem_le_countP h
+
 grind_pattern boole_getElem_le_countP => l.countP p, l[i]
 
 theorem Sublist.countP_le (s : l₁ <+ l₂) : countP p l₁ ≤ countP p l₂ := by
@@ -320,6 +324,10 @@ theorem boole_getElem_le_count {a : α} {l : List α} {i : Nat} (h : i < l.lengt
     (if l[i] == a then 1 else 0) ≤ l.count a := by
   rw [count_eq_countP]
   apply boole_getElem_le_countP (p := (· == a))
+
+theorem boole_getElemV_le_count {a : α} {l : List α} {i : Nat} (h : i < l.length) :
+    (if l｢i｣ == a then 1 else 0) ≤ l.count a := by
+  simpa using boole_getElem_le_count h
 
 grind_pattern boole_getElem_le_count => l.count a, l[i]
 

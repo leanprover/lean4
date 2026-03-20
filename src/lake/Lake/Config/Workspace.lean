@@ -218,7 +218,7 @@ This is configured through {lit}`cache.service` entries in the system Lake confi
     size_packages_pos := by simp
     packages_wsIdx {i} i_lt := by
       cases Nat.lt_add_one_iff_lt_or_eq.mp <| Array.size_push .. ▸ i_lt with
-      | inl i_lt => simpa [Array.getElem_push_lt i_lt] using self.packages_wsIdx i_lt
+      | inl i_lt => simpa [Array.getElemV_push_lt i_lt] using self.packages_wsIdx i_lt
       | inr i_eq => simpa [i_eq] using h
   }
 

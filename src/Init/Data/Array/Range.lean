@@ -67,15 +67,37 @@ theorem mem_range' {n} : m ∈ range' s n step ↔ ∃ i < n, m = s + step * i :
   · rintro ⟨i, w, h'⟩
     exact ⟨⟨i, w⟩, by simp_all⟩
 
+/-
+PLOG(pop_range'):
+Using `first | omega | simpa` discharger
+-/
+
 @[simp, grind =]
 theorem pop_range' : (range' s n step).pop = range' s (n - 1) step := by
-  ext <;> simp
+  apply ext_getElemV
+  · simp
+  · intro i h
+    simp only [size_pop, size_range'] at h
+    simp (discharger := first | omega | simpa)
+
+/-
+PLOG(map_add_range'):
+Necessity to simplify `h` requires a more manual proof
+-/
 
 theorem map_add_range' {a} (s n step) : map (a + ·) (range' s n step) = range' (a + s) n step := by
-  ext <;> simp <;> omega
+  apply Array.ext_getElemV
+  · simp
+  · intro i h
+    simp only [size_map, size_range'] at h
+    simp [h]; omega
 
 theorem range'_succ_left : range' (s + 1) n step = (range' s n step).map (· + 1) := by
-  ext <;> simp <;> omega
+  apply Array.ext_getElemV
+  · simp
+  · intro i h
+    simp only [size_range'] at h
+    simp [h]; omega
 
 @[grind _=_]
 theorem range'_append {s m n step : Nat} :
@@ -194,8 +216,17 @@ theorem not_mem_range_self {n : Nat} : n ∉ range n := by simp
 
 theorem self_mem_range_succ {n : Nat} : n ∈ range (n + 1) := by simp
 
+/-
+PLOG(take_range):
+Must discharge with `omega` to prove side conditions
+-/
+
 @[simp, grind =] theorem take_range {i n : Nat} : take (range n) i = range (min i n) := by
-  ext <;> simp
+  apply ext_getElemV
+  · simp
+  · intro i h
+    simp only [take_eq_extract, size_extract, size_range, Nat.sub_zero] at h
+    simp (discharger := omega)
 
 @[simp, grind =] theorem find?_range_eq_some {n : Nat} {i : Nat} {p : Nat → Bool} :
     (range n).find? p = some i ↔ p i ∧ i ∈ range n ∧ ∀ j, j < i → !p j := by
@@ -221,9 +252,14 @@ theorem zipIdx_eq_empty_iff {xs : Array α} {i : Nat} : xs.zipIdx i = #[] ↔ xs
   cases xs
   simp
 
+/-
+PLOG(getElem?_zipIdx):
+Need to discharge with `omega`.
+-/
+
 @[simp, grind =]
 theorem getElem?_zipIdx {xs : Array α} {i j} : (zipIdx xs i)[j]? = xs[j]?.map fun a => (a, i + j) := by
-  simp [getElem?_def]
+  simp (discharger := omega) [getElem?_def]
 
 theorem map_snd_add_zipIdx_eq_zipIdx {xs : Array α} {n k : Nat} :
     map (Prod.map id (· + n)) (zipIdx xs k) = zipIdx xs (n + k) :=
@@ -279,7 +315,8 @@ theorem le_snd_of_mem_zipIdx {x : α × Nat} {k : Nat} {xs : Array α} (h : x �
 theorem snd_lt_add_of_mem_zipIdx {x : α × Nat} {k : Nat} {xs : Array α} (h : x ∈ zipIdx xs k) :
     x.2 < k + xs.size := by
   rcases mem_iff_getElem.1 h with ⟨i, h', rfl⟩
-  simpa using h'
+  simp only [size_zipIdx] at h'
+  simp [h']
 
 theorem snd_lt_of_mem_zipIdx {x : α × Nat} {k : Nat} {xs : Array α} (h : x ∈ zipIdx xs k) : x.2 < xs.size + k := by
   simpa [Nat.add_comm] using snd_lt_add_of_mem_zipIdx h
@@ -292,10 +329,22 @@ theorem map_zipIdx {f : α → β} {xs : Array α} {k : Nat} :
 theorem fst_mem_of_mem_zipIdx {x : α × Nat} {xs : Array α} {k : Nat} (h : x ∈ zipIdx xs k) : x.1 ∈ xs :=
   zipIdx_map_fst k xs ▸ mem_map_of_mem h
 
+/-
+PLOG(fst_eq_of_mem_zipIdxV):
+* Originally tried simping with `getElemV_pos`; interesting: needed to fill all its parameters
+* Needed to exclude `getElem_eq_getElemV` to avoid recursion
+TODO: There are more `zipIdx` lemmas that are missing `getElemV` counterparts.
+-/
+
+theorem fst_eq_getElemV_of_mem_zipIdx {_ : Nonempty α} {x : α × Nat} {xs : Array α} {k : Nat}
+    (h : x ∈ zipIdx xs k) :
+    x.1 = xs｢x.2 - k｣ := by
+  cases xs
+  simpa using List.fst_eq_of_mem_zipIdx (by simpa using h)
+
 theorem fst_eq_of_mem_zipIdx {x : α × Nat} {xs : Array α} {k : Nat} (h : x ∈ zipIdx xs k) :
     x.1 = xs[x.2 - k]'(by have := le_snd_of_mem_zipIdx h; have := snd_lt_add_of_mem_zipIdx h; omega) := by
-  cases xs
-  exact List.fst_eq_of_mem_zipIdx (by simpa using h)
+  simpa using fst_eq_getElemV_of_mem_zipIdx h
 
 theorem mem_zipIdx {x : α} {i : Nat} {xs : Array α} {k : Nat} (h : (x, i) ∈ xs.zipIdx k) :
     k ≤ i ∧ i < k + xs.size ∧

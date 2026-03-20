@@ -197,6 +197,18 @@ Uses the `LawfulBEq` instance to cast the retrieved value to the correct type.
   else fallback -- will never happen for well-formed inputs
 
 /--
+Checks if a mapping for the given key exists and returns the value if it does, otherwise
+`Classical.ofNonempty`.
+
+Uses the `LawfulBEq` instance to cast the retrieved value to the correct type.
+-/
+noncomputable def getV [BEq α] [Hashable α] [LawfulBEq α] (m : Raw α β) (a : α)
+    [Nonempty (β a)] : β a :=
+  if h : 0 < m.buckets.size then
+    Raw₀.getV ⟨m, h⟩ a
+  else Classical.ofNonempty -- will never happen for well-formed inputs
+
+/--
 Tries to retrieve the mapping for the given key, panicking if no such mapping is present.
 
 Uses the `LawfulBEq` instance to cast the retrieved value to the correct type.
@@ -240,6 +252,16 @@ Tries to retrieve the mapping for the given key, returning `fallback` if no such
   if h : 0 < m.buckets.size then
     Raw₀.Const.getD ⟨m, h⟩ a fallback
   else fallback -- will never happen for well-formed inputs
+
+/--
+Checks if a mapping for the given key exists and returns the value if it does, otherwise
+`Classical.ofNonempty`.
+-/
+noncomputable def Const.getV [BEq α] [Hashable α] [Nonempty β]
+    (m : Raw α (fun _ => β)) (a : α) : β :=
+  if h : 0 < m.buckets.size then
+    Raw₀.Const.getV ⟨m, h⟩ a
+  else Classical.ofNonempty -- will never happen for well-formed inputs
 
 /-- Tries to retrieve the mapping for the given key, panicking if no such mapping is present. -/
 @[inline] def Const.get! [BEq α] [Hashable α] [Inhabited β] (m : Raw α (fun _ => β)) (a : α) : β :=
@@ -292,6 +314,16 @@ If a mapping exists the result is guaranteed to be pointer equal to the key in t
   else fallback -- will never happen for well-formed inputs
 
 /--
+Checks if a mapping for the given key exists and returns the key if it does, otherwise
+`Classical.ofNonempty`.
+If a mapping exists the result is guaranteed to be pointer equal to the key in the map.
+-/
+noncomputable def getKeyV [BEq α] [Hashable α] (m : Raw α β) (a : α) : α :=
+  if h : 0 < m.buckets.size then
+    Raw₀.getKeyV ⟨m, h⟩ a
+  else haveI : Nonempty α := ⟨a⟩; Classical.ofNonempty -- will never happen for well-formed inputs
+
+/--
 Checks if a mapping for the given key exists and returns the key if it does, otherwise panics.
 If no panic occurs the result is guaranteed to be pointer equal to the key in the map.
 -/
@@ -325,6 +357,17 @@ The key in the returned pair will be `BEq` to the input `a`.
   if h : 0 < m.buckets.size then
     Raw₀.getEntryD ⟨m, h⟩ a fallback
   else fallback -- will never happen for well-formed inputs
+
+/--
+Checks if a mapping for the given key exists and returns the key-value pair if it does, otherwise
+`Classical.ofNonempty`.
+The key in the returned pair will be `BEq` to the input `a`.
+-/
+noncomputable def getEntryV [BEq α] [Hashable α] [Nonempty ((a : α) × β a)] (m : Raw α β)
+    (a : α) : (a : α) × β a :=
+  if h : 0 < m.buckets.size then
+    Raw₀.getEntryV ⟨m, h⟩ a
+  else Classical.ofNonempty -- will never happen for well-formed inputs
 
 /--
 Checks if a mapping for the given key exists and returns the key-value pair if it does, otherwise panics.

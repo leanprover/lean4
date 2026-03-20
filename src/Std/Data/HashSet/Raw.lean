@@ -164,6 +164,10 @@ If no panic occurs the result is guaranteed to be pointer equal to the key in th
 @[inline] def get! [BEq α] [Hashable α] [Inhabited α] (m : Raw α) (a : α) : α :=
   m.inner.getKey! a
 
+noncomputable def getV [BEq α] [Hashable α] (m : Raw α) (a : α) : α :=
+  haveI : Nonempty α := ⟨a⟩
+  m.getD a Classical.ofNonempty
+
 /--
 Returns `true` if the hash set contains no elements.
 

@@ -155,7 +155,7 @@ theorem Internal.any_not_isEmpty_iff_exists_mem {f : CNF α} :
     rcases hclause2 with ⟨lit, hlit⟩
     exists lit.fst, f.clauses[idx]
     constructor
-    · simp
+    · simp [hclause1]
     · rcases lit with ⟨_, ⟨_ | _⟩⟩ <;> simp_all
   · intro h
     rcases h with ⟨lit, clause, ⟨hclause1, hclause2⟩⟩
@@ -234,12 +234,12 @@ theorem eval_congr (a1 a2 : α → Bool) (f : CNF α) (hw : ∀ v, VarMem v f �
     · exact h x hx
     · intro i hi
       symm
-      exact hw _ (VarMem_of (by simp [Internal.mem_iff]) hi)
+      exact hw _ (VarMem_of (by simp [Internal.mem_iff, hx]) hi)
   · intro h x hx
     rw [Clause.eval_congr a1 a2 clauses[x]]
     · exact h x hx
     · intro i hi
-      exact hw _ (VarMem_of (by simp [Internal.mem_iff]) hi)
+      exact hw _ (VarMem_of (by simp [Internal.mem_iff, hx]) hi)
 
 end CNF
 

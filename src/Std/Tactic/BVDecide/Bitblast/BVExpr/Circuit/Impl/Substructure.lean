@@ -121,22 +121,25 @@ theorem go_lt_size_of_lt_aig_size (aig : AIG BVBit) (expr : BVLogicalExpr)
   · exact h
   · apply go_le_size
 
-theorem go_decl_eq (idx) (aig : AIG BVBit) (cache : BVExpr.Cache aig) (h : idx < aig.decls.size) (hbounds) :
-    (go aig expr cache).result.val.aig.decls[idx]'hbounds = aig.decls[idx] := by
+theorem go_decl_eq (idx) (aig : AIG BVBit) (cache : BVExpr.Cache aig) (h : idx < aig.decls.size) :
+    (go aig expr cache).result.val.aig.decls｢idx｣ = aig.decls｢idx｣ := by
   induction expr generalizing aig with
   | const => simp [go]
   | literal =>
     simp only [go]
     rw [BVPred.bitblast_decl_eq]
+    assumption
   | not expr ih =>
     simp only [go]
     have := go_le_size aig expr cache
-    specialize ih aig cache (by omega) (by omega)
+    specialize ih aig cache (by omega)
     rw [AIG.LawfulOperator.decl_eq (f := mkNotCached)]
-    assumption
+    · assumption
+    · exact Nat.lt_of_lt_of_le h this
   | ite discr lhs rhs dih lih rih =>
     simp only [go]
     rw [AIG.LawfulOperator.decl_eq (f := mkIfCached), rih, lih, dih]
+    · assumption
     · apply go_lt_size_of_lt_aig_size
       assumption
     · apply go_lt_size_of_lt_aig_size
@@ -151,6 +154,7 @@ theorem go_decl_eq (idx) (aig : AIG BVBit) (cache : BVExpr.Cache aig) (h : idx <
     | and =>
       simp only [go]
       rw [AIG.LawfulOperator.decl_eq (f := mkAndCached), rih, lih]
+      · assumption
       · apply go_lt_size_of_lt_aig_size
         assumption
       · apply go_lt_size_of_lt_aig_size
@@ -159,6 +163,7 @@ theorem go_decl_eq (idx) (aig : AIG BVBit) (cache : BVExpr.Cache aig) (h : idx <
     | xor =>
       simp only [go]
       rw [AIG.LawfulOperator.decl_eq (f := mkXorCached), rih, lih]
+      · assumption
       · apply go_lt_size_of_lt_aig_size
         assumption
       · apply go_lt_size_of_lt_aig_size
@@ -167,6 +172,7 @@ theorem go_decl_eq (idx) (aig : AIG BVBit) (cache : BVExpr.Cache aig) (h : idx <
     | beq =>
       simp only [go]
       rw [AIG.LawfulOperator.decl_eq (f := mkBEqCached), rih, lih]
+      · assumption
       · apply go_lt_size_of_lt_aig_size
         assumption
       · apply go_lt_size_of_lt_aig_size
@@ -175,6 +181,7 @@ theorem go_decl_eq (idx) (aig : AIG BVBit) (cache : BVExpr.Cache aig) (h : idx <
     | or =>
       simp only [go]
       rw [AIG.LawfulOperator.decl_eq (f := mkOrCached), rih, lih]
+      · assumption
       · apply go_lt_size_of_lt_aig_size
         assumption
       · apply go_lt_size_of_lt_aig_size
@@ -184,9 +191,10 @@ theorem go_decl_eq (idx) (aig : AIG BVBit) (cache : BVExpr.Cache aig) (h : idx <
 theorem go_isPrefix_aig {aig : AIG BVBit} (cache : BVExpr.Cache aig) :
     IsPrefix aig.decls (go aig expr cache).result.val.aig.decls := by
   apply IsPrefix.of
+  · apply go_le_size
   · intro idx h
     apply go_decl_eq
-  · apply go_le_size
+    assumption
 
 theorem go_denote_mem_prefix (aig : AIG BVBit) (cache : BVExpr.Cache aig) (hstart) :
     ⟦

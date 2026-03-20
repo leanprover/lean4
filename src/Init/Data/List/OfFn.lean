@@ -8,6 +8,7 @@ module
 prelude
 public import Init.Data.Fin.Fold
 public import Init.NotationExtra
+public import Init.Data.List.BasicAux
 import Init.Data.Fin.Lemmas
 import Init.Data.List.Lemmas
 import Init.Data.Nat.Lemmas
@@ -47,7 +48,6 @@ theorem length_ofFn {f : Fin n → α} : (ofFn f).length = n := by
   | zero => simp
   | succ n ih => simp [Fin.foldr_succ, ih]
 
-@[simp, grind =]
 protected theorem getElem_ofFn {f : Fin n → α} (h : i < (ofFn f).length) :
     (ofFn f)[i] = f ⟨i, by simp_all⟩ := by
   simp only [ofFn]
@@ -72,6 +72,12 @@ protected theorem getElem?_ofFn {f : Fin n → α} :
     rw [dif_neg] <;>
     simpa using h
 
+@[simp, grind =]
+protected theorem getElemV_ofFn {f : Fin n → α} (h : i < n) :
+    haveI : i < (ofFn f).length := by simpa
+    (ofFn f)｢i｣ = f ⟨i, by simp_all⟩ := by
+  simp [getElemV_def, h, List.getElem?_ofFn, ↓reduceDIte, - getElem?_eq_some_getElemV]
+
 /-- `ofFn` on an empty domain is the empty list. -/
 @[simp, grind =]
 theorem ofFn_zero {f : Fin 0 → α} : ofFn f = [] := by
@@ -79,10 +85,12 @@ theorem ofFn_zero {f : Fin 0 → α} : ofFn f = [] := by
 
 @[simp]
 theorem ofFn_succ {n} {f : Fin (n + 1) → α} : ofFn f = f 0 :: ofFn fun i => f i.succ :=
-  ext_get (by simp) (fun i hi₁ hi₂ => by
-    cases i
-    · simp
-    · simp)
+  ext_getElemV (by simp) (fun i h => by
+    match i with
+    | 0 => simp
+    | i' + 1 =>
+      haveI hlt : i' + 1 < n + 1 := by simpa using h
+      simp [List.getElemV_ofFn, hlt, Nat.add_one_lt_add_one_iff.mp hlt])
 
 theorem ofFn_succ_last {n} {f : Fin (n + 1) → α} :
     ofFn f = (ofFn fun i => f i.castSucc) ++ [f (Fin.last n)] := by
@@ -106,16 +114,20 @@ theorem ofFn_eq_nil_iff {f : Fin n → α} : ofFn f = [] ↔ n = 0 := by
   cases n <;> simp only [ofFn_zero, ofFn_succ, Nat.succ_ne_zero, reduceCtorEq]
 
 @[simp]
+theorem ofFn_getElemV{xs : List α} :
+    List.ofFn (fun i : Fin xs.length => xs｢i.val｣) = xs := by
+  apply ext_getElemV <;> simp +contextual
+
 theorem ofFn_getElem {xs : List α} :
     List.ofFn (fun i : Fin xs.length => xs[i.val]) = xs := by
-  apply ext_getElem <;> simp
+  simp
 
 @[simp 500, grind =]
 theorem mem_ofFn {n} {f : Fin n → α} {a : α} : a ∈ ofFn f ↔ ∃ i, f i = a := by
   constructor
   · intro w
-    obtain ⟨i, h, rfl⟩ := getElem_of_mem w
-    exact ⟨⟨i, by simpa using h⟩, by simp⟩
+    obtain ⟨i, h, h'⟩ := getElemV_of_mem w
+    exact ⟨⟨i, by simpa using h⟩, by simp [← h', List.getElemV_ofFn (by simpa using h)]⟩
   · rintro ⟨i, rfl⟩
     apply mem_of_getElem (i := i) <;> simp
 
@@ -125,14 +137,26 @@ theorem map_ofFn {f : Fin n → α} {g : α → β} :
   apply List.ext_getElem?
   simp [List.getElem?_ofFn]
 
-@[grind =] theorem head_ofFn {n} {f : Fin n → α} (h : ofFn f ≠ []) :
+@[grind =] theorem headV_ofFn {n} {f : Fin n → α} (h : 0 < n) :
+    haveI : Nonempty α := ⟨f ⟨0, h⟩⟩
+    (ofFn f).headV = f ⟨0, h⟩ := by
+  rw [← getElemV_zero, List.getElemV_ofFn (by simpa)]
+
+@[grind =] theorem getLastV_ofFn {n} {f : Fin n → α} (h : 0 < n) :
+    haveI : Nonempty α := ⟨f ⟨0, h⟩⟩
+    (ofFn f).getLastV = f ⟨n - 1, Nat.sub_one_lt (Nat.ne_zero_of_lt h)⟩ := by
+  -- TODO: It's annoying that simplifying to `getElemV` changes the proof obligation for the lemmas to something we then need to prove by hand.
+  simp [getLastV_eq_getElemV, length_ofFn, List.getElemV_ofFn (Nat.sub_one_lt (Nat.ne_zero_of_lt h))]
+
+theorem head_ofFn {n} {f : Fin n → α} (h : ofFn f ≠ []) :
     (ofFn f).head h = f ⟨0, Nat.pos_of_ne_zero (mt ofFn_eq_nil_iff.2 h)⟩ := by
   rw [← getElem_zero (length_ofFn ▸ Nat.pos_of_ne_zero (mt ofFn_eq_nil_iff.2 h)),
     List.getElem_ofFn]
 
-@[grind =] theorem getLast_ofFn {n} {f : Fin n → α} (h : ofFn f ≠ []) :
+theorem getLast_ofFn {n} {f : Fin n → α} (h : ofFn f ≠ []) :
     (ofFn f).getLast h = f ⟨n - 1, Nat.sub_one_lt (mt ofFn_eq_nil_iff.2 h)⟩ := by
-  simp [getLast_eq_getElem, length_ofFn, List.getElem_ofFn]
+  haveI : 0 < n := by simpa [ofFn_eq_nil_iff, Nat.ne_zero_iff_zero_lt] using h
+  simp [getLastV_ofFn this]
 
 /-- `ofFnM` on an empty domain is the empty list. -/
 @[simp, grind =]

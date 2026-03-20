@@ -235,4 +235,9 @@ init_grind_norm
   Semiring.one_mul Semiring.mul_one
   Semiring.zero_mul Semiring.mul_zero
 
+  -- V operations
+  List.getLast_eq_getLastV
+  List.head_eq_headV
+  getElem_eq_getElemV
+
 end Lean.Grind

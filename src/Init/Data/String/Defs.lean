@@ -487,6 +487,13 @@ theorem Pos.Raw.IsValidForSlice.le_utf8ByteSize {s : Slice} {p : Pos.Raw}
     (h : p.IsValidForSlice s) : p.byteIdx ≤ s.utf8ByteSize := by
   simpa [Pos.Raw.le_iff] using h.le_rawEndPos
 
+theorem Slice.offsetBy_startInclusive_lt_of_lt {s : Slice} {p : Pos.Raw} (h : p < s.rawEndPos) :
+    p.offsetBy s.startInclusive.offset < s.str.rawEndPos := by
+  have := s.endExclusive.isValid.le_rawEndPos
+  simp only [Pos.Raw.lt_iff, byteIdx_rawEndPos, Slice.utf8ByteSize_eq, Pos.Raw.le_iff,
+    Pos.Raw.byteIdx_offsetBy] at *
+  omega
+
 /--
 Accesses the indicated byte in the UTF-8 encoding of a string slice.
 
@@ -494,11 +501,7 @@ At runtime, this function is implemented by efficient, constant-time code.
 -/
 @[inline, expose]
 def Slice.getUTF8Byte (s : Slice) (p : Pos.Raw) (h : p < s.rawEndPos) : UInt8 :=
-  s.str.getUTF8Byte (p.offsetBy s.startInclusive.offset) (by
-    have := s.endExclusive.isValid.le_rawEndPos
-    simp only [Pos.Raw.lt_iff, byteIdx_rawEndPos, utf8ByteSize_eq, Pos.Raw.le_iff, byteIdx_rawEndPos,
-      Pos.Raw.byteIdx_offsetBy] at *
-    omega)
+  s.str.getUTF8Byte (p.offsetBy s.startInclusive.offset) (offsetBy_startInclusive_lt_of_lt h)
 
 /--
 Accesses the indicated byte in the UTF-8 encoding of the string slice, or panics if the position

@@ -78,6 +78,7 @@ instance : LawfulOperator α TernaryInput mkIfCached where
     rw [LawfulOperator.decl_eq (f := mkAndCached)]
     rw [LawfulOperator.decl_eq (f := mkNotCached)]
     rw [LawfulOperator.decl_eq (f := mkAndCached)]
+    · assumption
     · apply LawfulOperator.lt_size_of_lt_aig_size (f := mkAndCached)
       omega
     · apply LawfulOperator.lt_size_of_lt_aig_size (f := mkNotCached)
@@ -156,18 +157,18 @@ termination_by w - curr
 
 theorem go_decl_eq (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (discr : Ref aig)
     (lhs rhs : RefVec aig w) (s : RefVec aig curr) :
-    ∀ (idx : Nat) (h1) (h2),
-      (go aig curr hcurr discr lhs rhs s).aig.decls[idx]'h2 = aig.decls[idx]'h1 := by
+    ∀ (idx : Nat), idx < aig.decls.size → (go aig curr hcurr discr lhs rhs s).aig.decls｢idx｣ = aig.decls｢idx｣ := by
   generalize hgo : go aig curr hcurr discr lhs rhs s = res
   unfold go at hgo
   dsimp only at hgo
   split at hgo
   · rw [← hgo]
-    intro idx h1 h2
+    intro idx h1
     rw [go_decl_eq]
-    rw [AIG.LawfulOperator.decl_eq (f := AIG.mkIfCached)]
-    apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := AIG.mkIfCached)
-    assumption
+    · rw [AIG.LawfulOperator.decl_eq (f := AIG.mkIfCached)]
+      assumption
+    · apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := AIG.mkIfCached)
+      assumption
   · simp [← hgo]
 termination_by w - curr
 
@@ -182,6 +183,7 @@ instance : LawfulVecOperator α IfInput ite where
     intros
     unfold ite
     rw [ite.go_decl_eq]
+    assumption
 
 namespace ite
 
@@ -231,9 +233,10 @@ theorem go_denote_mem_prefix {w : Nat} (aig : AIG α) (curr : Nat) (hcurr : curr
   apply denote.eq_of_isPrefix (entry := ⟨aig, start, inv, hstart⟩)
   apply IsPrefix.of
   · intros
-    apply go_decl_eq
-  · intros
     apply go_le_size
+  · intros
+    apply go_decl_eq
+    assumption
 
 theorem denote_go {w : Nat} (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (discr : Ref aig)
     (lhs rhs : RefVec aig w) (s : RefVec aig curr) :

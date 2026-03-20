@@ -482,6 +482,12 @@ theorem getEntryD_eq_getEntryD [BEq α] [Hashable α] [PartialEquivBEq α] [Lawf
     m.getEntryD a fallback = List.getEntryD a fallback (toListModel m.1.buckets) := by
   rw [getEntryD_eq_getEntryDₘ, getEntryDₘ_eq_getEntryD hm]
 
+theorem getEntryV_eq_getEntryV [BEq α] [Hashable α] [PartialEquivBEq α] [LawfulHashable α] {m : Raw₀ α β} (hm : Raw.WFImp m.1)
+    {a : α} [Nonempty ((a : α) × β a)] :
+    m.getEntryV a = List.getEntryV a (toListModel m.1.buckets) := by
+  rw [Raw₀.getEntryV, getEntryD_eq_getEntryD hm, List.getEntryV, List.getEntryD_eq_getEntry?,
+      Option.getV_eq_getD_ofNonempty]
+
 theorem getEntry!ₘ_eq_getEntry! [BEq α] [PartialEquivBEq α] [Hashable α] [LawfulHashable α] {m : Raw₀ α β} (hm : Raw.WFImp m.1)
     {a : α} [Inhabited ((a : α) × β a)] :
     m.getEntry!ₘ a = List.getEntry! a (toListModel m.1.buckets) :=
@@ -510,6 +516,11 @@ theorem getD_eq_getValueCastD [BEq α] [Hashable α] [LawfulBEq α] {m : Raw₀ 
     {a : α} {fallback : β a} :
     m.getD a fallback = getValueCastD a (toListModel m.1.buckets) fallback := by
   rw [getD_eq_getDₘ, getDₘ_eq_getValueCastD hm]
+
+theorem getV_eq_getValueCastV [BEq α] [Hashable α] [LawfulBEq α] {m : Raw₀ α β} (hm : Raw.WFImp m.1)
+    {a : α} [Nonempty (β a)] :
+    m.getV a = getValueCastV a (toListModel m.1.buckets) := by
+  rw [Raw₀.getV, getD_eq_getValueCastD hm, getValueCastV_eq_getValueCastD_ofNonempty]
 
 theorem getKey?ₘ_eq_getKey? [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] {m : Raw₀ α β}
     (hm : Raw.WFImp m.1) {a : α} :
@@ -551,6 +562,12 @@ theorem getKeyD_eq_getKeyD [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable 
     (hm : Raw.WFImp m.1) {a fallback : α} :
     m.getKeyD a fallback = List.getKeyD a (toListModel m.1.buckets) fallback := by
   rw [getKeyD_eq_getKeyDₘ, getKeyDₘ_eq_getKeyD hm]
+
+theorem getKeyV_eq_getKeyV [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] {m : Raw₀ α β}
+    (hm : Raw.WFImp m.1) {a : α} :
+    m.getKeyV a = List.getKeyV a (toListModel m.1.buckets) := by
+  haveI : Nonempty α := ⟨a⟩
+  rw [Raw₀.getKeyV, getKeyD_eq_getKeyD hm, getKeyV_eq_getKeyD_ofNonempty]
 
 section
 
@@ -596,6 +613,11 @@ theorem Const.getD_eq_getValueD [BEq α] [Hashable α] [PartialEquivBEq α] [Law
     {m : Raw₀ α (fun _ => β)} (hm : Raw.WFImp m.1) {a : α} {fallback : β} :
     Const.getD m a fallback = getValueD a (toListModel m.1.buckets) fallback := by
   rw [getD_eq_getDₘ, getDₘ_eq_getValueD hm]
+
+theorem Const.getV_eq_getValueV [BEq α] [Hashable α] [PartialEquivBEq α] [LawfulHashable α]
+    {m : Raw₀ α (fun _ => β)} (hm : Raw.WFImp m.1) {a : α} [Nonempty β] :
+    Const.getV m a = getValueV a (toListModel m.1.buckets) := by
+  rw [Raw₀.Const.getV, Const.getD_eq_getValueD hm, getValueV_eq_getValueD_ofNonempty]
 
 end
 
@@ -758,7 +780,7 @@ theorem wfImp_alterₘ [BEq α] [Hashable α] [LawfulBEq α] {m : Raw₀ α β} 
       rw [containsₘ_eq_containsKey (by apply wfImp_updateBucket_alter h)]
       simp only [buckets_withComputedSize]
       simp only [containsKey_of_perm <| toListModel_updateBucket_alter h]
-      rw [← getValueCast?_eq_some_getValueCast h₁]
+      rw [← getValueCast?_eq_some_getValueCastV h₁]
       conv => lhs; congr; rw [containsKey_alterKey_self h.distinct]
     next h₁ =>
       rw [containsₘ_eq_containsKey h] at h₁
@@ -856,7 +878,7 @@ theorem wfImp_alterₘ [BEq α] [EquivBEq α] [Hashable α] [LawfulHashable α] 
       rw [containsₘ_eq_containsKey (by apply wfImp_updateBucket_alter h)]
       simp only [buckets_withComputedSize]
       simp only [containsKey_of_perm <| toListModel_updateBucket_alter h]
-      rw [← getValue?_eq_some_getValue h₁]
+      rw [← getValue?_eq_some_getValueV h₁]
       conv => lhs; congr; rw [Const.containsKey_alterKey_self h.distinct]
     next h₁ =>
       rw [containsₘ_eq_containsKey h] at h₁

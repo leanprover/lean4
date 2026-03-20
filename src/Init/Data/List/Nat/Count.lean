@@ -37,7 +37,7 @@ theorem countP_set {p : α → Bool} {l : List α} {i : Nat} {a : α} (h : i < l
     | succ i =>
       simp [add_one_lt_add_one_iff] at h
       simp [countP_cons, ih h]
-      have : (if p l[i] = true then 1 else 0) ≤ l.countP p := boole_getElem_le_countP (p := p) h
+      have : (if p l｢i｣ = true then 1 else 0) ≤ l.countP p := boole_getElemV_le_countP (p := p) h
       omega
 
 @[grind =]

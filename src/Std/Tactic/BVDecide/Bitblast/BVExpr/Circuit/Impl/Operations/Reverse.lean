@@ -26,9 +26,15 @@ namespace bitblast
 
 variable [Hashable α] [DecidableEq α]
 
+/-
+PLOG(blastReverse):
+Took me some time to get this right.
+-/
+
 def blastReverse (aig : AIG α) (s : AIG.RefVec aig w) : AIG.RefVecEntry α w :=
   let ⟨refs, hrefs⟩ := s
-  ⟨aig, ⟨refs.reverse, by simp [hrefs]⟩⟩
+  have (i : Nat) : i < w → w - 1 - i < refs.size := Nat.sub_one_sub_lt_of_lt
+  ⟨aig, ⟨refs.reverse, by simp +contextual only [Vector.getElemV_reverse, hrefs, implies_true, this]⟩⟩
 
 instance : AIG.LawfulVecOperator α AIG.RefVec blastReverse where
   le_size := by simp [blastReverse]

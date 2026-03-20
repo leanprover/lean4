@@ -155,6 +155,11 @@ def getD [EquivBEq α] [LawfulHashable α] (m : ExtHashMap α β) (a : α)
     (fallback : β) : β :=
   ExtDHashMap.Const.getD m.inner a fallback
 
+@[inherit_doc ExtDHashMap.Const.getV]
+noncomputable def getV [EquivBEq α] [LawfulHashable α] [Nonempty β]
+    (m : ExtHashMap α β) (a : α) : β :=
+  m.getD a Classical.ofNonempty
+
 /--
 The notation `m[a]!` is preferred over calling this function directly.
 
@@ -169,6 +174,10 @@ instance [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] :
   getElem m a h := m.get a h
   getElem? m a := m.get? a
   getElem! m a := m.get! a
+
+noncomputable instance [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] :
+    GetElemV (ExtHashMap α β) α β where
+  getElemV m a := m.getV a
 
 @[inline, inherit_doc ExtDHashMap.getKey?]
 def getKey? [EquivBEq α] [LawfulHashable α] (m : ExtHashMap α β) (a : α) : Option α :=
@@ -185,6 +194,11 @@ def getKeyD [EquivBEq α] [LawfulHashable α] (m : ExtHashMap α β) (a : α) (f
 @[inline, inherit_doc ExtDHashMap.getKey!]
 def getKey! [EquivBEq α] [LawfulHashable α] [Inhabited α] (m : ExtHashMap α β) (a : α) : α :=
   ExtDHashMap.getKey! m.inner a
+
+@[inherit_doc ExtDHashMap.getKeyV]
+noncomputable def getKeyV [EquivBEq α] [LawfulHashable α] (m : ExtHashMap α β) (a : α) : α :=
+  haveI : Nonempty α := ⟨a⟩
+  m.getKeyD a Classical.ofNonempty
 
 @[inline, inherit_doc ExtDHashMap.erase]
 def erase [EquivBEq α] [LawfulHashable α] (m : ExtHashMap α β) (a : α) :

@@ -52,11 +52,24 @@ theorem getElem?_eraseIdx_of_ge {xs : Vector α n} {i : Nat} (h : i < n) {j : Na
   omega
 
 @[grind =]
+theorem getElemV_eraseIdx {_ : Nonempty α} {xs : Vector α n} {i : Nat} (h : i < n) {j : Nat} :
+    (xs.eraseIdx i)｢j｣ = if j < i then xs｢j｣ else xs｢j + 1｣ := by
+  split
+  · apply Option.some.inj
+    have : j < n := by omega
+    rw [← getElem?_eq_some_getElemV (by omega), getElem?_eraseIdx (by omega)]
+    simp [*]
+  · cases hj : decide (j + 1 < n)
+    · simp only [decide_eq_false_iff_not, Nat.not_lt] at hj
+      rw [getElemV_neg _ _ (by omega), getElemV_neg _ _ (by omega)]
+    · simp only [decide_eq_true_eq] at hj
+      apply Option.some.inj
+      rw [← getElem?_eq_some_getElemV (by omega), getElem?_eraseIdx, if_neg ‹_›]
+      simp [*]
+
 theorem getElem_eraseIdx {xs : Vector α n} {i : Nat} (h : i < n) {j : Nat} (h' : j < n - 1) :
     (xs.eraseIdx i)[j] = if h'' : j < i then xs[j] else xs[j + 1] := by
-  apply Option.some.inj
-  rw [← getElem?_eq_getElem, getElem?_eraseIdx]
-  split <;> simp
+  simpa using getElemV_eraseIdx h
 
 theorem mem_of_mem_eraseIdx {xs : Vector α n} {i : Nat} {h} {a : α} (h : a ∈ xs.eraseIdx i) : a ∈ xs := by
   rcases xs with ⟨xs, rfl⟩
@@ -104,15 +117,23 @@ theorem mem_eraseIdx_iff_getElem? {x : α} {xs : Vector α n} {k} {h} : x ∈ xs
   rcases xs with ⟨xs⟩
   simp [Array.mem_eraseIdx_iff_getElem?, *]
 
+theorem getElemV_eraseIdx_of_lt {xs : Vector α n} {i : Nat} (w : i < n)
+    {j : Nat} (h' : j < i) :
+    (xs.eraseIdx i)｢j｣ = xs｢j｣ := by
+  simp [getElemV_eraseIdx w, h']
+
 theorem getElem_eraseIdx_of_lt {xs : Vector α n} {i : Nat} (w : i < n) {j : Nat} (h : j < n - 1) (h' : j < i) :
     (xs.eraseIdx i)[j] = xs[j] := by
-  rcases xs with ⟨xs⟩
-  simp [Array.getElem_eraseIdx_of_lt, *]
+  simpa using getElemV_eraseIdx_of_lt w h'
+
+theorem getElemV_eraseIdx_of_ge {_ : Nonempty α} {xs : Vector α n} {i : Nat} (w : i < n)
+    {j : Nat} (h' : i ≤ j) :
+    (xs.eraseIdx i)｢j｣ = xs｢j + 1｣ := by
+  simp [getElemV_eraseIdx w, Nat.not_lt.mpr h']
 
 theorem getElem_eraseIdx_of_ge {xs : Vector α n} {i : Nat} (w : i < n) {j : Nat} (h : j < n - 1) (h' : i ≤ j) :
     (xs.eraseIdx i)[j] = xs[j + 1] := by
-  rcases xs with ⟨xs⟩
-  simp [Array.getElem_eraseIdx_of_ge, *]
+  simpa using getElemV_eraseIdx_of_ge w h'
 
 theorem eraseIdx_set_eq {xs : Vector α n} {i : Nat} {a : α} {h : i < n} :
     (xs.set i a).eraseIdx i = xs.eraseIdx i := by
@@ -172,6 +193,6 @@ theorem set_eraseIdx {xs : Vector α n} {i : Nat} {w : i < n} {j : Nat} {a : α}
     {xs : Vector α n} {i : Nat} (h : i + 1 < n) :
     (xs.eraseIdx (i + 1)).set i xs[i + 1] = xs.eraseIdx i := by
   rcases xs with ⟨xs⟩
-  simp [Array.set_getElem_succ_eraseIdx_succ, *]
+  simp [*]
 
 end Vector

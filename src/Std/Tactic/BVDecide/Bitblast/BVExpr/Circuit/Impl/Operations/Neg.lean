@@ -45,8 +45,8 @@ instance : AIG.LawfulVecOperator α AIG.RefVec blastNeg where
     intros
     unfold blastNeg
     dsimp only
-    rw [AIG.LawfulVecOperator.decl_eq (f := blastAdd)]
-    rw [AIG.LawfulVecOperator.decl_eq (f := blastNot)]
+    rw [AIG.LawfulVecOperator.decl_eq (f := blastAdd), AIG.LawfulVecOperator.decl_eq (f := blastNot)]
+    · assumption
     · apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := blastNot)
       assumption
 

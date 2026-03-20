@@ -96,11 +96,14 @@ theorem countP_replicate {a : α} {n : Nat} : countP p (replicate n a) = if p a 
   simp only [replicate_eq_mk_replicate, countP_mk]
   simp [Array.countP_replicate]
 
-set_option backward.isDefEq.respectTransparency false in
+theorem boole_getElemV_le_countP {p : α → Bool} {xs : Vector α n} (h : i < n) :
+    (if p xs｢i｣ then 1 else 0) ≤ xs.countP p := by
+  rcases xs with ⟨xs, rfl⟩
+  simp [Array.boole_getElemV_le_countP h]
+
 theorem boole_getElem_le_countP {p : α → Bool} {xs : Vector α n} (h : i < n) :
     (if p xs[i] then 1 else 0) ≤ xs.countP p := by
-  rcases xs with ⟨xs, rfl⟩
-  simp [Array.boole_getElem_le_countP]
+  simpa using boole_getElemV_le_countP h
 
 set_option backward.isDefEq.respectTransparency false in
 @[grind =]
@@ -190,16 +193,20 @@ theorem count_le_count_push {a b : α} {xs : Vector α n} : count a xs ≤ count
   rcases xs with ⟨xs, rfl⟩
   simp
 
-set_option backward.isDefEq.respectTransparency false in
+theorem boole_getElemV_le_count {a : α} {xs : Vector α n} (h : i < n) :
+    haveI : Nonempty α := ⟨a⟩
+    (if xs｢i｣ == a then 1 else 0) ≤ xs.count a := by
+  rcases xs with ⟨xs, rfl⟩
+  simp [Array.boole_getElemV_le_count h]
+
 theorem boole_getElem_le_count {a : α} {xs : Vector α n} (h : i < n) :
     (if xs[i] == a then 1 else 0) ≤ xs.count a := by
-  rcases xs with ⟨xs, rfl⟩
-  simp [Array.boole_getElem_le_count]
+  simpa using boole_getElemV_le_count h
 
 theorem count_set {a b : α} {xs : Vector α n} (h : i < n) :
     (xs.set i a).count b = xs.count b - (if xs[i] == b then 1 else 0) + (if a == b then 1 else 0) := by
   rcases xs with ⟨xs, rfl⟩
-  simp [Array.count_set]; rfl
+  simp [Array.count_set]
 
 @[simp] theorem count_cast {xs : Vector α n} : (xs.cast h).count a = xs.count a := by
   rcases xs with ⟨xs, rfl⟩

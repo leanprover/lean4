@@ -56,14 +56,16 @@ theorem getElem?_eraseIdx_of_ge {l : List α} {i : Nat} {j : Nat} (h : i ≤ j) 
   omega
 
 @[grind =]
+theorem getElemV_eraseIdx {_ : Nonempty α} {l : List α} {i j : Nat} :
+    (l.eraseIdx i)｢j｣ = if j < i then l｢j｣ else l｢j + 1｣ := by
+  split <;> simp [getElemV_def, getElem?_eraseIdx, *]
+
 theorem getElem_eraseIdx {l : List α} {i : Nat} {j : Nat} (h : j < (l.eraseIdx i).length) :
     (l.eraseIdx i)[j] = if h' : j < i then
         l[j]'(by have := length_eraseIdx_le l i; omega)
       else
         l[j + 1]'(by rw [length_eraseIdx] at h; split at h <;> omega) := by
-  apply Option.some.inj
-  rw [← getElem?_eq_getElem, getElem?_eraseIdx]
-  split <;> simp
+  simpa using getElemV_eraseIdx
 
 theorem getElem_eraseIdx_of_lt {l : List α} {i : Nat} {j : Nat} (h : j < (l.eraseIdx i).length) (h' : j < i) :
     (l.eraseIdx i)[j] = l[j]'(by have := length_eraseIdx_le l i; omega) := by
@@ -72,10 +74,18 @@ theorem getElem_eraseIdx_of_lt {l : List α} {i : Nat} {j : Nat} (h : j < (l.era
   intro h'
   omega
 
+theorem getElemV_eraseIdx_of_lt {_ : Nonempty α} {l : List α} {i j : Nat} (h' : j < i) :
+    (l.eraseIdx i)｢j｣ = l｢j｣ := by
+  simp [getElemV_eraseIdx, h']
+
 theorem getElem_eraseIdx_of_ge {l : List α} {i : Nat} {j : Nat} (h : j < (l.eraseIdx i).length) (h' : i ≤ j) :
     (l.eraseIdx i)[j] = l[j + 1]'(by rw [length_eraseIdx] at h; split at h <;> omega) := by
   rw [getElem_eraseIdx, dif_neg]
   omega
+
+theorem getElemV_eraseIdx_of_ge {_ : Nonempty α} {l : List α} {i j : Nat} (h' : i ≤ j) :
+    (l.eraseIdx i)｢j｣ = l｢j + 1｣ := by
+  simp [getElemV_eraseIdx, Nat.not_lt.mpr h']
 
 theorem eraseIdx_eq_dropLast {l : List α} {i : Nat} (h : i + 1 = l.length) :
     l.eraseIdx i = l.dropLast := by
@@ -172,15 +182,25 @@ theorem set_eraseIdx {xs : List α} {i : Nat} {j : Nat} {a : α} :
   · rw [set_eraseIdx_gt]
     omega
 
-@[simp] theorem set_getElem_succ_eraseIdx_succ
+/-
+PLOG(set_getElemV_succ_eraseIdx_succ):
+Annoying anomaly with `rw`:
+
+example (xs : List α) (h : xs.length ≤ i) (hj : xs.length ≤ j) (hk : k < xs.length) :
+    haveI : Nonempty α := ⟨(xs.set j xs｢k｣)[k]'(by simpa using hk)⟩
+    xs｢i｣ = xs｢j｣ := by
+  rw [getElemV_neg, getElemV_neg] -- the second rewrite happens inside the `Nonempty` proof
+-/
+
+@[simp] theorem set_getElemV_succ_eraseIdx_succ
     {l : List α} {i : Nat} (h : i + 1 < l.length) :
-    (l.eraseIdx (i + 1)).set i l[i + 1] = l.eraseIdx i := by
-  apply ext_getElem
+    (l.eraseIdx (i + 1)).set i l｢i + 1｣ = l.eraseIdx i := by
+  apply ext_getElemV
   · simp only [length_set, length_eraseIdx, h, ↓reduceIte]
     rw [if_pos]
     omega
-  · intro n h₁ h₂
-    simp [getElem_set, getElem_eraseIdx]
+  · intro n h
+    simp [getElemV_set, getElemV_eraseIdx]
     split
     · split
       · omega
@@ -188,9 +208,18 @@ theorem set_eraseIdx {xs : List α} {i : Nat} {j : Nat} {a : α} :
     · split
       · split
         · rfl
-        · omega
+        · have : i = n := by omega
+          simp only [this, length_set] at h
+          simp only [this, true_and, Nat.not_lt, Nat.lt_add_one, Nat.lt_irrefl,
+            not_false_eq_true] at *
+          omega
       · have t : ¬ n < i := by omega
         simp [t]
+
+@[simp] theorem set_getElem_succ_eraseIdx_succ
+    {l : List α} {i : Nat} (h : i + 1 < l.length) :
+    (l.eraseIdx (i + 1)).set i l[i + 1] = l.eraseIdx i := by
+  simpa using set_getElemV_succ_eraseIdx_succ h
 
 @[simp, grind =] theorem eraseIdx_length_sub_one {l : List α} :
     (l.eraseIdx (l.length - 1)) = l.dropLast := by

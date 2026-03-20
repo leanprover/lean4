@@ -195,6 +195,14 @@ def getD (t : TreeSet α cmp) (a : α) (fallback : α) : α :=
   t.inner.getKeyD a fallback
 
 /--
+Checks if given key is contained and returns the key if it is, otherwise returns `Classical.ofNonempty`.
+If the key is contained the result is guaranteed to be pointer equal to the key in the set.
+-/
+noncomputable def getV (t : TreeSet α cmp) (a : α) : α :=
+  haveI : Nonempty α := ⟨a⟩
+  t.getD a Classical.ofNonempty
+
+/--
 Tries to retrieve the smallest element of the tree set, returning `none` if the set is empty.
 -/
 @[inline]
@@ -221,6 +229,10 @@ Tries to retrieve the smallest element of the tree set, returning `fallback` if 
 @[inline]
 def minD (t : TreeSet α cmp) (fallback : α) : α :=
   TreeMap.minKeyD t.inner fallback
+
+@[inherit_doc DTreeMap.minKeyV]
+noncomputable def minV [Nonempty α] (t : TreeSet α cmp) : α :=
+  t.minD Classical.ofNonempty
 
 /--
 Tries to retrieve the largest element of the tree set, returning `none` if the set is empty.
@@ -250,6 +262,10 @@ Tries to retrieve the largest element of the tree set, returning `fallback` if t
 def maxD (t : TreeSet α cmp) (fallback : α) : α :=
   TreeMap.maxKeyD t.inner fallback
 
+@[inherit_doc DTreeMap.maxKeyV]
+noncomputable def maxV [Nonempty α] (t : TreeSet α cmp) : α :=
+  t.maxD Classical.ofNonempty
+
 /-- Returns the `n`-th smallest element, or `none` if `n` is at least `t.size`. -/
 @[inline]
 def atIdx? (t : TreeSet α cmp) (n : Nat) : Option α :=
@@ -269,6 +285,10 @@ def atIdx! [Inhabited α] (t : TreeSet α cmp) (n : Nat) : α :=
 @[inline]
 def atIdxD (t : TreeSet α cmp) (n : Nat) (fallback : α) : α :=
   TreeMap.keyAtIdxD t.inner n fallback
+
+@[inherit_doc DTreeMap.keyAtIdxV]
+noncomputable def atIdxV [Nonempty α] (t : TreeSet α cmp) (n : Nat) : α :=
+  t.atIdxD n Classical.ofNonempty
 
 /--
 Tries to retrieve the smallest element that is greater than or equal to the
@@ -369,6 +389,22 @@ returning `fallback` if no such element exists.
 @[inline]
 def getLTD (t : TreeSet α cmp) (k : α) (fallback : α) : α :=
   TreeMap.getKeyLTD t.inner k fallback
+
+@[inherit_doc DTreeMap.getKeyGEV]
+noncomputable def getGEV [Nonempty α] (t : TreeSet α cmp) (k : α) : α :=
+  t.getGED k Classical.ofNonempty
+
+@[inherit_doc DTreeMap.getKeyGTV]
+noncomputable def getGTV [Nonempty α] (t : TreeSet α cmp) (k : α) : α :=
+  t.getGTD k Classical.ofNonempty
+
+@[inherit_doc DTreeMap.getKeyLEV]
+noncomputable def getLEV [Nonempty α] (t : TreeSet α cmp) (k : α) : α :=
+  t.getLED k Classical.ofNonempty
+
+@[inherit_doc DTreeMap.getKeyLTV]
+noncomputable def getLTV [Nonempty α] (t : TreeSet α cmp) (k : α) : α :=
+  t.getLTD k Classical.ofNonempty
 
 variable  {γ δ: Type w} {m : Type w → Type w₂} [Monad m]
 

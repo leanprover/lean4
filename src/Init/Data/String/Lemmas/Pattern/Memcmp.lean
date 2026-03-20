@@ -35,18 +35,22 @@ theorem memcmpStr_eq_true_iff {lhs rhs : String} {lstart rstart len : String.Pos
   · simp only [Pos.Raw.byteIdx_offsetBy]
     rw [(by omega : len.byteIdx = curr.byteIdx + (len.byteIdx - curr.byteIdx)),
       ← Nat.add_assoc, ← Nat.add_assoc,
-      ByteArray.extract_eq_extract_iff_getElem (by simp; omega) (by simp; omega)]
+      ByteArray.extract_eq_extract_iff_getElemV (by simp; omega) (by simp; omega)]
     fun_induction memcmpStr.go with
     | case1 p h₃ h₄ h₅ h ih =>
       rw [Pos.Raw.lt_iff] at h₃
       rw [ih (by simp; omega)]
-      simp only [String.getUTF8Byte, Pos.Raw.byteIdx_offsetBy, beq_iff_eq] at h
+      simp only [String.getUTF8Byte, Pos.Raw.byteIdx_offsetBy, beq_iff_eq,
+        getElem_eq_getElemV] at h
       simp only [Pos.Raw.byteIdx_inc, Nat.add_assoc, Nat.add_comm 1]
-      refine ⟨fun h k hk => ?_, fun h k hk => h (k + 1) (by omega)⟩
+      refine ⟨fun hrec k hk => ?_, fun hrec k hk => hrec (k + 1) (by omega)⟩
       match k with
-      | 0 => simpa
-      | k + 1 => exact h k (by omega)
-    | case2 p h₃ h₄ h₅ h => simpa using ⟨0, by rw [Pos.Raw.lt_iff] at h₃; omega, by simpa using h⟩
+      | 0 => simpa using h
+      | k + 1 => exact hrec k (by omega)
+    | case2 p h₃ h₄ h₅ h =>
+      simp only [String.getUTF8Byte, Pos.Raw.byteIdx_offsetBy, beq_iff_eq,
+        getElem_eq_getElemV] at h
+      simpa using ⟨0, by rw [Pos.Raw.lt_iff] at h₃; omega, by simpa using h⟩
     | case3 p hp => simp [(by rw [Pos.Raw.lt_iff] at hp; omega : len.byteIdx = p.byteIdx)]
 
 theorem memcmpSlice_eq_true_iff {lhs rhs : Slice} {lstart rstart len : String.Pos.Raw} {h₁ h₂} :

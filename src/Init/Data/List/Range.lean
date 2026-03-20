@@ -9,6 +9,7 @@ prelude
 public import Init.BinderPredicates
 public import Init.Ext
 public import Init.NotationExtra
+public import Init.Data.List.BasicAux
 import Init.Data.List.Lemmas
 import Init.Data.List.Sublist
 import Init.Data.List.Zip
@@ -87,24 +88,43 @@ theorem getElem?_range' {s step} :
     exact (getElem?_range' (s := s + step) (by exact succ_lt_succ_iff.mp h)).trans <| by
       simp [Nat.mul_succ, Nat.add_assoc, Nat.add_comm]
 
-@[simp, grind =] theorem getElem_range' {n m step} {i} (H : i < (range' n m step).length) :
+theorem getElem_range' {n m step} {i} (H : i < (range' n m step).length) :
     (range' n m step)[i] = n + step * i :=
   (getElem?_eq_some_iff.1 <| getElem?_range' (by simpa using H)).2
+
+@[simp, grind =] theorem getElemV_range' {n m step} {i} (H : i < (range' n m step).length) :
+    (range' n m step)｢i｣ = n + step * i :=
+  (getElem?_eq_some_iff_getElemV.1 <| getElem?_range' (by simpa using H)).2
 
 theorem head?_range' : (range' s n).head? = if n = 0 then none else some s := by
   induction n <;> simp_all [range'_succ]
 
+/-
+PLOG(head_range'):
+Added V counterpart and manual bounds proof
+-/
+
 @[simp, grind =] theorem head_range' (h) : (range' s n).head h = s := by
-  repeat simp_all [head?_range', head_eq_iff_head?_eq_some]
+  repeat simp_all [head?_range', headV_eq_iff_head?_eq_some]
+
+@[simp, grind =] theorem headV_range' (h : 0 < n) :
+    (range' s n).headV = s := by
+  haveI : range' s n ≠ [] := by simpa [Nat.ne_zero_iff_zero_lt]
+  repeat simp_all [head?_range', headV_eq_iff_head?_eq_some this, Nat.ne_zero_iff_zero_lt]
 
 theorem map_add_range' {a} : ∀ s n step, map (a + ·) (range' s n step) = range' (a + s) n step
   | _, 0, _ => rfl
   | s, n + 1, step => by simp [range', map_add_range' (s + step), Nat.add_assoc]
 
+/-
+PLOG(range'_succ_left):
+`+contextual`
+-/
+
 theorem range'_succ_left : range' (s + 1) n step = (range' s n step).map (· + 1) := by
   apply ext_getElem
   · simp
-  · simp [Nat.add_right_comm]
+  · simp +contextual [Nat.add_right_comm, getElemV_map]
 
 theorem range'_append : ∀ {s m n step : Nat},
     range' s m step ++ range' (s + step * m) n step = range' s (m + n) step
@@ -149,8 +169,18 @@ theorem range_eq_range' {n : Nat} : range n = range' 0 n :=
 theorem getElem?_range {i n : Nat} (h : i < n) : (range n)[i]? = some i := by
   simp [range_eq_range', getElem?_range' h]
 
-@[simp, grind =] theorem getElem_range (h : j < (range n).length) : (range n)[j] = j := by
-  simp [range_eq_range']
+/-
+PLOG(getElem_range):
+added explicit bounds proof
+-/
+
+theorem getElem_range (h : j < (range n).length) : (range n)[j] = j := by
+  have : j < (range' 0 n).length := by simpa [range_eq_range'] using h
+  simp [range_eq_range', getElemV_range' this]
+
+@[simp, grind =] theorem getElemV_range (h : j < n) : (range n)｢j｣ = j := by
+  have : j < (range' 0 n).length := by simpa [range_eq_range'] using h
+  simp [range_eq_range', getElemV_range' this]
 
 theorem range_succ_eq_map {n : Nat} : range (n + 1) = 0 :: map succ (range n) := by
   rw [range_eq_range', range_eq_range', range', Nat.add_comm, ← map_add_range']
@@ -193,10 +223,20 @@ theorem head?_range {n : Nat} : (range n).head? = if n = 0 then none else some 0
     simp only [range_succ, head?_append, ih]
     split <;> simp_all
 
+/-
+PLOG(head_range):
+added V counterpart
+-/
+
 @[simp, grind =] theorem head_range {n : Nat} (h) : (range n).head h = 0 := by
   cases n with
   | zero => simp at h
-  | succ n => simp [head?_range, head_eq_iff_head?_eq_some]
+  | succ n => simp [head?_range, headV_eq_iff_head?_eq_some]
+
+@[simp, grind =] theorem headV_range {n : Nat} (h : 0 < n) : (range n).headV = 0 := by
+  cases n with
+  | zero => simp at h
+  | succ n => simp [head?_range, headV_eq_iff_head?_eq_some]
 
 theorem getLast?_range {n : Nat} : (range n).getLast? = if n = 0 then none else some (n - 1) := by
   induction n with
@@ -208,7 +248,12 @@ theorem getLast?_range {n : Nat} : (range n).getLast? = if n = 0 then none else 
 @[simp, grind =] theorem getLast_range {n : Nat} (h) : (range n).getLast h = n - 1 := by
   cases n with
   | zero => simp at h
-  | succ n => simp [getLast?_range, getLast_eq_iff_getLast?_eq_some]
+  | succ n => simp [getLast?_range, getLastV_eq_iff_getLast?_eq_some]
+
+@[simp, grind =] theorem getLastV_range {n : Nat} (h) : (range n).getLast h = n - 1 := by
+  cases n with
+  | zero => simp at h
+  | succ n => simp [getLast?_range, getLastV_eq_iff_getLast?_eq_some]
 
 /-! ### zipIdx -/
 
@@ -229,13 +274,18 @@ theorem getElem?_zipIdx :
     simp only [zipIdx_cons, getElem?_cons_succ]
     exact getElem?_zipIdx.trans <| by rw [Nat.add_right_comm]; rfl
 
-@[simp, grind =]
 theorem getElem_zipIdx {l : List α} (h : i < (l.zipIdx j).length) :
     (l.zipIdx j)[i] = (l[i]'(by simpa [length_zipIdx] using h), j + i) := by
   simp only [length_zipIdx] at h
   rw [getElem_eq_getElem?_get]
   simp only [getElem?_zipIdx, getElem?_eq_getElem h]
   simp
+
+@[simp, grind =]
+theorem getElemV_zipIdx {l : List α} {i j : Nat} (h : i < (l.zipIdx j).length) :
+    haveI : Nonempty (α) := ⟨l[i]'(by simpa [length_zipIdx] using h)⟩
+    (l.zipIdx j)｢i｣ = (l｢i｣, j + i) := by
+  simpa using getElem_zipIdx h
 
 @[simp, grind =]
 theorem tail_zipIdx {l : List α} {i : Nat} : (zipIdx l i).tail = zipIdx l.tail (i + 1) := by

@@ -87,6 +87,13 @@ theorem insertIdx_size_self {xs : Vector α n} {x : α} : xs.insertIdx n x = xs.
   simp
 
 @[grind =]
+theorem getElemV_insertIdx {xs : Vector α n} {x : α} {i k : Nat}
+    (w : i ≤ n) (h : k < n + 1) :
+    haveI : Nonempty α := ⟨x⟩
+    (xs.insertIdx i x)｢k｣ = if k < i then xs｢k｣ else if k = i then x else xs｢k - 1｣ := by
+  rcases xs with ⟨xs, rfl⟩
+  simp [Array.getElemV_insertIdx _ (Nat.le_of_lt_add_one h)]
+
 theorem getElem_insertIdx {xs : Vector α n} {x : α} {i k : Nat} (w : i ≤ n) (h : k < n + 1) :
     (xs.insertIdx i x)[k] =
       if h₁ : k < i then
@@ -96,24 +103,38 @@ theorem getElem_insertIdx {xs : Vector α n} {x : α} {i k : Nat} (w : i ≤ n) 
           x
         else
           xs[k-1] := by
+  simpa using getElemV_insertIdx w h
+
+theorem getElemV_insertIdx_of_lt {xs : Vector α n} {x : α} {i k : Nat}
+    (w : i ≤ n) (h : k < i) :
+    (xs.insertIdx i x)｢k｣ = xs｢k｣ := by
   rcases xs with ⟨xs, rfl⟩
-  simp [Array.getElem_insertIdx]
+  simp (discharger := omega) [Array.getElemV_insertIdx, *]
 
 theorem getElem_insertIdx_of_lt {xs : Vector α n} {x : α} {i k : Nat} (w : i ≤ n) (h : k < i) :
     (xs.insertIdx i x)[k] = xs[k] := by
+  simpa using getElemV_insertIdx_of_lt w h
+
+theorem getElemV_insertIdx_self {xs : Vector α n} {x : α} {i : Nat} (w : i ≤ n) :
+    (xs.insertIdx i x)｢i｣ = x := by
   rcases xs with ⟨xs, rfl⟩
-  simp [Array.getElem_insertIdx, h]
+  simp [Array.getElemV_insertIdx, w]
 
 theorem getElem_insertIdx_self {xs : Vector α n} {x : α} {i : Nat} (w : i ≤ n) :
     (xs.insertIdx i x)[i] = x := by
+  simpa using getElemV_insertIdx_self w
+
+theorem getElemV_insertIdx_of_gt {xs : Vector α n} {x : α} {i k : Nat}
+    (w : k ≤ n) (h : k > i) :
+    haveI : Nonempty α := ⟨x⟩
+    (xs.insertIdx i x)｢k｣ = xs｢k - 1｣ := by
   rcases xs with ⟨xs, rfl⟩
-  simp [Array.getElem_insertIdx]
+  simp only [insertIdx_mk, getElemV_mk, w, Array.getElemV_insertIdx]
+  rw [if_neg (by omega), if_neg (by omega)]
 
 theorem getElem_insertIdx_of_gt {xs : Vector α n} {x : α} {i k : Nat} (w : k ≤ n) (h : k > i) :
     (xs.insertIdx i x)[k] = xs[k - 1] := by
-  rcases xs with ⟨xs, rfl⟩
-  simp [Array.getElem_insertIdx]
-  rw [dif_neg (by omega), dif_neg (by omega)]
+  simpa using getElemV_insertIdx_of_gt w h
 
 @[grind =]
 theorem getElem?_insertIdx {xs : Vector α n} {x : α} {i k : Nat} (h : i ≤ n) :

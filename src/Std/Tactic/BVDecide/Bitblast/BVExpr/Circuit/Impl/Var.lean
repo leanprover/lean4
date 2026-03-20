@@ -57,17 +57,19 @@ termination_by w - curr
 
 theorem blastVar.go_decl_eq {aig : AIG BVBit} (curr : Nat) (s : AIG.RefVec aig curr) (a : Nat)
     (hcurr : curr ≤ w) :
-    ∀ (idx : Nat) (h1) (h2), (go aig w a curr s hcurr).aig.decls[idx]'h2 = aig.decls[idx]'h1 := by
+    ∀ (idx : Nat), (h : idx < aig.decls.size) →
+      (go aig w a curr s hcurr).aig.decls｢idx｣ = aig.decls｢idx｣ := by
   generalize hgo : go aig w a curr s hcurr = res
   unfold go at hgo
   split at hgo
   · dsimp only at hgo
     rw [← hgo]
-    intro curr h1 h2
-    rw [blastVar.go_decl_eq]
-    rw [AIG.LawfulOperator.decl_eq (f := AIG.mkAtomCached)]
-    apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := AIG.mkAtomCached)
-    assumption
+    intro curr h1
+    rw [blastVar.go_decl_eq,
+      AIG.LawfulOperator.decl_eq (f := AIG.mkAtomCached)]
+    · assumption
+    · apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := AIG.mkAtomCached)
+      assumption
   · dsimp only at hgo
     rw [← hgo]
     intros
@@ -83,6 +85,7 @@ instance : AIG.LawfulVecOperator BVBit (fun _ w => BVVar w) blastVar where
     intros
     unfold blastVar
     apply blastVar.go_decl_eq
+    assumption
 
 end bitblast
 end BVExpr

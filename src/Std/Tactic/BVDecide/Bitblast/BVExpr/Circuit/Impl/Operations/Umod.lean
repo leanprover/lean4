@@ -55,9 +55,10 @@ instance : AIG.LawfulVecOperator α AIG.BinaryRefVec blastUmod where
   decl_eq := by
     intros
     unfold blastUmod
-    rw [AIG.LawfulVecOperator.decl_eq (f := AIG.RefVec.ite)]
-    rw [blastUdiv.go_decl_eq]
-    rw [AIG.LawfulOperator.decl_eq (f := BVPred.mkEq)]
+    rw [AIG.LawfulVecOperator.decl_eq (f := AIG.RefVec.ite),
+      blastUdiv.go_decl_eq,
+      AIG.LawfulOperator.decl_eq (f := BVPred.mkEq)]
+    · assumption
     · apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := BVPred.mkEq)
       assumption
     · refine Nat.le_trans ?_ (by apply blastUdiv.go_le_size)

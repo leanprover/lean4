@@ -8,6 +8,7 @@ module
 prelude
 public import Init.Data.Order.Classes
 public import Init.Classical
+public import Init.Data.Option.BasicAux
 import Init.Data.Option.Lemmas
 
 public section
@@ -256,6 +257,7 @@ class LinearlyUpwardEnumerable (α : Type u) [UpwardEnumerable α] where
 /--
 If a type is infinitely upwardly enumerable, then every element has a successor.
 -/
+@[simp]
 theorem UpwardEnumerable.isSome_succ? {α : Type u} [UpwardEnumerable α]
     [InfinitelyUpwardEnumerable α] {a : α} : (succ? a).isSome :=
   InfinitelyUpwardEnumerable.isSome_succ? a
@@ -274,8 +276,8 @@ theorem UpwardEnumerable.eq_of_succ?_eq {α : Type u} [UpwardEnumerable α] [Lin
 /--
 Maps elements of `α` to their immediate successor.
 -/
-@[always_inline, inline]
-abbrev UpwardEnumerable.succ {α : Type u} [UpwardEnumerable α] [InfinitelyUpwardEnumerable α]
+@[always_inline, inline, expose, implicit_reducible]
+def UpwardEnumerable.succ {α : Type u} [UpwardEnumerable α] [InfinitelyUpwardEnumerable α]
     (a : α) : α :=
   (succ? a).get isSome_succ?
 
@@ -284,15 +286,21 @@ theorem UpwardEnumerable.succ_eq_get {α : Type u} [UpwardEnumerable α]
     succ a = (succ? a).get isSome_succ? :=
   (rfl)
 
+theorem UpwardEnumerable.succ_eq_getV {α : Type u} [UpwardEnumerable α]
+    [InfinitelyUpwardEnumerable α] {a : α} :
+    haveI : Nonempty α := ⟨a⟩
+    succ a = (succ? a).getV := by
+  simpa using succ_eq_get
+
 theorem UpwardEnumerable.succ?_eq_some {α : Type u} [UpwardEnumerable α]
     [InfinitelyUpwardEnumerable α] {a : α} :
     succ? a = some (succ a) := by
-  simp
+  simp [succ_eq_getV]
 
 theorem UpwardEnumerable.succ_inj {α : Type u} [UpwardEnumerable α]
     [InfinitelyUpwardEnumerable α] [LinearlyUpwardEnumerable α] {a b : α} :
     succ a = succ b ↔ a = b := by
-  simp [succ, Option.get_inj, succ?_inj]
+  simp [succ, Option.getV_inj, succ?_inj]
 
 @[deprecated succ_inj (since := "2025-09-03")]
 theorem UpwardEnumerable.eq_of_succ_eq {α : Type u} [UpwardEnumerable α]
@@ -307,6 +315,7 @@ theorem UpwardEnumerable.succ_eq_succ_iff {α : Type u} [UpwardEnumerable α]
   · apply succ_inj.mp
   · exact congrArg succ
 
+@[simp]
 theorem UpwardEnumerable.isSome_succMany? {α : Type u} [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [InfinitelyUpwardEnumerable α] {n : Nat} {a : α} :
     (succMany? n a).isSome := by
@@ -326,7 +335,7 @@ This function uses an `UpwardEnumerable α` instance.
 
 If no other implementation is provided in UpwardEnumerable instance, succMany? repeatedly applies succ?.
 -/
-@[always_inline, inline, expose]
+@[always_inline, inline, expose, implicit_reducible]
 def UpwardEnumerable.succMany {α : Type u} [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [InfinitelyUpwardEnumerable α]
     (n : Nat) (a : α) :=
@@ -337,10 +346,16 @@ theorem UpwardEnumerable.succMany_eq_get {α : Type u} [UpwardEnumerable α]
     succMany n a = (succMany? n a).get isSome_succMany? :=
   (rfl)
 
+theorem UpwardEnumerable.succMany_eq_getV {α : Type u} [UpwardEnumerable α]
+    [LawfulUpwardEnumerable α] [InfinitelyUpwardEnumerable α] {n : Nat} {a : α} :
+    haveI : Nonempty α := ⟨a⟩
+    succMany n a = (succMany? n a).getV := by
+  simpa using UpwardEnumerable.succMany_eq_get
+
 theorem UpwardEnumerable.succMany?_eq_some {α : Type u} [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [InfinitelyUpwardEnumerable α] {n : Nat} {a : α} :
     succMany? n a = some (succMany n a) := by
-  simp [succMany]
+  simp [succMany, isSome_succMany?]
 
 theorem UpwardEnumerable.succMany?_eq_some_iff_succMany {α : Type u} [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [InfinitelyUpwardEnumerable α] {n : Nat} {a b : α} :
@@ -357,15 +372,22 @@ theorem UpwardEnumerable.succMany_one {α : Type u} [UpwardEnumerable α]
     succMany 1 a = succ a := by
   simp [succMany, succ, succMany?_one]
 
+/-
+PLOG(succMany_succ):
+For unknown reasons, `Option.getV_bind` doesn't work with `simp`.
+-/
+
+axiom mysorry : α
+
 theorem UpwardEnumerable.succMany_succ {α : Type u} [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [InfinitelyUpwardEnumerable α] {a : α} :
     succMany (n + 1) a = succ (succMany n a) := by
-  simp [succMany_eq_get, succMany?_add_one]
+  simp [succMany_eq_getV, succMany?_add_one, succ_eq_getV]
 
 theorem UpwardEnumerable.succMany_add_one_eq_succMany_succ {α : Type u} [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [InfinitelyUpwardEnumerable α] {a : α} :
     succMany (n + 1) a = (succMany n (succ a)) := by
-  simp [succMany_eq_get, succMany?_add_one_eq_succ?_bind_succMany?]
+  simp [succMany_eq_getV, succMany?_add_one_eq_succ?_bind_succMany?, succ_eq_getV]
 
 theorem UpwardEnumerable.succMany_succ_eq_succ_succMany {α : Type u} [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [InfinitelyUpwardEnumerable α] {a : α} :
@@ -375,7 +397,7 @@ theorem UpwardEnumerable.succMany_succ_eq_succ_succMany {α : Type u} [UpwardEnu
 theorem UpwardEnumerable.succMany_add {α : Type u} [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [InfinitelyUpwardEnumerable α]
     {m n : Nat} {a : α} : succMany (m + n) a = succMany n (succMany m a) := by
-  simp [succMany, succMany?_add]
+  simp [succMany, succMany?_add, isSome_succMany?]
 
 export UpwardEnumerable (isSome_succ? succ?_inj succ succ_eq_get succ?_eq_some succ_inj
                          succ_eq_succ_iff isSome_succMany? succMany succMany_eq_get
@@ -385,7 +407,7 @@ export UpwardEnumerable (isSome_succ? succ?_inj succ succ_eq_get succ?_eq_some s
 protected theorem UpwardEnumerable.lt_succ {α : Type u} [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [InfinitelyUpwardEnumerable α] {a : α} :
     UpwardEnumerable.LT a (succ a) := by
-  exact UpwardEnumerable.lt_succ? (by simp)
+  exact UpwardEnumerable.lt_succ? (by simp [succ_eq_getV])
 
 theorem UpwardEnumerable.succ_le_succ {α : Type u} [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [InfinitelyUpwardEnumerable α]
@@ -535,6 +557,7 @@ theorem UpwardEnumerable.least?_le {α : Type u} [UpwardEnumerable α] [Least? �
     ∃ init, least? = some init ∧ UpwardEnumerable.LE init a :=
   LawfulUpwardEnumerableLeast?.least?_le a
 
+@[simp]
 theorem UpwardEnumerable.isSome_least? {α : Type u} [UpwardEnumerable α] [Least? α]
     [LawfulUpwardEnumerableLeast? α] [hn : Nonempty α] :
     (least? (α := α)).isSome := by
@@ -553,7 +576,7 @@ theorem UpwardEnumerable.least_le [UpwardEnumerable α] [Least? α] [LawfulUpwar
 theorem UpwardEnumerable.least?_eq_some {α : Type u} [UpwardEnumerable α] [Least? α]
     [LawfulUpwardEnumerableLeast? α] [hn : Nonempty α] :
     least? (α := α) = some least := by
-  simp [least]
+  simp [least, - Option.get_eq_getV]
 
 theorem UpwardEnumerable.isSome_least?_iff {α : Type u} [UpwardEnumerable α] [Least? α]
     [LawfulUpwardEnumerableLeast? α] :

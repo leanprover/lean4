@@ -231,7 +231,7 @@ instance [DecidableEq α] [LT α] [DecidableLT α] : DecidableLE (Array α) :=
   - for all `j < i`, `l₁[j] == l₂[j]` and
   - `l₁[i] < l₂[i]`
 -/
-theorem lex_eq_true_iff_exists [BEq α] (lt : α → α → Bool) :
+theorem lex_eq_true_iff_exists_getElem [BEq α] (lt : α → α → Bool) :
     lex l₁ l₂ lt = true ↔
       (l₁.isEqv (l₂.take l₁.size) (· == ·) ∧ l₁.size < l₂.size) ∨
         (∃ (i : Nat) (h₁ : i < l₁.size) (h₂ : i < l₂.size),
@@ -239,7 +239,14 @@ theorem lex_eq_true_iff_exists [BEq α] (lt : α → α → Bool) :
             l₁[j]'(Nat.lt_trans hj h₁) == l₂[j]'(Nat.lt_trans hj h₂)) ∧ lt l₁[i] l₂[i]) := by
   cases l₁
   cases l₂
-  simp [List.lex_eq_true_iff_exists]
+  simp [List.lex_eq_true_iff_exists_getElem]
+
+theorem lex_eq_true_iff_exists [Nonempty α] [BEq α] {lt : α → α → Bool} :
+    lex l₁ l₂ lt = true ↔
+      (l₁.isEqv (l₂.take l₁.size) (· == ·) ∧ l₁.size < l₂.size) ∨
+        (∃ (i : Nat), i < l₁.size ∧ i < l₂.size ∧
+          (∀ j, j < i → l₁｢j｣ == l₂｢j｣) ∧ lt l₁｢i｣ l₂｢i｣) := by
+  simpa [← exists_prop] using lex_eq_true_iff_exists_getElem (l₁ := l₁) (l₂ := l₂) lt
 
 /--
 `l₁` is *not* lexicographically less than `l₂`
@@ -256,7 +263,7 @@ This formulation requires that `==` and `lt` are compatible in the following sen
 - `lt` is asymmetric  (i.e. `lt x y = true → lt y x = false`)
 - `lt` is antisymmetric with respect to `==` (i.e. `lt x y = false → lt y x = false → x == y`)
 -/
-theorem lex_eq_false_iff_exists [BEq α] [PartialEquivBEq α] (lt : α → α → Bool)
+theorem lex_eq_false_iff_exists_getElem [BEq α] [PartialEquivBEq α] (lt : α → α → Bool)
     (lt_irrefl : ∀ x y, x == y → lt x y = false)
     (lt_asymm : ∀ x y, lt x y = true → lt y x = false)
     (lt_antisymm : ∀ x y, lt x y = false → lt y x = false → x == y) :
@@ -267,9 +274,22 @@ theorem lex_eq_false_iff_exists [BEq α] [PartialEquivBEq α] (lt : α → α �
             l₁[j]'(Nat.lt_trans hj h₁) == l₂[j]'(Nat.lt_trans hj h₂)) ∧ lt l₂[i] l₁[i]) := by
   cases l₁
   cases l₂
-  simp_all [List.lex_eq_false_iff_exists]
+  simp_all [List.lex_eq_false_iff_exists_getElem]
 
-protected theorem lt_iff_exists [LT α] {xs ys : Array α} :
+theorem lex_eq_false_iff_exists [BEq α] [PartialEquivBEq α] {lt : α → α → Bool}
+    (lt_irrefl : ∀ x y, x == y → lt x y = false)
+    (lt_asymm : ∀ x y, lt x y = true → lt y x = false)
+    (lt_antisymm : ∀ x y, lt x y = false → lt y x = false → x == y) :
+    lex l₁ l₂ lt = false ↔
+      (l₂.isEqv (l₁.take l₂.size) (· == ·)) ∨
+        (∃ (i : Nat) (_ : i < l₁.size) (_ : i < l₂.size),
+          (∀ j, (hj : j < i) →
+            haveI : j < l₁.size := Nat.lt_trans hj ‹_›
+            haveI : j < l₂.size := Nat.lt_trans hj ‹_›
+            l₁｢j｣ == l₂｢j｣) ∧ lt l₂｢i｣ l₁｢i｣) := by
+  simpa [← exists_prop] using lex_eq_false_iff_exists_getElem lt lt_irrefl lt_asymm lt_antisymm
+
+protected theorem lt_iff_exists_getElem [LT α] {xs ys : Array α} :
     xs < ys ↔
       (xs = ys.take xs.size ∧ xs.size < ys.size) ∨
         (∃ (i : Nat) (h₁ : i < xs.size) (h₂ : i < ys.size),
@@ -277,9 +297,19 @@ protected theorem lt_iff_exists [LT α] {xs ys : Array α} :
             xs[j]'(Nat.lt_trans hj h₁) = ys[j]'(Nat.lt_trans hj h₂)) ∧ xs[i] < ys[i]) := by
   cases xs
   cases ys
-  simp [List.lt_iff_exists]
+  simp [List.lt_iff_exists_getElem]
 
-protected theorem le_iff_exists [LT α]
+protected theorem lt_iff_exists [LT α] {xs ys : Array α} :
+    xs < ys ↔
+      (xs = ys.take xs.size ∧ xs.size < ys.size) ∨
+        (∃ (i : Nat) (_ : i < xs.size) (_ : i < ys.size),
+          (∀ j, (hj : j < i) →
+            haveI : j < xs.size := Nat.lt_trans hj ‹_›
+            haveI : j < ys.size := Nat.lt_trans hj ‹_›
+            xs｢j｣ = ys｢j｣) ∧ xs｢i｣ < ys｢i｣) := by
+  simpa using Array.lt_iff_exists_getElem
+
+protected theorem le_iff_exists_getElem [LT α]
     [Std.Asymm (· < · : α → α → Prop)]
     [Std.Trichotomous (· < · : α → α → Prop)] {xs ys : Array α} :
     xs ≤ ys ↔
@@ -289,7 +319,19 @@ protected theorem le_iff_exists [LT α]
             xs[j]'(Nat.lt_trans hj h₁) = ys[j]'(Nat.lt_trans hj h₂)) ∧ xs[i] < ys[i]) := by
   cases xs
   cases ys
-  simp [List.le_iff_exists]
+  simp [List.le_iff_exists_getElem]
+
+protected theorem le_iff_exists [LT α]
+    [Std.Asymm (· < · : α → α → Prop)]
+    [Std.Trichotomous (· < · : α → α → Prop)] {xs ys : Array α} :
+    xs ≤ ys ↔
+      (xs = ys.take xs.size) ∨
+        (∃ (i : Nat) (h₁ : i < xs.size) (h₂ : i < ys.size),
+          (∀ j, (hj : j < i) →
+            haveI : j < xs.size := Nat.lt_trans hj ‹_›
+            haveI : j < ys.size := Nat.lt_trans hj ‹_›
+            xs｢j｣ = ys｢j｣) ∧ xs｢i｣ < ys｢i｣) := by
+  simpa using Array.le_iff_exists_getElem
 
 theorem append_left_lt [LT α] {xs ys zs : Array α} (h : ys < zs) :
     xs ++ ys < xs ++ zs := by

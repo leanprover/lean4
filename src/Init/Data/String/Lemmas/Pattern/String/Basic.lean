@@ -249,16 +249,22 @@ theorem matchesAt_iff_getElem {pat s : Slice} {pos : s.Pos} (h : pat.isEmpty = f
           pat.copy.toByteArray[j] = s.copy.toByteArray[pos.offset.byteIdx + j] := by
   rw [matchesAt_iff_isLongestMatchAt h]
   refine ⟨fun ⟨h₁, h₂⟩ => ?_, fun ⟨h₁, h₂⟩ => ?_⟩
-  · refine ⟨by simpa using h₁.le_utf8ByteSize, fun j hj => ?_⟩
+  · have hle : pos.offset.byteIdx + pat.utf8ByteSize ≤ s.copy.toByteArray.size := by
+      simpa using h₁.le_utf8ByteSize
+    refine ⟨by simpa using hle, fun j hj => ?_⟩
     rw [isLongestMatchAt_iff_extract h] at h₂
-    replace h₂ := congrArg (·[j]?) h₂
-    simp only [offset_pos, Pos.Raw.byteIdx_increaseBy] at h₂
-    rw [getElem?_pos, getElem?_pos, ByteArray.getElem_extract] at h₂
-    · simpa using h₂.symm
-    · have := h₁.le_utf8ByteSize
-      simp only [Pos.Raw.byteIdx_increaseBy, size_toByteArray, utf8ByteSize_copy,
-        ByteArray.size_extract, gt_iff_lt] at this ⊢ hj
+    have hjs : j < (s.copy.toByteArray.extract pos.offset.byteIdx
+        (pos.offset.byteIdx + pat.utf8ByteSize)).size := by
+      simp only [ByteArray.size_extract, size_toByteArray, utf8ByteSize_copy] at hj hle ⊢
       omega
+    have h₂' : (s.copy.toByteArray.extract pos.offset.byteIdx
+        (pos.offset.byteIdx + pat.utf8ByteSize))｢j｣ = pat.copy.toByteArray｢j｣ := by
+      have := congrArg (·｢j｣) h₂
+      simpa [offset_pos, Pos.Raw.byteIdx_increaseBy] using this
+    simpa [ByteArray.getElemV_extract (show pos.offset.byteIdx + j <
+      pos.offset.byteIdx + pat.utf8ByteSize by
+        simp only [size_toByteArray, utf8ByteSize_copy] at hj
+        omega)] using h₂'.symm
   · suffices s.copy.toByteArray.extract pos.offset.byteIdx
         (pos.offset.byteIdx + pat.copy.toByteArray.size) = pat.copy.toByteArray by
       have h₀ := (((Pos.Raw.isValidUTF8_extract_iff _ _ ?_ ?_).1
@@ -270,7 +276,12 @@ theorem matchesAt_iff_getElem {pat s : Slice} {pos : s.Pos} (h : pat.isEmpty = f
     refine ByteArray.ext_getElem ?_ (fun i hi hi' => ?_)
     · simp only [size_toByteArray, utf8ByteSize_copy, ByteArray.size_extract] at ⊢ h₁
       omega
-    · simp [ByteArray.getElem_extract, h₂]
+    · have := h₂ i hi'
+      simp only [getElem_eq_getElemV] at this ⊢
+      rw [ByteArray.getElemV_extract (by
+        simp only [ByteArray.size_extract, size_toByteArray, utf8ByteSize_copy] at hi
+        omega)]
+      exact this.symm
 
 theorem le_of_matchesAt {pat s : Slice} {pos : s.Pos} (h : pat.isEmpty = false)
     (h' : MatchesAt pat pos) : pos.offset.increaseBy pat.utf8ByteSize ≤ s.rawEndPos := by

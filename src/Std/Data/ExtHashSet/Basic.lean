@@ -153,6 +153,14 @@ If they key is contained the result is guaranteed to be pointer equal to the key
   m.inner.getKeyD a fallback
 
 /--
+Checks if given key is contained and returns the key if it is, otherwise returns `Classical.ofNonempty`.
+If the key is contained the result is guaranteed to be pointer equal to the key in the set.
+-/
+noncomputable def getV [EquivBEq α] [LawfulHashable α] (m : ExtHashSet α) (a : α) : α :=
+  haveI : Nonempty α := ⟨a⟩
+  m.getD a Classical.ofNonempty
+
+/--
 Checks if given key is contained and returns the key if it is, otherwise panics.
 If no panic occurs the result is guaranteed to be pointer equal to the key in the set.
 -/

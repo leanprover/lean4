@@ -65,8 +65,7 @@ theorem fold_le_size {aig : AIG α} (vec : RefVec aig len)
 
 theorem fold.go_decl_eq {aig : AIG α} (acc : Ref aig) (i : Nat) (s : RefVec aig len)
     (f : (aig : AIG α) → BinaryInput aig → Entrypoint α) [LawfulOperator α BinaryInput f] :
-    ∀ (idx : Nat) (h1) (h2),
-      (go aig acc i len s f).1.decls[idx]'h2 = aig.decls[idx]'h1 := by
+    ∀ (idx : Nat), idx < aig.decls.size → (go aig acc i len s f).1.decls｢idx｣ = aig.decls｢idx｣ := by
   generalize hgo : go aig acc i len s f = res
   unfold go at hgo
   split at hgo
@@ -74,9 +73,10 @@ theorem fold.go_decl_eq {aig : AIG α} (acc : Ref aig) (i : Nat) (s : RefVec aig
     rw [← hgo]
     intros
     rw [go_decl_eq]
-    rw [LawfulOperator.decl_eq]
-    apply LawfulOperator.lt_size_of_lt_aig_size
-    assumption
+    · rw [LawfulOperator.decl_eq]
+      · assumption
+    · apply LawfulOperator.lt_size_of_lt_aig_size
+      assumption
   · rw [← hgo]
     intros
     simp
@@ -84,14 +84,12 @@ termination_by len - i
 
 theorem fold_decl_eq {aig : AIG α} (vec : RefVec aig len)
     (func : (aig : AIG α) → BinaryInput aig → Entrypoint α) [LawfulOperator α BinaryInput func] :
-    ∀ idx (h1 : idx < aig.decls.size) (h2),
-      (fold aig vec func).1.decls[idx]'h2
-        =
-      aig.decls[idx]'h1 := by
+    ∀ idx, idx < aig.decls.size → (fold aig vec func).1.decls｢idx｣ = aig.decls｢idx｣ := by
   intros
   unfold fold
   dsimp only
   rw [fold.go_decl_eq]
+  assumption
 
 theorem fold_lt_size_of_lt_aig_size (aig : AIG α) (vec : RefVec aig len)
     (func : (aig : AIG α) → BinaryInput aig → Entrypoint α) [LawfulOperator α BinaryInput func]

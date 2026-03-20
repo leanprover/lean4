@@ -393,6 +393,11 @@ def getEntryD [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (fallback : (a 
   buckets[idx.1].getEntryD a fallback
 
 /-- Internal implementation detail of the hash map -/
+noncomputable def getEntryV [BEq α] [Hashable α] (m : Raw₀ α β) (a : α)
+    [Nonempty ((a : α) × β a)] : (a : α) × β a :=
+  m.getEntryD a Classical.ofNonempty
+
+/-- Internal implementation detail of the hash map -/
 def getEntry! [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) [Inhabited ((a : α) × β a)] :
     (a : α) × β a :=
   let ⟨⟨_, buckets⟩, h⟩ := m
@@ -405,6 +410,11 @@ def getD [BEq α] [LawfulBEq α] [Hashable α] (m : Raw₀ α β) (a : α) (fall
   let ⟨⟨_, buckets⟩, h⟩ := m
   let idx := mkIdx buckets.size h (hash a)
   buckets[idx.1].getCastD a fallback
+
+/-- Internal implementation detail of the hash map -/
+noncomputable def getV [BEq α] [LawfulBEq α] [Hashable α] (m : Raw₀ α β) (a : α)
+    [Nonempty (β a)] : β a :=
+  m.getD a Classical.ofNonempty
 
 /-- Internal implementation detail of the hash map -/
 def get! [BEq α] [LawfulBEq α] [Hashable α] (m : Raw₀ α β) (a : α) [Inhabited (β a)] :
@@ -531,6 +541,11 @@ def Const.getD [BEq α] [Hashable α] (m : Raw₀ α (fun _ => β)) (a : α) (fa
   buckets[idx.1].getD a fallback
 
 /-- Internal implementation detail of the hash map -/
+noncomputable def Const.getV [BEq α] [Hashable α] [Nonempty β] (m : Raw₀ α (fun _ => β))
+    (a : α) : β :=
+  Const.getD m a Classical.ofNonempty
+
+/-- Internal implementation detail of the hash map -/
 def Const.get! [BEq α] [Hashable α] [Inhabited β] (m : Raw₀ α (fun _ => β)) (a : α) : β :=
   let ⟨⟨_, buckets⟩, h⟩ := m
   let idx := mkIdx buckets.size h (hash a)
@@ -590,6 +605,11 @@ def getKeyD [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (fallback : α) :
   let ⟨⟨_, buckets⟩, h⟩ := m
   let idx := mkIdx buckets.size h (hash a)
   buckets[idx.1].getKeyD a fallback
+
+/-- Internal implementation detail of the hash map -/
+noncomputable def getKeyV [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) : α :=
+  haveI : Nonempty α := ⟨a⟩
+  m.getKeyD a Classical.ofNonempty
 
 /-- Internal implementation detail of the hash map -/
 def getKey! [BEq α] [Hashable α] [Inhabited α] (m : Raw₀ α β) (a : α) : α :=

@@ -104,22 +104,24 @@ theorem go_le_size {w : Nat} (aig : AIG α) (curr : Nat) (acc : AIG.RefVec aig w
 
 theorem go_decl_eq {w : Nat} (aig : AIG α) (curr : Nat) (acc : AIG.RefVec aig w)
     (lhs rhs : AIG.RefVec aig w) :
-    ∀ (idx : Nat) (h1) (h2),
-       (go aig lhs rhs curr acc).aig.decls[idx]'h2 = aig.decls[idx]'h1 := by
+    ∀ (idx : Nat), (h : idx < aig.decls.size) →
+       (go aig lhs rhs curr acc).aig.decls｢idx｣ = aig.decls｢idx｣ := by
   generalize hgo : go aig lhs rhs curr acc = res
   unfold go at hgo
   split at hgo
   · split at hgo
     · rw [← hgo]
-      intro idx h1 h2
+      intro idx h1
       rw [go_decl_eq]
+      assumption
     · dsimp only at hgo
       rw [← hgo]
-      intro idx h1 h2
-      rw [go_decl_eq]
-      rw [AIG.LawfulVecOperator.decl_eq (f := AIG.RefVec.ite)]
-      rw [AIG.LawfulVecOperator.decl_eq (f := blastAdd)]
-      rw [AIG.LawfulVecOperator.decl_eq (f := blastShiftLeftConst)]
+      intro idx h1
+      rw [go_decl_eq,
+        AIG.LawfulVecOperator.decl_eq (f := AIG.RefVec.ite),
+        AIG.LawfulVecOperator.decl_eq (f := blastAdd),
+        AIG.LawfulVecOperator.decl_eq (f := blastShiftLeftConst)]
+      · assumption
       · apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := blastShiftLeftConst)
         assumption
       · apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := blastAdd)
@@ -146,10 +148,10 @@ instance : AIG.LawfulVecOperator α AIG.BinaryRefVec blast where
     split
     · simp
     · dsimp only
-      rw [blastMul.go_decl_eq]
-      rw [AIG.LawfulVecOperator.decl_eq (f := AIG.RefVec.ite)]
-      apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := AIG.RefVec.ite)
-      assumption
+      rw [blastMul.go_decl_eq, AIG.LawfulVecOperator.decl_eq (f := AIG.RefVec.ite)]
+      · assumption
+      · apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := AIG.RefVec.ite)
+        assumption
 
 end blastMul
 
@@ -161,7 +163,7 @@ instance : AIG.LawfulVecOperator α AIG.BinaryRefVec blastMul where
   decl_eq := by
     intros
     unfold blastMul
-    split <;> rw [AIG.LawfulVecOperator.decl_eq (f := blastMul.blast)]
+    split <;> rw [AIG.LawfulVecOperator.decl_eq (f := blastMul.blast)] <;> assumption
 
 end bitblast
 end BVExpr

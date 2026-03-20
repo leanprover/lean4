@@ -68,10 +68,14 @@ theorem extract_append_extract {xs : Vector α n} {i j k : Nat} :
   simp
 
 @[simp]
+theorem push_extract_getElemV {_ : Nonempty α} {xs : Vector α n} {i j : Nat} (h : j < n) :
+    (xs.extract i j).push xs｢j｣ = (xs.extract (min i j) (j + 1)).cast (by omega) := by
+  rcases xs with ⟨xs, rfl⟩
+  simp [*]
+
 theorem push_extract_getElem {xs : Vector α n} {i j : Nat} (h : j < n) :
     (xs.extract i j).push xs[j] = (xs.extract (min i j) (j + 1)).cast (by omega) := by
-  rcases xs with ⟨xs, rfl⟩
-  simp
+  simpa using push_extract_getElemV h
 
 theorem extract_succ_right {xs : Vector α n} {i j : Nat} (w : i < j + 1) (h : j < n) :
     xs.extract i (j + 1) = ((xs.extract i j).push xs[j]).cast (by omega) := by
@@ -84,10 +88,15 @@ theorem extract_sub_one {xs : Vector α n} {i j : Nat} (h : j < n) :
   simp [Array.extract_sub_one, h]
 
 @[simp]
+theorem getElem?_extract_eq_some_getElemV_of_lt {_ : Nonempty α} {xs : Vector α n} {i j k : Nat}
+    (h : k < min j n - i) :
+    (xs.extract i j)[k]? = some xs｢i + k｣ := by
+  rcases xs with ⟨xs, rfl⟩
+  simp (discharger := omega)
+
 theorem getElem?_extract_of_lt {xs : Vector α n} {i j k : Nat} (h : k < min j n - i) :
     (xs.extract i j)[k]? = some (xs[i + k]'(by omega)) := by
-  rcases xs with ⟨xs, rfl⟩
-  simp [h]
+  simpa using getElem?_extract_eq_some_getElemV_of_lt h
 
 theorem getElem?_extract_of_succ {xs : Vector α n} {j : Nat} :
     (xs.extract 0 (j + 1))[j]? = xs[j]? := by
@@ -135,8 +144,8 @@ theorem extract_append {xs : Vector α n} {ys : Vector α m} {i j : Nat} :
 theorem extract_append_left {xs : Vector α n} {ys : Vector α m} :
     (xs ++ ys).extract 0 n = (xs.extract 0 n).cast (by omega) := by
   ext i h
-  simp only [Nat.sub_zero, extract_append, extract_size, getElem_cast, getElem_append, Nat.min_self,
-    getElem_extract, Nat.zero_sub, Nat.zero_add, cast_cast]
+  simp (discharger := omega) only [Nat.sub_zero, extract_append, extract_size, getElemV_cast,
+    getElemV_append, Nat.min_self, getElemV_extract, Nat.zero_sub, Nat.zero_add, cast_cast]
   split
   · rfl
   · omega
@@ -158,7 +167,7 @@ theorem extract_append_left {xs : Vector α n} {ys : Vector α m} :
 @[simp, grind =] theorem extract_replicate {a : α} {n i j : Nat} :
     (replicate n a).extract i j = replicate (min j n - i) a := by
   ext i h
-  simp
+  simp (discharger := omega)
 
 theorem extract_add_left {xs : Vector α n} {i j k : Nat} :
     xs.extract (i + j) k = ((xs.extract i k).extract j (k - i)).cast (by omega) := by
@@ -183,7 +192,7 @@ theorem set_eq_push_extract_append_extract {xs : Vector α n} {i : Nat} (h : i <
 theorem extract_reverse {xs : Vector α n} {i j : Nat} :
     xs.reverse.extract i j = (xs.extract (n - j) (n - i)).reverse.cast (by omega) := by
   ext i h
-  simp only [getElem_extract, getElem_reverse, getElem_cast]
+  simp (discharger := omega) only [getElemV_extract, getElemV_reverse, getElemV_cast]
   congr 1
   omega
 

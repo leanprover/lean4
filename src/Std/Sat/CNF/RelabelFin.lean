@@ -136,12 +136,12 @@ private theorem not_exists_mem : (¬ ∃ v, VarMem v f) ↔ ∃ n, f.clauses = A
       rw [Array.mem_iff_getElem] at hc
       rcases hc with ⟨i, hi1, hi2⟩
       specialize h i hi1
-      rwa [hi2] at h
+      simp only [getElem_eq_getElemV] at hi2; rwa [hi2] at h
   · intro h x hx
     rcases h with ⟨n, hn⟩
     generalize f.clauses = clauses at *
     subst hn
-    simp
+    simp [Array.getElemV_replicate (by simpa using hx)]
 
 @[simp] theorem unsat_relabelFin {f : CNF Nat} : Unsat f.relabelFin ↔ Unsat f := by
   dsimp [relabelFin]

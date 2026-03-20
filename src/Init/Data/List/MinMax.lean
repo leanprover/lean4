@@ -214,6 +214,12 @@ theorem min_eq_head {α : Type u} [Min α] {l : List α} (hl : l ≠ [])
   rw [← min?_eq_some_min, ← head?_eq_some_head]
   exact min?_eq_head? h
 
+theorem min_eq_headV {α : Type u} [Min α] {l : List α} (hl : l ≠ [])
+    (h : l.Pairwise (fun a b => min a b = a)) :
+    haveI : Nonempty α := ⟨l.head hl⟩
+    l.min hl = l.headV := by
+  simp [min_eq_head hl h, head_eq_headV hl]
+
 @[grind .]
 theorem min_mem [Min α] [MinEqOr α] {l : List α} (hl : l ≠ []) : l.min hl ∈ l :=
   min?_mem (min?_eq_some_min hl)
@@ -436,6 +442,12 @@ theorem max_eq_head {α : Type u} [Max α] {l : List α} (hl : l ≠ [])
   apply Option.some.inj
   rw [← max?_eq_some_max, ← head?_eq_some_head]
   exact max?_eq_head? h
+
+theorem max_eq_headV {α : Type u} [Max α] {l : List α} (hl : l ≠ [])
+    (h : l.Pairwise (fun a b => max a b = a)) :
+    haveI : Nonempty α := ⟨l.head hl⟩
+    l.max hl = l.headV := by
+  simp [max_eq_head hl h, head_eq_headV hl]
 
 @[grind .]
 theorem max_mem [Max α] [MaxEqOr α] {l : List α} (hl : l ≠ []) : l.max hl ∈ l :=

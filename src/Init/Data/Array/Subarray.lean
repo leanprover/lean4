@@ -107,6 +107,9 @@ def get (s : Subarray α) (i : Fin s.size) : α :=
 instance : GetElem (Subarray α) Nat α fun xs i => i < xs.size where
   getElem xs i h := xs.get ⟨i, h⟩
 
+noncomputable instance : GetElemV (Subarray α) Nat α where
+  getElemV xs i := if xs.start + i < xs.stop then xs.array｢xs.start + i｣ else Classical.ofNonempty
+
 /--
 Extracts an element from the subarray, or returns a default value `v₀` when the index is out of
 bounds.

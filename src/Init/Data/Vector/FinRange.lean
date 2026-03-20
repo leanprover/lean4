@@ -22,32 +22,44 @@ namespace Vector
 /-- `finRange n` is the vector of all elements of `Fin n` in order. -/
 protected def finRange (n : Nat) : Vector (Fin n) n := ofFn fun i => i
 
-@[simp, grind =] theorem getElem_finRange {i : Nat} (h : i < n) :
+@[simp, grind =] theorem getElemV_finRange {i : Nat} (h : i < n) :
+    (Vector.finRange n)｢i｣ = ⟨i, h⟩ := by
+  simp [Vector.finRange, h]
+
+theorem getElem_finRange {i : Nat} (h : i < n) :
     (Vector.finRange n)[i] = ⟨i, h⟩ := by
-  simp [Vector.finRange]
+  simpa using getElemV_finRange h
 
 @[simp] theorem finRange_zero : Vector.finRange 0 = #v[] := by simp [Vector.finRange]
+
+/-
+PLOG(finRange_succ):
+Had to pull out the side condition into `have`
+-/
 
 theorem finRange_succ {n} : Vector.finRange (n+1) =
     (#v[(0 : Fin (n+1))] ++ (Vector.finRange n).map Fin.succ).cast (by omega) := by
   ext i h
-  · simp [getElem_append]
-    split <;>
-    · simp; omega
+  · simp [getElemV_append]
+    split
+    · simp [*]
+    · have : i - 1 < n := by omega
+      simp [*]; omega
 
 theorem finRange_succ_last {n} :
     Vector.finRange (n+1) = (Vector.finRange n).map Fin.castSucc ++ #v[Fin.last n] := by
   ext i h
-  · simp [getElem_push]
+  · simp [getElemV_push, h]
     split
-    · simp
+    · simp [*]
     · simp_all
       omega
 
 @[grind _=_]
 theorem finRange_reverse {n} : (Vector.finRange n).reverse = (Vector.finRange n).map Fin.rev := by
   ext i h
-  simp
+  have : n - 1 - i < n := by omega
+  simp [h, this]
   omega
 
 end Vector

@@ -665,6 +665,15 @@ theorem getD_eq_getValueCastD [Ord α] [instBEq : BEq α] [LawfulBEqOrd α] [Tra
   rw [getD_eq_getDₘ, getDₘ_eq_getValueCastD hto]
 
 /-!
+### `getV`
+-/
+
+theorem getV_eq_getValueCastV [Ord α] [BEq α] [LawfulBEqOrd α] [TransOrd α] [LawfulEqOrd α]
+    {k : α} {t : Impl α β} [Nonempty (β k)] (hto : t.Ordered) :
+    t.getV k = getValueCastV k t.toListModel := by
+  rw [Impl.getV, getD_eq_getValueCastD hto, getValueCastV_eq_getValueCastD_ofNonempty]
+
+/-!
 ### `getKey?`
 -/
 
@@ -729,6 +738,12 @@ theorem getKeyD_eq_getKeyD [Ord α] [TransOrd α] [instBEq : BEq α] [LawfulBEqO
     t.getKeyD k fallback = List.getKeyD k t.toListModel fallback := by
   rw [getKeyD_eq_getKeyDₘ, getKeyDₘ_eq_getKeyD hto]
 
+theorem getKeyV_eq_getKeyV [Ord α] [BEq α] [LawfulBEqOrd α] [TransOrd α] {k : α}
+    {t : Impl α β} (hto : t.Ordered) :
+    t.getKeyV k = List.getKeyV k t.toListModel := by
+  haveI : Nonempty α := ⟨k⟩
+  rw [Impl.getKeyV, getKeyD_eq_getKeyD hto, getKeyV_eq_getKeyD_ofNonempty]
+
 /-!
 ### `getEntry?`
 -/
@@ -792,6 +807,12 @@ theorem getEntryD_eq_getEntryD [Ord α] [TransOrd α] [instBEq : BEq α] [Lawful
     {t : Impl α β} {fallback : (a : α) × β a} (hto : t.Ordered) :
     t.getEntryD k fallback = List.getEntryD k fallback t.toListModel := by
   rw [getEntryD_eq_getEntryDₘ, getEntryDₘ_eq_getEntryD hto]
+
+theorem getEntryV_eq_getEntryV [Ord α] [BEq α] [LawfulBEqOrd α] [TransOrd α] {k : α}
+    {t : Impl α β} [Nonempty ((a : α) × β a)] (hto : t.Ordered) :
+    t.getEntryV k = List.getEntryV k t.toListModel := by
+  rw [Impl.getEntryV, getEntryD_eq_getEntryD hto, List.getEntryV, List.getEntryD_eq_getEntry?,
+      Option.getV_eq_getD_ofNonempty]
 
 namespace Const
 
@@ -864,6 +885,11 @@ theorem getD_eq_getValueD [Ord α] [TransOrd α] [instBEq : BEq α] [LawfulBEqOr
     {t : Impl α β} {fallback : β} (hto : t.Ordered) :
     getD t k fallback = getValueD k t.toListModel fallback := by
   rw [getD_eq_getDₘ, getDₘ_eq_getValueD hto]
+
+theorem getV_eq_getValueV [Ord α] [BEq α] [LawfulBEqOrd α] [TransOrd α] {k : α}
+    {t : Impl α β} [Nonempty β] (hto : t.Ordered) :
+    Const.getV t k = getValueV k t.toListModel := by
+  rw [Const.getV, getD_eq_getValueD hto, getValueV_eq_getValueD_ofNonempty]
 
 end Const
 
@@ -2290,7 +2316,7 @@ theorem minKey?_eq_minKey? {_ : Ord α} [TransOrd α] {l : Impl α β} (hlo : l.
 theorem minKey_eq_minKey [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {l : Impl α β}
     (hlo : l.Ordered) {he} :
     l.minKey he = List.minKey l.toListModel (isEmpty_eq_isEmpty ▸ he) := by
-  simp [minKey_eq_get_minKey?, minKey_eq_minEntry_fst, minEntry_eq_get_minEntry?,
+  simp only [minKey_eq_get_minKey?, minKey_eq_minEntry_fst, minEntry_eq_get_minEntry?,
     minEntry?_eq_minEntry? hlo, List.minKey?, Option.get_map]
 
 theorem minKey!_eq_minKey! [Ord α] [TransOrd α] [Inhabited α] [BEq α] [LawfulBEqOrd α]
@@ -2302,6 +2328,12 @@ theorem minKeyD_eq_minKeyD [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {l 
     (hlo : l.Ordered) {fallback} :
     l.minKeyD fallback = List.minKeyD l.toListModel fallback := by
   simp [Impl.minKeyD_eq_getD_minKey?, List.minKeyD_eq_getD_minKey?, minKey?_eq_minKey? hlo]
+
+theorem minKeyV_eq_minKeyV [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] [Nonempty α]
+    {l : Impl α β} (hlo : l.Ordered) :
+    l.minKeyV = List.minKeyV l.toListModel := by
+  rw [Impl.minKeyV, minKeyD_eq_minKeyD hlo, List.minKeyV_eq_getV_minKey?,
+      List.minKeyD_eq_getD_minKey?, Option.getV_eq_getD_ofNonempty]
 
 theorem toListModel_reverse {l : Impl α β} :
     (reverse l).toListModel = l.toListModel.reverse := by
@@ -2340,6 +2372,12 @@ theorem maxKeyD_eq_maxKeyD [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {t 
     (hlo : t.Ordered) {fallback} :
     t.maxKeyD fallback = List.maxKeyD t.toListModel fallback := by
   simp only [List.maxKeyD_eq_getD_maxKey?, maxKeyD_eq_getD_maxKey?, maxKey?_eq_maxKey? hlo]
+
+theorem maxKeyV_eq_maxKeyV [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] [Nonempty α]
+    {t : Impl α β} (hlo : t.Ordered) :
+    t.maxKeyV = List.maxKeyV t.toListModel := by
+  rw [Impl.maxKeyV, maxKeyD_eq_maxKeyD hlo, List.maxKeyV_eq_getV_maxKey?,
+      List.maxKeyD_eq_getD_maxKey?, Option.getV_eq_getD_ofNonempty]
 
 /-!
 ### `entryAtIdx?` / `keyAtIdx?`

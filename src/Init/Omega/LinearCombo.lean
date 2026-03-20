@@ -25,19 +25,6 @@ We use this data structure while processing hypotheses.
 
 namespace Lean.Omega
 
-/-- Internal representation of a linear combination of atoms, and a constant term. -/
-structure LinearCombo where
-  /-- Constant term. -/
-  const : Int := 0
-  /-- Coefficients of the atoms. -/
-  coeffs : Coeffs := []
-deriving DecidableEq, Repr
-
-namespace LinearCombo
-
-private def join (l : List String) : String :=
-  l.foldl (init := "") (fun sofar next => String.Internal.append sofar next)
-
 private local instance : Append String where
   append := String.Internal.append
 
@@ -46,12 +33,27 @@ private local instance : ToString Int where
     | Int.ofNat m   => toString m
     | Int.negSucc m => "-" ++ toString (m + 1)
 
+private local instance : Repr Int where
+  reprPrec i prec := if i < 0 then Repr.addAppParen (toString i) prec else toString i
+
 private local instance : Append String where
   append := String.Internal.append
+
+/-- Internal representation of a linear combination of atoms, and a constant term. -/
+structure LinearCombo where
+  /-- Constant term. -/
+  const : Int := 0
+  /-- Coefficients of the atoms. -/
+  coeffs : Coeffs := []
+deriving DecidableEq, Repr
+
+private def join (l : List String) : String :=
+  l.foldl (init := "") (fun sofar next => String.Internal.append sofar next)
 
 instance : ToString LinearCombo where
   toString lc := private
     s!"{lc.const}{join <| lc.coeffs.toList.zipIdx.map fun ⟨c, i⟩ => s!" + {c} * x{i+1}"}"
+namespace LinearCombo
 
 instance : Inhabited LinearCombo := ⟨{const := 1}⟩
 

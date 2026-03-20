@@ -7,3 +7,4 @@ module
 
 prelude
 public import Std.Data.String.ToNat
+public import Std.Data.String.ToInt

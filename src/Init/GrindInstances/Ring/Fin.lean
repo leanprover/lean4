@@ -142,6 +142,7 @@ instance (n : Nat) [NeZero n] : IsCharP (Fin n) n := IsCharP.mk' _ _
 example [NeZero n] : ToInt.Neg (Fin n) (.co 0 n) := inferInstance
 example [NeZero n] : ToInt.Sub (Fin n) (.co 0 n) := inferInstance
 
+set_option backward.isDefEq.respectTransparency false in
 instance [i : NeZero n] : ToInt.Pow (Fin n) (.co 0 n) where
   toInt_pow x k := by
     induction k with

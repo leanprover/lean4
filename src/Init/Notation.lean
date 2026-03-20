@@ -366,16 +366,19 @@ recommended_spelling "shiftLeft" for "<<<" in [HShiftLeft.hShiftLeft, «term_<<<
 recommended_spelling "shiftRight" for ">>>" in [HShiftRight.hShiftRight, «term_>>>_»]
 recommended_spelling "not" for "~~~" in [Complement.complement, «term~~~_»]
 
--- declare ASCII alternatives first so that the latter Unicode unexpander wins
-@[inherit_doc] infix:50 " <= " => LE.le
-@[inherit_doc] infix:50 " ≤ "  => LE.le
-@[inherit_doc] infix:50 " < "  => LT.lt
-@[inherit_doc] infix:50 " >= " => GE.ge
-@[inherit_doc] infix:50 " ≥ "  => GE.ge
-@[inherit_doc] infix:50 " > "  => GT.gt
-@[inherit_doc] infix:50 " = "  => Eq
-@[inherit_doc] infix:50 " == " => BEq.beq
-@[inherit_doc] infix:50 " ≍ "  => HEq
+-- TODO(kmill) remove these after stage0 update. There are builtin macros still using `«term_>=_»`
+@[inherit_doc] infix:50 (priority := low) " >= " => GE.ge
+@[inherit_doc] infix:50 (priority := low) " <= " => LE.le
+macro_rules | `($x >= $y)  => `(binrel% GE.ge $x $y)
+macro_rules | `($x <= $y)  => `(binrel% LE.le $x $y)
+
+@[inherit_doc] infix:50 unicode(" ≤ ", " <= ") => LE.le
+@[inherit_doc] infix:50 " < "                  => LT.lt
+@[inherit_doc] infix:50 unicode(" ≥ ", " >= ") => GE.ge
+@[inherit_doc] infix:50 " > "                  => GT.gt
+@[inherit_doc] infix:50 " = "                  => Eq
+@[inherit_doc] infix:50 " == "                 => BEq.beq
+@[inherit_doc] infix:50 " ≍ "                  => HEq
 
 /-!
   Remark: the infix commands above ensure a delaborator is generated for each relations.
@@ -383,39 +386,27 @@ recommended_spelling "not" for "~~~" in [Complement.complement, «term~~~_»]
   It has better support for applying coercions. For example, suppose we have `binrel% Eq n i` where `n : Nat` and
   `i : Int`. The default elaborator fails because we don't have a coercion from `Int` to `Nat`, but
   `binrel%` succeeds because it also tries a coercion from `Nat` to `Int` even when the nat occurs before the int. -/
-macro_rules | `($x <= $y) => `(binrel% LE.le $x $y)
 macro_rules | `($x ≤ $y)  => `(binrel% LE.le $x $y)
 macro_rules | `($x < $y)  => `(binrel% LT.lt $x $y)
 macro_rules | `($x > $y)  => `(binrel% GT.gt $x $y)
-macro_rules | `($x >= $y) => `(binrel% GE.ge $x $y)
 macro_rules | `($x ≥ $y)  => `(binrel% GE.ge $x $y)
 macro_rules | `($x = $y)  => `(binrel% Eq $x $y)
 macro_rules | `($x == $y) => `(binrel_no_prop% BEq.beq $x $y)
 
 recommended_spelling "le" for "≤" in [LE.le, «term_≤_»]
-/-- prefer `≤` over `<=` -/
-recommended_spelling "le" for "<=" in [LE.le, «term_<=_»]
 recommended_spelling "lt" for "<" in [LT.lt, «term_<_»]
 recommended_spelling "gt" for ">" in [GT.gt, «term_>_»]
 recommended_spelling "ge" for "≥" in [GE.ge, «term_≥_»]
-/-- prefer `≥` over `>=` -/
-recommended_spelling "ge" for ">=" in [GE.ge, «term_>=_»]
 recommended_spelling "eq" for "=" in [Eq, «term_=_»]
 recommended_spelling "beq" for "==" in [BEq.beq, «term_==_»]
 recommended_spelling "heq" for "≍" in [HEq, «term_≍_»]
 
-@[inherit_doc] infixr:35 " /\\ " => And
-@[inherit_doc] infixr:35 " ∧ "   => And
-@[inherit_doc] infixr:30 " \\/ " => Or
-@[inherit_doc] infixr:30 " ∨  "  => Or
+@[inherit_doc] infixr:35 unicode(" ∧ ", " /\\ ") => And
+@[inherit_doc] infixr:30 unicode(" ∨ ", " \\/ ") => Or
 @[inherit_doc] notation:max "¬" p:40 => Not p
 
 recommended_spelling "and" for "∧" in [And, «term_∧_»]
-/-- prefer `∧` over `/\` -/
-recommended_spelling "and" for "/\\" in [And, «term_/\_»]
 recommended_spelling "or" for "∨" in [Or, «term_∨_»]
-/-- prefer `∨` over `\/` -/
-recommended_spelling "or" for "\\/" in [Or, «term_\/_»]
 recommended_spelling "not" for "¬" in [Not, «term¬_»]
 
 @[inherit_doc] infixl:35 " && " => and
@@ -652,6 +643,39 @@ in the same module where the actual identifier was defined.
 syntax (name := suggest_for) "suggest_for" (ppSpace ident)+ : attr
 
 /--
+The attribute `@[univ_out_params ..]` on a class specifies the universe output parameters.
+
+* `@[univ_out_params]` means the class has no universe output parameters.
+* `@[univ_out_params u v]` means the universes `u` and `v` are output parameters.
+
+If this attribute is not present, Lean assumes that any universe parameter which does not
+occur in any input parameter type is an output parameter.
+
+### Effect on typeclass resolution
+
+When typeclass resolution begins, output universe parameters are replaced with fresh universe
+metavariables, similar to what is done for regular output parameters. This means the search
+proceeds without being constrained by the specific output universes in the query, and the
+actual output universes are determined by the instance that is found.
+
+As a consequence, output universe parameters are erased from typeclass resolution cache keys.
+Two queries that differ only in output universe parameters will share a cache entry,
+and the first result found will be reused for subsequent queries.
+
+### When to use this attribute
+
+The default heuristic is wrong when the universe is
+part of the *question* being asked, rather than something determined by the answer.
+
+For example, in `class Foo.{u} (C : Type v)` where `u` specifies "how large" some auxiliary
+data is, different values of `u` give genuinely different conditions on `C`. By default `u`
+would be treated as output since it does not appear in `C : Type v`, and the cache would
+conflate `Foo.{0} C` with `Foo.{1} C`, returning the wrong instance.
+Use `@[univ_out_params]` to mark that no universe parameter is output.
+-/
+syntax (name := univ_out_params) "univ_out_params" (ppSpace ident)* : attr
+
+/--
 The `@[coe]` attribute on a function (which should also appear in a
 `instance : Coe A B := ⟨myFn⟩` declaration) allows the delaborator to show
 applications of this function as `↑` when printing expressions.
@@ -698,7 +722,7 @@ syntax (name := runElab) "run_elab " doSeq : command
 
 /--
 The `run_meta doSeq` command executes code in `MetaM Unit`.
-This is the same as `#eval show MetaM Unit from do discard doSeq`.
+This is the same as `#eval show MetaM Unit from discard do doSeq`.
 
 (This is effectively a synonym for `run_elab` since `MetaM` lifts to `TermElabM`.)
 -/
@@ -877,6 +901,8 @@ When messages contain autogenerated names (e.g., metavariables like `?m.47`), th
 differ between runs or Lean versions. Use `set_option pp.mvars.anonymous false` to replace
 anonymous metavariables with `?_` while preserving user-named metavariables like `?a`.
 Alternatively, `set_option pp.mvars false` replaces all metavariables with `?_`.
+Similarly, `set_option pp.fvars.anonymous false` replaces loose free variable names like
+`_fvar.22` with `_fvar._`.
 
 For example, `#guard_msgs (error, drop all) in cmd` means to check errors and drop
 everything else.

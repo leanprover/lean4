@@ -40,6 +40,10 @@ public def Theorem.rewrite (thm : Theorem) (e : Expr) (d : Discharger := dischar
     -- **Note**: Potential optimization: check whether pattern covers all variables.
     let mut args := result.args.toVector
     let us ← result.us.mapM instantiateLevelMVars
+    -- Track whether any discharger used context-dependent information.
+    -- If so, the result is context-dependent: in another context, the discharger
+    -- might succeed/fail differently, changing whether the rewrite applies.
+    let mut isCD := false
     for h : i in *...args.size do
       let arg := args[i]
       if let .mvar mvarId := arg then
@@ -48,13 +52,16 @@ public def Theorem.rewrite (thm : Theorem) (e : Expr) (d : Discharger := dischar
           args := args.set i arg
         else
           let decl ← mvarId.getDecl
-          if let some val ← d decl.type then
+          match (← d decl.type) with
+          | .failed cd =>
+            isCD := isCD || cd
+            -- Failed to discharge hypothesis.
+            return mkRflResultCD isCD
+          | .solved val cd =>
+            isCD := isCD || cd
             let val ← instantiateMVarsS val
             mvarId.assign val
             args := args.set i val
-          else
-            -- **Note**: Failed to discharge hypothesis.
-            return .rfl
       else if arg.hasMVar then
         let arg ← instantiateMVarsS arg
         args := args.set i arg
@@ -63,20 +70,25 @@ public def Theorem.rewrite (thm : Theorem) (e : Expr) (d : Discharger := dischar
     let rhs   ← share rhs
     let expr  ← instantiateRevBetaS rhs args.toArray
     if isSameExpr e expr then
-      return .rfl
+      return mkRflResultCD isCD
     else
-      return .step expr proof
+      return .step expr proof (contextDependent := isCD)
   else
     return .rfl
 
 public def Theorems.rewrite (thms : Theorems) (d : Discharger := dischargeNone) : Simproc := fun e => do
+  -- Track `cd` across all attempted theorems. If theorem A fails with cd=true
+  -- and theorem B succeeds with cd=false, the result is still cd=true: in another
+  -- context A might succeed (with higher priority) and produce a different result.
+  let mut anyCD := false
   for (thm, numExtra) in thms.getMatchWithExtra e do
     let result ← if numExtra == 0 then
       thm.rewrite e d
     else
       simpOverApplied e numExtra (thm.rewrite · d)
+    anyCD := anyCD || result.isContextDependent
     if !result.isRfl then
-      return result
-  return .rfl
+      return if anyCD && !result.isContextDependent then result.withContextDependent else result
+  return mkRflResultCD anyCD
 
 end Lean.Meta.Sym.Simp

@@ -78,7 +78,7 @@ theorem getUTF8Byte_toSlice {s : String} {p : String.Pos.Raw} {h} :
 
 @[simp]
 theorem Pos.byte_toSlice {s : String} {p : s.Pos} {h} :
-    p.toSlice.byte h = p.byte (ne_of_apply_ne Pos.toSlice (by simpa)) := by
+    p.toSlice.byte h = p.byte (ne_of_apply_ne Pos.toSlice (by simpa using h)) := by
   simp [byte]
 
 theorem Pos.byte_eq_byte_toSlice {s : String} {p : s.Pos} {h} :
@@ -98,5 +98,150 @@ theorem toByteArray_copy_slice {s : String} {p₁ p₂ : s.Pos} {h} :
 theorem Slice.utf8ByteSize_eq_size_toByteArray_copy {s : Slice} :
     s.utf8ByteSize = s.copy.toByteArray.size := by
   simp [utf8ByteSize_eq]
+
+@[ext (iff := false)]
+theorem Slice.ext {s t : Slice} (h : s.str = t.str)
+    (hsi : s.startInclusive.cast h = t.startInclusive)
+    (hee : s.endExclusive.cast h = t.endExclusive) : s = t := by
+  rcases s with ⟨s, s₁, e₁, h₁⟩
+  rcases t with ⟨t, s₂, e₂, h₂⟩
+  cases h
+  simp_all
+
+section Iterate
+
+/-
+These lemmas are slightly evil because they are non-definitional equalities between slices, but they
+are useful and they are at least equalities between slices with definitionally equal underlying
+strings, so it should be fine.
+-/
+@[simp]
+theorem Slice.sliceTo_sliceFrom {s : Slice} {pos pos'} :
+    (s.sliceFrom pos).sliceTo pos' =
+      s.slice pos (Slice.Pos.ofSliceFrom pos') Slice.Pos.le_ofSliceFrom := by
+  ext <;> simp [Pos.Raw.offsetBy_assoc]
+
+@[simp]
+theorem Slice.sliceFrom_sliceTo {s : Slice} {pos pos'} :
+    (s.sliceTo pos).sliceFrom pos' =
+      s.slice (Slice.Pos.ofSliceTo pos') pos Slice.Pos.ofSliceTo_le := by
+  ext <;> simp
+
+@[simp]
+theorem Slice.sliceFrom_sliceFrom {s : Slice} {pos pos'} :
+    (s.sliceFrom pos).sliceFrom pos' =
+      s.sliceFrom (Slice.Pos.ofSliceFrom pos') := by
+  ext <;> simp [Pos.Raw.offsetBy_assoc]
+
+@[simp]
+theorem Slice.sliceTo_sliceTo {s : Slice} {pos pos'} :
+    (s.sliceTo pos).sliceTo pos' = s.sliceTo (Slice.Pos.ofSliceTo pos') := by
+  ext <;> simp
+
+@[simp]
+theorem Slice.sliceFrom_slice {s : Slice} {p₁ p₂ h p} :
+    (s.slice p₁ p₂ h).sliceFrom p = s.slice (Pos.ofSlice p) p₂ Pos.ofSlice_le := by
+  ext <;> simp [Nat.add_assoc]
+
+@[simp]
+theorem Slice.sliceTo_slice {s : Slice} {p₁ p₂ h p} :
+    (s.slice p₁ p₂ h).sliceTo p = s.slice p₁ (Pos.ofSlice p) Pos.le_ofSlice := by
+  ext <;> simp [Nat.add_assoc]
+
+@[simp]
+theorem sliceTo_sliceFrom {s : String} {pos pos'} :
+    (s.sliceFrom pos).sliceTo pos' =
+      s.slice pos (Pos.ofSliceFrom pos') Pos.le_ofSliceFrom := by
+  ext <;> simp
+
+@[simp]
+theorem sliceFrom_sliceTo {s : String} {pos pos'} :
+    (s.sliceTo pos).sliceFrom pos' =
+      s.slice (Pos.ofSliceTo pos') pos Pos.ofSliceTo_le := by
+  ext <;> simp
+
+@[simp]
+theorem sliceFrom_sliceFrom {s : String} {pos pos'} :
+    (s.sliceFrom pos).sliceFrom pos' =
+      s.sliceFrom (Pos.ofSliceFrom pos') := by
+  ext <;> simp
+
+@[simp]
+theorem sliceTo_sliceTo {s : String} {pos pos'} :
+    (s.sliceTo pos).sliceTo pos' = s.sliceTo (Pos.ofSliceTo pos') := by
+  ext <;> simp
+
+@[simp]
+theorem sliceFrom_slice {s : String} {p₁ p₂ h p} :
+    (s.slice p₁ p₂ h).sliceFrom p = s.slice (Pos.ofSlice p) p₂ Pos.ofSlice_le := by
+  ext <;> simp
+
+@[simp]
+theorem sliceTo_slice {s : String} {p₁ p₂ h p} :
+    (s.slice p₁ p₂ h).sliceTo p = s.slice p₁ (Pos.ofSlice p) Pos.le_ofSlice := by
+  ext <;> simp
+
+@[simp]
+theorem Slice.sliceFrom_startPos {s : Slice} : s.sliceFrom s.startPos = s := by
+  ext <;> simp
+
+@[simp]
+theorem Slice.sliceTo_endPos {s : Slice} : s.sliceTo s.endPos = s := by
+  ext <;> simp
+
+@[simp]
+theorem sliceFrom_startPos {s : String} : s.sliceFrom s.startPos = s := by
+  ext <;> simp
+
+@[simp]
+theorem sliceTo_endPos {s : String} : s.sliceTo s.endPos = s := by
+  ext <;> simp
+
+end Iterate
+
+theorem Slice.copy_eq_copy_slice {s : Slice} {pos₁ pos₂ : s.Pos} {h} :
+    s.copy = (s.sliceTo pos₁).copy ++ (s.slice pos₁ pos₂ h).copy ++ (s.sliceFrom pos₂).copy := by
+  simp [copy_eq_copy_sliceTo (pos := pos₂), copy_eq_copy_sliceTo (pos := Slice.Pos.sliceTo _ _ h)]
+
+theorem copy_toByteArray_sliceTo {s : String} {pos : s.Pos} :
+    (s.sliceTo pos).copy.toByteArray = s.toByteArray.extract 0 pos.offset.byteIdx := by
+  simp [Slice.toByteArray_copy]
+
+theorem Slice.pos!_eq_pos {s : Slice} {p : Pos.Raw} (h : p.IsValidForSlice s) :
+    s.pos! p = s.pos p h := by
+  simp [Slice.pos!, h]
+
+theorem pos!_eq_pos {s : String} {p : Pos.Raw} (h : p.IsValid s) :
+    s.pos! p = s.pos p h := by
+  rw [String.pos!, Slice.pos!_eq_pos h.toSlice, String.pos]
+
+@[simp]
+theorem Slice.copy_pos {s : Slice} {p : Pos.Raw} {h : Pos.Raw.IsValidForSlice s p} :
+    (s.pos p h).copy = s.copy.pos p (Pos.Raw.isValid_copy_iff.2 h) := by
+  simp [String.Pos.ext_iff]
+
+@[simp]
+theorem Slice.cast_pos {s t : Slice} {p : Pos.Raw} {h : Pos.Raw.IsValidForSlice s p}
+    {h' : s.copy = t.copy} {h'' : Pos.Raw.IsValidForSlice t p} :
+    (s.pos p h).cast h' = t.pos p h'' := by
+  simp [Slice.Pos.ext_iff]
+
+@[simp]
+theorem cast_pos {s t : String} {p : Pos.Raw} {h : Pos.Raw.IsValid s p} {h' : s = t} :
+    (s.pos p h).cast h' = t.pos p (h' ▸ h) := by
+  simp [String.Pos.ext_iff]
+
+@[simp]
+theorem Pos.Raw.isValidForSlice_zero {s : Slice} : (0 : Pos.Raw).IsValidForSlice s where
+  le_rawEndPos := by simp [Pos.Raw.le_iff]
+  isValid_offsetBy := by simpa using s.startInclusive.isValid
+
+@[simp]
+theorem Pos.get_ofToSlice {s : String} {p : (s.toSlice).Pos} {h} :
+    (ofToSlice p).get h = p.get (by simpa [← ofToSlice_inj]) := by
+  simp [get_eq_get_toSlice]
+
+@[simp]
+theorem push_empty {c : Char} : "".push c = singleton c := rfl
 
 end String

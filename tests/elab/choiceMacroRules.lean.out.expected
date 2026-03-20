@@ -1,0 +1,3 @@
+Nat.add 1 3 : Nat
+fun x => if x.add 3 = x then x else x + 1 : Nat → Nat
+Append.append [1, 2] [3, 4] : List Nat

@@ -18,6 +18,8 @@ import Lean.Meta.Tactic.Grind.ForallProp
 import Lean.Meta.Tactic.Grind.CtorIdx
 import Lean.Meta.Tactic.Grind.Intro
 import Lean.Meta.Tactic.Grind.Solve
+import Lean.Meta.Tactic.Grind.EMatch
+import Lean.Meta.Tactic.Grind.MarkNestedSubsingletons
 import Lean.Meta.Tactic.Grind.Internalize
 import Lean.Meta.Tactic.Grind.SimpUtil
 import Lean.Meta.Tactic.Grind.LawfulEqCmp
@@ -93,7 +95,7 @@ private def discharge? (e : Expr) : SimpM (Option Expr) := do
   let e := e.cleanupAnnotations
   let r ← Simp.simp e
   if let some p ← Simp.dischargeRfl r.expr then
-    return some (mkApp4 (mkConst ``Eq.mpr [levelZero]) e r.expr (← r.getProof) p)
+    return some (mkApp4 (mkConst ``Eq.mpr [Level.zero]) e r.expr (← r.getProof) p)
   else if r.expr.isTrue then
     return some (← mkOfEqTrue (← r.getProof))
   else
@@ -237,6 +239,55 @@ def Result.toMessageData (result : Result) : MetaM MessageData := do
   return MessageData.joinSep msgs m!"\n"
 
 /--
+Walks the proof term collecting `Origin`s of E-matching instances that appear,
+using the `mdata` markers placed by `markTheoremInstanceProof`.
+-/
+private partial def collectUsedOrigins (e : Expr) (map : EMatch.InstanceMap) : Std.HashSet Origin :=
+  let (_, s) := go e |>.run ({}, {})
+  s.2
+where
+  go (e : Expr) : StateM (Std.HashSet ExprPtr × Std.HashSet Origin) Unit := do
+    if isMarkedSubsingletonApp e then return ()
+    if (← get).1.contains { expr := e } then return ()
+    modify fun (v, o) => (v.insert { expr := e }, o)
+    if let some uniqueId := EMatch.isTheoremInstanceProof? e then
+      if let some thm := map[uniqueId]? then
+        modify fun (v, o) => (v, o.insert thm.origin)
+    match e with
+    | .lam _ d b _
+    | .forallE _ d b _ => go d; go b
+    | .proj _ _ b
+    | .mdata _ b       => go b
+    | .letE _ t v b _  => go t; go v; go b
+    | .app f a         => go f; go a
+    | _ => return ()
+
+/--
+Checks whether any E-matching lemmas were activated but do not appear in the final proof term.
+Controlled by `set_option grind.unusedLemmaThreshold`.
+Uses grind's instance-marking infrastructure for precise tracking.
+-/
+def checkUnusedActivations (mvarId : MVarId) (counters : Counters) : GrindM Unit := do
+  let threshold := grind.unusedLemmaThreshold.get (← getOptions)
+  if threshold == 0 then return ()
+  let proof ← instantiateMVars (mkMVar mvarId)
+  let map := (← get).instanceMap
+  let usedOrigins := collectUsedOrigins proof map
+  let mut unused : Array (Name × Nat) := #[]
+  for (origin, count) in counters.thm do
+    if count < threshold then continue
+    match origin with
+    | .decl declName =>
+      unless usedOrigins.contains origin do
+        unused := unused.push (declName, count)
+    | _ => pure ()
+  unless unused.isEmpty do
+    let sorted := unused.qsort fun (_, c₁) (_, c₂) => c₁ > c₂
+    let data ← sorted.mapM fun (declName, counter) =>
+      return .trace { cls := `thm } m!"{declName} ↦ {counter}" #[]
+    logWarning <| .trace { cls := `grind } "grind: activated but unused E-matching lemmas" data
+
+/--
 When `Config.revert := false`, we preprocess the hypotheses, and add them to the `grind` state.
 It starts at `goal.nextDeclIdx`. If `num?` is `some num`, then at most `num` local declarations are processed.
 Otherwise, all remaining local declarations are processed.
@@ -300,18 +351,67 @@ def GrindM.runAtGoal (mvarId : MVarId) (params : Params) (k : Goal → GrindM α
   go.run params (evalTactic? := evalTactic?)
 
 def main (mvarId : MVarId) (params : Params) : MetaM Result := do profileitM Exception "grind" (← getOptions) do
+  let params := if grind.unusedLemmaThreshold.get (← getOptions) > 0 then
+    { params with config.markInstances := true }
+  else params
   GrindM.runAtGoal mvarId params fun goal => do
     let failure? ← solve goal
-    mkResult params failure?
+    let result ← mkResult params failure?
+    if failure?.isNone then
+      checkUnusedActivations mvarId result.counters
+    return result
+
+/--
+Resolves delayed metavariable assignments created inside the current `withNewMCtxDepth` block.
+`instantiateMVars` only resolves a delayed assignment `?m #[xs] := ?pending` when `?pending`'s
+assignment is ground (no unassigned expression metavariables). This ground restriction exists
+because `val` may contain metavariables that have `fvars` in their scope. For example, if
+`fvars = #[x]` and `val = ?m + x` where `x` is in the scope of `?m`, then `mkLambda` creates
+`fun x => ?m + x`. If `?m` is later assigned to `f x`, the term becomes ill-formed with a
+dangling free variable.
+
+This scenario cannot occur here: metavariables created before `withNewMCtxDepth` cannot contain
+free variables created by `grind`, so the conversion is safe. Only metavariables at the current
+depth are processed; pre-existing delayed assignments are left untouched as they are meant to
+be resolved by other tactics.
+
+We do not need to erase the delayed assignments from `dAssignment` because they will be
+discarded when `withNewMCtxDepth` restores the metavariable context.
+-/
+private partial def resolveDelayedMVarAssignments (e : Expr) : MetaM Expr := do
+  if !e.hasMVar then return e
+  let e ← go e
+  -- Ensure no metavariables at the current depth remain. They would become
+  -- dangling references after `withNewMCtxDepth` restores the metavariable context.
+  let mctx ← getMCtx
+  for mvarId in (e.collectMVars {}).result do
+    if let some decl := mctx.findDecl? mvarId then
+      if decl.depth == mctx.depth then
+        throwError "`grind` failed, proof contains unresolved internal metavariable {Expr.mvar mvarId}"
+  return e
+where
+  go (e : Expr) : MetaM Expr := do
+    let mctx ← getMCtx
+    let mvars := (e.collectMVars {}).result
+    for mvarId in mvars do
+      if let some decl := mctx.findDecl? mvarId then
+        if decl.depth == mctx.depth then
+          if let some { fvars, mvarIdPending } ← getDelayedMVarAssignment? mvarId then
+            if let some val ← getExprMVarAssignment? mvarIdPending then
+              let pendingDecl ← mvarIdPending.getDecl
+              let val ← go (← instantiateMVars val)
+              mvarId.assign (pendingDecl.lctx.mkLambda fvars val)
+    instantiateMVars e
 
 /--
 A helper combinator for executing a `grind`-based terminal tactic.
-Given an input goal `mvarId`, it first abstracts meta-variables, cleans up local hypotheses
-corresponding to internal details, creates an auxiliary meta-variable `mvarId'`, and executes `k mvarId'`.
-The execution is performed in a new meta-variable context depth to ensure that universe meta-variables
-cannot be accidentally assigned by `grind`. If `k` fails, it admits the input goal.
+Given an input goal `mvarId`, it cleans up local hypotheses corresponding to internal details,
+creates an auxiliary meta-variable `mvarId'`, and executes `k mvarId'`.
+`withNewMCtxDepth` is used to prevent metavariables from being accidentally assigned by
+`grind`'s `isDefEq` calls. After `grind` finishes, delayed metavariable assignments are
+resolved, and the resulting proof is assigned to the original goal.
 
-See issue #11806 for a motivating example.
+See issue #11806 and issue #12242 for motivating examples.
 -/
 def withProtectedMCtx [Monad m] [MonadControlT MetaM m] [MonadLiftT MetaM m]
     [MonadExcept Exception m] [MonadRuntimeException m]
@@ -321,13 +421,6 @@ def withProtectedMCtx [Monad m] [MonadControlT MetaM m] [MonadLiftT MetaM m]
   This is particularly important when using `grind -revert`.
   -/
   let mut mvarId ← mvarId.instantiateGoalMVars
-  /-
-  **TODO**: It would be nice to remove the following step, but
-  some tests break with unknown metavariable error when this
-  step is removed. The main issue is the `withNewMCtxDepth` step at
-  `main`.
-  -/
-  mvarId ← mvarId.abstractMVars
   if config.revert then
     /-
     **Note**: We now skip implementation details at `addHypotheses`
@@ -343,6 +436,7 @@ where
       let mvar' ← mkFreshExprSyntheticOpaqueMVar type
       let a ← k mvar'.mvarId!
       let val ← instantiateMVarsProfiling mvar'
+      let val ← resolveDelayedMVarAssignments val
       return (a, val)
     let val ← finalize val
     (mvarId.assign val : MetaM _)

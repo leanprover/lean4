@@ -1,4 +1,8 @@
-cmake_minimum_required(VERSION 3.11)
+cmake_minimum_required(VERSION 3.21)
+
+if(NOT CMAKE_GENERATOR MATCHES "Makefiles")
+  message(FATAL_ERROR "Only makefile generators are supported")
+endif()
 
 option(USE_MIMALLOC "use mimalloc" ON)
 
@@ -37,7 +41,7 @@ if(NOT (DEFINED STAGE0_CMAKE_EXECUTABLE_SUFFIX))
   set(STAGE0_CMAKE_EXECUTABLE_SUFFIX "${CMAKE_EXECUTABLE_SUFFIX}")
 endif()
 
-# Don't do anything with cadical on wasm
+# Don't do anything with cadical/leantar on wasm
 if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
   find_program(CADICAL cadical)
   if(NOT CADICAL)
@@ -70,16 +74,48 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
       BUILD_IN_SOURCE ON
       INSTALL_COMMAND ""
     )
-    set(
-      CADICAL
-      ${CMAKE_BINARY_DIR}/cadical/cadical${CMAKE_EXECUTABLE_SUFFIX}
-      CACHE FILEPATH
-      "path to cadical binary"
-      FORCE
-    )
+    set(CADICAL ${CMAKE_BINARY_DIR}/cadical/cadical${CMAKE_EXECUTABLE_SUFFIX})
     list(APPEND EXTRA_DEPENDS cadical)
   endif()
-  list(APPEND CL_ARGS -DCADICAL=${CADICAL})
+  find_program(LEANTAR leantar)
+  if(NOT LEANTAR)
+    set(LEANTAR_VERSION v0.1.19)
+    if(CMAKE_SYSTEM_NAME MATCHES "Windows")
+      set(LEANTAR_ARCHIVE_SUFFIX .zip)
+      set(LEANTAR_TARGET x86_64-pc-windows-msvc)
+    else()
+      set(LEANTAR_ARCHIVE_SUFFIX .tar.gz)
+      if(CMAKE_SYSTEM_PROCESSOR MATCHES "arm64")
+        set(LEANTAR_TARGET_ARCH aarch64)
+      else()
+        set(LEANTAR_TARGET_ARCH x86_64)
+      endif()
+      if(CMAKE_SYSTEM_NAME MATCHES "Darwin")
+        set(LEANTAR_TARGET_OS apple-darwin)
+      else()
+        set(LEANTAR_TARGET_OS unknown-linux-musl)
+      endif()
+      set(LEANTAR_TARGET ${LEANTAR_TARGET_ARCH}-${LEANTAR_TARGET_OS})
+    endif()
+    set(
+      LEANTAR
+      ${CMAKE_BINARY_DIR}/leantar/leantar-${LEANTAR_VERSION}-${LEANTAR_TARGET}/leantar${CMAKE_EXECUTABLE_SUFFIX}
+    )
+    if(NOT EXISTS "${LEANTAR}")
+      file(
+        DOWNLOAD
+          https://github.com/digama0/leangz/releases/download/${LEANTAR_VERSION}/leantar-${LEANTAR_VERSION}-${LEANTAR_TARGET}${LEANTAR_ARCHIVE_SUFFIX}
+        ${CMAKE_BINARY_DIR}/leantar${LEANTAR_ARCHIVE_SUFFIX}
+      )
+      file(
+        ARCHIVE_EXTRACT
+        INPUT ${CMAKE_BINARY_DIR}/leantar${LEANTAR_ARCHIVE_SUFFIX}
+        DESTINATION ${CMAKE_BINARY_DIR}/leantar
+      )
+    endif()
+  endif()
+  list(APPEND STAGE0_ARGS -DLEANTAR=${LEANTAR})
+  list(APPEND CL_ARGS -DCADICAL=${CADICAL} -DLEANTAR=${LEANTAR})
 endif()
 
 if(USE_MIMALLOC)
@@ -153,6 +189,7 @@ ExternalProject_Add(
   INSTALL_COMMAND ""
   DEPENDS stage2
   EXCLUDE_FROM_ALL ON
+  STEP_TARGETS configure
 )
 
 # targets forwarded to appropriate stages
@@ -162,6 +199,25 @@ add_custom_target(update-stage0 COMMAND $(MAKE) -C stage1 update-stage0 DEPENDS 
 add_custom_target(update-stage0-commit COMMAND $(MAKE) -C stage1 update-stage0-commit DEPENDS stage1)
 
 add_custom_target(test COMMAND $(MAKE) -C stage1 test DEPENDS stage1)
+
+add_custom_target(
+  bench
+  COMMAND $(MAKE) -C stage2
+  COMMAND $(MAKE) -C stage2 -j1 bench
+  DEPENDS stage2
+)
+add_custom_target(
+  bench-part1
+  COMMAND $(MAKE) -C stage2
+  COMMAND $(MAKE) -C stage2 -j1 bench-part1
+  DEPENDS stage2
+)
+add_custom_target(
+  bench-part2
+  COMMAND $(MAKE) -C stage2
+  COMMAND $(MAKE) -C stage2 -j1 bench-part2
+  DEPENDS stage2
+)
 
 add_custom_target(clean-stdlib COMMAND $(MAKE) -C stage1 clean-stdlib DEPENDS stage1)
 

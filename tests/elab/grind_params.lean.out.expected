@@ -1,0 +1,8 @@
+grind_params.lean:8:8-8:14: warning: declaration uses `sorry`
+grind_params.lean:27:15-27:17: warning: declaration uses `sorry`
+grind_params.lean:28:8-28:10: warning: declaration uses `sorry`
+Try these:
+  [apply] [grind =] for pattern: [bla (bla #0)]
+  [apply] [grind =_] for pattern: [bla #0]
+grind_params.lean:64:0-64:7: warning: declaration uses `sorry`
+grind_params.lean:71:0-71:7: warning: declaration uses `sorry`

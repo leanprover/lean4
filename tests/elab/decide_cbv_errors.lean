@@ -1,0 +1,17 @@
+-- Success: proposition reduces to `Bool.true`
+example : 1 + 1 = 2 := by decide_cbv
+
+example : 1 ∈ [1, 2, 3] := by decide_cbv
+
+/-- error: `decide_cbv` failed: the proposition evaluates to `false` -/
+#guard_msgs (error) in
+example : 1 + 1 = 3 := by decide_cbv
+
+opaque myOpaqueBool : Bool
+
+/--
+error: `decide_cbv` failed: could not reduce the expression to a boolean value; got stuck at: ⏎
+  decide (myOpaqueBool = true)
+-/
+#guard_msgs (error) in
+example : myOpaqueBool = true := by decide_cbv

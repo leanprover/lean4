@@ -28,7 +28,7 @@ private def mkHeader (kind : String) (id : Name) (levelParams : List Name) (type
   match (← getReducibilityStatus id) with
   | .irreducible =>   attrs := attrs.push m!"irreducible"
   | .reducible =>     attrs := attrs.push m!"reducible"
-  | .instanceReducible => attrs := attrs.push m!"instance_reducible"
+  | .implicitReducible => attrs := attrs.push m!"implicit_reducible"
   | .semireducible => pure ()
 
   let env ← getEnv
@@ -50,7 +50,7 @@ private def mkHeader (kind : String) (id : Name) (levelParams : List Name) (type
   let id' ← match privateToUserName? id with
     | some id' =>
       m := m ++ "private "
-      pure id'
+      if getPPPrivateNames (← getOptions) then pure id else pure id'
     | none =>
       pure id
 

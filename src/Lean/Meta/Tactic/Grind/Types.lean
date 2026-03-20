@@ -78,6 +78,11 @@ register_builtin_option grind.warning : Bool := {
   descr    := "generate a warning whenever `grind` is used"
 }
 
+register_builtin_option grind.unusedLemmaThreshold : Nat := {
+  defValue := 0
+  descr    := "report E-matching lemmas activated at least this many times but not used in the proof (0 = disabled)"
+}
+
 /--
 Anchors are used to reference terms, local theorems, and case-splits in the `grind` state.
 We also use anchors to prune the search space when they are provided as `grind` parameters
@@ -232,6 +237,9 @@ structure State where
   Cached anchors (aka stable hash codes) for terms in the `grind` state.
   -/
   anchors : PHashMap ExprPtr UInt64 := {}
+  /-- Accumulated E-matching instance map for precise unused lemma tracking.
+  Only populated when `config.markInstances` is `true`. -/
+  instanceMap : Std.HashMap Name EMatchTheorem := {}
 
 instance : Nonempty State :=
   .intro {}
@@ -603,6 +611,9 @@ where
   go (a b : Expr) : Bool :=
     if a.isApp && b.isApp then
       hasSameRoot enodes a.appArg! b.appArg! && go a.appFn! b.appFn!
+    else if a.isApp || b.isApp then
+      -- Different number of arguments: not congruent.
+      false
     else
       -- Remark: we do not check whether the types of the functions are equal here
       -- because we are not in the `MetaM` monad.
@@ -1351,6 +1362,7 @@ partial def getCongrRoot (e : Expr) : GoalM Expr := do
 def isInconsistent : GoalM Bool :=
   return (← get).inconsistent
 
+set_option compiler.ignoreBorrowAnnotation true in
 /--
 Returns a proof that `a = b`.
 It assumes `a` and `b` are in the same equivalence class, and have the same type.
@@ -1359,6 +1371,7 @@ It assumes `a` and `b` are in the same equivalence class, and have the same type
 @[extern "lean_grind_mk_eq_proof"]
 opaque mkEqProof (a b : Expr) : GoalM Expr
 
+set_option compiler.ignoreBorrowAnnotation true in
 /--
 Returns a proof that `a ≍ b`.
 It assumes `a` and `b` are in the same equivalence class.
@@ -1368,14 +1381,17 @@ It assumes `a` and `b` are in the same equivalence class.
 opaque mkHEqProof (a b : Expr) : GoalM Expr
 
 -- Forward definition
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_grind_process_new_facts"]
 opaque processNewFacts : GoalM Unit
 
 -- Forward definition
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_grind_internalize"]
 opaque internalize (e : Expr) (generation : Nat) (parent? : Option Expr := none) : GoalM Unit
 
 -- Forward definition
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_grind_preprocess"]
 opaque preprocess : Expr → GoalM Simp.Result
 
@@ -1721,6 +1737,7 @@ def withoutModifyingState (x : GoalM α) : GoalM α := do
   finally
     set saved
 
+set_option compiler.ignoreBorrowAnnotation true in
 /-- Canonicalizes nested types, type formers, and instances in `e`. -/
 @[extern "lean_grind_canon"] -- Forward definition
 opaque canon (e : Expr) : GoalM Expr
@@ -1967,7 +1984,10 @@ def SolverExtension.markTerm (ext : SolverExtension σ) (e : Expr) : GoalM Unit 
     | .nil => return .next id e .nil
     | .next id' e' sTerms' =>
       if id == id' then
-        (← solverExtensionsRef.get)[id]!.newEq e e'
+        -- Skip if `e` and `e'` have different types (e.g., they were merged via `HEq` from `cast`).
+        -- This can happen when we have heterogenous equalities in an equivalence class containing types such as `Fin n` and `Fin m`
+        if (← pure !root.heqProofs <||> hasSameType e e') then
+          (← solverExtensionsRef.get)[id]!.newEq e e'
         return sTerms
       else if id < id' then
         return .next id e sTerms
@@ -2047,7 +2067,11 @@ where
     match p with
     | .nil => return ()
     | .eq solverId lhs rhs rest =>
-      (← solverExtensionsRef.get)[solverId]!.newEq lhs rhs
+      -- Skip if `lhs` and `rhs` have different types (e.g., they were merged via `HEq` from `cast`).
+      -- This can happen when we have heterogenous equalities in an equivalence class containing types such as `Fin n` and `Fin m`
+      let root ← getRootENode lhs
+      if (← pure !root.heqProofs <||> hasSameType lhs rhs) then
+        (← solverExtensionsRef.get)[solverId]!.newEq lhs rhs
       go rest
     | .diseqs solverId parentSet rest =>
       forEachDiseq parentSet (propagateDiseqOf solverId)

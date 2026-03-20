@@ -225,7 +225,7 @@ theorem forM_toArray [Monad m] (l : List α) (f : α → m PUnit) :
 @[simp, grind =] theorem findSomeM?_toArray [Monad m] [LawfulMonad m] (f : α → m (Option β)) (l : List α) :
     l.toArray.findSomeM? f = l.findSomeM? f := by
   rw [Array.findSomeM?]
-  simp only [bind_pure_comp, map_pure, forIn_toArray]
+  simp only [forIn_toArray]
   induction l with
   | nil => simp
   | cons a l ih =>
@@ -258,7 +258,7 @@ theorem findRevM?_toArray [Monad m] [LawfulMonad m] (f : α → m Bool) (l : Lis
 @[simp, grind =] theorem findM?_toArray [Monad m] [LawfulMonad m] (f : α → m Bool) (l : List α) :
     l.toArray.findM? f = l.findM? f := by
   rw [Array.findM?]
-  simp only [bind_pure_comp, map_pure, forIn_toArray]
+  simp only [forIn_toArray]
   induction l with
   | nil => simp
   | cons a l ih =>
@@ -280,6 +280,7 @@ theorem findRevM?_toArray [Monad m] [LawfulMonad m] (f : α → m Bool) (l : Lis
     simp only [forIn_cons, find?]
     by_cases f a <;> simp_all
 
+set_option backward.isDefEq.respectTransparency false in
 private theorem findFinIdx?_loop_toArray (w : l' = l.drop j) :
     Array.findFinIdx?.loop p l.toArray j = List.findFinIdx?.go p l l' j h := by
   unfold findFinIdx?.loop
@@ -316,6 +317,7 @@ termination_by l.length - j
   rw [Array.findIdx?_eq_map_findFinIdx?_val, findIdx?_eq_map_findFinIdx?_val]
   simp [Array.size]
 
+set_option backward.isDefEq.respectTransparency false in
 private theorem idxAuxOf_toArray [BEq α] (a : α) (l : List α) (j : Nat) (w : l' = l.drop j) (h) :
     l.toArray.idxOfAux a j = findFinIdx?.go (fun x => x == a) l l' j h := by
   unfold idxOfAux
@@ -361,6 +363,7 @@ termination_by l.length - j
     as.toArray.idxOf a = as.idxOf a := by
   rw [Array.idxOf, findIdx_toArray, idxOf]
 
+set_option backward.isDefEq.respectTransparency false in
 theorem isPrefixOfAux_toArray_succ [BEq α] (l₁ l₂ : List α) (hle : l₁.length ≤ l₂.length) (i : Nat) :
     Array.isPrefixOfAux l₁.toArray l₂.toArray hle (i + 1) =
       Array.isPrefixOfAux l₁.tail.toArray l₂.tail.toArray (by simp; omega) i := by
@@ -390,7 +393,7 @@ theorem isPrefixOfAux_toArray_zero [BEq α] (l₁ l₂ : List α) (hle : l₁.le
   | [], _ => rw [dif_neg] <;> simp
   | _::_, [] => simp at hle
   | a::l₁, b::l₂ =>
-    simp [isPrefixOf_cons₂, isPrefixOfAux_toArray_succ', isPrefixOfAux_toArray_zero]
+    simp [isPrefixOf_cons_cons, isPrefixOfAux_toArray_succ', isPrefixOfAux_toArray_zero]
 
 @[simp, grind =] theorem isPrefixOf_toArray [BEq α] (l₁ l₂ : List α) :
     l₁.toArray.isPrefixOf l₂.toArray = l₁.isPrefixOf l₂ := by
@@ -404,7 +407,7 @@ theorem isPrefixOfAux_toArray_zero [BEq α] (l₁ l₂ : List α) (hle : l₁.le
       cases l₂ with
       | nil => simp
       | cons b l₂ =>
-        simp only [isPrefixOf_cons₂, Bool.and_eq_false_imp]
+        simp only [isPrefixOf_cons_cons, Bool.and_eq_false_imp]
         intro w
         rw [ih]
         simp_all
@@ -616,13 +619,13 @@ decreasing_by
 @[simp, grind =] theorem eraseP_toArray {as : List α} {p : α → Bool} :
     as.toArray.eraseP p = (as.eraseP p).toArray := by
   rw [Array.eraseP, List.eraseP_eq_eraseIdx, findFinIdx?_toArray]
-  split <;> simp [*, findIdx?_eq_map_findFinIdx?_val]
+  split <;> simp [*, findIdx?_eq_map_findFinIdx?_val] <;> rfl
 
 @[simp, grind =] theorem erase_toArray [BEq α] {as : List α} {a : α} :
     as.toArray.erase a = (as.erase a).toArray := by
   rw [Array.erase, finIdxOf?_toArray, List.erase_eq_eraseIdx]
   rw [idxOf?_eq_map_finIdxOf?_val]
-  split <;> simp_all
+  split <;> simp_all <;> rfl
 
 private theorem insertIdx_loop_toArray (i : Nat) (l : List α) (j : Nat) (hj : j < l.toArray.size) (h : i ≤ j) :
     insertIdx.loop i l.toArray ⟨j, hj⟩ = (l.take i ++ l[j] :: (l.take j).drop i ++ l.drop (j + 1)).toArray := by
@@ -639,7 +642,7 @@ private theorem insertIdx_loop_toArray (i : Nat) (l : List α) (j : Nat) (hj : j
       getElem_set_self, take_set_of_le (j := j - 1) (by omega),
       take_set_of_le (j := j - 1) (by omega), take_eq_append_getElem_of_pos (by omega) hj,
       drop_append_of_le_length (by simp; omega)]
-    simp only [append_assoc, cons_append, nil_append, append_cancel_right_eq]
+    simp only [append_assoc, cons_append, nil_append]
     cases i with
     | zero => simp
     | succ i => rw [take_set_of_le (by omega)]

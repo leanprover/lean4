@@ -52,7 +52,8 @@ def max' [LE α] [DecidableLE α] (a b : α) : α :=
 Without the `open scoped` command, Lean would not find the required {lit}`DecidableLE α`
 instance for the opposite order.
 -/
-@[instance_reducible] def LE.opposite (le : LE α) : LE α where
+@[implicit_reducible]
+def LE.opposite (le : LE α) : LE α where
   le a b := b ≤ a
 
 theorem LE.opposite_def {le : LE α} :
@@ -89,6 +90,7 @@ example [LE α] [LT α] [Std.LawfulOrderLT α] [Std.IsLinearOrder α] {x y : α}
 Without the `open scoped` command, Lean would not find the {lit}`LawfulOrderLT α`
 and {lit}`IsLinearOrder α` instances for the opposite order that are required by {name}`not_le`.
 -/
+@[implicit_reducible]
 def LT.opposite (lt : LT α) : LT α where
   lt a b := b < a
 
@@ -125,6 +127,7 @@ example [LE α] [DecidableLE α] [Min α] [Std.LawfulOrderLeftLeaningMin α] {a 
 Without the `open scoped` command, Lean would not find the {lit}`LawfulOrderLeftLeaningMax α`
 instance for the opposite order that is required by {name}`max_eq_if`.
 -/
+@[implicit_reducible]
 def Min.oppositeMax (min : Min α) : Max α where
   max a b := Min.min a b
 
@@ -161,6 +164,7 @@ example [LE α] [DecidableLE α] [Max α] [Std.LawfulOrderLeftLeaningMax α] {a 
 Without the `open scoped` command, Lean would not find the {lit}`LawfulOrderLeftLeaningMin α`
 instance for the opposite order that is required by {name}`min_eq_if`.
 -/
+@[implicit_reducible]
 def Max.oppositeMin (max : Max α) : Min α where
   min a b := Max.max a b
 
@@ -262,15 +266,18 @@ scoped instance (priority := low) instLawfulOrderOrdOpposite {il : LE α} {io : 
     haveI := il.opposite
     haveI := io.opposite
     LawfulOrderOrd α :=
-      @LawfulOrderOrd.mk α io.opposite il.opposite
-        (by intros a b
-            simp +instances only [LE.opposite, Ord.opposite]
-            try simp [compare, LE.le]
-            apply isLE_compare)
-        (by intros a b
-            simp +instances only [LE.opposite, Ord.opposite]
-            try simp [compare, LE.le]
-            apply isGE_compare)
+  letI i := il.opposite
+  letI j := io.opposite
+  { isLE_compare a b := by
+      unfold LE.opposite Ord.opposite
+      simp only [compare, LE.le]
+      letI := il; letI := io
+      apply isLE_compare
+    isGE_compare a b := by
+      unfold LE.opposite Ord.opposite
+      simp only [compare, LE.le]
+      letI := il; letI := io
+      apply isGE_compare }
 
 scoped instance (priority := low) instLawfulOrderLTOpposite {il : LE α} {it : LT α}
     [LawfulOrderLT α] :
@@ -280,7 +287,7 @@ scoped instance (priority := low) instLawfulOrderLTOpposite {il : LE α} {it : L
   letI := il.opposite
   letI := it.opposite
   { lt_iff a b := by
-      simp +instances only [LE.opposite, LT.opposite]
+      simp only [LE.le, LT.lt]
       letI := il; letI := it
       exact LawfulOrderLT.lt_iff b a }
 
@@ -290,7 +297,7 @@ scoped instance (priority := low) instLawfulOrderBEqOpposite {il : LE α} {ib : 
     LawfulOrderBEq α :=
   letI := il.opposite
   { beq_iff_le_and_ge a b := by
-      simp +instances only [LE.opposite]
+      simp only [LE.le]
       letI := il; letI := ib
       rw [LawfulOrderBEq.beq_iff_le_and_ge]
       exact and_comm }
@@ -303,7 +310,7 @@ scoped instance (priority := low) instLawfulOrderInfOpposite {il : LE α} {im : 
   letI := il.opposite
   letI := im.oppositeMax
   { max_le_iff a b c := by
-      simp +instances only [LE.opposite, Min.oppositeMax]
+      simp only [LE.le, Max.max]
       letI := il; letI := im
       exact LawfulOrderInf.le_min_iff c a b }
 
@@ -315,11 +322,11 @@ scoped instance (priority := low) instLawfulOrderMinOpposite {il : LE α} {im : 
   letI := il.opposite
   letI := im.oppositeMax
   { max_eq_or a b := by
-      simp +instances only [Min.oppositeMax]
+      simp only [Max.max]
       letI := il; letI := im
       exact MinEqOr.min_eq_or a b
     max_le_iff a b c := by
-      simp +instances only [LE.opposite, Min.oppositeMax]
+      simp only [LE.le, Max.max]
       letI := il; letI := im
       exact LawfulOrderInf.le_min_iff c a b }
 
@@ -331,7 +338,7 @@ scoped instance (priority := low) instLawfulOrderSupOpposite {il : LE α} {im : 
   letI := il.opposite
   letI := im.oppositeMin
   { le_min_iff a b c := by
-      simp +instances only [LE.opposite, Max.oppositeMin]
+      simp only [LE.le, Min.min]
       letI := il; letI := im
       exact LawfulOrderSup.max_le_iff b c a }
 
@@ -343,11 +350,11 @@ scoped instance (priority := low) instLawfulOrderMaxOpposite {il : LE α} {im : 
   letI := il.opposite
   letI := im.oppositeMin
   { min_eq_or a b := by
-      simp +instances only [Max.oppositeMin]
+      simp only [Min.min]
       letI := il; letI := im
       exact MaxEqOr.max_eq_or a b
     le_min_iff a b c := by
-      simp +instances only [LE.opposite, Max.oppositeMin]
+      simp only [LE.le, Min.min]
       letI := il; letI := im
       exact LawfulOrderSup.max_le_iff b c a }
 
@@ -359,11 +366,11 @@ scoped instance (priority := low) instLawfulOrderLeftLeaningMinOpposite {il : LE
   letI := il.opposite
   letI := im.oppositeMax
   { max_eq_left a b hab := by
-      simp +instances only [Min.oppositeMax]
+      simp only [Max.max]
       letI := il; letI := im
       exact LawfulOrderLeftLeaningMin.min_eq_left a b hab
     max_eq_right a b hab := by
-      simp +instances only [Min.oppositeMax]
+      simp only [Max.max]
       letI := il; letI := im
       exact LawfulOrderLeftLeaningMin.min_eq_right a b hab }
 
@@ -375,11 +382,11 @@ scoped instance (priority := low) instLawfulOrderLeftLeaningMaxOpposite {il : LE
   letI := il.opposite
   letI := im.oppositeMin
   { min_eq_left a b hab := by
-      simp +instances only [Max.oppositeMin]
+      simp only [Min.min]
       letI := il; letI := im
       exact LawfulOrderLeftLeaningMax.max_eq_left a b hab
     min_eq_right a b hab := by
-      simp +instances only [Max.oppositeMin]
+      simp only [Min.min]
       letI := il; letI := im
       exact LawfulOrderLeftLeaningMax.max_eq_right a b hab }
 

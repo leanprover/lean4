@@ -309,7 +309,7 @@ typedef struct {
     void *                m_data;
 } lean_external_object;
 
-static inline LEAN_ALWAYS_INLINE bool lean_is_scalar(lean_object * o) { return ((size_t)(o) & 1) == 1; }
+static inline LEAN_ALWAYS_INLINE uint8_t lean_is_scalar(lean_object * o) { return ((size_t)(o) & 1) == 1; }
 static inline lean_object * lean_box(size_t n) { return (lean_object*)(((size_t)(n) << 1) | 1); }
 static inline size_t lean_unbox(lean_object * o) { return (size_t)(o) >> 1; }
 
@@ -440,6 +440,13 @@ static inline void lean_free_small_object(lean_object * o) {
 
 LEAN_EXPORT lean_object * lean_alloc_object(size_t sz);
 LEAN_EXPORT void lean_free_object(lean_object * o);
+
+
+static inline void lean_del_object(lean_object * o) {
+    if (!lean_is_scalar(o)) {
+        lean_free_object(o);
+    }
+}
 
 static inline uint8_t lean_ptr_tag(lean_object * o) {
     return o->m_tag;
@@ -824,6 +831,10 @@ static inline lean_object * lean_mk_empty_array_with_capacity(b_lean_obj_arg cap
 static inline lean_object * lean_array_uget(b_lean_obj_arg a, size_t i) {
     lean_object * r = lean_array_get_core(a, i); lean_inc(r);
     return r;
+}
+
+static inline b_lean_obj_res lean_array_uget_borrowed(b_lean_obj_arg a, size_t i) {
+    return lean_array_get_core(a, i);
 }
 
 static inline lean_obj_res lean_array_fget(b_lean_obj_arg a, b_lean_obj_arg i) {
@@ -1945,8 +1956,16 @@ static inline uint64_t lean_uint64_log2(uint64_t a) {
 static inline uint8_t lean_uint64_dec_eq(uint64_t a1, uint64_t a2) { return a1 == a2; }
 static inline uint8_t lean_uint64_dec_lt(uint64_t a1, uint64_t a2) { return a1 < a2; }
 static inline uint8_t lean_uint64_dec_le(uint64_t a1, uint64_t a2) { return a1 <= a2; }
-LEAN_EXPORT uint64_t lean_uint64_mix_hash(uint64_t a1, uint64_t a2);
-
+static inline uint64_t lean_uint64_mix_hash(uint64_t h, uint64_t k) {
+    uint64_t m = 0xc6a4a7935bd1e995;
+    uint64_t r = 47;
+    k *= m;
+    k ^= k >> r;
+    k ^= m;
+    h ^= k;
+    h *= m;
+    return h;
+}
 
 /* UInt64 -> other */
 static inline uint8_t lean_uint64_to_uint8(uint64_t a) { return ((uint8_t)a); }
@@ -3146,6 +3165,85 @@ static inline lean_obj_res lean_manual_get_root(lean_obj_arg _unit) {
 #else
 #define LEAN_SCALAR_PTR_LITERAL(b1, b2, b3, b4, b5, b6, b7, b8) (lean_object*)((uint64_t)b1 | ((uint64_t)b2 << 8) | ((uint64_t)b3 << 16) | ((uint64_t)b4 << 24) | ((uint64_t)b5 << 32) | ((uint64_t)b6 << 40) | ((uint64_t)b7 << 48) | ((uint64_t)b8 << 56))
 #endif
+
+typedef struct {
+    _Atomic(int) state;
+    _Atomic(int) lock;
+} lean_once_cell_t;
+
+#define LEAN_ONCE_CELL_INITIALIZER { .state = 0, .lock = 0 }
+
+LEAN_EXPORT lean_object* lean_obj_once_cold(lean_object** loc, lean_once_cell_t* tok, lean_object* (*init)(void));
+
+static inline lean_object* lean_obj_once(lean_object** loc, lean_once_cell_t* tok, lean_object* (*init)(void)) {
+    if (LEAN_LIKELY(tok->state == 1)) {
+        return *loc;
+    }
+    return lean_obj_once_cold(loc, tok, init);
+}
+
+LEAN_EXPORT uint8_t lean_uint8_once_cold(uint8_t* loc, lean_once_cell_t* tok, uint8_t (*init)(void));
+
+static inline uint8_t lean_uint8_once(uint8_t* loc, lean_once_cell_t* tok, uint8_t (*init)(void)) {
+    if (LEAN_LIKELY(tok->state == 1)) {
+        return *loc;
+    }
+    return lean_uint8_once_cold(loc, tok, init);
+}
+
+LEAN_EXPORT uint16_t lean_uint16_once_cold(uint16_t* loc, lean_once_cell_t* tok, uint16_t (*init)(void));
+
+static inline uint16_t lean_uint16_once(uint16_t* loc, lean_once_cell_t* tok, uint16_t (*init)(void)) {
+    if (LEAN_LIKELY(tok->state == 1)) {
+        return *loc;
+    }
+    return lean_uint16_once_cold(loc, tok, init);
+}
+
+LEAN_EXPORT uint32_t lean_uint32_once_cold(uint32_t* loc, lean_once_cell_t* tok, uint32_t (*init)(void));
+
+static inline uint32_t lean_uint32_once(uint32_t* loc, lean_once_cell_t* tok, uint32_t (*init)(void)) {
+    if (LEAN_LIKELY(tok->state == 1)) {
+        return *loc;
+    }
+    return lean_uint32_once_cold(loc, tok, init);
+}
+
+LEAN_EXPORT uint64_t lean_uint64_once_cold(uint64_t* loc, lean_once_cell_t* tok, uint64_t (*init)(void));
+
+static inline uint64_t lean_uint64_once(uint64_t* loc, lean_once_cell_t* tok, uint64_t (*init)(void)) {
+    if (LEAN_LIKELY(tok->state == 1)) {
+        return *loc;
+    }
+    return lean_uint64_once_cold(loc, tok, init);
+}
+
+LEAN_EXPORT size_t lean_usize_once_cold(size_t* loc, lean_once_cell_t* tok, size_t (*init)(void));
+
+static inline size_t lean_usize_once(size_t* loc, lean_once_cell_t* tok, size_t (*init)(void)) {
+    if (LEAN_LIKELY(tok->state == 1)) {
+        return *loc;
+    }
+    return lean_usize_once_cold(loc, tok, init);
+}
+
+LEAN_EXPORT float lean_float32_once_cold(float* loc, lean_once_cell_t* tok, float (*init)(void));
+
+static inline float lean_float32_once(float* loc, lean_once_cell_t* tok, float (*init)(void)) {
+    if (LEAN_LIKELY(tok->state == 1)) {
+        return *loc;
+    }
+    return lean_float32_once_cold(loc, tok, init);
+}
+
+LEAN_EXPORT double lean_float_once_cold(double* loc, lean_once_cell_t* tok, double (*init)(void));
+
+static inline double lean_float_once(double* loc, lean_once_cell_t* tok, double (*init)(void)) {
+    if (LEAN_LIKELY(tok->state == 1)) {
+        return *loc;
+    }
+    return lean_float_once_cold(loc, tok, init);
+}
 
 #ifdef __cplusplus
 }

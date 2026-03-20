@@ -90,9 +90,22 @@ private def reduceProjFn? (e : Expr) : SimpM (Option Expr) := do
         -- `class` projection
         if (← getContext).isDeclToUnfold cinfo.name then
           /-
-          If user requested `class` projection to be unfolded, we set transparency mode to `.instances`,
-          and invoke `unfoldDefinition?`.
-          Recall that `unfoldDefinition?` has support for unfolding this kind of projection when transparency mode is `.instances`.
+          If user requested `class` projection to be unfolded (e.g., `simp [X.x]`), we set transparency
+          mode to `.instances` and invoke `unfoldDefinition?`.
+          Recall that `unfoldDefinition?` has support for unfolding this kind of projection when
+          transparency mode is `.instances`.
+
+          Note: this unfolds the projection function but may leave a `.proj` node that cannot be further
+          reduced. For example, given:
+          ```
+          def a' := 0; def b' := 0
+          class X where x : Nat
+          instance instX (n : Nat) : X where x := n
+          ```
+          `simp [X.x]` on `(instX a').x = (instX b').x` unfolds `X.x` to expose `.proj X 0 (instX a')`,
+          but cannot reduce further because `instX a'` is not a constructor application at `.reducible`.
+          The resulting goal `(instX a').1 = (instX b').1` is expected and reasonable: the user explicitly
+          requested the unfolding, and the projection is stuck because `a'` and `b'` are semireducible.
           -/
           let e? ← withReducibleAndInstances <| unfoldDefinition? e
           if e?.isSome then
@@ -109,7 +122,17 @@ private def reduceProjFn? (e : Expr) : SimpM (Option Expr) := do
           let major := e.getArg! projInfo.numParams
           unless (← isConstructorApp major) do
             return none
-          reduceProjCont? (← unfoldDefinitionAny? e)
+          if backward.whnf.reducibleClassField.get (← getOptions) then
+            /-
+            When `backward.whnf.reducibleClassField` is `true`, `unfoldDefault` (in WHNF.lean)
+            already reduces the `.proj` node during `unfoldDefinitionAny?`, so `reduceProjCont?`
+            would discard the fully-reduced result because it expects a `.proj` head.
+            We return the unfolded result directly; the dsimp traversal will revisit it
+            (via `.visit`) and handle any remaining `.proj` nodes naturally.
+            -/
+            unfoldDefinitionAny? e
+          else
+            reduceProjCont? (← unfoldDefinitionAny? e)
       else
         -- `structure` projections
         reduceProjCont? (← unfoldDefinition? e)
@@ -367,8 +390,8 @@ def simpForall (e : Expr) : SimpM Result := withParent e do
         let p₂ := rd.expr
         let q₁ := mkLambda e.bindingName! e.bindingInfo! p₁ e.bindingBody!
         let result ← withLocalDecl e.bindingName! e.bindingInfo! p₂ fun a => withNewLemmas #[a] do
-          let prop := mkSort levelZero
-          let h₁_substr_a := mkApp6 (mkConst ``Eq.substr [levelOne]) prop (mkLambda `x .default prop (mkBVar 0)) p₂ p₁ h₁ a
+          let prop := mkSort Level.zero
+          let h₁_substr_a := mkApp6 (mkConst ``Eq.substr [Level.one]) prop (mkLambda `x .default prop (mkBVar 0)) p₂ p₁ h₁ a
           let q_h₁_substr_a := e.bindingBody!.instantiate1 h₁_substr_a
           let rb ← simp q_h₁_substr_a
           let h₂ ← mkLambdaFVars #[a] (← rb.getProof)
@@ -411,7 +434,7 @@ but if `Config.letToHave` is enabled then we attempt to transform it into a `hav
 If that does not change it, then it is only `dsimp`ed.
 -/
 def simpLet (e : Expr) : SimpM Result := do
-  withTraceNode `Debug.Meta.Tactic.simp (return m!"{exceptEmoji ·} let{indentExpr e}") do
+  withTraceNode `Debug.Meta.Tactic.simp (fun _ => return m!"let{indentExpr e}") do
     assert! e.isLet
     /-
     Recall: `simpLet` is called after `reduceStep` is applied, so `simpLet` is not responsible for zeta reduction.
@@ -783,7 +806,7 @@ This method assumes `mvarId` is not assigned, and we are already using `mvarId`s
 def applySimpResult (mvarId : MVarId) (val : Expr) (type : Expr) (r : Simp.Result) (mayCloseGoal := true) : MetaM (Option (Expr × Expr)) := do
   if mayCloseGoal && r.expr.isFalse then
     match r.proof? with
-    | some eqProof => mvarId.assign (← mkFalseElim (← mvarId.getType) (mkApp4 (mkConst ``Eq.mp [levelZero]) type r.expr eqProof val))
+    | some eqProof => mvarId.assign (← mkFalseElim (← mvarId.getType) (mkApp4 (mkConst ``Eq.mp [Level.zero]) type r.expr eqProof val))
     | none => mvarId.assign (← mkFalseElim (← mvarId.getType) val)
     return none
   else

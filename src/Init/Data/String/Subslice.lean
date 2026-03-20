@@ -7,6 +7,8 @@ module
 
 prelude
 public import Init.Data.String.Basic
+import Init.Data.String.Lemmas.IsEmpty
+import Init.Data.String.Lemmas.Basic
 
 set_option doc.verso true
 
@@ -59,6 +61,11 @@ theorem startInclusive_toSlice {s : Slice} {sl : s.Subslice} :
 theorem endExclusive_toSlice {s : Slice} {sl : s.Subslice} :
     sl.toSlice.endExclusive = sl.endExclusive.str := rfl
 
+@[simp]
+theorem isEmpty_toSlice_iff {s : Slice} {sl : s.Subslice} :
+    sl.toSlice.isEmpty ↔ sl.startInclusive = sl.endExclusive := by
+  simp [toSlice]
+
 instance {s : Slice} : CoeOut s.Subslice Slice where
   coe := Subslice.toSlice
 
@@ -75,6 +82,16 @@ def toString {s : Slice} (sl : s.Subslice) : String :=
 
 instance {s : Slice} : ToString s.Subslice where
   toString
+
+@[simp]
+theorem copy_eq {s : Slice} : copy (s := s) = Slice.copy ∘ toSlice := (rfl)
+
+@[simp]
+theorem toString_eq {s : Slice} : toString (s := s) = Slice.copy ∘ toSlice := (rfl)
+
+@[simp]
+theorem toStringToString_eq {s : Slice} :
+    ToString.toString (α := s.Subslice) = Slice.copy ∘ toSlice := (rfl)
 
 end Subslice
 
@@ -129,6 +146,15 @@ theorem startInclusive_subsliceFrom {s : Slice} {newStart : s.Pos} :
 @[simp]
 theorem endExclusive_subsliceFrom {s : Slice} {newStart : s.Pos} :
     (s.subsliceFrom newStart).endExclusive = s.endPos := (rfl)
+
+@[simp]
+theorem subslice_endPos {s : Slice} {newStart : s.Pos} :
+    s.subslice newStart s.endPos (Slice.Pos.le_endPos _) = s.subsliceFrom newStart := (rfl)
+
+@[simp]
+theorem toSlice_subsliceFrom {s : Slice} {newStart : s.Pos} :
+    (s.subsliceFrom newStart).toSlice = s.sliceFrom newStart := by
+  ext1 <;> simp
 
 /-- The entire slice, as a subslice of itself. -/
 @[inline]
@@ -197,21 +223,21 @@ theorem extendLeft_self {s : Slice} {sl : s.Subslice} :
   ext <;> simp
 
 /--
-Given a subslice of {name}`s` and a proof that {lean}`s = t`, obtain the corresponding subslice of
-{name}`t`.
+Given a subslice of {name}`s` and a proof that {lean}`s.copy = t.copy`, obtain the corresponding
+subslice of {name}`t`.
 -/
 @[inline]
-def cast {s t : Slice} (h : s = t) (sl : s.Subslice) : t.Subslice where
+def cast {s t : Slice} (h : s.copy = t.copy) (sl : s.Subslice) : t.Subslice where
   startInclusive := sl.startInclusive.cast h
   endExclusive := sl.endExclusive.cast h
   startInclusive_le_endExclusive := by simpa using sl.startInclusive_le_endExclusive
 
 @[simp]
-theorem startInclusive_cast {s t : Slice} {h : s = t} {sl : s.Subslice} :
+theorem startInclusive_cast {s t : Slice} {h : s.copy = t.copy} {sl : s.Subslice} :
     (sl.cast h).startInclusive = sl.startInclusive.cast h := (rfl)
 
 @[simp]
-theorem endExclusive_cast {s t : Slice} {h : s = t} {sl : s.Subslice} :
+theorem endExclusive_cast {s t : Slice} {h : s.copy = t.copy} {sl : s.Subslice} :
     (sl.cast h).endExclusive = sl.endExclusive.cast h := (rfl)
 
 @[simp]

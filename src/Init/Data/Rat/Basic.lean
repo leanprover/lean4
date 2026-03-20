@@ -11,6 +11,7 @@ public import Init.Data.OfScientific
 public import Init.Data.Int.DivMod.Basic
 public import Init.Data.String.Defs
 public import Init.Data.ToString.Macro
+public import Init.Data.ToString.Extra
 import Init.Data.Hashable
 import Init.Data.Int.DivMod.Bootstrap
 import Init.Data.Int.DivMod.Lemmas
@@ -321,5 +322,9 @@ protected def ceil (a : Rat) : Int :=
     a.num
   else
     a.num / a.den + 1
+
+/-- The absolute value of a rational number `a` is `a` if `a ≥ 0` and `-a` if `a ≤ 0`. -/
+protected def abs (a : Rat) : Rat :=
+  if 0 ≤ a then a else -a
 
 end Rat

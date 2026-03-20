@@ -253,7 +253,7 @@ instance : EmptyCollection (FVarIdMap α) := inferInstanceAs (EmptyCollection (S
 instance : Inhabited (FVarIdMap α) where
   default := {}
 
-/-- Universe metavariable Id   -/
+/-- Expression metavariable Id   -/
 structure MVarId where
   name : Name
   deriving Inhabited, BEq, Hashable
@@ -301,8 +301,8 @@ inductive Expr where
   of a variable in the expression where there is a variable binder
   above it (i.e. introduced by a `lam`, `forallE`, or `letE`).
 
-  The `deBruijnIndex` parameter is the *de-Bruijn* index for the bound
-  variable. See [the Wikipedia page on de-Bruijn indices](https://en.wikipedia.org/wiki/De_Bruijn_index)
+  The `deBruijnIndex` parameter is the *de Bruijn* index for the bound
+  variable. See [the Wikipedia page on de Bruijn indices](https://en.wikipedia.org/wiki/De_Bruijn_index)
   for additional information.
 
   For example, consider the expression `fun x : Nat => forall y : Nat, x = y`.
@@ -321,16 +321,16 @@ inductive Expr where
   | bvar (deBruijnIndex : Nat)
 
   /--
-  The `fvar` constructor represent free variables. These *free* variable
-  occurrences are not bound by an earlier `lam`, `forallE`, or `letE`
+  The `fvar` constructor represents free variables. Such a *free* variable
+  occurrence is not bound by an earlier `lam`, `forallE`, or `letE`
   constructor and its binder exists in a local context only.
 
-  Note that Lean uses the *locally nameless approach*. See [McBride and McKinna](https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.365.2479&rep=rep1&type=pdf)
+  Note that Lean uses the *locally nameless approach*. See [McBride and McKinna](https://doi.org/10.1145/1017472.1017477)
   for additional details.
 
   When "visiting" the body of a binding expression (i.e. `lam`, `forallE`, or `letE`),
   bound variables are converted into free variables using a unique identifier,
-  and their user-facing name, type, value (for `LetE`), and binder annotation
+  and their user-facing name, type, value (for `letE`), and binder annotation
   are stored in the `LocalContext`.
   -/
   | fvar (fvarId : FVarId)
@@ -363,7 +363,7 @@ inductive Expr where
   A function application.
 
   For example, the natural number one, i.e. `Nat.succ Nat.zero` is represented as
-  ``Expr.app (.const `Nat.succ []) (.const .zero [])``.
+  ``Expr.app (.const `Nat.succ []) (.const `Nat.zero [])``.
   Note that multiple arguments are represented using partial application.
 
   For example, the two argument application `f x y` is represented as
@@ -383,7 +383,7 @@ inductive Expr where
   | lam (binderName : Name) (binderType : Expr) (body : Expr) (binderInfo : BinderInfo)
 
   /--
-  A dependent arrow `(a : α) → β)` (aka forall-expression) where `β` may dependent
+  A dependent arrow `(a : α) → β)` (aka forall-expression) where `β` may depend
   on `a`. Note that this constructor is also used to represent non-dependent arrows
   where `β` does not depend on `a`.
 
@@ -447,18 +447,24 @@ inductive Expr where
 
   /--
   Projection-expressions. They are redundant, but are used to create more compact
-  terms, speedup reduction, and implement eta for structures.
-  The type of `struct` must be an structure-like inductive type. That is, it has only one
-  constructor, is not recursive, and it is not an inductive predicate. The kernel and elaborators
-  check whether the `typeName` matches the type of `struct`, and whether the (zero-based) index
-  is valid (i.e., it is smaller than the number of constructor fields).
-  When exporting Lean developments to other systems, `proj` can be replaced with `typeName`.`rec`
+  terms, speed up reduction, and implement eta for structures.
+  The type of `struct` must be a one-constructor inductive type.
+  If `I.mk` is the constructor of an `m`-parameter inductive type `I`,
+  then ``.proj `I k (@I.mk p1 ... pm f0 f1 ...)`` is definitionally equal to `fk`.
+
+  The kernel and elaborator check whether the `typeName` matches the type of `struct`,
+  whether the zero-based index is valid (it must be smaller than the number of constructor fields),
+  and whether the projection itself is valid (for inductive predicates, the fields must be propositions).
+  When exporting Lean developments to other systems, `proj` can be replaced with `typeName.rec`
   applications.
+  Non-recursive structures (one-constructor inductive types with no indices) have an eta rule:
+  if `e : I p1 ... pm`, then `e` and `@I.mk p1 ... pm e.1 e.2 ... e.n` are definitionally equal.
 
   Example, given `a : Nat × Bool`, `a.1` is represented as
   ```
   .proj `Prod 0 a
   ```
+  and `a` is definitionally equal to `@Prod.mk Nat Bool a.1 a.2` by the structure eta rule.
   -/
   | proj (typeName : Name) (idx : Nat) (struct : Expr)
 with
@@ -723,7 +729,7 @@ def mkInstOfNatNat (n : Expr) : Expr :=
   mkApp (mkConst ``instOfNatNat) n
 
 def mkNatLitCore (n : Expr) : Expr :=
-  mkApp3 (mkConst ``OfNat.ofNat [levelZero]) (mkConst ``Nat) n (mkInstOfNatNat n)
+  mkApp3 (mkConst ``OfNat.ofNat [Level.zero]) (mkConst ``Nat) n (mkInstOfNatNat n)
 
 /--
 Returns a natural number literal used in the frontend. It is a `OfNat.ofNat` application.
@@ -867,7 +873,7 @@ Return `true` if the given expression is a free variable with the given id.
 Examples:
 - `isFVarOf (.fvar id) id` is `true`
 - ``isFVarOf (.fvar id) id'`` is `false`
-- ``isFVarOf (.sort levelZero) id`` is `false`
+- ``isFVarOf (.sort Level.zero) id`` is `false`
 -/
 def isFVarOf : Expr → FVarId → Bool
   | .fvar fvarId, fvarId' => fvarId == fvarId'
@@ -1175,7 +1181,7 @@ private def getAppArgsAux : Expr → Array Expr → Nat → Array Expr
 
 /-- Given `f a₁ a₂ ... aₙ`, returns `#[a₁, ..., aₙ]` -/
 @[inline] def getAppArgs (e : Expr) : Array Expr :=
-  let dummy := mkSort levelZero
+  let dummy := mkSort Level.zero
   let nargs := e.getAppNumArgs
   getAppArgsAux e (.replicate nargs dummy) (nargs-1)
 
@@ -1190,7 +1196,7 @@ In particular, given `f a₁ a₂ ... aₙ`, returns `#[aₖ₊₁, ..., aₙ]`
 where `k` is minimal such that the size of this array is at most `maxArgs`.
 -/
 @[inline] def getBoundedAppArgs (maxArgs : Nat) (e : Expr) : Array Expr :=
-  let dummy := mkSort levelZero
+  let dummy := mkSort Level.zero
   let nargs := min maxArgs e.getAppNumArgs
   getBoundedAppArgsAux e (.replicate nargs dummy) nargs
 
@@ -1208,7 +1214,7 @@ private def getAppRevArgsAux : Expr → Array Expr → Array Expr
 
 /-- Given `e = f a₁ a₂ ... aₙ`, returns `k f #[a₁, ..., aₙ]`. -/
 @[inline] def withApp (e : Expr) (k : Expr → Array Expr → α) : α :=
-  let dummy := mkSort levelZero
+  let dummy := mkSort Level.zero
   let nargs := e.getAppNumArgs
   withAppAux k e (.replicate nargs dummy) (nargs-1)
 
@@ -1222,7 +1228,7 @@ Note that `f` may be an application.
 The resulting array has size `n` even if `f.getAppNumArgs < n`.
 -/
 @[inline] def getAppArgsN (e : Expr) (n : Nat) : Array Expr :=
-  let dummy := mkSort levelZero
+  let dummy := mkSort Level.zero
   loop n e (.replicate n dummy)
 where
   loop : Nat → Expr → Array Expr → Array Expr
@@ -2179,23 +2185,23 @@ namespace Nat
 protected def mkType : Expr := mkConst ``Nat
 
 def mkInstAdd : Expr := mkConst ``instAddNat
-def mkInstHAdd : Expr := mkApp2 (mkConst ``instHAdd [levelZero]) Nat.mkType mkInstAdd
+def mkInstHAdd : Expr := mkApp2 (mkConst ``instHAdd [Level.zero]) Nat.mkType mkInstAdd
 
 def mkInstSub : Expr := mkConst ``instSubNat
-def mkInstHSub : Expr := mkApp2 (mkConst ``instHSub [levelZero]) Nat.mkType mkInstSub
+def mkInstHSub : Expr := mkApp2 (mkConst ``instHSub [Level.zero]) Nat.mkType mkInstSub
 
 def mkInstMul : Expr := mkConst ``instMulNat
-def mkInstHMul : Expr := mkApp2 (mkConst ``instHMul [levelZero]) Nat.mkType mkInstMul
+def mkInstHMul : Expr := mkApp2 (mkConst ``instHMul [Level.zero]) Nat.mkType mkInstMul
 
 def mkInstDiv : Expr := mkConst ``Nat.instDiv
-def mkInstHDiv : Expr := mkApp2 (mkConst ``instHDiv [levelZero]) Nat.mkType mkInstDiv
+def mkInstHDiv : Expr := mkApp2 (mkConst ``instHDiv [Level.zero]) Nat.mkType mkInstDiv
 
 def mkInstMod : Expr := mkConst ``Nat.instMod
-def mkInstHMod : Expr := mkApp2 (mkConst ``instHMod [levelZero]) Nat.mkType mkInstMod
+def mkInstHMod : Expr := mkApp2 (mkConst ``instHMod [Level.zero]) Nat.mkType mkInstMod
 
 def mkInstNatPow : Expr := mkConst ``instNatPowNat
-def mkInstPow  : Expr := mkApp2 (mkConst ``instPowNat [levelZero]) Nat.mkType mkInstNatPow
-def mkInstHPow : Expr := mkApp3 (mkConst ``instHPow [levelZero, levelZero]) Nat.mkType Nat.mkType mkInstPow
+def mkInstPow  : Expr := mkApp2 (mkConst ``instPowNat [Level.zero]) Nat.mkType mkInstNatPow
+def mkInstHPow : Expr := mkApp3 (mkConst ``instHPow [Level.zero, Level.zero]) Nat.mkType Nat.mkType mkInstPow
 
 def mkInstLT : Expr := mkConst ``instLTNat
 def mkInstLE : Expr := mkConst ``instLENat
@@ -2261,23 +2267,23 @@ protected def mkType : Expr := mkConst ``Int
 def mkInstNeg : Expr := mkConst ``Int.instNegInt
 
 def mkInstAdd : Expr := mkConst ``Int.instAdd
-def mkInstHAdd : Expr := mkApp2 (mkConst ``instHAdd [levelZero]) Int.mkType mkInstAdd
+def mkInstHAdd : Expr := mkApp2 (mkConst ``instHAdd [Level.zero]) Int.mkType mkInstAdd
 
 def mkInstSub : Expr := mkConst ``Int.instSub
-def mkInstHSub : Expr := mkApp2 (mkConst ``instHSub [levelZero]) Int.mkType mkInstSub
+def mkInstHSub : Expr := mkApp2 (mkConst ``instHSub [Level.zero]) Int.mkType mkInstSub
 
 def mkInstMul : Expr := mkConst ``Int.instMul
-def mkInstHMul : Expr := mkApp2 (mkConst ``instHMul [levelZero]) Int.mkType mkInstMul
+def mkInstHMul : Expr := mkApp2 (mkConst ``instHMul [Level.zero]) Int.mkType mkInstMul
 
 def mkInstDiv : Expr := mkConst ``Int.instDiv
-def mkInstHDiv : Expr := mkApp2 (mkConst ``instHDiv [levelZero]) Int.mkType mkInstDiv
+def mkInstHDiv : Expr := mkApp2 (mkConst ``instHDiv [Level.zero]) Int.mkType mkInstDiv
 
 def mkInstMod : Expr := mkConst ``Int.instMod
-def mkInstHMod : Expr := mkApp2 (mkConst ``instHMod [levelZero]) Int.mkType mkInstMod
+def mkInstHMod : Expr := mkApp2 (mkConst ``instHMod [Level.zero]) Int.mkType mkInstMod
 
 def mkInstPow : Expr := mkConst ``Int.instNatPow
-def mkInstPowNat  : Expr := mkApp2 (mkConst ``instPowNat [levelZero]) Int.mkType mkInstPow
-def mkInstHPow : Expr := mkApp3 (mkConst ``instHPow [levelZero, levelZero]) Int.mkType Nat.mkType mkInstPowNat
+def mkInstPowNat  : Expr := mkApp2 (mkConst ``instPowNat [Level.zero]) Int.mkType mkInstPow
+def mkInstHPow : Expr := mkApp3 (mkConst ``instHPow [Level.zero, Level.zero]) Int.mkType Nat.mkType mkInstPowNat
 
 def mkInstLT : Expr := mkConst ``Int.instLTInt
 def mkInstLE : Expr := mkConst ``Int.instLEInt
@@ -2369,17 +2375,17 @@ def mkIntDvd (a b : Expr) : Expr :=
 
 def mkIntLit (n : Int) : Expr :=
   let r := mkRawNatLit n.natAbs
-  let r := mkApp3 (mkConst ``OfNat.ofNat [levelZero]) Int.mkType r (mkApp (mkConst ``instOfNat) r)
+  let r := mkApp3 (mkConst ``OfNat.ofNat [Level.zero]) Int.mkType r (mkApp (mkConst ``instOfNat) r)
   if n < 0 then
     mkIntNeg r
   else
     r
 
 def reflBoolTrue : Expr :=
-  mkApp2 (mkConst ``Eq.refl [levelOne]) (mkConst ``Bool) (mkConst ``Bool.true)
+  mkApp2 (mkConst ``Eq.refl [Level.one]) (mkConst ``Bool) (mkConst ``Bool.true)
 
 def reflBoolFalse : Expr :=
-  mkApp2 (mkConst ``Eq.refl [levelOne]) (mkConst ``Bool) (mkConst ``Bool.false)
+  mkApp2 (mkConst ``Eq.refl [Level.one]) (mkConst ``Bool) (mkConst ``Bool.false)
 
 def eagerReflBoolTrue : Expr :=
   mkApp2 (mkConst ``eagerReduce [0]) (mkApp3 (mkConst ``Eq [1]) (mkConst ``Bool) (mkConst ``Bool.true) (mkConst ``Bool.true)) reflBoolTrue

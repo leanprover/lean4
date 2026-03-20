@@ -36,6 +36,8 @@ theorem BEq.symm [BEq α] [Std.Symm (α := α) (· == ·)] {a b : α} : a == b �
 theorem BEq.comm [BEq α] [PartialEquivBEq α] {a b : α} : (a == b) = (b == a) :=
   Bool.eq_iff_iff.2 ⟨BEq.symm, BEq.symm⟩
 
+theorem bne_eq [BEq α] {a b : α} : (a != b) = !(a == b) := rfl
+
 theorem bne_comm [BEq α] [PartialEquivBEq α] {a b : α} : (a != b) = (b != a) := by
   rw [bne, BEq.comm, bne]
 

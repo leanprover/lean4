@@ -107,9 +107,9 @@ mutual
         return LBool.undef
     | _, Level.mvar .. => return LBool.undef -- Let `solve v u` to handle this case
     | Level.zero, Level.max v₁ v₂ =>
-      Bool.toLBool <$> (isLevelDefEqAux levelZero v₁ <&&> isLevelDefEqAux levelZero v₂)
+      Bool.toLBool <$> (isLevelDefEqAux Level.zero v₁ <&&> isLevelDefEqAux Level.zero v₂)
     | Level.zero, Level.imax _ v₂ =>
-      Bool.toLBool <$> isLevelDefEqAux levelZero v₂
+      Bool.toLBool <$> isLevelDefEqAux Level.zero v₂
     | Level.zero, Level.succ .. => return LBool.false
     | Level.succ u, v =>
       if v.isParam then
@@ -132,7 +132,7 @@ mutual
   partial def isLevelDefEqAuxImpl : Level → Level → MetaM Bool
     | Level.succ lhs, Level.succ rhs => isLevelDefEqAux lhs rhs
     | lhs, rhs =>
-      withTraceNode `Meta.isLevelDefEq (return m!"{exceptBoolEmoji ·} {lhs} =?= {rhs}") do
+      withTraceNode `Meta.isLevelDefEq (fun _ => return m!"{lhs} =?= {rhs}") do
       if lhs.getLevelOffset == rhs.getLevelOffset then
         return lhs.getOffset == rhs.getOffset
       else

@@ -57,6 +57,7 @@ def dayOfYear (ordinal : ValidDate leap) : Day.Ordinal.OfYear leap :=
   | true, bounded => bounded
   | false, bounded => bounded
 
+set_option backward.isDefEq.respectTransparency false in
 /--
 Transforms a `Day.Ordinal.OfYear` into a tuple of a `Month` and a `Day`.
 -/

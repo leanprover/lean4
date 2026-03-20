@@ -629,6 +629,7 @@ export Bool (cond_eq_if cond_eq_ite xor and or not)
 This should not be turned on globally as an instance because it degrades performance in Mathlib,
 but may be used locally.
 -/
+@[implicit_reducible]
 def boolPredToPred : Coe (α → Bool) (α  → Prop) where
   coe r := fun a => Eq (r a) true
 
@@ -636,7 +637,7 @@ def boolPredToPred : Coe (α → Bool) (α  → Prop) where
 This should not be turned on globally as an instance because it degrades performance in Mathlib,
 but may be used locally.
 -/
-@[expose, instance_reducible] def boolRelToRel : Coe (α → α → Bool) (α → α → Prop) where
+@[expose, implicit_reducible] def boolRelToRel : Coe (α → α → Bool) (α → α → Prop) where
   coe r := fun a b => Eq (r a b) true
 
 /-! ### subtypes -/
@@ -663,3 +664,6 @@ but may be used locally.
 
 @[simp] theorem Bool.not'_eq_not (a : Bool) : a.not' = a.not := by
   cases a <;> simp [Bool.not']
+
+theorem Bool.rec_eq {α : Sort _} (b : Bool) {x y : α} : Bool.rec y x b = if b then x else y := by
+  cases b <;> simp

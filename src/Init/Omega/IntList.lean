@@ -144,7 +144,10 @@ theorem mul_def (xs ys : IntList) : xs * ys = List.zipWith (· * ·) xs ys :=
 
 @[simp] theorem mul_nil_left : ([] : IntList) * ys = [] := rfl
 @[simp] theorem mul_nil_right : xs * ([] : IntList) = [] := List.zipWith_nil_right
-@[simp] theorem mul_cons₂ : (x::xs : IntList) * (y::ys) = (x * y) :: (xs * ys) := rfl
+@[simp] theorem mul_cons_cons : (x::xs : IntList) * (y::ys) = (x * y) :: (xs * ys) := rfl
+
+@[deprecated mul_cons_cons (since := "2026-02-26")]
+theorem mul_cons₂ : (x::xs : IntList) * (y::ys) = (x * y) :: (xs * ys) := mul_cons_cons
 
 /-- Implementation of negation on `IntList`. -/
 def neg (xs : IntList) : IntList := xs.map fun x => -x
@@ -278,7 +281,10 @@ example : IntList.dot [a, b, c] [x, y, z] = IntList.dot [a, b, c] [x, y, z, w] :
 
 @[local simp] theorem dot_nil_left : dot ([] : IntList) ys = 0 := rfl
 @[simp] theorem dot_nil_right : dot xs ([] : IntList) = 0 := by simp [dot]
-@[simp] theorem dot_cons₂ : dot (x::xs) (y::ys) = x * y + dot xs ys := rfl
+@[simp] theorem dot_cons_cons : dot (x::xs) (y::ys) = x * y + dot xs ys := rfl
+
+@[deprecated dot_cons_cons (since := "2026-02-26")]
+theorem dot_cons₂ : dot (x::xs) (y::ys) = x * y + dot xs ys := dot_cons_cons
 
 -- theorem dot_comm (xs ys : IntList) : dot xs ys = dot ys xs := by
 --   rw [dot, dot, mul_comm]
@@ -296,7 +302,7 @@ example : IntList.dot [a, b, c] [x, y, z] = IntList.dot [a, b, c] [x, y, z, w] :
       cases ys with
       | nil => simp
       | cons y ys =>
-        simp only [set_cons_zero, dot_cons₂, get_cons_zero, Int.sub_mul]
+        simp only [set_cons_zero, dot_cons_cons, get_cons_zero, Int.sub_mul]
         rw [Int.add_right_comm, Int.add_comm (x * y), Int.sub_add_cancel]
     | succ i =>
       cases ys with
@@ -319,7 +325,7 @@ theorem dot_of_left_zero (w : ∀ x, x ∈ xs → x = 0) : dot xs ys = 0 := by
     cases ys with
     | nil => simp
     | cons y ys =>
-      rw [dot_cons₂, w x (by simp [List.mem_cons_self]), ih]
+      rw [dot_cons_cons, w x (by simp [List.mem_cons_self]), ih]
       · simp
       · intro x m
         apply w
@@ -400,7 +406,7 @@ attribute [simp] Int.zero_dvd
     cases ys with
     | nil => simp
     | cons y ys =>
-      rw [dot_cons₂, Int.add_emod,
+      rw [dot_cons_cons, Int.add_emod,
         ← Int.emod_emod_of_dvd (x * y) (gcd_cons_div_left),
         ← Int.emod_emod_of_dvd (dot xs ys) (Int.ofNat_dvd.mpr gcd_cons_div_right)]
       simp_all
@@ -415,7 +421,7 @@ theorem dot_eq_zero_of_left_eq_zero {xs ys : IntList} (h : ∀ x, x ∈ xs → x
     cases ys with
     | nil => rfl
     | cons y ys =>
-      rw [dot_cons₂, h x List.mem_cons_self, ih (fun x m => h x (List.mem_cons_of_mem _ m)),
+      rw [dot_cons_cons, h x List.mem_cons_self, ih (fun x m => h x (List.mem_cons_of_mem _ m)),
         Int.zero_mul, Int.add_zero]
 
 @[simp] theorem nil_dot (xs : IntList) : dot [] xs = 0 := rfl
@@ -456,7 +462,7 @@ theorem dvd_bmod_dot_sub_dot_bmod (m : Nat) (xs ys : IntList) :
     cases ys with
     | nil => simp
     | cons y ys =>
-      simp only [IntList.dot_cons₂, List.map_cons]
+      simp only [IntList.dot_cons_cons, List.map_cons]
       specialize ih ys
       rw [Int.sub_emod, Int.bmod_emod] at ih
       rw [Int.sub_emod, Int.bmod_emod, Int.add_emod, Int.add_emod (Int.bmod x m * y),

@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Elab.App
 public import Lean.Elab.DeclNameGen
+import Lean.Compiler.NoncomputableAttr
 
 public section
 
@@ -124,7 +125,24 @@ private partial def mkInst (classExpr : Expr) (declName : Name) (declVal val : E
       -- Success
       trace[Elab.Deriving] "Argument {i} option succeeded{indentExpr classExpr}"
       -- Create the type for the declaration itself.
-      let xs' := xs.set! i declVal
+      -- Construct the instance type using the target (alias) type's instances.
+      -- For each instance-implicit parameter, synthesize the instance for the target type
+      -- and verify it is defeq to the one synthesized for the underlying type.
+      -- This behaves as if the user wrote `instance : Cls T := inferInstanceAs (Cls T')`.
+      let mut xs' := xs.set! i declVal
+      for j in [:xs'.size], bi in bis do
+        if bi.isInstImplicit then
+          let origInst ← instantiateMVars xs[j]!
+          let argTy ← instantiateMVars (← inferType xs[j]!)
+          let targetArgTy := argTy.replace fun e =>
+            if e == val then declVal else none
+          if let some targetInst ← synthInstance? targetArgTy then
+            unless ← isDefEq origInst targetInst do
+              throwDeltaDeriveFailure className declName
+                (m!"instance diamond: the instance for the target type\
+                  {indentExpr targetInst}\nis not definitionally equal to the instance for the underlying type\
+                  {indentExpr origInst}\nfor{indentExpr targetArgTy}")
+            xs' := xs'.set! j targetInst
       let instType := mkAppN cls xs'
       return { instType, instVal }
     try
@@ -156,7 +174,8 @@ We prevent `classStx` from referring to these local variables; instead it's expe
 This function can handle being run from within a nontrivial local context,
 and it uses `mkValueTypeClosure` to construct the final instance.
 -/
-def processDefDeriving (view : DerivingClassView) (decl : Expr) : TermElabM Unit := do
+def processDefDeriving (view : DerivingClassView) (decl : Expr) (isNoncomputable := false)
+    (cmdRef? : Option Syntax := none) : TermElabM Unit := do
   let { cls := classStx, hasExpose := _ /- todo? -/, .. } := view
   let decl ← whnfCore decl
   let .const declName _ := decl.getAppFn
@@ -203,7 +222,23 @@ def processDefDeriving (view : DerivingClassView) (decl : Expr) : TermElabM Unit
     instName := mkPrivateName env instName
   let hints := ReducibilityHints.regular (getMaxHeight env result.value + 1)
   let decl ← mkDefinitionValInferringUnsafe instName result.levelParams.toList result.type result.value hints
-  addAndCompile (logCompileErrors := !(← read).isNoncomputableSection) <| Declaration.defnDecl decl
+  -- Pre-check: if the instance value depends on noncomputable definitions and the user didn't write
+  -- `noncomputable`, give an actionable error with a `Try this:` suggestion.
+  unless isNoncomputable || (← read).isNoncomputableSection || (← isProp result.type) do
+    let noncompRef? := result.value.foldConsts none fun n acc =>
+      acc <|> if Lean.isNoncomputable (asyncMode := .local) env n then some n else none
+    if let some noncompRef := noncompRef? then
+      if let some cmdRef := cmdRef? then
+        if let some origText := cmdRef.reprint then
+          let newText := (origText.replace "deriving instance " "deriving noncomputable instance ").trimAscii
+          logInfoAt cmdRef m!"Try this: {newText}"
+      throwError "failed to derive instance because it depends on \
+        `{.ofConstName noncompRef}`, which is noncomputable"
+  if isNoncomputable || (← read).isNoncomputableSection then
+    addDecl <| Declaration.defnDecl decl
+    modifyEnv (addNoncomputable · instName)
+  else
+    addAndCompile <| Declaration.defnDecl decl
   trace[Elab.Deriving] "Derived instance `{.ofConstName instName}`"
   registerInstance instName AttributeKind.global (eval_prio default)
   addDeclarationRangesFromSyntax instName (← getRef)
@@ -267,8 +302,8 @@ def DerivingClassView.applyHandlers (view : DerivingClassView) (declNames : Arra
   withRef view.ref do
     applyDerivingHandlers (setExpose := view.hasExpose) (← liftCoreM <| view.getClassName) declNames
 
-private def elabDefDeriving (classes : Array DerivingClassView) (decls : Array Syntax) :
-    CommandElabM Unit := runTermElabM fun _ => do
+private def elabDefDeriving (classes : Array DerivingClassView) (decls : Array Syntax)
+    (isNoncomputable := false) (cmdRef? : Option Syntax := none) : CommandElabM Unit := runTermElabM fun _ => do
   for decl in decls do
     withRef decl <| withLogging do
       let declExpr ←
@@ -287,11 +322,12 @@ private def elabDefDeriving (classes : Array DerivingClassView) (decls : Array S
       for cls in classes do
         withLogging do
         withTraceNode `Elab.Deriving (fun _ => return m!"running delta deriving handler for `{cls.cls}` and definition `{declExpr}`") do
-          Term.processDefDeriving cls declExpr
+          Term.processDefDeriving cls declExpr (isNoncomputable := isNoncomputable) (cmdRef? := cmdRef?)
 
 
 @[builtin_command_elab «deriving»] def elabDeriving : CommandElab
-  | `(deriving instance $[$classes],* for $[$decls],*) => do
+  | stx@`(deriving $[noncomputable%$ncTk?]? instance $[$classes],* for $[$decls],*) => do
+    let isNoncomputable := ncTk?.isSome
     let classes ← liftCoreM <| classes.mapM DerivingClassView.ofSyntax
     let decls : Array Syntax := decls
     if decls.all Syntax.isIdent then
@@ -299,13 +335,18 @@ private def elabDefDeriving (classes : Array DerivingClassView) (decls : Array S
       -- If any of the declarations are definitions, then we commit to delta deriving.
       let infos ← declNames.mapM getConstInfo
       if infos.any (·.isDefinition) then
-        elabDefDeriving classes decls
+        elabDefDeriving classes decls (isNoncomputable := isNoncomputable) (cmdRef? := stx)
       else
         -- Otherwise, we commit to using deriving handlers.
-        for cls in classes do
-          cls.applyHandlers declNames
+        if isNoncomputable then
+          withScope (fun sc => { sc with isNoncomputable := true }) do
+            for cls in classes do
+              cls.applyHandlers declNames
+        else
+          for cls in classes do
+            cls.applyHandlers declNames
     else
-      elabDefDeriving classes decls
+      elabDefDeriving classes decls (isNoncomputable := isNoncomputable) (cmdRef? := stx)
   | _ => throwUnsupportedSyntax
 
 builtin_initialize

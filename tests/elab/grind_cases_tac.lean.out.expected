@@ -1,0 +1,2 @@
+grind_cases_tac.lean:31:0-31:7: warning: declaration uses `sorry`
+grind_cases_tac.lean:42:0-42:7: warning: declaration uses `sorry`

@@ -142,16 +142,6 @@ structure ModuleData where
   entries         : Array (Name × Array EnvExtensionEntry)
   deriving Inhabited
 
-/-- Phases for which some IR is available for execution. -/
-inductive IRPhases where
-  /-- Available for execution in the final native code. -/
-  | runtime
-  /-- Available for execution during elaboration. -/
-  | comptime
-  /-- Available during run time and compile time. -/
-  | all
-deriving Inhabited, BEq, Repr
-
 /-- Import including information resulting from processing of the entire import DAG. -/
 structure EffectiveImport extends Import where
   /-- Phases for which the import's IR is available. -/
@@ -440,6 +430,12 @@ also `AsyncContext.declPrefix`.
 -/
 private def AsyncContext.mayContain (ctx : AsyncContext) (n : Name) : Bool :=
   ctx.declPrefix.isPrefixOf <| privateToUserName n.eraseMacroScopes
+
+private def AsyncContext.descr (ctx : AsyncContext) : String :=
+  if let (n :: _) := ctx.realizingStack then
+    s!"realization context '{n}'"
+  else
+    s!"async context '{ctx.declPrefix}'"
 
 /--
 Constant info and environment extension states eventually resulting from async elaboration.
@@ -762,6 +758,7 @@ private def lakeAdd (env : Environment) (cinfo : ConstantInfo) : Environment :=
   }
 
 -- forward reference due to too many cyclic dependencies
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_is_reserved_name"]
 private opaque isReservedName (env : Environment) (name : Name) : Bool
 
@@ -1386,8 +1383,7 @@ def modifyState {σ : Type} (ext : EnvExtension σ) (env : Environment) (f : σ 
   match asyncMode with
   | .mainOnly =>
     if let some asyncCtx := env.asyncCtx? then
-      return panic! s!"environment extension is marked as `mainOnly` but used in \
-        {if env.isRealizing then "realization" else "async"} context '{asyncCtx.declPrefix}'"
+      return panic! s!"environment extension is marked as `mainOnly` but used in {asyncCtx.descr}"
     return { env with base.private.extensions := unsafe ext.modifyStateImpl env.base.private.extensions f }
   | .local =>
     return { env with base.private.extensions := unsafe ext.modifyStateImpl env.base.private.extensions f }
@@ -1778,19 +1774,23 @@ private def looksLikeOldCodegenName : Name → Bool
   | .str _ s => s.startsWith "_cstage" || s.startsWith "_spec_" || s.startsWith "_elambda"
   | _        => false
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_get_ir_extra_const_names"]
 private opaque getIRExtraConstNames (env : Environment) (level : OLeanLevel) (includeDecls := false) : Array Name
 
 def mkModuleData (env : Environment) (level : OLeanLevel := .private) : IO ModuleData := do
   let env := env.setExporting (level != .private)
   let pExts ← persistentEnvExtensionsRef.get
-  let entries := pExts.map fun pExt => Id.run do
+  let entries := pExts.filterMap fun pExt => do
     -- get state from `checked` at the end if `async`; it would otherwise panic
     let mut asyncMode := pExt.toEnvExtension.asyncMode
     if asyncMode matches .async _ then
       asyncMode := .sync
     let state := pExt.getState (asyncMode := asyncMode) env
-    (pExt.name, pExt.exportEntriesFn env state level)
+    let ents := pExt.exportEntriesFn env state level
+    -- no need to export empty entries
+    guard !ents.isEmpty
+    return (pExt.name, ents)
   let kenv := env.toKernelEnv
   let constNames := kenv.constants.foldStage2 (fun names name _ => names.push name) #[]
   -- not all kernel constants may be exported at `level < .private`
@@ -1811,6 +1811,7 @@ def mkModuleData (env : Environment) (level : OLeanLevel := .private) : IO Modul
     constNames, constants, entries
   }
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_ir_export_entries"]
 private opaque exportIREntries (env : Environment) : Array (Name × Array EnvExtensionEntry)
 
@@ -1824,7 +1825,7 @@ private def mkIRData (env : Environment) : ModuleData :=
     extraConstNames := getIRExtraConstNames env .private (includeDecls := true)
   }
 
-def writeModule (env : Environment) (fname : System.FilePath) : IO Unit := do
+def writeModule (env : Environment) (fname : System.FilePath) (writeIR := true) : IO Unit := do
   if env.header.isModule then
     let mkPart (level : OLeanLevel) :=
       return (level.adjustFileName fname, (← mkModuleData env level))
@@ -1832,8 +1833,9 @@ def writeModule (env : Environment) (fname : System.FilePath) : IO Unit := do
       (← mkPart .exported),
       (← mkPart .server),
       (← mkPart .private)]
-    -- Make sure to change the module name so we derive a different base address
-    saveModuleData (fname.withExtension "ir") (env.mainModule ++ `ir) (mkIRData env)
+    if writeIR then
+      -- Make sure to change the module name so we derive a different base address
+      saveModuleData (fname.withExtension "ir") (env.mainModule ++ `ir) (mkIRData env)
   else
     saveModuleData fname env.mainModule (← mkModuleData env)
 
@@ -1869,6 +1871,7 @@ private def setImportedEntries (states : Array EnvExtensionState) (mods : Array 
           { s with importedEntries := s.importedEntries.set! modIdx entries }
   return states
 
+set_option compiler.ignoreBorrowAnnotation true in
 /--
   "Forward declaration" needed for updating the attribute table with user-defined attributes.
   User-defined attributes are declared using the `initialize` command. The `initialize` command is just syntax sugar for the `init` attribute.
@@ -1879,9 +1882,12 @@ private def setImportedEntries (states : Array EnvExtensionState) (mods : Array 
   Later, we set this method with code that adds the user-defined attributes that were imported after we initialized `attributeExtension`.
 -/
 @[extern "lean_update_env_attributes"] opaque updateEnvAttributes : Environment → IO Environment
+
+set_option compiler.ignoreBorrowAnnotation true in
 /-- "Forward declaration" for retrieving the number of builtin attributes. -/
 @[extern "lean_get_num_attributes"] opaque getNumBuiltinAttributes : IO Nat
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_run_init_attrs"]
 private opaque runInitAttrs (env : Environment) (opts : Options) : IO Unit
 
@@ -2406,6 +2412,7 @@ def displayStats (env : Environment) : IO Unit := do
 @[extern "lean_eval_const"]
 private unsafe opaque evalConstCore (α) (env : @& Environment) (opts : @& Options) (constName : @& Name) : Except String α
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_eval_check_meta"]
 private opaque evalCheckMeta (env : Environment) (constName : Name) : Except String Unit
 

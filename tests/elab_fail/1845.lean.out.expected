@@ -1,0 +1,3 @@
+1
+1845.lean:14:66-14:71: error: Cannot lift nested action `← bar` over inconsistent syntax variants.
+Consider lifting out the binding manually.

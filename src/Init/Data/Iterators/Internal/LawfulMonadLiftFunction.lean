@@ -70,7 +70,7 @@ theorem LawfulMonadLiftFunction.lift_seqRight [LawfulMonad m] [LawfulMonad n]
 abbrev idToMonad [Monad m] ⦃α : Type u⦄ (x : Id α) : m α :=
     pure x.run
 
-def LawfulMonadLiftFunction.idToMonad [Monad m] [LawfulMonad m] :
+theorem LawfulMonadLiftFunction.idToMonad [LawfulMonad m] :
     LawfulMonadLiftFunction (m := Id) (n := m) idToMonad where
   lift_pure := by simp [Internal.idToMonad]
   lift_bind := by simp [Internal.idToMonad]
@@ -95,7 +95,7 @@ instance [LawfulMonadLiftBindFunction (n := n) (fun _ _ f x => lift x >>= f)] [L
     simpa using LawfulMonadLiftBindFunction.liftBind_bind (n := n)
       (liftBind := fun _ _ f x => lift x >>= f) (β := β) (γ := γ) (δ := γ) pure x g
 
-def LawfulMonadLiftBindFunction.id [Monad m] [LawfulMonad m] :
+theorem LawfulMonadLiftBindFunction.id [LawfulMonad m] :
     LawfulMonadLiftBindFunction (m := Id) (n := m) (fun _ _ f x => f x.run) where
   liftBind_pure := by simp
   liftBind_bind := by simp

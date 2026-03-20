@@ -1,0 +1,11 @@
+[[cache.service]]
+name = "cdn"
+type = "s3"
+artifactEndpoint = "https://reservoir.lean-cache.cloud/a0"
+revisionEndpoint = "https://reservoir.lean-cache.cloud/r0"
+
+[[cache.service]]
+name = "bogus"
+type = "s3"
+artifactEndpoint = "http://example.com"
+revisionEndpoint = "http://example.com"

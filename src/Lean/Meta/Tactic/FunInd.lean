@@ -242,7 +242,7 @@ def tell (x : Expr) : M Unit := fun xs => pure ((), xs.push x)
 
 def localM (f : Array Expr → MetaM (Array Expr)) (act : M α) : M α := fun xs => do
   let n := xs.size
-  let (b, xs') ← act xs
+  let (b, xs') ← StateT.run act xs
   pure (b, xs'[*...n] ++ (← f xs'[n...*]))
 
 def localMapM (f : Expr → MetaM Expr) (act : M α) : M α :=
@@ -287,7 +287,7 @@ fails.
 partial def foldAndCollect (oldIH newIH : FVarId) (isRecCall : Expr → Option Expr) (e : Expr) : M Expr := withoutExporting do
   unless e.containsFVar oldIH do
     return e
-  withTraceNode `Meta.FunInd (pure m!"{exceptEmoji ·} foldAndCollect ({mkFVar oldIH} → {mkFVar newIH})::{indentExpr e}") do
+  withTraceNode `Meta.FunInd (fun _ => pure m!"foldAndCollect ({mkFVar oldIH} → {mkFVar newIH})::{indentExpr e}") do
 
   let e' ← id do
     if let some matcherApp ← matchMatcherApp? e (alsoCasesOn := true) then
@@ -315,7 +315,7 @@ partial def foldAndCollect (oldIH newIH : FVarId) (isRecCall : Expr → Option E
             -- statement and the inferred alt types
             let dummyGoal := mkConst ``True []
             mkArrow eTypeAbst dummyGoal)
-          (onAlt := fun _altIdx altType _altParams alt => do
+          (onAlt := fun _altIdx altType _altFVars alt => do
             lambdaTelescope1 alt fun oldIH' alt => do
               forallBoundedTelescope altType (some 1) fun newIH' _goal' => do
                 let #[newIH'] := newIH' | unreachable!
@@ -333,7 +333,7 @@ partial def foldAndCollect (oldIH newIH : FVarId) (isRecCall : Expr → Option E
           (onMotive := fun _motiveArgs motiveBody => do
             let some (_extra, body) := motiveBody.arrow? | throwError "motive not an arrow"
             M.eval (foldAndCollect oldIH newIH isRecCall body))
-          (onAlt := fun _altIdx altType _altParams alt => do
+          (onAlt := fun _altIdx altType _altFVars alt => do
             lambdaTelescope1 alt fun oldIH' alt => do
             -- We don't have suitable newIH around here, but we don't care since
             -- we just want to fold calls. So lets create a fake one.
@@ -496,7 +496,7 @@ def M2.branch {α} (act : M2 α) : M2 α :=
 /-- Base case of `buildInductionBody`: Construct a case for the final induction hypothesis.  -/
 def buildInductionCase (oldIH newIH : FVarId) (isRecCall : Expr → Option Expr) (toErase toClear : Array FVarId)
     (goal : Expr)  (e : Expr) : M2 Expr := do
-  withTraceNode `Meta.FunInd (pure m!"{exceptEmoji ·} buildInductionCase:{indentExpr e}") do
+  withTraceNode `Meta.FunInd (fun _ => pure m!"buildInductionCase:{indentExpr e}") do
   let _e' ← foldAndCollect oldIH newIH isRecCall e
   let IHs : Array Expr ← M.ask
   let IHs ← deduplicateIHs IHs
@@ -611,7 +611,7 @@ as `MVars` as it goes.
 partial def buildInductionBody (toErase toClear : Array FVarId) (goal : Expr)
     (oldIH newIH : FVarId) (isRecCall : Expr → Option Expr) (e : Expr) : M2 Expr := do
   withTraceNode `Meta.FunInd
-    (pure m!"{exceptEmoji ·} buildInductionBody: {oldIH.name} → {newIH.name}\ngoal: {goal}:{indentExpr e}") do
+    (fun _ => pure m!"buildInductionBody: {oldIH.name} → {newIH.name}\ngoal: {goal}:{indentExpr e}") do
 
   -- if-then-else cause case split:
   match_expr e with
@@ -691,7 +691,7 @@ partial def buildInductionBody (toErase toClear : Array FVarId) (goal : Expr)
         (addEqualities := true)
         (onParams := (foldAndCollect oldIH newIH isRecCall ·))
         (onMotive := fun xs _body => pure (absMotiveBody.beta (Array.mask mask xs)))
-        (onAlt := fun altIdx expAltType _altParams alt => M2.branch do
+        (onAlt := fun altIdx expAltType _altFVars alt => M2.branch do
           lambdaTelescope1 alt fun oldIH' alt => do
             forallBoundedTelescope expAltType (some 1) fun newIH' goal' => do
               let #[newIH'] := newIH' | unreachable!
@@ -714,7 +714,7 @@ partial def buildInductionBody (toErase toClear : Array FVarId) (goal : Expr)
         (addEqualities := true)
         (onParams := (foldAndCollect oldIH newIH isRecCall ·))
         (onMotive := fun xs _body => pure (absMotiveBody.beta (Array.mask mask xs)))
-        (onAlt := fun altIdx expAltType _altParams alt => M2.branch do
+        (onAlt := fun altIdx expAltType _altFVars alt => M2.branch do
           withRewrittenMotiveArg expAltType (rwMatcher altIdx) fun expAltType' =>
             buildInductionBody toErase toClear expAltType' oldIH newIH isRecCall alt)
       return matcherApp'.toExpr
@@ -834,10 +834,10 @@ where doRealize (inductName : Name) := do
 
       let e' ← match_expr funBody with
         | fix@WellFounded.fix α _motive rel wf _body _target =>
-          let e' := .const ``WellFounded.fix [fix.constLevels![0]!, levelZero]
+          let e' := .const ``WellFounded.fix [fix.constLevels![0]!, Level.zero]
           pure <| mkApp4 e' α motiveArg rel wf
         | fix@WellFounded.Nat.fix α _motive measure _body _target =>
-          let e' := .const `WellFounded.Nat.fix [fix.constLevels![0]!, levelZero]
+          let e' := .const `WellFounded.Nat.fix [fix.constLevels![0]!, Level.zero]
           pure <| mkApp3 e' α motiveArg measure
         | _ =>
           if funBody.isAppOf ``WellFounded.fix || funBody.isAppOf `WellFounded.Nat.Fix then

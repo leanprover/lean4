@@ -64,6 +64,7 @@ def MergeSort.Internal.splitInTwo (l : { l : List α // l.length = n }) :
 
 open MergeSort.Internal in
 set_option linter.unusedVariables false in
+set_option backward.isDefEq.respectTransparency false in
 /--
 A stable merge sort.
 

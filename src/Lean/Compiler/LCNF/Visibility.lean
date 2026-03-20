@@ -59,7 +59,7 @@ partial def markDeclPublicRec (phase : Phase) (decl : Decl pu) : CompilerM Unit 
 
 /-- Checks whether references in the given declaration adhere to phase distinction. -/
 partial def checkMeta (origDecl : Decl pu) : CompilerM Unit := do
-  if !(← getEnv).header.isModule || !compiler.checkMeta.get (← getOptions) then
+  if !(← getEnv).header.isModule || (← compiler.inLeanIR.getM) || !(← compiler.checkMeta.getM) then
     return
   let irPhases := getIRPhases (← getEnv) origDecl.name
   if irPhases == .all then
@@ -89,18 +89,19 @@ where go (isMeta isPublic : Bool) (decl : Decl pu) : StateT NameSet CompilerM Un
               throwError "Invalid public `meta` definition `{.ofConstName origDecl.name}`, \
                 `{.ofConstName ref}` is not accessible here; consider adding \
                 `public meta import {env.header.moduleNames[modIdx]!}`"
-      match getIRPhases env ref, isMeta with
-      | .runtime, true =>
+      let relaxedCheck := compiler.relaxedMetaCheck.get (← getOptions) && !env.isImportedConst ref
+      let irPhases := getIRPhases env ref
+      if !relaxedCheck && irPhases == .runtime && isMeta then
         if let some modIdx := env.getModuleIdxFor? ref then
           -- We use `public` here as a conservative default (and most common case) as necessary
           -- visibility is only clear at the end of the file.
           throwError "Invalid `meta` definition `{.ofConstName origDecl.name}`, \
-            `{.ofConstName ref}` is not accessible here; consider adding \
-            `public meta import {env.header.moduleNames[modIdx]!}`"
+        `{.ofConstName ref}` is not accessible here; consider adding \
+        `public meta import {env.header.moduleNames[modIdx]!}`"
         else
           throwError "Invalid `meta` definition `{.ofConstName origDecl.name}`, \
-            `{.ofConstName ref}` not marked `meta`"
-      | .comptime, false =>
+        `{.ofConstName ref}` not marked `meta`"
+      if !relaxedCheck && irPhases == .comptime && !isMeta then
         if let some modIdx := env.getModuleIdxFor? ref then
           if !isMarkedMeta env ref then
             throwError "Invalid definition `{.ofConstName origDecl.name}`, may not access \
@@ -108,13 +109,13 @@ where go (isMeta isPublic : Bool) (decl : Decl pu) : StateT NameSet CompilerM Un
               `import {env.header.moduleNames[modIdx]!}`"
         throwError "Invalid definition `{.ofConstName origDecl.name}`, may not access \
           declaration `{.ofConstName ref}` marked as `meta`"
-      | irPhases, _ =>
-        -- We allow auxiliary defs to be used in either phase but we need to recursively check
-        -- *their* references in this case. We also need to do this for non-auxiliary defs in case a
-        -- public meta def tries to use a private meta import via a local private meta def :/ .
-        if irPhases == .all || isPublic && isPrivateName ref then
-          if let some ⟨_, refDecl⟩ ← getLocalDecl? ref then
-            go isMeta isPublic (refDecl.castPurity! pu)
+
+      -- We allow auxiliary defs to be used in either phase but we need to recursively check
+      -- *their* references in this case. We also need to do this for non-auxiliary defs in case a
+      -- public meta def tries to use a private meta import via a local private meta def :/ .
+      if irPhases == .all || isPublic && isPrivateName ref then
+        if let some ⟨_, refDecl⟩ ← getLocalDecl? ref then
+          go isMeta isPublic (refDecl.castPurity! pu)
 
 /--
 Checks that imports necessary for inlining/specialization are public as otherwise we may run into
@@ -147,9 +148,10 @@ where go (origDecl decl : Decl .pure) : StateT NameSet CompilerM Unit := do
           go origDecl localDecl
       else if let some modIdx := (← getEnv).getModuleIdxFor? ref then
         if (← getEnv).header.modules[modIdx]?.any (!·.isExported) then
-          throwError "Cannot compile inline/specializing declaration `{.ofConstName origDecl.name}` as \
-            it uses `{.ofConstName ref}` of module `{(← getEnv).header.moduleNames[modIdx]!}` \
-            which must be imported publicly. This limitation may be lifted in the future."
+          if !(← compiler.inLeanIR.getM) then
+            throwError "Cannot compile inline/specializing declaration `{.ofConstName origDecl.name}` as \
+              it uses `{.ofConstName ref}` of module `{(← getEnv).header.moduleNames[modIdx]!}` \
+              which must be imported publicly. This limitation may be lifted in the future."
         else
           -- record as public meta use
           withExporting <| recordExtraModUseFromDecl (isMeta := getIRPhases (← getEnv) ref == .comptime) ref

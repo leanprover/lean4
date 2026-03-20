@@ -72,6 +72,9 @@ theorem toArray_eq : List.toArray as = xs ↔ as = xs.toList := by
 
 /-! ### size -/
 
+theorem size_singleton {x : α} : #[x].size = 1 := by
+  simp
+
 theorem eq_empty_of_size_eq_zero (h : xs.size = 0) : xs = #[] := by
   cases xs
   simp_all
@@ -170,6 +173,7 @@ theorem getD_getElem? {xs : Array α} {i : Nat} {d : α} :
 
 @[simp] theorem getElem?_empty {i : Nat} : (#[] : Array α)[i]? = none := rfl
 
+set_option backward.isDefEq.respectTransparency false in
 theorem getElem_push_lt {xs : Array α} {x : α} {i : Nat} (h : i < xs.size) :
     have : i < (xs.push x).size := by simp [*, Nat.lt_succ_of_le, Nat.le_of_lt]
     (xs.push x)[i] = xs[i] := by
@@ -3482,6 +3486,21 @@ theorem foldl_eq_foldr_reverse {xs : Array α} {f : β → α → β} {b} :
 theorem foldr_eq_foldl_reverse {xs : Array α} {f : α → β → β} {b} :
     xs.foldr f b = xs.reverse.foldl (fun x y => f y x) b := by simp
 
+theorem foldl_eq_apply_foldr {xs : Array α} {f : α → α → α}
+    [Std.Associative f] [Std.LawfulRightIdentity f init] :
+    xs.foldl f x = f x (xs.foldr f init) := by
+  simp [← foldl_toList, ← foldr_toList, List.foldl_eq_apply_foldr]
+
+theorem foldr_eq_apply_foldl {xs : Array α} {f : α → α → α}
+    [Std.Associative f] [Std.LawfulLeftIdentity f init] :
+    xs.foldr f x = f (xs.foldl f init) x := by
+  simp [← foldl_toList, ← foldr_toList, List.foldr_eq_apply_foldl]
+
+theorem foldr_eq_foldl {xs : Array α} {f : α → α → α}
+    [Std.Associative f] [Std.LawfulIdentity f init] :
+    xs.foldr f init = xs.foldl f init := by
+  simp [foldl_eq_apply_foldr, Std.LawfulLeftIdentity.left_id]
+
 @[simp] theorem foldr_push_eq_append {as : Array α} {bs : Array β} {f : α → β} (w : start = as.size) :
     as.foldr (fun a xs => Array.push xs (f a)) bs start 0 = bs ++ (as.map f).reverse := by
   subst w
@@ -3974,6 +3993,7 @@ theorem all_filterMap {xs : Array α} {f : α → Option β} {p : β → Bool} :
   · simp only [Id.run_pure]
     rw [if_neg (mt (by rintro rfl; exact h) (by simp_all))]
 
+set_option backward.isDefEq.respectTransparency false in
 @[simp, grind =] theorem toList_modify {xs : Array α} {f : α → α} {i : Nat} :
     (xs.modify i f).toList = xs.toList.modify i f := by
   apply List.ext_getElem
@@ -4146,7 +4166,7 @@ variable [LawfulBEq α]
     (xs.replace a b)[i]? = if xs[i]? == some a then if a ∈ xs.take i then some a else some b else xs[i]? := by
   rcases xs with ⟨xs⟩
   simp only [List.replace_toArray, List.getElem?_toArray, List.getElem?_replace, take_eq_extract,
-    List.extract_toArray, List.extract_eq_drop_take, Nat.sub_zero, List.drop_zero, List.mem_toArray]
+    List.extract_toArray, List.extract_eq_take_drop, Nat.sub_zero, List.drop_zero, List.mem_toArray]
 
 theorem getElem?_replace_of_ne {xs : Array α} {i : Nat} (h : xs[i]? ≠ some a) :
     (xs.replace a b)[i]? = xs[i]? := by
@@ -4259,6 +4279,7 @@ private theorem getElem_ofFn_go {f : Fin n → α} {acc i k} (h : i ≤ n) (w₁
     · simp
       omega
 
+set_option backward.isDefEq.respectTransparency false in
 @[simp] theorem getElem_ofFn {f : Fin n → α} {i : Nat} (h : i < (ofFn f).size) :
     (ofFn f)[i] = f ⟨i, size_ofFn (f := f) ▸ h⟩ := by
   unfold ofFn
@@ -4332,15 +4353,32 @@ def sum_eq_sum_toList := @sum_toList
 
 @[simp, grind =]
 theorem sum_append [Zero α] [Add α] [Std.Associative (α := α) (· + ·)]
-    [Std.LeftIdentity (α := α) (· + ·) 0] [Std.LawfulLeftIdentity (α := α) (· + ·) 0]
+    [Std.LawfulLeftIdentity (α := α) (· + ·) 0]
     {as₁ as₂ : Array α} : (as₁ ++ as₂).sum = as₁.sum + as₂.sum := by
   simp [← sum_toList, List.sum_append]
+
+@[simp, grind =]
+theorem sum_singleton [Add α] [Zero α] [Std.LawfulRightIdentity (· + ·) (0 : α)] {x : α} :
+    #[x].sum = x := by
+  simp [Array.sum_eq_foldr, Std.LawfulRightIdentity.right_id x]
+
+@[simp, grind =]
+theorem sum_push [Add α] [Zero α] [Std.Associative (α := α) (· + ·)]
+    [Std.LawfulIdentity (· + ·) (0 : α)] {xs : Array α} {x : α} :
+    (xs.push x).sum = xs.sum + x := by
+  simp [Array.sum_eq_foldr, Std.LawfulRightIdentity.right_id, Std.LawfulLeftIdentity.left_id,
+    ← Array.foldr_assoc]
 
 @[simp, grind =]
 theorem sum_reverse [Zero α] [Add α] [Std.Associative (α := α) (· + ·)]
     [Std.Commutative (α := α) (· + ·)]
     [Std.LawfulLeftIdentity (α := α) (· + ·) 0] (xs : Array α) : xs.reverse.sum = xs.sum := by
   simp [← sum_toList, List.sum_reverse]
+
+theorem sum_eq_foldl [Zero α] [Add α] [Std.Associative (α := α) (· + ·)]
+    [Std.LawfulIdentity (· + ·) (0 : α)] {xs : Array α} :
+    xs.sum = xs.foldl (init := 0) (· + ·) := by
+  simp [← sum_toList, List.sum_eq_foldl]
 
 theorem foldl_toList_eq_flatMap {l : List α} {acc : Array β}
     {F : Array β → α → Array β} {G : α → List β}
@@ -4490,11 +4528,13 @@ theorem getElem?_push_eq {xs : Array α} {x : α} : (xs.push x)[xs.size]? = some
   cases xs
   simp
 
+set_option backward.isDefEq.respectTransparency false in
 @[simp, grind =] theorem finIdxOf?_toList [BEq α] {a : α} {xs : Array α} :
     xs.toList.finIdxOf? a = (xs.finIdxOf? a).map (Fin.cast (by simp)) := by
   cases xs
   simp
 
+set_option backward.isDefEq.respectTransparency false in
 @[simp, grind =] theorem findFinIdx?_toList {p : α → Bool} {xs : Array α} :
     xs.toList.findFinIdx? p = (xs.findFinIdx? p).map (Fin.cast (by simp)) := by
   cases xs
@@ -4619,6 +4659,7 @@ namespace List
     as.toArray.unzip = Prod.map List.toArray List.toArray as.unzip := by
   ext1 <;> simp
 
+set_option backward.isDefEq.respectTransparency false in
 @[simp, grind =] theorem firstM_toArray [Alternative m] {as : List α} {f : α → m β} :
     as.toArray.firstM f = as.firstM f := by
   unfold Array.firstM

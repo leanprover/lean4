@@ -228,4 +228,30 @@ private def init :=
       setEnv env
   }
 
+builtin_initialize
+  registerBuiltinAttribute {
+    name  := `univ_out_params
+    descr := "universe output parameters for a type class"
+    add   := fun decl stx kind => do
+      unless kind == AttributeKind.global do throwAttrMustBeGlobal `univ_out_params kind
+      let env ← getEnv
+      unless isClass env decl do
+        throwError "invalid `univ_out_params`, `{decl}` is not a class"
+      let info ← getConstInfo decl
+      let us := info.levelParams
+      let args := stx[1].getArgs
+      args.forM fun arg => do
+        unless us.contains arg.getId do
+          throwErrorAt arg "`{arg}` is not a universe parameter of `{decl}`"
+      let args := args.map (·.getId)
+      let mut outLevelParams : Array Nat := #[]
+      let mut i := 0
+      for u in us do
+        if args.contains u then
+          outLevelParams := outLevelParams.push i
+        i := i + 1
+      let outParams := getOutParamPositions? env decl |>.getD #[]
+      modifyEnv fun env => classExtension.addEntry env { name := decl, outParams, outLevelParams }
+  }
+
 end Lean

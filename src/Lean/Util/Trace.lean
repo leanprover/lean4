@@ -255,6 +255,43 @@ instance [always : MonadAlwaysExcept ε m] [STWorld ω m] [BEq α] [Hashable α]
     MonadAlwaysExcept ε (MonadCacheT α β m) where
   except := let _ := always.except; inferInstance
 
+def bombEmoji := "💥️"
+def checkEmoji := "✅️"
+def crossEmoji := "❌️"
+
+/-- Convert a `TraceResult` to its emoji representation. -/
+def TraceResult.toEmoji : TraceResult → String
+  | .success => checkEmoji
+  | .failure => crossEmoji
+  | .error   => bombEmoji
+
+/-- Convert an `Except` result to a `TraceResult`.
+`Except.error` always maps to `.error`.
+For `Bool`, `.ok false` maps to `.failure`. For `Option`, `.ok none` maps to `.failure`. -/
+class ExceptToTraceResult (ε α : Type) where
+  toTraceResult : Except ε α → TraceResult
+
+instance : ExceptToTraceResult ε Bool where
+  toTraceResult
+    | .error _ => .error
+    | .ok true => .success
+    | .ok false => .failure
+
+instance : ExceptToTraceResult ε (Option α) where
+  toTraceResult
+    | .error _ => .error
+    | .ok (some _) => .success
+    | .ok none => .failure
+
+instance (priority := low) : ExceptToTraceResult ε α where
+  toTraceResult
+    | .error _ => .error
+    | .ok _ => .success
+
+/-- Convert an `Except` to a `TraceResult` using the `ExceptToTraceResult` instance. -/
+def _root_.Except.toTraceResult [ExceptToTraceResult ε α] (e : Except ε α) : TraceResult :=
+  ExceptToTraceResult.toTraceResult e
+
 /-- Run the provided action `k`, and log its execution within a trace node.
 
 The message is produced after the action completes, and has access to its return value.
@@ -262,16 +299,20 @@ If it is more convenient to produce the message as part of the computation,
 then `Lean.withTraceNode'` can be used instead.
 If profiling is enabled, this will also log the runtime of `k`.
 
-A typical invocation might be:
+The class `ExceptToTraceResult` is used to convert the result produced by `k` into a `TraceResult`
+(success/failure/error), which is stored in `TraceData.result?` and also used to select the
+emoji prefix (✅️/❌️/💥️). A typical invocation might be:
 ```lean4
-withTraceNode `isPosTrace (msg := (return m!"{ExceptToEmoji.toEmoji ·} checking positivity")) do
+withTraceNode `isPosTrace
+    (msg := fun _ => return m!"checking positivity") do
   return 0 < x
 ```
 
 The `cls`, `collapsed`, and `tag` arguments are forwarded to the constructor of `TraceData`.
 -/
 @[inline]
-def withTraceNode [always : MonadAlwaysExcept ε m] [MonadLiftT BaseIO m] (cls : Name)
+def withTraceNode [always : MonadAlwaysExcept ε m] [MonadLiftT BaseIO m]
+    [ExceptToTraceResult ε α] (cls : Name)
     (msg : Except ε α → m MessageData) (k : m α) (collapsed := true) (tag := "") : m α := do
   let opts ← getOptions
   if !opts.hasTrace then
@@ -293,7 +334,9 @@ where
       return (← MonadExcept.ofExcept res)
     let ref ← getRef
     let mut m ← try msg res catch _ => pure m!"<exception thrown while producing trace node message>"
-    let mut data := { cls, collapsed, tag }
+    let result := res.toTraceResult
+    m := m!"{result.toEmoji} {m}"
+    let mut data : TraceData := { cls, collapsed, tag, result? := some result }
     if trace.profiler.get opts then
       data := { data with startTime := start, stopTime := stop }
     addTraceNode oldTraces data ref m
@@ -339,56 +382,19 @@ private meta def expandTraceMacro (id : Syntax) (s : Syntax) : MacroM (TSyntax `
 macro "trace[" id:ident "]" s:(interpolatedStr(term) <|> term) : doElem => do
   expandTraceMacro id s.raw
 
-def bombEmoji := "💥️"
-def checkEmoji := "✅️"
-def crossEmoji := "❌️"
-
-/-- Visualize an `Except _ Bool` using a checkmark or cross.
-
-`bombEmoji` is used for `Except.error`. -/
-def exceptBoolEmoji : Except ε Bool → String
-  | .error _ => bombEmoji
-  | .ok true => checkEmoji
-  | .ok false => crossEmoji
-
-/-- Visualize an `Except _ (Option _)` using a checkmark or cross.
-
-`bombEmoji` is used for `Except.error`. -/
-def exceptOptionEmoji : Except ε (Option α) → String
-  | .error _ => bombEmoji
-  | .ok (some _) => checkEmoji
-  | .ok none => crossEmoji
-
-/-- Visualize an `Except` using a checkmark or a cross.
-
-Unlike `exceptBoolEmoji` this shows `.error` with `crossEmoji`. -/
-def exceptEmoji : Except ε α → String
-  | .error _ => crossEmoji
-  | .ok _ => checkEmoji
-
-class ExceptToEmoji (ε α : Type) where
-  /-- Visualize an `Except.ok x` using a checkmark or cross.
-
-  By convention, `bombEmoji` is used for `Except.error`. -/
-  toEmoji : Except ε α → String
-
-instance : ExceptToEmoji ε Bool where
-  toEmoji := exceptBoolEmoji
-
-instance : ExceptToEmoji ε (Option α) where
-  toEmoji := exceptOptionEmoji
 
 /--
 Similar to `withTraceNode`, but msg is constructed **before** executing `k`.
 This is important when debugging methods such as `isDefEq`, and we want to generate the message
-before `k` updates the metavariable assignment. The class `ExceptToEmoji` is used to convert
-the result produced by `k` into an emoji (e.g., `💥️`, `✅️`, `❌️`).
+before `k` updates the metavariable assignment. The class `ExceptToTraceResult` is used to convert
+the result produced by `k` into a `TraceResult` (success/failure/error), which is stored in
+`TraceData.result?` and also used to select the emoji prefix (✅️/❌️/💥️).
 
 TODO: find better name for this function.
 -/
 @[inline]
 def withTraceNodeBefore [MonadRef m] [AddMessageContext m] [MonadOptions m]
-    [always : MonadAlwaysExcept ε m] [MonadLiftT BaseIO m] [ExceptToEmoji ε α] (cls : Name)
+    [always : MonadAlwaysExcept ε m] [MonadLiftT BaseIO m] [ExceptToTraceResult ε α] (cls : Name)
     (msg : Unit → m MessageData) (k : m α) (collapsed := true) (tag := "") : m α := do
   let opts ← getOptions
   if !opts.hasTrace then
@@ -411,8 +417,9 @@ where
     unless clsEnabled || aboveThresh do
       modifyTraces (oldTraces ++ ·)
       return (← MonadExcept.ofExcept res)
-    let mut msg := m!"{ExceptToEmoji.toEmoji res} {msg}"
-    let mut data := { cls, collapsed, tag }
+    let result := res.toTraceResult
+    let mut msg := m!"{result.toEmoji} {msg}"
+    let mut data : TraceData := { cls, collapsed, tag, result? := some result }
     if trace.profiler.get opts then
       data := { data with startTime := start, stopTime := stop }
     addTraceNode oldTraces data ref msg

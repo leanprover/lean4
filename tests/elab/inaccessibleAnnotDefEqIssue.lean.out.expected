@@ -1,0 +1,1 @@
+inaccessibleAnnotDefEqIssue.lean:5:18-5:31: warning: declaration uses `sorry`

@@ -25,7 +25,7 @@ using the `fetch` function defined in this module.
 namespace Lake
 
 /-- A type alias for `Option Package` that assists monad type class synthesis. -/
-@[expose] public def CurrPackage := Option Package
+@[expose] public abbrev CurrPackage := Option Package
 
 /-- Run the action `x` with `pkg?` as the current package or no package if `none`. -/
 @[inline] public def withCurrPackage? [MonadWithReader CurrPackage m] (pkg? : Option Package) (x : m α): m α :=

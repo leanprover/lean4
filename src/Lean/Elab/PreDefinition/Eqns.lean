@@ -56,7 +56,7 @@ def unfoldLHS (declName : Name) (mvarId : MVarId) : MetaM MVarId := mvarId.withC
     deltaLHS mvarId
 
 private partial def mkEqnProof (declName : Name) (type : Expr) : MetaM Expr := do
-  withTraceNode `Elab.definition.eqns (return m!"{exceptEmoji ·} proving:{indentExpr type}") do
+  withTraceNode `Elab.definition.eqns (fun _ => return m!"proving:{indentExpr type}") do
   withNewMCtxDepth do
     let main ← mkFreshExprSyntheticOpaqueMVar type
     let (_, mvarId) ← main.mvarId!.intros
@@ -64,6 +64,7 @@ private partial def mkEqnProof (declName : Name) (type : Expr) : MetaM Expr := d
     -- Try rfl before deltaLHS to avoid `id` checkpoints in the proof, which would make
     -- the lemma ineligible for dsimp
     if (← tryURefl mvarId) then
+      trace[Elab.definition.eqns] "proved directly by rfl"
       return ← instantiateMVars main
 
     go (← unfoldLHS declName mvarId)
@@ -77,7 +78,7 @@ private partial def mkEqnProof (declName : Name) (type : Expr) : MetaM Expr := d
   recursion and structural recursion can and should use this too.
   -/
   go (mvarId : MVarId) : MetaM Unit := do
-    withTraceNode `Elab.definition.eqns (return m!"{exceptEmoji ·} step:\n{MessageData.ofGoal mvarId}") do
+    withTraceNode `Elab.definition.eqns (fun _ => return m!"step:\n{MessageData.ofGoal mvarId}") do
     if (← tryURefl mvarId) then
       return ()
     else if (← tryContradiction mvarId) then

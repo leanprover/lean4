@@ -1,0 +1,3 @@
+5755.lean:15:8-15:25: warning: declaration uses `sorry`
+5755.lean:25:0-25:7: warning: declaration uses `sorry`
+5755.lean:46:0-46:7: warning: declaration uses `sorry`

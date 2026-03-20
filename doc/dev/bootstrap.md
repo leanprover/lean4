@@ -6,7 +6,7 @@ building Lean itself - which is needed to again build those parts. This cycle is
 broken by using pre-built C files checked into the repository (which ultimately
 go back to a point where the Lean compiler was not written in Lean) in place of
 these Lean inputs and then compiling everything in multiple stages up to a fixed
-point. The build directory is organized in these stages:
+point. The build directory is organized into these stages:
 
 ```bash
 stage0/
@@ -79,7 +79,7 @@ with the contents of `src/stdlib_flags.h`, bringing them back in sync.
 NOTE: A full rebuild of stage 1 will only be triggered when the *committed* contents of `stage0/` are changed.
 Thus if you change files in it manually instead of through `update-stage0-commit` (see below) or fetching updates from git, you either need to commit those changes first or run `make -C build/release clean-stdlib`.
 The same is true for further stages except that a rebuild of them is retriggered on any committed change, not just to a specific directory.
-Thus when debugging e.g. stage 2 failures, you can resume the build from these failures on but may want to explicitly call `clean-stdlib` to either observe changes from `.olean` files of modules that built successfully or to check that you did not break modules that built successfully at some prior point.
+Thus when debugging e.g. stage 2 failures, you can resume the build from these failures on but you may want to explicitly call `clean-stdlib` to either observe changes from `.olean` files of modules that built successfully or to check that you did not break modules that built successfully at some prior point.
 
 If you have write access to the lean4 repository, you can also manually
 trigger that process, for example to be able to use new features in the compiler itself.
@@ -101,7 +101,7 @@ The script `script/rebase-stage0.sh` can be used for that.
 
 The CI should prevent PRs with changes to stage0 (besides `stdlib_flags.h`)
 from entering `master` through the (squashing!) merge queue, and label such PRs
-with the `changes-stage0` label. Such PRs should have a cleaned up history,
+with the `changes-stage0` label. Such PRs should have a cleaned-up history,
 with separate stage0 update commits; then coordinate with the admins to merge
 your PR using rebase merge, bypassing the merge queue.
 

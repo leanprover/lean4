@@ -9,6 +9,7 @@ prelude
 public import Lean.AddDecl
 public import Lean.Meta.Check
 public import Lean.Util.CollectLevelParams
+import Lean.Compiler.Options
 
 public section
 
@@ -39,6 +40,7 @@ unsafe def evalExprCore (α) (value : Expr) (checkType : Expr → MetaM Unit)
     -- now that we've already waited, async would just introduce (minor) overhead and trigger
     -- `Task.get` blocking debug code
     withOptions (Elab.async.set · false) do
+    withOptions (Compiler.compiler.postponeCompile.set · false) do
       addAndCompile decl
       evalConst (checkMeta := checkMeta) α name
 

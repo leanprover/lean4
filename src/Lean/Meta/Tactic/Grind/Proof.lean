@@ -334,7 +334,8 @@ It assumes `a` and `b` are in the same equivalence class.
 -/
 @[export lean_grind_mk_eq_proof]
 def mkEqProofImpl (a b : Expr) : GoalM Expr := do
-  assert! (← hasSameType a b)
+  unless (← hasSameType a b) do
+    throwError "internal `grind` error, `mkEqProof` invoked with terms of different types{indentExpr a}\nhas type{indentExpr (← inferType a)}\nbut{indentExpr b}\nhas type{indentExpr (← inferType b)}"
   mkEqProofCore a b (heq := false)
 
 @[export lean_grind_mk_heq_proof]

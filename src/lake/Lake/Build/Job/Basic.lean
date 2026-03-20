@@ -118,6 +118,7 @@ public instance : Inhabited (Job α) := ⟨{task := default, caption := default,
 
 namespace Job
 
+set_option backward.whnf.reducibleClassField false in
 public protected def cast (self : Job α) (h : ¬ self.kind.isAnonymous) : Job (DataType self.kind) :=
   let h := by
     match kind_eq:self.kind with

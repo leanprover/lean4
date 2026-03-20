@@ -9,6 +9,7 @@ prelude
 public import Lean.Language.Lean
 public import Lean.Server.References
 public import Lean.Util.Profiler
+import Lean.Compiler.Options
 
 public section
 
@@ -194,7 +195,7 @@ def runFrontend
 
   if let some oleanFileName := oleanFileName? then
     profileitIO ".olean serialization" finalOpts do
-      writeModule env oleanFileName
+      writeModule (writeIR := !Compiler.compiler.postponeCompile.get finalOpts) env oleanFileName
 
   if let some ileanFileName := ileanFileName? then
     let trees := snaps.getAll.flatMap (match ·.infoTree? with | some t => #[t] | _ => #[])

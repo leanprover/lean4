@@ -400,14 +400,20 @@ def MetavarContext.getDelayedMVarAssignmentCore? (mctx : MetavarContext) (mvarId
 def MetavarContext.getDelayedMVarAssignmentExp (mctx : MetavarContext) (mvarId : MVarId) : Option DelayedMetavarAssignment :=
   mctx.dAssignment.find? mvarId
 
+@[export lean_delayed_mvar_assignment_fvars]
+def DelayedMetavarAssignment.fvarsExp (d : DelayedMetavarAssignment) : Array Expr := d.fvars
+
+@[export lean_delayed_mvar_assignment_mvar_id_pending]
+def DelayedMetavarAssignment.mvarIdPendingExp (d : DelayedMetavarAssignment) : MVarId := d.mvarIdPending
+
 def getDelayedMVarAssignment? [Monad m] [MonadMCtx m] (mvarId : MVarId) : m (Option DelayedMetavarAssignment) :=
   return (← getMCtx).getDelayedMVarAssignmentCore? mvarId
 
 /-- Given a sequence of delayed assignments
    ```
-   mvarId₁ := mvarId₂ ...;
+   mvarId₁ := fun ... => mvarId₂;
    ...
-   mvarIdₙ := mvarId_root ...  -- where `mvarId_root` is not delayed assigned
+   mvarIdₙ := fun ... => mvarId_root  -- where `mvarId_root` is not delayed assigned
    ```
    in `mctx`, `getDelayedRoot mctx mvarId₁` return `mvarId_root`.
    If `mvarId₁` is not delayed assigned then return `mvarId₁` -/
@@ -442,12 +448,12 @@ def isLevelMVarAssignable [Monad m] [MonadMCtx m] (mvarId : LMVarId) : m Bool :=
   let mctx ← getMCtx
   match mctx.lDepth.find? mvarId with
   | some d => return d >= mctx.levelAssignDepth
-  | _      => panic! "unknown universe metavariable"
+  | _      => panic! s!"unknown universe metavariable {mvarId.name}"
 
 def MetavarContext.getDecl (mctx : MetavarContext) (mvarId : MVarId) : MetavarDecl :=
   match mctx.decls.find? mvarId with
   | some decl => decl
-  | none      => panic! "unknown metavariable"
+  | none      => panic! s!"unknown metavariable {mvarId.name}"
 
 def _root_.Lean.MVarId.isAssignable [Monad m] [MonadMCtx m] (mvarId : MVarId) : m Bool := do
   let mctx ← getMCtx
@@ -504,7 +510,7 @@ def hasAssignableMVar [Monad m] [MonadMCtx m] : Expr → m Bool
 
 /--
   Add `mvarId := u` to the universe metavariable assignment.
-  This method does not check whether `mvarId` is already assigned, nor it checks whether
+  This method does not check whether `mvarId` is already assigned, nor does it check whether
   a cycle is being introduced.
   This is a low-level API, and it is safer to use `isLevelDefEq (mkLevelMVar mvarId) u`.
 -/
@@ -517,7 +523,7 @@ def assignLevelMVarExp (m : MetavarContext) (mvarId : LMVarId) (val : Level) : M
 
 /--
 Add `mvarId := x` to the metavariable assignment.
-This method does not check whether `mvarId` is already assigned, nor it checks whether
+This method does not check whether `mvarId` is already assigned, nor does it check whether
 a cycle is being introduced, or whether the expression has the right type.
 This is a low-level API, and it is safer to use `isDefEq (mkMVar mvarId) x`.
 -/
@@ -1279,6 +1285,7 @@ private def mkLambda' (x : Name) (bi : BinderInfo) (t : Expr) (b : Expr) (etaRed
 /--
 Similar to `LocalContext.mkBinding`, but handles metavariables correctly.
 This function trusts that `xs` has all forward dependencies that appear in `e` and that the variables are in order.
+It will panic when any of the `xs` is neither a free variable nor a metavariable.
 
 - If `usedOnly := true` then `forall` and `lambda` expressions are created only for used variables.
 - If `usedLetOnly := true` then `let` expressions are created only for used (let-) variables.
@@ -1473,7 +1480,7 @@ structure UnivMVarParamResult where
 
 def levelMVarToParam (mctx : MetavarContext) (alreadyUsedPred : Name → Bool) (except : LMVarId → Bool) (e : Expr) (paramNamePrefix : Name := `u) (nextParamIdx : Nat := 1)
     : UnivMVarParamResult :=
-  let (e, s) := LevelMVarToParam.main e { except, paramNamePrefix, alreadyUsedPred } { mctx, nextParamIdx }
+  let (e, s) := LevelMVarToParam.main e { except, paramNamePrefix, alreadyUsedPred } |>.run { mctx, nextParamIdx }
   { mctx          := s.mctx
     newParamNames := s.paramNames
     nextParamIdx  := s.nextParamIdx

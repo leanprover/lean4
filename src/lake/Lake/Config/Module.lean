@@ -77,6 +77,9 @@ public abbrev pkg (self : Module) : Package :=
 @[inline] public def rootDir (self : Module) : FilePath :=
   self.lib.rootDir
 
+@[inline] public def fileName (ext : String) (self : Module) : String :=
+  FilePath.addExtension self.name.getString! ext |>.toString
+
 @[inline] public def filePath (dir : FilePath) (ext : String) (self : Module) : FilePath :=
   Lean.modToFilePath dir self.name ext
 
@@ -92,6 +95,9 @@ public abbrev pkg (self : Module) : Package :=
 @[inline] public def leanLibPath (ext : String) (self : Module) : FilePath :=
   self.filePath self.pkg.leanLibDir ext
 
+@[inline] public def leanLibDir (self : Module) : FilePath :=
+  Lean.modToFilePath self.pkg.leanLibDir self.name.getPrefix ""
+
 @[inline] public def oleanFile (self : Module) : FilePath :=
   self.leanLibPath "olean"
 
@@ -104,17 +110,20 @@ public abbrev pkg (self : Module) : Package :=
 @[inline] public def ileanFile (self : Module) : FilePath :=
   self.leanLibPath "ilean"
 
+@[inline] public def irFile (self : Module) : FilePath :=
+  self.leanLibPath "ir"
+
 @[inline] public def traceFile (self : Module) : FilePath :=
   self.leanLibPath "trace"
 
 @[inline] public def irPath (ext : String) (self : Module) : FilePath :=
   self.filePath self.pkg.irDir ext
 
+@[inline] public def irDir (self : Module) : FilePath :=
+  Lean.modToFilePath self.pkg.irDir self.name.getPrefix ""
+
 @[inline] public def setupFile (self : Module) : FilePath :=
   self.irPath "setup.json"
-
-@[inline] public def irFile (self : Module) : FilePath :=
-  self.leanLibPath "ir"
 
 @[inline] public def cFile (self : Module) : FilePath :=
   self.irPath "c"
@@ -133,6 +142,9 @@ public def bcFile? (self : Module) : Option FilePath :=
 
 @[inline] public def bcoFile (self : Module) : FilePath :=
   self.irPath "bc.o"
+
+@[inline] public def ltarFile (self : Module) : FilePath :=
+  self.irPath "ltar"
 
 /-- Suffix for single module dynlibs (e.g., for precompilation). -/
 public def dynlibSuffix := "-1"
@@ -199,20 +211,3 @@ public def dynlibSuffix := "-1"
 
 @[inline] public def nativeFacets (self : Module) (shouldExport : Bool) : Array (ModuleFacet FilePath) :=
   self.lib.nativeFacets shouldExport
-
-/-! ## Trace Helpers -/
-
-public protected def getMTime (self : Module) : IO MTime := do
-  return mixTrace (mixTrace (← getMTime self.oleanFile) (← getMTime self.ileanFile)) (← getMTime self.cFile)
-
-public instance : GetMTime Module := ⟨Module.getMTime⟩
-
-public protected def checkExists (self : Module) : BaseIO Bool := do
-  let bcFileExists? ←
-    if Lean.Internal.hasLLVMBackend () then
-      checkExists self.bcFile
-    else
-      pure true
-  return (← checkExists self.oleanFile) && (← checkExists self.ileanFile) && (← checkExists self.cFile) && bcFileExists?
-
-public instance : CheckExists Module := ⟨Module.checkExists⟩

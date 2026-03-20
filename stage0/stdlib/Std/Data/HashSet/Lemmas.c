@@ -15,21 +15,45 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Std_HashSet_Equiv_instTrans(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashSet_Equiv_instTrans___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_HashSet_Equiv_instTrans(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Std_HashSet_Equiv_instTrans(lean_object* v_00_u03b1_1_, lean_object* v_x_2_, lean_object* v_x_3_){
 _start:
 {
-return lean_box(0);
+lean_object* v___x_4_; 
+v___x_4_ = lean_box(0);
+return v___x_4_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_HashSet_Equiv_instTrans___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Std_HashSet_Equiv_instTrans___boxed(lean_object* v_00_u03b1_5_, lean_object* v_x_6_, lean_object* v_x_7_){
 _start:
 {
-lean_object* x_4; 
-x_4 = l_Std_HashSet_Equiv_instTrans(x_1, x_2, x_3);
-lean_dec_ref(x_3);
-lean_dec_ref(x_2);
-return x_4;
+lean_object* v_res_8_; 
+v_res_8_ = l_Std_HashSet_Equiv_instTrans(v_00_u03b1_5_, v_x_6_, v_x_7_);
+lean_dec_ref(v_x_7_);
+lean_dec_ref(v_x_6_);
+return v_res_8_;
 }
+}
+lean_object* runtime_initialize_Std_Data_HashMap_Lemmas(uint8_t builtin);
+lean_object* runtime_initialize_Std_Data_HashSet_Basic(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Std_Data_HashSet_Lemmas(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Std_Data_HashMap_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Std_Data_HashSet_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Std_Data_HashSet_Lemmas(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Std_Data_HashMap_Lemmas(uint8_t builtin);
 lean_object* initialize_Std_Data_HashSet_Basic(uint8_t builtin);
@@ -44,7 +68,13 @@ lean_dec_ref(res);
 res = initialize_Std_Data_HashSet_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Std_Data_HashSet_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Std_Data_HashSet_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Std_Data_HashSet_Lemmas(builtin);
 }
 #ifdef __cplusplus
 }

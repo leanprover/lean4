@@ -98,7 +98,8 @@ theorem ofFn_add {n m} {f : Fin (n + m) → α} :
     ofFn f = (ofFn fun i => f (i.castLE (Nat.le_add_right n m))) ++ (ofFn fun i => f (i.natAdd n)) := by
   induction m with
   | zero => simp
-  | succ m ih => simp [-ofFn_succ, ofFn_succ_last, ih]
+  | succ m ih =>
+    simp [-ofFn_succ, ofFn_succ_last, ih]
 
 @[simp]
 theorem ofFn_eq_nil_iff {f : Fin n → α} : ofFn f = [] ↔ n = 0 := by
@@ -154,8 +155,8 @@ theorem ofFnM_add {n m} [Monad m] [LawfulMonad m] {f : Fin (n + k) → m α} :
       pure (as ++ bs)) := by
   induction k with
   | zero => simp
-  | succ k ih => simp [ofFnM_succ_last, ih]
-
+  | succ k ih =>
+    simp [ofFnM_succ_last, ih]
 
 end List
 

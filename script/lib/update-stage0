@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-rm -r stage0 || true
+rm -rf stage0 || true
 # don't copy untracked files
 # `:!` is git glob flavor for exclude patterns
 for f in $(git ls-files src ':!:src/lake/*' ':!:src/Leanc.lean'); do

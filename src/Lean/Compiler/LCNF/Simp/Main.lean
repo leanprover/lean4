@@ -76,7 +76,7 @@ def etaPolyApp? (letDecl : LetDecl .pure) : OptionT SimpM (FunDecl .pure) := do
   let .const declName us args := letDecl.value | failure
   let some info := (← getEnv).find? declName | failure
   guard <| (← hasLocalInst info.type)
-  guard <| !(← isInstanceReducible declName)
+  guard <| !(← isImplicitReducible declName)
   let some ⟨.pure, decl⟩ ← getDecl? declName | failure
   guard <| decl.getArity > args.size
   let params ← mkNewParams letDecl.type
@@ -187,6 +187,9 @@ partial def simpCasesOnCtor? (cases : Cases .pure) : SimpM (Option (Code .pure))
     return some ret
   | .fvar discr =>
     let some ctorInfo ← findCtor? discr | return none
+    let some (.ctorInfo ctorVal) := (← getEnv).find? ctorInfo.getName | return none
+    unless cases.typeName == ctorVal.induct do
+      return none
     let (alt, cases) := cases.extractAlt! ctorInfo.getName
     eraseCode (.cases cases)
     markSimplified

@@ -36,6 +36,7 @@ namespace Lean.Meta
 /-! # Smart unfolding support -/
 -- ===========================
 
+set_option compiler.ignoreBorrowAnnotation true in
 /--
 Forward declaration. It is defined in the module `src/Lean/Elab/PreDefinition/Structural/Eqns.lean`.
 It is possible to avoid this hack if we move `Structural.EqnInfo` and `Structural.eqnInfoExt`
@@ -169,7 +170,7 @@ def mkProjFn (ctorVal : ConstructorVal) (us : List Level) (params : Array Expr) 
     | some projFn => return mkApp (mkAppN (mkConst projFn us) params) major
 
 /--
-  If `major` is not a constructor application, and its type is a structure `C ...`, then return `C.mk major.1 ... major.n`
+  If `major` is not a constructor application, and its type is a non-recursive structure `C ...`, then return `C.mk major.1 ... major.n`
 
   \pre `inductName` is `C`.
 
@@ -178,7 +179,7 @@ private def toCtorWhenStructure (inductName : Name) (major : Expr) : MetaM Expr 
   unless (← useEtaStruct inductName) do
     return major
   let env ← getEnv
-  if !isStructureLike env inductName then
+  if !isNonRecStructure env inductName then
     return major
   else if let some _ ← isConstructorApp? major then
     return major
@@ -190,7 +191,7 @@ private def toCtorWhenStructure (inductName : Name) (major : Expr) : MetaM Expr 
       return major
     match majorType.getAppFn with
     | Expr.const d us =>
-      if (← whnfD (← inferType majorType)) == mkSort levelZero then
+      if (← whnfD (← inferType majorType)) == mkSort Level.zero then
         return major -- We do not perform eta for propositions, see implementation in the kernel
       else
         let some ctorName ← getFirstCtor d | pure major
@@ -341,27 +342,36 @@ mutual
         | some <| .quotInfo recVal => isQuotRecStuck? recVal e.getAppArgs
         | _  =>
           unless e.hasExprMVar do return none
-          -- Projection function support
-          let some projInfo ← getProjectionFnInfo? fName | return none
-          -- This branch is relevant if `e` is a type class projection that is stuck because the instance has not been synthesized yet.
-          unless projInfo.fromClass do return none
           let args := e.getAppArgs
-          -- First check whether `e`s instance is stuck.
-          if let some major := args[projInfo.numParams]? then
-            if let some mvarId ← getStuckMVar? major then
-              return mvarId
-          /-
-          Then, recurse on the explicit arguments
-          We want to detect the stuck instance in terms such as
-          `HAdd.hAdd Nat Nat Nat (instHAdd Nat instAddNat) n (OfNat.ofNat Nat 2 ?m)`
-          See issue https://github.com/leanprover/lean4/issues/1408 for an example where this is needed.
-          -/
-          let info ← getFunInfo f
-          for pinfo in info.paramInfo, arg in args do
-            if pinfo.isExplicit then
-              if let some mvarId ← getStuckMVar? arg then
-                return some mvarId
-          return none
+          -- Projection function support
+          if let some projInfo ← getProjectionFnInfo? fName then
+            -- This branch is relevant if `e` is a type class projection that is stuck because the instance has not been synthesized yet.
+            unless projInfo.fromClass do return none
+            -- First check whether `e`s instance is stuck.
+            if let some major := args[projInfo.numParams]? then
+              if let some mvarId ← getStuckMVar? (← whnf major) then
+                return mvarId
+            /-
+            Then, recurse on the explicit arguments
+            We want to detect the stuck instance in terms such as
+            `HAdd.hAdd Nat Nat Nat (instHAdd Nat instAddNat) n (OfNat.ofNat Nat 2 ?m)`
+            See issue https://github.com/leanprover/lean4/issues/1408 for an example where this is needed.
+            -/
+            let info ← getFunInfo f
+            for pinfo in info.paramInfo, arg in args do
+              if pinfo.isExplicit then
+                if let some mvarId ← getStuckMVar? arg then
+                  return some mvarId
+            return none
+          -- Auxiliary parent projections created for diamond inheritance (not registered as projections).
+          else if let some auxInfo ← getAuxParentProjectionInfo? fName then
+            unless auxInfo.fromClass do return none
+            if let some major := args[auxInfo.numParams]? then
+              if let some mvarId ← getStuckMVar? (← whnf major) then
+                return mvarId
+            return none
+          else
+            return none
       | .proj _ _ e => getStuckMVar? (← whnf e)
       | _ => return none
     | _ => return none
@@ -491,7 +501,7 @@ def canUnfoldAtMatcher (cfg : Config) (info : ConstantInfo) : CoreM Bool := do
   | .default => return !(← isIrreducible info.name)
   | _ =>
     let status ← getReducibilityStatus info.name
-    if status matches .reducible | .instanceReducible then
+    if status matches .reducible | .implicitReducible then
       return true
     else if hasMatchPatternAttribute (← getEnv) info.name then
       return true
@@ -809,8 +819,21 @@ partial def unfoldProjInstWhenInstances? (e : Expr) : MetaM (Option Expr) := do
   else
     return none
 
+/--
+When `true`, unfolding a `[reducible]` class field at `TransparencyMode.reducible` also unfolds
+the associated instance projection at `TransparencyMode.instances`.
+
+**Motivation:** Consider `a ≤ b` where `a b : Nat` and `LE.le` is `[reducible]`. Unfolding `LE.le`
+gives `instLENat.1 a b`, which is stuck because `instLENat` is `[implicit_reducible]` (not
+`[reducible]`). Similarly, `stM m (ExceptT ε m) α` unfolds to an instance projection that is stuck
+at `.reducible`. Without this option, marking a class field as `[reducible]` is pointless when the
+instance providing it is only `[implicit_reducible]`. This option makes the `[reducible]` annotation
+on class fields work as the user expects by temporarily bumping to `.instances` for the projection.
+
+See `unfoldDefault` for the implementation.
+-/
 register_builtin_option backward.whnf.reducibleClassField : Bool := {
-  defValue := false
+  defValue := true
   descr    := "enables better support for unfolding type class fields marked as `[reducible]`"
 }
 
@@ -820,7 +843,7 @@ This function has special support for unfolding class fields.
 The support is particularly important when the user marks a class field as `[reducible]` and
 the transparency mode is `.reducible`. For example, suppose `e` is `a ≤ b` where `a b : Nat`,
 and `LE.le` is marked as `[reducible]`. Simply unfolding `LE.le` would give `instLENat.1 a b`,
-which would be stuck because `instLENat` has transparency `[instance_reducible]`. To avoid this, when we unfold
+which would be stuck because `instLENat` has transparency `[implicit_reducible]`. To avoid this, when we unfold
 a `[reducible]` class field, we also unfold the associated projection `instLENat.1` using
 `.instances` reducibility, ultimately returning `Nat.le a b`.
 -/

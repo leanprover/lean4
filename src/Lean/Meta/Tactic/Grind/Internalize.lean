@@ -346,7 +346,7 @@ these facts.
 private def propagateEtaStruct (a : Expr) (generation : Nat) : GoalM Unit := do
   unless (← getConfig).etaStruct do return ()
   let aType ← whnf (← inferType a)
-  matchConstStructureLike aType.getAppFn (fun _ => return ()) fun inductVal us ctorVal => do
+  matchConstNonRecStructure aType.getAppFn (fun _ => return ()) fun inductVal us ctorVal => do
     unless a.isAppOf ctorVal.name do
       -- TODO: remove ctorVal.numFields after update stage0
       if (← isExtTheorem inductVal.name) || ctorVal.numFields == 0 then
@@ -443,7 +443,7 @@ Returns `true` if we should use `funCC` for applications of the given constant s
 private def useFunCongrAtDecl (declName : Name) : GrindM Bool := do
   if (← hasFunCCModifier declName) then
     return true
-  if (← isInstanceReducible declName) then
+  if (← isImplicitReducible declName) then
     /- **Note**: Instances are support elements. No `funCC` -/
     return false
   if let some projInfo ← getProjectionFnInfo? declName then
@@ -590,8 +590,6 @@ where
       mkENode e generation
       activateTheorems declName generation
     | .mvar .. =>
-      if (← reportMVarInternalization) then
-        reportIssue! "unexpected metavariable during internalization{indentExpr e}\n`grind` is not supposed to be used in goals containing metavariables."
       mkENode' e generation
     | .mdata .. =>
       reportIssue! "unexpected metadata found during internalization{indentExpr e}\n`grind` uses a pre-processing step that eliminates metadata"

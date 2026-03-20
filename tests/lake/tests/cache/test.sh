@@ -8,8 +8,20 @@ NO_BUILD_CODE=3
 
 # Store Lake cache in a local directory
 TEST_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
-CACHE_DIR="$TEST_DIR/.lake/cache"
+CACHE_DIR="$(norm_path "$TEST_DIR")/.lake/cache"
 export LAKE_CACHE_DIR="$CACHE_DIR"
+
+# Verify that `lake cache clean` works without a cache directory
+test_exp ! -d "$CACHE_DIR"
+test_run cache clean
+
+# Test `lake cache services`
+LAKE_CONFIG=services.toml test_out_diff <(cat << EOF
+cdn
+bogus
+reservoir
+EOF
+) cache services
 
 # Verify packages without `enableArtifactCache` do not use the cache by default
 test_run build -f unset.toml Test:static
@@ -35,7 +47,6 @@ test_run build Test:static --no-build --wfail
 test_out 'Replayed Test:c.o' build +Test:o -v
 
 # Verify that a rebuild with the cache disabled is a no-op
-touch .lake/build/ir/Test.c # avoid mod time fallback if trace is missing
 test_run -f disabled.toml build +Test:o --no-build --wfail
 test_run -f disabled.toml build Test:static --no-build --wfail
 
@@ -55,14 +66,16 @@ test_exp "$(norm_dirname "$cache_art")" = "$CACHE_DIR/artifacts"
 test_exp "$cache_art" != "$local_art"
 test_cmd cmp -s "$cache_art" "$local_art"
 
-# Verify supported artifacts end up in the cache directory
-test_run build \
-  test:exe Test:static Test:shared +Test:o.export +Test:o.noexport +Module
+# Verify supported artifacts use the cache directory
+test_run build test:exe Test:static Test:shared \
+  +Test:dynlib +Test:o.export +Test:o.noexport +Module
 test_cached() {
   target="$1"; shift
   art="$($LAKE query $target)"
-  echo "${1:-?} artifact cached: $target -> $art"
+  hardlinks="$(stat_ch "$art")"
+  echo "${1:-?} artifact cached (links: $hardlinks): $target -> $art"
   test ${1:-} "$(norm_dirname "$art")" = "$CACHE_DIR/artifacts"
+  test $hardlinks -gt 1 # check that the cached artifact is hard linked
 }
 test_cached test:exe !
 test_cached Test:static !
@@ -88,7 +101,6 @@ test_run exe test
 # The `Test` module's artifacts are more carefully managed throught this test
 touch Ignored.lean
 test_run -v build +Ignored
-test_cmd rm -f .lake/build/lib/lean/Ignored.trace
 
 # Verify that fetching from the cache can be disabled
 test_cmd rm -f .lake/build/lib/lean/Ignored.trace
@@ -124,17 +136,17 @@ test_out "Replayed Test.ImportIgnored" -v build Test.ImportIgnored --no-build --
 test_err 'Unknown identifier `bar`' -v build Test.ImportIgnored
 
 # Test that truly up-to-date files are still cached with `--old`
-test_cmd rm .lake/build/lib/lean/Ignored.*
+test_cmd rm -f .lake/build/lib/lean/Ignored.*
 test_out "restored artifact from cache" -v build +Ignored --no-build
 
 # Verify module ileans are restored from the cache
 test_run build +Test --no-build
-test_cmd rm .lake/build/lib/lean/Test.ilean
+test_cmd rm -f .lake/build/lib/lean/Test.ilean
 test_out "restored artifact from cache" -v build +Test --no-build
 test_exp -f .lake/build/lib/lean/Test.ilean
 
 # Verify that things work properly if the cached artifact is removed
-test_cmd rm "$cache_art"
+test_cmd rm -f "$cache_art"
 test_out "⚠ [4/4] Replayed Test:c.o" build +Test:o -v --no-build
 test_exp -f "$cache_art" # artifact should be re-cached
 test_cmd rm -r "$CACHE_DIR/outputs"
@@ -147,18 +159,22 @@ ls .lake/backup-outputs > .lake/backup-outputs.txt
 check_diff .lake/backup-outputs.txt <(ls "$CACHE_DIR/outputs")
 
 # Verify that things work properly if the local artifact is removed
-test_cmd rm "$local_art"
+test_cmd rm -f "$local_art"
 test_out "Replayed Test:c.o" build +Test:o -v --no-build
-test_cmd rm "$local_art.trace"
+test_cmd rm -f "$local_art.trace"
 test_out "Fetched Test:c.o" build +Test:o -v --no-build
 
 # Verify that if the input cache is missing,
 # the cached artifact is still used via the output hash in the trace
-test_cmd rm -r "$CACHE_DIR/outputs" .lake/build/ir/Test.c
+test_cmd rm -rf "$CACHE_DIR/outputs" .lake/build/ir/Test.c
 test_run -v build +Test:c --no-build
 
-# Verify that the olean does need to be present in the build directory
-test_cmd rm .lake/build/lib/lean/Test.olean .lake/build/lib/lean/Test/Imported.olean
+# Verify that Lake does not attempt overwrite an existing artifact
+test_cmd rm -rf "$CACHE_DIR/outputs" .lake/build/lib/lean/Ignored.trace
+test_run -v build +Ignored
+
+# Verify that the olean does not need to be present in the build directory
+test_cmd rm -f .lake/build/lib/lean/Test.olean .lake/build/lib/lean/Test/Imported.olean
 test_run -v build +Test.Imported --no-build --wfail
 test_run -v build +Test
 
@@ -180,16 +196,32 @@ test_lines 3 .lake/outputs.jsonl
 test_run build Test:static -o .lake/outputs.jsonl
 test_lines 6 .lake/outputs.jsonl
 
-# Verify all artifacts end up in the cache directory with `restoreAllArtifacts`
+# Test that platform-dependent outputs are not included
+# in the mappings file for platform-independent packages
+test_run -f platformIndependent.toml build Test:static -o .lake/outputs.jsonl
+test_lines 3 .lake/outputs.jsonl
+
+# Verify that `lake cache clean` deletes the cache directory
+test_exp -d "$CACHE_DIR"
 test_cmd cp -r "$CACHE_DIR" .lake/cache-backup
+test_run cache clean
+test_exp ! -d "$CACHE_DIR"
+
+# Verify all artifacts restore from the cache and
+# use the build directory with `restoreAllArtifacts`
 test_cmd rm -rf "$CACHE_DIR" .lake/build
-test_run build -R -KrestoreAll=true \
-  test:exe Test:static Test:shared +Test:o.export +Test:o.noexport +Module
+test_run build -R -KrestoreAll=true test:exe Test:static Test:shared \
+  +Test:dynlib +Test:o.export +Test:o.noexport +Module
+test_cmd rm -rf .lake/build
+test_run build -v --no-build test:exe Test:static Test:shared \
+  +Test:dynlib +Test:o.export +Test:o.noexport +Module
 test_restored() {
   target="$1"; shift
   art="$($LAKE query $target)"
-  echo "! artifact cached: $target -> $art"
+  hardlinks="$(stat_ch "$art")"
+  echo "! artifact cached (links: $hardlinks): $target -> $art"
   test ! "$(norm_dirname "$art")" = "$CACHE_DIR/artifacts"
+  test $hardlinks -gt 1 # check that the restored artifact is hard linked
   if [ -n "${1:-}" ]; then
     test "$(basename "$art")" = "$1"
   fi
@@ -223,4 +255,4 @@ if command -v jq > /dev/null; then # skip if no jq found
 fi
 
 # Cleanup
-rm -f produced.out Ignored.lean
+rm -f produced.* Ignored.lean

@@ -1,0 +1,89 @@
+/-
+Copyright (c) 2026 Lean FRO, LLC. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Author: Markus Himmel
+-/
+module
+
+prelude
+public import Init.Data.String.Slice
+public import Init.Data.String.TakeDrop
+import Init.Data.String.Lemmas.Pattern.TakeDrop.Basic
+import Init.Data.String.Lemmas.Pattern.Char
+import Init.Data.Option.Lemmas
+
+public section
+
+open String.Slice Pattern Model
+
+namespace String
+
+namespace Slice
+
+theorem skipPrefix?_char_eq_some_iff {c : Char} {s : Slice} {pos : s.Pos} :
+    s.skipPrefix? c = some pos ↔ ∃ h, pos = s.startPos.next h ∧ s.startPos.get h = c := by
+  rw [Pattern.Model.skipPrefix?_eq_some_iff, Char.isLongestMatch_iff]
+
+theorem startsWith_char_iff_get {c : Char} {s : Slice} :
+    s.startsWith c ↔ ∃ h, s.startPos.get h = c := by
+  simp [Pattern.Model.startsWith_iff, Char.matchesAt_iff]
+
+theorem startsWith_char_eq_false_iff_get {c : Char} {s : Slice} :
+    s.startsWith c = false ↔ ∀ h, s.startPos.get h ≠ c := by
+  simp [Pattern.Model.startsWith_eq_false_iff, Char.matchesAt_iff]
+
+theorem startsWith_char_eq_head? {c : Char} {s : Slice} :
+    s.startsWith c = (s.copy.toList.head? == some c) := by
+  rw [Bool.eq_iff_iff, Pattern.Model.startsWith_iff, Char.matchesAt_iff_splits]
+  simp only [splits_startPos_iff, exists_and_left, exists_eq_left, beq_iff_eq]
+  refine ⟨fun ⟨t, ht⟩ => by simp [← ht], fun h => ?_⟩
+  simp only [← toList_inj, toList_append, toList_singleton, List.cons_append, List.nil_append]
+  cases h : s.copy.toList <;> simp_all [← ofList_inj]
+
+theorem startsWith_char_iff_exists_append {c : Char} {s : Slice} :
+    s.startsWith c ↔ ∃ t, s.copy = singleton c ++ t := by
+  simp only [startsWith_char_eq_head?, beq_iff_eq, List.head?_eq_some_iff, ← toList_inj,
+    toList_append, toList_singleton, List.cons_append, List.nil_append]
+  exact ⟨fun ⟨t, ht⟩ => ⟨ofList t, by simp [ht]⟩, fun ⟨t, ht⟩ => ⟨t.toList, by simp [ht]⟩⟩
+
+theorem startsWith_char_eq_false_iff_forall_append {c : Char} {s : Slice} :
+    s.startsWith c = false ↔ ∀ t, s.copy ≠ singleton c ++ t := by
+  simp [← Bool.not_eq_true, startsWith_char_iff_exists_append]
+
+theorem eq_append_of_dropPrefix?_char_eq_some {c : Char} {s res : Slice} (h : s.dropPrefix? c = some res) :
+    s.copy = singleton c ++ res.copy := by
+  simpa [ForwardPatternModel.Matches] using Pattern.Model.eq_append_of_dropPrefix?_eq_some h
+
+end Slice
+
+theorem skipPrefix?_char_eq_some_iff {c : Char} {s : String} {pos : s.Pos} :
+    s.skipPrefix? c = some pos ↔ ∃ h, pos = s.startPos.next h ∧ s.startPos.get h = c := by
+  simp [skipPrefix?_eq_skipPrefix?_toSlice, Slice.skipPrefix?_char_eq_some_iff, ← Pos.toSlice_inj,
+    Pos.toSlice_next]
+
+theorem startsWith_char_iff_get {c : Char} {s : String} :
+    s.startsWith c ↔ ∃ h, s.startPos.get h = c := by
+  simp [startsWith_eq_startsWith_toSlice, Slice.startsWith_char_iff_get]
+
+theorem startsWith_char_eq_false_iff_get {c : Char} {s : String} :
+    s.startsWith c = false ↔ ∀ h, s.startPos.get h ≠ c := by
+  simp [startsWith_eq_startsWith_toSlice, Slice.startsWith_char_eq_false_iff_get]
+
+theorem startsWith_char_eq_head? {c : Char} {s : String} :
+    s.startsWith c = (s.toList.head? == some c) := by
+  simp [startsWith_eq_startsWith_toSlice, Slice.startsWith_char_eq_head?]
+
+theorem startsWith_char_iff_exists_append {c : Char} {s : String} :
+    s.startsWith c ↔ ∃ t, s = singleton c ++ t := by
+  simp [startsWith_eq_startsWith_toSlice, Slice.startsWith_char_iff_exists_append]
+
+theorem startsWith_char_eq_false_iff_forall_append {c : Char} {s : String} :
+    s.startsWith c = false ↔ ∀ t, s ≠ singleton c ++ t := by
+  simp [← Bool.not_eq_true, startsWith_char_iff_exists_append]
+
+theorem eq_append_of_dropPrefix?_char_eq_some {c : Char} {s : String} {res : Slice} (h : s.dropPrefix? c = some res) :
+    s = singleton c ++ res.copy := by
+  rw [dropPrefix?_eq_dropPrefix?_toSlice] at h
+  simpa using Slice.eq_append_of_dropPrefix?_char_eq_some h
+
+end String

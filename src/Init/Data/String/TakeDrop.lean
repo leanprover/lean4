@@ -209,6 +209,39 @@ def Slice.dropRightWhile (s : Slice) (p : Char → Bool) : Slice :=
   s.dropEndWhile p
 
 /--
+If {name}`pat` matches a prefix of {name}`s`, returns the position at the start of the remainder.
+Returns {name}`none` otherwise.
+
+This function is generic over all currently supported patterns.
+-/
+@[inline] def skipPrefix? (s : String) (pat : ρ) [ForwardPattern pat] : Option s.Pos :=
+  (s.toSlice.skipPrefix? pat).map Pos.ofToSlice
+
+/--
+Returns the position after the longest prefix of {name}`s` for which {name}`pat` matches
+(potentially repeatedly).
+-/
+@[inline] def skipPrefixWhile (s : String) (pat : ρ) [ForwardPattern pat] : s.Pos :=
+  Pos.ofToSlice (s.toSlice.skipPrefixWhile pat)
+
+/--
+If {name}`pat` matches at {name}`pos`, returns the position after the end of the match.
+Returns {name}`none` otherwise.
+
+This function is generic over all currently supported patterns.
+-/
+@[inline]
+def Pos.skip? {s : String} (pos : s.Pos) (pat : ρ) [ForwardPattern pat] : Option s.Pos :=
+  (pos.toSlice.skip? pat).map Pos.ofToSlice
+
+/--
+Advances {name}`pos` as long as {name}`pat` matches.
+-/
+@[inline]
+def Pos.skipWhile {s : String} (pos : s.Pos) (pat : ρ) [ForwardPattern pat] : s.Pos :=
+  Pos.ofToSlice (pos.toSlice.skipWhile pat)
+
+/--
 Checks whether the first string ({name}`s`) begins with the pattern ({name}`pat`).
 
 {name (scope := "Init.Data.String.TakeDrop")}`String.isPrefixOf` is a version that takes the
@@ -257,6 +290,39 @@ Examples:
 -/
 @[inline] def endsWith (s : String) (pat : ρ) [BackwardPattern pat] : Bool :=
   s.toSlice.endsWith pat
+
+/--
+If {name}`pat` matches a suffix of {name}`s`, returns the position at the beginning of the suffix.
+Returns {name}`none` otherwise.
+
+This function is generic over all currently supported patterns.
+-/
+@[inline] def skipSuffix? (s : String) (pat : ρ) [BackwardPattern pat] : Option s.Pos :=
+  (s.toSlice.skipSuffix? pat).map Pos.ofToSlice
+
+/--
+Returns the position at the start of the longest suffix of {name}`s` for which {name}`pat` matches
+(potentially repeatedly).
+-/
+@[inline] def skipSuffixWhile (s : String) (pat : ρ) [BackwardPattern pat] : s.Pos :=
+  Pos.ofToSlice (s.toSlice.skipSuffixWhile pat)
+
+/--
+If {name}`pat` matches at {name}`pos`, returns the position after the end of the match.
+Returns {name}`none` otherwise.
+
+This function is generic over all currently supported patterns.
+-/
+@[inline]
+def Pos.revSkip? {s : String} (pos : s.Pos) (pat : ρ) [ForwardPattern pat] : Option s.Pos :=
+  (pos.toSlice.revSkip? pat).map Pos.ofToSlice
+
+/--
+Rewinds {name}`pos` as long as {name}`pat` matches.
+-/
+@[inline]
+def Pos.revSkipWhile {s : String} (pos : s.Pos) (pat : ρ) [BackwardPattern pat] : s.Pos :=
+  Pos.ofToSlice (pos.toSlice.revSkipWhile pat)
 
 /--
 Removes trailing whitespace from a string by returning a slice whose end position is the last

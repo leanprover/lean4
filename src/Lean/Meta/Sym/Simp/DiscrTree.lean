@@ -8,6 +8,7 @@ prelude
 public import Lean.Meta.Sym.Pattern
 public import Lean.Meta.DiscrTree.Basic
 import Lean.Meta.Sym.Offset
+import Lean.Meta.Sym.Eta
 import Init.Omega
 namespace Lean.Meta.Sym
 open DiscrTree
@@ -154,7 +155,7 @@ partial def getMatchLoop (todo : Array Expr) (c : Trie α) (result : Array α) :
     else if h : csize = 0 then
       result
     else
-      let e     := todo.back!
+      let e     := etaReduce todo.back!
       let todo  := todo.pop
       let first := cs[0] /- Recall that `Key.star` is the minimal key -/
       if csize = 1 then
@@ -184,6 +185,7 @@ public def getMatch (d : DiscrTree α) (e : Expr) : Array α :=
   let result := match d.root.find? .star with
   | none              => .mkEmpty initCapacity
   | some (.node vs _) => vs
+  let e := etaReduce e
   match d.root.find? (getKey e) with
   | none   => result
   | some c => getMatchLoop (pushArgsTodo #[] e) c result
@@ -196,6 +198,7 @@ This is useful for rewriting: if a pattern matches `f x` but `e` is `f x y z`, w
 still apply the rewrite and return `(value, 2)` indicating 2 extra arguments.
 -/
 public partial def getMatchWithExtra (d : DiscrTree α) (e : Expr) : Array (α × Nat) :=
+  let e := etaReduce e
   let result := getMatch d e
   let result := result.map (·, 0)
   if !e.isApp then

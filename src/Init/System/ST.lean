@@ -19,7 +19,7 @@ opaque Void.nonemptyType (σ : Type) : NonemptyType.{0}
 instance Void.instNonempty : Nonempty (Void σ) :=
   by exact (Void.nonemptyType σ).property
 
-@[extern "lean_void_mk"]
+@[extern "lean_void_mk", never_extract]
 opaque Void.mk (x : σ) : Void σ
 
 structure ST.Out (σ : Type) (α : Type) where
@@ -272,6 +272,7 @@ Creates a `MonadStateOf` instance from a reference cell.
 This allows programs written against the [state monad](lean-manual://section/state-monads) API to
 be executed using a mutable reference cell to track the state.
 -/
+@[implicit_reducible]
 def Ref.toMonadStateOf (r : Ref σ α) : MonadStateOf α m where
   get := r.get
   set := r.set

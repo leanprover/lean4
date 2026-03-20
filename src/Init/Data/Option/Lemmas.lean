@@ -82,6 +82,15 @@ theorem get_inj {o1 o2 : Option α} {h1} {h2} :
   match o1, o2, h1, h2 with
   | some a, some b, _, _ => simp only [Option.get_some, Option.some.injEq]
 
+theorem getD_inj {o₁ o₂ : Option α} (h₁ : o₁.isSome) (h₂ : o₂.isSome) {fallback} :
+    o₁.getD fallback = o₂.getD fallback ↔ o₁ = o₂ := by
+  match o₁, o₂, h₁, h₂ with
+  | some a, some b, _, _ => simp only [Option.getD_some, Option.some.injEq]
+
+theorem get!_inj [Inhabited α] {o₁ o₂ : Option α} (h₁ : o₁.isSome) (h₂ : o₂.isSome) :
+    o₁.get! = o₂.get! ↔ o₁ = o₂ := by
+  simpa [get!_eq_getD] using getD_inj h₁ h₂
+
 theorem mem_unique {o : Option α} {a b : α} (ha : a ∈ o) (hb : b ∈ o) : a = b :=
   some.inj <| ha ▸ hb
 
@@ -744,7 +753,7 @@ theorem elim_guard : (guard p a).elim b f = if p a then f a else b := by
   cases h : p a <;> simp [*, guard]
 
 @[simp]
-theorem Option.elim_map {f : α → β} {g' : γ} {g : β → γ} (o : Option α) :
+theorem elim_map {f : α → β} {g' : γ} {g : β → γ} (o : Option α) :
     (o.map f).elim g' g = o.elim g' (g ∘ f) := by
   cases o <;> simp
 

@@ -102,6 +102,12 @@ If the goal is not inconsistent and progress has been made,
 -/
 def evalCheck (tacticName : Name) (k : GoalM Bool)
     (pp? : Goal → MetaM (Option MessageData)) : GrindTacticM Unit := do
+  /- In sym mode, introduce remaining binders + by-contradiction + internalize
+     so that satellite solvers (lia, ring, linarith) see all hypotheses.
+     This matches the behavior of these tactics in default tactic mode
+     where `lia` can close `x > 1 → x + y + z > 0` directly. -/
+  if (← read).sym then
+    liftAction <| Action.intros 0 >> Action.assertAll
   let recover := (← read).recover
   liftGoalM do
     let progress ← k

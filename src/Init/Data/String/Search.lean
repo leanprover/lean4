@@ -125,7 +125,7 @@ Examples:
 -/
 @[inline]
 def find? (s : String) (pattern : ρ) [ToForwardSearcher pattern σ] : Option s.Pos :=
-  s.startPos.find? pattern
+  (s.toSlice.find? pattern).map Pos.ofToSlice
 
 /--
 Finds the position of the first match of the pattern {name}`pattern` in a slice {name}`s`. If there
@@ -140,7 +140,7 @@ Examples:
 -/
 @[inline]
 def find (s : String) (pattern : ρ) [ToForwardSearcher pattern σ] : s.Pos :=
-  s.startPos.find pattern
+  Pos.ofToSlice (s.toSlice.find pattern)
 
 /--
 Finds the position of the first match of the pattern {name}`pattern` in a slice {name}`s` that is
@@ -189,7 +189,7 @@ Examples:
 -/
 @[inline]
 def revFind? (s : String) (pattern : ρ) [ToBackwardSearcher pattern σ] : Option s.Pos :=
-  s.endPos.revFind? pattern
+  (s.toSlice.revFind? pattern).map Pos.ofToSlice
 
 @[export lean_string_posof]
 def Internal.posOfImpl (s : String) (c : Char) : Pos.Raw :=
@@ -278,42 +278,13 @@ def splitInclusive (s : String) (pat : ρ) [ToForwardSearcher pat σ] :=
 def foldlAux {α : Type u} (f : α → Char → α) (s : String) (stopPos : Pos.Raw) (i : Pos.Raw) (a : α) : α :=
   s.slice! (s.pos! i) (s.pos! stopPos) |>.foldl f a
 
-/--
-Folds a function over a string from the start, accumulating a value starting with {name}`init`. The
-accumulated value is combined with each character in order, using {name}`f`.
-
-Examples:
- * {lean}`"coffee tea water".foldl (fun n c => if c.isWhitespace then n + 1 else n) 0 = 2`
- * {lean}`"coffee tea and water".foldl (fun n c => if c.isWhitespace then n + 1 else n) 0 = 3`
- * {lean}`"coffee tea water".foldl (·.push ·) "" = "coffee tea water"`
--/
-@[inline] def foldl {α : Type u} (f : α → Char → α) (init : α) (s : String) : α :=
-  s.toSlice.foldl f init
-
-@[export lean_string_foldl]
-def Internal.foldlImpl (f : String → Char → String) (init : String) (s : String) : String :=
-  String.foldl f init s
-
 @[deprecated String.Slice.foldr (since := "2025-11-25")]
 def foldrAux {α : Type u} (f : Char → α → α) (a : α) (s : String) (i begPos : Pos.Raw) : α :=
   s.slice! (s.pos! begPos) (s.pos! i) |>.foldr f a
 
-/--
-Folds a function over a string from the right, accumulating a value starting with {lean}`init`. The
-accumulated value is combined with each character in reverse order, using {lean}`f`.
-
-Examples:
- * {lean}`"coffee tea water".foldr (fun c n => if c.isWhitespace then n + 1 else n) 0 = 2`
- * {lean}`"coffee tea and water".foldr (fun c n => if c.isWhitespace then n + 1 else n) 0 = 3`
- * {lean}`"coffee tea water".foldr (fun c s => s.push c) "" = "retaw aet eeffoc"`
--/
-@[inline] def foldr {α : Type u} (f : Char → α → α) (init : α) (s : String) : α :=
-  s.toSlice.foldr f init
-
 @[deprecated String.Slice.any (since := "2025-11-25")]
 def anyAux (s : String) (stopPos : Pos.Raw) (p : Char → Bool) (i : Pos.Raw) : Bool :=
   s.slice! (s.pos! i) (s.pos! stopPos) |>.any p
-
 
 /--
 Checks whether a string has a match of the pattern {name}`pat` anywhere.
@@ -540,88 +511,6 @@ Examples:
 -/
 @[inline, expose] def back (s : String) : Char :=
   s.toSlice.back
-
-theorem Pos.ofToSlice_ne_endPos {s : String} {p : s.toSlice.Pos}
-    (h : p ≠ s.toSlice.endPos) : ofToSlice p ≠ s.endPos := by
-  rwa [ne_eq, ← Pos.toSlice_inj, Slice.Pos.toSlice_ofToSlice, ← endPos_toSlice]
-
-@[inline]
-def Internal.toSliceWithProof {s : String} :
-    { p : s.toSlice.Pos // p ≠ s.toSlice.endPos } → { p : s.Pos // p ≠ s.endPos } :=
-  fun ⟨p, h⟩ => ⟨Pos.ofToSlice p, Pos.ofToSlice_ne_endPos h⟩
-
-/--
-Creates an iterator over all valid positions within {name}`s`.
-
-Examples
- * {lean}`("abc".positions.map (fun ⟨p, h⟩ => p.get h) |>.toList) = ['a', 'b', 'c']`
- * {lean}`("abc".positions.map (·.val.offset.byteIdx) |>.toList) = [0, 1, 2]`
- * {lean}`("ab∀c".positions.map (fun ⟨p, h⟩ => p.get h) |>.toList) = ['a', 'b', '∀', 'c']`
- * {lean}`("ab∀c".positions.map (·.val.offset.byteIdx) |>.toList) = [0, 1, 2, 5]`
--/
-@[inline]
-def positions (s : String) :=
-  (s.toSlice.positions.map Internal.toSliceWithProof : Std.Iter { p : s.Pos // p ≠ s.endPos })
-
-/--
-Creates an iterator over all characters (Unicode code points) in {name}`s`.
-
-Examples:
- * {lean}`"abc".chars.toList = ['a', 'b', 'c']`
- * {lean}`"ab∀c".chars.toList = ['a', 'b', '∀', 'c']`
--/
-@[inline]
-def chars (s : String) :=
-  (s.toSlice.chars : Std.Iter Char)
-
-/--
-Creates an iterator over all valid positions within {name}`s`, starting from the last valid
-position and iterating towards the first one.
-
-Examples
- * {lean}`("abc".revPositions.map (fun ⟨p, h⟩ => p.get h) |>.toList) = ['c', 'b', 'a']`
- * {lean}`("abc".revPositions.map (·.val.offset.byteIdx) |>.toList) = [2, 1, 0]`
- * {lean}`("ab∀c".revPositions.map (fun ⟨p, h⟩ => p.get h) |>.toList) = ['c', '∀', 'b', 'a']`
- * {lean}`("ab∀c".toSlice.revPositions.map (·.val.offset.byteIdx) |>.toList) = [5, 2, 1, 0]`
--/
-@[inline]
-def revPositions (s : String) :=
-  (s.toSlice.revPositions.map Internal.toSliceWithProof : Std.Iter { p : s.Pos // p ≠ s.endPos })
-
-/--
-Creates an iterator over all characters (Unicode code points) in {name}`s`, starting from the end
-of the slice and iterating towards the start.
-
-Example:
- * {lean}`"abc".revChars.toList = ['c', 'b', 'a']`
- * {lean}`"ab∀c".revChars.toList = ['c', '∀', 'b', 'a']`
--/
-@[inline]
-def revChars (s : String) :=
-  (s.toSlice.revChars : Std.Iter Char)
-
-/--
-Creates an iterator over all bytes in {name}`s`.
-
-Examples:
- * {lean}`"abc".byteIterator.toList = [97, 98, 99]`
- * {lean}`"ab∀c".byteIterator.toList = [97, 98, 226, 136, 128, 99]`
--/
-@[inline]
-def byteIterator (s : String) :=
-  (s.toSlice.bytes : Std.Iter UInt8)
-
-/--
-Creates an iterator over all bytes in {name}`s`, starting from the last one and iterating towards
-the first one.
-
-Examples:
- * {lean}`"abc".revBytes.toList = [99, 98, 97]`
- * {lean}`"ab∀c".revBytes.toList = [99, 128, 136, 226, 98, 97]`
--/
-@[inline]
-def revBytes (s : String) :=
-  (s.toSlice.revBytes : Std.Iter UInt8)
 
 /--
 Creates an iterator over all lines in {name}`s` with the line ending characters `\r\n` or `\n` being

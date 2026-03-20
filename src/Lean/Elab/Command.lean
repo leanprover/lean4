@@ -273,10 +273,12 @@ def wrapAsync {α β : Type} (act : α → CommandElabM β) (cancelTk? : Option 
     CommandElabM (α → EIO Exception β) := do
   let ctx ← read
   let ctx := { ctx with cancelTk? }
-  let (childNGen, parentNGen) := (← getDeclNGen).mkChild
-  setDeclNGen parentNGen
+  let (childNGen, parentNGen) := (← get).ngen.mkChild
+  modify fun s => { s with ngen := parentNGen }
+  let (childDeclNGen, parentDeclNGen) := (← getDeclNGen).mkChild
+  setDeclNGen parentDeclNGen
   let st ← get
-  let st := { st with auxDeclNGen := childNGen }
+  let st := { st with auxDeclNGen := childDeclNGen, ngen := childNGen }
   return (act · |>.run ctx |>.run' st)
 
 open Language in
@@ -388,6 +390,10 @@ Disables incremental command reuse *and* reporting for `act` if `cond` is true b
 -/
 def withoutCommandIncrementality (cond : Bool) (act : CommandElabM α) : CommandElabM α := do
   let opts ← getOptions
+  -- Cancel old elaboration when discarding it (for commands without incrementality support)
+  if cond then
+    if let some old := (← read).snap?.bind (·.old?) then
+      old.val.cancelRec
   withReader (fun ctx => { ctx with snap? := ctx.snap?.filter fun snap => Id.run do
     if let some old := snap.old? then
       if cond && opts.getBool `trace.Elab.reuse then
@@ -748,10 +754,10 @@ def runTermElabM (elabFn : Array Expr → TermElabM α) : CommandElabM α := do
           if xs.all (·.isFVar) then
             Term.withoutAutoBoundImplicit <| elabFn xs
           else
-            -- Abstract any mvars that appear in `xs` using `mkForallFVars` (the type `mkSort levelZero` is an arbitrary placeholder)
+            -- Abstract any mvars that appear in `xs` using `mkForallFVars` (the type `mkSort Level.zero` is an arbitrary placeholder)
             -- and then rebuild the local context from scratch.
             -- Resetting prevents the local context from including the original fvars from `xs`.
-            let ctxType ← Meta.mkForallFVars' xs (mkSort levelZero)
+            let ctxType ← Meta.mkForallFVars' xs (mkSort Level.zero)
             Meta.withLCtx {} {} <| Meta.forallBoundedTelescope ctxType xs.size fun xs _ =>
               Term.withoutAutoBoundImplicit <| elabFn xs
 
@@ -873,5 +879,23 @@ partial def withSetOptionIn (cmd : CommandElab) : CommandElab := fun stx => do
     cmd stx
 
 export Elab.Command (Linter addLinter)
+
+namespace Parser.Command
+
+/--
+Returns syntax for `private` or `public` visibility depending on `isPublic`. This function should be
+used to generate visibility syntax for declarations that is independent of the presence of
+`public section`s.
+-/
+def visibility.ofBool (isPublic : Bool) : TSyntax ``visibility :=
+  Unhygienic.run <| if isPublic then `(visibility| public) else `(visibility| private)
+
+/--
+Returns syntax for `private` if `attrKind` is `local` and `public` otherwise.
+-/
+def visibility.ofAttrKind (attrKind : TSyntax ``Term.attrKind) : TSyntax ``visibility :=
+  visibility.ofBool <| !attrKind matches `(attrKind| local)
+
+end Parser.Command
 
 end Lean

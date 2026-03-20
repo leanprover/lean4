@@ -240,7 +240,7 @@ where
        let newDecl ← decl.updateValue (← go decl.value)
        return Code.updateFun! code newDecl (← go k)
     | .cases cs =>
-      return Code.updateCases! code cs.resultType cs.discr (← cs.alts.mapM (·.mapCodeM go))
+      return Code.updateCases! code cs.resultType cs.discr (← cs.alts.mapMonoM (·.mapCodeM go))
     | .jmp .. | .return .. | .unreach .. =>
       return code
 
@@ -452,7 +452,7 @@ where
       let visitor := fun alt => do
         withNewAltScope alt do
           alt.mapCodeM go
-      let alts ← cs.alts.mapM visitor
+      let alts ← cs.alts.mapMonoM visitor
       return Code.updateCases! code cs.resultType discr alts
     | .jmp fn args =>
       let mut newArgs ← args.mapM (mapFVarM goFVar)
@@ -624,7 +624,7 @@ where
       let decl ← decl.updateValue (← goReduce decl.value)
       return Code.updateFun! code decl (← goReduce k)
     | .cases cs =>
-      let alts ← cs.alts.mapM (·.mapCodeM goReduce)
+      let alts ← cs.alts.mapMonoM (·.mapCodeM goReduce)
       return Code.updateCases! code cs.resultType cs.discr alts
     | .return .. | .unreach .. => return code
 

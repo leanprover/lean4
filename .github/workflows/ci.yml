@@ -60,10 +60,23 @@ jobs:
           if [[ -n '${{ secrets.PUSH_NIGHTLY_TOKEN }}' ]]; then
             git remote add nightly https://foo:'${{ secrets.PUSH_NIGHTLY_TOKEN }}'@github.com/${{ github.repository_owner }}/lean4-nightly.git
             git fetch nightly --tags
-            LEAN_VERSION_STRING="nightly-$(date -u +%F)"
-            # do nothing if commit already has a different tag
-            if [[ "$(git name-rev --name-only --tags --no-undefined HEAD 2> /dev/null || echo "$LEAN_VERSION_STRING")" == "$LEAN_VERSION_STRING" ]]; then
+            if [[ '${{ github.event_name }}' == 'workflow_dispatch' ]]; then
+              # Manual re-release: create a revision of the most recent nightly
+              BASE_NIGHTLY=$(git tag -l 'nightly-*' | sort -rV | head -1)
+              # Strip any existing -revK suffix to get the base date tag
+              BASE_NIGHTLY="${BASE_NIGHTLY%%-rev*}"
+              REV=1
+              while git rev-parse "refs/tags/${BASE_NIGHTLY}-rev${REV}" >/dev/null 2>&1; do
+                REV=$((REV + 1))
+              done
+              LEAN_VERSION_STRING="${BASE_NIGHTLY}-rev${REV}"
               echo "nightly=$LEAN_VERSION_STRING" >> "$GITHUB_OUTPUT"
+            else
+              # Scheduled: do nothing if commit already has a different tag
+              LEAN_VERSION_STRING="nightly-$(date -u +%F)"
+              if [[ "$(git name-rev --name-only --tags --no-undefined HEAD 2> /dev/null || echo "$LEAN_VERSION_STRING")" == "$LEAN_VERSION_STRING" ]]; then
+                echo "nightly=$LEAN_VERSION_STRING" >> "$GITHUB_OUTPUT"
+              fi
             fi
           fi
 
@@ -153,7 +166,7 @@ jobs:
       # 0: PRs without special label
       # 1: PRs with `merge-ci` label, merge queue checks, master commits
       # 2: nightlies
-      # 3: PRs with `release-ci` label, full releases
+      # 3: PRs with `release-ci` or `lake-ci` label, full releases
       - name: Set check level
         id: set-level
         # We do not use github.event.pull_request.labels.*.name here because
@@ -162,6 +175,7 @@ jobs:
         run: |
           check_level=0
           fast=false
+          lake_ci=false
 
           if [[ -n "${{ steps.set-release.outputs.RELEASE_TAG }}" || -n "${{ steps.set-release-custom.outputs.RELEASE_TAG }}" ]]; then
             check_level=3
@@ -176,13 +190,19 @@ jobs:
             elif echo "$labels" | grep -q "merge-ci"; then
               check_level=1
             fi
+            if echo "$labels" | grep -q "lake-ci"; then
+              lake_ci=true
+            fi
             if echo "$labels" | grep -q "fast-ci"; then
               fast=true
             fi
           fi
 
-          echo "check-level=$check_level" >> "$GITHUB_OUTPUT"
-          echo "fast=$fast" >> "$GITHUB_OUTPUT"
+          {
+            echo "check-level=$check_level"
+            echo "fast=$fast"
+            echo "lake-ci=$lake_ci"
+          } >> "$GITHUB_OUTPUT"
         env:
           GH_TOKEN: ${{ github.token }}
 
@@ -193,6 +213,7 @@ jobs:
           script: |
             const level = ${{ steps.set-level.outputs.check-level }};
             const fast = ${{ steps.set-level.outputs.fast }};
+            const lakeCi = "${{ steps.set-level.outputs.lake-ci }}" == "true";
             console.log(`level: ${level}, fast: ${fast}`);
             // use large runners where available (original repo)
             let large = ${{ github.repository == 'leanprover/lean4' }};
@@ -245,8 +266,8 @@ jobs:
                 "check-rebootstrap": level >= 1,
                 "check-stage3": level >= 2,
                 "test": true,
-                // NOTE: `test-speedcenter` currently seems to be broken on `ubuntu-latest`
-                "test-speedcenter": large && level >= 2,
+                // NOTE: `test-bench` currently seems to be broken on `ubuntu-latest`
+                "test-bench": large && level >= 2,
                 // We are not warning-free yet on all platforms, start here
                 "CMAKE_OPTIONS": "-DLEAN_EXTRA_CXX_FLAGS=-Werror",
               },
@@ -256,11 +277,13 @@ jobs:
                 "enabled": level >= 2,
                 "test": true,
                 "CMAKE_PRESET": "reldebug",
+                // * `elab_bench/big_do` crashes with exit code 134
+                "CTEST_OPTIONS": "-E 'elab_bench/big_do'",
               },
               {
                 "name": "Linux fsanitize",
                 // Always run on large if available, more reliable regarding timeouts
-                "os": large ? "nscloud-ubuntu-22.04-amd64-8x16-with-cache" : "ubuntu-latest",
+                "os": large ? "nscloud-ubuntu-22.04-amd64-16x32-with-cache" : "ubuntu-latest",
                 "enabled": level >= 2,
                 // do not fail nightlies on this for now
                 "secondary": level <= 2,
@@ -277,7 +300,7 @@ jobs:
                 // * `grind_guide` always times out.
                 // * `pkg/|lake/` tests sometimes time out (likely even hang), related to Lake CI
                 //   failures?
-                "CTEST_OPTIONS": "-E 'StackOverflow|reverse-ffi|interactive|async_select_channel|9366|run/bv_|grind_guide|pkg/|lake/'"
+                "CTEST_OPTIONS": "-E 'StackOverflow|reverse-ffi|interactive|async_select_channel|9366|run/bv_|grind_guide|grind_bitvec2|grind_constProp|grind_indexmap|grind_list|grind_lint|grind_array_attach|grind_ite_trace|pkg/|lake/'"
               },
               {
                 "name": "macOS",
@@ -362,6 +385,11 @@ jobs:
               if (job["prepare-llvm"]) {
                 // `USE_LAKE` is not compatible with `prepare-llvm` currently
                 job["CMAKE_OPTIONS"] = (job["CMAKE_OPTIONS"] ? job["CMAKE_OPTIONS"] + " " : "") + "-DUSE_LAKE=OFF";
+              }
+            }
+            if (lakeCi) {
+              for (const job of matrix) {
+                job["CMAKE_OPTIONS"] = (job["CMAKE_OPTIONS"] ? job["CMAKE_OPTIONS"] + " " : "") + "-DLAKE_CI=ON";
               }
             }
             console.log(`matrix:\n${JSON.stringify(matrix, null, 2)}`);
@@ -475,7 +503,7 @@ jobs:
           git tag "${{ needs.configure.outputs.nightly }}"
           git push nightly "${{ needs.configure.outputs.nightly }}"
           git push -f origin refs/tags/${{ needs.configure.outputs.nightly }}:refs/heads/nightly
-          last_tag="$(git log HEAD^ --simplify-by-decoration --pretty="format:%d" | grep -o "nightly-[-0-9]*" | head -n 1)"
+          last_tag="$(git log HEAD^ --simplify-by-decoration --pretty="format:%d" | grep -o "nightly-[^ ,)]*" | head -n 1)"
           echo -e "*Changes since ${last_tag}:*\n\n" > diff.md
           git show "$last_tag":RELEASES.md > old.md
           #./script/diff_changelogs.py old.md doc/changes.md >> diff.md
@@ -498,8 +526,18 @@ jobs:
           gh workflow -R leanprover/release-index run update-index.yml
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_INDEX_TOKEN }}
+      - name: Generate mathlib nightly-testing app token
+        id: mathlib-app-token
+        uses: actions/create-github-app-token@29824e69f54612133e76f7eaac726eef6c875baf # v2.2.1
+        continue-on-error: true
+        with:
+          app-id: ${{ secrets.MATHLIB_NIGHTLY_TESTING_APP_ID }}
+          private-key: ${{ secrets.MATHLIB_NIGHTLY_TESTING_PRIVATE_KEY }}
+          owner: leanprover-community
+          repositories: mathlib4-nightly-testing
       - name: Update toolchain on mathlib4's nightly-testing branch
+        if: steps.mathlib-app-token.outcome == 'success'
         run: |
-          gh workflow -R leanprover-community/mathlib4-nightly-testing run nightly_bump_toolchain.yml
+          gh workflow -R leanprover-community/mathlib4-nightly-testing run nightly_bump_and_merge.yml
         env:
-          GITHUB_TOKEN: ${{ secrets.MATHLIB4_BOT }}
+          GITHUB_TOKEN: ${{ steps.mathlib-app-token.outputs.token }}

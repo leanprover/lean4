@@ -129,8 +129,8 @@ def hasParam (u : Level) : Bool :=
 
 end Level
 
-@[expose] def levelZero :=
-  Level.zero
+@[deprecated Level.zero (since := "2026-02-27")] -- This was previously required in order to get the computed field `data` to work, but it is no longer needed.
+abbrev levelZero := Level.zero
 
 def mkLevelMVar (mvarId : LMVarId) :=
   Level.mvar mvarId
@@ -147,9 +147,12 @@ def mkLevelMax (u v : Level) :=
 def mkLevelIMax (u v : Level) :=
   Level.imax u v
 
-def levelOne := mkLevelSucc levelZero
+abbrev Level.one := mkLevelSucc .zero
 
-@[export lean_level_mk_zero] def mkLevelZeroEx : Unit → Level := fun _ => levelZero
+@[deprecated Level.one (since := "2026-02-27")]
+abbrev levelOne := Level.one
+
+@[export lean_level_mk_zero] def mkLevelZeroEx : Unit → Level := fun _ => .zero
 @[export lean_level_mk_succ] def mkLevelSuccEx : Level → Level := mkLevelSucc
 @[export lean_level_mk_mvar] def mkLevelMVarEx : LMVarId → Level := mkLevelMVar
 @[export lean_level_mk_param] def mkLevelParamEx : Name → Level := mkLevelParam
@@ -213,8 +216,8 @@ def isAlwaysZero : Level → Bool
   | max l₁ l₂    => isAlwaysZero l₁ && isAlwaysZero l₂
   | imax _  l₂   => isAlwaysZero l₂
 
-@[expose] def ofNat : Nat → Level
-  | 0   => levelZero
+@[expose, implicit_reducible] def ofNat : Nat → Level
+  | 0   => Level.zero
   | n+1 => mkLevelSucc (ofNat n)
 
 instance instOfNat (n : Nat) : OfNat Level n where
@@ -388,7 +391,7 @@ partial def normalize (l : Level) : Level :=
       let lvl₁  := lvls[i]!
       let prev  := lvl₁.getLevelOffset
       let prevK := lvl₁.getOffset
-      mkMaxAux lvls k (i+1) prev prevK levelZero
+      mkMaxAux lvls k (i+1) prev prevK Level.zero
     | imax l₁ l₂ =>
       if l₂.isNeverZero then addOffset (normalize (mkLevelMax l₁ l₂)) k
       else
@@ -517,7 +520,7 @@ end Level
   else
     elseK ()
 
-/- Similar to `mkLevelMax`, but applies cheap simplifications -/
+/-- Similar to `mkLevelMax`, but applies cheap simplifications -/
 def mkLevelMax' (u v : Level) : Level :=
   mkLevelMaxCore u v fun _ => mkLevelMax u v
 
@@ -531,7 +534,7 @@ def simpLevelMax' (u v : Level) (d : Level) : Level :=
   else if u == v then u
   else elseK ()
 
-/- Similar to `mkLevelIMax`, but applies cheap simplifications -/
+/-- Similar to `mkLevelIMax`, but applies cheap simplifications -/
 def mkLevelIMax' (u v : Level) : Level :=
   mkLevelIMaxCore u v fun _ => mkLevelIMax u v
 
@@ -580,7 +583,7 @@ def updateIMax! (lvl : Level) (newLhs : Level) (newRhs : Level) : Level :=
   | _        => panic! "imax level expected"
 
 def mkNaryMax : List Level → Level
-  | []    => levelZero
+  | []    => Level.zero
   | [u]   => u
   | u::us => mkLevelMax' u (mkNaryMax us)
 

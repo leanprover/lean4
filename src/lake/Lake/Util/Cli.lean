@@ -17,8 +17,7 @@ Defines the abstract CLI interface for Lake.
 
 /-! # Types -/
 
-@[expose]  -- for codegen
-public def ArgList := List String
+public abbrev ArgList := List String
 
 @[inline] public def ArgList.mk (args : List String) : ArgList :=
   args

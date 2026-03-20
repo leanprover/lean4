@@ -125,7 +125,7 @@ protected theorem Sublist.eraseP : l₁ <+ l₂ → l₁.eraseP p <+ l₂.eraseP
     by_cases h : p a
     · simpa [h] using s.eraseP.trans eraseP_sublist
     · simpa [h] using s.eraseP.cons _
-  | .cons₂ a s => by
+  | .cons_cons a s => by
     by_cases h : p a
     · simpa [h] using s
     · simpa [h] using s.eraseP

@@ -65,7 +65,7 @@ public def mkCtorIdx (indName : Name) : MetaM Unit :=
           pure (mkRawNatLit 0)
         else
           let motive ← mkLambdaFVars (indices.push x) natType
-          let mut value := mkConst casesOnName (levelOne::us)
+          let mut value := mkConst casesOnName (Level.one::us)
           value := mkAppN value params
           value := mkApp value motive
           value := mkAppN value indices

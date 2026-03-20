@@ -9,25 +9,31 @@ public import Lean.Meta.Sym.Simp.SimpM
 public import Lean.Meta.Sym.InferType
 namespace Lean.Meta.Sym.Simp
 
-public abbrev Result.isRfl (result : Result) : Bool :=
-  result matches .rfl
+public abbrev Result.isRfl : Result → Bool
+  | .rfl false _ => true
+  | _ => false
 
 public def mkEqTrans (e₁ : Expr) (e₂ : Expr) (h₁ : Expr) (e₃ : Expr) (h₂ : Expr) : SymM Expr := do
   let α ← Sym.inferType e₁
   let u ← Sym.getLevel α
   return mkApp6 (mkConst ``Eq.trans [u]) α e₁ e₂ e₃ h₁ h₂
 
-public abbrev mkEqTransResult (e₁ : Expr) (e₂ : Expr) (h₁ : Expr) (r₂ : Result) : SymM Result :=
+/-- Chains two simplification steps via `Eq.trans`.
+`cd₁` is the `contextDependent` flag from the first step (whose proof is `h₁`).
+The output is context-dependent if either step was: in another local context,
+either step might produce a different result, changing the whole chain. -/
+public abbrev mkEqTransResult (e₁ : Expr) (e₂ : Expr) (h₁ : Expr) (r₂ : Result)
+    (cd₁ : Bool := false) : SymM Result :=
   match r₂ with
-  | .rfl done => return .step e₂ h₁ done
-  | .step e₃ h₂ done => return .step e₃ (← mkEqTrans e₁ e₂ h₁ e₃ h₂) done
+  | .rfl done cd₂ => return .step e₂ h₁ done (cd₁ || cd₂)
+  | .step e₃ h₂ done cd₂ => return .step e₃ (← mkEqTrans e₁ e₂ h₁ e₃ h₂) done (cd₁ || cd₂)
 
 public def Result.markAsDone : Result → Result
-  | .rfl _ => .rfl true
-  | .step e h _ => .step e h true
+  | .rfl _ cd => .rfl true cd
+  | .step e h _ cd => .step e h true cd
 
 public def Result.getResultExpr : Expr → Result → Expr
-  | e, .rfl _ => e
-  | _, .step e _ _ => e
+  | e, .rfl _ _ => e
+  | _, .step e _ _ _ => e
 
 end Lean.Meta.Sym.Simp

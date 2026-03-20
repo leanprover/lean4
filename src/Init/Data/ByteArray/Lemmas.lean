@@ -111,13 +111,13 @@ theorem getElem_eq_getElem_data {a : ByteArray} {i : Nat} {h : i < a.size} :
 theorem getElem_append_left {i : Nat} {a b : ByteArray} {h : i < (a ++ b).size}
     (hlt : i < a.size) : (a ++ b)[i] = a[i] := by
   simp only [getElem_eq_getElem_data, data_append]
-  rw [Array.getElem_append_left (by simpa)]
+  rw [Array.getElem_append_left (by simpa)]; rfl
 
 theorem getElem_append_right {i : Nat} {a b : ByteArray} {h : i < (a ++ b).size}
     (hle : a.size ≤ i) : (a ++ b)[i] = b[i - a.size]'(by simp_all; omega) := by
   simp only [getElem_eq_getElem_data, data_append]
   rw [Array.getElem_append_right (by simpa)]
-  simp
+  simp; rfl
 
 @[simp]
 theorem _root_.List.getElem_toByteArray {l : List UInt8} {i : Nat} {h : i < l.toByteArray.size} :
@@ -223,7 +223,7 @@ theorem getElem_extract_aux {xs : ByteArray} {start stop : Nat} (h : i < (xs.ext
 
 theorem getElem_extract {i : Nat} {b : ByteArray} {start stop : Nat}
     (h) : (b.extract start stop)[i]'h = b[start + i]'(getElem_extract_aux h) := by
-  simp [getElem_eq_getElem_data]
+  simp [getElem_eq_getElem_data]; rfl
 
 theorem extract_eq_extract_left {a : ByteArray} {i i' j : Nat} :
     a.extract i j = a.extract i' j ↔ min j a.size - i = min j a.size - i' := by
@@ -236,25 +236,25 @@ theorem extract_add_one {a : ByteArray} {i : Nat} (ha : i + 1 ≤ a.size) :
     omega
   · rename_i j hj hj'
     obtain rfl : j = 0 := by simpa using hj'
-    simp [ByteArray.getElem_eq_getElem_data]
+    simp [ByteArray.getElem_eq_getElem_data]; rfl
 
 theorem extract_add_two {a : ByteArray} {i : Nat} (ha : i + 2 ≤ a.size) :
     a.extract i (i + 2) = [a[i], a[i + 1]].toByteArray := by
   rw [extract_eq_extract_append_extract (i + 1) (by simp) (by omega),
     extract_add_one (by omega), extract_add_one (by omega)]
-  simp [← List.toByteArray_append]
+  simp [← List.toByteArray_append]; rfl
 
 theorem extract_add_three {a : ByteArray} {i : Nat} (ha : i + 3 ≤ a.size) :
     a.extract i (i + 3) = [a[i], a[i + 1], a[i + 2]].toByteArray := by
   rw [extract_eq_extract_append_extract (i + 1) (by simp) (by omega),
     extract_add_one (by omega), extract_add_two (by omega)]
-  simp [← List.toByteArray_append]
+  simp [← List.toByteArray_append]; rfl
 
 theorem extract_add_four {a : ByteArray} {i : Nat} (ha : i + 4 ≤ a.size) :
     a.extract i (i + 4) = [a[i], a[i + 1], a[i + 2], a[i + 3]].toByteArray := by
   rw [extract_eq_extract_append_extract (i + 1) (by simp) (by omega),
     extract_add_one (by omega), extract_add_three (by omega)]
-  simp [← List.toByteArray_append]
+  simp [← List.toByteArray_append]; rfl
 
 theorem append_assoc {a b c : ByteArray} : a ++ b ++ c = a ++ (b ++ c) := by
   ext1

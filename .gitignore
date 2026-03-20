@@ -1,7 +1,6 @@
 *~
 \#*
 .#*
-*.lock
 .lake
 lake-manifest.json
 /build
@@ -18,8 +17,12 @@ compile_commands.json
 *.idea
 tasks.json
 settings.json
+!.claude/settings.json
 .gdb_history
 .vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/extensions.json
 script/__pycache__
 *.produced.out
 CMakeSettings.json

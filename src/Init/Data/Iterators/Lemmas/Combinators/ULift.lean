@@ -42,7 +42,7 @@ theorem Iter.step_uLift [Iterator α Id β] {it : Iter (α := α) β} :
 theorem Iter.toList_uLift [Iterator α Id β] {it : Iter (α := α) β}
     [Finite α Id] :
     it.uLift.toList = it.toList.map ULift.up := by
-  simp only [monadLift, uLift_eq_toIter_uLift_toIterM, IterM.toList_toIter]
+  simp only [uLift_eq_toIter_uLift_toIterM, IterM.toList_toIter]
   rw [IterM.toList_uLift]
   simp [monadLift, Iter.toList_eq_toList_toIterM]
 
@@ -63,7 +63,7 @@ theorem Iter.toArray_uLift [Iterator α Id β] {it : Iter (α := α) β}
 theorem Iter.length_uLift [Iterator α Id β] {it : Iter (α := α) β}
     [Finite α Id] [IteratorLoop α Id Id] [LawfulIteratorLoop α Id Id] :
     it.uLift.length = it.length := by
-  simp only [monadLift, uLift_eq_toIter_uLift_toIterM, length_eq_length_toIterM, toIterM_toIter]
+  simp only [uLift_eq_toIter_uLift_toIterM, length_eq_length_toIterM, toIterM_toIter]
   rw [IterM.length_uLift]
   simp [monadLift]
 

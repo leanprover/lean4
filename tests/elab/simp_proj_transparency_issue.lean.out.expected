@@ -1,0 +1,2 @@
+simp_proj_transparency_issue.lean:5:2-5:10: warning: instance `f` must be marked with `@[reducible]` or `@[implicit_reducible]`
+simp_proj_transparency_issue.lean:9:2-9:10: warning: instance `g` must be marked with `@[reducible]` or `@[implicit_reducible]`

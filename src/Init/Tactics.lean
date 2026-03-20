@@ -577,7 +577,7 @@ If `thm` is a theorem `a = b`, then as a rewrite rule,
 * `thm` means to replace `a` with `b`, and
 * `← thm` means to replace `b` with `a`.
 -/
-syntax rwRule    := patternIgnore("← " <|> "<- ")? term
+syntax rwRule    := unicode("← ", "<- ")? term
 /-- A `rwRuleSeq` is a list of `rwRule` in brackets. -/
 syntax rwRuleSeq := " [" withoutPosition(rwRule,*,?) "]"
 
@@ -653,7 +653,7 @@ A simp lemma specification is:
 * optional `←` to use the lemma backward
 * `thm` for the theorem to rewrite with
 -/
-syntax simpLemma := ppGroup((simpPre <|> simpPost)? patternIgnore("← " <|> "<- ")? term)
+syntax simpLemma := ppGroup((simpPre <|> simpPost)? unicode("← ", "<- ")? term)
 /-- An erasure specification `-thm` says to remove `thm` from the simp set -/
 syntax simpErase := "-" term:max
 /-- The simp lemma specification `*` means to rewrite with all hypotheses -/
@@ -2262,6 +2262,42 @@ with grind
 ```
 This is more convenient than the equivalent `· by rename_i _ acc _; exact I1 acc`.
 
+### Witnesses
+
+When a specification has a parameter whose type is tagged with `@[mvcgen_witness_type]`, `mvcgen`
+classifies the corresponding goal as a *witness* rather than a verification condition.
+Witnesses are concrete values that the user must provide (inspired by zero-knowledge proofs),
+as opposed to invariants (predicates maintained across loop iterations) or verification conditions
+(propositions to prove).
+
+Witness goals are labelled `witness1`, `witness2`, etc. and can be provided in a `witnesses` section
+that appears before the `invariants` section:
+```
+mvcgen [...] witnesses
+· W1
+· W2
+invariants
+· I1
+with grind
+```
+Like invariants, witnesses support case label syntax:
+```
+mvcgen [...] witnesses
+| witness1 => W1
+```
+
+See the `@[mvcgen_witness_type]` attribute for how to register custom witness types.
+
+### Invariant and witness type attributes
+
+The `@[mvcgen_invariant_type]` and `@[mvcgen_witness_type]` tag attributes control how `mvcgen`
+classifies subgoals:
+* A goal whose type is an application of a type tagged with `@[mvcgen_invariant_type]` is classified
+  as an invariant (`inv<n>`).
+* A goal whose type is an application of a type tagged with `@[mvcgen_witness_type]` is classified
+  as a witness (`witness<n>`).
+* All other goals are classified as verification conditions (`vc<n>`).
+
 ### Invariant suggestions
 
 `mvcgen` will suggest invariants for you if you use the `invariants?` keyword.
@@ -2295,6 +2331,47 @@ theorem mySum_suggest_invariant (l : List Nat) : mySum l = l.sum := by
 -/
 macro (name := mvcgenMacro) (priority:=low) "mvcgen" : tactic =>
   Macro.throwError "to use `mvcgen`, please include `import Std.Tactic.Do`"
+
+/--
+`cbv` performs simplification that closely mimics call-by-value evaluation.
+It reduces terms by unfolding definitions using their defining equations and
+applying matcher equations. The unfolding is propositional, so `cbv` also works
+with functions defined via well-founded recursion or partial fixpoints.
+
+`cbv` reduces the goal type (and optionally hypothesis types) using call-by-value
+evaluation. For equation goals (`lhs = rhs`), `cbv` automatically attempts `refl`
+after reduction to close the goal.
+
+`cbv` supports the standard `at` location syntax:
+- `cbv` — reduce the goal target
+- `cbv at h` — reduce hypothesis `h`
+- `cbv at h |-` — reduce hypothesis `h` and the goal target
+- `cbv at *` — reduce all non-dependent propositional hypotheses and the goal target
+
+`cbv` is not a finishing tactic in general: it may leave a new (simpler) goal.
+
+The proofs produced by `cbv` only use the three standard axioms.
+In particular, they do not require trust in the correctness of the code
+generator.
+-/
+syntax (name := cbv) "cbv" (location)? : tactic
+
+/--
+`decide_cbv` is a finishing tactic that closes goals of the form `p`, where `p`
+is a `Decidable` proposition. It proceeds in two steps:
+1. Apply `of_decide_eq_true` to transform the goal into `decide p = true`.
+2. Reduce `decide p` via call-by-value normalization. If the result is
+   definitionally equal to `true`, the goal is closed.
+
+`decide_cbv` fails with an error if `decide p` does not reduce to `true`.
+Unlike `cbv`, `decide_cbv` is a terminal tactic: it either closes the goal or
+fails.
+
+The proofs produced by `decide_cbv` only use the three standard axioms.
+In particular, they do not require trust in the correctness of the code
+generator.
+-/
+syntax (name := decide_cbv) "decide_cbv" : tactic
 
 end Tactic
 
@@ -2348,7 +2425,7 @@ If there are several with the same priority, it is uses the "most recent one". E
   cases d <;> rfl
 ```
 -/
-syntax (name := simp) "simp" (Tactic.simpPre <|> Tactic.simpPost)? patternIgnore("← " <|> "<- ")? (ppSpace prio)? : attr
+syntax (name := simp) "simp" (Tactic.simpPre <|> Tactic.simpPost)? unicode("← ", "<- ")? (ppSpace prio)? : attr
 
 /--
 Theorems tagged with the `wf_preprocess` attribute are used during the processing of functions defined
@@ -2362,7 +2439,7 @@ that diverges as compiled to be accepted without an explicit `partial` keyword, 
 remove irrelevant subterms or change the evaluation order by hiding terms under binders. Therefore
 avoid tagging theorems with `[wf_preprocess]` unless they preserve also operational behavior.
 -/
-syntax (name := wf_preprocess) "wf_preprocess" (Tactic.simpPre <|> Tactic.simpPost)? patternIgnore("← " <|> "<- ")? (ppSpace prio)? : attr
+syntax (name := wf_preprocess) "wf_preprocess" (Tactic.simpPre <|> Tactic.simpPost)? unicode("← ", "<- ")? (ppSpace prio)? : attr
 
 /--
 Theorems tagged with the `method_specs_simp` attribute are used by `@[method_specs]` to further
@@ -2374,7 +2451,17 @@ The `method_specs` theorems are created on demand (using the realizable constant
 this simp set should behave the same in all modules. Do not add theorems to it except in the module
 defining the thing you are rewriting.
 -/
-syntax (name := method_specs_simp) "method_specs_simp" (Tactic.simpPre <|> Tactic.simpPost)? patternIgnore("← " <|> "<- ")? (ppSpace prio)? : attr
+syntax (name := method_specs_simp) "method_specs_simp" (Tactic.simpPre <|> Tactic.simpPost)? unicode("← ", "<- ")? (ppSpace prio)? : attr
+
+/--
+Register a theorem as a rewrite rule for `cbv` evaluation of a given definition.
+
+You can instruct `cbv` to rewrite the lemma from right-to-left:
+```lean
+@[cbv_eval ←] theorem my_thm : rhs = lhs := ...
+```
+-/
+syntax (name := cbv_eval) "cbv_eval" unicode("← ", "<- ")? (ppSpace ident)? : attr
 
 /-- The possible `norm_cast` kinds: `elim`, `move`, or `squash`. -/
 syntax normCastLabel := &"elim" <|> &"move" <|> &"squash"

@@ -384,10 +384,13 @@ private opaque evalFilePath (stx : Syntax) : TermElabM System.FilePath
       withoutExporting do
         let e ← elabTermAndSynthesize e expectedType?
         let compile := !(← read).isNoncomputableSection && !(← read).declName?.any (Lean.isNoncomputable (← getEnv))
-        let e ← mkAuxDefinitionFor (compile := compile) name e
+        let e ← mkAuxDefinitionFor (compile := false) name e
         if compile then
           -- Inline as changing visibility should not affect run time.
           setInlineAttribute name
+          if (← read).declName?.any (isMarkedMeta (← getEnv)) then
+            modifyEnv (markMeta · name)
+          compileDecls #[name]
         return e
     else
       elabTerm e expectedType?

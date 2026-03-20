@@ -78,7 +78,7 @@ jobs:
       # (needs to be after "Install *" to use the right shell)
       - name: CI Merge Checkout
         run: |
-          git fetch --depth=1 origin ${{ github.sha }}
+          git fetch --depth=${{ matrix.name == 'Linux Lake (Cached)' && '10' || '1' }} origin ${{ github.sha }}
           git checkout FETCH_HEAD flake.nix flake.lock script/prepare-* tests/elab/importStructure.lean
         if: github.event_name == 'pull_request'
       # (needs to be after "Checkout" so files don't get overridden)

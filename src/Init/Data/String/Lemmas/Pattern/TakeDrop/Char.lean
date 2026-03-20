@@ -40,6 +40,16 @@ theorem startsWith_char_eq_head? {c : Char} {s : Slice} :
   simp only [← toList_inj, toList_append, toList_singleton, List.cons_append, List.nil_append]
   cases h : s.copy.toList <;> simp_all [← ofList_inj]
 
+theorem startsWith_char_iff_exists_append {c : Char} {s : Slice} :
+    s.startsWith c ↔ ∃ t, s.copy = singleton c ++ t := by
+  simp only [startsWith_char_eq_head?, beq_iff_eq, List.head?_eq_some_iff, ← toList_inj,
+    toList_append, toList_singleton, List.cons_append, List.nil_append]
+  exact ⟨fun ⟨t, ht⟩ => ⟨ofList t, by simp [ht]⟩, fun ⟨t, ht⟩ => ⟨t.toList, by simp [ht]⟩⟩
+
+theorem startsWith_char_eq_false_iff_forall_append {c : Char} {s : Slice} :
+    s.startsWith c = false ↔ ∀ t, s.copy ≠ singleton c ++ t := by
+  simp [← Bool.not_eq_true, startsWith_char_iff_exists_append]
+
 theorem eq_append_of_dropPrefix?_char_eq_some {c : Char} {s res : Slice} (h : s.dropPrefix? c = some res) :
     s.copy = singleton c ++ res.copy := by
   simpa [ForwardPatternModel.Matches] using Pattern.Model.eq_append_of_dropPrefix?_eq_some h
@@ -62,6 +72,14 @@ theorem startsWith_char_eq_false_iff_get {c : Char} {s : String} :
 theorem startsWith_char_eq_head? {c : Char} {s : String} :
     s.startsWith c = (s.toList.head? == some c) := by
   simp [startsWith_eq_startsWith_toSlice, Slice.startsWith_char_eq_head?]
+
+theorem startsWith_char_iff_exists_append {c : Char} {s : String} :
+    s.startsWith c ↔ ∃ t, s = singleton c ++ t := by
+  simp [startsWith_eq_startsWith_toSlice, Slice.startsWith_char_iff_exists_append]
+
+theorem startsWith_char_eq_false_iff_forall_append {c : Char} {s : String} :
+    s.startsWith c = false ↔ ∀ t, s ≠ singleton c ++ t := by
+  simp [← Bool.not_eq_true, startsWith_char_iff_exists_append]
 
 theorem eq_append_of_dropPrefix?_char_eq_some {c : Char} {s : String} {res : Slice} (h : s.dropPrefix? c = some res) :
     s = singleton c ++ res.copy := by

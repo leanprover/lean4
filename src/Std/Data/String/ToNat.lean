@@ -204,6 +204,15 @@ public theorem toNat?_eq_some_ofDigitChars {s : String.Slice} (h : s.isNat = tru
   simp [Nat.ofDigitChars_eq_foldl, ↓Char.isValue, Char.reduceToNat, foldl_eq_foldl_toList, List.foldl_ite_right,
     bne_eq, Bool.beq_eq_decide_eq, Nat.mul_comm 10]
 
+public theorem isNat_congr {s t : String.Slice} (h : s.copy = t.copy) : s.isNat = t.isNat := by
+  rw [Bool.eq_iff_iff, isNat_iff, isNat_iff, ← isEmpty_copy]
+  simp [h]
+
+public theorem toNat?_congr {s t : String.Slice} (h : s.copy = t.copy) : s.toNat? = t.toNat? := by
+  match h' : s.isNat with
+  | false => rw [toNat?_eq_none h', toNat?_eq_none (isNat_congr h ▸ h')]
+  | true => rw [toNat?_eq_some_ofDigitChars h', toNat?_eq_some_ofDigitChars (isNat_congr h ▸ h'), h]
+
 end String.Slice
 
 namespace String
@@ -215,6 +224,14 @@ public theorem isNat_toSlice {s : String} : s.toSlice.isNat = s.isNat :=
 @[simp]
 public theorem toNat?_toSlice {s : String} : s.toSlice.toNat? = s.toNat? :=
   (rfl)
+
+@[simp]
+public theorem Slice.isNat_copy {s : Slice} : s.copy.isNat = s.isNat := by
+  simpa [← isNat_toSlice] using Slice.isNat_congr (by simp)
+
+@[simp]
+public theorem Slice.toNat?_copy {s : Slice} : s.copy.toNat? = s.toNat? := by
+  simpa [← isNat_toSlice] using Slice.toNat?_congr (by simp)
 
 public theorem isNat_iff {s : String} :
     s.isNat = true ↔

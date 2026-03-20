@@ -722,7 +722,7 @@ syntax (name := runElab) "run_elab " doSeq : command
 
 /--
 The `run_meta doSeq` command executes code in `MetaM Unit`.
-This is the same as `#eval show MetaM Unit from do discard doSeq`.
+This is the same as `#eval show MetaM Unit from discard do doSeq`.
 
 (This is effectively a synonym for `run_elab` since `MetaM` lifts to `TermElabM`.)
 -/

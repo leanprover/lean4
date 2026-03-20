@@ -3004,7 +3004,7 @@ Examples:
  * `([] : List String).length = 0`
  * `["green", "brown"].length = 2`
 -/
-def List.length : List α → Nat
+@[implicit_reducible] def List.length : List α → Nat
   | nil       => 0
   | cons _ as => HAdd.hAdd (length as) 1
 
@@ -4674,7 +4674,7 @@ inductive Name where
   /-- The "anonymous" name. -/
   | anonymous : Name
   /--
-  A string name. The name `Lean.Meta.run` is represented at
+  A string name. The name `Lean.Meta.run` is represented as
   ```lean
   .str (.str (.str .anonymous "Lean") "Meta") "run"
   ```

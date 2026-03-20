@@ -253,7 +253,7 @@ instance : EmptyCollection (FVarIdMap α) := inferInstanceAs (EmptyCollection (S
 instance : Inhabited (FVarIdMap α) where
   default := {}
 
-/-- Universe metavariable Id   -/
+/-- Expression metavariable Id   -/
 structure MVarId where
   name : Name
   deriving Inhabited, BEq, Hashable
@@ -301,8 +301,8 @@ inductive Expr where
   of a variable in the expression where there is a variable binder
   above it (i.e. introduced by a `lam`, `forallE`, or `letE`).
 
-  The `deBruijnIndex` parameter is the *de-Bruijn* index for the bound
-  variable. See [the Wikipedia page on de-Bruijn indices](https://en.wikipedia.org/wiki/De_Bruijn_index)
+  The `deBruijnIndex` parameter is the *de Bruijn* index for the bound
+  variable. See [the Wikipedia page on de Bruijn indices](https://en.wikipedia.org/wiki/De_Bruijn_index)
   for additional information.
 
   For example, consider the expression `fun x : Nat => forall y : Nat, x = y`.
@@ -321,16 +321,16 @@ inductive Expr where
   | bvar (deBruijnIndex : Nat)
 
   /--
-  The `fvar` constructor represent free variables. These *free* variable
-  occurrences are not bound by an earlier `lam`, `forallE`, or `letE`
+  The `fvar` constructor represents free variables. Such a *free* variable
+  occurrence is not bound by an earlier `lam`, `forallE`, or `letE`
   constructor and its binder exists in a local context only.
 
-  Note that Lean uses the *locally nameless approach*. See [McBride and McKinna](https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.365.2479&rep=rep1&type=pdf)
+  Note that Lean uses the *locally nameless approach*. See [McBride and McKinna](https://doi.org/10.1145/1017472.1017477)
   for additional details.
 
   When "visiting" the body of a binding expression (i.e. `lam`, `forallE`, or `letE`),
   bound variables are converted into free variables using a unique identifier,
-  and their user-facing name, type, value (for `LetE`), and binder annotation
+  and their user-facing name, type, value (for `letE`), and binder annotation
   are stored in the `LocalContext`.
   -/
   | fvar (fvarId : FVarId)
@@ -363,7 +363,7 @@ inductive Expr where
   A function application.
 
   For example, the natural number one, i.e. `Nat.succ Nat.zero` is represented as
-  ``Expr.app (.const `Nat.succ []) (.const .zero [])``.
+  ``Expr.app (.const `Nat.succ []) (.const `Nat.zero [])``.
   Note that multiple arguments are represented using partial application.
 
   For example, the two argument application `f x y` is represented as
@@ -383,7 +383,7 @@ inductive Expr where
   | lam (binderName : Name) (binderType : Expr) (body : Expr) (binderInfo : BinderInfo)
 
   /--
-  A dependent arrow `(a : α) → β)` (aka forall-expression) where `β` may dependent
+  A dependent arrow `(a : α) → β)` (aka forall-expression) where `β` may depend
   on `a`. Note that this constructor is also used to represent non-dependent arrows
   where `β` does not depend on `a`.
 

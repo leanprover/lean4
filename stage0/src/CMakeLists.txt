@@ -945,6 +945,7 @@ install(
   PATTERN "*.hash" EXCLUDE
   PATTERN "*.trace" EXCLUDE
   PATTERN "*.rsp" EXCLUDE
+  PATTERN "*.filelist" EXCLUDE
 )
 
 # symlink source into expected installation location for go-to-definition, if file system allows it

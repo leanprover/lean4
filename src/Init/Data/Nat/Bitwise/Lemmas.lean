@@ -867,7 +867,7 @@ theorem and_le_right {n m : Nat} : n &&& m ≤ m :=
   le_of_testBit (by simp)
 
 theorem left_le_or {n m : Nat} : n ≤ n ||| m :=
-  le_of_testBit (by simpa using fun i => Or.inl)
+  le_of_testBit (by simp)
 
 theorem right_le_or {n m : Nat} : m ≤ n ||| m :=
-  le_of_testBit (by simpa using fun i => Or.inr)
+  le_of_testBit (by simp)

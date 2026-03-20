@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Util.Date
-// Imports: public import Init.Data.Ord.Basic import Lake.Util.String import Init.Data.String.Search import Init.Data.Iterators.Consumers.Collect import Init.Data.ToString.Macro
+// Imports: public import Init.Data.Ord.Basic public import Lean.Data.Json import Lake.Util.String import Init.Data.String.Search import Init.Data.Iterators.Consumers.Collect import Init.Data.ToString.Macro
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -21,18 +21,18 @@ uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_String_Slice_subslice_x21(lean_object*, lean_object*, lean_object*);
-uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
+lean_object* lean_string_utf8_byte_size(lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
+lean_object* lean_array_to_list(lean_object*);
+lean_object* l_String_Slice_toNat_x3f(lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* lean_nat_mod(lean_object*, lean_object*);
+uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
+lean_object* l_Lake_zpad(lean_object*, lean_object*);
+lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* lean_string_length(lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
 lean_object* l_Nat_reprFast(lean_object*);
-lean_object* l_Lake_zpad(lean_object*, lean_object*);
-lean_object* lean_string_append(lean_object*, lean_object*);
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-lean_object* lean_string_utf8_byte_size(lean_object*);
-lean_object* lean_array_to_list(lean_object*);
-lean_object* l_String_Slice_toNat_x3f(lean_object*);
 static const lean_ctor_object l_Lake_instInhabitedDate_default___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*3 + 0, .m_other = 3, .m_tag = 0}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)(((size_t)(0) << 1) | 1))}};
 static const lean_object* l_Lake_instInhabitedDate_default___closed__0 = (const lean_object*)&l_Lake_instInhabitedDate_default___closed__0_value;
 LEAN_EXPORT const lean_object* l_Lake_instInhabitedDate_default = (const lean_object*)&l_Lake_instInhabitedDate_default___closed__0_value;
@@ -121,12 +121,24 @@ static const lean_object* l_Lake_Date_ofString_x3f___closed__0 = (const lean_obj
 LEAN_EXPORT lean_object* l_Lake_Date_ofString_x3f(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___at___00Lake_Date_ofString_x3f_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___at___00Lake_Date_ofString_x3f_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static const lean_string_object l_Lake_Date_fromJson_x3f___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 14, .m_capacity = 14, .m_length = 13, .m_data = "expected date"};
+static const lean_object* l_Lake_Date_fromJson_x3f___closed__0 = (const lean_object*)&l_Lake_Date_fromJson_x3f___closed__0_value;
+static const lean_ctor_object l_Lake_Date_fromJson_x3f___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 0}, .m_objs = {((lean_object*)&l_Lake_Date_fromJson_x3f___closed__0_value)}};
+static const lean_object* l_Lake_Date_fromJson_x3f___closed__1 = (const lean_object*)&l_Lake_Date_fromJson_x3f___closed__1_value;
+LEAN_EXPORT lean_object* l_Lake_Date_fromJson_x3f(lean_object*);
+static const lean_closure_object l_Lake_Date_instFromJson___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lake_Date_fromJson_x3f, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Lake_Date_instFromJson___closed__0 = (const lean_object*)&l_Lake_Date_instFromJson___closed__0_value;
+LEAN_EXPORT const lean_object* l_Lake_Date_instFromJson = (const lean_object*)&l_Lake_Date_instFromJson___closed__0_value;
 static const lean_string_object l_Lake_Date_toString___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 2, .m_capacity = 2, .m_length = 1, .m_data = "-"};
 static const lean_object* l_Lake_Date_toString___closed__0 = (const lean_object*)&l_Lake_Date_toString___closed__0_value;
 LEAN_EXPORT lean_object* l_Lake_Date_toString(lean_object*);
 static const lean_closure_object l_Lake_Date_instToString___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lake_Date_toString, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_Lake_Date_instToString___closed__0 = (const lean_object*)&l_Lake_Date_instToString___closed__0_value;
 LEAN_EXPORT const lean_object* l_Lake_Date_instToString = (const lean_object*)&l_Lake_Date_instToString___closed__0_value;
+LEAN_EXPORT lean_object* l_Lake_Date_toJson(lean_object*);
+static const lean_closure_object l_Lake_Date_instToJson___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lake_Date_toJson, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Lake_Date_instToJson___closed__0 = (const lean_object*)&l_Lake_Date_instToJson___closed__0_value;
+LEAN_EXPORT const lean_object* l_Lake_Date_instToJson = (const lean_object*)&l_Lake_Date_instToJson___closed__0_value;
 LEAN_EXPORT uint8_t l_Lake_instDecidableEqDate_decEq(lean_object* v_x_5_, lean_object* v_x_6_){
 _start:
 {
@@ -969,8 +981,8 @@ return v___x_287_;
 else
 {
 lean_object* v___x_288_; 
-lean_dec(v_tail_272_);
 lean_dec_ref(v_tail_271_);
+lean_dec(v_tail_272_);
 lean_dec_ref(v___x_270_);
 v___x_288_ = lean_box(0);
 return v___x_288_;
@@ -979,8 +991,8 @@ return v___x_288_;
 else
 {
 lean_object* v___x_289_; 
-lean_dec_ref(v___x_270_);
 lean_dec(v_tail_271_);
+lean_dec_ref(v___x_270_);
 v___x_289_ = lean_box(0);
 return v___x_289_;
 }
@@ -1011,33 +1023,112 @@ lean_dec_ref(v___x_300_);
 return v_res_306_;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_Date_toString(lean_object* v_d_308_){
+LEAN_EXPORT lean_object* l_Lake_Date_fromJson_x3f(lean_object* v_j_310_){
 _start:
 {
-lean_object* v_year_309_; lean_object* v_month_310_; lean_object* v_day_311_; lean_object* v___x_312_; lean_object* v___x_313_; lean_object* v___x_314_; lean_object* v___x_315_; lean_object* v___x_316_; lean_object* v___x_317_; lean_object* v___x_318_; lean_object* v___x_319_; lean_object* v___x_320_; lean_object* v___x_321_; 
-v_year_309_ = lean_ctor_get(v_d_308_, 0);
-lean_inc(v_year_309_);
-v_month_310_ = lean_ctor_get(v_d_308_, 1);
-lean_inc(v_month_310_);
-v_day_311_ = lean_ctor_get(v_d_308_, 2);
-lean_inc(v_day_311_);
-lean_dec_ref(v_d_308_);
-v___x_312_ = lean_unsigned_to_nat(4u);
-v___x_313_ = l_Lake_zpad(v_year_309_, v___x_312_);
-v___x_314_ = ((lean_object*)(l_Lake_Date_toString___closed__0));
-v___x_315_ = lean_string_append(v___x_313_, v___x_314_);
-v___x_316_ = lean_unsigned_to_nat(2u);
-v___x_317_ = l_Lake_zpad(v_month_310_, v___x_316_);
-v___x_318_ = lean_string_append(v___x_315_, v___x_317_);
-lean_dec_ref(v___x_317_);
-v___x_319_ = lean_string_append(v___x_318_, v___x_314_);
-v___x_320_ = l_Lake_zpad(v_day_311_, v___x_316_);
-v___x_321_ = lean_string_append(v___x_319_, v___x_320_);
-lean_dec_ref(v___x_320_);
+if (lean_obj_tag(v_j_310_) == 3)
+{
+lean_object* v_s_311_; lean_object* v___x_312_; 
+v_s_311_ = lean_ctor_get(v_j_310_, 0);
+lean_inc_ref(v_s_311_);
+lean_dec_ref(v_j_310_);
+v___x_312_ = l_Lake_Date_ofString_x3f(v_s_311_);
+if (lean_obj_tag(v___x_312_) == 1)
+{
+lean_object* v_val_313_; lean_object* v___x_315_; uint8_t v_isShared_316_; uint8_t v_isSharedCheck_320_; 
+v_val_313_ = lean_ctor_get(v___x_312_, 0);
+v_isSharedCheck_320_ = !lean_is_exclusive(v___x_312_);
+if (v_isSharedCheck_320_ == 0)
+{
+v___x_315_ = v___x_312_;
+v_isShared_316_ = v_isSharedCheck_320_;
+goto v_resetjp_314_;
+}
+else
+{
+lean_inc(v_val_313_);
+lean_dec(v___x_312_);
+v___x_315_ = lean_box(0);
+v_isShared_316_ = v_isSharedCheck_320_;
+goto v_resetjp_314_;
+}
+v_resetjp_314_:
+{
+lean_object* v___x_318_; 
+if (v_isShared_316_ == 0)
+{
+v___x_318_ = v___x_315_;
+goto v_reusejp_317_;
+}
+else
+{
+lean_object* v_reuseFailAlloc_319_; 
+v_reuseFailAlloc_319_ = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(v_reuseFailAlloc_319_, 0, v_val_313_);
+v___x_318_ = v_reuseFailAlloc_319_;
+goto v_reusejp_317_;
+}
+v_reusejp_317_:
+{
+return v___x_318_;
+}
+}
+}
+else
+{
+lean_object* v___x_321_; 
+lean_dec(v___x_312_);
+v___x_321_ = ((lean_object*)(l_Lake_Date_fromJson_x3f___closed__1));
 return v___x_321_;
 }
 }
+else
+{
+lean_object* v___x_322_; 
+lean_dec(v_j_310_);
+v___x_322_ = ((lean_object*)(l_Lake_Date_fromJson_x3f___closed__1));
+return v___x_322_;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lake_Date_toString(lean_object* v_d_326_){
+_start:
+{
+lean_object* v_year_327_; lean_object* v_month_328_; lean_object* v_day_329_; lean_object* v___x_330_; lean_object* v___x_331_; lean_object* v___x_332_; lean_object* v___x_333_; lean_object* v___x_334_; lean_object* v___x_335_; lean_object* v___x_336_; lean_object* v___x_337_; lean_object* v___x_338_; lean_object* v___x_339_; 
+v_year_327_ = lean_ctor_get(v_d_326_, 0);
+lean_inc(v_year_327_);
+v_month_328_ = lean_ctor_get(v_d_326_, 1);
+lean_inc(v_month_328_);
+v_day_329_ = lean_ctor_get(v_d_326_, 2);
+lean_inc(v_day_329_);
+lean_dec_ref(v_d_326_);
+v___x_330_ = lean_unsigned_to_nat(4u);
+v___x_331_ = l_Lake_zpad(v_year_327_, v___x_330_);
+v___x_332_ = ((lean_object*)(l_Lake_Date_toString___closed__0));
+v___x_333_ = lean_string_append(v___x_331_, v___x_332_);
+v___x_334_ = lean_unsigned_to_nat(2u);
+v___x_335_ = l_Lake_zpad(v_month_328_, v___x_334_);
+v___x_336_ = lean_string_append(v___x_333_, v___x_335_);
+lean_dec_ref(v___x_335_);
+v___x_337_ = lean_string_append(v___x_336_, v___x_332_);
+v___x_338_ = l_Lake_zpad(v_day_329_, v___x_334_);
+v___x_339_ = lean_string_append(v___x_337_, v___x_338_);
+lean_dec_ref(v___x_338_);
+return v___x_339_;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_Date_toJson(lean_object* v_d_342_){
+_start:
+{
+lean_object* v___x_343_; lean_object* v___x_344_; 
+v___x_343_ = l_Lake_Date_toString(v_d_342_);
+v___x_344_ = lean_alloc_ctor(3, 1, 0);
+lean_ctor_set(v___x_344_, 0, v___x_343_);
+return v___x_344_;
+}
+}
 lean_object* runtime_initialize_Init_Data_Ord_Basic(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Data_Json(uint8_t builtin);
 lean_object* runtime_initialize_Lake_Util_String(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_String_Search(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Iterators_Consumers_Collect(uint8_t builtin);
@@ -1048,6 +1139,9 @@ lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
 res = runtime_initialize_Init_Data_Ord_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Data_Json(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lake_Util_String(builtin);
@@ -1076,6 +1170,7 @@ _G_meta_initialized = true;
 return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Init_Data_Ord_Basic(uint8_t builtin);
+lean_object* initialize_Lean_Data_Json(uint8_t builtin);
 lean_object* initialize_Lake_Util_String(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Search(uint8_t builtin);
 lean_object* initialize_Init_Data_Iterators_Consumers_Collect(uint8_t builtin);
@@ -1086,6 +1181,9 @@ lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Init_Data_Ord_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Data_Json(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lake_Util_String(builtin);

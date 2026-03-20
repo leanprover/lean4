@@ -316,7 +316,7 @@ v_snd_74_ = lean_ctor_get(v_a_68_, 1);
 lean_inc(v_snd_74_);
 lean_dec(v_a_68_);
 v_config_100_ = lean_ctor_get(v_fst_73_, 6);
-v_bootstrap_101_ = lean_ctor_get_uint8(v_config_100_, sizeof(void*)*27);
+v_bootstrap_101_ = lean_ctor_get_uint8(v_config_100_, sizeof(void*)*26);
 if (v_bootstrap_101_ == 0)
 {
 lean_object* v_lakeCache_x3f_102_; 

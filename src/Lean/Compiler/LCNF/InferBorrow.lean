@@ -81,7 +81,10 @@ where
     ps.map fun p => { p with borrow := p.type.isPossibleRef }
 
   initParamsIfNotExported (exported : Bool) (ps : Array (Param .impure)) : Array (Param .impure) :=
-    if exported then ps else initParams ps
+    if exported then
+      ps.map ({ · with borrow := false })
+    else
+      initParams ps
 
   goCode (declName : Name) (code : Code .impure) : InitM Unit := do
     match code with

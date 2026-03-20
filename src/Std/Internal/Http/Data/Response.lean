@@ -9,6 +9,7 @@ prelude
 public import Std.Internal.Http.Data.Extensions
 public import Std.Internal.Http.Data.Status
 public import Std.Internal.Http.Data.Version
+public import Std.Internal.Http.Data.Headers
 
 public section
 
@@ -36,6 +37,12 @@ structure Response.Head where
   The HTTP protocol version used in the response, e.g. `HTTP/1.1`.
   -/
   version : Version := .v11
+
+  /--
+  The set of response headers, providing metadata such as `Content-Type`,
+  `Content-Length`, and caching directives.
+  -/
+  headers : Headers := .empty
 deriving Inhabited, Repr
 
 /--
@@ -78,7 +85,9 @@ instance : ToString Head where
   toString r :=
     toString r.version ++ " " ++
     toString r.status.toCode ++ " " ++
-    r.status.reasonPhrase ++ "\r\n"
+    r.status.reasonPhrase ++ "\r\n" ++
+    toString r.headers ++
+    "\r\n"
 
 open Internal in
 instance : Encode .v11 Head where
@@ -88,6 +97,8 @@ instance : Encode .v11 Head where
     let buffer := buffer.writeString (toString r.status.toCode)
     let buffer := buffer.writeChar ' '
     let buffer := buffer.writeString r.status.reasonPhrase
+    let buffer := buffer.writeString "\r\n"
+    let buffer := Encode.encode (v := .v11) buffer r.headers
     buffer.writeString "\r\n"
 
 /--
@@ -107,6 +118,35 @@ Sets the HTTP status code for the response being built.
 -/
 def status (builder : Builder) (status : Status) : Builder :=
   { builder with line := { builder.line with status := status } }
+
+/--
+Sets the headers for the response being built.
+-/
+def headers (builder : Builder) (headers : Headers) : Builder :=
+  { builder with line := { builder.line with headers } }
+
+/--
+Adds a single header to the response being built.
+-/
+def header (builder : Builder) (key : Header.Name) (value : Header.Value) : Builder :=
+  { builder with line := { builder.line with headers := builder.line.headers.insert key value } }
+
+/--
+Adds a single header to the response being built, panics if the header is invalid.
+-/
+def header! (builder : Builder) (key : String) (value : String) : Builder :=
+  let key := Header.Name.ofString! key
+  let value := Header.Value.ofString! value
+  { builder with line := { builder.line with headers := builder.line.headers.insert key value } }
+
+/--
+Adds a single header to the response being built.
+Returns `none` if the header name or value is invalid.
+-/
+def header? (builder : Builder) (key : String) (value : String) : Option Builder := do
+  let key ← Header.Name.ofString? key
+  let value ← Header.Value.ofString? value
+  pure <| { builder with line := { builder.line with headers := builder.line.headers.insert key value } }
 
 /--
 Inserts a typed extension value into the response being built.

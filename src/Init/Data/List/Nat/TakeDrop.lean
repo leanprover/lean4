@@ -311,7 +311,7 @@ theorem drop_length_cons {l : List α} (h : l ≠ []) (a : α) :
   | nil =>
     cases h rfl
   | cons y l ih =>
-    simp only [drop, length]
+    simp only [drop]
     by_cases h₁ : l = []
     · simp [h₁]
     rw [getLast_cons h₁]

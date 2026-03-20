@@ -1501,13 +1501,13 @@ _start:
 {
 lean_object* v_config_505_; lean_object* v_restoreAllArtifacts_x3f_506_; 
 v_config_505_ = lean_ctor_get(v_self_503_, 6);
-v_restoreAllArtifacts_x3f_506_ = lean_ctor_get(v_config_505_, 26);
+v_restoreAllArtifacts_x3f_506_ = lean_ctor_get(v_config_505_, 25);
 if (lean_obj_tag(v_restoreAllArtifacts_x3f_506_) == 0)
 {
 lean_object* v_root_507_; lean_object* v_config_508_; lean_object* v_restoreAllArtifacts_x3f_509_; 
 v_root_507_ = lean_ctor_get(v_x_504_, 0);
 v_config_508_ = lean_ctor_get(v_root_507_, 6);
-v_restoreAllArtifacts_x3f_509_ = lean_ctor_get(v_config_508_, 26);
+v_restoreAllArtifacts_x3f_509_ = lean_ctor_get(v_config_508_, 25);
 if (lean_obj_tag(v_restoreAllArtifacts_x3f_509_) == 0)
 {
 uint8_t v___x_510_; 
@@ -1573,7 +1573,7 @@ _start:
 {
 lean_object* v_config_534_; lean_object* v_enableArtifactCache_x3f_535_; 
 v_config_534_ = lean_ctor_get(v_self_532_, 6);
-v_enableArtifactCache_x3f_535_ = lean_ctor_get(v_config_534_, 25);
+v_enableArtifactCache_x3f_535_ = lean_ctor_get(v_config_534_, 24);
 if (lean_obj_tag(v_enableArtifactCache_x3f_535_) == 0)
 {
 lean_object* v_lakeEnv_536_; lean_object* v_enableArtifactCache_x3f_537_; 
@@ -1584,7 +1584,7 @@ if (lean_obj_tag(v_enableArtifactCache_x3f_537_) == 0)
 lean_object* v_root_538_; lean_object* v_config_539_; lean_object* v_enableArtifactCache_x3f_540_; 
 v_root_538_ = lean_ctor_get(v_x_533_, 0);
 v_config_539_ = lean_ctor_get(v_root_538_, 6);
-v_enableArtifactCache_x3f_540_ = lean_ctor_get(v_config_539_, 25);
+v_enableArtifactCache_x3f_540_ = lean_ctor_get(v_config_539_, 24);
 if (lean_obj_tag(v_enableArtifactCache_x3f_540_) == 0)
 {
 uint8_t v___x_541_; 
@@ -1658,7 +1658,7 @@ _start:
 {
 lean_object* v_config_567_; lean_object* v_enableArtifactCache_x3f_568_; 
 v_config_567_ = lean_ctor_get(v_self_565_, 6);
-v_enableArtifactCache_x3f_568_ = lean_ctor_get(v_config_567_, 25);
+v_enableArtifactCache_x3f_568_ = lean_ctor_get(v_config_567_, 24);
 if (lean_obj_tag(v_enableArtifactCache_x3f_568_) == 0)
 {
 lean_object* v_lakeEnv_569_; lean_object* v_enableArtifactCache_x3f_570_; 
@@ -1669,7 +1669,7 @@ if (lean_obj_tag(v_enableArtifactCache_x3f_570_) == 0)
 lean_object* v_root_571_; lean_object* v_config_572_; lean_object* v_enableArtifactCache_x3f_573_; 
 v_root_571_ = lean_ctor_get(v_x_566_, 0);
 v_config_572_ = lean_ctor_get(v_root_571_, 6);
-v_enableArtifactCache_x3f_573_ = lean_ctor_get(v_config_572_, 25);
+v_enableArtifactCache_x3f_573_ = lean_ctor_get(v_config_572_, 24);
 if (lean_obj_tag(v_enableArtifactCache_x3f_573_) == 0)
 {
 uint8_t v___x_574_; 

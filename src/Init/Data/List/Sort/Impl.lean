@@ -182,7 +182,6 @@ private theorem mergeSortTR_run_eq_mergeSort : {n : Nat} → (l : { l : List α 
     simp only [mergeSortTR.run, mergeSortTR.run, mergeSort]
     rw [merge_eq_mergeTR]
     rw [mergeSortTR_run_eq_mergeSort, mergeSortTR_run_eq_mergeSort]
-    rfl
 
 -- We don't make this a `@[csimp]` lemma because `mergeSort_eq_mergeSortTR₂` is faster.
 theorem mergeSort_eq_mergeSortTR : @mergeSort = @mergeSortTR := by

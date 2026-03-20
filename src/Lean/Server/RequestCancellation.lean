@@ -14,8 +14,8 @@ public section
 namespace Lean.Server
 
 structure RequestCancellationToken where
-  cancelledByCancelRequest   : IO.Ref Bool
-  cancelledByEdit            : IO.Ref Bool
+  cancelledByCancelRequest   : IO.CancelToken
+  cancelledByEdit            : IO.CancelToken
   requestCancellationPromise : IO.Promise Unit
   editCancellationPromise    : IO.Promise Unit
 
@@ -23,18 +23,18 @@ namespace RequestCancellationToken
 
 def new : BaseIO RequestCancellationToken := do
   return {
-    cancelledByCancelRequest   := ← IO.mkRef false
-    cancelledByEdit            := ← IO.mkRef false
+    cancelledByCancelRequest   := ← IO.CancelToken.new
+    cancelledByEdit            := ← IO.CancelToken.new
     requestCancellationPromise := ← IO.Promise.new
     editCancellationPromise    := ← IO.Promise.new
   }
 
 def cancelByCancelRequest (tk : RequestCancellationToken) : BaseIO Unit := do
-  tk.cancelledByCancelRequest.set true
+  tk.cancelledByCancelRequest.set
   tk.requestCancellationPromise.resolve ()
 
 def cancelByEdit (tk : RequestCancellationToken) : BaseIO Unit := do
-  tk.cancelledByEdit.set true
+  tk.cancelledByEdit.set
   tk.editCancellationPromise.resolve ()
 
 def requestCancellationTask (tk : RequestCancellationToken): ServerTask Unit :=
@@ -47,10 +47,10 @@ def cancellationTasks (tk : RequestCancellationToken) : List (ServerTask Unit) :
   [tk.requestCancellationTask, tk.editCancellationTask]
 
 def wasCancelledByCancelRequest (tk : RequestCancellationToken) : BaseIO Bool :=
-  tk.cancelledByCancelRequest.get
+  tk.cancelledByCancelRequest.isSet
 
 def wasCancelledByEdit (tk : RequestCancellationToken) : BaseIO Bool :=
-  tk.cancelledByEdit.get
+  tk.cancelledByEdit.isSet
 
 def wasCancelled (tk : RequestCancellationToken) : BaseIO Bool := do
   return (← tk.wasCancelledByCancelRequest) || (← tk.wasCancelledByEdit)

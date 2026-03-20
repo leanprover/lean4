@@ -80,4 +80,37 @@ builtin_dsimproc [simp, seval] reduceDefault ((default : Char)) := fun e => do
   let_expr default _ _ ← e | return .continue
   return .done <| toExpr (default : Char)
 
+/-- Simplifies `Nat.digitChar n = c` to `False` when `c` is a concrete character
+not in the range of `digitChar` (i.e., not one of `'0'`-`'9'`, `'a'`-`'f'`, `'*'`). -/
+builtin_simproc [simp, seval] Nat.reduceDigitCharEq (Nat.digitChar _ = _) := fun e => do
+  unless e.isAppOfArity ``Eq 3 do return .continue
+  let lhs := e.appFn!.appArg!
+  let rhs := e.appArg!
+  unless lhs.isAppOfArity ``Nat.digitChar 1 do return .continue
+  let some c ← fromExpr? rhs | return .continue
+  let digitChars : Array Char :=
+    #['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', '*']
+  if digitChars.contains c then return .continue
+  let n := lhs.appArg!
+  let neProof := mkApp3 (mkConst (Name.mkStr2 "Nat" "digitChar_ne")) n rhs eagerReflBoolTrue
+  let proof := mkApp2 (mkConst ``eq_false) e neProof
+  return .done { expr := mkConst ``False, proof? := proof }
+
+/-- Simplifies `c = Nat.digitChar n` to `False` when `c` is a concrete character
+not in the range of `digitChar` (i.e., not one of `'0'`-`'9'`, `'a'`-`'f'`, `'*'`). -/
+builtin_simproc [simp, seval] Nat.reduceEqDigitChar (_ = Nat.digitChar _) := fun e => do
+  unless e.isAppOfArity ``Eq 3 do return .continue
+  let charExpr := e.appFn!.appArg!
+  let digitCharExpr := e.appArg!
+  unless digitCharExpr.isAppOfArity ``Nat.digitChar 1 do return .continue
+  let some c ← fromExpr? charExpr | return .continue
+  let digitChars : Array Char :=
+    #['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', '*']
+  if digitChars.contains c then return .continue
+  let n := digitCharExpr.appArg!
+  let neProof := mkApp3 (mkConst (Name.mkStr2 "Nat" "digitChar_ne")) n charExpr eagerReflBoolTrue
+  let neSymProof := mkApp4 (mkConst ``Ne.symm [.succ .zero]) (mkConst ``Char) digitCharExpr charExpr neProof
+  let proof := mkApp2 (mkConst ``eq_false) e neSymProof
+  return .done { expr := mkConst ``False, proof? := proof }
+
 end Char

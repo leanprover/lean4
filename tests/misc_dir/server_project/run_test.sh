@@ -7,5 +7,5 @@ lake build
 FILE=InverseModuleHierarchy/BasicTest.lean
 capture_only "$FILE" \
   lean -Dlinter.all=false --run run_test.lean -p "$(realpath "$FILE")"
-check_exit_is_success
 check_out_file
+check_exit_is_success

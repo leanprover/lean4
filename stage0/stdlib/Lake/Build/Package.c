@@ -2226,7 +2226,7 @@ _start:
 {
 lean_object* v_config_708_; uint8_t v_preferReleaseBuild_709_; 
 v_config_708_ = lean_ctor_get(v_self_700_, 6);
-v_preferReleaseBuild_709_ = lean_ctor_get_uint8(v_config_708_, sizeof(void*)*27 + 2);
+v_preferReleaseBuild_709_ = lean_ctor_get_uint8(v_config_708_, sizeof(void*)*26 + 2);
 if (v_preferReleaseBuild_709_ == 0)
 {
 lean_object* v_keyName_710_; lean_object* v___x_711_; lean_object* v___x_712_; lean_object* v___x_713_; lean_object* v___x_714_; lean_object* v___x_715_; 
@@ -2457,8 +2457,8 @@ v_config_803_ = lean_ctor_get(v_self_755_, 6);
 v_keyName_804_ = lean_ctor_get(v_self_755_, 2);
 v_dir_805_ = lean_ctor_get(v_self_755_, 4);
 v_scope_806_ = lean_ctor_get(v_self_755_, 10);
-v_buildDir_807_ = lean_ctor_get(v_config_803_, 6);
-v_preferReleaseBuild_808_ = lean_ctor_get_uint8(v_config_803_, sizeof(void*)*27 + 2);
+v_buildDir_807_ = lean_ctor_get(v_config_803_, 5);
+v_preferReleaseBuild_808_ = lean_ctor_get_uint8(v_config_803_, sizeof(void*)*26 + 2);
 lean_inc_ref(v_buildDir_807_);
 v___x_809_ = l_System_FilePath_normalize(v_buildDir_807_);
 lean_inc_ref(v_dir_805_);
@@ -2682,7 +2682,7 @@ if (v_success_905_ == 0)
 {
 lean_object* v_config_957_; uint8_t v_preferReleaseBuild_958_; 
 v_config_957_ = lean_ctor_get(v_self_904_, 6);
-v_preferReleaseBuild_958_ = lean_ctor_get_uint8(v_config_957_, sizeof(void*)*27 + 2);
+v_preferReleaseBuild_958_ = lean_ctor_get_uint8(v_config_957_, sizeof(void*)*26 + 2);
 if (v_preferReleaseBuild_958_ == 0)
 {
 lean_object* v_toBuildConfig_959_; lean_object* v_baseName_960_; uint8_t v_verbosity_961_; uint8_t v___x_962_; uint8_t v___x_963_; 
@@ -3159,7 +3159,7 @@ LEAN_EXPORT lean_object* l___private_Lake_Build_Package_0__Lake_Package_recBuild
 _start:
 {
 lean_object* v_extraDepTargets_1103_; size_t v_sz_1104_; size_t v___x_1105_; lean_object* v___x_1106_; 
-v_extraDepTargets_1103_ = lean_ctor_get(v_config_1092_, 3);
+v_extraDepTargets_1103_ = lean_ctor_get(v_config_1092_, 2);
 v_sz_1104_ = lean_array_size(v_extraDepTargets_1103_);
 v___x_1105_ = ((size_t)0ULL);
 v___x_1106_ = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Lake_Build_Package_0__Lake_Package_recBuildExtraDepTargets_spec__0(v_self_1093_, v_extraDepTargets_1103_, v_sz_1104_, v___x_1105_, v_job_1095_, v___y_1096_, v___y_1097_, v___y_1098_, v___y_1099_, v___y_1100_, v___y_1101_);
@@ -3793,7 +3793,7 @@ lean_inc_ref(v_remoteUrl_1401_);
 v_buildArchive_1402_ = lean_ctor_get(v_self_1381_, 19);
 lean_inc_ref(v_buildArchive_1402_);
 lean_dec_ref(v_self_1381_);
-v_releaseRepo_1460_ = lean_ctor_get(v_config_1400_, 11);
+v_releaseRepo_1460_ = lean_ctor_get(v_config_1400_, 10);
 lean_inc(v_releaseRepo_1460_);
 lean_dec_ref(v_config_1400_);
 if (lean_obj_tag(v_releaseRepo_1460_) == 0)
@@ -5389,7 +5389,7 @@ lean_inc_ref(v_config_1917_);
 v_dir_1918_ = lean_ctor_get(v_self_1840_, 4);
 lean_inc_ref(v_dir_1918_);
 lean_dec_ref(v_self_1840_);
-v_buildDir_1919_ = lean_ctor_get(v_config_1917_, 6);
+v_buildDir_1919_ = lean_ctor_get(v_config_1917_, 5);
 lean_inc_ref(v_buildDir_1919_);
 lean_dec_ref(v_config_1917_);
 v___x_1920_ = l_System_FilePath_normalize(v_buildDir_1919_);

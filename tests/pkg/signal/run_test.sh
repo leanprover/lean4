@@ -8,36 +8,34 @@ mkfifo "$PIPE"
 # Run release in the background, redirect stdout to the pipe
 .lake/build/bin/release > "$PIPE" &
 PID=$!
-
 echo "Started process with PID: $PID"
 
-# Read the first line from the pipe
-{
-    if read -r first_line < "$PIPE"; then
-        echo "Received first line: $first_line"
-
-        sleep 1
-
-        echo "Sending USR1 signal..."
-        kill -USR1 "$PID" 2>/dev/null || echo "Failed to send USR1"
-
-        echo "Sending HUP signal..."
-        kill -HUP "$PID" 2>/dev/null || echo "Failed to send HUP"
-
-        echo "Sending QUIT signal..."
-        kill -QUIT "$PID" 2>/dev/null || echo "Failed to send QUIT"
-
-        echo "Sending INT signal..."
-        kill -INT "$PID" 2>/dev/null || echo "Failed to send INT"
-    else
-        echo "Failed to read first line"
-    fi
+function await_line(){
+  read -r line < "$PIPE"
+  echo "Received line: $line"
+  sleep 1
 }
+
+await_line
+echo "Sending USR1 signal..."
+kill -USR1 "$PID" 2>/dev/null || fail "Failed to send USR1"
+
+await_line
+echo "Sending HUP signal..."
+kill -HUP "$PID" 2>/dev/null || fail "Failed to send HUP"
+
+await_line
+echo "Sending QUIT signal..."
+kill -QUIT "$PID" 2>/dev/null || fail "Failed to send QUIT"
+
+await_line
+echo "Sending INT signal..."
+kill -INT "$PID" 2>/dev/null || fail "Failed to send INT"
 
 # Wait for process to finish
 echo "Waiting for process $PID to finish..."
 if wait "$PID"; then
     echo "Process completed successfully"
 else
-    echo "Process exited with code $?"
+    fail "Process exited with code $?"
 fi

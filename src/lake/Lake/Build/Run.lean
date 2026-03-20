@@ -268,7 +268,7 @@ def Workspace.saveOutputs
       the artifact cache is not enabled for this package, so the artifacts described \
       by the mappings produced by `-o` will not necessarily be available in the cache."
   if let some ref := outputsRef? then
-    match (← (← ref.get).writeFile outputsFile {}) with
+    match (← (← ref.get).writeFile outputsFile ws.root.isPlatformIndependent ∅) with
     | .ok _ log =>
       if !log.isEmpty && isVerbose then
         print! out "There were issues saving input-to-output mappings from the build:\n"

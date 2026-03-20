@@ -598,6 +598,7 @@ lean_dec_ref(v___x_158_);
 v___x_160_ = l_Array_append___redArg(v___x_159_, v_ccLinkSharedFlags_154_);
 lean_dec_ref(v_ccLinkSharedFlags_154_);
 v___x_161_ = l_Lake_compileSharedLib(v___x_130_, v___x_160_, v_cc_153_, v_log_141_);
+lean_dec_ref(v___x_160_);
 if (lean_obj_tag(v___x_161_) == 0)
 {
 lean_object* v_a_162_; lean_object* v_a_163_; lean_object* v___x_165_; uint8_t v_isShared_166_; uint8_t v_isSharedCheck_173_; 

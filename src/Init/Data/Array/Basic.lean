@@ -559,9 +559,9 @@ def modifyOp (xs : Array α) (idx : Nat) (f : α → α) : Array α :=
   xs.modify idx f
 
 /--
-  We claim this unsafe implementation is correct because an array cannot have more than `usizeSz` elements in our runtime.
+  We claim this unsafe implementation is correct because an array cannot have more than `USize.size` elements in our runtime.
 
-  This kind of low level trick can be removed with a little bit of compiler support. For example, if the compiler simplifies `as.size < usizeSz` to true. -/
+  This kind of low level trick can be removed with a little bit of compiler support. For example, if the compiler simplifies `as.size < USize.size` to true. -/
 @[inline] unsafe def forIn'Unsafe {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : Array α) (b : β) (f : (a : α) → a ∈ as → β → m (ForInStep β)) : m β :=
   let sz := as.usize
   let rec @[specialize] loop (i : USize) (b : β) : m β := do

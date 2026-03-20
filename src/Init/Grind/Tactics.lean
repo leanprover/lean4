@@ -296,6 +296,24 @@ syntax (name := grindTrace)
   : tactic
 
 /--
+`sym` enters an interactive symbolic simulation mode built on `grind`.
+Unlike `grind =>`, it does not eagerly introduce hypotheses or apply by-contradiction,
+giving the user explicit control over `intro`, `apply`, and `internalize` steps.
+
+Example:
+```
+example (x : Nat) : myP x → myQ x := by
+  sym [myP_myQ] =>
+    intro h
+    finish
+```
+-/
+syntax (name := sym)
+  "sym" optConfig (&" only")?
+  (" [" withoutPosition(grindParam,*) "]")?
+  " => " grindSeq : tactic
+
+/--
 `cutsat` solves linear integer arithmetic goals.
 
 It is a implemented as a thin wrapper around the `grind` tactic, enabling only the `lia` solver.

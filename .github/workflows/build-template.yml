@@ -171,6 +171,7 @@ jobs:
         run: |
           cd src
           ../build/stage0/bin/lake cache get --repo=${{ github.repository }}
+        timeout-minutes: 20 # prevent excessive hanging from network issues
         continue-on-error: true
       - name: Build Target Stage
         run: |
@@ -207,7 +208,8 @@ jobs:
           LAKE_CACHE_KEY: ${{ secrets.LAKE_CACHE_KEY }}
           LAKE_CACHE_ARTIFACT_ENDPOINT: ${{ vars.LAKE_CACHE_ENDPOINT }}/a1
           LAKE_CACHE_REVISION_ENDPOINT: ${{ vars.LAKE_CACHE_ENDPOINT }}/r1
-        timeout-minutes: 10
+        timeout-minutes: 20 # prevent excessive hanging from network issues
+        continue-on-error: true
       - name: Install
         run: |
           make -C build/$TARGET_STAGE install

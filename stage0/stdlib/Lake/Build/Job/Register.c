@@ -935,7 +935,6 @@ lean_ctor_set(v___x_335_, 0, v___y_331_);
 lean_ctor_set(v___x_335_, 1, v___x_270_);
 lean_ctor_set(v___x_335_, 2, v___x_332_);
 v___x_336_ = l_String_Slice_trimAscii(v___x_335_);
-lean_dec_ref(v___x_335_);
 v___x_337_ = l_String_Slice_toString(v___x_336_);
 lean_dec_ref(v___x_336_);
 v___x_338_ = lean_string_append(v___x_334_, v___x_337_);

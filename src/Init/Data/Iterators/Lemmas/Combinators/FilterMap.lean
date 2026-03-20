@@ -297,7 +297,7 @@ def Iter.val_step_filter {f : β → Bool} :
   · simp
   · simp
 
-@[simp]
+@[cbv_eval, simp]
 theorem Iter.toList_filterMap [Finite α Id]
     {f : β → Option γ} :
     (it.filterMap f).toList = it.toList.filterMap f := by
@@ -315,12 +315,12 @@ theorem Iter.toList_mapM [Monad m] [MonadAttach m] [LawfulMonad m] [WeaklyLawful
     (it.mapM f).toList = it.toList.mapM f := by
   simp [Iter.mapM_eq_toIter_mapM_toIterM, IterM.toList_mapM, Iter.toList_eq_toList_toIterM]
 
-@[simp]
+@[cbv_eval, simp]
 theorem Iter.toList_map [Finite α Id] {f : β → γ} :
     (it.map f).toList = it.toList.map f := by
   simp [map_eq_toIter_map_toIterM, IterM.toList_map, Iter.toList_eq_toList_toIterM]
 
-@[simp]
+@[cbv_eval, simp]
 theorem Iter.toList_filter [Finite α Id] {f : β → Bool} :
     (it.filter f).toList = it.toList.filter f := by
   simp [filter_eq_toIter_filter_toIterM, IterM.toList_filter, Iter.toList_eq_toList_toIterM]
@@ -369,7 +369,7 @@ theorem Iter.toListRev_filter [Finite α Id]
     (it.filter f).toListRev = it.toListRev.filter f := by
   simp [filter_eq_toIter_filter_toIterM, IterM.toListRev_filter, Iter.toListRev_eq_toListRev_toIterM]
 
-@[simp]
+@[cbv_eval, simp]
 theorem Iter.toArray_filterMap [Finite α Id]
     {f : β → Option γ} :
     (it.filterMap f).toArray = it.toArray.filterMap f := by
@@ -387,13 +387,13 @@ theorem Iter.toArray_mapM [Monad m] [MonadAttach m] [LawfulMonad m] [WeaklyLawfu
     (it.mapM f).toArray = it.toArray.mapM f := by
   simp [Iter.mapM_eq_toIter_mapM_toIterM, IterM.toArray_mapM, Iter.toArray_eq_toArray_toIterM]
 
-@[simp]
+@[cbv_eval, simp]
 theorem Iter.toArray_map [Finite α Id] {f : β → γ} :
     (it.map f).toArray = it.toArray.map f := by
   simp [map_eq_toIter_map_toIterM, IterM.toArray_map, Iter.toArray_eq_toArray_toIterM]
 
-@[simp]
-theorem Iter.toArray_filter[Finite α Id] {f : β → Bool} :
+@[cbv_eval, simp]
+theorem Iter.toArray_filter [Finite α Id] {f : β → Bool} :
     (it.filter f).toArray = it.toArray.filter f := by
   simp [filter_eq_toIter_filter_toIterM, IterM.toArray_filter, Iter.toArray_eq_toArray_toIterM]
 

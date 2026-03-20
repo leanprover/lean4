@@ -3575,7 +3575,6 @@ lean_ctor_set(v___x_969_, 0, v_caption_959_);
 lean_ctor_set(v___x_969_, 1, v___x_967_);
 lean_ctor_set(v___x_969_, 2, v___x_968_);
 v___x_970_ = l_String_Slice_trimAscii(v___x_969_);
-lean_dec_ref(v___x_969_);
 v_startInclusive_971_ = lean_ctor_get(v___x_970_, 1);
 lean_inc(v_startInclusive_971_);
 v_endExclusive_972_ = lean_ctor_get(v___x_970_, 2);
@@ -3638,7 +3637,6 @@ v_reusejp_982_:
 {
 lean_object* v___x_984_; lean_object* v___x_985_; lean_object* v___x_986_; 
 v___x_984_ = l_String_Slice_trimAscii(v___x_983_);
-lean_dec_ref(v___x_983_);
 v___x_985_ = l_String_Slice_toString(v___x_984_);
 lean_dec_ref(v___x_984_);
 v___x_986_ = lean_string_append(v___x_980_, v___x_985_);
@@ -3698,7 +3696,6 @@ v_reusejp_996_:
 {
 lean_object* v___x_998_; lean_object* v_str_999_; lean_object* v_startInclusive_1000_; lean_object* v_endExclusive_1001_; lean_object* v___x_1002_; 
 v___x_998_ = l_String_Slice_trimAscii(v___x_997_);
-lean_dec_ref(v___x_997_);
 v_str_999_ = lean_ctor_get(v___x_998_, 0);
 lean_inc_ref(v_str_999_);
 v_startInclusive_1000_ = lean_ctor_get(v___x_998_, 1);
@@ -3751,7 +3748,6 @@ lean_ctor_set(v___x_1024_, 0, v_caption_1013_);
 lean_ctor_set(v___x_1024_, 1, v___x_1022_);
 lean_ctor_set(v___x_1024_, 2, v___x_1023_);
 v___x_1025_ = l_String_Slice_trimAscii(v___x_1024_);
-lean_dec_ref(v___x_1024_);
 v_startInclusive_1026_ = lean_ctor_get(v___x_1025_, 1);
 lean_inc(v_startInclusive_1026_);
 v_endExclusive_1027_ = lean_ctor_get(v___x_1025_, 2);
@@ -3814,7 +3810,6 @@ v_reusejp_1037_:
 {
 lean_object* v___x_1039_; lean_object* v___x_1040_; lean_object* v___x_1041_; 
 v___x_1039_ = l_String_Slice_trimAscii(v___x_1038_);
-lean_dec_ref(v___x_1038_);
 v___x_1040_ = l_String_Slice_toString(v___x_1039_);
 lean_dec_ref(v___x_1039_);
 v___x_1041_ = lean_string_append(v___x_1035_, v___x_1040_);
@@ -3874,7 +3869,6 @@ v_reusejp_1051_:
 {
 lean_object* v___x_1053_; lean_object* v_str_1054_; lean_object* v_startInclusive_1055_; lean_object* v_endExclusive_1056_; lean_object* v___x_1057_; 
 v___x_1053_ = l_String_Slice_trimAscii(v___x_1052_);
-lean_dec_ref(v___x_1052_);
 v_str_1054_ = lean_ctor_get(v___x_1053_, 0);
 lean_inc_ref(v_str_1054_);
 v_startInclusive_1055_ = lean_ctor_get(v___x_1053_, 1);
@@ -6757,7 +6751,6 @@ lean_ctor_set(v___x_2320_, 0, v___y_2316_);
 lean_ctor_set(v___x_2320_, 1, v___x_2308_);
 lean_ctor_set(v___x_2320_, 2, v___x_2317_);
 v___x_2321_ = l_String_Slice_trimAscii(v___x_2320_);
-lean_dec_ref(v___x_2320_);
 v___x_2322_ = l_String_Slice_toString(v___x_2321_);
 lean_dec_ref(v___x_2321_);
 v___x_2323_ = lean_string_append(v___x_2319_, v___x_2322_);

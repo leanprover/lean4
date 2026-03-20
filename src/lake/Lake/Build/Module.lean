@@ -817,7 +817,7 @@ def Module.packLtar (self : Module) (arts : ModuleOutputArtifacts) : JobM Artifa
     return args
   proc (quiet := true) {cmd := (← getLeantar).toString, args}
   if (← self.pkg.isArtifactCacheWritable) then
-    cacheArtifact self.ltarFile "ltar" (← self.pkg.restoreAllArtifacts)
+    cacheArtifact self.ltarFile "ltar" (useLocalFile := ← self.pkg.restoreAllArtifacts)
   else
     computeArtifact self.ltarFile "ltar"
 
@@ -857,7 +857,7 @@ private def Module.buildLean
   let arts := mod.mkArtifacts srcFile setup.isModule
   mod.clearOutputArtifacts
   compileLeanModule srcFile relSrcFile setup mod.setupFile arts args
-    (← getLeanPath) (← getLean)
+    (← getLeanPath) (← getLean) (← getLeanir)
   mod.clearOutputHashes
   mod.computeArtifacts setup.isModule
 

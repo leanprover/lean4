@@ -1,7 +1,5 @@
 module
 
-set_option cbv.warning false
-
 public def f5 (x : Nat) :=
   x + 1
 

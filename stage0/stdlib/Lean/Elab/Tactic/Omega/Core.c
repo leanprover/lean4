@@ -10477,9 +10477,9 @@ goto v___jp_3759_;
 v___jp_3637_:
 {
 lean_object* v___x_3640_; lean_object* v___x_3641_; 
-v___x_3640_ = lean_array_get(v___x_3636_, v___y_3638_, v___y_3639_);
-lean_dec(v___y_3639_);
-lean_dec_ref(v___y_3638_);
+v___x_3640_ = lean_array_get(v___x_3636_, v___y_3639_, v___y_3638_);
+lean_dec(v___y_3638_);
+lean_dec_ref(v___y_3639_);
 v___x_3641_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_3641_, 0, v___x_3640_);
 return v___x_3641_;
@@ -10589,8 +10589,8 @@ lean_dec(v___y_3645_);
 v_fst_3677_ = lean_ctor_get(v_snd_3667_, 0);
 lean_inc(v_fst_3677_);
 lean_dec(v_snd_3667_);
-v___y_3638_ = v___y_3644_;
-v___y_3639_ = v_fst_3677_;
+v___y_3638_ = v_fst_3677_;
+v___y_3639_ = v___y_3644_;
 goto v___jp_3637_;
 }
 else
@@ -10687,8 +10687,8 @@ v___x_3694_ = l_Lean_addTrace___at___00Lean_Elab_Tactic_Omega_Problem_fourierMot
 if (lean_obj_tag(v___x_3694_) == 0)
 {
 lean_dec_ref(v___x_3694_);
-v___y_3638_ = v___y_3644_;
-v___y_3639_ = v_fst_3678_;
+v___y_3638_ = v_fst_3678_;
+v___y_3639_ = v___y_3644_;
 goto v___jp_3637_;
 }
 else

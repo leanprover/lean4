@@ -2221,7 +2221,6 @@ lean_ctor_set(v___x_741_, 0, v_s_736_);
 lean_ctor_set(v___x_741_, 1, v___x_739_);
 lean_ctor_set(v___x_741_, 2, v___x_740_);
 v___x_742_ = l_String_Slice_trimAscii(v___x_741_);
-lean_dec_ref(v___x_741_);
 v_str_743_ = lean_ctor_get(v___x_742_, 0);
 lean_inc_ref(v_str_743_);
 v_startInclusive_744_ = lean_ctor_get(v___x_742_, 1);

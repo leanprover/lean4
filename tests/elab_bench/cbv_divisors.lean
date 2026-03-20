@@ -13,8 +13,8 @@ def runProblem (n : Nat) : MetaM Unit := do
   let endTime ← IO.monoNanosNow
   let ms := (endTime - startTime).toFloat / 1000000.0
   match executed with
-  | .rfl _ => IO.println s!"goal_{n}: {ms} ms"
-  | .step _ proof _ =>
+  | .rfl _ _ => IO.println s!"goal_{n}: {ms} ms"
+  | .step _ proof _ _ =>
     let startTime ← IO.monoNanosNow
     Meta.checkWithKernel proof
     let endTime ← IO.monoNanosNow

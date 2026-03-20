@@ -37,7 +37,7 @@ it.drop 3   ------⊥
 Currently, this combinator incurs an additional O(1) cost with each output of `it`, even when the iterator
 does not drop any elements anymore.
 -/
-@[always_inline, inline]
+@[cbv_opaque, always_inline, inline]
 def Iter.drop {α : Type w} {β : Type w} (n : Nat) (it : Iter (α := α) β) :
     Iter (α := Drop α Id β) β :=
   it.toIterM.drop n |>.toIter

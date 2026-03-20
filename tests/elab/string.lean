@@ -2,8 +2,6 @@ module
 
 meta import Init.Data.String
 
-set_option cbv.warning false
-
 /-!
 # Tests for `String` functions
 -/

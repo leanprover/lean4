@@ -17,14 +17,14 @@ if it reduces to `True`, returns `True` immediately without evaluating the right
 builtin_cbv_simproc ↓ simpOr (@Or _ _) := fun e => do
   let_expr Or a b := e | return .rfl
   match (← simp a) with
-  | .rfl _ =>
+  | .rfl _ _ =>
     if (← isTrueExpr a) then
       return .step (← getTrueExpr) (mkApp (mkConst ``true_or) b) (done := true)
     else if (← isFalseExpr a) then
       return .step b (mkApp (mkConst ``false_or) b)
     else
       return .rfl
-  | .step a' ha _ =>
+  | .step a' ha _ _ =>
     if (← isTrueExpr a') then
       return .step (← getTrueExpr) (mkApp (e.replaceFn ``Sym.or_eq_true_left) ha) (done := true)
     else if (← isFalseExpr a') then
@@ -37,14 +37,14 @@ if it reduces to `False`, returns `False` immediately without evaluating the rig
 builtin_cbv_simproc ↓ simpAnd (@And _ _) := fun e => do
   let_expr And a b := e | return .rfl
   match (← simp a) with
-  | .rfl _ =>
+  | .rfl _ _ =>
     if (← isFalseExpr a) then
       return .step (← getFalseExpr) (mkApp (mkConst ``false_and) b) (done := true)
     else if (← isTrueExpr a) then
       return .step b (mkApp (mkConst ``true_and) b)
     else
       return .rfl
-  | .step a' ha _ =>
+  | .step a' ha _ _ =>
     if (← isFalseExpr a') then
       return .step (← getFalseExpr) (mkApp (e.replaceFn ``Sym.and_eq_false_left) ha) (done := true)
     else if (← isTrueExpr a') then

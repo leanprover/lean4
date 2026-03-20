@@ -42,6 +42,7 @@ unsafe def evalExprCore (α) (value : Expr) (checkType : Expr → MetaM Unit)
     -- now that we've already waited, async would just introduce (minor) overhead and trigger
     -- `Task.get` blocking debug code
     withOptions (Elab.async.set · false) do
+    withOptions (Compiler.compiler.postponeCompile.set · false) do
     withOptions (Compiler.compiler.relaxedMetaCheck.set · true) do
       addAndCompile decl
       evalConst (checkMeta := checkMeta) α name

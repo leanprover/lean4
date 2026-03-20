@@ -3912,8 +3912,8 @@ goto v___jp_1264_;
 }
 else
 {
-lean_dec(v_pre_1274_);
 lean_dec_ref(v_pre_1273_);
+lean_dec(v_pre_1274_);
 lean_dec_ref(v_declName_1272_);
 v___y_1265_ = v_a_1259_;
 v___y_1266_ = v_a_1260_;

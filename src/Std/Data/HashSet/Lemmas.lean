@@ -65,7 +65,7 @@ theorem contains_congr [EquivBEq α] [LawfulHashable α] {a b : α} (hab : a == 
 theorem mem_congr [EquivBEq α] [LawfulHashable α] {a b : α} (hab : a == b) : a ∈ m ↔ b ∈ m :=
   HashMap.mem_congr hab
 
-@[simp, grind =]
+@[simp, grind =, cbv_eval]
 theorem contains_emptyWithCapacity {a : α} {c} : (emptyWithCapacity c : HashSet α).contains a = false :=
   HashMap.contains_emptyWithCapacity
 
@@ -106,7 +106,7 @@ theorem isEmpty_iff_forall_not_mem [EquivBEq α] [LawfulHashable α] :
 
 @[simp] theorem singleton_eq_insert {a : α} : Singleton.singleton a = (∅ : HashSet α).insert a := rfl
 
-@[simp, grind =]
+@[simp, grind =, cbv_eval]
 theorem contains_insert [EquivBEq α] [LawfulHashable α] {k a : α} :
     (m.insert k).contains a = (k == a || m.contains a) :=
   HashMap.contains_insertIfNew
@@ -172,7 +172,7 @@ theorem size_insert_le [EquivBEq α] [LawfulHashable α] {k : α} :
     (m.insert k).size ≤ m.size + 1 :=
   HashMap.size_insertIfNew_le
 
-@[simp, grind =]
+@[simp, grind =, cbv_eval]
 theorem erase_emptyWithCapacity {a : α} {c : Nat} : (emptyWithCapacity c : HashSet α).erase a = emptyWithCapacity c :=
   ext HashMap.erase_emptyWithCapacity
 
@@ -185,7 +185,7 @@ theorem isEmpty_erase [EquivBEq α] [LawfulHashable α] {k : α} :
     (m.erase k).isEmpty = (m.isEmpty || (m.size == 1 && m.contains k)) :=
   HashMap.isEmpty_erase
 
-@[simp, grind =]
+@[simp, grind =, cbv_eval]
 theorem contains_erase [EquivBEq α] [LawfulHashable α] {k a : α} :
     (m.erase k).contains a = (!(k == a) && m.contains a) :=
   HashMap.contains_erase
@@ -262,7 +262,7 @@ theorem get?_eq_none_of_contains_eq_false [EquivBEq α] [LawfulHashable α] {a :
 theorem get?_eq_none [EquivBEq α] [LawfulHashable α] {a : α} : ¬a ∈ m → m.get? a = none :=
   HashMap.getKey?_eq_none
 
-@[grind =] theorem get?_erase [EquivBEq α] [LawfulHashable α] {k a : α} :
+@[grind =, cbv_eval] theorem get?_erase [EquivBEq α] [LawfulHashable α] {k a : α} :
     (m.erase k).get? a = if k == a then none else m.get? a :=
   HashMap.getKey?_erase
 
@@ -344,7 +344,7 @@ theorem get!_eq_default [Inhabited α] [EquivBEq α] [LawfulHashable α] {a : α
     ¬a ∈ m → m.get! a = default :=
   HashMap.getKey!_eq_default
 
-@[grind =] theorem get!_erase [Inhabited α] [EquivBEq α] [LawfulHashable α] {k a : α} :
+@[grind =, cbv_eval] theorem get!_erase [Inhabited α] [EquivBEq α] [LawfulHashable α] {k a : α} :
     (m.erase k).get! a = if k == a then default else m.get! a :=
   HashMap.getKey!_erase
 
@@ -404,7 +404,7 @@ theorem getD_eq_fallback [EquivBEq α] [LawfulHashable α] {a fallback : α} :
     ¬a ∈ m → m.getD a fallback = fallback :=
   HashMap.getKeyD_eq_fallback
 
-@[grind =] theorem getD_erase [EquivBEq α] [LawfulHashable α] {k a fallback : α} :
+@[grind =, cbv_eval] theorem getD_erase [EquivBEq α] [LawfulHashable α] {k a fallback : α} :
     (m.erase k).getD a fallback = if k == a then fallback else m.getD a fallback :=
   HashMap.getKeyD_erase
 

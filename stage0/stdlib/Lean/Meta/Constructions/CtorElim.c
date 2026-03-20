@@ -7308,8 +7308,8 @@ return v___x_2667_;
 else
 {
 lean_object* v_a_2677_; lean_object* v___x_2679_; uint8_t v_isShared_2680_; uint8_t v_isSharedCheck_2684_; 
-lean_dec(v_tail_2656_);
 lean_dec_ref(v___x_2655_);
+lean_dec(v_tail_2656_);
 lean_del_object(v___x_2652_);
 lean_dec_ref(v_val_2646_);
 lean_dec(v_a_2642_);

@@ -2286,8 +2286,8 @@ return v___x_581_;
 else
 {
 lean_object* v___x_584_; 
-lean_dec(v_pre_558_);
 lean_dec_ref(v_declName_557_);
+lean_dec(v_pre_558_);
 lean_dec_ref(v_fn_556_);
 if (v_isShared_540_ == 0)
 {
@@ -2312,8 +2312,8 @@ return v___x_584_;
 else
 {
 lean_object* v___x_587_; 
-lean_dec_ref(v_fn_556_);
 lean_dec(v_declName_557_);
+lean_dec_ref(v_fn_556_);
 if (v_isShared_540_ == 0)
 {
 lean_ctor_set(v___x_539_, 0, v_a_534_);
@@ -2412,8 +2412,8 @@ return v___x_596_;
 else
 {
 lean_object* v___x_599_; 
-lean_dec_ref(v_a_537_);
 lean_dec(v_typeName_541_);
+lean_dec_ref(v_a_537_);
 if (v_isShared_540_ == 0)
 {
 lean_ctor_set(v___x_539_, 0, v_a_534_);

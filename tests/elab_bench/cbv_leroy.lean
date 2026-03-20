@@ -154,8 +154,8 @@ def runSingleTest (n : Nat) : MetaM Unit := do
   let endTime ← IO.monoNanosNow
   let ms := (endTime - startTime).toFloat / 1000000.0
   match executed with
-  | .rfl _ => IO.println s!"goal_{n}: {ms} ms"
-  | .step e' proof _ =>
+  | .rfl _ _ => IO.println s!"goal_{n}: {ms} ms"
+  | .step e' proof _ _ =>
     let startTime ← IO.monoNanosNow
     Meta.checkWithKernel proof
     let endTime ← IO.monoNanosNow

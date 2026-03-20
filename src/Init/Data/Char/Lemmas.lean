@@ -86,4 +86,16 @@ theorem toUInt8_val {c : Char} : c.val.toUInt8 = c.toUInt8 := rfl
 @[simp]
 theorem toString_eq_singleton {c : Char} : c.toString = String.singleton c := rfl
 
+@[simp]
+theorem toNat_val {c : Char} : c.val.toNat = c.toNat := rfl
+
+theorem val_inj {c d : Char} : c.val = d.val ↔ c = d :=
+  Char.ext_iff.symm
+
+theorem toNat_inj {c d : Char} : c.toNat = d.toNat ↔ c = d := by
+  simp [← toNat_val, ← val_inj, ← UInt32.toNat_inj]
+
+theorem isDigit_iff_toNat {c : Char} : c.isDigit ↔ '0'.toNat ≤ c.toNat ∧ c.toNat ≤ '9'.toNat := by
+  simp [isDigit, UInt32.le_iff_toNat_le]
+
 end Char

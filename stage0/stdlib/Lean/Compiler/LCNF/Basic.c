@@ -12085,7 +12085,7 @@ return v___x_3995_;
 LEAN_EXPORT uint8_t l___private_Lean_Compiler_LCNF_Basic_0__Lean_Compiler_LCNF_eqImp(uint8_t v_pu_3998_, lean_object* v_c_u2081_3999_, lean_object* v_c_u2082_4000_){
 _start:
 {
-lean_object* v___y_4002_; lean_object* v___y_4003_; uint8_t v___y_4004_; uint8_t v___y_4005_; lean_object* v___y_4009_; uint8_t v___y_4010_; lean_object* v___y_4011_; uint8_t v___y_4012_; uint8_t v___y_4013_; uint8_t v___y_4014_; uint8_t v___y_4015_; lean_object* v_v_u2081_4017_; lean_object* v_n_u2081_4018_; uint8_t v_c_u2081_4019_; uint8_t v_p_u2081_4020_; lean_object* v_k_u2081_4021_; lean_object* v_v_u2082_4022_; lean_object* v_n_u2082_4023_; uint8_t v_c_u2082_4024_; uint8_t v_p_u2082_4025_; lean_object* v_k_u2082_4026_; size_t v___x_4029_; size_t v___x_4030_; uint8_t v___x_4031_; 
+uint8_t v___y_4002_; uint8_t v___y_4003_; lean_object* v___y_4004_; lean_object* v___y_4005_; uint8_t v___y_4009_; uint8_t v___y_4010_; uint8_t v___y_4011_; uint8_t v___y_4012_; lean_object* v___y_4013_; lean_object* v___y_4014_; uint8_t v___y_4015_; lean_object* v_v_u2081_4017_; lean_object* v_n_u2081_4018_; uint8_t v_c_u2081_4019_; uint8_t v_p_u2081_4020_; lean_object* v_k_u2081_4021_; lean_object* v_v_u2082_4022_; lean_object* v_n_u2082_4023_; uint8_t v_c_u2082_4024_; uint8_t v_p_u2082_4025_; lean_object* v_k_u2082_4026_; size_t v___x_4029_; size_t v___x_4030_; uint8_t v___x_4031_; 
 v___x_4029_ = lean_ptr_addr(v_c_u2081_3999_);
 v___x_4030_ = lean_ptr_addr(v_c_u2082_4000_);
 v___x_4031_ = lean_usize_dec_eq(v___x_4029_, v___x_4030_);
@@ -12578,29 +12578,29 @@ return v___x_4031_;
 }
 v___jp_4001_:
 {
-if (v___y_4004_ == 0)
+if (v___y_4003_ == 0)
 {
-if (v___y_4005_ == 0)
+if (v___y_4002_ == 0)
 {
-v_c_u2081_3999_ = v___y_4003_;
-v_c_u2082_4000_ = v___y_4002_;
+v_c_u2081_3999_ = v___y_4005_;
+v_c_u2082_4000_ = v___y_4004_;
 goto _start;
 }
 else
 {
-return v___y_4004_;
+return v___y_4003_;
 }
 }
 else
 {
-if (v___y_4005_ == 0)
+if (v___y_4002_ == 0)
 {
-return v___y_4005_;
+return v___y_4002_;
 }
 else
 {
-v_c_u2081_3999_ = v___y_4003_;
-v_c_u2082_4000_ = v___y_4002_;
+v_c_u2081_3999_ = v___y_4005_;
+v_c_u2082_4000_ = v___y_4004_;
 goto _start;
 }
 }
@@ -12613,33 +12613,33 @@ return v___y_4015_;
 }
 else
 {
-if (v___y_4010_ == 0)
+if (v___y_4012_ == 0)
 {
-if (v___y_4014_ == 0)
+if (v___y_4011_ == 0)
 {
 v___y_4002_ = v___y_4009_;
-v___y_4003_ = v___y_4011_;
-v___y_4004_ = v___y_4012_;
-v___y_4005_ = v___y_4013_;
+v___y_4003_ = v___y_4010_;
+v___y_4004_ = v___y_4013_;
+v___y_4005_ = v___y_4014_;
 goto v___jp_4001_;
 }
 else
 {
-return v___y_4010_;
+return v___y_4012_;
 }
 }
 else
 {
-if (v___y_4014_ == 0)
+if (v___y_4011_ == 0)
 {
-return v___y_4014_;
+return v___y_4011_;
 }
 else
 {
 v___y_4002_ = v___y_4009_;
-v___y_4003_ = v___y_4011_;
-v___y_4004_ = v___y_4012_;
-v___y_4005_ = v___y_4013_;
+v___y_4003_ = v___y_4010_;
+v___y_4004_ = v___y_4013_;
+v___y_4005_ = v___y_4014_;
 goto v___jp_4001_;
 }
 }
@@ -12651,12 +12651,12 @@ uint8_t v___x_4027_;
 v___x_4027_ = l_Lean_instBEqFVarId_beq(v_v_u2081_4017_, v_v_u2082_4022_);
 if (v___x_4027_ == 0)
 {
-v___y_4009_ = v_k_u2082_4026_;
-v___y_4010_ = v_c_u2081_4019_;
-v___y_4011_ = v_k_u2081_4021_;
-v___y_4012_ = v_p_u2081_4020_;
-v___y_4013_ = v_p_u2082_4025_;
-v___y_4014_ = v_c_u2082_4024_;
+v___y_4009_ = v_p_u2082_4025_;
+v___y_4010_ = v_p_u2081_4020_;
+v___y_4011_ = v_c_u2082_4024_;
+v___y_4012_ = v_c_u2081_4019_;
+v___y_4013_ = v_k_u2082_4026_;
+v___y_4014_ = v_k_u2081_4021_;
 v___y_4015_ = v___x_4027_;
 goto v___jp_4008_;
 }
@@ -12664,12 +12664,12 @@ else
 {
 uint8_t v___x_4028_; 
 v___x_4028_ = lean_nat_dec_eq(v_n_u2081_4018_, v_n_u2082_4023_);
-v___y_4009_ = v_k_u2082_4026_;
-v___y_4010_ = v_c_u2081_4019_;
-v___y_4011_ = v_k_u2081_4021_;
-v___y_4012_ = v_p_u2081_4020_;
-v___y_4013_ = v_p_u2082_4025_;
-v___y_4014_ = v_c_u2082_4024_;
+v___y_4009_ = v_p_u2082_4025_;
+v___y_4010_ = v_p_u2081_4020_;
+v___y_4011_ = v_c_u2082_4024_;
+v___y_4012_ = v_c_u2081_4019_;
+v___y_4013_ = v_k_u2082_4026_;
+v___y_4014_ = v_k_u2081_4021_;
 v___y_4015_ = v___x_4028_;
 goto v___jp_4008_;
 }

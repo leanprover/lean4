@@ -1552,8 +1552,8 @@ if (lean_obj_tag(v_a_391_) == 0)
 {
 lean_object* v___x_395_; lean_object* v___x_397_; 
 lean_dec(v_struct_387_);
-lean_dec_ref(v_e_377_);
 lean_dec(v_idx_386_);
+lean_dec_ref(v_e_377_);
 lean_dec(v_a_384_);
 lean_dec_ref(v_a_383_);
 lean_dec(v_a_382_);
@@ -2017,8 +2017,8 @@ else
 {
 lean_object* v_a_478_; lean_object* v___x_480_; uint8_t v_isShared_481_; uint8_t v_isSharedCheck_485_; 
 lean_dec(v_struct_387_);
-lean_dec_ref(v_e_377_);
 lean_dec(v_idx_386_);
+lean_dec_ref(v_e_377_);
 lean_dec(v_a_384_);
 lean_dec_ref(v_a_383_);
 lean_dec(v_a_382_);
@@ -2069,8 +2069,8 @@ else
 {
 lean_object* v_a_486_; lean_object* v___x_488_; uint8_t v_isShared_489_; uint8_t v_isSharedCheck_493_; 
 lean_dec(v_struct_387_);
-lean_dec_ref(v_e_377_);
 lean_dec(v_idx_386_);
+lean_dec_ref(v_e_377_);
 lean_dec(v_a_384_);
 lean_dec_ref(v_a_383_);
 lean_dec(v_a_382_);

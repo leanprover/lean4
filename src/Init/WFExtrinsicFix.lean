@@ -63,7 +63,7 @@ nothing interesting can be proved about the recursive function; it is opaque.
 If {name}`R` _is_ well-founded, {lean}`extrinsicFix R F` is equivalent to
 {lean}`WellFounded.fix _ F`, logically and regarding its termination behavior.
 -/
-@[implemented_by opaqueFix]
+@[cbv_opaque, implemented_by opaqueFix]
 public def extrinsicFix [∀ a, Nonempty (C a)] (R : α → α → Prop)
     (F : ∀ a, (∀ a', R a' a → C a') → C a) (a : α) : C a :=
   open scoped Classical in
@@ -150,7 +150,7 @@ nothing interesting can be proved about the recursive function; it is opaque.
 If {name}`R` _is_ well-founded, {lean}`extrinsicFix₂ R F` is equivalent to a well-founded recursive
 function, logically and regarding its termination behavior.
 -/
-@[implemented_by opaqueFix₂]
+@[cbv_opaque, implemented_by opaqueFix₂]
 public def extrinsicFix₂ [∀ a b, Nonempty (C₂ a b)]
     (R : (a : α) ×' β a → (a : α) ×' β a → Prop)
     (F : (a : α) → (b : β a) → ((a' : α) → (b' : β a') → R ⟨a', b'⟩ ⟨a, b⟩ → C₂ a' b') → C₂ a b)
@@ -222,7 +222,7 @@ nothing interesting can be proved about the recursive function; it is opaque.
 If {name}`R` _is_ well-founded, {lean}`extrinsicFix₃ R F` is equivalent to a well-founded recursive
 function, logically and regarding its termination behavior.
 -/
-@[implemented_by opaqueFix₃]
+@[cbv_opaque, implemented_by opaqueFix₃]
 public def extrinsicFix₃ [∀ a b c, Nonempty (C₃ a b c)]
     (R : (a : α) ×' (b : β a) ×' γ a b → (a : α) ×' (b : β a) ×' γ a b → Prop)
     (F : ∀ (a b c), (∀ (a' b' c'), R ⟨a', b', c'⟩ ⟨a, b, c⟩ → C₃ a' b' c') → C₃ a b c)

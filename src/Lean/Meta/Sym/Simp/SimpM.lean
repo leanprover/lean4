@@ -144,15 +144,52 @@ The `done` flag affects:
 
 The flag is orthogonal to caching: both `.rfl` and `.step` results are cached
 regardless of the `done` flag, and cached results are always treated as final.
+
+## Context-dependent results
+
+The `contextDependent` flag tracks whether the result depends on the local context
+(e.g., hypotheses introduced when entering binders). Context-dependent results are
+stored in a transient cache that is cleared when entering binders, while
+context-independent results persist across binder entry and across `simp` invocations.
+
+**Propagation rule**: when combining sub-results (congruence, transitivity, etc.),
+`contextDependent` is the disjunction of all sub-results' flags. This includes
+`.rfl` results: if `simp` returned `.rfl (contextDependent := true)`, it means
+`simp` might produce a *different* result in another local context (e.g., a conditional
+rewrite could succeed), so all downstream results must be marked context-dependent.
 -/
 inductive Result where
   /-- No change. If `done = true`, skip remaining simplification steps for this term. -/
-  | rfl (done : Bool := false)
+  | rfl (done : Bool := false) (contextDependent : Bool := false)
   /--
   Simplified to `e'` with proof `proof : e = e'`.
   If `done = true`, skip recursive simplification of `e'`. -/
-  | step (e' : Expr) (proof : Expr) (done : Bool := false)
+  | step (e' : Expr) (proof : Expr) (done : Bool := false) (contextDependent : Bool := false)
   deriving Inhabited
+
+/--
+Pre-computed `.rfl` results to avoid dynamic memory allocation.
+Each combination of `done` and `contextDependent` maps to a compile-time constant.
+-/
+public def mkRflResult (done : Bool := false) (contextDependent : Bool := false) : Result :=
+  match done, contextDependent with
+  | false, false => .rfl
+  | false, true  => .rfl false true
+  | true,  false => .rfl true
+  | true,  true  => .rfl true true
+
+/-- Like `mkRflResult` with `done := false`. -/
+public def mkRflResultCD (contextDependent : Bool) : Result :=
+  if contextDependent then .rfl false true else .rfl
+
+/-- Returns `true` if this result depends on the local context (e.g., hypotheses). -/
+public abbrev Result.isContextDependent : Result → Bool
+  | .rfl _ cd | .step _ _ _ cd => cd
+
+/-- Marks a result as context-dependent. -/
+public def Result.withContextDependent : Result → Result
+  | .rfl done _ => .rfl done true
+  | .step e h done _ => .step e h done true
 
 private opaque MethodsRefPointed : NonemptyType.{0}
 def MethodsRef : Type := MethodsRefPointed.type
@@ -175,10 +212,15 @@ structure State where
   /-- Number of steps performed so far. -/
   numSteps := 0
   /--
-  Cache of previously simplified expressions to avoid redundant work.
-  **Note**: Consider moving to `SymM.State`
+  Cache for context-independent results. Survives across binder entry and
+  across `simp` invocations within a `sym =>` block.
   -/
-  cache : Cache := {}
+  persistentCache : Cache := {}
+  /--
+  Cache for context-dependent results. Cleared when entering binders
+  (where new hypotheses may change the result).
+  -/
+  transientCache : Cache := {}
   /-- Cache for generated funext theorems -/
   funext : PHashMap ExprPtr Expr := {}
 
@@ -193,13 +235,6 @@ abbrev Simproc := Expr → SimpM Result
 structure Methods where
   pre        : Simproc  := fun _ => return .rfl
   post       : Simproc  := fun _ => return .rfl
-  /--
-  `wellBehavedMethods` must **not** be set to `true` IF their behavior
-  depends on new hypotheses in the local context. For example, for applying
-  conditional rewrite rules.
-  Reason: it would prevent us from aggressively caching `simp` results.
-  -/
-  wellBehavedMethods : Bool := true
   deriving Inhabited
 
 unsafe def Methods.toMethodsRefImpl (m : Methods) : MethodsRef :=
@@ -217,12 +252,15 @@ opaque MethodsRef.toMethods (m : MethodsRef) : Methods
 def getMethods : SimpM Methods :=
   return MethodsRef.toMethods (← read)
 
-/-- Runs a `SimpM` computation with the given theorems, configuration, and initial state -/
-def SimpM.run (x : SimpM α) (methods : Methods := {}) (config : Config := {}) (s : State := {}) : SymM (α × State) := do
+/-- Runs a `SimpM` computation with the given methods, configuration, and state.
+The `transientCache` is always reset (context-dependent results don't survive across
+invocations). The `persistentCache` and `funext` cache are preserved from `s`. -/
+def SimpM.run (x : SimpM α) (methods : Methods := {}) (config : Config := {})
+    (s : State := {}) : SymM (α × State) := do
   let initialLCtxSize := (← getLCtx).decls.size
-  x methods.toMethodsRef { initialLCtxSize, config } |>.run s
+  x methods.toMethodsRef { initialLCtxSize, config } |>.run { s with transientCache := {}, numSteps := 0 }
 
-/-- Runs a `SimpM` computation with the given theorems and configuration. -/
+/-- Runs a `SimpM` computation with the given methods and configuration. -/
 def SimpM.run' (x : SimpM α) (methods : Methods := {}) (config : Config := {}) : SymM α := do
   let initialLCtxSize := (← getLCtx).decls.size
   x methods.toMethodsRef { initialLCtxSize, config } |>.run' {}
@@ -234,22 +272,25 @@ opaque simp : Simproc
 def getConfig : SimpM Config :=
   return (← readThe Context).config
 
-abbrev getCache : SimpM Cache :=
-  return (← get).cache
-
 abbrev pre : Simproc := fun e => do
   (← getMethods).pre e
 
 abbrev post : Simproc := fun e => do
   (← getMethods).post e
 
+/-- Saves and restores both caches and funext. Used by dischargers. -/
 abbrev withoutModifyingCache (k : SimpM α) : SimpM α := do
-  let cache ← getCache
+  let persistentCache := (← get).persistentCache
+  let transientCache := (← get).transientCache
   let funext := (← get).funext
-  try k finally modify fun s => { s with cache, funext }
+  try k finally modify fun s => { s with persistentCache, transientCache, funext }
 
-abbrev withoutModifyingCacheIfNotWellBehaved (k : SimpM α) : SimpM α := do
-  if (← getMethods).wellBehavedMethods then k else withoutModifyingCache k
+/-- Saves and restores the transient cache and funext, leaving
+the persistent cache untouched. Used when entering binders. -/
+abbrev withFreshTransientCache (k : SimpM α) : SimpM α := do
+  let transientCache := (← get).transientCache
+  let funext := (← get).funext
+  try k finally modify fun s => { s with transientCache, funext }
 
 end Simp
 

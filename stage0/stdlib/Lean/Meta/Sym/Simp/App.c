@@ -2219,8 +2219,8 @@ if (lean_obj_tag(v_a_571_) == 0)
 {
 lean_object* v___x_600_; uint8_t v_isShared_601_; uint8_t v_isSharedCheck_608_; 
 lean_dec_ref(v_arg_567_);
-lean_dec_ref(v_e_552_);
 lean_dec_ref(v_fn_566_);
+lean_dec_ref(v_e_552_);
 lean_dec(v_a_562_);
 lean_dec_ref(v_a_561_);
 lean_dec(v_a_560_);
@@ -2340,8 +2340,8 @@ else
 {
 lean_dec(v_a_571_);
 lean_dec_ref(v_arg_567_);
-lean_dec_ref(v_fn_566_);
 lean_dec_ref(v_e_552_);
+lean_dec_ref(v_fn_566_);
 lean_dec(v_a_562_);
 lean_dec_ref(v_a_561_);
 lean_dec(v_a_560_);
@@ -2547,8 +2547,8 @@ return v___x_628_;
 else
 {
 lean_dec_ref(v_arg_567_);
-lean_dec_ref(v_e_552_);
 lean_dec_ref(v_fn_566_);
+lean_dec_ref(v_e_552_);
 lean_dec(v_a_562_);
 lean_dec_ref(v_a_561_);
 lean_dec(v_a_560_);
@@ -5515,8 +5515,8 @@ else
 {
 lean_dec(v_a_1473_);
 lean_dec_ref(v_arg_1469_);
-lean_dec_ref(v_fn_1468_);
 lean_dec_ref(v_e_1455_);
+lean_dec_ref(v_fn_1468_);
 lean_dec(v_a_1464_);
 lean_dec_ref(v_a_1463_);
 lean_dec(v_a_1462_);
@@ -5532,8 +5532,8 @@ else
 {
 lean_dec(v___x_1471_);
 lean_dec_ref(v_arg_1469_);
-lean_dec_ref(v_fn_1468_);
 lean_dec_ref(v_e_1455_);
+lean_dec_ref(v_fn_1468_);
 lean_dec(v_a_1464_);
 lean_dec_ref(v_a_1463_);
 lean_dec(v_a_1462_);
@@ -8111,8 +8111,8 @@ else
 {
 lean_dec(v_a_2330_);
 lean_dec_ref(v_arg_2326_);
-lean_dec_ref(v_e_2308_);
 lean_dec_ref(v_fn_2325_);
+lean_dec_ref(v_e_2308_);
 lean_dec(v_a_2318_);
 lean_dec_ref(v_a_2317_);
 lean_dec(v_a_2316_);
@@ -8196,8 +8196,8 @@ lean_object* v___x_2362_; lean_object* v___x_2363_;
 lean_dec(v_a_2338_);
 lean_dec(v_a_2330_);
 lean_dec_ref(v_arg_2326_);
-lean_dec_ref(v_fn_2325_);
 lean_dec_ref(v_e_2308_);
+lean_dec_ref(v_fn_2325_);
 v___x_2362_ = lean_obj_once(&l___private_Lean_Meta_Sym_Simp_App_0__Lean_Meta_Sym_Simp_simpAppArgRange_visit___closed__1, &l___private_Lean_Meta_Sym_Simp_App_0__Lean_Meta_Sym_Simp_simpAppArgRange_visit___closed__1_once, _init_l___private_Lean_Meta_Sym_Simp_App_0__Lean_Meta_Sym_Simp_simpAppArgRange_visit___closed__1);
 v___x_2363_ = l_panic___at___00__private_Lean_Meta_Sym_Simp_App_0__Lean_Meta_Sym_Simp_simpOverApplied_visit_spec__0(v___x_2362_, v_a_2310_, v_a_2311_, v_a_2312_, v_a_2313_, v_a_2314_, v_a_2315_, v_a_2316_, v_a_2317_, v_a_2318_);
 return v___x_2363_;

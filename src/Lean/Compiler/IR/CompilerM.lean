@@ -11,7 +11,7 @@ public import Lean.Compiler.ExportAttr
 public import Lean.Compiler.LCNF.PublicDeclsExt
 import Lean.Compiler.InitAttr
 import Init.Data.Format.Macro
-import Lean.Compiler.LCNF.Types
+import Lean.Compiler.LCNF.Basic
 
 public section
 
@@ -94,6 +94,11 @@ builtin_initialize declMapExt : SimplePersistentEnvExtension Decl DeclMap ←
           if isDeclMeta env d.name then
             return d
           guard <| Compiler.LCNF.isDeclPublic env d.name
+          -- TODO: boxed `[extern]`s are created eagerly by lean but we need to see their IR in
+          -- leanir. It would be nicer to make them part of standard `compileDecls` so they can be
+          -- postponed like anyone else.
+          if Compiler.LCNF.isBoxedName d.name && isExtern env d.name.getPrefix then
+            return d
           -- Bodies of imported IR decls are not relevant for codegen, only interpretation
           match d with
           | .fdecl f xs ty b info =>
@@ -127,7 +132,12 @@ private def exportIREntries (env : Environment) : Array (Name × Array EnvExtens
   #[(declMapExt.name, irEntries),
     (Lean.regularInitAttr.ext.name, initDecls)]
 
-def findEnvDecl (env : Environment) (declName : Name) (includeServer := false): Option Decl :=
+def findEnvDecl (env : Environment) (declName : Name) : Option Decl :=
+  Compiler.LCNF.findExtEntry? env declMapExt declName findAtSorted? (·.2.find?)
+
+@[export lean_ir_find_env_decl]
+private def findInterpDecl (env : Environment) (declName : Name) (includeServer := false) : Option Decl :=
+  -- This function is never used in `leanir`, so no need for `findExtEntry?`
   match env.getModuleIdxFor? declName with
   | some modIdx =>
     -- `meta import/import all` and, optionally, additional server-mode IR
@@ -136,10 +146,6 @@ def findEnvDecl (env : Environment) (declName : Name) (includeServer := false): 
     -- (closure of) `meta def`; will report `.extern`s for other `def`s so needs to come second
     findAtSorted? (declMapExt.getModuleEntries env modIdx) declName
   | none => declMapExt.getState env |>.find? declName
-
-@[export lean_ir_find_env_decl]
-private def findInterpDecl (env : Environment) (declName : Name) : Option Decl :=
-  findEnvDecl (includeServer := true) env declName
 
 /-- Like ``findInterpDecl env (declName ++ `_boxed)`` but with optimized negative lookup. -/
 @[export lean_ir_find_env_decl_boxed]

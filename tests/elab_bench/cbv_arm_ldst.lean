@@ -10,8 +10,6 @@ Extracted from `LNSym` (https://github.com/leanprover/LNSym), an ARMv8
 symbolic simulator. Original code released under Apache 2.0 license.
 -/
 
-set_option cbv.warning false
-
 ----------------------------------------------------------------------
 -- match_bv macro infrastructure (from Arm/BitVec.lean)
 ----------------------------------------------------------------------

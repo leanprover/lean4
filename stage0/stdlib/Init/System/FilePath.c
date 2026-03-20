@@ -1193,13 +1193,13 @@ return v___x_299_;
 v___jp_300_:
 {
 uint8_t v___x_304_; 
-v___x_304_ = l_List_elem___at___00System_FilePath_normalize_spec__0(v___y_303_, v___y_302_);
-lean_dec(v___y_302_);
+v___x_304_ = l_List_elem___at___00System_FilePath_normalize_spec__0(v___y_303_, v___y_301_);
+lean_dec(v___y_301_);
 if (v___x_304_ == 0)
 {
 lean_object* v___x_305_; 
 v___x_305_ = lean_unsigned_to_nat(3u);
-v___y_288_ = v___y_301_;
+v___y_288_ = v___y_302_;
 v___y_289_ = v___x_305_;
 goto v___jp_287_;
 }
@@ -1207,7 +1207,7 @@ else
 {
 lean_object* v___x_306_; 
 v___x_306_ = lean_unsigned_to_nat(1u);
-v___y_288_ = v___y_301_;
+v___y_288_ = v___y_302_;
 v___y_289_ = v___x_306_;
 goto v___jp_287_;
 }
@@ -1240,8 +1240,8 @@ if (lean_obj_tag(v___x_314_) == 0)
 {
 uint32_t v___x_315_; 
 v___x_315_ = 65;
-v___y_301_ = v___y_308_;
-v___y_302_ = v___x_310_;
+v___y_301_ = v___x_310_;
+v___y_302_ = v___y_308_;
 v___y_303_ = v___x_315_;
 goto v___jp_300_;
 }
@@ -1253,8 +1253,8 @@ lean_inc(v_val_316_);
 lean_dec_ref(v___x_314_);
 v___x_317_ = lean_unbox_uint32(v_val_316_);
 lean_dec(v_val_316_);
-v___y_301_ = v___y_308_;
-v___y_302_ = v___x_310_;
+v___y_301_ = v___x_310_;
+v___y_302_ = v___y_308_;
 v___y_303_ = v___x_317_;
 goto v___jp_300_;
 }

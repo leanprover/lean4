@@ -114,6 +114,7 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
       )
     endif()
   endif()
+  list(APPEND STAGE0_ARGS -DLEANTAR=${LEANTAR})
   list(APPEND CL_ARGS -DCADICAL=${CADICAL} -DLEANTAR=${LEANTAR})
 endif()
 

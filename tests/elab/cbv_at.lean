@@ -1,4 +1,3 @@
-set_option cbv.warning false
 set_option linter.unusedVariables false
 
 example : 2 + 3 = 5 := by cbv

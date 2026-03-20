@@ -615,7 +615,6 @@ lean_ctor_set(v___x_196_, 0, v_s_193_);
 lean_ctor_set(v___x_196_, 1, v___x_194_);
 lean_ctor_set(v___x_196_, 2, v___x_195_);
 v___x_197_ = l_String_Slice_trimAscii(v___x_196_);
-lean_dec_ref(v___x_196_);
 v___x_198_ = l_String_Slice_toString(v___x_197_);
 lean_dec_ref(v___x_197_);
 v_val_199_ = l_String_mapAux___at___00Std_Http_Header_Name_ofString_x3f_spec__0(v___x_198_, v___x_194_);

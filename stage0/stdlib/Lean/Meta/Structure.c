@@ -10983,8 +10983,8 @@ if (v___x_3949_ == 0)
 {
 lean_inc_ref(v_body_3960_);
 lean_dec_ref(v___f_3961_);
-lean_dec_ref(v_snd_3955_);
 lean_dec_ref(v_binderType_3959_);
+lean_dec_ref(v_snd_3955_);
 lean_dec(v_toBind_3951_);
 lean_dec(v_inst_3950_);
 goto v___jp_3962_;
@@ -11015,8 +11015,8 @@ else
 {
 lean_inc_ref(v_body_3960_);
 lean_dec_ref(v___f_3961_);
-lean_dec_ref(v_snd_3955_);
 lean_dec_ref(v_binderType_3959_);
+lean_dec_ref(v_snd_3955_);
 lean_dec(v_toBind_3951_);
 lean_dec(v_inst_3950_);
 goto v___jp_3962_;

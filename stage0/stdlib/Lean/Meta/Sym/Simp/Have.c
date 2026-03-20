@@ -803,12 +803,12 @@ goto v___jp_132_;
 v___jp_123_:
 {
 uint8_t v___x_128_; 
-lean_dec(v___y_124_);
-v___x_128_ = lean_nat_dec_le(v___y_127_, v___y_125_);
+lean_dec(v___y_125_);
+v___x_128_ = lean_nat_dec_le(v___y_127_, v___y_124_);
 if (v___x_128_ == 0)
 {
 lean_object* v___x_129_; 
-lean_dec(v___y_125_);
+lean_dec(v___y_124_);
 lean_inc(v___y_127_);
 v___x_129_ = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00__private_Lean_Meta_Sym_Simp_Have_0__Lean_Meta_Sym_Simp_collectFVarIdsAt_spec__2___redArg(v_fvarIdToPos_122_, v___y_126_, v___y_127_, v___y_127_);
 lean_dec(v___y_127_);
@@ -817,8 +817,8 @@ return v___x_129_;
 else
 {
 lean_object* v___x_130_; 
-v___x_130_ = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00__private_Lean_Meta_Sym_Simp_Have_0__Lean_Meta_Sym_Simp_collectFVarIdsAt_spec__2___redArg(v_fvarIdToPos_122_, v___y_126_, v___y_127_, v___y_125_);
-lean_dec(v___y_125_);
+v___x_130_ = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00__private_Lean_Meta_Sym_Simp_Have_0__Lean_Meta_Sym_Simp_collectFVarIdsAt_spec__2___redArg(v_fvarIdToPos_122_, v___y_126_, v___y_127_, v___y_124_);
+lean_dec(v___y_124_);
 return v___x_130_;
 }
 }
@@ -836,16 +836,16 @@ v___x_138_ = lean_nat_dec_le(v___x_131_, v___x_137_);
 if (v___x_138_ == 0)
 {
 lean_inc(v___x_137_);
-v___y_124_ = v___x_134_;
-v___y_125_ = v___x_137_;
+v___y_124_ = v___x_137_;
+v___y_125_ = v___x_134_;
 v___y_126_ = v___y_133_;
 v___y_127_ = v___x_137_;
 goto v___jp_123_;
 }
 else
 {
-v___y_124_ = v___x_134_;
-v___y_125_ = v___x_137_;
+v___y_124_ = v___x_137_;
+v___y_125_ = v___x_134_;
 v___y_126_ = v___y_133_;
 v___y_127_ = v___x_131_;
 goto v___jp_123_;
@@ -8350,8 +8350,8 @@ else
 {
 lean_object* v_a_2908_; lean_object* v___x_2910_; uint8_t v_isShared_2911_; uint8_t v_isSharedCheck_2915_; 
 lean_dec(v_u_2875_);
-lean_dec_ref(v_result_2843_);
 lean_dec_ref(v_00_u03b1_2874_);
+lean_dec_ref(v_result_2843_);
 lean_dec_ref(v_e_u2081_2829_);
 v_a_2908_ = lean_ctor_get(v___x_2878_, 0);
 v_isSharedCheck_2915_ = !lean_is_exclusive(v___x_2878_);

@@ -56,7 +56,7 @@ theorem Iter.Intermediate.step_appendSnd {α₁ α₂ β : Type w}
   simp only [Iter.step, appendSnd, toIterM_toIter, IterM.Intermediate.step_appendSnd, Id.run_bind]
   cases it₂.toIterM.step.run.inflate using PlausibleIterStep.casesOn <;> simp
 
-@[simp]
+@[cbv_eval, simp]
 theorem Iter.toList_append {α₁ α₂ β : Type w}
     [Iterator α₁ Id β] [Iterator α₂ Id β] [Finite α₁ Id] [Finite α₂ Id]
     {it₁ : Iter (α := α₁) β} {it₂ : Iter (α := α₂) β} :
@@ -70,7 +70,7 @@ theorem Iter.toListRev_append {α₁ α₂ β : Type w}
     (it₁.append it₂).toListRev = it₂.toListRev ++ it₁.toListRev := by
   simp [append_eq_toIter_append_toIterM, toListRev_eq_toListRev_toIterM]
 
-@[simp]
+@[cbv_eval, simp]
 theorem Iter.toArray_append {α₁ α₂ β : Type w}
     [Iterator α₁ Id β] [Iterator α₂ Id β] [Finite α₁ Id] [Finite α₂ Id]
     {it₁ : Iter (α := α₁) β} {it₂ : Iter (α := α₂) β} :

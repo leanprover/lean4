@@ -65,7 +65,7 @@ Operations dispatch on the type expression directly. It assumes non-standard ins
 
 def skipIfUnchanged (e : Expr) (result : Result) : Result :=
   match result with
-  | .step e' _ _ => if isSameExpr e e' then .rfl else result
+  | .step e' _ _ cd => if isSameExpr e e' then mkRflResultCD cd else result
   | _ => result
 
 abbrev evalUnary [ToExpr α] (toValue? : Expr → Option α) (op : α → α) (a : Expr) : SimpM Result := do

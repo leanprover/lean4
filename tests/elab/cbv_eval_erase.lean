@@ -1,9 +1,11 @@
 import Std
-set_option cbv.warning false
 -- Use opaque constants so that cbv_eval is the ONLY way cbv can reduce them.
 -- After erasure, cbv makes no progress and the goal must be closed manually.
 
 opaque myConst : Nat
+
+/-- warning: declaration uses `sorry` -/
+#guard_msgs in
 @[cbv_eval] theorem myConst_eq : myConst = 42 := sorry
 
 -- Before erasure: cbv reduces myConst to 42 via cbv_eval
@@ -26,6 +28,9 @@ example : myConst = 42 := by
 
 -- Scoping: erasure inside a section is reverted
 opaque myConst2 : Nat
+
+/-- warning: declaration uses `sorry` -/
+#guard_msgs in
 @[cbv_eval] theorem myConst2_eq : myConst2 = 100 := sorry
 
 section
@@ -49,6 +54,9 @@ example : myConst2 = 100 := by cbv
 
 -- Erasure of inverted theorem
 opaque myConst3 : Nat
+
+/-- warning: declaration uses `sorry` -/
+#guard_msgs in
 @[cbv_eval ←] theorem myConst3_eq : 7 = myConst3 := sorry
 
 example : myConst3 = 7 := by cbv
@@ -73,7 +81,12 @@ example : myConst3 = 7 := by cbv
 
 -- Erasure with multiple cbv_eval rules: erase only one
 opaque myFn : Nat → Nat
+/-- warning: declaration uses `sorry` -/
+#guard_msgs in
 @[cbv_eval] theorem myFn_zero : myFn 0 = 1 := sorry
+
+/-- warning: declaration uses `sorry` -/
+#guard_msgs in
 @[cbv_eval] theorem myFn_one  : myFn 1 = 0 := sorry
 
 example : myFn 0 = 1 := by cbv

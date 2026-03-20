@@ -101,6 +101,7 @@ private def addAndCompileExprForEval (declName : Name) (value : Expr) (allowSorr
         Compiler.compiler.checkMeta.set opts false
       else
         Compiler.compiler.relaxedMetaCheck.set opts true) do
+  withOptions (Compiler.compiler.postponeCompile.set · false) do
     Term.elabMutualDef #[] { header := "" } #[defView]
   assert! (← getEnv).contains declName
   unless allowSorry do

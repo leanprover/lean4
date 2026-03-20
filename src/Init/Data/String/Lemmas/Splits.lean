@@ -201,6 +201,26 @@ theorem Slice.Pos.Splits.eq_startPos_iff {s : Slice} {p : s.Pos} (h : p.Splits t
     p = s.startPos ↔ t₁ = "" := by
   rw [← copy_inj, ← startPos_copy, h.copy.eq_startPos_iff]
 
+@[simp]
+theorem Pos.splits_empty_left_iff {s : String} {p : s.Pos} {t : String} :
+    p.Splits "" t ↔ p = s.startPos ∧ t = s :=
+  ⟨fun h => by rw [h.eq_startPos_iff]; simp [h.eq_append], by rintro ⟨rfl, rfl⟩; simp⟩
+
+@[simp]
+theorem Pos.splits_empty_right_iff {s : String} {p : s.Pos} {t : String} :
+    p.Splits t "" ↔ p = s.endPos ∧ t = s :=
+  ⟨fun h => by rw [h.eq_endPos_iff]; simp [h.eq_append], by rintro ⟨rfl, rfl⟩; simp⟩
+
+@[simp]
+theorem Slice.Pos.splits_empty_left_iff {s : Slice} {p : s.Pos} {t : String} :
+    p.Splits "" t ↔ p = s.startPos ∧ t = s.copy :=
+  ⟨fun h => by rw [h.eq_startPos_iff]; simp [h.eq_append], by rintro ⟨rfl, rfl⟩; simp⟩
+
+@[simp]
+theorem Slice.Pos.splits_empty_right_iff {s : Slice} {p : s.Pos} {t : String} :
+    p.Splits t "" ↔ p = s.endPos ∧ t = s.copy :=
+  ⟨fun h => by rw [h.eq_endPos_iff]; simp [h.eq_append], by rintro ⟨rfl, rfl⟩; simp⟩
+
 theorem Pos.splits_next_right {s : String} (p : s.Pos) (hp : p ≠ s.endPos) :
     p.Splits (s.sliceTo p).copy (singleton (p.get hp) ++ (s.sliceFrom (p.next hp)).copy) where
   eq_append := by simpa [← append_assoc] using p.eq_copy_sliceTo_append_get hp

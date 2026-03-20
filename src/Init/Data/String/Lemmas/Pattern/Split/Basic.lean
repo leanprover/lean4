@@ -35,6 +35,7 @@ This gives a low-level correctness proof from which higher-level API lemmas can 
 
 namespace String.Slice.Pattern.Model
 
+@[cbv_opaque]
 public protected noncomputable def split {ρ : Type} (pat : ρ) [ForwardPatternModel pat] {s : Slice}
     (firstRejected curr : s.Pos) (hle : firstRejected ≤ curr) : List s.Subslice :=
   if h : curr = s.endPos then
@@ -153,6 +154,7 @@ end Model
 
 open Model
 
+@[cbv_eval]
 public theorem toList_splitToSubslice_eq_modelSplit {ρ : Type} (pat : ρ) [ForwardPatternModel pat]
     {σ : Slice → Type} [ToForwardSearcher pat σ] [∀ s, Std.Iterator (σ s) Id (SearchStep s)]
     [∀ s, Std.Iterators.Finite (σ s) Id] [LawfulToForwardSearcherModel pat] (s : Slice) :

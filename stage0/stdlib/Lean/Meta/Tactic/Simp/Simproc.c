@@ -6036,8 +6036,8 @@ goto v___jp_1608_;
 }
 else
 {
-lean_dec(v_pre_1629_);
 lean_dec_ref(v_pre_1628_);
+lean_dec(v_pre_1629_);
 lean_dec_ref(v_pre_1627_);
 lean_dec_ref(v_declName_1626_);
 lean_dec_ref(v_opts_1593_);
@@ -6047,8 +6047,8 @@ goto v___jp_1608_;
 }
 else
 {
-lean_dec_ref(v_pre_1627_);
 lean_dec(v_pre_1628_);
+lean_dec_ref(v_pre_1627_);
 lean_dec_ref(v_declName_1626_);
 lean_dec_ref(v_opts_1593_);
 lean_dec_ref(v_env_1592_);
@@ -17943,8 +17943,8 @@ goto v___jp_5424_;
 else
 {
 lean_object* v___x_5504_; 
-lean_dec_ref(v_pre_5452_);
 lean_dec(v_pre_5453_);
+lean_dec_ref(v_pre_5452_);
 lean_dec_ref(v_pre_5451_);
 lean_dec_ref(v_declName_5450_);
 lean_dec(v_addDeclName_5420_);
@@ -17960,8 +17960,8 @@ goto v___jp_5424_;
 else
 {
 lean_object* v___x_5505_; 
-lean_dec(v_pre_5452_);
 lean_dec_ref(v_pre_5451_);
+lean_dec(v_pre_5452_);
 lean_dec_ref(v_declName_5450_);
 lean_dec(v_addDeclName_5420_);
 v___x_5505_ = l___private_Lean_Meta_Tactic_Simp_Simproc_0__Lean_Meta_Simp_addBuiltin___lam__1(v_declName_5418_, v___f_5448_, v___x_5449_, v___x_5442_, v___x_5444_, v_a_5421_, v_a_5422_);
@@ -17976,8 +17976,8 @@ goto v___jp_5424_;
 else
 {
 lean_object* v___x_5506_; 
-lean_dec_ref(v_declName_5450_);
 lean_dec(v_pre_5451_);
+lean_dec_ref(v_declName_5450_);
 lean_dec(v_addDeclName_5420_);
 v___x_5506_ = l___private_Lean_Meta_Tactic_Simp_Simproc_0__Lean_Meta_Simp_addBuiltin___lam__1(v_declName_5418_, v___f_5448_, v___x_5449_, v___x_5442_, v___x_5444_, v_a_5421_, v_a_5422_);
 lean_dec(v_a_5422_);

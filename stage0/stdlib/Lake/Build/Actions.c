@@ -274,7 +274,6 @@ lean_ctor_set(v___x_33_, 0, v_stderr_10_);
 lean_ctor_set(v___x_33_, 1, v___x_30_);
 lean_ctor_set(v___x_33_, 2, v___x_29_);
 v___x_34_ = l_String_Slice_trimAscii(v___x_33_);
-lean_dec_ref(v___x_33_);
 v___x_35_ = l_String_Slice_toString(v___x_34_);
 lean_dec_ref(v___x_34_);
 v___x_36_ = lean_string_append(v___x_32_, v___x_35_);

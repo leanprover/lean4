@@ -67,7 +67,7 @@ theorem Iter.atIdxSlow?_take {α β}
     simp only [atIdxSlow?_eq_match (it := it.take k), step_take, h']
     cases k <;> cases l <;> simp
 
-@[simp]
+@[cbv_eval, simp]
 theorem Iter.toList_take_of_finite {α β} [Iterator α Id β] {n : Nat}
     [Finite α Id] {it : Iter (α := α) β} :
     (it.take n).toList = it.toList.take n := by
@@ -89,7 +89,7 @@ theorem Iter.toListRev_take_of_finite {α β} [Iterator α Id β] {n : Nat}
     (it.take n).toListRev = it.toListRev.drop (it.toList.length - n) := by
   rw [toListRev_eq, toList_take_of_finite, List.reverse_take, toListRev_eq]
 
-@[simp]
+@[cbv_eval, simp]
 theorem Iter.toArray_take_of_finite {α β} [Iterator α Id β] {n : Nat}
     [Finite α Id] {it : Iter (α := α) β} :
     (it.take n).toArray = it.toArray.take n := by

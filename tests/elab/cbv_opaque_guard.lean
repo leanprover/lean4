@@ -1,5 +1,3 @@
-set_option cbv.warning false
-
 /-! Test that `@[cbv_opaque]` is respected by `reduceRecMatcher` and `reduceProj`. -/
 
 /-! `@[cbv_opaque]` constants are not unfolded. -/

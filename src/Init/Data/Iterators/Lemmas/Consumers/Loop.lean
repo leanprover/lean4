@@ -449,7 +449,7 @@ theorem Iter.toArray_eq_fold {α β : Type w} [Iterator α Id β]
   rw [← fold_hom (List.toArray)]
   simp
 
-@[simp]
+@[cbv_eval ←, simp]
 theorem Iter.foldl_toList {α β : Type w} {γ : Type x} [Iterator α Id β] [Finite α Id]
     [IteratorLoop α Id Id] [LawfulIteratorLoop α Id Id]
     {f : γ → β → γ} {init : γ} {it : Iter (α := α) β} :

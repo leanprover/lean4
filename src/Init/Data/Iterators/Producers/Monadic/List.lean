@@ -46,7 +46,7 @@ The non-monadic version of this iterator is `List.iter`.
 * `Finite` instance: always
 * `Productive` instance: always
 -/
-@[always_inline, inline]
+@[cbv_opaque, always_inline, inline]
 def _root_.List.iterM {α : Type w} (l : List α) (m : Type w → Type w') [Pure m] :
     IterM (α := ListIterator α) m α :=
   ⟨{ list := l }⟩

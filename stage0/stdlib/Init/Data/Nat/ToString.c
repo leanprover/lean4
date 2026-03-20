@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Nat.ToString
-// Imports: public import Init.Data.Repr public import Init.Data.Char.Basic public import Init.Data.ToString.Basic public import Init.Data.String.Basic import Init.NotationExtra import all Init.Data.Repr import Init.Omega import Init.RCases import Init.Data.Nat.Lemmas import Init.Data.Nat.Bitwise import Init.Data.Nat.Simproc import Init.WFTactics import Init.Data.Char.Lemmas
+// Imports: public import Init.Data.Repr public import Init.Data.Char.Basic public import Init.Data.ToString.Basic public import Init.Data.String.Basic import Init.NotationExtra import all Init.Data.Repr import Init.Omega import Init.RCases import Init.Data.Nat.Lemmas import Init.Data.Nat.Bitwise import Init.Data.Nat.Simproc import Init.WFTactics import Init.Data.Char.Lemmas import Init.Data.Nat.Div.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,12 +13,19 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
+lean_object* lean_nat_mul(lean_object*, lean_object*);
+lean_object* lean_uint32_to_nat(uint32_t);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
+lean_object* lean_nat_add(lean_object*, lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_ToString_0__Nat_toDigitsCore_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_ToString_0__Nat_toDigitsCore_match__1_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_ToString_0__Nat_toDigitsCore_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_ToString_0__Nat_toDigitsCore_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_foldl___at___00Nat_ofDigitChars_spec__0(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_foldl___at___00Nat_ofDigitChars_spec__0___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Nat_ofDigitChars(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Nat_ofDigitChars___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_ToString_0__Nat_toDigitsCore_match__1_splitter___redArg(lean_object* v_x_1_, lean_object* v_x_2_, lean_object* v_x_3_, lean_object* v_h__1_4_, lean_object* v_h__2_5_){
 _start:
 {
@@ -69,6 +76,62 @@ lean_dec(v_x_26_);
 return v_res_31_;
 }
 }
+LEAN_EXPORT lean_object* l_List_foldl___at___00Nat_ofDigitChars_spec__0(lean_object* v_b_32_, lean_object* v_x_33_, lean_object* v_x_34_){
+_start:
+{
+if (lean_obj_tag(v_x_34_) == 0)
+{
+return v_x_33_;
+}
+else
+{
+lean_object* v_head_35_; lean_object* v_tail_36_; lean_object* v___x_37_; uint32_t v___x_38_; lean_object* v___x_39_; lean_object* v___x_40_; lean_object* v___x_41_; lean_object* v___x_42_; 
+v_head_35_ = lean_ctor_get(v_x_34_, 0);
+v_tail_36_ = lean_ctor_get(v_x_34_, 1);
+v___x_37_ = lean_nat_mul(v_b_32_, v_x_33_);
+lean_dec(v_x_33_);
+v___x_38_ = lean_unbox_uint32(v_head_35_);
+v___x_39_ = lean_uint32_to_nat(v___x_38_);
+v___x_40_ = lean_unsigned_to_nat(48u);
+v___x_41_ = lean_nat_sub(v___x_39_, v___x_40_);
+lean_dec(v___x_39_);
+v___x_42_ = lean_nat_add(v___x_37_, v___x_41_);
+lean_dec(v___x_41_);
+lean_dec(v___x_37_);
+v_x_33_ = v___x_42_;
+v_x_34_ = v_tail_36_;
+goto _start;
+}
+}
+}
+LEAN_EXPORT lean_object* l_List_foldl___at___00Nat_ofDigitChars_spec__0___boxed(lean_object* v_b_44_, lean_object* v_x_45_, lean_object* v_x_46_){
+_start:
+{
+lean_object* v_res_47_; 
+v_res_47_ = l_List_foldl___at___00Nat_ofDigitChars_spec__0(v_b_44_, v_x_45_, v_x_46_);
+lean_dec(v_x_46_);
+lean_dec(v_b_44_);
+return v_res_47_;
+}
+}
+LEAN_EXPORT lean_object* l_Nat_ofDigitChars(lean_object* v_b_48_, lean_object* v_l_49_, lean_object* v_init_50_){
+_start:
+{
+lean_object* v___x_51_; 
+v___x_51_ = l_List_foldl___at___00Nat_ofDigitChars_spec__0(v_b_48_, v_init_50_, v_l_49_);
+return v___x_51_;
+}
+}
+LEAN_EXPORT lean_object* l_Nat_ofDigitChars___boxed(lean_object* v_b_52_, lean_object* v_l_53_, lean_object* v_init_54_){
+_start:
+{
+lean_object* v_res_55_; 
+v_res_55_ = l_Nat_ofDigitChars(v_b_52_, v_l_53_, v_init_54_);
+lean_dec(v_l_53_);
+lean_dec(v_b_52_);
+return v_res_55_;
+}
+}
 lean_object* runtime_initialize_Init_Data_Repr(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Char_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_ToString_Basic(uint8_t builtin);
@@ -82,6 +145,7 @@ lean_object* runtime_initialize_Init_Data_Nat_Bitwise(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Nat_Simproc(uint8_t builtin);
 lean_object* runtime_initialize_Init_WFTactics(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Char_Lemmas(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Nat_Div_Lemmas(uint8_t builtin);
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Nat_ToString(uint8_t builtin) {
 lean_object * res;
@@ -126,6 +190,9 @@ lean_dec_ref(res);
 res = runtime_initialize_Init_Data_Char_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Nat_Div_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
 }
 static bool _G_meta_initialized = false;
@@ -148,6 +215,7 @@ lean_object* initialize_Init_Data_Nat_Bitwise(uint8_t builtin);
 lean_object* initialize_Init_Data_Nat_Simproc(uint8_t builtin);
 lean_object* initialize_Init_WFTactics(uint8_t builtin);
 lean_object* initialize_Init_Data_Char_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_Data_Nat_Div_Lemmas(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Nat_ToString(uint8_t builtin) {
 lean_object * res;
@@ -190,6 +258,9 @@ res = initialize_Init_WFTactics(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Char_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Nat_Div_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_Nat_ToString(builtin);

@@ -611,6 +611,9 @@ where
   go (a b : Expr) : Bool :=
     if a.isApp && b.isApp then
       hasSameRoot enodes a.appArg! b.appArg! && go a.appFn! b.appFn!
+    else if a.isApp || b.isApp then
+      -- Different number of arguments: not congruent.
+      false
     else
       -- Remark: we do not check whether the types of the functions are equal here
       -- because we are not in the `MetaM` monad.

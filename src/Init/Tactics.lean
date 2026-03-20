@@ -2353,9 +2353,6 @@ after reduction to close the goal.
 The proofs produced by `cbv` only use the three standard axioms.
 In particular, they do not require trust in the correctness of the code
 generator.
-
-This tactic is experimental and its behavior is likely to change in upcoming
-releases of Lean.
 -/
 syntax (name := cbv) "cbv" (location)? : tactic
 
@@ -2373,9 +2370,6 @@ fails.
 The proofs produced by `decide_cbv` only use the three standard axioms.
 In particular, they do not require trust in the correctness of the code
 generator.
-
-This tactic is experimental and its behavior is likely to change in upcoming
-releases of Lean.
 -/
 syntax (name := decide_cbv) "decide_cbv" : tactic
 

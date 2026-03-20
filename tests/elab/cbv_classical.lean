@@ -1,5 +1,3 @@
-set_option cbv.warning false
-
 /-!
 # A regression test against `cbv` picking up `Classical.propDecidable`,
 when re-synthesizing instances.

@@ -30,6 +30,7 @@ namespace String.Slice
 
 open Pattern.Model Pattern.Model.Char
 
+@[cbv_eval]
 theorem Pattern.Model.split_char_eq_split_beq {c : Char} {s : Slice}
     (f curr : s.Pos) (hle : f ≤ curr) :
     Model.split c f curr hle = Model.split (· == c) f curr hle := by

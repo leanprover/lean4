@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: LeanChecker
-// Imports: public import Init public import Lean.CoreM public import Lean.Replay public import LeanChecker.Replay public import Lake.Load.Manifest
+// Imports: public import Init public import Lean.CoreM public import Lean.Replay public import Lake.Load.Manifest
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -49,7 +49,7 @@ lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Array_toSubarray___redArg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Environment_replay_x27(lean_object*, lean_object*);
+lean_object* l_Lean_Environment_replay(lean_object*, lean_object*);
 lean_object* lean_environment_free_regions(lean_object*);
 lean_object* lean_read_module_data_parts(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
@@ -546,7 +546,7 @@ lean_dec_ref(v___x_105_);
 v_fst_107_ = lean_ctor_get(v_a_106_, 0);
 lean_inc(v_fst_107_);
 lean_dec(v_a_106_);
-v___x_108_ = l_Lean_Environment_replay_x27(v_fst_107_, v_a_87_);
+v___x_108_ = l_Lean_Environment_replay(v_fst_107_, v_a_87_);
 if (lean_obj_tag(v___x_108_) == 0)
 {
 lean_object* v_a_109_; lean_object* v___x_110_; 
@@ -902,7 +902,7 @@ v___x_207_ = l_Lean_Environment_constants(v_env_202_);
 v_map_u2081_208_ = lean_ctor_get(v___x_207_, 0);
 lean_inc_ref(v_map_u2081_208_);
 lean_dec_ref(v___x_207_);
-v___x_209_ = l_Lean_Environment_replay_x27(v_map_u2081_208_, v_a_206_);
+v___x_209_ = l_Lean_Environment_replay(v_map_u2081_208_, v_a_206_);
 if (lean_obj_tag(v___x_209_) == 0)
 {
 lean_object* v___x_211_; uint8_t v_isShared_212_; uint8_t v_isSharedCheck_217_; 
@@ -3029,7 +3029,6 @@ return v_res_787_;
 lean_object* initialize_Init(uint8_t builtin);
 lean_object* initialize_Lean_CoreM(uint8_t builtin);
 lean_object* initialize_Lean_Replay(uint8_t builtin);
-lean_object* initialize_LeanChecker_Replay(uint8_t builtin);
 lean_object* initialize_Lake_Load_Manifest(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_LeanChecker(uint8_t builtin) {
@@ -3043,9 +3042,6 @@ res = initialize_Lean_CoreM(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Replay(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_LeanChecker_Replay(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lake_Load_Manifest(builtin);

@@ -13,6 +13,7 @@ public import Std.Internal.Http.Data.Response
 public import Std.Internal.Http.Data.Status
 public import Std.Internal.Http.Data.Chunk
 public import Std.Internal.Http.Data.Headers
+public import Std.Internal.Http.Data.URI
 
 /-!
 # HTTP Data Types

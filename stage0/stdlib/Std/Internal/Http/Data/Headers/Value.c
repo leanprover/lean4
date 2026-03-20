@@ -591,7 +591,6 @@ lean_ctor_set(v___x_200_, 0, v_s_196_);
 lean_ctor_set(v___x_200_, 1, v___x_198_);
 lean_ctor_set(v___x_200_, 2, v___x_199_);
 v___x_201_ = l_String_Slice_trimAscii(v___x_200_);
-lean_dec_ref(v___x_200_);
 v_val_202_ = l_String_Slice_toString(v___x_201_);
 lean_dec_ref(v___x_201_);
 lean_inc_ref(v_val_202_);

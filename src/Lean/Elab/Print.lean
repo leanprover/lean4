@@ -50,7 +50,7 @@ private def mkHeader (kind : String) (id : Name) (levelParams : List Name) (type
   let id' ← match privateToUserName? id with
     | some id' =>
       m := m ++ "private "
-      pure id'
+      if getPPPrivateNames (← getOptions) then pure id else pure id'
     | none =>
       pure id
 

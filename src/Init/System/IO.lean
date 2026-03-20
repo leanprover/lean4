@@ -17,6 +17,7 @@ import Init.Data.List.MapIdx
 import Init.Data.Ord.UInt
 import Init.Data.ToString.Macro
 import Init.Data.List.Impl
+import Init.Data.Int.Repr
 
 public section
 

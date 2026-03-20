@@ -10,6 +10,7 @@ public import Std.Internal.Http.Data.Extensions
 public import Std.Internal.Http.Data.Method
 public import Std.Internal.Http.Data.Version
 public import Std.Internal.Http.Data.Headers
+public import Std.Internal.Http.Data.URI
 
 public section
 
@@ -50,7 +51,7 @@ structure Request.Head where
   /--
   The raw request-target string (commonly origin-form path/query, `"*"`, or authority-form).
   -/
-  uri : String
+  uri : RequestTarget := .asteriskForm
 
   /--
   Collection of HTTP headers for the request (Content-Type, Authorization, etc.).
@@ -85,7 +86,7 @@ structure Request.Builder where
   /--
   The request-line of an HTTP request.
   -/
-  line : Head := { method := .get, version := .v11, uri := "*" }
+  line : Head := { method := .get, version := .v11, uri := .asteriskForm }
 
   /--
   Optional dynamic metadata attached to the request.
@@ -108,7 +109,7 @@ instance : Encode .v11 Head where
   encode buffer req :=
     let buffer := Encode.encode (v := .v11) buffer req.method
     let buffer := buffer.writeChar ' '
-    let buffer := buffer.writeString req.uri
+    let buffer := Encode.encode (v := .v11) buffer req.uri
     let buffer := buffer.writeChar ' '
     let buffer := Encode.encode (v := .v11) buffer req.version
     let buffer := buffer.writeString "\r\n"
@@ -144,11 +145,18 @@ def version (builder : Builder) (version : Version) : Builder :=
 /--
 Sets the request target/URI for the request being built.
 -/
-def uri (builder : Builder) (uri : String) : Builder :=
+def uri (builder : Builder) (uri : RequestTarget) : Builder :=
   { builder with line := { builder.line with uri := uri } }
 
 /--
-Sets the headers for the request being built.
+Sets the request target/URI for the request being built
+-/
+def uri! (builder : Builder) (uri : String) : Builder :=
+  let uri := RequestTarget.parse! uri
+  { builder with line := { builder.line with uri } }
+
+/--
+Sets the headers for the request being built
 -/
 def headers (builder : Builder) (headers : Headers) : Builder :=
   { builder with line := { builder.line with headers } }
@@ -201,7 +209,7 @@ end Builder
 /--
 Creates a new HTTP GET Request with the specified URI.
 -/
-def get (uri : String) : Builder :=
+def get (uri : RequestTarget) : Builder :=
   new
   |>.method .get
   |>.uri uri
@@ -209,7 +217,7 @@ def get (uri : String) : Builder :=
 /--
 Creates a new HTTP POST Request builder with the specified URI.
 -/
-def post (uri : String) : Builder :=
+def post (uri : RequestTarget) : Builder :=
   new
   |>.method .post
   |>.uri uri
@@ -217,7 +225,7 @@ def post (uri : String) : Builder :=
 /--
 Creates a new HTTP PUT Request builder with the specified URI.
 -/
-def put (uri : String) : Builder :=
+def put (uri : RequestTarget) : Builder :=
   new
   |>.method .put
   |>.uri uri
@@ -225,7 +233,7 @@ def put (uri : String) : Builder :=
 /--
 Creates a new HTTP DELETE Request builder with the specified URI.
 -/
-def delete (uri : String) : Builder :=
+def delete (uri : RequestTarget) : Builder :=
   new
   |>.method .delete
   |>.uri uri
@@ -233,7 +241,7 @@ def delete (uri : String) : Builder :=
 /--
 Creates a new HTTP PATCH Request builder with the specified URI.
 -/
-def patch (uri : String) : Builder :=
+def patch (uri : RequestTarget) : Builder :=
   new
   |>.method .patch
   |>.uri uri
@@ -241,25 +249,25 @@ def patch (uri : String) : Builder :=
 /--
 Creates a new HTTP HEAD Request builder with the specified URI.
 -/
-def head (uri : String) : Builder :=
+def head (uri : RequestTarget) : Builder :=
   new
   |>.method .head
   |>.uri uri
 
 /--
 Creates a new HTTP OPTIONS Request builder with the specified URI.
-Use `Request.options "*"` for server-wide OPTIONS.
+Use `Request.options (RequestTarget.asteriskForm)` for server-wide OPTIONS.
 -/
-def options (uri : String) : Builder :=
+def options (uri : RequestTarget) : Builder :=
   new
   |>.method .options
   |>.uri uri
 
 /--
 Creates a new HTTP CONNECT Request builder with the specified URI.
-Typically used with authority-form URIs such as `"example.com:443"` for tunneling.
+Typically used with `RequestTarget.authorityForm` for tunneling.
 -/
-def connect (uri : String) : Builder :=
+def connect (uri : RequestTarget) : Builder :=
   new
   |>.method .connect
   |>.uri uri
@@ -267,7 +275,7 @@ def connect (uri : String) : Builder :=
 /--
 Creates a new HTTP TRACE Request builder with the specified URI.
 -/
-def trace (uri : String) : Builder :=
+def trace (uri : RequestTarget) : Builder :=
   new
   |>.method .trace
   |>.uri uri

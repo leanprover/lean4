@@ -18,12 +18,12 @@ open Lean.Meta.Tactic.Cbv
 
 @[builtin_tactic Lean.Parser.Tactic.Conv.cbv] public def evalCbv : Tactic := fun stx => withMainContext do
   if cbv.warning.get (← getOptions) then
-    logWarningAt stx "The `cbv` tactic is experimental and still under development. Avoid using it in production projects"
+    logWarningAt stx "The `cbv` usage warning option is enabled. Disable it by setting `set_option cbv.warning false`."
   let lhs ← getLhs
   let evalResult ← cbvEntry lhs
   match evalResult with
   | .rfl .. => return ()
-  | .step e' proof _ =>
+  | .step e' proof _ _ =>
     updateLhs e' proof
 
 end Lean.Elab.Tactic.Conv

@@ -1,5 +1,7 @@
 module
 
+set_option compiler.postponeCompile false
+
 #check Int8
 #eval Int8.ofInt 20
 #eval Int8.ofInt (-20)

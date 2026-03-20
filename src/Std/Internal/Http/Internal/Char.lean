@@ -299,4 +299,15 @@ that provides it.
 def isUserInfoChar (c : UInt8) : Bool :=
   isUnreserved c || isSubDelims c || c = ':'.toUInt8
 
+/--
+Checks if a byte is a valid character in a URI query component,
+excluding the typical key/value separators `&` and `=`.
+
+Inspired by `query = *( pchar / "/" / "?" )` from RFC 3986,
+but disallows `&` and `=` so they can be treated as structural separators.
+-/
+@[inline, expose]
+def isQueryDataChar (c : UInt8) : Bool :=
+  isQueryChar c && c ≠ '&'.toUInt8 && c ≠ '='.toUInt8
+
 end Std.Http.Internal.Char

@@ -78,9 +78,39 @@ def isValidMainType (type : Expr) : Bool :=
     isValidResultName resultName
   | _ => false
 
+structure PostponedCompileDecls where
+  declNames : Array Name
+deriving BEq, Hashable
+
+/--
+Saves postponed `compileDecls` calls.
+
+We use this state both in `lean` when doing post-hoc compilation of non-meta declarations on `#eval`
+etc. as well as in `leanir` to do separate compilation of all defs.
+-/
+builtin_initialize postponedCompileDeclsExt : SimplePersistentEnvExtension PostponedCompileDecls (NameMap PostponedCompileDecls) ←
+  registerSimplePersistentEnvExtension {
+    addImportedFn := fun _ => {}
+    addEntryFn    := fun s e => e.declNames.foldl (·.insert · e) s
+    toArrayFn     := fun es => es.toArray
+    asyncMode     := .sync
+    replay?       := some <| SimplePersistentEnvExtension.replayOfFilter
+      (fun s e => !e.declNames.any s.contains) (fun s e => e.declNames.foldl (·.insert · e) s)
+    exportEntriesFnEx? := some fun _ _ es lvl =>
+      -- `leanir` imports the target module privately
+      if lvl == .private then es.toArray else #[]
+  }
+
+def resumeCompilation (declName : Name) : CoreM Unit := do
+  let some decls := postponedCompileDeclsExt.getState (← getEnv) |>.find? declName | return
+  modifyEnv (postponedCompileDeclsExt.modifyState · fun s => decls.declNames.foldl (·.erase) s)
+  withOptions (compiler.postponeCompile.set · false) do
+  Core.prependError m!"Failed to compile `{declName}`" do
+    (← compileDeclsRef.get) decls.declNames
+
 namespace PassManager
 
-def run (declNames : Array Name) : CompilerM (Array (Array IR.Decl)) := withAtLeastMaxRecDepth 8192 do
+partial def run (declNames : Array Name) : CompilerM Unit := withAtLeastMaxRecDepth 8192 do
   /-
   Note: we need to increase the recursion depth because we currently do to save phase1
   declarations in .olean files. Then, we have to recursively compile all dependencies,
@@ -98,13 +128,37 @@ def run (declNames : Array Name) : CompilerM (Array (Array IR.Decl)) := withAtLe
             if let some decl ← getLocalDeclAt? fnName .impure then
               LCNF.markDeclPublicRec .impure decl
   let declNames ← declNames.filterM (shouldGenerateCode ·)
-  if declNames.isEmpty then return #[]
+  if declNames.isEmpty then return
   for declName in declNames do
     if declName == `main then
       if let some info ← getDeclInfo? declName then
         if !(isValidMainType info.type) then
           throwError "`main` function must have type `(List String →)? IO (UInt32 | Unit | PUnit)`"
+
   let decls ← declNames.mapM toDecl
+  for decl in decls do
+    checkMeta decl
+
+  -- Now that we have done all input checks, check for postponement
+  if (← getEnv).header.isModule && (← compiler.postponeCompile.getM) then
+    modifyEnv (postponedCompileDeclsExt.addEntry · { declNames := decls.map (·.name) })
+    -- meta defs are compiled locally so they are available for execution/compilation without
+    -- importing `.ir` but still marked for `leanir` compilation so that we do not have to persist
+    -- module-local compilation information between the two processes
+    if !decls.any (isMarkedMeta (← getEnv) ·.name) then
+      trace[Compiler] "postponing compilation of {decls.map (·.name)}"
+      return
+
+  -- Compile any postponed dependencies first.
+  -- In leanir, we visit declarations in the original order, but this can still be necessary for
+  -- compiling non-meta defs on demand at `#eval` etc.
+  for decl in decls do
+    decl.value.forCodeM fun code => code.forM fun c => do
+      let .let { value := .const c .., .. } .. := c | return
+      -- Need to do some lookups to get the actual name passed to `compileDecls`
+      let c := Compiler.getImplementedBy? (← getEnv) c |>.getD c
+      resumeCompilation c
+
   let decls := markRecDecls decls
   let manager ← getPassManager
   let isCheckEnabled := compiler.check.get (← getOptions)
@@ -112,7 +166,7 @@ def run (declNames : Array Name) : CompilerM (Array (Array IR.Decl)) := withAtLe
   let decls ← runPassManagerPart .pure .pure "compilation (LCNF mono)" manager.monoPasses decls isCheckEnabled
   let sccs ← withTraceNode `Compiler.splitSCC (fun _ => return m!"Splitting up SCC") do
     splitScc decls
-  sccs.mapM fun decls => do
+  for decls in sccs do
     let decls ← runPassManagerPart .pure .impure "compilation (LCNF mono)" manager.monoPassesNoLambda decls isCheckEnabled
     withPhase .impure do
       let decls ← runPassManagerPart .impure .impure "compilation (LCNF impure)" manager.impurePasses decls isCheckEnabled
@@ -126,7 +180,7 @@ def run (declNames : Array Name) : CompilerM (Array (Array IR.Decl)) := withAtLe
       -- or consider running clear? unclear
       profileitM Exception "compilation (IR)" (← getOptions) do
         let irDecls ← IR.toIR decls
-        IR.compile irDecls
+        discard <| IR.compile irDecls
 where
   runPassManagerPart (inPhase outPhase : Purity) (profilerName : String)
       (passes : Array Pass) (decls : Array (Decl inPhase)) (isCheckEnabled : Bool) :
@@ -145,12 +199,9 @@ where
 
 end PassManager
 
-def compile (declNames : Array Name) : CoreM (Array (Array IR.Decl)) :=
-  CompilerM.run <| PassManager.run declNames
-
 def main (declNames : Array Name) : CoreM Unit := do
   withTraceNode `Compiler (fun _ => return m!"compiling: {declNames}") do
-    CompilerM.run <| discard <| PassManager.run declNames
+    CompilerM.run <| PassManager.run declNames
 
 builtin_initialize
   compileDeclsRef.set main

@@ -84,8 +84,8 @@ def getIRPhases (env : Environment) (declName : Name) : IRPhases := Id.run do
   | none =>
     if isMarkedMeta env declName then
       .comptime
-    else if !env.contains declName then
-      -- Do not check compiler-generated decls
+    else if env.find? declName |>.all (·.isCtor) then
+      -- Do not check ctors (trivial) or decls not in env (compiler-generated)
       .all
     else
       .runtime

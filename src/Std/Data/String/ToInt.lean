@@ -36,16 +36,14 @@ public theorem toInt?_eq_some_iff {s : String.Slice} {a : Int} :
   | none =>
     simp only [↓Char.isValue, dropPrefix?_eq_none_iff, startsWith_char_eq_false_iff_forall_append,
       String.reduceSingleton, ne_eq] at h
-    simp only [Option.pure_def, Option.bind_eq_bind, Option.bind_eq_some_iff, Option.some.injEq, eq_comm (a := a)]
-    refine ⟨fun h => Or.inl h, ?_⟩
-    rintro (h|⟨t, ⟨ht, -⟩⟩)
-    · exact h
-    · exact (h _ ht).elim
+    simp only [Option.map_eq_some_iff, Int.ofNat_eq_natCast, eq_comm (a := a), iff_self_or,
+      forall_exists_index, and_imp]
+    exact fun t ht => (h _ ht).elim
 
 @[simp]
 public theorem isSome_toInt? {s : String.Slice} : s.toInt?.isSome = s.isInt := by
-  simp only [toInt?, ↓Char.isValue, Option.pure_def, Option.bind_eq_bind, isInt]
-  split <;> simp [Option.isSome_bind]
+  simp only [toInt?, ↓Char.isValue, isInt]
+  split <;> simp
 
 public theorem isInt_of_toInt?_eq_some {s : String.Slice} (h : s.toInt? = some a) : s.isInt = true := by
   simp [← isSome_toInt?, h]

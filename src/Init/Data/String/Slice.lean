@@ -1090,7 +1090,7 @@ Examples:
 def toInt? (s : Slice) : Option Int :=
   match s.dropPrefix? '-' with
   | some rest => rest.toNat?.map Int.negOfNat
-  | none => s.toNat?
+  | none => s.toNat?.map Int.ofNat
 
 /--
 Interprets a string as the decimal representation of an integer, returning it. Panics if the string

@@ -47,6 +47,32 @@ where
       else
         mkLambdaFVars #[arg] (← go prods args)
 
+def mkILvl (major : Expr) (recVal : RecursorVal) : MetaM Level := do
+  -- universe parameter of the type fomer.
+  -- same as `typeFormerTypeLevel indVal.type`, but we want to infer it from the
+  -- type of the recursor, to be more robust when facing nested induction
+  let majorTypeType ← inferType (← inferType major)
+  let .some ilvl ← typeFormerTypeLevel majorTypeType
+    | throwError "type of type of major premise {major} not a type former"
+  unless ilvl.isZero do
+    return ilvl
+  /- At this point, `ind` is both recursive and a subsingleton predicate here, so it must have exactly one constructor. Furthermore, every field must either be a Prop OR a non-uniform parameter. In this case, the sort of the motive is the max of the constructor's argument's sorts. i.e for `Acc`:
+  ```
+  inductive Acc {α : Sort u} (r : α → α → Prop) : α → Prop where
+    | intro (x : α) (h : (y : α) → r y x → Acc r y) : Acc r x
+  ```
+  The form of the minor is
+  `fun (x : α) (h : ∀ (y : α), r y x → Acc r y) (h_ih : h_ih : (y : α) → r y x → Sort (max ilvl u_1) => (y : α) → (a : r y x) → motive y ⋯ ×' h_ih y a`
+  in this case, `ilvl` is `max 1 u 0`
+  -/
+  let indName := recVal.getMajorInduct
+  let indVal ← getConstInfoInduct indName
+  assert! indVal.ctors.length == 1
+  let ctorVal ← getConstInfoCtor indVal.ctors[0]!
+  let ctorType := ctorVal.type
+  forallTelescopeReducing ctorType fun args _ => do
+    -- the sort of `PProd` is `Sort (max 1 ...)`, so we must `init` at 1 here.
+    args[indVal.numParams:].foldlM (init := 1) (fun lvl ty => do return mkLevelMax' lvl (← inferType (← inferType ty)).sortLevel!)
 /--
 Constructs the `.below` definition for a inductive predicate.
 
@@ -72,13 +98,7 @@ private def mkBelowFromRec (recName : Name) (nParams : Nat)
     let indices : Array Expr := refArgs[(nParams + recVal.numMotives + recVal.numMinors)...(refArgs.size - 1)]
     let major   : Expr       := refArgs[refArgs.size - 1]!
 
-    -- universe parameter of the type fomer.
-    -- same as `typeFormerTypeLevel indVal.type`, but we want to infer it from the
-    -- type of the recursor, to be more robust when facing nested induction
-    let majorTypeType ← inferType (← inferType major)
-    let .some ilvl ← typeFormerTypeLevel majorTypeType
-      | throwError "type of type of major premise {major} not a type former"
-
+    let ilvl ← mkILvl major recVal
     -- universe level of the resultant type
     let rlvl : Level := mkLevelMax ilvl lvl
 
@@ -102,7 +122,6 @@ private def mkBelowFromRec (recName : Name) (nParams : Nat)
     let below_params := params ++ motives ++ indices ++ #[major]
     let type ← mkForallFVars below_params (.sort rlvl)
     val ← mkLambdaFVars below_params val
-
     mkDefinitionValInferringUnsafe belowName recVal.levelParams type val .abbrev
 
   addDecl (.defnDecl decl)
@@ -114,7 +133,7 @@ public def mkBelow (indName : Name) : MetaM Unit := do
   withTraceNode `Meta.mkBelow (fun _ => return m!"{indName}") do
   let .inductInfo indVal ← getConstInfo indName | return
   unless indVal.isRec do return
-  if ← isPropFormerType indVal.type then return
+  if ← inductiveEliminatesToPropOnly indVal then return
 
   let recName := mkRecName indName
   let belowName := mkBelowName indName
@@ -209,13 +228,7 @@ private def mkBRecOnFromRec (recName : Name) (nParams : Nat)
     let some idx := motives.idxOf? refBody.getAppFn
       | throwError "result type of {recVal.type} is not one of {motives}"
 
-    -- universe parameter of the type fomer.
-    -- same as `typeFormerTypeLevel indVal.type`, but we want to infer it from the
-    -- type of the recursor, to be more robust when facing nested induction
-    let majorTypeType ← inferType (← inferType major)
-    let .some ilvl ← typeFormerTypeLevel majorTypeType
-      | throwError "type of type of major premise {major} not a type former"
-
+    let ilvl ← mkILvl major recVal
     -- universe level of the resultant type
     let rlvl : Level := mkLevelMax ilvl lvl
 
@@ -311,7 +324,7 @@ public def mkBRecOn (indName : Name) : MetaM Unit := do
   withTraceNode `Meta.mkBRecOn (fun _ => return m!"{indName}") do
   let .inductInfo indVal ← getConstInfo indName | return
   unless indVal.isRec do return
-  if ← isPropFormerType indVal.type then return
+  if ← inductiveEliminatesToPropOnly indVal then return
 
   let recName := mkRecName indName
   let brecOnName := mkBRecOnName indName

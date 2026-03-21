@@ -142,7 +142,7 @@ partial def insertAux [BEq α] [Hashable α] : Node α β → USize → USize �
         if k == k' then Entry.entry k v
         else Entry.ref $ mkCollisionNode k' v' k v
 
-def insert {_ : BEq α} {_ : Hashable α} : PersistentHashMap α β → α → β → PersistentHashMap α β
+@[specialize] def insert {_ : BEq α} {_ : Hashable α} : PersistentHashMap α β → α → β → PersistentHashMap α β
   | { root }, k, v => { root := insertAux root (hash k |>.toUSize) 1 k v }
 
 partial def findAtAux [BEq α] (keys : Array α) (vals : Array β) (heq : keys.size = vals.size) (i : Nat) (k : α) : Option β :=
@@ -162,7 +162,7 @@ partial def findAux [BEq α] : Node α β → USize → α → Option β
     | Entry.entry k' v => if k == k' then some v else none
   | Node.collision keys vals heq, _, k => findAtAux keys vals heq 0 k
 
-def find? {_ : BEq α} {_ : Hashable α} : PersistentHashMap α β → α → Option β
+@[specialize] def find? {_ : BEq α} {_ : Hashable α} : PersistentHashMap α β → α → Option β
   | { root }, k => findAux root (hash k |>.toUSize) k
 
 instance {_ : BEq α} {_ : Hashable α} : GetElem (PersistentHashMap α β) α (Option β) fun _ _ => True where

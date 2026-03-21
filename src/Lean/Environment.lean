@@ -1726,6 +1726,10 @@ end PersistentEnvExtension
 
 builtin_initialize persistentEnvExtensionsRef : IO.Ref (Array (PersistentEnvExtension EnvExtensionEntry EnvExtensionEntry EnvExtensionState)) ← IO.mkRef #[]
 
+/-- Hook called after `finalizePersistentExtensions` during `importModules`.
+    Used to initialize centralized scope stack states. -/
+builtin_initialize postFinalizePersistentExtensionsHookRef : IO.Ref (Environment → IO Environment) ← IO.mkRef pure
+
 -- Helper structure to enable cyclic default values of `exportEntriesFn` and `exportEntriesFnEx`.
 structure PersistentEnvExtensionDescrCore (α β σ : Type) where
   name              : Name := by exact decl_name%
@@ -2360,6 +2364,9 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
     env ← unsafe Runtime.markPersistent env
   if loadExts then
     env ← finalizePersistentExtensions env moduleData opts
+    -- Run post-finalization hooks (e.g., initialize centralized scope stack)
+    let hook ← postFinalizePersistentExtensionsHookRef.get
+    env ← hook env
     if leakEnv then
       /- Ensure the final environment including environment extension states is
         marked persistent as documented.

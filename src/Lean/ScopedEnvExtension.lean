@@ -75,10 +75,10 @@ def addImportedFn (descr : Descr α β σ) (as : Array (Array (Entry α))) : Imp
 
 def addEntryFn (descr : Descr α β σ) (s : StateStack α β σ) (e : Entry β) : StateStack α β σ :=
   match s with
-  | { stateStack := stateStack, scopedEntries := scopedEntries, newEntries := newEntries } =>
+  | { stateStack, scopedEntries, newEntries } =>
     match e with
     | Entry.global b => {
-        scopedEntries := scopedEntries
+        scopedEntries
         newEntries    := (Entry.global (descr.toOLeanEntry b)) :: newEntries
         stateStack    := stateStack.map fun s => { s with state := descr.addEntry s.state b }
       }
@@ -186,6 +186,9 @@ def ScopedEnvExtension.add [Monad m] [MonadResolveName m] [MonadEnv m] (ext : Sc
 
 def ScopedEnvExtension.getState [Inhabited σ] (ext : ScopedEnvExtension α β σ)
     (env : Environment) (asyncMode := ext.ext.toEnvExtension.asyncMode) : σ :=
+  -- No need to sync scope depth here: pushScope only duplicates the top state with
+  -- `delimitsLocal := true`, so the `.state` field is unchanged until a local entry
+  -- is added, which syncs before modifying.
   match ext.ext.getState (asyncMode := asyncMode) env |>.stateStack with
   | top :: _ => top.state
   | _        => unreachable!

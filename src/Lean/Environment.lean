@@ -100,13 +100,13 @@ namespace ExtensionStates
 @[inline] def get (s : ExtensionStates) (i : Nat) (h : i < s.size) : EnvExtensionState :=
   s.overlay.find? i |>.getD s.base[i]
 
-@[inline] def get! [Inhabited EnvExtensionState] (s : ExtensionStates) (i : Nat) : EnvExtensionState :=
+def get! [Inhabited EnvExtensionState] (s : ExtensionStates) (i : Nat) : EnvExtensionState :=
   s.overlay.find? i |>.getD s.base[i]!
 
 @[inline] def set (s : ExtensionStates) (i : Nat) (v : EnvExtensionState) : ExtensionStates :=
   { s with overlay := s.overlay.insert i v }
 
-@[inline] def modify [Inhabited EnvExtensionState] (s : ExtensionStates) (i : Nat) (f : EnvExtensionState → EnvExtensionState) : ExtensionStates :=
+@[inline] def modify (s : ExtensionStates) (i : Nat) (f : EnvExtensionState → EnvExtensionState) : ExtensionStates :=
   { s with overlay := s.overlay.insert i (f (s.get! i)) }
 
 @[inline] def push (s : ExtensionStates) (v : EnvExtensionState) : ExtensionStates :=
@@ -117,7 +117,7 @@ namespace ExtensionStates
   { s with base := s.base.set! i v }
 
 /-- Modify directly in the base array, bypassing the overlay. For use during import initialization. -/
-@[inline] def modifyBase [Inhabited EnvExtensionState] (s : ExtensionStates) (i : Nat) (f : EnvExtensionState → EnvExtensionState) : ExtensionStates :=
+@[inline] def modifyBase (s : ExtensionStates) (i : Nat) (f : EnvExtensionState → EnvExtensionState) : ExtensionStates :=
   { s with base := s.base.modify i f }
 
 /-- Create from a plain array (no overlay). -/

@@ -29,7 +29,7 @@ macro_rules
         | try simp only [
             Std.Rcc.mem_iff, Std.Rco.mem_iff, Std.Rci.mem_iff,
             Std.Roc.mem_iff, Std.Roo.mem_iff, Std.Roi.mem_iff,
-            Std.Ric.mem_iff, Std.Rio.mem_iff, Std.Rii.mem_iff] at *
+            Std.Ric.mem_iff, Std.Rio.mem_iff] at *
           try dsimp +zetaDelta only [
             -- `Vector.size` needs to be unfolded because for `xs : Vector α n`, one needs to prove
             -- `i < n` instead of `i < xs.size`. Although `Vector.size` is reducible, this is

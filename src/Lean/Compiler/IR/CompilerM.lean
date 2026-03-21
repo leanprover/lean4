@@ -136,12 +136,11 @@ def findEnvDecl (env : Environment) (declName : Name) : Option Decl :=
   Compiler.LCNF.findExtEntry? env declMapExt declName findAtSorted? (·.2.find?)
 
 @[export lean_ir_find_env_decl]
-private def findInterpDecl (env : Environment) (declName : Name) (includeServer := false) : Option Decl :=
+private def findInterpDecl (env : Environment) (declName : Name) : Option Decl :=
   -- This function is never used in `leanir`, so no need for `findExtEntry?`
   match env.getModuleIdxFor? declName with
   | some modIdx =>
-    -- `meta import/import all` and, optionally, additional server-mode IR
-    guard (includeServer || env.header.modules[modIdx]?.any (·.irPhases != .runtime)) *>
+    -- `meta import/import all` and additional server-mode IR
     findAtSorted? (declMapExt.getModuleIREntries env modIdx) declName <|>
     -- (closure of) `meta def`; will report `.extern`s for other `def`s so needs to come second
     findAtSorted? (declMapExt.getModuleEntries env modIdx) declName

@@ -415,35 +415,57 @@ local macro "gen_toml_decoders%" : command => do
 
 gen_toml_decoders%
 
+private structure DecodeTargetState (pkg : Name) where
+  decls : Array (PConfigDecl pkg) := #[]
+  map : DNameMap (NConfigDecl pkg) := {}
+  exeRoots : Lean.NameMap Name := {}
+
 private def decodeTargetDecls
-  (pkg : Name) (t : Table)
+  (pkg : Name) (prettyName : String) (t : Table)
 : DecodeM (Array (PConfigDecl pkg) × DNameMap (NConfigDecl pkg)) := do
-  let r := (#[], {})
+  let r : DecodeTargetState pkg := {}
   let r ← go r LeanLib.keyword LeanLib.configKind LeanLibConfig.decodeToml
   let r ← go r LeanExe.keyword LeanExe.configKind LeanExeConfig.decodeToml
   let r ← go r InputFile.keyword InputFile.configKind InputFileConfig.decodeToml
   let r ← go r InputDir.keyword InputDir.configKind InputDirConfig.decodeToml
-  return r
+  return (r.decls, r.map)
 where
-  go r kw kind (decode : {n : Name} → Table → DecodeM (ConfigType kind pkg n)) := do
+  go (r : DecodeTargetState pkg) kw kind
+      (decode : {n : Name} → Table → DecodeM (ConfigType kind pkg n)) := do
     let some tableArrayVal := t.find? kw | return r
     let some vals ← tryDecode? tableArrayVal.decodeValueArray | return r
     vals.foldlM (init := r) fun r val => do
       let some t ← tryDecode? val.decodeTable | return r
       let some name ← tryDecode? <| stringToLegalOrSimpleName <$> t.decode `name
         | return r
-      let (decls, map) := r
-      if let some orig := map.get? name then
-        modify fun es => es.push <| .mk val.ref s!"\
-          {pkg}: target '{name}' was already defined as a '{orig.kind}', \
+      if let some orig := r.map.get? name then
+        logDecodeErrorAt val.ref s!"{prettyName}: \
+          target '{name}' was already defined as a '{orig.kind}', \
           but then redefined as a '{kind}'"
-        return (decls, map)
+        return r
       else
         let config ← @decode name t
         let decl : NConfigDecl pkg name :=
           -- Safety: By definition, config kind = facet kind for declarative configurations.
           unsafe {pkg, name, kind, config, wf_data := lcProof}
-        return (decls.push decl.toPConfigDecl, map.insert name decl)
+        -- Check that executables have distinct root module names
+        let exeRoots ← id do
+          if h : kind = LeanExe.configKind then
+            let exeConfig : LeanExeConfig name := cast (by rw [h]; rfl) config
+            if let some origExe := r.exeRoots.get? exeConfig.root then
+              logDecodeErrorAt val.ref s!"{prettyName}: \
+                executable '{name}' has the same root module '{exeConfig.root}' as \
+                executable '{origExe}'"
+              return r.exeRoots
+            else
+              return r.exeRoots.insert exeConfig.root name
+          else
+            return r.exeRoots
+        return {
+          decls := r.decls.push decl.toPConfigDecl
+          map := r.map.insert name decl
+          exeRoots
+        }
 
 /-! ## Root Loader -/
 
@@ -458,8 +480,9 @@ public def loadTomlConfig (cfg: LoadConfig) : LogIO Package := do
       let wsIdx := cfg.pkgIdx
       let baseName := if cfg.pkgName.isAnonymous then origName else cfg.pkgName
       let keyName := baseName.num wsIdx
+      let prettyName := baseName.toString (escape := false)
       let config ← @PackageConfig.decodeToml keyName origName table
-      let (targetDecls, targetDeclMap) ← decodeTargetDecls keyName table
+      let (targetDecls, targetDeclMap) ← decodeTargetDecls keyName prettyName table
       let defaultTargets ← table.tryDecodeD `defaultTargets #[]
       let defaultTargets := defaultTargets.map stringToLegalOrSimpleName
       let depConfigs ← table.tryDecodeD `require #[]

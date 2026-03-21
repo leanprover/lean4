@@ -96,6 +96,9 @@ public def mergeErrors (x₁ : EDecodeM α) (x₂ : EDecodeM β) (f : α → β 
     | .error _ es => .error () es
   | .error _ es => .error () es
 
+@[inline] public def logDecodeErrorAt (ref : Syntax) (msg : String) : DecodeM Unit :=
+  fun es => .ok () (es.push {ref, msg})
+
 @[inline] public def throwDecodeErrorAt (ref : Syntax) (msg : String) : EDecodeM α :=
   fun es => .error () (es.push {ref, msg})
 

@@ -5581,7 +5581,7 @@ inductive ParserDescr where
 
   The symbol is automatically included in the set of reserved tokens ("keywords").
   Keywords cannot be used as identifiers, unless the identifier is otherwise escaped.
-  For example, `"fun"` reserves `fun` as a keyword; to refer an identifier named `fun` one can write `«fun»`.
+  For example, `"fun"` reserves `fun` as a keyword; to refer to an identifier named `fun` one can write `«fun»`.
   Adding a `&` prefix prevents it from being reserved, for example `&"true"`.
 
   Whitespace before or after the atom is used as a pretty printing hint.

@@ -127,29 +127,6 @@ private def inferProjType (structName : Name) (idx : Nat) (e : Expr) : MetaM Exp
       | .forallE _ d _ _ => return d.consumeTypeAnnotations
       | _                => failed ()
 
-def throwTypeExpected {α} (type : Expr) : MetaM α :=
-  throwError "type expected{indentExpr type}"
-
-/--
-If `type : sort` and `sort` reduces to `Sort u` for some `u`, then `getLevel type` returns `u`.
-
-If `sort` is an assignable MVar, then `getLevel type` produces a fresh level metavariable `?u`,
-assigns the MVar to `Sort ?u` and returns `?u`.
--/
-def getLevel (type : Expr) : MetaM Level := do
-  let typeType ← inferType type
-  let typeType ← whnfD typeType
-  match typeType with
-  | Expr.sort lvl     => return lvl
-  | Expr.mvar mvarId  =>
-    if (← mvarId.isReadOnlyOrSyntheticOpaque) then
-      throwTypeExpected type
-    else
-      let lvl ← mkFreshLevelMVar
-      mvarId.assign (mkSort lvl)
-      return lvl
-  | _ => throwTypeExpected type
-
 private def inferForallType (e : Expr) : MetaM Expr :=
   forallTelescope e fun xs e => do
     let lvl  ← getLevel e

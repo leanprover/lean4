@@ -154,48 +154,14 @@ private def visitFVar (e : Expr) : MetaM Result := do
   let some decl ← e.fvarId!.findDecl? | e.fvarId!.throwUnknown
   return { expr := e, type? := decl.type }
 
-/--
-Give an expression `e` whose definition may be used in an unknown manner (for example, through a metavariable),
-marks all fvars in `e` (or accessible through `e`) that can potentially be unfolded.
-
-Assumption: while there may be metavariables in `e` (or in types of fvars present in `e`),
-they have already been processed by `checkMVar` or will be processed by it.
--/
-private def visitDepExpr (e : Expr) : M Unit := do
-  let mut visited : FVarIdSet := {}
-  let mut worklist := #[e]
-  while !worklist.isEmpty do
-    let e ← instantiateMVars worklist.back!
-    worklist := worklist.pop
-    for fvarId in (collectFVars {} e).fvarIds do
-      unless visited.contains fvarId do
-        visited := visited.insert fvarId
-        if ← fvarId.isLetVar then
-          addZetaDeltaFVarId fvarId
-        worklist := worklist.push (← fvarId.getType)
-
-/--
-Checks whether the mvar creates a dependency on any let fvars.
-Note: the local context of `mvarId` cannot depend on `letFVars`, since it was created outside these `let`s.
-The only consideration is delayed assignments and which variables they depend on;
-if the fvar is not passed among the `args`, the mvar cannot depend on it.
--/
-private def checkMVar (mvarId : MVarId) (args : Array Expr) : M Unit := do
-  if let some { fvars, mvarIdPending } ← getDelayedMVarAssignment? mvarId then
-    let letFVars := (← read).letFVars
-    unless fvars.size ≤ args.size do
-      -- This is an invalid delayed assignment. Mark all `letFVars` to inhibit transformation.
-      letFVars.forM (addZetaDeltaFVarId ·)
-      return
-    let pendingDecl ← mvarIdPending.getDecl
-    for fvar in fvars, arg in args do
-      let fvarDecl := pendingDecl.lctx.getFVar! fvar
-      if fvarDecl.isLet then
-        visitDepExpr arg
-
 private def visitMVar (e : Expr) : M Result := do
   let some decl ← e.mvarId!.findDecl? | throwUnknownMVar e.mvarId!
-  if (← read).check then checkMVar e.mvarId! #[]
+  /-
+  Metavariables do not need additional checking; the local context of `mvarId` cannot depend
+  on `letFVars`, since it was created outside these `let`s.
+  The only consideration is delayed assignments and which variables they depend on,
+  and this is handled through the `defeqParam` gadget.
+  -/
   return { expr := e, type? := decl.type }
 
 private def visitConst (e : Expr) : M Result := do
@@ -234,9 +200,13 @@ private def visitApp (e : Expr) (f a : Result) : M Result := do
     unless fType.isForall do
       fType ← whnf fType
     match fType with
-    | Expr.forallE _ d b _ =>
+    | Expr.forallE _ d b bi =>
       unless (← isDefEq d (← a.type)) do
         throwAppTypeMismatch f a
+      if d.isAppOfArity ``defeqParam 2 then
+        let v := d.appArg!
+        unless (← isDefEq v a) do
+          throwDefEqParamMismatch f a v bi
       return { expr := e.updateApp! f a, type? := b.instantiate1 a }
     | _ => throwFunctionExpected (mkApp f a)
   else
@@ -250,8 +220,6 @@ private partial def visitType (e : Expr) : M Result := do
 
 private partial def visitAppArgs (e : Expr) : M Result := do
   if (← read).check then
-    if let .mvar mvarId := e.getAppFn then
-      checkMVar mvarId e.getAppArgs
     let rec go (e : Expr) : M Result := do
       let Expr.app f a := e | visit e
       visitApp e (← checkCache f <| go f) (← visit a)

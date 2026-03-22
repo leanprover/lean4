@@ -246,6 +246,8 @@ structure ParamInfo where
   isDecInst      : Bool       := false
   /-- `isInstance` is true if the parameter type is a class instance. -/
   isInstance     : Bool       := false
+  /-- The parameter has the `defeqParam` widget. -/
+  isDefEqParam   : Bool       := false
   /--
     `higherOrderOutParam` is true if this parameter is a higher-order output parameter
     of local instance.
@@ -913,6 +915,78 @@ def shouldReduceAll : MetaM Bool :=
 def shouldReduceReducibleOnly : MetaM Bool :=
   return (← getTransparency) == TransparencyMode.reducible
 
+
+@[inline] private def Context.setTransparency (ctx : Context) (transparency : TransparencyMode) : Context :=
+  let config := { ctx.config with transparency }
+  -- Recall that `transparency` is stored in the first 2 bits
+  let key : UInt64 := ((ctx.configKey >>> (2 : UInt64)) <<< 2) ||| transparency.toUInt64
+  { ctx with keyedConfig := { config, key } }
+
+@[inline] def withTransparency (mode : TransparencyMode) : n α → n α :=
+  -- We avoid `withConfig` for performance reasons.
+  mapMetaM <| withReader (·.setTransparency mode)
+
+/-- `withDefault x` executes `x` using the default transparency setting. -/
+@[inline] def withDefault (x : n α) : n α :=
+  withTransparency TransparencyMode.default x
+
+/-- `withReducible x` executes `x` using the reducible transparency setting. In this setting only definitions tagged as `[reducible]` are unfolded. -/
+@[inline] def withReducible (x : n α) : n α :=
+  withTransparency TransparencyMode.reducible x
+
+/--
+`withReducibleAndInstances x` executes `x` using the `.instances` transparency setting. In this setting only definitions tagged as `[reducible]`
+or type class instances are unfolded.
+-/
+@[inline] def withReducibleAndInstances (x : n α) : n α :=
+  withTransparency TransparencyMode.instances x
+
+/--
+Execute `x` ensuring the transparency setting is at least `mode`.
+Recall that `.all > .default > .instances > .reducible`.
+-/
+@[inline] def withAtLeastTransparency (mode : TransparencyMode) : n α → n α :=
+  mapMetaM <| withReader fun ctx =>
+    let modeOld := ctx.config.transparency
+    ctx.setTransparency <| if modeOld.lt mode then mode else modeOld
+
+/-- `whnf` with reducible transparency.-/
+def whnfR (e : Expr) : MetaM Expr :=
+  withTransparency TransparencyMode.reducible <| whnf e
+
+/-- `whnf` with default transparency.-/
+def whnfD (e : Expr) : MetaM Expr :=
+  withTransparency TransparencyMode.default <| whnf e
+
+/-- `whnf` with instances transparency.-/
+def whnfI (e : Expr) : MetaM Expr :=
+  withTransparency TransparencyMode.instances <| whnf e
+
+/-- `whnf` with at most instances transparency. -/
+def whnfAtMostI (e : Expr) : MetaM Expr := do
+  match (← getTransparency) with
+  | .all | .default => withTransparency TransparencyMode.instances <| whnf e
+  | _ => whnf e
+
+private def withLocalContextImp (lctx : LocalContext) (localInsts : LocalInstances) (x : MetaM α) : MetaM α := do
+  withReader (fun ctx => { ctx with lctx := lctx, localInstances := localInsts }) do
+    x
+
+/--
+`withLCtx lctx localInsts k` replaces the local context and local instances, and then executes `k`.
+The local context and instances are restored after executing `k`.
+This method assumes that the local instances in `localInsts` are in the local context `lctx`.
+-/
+def withLCtx (lctx : LocalContext) (localInsts : LocalInstances) : n α → n α :=
+  mapMetaM <| withLocalContextImp lctx localInsts
+
+/--
+Simpler version of `withLCtx` which just updates the local context. It is the responsibility of the
+caller ensure the local instances are also properly updated.
+-/
+def withLCtx' (lctx : LocalContext) : n α → n α :=
+  mapMetaM <| withReader (fun ctx => { ctx with lctx })
+
 /--
 Return `some mvarDecl` where `mvarDecl` is `mvarId` declaration in the current metavariable context.
 Return `none` if `mvarId` has no declaration in the current metavariable context.
@@ -1076,6 +1150,29 @@ def getFVarFromUserName (userName : Name) : MetaM Expr := do
   let d ← getLocalDeclFromUserName userName
   return Expr.fvar d.fvarId
 
+def throwTypeExpected {α} (type : Expr) : MetaM α :=
+  throwError "type expected{indentExpr type}"
+
+/--
+If `type : sort` and `sort` reduces to `Sort u` for some `u`, then `getLevel type` returns `u`.
+
+If `sort` is an assignable MVar, then `getLevel type` produces a fresh level metavariable `?u`,
+assigns the MVar to `Sort ?u` and returns `?u`.
+-/
+def getLevel (type : Expr) : MetaM Level := do
+  let typeType ← inferType type
+  let typeType ← whnfD typeType
+  match typeType with
+  | Expr.sort lvl     => return lvl
+  | Expr.mvar mvarId  =>
+    if (← mvarId.isReadOnlyOrSyntheticOpaque) then
+      throwTypeExpected type
+    else
+      let lvl ← mkFreshLevelMVar
+      mvarId.assign (mkSort lvl)
+      return lvl
+  | _ => throwTypeExpected type
+
 /--
 Lift a `MkBindingM` monadic action `x` to `MetaM`.
 -/
@@ -1084,6 +1181,11 @@ Lift a `MkBindingM` monadic action `x` to `MetaM`.
   | .ok e sNew => do
     setMCtx sNew.mctx
     modifyThe Core.State fun s => { s with ngen := sNew.ngen, nextMacroScope := sNew.nextMacroScope }
+    sNew.pendingLevels.forM fun (lctx, fvarId, mvarId) => do
+      -- Mutual recursion note: `getLevel` can call `mkForallFVars`, which uses `liftMkBindingM`.
+      -- However, `getLevel` is not creating new expression metavariables, so `pendingLevels` will be empty in those calls.
+      let u ← withLCtx lctx {} do getLevel (lctx.get! fvarId).type
+      assignLevelMVar mvarId u
     pure e
   | .error (.revertFailure ..) sNew => do
     setMCtx sNew.mctx
@@ -1252,40 +1354,6 @@ def withTrackingZetaDeltaSet (s : FVarIdSet) : n α → n α :=
 
 @[inline] def withoutProofIrrelevance (x : n α) : n α :=
   withConfig (fun cfg => { cfg with proofIrrelevance := false }) x
-
-@[inline] private def Context.setTransparency (ctx : Context) (transparency : TransparencyMode) : Context :=
-  let config := { ctx.config with transparency }
-  -- Recall that `transparency` is stored in the first 2 bits
-  let key : UInt64 := ((ctx.configKey >>> (2 : UInt64)) <<< 2) ||| transparency.toUInt64
-  { ctx with keyedConfig := { config, key } }
-
-@[inline] def withTransparency (mode : TransparencyMode) : n α → n α :=
-  -- We avoid `withConfig` for performance reasons.
-  mapMetaM <| withReader (·.setTransparency mode)
-
-/-- `withDefault x` executes `x` using the default transparency setting. -/
-@[inline] def withDefault (x : n α) : n α :=
-  withTransparency TransparencyMode.default x
-
-/-- `withReducible x` executes `x` using the reducible transparency setting. In this setting only definitions tagged as `[reducible]` are unfolded. -/
-@[inline] def withReducible (x : n α) : n α :=
-  withTransparency TransparencyMode.reducible x
-
-/--
-`withReducibleAndInstances x` executes `x` using the `.instances` transparency setting. In this setting only definitions tagged as `[reducible]`
-or type class instances are unfolded.
--/
-@[inline] def withReducibleAndInstances (x : n α) : n α :=
-  withTransparency TransparencyMode.instances x
-
-/--
-Execute `x` ensuring the transparency setting is at least `mode`.
-Recall that `.all > .default > .instances > .reducible`.
--/
-@[inline] def withAtLeastTransparency (mode : TransparencyMode) : n α → n α :=
-  mapMetaM <| withReader fun ctx =>
-    let modeOld := ctx.config.transparency
-    ctx.setTransparency <| if modeOld.lt mode then mode else modeOld
 
 /-- Execute `x` allowing `isDefEq` to assign synthetic opaque metavariables. -/
 @[inline] def withAssignableSyntheticOpaque (x : n α) : n α :=
@@ -1978,25 +2046,6 @@ assigned.  (This is used by TC synthesis.)
 def withNewMCtxDepth (k : n α) (allowLevelAssignments := false) : n α :=
   mapMetaM (withNewMCtxDepthImp allowLevelAssignments) k
 
-private def withLocalContextImp (lctx : LocalContext) (localInsts : LocalInstances) (x : MetaM α) : MetaM α := do
-  withReader (fun ctx => { ctx with lctx := lctx, localInstances := localInsts }) do
-    x
-
-/--
-`withLCtx lctx localInsts k` replaces the local context and local instances, and then executes `k`.
-The local context and instances are restored after executing `k`.
-This method assumes that the local instances in `localInsts` are in the local context `lctx`.
--/
-def withLCtx (lctx : LocalContext) (localInsts : LocalInstances) : n α → n α :=
-  mapMetaM <| withLocalContextImp lctx localInsts
-
-/--
-Simpler version of `withLCtx` which just updates the local context. It is the responsibility of the
-caller ensure the local instances are also properly updated.
--/
-def withLCtx' (lctx : LocalContext) : n α → n α :=
-  mapMetaM <| withReader (fun ctx => { ctx with lctx })
-
 /--
 Runs `k` in a local environment with the `fvarIds` erased.
 -/
@@ -2087,24 +2136,6 @@ def _root_.Lean.MVarId.freshenLCtxUserNamesSinceIdx [MonadMCtx n] [MonadLiftT Me
 def normalizeLevel (u : Level) : MetaM Level := do
   let u ← instantiateLevelMVars u
   pure u.normalize
-
-/-- `whnf` with reducible transparency.-/
-def whnfR (e : Expr) : MetaM Expr :=
-  withTransparency TransparencyMode.reducible <| whnf e
-
-/-- `whnf` with default transparency.-/
-def whnfD (e : Expr) : MetaM Expr :=
-  withTransparency TransparencyMode.default <| whnf e
-
-/-- `whnf` with instances transparency.-/
-def whnfI (e : Expr) : MetaM Expr :=
-  withTransparency TransparencyMode.instances <| whnf e
-
-/-- `whnf` with at most instances transparency. -/
-def whnfAtMostI (e : Expr) : MetaM Expr := do
-  match (← getTransparency) with
-  | .all | .default => withTransparency TransparencyMode.instances <| whnf e
-  | _ => whnf e
 
 /--
   Mark declaration `declName` with the attribute `[inline]`.

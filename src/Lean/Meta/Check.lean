@@ -269,14 +269,27 @@ def throwAppTypeMismatch (f a : Expr) : MetaM α := do
     pure m!"Application type mismatch: The {argDescStr}is not of the expected type in the application{indentExpr e}"
   throwError msg
 
+def throwDefEqParamMismatch (f a v : Expr) (bi : BinderInfo) : MetaM α := do
+  throwError MessageData.ofLazyM (es := #[f, a, v]) do
+    let mut e := Expr.app f a
+    unless bi.isExplicit do
+      e := e.setAppPPExplicit
+    let (a, v) ← addPPExplicitToExposeDiff a v
+    return m!"Application value mismatch: In the application{indentExpr e}\n\
+      the argument{indentExpr a}\nis not definitionally equal to{indentExpr v}"
+
 def checkApp (f a : Expr) : MetaM Unit := do
   let fType ← inferType f
   let fType ← whnf fType
   match fType with
-  | Expr.forallE _ d _ _ =>
+  | Expr.forallE _ d _ bi =>
     let aType ← inferType a
     unless (← isDefEq d aType) do
       throwAppTypeMismatch f a
+    if d.isAppOfArity ``defeqParam 2 then
+      let v := d.appArg!
+      unless (← isDefEq v a) do
+        throwDefEqParamMismatch f a v bi
   | _ => throwFunctionExpected (mkApp f a)
 
 def checkProj (structName : Name) (idx : Nat) (e : Expr) : MetaM Unit := do

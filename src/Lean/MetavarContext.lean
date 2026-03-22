@@ -167,12 +167,16 @@ the requirements imposed by these modules.
        sure `?n` must never be assigned to a term containing `x`.
 
     2. If `?m` is syntheticOpaque, we create a fresh syntheticOpaque `?n`
-       with type `?n : T -> (let x : T := v; A[x])` whose local context is the local context of `?m` minus `x`,
+       with type `?n : defeqParam T v -> (let x : T := v; A[x])` whose local context is the local context of `?m` minus `x`,
        create the delayed assignment `?n #[x] := ?m`, and produce the term `let x : T := v; t[?n x]`.
+       The type `eqParam T v` is definitionally equal to `T` and is used by the elaborator's typechecker
+       to ensure that the first argument is definitionally equal to `v`.
 
        Now suppose we assign `s` to `?m`. We do not assign the term `fun (x : T) => s` to `?n`, since
-       `fun (x : T) => s` may not even be type correct. Instead, we just replace applications `?n r`
-       with `s[x/r]`. The term `r` may not necessarily be a bound variable. For example, a tactic
+       `fun (x : T) => s` may not even be type correct. (The `defeqParam` gadget is only a hint to the
+       elaborator and would not fix this type correctness issue.)
+       Instead, we just replace applications `?n r` with `s[x/r]`.
+       The term `r` may not necessarily be a bound variable. For example, a tactic
        may have reduced `let x : T := v; t[?n x]` into `t[?n v]`.
 
        We are essentially using the pair "delayed assignment + application" to implement a delayed
@@ -950,6 +954,10 @@ structure State where
   nextMacroScope : MacroScope
   ngen           : NameGenerator
   cache          : Std.HashMap ExprStructEq Expr := {}
+  /-- Universe levels that need to be computed as part of constructing the `defeqParam` constraints.
+  For each `(lctx, x, lmvarId)` entry, one must eventually compute the universe level of the type of
+  fvar `x` and assign it to `lmvarId`. -/
+  pendingLevels  : Array (LocalContext × FVarId × LMVarId) := {}
 
 structure Context where
   quotContext        : Name
@@ -969,6 +977,17 @@ instance : MonadMCtx M where
 private def mkFreshBinderName (n : Name := `x) : M Name := do
   let fresh ← modifyGet fun s => (s.nextMacroScope, { s with nextMacroScope := s.nextMacroScope + 1 })
   return addMacroScope (← read).quotContext n fresh
+
+/-- Returns a level metavariable for the given fvar, adding the level to the `pendingLevels`. -/
+private def getLevel (lctx : LocalContext) (fvarId : FVarId) : M Level := do
+  let mvarId ← modifyGet fun s =>
+      let mvarId : LMVarId := { name := s.ngen.curr }
+      (mvarId, { s with
+        mctx := s.mctx.addLevelMVarDecl mvarId,
+        pendingLevels := s.pendingLevels.push (lctx, fvarId, mvarId)
+        ngen := s.ngen.next
+      })
+  return Level.mvar mvarId
 
 def preserveOrder : M Bool :=
   return (← read).preserveOrder
@@ -1116,8 +1135,8 @@ mutual
     let e ← abstractRangeAux xs xs.size e
     xs.size.foldRevM (init := e) fun i _ e => do
       let x := xs[i]
-      if x.isFVar then
-        match lctx.getFVar! x with
+      if let Expr.fvar fvarId := x then
+        match lctx.get! fvarId with
         | LocalDecl.cdecl _ _ n type bi _ =>
           let type := type.headBeta
           let type ← abstractRangeAux xs i type
@@ -1136,6 +1155,8 @@ mutual
             | MetavarKind.syntheticOpaque =>
               -- See "Gruesome details" section in the beginning of the file
               let e := e.liftLooseBVars 0 1
+              let u ← getLevel lctx fvarId
+              let type := mkAppN (.const ``defeqParam [u]) #[type, value]
               return mkForall n BinderInfo.default type e
             | _ => pure e
           else
@@ -1143,6 +1164,9 @@ mutual
             | MetavarKind.syntheticOpaque =>
               let type := type.headBeta
               let type  ← abstractRangeAux xs i type
+              let value ← abstractRangeAux xs i value
+              let u ← getLevel lctx fvarId
+              let type := mkAppN (.const ``defeqParam [u]) #[type, value]
               return mkForall n BinderInfo.default type e
             | _ =>
               return e.lowerLooseBVars 1 1

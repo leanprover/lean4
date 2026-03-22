@@ -36,7 +36,7 @@ trace: [Meta.debug] ?_
       let x := 0;
       x.add y
 [Meta.debug] ?0 : Nat
-[Meta.debug] ?1 : Nat → Nat → Nat
+[Meta.debug] ?1 : Nat → defeqParam 0 → Nat
 -/
 #guard_msgs in
 #eval tst1

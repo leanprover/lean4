@@ -702,6 +702,12 @@ for `α`.
 @[reducible] def semiOutParam (α : Sort u) : Sort u := α
 
 set_option linter.unusedVariables.funArgs false in
+/-- Auxiliary declaration used by delayed assignment metavariables and the elaborator typechecker.
+If a function has type `f : defeqParam a → ...` then `f x` passes `Meta.check` only
+if `x` is definitionally equal to `a`. -/
+@[reducible] def defeqParam {α : Sort u} (a : α) : Sort u := α
+
+set_option linter.unusedVariables.funArgs false in
 /-- Auxiliary declaration used to implement named patterns like `x@h:p`. -/
 @[reducible] def namedPattern {α : Sort u} (x a : α) (h : Eq x a) : α := a
 

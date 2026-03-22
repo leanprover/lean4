@@ -115,6 +115,7 @@ private def getFunInfoAux (fn : Expr) (maxArgs? : Option Nat) : MetaM FunInfo :=
             binderInfo := decl.binderInfo
             isProp     := (← isProp decl.type)
             isDecInst  := (← forallTelescopeReducing decl.type fun _ type => return type.isAppOf ``Decidable)
+            isDefEqParam := decl.type.isAppOfArity ``defeqParam 2
           }
           if isInstance then
             /- Collect higher order output parameters of this class IF `isInstance` is `true` -/

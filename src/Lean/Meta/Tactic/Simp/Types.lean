@@ -728,6 +728,8 @@ def simpAppUsingCongr (e : Expr) : SimpM Result := do
           to reduce them if the parent term is not ground.
           -/
           mkCongrFun' e fr a
+        else if info.isDefEqParam then
+          mkCongrFun' e fr (← dsimp a)
         else if !info.hasFwdDeps then
           mkCongr' e fr (← simp a)
         else if (← whnfD (← inferType f)).isArrow then

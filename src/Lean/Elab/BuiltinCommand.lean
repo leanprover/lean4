@@ -440,7 +440,13 @@ def elabCheckCore (ignoreStuckTC : Bool) : CommandElab
     let e ← Term.elabTerm term none
     Term.synthesizeSyntheticMVarsNoPostponing (ignoreStuckTC := ignoreStuckTC)
     -- Users might be testing out buggy elaborators. Let's typecheck before proceeding:
-    withRef tk <| Meta.check e
+    try
+      withRef tk <| Meta.check e
+    catch ex =>
+      if (← MonadLog.hasErrors) then
+        throwAbortCommand
+      else
+        throw ex
     let e ← Term.levelMVarToParam (← instantiateMVars e)
     if e.isSyntheticSorry then
       return

@@ -48,7 +48,7 @@ lean_object* lean_st_ref_get(lean_object*);
 lean_object* l_Lean_DeclNameGenerator_mkUniqueName(lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_mkAuxDefinition(lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_mkAuxDefinition(lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkAuxTheorem(lean_object*, lean_object*, uint8_t, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_append(lean_object*, lean_object*);
@@ -25901,7 +25901,7 @@ v___x_8676_ = l_Lean_mkAuxDeclName___at___00__private_Lean_Meta_Tactic_Grind_Mai
 v_a_8677_ = lean_ctor_get(v___x_8676_, 0);
 lean_inc(v_a_8677_);
 lean_dec_ref(v___x_8676_);
-v___x_8678_ = l_Lean_Meta_mkAuxDefinition(v_a_8677_, v_a_8662_, v_val_8650_, v_abstractProof_8664_, v_abstractProof_8664_, v___y_8657_, v___y_8658_, v___y_8659_, v___y_8660_);
+v___x_8678_ = l_Lean_Meta_mkAuxDefinition(v_a_8677_, v_a_8662_, v_val_8650_, v_abstractProof_8664_, v_abstractProof_8664_, v_abstractProof_8664_, v___y_8657_, v___y_8658_, v___y_8659_, v___y_8660_);
 return v___x_8678_;
 }
 else

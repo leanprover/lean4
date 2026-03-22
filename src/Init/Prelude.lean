@@ -5611,7 +5611,7 @@ inductive ParserDescr where
   | parser (declName : Name)
   /-- Like `node`, but also declares that the body can be matched using an antiquotation
   with name `name`. For example, `def $id:declId := 1` uses an antiquotation with
-  name `declId` in the place where a `declId` is expected. -/
+  name `id` in the place where a `declId` is expected. -/
   | nodeWithAntiquot (name : String) (kind : SyntaxNodeKind) (p : ParserDescr)
   /-- A `sepBy(p, sep)` parses 0 or more occurrences of `p` separated by `sep`.
   `psep` is usually the same as `symbol sep`, but it can be overridden.

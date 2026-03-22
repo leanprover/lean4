@@ -7,8 +7,7 @@ module
 
 prelude
 public import Init.ShareCommon
-public import Lean.Util.FindLevelMVar
-public import Lean.Util.FindMVar
+public import Lean.Util.CollectMVars
 public import Lean.Util.MonadCache
 public import Lean.LocalContext
 import Init.Data.Slice
@@ -446,14 +445,11 @@ def _root_.Lean.MVarId.isAssignedOrDelayedAssigned [Monad m] [MonadMCtx m] (mvar
   let mctx ← getMCtx
   return mctx.eAssignment.contains mvarId || mctx.dAssignment.contains mvarId
 
-def MetavarContext.isLevelMVarAssignable (mctx : MetavarContext) (mvarId : LMVarId) : Bool :=
-  match mctx.lDepth.find? mvarId with
-  | some d => d >= mctx.levelAssignDepth
-  | _      => panic! s!"unknown universe metavariable {mvarId.name}"
-
 def isLevelMVarAssignable [Monad m] [MonadMCtx m] (mvarId : LMVarId) : m Bool := do
   let mctx ← getMCtx
-  return mctx.isLevelMVarAssignable mvarId
+  match mctx.lDepth.find? mvarId with
+  | some d => return d >= mctx.levelAssignDepth
+  | _      => panic! s!"unknown universe metavariable {mvarId.name}"
 
 def MetavarContext.getDecl (mctx : MetavarContext) (mvarId : MVarId) : MetavarDecl :=
   match mctx.decls.find? mvarId with
@@ -476,10 +472,9 @@ def hasAssignedLevelMVar [Monad m] [MonadMCtx m] : Level → m Bool
 
 /-- Return `true` iff expression contains assigned (level/expr) metavariables or delayed assigned mvars -/
 def hasAssignedMVar [Monad m] [MonadMCtx m] (e : Expr) : m Bool := do
-  let mctx ← getMCtx
-  return or
-    (e.findLevelMVar? mctx.lAssignment.contains).isSome
-    (e.findMVar? mctx.eAssignment.contains).isSome
+  let s := e.collectBothMVars {}
+  s.lmvars.anyM isLevelMVarAssigned <||>
+    s.mvars.anyM (fun mvarId => mvarId.isAssigned <||> mvarId.isDelayedAssigned)
 
 /-- Return true iff the given level contains a metavariable that can be assigned. -/
 def hasAssignableLevelMVar [Monad m] [MonadMCtx m] : Level → m Bool
@@ -492,10 +487,9 @@ def hasAssignableLevelMVar [Monad m] [MonadMCtx m] : Level → m Bool
 
 /-- Return `true` iff expression contains a metavariable that can be assigned. -/
 def hasAssignableMVar [Monad m] [MonadMCtx m] (e : Expr) : m Bool := do
-  let mctx ← getMCtx
-  return or
-    (e.findLevelMVar? mctx.isLevelMVarAssignable).isSome
-    (e.findMVar? fun mvarId => (mctx.getDecl mvarId).depth == mctx.depth).isSome
+  let s := e.collectBothMVars {}
+  s.lmvars.anyM isLevelMVarAssignable <||>
+    s.mvars.anyM fun mvarId => mvarId.isAssignable
 
 /--
   Add `mvarId := u` to the universe metavariable assignment.

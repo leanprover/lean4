@@ -99,7 +99,7 @@ Normalize an instance value to "instance normal form".
 See the module docstring for the full algorithm specification.
 -/
 partial def normalizeInstance (inst expectedType : Expr) (compile : Bool := true)
-    (logCompileErrors : Bool := true) : MetaM Expr := withTransparency .instances do
+    (logCompileErrors : Bool := true) (isMeta : Bool := false) : MetaM Expr := withTransparency .instances do
   withTraceNode `Meta.instanceNormalForm
       (fun _ => return m!"type: {expectedType}") do
   let some className ← isClass? expectedType
@@ -124,9 +124,11 @@ partial def normalizeInstance (inst expectedType : Expr) (compile : Bool := true
             return inst
           else
             let name ← mkAuxDeclName
-            let wrapped ← mkAuxDefinition name expectedType inst (compile := compile)
-              (logCompileErrors := logCompileErrors)
+            let wrapped ← mkAuxDefinition name expectedType inst (compile := false)
             setReducibilityStatus name .implicitReducible
+            if isMeta then modifyEnv (markMeta · name)
+            if compile then
+              compileDecls (logErrors := logCompileErrors) #[name]
             enableRealizationsForConst name
             return wrapped
         else
@@ -169,7 +171,7 @@ partial def normalizeInstance (inst expectedType : Expr) (compile : Bool := true
             catch _ => pure ()
 
           mvarId.assign (← normalizeInstance arg argExpectedType (compile := compile)
-            (logCompileErrors := logCompileErrors))
+            (logCompileErrors := logCompileErrors) (isMeta := isMeta))
         else
           -- For data fields, assign directly or wrap in aux def to fix types.
           if backward.inferInstanceAs.wrap.data.get (← getOptions) then
@@ -180,6 +182,7 @@ partial def normalizeInstance (inst expectedType : Expr) (compile : Bool := true
               let name ← mkAuxDeclName
               mvarId.assign (← mkAuxDefinition name argExpectedType arg (compile := false))
               setInlineAttribute name
+              if isMeta then modifyEnv (markMeta · name)
               if compile then
                 compileDecls (logErrors := logCompileErrors) #[name]
               enableRealizationsForConst name

@@ -309,6 +309,8 @@ structure Context where
   heedElabAsElim     : Bool            := true
   /-- Noncomputable sections automatically add the `noncomputable` modifier to any declaration we cannot generate code for. -/
   isNoncomputableSection : Bool        := false
+  /-- `true` when inside a `meta section`. -/
+  isMetaSection : Bool                 := false
   /-- When `true` we skip TC failures. We use this option when processing patterns. -/
   ignoreTCFailures : Bool := false
   /-- `true` when elaborating patterns. It affects how we elaborate named holes. -/

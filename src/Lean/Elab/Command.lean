@@ -666,7 +666,8 @@ private def mkTermContext (ctx : Context) (s : State) : CommandElabM Term.Contex
   return {
     macroStack             := ctx.macroStack
     sectionVars            := sectionVars
-    isNoncomputableSection := scope.isNoncomputable }
+    isNoncomputableSection := scope.isNoncomputable
+    isMetaSection          := scope.isMeta }
 
 /--
 Lift the `TermElabM` monadic action `x` into a `CommandElabM` monadic action.

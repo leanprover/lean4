@@ -329,7 +329,8 @@ private def mkSilentAnnotationIfHole (e : Expr) : TermElabM Expr := do
   let inst ← if backward.inferInstanceAs.wrap.get (← getOptions) then
     -- Normalize to instance normal form.
     let logCompileErrors := !(← read).isNoncomputableSection && !(← read).declName?.any (Lean.isNoncomputable (← getEnv))
-    withNewMCtxDepth <| normalizeInstance inst expectedType (logCompileErrors := logCompileErrors)
+    let isMeta := (← read).isMetaSection
+    withNewMCtxDepth <| normalizeInstance inst expectedType (logCompileErrors := logCompileErrors) (isMeta := isMeta)
   else
     pure inst
   ensureHasType expectedType? inst

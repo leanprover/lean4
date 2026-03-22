@@ -220,10 +220,12 @@ def processDefDeriving (view : DerivingClassView) (decl : Expr) (isNoncomputable
             instName ← liftMacroM <| mkUnusedBaseName instName
             if isPrivateName declName then
               instName := mkPrivateName env instName
+            let isMeta := (← read).isMetaSection
             let inst ← if backward.inferInstanceAs.wrap.get (← getOptions) then
               withDeclNameForAuxNaming instName <| withNewMCtxDepth <|
                 normalizeInstance result.instVal result.instType
                   (logCompileErrors := false)  -- covered by noncomputable check below
+                  (isMeta := isMeta)
             else
               pure result.instVal
             let closure ← Closure.mkValueTypeClosure result.instType inst (zetaDelta := true)

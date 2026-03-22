@@ -642,7 +642,10 @@ def mkOfEqFalseCore (p : Expr) (h : Expr) : Expr :=
 def mkOfEqFalse (h : Expr) : MetaM Expr := do
   match_expr h with
   | eq_false _ h => return h
-  | _ => return mkOfEqFalseCore (← inferType h) h
+  | _ =>
+    let_expr Eq _ p _ := ← whnf h |
+      throwError "mkOfEqFalse failed: expected `_ = False`, got{indentExpr h}"
+    return mkOfEqFalseCore p h
 
 /-- Returns `@of_eq_true p h` -/
 def mkOfEqTrueCore (p : Expr) (h : Expr) : Expr :=
@@ -654,7 +657,10 @@ def mkOfEqTrueCore (p : Expr) (h : Expr) : Expr :=
 def mkOfEqTrue (h : Expr) : MetaM Expr := do
   match_expr h with
   | eq_true _ h => return h
-  | _ => return mkOfEqTrueCore (← inferType h) h
+  | _ =>
+    let_expr Eq _ p _ := ← whnf h |
+      throwError "mkOfEqTrue failed: expected `_ = True`, got{indentExpr h}"
+    return mkOfEqTrueCore p h
 
 /-- Returns `eq_true h` -/
 def mkEqTrueCore (p : Expr) (h : Expr) : Expr :=

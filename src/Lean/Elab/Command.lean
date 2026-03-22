@@ -71,7 +71,7 @@ whole monad stack at every use site. May eventually be covered by `deriving`.
 Remark: see comment at TermElabM
 -/
 @[always_inline]
-instance : Monad CommandElabM := let i := inferInstanceAs (Monad CommandElabM); { pure := i.pure, bind := i.bind }
+instance : Monad CommandElabM := let i : Monad CommandElabM := inferInstance; { pure := i.pure, bind := i.bind }
 
 /--
 Like `Core.tryCatchRuntimeEx`; runtime errors are generally used to abort term elaboration, so we do

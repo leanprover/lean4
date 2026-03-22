@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Meta.Diagnostics
+public import Lean.Meta.InstanceNormalForm
 public import Lean.Elab.Open
 public import Lean.Elab.SetOption
 public import Lean.Elab.Eval
@@ -313,6 +314,26 @@ private def mkSilentAnnotationIfHole (e : Expr) : TermElabM Expr := do
     return val
   | _ => panic! "resolveId? returned an unexpected expression"
 
+@[builtin_term_elab Lean.Parser.Term.inferInstanceAs] def elabInferInstanceAs : TermElab := fun stx expectedType? => do
+  let expectedType ← tryPostponeIfHasMVars expectedType? "`inferInstanceAs` failed"
+  -- The type argument is the last child (works for both `inferInstanceAs T` and `inferInstanceAs <| T`)
+  let typeStx := stx[stx.getNumArgs - 1]!
+  let type ← withSynthesize (postpone := .yes) <| elabType typeStx
+  -- Unify with expected type to resolve metavariables (e.g., `_` placeholders)
+  discard <| isDefEq type expectedType
+  let type ← instantiateMVars type
+  -- Rebuild type with fresh synthetic mvars for instance-implicit args, so that
+  -- synthesis is not influenced by the expected type's instance choices.
+  let type ← abstractInstImplicitArgs type
+  let inst ← synthInstance type
+  let inst ← if backward.inferInstanceAs.wrap.get (← getOptions) then
+    -- Normalize to instance normal form.
+    let logCompileErrors := !(← read).isNoncomputableSection && !(← read).declName?.any (Lean.isNoncomputable (← getEnv))
+    withNewMCtxDepth <| normalizeInstance inst expectedType (logCompileErrors := logCompileErrors)
+  else
+    pure inst
+  ensureHasType expectedType? inst
+
 @[builtin_term_elab clear] def elabClear : TermElab := fun stx expectedType? => do
   let some (.fvar fvarId) ← isLocalIdent? stx[1]
     | throwErrorAt stx[1] "not in scope"
@@ -383,14 +404,13 @@ private opaque evalFilePath (stx : Syntax) : TermElabM System.FilePath
       let name ← mkAuxDeclName `_private
       withoutExporting do
         let e ← elabTermAndSynthesize e expectedType?
-        let compile := !(← read).isNoncomputableSection && !(← read).declName?.any (Lean.isNoncomputable (← getEnv))
         let e ← mkAuxDefinitionFor (compile := false) name e
-        if compile then
-          -- Inline as changing visibility should not affect run time.
-          setInlineAttribute name
-          if (← read).declName?.any (isMarkedMeta (← getEnv)) then
-            modifyEnv (markMeta · name)
-          compileDecls #[name]
+        -- Inline as changing visibility should not affect run time.
+        setInlineAttribute name
+        if (← read).declName?.any (isMarkedMeta (← getEnv)) then
+          modifyEnv (markMeta · name)
+        let logCompileErrors := !(← read).isNoncomputableSection && !(← read).declName?.any (Lean.isNoncomputable (← getEnv))
+        compileDecls (logErrors := logCompileErrors) #[name]
         return e
     else
       elabTerm e expectedType?

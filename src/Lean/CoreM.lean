@@ -256,7 +256,7 @@ abbrev CoreM := ReaderT Context <| StateRefT State (EIO Exception)
 -- Make the compiler generate specialized `pure`/`bind` so we do not have to optimize through the
 -- whole monad stack at every use site. May eventually be covered by `deriving`.
 @[always_inline]
-instance : Monad CoreM := let i := inferInstanceAs (Monad CoreM); { pure := i.pure, bind := i.bind }
+instance : Monad CoreM := let i : Monad CoreM := inferInstance; { pure := i.pure, bind := i.bind }
 
 instance : Inhabited (CoreM α) where
   default := fun _ _ => throw default

@@ -185,18 +185,17 @@ example : foo.default = (default, default) :=
 abbrev inferInstance {α : Sort u} [i : α] : α := i
 
 set_option checkBinderAnnotations false in
-/-- `inferInstanceAs α` synthesizes a value of any target type by typeclass
-inference. This is just like `inferInstance` except that `α` is given
-explicitly instead of being inferred from the target type. It is especially
-useful when the target type is some `α'` which is definitionally equal to `α`,
-but the instance we are looking for is only registered for `α` (because
-typeclass search does not unfold most definitions, but definitional equality
-does.) Example:
+/-- `inferInstanceAs α` synthesizes an instance of type `α` and normalizes it to
+"instance normal form": the result is a constructor application whose sub-instance fields
+are canonical instances and whose types match `α` exactly. This is useful when `α` is
+definitionally equal to some `α'` for which instances are registered, as it prevents
+leaking the definition's RHS at lower transparencies. See `Lean.Meta.InstanceNormalForm`
+for details. Example:
 ```
 #check inferInstanceAs (Inhabited Nat) -- Inhabited Nat
 ```
 -/
-abbrev inferInstanceAs (α : Sort u) [i : α] : α := i
+abbrev «inferInstanceAs» (α : Sort u) [i : α] : α := i
 
 
 

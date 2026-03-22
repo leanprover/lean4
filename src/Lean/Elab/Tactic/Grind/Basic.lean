@@ -74,7 +74,7 @@ def SavedState.restore (b : SavedState) (restoreInfo := false) : GrindTacticM Un
 
 @[always_inline]
 instance : Monad GrindTacticM :=
-  let i := inferInstanceAs (Monad GrindTacticM)
+  let i : Monad GrindTacticM := inferInstance
   { pure := i.pure, bind := i.bind }
 
 instance : Inhabited (GrindTacticM α) where

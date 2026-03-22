@@ -1,3 +1,9 @@
 1024.lean:6:6-6:9: warning: declaration uses `sorry`
 1024.lean:6:6-6:9: warning: declaration uses `sorry`
 1024.lean:6:6-6:9: warning: declaration uses `sorry`
+1024.lean:19:17-19:20: warning: declaration uses `sorry`
+1024.lean:19:17-19:20: warning: declaration uses `sorry`
+1024.lean:14:10-14:21: warning: declaration uses `sorry`
+1024.lean:27:17-27:20: warning: declaration uses `sorry`
+1024.lean:27:17-27:20: warning: declaration uses `sorry`
+1024.lean:22:10-22:27: warning: declaration uses `sorry`

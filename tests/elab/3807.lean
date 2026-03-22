@@ -1,4 +1,5 @@
 import Lean.Elab.Binders
+set_option warn.sorry false
 /-!
 
 This is a test case extracted from Mathlib exhibiting a slow-down in `IsDefEq` after
@@ -344,7 +345,7 @@ instance Pi.hasLe {ι : Type u} {α : ι → Type v} [∀ i, LE (α i)] :
     LE (∀ i, α i) where le x y := ∀ i, x i ≤ y i
 
 instance Pi.preorder {ι : Type u} {α : ι → Type v} [∀ i, Preorder (α i)] : Preorder (∀ i, α i) where
-  __ := inferInstanceAs (LE (∀ i, α i))
+  __ := (inferInstance : LE (∀ i, α i))
   le_refl := sorry
   le_trans := sorry
 
@@ -429,8 +430,8 @@ instance instSemilatticeInf [∀ i, SemilatticeInf (α' i)] : SemilatticeInf (�
   le_inf _ _ _ ac bc i := sorry
 
 instance instLattice [∀ i, Lattice (α' i)] : Lattice (∀ i, α' i) where
-  __ := inferInstanceAs (SemilatticeSup (∀ i, α' i))
-  __ := inferInstanceAs (SemilatticeInf (∀ i, α' i))
+  __ := (inferInstance : SemilatticeSup (∀ i, α' i))
+  __ := (inferInstance : SemilatticeInf (∀ i, α' i))
 
 instance instDistribLattice [∀ i, DistribLattice (α' i)] : DistribLattice (∀ i, α' i) where
   le_sup_inf _ _ _ _ := sorry

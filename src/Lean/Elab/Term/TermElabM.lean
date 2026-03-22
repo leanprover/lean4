@@ -371,7 +371,7 @@ whole monad stack at every use site. May eventually be covered by `deriving`.
 -/
 @[always_inline]
 instance : Monad TermElabM :=
-  let i := inferInstanceAs (Monad TermElabM)
+  let i : Monad TermElabM := inferInstance
   { pure := i.pure, bind := i.bind }
 
 open Meta

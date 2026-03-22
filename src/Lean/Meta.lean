@@ -27,6 +27,7 @@ public import Lean.Meta.Match
 public import Lean.Meta.ReduceEval
 public import Lean.Meta.Closure
 public import Lean.Meta.AbstractNestedProofs
+public import Lean.Meta.InstanceNormalForm
 public import Lean.Meta.LetToHave
 public import Lean.Meta.ForEachExpr
 public import Lean.Meta.Transform

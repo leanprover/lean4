@@ -28,7 +28,7 @@ namespace LinearOrderPackage
 
 scoped instance packageOfLE : Std.LinearOrderPackage X := .ofLE X
 
-example : instLE = (inferInstanceAs (Std.PreorderPackage X)).toLE := rfl
+example : instLE = (inferInstance : Std.PreorderPackage X).toLE := rfl
 example : Std.IsLinearOrder X := inferInstance
 example : Std.LawfulOrderLT X := inferInstance
 example : Std.LawfulOrderOrd X := inferInstance
@@ -46,7 +46,7 @@ scoped instance packageOfLE : Std.LinearPreorderPackage X := .ofLE X
 scoped instance instMin : Min X := .leftLeaningOfLE X
 scoped instance instMax : Max X := .leftLeaningOfLE X
 
-example : instLE = (inferInstanceAs (Std.LinearPreorderPackage X)).toLE := rfl
+example : instLE = (inferInstance : Std.LinearPreorderPackage X).toLE := rfl
 example : Std.IsLinearPreorder X := inferInstance
 example : Std.LawfulOrderLT X := inferInstance
 example : Std.LawfulOrderOrd X := inferInstance

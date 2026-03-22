@@ -736,7 +736,7 @@ induced by `equivalence_not_adj`. -/
 def setoid : Setoid V := ⟨_, h.equivalence_not_adj⟩
 
 instance : DecidableRel h.setoid.r :=
-  inferInstanceAs <| DecidableRel (¬G.Adj · ·)
+  inferInstanceAs (DecidableRel (¬G.Adj · ·))
 
 /-- The finpartition derived from `h.setoid`. -/
 def finpartition [DecidableEq V] : Finpartition (univ : Finset V) := Finpartition.ofSetoid h.setoid

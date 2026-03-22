@@ -3,4 +3,4 @@
 and for `Foo.bar_aux` is
   bs : Type u
 1050.lean:24:8-24:12: warning: declaration uses `sorry`
-1050.lean:24:8-24:12: warning: declaration uses `sorry`
+1050.lean:23:2-34:5: warning: declaration uses `sorry`

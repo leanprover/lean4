@@ -827,7 +827,7 @@ def mkSep (a : Array Syntax) (sep : Syntax) : Syntax :=
   mkNullNode <| mkSepArray a sep
 
 /--
-Constructs a typed separated array from elements by adding suitable separators.
+Constructs an untyped separated array from elements by adding suitable separators.
 The provided array should not include the separators.
 
 Like `Syntax.TSepArray.ofElems` but for untyped syntax.
@@ -836,7 +836,7 @@ def SepArray.ofElems {sep} (elems : Array Syntax) : SepArray sep :=
 ⟨mkSepArray elems (if String.Internal.isEmpty sep then mkNullNode else mkAtom sep)⟩
 
 /--
-Constructs a typed separated array from elements by adding suitable separators.
+Constructs an untyped separated array from elements by adding suitable separators.
 The provided array should not include the separators.
 The generated separators' source location is that of the syntax returned by `getRef`.
 -/

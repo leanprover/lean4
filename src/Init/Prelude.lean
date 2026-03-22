@@ -5110,7 +5110,7 @@ end SourceInfo
 Specifies the interpretation of a `Syntax.node` value. An abbreviation for `Name`.
 
 Node kinds may be any name, and do not need to refer to declarations in the environment.
-Conventionally, however, a node's kind corresponds to the `Parser` or `ParserDesc` declaration that
+Conventionally, however, a node's kind corresponds to the `Parser` or `ParserDescr` declaration that
 produces it. There are also a number of built-in node kinds that are used by the parsing
 infrastructure, such as `nullKind` and `choiceKind`; these do not correspond to parser declarations.
 -/

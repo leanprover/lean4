@@ -931,7 +931,7 @@ def mkNameLit (val : String) (info := SourceInfo.none) : NameLit :=
   mkLit nameLitKind val info
 
 /-! Recall that we don't have special Syntax constructors for storing numeric and string atoms.
-   The idea is to have an extensible approach where embedded DSLs may have new kind of atoms and/or
+   The idea is to have an extensible approach where embedded DSLs may have new kinds of atoms and/or
    different ways of representing them. So, our atoms contain just the parsed string.
    The main Lean parser uses the kind `numLitKind` for storing natural numbers that can be encoded
    in binary, octal, decimal and hexadecimal format. `isNatLit` implements a "decoder"

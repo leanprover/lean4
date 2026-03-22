@@ -9,11 +9,8 @@ lean_lib lib where
   srcDir := "lib"
   roots := #[`A, `B, `C]
 
-lean_exe a where
-  root := `exe
-
-lean_exe b where
-  root := `exe
+lean_exe a
+lean_exe b
 
 target foo : String := Job.sync do
   return "foo"

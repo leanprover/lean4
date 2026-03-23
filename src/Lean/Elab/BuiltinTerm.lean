@@ -324,7 +324,7 @@ private def mkSilentAnnotationIfHole (e : Expr) : TermElabM Expr := do
     throwError (m!"`inferInstanceAs` failed, expected type contains metavariables{indentD expectedType?}" ++
       .note "`inferInstanceAs` requires full knowledge of the expected (\"target\") type to do its \
         instance translation. If you do not intend to transport instances between two types, \
-        consider using `synthInstance`, perhaps inside a type annotation, instead.")
+        consider using `inferInstance` or `(inferInstance : expectedType)` instead.")
   let type ← withSynthesize (postpone := .yes) <| elabType typeStx
   -- Unify with expected type to resolve metavariables (e.g., `_` placeholders)
   discard <| isDefEq type expectedType

@@ -33,11 +33,22 @@ theorem beq_eq_true_iff {s t : Slice} : s == t ↔ s.copy = t.copy := by
 theorem beq_eq_false_iff {s t : Slice} : (s == t) = false ↔ s.copy ≠ t.copy := by
   simp [← Bool.not_eq_true]
 
-theorem beq_eq_decide {s t : Slice} : (s == t) = decide (s.copy = t.copy) := by
-  cases h : s == t <;> simp_all
+theorem beq_eq_decide {s t : Slice} : (s == t) = decide (s.copy = t.copy) :=
+  Bool.eq_iff_iff.2 (by simp)
 
 instance : EquivBEq String.Slice :=
   equivBEq_of_iff_apply_eq copy (by simp)
+
+theorem beq_list_iff {l l' : List String.Slice} : l == l' ↔ l.map copy = l'.map copy := by
+  induction l generalizing l' <;> cases l' <;> simp_all
+
+theorem beq_list_eq_false_iff {l l' : List String.Slice} :
+    (l == l') = false ↔ l.map copy ≠ l'.map copy := by
+  simp [← Bool.not_eq_true, beq_list_iff]
+
+theorem beq_list_eq_decide {l l' : List String.Slice} :
+    (l == l') = decide (l.map copy = l'.map copy) :=
+  Bool.eq_iff_iff.2 (by simp [beq_list_iff])
 
 end BEq
 

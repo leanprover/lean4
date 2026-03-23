@@ -77,18 +77,15 @@ def addEntryFn (descr : Descr α β σ) (s : StateStack α β σ) (e : Entry β)
     | Entry.global b => {
         scopedEntries
         activeScopes
+        stateStack
         newEntries    := (Entry.global (descr.toOLeanEntry b)) :: newEntries
-        stateStack    := stateStack.map fun st => descr.addEntry st b
       }
     | Entry.«scoped» ns b =>
       {
         scopedEntries := scopedEntries.insert ns b
         activeScopes
+        stateStack
         newEntries    := (Entry.«scoped» ns (descr.toOLeanEntry b)) :: newEntries
-        stateStack    := if activeScopes.contains ns then
-            stateStack.map fun st => descr.addEntry st b
-          else
-            stateStack
       }
 
 def exportEntriesFn (descr : Descr α β σ) (level : OLeanLevel) (s : StateStack α β σ) : Array (Entry α) :=
@@ -169,25 +166,16 @@ def ScopedEnvExtension.pushScope (_ext : ScopedEnvExtension α β σ) (env : Env
       frames := frame :: sss.frames
       delimitsLocal := true }
 
-unsafe def ScopedEnvExtension.popScopeUnsafe₁ (ext : ScopedEnvExtension α β σ) (env : Environment) : Environment :=
+unsafe def ScopedEnvExtension.popScopeUnsafe₁ (_ext : ScopedEnvExtension α β σ) (env : Environment) : Environment :=
   -- Per-extension popScope restores from centralized scope stack
-  let sss := scopeStackExt.getState (asyncMode := .local) env
-  match sss.frames with
-  | frame :: rest =>
-    let env := scopeStackExt.modifyState (asyncMode := .local) env fun _ =>
+  scopeStackExt.modifyState (asyncMode := .local) env fun sss =>
+    match sss.frames with
+    | frame :: rest =>
       { currentStates := frame.states
         activeScopes := frame.activeScopes
         delimitsLocal := frame.delimitsLocal
         frames := rest }
-    -- Sync PersistentEnvExtension mirror for this extension
-    let idx := getExtIdx ext
-    let env := ext.ext.modifyState (asyncMode := .local) env fun ps =>
-      let ps := { ps with activeScopes := frame.activeScopes }
-      match frame.states.find? idx with
-      | some s => { ps with stateStack := [unsafeCast s] }
-      | none => ps
-    env
-  | [] => env
+    | [] => sss
 
 @[implemented_by ScopedEnvExtension.popScopeUnsafe₁]
 opaque ScopedEnvExtension.popScope (ext : ScopedEnvExtension α β σ) (env : Environment) : Environment
@@ -295,12 +283,6 @@ private unsafe def propagateLocalEntryUnsafe (ext : ScopedEnvExtension α β σ)
 private opaque propagateLocalEntry (ext : ScopedEnvExtension α β σ) (env : Environment) (b : β) : Environment
 
 def ScopedEnvExtension.addLocalEntry (ext : ScopedEnvExtension α β σ) (env : Environment) (b : β) : Environment :=
-  -- Update PersistentEnvExtension mirror (just the top state)
-  let env := ext.ext.modifyState (asyncMode := .local) env fun s =>
-    match s.stateStack with
-    | st :: rest => { s with stateStack := (ext.descr.addEntry st b) :: rest }
-    | [] => s
-  -- Propagate through centralized scope stack
   propagateLocalEntry ext env b
 
 def ScopedEnvExtension.addCore (env : Environment) (ext : ScopedEnvExtension α β σ) (b : β) (kind : AttributeKind) (namespaceName : Name) : Environment :=
@@ -332,49 +314,27 @@ opaque ScopedEnvExtension.getState [Inhabited σ] (ext : ScopedEnvExtension α �
     (env : Environment) (asyncMode := ext.ext.toEnvExtension.asyncMode) : σ
 
 unsafe def ScopedEnvExtension.activateScopedUnsafe (ext : ScopedEnvExtension α β σ) (env : Environment) (namespaceName : Name) : Environment :=
-  -- Check per-extension activeScopes (not centralized) to allow each extension to activate independently
   let pstate := ext.ext.getState (asyncMode := .local) env
-  if pstate.activeScopes.contains namespaceName then
-    env
-  else
+  -- Only update centralized state (scope-local, reverted by popScope)
+  match pstate.scopedEntries.map.find? namespaceName with
+  | none => env  -- No scoped entries for this namespace in this extension
+  | some bs =>
     let idx := getExtIdx ext
     let sss := scopeStackExt.getState (asyncMode := .local) env
-    -- Update activeScopes in PersistentEnvExtension
-    let env := ext.ext.modifyState (asyncMode := .local) env fun s =>
-      { s with activeScopes := s.activeScopes.insert namespaceName }
-    -- Apply scoped entries to centralized state
-    match pstate.scopedEntries.map.find? namespaceName with
-    | none =>
-      -- Just update activeScopes in centralized state
-      scopeStackExt.modifyState (asyncMode := .local) env fun sss =>
-        { sss with activeScopes := sss.activeScopes.insert namespaceName }
-    | some bs =>
-      let currentState : σ := match sss.currentStates.find? idx with
-        | some s => unsafeCast s
-        | none =>
-          match pstate.stateStack with
-          | st :: _ => st
-          | [] => unsafeCast ()
-      let state := Id.run do
-        let mut state := currentState
-        for b in bs do
-          state := ext.descr.addEntry state b
-        return state
-      -- Also update the PersistentEnvExtension mirror
-      let env := ext.ext.modifyState (asyncMode := .local) env fun s =>
-        match s.stateStack with
-        | st :: rest =>
-          let st' := Id.run do
-            let mut st' := st
-            for b in bs do
-              st' := ext.descr.addEntry st' b
-            return st'
-          { s with stateStack := st' :: rest }
-        | [] => s
-      scopeStackExt.modifyState (asyncMode := .local) env fun sss =>
-        { sss with
-          currentStates := sss.currentStates.insert idx (unsafeCast state : EnvExtensionState)
-          activeScopes := sss.activeScopes.insert namespaceName }
+    let currentState : σ := match sss.currentStates.find? idx with
+      | some s => unsafeCast s
+      | none =>
+        match pstate.stateStack with
+        | st :: _ => st
+        | [] => unsafeCast ()
+    let state := Id.run do
+      let mut state := currentState
+      for b in bs do
+        state := ext.descr.addEntry state b
+      return state
+    scopeStackExt.modifyState (asyncMode := .local) env fun sss =>
+      { sss with
+        currentStates := sss.currentStates.insert idx (unsafeCast state : EnvExtensionState) }
 
 @[implemented_by ScopedEnvExtension.activateScopedUnsafe]
 opaque ScopedEnvExtension.activateScoped (ext : ScopedEnvExtension α β σ) (env : Environment) (namespaceName : Name) : Environment
@@ -422,19 +382,6 @@ unsafe def popScopeUnsafe [Monad m] [MonadEnv m] [MonadLiftT (ST IO.RealWorld) m
           delimitsLocal := frame.delimitsLocal
           frames := rest }
       | [] => sss
-  -- Sync PersistentEnvExtension state mirrors with restored centralized state.
-  let env ← getEnv
-  let sss := scopeStackExt.getState (asyncMode := .local) env
-  let exts ← scopedEnvExtensionsRef.get
-  let mut env := env
-  for scopedExt in exts do
-    let idx := scopedExt.ext.toEnvExtension.idx
-    env := scopedExt.ext.modifyState (asyncMode := .local) env fun ps =>
-      let ps := { ps with activeScopes := sss.activeScopes }
-      match sss.currentStates.find? idx with
-      | some s => { ps with stateStack := [unsafeCast s] }
-      | none => ps
-  setEnv env
 
 @[implemented_by popScopeUnsafe]
 opaque popScope [Monad m] [MonadEnv m] [MonadLiftT (ST IO.RealWorld) m] : m Unit
@@ -447,8 +394,14 @@ def setDelimitsLocal [Monad m] [MonadEnv m] [MonadLiftT (ST IO.RealWorld) m] : m
       { sss with delimitsLocal := false }
 
 def activateScoped [Monad m] [MonadEnv m] [MonadLiftT (ST IO.RealWorld) m] (namespaceName : Name) : m Unit := do
+  let env ← getEnv
+  let sss := scopeStackExt.getState (asyncMode := .local) env
+  if sss.activeScopes.contains namespaceName then return
   for ext in (← scopedEnvExtensionsRef.get) do
     modifyEnv (ext.activateScoped · namespaceName)
+  modifyEnv fun env =>
+    scopeStackExt.modifyState (asyncMode := .local) env fun sss =>
+      { sss with activeScopes := sss.activeScopes.insert namespaceName }
 
 /-- Initialize the centralized scope stack states from all registered scoped extensions.
     Called after finalizePersistentExtensions. -/

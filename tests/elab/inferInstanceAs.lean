@@ -13,6 +13,12 @@ def D := I
 
 instance : C D := inferInstanceAs (C I)
 
+-- We can still use it as an `inferInstance` synonym in the old mode
+set_option backward.inferInstanceAs.wrap false in
+/-- info: «inferInstanceAs» (C D) : C D -/
+#guard_msgs in
+#check inferInstanceAs (C D)
+
 /--
 info: @[implicit_reducible] private def instCD : C D :=
 { c := instCD._aux_1 }

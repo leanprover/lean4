@@ -11,7 +11,7 @@ public import Init.Data.Ord.Basic
 public import Init.Data.Iterators.Combinators.FilterMap
 public import Init.Data.String.ToSlice
 public import Init.Data.String.Subslice
-public import Init.Data.String.Iter
+public import Init.Data.String.Iter.Basic
 public import Init.Data.String.Iterate
 import Init.Data.Iterators.Consumers.Collect
 import Init.Data.Iterators.Consumers.Loop

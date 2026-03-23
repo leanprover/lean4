@@ -84,10 +84,11 @@ instance : ToString String.Slice where
 theorem toStringToString_eq : ToString.toString = String.Slice.copy := (rfl)
 
 @[extern "lean_slice_hash"]
-opaque hash (s : @& Slice) : UInt64
+protected def hash (s : @& Slice) : UInt64 :=
+  String.hash s.copy
 
 instance : Hashable Slice where
-  hash := hash
+  hash := Slice.hash
 
 instance : LT Slice where
   lt x y := x.copy < y.copy

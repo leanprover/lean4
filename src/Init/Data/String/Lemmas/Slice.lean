@@ -36,6 +36,9 @@ theorem beq_eq_false_iff {s t : Slice} : (s == t) = false ↔ s.copy ≠ t.copy 
 theorem beq_eq_decide {s t : Slice} : (s == t) = decide (s.copy = t.copy) := by
   cases h : s == t <;> simp_all
 
+instance : EquivBEq String.Slice :=
+  equivBEq_of_iff_apply_eq copy (by simp)
+
 end BEq
 
 end String.Slice

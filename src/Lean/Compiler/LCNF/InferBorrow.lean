@@ -243,13 +243,19 @@ def OwnReason.isForced (reason : OwnReason) : Bool :=
   -- All of these reasons propagate through ABI decisions and can thus safely be ignored as they
   -- will be accounted for by the reference counting pass.
   | .constructorArg .. | .functionCallArg .. | .fvarCall .. | .partialApplication ..
-  | .jpArgPropagation .. => false
+  | .jpArgPropagation ..
+  -- forward propagation can never affect a user-annotated parameter
+  | .forwardProjectionProp ..
+  -- backward propagation on a user-annotated parameter is only necessary if the projected value
+  -- directly flows into a reset-reuse. However, the borrow annotation propagator ensures this
+  -- situation never arises
+  | .backwardProjectionProp .. => false
   -- Results of functions and constructors are naturally owned.
   | .constructorResult .. | .functionCallResult ..
   -- We cannot pass borrowed values to reset or have borrow annotations destroy tail calls for
   -- correctness reasons.
-  | .resetReuse .. | .tailCallPreservation .. | .jpTailCallPreservation .. | .ownedAnnotation
-  | .forwardProjectionProp .. | .backwardProjectionProp .. => true
+  | .resetReuse .. | .tailCallPreservation .. | .jpTailCallPreservation ..
+  | .ownedAnnotation => true
 
 /--
 Infer the borrowing annotations in a SCC through dataflow analysis.

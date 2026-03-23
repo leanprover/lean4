@@ -139,8 +139,6 @@ structure Quad where
 /-- Only traverses → parameter stays borrowed. -/
 @[noinline] def measuree (xs : List Nat) : Nat := xs.length
 
-/-
-
 /--
 trace: [Compiler.explicitRc] size: 22
     def cascadeDemo @&t : tobj :=
@@ -257,5 +255,3 @@ def preserveTailCall (x : @&Prod Nat Nat) (a : Nat) : Nat :=
   match a with
   | 0 => x.fst
   | a + 1 => preserveTailCall (mkNewProd x a) a
-
--/

@@ -120,7 +120,7 @@ structure ScopeStackState where
 
 /-- The centralized scope stack extension, registered at init time. -/
 builtin_initialize scopeStackExt : EnvExtension ScopeStackState ←
-  registerEnvExtension (pure {}) (asyncMode := .local)
+  registerEnvExtension (pure {}) (asyncMode := .local) (useOverlay := false)
 
 /-- Look up a scoped extension's state in the centralized scope stack.
     Non-inline so the compiler specializes `PersistentHashMap.find?` at this call site. -/

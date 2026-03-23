@@ -153,7 +153,7 @@ partial def findAtAux [BEq α] (keys : Array α) (vals : Array β) (heq : keys.s
     else findAtAux keys vals heq (i+1) k
   else none
 
-partial def findAux [BEq α] : Node α β → USize → α → Option β
+@[specialize] partial def findAux [BEq α] : Node α β → USize → α → Option β
   | Node.entries entries, h, k =>
     let j     := (mod2Shift h shift).toNat
     match entries[j]! with

@@ -97,10 +97,10 @@ namespace ExtensionStates
 
 @[inline] def size (s : ExtensionStates) : Nat := s.base.size
 
-@[inline] def get (s : ExtensionStates) (i : Nat) (h : i < s.size) : EnvExtensionState :=
+def get (s : ExtensionStates) (i : Nat) (h : i < s.size) : EnvExtensionState :=
   s.overlay.find? i |>.getD s.base[i]
 
-def get! [Inhabited EnvExtensionState] (s : ExtensionStates) (i : Nat) : EnvExtensionState :=
+def get! (s : ExtensionStates) (i : Nat) : EnvExtensionState :=
   s.overlay.find? i |>.getD s.base[i]!
 
 @[inline] def set (s : ExtensionStates) (i : Nat) (v : EnvExtensionState) : ExtensionStates :=
@@ -1753,6 +1753,7 @@ structure PersistentEnvExtensionDescrCore (α β σ : Type) where
   statsFn           : σ → Format := fun _ => Format.nil
   asyncMode         : EnvExtension.AsyncMode := .mainOnly
   replay?           : Option (ReplayFn σ) := none
+  useOverlay        : Bool := true
 
 attribute [inherit_doc PersistentEnvExtension.exportEntriesFn]
   PersistentEnvExtensionDescrCore.exportEntriesFnEx
@@ -1779,7 +1780,7 @@ unsafe def registerPersistentEnvExtensionUnsafe {α β σ : Type} [Inhabited σ]
   if pExts.any (fun ext => ext.name == descr.name) then throw (IO.userError s!"invalid environment extension, '{descr.name}' has already been used")
   let replay? := descr.replay?.map fun replay =>
     fun oldState newState newConsts s => { s with state := replay oldState.state newState.state newConsts s.state }
-  let ext ← registerEnvExtension (asyncMode := descr.asyncMode) (replay? := replay?) do
+  let ext ← registerEnvExtension (asyncMode := descr.asyncMode) (replay? := replay?) (useOverlay := descr.useOverlay) do
     let initial ← descr.mkInitial
     let s : PersistentEnvExtensionState α σ := {
       importedEntries := #[],

@@ -52,6 +52,7 @@ builtin_initialize reducibilityCoreExt : PersistentEnvExtension (Name × Reducib
     statsFn         := fun s => "reducibility attribute core extension" ++ Format.line ++ "number of local entries: " ++ format s.size
     -- attribute is set by `addPreDefinitions`
     asyncMode       := .async .asyncEnv
+    useOverlay      := false
     replay? := some <| fun _oldState newState newItems otherState =>
       newItems.foldl (init := otherState) fun otherState k =>
         if let some v := newState.find? k then

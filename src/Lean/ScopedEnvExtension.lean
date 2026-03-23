@@ -122,6 +122,19 @@ structure ScopeStackState where
 builtin_initialize scopeStackExt : EnvExtension ScopeStackState ←
   registerEnvExtension (pure {}) (asyncMode := .local)
 
+/-- Look up a scoped extension's state in the centralized scope stack.
+    Non-inline so the compiler specializes `PersistentHashMap.find?` at this call site. -/
+def ScopeStackState.findState? (sss : ScopeStackState) (idx : Nat) : Option EnvExtensionState :=
+  sss.currentStates.find? idx
+
+/-- Look up a scoped extension's state in a scope frame.
+    Non-inline so the compiler specializes `PersistentHashMap.find?` at this call site. -/
+def ScopeFrame.findState? (frame : ScopeFrame) (idx : Nat) : Option EnvExtensionState :=
+  frame.states.find? idx
+
+@[inline] private def ScopeFrame.findStateD (frame : ScopeFrame) (idx : Nat) (fallback : EnvExtensionState) : EnvExtensionState :=
+  frame.findState? idx |>.getD fallback
+
 structure ScopedEnvExtension (α : Type) (β : Type) (σ : Type) where
   descr : Descr α β σ
   ext   : PersistentEnvExtension (Entry α) (Entry β) (StateStack α β σ)
@@ -142,6 +155,7 @@ unsafe def registerScopedEnvExtensionUnsafe (descr : Descr α β σ) : IO (Scope
     -- `AsyncMode.local` below). Allowing the latter is important for tactics such as -- `classical`
     -- or `open in`.
     asyncMode       := .mainOnly
+    useOverlay      := false
   }
   let ext := { descr := descr, ext := ext : ScopedEnvExtension α β σ }
   scopedEnvExtensionsRef.modify fun exts => exts.push (unsafeCast ext)
@@ -195,7 +209,7 @@ unsafe def ScopedEnvExtension.addEntryUnsafe (ext : ScopedEnvExtension α β σ)
   let idx := getExtIdx ext
   let sss := scopeStackExt.getState (asyncMode := .local) env
   -- Update current state
-  let currentState : σ := match sss.currentStates.find? idx with
+  let currentState : σ := match sss.findState? idx with
     | some s => ext.descr.addEntry (unsafeCast s) b
     | none =>
       match (ext.ext.getState (asyncMode := .local) env).stateStack with
@@ -204,7 +218,7 @@ unsafe def ScopedEnvExtension.addEntryUnsafe (ext : ScopedEnvExtension α β σ)
   let sss := { sss with currentStates := sss.currentStates.insert idx (unsafeCast currentState : EnvExtensionState) }
   -- Propagate to all saved scope frames
   let frames := sss.frames.map fun frame =>
-    let frameState : σ := match frame.states.find? idx with
+    let frameState : σ := match frame.findState? idx with
       | some s => ext.descr.addEntry (unsafeCast s) b
       | none =>
         match (ext.ext.getState (asyncMode := .local) env).stateStack with
@@ -226,7 +240,7 @@ unsafe def ScopedEnvExtension.addScopedEntryUnsafe (ext : ScopedEnvExtension α 
   let idx := getExtIdx ext
   -- Update current state if namespace is active
   let sss := if sss.activeScopes.contains namespaceName then
-    let currentState : σ := match sss.currentStates.find? idx with
+    let currentState : σ := match sss.findState? idx with
       | some s => ext.descr.addEntry (unsafeCast s) b
       | none =>
         match (ext.ext.getState (asyncMode := .local) env).stateStack with
@@ -237,7 +251,7 @@ unsafe def ScopedEnvExtension.addScopedEntryUnsafe (ext : ScopedEnvExtension α 
   -- Propagate to saved frames where namespace is active
   let frames := sss.frames.map fun frame =>
     if frame.activeScopes.contains namespaceName then
-      let frameState : σ := match frame.states.find? idx with
+      let frameState : σ := match frame.findState? idx with
         | some s => ext.descr.addEntry (unsafeCast s) b
         | none => unsafeCast ()
       { frame with states := frame.states.insert idx (unsafeCast frameState : EnvExtensionState) }
@@ -254,7 +268,7 @@ private unsafe def propagateLocalFrames (addEntry : EnvExtensionState → β →
   else match frames with
   | [] => []
   | frame :: rest =>
-    let frameState := match frame.states.find? idx with
+    let frameState := match frame.findState? idx with
       | some s => addEntry s b
       | none => addEntry (unsafeCast ()) b
     let frame := { frame with states := frame.states.insert idx frameState }
@@ -268,7 +282,7 @@ private unsafe def propagateLocalEntryUnsafe (ext : ScopedEnvExtension α β σ)
   let addEntry : EnvExtensionState → β → EnvExtensionState :=
     fun s b => unsafeCast (ext.descr.addEntry (unsafeCast s : σ) b)
   -- Update current state
-  let currentState : σ := match sss.currentStates.find? idx with
+  let currentState : σ := match sss.findState? idx with
     | some s => ext.descr.addEntry (unsafeCast s) b
     | none =>
       match (ext.ext.getState (asyncMode := .local) env).stateStack with
@@ -301,7 +315,7 @@ unsafe def ScopedEnvExtension.getStateUnsafe [Inhabited σ] (ext : ScopedEnvExte
     (env : Environment) (asyncMode := ext.ext.toEnvExtension.asyncMode) : σ :=
   let sss := scopeStackExt.getState (asyncMode := .local) env
   let idx := getExtIdx ext
-  match sss.currentStates.find? idx with
+  match sss.findState? idx with
   | some s => unsafeCast s
   | none =>
     -- Fallback to PersistentEnvExtension state
@@ -321,7 +335,7 @@ unsafe def ScopedEnvExtension.activateScopedUnsafe (ext : ScopedEnvExtension α 
   | some bs =>
     let idx := getExtIdx ext
     let sss := scopeStackExt.getState (asyncMode := .local) env
-    let currentState : σ := match sss.currentStates.find? idx with
+    let currentState : σ := match sss.findState? idx with
       | some s => unsafeCast s
       | none =>
         match pstate.stateStack with
@@ -344,7 +358,7 @@ unsafe def ScopedEnvExtension.modifyStateUnsafe (ext : ScopedEnvExtension α β 
   -- explicitly by addEntry/addScopedEntry when needed for olean export.
   let idx := getExtIdx ext
   let sss := scopeStackExt.getState (asyncMode := .local) env
-  let currentState : σ := match sss.currentStates.find? idx with
+  let currentState : σ := match sss.findState? idx with
     | some s => unsafeCast s
     | none =>
       match (ext.ext.getState (asyncMode := .local) env).stateStack with

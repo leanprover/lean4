@@ -385,7 +385,7 @@ class rb_tree : private CMP {
 public:
     rb_tree(CMP const & cmp = CMP()):CMP(cmp) {}
     rb_tree(rb_tree const & s):CMP(s), m_root(s.m_root) {}
-    rb_tree(rb_tree && s) noexcept:CMP(s), m_root(s.m_root) {}
+    rb_tree(rb_tree && s) noexcept:CMP(std::move(s)), m_root(std::move(s.m_root)) {}
     explicit rb_tree(buffer<T> const & s) {
         for (auto const & v : s)
             insert(v);
@@ -395,7 +395,7 @@ public:
     }
 
     rb_tree & operator=(rb_tree const & s) { m_root = s.m_root; return *this; }
-    rb_tree & operator=(rb_tree && s) { m_root = s.m_root; return *this; }
+    rb_tree & operator=(rb_tree && s) { m_root = std::move(s.m_root); return *this; }
 
     CMP const & get_cmp() const { return *this; }
 

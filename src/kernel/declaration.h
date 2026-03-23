@@ -235,7 +235,7 @@ public:
 
 inline optional<declaration> none_declaration() { return optional<declaration>(); }
 inline optional<declaration> some_declaration(declaration const & o) { return optional<declaration>(o); }
-inline optional<declaration> some_declaration(declaration && o) { return optional<declaration>(std::forward<declaration>(o)); }
+inline optional<declaration> some_declaration(declaration && o) { return optional<declaration>(std::move(o)); }
 
 bool use_unsafe(environment const & env, expr const & e);
 declaration mk_definition(name const & n, names const & lparams, expr const & t, expr const & v,
@@ -486,7 +486,7 @@ public:
 
 inline optional<constant_info> none_constant_info() { return optional<constant_info>(); }
 inline optional<constant_info> some_constant_info(constant_info const & o) { return optional<constant_info>(o); }
-inline optional<constant_info> some_constant_info(constant_info && o) { return optional<constant_info>(std::forward<constant_info>(o)); }
+inline optional<constant_info> some_constant_info(constant_info && o) { return optional<constant_info>(std::move(o)); }
 
 static_assert(static_cast<unsigned>(declaration_kind::Axiom) == static_cast<unsigned>(constant_info_kind::Axiom), "declaration vs constant_info tag mismatch");
 static_assert(static_cast<unsigned>(declaration_kind::Definition) == static_cast<unsigned>(constant_info_kind::Definition), "declaration vs constant_info tag mismatch");

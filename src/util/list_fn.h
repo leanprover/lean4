@@ -140,7 +140,7 @@ list<To> map2(list<From> const & l, F && f) {
 /** \brief Given list <tt>(a_0, ..., a_k)</tt>, return list <tt>(f(a_0), ..., f(a_k))</tt>. */
 template<typename T, typename F>
 list<T> map(list<T> const & l, F && f) {
-    return map2<T, T, F>(l, std::move(f));
+    return map2<T, T, F>(l, std::forward<F>(f));
 }
 
 /**

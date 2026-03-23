@@ -65,7 +65,7 @@ public:
         if (m_some)
             m_value.~T();
         m_some = true;
-        new (&m_value) T(args...);
+        new (&m_value) T(std::forward<Args>(args)...);
     }
 
     optional& operator=(optional const & other) {

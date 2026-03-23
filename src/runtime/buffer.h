@@ -131,7 +131,7 @@ public:
     void emplace_back(Args&&... args) {
         if (m_pos >= m_capacity)
             expand();
-        new (m_buffer + m_pos) T(args...);
+        new (m_buffer + m_pos) T(std::forward<Args>(args)...);
         m_pos++;
     }
 

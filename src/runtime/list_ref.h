@@ -147,7 +147,7 @@ list_ref<To> map2(list_ref<From> const & l, F && f) {
 /** \brief Given `[a_0, ..., a_k]`, return `[f a_0, ..., f a_k]`. */
 template<typename T, typename F>
 list_ref<T> map(list_ref<T> const & l, F && f) {
-    return map2<T, T, F>(l, std::move(f));
+    return map2<T, T, F>(l, std::forward<F>(f));
 }
 
 template<typename T, typename F>

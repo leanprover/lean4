@@ -61,7 +61,7 @@ public:
     static int cmp_core(object * o1, object * o2);
     size_t size_core(bool unicode) const;
 private:
-    explicit name(object_ref && r) noexcept:object_ref(r) {}
+    explicit name(object_ref && r) noexcept:object_ref(std::move(r)) {}
 public:
     name():object_ref(box(static_cast<unsigned>(name_kind::ANONYMOUS))) {}
     explicit name(obj_arg o):object_ref(o) {}

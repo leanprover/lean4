@@ -37,7 +37,7 @@ private def throwApplyError {α} (mvarId : MVarId)
     return m!"could not unify the {conclusion} of {term?.getD "the term"}{indentExpr conclusionType}\n\
       with the goal{indentExpr targetType}{note}{← mkUnfoldAxiomsNote conclusionType targetType}"
 
-def synthAppInstances (tacticName : Name) (mvarId : MVarId) (mvarsNew : Array Expr) (binderInfos : Array BinderInfo)
+def synthAppInstances (tacticName : Name) (mvarId? : Option MVarId) (mvarsNew : Array Expr) (binderInfos : Array BinderInfo)
     (synthAssignedInstances : Bool) (allowSynthFailures : Bool) : MetaM Unit := do
   let mut todo := #[]
   -- Collect metavariables to synthesize
@@ -93,7 +93,7 @@ where
         unless (← isDefEq mvar mvarVal) do
           -- There is no point in trying again for this kind of failure
           unless allowSynthFailures do
-            throwTacticEx tacticName mvarId "failed to assign synthesized instance"
+            throwTacticEx tacticName mvarId? "failed to assign synthesized instance"
     if let some ex := ex? then
       if progressAfterEx then
         return postponed

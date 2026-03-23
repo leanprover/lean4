@@ -9,11 +9,18 @@ prelude
 public import Init.Data.String.Iter.Intercalate
 public import Init.Data.String.Slice
 import all Init.Data.String.Iter.Intercalate
+import all Init.Data.String.Defs
 import Init.Data.String.Lemmas.Intercalate
 import Init.Data.Iterators.Lemmas.Consumers.Loop
 import Init.Data.Iterators.Lemmas.Combinators.FilterMap
 
 namespace Std.Iter
+
+@[simp]
+public theorem joinString_eq {α β : Type} [Std.Iterator α Id β] [Std.Iterators.Finite α Id]
+    [Std.IteratorLoop α Id Id] [Std.LawfulIteratorLoop α Id Id] [ToString β]
+    {it : Std.Iter (α := α) β} : it.joinString = String.join (it.toList.map toString) := by
+  rw [joinString, String.join, ← foldl_toList, toList_map]
 
 @[simp]
 public theorem intercalateString_eq {α β : Type} [Std.Iterator α Id β] [Std.Iterators.Finite α Id]

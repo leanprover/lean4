@@ -15,6 +15,13 @@ set_option doc.verso true
 namespace Std
 
 /--
+Appends all the elements in the iterator, in order.
+-/
+public def Iter.joinString {α β : Type} [Iterator α Id β] [IteratorLoop α Id Id] [ToString β]
+    (it : Std.Iter (α := α) β) : String :=
+  (it.map toString).fold (init := "") (· ++ ·)
+
+/--
 Appends the elements of the iterator into a string, placing the separator {name}`s` between them.
 -/
 @[inline]

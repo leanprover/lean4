@@ -222,16 +222,32 @@ public theorem isNat_toSlice {s : String} : s.toSlice.isNat = s.isNat :=
   (rfl)
 
 @[simp]
+public theorem isNat_comp_toSlice : String.Slice.isNat ∘ String.toSlice = String.isNat := by
+  ext; simp
+
+@[simp]
 public theorem toNat?_toSlice {s : String} : s.toSlice.toNat? = s.toNat? :=
   (rfl)
+
+@[simp]
+public theorem toNat?_comp_toSlice : String.Slice.toNat? ∘ String.toSlice = String.toNat? := by
+  ext; simp
 
 @[simp]
 public theorem Slice.isNat_copy {s : Slice} : s.copy.isNat = s.isNat := by
   simpa [← isNat_toSlice] using Slice.isNat_congr (by simp)
 
 @[simp]
+public theorem Slice.isNat_comp_copy : String.isNat ∘ String.Slice.copy = String.Slice.isNat := by
+  ext; simp
+
+@[simp]
 public theorem Slice.toNat?_copy {s : Slice} : s.copy.toNat? = s.toNat? := by
   simpa [← isNat_toSlice] using Slice.toNat?_congr (by simp)
+
+@[simp]
+public theorem Slice.toNat?_comp_copy : String.toNat? ∘ String.Slice.copy = String.Slice.toNat? := by
+  ext; simp
 
 public theorem isNat_iff {s : String} :
     s.isNat = true ↔

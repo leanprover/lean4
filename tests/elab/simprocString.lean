@@ -55,5 +55,14 @@ example : String.singleton ' ' = " " := by simp
 example : String.singleton 'a' = "a" := by simp
 example : String.singleton '\n' = "\n" := by simp
 
+-- String.reduceToSingleton (not in default simp set)
+example : "a" = String.singleton 'a' := by simp only [String.reduceToSingleton]
+example : " " = String.singleton ' ' := by simp only [String.reduceToSingleton]
+example : "\n" = String.singleton '\n' := by simp only [String.reduceToSingleton]
+-- Multi-character strings should not be reduced
+example : "ab" = "ab" := by simp only [String.reduceToSingleton]
+-- Empty strings should not be reduced
+example : "" = "" := by simp only [String.reduceToSingleton]
+
 -- Combined: roundtrip toList/ofList
 example : String.ofList "hello".toList = "hello" := by simp

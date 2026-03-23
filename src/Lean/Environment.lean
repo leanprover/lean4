@@ -1336,6 +1336,10 @@ structure EnvExtension (σ : Type) where private mk ::
   present.
   -/
   replay?   : Option (ReplayFn σ)
+  /-- When `false`, reads and writes bypass the overlay and go directly to the base array.
+      This is faster for frequently-accessed extensions but means modifications copy the
+      base array when the environment is shared (RC > 1). Default: `true`. -/
+  useOverlay : Bool
   deriving Inhabited
 
 namespace EnvExtension
@@ -1365,16 +1369,23 @@ private def invalidExtMsg := "invalid environment extension has been accessed"
 
 private unsafe def setStateImpl {σ} (ext : EnvExtension σ) (exts : ExtensionStates) (s : σ) : ExtensionStates :=
   if ext.idx < exts.size then
-    exts.set ext.idx (unsafeCast s)
+    if ext.useOverlay then exts.set ext.idx (unsafeCast s)
+    else exts.setBase ext.idx (unsafeCast s)
   else
     panic! invalidExtMsg
 
 private unsafe def modifyStateImpl {σ : Type} (ext : EnvExtension σ) (exts : ExtensionStates) (f : σ → σ) : ExtensionStates :=
   if ext.idx < exts.size then
-    exts.modify ext.idx fun s =>
-      let s : σ := unsafeCast s
-      let s : σ := f s
-      unsafeCast s
+    if ext.useOverlay then
+      exts.modify ext.idx fun s =>
+        let s : σ := unsafeCast s
+        let s : σ := f s
+        unsafeCast s
+    else
+      exts.modifyBase ext.idx fun s =>
+        let s : σ := unsafeCast s
+        let s : σ := f s
+        unsafeCast s
   else
     panic! invalidExtMsg
 
@@ -1397,7 +1408,8 @@ private unsafe def modifyStateBaseImpl {σ : Type} (ext : EnvExtension σ) (exts
 
 private unsafe def getStateImpl {σ} [Inhabited σ] (ext : EnvExtension σ) (exts : ExtensionStates) : σ :=
   if h : ext.idx < exts.size then
-    unsafeCast exts[ext.idx]
+    if ext.useOverlay then unsafeCast exts[ext.idx]
+    else unsafeCast exts.base[ext.idx]
   else
     panic! invalidExtMsg
 
@@ -1552,12 +1564,13 @@ end EnvExtension
    For that, you need to register a persistent environment extension. -/
 def registerEnvExtension {σ : Type} (mkInitial : IO σ)
     (replay? : Option (ReplayFn σ) := none)
-    (asyncMode : EnvExtension.AsyncMode := .mainOnly) : IO (EnvExtension σ) := do
+    (asyncMode : EnvExtension.AsyncMode := .mainOnly)
+    (useOverlay : Bool := true) : IO (EnvExtension σ) := do
   unless (← initializing) do
     throw (IO.userError "failed to register environment, extensions can only be registered during initialization")
   let exts ← EnvExtension.envExtensionsRef.get
   let idx := exts.size
-  let ext : EnvExtension σ := { idx, mkInitial, asyncMode, replay? }
+  let ext : EnvExtension σ := { idx, mkInitial, asyncMode, replay?, useOverlay }
   -- safety: `EnvExtensionState` is opaque, so we can upcast to it
   EnvExtension.envExtensionsRef.modify fun exts => exts.push (unsafe unsafeCast ext)
   pure ext

@@ -127,12 +127,15 @@ public def main (args : List String) : IO UInt32 := do
     modifyEnv (postponedCompileDeclsExt.setState · (decls.foldl (fun s e => e.declNames.foldl (·.insert · e) s) {}))
     for decl in decls do
       for decl in decl.declNames do
-        resumeCompilation decl
+        try
+          resumeCompilation decl
+        finally
+          addTraceAsMessages
+      for msg in (← Core.getAndEmptyMessageLog).unreported do
+        IO.eprintln (← msg.toString)
   catch e =>
     unless e.isInterrupt do
       logError e.toMessageData
-  finally
-    addTraceAsMessages
 
   let .ok (_, s) := res? | unreachable!
   let env := s.env

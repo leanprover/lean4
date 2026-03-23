@@ -762,7 +762,7 @@ def mkCIdentFrom (src : Syntax) (c : Name) (canonical := false) : Ident :=
 Creates an identifier referring to a constant `c`. The identifier's position is copied from the
 syntax returned by `getRef`.
 
-This variant of `mkIdentFrom` makes sure that the identifier cannot accidentally be captured.
+This variant of `mkIdentFromRef` makes sure that the identifier cannot accidentally be captured.
 -/
 def mkCIdentFromRef [Monad m] [MonadRef m] (c : Name) (canonical := false) : m Syntax := do
   return mkCIdentFrom (← getRef) c canonical

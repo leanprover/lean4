@@ -1,4 +1,4 @@
-set -e
+set -eo pipefail
 
 ulimit -S -s ${TEST_STACK_SIZE:-8192}
 
@@ -152,9 +152,11 @@ function normalize_measurements {
 }
 
 function extract_measurements {
+  set +o pipefail # grep will exit with 1 if there are no matches
   grep -E '^measurement: \S+ \S+( \S+)?$' "$CAPTURED.out.produced" \
     | jq -R --arg topic "$1" 'split(" ") | { metric: "\($topic)//\(.[1])", value: .[2]|tonumber, unit: .[3] }' -c \
     >> "$CAPTURED.measurements.jsonl"
+  set -o pipefail
 
   normalize_measurements "$CAPTURED"
 }

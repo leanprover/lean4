@@ -41,9 +41,24 @@ return v___x_7_;
 LEAN_EXPORT lean_object* l___private_Std_Data_String_ToInt_0__String_Slice_isInt_match__1_splitter(lean_object* v_motive_8_, lean_object* v_x_9_, lean_object* v_h__1_10_, lean_object* v_h__2_11_){
 _start:
 {
-lean_object* v___x_12_; 
-v___x_12_ = l___private_Std_Data_String_ToInt_0__String_Slice_isInt_match__1_splitter___redArg(v_x_9_, v_h__1_10_, v_h__2_11_);
-return v___x_12_;
+if (lean_obj_tag(v_x_9_) == 0)
+{
+lean_object* v___x_12_; lean_object* v___x_13_; 
+lean_dec(v_h__1_10_);
+v___x_12_ = lean_box(0);
+v___x_13_ = lean_apply_1(v_h__2_11_, v___x_12_);
+return v___x_13_;
+}
+else
+{
+lean_object* v_val_14_; lean_object* v___x_15_; 
+lean_dec(v_h__2_11_);
+v_val_14_ = lean_ctor_get(v_x_9_, 0);
+lean_inc(v_val_14_);
+lean_dec_ref(v_x_9_);
+v___x_15_ = lean_apply_1(v_h__1_10_, v_val_14_);
+return v___x_15_;
+}
 }
 }
 lean_object* runtime_initialize_Init_Data_String_Slice(uint8_t builtin);

@@ -71,18 +71,37 @@ return v_res_17_;
 LEAN_EXPORT lean_object* l___private_Init_Data_Int_ToString_0__Int_repr_match__1_splitter(lean_object* v_motive_18_, lean_object* v_x_19_, lean_object* v_h__1_20_, lean_object* v_h__2_21_){
 _start:
 {
-lean_object* v___x_22_; 
-v___x_22_ = l___private_Init_Data_Int_ToString_0__Int_repr_match__1_splitter___redArg(v_x_19_, v_h__1_20_, v_h__2_21_);
-return v___x_22_;
+lean_object* v_intZero_22_; uint8_t v_isNeg_23_; 
+v_intZero_22_ = lean_obj_once(&l___private_Init_Data_Int_ToString_0__Int_repr_match__1_splitter___redArg___closed__0, &l___private_Init_Data_Int_ToString_0__Int_repr_match__1_splitter___redArg___closed__0_once, _init_l___private_Init_Data_Int_ToString_0__Int_repr_match__1_splitter___redArg___closed__0);
+v_isNeg_23_ = lean_int_dec_lt(v_x_19_, v_intZero_22_);
+if (v_isNeg_23_ == 0)
+{
+lean_object* v_a_24_; lean_object* v___x_25_; 
+lean_dec(v_h__2_21_);
+v_a_24_ = lean_nat_abs(v_x_19_);
+v___x_25_ = lean_apply_1(v_h__1_20_, v_a_24_);
+return v___x_25_;
+}
+else
+{
+lean_object* v_abs_26_; lean_object* v_one_27_; lean_object* v_a_28_; lean_object* v___x_29_; 
+lean_dec(v_h__1_20_);
+v_abs_26_ = lean_nat_abs(v_x_19_);
+v_one_27_ = lean_unsigned_to_nat(1u);
+v_a_28_ = lean_nat_sub(v_abs_26_, v_one_27_);
+lean_dec(v_abs_26_);
+v___x_29_ = lean_apply_1(v_h__2_21_, v_a_28_);
+return v___x_29_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Int_ToString_0__Int_repr_match__1_splitter___boxed(lean_object* v_motive_23_, lean_object* v_x_24_, lean_object* v_h__1_25_, lean_object* v_h__2_26_){
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Int_ToString_0__Int_repr_match__1_splitter___boxed(lean_object* v_motive_30_, lean_object* v_x_31_, lean_object* v_h__1_32_, lean_object* v_h__2_33_){
 _start:
 {
-lean_object* v_res_27_; 
-v_res_27_ = l___private_Init_Data_Int_ToString_0__Int_repr_match__1_splitter(v_motive_23_, v_x_24_, v_h__1_25_, v_h__2_26_);
-lean_dec(v_x_24_);
-return v_res_27_;
+lean_object* v_res_34_; 
+v_res_34_ = l___private_Init_Data_Int_ToString_0__Int_repr_match__1_splitter(v_motive_30_, v_x_31_, v_h__1_32_, v_h__2_33_);
+lean_dec(v_x_31_);
+return v_res_34_;
 }
 }
 lean_object* runtime_initialize_Init_Data_ToString_Extra(uint8_t builtin);

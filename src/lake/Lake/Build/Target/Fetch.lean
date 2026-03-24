@@ -139,7 +139,7 @@ public protected def Target.fetchIn
   [DataKind α] (defaultPkg : Package) (self : Target α) : FetchM (Job α)
 := do
   let ⟨_, job⟩ ← self.key.fetchInCore defaultPkg
-  have ⟨kind, ⟨h_anon, h_kind⟩⟩ := inferInstanceAs (DataKind α)
+  have ⟨kind, ⟨h_anon, h_kind⟩⟩ := (inferInstance : DataKind α)
   if h : job.kind.name = kind then
     have h := by
       have h_job := h ▸ job.kind.wf

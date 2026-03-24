@@ -61,42 +61,92 @@ return v___x_11_;
 LEAN_EXPORT lean_object* l___private_Std_Data_Iterators_Lemmas_Producers_Monadic_Array_0__Std_Iterators_Types_ArrayIterator_instIterator_match__1_splitter(lean_object* v_m_12_, lean_object* v_00_u03b1_13_, lean_object* v_motive_14_, lean_object* v_x_15_, lean_object* v_h__1_16_, lean_object* v_h__2_17_, lean_object* v_h__3_18_){
 _start:
 {
-lean_object* v___x_19_; 
-v___x_19_ = l___private_Std_Data_Iterators_Lemmas_Producers_Monadic_Array_0__Std_Iterators_Types_ArrayIterator_instIterator_match__1_splitter___redArg(v_x_15_, v_h__1_16_, v_h__2_17_, v_h__3_18_);
-return v___x_19_;
+switch(lean_obj_tag(v_x_15_))
+{
+case 0:
+{
+lean_object* v_it_19_; lean_object* v_out_20_; lean_object* v___x_21_; 
+lean_dec(v_h__3_18_);
+lean_dec(v_h__2_17_);
+v_it_19_ = lean_ctor_get(v_x_15_, 0);
+lean_inc(v_it_19_);
+v_out_20_ = lean_ctor_get(v_x_15_, 1);
+lean_inc(v_out_20_);
+lean_dec_ref(v_x_15_);
+v___x_21_ = lean_apply_2(v_h__1_16_, v_it_19_, v_out_20_);
+return v___x_21_;
+}
+case 1:
+{
+lean_object* v_it_22_; lean_object* v___x_23_; 
+lean_dec(v_h__3_18_);
+lean_dec(v_h__1_16_);
+v_it_22_ = lean_ctor_get(v_x_15_, 0);
+lean_inc(v_it_22_);
+lean_dec_ref(v_x_15_);
+v___x_23_ = lean_apply_1(v_h__2_17_, v_it_22_);
+return v___x_23_;
+}
+default: 
+{
+lean_object* v___x_24_; lean_object* v___x_25_; 
+lean_dec(v_h__2_17_);
+lean_dec(v_h__1_16_);
+v___x_24_ = lean_box(0);
+v___x_25_ = lean_apply_1(v_h__3_18_, v___x_24_);
+return v___x_25_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Std_Data_Iterators_Lemmas_Producers_Monadic_Array_0__Std_Types_ListIterator_stepAsHetT__iterM_match__1_splitter___redArg(lean_object* v_l_20_, lean_object* v_h__1_21_, lean_object* v_h__2_22_){
+}
+}
+LEAN_EXPORT lean_object* l___private_Std_Data_Iterators_Lemmas_Producers_Monadic_Array_0__Std_Types_ListIterator_stepAsHetT__iterM_match__1_splitter___redArg(lean_object* v_l_26_, lean_object* v_h__1_27_, lean_object* v_h__2_28_){
 _start:
 {
-if (lean_obj_tag(v_l_20_) == 0)
+if (lean_obj_tag(v_l_26_) == 0)
 {
-lean_object* v___x_23_; lean_object* v___x_24_; 
-lean_dec(v_h__2_22_);
-v___x_23_ = lean_box(0);
-v___x_24_ = lean_apply_1(v_h__1_21_, v___x_23_);
-return v___x_24_;
+lean_object* v___x_29_; lean_object* v___x_30_; 
+lean_dec(v_h__2_28_);
+v___x_29_ = lean_box(0);
+v___x_30_ = lean_apply_1(v_h__1_27_, v___x_29_);
+return v___x_30_;
 }
 else
 {
-lean_object* v_head_25_; lean_object* v_tail_26_; lean_object* v___x_27_; 
-lean_dec(v_h__1_21_);
-v_head_25_ = lean_ctor_get(v_l_20_, 0);
-lean_inc(v_head_25_);
-v_tail_26_ = lean_ctor_get(v_l_20_, 1);
-lean_inc(v_tail_26_);
-lean_dec_ref(v_l_20_);
-v___x_27_ = lean_apply_2(v_h__2_22_, v_head_25_, v_tail_26_);
-return v___x_27_;
+lean_object* v_head_31_; lean_object* v_tail_32_; lean_object* v___x_33_; 
+lean_dec(v_h__1_27_);
+v_head_31_ = lean_ctor_get(v_l_26_, 0);
+lean_inc(v_head_31_);
+v_tail_32_ = lean_ctor_get(v_l_26_, 1);
+lean_inc(v_tail_32_);
+lean_dec_ref(v_l_26_);
+v___x_33_ = lean_apply_2(v_h__2_28_, v_head_31_, v_tail_32_);
+return v___x_33_;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Std_Data_Iterators_Lemmas_Producers_Monadic_Array_0__Std_Types_ListIterator_stepAsHetT__iterM_match__1_splitter(lean_object* v_00_u03b2_28_, lean_object* v_motive_29_, lean_object* v_l_30_, lean_object* v_h__1_31_, lean_object* v_h__2_32_){
+LEAN_EXPORT lean_object* l___private_Std_Data_Iterators_Lemmas_Producers_Monadic_Array_0__Std_Types_ListIterator_stepAsHetT__iterM_match__1_splitter(lean_object* v_00_u03b2_34_, lean_object* v_motive_35_, lean_object* v_l_36_, lean_object* v_h__1_37_, lean_object* v_h__2_38_){
 _start:
 {
-lean_object* v___x_33_; 
-v___x_33_ = l___private_Std_Data_Iterators_Lemmas_Producers_Monadic_Array_0__Std_Types_ListIterator_stepAsHetT__iterM_match__1_splitter___redArg(v_l_30_, v_h__1_31_, v_h__2_32_);
-return v___x_33_;
+if (lean_obj_tag(v_l_36_) == 0)
+{
+lean_object* v___x_39_; lean_object* v___x_40_; 
+lean_dec(v_h__2_38_);
+v___x_39_ = lean_box(0);
+v___x_40_ = lean_apply_1(v_h__1_37_, v___x_39_);
+return v___x_40_;
+}
+else
+{
+lean_object* v_head_41_; lean_object* v_tail_42_; lean_object* v___x_43_; 
+lean_dec(v_h__1_37_);
+v_head_41_ = lean_ctor_get(v_l_36_, 0);
+lean_inc(v_head_41_);
+v_tail_42_ = lean_ctor_get(v_l_36_, 1);
+lean_inc(v_tail_42_);
+lean_dec_ref(v_l_36_);
+v___x_43_ = lean_apply_2(v_h__2_38_, v_head_41_, v_tail_42_);
+return v___x_43_;
+}
 }
 }
 lean_object* runtime_initialize_Std_Data_Iterators_Producers_Monadic_Array(uint8_t builtin);

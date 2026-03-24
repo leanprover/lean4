@@ -78,7 +78,7 @@ structure State where
 abbrev SimpM := ReaderT Context $ StateRefT State DiscrM
 
 @[always_inline]
-instance : Monad SimpM := let i := inferInstanceAs (Monad SimpM); { pure := i.pure, bind := i.bind }
+instance : Monad SimpM := let i : Monad SimpM := inferInstance; { pure := i.pure, bind := i.bind }
 
 instance : MonadFVarSubst SimpM .pure false where
   getSubst := return (← get).subst

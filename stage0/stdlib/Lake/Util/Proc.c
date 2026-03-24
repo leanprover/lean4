@@ -620,10 +620,10 @@ return v___x_202_;
 LEAN_EXPORT lean_object* l_Lake_proc___lam__0___boxed(lean_object* v_quiet_203_, lean_object* v___x_204_, lean_object* v___y_205_, lean_object* v___y_206_, lean_object* v___y_207_){
 _start:
 {
-uint8_t v_quiet_boxed_208_; uint8_t v___x_5483__boxed_209_; lean_object* v_res_210_; 
+uint8_t v_quiet_boxed_208_; uint8_t v___x_4349__boxed_209_; lean_object* v_res_210_; 
 v_quiet_boxed_208_ = lean_unbox(v_quiet_203_);
-v___x_5483__boxed_209_ = lean_unbox(v___x_204_);
-v_res_210_ = l_Lake_proc___lam__0(v_quiet_boxed_208_, v___x_5483__boxed_209_, v___y_205_, v___y_206_);
+v___x_4349__boxed_209_ = lean_unbox(v___x_204_);
+v_res_210_ = l_Lake_proc___lam__0(v_quiet_boxed_208_, v___x_4349__boxed_209_, v___y_205_, v___y_206_);
 return v_res_210_;
 }
 }

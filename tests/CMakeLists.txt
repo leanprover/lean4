@@ -85,7 +85,7 @@ function(check_test_bench_scripts DIR)
 
   if(NOT RUN_TEST_EXISTS AND NOT RUN_BENCH_EXISTS)
     cmake_path(RELATIVE_PATH DIR)
-    message(FATAL_ERROR "${DIR}: Found neither a run_test nor a run_bench file")
+    message(AUTHOR_WARNING "${DIR}: Found neither a run_test nor a run_bench file")
     return()
   endif()
 

@@ -796,21 +796,26 @@ return v___x_353_;
 LEAN_EXPORT lean_object* l___private_Std_Sat_AIG_RefVec_0__Std_Sat_AIG_BinaryRefVec_cast_match__1_splitter(lean_object* v_00_u03b1_354_, lean_object* v_inst_355_, lean_object* v_inst_356_, lean_object* v_len_357_, lean_object* v_aig1_358_, lean_object* v_motive_359_, lean_object* v_s_360_, lean_object* v_h__1_361_){
 _start:
 {
-lean_object* v___x_362_; 
-v___x_362_ = l___private_Std_Sat_AIG_RefVec_0__Std_Sat_AIG_BinaryRefVec_cast_match__1_splitter___redArg(v_s_360_, v_h__1_361_);
-return v___x_362_;
+lean_object* v_lhs_362_; lean_object* v_rhs_363_; lean_object* v___x_364_; 
+v_lhs_362_ = lean_ctor_get(v_s_360_, 0);
+lean_inc_ref(v_lhs_362_);
+v_rhs_363_ = lean_ctor_get(v_s_360_, 1);
+lean_inc_ref(v_rhs_363_);
+lean_dec_ref(v_s_360_);
+v___x_364_ = lean_apply_2(v_h__1_361_, v_lhs_362_, v_rhs_363_);
+return v___x_364_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Std_Sat_AIG_RefVec_0__Std_Sat_AIG_BinaryRefVec_cast_match__1_splitter___boxed(lean_object* v_00_u03b1_363_, lean_object* v_inst_364_, lean_object* v_inst_365_, lean_object* v_len_366_, lean_object* v_aig1_367_, lean_object* v_motive_368_, lean_object* v_s_369_, lean_object* v_h__1_370_){
+LEAN_EXPORT lean_object* l___private_Std_Sat_AIG_RefVec_0__Std_Sat_AIG_BinaryRefVec_cast_match__1_splitter___boxed(lean_object* v_00_u03b1_365_, lean_object* v_inst_366_, lean_object* v_inst_367_, lean_object* v_len_368_, lean_object* v_aig1_369_, lean_object* v_motive_370_, lean_object* v_s_371_, lean_object* v_h__1_372_){
 _start:
 {
-lean_object* v_res_371_; 
-v_res_371_ = l___private_Std_Sat_AIG_RefVec_0__Std_Sat_AIG_BinaryRefVec_cast_match__1_splitter(v_00_u03b1_363_, v_inst_364_, v_inst_365_, v_len_366_, v_aig1_367_, v_motive_368_, v_s_369_, v_h__1_370_);
-lean_dec_ref(v_aig1_367_);
-lean_dec(v_len_366_);
-lean_dec_ref(v_inst_365_);
-lean_dec_ref(v_inst_364_);
-return v_res_371_;
+lean_object* v_res_373_; 
+v_res_373_ = l___private_Std_Sat_AIG_RefVec_0__Std_Sat_AIG_BinaryRefVec_cast_match__1_splitter(v_00_u03b1_365_, v_inst_366_, v_inst_367_, v_len_368_, v_aig1_369_, v_motive_370_, v_s_371_, v_h__1_372_);
+lean_dec_ref(v_aig1_369_);
+lean_dec(v_len_368_);
+lean_dec_ref(v_inst_367_);
+lean_dec_ref(v_inst_366_);
+return v_res_373_;
 }
 }
 lean_object* runtime_initialize_Std_Sat_AIG_CachedGatesLemmas(uint8_t builtin);

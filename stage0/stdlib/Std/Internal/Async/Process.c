@@ -17,7 +17,7 @@ lean_object* lean_uint64_to_nat(uint64_t);
 lean_object* lean_nat_to_int(lean_object*);
 lean_object* l_Nat_reprFast(lean_object*);
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
-lean_object* l_Std_Time_Internal_UnitVal_instRepr___lam__0(lean_object*, lean_object*);
+lean_object* l_Std_Time_Millisecond_instReprOrdinal___lam__0(lean_object*, lean_object*);
 lean_object* lean_string_length(lean_object*);
 uint8_t lean_uint64_dec_lt(uint64_t, uint64_t);
 uint8_t lean_uint64_dec_eq(uint64_t, uint64_t);
@@ -35,7 +35,7 @@ lean_object* lean_uv_cwd();
 lean_object* lean_uv_os_getpid();
 lean_object* lean_uv_get_total_memory();
 lean_object* lean_uv_get_process_title();
-lean_object* l_instMonadEST(lean_object*, lean_object*);
+lean_object* l_instMonadEIO(lean_object*);
 lean_object* lean_uv_get_free_memory();
 lean_object* l_Functor_mapRev___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_uv_get_constrained_memory();
@@ -368,7 +368,7 @@ v___x_112_ = ((lean_object*)(l_Std_Internal_IO_Process_instReprResourceUsageStat
 v___x_113_ = ((lean_object*)(l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__6));
 v___x_114_ = lean_obj_once(&l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__7, &l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__7_once, _init_l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__7);
 v___x_115_ = lean_unsigned_to_nat(0u);
-v___x_116_ = l_Std_Time_Internal_UnitVal_instRepr___lam__0(v_cpuUserTime_96_, v___x_115_);
+v___x_116_ = l_Std_Time_Millisecond_instReprOrdinal___lam__0(v_cpuUserTime_96_, v___x_115_);
 v___x_117_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_117_, 0, v___x_114_);
 lean_ctor_set(v___x_117_, 1, v___x_116_);
@@ -395,7 +395,7 @@ v___x_127_ = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(v___x_127_, 0, v___x_126_);
 lean_ctor_set(v___x_127_, 1, v___x_112_);
 v___x_128_ = lean_obj_once(&l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__12, &l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__12_once, _init_l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__12);
-v___x_129_ = l_Std_Time_Internal_UnitVal_instRepr___lam__0(v_cpuSystemTime_97_, v___x_115_);
+v___x_129_ = l_Std_Time_Millisecond_instReprOrdinal___lam__0(v_cpuSystemTime_97_, v___x_115_);
 v___x_130_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_130_, 0, v___x_128_);
 lean_ctor_set(v___x_130_, 1, v___x_129_);
@@ -1438,7 +1438,7 @@ static lean_object* _init_l_Std_Internal_IO_Process_getResourceUsage___closed__0
 _start:
 {
 lean_object* v___x_489_; 
-v___x_489_ = l_instMonadEST(lean_box(0), lean_box(0));
+v___x_489_ = l_instMonadEIO(lean_box(0));
 return v___x_489_;
 }
 }

@@ -10,6 +10,7 @@ public import Init.Data.String.Defs
 import all Init.Data.String.Defs
 public import Init.Data.String.Slice
 import all Init.Data.String.Slice
+import Init.ByCases
 
 public section
 
@@ -41,6 +42,16 @@ theorem intercalate_cons_of_ne_nil {s t : String} {l : List String} (h : l ≠ [
     s.intercalate (t :: l) = t ++ s ++ s.intercalate l :=
   match l, h with
   | u::l, _ => by simp
+
+theorem intercalate_append_of_ne_nil {l m : List String} {s : String} (hl : l ≠ []) (hm : m ≠ []) :
+    s.intercalate (l ++ m) = s.intercalate l ++ s ++ s.intercalate m := by
+  induction l with
+  | nil => simp_all
+  | cons hd tl ih =>
+    rw [List.cons_append, intercalate_cons_of_ne_nil (by simp_all)]
+    by_cases ht : tl = []
+    · simp_all
+    · simp [ih ht, intercalate_cons_of_ne_nil ht, String.append_assoc]
 
 @[simp]
 theorem toList_intercalate {s : String} {l : List String} :

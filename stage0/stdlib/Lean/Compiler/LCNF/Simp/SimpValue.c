@@ -783,6 +783,7 @@ uint8_t v___x_207_; lean_object* v___x_208_; lean_object* v___x_209_;
 lean_dec_ref(v_val_206_);
 v___x_207_ = 0;
 v___x_208_ = l_Lean_Compiler_LCNF_LetValue_toExpr(v___x_207_, v_e_191_);
+lean_inc_ref(v_a_192_);
 v___x_209_ = l_Lean_Compiler_LCNF_Simp_simpCtorDiscrCore_x3f(v___x_208_, v_a_192_, v_a_193_, v_a_194_, v_a_195_, v_a_196_);
 if (lean_obj_tag(v___x_209_) == 0)
 {
@@ -941,11 +942,6 @@ else
 {
 lean_dec(v_val_206_);
 lean_dec_ref(v_e_191_);
-lean_dec(v_a_196_);
-lean_dec_ref(v_a_195_);
-lean_dec(v_a_194_);
-lean_dec_ref(v_a_193_);
-lean_dec_ref(v_a_192_);
 goto v___jp_198_;
 }
 }
@@ -953,22 +949,12 @@ else
 {
 lean_dec(v___x_205_);
 lean_dec_ref(v_e_191_);
-lean_dec(v_a_196_);
-lean_dec_ref(v_a_195_);
-lean_dec(v_a_194_);
-lean_dec_ref(v_a_193_);
-lean_dec_ref(v_a_192_);
 goto v___jp_198_;
 }
 }
 else
 {
 lean_object* v___x_240_; lean_object* v___x_241_; 
-lean_dec(v_a_196_);
-lean_dec_ref(v_a_195_);
-lean_dec(v_a_194_);
-lean_dec_ref(v_a_193_);
-lean_dec_ref(v_a_192_);
 lean_dec(v_e_191_);
 v___x_240_ = lean_box(0);
 v___x_241_ = lean_alloc_ctor(0, 1, 0);
@@ -990,6 +976,11 @@ _start:
 {
 lean_object* v_res_249_; 
 v_res_249_ = l_Lean_Compiler_LCNF_Simp_simpCtorDiscr_x3f___redArg(v_e_242_, v_a_243_, v_a_244_, v_a_245_, v_a_246_, v_a_247_);
+lean_dec(v_a_247_);
+lean_dec_ref(v_a_246_);
+lean_dec(v_a_245_);
+lean_dec_ref(v_a_244_);
+lean_dec_ref(v_a_243_);
 return v_res_249_;
 }
 }
@@ -1006,6 +997,11 @@ _start:
 {
 lean_object* v_res_269_; 
 v_res_269_ = l_Lean_Compiler_LCNF_Simp_simpCtorDiscr_x3f(v_e_260_, v_a_261_, v_a_262_, v_a_263_, v_a_264_, v_a_265_, v_a_266_, v_a_267_);
+lean_dec(v_a_267_);
+lean_dec_ref(v_a_266_);
+lean_dec(v_a_265_);
+lean_dec_ref(v_a_264_);
+lean_dec_ref(v_a_263_);
 lean_dec(v_a_262_);
 lean_dec_ref(v_a_261_);
 return v_res_269_;
@@ -1207,7 +1203,6 @@ if (lean_obj_tag(v_a_340_) == 0)
 {
 lean_object* v___x_341_; 
 lean_dec_ref(v___x_339_);
-lean_inc(v_a_335_);
 lean_inc(v_e_329_);
 v___x_341_ = l_Lean_Compiler_LCNF_Simp_simpCtorDiscr_x3f___redArg(v_e_329_, v_a_331_, v_a_332_, v_a_333_, v_a_334_, v_a_335_);
 if (lean_obj_tag(v___x_341_) == 0)
@@ -1220,20 +1215,17 @@ if (lean_obj_tag(v_a_342_) == 0)
 lean_object* v___x_343_; 
 lean_dec_ref(v___x_341_);
 v___x_343_ = l_Lean_Compiler_LCNF_Simp_applyImplementedBy_x3f___redArg(v_e_329_, v_a_330_, v_a_335_);
-lean_dec(v_a_335_);
 return v___x_343_;
 }
 else
 {
 lean_dec_ref(v_a_342_);
-lean_dec(v_a_335_);
 lean_dec(v_e_329_);
 return v___x_341_;
 }
 }
 else
 {
-lean_dec(v_a_335_);
 lean_dec(v_e_329_);
 return v___x_341_;
 }
@@ -1241,22 +1233,12 @@ return v___x_341_;
 else
 {
 lean_dec_ref(v_a_340_);
-lean_dec(v_a_335_);
-lean_dec_ref(v_a_334_);
-lean_dec(v_a_333_);
-lean_dec_ref(v_a_332_);
-lean_dec_ref(v_a_331_);
 lean_dec(v_e_329_);
 return v___x_339_;
 }
 }
 else
 {
-lean_dec(v_a_335_);
-lean_dec_ref(v_a_334_);
-lean_dec(v_a_333_);
-lean_dec_ref(v_a_332_);
-lean_dec_ref(v_a_331_);
 lean_dec(v_e_329_);
 return v___x_339_;
 }
@@ -1264,22 +1246,12 @@ return v___x_339_;
 else
 {
 lean_dec_ref(v_a_338_);
-lean_dec(v_a_335_);
-lean_dec_ref(v_a_334_);
-lean_dec(v_a_333_);
-lean_dec_ref(v_a_332_);
-lean_dec_ref(v_a_331_);
 lean_dec(v_e_329_);
 return v___x_337_;
 }
 }
 else
 {
-lean_dec(v_a_335_);
-lean_dec_ref(v_a_334_);
-lean_dec(v_a_333_);
-lean_dec_ref(v_a_332_);
-lean_dec_ref(v_a_331_);
 lean_dec(v_e_329_);
 return v___x_337_;
 }
@@ -1290,6 +1262,11 @@ _start:
 {
 lean_object* v_res_352_; 
 v_res_352_ = l_Lean_Compiler_LCNF_Simp_simpValue_x3f___redArg(v_e_344_, v_a_345_, v_a_346_, v_a_347_, v_a_348_, v_a_349_, v_a_350_);
+lean_dec(v_a_350_);
+lean_dec_ref(v_a_349_);
+lean_dec(v_a_348_);
+lean_dec_ref(v_a_347_);
+lean_dec_ref(v_a_346_);
 lean_dec_ref(v_a_345_);
 return v_res_352_;
 }
@@ -1307,6 +1284,11 @@ _start:
 {
 lean_object* v_res_372_; 
 v_res_372_ = l_Lean_Compiler_LCNF_Simp_simpValue_x3f(v_e_363_, v_a_364_, v_a_365_, v_a_366_, v_a_367_, v_a_368_, v_a_369_, v_a_370_);
+lean_dec(v_a_370_);
+lean_dec_ref(v_a_369_);
+lean_dec(v_a_368_);
+lean_dec_ref(v_a_367_);
+lean_dec_ref(v_a_366_);
 lean_dec(v_a_365_);
 lean_dec_ref(v_a_364_);
 return v_res_372_;

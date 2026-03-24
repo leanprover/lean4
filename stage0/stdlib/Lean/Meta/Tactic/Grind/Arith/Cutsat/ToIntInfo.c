@@ -848,10 +848,6 @@ return v___x_227_;
 else
 {
 lean_object* v_val_230_; lean_object* v___x_232_; uint8_t v_isShared_233_; uint8_t v_isSharedCheck_241_; 
-lean_dec(v_a_175_);
-lean_dec_ref(v_a_174_);
-lean_dec(v_a_173_);
-lean_dec_ref(v_a_172_);
 v_val_230_ = lean_ctor_get(v_ival_x3f_180_, 0);
 v_isSharedCheck_241_ = !lean_is_exclusive(v_ival_x3f_180_);
 if (v_isSharedCheck_241_ == 0)
@@ -913,10 +909,6 @@ return v___x_239_;
 else
 {
 lean_dec(v_ival_x3f_180_);
-lean_dec(v_a_175_);
-lean_dec_ref(v_a_174_);
-lean_dec(v_a_173_);
-lean_dec_ref(v_a_172_);
 goto v___jp_181_;
 }
 v___jp_181_:
@@ -943,10 +935,6 @@ lean_dec_ref(v_i_170_);
 lean_dec_ref(v_x_171_);
 v___x_242_ = lean_obj_once(&l_Lean_Meta_Grind_Arith_Cutsat_SymbolicIntInterval_wrap___closed__2, &l_Lean_Meta_Grind_Arith_Cutsat_SymbolicIntInterval_wrap___closed__2_once, _init_l_Lean_Meta_Grind_Arith_Cutsat_SymbolicIntInterval_wrap___closed__2);
 v___x_243_ = l_Lean_throwError___at___00Lean_Meta_Grind_Arith_Cutsat_SymbolicIntInterval_wrap_spec__0___redArg(v___x_242_, v_a_172_, v_a_173_, v_a_174_, v_a_175_);
-lean_dec(v_a_175_);
-lean_dec_ref(v_a_174_);
-lean_dec(v_a_173_);
-lean_dec_ref(v_a_172_);
 return v___x_243_;
 }
 case 2:
@@ -956,19 +944,11 @@ lean_dec_ref(v_i_170_);
 lean_dec_ref(v_x_171_);
 v___x_244_ = lean_obj_once(&l_Lean_Meta_Grind_Arith_Cutsat_SymbolicIntInterval_wrap___closed__4, &l_Lean_Meta_Grind_Arith_Cutsat_SymbolicIntInterval_wrap___closed__4_once, _init_l_Lean_Meta_Grind_Arith_Cutsat_SymbolicIntInterval_wrap___closed__4);
 v___x_245_ = l_Lean_throwError___at___00Lean_Meta_Grind_Arith_Cutsat_SymbolicIntInterval_wrap_spec__0___redArg(v___x_244_, v_a_172_, v_a_173_, v_a_174_, v_a_175_);
-lean_dec(v_a_175_);
-lean_dec_ref(v_a_174_);
-lean_dec(v_a_173_);
-lean_dec_ref(v_a_172_);
 return v___x_245_;
 }
 default: 
 {
 lean_object* v___x_246_; 
-lean_dec(v_a_175_);
-lean_dec_ref(v_a_174_);
-lean_dec(v_a_173_);
-lean_dec_ref(v_a_172_);
 v___x_246_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_246_, 0, v_x_171_);
 return v___x_246_;
@@ -981,6 +961,10 @@ _start:
 {
 lean_object* v_res_254_; 
 v_res_254_ = l_Lean_Meta_Grind_Arith_Cutsat_SymbolicIntInterval_wrap(v_i_247_, v_x_248_, v_a_249_, v_a_250_, v_a_251_, v_a_252_);
+lean_dec(v_a_252_);
+lean_dec_ref(v_a_251_);
+lean_dec(v_a_250_);
+lean_dec_ref(v_a_249_);
 return v_res_254_;
 }
 }

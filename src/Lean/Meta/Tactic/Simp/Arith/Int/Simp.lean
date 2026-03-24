@@ -48,10 +48,12 @@ def simpEq? (e : Expr) : MetaM (Option (Expr × Expr)) := do
   else match p with
     | .add 1 x (.add (-1) y (.num 0)) =>
       let r := mkIntEq atoms[x]! atoms[y]!
+      if r == e then return none
       let h := mkApp6 (mkConst ``Int.Linear.norm_eq_var) (← toContextExpr atoms) (toExpr a) (toExpr b) (toExpr x) (toExpr y) eagerReflBoolTrue
       return some (r, mkExpectedPropHint h (mkPropEq e r))
     | .add 1 x (.num k) =>
       let r := mkIntEq atoms[x]! (toExpr (-k))
+      if r == e then return none
       let h := mkApp6 (mkConst ``Int.Linear.norm_eq_var_const) (← toContextExpr atoms) (toExpr a) (toExpr b) (toExpr x) (toExpr (-k)) eagerReflBoolTrue
       return some (r, mkExpectedPropHint h (mkPropEq e r))
     | _ =>

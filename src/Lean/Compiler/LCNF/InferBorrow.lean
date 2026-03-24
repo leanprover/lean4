@@ -9,12 +9,12 @@ prelude
 public import Lean.Compiler.LCNF.CompilerM
 public import Lean.Compiler.LCNF.PassManager
 import Lean.Compiler.ExportAttr
-import Std.Data.Iterators.Producers.Array
-import Std.Data.Iterators.Combinators.Zip
 import Lean.Compiler.LCNF.MonadScope
 import Lean.Compiler.LCNF.FVarUtil
 import Lean.Compiler.LCNF.PhaseExt
 import Lean.Compiler.LCNF.PrettyPrinter
+import Std.Data.Iterators.Producers.Monadic.Array
+import Std.Data.Iterators.Combinators.Monadic.Zip
 
 /-!
 This pass is responsible for inferring borrow annotations to the parameters of functions and join
@@ -213,6 +213,8 @@ inductive OwnReason where
   | jpArgPropagation (jpFVar : FVarId)
   /-- Tail call preservation at a join point jump. -/
   | jpTailCallPreservation (jpFVar : FVarId)
+  /-- Annotated as an owned parameter (currently only triggerable through `@[export]`)-/
+  | ownedAnnotation
 
 def OwnReason.toString (reason : OwnReason) : CompilerM String := do
   PP.run do
@@ -229,6 +231,7 @@ def OwnReason.toString (reason : OwnReason) : CompilerM String := do
     | .tailCallPreservation funcName => return s!"tail call preservation of {funcName}"
     | .jpArgPropagation jpFVar => return s!"backward propagation from JP {← PP.ppFVar jpFVar}"
     | .jpTailCallPreservation jpFVar => return s!"JP tail call preservation {← PP.ppFVar jpFVar}"
+    | .ownedAnnotation => return s!"Annotated as owned"
 
 /--
 Determine whether an `OwnReason` is necessary for correctness (forced) or just an optimization
@@ -241,17 +244,18 @@ def OwnReason.isForced (reason : OwnReason) : Bool :=
   -- will be accounted for by the reference counting pass.
   | .constructorArg .. | .functionCallArg .. | .fvarCall .. | .partialApplication ..
   | .jpArgPropagation ..
-  -- If a projection of a value is used in an owned fashion that does not necessarily mean we have
-  -- to make the value itself owned. Note that this will however prevent potential reset-reuse
-  -- opportunities.
+  -- forward propagation can never affect a user-annotated parameter
+  | .forwardProjectionProp ..
+  -- backward propagation on a user-annotated parameter is only necessary if the projected value
+  -- directly flows into a reset-reuse. However, the borrow annotation propagator ensures this
+  -- situation never arises
   | .backwardProjectionProp .. => false
   -- Results of functions and constructors are naturally owned.
   | .constructorResult .. | .functionCallResult ..
   -- We cannot pass borrowed values to reset or have borrow annotations destroy tail calls for
   -- correctness reasons.
   | .resetReuse .. | .tailCallPreservation .. | .jpTailCallPreservation ..
-  -- If a value is owned and we project from it its projectee is always owned as well.
-  | .forwardProjectionProp .. => true
+  | .ownedAnnotation => true
 
 /--
 Infer the borrowing annotations in a SCC through dataflow analysis.
@@ -261,10 +265,19 @@ partial def infer (decls : Array (Decl .impure)) : CompilerM ParamMap := do
   return map.paramMap
 where
   go : InferM Unit := do
+    for (_, params) in (← get).paramMap.map do
+      for param in params do
+        if !param.borrow && param.type.isPossibleRef then
+          -- if the param already disqualifies as borrow now this is because of an annotation
+          ownFVar param.fvarId .ownedAnnotation
+    modify fun s => { s with modified := false }
+    loop
+
+  loop : InferM Unit := do
     step
     if (← get).modified then
       modify fun s => { s with modified := false }
-      go
+      loop
     else
       return ()
 
@@ -366,6 +379,16 @@ where
     | .oproj _ x _ =>
       if ← isOwned x then ownFVar z (.forwardProjectionProp z)
       if ← isOwned z then ownFVar x (.backwardProjectionProp z)
+    -- Keep in sync with ExplicitRC, PropagateBorrow
+    | .fap ``Array.getInternal args =>
+      if let .fvar parent := args[1]! then
+        if ← isOwned parent then ownFVar z (.forwardProjectionProp z)
+    | .fap ``Array.get!Internal args =>
+      if let .fvar parent := args[2]! then
+        if ← isOwned parent then ownFVar z (.forwardProjectionProp z)
+    | .fap ``Array.uget args =>
+      if let .fvar parent := args[1]! then
+        if ← isOwned parent then ownFVar z (.forwardProjectionProp z)
     | .fap f args =>
       let ps ← getParamInfo (.decl f)
       ownFVar z (.functionCallResult z)

@@ -21,7 +21,7 @@ lean_object* l_Lean_Name_mkStr1(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
+uint8_t l_String_instDecidableLtRaw___aux__1(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
 uint8_t l_Lean_isSubScriptAlnum(uint32_t);
@@ -34,6 +34,7 @@ lean_object* l_Substring_Raw_nextn(lean_object*, lean_object*, lean_object*);
 uint8_t lean_string_is_valid_pos(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* lean_string_length(lean_object*);
+uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_String_Slice_Pos_get_x3f(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
@@ -415,7 +416,7 @@ v___x_90_ = lean_nat_sub(v___x_89_, v___x_87_);
 lean_dec(v___x_87_);
 v___x_91_ = lean_nat_add(v_pos_83_, v___x_90_);
 lean_dec(v___x_90_);
-v___x_92_ = lean_nat_dec_lt(v_pos_83_, v___x_91_);
+v___x_92_ = l_String_instDecidableLtRaw___aux__1(v_pos_83_, v___x_91_);
 if (v___x_92_ == 0)
 {
 lean_dec(v___x_91_);

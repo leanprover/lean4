@@ -1821,6 +1821,10 @@ _start:
 {
 lean_object* v_res_1320_; 
 v_res_1320_ = l_Lean_Doc_Syntax_metadataContents_formatter(v_a_1315_, v_a_1316_, v_a_1317_, v_a_1318_);
+lean_dec(v_a_1318_);
+lean_dec_ref(v_a_1317_);
+lean_dec(v_a_1316_);
+lean_dec_ref(v_a_1315_);
 return v_res_1320_;
 }
 }
@@ -1838,6 +1842,10 @@ _start:
 {
 lean_object* v_res_1342_; 
 v_res_1342_ = l_Lean_Doc_Syntax_metadataContents_parenthesizer(v_a_1337_, v_a_1338_, v_a_1339_, v_a_1340_);
+lean_dec(v_a_1340_);
+lean_dec_ref(v_a_1339_);
+lean_dec(v_a_1338_);
+lean_dec_ref(v_a_1337_);
 return v_res_1342_;
 }
 }

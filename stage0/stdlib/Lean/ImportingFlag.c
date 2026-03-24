@@ -164,9 +164,9 @@ return v___x_47_;
 LEAN_EXPORT lean_object* l_Lean_withImporting___redArg___lam__0___boxed(lean_object* v___x_48_, lean_object* v___x_49_, lean_object* v_x_50_, lean_object* v___y_51_){
 _start:
 {
-uint8_t v___x_569__boxed_52_; lean_object* v_res_53_; 
-v___x_569__boxed_52_ = lean_unbox(v___x_49_);
-v_res_53_ = l_Lean_withImporting___redArg___lam__0(v___x_48_, v___x_569__boxed_52_, v_x_50_);
+uint8_t v___x_331__boxed_52_; lean_object* v_res_53_; 
+v___x_331__boxed_52_ = lean_unbox(v___x_49_);
+v_res_53_ = l_Lean_withImporting___redArg___lam__0(v___x_48_, v___x_331__boxed_52_, v_x_50_);
 lean_dec(v_x_50_);
 lean_dec(v___x_48_);
 return v_res_53_;
@@ -175,28 +175,28 @@ return v_res_53_;
 LEAN_EXPORT lean_object* l_Lean_withImporting___redArg(lean_object* v_x_54_){
 _start:
 {
-lean_object* v___x_56_; uint8_t v___x_57_; lean_object* v___x_58_; lean_object* v___x_59_; uint8_t v___x_60_; lean_object* v___x_61_; 
+lean_object* v___x_56_; uint8_t v___x_57_; lean_object* v___x_58_; lean_object* v___x_59_; uint8_t v___x_60_; lean_object* v_r_61_; 
 v___x_56_ = l___private_Lean_ImportingFlag_0__Lean_importingRef;
 v___x_57_ = 1;
 v___x_58_ = lean_box(v___x_57_);
 v___x_59_ = lean_st_ref_set(v___x_56_, v___x_58_);
 v___x_60_ = 0;
-v___x_61_ = lean_apply_1(v_x_54_, lean_box(0));
-if (lean_obj_tag(v___x_61_) == 0)
+v_r_61_ = lean_apply_1(v_x_54_, lean_box(0));
+if (lean_obj_tag(v_r_61_) == 0)
 {
 lean_object* v_a_62_; lean_object* v___x_64_; uint8_t v_isShared_65_; uint8_t v_isSharedCheck_78_; 
-v_a_62_ = lean_ctor_get(v___x_61_, 0);
-v_isSharedCheck_78_ = !lean_is_exclusive(v___x_61_);
+v_a_62_ = lean_ctor_get(v_r_61_, 0);
+v_isSharedCheck_78_ = !lean_is_exclusive(v_r_61_);
 if (v_isSharedCheck_78_ == 0)
 {
-v___x_64_ = v___x_61_;
+v___x_64_ = v_r_61_;
 v_isShared_65_ = v_isSharedCheck_78_;
 goto v_resetjp_63_;
 }
 else
 {
 lean_inc(v_a_62_);
-lean_dec(v___x_61_);
+lean_dec(v_r_61_);
 v___x_64_ = lean_box(0);
 v_isShared_65_ = v_isSharedCheck_78_;
 goto v_resetjp_63_;
@@ -269,9 +269,9 @@ return v___x_73_;
 else
 {
 lean_object* v_a_79_; lean_object* v___x_80_; lean_object* v___x_81_; lean_object* v___x_83_; uint8_t v_isShared_84_; uint8_t v_isSharedCheck_88_; 
-v_a_79_ = lean_ctor_get(v___x_61_, 0);
+v_a_79_ = lean_ctor_get(v_r_61_, 0);
 lean_inc(v_a_79_);
-lean_dec_ref(v___x_61_);
+lean_dec_ref(v_r_61_);
 v___x_80_ = lean_box(0);
 v___x_81_ = l_Lean_withImporting___redArg___lam__0(v___x_56_, v___x_60_, v___x_80_);
 v_isSharedCheck_88_ = !lean_is_exclusive(v___x_81_);

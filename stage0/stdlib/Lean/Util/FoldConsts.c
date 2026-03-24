@@ -866,7 +866,7 @@ _start:
 lean_object* v___x_294_; lean_object* v___x_295_; uint8_t v___x_296_; lean_object* v___x_297_; 
 v___x_294_ = l_Lean_ConstantInfo_type(v_c_293_);
 v___x_295_ = l_Lean_Expr_getUsedConstantsAsSet(v___x_294_);
-v___x_296_ = 0;
+v___x_296_ = 1;
 lean_inc_ref(v_c_293_);
 v___x_297_ = l_Lean_ConstantInfo_value_x3f(v_c_293_, v___x_296_);
 if (lean_obj_tag(v___x_297_) == 0)
@@ -886,69 +886,56 @@ v___x_300_ = l_Lean_NameSet_ofList(v_ctors_299_);
 v___x_301_ = l_Lean_NameSet_append(v___x_295_, v___x_300_);
 return v___x_301_;
 }
-case 3:
+case 6:
 {
-lean_object* v_val_302_; lean_object* v_value_303_; lean_object* v___x_304_; lean_object* v___x_305_; 
+lean_object* v_val_302_; lean_object* v_toConstantVal_303_; lean_object* v_name_304_; lean_object* v___x_305_; lean_object* v___x_306_; lean_object* v___x_307_; 
 v_val_302_ = lean_ctor_get(v_c_293_, 0);
 lean_inc_ref(v_val_302_);
 lean_dec_ref(v_c_293_);
-v_value_303_ = lean_ctor_get(v_val_302_, 1);
-lean_inc_ref(v_value_303_);
+v_toConstantVal_303_ = lean_ctor_get(v_val_302_, 0);
+lean_inc_ref(v_toConstantVal_303_);
 lean_dec_ref(v_val_302_);
-v___x_304_ = l_Lean_Expr_getUsedConstantsAsSet(v_value_303_);
-v___x_305_ = l_Lean_NameSet_append(v___x_295_, v___x_304_);
-return v___x_305_;
-}
-case 6:
-{
-lean_object* v_val_306_; lean_object* v_toConstantVal_307_; lean_object* v_name_308_; lean_object* v___x_309_; lean_object* v___x_310_; lean_object* v___x_311_; 
-v_val_306_ = lean_ctor_get(v_c_293_, 0);
-lean_inc_ref(v_val_306_);
-lean_dec_ref(v_c_293_);
-v_toConstantVal_307_ = lean_ctor_get(v_val_306_, 0);
-lean_inc_ref(v_toConstantVal_307_);
-lean_dec_ref(v_val_306_);
-v_name_308_ = lean_ctor_get(v_toConstantVal_307_, 0);
-lean_inc(v_name_308_);
-lean_dec_ref(v_toConstantVal_307_);
-v___x_309_ = l_Lean_NameSet_empty;
-v___x_310_ = l_Lean_NameSet_insert(v___x_309_, v_name_308_);
-v___x_311_ = l_Lean_NameSet_append(v___x_295_, v___x_310_);
-return v___x_311_;
+v_name_304_ = lean_ctor_get(v_toConstantVal_303_, 0);
+lean_inc(v_name_304_);
+lean_dec_ref(v_toConstantVal_303_);
+v___x_305_ = l_Lean_NameSet_empty;
+v___x_306_ = l_Lean_NameSet_insert(v___x_305_, v_name_304_);
+v___x_307_ = l_Lean_NameSet_append(v___x_295_, v___x_306_);
+return v___x_307_;
 }
 case 7:
 {
-lean_object* v_val_312_; lean_object* v_all_313_; lean_object* v___x_314_; lean_object* v___x_315_; 
-v_val_312_ = lean_ctor_get(v_c_293_, 0);
-lean_inc_ref(v_val_312_);
+lean_object* v_val_308_; lean_object* v_all_309_; lean_object* v___x_310_; lean_object* v___x_311_; 
+v_val_308_ = lean_ctor_get(v_c_293_, 0);
+lean_inc_ref(v_val_308_);
 lean_dec_ref(v_c_293_);
-v_all_313_ = lean_ctor_get(v_val_312_, 1);
-lean_inc(v_all_313_);
-lean_dec_ref(v_val_312_);
-v___x_314_ = l_Lean_NameSet_ofList(v_all_313_);
-v___x_315_ = l_Lean_NameSet_append(v___x_295_, v___x_314_);
-return v___x_315_;
+v_all_309_ = lean_ctor_get(v_val_308_, 1);
+lean_inc(v_all_309_);
+lean_dec_ref(v_val_308_);
+v___x_310_ = l_Lean_NameSet_ofList(v_all_309_);
+v___x_311_ = l_Lean_NameSet_append(v___x_295_, v___x_310_);
+return v___x_311_;
 }
 default: 
 {
-lean_object* v___x_316_; lean_object* v___x_317_; 
+lean_object* v___x_312_; lean_object* v___x_313_; 
 lean_dec_ref(v_c_293_);
-v___x_316_ = l_Lean_NameSet_empty;
-v___x_317_ = l_Lean_NameSet_append(v___x_295_, v___x_316_);
-return v___x_317_;
+v___x_312_ = l_Lean_NameSet_empty;
+v___x_313_ = l_Lean_NameSet_append(v___x_295_, v___x_312_);
+return v___x_313_;
 }
 }
 }
 else
 {
-lean_object* v_val_318_; lean_object* v___x_319_; lean_object* v___x_320_; 
+lean_object* v_val_314_; lean_object* v___x_315_; lean_object* v___x_316_; 
 lean_dec_ref(v_c_293_);
-v_val_318_ = lean_ctor_get(v___x_297_, 0);
-lean_inc(v_val_318_);
+v_val_314_ = lean_ctor_get(v___x_297_, 0);
+lean_inc(v_val_314_);
 lean_dec_ref(v___x_297_);
-v___x_319_ = l_Lean_Expr_getUsedConstantsAsSet(v_val_318_);
-v___x_320_ = l_Lean_NameSet_append(v___x_295_, v___x_319_);
-return v___x_320_;
+v___x_315_ = l_Lean_Expr_getUsedConstantsAsSet(v_val_314_);
+v___x_316_ = l_Lean_NameSet_append(v___x_295_, v___x_315_);
+return v___x_316_;
 }
 }
 }

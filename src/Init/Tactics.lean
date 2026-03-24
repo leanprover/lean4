@@ -524,9 +524,6 @@ syntax location := withPosition(ppGroup(" at" (locationWildcard <|> locationHyp)
 -/
 syntax (name := change) "change " term (location)? : tactic
 
-@[tactic_alt change]
-syntax (name := changeWith) "change " term " with " term (location)? : tactic
-
 /--
 `show t` finds the first goal whose target unifies with `t`. It makes that the main goal,
 performs the unification, and replaces the target with the unified version of `t`.

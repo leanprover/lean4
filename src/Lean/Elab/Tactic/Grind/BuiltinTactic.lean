@@ -76,6 +76,10 @@ def evalGrindSeq : GrindTactic := fun stx =>
 @[builtin_grind_tactic skip] def evalSkip : GrindTactic := fun _ =>
   return ()
 
+@[builtin_grind_tactic showGoals] def evalShowGoals : GrindTactic := fun _ => do
+  let goals ← getUnsolvedGoalMVarIds
+  addRawTrace (goalsToMessageData goals)
+
 @[builtin_grind_tactic paren] def evalParen : GrindTactic := fun stx =>
   evalGrindTactic stx[1]
 

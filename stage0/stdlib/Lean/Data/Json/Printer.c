@@ -31,8 +31,8 @@ lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_String_Slice_positions(lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
 uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
+lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
 lean_object* lean_uint32_to_nat(uint32_t);
 lean_object* lean_nat_shiftr(lean_object*, lean_object*);
 uint32_t l_Nat_digitChar(lean_object*);
@@ -399,11 +399,11 @@ uint8_t v___x_604_;
 v___x_604_ = lean_nat_dec_eq(v_it_600_, v___x_598_);
 if (v___x_604_ == 0)
 {
-lean_object* v___x_605_; uint32_t v___x_606_; lean_object* v___x_607_; lean_object* v___x_608_; 
-v___x_605_ = lean_string_utf8_next_fast(v_s_599_, v_it_600_);
-v___x_606_ = lean_string_utf8_get_fast(v_s_599_, v_it_600_);
-v___x_607_ = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeAux(v_acc_601_, v___x_606_);
-v___x_608_ = lean_apply_4(v_recur_603_, v___x_605_, v___x_607_, lean_box(0), lean_box(0));
+uint32_t v___x_605_; lean_object* v___x_606_; lean_object* v___x_607_; lean_object* v___x_608_; 
+v___x_605_ = lean_string_utf8_get_fast(v_s_599_, v_it_600_);
+v___x_606_ = lean_string_utf8_next_fast(v_s_599_, v_it_600_);
+v___x_607_ = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeAux(v_acc_601_, v___x_605_);
+v___x_608_ = lean_apply_4(v_recur_603_, v___x_606_, v___x_607_, lean_box(0), lean_box(0));
 return v___x_608_;
 }
 else
@@ -511,12 +511,12 @@ v___x_650_ = lean_nat_dec_eq(v_a_645_, v___x_649_);
 lean_dec(v___x_649_);
 if (v___x_650_ == 0)
 {
-lean_object* v___x_651_; uint32_t v___x_652_; lean_object* v___x_653_; 
-v___x_651_ = lean_string_utf8_next_fast(v_k_644_, v_a_645_);
-v___x_652_ = lean_string_utf8_get_fast(v_k_644_, v_a_645_);
+uint32_t v___x_651_; lean_object* v___x_652_; lean_object* v___x_653_; 
+v___x_651_ = lean_string_utf8_get_fast(v_k_644_, v_a_645_);
+v___x_652_ = lean_string_utf8_next_fast(v_k_644_, v_a_645_);
 lean_dec(v_a_645_);
-v___x_653_ = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeAux(v_b_646_, v___x_652_);
-v_a_645_ = v___x_651_;
+v___x_653_ = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeAux(v_b_646_, v___x_651_);
+v_a_645_ = v___x_652_;
 v_b_646_ = v___x_653_;
 goto _start;
 }

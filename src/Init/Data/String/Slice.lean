@@ -11,7 +11,7 @@ public import Init.Data.Ord.Basic
 public import Init.Data.Iterators.Combinators.FilterMap
 public import Init.Data.String.ToSlice
 public import Init.Data.String.Subslice
-public import Init.Data.String.Iter
+public import Init.Data.String.Iter.Basic
 public import Init.Data.String.Iterate
 import Init.Data.Iterators.Consumers.Collect
 import Init.Data.Iterators.Consumers.Loop
@@ -84,10 +84,11 @@ instance : ToString String.Slice where
 theorem toStringToString_eq : ToString.toString = String.Slice.copy := (rfl)
 
 @[extern "lean_slice_hash"]
-opaque hash (s : @& Slice) : UInt64
+protected def hash (s : @& Slice) : UInt64 :=
+  String.hash s.copy
 
 instance : Hashable Slice where
-  hash := hash
+  hash := Slice.hash
 
 instance : LT Slice where
   lt x y := x.copy < y.copy

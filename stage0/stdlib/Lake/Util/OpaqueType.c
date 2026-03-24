@@ -1371,7 +1371,6 @@ goto v___jp_406_;
 v___jp_510_:
 {
 lean_object* v___x_513_; 
-lean_inc_ref(v_a_238_);
 v___x_513_ = l_Lake_expandBinders(v_bs_509_, v_a_238_, v_a_239_);
 lean_dec_ref(v_bs_509_);
 if (lean_obj_tag(v___x_513_) == 0)

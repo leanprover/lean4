@@ -6,3 +6,4 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Init.Sym.Lemmas
+public import Init.Sym.Simp.SimprocDSL

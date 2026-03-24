@@ -653,6 +653,8 @@ lean_ctor_set(v___x_206_, 13, v_inheritedTraceOptions_203_);
 lean_ctor_set_uint8(v___x_206_, sizeof(void*)*14, v___x_189_);
 lean_ctor_set_uint8(v___x_206_, sizeof(void*)*14 + 1, v_suppressElabErrors_202_);
 v___x_207_ = l_Lean_PrettyPrinter_ppModule(v___x_188_, v___x_206_, v___y_204_);
+lean_dec(v___y_204_);
+lean_dec_ref(v___x_206_);
 if (lean_obj_tag(v___x_207_) == 0)
 {
 lean_object* v_a_208_; lean_object* v___x_209_; lean_object* v___x_210_; lean_object* v___x_211_; lean_object* v___x_212_; lean_object* v___x_213_; lean_object* v___x_214_; lean_object* v_str_215_; lean_object* v_startInclusive_216_; lean_object* v_endExclusive_217_; lean_object* v___x_218_; lean_object* v___x_219_; lean_object* v___x_220_; lean_object* v___x_221_; 

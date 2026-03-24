@@ -1078,7 +1078,6 @@ v___x_318_ = l_Lean_Syntax_isOfKind(v_stx_313_, v___x_317_);
 if (v___x_318_ == 0)
 {
 lean_object* v___x_319_; 
-lean_dec_ref(v_a_314_);
 lean_dec(v_stx_313_);
 v___x_319_ = l_Lean_Elab_throwUnsupportedSyntax___at___00__private_Lean_Elab_Tactic_Grind_Annotated_0__Lean_Elab_Tactic_Grind_elabGrindAnnotated_spec__0___redArg();
 return v___x_319_;
@@ -1107,6 +1106,7 @@ v___x_328_ = lean_obj_once(&l___private_Lean_Elab_Tactic_Grind_Annotated_0__Lean
 v___x_329_ = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(v___x_329_, 0, v___x_327_);
 lean_ctor_set(v___x_329_, 1, v___x_328_);
+lean_inc_ref(v_a_314_);
 v___x_330_ = l_Lean_throwError___at___00__private_Lean_Elab_Tactic_Grind_Annotated_0__Lean_Elab_Tactic_Grind_elabGrindAnnotated_spec__1___redArg(v___x_329_, v_a_314_, v_a_315_);
 return v___x_330_;
 }
@@ -1114,7 +1114,6 @@ else
 {
 lean_object* v___x_331_; lean_object* v_a_332_; lean_object* v___x_334_; uint8_t v_isShared_335_; uint8_t v_isSharedCheck_365_; 
 lean_dec_ref(v___x_323_);
-lean_dec_ref(v_a_314_);
 v___x_331_ = l_Lean_getMainModule___at___00__private_Lean_Elab_Tactic_Grind_Annotated_0__Lean_Elab_Tactic_Grind_elabGrindAnnotated_spec__2___redArg(v_a_315_);
 v_a_332_ = lean_ctor_get(v___x_331_, 0);
 v_isSharedCheck_365_ = !lean_is_exclusive(v___x_331_);
@@ -1244,6 +1243,7 @@ _start:
 lean_object* v_res_370_; 
 v_res_370_ = l___private_Lean_Elab_Tactic_Grind_Annotated_0__Lean_Elab_Tactic_Grind_elabGrindAnnotated(v_stx_366_, v_a_367_, v_a_368_);
 lean_dec(v_a_368_);
+lean_dec_ref(v_a_367_);
 return v_res_370_;
 }
 }
@@ -1269,6 +1269,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___00__private_Lean_Elab_Tactic_G
 _start:
 {
 lean_object* v___x_386_; 
+lean_inc_ref(v___y_383_);
 v___x_386_ = l_Lean_throwError___at___00__private_Lean_Elab_Tactic_Grind_Annotated_0__Lean_Elab_Tactic_Grind_elabGrindAnnotated_spec__1___redArg(v_msg_382_, v___y_383_, v___y_384_);
 return v___x_386_;
 }
@@ -1279,6 +1280,7 @@ _start:
 lean_object* v_res_392_; 
 v_res_392_ = l_Lean_throwError___at___00__private_Lean_Elab_Tactic_Grind_Annotated_0__Lean_Elab_Tactic_Grind_elabGrindAnnotated_spec__1(v_00_u03b1_387_, v_msg_388_, v___y_389_, v___y_390_);
 lean_dec(v___y_390_);
+lean_dec_ref(v___y_389_);
 return v_res_392_;
 }
 }

@@ -106,6 +106,7 @@ structure Config where
   Prevents infinite loops when conditional rewrite rules trigger recursive discharge attempts.
   -/
   maxDischargeDepth : Nat := 2
+  deriving Inhabited
 
 /--
 The result of simplifying an expression `e`.

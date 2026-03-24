@@ -3847,7 +3847,6 @@ return v___x_1147_;
 else
 {
 lean_object* v_a_1148_; lean_object* v___x_1150_; uint8_t v_isShared_1151_; uint8_t v_isSharedCheck_1155_; 
-lean_dec_ref(v_a_1133_);
 lean_dec_ref(v_a_1132_);
 v_a_1148_ = lean_ctor_get(v___x_1142_, 0);
 v_isSharedCheck_1155_ = !lean_is_exclusive(v___x_1142_);
@@ -3897,6 +3896,7 @@ v_res_1162_ = l_Lean_Meta_openAbstractMVarsResult(v_a_1156_, v_a_1157_, v_a_1158
 lean_dec(v_a_1160_);
 lean_dec_ref(v_a_1159_);
 lean_dec(v_a_1158_);
+lean_dec_ref(v_a_1157_);
 return v_res_1162_;
 }
 }

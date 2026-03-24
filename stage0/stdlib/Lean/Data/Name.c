@@ -29,7 +29,7 @@ lean_object* lean_panic_fn(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
+uint8_t l_String_instDecidableLtRaw___aux__1(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
@@ -40,6 +40,7 @@ lean_object* l_String_Slice_Pos_get_x3f(lean_object*, lean_object*);
 uint8_t lean_uint64_dec_lt(uint64_t, uint64_t);
 uint8_t lean_uint64_dec_eq(uint64_t, uint64_t);
 uint8_t lean_string_dec_lt(lean_object*, lean_object*);
+uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 uint64_t lean_uint64_of_nat(lean_object*);
 size_t lean_ptr_addr(lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
@@ -1205,7 +1206,7 @@ v___x_269_ = lean_nat_sub(v___x_268_, v___x_266_);
 lean_dec(v___x_266_);
 v___x_270_ = lean_nat_add(v_pos_262_, v___x_269_);
 lean_dec(v___x_269_);
-v___x_271_ = lean_nat_dec_lt(v_pos_262_, v___x_270_);
+v___x_271_ = l_String_instDecidableLtRaw___aux__1(v_pos_262_, v___x_270_);
 if (v___x_271_ == 0)
 {
 lean_dec(v___x_270_);

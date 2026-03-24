@@ -111,6 +111,18 @@ public def Package.loadFromEnv
         but then redefined as a '{decl.kind}'"
     else
       return m.insert decl.name (.mk decl rfl)
+  -- Check that executables have distinct root module names
+  let _ ← targetDecls.foldlM (init := ({} : Lean.NameMap Name)) fun exeRoots decl => do
+    if let some exeConfig := decl.config? LeanExe.configKind then
+      let root := exeConfig.root
+      if let some origExe := exeRoots.get? root then
+        error s!"\
+          {self.prettyName}: executable '{decl.name}' has the same root module '{root}' \
+          as executable '{origExe}'"
+      else
+        return exeRoots.insert root decl.name
+    else
+      return exeRoots
   let defaultTargets ← defaultTargetAttr.getAllEntries env |>.mapM fun name =>
     if let some decl := constTargetMap.find? name then pure decl.name else
       error s!"{self.prettyName}: package is missing target '{name}' marked as a default"

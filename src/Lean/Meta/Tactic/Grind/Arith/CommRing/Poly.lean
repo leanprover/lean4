@@ -184,6 +184,15 @@ def Poly.degree : Poly → Nat
   | .num _ => 0
   | .add _ m _ => m.degree
 
+/-- Returns the number of monomials in the polynomial. -/
+def Poly.numTerms (p : Poly) : Nat :=
+  go p 0
+where
+  go (p : Poly) (acc : Nat) : Nat :=
+    match p with
+    | .num .. => acc
+    | .add _ _ p => go p (acc + 1)
+
 /-- Returns `true` if the leading monomial of `p` divides `m`. -/
 def Poly.divides (p : Poly) (m : Mon) : Bool :=
   match p with

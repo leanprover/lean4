@@ -387,6 +387,10 @@ v_resetjp_133_:
 {
 lean_object* v___x_136_; 
 lean_inc_ref(v_deferredResolution_132_);
+lean_inc(v_a_128_);
+lean_inc_ref(v_a_127_);
+lean_inc(v_a_126_);
+lean_inc_ref(v_a_125_);
 v___x_136_ = lean_apply_6(v_deferredResolution_132_, v_toInlayHintInfo_130_, v_a_125_, v_a_126_, v_a_127_, v_a_128_, lean_box(0));
 if (lean_obj_tag(v___x_136_) == 0)
 {
@@ -502,6 +506,10 @@ _start:
 {
 lean_object* v_res_163_; 
 v_res_163_ = l_Lean_Elab_InlayHint_resolveDeferred(v_i_157_, v_a_158_, v_a_159_, v_a_160_, v_a_161_);
+lean_dec(v_a_161_);
+lean_dec_ref(v_a_160_);
+lean_dec(v_a_159_);
+lean_dec_ref(v_a_158_);
 return v_res_163_;
 }
 }

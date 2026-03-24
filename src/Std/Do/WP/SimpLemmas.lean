@@ -422,7 +422,7 @@ theorem throwThe [MonadExceptOf ε m] [WP m ps] :
 @[simp]
 theorem throw_Except :
     wp⟦MonadExceptOf.throw e : Except ε α⟧ Q = Q.2.1 e := by
-  simp [wp, MonadExceptOf.throw, Id.run, ExceptT.run]
+  simp [wp, MonadExceptOf.throw, Id.run, ExceptT.run, Except.instWP._aux_1]
 
 @[simp]
 theorem throw_ExceptT [Monad m] [WPMonad m ps] :
@@ -432,7 +432,7 @@ theorem throw_ExceptT [Monad m] [WPMonad m ps] :
 @[simp]
 theorem throw_Option :
     wp⟦MonadExceptOf.throw e : Option α⟧ Q = Q.2.1 e := by
-  simp [wp, MonadExceptOf.throw, Id.run, OptionT.run]
+  simp [wp, MonadExceptOf.throw, Id.run, OptionT.run, Option.instWP._aux_1]
 
 @[simp]
 theorem throw_OptionT [Monad m] [WPMonad m ps] :
@@ -484,7 +484,7 @@ theorem tryCatchThe [MonadExceptOf ε m] [WP m ps] :
 @[simp]
 theorem tryCatch_Except :
     wp⟦MonadExceptOf.tryCatch x h : Except ε α⟧ Q = wp⟦x⟧ (Q.1, fun e => wp⟦h e⟧ Q, Q.2.2) := by
-  simp only [wp, ExceptT.run, Id.run, MonadExceptOf.tryCatch, Except.tryCatch,
+  simp only [wp, Except.instWP._aux_1, ExceptT.run, Id.run, MonadExceptOf.tryCatch, Except.tryCatch,
     PredTrans.apply_pushExcept]
   cases x <;> simp
 
@@ -501,7 +501,7 @@ theorem tryCatch_ExceptT [Monad m] [WPMonad m ps] :
 @[simp]
 theorem tryCatch_Option :
     wp⟦MonadExceptOf.tryCatch x h : Option α⟧ Q = wp⟦x⟧ (Q.1, fun e => wp⟦h e⟧ Q, Q.2.2) := by
-  simp only [wp, Id.run, OptionT.run, MonadExceptOf.tryCatch, Option.tryCatch,
+  simp only [wp, Option.instWP._aux_1, Id.run, OptionT.run, MonadExceptOf.tryCatch, Option.tryCatch,
     PredTrans.apply_pushOption]
   cases x <;> simp
 
@@ -590,7 +590,7 @@ theorem orElse_ExceptT [Monad m] [WPMonad m ps] :
 @[simp]
 theorem orElse_Option  :
     wp⟦OrElse.orElse x h : Option α⟧ Q = wp⟦x⟧ (Q.1, fun _ => wp⟦h ()⟧ Q, Q.2.2) := by
-  cases x <;> simp [OrElse.orElse, Option.orElse, wp, Id.run, OptionT.run]
+  cases x <;> simp [OrElse.orElse, Option.orElse, wp, Id.run, OptionT.run, Option.instWP._aux_1]
 
 @[simp]
 theorem orElse_OptionT [Monad m] [WPMonad m ps] :

@@ -239,6 +239,7 @@ private def normOfNatArgs? (args : Array Expr) : MetaM (Option (Array Expr)) := 
       return some args.toArray
   return none
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[export lean_grind_canon]
 partial def canonImpl (e : Expr) : GoalM Expr := do profileitM Exception "grind canon" (← getOptions) do
   trace_goal[grind.debug.canon] "{e}"

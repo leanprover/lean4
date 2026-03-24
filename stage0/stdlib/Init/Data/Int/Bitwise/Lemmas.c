@@ -71,18 +71,37 @@ return v_res_19_;
 LEAN_EXPORT lean_object* l___private_Init_Data_Int_Bitwise_Lemmas_0__Int_shiftRight_match__1_splitter(lean_object* v_motive_20_, lean_object* v_x_21_, lean_object* v_x_22_, lean_object* v_h__1_23_, lean_object* v_h__2_24_){
 _start:
 {
-lean_object* v___x_25_; 
-v___x_25_ = l___private_Init_Data_Int_Bitwise_Lemmas_0__Int_shiftRight_match__1_splitter___redArg(v_x_21_, v_x_22_, v_h__1_23_, v_h__2_24_);
-return v___x_25_;
+lean_object* v_intZero_25_; uint8_t v_isNeg_26_; 
+v_intZero_25_ = lean_obj_once(&l___private_Init_Data_Int_Bitwise_Lemmas_0__Int_shiftRight_match__1_splitter___redArg___closed__0, &l___private_Init_Data_Int_Bitwise_Lemmas_0__Int_shiftRight_match__1_splitter___redArg___closed__0_once, _init_l___private_Init_Data_Int_Bitwise_Lemmas_0__Int_shiftRight_match__1_splitter___redArg___closed__0);
+v_isNeg_26_ = lean_int_dec_lt(v_x_21_, v_intZero_25_);
+if (v_isNeg_26_ == 0)
+{
+lean_object* v_a_27_; lean_object* v___x_28_; 
+lean_dec(v_h__2_24_);
+v_a_27_ = lean_nat_abs(v_x_21_);
+v___x_28_ = lean_apply_2(v_h__1_23_, v_a_27_, v_x_22_);
+return v___x_28_;
+}
+else
+{
+lean_object* v_abs_29_; lean_object* v_one_30_; lean_object* v_a_31_; lean_object* v___x_32_; 
+lean_dec(v_h__1_23_);
+v_abs_29_ = lean_nat_abs(v_x_21_);
+v_one_30_ = lean_unsigned_to_nat(1u);
+v_a_31_ = lean_nat_sub(v_abs_29_, v_one_30_);
+lean_dec(v_abs_29_);
+v___x_32_ = lean_apply_2(v_h__2_24_, v_a_31_, v_x_22_);
+return v___x_32_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Int_Bitwise_Lemmas_0__Int_shiftRight_match__1_splitter___boxed(lean_object* v_motive_26_, lean_object* v_x_27_, lean_object* v_x_28_, lean_object* v_h__1_29_, lean_object* v_h__2_30_){
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Int_Bitwise_Lemmas_0__Int_shiftRight_match__1_splitter___boxed(lean_object* v_motive_33_, lean_object* v_x_34_, lean_object* v_x_35_, lean_object* v_h__1_36_, lean_object* v_h__2_37_){
 _start:
 {
-lean_object* v_res_31_; 
-v_res_31_ = l___private_Init_Data_Int_Bitwise_Lemmas_0__Int_shiftRight_match__1_splitter(v_motive_26_, v_x_27_, v_x_28_, v_h__1_29_, v_h__2_30_);
-lean_dec(v_x_27_);
-return v_res_31_;
+lean_object* v_res_38_; 
+v_res_38_ = l___private_Init_Data_Int_Bitwise_Lemmas_0__Int_shiftRight_match__1_splitter(v_motive_33_, v_x_34_, v_x_35_, v_h__1_36_, v_h__2_37_);
+lean_dec(v_x_34_);
+return v_res_38_;
 }
 }
 lean_object* runtime_initialize_Init_Data_Int_Bitwise_Basic(uint8_t builtin);

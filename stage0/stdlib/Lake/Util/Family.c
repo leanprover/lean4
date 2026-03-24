@@ -215,6 +215,7 @@ static const lean_object* l_Lake___aux__Lake__Util__Family______macroRules__Lake
 static const lean_string_object l_Lake___aux__Lake__Util__Family______macroRules__Lake__familyDef__1___closed__49_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 2, .m_capacity = 2, .m_length = 1, .m_data = "`"};
 static const lean_object* l_Lake___aux__Lake__Util__Family______macroRules__Lake__familyDef__1___closed__49 = (const lean_object*)&l_Lake___aux__Lake__Util__Family______macroRules__Lake__familyDef__1___closed__49_value;
 LEAN_EXPORT lean_object* l_Lake___aux__Lake__Util__Family______macroRules__Lake__familyDef__1(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake___aux__Lake__Util__Family______macroRules__Lake__familyDef__1___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* _init_l_Lake___aux__Lake__Util__Family______macroRules__Lake__familyDef__1___closed__21(void){
 _start:
 {
@@ -242,7 +243,6 @@ v___x_151_ = l_Lean_Syntax_isOfKind(v_x_147_, v___x_150_);
 if (v___x_151_ == 0)
 {
 lean_object* v___x_152_; lean_object* v___x_153_; 
-lean_dec_ref(v_a_148_);
 lean_dec(v_x_147_);
 v___x_152_ = lean_box(1);
 v___x_153_ = lean_alloc_ctor(1, 2, 0);
@@ -484,6 +484,8 @@ lean_inc_ref(v___y_167_);
 v___x_240_ = l_Lean_Name_mkStr4(v___y_167_, v___y_168_, v___x_181_, v___x_239_);
 v___x_241_ = lean_obj_once(&l_Lake___aux__Lake__Util__Family______macroRules__Lake__familyDef__1___closed__21, &l_Lake___aux__Lake__Util__Family______macroRules__Lake__familyDef__1___closed__21_once, _init_l_Lake___aux__Lake__Util__Family______macroRules__Lake__familyDef__1___closed__21);
 v___x_242_ = ((lean_object*)(l_Lake___aux__Lake__Util__Family______macroRules__Lake__familyDef__1___closed__22));
+lean_inc(v___y_175_);
+lean_inc(v___y_172_);
 v___x_243_ = l_Lean_addMacroScope(v___y_172_, v___x_242_, v___y_175_);
 v___x_244_ = ((lean_object*)(l_Lake___aux__Lake__Util__Family______macroRules__Lake__familyDef__1___closed__27));
 lean_inc(v___y_166_);
@@ -558,7 +560,6 @@ v___x_274_ = l_Lean_extractMacroScopes(v___x_273_);
 v_name_275_ = lean_ctor_get(v___x_274_, 0);
 lean_inc(v_name_275_);
 lean_dec_ref(v___x_274_);
-lean_inc_ref(v_a_148_);
 lean_inc(v_name_275_);
 v___x_276_ = l_Lean_Macro_resolveGlobalName(v_name_275_, v_a_148_, v_a_149_);
 if (lean_obj_tag(v___x_276_) == 0)
@@ -580,12 +581,8 @@ v_fst_280_ = lean_ctor_get(v_head_278_, 0);
 lean_inc(v_fst_280_);
 lean_dec(v_head_278_);
 v_quotContext_281_ = lean_ctor_get(v_a_148_, 1);
-lean_inc(v_quotContext_281_);
 v_currMacroScope_282_ = lean_ctor_get(v_a_148_, 2);
-lean_inc(v_currMacroScope_282_);
 v_ref_283_ = lean_ctor_get(v_a_148_, 5);
-lean_inc(v_ref_283_);
-lean_dec_ref(v_a_148_);
 v___x_284_ = lean_unsigned_to_nat(1u);
 v___x_285_ = lean_mk_empty_array_with_capacity(v___x_284_);
 lean_inc(v_idx_161_);
@@ -600,7 +597,6 @@ v___x_292_ = l_Lean_mkIdentFrom(v_id_157_, v___x_291_, v___x_151_);
 lean_dec(v_id_157_);
 v___x_293_ = 0;
 v___x_294_ = l_Lean_SourceInfo_fromRef(v_ref_283_, v___x_293_);
-lean_dec(v_ref_283_);
 v___x_295_ = ((lean_object*)(l_Lake___aux__Lake__Util__Family______macroRules__Lake__familyDef__1___closed__38));
 v___x_296_ = ((lean_object*)(l_Lake___aux__Lake__Util__Family______macroRules__Lake__familyDef__1___closed__39));
 v___x_297_ = ((lean_object*)(l_Lake___aux__Lake__Util__Family______macroRules__Lake__familyDef__1___closed__40));
@@ -771,7 +767,6 @@ lean_dec(v___x_163_);
 lean_dec(v_idx_161_);
 lean_dec(v_fam_159_);
 lean_dec(v_id_157_);
-lean_dec_ref(v_a_148_);
 v_a_330_ = lean_ctor_get(v___x_276_, 0);
 v_a_331_ = lean_ctor_get(v___x_276_, 1);
 v_isSharedCheck_338_ = !lean_is_exclusive(v___x_276_);
@@ -815,6 +810,15 @@ return v___x_336_;
 }
 }
 }
+}
+}
+LEAN_EXPORT lean_object* l_Lake___aux__Lake__Util__Family______macroRules__Lake__familyDef__1___boxed(lean_object* v_x_349_, lean_object* v_a_350_, lean_object* v_a_351_){
+_start:
+{
+lean_object* v_res_352_; 
+v_res_352_ = l_Lake___aux__Lake__Util__Family______macroRules__Lake__familyDef__1(v_x_349_, v_a_350_, v_a_351_);
+lean_dec_ref(v_a_350_);
+return v_res_352_;
 }
 }
 lean_object* runtime_initialize_Init_Data_ToString(uint8_t builtin);

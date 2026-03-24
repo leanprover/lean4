@@ -6531,6 +6531,10 @@ _start:
 {
 lean_object* v_res_2106_; 
 v_res_2106_ = l_Lake_Toml_header_formatter(v_a_2101_, v_a_2102_, v_a_2103_, v_a_2104_);
+lean_dec(v_a_2104_);
+lean_dec_ref(v_a_2103_);
+lean_dec(v_a_2102_);
+lean_dec_ref(v_a_2101_);
 return v_res_2106_;
 }
 }
@@ -6550,6 +6554,10 @@ _start:
 {
 lean_object* v_res_2121_; 
 v_res_2121_ = l_Lake_Toml_unquotedKey_formatter(v_a_2116_, v_a_2117_, v_a_2118_, v_a_2119_);
+lean_dec(v_a_2119_);
+lean_dec_ref(v_a_2118_);
+lean_dec(v_a_2117_);
+lean_dec_ref(v_a_2116_);
 return v_res_2121_;
 }
 }
@@ -6569,6 +6577,10 @@ _start:
 {
 lean_object* v_res_2136_; 
 v_res_2136_ = l_Lake_Toml_basicString_formatter(v_a_2131_, v_a_2132_, v_a_2133_, v_a_2134_);
+lean_dec(v_a_2134_);
+lean_dec_ref(v_a_2133_);
+lean_dec(v_a_2132_);
+lean_dec_ref(v_a_2131_);
 return v_res_2136_;
 }
 }
@@ -6588,6 +6600,10 @@ _start:
 {
 lean_object* v_res_2151_; 
 v_res_2151_ = l_Lake_Toml_literalString_formatter(v_a_2146_, v_a_2147_, v_a_2148_, v_a_2149_);
+lean_dec(v_a_2149_);
+lean_dec_ref(v_a_2148_);
+lean_dec(v_a_2147_);
+lean_dec_ref(v_a_2146_);
 return v_res_2151_;
 }
 }
@@ -6606,6 +6622,10 @@ _start:
 {
 lean_object* v_res_2165_; 
 v_res_2165_ = l_Lake_Toml_quotedKey_formatter(v_a_2160_, v_a_2161_, v_a_2162_, v_a_2163_);
+lean_dec(v_a_2163_);
+lean_dec_ref(v_a_2162_);
+lean_dec(v_a_2161_);
+lean_dec_ref(v_a_2160_);
 return v_res_2165_;
 }
 }
@@ -6638,6 +6658,10 @@ _start:
 {
 lean_object* v_res_2184_; 
 v_res_2184_ = l_Lake_Toml_simpleKey_formatter(v_a_2179_, v_a_2180_, v_a_2181_, v_a_2182_);
+lean_dec(v_a_2182_);
+lean_dec_ref(v_a_2181_);
+lean_dec(v_a_2180_);
+lean_dec_ref(v_a_2179_);
 return v_res_2184_;
 }
 }
@@ -6770,6 +6794,10 @@ _start:
 {
 lean_object* v_res_2237_; 
 v_res_2237_ = l_Lake_Toml_key_formatter(v_a_2232_, v_a_2233_, v_a_2234_, v_a_2235_);
+lean_dec(v_a_2235_);
+lean_dec_ref(v_a_2234_);
+lean_dec(v_a_2233_);
+lean_dec_ref(v_a_2232_);
 return v_res_2237_;
 }
 }
@@ -6828,6 +6856,10 @@ _start:
 {
 lean_object* v_res_2267_; 
 v_res_2267_ = l___private_Lake_Toml_Grammar_0__Lake_Toml_keyvalCore_formatter(v_val_2261_, v_a_2262_, v_a_2263_, v_a_2264_, v_a_2265_);
+lean_dec(v_a_2265_);
+lean_dec_ref(v_a_2264_);
+lean_dec(v_a_2263_);
+lean_dec_ref(v_a_2262_);
 return v_res_2267_;
 }
 }
@@ -6988,6 +7020,10 @@ _start:
 {
 lean_object* v_res_2318_; 
 v_res_2318_ = l_Lake_Toml_stdTable_formatter(v_a_2313_, v_a_2314_, v_a_2315_, v_a_2316_);
+lean_dec(v_a_2316_);
+lean_dec_ref(v_a_2315_);
+lean_dec(v_a_2314_);
+lean_dec_ref(v_a_2313_);
 return v_res_2318_;
 }
 }
@@ -7089,6 +7125,10 @@ _start:
 {
 lean_object* v_res_2353_; 
 v_res_2353_ = l_Lake_Toml_arrayTable_formatter(v_a_2348_, v_a_2349_, v_a_2350_, v_a_2351_);
+lean_dec(v_a_2351_);
+lean_dec_ref(v_a_2350_);
+lean_dec(v_a_2349_);
+lean_dec_ref(v_a_2348_);
 return v_res_2353_;
 }
 }
@@ -7107,6 +7147,10 @@ _start:
 {
 lean_object* v_res_2367_; 
 v_res_2367_ = l_Lake_Toml_table_formatter(v_a_2362_, v_a_2363_, v_a_2364_, v_a_2365_);
+lean_dec(v_a_2365_);
+lean_dec_ref(v_a_2364_);
+lean_dec(v_a_2363_);
+lean_dec_ref(v_a_2362_);
 return v_res_2367_;
 }
 }
@@ -7130,6 +7174,10 @@ _start:
 {
 lean_object* v_res_2391_; 
 v_res_2391_ = l___private_Lake_Toml_Grammar_0__Lake_Toml_expressionCore_formatter(v_val_2385_, v_a_2386_, v_a_2387_, v_a_2388_, v_a_2389_);
+lean_dec(v_a_2389_);
+lean_dec_ref(v_a_2388_);
+lean_dec(v_a_2387_);
+lean_dec_ref(v_a_2386_);
 return v_res_2391_;
 }
 }
@@ -7199,6 +7247,10 @@ _start:
 {
 lean_object* v_res_2431_; 
 v_res_2431_ = l___private_Lake_Toml_Grammar_0__Lake_Toml_tomlCore_formatter(v_val_2425_, v_a_2426_, v_a_2427_, v_a_2428_, v_a_2429_);
+lean_dec(v_a_2429_);
+lean_dec_ref(v_a_2428_);
+lean_dec(v_a_2427_);
+lean_dec_ref(v_a_2426_);
 return v_res_2431_;
 }
 }
@@ -7219,6 +7271,10 @@ _start:
 {
 lean_object* v_res_2447_; 
 v_res_2447_ = l_Lake_Toml_val_formatter(v_a_2442_, v_a_2443_, v_a_2444_, v_a_2445_);
+lean_dec(v_a_2445_);
+lean_dec_ref(v_a_2444_);
+lean_dec(v_a_2443_);
+lean_dec_ref(v_a_2442_);
 return v_res_2447_;
 }
 }
@@ -7236,6 +7292,10 @@ _start:
 {
 lean_object* v_res_2460_; 
 v_res_2460_ = l_Lake_Toml_toml_formatter(v_a_2455_, v_a_2456_, v_a_2457_, v_a_2458_);
+lean_dec(v_a_2458_);
+lean_dec_ref(v_a_2457_);
+lean_dec(v_a_2456_);
+lean_dec_ref(v_a_2455_);
 return v_res_2460_;
 }
 }
@@ -7255,6 +7315,10 @@ _start:
 {
 lean_object* v_res_2475_; 
 v_res_2475_ = l_Lake_Toml_header_parenthesizer(v_a_2470_, v_a_2471_, v_a_2472_, v_a_2473_);
+lean_dec(v_a_2473_);
+lean_dec_ref(v_a_2472_);
+lean_dec(v_a_2471_);
+lean_dec_ref(v_a_2470_);
 return v_res_2475_;
 }
 }
@@ -7274,6 +7338,10 @@ _start:
 {
 lean_object* v_res_2490_; 
 v_res_2490_ = l_Lake_Toml_unquotedKey_parenthesizer(v_a_2485_, v_a_2486_, v_a_2487_, v_a_2488_);
+lean_dec(v_a_2488_);
+lean_dec_ref(v_a_2487_);
+lean_dec(v_a_2486_);
+lean_dec_ref(v_a_2485_);
 return v_res_2490_;
 }
 }
@@ -7293,6 +7361,10 @@ _start:
 {
 lean_object* v_res_2505_; 
 v_res_2505_ = l_Lake_Toml_basicString_parenthesizer(v_a_2500_, v_a_2501_, v_a_2502_, v_a_2503_);
+lean_dec(v_a_2503_);
+lean_dec_ref(v_a_2502_);
+lean_dec(v_a_2501_);
+lean_dec_ref(v_a_2500_);
 return v_res_2505_;
 }
 }
@@ -7312,6 +7384,10 @@ _start:
 {
 lean_object* v_res_2520_; 
 v_res_2520_ = l_Lake_Toml_literalString_parenthesizer(v_a_2515_, v_a_2516_, v_a_2517_, v_a_2518_);
+lean_dec(v_a_2518_);
+lean_dec_ref(v_a_2517_);
+lean_dec(v_a_2516_);
+lean_dec_ref(v_a_2515_);
 return v_res_2520_;
 }
 }
@@ -7330,6 +7406,10 @@ _start:
 {
 lean_object* v_res_2534_; 
 v_res_2534_ = l_Lake_Toml_quotedKey_parenthesizer(v_a_2529_, v_a_2530_, v_a_2531_, v_a_2532_);
+lean_dec(v_a_2532_);
+lean_dec_ref(v_a_2531_);
+lean_dec(v_a_2530_);
+lean_dec_ref(v_a_2529_);
 return v_res_2534_;
 }
 }
@@ -7362,6 +7442,10 @@ _start:
 {
 lean_object* v_res_2553_; 
 v_res_2553_ = l_Lake_Toml_simpleKey_parenthesizer(v_a_2548_, v_a_2549_, v_a_2550_, v_a_2551_);
+lean_dec(v_a_2551_);
+lean_dec_ref(v_a_2550_);
+lean_dec(v_a_2549_);
+lean_dec_ref(v_a_2548_);
 return v_res_2553_;
 }
 }
@@ -7485,6 +7569,10 @@ _start:
 {
 lean_object* v_res_2604_; 
 v_res_2604_ = l_Lake_Toml_key_parenthesizer(v_a_2599_, v_a_2600_, v_a_2601_, v_a_2602_);
+lean_dec(v_a_2602_);
+lean_dec_ref(v_a_2601_);
+lean_dec(v_a_2600_);
+lean_dec_ref(v_a_2599_);
 return v_res_2604_;
 }
 }
@@ -7534,6 +7622,10 @@ _start:
 {
 lean_object* v_res_2632_; 
 v_res_2632_ = l___private_Lake_Toml_Grammar_0__Lake_Toml_keyvalCore_parenthesizer(v_val_2626_, v_a_2627_, v_a_2628_, v_a_2629_, v_a_2630_);
+lean_dec(v_a_2630_);
+lean_dec_ref(v_a_2629_);
+lean_dec(v_a_2628_);
+lean_dec_ref(v_a_2627_);
 return v_res_2632_;
 }
 }
@@ -7550,6 +7642,10 @@ _start:
 {
 lean_object* v_res_2648_; 
 v_res_2648_ = l_Lake_Toml_stdTable_parenthesizer___lam__0(v___x_2641_, v___x_2642_, v___y_2643_, v___y_2644_, v___y_2645_, v___y_2646_);
+lean_dec(v___y_2646_);
+lean_dec_ref(v___y_2645_);
+lean_dec(v___y_2644_);
+lean_dec_ref(v___y_2643_);
 return v_res_2648_;
 }
 }
@@ -7682,6 +7778,10 @@ _start:
 {
 lean_object* v_res_2693_; 
 v_res_2693_ = l_Lake_Toml_stdTable_parenthesizer(v_a_2688_, v_a_2689_, v_a_2690_, v_a_2691_);
+lean_dec(v_a_2691_);
+lean_dec_ref(v_a_2690_);
+lean_dec(v_a_2689_);
+lean_dec_ref(v_a_2688_);
 return v_res_2693_;
 }
 }
@@ -7773,6 +7873,10 @@ _start:
 {
 lean_object* v_res_2726_; 
 v_res_2726_ = l_Lake_Toml_arrayTable_parenthesizer(v_a_2721_, v_a_2722_, v_a_2723_, v_a_2724_);
+lean_dec(v_a_2724_);
+lean_dec_ref(v_a_2723_);
+lean_dec(v_a_2722_);
+lean_dec_ref(v_a_2721_);
 return v_res_2726_;
 }
 }
@@ -7791,6 +7895,10 @@ _start:
 {
 lean_object* v_res_2740_; 
 v_res_2740_ = l_Lake_Toml_table_parenthesizer(v_a_2735_, v_a_2736_, v_a_2737_, v_a_2738_);
+lean_dec(v_a_2738_);
+lean_dec_ref(v_a_2737_);
+lean_dec(v_a_2736_);
+lean_dec_ref(v_a_2735_);
 return v_res_2740_;
 }
 }
@@ -7814,6 +7922,10 @@ _start:
 {
 lean_object* v_res_2764_; 
 v_res_2764_ = l___private_Lake_Toml_Grammar_0__Lake_Toml_expressionCore_parenthesizer(v_val_2758_, v_a_2759_, v_a_2760_, v_a_2761_, v_a_2762_);
+lean_dec(v_a_2762_);
+lean_dec_ref(v_a_2761_);
+lean_dec(v_a_2760_);
+lean_dec_ref(v_a_2759_);
 return v_res_2764_;
 }
 }
@@ -7883,6 +7995,10 @@ _start:
 {
 lean_object* v_res_2804_; 
 v_res_2804_ = l___private_Lake_Toml_Grammar_0__Lake_Toml_tomlCore_parenthesizer(v_val_2798_, v_a_2799_, v_a_2800_, v_a_2801_, v_a_2802_);
+lean_dec(v_a_2802_);
+lean_dec_ref(v_a_2801_);
+lean_dec(v_a_2800_);
+lean_dec_ref(v_a_2799_);
 return v_res_2804_;
 }
 }
@@ -7903,6 +8019,10 @@ _start:
 {
 lean_object* v_res_2820_; 
 v_res_2820_ = l_Lake_Toml_val_parenthesizer(v_a_2815_, v_a_2816_, v_a_2817_, v_a_2818_);
+lean_dec(v_a_2818_);
+lean_dec_ref(v_a_2817_);
+lean_dec(v_a_2816_);
+lean_dec_ref(v_a_2815_);
 return v_res_2820_;
 }
 }
@@ -7920,6 +8040,10 @@ _start:
 {
 lean_object* v_res_2833_; 
 v_res_2833_ = l_Lake_Toml_toml_parenthesizer(v_a_2828_, v_a_2829_, v_a_2830_, v_a_2831_);
+lean_dec(v_a_2831_);
+lean_dec_ref(v_a_2830_);
+lean_dec(v_a_2829_);
+lean_dec_ref(v_a_2828_);
 return v_res_2833_;
 }
 }

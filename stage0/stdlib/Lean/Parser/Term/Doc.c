@@ -40,6 +40,7 @@ uint8_t lean_usize_dec_eq(size_t, size_t);
 uint8_t l___private_Lean_Data_Name_0__Lean_Name_quickCmpImpl(lean_object*, lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_NameMap_insert_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___redArg(lean_object*);
+uint8_t l_String_instDecidableLtRaw___aux__1(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Array_push___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
@@ -520,9 +521,9 @@ return v___x_100_;
 LEAN_EXPORT lean_object* l_Lean_Parser_Term_Doc_initFn___lam__1_00___x40_Lean_Parser_Term_Doc_383197578____hygCtx___hyg_2____boxed(lean_object* v_x_111_, lean_object* v_s_112_, lean_object* v_x_113_){
 _start:
 {
-uint8_t v_x_1044__boxed_114_; lean_object* v_res_115_; 
-v_x_1044__boxed_114_ = lean_unbox(v_x_113_);
-v_res_115_ = l_Lean_Parser_Term_Doc_initFn___lam__1_00___x40_Lean_Parser_Term_Doc_383197578____hygCtx___hyg_2_(v_x_111_, v_s_112_, v_x_1044__boxed_114_);
+uint8_t v_x_895__boxed_114_; lean_object* v_res_115_; 
+v_x_895__boxed_114_ = lean_unbox(v_x_113_);
+v_res_115_ = l_Lean_Parser_Term_Doc_initFn___lam__1_00___x40_Lean_Parser_Term_Doc_383197578____hygCtx___hyg_2_(v_x_111_, v_s_112_, v_x_895__boxed_114_);
 lean_dec(v_s_112_);
 lean_dec_ref(v_x_111_);
 return v_res_115_;
@@ -741,9 +742,9 @@ return v_s_224_;
 LEAN_EXPORT lean_object* l_Lean_Parser_Term_Doc_initFn___lam__1_00___x40_Lean_Parser_Term_Doc_205972326____hygCtx___hyg_2____boxed(lean_object* v_x_226_, lean_object* v_s_227_, lean_object* v_x_228_){
 _start:
 {
-uint8_t v_x_291__boxed_229_; lean_object* v_res_230_; 
-v_x_291__boxed_229_ = lean_unbox(v_x_228_);
-v_res_230_ = l_Lean_Parser_Term_Doc_initFn___lam__1_00___x40_Lean_Parser_Term_Doc_205972326____hygCtx___hyg_2_(v_x_226_, v_s_227_, v_x_291__boxed_229_);
+uint8_t v_x_142__boxed_229_; lean_object* v_res_230_; 
+v_x_142__boxed_229_ = lean_unbox(v_x_228_);
+v_res_230_ = l_Lean_Parser_Term_Doc_initFn___lam__1_00___x40_Lean_Parser_Term_Doc_205972326____hygCtx___hyg_2_(v_x_226_, v_s_227_, v_x_142__boxed_229_);
 lean_dec_ref(v_s_227_);
 lean_dec_ref(v_x_226_);
 return v_res_230_;
@@ -1175,7 +1176,7 @@ v___x_397_ = lean_nat_sub(v___x_396_, v___x_394_);
 lean_dec(v___x_394_);
 v___x_398_ = lean_nat_add(v_pos_390_, v___x_397_);
 lean_dec(v___x_397_);
-v___x_399_ = lean_nat_dec_lt(v_pos_390_, v___x_398_);
+v___x_399_ = l_String_instDecidableLtRaw___aux__1(v_pos_390_, v___x_398_);
 if (v___x_399_ == 0)
 {
 lean_dec(v___x_398_);
@@ -1524,7 +1525,7 @@ goto v___jp_521_;
 v___jp_514_:
 {
 uint8_t v___x_515_; 
-v___x_515_ = lean_nat_dec_lt(v___x_513_, v_pos_503_);
+v___x_515_ = l_String_instDecidableLtRaw___aux__1(v___x_513_, v_pos_503_);
 if (v___x_515_ == 0)
 {
 lean_dec(v___x_513_);

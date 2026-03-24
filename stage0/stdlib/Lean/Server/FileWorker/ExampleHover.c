@@ -21,6 +21,7 @@ uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
+uint8_t l_String_instDecidableLtRaw___aux__1(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
@@ -266,7 +267,7 @@ v___x_56_ = lean_nat_sub(v___x_55_, v___x_48_);
 lean_dec(v___x_48_);
 v___x_57_ = lean_nat_add(v_pos_44_, v___x_56_);
 lean_dec(v___x_56_);
-v___x_58_ = lean_nat_dec_lt(v_pos_44_, v___x_57_);
+v___x_58_ = l_String_instDecidableLtRaw___aux__1(v_pos_44_, v___x_57_);
 if (v___x_58_ == 0)
 {
 lean_dec(v___x_57_);
@@ -788,7 +789,7 @@ v___x_230_ = lean_nat_sub(v___x_229_, v___x_222_);
 lean_dec(v___x_222_);
 v___x_231_ = lean_nat_add(v_pos_218_, v___x_230_);
 lean_dec(v___x_230_);
-v___x_232_ = lean_nat_dec_lt(v_pos_218_, v___x_231_);
+v___x_232_ = l_String_instDecidableLtRaw___aux__1(v_pos_218_, v___x_231_);
 if (v___x_232_ == 0)
 {
 lean_dec(v___x_231_);
@@ -889,7 +890,7 @@ v___x_245_ = lean_nat_sub(v___x_244_, v___x_242_);
 lean_dec(v___x_242_);
 v___x_246_ = lean_nat_add(v_pos_238_, v___x_245_);
 lean_dec(v___x_245_);
-v___x_247_ = lean_nat_dec_lt(v_pos_238_, v___x_246_);
+v___x_247_ = l_String_instDecidableLtRaw___aux__1(v_pos_238_, v___x_246_);
 if (v___x_247_ == 0)
 {
 lean_dec(v___x_246_);
@@ -956,7 +957,7 @@ v___x_281_ = lean_nat_sub(v___x_280_, v___x_273_);
 lean_dec(v___x_273_);
 v___x_282_ = lean_nat_add(v_pos_269_, v___x_281_);
 lean_dec(v___x_281_);
-v___x_283_ = lean_nat_dec_lt(v_pos_269_, v___x_282_);
+v___x_283_ = l_String_instDecidableLtRaw___aux__1(v_pos_269_, v___x_282_);
 if (v___x_283_ == 0)
 {
 lean_dec(v___x_282_);

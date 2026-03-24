@@ -10,6 +10,7 @@ public import Lean.Meta.Tactic.Grind.Main
 import Lean.Meta.Tactic.Grind.Intro
 public import Lean.Meta.Sym.Apply
 public import Lean.Meta.Sym.Util
+public import Lean.Meta.Sym.Simp.SimpM
 import Init.Omega
 public section
 namespace Lean.Elab.Tactic.Grind
@@ -24,11 +25,25 @@ structure Context extends Tactic.Context where
 
 open Meta.Grind (Goal)
 
+/-- An extra theorem passed to `simp` in `sym =>` mode. -/
+inductive ExtraTheorem where
+  | const (declName : Name)
+  | fvar  (fvarId : FVarId)
+  deriving BEq, Hashable
+
+/-- Cache key for `Sym.simp` variant invocations. -/
+structure SimpCacheKey where
+  variant : Name
+  extras  : Array ExtraTheorem
+  deriving BEq, Hashable
+
 structure Cache where
   /-- Cache for `BackwardRule`s created from declaration names (sym mode only). -/
   backwardRuleName : PHashMap Name Sym.BackwardRule := {}
   /-- Cache for `BackwardRule`s created from elaborated terms, keyed by syntax byte position range (sym mode only). -/
   backwardRuleSyntax : PHashMap (Nat × Nat) Sym.BackwardRule := {}
+  /-- Per-variant persistent `Sym.simp` cache. Keyed by variant name + extra theorem names. -/
+  simpState : Std.HashMap SimpCacheKey Sym.Simp.State := {}
 
 structure State where
   symState   : Meta.Sym.State
@@ -74,7 +89,7 @@ def SavedState.restore (b : SavedState) (restoreInfo := false) : GrindTacticM Un
 
 @[always_inline]
 instance : Monad GrindTacticM :=
-  let i := inferInstanceAs (Monad GrindTacticM)
+  let i : Monad GrindTacticM := inferInstance
   { pure := i.pure, bind := i.bind }
 
 instance : Inhabited (GrindTacticM α) where

@@ -46,11 +46,7 @@ External users wanting to look up names should be using `Lean.getConstInfo`.
 def getUnfoldableConst? (constName : Name) : MetaM (Option ConstantInfo) := do
   let some ainfo := (← getEnv).findAsync? constName | throwUnknownConstantAt (← getRef) constName
   match ainfo.kind with
-  | .thm =>
-    if (← shouldReduceAll) then
-      return some ainfo.toConstantInfo
-    else
-      return none
+  | .thm => return none
   | .defn => if (← canUnfold ainfo.toConstantInfo) then return ainfo.toConstantInfo else return none
   | _ => return none
 
@@ -59,7 +55,7 @@ As with `getUnfoldableConst?` but return `none` instead of failing if the consta
 -/
 def getUnfoldableConstNoEx? (constName : Name) : MetaM (Option ConstantInfo) := do
   match (← getEnv).find? constName with
-  | some (info@(.thmInfo _))  => getTheoremInfo info
+  | some (.thmInfo _)          => return none
   | some (info@(.defnInfo _)) => if (← canUnfold info) then return info else return none
   | some (.axiomInfo _)       => recordUnfoldAxiom constName; return none
   | _                         => return none

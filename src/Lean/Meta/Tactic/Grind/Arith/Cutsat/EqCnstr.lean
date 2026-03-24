@@ -276,6 +276,7 @@ private def propagateNonlinearPow (x : Var) : GoalM Bool := do
   c'.assert
   return true
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[export lean_cutsat_propagate_nonlinear]
 def propagateNonlinearTermImpl (y : Var) (x : Var) : GoalM Bool := do
   unless (← isVarEqConst? y).isSome do return false
@@ -338,6 +339,7 @@ partial def _root_.Int.Linear.Poly.updateOccsForElimEq (p : Poly) (x : Var) : Go
     go p
   go p
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[export lean_grind_cutsat_assert_eq]
 def EqCnstr.assertImpl (c : EqCnstr) : GoalM Unit := do
   if (← inconsistent) then return ()

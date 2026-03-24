@@ -1,8 +1,12 @@
+module
+
 /-!
 # Tests for delta deriving of instances for definitions
 
 In this file we test both `deriving` clauses on definitions and `deriving instance` commands.
 -/
+
+@[expose] public section
 
 /-!
 Simple definition, body has instance immediately.
@@ -62,18 +66,23 @@ def MyNat := Nat
 deriving OfNat
 
 /--
-info: @[implicit_reducible] def instOfNatMyNat : (_x_1 : Nat) → OfNat MyNat _x_1 :=
-fun _x_1 => instOfNatNat _x_1
+info: @[implicit_reducible, expose] def instOfNatMyNat : (_x_1 : Nat) → OfNat MyNat _x_1 :=
+fun _x_1 => { ofNat := instOfNatMyNat._aux_1 _x_1 }
 -/
 #guard_msgs in #print instOfNatMyNat
-
+/--
+info: @[expose] def instOfNatMyNat._aux_1 : Nat → MyNat :=
+fun _x_1 => _x_1
+-/
+#guard_msgs in
+#print instOfNatMyNat._aux_1
 /-!
 Explicit parameterization
 -/
 deriving instance (n : Nat) → OfNat _ n for MyNat
 /--
-info: @[implicit_reducible] def instOfNatMyNat_1 : (n : Nat) → OfNat MyNat n :=
-fun n => instOfNatNat n
+info: @[implicit_reducible, expose] def instOfNatMyNat_1 : (n : Nat) → OfNat MyNat n :=
+fun n => { ofNat := instOfNatMyNat_1._aux_1 n }
 -/
 #guard_msgs in #print instOfNatMyNat_1
 
@@ -85,8 +94,8 @@ variable (m : Nat)
 deriving instance OfNat _ m for MyNat
 end
 /--
-info: @[implicit_reducible] def instOfNatMyNat_2 : (m : Nat) → OfNat MyNat m :=
-fun m => instOfNatNat m
+info: @[implicit_reducible, expose] def instOfNatMyNat_2 : (m : Nat) → OfNat MyNat m :=
+fun m => { ofNat := instOfNatMyNat_2._aux_1 m }
 -/
 #guard_msgs in #print instOfNatMyNat_2
 
@@ -132,8 +141,8 @@ def MyFin'' := Fin
 deriving C1
 
 /--
-info: @[implicit_reducible] def instC1NatMyFin'' : @C1 Nat instDecidableEqNat MyFin'' :=
-instC1NatFin
+info: @[implicit_reducible, expose] def instC1NatMyFin'' : @C1 Nat instDecidableEqNat MyFin'' :=
+@C1.mk Nat instDecidableEqNat MyFin''
 -/
 #guard_msgs in set_option pp.explicit true in #print instC1NatMyFin''
 
@@ -164,13 +173,13 @@ instance (n : Nat) : OfNat' n Int := {}
 def MyInt := Int
 deriving OfNat', OfNat
 /--
-info: @[implicit_reducible] def instOfNat'MyInt : (_x_1 : Nat) → OfNat' _x_1 MyInt :=
-fun _x_1 => instOfNat'Int _x_1
+info: @[implicit_reducible, expose] def instOfNat'MyInt : (_x_1 : Nat) → OfNat' _x_1 MyInt :=
+fun _x_1 => { }
 -/
 #guard_msgs in #print instOfNat'MyInt
 /--
-info: @[implicit_reducible] def instOfNatMyInt : (_x_1 : Nat) → OfNat MyInt _x_1 :=
-fun _x_1 => instOfNat
+info: @[implicit_reducible, expose] def instOfNatMyInt : (_x_1 : Nat) → OfNat MyInt _x_1 :=
+fun _x_1 => { ofNat := instOfNatMyInt._aux_1 _x_1 }
 -/
 #guard_msgs in #print instOfNatMyInt
 
@@ -201,8 +210,9 @@ def NewRing (R : Type _) [Semiring R] := R
 deriving Module R
 
 /--
-info: @[implicit_reducible] def instModuleNewRing.{u_1} : (R : Type u_1) → [inst : Semiring R] → Module R (NewRing R) :=
-fun R [Semiring R] => instModule R
+info: @[implicit_reducible, expose] def instModuleNewRing.{u_1} : (R : Type u_1) →
+  [inst : Semiring R] → Module R (NewRing R) :=
+fun R [Semiring R] => { }
 -/
 #guard_msgs in #print instModuleNewRing
 
@@ -221,8 +231,9 @@ def NewRing' (R : Type _) := R
 deriving instance Module R for NewRing' R
 
 /--
-info: @[implicit_reducible] def instModuleNewRing'.{u_1} : (R : Type u_1) → [inst : Semiring R] → Module R (NewRing' R) :=
-fun R [Semiring R] => instModule R
+info: @[implicit_reducible, expose] def instModuleNewRing'.{u_1} : (R : Type u_1) →
+  [inst : Semiring R] → Module R (NewRing' R) :=
+fun R [Semiring R] => { }
 -/
 #guard_msgs in #print instModuleNewRing'
 end
@@ -236,8 +247,8 @@ instance : C2 Type Prop := {}
 def Prop' := Prop
 deriving C2
 /--
-info: @[implicit_reducible] def instC2TypeProp' : C2 Type Prop' :=
-instC2TypeProp
+info: @[implicit_reducible, expose] def instC2TypeProp' : C2 Type Prop' :=
+{ }
 -/
 #guard_msgs in #print instC2TypeProp'
 

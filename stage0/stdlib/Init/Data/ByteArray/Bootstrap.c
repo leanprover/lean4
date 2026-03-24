@@ -62,9 +62,25 @@ return v___x_17_;
 LEAN_EXPORT lean_object* l___private_Init_Data_ByteArray_Bootstrap_0__List_toByteArray_match__1_splitter(lean_object* v_motive_18_, lean_object* v_x_19_, lean_object* v_x_20_, lean_object* v_h__1_21_, lean_object* v_h__2_22_){
 _start:
 {
+if (lean_obj_tag(v_x_19_) == 0)
+{
 lean_object* v___x_23_; 
-v___x_23_ = l___private_Init_Data_ByteArray_Bootstrap_0__List_toByteArray_match__1_splitter___redArg(v_x_19_, v_x_20_, v_h__1_21_, v_h__2_22_);
+lean_dec(v_h__2_22_);
+v___x_23_ = lean_apply_1(v_h__1_21_, v_x_20_);
 return v___x_23_;
+}
+else
+{
+lean_object* v_head_24_; lean_object* v_tail_25_; lean_object* v___x_26_; 
+lean_dec(v_h__1_21_);
+v_head_24_ = lean_ctor_get(v_x_19_, 0);
+lean_inc(v_head_24_);
+v_tail_25_ = lean_ctor_get(v_x_19_, 1);
+lean_inc(v_tail_25_);
+lean_dec_ref(v_x_19_);
+v___x_26_ = lean_apply_3(v_h__2_22_, v_head_24_, v_tail_25_, v_x_20_);
+return v___x_26_;
+}
 }
 }
 lean_object* runtime_initialize_Init_Data_List_Basic(uint8_t builtin);

@@ -3354,6 +3354,10 @@ _start:
 {
 lean_object* v_res_1104_; 
 v_res_1104_ = l_Lean_Meta_Ext_getExtTheorems(v_ty_1098_, v_a_1099_, v_a_1100_, v_a_1101_, v_a_1102_);
+lean_dec(v_a_1102_);
+lean_dec_ref(v_a_1101_);
+lean_dec(v_a_1100_);
+lean_dec_ref(v_a_1099_);
 return v_res_1104_;
 }
 }

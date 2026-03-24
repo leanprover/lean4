@@ -1,7 +1,7 @@
 [Meta.debug] ----- tst2 -----
 [Meta.debug] #[a, b, motive, t, inl, inr]
 [Meta.debug] #[a, b, motive, intro, t]
-[Meta.debug] #[x, a._@._internal._hyg.0, a._@._internal._hyg.0, a._@._internal._hyg.0, a._@._internal._hyg.0, a._@._internal._hyg.0]
+[Meta.debug] #[x, a, a, a, a, a._@._internal._hyg.0]
 [Meta.debug] @False.elim.{0}
       (@GT.gt.{0} Nat instLTNat (@OfNat.ofNat.{0} Nat (nat_lit 0) (instOfNatNat (nat_lit 0)))
         (@OfNat.ofNat.{0} Nat (nat_lit 5) (instOfNatNat (nat_lit 5))))

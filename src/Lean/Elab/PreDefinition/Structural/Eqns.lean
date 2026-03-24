@@ -184,6 +184,7 @@ def getUnfoldFor? (declName : Name) : MetaM (Option Name) := do
   else
     return none
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[export lean_get_structural_rec_arg_pos]
 def getStructuralRecArgPosImp? (declName : Name) : CoreM (Option Nat) := do
   let some info := eqnInfoExt.find? (← getEnv) declName | return none

@@ -2883,6 +2883,8 @@ uint8_t v_checkMeta_boxed_1059_; lean_object* v_res_1060_;
 v_checkMeta_boxed_1059_ = lean_unbox(v_checkMeta_1054_);
 v_res_1060_ = l_Lean_evalConst___redArg___lam__0(v_____do__lift_1052_, v_constName_1053_, v_checkMeta_boxed_1059_, v_inst_1055_, v_inst_1056_, v___x_1057_, v_____do__lift_1058_);
 lean_dec_ref(v_____do__lift_1058_);
+lean_dec(v_constName_1053_);
+lean_dec_ref(v_____do__lift_1052_);
 return v_res_1060_;
 }
 }

@@ -101,7 +101,7 @@ def inferDefEqAttr (declName : Name) : MetaM Unit := do
   withoutExporting do
     let info ← getConstInfo declName
     let isRfl ←
-      if let some value := info.value? then
+      if let some value := info.value? (allowOpaque := true) then
         isRflProofCore info.type value
       else
         pure false

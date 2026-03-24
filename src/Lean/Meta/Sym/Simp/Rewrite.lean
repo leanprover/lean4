@@ -9,6 +9,7 @@ public import Lean.Meta.Sym.Simp.Simproc
 public import Lean.Meta.Sym.Simp.Theorems
 public import Lean.Meta.Sym.Simp.App
 public import Lean.Meta.Sym.Simp.Discharger
+import Lean.Meta.ACLt
 import Lean.Meta.Sym.InstantiateS
 import Lean.Meta.Sym.InstantiateMVarsS
 import Init.Data.Range.Polymorphic.Iterators
@@ -71,10 +72,16 @@ public def Theorem.rewrite (thm : Theorem) (e : Expr) (d : Discharger := dischar
     let expr  ← instantiateRevBetaS rhs args.toArray
     if isSameExpr e expr then
       return mkRflResultCD isCD
+    else if !(← checkPerm thm.perm e expr) then
+      return mkRflResultCD isCD
     else
       return .step expr proof (contextDependent := isCD)
   else
     return .rfl
+where
+  checkPerm (perm : Bool) (e result : Expr) : MetaM Bool := do
+    if !perm then return true
+    acLt result e
 
 public def Theorems.rewrite (thms : Theorems) (d : Discharger := dischargeNone) : Simproc := fun e => do
   -- Track `cd` across all attempted theorems. If theorem A fails with cd=true

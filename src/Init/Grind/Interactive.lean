@@ -107,6 +107,9 @@ syntax (name := showLocalThms) "show_local_thms" : grind
 -/
 syntax (name := showTerm) "show_term " grindSeq : grind
 
+/-- Shows the pending goals. -/
+syntax (name := showGoals) "show_goals" : grind
+
 declare_syntax_cat grind_ref (behavior := both)
 
 syntax:max anchor : grind_ref
@@ -205,7 +208,7 @@ macro:1 x:grind tk:" <;> " y:grind:2 : grind => `(grind|
     with_annotate_state $tk skip
     all_goals $y:grind)
 
-/-- `first | tac | ...` runs each `tac` until one succeeds, or else fails. -/
+/-- `first (tac) ...` runs each `tac` until one succeeds, or else fails. -/
 syntax (name := first) "first " withPosition((ppDedent(ppLine) colGe "(" grindSeq ")")+) : grind
 
 /-- `try tac` runs `tac` and succeeds even if `tac` failed. -/
@@ -303,6 +306,20 @@ syntax (name := symInternalizeAll) "internalize_all" : grind
 /-- `by_contra` applies proof by contradiction, negating the target and making it `False`.
 Only available in `sym =>` mode. -/
 syntax (name := symByContra) "by_contra" : grind
+
+/--
+`simp` applies the structural simplifier to the goal target.
+Only available in `sym =>` mode.
+
+- `simp` — uses the default (identity) variant
+- `simp myVariant` — uses a named variant registered via `register_sym_simp`
+- `simp [thm₁, thm₂, ...]` — default variant with extra rewrite theorems appended to `post`
+- `simp myVariant [thm₁, thm₂, ...]` — named variant with extra theorems
+-/
+syntax (name := symSimp) "simp" (ppSpace colGt ident)? (" [" ident,* "]")? : grind
+
+/-- `exact e` closes the main goal if its target type matches that of `e`. -/
+macro "exact " e:term : grind => `(grind| tactic => exact $e:term)
 
 end Grind
 end Lean.Parser.Tactic

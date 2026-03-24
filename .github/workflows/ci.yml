@@ -61,15 +61,19 @@ jobs:
             git remote add nightly https://foo:'${{ secrets.PUSH_NIGHTLY_TOKEN }}'@github.com/${{ github.repository_owner }}/lean4-nightly.git
             git fetch nightly --tags
             if [[ '${{ github.event_name }}' == 'workflow_dispatch' ]]; then
-              # Manual re-release: create a revision of the most recent nightly
-              BASE_NIGHTLY=$(git tag -l 'nightly-*' | sort -rV | head -1)
-              # Strip any existing -revK suffix to get the base date tag
-              BASE_NIGHTLY="${BASE_NIGHTLY%%-rev*}"
-              REV=1
-              while git rev-parse "refs/tags/${BASE_NIGHTLY}-rev${REV}" >/dev/null 2>&1; do
-                REV=$((REV + 1))
-              done
-              LEAN_VERSION_STRING="${BASE_NIGHTLY}-rev${REV}"
+              # Manual re-release: retry today's nightly, or create a revision if it already exists
+              TODAY_NIGHTLY="nightly-$(date -u +%F)"
+              if git rev-parse "refs/tags/${TODAY_NIGHTLY}" >/dev/null 2>&1; then
+                # Today's nightly already exists, create a revision
+                REV=1
+                while git rev-parse "refs/tags/${TODAY_NIGHTLY}-rev${REV}" >/dev/null 2>&1; do
+                  REV=$((REV + 1))
+                done
+                LEAN_VERSION_STRING="${TODAY_NIGHTLY}-rev${REV}"
+              else
+                # Today's nightly doesn't exist yet (e.g. scheduled run failed), create it
+                LEAN_VERSION_STRING="${TODAY_NIGHTLY}"
+              fi
               echo "nightly=$LEAN_VERSION_STRING" >> "$GITHUB_OUTPUT"
             else
               # Scheduled: do nothing if commit already has a different tag

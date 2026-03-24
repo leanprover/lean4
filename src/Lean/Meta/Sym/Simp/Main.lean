@@ -40,6 +40,7 @@ abbrev cacheResult (e : Expr) (r : Result) : SimpM Result := do
     modify fun s => { s with persistentCache := s.persistentCache.insert { expr := e } r }
   return r
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[export lean_sym_simp]
 def simpImpl (e₁ : Expr) : SimpM Result := withIncRecDepth do
   let numSteps := (← get).numSteps

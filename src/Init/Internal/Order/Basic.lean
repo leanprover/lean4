@@ -954,7 +954,7 @@ theorem monotone_readerTRun [PartialOrder γ]
 instance [inst : PartialOrder (m α)] : PartialOrder (StateRefT' ω σ m α) := instOrderPi
 instance [inst : CCPO (m α)] : CCPO (StateRefT' ω σ m α) := instCCPOPi
 instance [Monad m] [∀ α, PartialOrder (m α)] [MonoBind m] : MonoBind (StateRefT' ω σ m) :=
-  inferInstanceAs (MonoBind (ReaderT _ _))
+  inferInstanceAs (MonoBind (ReaderT (ST.Ref ω σ) m))
 
 @[partial_fixpoint_monotone]
 theorem monotone_stateRefT'Run [PartialOrder γ]

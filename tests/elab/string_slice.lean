@@ -263,3 +263,7 @@ example {s : String} : (Id.run do
     List.forIn_pure_yield_eq_foldl, bind_pure, Id.run_pure, ← String.toList_inj]
   suffices ∀ (t : String), (cs.foldl (fun b a => b.push a) t).toList = t.toList ++ cs by simpa using this ""
   induction cs <;> simp_all
+
+example : hash "abc" = hash "abc".toSlice := by native_decide
+example : hash "abc" = hash ("aabc".toSlice.drop 1) := by native_decide
+example : hash "abc" = hash ("aabcc".toSlice.drop 1 |>.take 3) := by native_decide

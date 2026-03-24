@@ -36,7 +36,7 @@ instance : ToString (Ordinal leap) where
   toString r := toString r.val
 
 instance : OfNat (Ordinal leap) n := by
-  have inst := inferInstanceAs (OfNat (Bounded.LE 0 (0 + (59 : Nat))) n)
+  have inst : OfNat (Bounded.LE 0 (0 + (59 : Nat))) n := inferInstance
   cases leap
   · exact inst
   · exact ⟨inst.ofNat.expandTop (by decide)⟩

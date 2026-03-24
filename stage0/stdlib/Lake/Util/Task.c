@@ -13,8 +13,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* lean_task_pure(lean_object*);
 lean_object* lean_task_bind(lean_object*, lean_object*, lean_object*, uint8_t);
+lean_object* lean_task_pure(lean_object*);
 lean_object* lean_task_map(lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_Function_const___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_instInhabitedOfMonad___redArg(lean_object*, lean_object*);
@@ -52,7 +52,42 @@ static const lean_object* l_Lake_instMonadTask__lake___closed__8 = (const lean_o
 static const lean_ctor_object l_Lake_instMonadTask__lake___closed__9_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 0, .m_other = 2, .m_tag = 0}, .m_objs = {((lean_object*)&l_Lake_instMonadTask__lake___closed__8_value),((lean_object*)&l_Lake_instMonadTask__lake___closed__4_value)}};
 static const lean_object* l_Lake_instMonadTask__lake___closed__9 = (const lean_object*)&l_Lake_instMonadTask__lake___closed__9_value;
 LEAN_EXPORT const lean_object* l_Lake_instMonadTask__lake = (const lean_object*)&l_Lake_instMonadTask__lake___closed__9_value;
-LEAN_EXPORT const lean_object* l_Lake_instMonadBaseIOTask = (const lean_object*)&l_Lake_instMonadTask__lake___closed__9_value;
+LEAN_EXPORT lean_object* l_Lake_instMonadBaseIOTask___aux__1___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_instMonadBaseIOTask___aux__1(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_instMonadBaseIOTask___aux__3___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_instMonadBaseIOTask___aux__3(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_instMonadBaseIOTask___aux__5___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Lake_instMonadBaseIOTask___aux__5(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_instMonadBaseIOTask___aux__7___redArg___lam__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_instMonadBaseIOTask___aux__7___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_instMonadBaseIOTask___aux__7(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_instMonadBaseIOTask___aux__9___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_instMonadBaseIOTask___aux__9(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_instMonadBaseIOTask___aux__11___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_instMonadBaseIOTask___aux__11(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_instMonadBaseIOTask___aux__13___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_instMonadBaseIOTask___aux__13(lean_object*, lean_object*, lean_object*, lean_object*);
+static const lean_closure_object l_Lake_instMonadBaseIOTask___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lake_instMonadBaseIOTask___aux__1, .m_arity = 4, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Lake_instMonadBaseIOTask___closed__0 = (const lean_object*)&l_Lake_instMonadBaseIOTask___closed__0_value;
+static const lean_closure_object l_Lake_instMonadBaseIOTask___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lake_instMonadBaseIOTask___aux__3, .m_arity = 4, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Lake_instMonadBaseIOTask___closed__1 = (const lean_object*)&l_Lake_instMonadBaseIOTask___closed__1_value;
+static const lean_ctor_object l_Lake_instMonadBaseIOTask___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 0, .m_other = 2, .m_tag = 0}, .m_objs = {((lean_object*)&l_Lake_instMonadBaseIOTask___closed__0_value),((lean_object*)&l_Lake_instMonadBaseIOTask___closed__1_value)}};
+static const lean_object* l_Lake_instMonadBaseIOTask___closed__2 = (const lean_object*)&l_Lake_instMonadBaseIOTask___closed__2_value;
+static const lean_closure_object l_Lake_instMonadBaseIOTask___closed__3_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lake_instMonadBaseIOTask___aux__5, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Lake_instMonadBaseIOTask___closed__3 = (const lean_object*)&l_Lake_instMonadBaseIOTask___closed__3_value;
+static const lean_closure_object l_Lake_instMonadBaseIOTask___closed__4_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lake_instMonadBaseIOTask___aux__7, .m_arity = 4, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Lake_instMonadBaseIOTask___closed__4 = (const lean_object*)&l_Lake_instMonadBaseIOTask___closed__4_value;
+static const lean_closure_object l_Lake_instMonadBaseIOTask___closed__5_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lake_instMonadBaseIOTask___aux__9, .m_arity = 4, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Lake_instMonadBaseIOTask___closed__5 = (const lean_object*)&l_Lake_instMonadBaseIOTask___closed__5_value;
+static const lean_closure_object l_Lake_instMonadBaseIOTask___closed__6_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lake_instMonadBaseIOTask___aux__11, .m_arity = 4, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Lake_instMonadBaseIOTask___closed__6 = (const lean_object*)&l_Lake_instMonadBaseIOTask___closed__6_value;
+static const lean_ctor_object l_Lake_instMonadBaseIOTask___closed__7_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*5 + 0, .m_other = 5, .m_tag = 0}, .m_objs = {((lean_object*)&l_Lake_instMonadBaseIOTask___closed__2_value),((lean_object*)&l_Lake_instMonadBaseIOTask___closed__3_value),((lean_object*)&l_Lake_instMonadBaseIOTask___closed__4_value),((lean_object*)&l_Lake_instMonadBaseIOTask___closed__5_value),((lean_object*)&l_Lake_instMonadBaseIOTask___closed__6_value)}};
+static const lean_object* l_Lake_instMonadBaseIOTask___closed__7 = (const lean_object*)&l_Lake_instMonadBaseIOTask___closed__7_value;
+static const lean_closure_object l_Lake_instMonadBaseIOTask___closed__8_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lake_instMonadBaseIOTask___aux__13, .m_arity = 4, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Lake_instMonadBaseIOTask___closed__8 = (const lean_object*)&l_Lake_instMonadBaseIOTask___closed__8_value;
+static const lean_ctor_object l_Lake_instMonadBaseIOTask___closed__9_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 0, .m_other = 2, .m_tag = 0}, .m_objs = {((lean_object*)&l_Lake_instMonadBaseIOTask___closed__7_value),((lean_object*)&l_Lake_instMonadBaseIOTask___closed__8_value)}};
+static const lean_object* l_Lake_instMonadBaseIOTask___closed__9 = (const lean_object*)&l_Lake_instMonadBaseIOTask___closed__9_value;
+LEAN_EXPORT const lean_object* l_Lake_instMonadBaseIOTask = (const lean_object*)&l_Lake_instMonadBaseIOTask___closed__9_value;
 LEAN_EXPORT lean_object* l_Lake_instInhabitedBaseIOTask___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instInhabitedBaseIOTask(lean_object*, lean_object*);
 static lean_once_cell_t l_Lake_instInhabitedOptionIOTask___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
@@ -192,38 +227,206 @@ v___x_74_ = lean_task_bind(v_x_69_, v___f_71_, v___x_72_, v___x_73_);
 return v___x_74_;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_instInhabitedBaseIOTask___redArg(lean_object* v_inst_99_){
+LEAN_EXPORT lean_object* l_Lake_instMonadBaseIOTask___aux__1___redArg(lean_object* v_f_98_, lean_object* v_x_99_){
 _start:
 {
-lean_object* v___x_100_; lean_object* v___x_101_; 
-v___x_100_ = ((lean_object*)(l_Lake_instMonadTask__lake));
-v___x_101_ = l_instInhabitedOfMonad___redArg(v___x_100_, v_inst_99_);
-return v___x_101_;
+lean_object* v___x_100_; uint8_t v___x_101_; lean_object* v___x_102_; 
+v___x_100_ = lean_unsigned_to_nat(0u);
+v___x_101_ = 0;
+v___x_102_ = lean_task_map(v_f_98_, v_x_99_, v___x_100_, v___x_101_);
+return v___x_102_;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_instInhabitedBaseIOTask(lean_object* v_00_u03b1_102_, lean_object* v_inst_103_){
+LEAN_EXPORT lean_object* l_Lake_instMonadBaseIOTask___aux__1(lean_object* v_00_u03b1_103_, lean_object* v_00_u03b2_104_, lean_object* v_f_105_, lean_object* v_x_106_){
 _start:
 {
-lean_object* v___x_104_; 
-v___x_104_ = l_Lake_instInhabitedBaseIOTask___redArg(v_inst_103_);
-return v___x_104_;
+lean_object* v___x_107_; uint8_t v___x_108_; lean_object* v___x_109_; 
+v___x_107_ = lean_unsigned_to_nat(0u);
+v___x_108_ = 0;
+v___x_109_ = lean_task_map(v_f_105_, v_x_106_, v___x_107_, v___x_108_);
+return v___x_109_;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_instMonadBaseIOTask___aux__3___redArg(lean_object* v_a_110_, lean_object* v_a_111_){
+_start:
+{
+lean_object* v___x_112_; lean_object* v___x_113_; uint8_t v___x_114_; lean_object* v___x_115_; 
+v___x_112_ = lean_alloc_closure((void*)(l_Function_const___boxed), 4, 3);
+lean_closure_set(v___x_112_, 0, lean_box(0));
+lean_closure_set(v___x_112_, 1, lean_box(0));
+lean_closure_set(v___x_112_, 2, v_a_110_);
+v___x_113_ = lean_unsigned_to_nat(0u);
+v___x_114_ = 0;
+v___x_115_ = lean_task_map(v___x_112_, v_a_111_, v___x_113_, v___x_114_);
+return v___x_115_;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_instMonadBaseIOTask___aux__3(lean_object* v_00_u03b1_116_, lean_object* v_00_u03b2_117_, lean_object* v_a_118_, lean_object* v_a_119_){
+_start:
+{
+lean_object* v___x_120_; lean_object* v___x_121_; uint8_t v___x_122_; lean_object* v___x_123_; 
+v___x_120_ = lean_alloc_closure((void*)(l_Function_const___boxed), 4, 3);
+lean_closure_set(v___x_120_, 0, lean_box(0));
+lean_closure_set(v___x_120_, 1, lean_box(0));
+lean_closure_set(v___x_120_, 2, v_a_118_);
+v___x_121_ = lean_unsigned_to_nat(0u);
+v___x_122_ = 0;
+v___x_123_ = lean_task_map(v___x_120_, v_a_119_, v___x_121_, v___x_122_);
+return v___x_123_;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_instMonadBaseIOTask___aux__5___redArg(lean_object* v_get_124_){
+_start:
+{
+lean_object* v___x_125_; 
+v___x_125_ = lean_task_pure(v_get_124_);
+return v___x_125_;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_instMonadBaseIOTask___aux__5(lean_object* v_00_u03b1_126_, lean_object* v_get_127_){
+_start:
+{
+lean_object* v___x_128_; 
+v___x_128_ = lean_task_pure(v_get_127_);
+return v___x_128_;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_instMonadBaseIOTask___aux__7___redArg___lam__0(lean_object* v_x_129_, lean_object* v_y_130_){
+_start:
+{
+lean_object* v___x_131_; lean_object* v___x_132_; lean_object* v___x_133_; uint8_t v___x_134_; lean_object* v___x_135_; 
+v___x_131_ = lean_box(0);
+v___x_132_ = lean_apply_1(v_x_129_, v___x_131_);
+v___x_133_ = lean_unsigned_to_nat(0u);
+v___x_134_ = 0;
+v___x_135_ = lean_task_map(v_y_130_, v___x_132_, v___x_133_, v___x_134_);
+return v___x_135_;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_instMonadBaseIOTask___aux__7___redArg(lean_object* v_f_136_, lean_object* v_x_137_){
+_start:
+{
+lean_object* v___f_138_; lean_object* v___x_139_; uint8_t v___x_140_; lean_object* v___x_141_; 
+v___f_138_ = lean_alloc_closure((void*)(l_Lake_instMonadBaseIOTask___aux__7___redArg___lam__0), 2, 1);
+lean_closure_set(v___f_138_, 0, v_x_137_);
+v___x_139_ = lean_unsigned_to_nat(0u);
+v___x_140_ = 0;
+v___x_141_ = lean_task_bind(v_f_136_, v___f_138_, v___x_139_, v___x_140_);
+return v___x_141_;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_instMonadBaseIOTask___aux__7(lean_object* v_00_u03b1_142_, lean_object* v_00_u03b2_143_, lean_object* v_f_144_, lean_object* v_x_145_){
+_start:
+{
+lean_object* v___f_146_; lean_object* v___x_147_; uint8_t v___x_148_; lean_object* v___x_149_; 
+v___f_146_ = lean_alloc_closure((void*)(l_Lake_instMonadBaseIOTask___aux__7___redArg___lam__0), 2, 1);
+lean_closure_set(v___f_146_, 0, v_x_145_);
+v___x_147_ = lean_unsigned_to_nat(0u);
+v___x_148_ = 0;
+v___x_149_ = lean_task_bind(v_f_144_, v___f_146_, v___x_147_, v___x_148_);
+return v___x_149_;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_instMonadBaseIOTask___aux__9___redArg(lean_object* v_x_150_, lean_object* v_y_151_){
+_start:
+{
+lean_object* v___f_152_; lean_object* v___f_153_; lean_object* v___x_154_; 
+v___f_152_ = ((lean_object*)(l_Lake_instMonadTask__lake___closed__4));
+v___f_153_ = lean_alloc_closure((void*)(l_Lake_instMonadTask__lake___lam__7), 3, 2);
+lean_closure_set(v___f_153_, 0, v_y_151_);
+lean_closure_set(v___f_153_, 1, v___f_152_);
+v___x_154_ = l_Lake_instMonadTask__lake___lam__5(lean_box(0), lean_box(0), v_x_150_, v___f_153_);
+return v___x_154_;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_instMonadBaseIOTask___aux__9(lean_object* v_00_u03b1_155_, lean_object* v_00_u03b2_156_, lean_object* v_x_157_, lean_object* v_y_158_){
+_start:
+{
+lean_object* v___f_159_; lean_object* v___f_160_; lean_object* v___x_161_; 
+v___f_159_ = ((lean_object*)(l_Lake_instMonadTask__lake___closed__4));
+v___f_160_ = lean_alloc_closure((void*)(l_Lake_instMonadTask__lake___lam__7), 3, 2);
+lean_closure_set(v___f_160_, 0, v_y_158_);
+lean_closure_set(v___f_160_, 1, v___f_159_);
+v___x_161_ = l_Lake_instMonadTask__lake___lam__5(lean_box(0), lean_box(0), v_x_157_, v___f_160_);
+return v___x_161_;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_instMonadBaseIOTask___aux__11___redArg(lean_object* v_x_162_, lean_object* v_y_163_){
+_start:
+{
+lean_object* v___f_164_; lean_object* v___x_165_; uint8_t v___x_166_; lean_object* v___x_167_; 
+v___f_164_ = lean_alloc_closure((void*)(l_Lake_instMonadTask__lake___lam__9___boxed), 2, 1);
+lean_closure_set(v___f_164_, 0, v_y_163_);
+v___x_165_ = lean_unsigned_to_nat(0u);
+v___x_166_ = 0;
+v___x_167_ = lean_task_bind(v_x_162_, v___f_164_, v___x_165_, v___x_166_);
+return v___x_167_;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_instMonadBaseIOTask___aux__11(lean_object* v_00_u03b1_168_, lean_object* v_00_u03b2_169_, lean_object* v_x_170_, lean_object* v_y_171_){
+_start:
+{
+lean_object* v___f_172_; lean_object* v___x_173_; uint8_t v___x_174_; lean_object* v___x_175_; 
+v___f_172_ = lean_alloc_closure((void*)(l_Lake_instMonadTask__lake___lam__9___boxed), 2, 1);
+lean_closure_set(v___f_172_, 0, v_y_171_);
+v___x_173_ = lean_unsigned_to_nat(0u);
+v___x_174_ = 0;
+v___x_175_ = lean_task_bind(v_x_170_, v___f_172_, v___x_173_, v___x_174_);
+return v___x_175_;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_instMonadBaseIOTask___aux__13___redArg(lean_object* v_x_176_, lean_object* v_f_177_){
+_start:
+{
+lean_object* v___x_178_; uint8_t v___x_179_; lean_object* v___x_180_; 
+v___x_178_ = lean_unsigned_to_nat(0u);
+v___x_179_ = 0;
+v___x_180_ = lean_task_bind(v_x_176_, v_f_177_, v___x_178_, v___x_179_);
+return v___x_180_;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_instMonadBaseIOTask___aux__13(lean_object* v_00_u03b1_181_, lean_object* v_00_u03b2_182_, lean_object* v_x_183_, lean_object* v_f_184_){
+_start:
+{
+lean_object* v___x_185_; uint8_t v___x_186_; lean_object* v___x_187_; 
+v___x_185_ = lean_unsigned_to_nat(0u);
+v___x_186_ = 0;
+v___x_187_ = lean_task_bind(v_x_183_, v_f_184_, v___x_185_, v___x_186_);
+return v___x_187_;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_instInhabitedBaseIOTask___redArg(lean_object* v_inst_208_){
+_start:
+{
+lean_object* v___x_209_; lean_object* v___x_210_; 
+v___x_209_ = ((lean_object*)(l_Lake_instMonadBaseIOTask));
+v___x_210_ = l_instInhabitedOfMonad___redArg(v___x_209_, v_inst_208_);
+return v___x_210_;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_instInhabitedBaseIOTask(lean_object* v_00_u03b1_211_, lean_object* v_inst_212_){
+_start:
+{
+lean_object* v___x_213_; 
+v___x_213_ = l_Lake_instInhabitedBaseIOTask___redArg(v_inst_212_);
+return v___x_213_;
 }
 }
 static lean_object* _init_l_Lake_instInhabitedOptionIOTask___closed__0(void){
 _start:
 {
-lean_object* v___x_105_; lean_object* v___x_106_; 
-v___x_105_ = lean_box(0);
-v___x_106_ = lean_task_pure(v___x_105_);
-return v___x_106_;
+lean_object* v___x_214_; lean_object* v___x_215_; 
+v___x_214_ = lean_box(0);
+v___x_215_ = lean_task_pure(v___x_214_);
+return v___x_215_;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_instInhabitedOptionIOTask(lean_object* v_00_u03b1_107_){
+LEAN_EXPORT lean_object* l_Lake_instInhabitedOptionIOTask(lean_object* v_00_u03b1_216_){
 _start:
 {
-lean_object* v___x_108_; 
-v___x_108_ = lean_obj_once(&l_Lake_instInhabitedOptionIOTask___closed__0, &l_Lake_instInhabitedOptionIOTask___closed__0_once, _init_l_Lake_instInhabitedOptionIOTask___closed__0);
-return v___x_108_;
+lean_object* v___x_217_; 
+v___x_217_ = lean_obj_once(&l_Lake_instInhabitedOptionIOTask___closed__0, &l_Lake_instInhabitedOptionIOTask___closed__0_once, _init_l_Lake_instInhabitedOptionIOTask___closed__0);
+return v___x_217_;
 }
 }
 lean_object* runtime_initialize_Init_Control_Option(uint8_t builtin);

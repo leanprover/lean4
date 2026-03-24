@@ -160,10 +160,10 @@ instance lattice [∀ i, Lattice (α' i)] : Lattice (∀ i, α' i) :=
 { Pi.semilatticeSup, Pi.semilatticeInf with }
 
 instance orderTop [∀ i, LE (α' i)] [∀ i, OrderTop (α' i)] : OrderTop (∀ i, α' i) :=
-  { inferInstanceAs (Top (∀ i, α' i)) with le_top := sorry }
+  { (inferInstance : Top (∀ i, α' i)) with le_top := sorry }
 
 instance orderBot [∀ i, LE (α' i)] [∀ i, OrderBot (α' i)] : OrderBot (∀ i, α' i) :=
-  { inferInstanceAs (Bot (∀ i, α' i)) with bot_le := sorry }
+  { (inferInstance : Bot (∀ i, α' i)) with bot_le := sorry }
 
 instance boundedOrder [∀ i, LE (α' i)] [∀ i, BoundedOrder (α' i)] : BoundedOrder (∀ i, α' i) :=
 { Pi.orderTop, Pi.orderBot with }

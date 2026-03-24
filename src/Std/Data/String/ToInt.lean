@@ -99,16 +99,32 @@ public theorem isInt_toSlice {s : String} : s.toSlice.isInt = s.isInt :=
   (rfl)
 
 @[simp]
+public theorem isInt_comp_toSlice : String.Slice.isInt ∘ String.toSlice = String.isInt := by
+  ext; simp
+
+@[simp]
 public theorem toInt?_toSlice {s : String} : s.toSlice.toInt? = s.toInt? :=
   (rfl)
+
+@[simp]
+public theorem toInt?_comp_toSlice : String.Slice.toInt? ∘ String.toSlice = String.toInt? := by
+  ext; simp
 
 @[simp]
 public theorem Slice.isInt_copy {s : Slice} : s.copy.isInt = s.isInt := by
   simpa [← isInt_toSlice] using Slice.isInt_congr (by simp)
 
 @[simp]
+public theorem Slice.isInt_comp_copy : String.isInt ∘ String.Slice.copy = String.Slice.isInt := by
+  ext; simp
+
+@[simp]
 public theorem Slice.toInt?_copy {s : Slice} : s.copy.toInt? = s.toInt? := by
   simpa [← isInt_toSlice] using Slice.toInt?_congr (by simp)
+
+@[simp]
+public theorem Slice.toInt?_comp_copy : String.toInt? ∘ String.Slice.copy = String.Slice.toInt? := by
+  ext; simp
 
 public theorem toInt?_eq_some_iff {s : String} {a : Int} :
     s.toInt? = some a ↔ (∃ b, s.toNat? = some b ∧ a = (b : Int)) ∨ ∃ t, s = "-" ++ t ∧ ∃ b, t.toNat? = some b ∧ a = -(b : Int) := by

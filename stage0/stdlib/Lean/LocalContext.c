@@ -61,7 +61,7 @@ lean_object* l_Id_instMonad___lam__1___boxed(lean_object*, lean_object*, lean_ob
 lean_object* l_Id_instMonad___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentArray_foldrM___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_fvarId_x21(lean_object*);
-lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_FVarIdSet_insert_spec__1___redArg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_instSingletonFVarIdFVarIdSet_spec__1___redArg(lean_object*, lean_object*, lean_object*);
 uint64_t l_Lean_instHashableFVarId_hash(lean_object*);
 size_t lean_uint64_to_usize(uint64_t);
 lean_object* lean_array_fget(lean_object*, lean_object*);
@@ -3532,7 +3532,7 @@ lean_ctor_set(v_decl_928_, 3, v_type_917_);
 lean_ctor_set_uint8(v_decl_928_, sizeof(void*)*4, v___x_926_);
 lean_ctor_set_uint8(v_decl_928_, sizeof(void*)*4 + 1, v___x_927_);
 lean_inc(v_fvarId_915_);
-v_auxDeclToFullName_929_ = l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_FVarIdSet_insert_spec__1___redArg(v_fvarId_915_, v_fullName_918_, v_auxDeclToFullName_921_);
+v_auxDeclToFullName_929_ = l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_instSingletonFVarIdFVarIdSet_spec__1___redArg(v_fvarId_915_, v_fullName_918_, v_auxDeclToFullName_921_);
 lean_inc_ref(v_decl_928_);
 v___x_930_ = l_Lean_PersistentHashMap_insert___at___00Lean_LocalContext_mkLocalDecl_spec__0___redArg(v_fvarIdToDecl_920_, v_fvarId_915_, v_decl_928_);
 v___x_931_ = lean_alloc_ctor(1, 1, 0);
@@ -12679,11 +12679,11 @@ goto v___jp_3765_;
 v___jp_3738_:
 {
 lean_object* v___x_3743_; 
-v___x_3743_ = l_Lean_LocalContext_setUserName(v_a_3727_, v___y_3742_, v___y_3740_);
+v___x_3743_ = l_Lean_LocalContext_setUserName(v_a_3727_, v___y_3742_, v___y_3741_);
 v_i_3726_ = v_n_3737_;
 v_a_3727_ = v___x_3743_;
 v___y_3728_ = v___y_3739_;
-v___y_3729_ = v___y_3741_;
+v___y_3729_ = v___y_3740_;
 goto _start;
 }
 v___jp_3745_:
@@ -12701,8 +12701,8 @@ v_fvarId_3752_ = lean_ctor_get(v___y_3746_, 1);
 lean_inc(v_fvarId_3752_);
 lean_dec_ref(v___y_3746_);
 v___y_3739_ = v___x_3748_;
-v___y_3740_ = v_fst_3750_;
-v___y_3741_ = v_snd_3751_;
+v___y_3740_ = v_snd_3751_;
+v___y_3741_ = v_fst_3750_;
 v___y_3742_ = v_fvarId_3752_;
 goto v___jp_3738_;
 }

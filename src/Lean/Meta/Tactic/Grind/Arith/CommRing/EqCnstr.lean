@@ -109,7 +109,7 @@ def _root_.Lean.Grind.CommRing.Poly.findSimp? (p : Poly) : RingM (Option EqCnstr
 /-- Simplifies `d.p` using `c`, and returns an extended polynomial derivation. -/
 def PolyDerivation.simplifyWith (d : PolyDerivation) (c : EqCnstr) : RingM PolyDerivation := do
   let some r := d.p.simp? c.p (← nonzeroChar?) | return d
-  incSteps
+  incSteps r.p.numTerms
   trace_goal[grind.ring.simp] "{← r.p.denoteExpr}"
   return .step r.p r.k₁ d r.k₂ r.m₂ c
 
@@ -137,7 +137,7 @@ def EqCnstr.simplifyWithCore (c₁ c₂ : EqCnstr) : RingM (Option EqCnstr) := d
     p := r.p
     h := .simp r.k₁ c₁ r.k₂ r.m₂ c₂
   }
-  incSteps
+  incSteps r.p.numTerms
   trace_goal[grind.ring.simp] "{← c.p.denoteExpr}"
   return some c
 

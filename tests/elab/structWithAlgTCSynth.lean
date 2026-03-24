@@ -338,11 +338,11 @@ class CommSemiring (R : Type u) extends Semiring R, CommMonoid R
 
 instance (priority := 100) CommSemiring.toNonUnitalCommSemiring [CommSemiring α] :
     NonUnitalCommSemiring α :=
-  { inferInstanceAs (CommMonoid α), inferInstanceAs (CommSemiring α) with }
+  { (inferInstance : CommMonoid α), (inferInstance : CommSemiring α) with }
 
 instance (priority := 100) CommSemiring.toCommMonoidWithZero [CommSemiring α] :
     CommMonoidWithZero α :=
-  { inferInstanceAs (CommMonoid α), inferInstanceAs (CommSemiring α) with }
+  { (inferInstance : CommMonoid α), (inferInstance : CommSemiring α) with }
 
 section HasDistribNeg
 
@@ -361,7 +361,7 @@ section MulZeroClass
 variable [MulZeroClass α] [HasDistribNeg α]
 
 instance (priority := 100) MulZeroClass.negZeroClass : NegZeroClass α :=
-  { inferInstanceAs (Zero α), inferInstanceAs (InvolutiveNeg α) with
+  { (inferInstance : Zero α), (inferInstance : InvolutiveNeg α) with
     neg_zero := sorry }
 
 end MulZeroClass
@@ -719,7 +719,7 @@ def AddMonoidAlgebra :=
   G →₀ k
 
 instance AddMonoidAlgebra.addCommMonoid : AddCommMonoid (AddMonoidAlgebra k G) :=
-  inferInstanceAs (AddCommMonoid (G →₀ k))
+  (inferInstance : AddCommMonoid (G →₀ k))
 
 end
 

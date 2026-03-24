@@ -164,6 +164,7 @@ LEAN_EXPORT lean_object* l_Lake_env(lean_object* v_cmd_3_, lean_object* v_args_4
 _start:
 {
 lean_object* v___x_7_; lean_object* v___x_8_; lean_object* v___x_9_; uint8_t v___x_10_; uint8_t v___x_11_; lean_object* v___x_12_; lean_object* v___x_13_; 
+lean_inc(v_a_5_);
 v___x_7_ = l_Lake_Workspace_augmentedEnvVars(v_a_5_);
 v___x_8_ = ((lean_object*)(l_Lake_env___closed__0));
 v___x_9_ = lean_box(0);
@@ -236,6 +237,7 @@ _start:
 {
 lean_object* v_res_28_; 
 v_res_28_ = l_Lake_env(v_cmd_24_, v_args_25_, v_a_26_);
+lean_dec(v_a_26_);
 return v_res_28_;
 }
 }
@@ -298,7 +300,6 @@ return v___x_66_;
 else
 {
 lean_object* v_a_67_; lean_object* v___x_69_; uint8_t v_isShared_70_; uint8_t v_isSharedCheck_74_; 
-lean_dec(v_a_59_);
 lean_dec_ref(v_args_57_);
 v_a_67_ = lean_ctor_get(v___x_64_, 0);
 v_isSharedCheck_74_ = !lean_is_exclusive(v___x_64_);
@@ -343,7 +344,6 @@ else
 {
 lean_object* v___x_75_; uint8_t v___x_76_; lean_object* v___x_77_; lean_object* v___x_78_; lean_object* v___x_79_; lean_object* v___x_80_; lean_object* v___x_81_; lean_object* v___x_82_; 
 lean_dec(v___x_61_);
-lean_dec(v_a_59_);
 lean_dec_ref(v_buildConfig_58_);
 lean_dec_ref(v_args_57_);
 v___x_75_ = ((lean_object*)(l_Lake_exe___closed__0));
@@ -365,6 +365,7 @@ _start:
 {
 lean_object* v_res_88_; 
 v_res_88_ = l_Lake_exe(v_name_83_, v_args_84_, v_buildConfig_85_, v_a_86_);
+lean_dec(v_a_86_);
 return v_res_88_;
 }
 }
@@ -1289,7 +1290,6 @@ else
 {
 lean_object* v_a_577_; lean_object* v___x_579_; uint8_t v_isShared_580_; uint8_t v_isSharedCheck_584_; 
 lean_dec_ref(v_testDriverArgs_475_);
-lean_dec(v_a_463_);
 lean_dec(v_args_461_);
 v_a_577_ = lean_ctor_get(v___x_572_, 0);
 v_isSharedCheck_584_ = !lean_is_exclusive(v___x_572_);
@@ -1390,7 +1390,6 @@ lean_dec(v_keyName_477_);
 lean_dec_ref(v_testDriverArgs_475_);
 lean_dec(v_fst_473_);
 lean_del_object(v___x_471_);
-lean_dec(v_a_463_);
 lean_dec_ref(v_buildConfig_462_);
 lean_dec(v_args_461_);
 goto v___jp_488_;
@@ -1420,7 +1419,6 @@ lean_dec(v_keyName_477_);
 lean_dec_ref(v_testDriverArgs_475_);
 lean_dec(v_fst_473_);
 lean_del_object(v___x_471_);
-lean_dec(v_a_463_);
 lean_dec_ref(v_buildConfig_462_);
 lean_dec(v_args_461_);
 goto v___jp_488_;
@@ -1440,7 +1438,6 @@ lean_dec(v_config_504_);
 lean_dec(v_name_502_);
 lean_dec(v_keyName_477_);
 lean_dec(v_fst_473_);
-lean_dec(v_a_463_);
 lean_dec_ref(v_buildConfig_462_);
 lean_dec(v_args_461_);
 goto v___jp_479_;
@@ -1457,7 +1454,6 @@ lean_dec(v_config_504_);
 lean_dec(v_name_502_);
 lean_dec(v_keyName_477_);
 lean_dec(v_fst_473_);
-lean_dec(v_a_463_);
 lean_dec_ref(v_buildConfig_462_);
 goto v___jp_479_;
 }
@@ -1568,6 +1564,7 @@ goto v_reusejp_532_;
 v_reusejp_532_:
 {
 lean_object* v___x_534_; 
+lean_inc(v_a_463_);
 v___x_534_ = l_Lake_Workspace_runBuild___redArg(v_a_463_, v___f_528_, v___x_533_);
 if (lean_obj_tag(v___x_534_) == 0)
 {
@@ -1669,7 +1666,6 @@ else
 {
 lean_object* v_a_586_; lean_object* v___x_588_; uint8_t v_isShared_589_; uint8_t v_isSharedCheck_593_; 
 lean_dec_ref(v_config_465_);
-lean_dec(v_a_463_);
 lean_dec_ref(v_buildConfig_462_);
 lean_dec(v_args_461_);
 v_a_586_ = lean_ctor_get(v___x_468_, 0);
@@ -1717,6 +1713,7 @@ _start:
 {
 lean_object* v_res_599_; 
 v_res_599_ = l_Lake_Package_test(v_pkg_594_, v_args_595_, v_buildConfig_596_, v_a_597_);
+lean_dec(v_a_597_);
 return v_res_599_;
 }
 }
@@ -1796,7 +1793,6 @@ lean_inc(v_baseName_618_);
 lean_dec(v_keyName_619_);
 lean_dec_ref(v_lintDriverArgs_617_);
 lean_dec(v_fst_615_);
-lean_dec(v_a_605_);
 lean_dec_ref(v_buildConfig_604_);
 lean_dec(v_args_603_);
 goto v___jp_621_;
@@ -1825,7 +1821,6 @@ lean_dec(v_name_641_);
 lean_dec(v_keyName_619_);
 lean_dec_ref(v_lintDriverArgs_617_);
 lean_dec(v_fst_615_);
-lean_dec(v_a_605_);
 lean_dec_ref(v_buildConfig_604_);
 lean_dec(v_args_603_);
 goto v___jp_621_;
@@ -1863,7 +1858,6 @@ else
 {
 lean_object* v_a_653_; lean_object* v___x_655_; uint8_t v_isShared_656_; uint8_t v_isSharedCheck_660_; 
 lean_dec_ref(v_lintDriverArgs_617_);
-lean_dec(v_a_605_);
 lean_dec(v_args_603_);
 v_a_653_ = lean_ctor_get(v___x_648_, 0);
 v_isSharedCheck_660_ = !lean_is_exclusive(v___x_648_);
@@ -1944,7 +1938,6 @@ else
 {
 lean_object* v_a_662_; lean_object* v___x_664_; uint8_t v_isShared_665_; uint8_t v_isSharedCheck_669_; 
 lean_dec_ref(v_config_607_);
-lean_dec(v_a_605_);
 lean_dec_ref(v_buildConfig_604_);
 lean_dec(v_args_603_);
 v_a_662_ = lean_ctor_get(v___x_610_, 0);
@@ -1992,6 +1985,7 @@ _start:
 {
 lean_object* v_res_675_; 
 v_res_675_ = l_Lake_Package_lint(v_pkg_670_, v_args_671_, v_buildConfig_672_, v_a_673_);
+lean_dec(v_a_673_);
 return v_res_675_;
 }
 }

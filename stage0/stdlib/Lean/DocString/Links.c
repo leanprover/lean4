@@ -312,8 +312,8 @@ goto v___jp_25_;
 v___jp_18_:
 {
 lean_object* v___x_21_; lean_object* v___x_22_; 
-v___x_21_ = lean_string_append(v___y_20_, v___y_19_);
-lean_dec_ref(v___y_19_);
+v___x_21_ = lean_string_append(v___y_19_, v___y_20_);
+lean_dec_ref(v___y_20_);
 v___x_22_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_22_, 0, v___x_21_);
 return v___x_22_;
@@ -327,8 +327,8 @@ v___x_29_ = lean_obj_once(&l_Lean_initFn___closed__2_00___x40_Lean_DocString_Lin
 v___x_30_ = lean_nat_dec_le(v___x_29_, v___x_28_);
 if (v___x_30_ == 0)
 {
-v___y_19_ = v___x_27_;
-v___y_20_ = v_r_26_;
+v___y_19_ = v_r_26_;
+v___y_20_ = v___x_27_;
 goto v___jp_18_;
 }
 else
@@ -340,8 +340,8 @@ v___x_33_ = lean_string_memcmp(v_r_26_, v___x_27_, v___x_32_, v___x_31_, v___x_2
 lean_dec(v___x_32_);
 if (v___x_33_ == 0)
 {
-v___y_19_ = v___x_27_;
-v___y_20_ = v_r_26_;
+v___y_19_ = v_r_26_;
+v___y_20_ = v___x_27_;
 goto v___jp_18_;
 }
 else
@@ -1784,8 +1784,8 @@ v___x_582_ = lean_nat_dec_lt(v___x_541_, v___x_581_);
 if (v___x_582_ == 0)
 {
 lean_dec_ref(v_buckets_578_);
-v___y_517_ = v_kind_551_;
-v___y_518_ = v___x_579_;
+v___y_517_ = v___x_579_;
+v___y_518_ = v_kind_551_;
 v___y_519_ = v___x_580_;
 goto v___jp_516_;
 }
@@ -1796,8 +1796,8 @@ v___x_583_ = lean_usize_of_nat(v___x_581_);
 v___x_584_ = ((size_t)0ULL);
 v___x_585_ = l___private_Init_Data_Array_Basic_0__Array_foldrMUnsafe_fold___at___00Lean_manualLink_spec__3(v_buckets_578_, v___x_583_, v___x_584_, v___x_580_);
 lean_dec_ref(v_buckets_578_);
-v___y_517_ = v_kind_551_;
-v___y_518_ = v___x_579_;
+v___y_517_ = v___x_579_;
+v___y_518_ = v_kind_551_;
 v___y_519_ = v___x_585_;
 goto v___jp_516_;
 }
@@ -1809,11 +1809,11 @@ v___jp_516_:
 lean_object* v___x_520_; lean_object* v___x_521_; lean_object* v_acceptableKinds_522_; lean_object* v___x_523_; lean_object* v___x_524_; lean_object* v___x_525_; lean_object* v___x_526_; lean_object* v___x_527_; lean_object* v___x_528_; 
 v___x_520_ = lean_box(0);
 v___x_521_ = l_List_mapTR_loop___at___00Lean_manualLink_spec__1(v___y_519_, v___x_520_);
-v_acceptableKinds_522_ = l_String_intercalate(v___y_518_, v___x_521_);
-lean_dec_ref(v___y_518_);
-v___x_523_ = ((lean_object*)(l_Lean_manualLink___closed__3));
-v___x_524_ = lean_string_append(v___x_523_, v___y_517_);
+v_acceptableKinds_522_ = l_String_intercalate(v___y_517_, v___x_521_);
 lean_dec_ref(v___y_517_);
+v___x_523_ = ((lean_object*)(l_Lean_manualLink___closed__3));
+v___x_524_ = lean_string_append(v___x_523_, v___y_518_);
+lean_dec_ref(v___y_518_);
 v___x_525_ = ((lean_object*)(l_Lean_manualLink___closed__4));
 v___x_526_ = lean_string_append(v___x_524_, v___x_525_);
 v___x_527_ = lean_string_append(v___x_526_, v_acceptableKinds_522_);

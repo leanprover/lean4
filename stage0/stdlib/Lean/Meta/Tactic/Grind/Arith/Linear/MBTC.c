@@ -892,10 +892,10 @@ return v___x_277_;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00__private_Lean_Meta_Tactic_Grind_Arith_Linear_MBTC_0__Lean_Meta_Grind_Arith_Linear_eqAssignment_spec__0_spec__0___redArg___boxed(lean_object* v_x_278_, lean_object* v_x_279_, lean_object* v_x_280_){
 _start:
 {
-size_t v_x_6862__boxed_281_; lean_object* v_res_282_; 
-v_x_6862__boxed_281_ = lean_unbox_usize(v_x_279_);
+size_t v_x_6397__boxed_281_; lean_object* v_res_282_; 
+v_x_6397__boxed_281_ = lean_unbox_usize(v_x_279_);
 lean_dec(v_x_279_);
-v_res_282_ = l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00__private_Lean_Meta_Tactic_Grind_Arith_Linear_MBTC_0__Lean_Meta_Grind_Arith_Linear_eqAssignment_spec__0_spec__0___redArg(v_x_278_, v_x_6862__boxed_281_, v_x_280_);
+v_res_282_ = l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00__private_Lean_Meta_Tactic_Grind_Arith_Linear_MBTC_0__Lean_Meta_Grind_Arith_Linear_eqAssignment_spec__0_spec__0___redArg(v_x_278_, v_x_6397__boxed_281_, v_x_280_);
 lean_dec_ref(v_x_280_);
 return v_res_282_;
 }
@@ -1367,10 +1367,10 @@ return v___x_420_;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00__private_Lean_Meta_Tactic_Grind_Arith_Linear_MBTC_0__Lean_Meta_Grind_Arith_Linear_eqAssignment_spec__0_spec__0___boxed(lean_object* v_00_u03b2_421_, lean_object* v_x_422_, lean_object* v_x_423_, lean_object* v_x_424_){
 _start:
 {
-size_t v_x_7141__boxed_425_; lean_object* v_res_426_; 
-v_x_7141__boxed_425_ = lean_unbox_usize(v_x_423_);
+size_t v_x_6640__boxed_425_; lean_object* v_res_426_; 
+v_x_6640__boxed_425_ = lean_unbox_usize(v_x_423_);
 lean_dec(v_x_423_);
-v_res_426_ = l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00__private_Lean_Meta_Tactic_Grind_Arith_Linear_MBTC_0__Lean_Meta_Grind_Arith_Linear_eqAssignment_spec__0_spec__0(v_00_u03b2_421_, v_x_422_, v_x_7141__boxed_425_, v_x_424_);
+v_res_426_ = l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00__private_Lean_Meta_Tactic_Grind_Arith_Linear_MBTC_0__Lean_Meta_Grind_Arith_Linear_eqAssignment_spec__0_spec__0(v_00_u03b2_421_, v_x_422_, v_x_6640__boxed_425_, v_x_424_);
 lean_dec_ref(v_x_424_);
 return v_res_426_;
 }
@@ -1408,6 +1408,16 @@ _start:
 {
 lean_object* v_res_472_; 
 v_res_472_ = l_Lean_Meta_Grind_Arith_Linear_mbtc(v_a_461_, v_a_462_, v_a_463_, v_a_464_, v_a_465_, v_a_466_, v_a_467_, v_a_468_, v_a_469_, v_a_470_);
+lean_dec(v_a_470_);
+lean_dec_ref(v_a_469_);
+lean_dec(v_a_468_);
+lean_dec_ref(v_a_467_);
+lean_dec(v_a_466_);
+lean_dec_ref(v_a_465_);
+lean_dec(v_a_464_);
+lean_dec_ref(v_a_463_);
+lean_dec(v_a_462_);
+lean_dec(v_a_461_);
 return v_res_472_;
 }
 }

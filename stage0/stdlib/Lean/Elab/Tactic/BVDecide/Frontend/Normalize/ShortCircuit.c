@@ -85,6 +85,8 @@ LEAN_EXPORT lean_object* l_Lean_MVarId_withContext___at___00Lean_Elab_Tactic_BVD
 _start:
 {
 lean_object* v___x_9_; 
+lean_inc(v___y_3_);
+lean_inc_ref(v___y_2_);
 v___x_9_ = lean_apply_7(v_x_1_, v___y_2_, v___y_3_, v___y_4_, v___y_5_, v___y_6_, v___y_7_, lean_box(0));
 return v___x_9_;
 }
@@ -94,6 +96,8 @@ _start:
 {
 lean_object* v_res_18_; 
 v_res_18_ = l_Lean_MVarId_withContext___at___00Lean_Elab_Tactic_BVDecide_Frontend_Normalize_shortCircuitPass_spec__0___redArg___lam__0(v_x_10_, v___y_11_, v___y_12_, v___y_13_, v___y_14_, v___y_15_, v___y_16_);
+lean_dec(v___y_12_);
+lean_dec_ref(v___y_11_);
 return v_res_18_;
 }
 }
@@ -101,6 +105,8 @@ LEAN_EXPORT lean_object* l_Lean_MVarId_withContext___at___00Lean_Elab_Tactic_BVD
 _start:
 {
 lean_object* v___f_28_; lean_object* v___x_29_; 
+lean_inc(v___y_22_);
+lean_inc_ref(v___y_21_);
 v___f_28_ = lean_alloc_closure((void*)(l_Lean_MVarId_withContext___at___00Lean_Elab_Tactic_BVDecide_Frontend_Normalize_shortCircuitPass_spec__0___redArg___lam__0___boxed), 8, 3);
 lean_closure_set(v___f_28_, 0, v_x_20_);
 lean_closure_set(v___f_28_, 1, v___y_21_);
@@ -158,6 +164,12 @@ _start:
 {
 lean_object* v_res_47_; 
 v_res_47_ = l_Lean_MVarId_withContext___at___00Lean_Elab_Tactic_BVDecide_Frontend_Normalize_shortCircuitPass_spec__0___redArg(v_mvarId_38_, v_x_39_, v___y_40_, v___y_41_, v___y_42_, v___y_43_, v___y_44_, v___y_45_);
+lean_dec(v___y_45_);
+lean_dec_ref(v___y_44_);
+lean_dec(v___y_43_);
+lean_dec_ref(v___y_42_);
+lean_dec(v___y_41_);
+lean_dec_ref(v___y_40_);
 return v_res_47_;
 }
 }
@@ -174,6 +186,12 @@ _start:
 {
 lean_object* v_res_69_; 
 v_res_69_ = l_Lean_MVarId_withContext___at___00Lean_Elab_Tactic_BVDecide_Frontend_Normalize_shortCircuitPass_spec__0(v_00_u03b1_59_, v_mvarId_60_, v_x_61_, v___y_62_, v___y_63_, v___y_64_, v___y_65_, v___y_66_, v___y_67_);
+lean_dec(v___y_67_);
+lean_dec_ref(v___y_66_);
+lean_dec(v___y_65_);
+lean_dec_ref(v___y_64_);
+lean_dec(v___y_63_);
+lean_dec_ref(v___y_62_);
 return v_res_69_;
 }
 }
@@ -210,10 +228,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_shortCir
 _start:
 {
 lean_object* v___x_100_; 
-lean_inc(v___y_98_);
-lean_inc_ref(v___y_97_);
-lean_inc(v___y_96_);
-lean_inc_ref(v___y_95_);
 lean_inc_ref(v___x_82_);
 v___x_100_ = l_Lean_Meta_SimpTheoremsArray_addTheorem(v_theorems_79_, v___x_80_, v___x_81_, v___x_82_, v___y_95_, v___y_96_, v___y_97_, v___y_98_);
 if (lean_obj_tag(v___x_100_) == 0)
@@ -230,10 +244,6 @@ lean_ctor_set_uint8(v___x_104_, sizeof(void*)*1, v___x_83_);
 lean_ctor_set_uint8(v___x_104_, sizeof(void*)*1 + 1, v___x_84_);
 v___x_105_ = l_Lean_Name_mkStr6(v___x_85_, v___x_86_, v___x_87_, v___x_88_, v___x_89_, v___x_102_);
 v___x_106_ = l_Lean_mkConst(v___x_105_, v___x_90_);
-lean_inc(v___y_98_);
-lean_inc_ref(v___y_97_);
-lean_inc(v___y_96_);
-lean_inc_ref(v___y_95_);
 v___x_107_ = l_Lean_Meta_SimpTheoremsArray_addTheorem(v_a_101_, v___x_104_, v___x_106_, v___x_82_, v___y_95_, v___y_96_, v___y_97_, v___y_98_);
 if (lean_obj_tag(v___x_107_) == 0)
 {
@@ -293,9 +303,6 @@ lean_object* v_a_117_; lean_object* v___x_118_;
 v_a_117_ = lean_ctor_get(v___x_116_, 0);
 lean_inc(v_a_117_);
 lean_dec_ref(v___x_116_);
-lean_inc(v___y_98_);
-lean_inc_ref(v___y_97_);
-lean_inc(v___y_96_);
 lean_inc_ref(v___y_95_);
 v___x_118_ = l_Lean_Meta_getPropHyps(v___y_95_, v___y_96_, v___y_97_, v___y_98_);
 if (lean_obj_tag(v___x_118_) == 0)
@@ -489,10 +496,6 @@ else
 {
 lean_object* v_a_160_; lean_object* v___x_162_; uint8_t v_isShared_163_; uint8_t v_isSharedCheck_167_; 
 lean_dec(v_a_117_);
-lean_dec(v___y_98_);
-lean_dec_ref(v___y_97_);
-lean_dec(v___y_96_);
-lean_dec_ref(v___y_95_);
 lean_dec(v_goal_92_);
 lean_dec(v___x_91_);
 v_a_160_ = lean_ctor_get(v___x_118_, 0);
@@ -537,10 +540,6 @@ return v___x_165_;
 else
 {
 lean_object* v_a_168_; lean_object* v___x_170_; uint8_t v_isShared_171_; uint8_t v_isSharedCheck_175_; 
-lean_dec(v___y_98_);
-lean_dec_ref(v___y_97_);
-lean_dec(v___y_96_);
-lean_dec_ref(v___y_95_);
 lean_dec(v_goal_92_);
 lean_dec(v___x_91_);
 v_a_168_ = lean_ctor_get(v___x_116_, 0);
@@ -586,10 +585,6 @@ else
 {
 lean_object* v_a_176_; lean_object* v___x_178_; uint8_t v_isShared_179_; uint8_t v_isSharedCheck_183_; 
 lean_dec(v_a_108_);
-lean_dec(v___y_98_);
-lean_dec_ref(v___y_97_);
-lean_dec(v___y_96_);
-lean_dec_ref(v___y_95_);
 lean_dec(v_goal_92_);
 lean_dec(v___x_91_);
 v_a_176_ = lean_ctor_get(v___x_109_, 0);
@@ -634,10 +629,6 @@ return v___x_181_;
 else
 {
 lean_object* v_a_184_; lean_object* v___x_186_; uint8_t v_isShared_187_; uint8_t v_isSharedCheck_191_; 
-lean_dec(v___y_98_);
-lean_dec_ref(v___y_97_);
-lean_dec(v___y_96_);
-lean_dec_ref(v___y_95_);
 lean_dec(v_goal_92_);
 lean_dec(v___x_91_);
 v_a_184_ = lean_ctor_get(v___x_107_, 0);
@@ -682,10 +673,6 @@ return v___x_189_;
 else
 {
 lean_object* v_a_192_; lean_object* v___x_194_; uint8_t v_isShared_195_; uint8_t v_isSharedCheck_199_; 
-lean_dec(v___y_98_);
-lean_dec_ref(v___y_97_);
-lean_dec(v___y_96_);
-lean_dec_ref(v___y_95_);
 lean_dec(v_goal_92_);
 lean_dec(v___x_91_);
 lean_dec(v___x_90_);
@@ -759,10 +746,14 @@ lean_object* v___y_219_ = _args[19];
 lean_object* v___y_220_ = _args[20];
 _start:
 {
-uint8_t v___x_5238__boxed_221_; uint8_t v___x_5239__boxed_222_; lean_object* v_res_223_; 
-v___x_5238__boxed_221_ = lean_unbox(v___x_204_);
-v___x_5239__boxed_222_ = lean_unbox(v___x_205_);
-v_res_223_ = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_shortCircuitPass___lam__0(v_theorems_200_, v___x_201_, v___x_202_, v___x_203_, v___x_5238__boxed_221_, v___x_5239__boxed_222_, v___x_206_, v___x_207_, v___x_208_, v___x_209_, v___x_210_, v___x_211_, v___x_212_, v_goal_213_, v___y_214_, v___y_215_, v___y_216_, v___y_217_, v___y_218_, v___y_219_);
+uint8_t v___x_5231__boxed_221_; uint8_t v___x_5232__boxed_222_; lean_object* v_res_223_; 
+v___x_5231__boxed_221_ = lean_unbox(v___x_204_);
+v___x_5232__boxed_222_ = lean_unbox(v___x_205_);
+v_res_223_ = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_shortCircuitPass___lam__0(v_theorems_200_, v___x_201_, v___x_202_, v___x_203_, v___x_5231__boxed_221_, v___x_5232__boxed_222_, v___x_206_, v___x_207_, v___x_208_, v___x_209_, v___x_210_, v___x_211_, v___x_212_, v_goal_213_, v___y_214_, v___y_215_, v___y_216_, v___y_217_, v___y_218_, v___y_219_);
+lean_dec(v___y_219_);
+lean_dec_ref(v___y_218_);
+lean_dec(v___y_217_);
+lean_dec_ref(v___y_216_);
 lean_dec(v___y_215_);
 lean_dec_ref(v___y_214_);
 return v_res_223_;
@@ -822,6 +813,12 @@ _start:
 {
 lean_object* v_res_281_; 
 v_res_281_ = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_shortCircuitPass___lam__1(v_goal_273_, v___y_274_, v___y_275_, v___y_276_, v___y_277_, v___y_278_, v___y_279_);
+lean_dec(v___y_279_);
+lean_dec_ref(v___y_278_);
+lean_dec(v___y_277_);
+lean_dec_ref(v___y_276_);
+lean_dec(v___y_275_);
+lean_dec_ref(v___y_274_);
 return v_res_281_;
 }
 }

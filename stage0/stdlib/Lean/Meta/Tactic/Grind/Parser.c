@@ -2930,6 +2930,10 @@ _start:
 {
 lean_object* v_res_633_; 
 v_res_633_ = l_Lean_Parser_Command_GrindCnstr_isValue_formatter(v_a_628_, v_a_629_, v_a_630_, v_a_631_);
+lean_dec(v_a_631_);
+lean_dec_ref(v_a_630_);
+lean_dec(v_a_629_);
+lean_dec_ref(v_a_628_);
 return v_res_633_;
 }
 }
@@ -2968,6 +2972,10 @@ _start:
 {
 lean_object* v_res_681_; 
 v_res_681_ = l_Lean_Parser_Command_GrindCnstr_isStrictValue_formatter(v_a_676_, v_a_677_, v_a_678_, v_a_679_);
+lean_dec(v_a_679_);
+lean_dec_ref(v_a_678_);
+lean_dec(v_a_677_);
+lean_dec_ref(v_a_676_);
 return v_res_681_;
 }
 }
@@ -3006,6 +3014,10 @@ _start:
 {
 lean_object* v_res_728_; 
 v_res_728_ = l_Lean_Parser_Command_GrindCnstr_notValue_formatter(v_a_723_, v_a_724_, v_a_725_, v_a_726_);
+lean_dec(v_a_726_);
+lean_dec_ref(v_a_725_);
+lean_dec(v_a_724_);
+lean_dec_ref(v_a_723_);
 return v_res_728_;
 }
 }
@@ -3044,6 +3056,10 @@ _start:
 {
 lean_object* v_res_775_; 
 v_res_775_ = l_Lean_Parser_Command_GrindCnstr_notStrictValue_formatter(v_a_770_, v_a_771_, v_a_772_, v_a_773_);
+lean_dec(v_a_773_);
+lean_dec_ref(v_a_772_);
+lean_dec(v_a_771_);
+lean_dec_ref(v_a_770_);
 return v_res_775_;
 }
 }
@@ -3082,6 +3098,10 @@ _start:
 {
 lean_object* v_res_822_; 
 v_res_822_ = l_Lean_Parser_Command_GrindCnstr_isGround_formatter(v_a_817_, v_a_818_, v_a_819_, v_a_820_);
+lean_dec(v_a_820_);
+lean_dec_ref(v_a_819_);
+lean_dec(v_a_818_);
+lean_dec_ref(v_a_817_);
 return v_res_822_;
 }
 }
@@ -3120,6 +3140,10 @@ _start:
 {
 lean_object* v_res_881_; 
 v_res_881_ = l_Lean_Parser_Command_GrindCnstr_sizeLt_formatter(v_a_876_, v_a_877_, v_a_878_, v_a_879_);
+lean_dec(v_a_879_);
+lean_dec_ref(v_a_878_);
+lean_dec(v_a_877_);
+lean_dec_ref(v_a_876_);
 return v_res_881_;
 }
 }
@@ -3158,6 +3182,10 @@ _start:
 {
 lean_object* v_res_928_; 
 v_res_928_ = l_Lean_Parser_Command_GrindCnstr_depthLt_formatter(v_a_923_, v_a_924_, v_a_925_, v_a_926_);
+lean_dec(v_a_926_);
+lean_dec_ref(v_a_925_);
+lean_dec(v_a_924_);
+lean_dec_ref(v_a_923_);
 return v_res_928_;
 }
 }
@@ -3196,6 +3224,10 @@ _start:
 {
 lean_object* v_res_975_; 
 v_res_975_ = l_Lean_Parser_Command_GrindCnstr_genLt_formatter(v_a_970_, v_a_971_, v_a_972_, v_a_973_);
+lean_dec(v_a_973_);
+lean_dec_ref(v_a_972_);
+lean_dec(v_a_971_);
+lean_dec_ref(v_a_970_);
 return v_res_975_;
 }
 }
@@ -3234,6 +3266,10 @@ _start:
 {
 lean_object* v_res_1022_; 
 v_res_1022_ = l_Lean_Parser_Command_GrindCnstr_maxInsts_formatter(v_a_1017_, v_a_1018_, v_a_1019_, v_a_1020_);
+lean_dec(v_a_1020_);
+lean_dec_ref(v_a_1019_);
+lean_dec(v_a_1018_);
+lean_dec_ref(v_a_1017_);
 return v_res_1022_;
 }
 }
@@ -3310,6 +3346,10 @@ _start:
 {
 lean_object* v_res_1077_; 
 v_res_1077_ = l_Lean_Parser_Command_GrindCnstr_guard_formatter(v_a_1072_, v_a_1073_, v_a_1074_, v_a_1075_);
+lean_dec(v_a_1075_);
+lean_dec_ref(v_a_1074_);
+lean_dec(v_a_1073_);
+lean_dec_ref(v_a_1072_);
 return v_res_1077_;
 }
 }
@@ -3374,6 +3414,10 @@ _start:
 {
 lean_object* v_res_1124_; 
 v_res_1124_ = l_Lean_Parser_Command_GrindCnstr_check_formatter(v_a_1119_, v_a_1120_, v_a_1121_, v_a_1122_);
+lean_dec(v_a_1122_);
+lean_dec_ref(v_a_1121_);
+lean_dec(v_a_1120_);
+lean_dec_ref(v_a_1119_);
 return v_res_1124_;
 }
 }
@@ -3438,6 +3482,10 @@ _start:
 {
 lean_object* v_res_1174_; 
 v_res_1174_ = l_Lean_Parser_Command_GrindCnstr_notDefEq_formatter(v_a_1169_, v_a_1170_, v_a_1171_, v_a_1172_);
+lean_dec(v_a_1172_);
+lean_dec_ref(v_a_1171_);
+lean_dec(v_a_1170_);
+lean_dec_ref(v_a_1169_);
 return v_res_1174_;
 }
 }
@@ -3502,6 +3550,10 @@ _start:
 {
 lean_object* v_res_1224_; 
 v_res_1224_ = l_Lean_Parser_Command_GrindCnstr_defEq_formatter(v_a_1219_, v_a_1220_, v_a_1221_, v_a_1222_);
+lean_dec(v_a_1222_);
+lean_dec_ref(v_a_1221_);
+lean_dec(v_a_1220_);
+lean_dec_ref(v_a_1219_);
 return v_res_1224_;
 }
 }
@@ -3672,6 +3724,10 @@ _start:
 {
 lean_object* v_res_1286_; 
 v_res_1286_ = l_Lean_Parser_Command_grindPatternCnstr_formatter(v_a_1281_, v_a_1282_, v_a_1283_, v_a_1284_);
+lean_dec(v_a_1284_);
+lean_dec_ref(v_a_1283_);
+lean_dec(v_a_1282_);
+lean_dec_ref(v_a_1281_);
 return v_res_1286_;
 }
 }
@@ -3738,6 +3794,10 @@ _start:
 {
 lean_object* v_res_1321_; 
 v_res_1321_ = l_Lean_Parser_Command_grindPatternCnstrs_formatter(v_a_1316_, v_a_1317_, v_a_1318_, v_a_1319_);
+lean_dec(v_a_1319_);
+lean_dec_ref(v_a_1318_);
+lean_dec(v_a_1317_);
+lean_dec_ref(v_a_1316_);
 return v_res_1321_;
 }
 }
@@ -3872,6 +3932,10 @@ _start:
 {
 lean_object* v_res_1404_; 
 v_res_1404_ = l_Lean_Parser_Command_grindPattern_formatter(v_a_1399_, v_a_1400_, v_a_1401_, v_a_1402_);
+lean_dec(v_a_1402_);
+lean_dec_ref(v_a_1401_);
+lean_dec(v_a_1400_);
+lean_dec_ref(v_a_1399_);
 return v_res_1404_;
 }
 }
@@ -3910,6 +3974,10 @@ _start:
 {
 lean_object* v_res_1458_; 
 v_res_1458_ = l_Lean_Parser_Command_GrindCnstr_isValue_parenthesizer(v_a_1453_, v_a_1454_, v_a_1455_, v_a_1456_);
+lean_dec(v_a_1456_);
+lean_dec_ref(v_a_1455_);
+lean_dec(v_a_1454_);
+lean_dec_ref(v_a_1453_);
 return v_res_1458_;
 }
 }
@@ -3948,6 +4016,10 @@ _start:
 {
 lean_object* v_res_1506_; 
 v_res_1506_ = l_Lean_Parser_Command_GrindCnstr_isStrictValue_parenthesizer(v_a_1501_, v_a_1502_, v_a_1503_, v_a_1504_);
+lean_dec(v_a_1504_);
+lean_dec_ref(v_a_1503_);
+lean_dec(v_a_1502_);
+lean_dec_ref(v_a_1501_);
 return v_res_1506_;
 }
 }
@@ -3986,6 +4058,10 @@ _start:
 {
 lean_object* v_res_1553_; 
 v_res_1553_ = l_Lean_Parser_Command_GrindCnstr_notValue_parenthesizer(v_a_1548_, v_a_1549_, v_a_1550_, v_a_1551_);
+lean_dec(v_a_1551_);
+lean_dec_ref(v_a_1550_);
+lean_dec(v_a_1549_);
+lean_dec_ref(v_a_1548_);
 return v_res_1553_;
 }
 }
@@ -4024,6 +4100,10 @@ _start:
 {
 lean_object* v_res_1600_; 
 v_res_1600_ = l_Lean_Parser_Command_GrindCnstr_notStrictValue_parenthesizer(v_a_1595_, v_a_1596_, v_a_1597_, v_a_1598_);
+lean_dec(v_a_1598_);
+lean_dec_ref(v_a_1597_);
+lean_dec(v_a_1596_);
+lean_dec_ref(v_a_1595_);
 return v_res_1600_;
 }
 }
@@ -4062,6 +4142,10 @@ _start:
 {
 lean_object* v_res_1647_; 
 v_res_1647_ = l_Lean_Parser_Command_GrindCnstr_isGround_parenthesizer(v_a_1642_, v_a_1643_, v_a_1644_, v_a_1645_);
+lean_dec(v_a_1645_);
+lean_dec_ref(v_a_1644_);
+lean_dec(v_a_1643_);
+lean_dec_ref(v_a_1642_);
 return v_res_1647_;
 }
 }
@@ -4100,6 +4184,10 @@ _start:
 {
 lean_object* v_res_1706_; 
 v_res_1706_ = l_Lean_Parser_Command_GrindCnstr_sizeLt_parenthesizer(v_a_1701_, v_a_1702_, v_a_1703_, v_a_1704_);
+lean_dec(v_a_1704_);
+lean_dec_ref(v_a_1703_);
+lean_dec(v_a_1702_);
+lean_dec_ref(v_a_1701_);
 return v_res_1706_;
 }
 }
@@ -4138,6 +4226,10 @@ _start:
 {
 lean_object* v_res_1753_; 
 v_res_1753_ = l_Lean_Parser_Command_GrindCnstr_depthLt_parenthesizer(v_a_1748_, v_a_1749_, v_a_1750_, v_a_1751_);
+lean_dec(v_a_1751_);
+lean_dec_ref(v_a_1750_);
+lean_dec(v_a_1749_);
+lean_dec_ref(v_a_1748_);
 return v_res_1753_;
 }
 }
@@ -4176,6 +4268,10 @@ _start:
 {
 lean_object* v_res_1800_; 
 v_res_1800_ = l_Lean_Parser_Command_GrindCnstr_genLt_parenthesizer(v_a_1795_, v_a_1796_, v_a_1797_, v_a_1798_);
+lean_dec(v_a_1798_);
+lean_dec_ref(v_a_1797_);
+lean_dec(v_a_1796_);
+lean_dec_ref(v_a_1795_);
 return v_res_1800_;
 }
 }
@@ -4214,6 +4310,10 @@ _start:
 {
 lean_object* v_res_1847_; 
 v_res_1847_ = l_Lean_Parser_Command_GrindCnstr_maxInsts_parenthesizer(v_a_1842_, v_a_1843_, v_a_1844_, v_a_1845_);
+lean_dec(v_a_1845_);
+lean_dec_ref(v_a_1844_);
+lean_dec(v_a_1843_);
+lean_dec_ref(v_a_1842_);
 return v_res_1847_;
 }
 }
@@ -4290,6 +4390,10 @@ _start:
 {
 lean_object* v_res_1902_; 
 v_res_1902_ = l_Lean_Parser_Command_GrindCnstr_guard_parenthesizer(v_a_1897_, v_a_1898_, v_a_1899_, v_a_1900_);
+lean_dec(v_a_1900_);
+lean_dec_ref(v_a_1899_);
+lean_dec(v_a_1898_);
+lean_dec_ref(v_a_1897_);
 return v_res_1902_;
 }
 }
@@ -4354,6 +4458,10 @@ _start:
 {
 lean_object* v_res_1949_; 
 v_res_1949_ = l_Lean_Parser_Command_GrindCnstr_check_parenthesizer(v_a_1944_, v_a_1945_, v_a_1946_, v_a_1947_);
+lean_dec(v_a_1947_);
+lean_dec_ref(v_a_1946_);
+lean_dec(v_a_1945_);
+lean_dec_ref(v_a_1944_);
 return v_res_1949_;
 }
 }
@@ -4390,6 +4498,10 @@ _start:
 {
 lean_object* v_res_1980_; 
 v_res_1980_ = l_Lean_Parser_Command_GrindCnstr_notDefEq_parenthesizer___lam__0(v___x_1973_, v___x_1974_, v___y_1975_, v___y_1976_, v___y_1977_, v___y_1978_);
+lean_dec(v___y_1978_);
+lean_dec_ref(v___y_1977_);
+lean_dec(v___y_1976_);
+lean_dec_ref(v___y_1975_);
 return v_res_1980_;
 }
 }
@@ -4434,6 +4546,10 @@ _start:
 {
 lean_object* v_res_2013_; 
 v_res_2013_ = l_Lean_Parser_Command_GrindCnstr_notDefEq_parenthesizer(v_a_2008_, v_a_2009_, v_a_2010_, v_a_2011_);
+lean_dec(v_a_2011_);
+lean_dec_ref(v_a_2010_);
+lean_dec(v_a_2009_);
+lean_dec_ref(v_a_2008_);
 return v_res_2013_;
 }
 }
@@ -4498,6 +4614,10 @@ _start:
 {
 lean_object* v_res_2061_; 
 v_res_2061_ = l_Lean_Parser_Command_GrindCnstr_defEq_parenthesizer(v_a_2056_, v_a_2057_, v_a_2058_, v_a_2059_);
+lean_dec(v_a_2059_);
+lean_dec_ref(v_a_2058_);
+lean_dec(v_a_2057_);
+lean_dec_ref(v_a_2056_);
 return v_res_2061_;
 }
 }
@@ -4668,6 +4788,10 @@ _start:
 {
 lean_object* v_res_2123_; 
 v_res_2123_ = l_Lean_Parser_Command_grindPatternCnstr_parenthesizer(v_a_2118_, v_a_2119_, v_a_2120_, v_a_2121_);
+lean_dec(v_a_2121_);
+lean_dec_ref(v_a_2120_);
+lean_dec(v_a_2119_);
+lean_dec_ref(v_a_2118_);
 return v_res_2123_;
 }
 }
@@ -4734,6 +4858,10 @@ _start:
 {
 lean_object* v_res_2159_; 
 v_res_2159_ = l_Lean_Parser_Command_grindPatternCnstrs_parenthesizer(v_a_2154_, v_a_2155_, v_a_2156_, v_a_2157_);
+lean_dec(v_a_2157_);
+lean_dec_ref(v_a_2156_);
+lean_dec(v_a_2155_);
+lean_dec_ref(v_a_2154_);
 return v_res_2159_;
 }
 }
@@ -4868,6 +4996,10 @@ _start:
 {
 lean_object* v_res_2242_; 
 v_res_2242_ = l_Lean_Parser_Command_grindPattern_parenthesizer(v_a_2237_, v_a_2238_, v_a_2239_, v_a_2240_);
+lean_dec(v_a_2240_);
+lean_dec_ref(v_a_2239_);
+lean_dec(v_a_2238_);
+lean_dec_ref(v_a_2237_);
 return v_res_2242_;
 }
 }
@@ -5034,6 +5166,10 @@ _start:
 {
 lean_object* v_res_2343_; 
 v_res_2343_ = l_Lean_Parser_Command_initGrindNorm_formatter(v_a_2338_, v_a_2339_, v_a_2340_, v_a_2341_);
+lean_dec(v_a_2341_);
+lean_dec_ref(v_a_2340_);
+lean_dec(v_a_2339_);
+lean_dec_ref(v_a_2338_);
 return v_res_2343_;
 }
 }
@@ -5072,6 +5208,10 @@ _start:
 {
 lean_object* v_res_2397_; 
 v_res_2397_ = l_Lean_Parser_Command_initGrindNorm_parenthesizer(v_a_2392_, v_a_2393_, v_a_2394_, v_a_2395_);
+lean_dec(v_a_2395_);
+lean_dec_ref(v_a_2394_);
+lean_dec(v_a_2393_);
+lean_dec_ref(v_a_2392_);
 return v_res_2397_;
 }
 }

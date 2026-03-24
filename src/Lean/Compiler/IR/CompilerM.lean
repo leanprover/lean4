@@ -132,8 +132,8 @@ private def exportIREntries (env : Environment) : Array (Name × Array EnvExtens
   #[(declMapExt.name, irEntries),
     (Lean.regularInitAttr.ext.name, initDecls)]
 
-def findEnvDecl (env : Environment) (declName : Name) : Option Decl :=
-  Compiler.LCNF.findExtEntry? env declMapExt declName findAtSorted? (·.2.find?)
+def findEnvDecl (env : Environment) (declName : Name) (preferImported := false) : Option Decl :=
+  Compiler.LCNF.findExtEntry? env declMapExt declName findAtSorted? (·.2.find?) (preferImported := preferImported)
 
 @[export lean_ir_find_env_decl]
 private def findInterpDecl (env : Environment) (declName : Name) : Option Decl :=
@@ -213,7 +213,7 @@ def getDecl' (n : Name) (decls : Array Decl) : CompilerM Decl := do
 
 @[export lean_decl_get_sorry_dep]
 def getSorryDep (env : Environment) (declName : Name) : Option Name :=
-  match findEnvDecl env declName with
+  match findEnvDecl env declName (preferImported := true) with
   | some (.fdecl (info := { sorryDep? := dep?, .. }) ..) => dep?
   | _ => none
 

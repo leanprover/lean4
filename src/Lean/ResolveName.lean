@@ -186,8 +186,8 @@ private def resolveOpenDecls (env : Environment) (opts : Options) (id : Name) : 
 
 /--
 Primitive global name resolution procedure. It does not trigger actions associated with reserved names.
-Recall that Lean has reserved names. For example, a definition `foo` has a reserved name `foo.def` for theorem
-containing stating that `foo` is equal to its definition. The action associated with `foo.def`
+Recall that Lean has reserved names. For example, a definition `foo` has a reserved name `foo.def` for a theorem
+stating that `foo` is equal to its definition. The action associated with `foo.def`
 automatically proves the theorem. At the macro level, the name is resolved, but the action is not
 executed.
 -/

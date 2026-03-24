@@ -575,6 +575,31 @@ where
     | .app f a => go f (mixHash r (hashRoot enodes a))
     | _ => mixHash r (hashRoot enodes e)
 
+/-!
+**Note**: `congrHash` and `isCongruent` must satisfy the `BEq`/`Hashable` invariant for
+`PHashSet`: if `isCongruent e₁ e₂` returns `true`, then `congrHash e₁ == congrHash e₂`.
+
+When `funCC = true`, `congrHash` hashes only the immediate function and argument:
+`mixHash (hashRoot f) (hashRoot a)`. When `funCC = false`, it recursively decomposes all
+application layers. These produce fundamentally different hash values, so `isCongruent` must
+require matching `funCC` flags. Here is the scenario that leads to a nondeterministic crash
+if mismatched flags are allowed:
+
+1. `e₁` (with `funCC = true`) is inserted into the congruence table.
+2. `e₂` (with `funCC = false`) is inserted. Its hash is computed using the non-`funCC` path.
+3. Because `hashRoot` uses pointer addresses (`ptrAddrUnsafe`), the two different hash
+   computations can accidentally collide, placing `e₂` in the same bucket as `e₁`.
+4. `isCongruent e₁ e₂` is called. If it used only `e₁`'s `funCC` flag (the old behavior),
+   the `funCC` comparison path could declare them congruent even when they have different
+   numbers of top-level arguments.
+5. `addCongrTable` calls `pushEqHEq e₂ e₁ congrPlaceholderProof`, where `e₂` is the new
+   node with `funCC = false`.
+6. During proof reconstruction, `mkCongrProof e₂ e₁` checks `useFunCC e₂ = false`, enters
+   the standard (non-`funCC`) proof path, and hits `assert! rhs.getAppNumArgs == numArgs`
+   because `e₁` and `e₂` have different argument counts.
+
+This was observed as a nondeterministic crash in Mathlib (e.g., at `Analysis/ODE/PicardLindelof.lean`).
+-/
 /-- Returns `true` if `e₁` and `e₂` are congruent modulo the equivalence classes in `enodes`. -/
 private partial def isCongruent (enodes : ENodeMap) (e₁ e₂ : Expr) : Bool :=
   if let .forallE _ d₁ b₁ _ := e₁ then
@@ -600,7 +625,14 @@ private partial def isCongruent (enodes : ENodeMap) (e₁ e₂ : Expr) : Bool :=
       **Note**: We are not in `MetaM` here. Thus, we cannot check whether `f` and `g` have the same type.
       So, we approximate and try to handle this issue when generating the proof term.
       -/
-      hasSameRoot enodes a b && hasSameRoot enodes f g
+      useFunCC' enodes e₂ && hasSameRoot enodes a b && hasSameRoot enodes f g
+    else if useFunCC' enodes e₂ then
+      /-
+      Mismatched `funCC` flags: `e₁` uses first-order congruence, `e₂` uses higher-order.
+      They hash differently (via `congrHash`), so declaring them congruent here would violate
+      the `BEq`/`Hashable` consistency invariant required by `PHashSet`.
+      -/
+      false
     else
       hasSameRoot enodes a b && go f g
 where
@@ -611,6 +643,9 @@ where
   go (a b : Expr) : Bool :=
     if a.isApp && b.isApp then
       hasSameRoot enodes a.appArg! b.appArg! && go a.appFn! b.appFn!
+    else if a.isApp || b.isApp then
+      -- Different number of arguments: not congruent.
+      false
     else
       -- Remark: we do not check whether the types of the functions are equal here
       -- because we are not in the `MetaM` monad.
@@ -1359,6 +1394,7 @@ partial def getCongrRoot (e : Expr) : GoalM Expr := do
 def isInconsistent : GoalM Bool :=
   return (← get).inconsistent
 
+set_option compiler.ignoreBorrowAnnotation true in
 /--
 Returns a proof that `a = b`.
 It assumes `a` and `b` are in the same equivalence class, and have the same type.
@@ -1367,6 +1403,7 @@ It assumes `a` and `b` are in the same equivalence class, and have the same type
 @[extern "lean_grind_mk_eq_proof"]
 opaque mkEqProof (a b : Expr) : GoalM Expr
 
+set_option compiler.ignoreBorrowAnnotation true in
 /--
 Returns a proof that `a ≍ b`.
 It assumes `a` and `b` are in the same equivalence class.
@@ -1376,14 +1413,17 @@ It assumes `a` and `b` are in the same equivalence class.
 opaque mkHEqProof (a b : Expr) : GoalM Expr
 
 -- Forward definition
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_grind_process_new_facts"]
 opaque processNewFacts : GoalM Unit
 
 -- Forward definition
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_grind_internalize"]
 opaque internalize (e : Expr) (generation : Nat) (parent? : Option Expr := none) : GoalM Unit
 
 -- Forward definition
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_grind_preprocess"]
 opaque preprocess : Expr → GoalM Simp.Result
 
@@ -1729,6 +1769,7 @@ def withoutModifyingState (x : GoalM α) : GoalM α := do
   finally
     set saved
 
+set_option compiler.ignoreBorrowAnnotation true in
 /-- Canonicalizes nested types, type formers, and instances in `e`. -/
 @[extern "lean_grind_canon"] -- Forward definition
 opaque canon (e : Expr) : GoalM Expr
@@ -1903,11 +1944,12 @@ Sequential conjunction: executes both `x` and `y`.
 def Action.andAlso (x y : Action) : Action := fun goal kna kp => do
   x goal (fun goal => y goal kna kp) (fun goal => y goal kp kp)
 
-/-
-Creates an action that tries all solver extensions. It uses the `Action.andAlso`
-to combine them.
+/--
+Combines all solver extensions into a single action using `Action.andAlso`.
+Does not drain `newRawFacts`; use `Solvers.mkAction` (defined in `Intro.lean`) which
+wraps this with `assertAll`.
 -/
-def Solvers.mkAction : IO Action := do
+def Solvers.mkActionCore : IO Action := do
   let exts ← solverExtensionsRef.get
   let rec go (i : Nat) (acc : Action) : Action :=
     if h : i < exts.size then

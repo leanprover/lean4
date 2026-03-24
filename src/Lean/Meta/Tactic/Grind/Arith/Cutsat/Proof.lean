@@ -229,6 +229,7 @@ private inductive MulEqProof where
   | mulVar (k : Int) (a : Expr) (h : Expr)
   | none
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_cutsat_eq_cnstr_to_proof"] -- forward definition
 private opaque EqCnstr.toExprProof (c' : EqCnstr) : ProofM Expr
 
@@ -324,7 +325,9 @@ private def mkPowEqProof (ka : Int) (ca? : Option EqCnstr) (kb : Nat) (cb? : Opt
   let h := mkApp8 (mkConst ``Int.Linear.pow_eq) a b (toExpr ka) (toExpr kbInt) (toExpr k) h₁ h₂ eagerReflBoolTrue
   return mkApp6 (mkConst ``Int.Linear.of_var_eq) (← getContext) (← mkVarDecl x) (toExpr k) (← mkPolyDecl c'.p) eagerReflBoolTrue h
 
+set_option compiler.ignoreBorrowAnnotation true in
 mutual
+
 @[export lean_cutsat_eq_cnstr_to_proof]
 private partial def EqCnstr.toExprProofImpl (c' : EqCnstr) : ProofM Expr := caching c' do
   trace[grind.debug.lia.proof] "{← c'.pp}"

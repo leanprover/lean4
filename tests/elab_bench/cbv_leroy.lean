@@ -154,8 +154,8 @@ def runSingleTest (n : Nat) : MetaM Unit := do
   let endTime ← IO.monoNanosNow
   let ms := (endTime - startTime).toFloat / 1000000.0
   match executed with
-  | .rfl _ => IO.println s!"goal_{n}: {ms} ms"
-  | .step e' proof _ =>
+  | .rfl _ _ => IO.println s!"goal_{n}: {ms} ms"
+  | .step e' proof _ _ =>
     let startTime ← IO.monoNanosNow
     Meta.checkWithKernel proof
     let endTime ← IO.monoNanosNow
@@ -183,7 +183,9 @@ set_option maxHeartbeats 400000
 def runCbvTests : MetaM Unit := do
   IO.println "=== Call-By-Value Tactic Tests ==="
   IO.println ""
-  for n in [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 150, 200, 250, 300, 350, 400, 450, 500, 600, 700, 800, 900, 1000] do
+  let bench := (← IO.getEnv "TEST_BENCH") == some "1"
+  let ns := if bench then [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 150, 200, 250, 300, 350, 400, 450, 500, 600, 700, 800, 900, 1000] else [10]
+  for n in ns do
     runSingleTest n
 
 def runDecideTests : MetaM Unit := do

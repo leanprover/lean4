@@ -1602,6 +1602,7 @@ def mkLeanServerCapabilities : ServerCapabilities := {
     moduleHierarchyProvider? := some {}
     rpcProvider? := some {
       highlightMatchesProvider? := some {}
+      rpcWireFormat? := some .v1
     }
   }
 }

@@ -256,9 +256,7 @@ def saveSpecEntries (decls : Array (Decl .pure)) : CompilerM Unit := do
       modifyEnv fun env => specExtension.addEntry env entry
 
 def getSpecEntryCore? (env : Environment) (declName : Name) : Option SpecEntry :=
-  match env.getModuleIdxFor? declName with
-  | some modIdx => findAtSorted? (specExtension.getModuleEntries env modIdx) declName
-  | none => (specExtension.getState env).specInfo.find? declName
+  findExtEntry? env specExtension declName findAtSorted? (·.2.specInfo.find?)
 
 def getSpecEntry? [Monad m] [MonadEnv m] (declName : Name) : m (Option SpecEntry) :=
   return getSpecEntryCore? (← getEnv) declName

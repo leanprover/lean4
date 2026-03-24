@@ -28,7 +28,6 @@ open Std Std.Iterators Std.PRange Std.Slice
 
 namespace SubarrayIterator
 
-set_option backward.isDefEq.respectTransparency false in
 theorem step_eq {it : Iter (α := SubarrayIterator α) α} :
     it.step = if h : it.1.xs.start < it.1.xs.stop then
         haveI := it.1.xs.start_le_stop
@@ -127,7 +126,7 @@ public theorem forIn_toList {α : Type u} {s : Subarray α}
     ForIn.forIn s.toList init f = ForIn.forIn s init f :=
   Slice.forIn_toList
 
-@[grind =]
+@[cbv_eval, grind =]
 public theorem forIn_eq_forIn_toList {α : Type u} {s : Subarray α}
     {m : Type v → Type w} [Monad m] [LawfulMonad m] {γ : Type v} {init : γ}
     {f : α → γ → m (ForInStep γ)} :
@@ -215,7 +214,6 @@ public theorem Array.stop_toSubarray {xs : Array α} {lo hi : Nat} :
     (xs.toSubarray lo hi).stop = min hi xs.size := by
   simp [toSubarray_eq_min, Subarray.stop]
 
-set_option backward.whnf.reducibleClassField false in
 public theorem Subarray.toList_eq {xs : Subarray α} :
     xs.toList = (xs.array.extract xs.start xs.stop).toList := by
   let aslice := xs
@@ -245,6 +243,7 @@ private theorem Std.Internal.List.extract_eq_drop_take' {l : List α} {start sto
       List.length_take, ge_iff_le, h₁]
     omega
 
+@[cbv_eval]
 public theorem Subarray.toList_eq_drop_take {xs : Subarray α} :
     xs.toList = (xs.array.toList.take xs.stop).drop xs.start := by
   rw [Subarray.toList_eq, Array.toList_extract, Std.Internal.List.extract_eq_drop_take']

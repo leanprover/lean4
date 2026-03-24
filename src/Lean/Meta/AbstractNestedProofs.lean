@@ -87,8 +87,13 @@ partial def visit (e : Expr) : M Expr := do
         lctx := lctx.modifyLocalDecl xFVarId fun _ => localDecl
       withLCtx lctx localInstances k
     checkCache { val := e : ExprStructEq } fun _ => do
-      if (← isNonTrivialProof e) then
-        /- Ensure proofs nested in type are also abstracted -/
+      if (← isNonTrivialProof e) && !e.hasSorry then
+        /- Ensure proofs nested in type are also abstracted.
+           We skip abstraction for proofs containing `sorry` to avoid generating extra
+           "declaration uses sorry" warnings for auxiliary theorems: one per abstracted proof
+           instead of a single warning for the main declaration. Additionally, the `zetaDelta`
+           expansion in `mkAuxTheorem` can inline let-bound sorry values, causing warnings
+           even for proofs that only transitively reference sorry-containing definitions. -/
         abstractProof e (← read).cache visit
       else match e with
         | .lam ..

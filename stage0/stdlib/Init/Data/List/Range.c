@@ -55,18 +55,34 @@ return v_res_17_;
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Range_0__List_range_x27_match__1_splitter(lean_object* v_motive_18_, lean_object* v_x_19_, lean_object* v_x_20_, lean_object* v_x_21_, lean_object* v_h__1_22_, lean_object* v_h__2_23_){
 _start:
 {
-lean_object* v___x_24_; 
-v___x_24_ = l___private_Init_Data_List_Range_0__List_range_x27_match__1_splitter___redArg(v_x_19_, v_x_20_, v_x_21_, v_h__1_22_, v_h__2_23_);
-return v___x_24_;
+lean_object* v_zero_24_; uint8_t v_isZero_25_; 
+v_zero_24_ = lean_unsigned_to_nat(0u);
+v_isZero_25_ = lean_nat_dec_eq(v_x_20_, v_zero_24_);
+if (v_isZero_25_ == 1)
+{
+lean_object* v___x_26_; 
+lean_dec(v_h__2_23_);
+v___x_26_ = lean_apply_2(v_h__1_22_, v_x_19_, v_x_21_);
+return v___x_26_;
+}
+else
+{
+lean_object* v_one_27_; lean_object* v_n_28_; lean_object* v___x_29_; 
+lean_dec(v_h__1_22_);
+v_one_27_ = lean_unsigned_to_nat(1u);
+v_n_28_ = lean_nat_sub(v_x_20_, v_one_27_);
+v___x_29_ = lean_apply_3(v_h__2_23_, v_x_19_, v_n_28_, v_x_21_);
+return v___x_29_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_List_Range_0__List_range_x27_match__1_splitter___boxed(lean_object* v_motive_25_, lean_object* v_x_26_, lean_object* v_x_27_, lean_object* v_x_28_, lean_object* v_h__1_29_, lean_object* v_h__2_30_){
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_List_Range_0__List_range_x27_match__1_splitter___boxed(lean_object* v_motive_30_, lean_object* v_x_31_, lean_object* v_x_32_, lean_object* v_x_33_, lean_object* v_h__1_34_, lean_object* v_h__2_35_){
 _start:
 {
-lean_object* v_res_31_; 
-v_res_31_ = l___private_Init_Data_List_Range_0__List_range_x27_match__1_splitter(v_motive_25_, v_x_26_, v_x_27_, v_x_28_, v_h__1_29_, v_h__2_30_);
-lean_dec(v_x_27_);
-return v_res_31_;
+lean_object* v_res_36_; 
+v_res_36_ = l___private_Init_Data_List_Range_0__List_range_x27_match__1_splitter(v_motive_30_, v_x_31_, v_x_32_, v_x_33_, v_h__1_34_, v_h__2_35_);
+lean_dec(v_x_32_);
+return v_res_36_;
 }
 }
 lean_object* runtime_initialize_Init_BinderPredicates(uint8_t builtin);

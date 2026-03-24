@@ -1,5 +1,3 @@
-set_option cbv.warning false
-
 /-! Tests for `cbv` handling of dependent projections.
 
 When a struct is rewritten (e.g. via `@[cbv_eval]`) but the projection is

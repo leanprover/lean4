@@ -32,7 +32,7 @@ Traverses the given iterator and stores the emitted values in an array.
 If the iterator is not finite, this function might run forever. The variant
 `it.ensureTermination.toArray` always terminates after finitely many steps.
 -/
-@[always_inline, inline]
+@[cbv_opaque, always_inline, inline]
 def Iter.toArray {α : Type w} {β : Type w}
     [Iterator α Id β] (it : Iter (α := α) β) : Array β :=
   it.toIterM.toArray.run
@@ -101,7 +101,7 @@ lists are prepend-only, `toListRev` is usually more efficient that `toList`.
 If the iterator is not finite, this function might run forever. The variant
 `it.ensureTermination.toList` always terminates after finitely many steps.
 -/
-@[always_inline, inline]
+@[cbv_opaque, always_inline, inline]
 def Iter.toList {α : Type w} {β : Type w}
     [Iterator α Id β] (it : Iter (α := α) β) : List β :=
   it.toIterM.toList.run

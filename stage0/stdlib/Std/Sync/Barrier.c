@@ -132,9 +132,9 @@ return v___x_43_;
 LEAN_EXPORT lean_object* l_Std_Barrier_wait___lam__0___boxed(lean_object* v_generationId_44_, lean_object* v___x_45_, lean_object* v___y_46_, lean_object* v___y_47_){
 _start:
 {
-uint8_t v___x_3589__boxed_48_; uint8_t v_res_49_; lean_object* v_r_50_; 
-v___x_3589__boxed_48_ = lean_unbox(v___x_45_);
-v_res_49_ = l_Std_Barrier_wait___lam__0(v_generationId_44_, v___x_3589__boxed_48_, v___y_46_);
+uint8_t v___x_2266__boxed_48_; uint8_t v_res_49_; lean_object* v_r_50_; 
+v___x_2266__boxed_48_ = lean_unbox(v___x_45_);
+v_res_49_ = l_Std_Barrier_wait___lam__0(v_generationId_44_, v___x_2266__boxed_48_, v___y_46_);
 lean_dec(v___y_46_);
 lean_dec(v_generationId_44_);
 v_r_50_ = lean_box(v_res_49_);
@@ -158,7 +158,6 @@ goto _start;
 else
 {
 lean_object* v___x_60_; 
-lean_dec(v___y_54_);
 lean_dec_ref(v_pred_51_);
 v___x_60_ = lean_box(0);
 return v___x_60_;
@@ -170,6 +169,7 @@ _start:
 {
 lean_object* v_res_66_; 
 v_res_66_ = l___private_Init_While_0__Lean_Loop_forIn_loop___at___00Std_Condvar_waitUntil___at___00Std_Barrier_wait_spec__0_spec__0___redArg(v_pred_61_, v_condvar_62_, v_mutex_63_, v___y_64_);
+lean_dec(v___y_64_);
 lean_dec(v_mutex_63_);
 lean_dec(v_condvar_62_);
 return v_res_66_;
@@ -189,6 +189,7 @@ _start:
 {
 lean_object* v_res_79_; 
 v_res_79_ = l_Std_Condvar_waitUntil___at___00Std_Barrier_wait_spec__0(v_condvar_74_, v_mutex_75_, v_pred_76_, v___y_77_);
+lean_dec(v___y_77_);
 lean_dec(v_mutex_75_);
 lean_dec(v_condvar_74_);
 return v_res_79_;
@@ -299,7 +300,6 @@ v_reusejp_107_:
 {
 lean_object* v___x_109_; lean_object* v___x_110_; uint8_t v___x_111_; 
 v___x_109_ = lean_st_ref_set(v___y_83_, v___x_108_);
-lean_dec(v___y_83_);
 v___x_110_ = lean_io_condvar_notify_all(v_cvar_81_);
 v___x_111_ = 1;
 return v___x_111_;
@@ -330,6 +330,7 @@ _start:
 {
 uint8_t v_res_128_; lean_object* v_r_129_; 
 v_res_128_ = l_Std_Barrier_wait___lam__1(v_numThreads_123_, v_cvar_124_, v_lock_125_, v___y_126_);
+lean_dec(v___y_126_);
 lean_dec_ref(v_lock_125_);
 lean_dec(v_cvar_124_);
 lean_dec(v_numThreads_123_);
@@ -381,6 +382,7 @@ _start:
 {
 lean_object* v_res_155_; 
 v_res_155_ = l___private_Init_While_0__Lean_Loop_forIn_loop___at___00Std_Condvar_waitUntil___at___00Std_Barrier_wait_spec__0_spec__0(v_pred_149_, v_condvar_150_, v_mutex_151_, v_b_152_, v___y_153_);
+lean_dec(v___y_153_);
 lean_dec(v_mutex_151_);
 lean_dec(v_condvar_150_);
 return v_res_155_;

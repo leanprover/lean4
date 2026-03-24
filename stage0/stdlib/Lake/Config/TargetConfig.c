@@ -145,9 +145,9 @@ return v___x_33_;
 LEAN_EXPORT lean_object* l_Lake_instInhabitedTargetConfig_default___lam__1___boxed(lean_object* v_x_34_, lean_object* v___y_35_){
 _start:
 {
-uint8_t v_x_517__boxed_36_; lean_object* v_res_37_; 
-v_x_517__boxed_36_ = lean_unbox(v_x_34_);
-v_res_37_ = l_Lake_instInhabitedTargetConfig_default___lam__1(v_x_517__boxed_36_, v___y_35_);
+uint8_t v_x_430__boxed_36_; lean_object* v_res_37_; 
+v_x_430__boxed_36_ = lean_unbox(v_x_34_);
+v_res_37_ = l_Lake_instInhabitedTargetConfig_default___lam__1(v_x_430__boxed_36_, v___y_35_);
 lean_dec(v___y_35_);
 return v_res_37_;
 }

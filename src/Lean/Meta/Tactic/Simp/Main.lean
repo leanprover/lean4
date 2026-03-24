@@ -512,6 +512,7 @@ Auxiliary `dsimproc` for not visiting `Char` literal subterms.
 -/
 private def doNotVisitCharLit : DSimproc := doNotVisit isCharLit ``Char.ofNat
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[export lean_dsimp]
 private partial def dsimpImpl (e : Expr) : SimpM Expr := do
   let cfg ← getConfig
@@ -710,6 +711,7 @@ where
       r ← r.mkEqTrans (← simpLoop r.expr)
     cacheResult e cfg r
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[export lean_simp]
 def simpImpl (e : Expr) : SimpM Result := withIncRecDepth do
   checkSystem "simp"

@@ -1,5 +1,4 @@
 import Std
-set_option cbv.warning false
 
 def function (n : Nat) : Nat := match n with
   | 0 => 0 + 1
@@ -171,8 +170,6 @@ example : Nat.brazilianFactorial 7 = 125411328000 := by
 
 attribute [cbv_opaque] Std.DHashMap.emptyWithCapacity
 attribute [cbv_opaque] Std.DHashMap.insert
-attribute [cbv_opaque] Std.DHashMap.getEntry
-attribute [cbv_opaque] Std.DHashMap.contains
 attribute [cbv_eval] Std.DHashMap.contains_emptyWithCapacity
 attribute [cbv_eval] Std.DHashMap.contains_insert
 
@@ -181,11 +178,11 @@ example : ((Std.DHashMap.emptyWithCapacity : Std.DHashMap Nat (fun _ => Nat)).in
     lhs
     cbv
 
-@[cbv_opaque] def opaque_const : Nat := Nat.zero
+def myConst : Nat := Nat.zero
 
-@[cbv_eval] theorem opaque_fn_spec : opaque_const = 0 := by rfl
+@[cbv_eval] theorem myConst_spec : myConst = 0 := by rfl
 
-example : opaque_const = 0 := by conv => lhs; cbv
+example : myConst = 0 := by conv => lhs; cbv
 
 def myAdd (m n : Nat) := match m with
 | 0 => n

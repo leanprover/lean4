@@ -19,7 +19,7 @@ open Lean Elab Command in
 /-- Generate `example : s₁ ≠ s₂ := by simp` where s₁ = n×'a'++"x" and s₂ = n×'a'++"y". -/
 elab "#bench_string_ne_suffix " n:num : command => do
   let n := n.getNat
-  let pfx := String.mk (List.replicate n 'a')
+  let pfx := String.ofList (List.replicate n 'a')
   let s1 := pfx ++ "x"
   let s2 := pfx ++ "y"
   elabCommand (← `(#time example : ($(Syntax.mkStrLit s1) : String) ≠ ($(Syntax.mkStrLit s2) : String) := by simp))
@@ -29,7 +29,7 @@ open Lean Elab Command in
     Strings differ at the first character — tests O(1) inequality proof. -/
 elab "#bench_string_ne_prefix " n:num : command => do
   let n := n.getNat
-  let sfx := String.mk (List.replicate n 'a')
+  let sfx := String.ofList (List.replicate n 'a')
   let s1 := "x" ++ sfx
   let s2 := "y" ++ sfx
   elabCommand (← `(#time example : ($(Syntax.mkStrLit s1) : String) ≠ ($(Syntax.mkStrLit s2) : String) := by simp))
@@ -38,7 +38,7 @@ open Lean Elab Command in
 /-- Generate `example : s = s := by simp` with s = n×'a'. -/
 elab "#bench_string_eq " n:num : command => do
   let n := n.getNat
-  let s := String.mk (List.replicate n 'a')
+  let s := String.ofList (List.replicate n 'a')
   elabCommand (← `(#time example : ($(Syntax.mkStrLit s) : String) = ($(Syntax.mkStrLit s) : String) := by simp))
 
 -- Ne: shared prefix of increasing length (differ at last character)

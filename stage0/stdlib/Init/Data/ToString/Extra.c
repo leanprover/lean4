@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.ToString.Extra
-// Imports: public import Init.Data.String.Defs
+// Imports: public import Init.Data.String.Defs public import Init.Data.Int.Repr
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -17,13 +17,8 @@ lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_List_foldl___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_push(lean_object*, uint32_t);
 lean_object* l_instToStringUInt8___lam__0___boxed(lean_object*);
-lean_object* lean_nat_to_int(lean_object*);
 lean_object* l_ByteArray_toList(lean_object*);
-uint8_t lean_int_dec_lt(lean_object*, lean_object*);
-lean_object* lean_nat_abs(lean_object*);
-lean_object* l_Nat_reprFast(lean_object*);
-lean_object* lean_nat_sub(lean_object*, lean_object*);
-lean_object* lean_nat_add(lean_object*, lean_object*);
+lean_object* l_Int_repr___boxed(lean_object*);
 lean_object* lean_array_to_list(lean_object*);
 static const lean_string_object l_List_toString___redArg___lam__0___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 3, .m_capacity = 3, .m_length = 2, .m_data = ", "};
 static const lean_object* l_List_toString___redArg___lam__0___closed__0 = (const lean_object*)&l_List_toString___redArg___lam__0___closed__0_value;
@@ -50,13 +45,7 @@ static const lean_object* l_instToStringByteArray___closed__0 = (const lean_obje
 static const lean_closure_object l_instToStringByteArray___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*1, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_instToStringByteArray___lam__0___boxed, .m_arity = 2, .m_num_fixed = 1, .m_objs = {((lean_object*)&l_instToStringByteArray___closed__0_value)} };
 static const lean_object* l_instToStringByteArray___closed__1 = (const lean_object*)&l_instToStringByteArray___closed__1_value;
 LEAN_EXPORT const lean_object* l_instToStringByteArray = (const lean_object*)&l_instToStringByteArray___closed__1_value;
-static lean_once_cell_t l_instToStringInt___lam__0___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_instToStringInt___lam__0___closed__0;
-static const lean_string_object l_instToStringInt___lam__0___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 2, .m_capacity = 2, .m_length = 1, .m_data = "-"};
-static const lean_object* l_instToStringInt___lam__0___closed__1 = (const lean_object*)&l_instToStringInt___lam__0___closed__1_value;
-LEAN_EXPORT lean_object* l_instToStringInt___lam__0(lean_object*);
-LEAN_EXPORT lean_object* l_instToStringInt___lam__0___boxed(lean_object*);
-static const lean_closure_object l_instToStringInt___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_instToStringInt___lam__0___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
+static const lean_closure_object l_instToStringInt___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Int_repr___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_instToStringInt___closed__0 = (const lean_object*)&l_instToStringInt___closed__0_value;
 LEAN_EXPORT const lean_object* l_instToStringInt = (const lean_object*)&l_instToStringInt___closed__0_value;
 LEAN_EXPORT lean_object* l_List_toString___redArg___lam__0(lean_object* v_inst_2_, lean_object* v_l_3_, lean_object* v_r_4_){
@@ -197,61 +186,17 @@ lean_dec_ref(v_bs_56_);
 return v_res_57_;
 }
 }
-static lean_object* _init_l_instToStringInt___lam__0___closed__0(void){
-_start:
-{
-lean_object* v_natZero_62_; lean_object* v_intZero_63_; 
-v_natZero_62_ = lean_unsigned_to_nat(0u);
-v_intZero_63_ = lean_nat_to_int(v_natZero_62_);
-return v_intZero_63_;
-}
-}
-LEAN_EXPORT lean_object* l_instToStringInt___lam__0(lean_object* v_x_65_){
-_start:
-{
-lean_object* v_intZero_66_; uint8_t v_isNeg_67_; 
-v_intZero_66_ = lean_obj_once(&l_instToStringInt___lam__0___closed__0, &l_instToStringInt___lam__0___closed__0_once, _init_l_instToStringInt___lam__0___closed__0);
-v_isNeg_67_ = lean_int_dec_lt(v_x_65_, v_intZero_66_);
-if (v_isNeg_67_ == 0)
-{
-lean_object* v_a_68_; lean_object* v___x_69_; 
-v_a_68_ = lean_nat_abs(v_x_65_);
-v___x_69_ = l_Nat_reprFast(v_a_68_);
-return v___x_69_;
-}
-else
-{
-lean_object* v_abs_70_; lean_object* v_one_71_; lean_object* v_a_72_; lean_object* v___x_73_; lean_object* v___x_74_; lean_object* v___x_75_; lean_object* v___x_76_; 
-v_abs_70_ = lean_nat_abs(v_x_65_);
-v_one_71_ = lean_unsigned_to_nat(1u);
-v_a_72_ = lean_nat_sub(v_abs_70_, v_one_71_);
-lean_dec(v_abs_70_);
-v___x_73_ = ((lean_object*)(l_instToStringInt___lam__0___closed__1));
-v___x_74_ = lean_nat_add(v_a_72_, v_one_71_);
-lean_dec(v_a_72_);
-v___x_75_ = l_Nat_reprFast(v___x_74_);
-v___x_76_ = lean_string_append(v___x_73_, v___x_75_);
-lean_dec_ref(v___x_75_);
-return v___x_76_;
-}
-}
-}
-LEAN_EXPORT lean_object* l_instToStringInt___lam__0___boxed(lean_object* v_x_77_){
-_start:
-{
-lean_object* v_res_78_; 
-v_res_78_ = l_instToStringInt___lam__0(v_x_77_);
-lean_dec(v_x_77_);
-return v_res_78_;
-}
-}
 lean_object* runtime_initialize_Init_Data_String_Defs(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Int_Repr(uint8_t builtin);
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Data_ToString_Extra(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
 res = runtime_initialize_Init_Data_String_Defs(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Int_Repr(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -264,12 +209,16 @@ _G_meta_initialized = true;
 return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Init_Data_String_Defs(uint8_t builtin);
+lean_object* initialize_Init_Data_Int_Repr(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_ToString_Extra(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Init_Data_String_Defs(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Int_Repr(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_ToString_Extra(builtin);

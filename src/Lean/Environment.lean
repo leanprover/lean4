@@ -431,6 +431,12 @@ also `AsyncContext.declPrefix`.
 private def AsyncContext.mayContain (ctx : AsyncContext) (n : Name) : Bool :=
   ctx.declPrefix.isPrefixOf <| privateToUserName n.eraseMacroScopes
 
+private def AsyncContext.descr (ctx : AsyncContext) : String :=
+  if let (n :: _) := ctx.realizingStack then
+    s!"realization context '{n}'"
+  else
+    s!"async context '{ctx.declPrefix}'"
+
 /--
 Constant info and environment extension states eventually resulting from async elaboration.
 -/
@@ -519,11 +525,12 @@ where go parent? aconsts := do
   go (some c) c.aconsts.get
 
 /-- Accessibility levels of declarations in `Lean.Environment`. -/
-private inductive Visibility where
+inductive Environment.Visibility where
   /-- Information private to the module. -/
   | «private»
   /-- Information to be exported to other modules. -/
   | «public»
+deriving Inhabited, BEq
 
 /-- Maps `Visibility` to `α`. -/
 private structure VisibilityMap (α : Type) where
@@ -752,6 +759,7 @@ private def lakeAdd (env : Environment) (cinfo : ConstantInfo) : Environment :=
   }
 
 -- forward reference due to too many cyclic dependencies
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_is_reserved_name"]
 private opaque isReservedName (env : Environment) (name : Name) : Bool
 
@@ -1185,8 +1193,8 @@ namespace ConstantInfo
 def instantiateTypeLevelParams (c : ConstantInfo) (ls : List Level) : Expr :=
   c.toConstantVal.instantiateTypeLevelParams ls
 
-def instantiateValueLevelParams! (c : ConstantInfo) (ls : List Level) : Expr :=
-  c.value!.instantiateLevelParams c.levelParams ls
+def instantiateValueLevelParams! (c : ConstantInfo) (ls : List Level) (allowOpaque := false) : Expr :=
+  (c.value! (allowOpaque := allowOpaque)).instantiateLevelParams c.levelParams ls
 
 end ConstantInfo
 
@@ -1376,8 +1384,7 @@ def modifyState {σ : Type} (ext : EnvExtension σ) (env : Environment) (f : σ 
   match asyncMode with
   | .mainOnly =>
     if let some asyncCtx := env.asyncCtx? then
-      return panic! s!"environment extension is marked as `mainOnly` but used in \
-        {if env.isRealizing then "realization" else "async"} context '{asyncCtx.declPrefix}'"
+      return panic! s!"environment extension is marked as `mainOnly` but used in {asyncCtx.descr}"
     return { env with base.private.extensions := unsafe ext.modifyStateImpl env.base.private.extensions f }
   | .local =>
     return { env with base.private.extensions := unsafe ext.modifyStateImpl env.base.private.extensions f }
@@ -1768,6 +1775,7 @@ private def looksLikeOldCodegenName : Name → Bool
   | .str _ s => s.startsWith "_cstage" || s.startsWith "_spec_" || s.startsWith "_elambda"
   | _        => false
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_get_ir_extra_const_names"]
 private opaque getIRExtraConstNames (env : Environment) (level : OLeanLevel) (includeDecls := false) : Array Name
 
@@ -1804,6 +1812,7 @@ def mkModuleData (env : Environment) (level : OLeanLevel := .private) : IO Modul
     constNames, constants, entries
   }
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_ir_export_entries"]
 private opaque exportIREntries (env : Environment) : Array (Name × Array EnvExtensionEntry)
 
@@ -1817,7 +1826,7 @@ private def mkIRData (env : Environment) : ModuleData :=
     extraConstNames := getIRExtraConstNames env .private (includeDecls := true)
   }
 
-def writeModule (env : Environment) (fname : System.FilePath) : IO Unit := do
+def writeModule (env : Environment) (fname : System.FilePath) (writeIR := true) : IO Unit := do
   if env.header.isModule then
     let mkPart (level : OLeanLevel) :=
       return (level.adjustFileName fname, (← mkModuleData env level))
@@ -1825,8 +1834,9 @@ def writeModule (env : Environment) (fname : System.FilePath) : IO Unit := do
       (← mkPart .exported),
       (← mkPart .server),
       (← mkPart .private)]
-    -- Make sure to change the module name so we derive a different base address
-    saveModuleData (fname.withExtension "ir") (env.mainModule ++ `ir) (mkIRData env)
+    if writeIR then
+      -- Make sure to change the module name so we derive a different base address
+      saveModuleData (fname.withExtension "ir") (env.mainModule ++ `ir) (mkIRData env)
   else
     saveModuleData fname env.mainModule (← mkModuleData env)
 
@@ -1862,6 +1872,7 @@ private def setImportedEntries (states : Array EnvExtensionState) (mods : Array 
           { s with importedEntries := s.importedEntries.set! modIdx entries }
   return states
 
+set_option compiler.ignoreBorrowAnnotation true in
 /--
   "Forward declaration" needed for updating the attribute table with user-defined attributes.
   User-defined attributes are declared using the `initialize` command. The `initialize` command is just syntax sugar for the `init` attribute.
@@ -1872,9 +1883,12 @@ private def setImportedEntries (states : Array EnvExtensionState) (mods : Array 
   Later, we set this method with code that adds the user-defined attributes that were imported after we initialized `attributeExtension`.
 -/
 @[extern "lean_update_env_attributes"] opaque updateEnvAttributes : Environment → IO Environment
+
+set_option compiler.ignoreBorrowAnnotation true in
 /-- "Forward declaration" for retrieving the number of builtin attributes. -/
 @[extern "lean_get_num_attributes"] opaque getNumBuiltinAttributes : IO Nat
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_run_init_attrs"]
 private opaque runInitAttrs (env : Environment) (opts : Options) : IO Unit
 
@@ -2399,6 +2413,7 @@ def displayStats (env : Environment) : IO Unit := do
 @[extern "lean_eval_const"]
 private unsafe opaque evalConstCore (α) (env : @& Environment) (opts : @& Options) (constName : @& Name) : Except String α
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_eval_check_meta"]
 private opaque evalCheckMeta (env : Environment) (constName : Name) : Except String Unit
 
@@ -2740,13 +2755,28 @@ def mkThmOrUnsafeDef [Monad m] [MonadEnv m] (thm : TheoremVal) : m Declaration :
   else
     return .thmDecl thm
 
+/-- Environment extension for overriding the height that `getMaxHeight` assigns to a definition.
+This is consulted for all definitions regardless of their reducibility hints. Currently used by
+structural recursion to ensure that parent definitions get the correct height even though the
+`_f` helper definitions are marked as `.abbrev` (which `getMaxHeight` would otherwise ignore). -/
+builtin_initialize defHeightOverrideExt : EnvExtension (NameMap UInt32) ←
+  registerEnvExtension (pure {}) (asyncMode := .local)
+
+/-- Register a height override for a definition so that `getMaxHeight` uses it. -/
+def setDefHeightOverride (env : Environment) (declName : Name) (height : UInt32) : Environment :=
+  defHeightOverrideExt.modifyState env fun m => m.insert declName height
+
 def getMaxHeight (env : Environment) (e : Expr) : UInt32 :=
+  let overrides := defHeightOverrideExt.getState env
   e.foldConsts 0 fun constName max =>
-    match env.findAsync? constName with
-    | some { kind := .defn, constInfo := info, .. } =>
-      match info.get.hints with
-      | ReducibilityHints.regular h => if h > max then h else max
-      | _                           => max
-    | _ => max
+    match overrides.find? constName with
+    | some h => if h > max then h else max
+    | none =>
+      match env.findAsync? constName with
+      | some { kind := .defn, constInfo := info, .. } =>
+        match info.get.hints with
+        | ReducibilityHints.regular h => if h > max then h else max
+        | _                           => max
+      | _ => max
 
 end Lean

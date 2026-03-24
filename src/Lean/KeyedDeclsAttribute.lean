@@ -28,6 +28,15 @@ namespace KeyedDeclsAttribute
 -- could be a parameter as well, but right now it's all names
 abbrev Key := Name
 
+def evalIdentKey (stx : Syntax) : AttrM Key := do
+  let stx ← Attribute.Builtin.getIdent stx
+  let kind := stx.getId
+  if (← getEnv).contains kind then
+    recordExtraModUseFromDecl (isMeta := false) kind
+    if (← Elab.getInfoState).enabled then
+      Elab.addConstInfo stx kind none
+  pure kind
+
 /--
 `KeyedDeclsAttribute` definition.
 
@@ -41,14 +50,7 @@ structure Def (γ : Type) where
   descr         : String
   valueTypeName : Name
   /-- Convert `Syntax` into a `Key`, the default implementation expects an identifier. -/
-  evalKey (builtin : Bool) (stx : Syntax) : AttrM Key := private_decl% (do
-    let stx ← Attribute.Builtin.getIdent stx
-    let kind := stx.getId
-    if (← getEnv).contains kind then
-      recordExtraModUseFromDecl (isMeta := false) kind
-      if (← Elab.getInfoState).enabled then
-        Elab.addConstInfo stx kind none
-    pure kind)
+  evalKey (builtin : Bool) (stx : Syntax) : AttrM Key := evalIdentKey stx
   onAdded (builtin : Bool) (declName : Name) (key : Key) : AttrM Unit := pure ()
   deriving Inhabited
 

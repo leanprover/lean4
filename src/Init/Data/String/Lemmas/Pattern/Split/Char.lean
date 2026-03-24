@@ -23,6 +23,7 @@ import Init.Data.String.OrderInstances
 import Init.Data.String.Lemmas.Order
 import Init.Data.String.Lemmas.Intercalate
 import Init.Data.List.SplitOn.Lemmas
+import Init.Data.String.Lemmas.Slice
 
 public section
 
@@ -30,6 +31,7 @@ namespace String.Slice
 
 open Pattern.Model Pattern.Model.Char
 
+@[cbv_eval]
 theorem Pattern.Model.split_char_eq_split_beq {c : Char} {s : Slice}
     (f curr : s.Pos) (hle : f ≤ curr) :
     Model.split c f curr hle = Model.split (· == c) f curr hle := by
@@ -69,6 +71,11 @@ theorem Slice.toList_split_intercalate {c : Char} {l : List Slice} (hl : ∀ s �
   · simp_all
   · rw [List.splitOn_intercalate] <;> simp_all
 
+theorem Slice.toList_split_intercalate_beq {c : Char} {l : List Slice} (hl : ∀ s ∈ l, c ∉ s.copy.toList) :
+    ((Slice.intercalate (String.singleton c) l).split c).toList ==
+      if l = [] then ["".toSlice] else l := by
+  split <;> simp_all [toList_split_intercalate hl, beq_list_iff]
+
 theorem toList_split_intercalate {c : Char} {l : List String} (hl : ∀ s ∈ l, c ∉ s.toList) :
     ((String.intercalate (String.singleton c) l).split c).toList.map (·.copy) =
       if l = [] then [""] else l := by
@@ -76,5 +83,10 @@ theorem toList_split_intercalate {c : Char} {l : List String} (hl : ∀ s ∈ l,
   split
   · simp_all
   · rw [List.splitOn_intercalate] <;> simp_all
+
+theorem toList_split_intercalate_beq {c : Char} {l : List String} (hl : ∀ s ∈ l, c ∉ s.toList) :
+    ((String.intercalate (String.singleton c) l).split c).toList ==
+      if l = [] then ["".toSlice] else l.map String.toSlice := by
+  split <;> simp_all [toList_split_intercalate hl, Slice.beq_list_iff]
 
 end String

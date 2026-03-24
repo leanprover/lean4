@@ -93,3 +93,20 @@ structure UnusedStruct (α : Type)
 
 deriving instance Repr, RpcEncodable for Empty
 #eval rpcDecode (α := Empty) .null {}
+
+/--
+error: '__rpcref' is reserved and cannot be used as a field name. See the `RpcEncodable` docstring.
+-/
+#guard_msgs in
+structure ReservedFieldName where
+  __rpcref : Nat
+  deriving RpcEncodable
+
+/--
+error: '__rpcref' is reserved and cannot be used as an argument name. See the `RpcEncodable` docstring.
+-/
+#guard_msgs in
+inductive ReservedCtorArgName where
+  | mk : ReservedCtorArgName
+  | mk2 (__rpcref : Nat) : Nat → ReservedCtorArgName
+  deriving RpcEncodable

@@ -47,6 +47,8 @@ uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* lean_array_to_list(lean_object*);
 lean_object* l_String_Slice_toString(lean_object*);
+uint8_t lean_nat_dec_le(lean_object*, lean_object*);
+uint8_t l_String_instDecidableLtRaw___aux__1(lean_object*, lean_object*);
 uint8_t lean_string_get_byte_fast(lean_object*, lean_object*);
 uint8_t lean_uint8_dec_eq(uint8_t, uint8_t);
 lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
@@ -1193,13 +1195,13 @@ return v___x_299_;
 v___jp_300_:
 {
 uint8_t v___x_304_; 
-v___x_304_ = l_List_elem___at___00System_FilePath_normalize_spec__0(v___y_303_, v___y_302_);
-lean_dec(v___y_302_);
+v___x_304_ = l_List_elem___at___00System_FilePath_normalize_spec__0(v___y_303_, v___y_301_);
+lean_dec(v___y_301_);
 if (v___x_304_ == 0)
 {
 lean_object* v___x_305_; 
 v___x_305_ = lean_unsigned_to_nat(3u);
-v___y_288_ = v___y_301_;
+v___y_288_ = v___y_302_;
 v___y_289_ = v___x_305_;
 goto v___jp_287_;
 }
@@ -1207,7 +1209,7 @@ else
 {
 lean_object* v___x_306_; 
 v___x_306_ = lean_unsigned_to_nat(1u);
-v___y_288_ = v___y_301_;
+v___y_288_ = v___y_302_;
 v___y_289_ = v___x_306_;
 goto v___jp_287_;
 }
@@ -1240,8 +1242,8 @@ if (lean_obj_tag(v___x_314_) == 0)
 {
 uint32_t v___x_315_; 
 v___x_315_ = 65;
-v___y_301_ = v___y_308_;
-v___y_302_ = v___x_310_;
+v___y_301_ = v___x_310_;
+v___y_302_ = v___y_308_;
 v___y_303_ = v___x_315_;
 goto v___jp_300_;
 }
@@ -1253,8 +1255,8 @@ lean_inc(v_val_316_);
 lean_dec_ref(v___x_314_);
 v___x_317_ = lean_unbox_uint32(v_val_316_);
 lean_dec(v_val_316_);
-v___y_301_ = v___y_308_;
-v___y_302_ = v___x_310_;
+v___y_301_ = v___x_310_;
+v___y_302_ = v___y_308_;
 v___y_303_ = v___x_317_;
 goto v___jp_300_;
 }
@@ -2051,7 +2053,7 @@ lean_dec(v_needlePos_566_);
 lean_dec(v_stackPos_565_);
 lean_dec_ref(v_table_564_);
 lean_dec_ref(v_needle_563_);
-v___x_577_ = lean_nat_dec_lt(v_basePos_573_, v___x_503_);
+v___x_577_ = l_String_instDecidableLtRaw___aux__1(v_basePos_573_, v___x_503_);
 lean_dec(v_basePos_573_);
 if (v___x_577_ == 0)
 {

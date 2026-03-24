@@ -38,10 +38,11 @@ lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* lean_nat_shiftr(lean_object*, lean_object*);
 lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
-uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
+uint8_t l_String_instDecidableLtRaw___aux__1(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* lean_string_utf8_next(lean_object*, lean_object*);
 uint8_t lean_string_utf8_at_end(lean_object*, lean_object*);
+uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 lean_object* lean_nat_to_int(lean_object*);
@@ -49,10 +50,11 @@ lean_object* lean_string_length(lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* l_String_Slice_pos_x21(lean_object*, lean_object*);
 lean_object* l_String_Slice_Pos_nextn(lean_object*, lean_object*, lean_object*);
+uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 lean_object* l_Nat_decLt___boxed(lean_object*, lean_object*);
 lean_object* l_instDecidableEqNat___boxed(lean_object*, lean_object*);
-uint8_t l_Prod_lexLtDec___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Prod_lexLtDec___aux__1___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static const lean_ctor_object l_Lean_instInhabitedPosition_default___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 0, .m_other = 2, .m_tag = 0}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)(((size_t)(0) << 1) | 1))}};
 static const lean_object* l_Lean_instInhabitedPosition_default___closed__0 = (const lean_object*)&l_Lean_instInhabitedPosition_default___closed__0_value;
 LEAN_EXPORT const lean_object* l_Lean_instInhabitedPosition_default = (const lean_object*)&l_Lean_instInhabitedPosition_default___closed__0_value;
@@ -964,7 +966,7 @@ goto v_reusejp_252_;
 v_reusejp_252_:
 {
 uint8_t v___x_254_; 
-v___x_254_ = l_Prod_lexLtDec___redArg(v___x_248_, v___x_249_, v___x_249_, v___x_251_, v___x_253_);
+v___x_254_ = l_Prod_lexLtDec___aux__1___redArg(v___x_248_, v___x_249_, v___x_249_, v___x_251_, v___x_253_);
 return v___x_254_;
 }
 }
@@ -1301,7 +1303,7 @@ v___x_410_ = lean_nat_dec_eq(v_pos_398_, v_posM_409_);
 if (v___x_410_ == 0)
 {
 uint8_t v___x_411_; 
-v___x_411_ = lean_nat_dec_lt(v_posM_409_, v_pos_398_);
+v___x_411_ = l_String_instDecidableLtRaw___aux__1(v_posM_409_, v_pos_398_);
 if (v___x_411_ == 0)
 {
 lean_dec(v_e_402_);

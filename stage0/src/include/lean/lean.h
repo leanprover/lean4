@@ -3245,6 +3245,8 @@ static inline double lean_float_once(double* loc, lean_once_cell_t* tok, double 
     return lean_float_once_cold(loc, tok, init);
 }
 
+LEAN_EXPORT lean_object * lean_run_main(lean_object * (*main_fn)(int, char **), int argc, char ** argv);
+
 #ifdef __cplusplus
 }
 #endif

@@ -72,8 +72,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Elab_GenInjective_0__Lean_Elab_Command
 _start:
 {
 lean_object* v___x_10_; 
-lean_inc(v___y_8_);
-lean_inc_ref(v___y_7_);
 v___x_10_ = l_Lean_Elab_realizeGlobalConstNoOverloadWithInfo(v___x_1_, v___x_2_, v___y_7_, v___y_8_);
 if (lean_obj_tag(v___x_10_) == 0)
 {
@@ -81,10 +79,6 @@ lean_object* v_a_11_; lean_object* v___x_12_;
 v_a_11_ = lean_ctor_get(v___x_10_, 0);
 lean_inc(v_a_11_);
 lean_dec_ref(v___x_10_);
-lean_inc(v___y_8_);
-lean_inc_ref(v___y_7_);
-lean_inc(v___y_6_);
-lean_inc_ref(v___y_5_);
 lean_inc(v_a_11_);
 v___x_12_ = l_mkCtorIdx(v_a_11_, v___y_5_, v___y_6_, v___y_7_, v___y_8_);
 if (lean_obj_tag(v___x_12_) == 0)
@@ -97,20 +91,12 @@ return v___x_13_;
 else
 {
 lean_dec(v_a_11_);
-lean_dec(v___y_8_);
-lean_dec_ref(v___y_7_);
-lean_dec(v___y_6_);
-lean_dec_ref(v___y_5_);
 return v___x_12_;
 }
 }
 else
 {
 lean_object* v_a_14_; lean_object* v___x_16_; uint8_t v_isShared_17_; uint8_t v_isSharedCheck_21_; 
-lean_dec(v___y_8_);
-lean_dec_ref(v___y_7_);
-lean_dec(v___y_6_);
-lean_dec_ref(v___y_5_);
 v_a_14_ = lean_ctor_get(v___x_10_, 0);
 v_isSharedCheck_21_ = !lean_is_exclusive(v___x_10_);
 if (v_isSharedCheck_21_ == 0)
@@ -156,6 +142,10 @@ _start:
 {
 lean_object* v_res_31_; 
 v_res_31_ = l___private_Lean_Elab_GenInjective_0__Lean_Elab_Command_elabGenInjectiveTheorems___lam__0(v___x_22_, v___x_23_, v___y_24_, v___y_25_, v___y_26_, v___y_27_, v___y_28_, v___y_29_);
+lean_dec(v___y_29_);
+lean_dec_ref(v___y_28_);
+lean_dec(v___y_27_);
+lean_dec_ref(v___y_26_);
 lean_dec(v___y_25_);
 lean_dec_ref(v___y_24_);
 return v_res_31_;
@@ -181,6 +171,7 @@ _start:
 lean_object* v_res_45_; 
 v_res_45_ = l___private_Lean_Elab_GenInjective_0__Lean_Elab_Command_elabGenInjectiveTheorems(v_stx_41_, v_a_42_, v_a_43_);
 lean_dec(v_a_43_);
+lean_dec_ref(v_a_42_);
 lean_dec(v_stx_41_);
 return v_res_45_;
 }

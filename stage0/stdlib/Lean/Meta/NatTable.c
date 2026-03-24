@@ -424,10 +424,14 @@ return v_res_159_;
 LEAN_EXPORT lean_object* l_panic___at___00mkNatLookupTable_spec__0(lean_object* v_msg_161_, lean_object* v___y_162_, lean_object* v___y_163_, lean_object* v___y_164_, lean_object* v___y_165_){
 _start:
 {
-lean_object* v___f_167_; lean_object* v___x_137__overap_168_; lean_object* v___x_169_; 
+lean_object* v___f_167_; lean_object* v___x_133__overap_168_; lean_object* v___x_169_; 
 v___f_167_ = ((lean_object*)(l_panic___at___00mkNatLookupTable_spec__0___closed__0));
-v___x_137__overap_168_ = lean_panic_fn(v___f_167_, v_msg_161_);
-v___x_169_ = lean_apply_5(v___x_137__overap_168_, v___y_162_, v___y_163_, v___y_164_, v___y_165_, lean_box(0));
+v___x_133__overap_168_ = lean_panic_fn(v___f_167_, v_msg_161_);
+lean_inc(v___y_165_);
+lean_inc_ref(v___y_164_);
+lean_inc(v___y_163_);
+lean_inc_ref(v___y_162_);
+v___x_169_ = lean_apply_5(v___x_133__overap_168_, v___y_162_, v___y_163_, v___y_164_, v___y_165_, lean_box(0));
 return v___x_169_;
 }
 }
@@ -436,6 +440,10 @@ _start:
 {
 lean_object* v_res_176_; 
 v_res_176_ = l_panic___at___00mkNatLookupTable_spec__0(v_msg_170_, v___y_171_, v___y_172_, v___y_173_, v___y_174_);
+lean_dec(v___y_174_);
+lean_dec_ref(v___y_173_);
+lean_dec(v___y_172_);
+lean_dec_ref(v___y_171_);
 return v_res_176_;
 }
 }
@@ -533,6 +541,10 @@ _start:
 {
 lean_object* v_res_218_; 
 v_res_218_ = l_mkNatLookupTable(v_i_210_, v_type_211_, v_es_212_, v_a_213_, v_a_214_, v_a_215_, v_a_216_);
+lean_dec(v_a_216_);
+lean_dec_ref(v_a_215_);
+lean_dec(v_a_214_);
+lean_dec_ref(v_a_213_);
 lean_dec_ref(v_es_212_);
 return v_res_218_;
 }

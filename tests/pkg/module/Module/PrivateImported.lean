@@ -29,3 +29,6 @@ public def publicDefOfPrivatelyInitialized := initialized
 /-! #12198: `local simp` should be accepted on privately imported theorem -/
 
 attribute [local simp] t
+
+/-- Setup for #12833. -/
+public def Namespaced.def2 := 0

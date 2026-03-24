@@ -1878,34 +1878,67 @@ return v___x_665_;
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_Simp_Used_0__Lean_Compiler_LCNF_Simp_attachCodeDecls_go_match__1_splitter(lean_object* v_motive_666_, lean_object* v_decl_667_, lean_object* v_h__1_668_, lean_object* v_h__2_669_, lean_object* v_h__3_670_){
 _start:
 {
-lean_object* v___x_671_; 
-v___x_671_ = l___private_Lean_Compiler_LCNF_Simp_Used_0__Lean_Compiler_LCNF_Simp_attachCodeDecls_go_match__1_splitter___redArg(v_decl_667_, v_h__1_668_, v_h__2_669_, v_h__3_670_);
-return v___x_671_;
+switch(lean_obj_tag(v_decl_667_))
+{
+case 0:
+{
+lean_object* v_decl_671_; lean_object* v___x_672_; 
+lean_dec(v_h__3_670_);
+lean_dec(v_h__2_669_);
+v_decl_671_ = lean_ctor_get(v_decl_667_, 0);
+lean_inc_ref(v_decl_671_);
+lean_dec_ref(v_decl_667_);
+v___x_672_ = lean_apply_1(v_h__1_668_, v_decl_671_);
+return v___x_672_;
+}
+case 1:
+{
+lean_object* v_decl_673_; lean_object* v___x_674_; 
+lean_dec(v_h__3_670_);
+lean_dec(v_h__1_668_);
+v_decl_673_ = lean_ctor_get(v_decl_667_, 0);
+lean_inc_ref(v_decl_673_);
+lean_dec_ref(v_decl_667_);
+v___x_674_ = lean_apply_1(v_h__2_669_, v_decl_673_);
+return v___x_674_;
+}
+default: 
+{
+lean_object* v_decl_675_; lean_object* v___x_676_; 
+lean_dec(v_h__2_669_);
+lean_dec(v_h__1_668_);
+v_decl_675_ = lean_ctor_get(v_decl_667_, 0);
+lean_inc_ref(v_decl_675_);
+lean_dec_ref(v_decl_667_);
+v___x_676_ = lean_apply_1(v_h__3_670_, v_decl_675_);
+return v___x_676_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_attachCodeDecls(lean_object* v_decls_672_, lean_object* v_code_673_, lean_object* v_a_674_, lean_object* v_a_675_, lean_object* v_a_676_, lean_object* v_a_677_, lean_object* v_a_678_, lean_object* v_a_679_, lean_object* v_a_680_){
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_attachCodeDecls(lean_object* v_decls_677_, lean_object* v_code_678_, lean_object* v_a_679_, lean_object* v_a_680_, lean_object* v_a_681_, lean_object* v_a_682_, lean_object* v_a_683_, lean_object* v_a_684_, lean_object* v_a_685_){
 _start:
 {
-lean_object* v___x_682_; lean_object* v___x_683_; 
-v___x_682_ = lean_array_get_size(v_decls_672_);
-v___x_683_ = l___private_Lean_Compiler_LCNF_Simp_Used_0__Lean_Compiler_LCNF_Simp_attachCodeDecls_go(v_decls_672_, v___x_682_, v_code_673_, v_a_674_, v_a_675_, v_a_676_, v_a_677_, v_a_678_, v_a_679_, v_a_680_);
-return v___x_683_;
+lean_object* v___x_687_; lean_object* v___x_688_; 
+v___x_687_ = lean_array_get_size(v_decls_677_);
+v___x_688_ = l___private_Lean_Compiler_LCNF_Simp_Used_0__Lean_Compiler_LCNF_Simp_attachCodeDecls_go(v_decls_677_, v___x_687_, v_code_678_, v_a_679_, v_a_680_, v_a_681_, v_a_682_, v_a_683_, v_a_684_, v_a_685_);
+return v___x_688_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_attachCodeDecls___boxed(lean_object* v_decls_684_, lean_object* v_code_685_, lean_object* v_a_686_, lean_object* v_a_687_, lean_object* v_a_688_, lean_object* v_a_689_, lean_object* v_a_690_, lean_object* v_a_691_, lean_object* v_a_692_, lean_object* v_a_693_){
+LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_attachCodeDecls___boxed(lean_object* v_decls_689_, lean_object* v_code_690_, lean_object* v_a_691_, lean_object* v_a_692_, lean_object* v_a_693_, lean_object* v_a_694_, lean_object* v_a_695_, lean_object* v_a_696_, lean_object* v_a_697_, lean_object* v_a_698_){
 _start:
 {
-lean_object* v_res_694_; 
-v_res_694_ = l_Lean_Compiler_LCNF_Simp_attachCodeDecls(v_decls_684_, v_code_685_, v_a_686_, v_a_687_, v_a_688_, v_a_689_, v_a_690_, v_a_691_, v_a_692_);
+lean_object* v_res_699_; 
+v_res_699_ = l_Lean_Compiler_LCNF_Simp_attachCodeDecls(v_decls_689_, v_code_690_, v_a_691_, v_a_692_, v_a_693_, v_a_694_, v_a_695_, v_a_696_, v_a_697_);
+lean_dec(v_a_697_);
+lean_dec_ref(v_a_696_);
+lean_dec(v_a_695_);
+lean_dec_ref(v_a_694_);
+lean_dec_ref(v_a_693_);
 lean_dec(v_a_692_);
 lean_dec_ref(v_a_691_);
-lean_dec(v_a_690_);
-lean_dec_ref(v_a_689_);
-lean_dec_ref(v_a_688_);
-lean_dec(v_a_687_);
-lean_dec_ref(v_a_686_);
-lean_dec_ref(v_decls_684_);
-return v_res_694_;
+lean_dec_ref(v_decls_689_);
+return v_res_699_;
 }
 }
 lean_object* runtime_initialize_Lean_Compiler_LCNF_Simp_SimpM(uint8_t builtin);

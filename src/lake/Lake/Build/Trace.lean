@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Data.Json
 import Init.Data.Nat.Fold
+meta import Init.Data.Nat.Fold
 import Lake.Util.String
 public import Init.Data.String.Search
 public import Init.Data.String.Extra

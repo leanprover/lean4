@@ -85,6 +85,7 @@ private def isMVarWithGreaterDepth (v : Level) (mvarId : LMVarId) : MetaM Bool :
   | Level.mvar mvarId' => return (← mvarId'.getLevel) > (← mvarId.getLevel)
   | _ => return false
 
+set_option compiler.ignoreBorrowAnnotation true in
 mutual
 
   private partial def solve (u v : Level) : MetaM LBool := do

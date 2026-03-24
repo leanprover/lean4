@@ -216,9 +216,9 @@ return v___x_33_;
 LEAN_EXPORT lean_object* l_Lake_instInhabitedFacetConfig_default___lam__1___boxed(lean_object* v_x_34_, lean_object* v___y_35_){
 _start:
 {
-uint8_t v_x_528__boxed_36_; lean_object* v_res_37_; 
-v_x_528__boxed_36_ = lean_unbox(v_x_34_);
-v_res_37_ = l_Lake_instInhabitedFacetConfig_default___lam__1(v_x_528__boxed_36_, v___y_35_);
+uint8_t v_x_441__boxed_36_; lean_object* v_res_37_; 
+v_x_441__boxed_36_ = lean_unbox(v_x_34_);
+v_res_37_ = l_Lake_instInhabitedFacetConfig_default___lam__1(v_x_441__boxed_36_, v___y_35_);
 lean_dec(v___y_35_);
 return v_res_37_;
 }
@@ -493,6 +493,10 @@ lean_object* v_fetchFn_157_; lean_object* v___x_158_;
 v_fetchFn_157_ = lean_ctor_get(v_self_148_, 1);
 lean_inc_ref(v_fetchFn_157_);
 lean_dec_ref(v_self_148_);
+lean_inc_ref(v_a_154_);
+lean_inc(v_a_153_);
+lean_inc(v_a_152_);
+lean_inc(v_a_151_);
 v___x_158_ = lean_apply_8(v_fetchFn_157_, v_info_149_, v_a_150_, v_a_151_, v_a_152_, v_a_153_, v_a_154_, v_a_155_, lean_box(0));
 return v___x_158_;
 }
@@ -502,6 +506,10 @@ _start:
 {
 lean_object* v_res_168_; 
 v_res_168_ = l_Lake_KFacetConfig_run___redArg(v_self_159_, v_info_160_, v_a_161_, v_a_162_, v_a_163_, v_a_164_, v_a_165_, v_a_166_);
+lean_dec_ref(v_a_165_);
+lean_dec(v_a_164_);
+lean_dec(v_a_163_);
+lean_dec(v_a_162_);
 return v_res_168_;
 }
 }
@@ -512,6 +520,10 @@ lean_object* v_fetchFn_184_; lean_object* v___x_185_;
 v_fetchFn_184_ = lean_ctor_get(v_self_175_, 1);
 lean_inc_ref(v_fetchFn_184_);
 lean_dec_ref(v_self_175_);
+lean_inc_ref(v_a_181_);
+lean_inc(v_a_180_);
+lean_inc(v_a_179_);
+lean_inc(v_a_178_);
 v___x_185_ = lean_apply_8(v_fetchFn_184_, v_info_176_, v_a_177_, v_a_178_, v_a_179_, v_a_180_, v_a_181_, v_a_182_, lean_box(0));
 return v___x_185_;
 }
@@ -521,6 +533,10 @@ _start:
 {
 lean_object* v_res_201_; 
 v_res_201_ = l_Lake_KFacetConfig_run(v_kind_186_, v_00_u03b1_187_, v_facet_188_, v_00_u03b2_189_, v_inst_190_, v_inst_191_, v_self_192_, v_info_193_, v_a_194_, v_a_195_, v_a_196_, v_a_197_, v_a_198_, v_a_199_);
+lean_dec_ref(v_a_198_);
+lean_dec(v_a_197_);
+lean_dec(v_a_196_);
+lean_dec(v_a_195_);
 lean_dec(v_facet_188_);
 lean_dec(v_kind_186_);
 return v_res_201_;

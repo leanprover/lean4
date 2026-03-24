@@ -524,9 +524,6 @@ syntax location := withPosition(ppGroup(" at" (locationWildcard <|> locationHyp)
 -/
 syntax (name := change) "change " term (location)? : tactic
 
-@[tactic_alt change]
-syntax (name := changeWith) "change " term " with " term (location)? : tactic
-
 /--
 `show t` finds the first goal whose target unifies with `t`. It makes that the main goal,
 performs the unification, and replaces the target with the unified version of `t`.
@@ -2353,9 +2350,6 @@ after reduction to close the goal.
 The proofs produced by `cbv` only use the three standard axioms.
 In particular, they do not require trust in the correctness of the code
 generator.
-
-This tactic is experimental and its behavior is likely to change in upcoming
-releases of Lean.
 -/
 syntax (name := cbv) "cbv" (location)? : tactic
 
@@ -2373,9 +2367,6 @@ fails.
 The proofs produced by `decide_cbv` only use the three standard axioms.
 In particular, they do not require trust in the correctness of the code
 generator.
-
-This tactic is experimental and its behavior is likely to change in upcoming
-releases of Lean.
 -/
 syntax (name := decide_cbv) "decide_cbv" : tactic
 

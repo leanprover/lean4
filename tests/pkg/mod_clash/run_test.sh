@@ -1,0 +1,15 @@
+# This test covers importing modules which are defined in multiple packages
+# (with the same original package name).
+
+./clean.sh
+run lake resolve-deps
+
+# Test that importing a module with multiple identical candidates works
+run lake build Test.ImportSame
+
+# Test that importing a module with multiple sufficiently similar candidates works
+run lake build Test.ImportSimilar
+
+# Test that importing a module with multiple distinct candidates fails
+capture_fail lake build Test.ImportDiff
+check_out_contains 'could not disambiguate the module `Diff`'

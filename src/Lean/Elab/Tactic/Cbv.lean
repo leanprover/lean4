@@ -18,7 +18,7 @@ open Lean.Meta.Tactic.Cbv
 
 @[builtin_tactic Lean.Parser.Tactic.cbv] def evalCbv : Tactic := fun stx => withMainContext do
   if cbv.warning.get (← getOptions) then
-    logWarningAt stx "The `cbv` tactic is experimental and still under development. Avoid using it in production projects"
+    logWarningAt stx "The `cbv` usage warning option is enabled. Disable it by setting `set_option cbv.warning false`."
   let (fvarIds, simplifyTarget) ← match expandOptLocation stx[1] with
     | Location.targets hyps simplifyTarget => pure (← getFVarIds hyps, simplifyTarget)
     | Location.wildcard => pure (← (← getMainGoal).getNondepPropHyps, true)
@@ -31,7 +31,7 @@ open Lean.Meta.Tactic.Cbv
   match stx with
   | `(tactic| decide_cbv) => withMainContext do
     if cbv.warning.get (← getOptions) then
-      logWarningAt stx "The `decide_cbv` tactic is experimental and still under development. Avoid using it in production projects"
+      logWarningAt stx "The `decide_cbv` usage warning option is enabled. Disable it by setting `set_option cbv.warning false`."
     liftMetaFinishingTactic fun mvar => do
       let [mvar'] ← mvar.applyConst ``of_decide_eq_true | throwError "Could not apply `of_decide_eq_true`"
       cbvDecideGoal mvar'

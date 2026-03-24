@@ -235,8 +235,8 @@ def idbgCompileAndEval (α : Type) [Nonempty α]
   | .error msg => throw (.userError s!"idbg evalConst failed: {msg}")
 
 /-- Connect to the debug server, receive expressions, evaluate, send results. Loops forever. -/
-@[nospecialize, export lean_idbg_client_loop] def idbgClientLoopImpl {α : Type} [Nonempty α]
-    (siteId : String) (imports : Array Import) (apply : α → String) : IO Unit := do
+@[nospecialize, export lean_idbg_client_loop] def idbgClientLoopImpl
+    (siteId : String) (imports : Array Import) (apply : NonScalar → String) : IO Unit := do
   let baseEnv ← idbgLoadEnv imports
   let port := idbgPort siteId
   let addr := SocketAddressV4.mk (.ofParts 127 0 0 1) port
@@ -249,7 +249,7 @@ def idbgCompileAndEval (α : Type) [Nonempty α]
       let json ← IO.ofExcept (Json.parse msg)
       let type ← IO.ofExcept (exprFromJson? (← IO.ofExcept (json.getObjVal? "type")))
       let value ← IO.ofExcept (exprFromJson? (← IO.ofExcept (json.getObjVal? "value")))
-      let fnVal ← idbgCompileAndEval α baseEnv type value
+      let fnVal ← idbgCompileAndEval NonScalar baseEnv type value
       let result := apply fnVal
       sendMsg client result
       let t ← client.shutdown |>.toIO

@@ -1,6 +1,11 @@
 (In the following, use `sysctl -n hw.logicalcpu` instead of `nproc` on macOS)
 
+## Building
+
 To build Lean you should use `make -j$(nproc) -C build/release`.
+
+The build uses `ccache`, and in a sandbox `ccache` may complain about read-only file systems.
+Use `CCACHE_READONLY` and `CCACHE_TEMPDIR` instead of disabling ccache completely.
 
 ## Running Tests
 
@@ -11,17 +16,45 @@ See `tests/README.md` for full documentation. Quick reference:
 CTEST_PARALLEL_LEVEL="$(nproc)" CTEST_OUTPUT_ON_FAILURE=1 \
 make -C build/release -j "$(nproc)" test
 
-# Specific test by name (supports regex via ctest -R)
+# Specific test by name (supports regex via ctest -R; double-quote special chars like |)
 CTEST_PARALLEL_LEVEL="$(nproc)" CTEST_OUTPUT_ON_FAILURE=1 \
-make -C build/release -j "$(nproc)" test ARGS='-R grind_ematch'
+make -C build/release -j "$(nproc)" test ARGS="-R 'grind_ematch'"
+
+# Multiple tests matching a pattern
+CTEST_PARALLEL_LEVEL="$(nproc)" CTEST_OUTPUT_ON_FAILURE=1 \
+make -C build/release -j "$(nproc)" test ARGS="-R 'treemap|phashmap'"
 
 # Rerun only previously failed tests
 CTEST_PARALLEL_LEVEL="$(nproc)" CTEST_OUTPUT_ON_FAILURE=1 \
 make -C build/release -j "$(nproc)" test ARGS='--rerun-failed'
 
-# Single test from tests/foo/bar/ (quick check during development)
-cd tests/foo/bar && ./run_test example_test.lean
+# Run a test manually without ctest (test pile: pass filename relative to the pile dir)
+tests/with_stage1_test_env.sh tests/elab_bench/run_bench.sh cbv_decide.lean
+tests/with_stage1_test_env.sh tests/elab/run_test.sh grind_indexmap.lean
 ```
+
+## Benchmark vs Test Problem Sizes
+
+Benchmarks are also run as tests. Use the `TEST_BENCH` environment variable (unset in tests, set to `1` in benchmarks) to scale problem sizes:
+
+- In `compile_bench` `.init.sh` files: check `$TEST_BENCH` and set `TEST_ARGS` accordingly
+- In `elab_bench` Lean files: use `(← IO.getEnv "TEST_BENCH") == some "1"` to switch between small (test) and large (bench) inputs
+
+See `tests/README.md` for the full benchmark writing guide.
+
+## Testing stage 2
+
+When requested to test stage 2, build it as follows:
+```
+make -C build/release stage2 -j$(nproc)
+```
+Stage 2 is *not* automatically invalidated by changes to `src/` which allows for faster iteration
+when fixing a specific file in the stage 2 build but for invalidating any files that already passed
+the stage 2 build as well as for final validation,
+```
+make -C build/release/stage2 clean-stdlib
+```
+must be run manually before building.
 
 ## New features
 

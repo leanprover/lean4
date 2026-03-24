@@ -45,42 +45,76 @@ return v___x_7_;
 LEAN_EXPORT lean_object* l___private_Init_Data_Vector_Monadic_0__Array_forIn_x27__eq__foldlM_match__1_splitter(lean_object* v_00_u03b2_8_, lean_object* v_motive_9_, lean_object* v_b_10_, lean_object* v_h__1_11_, lean_object* v_h__2_12_){
 _start:
 {
-lean_object* v___x_13_; 
-v___x_13_ = l___private_Init_Data_Vector_Monadic_0__Array_forIn_x27__eq__foldlM_match__1_splitter___redArg(v_b_10_, v_h__1_11_, v_h__2_12_);
-return v___x_13_;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_Vector_Monadic_0__Vector_forIn_x27__eq__foldlM_match__1_splitter___redArg(lean_object* v_b_14_, lean_object* v_h__1_15_, lean_object* v_h__2_16_){
-_start:
+if (lean_obj_tag(v_b_10_) == 0)
 {
-if (lean_obj_tag(v_b_14_) == 0)
-{
-lean_object* v_a_17_; lean_object* v___x_18_; 
-lean_dec(v_h__1_15_);
-v_a_17_ = lean_ctor_get(v_b_14_, 0);
-lean_inc(v_a_17_);
-lean_dec_ref(v_b_14_);
-v___x_18_ = lean_apply_1(v_h__2_16_, v_a_17_);
-return v___x_18_;
+lean_object* v_a_13_; lean_object* v___x_14_; 
+lean_dec(v_h__1_11_);
+v_a_13_ = lean_ctor_get(v_b_10_, 0);
+lean_inc(v_a_13_);
+lean_dec_ref(v_b_10_);
+v___x_14_ = lean_apply_1(v_h__2_12_, v_a_13_);
+return v___x_14_;
 }
 else
 {
-lean_object* v_a_19_; lean_object* v___x_20_; 
-lean_dec(v_h__2_16_);
-v_a_19_ = lean_ctor_get(v_b_14_, 0);
-lean_inc(v_a_19_);
-lean_dec_ref(v_b_14_);
-v___x_20_ = lean_apply_1(v_h__1_15_, v_a_19_);
-return v___x_20_;
+lean_object* v_a_15_; lean_object* v___x_16_; 
+lean_dec(v_h__2_12_);
+v_a_15_ = lean_ctor_get(v_b_10_, 0);
+lean_inc(v_a_15_);
+lean_dec_ref(v_b_10_);
+v___x_16_ = lean_apply_1(v_h__1_11_, v_a_15_);
+return v___x_16_;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Vector_Monadic_0__Vector_forIn_x27__eq__foldlM_match__1_splitter(lean_object* v_00_u03b2_21_, lean_object* v_motive_22_, lean_object* v_b_23_, lean_object* v_h__1_24_, lean_object* v_h__2_25_){
+LEAN_EXPORT lean_object* l___private_Init_Data_Vector_Monadic_0__Vector_forIn_x27__eq__foldlM_match__1_splitter___redArg(lean_object* v_b_17_, lean_object* v_h__1_18_, lean_object* v_h__2_19_){
 _start:
 {
-lean_object* v___x_26_; 
-v___x_26_ = l___private_Init_Data_Vector_Monadic_0__Vector_forIn_x27__eq__foldlM_match__1_splitter___redArg(v_b_23_, v_h__1_24_, v_h__2_25_);
-return v___x_26_;
+if (lean_obj_tag(v_b_17_) == 0)
+{
+lean_object* v_a_20_; lean_object* v___x_21_; 
+lean_dec(v_h__1_18_);
+v_a_20_ = lean_ctor_get(v_b_17_, 0);
+lean_inc(v_a_20_);
+lean_dec_ref(v_b_17_);
+v___x_21_ = lean_apply_1(v_h__2_19_, v_a_20_);
+return v___x_21_;
+}
+else
+{
+lean_object* v_a_22_; lean_object* v___x_23_; 
+lean_dec(v_h__2_19_);
+v_a_22_ = lean_ctor_get(v_b_17_, 0);
+lean_inc(v_a_22_);
+lean_dec_ref(v_b_17_);
+v___x_23_ = lean_apply_1(v_h__1_18_, v_a_22_);
+return v___x_23_;
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Vector_Monadic_0__Vector_forIn_x27__eq__foldlM_match__1_splitter(lean_object* v_00_u03b2_24_, lean_object* v_motive_25_, lean_object* v_b_26_, lean_object* v_h__1_27_, lean_object* v_h__2_28_){
+_start:
+{
+if (lean_obj_tag(v_b_26_) == 0)
+{
+lean_object* v_a_29_; lean_object* v___x_30_; 
+lean_dec(v_h__1_27_);
+v_a_29_ = lean_ctor_get(v_b_26_, 0);
+lean_inc(v_a_29_);
+lean_dec_ref(v_b_26_);
+v___x_30_ = lean_apply_1(v_h__2_28_, v_a_29_);
+return v___x_30_;
+}
+else
+{
+lean_object* v_a_31_; lean_object* v___x_32_; 
+lean_dec(v_h__2_28_);
+v_a_31_ = lean_ctor_get(v_b_26_, 0);
+lean_inc(v_a_31_);
+lean_dec_ref(v_b_26_);
+v___x_32_ = lean_apply_1(v_h__1_27_, v_a_31_);
+return v___x_32_;
+}
 }
 }
 lean_object* runtime_initialize_Init_Data_Vector_Basic(uint8_t builtin);

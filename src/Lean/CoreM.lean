@@ -256,7 +256,7 @@ abbrev CoreM := ReaderT Context <| StateRefT State (EIO Exception)
 -- Make the compiler generate specialized `pure`/`bind` so we do not have to optimize through the
 -- whole monad stack at every use site. May eventually be covered by `deriving`.
 @[always_inline]
-instance : Monad CoreM := let i := inferInstanceAs (Monad CoreM); { pure := i.pure, bind := i.bind }
+instance : Monad CoreM := let i : Monad CoreM := inferInstance; { pure := i.pure, bind := i.bind }
 
 instance : Inhabited (CoreM α) where
   default := fun _ _ => throw default
@@ -343,13 +343,13 @@ def instantiateTypeLevelParams (c : ConstantVal) (us : List Level) : CoreM Expr 
   modifyInstLevelTypeCache fun s => s.insert c.name (us, r)
   return r
 
-def instantiateValueLevelParams (c : ConstantInfo) (us : List Level) : CoreM Expr := do
+def instantiateValueLevelParams (c : ConstantInfo) (us : List Level) (allowOpaque := false) : CoreM Expr := do
   if let some (us', r) := (← get).cache.instLevelValue.find? c.name then
     if us == us' then
       return r
-  unless c.hasValue do
+  unless c.hasValue (allowOpaque := allowOpaque) do
     throwError "Not a definition or theorem: {.ofConstName c.name}"
-  let r := c.instantiateValueLevelParams! us
+  let r := c.instantiateValueLevelParams! us (allowOpaque := allowOpaque)
   modifyInstLevelValueCache fun s => s.insert c.name (us, r)
   return r
 
@@ -711,11 +711,12 @@ actual implementation of compileDeclsRef.
 builtin_initialize compileDeclsRef : IO.Ref (Array Name → CoreM Unit) ←
   IO.mkRef (fun _ => throwError m!"call to compileDecls with uninitialized compileDeclsRef")
 
-def compileDeclsImpl (declNames : Array Name) : CoreM Unit := do
+private def compileDeclsImpl (declNames : Array Name) : CoreM Unit := do
   (← compileDeclsRef.get) declNames
 
 -- `ref?` is used for error reporting if available
-partial def compileDecls (decls : Array Name) (logErrors := true) : CoreM Unit := do
+def compileDecls (decls : Array Name) (logErrors := true) : CoreM Unit := do
+  let env ← getEnv
   if !Elab.async.get (← getOptions) then
     let _ ← traceBlock "compiler env" (← getEnv).checked
     doCompile
@@ -835,6 +836,24 @@ def logMessageKind (kind : Name) : CoreM Bool := do
 def enableRealizationsForConst (n : Name) : CoreM Unit := do
   let env ← (← getEnv).enableRealizationsForConst (← getOptions) n
   setEnv env
+
+private def mapErrorImp (x : CoreM α) (f : MessageData → MessageData) : CoreM α := do
+  try
+    x
+  catch
+    | Exception.error ref msg =>
+      let msg' := f msg
+      let msg' ← addMessageContext msg'
+      throw <| Exception.error ref msg'
+    | ex => throw ex
+
+/-- Execute `x`, and apply `f` to the produced error message -/
+@[inline] protected def Core.mapError [MonadControlT CoreM m] [Monad m] (x : m α) (f : MessageData → MessageData) : m α :=
+  controlAt CoreM fun runInBase => mapErrorImp (runInBase x) f
+
+/-- Execute `x`. If it throws an error, indent and prepend `msg` to it.  -/
+@[inline] protected def Core.prependError [MonadControlT CoreM m] [Monad m] (msg : MessageData) (x : m α) : m α := do
+  Core.mapError x fun e => m!"{msg}{indentD e}"
 
 builtin_initialize
   registerTraceClass `Elab.async

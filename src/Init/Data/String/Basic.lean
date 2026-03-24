@@ -852,6 +852,10 @@ theorem Slice.rawEndPos_copy {s : Slice} : s.copy.rawEndPos = s.rawEndPos := by
 theorem copy_toSlice {s : String} : s.toSlice.copy = s := by
   simp [← toByteArray_inj, Slice.toByteArray_copy, ← size_toByteArray]
 
+@[simp]
+theorem copy_comp_toSlice : String.Slice.copy ∘ String.toSlice = id := by
+  ext; simp
+
 theorem Slice.getUTF8Byte_eq_getUTF8Byte_copy {s : Slice} {p : Pos.Raw} {h : p < s.rawEndPos} :
     s.getUTF8Byte p h = s.copy.getUTF8Byte p (by simpa) := by
   simp [getUTF8Byte, String.getUTF8Byte, toByteArray_copy, ByteArray.getElem_extract]
@@ -1266,9 +1270,11 @@ theorem Pos.toSlice_comp_ofToSlice {s : String} :
 theorem Pos.ofToSlice_comp_toSlice {s : String} :
     Pos.ofToSlice ∘ (toSlice (s := s)) = id := by ext; simp
 
+@[simp]
 theorem Pos.toSlice_inj {s : String} {p q : s.Pos} : p.toSlice = q.toSlice ↔ p = q :=
   ⟨fun h => by simpa using congrArg Pos.ofToSlice h, (· ▸ rfl)⟩
 
+@[simp]
 theorem Pos.ofToSlice_inj {s : String} {p q : s.toSlice.Pos} : ofToSlice p = ofToSlice q ↔ p = q :=
   ⟨fun h => by simpa using congrArg Pos.toSlice h, (· ▸ rfl)⟩
 
@@ -1687,7 +1693,7 @@ def Pos.next {s : @& String} (pos : @& s.Pos) (h : pos ≠ s.endPos) : s.Pos :=
 
 @[simp]
 theorem Pos.ofToSlice_next_toSlice {s : String} {pos : s.Pos} {h} :
-    ofToSlice (Slice.Pos.next pos.toSlice h) = pos.next (ne_of_apply_ne Pos.toSlice (by simpa)) :=
+    ofToSlice (Slice.Pos.next pos.toSlice h) = pos.next (ne_of_apply_ne Pos.toSlice (by simpa using h)) :=
   rfl
 
 @[simp]
@@ -1922,7 +1928,7 @@ theorem Pos.toSlice_next {s : String} {p : s.Pos} {h} :
   simp [next, -ofToSlice_next_toSlice]
 
 theorem Pos.next_toSlice {s : String} {p : s.Pos} {h} :
-    p.toSlice.next h = (p.next (ne_of_apply_ne Pos.toSlice (by simpa))).toSlice := by
+    p.toSlice.next h = (p.next (ne_of_apply_ne Pos.toSlice (by simpa using h))).toSlice := by
   simp [Pos.toSlice_next]
 
 theorem Pos.byteIdx_lt_utf8ByteSize {s : String} (p : s.Pos) (h : p ≠ s.endPos) :

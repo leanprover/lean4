@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data
-// Imports: public import Std.Data.DHashMap public import Std.Data.HashMap public import Std.Data.HashSet public import Std.Data.DTreeMap public import Std.Data.TreeMap public import Std.Data.TreeSet public import Std.Data.ExtDHashMap public import Std.Data.ExtHashMap public import Std.Data.ExtHashSet public import Std.Data.ExtDTreeMap public import Std.Data.ExtTreeMap public import Std.Data.ExtTreeSet public import Std.Data.DHashMap.RawLemmas public import Std.Data.DHashMap.RawDecidableEquiv public import Std.Data.HashMap.RawLemmas public import Std.Data.HashMap.RawDecidableEquiv public import Std.Data.HashSet.RawLemmas public import Std.Data.HashSet.RawDecidableEquiv public import Std.Data.DTreeMap.Raw public import Std.Data.TreeMap.Raw public import Std.Data.TreeSet.Raw public import Std.Data.Iterators public import Std.Data.ByteSlice
+// Imports: public import Std.Data.DHashMap public import Std.Data.HashMap public import Std.Data.HashSet public import Std.Data.DTreeMap public import Std.Data.TreeMap public import Std.Data.TreeSet public import Std.Data.ExtDHashMap public import Std.Data.ExtHashMap public import Std.Data.ExtHashSet public import Std.Data.ExtDTreeMap public import Std.Data.ExtTreeMap public import Std.Data.ExtTreeSet public import Std.Data.DHashMap.RawLemmas public import Std.Data.DHashMap.RawDecidableEquiv public import Std.Data.HashMap.RawLemmas public import Std.Data.HashMap.RawDecidableEquiv public import Std.Data.HashSet.RawLemmas public import Std.Data.HashSet.RawDecidableEquiv public import Std.Data.DTreeMap.Raw public import Std.Data.TreeMap.Raw public import Std.Data.TreeSet.Raw public import Std.Data.Iterators public import Std.Data.ByteSlice public import Std.Data.String
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -36,6 +36,7 @@ lean_object* runtime_initialize_Std_Data_TreeMap_Raw(uint8_t builtin);
 lean_object* runtime_initialize_Std_Data_TreeSet_Raw(uint8_t builtin);
 lean_object* runtime_initialize_Std_Data_Iterators(uint8_t builtin);
 lean_object* runtime_initialize_Std_Data_ByteSlice(uint8_t builtin);
+lean_object* runtime_initialize_Std_Data_String(uint8_t builtin);
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Std_Data(uint8_t builtin) {
 lean_object * res;
@@ -110,6 +111,9 @@ lean_dec_ref(res);
 res = runtime_initialize_Std_Data_ByteSlice(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = runtime_initialize_Std_Data_String(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
 }
 static bool _G_meta_initialized = false;
@@ -142,6 +146,7 @@ lean_object* initialize_Std_Data_TreeMap_Raw(uint8_t builtin);
 lean_object* initialize_Std_Data_TreeSet_Raw(uint8_t builtin);
 lean_object* initialize_Std_Data_Iterators(uint8_t builtin);
 lean_object* initialize_Std_Data_ByteSlice(uint8_t builtin);
+lean_object* initialize_Std_Data_String(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Data(uint8_t builtin) {
 lean_object * res;
@@ -214,6 +219,9 @@ res = initialize_Std_Data_Iterators(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Data_ByteSlice(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Data_String(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Std_Data(builtin);

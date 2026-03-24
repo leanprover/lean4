@@ -82,7 +82,7 @@ set_option pp.all true in
 
 /--
 info: @[implicit_reducible] def instMyHigherMyAlias : @MyHigher MyAlias instBaseMyAlias :=
-instHigherNat
+instMyHigherMyAlias._proof_1
 -/
 #guard_msgs in
 set_option pp.all true in

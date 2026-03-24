@@ -297,6 +297,14 @@ theorem dropWhile_cons :
     (a :: l).dropWhile p = a :: l := by
   simp [dropWhile_cons, h]
 
+theorem dropWhile_beq_eq_self_of_head?_ne [BEq α] [LawfulBEq α] {a : α} {l : List α}
+    (h : l.head? ≠ some a) : l.dropWhile (· == a) = l := by
+  cases l with
+  | nil => simp
+  | cons hd tl =>
+    rw [List.dropWhile_cons_of_neg]
+    simpa [beq_iff_eq] using h
+
 theorem head?_takeWhile {p : α → Bool} {l : List α} : (l.takeWhile p).head? = l.head?.filter p := by
   cases l with
   | nil => rfl

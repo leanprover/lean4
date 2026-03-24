@@ -1,5 +1,4 @@
 import Std
-set_option cbv.warning false
 
 -- Basic indexing
 theorem test1 : #[1, 2, 3][0] = 1 := by cbv
@@ -8,7 +7,7 @@ theorem test1 : #[1, 2, 3][0] = 1 := by cbv
 info: theorem test1 : #[1, 2, 3][0] = 1 :=
 of_eq_true (Eq.trans (congrFun' (congrArg Eq (Eq.refl 1)) 1) (eq_self 1))
 -/
-#guard_msgs in 
+#guard_msgs in
 #print test1
 
 theorem test2 : #[1, 2, 3][2] = 3 := by cbv

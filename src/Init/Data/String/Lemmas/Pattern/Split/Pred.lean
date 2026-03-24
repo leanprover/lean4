@@ -58,12 +58,33 @@ theorem toList_split_bool {s : Slice} {p : Char → Bool} :
     (s.split p).toList.map Slice.copy = (s.copy.toList.splitOnP p).map String.ofList := by
   simp [toList_split_eq_splitToSubslice, ← toList_splitToSubslice_bool]
 
+/-
+  Used internally by the `cbv` tactic.
+-/
+@[cbv_eval]
+theorem Pattern.Model.split_bool_eq_internal {p : Char → Bool} {s : Slice} (f curr : s.Pos) (hle : f ≤ curr) :
+    Model.split p f curr hle =
+      if h : curr = s.endPos then [s.subslice _ _ hle]
+      else if p (curr.get h) then
+        s.subslice _ _ hle :: Model.split p (curr.next h) (curr.next h) (by simp [Std.le_refl])
+      else Model.split p f (curr.next h) (by simp [Std.le_trans hle _]) := by
+  by_cases h : curr = s.endPos
+  · simp only [h, split_endPos, subslice_endPos, ↓reduceDIte]
+  · simp only [h, ↓reduceDIte]
+    by_cases hp : p (curr.get h)
+    · simp only [hp, ↓reduceIte]
+      exact split_eq_of_isLongestMatchAt (isLongestMatchAt_of_get hp)
+    · rw [Bool.not_eq_true] at hp
+      simp only [hp, Bool.false_eq_true, ↓reduceIte]
+      exact split_eq_next_of_not_matchesAt h (not_matchesAt_of_get hp)
+
 end
 
 section
 
 open Pattern.Model Pattern.Model.CharPred.Decidable
 
+@[cbv_eval]
 theorem Pattern.Model.split_eq_split_decide {p : Char → Prop} [DecidablePred p] {s : Slice}
     (f curr : s.Pos) (hle : f ≤ curr) :
     Model.split p f curr hle = Model.split (decide <| p ·) f curr hle := by

@@ -68,11 +68,11 @@ def _root_.Lean.MVarId.checkNotAssigned (mvarId : MVarId) (tacticName : Name) : 
       ++ .note "This likely indicates an internal error in this tactic or a prior one"
     throwTacticEx tacticName mvarId msg
 
-/-- Get the type the given metavariable. -/
+/-- Get the type of the given metavariable. -/
 def _root_.Lean.MVarId.getType (mvarId : MVarId) : MetaM Expr :=
   return (← mvarId.getDecl).type
 
-/-- Get the type the given metavariable after instantiating metavariables and reducing to
+/-- Get the type of the given metavariable after instantiating metavariables and reducing to
 weak head normal form. -/
 -- The `instantiateMVars` needs to be on the outside,
 -- since `whnf` can unfold local definitions which may introduce metavariables.

@@ -3090,6 +3090,11 @@ goto v_resetjp_979_;
 v_resetjp_979_:
 {
 lean_object* v___x_982_; 
+lean_inc(v___y_976_);
+lean_inc_ref(v___y_975_);
+lean_inc(v___y_974_);
+lean_inc_ref(v___y_973_);
+lean_inc(v___y_972_);
 v___x_982_ = lean_apply_7(v_f_970_, v_code_978_, v___y_972_, v___y_973_, v___y_974_, v___y_975_, v___y_976_, lean_box(0));
 if (lean_obj_tag(v___x_982_) == 0)
 {
@@ -3198,11 +3203,6 @@ return v___x_999_;
 else
 {
 lean_object* v___x_1003_; 
-lean_dec(v___y_976_);
-lean_dec_ref(v___y_975_);
-lean_dec(v___y_974_);
-lean_dec_ref(v___y_973_);
-lean_dec(v___y_972_);
 lean_dec_ref(v_f_970_);
 v___x_1003_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1003_, 0, v_v_971_);
@@ -3215,6 +3215,11 @@ _start:
 {
 lean_object* v_res_1012_; 
 v_res_1012_ = l_Lean_Compiler_LCNF_DeclValue_mapCodeM___at___00Lean_Compiler_LCNF_Decl_pullFunDecls_spec__0___redArg(v_f_1004_, v_v_1005_, v___y_1006_, v___y_1007_, v___y_1008_, v___y_1009_, v___y_1010_);
+lean_dec(v___y_1010_);
+lean_dec_ref(v___y_1009_);
+lean_dec(v___y_1008_);
+lean_dec_ref(v___y_1007_);
+lean_dec(v___y_1006_);
 return v_res_1012_;
 }
 }
@@ -3232,6 +3237,11 @@ _start:
 uint8_t v_pu_boxed_1032_; lean_object* v_res_1033_; 
 v_pu_boxed_1032_ = lean_unbox(v_pu_1023_);
 v_res_1033_ = l_Lean_Compiler_LCNF_DeclValue_mapCodeM___at___00Lean_Compiler_LCNF_Decl_pullFunDecls_spec__0(v_pu_boxed_1032_, v_f_1024_, v_v_1025_, v___y_1026_, v___y_1027_, v___y_1028_, v___y_1029_, v___y_1030_);
+lean_dec(v___y_1030_);
+lean_dec_ref(v___y_1029_);
+lean_dec(v___y_1028_);
+lean_dec_ref(v___y_1027_);
+lean_dec(v___y_1026_);
 return v_res_1033_;
 }
 }
@@ -3266,7 +3276,6 @@ v_resetjp_1047_:
 {
 lean_object* v___x_1050_; lean_object* v___x_1051_; 
 v___x_1050_ = ((lean_object*)(l_Lean_Compiler_LCNF_Decl_pullFunDecls___closed__0));
-lean_inc(v___x_1042_);
 v___x_1051_ = l_Lean_Compiler_LCNF_DeclValue_mapCodeM___at___00Lean_Compiler_LCNF_Decl_pullFunDecls_spec__0___redArg(v___x_1050_, v_value_1044_, v___x_1042_, v_a_1036_, v_a_1037_, v_a_1038_, v_a_1039_);
 if (lean_obj_tag(v___x_1051_) == 0)
 {
@@ -3390,6 +3399,10 @@ _start:
 {
 lean_object* v_res_1082_; 
 v_res_1082_ = l_Lean_Compiler_LCNF_Decl_pullFunDecls(v_decl_1076_, v_a_1077_, v_a_1078_, v_a_1079_, v_a_1080_);
+lean_dec(v_a_1080_);
+lean_dec_ref(v_a_1079_);
+lean_dec(v_a_1078_);
+lean_dec_ref(v_a_1077_);
 return v_res_1082_;
 }
 }

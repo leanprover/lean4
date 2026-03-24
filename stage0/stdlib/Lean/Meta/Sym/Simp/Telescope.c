@@ -26,6 +26,15 @@ _start:
 {
 lean_object* v_res_14_; 
 v_res_14_ = l_Lean_Meta_Sym_Simp_simpTelescope(v_e_3_, v_a_4_, v_a_5_, v_a_6_, v_a_7_, v_a_8_, v_a_9_, v_a_10_, v_a_11_, v_a_12_);
+lean_dec(v_a_12_);
+lean_dec_ref(v_a_11_);
+lean_dec(v_a_10_);
+lean_dec_ref(v_a_9_);
+lean_dec(v_a_8_);
+lean_dec_ref(v_a_7_);
+lean_dec(v_a_6_);
+lean_dec_ref(v_a_5_);
+lean_dec(v_a_4_);
 return v_res_14_;
 }
 }
@@ -58,15 +67,6 @@ return v___x_32_;
 default: 
 {
 lean_object* v___x_33_; lean_object* v___x_34_; 
-lean_dec(v_a_24_);
-lean_dec_ref(v_a_23_);
-lean_dec(v_a_22_);
-lean_dec_ref(v_a_21_);
-lean_dec(v_a_20_);
-lean_dec_ref(v_a_19_);
-lean_dec(v_a_18_);
-lean_dec_ref(v_a_17_);
-lean_dec(v_a_16_);
 lean_dec_ref(v_e_15_);
 v___x_33_ = ((lean_object*)(l_Lean_Meta_Sym_Simp_simpTelescope___closed__0));
 v___x_34_ = lean_alloc_ctor(0, 1, 0);

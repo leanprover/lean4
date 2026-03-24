@@ -1,5 +1,6 @@
 module
-set_option cbv.warning false
+
+meta import Init.Data.String
 
 /-!
 # Tests for `String` functions

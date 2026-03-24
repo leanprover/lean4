@@ -61,8 +61,6 @@ return v___x_12_;
 else
 {
 lean_object* v_a_13_; lean_object* v___x_15_; uint8_t v_isShared_16_; uint8_t v_isSharedCheck_20_; 
-lean_dec(v_a_5_);
-lean_dec_ref(v_a_4_);
 lean_dec(v_us_2_);
 lean_dec(v_declName_1_);
 v_a_13_ = lean_ctor_get(v___x_7_, 0);
@@ -110,6 +108,8 @@ _start:
 {
 lean_object* v_res_27_; 
 v_res_27_ = l_Lean_Compiler_LCNF_getOtherDeclType___redArg(v_declName_21_, v_us_22_, v_a_23_, v_a_24_, v_a_25_);
+lean_dec(v_a_25_);
+lean_dec_ref(v_a_24_);
 lean_dec_ref(v_a_23_);
 return v_res_27_;
 }
@@ -127,6 +127,8 @@ _start:
 {
 lean_object* v_res_43_; 
 v_res_43_ = l_Lean_Compiler_LCNF_getOtherDeclType(v_declName_36_, v_us_37_, v_a_38_, v_a_39_, v_a_40_, v_a_41_);
+lean_dec(v_a_41_);
+lean_dec_ref(v_a_40_);
 lean_dec(v_a_39_);
 lean_dec_ref(v_a_38_);
 return v_res_43_;

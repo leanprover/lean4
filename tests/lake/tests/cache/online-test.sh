@@ -58,6 +58,10 @@ echo "# TESTS"
 test_err "must contain exactly one '/'" cache get --repo='invalid'
 test_err 'invalid characters in repository name' cache get --repo='!/invalid'
 
+# Test `--mappings-only` validation
+test_err '`--mappings-only` is not supported' cache get --mappings-only bogus.jsonl
+with_cdn_endpoints  test_err '`--mappings-only` requires services' cache get --mappings-only
+
 # Test `--service` validation
 test_err 'service `bogus` not found in system configuration' \
   cache get --service='bogus'
@@ -131,21 +135,21 @@ LAKE_CONFIG=services.toml test_run build +Test --no-build -v
 with_cdn_endpoints test_not_out "downloading" \
   cache get .lake/outputs.jsonl --scope='!/test'
 with_cdn_endpoints test_not_out "downloading artifact" \
-  cache get --download-arts --scope='!/test'
+  cache get --scope='!/test'
 with_cdn_endpoints test_not_out "downloading" \
-  cache get --download-arts --scope='!/test'
+  cache get --scope='!/test'
 
 # Test that the revision cache directory for the package is properly created
 test_exp -d $LAKE_CACHE_DIR/revisions/test
 
 # Test cache get with custom endpoint using `--force-download`
 with_cdn_endpoints test_out "downloading" \
-  cache get --scope='!/test' --force-download --download-arts
+  cache get --scope='!/test' --force-download
 test_run build +Test --no-build
 
 # Test download service configuration through system configuration
 LAKE_CONFIG=services.toml test_out "downloading" \
-  cache get --scope='!/test' --force-download --download-arts --service=cdn
+  cache get --scope='!/test' --force-download --service=cdn
 test_run build +Test --no-build
 
 # Test cache put/get with a set platform/toolchain
@@ -189,13 +193,13 @@ test_cmd rm -rf .lake/packages/Cli/.lake/build "$LAKE_CACHE_DIR"
 test_fails -f reservoir.toml build @Cli --no-build
 test_err "failed to download artifacts for some dependencies" \
   -f reservoir2.toml cache get --max-revs=1
-test_run -f reservoir.toml cache get --max-revs=1
+test_run -f reservoir.toml cache get --max-revs=1 --mappings-only
 test_run -f reservoir.toml build @Cli --no-build # downloads arts
 
 # Test Reservoir with `--repo` uses GitHub scope
 test_cmd rm -rf .lake/packages/Cli/.lake/build "$LAKE_CACHE_DIR"
 test_run -d .lake/packages/Cli cache get --repo=leanprover/lean4-cli --max-revs=1
-test_run -d .lake/packages/Cli build --no-build # downloads arts
+test_run -d .lake/packages/Cli build --no-build
 
 # Cleanup
 rm -rf .git produced.out

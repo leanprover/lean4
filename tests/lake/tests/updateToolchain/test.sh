@@ -1,8 +1,12 @@
 #!/usr/bin/env bash
 source ../common.sh
+./clean.sh
 
-# Ensure Lake thinks there is a elan environment configured
+# Ensure Lake thinks there is a Elan environment configured
 export ELAN_HOME=
+
+# Ensure Lake does not run a system Elan
+export ELAN=false
 
 # Tests the toolchain update functionality of `lake update`
 
@@ -61,6 +65,20 @@ echo lean-a > a/lean-toolchain
 echo lean-b > b/lean-toolchain
 test_out "toolchain not updated; multiple toolchain candidates" update
 
+# Test a fixed toolchain and a greater version
+./clean.sh
+test_run -d a update -R -KfixedToolchain=true
+echo v4.4.0 > a/lean-toolchain
+echo v4.8.0 > b/lean-toolchain
+test_out "(fixed toolchain)" update
+
+# Test a fixed toolchain and a lower version
+./clean.sh
+test_run -d b update -R -KfixedToolchain=true
+echo v4.4.0 > a/lean-toolchain
+echo v4.8.0 > b/lean-toolchain
+test_update leanprover/lean4:v4.8.0
+
 # Test manual restart
 ./clean.sh
 echo lean-a > a/lean-toolchain
@@ -72,4 +90,4 @@ echo lean-a > a/lean-toolchain
 ELAN=echo test_out "run --install lean-a lake update" update
 
 # Cleanup
-rm -f produced.out
+./clean.sh

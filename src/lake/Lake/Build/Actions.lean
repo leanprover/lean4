@@ -13,6 +13,8 @@ import Lake.Util.IO
 import Init.Data.String.Search
 import Init.Data.String.TakeDrop
 import Init.System.Platform
+import Lean.CoreM
+import Lean.Compiler.Options
 
 /-! # Common Build Actions
 Low level actions to build common Lean artifacts via the Lean toolchain.
@@ -30,6 +32,7 @@ public def compileLeanModule
   (leanArgs : Array String := #[])
   (leanPath : SearchPath := [])
   (lean : FilePath := "lean")
+  (leanir : FilePath := "leanir")
 : LogIO Unit := do
   let mut args := leanArgs.push leanFile.toString
   if let some oleanFile := arts.olean? then
@@ -38,9 +41,12 @@ public def compileLeanModule
   if let some ileanFile := arts.ilean? then
     createParentDirs ileanFile
     args := args ++ #["-i", ileanFile.toString]
-  if let some cFile := arts.c? then
-    createParentDirs cFile
-    args := args ++ #["-c", cFile.toString]
+  let opts := setup.options.toOptions
+  let postponeCompile := setup.isModule && Compiler.compiler.postponeCompile.get opts
+  if !postponeCompile then
+    if let some cFile := arts.c? then
+      createParentDirs cFile
+      args := args ++ #["-c", cFile.toString]
   if let some bcFile := arts.bc? then
     createParentDirs bcFile
     args := args ++ #["-b", bcFile.toString]
@@ -75,6 +81,22 @@ public def compileLeanModule
     logInfo s!"stderr:\n{out.stderr.trimAscii}"
   if out.exitCode ≠ 0 then
     error s!"Lean exited with code {out.exitCode}"
+  if postponeCompile then
+    if let (some irFile, some cFile) := (arts.ir?, arts.c?) then
+      createParentDirs irFile
+      createParentDirs cFile
+      try
+        proc {
+          cmd := leanir.toString
+          args := #[setupFile.toString, irFile.toString, cFile.toString]
+          env := #[
+            ("LEAN_PATH", leanPath.toString)
+          ]
+        }
+      catch e =>
+        if let some oleanFile := arts.olean? then
+          removeFileIfExists oleanFile
+        throw e
 
 public def compileO
   (oFile srcFile : FilePath)
@@ -87,21 +109,20 @@ public def compileO
   }
 
 public def mkArgs (basePath : FilePath) (args : Array String) : LogIO (Array String) := do
-  if Platform.isWindows then
-    -- Use response file to avoid potentially exceeding CLI length limits.
-    let rspFile := basePath.addExtension "rsp"
-    let h ← IO.FS.Handle.mk rspFile .write
-    args.forM fun arg =>
-      -- Escape special characters
-      let arg := arg.foldl (init := "") fun s c =>
-        if c == '\\' || c == '"' then
-          s.push '\\' |>.push c
-        else
-          s.push c
-      h.putStr s!"\"{arg}\"\n"
-    return #[s!"@{rspFile}"]
-  else
-    return args
+  -- Use response file to avoid potentially exceeding CLI length limits.
+  -- On Windows this is always needed; on macOS/Linux this is needed for large
+  -- projects like Mathlib where the number of object files exceeds ARG_MAX.
+  let rspFile := basePath.addExtension "rsp"
+  let h ← IO.FS.Handle.mk rspFile .write
+  args.forM fun arg =>
+    -- Escape special characters
+    let arg := arg.foldl (init := "") fun s c =>
+      if c == '\\' || c == '"' then
+        s.push '\\' |>.push c
+      else
+        s.push c
+    h.putStr s!"\"{arg}\"\n"
+  return #[s!"@{rspFile}"]
 
 public def compileStaticLib
   (libFile : FilePath) (oFiles : Array FilePath)

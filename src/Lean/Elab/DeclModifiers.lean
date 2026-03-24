@@ -76,7 +76,7 @@ inductive RecKind where
 /-- Codegen-relevant modifiers. -/
 inductive ComputeKind where
   | regular | «meta» | «noncomputable»
-  deriving Inhabited, BEq
+  deriving Inhabited, BEq, Repr
 
 /-- Flags and data added to declarations (eg docstrings, attributes, `private`, `unsafe`, `partial`, ...). -/
 structure Modifiers where

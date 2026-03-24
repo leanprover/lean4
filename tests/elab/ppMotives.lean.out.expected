@@ -1,21 +1,15 @@
-@[implicit_reducible] protected def Nat.add : Nat → Nat → Nat :=
-fun x x_1 =>
-  Nat.brecOn x_1
-    (fun x f x_2 =>
-      (match x_2, x with
-        | a, Nat.zero => fun x => a
-        | a, b.succ => fun x => (x.1 a).succ)
-        f)
-    x
-@[implicit_reducible] protected def Nat.add : Nat → Nat → Nat :=
-fun x x_1 =>
-  Nat.brecOn (motive := fun x => Nat → Nat) x_1
-    (fun x f x_2 =>
-      (match (motive := Nat → (x : Nat) → Nat.below (motive := fun x => Nat → Nat) x → Nat) x_2, x with
-        | a, Nat.zero => fun x => a
-        | a, b.succ => fun x => (x.1 a).succ)
-        f)
-    x
+@[reducible] def myAdd._f : (x : Nat) → Nat.below x → Nat → Nat :=
+fun x f x_1 =>
+  (match x, x_1 with
+    | 0, m => fun x => m
+    | n.succ, m => fun x => (x.1 m).succ)
+    f
+@[reducible] def myAdd._f : (x : Nat) → Nat.below (motive := fun x => Nat → Nat) x → Nat → Nat :=
+fun x f x_1 =>
+  (match (motive := (x : Nat) → Nat → Nat.below (motive := fun x => Nat → Nat) x → Nat) x, x_1 with
+    | 0, m => fun x => m
+    | n.succ, m => fun x => (x.1 m).succ)
+    f
 theorem ex.{u} : ∀ {α β : Sort u} (h : α = β) (a : α), cast h a ≍ a :=
 fun x x_1 x_2 x_3 =>
   match x, x_1, x_2, x_3 with

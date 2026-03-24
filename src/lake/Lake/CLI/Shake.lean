@@ -368,7 +368,8 @@ def parseHeaderFromString (text path : String) :
     throw <| .userError "parse errors in file"
   -- the insertion point for `add` is the first newline after the imports
   let insertion := header.raw.getTailPos?.getD parserState.pos
-  let insertion := inputCtx.fileMap.source.pos! insertion |>.find (· == '\n') |>.next!
+  let insertion := inputCtx.fileMap.source.pos! insertion |>.find (· == '\n')
+  let insertion := insertion.next?.getD insertion
   pure ⟨path, inputCtx, header, insertion⟩
 
 /-- Parse a source file to extract the location of the import lines, for edits and error messages.
@@ -709,7 +710,8 @@ public def run (args : Args) (srcSearchPath : SearchPath := {}) : IO UInt32 := d
       if remove.contains mod || seen.contains mod then
         out := out ++ text.extract pos (text.pos! stx.raw.getPos?.get!)
         -- We use the end position of the syntax, but include whitespace up to the first newline
-        pos := text.pos! stx.raw.getTailPos?.get! |>.find '\n' |>.next!
+        pos := text.pos! stx.raw.getTailPos?.get! |>.find '\n'
+        pos := pos.next?.getD pos
       seen := seen.insert mod
     out := out ++ text.extract pos insertion
     for mod in add do

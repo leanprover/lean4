@@ -28,7 +28,6 @@ define link-preamble
 @rm -f $@
 endef
 
-# LEAN_OPTS: don't use native code (except for primitives) since it is from the previous stage
 # MORE_DEPS: rebuild the stdlib whenever the compiler has changed
 LEANMAKE_OPTS=\
 	LEAN="${PREV_STAGE}/bin/lean${PREV_STAGE_CMAKE_EXECUTABLE_SUFFIX}"\
@@ -37,7 +36,7 @@ LEANMAKE_OPTS=\
 	LIB_OUT="${LIB}/lean"\
 	OLEAN_OUT="${LIB}/lean"\
 	BIN_OUT="${CMAKE_BINARY_DIR}/bin"\
-	LEAN_OPTS+="${LEAN_EXTRA_MAKE_OPTS} -DElab.async=true"\
+	LEAN_OPTS+="${LEAN_EXTRA_MAKE_OPTS}"\
 	LEANC_OPTS+="${LEANC_OPTS}"\
 	LEAN_AR="${CMAKE_AR}"\
 	MORE_DEPS+="${PREV_STAGE}/bin/lean${PREV_STAGE_CMAKE_EXECUTABLE_SUFFIX}"\
@@ -49,7 +48,7 @@ ifeq "${STAGE}" "0"
 endif
 
 # These can be phony since the inner Makefile/Lake will have the correct dependencies and avoid rebuilds
-.PHONY: Init Std Lean leanshared Lake libLake_shared lake lean LeanChecker leanchecker
+.PHONY: Init Std Lean leanshared Lake libLake_shared lake lean LeanChecker leanchecker LeanIR
 
 ifeq "${USE_LAKE}" "ON"
 
@@ -57,7 +56,7 @@ ifeq "${USE_LAKE}" "ON"
 Init:
 	${PREV_STAGE}/bin/lake build -f ${CMAKE_BINARY_DIR}/lakefile.toml $(LAKE_EXTRA_ARGS)
 
-Std Lean Lake Leanc LeanChecker: Init
+Std Lean Lake Leanc LeanChecker LeanIR: Init
 
 else
 
@@ -66,7 +65,7 @@ Init:
 # Use `+` to use the Make jobserver with `leanmake` for parallelized builds
 # Build `.olean/.o`s of downstream libraries as well for better parallelism
 	+"${LEAN_BIN}/leanmake" objs lib lib.export PKG=Init $(LEANMAKE_OPTS) \
-	  EXTRA_SRC_ROOTS="Std Std.lean Lean Lean.lean"
+	  EXTRA_SRC_ROOTS="Std Std.lean Lean Lean.lean LeanIR.lean"
 
 Std: Init
 	+"${LEAN_BIN}/leanmake" lib lib.export PKG=Std $(LEANMAKE_OPTS)
@@ -84,7 +83,10 @@ Lake: Lean
 	+"${LEAN_BIN}/leanmake" -C lake lib lib.export ../${LIB}/temp/LakeMain.o.export  PKG=Lake $(LEANMAKE_OPTS) OUT="../${LIB}" LIB_OUT="../${LIB}/lean" TEMP_OUT="../${LIB}/temp" OLEAN_OUT="../${LIB}/lean" EXTRA_SRC_ROOTS=LakeMain.lean
 
 LeanChecker: Lake
-	+"${LEAN_BIN}/leanmake" lib PKG=LeanChecker $(LEANMAKE_OPTS) OUT="$(OUTARC)" LIB_OUT="$(OUTARC)" OLEAN_OUT="$(OUTARC)"
+	+"${LEAN_BIN}/leanmake" lib PKG=LeanChecker $(LEANMAKE_OPTS) OUT="$(OUTARC)" LIB_OUT="$(OUTARC)" TEMP_OUT="${LIB}/temp" OLEAN_OUT="$(OUTARC)"
+
+LeanIR: Lean
+	+"${LEAN_BIN}/leanmake" lib PKG=LeanIR $(LEANMAKE_OPTS) OUT="${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}" LIB_OUT="${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}" OLEAN_OUT="${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}"
 
 endif
 
@@ -100,6 +102,7 @@ $(OUTLIB)/libleanshared$(SO): ${LIB}/lean/libLean.a.export.trace
 $(OUTLIB)/libLake_shared$(SO): ${LIB}/lean/libLean.a.export.trace ${LIB}/lean/libLake.a.export.trace
 $(OUTBIN)/lake$(EXE): ${LIB}/temp/LakeMain.c.o.export.trace
 $(OUTBIN)/leanc$(EXE): $(OUTARC)/libLeanc.a.trace
+$(OUTBIN)/leanir$(EXE): $(OUTARC)/libLeanIR.a.trace
 $(OUTBIN)/leanchecker$(EXE): $(OUTARC)/libLeanChecker.a.trace
 endif
 
@@ -193,6 +196,14 @@ $(OUTBIN)/leanc$(EXE): $(OUTARC)/libLeanc.a
 	$(LEANC_SH) $< ${CMAKE_EXE_LINKER_FLAGS_MAKE} ${LEAN_EXE_LINKER_FLAGS} ${LEANC_OPTS} -o $@
 
 leanc: $(OUTBIN)/leanc$(EXE)
+
+$(OUTBIN)/leanir$(EXE): $(OUTARC)/libLeanIR.a
+	@echo "[    ] Building $@"
+# on Windows, must remove file before writing a new one (since the old one may be in use)
+	@rm -f $@
+	"${CMAKE_BINARY_DIR}/leanc.sh" $< ${CMAKE_EXE_LINKER_FLAGS_MAKE} ${LEAN_EXE_LINKER_FLAGS} -o $@
+
+leanir: $(OUTBIN)/leanir$(EXE)
 
 $(OUTBIN)/leanchecker$(EXE): $(OUTARC)/libLeanChecker.a $(OUTLIB)/libLake_shared$(SO)
 	$(link-preamble)

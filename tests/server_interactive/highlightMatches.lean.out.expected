@@ -22,7 +22,7 @@
      "indent": 0,
      "collapsed": true,
      "cls": "Meta.debug",
-     "children": {"lazy": {"p": "0"}}}},
+     "children": {"lazy": {"__rpcref": "0"}}}},
    {"text": ""}]}}
 {"tag":
  [{"trace":
@@ -103,7 +103,7 @@
           "indent": 2,
           "collapsed": true,
           "cls": "Meta.debug",
-          "children": {"lazy": {"p": "1"}}}},
+          "children": {"lazy": {"__rpcref": "1"}}}},
         {"text": ""}]},
       {"tag":
        [{"trace":
@@ -115,7 +115,7 @@
           "indent": 2,
           "collapsed": true,
           "cls": "Meta.debug",
-          "children": {"lazy": {"p": "2"}}}},
+          "children": {"lazy": {"__rpcref": "2"}}}},
         {"text": ""}]},
       {"tag":
        [{"trace":

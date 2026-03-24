@@ -944,6 +944,7 @@ def synthInstance (type : Expr) (maxResultSize? : Option Nat := none) : MetaM Ex
       | none        => throwFailedToSynthesize type)
     (fun _ => throwFailedToSynthesize type)
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[export lean_synth_pending]
 private def synthPendingImp (mvarId : MVarId) : MetaM Bool := withIncRecDepth <| mvarId.withContext do
   let mvarDecl ← mvarId.getDecl

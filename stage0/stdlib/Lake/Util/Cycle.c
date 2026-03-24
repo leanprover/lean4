@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 lean_object* lean_string_append(lean_object*, lean_object*);
-lean_object* l_ReaderT_read(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_ReaderT_read___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_mapTR_loop___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_String_intercalate(lean_object*, lean_object*);
 lean_object* l_ExceptT_instMonad___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -421,7 +421,7 @@ _start:
 {
 lean_object* v___f_140_; lean_object* v___x_141_; lean_object* v___x_142_; 
 v___f_140_ = ((lean_object*)(l_Lake_instMonadCallStackOfCallStackTOfMonad___redArg___closed__0));
-v___x_141_ = lean_alloc_closure((void*)(l_ReaderT_read), 4, 3);
+v___x_141_ = lean_alloc_closure((void*)(l_ReaderT_read___boxed), 4, 3);
 lean_closure_set(v___x_141_, 0, lean_box(0));
 lean_closure_set(v___x_141_, 1, lean_box(0));
 lean_closure_set(v___x_141_, 2, v_inst_139_);

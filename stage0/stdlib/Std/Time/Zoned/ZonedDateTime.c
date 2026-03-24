@@ -331,7 +331,7 @@ static lean_object* _init_l_Std_Time_instInhabitedZonedDateTime(void){
 _start:
 {
 lean_object* v___x_12_; 
-v___x_12_ = l_Std_Time_instInhabitedZonedDateTime___private__1;
+v___x_12_ = lean_obj_once(&l_Std_Time_instInhabitedZonedDateTime___private__1___closed__2, &l_Std_Time_instInhabitedZonedDateTime___private__1___closed__2_once, _init_l_Std_Time_instInhabitedZonedDateTime___private__1___closed__2);
 return v___x_12_;
 }
 }

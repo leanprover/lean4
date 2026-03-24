@@ -97,6 +97,7 @@ partial def collectCode (code : Code .impure) : M Unit := do
     match decl.value with
     | .oproj _ parent =>
       addDerivedValue parent decl.fvarId
+    -- Keep in sync with PropagateBorrow, InferBorrow
     | .fap ``Array.getInternal args =>
       if let .fvar parent := args[1]! then
         addDerivedValue parent decl.fvarId

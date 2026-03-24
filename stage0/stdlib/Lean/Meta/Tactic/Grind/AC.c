@@ -673,9 +673,9 @@ return v___x_325_;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_AC_0__Lean_Meta_Grind_AC_initFn___lam__0_00___x40_Lean_Meta_Tactic_Grind_AC_3475356978____hygCtx___hyg_2____boxed(lean_object* v___x_326_, lean_object* v___y_327_, lean_object* v___y_328_, lean_object* v___y_329_, lean_object* v___y_330_, lean_object* v___y_331_, lean_object* v___y_332_, lean_object* v___y_333_, lean_object* v___y_334_, lean_object* v___y_335_, lean_object* v___y_336_, lean_object* v___y_337_){
 _start:
 {
-uint8_t v___x_598__boxed_338_; lean_object* v_res_339_; 
-v___x_598__boxed_338_ = lean_unbox(v___x_326_);
-v_res_339_ = l___private_Lean_Meta_Tactic_Grind_AC_0__Lean_Meta_Grind_AC_initFn___lam__0_00___x40_Lean_Meta_Tactic_Grind_AC_3475356978____hygCtx___hyg_2_(v___x_598__boxed_338_, v___y_327_, v___y_328_, v___y_329_, v___y_330_, v___y_331_, v___y_332_, v___y_333_, v___y_334_, v___y_335_, v___y_336_);
+uint8_t v___x_495__boxed_338_; lean_object* v_res_339_; 
+v___x_495__boxed_338_ = lean_unbox(v___x_326_);
+v_res_339_ = l___private_Lean_Meta_Tactic_Grind_AC_0__Lean_Meta_Grind_AC_initFn___lam__0_00___x40_Lean_Meta_Tactic_Grind_AC_3475356978____hygCtx___hyg_2_(v___x_495__boxed_338_, v___y_327_, v___y_328_, v___y_329_, v___y_330_, v___y_331_, v___y_332_, v___y_333_, v___y_334_, v___y_335_, v___y_336_);
 lean_dec(v___y_336_);
 lean_dec_ref(v___y_335_);
 lean_dec(v___y_334_);

@@ -348,6 +348,7 @@ where
       internalize rhs generation p
       addEqCore lhs rhs proof isHEq
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[export lean_grind_process_new_facts]
 private def processNewFactsImpl : GoalM Unit := do
   repeat

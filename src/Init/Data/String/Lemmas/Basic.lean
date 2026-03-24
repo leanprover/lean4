@@ -78,7 +78,7 @@ theorem getUTF8Byte_toSlice {s : String} {p : String.Pos.Raw} {h} :
 
 @[simp]
 theorem Pos.byte_toSlice {s : String} {p : s.Pos} {h} :
-    p.toSlice.byte h = p.byte (ne_of_apply_ne Pos.toSlice (by simpa)) := by
+    p.toSlice.byte h = p.byte (ne_of_apply_ne Pos.toSlice (by simpa using h)) := by
   simp [byte]
 
 theorem Pos.byte_eq_byte_toSlice {s : String} {p : s.Pos} {h} :
@@ -179,6 +179,22 @@ theorem sliceFrom_slice {s : String} {p₁ p₂ h p} :
 @[simp]
 theorem sliceTo_slice {s : String} {p₁ p₂ h p} :
     (s.slice p₁ p₂ h).sliceTo p = s.slice p₁ (Pos.ofSlice p) Pos.le_ofSlice := by
+  ext <;> simp
+
+@[simp]
+theorem Slice.sliceFrom_startPos {s : Slice} : s.sliceFrom s.startPos = s := by
+  ext <;> simp
+
+@[simp]
+theorem Slice.sliceTo_endPos {s : Slice} : s.sliceTo s.endPos = s := by
+  ext <;> simp
+
+@[simp]
+theorem sliceFrom_startPos {s : String} : s.sliceFrom s.startPos = s := by
+  ext <;> simp
+
+@[simp]
+theorem sliceTo_endPos {s : String} : s.sliceTo s.endPos = s := by
   ext <;> simp
 
 end Iterate

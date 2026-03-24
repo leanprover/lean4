@@ -1,4 +1,3 @@
-set_option cbv.warning false
 set_option trace.Meta.Tactic true
 axiom P : Prop
 axiom instDecidableP : Decidable P

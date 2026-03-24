@@ -26,7 +26,7 @@ variable {shape : RangeShape} {α : Type u}
 structure SubarrayIterator (α : Type u) where
   xs : Subarray α
 
-@[inline, expose]
+@[inline, expose, implicit_reducible]
 def SubarrayIterator.step :
     IterM (α := SubarrayIterator α) Id α → IterStep (IterM (α := SubarrayIterator α) m α) α
   | ⟨⟨xs⟩⟩ =>

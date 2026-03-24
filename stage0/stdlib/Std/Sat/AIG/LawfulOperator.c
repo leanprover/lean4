@@ -58,9 +58,41 @@ return v___x_10_;
 LEAN_EXPORT lean_object* l___private_Std_Sat_AIG_LawfulOperator_0__Std_Sat_AIG_toGraphviz_go_match__1_splitter(lean_object* v_00_u03b1_11_, lean_object* v_motive_12_, lean_object* v_x_13_, lean_object* v_h__1_14_, lean_object* v_h__2_15_, lean_object* v_h__3_16_){
 _start:
 {
+switch(lean_obj_tag(v_x_13_))
+{
+case 0:
+{
 lean_object* v___x_17_; 
-v___x_17_ = l___private_Std_Sat_AIG_LawfulOperator_0__Std_Sat_AIG_toGraphviz_go_match__1_splitter___redArg(v_x_13_, v_h__1_14_, v_h__2_15_, v_h__3_16_);
+lean_dec(v_h__3_16_);
+lean_dec(v_h__2_15_);
+v___x_17_ = lean_apply_1(v_h__1_14_, lean_box(0));
 return v___x_17_;
+}
+case 1:
+{
+lean_object* v_idx_18_; lean_object* v___x_19_; 
+lean_dec(v_h__3_16_);
+lean_dec(v_h__1_14_);
+v_idx_18_ = lean_ctor_get(v_x_13_, 0);
+lean_inc(v_idx_18_);
+lean_dec_ref(v_x_13_);
+v___x_19_ = lean_apply_2(v_h__2_15_, v_idx_18_, lean_box(0));
+return v___x_19_;
+}
+default: 
+{
+lean_object* v_l_20_; lean_object* v_r_21_; lean_object* v___x_22_; 
+lean_dec(v_h__2_15_);
+lean_dec(v_h__1_14_);
+v_l_20_ = lean_ctor_get(v_x_13_, 0);
+lean_inc(v_l_20_);
+v_r_21_ = lean_ctor_get(v_x_13_, 1);
+lean_inc(v_r_21_);
+lean_dec_ref(v_x_13_);
+v___x_22_ = lean_apply_3(v_h__3_16_, v_l_20_, v_r_21_, lean_box(0));
+return v___x_22_;
+}
+}
 }
 }
 lean_object* runtime_initialize_Std_Sat_AIG_Basic(uint8_t builtin);

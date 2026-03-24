@@ -7,8 +7,6 @@ The AES implementation is extracted from `LNSym` (https://github.com/leanprover/
 an ARMv8 symbolic simulator. Original code released under Apache 2.0 license.
 -/
 
-set_option cbv.warning false
-
 namespace BitVec
 
 open BitVec

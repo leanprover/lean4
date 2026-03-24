@@ -414,6 +414,10 @@ _start:
 {
 lean_object* v_res_78_; 
 v_res_78_ = l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVLogical_mkEvalExpr(v_expr_71_, v_a_72_, v_a_73_, v_a_74_, v_a_75_, v_a_76_);
+lean_dec(v_a_76_);
+lean_dec_ref(v_a_75_);
+lean_dec(v_a_74_);
+lean_dec_ref(v_a_73_);
 lean_dec(v_a_72_);
 return v_res_78_;
 }
@@ -676,6 +680,11 @@ _start:
 {
 lean_object* v_res_179_; 
 v_res_179_ = l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVLogical_boolAtom(v_t_172_, v_a_173_, v_a_174_, v_a_175_, v_a_176_, v_a_177_);
+lean_dec(v_a_177_);
+lean_dec_ref(v_a_176_);
+lean_dec(v_a_175_);
+lean_dec_ref(v_a_174_);
+lean_dec(v_a_173_);
 return v_res_179_;
 }
 }
@@ -1007,10 +1016,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVLogical_m
 _start:
 {
 lean_object* v___x_346_; 
-lean_inc(v___y_344_);
-lean_inc_ref(v___y_343_);
-lean_inc(v___y_342_);
-lean_inc_ref(v___y_341_);
 v___x_346_ = l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVLogical_mkEvalExpr(v_expr_332_, v___y_340_, v___y_341_, v___y_342_, v___y_343_, v___y_344_);
 if (lean_obj_tag(v___x_346_) == 0)
 {
@@ -1018,10 +1023,6 @@ lean_object* v_a_347_; lean_object* v___x_348_;
 v_a_347_ = lean_ctor_get(v___x_346_, 0);
 lean_inc(v_a_347_);
 lean_dec_ref(v___x_346_);
-lean_inc(v___y_344_);
-lean_inc_ref(v___y_343_);
-lean_inc(v___y_342_);
-lean_inc_ref(v___y_341_);
 v___x_348_ = l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVLogical_mkEvalExpr(v_expr_333_, v___y_340_, v___y_341_, v___y_342_, v___y_343_, v___y_344_);
 if (lean_obj_tag(v___x_348_) == 0)
 {
@@ -1029,11 +1030,6 @@ lean_object* v_a_349_; lean_object* v___x_350_;
 v_a_349_ = lean_ctor_get(v___x_348_, 0);
 lean_inc(v_a_349_);
 lean_dec_ref(v___x_348_);
-lean_inc(v___y_344_);
-lean_inc_ref(v___y_343_);
-lean_inc(v___y_342_);
-lean_inc_ref(v___y_341_);
-lean_inc(v___y_340_);
 v___x_350_ = l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVLogical_evalsAtAtoms(v_lhs_334_, v___y_340_, v___y_341_, v___y_342_, v___y_343_, v___y_344_);
 if (lean_obj_tag(v___x_350_) == 0)
 {
@@ -1182,11 +1178,6 @@ else
 {
 lean_dec(v_a_349_);
 lean_dec(v_a_347_);
-lean_dec(v___y_344_);
-lean_dec_ref(v___y_343_);
-lean_dec(v___y_342_);
-lean_dec_ref(v___y_341_);
-lean_dec(v___y_340_);
 lean_dec_ref(v_rhsExpr_339_);
 lean_dec_ref(v_lhsExpr_338_);
 lean_dec(v___x_337_);
@@ -1199,11 +1190,6 @@ else
 {
 lean_object* v_a_378_; lean_object* v___x_380_; uint8_t v_isShared_381_; uint8_t v_isSharedCheck_385_; 
 lean_dec(v_a_347_);
-lean_dec(v___y_344_);
-lean_dec_ref(v___y_343_);
-lean_dec(v___y_342_);
-lean_dec_ref(v___y_341_);
-lean_dec(v___y_340_);
 lean_dec_ref(v_rhsExpr_339_);
 lean_dec_ref(v_lhsExpr_338_);
 lean_dec(v___x_337_);
@@ -1252,11 +1238,6 @@ return v___x_383_;
 else
 {
 lean_object* v_a_386_; lean_object* v___x_388_; uint8_t v_isShared_389_; uint8_t v_isSharedCheck_393_; 
-lean_dec(v___y_344_);
-lean_dec_ref(v___y_343_);
-lean_dec(v___y_342_);
-lean_dec_ref(v___y_341_);
-lean_dec(v___y_340_);
 lean_dec_ref(v_rhsExpr_339_);
 lean_dec_ref(v_lhsExpr_338_);
 lean_dec(v___x_337_);
@@ -1309,6 +1290,11 @@ _start:
 {
 lean_object* v_res_408_; 
 v_res_408_ = l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVLogical_mkGate___redArg___lam__0(v_expr_394_, v_expr_395_, v_lhs_396_, v_rhs_397_, v_congrThm_398_, v___x_399_, v_lhsExpr_400_, v_rhsExpr_401_, v___y_402_, v___y_403_, v___y_404_, v___y_405_, v___y_406_);
+lean_dec(v___y_406_);
+lean_dec_ref(v___y_405_);
+lean_dec(v___y_404_);
+lean_dec_ref(v___y_403_);
+lean_dec(v___y_402_);
 return v_res_408_;
 }
 }
@@ -1474,11 +1460,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVLogical_m
 _start:
 {
 lean_object* v___x_536_; 
-lean_inc(v___y_534_);
-lean_inc_ref(v___y_533_);
-lean_inc(v___y_532_);
-lean_inc_ref(v___y_531_);
-lean_inc(v___y_530_);
 v___x_536_ = l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVLogical_evalsAtAtoms(v_sub_523_, v___y_530_, v___y_531_, v___y_532_, v___y_533_, v___y_534_);
 if (lean_obj_tag(v___x_536_) == 0)
 {
@@ -1525,7 +1506,6 @@ v_resetjp_542_:
 {
 lean_object* v___x_545_; 
 v___x_545_ = l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVLogical_mkEvalExpr(v_expr_524_, v___y_530_, v___y_531_, v___y_532_, v___y_533_, v___y_534_);
-lean_dec(v___y_530_);
 if (lean_obj_tag(v___x_545_) == 0)
 {
 lean_object* v_a_546_; lean_object* v___x_548_; uint8_t v_isShared_549_; uint8_t v_isSharedCheck_562_; 
@@ -1646,11 +1626,6 @@ else
 {
 lean_object* v___x_572_; lean_object* v___x_574_; 
 lean_dec(v_a_537_);
-lean_dec(v___y_534_);
-lean_dec_ref(v___y_533_);
-lean_dec(v___y_532_);
-lean_dec_ref(v___y_531_);
-lean_dec(v___y_530_);
 lean_dec_ref(v_subExpr_529_);
 lean_dec(v___x_528_);
 lean_dec_ref(v___x_527_);
@@ -1681,11 +1656,6 @@ return v___x_574_;
 }
 else
 {
-lean_dec(v___y_534_);
-lean_dec_ref(v___y_533_);
-lean_dec(v___y_532_);
-lean_dec_ref(v___y_531_);
-lean_dec(v___y_530_);
 lean_dec_ref(v_subExpr_529_);
 lean_dec(v___x_528_);
 lean_dec_ref(v___x_527_);
@@ -1701,6 +1671,11 @@ _start:
 {
 lean_object* v_res_590_; 
 v_res_590_ = l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVLogical_mkNot___redArg___lam__0(v_sub_577_, v_expr_578_, v___x_579_, v___x_580_, v___x_581_, v___x_582_, v_subExpr_583_, v___y_584_, v___y_585_, v___y_586_, v___y_587_, v___y_588_);
+lean_dec(v___y_588_);
+lean_dec_ref(v___y_587_);
+lean_dec(v___y_586_);
+lean_dec_ref(v___y_585_);
+lean_dec(v___y_584_);
 return v_res_590_;
 }
 }
@@ -1952,10 +1927,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVLogical_m
 _start:
 {
 lean_object* v___x_703_; 
-lean_inc(v___y_701_);
-lean_inc_ref(v___y_700_);
-lean_inc(v___y_699_);
-lean_inc_ref(v___y_698_);
 v___x_703_ = l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVLogical_mkEvalExpr(v_expr_684_, v___y_697_, v___y_698_, v___y_699_, v___y_700_, v___y_701_);
 if (lean_obj_tag(v___x_703_) == 0)
 {
@@ -1963,10 +1934,6 @@ lean_object* v_a_704_; lean_object* v___x_705_;
 v_a_704_ = lean_ctor_get(v___x_703_, 0);
 lean_inc(v_a_704_);
 lean_dec_ref(v___x_703_);
-lean_inc(v___y_701_);
-lean_inc_ref(v___y_700_);
-lean_inc(v___y_699_);
-lean_inc_ref(v___y_698_);
 v___x_705_ = l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVLogical_mkEvalExpr(v_expr_685_, v___y_697_, v___y_698_, v___y_699_, v___y_700_, v___y_701_);
 if (lean_obj_tag(v___x_705_) == 0)
 {
@@ -1974,10 +1941,6 @@ lean_object* v_a_706_; lean_object* v___x_707_;
 v_a_706_ = lean_ctor_get(v___x_705_, 0);
 lean_inc(v_a_706_);
 lean_dec_ref(v___x_705_);
-lean_inc(v___y_701_);
-lean_inc_ref(v___y_700_);
-lean_inc(v___y_699_);
-lean_inc_ref(v___y_698_);
 v___x_707_ = l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVLogical_mkEvalExpr(v_expr_686_, v___y_697_, v___y_698_, v___y_699_, v___y_700_, v___y_701_);
 if (lean_obj_tag(v___x_707_) == 0)
 {
@@ -1985,11 +1948,6 @@ lean_object* v_a_708_; lean_object* v___x_709_;
 v_a_708_ = lean_ctor_get(v___x_707_, 0);
 lean_inc(v_a_708_);
 lean_dec_ref(v___x_707_);
-lean_inc(v___y_701_);
-lean_inc_ref(v___y_700_);
-lean_inc(v___y_699_);
-lean_inc_ref(v___y_698_);
-lean_inc(v___y_697_);
 v___x_709_ = l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVLogical_evalsAtAtoms(v_discr_687_, v___y_697_, v___y_698_, v___y_699_, v___y_700_, v___y_701_);
 if (lean_obj_tag(v___x_709_) == 0)
 {
@@ -1997,11 +1955,6 @@ lean_object* v_a_710_; lean_object* v___x_711_;
 v_a_710_ = lean_ctor_get(v___x_709_, 0);
 lean_inc(v_a_710_);
 lean_dec_ref(v___x_709_);
-lean_inc(v___y_701_);
-lean_inc_ref(v___y_700_);
-lean_inc(v___y_699_);
-lean_inc_ref(v___y_698_);
-lean_inc(v___y_697_);
 v___x_711_ = l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVLogical_evalsAtAtoms(v_lhs_688_, v___y_697_, v___y_698_, v___y_699_, v___y_700_, v___y_701_);
 if (lean_obj_tag(v___x_711_) == 0)
 {
@@ -2171,11 +2124,6 @@ lean_dec(v_a_710_);
 lean_dec(v_a_708_);
 lean_dec(v_a_706_);
 lean_dec(v_a_704_);
-lean_dec(v___y_701_);
-lean_dec_ref(v___y_700_);
-lean_dec(v___y_699_);
-lean_dec_ref(v___y_698_);
-lean_dec(v___y_697_);
 lean_dec_ref(v_rhsExpr_696_);
 lean_dec_ref(v_lhsExpr_695_);
 lean_dec_ref(v_discrExpr_694_);
@@ -2192,11 +2140,6 @@ else
 lean_dec(v_a_708_);
 lean_dec(v_a_706_);
 lean_dec(v_a_704_);
-lean_dec(v___y_701_);
-lean_dec_ref(v___y_700_);
-lean_dec(v___y_699_);
-lean_dec_ref(v___y_698_);
-lean_dec(v___y_697_);
 lean_dec_ref(v_rhsExpr_696_);
 lean_dec_ref(v_lhsExpr_695_);
 lean_dec_ref(v_discrExpr_694_);
@@ -2214,11 +2157,6 @@ else
 lean_object* v_a_745_; lean_object* v___x_747_; uint8_t v_isShared_748_; uint8_t v_isSharedCheck_752_; 
 lean_dec(v_a_706_);
 lean_dec(v_a_704_);
-lean_dec(v___y_701_);
-lean_dec_ref(v___y_700_);
-lean_dec(v___y_699_);
-lean_dec_ref(v___y_698_);
-lean_dec(v___y_697_);
 lean_dec_ref(v_rhsExpr_696_);
 lean_dec_ref(v_lhsExpr_695_);
 lean_dec_ref(v_discrExpr_694_);
@@ -2272,11 +2210,6 @@ else
 {
 lean_object* v_a_753_; lean_object* v___x_755_; uint8_t v_isShared_756_; uint8_t v_isSharedCheck_760_; 
 lean_dec(v_a_704_);
-lean_dec(v___y_701_);
-lean_dec_ref(v___y_700_);
-lean_dec(v___y_699_);
-lean_dec_ref(v___y_698_);
-lean_dec(v___y_697_);
 lean_dec_ref(v_rhsExpr_696_);
 lean_dec_ref(v_lhsExpr_695_);
 lean_dec_ref(v_discrExpr_694_);
@@ -2330,11 +2263,6 @@ return v___x_758_;
 else
 {
 lean_object* v_a_761_; lean_object* v___x_763_; uint8_t v_isShared_764_; uint8_t v_isSharedCheck_768_; 
-lean_dec(v___y_701_);
-lean_dec_ref(v___y_700_);
-lean_dec(v___y_699_);
-lean_dec_ref(v___y_698_);
-lean_dec(v___y_697_);
 lean_dec_ref(v_rhsExpr_696_);
 lean_dec_ref(v_lhsExpr_695_);
 lean_dec_ref(v_discrExpr_694_);
@@ -2411,6 +2339,11 @@ _start:
 {
 lean_object* v_res_788_; 
 v_res_788_ = l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVLogical_mkIte___redArg___lam__0(v_expr_769_, v_expr_770_, v_expr_771_, v_discr_772_, v_lhs_773_, v_rhs_774_, v___x_775_, v___x_776_, v___x_777_, v___x_778_, v_discrExpr_779_, v_lhsExpr_780_, v_rhsExpr_781_, v___y_782_, v___y_783_, v___y_784_, v___y_785_, v___y_786_);
+lean_dec(v___y_786_);
+lean_dec_ref(v___y_785_);
+lean_dec(v___y_784_);
+lean_dec_ref(v___y_783_);
+lean_dec(v___y_782_);
 return v_res_788_;
 }
 }

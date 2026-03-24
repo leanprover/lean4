@@ -653,6 +653,7 @@ v_reusejp_203_:
 {
 lean_object* v___x_205_; lean_object* v___f_206_; lean_object* v___x_207_; lean_object* v___x_208_; 
 v___x_205_ = lean_st_ref_set(v_a_177_, v___x_204_);
+lean_inc(v_a_178_);
 v___f_206_ = lean_alloc_closure((void*)(l_Lean_Meta_Grind_Arith_Linear_mkCase___lam__0___boxed), 2, 1);
 lean_closure_set(v___f_206_, 0, v_a_178_);
 v___x_207_ = l_Lean_Meta_Grind_Arith_Linear_linearExt;
@@ -749,7 +750,6 @@ else
 {
 lean_object* v_a_227_; lean_object* v___x_229_; uint8_t v_isShared_230_; uint8_t v_isSharedCheck_234_; 
 lean_dec(v_a_191_);
-lean_dec(v_a_178_);
 lean_dec_ref(v_c_176_);
 v_a_227_ = lean_ctor_get(v___x_192_, 0);
 v_isSharedCheck_234_ = !lean_is_exclusive(v___x_192_);
@@ -792,7 +792,6 @@ return v___x_232_;
 }
 else
 {
-lean_dec(v_a_178_);
 lean_dec_ref(v_c_176_);
 return v___x_190_;
 }
@@ -813,6 +812,7 @@ lean_dec(v_a_241_);
 lean_dec_ref(v_a_240_);
 lean_dec(v_a_239_);
 lean_dec(v_a_238_);
+lean_dec(v_a_237_);
 lean_dec(v_a_236_);
 return v_res_249_;
 }

@@ -235,9 +235,27 @@ def allCombinations (xss : Array (Array α)) : Option (Array (Array α)) :=
     some (go 0 #[])
 
 
-def tryAllArgs (fnNames : Array Name) (fixedParamPerms : FixedParamPerms) (xs : Array Expr)
-   (values : Array Expr) (termMeasure?s : Array (Option TerminationMeasure)) (k : Array RecArgInfo → M α) : M α := do
+/-- A candidate argument combination to try for structural recursion. -/
+structure RecArgCandidate where
+  group : IndGroupInst
+  comb : Array RecArgInfo
+
+/-- Result of `findRecArgCandidates`: candidate combinations and a diagnostic report. -/
+structure RecArgCandidates where
+  candidates : Array RecArgCandidate
+  report : MessageData
+
+/--
+Precompute all candidate argument combinations for structural recursion.
+This performs the analysis that may need function axioms in the environment
+(via `isDefEq`, `inferType`, etc.) but does not run the callback that
+attempts to eliminate mutual recursion.
+-/
+def findRecArgCandidates (fnNames : Array Name) (fixedParamPerms : FixedParamPerms) (xs : Array Expr)
+    (values : Array Expr) (termMeasure?s : Array (Option TerminationMeasure)) :
+    MetaM RecArgCandidates := do
   let mut report := m!""
+  let mut candidates := #[]
   -- Gather information on all possible recursive arguments
   let mut recArgInfoss := #[]
   for fnName in fnNames, value in values, termMeasure? in termMeasure?s, fixedParamPerm in fixedParamPerms.perms do
@@ -263,23 +281,30 @@ def tryAllArgs (fnNames : Array Name) (fixedParamPerms : FixedParamPerms) (xs : 
       continue
     if let some combs := allCombinations recArgInfoss' then
       for comb in combs do
-        try
-          -- Check that the group actually has a brecOn (we used to check this in getRecArgInfo,
-          -- but in the first phase we do not want to rule-out non-recursive types like `Array`, which
-          -- are ok in a nested group. This logic can maybe simplified)
-          unless (← hasConst (group.brecOnName 0)) do
-            throwError "the type {group} does not have a `.brecOn` recursor"
-          let r ← k comb
-          trace[Elab.definition.structural] "tryAllArgs report:\n{report}"
-          return r
-        catch e =>
-          let m ← prettyParameterSet fnNames xs values comb
-          report := report ++ m!"Cannot use {m}:{indentD e.toMessageData}\n"
+        candidates := candidates.push { group, comb }
     else
-          report := report ++ m!"Too many possible combinations of parameters of type {group} (or " ++
-            m!"please indicate the recursive argument explicitly using `termination_by structural`).\n"
+      report := report ++ m!"Too many possible combinations of parameters of type {group} (or " ++
+        m!"please indicate the recursive argument explicitly using `termination_by structural`).\n"
+  return { candidates, report }
+
+/--
+Try each candidate argument combination for structural recursion.
+Uses `commitIfNoEx` to backtrack on failure.
+-/
+def tryCandidates (fnNames : Array Name) (xs : Array Expr) (values : Array Expr)
+    (candidates : RecArgCandidates) (k : Array RecArgInfo → MetaM α) : MetaM α := do
+  let mut report := candidates.report
+  for candidate in candidates.candidates do
+    try
+      return ← commitIfNoEx do
+        unless (← hasConst (candidate.group.brecOnName 0)) do
+          throwError "the type {candidate.group} does not have a `.brecOn` recursor"
+        k candidate.comb
+    catch e =>
+      let m ← prettyParameterSet fnNames xs values candidate.comb
+      report := report ++ m!"Cannot use {m}:{indentD e.toMessageData}\n"
   report := m!"failed to infer structural recursion:\n" ++ report
-  trace[Elab.definition.structural] "tryAllArgs:\n{report}"
+  trace[Elab.definition.structural] "tryCandidates:\n{report}"
   throwError report
 
 end Lean.Elab.Structural

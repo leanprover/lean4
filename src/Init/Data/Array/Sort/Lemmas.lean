@@ -134,6 +134,7 @@ theorem Array.toList_mergeSort {xs : Array α} {le : α → α → Bool} :
     (xs.mergeSort le).toList = xs.toList.mergeSort le := by
   rw [Array.mergeSort, Subarray.toList_mergeSort, Array.toList_mkSlice_rii]
 
+@[cbv_eval]
 theorem Array.mergeSort_eq_toArray_mergeSort_toList {xs : Array α} {le : α → α → Bool} :
     xs.mergeSort le = (xs.toList.mergeSort le).toArray := by
   simp [← toList_mergeSort]

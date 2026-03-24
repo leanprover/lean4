@@ -103,10 +103,6 @@ v___x_11_ = lean_nat_dec_lt(v_i_4_, v___x_10_);
 if (v___x_11_ == 0)
 {
 lean_object* v___x_12_; 
-lean_dec(v_a_8_);
-lean_dec_ref(v_a_7_);
-lean_dec(v_a_6_);
-lean_dec_ref(v_a_5_);
 lean_dec(v_i_4_);
 lean_dec_ref(v_e_1_);
 v___x_12_ = lean_alloc_ctor(0, 1, 0);
@@ -139,10 +135,6 @@ v_resetjp_16_:
 {
 lean_object* v___x_19_; lean_object* v___x_20_; 
 v___x_19_ = lean_box(0);
-lean_inc(v_a_8_);
-lean_inc_ref(v_a_7_);
-lean_inc(v_a_6_);
-lean_inc_ref(v_a_5_);
 lean_inc_ref(v_e_1_);
 v___x_20_ = l_Lean_Meta_kabstract(v_type_15_, v_e_1_, v___x_19_, v_a_5_, v_a_6_, v_a_7_, v_a_8_);
 if (lean_obj_tag(v___x_20_) == 0)
@@ -203,10 +195,6 @@ else
 lean_object* v_a_34_; lean_object* v___x_36_; uint8_t v_isShared_37_; uint8_t v_isSharedCheck_41_; 
 lean_del_object(v___x_17_);
 lean_dec_ref(v_expr_14_);
-lean_dec(v_a_8_);
-lean_dec_ref(v_a_7_);
-lean_dec(v_a_6_);
-lean_dec_ref(v_a_5_);
 lean_dec(v_i_4_);
 lean_dec_ref(v_entries_3_);
 lean_dec_ref(v_e_1_);
@@ -257,6 +245,10 @@ _start:
 {
 lean_object* v_res_52_; 
 v_res_52_ = l_Lean_Meta_GeneralizeTelescope_updateTypes(v_e_43_, v_eNew_44_, v_entries_45_, v_i_46_, v_a_47_, v_a_48_, v_a_49_, v_a_50_);
+lean_dec(v_a_50_);
+lean_dec_ref(v_a_49_);
+lean_dec(v_a_48_);
+lean_dec_ref(v_a_47_);
 lean_dec_ref(v_eNew_44_);
 return v_res_52_;
 }
@@ -369,6 +361,10 @@ LEAN_EXPORT lean_object* l_Lean_Meta_withLocalDecl___at___00Lean_Meta_withLocalD
 _start:
 {
 lean_object* v___x_106_; 
+lean_inc(v___y_104_);
+lean_inc_ref(v___y_103_);
+lean_inc(v___y_102_);
+lean_inc_ref(v___y_101_);
 v___x_106_ = lean_apply_6(v_k_99_, v_b_100_, v___y_101_, v___y_102_, v___y_103_, v___y_104_, lean_box(0));
 return v___x_106_;
 }
@@ -378,6 +374,10 @@ _start:
 {
 lean_object* v_res_114_; 
 v_res_114_ = l_Lean_Meta_withLocalDecl___at___00Lean_Meta_withLocalDeclD___at___00Lean_Meta_GeneralizeTelescope_generalizeTelescopeAux_spec__0_spec__0___redArg___lam__0(v_k_107_, v_b_108_, v___y_109_, v___y_110_, v___y_111_, v___y_112_);
+lean_dec(v___y_112_);
+lean_dec_ref(v___y_111_);
+lean_dec(v___y_110_);
+lean_dec_ref(v___y_109_);
 return v_res_114_;
 }
 }
@@ -479,6 +479,10 @@ uint8_t v_bi_boxed_153_; uint8_t v_kind_boxed_154_; lean_object* v_res_155_;
 v_bi_boxed_153_ = lean_unbox(v_bi_144_);
 v_kind_boxed_154_ = lean_unbox(v_kind_147_);
 v_res_155_ = l_Lean_Meta_withLocalDecl___at___00Lean_Meta_withLocalDeclD___at___00Lean_Meta_GeneralizeTelescope_generalizeTelescopeAux_spec__0_spec__0___redArg(v_name_143_, v_bi_boxed_153_, v_type_145_, v_k_146_, v_kind_boxed_154_, v___y_148_, v___y_149_, v___y_150_, v___y_151_);
+lean_dec(v___y_151_);
+lean_dec_ref(v___y_150_);
+lean_dec(v___y_149_);
+lean_dec_ref(v___y_148_);
 return v_res_155_;
 }
 }
@@ -497,6 +501,10 @@ _start:
 {
 lean_object* v_res_175_; 
 v_res_175_ = l_Lean_Meta_withLocalDeclD___at___00Lean_Meta_GeneralizeTelescope_generalizeTelescopeAux_spec__0___redArg(v_name_167_, v_type_168_, v_k_169_, v___y_170_, v___y_171_, v___y_172_, v___y_173_);
+lean_dec(v___y_173_);
+lean_dec_ref(v___y_172_);
+lean_dec(v___y_171_);
+lean_dec_ref(v___y_170_);
 return v_res_175_;
 }
 }
@@ -603,6 +611,10 @@ _start:
 {
 lean_object* v_res_219_; 
 v_res_219_ = l_Lean_Meta_GeneralizeTelescope_generalizeTelescopeAux___redArg___lam__0(v_i_208_, v_e_209_, v_entries_210_, v_fvars_211_, v_k_212_, v_x_213_, v___y_214_, v___y_215_, v___y_216_, v___y_217_);
+lean_dec(v___y_217_);
+lean_dec_ref(v___y_216_);
+lean_dec(v___y_215_);
+lean_dec_ref(v___y_214_);
 lean_dec(v_i_208_);
 return v_res_219_;
 }
@@ -627,6 +639,10 @@ if (v___x_264_ == 0)
 lean_object* v___x_265_; 
 lean_dec(v_i_228_);
 lean_dec_ref(v_entries_227_);
+lean_inc(v_a_233_);
+lean_inc_ref(v_a_232_);
+lean_inc(v_a_231_);
+lean_inc_ref(v_a_230_);
 v___x_265_ = lean_apply_6(v_k_226_, v_fvars_229_, v_a_230_, v_a_231_, v_a_232_, v_a_233_, lean_box(0));
 return v___x_265_;
 }
@@ -685,10 +701,6 @@ goto v___jp_235_;
 else
 {
 lean_object* v_a_312_; lean_object* v___x_314_; uint8_t v_isShared_315_; uint8_t v_isSharedCheck_319_; 
-lean_dec(v_a_233_);
-lean_dec_ref(v_a_232_);
-lean_dec(v_a_231_);
-lean_dec_ref(v_a_230_);
 lean_dec_ref(v_fvars_229_);
 lean_dec(v_i_228_);
 lean_dec_ref(v_entries_227_);
@@ -766,10 +778,6 @@ goto v___jp_255_;
 else
 {
 lean_object* v___x_275_; 
-lean_inc(v___y_274_);
-lean_inc_ref(v___y_273_);
-lean_inc(v___y_272_);
-lean_inc_ref(v___y_271_);
 lean_inc_ref(v_type_268_);
 v___x_275_ = l_Lean_Meta_isTypeCorrect(v_type_268_, v___y_271_, v___y_272_, v___y_273_, v___y_274_);
 if (lean_obj_tag(v___x_275_) == 0)
@@ -812,10 +820,6 @@ goto v___jp_255_;
 else
 {
 lean_object* v_a_288_; lean_object* v___x_290_; uint8_t v_isShared_291_; uint8_t v_isSharedCheck_295_; 
-lean_dec(v___y_274_);
-lean_dec_ref(v___y_273_);
-lean_dec(v___y_272_);
-lean_dec_ref(v___y_271_);
 lean_dec_ref(v_fvars_229_);
 lean_dec(v_i_228_);
 lean_dec_ref(v_entries_227_);
@@ -875,10 +879,6 @@ goto v___jp_255_;
 else
 {
 lean_object* v_a_296_; lean_object* v___x_298_; uint8_t v_isShared_299_; uint8_t v_isSharedCheck_303_; 
-lean_dec(v___y_274_);
-lean_dec_ref(v___y_273_);
-lean_dec(v___y_272_);
-lean_dec_ref(v___y_271_);
 lean_dec_ref(v_fvars_229_);
 lean_dec(v_i_228_);
 lean_dec_ref(v_entries_227_);
@@ -927,8 +927,6 @@ return v___x_301_;
 v___jp_235_:
 {
 lean_object* v___x_243_; 
-lean_inc(v___y_242_);
-lean_inc_ref(v___y_241_);
 v___x_243_ = l_Lean_Core_mkFreshUserName(v_baseUserName_236_, v___y_241_, v___y_242_);
 if (lean_obj_tag(v___x_243_) == 0)
 {
@@ -948,10 +946,6 @@ return v___x_246_;
 else
 {
 lean_object* v_a_247_; lean_object* v___x_249_; uint8_t v_isShared_250_; uint8_t v_isSharedCheck_254_; 
-lean_dec(v___y_242_);
-lean_dec_ref(v___y_241_);
-lean_dec(v___y_240_);
-lean_dec_ref(v___y_239_);
 lean_dec_ref(v_type_238_);
 lean_dec_ref(v_e_237_);
 lean_dec_ref(v_fvars_229_);
@@ -1018,10 +1012,6 @@ _start:
 lean_object* v___x_331_; lean_object* v___x_332_; lean_object* v___x_333_; 
 v___x_331_ = lean_unsigned_to_nat(1u);
 v___x_332_ = lean_nat_add(v_i_320_, v___x_331_);
-lean_inc(v___y_329_);
-lean_inc_ref(v___y_328_);
-lean_inc(v___y_327_);
-lean_inc_ref(v___y_326_);
 lean_inc(v___x_332_);
 v___x_333_ = l_Lean_Meta_GeneralizeTelescope_updateTypes(v_e_321_, v_x_325_, v_entries_322_, v___x_332_, v___y_326_, v___y_327_, v___y_328_, v___y_329_);
 if (lean_obj_tag(v___x_333_) == 0)
@@ -1038,10 +1028,6 @@ else
 {
 lean_object* v_a_337_; lean_object* v___x_339_; uint8_t v_isShared_340_; uint8_t v_isSharedCheck_344_; 
 lean_dec(v___x_332_);
-lean_dec(v___y_329_);
-lean_dec_ref(v___y_328_);
-lean_dec(v___y_327_);
-lean_dec_ref(v___y_326_);
 lean_dec_ref(v_x_325_);
 lean_dec_ref(v_k_324_);
 lean_dec_ref(v_fvars_323_);
@@ -1090,6 +1076,10 @@ _start:
 {
 lean_object* v_res_354_; 
 v_res_354_ = l_Lean_Meta_GeneralizeTelescope_generalizeTelescopeAux___redArg(v_k_345_, v_entries_346_, v_i_347_, v_fvars_348_, v_a_349_, v_a_350_, v_a_351_, v_a_352_);
+lean_dec(v_a_352_);
+lean_dec_ref(v_a_351_);
+lean_dec(v_a_350_);
+lean_dec_ref(v_a_349_);
 return v_res_354_;
 }
 }
@@ -1106,6 +1096,10 @@ _start:
 {
 lean_object* v_res_376_; 
 v_res_376_ = l_Lean_Meta_GeneralizeTelescope_generalizeTelescopeAux(v_00_u03b1_366_, v_k_367_, v_entries_368_, v_i_369_, v_fvars_370_, v_a_371_, v_a_372_, v_a_373_, v_a_374_);
+lean_dec(v_a_374_);
+lean_dec_ref(v_a_373_);
+lean_dec(v_a_372_);
+lean_dec_ref(v_a_371_);
 return v_res_376_;
 }
 }
@@ -1124,6 +1118,10 @@ uint8_t v_bi_boxed_400_; uint8_t v_kind_boxed_401_; lean_object* v_res_402_;
 v_bi_boxed_400_ = lean_unbox(v_bi_391_);
 v_kind_boxed_401_ = lean_unbox(v_kind_394_);
 v_res_402_ = l_Lean_Meta_withLocalDecl___at___00Lean_Meta_withLocalDeclD___at___00Lean_Meta_GeneralizeTelescope_generalizeTelescopeAux_spec__0_spec__0(v_00_u03b1_389_, v_name_390_, v_bi_boxed_400_, v_type_392_, v_k_393_, v_kind_boxed_401_, v___y_395_, v___y_396_, v___y_397_, v___y_398_);
+lean_dec(v___y_398_);
+lean_dec_ref(v___y_397_);
+lean_dec(v___y_396_);
+lean_dec_ref(v___y_395_);
 return v_res_402_;
 }
 }
@@ -1140,6 +1138,10 @@ _start:
 {
 lean_object* v_res_422_; 
 v_res_422_ = l_Lean_Meta_withLocalDeclD___at___00Lean_Meta_GeneralizeTelescope_generalizeTelescopeAux_spec__0(v_00_u03b1_413_, v_name_414_, v_type_415_, v_k_416_, v___y_417_, v___y_418_, v___y_419_, v___y_420_);
+lean_dec(v___y_420_);
+lean_dec_ref(v___y_419_);
+lean_dec(v___y_418_);
+lean_dec_ref(v___y_417_);
 return v_res_422_;
 }
 }
@@ -1284,10 +1286,6 @@ v___x_490_ = lean_usize_dec_lt(v_i_483_, v_sz_482_);
 if (v___x_490_ == 0)
 {
 lean_object* v___x_491_; 
-lean_dec(v___y_488_);
-lean_dec_ref(v___y_487_);
-lean_dec(v___y_486_);
-lean_dec_ref(v___y_485_);
 v___x_491_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_491_, 0, v_bs_484_);
 return v___x_491_;
@@ -1333,10 +1331,6 @@ else
 {
 lean_object* v_a_505_; lean_object* v___x_507_; uint8_t v_isShared_508_; uint8_t v_isSharedCheck_512_; 
 lean_dec(v_v_492_);
-lean_dec(v___y_488_);
-lean_dec_ref(v___y_487_);
-lean_dec(v___y_486_);
-lean_dec_ref(v___y_485_);
 lean_dec_ref(v_bs_484_);
 v_a_505_ = lean_ctor_get(v___x_495_, 0);
 v_isSharedCheck_512_ = !lean_is_exclusive(v___x_495_);
@@ -1381,10 +1375,6 @@ else
 {
 lean_object* v_a_513_; lean_object* v___x_515_; uint8_t v_isShared_516_; uint8_t v_isSharedCheck_520_; 
 lean_dec(v_v_492_);
-lean_dec(v___y_488_);
-lean_dec_ref(v___y_487_);
-lean_dec(v___y_486_);
-lean_dec_ref(v___y_485_);
 lean_dec_ref(v_bs_484_);
 v_a_513_ = lean_ctor_get(v___x_493_, 0);
 v_isSharedCheck_520_ = !lean_is_exclusive(v___x_493_);
@@ -1436,6 +1426,10 @@ lean_dec(v_sz_521_);
 v_i_boxed_530_ = lean_unbox_usize(v_i_522_);
 lean_dec(v_i_522_);
 v_res_531_ = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Meta_generalizeTelescope_spec__1(v_sz_boxed_529_, v_i_boxed_530_, v_bs_523_, v___y_524_, v___y_525_, v___y_526_, v___y_527_);
+lean_dec(v___y_527_);
+lean_dec_ref(v___y_526_);
+lean_dec(v___y_525_);
+lean_dec_ref(v___y_524_);
 return v_res_531_;
 }
 }
@@ -1445,10 +1439,6 @@ _start:
 size_t v_sz_541_; size_t v___x_542_; lean_object* v___x_543_; 
 v_sz_541_ = lean_array_size(v_es_534_);
 v___x_542_ = ((size_t)0ULL);
-lean_inc(v_a_539_);
-lean_inc_ref(v_a_538_);
-lean_inc(v_a_537_);
-lean_inc_ref(v_a_536_);
 v___x_543_ = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Meta_generalizeTelescope_spec__1(v_sz_541_, v___x_542_, v_es_534_, v_a_536_, v_a_537_, v_a_538_, v_a_539_);
 if (lean_obj_tag(v___x_543_) == 0)
 {
@@ -1464,10 +1454,6 @@ return v___x_547_;
 else
 {
 lean_object* v_a_548_; lean_object* v___x_550_; uint8_t v_isShared_551_; uint8_t v_isSharedCheck_555_; 
-lean_dec(v_a_539_);
-lean_dec_ref(v_a_538_);
-lean_dec(v_a_537_);
-lean_dec_ref(v_a_536_);
 lean_dec_ref(v_k_535_);
 v_a_548_ = lean_ctor_get(v___x_543_, 0);
 v_isSharedCheck_555_ = !lean_is_exclusive(v___x_543_);
@@ -1514,6 +1500,10 @@ _start:
 {
 lean_object* v_res_563_; 
 v_res_563_ = l_Lean_Meta_generalizeTelescope___redArg(v_es_556_, v_k_557_, v_a_558_, v_a_559_, v_a_560_, v_a_561_);
+lean_dec(v_a_561_);
+lean_dec_ref(v_a_560_);
+lean_dec(v_a_559_);
+lean_dec_ref(v_a_558_);
 return v_res_563_;
 }
 }
@@ -1530,6 +1520,10 @@ _start:
 {
 lean_object* v_res_581_; 
 v_res_581_ = l_Lean_Meta_generalizeTelescope(v_00_u03b1_573_, v_es_574_, v_k_575_, v_a_576_, v_a_577_, v_a_578_, v_a_579_);
+lean_dec(v_a_579_);
+lean_dec_ref(v_a_578_);
+lean_dec(v_a_577_);
+lean_dec_ref(v_a_576_);
 return v_res_581_;
 }
 }

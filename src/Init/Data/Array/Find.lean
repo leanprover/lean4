@@ -622,12 +622,12 @@ theorem findIdx?_eq_some_le_of_findIdx?_eq_some {xs : Array α} {p q : α → Bo
 /-! ### findFinIdx? -/
 
 @[grind =]
-theorem findFinIdx?_empty {p : α → Bool} : findFinIdx? p #[] = none := by simp; rfl
+theorem findFinIdx?_empty {p : α → Bool} : findFinIdx? p #[] = none := by simp
 
 @[grind =]
 theorem findFinIdx?_singleton {a : α} {p : α → Bool} :
     #[a].findFinIdx? p = if p a then some ⟨0, by simp⟩ else none := by
-  simp; rfl
+  simp
 
 -- We can't mark this as a `@[congr]` lemma since the head of the RHS is not `findFinIdx?`.
 theorem findFinIdx?_congr {p : α → Bool} {xs ys : Array α} (w : xs = ys) :
@@ -801,7 +801,7 @@ theorem idxOf?_eq_map_finIdxOf?_val [BEq α] {xs : Array α} {a : α} :
     xs.idxOf? a = (xs.finIdxOf? a).map (·.val) := by
   simp [idxOf?, finIdxOf?]
 
-@[grind =] theorem finIdxOf?_empty [BEq α] : (#[] : Array α).finIdxOf? a = none := by simp; rfl
+@[grind =] theorem finIdxOf?_empty [BEq α] : (#[] : Array α).finIdxOf? a = none := by simp
 
 @[simp, grind =] theorem finIdxOf?_eq_none_iff [BEq α] [LawfulBEq α] {xs : Array α} {a : α} :
     xs.finIdxOf? a = none ↔ a ∉ xs := by

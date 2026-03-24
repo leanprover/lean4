@@ -23,7 +23,8 @@ options get_default_options() {
 
     opts = opts.update({"pp", "rawOnError"}, true);
 
-    // temporarily restrict new do elaborator to core, i.e. stage 0
+    // Temporary, core-only flags for editing (i.e. must be part of stage0/bin/lean). Must be synced
+    // with `LEAN_EXTRA_MAKE_OPTS` build flags in src/CMakeLists.txt.
     opts = opts.update({"backward", "do", "legacy"}, false);
 #endif
     return opts;

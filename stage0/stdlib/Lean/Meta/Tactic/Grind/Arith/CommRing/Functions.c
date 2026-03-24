@@ -441,10 +441,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_CommRing_checkInst(lean_object*
 _start:
 {
 lean_object* v___x_67_; 
-lean_inc(v_a_65_);
-lean_inc_ref(v_a_64_);
-lean_inc(v_a_63_);
-lean_inc_ref(v_a_62_);
 lean_inc_ref(v_inst_x27_61_);
 lean_inc_ref(v_inst_60_);
 v___x_67_ = l_Lean_Meta_isDefEqI(v_inst_60_, v_inst_x27_61_, v_a_62_, v_a_63_, v_a_64_, v_a_65_);
@@ -502,19 +498,11 @@ v___x_85_ = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(v___x_85_, 0, v___x_83_);
 lean_ctor_set(v___x_85_, 1, v___x_84_);
 v___x_86_ = l_Lean_throwError___at___00Lean_Meta_Grind_Arith_CommRing_checkInst_spec__0___redArg(v___x_85_, v_a_62_, v_a_63_, v_a_64_, v_a_65_);
-lean_dec(v_a_65_);
-lean_dec_ref(v_a_64_);
-lean_dec(v_a_63_);
-lean_dec_ref(v_a_62_);
 return v___x_86_;
 }
 else
 {
 lean_object* v___x_87_; lean_object* v___x_89_; 
-lean_dec(v_a_65_);
-lean_dec_ref(v_a_64_);
-lean_dec(v_a_63_);
-lean_dec_ref(v_a_62_);
 lean_dec_ref(v_inst_x27_61_);
 lean_dec_ref(v_inst_60_);
 lean_dec(v_declName_59_);
@@ -543,10 +531,6 @@ return v___x_89_;
 else
 {
 lean_object* v_a_92_; lean_object* v___x_94_; uint8_t v_isShared_95_; uint8_t v_isSharedCheck_99_; 
-lean_dec(v_a_65_);
-lean_dec_ref(v_a_64_);
-lean_dec(v_a_63_);
-lean_dec_ref(v_a_62_);
 lean_dec_ref(v_inst_x27_61_);
 lean_dec_ref(v_inst_60_);
 lean_dec(v_declName_59_);
@@ -595,6 +579,10 @@ _start:
 {
 lean_object* v_res_108_; 
 v_res_108_ = l_Lean_Meta_Grind_Arith_CommRing_checkInst(v_declName_100_, v_inst_101_, v_inst_x27_102_, v_a_103_, v_a_104_, v_a_105_, v_a_106_);
+lean_dec(v_a_106_);
+lean_dec_ref(v_a_105_);
+lean_dec(v_a_104_);
+lean_dec_ref(v_a_103_);
 return v_res_108_;
 }
 }

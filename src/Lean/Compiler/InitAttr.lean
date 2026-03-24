@@ -171,7 +171,7 @@ private unsafe def runInitAttrs (env : Environment) (opts : Options) : IO Unit :
     -- libraries with their corresponding module in the Environment) must
     -- first be initialized
     let pkg? := env.getModulePackageByIdx? modIdx
-    if env.header.isModule && /- TODO: remove after reboostrap -/ false then
+    if env.header.isModule then
       let initializedRuntime ← pure initRuntime <&&> runModInit (phases := .runtime) mod.module pkg?
       let initializedComptime ← runModInit (phases := .comptime) mod.module pkg?
       if initializedRuntime || initializedComptime then

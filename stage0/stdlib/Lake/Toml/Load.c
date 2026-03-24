@@ -540,6 +540,8 @@ lean_ctor_set(v___x_160_, 13, v_inheritedTraceOptions_157_);
 lean_ctor_set_uint8(v___x_160_, sizeof(void*)*14, v___x_143_);
 lean_ctor_set_uint8(v___x_160_, sizeof(void*)*14 + 1, v_suppressElabErrors_156_);
 v___x_161_ = l_Lake_Toml_elabToml(v___x_142_, v___x_160_, v___y_158_);
+lean_dec(v___y_158_);
+lean_dec_ref(v___x_160_);
 if (lean_obj_tag(v___x_161_) == 0)
 {
 lean_object* v_a_162_; lean_object* v___x_164_; uint8_t v_isShared_165_; uint8_t v_isSharedCheck_175_; 

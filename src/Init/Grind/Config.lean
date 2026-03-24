@@ -111,11 +111,10 @@ structure Config where
   ring := true
   /--
   Maximum number of steps performed by the `ring` solver.
-  A step is counted whenever one polynomial is used to simplify another.
-  For example, given `x^2 + 1` and `x^2 * y^3 + x * y`, the first can be
-  used to simplify the second to `-1 * y^3 + x * y`.
+  A step is counted whenever one polynomial is used to simplify another,
+  weighted by the number of terms in the resulting polynomial.
   -/
-  ringSteps := 10000
+  ringSteps := 100000
   /--
   When `true` (default: `true`), uses procedure for handling linear arithmetic for `IntModule`, and
   `CommRing`.

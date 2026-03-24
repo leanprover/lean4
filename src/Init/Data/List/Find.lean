@@ -1050,7 +1050,7 @@ theorem findFinIdx?_append {xs ys : List α} {p : α → Bool} :
 
 @[simp, grind =] theorem findFinIdx?_singleton {a : α} {p : α → Bool} :
     [a].findFinIdx? p = if p a then some ⟨0, by simp⟩ else none := by
-  simp [findFinIdx?_cons, findFinIdx?_nil]; rfl
+  simp [findFinIdx?_cons, findFinIdx?_nil]
 
 @[simp, grind =] theorem findFinIdx?_eq_none_iff {l : List α} {p : α → Bool} :
     l.findFinIdx? p = none ↔ ∀ x ∈ l, ¬ p x := by

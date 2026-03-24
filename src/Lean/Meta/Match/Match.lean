@@ -1097,7 +1097,8 @@ def mkMatcherAuxDefinition (name : Name) (type : Expr) (value : Expr) (isSplitte
       unless isSplitter do
         modifyEnv fun env => matcherExt.modifyState env fun s => s.insert key name
         addMatcherInfo name mi
-      setInlineAttribute name
+      if compile then
+        setInlineAttribute name
       enableRealizationsForConst name
       if compile then
         compileDecl decl

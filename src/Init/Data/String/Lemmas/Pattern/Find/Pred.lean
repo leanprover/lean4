@@ -58,7 +58,7 @@ theorem find?_prop_eq_some_iff_splits {p : Char → Prop} [DecidablePred p] {s :
   simp only [find?_prop_eq_find?_decide, find?_bool_eq_some_iff_splits, decide_eq_true_eq,
     decide_eq_false_iff_not]
 
-@[simp]
+@[cbv_eval, simp]
 theorem contains_bool_eq {p : Char → Bool} {s : Slice} : s.contains p = s.copy.toList.any p := by
   rw [Bool.eq_iff_iff, Pattern.Model.contains_eq_true_iff]
   simp only [Pattern.Model.CharPred.matchesAt_iff, ne_eq, List.any_eq_true,

@@ -431,7 +431,8 @@ end Closure
   A "closure" is computed, and a term of the form `name.{u_1 ... u_n} t_1 ... t_m` is
   returned where `u_i`s are universe parameters and metavariables `type` and `value` depend on,
   and `t_j`s are free and meta variables `type` and `value` depend on. -/
-def mkAuxDefinition (name : Name) (type : Expr) (value : Expr) (zetaDelta : Bool := false) (compile : Bool := true) : MetaM Expr := do
+def mkAuxDefinition (name : Name) (type : Expr) (value : Expr) (zetaDelta : Bool := false)
+    (compile : Bool := true) (logCompileErrors : Bool := true) : MetaM Expr := do
   let result ← Closure.mkValueTypeClosure type value zetaDelta
   let env ← getEnv
   let hints := ReducibilityHints.regular (getMaxHeight env result.value + 1)
@@ -439,14 +440,16 @@ def mkAuxDefinition (name : Name) (type : Expr) (value : Expr) (zetaDelta : Bool
     result.type result.value  hints)
   addDecl decl
   if compile then
-    compileDecl decl
+    compileDecl decl (logErrors := logCompileErrors)
   return mkAppN (mkConst name result.levelArgs.toList) result.exprArgs
 
 /-- Similar to `mkAuxDefinition`, but infers the type of `value`. -/
-def mkAuxDefinitionFor (name : Name) (value : Expr) (zetaDelta : Bool := false) (compile := true) : MetaM Expr := do
+def mkAuxDefinitionFor (name : Name) (value : Expr) (zetaDelta : Bool := false)
+    (compile := true) (logCompileErrors : Bool := true) : MetaM Expr := do
   let type ← inferType value
   let type := type.headBeta
   mkAuxDefinition name type value (zetaDelta := zetaDelta) (compile := compile)
+    (logCompileErrors := logCompileErrors)
 
 /--
   Create an auxiliary theorem with the given name, type and value. It is similar to `mkAuxDefinition`.

@@ -91,19 +91,24 @@ public def mkCtorIdx (indName : Name) : MetaM Unit :=
       modifyEnv fun env => addProtected env declName
       if info.numCtors = 1 then
         setInlineAttribute declName .macroInline
+      if isMarkedMeta (← getEnv) indName then
+        modifyEnv (markMeta · declName)
       compileDecl decl
       enableRealizationsForConst declName
 
       -- Deprecated alias for enumeration types (which used to have `toCtorIdx`)
       if (← isEnumType indName) then
         let aliasName := mkToCtorIdxName indName
-        addAndCompile (.defnDecl (← mkDefinitionValInferringUnsafe
+        addDecl (.defnDecl (← mkDefinitionValInferringUnsafe
           (name        := aliasName)
           (levelParams := info.levelParams)
           (type        := declType)
           (value       := mkConst declName us)
           (hints       := ReducibilityHints.abbrev)
         ))
+        if isMarkedMeta (← getEnv) indName then
+          modifyEnv (markMeta · aliasName)
+        compileDecls #[aliasName]
         modifyEnv fun env => addToCompletionBlackList env aliasName
         modifyEnv fun env => addProtected env aliasName
         setReducibleAttribute aliasName

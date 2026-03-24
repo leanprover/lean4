@@ -11,6 +11,7 @@ public import Lean.Compiler.LCNF.PassManager
 import Lean.Compiler.LCNF.LiveVars
 import Lean.Compiler.LCNF.DependsOn
 import Lean.Compiler.LCNF.PhaseExt
+import Lean.Compiler.LCNF.PropagateBorrow
 
 namespace Lean.Compiler.LCNF
 
@@ -62,6 +63,7 @@ structure Context where
   we first try `relaxedReuse := false`, and then `relaxedReuse := true`.
   -/
   relaxedReuse : Bool
+  ownedness : Std.HashMap FVarId Ownedness
 
 abbrev ReuseM := ReaderT Context CompilerM
 
@@ -254,12 +256,13 @@ partial def Code.insertResetReuse (c : Code .impure) : ReuseM (Code .impure) := 
   match c with
   | .cases cs =>
     let alreadyFound := (← read).alreadyFound.contains cs.discr
+    let borrowed := (← read).ownedness.getD cs.discr .bot == .borrow
     withReader (fun ctx => { ctx with alreadyFound := ctx.alreadyFound.insert cs.discr }) do
       let alts ← cs.alts.mapM fun alt => do
         let alt ← alt.mapCodeM (·.insertResetReuse)
         match alt with
         | .ctorAlt info k =>
-          if info.isScalar || alreadyFound then
+          if info.isScalar || alreadyFound || borrowed then
             -- If `alreadyFound`, then we don't try to reuse memory cell to avoid
             -- double reset.
             return alt
@@ -313,8 +316,11 @@ def Decl.insertResetReuse (decl : Decl .impure) : CompilerM (Decl .impure) := do
   The second pass addresses issue #4089.
   -/
   if (← getConfig).resetReuse then
-    let decl ← decl.insertResetReuseCore |>.run { relaxedReuse := false }
-    decl.insertResetReuseCore |>.run { relaxedReuse := true }
+    let ownedness ← decl.analyzePropagatedBorrows
+    let decl ← decl.applyOwnedness ownedness
+    let decl ← decl.insertResetReuseCore |>.run { relaxedReuse := false, ownedness }
+    let decl ← decl.insertResetReuseCore |>.run { relaxedReuse := true, ownedness }
+    return decl
   else
     return decl
 

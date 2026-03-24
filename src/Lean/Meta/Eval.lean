@@ -9,6 +9,7 @@ prelude
 public import Lean.AddDecl
 public import Lean.Meta.Check
 public import Lean.Util.CollectLevelParams
+import Lean.Compiler.Options
 
 public section
 
@@ -22,7 +23,8 @@ unsafe def evalExprCore (α) (value : Expr) (checkType : Expr → MetaM Unit)
     if value.getUsedConstants.all (← getEnv).isImportedConst then
       modifyEnv fun env => env.importEnv?.getD env
 
-    let name ← mkFreshUserName `_tmp
+    -- Private name to ensure we do not check for deps being imported publicly
+    let name := mkPrivateName (← getEnv) (← mkFreshUserName `_tmp)
     let value ← instantiateMVars value
     let us := collectLevelParams {} value |>.params
     if value.hasMVar then
@@ -34,11 +36,14 @@ unsafe def evalExprCore (α) (value : Expr) (checkType : Expr → MetaM Unit)
        value, hints := ReducibilityHints.opaque,
        safety
     }
+    modifyEnv (markMeta · name)
     -- compilation will invariably wait on `checked`
     let _ ← traceBlock "compiler env" (← getEnv).checked
     -- now that we've already waited, async would just introduce (minor) overhead and trigger
     -- `Task.get` blocking debug code
     withOptions (Elab.async.set · false) do
+    withOptions (Compiler.compiler.postponeCompile.set · false) do
+    withOptions (Compiler.compiler.relaxedMetaCheck.set · true) do
       addAndCompile decl
       evalConst (checkMeta := checkMeta) α name
 

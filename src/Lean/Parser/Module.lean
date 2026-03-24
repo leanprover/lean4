@@ -9,6 +9,7 @@ prelude
 public import Lean.Parser.Module.Syntax
 meta import Lean.Parser.Module.Syntax
 import Init.While
+meta import Lean.Parser.Extra
 
 public section
 

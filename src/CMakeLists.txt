@@ -118,6 +118,9 @@ option(USE_LAKE_CACHE "Use the Lake artifact cache for stage 1 builds (requires 
 set(LEAN_EXTRA_MAKE_OPTS "" CACHE STRING "extra options to lean --make")
 set(LEANC_CC ${CMAKE_C_COMPILER} CACHE STRING "C compiler to use in `leanc`")
 
+# Temporary, core-only flags. Must be synced with stdlib_flags.h.
+string(APPEND LEAN_EXTRA_MAKE_OPTS " -Dbackward.do.legacy=false")
+
 if(LAZY_RC MATCHES "ON")
   set(LEAN_LAZY_RC "#define LEAN_LAZY_RC")
 endif()
@@ -759,7 +762,7 @@ if(STAGE GREATER 0 AND CADICAL AND INSTALL_CADICAL)
   add_dependencies(leancpp copy-cadical)
 endif()
 
-if(STAGE GREATER 0 AND LEANTAR AND INSTALL_LEANTAR)
+if(LEANTAR AND INSTALL_LEANTAR)
   add_custom_target(
     copy-leantar
     COMMAND cmake -E copy_if_different "${LEANTAR}" "${CMAKE_BINARY_DIR}/bin/leantar${CMAKE_EXECUTABLE_SUFFIX}"
@@ -794,7 +797,7 @@ if(LLVM AND STAGE GREATER 0)
   set(EXTRA_LEANMAKE_OPTS "LLVM=1")
 endif()
 
-set(STDLIBS Init Std Lean Leanc)
+set(STDLIBS Init Std Lean Leanc LeanIR)
 if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
   list(APPEND STDLIBS Lake LeanChecker)
 endif()
@@ -901,9 +904,16 @@ if(PREV_STAGE)
   add_custom_target(update-stage0-commit COMMAND git commit -m "chore: update stage0" DEPENDS update-stage0)
 endif()
 
+if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
+  add_custom_target(leanir ALL
+    DEPENDS leanshared
+    COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make leanir
+    VERBATIM)
+endif()
+
 # use Bash version for building, use Lean version in bin/ for tests & distribution
 configure_file("${LEAN_SOURCE_DIR}/bin/leanc.in" "${CMAKE_BINARY_DIR}/leanc.sh" @ONLY)
-if(STAGE GREATER 0 AND EXISTS "${LEAN_SOURCE_DIR}/Leanc.lean" AND NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
+if(STAGE GREATER 0 AND NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
   configure_file("${LEAN_SOURCE_DIR}/Leanc.lean" "${CMAKE_BINARY_DIR}/leanc/Leanc.lean" @ONLY)
   add_custom_target(
     leanc
@@ -923,7 +933,7 @@ if(STAGE GREATER 0 AND CADICAL AND INSTALL_CADICAL)
   install(PROGRAMS "${CADICAL}" DESTINATION bin)
 endif()
 
-if(STAGE GREATER 0 AND LEANTAR AND INSTALL_LEANTAR)
+if(LEANTAR AND INSTALL_LEANTAR)
   install(PROGRAMS "${LEANTAR}" DESTINATION bin)
 endif()
 
@@ -942,6 +952,7 @@ install(
   PATTERN "*.hash" EXCLUDE
   PATTERN "*.trace" EXCLUDE
   PATTERN "*.rsp" EXCLUDE
+  PATTERN "*.filelist" EXCLUDE
 )
 
 # symlink source into expected installation location for go-to-definition, if file system allows it

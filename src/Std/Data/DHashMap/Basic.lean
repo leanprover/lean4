@@ -74,7 +74,7 @@ structure DHashMap (α : Type u) (β : α → Type v) [BEq α] [Hashable α] whe
 
 namespace DHashMap
 
-@[inline, inherit_doc Raw.emptyWithCapacity] def emptyWithCapacity [BEq α] [Hashable α] (capacity := 8) : DHashMap α β :=
+@[cbv_opaque, inline, inherit_doc Raw.emptyWithCapacity] def emptyWithCapacity [BEq α] [Hashable α] (capacity := 8) : DHashMap α β :=
   ⟨Raw.emptyWithCapacity capacity, .emptyWithCapacity₀⟩
 
 instance [BEq α] [Hashable α] : EmptyCollection (DHashMap α β) where
@@ -90,7 +90,7 @@ structure Equiv (m₁ m₂ : DHashMap α β) where
 
 @[inherit_doc] scoped infixl:50 " ~m " => Equiv
 
-@[inline, inherit_doc Raw.insert] def insert (m : DHashMap α β) (a : α)
+@[cbv_opaque, inline, inherit_doc Raw.insert] def insert (m : DHashMap α β) (a : α)
     (b : β a) : DHashMap α β :=
   ⟨Raw₀.insert ⟨m.1, m.2.size_buckets_pos⟩ a b, .insert₀ m.2⟩
 
@@ -146,7 +146,7 @@ instance [BEq α] [Hashable α] {m : DHashMap α β} {a : α} : Decidable (a ∈
     (a : α) (fallback : β a) : β a :=
   Raw₀.getD ⟨m.1, m.2.size_buckets_pos⟩ a fallback
 
-@[inline, inherit_doc Raw.erase] def erase (m : DHashMap α β) (a : α) :
+@[cbv_opaque, inline, inherit_doc Raw.erase] def erase (m : DHashMap α β) (a : α) :
     DHashMap α β :=
   ⟨Raw₀.erase ⟨m.1, m.2.size_buckets_pos⟩ a, .erase₀ m.2⟩
 
@@ -261,7 +261,7 @@ define the `ForM` and `ForIn` instances for `HashMap`.
 
 end Const
 
-@[inline, inherit_doc Raw.filter] def filter (f : (a : α) → β a → Bool)
+@[cbv_opaque, inline, inherit_doc Raw.filter] def filter (f : (a : α) → β a → Bool)
     (m : DHashMap α β) : DHashMap α β :=
   ⟨Raw₀.filter f ⟨m.1, m.2.size_buckets_pos⟩, .filter₀ m.2⟩
 

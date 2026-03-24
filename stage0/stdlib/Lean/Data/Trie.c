@@ -32,20 +32,22 @@ lean_object* lean_array_uget_borrowed(lean_object*, size_t);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 size_t lean_usize_add(size_t, size_t);
+lean_object* l_Std_instToFormatFormat___lam__0___boxed(lean_object*);
+lean_object* lean_uint8_to_nat(uint8_t);
+lean_object* l_Nat_reprFast(lean_object*);
+lean_object* lean_nat_to_int(lean_object*);
+lean_object* l_ByteArray_toList(lean_object*);
 lean_object* lean_array_to_list(lean_object*);
+lean_object* l___private_Init_Data_List_Impl_0__List_zipWithTR_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_foldl___at___00Array_appendList_spec__0___redArg(lean_object*, lean_object*);
+lean_object* l_Std_Format_joinSep___redArg(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Std_Format_defWidth;
+lean_object* l_Std_Format_pretty(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkAtom(lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
-lean_object* lean_uint8_to_nat(uint8_t);
-lean_object* l_Nat_reprFast(lean_object*);
-lean_object* lean_nat_to_int(lean_object*);
-lean_object* l_ByteArray_toList(lean_object*);
-lean_object* l___private_Init_Data_List_Impl_0__List_zipWithTR_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Std_Format_defWidth;
-lean_object* l_Std_Format_pretty(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_Trie_ctorIdx___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_Trie_ctorIdx___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_Trie_ctorIdx(lean_object*, lean_object*);
@@ -208,9 +210,12 @@ static const lean_object* l___private_Lean_Data_Trie_0__Lean_Data_Trie_toStringA
 LEAN_EXPORT lean_object* l___private_Lean_Data_Trie_0__Lean_Data_Trie_toStringAux___redArg(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_Trie_0__Lean_Data_Trie_toStringAux___redArg___lam__0(uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_Trie_0__Lean_Data_Trie_toStringAux(lean_object*, lean_object*);
+static const lean_closure_object l_Lean_Data_Trie_instToString___private__1___redArg___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Std_instToFormatFormat___lam__0___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Lean_Data_Trie_instToString___private__1___redArg___closed__0 = (const lean_object*)&l_Lean_Data_Trie_instToString___private__1___redArg___closed__0_value;
 LEAN_EXPORT lean_object* l_Lean_Data_Trie_instToString___private__1___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_Trie_instToString___private__1(lean_object*, lean_object*);
-static const lean_closure_object l_Lean_Data_Trie_instToString___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lean_Data_Trie_instToString___private__1___redArg, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
+LEAN_EXPORT lean_object* l_Lean_Data_Trie_instToString___lam__0(lean_object*);
+static const lean_closure_object l_Lean_Data_Trie_instToString___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lean_Data_Trie_instToString___lam__0, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_Lean_Data_Trie_instToString___closed__0 = (const lean_object*)&l_Lean_Data_Trie_instToString___closed__0_value;
 LEAN_EXPORT lean_object* l_Lean_Data_Trie_instToString(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_Trie_ctorIdx___redArg(lean_object* v_x_1_){
@@ -2264,33 +2269,54 @@ v___x_748_ = l___private_Lean_Data_Trie_0__Lean_Data_Trie_toStringAux___redArg(v
 return v___x_748_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Data_Trie_instToString___private__1___redArg(lean_object* v_t_749_){
+LEAN_EXPORT lean_object* l_Lean_Data_Trie_instToString___private__1___redArg(lean_object* v_t_750_){
 _start:
 {
-lean_object* v___x_750_; lean_object* v___x_751_; lean_object* v___x_752_; lean_object* v___x_753_; lean_object* v___x_754_; lean_object* v___x_755_; 
-v___x_750_ = lean_box(1);
-v___x_751_ = l___private_Lean_Data_Trie_0__Lean_Data_Trie_toStringAux___redArg(v_t_749_);
-v___x_752_ = l_Std_Format_joinSep___at___00__private_Lean_Data_Trie_0__Lean_Data_Trie_toStringAux_spec__0(v___x_751_, v___x_750_);
-v___x_753_ = l_Std_Format_defWidth;
-v___x_754_ = lean_unsigned_to_nat(0u);
-v___x_755_ = l_Std_Format_pretty(v___x_752_, v___x_753_, v___x_754_, v___x_754_);
-return v___x_755_;
+lean_object* v___f_751_; lean_object* v___x_752_; lean_object* v___x_753_; lean_object* v___x_754_; lean_object* v___x_755_; lean_object* v___x_756_; lean_object* v___x_757_; 
+v___f_751_ = ((lean_object*)(l_Lean_Data_Trie_instToString___private__1___redArg___closed__0));
+v___x_752_ = lean_box(1);
+v___x_753_ = l___private_Lean_Data_Trie_0__Lean_Data_Trie_toStringAux___redArg(v_t_750_);
+v___x_754_ = l_Std_Format_joinSep___redArg(v___f_751_, v___x_753_, v___x_752_);
+v___x_755_ = l_Std_Format_defWidth;
+v___x_756_ = lean_unsigned_to_nat(0u);
+v___x_757_ = l_Std_Format_pretty(v___x_754_, v___x_755_, v___x_756_, v___x_756_);
+return v___x_757_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Data_Trie_instToString___private__1(lean_object* v_00_u03b1_756_, lean_object* v_t_757_){
+LEAN_EXPORT lean_object* l_Lean_Data_Trie_instToString___private__1(lean_object* v_00_u03b1_758_, lean_object* v_t_759_){
 _start:
 {
-lean_object* v___x_758_; 
-v___x_758_ = l_Lean_Data_Trie_instToString___private__1___redArg(v_t_757_);
-return v___x_758_;
+lean_object* v___f_760_; lean_object* v___x_761_; lean_object* v___x_762_; lean_object* v___x_763_; lean_object* v___x_764_; lean_object* v___x_765_; lean_object* v___x_766_; 
+v___f_760_ = ((lean_object*)(l_Lean_Data_Trie_instToString___private__1___redArg___closed__0));
+v___x_761_ = lean_box(1);
+v___x_762_ = l___private_Lean_Data_Trie_0__Lean_Data_Trie_toStringAux___redArg(v_t_759_);
+v___x_763_ = l_Std_Format_joinSep___redArg(v___f_760_, v___x_762_, v___x_761_);
+v___x_764_ = l_Std_Format_defWidth;
+v___x_765_ = lean_unsigned_to_nat(0u);
+v___x_766_ = l_Std_Format_pretty(v___x_763_, v___x_764_, v___x_765_, v___x_765_);
+return v___x_766_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Data_Trie_instToString(lean_object* v_00_u03b1_760_){
+LEAN_EXPORT lean_object* l_Lean_Data_Trie_instToString___lam__0(lean_object* v_t_767_){
 _start:
 {
-lean_object* v___f_761_; 
-v___f_761_ = ((lean_object*)(l_Lean_Data_Trie_instToString___closed__0));
-return v___f_761_;
+lean_object* v___f_768_; lean_object* v___x_769_; lean_object* v___x_770_; lean_object* v___x_771_; lean_object* v___x_772_; lean_object* v___x_773_; lean_object* v___x_774_; 
+v___f_768_ = ((lean_object*)(l_Lean_Data_Trie_instToString___private__1___redArg___closed__0));
+v___x_769_ = lean_box(1);
+v___x_770_ = l___private_Lean_Data_Trie_0__Lean_Data_Trie_toStringAux___redArg(v_t_767_);
+v___x_771_ = l_Std_Format_joinSep___redArg(v___f_768_, v___x_770_, v___x_769_);
+v___x_772_ = l_Std_Format_defWidth;
+v___x_773_ = lean_unsigned_to_nat(0u);
+v___x_774_ = l_Std_Format_pretty(v___x_771_, v___x_772_, v___x_773_, v___x_773_);
+return v___x_774_;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Data_Trie_instToString(lean_object* v_00_u03b1_776_){
+_start:
+{
+lean_object* v___f_777_; 
+v___f_777_ = ((lean_object*)(l_Lean_Data_Trie_instToString___closed__0));
+return v___f_777_;
 }
 }
 lean_object* runtime_initialize_Lean_Data_Format(uint8_t builtin);

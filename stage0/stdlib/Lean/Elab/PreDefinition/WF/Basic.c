@@ -355,14 +355,6 @@ return v___x_135_;
 else
 {
 lean_object* v___x_136_; lean_object* v___x_137_; 
-lean_dec(v_a_114_);
-lean_dec_ref(v_a_113_);
-lean_dec(v_a_112_);
-lean_dec_ref(v_a_111_);
-lean_dec(v_a_110_);
-lean_dec_ref(v_a_109_);
-lean_dec(v_a_108_);
-lean_dec_ref(v_a_107_);
 v___x_136_ = lean_box(0);
 v___x_137_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_137_, 0, v___x_136_);
@@ -375,6 +367,14 @@ _start:
 {
 lean_object* v_res_147_; 
 v_res_147_ = l_Lean_Elab_WF_applyCleanWfTactic(v_a_138_, v_a_139_, v_a_140_, v_a_141_, v_a_142_, v_a_143_, v_a_144_, v_a_145_);
+lean_dec(v_a_145_);
+lean_dec_ref(v_a_144_);
+lean_dec(v_a_143_);
+lean_dec_ref(v_a_142_);
+lean_dec(v_a_141_);
+lean_dec_ref(v_a_140_);
+lean_dec(v_a_139_);
+lean_dec_ref(v_a_138_);
 return v_res_147_;
 }
 }

@@ -185,18 +185,17 @@ example : foo.default = (default, default) :=
 abbrev inferInstance {α : Sort u} [i : α] : α := i
 
 set_option checkBinderAnnotations false in
-/-- `inferInstanceAs α` synthesizes a value of any target type by typeclass
-inference. This is just like `inferInstance` except that `α` is given
-explicitly instead of being inferred from the target type. It is especially
-useful when the target type is some `α'` which is definitionally equal to `α`,
-but the instance we are looking for is only registered for `α` (because
-typeclass search does not unfold most definitions, but definitional equality
-does.) Example:
+/-- `inferInstanceAs α` synthesizes an instance of type `α` and normalizes it to
+"instance normal form": the result is a constructor application whose sub-instance fields
+are canonical instances and whose types match `α` exactly. This is useful when `α` is
+definitionally equal to some `α'` for which instances are registered, as it prevents
+leaking the definition's RHS at lower transparencies. See `Lean.Meta.InstanceNormalForm`
+for details. Example:
 ```
 #check inferInstanceAs (Inhabited Nat) -- Inhabited Nat
 ```
 -/
-abbrev inferInstanceAs (α : Sort u) [i : α] : α := i
+abbrev «inferInstanceAs» (α : Sort u) [i : α] : α := i
 
 
 
@@ -3004,7 +3003,7 @@ Examples:
  * `([] : List String).length = 0`
  * `["green", "brown"].length = 2`
 -/
-def List.length : List α → Nat
+@[implicit_reducible] def List.length : List α → Nat
   | nil       => 0
   | cons _ as => HAdd.hAdd (length as) 1
 
@@ -4083,7 +4082,7 @@ Actions in the resulting monad are functions that take the local value as a para
 ordinary actions in `m`.
 -/
 def ReaderT (ρ : Type u) (m : Type u → Type v) (α : Type u) : Type (max u v) :=
-  ρ → m α
+  (a : @&ρ) → m α
 
 /--
 Interpret `ρ → m α` as an element of `ReaderT ρ m α`.
@@ -4674,7 +4673,7 @@ inductive Name where
   /-- The "anonymous" name. -/
   | anonymous : Name
   /--
-  A string name. The name `Lean.Meta.run` is represented at
+  A string name. The name `Lean.Meta.run` is represented as
   ```lean
   .str (.str (.str .anonymous "Lean") "Meta") "run"
   ```

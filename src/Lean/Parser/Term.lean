@@ -774,6 +774,14 @@ In particular, it is like a unary operation with a fixed parameter `b`, where on
 @[builtin_term_parser] def noImplicitLambda := leading_parser
   "no_implicit_lambda% " >> termParser maxPrec
 /--
+`inferInstanceAs α` synthesizes an instance of type `α` and normalizes it to
+"instance normal form": the result is a constructor application whose sub-instance
+fields are canonical instances and whose types match `α` exactly. See
+`Lean.Meta.InstanceNormalForm` for details.
+-/
+@[builtin_term_parser] def «inferInstanceAs» := leading_parser
+  "inferInstanceAs" >> (((" $ " <|> " <| ") >> termParser minPrec) <|> (ppSpace >> termParser argPrec))
+/--
 `value_of% x` elaborates to the value of `x`, which can be a local or global definition.
 -/
 @[builtin_term_parser] def valueOf := leading_parser

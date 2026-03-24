@@ -463,10 +463,12 @@ public def Cache.saveArtifact
       IO.setAccessRights file ⟨r, r, r⟩
       unless (← cacheFile.pathExists) do
         createParentDirs cacheFile
-        IO.FS.writeFile cacheFile normalized
-        IO.setAccessRights cacheFile ⟨r, r, r⟩
+        -- other functions can race to create the file
+        -- use `writeFileIfNew` to prevent errors on races
+        writeFileIfNew cacheFile normalized
+      IO.setAccessRights cacheFile ⟨r, r, r⟩
       writeFileHash file hash
-      let mtime := (← getMTime cacheFile |>.toBaseIO).toOption.getD 0
+      let mtime ← getMTime cacheFile
       let path := if useLocalFile then file else cacheFile
       return {descr, name := file.toString, path, mtime}
     else
@@ -480,11 +482,14 @@ public def Cache.saveArtifact
       IO.setAccessRights file ⟨r, r, r⟩
       unless (← cacheFile.pathExists) do
         createParentDirs cacheFile
-        if let .error _ ← (IO.FS.hardLink file cacheFile).toBaseIO then
-          IO.FS.writeBinFile cacheFile contents
-          IO.setAccessRights cacheFile ⟨r, r, r⟩
+        if let .error e ← (IO.FS.hardLink file cacheFile).toBaseIO then
+          -- other functions can race to create the file
+          unless e matches .alreadyExists .. do
+            -- use `writeBinFileIfNew` to prevent errors on races
+            writeBinFileIfNew cacheFile contents
+      IO.setAccessRights cacheFile ⟨r, r, r⟩
       writeFileHash file hash
-      let mtime := (← getMTime cacheFile |>.toBaseIO).toOption.getD 0
+      let mtime ← getMTime cacheFile
       let path := if useLocalFile then file else cacheFile
       return {descr, name := file.toString, path, mtime}
   catch e =>

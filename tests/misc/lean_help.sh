@@ -1,2 +1,2 @@
-lean --help
-lean -h
+run lean --help
+run lean -h

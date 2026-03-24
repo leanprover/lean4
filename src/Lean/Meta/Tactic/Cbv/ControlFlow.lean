@@ -21,6 +21,8 @@ import Lean.Meta.Tactic.Cbv.TheoremsLookup
 import Lean.Meta.Tactic.Cbv.Opaque
 import Lean.Meta.Tactic.Cbv.CbvEvalExt
 import Lean.Compiler.NoncomputableAttr
+import Init.CbvSimproc
+import Lean.Meta.Tactic.Cbv.CbvSimproc
 
 /-!
 # Control Flow Handling for Cbv
@@ -81,7 +83,7 @@ def simpAndMatchIteDecidableCongr (f α c inst a b c' h inst' : Expr) (fallback 
 
 /-- Like `simpIte` but also evaluates `Decidable.decide` when the condition does not
 reduce to `True`/`False` directly. -/
-public def simpIteCbv : Simproc := fun e => do
+builtin_cbv_simproc ↓ simpIteCbv (@ite _ _ _ _ _) := fun e => do
   let numArgs := e.getAppNumArgs
   if numArgs < 5 then return .rfl (done := true)
   propagateOverApplied e (numArgs - 5) fun e => do
@@ -149,7 +151,7 @@ def simpAndMatchDIteDecidableCongr (f α c inst a b c' h inst' : Expr) (fallback
 
 /-- Like `simpDIte` but also evaluates `Decidable.decide` when the condition does not
 reduce to `True`/`False` directly. -/
-public def simpDIteCbv : Simproc := fun e => do
+builtin_cbv_simproc ↓ simpDIteCbv (@dite _ _ _ _ _) := fun e => do
   let numArgs := e.getAppNumArgs
   if numArgs < 5 then return .rfl (done := true)
   propagateOverApplied e (numArgs - 5) fun e => do
@@ -186,46 +188,6 @@ public def simpDIteCbv : Simproc := fun e => do
             let e' ← mkAppS₄ e' c' inst' a b
             let h' := mkApp3 (e.replaceFn ``Sym.dite_cond_congr) c' inst' h
             return .step e' h' (done := true)
-
-/-- Short-circuit evaluation of `Or`. Simplifies only the left argument;
-if it reduces to `True`, returns `True` immediately without evaluating the right side. -/
-public def simpOr : Simproc := fun e => do
-  let_expr Or a b := e | return .rfl
-  match (← simp a) with
-  | .rfl _ =>
-    if (← isTrueExpr a) then
-      return .step (← getTrueExpr) (mkApp (mkConst ``true_or) b) (done := true)
-    else if (← isFalseExpr a) then
-      return .step b (mkApp (mkConst ``false_or) b)
-    else
-      return .rfl
-  | .step a' ha _ =>
-    if (← isTrueExpr a') then
-      return .step (← getTrueExpr) (mkApp (e.replaceFn ``Sym.or_eq_true_left) ha) (done := true)
-    else if (← isFalseExpr a') then
-      return .step b (mkApp (e.replaceFn ``Sym.or_eq_right) ha)
-    else
-      return .rfl
-
-/-- Short-circuit evaluation of `And`. Simplifies only the left argument;
-if it reduces to `False`, returns `False` immediately without evaluating the right side. -/
-public def simpAnd : Simproc := fun e => do
-  let_expr And a b := e | return .rfl
-  match (← simp a) with
-  | .rfl _ =>
-    if (← isFalseExpr a) then
-      return .step (← getFalseExpr) (mkApp (mkConst ``false_and) b) (done := true)
-    else if (← isTrueExpr a) then
-      return .step b (mkApp (mkConst ``true_and) b)
-    else
-      return .rfl
-  | .step a' ha _ =>
-    if (← isFalseExpr a') then
-      return .step (← getFalseExpr) (mkApp (e.replaceFn ``Sym.and_eq_false_left) ha) (done := true)
-    else if (← isTrueExpr a') then
-      return .step b (mkApp (e.replaceFn ``Sym.and_eq_left) ha)
-    else
-      return .rfl
 
 /-- Reduce `decide` by matching the `Decidable` instance for `isTrue`/`isFalse`. -/
 def matchDecideDecidable (p inst instToMatch : Expr) (fallback : SimpM Result) : SimpM Result := do
@@ -264,7 +226,7 @@ corresponding boolean directly. Otherwise, simplifies the `Decidable` instance a
 on `isTrue`/`isFalse` to determine the boolean value. When `p` simplified to a new `p'`
 but the instance doesn't reduce to `isTrue`/`isFalse`, falls back to rebuilding
 `decide p'` with a congruence proof. -/
-public def simpDecideCbv : Simproc := fun e => do
+builtin_cbv_simproc ↓ simpDecideCbv (@Decidable.decide _ _) := fun e => do
   let numArgs := e.getAppNumArgs
   if numArgs < 2 then return .rfl (done := true)
   propagateOverApplied e (numArgs - 2) fun e => do
@@ -320,9 +282,7 @@ public def withCbvOpaqueGuard (x : MetaM α) : MetaM α := do
         else return false
   ) x
 
-def tryMatchEquations (appFn : Name) : Simproc := fun e => do
-  let thms ← getMatchTheorems appFn
-  thms.rewrite (d := dischargeNone) e
+builtin_cbv_simproc ↓ simpCbvCond (@cond _ _ _) := simpCond
 
 public def reduceRecMatcher : Simproc := fun e => do
   if let some e' ← withCbvOpaqueGuard <| reduceRecMatcher? e then
@@ -330,7 +290,16 @@ public def reduceRecMatcher : Simproc := fun e => do
   else
     return .rfl
 
-def tryMatcher : Simproc := fun e => do
+builtin_cbv_simproc ↓ simpDecidableRec (@Decidable.rec _ _ _ _ _) := 
+  (simpInterlaced · #[false,false,false,false,true]) >> reduceRecMatcher
+
+def tryMatchEquations (appFn : Name) : Simproc := fun e => do
+  let thms ← getMatchTheorems appFn
+  thms.rewrite (d := dischargeNone) e
+
+/-- Dispatch control flow constructs to their specialized simprocs.
+Precondition: `e` is an application. -/
+public def tryMatcher : Simproc := fun e => do
   unless e.isApp do
     return .rfl
   let some appFn := e.getAppFn.constName? | return .rfl
@@ -341,27 +310,5 @@ def tryMatcher : Simproc := fun e => do
     >> tryMatchEquations appFn
       <|> reduceRecMatcher
         <| e
-
-/-- Dispatch control flow constructs to their specialized simprocs.
-Precondition: `e` is an application. -/
-public def simpControlCbv : Simproc := fun e => do
-  let .const declName _ := e.getAppFn | return .rfl
-  if declName == ``ite then
-    simpIteCbv e
-  else if declName == ``cond then
-    simpCond e
-  else if declName == ``dite then
-    simpDIteCbv e
-  else if declName == ``Decidable.rec then
-    -- We force the rewrite in the last argument, so that we can unfold the `Decidable` instance.
-    (simpInterlaced · #[false,false,false,false,true]) >> reduceRecMatcher <| e
-  else if declName == ``Or then
-    simpOr e
-  else if declName == ``And then
-    simpAnd e
-  else if declName == ``Decidable.decide then
-    simpDecideCbv e
-  else
-    tryMatcher e
 
 end Lean.Meta.Tactic.Cbv

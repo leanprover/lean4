@@ -43,104 +43,79 @@ LEAN_EXPORT lean_object* runtime_initialize_Lake_Build(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Lake_Build_Actions(builtin)
-;
+res = runtime_initialize_Lake_Build_Actions(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lake_Build_Common(builtin)
-;
+res = runtime_initialize_Lake_Build_Common(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lake_Build_Context(builtin)
-;
+res = runtime_initialize_Lake_Build_Context(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lake_Build_Data(builtin)
-;
+res = runtime_initialize_Lake_Build_Data(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lake_Build_Executable(builtin)
-;
+res = runtime_initialize_Lake_Build_Executable(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lake_Build_ExternLib(builtin)
-;
+res = runtime_initialize_Lake_Build_ExternLib(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lake_Build_Facets(builtin)
-;
+res = runtime_initialize_Lake_Build_Facets(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lake_Build_Fetch(builtin)
-;
+res = runtime_initialize_Lake_Build_Fetch(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lake_Build_Index(builtin)
-;
+res = runtime_initialize_Lake_Build_Index(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lake_Build_Info(builtin)
-;
+res = runtime_initialize_Lake_Build_Info(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lake_Build_Infos(builtin)
-;
+res = runtime_initialize_Lake_Build_Infos(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lake_Build_InitFacets(builtin)
-;
+res = runtime_initialize_Lake_Build_InitFacets(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lake_Build_InputFile(builtin)
-;
+res = runtime_initialize_Lake_Build_InputFile(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lake_Build_Job(builtin)
-;
+res = runtime_initialize_Lake_Build_Job(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lake_Build_Key(builtin)
-;
+res = runtime_initialize_Lake_Build_Key(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lake_Build_Library(builtin)
-;
+res = runtime_initialize_Lake_Build_Library(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lake_Build_Module(builtin)
-;
+res = runtime_initialize_Lake_Build_Module(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lake_Build_ModuleArtifacts(builtin)
-;
+res = runtime_initialize_Lake_Build_ModuleArtifacts(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lake_Build_Package(builtin)
-;
+res = runtime_initialize_Lake_Build_Package(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lake_Build_Run(builtin)
-;
+res = runtime_initialize_Lake_Build_Run(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lake_Build_Store(builtin)
-;
+res = runtime_initialize_Lake_Build_Store(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lake_Build_Target(builtin)
-;
+res = runtime_initialize_Lake_Build_Target(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lake_Build_Targets(builtin)
-;
+res = runtime_initialize_Lake_Build_Targets(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lake_Build_Topological(builtin)
-;
+res = runtime_initialize_Lake_Build_Topological(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lake_Build_Trace(builtin)
-;
+res = runtime_initialize_Lake_Build_Trace(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -182,112 +157,85 @@ LEAN_EXPORT lean_object* initialize_Lake_Build(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lake_Build_Actions(builtin)
-;
+res = initialize_Lake_Build_Actions(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Build_Common(builtin)
-;
+res = initialize_Lake_Build_Common(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Build_Context(builtin)
-;
+res = initialize_Lake_Build_Context(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Build_Data(builtin)
-;
+res = initialize_Lake_Build_Data(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Build_Executable(builtin)
-;
+res = initialize_Lake_Build_Executable(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Build_ExternLib(builtin)
-;
+res = initialize_Lake_Build_ExternLib(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Build_Facets(builtin)
-;
+res = initialize_Lake_Build_Facets(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Build_Fetch(builtin)
-;
+res = initialize_Lake_Build_Fetch(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Build_Index(builtin)
-;
+res = initialize_Lake_Build_Index(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Build_Info(builtin)
-;
+res = initialize_Lake_Build_Info(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Build_Infos(builtin)
-;
+res = initialize_Lake_Build_Infos(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Build_InitFacets(builtin)
-;
+res = initialize_Lake_Build_InitFacets(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Build_InputFile(builtin)
-;
+res = initialize_Lake_Build_InputFile(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Build_Job(builtin)
-;
+res = initialize_Lake_Build_Job(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Build_Key(builtin)
-;
+res = initialize_Lake_Build_Key(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Build_Library(builtin)
-;
+res = initialize_Lake_Build_Library(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Build_Module(builtin)
-;
+res = initialize_Lake_Build_Module(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Build_ModuleArtifacts(builtin)
-;
+res = initialize_Lake_Build_ModuleArtifacts(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Build_Package(builtin)
-;
+res = initialize_Lake_Build_Package(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Build_Run(builtin)
-;
+res = initialize_Lake_Build_Run(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Build_Store(builtin)
-;
+res = initialize_Lake_Build_Store(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Build_Target(builtin)
-;
+res = initialize_Lake_Build_Target(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Build_Targets(builtin)
-;
+res = initialize_Lake_Build_Targets(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Build_Topological(builtin)
-;
+res = initialize_Lake_Build_Topological(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Build_Trace(builtin)
-;
+res = initialize_Lake_Build_Trace(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lake_Build(builtin)
-;
+res = runtime_initialize_Lake_Build(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_Lake_Build(builtin)
-;
+res = meta_initialize_Lake_Build(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_Lake_Build(builtin);

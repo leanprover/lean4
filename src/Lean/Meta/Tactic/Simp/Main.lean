@@ -434,7 +434,7 @@ but if `Config.letToHave` is enabled then we attempt to transform it into a `hav
 If that does not change it, then it is only `dsimp`ed.
 -/
 def simpLet (e : Expr) : SimpM Result := do
-  withTraceNode `Debug.Meta.Tactic.simp (return m!"{exceptEmoji ·} let{indentExpr e}") do
+  withTraceNode `Debug.Meta.Tactic.simp (fun _ => return m!"let{indentExpr e}") do
     assert! e.isLet
     /-
     Recall: `simpLet` is called after `reduceStep` is applied, so `simpLet` is not responsible for zeta reduction.

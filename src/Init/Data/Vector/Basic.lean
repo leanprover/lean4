@@ -278,7 +278,7 @@ def mapFinIdxM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m]
     (xs : Vector α n) (f : (i : Nat) → α → (h : i < n) → m β) : m (Vector β n) :=
   let rec @[specialize] map (i : Nat) (j : Nat) (inv : i + j = n) (ys : Vector β (n - i)) : m (Vector β n) := do
     match i, inv with
-    | 0,    _  => pure ys
+    | 0,   inv => return ys.cast (by omega)
     | i+1, inv =>
       have j_lt : j < n := by
         rw [← inv, Nat.add_assoc, Nat.add_comm 1 j, Nat.add_comm]

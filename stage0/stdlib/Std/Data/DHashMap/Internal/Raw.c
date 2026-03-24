@@ -20,12 +20,10 @@ LEAN_EXPORT lean_object* runtime_initialize_Std_Data_DHashMap_Internal_Raw(uint8
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Std_Data_DHashMap_Basic(builtin)
-;
+res = runtime_initialize_Std_Data_DHashMap_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Data_DHashMap_Basic(builtin)
-;
+res = runtime_initialize_Std_Data_DHashMap_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -44,20 +42,16 @@ LEAN_EXPORT lean_object* initialize_Std_Data_DHashMap_Internal_Raw(uint8_t built
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Std_Data_DHashMap_Basic(builtin)
-;
+res = initialize_Std_Data_DHashMap_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_DHashMap_Basic(builtin)
-;
+res = initialize_Std_Data_DHashMap_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Data_DHashMap_Internal_Raw(builtin)
-;
+res = runtime_initialize_Std_Data_DHashMap_Internal_Raw(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_Std_Data_DHashMap_Internal_Raw(builtin)
-;
+res = meta_initialize_Std_Data_DHashMap_Internal_Raw(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_Std_Data_DHashMap_Internal_Raw(builtin);

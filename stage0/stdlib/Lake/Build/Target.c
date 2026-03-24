@@ -20,12 +20,10 @@ LEAN_EXPORT lean_object* runtime_initialize_Lake_Build_Target(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Lake_Build_Target_Basic(builtin)
-;
+res = runtime_initialize_Lake_Build_Target_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lake_Build_Target_Fetch(builtin)
-;
+res = runtime_initialize_Lake_Build_Target_Fetch(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -44,20 +42,16 @@ LEAN_EXPORT lean_object* initialize_Lake_Build_Target(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lake_Build_Target_Basic(builtin)
-;
+res = initialize_Lake_Build_Target_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Build_Target_Fetch(builtin)
-;
+res = initialize_Lake_Build_Target_Fetch(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lake_Build_Target(builtin)
-;
+res = runtime_initialize_Lake_Build_Target(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_Lake_Build_Target(builtin)
-;
+res = meta_initialize_Lake_Build_Target(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_Lake_Build_Target(builtin);

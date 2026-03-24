@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Data.Json
 public import Lake.Util.Date
+public import Init.Control.Do
 import Init.Data.String.TakeDrop
 import Lean.Data.Trie
 import Init.Data.String.Search

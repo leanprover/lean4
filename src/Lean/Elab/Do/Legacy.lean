@@ -722,7 +722,7 @@ def getDoLetRecVars (doLetRec : Syntax) : TermElabM (Array Var) := do
 def getDoIdDeclVar (doIdDecl : Syntax) : Var :=
   doIdDecl[0]
 
--- termParser >> leftArrow >> termParser >> optional (" | " >> termParser)
+-- termParser >> optType >> leftArrow >> termParser >> optional (" | " >> termParser)
 def getDoPatDeclVars (doPatDecl : Syntax) : TermElabM (Array Var) := do
   let pattern := doPatDecl[0]
   getPatternVarsEx pattern
@@ -1420,7 +1420,7 @@ mutual
      where
      ```
      def doIdDecl   := leading_parser ident >> optType >> leftArrow >> doElemParser
-     def doPatDecl  := leading_parser termParser >> leftArrow >> doElemParser >> optional ((" | " >> doSeq) >> optional doSeq)
+     def doPatDecl  := leading_parser termParser >> optType >> leftArrow >> doElemParser >> optional ((" | " >> doSeq) >> optional doSeq)
      ```
   -/
   partial def doLetArrowToCode (doLetArrow : Syntax) (doElems : List Syntax) : M CodeBlock := do
@@ -1440,13 +1440,21 @@ mutual
         | kRef::_  => concat c kRef y k
     else if decl.getKind == ``Parser.Term.doPatDecl then
       let pattern := decl[0]
-      let doElem  := decl[2]
-      let optElse := decl[3]
+      let optType := decl[1]
+      let doElem  := decl[3]
+      let optElse := decl[4]
       if optElse.isNone then withFreshMacroScope do
-        let auxDo ← if isMutableLet doLetArrow then
-          `(do let%$doLetArrow __discr ← $doElem; let%$doLetArrow mut $pattern:term := __discr)
+        let auxDo ← if optType.isNone then
+          if isMutableLet doLetArrow then
+            `(do let%$doLetArrow __discr ← $doElem; let%$doLetArrow mut $pattern:term := __discr)
+          else
+            `(do let%$doLetArrow __discr ← $doElem; let%$doLetArrow $pattern:term := __discr)
         else
-          `(do let%$doLetArrow __discr ← $doElem; let%$doLetArrow $pattern:term := __discr)
+          let ty := optType[0][1]
+          if isMutableLet doLetArrow then
+            `(do let%$doLetArrow __discr : $ty ← $doElem; let%$doLetArrow mut $pattern:term := __discr)
+          else
+            `(do let%$doLetArrow __discr : $ty ← $doElem; let%$doLetArrow $pattern:term := __discr)
         doSeqToCode <| getDoSeqElems (getDoSeq auxDo) ++ doElems
       else
         let elseSeq := optElse[1]
@@ -1457,7 +1465,11 @@ mutual
         else
           pure (getDoSeqElems contSeq).toArray
         let contSeq := mkDoSeq contSeq
-        let auxDo ← `(do let%$doLetArrow __discr ← $doElem; match%$doLetArrow __discr with | $pattern:term => $contSeq | _ => $elseSeq)
+        let auxDo ← if optType.isNone then
+          `(do let%$doLetArrow __discr ← $doElem; match%$doLetArrow __discr with | $pattern:term => $contSeq | _ => $elseSeq)
+        else
+          let ty := optType[0][1]
+          `(do let%$doLetArrow __discr : $ty ← $doElem; match%$doLetArrow __discr with | $pattern:term => $contSeq | _ => $elseSeq)
         doSeqToCode <| getDoSeqElems (getDoSeq auxDo) ++ doElems
     else
       throwError "unexpected kind of `do` declaration"
@@ -1492,10 +1504,15 @@ mutual
       doSeqToCode <| getDoSeqElems (getDoSeq auxDo) ++ doElems
     else if decl.getKind == ``Parser.Term.doPatDecl then
       let pattern := decl[0]
-      let doElem  := decl[2]
-      let optElse := decl[3]
+      let optType := decl[1]
+      let doElem  := decl[3]
+      let optElse := decl[4]
       if optElse.isNone then withFreshMacroScope do
-        let auxDo ← `(do let __discr ← $doElem; $pattern:term := __discr)
+        let auxDo ← if optType.isNone then
+          `(do let __discr ← $doElem; $pattern:term := __discr)
+        else
+          let ty := optType[0][1]
+          `(do let __discr : $ty ← $doElem; $pattern:term := __discr)
         doSeqToCode <| getDoSeqElems (getDoSeq auxDo) ++ doElems
       else
         throwError "reassignment with `|` (i.e., \"else clause\") is not currently supported"

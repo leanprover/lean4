@@ -34,68 +34,52 @@ LEAN_EXPORT lean_object* runtime_initialize_Lean_Data_Lsp(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Lean_Data_Lsp_Basic(builtin)
-;
+res = runtime_initialize_Lean_Data_Lsp_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Data_Lsp_CancelParams(builtin)
-;
+res = runtime_initialize_Lean_Data_Lsp_CancelParams(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Data_Lsp_Capabilities(builtin)
-;
+res = runtime_initialize_Lean_Data_Lsp_Capabilities(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Data_Lsp_Client(builtin)
-;
+res = runtime_initialize_Lean_Data_Lsp_Client(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Data_Lsp_Communication(builtin)
-;
+res = runtime_initialize_Lean_Data_Lsp_Communication(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Data_Lsp_Diagnostics(builtin)
-;
+res = runtime_initialize_Lean_Data_Lsp_Diagnostics(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Data_Lsp_Extra(builtin)
-;
+res = runtime_initialize_Lean_Data_Lsp_Extra(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Data_Lsp_InitShutdown(builtin)
-;
+res = runtime_initialize_Lean_Data_Lsp_InitShutdown(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Data_Lsp_Internal(builtin)
-;
+res = runtime_initialize_Lean_Data_Lsp_Internal(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Data_Lsp_LanguageFeatures(builtin)
-;
+res = runtime_initialize_Lean_Data_Lsp_LanguageFeatures(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Data_Lsp_TextSync(builtin)
-;
+res = runtime_initialize_Lean_Data_Lsp_TextSync(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Data_Lsp_Utf16(builtin)
-;
+res = runtime_initialize_Lean_Data_Lsp_Utf16(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Data_Lsp_Workspace(builtin)
-;
+res = runtime_initialize_Lean_Data_Lsp_Workspace(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Data_Lsp_Ipc(builtin)
-;
+res = runtime_initialize_Lean_Data_Lsp_Ipc(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Data_Lsp_CodeActions(builtin)
-;
+res = runtime_initialize_Lean_Data_Lsp_CodeActions(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Data_Lsp_Window(builtin)
-;
+res = runtime_initialize_Lean_Data_Lsp_Window(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -128,76 +112,58 @@ LEAN_EXPORT lean_object* initialize_Lean_Data_Lsp(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Data_Lsp_Basic(builtin)
-;
+res = initialize_Lean_Data_Lsp_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Data_Lsp_CancelParams(builtin)
-;
+res = initialize_Lean_Data_Lsp_CancelParams(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Data_Lsp_Capabilities(builtin)
-;
+res = initialize_Lean_Data_Lsp_Capabilities(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Data_Lsp_Client(builtin)
-;
+res = initialize_Lean_Data_Lsp_Client(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Data_Lsp_Communication(builtin)
-;
+res = initialize_Lean_Data_Lsp_Communication(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Data_Lsp_Diagnostics(builtin)
-;
+res = initialize_Lean_Data_Lsp_Diagnostics(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Data_Lsp_Extra(builtin)
-;
+res = initialize_Lean_Data_Lsp_Extra(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Data_Lsp_InitShutdown(builtin)
-;
+res = initialize_Lean_Data_Lsp_InitShutdown(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Data_Lsp_Internal(builtin)
-;
+res = initialize_Lean_Data_Lsp_Internal(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Data_Lsp_LanguageFeatures(builtin)
-;
+res = initialize_Lean_Data_Lsp_LanguageFeatures(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Data_Lsp_TextSync(builtin)
-;
+res = initialize_Lean_Data_Lsp_TextSync(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Data_Lsp_Utf16(builtin)
-;
+res = initialize_Lean_Data_Lsp_Utf16(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Data_Lsp_Workspace(builtin)
-;
+res = initialize_Lean_Data_Lsp_Workspace(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Data_Lsp_Ipc(builtin)
-;
+res = initialize_Lean_Data_Lsp_Ipc(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Data_Lsp_CodeActions(builtin)
-;
+res = initialize_Lean_Data_Lsp_CodeActions(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Data_Lsp_Window(builtin)
-;
+res = initialize_Lean_Data_Lsp_Window(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Data_Lsp(builtin)
-;
+res = runtime_initialize_Lean_Data_Lsp(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_Lean_Data_Lsp(builtin)
-;
+res = meta_initialize_Lean_Data_Lsp(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_Lean_Data_Lsp(builtin);

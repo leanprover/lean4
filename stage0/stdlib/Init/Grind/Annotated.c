@@ -13,6 +13,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* l_Lean_Name_mkStr1(lean_object*);
+lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 static const lean_string_object l_Lean_Parser_Command_grindAnnotated___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 5, .m_capacity = 5, .m_length = 4, .m_data = "Lean"};
 static const lean_object* l_Lean_Parser_Command_grindAnnotated___closed__0 = (const lean_object*)&l_Lean_Parser_Command_grindAnnotated___closed__0_value;
 static const lean_string_object l_Lean_Parser_Command_grindAnnotated___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 7, .m_capacity = 7, .m_length = 6, .m_data = "Parser"};
@@ -21,7 +23,6 @@ static const lean_string_object l_Lean_Parser_Command_grindAnnotated___closed__2
 static const lean_object* l_Lean_Parser_Command_grindAnnotated___closed__2 = (const lean_object*)&l_Lean_Parser_Command_grindAnnotated___closed__2_value;
 static const lean_string_object l_Lean_Parser_Command_grindAnnotated___closed__3_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 15, .m_capacity = 15, .m_length = 14, .m_data = "grindAnnotated"};
 static const lean_object* l_Lean_Parser_Command_grindAnnotated___closed__3 = (const lean_object*)&l_Lean_Parser_Command_grindAnnotated___closed__3_value;
-lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 static const lean_ctor_object l_Lean_Parser_Command_grindAnnotated___closed__4_value_aux_0 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_Lean_Parser_Command_grindAnnotated___closed__0_value),LEAN_SCALAR_PTR_LITERAL(70, 193, 83, 126, 233, 67, 208, 165)}};
 static const lean_ctor_object l_Lean_Parser_Command_grindAnnotated___closed__4_value_aux_1 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_Lean_Parser_Command_grindAnnotated___closed__4_value_aux_0),((lean_object*)&l_Lean_Parser_Command_grindAnnotated___closed__1_value),LEAN_SCALAR_PTR_LITERAL(103, 136, 125, 166, 167, 98, 71, 111)}};
 static const lean_ctor_object l_Lean_Parser_Command_grindAnnotated___closed__4_value_aux_2 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_Lean_Parser_Command_grindAnnotated___closed__4_value_aux_1),((lean_object*)&l_Lean_Parser_Command_grindAnnotated___closed__2_value),LEAN_SCALAR_PTR_LITERAL(214, 208, 105, 11, 221, 56, 173, 240)}};
@@ -29,7 +30,6 @@ static const lean_ctor_object l_Lean_Parser_Command_grindAnnotated___closed__4_v
 static const lean_object* l_Lean_Parser_Command_grindAnnotated___closed__4 = (const lean_object*)&l_Lean_Parser_Command_grindAnnotated___closed__4_value;
 static const lean_string_object l_Lean_Parser_Command_grindAnnotated___closed__5_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 8, .m_capacity = 8, .m_length = 7, .m_data = "andthen"};
 static const lean_object* l_Lean_Parser_Command_grindAnnotated___closed__5 = (const lean_object*)&l_Lean_Parser_Command_grindAnnotated___closed__5_value;
-lean_object* l_Lean_Name_mkStr1(lean_object*);
 static const lean_ctor_object l_Lean_Parser_Command_grindAnnotated___closed__6_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_Lean_Parser_Command_grindAnnotated___closed__5_value),LEAN_SCALAR_PTR_LITERAL(40, 255, 78, 30, 143, 119, 117, 174)}};
 static const lean_object* l_Lean_Parser_Command_grindAnnotated___closed__6 = (const lean_object*)&l_Lean_Parser_Command_grindAnnotated___closed__6_value;
 static const lean_string_object l_Lean_Parser_Command_grindAnnotated___closed__7_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 16, .m_capacity = 16, .m_length = 15, .m_data = "grind_annotated"};
@@ -53,8 +53,7 @@ LEAN_EXPORT lean_object* runtime_initialize_Init_Grind_Annotated(uint8_t builtin
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Init_Notation(builtin)
-;
+res = runtime_initialize_Init_Notation(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -72,16 +71,13 @@ LEAN_EXPORT lean_object* initialize_Init_Grind_Annotated(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Notation(builtin)
-;
+res = initialize_Init_Notation(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Grind_Annotated(builtin)
-;
+res = runtime_initialize_Init_Grind_Annotated(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_Init_Grind_Annotated(builtin)
-;
+res = meta_initialize_Init_Grind_Annotated(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_Init_Grind_Annotated(builtin);

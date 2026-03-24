@@ -25,32 +25,25 @@ LEAN_EXPORT lean_object* runtime_initialize_Init_GrindInstances_Ring(uint8_t bui
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Init_GrindInstances_Ring_Nat(builtin)
-;
+res = runtime_initialize_Init_GrindInstances_Ring_Nat(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_GrindInstances_Ring_Int(builtin)
-;
+res = runtime_initialize_Init_GrindInstances_Ring_Int(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_GrindInstances_Ring_UInt(builtin)
-;
+res = runtime_initialize_Init_GrindInstances_Ring_UInt(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_GrindInstances_Ring_SInt(builtin)
-;
+res = runtime_initialize_Init_GrindInstances_Ring_SInt(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_GrindInstances_Ring_Fin(builtin)
-;
+res = runtime_initialize_Init_GrindInstances_Ring_Fin(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_GrindInstances_Ring_BitVec(builtin)
-;
+res = runtime_initialize_Init_GrindInstances_Ring_BitVec(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_GrindInstances_Ring_Rat(builtin)
-;
+res = runtime_initialize_Init_GrindInstances_Ring_Rat(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -74,40 +67,31 @@ LEAN_EXPORT lean_object* initialize_Init_GrindInstances_Ring(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_GrindInstances_Ring_Nat(builtin)
-;
+res = initialize_Init_GrindInstances_Ring_Nat(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_GrindInstances_Ring_Int(builtin)
-;
+res = initialize_Init_GrindInstances_Ring_Int(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_GrindInstances_Ring_UInt(builtin)
-;
+res = initialize_Init_GrindInstances_Ring_UInt(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_GrindInstances_Ring_SInt(builtin)
-;
+res = initialize_Init_GrindInstances_Ring_SInt(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_GrindInstances_Ring_Fin(builtin)
-;
+res = initialize_Init_GrindInstances_Ring_Fin(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_GrindInstances_Ring_BitVec(builtin)
-;
+res = initialize_Init_GrindInstances_Ring_BitVec(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_GrindInstances_Ring_Rat(builtin)
-;
+res = initialize_Init_GrindInstances_Ring_Rat(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_GrindInstances_Ring(builtin)
-;
+res = runtime_initialize_Init_GrindInstances_Ring(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_Init_GrindInstances_Ring(builtin)
-;
+res = meta_initialize_Init_GrindInstances_Ring(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_Init_GrindInstances_Ring(builtin);

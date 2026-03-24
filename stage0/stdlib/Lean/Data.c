@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data
-// Imports: public import Lean.Data.AssocList public import Lean.Data.Format public import Lean.Data.Json public import Lean.Data.JsonRpc public import Lean.Data.KVMap public import Lean.Data.LBool public import Lean.Data.LOption public import Lean.Data.Lsp public import Lean.Data.Name public import Lean.Data.NameMap public import Lean.Data.OpenDecl public import Lean.Data.Options public import Lean.Data.PersistentArray public import Lean.Data.PersistentHashMap public import Lean.Data.PersistentHashSet public import Lean.Data.Position public import Lean.Data.PrefixTree public import Lean.Data.SMap public import Lean.Data.Trie public import Lean.Data.NameTrie public import Lean.Data.RBTree public import Lean.Data.RBMap public import Lean.Data.RArray
+// Imports: public import Lean.Data.AssocList public import Lean.Data.Format public import Lean.Data.Json public import Lean.Data.JsonRpc public import Lean.Data.KVMap public import Lean.Data.LBool public import Lean.Data.LOption public import Lean.Data.Lsp public import Lean.Data.Name public import Lean.Data.NameMap public import Lean.Data.OpenDecl public import Lean.Data.Options public import Lean.Data.PersistentArray public import Lean.Data.PersistentHashMap public import Lean.Data.PersistentHashSet public import Lean.Data.Position public import Lean.Data.PrefixTree public import Lean.Data.SMap public import Lean.Data.Trie public import Lean.Data.NameTrie public import Lean.Data.RBTree public import Lean.Data.RBMap public import Lean.Data.RArray public import Lean.Data.Iterators
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -36,101 +36,82 @@ lean_object* runtime_initialize_Lean_Data_NameTrie(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Data_RBTree(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Data_RBMap(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Data_RArray(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Data_Iterators(uint8_t builtin);
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Data(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Lean_Data_AssocList(builtin)
-;
+res = runtime_initialize_Lean_Data_AssocList(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Data_Format(builtin)
-;
+res = runtime_initialize_Lean_Data_Format(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Data_Json(builtin)
-;
+res = runtime_initialize_Lean_Data_Json(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Data_JsonRpc(builtin)
-;
+res = runtime_initialize_Lean_Data_JsonRpc(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Data_KVMap(builtin)
-;
+res = runtime_initialize_Lean_Data_KVMap(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Data_LBool(builtin)
-;
+res = runtime_initialize_Lean_Data_LBool(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Data_LOption(builtin)
-;
+res = runtime_initialize_Lean_Data_LOption(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Data_Lsp(builtin)
-;
+res = runtime_initialize_Lean_Data_Lsp(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Data_Name(builtin)
-;
+res = runtime_initialize_Lean_Data_Name(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Data_NameMap(builtin)
-;
+res = runtime_initialize_Lean_Data_NameMap(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Data_OpenDecl(builtin)
-;
+res = runtime_initialize_Lean_Data_OpenDecl(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Data_Options(builtin)
-;
+res = runtime_initialize_Lean_Data_Options(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Data_PersistentArray(builtin)
-;
+res = runtime_initialize_Lean_Data_PersistentArray(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Data_PersistentHashMap(builtin)
-;
+res = runtime_initialize_Lean_Data_PersistentHashMap(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Data_PersistentHashSet(builtin)
-;
+res = runtime_initialize_Lean_Data_PersistentHashSet(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Data_Position(builtin)
-;
+res = runtime_initialize_Lean_Data_Position(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Data_PrefixTree(builtin)
-;
+res = runtime_initialize_Lean_Data_PrefixTree(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Data_SMap(builtin)
-;
+res = runtime_initialize_Lean_Data_SMap(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Data_Trie(builtin)
-;
+res = runtime_initialize_Lean_Data_Trie(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Data_NameTrie(builtin)
-;
+res = runtime_initialize_Lean_Data_NameTrie(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Data_RBTree(builtin)
-;
+res = runtime_initialize_Lean_Data_RBTree(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Data_RBMap(builtin)
-;
+res = runtime_initialize_Lean_Data_RBMap(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Data_RArray(builtin)
-;
+res = runtime_initialize_Lean_Data_RArray(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Data_Iterators(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -165,109 +146,88 @@ lean_object* initialize_Lean_Data_NameTrie(uint8_t builtin);
 lean_object* initialize_Lean_Data_RBTree(uint8_t builtin);
 lean_object* initialize_Lean_Data_RBMap(uint8_t builtin);
 lean_object* initialize_Lean_Data_RArray(uint8_t builtin);
+lean_object* initialize_Lean_Data_Iterators(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Data(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Data_AssocList(builtin)
-;
+res = initialize_Lean_Data_AssocList(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Data_Format(builtin)
-;
+res = initialize_Lean_Data_Format(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Data_Json(builtin)
-;
+res = initialize_Lean_Data_Json(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Data_JsonRpc(builtin)
-;
+res = initialize_Lean_Data_JsonRpc(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Data_KVMap(builtin)
-;
+res = initialize_Lean_Data_KVMap(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Data_LBool(builtin)
-;
+res = initialize_Lean_Data_LBool(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Data_LOption(builtin)
-;
+res = initialize_Lean_Data_LOption(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Data_Lsp(builtin)
-;
+res = initialize_Lean_Data_Lsp(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Data_Name(builtin)
-;
+res = initialize_Lean_Data_Name(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Data_NameMap(builtin)
-;
+res = initialize_Lean_Data_NameMap(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Data_OpenDecl(builtin)
-;
+res = initialize_Lean_Data_OpenDecl(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Data_Options(builtin)
-;
+res = initialize_Lean_Data_Options(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Data_PersistentArray(builtin)
-;
+res = initialize_Lean_Data_PersistentArray(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Data_PersistentHashMap(builtin)
-;
+res = initialize_Lean_Data_PersistentHashMap(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Data_PersistentHashSet(builtin)
-;
+res = initialize_Lean_Data_PersistentHashSet(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Data_Position(builtin)
-;
+res = initialize_Lean_Data_Position(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Data_PrefixTree(builtin)
-;
+res = initialize_Lean_Data_PrefixTree(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Data_SMap(builtin)
-;
+res = initialize_Lean_Data_SMap(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Data_Trie(builtin)
-;
+res = initialize_Lean_Data_Trie(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Data_NameTrie(builtin)
-;
+res = initialize_Lean_Data_NameTrie(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Data_RBTree(builtin)
-;
+res = initialize_Lean_Data_RBTree(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Data_RBMap(builtin)
-;
+res = initialize_Lean_Data_RBMap(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Data_RArray(builtin)
-;
+res = initialize_Lean_Data_RArray(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Data(builtin)
-;
+res = initialize_Lean_Data_Iterators(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_Lean_Data(builtin)
-;
+res = runtime_initialize_Lean_Data(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Lean_Data(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_Lean_Data(builtin);

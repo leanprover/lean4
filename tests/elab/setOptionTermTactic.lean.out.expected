@@ -1,5 +1,5 @@
 [Meta.synthInstance] 💥️ OfNat ?m 1
-  [Meta.synthInstance] new goal OfNat ?m 1
+  [Meta.synthInstance] ✅️ new goal OfNat ?m 1
     [Meta.synthInstance.instances] #[@Lean.Grind.Semiring.ofNat, @One.toOfNat1, @Int16.instOfNat, @UInt64.instOfNat, @Rat.instOfNat, @Int8.instOfNat, @instOfNatFloat, @BitVec.instOfNat, Dyadic.instOfNat, @Int64.instOfNat, @instOfNat, @Id.instOfNat, @UInt16.instOfNat, instOfNatNat, @UInt32.instOfNat, @UInt8.instOfNat, @Fin.instOfNat, @ISize.instOfNat, @instOfNatFloat32, @Int32.instOfNat, @USize.instOfNat, @Lean.Grind.CommRing.OfCommSemiring.instOfNatQ]
   [Meta.synthInstance.apply] 💥️ apply @Lean.Grind.CommRing.OfCommSemiring.instOfNatQ to OfNat ?m 1
     [Meta.synthInstance.tryResolve] 💥️ OfNat ?m 1 ≟ OfNat (Lean.Grind.Ring.OfSemiring.Q ?m) ?m

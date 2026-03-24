@@ -341,8 +341,7 @@ private def mkFun (constName : Name) : MetaM (Expr × Expr) := do
 
 private def withAppBuilderTrace [ToMessageData α] [ToMessageData β]
     (f : α) (xs : β) (k : MetaM Expr) : MetaM Expr :=
-  let emoji | .ok .. => checkEmoji | .error .. => crossEmoji
-  withTraceNode `Meta.appBuilder (return m!"{emoji ·} f: {f}, xs: {xs}") do
+  withTraceNode `Meta.appBuilder (fun _ => return m!"f: {f}, xs: {xs}") do
     try
       let res ← k
       trace[Meta.appBuilder.result] res

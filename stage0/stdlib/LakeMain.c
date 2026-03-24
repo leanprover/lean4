@@ -16,23 +16,23 @@ extern "C" {
 uint32_t l_Lake_cli(lean_object*);
 LEAN_EXPORT lean_object* _lean_main(lean_object*);
 LEAN_EXPORT lean_object* l_main___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* _lean_main(lean_object* x_1) {
+LEAN_EXPORT lean_object* _lean_main(lean_object* v_args_1_){
 _start:
 {
-uint32_t x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = l_Lake_cli(x_1);
-x_4 = lean_box_uint32(x_3);
-x_5 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_5, 0, x_4);
-return x_5;
+uint32_t v___x_3_; lean_object* v___x_4_; lean_object* v___x_5_; 
+v___x_3_ = l_Lake_cli(v_args_1_);
+v___x_4_ = lean_box_uint32(v___x_3_);
+v___x_5_ = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(v___x_5_, 0, v___x_4_);
+return v___x_5_;
 }
 }
-LEAN_EXPORT lean_object* l_main___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_main___boxed(lean_object* v_args_6_, lean_object* v_a_7_){
 _start:
 {
-lean_object* x_3; 
-x_3 = _lean_main(x_1);
-return x_3;
+lean_object* v_res_8_; 
+v_res_8_ = _lean_main(v_args_6_);
+return v_res_8_;
 }
 }
 lean_object* runtime_initialize_Init_System_IO(uint8_t builtin);
@@ -43,16 +43,13 @@ LEAN_EXPORT lean_object* runtime_initialize_LakeMain(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Init_System_IO(builtin)
-;
+res = runtime_initialize_Init_System_IO(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lake_DSL(builtin)
-;
+res = runtime_initialize_Lake_DSL(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lake_CLI_Main(builtin)
-;
+res = runtime_initialize_Lake_CLI_Main(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -72,70 +69,61 @@ LEAN_EXPORT lean_object* initialize_LakeMain(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_System_IO(builtin)
-;
+res = initialize_Init_System_IO(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_DSL(builtin)
-;
+res = initialize_Lake_DSL(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_CLI_Main(builtin)
-;
+res = initialize_Lake_CLI_Main(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_LakeMain(builtin)
-;
+res = runtime_initialize_LakeMain(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_LakeMain(builtin)
-;
+res = meta_initialize_LakeMain(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_LakeMain(builtin);
 }
 char ** lean_setup_args(int argc, char ** argv);
 void lean_initialize();
-
-  #if defined(WIN32) || defined(_WIN32)
-  #include <windows.h>
-  #endif
-
-  int main(int argc, char ** argv) {
-  #if defined(WIN32) || defined(_WIN32)
+#if defined(WIN32) || defined(_WIN32)
+#include <windows.h>
+#endif
+int main(int argc, char ** argv) {
+#if defined(WIN32) || defined(_WIN32)
   SetErrorMode(SEM_FAILCRITICALERRORS);
   SetConsoleOutputCP(CP_UTF8);
-  #endif
+#endif
   lean_object* in; lean_object* res;
-argv = lean_setup_args(argc, argv);
-lean_initialize();
-lean_set_panic_messages(false);
-res = runtime_initialize_LakeMain(1 /* builtin */);
-lean_set_panic_messages(true);
-lean_io_mark_end_initialization();
-if (lean_io_result_is_ok(res)) {
-lean_dec_ref(res);
-lean_init_task_manager();
-in = lean_box(0);
-int i = argc;
-while (i > 1) {
- lean_object* n;
- i--;
- n = lean_alloc_ctor(1,2,0); lean_ctor_set(n, 0, lean_mk_string(argv[i])); lean_ctor_set(n, 1, in);
- in = n;
-}
-res = _lean_main(in);
-}
-lean_finalize_task_manager();
-if (lean_io_result_is_ok(res)) {
-  int ret = lean_unbox_uint32(lean_io_result_get_value(res));
-  lean_dec_ref(res);
-  return ret;
-} else {
-  lean_io_result_show_error(res);
-  lean_dec_ref(res);
-  return 1;
-}
+  argv = lean_setup_args(argc, argv);
+  lean_initialize();
+  res = runtime_initialize_LakeMain(1 /* builtin */);
+  lean_io_mark_end_initialization();
+  if (lean_io_result_is_ok(res)) {
+    lean_dec_ref(res);
+    lean_init_task_manager();
+    in = lean_box(0);
+    int i = argc;
+    while (i > 1) {
+      lean_object* n;
+      i--;
+      n = lean_alloc_ctor(1,2,0); lean_ctor_set(n, 0, lean_mk_string(argv[i])); lean_ctor_set(n, 1, in);
+      in = n;
+    }
+    res = _lean_main(in);
+  }
+  lean_finalize_task_manager();
+  if (lean_io_result_is_ok(res)) {
+    int ret = lean_unbox_uint32(lean_io_result_get_value(res));
+    lean_dec_ref(res);
+    return ret;
+  } else {
+    lean_io_result_show_error(res);
+    lean_dec_ref(res);
+    return 1;
+  }
 }
 #ifdef __cplusplus
 }

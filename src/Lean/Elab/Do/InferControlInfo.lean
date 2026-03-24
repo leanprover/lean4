@@ -184,7 +184,7 @@ partial def ofLetOrReassignArrow (reassignment : Bool) (decl : TSyntax [``doIdDe
   | `(doIdDecl| $x:ident $[: $_]? ← $rhs) =>
     let reassigns := if reassignment then #[x] else #[]
     ofLetOrReassign reassigns rhs none none
-  | `(doPatDecl| $pattern ← $rhs $[| $otherwise? $[$body??]?]?) =>
+  | `(doPatDecl| $pattern $[: $_]? ← $rhs $[| $otherwise? $[$body??]?]?) =>
     let reassigns ← if reassignment then getPatternVarsEx pattern else pure #[]
     ofLetOrReassign reassigns rhs otherwise? body??.join
   | _ => throwError "Not a let or reassignment declaration: {toString decl}"

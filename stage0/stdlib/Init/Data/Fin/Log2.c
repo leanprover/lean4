@@ -18,39 +18,39 @@ LEAN_EXPORT lean_object* l_Fin_log2___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Fin_log2___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Fin_log2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_log2___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Fin_log2___redArg(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Fin_log2___redArg(lean_object* v_n_1_){
 _start:
 {
-lean_object* x_2; 
-x_2 = lean_nat_log2(x_1);
-return x_2;
+lean_object* v___x_2_; 
+v___x_2_ = lean_nat_log2(v_n_1_);
+return v___x_2_;
 }
 }
-LEAN_EXPORT lean_object* l_Fin_log2___redArg___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Fin_log2___redArg___boxed(lean_object* v_n_3_){
 _start:
 {
-lean_object* x_2; 
-x_2 = l_Fin_log2___redArg(x_1);
-lean_dec(x_1);
-return x_2;
+lean_object* v_res_4_; 
+v_res_4_ = l_Fin_log2___redArg(v_n_3_);
+lean_dec(v_n_3_);
+return v_res_4_;
 }
 }
-LEAN_EXPORT lean_object* l_Fin_log2(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Fin_log2(lean_object* v_m_5_, lean_object* v_n_6_){
 _start:
 {
-lean_object* x_3; 
-x_3 = lean_nat_log2(x_2);
-return x_3;
+lean_object* v___x_7_; 
+v___x_7_ = lean_nat_log2(v_n_6_);
+return v___x_7_;
 }
 }
-LEAN_EXPORT lean_object* l_Fin_log2___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Fin_log2___boxed(lean_object* v_m_8_, lean_object* v_n_9_){
 _start:
 {
-lean_object* x_3; 
-x_3 = l_Fin_log2(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
-return x_3;
+lean_object* v_res_10_; 
+v_res_10_ = l_Fin_log2(v_m_8_, v_n_9_);
+lean_dec(v_n_9_);
+lean_dec(v_m_8_);
+return v_res_10_;
 }
 }
 lean_object* runtime_initialize_Init_Prelude(uint8_t builtin);
@@ -60,12 +60,10 @@ LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Fin_Log2(uint8_t builtin) 
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Init_Prelude(builtin)
-;
+res = runtime_initialize_Init_Prelude(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Nat_Log2(builtin)
-;
+res = runtime_initialize_Init_Data_Nat_Log2(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -84,20 +82,16 @@ LEAN_EXPORT lean_object* initialize_Init_Data_Fin_Log2(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Prelude(builtin)
-;
+res = initialize_Init_Prelude(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Log2(builtin)
-;
+res = initialize_Init_Data_Nat_Log2(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Fin_Log2(builtin)
-;
+res = runtime_initialize_Init_Data_Fin_Log2(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_Init_Data_Fin_Log2(builtin)
-;
+res = meta_initialize_Init_Data_Fin_Log2(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_Init_Data_Fin_Log2(builtin);

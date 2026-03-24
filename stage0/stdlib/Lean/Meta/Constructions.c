@@ -25,32 +25,25 @@ LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_Constructions(uint8_t buil
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Lean_Meta_Constructions_CasesOn(builtin)
-;
+res = runtime_initialize_Lean_Meta_Constructions_CasesOn(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Meta_Constructions_NoConfusion(builtin)
-;
+res = runtime_initialize_Lean_Meta_Constructions_NoConfusion(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Meta_Constructions_RecOn(builtin)
-;
+res = runtime_initialize_Lean_Meta_Constructions_RecOn(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Meta_Constructions_BRecOn(builtin)
-;
+res = runtime_initialize_Lean_Meta_Constructions_BRecOn(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Meta_Constructions_CasesOnSameCtor(builtin)
-;
+res = runtime_initialize_Lean_Meta_Constructions_CasesOnSameCtor(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Meta_Constructions_SparseCasesOn(builtin)
-;
+res = runtime_initialize_Lean_Meta_Constructions_SparseCasesOn(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Meta_Constructions_SparseCasesOnEq(builtin)
-;
+res = runtime_initialize_Lean_Meta_Constructions_SparseCasesOnEq(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -74,40 +67,31 @@ LEAN_EXPORT lean_object* initialize_Lean_Meta_Constructions(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Meta_Constructions_CasesOn(builtin)
-;
+res = initialize_Lean_Meta_Constructions_CasesOn(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Constructions_NoConfusion(builtin)
-;
+res = initialize_Lean_Meta_Constructions_NoConfusion(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Constructions_RecOn(builtin)
-;
+res = initialize_Lean_Meta_Constructions_RecOn(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Constructions_BRecOn(builtin)
-;
+res = initialize_Lean_Meta_Constructions_BRecOn(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Constructions_CasesOnSameCtor(builtin)
-;
+res = initialize_Lean_Meta_Constructions_CasesOnSameCtor(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Constructions_SparseCasesOn(builtin)
-;
+res = initialize_Lean_Meta_Constructions_SparseCasesOn(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Constructions_SparseCasesOnEq(builtin)
-;
+res = initialize_Lean_Meta_Constructions_SparseCasesOnEq(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Meta_Constructions(builtin)
-;
+res = runtime_initialize_Lean_Meta_Constructions(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_Lean_Meta_Constructions(builtin)
-;
+res = meta_initialize_Lean_Meta_Constructions(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_Lean_Meta_Constructions(builtin);

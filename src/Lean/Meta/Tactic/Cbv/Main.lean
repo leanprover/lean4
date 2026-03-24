@@ -10,9 +10,12 @@ prelude
 public import Lean.Meta.Sym.Simp.SimpM
 public import Lean.Meta.Tactic.Cbv.Opaque
 public import Lean.Meta.Tactic.Cbv.ControlFlow
+import Lean.Meta.Tactic.Cbv.BuiltinCbvSimprocs.Core
+import Lean.Meta.Tactic.Cbv.BuiltinCbvSimprocs.Array
 import Lean.Meta.Tactic.Cbv.Util
 import Lean.Meta.Tactic.Cbv.TheoremsLookup
 import Lean.Meta.Tactic.Cbv.CbvEvalExt
+import Lean.Meta.Tactic.Cbv.CbvSimproc
 import Lean.Meta.Sym
 import Lean.Meta.Tactic.Refl
 import Lean.Meta.Tactic.Replace
@@ -262,7 +265,7 @@ def cbvPreStep : Simproc := fun e => do
   | .lit .. => foldLit e
   | .proj .. => handleProj e
   | .const .. => isOpaqueConst >> handleConst <| e
-  | .app .. => simpControlCbv <|> simplifyAppFn <| e
+  | .app .. => tryMatcher <|> simplifyAppFn <| e
   | .letE .. =>
     if e.letNondep! then
       let betaAppResult ← toBetaApp e
@@ -272,22 +275,30 @@ def cbvPreStep : Simproc := fun e => do
   | .forallE .. | .lam .. | .fvar .. | .mvar .. | .bvar .. | .sort .. => return .rfl (done := true)
   | _ => return .rfl
 
-/-- Pre-pass: skip builtin values and proofs, then dispatch structurally. -/
-def cbvPre : Simproc := isBuiltinValue <|> isProofTerm <|> cbvPreStep
+/-- Pre-pass: skip builtin values and proofs, run pre simprocs, then dispatch structurally. -/
+def cbvPre (simprocs : CbvSimprocs) : Simproc :=
+  isBuiltinValue <|> isProofTerm <|> cbvSimprocDispatch simprocs.pre simprocs.erased <|> cbvPreStep
 
-/-- Post-pass: evaluate ground arithmetic, then try unfolding/beta-reducing applications. -/
-def cbvPost : Simproc := evalGround <|> handleApp
+/-- Post-pass: evaluate ground arithmetic, then try eval simprocs, then try unfolding/beta-reducing applications and finally run post simprocs -/
+def cbvPost (simprocs : CbvSimprocs) : Simproc :=
+  evalGround <|> cbvSimprocDispatch simprocs.eval simprocs.erased <|> handleApp <|> cbvSimprocDispatch simprocs.post simprocs.erased
 
-def cbvCore (e : Expr) (config : Sym.Simp.Config := {}) : Sym.SymM Result :=
-  SimpM.run' (methods := {pre := cbvPre, post := cbvPost}) (config := config)
+def mkCbvMethods (simprocs : CbvSimprocs) : Methods :=
+  { pre := cbvPre simprocs, post := cbvPost simprocs }
+
+def cbvCore (e : Expr) (config : Sym.Simp.Config := {}) : Sym.SymM Result := do
+  let simprocs ← getCbvSimprocs
+  let methods := mkCbvMethods simprocs
+  SimpM.run' (methods := methods) (config := config)
     <| simp e
 
 /-- Reduce a single expression. Unfolds reducibles, shares subterms, then runs the
 simplifier with `cbvPre`/`cbvPost`. Used by `conv => cbv`. -/
 public def cbvEntry (e : Expr) : MetaM Result := do
   trace[Meta.Tactic.cbv] "Called cbv tactic to simplify {e}"
+  let simprocs ← getCbvSimprocs
   let config : Sym.Simp.Config := { maxSteps := cbv.maxSteps.get (← getOptions) }
-  let methods := {pre := cbvPre, post := cbvPost}
+  let methods := mkCbvMethods simprocs
   let e ← Sym.unfoldReducible e
   Sym.SymM.run do
     let e ← Sym.shareCommon e

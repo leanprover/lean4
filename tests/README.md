@@ -1,9 +1,6 @@
 # Test suite
 
 This directory contains the lean test and benchmark suite.
-It is currently in the process of being migrated to the framework described in this file.
-Some tests still use the previous framework,
-which is partially documented in [testing.md](../doc/dev/testing.md).
 
 The test suite consists of two types of directories: Test directories and test piles.
 
@@ -45,12 +42,17 @@ Benchmarks belonging to the old framework are not included in this description.
   These are also executed as part of the test suite, and `.out.expected` files are ignored when benchmarking.
 - `server`, `server_interactive`:
   Test LSP server requests.
+- `lake:`
+  Test suite for lake.
+  It is mostly isolated from the rest of the test suite and follows its own conventions.
 - `lake_bench`:
   Benchmark directories that measure lake performance.
 - `misc`:
   A collection of miscellaneous small test scripts.
 - `misc_bench`:
   A collection of miscellaneous small benchmark scripts.
+- `pkg`:
+  Tests that run in lake packages.
 
 ## How to run the test suite?
 
@@ -179,7 +181,7 @@ The most notable ones are:
 - `SCRIPT_DIR`: Absolute path to the `script` directory.
 - `TEST_BENCH`: Set to `1` if we're currently executing a benchmark, unset otherwise.
 
-Finally, the run script should source `"$TEST_DIR/util.sh"`,
+It also sources `"$TEST_DIR/util.sh"`,
 which provides a few utility functions and also uses `set` to set sensible bash defaults.
 See `util.sh` for the available utility functions.
 
@@ -218,15 +220,14 @@ These files are available to configure a test:
 - `<file>.out.ignored`:
   Ignore the test's output entirely; don't compare it to `<file>.out.expected`.
 
-- `<file>.exit.expected`:
-  The test fails if its exit code doesn't match this file's contents.
-  If this file isn't present, the pile's default exit code is used instead.
-  If this file contains the text `nonzero`, the test's exit code must not be 0.
-
 These bash variables (set via `<file>.init.sh`) are used by the run script:
 
 - `TEST_LEAN_ARGS`:
   A bash array of additional arguments to the `lean` command.
+
+- `TEST_EXIT`:
+  A bash variable containing the expected exit code of the program.
+  When set to `nonzero` instead of a numerical value, the exit code must not be 0.
 
 ## The `compile*` test pile
 
@@ -260,11 +261,6 @@ These files are available to configure a test:
 - `<file>.out.ignored`:
   Ignore the test's output entirely; don't compare it to `<file>.out.expected`.
 
-- `<file>.exit.expected`:
-  The test fails if its exit code doesn't match this file's contents.
-  If this file isn't present, the test's exit code must be 0.
-  If this file contains the text `nonzero`, the test's exit code must not be 0.
-
 These bash variables (set via `<file>.init.sh`) are used by the run script:
 
 - `TEST_LEAN_ARGS`:
@@ -279,6 +275,10 @@ These bash variables (set via `<file>.init.sh`) are used by the run script:
 - `TEST_ARGS`:
   A bash array of arguments to the compiled (or interpreted) program.
   Check `TEST_BENCH` if you want to specify more intense parameters for benchmarks.
+
+- `TEST_EXIT`:
+  A bash variable containing the expected exit code of the program.
+  When set to `nonzero` instead of a numerical value, the exit code must not be 0.
 
 ## The `interactive` test pile
 

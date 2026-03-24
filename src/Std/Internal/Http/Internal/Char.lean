@@ -6,7 +6,10 @@ Authors: Sofia Rodrigues
 module
 
 prelude
+public import Init.Data.Char
 public import Init.Data.String
+public import Init.Data.Int
+public import Init.Grind
 
 @[expose]
 public section
@@ -96,6 +99,24 @@ quoted-string body character class:
 @[inline]
 def quotedStringChar (c : Char) : Bool :=
   qdtext c || quotedPairChar c
+
+theorem quotedStringChar_lt_0x80 : quotedStringChar c → c < '\x80' := by
+  simp [quotedStringChar, qdtext, quotedPairChar]
+  split <;> simp only [true_or, Char.reduceLT, imp_self]
+  grind [→ Char.le_def.mp, Char.lt_def.mpr, vchar]
+
+private theorem not_quotedStringChar_ofNat_aux :
+    ∀ c : Nat, c < 128 → ¬(qdtext (Char.ofNat c)) ∧ ¬((Char.ofNat c = '\"') ∨ (Char.ofNat c = '\\')) →
+    ¬(quotedStringChar (Char.ofNat c)) := by
+  decide
+
+theorem not_quotedStringChar_of_not_qdtext_not_dquote_backslash :
+    ∀ c : Char, c < '\x80' → ¬(qdtext (c)) ∧ ¬((c = '\"') || (c = '\\')) →
+    ¬(quotedStringChar c) := by
+  intro c hlt hq
+  simpa [Char.ofNat_toNat] using
+    (not_quotedStringChar_ofNat_aux
+      c.toNat hlt (by simpa [Char.ofNat_toNat] using hq))
 
 /--
 field-vchar = VCHAR

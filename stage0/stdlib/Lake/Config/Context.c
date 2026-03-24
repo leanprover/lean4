@@ -17,36 +17,36 @@ LEAN_EXPORT lean_object* l_Lake_LakeT_run___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LakeT_run(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LakeM_run___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LakeM_run(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_LakeT_run___redArg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lake_LakeT_run___redArg(lean_object* v_ctx_1_, lean_object* v_self_2_){
 _start:
 {
-lean_object* x_3; 
-x_3 = lean_apply_1(x_2, x_1);
-return x_3;
+lean_object* v___x_3_; 
+v___x_3_ = lean_apply_1(v_self_2_, v_ctx_1_);
+return v___x_3_;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_LakeT_run(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Lake_LakeT_run(lean_object* v_m_4_, lean_object* v_00_u03b1_5_, lean_object* v_ctx_6_, lean_object* v_self_7_){
 _start:
 {
-lean_object* x_5; 
-x_5 = lean_apply_1(x_4, x_3);
-return x_5;
+lean_object* v___x_8_; 
+v___x_8_ = lean_apply_1(v_self_7_, v_ctx_6_);
+return v___x_8_;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_LakeM_run___redArg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lake_LakeM_run___redArg(lean_object* v_ctx_9_, lean_object* v_self_10_){
 _start:
 {
-lean_object* x_3; 
-x_3 = lean_apply_1(x_2, x_1);
-return x_3;
+lean_object* v___x_11_; 
+v___x_11_ = lean_apply_1(v_self_10_, v_ctx_9_);
+return v___x_11_;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_LakeM_run(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Lake_LakeM_run(lean_object* v_00_u03b1_12_, lean_object* v_ctx_13_, lean_object* v_self_14_){
 _start:
 {
-lean_object* x_4; 
-x_4 = lean_apply_1(x_3, x_2);
-return x_4;
+lean_object* v___x_15_; 
+v___x_15_ = lean_apply_1(v_self_14_, v_ctx_13_);
+return v___x_15_;
 }
 }
 lean_object* runtime_initialize_Init_Control_Id(uint8_t builtin);
@@ -56,12 +56,10 @@ LEAN_EXPORT lean_object* runtime_initialize_Lake_Config_Context(uint8_t builtin)
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Init_Control_Id(builtin)
-;
+res = runtime_initialize_Init_Control_Id(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lake_Config_Opaque(builtin)
-;
+res = runtime_initialize_Lake_Config_Opaque(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -80,20 +78,16 @@ LEAN_EXPORT lean_object* initialize_Lake_Config_Context(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Control_Id(builtin)
-;
+res = initialize_Init_Control_Id(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Config_Opaque(builtin)
-;
+res = initialize_Lake_Config_Opaque(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lake_Config_Context(builtin)
-;
+res = runtime_initialize_Lake_Config_Context(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_Lake_Config_Context(builtin)
-;
+res = meta_initialize_Lake_Config_Context(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_Lake_Config_Context(builtin);

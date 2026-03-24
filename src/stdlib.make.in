@@ -93,6 +93,16 @@ ${LIB}/temp/empty.c:
 
 # the following targets are all invoked by separate `make` calls; see src/CMakeLists.txt
 
+# Lake archive timestamps may be stale due to caching; use .trace files for rebuild decisions
+ifeq "${USE_LAKE}" "ON"
+$(OUTLIB)/libInit_shared$(SO): ${LIB}/lean/libInit.a.export.trace ${LIB}/lean/libStd.a.export.trace
+$(OUTLIB)/libleanshared$(SO): ${LIB}/lean/libLean.a.export.trace
+$(OUTLIB)/libLake_shared$(SO): ${LIB}/lean/libLean.a.export.trace ${LIB}/lean/libLake.a.export.trace
+$(OUTBIN)/lake$(EXE): ${LIB}/temp/LakeMain.c.o.export.trace
+$(OUTBIN)/leanc$(EXE): $(OUTARC)/libLeanc.a.trace
+$(OUTBIN)/leanchecker$(EXE): $(OUTARC)/libLeanChecker.a.trace
+endif
+
 # we specify the precise file names here to avoid rebuilds
 $(OUTLIB)/libInit_shared$(SO): ${LIB}/lean/libInit.a.export ${LIB}/lean/libStd.a.export ${CMAKE_BINARY_DIR}/runtime/libleanrt_initial-exec.a ${LIB}/temp/empty.c
 	$(link-preamble)

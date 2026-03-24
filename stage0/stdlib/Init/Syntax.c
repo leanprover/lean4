@@ -13,155 +13,155 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Lean_Syntax_setArgs(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Syntax_setArgs(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_setArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_setArg___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Syntax_setArgs(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_Syntax_setArgs(lean_object* v_stx_1_, lean_object* v_args_2_){
 _start:
 {
-if (lean_obj_tag(x_1) == 1)
+if (lean_obj_tag(v_stx_1_) == 1)
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; uint8_t x_11; 
-x_3 = lean_ctor_get(x_1, 0);
-x_4 = lean_ctor_get(x_1, 1);
-x_11 = !lean_is_exclusive(x_1);
-if (x_11 == 0)
+lean_object* v_info_3_; lean_object* v_kind_4_; lean_object* v___x_6_; uint8_t v_isShared_7_; uint8_t v_isSharedCheck_11_; 
+v_info_3_ = lean_ctor_get(v_stx_1_, 0);
+v_kind_4_ = lean_ctor_get(v_stx_1_, 1);
+v_isSharedCheck_11_ = !lean_is_exclusive(v_stx_1_);
+if (v_isSharedCheck_11_ == 0)
 {
-lean_object* x_12; 
-x_12 = lean_ctor_get(x_1, 2);
-lean_dec(x_12);
-x_5 = x_1;
-x_6 = x_11;
-goto block_10;
+lean_object* v_unused_12_; 
+v_unused_12_ = lean_ctor_get(v_stx_1_, 2);
+lean_dec(v_unused_12_);
+v___x_6_ = v_stx_1_;
+v_isShared_7_ = v_isSharedCheck_11_;
+goto v_resetjp_5_;
 }
 else
 {
-lean_inc(x_4);
-lean_inc(x_3);
-lean_dec(x_1);
-x_5 = lean_box(0);
-x_6 = x_11;
-goto block_10;
+lean_inc(v_kind_4_);
+lean_inc(v_info_3_);
+lean_dec(v_stx_1_);
+v___x_6_ = lean_box(0);
+v_isShared_7_ = v_isSharedCheck_11_;
+goto v_resetjp_5_;
 }
-block_10:
+v_resetjp_5_:
 {
-lean_object* x_7; 
-if (x_6 == 0)
+lean_object* v___x_9_; 
+if (v_isShared_7_ == 0)
 {
-lean_ctor_set(x_5, 2, x_2);
-x_7 = x_5;
-goto block_8;
+lean_ctor_set(v___x_6_, 2, v_args_2_);
+v___x_9_ = v___x_6_;
+goto v_reusejp_8_;
 }
 else
 {
-lean_object* x_9; 
-x_9 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_9, 0, x_3);
-lean_ctor_set(x_9, 1, x_4);
-lean_ctor_set(x_9, 2, x_2);
-x_7 = x_9;
-goto block_8;
+lean_object* v_reuseFailAlloc_10_; 
+v_reuseFailAlloc_10_ = lean_alloc_ctor(1, 3, 0);
+lean_ctor_set(v_reuseFailAlloc_10_, 0, v_info_3_);
+lean_ctor_set(v_reuseFailAlloc_10_, 1, v_kind_4_);
+lean_ctor_set(v_reuseFailAlloc_10_, 2, v_args_2_);
+v___x_9_ = v_reuseFailAlloc_10_;
+goto v_reusejp_8_;
 }
-block_8:
+v_reusejp_8_:
 {
-return x_7;
+return v___x_9_;
 }
 }
 }
 else
 {
-lean_dec_ref(x_2);
-return x_1;
+lean_dec_ref(v_args_2_);
+return v_stx_1_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Syntax_setArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Lean_Syntax_setArg(lean_object* v_stx_13_, lean_object* v_i_14_, lean_object* v_arg_15_){
 _start:
 {
-if (lean_obj_tag(x_1) == 1)
+if (lean_obj_tag(v_stx_13_) == 1)
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; 
-x_4 = lean_ctor_get(x_1, 0);
-x_5 = lean_ctor_get(x_1, 1);
-x_6 = lean_ctor_get(x_1, 2);
-x_7 = lean_array_get_size(x_6);
-x_8 = lean_nat_dec_lt(x_2, x_7);
-if (x_8 == 0)
+lean_object* v_info_16_; lean_object* v_kind_17_; lean_object* v_args_18_; lean_object* v___x_19_; uint8_t v___x_20_; 
+v_info_16_ = lean_ctor_get(v_stx_13_, 0);
+v_kind_17_ = lean_ctor_get(v_stx_13_, 1);
+v_args_18_ = lean_ctor_get(v_stx_13_, 2);
+v___x_19_ = lean_array_get_size(v_args_18_);
+v___x_20_ = lean_nat_dec_lt(v_i_14_, v___x_19_);
+if (v___x_20_ == 0)
 {
-lean_dec(x_3);
-return x_1;
+lean_dec(v_arg_15_);
+return v_stx_13_;
 }
 else
 {
-lean_object* x_9; uint8_t x_10; uint8_t x_16; 
-lean_inc_ref(x_6);
-lean_inc(x_5);
-lean_inc(x_4);
-x_16 = !lean_is_exclusive(x_1);
-if (x_16 == 0)
+lean_object* v___x_22_; uint8_t v_isShared_23_; uint8_t v_isSharedCheck_28_; 
+lean_inc_ref(v_args_18_);
+lean_inc(v_kind_17_);
+lean_inc(v_info_16_);
+v_isSharedCheck_28_ = !lean_is_exclusive(v_stx_13_);
+if (v_isSharedCheck_28_ == 0)
 {
-lean_object* x_17; lean_object* x_18; lean_object* x_19; 
-x_17 = lean_ctor_get(x_1, 2);
-lean_dec(x_17);
-x_18 = lean_ctor_get(x_1, 1);
-lean_dec(x_18);
-x_19 = lean_ctor_get(x_1, 0);
-lean_dec(x_19);
-x_9 = x_1;
-x_10 = x_16;
-goto block_15;
+lean_object* v_unused_29_; lean_object* v_unused_30_; lean_object* v_unused_31_; 
+v_unused_29_ = lean_ctor_get(v_stx_13_, 2);
+lean_dec(v_unused_29_);
+v_unused_30_ = lean_ctor_get(v_stx_13_, 1);
+lean_dec(v_unused_30_);
+v_unused_31_ = lean_ctor_get(v_stx_13_, 0);
+lean_dec(v_unused_31_);
+v___x_22_ = v_stx_13_;
+v_isShared_23_ = v_isSharedCheck_28_;
+goto v_resetjp_21_;
 }
 else
 {
-lean_dec(x_1);
-x_9 = lean_box(0);
-x_10 = x_16;
-goto block_15;
+lean_dec(v_stx_13_);
+v___x_22_ = lean_box(0);
+v_isShared_23_ = v_isSharedCheck_28_;
+goto v_resetjp_21_;
 }
-block_15:
+v_resetjp_21_:
 {
-lean_object* x_11; lean_object* x_12; 
-x_11 = lean_array_fset(x_6, x_2, x_3);
-if (x_10 == 0)
+lean_object* v___x_24_; lean_object* v___x_26_; 
+v___x_24_ = lean_array_fset(v_args_18_, v_i_14_, v_arg_15_);
+if (v_isShared_23_ == 0)
 {
-lean_ctor_set(x_9, 2, x_11);
-x_12 = x_9;
-goto block_13;
+lean_ctor_set(v___x_22_, 2, v___x_24_);
+v___x_26_ = v___x_22_;
+goto v_reusejp_25_;
 }
 else
 {
-lean_object* x_14; 
-x_14 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_14, 0, x_4);
-lean_ctor_set(x_14, 1, x_5);
-lean_ctor_set(x_14, 2, x_11);
-x_12 = x_14;
-goto block_13;
+lean_object* v_reuseFailAlloc_27_; 
+v_reuseFailAlloc_27_ = lean_alloc_ctor(1, 3, 0);
+lean_ctor_set(v_reuseFailAlloc_27_, 0, v_info_16_);
+lean_ctor_set(v_reuseFailAlloc_27_, 1, v_kind_17_);
+lean_ctor_set(v_reuseFailAlloc_27_, 2, v___x_24_);
+v___x_26_ = v_reuseFailAlloc_27_;
+goto v_reusejp_25_;
 }
-block_13:
+v_reusejp_25_:
 {
-return x_12;
+return v___x_26_;
 }
 }
 }
 }
 else
 {
-lean_dec(x_3);
-return x_1;
+lean_dec(v_arg_15_);
+return v_stx_13_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Syntax_setArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Lean_Syntax_setArg___boxed(lean_object* v_stx_32_, lean_object* v_i_33_, lean_object* v_arg_34_){
 _start:
 {
-lean_object* x_4; 
-x_4 = l_Lean_Syntax_setArg(x_1, x_2, x_3);
-lean_dec(x_2);
-return x_4;
+lean_object* v_res_35_; 
+v_res_35_ = l_Lean_Syntax_setArg(v_stx_32_, v_i_33_, v_arg_34_);
+lean_dec(v_i_33_);
+return v_res_35_;
 }
 }
 lean_object* runtime_initialize_Init_Prelude(uint8_t builtin);
@@ -171,12 +171,10 @@ LEAN_EXPORT lean_object* runtime_initialize_Init_Syntax(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Init_Prelude(builtin)
-;
+res = runtime_initialize_Init_Prelude(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Array_Set(builtin)
-;
+res = runtime_initialize_Init_Data_Array_Set(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -195,20 +193,16 @@ LEAN_EXPORT lean_object* initialize_Init_Syntax(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Prelude(builtin)
-;
+res = initialize_Init_Prelude(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Array_Set(builtin)
-;
+res = initialize_Init_Data_Array_Set(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Syntax(builtin)
-;
+res = runtime_initialize_Init_Syntax(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = meta_initialize_Init_Syntax(builtin)
-;
+res = meta_initialize_Init_Syntax(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return initialize_Init_Syntax(builtin);

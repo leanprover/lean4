@@ -10,15 +10,18 @@ public import Lean.Environment
 
 namespace Lean.Compiler.LCNF
 
-/-- Creates a replayable local environment extension holding a name set. -/
-public def mkDeclSetExt : IO (EnvExtension (List Name × NameSet)) :=
+/--
+Creates a replayable local environment extension holding a name set and the list of names in the
+order they were added to the set.
+-/
+public def mkOrderedDeclSetExt : IO (EnvExtension (List Name × NameSet)) :=
   registerEnvExtension
     (mkInitial := pure ([], {}))
     (asyncMode := .sync)
     (replay? := some <| fun oldState newState _ s =>
       let newEntries := newState.1.take (newState.1.length - oldState.1.length)
-      newEntries.foldl (init := s) fun s n =>
-        if s.1.contains n then
+      newEntries.reverse.foldl (init := s) fun s n =>
+        if s.2.contains n then
           s
         else
           (n :: s.1, if newState.2.contains n then s.2.insert n else s.2))
@@ -26,7 +29,7 @@ public def mkDeclSetExt : IO (EnvExtension (List Name × NameSet)) :=
 /--
 Set of declarations to be exported to other modules; visibility shared by base/mono/IR phases.
 -/
-private builtin_initialize publicDeclsExt : EnvExtension (List Name × NameSet) ← mkDeclSetExt
+private builtin_initialize publicDeclsExt : EnvExtension (List Name × NameSet) ← mkOrderedDeclSetExt
 
 public def isDeclPublic (env : Environment) (declName : Name) : Bool := Id.run do
   if !env.header.isModule then

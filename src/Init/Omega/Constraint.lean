@@ -52,6 +52,11 @@ namespace Constraint
 private local instance : Append String where
   append := String.Internal.append
 
+private local instance : ToString Int where
+  toString
+    | Int.ofNat m   => toString m
+    | Int.negSucc m => "-" ++ toString (m + 1)
+
 instance : ToString Constraint where
   toString := private fun
   | ⟨none, none⟩ => "(-∞, ∞)"

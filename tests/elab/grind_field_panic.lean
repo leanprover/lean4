@@ -62,7 +62,7 @@ initialize registerTraceClass `Elab.fast_instance
 private partial def makeFastInstance (provided : Expr) (trace : Array Name := #[]) :
     MetaM Expr := withReducible do
   let ty ← inferType provided
-  withTraceNode `Elab.fast_instance (fun e => return m!"{exceptEmoji e} type: {ty}") do
+  withTraceNode `Elab.fast_instance (fun _ => return m!"type: {ty}") do
   let some className ← isClass? ty | failure
   trace[Elab.fast_instance] "class is {className}"
   if ← withDefault <| Meta.isProp ty then failure

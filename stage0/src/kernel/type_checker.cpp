@@ -797,7 +797,7 @@ bool type_checker::try_eta_struct_core(expr const & t, expr const & s) {
     if (!f_info.is_constructor()) return false;
     constructor_val f_val = f_info.to_constructor_val();
     if (get_app_num_args(s) != f_val.get_nparams() + f_val.get_nfields()) return false;
-    if (!is_structure_like(env(), f_val.get_induct())) return false;
+    if (!is_non_rec_structure(env(), f_val.get_induct())) return false;
     if (!is_def_eq(infer_type(t), infer_type(s))) return false;
     buffer<expr> s_args;
     get_app_args(s, s_args);
@@ -1044,7 +1044,7 @@ lbool type_checker::try_string_lit_expansion(expr const & t, expr const & s) {
 bool type_checker::is_def_eq_unit_like(expr const & t, expr const & s) {
     expr t_type = whnf(infer_type(t));
     expr I = get_app_fn(t_type);
-    if (!is_constant(I) || !is_structure_like(env(), const_name(I)))
+    if (!is_constant(I) || !is_non_rec_structure(env(), const_name(I)))
         return false;
     name ctor_name = head(env().get(const_name(I)).to_inductive_val().get_cnstrs());
     constructor_val ctor_val = env().get(ctor_name).to_constructor_val();

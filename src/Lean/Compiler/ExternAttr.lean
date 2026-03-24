@@ -55,11 +55,6 @@ private def syntaxToExternAttrData (stx : Syntax) : AttrM ExternAttrData := do
       entries := entries.push <| ExternEntry.inline backend str
   return { entries := entries.toList }
 
--- Forward declaration
-set_option compiler.ignoreBorrowAnnotation true in
-@[extern "lean_add_extern"]
-opaque addExtern (declName : Name) (externAttrData : ExternAttrData) : CoreM Unit
-
 builtin_initialize externAttr : ParametricAttribute ExternAttrData ←
   registerParametricAttribute {
     name := `extern
@@ -71,7 +66,7 @@ builtin_initialize externAttr : ParametricAttribute ExternAttrData ←
         if let some (.thmInfo ..) := env.find? declName then
           -- We should not mark theorems as extern
           return ()
-        addExtern declName externAttrData
+        compileDecls #[declName]
   }
 
 def getExternAttrData? (env : Environment) (n : Name) : Option ExternAttrData :=

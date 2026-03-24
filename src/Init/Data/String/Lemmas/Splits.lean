@@ -649,4 +649,27 @@ theorem Slice.splits_slice {s : Slice} {p₀ p₁ : s.Pos} (h) (p : (s.slice p�
     p.Splits (s.slice p₀ (Pos.ofSlice p) Pos.le_ofSlice).copy (s.slice (Pos.ofSlice p) p₁ Pos.ofSlice_le).copy := by
   simpa using p.splits
 
+theorem Slice.Pos.Splits.nextn {s : Slice} {t₁ t₂ : String} {p : s.Pos} (h : p.Splits t₁ t₂) (n : Nat) :
+    (p.nextn n).Splits (t₁ ++ String.ofList (t₂.toList.take n)) (String.ofList (t₂.toList.drop n)) := by
+  induction n generalizing p t₁ t₂ with
+  | zero => simpa
+  | succ n ih =>
+    rw [Pos.nextn_add_one]
+    split
+    · simp_all
+    · obtain ⟨t₂, rfl⟩ := h.exists_eq_singleton_append ‹_›
+      simpa [← append_assoc] using ih h.next
+
+theorem Slice.splits_nextn_startPos (s : Slice) (n : Nat) :
+    (s.startPos.nextn n).Splits (String.ofList (s.copy.toList.take n)) (String.ofList (s.copy.toList.drop n)) := by
+  simpa using s.splits_startPos.nextn n
+
+theorem Pos.Splits.nextn {s t₁ t₂ : String} {p : s.Pos} (h : p.Splits t₁ t₂) (i : Nat) :
+    (p.nextn i).Splits (t₁ ++ String.ofList (t₂.toList.take i)) (String.ofList (t₂.toList.drop i)) := by
+  simpa [← splits_toSlice_iff, toSlice_nextn] using h.toSlice.nextn i
+
+theorem splits_nextn_startPos (s : String) (n : Nat) :
+    (s.startPos.nextn n).Splits (String.ofList (s.toList.take n)) (String.ofList (s.toList.drop n)) := by
+  simpa using s.splits_startPos.nextn n
+
 end String

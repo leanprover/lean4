@@ -496,4 +496,46 @@ theorem Pos.prev?_eq_none {s : String} {p : s.Pos} (h : p = s.startPos) : p.prev
 theorem Pos.prev?_startPos {s : String} : s.startPos.prev? = none := by
   simp
 
+namespace Slice.Pos
+
+@[simp]
+theorem prevn_zero {s : Slice} {p : s.Pos} : p.prevn 0 = p := by
+  simp [prevn]
+
+theorem prevn_add_one {s : Slice} {p : s.Pos} :
+    p.prevn (n + 1) = if h : p = s.startPos then p else (p.prev h).prevn n := by
+  simp [prevn]
+
+@[simp]
+theorem prevn_startPos {s : Slice} : s.startPos.prevn n = s.startPos := by
+  cases n <;> simp [prevn_add_one]
+
+end Slice.Pos
+
+namespace Pos
+
+theorem prevn_eq_prevn_toSlice {s : String} {p : s.Pos} : p.prevn n = Pos.ofToSlice (p.toSlice.prevn n) :=
+  (rfl)
+
+@[simp]
+theorem prevn_zero {s : String} {p : s.Pos} : p.prevn 0 = p := by
+  simp [prevn_eq_prevn_toSlice]
+
+theorem prevn_add_one {s : String} {p : s.Pos} :
+    p.prevn (n + 1) = if h : p = s.startPos then p else (p.prev h).prevn n := by
+  simp only [prevn_eq_prevn_toSlice, Slice.Pos.prevn_add_one, startPos_toSlice, toSlice_inj]
+  split <;> simp [Pos.prev_toSlice]
+
+theorem prevn_toSlice {s : String} {p : s.Pos} : p.toSlice.prevn n = (p.prevn n).toSlice := by
+  induction n generalizing p with simp_all [prevn_add_one, Slice.Pos.prevn_add_one, apply_dite Pos.toSlice, prev_toSlice]
+
+theorem toSlice_prevn {s : String} {p : s.Pos} : (p.prevn n).toSlice = p.toSlice.prevn n :=
+  prevn_toSlice.symm
+
+@[simp]
+theorem prevn_startPos {s : String} : s.startPos.prevn n = s.startPos := by
+  cases n <;> simp [prevn_add_one]
+
+end Pos
+
 end String

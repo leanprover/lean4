@@ -17,6 +17,8 @@ import Init.Data.String.OrderInstances
 import Init.Data.Nat.Order
 import Init.Omega
 import Init.Data.String.Lemmas.FindPos
+import Init.Data.List.TakeDrop
+import Init.Data.List.Nat.TakeDrop
 
 /-!
 # `Splits` predicates on `String.Pos` and `String.Slice.Pos`.
@@ -671,5 +673,29 @@ theorem Pos.Splits.nextn {s t₁ t₂ : String} {p : s.Pos} (h : p.Splits t₁ t
 theorem splits_nextn_startPos (s : String) (n : Nat) :
     (s.startPos.nextn n).Splits (String.ofList (s.toList.take n)) (String.ofList (s.toList.drop n)) := by
   simpa using s.splits_startPos.nextn n
+
+theorem Slice.Pos.Splits.prevn {s : Slice} {t₁ t₂ : String} {p : s.Pos} (h : p.Splits t₁ t₂) (n : Nat) :
+    (p.prevn n).Splits (String.ofList (t₁.toList.take (t₁.length - n))) (String.ofList (t₁.toList.drop (t₁.length - n)) ++ t₂) := by
+  induction n generalizing p t₁ t₂ with
+  | zero => simpa [← String.length_toList]
+  | succ n ih =>
+    rw [Pos.prevn_add_one]
+    split
+    · simp_all
+    · obtain ⟨t₂, rfl⟩ := h.exists_eq_append_singleton_of_ne_startPos ‹_›
+      simpa [Nat.add_sub_add_right, List.take_append, List.drop_append, ← append_assoc] using ih h.prev
+
+theorem Slice.splits_prevn_endPos (s : Slice) (n : Nat) :
+    (s.endPos.prevn n).Splits (String.ofList (s.copy.toList.take (s.copy.length - n)))
+      (String.ofList (s.copy.toList.drop (s.copy.length - n))) := by
+  simpa using s.splits_endPos.prevn n
+
+theorem Pos.Splits.prevn {s t₁ t₂ : String} {p : s.Pos} (h : p.Splits t₁ t₂) (n : Nat) :
+    (p.prevn n).Splits (String.ofList (t₁.toList.take (t₁.length - n))) (String.ofList (t₁.toList.drop (t₁.length - n)) ++ t₂) := by
+  simpa [← splits_toSlice_iff, toSlice_prevn] using h.toSlice.prevn n
+
+theorem splits_prevn_endPos (s : String) (n : Nat) :
+    (s.endPos.prevn n).Splits (String.ofList (s.toList.take (s.length - n))) (String.ofList (s.toList.drop (s.length - n))) := by
+  simpa using s.splits_endPos.prevn n
 
 end String

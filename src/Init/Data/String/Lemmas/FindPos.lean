@@ -11,6 +11,8 @@ import all Init.Data.String.FindPos
 import Init.Data.String.OrderInstances
 import Init.Data.String.Lemmas.Order
 import Init.Data.Order.Lemmas
+import Init.Data.Option.Lemmas
+import Init.ByCases
 
 public section
 
@@ -216,6 +218,23 @@ theorem Pos.prev_next {s : Slice} {p : s.Pos} {h} : (p.next h).prev (by simp) = 
 @[simp]
 theorem Pos.next_prev {s : Slice} {p : s.Pos} {h} : (p.prev h).next (by simp) = p :=
   next_eq_iff.2 (by simp)
+
+theorem Pos.prev?_eq_dif {s : Slice} {p : s.Pos} : p.prev? = if h : p = s.startPos then none else some (p.prev h) :=
+  (rfl)
+
+theorem Pos.prev?_eq_some_prev {s : Slice} {p : s.Pos} (h : p ≠ s.startPos) : p.prev? = some (p.prev h) := by
+  simp [Pos.prev?, h]
+
+@[simp]
+theorem Pos.prev?_eq_none_iff {s : Slice} {p : s.Pos} : p.prev? = none ↔ p = s.startPos := by
+  simp [Pos.prev?]
+
+theorem Pos.prev?_eq_none {s : Slice} {p : s.Pos} (h : p = s.startPos) : p.prev? = none :=
+  prev?_eq_none_iff.2 h
+
+@[simp]
+theorem Pos.prev?_startPos {s : Slice} : s.startPos.prev? = none := by
+  simp
 
 end Slice
 
@@ -428,8 +447,16 @@ theorem Pos.toSlice_prev {s : String} {p : s.Pos} {h} :
     (p.prev h).toSlice = p.toSlice.prev (by simpa [toSlice_inj]) := by
   simp [prev]
 
+theorem Pos.ofToSlice_prev {s : String} {p : s.toSlice.Pos} {h} :
+    Pos.ofToSlice (p.prev h) = (Pos.ofToSlice p).prev (by simpa [← toSlice_inj]) := by
+  simp [prev]
+
 theorem Pos.prev_toSlice {s : String} {p : s.Pos} {h} :
     p.toSlice.prev h = (p.prev (by simpa [← toSlice_inj])).toSlice := by
+  simp [prev]
+
+theorem Pos.prev_ofToSlice {s : String} {p : s.toSlice.Pos} {h} :
+    (Pos.ofToSlice p).prev h = Pos.ofToSlice (p.prev (by simpa [← ofToSlice_inj])) := by
   simp [prev]
 
 theorem Pos.prevn_le {s : String} {p : s.Pos} {n : Nat} :
@@ -443,5 +470,30 @@ theorem Pos.prev_next {s : String} {p : s.Pos} {h} : (p.next h).prev (by simp) =
 @[simp]
 theorem Pos.next_prev {s : String} {p : s.Pos} {h} : (p.prev h).next (by simp) = p :=
   next_eq_iff.2 (by simp)
+
+theorem Pos.prev?_eq_prev?_toSlice {s : String} {p : s.Pos} : p.prev? = p.toSlice.prev?.map Pos.ofToSlice :=
+  (rfl)
+
+theorem Pos.prev?_toSlice {s : String} {p : s.Pos} : p.toSlice.prev? = p.prev?.map Pos.toSlice := by
+  simp [prev?_eq_prev?_toSlice]
+
+theorem Pos.prev?_eq_dif {s : String} {p : s.Pos} : p.prev? = if h : p = s.startPos then none else some (p.prev h) := by
+  simp [prev?_eq_prev?_toSlice, Slice.Pos.prev?_eq_dif, apply_dite (Option.map Pos.ofToSlice),
+    ofToSlice_prev]
+
+theorem Pos.prev?_eq_some_prev {s : String} {p : s.Pos} (h : p ≠ s.startPos) : p.prev? = some (p.prev h) := by
+  simp [prev?_eq_prev?_toSlice, Slice.Pos.prev?_eq_some_prev (by simpa : p.toSlice ≠ s.toSlice.startPos),
+    ofToSlice_prev]
+
+@[simp]
+theorem Pos.prev?_eq_none_iff {s : String} {p : s.Pos} : p.prev? = none ↔ p = s.startPos := by
+  simp [prev?_eq_prev?_toSlice]
+
+theorem Pos.prev?_eq_none {s : String} {p : s.Pos} (h : p = s.startPos) : p.prev? = none :=
+  prev?_eq_none_iff.2 h
+
+@[simp]
+theorem Pos.prev?_startPos {s : String} : s.startPos.prev? = none := by
+  simp
 
 end String

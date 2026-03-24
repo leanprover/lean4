@@ -877,10 +877,6 @@ meta def solve (item : WorkItem) : VCGenM SolveResult := item.mvarId.withContext
 Called when decomposing the goal further did not succeed; in this case we emit a VC for the goal.
 In grind mode, tries to solve the VC using the accumulated `Grind.Goal` state (E-graph) via
 `Grind.withProtectedMCtx` + `Grind.processHypotheses` + `Grind.solve`.
-`withProtectedMCtx` handles `withNewMCtxDepth` isolation, delayed assignment resolution, and
-optional proof abstraction.
-If grind fails (or `withProtectedMCtx` admits on exception), we undo the assignment and fall back
-to emitting an unsolved VC.
 -/
 meta def emitVC (item : WorkItem) : VCGenM Unit := do
   let ty ← item.mvarId.getType
@@ -1039,23 +1035,25 @@ private meta def mkGrindParamsFromSyntax (grindStx : Syntax) (goal : MVarId) : T
 public meta def elabMVCGen' : Tactic := fun stx => withMainContext do
   let goal ← getMainGoal
   let ctx ← VCGen.mkSpecContext stx[1]
-  let withClause? := stx[2].getOptional?
+  -- `(&" with " tactic)?` produces a nullKind node with 2 children when present;
+  -- `getOptional?` requires exactly 1 child, so we check `getNumArgs` instead.
+  let withTac? := if stx[2].getNumArgs != 0 then some stx[2][1] else none
+  let isGrind := withTac?.any (·.getKind == ``Lean.Parser.Tactic.grind)
   let mut params ← Grind.mkDefaultParams {}
-  let mut grindCtx? := none
-  let isGrind := (withClause?.getD .missing).getKind == ``Lean.Parser.Tactic.grind
+  let mut grindCtx? : Option GrindContext := none
   if isGrind then
-    params ← mkGrindParamsFromSyntax withClause?.get! goal
+    params ← mkGrindParamsFromSyntax withTac?.get! goal
     grindCtx? := some { hypSimpMethods := { post := VCGen.reassocNatAdd } }
   let ctx := { ctx with grindCtx? }
 
   let result ← Grind.GrindM.run (VCGen.main goal ctx) params
 
   let mut vcs := result.vcs
-  if ctx.grindCtx?.isNone then
-    if let some tac := withClause? then
+  if let some tac := withTac? then
+    if !isGrind then
       let mut remaining : Array MVarId := #[]
       for vc in result.vcs do
-        remaining := remaining ++ (← evalTacticAt tac vc).toArray
+        remaining := remaining ++ (← try evalTacticAt tac vc catch _ => pure [vc]).toArray
       vcs := remaining
   replaceMainGoal (result.invariants ++ vcs).toList
 

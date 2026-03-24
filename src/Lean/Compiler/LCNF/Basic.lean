@@ -1229,12 +1229,13 @@ def instantiateRevRangeArgs (e : Expr) (beginIdx endIdx : Nat) (args : Array (Ar
 @[inline] def findExtEntry? [Inhabited σ] (env : Environment) (ext : PersistentEnvExtension α β σ) (declName : Name)
     (findAtSorted? : Array α → Name → Option α')
     (findInState? : σ → Name → Option α') : Option α' :=
+  -- In `leanir`, the current module has a module index, so we need to check the local state always
+  findInState? (ext.getState env) declName
+  <|>
   (env.getModuleIdxFor? declName).bind (fun modIdx =>
     -- non-meta defs with leanir
     findAtSorted? (ext.getModuleIREntries env modIdx) declName <|>
     -- meta defs with leanir and all defs without leanir
-    findAtSorted? (ext.getModuleEntries env modIdx) declName) <|>
-  -- In `leanir`, the current module has a module index, so we need to check the local state always
-  findInState? (ext.getState env) declName
+    findAtSorted? (ext.getModuleEntries env modIdx) declName)
 
 end Lean.Compiler.LCNF

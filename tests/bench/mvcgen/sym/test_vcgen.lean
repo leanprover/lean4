@@ -42,11 +42,11 @@ open GetThrowSet in
 
 -- Test `mvcgen' with grind`: grind integrated into VCGen loop
 open GetThrowSet in
-#eval runBenchUsingTactic ``Goal [``loop, ``step] `(tactic| mvcgen' with grind) `(tactic| sorry) [10]
+#eval runBenchUsingTactic ``Goal [``loop, ``step] `(tactic| mvcgen' with grind) `(tactic| fail) [10]
 
 -- Test `mvcgen' with grind` on AddSubCancel
 open AddSubCancel in
-#eval runBenchUsingTactic ``Goal [``loop, ``step] `(tactic| mvcgen' with grind) `(tactic| sorry) [10]
+#eval runBenchUsingTactic ``Goal [``loop, ``step] `(tactic| mvcgen' with grind) `(tactic| fail) [10]
 
 open PurePrecond in
 #eval runBenchUsingTactic ``Goal [``loop, ``step] `(tactic| mvcgen') `(tactic| fail) [10]

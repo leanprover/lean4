@@ -468,6 +468,11 @@ meta def mkBackwardRuleForSplit (splitInfo : SplitInfo) (m σs ps instWP : Expr)
 VC generation
 -/
 
+/-- Configuration specific to grind-mode VCGen. -/
+public structure GrindContext where
+  /-- Simp methods used to pre-simplify hypotheses before grind internalization. -/
+  hypSimpMethods : Sym.Simp.Methods
+
 public structure VCGen.Context where
   specThms : SpecTheoremsNew
   /-- The backward rule for `SPred.entails_cons_intro`. -/
@@ -478,6 +483,8 @@ public structure VCGen.Context where
   exceptCondsEntailsRflRule : BackwardRule
   /-- The backward rule for `Triple.of_entails_wp`. -/
   tripleOfEntailsWPRule : BackwardRule
+  /-- If `some`, VCGen runs in grind mode with the given configuration. -/
+  grindCtx? : Option GrindContext := none
 
 public structure VCGen.State where
   /--
@@ -684,17 +691,17 @@ open Sym Sym.Internal
 meta def mkAppNS [Monad m] [Internal.MonadShareCommon m] (f : Expr) (args : Array Expr) : m Expr :=
   mkAppRangeS f 0 args.size args
 
+private meta def getNatLit? (e : Expr) : Option Nat := do
+  let_expr OfNat.ofNat _ n _ := e | failure
+  let .lit (.natVal n) := n | failure
+  return n
+
 /--
 A `Sym.Simp` post-simproc that reassociates Nat addition to fold nested literal additions.
 Rewrites `(a + m) + n` → `a + (m + n)` when `m` and `n` are Nat literals, using `Nat.add_assoc`.
 Since `m + n` reduces to a literal by kernel computation, this collapses chains like
 `s + 1 + 1 + 1` into `s + 3` in a single step.
 -/
-private meta def getNatLit? (e : Expr) : Option Nat := do
-  let_expr OfNat.ofNat _ n _ := e | failure
-  let .lit (.natVal n) := n | failure
-  return n
-
 meta def reassocNatAdd : Sym.Simp.Simproc := fun e => do
   let_expr HAdd.hAdd α _ _ inst ab n := e | return .rfl
   let_expr Nat := α | return .rfl
@@ -725,25 +732,10 @@ meta def simpNewHyps (mvarId : MVarId) (nextDeclIdx : Nat) (methods : Sym.Simp.M
     let (result, simpState') ← Sym.Simp.SimpM.run (Sym.Simp.simp decl.type) methods {} simpState
     modify fun s => { s with simpState := simpState' }
     match result with
-    | .rfl _ => pure ()
-    | .step newType _proof _ =>
+    | .rfl .. => pure ()
+    | .step newType _proof .. =>
       mvarId ← mvarId.replaceLocalDeclDefEq decl.fvarId newType
   return mvarId
-
-/--
-Simplify the goal target using `Sym.simp` with the persistent cache.
-This normalizes excess state args like `s + 1 + 1 + ...` → `s + k` in the target
-before grind processes it.
--/
-meta def simpTarget (mvarId : MVarId) (methods : Sym.Simp.Methods) : VCGenM MVarId := do
-  let target ← mvarId.getType
-  let simpState := (← get).simpState
-  let (result, simpState') ← Sym.Simp.SimpM.run (Sym.Simp.simp target) methods {} simpState
-  modify fun s => { s with simpState := simpState' }
-  match result with
-  | .rfl _ => return mvarId
-  | .step newTarget _proof _ =>
-    mvarId.replaceTargetDefEq newTarget
 
 /-- Internalize pending hypotheses in the grind state before forking to multiple subgoals.
 If `processHypotheses` discovers a contradiction (`inconsistent = true`), the E-graph state
@@ -754,9 +746,8 @@ independently and construct its own proof via `closeGoal`.
 -/
 meta def internalizePending (item : WorkItem) : VCGenM WorkItem := do
   if let some grindGoal := item.grindGoal? then
-    -- Simplify new hypothesis types before grind internalizes them
-    let methods : Sym.Simp.Methods := { post := reassocNatAdd }
-    let mvarId ← simpNewHyps item.mvarId grindGoal.nextDeclIdx methods
+    let some grindCtx := (← read).grindCtx? | unreachable!
+    let mvarId ← simpNewHyps item.mvarId grindGoal.nextDeclIdx grindCtx.hypSimpMethods
     let grindGoal := { grindGoal with mvarId }
     let saved := grindGoal
     let grindGoal ← Grind.processHypotheses grindGoal
@@ -897,28 +888,16 @@ meta def emitVC (item : WorkItem) : VCGenM Unit := do
     item.mvarId.setKind .syntheticOpaque
     modify fun s => { s with invariants := s.invariants.push item.mvarId }
   else if let some grindGoal := item.grindGoal? then
-    -- Simplify new hypothesis types and goal target before grind processes the VC
-    let methods : Sym.Simp.Methods := { post := reassocNatAdd }
-    let mvarId ← simpNewHyps item.mvarId grindGoal.nextDeclIdx methods
-    -- Also simplify the goal target (excess state args contain growing s+1+1+... chains)
-    let mvarId ← simpTarget mvarId methods
+    let some grindCtx := (← read).grindCtx? | unreachable!
+    let mvarId ← simpNewHyps item.mvarId grindGoal.nextDeclIdx grindCtx.hypSimpMethods
     let grindGoal := { grindGoal with mvarId }
     let config ← Grind.getConfig
-    -- Save mctx so we can undo if withProtectedMCtx admits on exception
-    let savedMCtx ← getMCtx
-    let solved ← tryCatchRuntimeEx
-        (do
-          Grind.withProtectedMCtx config mvarId fun mvarId' => do
-            let grindGoal' := { grindGoal with mvarId := mvarId' }
-            let grindGoal' ← Grind.processHypotheses grindGoal'
-            unless ← mvarId'.isAssigned do
-              discard <| Grind.solve grindGoal'
-          pure true)
-        fun _ => do
-          -- withProtectedMCtx admits on exception; undo the admit
-          setMCtx savedMCtx
-          pure false
-    unless solved do
+    Grind.withProtectedMCtx config mvarId fun mvarId' => do
+      let grindGoal' := { grindGoal with mvarId := mvarId' }
+      let grindGoal' ← Grind.processHypotheses grindGoal'
+      unless ← mvarId'.isAssigned do
+        discard <| Grind.solve grindGoal'
+    unless ← mvarId.isAssigned do
       mvarId.setKind .syntheticOpaque
       modify fun s => { s with vcs := s.vcs.push mvarId }
   else
@@ -926,14 +905,7 @@ meta def emitVC (item : WorkItem) : VCGenM Unit := do
     modify fun s => { s with vcs := s.vcs.push item.mvarId }
 
 meta def work (item : WorkItem) : VCGenM Unit := do
-  -- Normalize universe levels (one-time, cold path) so that backward rule pattern matching
-  -- is structural. E.g., `max u v` and `max v u` get a canonical representation.
-  let goal ← do
-    let goal ← preprocessMVar item.mvarId
-    let target ← goal.getType
-    let target' ← normalizeLevelsExpr target
-    if isSameExpr target target' then pure goal
-    else liftMetaM <| goal.replaceTargetDefEq target'
+  let goal ← preprocessMVar item.mvarId
   let item := item.withMVarId goal
   let mut worklist := Std.Queue.empty.enqueue item
   repeat do
@@ -963,11 +935,12 @@ Return the VCs and invariant goals.
 When `grindMode` is true, integrates grind into the VCGen loop for incremental context
 internalization, avoiding O(n) re-internalization per VC.
 -/
-public meta partial def main (goal : MVarId) (ctx : Context) (grindMode : Bool := false) : Grind.GrindM Result := do
-  let grindGoal? ← if grindMode then
-    let g ← Grind.mkGoalCore goal
-    some <$> Grind.processHypotheses g
-  else pure none
+public meta partial def main (goal : MVarId) (ctx : Context) : Grind.GrindM Result := do
+  let grindGoal? ←
+    if ctx.grindCtx?.isSome then
+      let g ← Grind.mkGoalCore goal
+      some <$> Grind.processHypotheses g
+    else pure none
   let item : WorkItem := { mvarId := goal, grindGoal? }
   let ((), state) ← StateRefT'.run (ReaderT.run (work item) ctx) {}
   _ ← state.invariants.mapIdxM fun idx mv => do
@@ -1050,39 +1023,40 @@ syntax (name := mvcgen') "mvcgen'"
   (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*,?) "] ")?
   (&" with " tactic)? : tactic
 
-@[tactic mvcgen']
-public meta def elabMVCGen' : Tactic := fun stx => withMainContext do
-  let ctx ← VCGen.mkSpecContext stx[1]
-  let goal ← getMainGoal
-  let withClause := stx[2]
-  let hasWithClause := withClause.getNumArgs != 0
-  -- When (" with " tactic)? matches, stx[2] is a nullKind node with 2 children:
-  --   stx[2][0] = "with" keyword, stx[2][1] = the tactic
-  let isGrind := hasWithClause && withClause[1].getKind == ``Lean.Parser.Tactic.grind
-  let params ← if isGrind then
-    -- Parse the full grind configuration syntax: grind optConfig only? [params]? (=> seq)?
-    let grindStx := withClause[1]
-    let `(tactic| grind $config:optConfig $[only%$only]? $[ [$grindParams:grindParam,*] ]? $[=> $_:grindSeq]?) := grindStx
-      | throwUnsupportedSyntax
-    let grindConfig ← elabGrindConfig config
-    mkGrindParams grindConfig only.isSome (grindParams.getD {}).getElems goal
-  else
-    Grind.mkDefaultParams {}
+/-- Parse grind configuration from the `with grind ...` clause and build `Grind.Params`.
+Overrides the internal simp step limit to accommodate large unrolled goals. -/
+private meta def mkGrindParamsFromSyntax (grindStx : Syntax) (goal : MVarId) : TacticM Grind.Params := do
+  let `(tactic| grind $config:optConfig $[only%$only]? $[ [$grindParams:grindParam,*] ]? $[=> $_:grindSeq]?) := grindStx
+    | throwUnsupportedSyntax
+  let grindConfig ← elabGrindConfig config
+  let params ← mkGrindParams grindConfig only.isSome (grindParams.getD {}).getElems goal
   -- FIXME: Expose grind's internal simp step limit as a user-facing option instead of hardcoding.
   -- Grind's `simpCore` uses the default `Simp.Config.maxSteps` (100k) which is too low for large
   -- unrolled goals (fails around n=400 for GetThrowSet).
-  let params := { params with norm := ← params.norm.setConfig { params.norm.config with maxSteps := 10000000 } }
-  let result ← Grind.GrindM.run (VCGen.main goal ctx isGrind) params
-  let vcs ← if !isGrind then
-    if hasWithClause then
-      let tac := withClause[1]
+  return { params with norm := ← params.norm.setConfig { params.norm.config with maxSteps := 10000000 } }
+
+@[tactic mvcgen']
+public meta def elabMVCGen' : Tactic := fun stx => withMainContext do
+  let goal ← getMainGoal
+  let ctx ← VCGen.mkSpecContext stx[1]
+  let withClause? := stx[2].getOptional?
+  let mut params ← Grind.mkDefaultParams {}
+  let mut grindCtx? := none
+  let isGrind := (withClause?.getD .missing).getKind == ``Lean.Parser.Tactic.grind
+  if isGrind then
+    params ← mkGrindParamsFromSyntax withClause?.get! goal
+    grindCtx? := some { hypSimpMethods := { post := VCGen.reassocNatAdd } }
+  let ctx := { ctx with grindCtx? }
+
+  let result ← Grind.GrindM.run (VCGen.main goal ctx) params
+
+  let mut vcs := result.vcs
+  if ctx.grindCtx?.isNone then
+    if let some tac := withClause? then
       let mut remaining : Array MVarId := #[]
       for vc in result.vcs do
         remaining := remaining ++ (← evalTacticAt tac vc).toArray
-      pure remaining
-    else pure result.vcs
-  else
-    pure result.vcs
+      vcs := remaining
   replaceMainGoal (result.invariants ++ vcs).toList
 
 /-!

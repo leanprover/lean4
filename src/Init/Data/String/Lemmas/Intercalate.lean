@@ -60,6 +60,20 @@ theorem toList_intercalate {s : String} {l : List String} :
   | nil => simp
   | cons hd tl ih => cases tl <;> simp_all
 
+@[simp]
+theorem join_nil : join [] = "" := by
+  simp [join]
+
+@[simp]
+theorem join_cons : join (s :: l) = s ++ join l := by
+  simp only [join, List.foldl_cons, empty_append]
+  conv => lhs; rw [← String.append_empty (s := s)]
+  rw [List.foldl_assoc]
+
+@[simp]
+theorem toList_join {l : List String} : (String.join l).toList = l.flatMap String.toList := by
+  induction l <;> simp_all
+
 namespace Slice
 
 @[simp]

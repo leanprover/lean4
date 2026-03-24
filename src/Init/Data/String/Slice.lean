@@ -1153,6 +1153,19 @@ where go (acc : String) (s : Slice) : List Slice → String
   | []      => acc
 
 /--
+Appends all the slices in a list of slices, in order.
+
+Use {name}`String.Slice.intercalate` to place a separator string between the strings in a list.
+
+Examples:
+ * {lean}`String.Slice.join ["gr", "ee", "n"] = "green"`
+ * {lean}`String.Slice.join ["b", "", "l", "", "ue"] = "blue"`
+ * {lean}`String.Slice.join [] = ""`
+-/
+def join (l : List String.Slice) : String :=
+  l.foldl (fun (r : String) (s : String.Slice) => r ++ s) ""
+
+/--
 Converts a string to the Lean compiler's representation of names. The resulting name is
 hierarchical, and the string is split at the dots ({lean}`'.'`).
 

@@ -60,6 +60,9 @@ theorem toList_intercalate {s : String} {l : List String} :
   | nil => simp
   | cons hd tl ih => cases tl <;> simp_all
 
+theorem join_eq_foldl : join l = l.foldl (fun r s => r ++ s) "" :=
+  (rfl)
+
 @[simp]
 theorem join_nil : join [] = "" := by
   simp [join]
@@ -89,6 +92,10 @@ theorem intercalate_eq {s : Slice} {l : List Slice} :
   induction l with
   | nil => simp [intercalate]
   | cons hd tl ih => cases tl <;> simp_all [intercalate, intercalate.go, intercalateGo_append]
+
+@[simp]
+theorem join_eq {l : List Slice} : join l = String.join (l.map copy) := by
+  simp [join, String.join, List.foldl_map]
 
 end Slice
 

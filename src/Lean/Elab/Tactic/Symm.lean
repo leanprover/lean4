@@ -13,14 +13,16 @@ public section
 
 namespace Lean.Elab.Tactic
 
+open Meta
+
 @[builtin_tactic Lean.Parser.Tactic.symm]
 def evalSymm : Tactic := fun stx =>
   match stx with
   | `(tactic| symm $(loc?)?) => do
-    let atHyp h := liftMetaTactic1 fun g => g.applySymmAt h
-    let atTarget := liftMetaTactic1 fun g => g.applySymm
-    let loc := if let some loc := loc? then expandLocation loc else Location.targets #[] true
-    withLocation loc atHyp atTarget fun _ => throwError "`symm` made no progress"
+    withLocation (expandOptLocation (Lean.mkOptionalNode loc?))
+      (atLocal := fun h => liftMetaTactic1 fun g => g.applySymmAt h)
+      (atTarget := liftMetaTactic1 fun g => g.applySymm)
+      (throwTacticEx `symm · "`symm` made no progress")
   | _ => throwUnsupportedSyntax
 
 @[builtin_tactic Lean.Parser.Tactic.symmSaturate]

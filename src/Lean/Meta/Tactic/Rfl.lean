@@ -48,7 +48,8 @@ builtin_initialize registerBuiltinAttribute {
     let fail := throwError
       "`[refl]` attribute only applies to lemmas of the form `x ∼ x`, but this declaration is not:\
         {inlineExprTrailing declTy}"
-    let .app (.app rel lhs) rhs := targetTy | fail
+    -- Use `whnfR` to `applyRfl`/`liftReflToEq`
+    let .app (.app rel lhs) rhs ← whnfR targetTy | fail
     if let .app (.const ``Eq [_]) _ := rel then
       throwError "`[refl]` attribute may not be used on `Eq.refl`"
     unless ← withNewMCtxDepth <| isDefEq lhs rhs do fail
@@ -65,8 +66,8 @@ relation, that is, equality or another relation which has a reflexive lemma tagg
 attribute [refl].
 -/
 def _root_.Lean.MVarId.applyRfl (goal : MVarId) : MetaM Unit := goal.withContext do
-  -- NB: uses whnfR, we do not want to unfold the relation itself
-  let t ← whnfR <|← instantiateMVars <|← goal.getType
+  -- NB: uses reducible whnf, we do not want to unfold the relation itself
+  let t ← withReducible goal.getType'
   if t.getAppNumArgs < 2 then
     throwTacticEx `rfl goal <| m!"Expected the goal to be a binary relation"
       ++ MessageData.hint' m!"Reflexivity tactics can only be used on goals of the form `x ~ x` or `R x x`"

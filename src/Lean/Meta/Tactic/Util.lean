@@ -40,13 +40,13 @@ def mkFreshExprSyntheticOpaqueMVar (type : Expr) (tag : Name := Name.anonymous) 
 Produces an error message indicating that tactic `tacticName` has failed with the message `msg`,
 and displays the state of `mvarId` below the message.
 -/
-def mkTacticExMsg (tacticName : Name) (mvarId : MVarId) (msg : MessageData) : MessageData :=
-  m!"Tactic `{tacticName}` failed: {msg}\n\n{mvarId}"
+def mkTacticExMsg (tacticName : Name) (mvarId? : Option MVarId) (msg : MessageData) : MessageData :=
+  m!"Tactic `{tacticName}` failed: {msg}" ++ if let some mvarId := mvarId? then m!"\n\n{mvarId}" else m!""
 
-def throwTacticEx (tacticName : Name) (mvarId : MVarId) (msg? : Option MessageData := none) : MetaM α :=
+def throwTacticEx (tacticName : Name) (mvarId? : Option MVarId) (msg? : Option MessageData := none) : MetaM α :=
   match msg? with
-  | none => throwError "Tactic `{tacticName}` failed\n\n{mvarId}"
-  | some msg => throwError (mkTacticExMsg tacticName mvarId msg)
+  | none => throwError (m!"Tactic `{tacticName}` failed" ++ if let some mvarId := mvarId? then m!"\n\n{mvarId}" else m!"")
+  | some msg => throwError (mkTacticExMsg tacticName mvarId? msg)
 
 /--
 Rethrows the error as a nested error with the given tactic name prepended.

@@ -276,7 +276,7 @@ If `symm` is `true`, then adds in symmetric versions of each hypothesis.
 -/
 def saturateSymm (symm : Bool) (hyps : List Expr) : MetaM (List Expr) := do
   if symm then
-    let extraHyps ← hyps.filterMapM fun hyp => try some <$> hyp.applySymm catch _ => pure none
+    let extraHyps ← hyps.filterMapM fun hyp => try some <$> hyp.applySymm none catch _ => pure none
     return hyps ++ extraHyps
   else
     return hyps

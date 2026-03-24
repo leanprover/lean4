@@ -838,18 +838,24 @@ meta def solve (item : WorkItem) : VCGenM SolveResult := item.mvarId.withContext
   let f := e.getAppFn
   withTraceNode `Elab.Tactic.Do.vcgen (msg := fun _ => return m!"Program: {e}") do
 
+  -- Replace the program in the goal with `e'` (which must be definitionally equal).
+  let replaceProgDefEq (e' : Expr) : VCGenM MVarId := do
+    let wp ← Sym.Internal.mkAppS₅ wpConst m ps instWP α e'
+    let T ← mkAppNS head (args.set! 2 wp)
+    let target ← mkAppS₃ ent σs H T
+    goal.replaceTargetDefEq target
+
   -- Zeta let-expressions
   if let .letE _x _ty val body _nonDep := f then
     let body' ← Sym.instantiateRevBetaS body #[val]
     let e' ← mkAppRevS body' e.getAppRevArgs
-    let wp ← Sym.Internal.mkAppS₅ wpConst m ps instWP α e'
-    let T ← mkAppNS head (args.set! 2 wp)
-    let target ← mkAppS₃ ent σs H T
-    let goal ← goal.replaceTargetDefEq target
-    return .goals [item.withMVarId goal]
+    return .goals [item.withMVarId (← replaceProgDefEq e')]
 
   -- Split ite/dite/match
   if let some info ← liftMetaM <| Lean.Elab.Tactic.Do.getSplitInfo? e then
+    -- Try iota reduction first (reduces matcher/recursor with concrete discriminant)
+    if let some e' ← liftMetaM <| reduceRecMatcher? e then
+      return .goals [item.withMVarId (← replaceProgDefEq (← shareCommonInc e'))]
     -- Internalize pending hypotheses before forking
     let item ← internalizePending item
     let rule ← mkBackwardRuleFromSplitInfoCached info m σs ps instWP excessArgs

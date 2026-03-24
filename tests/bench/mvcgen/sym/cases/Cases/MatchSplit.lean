@@ -24,17 +24,18 @@ theorem Spec.get_M :
     ⦃fun s => Q.1 s s⦄ get (m := M) ⦃Q⦄ := by
   mvcgen
 
-def step (v : Nat) : M Unit := do
+/-- Matches on state `s` — the discriminant IS the excess state arg. -/
+def step : M Unit := do
   let s ← get
-  match v with
-  | 0 => throw "v is zero"
-  | n+1 => set (s + n + 1); let s ← get; set (s - n)
+  match s with
+  | 0 => throw "s is zero"
+  | n+1 => set n
 
 def loop (n : Nat) : M Unit := do
   match n with
   | 0 => pure ()
-  | n+1 => step n; loop n
+  | n+1 => step; loop n
 
-def Goal (n : Nat) : Prop := ⦃fun s => ⌜s = 0⌝⦄ loop n ⦃⇓_ s => ⌜s = n⌝⦄
+def Goal (n : Nat) : Prop := ⦃fun s => ⌜s = n⌝⦄ loop n ⦃⇓_ s => ⌜s = 0⌝⦄
 
 end MatchSplit

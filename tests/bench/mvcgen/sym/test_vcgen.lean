@@ -19,8 +19,8 @@ Each case exercises a different aspect of the VC generation:
 - `PurePrecond`: Pure hypotheses `⌜φ⌝` in preconditions
 - `ReaderState`: `ReaderT`/`StateM` combination
 - `DiteSplit`: Dependent if-then-else (`if h : cond then ...`)
-- `MatchSplit`: Pattern matching in monadic programs
-- `MatchSplitState`: Match on state variable (discriminant = excess state arg)
+- `MatchIota`: Pattern matching with concrete discriminants (iota-reduced, no split)
+- `MatchSplit`: Pattern matching with symbolic discriminant (state), exercising match split
 -/
 
 open Lean Parser Meta Elab Tactic Sym Std Do SpecAttr
@@ -57,8 +57,8 @@ open ReaderState in
 open DiteSplit in
 #eval runBenchUsingTactic ``Goal [``loop, ``step] `(tactic| mvcgen') `(tactic| sorry) [10]
 
-open MatchSplit in
+open MatchIota in
 #eval runBenchUsingTactic ``Goal [``loop, ``step] `(tactic| mvcgen') `(tactic| sorry) [10]
 
-open MatchSplitState in
+open MatchSplit in
 #eval runBenchUsingTactic ``Goal [``loop, ``step] `(tactic| mvcgen') `(tactic| grind) [10]

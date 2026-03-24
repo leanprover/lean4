@@ -136,6 +136,15 @@ theorem Cursor.pos_at {l : List α} {n : Nat} (h : n < l.length) :
 theorem Cursor.pos_mk {l pre suff : List α} (h : pre ++ suff = l) :
     (Cursor.mk pre suff h).pos = pre.length := rfl
 
+theorem Cursor.pos_le_length {c : Cursor l} : c.pos ≤ l.length := by
+  simp [← congrArg List.length c.property]
+
+theorem Cursor.length_prefix_le_length {c : Cursor l} : c.prefix.length ≤ l.length :=
+  pos_le_length
+
+theorem Cursor.length_suffix_le_length {c : Cursor l} : c.suffix.length ≤ l.length := by
+  simp [← congrArg List.length c.property]
+
 @[grind →]
 theorem eq_of_range'_eq_append_cons (h : range' s n step = xs ++ cur :: ys) :
     cur = s + step * xs.length := by

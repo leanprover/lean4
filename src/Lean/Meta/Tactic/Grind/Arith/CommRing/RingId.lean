@@ -38,11 +38,21 @@ where
     let noZeroDivInst? ← getNoZeroDivInst? u type
     trace_goal[grind.ring] "NoNatZeroDivisors available: {noZeroDivInst?.isSome}"
     let fieldInst? ← synthInstance? <| mkApp (mkConst ``Grind.Field [u]) type
+    let powCharIdentityInst? ← match charInst? with
+      | some (_, p) =>
+        if p > 0 then
+          match (← getPowCharIdentityInst? u type commSemiringInst p) with
+          | some (inst, csInst) => pure (some (inst, csInst, p))
+          | none => pure none
+        else
+          pure none
+      | none => pure (none : Option (Expr × Expr × Nat))
+    trace_goal[grind.ring] "PowCharIdentity available: {powCharIdentityInst?.isSome}"
     let semiringId? := none
     let id := (← get').rings.size
     let ring : CommRing := {
       id, semiringId?, type, u, semiringInst, ringInst, commSemiringInst,
-      commRingInst, charInst?, noZeroDivInst?, fieldInst?,
+      commRingInst, charInst?, noZeroDivInst?, fieldInst?, powCharIdentityInst?,
     }
     modify' fun s => { s with rings := s.rings.push ring }
     return some id

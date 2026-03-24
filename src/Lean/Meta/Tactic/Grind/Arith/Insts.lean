@@ -19,6 +19,13 @@ def getIsCharInst? (u : Level) (type : Expr) (semiringInst : Expr) : GoalM (Opti
   let some n ← evalNat? n | return none
   return some (charInst, n)
 
+def getPowCharIdentityInst? (u : Level) (type : Expr) (commSemiringInst : Expr) (p : Nat) : GoalM (Option (Expr × Expr)) := do withNewMCtxDepth do
+  let csInst ← mkFreshExprMVar (mkApp (mkConst ``Grind.CommSemiring [u]) type)
+  let powCharIdentityType := mkApp3 (mkConst ``Grind.PowCharIdentity [u]) type csInst (mkNatLit p)
+  let some inst ← synthInstance? powCharIdentityType | return none
+  let csInst ← instantiateMVars csInst
+  return some (inst, csInst)
+
 def getNoZeroDivInst? (u : Level) (type : Expr) : GoalM (Option Expr) := do
   let natModuleType := mkApp (mkConst ``Grind.NatModule [u]) type
   let some natModuleInst ← synthInstance? natModuleType | return none

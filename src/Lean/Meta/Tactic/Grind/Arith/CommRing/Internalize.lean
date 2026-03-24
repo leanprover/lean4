@@ -112,6 +112,25 @@ private def processInv (e inst a : Expr) : RingM Unit := do
       return ()
   pushNewFact <| mkApp3 (mkConst ``Grind.CommRing.inv_split [ring.u]) ring.type fieldInst a
 
+/--
+For each new variable `x` in a ring with `PowCharIdentity α p`,
+push the equation `x ^ p = x` as a new fact into grind.
+-/
+private def processPowCharIdentityVars : RingM Unit := do
+  let ring ← getCommRing
+  let some (powCharIdentityInst, csInst, p) := ring.powCharIdentityInst? | return ()
+  let startIdx := ring.powCharIdentityVarCount
+  let vars := ring.toRing.vars
+  if startIdx >= vars.size then return ()
+  for i in [startIdx:vars.size] do
+    let x := vars[i]!
+    trace_goal[grind.ring] "PowCharIdentity: pushing x^{p} = x for {x}"
+    -- Construct proof: @PowCharIdentity.pow_char_eq α csInst p powCharIdentityInst x
+    let proof := mkApp5 (mkConst ``Grind.PowCharIdentity.pow_char_eq [ring.u])
+      ring.type csInst (mkNatLit p) powCharIdentityInst x
+    pushNewFact proof
+  modifyCommRing fun s => { s with powCharIdentityVarCount := vars.size }
+
 /-- Returns `true` if `e` is a term `a⁻¹`. -/
 private def internalizeInv (e : Expr) : GoalM Bool := do
   match_expr e with
@@ -138,6 +157,7 @@ def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
       denote := s.denote.insert { expr := e } re
       denoteEntries := s.denoteEntries.push (e, re)
     }
+    processPowCharIdentityVars
   else if let some semiringId ← getCommSemiringId? type then SemiringM.run semiringId do
     let some re ← sreify? e | return ()
     trace_goal[grind.ring.internalize] "semiring [{semiringId}]: {e}"

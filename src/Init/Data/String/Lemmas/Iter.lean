@@ -18,14 +18,13 @@ namespace Std.Iter
 
 @[simp]
 public theorem joinString_eq {α β : Type} [Std.Iterator α Id β] [Std.Iterators.Finite α Id]
-    [Std.IteratorLoop α Id Id] [Std.LawfulIteratorLoop α Id Id] [ToString β]
-    {it : Std.Iter (α := α) β} : it.joinString = String.join (it.toList.map toString) := by
+    [ToString β] {it : Std.Iter (α := α) β} :
+    it.joinString = String.join (it.toList.map toString) := by
   rw [joinString, String.join, ← foldl_toList, toList_map]
 
 @[simp]
 public theorem intercalateString_eq {α β : Type} [Std.Iterator α Id β] [Std.Iterators.Finite α Id]
-    [Std.IteratorLoop α Id Id] [Std.LawfulIteratorLoop α Id Id] [ToString β] {s : String.Slice}
-    {it : Std.Iter (α := α) β} :
+    [ToString β] {s : String.Slice} {it : Std.Iter (α := α) β} :
     it.intercalateString s = s.copy.intercalate (it.toList.map toString) := by
   simp only [intercalateString, String.appendSlice_eq, ← foldl_toList, toList_map]
   generalize s.copy = s

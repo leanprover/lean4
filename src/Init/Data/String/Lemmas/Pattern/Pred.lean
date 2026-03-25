@@ -187,29 +187,59 @@ theorem isLongestMatchAt_iff {p : Char → Prop} [DecidablePred p] {s : Slice}
     IsLongestMatchAt p pos pos' ↔ ∃ h, pos' = pos.next h ∧ p (pos.get h) := by
   simp [isLongestMatchAt_iff_isLongestMatchAt_decide, CharPred.isLongestMatchAt_iff]
 
+theorem isLongestRevMatchAt_iff {p : Char → Prop} [DecidablePred p] {s : Slice}
+    {pos pos' : s.Pos} :
+    IsLongestRevMatchAt p pos pos' ↔ ∃ h, pos = pos'.prev h ∧ p ((pos'.prev h).get (by simp)) := by
+  simp [isLongestRevMatchAt_iff_isLongestRevMatchAt_decide, CharPred.isLongestRevMatchAt_iff]
+
 theorem isLongestMatchAt_of_get {p : Char → Prop} [DecidablePred p] {s : Slice} {pos : s.Pos}
     {h : pos ≠ s.endPos} (hc : p (pos.get h)) : IsLongestMatchAt p pos (pos.next h) :=
   isLongestMatchAt_iff.2 ⟨h, by simp [hc]⟩
 
+theorem isLongestRevMatchAt_of_get {p : Char → Prop} [DecidablePred p] {s : Slice} {pos : s.Pos}
+    {h : pos ≠ s.startPos} (hc : p ((pos.prev h).get (by simp))) :
+    IsLongestRevMatchAt p (pos.prev h) pos :=
+  isLongestRevMatchAt_iff.2 ⟨h, by simp [hc]⟩
+
 theorem matchesAt_iff_matchesAt_decide {p : Char → Prop} [DecidablePred p] {s : Slice}
     {pos : s.Pos} : MatchesAt p pos ↔ MatchesAt (decide <| p ·) pos := by
   simp [matchesAt_iff_exists_isLongestMatchAt, isLongestMatchAt_iff_isLongestMatchAt_decide]
+
+theorem revMatchesAt_iff_revMatchesAt_decide {p : Char → Prop} [DecidablePred p] {s : Slice}
+    {pos : s.Pos} : RevMatchesAt p pos ↔ RevMatchesAt (decide <| p ·) pos := by
+  simp [revMatchesAt_iff_exists_isLongestRevMatchAt, isLongestRevMatchAt_iff_isLongestRevMatchAt_decide]
 
 theorem matchAt?_eq_matchAt?_decide {p : Char → Prop} [DecidablePred p] {s : Slice}
     {pos : s.Pos} : matchAt? p pos = matchAt? (decide <| p ·) pos := by
   ext endPos
   simp [isLongestMatchAt_iff_isLongestMatchAt_decide]
 
+theorem revMatchAt?_eq_revMatchAt?_decide {p : Char → Prop} [DecidablePred p] {s : Slice}
+    {pos : s.Pos} : revMatchAt? p pos = revMatchAt? (decide <| p ·) pos := by
+  ext startPos
+  simp [isLongestRevMatchAt_iff_isLongestRevMatchAt_decide]
+
 theorem skipPrefix?_eq_skipPrefix?_decide {p : Char → Prop} [DecidablePred p] :
     ForwardPattern.skipPrefix? p = ForwardPattern.skipPrefix? (decide <| p ·) := rfl
+
+theorem skipSuffix?_eq_skipSuffix?_decide {p : Char → Prop} [DecidablePred p] :
+    BackwardPattern.skipSuffix? p = BackwardPattern.skipSuffix? (decide <| p ·) := rfl
 
 instance {p : Char → Prop} [DecidablePred p] : LawfulForwardPatternModel p where
   skipPrefix?_eq_some_iff {s} pos := by
     rw [skipPrefix?_eq_skipPrefix?_decide, isLongestMatch_iff_isLongestMatch_decide]
     exact LawfulForwardPatternModel.skipPrefix?_eq_some_iff ..
 
+instance {p : Char → Prop} [DecidablePred p] : LawfulBackwardPatternModel p where
+  skipSuffix?_eq_some_iff {s} pos := by
+    rw [skipSuffix?_eq_skipSuffix?_decide, isLongestRevMatch_iff_isLongestRevMatch_decide]
+    exact LawfulBackwardPatternModel.skipSuffix?_eq_some_iff ..
+
 theorem toSearcher_eq {p : Char → Prop} [DecidablePred p] {s : Slice} :
     ToForwardSearcher.toSearcher p s = ToForwardSearcher.toSearcher (decide <| p ·) s := (rfl)
+
+theorem toBackwardSearcher_eq {p : Char → Prop} [DecidablePred p] {s : Slice} :
+    ToBackwardSearcher.toSearcher p s = ToBackwardSearcher.toSearcher (decide <| p ·) s := (rfl)
 
 theorem isValidSearchFrom_iff_isValidSearchFrom_decide {p : Char → Prop} [DecidablePred p]
     {s : Slice} {pos : s.Pos} {l : List (SearchStep s)} :
@@ -224,23 +254,54 @@ theorem isValidSearchFrom_iff_isValidSearchFrom_decide {p : Char → Prop} [Deci
     | matched => simp_all [IsValidSearchFrom.matched, isLongestMatchAt_iff_isLongestMatchAt_decide]
     | mismatched => simp_all [IsValidSearchFrom.mismatched, matchesAt_iff_matchesAt_decide]
 
+theorem isValidRevSearchFrom_iff_isValidRevSearchFrom_decide {p : Char → Prop} [DecidablePred p]
+    {s : Slice} {pos : s.Pos} {l : List (SearchStep s)} :
+    IsValidRevSearchFrom p pos l ↔ IsValidRevSearchFrom (decide <| p ·) pos l := by
+  refine ⟨fun h => ?_, fun h => ?_⟩
+  · induction h with
+    | startPos => simpa using IsValidRevSearchFrom.startPos
+    | matched => simp_all [IsValidRevSearchFrom.matched, isLongestRevMatchAt_iff_isLongestRevMatchAt_decide]
+    | mismatched => simp_all [IsValidRevSearchFrom.mismatched, revMatchesAt_iff_revMatchesAt_decide]
+  · induction h with
+    | startPos => simpa using IsValidRevSearchFrom.startPos
+    | matched => simp_all [IsValidRevSearchFrom.matched, isLongestRevMatchAt_iff_isLongestRevMatchAt_decide]
+    | mismatched => simp_all [IsValidRevSearchFrom.mismatched, revMatchesAt_iff_revMatchesAt_decide]
+
 instance {p : Char → Prop} [DecidablePred p] : LawfulToForwardSearcherModel p where
   isValidSearchFrom_toList s := by
     simpa [toSearcher_eq, isValidSearchFrom_iff_isValidSearchFrom_decide] using
       LawfulToForwardSearcherModel.isValidSearchFrom_toList (pat := (decide <| p ·)) (s := s)
 
+instance {p : Char → Prop} [DecidablePred p] : LawfulToBackwardSearcherModel p where
+  isValidRevSearchFrom_toList s := by
+    simpa [toBackwardSearcher_eq, isValidRevSearchFrom_iff_isValidRevSearchFrom_decide] using
+      LawfulToBackwardSearcherModel.isValidRevSearchFrom_toList (pat := (decide <| p ·)) (s := s)
+
 theorem matchesAt_iff {p : Char → Prop} [DecidablePred p] {s : Slice} {pos : s.Pos} :
     MatchesAt p pos ↔ ∃ (h : pos ≠ s.endPos), p (pos.get h) := by
   simp [matchesAt_iff_exists_isLongestMatchAt, isLongestMatchAt_iff, exists_comm]
+
+theorem revMatchesAt_iff {p : Char → Prop} [DecidablePred p] {s : Slice} {pos : s.Pos} :
+    RevMatchesAt p pos ↔ ∃ (h : pos ≠ s.startPos), p ((pos.prev h).get (by simp)) := by
+  simp [revMatchesAt_iff_exists_isLongestRevMatchAt, isLongestRevMatchAt_iff, exists_comm]
 
 theorem not_matchesAt_of_get {p : Char → Prop} [DecidablePred p] {s : Slice} {pos : s.Pos}
     {h : pos ≠ s.endPos} (hc : ¬ p (pos.get h)) : ¬ MatchesAt p pos := by
   simp [matchesAt_iff, hc]
 
+theorem not_revMatchesAt_of_get {p : Char → Prop} [DecidablePred p] {s : Slice} {pos : s.Pos}
+    {h : pos ≠ s.startPos} (hc : ¬ p ((pos.prev h).get (by simp))) : ¬ RevMatchesAt p pos := by
+  simp [revMatchesAt_iff, hc]
+
 theorem matchAt?_eq {s : Slice} {pos : s.Pos} {p : Char → Prop} [DecidablePred p] :
     matchAt? p pos =
       if h₀ : ∃ (h : pos ≠ s.endPos), p (pos.get h) then some (pos.next h₀.1) else none := by
   split <;> simp_all [isLongestMatchAt_iff, matchesAt_iff]
+
+theorem revMatchAt?_eq {s : Slice} {pos : s.Pos} {p : Char → Prop} [DecidablePred p] :
+    revMatchAt? p pos =
+      if h₀ : ∃ (h : pos ≠ s.startPos), p ((pos.prev h).get (by simp)) then some (pos.prev h₀.1) else none := by
+  split <;> simp_all [isLongestRevMatchAt_iff, revMatchesAt_iff]
 
 end Decidable
 

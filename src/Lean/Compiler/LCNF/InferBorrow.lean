@@ -384,6 +384,8 @@ where
       if let .fvar parent := args[1]! then
         if ← isOwned parent then ownFVar z (.forwardProjectionProp z)
     | .fap ``Array.get!Internal args =>
+      if let .fvar parent := args[1]! then
+        if ← isOwned parent then ownFVar z (.forwardProjectionProp z)
       if let .fvar parent := args[2]! then
         if ← isOwned parent then ownFVar z (.forwardProjectionProp z)
     | .fap ``Array.uget args =>

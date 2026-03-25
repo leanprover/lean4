@@ -178,10 +178,11 @@ partial def compileToSimpleGroundExpr (code : Code .impure) : CompilerM (Option 
 where
   go (code : Code .impure) : DetectM SimpleGroundExpr := do
     match code with
-    | .let decl (.return fvarId) =>
+    | .let decl (.return fvarId) | .let decl (.inc _ _ _ true  (.return fvarId)) =>
       guard <| decl.fvarId == fvarId
       compileFinalLet decl.value
     | .let decl k => compileNonFinalLet decl k
+    | .inc (persistent := true) (k := k) .. => go k
     | _ => failure
 
   @[inline]

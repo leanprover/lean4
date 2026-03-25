@@ -114,6 +114,9 @@ where
         let parentVal ← getOwnedness parent
         join z parentVal
     | .fap ``Array.get!Internal args =>
+      if let .fvar parent := args[1]! then
+        let parentVal ← getOwnedness parent
+        join z parentVal
       if let .fvar parent := args[2]! then
         let parentVal ← getOwnedness parent
         join z parentVal

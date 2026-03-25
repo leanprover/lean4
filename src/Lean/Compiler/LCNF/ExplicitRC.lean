@@ -31,9 +31,12 @@ namespace Lean.Compiler.LCNF
 open ImpureType
 
 /-!
-The following section contains the derived value analysis. It figures out a dependency tree of
+The following section contains the derived value analysis. It figures out a dependency graph of
 values that were derived from other values through projections or `Array` accesses. This information
 is later used in the derived borrow analysis to reduce reference counting pressure.
+
+When a derived value has more than one parent, it is derived from one of the parent values but we
+cannot statically determine which one.
 -/
 
 /--
@@ -41,10 +44,10 @@ Contains information about values derived through various forms of projection fr
 -/
 structure DerivedValInfo where
   /--
-  The variable this value was derived from. This is always set except for parameters as they have no
-  value to be derived from.
+  The set of variables this value may derive from. This is always set except for parameters as they
+  have no value to be derived from.
   -/
-  parent? : Option FVarId
+  parents : Array FVarId
   /--
   The set of variables that were derived from this value.
   -/
@@ -56,59 +59,75 @@ abbrev DerivedValMap := Std.HashMap FVarId DerivedValInfo
 namespace CollectDerivedValInfo
 
 structure State where
+  /--
+  The dependency graph of values.
+  -/
   varMap : DerivedValMap := {}
-  borrowedParams : FVarIdHashSet := {}
+  /--
+  The set of values that are to be interpreted as being borrowed by nature. This currently includes:
+  - borrowed parameters
+  - variables that are initialized from constants
+  -/
+  borrowedValues : FVarIdHashSet := {}
 
 abbrev M := StateRefT State CompilerM
 
 @[inline]
-def visitParam (p : Param .impure) : M Unit :=
+def addDerivedValue (parents : Array FVarId) (child : FVarId) : M Unit := do
   modify fun s => { s with
-    varMap := s.varMap.insert p.fvarId {
-      parent? := none
-      children := {}
-    }
-    borrowedParams :=
-      if p.borrow && p.type.isPossibleRef then
-        s.borrowedParams.insert p.fvarId
-      else
-        s.borrowedParams
+    varMap :=
+      let varMap := parents.foldl (init := s.varMap)
+        (·.modify · (fun info => { info with children := info.children.insert child }))
+      varMap.insert child { parents := parents, children := {} }
   }
 
 @[inline]
-def addDerivedValue (parent : FVarId) (child : FVarId) : M Unit := do
-  modify fun s => { s with
-    varMap :=
-      s.varMap
-        |>.modify parent (fun info => { info with children := info.children.insert child })
-        |>.insert child { parent? := some parent, children := {} }
-  }
+def addBorrowedValue (fvarId : FVarId) : M Unit := do
+  modify fun s => { s with borrowedValues := s.borrowedValues.insert fvarId }
 
-def removeFromParent (child : FVarId) : M Unit := do
-  if let some parent := (← get).varMap.get? child |>.bind (·.parent?) then
-    modify fun s => { s with
-      varMap := s.varMap.modify parent fun info =>
-        { info with children := info.children.erase child }
-    }
+@[inline]
+def visitParam (p : Param .impure) : M Unit := do
+  addDerivedValue #[] p.fvarId
+  if p.borrow && p.type.isPossibleRef then
+    addBorrowedValue p.fvarId
+
+def removeFromParents (child : FVarId) : M Unit := do
+  if let some entry := (← get).varMap.get? child then
+    for parent in entry.parents do
+      modify fun s => { s with
+        varMap := s.varMap.modify parent fun info =>
+          { info with children := info.children.erase child }
+      }
 
 partial def collectCode (code : Code .impure) : M Unit := do
   match code with
   | .let decl k =>
     match decl.value with
     | .oproj _ parent =>
-      addDerivedValue parent decl.fvarId
+      addDerivedValue #[parent] decl.fvarId
     -- Keep in sync with PropagateBorrow, InferBorrow
     | .fap ``Array.getInternal args =>
       if let .fvar parent := args[1]! then
-        addDerivedValue parent decl.fvarId
+        addDerivedValue #[parent] decl.fvarId
     | .fap ``Array.get!Internal args =>
+      let mut parents := #[]
+      /-
+      Because execution may continue after a panic, the value resulting from a get!InternalBorrowed
+      may be derived from either the `Inhabited` instance or the `Array` argument.
+      -/
+      if let .fvar parent := args[1]! then
+        parents := parents.push parent
       if let .fvar parent := args[2]! then
-        addDerivedValue parent decl.fvarId
+        parents := parents.push parent
+      addDerivedValue parents decl.fvarId
     | .fap ``Array.uget args =>
       if let .fvar parent := args[1]! then
-        addDerivedValue parent decl.fvarId
+        addDerivedValue #[parent] decl.fvarId
+    | .fap _ #[] =>
+      addDerivedValue #[] decl.fvarId
+      addBorrowedValue decl.fvarId
     | .reset _ target =>
-      removeFromParent target
+      removeFromParents target
     | _ => pure ()
     collectCode k
   | .jp decl k =>
@@ -125,8 +144,8 @@ Collect the derived value tree as well as the set of parameters that take object
 -/
 def collect (ps : Array (Param .impure)) (code : Code .impure) :
     CompilerM (DerivedValMap × FVarIdHashSet) := do
-  let ⟨_, { varMap, borrowedParams }⟩ ← go |>.run {}
-  return ⟨varMap, borrowedParams⟩
+  let ⟨_, { varMap, borrowedValues }⟩ ← go |>.run {}
+  return ⟨varMap, borrowedValues⟩
 where
   go : M Unit := do
     ps.forM visitParam
@@ -170,13 +189,21 @@ def LiveVars.erase (liveVars : LiveVars) (fvarId : FVarId) : LiveVars :=
   let borrows := liveVars.borrows.erase fvarId
   { vars, borrows }
 
+@[inline]
+def LiveVars.insertBorrow (liveVars : LiveVars) (fvarId : FVarId) : LiveVars :=
+  { liveVars with borrows := liveVars.borrows.insert fvarId }
+
+@[inline]
+def LiveVars.insertLive (liveVars : LiveVars) (fvarId : FVarId) : LiveVars :=
+  { liveVars with vars := liveVars.vars.insert fvarId }
+
 abbrev JPLiveVarMap := FVarIdMap LiveVars
 
 structure Context where
   /--
-  The set of all parameters that are borrowed and take potential objects as arguments.
+  The set of all values that are borrowed and potentially objects
   -/
-  borrowedParams : FVarIdHashSet
+  borrowedValues : FVarIdHashSet
   /--
   The derived value tree.
   -/
@@ -277,18 +304,21 @@ def withCollectLiveVars (x : RcM α) : RcM (α × LiveVars) := do
   return (ret, collected)
 
 /--
-Traverse the transitive closure of values derived from `fvarId` and add them to `s` if they pass
-`shouldAdd`.
+Traverse the transitive closure of values derived from `fvarId` and add them to `s` if:
+- they pass `shouldAdd`.
+- all their parents are accessible
 -/
 @[specialize]
-partial def addDescendants (fvarId : FVarId) (derivedValMap : DerivedValMap) (s : FVarIdHashSet)
-    (shouldAdd : FVarId → Bool := fun _ => true) : FVarIdHashSet :=
+partial def addDescendants (fvarId : FVarId) (derivedValMap : DerivedValMap) (liveVars : LiveVars)
+    (shouldAdd : FVarId → Bool := fun _ => true) : LiveVars :=
   if let some info := derivedValMap.get? fvarId then
-    info.children.fold (init := s) fun s child =>
-      let s := if shouldAdd child then s.insert child else s
-      addDescendants child derivedValMap s shouldAdd
+    info.children.fold (init := liveVars) fun liveVars child =>
+      let cinfo := derivedValMap.get! child
+      let parentsOk := cinfo.parents.all fun fvarId => (liveVars.vars.contains fvarId || liveVars.borrows.contains fvarId)
+      let liveVars := if parentsOk && shouldAdd child then liveVars.insertBorrow child else liveVars
+      addDescendants child derivedValMap liveVars shouldAdd
   else
-    s
+    liveVars
 
 /--
 Mark `fvarId` as live from here on out and if there are any derived values that are not live anymore
@@ -299,20 +329,21 @@ alive after all).
 def useVar (fvarId : FVarId) (shouldBorrow : FVarId → Bool := fun _ => true) : RcM Unit := do
   if !(← isLive fvarId) then
     let derivedValMap := (← read).derivedValMap
+    modifyLive fun liveVars => { liveVars with vars := liveVars.vars.insert fvarId }
     modifyLive fun liveVars =>
-      { liveVars with
-          borrows := addDescendants fvarId derivedValMap liveVars.borrows fun y =>
-            !liveVars.vars.contains y && shouldBorrow y
-          vars := liveVars.vars.insert fvarId
-      }
+      addDescendants fvarId derivedValMap liveVars fun y =>
+        !liveVars.vars.contains y && shouldBorrow y
 
 def useArgs (args : Array (Arg .impure)) : RcM Unit := do
   args.forM fun arg =>
     match arg with
     | .fvar fvarId =>
       useVar fvarId fun y =>
-        -- If a value is used as an argument we are going to mark it live anyways so don't mark it
-        -- as borrowed.
+        /-
+        If we are in a situation like `f x y` where `x` would imply that `y` remains borrowed we are
+        going to mark `y` as being live instead of borrowed later on anyways. Instead we skip this
+        intermediate state and don't even begin to consider it as borrowed.
+        -/
         args.all fun arg =>
           match arg with
           | .fvar z => y != z
@@ -341,9 +372,9 @@ def setRetLiveVars : RcM Unit := do
   let derivedValMap := (← read).derivedValMap
   -- At the end of a function no values are live and all borrows derived from parameters will still
   -- be around.
-  let borrows := (← read).borrowedParams.fold (init := {}) fun borrows x =>
-    addDescendants x derivedValMap (borrows.insert x)
-  modifyLive fun _ => { vars := {}, borrows }
+  let liveVars := (← read).borrowedValues.fold (init := {}) fun liveVars x =>
+    addDescendants x derivedValMap (liveVars.insertBorrow x)
+  modifyLive (fun _ => liveVars)
 
 @[inline]
 def addInc (fvarId : FVarId) (k : Code .impure) (n : Nat := 1) : RcM (Code .impure) := do
@@ -625,9 +656,9 @@ partial def Code.explicitRc (code : Code .impure) : RcM (Code .impure) := do
 def Decl.explicitRc (decl : Decl .impure) :
     CompilerM (Decl .impure) := do
   let value ← decl.value.mapCodeM fun code => do
-    let ⟨derivedValMap, borrowedParams⟩ ← CollectDerivedValInfo.collect decl.params code
+    let ⟨derivedValMap, borrowedValues⟩ ← CollectDerivedValInfo.collect decl.params code
     go code |>.run {
-      borrowedParams,
+      borrowedValues,
       derivedValMap,
     } |>.run' {}
   return { decl with value }

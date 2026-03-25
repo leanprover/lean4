@@ -133,8 +133,15 @@ instance {p : Char → Prop} [DecidablePred p] : PatternModel p where
 instance {p : Char → Prop} [DecidablePred p] : NoPrefixPatternModel p where
   eq_empty := NoPrefixPatternModel.eq_empty (pat := (decide <| p ·))
 
+instance {p : Char → Prop} [DecidablePred p] : NoSuffixPatternModel p where
+  eq_empty := NoSuffixPatternModel.eq_empty (pat := (decide <| p ·))
+
 theorem isMatch_iff_isMatch_decide {p : Char → Prop} [DecidablePred p] {s : Slice} {pos : s.Pos} :
     IsMatch p pos ↔ IsMatch (decide <| p ·) pos :=
+  ⟨fun ⟨h⟩ => ⟨h⟩, fun ⟨h⟩ => ⟨h⟩⟩
+
+theorem isRevMatch_iff_isRevMatch_decide {p : Char → Prop} [DecidablePred p] {s : Slice} {pos : s.Pos} :
+    IsRevMatch p pos ↔ IsRevMatch (decide <| p ·) pos :=
   ⟨fun ⟨h⟩ => ⟨h⟩, fun ⟨h⟩ => ⟨h⟩⟩
 
 theorem isMatch_iff {p : Char → Prop} [DecidablePred p] {s : Slice} {pos : s.Pos} :
@@ -142,19 +149,38 @@ theorem isMatch_iff {p : Char → Prop} [DecidablePred p] {s : Slice} {pos : s.P
       ∃ (h : s.startPos ≠ s.endPos), pos = s.startPos.next h ∧ p (s.startPos.get h) := by
   simp [isMatch_iff_isMatch_decide, CharPred.isMatch_iff]
 
+theorem isRevMatch_iff {p : Char → Prop} [DecidablePred p] {s : Slice} {pos : s.Pos} :
+    IsRevMatch p pos ↔
+      ∃ (h : s.endPos ≠ s.startPos), pos = s.endPos.prev h ∧ p ((s.endPos.prev h).get (by simp)) := by
+  simp [isRevMatch_iff_isRevMatch_decide, CharPred.isRevMatch_iff]
+
 theorem isLongestMatch_iff {p : Char → Prop} [DecidablePred p] {s : Slice} {pos : s.Pos} :
     IsLongestMatch p pos ↔
       ∃ (h : s.startPos ≠ s.endPos), pos = s.startPos.next h ∧ p (s.startPos.get h) := by
   rw [isLongestMatch_iff_isMatch, isMatch_iff]
 
+theorem isLongestRevMatch_iff {p : Char → Prop} [DecidablePred p] {s : Slice} {pos : s.Pos} :
+    IsLongestRevMatch p pos ↔
+      ∃ (h : s.endPos ≠ s.startPos), pos = s.endPos.prev h ∧ p ((s.endPos.prev h).get (by simp)) := by
+  simp [isLongestRevMatch_iff_isRevMatch, isRevMatch_iff]
+
 theorem isLongestMatch_iff_isLongestMatch_decide {p : Char → Prop} [DecidablePred p] {s : Slice}
     {pos : s.Pos} : IsLongestMatch p pos ↔ IsLongestMatch (decide <| p ·) pos := by
   simp [isLongestMatch_iff_isMatch, isMatch_iff_isMatch_decide]
+
+theorem isLongestRevMatch_iff_isLongestRevMatch_decide {p : Char → Prop} [DecidablePred p] {s : Slice}
+    {pos : s.Pos} : IsLongestRevMatch p pos ↔ IsLongestRevMatch (decide <| p ·) pos := by
+  simp [isLongestRevMatch_iff_isRevMatch, isRevMatch_iff_isRevMatch_decide]
 
 theorem isLongestMatchAt_iff_isLongestMatchAt_decide {p : Char → Prop} [DecidablePred p]
     {s : Slice} {pos pos' : s.Pos} :
     IsLongestMatchAt p pos pos' ↔ IsLongestMatchAt (decide <| p ·) pos pos' := by
   simp [Model.isLongestMatchAt_iff, isLongestMatch_iff_isLongestMatch_decide]
+
+theorem isLongestRevMatchAt_iff_isLongestRevMatchAt_decide {p : Char → Prop} [DecidablePred p]
+    {s : Slice} {pos pos' : s.Pos} :
+    IsLongestRevMatchAt p pos pos' ↔ IsLongestRevMatchAt (decide <| p ·) pos pos' := by
+  simp [Model.isLongestRevMatchAt_iff, isLongestRevMatch_iff_isLongestRevMatch_decide]
 
 theorem isLongestMatchAt_iff {p : Char → Prop} [DecidablePred p] {s : Slice}
     {pos pos' : s.Pos} :

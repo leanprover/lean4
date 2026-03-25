@@ -29,7 +29,7 @@ instance {p : Char → Bool} : PatternModel p where
   not_matches_empty := by
     simp
 
-instance {p : Char → Bool} : NoPrefixForwardPatternModel p :=
+instance {p : Char → Bool} : NoPrefixPatternModel p :=
   .of_length_eq (by simp +contextual [PatternModel.Matches])
 
 theorem isMatch_iff {p : Char → Bool} {s : Slice} {pos : s.Pos} :
@@ -82,8 +82,8 @@ instance {p : Char → Prop} [DecidablePred p] : PatternModel p where
   Matches := PatternModel.Matches (decide <| p ·)
   not_matches_empty := PatternModel.not_matches_empty (pat := (decide <| p ·))
 
-instance {p : Char → Prop} [DecidablePred p] : NoPrefixForwardPatternModel p where
-  eq_empty := NoPrefixForwardPatternModel.eq_empty (pat := (decide <| p ·))
+instance {p : Char → Prop} [DecidablePred p] : NoPrefixPatternModel p where
+  eq_empty := NoPrefixPatternModel.eq_empty (pat := (decide <| p ·))
 
 theorem isMatch_iff_isMatch_decide {p : Char → Prop} [DecidablePred p] {s : Slice} {pos : s.Pos} :
     IsMatch p pos ↔ IsMatch (decide <| p ·) pos :=

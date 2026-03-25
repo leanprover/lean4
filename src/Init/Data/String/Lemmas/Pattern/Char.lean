@@ -29,7 +29,7 @@ instance {c : Char} : PatternModel c where
   Matches s := s = String.singleton c
   not_matches_empty := by simp
 
-instance {c : Char} : NoPrefixForwardPatternModel c :=
+instance {c : Char} : NoPrefixPatternModel c :=
   .of_length_eq (by simp +contextual [PatternModel.Matches])
 
 theorem isMatch_iff {c : Char} {s : Slice} {pos : s.Pos} :

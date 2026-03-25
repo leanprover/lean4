@@ -117,7 +117,7 @@ class ForwardPattern {ρ : Type} (pat : ρ) where
   -/
   startsWith : (s : Slice) → Bool := fun s => (skipPrefix? s).isSome
 
-@[deprecated ForwardPattern.dropPrefix? (since := "2026-03-19")]
+@[deprecated ForwardPattern.skipPrefix? (since := "2026-03-19")]
 def ForwardPattern.dropPrefix? {ρ : Type} (pat : ρ) [ForwardPattern pat] (s : Slice) : Option s.Pos :=
   ForwardPattern.skipPrefix? pat s
 

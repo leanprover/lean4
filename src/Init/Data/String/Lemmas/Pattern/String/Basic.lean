@@ -32,7 +32,7 @@ instance {pat : Slice} : PatternModel pat where
   Matches s := s ≠ "" ∧ s = pat.copy
   not_matches_empty := by simp
 
-instance {pat : Slice} : NoPrefixForwardPatternModel pat :=
+instance {pat : Slice} : NoPrefixPatternModel pat :=
   .of_length_eq (by simp +contextual [PatternModel.Matches])
 
 theorem isMatch_iff {pat s : Slice} {pos : s.Pos} (h : pat.isEmpty = false) :
@@ -150,7 +150,7 @@ instance {pat : String} : PatternModel pat where
   Matches s := s ≠ "" ∧ s = pat
   not_matches_empty := by simp
 
-instance {pat : String} : NoPrefixForwardPatternModel pat :=
+instance {pat : String} : NoPrefixPatternModel pat :=
   .of_length_eq (by simp +contextual [PatternModel.Matches])
 
 theorem isMatch_iff_slice {pat : String} {s : Slice} {pos : s.Pos} :

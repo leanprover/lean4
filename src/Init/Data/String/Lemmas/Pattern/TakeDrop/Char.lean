@@ -52,7 +52,7 @@ theorem startsWith_char_eq_false_iff_forall_append {c : Char} {s : Slice} :
 
 theorem eq_append_of_dropPrefix?_char_eq_some {c : Char} {s res : Slice} (h : s.dropPrefix? c = some res) :
     s.copy = singleton c ++ res.copy := by
-  simpa [ForwardPatternModel.Matches] using Pattern.Model.eq_append_of_dropPrefix?_eq_some h
+  simpa [PatternModel.Matches] using Pattern.Model.eq_append_of_dropPrefix?_eq_some h
 
 end Slice
 

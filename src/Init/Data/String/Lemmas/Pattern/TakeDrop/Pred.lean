@@ -45,7 +45,7 @@ theorem startsWith_bool_eq_head? {p : Char → Bool} {s : Slice} :
 
 theorem eq_append_of_dropPrefix?_bool_eq_some {p : Char → Bool} {s res : Slice} (h : s.dropPrefix? p = some res) :
     ∃ c, s.copy = singleton c ++ res.copy ∧ p c = true := by
-  obtain ⟨_, ⟨c, ⟨rfl, h₁⟩⟩, h₂⟩ := by simpa [ForwardPatternModel.Matches] using Pattern.Model.eq_append_of_dropPrefix?_eq_some h
+  obtain ⟨_, ⟨c, ⟨rfl, h₁⟩⟩, h₂⟩ := by simpa [PatternModel.Matches] using Pattern.Model.eq_append_of_dropPrefix?_eq_some h
   exact ⟨_, h₂, h₁⟩
 
 theorem skipPrefix?_prop_eq_some_iff {P : Char → Prop} [DecidablePred P] {s : Slice} {pos : s.Pos} :

@@ -24,18 +24,18 @@ public section
 
 namespace String.Slice.Pattern.Model.CharPred
 
-instance {p : Char → Bool} : ForwardPatternModel p where
+instance {p : Char → Bool} : PatternModel p where
   Matches s := ∃ c, s = singleton c ∧ p c
   not_matches_empty := by
     simp
 
 instance {p : Char → Bool} : NoPrefixForwardPatternModel p :=
-  .of_length_eq (by simp +contextual [ForwardPatternModel.Matches])
+  .of_length_eq (by simp +contextual [PatternModel.Matches])
 
 theorem isMatch_iff {p : Char → Bool} {s : Slice} {pos : s.Pos} :
     IsMatch p pos ↔
       ∃ (h : s.startPos ≠ s.endPos), pos = s.startPos.next h ∧ p (s.startPos.get h) := by
-  simp only [Model.isMatch_iff, ForwardPatternModel.Matches, sliceTo_copy_eq_iff_exists_splits]
+  simp only [Model.isMatch_iff, PatternModel.Matches, sliceTo_copy_eq_iff_exists_splits]
   refine ⟨?_, ?_⟩
   · simp only [splits_singleton_iff]
     refine fun ⟨c, ⟨t₂, h, h₁, h₂, h₃⟩, hc⟩ => ⟨h, h₁, h₂ ▸ hc⟩
@@ -78,9 +78,9 @@ theorem matchAt?_eq {s : Slice} {pos : s.Pos} {p : Char → Bool} :
 
 namespace Decidable
 
-instance {p : Char → Prop} [DecidablePred p] : ForwardPatternModel p where
-  Matches := ForwardPatternModel.Matches (decide <| p ·)
-  not_matches_empty := ForwardPatternModel.not_matches_empty (pat := (decide <| p ·))
+instance {p : Char → Prop} [DecidablePred p] : PatternModel p where
+  Matches := PatternModel.Matches (decide <| p ·)
+  not_matches_empty := PatternModel.not_matches_empty (pat := (decide <| p ·))
 
 instance {p : Char → Prop} [DecidablePred p] : NoPrefixForwardPatternModel p where
   eq_empty := NoPrefixForwardPatternModel.eq_empty (pat := (decide <| p ·))

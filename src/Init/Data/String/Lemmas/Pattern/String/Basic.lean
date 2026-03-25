@@ -19,7 +19,7 @@ namespace String.Slice.Pattern.Model
 
 namespace ForwardSliceSearcher
 
-instance {pat : Slice} : ForwardPatternModel pat where
+instance {pat : Slice} : PatternModel pat where
   /-
   See the docstring of `ForwardPatternModel` for an explanation about why we disallow matching the
   empty string.
@@ -33,11 +33,11 @@ instance {pat : Slice} : ForwardPatternModel pat where
   not_matches_empty := by simp
 
 instance {pat : Slice} : NoPrefixForwardPatternModel pat :=
-  .of_length_eq (by simp +contextual [ForwardPatternModel.Matches])
+  .of_length_eq (by simp +contextual [PatternModel.Matches])
 
 theorem isMatch_iff {pat s : Slice} {pos : s.Pos} (h : pat.isEmpty = false) :
     IsMatch pat pos ↔ (s.sliceTo pos).copy = pat.copy := by
-  simp only [Model.isMatch_iff, ForwardPatternModel.Matches, ne_eq, copy_eq_empty_iff,
+  simp only [Model.isMatch_iff, PatternModel.Matches, ne_eq, copy_eq_empty_iff,
     Bool.not_eq_true, and_iff_right_iff_imp]
   intro h'
   rw [← isEmpty_copy (s := s.sliceTo pos), h', isEmpty_copy, h]
@@ -146,16 +146,16 @@ end ForwardSliceSearcher
 
 namespace ForwardStringSearcher
 
-instance {pat : String} : ForwardPatternModel pat where
+instance {pat : String} : PatternModel pat where
   Matches s := s ≠ "" ∧ s = pat
   not_matches_empty := by simp
 
 instance {pat : String} : NoPrefixForwardPatternModel pat :=
-  .of_length_eq (by simp +contextual [ForwardPatternModel.Matches])
+  .of_length_eq (by simp +contextual [PatternModel.Matches])
 
 theorem isMatch_iff_slice {pat : String} {s : Slice} {pos : s.Pos} :
     IsMatch (ρ := String) pat pos ↔ IsMatch (ρ := Slice) pat.toSlice pos := by
-  simp only [Model.isMatch_iff, ForwardPatternModel.Matches, copy_toSlice]
+  simp only [Model.isMatch_iff, PatternModel.Matches, copy_toSlice]
 
 theorem isLongestMatch_iff_isLongestMatch_toSlice {pat : String} {s : Slice} {pos : s.Pos} :
     IsLongestMatch (ρ := String) pat pos ↔ IsLongestMatch (ρ := Slice) pat.toSlice pos where

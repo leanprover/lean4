@@ -31,19 +31,20 @@ This file develops basic theory around searching in strings.
 
 We provide a typeclass for providing semantics to a pattern and then define the relevant notions
 of matching a pattern that let us state compatibility typeclasses for {name}`ForwardPattern` and
-{name}`ToForwardSearcher`. These typeclasses can then be required by correctness results for
-string functions which are implemented using the pattern framework.
+{name}`ToForwardSearcher` as well as their backwards variants. These typeclasses can then be
+required by correctness results for string functions which are implemented using the pattern
+framework.
 -/
 
 /--
 This data-carrying typeclass is used to give semantics to a pattern type that implements
 {name}`ForwardPattern` and/or {name}`ToForwardSearcher` by providing an abstract, not necessarily
-decidable {name}`ForwardPatternModel.Matches` predicate that implementates of {name}`ForwardPattern`
+decidable {name}`PatternModel.Matches` predicate that implementates of {name}`ForwardPattern`
 and {name}`ToForwardSearcher` can be validated against.
 
 Correctness results for generic functions relying on the pattern infrastructure, for example the
 correctness result for {name (scope := "Init.Data.String.Slice")}`String.Slice.split`, are then
-stated in terms of {name}`ForwardPatternModel.Matches`, and can be specialized to specific patterns
+stated in terms of {name}`PatternModel.Matches`, and can be specialized to specific patterns
 from there.
 
 The corresponding compatibility typeclasses are
@@ -59,7 +60,7 @@ searching.
 This means that pattern types that allow searching for the empty string will have to special-case
 the empty string in their correctness statements.
 -/
-class ForwardPatternModel {ρ : Type} (pat : ρ) : Type where
+class PatternModel {ρ : Type} (pat : ρ) : Type where
   /-- The predicate that says which strings match the pattern. -/
   Matches : String → Prop
   not_matches_empty : ¬ Matches ""
@@ -69,21 +70,21 @@ Predicate stating that the region between the start of the slice {name}`s` and t
 {name}`endPos` matches the pattern {name}`pat`. Note that there might be a longer match, see
 {name (scope := "Init.Data.String.Lemmas.Pattern.Basic")}`String.Slice.Pattern.IsLongestMatch`.
 -/
-structure IsMatch (pat : ρ) [ForwardPatternModel pat] {s : Slice} (endPos : s.Pos) : Prop where
-  matches_copy : ForwardPatternModel.Matches pat (s.sliceTo endPos).copy
+structure IsMatch (pat : ρ) [PatternModel pat] {s : Slice} (endPos : s.Pos) : Prop where
+  matches_copy : PatternModel.Matches pat (s.sliceTo endPos).copy
 
-theorem IsMatch.ne_startPos {pat : ρ} [ForwardPatternModel pat] {s : Slice} {pos : s.Pos}
+theorem IsMatch.ne_startPos {pat : ρ} [PatternModel pat] {s : Slice} {pos : s.Pos}
     (h : IsMatch pat pos) : pos ≠ s.startPos := by
   intro hc
-  apply ForwardPatternModel.not_matches_empty (pat := pat)
+  apply PatternModel.not_matches_empty (pat := pat)
   simpa [hc] using h.matches_copy
 
-theorem isMatch_iff {pat : ρ} [ForwardPatternModel pat] {s : Slice} {pos : s.Pos} :
-    IsMatch pat pos ↔ ForwardPatternModel.Matches pat (s.sliceTo pos).copy :=
+theorem isMatch_iff {pat : ρ} [PatternModel pat] {s : Slice} {pos : s.Pos} :
+    IsMatch pat pos ↔ PatternModel.Matches pat (s.sliceTo pos).copy :=
   ⟨fun ⟨h⟩ => h, fun h => ⟨h⟩⟩
 
-theorem isMatch_iff_exists_splits {pat : ρ} [ForwardPatternModel pat] {s : Slice} {pos : s.Pos} :
-    IsMatch pat pos ↔ ∃ t₁ t₂, pos.Splits t₁ t₂ ∧ ForwardPatternModel.Matches pat t₁ := by
+theorem isMatch_iff_exists_splits {pat : ρ} [PatternModel pat] {s : Slice} {pos : s.Pos} :
+    IsMatch pat pos ↔ ∃ t₁ t₂, pos.Splits t₁ t₂ ∧ PatternModel.Matches pat t₁ := by
   rw [isMatch_iff]
   refine ⟨fun h => ⟨_, _, pos.splits, h⟩, fun ⟨t₁, t₂, h₁, h₂⟩ => ?_⟩
   rwa [h₁.eq_left pos.splits] at h₂
@@ -96,22 +97,22 @@ beginning of the slice. This is what a correct matcher should match.
 In some cases, being a match and being a longest match will coincide, see
 {name (scope := "Init.Data.String.Lemmas.Pattern.Basic")}`String.Slice.Pattern.Model.NoPrefixForwardPatternModel`.
 -/
-structure IsLongestMatch (pat : ρ) [ForwardPatternModel pat] {s : Slice} (pos : s.Pos) where
+structure IsLongestMatch (pat : ρ) [PatternModel pat] {s : Slice} (pos : s.Pos) where
   isMatch : IsMatch pat pos
   not_isMatch : ∀ pos', pos < pos' → ¬ IsMatch pat pos'
 
-theorem IsLongestMatch.ne_startPos {pat : ρ} [ForwardPatternModel pat] {s : Slice} {pos : s.Pos}
+theorem IsLongestMatch.ne_startPos {pat : ρ} [PatternModel pat] {s : Slice} {pos : s.Pos}
     (h : IsLongestMatch pat pos) : pos ≠ s.startPos :=
   h.isMatch.ne_startPos
 
-theorem IsLongestMatch.eq {pat : ρ} [ForwardPatternModel pat] {s : Slice} {pos pos' : s.Pos}
+theorem IsLongestMatch.eq {pat : ρ} [PatternModel pat] {s : Slice} {pos pos' : s.Pos}
     (h : IsLongestMatch pat pos) (h' : IsLongestMatch pat pos') : pos = pos' := by
   apply Std.le_antisymm
   · exact Std.not_lt.1 (fun hlt => h'.not_isMatch _ hlt h.isMatch)
   · exact Std.not_lt.1 (fun hlt => h.not_isMatch _ hlt h'.isMatch)
 
 open Classical in
-theorem IsMatch.exists_isLongestMatch {pat : ρ} [ForwardPatternModel pat] {s : Slice} {pos : s.Pos} :
+theorem IsMatch.exists_isLongestMatch {pat : ρ} [PatternModel pat] {s : Slice} {pos : s.Pos} :
     IsMatch pat pos → ∃ (pos' : s.Pos), IsLongestMatch pat pos' := by
   induction pos using WellFounded.induction Pos.wellFounded_gt with | h pos ih
   intro h₁
@@ -120,7 +121,7 @@ theorem IsMatch.exists_isLongestMatch {pat : ρ} [ForwardPatternModel pat] {s : 
     exact ih _ hp₁ hp₂
   · exact ⟨pos, ⟨h₁, fun p' hp₁ hp₂ => h₂ ⟨_, hp₁, hp₂⟩⟩⟩
 
-theorem IsLongestMatch.le_of_isMatch {pat : ρ} [ForwardPatternModel pat] {s : Slice} {pos pos' : s.Pos}
+theorem IsLongestMatch.le_of_isMatch {pat : ρ} [PatternModel pat] {s : Slice} {pos pos' : s.Pos}
     (h : IsLongestMatch pat pos) (h' : IsMatch pat pos') : pos' ≤ pos :=
   Std.not_lt.1 (fun hlt => h.not_isMatch _ hlt h')
 
@@ -129,15 +130,15 @@ Predicate stating that a match for a given pattern is never a proper prefix of a
 
 This implies that the notion of match and longest match coincide.
 -/
-class NoPrefixForwardPatternModel {ρ : Type} (pat : ρ) [ForwardPatternModel pat] : Prop where
-  eq_empty (s t) : ForwardPatternModel.Matches pat s → ForwardPatternModel.Matches pat (s ++ t) → t = ""
+class NoPrefixForwardPatternModel {ρ : Type} (pat : ρ) [PatternModel pat] : Prop where
+  eq_empty (s t) : PatternModel.Matches pat s → PatternModel.Matches pat (s ++ t) → t = ""
 
-theorem NoPrefixForwardPatternModel.of_length_eq {ρ : Type} {pat : ρ} [ForwardPatternModel pat]
-    (h : ∀ s t, ForwardPatternModel.Matches pat s → ForwardPatternModel.Matches pat t → s.length = t.length) :
+theorem NoPrefixForwardPatternModel.of_length_eq {ρ : Type} {pat : ρ} [PatternModel pat]
+    (h : ∀ s t, PatternModel.Matches pat s → PatternModel.Matches pat t → s.length = t.length) :
     NoPrefixForwardPatternModel pat where
   eq_empty s t hs ht := by simpa using h s _ hs ht
 
-theorem isLongestMatch_iff_isMatch {ρ : Type} (pat : ρ) [ForwardPatternModel pat] [NoPrefixForwardPatternModel pat]
+theorem isLongestMatch_iff_isMatch {ρ : Type} (pat : ρ) [PatternModel pat] [NoPrefixForwardPatternModel pat]
     {s : Slice} {pos : s.Pos} : IsLongestMatch pat pos ↔ IsMatch pat pos := by
   refine ⟨fun h => h.isMatch, fun h => ⟨h, fun pos' hpos' hm => ?_⟩⟩
   obtain ⟨t₁, t₂, ht₁, ht₂⟩ := isMatch_iff_exists_splits.1 h
@@ -149,32 +150,32 @@ theorem isLongestMatch_iff_isMatch {ρ : Type} (pat : ρ) [ForwardPatternModel p
 Predicate stating that the slice formed by {name}`startPos` and {name}`endPos` contains is a match
 of {name}`pat` in {name}`s` and it is longest among matches starting at {name}`startPos`.
 -/
-structure IsLongestMatchAt (pat : ρ) [ForwardPatternModel pat] {s : Slice} (startPos endPos : s.Pos) : Prop where
+structure IsLongestMatchAt (pat : ρ) [PatternModel pat] {s : Slice} (startPos endPos : s.Pos) : Prop where
   le : startPos ≤ endPos
   isLongestMatch_sliceFrom : IsLongestMatch pat (Slice.Pos.sliceFrom _ _ le)
 
-theorem isLongestMatchAt_iff {pat : ρ} [ForwardPatternModel pat] {s : Slice} {pos₁ pos₂ : s.Pos} :
+theorem isLongestMatchAt_iff {pat : ρ} [PatternModel pat] {s : Slice} {pos₁ pos₂ : s.Pos} :
     IsLongestMatchAt pat pos₁ pos₂ ↔
       ∃ (h : pos₁ ≤ pos₂), IsLongestMatch pat (Slice.Pos.sliceFrom _ _ h) :=
   ⟨fun ⟨h, h'⟩ => ⟨h, h'⟩, fun ⟨h, h'⟩ => ⟨h, h'⟩⟩
 
-theorem IsLongestMatchAt.lt {pat : ρ} [ForwardPatternModel pat] {s : Slice} {startPos endPos : s.Pos}
+theorem IsLongestMatchAt.lt {pat : ρ} [PatternModel pat] {s : Slice} {startPos endPos : s.Pos}
     (h : IsLongestMatchAt pat startPos endPos) : startPos < endPos := by
   have := h.isLongestMatch_sliceFrom.ne_startPos
   rw [← Pos.startPos_lt_iff, ← Slice.Pos.ofSliceFrom_lt_ofSliceFrom_iff] at this
   simpa
 
-theorem IsLongestMatchAt.eq {pat : ρ} [ForwardPatternModel pat] {s : Slice} {startPos endPos endPos' : s.Pos}
+theorem IsLongestMatchAt.eq {pat : ρ} [PatternModel pat] {s : Slice} {startPos endPos endPos' : s.Pos}
     (h : IsLongestMatchAt pat startPos endPos) (h' : IsLongestMatchAt pat startPos endPos') :
     endPos = endPos' := by
   simpa using h.isLongestMatch_sliceFrom.eq h'.isLongestMatch_sliceFrom
 
-private theorem isLongestMatch_of_eq {pat : ρ} [ForwardPatternModel pat] {s t : Slice}
+private theorem isLongestMatch_of_eq {pat : ρ} [PatternModel pat] {s t : Slice}
     {pos : s.Pos} {pos' : t.Pos} (h_eq : s = t) (h_pos : pos.offset = pos'.offset)
     (hm : IsLongestMatch pat pos) : IsLongestMatch pat pos' := by
   subst h_eq; exact (Slice.Pos.ext h_pos) ▸ hm
 
-theorem isLongestMatchAt_iff_isLongestMatchAt_ofSliceFrom {pat : ρ} [ForwardPatternModel pat]
+theorem isLongestMatchAt_iff_isLongestMatchAt_ofSliceFrom {pat : ρ} [PatternModel pat]
     {s : Slice} {base : s.Pos} {startPos endPos : (s.sliceFrom base).Pos} :
     IsLongestMatchAt pat startPos endPos ↔ IsLongestMatchAt pat (Pos.ofSliceFrom startPos) (Pos.ofSliceFrom endPos) := by
   constructor
@@ -187,14 +188,14 @@ theorem isLongestMatchAt_iff_isLongestMatchAt_ofSliceFrom {pat : ρ} [ForwardPat
     exact isLongestMatch_of_eq Slice.sliceFrom_sliceFrom.symm
       (by simp [Pos.Raw.ext_iff]; omega) h.isLongestMatch_sliceFrom
 
-theorem IsLongestMatch.isLongestMatchAt_ofSliceFrom {pat : ρ} [ForwardPatternModel pat] {s : Slice}
+theorem IsLongestMatch.isLongestMatchAt_ofSliceFrom {pat : ρ} [PatternModel pat] {s : Slice}
     {p₀ : s.Pos} {pos : (s.sliceFrom p₀).Pos} (h : IsLongestMatch pat pos) :
     IsLongestMatchAt pat p₀ (Slice.Pos.ofSliceFrom pos) where
   le := Slice.Pos.le_ofSliceFrom
   isLongestMatch_sliceFrom := by simpa
 
 @[simp]
-theorem isLongestMatchAt_startPos_iff {pat : ρ} [ForwardPatternModel pat] {s : Slice} {endPos : s.Pos} :
+theorem isLongestMatchAt_startPos_iff {pat : ρ} [PatternModel pat] {s : Slice} {endPos : s.Pos} :
     IsLongestMatchAt pat s.startPos endPos ↔ IsLongestMatch pat endPos := by
   simpa [isLongestMatchAt_iff] using
     ⟨fun h => isLongestMatch_of_eq (by simp) (by simp) h,
@@ -203,19 +204,19 @@ theorem isLongestMatchAt_startPos_iff {pat : ρ} [ForwardPatternModel pat] {s : 
 /--
 Predicate stating that there is a (longest) match starting at the given position.
 -/
-structure MatchesAt (pat : ρ) [ForwardPatternModel pat] {s : Slice} (pos : s.Pos) : Prop where
+structure MatchesAt (pat : ρ) [PatternModel pat] {s : Slice} (pos : s.Pos) : Prop where
   exists_isLongestMatchAt : ∃ endPos, IsLongestMatchAt pat pos endPos
 
-theorem matchesAt_iff_exists_isLongestMatchAt {pat : ρ} [ForwardPatternModel pat] {s : Slice}
+theorem matchesAt_iff_exists_isLongestMatchAt {pat : ρ} [PatternModel pat] {s : Slice}
     {pos : s.Pos} : MatchesAt pat pos ↔ ∃ endPos, IsLongestMatchAt pat pos endPos :=
   ⟨fun ⟨h⟩ => h, fun h => ⟨h⟩⟩
 
-theorem matchesAt_iff_exists_isLongestMatch {pat : ρ} [ForwardPatternModel pat] {s : Slice}
+theorem matchesAt_iff_exists_isLongestMatch {pat : ρ} [PatternModel pat] {s : Slice}
     {pos : s.Pos} :
     MatchesAt pat pos ↔ ∃ (endPos : s.Pos), ∃ h, IsLongestMatch pat (pos.sliceFrom endPos h) :=
   ⟨fun ⟨p, h⟩ => ⟨p, h.le, h.isLongestMatch_sliceFrom⟩, fun ⟨p, h₁, h₂⟩ => ⟨p, ⟨h₁, h₂⟩⟩⟩
 
-theorem matchesAt_iff_exists_isMatch {pat : ρ} [ForwardPatternModel pat] {s : Slice}
+theorem matchesAt_iff_exists_isMatch {pat : ρ} [PatternModel pat] {s : Slice}
     {pos : s.Pos} :
     MatchesAt pat pos ↔ ∃ (endPos : s.Pos), ∃ h, IsMatch pat (pos.sliceFrom endPos h) := by
   refine ⟨fun ⟨p, h⟩ => ⟨p, h.le, h.isLongestMatch_sliceFrom.isMatch⟩, fun ⟨p, h₁, h₂⟩ => ?_⟩
@@ -225,13 +226,13 @@ theorem matchesAt_iff_exists_isMatch {pat : ρ} [ForwardPatternModel pat] {s : S
      by simpa using hq⟩⟩
 
 @[simp]
-theorem not_matchesAt_endPos {pat : ρ} [ForwardPatternModel pat] {s : Slice} :
+theorem not_matchesAt_endPos {pat : ρ} [PatternModel pat] {s : Slice} :
     ¬ MatchesAt pat s.endPos := by
   simp only [matchesAt_iff_exists_isMatch, Pos.endPos_le, exists_prop_eq]
   intro h
   simpa [← Pos.ofSliceFrom_inj] using h.ne_startPos
 
-theorem matchesAt_iff_matchesAt_ofSliceFrom {pat : ρ} [ForwardPatternModel pat] {s : Slice} {base : s.Pos}
+theorem matchesAt_iff_matchesAt_ofSliceFrom {pat : ρ} [PatternModel pat] {s : Slice} {base : s.Pos}
     {pos : (s.sliceFrom base).Pos} : MatchesAt pat pos ↔ MatchesAt pat (Pos.ofSliceFrom pos) := by
   simp only [matchesAt_iff_exists_isLongestMatchAt]
   constructor
@@ -241,7 +242,7 @@ theorem matchesAt_iff_matchesAt_ofSliceFrom {pat : ρ} [ForwardPatternModel pat]
     exact ⟨base.sliceFrom endPos (Std.le_trans Slice.Pos.le_ofSliceFrom h.le),
            isLongestMatchAt_iff_isLongestMatchAt_ofSliceFrom.mpr (by simpa using h)⟩
 
-theorem IsLongestMatchAt.matchesAt {pat : ρ} [ForwardPatternModel pat] {s : Slice} {startPos endPos : s.Pos}
+theorem IsLongestMatchAt.matchesAt {pat : ρ} [PatternModel pat] {s : Slice} {startPos endPos : s.Pos}
     (h : IsLongestMatchAt pat startPos endPos) : MatchesAt pat startPos where
   exists_isLongestMatchAt := ⟨_, h⟩
 
@@ -250,12 +251,12 @@ open Classical in
 Noncomputable model function returning the end point of the longest match starting at the given
 position, or {lean}`none` if there is no match.
 -/
-noncomputable def matchAt? {ρ : Type} (pat : ρ) [ForwardPatternModel pat]
+noncomputable def matchAt? {ρ : Type} (pat : ρ) [PatternModel pat]
     {s : Slice} (startPos : s.Pos) : Option s.Pos :=
   if h : ∃ endPos, IsLongestMatchAt pat startPos endPos then some h.choose else none
 
 @[simp]
-theorem matchAt?_eq_some_iff {ρ : Type} {pat : ρ} [ForwardPatternModel pat]
+theorem matchAt?_eq_some_iff {ρ : Type} {pat : ρ} [PatternModel pat]
     {s : Slice} {startPos endPos : s.Pos} :
     matchAt? pat startPos = some endPos ↔ IsLongestMatchAt pat startPos endPos := by
   fun_cases matchAt? with
@@ -263,7 +264,7 @@ theorem matchAt?_eq_some_iff {ρ : Type} {pat : ρ} [ForwardPatternModel pat]
   | case2 => simp_all
 
 @[simp]
-theorem matchAt?_eq_none_iff {ρ : Type} {pat : ρ} [ForwardPatternModel pat]
+theorem matchAt?_eq_none_iff {ρ : Type} {pat : ρ} [PatternModel pat]
     {s : Slice} {startPos : s.Pos} :
     matchAt? pat startPos = none ↔ ¬ MatchesAt pat startPos := by
   fun_cases matchAt? with
@@ -271,18 +272,18 @@ theorem matchAt?_eq_none_iff {ρ : Type} {pat : ρ} [ForwardPatternModel pat]
   | case2 h => simpa using fun ⟨h'⟩ => h h'
 
 /--
-Predicate stating compatibility between {name}`ForwardPatternModel` and {name}`ForwardPattern`.
+Predicate stating compatibility between {name}`PatternModel` and {name}`ForwardPattern`.
 
 This extends {name}`LawfulForwardPattern`, but it is much stronger because it forces the
 {name}`ForwardPattern` to match the longest prefix of the given slice that matches the property
-supplied by the {name}`ForwardPatternModel` instance.
+supplied by the {name}`PatternModel` instance.
 -/
 class LawfulForwardPatternModel {ρ : Type} (pat : ρ) [ForwardPattern pat]
-    [ForwardPatternModel pat] : Prop extends LawfulForwardPattern pat where
+    [PatternModel pat] : Prop extends LawfulForwardPattern pat where
   skipPrefix?_eq_some_iff (pos) : ForwardPattern.skipPrefix? pat s = some pos ↔ IsLongestMatch pat pos
 
 open Classical in
-theorem LawfulForwardPatternModel.skipPrefix?_sliceFrom_eq_none_iff {ρ : Type} {pat : ρ} [ForwardPattern pat] [ForwardPatternModel pat]
+theorem LawfulForwardPatternModel.skipPrefix?_sliceFrom_eq_none_iff {ρ : Type} {pat : ρ} [ForwardPattern pat] [PatternModel pat]
     [LawfulForwardPatternModel pat] {s : Slice} {p₀ : s.Pos} :
     ForwardPattern.skipPrefix? pat (s.sliceFrom p₀) = none ↔ ¬ MatchesAt pat p₀ := by
   rw [← Decidable.not_iff_not]
@@ -291,7 +292,7 @@ theorem LawfulForwardPatternModel.skipPrefix?_sliceFrom_eq_none_iff {ρ : Type} 
   · exact ⟨Slice.Pos.ofSliceFrom p, hp.isLongestMatchAt_ofSliceFrom⟩
   · exact ⟨p₀.sliceFrom p hp.le, hp.isLongestMatch_sliceFrom⟩
 
-theorem LawfulForwardPatternModel.skipPrefix?_eq_none_iff {ρ : Type} {pat : ρ} [ForwardPattern pat] [ForwardPatternModel pat]
+theorem LawfulForwardPatternModel.skipPrefix?_eq_none_iff {ρ : Type} {pat : ρ} [ForwardPattern pat] [PatternModel pat]
     [LawfulForwardPatternModel pat] {s : Slice} :
     ForwardPattern.skipPrefix? pat s = none ↔ ¬ MatchesAt pat s.startPos := by
   conv => lhs; rw [← sliceFrom_startPos (s := s)]
@@ -306,7 +307,7 @@ matches.
 
 Hence, this predicate determines the list of search steps up to grouping of rejections.
 -/
-inductive IsValidSearchFrom (pat : ρ) [ForwardPatternModel pat] {s : Slice} :
+inductive IsValidSearchFrom (pat : ρ) [PatternModel pat] {s : Slice} :
     s.Pos → List (SearchStep s) → Prop where
   | endPos : IsValidSearchFrom pat s.endPos []
   | matched {startPos endPos : s.Pos} :
@@ -316,14 +317,14 @@ inductive IsValidSearchFrom (pat : ρ) [ForwardPatternModel pat] {s : Slice} :
       (∀ pos, startPos ≤ pos → pos < endPos → ¬ MatchesAt pat pos) →
       IsValidSearchFrom pat endPos l → IsValidSearchFrom pat startPos (.rejected startPos endPos :: l)
 
-theorem IsValidSearchFrom.matched_of_eq {pat : ρ} [ForwardPatternModel pat] {s : Slice}
+theorem IsValidSearchFrom.matched_of_eq {pat : ρ} [PatternModel pat] {s : Slice}
     {startPos startPos' endPos : s.Pos} {l : List (SearchStep s)} (h₁ : IsValidSearchFrom pat endPos l)
     (h₂ : IsLongestMatchAt pat startPos' endPos)
     (h₃ : startPos = startPos') : IsValidSearchFrom pat startPos' (.matched startPos endPos :: l) := by
   cases h₃
   exact IsValidSearchFrom.matched h₂ h₁
 
-theorem IsValidSearchFrom.mismatched_of_eq {pat : ρ} [ForwardPatternModel pat] {s : Slice}
+theorem IsValidSearchFrom.mismatched_of_eq {pat : ρ} [PatternModel pat] {s : Slice}
     {startPos startPos' endPos : s.Pos} {l : List (SearchStep s)} (h₁ : IsValidSearchFrom pat endPos l)
       (h₀ : startPos' < endPos)
       (h₂ : ∀ pos, startPos' ≤ pos → pos < endPos → ¬ MatchesAt pat pos) (h₃ : startPos = startPos') :
@@ -331,7 +332,7 @@ theorem IsValidSearchFrom.mismatched_of_eq {pat : ρ} [ForwardPatternModel pat] 
   cases h₃
   exact IsValidSearchFrom.mismatched h₀ h₂ h₁
 
-theorem IsValidSearchFrom.endPos_of_eq {pat : ρ} [ForwardPatternModel pat] {s : Slice}
+theorem IsValidSearchFrom.endPos_of_eq {pat : ρ} [PatternModel pat] {s : Slice}
     {p : s.Pos} {l : List (SearchStep s)} (hp : p = s.endPos) (hl : l = []) :
     IsValidSearchFrom pat p l := by
   cases hp
@@ -339,18 +340,18 @@ theorem IsValidSearchFrom.endPos_of_eq {pat : ρ} [ForwardPatternModel pat] {s :
   exact IsValidSearchFrom.endPos
 
 /--
-Predicate stating compatibility between {name}`ForwardPatternModel` and {name}`ToForwardSearcher`.
+Predicate stating compatibility between {name}`PatternModel` and {name}`ToForwardSearcher`.
 
 We require the searcher to always match the longest match at the first position where the pattern
 matches; see {name}`IsValidSearchFrom`.
 -/
-class LawfulToForwardSearcherModel {ρ : Type} (pat : ρ) [ForwardPatternModel pat] {σ : Slice → Type}
+class LawfulToForwardSearcherModel {ρ : Type} (pat : ρ) [PatternModel pat] {σ : Slice → Type}
     [ToForwardSearcher pat σ] [∀ s, Std.Iterator (σ s) Id (SearchStep s)]
     [∀ s, Std.Iterators.Finite (σ s) Id] : Prop where
   isValidSearchFrom_toList (s) : IsValidSearchFrom pat s.startPos (ToForwardSearcher.toSearcher pat s).toList
 
 theorem LawfulToForwardSearcherModel.defaultImplementation {pat : ρ} [ForwardPattern pat] [StrictForwardPattern pat]
-    [ForwardPatternModel pat] [LawfulForwardPatternModel pat] :
+    [PatternModel pat] [LawfulForwardPatternModel pat] :
     letI : ToForwardSearcher pat (ToForwardSearcher.DefaultForwardSearcher pat) := .defaultImplementation
     LawfulToForwardSearcherModel pat := by
   let inst : ToForwardSearcher pat (ToForwardSearcher.DefaultForwardSearcher pat) := .defaultImplementation

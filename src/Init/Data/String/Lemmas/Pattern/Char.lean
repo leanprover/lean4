@@ -25,17 +25,17 @@ public section
 
 namespace String.Slice.Pattern.Model.Char
 
-instance {c : Char} : ForwardPatternModel c where
+instance {c : Char} : PatternModel c where
   Matches s := s = String.singleton c
   not_matches_empty := by simp
 
 instance {c : Char} : NoPrefixForwardPatternModel c :=
-  .of_length_eq (by simp +contextual [ForwardPatternModel.Matches])
+  .of_length_eq (by simp +contextual [PatternModel.Matches])
 
 theorem isMatch_iff {c : Char} {s : Slice} {pos : s.Pos} :
     IsMatch c pos ↔
       ∃ (h : s.startPos ≠ s.endPos), pos = s.startPos.next h ∧ s.startPos.get h = c := by
-  simp only [Model.isMatch_iff, ForwardPatternModel.Matches, sliceTo_copy_eq_iff_exists_splits]
+  simp only [Model.isMatch_iff, PatternModel.Matches, sliceTo_copy_eq_iff_exists_splits]
   refine ⟨?_, ?_⟩
   · simp only [splits_singleton_iff]
     exact fun ⟨t₂, h, h₁, h₂, h₃⟩ => ⟨h, h₁, h₂⟩

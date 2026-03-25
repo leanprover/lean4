@@ -67,7 +67,7 @@ theorem eq_append_of_dropPrefix?_slice_eq_some {pat s res : Slice} (h : s.dropPr
   | false =>
     have := ForwardSliceSearcher.lawfulForwardPatternModel hpat
     have := Pattern.Model.eq_append_of_dropPrefix?_eq_some h
-    simp only [ForwardPatternModel.Matches] at this
+    simp only [PatternModel.Matches] at this
     obtain ⟨_, ⟨-, rfl⟩, h⟩ := this
     exact h
   | true => simp [Option.some.inj (h ▸ dropPrefix?_slice_of_isEmpty hpat), (show pat.copy = "" by simpa)]

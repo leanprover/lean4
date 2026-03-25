@@ -10,6 +10,7 @@ public import Lean.Compiler.IR.Format
 public import Lean.Compiler.ExportAttr
 public import Lean.Compiler.LCNF.PublicDeclsExt
 import Lean.Compiler.InitAttr
+import all Lean.Compiler.ModPkgExt
 import Init.Data.Format.Macro
 import Lean.Compiler.LCNF.Basic
 
@@ -129,8 +130,14 @@ private def exportIREntries (env : Environment) : Array (Name × Array EnvExtens
   -- safety: cast to erased type
   let initDecls : Array EnvExtensionEntry := unsafe unsafeCast initDecls
 
+  -- needed during initialization via interpreter
+  let modPkg : Array (Option PkgId) := modPkgExt.exportEntriesFn env (modPkgExt.getState env) .private
+  -- safety: cast to erased type
+  let modPkg : Array EnvExtensionEntry := unsafe unsafeCast modPkg
+
   #[(declMapExt.name, irEntries),
-    (Lean.regularInitAttr.ext.name, initDecls)]
+    (Lean.regularInitAttr.ext.name, initDecls),
+    (modPkgExt.name, modPkg)]
 
 def findEnvDecl (env : Environment) (declName : Name) : Option Decl :=
   Compiler.LCNF.findExtEntry? env declMapExt declName findAtSorted? (·.2.find?)

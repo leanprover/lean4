@@ -20,6 +20,7 @@ import Init.Data.String.Lemmas.Order
 import Init.Data.Order.Lemmas
 import Init.Data.String.OrderInstances
 import Init.Omega
+import Init.Data.String.Lemmas.FindPos
 
 public section
 
@@ -32,15 +33,28 @@ instance {c : Char} : PatternModel c where
 instance {c : Char} : NoPrefixPatternModel c :=
   .of_length_eq (by simp +contextual [PatternModel.Matches])
 
+instance {c : Char} : NoSuffixPatternModel c :=
+  .of_length_eq (by simp +contextual [PatternModel.Matches])
+
 theorem isMatch_iff {c : Char} {s : Slice} {pos : s.Pos} :
     IsMatch c pos ↔
       ∃ (h : s.startPos ≠ s.endPos), pos = s.startPos.next h ∧ s.startPos.get h = c := by
-  simp only [Model.isMatch_iff, PatternModel.Matches, sliceTo_copy_eq_iff_exists_splits]
+  simp only [Model.isMatch_iff, PatternModel.Matches, copy_sliceTo_eq_iff_exists_splits]
   refine ⟨?_, ?_⟩
   · simp only [splits_singleton_iff]
     exact fun ⟨t₂, h, h₁, h₂, h₃⟩ => ⟨h, h₁, h₂⟩
   · rintro ⟨h, rfl, rfl⟩
     exact ⟨_, Slice.splits_next_startPos⟩
+
+theorem isRevMatch_iff {c : Char} {s : Slice} {pos : s.Pos} :
+    IsRevMatch c pos ↔
+      ∃ (h : s.endPos ≠ s.startPos), pos = s.endPos ∧ (s.endPos.prev h).get (by simp) = c := by
+  simp only [Model.isRevMatch_iff, PatternModel.Matches, sliceTo_copy_eq_iff_exists_splits]
+  refine ⟨?_, ?_⟩
+  · simp only [splits_singleton_iff]
+    exact fun ⟨t₂, h, h₁, h₂, h₃⟩ => ⟨h, h₁, h₂⟩
+  · rintro ⟨h, rfl, rfl⟩
+    exact ⟨_, Slice.splits_prev_endPos⟩
 
 theorem isLongestMatch_iff {c : Char} {s : Slice} {pos : s.Pos} :
     IsLongestMatch c pos ↔

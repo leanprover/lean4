@@ -216,8 +216,8 @@ class NoSuffixPatternModel {ρ : Type} (pat : ρ) [PatternModel pat] : Prop wher
 
 theorem NoSuffixPatternModel.of_length_eq {ρ : Type} {pat : ρ} [PatternModel pat]
     (h : ∀ s t, PatternModel.Matches pat s → PatternModel.Matches pat t → s.length = t.length) :
-    NoPrefixPatternModel pat where
-  eq_empty s t hs ht := by simpa using h s _ hs ht
+    NoSuffixPatternModel pat where
+  eq_empty s t hs ht := by simpa using h t _ hs ht
 
 theorem isLongestRevMatch_iff_isRevMatch {ρ : Type} (pat : ρ) [PatternModel pat] [NoSuffixPatternModel pat]
     {s : Slice} {pos : s.Pos} : IsLongestRevMatch pat pos ↔ IsRevMatch pat pos := by
@@ -674,7 +674,7 @@ class LawfulToBackwardSearcherModel {ρ : Type} (pat : ρ) [PatternModel pat] {�
     [∀ s, Std.Iterators.Finite (σ s) Id] : Prop where
   isValidRevSearchFrom_toList (s) : IsValidRevSearchFrom pat s.endPos (ToBackwardSearcher.toSearcher pat s).toList
 
-theorem LawfulToBackSearcherModel.defaultImplementation {pat : ρ} [BackwardPattern pat] [StrictBackwardPattern pat]
+theorem LawfulToBackwardSearcherModel.defaultImplementation {pat : ρ} [BackwardPattern pat] [StrictBackwardPattern pat]
     [PatternModel pat] [LawfulBackwardPatternModel pat] :
     letI : ToBackwardSearcher pat (ToBackwardSearcher.DefaultBackwardSearcher pat) := .defaultImplementation
     LawfulToBackwardSearcherModel pat := by

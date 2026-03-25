@@ -159,17 +159,6 @@ meta def SpecTheoremsNew.findSpecs (database : SpecTheoremsNew) (e : Expr) :
 end Lean.Elab.Tactic.Do.SpecAttr
 
 
--- Normalize universe levels in an expression so that `max u v` and `max v u` have a canonical
--- representation. This is needed because backward rule pattern matching is structural and
--- level expressions from different sources (e.g., instance synthesis, type inference) may have
--- different but equivalent `max` orderings.
-meta def normalizeLevelsExpr (e : Expr) : CoreM Expr :=
-  Core.transform e (pre := fun e => do
-    match e with
-    | .sort u => return .done <| e.updateSort! u.normalize
-    | .const _ us => return .done <| e.updateConst! (us.map Level.normalize)
-    | _ => return .continue)
-
 /-- Build goal: `P ⊢ₛ wp⟦prog⟧ Q ss...`. Meant to be partially applied for convenience. -/
 private meta def mkGoal (u v : Level) (m σs ps instWP α : Expr) (ss : Array Expr) (P Q : Expr) (prog : Expr) : Expr :=
   mkApp3 (mkConst ``SPred.entails [u]) σs P
@@ -328,10 +317,7 @@ meta def mkBackwardRuleFromSpec (specThm : SpecTheoremNew) (m σs ps instWP : Ex
   -- which would cause `mkAuxLemma`'s `addDecl` to fail with a kernel error.
   let spec ← instantiateMVars spec
   let res ← abstractMVars spec
-  -- Normalize levels so structural matching in `BackwardRule.apply` succeeds even when
-  -- different code paths produce `max u v` vs `max v u` (semantically equal but structurally not).
-  let expr ← normalizeLevelsExpr res.expr
-  mkBackwardRuleFromExpr expr res.paramNames.toList
+  mkBackwardRuleFromExpr res.expr res.paramNames.toList
 
 /--
 Create a backward rule for a simp/equational spec `∀ xs, lhs = rhs`.
@@ -405,9 +391,7 @@ meta def mkBackwardRuleFromSimpSpec (specThm : SpecTheoremNew) (m σs ps instWP 
     liftMetaM <| mkLambdaFVars (#[Q] ++ ss ++ #[P, h]) prf
   let spec ← instantiateMVars spec
   let res ← abstractMVars spec
-  -- Normalize universe levels so the backward rule's pattern matches structurally.
-  let expr ← normalizeLevelsExpr res.expr
-  mkBackwardRuleFromExpr expr res.paramNames.toList
+  mkBackwardRuleFromExpr res.expr res.paramNames.toList
 
 open Lean.Elab.Tactic.Do in
 /--
@@ -461,8 +445,7 @@ meta def mkBackwardRuleForSplit (splitInfo : SplitInfo) (m σs ps instWP : Expr)
     mkLambdaFVars (#[α] ++ splitFVars ++ ss ++ #[P, Q] ++ subgoalHyps) prf
   let prf ← instantiateMVars prf
   let res ← abstractMVars prf
-  let expr ← normalizeLevelsExpr res.expr
-  mkBackwardRuleFromExpr expr res.paramNames.toList
+  mkBackwardRuleFromExpr res.expr res.paramNames.toList
 
 /-!
 VC generation

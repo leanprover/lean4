@@ -268,24 +268,3 @@ def isMVCGenInvariantType (env : Environment) (ty : Expr) : Bool :=
     mvcgenInvariantAttr.hasTag env name
   else
     false
-
-/--
-Marks a type as a witness type for the `mvcgen` tactic.
-Goals whose type is an application of a tagged type will be classified
-as witnesses rather than verification conditions.
-In the spirit of zero-knowledge proofs, witnesses are concrete values that the user
-must provide, as opposed to invariants (predicates maintained across iterations)
-or verification conditions (propositions to prove).
--/
-builtin_initialize mvcgenWitnessTypeAttr : TagAttribute ←
-  registerTagAttribute `mvcgen_witness_type
-    "marks a type as a witness type for the `mvcgen` tactic"
-
-/--
-Returns `true` if `ty` is an application of a type tagged with `@[mvcgen_witness_type]`.
--/
-def isMVCGenWitnessType (env : Environment) (ty : Expr) : Bool :=
-  if let .const name .. := ty.getAppFn then
-    mvcgenWitnessTypeAttr.hasTag env name
-  else
-    false

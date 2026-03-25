@@ -35,7 +35,6 @@ namespace VCGen
 
 structure Result where
   invariants : Array MVarId
-  witnesses : Array MVarId
   vcs : Array MVarId
 
 partial def genVCs (goal : MVarId) (ctx : Context) (fuel : Fuel) : MetaM Result := do
@@ -46,13 +45,10 @@ partial def genVCs (goal : MVarId) (ctx : Context) (fuel : Fuel) : MetaM Result 
     for h : idx in *...state.invariants.size do
       let mv := state.invariants[idx]
       mv.setTag (Name.mkSimple ("inv" ++ toString (idx + 1)))
-    for h : idx in *...state.witnesses.size do
-      let mv := state.witnesses[idx]
-      mv.setTag (Name.mkSimple ("witness" ++ toString (idx + 1)))
     for h : idx in *...state.vcs.size do
       let mv := state.vcs[idx]
       mv.setTag (Name.mkSimple ("vc" ++ toString (idx + 1)) ++ (← mv.getTag).eraseMacroScopes)
-    return { invariants := state.invariants, witnesses := state.witnesses, vcs := state.vcs }
+    return { invariants := state.invariants, vcs := state.vcs }
 where
   onFail (goal : MGoal) (name : Name) : VCGenM Expr := do
     -- trace[Elab.Tactic.Do.vcgen] "fail {goal.toExpr}"
@@ -356,70 +352,53 @@ where
 
 end VCGen
 
-/-- Shared implementation for elaborating goal sections (invariants, witnesses).
-    `tagPrefix` is `"inv"` or `"witness"`, used to parse labels like `inv1` or `witness2`.
-    `label` is `"invariant"` or `"witness"`, used in error messages.
-    When `requireAll` is true, an error is thrown if fewer alts are provided than goals. -/
-private def elabGoalSection (goals : Array MVarId) (alts : Array Syntax)
-    (tagPrefix : String) (label : String) (requireAll := true) : TacticM Unit := do
-  let goals ← goals.filterM (not <$> ·.isAssigned)
-  let mut dotOrCase := LBool.undef -- .true => dot
-  for h : n in 0...alts.size do
-    let alt := alts[n]
-    match alt with
-    | `(goalDotAlt| · $rhs) =>
-      if dotOrCase matches .false then
-        logErrorAt alt m!"Alternation between labelled and bulleted {label}s is not supported."
-        break
-      dotOrCase := .true
-      let some mv := goals[n]? | do
-        logErrorAt alt m!"More {label}s have been defined ({alts.size}) than there were unassigned {label} goals `{tagPrefix}<n>` ({goals.size})."
-        continue
-      withRef rhs do
-      discard <| evalTacticAt (← `(tactic| exact $rhs)) mv
-    | `(goalCaseAlt| | $tag $args* => $rhs) =>
-      if dotOrCase matches .true then
-        logErrorAt alt m!"Alternation between labelled and bulleted {label}s is not supported."
-        break
-      dotOrCase := .false
-      let n? : Option Nat := do
-          let `(binderIdent| $tag:ident) := tag | some n -- fall back to ordinal
-          let .str .anonymous s := tag.getId | none
-          s.dropPrefix? tagPrefix >>= String.Slice.toNat?
-      let some mv := do goals[(← n?) - 1]? | do
-        logErrorAt alt m!"No {label} with label {tag} {repr tag}."
-        continue
-      if ← mv.isAssigned then
-        logErrorAt alt m!"{label} {n?.get!} is already assigned."
-        continue
-      withRef rhs do
-      discard <| evalTacticAt (← `(tactic| rename_i $args*; exact $rhs)) mv
-    | _ => logErrorAt alt m!"Expected `goalDotAlt`, got {alt}"
-  if requireAll && alts.size < goals.size then
-    let missingTypes ← goals[alts.size:].toArray.mapM (·.getType)
-    throwError "Lacking definitions for the following {label}s.\n{toMessageList missingTypes}"
-
-def elabWitnesses (stx : Syntax) (witnesses : Array MVarId) : TacticM Unit := do
-  let some stx := stx.getOptional? | return ()
-  let stx : TSyntax ``witnessAlts := ⟨stx⟩
-  withRef stx do
-  match stx with
-  | `(witnessAlts| witnesses $alts*) =>
-    elabGoalSection witnesses alts "witness" "witness"
-  | _ => logErrorAt stx m!"Expected witnessAlts, got {stx}"
-
 def elabInvariants (stx : Syntax) (invariants : Array MVarId) (suggestInvariant : MVarId → TacticM Term) : TacticM Unit := do
   let some stx := stx.getOptional? | return ()
   let stx : TSyntax ``invariantAlts := ⟨stx⟩
   withRef stx do
   match stx with
   | `(invariantAlts| $invariantsKW $alts*) =>
+    let invariants ← invariants.filterM (not <$> ·.isAssigned)
+
+    let mut dotOrCase := LBool.undef -- .true => dot
+    for h : n in 0...alts.size do
+      let alt := alts[n]
+      match alt with
+      | `(goalDotAlt| · $rhs) =>
+        if dotOrCase matches .false then
+          logErrorAt alt m!"Alternation between labelled and bulleted invariants is not supported."
+          break
+        dotOrCase := .true
+        let some mv := invariants[n]? | do
+          logErrorAt alt m!"More invariants have been defined ({alts.size}) than there were unassigned invariants goals `inv<n>` ({invariants.size})."
+          continue
+        withRef rhs do
+        discard <| evalTacticAt (← `(tactic| exact $rhs)) mv
+      | `(goalCaseAlt| | $tag $args* => $rhs) =>
+        if dotOrCase matches .true then
+          logErrorAt alt m!"Alternation between labelled and bulleted invariants is not supported."
+          break
+        dotOrCase := .false
+        let n? : Option Nat := do
+            let `(binderIdent| $tag:ident) := tag | some n -- fall back to ordinal
+            let .str .anonymous s := tag.getId | none
+            s.dropPrefix? "inv" >>= String.Slice.toNat?
+        let some mv := do invariants[(← n?) - 1]? | do
+          logErrorAt alt m!"No invariant with label {tag} {repr tag}."
+          continue
+        if ← mv.isAssigned then
+          logErrorAt alt m!"Invariant {n?.get!} is already assigned."
+          continue
+        withRef rhs do
+        discard <| evalTacticAt (← `(tactic| rename_i $args*; exact $rhs)) mv
+      | _ => logErrorAt alt m!"Expected `goalDotAlt`, got {alt}"
+
     if let `(invariantsKW| invariants) := invariantsKW then
-      elabGoalSection invariants alts "inv" "invariant"
+      if alts.size < invariants.size then
+        let missingTypes ← invariants[alts.size:].toArray.mapM (·.getType)
+        throwErrorAt stx m!"Lacking definitions for the following invariants.\n{toMessageList missingTypes}"
     else
-      -- We have `invariants?`. First elaborate any user-provided alts, then suggest the rest.
-      elabGoalSection invariants alts "inv" "invariant" (requireAll := false)
-      let invariants ← invariants.filterM (not <$> ·.isAssigned)
+      -- Otherwise, we have `invariants?`. Suggest missing invariants.
       let mut suggestions := #[]
       for i in 0...invariants.size do
         let mv := invariants[i]!
@@ -478,8 +457,8 @@ def elabMVCGen : Tactic := fun stx => withMainContext do
     | none => .unlimited
   let goal ← getMainGoal
   let goal ← if ctx.config.elimLets then elimLets goal else pure goal
-  let { invariants, witnesses, vcs } ← VCGen.genVCs goal ctx fuel
-  trace[Elab.Tactic.Do.vcgen] "after genVCs {← (invariants ++ witnesses ++ vcs).mapM fun m => m.getTag}"
+  let { invariants, vcs } ← VCGen.genVCs goal ctx fuel
+  trace[Elab.Tactic.Do.vcgen] "after genVCs {← (invariants ++ vcs).mapM fun m => m.getTag}"
   let runOnVCs (tac : TSyntax `tactic) (extraMsg : MessageData) (vcs : Array MVarId) : TermElabM (Array MVarId) :=
     vcs.flatMapM fun vc =>
       tryCatchRuntimeEx
@@ -488,13 +467,13 @@ def elabMVCGen : Tactic := fun stx => withMainContext do
         (fun ex => throwError "Error while running {tac} on {vc}Message: {indentD ex.toMessageData}\n{extraMsg}")
   let invariants ←
     if ctx.config.leave then runOnVCs (← `(tactic| try mleave)) "Try again with -leave." invariants else pure invariants
-  trace[Elab.Tactic.Do.vcgen] "before elabWitnesses {← (invariants ++ witnesses ++ vcs).mapM fun m => m.getTag}"
-  elabWitnesses stx[3] witnesses
-  let witnesses ← witnesses.filterM (not <$> ·.isAssigned)
-  trace[Elab.Tactic.Do.vcgen] "before elabInvariants {← (invariants ++ witnesses ++ vcs).mapM fun m => m.getTag}"
-  elabInvariants stx[4] invariants (suggestInvariant vcs)
+  trace[Elab.Tactic.Do.vcgen] "before elabInvariants {← (invariants ++ vcs).mapM fun m => m.getTag}"
+  -- TODO: This is a vestige from removing the witnesses section (stx[3]) introduced in #12882.
+  -- After stage0 update, nargs will be constantly 5 again, as it used to.
+  let nargs := stx.getNumArgs
+  elabInvariants stx[nargs-2] invariants (suggestInvariant vcs)
   let invariants ← invariants.filterM (not <$> ·.isAssigned)
-  trace[Elab.Tactic.Do.vcgen] "before trying trivial VCs {← (invariants ++ witnesses ++ vcs).mapM fun m => m.getTag}"
+  trace[Elab.Tactic.Do.vcgen] "before trying trivial VCs {← (invariants ++ vcs).mapM fun m => m.getTag}"
   let vcs ← do
     let vcs ← if ctx.config.trivial then runOnVCs (← `(tactic| try mvcgen_trivial)) "Try again with -trivial." vcs else pure vcs
     let vcs ← if ctx.config.leave then runOnVCs (← `(tactic| try mleave)) "Try again with -leave." vcs else pure vcs
@@ -502,10 +481,10 @@ def elabMVCGen : Tactic := fun stx => withMainContext do
   -- Eliminating lets here causes some metavariables in `mkFreshPair_triple` to become nonassignable
   -- so we don't do it. Presumably some weird delayed assignment thing is going on.
   -- let vcs ← if ctx.config.elimLets then liftMetaM <| vcs.mapM elimLets else pure vcs
-  trace[Elab.Tactic.Do.vcgen] "before elabVCs {← (invariants ++ witnesses ++ vcs).mapM fun m => m.getTag}"
-  let vcs ← elabVCs stx[5] vcs
-  trace[Elab.Tactic.Do.vcgen] "before replacing main goal {← (invariants ++ witnesses ++ vcs).mapM fun m => m.getTag}"
-  replaceMainGoal (invariants ++ witnesses ++ vcs).toList
+  trace[Elab.Tactic.Do.vcgen] "before elabVCs {← (invariants ++ vcs).mapM fun m => m.getTag}"
+  let vcs ← elabVCs stx[nargs-1] vcs
+  trace[Elab.Tactic.Do.vcgen] "before replacing main goal {← (invariants ++ vcs).mapM fun m => m.getTag}"
+  replaceMainGoal (invariants ++ vcs).toList
   -- trace[Elab.Tactic.Do.vcgen] "replaced main goal, new: {← getGoals}"
 
 @[builtin_tactic Lean.Parser.Tactic.mvcgenHint]

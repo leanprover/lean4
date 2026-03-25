@@ -2259,42 +2259,6 @@ with grind
 ```
 This is more convenient than the equivalent `· by rename_i _ acc _; exact I1 acc`.
 
-### Witnesses
-
-When a specification has a parameter whose type is tagged with `@[mvcgen_witness_type]`, `mvcgen`
-classifies the corresponding goal as a *witness* rather than a verification condition.
-Witnesses are concrete values that the user must provide (inspired by zero-knowledge proofs),
-as opposed to invariants (predicates maintained across loop iterations) or verification conditions
-(propositions to prove).
-
-Witness goals are labelled `witness1`, `witness2`, etc. and can be provided in a `witnesses` section
-that appears before the `invariants` section:
-```
-mvcgen [...] witnesses
-· W1
-· W2
-invariants
-· I1
-with grind
-```
-Like invariants, witnesses support case label syntax:
-```
-mvcgen [...] witnesses
-| witness1 => W1
-```
-
-See the `@[mvcgen_witness_type]` attribute for how to register custom witness types.
-
-### Invariant and witness type attributes
-
-The `@[mvcgen_invariant_type]` and `@[mvcgen_witness_type]` tag attributes control how `mvcgen`
-classifies subgoals:
-* A goal whose type is an application of a type tagged with `@[mvcgen_invariant_type]` is classified
-  as an invariant (`inv<n>`).
-* A goal whose type is an application of a type tagged with `@[mvcgen_witness_type]` is classified
-  as a witness (`witness<n>`).
-* All other goals are classified as verification conditions (`vc<n>`).
-
 ### Invariant suggestions
 
 `mvcgen` will suggest invariants for you if you use the `invariants?` keyword.

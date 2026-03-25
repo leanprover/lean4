@@ -12,6 +12,7 @@ import Lean.Server.Watchdog
 import Lean.Server.FileWorker
 import Lean.Compiler.LCNF.EmitC
 import Init.System.Platform
+import Lean.Compiler.Options
 
 /-  Lean companion to  `shell.cpp` -/
 
@@ -340,7 +341,10 @@ def ShellOptions.process (opts : ShellOptions)
   | 'I' => -- `-I, --stdin`
     return {opts with useStdin := true}
   | 'r' => -- `--run`
-    return {opts with run := true}
+    return {opts with
+      run := true
+      -- can't get IR if it's postponed
+      leanOpts := Compiler.compiler.postponeCompile.set opts.leanOpts false }
   | 'o' => -- `--o, olean=fname`
     return {opts with oleanFileName? := ← checkOptArg "o" optArg?}
   | 'i' => -- `--i, ilean=fname`

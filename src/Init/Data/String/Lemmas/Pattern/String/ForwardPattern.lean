@@ -76,10 +76,12 @@ namespace Model.ForwardSliceSearcher
 
 open Pattern.ForwardSliceSearcher
 
+public instance {pat : Slice} : LawfulForwardPattern pat where
+  skipPrefixOfNonempty?_eq _ := rfl
+  startsWith_eq _ := isSome_skipPrefix?.symm
+
 public theorem lawfulForwardPatternModel {pat : Slice} (hpat : pat.isEmpty = false) :
     LawfulForwardPatternModel pat where
-  skipPrefixOfNonempty?_eq h := rfl
-  startsWith_eq s := isSome_skipPrefix?.symm
   skipPrefix?_eq_some_iff pos := by
     simp [ForwardPattern.skipPrefix?, skipPrefix?_eq_some_iff, isLongestMatch_iff hpat]
 
@@ -89,10 +91,12 @@ namespace Model.ForwardStringSearcher
 
 open Pattern.ForwardSliceSearcher
 
+public instance {pat : String} : LawfulForwardPattern pat where
+  skipPrefixOfNonempty?_eq _ := rfl
+  startsWith_eq _ := isSome_skipPrefix?.symm
+
 public theorem lawfulForwardPatternModel {pat : String} (hpat : pat ≠ "") :
     LawfulForwardPatternModel pat where
-  skipPrefixOfNonempty?_eq h := rfl
-  startsWith_eq s := isSome_skipPrefix?.symm
   skipPrefix?_eq_some_iff pos := by
     simp [ForwardPattern.skipPrefix?, skipPrefix?_eq_some_iff, isLongestMatch_iff hpat]
 

@@ -366,12 +366,12 @@ macro "mvcgen_trivial" : tactic =>
 /--
 An invariant alternative of the form `· term`, one per invariant goal.
 -/
-syntax invariantDotAlt := ppDedent(ppLine) cdotTk (colGe term)
+syntax goalDotAlt := ppDedent(ppLine) cdotTk (colGe term)
 
 /--
 An invariant alternative of the form `| inv<n> a b c => term`, one per invariant goal.
 -/
-syntax invariantCaseAlt := ppDedent(ppLine) "| " caseArg " => " (colGe term)
+syntax goalCaseAlt := ppDedent(ppLine) "| " caseArg " => " (colGe term)
 
 /--
 Either the contextual keyword ` invariants ` or its tracing form ` invariants? ` which suggests
@@ -387,7 +387,7 @@ After `mvcgen [...]`, there can be an optional `invariants` followed by either
 The tracing variant ` invariants? ` will suggest a skeleton for missing invariants; see the
 docstring for `mvcgen`.
 -/
-syntax invariantAlts := invariantsKW withPosition((colGe (invariantDotAlt <|> invariantCaseAlt))*)
+syntax invariantAlts := invariantsKW withPosition((colGe (goalDotAlt <|> goalCaseAlt))*)
 
 /--
 In induction alternative, which can have 1 or more cases on the left

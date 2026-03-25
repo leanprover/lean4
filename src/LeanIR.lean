@@ -57,7 +57,7 @@ def setConfigOption (opts : Options) (arg : String) : IO Options := do
 
 public def main (args : List String) : IO UInt32 := do
   let setupFile::irFile::c::optArgs := args | do
-    IO.println s!"usage: leanir <setup.json> <module> <output.ir> <output.c> <-Dopt=val>..."
+    IO.println s!"usage: leanir <setup.json> <output.ir> <output.c> <-Dopt=val>..."
     return 1
 
   let setup ← ModuleSetup.load setupFile

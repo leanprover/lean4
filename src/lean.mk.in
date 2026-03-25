@@ -78,7 +78,7 @@ endif
 	@mkdir -p $(OLEAN_OUT)/$(*D)
 	LEAN_OPTS="$(LEAN_OPTS)"; \
 	[[ -z "$(LLVM)" ]] || LEAN_OPTS+=" --bc=$(TEMP_OUT)/$*.bc.tmp"; \
-	$(LEAN) $$LEAN_OPTS -o "$@" -i "$(OLEAN_OUT)/$*.ilean" --c="$(TEMP_OUT)/$*.c.tmp" "$<"
+	$(LEAN) $$LEAN_OPTS -Dcompiler.postponeCompile=false -o "$@" -i "$(OLEAN_OUT)/$*.ilean" --c="$(TEMP_OUT)/$*.c.tmp" "$<"
 # create the .c file atomically
 	@mv "$(TEMP_OUT)/$*.c.tmp" "$(C_OUT)/$*.c"
 ifdef LLVM

@@ -148,7 +148,9 @@ partial def run (declNames : Array Name) (baseOpts : Options) : CompilerM Unit :
     -- meta defs are compiled locally so they are available for execution/compilation without
     -- importing `.ir` but still marked for `leanir` compilation so that we do not have to persist
     -- module-local compilation information between the two processes
-    if !decls.any (isMarkedMeta (← getEnv) ·.name) then
+    if decls.any (isMarkedMeta (← getEnv) ·.name) then
+      modifyEnv (postponedCompileDeclsExt.modifyState · fun s => decls.foldl (·.erase ·.name) s)
+    else
       trace[Compiler] "postponing compilation of {decls.map (·.name)}"
       return
 

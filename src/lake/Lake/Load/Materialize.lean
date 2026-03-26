@@ -22,6 +22,19 @@ or resolve a local path dependency.
 
 namespace Lake
 
+/--
+Remove all `.hash` files under `dir`, recursively.
+These files cache content hashes for Lake's `fetchFileHash` and become stale
+when the underlying files change (e.g., after a git checkout).
+-/
+partial def clearHashFilesIn (dir : FilePath) : IO Unit := do
+  if let some entries ← dir.readDir.toBaseIO then
+    for entry in entries do
+      if (← entry.path.isDir) then
+        clearHashFilesIn entry.path
+      else if entry.fileName.endsWith ".hash" then
+        IO.FS.removeFile entry.path
+
 /-- Update the Git package in `repo` to `rev` if not already at it. -/
 def updateGitPkg
   (name : String) (repo : GitRepo) (rev? : Option String)
@@ -33,6 +46,10 @@ def updateGitPkg
   else
     logInfo s!"{name}: checking out revision '{rev}'"
     repo.checkoutDetach rev
+    -- Clear all cached `.hash` files under the package directory.
+    -- `fetchFileHash` trusts `.hash` files unconditionally, so stale ones
+    -- from the previous revision cause incorrect trace computations.
+    clearHashFilesIn repo.dir
 
 /-- Clone the Git package as `repo`. -/
 def cloneGitPkg

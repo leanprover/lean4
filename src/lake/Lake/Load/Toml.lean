@@ -545,7 +545,7 @@ private def loadLakeConfigCore (path : FilePath) (lakeEnv : Lake.Env) : LogIO Lo
             | error s!"the configured default cache service `{name}` is not defined; \
                 please add a `cache.service` with that name"
           return service
-      let defaultUploadCacheService? ← id do
+      let defaultCacheUploadService? ← id do
         let name := config.cache.defaultUploadService
         if name.isEmpty then
           return none
@@ -555,12 +555,12 @@ private def loadLakeConfigCore (path : FilePath) (lakeEnv : Lake.Env) : LogIO Lo
                 please add a `cache.service` with that name"
           return some service
       if cacheServices.contains `reservoir then
-        return {config, defaultCacheService, defaultUploadCacheService?, cacheServices}
+        return {config, defaultCacheService, defaultCacheUploadService?, cacheServices}
       else
          let cacheServices := cacheServices.insert `reservoir defaultService
          let defaultServiceConfig := {name := "reservoir", kind := .reservoir, apiEndpoint := lakeEnv.reservoirApiUrl}
          let config := {config with cache.services := config.cache.services.push defaultServiceConfig}
-         return {config, defaultCacheService, defaultUploadCacheService?, cacheServices}
+         return {config, defaultCacheService, defaultCacheUploadService?, cacheServices}
     else
       errorWithLog <| errs.forM fun {ref, msg} =>
         let pos := ictx.fileMap.toPosition <| ref.getPos?.getD 0
@@ -574,7 +574,7 @@ private def LoadedLakeConfig.mkDefault (lakeEnv : Lake.Env) : LoadedLakeConfig :
   {
     config.cache.services := #[defaultServiceConfig]
     defaultCacheService := defaultService
-    defaultUploadCacheService? := none
+    defaultCacheUploadService? := none
     cacheServices := NameMap.empty.insert `reservoir defaultService
   }
 

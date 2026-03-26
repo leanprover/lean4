@@ -421,19 +421,6 @@ public def getArtifact (cache : Cache) (descr : ArtifactDescr) : EIO String Arti
   | .error e =>
     error s!"failed to retrieve artifact from cache: {e}"
 
-/--
-**For internal use only.**
-Returns path to the artifact for each output. Errors if any are missing.
--/
-public def getArtifactPaths
-  (cache : Cache) (descrs : Array ArtifactDescr)
-: LogIO (Vector FilePath descrs.size) := throwIfLogs do
-  (Vector.mk descrs rfl).mapM fun out => do
-    let art := cache.artifactDir / out.relPath
-    unless (← art.pathExists) do
-      logError s!"artifact not found in cache: {art}"
-    return art
-
 /-- The directory where input-to-output mappings are stored in the Lake cache. -/
 @[inline] public def outputsDir (cache : Cache) : FilePath :=
   cache.dir / "outputs"

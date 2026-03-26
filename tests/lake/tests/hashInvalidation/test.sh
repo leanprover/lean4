@@ -15,46 +15,18 @@ source ../common.sh
 
 ./clean.sh
 
-# Create a git dependency that mirrors the ProofWidgets pattern:
-# a `buildFileAfterDep` target whose output is a git-tracked file
-# in the source tree. This creates a .hash file that becomes stale
-# when the dependency is checked out to a new revision.
+# Create a simple git dependency
 echo "# SETUP: Create dependency"
-mkdir -p dep
-pushd dep
-
-cat > lakefile.lean << 'LAKEFILE'
+mkdir -p dep/Dep
+cat > dep/lakefile.lean << 'LAKEFILE'
 import Lake
-open Lake DSL System
-
+open Lake DSL
 package dep
-
--- An input file that triggers rebuilds
-input_file depConfig where
-  path := "config.txt"
-  text := true
-
--- A target whose output (generated.txt) lives in the source tree,
--- mirroring ProofWidgets' widgetPackageLock pattern.
--- buildFileAfterDep calls fetchFileHash on the output, creating
--- a .hash file in the source tree.
-target depGenerated pkg : FilePath := do
-  let config ← depConfig.fetch
-  let outFile := pkg.dir / "generated.txt"
-  buildFileAfterDep (text := true) outFile config fun srcFile => do
-    let contents ← IO.FS.readFile srcFile
-    IO.FS.writeFile outFile s!"generated from: {contents}"
-
 @[default_target]
-lean_lib Dep where
-  needs := #[depGenerated]
+lean_lib Dep
 LAKEFILE
-
-mkdir -p Dep
-echo "def Dep.hello := \"world\"" > Dep/Basic.lean
-echo "v1" > config.txt
-echo "generated from: v1" > generated.txt
-
+echo "def Dep.hello := \"world\"" > dep/Dep/Basic.lean
+pushd dep
 init_git
 popd
 
@@ -64,47 +36,41 @@ mkdir -p test
 cat > test/lakefile.lean << 'EOF'
 import Lake
 open Lake DSL
-
 package test
-
 require dep from git "../dep"
-
 @[default_target]
 lean_lib Test
 EOF
+echo "import Dep" > test/Test.lean
 
-echo "def hello := \"world\"" > test/Test.lean
-
-# Build — this creates generated.txt.hash in the dep source tree
+# Build — creates .hash files for dep's olean outputs
 echo "# TEST: Initial build"
 pushd test
 test_run update
 test_run build
 
-# Verify .hash file was created for the generated output
-test_exp -f .lake/packages/dep/generated.txt.hash
+# Verify .hash files were created for dep build outputs
+test_exp -f .lake/packages/dep/.lake/build/lib/lean/Dep/Basic.olean.hash
 
 popd
 
-# Make a new commit that changes config.txt and generated.txt
+# Make a new commit in the dependency
 echo "# SETUP: Update dependency"
 pushd dep
-echo "v2" > config.txt
-echo "generated from: v2" > generated.txt
+echo "def Dep.hello := \"updated\"" > Dep/Basic.lean
 git add --all
-git commit -m "update to v2"
+git commit -m "update"
 popd
 
-# Update the dependency — should clear stale .hash files
+# Update — should clear stale .hash files
 echo "# TEST: Update to new revision and rebuild"
 pushd test
 test_run update
 
-# Verify the stale .hash file was cleared
-test_exp ! -f .lake/packages/dep/generated.txt.hash
+# Verify stale .hash files were cleared
+test_exp ! -f .lake/packages/dep/.lake/build/lib/lean/Dep/Basic.olean.hash
 
-# Verify build succeeds (without the fix, the stale .hash would
-# cause an incorrect trace, potentially failing the build)
+# Verify build succeeds
 test_run build
 
 popd

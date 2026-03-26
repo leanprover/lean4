@@ -7,11 +7,19 @@ module
 
 prelude
 public import Lean.DocString.Add
+public import Lean.Linter.Basic
 meta import Lean.Parser.Command
 
 public section
 
-namespace Lean.Elab
+namespace Lean
+
+register_builtin_option linter.privateInPrivate : Bool := {
+  defValue := true
+  descr := "warn on uses of `private` outside `public section` in `module` files"
+}
+
+namespace Elab
 
 /--
 Ensure the environment does not contain a declaration with name `declName`.
@@ -187,7 +195,15 @@ def elabModifiers (stx : TSyntax ``Parser.Command.declModifiers) : m Modifiers :
     | none   => pure .regular
     | some v =>
       match v with
-      | `(Parser.Command.visibility| private) => pure .private
+      | `(Parser.Command.visibility| private) => do
+        let env ← getEnv
+        if env.header.isModule && !env.isExporting &&
+            Linter.getLinterValue linter.privateInPrivate (← Linter.getLinterOptions) then
+          logWarningAt v m!"`private` has no effect outside a `public section` in a `module` file; \
+            declarations are already `private` by default{
+            .note m!"This linter can be disabled with \
+              `set_option {linter.privateInPrivate.name} false`"}"
+        pure .private
       | `(Parser.Command.visibility| public) => pure .public
       | _ => throwErrorAt v "unexpected visibility modifier"
   let isProtected := !protectedStx.isNone

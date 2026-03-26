@@ -3,19 +3,19 @@ module
 public section
 
 
+
 /--
 trace: [Compiler.explicitRc] size: 1
     def test1._closed_0 : obj :=
       let _x.1 := "";
       return _x.1
-[Compiler.explicitRc] size: 8
+[Compiler.explicitRc] size: 7
     def test1 @&xs : obj :=
       let _x.1 := test1._closed_0;
       let _x.2 := 0;
       let _x.3 := Array.get!InternalBorrowed ◾ _x.1 xs _x.2;
       let _x.4 := 1;
       let _x.5 := Array.get!InternalBorrowed ◾ _x.1 xs _x.4;
-      dec[persistent][ref] _x.1;
       inc _x.3;
       let _x.6 := String.append _x.3 _x.5;
       return _x.6
@@ -77,7 +77,7 @@ trace: [Compiler.explicitRc] size: 4
       dec[ref] xs;
       let r := box res;
       return r
-[Compiler.explicitRc] size: 23
+[Compiler.explicitRc] size: 21
     def test3 @&xs : obj :=
       let _x.1 := test1._closed_0;
       jp _jp.2 _y.3 : obj :=
@@ -86,12 +86,10 @@ trace: [Compiler.explicitRc] size: 4
         cases _x.5 : obj
         | Bool.false =>
           let _x.6 := outOfBounds._redArg _x.1;
-          dec[persistent][ref] _x.1;
           let _x.7 := String.append _y.3 _x.6;
           dec _x.6;
           return _x.7
         | Bool.true =>
-          dec[persistent][ref] _x.1;
           let _x.8 := Array.ugetBorrowed ◾ xs _x.4 ◾;
           let _x.9 := String.append _y.3 _x.8;
           return _x.9;

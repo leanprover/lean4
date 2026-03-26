@@ -18,11 +18,12 @@
 # Setup
 # ---
 
+./clean.sh
+
 # Copy test data to a working directory to avoid initializing Git repositories
 # inside the checked-in source tree. Cleaned at the start so artifacts from a
 # failed run remain available for inspection.
 WORK_DIR="$PWD/work"
-rm -rf "$WORK_DIR"
 mkdir -p "$WORK_DIR"
 cp -r DiamondExample-A DiamondExample-B DiamondExample-C DiamondExample-D lean-toolchain "$WORK_DIR/"
 cd "$WORK_DIR"

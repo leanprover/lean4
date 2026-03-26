@@ -33,6 +33,11 @@ def updateGitPkg
   else
     logInfo s!"{name}: checking out revision '{rev}'"
     repo.checkoutDetach rev
+    -- Remove untracked files from tracked folders the package.
+    -- This helps ensure reproducible behavior by removing leftovers.
+    -- For example, Lake will trust leftover `.hash` files unconditionally,
+    -- so stale ones from the previous revision cause incorrect trace computations.
+    repo.clean
 
 /-- Clone the Git package as `repo`. -/
 def cloneGitPkg

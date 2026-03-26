@@ -42,7 +42,7 @@ target depGenerated pkg : FilePath := do
   let config ← depConfig.fetch
   let outFile := pkg.dir / "generated.txt"
   buildFileAfterDep (text := true) outFile config fun srcFile => do
-    let contents ← IO.FS.readFile srcFile.path
+    let contents ← IO.FS.readFile srcFile
     IO.FS.writeFile outFile s!"generated from: {contents}"
 
 @[default_target]

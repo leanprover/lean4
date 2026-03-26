@@ -73,8 +73,7 @@ require dep from git "../dep"
 lean_lib Test
 EOF
 
-mkdir -p test/Test
-echo "def hello := \"world\"" > test/Test/Basic.lean
+echo "def hello := \"world\"" > test/Test.lean
 
 # Build — this creates generated.txt.hash in the dep source tree
 echo "# TEST: Initial build"

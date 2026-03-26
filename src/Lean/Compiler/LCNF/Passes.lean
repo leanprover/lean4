@@ -26,6 +26,7 @@ public import Lean.Compiler.LCNF.SimpCase
 public import Lean.Compiler.LCNF.InferBorrow
 public import Lean.Compiler.LCNF.ExplicitBoxing
 public import Lean.Compiler.LCNF.ExplicitRC
+public import Lean.Compiler.LCNF.CoalesceRC
 public import Lean.Compiler.LCNF.Toposort
 public import Lean.Compiler.LCNF.ExpandResetReuse
 public import Lean.Compiler.LCNF.SimpleGroundExpr
@@ -149,6 +150,7 @@ def builtinPassManager : PassManager := {
     explicitBoxing,
     explicitRc,
     expandResetReuse,
+    coalesceRC,
     pushProj (occurrence := 1),
     detectSimpleGround,
     inferVisibility (phase := .impure),

@@ -64,6 +64,10 @@ public section
 example : fpriv = 1 := rfl
 
 /--
+warning: `public` is the default visibility inside a `public section`; the modifier has no effect
+
+Note: This linter can be disabled with `set_option linter.redundantVisibility false`
+---
 error: Unknown identifier `fpriv`
 
 Note: A private declaration `fpriv` (from the current module) exists but would need to be public to access here.

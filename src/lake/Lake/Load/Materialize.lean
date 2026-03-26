@@ -35,6 +35,13 @@ partial def clearHashFilesIn (dir : FilePath) : IO Unit := do
       else if entry.fileName.endsWith ".hash" then
         IO.FS.removeFile entry.path
 
+/--
+Clear all Lake-generated `.hash` cache files for a package.
+Scoped to `.lake/build/` to avoid touching tracked files in the source tree.
+-/
+def clearPkgHashFiles (pkgDir : FilePath) : IO Unit :=
+  clearHashFilesIn (pkgDir / ".lake" / "build")
+
 /-- Update the Git package in `repo` to `rev` if not already at it. -/
 def updateGitPkg
   (name : String) (repo : GitRepo) (rev? : Option String)
@@ -46,10 +53,10 @@ def updateGitPkg
   else
     logInfo s!"{name}: checking out revision '{rev}'"
     repo.checkoutDetach rev
-    -- Clear all cached `.hash` files under the package directory.
+    -- Clear all cached `.hash` files under `.lake/build/`.
     -- `fetchFileHash` trusts `.hash` files unconditionally, so stale ones
     -- from the previous revision cause incorrect trace computations.
-    clearHashFilesIn repo.dir
+    clearPkgHashFiles repo.dir
 
 /-- Clone the Git package as `repo`. -/
 def cloneGitPkg

@@ -717,9 +717,8 @@ inductive WF : {α : Type u} → {β : α → Type v} → [BEq α] → [Hashable
   /-- Internal implementation detail of the hash map -/
   | inter₀ {α β : _} [BEq α] [Hashable α] {m₁ m₂ : Raw α β} {h₁ h₂} : WF m₁ → WF m₂ → WF (Raw₀.inter ⟨m₁, h₁⟩ ⟨m₂, h₂⟩).1
 
--- TODO: this needs to be deprecated, but there is a bootstrapping issue.
--- @[deprecated WF.emptyWithCapacity₀ (since := "2025-03-12")]
-@[inherit_doc Raw.WF.emptyWithCapacity₀]
+set_option linter.missingDocs false in
+@[deprecated WF.emptyWithCapacity₀ (since := "2026-03-26")]
 abbrev WF.empty₀ := @WF.emptyWithCapacity₀
 
 /-- Internal implementation detail of the hash map -/

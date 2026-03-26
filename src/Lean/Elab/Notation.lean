@@ -45,14 +45,8 @@ private partial def antiquote (vars : Array Syntax) : Syntax → Syntax
 def expandNotationItemIntoSyntaxItem : TSyntax ``notationItem → MacroM (TSyntax `stx)
   | `(notationItem| $_:ident$[:$prec?]?) => `(stx| term $[:$prec?]?)
   | `(notationItem| $s:str)              => `(stx| $s:str)
-  -- TODO(kmill): use after stage0 update
-  -- | `(notationItem| $u:unicodeAtom)      => `(stx| $u:unicodeAtom)
-  -- | _                                    => Macro.throwUnsupported
-  | stx =>
-    if stx.raw.isOfKind ``Parser.Syntax.unicodeAtom then
-      return ⟨stx.raw⟩
-    else
-      Macro.throwUnsupported
+  | `(notationItem| $u:unicodeAtom)      => `(stx| $u:unicodeAtom)
+  | _                                    => Macro.throwUnsupported
 
 /-- Convert `notation` command lhs item into a pattern element -/
 def expandNotationItemIntoPattern (stx : Syntax) : MacroM Syntax :=

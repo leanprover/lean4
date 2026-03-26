@@ -234,39 +234,6 @@ def getTag? : Json → Option String
   | .obj kvs => guard (kvs.size == 1) *> kvs.minKey?
   | _        => none
 
--- TODO: delete after rebootstrap
-def parseTagged
-    (json : Json)
-    (tag : String)
-    (nFields : Nat)
-    (fieldNames? : Option (Array Name)) : Except String (Array Json) :=
-  if nFields == 0 then
-    match getStr? json with
-    | Except.ok s => if s == tag then Except.ok #[] else throw s!"incorrect tag: {s} ≟ {tag}"
-    | Except.error err => Except.error err
-  else
-    match getObjVal? json tag with
-    | Except.ok payload =>
-      match fieldNames? with
-      | some fieldNames =>
-        do
-          let mut fields := #[]
-          for fieldName in fieldNames do
-            fields := fields.push (←getObjVal? payload fieldName.getString!)
-          Except.ok fields
-      | none =>
-        if nFields == 1 then
-          Except.ok #[payload]
-        else
-          match getArr? payload with
-          | Except.ok fields =>
-            if fields.size == nFields then
-              Except.ok fields
-            else
-              Except.error s!"incorrect number of fields: {fields.size} ≟ {nFields}"
-          | Except.error err => Except.error err
-    | Except.error err => Except.error err
-
 /--
 Parses a JSON-encoded `structure` or `inductive` constructor, assuming the tag has already been
 checked and `nFields` is nonzero. Used mostly by `deriving FromJson`.

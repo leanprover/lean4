@@ -5473,10 +5473,6 @@ class MonadQuotation (m : Type → Type) extends MonadRef m where
 
 export MonadQuotation (getCurrMacroScope withFreshMacroScope)
 
--- TODO: delete after rebootstrap
-@[inherit_doc MonadQuotation.getContext]
-abbrev MonadQuotation.getMainModule := @MonadQuotation.getContext
-
 /-- Construct a synthetic `SourceInfo` from the `ref` in the monad state. -/
 @[inline]
 def MonadRef.mkInfoFromRefPos [Monad m] [MonadRef m] : m SourceInfo :=
@@ -5699,11 +5695,10 @@ end Syntax
 namespace Macro
 
 /-- References -/
--- TODO: make private again and make Nonempty instance no_expose instead after bootstrapping
-opaque MethodsRefPointed : NonemptyType.{0}
+private opaque MethodsRefPointed : NonemptyType.{0}
 
 set_option linter.missingDocs false in
-@[expose] def MethodsRef : Type := MethodsRefPointed.type
+@[no_expose] def MethodsRef : Type := MethodsRefPointed.type
 
 instance : Nonempty MethodsRef := MethodsRefPointed.property
 

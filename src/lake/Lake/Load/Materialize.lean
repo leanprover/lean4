@@ -28,7 +28,7 @@ These files cache content hashes for Lake's `fetchFileHash` and become stale
 when the underlying files change (e.g., after a git checkout).
 -/
 partial def clearHashFilesIn (dir : FilePath) : IO Unit := do
-  if let some entries ← dir.readDir.toBaseIO then
+  if let .ok entries ← dir.readDir.toBaseIO then
     for entry in entries do
       if (← entry.path.isDir) then
         clearHashFilesIn entry.path

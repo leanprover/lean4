@@ -67,7 +67,6 @@ public def Package.optBuildCacheFacetConfig : PackageFacetConfig optBuildCacheFa
 private def Package.maybeFetchBuildCache (self : Package) : FetchM (Job Bool) := do
   let shouldFetch :=
     (← getTryCache) &&
-    !(← self.buildDir.pathExists) && -- do not automatically clobber prebuilt artifacts
     (self.preferReleaseBuild || -- GitHub release
       ((self.scope == "leanprover" || self.scope == "leanprover-community")
         && !(← getElanToolchain).isEmpty)) -- Reservoir

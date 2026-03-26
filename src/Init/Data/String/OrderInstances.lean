@@ -88,18 +88,19 @@ end Pos
 
 namespace Slice.Pos
 
-instance {s : Slice} : Lean.Grind.ToInt s.Pos (.co 0 (s.utf8ByteSize + 1)) where
+instance {s : Slice} : Lean.Grind.ToInt s.Pos (.co s.startInclusive.offset.byteIdx (s.endExclusive.offset.byteIdx + 1)) where
   toInt p := p.offset.byteIdx
   toInt_inj p q := by simp [Pos.ext_iff, Pos.Raw.ext_iff, ← Int.ofNat_inj]
-  toInt_mem p := by have := p.isValidForSlice.le_utf8ByteSize; simp; omega
+  toInt_mem p := by simpa [Int.lt_add_one_iff, ← Pos.Raw.le_iff] using
+    ⟨p.isValidForSlice.offset_startInclusive_le, p.isValidForSlice.le_offset_endExclusive⟩
 
 @[simp]
 theorem toInt_eq {s : Slice} {p : s.Pos} : Lean.Grind.ToInt.toInt p = p.offset.byteIdx := rfl
 
-instance {s : Slice} : Lean.Grind.ToInt.LE s.Pos (.co 0 (s.utf8ByteSize + 1)) where
+instance {s : Slice} : Lean.Grind.ToInt.LE s.Pos (.co s.startInclusive.offset.byteIdx (s.endExclusive.offset.byteIdx + 1)) where
   le_iff := by simp [Pos.le_iff, Pos.Raw.le_iff]
 
-instance {s : Slice} : Lean.Grind.ToInt.LT s.Pos (.co 0 (s.utf8ByteSize + 1)) where
+instance {s : Slice} : Lean.Grind.ToInt.LT s.Pos (.co s.startInclusive.offset.byteIdx (s.endExclusive.offset.byteIdx + 1)) where
   lt_iff := by simp [Pos.lt_iff, Pos.Raw.lt_iff]
 
 instance {s : Slice} : Std.Total (α := s.Pos) (· ≤ ·) := ⟨fun _ _ => by order⟩

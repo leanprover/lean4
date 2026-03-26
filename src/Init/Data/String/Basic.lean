@@ -845,7 +845,7 @@ theorem Slice.utf8ByteSize_copy {s : Slice} :
   rw [utf8ByteSize_copy_eq_sub, utf8ByteSize_eq]
 
 @[simp]
-theorem Slice.rawEndPos_copy {s : Slice} : s.copy.rawEndPos = s.rawEndPos := by
+theorem Slice.rawEndPos_copy {s : Slice} : s.copy.rawEndPos = s.endExclusive.offset.unoffsetBy s.startInclusive.offset := by
   simp [Pos.Raw.ext_iff, utf8ByteSize_eq]
 
 @[simp]
@@ -856,8 +856,8 @@ theorem copy_toSlice {s : String} : s.toSlice.copy = s := by
 theorem copy_comp_toSlice : String.Slice.copy ∘ String.toSlice = id := by
   ext; simp
 
-theorem Slice.getUTF8Byte_eq_getUTF8Byte_copy {s : Slice} {p : Pos.Raw} {h : p < s.rawEndPos} :
-    s.getUTF8Byte p h = s.copy.getUTF8Byte p (by simpa) := by
+theorem Slice.getUTF8Byte_eq_getUTF8Byte_copy {s : Slice} {p : Pos.Raw} {h : p < s.endExclusive.offset} :
+    s.getUTF8Byte p h = s.copy.getUTF8Byte (p.unoffsetBy s.startInclusive.offset) (by simpa) := by
   simp [getUTF8Byte, String.getUTF8Byte, toByteArray_copy, ByteArray.getElem_extract]
 
 theorem Slice.getUTF8Byte_copy {s : Slice} {p : Pos.Raw} {h} :

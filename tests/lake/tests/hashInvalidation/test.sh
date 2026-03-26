@@ -25,6 +25,7 @@ package dep
 @[default_target]
 lean_lib Dep
 LAKEFILE
+echo "import Dep.Basic" > dep/Dep.lean
 echo "def Dep.hello := \"world\"" > dep/Dep/Basic.lean
 pushd dep
 init_git

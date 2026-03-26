@@ -80,14 +80,26 @@ LAKE_CACHE_REVISION_ENDPOINT=bogus test_err 'both environment variables must be 
 
 # Test `cache put` command errors for bad configurations
 with_upload_endpoints test_err 'the `--scope` or `--repo` option must be set' cache put bogus.jsonl
-test_err 'the `--service` option must be set for `cache put`' \
+test_err 'the `--service` option must be set' \
   cache put bogus.jsonl --scope='bogus'
-LAKE_CACHE_KEY= test_err 'the `--service` option must be set for `cache put`' \
-  cache put bogus.jsonl --scope='bogus'
-LAKE_CACHE_REVISION_ENDPOINT=bogus test_err 'these environment variables must be set' \
+LAKE_CACHE_KEY= test_err 'the `--service` option must be set' \
   cache put bogus.jsonl --scope='bogus'
 LAKE_CACHE_REVISION_ENDPOINT=bogus test_err 'these environment variables must be set' \
   cache put bogus.jsonl --scope='bogus'
+LAKE_CACHE_REVISION_ENDPOINT=bogus test_err 'these environment variables must be set' \
+  cache put bogus.jsonl --scope='bogus'
+
+# Test `cache put-staged` command errors for bad configurations
+with_upload_endpoints test_err 'the `--scope` or `--repo` option must be set' \
+  cache put-staged bogus
+test_err 'the `--service` option must be set' \
+  cache put-staged bogus --scope='bogus'
+LAKE_CACHE_KEY= test_err 'the `--service` option must be set' \
+  cache put-staged bogus --scope='bogus'
+LAKE_CACHE_REVISION_ENDPOINT=bogus test_err 'these environment variables must be set' \
+  cache put-staged bogus --scope='bogus'
+LAKE_CACHE_REVISION_ENDPOINT=bogus test_err 'these environment variables must be set' \
+  cache put-staged bogus --scope='bogus'
 
 # Test `cache add` command errors for bad configurations
 test_err '`--scope` and `--repo` require `--service`' \

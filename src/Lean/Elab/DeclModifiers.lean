@@ -197,22 +197,24 @@ def elabModifiers (stx : TSyntax ``Parser.Command.declModifiers) : m Modifiers :
       match v with
       | `(Parser.Command.visibility| private) => do
         let env ← getEnv
-        if env.header.isModule && !env.isExporting &&
-            Linter.getLinterValue linter.redundantVisibility (← Linter.getLinterOptions) then
-          logWarningAt v m!"`private` has no effect outside a `public section` in a `module` file; \
-            declarations are already `private` by default{
-            .note m!"This linter can be disabled with \
-              `set_option {linter.redundantVisibility.name} false`"}"
+        if v.getHeadInfo matches .original .. then
+          if env.header.isModule && !env.isExporting &&
+              Linter.getLinterValue linter.redundantVisibility (← Linter.getLinterOptions) then
+            logWarningAt v m!"`private` has no effect outside a `public section` in a `module` file; \
+              declarations are already `private` by default{
+              .note m!"This linter can be disabled with \
+                `set_option {linter.redundantVisibility.name} false`"}"
         pure .private
       | `(Parser.Command.visibility| public) => do
         let env ← getEnv
-        if (env.isExporting || !env.header.isModule) &&
-            Linter.getLinterValue linter.redundantVisibility (← Linter.getLinterOptions) then
-          logWarningAt v m!"`public` is the default visibility{
-            if env.header.isModule then " inside a `public section`" else ""
-            }; the modifier has no effect{
-            .note m!"This linter can be disabled with \
-              `set_option {linter.redundantVisibility.name} false`"}"
+        if v.getHeadInfo matches .original .. then
+          if (env.isExporting || !env.header.isModule) &&
+              Linter.getLinterValue linter.redundantVisibility (← Linter.getLinterOptions) then
+            logWarningAt v m!"`public` is the default visibility{
+              if env.header.isModule then " inside a `public section`" else ""
+              }; the modifier has no effect{
+              .note m!"This linter can be disabled with \
+                `set_option {linter.redundantVisibility.name} false`"}"
         pure .public
       | _ => throwErrorAt v "unexpected visibility modifier"
   let isProtected := !protectedStx.isNone

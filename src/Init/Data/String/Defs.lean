@@ -472,20 +472,23 @@ theorem Pos.Raw.byteIdx_sub_slice {p : Pos.Raw} {s : Slice} :
 
 /-- The end position of a slice, as a `Pos.Raw`. -/
 @[expose, inline]
-def Slice.rawEndPos (s : Slice) : Pos.Raw where
-  byteIdx := s.utf8ByteSize
+def Slice.rawEndPos (s : Slice) : Pos.Raw :=
+  s.endExclusive.offset
 
-@[simp]
-theorem Slice.byteIdx_rawEndPos {s : Slice} : s.rawEndPos.byteIdx = s.utf8ByteSize := (rfl)
+theorem Slice.rawEndPos_eq {s : Slice} : s.rawEndPos = s.endExclusive.offset := (rfl)
+
+/-- The start position of a slice, as a `Pos.Raw`. -/
+@[expose, inline]
+def Slice.rawStartPos (s : Slice) : Pos.Raw :=
+  s.startInclusive.offset
+
+theorem Slice.rawStartPos_eq {s : Slice} : s.rawStartPos = s.startInclusive.offset := (rfl)
 
 /-- Criterion for validity of positions in string slices. -/
 structure Pos.Raw.IsValidForSlice (s : Slice) (p : Pos.Raw) : Prop where
+  rawStartPos_le : s.rawStartPos ≤ p
   le_rawEndPos : p ≤ s.rawEndPos
-  isValid_offsetBy : (p.offsetBy s.startInclusive.offset).IsValid s.str
-
-theorem Pos.Raw.IsValidForSlice.le_utf8ByteSize {s : Slice} {p : Pos.Raw}
-    (h : p.IsValidForSlice s) : p.byteIdx ≤ s.utf8ByteSize := by
-  simpa [Pos.Raw.le_iff] using h.le_rawEndPos
+  isValid : p.IsValid s.str
 
 /--
 Accesses the indicated byte in the UTF-8 encoding of a string slice.
@@ -494,10 +497,9 @@ At runtime, this function is implemented by efficient, constant-time code.
 -/
 @[inline, expose]
 def Slice.getUTF8Byte (s : Slice) (p : Pos.Raw) (h : p < s.rawEndPos) : UInt8 :=
-  s.str.getUTF8Byte (p.offsetBy s.startInclusive.offset) (by
+  s.str.getUTF8Byte p (by
     have := s.endExclusive.isValid.le_rawEndPos
-    simp only [Pos.Raw.lt_iff, byteIdx_rawEndPos, utf8ByteSize_eq, Pos.Raw.le_iff, byteIdx_rawEndPos,
-      Pos.Raw.byteIdx_offsetBy] at *
+    simp only [rawEndPos_eq, Pos.Raw.lt_iff, Pos.Raw.le_iff, byteIdx_rawEndPos] at *
     omega)
 
 /--
@@ -526,11 +528,11 @@ deriving @[expose] DecidableEq
 /-- The start position of `s`, as an `s.Pos`. -/
 @[inline, expose]
 def Slice.startPos (s : Slice) : s.Pos where
-  offset := 0
-  isValidForSlice := ⟨by simp [Pos.Raw.le_iff], by simpa using s.startInclusive.isValid⟩
+  offset := s.rawStartPos
+  isValidForSlice := ⟨by simp, s.startInclusive_le_endExclusive, s.startInclusive.isValid⟩
 
 @[simp]
-theorem Slice.offset_startPos {s : Slice} : s.startPos.offset = 0 := (rfl)
+theorem Slice.offset_startPos {s : Slice} : s.startPos.offset = s.rawStartPos := (rfl)
 
 instance {s : Slice} : Inhabited s.Pos where
   default := s.startPos
@@ -552,19 +554,15 @@ theorem Pos.Raw.offsetBy_rawEndPos_right {p : Pos.Raw} {s : String} :
   simp [Pos.Raw.ext_iff]
 
 @[simp]
-theorem Pos.Raw.offsetBy_sliceRawEndPos_left {p : Pos.Raw} {s : Slice} :
-    s.rawEndPos.offsetBy p = p + s := by
-  simp [Pos.Raw.ext_iff]
-
-@[simp]
-theorem Pos.Raw.offsetBy_sliceRawEndPos_right {p : Pos.Raw} {s : Slice} :
-    p.offsetBy s.rawEndPos = s + p := by
+theorem Pos.Raw.increaseBy_utf8ByteSize {p : Pos.Raw} {s : Slice} :
+    p.increaseBy s.utf8ByteSize = p + s := by
   simp [Pos.Raw.ext_iff]
 
 @[simp]
 theorem Pos.Raw.isValidForSlice_rawEndPos {s : Slice} : (s.rawEndPos).IsValidForSlice s where
+  rawStartPos_le := s.startInclusive_le_endExclusive
   le_rawEndPos := by simp
-  isValid_offsetBy := by simpa using s.endExclusive.isValid
+  isValid := by simpa using s.endExclusive.isValid
 
 theorem Pos.Raw.isValidForSlice_of_eq_rawEndPos {p : Pos.Raw} {s : Slice} (h : p = s.rawEndPos) :
     p.IsValidForSlice s := by

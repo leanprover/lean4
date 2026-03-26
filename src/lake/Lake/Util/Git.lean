@@ -83,6 +83,10 @@ public def checkoutBranch (branch : String) (repo : GitRepo) : LogIO PUnit :=
 public def checkoutDetach (hash : String) (repo : GitRepo) : LogIO PUnit  :=
   repo.execGit #["checkout", "--detach", hash, "--"]
 
+/-- Remove untracked files from tracked folders in the repository. -/
+public def clean (repo : GitRepo) : LogIO PUnit :=
+  repo.execGit #["clean", "-xf"]
+
 public def resolveRevision? (rev : String) (repo : GitRepo) : BaseIO (Option String) := do
   repo.captureGit? #["rev-parse", "--verify", "--end-of-options", rev]
 

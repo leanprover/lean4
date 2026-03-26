@@ -49,11 +49,9 @@ test_run update
 test_cmd_eq "2" cat .lake/packages/dep/a.txt
 test_cmd_eq "2b" cat .lake/packages/dep/b.txt
 test_cmd_eq "1bc" cat .lake/packages/dep/.lake/build/c.txt
-#test_exp ! -f .lake/packages/dep/b.txt.hash
-test_exp -f .lake/packages/dep/b.txt.hash
+test_exp ! -f .lake/packages/dep/b.txt.hash
 test_run build dep
-#test_cmd_eq "2bc" cat .lake/packages/dep/.lake/build/c.txt
-test_cmd_eq "1bc" cat .lake/packages/dep/.lake/build/c.txt
+test_cmd_eq "2bc" cat .lake/packages/dep/.lake/build/c.txt
 
 # Cleanup
 rm -f produced.out dep/produced.out

@@ -470,24 +470,10 @@ theorem Pos.Raw.byteIdx_slice_add {s : Slice} {p : Pos.Raw} :
 theorem Pos.Raw.byteIdx_sub_slice {p : Pos.Raw} {s : Slice} :
     (p - s).byteIdx = p.byteIdx - s.utf8ByteSize := rfl
 
-/-- The end position of a slice, as a `Pos.Raw`. -/
-@[expose, inline]
-def Slice.rawEndPos (s : Slice) : Pos.Raw :=
-  s.endExclusive.offset
-
-theorem Slice.rawEndPos_eq {s : Slice} : s.rawEndPos = s.endExclusive.offset := (rfl)
-
-/-- The start position of a slice, as a `Pos.Raw`. -/
-@[expose, inline]
-def Slice.rawStartPos (s : Slice) : Pos.Raw :=
-  s.startInclusive.offset
-
-theorem Slice.rawStartPos_eq {s : Slice} : s.rawStartPos = s.startInclusive.offset := (rfl)
-
 /-- Criterion for validity of positions in string slices. -/
 structure Pos.Raw.IsValidForSlice (s : Slice) (p : Pos.Raw) : Prop where
-  rawStartPos_le : s.rawStartPos ≤ p
-  le_rawEndPos : p ≤ s.rawEndPos
+  offset_startInclusive_le : s.startInclusive.offset ≤ p
+  le_offset_endExclusive : p ≤ s.endExclusive.offset
   isValid : p.IsValid s.str
 
 /--
@@ -496,10 +482,10 @@ Accesses the indicated byte in the UTF-8 encoding of a string slice.
 At runtime, this function is implemented by efficient, constant-time code.
 -/
 @[inline, expose]
-def Slice.getUTF8Byte (s : Slice) (p : Pos.Raw) (h : p < s.rawEndPos) : UInt8 :=
+def Slice.getUTF8Byte (s : Slice) (p : Pos.Raw) (h : p < s.endExclusive.offset) : UInt8 :=
   s.str.getUTF8Byte p (by
     have := s.endExclusive.isValid.le_rawEndPos
-    simp only [rawEndPos_eq, Pos.Raw.lt_iff, Pos.Raw.le_iff, byteIdx_rawEndPos] at *
+    simp only [Pos.Raw.lt_iff, Pos.Raw.le_iff, byteIdx_rawEndPos] at *
     omega)
 
 /--
@@ -508,7 +494,7 @@ is out-of-bounds.
 -/
 @[expose]
 def Slice.getUTF8Byte! (s : Slice) (p : String.Pos.Raw) : UInt8 :=
-  if h : p < s.rawEndPos then
+  if h : p < s.endExclusive.offset then
     s.getUTF8Byte p h
   else
     panic! "String slice access is out of bounds."
@@ -525,14 +511,21 @@ structure Slice.Pos (s : Slice) where
   isValidForSlice : offset.IsValidForSlice s
 deriving @[expose] DecidableEq
 
+@[simp]
+theorem Pos.Raw.isValidForSlice_offset_startInclusive {s : Slice} :
+    s.startInclusive.offset.IsValidForSlice s where
+  offset_startInclusive_le := by simp
+  le_offset_endExclusive := Pos.le_iff.1 s.startInclusive_le_endExclusive
+  isValid := s.startInclusive.isValid
+
 /-- The start position of `s`, as an `s.Pos`. -/
 @[inline, expose]
 def Slice.startPos (s : Slice) : s.Pos where
-  offset := s.rawStartPos
-  isValidForSlice := ⟨by simp, s.startInclusive_le_endExclusive, s.startInclusive.isValid⟩
+  offset := s.startInclusive.offset
+  isValidForSlice := by simp
 
 @[simp]
-theorem Slice.offset_startPos {s : Slice} : s.startPos.offset = s.rawStartPos := (rfl)
+theorem Slice.offset_startPos {s : Slice} : s.startPos.offset = s.startInclusive.offset := (rfl)
 
 instance {s : Slice} : Inhabited s.Pos where
   default := s.startPos
@@ -559,23 +552,20 @@ theorem Pos.Raw.increaseBy_utf8ByteSize {p : Pos.Raw} {s : Slice} :
   simp [Pos.Raw.ext_iff]
 
 @[simp]
-theorem Pos.Raw.isValidForSlice_rawEndPos {s : Slice} : (s.rawEndPos).IsValidForSlice s where
-  rawStartPos_le := s.startInclusive_le_endExclusive
-  le_rawEndPos := by simp
-  isValid := by simpa using s.endExclusive.isValid
-
-theorem Pos.Raw.isValidForSlice_of_eq_rawEndPos {p : Pos.Raw} {s : Slice} (h : p = s.rawEndPos) :
-    p.IsValidForSlice s := by
-  subst h; simp
+theorem Pos.Raw.isValidForSlice_offset_endExclusive {s : Slice} :
+    s.endExclusive.offset.IsValidForSlice s where
+  offset_startInclusive_le := Pos.le_iff.1 s.startInclusive_le_endExclusive
+  le_offset_endExclusive := by simp
+  isValid := s.endExclusive.isValid
 
 /-- The past-the-end position of `s`, as an `s.Pos`. -/
 @[inline, expose]
 def Slice.endPos (s : Slice) : s.Pos where
-  offset := s.rawEndPos
-  isValidForSlice := Pos.Raw.isValidForSlice_rawEndPos
+  offset := s.endExclusive.offset
+  isValidForSlice := by simp
 
 @[simp]
-theorem Slice.offset_endPos {s : Slice} : s.endPos.offset = s.rawEndPos := (rfl)
+theorem Slice.offset_endPos {s : Slice} : s.endPos.offset = s.endExclusive.offset := (rfl)
 
 instance {s : Slice} : LE s.Pos where
   le l r := l.offset ≤ r.offset
@@ -627,7 +617,7 @@ instance {s : Slice} {pos : s.Pos} : Decidable pos.IsAtEnd :=
 @[inline, expose]
 def Slice.Pos.byte {s : Slice} (pos : s.Pos) (h : pos ≠ s.endPos) : UInt8 :=
   s.getUTF8Byte pos.offset (by
-    have := pos.isValidForSlice.le_rawEndPos
+    have := pos.isValidForSlice.le_offset_endExclusive
     simp_all [Pos.ext_iff, String.Pos.Raw.ext_iff, Pos.Raw.le_iff, Pos.Raw.lt_iff]
     omega)
 

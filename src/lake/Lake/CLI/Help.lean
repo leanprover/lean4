@@ -690,7 +690,7 @@ public def helpCache : (cmd : String) → String
 | "add"                 => helpCacheAdd
 | "stage"               => helpCacheStage
 | "unstage"             => helpCacheUnstage
-| "putStaged"           => helpCachePutStaged
+| "put-staged"          => helpCachePutStaged
 | "clean"               => helpCacheClean
 | "services"            => helpCacheServices
 | _                     => helpCacheCli

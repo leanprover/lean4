@@ -774,15 +774,35 @@ In particular, it is like a unary operation with a fixed parameter `b`, where on
 @[builtin_term_parser] def noImplicitLambda := leading_parser
   "no_implicit_lambda% " >> termParser maxPrec
 /--
-`inferInstanceAs α` synthesizes an instance of type `α`, transporting it from a
-definitionally equal type if necessary. This is useful when `α` is definitionally equal to
-some `α'` for which instances are registered, as it prevents leaking the definition's RHS
-at lower transparencies.
+`inferInstanceAs α` synthesizes an instance of type `α` and then adjusts it to conform to the
+expected type `β`, which must be inferable from context.
 
-`inferInstanceAs` requires an expected type from context. If you just need to synthesize an
-instance without transporting between types, use `inferInstance` instead.
+Example:
+```
+def D := Nat
+instance : Inhabited D := inferInstanceAs (Inhabited Nat)
+```
 
-See `Lean.Meta.WrapInstance` for details.
+The adjustment will make sure that when the resulting instance will not "leak" the RHS `Nat` when
+reduced at transparency levels below `semireducible`, i.e. where `D` would not be unfolded either,
+preventing "defeq abuse".
+
+More specifically, given the "source type" (the argument) and "target type" (the expected type),
+`inferInstanceAs` synthesizes an instance for the source type and then unfolds and rewraps its
+components (fields, nested instances) as necessary to make them compatible with the target type. The
+individual steps are represented by the following options, which all default to enabled and can be
+disabled to help with porting:
+
+* `backward.inferInstanceAs.wrap`: master switch for instance adjustment in both `inferInstanceAs`
+  and the default deriving handler
+* `backward.inferInstanceAs.wrap.reuseSubInstances`: reuse existing instances for the target type
+  for sub-instance fields to avoid non-defeq instance diamonds
+* `backward.inferInstanceAs.wrap.instances`: wrap non-reducible instances in auxiliary definitions
+* `backward.inferInstanceAs.wrap.data`: wrap data fields in auxiliary definitions (proof fields are
+  always wrapped)
+
+If you just need to synthesize an instance without transporting between types, use `inferInstance`
+instead, potentially with a type annotation for the expected type.
 -/
 @[builtin_term_parser] def «inferInstanceAs» := leading_parser
   "inferInstanceAs" >> (((" $ " <|> " <| ") >> termParser minPrec) <|> (ppSpace >> termParser argPrec))

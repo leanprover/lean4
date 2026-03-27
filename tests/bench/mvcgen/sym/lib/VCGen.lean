@@ -676,46 +676,66 @@ meta def mkAppNS [Monad m] [Internal.MonadShareCommon m] (f : Expr) (args : Arra
 
 meta def simp (e : Expr) (methods : Sym.Simp.Methods) : VCGenM Sym.Simp.Result := do
   let simpState := (← get).simpState
-  let (result, simpState') ← Sym.Simp.SimpM.run (Sym.simp e) methods {} simpState
+  let (result, simpState') ← Sym.Simp.SimpM.run (Sym.Simp.simp e) methods {} simpState
   modify fun s => { s with simpState := simpState' }
   return result
 
 /--
-Simplify types of not-yet-internalized hypotheses in the grind goal using `Sym.simp`.
-Only hypotheses with index `≥ grindGoal.nextDeclIdx` are simplified, since earlier ones
-have already been internalized into grind's E-graph.
-Returns the (possibly updated) `MVarId`.
+Simplify leading non-dependent forall domains in `target` using `Sym.Simp`.
+Returns `(newTarget, proof?)` where `proof : target = newTarget`, or `none` if no change.
+Skips dependent foralls (where the body references the binder).
 -/
-meta def simpNewHyps (mvarId : MVarId) (nextDeclIdx : Nat) (methods : Sym.Simp.Methods) : VCGenM MVarId := do
-  mvarId.withContext do
-  let lctx ← getLCtx
-  let mut mvarId := mvarId
-  for decl in lctx do
-    -- TODO: Start this loop at index nextDeclIdx. Yields much less convenient code.
-    if decl.index < nextDeclIdx then continue
-    if decl.isImplementationDetail then continue
-    match ← simp decl.type methods with
-    | .rfl .. => pure ()
-    | .step newType _proof .. =>
-      mvarId ← mvarId.replaceLocalDeclDefEq decl.fvarId newType
-  return mvarId
+meta partial def simpForallDomains (target : Expr) (methods : Sym.Simp.Methods) : VCGenM (Expr × Option Expr) := do
+  if !target.isForall then return (target, none)
+  -- Skip dependent foralls
+  if target.bindingBody!.hasLooseBVar 0 then return (target, none)
+  let domain := target.bindingDomain!
+  let body := target.bindingBody!
+  -- Simplify domain
+  let (domain', domainProof?) ← match ← simp domain methods with
+    | .rfl .. => pure (domain, none)
+    | .step d' p .. => pure (d', some p)
+  -- Recurse on body (for remaining forall domains)
+  let (body', bodyProof?) ← simpForallDomains body methods
+  match domainProof?, bodyProof? with
+  | none, none => return (target, none)
+  | _, _ =>
+    let newTarget := mkForall target.bindingName! target.bindingInfo! domain' body'
+    -- Build proof using implies_congr: (A → B) = (A' → B')
+    let dp ← match domainProof? with | some p => pure p | none => Meta.mkEqRefl domain
+    let bp ← match bodyProof? with | some p => pure p | none => Meta.mkEqRefl body
+    let proof ← mkImpCongr dp bp
+    return (newTarget, some proof)
+
+meta def simpTargetForallDomains (mvarId : MVarId) : VCGenM MVarId := do
+  let some methods := (← read).hypSimpMethods | return mvarId
+  let target ← mvarId.getType
+  let (newTarget, proof?) ← simpForallDomains target methods
+  let mvarId ← match proof? with
+    | none => pure mvarId
+    | some proof =>
+      mvarId.replaceTargetEq newTarget proof
+
+/--
+Simplify leading forall domains in the target, then introduce all binders via `Sym.intros`.
+For each non-dependent forall `∀ (_ : A), B`, simplifies `A` using the given `Sym.Simp.Methods`
+and uses `implies_congr` to update the target before introduction.
+-/
+meta def introsSimp (mvarId : MVarId) : VCGenM IntrosResult := do
+  let mvarId ← simpTargetForallDomains mvarId
+  Sym.intros mvarId
 
 /-- Internalize pending hypotheses into the E-graph for sharing before forking to multiple subgoals.
-Skips `simpNewHyps` so it is safe to call even when the mvar is assigned (e.g., after a
-backward rule has been applied). `simpNewHyps` will run later per-VC in `emitVC`.
 If `processHypotheses` discovers a contradiction (`inconsistent = true`), the E-graph state
 contains stale proof data (the contradiction proof targets the parent's mvar, not the children's).
 In that case, restore the pre-internalization state so each child can discover the contradiction
 independently and construct its own proof via `closeGoal`.
 -/
 meta def PreTac.processHypotheses (preTac : PreTac) (goal : Grind.Goal) : VCGenM Grind.Goal := do
-  let mut goal := goal
-  if let some methods := (← read).hypSimpMethods then
-    let mvarId ← simpNewHyps goal.mvarId goal.nextDeclIdx methods
-    goal := { goal with mvarId }
   if preTac.isGrind then
-    goal ← Grind.processHypotheses goal
-  return goal
+    Grind.processHypotheses goal
+  else
+    return goal
 
 /--
 The main VC generation step. Operates on a plain `MVarId` with no knowledge of grind.
@@ -747,7 +767,7 @@ meta def solve (goal : MVarId) : VCGenM SolveResult := goal.withContext do
   -- and `T` is of the form `wp⟦e⟧ Q s₁ ... sₙ`.
 
   if target.isForall then
-    let IntrosResult.goal _ goal ← Sym.intros goal | throwError "Failed to introduce binders for {target}"
+    let IntrosResult.goal _ goal ← introsSimp goal | throwError "Failed to introduce binders for {target}"
     return .goals [goal]
 
   let f := target.getAppFn
@@ -859,7 +879,6 @@ meta def PreTac.run : PreTac →  Grind.Goal → VCGenM (List MVarId)
   | .none, goal => return [goal.mvarId]
   | .grind, goal => do
     let savedMCtx ← getMCtx
-    let goal ← goal.internalizeAll
     match ← goal.grind with
     | .closed => return []
     | .failed .. =>
@@ -881,6 +900,7 @@ meta def emitVC (goal : Grind.Goal) : VCGenM Unit := do
     goal.mvarId.setKind .syntheticOpaque
     modify fun s => { s with invariants := s.invariants.push goal.mvarId }
     return
+  let goal ← (← read).preTac.processHypotheses goal
   let goals ← (← read).preTac.run goal
   for g in goals do g.setKind .syntheticOpaque
   modify fun s => { s with vcs := s.vcs ++ goals.toArray }
@@ -906,8 +926,8 @@ meta def work (goal : Grind.Goal) : VCGenM Unit := do
     | .goals subgoals =>
       -- In grind mode with multiple subgoals, preprocess pending hypotheses
       -- to share E-graph context before forking.
-      if (← read).preTac.isGrind && subgoals.length > 1 then
-        goal ← Grind.processHypotheses goal
+      if subgoals.length > 1 then
+        goal ← (← read).preTac.processHypotheses goal
       worklist := worklist.enqueueAll (subgoals.map ({ goal with mvarId := · }))
 
 public structure Result where
@@ -923,9 +943,6 @@ internalization, avoiding O(n) re-internalization per VC.
 -/
 public meta partial def main (goal : MVarId) (ctx : Context) : Grind.GrindM Result := do
   let grindGoal ← Grind.mkGoalCore goal
-  let grindGoal ← if ctx.preTac.isGrind then
-    Grind.processHypotheses grindGoal
-  else pure grindGoal
   let ((), state) ← StateRefT'.run (ReaderT.run (work grindGoal) ctx) {}
   _ ← state.invariants.mapIdxM fun idx mv => do
     mv.setTag (Name.mkSimple ("inv" ++ toString (idx + 1)))
@@ -1005,35 +1022,12 @@ end VCGen
 
 syntax (name := mvcgen') "mvcgen'"
   (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*,?) "] ")?
+  (&" simplifying_assumptions" (ppSpace colGt ident)? (" [" ident,* "]")?)?
   (&" with " tactic)? : tactic
-
-private meta def getNatLit? (e : Expr) : Option Nat := do
-  let_expr OfNat.ofNat _ n _ := e | failure
-  let .lit (.natVal n) := n | failure
-  return n
-
-/--
-A `Sym.Simp` post-simproc that reassociates Nat addition to fold nested literal additions.
-Rewrites `(a + m) + n` → `a + (m + n)` when `m` and `n` are Nat literals, using `Nat.add_assoc`.
-Since `m + n` reduces to a literal by kernel computation, this collapses chains like
-`s + 1 + 1 + 1` into `s + 3` in a single step.
--/
-private meta def reassocNatAdd : Sym.Simp.Simproc := fun e => do
-  let_expr HAdd.hAdd α _ _ inst ab n := e | return .rfl
-  let_expr Nat := α | return .rfl
-  let some nVal := getNatLit? n | return .rfl
-  let_expr HAdd.hAdd _ _ _ _ a m := ab | return .rfl
-  let some mVal := getNatLit? m | return .rfl
-  -- (a + m) + n → a + (m + n), with m + n folded to a literal
-  let sumExpr ← share <| toExpr (mVal + nVal)
-  let result ← share <| mkApp6 (mkConst ``HAdd.hAdd [0, 0, 0]) α α α inst a sumExpr
-  -- Proof: Nat.add_assoc a m n : (a + m) + n = a + (m + n)
-  let proof := mkApp3 (mkConst ``Nat.add_assoc) a m n
-  return .step result proof
 
 /-- Parse grind configuration from the `with grind ...` clause and build `Grind.Params`.
 Overrides the internal simp step limit to accommodate large unrolled goals. -/
-private meta def mkGrindParamsFromSyntax (grindStx : Syntax) (goal : MVarId) : TacticM Grind.Params := do
+private meta def elabGrindParams (grindStx : Syntax) (goal : MVarId) : TacticM Grind.Params := do
   let `(tactic| grind $config:optConfig $[only%$only]? $[ [$grindParams:grindParam,*] ]? $[=> $_:grindSeq]?) := grindStx
     | throwUnsupportedSyntax
   let grindConfig ← elabGrindConfig config
@@ -1043,64 +1037,68 @@ private meta def mkGrindParamsFromSyntax (grindStx : Syntax) (goal : MVarId) : T
   -- unrolled goals (fails around n=400 for GetThrowSet).
   return { params with norm := ← params.norm.setConfig { params.norm.config with maxSteps := 10000000 } }
 
+/--
+Build `Sym.Simp.Methods` from a variant name and extra theorems.
+Supports the anonymous (default) variant. Named variants require a public
+`elabSimpMethods` API in `Lean.Elab.Tactic.Grind.Sym` (see TODO below).
+-/
+private meta def elabSymSimpParts
+    (variantId? : Option (TSyntax `ident))
+    (extraIds? : Option (Array (TSyntax `ident)))
+    : TacticM Sym.Simp.Methods := do
+  let variantName := variantId?.map (·.getId) |>.getD .anonymous
+  if !variantName.isAnonymous then
+    -- TODO: `resolveExtraTheorems`, `elabVariant`, and `elabSymSimproc` in
+    -- `Lean.Elab.Tactic.Grind.Sym` are module-private (non-`public section`).
+    -- To support named variants here, we need a public API such as:
+    --   `public def elabSymSimp (syn : Syntax) : GrindTacticM (Sym.Simp.Methods × ...)`
+    -- exposed from that module, plus a lightweight `GrindTacticM` runner
+    -- (the simproc elaborators only use `CoreM`/`MetaM` capabilities).
+    throwError "named Sym.simp variants are not yet supported in `mvcgen'`; \
+      use `mvcgen' simplifying_assumptions [thm₁, thm₂, ...]` with the default variant instead"
+  -- Resolve extra theorems (local hypotheses first, then global constants)
+  let mut extraThms : Array Sym.Simp.Theorem := #[]
+  if let some ids := extraIds? then
+    let lctx ← getLCtx
+    for id in ids do
+      if let some decl := lctx.findFromUserName? id.getId then
+        extraThms := extraThms.push (← Sym.Simp.mkTheoremFromExpr decl.toExpr)
+      else
+        let declName ← realizeGlobalConstNoOverload id
+        extraThms := extraThms.push (← Sym.Simp.mkTheoremFromDecl declName)
+  -- Build default variant methods
+  let symThms ← Sym.Simp.getSymSimpTheorems
+  let pre := Sym.Simp.simpControl >> Sym.Simp.simpArrowTelescope
+  let mut post : Sym.Simp.Simproc := Sym.Simp.evalGround >> symThms.rewrite
+  if !extraThms.isEmpty then
+    let mut thms : Sym.Simp.Theorems := {}
+    for thm in extraThms do thms := thms.insert thm
+    post := post >> thms.rewrite
+  return { pre, post }
+
+private meta def elabSimplifyingAssumptions (simpClause : Syntax) : TacticM (Option Sym.Simp.Methods) := do
+  if simpClause.getNumArgs == 0 then return none
+  let variantId? := if simpClause[1].getNumArgs != 0 then some ⟨simpClause[1][0]⟩ else none
+  let extraIds? := if simpClause[2].getNumArgs != 0
+    then some (simpClause[2][1].getSepArgs.map (⟨·⟩)) else none
+  pure (some (← elabSymSimpParts variantId? extraIds?))
+
+private meta def elabPreTac (goal : MVarId) (withPreTac : Syntax) : TacticM (VCGen.PreTac × Grind.Params) := do
+  let mut params ← Grind.mkDefaultParams {}
+  if withPreTac.getNumArgs == 0 then return (.none, params)
+  let preTac := withPreTac[1]
+  if preTac.getKind == ``Lean.Parser.Tactic.grind then
+    params ← elabGrindParams preTac goal
+    return (.grind, params)
+  else
+    return (.tactic preTac, params)
+
 @[tactic mvcgen']
 public meta def elabMVCGen' : Tactic := fun stx => withMainContext do
   let goal ← getMainGoal
   let ctx ← VCGen.mkSpecContext stx[1]
-  -- `(&" with " tactic)?` produces a nullKind node with 2 children when present;
-  -- `getOptional?` requires exactly 1 child, so we check `getNumArgs` instead.
-  let withTac? := if stx[2].getNumArgs != 0 then some stx[2][1] else none
-  let isGrind := withTac?.any (·.getKind == ``Lean.Parser.Tactic.grind)
-  let mut params ← Grind.mkDefaultParams {}
-  let mut preTac : VCGen.PreTac := .none
-  let mut hypSimpMethods : Option Sym.Simp.Methods := none
-  if isGrind then
-    params ← mkGrindParamsFromSyntax withTac?.get! goal
-    preTac := .grind
-    hypSimpMethods := some { post := reassocNatAdd } -- TODO: Make this user-extensible
-  else if let some tac := withTac? then
-    preTac := .tactic tac
+  let hypSimpMethods ← elabSimplifyingAssumptions stx[2]
+  let (preTac, params) ← elabPreTac goal stx[3]
   let ctx := { ctx with preTac, hypSimpMethods }
-
   let result ← Grind.GrindM.run (VCGen.main goal ctx) params
-
   replaceMainGoal (result.invariants ++ result.vcs).toList
-
-/-!
-Local tests for faster iteration:
--/
-
-/-
-def step (lim : Nat) : ExceptT String (StateM Nat) Unit := do
-  let s ← get
-  if s > lim then
-    throw "s is too large"
-  set (s + 1)
-
-def loop (n : Nat) : ExceptT String (StateM Nat) Unit := do
-  match n with
-  | 0 => pure ()
-  | n+1 => loop n; step n
-
-set_option maxRecDepth 10000
-set_option maxHeartbeats 10000000
-
--- set_option trace.Elab.Tactic.Do.vcgen true in
-set_option trace.profiler true in
-example : ⦃fun s => ⌜s = 0⌝⦄ loop 50 ⦃⇓_ s => ⌜s = 50⌝⦄ := by
-  simp only [loop, step]
-  mvcgen'
-  -- all_goals grind
-  all_goals sorry
-
-set_option trace.Elab.Tactic.Do.vcgen true in
-example :
-  ⦃⌜True⌝⦄
-  do
-    let s ← get (m := ExceptT String (StateM Nat))
-    if s > 20 then
-      throw "s is too large"
-    set (m := ExceptT String (StateM Nat)) (s + 1)
-  ⦃post⟨fun _r s => ⌜s ≤ 21⌝, fun _err s => ⌜s > 20⌝⟩⦄ := by
-  mvcgen' <;> grind
--/

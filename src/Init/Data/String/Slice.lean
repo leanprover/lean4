@@ -426,13 +426,13 @@ Advances {name}`pos` as long as {name}`pat` matches.
 -/
 @[specialize pat]
 def Pos.skipWhile {s : Slice} (pos : s.Pos) (pat : ρ) [ForwardPattern pat] : s.Pos :=
-  if let some nextCurr := ForwardPattern.skipPrefix? pat (s.sliceFrom pos) then
-    if pos < Pos.ofSliceFrom nextCurr then
-      skipWhile (Pos.ofSliceFrom nextCurr) pat
+  match pos.skip? pat with
+  | some nextCurr =>
+    if pos < nextCurr then
+      skipWhile nextCurr pat
     else
       pos
-  else
-    pos
+  | none => pos
 termination_by pos
 
 /--
@@ -572,7 +572,7 @@ Examples:
 -/
 @[inline]
 def all (s : Slice) (pat : ρ) [ForwardPattern pat] : Bool :=
-  s.dropWhile pat |>.isEmpty
+  s.skipPrefixWhile pat == s.endPos
 
 end ForwardPatternUsers
 
@@ -706,8 +706,8 @@ Returns {name}`none` otherwise.
 This function is generic over all currently supported patterns.
 -/
 @[inline]
-def Pos.revSkip? {s : Slice} (pos : s.Pos) (pat : ρ) [ForwardPattern pat] : Option s.Pos :=
-  ((s.sliceFrom pos).skipPrefix? pat).map Pos.ofSliceFrom
+def Pos.revSkip? {s : Slice} (pos : s.Pos) (pat : ρ) [BackwardPattern pat] : Option s.Pos :=
+  ((s.sliceTo pos).skipSuffix? pat).map Pos.ofSliceTo
 
 /--
 If {name}`pat` matches a suffix of {name}`s`, returns the remainder. Returns {name}`none` otherwise.
@@ -765,13 +765,13 @@ Rewinds {name}`pos` as long as {name}`pat` matches.
 -/
 @[specialize pat]
 def Pos.revSkipWhile {s : Slice} (pos : s.Pos) (pat : ρ) [BackwardPattern pat] : s.Pos :=
-  if let some nextCurr := BackwardPattern.skipSuffix? pat (s.sliceTo pos) then
-    if Pos.ofSliceTo nextCurr < pos then
-      revSkipWhile (Pos.ofSliceTo nextCurr) pat
+  match pos.revSkip? pat with
+  | some nextCurr =>
+    if nextCurr < pos then
+      revSkipWhile nextCurr pat
     else
       pos
-  else
-    pos
+  | none => pos
 termination_by pos.down
 
 /--

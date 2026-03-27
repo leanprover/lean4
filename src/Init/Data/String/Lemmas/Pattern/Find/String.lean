@@ -49,9 +49,10 @@ theorem contains_slice_iff {t s : Slice} :
   by_cases ht : t.isEmpty
   · simp [contains_eq_true_of_isEmpty ht s, copy_eq_empty_iff.mpr ht, String.toList_empty]
   · simp only [Bool.not_eq_true] at ht
+    have := Pattern.Model.ForwardSliceSearcher.strictPatternModel ht
     have := Pattern.Model.ForwardSliceSearcher.lawfulToForwardSearcherModel ht
     simp only [Pattern.Model.contains_eq_true_iff,
-      Pattern.Model.ForwardSliceSearcher.exists_matchesAt_iff_eq_append ht, isInfix_toList_iff]
+      Pattern.Model.ForwardSliceSearcher.exists_matchesAt_iff_eq_append, isInfix_toList_iff]
 
 @[simp]
 theorem contains_string_iff {t : String} {s : Slice} :

@@ -23,8 +23,8 @@ open Std String.Slice Pattern Pattern.Model
 
 namespace String.Slice
 
-theorem Pattern.Model.find?_eq_some_iff {ρ : Type} (pat : ρ) [PatternModel pat] {σ : Slice → Type}
-    [∀ s, Iterator (σ s) Id (SearchStep s)] [∀ s, Iterators.Finite (σ s) Id]
+theorem Pattern.Model.find?_eq_some_iff {ρ : Type} (pat : ρ) [PatternModel pat] [StrictPatternModel pat]
+    {σ : Slice → Type} [∀ s, Iterator (σ s) Id (SearchStep s)] [∀ s, Iterators.Finite (σ s) Id]
     [∀ s, IteratorLoop (σ s) Id Id] [∀ s, LawfulIteratorLoop (σ s) Id Id]
     [ToForwardSearcher pat σ] [LawfulToForwardSearcherModel pat] {s : Slice} {pos : s.Pos} :
     s.find? pat = some pos ↔ MatchesAt pat pos ∧ (∀ pos', pos' < pos → ¬ MatchesAt pat pos') := by
@@ -40,8 +40,8 @@ theorem Pattern.Model.find?_eq_some_iff {ρ : Type} (pat : ρ) [PatternModel pat
   | matched h₁ _ _ => have := h₁.matchesAt; grind
   | mismatched => grind
 
-theorem Pattern.Model.find?_eq_none_iff {ρ : Type} (pat : ρ) [PatternModel pat] {σ : Slice → Type}
-    [∀ s, Iterator (σ s) Id (SearchStep s)] [∀ s, Iterators.Finite (σ s) Id]
+theorem Pattern.Model.find?_eq_none_iff {ρ : Type} (pat : ρ) [PatternModel pat] [StrictPatternModel pat]
+    {σ : Slice → Type} [∀ s, Iterator (σ s) Id (SearchStep s)] [∀ s, Iterators.Finite (σ s) Id]
     [∀ s, IteratorLoop (σ s) Id Id] [∀ s, LawfulIteratorLoop (σ s) Id Id]
     [ToForwardSearcher pat σ] [LawfulToForwardSearcherModel pat] {s : Slice} :
     s.find? pat = none ↔ ∀ (pos : s.Pos), ¬ MatchesAt pat pos := by
@@ -65,15 +65,15 @@ theorem find?_eq_none_iff {ρ : Type} (pat : ρ) {σ : Slice → Type}
     [ToForwardSearcher pat σ] {s : Slice} : s.find? pat = none ↔ s.contains pat = false := by
   rw [← Option.isNone_iff_eq_none, ← Option.isSome_eq_false_iff, isSome_find?]
 
-theorem Pattern.Model.contains_eq_false_iff {ρ : Type} (pat : ρ) [PatternModel pat] {σ : Slice → Type}
-    [∀ s, Iterator (σ s) Id (SearchStep s)] [∀ s, Iterators.Finite (σ s) Id]
+theorem Pattern.Model.contains_eq_false_iff {ρ : Type} (pat : ρ) [PatternModel pat] [StrictPatternModel pat]
+    {σ : Slice → Type} [∀ s, Iterator (σ s) Id (SearchStep s)] [∀ s, Iterators.Finite (σ s) Id]
     [∀ s, IteratorLoop (σ s) Id Id] [∀ s, LawfulIteratorLoop (σ s) Id Id]
     [ToForwardSearcher pat σ] [LawfulToForwardSearcherModel pat] {s : Slice} :
     s.contains pat = false ↔ ∀ (pos : s.Pos), ¬ MatchesAt pat pos := by
   rw [← find?_eq_none_iff, Slice.find?_eq_none_iff]
 
-theorem Pattern.Model.contains_eq_true_iff {ρ : Type} (pat : ρ) [PatternModel pat] {σ : Slice → Type}
-    [∀ s, Iterator (σ s) Id (SearchStep s)] [∀ s, Iterators.Finite (σ s) Id]
+theorem Pattern.Model.contains_eq_true_iff {ρ : Type} (pat : ρ) [PatternModel pat] [StrictPatternModel pat]
+    {σ : Slice → Type} [∀ s, Iterator (σ s) Id (SearchStep s)] [∀ s, Iterators.Finite (σ s) Id]
     [∀ s, IteratorLoop (σ s) Id Id] [∀ s, LawfulIteratorLoop (σ s) Id Id]
     [ToForwardSearcher pat σ] [LawfulToForwardSearcherModel pat] {s : Slice} :
     s.contains pat ↔ ∃ (pos : s.Pos), MatchesAt pat pos := by
@@ -85,7 +85,7 @@ theorem Pos.find?_eq_find?_sliceFrom {ρ : Type} {pat : ρ} {σ : Slice → Type
     p.find? pat = ((s.sliceFrom p).find? pat).map Pos.ofSliceFrom :=
   (rfl)
 
-theorem Pattern.Model.posFind?_eq_some_iff {ρ : Type} {pat : ρ} [PatternModel pat] {σ : Slice → Type}
+theorem Pattern.Model.posFind?_eq_some_iff {ρ : Type} {pat : ρ} [PatternModel pat] [StrictPatternModel pat] {σ : Slice → Type}
     [∀ s, Iterator (σ s) Id (SearchStep s)] [∀ s, Iterators.Finite (σ s) Id]
     [∀ s, IteratorLoop (σ s) Id Id] [∀ s, LawfulIteratorLoop (σ s) Id Id]
     [ToForwardSearcher pat σ] [LawfulToForwardSearcherModel pat] {s : Slice} {pos pos' : s.Pos} :
@@ -100,8 +100,8 @@ theorem Pattern.Model.posFind?_eq_some_iff {ρ : Type} {pat : ρ} [PatternModel 
     refine ⟨Pos.sliceFrom _ _ h₁, ⟨by simpa using h₂, fun p hp₁ hp₂ => ?_⟩, by simp⟩
     exact h₃ (Pos.ofSliceFrom p) Slice.Pos.le_ofSliceFrom (Pos.lt_sliceFrom_iff.1 hp₁) hp₂
 
-theorem Pattern.Model.posFind?_eq_none_iff {ρ : Type} {pat : ρ} [PatternModel pat] {σ : Slice → Type}
-    [∀ s, Iterator (σ s) Id (SearchStep s)] [∀ s, Iterators.Finite (σ s) Id]
+theorem Pattern.Model.posFind?_eq_none_iff {ρ : Type} {pat : ρ} [PatternModel pat] [StrictPatternModel pat]
+    {σ : Slice → Type} [∀ s, Iterator (σ s) Id (SearchStep s)] [∀ s, Iterators.Finite (σ s) Id]
     [∀ s, IteratorLoop (σ s) Id Id] [∀ s, LawfulIteratorLoop (σ s) Id Id]
     [ToForwardSearcher pat σ] [LawfulToForwardSearcherModel pat] {s : Slice} {pos : s.Pos} :
     pos.find? pat = none ↔ ∀ pos', pos ≤ pos' → ¬ MatchesAt pat pos' := by

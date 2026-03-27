@@ -36,7 +36,7 @@ This gives a low-level correctness proof from which higher-level API lemmas can 
 namespace String.Slice.Pattern.Model
 
 @[cbv_opaque]
-public protected noncomputable def split {ρ : Type} (pat : ρ) [PatternModel pat] {s : Slice}
+public protected noncomputable def split {ρ : Type} (pat : ρ) [PatternModel pat] [StrictPatternModel pat] {s : Slice}
     (firstRejected curr : s.Pos) (hle : firstRejected ≤ curr) : List s.Subslice :=
   if h : curr = s.endPos then
     [s.subslice _ _ hle]
@@ -49,12 +49,12 @@ public protected noncomputable def split {ρ : Type} (pat : ρ) [PatternModel pa
 termination_by curr
 
 @[simp]
-public theorem split_endPos {ρ : Type} {pat : ρ} [PatternModel pat] {s : Slice}
+public theorem split_endPos {ρ : Type} {pat : ρ} [PatternModel pat] [StrictPatternModel pat] {s : Slice}
     {firstRejected : s.Pos} :
     Model.split (s := s) pat firstRejected s.endPos (by simp) = [s.subslice firstRejected s.endPos (by simp)] := by
   simp [Model.split]
 
-public theorem split_eq_of_isLongestMatchAt {ρ : Type} {pat : ρ} [PatternModel pat]
+public theorem split_eq_of_isLongestMatchAt {ρ : Type} {pat : ρ} [PatternModel pat] [StrictPatternModel pat]
     {s : Slice} {firstRejected start stop : s.Pos} {hle} (h : IsLongestMatchAt pat start stop) :
     Model.split pat firstRejected start hle =
       s.subslice _ _ hle :: Model.split pat stop stop (by exact Std.le_refl _) := by
@@ -63,7 +63,7 @@ public theorem split_eq_of_isLongestMatchAt {ρ : Type} {pat : ρ} [PatternModel
   · congr <;> exact (matchAt?_eq_some_iff.1 ‹_›).eq h
   · simp [matchAt?_eq_some_iff.2 ‹_›] at *
 
-public theorem split_eq_of_not_matchesAt {ρ : Type} {pat : ρ} [PatternModel pat]
+public theorem split_eq_of_not_matchesAt {ρ : Type} {pat : ρ} [PatternModel pat] [StrictPatternModel pat]
     {s : Slice} {firstRejected start} (stop : s.Pos) (h₀ : start ≤ stop) {hle}
     (h : ∀ p, start ≤ p → p < stop → ¬ MatchesAt pat p) :
     Model.split pat firstRejected start hle =
@@ -80,7 +80,7 @@ public theorem split_eq_of_not_matchesAt {ρ : Type} {pat : ρ} [PatternModel pa
   · obtain rfl : start = stop := Std.le_antisymm h₀ (Std.not_lt.1 h')
     simp
 
-public theorem split_eq_next_of_not_matchesAt {ρ : Type} {pat : ρ} [PatternModel pat]
+public theorem split_eq_next_of_not_matchesAt {ρ : Type} {pat : ρ} [PatternModel pat] [StrictPatternModel pat]
     {s : Slice} {firstRejected start} {hle} (hs : start ≠ s.endPos) (h : ¬ MatchesAt pat start) :
     Model.split pat firstRejected start hle =
       Model.split pat firstRejected (start.next hs) (by exact Std.le_trans hle (by simp)) := by
@@ -103,7 +103,7 @@ def splitFromSteps {s : Slice} (currPos : s.Pos) (l : List (SearchStep s)) : Lis
   | .matched p q :: l => s.subslice! currPos p :: splitFromSteps q l
 
 theorem IsValidSearchFrom.splitFromSteps_eq_extend_split {ρ : Type} (pat : ρ)
-    [PatternModel pat] (l : List (SearchStep s)) (pos pos' : s.Pos) (h₀ : pos ≤ pos')
+    [PatternModel pat] [StrictPatternModel pat] (l : List (SearchStep s)) (pos pos' : s.Pos) (h₀ : pos ≤ pos')
     (h' : ∀ p, pos ≤ p → p < pos' → ¬ MatchesAt pat p)
     (h : IsValidSearchFrom pat pos' l) :
     splitFromSteps pos l = Model.split pat pos pos' h₀ := by
@@ -155,7 +155,7 @@ end Model
 open Model
 
 @[cbv_eval]
-public theorem toList_splitToSubslice_eq_modelSplit {ρ : Type} (pat : ρ) [PatternModel pat]
+public theorem toList_splitToSubslice_eq_modelSplit {ρ : Type} (pat : ρ) [PatternModel pat] [StrictPatternModel pat]
     {σ : Slice → Type} [ToForwardSearcher pat σ] [∀ s, Std.Iterator (σ s) Id (SearchStep s)]
     [∀ s, Std.Iterators.Finite (σ s) Id] [LawfulToForwardSearcherModel pat] (s : Slice) :
     (s.splitToSubslice pat).toList = Model.split pat s.startPos s.startPos (by exact Std.le_refl _) := by
@@ -168,7 +168,7 @@ end Pattern
 open Pattern
 
 public theorem toList_splitToSubslice_of_isEmpty {ρ : Type} (pat : ρ)
-    [Model.PatternModel pat] {σ : Slice → Type}
+    [Model.PatternModel pat] [Model.StrictPatternModel pat] {σ : Slice → Type}
     [ToForwardSearcher pat σ] [∀ s, Std.Iterator (σ s) Id (SearchStep s)]
     [∀ s, Std.Iterators.Finite (σ s) Id] [Model.LawfulToForwardSearcherModel pat] {s : Slice}
     (h : s.isEmpty = true) :
@@ -182,7 +182,7 @@ public theorem toList_split_eq_splitToSubslice {ρ : Type} (pat : ρ) {σ : Slic
   simp [split, Std.Iter.toList_map]
 
 public theorem toList_split_of_isEmpty {ρ : Type} (pat : ρ)
-    [Model.PatternModel pat] {σ : Slice → Type}
+    [Model.PatternModel pat] [Model.StrictPatternModel pat] {σ : Slice → Type}
     [ToForwardSearcher pat σ] [∀ s, Std.Iterator (σ s) Id (SearchStep s)]
     [∀ s, Std.Iterators.Finite (σ s) Id] [Model.LawfulToForwardSearcherModel pat] {s : Slice}
     (h : s.isEmpty = true) :
@@ -200,7 +200,7 @@ public theorem split_eq_split_toSlice {ρ : Type} {pat : ρ} {σ : Slice → Typ
 
 @[simp]
 public theorem toList_split_empty {ρ : Type} (pat : ρ)
-    [Model.PatternModel pat] {σ : Slice → Type}
+    [Model.PatternModel pat] [Model.StrictPatternModel pat] {σ : Slice → Type}
     [ToForwardSearcher pat σ] [∀ s, Std.Iterator (σ s) Id (SearchStep s)]
     [∀ s, Std.Iterators.Finite (σ s) Id] [Model.LawfulToForwardSearcherModel pat] :
     ("".split pat).toList.map Slice.copy = [""] := by

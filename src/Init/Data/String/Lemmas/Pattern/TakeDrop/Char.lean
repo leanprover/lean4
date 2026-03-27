@@ -100,19 +100,19 @@ theorem skipPrefix?_char_eq_some_iff {c : Char} {s : String} {pos : s.Pos} :
 
 theorem startsWith_char_iff_get {c : Char} {s : String} :
     s.startsWith c ↔ ∃ h, s.startPos.get h = c := by
-  simp [startsWith_eq_startsWith_toSlice, Slice.startsWith_char_iff_get]
+  simp [← startsWith_toSlice, Slice.startsWith_char_iff_get]
 
 theorem startsWith_char_eq_false_iff_get {c : Char} {s : String} :
     s.startsWith c = false ↔ ∀ h, s.startPos.get h ≠ c := by
-  simp [startsWith_eq_startsWith_toSlice, Slice.startsWith_char_eq_false_iff_get]
+  simp [← startsWith_toSlice, Slice.startsWith_char_eq_false_iff_get]
 
 theorem startsWith_char_eq_head? {c : Char} {s : String} :
     s.startsWith c = (s.toList.head? == some c) := by
-  simp [startsWith_eq_startsWith_toSlice, Slice.startsWith_char_eq_head?]
+  simp [← startsWith_toSlice, Slice.startsWith_char_eq_head?]
 
 theorem startsWith_char_iff_exists_append {c : Char} {s : String} :
     s.startsWith c ↔ ∃ t, s = singleton c ++ t := by
-  simp [startsWith_eq_startsWith_toSlice, Slice.startsWith_char_iff_exists_append]
+  simp [← startsWith_toSlice, Slice.startsWith_char_iff_exists_append]
 
 theorem startsWith_char_eq_false_iff_forall_append {c : Char} {s : String} :
     s.startsWith c = false ↔ ∀ t, s ≠ singleton c ++ t := by

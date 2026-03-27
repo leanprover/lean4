@@ -27,8 +27,9 @@ namespace String.Slice.Pattern.Model.CharPred
 
 instance {p : Char → Bool} : PatternModel p where
   Matches s := ∃ c, s = singleton c ∧ p c
-  not_matches_empty := by
-    simp
+
+instance {p : Char → Bool} : StrictPatternModel p where
+  not_matches_empty := by simp [PatternModel.Matches]
 
 instance {p : Char → Bool} : NoPrefixPatternModel p :=
   .of_length_eq (by simp +contextual [PatternModel.Matches])
@@ -128,7 +129,9 @@ namespace Decidable
 
 instance {p : Char → Prop} [DecidablePred p] : PatternModel p where
   Matches := PatternModel.Matches (decide <| p ·)
-  not_matches_empty := PatternModel.not_matches_empty (pat := (decide <| p ·))
+
+instance {p : Char → Prop} [DecidablePred p] : StrictPatternModel p where
+  not_matches_empty := StrictPatternModel.not_matches_empty (pat := (decide <| p ·))
 
 instance {p : Char → Prop} [DecidablePred p] : NoPrefixPatternModel p where
   eq_empty := NoPrefixPatternModel.eq_empty (pat := (decide <| p ·))
@@ -319,6 +322,9 @@ theorem dropPrefix_prop_eq_dropPrefix_decide {p : Char → Prop} [DecidablePred 
 theorem skipPrefix?_prop_eq_skipPrefix?_decide {p : Char → Prop} [DecidablePred p] {s : Slice} :
     s.skipPrefix? p = s.skipPrefix? (decide <| p ·) := (rfl)
 
+theorem Pos.skip?_prop_eq_skip?_decide {p : Char → Prop} [DecidablePred p] {s : Slice} {pos : s.Pos} :
+    pos.skip? p = pos.skip? (decide <| p ·) := (rfl)
+
 theorem Pattern.ForwardPattern.skipPrefix?_prop_eq_skipPrefix?_decide
     {p : Char → Prop} [DecidablePred p] {s : Slice} :
     skipPrefix? p s = skipPrefix? (decide <| p ·) s := (rfl)
@@ -329,13 +335,13 @@ theorem Pos.skipWhile_prop_eq_skipWhile_decide {p : Char → Prop} [DecidablePre
   fun_induction Pos.skipWhile curr p with
   | case1 pos nextCurr h₁ h₂ ih =>
     conv => rhs; rw [Pos.skipWhile]
-    simp [← Pattern.ForwardPattern.skipPrefix?_prop_eq_skipPrefix?_decide, h₁, h₂, ih]
+    simp [← Pos.skip?_prop_eq_skip?_decide, h₁, h₂, ih]
   | case2 pos nextCurr h ih =>
     conv => rhs; rw [Pos.skipWhile]
-    simp [← Pattern.ForwardPattern.skipPrefix?_prop_eq_skipPrefix?_decide, h, ih]
+    simp [← Pos.skip?_prop_eq_skip?_decide, h, ih]
   | case3 pos h =>
     conv => rhs; rw [Pos.skipWhile]
-    simp [← Pattern.ForwardPattern.skipPrefix?_prop_eq_skipPrefix?_decide]
+    simp [← Pos.skip?_prop_eq_skip?_decide, h]
 
 theorem skipPrefixWhile_prop_eq_skipPrefixWhile_decide {p : Char → Prop} [DecidablePred p]
     {s : Slice} :
@@ -352,7 +358,7 @@ theorem takeWhile_prop_eq_takeWhile_decide {p : Char → Prop} [DecidablePred p]
 
 theorem all_prop_eq_all_decide {p : Char → Prop} [DecidablePred p] {s : Slice} :
     s.all p = s.all (decide <| p ·) := by
-  simp only [all, dropWhile_prop_eq_dropWhile_decide]
+  simp only [all, skipPrefixWhile_prop_eq_skipPrefixWhile_decide]
 
 theorem find?_prop_eq_find?_decide {p : Char → Prop} [DecidablePred p] {s : Slice} :
     s.find? p = s.find? (decide <| p ·) :=
@@ -383,19 +389,22 @@ theorem Pattern.BackwardPattern.skipSuffix?_prop_eq_skipSuffix?_decide
     {p : Char → Prop} [DecidablePred p] {s : Slice} :
     skipSuffix? p s = skipSuffix? (decide <| p ·) s := (rfl)
 
+theorem Pos.revSkip?_prop_eq_revSkip?_decide {p : Char → Prop} [DecidablePred p] {s : Slice} {pos : s.Pos} :
+    pos.revSkip? p = pos.revSkip? (decide <| p ·) := (rfl)
+
 theorem Pos.revSkipWhile_prop_eq_revSkipWhile_decide {p : Char → Prop} [DecidablePred p]
     {s : Slice} (curr : s.Pos) :
     Pos.revSkipWhile curr p = Pos.revSkipWhile curr (decide <| p ·) := by
   fun_induction Pos.revSkipWhile curr p with
   | case1 pos nextCurr h₁ h₂ ih =>
     conv => rhs; rw [Pos.revSkipWhile]
-    simp [← Pattern.BackwardPattern.skipSuffix?_prop_eq_skipSuffix?_decide, h₁, h₂, ih]
+    simp [← Pos.revSkip?_prop_eq_revSkip?_decide, h₁, h₂, ih]
   | case2 pos nextCurr h ih =>
     conv => rhs; rw [Pos.revSkipWhile]
-    simp [← Pattern.BackwardPattern.skipSuffix?_prop_eq_skipSuffix?_decide, h, ih]
+    simp [← Pos.revSkip?_prop_eq_revSkip?_decide, h, ih]
   | case3 pos h =>
     conv => rhs; rw [Pos.revSkipWhile]
-    simp [← Pattern.BackwardPattern.skipSuffix?_prop_eq_skipSuffix?_decide]
+    simp [← Pos.revSkip?_prop_eq_revSkip?_decide, h]
 
 theorem skipSuffixWhile_prop_eq_skipSuffixWhile_decide {p : Char → Prop} [DecidablePred p]
     {s : Slice} :

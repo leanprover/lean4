@@ -127,15 +127,15 @@ theorem skipPrefix?_bool_eq_some_iff {p : Char → Bool} {s : String} {pos : s.P
 
 theorem startsWith_bool_iff_get {p : Char → Bool} {s : String} :
     s.startsWith p ↔ ∃ h, p (s.startPos.get h) = true := by
-  simp [startsWith_eq_startsWith_toSlice, Slice.startsWith_bool_iff_get]
+  simp [← startsWith_toSlice, Slice.startsWith_bool_iff_get]
 
 theorem startsWith_bool_eq_false_iff_get {p : Char → Bool} {s : String} :
     s.startsWith p = false ↔ ∀ h, p (s.startPos.get h) = false := by
-  simp [startsWith_eq_startsWith_toSlice, Slice.startsWith_bool_eq_false_iff_get]
+  simp [← startsWith_toSlice, Slice.startsWith_bool_eq_false_iff_get]
 
 theorem startsWith_bool_eq_head? {p : Char → Bool} {s : String} :
     s.startsWith p = s.toList.head?.any p := by
-  simp [startsWith_eq_startsWith_toSlice, Slice.startsWith_bool_eq_head?]
+  simp [← startsWith_toSlice, Slice.startsWith_bool_eq_head?]
 
 theorem eq_append_of_dropPrefix?_bool_eq_some {p : Char → Bool} {s : String} {res : Slice} (h : s.dropPrefix? p = some res) :
     ∃ c, s = singleton c ++ res.copy ∧ p c = true := by
@@ -149,15 +149,15 @@ theorem skipPrefix?_prop_eq_some_iff {P : Char → Prop} [DecidablePred P] {s : 
 
 theorem startsWith_prop_iff_get {P : Char → Prop} [DecidablePred P] {s : String} :
     s.startsWith P ↔ ∃ h, P (s.startPos.get h) := by
-  simp [startsWith_eq_startsWith_toSlice, Slice.startsWith_prop_iff_get]
+  simp [← startsWith_toSlice, Slice.startsWith_prop_iff_get]
 
 theorem startsWith_prop_eq_false_iff_get {P : Char → Prop} [DecidablePred P] {s : String} :
     s.startsWith P = false ↔ ∀ h, ¬ P (s.startPos.get h) := by
-  simp [startsWith_eq_startsWith_toSlice, Slice.startsWith_prop_eq_false_iff_get]
+  simp [← startsWith_toSlice, Slice.startsWith_prop_eq_false_iff_get]
 
 theorem startsWith_prop_eq_head? {P : Char → Prop} [DecidablePred P] {s : String} :
     s.startsWith P = s.toList.head?.any (decide <| P ·) := by
-  simp [startsWith_eq_startsWith_toSlice, Slice.startsWith_prop_eq_head?]
+  simp [← startsWith_toSlice, Slice.startsWith_prop_eq_head?]
 
 theorem eq_append_of_dropPrefix?_prop_eq_some {P : Char → Prop} [DecidablePred P] {s : String} {res : Slice}
     (h : s.dropPrefix? P = some res) : ∃ c, s = singleton c ++ res.copy ∧ P c := by

@@ -52,19 +52,23 @@ The corresponding compatibility typeclasses are
 {name (scope := "Init.Data.String.Lemmas.Pattern.Basic")}`String.Slice.Pattern.Model.LawfulForwardPatternModel`
 and
 {name (scope := "Init.Data.String.Lemmas.Pattern.Basic")}`String.Slice.Pattern.Model.LawfulToForwardSearcherModel`.
-
-We include the condition that the empty string is not a match. This is necessary for the theory to
-work out as there is just no reasonable notion of searching that works for the empty string that is
-still specific enough to yield reasonably strong correctness results for operations based on
-searching.
-
-This means that pattern types that allow searching for the empty string will have to special-case
-the empty string in their correctness statements.
 -/
 class PatternModel {ρ : Type} (pat : ρ) : Type where
   /-- The predicate that says which strings match the pattern. -/
   Matches : String → Prop
-  not_matches_empty : ¬ Matches ""
+
+/--
+Type class for the condition that the empty string is not a match. This is necessary for the theory to
+work out as there is just no reasonable notion of searching that works for the empty string that is
+still specific enough to yield reasonably strong correctness results for operations based on
+searching.
+-/
+class StrictPatternModel {ρ : Type} (pat : ρ) [PatternModel pat] : Prop where
+  not_matches_empty : ¬ PatternModel.Matches pat ""
+
+theorem not_matches_empty {ρ : Type} {pat : ρ} [PatternModel pat] [StrictPatternModel pat] :
+    ¬ PatternModel.Matches pat "" :=
+  StrictPatternModel.not_matches_empty
 
 /--
 Predicate stating that the region between the start of the slice {name}`s` and the position
@@ -74,10 +78,10 @@ Predicate stating that the region between the start of the slice {name}`s` and t
 structure IsMatch (pat : ρ) [PatternModel pat] {s : Slice} (endPos : s.Pos) : Prop where
   matches_copy : PatternModel.Matches pat (s.sliceTo endPos).copy
 
-theorem IsMatch.ne_startPos {pat : ρ} [PatternModel pat] {s : Slice} {pos : s.Pos}
+theorem IsMatch.ne_startPos {pat : ρ} [PatternModel pat] [StrictPatternModel pat] {s : Slice} {pos : s.Pos}
     (h : IsMatch pat pos) : pos ≠ s.startPos := by
   intro hc
-  apply PatternModel.not_matches_empty (pat := pat)
+  apply not_matches_empty (pat := pat)
   simpa [hc] using h.matches_copy
 
 theorem isMatch_iff {pat : ρ} [PatternModel pat] {s : Slice} {pos : s.Pos} :
@@ -90,6 +94,11 @@ theorem isMatch_iff_exists_splits {pat : ρ} [PatternModel pat] {s : Slice} {pos
   refine ⟨fun h => ⟨_, _, pos.splits, h⟩, fun ⟨t₁, t₂, h₁, h₂⟩ => ?_⟩
   rwa [h₁.eq_left pos.splits] at h₂
 
+@[simp]
+theorem isMatch_cast_iff {pat : ρ} [PatternModel pat] {s t : Slice} (h : s.copy = t.copy) {pos : s.Pos} :
+    IsMatch pat (pos.cast h) ↔ IsMatch pat pos := by
+  simp [isMatch_iff]
+
 /--
 Predicate stating that the region between the position {name}`startPos` and the end of the slice
 {name}`s` matches the pattern {name}`pat`. Note that there might be a longer match.
@@ -97,10 +106,10 @@ Predicate stating that the region between the position {name}`startPos` and the 
 structure IsRevMatch (pat : ρ) [PatternModel pat] {s : Slice} (startPos : s.Pos) : Prop where
   matches_copy : PatternModel.Matches pat (s.sliceFrom startPos).copy
 
-theorem IsRevMatch.ne_endPos {pat : ρ} [PatternModel pat] {s : Slice} {pos : s.Pos}
+theorem IsRevMatch.ne_endPos {pat : ρ} [PatternModel pat] [StrictPatternModel pat] {s : Slice} {pos : s.Pos}
     (h : IsRevMatch pat pos) : pos ≠ s.endPos := by
   intro hc
-  apply PatternModel.not_matches_empty (pat := pat)
+  apply not_matches_empty (pat := pat)
   simpa [hc] using h.matches_copy
 
 theorem isRevMatch_iff {pat : ρ} [PatternModel pat] {s : Slice} {pos : s.Pos} :
@@ -112,6 +121,11 @@ theorem isRevMatch_iff_exists_splits {pat : ρ} [PatternModel pat] {s : Slice} {
   rw [isRevMatch_iff]
   refine ⟨fun h => ⟨_, _, pos.splits, h⟩, fun ⟨t₁, t₂, h₁, h₂⟩ => ?_⟩
   rwa [h₁.eq_right pos.splits] at h₂
+
+@[simp]
+theorem isRevMatch_cast_iff {pat : ρ} [PatternModel pat] {s t : Slice} (h : s.copy = t.copy) {pos : s.Pos} :
+    IsRevMatch pat (pos.cast h) ↔ IsRevMatch pat pos := by
+  simp [isRevMatch_iff]
 
 /--
 Predicate stating that the region between the start of the slice {name}`s` and the position
@@ -125,7 +139,11 @@ structure IsLongestMatch (pat : ρ) [PatternModel pat] {s : Slice} (pos : s.Pos)
   isMatch : IsMatch pat pos
   not_isMatch : ∀ pos', pos < pos' → ¬ IsMatch pat pos'
 
-theorem IsLongestMatch.ne_startPos {pat : ρ} [PatternModel pat] {s : Slice} {pos : s.Pos}
+theorem isLongestMatch_iff {pat : ρ} [PatternModel pat] {s : Slice} {pos : s.Pos} :
+    IsLongestMatch pat pos ↔ IsMatch pat pos ∧ ∀ pos', pos < pos' → ¬ IsMatch pat pos' :=
+  ⟨fun ⟨h, h'⟩ => ⟨h, h'⟩, fun ⟨h, h'⟩ => ⟨h, h'⟩⟩
+
+theorem IsLongestMatch.ne_startPos {pat : ρ} [PatternModel pat] [StrictPatternModel pat] {s : Slice} {pos : s.Pos}
     (h : IsLongestMatch pat pos) : pos ≠ s.startPos :=
   h.isMatch.ne_startPos
 
@@ -149,6 +167,18 @@ theorem IsLongestMatch.le_of_isMatch {pat : ρ} [PatternModel pat] {s : Slice} {
     (h : IsLongestMatch pat pos) (h' : IsMatch pat pos') : pos' ≤ pos :=
   Std.not_lt.1 (fun hlt => h.not_isMatch _ hlt h')
 
+@[simp]
+theorem isLongestMatch_cast_iff {pat : ρ} [PatternModel pat] {s t : Slice}
+    (hst : s.copy = t.copy) {pos : s.Pos} :
+    IsLongestMatch pat (pos.cast hst) ↔ IsLongestMatch pat pos := by
+  simp only [isLongestMatch_iff, isMatch_cast_iff, and_congr_right_iff]
+  refine fun _ => ⟨fun h p hp => ?_, fun h p hp => ?_⟩
+  · rw [← isMatch_cast_iff hst]
+    exact h _ (by simpa)
+  · have : p = (p.cast hst.symm).cast hst := by simp
+    rw [this, isMatch_cast_iff hst]
+    exact h _ (by rwa [this, Pos.cast_lt_cast_iff] at hp)
+
 /--
 Predicate stating that the region between the start of the slice {name}`s` and the position
 {name}`pos` matches the patten {name}`pat`, and that there is no longer match starting at the
@@ -161,7 +191,11 @@ structure IsLongestRevMatch (pat : ρ) [PatternModel pat] {s : Slice} (pos : s.P
   isRevMatch : IsRevMatch pat pos
   not_isRevMatch : ∀ pos', pos' < pos → ¬ IsRevMatch pat pos'
 
-theorem IsLongestRevMatch.ne_endPos {pat : ρ} [PatternModel pat] {s : Slice} {pos : s.Pos}
+theorem isLongestRevMatch_iff {pat : ρ} [PatternModel pat] {s : Slice} {pos : s.Pos} :
+    IsLongestRevMatch pat pos ↔ IsRevMatch pat pos ∧ ∀ pos', pos' < pos → ¬ IsRevMatch pat pos' :=
+  ⟨fun ⟨h, h'⟩ => ⟨h, h'⟩, fun ⟨h, h'⟩ => ⟨h, h'⟩⟩
+
+theorem IsLongestRevMatch.ne_endPos {pat : ρ} [PatternModel pat] [StrictPatternModel pat] {s : Slice} {pos : s.Pos}
     (h : IsLongestRevMatch pat pos) : pos ≠ s.endPos :=
   h.isRevMatch.ne_endPos
 
@@ -184,6 +218,18 @@ theorem IsRevMatch.exists_isLongestRevMatch {pat : ρ} [PatternModel pat] {s : S
 theorem IsLongestRevMatch.le_of_isRevMatch {pat : ρ} [PatternModel pat] {s : Slice} {pos pos' : s.Pos}
     (h : IsLongestRevMatch pat pos) (h' : IsRevMatch pat pos') : pos ≤ pos' :=
   Std.not_lt.1 (fun hlt => h.not_isRevMatch _ hlt h')
+
+@[simp]
+theorem isLongestRevMatch_cast_iff {pat : ρ} [PatternModel pat] {s t : Slice}
+    (hst : s.copy = t.copy) {pos : s.Pos} :
+    IsLongestRevMatch pat (pos.cast hst) ↔ IsLongestRevMatch pat pos := by
+  simp only [isLongestRevMatch_iff, isRevMatch_cast_iff, and_congr_right_iff]
+  refine fun _ => ⟨fun h p hp => ?_, fun h p hp => ?_⟩
+  · rw [← isRevMatch_cast_iff hst]
+    exact h _ (by simpa)
+  · have : p = (p.cast hst.symm).cast hst := by simp
+    rw [this, isRevMatch_cast_iff hst]
+    exact h _ (by rwa [this, Pos.cast_lt_cast_iff] at hp)
 
 /--
 Predicate stating that a match for a given pattern is never a proper prefix of another match.
@@ -240,7 +286,7 @@ theorem isLongestMatchAt_iff {pat : ρ} [PatternModel pat] {s : Slice} {pos₁ p
       ∃ (h : pos₁ ≤ pos₂), IsLongestMatch pat (Slice.Pos.sliceFrom _ _ h) :=
   ⟨fun ⟨h, h'⟩ => ⟨h, h'⟩, fun ⟨h, h'⟩ => ⟨h, h'⟩⟩
 
-theorem IsLongestMatchAt.lt {pat : ρ} [PatternModel pat] {s : Slice} {startPos endPos : s.Pos}
+theorem IsLongestMatchAt.lt {pat : ρ} [PatternModel pat] [StrictPatternModel pat] {s : Slice} {startPos endPos : s.Pos}
     (h : IsLongestMatchAt pat startPos endPos) : startPos < endPos := by
   have := h.isLongestMatch_sliceFrom.ne_startPos
   rw [← Pos.startPos_lt_iff, ← Slice.Pos.ofSliceFrom_lt_ofSliceFrom_iff] at this
@@ -282,6 +328,28 @@ theorem isLongestMatchAt_startPos_iff {pat : ρ} [PatternModel pat] {s : Slice} 
     ⟨fun h => isLongestMatch_of_eq (by simp) (by simp) h,
      fun h => isLongestMatch_of_eq (by simp) (by simp) h⟩
 
+theorem IsLongestMatchAt.matches_slice {pat : ρ} [PatternModel pat] {s : Slice}
+    {startPos endPos : s.Pos} (h : IsLongestMatchAt pat startPos endPos) :
+    PatternModel.Matches pat (s.slice startPos endPos h.le).copy := by
+  simpa using h.isLongestMatch_sliceFrom.isMatch.matches_copy
+
+-- TODO: move
+theorem Pos.sliceFrom_cast {s t : Slice} {hst : s.copy = t.copy} (p q : s.Pos) {h} :
+    Slice.Pos.sliceFrom (p.cast hst) (q.cast hst) h =
+      (Slice.Pos.sliceFrom p q (by simpa using h)).cast (by simp) := by
+  ext1; simp
+
+theorem Pos.sliceTo_cast {s t : Slice} {hst : s.copy = t.copy} (p q : s.Pos) {h} :
+    Slice.Pos.sliceTo (p.cast hst) (q.cast hst) h =
+      (Slice.Pos.sliceTo p q (by simpa using h)).cast (by simp) := by
+  ext1; simp
+
+@[simp]
+theorem isLongestMatchAt_cast_iff {pat : ρ} [PatternModel pat] {s t : Slice} (hst : s.copy = t.copy)
+    {startPos endPos : s.Pos} :
+    IsLongestMatchAt pat (startPos.cast hst) (endPos.cast hst) ↔ IsLongestMatchAt pat startPos endPos := by
+  simp [isLongestMatchAt_iff, Pos.sliceFrom_cast]
+
 /--
 Predicate stating that the slice formed by {name}`startPos` and {name}`endPos` contains is a match
 of {name}`pat` in {name}`s` and it is longest among matches ending at {name}`endPos`.
@@ -295,7 +363,7 @@ theorem isLongestRevMatchAt_iff {pat : ρ} [PatternModel pat] {s : Slice} {pos�
       ∃ (h : pos₁ ≤ pos₂), IsLongestRevMatch pat (Slice.Pos.sliceTo _ _ h) :=
   ⟨fun ⟨h, h'⟩ => ⟨h, h'⟩, fun ⟨h, h'⟩ => ⟨h, h'⟩⟩
 
-theorem IsLongestRevMatchAt.lt {pat : ρ} [PatternModel pat] {s : Slice} {startPos endPos : s.Pos}
+theorem IsLongestRevMatchAt.lt {pat : ρ} [PatternModel pat] [StrictPatternModel pat] {s : Slice} {startPos endPos : s.Pos}
     (h : IsLongestRevMatchAt pat startPos endPos) : startPos < endPos := by
   have := h.isLongestRevMatch_sliceTo.ne_endPos
   rw [← Pos.lt_endPos_iff, ← Slice.Pos.ofSliceTo_lt_ofSliceTo_iff] at this
@@ -335,6 +403,17 @@ theorem isLongestRevMatchAt_endPos_iff {pat : ρ} [PatternModel pat] {s : Slice}
     ⟨fun h => isLongestRevMatch_of_eq (by simp) (by simp) h,
      fun h => isLongestRevMatch_of_eq (by simp) (by simp) h⟩
 
+theorem IsLongestRevMatchAt.matches_slice {pat : ρ} [PatternModel pat] {s : Slice}
+    {startPos endPos : s.Pos} (h : IsLongestRevMatchAt pat startPos endPos) :
+    PatternModel.Matches pat (s.slice startPos endPos h.le).copy := by
+  simpa using h.isLongestRevMatch_sliceTo.isRevMatch.matches_copy
+
+@[simp]
+theorem isLongestRevMatchAt_cast_iff {pat : ρ} [PatternModel pat] {s t : Slice} (hst : s.copy = t.copy)
+    {startPos endPos : s.Pos} :
+    IsLongestRevMatchAt pat (startPos.cast hst) (endPos.cast hst) ↔ IsLongestRevMatchAt pat startPos endPos := by
+  simp [isLongestRevMatchAt_iff, Pos.sliceTo_cast]
+
 /--
 Predicate stating that there is a (longest) match starting at the given position.
 -/
@@ -360,7 +439,7 @@ theorem matchesAt_iff_exists_isMatch {pat : ρ} [PatternModel pat] {s : Slice}
      by simpa using hq⟩⟩
 
 @[simp]
-theorem not_matchesAt_endPos {pat : ρ} [PatternModel pat] {s : Slice} :
+theorem not_matchesAt_endPos {pat : ρ} [PatternModel pat] [StrictPatternModel pat] {s : Slice} :
     ¬ MatchesAt pat s.endPos := by
   simp only [matchesAt_iff_exists_isMatch, Pos.endPos_le, exists_prop_eq]
   intro h
@@ -379,6 +458,14 @@ theorem matchesAt_iff_matchesAt_ofSliceFrom {pat : ρ} [PatternModel pat] {s : S
 theorem IsLongestMatchAt.matchesAt {pat : ρ} [PatternModel pat] {s : Slice} {startPos endPos : s.Pos}
     (h : IsLongestMatchAt pat startPos endPos) : MatchesAt pat startPos where
   exists_isLongestMatchAt := ⟨_, h⟩
+
+@[simp]
+theorem matchesAt_cast_iff {pat : ρ} [PatternModel pat] {s t : Slice} (hst : s.copy = t.copy)
+    {pos : s.Pos} : MatchesAt pat (pos.cast hst) ↔ MatchesAt pat pos := by
+  simp only [matchesAt_iff_exists_isLongestMatchAt]
+  refine ⟨fun ⟨endPos, h⟩ => ?_, fun ⟨endPos, h⟩ => ?_⟩
+  · exact ⟨endPos.cast hst.symm, by simpa [← isLongestMatchAt_cast_iff hst]⟩
+  · exact ⟨endPos.cast hst, by simpa⟩
 
 /--
 Predicate stating that there is a (longest) match ending at the given position.
@@ -405,7 +492,7 @@ theorem revMatchesAt_iff_exists_isRevMatch {pat : ρ} [PatternModel pat] {s : Sl
      by simpa using hq⟩⟩
 
 @[simp]
-theorem not_revMatchesAt_startPos {pat : ρ} [PatternModel pat] {s : Slice} :
+theorem not_revMatchesAt_startPos {pat : ρ} [PatternModel pat] [StrictPatternModel pat] {s : Slice} :
     ¬ RevMatchesAt pat s.startPos := by
   simp only [revMatchesAt_iff_exists_isRevMatch, Pos.le_startPos, exists_prop_eq]
   intro h
@@ -424,6 +511,14 @@ theorem revMatchesAt_iff_revMatchesAt_ofSliceto {pat : ρ} [PatternModel pat] {s
 theorem IsLongestRevMatchAt.revMatchesAt {pat : ρ} [PatternModel pat] {s : Slice} {startPos endPos : s.Pos}
     (h : IsLongestRevMatchAt pat startPos endPos) : RevMatchesAt pat endPos where
   exists_isLongestRevMatchAt := ⟨_, h⟩
+
+@[simp]
+theorem revMatchesAt_cast_iff {pat : ρ} [PatternModel pat] {s t : Slice} (hst : s.copy = t.copy)
+    {pos : s.Pos} : RevMatchesAt pat (pos.cast hst) ↔ RevMatchesAt pat pos := by
+  simp only [revMatchesAt_iff_exists_isLongestRevMatchAt]
+  refine ⟨fun ⟨endPos, h⟩ => ?_, fun ⟨endPos, h⟩ => ?_⟩
+  · exact ⟨endPos.cast hst.symm, by simpa [← isLongestRevMatchAt_cast_iff hst]⟩
+  · exact ⟨endPos.cast hst, by simpa⟩
 
 open Classical in
 /--
@@ -450,6 +545,21 @@ theorem matchAt?_eq_none_iff {ρ : Type} {pat : ρ} [PatternModel pat]
   | case1 h => simpa using ⟨h⟩
   | case2 h => simpa using fun ⟨h'⟩ => h h'
 
+theorem lt_of_matchAt?_eq_some {ρ : Type} {pat : ρ} [PatternModel pat] [StrictPatternModel pat]
+    {s : Slice} {startPos endPos : s.Pos} (h : matchAt? pat startPos = some endPos) :
+    startPos < endPos :=
+  (matchAt?_eq_some_iff.1 h).lt
+
+@[simp]
+theorem matchAt?_cast {ρ : Type} (pat : ρ) [PatternModel pat] {s t : Slice} (hst : s.copy = t.copy)
+    {startPos : s.Pos} :
+    matchAt? pat (startPos.cast hst) = (matchAt? pat startPos).map (Slice.Pos.cast · hst) := by
+  refine Option.ext (fun endPos => ?_)
+  have : endPos = (endPos.cast hst.symm).cast hst := by simp
+  conv => lhs; rw [this, matchAt?_eq_some_iff, isLongestMatchAt_cast_iff]
+  simp only [Option.map_eq_some_iff, matchAt?_eq_some_iff]
+  exact ⟨fun h => ⟨_, ⟨h, by simp⟩⟩, by rintro ⟨pos, h, rfl⟩; simpa⟩
+
 open Classical in
 /--
 Noncomputable model function returning the start point of the longest match ending at the given
@@ -474,6 +584,21 @@ theorem revMatchAt?_eq_none_iff {ρ : Type} {pat : ρ} [PatternModel pat]
   fun_cases revMatchAt? with
   | case1 h => simpa using ⟨h⟩
   | case2 h => simpa using fun ⟨h'⟩ => h h'
+
+theorem lt_of_revMatchAt?_eq_some {ρ : Type} {pat : ρ} [PatternModel pat] [StrictPatternModel pat]
+    {s : Slice} {startPos endPos : s.Pos} (h : revMatchAt? pat endPos = some startPos) :
+    startPos < endPos :=
+  (revMatchAt?_eq_some_iff.1 h).lt
+
+@[simp]
+theorem revMatchAt?_cast {ρ : Type} (pat : ρ) [PatternModel pat] {s t : Slice} (hst : s.copy = t.copy)
+    {startPos : s.Pos} :
+    revMatchAt? pat (startPos.cast hst) = (revMatchAt? pat startPos).map (Slice.Pos.cast · hst) := by
+  refine Option.ext (fun endPos => ?_)
+  have : endPos = (endPos.cast hst.symm).cast hst := by simp
+  conv => lhs; rw [this, revMatchAt?_eq_some_iff, isLongestRevMatchAt_cast_iff]
+  simp only [Option.map_eq_some_iff, revMatchAt?_eq_some_iff]
+  exact ⟨fun h => ⟨_, ⟨h, by simp⟩⟩, by rintro ⟨pos, h, rfl⟩; simpa⟩
 
 /--
 Predicate stating compatibility between {name}`PatternModel` and {name}`ForwardPattern`.
@@ -570,6 +695,24 @@ theorem IsValidSearchFrom.endPos_of_eq {pat : ρ} [PatternModel pat] {s : Slice}
   cases hl
   exact IsValidSearchFrom.endPos
 
+theorem isValidSearchFrom_cast_iff {pat : ρ} [PatternModel pat] {s t : Slice} (hst : s.copy = t.copy)
+    {pos : s.Pos} {l : List (SearchStep t)} :
+    IsValidSearchFrom pat (pos.cast hst) l ↔ IsValidSearchFrom pat pos (l.map (·.cast hst.symm)) := by
+  suffices ∀ (s t : Slice) (hst : s.copy = t.copy) (pos : s.Pos) (l : List (SearchStep s)),
+      IsValidSearchFrom pat pos l → IsValidSearchFrom pat (pos.cast hst) (l.map (·.cast hst)) from
+    ⟨fun h => by simpa using this _ _ hst.symm _ _ h, fun h => by
+      have hcomp : (SearchStep.cast hst) ∘ (SearchStep.cast hst.symm) = id := by ext; simp
+      simpa [hcomp] using this _ _ hst _ _ h⟩
+  intro s t hst pos l hl
+  induction hl with
+  | endPos => simpa using IsValidSearchFrom.endPos
+  | matched h₁ h₂ ih =>
+    simpa only [List.map_cons, SearchStep.cast_matched] using IsValidSearchFrom.matched (by simpa) ih
+  | mismatched h₁ h₂ h₃ ih =>
+    simp only [List.map_cons, SearchStep.cast_rejected]
+    refine IsValidSearchFrom.mismatched (by simpa) (fun p hp₁ hp₂ hp₃ => ?_) ih
+    exact h₂ (p.cast hst.symm) (by simpa [Pos.le_cast_iff]) (by simpa [Pos.cast_lt_iff]) (by simpa)
+
 /--
 Predicate stating compatibility between {name}`PatternModel` and {name}`ToForwardSearcher`.
 
@@ -662,6 +805,24 @@ theorem IsValidRevSearchFrom.startPos_of_eq {pat : ρ} [PatternModel pat] {s : S
   cases hp
   cases hl
   exact IsValidRevSearchFrom.startPos
+
+theorem isValidRevSearchFrom_cast_iff {pat : ρ} [PatternModel pat] {s t : Slice} (hst : s.copy = t.copy)
+    {pos : s.Pos} {l : List (SearchStep t)} :
+    IsValidRevSearchFrom pat (pos.cast hst) l ↔ IsValidRevSearchFrom pat pos (l.map (·.cast hst.symm)) := by
+  suffices ∀ (s t : Slice) (hst : s.copy = t.copy) (pos : s.Pos) (l : List (SearchStep s)),
+      IsValidRevSearchFrom pat pos l → IsValidRevSearchFrom pat (pos.cast hst) (l.map (·.cast hst)) from
+    ⟨fun h => by simpa using this _ _ hst.symm _ _ h, fun h => by
+      have hcomp : (SearchStep.cast hst) ∘ (SearchStep.cast hst.symm) = id := by ext; simp
+      simpa [hcomp] using this _ _ hst _ _ h⟩
+  intro s t hst pos l hl
+  induction hl with
+  | startPos => simpa using IsValidRevSearchFrom.startPos
+  | matched h₁ h₂ ih =>
+    simpa only [List.map_cons, SearchStep.cast_matched] using IsValidRevSearchFrom.matched (by simpa) ih
+  | mismatched h₁ h₂ h₃ ih =>
+    simp only [List.map_cons, SearchStep.cast_rejected]
+    refine IsValidRevSearchFrom.mismatched (by simpa) (fun p hp₁ hp₂ hp₃ => ?_) ih
+    exact h₂ (p.cast hst.symm) (by simpa [Pos.lt_cast_iff]) (by simpa [Pos.cast_le_iff]) (by simpa)
 
 /--
 Predicate stating compatibility between {name}`PatternModel` and {name}`ToBackwardSearcher`.

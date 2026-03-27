@@ -1746,6 +1746,19 @@ theorem Slice.Pos.cast_rfl {s : Slice} {pos : s.Pos} : pos.cast rfl = pos :=
   Slice.Pos.ext (by simp)
 
 @[simp]
+theorem Slice.Pos.cast_cast {s t u : Slice} {hst : s.copy = t.copy} {htu : t.copy = u.copy}
+    {pos : s.Pos} : (pos.cast hst).cast htu = pos.cast (hst.trans htu) :=
+  Slice.Pos.ext (by simp)
+
+@[simp]
+theorem Slice.Pos.cast_startPos {s t : Slice} {hst : s.copy = t.copy} : s.startPos.cast hst = t.startPos :=
+  Slice.Pos.ext (by simp)
+
+@[simp]
+theorem Slice.Pos.cast_endPos {s t : Slice} {hst : s.copy = t.copy} : s.endPos.cast hst = t.endPos :=
+  Slice.Pos.ext (by simp [← rawEndPos_copy, hst])
+
+@[simp]
 theorem Slice.Pos.cast_le_cast_iff {s t : Slice} {pos pos' : s.Pos} {h : s.copy = t.copy} :
     pos.cast h ≤ pos'.cast h ↔ pos ≤ pos' := by
   simp [Slice.Pos.le_iff]
@@ -1753,6 +1766,22 @@ theorem Slice.Pos.cast_le_cast_iff {s t : Slice} {pos pos' : s.Pos} {h : s.copy 
 @[simp]
 theorem Slice.Pos.cast_lt_cast_iff {s t : Slice} {pos pos' : s.Pos} {h : s.copy = t.copy} :
     pos.cast h < pos'.cast h ↔ pos < pos' := by
+  simp [Slice.Pos.lt_iff]
+
+theorem Slice.Pos.cast_le_iff {s t : Slice} {pos : s.Pos} {pos' : t.Pos} {h : s.copy = t.copy} :
+    pos.cast h ≤ pos' ↔ pos ≤ pos'.cast h.symm := by
+  simp [Slice.Pos.le_iff]
+
+theorem Slice.Pos.le_cast_iff {s t : Slice} {pos : t.Pos} {pos' : s.Pos} {h : s.copy = t.copy} :
+    pos ≤ pos'.cast h ↔ pos.cast h.symm ≤ pos' := by
+  simp [Slice.Pos.le_iff]
+
+theorem Slice.Pos.cast_lt_iff {s t : Slice} {pos : s.Pos} {pos' : t.Pos} {h : s.copy = t.copy} :
+    pos.cast h < pos' ↔ pos < pos'.cast h.symm := by
+  simp [Slice.Pos.lt_iff]
+
+theorem Slice.Pos.lt_cast_iff {s t : Slice} {pos : t.Pos} {pos' : s.Pos} {h : s.copy = t.copy} :
+    pos < pos'.cast h ↔ pos.cast h.symm < pos' := by
   simp [Slice.Pos.lt_iff]
 
 /-- Constructs a valid position on `t` from a valid position on `s` and a proof that `s = t`. -/
@@ -1770,6 +1799,19 @@ theorem Pos.cast_rfl {s : String} {pos : s.Pos} : pos.cast rfl = pos :=
   Pos.ext (by simp)
 
 @[simp]
+theorem Pos.cast_cast {s t u : String} {hst : s = t} {htu : t = u}
+    {pos : s.Pos} : (pos.cast hst).cast htu = pos.cast (hst.trans htu) :=
+  Pos.ext (by simp)
+
+@[simp]
+theorem Pos.cast_startPos {s t : String} {hst : s = t} : s.startPos.cast hst = t.startPos := by
+  subst hst; simp
+
+@[simp]
+theorem Pos.cast_endPos {s t : String} {hst : s = t} : s.endPos.cast hst = t.endPos := by
+  subst hst; simp
+
+@[simp]
 theorem Pos.cast_le_cast_iff {s t : String} {pos pos' : s.Pos} {h : s = t} :
     pos.cast h ≤ pos'.cast h ↔ pos ≤ pos' := by
   cases h; simp
@@ -1778,6 +1820,22 @@ theorem Pos.cast_le_cast_iff {s t : String} {pos pos' : s.Pos} {h : s = t} :
 theorem Pos.cast_lt_cast_iff {s t : String} {pos pos' : s.Pos} {h : s = t} :
     pos.cast h < pos'.cast h ↔ pos < pos' := by
   cases h; simp
+
+theorem Pos.cast_le_iff {s t : String} {pos : s.Pos} {pos' : t.Pos} {h : s = t} :
+    pos.cast h ≤ pos' ↔ pos ≤ pos'.cast h.symm := by
+  simp [Pos.le_iff]
+
+theorem Pos.le_cast_iff {s t : String} {pos : t.Pos} {pos' : s.Pos} {h : s = t} :
+    pos ≤ pos'.cast h ↔ pos.cast h.symm ≤ pos' := by
+  simp [Pos.le_iff]
+
+theorem Pos.cast_lt_iff {s t : String} {pos : s.Pos} {pos' : t.Pos} {h : s = t} :
+    pos.cast h < pos' ↔ pos < pos'.cast h.symm := by
+  simp [Pos.lt_iff]
+
+theorem Pos.lt_cast_iff {s t : String} {pos : t.Pos} {pos' : s.Pos} {h : s = t} :
+    pos < pos'.cast h ↔ pos.cast h.symm < pos' := by
+  simp [Pos.lt_iff]
 
 theorem Pos.copy_toSlice_eq_cast {s : String} (p : s.Pos) :
     p.toSlice.copy = p.cast copy_toSlice.symm :=

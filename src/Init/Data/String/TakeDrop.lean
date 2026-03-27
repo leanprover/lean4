@@ -314,7 +314,7 @@ Returns {name}`none` otherwise.
 This function is generic over all currently supported patterns.
 -/
 @[inline]
-def Pos.revSkip? {s : String} (pos : s.Pos) (pat : ρ) [ForwardPattern pat] : Option s.Pos :=
+def Pos.revSkip? {s : String} (pos : s.Pos) (pat : ρ) [BackwardPattern pat] : Option s.Pos :=
   (pos.toSlice.revSkip? pat).map Pos.ofToSlice
 
 /--

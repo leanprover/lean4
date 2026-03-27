@@ -28,7 +28,9 @@ namespace String.Slice.Pattern.Model.Char
 
 instance {c : Char} : PatternModel c where
   Matches s := s = String.singleton c
-  not_matches_empty := by simp
+
+instance {c : Char} : StrictPatternModel c where
+  not_matches_empty := by simp [PatternModel.Matches]
 
 instance {c : Char} : NoPrefixPatternModel c :=
   .of_length_eq (by simp +contextual [PatternModel.Matches])
@@ -242,18 +244,21 @@ theorem skipPrefix?_char_eq_skipPrefix?_beq {c : Char} {s : Slice} :
 theorem Pattern.ForwardPattern.skipPrefix?_char_eq_skipPrefix?_beq {c : Char} {s : Slice} :
     skipPrefix? c s = skipPrefix? (· == c) s := (rfl)
 
+theorem Pos.skip?_char_eq_skip?_beq {c : Char} {s : Slice} {pos : s.Pos} :
+    pos.skip? c = pos.skip? (· == c) := (rfl)
+
 theorem Pos.skipWhile_char_eq_skipWhile_beq {c : Char} {s : Slice} (curr : s.Pos) :
     Pos.skipWhile curr c = Pos.skipWhile curr (· == c) := by
   fun_induction Pos.skipWhile curr c with
   | case1 pos nextCurr h₁ h₂ ih =>
     conv => rhs; rw [Pos.skipWhile]
-    simp [← Pattern.ForwardPattern.skipPrefix?_char_eq_skipPrefix?_beq, h₁, h₂, ih]
+    simp [← Pos.skip?_char_eq_skip?_beq, h₁, h₂, ih]
   | case2 pos nextCurr h ih =>
     conv => rhs; rw [Pos.skipWhile]
-    simp [← Pattern.ForwardPattern.skipPrefix?_char_eq_skipPrefix?_beq, h, ih]
+    simp [← Pos.skip?_char_eq_skip?_beq, h, ih]
   | case3 pos h =>
     conv => rhs; rw [Pos.skipWhile]
-    simp [← Pattern.ForwardPattern.skipPrefix?_char_eq_skipPrefix?_beq]
+    simp [← Pos.skip?_char_eq_skip?_beq, h]
 
 theorem skipPrefixWhile_char_eq_skipPrefixWhile_beq {c : Char} {s : Slice} :
     s.skipPrefixWhile c = s.skipPrefixWhile (· == c) :=
@@ -269,7 +274,7 @@ theorem takeWhile_char_eq_takeWhile_beq {c : Char} {s : Slice} :
 
 theorem all_char_eq_all_beq {c : Char} {s : Slice} :
     s.all c = s.all (· == c) := by
-  simp only [all, dropWhile_char_eq_dropWhile_beq]
+  simp only [all, skipPrefixWhile_char_eq_skipPrefixWhile_beq]
 
 theorem find?_char_eq_find?_beq {c : Char} {s : Slice} :
     s.find? c = s.find? (· == c) :=
@@ -298,18 +303,21 @@ theorem dropSuffix_char_eq_dropSuffix_beq {c : Char} {s : Slice} :
 theorem Pattern.BackwardPattern.skipSuffix?_char_eq_skipSuffix?_beq {c : Char} {s : Slice} :
     skipSuffix? c s = skipSuffix? (· == c) s := (rfl)
 
+theorem Pos.revSkip?_char_eq_revSkip?_beq {c : Char} {s : Slice} {pos : s.Pos} :
+    pos.revSkip? c = pos.revSkip? (· == c) := (rfl)
+
 theorem Pos.revSkipWhile_char_eq_revSkipWhile_beq {c : Char} {s : Slice} (curr : s.Pos) :
     Pos.revSkipWhile curr c = Pos.revSkipWhile curr (· == c) := by
   fun_induction Pos.revSkipWhile curr c with
   | case1 pos nextCurr h₁ h₂ ih =>
     conv => rhs; rw [Pos.revSkipWhile]
-    simp [← Pattern.BackwardPattern.skipSuffix?_char_eq_skipSuffix?_beq, h₁, h₂, ih]
+    simp [← Pos.revSkip?_char_eq_revSkip?_beq, h₁, h₂, ih]
   | case2 pos nextCurr h ih =>
     conv => rhs; rw [Pos.revSkipWhile]
-    simp [← Pattern.BackwardPattern.skipSuffix?_char_eq_skipSuffix?_beq, h, ih]
+    simp [← Pos.revSkip?_char_eq_revSkip?_beq, h, ih]
   | case3 pos h =>
     conv => rhs; rw [Pos.revSkipWhile]
-    simp [← Pattern.BackwardPattern.skipSuffix?_char_eq_skipSuffix?_beq]
+    simp [← Pos.revSkip?_char_eq_revSkip?_beq, h]
 
 theorem skipSuffixWhile_char_eq_skipSuffixWhile_beq {c : Char} {s : Slice} :
     s.skipSuffixWhile c = s.skipSuffixWhile (· == c) :=

@@ -375,6 +375,10 @@ theorem Slice.copy_sliceTo_eq_iff_exists_splits {s : Slice} {p : s.Pos} {t₁ : 
   · rintro ⟨t₂, h⟩
     exact p.splits.eq_left h
 
+theorem Slice.copy_sliceTo_eq_iff_splits {s : Slice} {p : s.Pos} {t₁ : String} :
+    (s.sliceTo p).copy = t₁ ↔ p.Splits t₁ (s.sliceFrom p).copy :=
+  ⟨fun h => h ▸ p.splits, p.splits.eq_left⟩
+
 theorem Slice.copy_sliceFrom_eq_iff_exists_splits {s : Slice} {p : s.Pos} {t₂ : String} :
     (s.sliceFrom p).copy = t₂ ↔ ∃ t₁, p.Splits t₁ t₂ := by
   refine ⟨?_, ?_⟩
@@ -383,13 +387,25 @@ theorem Slice.copy_sliceFrom_eq_iff_exists_splits {s : Slice} {p : s.Pos} {t₂ 
   · rintro ⟨t₂, h⟩
     exact p.splits.eq_right h
 
+theorem Slice.copy_sliceFrom_eq_iff_splits {s : Slice} {p : s.Pos} {t₂ : String} :
+    (s.sliceFrom p).copy = t₂ ↔ p.Splits (s.sliceTo p).copy t₂ :=
+  ⟨fun h => h ▸ p.splits, p.splits.eq_right⟩
+
 theorem copy_sliceTo_eq_iff_exists_splits {s : String} {p : s.Pos} {t₁ : String} :
     (s.sliceTo p).copy = t₁ ↔ ∃ t₂, p.Splits t₁ t₂ := by
   simp [← Pos.splits_toSlice_iff, ← Slice.copy_sliceTo_eq_iff_exists_splits]
 
+theorem copy_sliceTo_eq_iff_splits {s : String} {p : s.Pos} {t₁ : String} :
+    (s.sliceTo p).copy = t₁ ↔ p.Splits t₁ (s.sliceFrom p).copy :=
+  ⟨fun h => h ▸ p.splits, p.splits.eq_left⟩
+
 theorem copy_sliceFrom_eq_iff_exists_splits {s : String} {p : s.Pos} {t₂ : String} :
     (s.sliceFrom p).copy = t₂ ↔ ∃ t₁, p.Splits t₁ t₂ := by
   simp [← Pos.splits_toSlice_iff, ← Slice.copy_sliceFrom_eq_iff_exists_splits]
+
+theorem copy_sliceFrom_eq_iff_splits {s : String} {p : s.Pos} {t₂ : String} :
+    (s.sliceFrom p).copy = t₂ ↔ p.Splits (s.sliceTo p).copy t₂ :=
+  ⟨fun h => h ▸ p.splits, p.splits.eq_right⟩
 
 theorem Pos.Splits.offset_eq_decreaseBy {s : String} {p : s.Pos} (h : p.Splits t₁ t₂) :
     p.offset = s.rawEndPos.decreaseBy t₂.utf8ByteSize := by
@@ -739,5 +755,25 @@ theorem Pos.Splits.prevn {s t₁ t₂ : String} {p : s.Pos} (h : p.Splits t₁ t
 theorem splits_prevn_endPos (s : String) (n : Nat) :
     (s.endPos.prevn n).Splits (String.ofList (s.toList.take (s.length - n))) (String.ofList (s.toList.drop (s.length - n))) := by
   simpa using s.splits_endPos.prevn n
+
+@[simp]
+theorem Slice.copy_sliceFrom_cast {s t : Slice} (hst : s.copy = t.copy) {pos : s.Pos} :
+    (t.sliceFrom (pos.cast hst)).copy = (s.sliceFrom pos).copy := by
+  simpa [copy_sliceFrom_eq_iff_exists_splits] using ⟨_, pos.splits⟩
+
+@[simp]
+theorem Slice.copy_sliceTo_cast {s t : Slice} (hst : s.copy = t.copy) {pos : s.Pos} :
+    (t.sliceTo (pos.cast hst)).copy = (s.sliceTo pos).copy := by
+  simpa [copy_sliceTo_eq_iff_exists_splits] using ⟨_, pos.splits⟩
+
+@[simp]
+theorem copy_sliceFrom_cast {s t : String} (hst : s = t) {pos : s.Pos} :
+    (t.sliceFrom (pos.cast hst)).copy = (s.sliceFrom pos).copy := by
+  simpa [copy_sliceFrom_eq_iff_exists_splits] using ⟨_, pos.splits⟩
+
+@[simp]
+theorem copy_sliceTo_cast {s t : String} (hst : s = t) {pos : s.Pos} :
+    (t.sliceTo (pos.cast hst)).copy = (s.sliceTo pos).copy := by
+  simpa [copy_sliceTo_eq_iff_exists_splits] using ⟨_, pos.splits⟩
 
 end String

@@ -74,6 +74,7 @@ abbrev M := StateRefT State CompilerM
 
 @[inline]
 def addDerivedValue (parents : Array FVarId) (child : FVarId) : M Unit := do
+  trace[Meta.debug] m!"{← parents.mapM (PP.run <| PP.ppFVar ·) } for {← PP.run <| PP.ppFVar child}"
   modify fun s => { s with
     varMap :=
       let varMap := parents.foldl (init := s.varMap)
@@ -84,6 +85,17 @@ def addDerivedValue (parents : Array FVarId) (child : FVarId) : M Unit := do
 @[inline]
 def addBorrowedValue (fvarId : FVarId) : M Unit := do
   modify fun s => { s with borrowedValues := s.borrowedValues.insert fvarId }
+
+def addDerivedLetValue (parents : Array FVarId) (child : FVarId) : M Unit := do
+  let type ← getType child
+  if !type.isPossibleRef then
+    return ()
+  let parents ← parents.filterM fun fvarId => do
+    let type ← getType fvarId
+    return type.isPossibleRef
+  addDerivedValue parents child
+  if parents.isEmpty then
+      addBorrowedValue child
 
 @[inline]
 def visitParam (p : Param .impure) : M Unit := do
@@ -104,11 +116,11 @@ partial def collectCode (code : Code .impure) : M Unit := do
   | .let decl k =>
     match decl.value with
     | .oproj _ parent =>
-      addDerivedValue #[parent] decl.fvarId
+      addDerivedLetValue #[parent] decl.fvarId
     -- Keep in sync with PropagateBorrow, InferBorrow
     | .fap ``Array.getInternal args =>
       if let .fvar parent := args[1]! then
-        addDerivedValue #[parent] decl.fvarId
+        addDerivedLetValue #[parent] decl.fvarId
     | .fap ``Array.get!Internal args =>
       let mut parents := #[]
       /-
@@ -119,13 +131,12 @@ partial def collectCode (code : Code .impure) : M Unit := do
         parents := parents.push parent
       if let .fvar parent := args[2]! then
         parents := parents.push parent
-      addDerivedValue parents decl.fvarId
+      addDerivedLetValue parents decl.fvarId
     | .fap ``Array.uget args =>
       if let .fvar parent := args[1]! then
-        addDerivedValue #[parent] decl.fvarId
+        addDerivedLetValue #[parent] decl.fvarId
     | .fap _ #[] =>
-      addDerivedValue #[] decl.fvarId
-      addBorrowedValue decl.fvarId
+      addDerivedLetValue #[] decl.fvarId
     | .reset _ target =>
       removeFromParents target
     | _ => pure ()
@@ -672,7 +683,9 @@ public def runExplicitRc (decls : Array (Decl .impure)) : CompilerM (Array (Decl
   decls.mapM (·.explicitRc)
 
 public def explicitRc : Pass :=
-  .mkPerDeclaration `explicitRc .impure Decl.explicitRc
+  .mkPerDeclaration `explicitRc .impure fun decl => do
+    let decl ← decl.internalize
+    decl.explicitRc
 
 builtin_initialize
   registerTraceClass `Compiler.explicitRc (inherited := true)

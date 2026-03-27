@@ -375,7 +375,6 @@ where
     match v with
     | .reset _ x => ownFVar z (.resetReuse z); ownFVar x (.resetReuse z)
     | .reuse x _ _ args => ownFVar z (.resetReuse z); ownFVar x (.resetReuse z); ownArgsIfParam z args
-    | .ctor _ args => ownFVar z (.constructorResult z); ownArgsIfParam z args
     | .oproj _ x _ =>
       if ← isOwned x then ownFVar z (.forwardProjectionProp z)
       if ← isOwned z then ownFVar x (.backwardProjectionProp z)
@@ -398,6 +397,9 @@ where
         let ps ← getParamInfo (.decl f)
         ownFVar z (.functionCallResult z)
         ownArgsUsingParams args ps (.functionCallArg z)
+    | .ctor i args =>
+      if !i.isScalar then
+        ownFVar z (.constructorResult z); ownArgsIfParam z args
     | .fvar x args =>
       ownFVar z (.functionCallResult z); ownFVar x (.fvarCall z); ownArgs (.fvarCall z) args
     | .pap _ args => ownFVar z (.functionCallResult z); ownArgs (.partialApplication z) args

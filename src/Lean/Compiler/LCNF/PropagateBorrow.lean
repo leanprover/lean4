@@ -127,7 +127,10 @@ where
     | .fap _ args =>
       let value := if args.isEmpty then .borrow else .own
       join z value
-    | .ctor .. | .fvar .. | .pap .. | .sproj .. | .uproj .. | .erased .. | .lit .. =>
+    | .ctor i _ =>
+      let value := if i.isScalar then .borrow else .own
+      join z value
+    | .fvar .. | .pap .. | .sproj .. | .uproj .. | .erased .. | .lit .. =>
       join z .own
     | _ => unreachable!
 

@@ -74,7 +74,6 @@ abbrev M := StateRefT State CompilerM
 
 @[inline]
 def addDerivedValue (parents : Array FVarId) (child : FVarId) : M Unit := do
-  trace[Meta.debug] m!"{← parents.mapM (PP.run <| PP.ppFVar ·) } for {← PP.run <| PP.ppFVar child}"
   modify fun s => { s with
     varMap :=
       let varMap := parents.foldl (init := s.varMap)

@@ -260,16 +260,11 @@ builtin_initialize specInvariantAttr : TagAttribute ←
   registerTagAttribute `spec_invariant_type
     "marks a type as an invariant type for the `mvcgen` tactic"
 
--- Keep old attribute name temporarily for bootstrapping; removed after stage0 update.
-builtin_initialize mvcgenInvariantAttr : TagAttribute ←
-  registerTagAttribute `mvcgen_invariant_type
-    "marks a type as an invariant type for the `mvcgen` tactic"
-
 /--
 Returns `true` if `ty` is an application of a type tagged with `@[spec_invariant_type]`.
 -/
 def isSpecInvariantType (env : Environment) (ty : Expr) : Bool :=
   if let .const name .. := ty.getAppFn then
-    specInvariantAttr.hasTag env name || mvcgenInvariantAttr.hasTag env name
+    specInvariantAttr.hasTag env name
   else
     false

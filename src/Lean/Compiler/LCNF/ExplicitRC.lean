@@ -682,9 +682,7 @@ public def runExplicitRc (decls : Array (Decl .impure)) : CompilerM (Array (Decl
   decls.mapM (·.explicitRc)
 
 public def explicitRc : Pass :=
-  .mkPerDeclaration `explicitRc .impure fun decl => do
-    let decl ← decl.internalize
-    decl.explicitRc
+  .mkPerDeclaration `explicitRc .impure Decl.explicitRc
 
 builtin_initialize
   registerTraceClass `Compiler.explicitRc (inherited := true)

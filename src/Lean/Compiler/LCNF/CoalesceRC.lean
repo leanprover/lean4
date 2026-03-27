@@ -97,9 +97,9 @@ def Decl.coalesceRC (decl : Decl .impure) : CompilerM (Decl .impure) := do
   return { decl with value }
 
 public def coalesceRC : Pass :=
-  .mkPerDeclaration `coalesceRC .impure Decl.coalesceRC
+  .mkPerDeclaration `coalesceRc .impure Decl.coalesceRC
 
 builtin_initialize
-  registerTraceClass `Compiler.coalesceRC (inherited := true)
+  registerTraceClass `Compiler.coalesceRc (inherited := true)
 
 end Lean.Compiler.LCNF

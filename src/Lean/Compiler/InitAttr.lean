@@ -149,8 +149,6 @@ def setBuiltinInitAttr (env : Environment) (declName : Name) (initFnName : Name 
 def declareBuiltin (forDecl : Name) (value : Expr) : CoreM Unit :=
   -- can always be private, not referenced directly except through emitted C code
   withoutExporting do
-  -- TODO: needs an update-stage0 + prefer_native=true for breaking symbol name
-  withExporting do
     let name ← mkAuxDeclName (kind := `_regBuiltin ++ forDecl)
     let type := mkApp (mkConst `IO) (mkConst `Unit)
     let decl := Declaration.defnDecl { name, levelParams := [], type, value, hints := ReducibilityHints.opaque,
@@ -162,9 +160,7 @@ def declareBuiltin (forDecl : Name) (value : Expr) : CoreM Unit :=
 private unsafe def runInitAttrs (env : Environment) (opts : Options) : IO Unit := do
   if !(← isInitializerExecutionEnabled) then
     throw <| IO.userError "`enableInitializerExecution` must be run before calling `importModules (loadExts := true)`"
-  -- **Note**: `ModuleIdx` is not an abbreviation, and we don't have instances for it.
-  -- Thus, we use `(modIdx : Nat)`
-  for mod in env.header.modules, (modIdx : Nat) in 0...* do
+  for mod in env.header.modules, modIdx in 0...* do
     let initRuntime := Elab.inServer.get opts || mod.irPhases != .runtime
 
     -- any native Lean code reachable by the interpreter (i.e. from shared

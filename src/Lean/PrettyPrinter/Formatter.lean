@@ -104,7 +104,6 @@ unsafe builtin_initialize combinatorFormatterAttribute : ParserCompiler.Combinat
   ParserCompiler.registerCombinatorAttribute
     `combinator_formatter
     "Register a formatter for a parser combinator"
-    `Lean.PrettyPrinter.mkCombinatorFormatterAttribute -- TODO (bootstrapping): remove if possible
 
 -- More details on TODO: Removing this would lead to an environment extension with a name that
 -- doesn't match what's saved in the oleans, so tests don't pass. Removing it will require a

@@ -41,7 +41,7 @@ namespace Internal.Raw
 open Lean Elab Meta Tactic
 
 private meta def baseNames : Array Name :=
-  #[``Raw.empty_eq, ``Raw.emptyc_eq,
+  #[``Raw.emptyWithCapacity_eq, ``Raw.empty_eq,
     ``insert_eq, ``insertIfNew_eq, ``erase_eq, ``contains_eq,
     ``containsThenInsert_fst_eq, ``containsThenInsert_snd_eq,
     ``containsThenInsertIfNew_fst_eq, ``containsThenInsertIfNew_snd_eq,

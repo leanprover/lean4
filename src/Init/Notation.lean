@@ -366,12 +366,6 @@ recommended_spelling "shiftLeft" for "<<<" in [HShiftLeft.hShiftLeft, «term_<<<
 recommended_spelling "shiftRight" for ">>>" in [HShiftRight.hShiftRight, «term_>>>_»]
 recommended_spelling "not" for "~~~" in [Complement.complement, «term~~~_»]
 
--- TODO(kmill) remove these after stage0 update. There are builtin macros still using `«term_>=_»`
-@[inherit_doc] infix:50 (priority := low) " >= " => GE.ge
-@[inherit_doc] infix:50 (priority := low) " <= " => LE.le
-macro_rules | `($x >= $y)  => `(binrel% GE.ge $x $y)
-macro_rules | `($x <= $y)  => `(binrel% LE.le $x $y)
-
 @[inherit_doc] infix:50 unicode(" ≤ ", " <= ") => LE.le
 @[inherit_doc] infix:50 " < "                  => LT.lt
 @[inherit_doc] infix:50 unicode(" ≥ ", " >= ") => GE.ge

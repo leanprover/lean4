@@ -15,8 +15,7 @@ namespace Lean.Compiler.LCNF
 # Coalesce Reference Counting Operations
 
 This pass coalesces multiple `inc`/`dec` operations on the same variable within a basic block.
-Within a basic block (a sequence of instructions with no control flow divergence), it is always
-safe to:
+Within a basic block, it is always safe to:
 - Move all increments on a variable to the first `inc` location (summing the counts). Because if
   there are later `inc`s no intermediate operation can observe RC=1 (as the value must stay alive
   until the later inc) and thus doing all relevant `inc` in the beginning doesn't change

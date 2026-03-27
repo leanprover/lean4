@@ -132,6 +132,12 @@ LAKE_CONFIG=services.toml test_err "failed to upload artifact" \
 
 # Test cache put with a custom endpoint
 with_upload_endpoints test_run cache put .lake/outputs.jsonl --scope='!/test'
+
+# Test cache put-staged with a custom endpoint
+test_run cache stage .lake/outputs.jsonl .lake/staging
+with_upload_endpoints test_run cache put-staged .lake/staging --scope='!/test'
+
+# Remove local artifacts
 test_cmd rm -rf .lake/build "$LAKE_CACHE_DIR"
 
 # Test download failure with a bogus scope

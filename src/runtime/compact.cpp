@@ -511,6 +511,7 @@ void object_compactor::operator()(object * o) {
             case LeanTask:            r = insert_task(curr); break;
             case LeanPromise:         r = insert_promise(curr); break;
             case LeanRef:             r = insert_ref(curr); break;
+            case LeanLocalRef:        throw exception("thread local references cannot be compacted");
             case LeanExternal:        throw exception("external objects cannot be compacted");
             case LeanReserved:        lean_unreachable();
             default:                  r = insert_constructor(curr); break;
@@ -731,6 +732,7 @@ object * compacted_region::read() {
             case LeanTask:            fix_task(curr); break;
             case LeanPromise:         fix_promise(curr); break;
             case LeanExternal:        lean_unreachable();
+            case LeanLocalRef:        lean_unreachable();
             default:                  lean_unreachable();
             }
         }

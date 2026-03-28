@@ -89,7 +89,8 @@ void lean_notify_assert(const char * fileName, int line, const char * condition)
 
 #define LEAN_BYTE(Var, Index) *(((uint8_t*)&Var)+Index)
 
-#define LeanMaxCtorTag  243
+#define LeanMaxCtorTag  242
+#define LeanLocalRef    243
 #define LeanPromise     244
 #define LeanClosure     245
 #define LeanArray       246
@@ -593,6 +594,7 @@ static inline bool lean_is_task(lean_object * o) { return lean_ptr_tag(o) == Lea
 static inline bool lean_is_promise(lean_object * o) { return lean_ptr_tag(o) == LeanPromise; }
 static inline bool lean_is_external(lean_object * o) { return lean_ptr_tag(o) == LeanExternal; }
 static inline bool lean_is_ref(lean_object * o) { return lean_ptr_tag(o) == LeanRef; }
+static inline bool lean_is_local_ref(lean_object * o) { return lean_ptr_tag(o) == LeanLocalRef; }
 
 static inline unsigned lean_obj_tag(lean_object * o) {
     if (lean_is_scalar(o)) return lean_unbox(o); else return lean_ptr_tag(o);
@@ -607,6 +609,7 @@ static inline lean_thunk_object * lean_to_thunk(lean_object * o) { assert(lean_i
 static inline lean_task_object * lean_to_task(lean_object * o) { assert(lean_is_task(o)); return (lean_task_object*)(o); }
 static inline lean_promise_object * lean_to_promise(lean_object * o) { assert(lean_is_promise(o)); return (lean_promise_object*)(o); }
 static inline lean_ref_object * lean_to_ref(lean_object * o) { assert(lean_is_ref(o)); return (lean_ref_object*)(o); }
+static inline lean_ref_object * lean_to_local_ref(lean_object * o) { assert(lean_is_local_ref(o)); return (lean_ref_object*)(o); }
 static inline lean_external_object * lean_to_external(lean_object * o) { assert(lean_is_external(o)); return (lean_external_object*)(o); }
 
 static inline bool lean_is_exclusive(lean_object * o) {
@@ -2993,6 +2996,32 @@ LEAN_EXPORT lean_obj_res lean_st_ref_get(b_lean_obj_arg);
 LEAN_EXPORT lean_obj_res lean_st_ref_set(b_lean_obj_arg, lean_obj_arg);
 LEAN_EXPORT lean_obj_res lean_st_ref_reset(b_lean_obj_arg);
 LEAN_EXPORT lean_obj_res lean_st_ref_swap(b_lean_obj_arg, lean_obj_arg);
+
+/* ST ThreadLocalRef primitives */
+static inline lean_obj_res lean_st_mk_local_ref(lean_obj_arg value) {
+    lean_ref_object * o = (lean_ref_object*)lean_alloc_small_object(sizeof(lean_ref_object));
+    lean_set_st_header((lean_object*)o, LeanLocalRef, 0);
+    o->m_value = value;
+    return (lean_object*)o;
+}
+
+static inline lean_obj_res lean_st_local_ref_get(b_lean_obj_arg ref) {
+    lean_object * value = lean_to_local_ref(ref)->m_value;
+    lean_inc(value);
+    return value;
+}
+
+static inline lean_obj_res lean_st_local_ref_set(b_lean_obj_arg ref, lean_obj_arg value) {
+    lean_dec(lean_to_local_ref(ref)->m_value);
+    lean_to_local_ref(ref)->m_value = value;
+    return lean_box(0);
+}
+
+static inline lean_obj_res lean_st_local_ref_swap(b_lean_obj_arg ref, lean_obj_arg value) {
+    lean_object * prev = lean_to_local_ref(ref)->m_value;
+    lean_to_local_ref(ref)->m_value = value;
+    return prev;
+}
 
 /* pointer address unsafe primitive  */
 static inline size_t lean_ptr_addr(b_lean_obj_arg a) { return (size_t)a; }

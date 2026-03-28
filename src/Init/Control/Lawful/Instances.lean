@@ -357,7 +357,7 @@ end ReaderT
 /-! # StateRefT -/
 
 instance [Monad m] [LawfulMonad m] : LawfulMonad (StateRefT' ω σ m) :=
-  inferInstanceAs (LawfulMonad (ReaderT (ST.Ref ω σ) m))
+  inferInstanceAs (LawfulMonad (ReaderT _ m))
 
 /-! # StateT -/
 

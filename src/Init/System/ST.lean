@@ -162,8 +162,11 @@ instance {ε σ} : MonadLift (ST σ) (EST ε σ) := ⟨fun x s =>
 
 namespace ST
 
-/-- References -/
+/-! References -/
+
 opaque RefPointed : NonemptyType.{0}
+
+opaque ThreadLocalRefPointed : NonemptyType.{0}
 
 /--
 Mutable reference cells that contain values of type `α`. These cells can read from and mutated in
@@ -173,8 +176,20 @@ structure Ref (σ : Type) (α : Type) : Type where
   ref : RefPointed.type
   h   : Nonempty α
 
+/--
+Thread local variant of `ST.Ref`. Whenever a thread local reference gets shared between threads,
+the program will crash. This is used internally by `StateRefT` and should be used with caution
+otherwise.
+-/
+structure ThreadLocalRef (σ : Type) (α : Type) : Type where
+  ref : ThreadLocalRefPointed.type
+  h   : Nonempty α
+
 instance {σ α} [s : Nonempty α] : Nonempty (Ref σ α) :=
   Nonempty.intro { ref := Classical.choice RefPointed.property, h := s }
+
+instance {σ α} [s : Nonempty α] : Nonempty (ThreadLocalRef σ α) :=
+  Nonempty.intro { ref := Classical.choice ThreadLocalRefPointed.property, h := s }
 
 namespace Prim
 
@@ -219,6 +234,42 @@ def Ref.modifyGet {σ α β : Type} (r : Ref σ α) (f : α → β × α) : ST �
   pure b
 
 end Prim
+
+/-- Auxiliary definition for showing that `ST σ α` is inhabited when we have a `ThreadLocalRef σ α` -/
+private noncomputable def inhabitedFromThreadLocalRef {σ α} (r : ThreadLocalRef σ α) : ST σ α :=
+  let _ : Inhabited α := Classical.inhabited_of_nonempty r.h
+  pure default
+
+@[extern "lean_st_mk_local_ref"]
+opaque mkThreadLocalRef {σ α} (a : α) : ST σ (ThreadLocalRef σ α) := pure { ref := Classical.choice ThreadLocalRefPointed.property, h := Nonempty.intro a }
+@[extern "lean_st_local_ref_get"]
+opaque ThreadLocalRef.get {σ α} (r : @& ThreadLocalRef σ α) : ST σ α := inhabitedFromThreadLocalRef r
+@[extern "lean_st_local_ref_set"]
+opaque ThreadLocalRef.set {σ α} (r : @& ThreadLocalRef σ α) (a : α) : ST σ Unit
+@[extern "lean_st_local_ref_swap"]
+opaque ThreadLocalRef.swap {σ α} (r : @& ThreadLocalRef σ α) (a : α) : ST σ α := inhabitedFromThreadLocalRef r
+
+@[inline] unsafe def ThreadLocalRef.modifyUnsafe {σ α : Type} (r : ThreadLocalRef σ α) (f : α → α) : ST σ Unit := do
+  let v ← r.swap (unsafeCast ())
+  r.set (f v)
+
+@[inline] unsafe def ThreadLocalRef.modifyGetUnsafe {σ α β : Type} (r : ThreadLocalRef σ α) (f : α → β × α) : ST σ β := do
+  let v ← r.swap (unsafeCast ())
+  let (b, a) := f v
+  r.set a
+  pure b
+
+@[implemented_by ThreadLocalRef.modifyUnsafe]
+def ThreadLocalRef.modify {σ α : Type} (r : ThreadLocalRef σ α) (f : α → α) : ST σ Unit := do
+  let v ← r.get
+  r.set (f v)
+
+@[implemented_by ThreadLocalRef.modifyGetUnsafe]
+def ThreadLocalRef.modifyGet {σ α β : Type} (r : ThreadLocalRef σ α) (f : α → β × α) : ST σ β := do
+  let v ← r.get
+  let (b, a) := f v
+  r.set a
+  pure b
 
 section
 variable {σ : Type} {m : Type → Type} [Monad m] [MonadLiftT (ST σ) m]

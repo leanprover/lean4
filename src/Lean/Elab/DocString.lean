@@ -124,8 +124,6 @@ The monad in which documentation is elaborated.
 -/
 abbrev DocM := ReaderT Context (StateRefT InternalState (StateRefT Lean.Doc.State TermElabM))
 
-private def DocM.mk (act : Context → IO.Ref InternalState → IO.Ref State → TermElabM α) : DocM α := act
-
 instance : MonadStateOf InternalState DocM :=
   inferInstanceAs <| MonadStateOf InternalState (ReaderT Context (StateRefT InternalState (StateRefT Lean.Doc.State TermElabM)))
 
@@ -134,8 +132,8 @@ instance : MonadStateOf State DocM :=
 
 
 instance : MonadLift TermElabM DocM where
-  monadLift act := private DocM.mk fun _ _ st' => do
-    let {openDecls, lctx, options, localInstances, ..} := (← st'.get)
+  monadLift act := do
+    let {openDecls, lctx, options, localInstances, ..} ← get
     let v ←
       withTheReader Core.Context (fun ρ => { ρ with openDecls, options }) <|
       withTheReader Meta.Context (fun ρ => { ρ with lctx, localInstances }) <|

@@ -754,7 +754,7 @@ where
     let ctx ← read
     let scope := cmdState.scopes.head!
     -- reset per-command state
-    let cmdStateRef ← IO.mkRef { cmdState with
+    let cmdStateRef ← liftM <| ST.mkThreadLocalRef { cmdState with
       messages := .empty, traceState := {}, snapshotTasks := #[] }
     let cmdCtx : Elab.Command.Context := { ctx with
       cmdPos       := beginPos

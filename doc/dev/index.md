@@ -1,15 +1,17 @@
 # Development Workflow
 
 If you want to make changes to Lean itself, start by [building Lean](../make/index.md) from a clean checkout to make sure that everything is set up correctly.
-After that, read on below to find out how to set up your editor for changing the Lean source code, followed by further sections of the development manual where applicable such as on the [test suite](testing.md) and [commit convention](commit_convention.md).
+After that, read on below to find out how to set up your editor for changing the Lean source code,
+followed by further sections of the development manual where applicable
+such as on the [test suite](../../tests/README.md) and [commit convention](commit_convention.md).
 
 If you are planning to make any changes that may affect the compilation of Lean itself, e.g. changes to the parser, elaborator, or compiler, you should first read about the [bootstrapping pipeline](bootstrap.md).
 You should not edit the `stage0` directory except using the commands described in that section when necessary.
 
 ## Development Setup
 
-You can use any of the [supported editors](../setup.md) for editing the Lean source code.
-If you set up `elan` as below, opening `src/` as a *workspace folder* should ensure that stage 0 (i.e. the stage that first compiles `src/`) will be used for files in that directory.
+You can use any of the [supported editors](https://lean-lang.org/install/manual/) for editing the Lean source code.
+Please see below for specific instructions for VS Code.
 
 ### Dev setup using elan
 
@@ -61,12 +63,16 @@ you can then put `my_name/lean4:my-tag` in your `lean-toolchain` file in a proje
 
 ### VS Code
 
-There is a `lean.code-workspace` file that correctly sets up VS Code with workspace roots for the stage0/stage1 setup described above as well as with other settings.
-You should always load it when working on Lean, such as by invoking
+There is a `.vscode/` directory that correctly sets up VS Code with settings, tasks, and recommended extensions.
+Simply open the repository folder in VS Code, such as by invoking
 ```
-code lean.code-workspace
+code .
 ```
 on the command line.
+
+You can use the `Refresh File Dependencies` command as in other projects to rebuild modules from inside VS Code but be aware that this does not trigger any non-Lake build targets.
+In particular, after updating `stage0/` (or fetching an update to it), you will want to invoke `make` directly to rebuild `stage0/bin/lean` as described in [building Lean](../make/index.md).
+You should then run the `Restart Server` command to update all open files and the server watchdog process as well.
 
 ### `ccache`
 
@@ -95,3 +101,19 @@ on to `nightly-with-manual` branch. (It is fine to force push after rebasing.)
 CI will generate a branch of the reference manual called `lean-pr-testing-NNNN`
 in `leanprover/reference-manual`. This branch uses the toolchain for your PR,
 and will report back to the Lean PR with results from Mathlib CI.
+
+### Avoiding rebuilds for downstream projects
+
+If you want to test changes to Lean on downstream projects and would like to avoid rebuilding modules you have already built/fetched using the project's configured Lean toolchain, you can often do so as long as your build of Lean is close enough to that Lean toolchain (compatible .olean format including structure of all relevant environment extensions).
+
+To override the toolchain without rebuilding for a single command, for example `lake build` or `lake lean`, you can use the prefix
+```
+LEAN_GITHASH=$(lean --githash) lake +lean4 ...
+```
+Alternatively, use
+```
+export LEAN_GITHASH=$(lean --githash)
+export ELAN_TOOLCHAIN=lean4
+```
+to persist these changes for the lifetime of the current shell, which will affect any processes spawned from it such as VS Code started via `code .`.
+If you use a setup where you cannot directly start your editor from the command line, such as VS Code Remote, you might want to consider using [direnv](https://direnv.net/) together with an editor extension for it instead so that you can put the lines above into `.envrc`.

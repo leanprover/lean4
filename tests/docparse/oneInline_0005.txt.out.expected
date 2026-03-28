@@ -1,0 +1,3 @@
+Success! Final stack:
+  (Lean.Doc.Syntax.code "`" (str "\"foo\"") "`")
+All input consumed.

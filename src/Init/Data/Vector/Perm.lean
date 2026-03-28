@@ -6,10 +6,12 @@ Authors: Kim Morrison
 module
 
 prelude
-public import all Init.Data.Array.Basic
+import all Init.Data.Array.Basic
 public import Init.Data.Array.Perm
-public import all Init.Data.Vector.Basic
-public import Init.Data.Vector.Lemmas
+import all Init.Data.Vector.Basic
+public import Init.Data.Vector.Basic
+import Init.Data.List.Nat.Perm
+import Init.Data.Vector.Lemmas
 
 public section
 

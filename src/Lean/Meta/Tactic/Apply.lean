@@ -6,11 +6,10 @@ Authors: Leonardo de Moura, Siddhartha Gadgil
 module
 
 prelude
-public import Lean.Util.FindMVar
-public import Lean.Meta.SynthInstance
-public import Lean.Meta.CollectMVars
 public import Lean.Meta.Tactic.Util
 public import Lean.PrettyPrinter
+import Lean.Meta.AppBuilder
+import Init.Omega
 
 public section
 
@@ -36,7 +35,7 @@ private def throwApplyError {α} (mvarId : MVarId)
     let (conclusionType, targetType) ← addPPExplicitToExposeDiff conclusionType targetType
     let conclusion := if conclusionType?.isNone then "type" else "conclusion"
     return m!"could not unify the {conclusion} of {term?.getD "the term"}{indentExpr conclusionType}\n\
-      with the goal{indentExpr targetType}{note}"
+      with the goal{indentExpr targetType}{note}{← mkUnfoldAxiomsNote conclusionType targetType}"
 
 def synthAppInstances (tacticName : Name) (mvarId : MVarId) (mvarsNew : Array Expr) (binderInfos : Array BinderInfo)
     (synthAssignedInstances : Bool) (allowSynthFailures : Bool) : MetaM Unit := do

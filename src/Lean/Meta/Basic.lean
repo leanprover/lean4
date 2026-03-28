@@ -6,14 +6,15 @@ Authors: Leonardo de Moura
 module
 
 prelude
+public import Init.Control.Do
 public import Lean.Data.LOption
-public import Lean.Environment
 public import Lean.Class
 public import Lean.ReducibilityAttrs
-public import Lean.Util.ReplaceExpr
 public import Lean.Util.MonadBacktrack
 public import Lean.Compiler.InlineAttrs
 public import Lean.Meta.TransparencyMode
+import Init.Data.Range.Polymorphic.Iterators
+import Init.While
 
 public section
 
@@ -36,6 +37,7 @@ def TransparencyMode.toUInt64 : TransparencyMode → UInt64
   | .default   => 1
   | .reducible => 2
   | .instances => 3
+  | .none      => 4
 
 def EtaStructMode.toUInt64 : EtaStructMode → UInt64
   | .all        => 0
@@ -81,7 +83,7 @@ Configuration flags for the `MetaM` monad.
 Many of them are used to control the `isDefEq` function that checks whether two terms are definitionally equal or not.
 Recall that when `isDefEq` is trying to check whether
 `?m@C a₁ ... aₙ` and `t` are definitionally equal (`?m@C a₁ ... aₙ =?= t`), where
-`?m@C` as a shorthand for `C |- ?m : t` where `t` is the type of `?m`.
+`?m@C` as a shorthand for `C |- ?m : ty` where `ty` is the type of `?m`.
 We solve it using the assignment `?m := fun a₁ ... aₙ => t` if
 1) `a₁ ... aₙ` are pairwise distinct free variables that are ​*not*​ let-variables.
 2) `a₁ ... aₙ` are not in `C`
@@ -242,6 +244,8 @@ structure ParamInfo where
     This information affects the generation of congruence theorems.
   -/
   isDecInst      : Bool       := false
+  /-- `isInstance` is true if the parameter type is a class instance. -/
+  isInstance     : Bool       := false
   /--
     `higherOrderOutParam` is true if this parameter is a higher-order output parameter
     of local instance.
@@ -295,6 +299,7 @@ structure FunInfo where
     That is, the (0-indexed) position of parameters that the result type depends on.
   -/
   resultDeps : Array Nat       := #[]
+deriving TypeName
 
 /--
 Key for the function information cache.
@@ -414,6 +419,10 @@ structure PostponedEntry where
 structure Diagnostics where
   /-- Number of times each declaration has been unfolded -/
   unfoldCounter : PHashMap Name Nat := {}
+  /--
+  Number of times each axiom was tried to be unfolded, which may point to an inaccessible def value.
+  -/
+  unfoldAxiomCounter : PHashMap Name Nat := {}
   /-- Number of times `f a =?= f b` heuristic has been used per function `f`. -/
   heuristicCounter : PHashMap Name Nat := {}
   /-- Number of times a TC instance is used. -/
@@ -503,6 +512,11 @@ structure Context where
    This is not a great solution, but a proper solution would require a more sophisticated caching mechanism.
   -/
   inTypeClassResolution : Bool := false
+  /--
+  When `cacheInferType := true`, the `inferType` results are cached if the input term does not contain
+  metavariables
+  -/
+  cacheInferType : Bool := true
 deriving Inhabited
 
 def Context.config (c : Context) : Config := c.keyedConfig.config
@@ -551,7 +565,7 @@ abbrev MetaM  := ReaderT Context $ StateRefT State CoreM
 -- Make the compiler generate specialized `pure`/`bind` so we do not have to optimize through the
 -- whole monad stack at every use site. May eventually be covered by `deriving`.
 @[always_inline]
-instance : Monad MetaM := let i := inferInstanceAs (Monad MetaM); { pure := i.pure, bind := i.bind }
+instance : Monad MetaM := let i : Monad MetaM := inferInstance; { pure := i.pure, bind := i.bind }
 
 instance : Inhabited (MetaM α) where
   default := fun _ _ => default
@@ -669,21 +683,30 @@ def mkInfoCacheKey (expr : Expr) (nargs? : Option Nat) : MetaM InfoCacheKey :=
 
 /-- If diagnostics are enabled, record that `declName` has been unfolded. -/
 def recordUnfold (declName : Name) : MetaM Unit := do
-  modifyDiag fun { unfoldCounter, heuristicCounter, instanceCounter, synthPendingFailures } =>
+  modifyDiag fun { unfoldCounter, unfoldAxiomCounter, heuristicCounter, instanceCounter, synthPendingFailures } =>
     let newC := if let some c := unfoldCounter.find? declName then c + 1 else 1
-    { unfoldCounter := unfoldCounter.insert declName newC, heuristicCounter, instanceCounter, synthPendingFailures }
+    { unfoldCounter := unfoldCounter.insert declName newC, unfoldAxiomCounter, heuristicCounter, instanceCounter, synthPendingFailures }
+
+def recordUnfoldAxiom (declName : Name) : MetaM Unit := do
+  modifyDiag fun { unfoldCounter, unfoldAxiomCounter, heuristicCounter, instanceCounter, synthPendingFailures } =>
+    let newC := if let some c := unfoldAxiomCounter.find? declName then c + 1 else 1
+    { unfoldCounter, unfoldAxiomCounter := unfoldAxiomCounter.insert declName newC, heuristicCounter, instanceCounter, synthPendingFailures }
+
+def resetUnfoldAxiom : MetaM Unit := do
+  modifyDiag fun { unfoldCounter, heuristicCounter, instanceCounter, synthPendingFailures, .. } =>
+    { unfoldCounter, unfoldAxiomCounter := {}, heuristicCounter, instanceCounter, synthPendingFailures }
 
 /-- If diagnostics are enabled, record that heuristic for solving `f a =?= f b` has been used. -/
 def recordDefEqHeuristic (declName : Name) : MetaM Unit := do
-  modifyDiag fun { unfoldCounter, heuristicCounter, instanceCounter, synthPendingFailures } =>
+  modifyDiag fun { unfoldCounter, unfoldAxiomCounter, heuristicCounter, instanceCounter, synthPendingFailures } =>
     let newC := if let some c := heuristicCounter.find? declName then c + 1 else 1
-    { unfoldCounter, heuristicCounter := heuristicCounter.insert declName newC, instanceCounter, synthPendingFailures }
+    { unfoldCounter, unfoldAxiomCounter, heuristicCounter := heuristicCounter.insert declName newC, instanceCounter, synthPendingFailures }
 
 /-- If diagnostics are enabled, record that instance `declName` was used during TC resolution. -/
 def recordInstance (declName : Name) : MetaM Unit := do
-  modifyDiag fun { unfoldCounter, heuristicCounter, instanceCounter, synthPendingFailures } =>
+  modifyDiag fun { unfoldCounter, unfoldAxiomCounter, heuristicCounter, instanceCounter, synthPendingFailures } =>
     let newC := if let some c := instanceCounter.find? declName then c + 1 else 1
-    { unfoldCounter, heuristicCounter, instanceCounter := instanceCounter.insert declName newC, synthPendingFailures }
+    { unfoldCounter, unfoldAxiomCounter, heuristicCounter, instanceCounter := instanceCounter.insert declName newC, synthPendingFailures }
 
 /-- If diagnostics are enabled, record that synth pending failures. -/
 def recordSynthPendingFailure (type : Expr) : MetaM Unit := do
@@ -691,23 +714,28 @@ def recordSynthPendingFailure (type : Expr) : MetaM Unit := do
     unless (← get).diag.synthPendingFailures.contains type do
       -- We need to save the full context since type class resolution uses multiple metavar contexts and different local contexts
       let msg ← addMessageContextFull m!"{type}"
-      modifyDiag fun { unfoldCounter, heuristicCounter, instanceCounter, synthPendingFailures } =>
-        { unfoldCounter, heuristicCounter, instanceCounter, synthPendingFailures := synthPendingFailures.insert type msg }
+      modifyDiag fun { unfoldCounter, unfoldAxiomCounter, heuristicCounter, instanceCounter, synthPendingFailures } =>
+        { unfoldCounter, unfoldAxiomCounter, heuristicCounter, instanceCounter, synthPendingFailures := synthPendingFailures.insert type msg }
 
+@[inline]
 def getLocalInstances : MetaM LocalInstances :=
   return (← read).localInstances
 
+@[inline]
 def getConfig : MetaM Config :=
   return (← read).config
 
+@[inline]
 def getConfigWithKey : MetaM ConfigWithKey :=
   return (← getConfig).toConfigWithKey
 
 /-- Return the array of postponed universe level constraints. -/
+@[inline]
 def getPostponed : MetaM (PersistentArray PostponedEntry) :=
   return (← get).postponed
 
 /-- Set the array of postponed universe level constraints. -/
+@[inline]
 def setPostponed (postponed : PersistentArray PostponedEntry) : MetaM Unit :=
   modify fun s => { s with postponed := postponed }
 
@@ -720,7 +748,7 @@ def setPostponed (postponed : PersistentArray PostponedEntry) : MetaM Unit :=
   for the inductive datatype `inductName`.
 
   Recall we have three different settings: `.none` (never use it), `.all` (always use it), `.notClasses`
-  (enabled only for structure-like inductive types that are not classes).
+  (enabled only for non-recursive structure types that are not classes).
 
   The parameter `inductName` affects the result only if the current setting is `.notClasses`.
 -/
@@ -737,6 +765,7 @@ have to hard-code the true arity of these definitions here, and make sure the C 
 We have used another hack based on `IO.Ref`s in the past, it was safer but less efficient.
 -/
 
+set_option compiler.ignoreBorrowAnnotation true in
 /--
 Reduces an expression to its *weak head normal form*.
 This is when the "head" of the top-level expression has been fully reduced.
@@ -745,6 +774,7 @@ The result may contain subexpressions that have not been reduced.
 See `Lean.Meta.whnfImp` for the implementation.
 -/
 @[extern "lean_whnf"] opaque whnf : Expr → MetaM Expr
+set_option compiler.ignoreBorrowAnnotation true in
 /--
 Returns the inferred type of the given expression. Assumes the expression is type-correct.
 
@@ -799,8 +829,11 @@ def e3 : Expr := .app (.const ``Nat.zero []) (.const ``Nat.zero [])
 See `Lean.Meta.inferTypeImp` for the implementation of `inferType`.
 -/
 @[extern "lean_infer_type"] opaque inferType : Expr → MetaM Expr
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_is_expr_def_eq"] opaque isExprDefEqAux : Expr → Expr → MetaM Bool
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_is_level_def_eq"] opaque isLevelDefEqAux : Level → Level → MetaM Bool
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_synth_pending"] protected opaque synthPending : MVarId → MetaM Bool
 
 def whnfForall (e : Expr) : MetaM Expr := do
@@ -876,12 +909,15 @@ def mkConstWithFreshMVarLevels (declName : Name) : MetaM Expr := do
   return mkConst declName (← mkFreshLevelMVarsFor info)
 
 /-- Return current transparency setting/mode. -/
+@[inline]
 def getTransparency : MetaM TransparencyMode :=
   return (← getConfig).transparency
 
+@[inline]
 def shouldReduceAll : MetaM Bool :=
   return (← getTransparency) == TransparencyMode.all
 
+@[inline]
 def shouldReduceReducibleOnly : MetaM Bool :=
   return (← getTransparency) == TransparencyMode.reducible
 
@@ -899,7 +935,7 @@ Throw an exception if `mvarId` is not declared in the current metavariable conte
 def _root_.Lean.MVarId.getDecl (mvarId : MVarId) : MetaM MetavarDecl := do
   match (← mvarId.findDecl?) with
   | some d => pure d
-  | none   => throwError "unknown metavariable '?{mvarId.name}'"
+  | none   => throwError "unknown metavariable `?{mvarId.name}`"
 
 /--
 Return `mvarId` kind. Throw an exception if `mvarId` is not declared in the current metavariable context.
@@ -952,7 +988,7 @@ Return the level of the given universe level metavariable.
 def _root_.Lean.LMVarId.getLevel (mvarId : LMVarId) : MetaM Nat := do
   match (← getMCtx).findLevelDepth? mvarId with
   | some depth => return depth
-  | _          => throwError "unknown universe metavariable '?{mvarId.name}'"
+  | _          => throwError "unknown universe metavariable `?{mvarId.name}`"
 
 /--
 Return true if the given universe metavariable is "read-only".
@@ -971,7 +1007,7 @@ def _root_.Lean.MVarId.setUserName (mvarId : MVarId) (newUserName : Name) : Meta
 Throw an exception saying `fvarId` is not declared in the current local context.
 -/
 def _root_.Lean.FVarId.throwUnknown (fvarId : FVarId) : CoreM α :=
-  throwError "unknown free variable '{mkFVar fvarId}'"
+  throwError "unknown free variable `{mkFVar fvarId}`"
 
 /--
 Return `some decl` if `fvarId` is declared in the current local context.
@@ -1041,7 +1077,7 @@ Throw an exception if free variable is not declared.
 def getLocalDeclFromUserName (userName : Name) : MetaM LocalDecl := do
   match (← getLCtx).findFromUserName? userName with
   | some d => pure d
-  | none   => throwError "unknown local declaration '{userName}'"
+  | none   => throwError "unknown local declaration `{userName}`"
 
 /-- Given a user-facing name for a free variable, return the free variable or throw if not declared. -/
 def getFVarFromUserName (userName : Name) : MetaM Expr := do
@@ -1052,7 +1088,7 @@ def getFVarFromUserName (userName : Name) : MetaM Expr := do
 Lift a `MkBindingM` monadic action `x` to `MetaM`.
 -/
 @[inline] def liftMkBindingM (x : MetavarContext.MkBindingM α) : MetaM α := do
-  match x { lctx := (← getLCtx), mainModule := (← getEnv).mainModule } { mctx := (← getMCtx), ngen := (← getNGen), nextMacroScope := (← getThe Core.State).nextMacroScope } with
+  match x { lctx := (← getLCtx), quotContext := (← readThe Core.Context).quotContext } { mctx := (← getMCtx), ngen := (← getNGen), nextMacroScope := (← getThe Core.State).nextMacroScope } with
   | .ok e sNew => do
     setMCtx sNew.mctx
     modifyThe Core.State fun s => { s with ngen := sNew.ngen, nextMacroScope := sNew.nextMacroScope }
@@ -1078,6 +1114,13 @@ Similar to `Expr.abstract`, but handles metavariables correctly.
 -/
 def _root_.Lean.Expr.abstractM (e : Expr) (xs : Array Expr) : MetaM Expr :=
   e.abstractRangeM xs.size xs
+
+/--
+Replace occurrences of the free variables `fvars` in `e` with `vs`.
+Similar to `Expr.replaceFVars`, but handles metavariables correctly.
+-/
+def _root_.Lean.Expr.replaceFVarsM (e : Expr) (fvars : Array Expr) (vs : Array Expr) : MetaM Expr :=
+  return (← e.abstractM fvars).instantiateRev vs
 
 /--
 Collect forward dependencies for the free variables in `toRevert`.
@@ -1198,10 +1241,6 @@ Any zeta-delta reductions recorded while executing `x` will *not* persist when l
   mapMetaM fun x =>
     withFreshCache <| withReader (fun ctx => { ctx with trackZetaDelta := true }) <| withResetZetaDeltaFVarIds x
 
-@[deprecated withTrackingZetaDelta (since := "2025-06-12")]
-def resetZetaDeltaFVarIds : MetaM Unit :=
-  modify fun s => { s with zetaDeltaFVarIds := {} }
-
 /--
 `withTrackingZetaDeltaSet s x` executes `x` in a context where `zetaDeltaFVarIds` has been temporarily cleared.
 - If `s` is nonempty, zeta-delta tracking is enabled and `zetaDeltaSet := s`.
@@ -1290,7 +1329,7 @@ private def getDefInfoTemp (info : ConstantInfo) : MetaM (Option ConstantInfo) :
    `constName` is an instance. This difference should be irrelevant for `isClassQuickConst?`. -/
 private def getConstTemp? (constName : Name) : MetaM (Option ConstantInfo) := do
   match (← getEnv).find? constName with
-  | some (info@(ConstantInfo.thmInfo _))  => getTheoremInfo info
+  | some (ConstantInfo.thmInfo _)          => return none
   | some (info@(ConstantInfo.defnInfo _)) => getDefInfoTemp info
   | some info                             => pure (some info)
   | none                                  => throwUnknownConstantAt (← getRef) constName
@@ -1773,30 +1812,31 @@ partial def withLocalDecls
     [Inhabited α]
     (declInfos : Array (Name × BinderInfo × (Array Expr → n Expr)))
     (k : (xs : Array Expr) → n α)
+    (kind : LocalDeclKind := .default)
     : n α :=
   loop #[]
 where
   loop [Inhabited α] (acc : Array Expr) : n α := do
     if acc.size < declInfos.size then
       let (name, bi, typeCtor) := declInfos[acc.size]!
-      withLocalDecl name bi (←typeCtor acc) fun x => loop (acc.push x)
+      withLocalDecl name bi (←typeCtor acc) (fun x => loop (acc.push x)) kind
     else
       k acc
 
 /--
 Variant of `withLocalDecls` using `BinderInfo.default`
 -/
-def withLocalDeclsD [Inhabited α] (declInfos : Array (Name × (Array Expr → n Expr))) (k : (xs : Array Expr) → n α) : n α :=
+def withLocalDeclsD [Inhabited α] (declInfos : Array (Name × (Array Expr → n Expr))) (k : (xs : Array Expr) → n α) (kind : LocalDeclKind := .default) : n α :=
   withLocalDecls
-    (declInfos.map (fun (name, typeCtor) => (name, BinderInfo.default, typeCtor))) k
+    (declInfos.map (fun (name, typeCtor) => (name, BinderInfo.default, typeCtor))) k kind
 
 /--
 Simpler variant of `withLocalDeclsD` for bringing variables into scope whose types do not depend
 on each other.
 -/
-def withLocalDeclsDND [Inhabited α] (declInfos : Array (Name × Expr)) (k : (xs : Array Expr) → n α) : n α :=
+def withLocalDeclsDND [Inhabited α] (declInfos : Array (Name × Expr)) (k : (xs : Array Expr) → n α) (kind : LocalDeclKind := .default) : n α :=
   withLocalDeclsD
-    (declInfos.map (fun (name, typeCtor) => (name, fun _ => pure typeCtor))) k
+    (declInfos.map (fun (name, typeCtor) => (name, fun _ => pure typeCtor))) k (kind := kind)
 
 private def withAuxDeclImp (shortDeclName : Name) (type : Expr) (declName : Name) (k : Expr → MetaM α) : MetaM α := do
   let fvarId ← mkFreshFVarId
@@ -1821,6 +1861,9 @@ private def withNewBinderInfosImp (bs : Array (FVarId × BinderInfo)) (k : MetaM
 def withNewBinderInfos (bs : Array (FVarId × BinderInfo)) (k : n α) : n α :=
   mapMetaM (fun k => withNewBinderInfosImp bs k) k
 
+def withImplicitBinderInfos (bs : Array Expr) (k : n α) : n α :=
+  withNewBinderInfos (bs.map (·.fvarId!, BinderInfo.implicit)) k
+
 /--
  Execute `k` using a local context where any `x` in `xs` that is tagged as
  instance implicit is treated as a regular implicit. -/
@@ -1832,6 +1875,19 @@ def withInstImplicitAsImplicit (xs : Array Expr) (k : MetaM α) : MetaM α := do
     else
       return none
   withNewBinderInfos newBinderInfos k
+
+private def withPrimedNamesImp (xs : Array Expr) (k : MetaM α) : MetaM α := do
+  let lctx ← getLCtx
+  let lctx := lctx.modifyLocalDecls fun decl =>
+    if xs.contains (mkFVar decl.fvarId) then
+      decl.setUserName (decl.userName.appendAfter "'")
+    else
+      decl
+  withReader (fun ctx => { ctx with lctx := lctx }) k
+
+/-- Appends a `'` to the namen of the given free variables. -/
+def withPrimedNames (xs : Array Expr) (k : n α) : n α := do
+  mapMetaM (fun k => withPrimedNamesImp xs k) k
 
 private def withLetDeclImp (n : Name) (type : Expr) (val : Expr) (k : Expr → MetaM α) (nondep : Bool) (kind : LocalDeclKind) : MetaM α := do
   let fvarId ← mkFreshFVarId
@@ -1851,11 +1907,19 @@ def withLetDecl (name : Name) (type : Expr) (val : Expr) (k : Expr → n α) (no
 /--
 Runs `k x` with the local declaration `<name> : <type> := <val>` added to the local context, where `x` is the new free variable.
 Afterwards, the result is wrapped in the given `let`/`have` expression (according to the value of `nondep`).
-- If `usedLetOnly := true` (the default) then the the `let`/`have` is not created if the variable is unused.
+- If `usedLetOnly := true` (the default) then the `let`/`have` is not created if the variable is unused.
 -/
 def mapLetDecl [MonadLiftT MetaM n] (name : Name) (type : Expr) (val : Expr) (k : Expr → n Expr) (nondep : Bool := false) (kind : LocalDeclKind := .default) (usedLetOnly : Bool := true) : n Expr :=
   withLetDecl name type val (nondep := nondep) (kind := kind) fun x => do
     mkLetFVars (usedLetOnly := usedLetOnly) (generalizeNondepLet := false) #[x] (← k x)
+
+/--
+Runs `k x` with the local declaration `<name> : <type> := <val>` added to the local context, where `x` is the new free variable.
+Afterwards, the local declaration is zeta-reduced into the result.
+-/
+def mapLetDeclZeta [MonadLiftT MetaM n] (name : Name) (type rhs : Expr) (k : Expr → n Expr) (nondep : Bool := false) (kind : LocalDeclKind := .default) : n Expr := do
+  withLetDecl (n:=n) name type rhs (nondep := nondep) (kind := kind) fun x => do
+    (← k x).replaceFVarsM #[x] #[rhs]
 
 def withLocalInstancesImp (decls : List LocalDecl) (k : MetaM α) : MetaM α := do
   let mut localInsts := (← read).localInstances
@@ -1951,6 +2015,18 @@ def withErasedFVars [MonadLCtx n] [MonadLiftT MetaM n] (fvarIds : Array FVarId) 
   let localInsts' := localInsts.filter (!fvarIds.contains ·.fvar.fvarId!)
   withLCtx lctx' localInsts' k
 
+/--
+Ensures that the user names of all local declarations after index `idx` have a macro scope.
+-/
+private def freshenUserNamesSinceIdx [MonadLiftT MetaM n] (lctx : LocalContext) (idx : Nat) : n LocalContext := do
+  let mut lctx := lctx
+  for i in [idx:lctx.numIndices] do
+    let some decl := lctx.decls[i]! | continue
+    let n := decl.userName
+    if !n.hasMacroScopes then
+      lctx := lctx.setUserName decl.fvarId (← liftMetaM <| mkFreshUserName n)
+  return lctx
+
 private def withMVarContextImp (mvarId : MVarId) (x : MetaM α) : MetaM α := do
   let mvarDecl ← mvarId.getDecl
   withLocalContextImp mvarDecl.lctx mvarDecl.localInstances x
@@ -1986,6 +2062,14 @@ def withoutModifyingMCtx : n α → n α :=
       x
     finally
       modify fun s => { s with cache, mctx }
+
+/--
+Ensures that the user names of all local declarations after index `idx` have a macro scope.
+-/
+def _root_.Lean.MVarId.freshenLCtxUserNamesSinceIdx [MonadMCtx n] [MonadLiftT MetaM n] (mvarId : MVarId) (idx : Nat) : n Unit := do
+  let some decl := (← getMCtx).findDecl? mvarId | liftMetaM <| throwError m!"unknown metavariable {mvarId.name}"
+  let lctx ← freshenUserNamesSinceIdx decl.lctx idx
+  modifyMCtx fun mctx => { mctx with decls := mctx.decls.insert mvarId { decl with lctx } }
 
 @[inline] private def approxDefEqImp (x : MetaM α) : MetaM α :=
   withConfig (fun config => { config with foApprox := true, ctxApprox := true, quasiPatternApprox := true}) x
@@ -2218,16 +2302,25 @@ def sortFVarIds (fvarIds : Array FVarId) : MetaM (Array FVarId) := do
 end Methods
 
 /--
+Return `true` if `indVal` is an inductive predicate. That is, `inductive` type in `Prop`.
+-/
+def isInductivePredicateVal (indVal : InductiveVal) : MetaM Bool := do
+  forallTelescopeReducing indVal.type fun _ type => do
+    match (← whnfD type) with
+    | .sort u .. => return u == Level.zero
+    | _ => return false
+
+/--
 Return `some info` if `declName` is an inductive predicate where `info : InductiveVal`.
 That is, `inductive` type in `Prop`.
 -/
 def isInductivePredicate? (declName : Name) : MetaM (Option InductiveVal) := do
   match (← getEnv).find? declName with
   | some (.inductInfo info) =>
-    forallTelescopeReducing info.type fun _ type => do
-      match (← whnfD type) with
-      | .sort u .. => if u == levelZero then return some info else return none
-      | _ => return none
+    if (← isInductivePredicateVal info) then
+      return some info
+    else
+      return none
   | _ => return none
 
 /-- Return `true` if `declName` is an inductive predicate. That is, `inductive` type in `Prop`. -/
@@ -2410,6 +2503,15 @@ abbrev isDefEqGuarded (t s : Expr) : MetaM Bool :=
 def isDefEqNoConstantApprox (t s : Expr) : MetaM Bool :=
   approxDefEq <| isDefEq t s
 
+/-- Similar to `isDefEq`, but ensures default transparency is used. -/
+def isDefEqD (t s : Expr) : MetaM Bool :=
+  withDefault <| isDefEq t s
+
+/-- Similar to `isDefEq`, but ensures that only reducible definitions and instances can be reduced. -/
+def isDefEqI (t s : Expr) : MetaM Bool :=
+  withReducibleAndInstances <| isDefEq t s
+
+set_option compiler.ignoreBorrowAnnotation true in
 /--
 Returns `true` if `mvarId := val` was successfully assigned.
 This method uses the same assignment validation performed by `isDefEq`, but it does not check whether the types match.
@@ -2438,6 +2540,11 @@ def instantiateMVarsIfMVarApp (e : Expr) : MetaM Expr := do
   else
     return e
 
+def instantiateMVarsProfiling (e : Expr) : MetaM Expr := do
+  profileitM Exception s!"instantiate metavars" (← getOptions) do
+  withTraceNode `Meta.instantiateMVars (fun _ => pure e) do
+    instantiateMVars e
+
 private partial def setAllDiagRanges (snap : Language.SnapshotTree) (pos endPos : Position) :
     BaseIO Language.SnapshotTree := do
   let msgLog := snap.element.diagnostics.msgLog
@@ -2452,8 +2559,93 @@ private partial def setAllDiagRanges (snap : Language.SnapshotTree) (pos endPos 
 
 open Language
 
+private structure RealizeValueResult where
+  res?   : Except Exception Dynamic
+  snap?  : Option SnapshotTree
+deriving TypeName
+
+/--
+Realizes and caches a value for a given key with all environment objects derived from calling
+`enableRealizationsForConst forConst` (fails if not called yet). If
+this is the first environment branch passing the specific `key`, `realize` is called with the
+environment and options at the time of calling `enableRealizationsForConst` if `forConst` is from
+the current module and the state just after importing  otherwise, thus helping achieve deterministic
+results despite the non-deterministic choice of which thread is tasked with realization. In other
+words, the result of `realizeValue` is *as if* `realize` had been called immediately after
+`enableRealizationsForConst forConst`, with most effects but the return value discarded (see below).
+Whether two calls of `realizeValue` with different `forConst`s but the same `key` share the result
+is undefined; in practice, the key should usually uniquely determine `forConst` by e.g. including it
+as a field.
+
+`realizeValue` cannot check what other data is captured in the `realize` closure,
+so it is best practice to extract it into a separate function and pass only arguments uniquely
+determined by `key`. Traces, diagnostics, and raw std stream
+output of `realize` are reported at all callers via `Core.logSnapshotTask` (so that the location of
+generated diagnostics is deterministic). Note that, as `realize` is run using the options at
+declaration time of `forConst`, trace options must be set prior to that (or, for imported constants,
+on the cmdline) in order to be active. If `realize` throws an exception, it is rethrown at all
+callers.
+
+CAVEAT: `realize` MUST NOT reference the current environment (the result of `getEnv`) in its result
+to avoid creating an un-collectable promise cycle.
+-/
+def realizeValue [BEq α] [Hashable α] [TypeName α] [TypeName β] (forConst : Name) (key : α) (realize : MetaM β) :
+    MetaM β := do
+  let env ← getEnv
+  if !env.areRealizationsEnabledForConst forConst then
+    return (← realize)
+  let coreCtx ← readThe Core.Context
+  let coreCtx := {
+    -- these fields should be invariant throughout the file
+    fileName := coreCtx.fileName, fileMap := coreCtx.fileMap
+    -- heartbeat limits inside `realizeAndReport` should be measured from this point on
+    initHeartbeats := (← IO.getNumHeartbeats)
+  }
+  let res ← env.realizeValue forConst key (realizeAndReport (.mk <$> realize) coreCtx)
+  let some res := res.get? RealizeValueResult | unreachable!
+  if let some snap := res.snap? then
+    let mut snap := snap
+    -- localize diagnostics
+    if let some range := (← getRef).getRange? then
+      let fileMap ← getFileMap
+      snap ← setAllDiagRanges snap (fileMap.toPosition range.start) (fileMap.toPosition range.stop)
+    Core.logSnapshotTask <| .finished (stx? := none) snap
+  match res.res? with
+  | .ok dyn => dyn.get? β |>.getDM (unreachable!)
+  | .error e => throw e
+where
+  -- similar to `wrapAsyncAsSnapshot` but not sufficiently so to share code
+  realizeAndReport (realize : MetaM Dynamic) (coreCtx : Core.Context) env opts := do
+    let coreCtx := { coreCtx with options := opts }
+    let act :=
+      IO.FS.withIsolatedStreams (isolateStderr := Core.stderrAsMessages.get opts) (do
+        -- catch all exceptions
+        let _ : MonadExceptOf _ MetaM := MonadAlwaysExcept.except
+        observing do
+          -- The scope at which `enableRealizationsForConst forConst` was called is essentially
+          -- arbitrary, normalize here. As `realize` will not add new constants nor should it
+          -- directly be connected to user input to be checked, be permissive.
+          withoutExporting do
+            realize)
+        <* addTraceAsMessages
+    let res? ← act |>.run' |>.run coreCtx { env } |>.toBaseIO
+    let res ← match res? with
+      | .ok ((output, res?), st) => pure {
+        snap? := (← Core.mkSnapshot? output coreCtx st)
+        res?
+        : RealizeValueResult
+      }
+      | _ =>
+        let _ : Inhabited RealizeValueResult := ⟨{
+          snap? := (← Core.mkSnapshot? "" coreCtx { env })
+          res?  := default
+          : RealizeValueResult
+        }⟩
+        unreachable!
+    return .mk (α := RealizeValueResult) res
+
 private structure RealizeConstantResult where
-  snap       : SnapshotTree
+  snap?  : Option SnapshotTree
   error? : Option Exception
 deriving TypeName
 
@@ -2478,9 +2670,9 @@ output are reported at all callers via `Core.logSnapshotTask` (so that the locat
 diagnostics is deterministic). Note that, as `realize` is run using the options at declaration time
 of `forConst`, trace options must be set prior to that (or, for imported constants, on the cmdline)
 in order to be active. The environment extension state at the end of `realize` is available to each
-caller via `EnvExtension.findStateAsync` for `constName`. If `realize` throws an exception or fails
-to add `constName` to the environment, an appropriate diagnostic is reported to all callers but no
-constants are added to the environment.
+caller via `EnvExtension.getState (asyncDecl := constName)`. If `realize` throws an exception or
+fails to add `constName` to the environment, an appropriate diagnostic is reported to all callers
+but no constants are added to the environment.
 -/
 def realizeConst (forConst : Name) (constName : Name) (realize : MetaM Unit) :
     MetaM Unit := do
@@ -2510,25 +2702,38 @@ def realizeConst (forConst : Name) (constName : Name) (realize : MetaM Unit) :
       cancelTk? := none
     }
     if let some res := dyn.get? RealizeConstantResult then
-      let mut snap := res.snap
-      -- localize diagnostics
-      if let some range := (← getRef).getRange? then
-        let fileMap ← getFileMap
-        snap ← setAllDiagRanges snap (fileMap.toPosition range.start) (fileMap.toPosition range.stop)
-      Core.logSnapshotTask <| .finished (stx? := none) snap
+      if let some snap := res.snap? then
+        let mut snap := snap
+        -- localize diagnostics
+        if let some range := (← getRef).getRange? then
+          let fileMap ← getFileMap
+          snap ← setAllDiagRanges snap (fileMap.toPosition range.start) (fileMap.toPosition range.stop)
+        Core.logSnapshotTask <| .finished (stx? := none) snap
       if let some e := res.error? then
         throw e
     setEnv env
 where
   -- similar to `wrapAsyncAsSnapshot` but not sufficiently so to share code
   realizeAndReport (coreCtx : Core.Context) env opts := do
-    let coreCtx := { coreCtx with options := opts }
+    let coreCtx := { coreCtx with
+      options := opts
+      maxHeartbeats := Core.getMaxHeartbeats opts
+    }
     let act :=
       IO.FS.withIsolatedStreams (isolateStderr := Core.stderrAsMessages.get opts) (do
         -- catch all exceptions
         let _ : MonadExceptOf _ MetaM := MonadAlwaysExcept.except
         observing do
-          realize
+          -- Re-privatize private `constName` under the current module so that auxiliary
+          -- declarations generated during realization get names scoped to the realizing module,
+          -- not the original defining module. This prevents name collisions when the same
+          -- constant is realized independently from two modules that are later imported together
+          -- (diamond import pattern).
+          let namePrefix :=
+            if isPrivateName constName then mkPrivateName env constName else constName
+          withDeclNameForAuxNaming namePrefix do
+            withoutExporting (when := isPrivateName constName) do
+              realize
           -- Meta code working on a non-exported declaration should usually do so inside
           -- `withoutExporting` but we're lenient here in case this call is the only one that needs
           -- the setting.
@@ -2538,7 +2743,7 @@ where
     let res? ← act |>.run' |>.run coreCtx { env } |>.toBaseIO
     match res? with
     | .ok ((output, err?), st) => pure (st.env, .mk {
-      snap := (← Core.mkSnapshot output coreCtx st)
+      snap?  := (← Core.mkSnapshot? output coreCtx st)
       error? := match err? with
         | .ok ()   => none
         | .error e => some e
@@ -2546,7 +2751,7 @@ where
     })
     | _ =>
       let _ : Inhabited (Environment × Dynamic) := ⟨env, .mk {
-        snap := (← Core.mkSnapshot "" coreCtx { env })
+        snap?  := (← Core.mkSnapshot? "" coreCtx { env })
         error? := none
         : RealizeConstantResult
       }⟩

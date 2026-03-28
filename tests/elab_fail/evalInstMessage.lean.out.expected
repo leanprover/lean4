@@ -1,0 +1,2 @@
+evalInstMessage.lean:3:0-3:5: error: could not synthesize a `Repr` or `ToString` instance for type
+  Nat → Nat

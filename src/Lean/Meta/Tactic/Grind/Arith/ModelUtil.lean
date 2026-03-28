@@ -4,15 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-public import Std.Internal.Rat
 public import Lean.Meta.Tactic.Grind.Types
-
+import Lean.Meta.Tactic.Grind.Arith.Util
+import Init.Grind.Module.Envelope
 public section
 
 namespace Lean.Meta.Grind.Arith
-open Std.Internal
+
 /-!
 Helper functions for constructing counterexamples in the `linarith` and `cutsat` modules
 -/
@@ -22,7 +21,7 @@ Returns `true` if adding the assignment `e := v` to `a` will falsify any asserte
 -/
 private partial def satisfyDiseqs (goal : Goal) (a : Std.HashMap Expr Rat) (e : Expr) (v : Int) : Bool := Id.run do
   let some parents := goal.parents.find? { expr := e } | return true
-  for parent in parents do
+  for parent in parents.elems do
     let_expr Eq _ lhs rhs := parent | continue
     let some root := goal.getRoot? parent | continue
     if root.isConstOf ``False then
@@ -57,10 +56,10 @@ where
 Returns `true` if `e` should be treated as an interpreted value by the arithmetic modules.
 -/
 def isInterpretedTerm (e : Expr) : Bool :=
-  isNatNum e || isIntNum e || e.isAppOf ``HAdd.hAdd || e.isAppOf ``HMul.hMul || e.isAppOf ``HSub.hSub
+  isNatNum e || isIntNum e || e.isAppOf ``HAdd.hAdd || e.isAppOf ``HMul.hMul || e.isAppOf ``HSub.hSub || e.isAppOf ``HSMul.hSMul
   || e.isAppOf ``Neg.neg || e.isAppOf ``HDiv.hDiv || e.isAppOf ``HMod.hMod || e.isAppOf ``One.one || e.isAppOf ``Zero.zero
-  || e.isAppOf ``NatCast.natCast || e.isIte || e.isDIte || e.isAppOf ``OfNat.ofNat || e.isAppOf ``Grind.ToInt.toInt
-  || e matches .lit (.natVal _)
+  || e.isAppOf ``Inv.inv || e.isAppOf ``NatCast.natCast || e.isIte || e.isDIte || e.isAppOf ``OfNat.ofNat || e.isAppOf ``Grind.ToInt.toInt
+  || e.isAppOf ``Fin.val || e.isAppOf ``Grind.IntModule.OfNatModule.toQ || e matches .lit (.natVal _)
 
 /--
 Adds the assignments `e' := v` to `a` for each `e'` in the equivalence class os `e`.

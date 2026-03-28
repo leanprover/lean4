@@ -1,2 +1,0 @@
-277b.lean:8:10-8:16: error: invalid constructor ⟨...⟩, expected type must be an inductive type with only one constructor 
-  List Point

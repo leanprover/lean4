@@ -6,7 +6,6 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Std.Internal.Rat
 public import Std.Time.Time.Unit.Nanosecond
 
 @[expose] public section
@@ -14,7 +13,6 @@ public import Std.Time.Time.Unit.Nanosecond
 namespace Std
 namespace Time
 namespace Second
-open Std.Internal
 open Internal
 
 set_option linter.all true
@@ -38,7 +36,7 @@ instance : ToString (Ordinal leap) where
   toString r := toString r.val
 
 instance : OfNat (Ordinal leap) n := by
-  have inst := inferInstanceAs (OfNat (Bounded.LE 0 (0 + (59 : Nat))) n)
+  have inst : OfNat (Bounded.LE 0 (0 + (59 : Nat))) n := inferInstance
   cases leap
   · exact inst
   · exact ⟨inst.ofNat.expandTop (by decide)⟩

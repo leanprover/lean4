@@ -7,12 +7,8 @@ module
 
 prelude
 
-public import Lean.Parser.Term
-public import Lean.Elab.Term
 public import Lean.Elab.Binders
-public import Lean.Elab.SyntheticMVars
-public import Lean.Elab.PreDefinition.TerminationHint
-public import Lean.PrettyPrinter.Delaborator.Basic
+import Init.Omega
 
 public section
 

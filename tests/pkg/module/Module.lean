@@ -1,11 +1,13 @@
-public import Lean
-public import Module.Basic
-public import Module.Imported
-public import Module.ImportedAll
-public import Module.ImportedPrivateImported
-public import Module.PrivateImported
-public import Module.ImportedAllPrivateImported
-public import Module.NonModule
+import Lean
+import Module.Basic
+import Module.Imported
+import Module.ImportedAll
+import Module.ImportedPrivateImported
+import Module.PrivateImported
+import Module.ImportedAllPrivateImported
+import Module.ImportedAllImportedAll
+import Module.NonModule
+import Module.MetaImported
 
 /-! # Module system basic tests -/
 

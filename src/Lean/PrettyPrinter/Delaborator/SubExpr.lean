@@ -6,7 +6,6 @@ Authors: Sebastian Ullrich, Daniel Selsam, Wojciech Nawrocki
 module
 
 prelude
-public import Lean.Meta.Basic
 public import Lean.SubExpr
 
 public section
@@ -23,11 +22,11 @@ abbrev OptionsPerPos := Std.TreeMap SubExpr.Pos Options
 
 def OptionsPerPos.insertAt (optionsPerPos : OptionsPerPos) (pos : SubExpr.Pos) (name : Name) (value : DataValue) : OptionsPerPos :=
   let opts := optionsPerPos.get? pos |>.getD {}
-  optionsPerPos.insert pos <| opts.insert name value
+  optionsPerPos.insert pos <| opts.set name value
 
 /-- Merges two collections of options, where the second overrides the first. -/
 def OptionsPerPos.merge : OptionsPerPos → OptionsPerPos → OptionsPerPos :=
-  Std.TreeMap.mergeWith (fun _ => KVMap.mergeBy (fun _ _ dv => dv))
+  Std.TreeMap.mergeWith (fun _ => Options.mergeBy (fun _ _ dv => dv))
 
 namespace SubExpr
 

@@ -3,11 +3,20 @@ Copyright (c) 2024 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+module
+
 prelude
+public import Lake.Config.Package
+public import Lake.Load.Config
+public import Lake.Toml.Decode
 import Lake.Toml.Load
-import Lake.Toml.Decode
-import Lake.Config.Package
-import Lake.Util.Log
+import Lean.Parser.Extension
+import Init.Omega
+meta import Lake.Config.LakeConfig
+meta import Lake.Config.InputFileConfig
+meta import Lake.Config.LeanExeConfig
+meta import Lake.Config.LeanLibConfig
+meta import Lake.Config.PackageConfig
 
 open Lean Parser
 open System (FilePath)
@@ -24,7 +33,7 @@ open Toml
 
 /-! ## General Helpers -/
 
-@[specialize] def decodeFieldCore
+@[specialize] public def decodeFieldCore
   (name : Name) (decode : Toml.Value → EDecodeM α) [field : ConfigField σ name α]
   (_ : Table) (val : Value) (cfg : σ)
 : DecodeM σ := fun es =>
@@ -32,45 +41,17 @@ open Toml
   | .ok a es => .ok (field.set a cfg) es
   | .error _ es => .ok cfg es
 
-class DecodeField (σ : Type) (name : Name) where
+public class DecodeField (σ : Type) (name : Name) where
   decodeField (t : Table) (val : Value) (cfg : σ) : DecodeM σ
 
 export DecodeField (decodeField)
 
-instance [DecodeToml α] [ConfigField σ name α] : DecodeField σ name where
+public instance [DecodeToml α] [ConfigField σ name α] : DecodeField σ name where
   decodeField := decodeFieldCore name decodeToml
-
-structure TomlFieldInfo (σ : Type) where
-  decodeAndSet : Table → Value → σ → DecodeM σ
-
-abbrev TomlFieldInfos (σ : Type) :=
-  NameMap (TomlFieldInfo σ)
-
-def TomlFieldInfos.empty : TomlFieldInfos σ := {}
-
-@[inline] def TomlFieldInfos.insert
-  (name : Name) [DecodeField σ name] (infos : TomlFieldInfos σ)
-: TomlFieldInfos σ :=
-  NameMap.insert infos name ⟨decodeField name⟩
-
-class ConfigTomlInfo (α : Type) where
-  fieldInfos : TomlFieldInfos α
-
-def Toml.Table.decodeConfig
-  [EmptyCollection α] [ConfigTomlInfo α] (t : Table)
-: Toml.DecodeM α :=
-  t.foldM (init := {}) fun cfg key val => do
-    if let some info := ConfigTomlInfo.fieldInfos.find? key then
-      info.decodeAndSet t val cfg
-    else
-      return cfg
-
-@[inline] def decodeTableValue (decode : Table → DecodeM α) (v : Value) : EDecodeM α := do
-  ensureDecode <| decode (← v.decodeTable)
 
 /-! ## Value Decoders -/
 
-def takeNamePart (ss : Substring) (pre : Name) : (Substring × Name) :=
+def takeNamePart (ss : Substring.Raw) (pre : Name) : (Substring.Raw × Name) :=
   if ss.isEmpty then
     (ss, .anonymous)
   else
@@ -80,25 +61,25 @@ def takeNamePart (ss : Substring) (pre : Name) : (Substring × Name) :=
       let startPos := ss.startPos
       let ss := ss.dropWhile (!isIdEndEscape ·)
       if isIdEndEscape ss.front then
-        let id := ss.str.extract startPos ss.startPos
+        let id := String.Pos.Raw.extract ss.str startPos ss.startPos
         (ss, Name.str pre id)
       else
         (ss, .anonymous)
     else if isIdFirst curr then
       let startPos := ss.startPos
       let ss := ss.drop 1 |>.dropWhile isIdRest
-      let id := ss.str.extract startPos ss.startPos
+      let id := String.Pos.Raw.extract ss.str startPos ss.startPos
       (ss, Name.str pre id)
     else if curr.isDigit then
       let startPos := ss.startPos
       let ss := ss.drop 1 |>.dropWhile Char.isDigit
-      let digits := ss.str.extract startPos ss.startPos
+      let digits := String.Pos.Raw.extract ss.str startPos ss.startPos
       let n := (Syntax.decodeNatLitVal? digits).get!
       (ss, Name.num pre n)
     else
       (ss, .anonymous)
 
-partial def takeName (ss : Substring) : (Substring × Name) :=
+partial def takeName (ss : Substring.Raw) : (Substring.Raw × Name) :=
   let rec takeRest ss pre :=
     if ss.front == '.' then
       let startPos := ss.startPos
@@ -110,11 +91,11 @@ partial def takeName (ss : Substring) : (Substring × Name) :=
   if n.isAnonymous then (ss, .anonymous) else takeRest ss n
 
 def Glob.ofString? (v : String) : Option Glob := do
-  let (ss, n) := takeName v.toSubstring
+  let (ss, n) := takeName v.toRawSubstring
   if n.isAnonymous then failure
-  if h : ss.str.atEnd ss.startPos then
+  if h : ss.startPos.atEnd ss.str then
     return .one n
-  else if ss.str.get' ss.startPos h == '.' then
+  else if ss.startPos.get' ss.str h == '.' then
     match (ss.drop 1).front with
     | '+' => return .submodules n
     | '*' => return .andSubmodules n
@@ -122,23 +103,23 @@ def Glob.ofString? (v : String) : Option Glob := do
   else
     failure
 
-protected def Glob.decodeToml (v : Value) : EDecodeM Glob := do
+public protected def Glob.decodeToml (v : Value) : EDecodeM Glob := do
   match inline <| Glob.ofString? (← v.decodeString) with
   | some v => return v
   | none => throwDecodeErrorAt v.ref "expected glob"
 
-instance : DecodeToml Glob := ⟨Glob.decodeToml⟩
-instance : DecodeToml (Array Glob) := ⟨Value.decodeArrayOrSingleton⟩
+public instance : DecodeToml Glob := ⟨Glob.decodeToml⟩
+public instance : DecodeToml (Array Glob) := ⟨Value.decodeArrayOrSingleton⟩
 
-protected def LeanOptionValue.decodeToml : Value → EDecodeM LeanOptionValue
+public protected def LeanOptionValue.decodeToml : Value → EDecodeM LeanOptionValue
 | .string _ v => return .ofString v
 | .boolean _ v => return .ofBool v
 | .integer _ (.ofNat v) => return .ofNat v
 | x => throwDecodeErrorAt x.ref "expected string, boolean, or nonnegative integer"
 
-instance : DecodeToml LeanOptionValue := ⟨LeanOptionValue.decodeToml⟩
+public instance : DecodeToml LeanOptionValue := ⟨LeanOptionValue.decodeToml⟩
 
-protected def LeanOption.decodeToml (v : Value) : EDecodeM LeanOption := do
+public protected def LeanOption.decodeToml (v : Value) : EDecodeM LeanOption := do
   match v with
   | .array ref vs =>
     if h : vs.size = 2 then ensureDecode do
@@ -154,23 +135,23 @@ protected def LeanOption.decodeToml (v : Value) : EDecodeM LeanOption := do
   | v =>
     throwDecodeErrorAt v.ref "expected array or table"
 
-instance : DecodeToml LeanOption := ⟨LeanOption.decodeToml⟩
+public instance : DecodeToml LeanOption := ⟨LeanOption.decodeToml⟩
 
-protected def BuildType.decodeToml (v : Value) : EDecodeM BuildType := do
-  match inline <| BuildType.ofString? (← v.decodeString) with
+public protected def BuildType.decodeToml (v : Value) : EDecodeM BuildType := do
+  match BuildType.ofString? (← v.decodeString) with
   | some v => return v
   | none => throwDecodeErrorAt v.ref "expected one of 'debug', 'relWithDebInfo', 'minSizeRel', 'release'"
 
-instance : DecodeToml BuildType := ⟨(BuildType.decodeToml ·)⟩
+public instance : DecodeToml BuildType := ⟨BuildType.decodeToml⟩
 
-protected def Backend.decodeToml (v : Value) : EDecodeM Backend := do
-  match inline <| Backend.ofString? (← v.decodeString) with
+public protected def Backend.decodeToml (v : Value) : EDecodeM Backend := do
+  match Backend.ofString? (← v.decodeString) with
   | some v => return v
   | none => throwDecodeErrorAt v.ref "expected one of 'c', 'llvm', or 'default'"
 
-instance : DecodeToml Backend := ⟨Backend.decodeToml⟩
+public instance : DecodeToml Backend := ⟨Backend.decodeToml⟩
 
-partial def decodeLeanOptionsAux
+public partial def decodeLeanOptionsAux
   (v : Value) (k : Name) (vs : EDecodeM (Array LeanOption))
 : EDecodeM (Array LeanOption) :=
   match v with
@@ -178,24 +159,24 @@ partial def decodeLeanOptionsAux
     decodeLeanOptionsAux v (k ++ k') vs
   | v => mergeErrors vs (decodeToml v) fun vs v => vs.push ⟨k,v⟩
 
-def decodeLeanOptions (v : Value) : EDecodeM (Array LeanOption) :=
+public def decodeLeanOptions (v : Value) : EDecodeM (Array LeanOption) :=
   match v with
   | .array _ vs => decodeArray vs
   | .table _ t => t.items.foldl (init := .ok #[]) fun vs (k,v) => decodeLeanOptionsAux v k vs
   | v => throwDecodeErrorAt v.ref "expected array or table"
 
-instance : DecodeToml (Array LeanOption) := ⟨decodeLeanOptions⟩
+public instance : DecodeToml (Array LeanOption) := ⟨decodeLeanOptions⟩
 
-protected def StdVer.decodeToml (v : Value) : EDecodeM LeanVer := do
+public protected def StdVer.decodeToml (v : Value) : EDecodeM LeanVer := do
   match StdVer.parse (← v.decodeString) with
   | .ok v => return v
   | .error e => throwDecodeErrorAt v.ref e
 
-instance : DecodeToml StdVer := ⟨StdVer.decodeToml⟩
+public instance : DecodeToml StdVer := ⟨StdVer.decodeToml⟩
 
 mutual
 
-partial def Pattern.decodeToml
+public partial def Pattern.decodeToml
   [IsPattern β α] [DecodeToml β] (v : Value) (presets : NameMap (Pattern α β) := {})
 : EDecodeM (Pattern α β) :=
   have : DecodeToml (PatternDescr α β) := ⟨PatternDescr.decodeToml⟩
@@ -215,7 +196,7 @@ partial def Pattern.decodeToml
       .ofDescr <$> decodeToml v
   | v => .ofDescr <$> decodeToml v
 
-partial def PatternDescr.decodeToml
+public partial def PatternDescr.decodeToml
   [IsPattern β α] [DecodeToml β] (v : Value)
 : EDecodeM (PatternDescr α β) :=
   have : DecodeToml (Pattern α β) := ⟨Pattern.decodeToml⟩
@@ -233,10 +214,10 @@ partial def PatternDescr.decodeToml
 
 end
 
-instance [IsPattern β α] [DecodeToml β] : DecodeToml (Pattern α β) := ⟨Pattern.decodeToml⟩
-instance [IsPattern β α] [DecodeToml β] : DecodeToml (PatternDescr α β) := ⟨PatternDescr.decodeToml⟩
+public instance [IsPattern β α] [DecodeToml β] : DecodeToml (Pattern α β) := ⟨Pattern.decodeToml⟩
+public instance [IsPattern β α] [DecodeToml β] : DecodeToml (PatternDescr α β) := ⟨PatternDescr.decodeToml⟩
 
-protected def StrPatDescr.decodeToml (v : Value) : EDecodeM StrPatDescr :=
+public protected def StrPatDescr.decodeToml (v : Value) : EDecodeM StrPatDescr :=
   match v with
   | .array _ vs => .mem <$> decodeArray vs
   | .table r t => do
@@ -248,9 +229,9 @@ protected def StrPatDescr.decodeToml (v : Value) : EDecodeM StrPatDescr :=
       throwDecodeErrorAt r "expected string pattern"
   | v => throwDecodeErrorAt v.ref "expected string pattern"
 
-instance : DecodeToml StrPatDescr := ⟨StrPatDescr.decodeToml⟩
+public instance : DecodeToml StrPatDescr := ⟨StrPatDescr.decodeToml⟩
 
-protected def PathPatDescr.decodeToml (v : Value) : EDecodeM PathPatDescr :=
+public protected def PathPatDescr.decodeToml (v : Value) : EDecodeM PathPatDescr :=
   match v with
   | .table r t => do
     if let some p ← t.decode? `path then
@@ -263,34 +244,34 @@ protected def PathPatDescr.decodeToml (v : Value) : EDecodeM PathPatDescr :=
       throwDecodeErrorAt r "expected file path pattern"
   | v => throwDecodeErrorAt v.ref "expected file path pattern"
 
-instance : DecodeToml PathPatDescr := ⟨PathPatDescr.decodeToml⟩
+public instance : DecodeToml PathPatDescr := ⟨PathPatDescr.decodeToml⟩
 
-def decodeVersionTags (v : Value) : EDecodeM StrPat :=
+public def decodeVersionTags (v : Value) : EDecodeM StrPat :=
   inline <| Pattern.decodeToml (presets := versionTagPresets) v
 
-instance : DecodeField (PackageConfig n) `versionTags where
+public instance : DecodeField (PackageConfig p n) `versionTags where
   decodeField := decodeFieldCore `versionTags decodeVersionTags
 
 -- for `platformIndependent`, `releaseRepo`, `buildArchive`, etc.
-instance [DecodeToml α] : DecodeToml (Option α) := ⟨(some <$> decodeToml ·)⟩
+public instance [DecodeToml α] : DecodeToml (Option α) := ⟨(some <$> decodeToml ·)⟩
 
-def PartialBuildKey.decodeToml (v : Value) : EDecodeM PartialBuildKey := do
+public def PartialBuildKey.decodeToml (v : Value) : EDecodeM PartialBuildKey := do
   match PartialBuildKey.parse (← v.decodeString) with
   | .ok k => return k
   | .error e => throwDecodeErrorAt v.ref e
 
-instance : DecodeToml PartialBuildKey := ⟨PartialBuildKey.decodeToml⟩
-instance : DecodeToml (Target α) := ⟨(Target.mk <$> PartialBuildKey.decodeToml ·)⟩
+public instance : DecodeToml PartialBuildKey := ⟨PartialBuildKey.decodeToml⟩
+public instance : DecodeToml (Target α) := ⟨(Target.mk <$> PartialBuildKey.decodeToml ·)⟩
 
-def decodeFacets (kind : Name) (val : Value) : EDecodeM (Array Name) := do
+public def decodeFacets (kind : Name) (val : Value) : EDecodeM (Array Name) := do
   return (← val.decodeArray).map (kind ++ ·)
 
-instance : DecodeField (LeanLibConfig n) `defaultFacets where
+public instance : DecodeField (LeanLibConfig n) `defaultFacets where
   decodeField := decodeFieldCore `defaultFacets (decodeFacets LeanLib.facetKind)
 
 -- HACK to work around the fact the TOML decoders
 -- do not support inter-field dependencies by default
-def decodeRoots
+public def decodeRoots
   (t : Table) (v : Value) (cfg : LeanLibConfig n)
 : DecodeM (LeanLibConfig n) := do
   let cfg ← decodeField `roots t v cfg
@@ -299,11 +280,11 @@ def decodeRoots
   else
     return {cfg with globs := mkFieldDefault `globs cfg}
 
-instance : DecodeField (LeanLibConfig n) `roots := ⟨decodeRoots⟩
+public instance : DecodeField (LeanLibConfig n) `roots := ⟨decodeRoots⟩
 
 /-! ## Dependency Configuration Decoders -/
 
-protected def DependencySrc.decodeToml (t : Table) (ref := Syntax.missing) : EDecodeM DependencySrc := do
+public protected def DependencySrc.decodeToml (t : Table) (ref := Syntax.missing) : EDecodeM DependencySrc := do
   let typeVal ← t.decodeValue `type
   match (← typeVal.decodeString) with
   | "path" =>
@@ -313,9 +294,9 @@ protected def DependencySrc.decodeToml (t : Table) (ref := Syntax.missing) : EDe
   | _ =>
     throwDecodeErrorAt typeVal.ref "expected one of 'path' or 'git'"
 
-instance : DecodeToml DependencySrc := ⟨fun v => do DependencySrc.decodeToml (← v.decodeTable) v.ref⟩
+public instance : DecodeToml DependencySrc := ⟨fun v => do DependencySrc.decodeToml (← v.decodeTable) v.ref⟩
 
-protected def Dependency.decodeToml (t : Table) (ref := Syntax.missing) : EDecodeM Dependency := ensureDecode do
+public protected def Dependency.decodeToml (t : Table) (ref := Syntax.missing) : EDecodeM Dependency := ensureDecode do
   let name ← stringToLegalOrSimpleName <$> t.tryDecode `name ref
   let rev? ← t.tryDecode? `rev
   let src? : Option DependencySrc ← id do
@@ -343,94 +324,170 @@ protected def Dependency.decodeToml (t : Table) (ref := Syntax.missing) : EDecod
   let opts ← t.tryDecodeD `options {}
   return {name, scope, version?, src?, opts}
 
-instance : DecodeToml Dependency := ⟨fun v => do Dependency.decodeToml (← v.decodeTable) v.ref⟩
+public instance : DecodeToml Dependency := ⟨fun v => do Dependency.decodeToml (← v.decodeTable) v.ref⟩
+
+/-! ## System Configuration Decoders -/
+
+public protected def CacheServiceKind.decodeToml (v : Value) : EDecodeM CacheServiceKind := do
+  match CacheServiceKind.ofString? (← v.decodeString) with
+  | some v => return v
+  | none => throwDecodeErrorAt v.ref "expected one of 'reservoir' or 's3'"
+
+public instance : DecodeToml CacheServiceKind := ⟨CacheServiceKind.decodeToml⟩
 
 /-! ## Package & Target Configuration Decoders -/
 
-private def genDecodeToml
+public structure TomlFieldInfo (σ : Type) where
+  decodeAndSet : Table → Value → σ → DecodeM σ
+
+private abbrev TomlFieldInfos (σ : Type) :=
+  NameMap (TomlFieldInfo σ)
+
+private def TomlFieldInfos.empty : TomlFieldInfos σ := {}
+
+@[inline] private def TomlFieldInfos.insert
+  (name : Name) [DecodeField σ name] (infos : TomlFieldInfos σ)
+: TomlFieldInfos σ :=
+  NameMap.insert infos name ⟨decodeField name⟩
+
+private class ConfigTomlInfo (α : Type) where
+  fieldInfos : TomlFieldInfos α
+
+private def decodeTomlConfig
+  [EmptyCollection α] [ConfigTomlInfo α] (t : Table)
+: Toml.DecodeM α :=
+  t.foldM (init := ∅) fun cfg key val => do
+    if let some info := ConfigTomlInfo.fieldInfos.find? key then
+      info.decodeAndSet t val cfg
+    else
+      return cfg
+
+@[inline] public def decodeTableValue (decode : Table → DecodeM α) (v : Value) : EDecodeM α := do
+  ensureDecode <| decode (← v.decodeTable)
+
+section
+-- We automatically disable the following option for `macro`s but the subsequent `def` both contains
+-- a quotation and is called only by `macro`s, so we disable the option for it manually. Note that
+-- we can't use `in` as it is parsed as a single command and so the option would not influence the
+-- parser.
+set_option internal.parseQuotWithCurrentStage false
+private meta def genDecodeToml
   (cmds : Array Command)
-  (tyName : Name) [info : ConfigInfo tyName]  (takesName : Bool)
+  (tyName : Name) [info : ConfigInfo tyName]
   (exclude : Array Name := {})
 : MacroM (Array Command) := do
   let init ← `(TomlFieldInfos.empty)
-  let ty := if takesName then Syntax.mkCApp tyName #[mkIdent `n] else mkCIdent tyName
+  let tyArgs := info.arity.fold (init := Array.emptyWithCapacity info.arity) fun i _ as =>
+    as.push (mkIdent <| .mkSimple s!"x_{i+1}")
+  let ty := Syntax.mkCApp tyName tyArgs
   let infos ← info.fields.foldlM (init := init) fun infos {name, parent, ..} =>
     if parent || exclude.contains name then
       return infos
     else
       `($infos |>.insert $(quote name))
   let instId ← mkIdentFromRef <| `_root_ ++ tyName.str "instConfigTomlInfo"
-  let cmds ← cmds.push <$> `(instance $instId:ident : ConfigTomlInfo $ty := ⟨$infos⟩)
+  let cmds ← cmds.push <$> `(private instance $instId:ident : ConfigTomlInfo $ty := ⟨$infos⟩)
   let decId ← mkIdentFromRef <| `_root_ ++ tyName.str "decodeToml"
-  let cmds ← cmds.push <$> `(protected def $decId (t : Table) : DecodeM $ty := t.decodeConfig)
+  let cmds ← cmds.push <$> `(public protected def $decId (t : Table) : DecodeM $ty := decodeTomlConfig t)
   let instId ← mkIdentFromRef <| `_root_ ++ tyName.str "instDecodeToml"
-  let cmds ← cmds.push <$> `(instance $instId:ident : DecodeToml $ty := ⟨decodeTableValue $decId⟩)
+  let cmds ← cmds.push <$> `(public instance $instId:ident : DecodeToml $ty := ⟨decodeTableValue $decId⟩)
   return cmds
+end
 
 local macro "gen_toml_decoders%" : command => do
   let cmds := #[]
+  -- Lake
+  let cmds ← genDecodeToml cmds ``CacheServiceConfig
+  let cmds ← genDecodeToml cmds ``CacheConfig
+  let cmds ← genDecodeToml cmds ``LakeConfig
   -- Targets
-  let cmds ← genDecodeToml cmds ``LeanConfig false
-  let cmds ← genDecodeToml cmds ``LeanLibConfig true
+  let cmds ← genDecodeToml cmds ``LeanConfig
+  let cmds ← genDecodeToml cmds ``LeanLibConfig
     (exclude := #[`nativeFacets])
-  let cmds ← genDecodeToml cmds ``LeanExeConfig true
+  let cmds ← genDecodeToml cmds ``LeanExeConfig
     (exclude := #[`nativeFacets])
-  let cmds ← genDecodeToml cmds ``InputFileConfig true
-  let cmds ← genDecodeToml cmds ``InputDirConfig true
+  let cmds ← genDecodeToml cmds ``InputFileConfig
+  let cmds ← genDecodeToml cmds ``InputDirConfig
   -- Package
-  let cmds ← genDecodeToml cmds ``WorkspaceConfig false
-  let cmds ← genDecodeToml cmds ``PackageConfig true
+  let cmds ← genDecodeToml cmds ``WorkspaceConfig
+  let cmds ← genDecodeToml cmds ``PackageConfig
   return ⟨mkNullNode cmds⟩
 
 gen_toml_decoders%
 
-def decodeTargetDecls
-  (pkg : Name) (t : Table)
+private structure DecodeTargetState (pkg : Name) where
+  decls : Array (PConfigDecl pkg) := #[]
+  map : DNameMap (NConfigDecl pkg) := {}
+  exeRoots : Lean.NameMap Name := {}
+
+private def decodeTargetDecls
+  (pkg : Name) (prettyName : String) (t : Table)
 : DecodeM (Array (PConfigDecl pkg) × DNameMap (NConfigDecl pkg)) := do
-  let r := (#[], {})
+  let r : DecodeTargetState pkg := {}
   let r ← go r LeanLib.keyword LeanLib.configKind LeanLibConfig.decodeToml
   let r ← go r LeanExe.keyword LeanExe.configKind LeanExeConfig.decodeToml
   let r ← go r InputFile.keyword InputFile.configKind InputFileConfig.decodeToml
   let r ← go r InputDir.keyword InputDir.configKind InputDirConfig.decodeToml
-  return r
+  return (r.decls, r.map)
 where
-  go r kw kind (decode : {n : Name} → Table → DecodeM (ConfigType kind pkg n)) := do
+  go (r : DecodeTargetState pkg) kw kind
+      (decode : {n : Name} → Table → DecodeM (ConfigType kind pkg n)) := do
     let some tableArrayVal := t.find? kw | return r
     let some vals ← tryDecode? tableArrayVal.decodeValueArray | return r
     vals.foldlM (init := r) fun r val => do
       let some t ← tryDecode? val.decodeTable | return r
       let some name ← tryDecode? <| stringToLegalOrSimpleName <$> t.decode `name
         | return r
-      let (decls, map) := r
-      if let some orig := map.get? name then
-        modify fun es => es.push <| .mk val.ref s!"\
-          {pkg}: target '{name}' was already defined as a '{orig.kind}', \
+      if let some orig := r.map.get? name then
+        logDecodeErrorAt val.ref s!"{prettyName}: \
+          target '{name}' was already defined as a '{orig.kind}', \
           but then redefined as a '{kind}'"
-        return (decls, map)
+        return r
       else
         let config ← @decode name t
         let decl : NConfigDecl pkg name :=
           -- Safety: By definition, config kind = facet kind for declarative configurations.
           unsafe {pkg, name, kind, config, wf_data := lcProof}
-        return (decls.push decl.toPConfigDecl, map.insert name decl)
+        -- Check that executables have distinct root module names
+        let exeRoots ← id do
+          if h : kind = LeanExe.configKind then
+            let exeConfig : LeanExeConfig name := cast (by rw [h]; rfl) config
+            if let some origExe := r.exeRoots.get? exeConfig.root then
+              logDecodeErrorAt val.ref s!"{prettyName}: \
+                executable '{name}' has the same root module '{exeConfig.root}' as \
+                executable '{origExe}'"
+              return r.exeRoots
+            else
+              return r.exeRoots.insert exeConfig.root name
+          else
+            return r.exeRoots
+        return {
+          decls := r.decls.push decl.toPConfigDecl
+          map := r.map.insert name decl
+          exeRoots
+        }
 
 /-! ## Root Loader -/
 
 /-- Load a `Package` from a Lake configuration file written in TOML. -/
-def loadTomlConfig (cfg: LoadConfig) : LogIO Package := do
+public def loadTomlConfig (cfg: LoadConfig) : LogIO Package := do
   let input ← IO.FS.readFile cfg.configFile
   let ictx := mkInputContext input cfg.relConfigFile.toString
   match (← loadToml ictx |>.toBaseIO) with
   | .ok table =>
     let .ok pkg errs := EStateM.run (s := #[]) do
-      let name ← stringToLegalOrSimpleName <$> table.tryDecode `name
-      let config ← @PackageConfig.decodeToml name table
-      let (targetDecls, targetDeclMap) ← decodeTargetDecls name table
+      let origName ← stringToLegalOrSimpleName <$> table.tryDecode `name
+      let wsIdx := cfg.pkgIdx
+      let baseName := if cfg.pkgName.isAnonymous then origName else cfg.pkgName
+      let keyName := baseName.num wsIdx
+      let prettyName := baseName.toString (escape := false)
+      let config ← @PackageConfig.decodeToml keyName origName table
+      let (targetDecls, targetDeclMap) ← decodeTargetDecls keyName prettyName table
       let defaultTargets ← table.tryDecodeD `defaultTargets #[]
       let defaultTargets := defaultTargets.map stringToLegalOrSimpleName
       let depConfigs ← table.tryDecodeD `require #[]
       return {
-        name := name
+        wsIdx, baseName, keyName, origName
         dir := cfg.pkgDir
         relDir := cfg.relPkgDir
         configFile := cfg.configFile
@@ -448,3 +505,86 @@ def loadTomlConfig (cfg: LoadConfig) : LogIO Package := do
         logError <| mkErrorStringWithPos ictx.fileName pos msg
   | .error log =>
     errorWithLog <| log.forM fun msg => do logError (← msg.toString)
+
+/-! ## System Configuration Loader -/
+
+/-- Load the system Lake configuration from a TOML file. -/
+private def loadLakeConfigCore (path : FilePath) (lakeEnv : Lake.Env) : LogIO LoadedLakeConfig := do
+  let input ← IO.FS.readFile path
+  let ictx := mkInputContext input path.toString
+  match (← loadToml ictx |>.toBaseIO) with
+  | .ok table =>
+    let .ok config errs := EStateM.run (s := #[]) do
+      LakeConfig.decodeToml table
+    if errs.isEmpty then
+      let defaultService := .reservoirService lakeEnv.reservoirApiUrl
+      let cacheServices : CacheServiceMap ← config.cache.services.foldlM (init := ∅) fun map cfg => do
+        let validateUrl name key url := do
+          if url.isEmpty then
+            error s!"cache service `{name}` is missing field `{key}`"
+          else
+            return if url.back == '/' then url.dropEnd 1 |>.copy else url
+        match cfg.kind with
+        | .reservoir => do
+          let apiEndpoint ← validateUrl cfg.name "apiEndpoint" cfg.apiEndpoint
+          let service := .reservoirService apiEndpoint (some (.ofString cfg.name))
+          return map.insert (.mkSimple cfg.name) service
+        | .s3 => do
+          let artifactEndpoint ← validateUrl cfg.name "artifactEndpoint" cfg.artifactEndpoint
+          let revisionEndpoint ← validateUrl cfg.name "revisionEndpoint" cfg.revisionEndpoint
+          let service :=  .downloadService artifactEndpoint revisionEndpoint (some (.ofString cfg.name))
+          return map.insert (.mkSimple cfg.name) service
+        | _ =>
+          error s!"cache service `{cfg.name}` is missing field `kind`"
+      let defaultCacheService ← id do
+        let name := config.cache.defaultService
+        if name.isEmpty then
+          return cacheServices.get? `reservoir |>.getD defaultService
+        else
+          let some service := cacheServices.get? (.mkSimple name)
+            | error s!"the configured default cache service `{name}` is not defined; \
+                please add a `cache.service` with that name"
+          return service
+      let defaultCacheUploadService? ← id do
+        let name := config.cache.defaultUploadService
+        if name.isEmpty then
+          return none
+        else
+          let some service := cacheServices.get? (.mkSimple name)
+            | error s!"the configured default cache upload service `{name}` is not defined; \
+                please add a `cache.service` with that name"
+          return some service
+      if cacheServices.contains `reservoir then
+        return {config, defaultCacheService, defaultCacheUploadService?, cacheServices}
+      else
+         let cacheServices := cacheServices.insert `reservoir defaultService
+         let defaultServiceConfig := {name := "reservoir", kind := .reservoir, apiEndpoint := lakeEnv.reservoirApiUrl}
+         let config := {config with cache.services := config.cache.services.push defaultServiceConfig}
+         return {config, defaultCacheService, defaultCacheUploadService?, cacheServices}
+    else
+      errorWithLog <| errs.forM fun {ref, msg} =>
+        let pos := ictx.fileMap.toPosition <| ref.getPos?.getD 0
+        logError <| mkErrorStringWithPos ictx.fileName pos msg
+  | .error log =>
+    errorWithLog <| log.forM fun msg => do logError (← msg.toString)
+
+private def LoadedLakeConfig.mkDefault (lakeEnv : Lake.Env) : LoadedLakeConfig :=
+  let defaultService := .reservoirService lakeEnv.reservoirApiUrl
+  let defaultServiceConfig := {name := "reservoir", kind := .reservoir, apiEndpoint := lakeEnv.reservoirApiUrl}
+  {
+    config.cache.services := #[defaultServiceConfig]
+    defaultCacheService := defaultService
+    defaultCacheUploadService? := none
+    cacheServices := NameMap.empty.insert `reservoir defaultService
+  }
+
+/--
+**For internal use only.**
+Load the system Lake configuration from tehe environment-configured TOML file.
+-/
+public def loadLakeConfig (lakeEnv : Lake.Env) : LogIO LoadedLakeConfig := do
+  if let some path := lakeEnv.lakeConfig? then
+    if (← path.pathExists) then
+      loadLakeConfigCore path lakeEnv
+    else return .mkDefault lakeEnv
+  else return .mkDefault lakeEnv

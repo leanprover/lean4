@@ -8,5 +8,3 @@ module
 prelude
 public import Lean.Meta.Tactic.Simp.Arith.Nat.Basic
 public import Lean.Meta.Tactic.Simp.Arith.Nat.Simp
-
-public section

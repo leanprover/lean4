@@ -6,9 +6,10 @@ Authors: Kyle Miller
 module
 
 prelude
-public import Lean.Util.CollectAxioms
-public import Lean.Elab.Deriving.Basic
 public import Lean.Elab.MutualDef
+import Lean.Compiler.Options
+import Lean.Meta.Reduce
+import all Lean.Elab.ErrorUtils
 
 public section
 
@@ -51,10 +52,10 @@ private def elabTermForEval (term : Syntax) (expectedType? : Option Expr) : Term
   let e ← instantiateMVars e
   if (← Term.logUnassignedUsingErrorInfos (← getMVars e)) then throwAbortTerm
   if ← isProof e then
-    throwError m!"cannot evaluate, proofs are not computationally relevant"
+    throwError m!"Cannot evaluate, proofs are not computationally relevant"
   let e ← if (← isProp e) then mkDecide e else pure e
   if ← isType e then
-    throwError m!"cannot evaluate, types are not computationally relevant"
+    throwError m!"Cannot evaluate, types are not computationally relevant"
   trace[Elab.eval] "elaborated term:{indentExpr e}"
   return e
 where
@@ -82,23 +83,35 @@ where
     let (args, _, _) ← forallMetaBoundedTelescope (← inferType m) 1
     return mkAppN m args
 
-private def addAndCompileExprForEval (declName : Name) (value : Expr) (allowSorry := false) : TermElabM Unit := do
+private def addAndCompileExprForEval (declName : Name) (value : Expr) (allowSorry := false) : TermElabM Name := do
   -- Use the `elabMutualDef` machinery to be able to support `let rec`.
   -- Hack: since we are using the `TermElabM` version, we can insert the `value` as a metavariable via `exprToSyntax`.
   -- An alternative design would be to make `elabTermForEval` into a term elaborator and elaborate the command all at once
   -- with `unsafe def _eval := term_for_eval% $t`, which we did try, but unwanted error messages
   -- such as "failed to infer definition type" can surface.
-  let defView := mkDefViewOfDef { isUnsafe := true, visibility := .public }
+  let defView := mkDefViewOfDef { isUnsafe := true, visibility := .private, computeKind := .meta }
     (← `(Parser.Command.definition|
           def $(mkIdent <| `_root_ ++ declName) := $(← Term.exprToSyntax value)))
-  Term.elabMutualDef #[] { header := "" } #[defView]
+  let declName := mkPrivateName (← getEnv) declName
+  -- For simplicity, allow arbitrary phase accesses in server, `import`-correct access otherwise.
+  -- These are the most permissive respective settings that are guaranteed not to lead to missing
+  -- IR errors.
+  withOptions (fun opts =>
+      if Elab.inServer.get opts then
+        Compiler.compiler.checkMeta.set opts false
+      else
+        Compiler.compiler.relaxedMetaCheck.set opts true) do
+  withOptions (Compiler.compiler.postponeCompile.set · false) do
+    Term.elabMutualDef #[] { header := "" } #[defView]
+  assert! (← getEnv).contains declName
   unless allowSorry do
     let axioms ← collectAxioms declName
     if axioms.contains ``sorryAx then
       throwError "\
-        aborting evaluation since the expression depends on the 'sorry' axiom, \
+        Aborting evaluation since the expression depends on the 'sorry' axiom, \
         which can lead to runtime instability and crashes.\n\n\
         To attempt to evaluate anyway despite the risks, use the '#eval!' command."
+  return declName
 
 /--
 Try to make a `@projFn ty inst e` application, even if it takes unfolding the type `ty` of `e` to synthesize the instance `inst`.
@@ -140,13 +153,13 @@ private def mkFormat (e : Expr) : MetaM Expr := do
     if eval.derive.repr.get (← getOptions) then
       if let .const name _ := (← whnf (← inferType e)).getAppFn then
         try
-          trace[Elab.eval] "Attempting to derive a 'Repr' instance for '{.ofConstName name}'"
+          trace[Elab.eval] "Attempting to derive a `Repr` instance for `{.ofConstName name}`"
           liftCommandElabM do applyDerivingHandlers ``Repr #[name]
           resetSynthInstanceCache
           return ← mkRepr e
         catch ex =>
-          trace[Elab.eval] "Failed to use derived 'Repr' instance. Exception: {ex.toMessageData}"
-    throwError m!"could not synthesize a 'Repr' or 'ToString' instance for type{indentExpr (← inferType e)}"
+          trace[Elab.eval] "Failed to use derived `Repr` instance. Exception: {ex.toMessageData}"
+    throwError m!"could not synthesize a `Repr` or `ToString` instance for type{indentExpr (← inferType e)}"
 
 /--
 Returns a representation of `e` using `MessageData`, or else fails.
@@ -155,7 +168,7 @@ Tries `mkFormat` if a `ToExpr` instance can't be synthesized.
 private def mkMessageData (e : Expr) : MetaM Expr := do
   (do guard <| eval.pp.get (← getOptions); mkAppM ``MessageData.ofExpr #[← mkToExpr e])
   <|> (return mkApp (mkConst ``MessageData.ofFormat) (← mkFormat e))
-  <|> do throwError m!"could not synthesize a 'ToExpr', 'Repr', or 'ToString' instance for type{indentExpr (← inferType e)}"
+  <|> do throwError m!"Could not synthesize a `ToExpr`, `Repr`, or `ToString` instance for type{indentExpr (← inferType e)}"
 
 private structure EvalAction where
   eval : CommandElabM MessageData
@@ -177,14 +190,14 @@ unsafe def elabEvalCoreUnsafe (bang : Bool) (tk term : Syntax) (expectedType? : 
         | return none
       let eType := e.appFn!.appArg!
       if ← isDefEq eType (mkConst ``Unit) then
-        addAndCompileExprForEval declName e (allowSorry := bang)
-        let mf : m Unit ← evalConst (m Unit) declName
+        let declName ← addAndCompileExprForEval declName e (allowSorry := bang)
+        let mf : m Unit ← evalConst (m Unit) declName (checkMeta := !Elab.inServer.get (← getOptions))
         return some { eval := do MonadEvalT.monadEval mf; pure "", printVal := none }
       else
         let rf ← withLocalDeclD `x eType fun x => do mkLambdaFVars #[x] (← mkT x)
         let r ← mkAppM ``Functor.map #[rf, e]
-        addAndCompileExprForEval declName r (allowSorry := bang)
-        let mf : m t ← evalConst (m t) declName
+        let declName ← addAndCompileExprForEval declName r (allowSorry := bang)
+        let mf : m t ← evalConst (m t) declName (checkMeta := !Elab.inServer.get (← getOptions))
         return some { eval := toMessageData <$> MonadEvalT.monadEval mf, printVal := some eType }
     if let some act ← mkMAct? ``CommandElabM CommandElabM e
                     -- Fallbacks in case we are in the Lean package but don't have `CommandElabM` yet
@@ -205,10 +218,10 @@ unsafe def elabEvalCoreUnsafe (bang : Bool) (tk term : Syntax) (expectedType? : 
           discard <| withLocalDeclD `x ty fun x => mkT x
         catch _ =>
           throw ex
-        throwError m!"unable to synthesize '{.ofConstName ``MonadEval}' instance \
+        throwError m!"Unable to synthesize `{.ofConstName ``MonadEval}` instance \
           to adapt{indentExpr (← inferType e)}\n\
-          to '{.ofConstName ``IO}' or '{.ofConstName ``CommandElabM}'."
-      addAndCompileExprForEval declName r (allowSorry := bang)
+          to `{.ofConstName ``IO}` or `{.ofConstName ``CommandElabM}`."
+      let declName ← addAndCompileExprForEval declName r (allowSorry := bang)
       -- `evalConst` may emit IO, but this is collected by `withIsolatedStreams` below.
       let r ← toMessageData <$> evalConst t declName (checkMeta := !Elab.inServer.get (← getOptions))
       return { eval := pure r, printVal := some (← inferType e) }
@@ -216,16 +229,21 @@ unsafe def elabEvalCoreUnsafe (bang : Bool) (tk term : Syntax) (expectedType? : 
     try
       -- Generate an action without executing it. We use `withoutModifyingEnv` to ensure
       -- we don't pollute the environment with auxiliary declarations.
-      let act : EvalAction ← liftTermElabM do Term.withDeclName declName do withoutModifyingEnv do
-        let e ← elabTermForEval term expectedType?
-        -- If there is an elaboration error, don't evaluate!
-        if e.hasSyntheticSorry then throwAbortTerm
-        -- We want `#eval` to work even in the core library, so if `ofFormat` isn't available,
-        -- we fall back on a `Format`-based approach.
-        if (← getEnv).contains ``Lean.MessageData.ofFormat then
-          mkAct id (mkMessageData ·) e
-        else
-          mkAct Lean.MessageData.ofFormat (mkFormat ·) e
+      let act : EvalAction ← withoutModifyingEnv <| runTermElabM fun _ => do Term.withDeclName (mkPrivateName (← getEnv) declName) do
+        withSaveInfoContext do -- save the environment post-elaboration (for matchers, let rec, etc.)
+          let e ← elabTermForEval term expectedType?
+          -- If there is an elaboration error, don't evaluate!
+          if e.hasSyntheticSorry then throwAbortTerm
+          if e.hasFVar then
+            let fvarIds := (Lean.collectFVars {} e).fvarIds
+            let fvarMsg := MessageData.andList (fvarIds.map fun fvarId => m!"`{Expr.fvar fvarId}`").toList
+            throwError m!"Cannot evaluate, contains free variable{fvarIds.size.plural} {fvarMsg}"
+          -- We want `#eval` to work even in the core library, so if `ofFormat` isn't available,
+          -- we fall back on a `Format`-based approach.
+          if (← getEnv).contains ``Lean.MessageData.ofFormat then
+            mkAct id (mkMessageData ·) e
+          else
+            mkAct Lean.MessageData.ofFormat (mkFormat ·) e
       let res ← act.eval
       return Sum.inr (res, act.printVal)
     catch ex =>

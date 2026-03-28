@@ -8,9 +8,7 @@ module
 
 prelude
 
-public import Lean.Util.FindExpr
 public import Lean.Meta.Basic
-public import Init.BinderNameHint
 
 public section
 

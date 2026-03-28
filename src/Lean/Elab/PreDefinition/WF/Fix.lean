@@ -9,9 +9,7 @@ prelude
 public import Lean.Data.Array
 public import Lean.Elab.PreDefinition.Basic
 public import Lean.Elab.PreDefinition.WF.Basic
-public import Lean.Elab.Tactic.Basic
 public import Lean.Meta.ArgsPacker
-public import Lean.Meta.ForEachExpr
 public import Lean.Meta.Match.MatcherApp.Transform
 public import Lean.Meta.Tactic.Cleanup
 public import Lean.Util.HasConstCache
@@ -26,7 +24,7 @@ register_builtin_option debug.definition.wf.replaceRecApps : Bool := {
     descr    := "Type check every step of the well-founded definition translation"
   }
 
-/-
+/--
 Creates a subgoal for a recursive call, as an unsolved `MVar`. The goal is cleaned up, and
 the current syntax reference is stored in the `MVar`’s type as a `RecApp` marker, for
 use by `solveDecreasingGoals` below.
@@ -34,18 +32,50 @@ use by `solveDecreasingGoals` below.
 private def mkDecreasingProof (decreasingProp : Expr) : TermElabM Expr := do
   -- We store the current Ref in the MVar as a RecApp annotation around the type
   let ref ← getRef
-  let mvar ← mkFreshExprSyntheticOpaqueMVar (mkRecAppWithSyntax decreasingProp ref)
+  let ty := mkRecAppWithSyntax decreasingProp ref
+  let mvar ← mkFreshExprSyntheticOpaqueMVar ty
   let mvarId := mvar.mvarId!
   let _mvarId ← mvarId.cleanup
   return mvar
 
+/--
+Below we need a way to identify local contexts, and check if one is included in the other.
+We use the last free variable for that. This works because
+
+* the code below never sees an empty context
+* contexts are extended with fresh variable names
+* we do not clear free variable in this code
+-/
+private def LCtxId := FVarId
+
+private def getLCtxId : MetaM LCtxId := do
+  let lctx := (← getLCtx)
+  if lctx.isEmpty then
+    throwError "unexpected empty local context"
+  return lctx.decls[lctx.size - 1]!.get!.fvarId
+
+private def LCtxId.isValid (lctxid : LCtxId) : MetaM Bool :=
+  return (← getLCtx).contains lctxid
+
+/--
+Since `replaceRecApp` looks at the whole context (by way of `mkDecreasingProof`), a cache entry
+for it is only valid in the current local context, or a sub-context. We use a `LctxId` to track
+that, and ignore cache entries that come from a deeper context.
+
+In the case where we first see a recursive application in a deeper context, and later the same
+call in a less deep context, we thus get two proof obligations. We catch that situation later in
+`assignSubsumed` and the user should only see the more general one.
+-/
+private abbrev RecM (recFnName : Name) :=
+  StateRefT (HasConstCache #[recFnName]) $ StateRefT (ExprMap (Expr × LCtxId)) TermElabM
+
 private partial def replaceRecApps (recFnName : Name) (fixedPrefixSize : Nat) (F : Expr) (e : Expr) : TermElabM Expr := do
   trace[Elab.definition.wf] "replaceRecApps:{indentExpr e}"
   trace[Elab.definition.wf] "type of functorial {F} is{indentExpr (← inferType F)}"
-  let e ← loop F e |>.run' {}
+  let e ← loop F e |>.run' {} |>.run' {}
   return e
 where
-  processRec (F : Expr) (e : Expr) : StateRefT (HasConstCache #[recFnName]) TermElabM Expr := do
+  processRec (F : Expr) (e : Expr) : RecM recFnName Expr := do
     if e.getAppNumArgs < fixedPrefixSize + 1 then
       trace[Elab.definition.wf] "replaceRecApp: eta-expanding{indentExpr e}"
       loop F (← etaExpand e)
@@ -56,17 +86,28 @@ where
       let r := mkApp r (← mkDecreasingProof decreasingProp)
       return mkAppN r (← args[fixedPrefixSize<...*].toArray.mapM (loop F))
 
-  processApp (F : Expr) (e : Expr) : StateRefT (HasConstCache #[recFnName]) TermElabM Expr := do
+  processApp (F : Expr) (e : Expr) : RecM recFnName Expr := do
     if e.isAppOf recFnName then
       processRec F e
     else
       e.withApp fun f args => return mkAppN (← loop F f) (← args.mapM (loop F))
 
-  containsRecFn (e : Expr) : StateRefT (HasConstCache #[recFnName]) TermElabM Bool := do
-    modifyGet (·.contains e)
+  containsRecFn (e : Expr) : RecM recFnName Bool := do
+    modifyGet (HasConstCache.contains e |>.run)
 
-  loop (F : Expr) (e : Expr) : StateRefT (HasConstCache #[recFnName]) TermElabM Expr := do
+  loop (F : Expr) (e : Expr) : RecM recFnName Expr := do
+    if !(← containsRecFn e) then
+      return e
+    if let some (newE, lctxId) := (← getThe (ExprMap _)).get? e then
+      -- only use if the local context is still valid, else ignore and override
+      if (← LCtxId.isValid lctxId) then
+        return newE
     let e' ← loopGo F e
+    -- we only ever extend the local context in this procedure
+    -- so it should suffice to check the last fvar
+    -- (note that we assume here that the local context is not empty)
+    let lctxId ← getLCtxId
+    modifyThe (ExprMap _) fun map => map.insert e (e', lctxId)
     if (debug.definition.wf.replaceRecApps.get (← getOptions)) then
       withTransparency .all do withNewMCtxDepth do
         unless (← isTypeCorrect e') do
@@ -78,9 +119,7 @@ where
           throwError "Type not preserved transforming{indentExpr e}\nto{indentExpr e'}\nType was{indentExpr t1}\nand now is{indentExpr t2}"
     return e'
 
-  loopGo (F : Expr) (e : Expr) : StateRefT (HasConstCache #[recFnName]) TermElabM Expr := do
-    if !(← containsRecFn e) then
-      return e
+  loopGo (F : Expr) (e : Expr) : RecM recFnName Expr := do
     match e with
     | Expr.lam n d b c =>
       withLocalDecl n c (← loop F d) fun x => do
@@ -102,11 +141,11 @@ where
       match (← matchMatcherApp? (alsoCasesOn := true) e) with
       | some matcherApp =>
         if let some matcherApp ← matcherApp.addArg? F then
-          let altsNew ← (Array.zip matcherApp.alts matcherApp.altNumParams).mapM fun (alt, numParams) =>
-            lambdaBoundedTelescope alt numParams fun xs altBody => do
-              unless xs.size = numParams do
+          let altsNew ← matcherApp.alts.zipWithM (bs := matcherApp.altNumParams) fun alt numParams =>
+            lambdaBoundedTelescope alt (numParams + 1) fun xs altBody => do
+              unless xs.size = (numParams + 1) do
                 throwError "unexpected matcher application alternative{indentExpr alt}\nat application{indentExpr e}"
-              let FAlt := xs[numParams - 1]!
+              let FAlt := xs[numParams]!
               let altBody' ← loop FAlt altBody
               mkLambdaFVars xs altBody'
           return { matcherApp with alts := altsNew, discrs := (← matcherApp.discrs.mapM (loop F)) }.toExpr
@@ -223,8 +262,10 @@ def solveDecreasingGoals (funNames : Array Name) (argsPacker : ArgsPacker) (decr
           let type ← goal.getType
           let some ref := getRecAppSyntax? (← goal.getType)
             | throwError "MVar not annotated as a recursive call:{indentExpr type}"
+          goal.setType type.mdataExpr!
           withRef ref <| applyDefaultDecrTactic goal
       | some decrTactic => withRef decrTactic.ref do
+        goals.forM fun goal => do goal.setType (← goal.getType).mdataExpr!
         unless goals.isEmpty do -- unlikely to be empty
           -- make info from `runTactic` available
           goals.forM fun goal => pushInfoTree (.hole goal)
@@ -237,21 +278,32 @@ def solveDecreasingGoals (funNames : Array Name) (argsPacker : ArgsPacker) (decr
             Term.reportUnsolvedGoals remainingGoals
   instantiateMVars value
 
+def isNatLtWF (wfRel : Expr) : MetaM (Option Expr) := do
+  match_expr wfRel with
+  | invImage _ β f wfRelβ =>
+    unless (← isDefEq β (mkConst ``Nat)) do return none
+    unless (← isDefEq wfRelβ (mkConst ``Nat.lt_wfRel)) do return none
+    return f
+  | _ => return none
+
 def mkFix (preDef : PreDefinition) (prefixArgs : Array Expr) (argsPacker : ArgsPacker)
-    (wfRel : Expr) (funNames : Array Name) (decrTactics : Array (Option DecreasingBy))
-    (opaqueProof : Bool) : TermElabM Expr := do
+    (wfRel : Expr) (funNames : Array Name) (decrTactics : Array (Option DecreasingBy)) :
+    TermElabM Expr := do
   let type ← instantiateForall preDef.type prefixArgs
   let (wfFix, varName) ← forallBoundedTelescope type (some 1) fun x type => do
     let x := x[0]!
+    let varName ← x.fvarId!.getUserName -- See comment below.
     let α ← inferType x
     let u ← getLevel α
     let v ← getLevel type
     let motive ← mkLambdaFVars #[x] type
-    let rel := mkProj ``WellFoundedRelation 0 wfRel
-    let wf  := mkProj ``WellFoundedRelation 1 wfRel
-    let wf ← if opaqueProof then mkAppM `Lean.opaqueId #[wf] else pure wf
-    let varName ← x.fvarId!.getUserName -- See comment below.
-    return (mkApp4 (mkConst ``WellFounded.fix [u, v]) α motive rel wf, varName)
+    if let some measure ← isNatLtWF wfRel then
+      return (mkApp3 (mkConst `WellFounded.Nat.fix [u, v]) α motive measure, varName)
+    else
+      let rel := mkProj ``WellFoundedRelation 0 wfRel
+      let wf  := mkProj ``WellFoundedRelation 1 wfRel
+      let wf ← mkAppM `Lean.opaqueId #[wf]
+      return (mkApp4 (mkConst ``WellFounded.fix [u, v]) α motive rel wf, varName)
   forallBoundedTelescope (← whnf (← inferType wfFix)).bindingDomain! (some 2) fun xs _ => do
     let x   := xs[0]!
     -- Remark: we rename `x` here to make sure we preserve the variable name in the

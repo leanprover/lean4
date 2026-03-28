@@ -4,21 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Lean.Meta.Tactic.Grind.Types
-public import Lean.Meta.Tactic.Grind.Simp
-
+import Init.Grind.Util
+import Lean.Meta.Tactic.Grind.Simp
 public section
-
 namespace Lean.Meta.Grind
-/--
-A lighter version of `preprocess` which produces a definitionally equal term,
-but ensures assumptions made by `grind` are satisfied.
--/
-def preprocessLight (e : Expr) : GoalM Expr := do
-  shareCommon (← canon (← normalizeLevels (← foldProjs (← eraseIrrelevantMData (← markNestedSubsingletons (← unfoldReducible e))))))
-
 /--
 If `e` has not been internalized yet, instantiate metavariables, unfold reducible, canonicalize,
 and internalize the result.
@@ -122,6 +113,9 @@ private partial def abstractGroundMismatches? (lhs rhs : Expr) : GoalM (Option (
   if s.lhss.isEmpty then
     return none
   let f := mkLambdaWithBodyAndVarType s.varTypes f
+  let fType ← inferType f
+  let u ← getLevel fType
+  let f := mkApp2 (.const ``Grind.abstractFn [u]) fType f
   return some (mkAppN f s.lhss, mkAppN f s.rhss)
 where
   goCore (lhs rhs : Expr) : AbstractM Expr := do

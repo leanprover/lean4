@@ -48,7 +48,7 @@ variable {α : Type u} {β : Type v} {cmp : α → α → Ordering}
 @[inline] protected def forIn [Monad m] (t : RBTree α cmp) (init : σ) (f : α → σ → m (ForInStep σ)) : m σ :=
   t.val.forIn init (fun a _ acc => f a acc)
 
-instance : ForIn m (RBTree α cmp) α where
+instance [Monad m] : ForIn m (RBTree α cmp) α where
   forIn := RBTree.forIn
 
 @[inline] def isEmpty (t : RBTree α cmp) : Bool :=

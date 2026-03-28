@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Time.Date.Unit.Basic
-// Imports: Std.Time.Date.Unit.Day Std.Time.Date.Unit.Month Std.Time.Date.Unit.Year Std.Time.Date.Unit.Weekday Std.Time.Date.Unit.Week
+// Imports: public import Std.Time.Date.Unit.Year public import Std.Time.Date.Unit.Weekday public import Std.Time.Date.Unit.Week
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,87 +13,110 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Std_Time_Day_Offset_toWeeks___boxed(lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
+lean_object* lean_int_ediv(lean_object*, lean_object*);
+lean_object* lean_int_mul(lean_object*, lean_object*);
+static lean_once_cell_t l_Std_Time_Day_Offset_ofWeeks___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Time_Day_Offset_ofWeeks___closed__0;
+LEAN_EXPORT lean_object* l_Std_Time_Day_Offset_ofWeeks(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Day_Offset_ofWeeks___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Day_Offset_toWeeks(lean_object*);
-lean_object* lean_int_mul(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Time_Day_Offset_ofWeeks(lean_object*);
-lean_object* lean_int_ediv(lean_object*, lean_object*);
-static lean_object* _init_l_Std_Time_Day_Offset_ofWeeks___closed__0() {
+LEAN_EXPORT lean_object* l_Std_Time_Day_Offset_toWeeks___boxed(lean_object*);
+static lean_object* _init_l_Std_Time_Day_Offset_ofWeeks___closed__0(void){
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(7u);
-x_2 = lean_nat_to_int(x_1);
-return x_2;
+lean_object* v___x_1_; lean_object* v___x_2_; 
+v___x_1_ = lean_unsigned_to_nat(7u);
+v___x_2_ = lean_nat_to_int(v___x_1_);
+return v___x_2_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Time_Day_Offset_ofWeeks(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Time_Day_Offset_ofWeeks(lean_object* v_week_3_){
 _start:
 {
-lean_object* x_2; lean_object* x_3; 
-x_2 = l_Std_Time_Day_Offset_ofWeeks___closed__0;
-x_3 = lean_int_mul(x_1, x_2);
-return x_3;
+lean_object* v___x_4_; lean_object* v___x_5_; 
+v___x_4_ = lean_obj_once(&l_Std_Time_Day_Offset_ofWeeks___closed__0, &l_Std_Time_Day_Offset_ofWeeks___closed__0_once, _init_l_Std_Time_Day_Offset_ofWeeks___closed__0);
+v___x_5_ = lean_int_mul(v_week_3_, v___x_4_);
+return v___x_5_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Time_Day_Offset_ofWeeks___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Time_Day_Offset_ofWeeks___boxed(lean_object* v_week_6_){
 _start:
 {
-lean_object* x_2; 
-x_2 = l_Std_Time_Day_Offset_ofWeeks(x_1);
-lean_dec(x_1);
-return x_2;
+lean_object* v_res_7_; 
+v_res_7_ = l_Std_Time_Day_Offset_ofWeeks(v_week_6_);
+lean_dec(v_week_6_);
+return v_res_7_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Time_Day_Offset_toWeeks(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Time_Day_Offset_toWeeks(lean_object* v_day_8_){
 _start:
 {
-lean_object* x_2; lean_object* x_3; 
-x_2 = l_Std_Time_Day_Offset_ofWeeks___closed__0;
-x_3 = lean_int_ediv(x_1, x_2);
-return x_3;
+lean_object* v___x_9_; lean_object* v___x_10_; 
+v___x_9_ = lean_obj_once(&l_Std_Time_Day_Offset_ofWeeks___closed__0, &l_Std_Time_Day_Offset_ofWeeks___closed__0_once, _init_l_Std_Time_Day_Offset_ofWeeks___closed__0);
+v___x_10_ = lean_int_ediv(v_day_8_, v___x_9_);
+return v___x_10_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Time_Day_Offset_toWeeks___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Time_Day_Offset_toWeeks___boxed(lean_object* v_day_11_){
 _start:
 {
-lean_object* x_2; 
-x_2 = l_Std_Time_Day_Offset_toWeeks(x_1);
-lean_dec(x_1);
-return x_2;
+lean_object* v_res_12_; 
+v_res_12_ = l_Std_Time_Day_Offset_toWeeks(v_day_11_);
+lean_dec(v_day_11_);
+return v_res_12_;
 }
 }
-lean_object* initialize_Std_Time_Date_Unit_Day(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Time_Date_Unit_Month(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Time_Date_Unit_Year(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Time_Date_Unit_Weekday(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Time_Date_Unit_Week(uint8_t builtin, lean_object*);
+lean_object* runtime_initialize_Std_Time_Date_Unit_Year(uint8_t builtin);
+lean_object* runtime_initialize_Std_Time_Date_Unit_Weekday(uint8_t builtin);
+lean_object* runtime_initialize_Std_Time_Date_Unit_Week(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Std_Time_Date_Unit_Basic(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Std_Time_Date_Unit_Year(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Std_Time_Date_Unit_Weekday(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Std_Time_Date_Unit_Week(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Std_Time_Date_Unit_Basic(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
+lean_object* initialize_Std_Time_Date_Unit_Year(uint8_t builtin);
+lean_object* initialize_Std_Time_Date_Unit_Weekday(uint8_t builtin);
+lean_object* initialize_Std_Time_Date_Unit_Week(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Std_Time_Date_Unit_Basic(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Std_Time_Date_Unit_Basic(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Std_Time_Date_Unit_Day(builtin, lean_io_mk_world());
+res = initialize_Std_Time_Date_Unit_Year(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Time_Date_Unit_Month(builtin, lean_io_mk_world());
+res = initialize_Std_Time_Date_Unit_Weekday(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Time_Date_Unit_Year(builtin, lean_io_mk_world());
+res = initialize_Std_Time_Date_Unit_Week(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Time_Date_Unit_Weekday(builtin, lean_io_mk_world());
+res = runtime_initialize_Std_Time_Date_Unit_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Time_Date_Unit_Week(builtin, lean_io_mk_world());
+res = meta_initialize_Std_Time_Date_Unit_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Std_Time_Day_Offset_ofWeeks___closed__0 = _init_l_Std_Time_Day_Offset_ofWeeks___closed__0();
-lean_mark_persistent(l_Std_Time_Day_Offset_ofWeeks___closed__0);
-return lean_io_result_mk_ok(lean_box(0));
+return initialize_Std_Time_Date_Unit_Basic(builtin);
 }
 #ifdef __cplusplus
 }

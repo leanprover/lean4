@@ -8,13 +8,8 @@ module
 prelude
 public import Lean.Meta.Tactic.Simp
 public import Lean.Meta.Tactic.Simp.LoopProtection
-public import Lean.Meta.Tactic.Replace
-public import Lean.Meta.Hint
 public import Lean.Elab.BuiltinNotation
-public import Lean.Elab.Tactic.Basic
-public import Lean.Elab.Tactic.ElabTerm
 public import Lean.Elab.Tactic.Location
-public import Lean.Elab.Tactic.Config
 
 public section
 
@@ -93,9 +88,9 @@ private def mkDischargeWrapper (optDischargeSyntax : Syntax) : TacticM Simp.Disc
 -/
 def elabSimpConfig (optConfig : Syntax) (kind : SimpKind) : TacticM Meta.Simp.Config := do
   match kind with
-  | .simp    => elabSimpConfigCore optConfig
-  | .simpAll => return (← elabSimpConfigCtxCore optConfig).toConfig
-  | .dsimp   => return { (← elabDSimpConfigCore optConfig) with }
+    | .simp    => elabSimpConfigCore optConfig
+    | .simpAll => pure (← elabSimpConfigCtxCore optConfig).toConfig
+    | .dsimp   => pure { (← elabDSimpConfigCore optConfig) with }
 
 inductive ResolveSimpIdResult where
   | none
@@ -178,7 +173,9 @@ private def elabDeclToUnfoldOrTheorem (config : Meta.ConfigWithKey) (id : Origin
       return .addEntries <| thms.map (SimpEntry.thm ·)
     else
       if inv then
-        throwError "invalid '←' modifier, '{declName}' is a declaration name to be unfolded"
+        throwError m!"Invalid `←` modifier: `{.ofConstName declName}` is a declaration name to be unfolded"
+          ++ .hint' m!"The simplifier cannot \"refold\" definitions by name. Use `rw` for this instead,
+                      or use the `←` simp modifier with an equational lemma for `{.ofConstName declName}`."
       if kind == .dsimp then
         return .addEntries #[.toUnfold declName]
       else
@@ -190,9 +187,10 @@ private def elabDeclToUnfoldOrTheorem (config : Meta.ConfigWithKey) (id : Origin
       let thms ← mkSimpTheoremFromExpr id #[] e (post := post) (inv := inv) (config := config)
       return .addEntries <| thms.map (SimpEntry.thm ·)
     else if !decl.isLet then
-      throwError "invalid argument, variable is not a proposition or let-declaration"
+      throwError "Invalid argument: Variable `{e}` is not a proposition or let-declaration"
     else if inv then
-      throwError "invalid '←' modifier, '{e}' is a let-declaration name to be unfolded"
+      throwError m!"Invalid `←` modifier: `{e}` is a let-declaration name to be unfolded"
+        ++ .note "The simplifier cannot \"refold\" local declarations by name"
     else
       return .addLetToUnfold fvarId
   else
@@ -418,6 +416,28 @@ structure MkSimpContextResult where
   /-- The elaborated simp arguments with syntax -/
   simpArgs         : Array (Syntax × ElabSimpArgResult) := #[]
 
+/-- Add all definitions from the current file to unfold. -/
+def elabSimpLocals (thms : SimpTheorems) (kind : SimpKind) : MetaM SimpTheorems := do
+  let env ← getEnv
+  let mut thms := thms
+  for (name, ci) in env.constants.map₂.toList do
+    -- Skip internal details, but allow private names (which are accessible from current module)
+    if name.isInternalDetail && !isPrivateName name then continue
+    if (← isImplicitReducible name) then continue
+    match ci with
+    | .defnInfo _ =>
+      -- Definitions are added to unfold
+      try
+        if kind == .dsimp then
+          thms := thms.addDeclToUnfoldCore name
+        else
+          let entries ← mkSimpEntryOfDeclToUnfold name
+          for entry in entries do
+            thms := thms.addSimpEntry entry
+      catch _ => pure () -- Skip definitions that can't be added
+    | _ => continue
+  return thms
+
 /--
    Create the `Simp.Context` for the `simp`, `dsimp`, and `simp_all` tactics.
    If `kind != SimpKind.simp`, the `discharge` option must be `none`
@@ -434,19 +454,23 @@ def mkSimpContext (stx : Syntax) (eraseLocal : Bool) (kind := SimpKind.simp)
     TacticM MkSimpContextResult := do
   if !stx[2].isNone then
     if kind == SimpKind.simpAll then
-      throwError "'simp_all' tactic does not support 'discharger' option"
+      throwError "Tactic `simp_all` does not support the `discharger` option"
     if kind == SimpKind.dsimp then
-      throwError "'dsimp' tactic does not support 'discharger' option"
+      throwError "Tactic `dsimp` does not support the `discharger' option"
   let dischargeWrapper ← mkDischargeWrapper stx[2]
   let simpOnly := !stx[simpOnlyPos].isNone
-  let simpTheorems ← if simpOnly then
+  let mut simpTheorems ← if simpOnly then
     simpOnlyBuiltins.foldlM (·.addConst ·) ({} : SimpTheorems)
   else
     simpTheorems
   let simprocs ← if simpOnly then pure {} else Simp.getSimprocs
   let congrTheorems ← getSimpCongrTheorems
+  let config ← elabSimpConfig stx[1] (kind := kind)
+  -- Add local definitions if +locals is enabled
+  if config.locals then
+    simpTheorems ← elabSimpLocals simpTheorems kind
   let ctx ← Simp.mkContext
-     (config := (← elabSimpConfig stx[1] (kind := kind)))
+     (config := config)
      (simpTheorems := #[simpTheorems])
      congrTheorems
   let r ← elabSimpArgs stx[4] (eraseLocal := eraseLocal) (kind := kind) (simprocs := #[simprocs]) (ignoreStarArg := ignoreStarArg) ctx
@@ -659,18 +683,22 @@ def withSimpDiagnostics (x : TacticM Simp.Diagnostics) : TacticM Unit := do
 -/
 @[builtin_tactic Lean.Parser.Tactic.simp] def evalSimp : Tactic := fun stx => withMainContext do withSimpDiagnostics do
   let r@{ ctx, simprocs, dischargeWrapper, simpArgs } ← mkSimpContext stx (eraseLocal := false)
+  if ctx.config.suggestions then
+    throwError "+suggestions requires using simp? instead of simp"
   let stats ← dischargeWrapper.with fun discharge? =>
     withLoopChecking r do
       simpLocation ctx simprocs discharge? (expandOptLocation stx[5])
   if tactic.simp.trace.get (← getOptions) then
     traceSimpCall stx stats.usedTheorems
-  else if linter.unusedSimpArgs.get (← getOptions) then
+  else if Linter.getLinterValue linter.unusedSimpArgs (← Linter.getLinterOptions) then
     withRef stx do
       warnUnusedSimpArgs simpArgs stats.usedTheorems
   return stats.diag
 
 @[builtin_tactic Lean.Parser.Tactic.simpAll] def evalSimpAll : Tactic := fun stx => withMainContext do withSimpDiagnostics do
   let r@{ ctx, simprocs, dischargeWrapper := _, simpArgs } ← mkSimpContext stx (eraseLocal := true) (kind := .simpAll) (ignoreStarArg := true)
+  if ctx.config.suggestions then
+    throwError "+suggestions requires using simp_all? instead of simp_all"
   let (result?, stats) ←
     withLoopChecking r do
       simpAll (← getMainGoal) ctx (simprocs := simprocs)
@@ -679,7 +707,7 @@ def withSimpDiagnostics (x : TacticM Simp.Diagnostics) : TacticM Unit := do
   | some mvarId => replaceMainGoal [mvarId]
   if tactic.simp.trace.get (← getOptions) then
     traceSimpCall stx stats.usedTheorems
-  else if linter.unusedSimpArgs.get (← getOptions) then
+  else if Linter.getLinterValue linter.unusedSimpArgs (← Linter.getLinterOptions) then
     withRef stx do
       warnUnusedSimpArgs simpArgs stats.usedTheorems
   return stats.diag

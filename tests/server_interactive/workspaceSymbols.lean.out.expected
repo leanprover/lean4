@@ -1,0 +1,97 @@
+{"query": "Test.Foo.Bar.someLongAndHopefullyVeryMuchUniqueIdentifier"}
+[{"tags": [],
+  "name": "Test.Foo.Bar.someLongAndHopefullyVeryMuchUniqueIdentifier",
+  "location":
+  {"uri": "file:///workspaceSymbols.lean",
+   "range":
+   {"start": {"line": 2, "character": 4}, "end": {"line": 2, "character": 61}}},
+  "kind": 14}]
+{"query": "Lean.Server.Test.Refs.Test"}
+[{"tags": [],
+  "name": "Lean.Server.Test.Refs.test9",
+  "location":
+  {"uri": "file:///src/Lean/Server/Test/Refs.lean",
+   "range":
+   {"start": {"line": 27, "character": 11},
+    "end": {"line": 27, "character": 16}}},
+  "kind": 14},
+ {"tags": [],
+  "name": "Lean.Server.Test.Refs.test8",
+  "location":
+  {"uri": "file:///src/Lean/Server/Test/Refs.lean",
+   "range":
+   {"start": {"line": 26, "character": 11},
+    "end": {"line": 26, "character": 16}}},
+  "kind": 14},
+ {"tags": [],
+  "name": "Lean.Server.Test.Refs.test7",
+  "location":
+  {"uri": "file:///src/Lean/Server/Test/Refs.lean",
+   "range":
+   {"start": {"line": 25, "character": 11},
+    "end": {"line": 25, "character": 16}}},
+  "kind": 14},
+ {"tags": [],
+  "name": "Lean.Server.Test.Refs.Test6",
+  "location":
+  {"uri": "file:///src/Lean/Server/Test/Refs.lean",
+   "range":
+   {"start": {"line": 23, "character": 17},
+    "end": {"line": 23, "character": 22}}},
+  "kind": 14},
+ {"tags": [],
+  "name": "Lean.Server.Test.Refs.Test5",
+  "location":
+  {"uri": "file:///src/Lean/Server/Test/Refs.lean",
+   "range":
+   {"start": {"line": 21, "character": 11},
+    "end": {"line": 21, "character": 16}}},
+  "kind": 14},
+ {"tags": [],
+  "name": "Lean.Server.Test.Refs.Test4",
+  "location":
+  {"uri": "file:///src/Lean/Server/Test/Refs.lean",
+   "range":
+   {"start": {"line": 20, "character": 11},
+    "end": {"line": 20, "character": 16}}},
+  "kind": 14},
+ {"tags": [],
+  "name": "Lean.Server.Test.Refs.Test3",
+  "location":
+  {"uri": "file:///src/Lean/Server/Test/Refs.lean",
+   "range":
+   {"start": {"line": 19, "character": 11},
+    "end": {"line": 19, "character": 16}}},
+  "kind": 14},
+ {"tags": [],
+  "name": "Lean.Server.Test.Refs.Test2",
+  "location":
+  {"uri": "file:///src/Lean/Server/Test/Refs.lean",
+   "range":
+   {"start": {"line": 18, "character": 11},
+    "end": {"line": 18, "character": 16}}},
+  "kind": 14},
+ {"tags": [],
+  "name": "Lean.Server.Test.Refs.Test1",
+  "location":
+  {"uri": "file:///src/Lean/Server/Test/Refs.lean",
+   "range":
+   {"start": {"line": 17, "character": 11},
+    "end": {"line": 17, "character": 16}}},
+  "kind": 14},
+ {"tags": [],
+  "name": "Lean.Server.Test.Refs.test10",
+  "location":
+  {"uri": "file:///src/Lean/Server/Test/Refs.lean",
+   "range":
+   {"start": {"line": 28, "character": 11},
+    "end": {"line": 28, "character": 17}}},
+  "kind": 14},
+ {"tags": [],
+  "name": "Lean.Server.Test.Refs.Test6.mk",
+  "location":
+  {"uri": "file:///src/Lean/Server/Test/Refs.lean",
+   "range":
+   {"start": {"line": 24, "character": 4},
+    "end": {"line": 24, "character": 6}}},
+  "kind": 14}]

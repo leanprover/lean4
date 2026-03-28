@@ -10,14 +10,25 @@ public import Lean.Structure
 public import Lean.Util.Recognizers
 public import Lean.Util.SafeExponentiation
 public import Lean.Meta.GetUnfoldableConst
-public import Lean.Meta.FunInfo
-public import Lean.Meta.Offset
 public import Lean.Meta.CtorRecognizer
 public import Lean.Meta.Match.MatcherInfo
 public import Lean.Meta.Match.MatchPatternAttr
 public import Lean.Meta.Transform
+import Init.Data.Range.Polymorphic.Iterators
 
 public section
+
+namespace Lean.Expr
+
+def toCtorIfLit : Expr → MetaM Expr
+  | .lit (.natVal v) =>
+    if v == 0 then return mkConst ``Nat.zero
+    else return mkApp (mkConst ``Nat.succ) (mkRawNatLit (v-1))
+  | .lit (.strVal v) =>
+    Lean.Meta.whnf (mkApp (mkConst ``String.ofList) (toExpr v.toList))
+  | e => return e
+
+end Lean.Expr
 
 namespace Lean.Meta
 
@@ -25,6 +36,7 @@ namespace Lean.Meta
 /-! # Smart unfolding support -/
 -- ===========================
 
+set_option compiler.ignoreBorrowAnnotation true in
 /--
 Forward declaration. It is defined in the module `src/Lean/Elab/PreDefinition/Structural/Eqns.lean`.
 It is possible to avoid this hack if we move `Structural.EqnInfo` and `Structural.eqnInfoExt`
@@ -66,7 +78,7 @@ def smartUnfoldingMatchAlt? (e : Expr) : Option Expr :=
 
 def isAuxDef (constName : Name) : MetaM Bool := do
   let env ← getEnv
-  return isAuxRecursor env constName || isNoConfusion env constName
+  return isAuxRecursor env constName
 
 /--
 Retrieves `ConstInfo` for `declName`.
@@ -158,7 +170,7 @@ def mkProjFn (ctorVal : ConstructorVal) (us : List Level) (params : Array Expr) 
     | some projFn => return mkApp (mkAppN (mkConst projFn us) params) major
 
 /--
-  If `major` is not a constructor application, and its type is a structure `C ...`, then return `C.mk major.1 ... major.n`
+  If `major` is not a constructor application, and its type is a non-recursive structure `C ...`, then return `C.mk major.1 ... major.n`
 
   \pre `inductName` is `C`.
 
@@ -167,7 +179,7 @@ private def toCtorWhenStructure (inductName : Name) (major : Expr) : MetaM Expr 
   unless (← useEtaStruct inductName) do
     return major
   let env ← getEnv
-  if !isStructureLike env inductName then
+  if !isNonRecStructure env inductName then
     return major
   else if let some _ ← isConstructorApp? major then
     return major
@@ -179,7 +191,7 @@ private def toCtorWhenStructure (inductName : Name) (major : Expr) : MetaM Expr 
       return major
     match majorType.getAppFn with
     | Expr.const d us =>
-      if (← whnfD (← inferType majorType)) == mkSort levelZero then
+      if (← whnfD (← inferType majorType)) == mkSort Level.zero then
         return major -- We do not perform eta for propositions, see implementation in the kernel
       else
         let some ctorName ← getFirstCtor d | pure major
@@ -227,7 +239,7 @@ private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : A
       whnf major
     if recVal.k then
       major ← toCtorWhenK recVal major
-    major := major.toCtorIfLit
+    major ← major.toCtorIfLit
     major ← cleanupNatOffsetMajor major
     major ← toCtorWhenStructure recVal.getMajorInduct major
     match getRecRuleFor recVal major with
@@ -330,27 +342,36 @@ mutual
         | some <| .quotInfo recVal => isQuotRecStuck? recVal e.getAppArgs
         | _  =>
           unless e.hasExprMVar do return none
-          -- Projection function support
-          let some projInfo ← getProjectionFnInfo? fName | return none
-          -- This branch is relevant if `e` is a type class projection that is stuck because the instance has not been synthesized yet.
-          unless projInfo.fromClass do return none
           let args := e.getAppArgs
-          -- First check whether `e`s instance is stuck.
-          if let some major := args[projInfo.numParams]? then
-            if let some mvarId ← getStuckMVar? major then
-              return mvarId
-          /-
-          Then, recurse on the explicit arguments
-          We want to detect the stuck instance in terms such as
-          `HAdd.hAdd Nat Nat Nat (instHAdd Nat instAddNat) n (OfNat.ofNat Nat 2 ?m)`
-          See issue https://github.com/leanprover/lean4/issues/1408 for an example where this is needed.
-          -/
-          let info ← getFunInfo f
-          for pinfo in info.paramInfo, arg in args do
-            if pinfo.isExplicit then
-              if let some mvarId ← getStuckMVar? arg then
-                return some mvarId
-          return none
+          -- Projection function support
+          if let some projInfo ← getProjectionFnInfo? fName then
+            -- This branch is relevant if `e` is a type class projection that is stuck because the instance has not been synthesized yet.
+            unless projInfo.fromClass do return none
+            -- First check whether `e`s instance is stuck.
+            if let some major := args[projInfo.numParams]? then
+              if let some mvarId ← getStuckMVar? (← whnf major) then
+                return mvarId
+            /-
+            Then, recurse on the explicit arguments
+            We want to detect the stuck instance in terms such as
+            `HAdd.hAdd Nat Nat Nat (instHAdd Nat instAddNat) n (OfNat.ofNat Nat 2 ?m)`
+            See issue https://github.com/leanprover/lean4/issues/1408 for an example where this is needed.
+            -/
+            let info ← getFunInfo f
+            for pinfo in info.paramInfo, arg in args do
+              if pinfo.isExplicit then
+                if let some mvarId ← getStuckMVar? arg then
+                  return some mvarId
+            return none
+          -- Auxiliary parent projections created for diamond inheritance (not registered as projections).
+          else if let some auxInfo ← getAuxParentProjectionInfo? fName then
+            unless auxInfo.fromClass do return none
+            if let some major := args[auxInfo.numParams]? then
+              if let some mvarId ← getStuckMVar? (← whnf major) then
+                return mvarId
+            return none
+          else
+            return none
       | .proj _ _ e => getStuckMVar? (← whnf e)
       | _ => return none
     | _ => return none
@@ -479,7 +500,8 @@ def canUnfoldAtMatcher (cfg : Config) (info : ConstantInfo) : CoreM Bool := do
   | .all     => return true
   | .default => return !(← isIrreducible info.name)
   | _ =>
-    if (← isReducible info.name) || isGlobalInstance (← getEnv) info.name then
+    let status ← getReducibilityStatus info.name
+    if status matches .reducible | .implicitReducible then
       return true
     else if hasMatchPatternAttribute (← getEnv) info.name then
       return true
@@ -542,7 +564,7 @@ def reduceMatcher? (e : Expr) : MetaM ReduceMatcherResult := do
     return ReduceMatcherResult.stuck auxApp
 
 def projectCore? (e : Expr) (i : Nat) : MetaM (Option Expr) := do
-  let e := e.toCtorIfLit
+  let e ← e.toCtorIfLit
   matchConstCtor e.getAppFn (fun _ => pure none) fun ctorVal _ =>
     let numArgs := e.getAppNumArgs
     let idx := ctorVal.numParams + i
@@ -623,7 +645,7 @@ partial def consumeUnusedLet (e : Expr) (consumeNondep : Bool := false) : Expr :
 
 /--
 Apply beta-reduction, zeta-reduction (i.e., unfold let local-decls), iota-reduction,
-expand let-expressions, expand assigned meta-variables.
+expand let-expressions, expand assigned meta-variables, unfold aux declarations.
 -/
 partial def whnfCore (e : Expr) : MetaM Expr :=
   go e
@@ -679,6 +701,7 @@ where
                 deltaBetaDefinition c lvls e.getAppRevArgs (fun _ => return e) go
               else
                 return e
+            | .axiomInfo val => recordUnfoldAxiom val.name; return e
             | _ => return e
       | .proj _ i c =>
         let k (c : Expr) := do
@@ -755,36 +778,94 @@ where
         failure
     | _ => failure
 
+/--
+Returns `true` if `declName` is the name of class field.
+-/
+private def isProjInst (declName : Name) : MetaM Bool := do
+  let some { fromClass := true, .. } ← getProjectionFnInfo? declName | return false
+  return true
+
+/--
+Auxiliary method for unfolding a class projection. Recall that class fields are not marked with
+`[reducible]`, but we want to reduce them when the transparency setting is `.instances`.
+For example, given `a b : Nat`, the term `a ≤ b` is `LE.le Nat instLENat a b`.
+Unfolding the class field `LE.le` gives `instLENat.1 a b`. This method goes further and
+reduces the instance projection to return `Nat.le a b`.
+-/
+partial def unfoldProjInst? (e : Expr) : MetaM (Option Expr) := do
+  let f := e.getAppFn
+  let .const declName us := f | return none
+  unless (← isProjInst declName) do return none
+  let some fInfo ← withDefault <| getUnfoldableConst? declName | return none
+  deltaBetaDefinition fInfo us e.getAppRevArgs (fun _ => pure none) fun e' => do
+  /-
+  Continuing the example: after delta-beta reducing `LE.le`, we get `e'` which is
+  `instLENat.1 a b`. We consider the unfolding successful if this instance projection
+  reduces to `Nat.le a b` using `.instances` reducibility.
+  -/
+  let some r ← withReducibleAndInstances <| reduceProj? e'.getAppFn | return none
+  recordUnfold declName
+  return some <| mkAppN r e'.getAppArgs |>.headBeta
+
+/--
+Auxiliary method for unfolding a class projection when transparency is set to `TransparencyMode.instances`.
+Recall that class instance projections are not marked with `[reducible]` because we want them to be
+in "reducible canonical form".
+See `unfoldProjInst?`
+-/
+partial def unfoldProjInstWhenInstances? (e : Expr) : MetaM (Option Expr) := do
+  if (← getTransparency) matches .instances then
+    unfoldProjInst? e
+  else
+    return none
+
+/--
+When `true`, unfolding a `[reducible]` class field at `TransparencyMode.reducible` also unfolds
+the associated instance projection at `TransparencyMode.instances`.
+
+**Motivation:** Consider `a ≤ b` where `a b : Nat` and `LE.le` is `[reducible]`. Unfolding `LE.le`
+gives `instLENat.1 a b`, which is stuck because `instLENat` is `[implicit_reducible]` (not
+`[reducible]`). Similarly, `stM m (ExceptT ε m) α` unfolds to an instance projection that is stuck
+at `.reducible`. Without this option, marking a class field as `[reducible]` is pointless when the
+instance providing it is only `[implicit_reducible]`. This option makes the `[reducible]` annotation
+on class fields work as the user expects by temporarily bumping to `.instances` for the projection.
+
+See `unfoldDefault` for the implementation.
+-/
+register_builtin_option backward.whnf.reducibleClassField : Bool := {
+  defValue := true
+  descr    := "enables better support for unfolding type class fields marked as `[reducible]`"
+}
+
+/--
+Default unfolding function. `e` is of the form `f.{us} a₁ ... aₙ`, and `fInfo` is the `ConstantInfo` for `f`.
+This function has special support for unfolding class fields.
+The support is particularly important when the user marks a class field as `[reducible]` and
+the transparency mode is `.reducible`. For example, suppose `e` is `a ≤ b` where `a b : Nat`,
+and `LE.le` is marked as `[reducible]`. Simply unfolding `LE.le` would give `instLENat.1 a b`,
+which would be stuck because `instLENat` has transparency `[implicit_reducible]`. To avoid this, when we unfold
+a `[reducible]` class field, we also unfold the associated projection `instLENat.1` using
+`.instances` reducibility, ultimately returning `Nat.le a b`.
+-/
+private def unfoldDefault (fInfo : ConstantInfo) (us : List Level) (e : Expr) : MetaM (Option Expr) := do
+  if fInfo.hasValue then
+    recordUnfold fInfo.name
+    deltaBetaDefinition fInfo us e.getAppRevArgs (fun _ => pure none) fun e => do
+      if !backward.whnf.reducibleClassField.get (← getOptions) then
+        return some e
+      else if !(← getTransparency) matches .reducible then
+        return some e
+      else if (← isProjInst fInfo.name) then
+        let some r ← withReducibleAndInstances <| reduceProj? e.getAppFn | return some e
+        return mkAppN r e.getAppArgs |>.headBeta
+      else
+        return some e
+  else
+    if fInfo.isAxiom then
+      recordUnfoldAxiom fInfo.name
+    return none
+
 mutual
-
-  /--
-    Auxiliary method for unfolding a class projection.
-  -/
-  partial def unfoldProjInst? (e : Expr) : MetaM (Option Expr) := do
-    match e.getAppFn with
-    | .const declName .. =>
-      match (← getProjectionFnInfo? declName) with
-      | some { fromClass := true, .. } =>
-        match (← withDefault <| unfoldDefinition? e) with
-        | none   => return none
-        | some e =>
-          match (← withReducibleAndInstances <| reduceProj? e.getAppFn) with
-          | none   => return none
-          | some r => recordUnfold declName; return mkAppN r e.getAppArgs |>.headBeta
-      | _ => return none
-    | _ => return none
-
-  /--
-    Auxiliary method for unfolding a class projection when transparency is set to `TransparencyMode.instances`.
-    Recall that class instance projections are not marked with `[reducible]` because we want them to be
-    in "reducible canonical form".
-  -/
-  partial def unfoldProjInstWhenInstances? (e : Expr) : MetaM (Option Expr) := do
-    if (← getTransparency) != TransparencyMode.instances then
-      return none
-    else
-      unfoldProjInst? e
-
   /--
   Unfold definition using "smart unfolding" if possible.
   If `ignoreTransparency = true`, then the definition is unfolded even if the transparency setting does not allow it.
@@ -796,12 +877,8 @@ mutual
         if fInfo.levelParams.length != fLvls.length then
           return none
         else
-          let unfoldDefault (_ : Unit) : MetaM (Option Expr) := do
-            if fInfo.hasValue then
-              recordUnfold fInfo.name
-              deltaBetaDefinition fInfo fLvls e.getAppRevArgs (fun _ => pure none) (fun e => pure (some e))
-            else
-              return none
+          let unfoldDefault (_ : Unit) : MetaM (Option Expr) :=
+            unfoldDefault fInfo fLvls e
           if smartUnfolding.get (← getOptions) then
             match ((← getEnv).find? (skipRealize := true) (mkSmartUnfoldingNameFor fInfo.name)) with
             | some fAuxInfo@(.defnInfo _) =>
@@ -870,7 +947,10 @@ mutual
       if smartUnfolding.get (← getOptions) && (← getEnv).contains (mkSmartUnfoldingNameFor declName) then
         return none
       else
-        unless cinfo.hasValue do return none
+        unless cinfo.hasValue do
+          if cinfo.isAxiom then
+            recordUnfoldAxiom cinfo.name
+          return none
         deltaDefinition cinfo lvls
           (fun _ => pure none)
           (fun e => do recordUnfold declName; pure (some e))
@@ -897,6 +977,10 @@ def whnfUntil (e : Expr) (declName : Name) : MetaM (Option Expr) := do
     return e
   else
     return none
+
+/-- Applies `whnfCore` while unfolding type annotations (`outParam`/`optParam`/etc.). -/
+partial def whnfCoreUnfoldingAnnotations (e : Expr) : MetaM Expr :=
+  whnfHeadPred e (fun e => return e.isTypeAnnotation)
 
 /-- Try to reduce matcher/recursor/quot applications. We say they are all "morally" recursor applications. -/
 def reduceRecMatcher? (e : Expr) : MetaM (Option Expr) := do
@@ -1016,6 +1100,7 @@ private def cache (useCache : Bool) (e r : Expr) : MetaM Expr := do
     modify fun s => { s with cache.whnf := s.cache.whnf.insert key r }
   return r
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[export lean_whnf]
 partial def whnfImp (e : Expr) : MetaM Expr :=
   withIncRecDepth <| whnfEasyCases e fun e => do

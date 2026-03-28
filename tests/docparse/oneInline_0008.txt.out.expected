@@ -1,0 +1,10 @@
+Success! Final stack:
+  (Lean.Doc.Syntax.bold
+   "**"
+   [(Lean.Doc.Syntax.text (str "\"aa\""))
+    (Lean.Doc.Syntax.linebreak
+     "line!"
+     (str "\"\\n\""))
+    (Lean.Doc.Syntax.text (str "\"bb\""))]
+   "**")
+All input consumed.

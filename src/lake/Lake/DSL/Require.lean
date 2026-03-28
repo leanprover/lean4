@@ -3,12 +3,11 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+module
+
 prelude
-import Lean.Parser.Command
+public import Lake.DSL.Syntax
 import Lake.Config.Dependency
-import Lake.DSL.Extensions
-import Lake.DSL.DeclUtil
-import Lake.DSL.Syntax
 
 open Lean Parser Command
 
@@ -57,14 +56,8 @@ def expandDepSpec (stx : TSyntax ``depSpec) (doc? : Option DocComment) : MacroM 
     opts := $(opts?.getD <| ← `({})),
   })
 
-
 @[builtin_macro requireDecl]
 def expandRequireDecl : Macro := fun stx => do
   let `(requireDecl|$(doc?)? require%$kw $spec) := stx
     | Macro.throwErrorAt stx "ill-formed require declaration"
   withRef kw do expandDepSpec spec doc?
-
-@[inherit_doc requireDecl] abbrev RequireDecl := TSyntax ``requireDecl
-
-instance : Coe RequireDecl Command where
-  coe x := ⟨x.raw⟩

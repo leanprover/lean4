@@ -8,11 +8,11 @@ jobs:
   check-stage0-on-queue:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
       with:
         ref: ${{ github.event.pull_request.head.sha }}
-        filter: blob:none
         fetch-depth: 0
+        filter: tree:0
 
     - name: Find base commit
       if: github.event_name == 'pull_request'
@@ -31,7 +31,7 @@ jobs:
 
     - if: github.event_name == 'pull_request'
       name: Set label
-      uses: actions/github-script@v7
+      uses: actions/github-script@v8
       with:
         script: |
           const { owner, repo, number: issue_number  } = context.issue;

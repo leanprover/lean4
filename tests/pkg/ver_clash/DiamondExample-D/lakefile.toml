@@ -1,0 +1,15 @@
+name = "DiamondExample-D"
+defaultTargets = ["DiamondExampleD"]
+
+[[require]]
+name = "DiamondExample-B"
+git = "../DiamondExample-B"
+rev = "master"
+
+[[require]]
+name = "DiamondExample-C"
+git = "../DiamondExample-C"
+rev = "v2"
+
+[[lean_lib]]
+name = "DiamondExampleD"

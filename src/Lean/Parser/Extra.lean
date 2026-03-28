@@ -6,14 +6,13 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 module
 
 prelude
-public import Lean.Parser.Extension
 public import Lean.PrettyPrinter.Formatter
 public import Lean.PrettyPrinter.Parenthesizer
-meta import Lean.Hygiene
 -- for `run_builtin_parser_attribute_hooks`
 import all Lean.Parser.Types
 import all Lean.Parser.Basic
 import all Lean.Parser.Extension
+public meta import Lean.Hygiene
 
 public section
 
@@ -93,7 +92,7 @@ You can use `TSyntax.getId` to extract the name from the resulting syntax object
   withAntiquot (mkAntiquot "ident" identKind) rawIdentNoAntiquot
 
 /--
-The parser `hygieneInfo` parses no text, but creates a `hygineInfoKind` node
+The parser `hygieneInfo` parses no text, but creates a `hygieneInfoKind` node
 containing an anonymous identifier as if it were parsed at the current position.
 This identifier is modified by syntax quotations to add macro scopes like a regular identifier.
 
@@ -123,6 +122,17 @@ literal.
 You can use `TSyntax.getNat` to extract the number from the resulting syntax object. -/
 @[run_builtin_parser_attribute_hooks, builtin_doc] def numLit : Parser :=
   withAntiquot (mkAntiquot "num" numLitKind) numLitNoAntiquot
+
+/-- The parser `hexnum` parses a hexadecimal numeric literal not containing the `0x` prefix.
+
+It produces a `hexnumKind` node containing an atom with the text of the
+literal. This parser is mainly used for creating atoms such `#<hexnum>`. Recall that `hexnum`
+is not a token and this parser must be prefixed by another parser.
+
+For numerals such as `0xadef100a`, you should use `numLit`.
+-/
+@[builtin_doc] def hexnum : Parser :=
+  withAntiquot (mkAntiquot "hexnum" hexnumKind) hexnumNoAntiquot
 
 /-- The parser `scientific` parses a scientific-notation literal, such as `1.3e-24`.
 
@@ -306,6 +316,10 @@ attribute [run_builtin_parser_attribute_hooks]
   ppHardSpace ppSpace ppLine ppGroup ppRealGroup ppRealFill ppIndent ppDedent
   ppAllowUngrouped ppDedentIfGrouped ppHardLineUnlessUngrouped
 
+-- workaround: we want `ppSpace` below to refer to the built-in parser alias, not the def above that
+-- would require `meta` access
+end Parser
+
 syntax "register_parser_alias " group("(" &"kind" " := " term ") ")? (str ppSpace)? ident (ppSpace colGt term)? : term
 macro_rules
   | `(register_parser_alias $[(kind := $kind?)]? $(aliasName?)? $declName $(info?)?) => do
@@ -317,6 +331,8 @@ macro_rules
     `(do Parser.registerAlias $aliasName ``$declName $declName $(info?.getD (Unhygienic.run `({}))) (kind? := some $(kind?.getD (quote fullDeclName)))
          PrettyPrinter.Formatter.registerAlias $aliasName $(mkIdentFrom declName (declName.getId ++ `formatter))
          PrettyPrinter.Parenthesizer.registerAlias $aliasName $(mkIdentFrom declName (declName.getId ++ `parenthesizer)))
+
+open Parser
 
 builtin_initialize
   register_parser_alias patternIgnore { autoGroupArgs := false }
@@ -333,7 +349,5 @@ builtin_initialize
   register_parser_alias ppDedentIfGrouped { stackSz? := none }
   register_parser_alias ppAllowUngrouped { stackSz? := some 0 }
   register_parser_alias ppHardLineUnlessUngrouped { stackSz? := some 0 }
-
-end Parser
 
 end Lean

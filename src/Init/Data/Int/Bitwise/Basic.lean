@@ -50,4 +50,21 @@ protected def shiftRight : Int → Nat → Int
 
 instance : HShiftRight Int Nat Int := ⟨.shiftRight⟩
 
+/--
+Bitwise left shift, usually accessed via the `<<<` operator.
+
+Examples:
+ * `1 <<< 2 = 4`
+ * `1 <<< 3 = 8`
+ * `0 <<< 3 = 0`
+ * `0xf1 <<< 4 = 0xf10`
+ * `(-1) <<< 3 = -8`
+-/
+@[expose]
+protected def shiftLeft : Int → Nat → Int
+  | Int.ofNat n, s => Int.ofNat (n <<< s)
+  | Int.negSucc n, s => Int.negSucc (((n + 1) <<< s) - 1)
+
+instance : HShiftLeft Int Nat Int := ⟨.shiftLeft⟩
+
 end Int

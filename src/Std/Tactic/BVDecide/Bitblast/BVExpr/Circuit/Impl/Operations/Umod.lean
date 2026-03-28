@@ -6,7 +6,6 @@ Authors: Henrik Böving
 module
 
 prelude
-public import Std.Tactic.BVDecide.Bitblast.BVExpr.Basic
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Udiv
 
 @[expose] public section

@@ -6,8 +6,11 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Data.Array.Lemmas
-public import Init.Data.List.Nat.InsertIdx
+public import Init.Data.Array.Basic
+import Init.Data.List.Nat.InsertIdx
+import Init.Data.List.ToArray
+import Init.Data.Nat.Lemmas
+import Init.Omega
 
 public section
 
@@ -53,11 +56,6 @@ theorem eraseIdx_insertIdx_self {i : Nat} {xs : Array α} (h : i ≤ xs.size) :
     (xs.insertIdx i a).eraseIdx i (by simp; omega) = xs := by
   rcases xs with ⟨xs⟩
   simp_all
-
-@[deprecated eraseIdx_insertIdx_self (since := "2025-06-15")]
-theorem eraseIdx_insertIdx {i : Nat} {xs : Array α} (h : i ≤ xs.size) :
-    (xs.insertIdx i a).eraseIdx i (by simp; omega) = xs := by
-  simp [eraseIdx_insertIdx_self]
 
 theorem insertIdx_eraseIdx_of_ge {as : Array α}
     (w₁ : i < as.size) (w₂ : j ≤ (as.eraseIdx i).size) (h : i ≤ j) :

@@ -106,10 +106,10 @@ where
     for localDecl in (← getLCtx) do
       unless localDecl.isAuxDecl do
         if let some val := localDecl.value? then
-          visit val
+          visit (← instantiateMVars val)
         else
-          visit localDecl.type
-    visit (← mvarId.getType)
+          visit (← instantiateMVars localDecl.type)
+    visit (← instantiateMVars (← mvarId.getType))
 
 end Collector
 

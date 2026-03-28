@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.DocString
-// Imports: Lean.DocString.Extension Lean.DocString.Links Lean.Parser.Tactic.Doc Lean.Parser.Term.Doc
+// Imports: public import Lean.DocString.Extension public import Lean.DocString.Links public import Lean.Parser.Tactic.Doc public import Lean.Parser.Term.Doc
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,167 +13,218 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Lean_findDocString_x3f(lean_object*, lean_object*, uint8_t, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_findDocString_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Parser_Tactic_Doc_alternativeOfTactic(lean_object*, lean_object*);
-lean_object* l_Lean_findSimpleDocString_x3f(lean_object*, lean_object*, uint8_t, lean_object*);
 lean_object* l_Lean_Parser_Tactic_Doc_getTacticExtensionString(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Term_Doc_getRecommendedSpellingString(lean_object*, lean_object*);
+lean_object* l_Lean_findSimpleDocString_x3f(lean_object*, lean_object*, uint8_t);
 lean_object* lean_string_append(lean_object*, lean_object*);
-lean_object* l_Lean_rewriteManualLinks(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_findDocString_x3f(lean_object* x_1, lean_object* x_2, uint8_t x_3, lean_object* x_4) {
+lean_object* l_Lean_rewriteManualLinks(lean_object*);
+lean_object* l_Lean_Parser_Tactic_Doc_alternativeOfTactic(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_findDocString_x3f(lean_object*, lean_object*, uint8_t);
+LEAN_EXPORT lean_object* l_Lean_findDocString_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_findDocString_x3f(lean_object* v_env_1_, lean_object* v_declName_2_, uint8_t v_includeBuiltin_3_){
 _start:
 {
-lean_object* x_5; lean_object* x_33; 
-lean_inc(x_2);
-lean_inc_ref(x_1);
-x_33 = l_Lean_Parser_Tactic_Doc_alternativeOfTactic(x_1, x_2);
-if (lean_obj_tag(x_33) == 0)
+lean_object* v___y_6_; lean_object* v___x_30_; 
+lean_inc(v_declName_2_);
+lean_inc_ref(v_env_1_);
+v___x_30_ = l_Lean_Parser_Tactic_Doc_alternativeOfTactic(v_env_1_, v_declName_2_);
+if (lean_obj_tag(v___x_30_) == 0)
 {
-x_5 = x_2;
-goto block_32;
+v___y_6_ = v_declName_2_;
+goto v___jp_5_;
 }
 else
 {
-lean_object* x_34; 
-lean_dec(x_2);
-x_34 = lean_ctor_get(x_33, 0);
-lean_inc(x_34);
-lean_dec_ref(x_33);
-x_5 = x_34;
-goto block_32;
+lean_object* v_val_31_; 
+lean_dec(v_declName_2_);
+v_val_31_ = lean_ctor_get(v___x_30_, 0);
+lean_inc(v_val_31_);
+lean_dec_ref(v___x_30_);
+v___y_6_ = v_val_31_;
+goto v___jp_5_;
 }
-block_32:
+v___jp_5_:
 {
-lean_object* x_6; lean_object* x_7; 
-lean_inc(x_5);
-lean_inc_ref(x_1);
-x_6 = l_Lean_findSimpleDocString_x3f(x_1, x_5, x_3, x_4);
-x_7 = lean_ctor_get(x_6, 0);
-lean_inc(x_7);
-if (lean_obj_tag(x_7) == 0)
+lean_object* v_exts_7_; lean_object* v_spellings_8_; lean_object* v___x_9_; 
+lean_inc_n(v___y_6_, 2);
+lean_inc_ref_n(v_env_1_, 2);
+v_exts_7_ = l_Lean_Parser_Tactic_Doc_getTacticExtensionString(v_env_1_, v___y_6_);
+v_spellings_8_ = l_Lean_Parser_Term_Doc_getRecommendedSpellingString(v_env_1_, v___y_6_);
+v___x_9_ = l_Lean_findSimpleDocString_x3f(v_env_1_, v___y_6_, v_includeBuiltin_3_);
+if (lean_obj_tag(v___x_9_) == 0)
 {
-lean_dec(x_5);
-lean_dec_ref(x_1);
-return x_6;
+lean_object* v_a_10_; 
+v_a_10_ = lean_ctor_get(v___x_9_, 0);
+lean_inc(v_a_10_);
+if (lean_obj_tag(v_a_10_) == 0)
+{
+lean_dec_ref(v_spellings_8_);
+lean_dec_ref(v_exts_7_);
+return v___x_9_;
 }
 else
 {
-lean_object* x_8; uint8_t x_9; 
-x_8 = lean_ctor_get(x_6, 1);
-lean_inc(x_8);
-lean_dec_ref(x_6);
-x_9 = !lean_is_exclusive(x_7);
-if (x_9 == 0)
+lean_object* v___x_12_; uint8_t v_isShared_13_; uint8_t v_isSharedCheck_28_; 
+v_isSharedCheck_28_ = !lean_is_exclusive(v___x_9_);
+if (v_isSharedCheck_28_ == 0)
 {
-lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; 
-x_10 = lean_ctor_get(x_7, 0);
-lean_inc(x_5);
-lean_inc_ref(x_1);
-x_11 = l_Lean_Parser_Tactic_Doc_getTacticExtensionString(x_1, x_5);
-x_12 = l_Lean_Parser_Term_Doc_getRecommendedSpellingString(x_1, x_5);
-x_13 = lean_string_append(x_10, x_11);
-lean_dec_ref(x_11);
-x_14 = lean_string_append(x_13, x_12);
-lean_dec_ref(x_12);
-x_15 = l_Lean_rewriteManualLinks(x_14, x_8);
-x_16 = !lean_is_exclusive(x_15);
-if (x_16 == 0)
-{
-lean_object* x_17; 
-x_17 = lean_ctor_get(x_15, 0);
-lean_ctor_set(x_7, 0, x_17);
-lean_ctor_set(x_15, 0, x_7);
-return x_15;
+lean_object* v_unused_29_; 
+v_unused_29_ = lean_ctor_get(v___x_9_, 0);
+lean_dec(v_unused_29_);
+v___x_12_ = v___x_9_;
+v_isShared_13_ = v_isSharedCheck_28_;
+goto v_resetjp_11_;
 }
 else
 {
-lean_object* x_18; lean_object* x_19; lean_object* x_20; 
-x_18 = lean_ctor_get(x_15, 0);
-x_19 = lean_ctor_get(x_15, 1);
-lean_inc(x_19);
-lean_inc(x_18);
-lean_dec(x_15);
-lean_ctor_set(x_7, 0, x_18);
-x_20 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_20, 0, x_7);
-lean_ctor_set(x_20, 1, x_19);
-return x_20;
+lean_dec(v___x_9_);
+v___x_12_ = lean_box(0);
+v_isShared_13_ = v_isSharedCheck_28_;
+goto v_resetjp_11_;
+}
+v_resetjp_11_:
+{
+lean_object* v_val_14_; lean_object* v___x_16_; uint8_t v_isShared_17_; uint8_t v_isSharedCheck_27_; 
+v_val_14_ = lean_ctor_get(v_a_10_, 0);
+v_isSharedCheck_27_ = !lean_is_exclusive(v_a_10_);
+if (v_isSharedCheck_27_ == 0)
+{
+v___x_16_ = v_a_10_;
+v_isShared_17_ = v_isSharedCheck_27_;
+goto v_resetjp_15_;
+}
+else
+{
+lean_inc(v_val_14_);
+lean_dec(v_a_10_);
+v___x_16_ = lean_box(0);
+v_isShared_17_ = v_isSharedCheck_27_;
+goto v_resetjp_15_;
+}
+v_resetjp_15_:
+{
+lean_object* v___x_18_; lean_object* v___x_19_; lean_object* v___x_20_; lean_object* v___x_22_; 
+v___x_18_ = lean_string_append(v_val_14_, v_exts_7_);
+lean_dec_ref(v_exts_7_);
+v___x_19_ = lean_string_append(v___x_18_, v_spellings_8_);
+lean_dec_ref(v_spellings_8_);
+v___x_20_ = l_Lean_rewriteManualLinks(v___x_19_);
+if (v_isShared_17_ == 0)
+{
+lean_ctor_set(v___x_16_, 0, v___x_20_);
+v___x_22_ = v___x_16_;
+goto v_reusejp_21_;
+}
+else
+{
+lean_object* v_reuseFailAlloc_26_; 
+v_reuseFailAlloc_26_ = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(v_reuseFailAlloc_26_, 0, v___x_20_);
+v___x_22_ = v_reuseFailAlloc_26_;
+goto v_reusejp_21_;
+}
+v_reusejp_21_:
+{
+lean_object* v___x_24_; 
+if (v_isShared_13_ == 0)
+{
+lean_ctor_set(v___x_12_, 0, v___x_22_);
+v___x_24_ = v___x_12_;
+goto v_reusejp_23_;
+}
+else
+{
+lean_object* v_reuseFailAlloc_25_; 
+v_reuseFailAlloc_25_ = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(v_reuseFailAlloc_25_, 0, v___x_22_);
+v___x_24_ = v_reuseFailAlloc_25_;
+goto v_reusejp_23_;
+}
+v_reusejp_23_:
+{
+return v___x_24_;
+}
+}
+}
+}
 }
 }
 else
 {
-lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; 
-x_21 = lean_ctor_get(x_7, 0);
-lean_inc(x_21);
-lean_dec(x_7);
-lean_inc(x_5);
-lean_inc_ref(x_1);
-x_22 = l_Lean_Parser_Tactic_Doc_getTacticExtensionString(x_1, x_5);
-x_23 = l_Lean_Parser_Term_Doc_getRecommendedSpellingString(x_1, x_5);
-x_24 = lean_string_append(x_21, x_22);
-lean_dec_ref(x_22);
-x_25 = lean_string_append(x_24, x_23);
-lean_dec_ref(x_23);
-x_26 = l_Lean_rewriteManualLinks(x_25, x_8);
-x_27 = lean_ctor_get(x_26, 0);
-lean_inc(x_27);
-x_28 = lean_ctor_get(x_26, 1);
-lean_inc(x_28);
-if (lean_is_exclusive(x_26)) {
- lean_ctor_release(x_26, 0);
- lean_ctor_release(x_26, 1);
- x_29 = x_26;
-} else {
- lean_dec_ref(x_26);
- x_29 = lean_box(0);
-}
-x_30 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_30, 0, x_27);
-if (lean_is_scalar(x_29)) {
- x_31 = lean_alloc_ctor(0, 2, 0);
-} else {
- x_31 = x_29;
-}
-lean_ctor_set(x_31, 0, x_30);
-lean_ctor_set(x_31, 1, x_28);
-return x_31;
+lean_dec_ref(v_spellings_8_);
+lean_dec_ref(v_exts_7_);
+return v___x_9_;
 }
 }
 }
 }
-}
-LEAN_EXPORT lean_object* l_Lean_findDocString_x3f___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Lean_findDocString_x3f___boxed(lean_object* v_env_32_, lean_object* v_declName_33_, lean_object* v_includeBuiltin_34_, lean_object* v_a_35_){
 _start:
 {
-uint8_t x_5; lean_object* x_6; 
-x_5 = lean_unbox(x_3);
-x_6 = l_Lean_findDocString_x3f(x_1, x_2, x_5, x_4);
-return x_6;
+uint8_t v_includeBuiltin_boxed_36_; lean_object* v_res_37_; 
+v_includeBuiltin_boxed_36_ = lean_unbox(v_includeBuiltin_34_);
+v_res_37_ = l_Lean_findDocString_x3f(v_env_32_, v_declName_33_, v_includeBuiltin_boxed_36_);
+return v_res_37_;
 }
 }
-lean_object* initialize_Lean_DocString_Extension(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_DocString_Links(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Parser_Tactic_Doc(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Parser_Term_Doc(uint8_t builtin, lean_object*);
-static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lean_DocString(uint8_t builtin, lean_object* w) {
+lean_object* runtime_initialize_Lean_DocString_Extension(uint8_t builtin);
+lean_object* runtime_initialize_Lean_DocString_Links(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Parser_Tactic_Doc(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Parser_Term_Doc(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lean_DocString(uint8_t builtin) {
 lean_object * res;
-if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
-_G_initialized = true;
-res = initialize_Lean_DocString_Extension(builtin, lean_io_mk_world());
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Lean_DocString_Extension(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_DocString_Links(builtin, lean_io_mk_world());
+res = runtime_initialize_Lean_DocString_Links(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Parser_Tactic_Doc(builtin, lean_io_mk_world());
+res = runtime_initialize_Lean_Parser_Tactic_Doc(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Parser_Term_Doc(builtin, lean_io_mk_world());
+res = runtime_initialize_Lean_Parser_Term_Doc(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lean_DocString(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
+lean_object* initialize_Lean_DocString_Extension(uint8_t builtin);
+lean_object* initialize_Lean_DocString_Links(uint8_t builtin);
+lean_object* initialize_Lean_Parser_Tactic_Doc(uint8_t builtin);
+lean_object* initialize_Lean_Parser_Term_Doc(uint8_t builtin);
+static bool _G_initialized = false;
+LEAN_EXPORT lean_object* initialize_Lean_DocString(uint8_t builtin) {
+lean_object * res;
+if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_initialized = true;
+res = initialize_Lean_DocString_Extension(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_DocString_Links(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Parser_Tactic_Doc(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Parser_Term_Doc(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_DocString(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Lean_DocString(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Lean_DocString(builtin);
 }
 #ifdef __cplusplus
 }

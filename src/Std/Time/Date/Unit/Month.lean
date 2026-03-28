@@ -6,15 +6,14 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Std.Internal.Rat
 public import Std.Time.Date.Unit.Day
+import Init.Data.Fin.Lemmas
 
 public section
 
 namespace Std
 namespace Time
 namespace Month
-open Std.Internal
 open Internal
 
 set_option linter.all true
@@ -228,24 +227,21 @@ Transforms `Month.Ordinal` into `Minute.Offset`.
 -/
 @[inline]
 def toMinutes (leap : Bool) (month : Ordinal) : Minute.Offset :=
-  toSeconds leap month
-  |>.ediv 60
+  toSeconds leap month |>.toMinutes
 
 /--
 Transforms `Month.Ordinal` into `Hour.Offset`.
 -/
 @[inline]
 def toHours (leap : Bool) (month : Ordinal) : Hour.Offset :=
-  toMinutes leap month
-  |>.ediv 60
+  toMinutes leap month |>.toHours
 
 /--
 Transforms `Month.Ordinal` into `Day.Offset`.
 -/
 @[inline]
 def toDays (leap : Bool) (month : Ordinal) : Day.Offset :=
-  toSeconds leap month
-  |>.convert
+  toSeconds leap month |>.convert
 
 /--
 Size in days of each month if the year is not a leap year.

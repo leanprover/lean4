@@ -1,0 +1,11 @@
+Success! Final stack:
+ • `leanExample
+ • [(Lean.Doc.Syntax.anon
+      (Lean.Doc.Syntax.arg_ident `context))
+     (Lean.Doc.Syntax.named_no_paren
+      `more
+      ":="
+      (Lean.Doc.Syntax.arg_str
+       (str "\"stuff\"")))]
+
+All input consumed.

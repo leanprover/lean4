@@ -6,7 +6,12 @@ Authors: Joe Hendrix, Harun Khan, Alex Keizer, Abdalrhman M Mohamed, Siddharth B
 module
 
 prelude
-public import all Init.Data.BitVec.Basic
+public import Init.Data.BitVec.Basic
+import all Init.Data.BitVec.Basic
+import Init.Ext
+import Init.ByCases
+import Init.Data.Nat.Div.Lemmas
+import Init.TacticsExtra
 
 public section
 
@@ -17,7 +22,7 @@ theorem testBit_toNat (x : BitVec w) : x.toNat.testBit i = x.getLsbD i := rfl
 @[simp, grind =] theorem getLsbD_ofFin (x : Fin (2^n)) (i : Nat) :
     getLsbD (BitVec.ofFin x) i = x.val.testBit i := rfl
 
-@[simp, grind] theorem getLsbD_of_ge (x : BitVec w) (i : Nat) (ge : w ≤ i) : getLsbD x i = false := by
+@[simp, grind =] theorem getLsbD_of_ge (x : BitVec w) (i : Nat) (ge : w ≤ i) : getLsbD x i = false := by
   let ⟨x, x_lt⟩ := x
   simp only [getLsbD_ofFin]
   apply Nat.testBit_lt_two_pow
@@ -155,5 +160,18 @@ theorem setWidth_neg_of_le {x : BitVec v} (h : w ≤ v) : BitVec.setWidth w (-x)
     have := Nat.lt_div_mul_add (a := x.toNat) (b := 2 ^ w) (Nat.two_pow_pos w)
     omega
   omega
+
+@[induction_eliminator, elab_as_elim]
+theorem cons_induction {motive : (w : Nat) → BitVec w → Prop} (nil : motive 0 .nil)
+    (cons : ∀ {w : Nat} (b : Bool) (bv : BitVec w), motive w bv → motive (w + 1) (.cons b bv)) :
+    ∀ {w : Nat} (x : BitVec w), motive w x := by
+  intros w x
+  induction w
+  case zero =>
+    simp only [BitVec.eq_nil x, nil]
+  case succ wl ih =>
+    rw [← cons_msb_setWidth x]
+    apply cons
+    apply ih
 
 end BitVec

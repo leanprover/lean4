@@ -4,14 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-public import Lean.Meta.AppBuilder
-public import Lean.Meta.MatchUtil
-public import Lean.Util.ForEachExpr
-
+public import Lean.Meta.Basic
+import Lean.Meta.AppBuilder
+import Lean.Meta.MatchUtil
+import Lean.Util.ForEachExpr
 public section
-
 namespace Lean.Meta.Grind
 /-! A basic "equality resolution" procedure. -/
 

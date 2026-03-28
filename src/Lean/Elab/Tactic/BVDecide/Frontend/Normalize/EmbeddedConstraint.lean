@@ -8,7 +8,6 @@ module
 prelude
 public import Std.Tactic.BVDecide.Normalize.Bool
 public import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Basic
-public import Lean.Meta.Tactic.Simp
 
 public section
 
@@ -28,7 +27,7 @@ them to substitute occurrences of `x` within other hypotheses. Additionally this
 redundant top level hypotheses.
 -/
 def embeddedConstraintPass : Pass where
-  name := `embeddedConstraintSubsitution
+  name := `embeddedConstraintSubstitution
   run' goal := do
     goal.withContext do
       let hyps ← getPropHyps
@@ -59,6 +58,7 @@ def embeddedConstraintPass : Pass where
           failIfUnchanged := false,
           implicitDefEqProofs := false, -- leanprover/lean4/pull/7509
           maxSteps := cfg.maxSteps,
+          instances := true
         })
         (simpTheorems := relevantHyps)
         (congrTheorems := (← getSimpCongrTheorems))

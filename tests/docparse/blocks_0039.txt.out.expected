@@ -1,0 +1,29 @@
+Failure @65 (⟨4, 0⟩): expected '`' to close inline code
+Final stack:
+  [(Lean.Doc.Syntax.para
+    "para{"
+    [(Lean.Doc.Syntax.text
+      (str "\"Attention:\""))]
+    "}")
+   (Lean.Doc.Syntax.para
+    "para{"
+    [(Lean.Doc.Syntax.text
+      (str
+       "\"Here is a paragraph with an unterminated \""))
+     (Lean.Doc.Syntax.code
+      "`"
+      (str "\"code block\"")
+      <missing>)
+     (Lean.Doc.Syntax.text
+      (str
+       "\"that would be super annoying without error recovery in the\""))
+     (Lean.Doc.Syntax.linebreak
+      "line!"
+      (str "\"\\n\""))
+     (Lean.Doc.Syntax.text (str "\"parser.\""))]
+    "}")
+   (Lean.Doc.Syntax.para
+    "para{"
+    [(Lean.Doc.Syntax.text (str "\"Yep.\""))]
+    "}")]
+Remaining: "that would be super annoying without error recovery in the\nparser.\n\nYep."

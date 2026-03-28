@@ -3,10 +3,16 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+module
+
 prelude
-import Lake.Config.Monad
-import Lake.Build.Job
-import Lake.CLI.Error
+public import Lake.CLI.Error
+public import Lake.Config.Workspace
+import Lake.Build.Infos
+import Lake.Build.Job.Monad
+public import Lake.Build.Job.Register
+import Lake.Util.IO
+import Init.Data.Iterators.Consumers
 
 open System Lean
 
@@ -14,7 +20,7 @@ namespace Lake
 
 /-! ## Build Target Specifiers -/
 
-structure BuildSpec where
+public structure BuildSpec where
   info : BuildInfo
   buildable := true
   format : OutFormat → BuildData info.key → String := nullFormat
@@ -26,7 +32,7 @@ structure BuildSpec where
   buildable := true
   format := h.fam_eq ▸ formatQuery
 
-@[inline] def mkConfigBuildSpec
+@[inline] public def mkConfigBuildSpec
   (info : BuildInfo)
   (config : FacetConfig facet)
   (h : BuildData info.key = FacetOut facet)
@@ -35,47 +41,45 @@ structure BuildSpec where
   buildable := config.buildable
   format := h ▸ config.format
 
-@[inline] protected def BuildSpec.fetch (self : BuildSpec) : FetchM (Job (BuildData self.info.key)) := do
+@[inline] public protected def BuildSpec.fetch (self : BuildSpec) : FetchM (Job (BuildData self.info.key)) := do
   maybeRegisterJob self.info.key.toSimpleString (← self.info.fetch)
 
-@[inline] protected def BuildSpec.build (self : BuildSpec) : FetchM OpaqueJob := do
+@[inline] public protected def BuildSpec.build (self : BuildSpec) : FetchM OpaqueJob := do
   return (← self.fetch).toOpaque
 
-@[inline] protected def BuildSpec.query (self : BuildSpec) (fmt : OutFormat) : FetchM (Job String) := do
+@[inline] public protected def BuildSpec.query (self : BuildSpec) (fmt : OutFormat) : FetchM (Job String) := do
   maybeRegisterJob self.info.key.toSimpleString =<< do
     return (← self.info.fetch).map (self.format fmt)
 
-def buildSpecs (specs : Array BuildSpec) : FetchM (Job Unit) := do
+public def buildSpecs (specs : Array BuildSpec) : FetchM (Job Unit) := do
   return Job.mixArray (← specs.mapM (·.build))
 
-def querySpecs (specs : Array BuildSpec) (fmt : OutFormat) : FetchM (Job (Array String)) := do
+public def querySpecs (specs : Array BuildSpec) (fmt : OutFormat) : FetchM (Job (Array String)) := do
   return Job.collectArray (← specs.mapM (·.query fmt))
 
 /-! ## Parsing CLI Build Target Specifiers -/
 
-def parsePackageSpec (ws : Workspace) (spec : String) : Except CliError Package :=
+public def parsePackageSpec (ws : Workspace) (spec : String) : Except CliError Package :=
   if spec.isEmpty then
     return ws.root
   else
-    match ws.findPackage? <| stringToLegalOrSimpleName spec with
+    match ws.findPackageByName? <| stringToLegalOrSimpleName spec with
     | some pkg => return pkg
     | none => throw <| CliError.unknownPackage spec
 
-open Module in
 def resolveModuleTarget
   (ws : Workspace) (mod : Module) (facet : Name)
 : Except CliError BuildSpec :=
   if facet.isAnonymous then
     return mkBuildSpec mod.leanArts
   else
-    let facet := Module.facetKind ++ facet
-    if let some config := ws.findModuleFacetConfig? facet then do
+    if let some config := ws.findModuleFacetConfig? (Module.facetKind ++ facet) then do
       return mkConfigBuildSpec (mod.facetCore config.name) config.toFacetConfig rfl
     else
       throw <| CliError.unknownFacet "module" facet
 
 def resolveCustomTarget
-  (pkg : Package) (name facet : Name) (config : TargetConfig pkg.name name)
+  (pkg : Package) (name facet : Name) (config : TargetConfig pkg.keyName name)
 : Except CliError BuildSpec :=
   if !facet.isAnonymous then
     throw <| CliError.invalidFacet name facet
@@ -84,7 +88,7 @@ def resolveCustomTarget
 
 def resolveConfigDeclTarget
   (ws : Workspace) (pkg : Package)
-  {target : Name} (decl : NConfigDecl pkg.name target) (facet : Name)
+  {target : Name} (decl : NConfigDecl pkg.keyName target) (facet : Name)
 : Except CliError (Array BuildSpec) := do
   if h : decl.kind.isAnonymous then
     Array.singleton <$> resolveCustomTarget pkg target facet (decl.targetConfig h)
@@ -93,42 +97,10 @@ def resolveConfigDeclTarget
     if let some config := ws.findFacetConfig? (decl.kind ++ facet) then
       let tgt := decl.mkConfigTarget pkg
       let tgt := cast (by simp [decl.target_eq_type h]) tgt
-      let info := BuildInfo.facet (.packageTarget pkg.name decl.name) decl.kind tgt config.name
+      let info := BuildInfo.facet (.packageTarget pkg.keyName decl.name) decl.kind tgt config.name
       return #[mkConfigBuildSpec info config rfl]
     else
       throw <| CliError.unknownFacet decl.kind.toString facet
-
-def resolveLibTarget
-  (ws : Workspace) (lib : LeanLib) (facet : Name := .anonymous)
-: Except CliError (Array BuildSpec) :=
-  if facet.isAnonymous then
-    lib.defaultFacets.mapM (resolveFacet ·)
-  else
-    Array.singleton <$> resolveFacet (LeanLib.facetKind ++ facet)
-where
-  resolveFacet facet :=
-    if let some config := ws.findLibraryFacetConfig? facet then do
-      return mkConfigBuildSpec (lib.facetCore config.name) config.toFacetConfig rfl
-    else
-      throw <| CliError.unknownFacet "library" facet
-
-def resolveExeTarget
-  (exe : LeanExe) (facet : Name)
-: Except CliError BuildSpec :=
-  if facet.isAnonymous || facet == `exe then
-    return mkBuildSpec exe.exe
-  else
-    throw <| CliError.unknownFacet "executable" facet
-
-def resolveExternLibTarget
-  (lib : ExternLib) (facet : Name)
-: Except CliError BuildSpec :=
-  if facet.isAnonymous || facet = `static then
-    return mkBuildSpec lib.static
-  else if facet = `shared then
-    return mkBuildSpec lib.shared
-  else
-    throw <| CliError.unknownFacet "external library" facet
 
 def resolveTargetInPackage
   (ws : Workspace) (pkg : Package) (target facet : Name)
@@ -138,7 +110,7 @@ def resolveTargetInPackage
   else if let some mod := pkg.findTargetModule? target then
     Array.singleton <$> resolveModuleTarget ws mod facet
   else
-    throw <| CliError.missingTarget pkg.name (target.toString false)
+    throw <| CliError.missingTarget pkg.baseName (target.toString false)
 
 def resolveDefaultPackageTarget
   (ws : Workspace) (pkg : Package)
@@ -151,8 +123,7 @@ def resolvePackageTarget
   if facet.isAnonymous then
     resolveDefaultPackageTarget ws pkg
   else
-    let facet := Package.facetKind ++ facet
-    if let some config := ws.findPackageFacetConfig? facet then do
+    if let some config := ws.findPackageFacetConfig? (Package.facetKind ++ facet) then do
       return #[mkConfigBuildSpec (pkg.facetCore config.name) config.toFacetConfig rfl]
     else
       throw <| CliError.unknownFacet "package" facet
@@ -162,7 +133,7 @@ def resolveTargetInWorkspace
 : Except CliError (Array BuildSpec) :=
   if let some ⟨pkg, decl⟩ := ws.findTargetDecl? target then
     resolveConfigDeclTarget ws pkg decl facet
-  else if let some pkg := ws.findPackage? target then
+  else if let some pkg := ws.findPackageByName? target then
     resolvePackageTarget ws pkg facet
   else if let some mod := ws.findTargetModule? target then
     Array.singleton <$> resolveModuleTarget ws mod facet
@@ -172,38 +143,38 @@ def resolveTargetInWorkspace
 private def resolveTargetLikeSpec
   (ws : Workspace) (spec : String) (facet : Name) (isMaybePath explicit := false)
 : Except CliError (Array BuildSpec) := do
-  match spec.splitOn "/" with
+  match spec.split '/' |>.toList with
   | [spec] =>
     if spec.isEmpty then
       resolvePackageTarget ws ws.root facet
     else if explicit then
-      resolvePackageTarget ws (← parsePackageSpec ws spec) facet
+      resolvePackageTarget ws (← parsePackageSpec ws spec.copy) facet
     else
-      resolveTargetInWorkspace ws (stringToLegalOrSimpleName spec) facet
+      resolveTargetInWorkspace ws (stringToLegalOrSimpleName spec.copy) facet
   | [pkgSpec, targetSpec] =>
-    let pkg ← parsePackageSpec ws pkgSpec
+    let pkg ← parsePackageSpec ws pkgSpec.copy
     if targetSpec.isEmpty then
       resolvePackageTarget ws pkg facet
     else if targetSpec.startsWith "+" then
-      let mod := targetSpec.drop 1 |>.toName
+      let mod := targetSpec.drop 1 |>.copy.toName
       if let some mod := pkg.findTargetModule? mod then
         Array.singleton <$> resolveModuleTarget ws mod facet
       else
         throw <| CliError.unknownModule mod
     else
-      resolveTargetInPackage ws pkg (stringToLegalOrSimpleName targetSpec) facet
+      resolveTargetInPackage ws pkg (stringToLegalOrSimpleName targetSpec.copy) facet
   | _ =>
     if isMaybePath then
       throw <| CliError.unknownModulePath spec
     else
       throw <| CliError.invalidTargetSpec spec '/'
 
-def resolveTargetBaseSpec
+private def resolveTargetBaseSpec
   (ws : Workspace) (spec : String) (facet : Name)
 : EIO CliError (Array BuildSpec) := do
   if spec.startsWith "@" then
     let spec := spec.drop 1
-    resolveTargetLikeSpec ws spec facet (explicit := true)
+    resolveTargetLikeSpec ws spec.copy facet (explicit := true)
   else if spec.startsWith "+" then
     let mod := spec.drop 1 |>.toName
     if let some mod := ws.findTargetModule? mod then
@@ -220,29 +191,29 @@ def resolveTargetBaseSpec
   else
     resolveTargetLikeSpec ws spec facet true
 
-def parseExeTargetSpec
+public def parseExeTargetSpec
   (ws : Workspace) (spec : String)
 : Except CliError LeanExe := do
-  match spec.splitOn "/" with
+  match spec.split '/' |>.toList with
   | [targetSpec] =>
-    let targetName := stringToLegalOrSimpleName targetSpec
+    let targetName := stringToLegalOrSimpleName targetSpec.copy
     match ws.findLeanExe? targetName with
     | some exe => return exe
     | none => throw <| CliError.unknownExe spec
   | [pkgSpec, targetSpec] =>
     let pkgSpec := if pkgSpec.startsWith "@" then pkgSpec.drop 1 else pkgSpec
-    let pkg ← parsePackageSpec ws pkgSpec
-    let targetName := stringToLegalOrSimpleName targetSpec
+    let pkg ← parsePackageSpec ws pkgSpec.copy
+    let targetName := stringToLegalOrSimpleName targetSpec.copy
     match pkg.findLeanExe? targetName with
     | some exe => return exe
     | none => throw <| CliError.unknownExe spec
   | _ =>
     throw <| CliError.invalidTargetSpec spec '/'
 
-def parseTargetSpec
+public def parseTargetSpec
   (ws : Workspace) (spec : String)
 : EIO CliError (Array BuildSpec) := do
-  match spec.splitOn ":" with
+  match spec.split ':' |>.toStringList with
   | [spec] =>
     resolveTargetBaseSpec ws spec .anonymous
   | [rootSpec, facet] =>
@@ -250,7 +221,7 @@ def parseTargetSpec
   | _ =>
     throw <| CliError.invalidTargetSpec spec ':'
 
-def parseTargetSpecs
+public def parseTargetSpecs
   (ws : Workspace) (specs : List String)
 : EIO CliError (Array BuildSpec) := do
   let mut results := #[]

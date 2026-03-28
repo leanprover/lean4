@@ -6,11 +6,10 @@ Authors: Kim Morrison
 module
 
 prelude
-public import all Init.Data.List.Control
-public import all Init.Data.Array.Basic
-public import Init.Data.Array.Lemmas
+import all Init.Data.List.Control
+import all Init.Data.Array.Basic
 public import Init.Data.Array.Attach
-public import Init.Data.List.Monadic
+import Init.Data.Bool
 
 public section
 
@@ -39,10 +38,6 @@ theorem map_toList_inj [Monad m] [LawfulMonad m]
   induction xs; simp_all
 
 @[simp, grind =] theorem idRun_mapM {xs : Array α} {f : α → Id β} : (xs.mapM f).run = xs.map (f · |>.run) :=
-  mapM_pure
-
-@[deprecated idRun_mapM (since := "2025-05-21")]
-theorem mapM_id {xs : Array α} {f : α → Id β} : xs.mapM f = xs.map f :=
   mapM_pure
 
 @[simp, grind =] theorem mapM_map [Monad m] [LawfulMonad m] {f : α → β} {g : β → m γ} {xs : Array α} :
@@ -165,7 +160,7 @@ theorem foldrM_filter [Monad m] [LawfulMonad m] {p : α → Bool} {g : α → β
     (h : ∀ a m b, f a (by simpa [w] using m) b = g a m b) :
     forIn' as b f = forIn' bs b' g := by
   cases as <;> cases bs
-  simp only [mk.injEq, mem_toArray, List.forIn'_toArray] at w h ⊢
+  simp only [mk.injEq, List.mem_toArray, List.forIn'_toArray] at w h ⊢
   exact List.forIn'_congr w hb h
 
 /--
@@ -202,13 +197,6 @@ theorem idRun_forIn'_yield_eq_foldl
     (forIn' xs init (fun a m b => .yield <$> f a m b)).run =
       xs.attach.foldl (fun b ⟨a, h⟩ => f a h b |>.run) init := by
   simp
-
-@[deprecated idRun_forIn'_yield_eq_foldl (since := "2025-05-21")]
-theorem forIn'_yield_eq_foldl
-    {xs : Array α} (f : (a : α) → a ∈ xs → β → β) (init : β) :
-    forIn' (m := Id) xs init (fun a m b => .yield (f a m b)) =
-      xs.attach.foldl (fun b ⟨a, h⟩ => f a h b) init :=
-  forIn'_pure_yield_eq_foldl _ _
 
 @[simp, grind =] theorem forIn'_map [Monad m] [LawfulMonad m]
     {xs : Array α} (g : α → β) (f : (b : β) → b ∈ xs.map g → γ → m (ForInStep γ)) :
@@ -250,13 +238,6 @@ theorem idRun_forIn_yield_eq_foldl
     (forIn xs init (fun a b => .yield <$> f a b)).run =
       xs.foldl (fun b a => f a b |>.run) init := by
   simp
-
-@[deprecated idRun_forIn_yield_eq_foldl (since := "2025-05-21")]
-theorem forIn_yield_eq_foldl
-    {xs : Array α} (f : α → β → β) (init : β) :
-    forIn (m := Id) xs init (fun a b => .yield (f a b)) =
-      xs.foldl (fun b a => f a b) init :=
-  forIn_pure_yield_eq_foldl _ _
 
 @[simp, grind =] theorem forIn_map [Monad m] [LawfulMonad m]
     {xs : Array α} {g : α → β} {f : β → γ → m (ForInStep γ)} :

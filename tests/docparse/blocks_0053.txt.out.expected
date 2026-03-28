@@ -1,0 +1,16 @@
+Success! Final stack:
+  [(Lean.Doc.Syntax.para
+    "para{"
+    [(Lean.Doc.Syntax.text (str "\"Blah blah\""))
+     (Lean.Doc.Syntax.footnote
+      "[^"
+      (str "\"1\"")
+      "]")]
+    "}")
+   (Lean.Doc.Syntax.footnote_ref
+    "[^"
+    (str "\"1\"")
+    "]:"
+    [(Lean.Doc.Syntax.text
+      (str "\"More can be said\""))])]
+All input consumed.

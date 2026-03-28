@@ -7,14 +7,16 @@ Authors: Gabriel Ebner
 module
 
 prelude
-public import Init.Core
+public import Init.Prelude
+import Init.Core
 
 public section
 
 open Lean
 
 -- Implementation detail of TypeName, since classes cannot be opaque
-private opaque TypeNameData (α : Type u) : NonemptyType.{0} :=
+-- TODO: should be private; #10098
+opaque TypeNameData (α : Type u) : NonemptyType.{0} :=
   ⟨Name, inferInstance⟩
 
 /--
@@ -45,6 +47,7 @@ Creates a `TypeName` instance.
 For safety, it is required that the constant `typeName` is definitionally equal
 to `α`.
 -/
+@[implicit_reducible]
 unsafe def TypeName.mk (α : Type u) (typeName : Name) : TypeName α :=
   ⟨unsafeCast typeName⟩
 

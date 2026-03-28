@@ -1,0 +1,194 @@
+x y : Nat
+| p (x + y) (y + x + 0)
+x y : Nat
+| x + y = y + x + 0
+x y : Nat
+| x + y = y + x + 0
+x y : Nat
+⊢ x + y = y.add x
+case x
+x y : Nat
+⊢ x + y = y.add x
+case a
+a b : Nat
+| foo (0 + a) (b + 0)
+case a.x
+a b : Nat
+| 0 + a
+
+case a.y
+a b : Nat
+| b + 0
+a b : Nat
+| a
+case x
+a b : Nat
+| 0 + a
+
+case y
+a b : Nat
+| b + 0
+case x
+a b : Nat
+| 0 + a
+case x
+a b : Nat
+| a
+
+case y
+a b : Nat
+| b + 0
+a b : Nat
+| a + b
+case x
+a b : Nat
+| a
+
+case y
+a b : Nat
+| b
+x y : Nat
+⊢ x + y = y.add x
+x y : Nat
+⊢ x.add y = y.add x
+x y : Nat
+⊢ f x (x.add y) y = y + x
+x y : Nat
+| x + y
+case h.h
+a b : Nat
+| 0 + a + b
+case h.h
+a b : Nat
+| a + b
+case h.h
+a b : Nat
+| 0 + a + b
+p : Nat → Prop
+h : ∀ (a : Nat), p a
+x : Nat
+| p (id (0 + x))
+p : Nat → Prop
+h : ∀ (a : Nat), p a
+x : Nat
+| id (0 + x)
+p : Nat → Prop
+h : ∀ (a : Nat), p a
+x : Nat
+| 0 + x
+case h₁
+p : Prop
+x : Nat
+| x = x → p
+p : Prop
+x : Nat
+⊢ (True → p) → p
+case h
+x : Nat
+| 0 + x
+p : Prop
+x : Nat
+⊢ (True → p) → p
+x y : Nat
+f : Nat → Nat → Nat
+g : Nat → Nat
+h₁ : ∀ (z : Nat), f z z = z
+h₂ : ∀ (x y : Nat), f (g x) (g y) = y
+⊢ f (g y) (f (g x) (g (0 + x))) = x
+x y : Nat
+f : Nat → Nat → Nat
+g : Nat → Nat
+h₁ : ∀ (z : Nat), f z z = z
+h₂ : ∀ (x y : Nat), f (g x) (g y) = y
+⊢ f (g y) (f (g x) (g x)) = x
+x y : Nat
+h : y = 0
+| y + x
+p : Nat → Prop
+x y : Nat
+h1 : y = 0
+h2 : p x
+| y + x
+j : Fin 5
+p : (n : Nat) → Fin n → Prop
+i : Fin 5
+hp : p 5 i
+hi : j = i
+| j
+p : {x : Nat} → Nat → Prop
+x y : Nat
+h1 : y = 0
+h2 : p x
+| y
+p : {x : Nat} → Nat → Prop
+x y : Nat
+h1 : y = 0
+h2 : p x
+| y
+conv1.lean:221:10-221:13: error: invalid `lhs` tactic, application has 1 explicit argument(s) but the index is out of bounds
+conv1.lean:224:10-224:15: error: invalid `arg` tactic, application has 1 explicit argument(s) but the index is out of bounds
+conv1.lean:227:10-227:13: error: invalid `rhs` conv tactic, application or implication expected
+  p
+conv1.lean:230:10-230:15: error: `arg` conv tactic failed, cannot select argument
+a✝ : Nat := 0
+b✝ : Nat := a✝
+| 0 = 0
+x y z : Nat
+| x + y + z
+x y z : Nat
+| x + y + z
+
+x y z : Nat
+| x + (y + z)
+x y z : Nat
+| x + y + z
+
+x y z : Nat
+| y + z
+x y z : Nat
+| y + z
+
+x y z : Nat
+| x + y + z
+x y z : Nat
+| x + y
+
+x y z : Nat
+| x + (y + z)
+x y z : Nat
+| x + y
+
+x y z : Nat
+| y + z
+conv1.lean:248:58-248:83: error: 'pattern' conv tactic failed, pattern was found only 4 times but 5 expected
+conv1.lean:249:58-249:85: error: 'pattern' conv tactic failed, pattern was found only 4 times but 5 expected
+conv1.lean:250:58-250:85: error: 'pattern' conv tactic failed, pattern was found only 3 times but 5 expected
+conv1.lean:251:58-251:87: error: 'pattern' conv tactic failed, pattern was found only 2 times but 5 expected
+P Q : Nat → Nat → Nat → Prop
+h : P = Q
+h2 : Q 1 2 3
+| P 1 2 3
+P Q : Nat → Nat → Nat → Prop
+h : P = Q
+h2 : Q 1 2 3
+| P 1 2
+P Q : Nat → Nat → Nat → Prop
+h : P = Q
+h2 : Q 1 2 3
+| P 1
+P Q : Nat → Nat → Nat → Prop
+h : P = Q
+h2 : Q 1 2 3
+| P
+conv1.lean:275:10-275:13: error: invalid 'fun' conv tactic, application expected
+  p
+P Q : Nat → Nat → Nat → Prop
+h : P = Q
+h2 : Q 1 2 3
+| P 1 2 3
+P Q : Nat → Nat → Nat → Prop
+h : P = Q
+h2 : Q 1 2 3
+| P
+conv1.lean:287:10-287:15: error: invalid 'arg 0' conv tactic, application expected
+  p

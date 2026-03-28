@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Format
-// Imports: Init.Data.Format.Basic Init.Data.Format.Macro Init.Data.Format.Instances Init.Data.Format.Syntax
+// Imports: public import Init.Data.Format.Basic public import Init.Data.Format.Macro public import Init.Data.Format.Instances public import Init.Data.Format.Syntax
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,28 +13,64 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* initialize_Init_Data_Format_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Format_Macro(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Format_Instances(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Format_Syntax(uint8_t builtin, lean_object*);
-static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Data_Format(uint8_t builtin, lean_object* w) {
+lean_object* runtime_initialize_Init_Data_Format_Basic(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Format_Macro(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Format_Instances(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Format_Syntax(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Format(uint8_t builtin) {
 lean_object * res;
-if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
-_G_initialized = true;
-res = initialize_Init_Data_Format_Basic(builtin, lean_io_mk_world());
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Init_Data_Format_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Format_Macro(builtin, lean_io_mk_world());
+res = runtime_initialize_Init_Data_Format_Macro(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Format_Instances(builtin, lean_io_mk_world());
+res = runtime_initialize_Init_Data_Format_Instances(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Format_Syntax(builtin, lean_io_mk_world());
+res = runtime_initialize_Init_Data_Format_Syntax(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Init_Data_Format(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
+lean_object* initialize_Init_Data_Format_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_Format_Macro(uint8_t builtin);
+lean_object* initialize_Init_Data_Format_Instances(uint8_t builtin);
+lean_object* initialize_Init_Data_Format_Syntax(uint8_t builtin);
+static bool _G_initialized = false;
+LEAN_EXPORT lean_object* initialize_Init_Data_Format(uint8_t builtin) {
+lean_object * res;
+if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_initialized = true;
+res = initialize_Init_Data_Format_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Format_Macro(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Format_Instances(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Format_Syntax(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Format(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Init_Data_Format(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Init_Data_Format(builtin);
 }
 #ifdef __cplusplus
 }

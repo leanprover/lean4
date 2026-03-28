@@ -1,0 +1,87 @@
+{"textDocument": {"uri": "file:///dottedIdentNotation.lean"},
+ "position": {"line": 11, "character": 22}}
+{"items":
+ [{"label": "zero",
+   "kind": 4,
+   "data": ["file:///dottedIdentNotation.lean", 11, 22, 0, "cMyNat.zero"]}],
+ "isIncomplete": false}
+Resolution of zero:
+{"label": "zero",
+ "kind": 4,
+ "detail": "MyNat",
+ "data": ["file:///dottedIdentNotation.lean", 11, 22, 0, "cMyNat.zero"]}
+{"textDocument": {"uri": "file:///dottedIdentNotation.lean"},
+ "position": {"line": 14, "character": 30}}
+{"items":
+ [{"label": "succ",
+   "kind": 4,
+   "data": ["file:///dottedIdentNotation.lean", 14, 30, 0, "cMyNat.succ"]}],
+ "isIncomplete": false}
+Resolution of succ:
+{"label": "succ",
+ "kind": 4,
+ "detail": "MyNat → MyNat",
+ "data": ["file:///dottedIdentNotation.lean", 14, 30, 0, "cMyNat.succ"]}
+{"textDocument": {"uri": "file:///dottedIdentNotation.lean"},
+ "position": {"line": 23, "character": 23}}
+{"items":
+ [{"label": "zero",
+   "kind": 4,
+   "data": ["file:///dottedIdentNotation.lean", 23, 23, 0, "cMyNat.zero"]}],
+ "isIncomplete": false}
+Resolution of zero:
+{"label": "zero",
+ "kind": 4,
+ "detail": "MyNat",
+ "data": ["file:///dottedIdentNotation.lean", 23, 23, 0, "cMyNat.zero"]}
+{"textDocument": {"uri": "file:///dottedIdentNotation.lean"},
+ "position": {"line": 26, "character": 32}}
+{"items":
+ [{"label": "succ",
+   "kind": 4,
+   "data": ["file:///dottedIdentNotation.lean", 26, 32, 0, "cMyNat.succ"]}],
+ "isIncomplete": false}
+Resolution of succ:
+{"label": "succ",
+ "kind": 4,
+ "detail": "MyNat → MyNat",
+ "data": ["file:///dottedIdentNotation.lean", 26, 32, 0, "cMyNat.succ"]}
+{"textDocument": {"uri": "file:///dottedIdentNotation.lean"},
+ "position": {"line": 33, "character": 31}}
+{"items":
+ [{"label": "zero",
+   "kind": 4,
+   "data": ["file:///dottedIdentNotation.lean", 33, 31, 0, "cMyNat.zero"]}],
+ "isIncomplete": false}
+Resolution of zero:
+{"label": "zero",
+ "kind": 4,
+ "detail": "MyNat",
+ "data": ["file:///dottedIdentNotation.lean", 33, 31, 0, "cMyNat.zero"]}
+{"textDocument": {"uri": "file:///dottedIdentNotation.lean"},
+ "position": {"line": 38, "character": 31}}
+{"items": [], "isIncomplete": false}
+{"textDocument": {"uri": "file:///dottedIdentNotation.lean"},
+ "position": {"line": 51, "character": 24}}
+{"items":
+ [{"label": "zero",
+   "kind": 4,
+   "data": ["file:///dottedIdentNotation.lean", 51, 24, 0, "cMyNat.zero"]}],
+ "isIncomplete": false}
+Resolution of zero:
+{"label": "zero",
+ "kind": 4,
+ "detail": "MyNat",
+ "data": ["file:///dottedIdentNotation.lean", 51, 24, 0, "cMyNat.zero"]}
+{"textDocument": {"uri": "file:///dottedIdentNotation.lean"},
+ "position": {"line": 64, "character": 32}}
+{"items":
+ [{"label": "succ",
+   "kind": 4,
+   "data": ["file:///dottedIdentNotation.lean", 64, 32, 0, "cMyNat.succ"]}],
+ "isIncomplete": false}
+Resolution of succ:
+{"label": "succ",
+ "kind": 4,
+ "detail": "MyNat → MyNat",
+ "data": ["file:///dottedIdentNotation.lean", 64, 32, 0, "cMyNat.succ"]}

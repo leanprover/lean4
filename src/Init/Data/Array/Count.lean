@@ -6,9 +6,15 @@ Authors: Kim Morrison
 module
 
 prelude
-public import all Init.Data.Array.Basic
-public import Init.Data.Array.Lemmas
-public import Init.Data.List.Nat.Count
+import all Init.Data.Array.Basic
+import Init.Grind.Util  -- shake: keep (`@[grind]` dependency)
+public import Init.BinderPredicates
+public import Init.Ext
+public import Init.NotationExtra
+import Init.Data.Array.Lemmas
+import Init.Data.Bool
+import Init.Data.List.Count
+import Init.Data.List.Nat.Count
 
 public section
 
@@ -62,12 +68,12 @@ theorem size_eq_countP_add_countP {xs : Array α} : xs.size = countP p xs + coun
   rcases xs with ⟨xs⟩
   simp [List.length_eq_countP_add_countP (p := p)]
 
-@[grind _=_]
 theorem countP_eq_size_filter {xs : Array α} : countP p xs = (filter p xs).size := by
   rcases xs with ⟨xs⟩
   simp [List.countP_eq_length_filter]
 
-@[grind =]
+grind_pattern countP_eq_size_filter => xs.countP p, xs.filter p
+
 theorem countP_eq_size_filter' : countP p = size ∘ filter p := by
   funext xs
   apply countP_eq_size_filter
@@ -92,6 +98,18 @@ theorem countP_le_size : countP p xs ≤ xs.size := by
   rcases xs with ⟨xs⟩
   simp
 
+/-- This lemma is only relevant for `grind`. -/
+@[grind ←=]
+theorem _root_.Std.Internal.Array.countP_eq_zero_of_forall {xs : Array α} (h : ∀ x ∈ xs, ¬ p x) : xs.countP p = 0 :=
+  countP_eq_zero.mpr h
+
+/-- This lemma is only relevant for `grind`. -/
+theorem _root_.Std.Internal.Array.not_of_countP_eq_zero_of_mem {xs : Array α} (h : xs.countP p = 0) (h' : x ∈ xs) : ¬ p x :=
+   countP_eq_zero.mp h _ h'
+
+grind_pattern Std.Internal.Array.not_of_countP_eq_zero_of_mem => xs.countP p, x ∈ xs where
+  guard xs.countP p = 0
+
 @[simp] theorem countP_eq_size {p} : countP p xs = xs.size ↔ ∀ a ∈ xs, p a := by
   rcases xs with ⟨xs⟩
   simp
@@ -99,14 +117,13 @@ theorem countP_le_size : countP p xs ≤ xs.size := by
 theorem countP_replicate {a : α} {n : Nat} : countP p (replicate n a) = if p a then n else 0 := by
   simp [← List.toArray_replicate, List.countP_replicate]
 
-@[deprecated countP_replicate (since := "2025-03-18")]
-abbrev countP_mkArray := @countP_replicate
-
+set_option backward.isDefEq.respectTransparency false in
 theorem boole_getElem_le_countP {xs : Array α} {i : Nat} (h : i < xs.size) :
     (if p xs[i] then 1 else 0) ≤ xs.countP p := by
   rcases xs with ⟨xs⟩
   simp [List.boole_getElem_le_countP]
 
+set_option backward.isDefEq.respectTransparency false in
 @[grind =]
 theorem countP_set {xs : Array α} {i : Nat} {a : α} (h : i < xs.size) :
     (xs.set i a).countP p = xs.countP p - (if p xs[i] then 1 else 0) + (if p a then 1 else 0) := by
@@ -262,14 +279,8 @@ theorem count_eq_size {xs : Array α} : count a xs = xs.size ↔ ∀ b ∈ xs, a
 @[simp] theorem count_replicate_self {a : α} {n : Nat} : count a (replicate n a) = n := by
   simp [← List.toArray_replicate]
 
-@[deprecated count_replicate_self (since := "2025-03-18")]
-abbrev count_mkArray_self := @count_replicate_self
-
 theorem count_replicate {a b : α} {n : Nat} : count a (replicate n b) = if b == a then n else 0 := by
   simp [← List.toArray_replicate, List.count_replicate]
-
-@[deprecated count_replicate (since := "2025-03-18")]
-abbrev count_mkArray := @count_replicate
 
 theorem filter_beq {xs : Array α} (a : α) : xs.filter (· == a) = replicate (count a xs) a := by
   rcases xs with ⟨xs⟩
@@ -283,9 +294,6 @@ theorem replicate_count_eq_of_count_eq_size {xs : Array α} (h : count a xs = xs
   rcases xs with ⟨xs⟩
   rw [← toList_inj]
   simp [List.replicate_count_eq_of_count_eq_length (by simpa using h)]
-
-@[deprecated replicate_count_eq_of_count_eq_size (since := "2025-03-18")]
-abbrev mkArray_count_eq_of_count_eq_size := @replicate_count_eq_of_count_eq_size
 
 @[simp] theorem count_filter {xs : Array α} (h : p a) : count a (filter p xs) = count a xs := by
   rcases xs with ⟨xs⟩

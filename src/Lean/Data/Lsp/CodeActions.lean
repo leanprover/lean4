@@ -7,7 +7,6 @@ Authors: E.W.Ayers
 module
 
 prelude
-public import Lean.Data.Lsp.Basic
 public import Lean.Data.Lsp.Diagnostics
 
 public section

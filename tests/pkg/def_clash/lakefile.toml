@@ -1,0 +1,21 @@
+name = "test"
+
+[[lean_lib]]
+name = "Test"
+
+[[lean_lib]]
+name = "TestFoo"
+
+[[lean_exe]]
+name = "TestUse"
+
+[[lean_exe]]
+name = "TestLocalUse"
+
+[[require]]
+name = "useA"
+path = "deps/useA"
+
+[[require]]
+name = "useB"
+path = "deps/useB"

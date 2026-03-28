@@ -5,6 +5,7 @@ Merge a tag into a branch on a GitHub repository.
 
 This script checks if a specified tag can be merged cleanly into a branch and performs
 the merge if possible. If the merge cannot be done cleanly, it prints a helpful message.
+Merge conflicts in the lean-toolchain file are automatically resolved by accepting the incoming changes.
 
 Usage:
     python3 merge_remote.py <org/repo> <branch> <tag>
@@ -58,6 +59,32 @@ def clone_repo(repo, temp_dir):
     return True
 
 
+def get_conflicted_files():
+    """Get list of files with merge conflicts."""
+    result = run_command("git diff --name-only --diff-filter=U", check=False)
+    if result.returncode == 0:
+        return result.stdout.strip().split('\n') if result.stdout.strip() else []
+    return []
+
+
+def resolve_lean_toolchain_conflict(tag):
+    """Resolve lean-toolchain conflict by accepting incoming (tag) changes."""
+    print("Resolving lean-toolchain conflict by accepting incoming changes...")
+    # Accept theirs (incoming) version for lean-toolchain
+    result = run_command(f"git checkout --theirs lean-toolchain", check=False)
+    if result.returncode != 0:
+        print("Failed to resolve lean-toolchain conflict")
+        return False
+
+    # Add the resolved file
+    add_result = run_command("git add lean-toolchain", check=False)
+    if add_result.returncode != 0:
+        print("Failed to stage resolved lean-toolchain")
+        return False
+
+    return True
+
+
 def check_and_merge(repo, branch, tag, temp_dir):
     """Check if tag can be merged into branch and perform the merge if possible."""
     # Change to the temporary directory
@@ -98,12 +125,37 @@ def check_and_merge(repo, branch, tag, temp_dir):
     # Try merging the tag directly
     print(f"Merging {tag} into {branch}...")
     merge_result = run_command(f"git merge {tag} --no-edit", check=False)
-    
+
     if merge_result.returncode != 0:
-        print(f"Cannot merge {tag} cleanly into {branch}.")
-        print("Merge conflicts would occur. Aborting merge.")
-        run_command("git merge --abort")
-        return False
+        # Check which files have conflicts
+        conflicted_files = get_conflicted_files()
+
+        if conflicted_files == ['lean-toolchain']:
+            # Only lean-toolchain has conflicts, resolve it
+            print("Merge conflict detected only in lean-toolchain.")
+            if resolve_lean_toolchain_conflict(tag):
+                # Continue the merge with the resolved conflict
+                print("Continuing merge with resolved lean-toolchain...")
+                continue_result = run_command(f"git commit --no-edit", check=False)
+                if continue_result.returncode != 0:
+                    print("Failed to complete merge after resolving lean-toolchain")
+                    run_command("git merge --abort")
+                    return False
+            else:
+                print("Failed to resolve lean-toolchain conflict")
+                run_command("git merge --abort")
+                return False
+        else:
+            # Other files have conflicts, or unable to determine
+            if conflicted_files:
+                print(f"Cannot merge {tag} cleanly into {branch}.")
+                print(f"Merge conflicts in: {', '.join(conflicted_files)}")
+            else:
+                print(f"Cannot merge {tag} cleanly into {branch}.")
+                print("Merge conflicts would occur.")
+            print("Aborting merge.")
+            run_command("git merge --abort")
+            return False
     
     print(f"Pushing changes to remote...")
     push_result = run_command(f"git push origin {branch}")

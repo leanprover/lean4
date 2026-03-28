@@ -6,11 +6,7 @@ Authors: Joachim Breitner
 module
 
 prelude
-public import Init.Tactics
-public import Lean.Elab.Tactic.Basic
 public import Lean.Elab.Tactic.Meta
-public import Lean.MetavarContext
-public import Lean.Meta.Closure
 
 public section
 

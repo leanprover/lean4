@@ -8,8 +8,6 @@ module
 prelude
 public import Init.ShareCommon
 public import Std.Data.HashSet.Basic
-public import Std.Data.HashMap.Basic
-public import Lean.Data.PersistentHashMap
 public import Lean.Data.PersistentHashSet
 
 public section

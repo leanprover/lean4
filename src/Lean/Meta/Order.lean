@@ -7,7 +7,6 @@ Authors: Wojciech Różowski, Joachim Breitner
 module
 
 prelude
-public import Lean.Meta.InferType
 public import Lean.Meta.PProdN
 public import Lean.Meta.AppBuilder
 public import Init.Internal.Order.Basic
@@ -35,6 +34,14 @@ def mkInstPiOfInstForall (x : Expr) (inst : Expr) : MetaM Expr := do
     mkAppOptM ``instCompleteLatticePi #[(← inferType x), none, (← mkLambdaFVars #[x] inst)]
   else
     throwError "mkInstPiOfInstForall: unexpected type of {inst}"
+
+/-- An n-ary version of `mkInstPiOfInstForall`. Takes an array of arguments instead.
+--/
+def mkInstPiOfInstsForall (xs : Array Expr) (inst : Expr) : MetaM Expr := do
+  let mut inst := inst
+  for x in xs.reverse do
+    inst ← mkInstPiOfInstForall x inst
+  pure inst
 
 /--
 Given a function `f : α → α`, an instance `inst : CCPO α`

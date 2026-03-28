@@ -4,22 +4,16 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Lean.Meta.Tactic.Grind.Types
-public import Lean.Meta.Tactic.Grind.Proof
-public import Lean.Meta.Tactic.Grind.MatchCond
-public import Lean.Meta.Tactic.Grind.Arith.Inv
-
-public section
-
+import Init.Grind.Util
+import Lean.Meta.Tactic.Grind.Util
 namespace Lean.Meta.Grind
-
 /-!
 Debugging support code for checking basic invariants.
 -/
 
-private def checkEqc (root : ENode) : GoalM Unit := do
+def checkEqc (root : ENode) : GoalM Unit := do
   let mut size := 0
   let mut curr := root.self
   repeat
@@ -55,7 +49,7 @@ def checkChild (e : Expr) (child : Expr) : GoalM Bool := do
   let some childRoot ← getRoot? child | return false
   return isSameExpr childRoot e
 
-private def checkMatchCondParent (e : Expr) (parent : Expr) : GoalM Bool := do
+def checkMatchCondParent (e : Expr) (parent : Expr) : GoalM Bool := do
   let_expr Grind.MatchCond parent ← parent | return false
   let mut curr := parent
   repeat
@@ -68,10 +62,14 @@ private def checkMatchCondParent (e : Expr) (parent : Expr) : GoalM Bool := do
     curr := b
   return false
 
-private def checkParents (e : Expr) : GoalM Unit := do
+def checkParents (e : Expr) : GoalM Unit := do
+  -- **Note**: We skip `funCC` parents because the parent-child relationship uses
+  -- one-level decomposition (`appFn!`/`appArg!`) rather than full `getAppArgs`/`getAppFn`.
   if (← isRoot e) then
-    for parent in (← getParents e) do
-      if isMatchCond parent then
+    for parent in (← getParents e).elems do
+      if parent.isApp && (← useFunCC parent) then
+        pure ()
+      else if isMatchCond parent then
         unless (← checkMatchCondParent e parent) do
           throwError "e: {e}, parent: {parent}"
         assert! (← checkMatchCondParent e parent)
@@ -93,11 +91,11 @@ private def checkParents (e : Expr) : GoalM Unit := do
           unless (← checkChild e parent.getAppFn) do
             throwError "e: {e}, parent: {parent}"
           assert! (← checkChild e parent.getAppFn)
-  else
-    -- All the parents are stored in the root of the equivalence class.
-    assert! (← getParents e).isEmpty
+    else
+      -- All the parents are stored in the root of the equivalence class.
+      assert! (← getParents e).isEmpty
 
-private def checkPtrEqImpliesStructEq : GoalM Unit := do
+def checkPtrEqImpliesStructEq : GoalM Unit := do
   let exprs ← getExprs
   for h₁ : i in *...exprs.size do
     let e₁ := exprs[i]
@@ -108,7 +106,7 @@ private def checkPtrEqImpliesStructEq : GoalM Unit := do
       -- and the two expressions must not be structurally equal
       assert! !Expr.equal e₁ e₂
 
-private def checkProofs : GoalM Unit := do
+def checkProofs : GoalM Unit := do
   let eqcs ← getEqcs
   for eqc in eqcs do
     for a in eqc do
@@ -119,11 +117,9 @@ private def checkProofs : GoalM Unit := do
           check p
           trace_goal[grind.debug.proofs] "checked: {← inferType p}"
 
-/--
-Checks basic invariants if `grind.debug` is enabled.
--/
-def checkInvariants (expensive := false) : GoalM Unit := do
-  if grind.debug.get (← getOptions) then
+/-- Checks invariants if `grind.debug` is enabled. -/
+public def checkInvariants (expensive := false) : GoalM Unit := do
+  if (← isDebugEnabled) then
     for e in (← getExprs) do
       let node ← getENode e
       checkParents node.self
@@ -131,11 +127,12 @@ def checkInvariants (expensive := false) : GoalM Unit := do
         checkEqc node
     if expensive then
       checkPtrEqImpliesStructEq
-    Arith.checkInvariants
+    Solvers.checkInvariants
   if expensive && grind.debug.proofs.get (← getOptions) then
     checkProofs
 
-def Goal.checkInvariants (goal : Goal) (expensive := false) : GrindM Unit :=
+@[inherit_doc Grind.checkInvariants]
+public def Goal.checkInvariants (goal : Goal) (expensive := false) : GrindM Unit :=
   discard <| GoalM.run' goal <| Grind.checkInvariants expensive
 
 end Lean.Meta.Grind

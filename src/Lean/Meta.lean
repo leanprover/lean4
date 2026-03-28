@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Lean.Meta.Basic
 public import Lean.Meta.LevelDefEq
@@ -28,6 +27,7 @@ public import Lean.Meta.Match
 public import Lean.Meta.ReduceEval
 public import Lean.Meta.Closure
 public import Lean.Meta.AbstractNestedProofs
+public import Lean.Meta.WrapInstance
 public import Lean.Meta.LetToHave
 public import Lean.Meta.ForEachExpr
 public import Lean.Meta.Transform
@@ -57,5 +57,8 @@ public import Lean.Meta.Diagnostics
 public import Lean.Meta.BinderNameHint
 public import Lean.Meta.TryThis
 public import Lean.Meta.Hint
-
-public section
+public import Lean.Meta.MethodSpecs
+public import Lean.Meta.CtorIdxHInj
+public import Lean.Meta.Sym
+public import Lean.Meta.MonadSimp
+public import Lean.Meta.HaveTelescope

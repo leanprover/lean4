@@ -7,6 +7,8 @@ module
 
 prelude
 public import Init.System.IO
+import Init.Data.ToString.Name
+import Init.Data.ToString.Macro
 
 public section
 namespace Lean

@@ -8,10 +8,10 @@ Helper functions for retrieving structure information.
 module
 
 prelude
-public import Init.Control.Option
-public import Lean.Environment
 public import Lean.ProjFns
 public import Lean.Exception
+public import Init.While
+import Init.Data.Range.Polymorphic.Iterators
 
 public section
 
@@ -84,7 +84,7 @@ private structure StructureState where
   map : PersistentHashMap Name StructureInfo := {}
   deriving Inhabited
 
-builtin_initialize structureExt : PersistentEnvExtension StructureInfo StructureInfo (Unit × StructureState) ← registerPersistentEnvExtension {
+private builtin_initialize structureExt : PersistentEnvExtension StructureInfo StructureInfo (Unit × StructureState) ← registerPersistentEnvExtension {
   mkInitial       := pure ((), {})
   addImportedFn   := fun _ => pure ((), {})
   addEntryFn      := fun (_, s) e => ((), { s with map := s.map.insert e.structName e })
@@ -119,7 +119,7 @@ Throws an error if the structure has not already been registered with `Lean.regi
 -/
 def setStructureParents [Monad m] [MonadEnv m] [MonadError m] (structName : Name) (parentInfo : Array StructureParentInfo) : m Unit := do
   let some info := structureExt.getState (← getEnv) |>.snd.map.find? structName
-    | throwError "cannot set structure parents for '{structName}', structure not defined in current module"
+    | throwError "cannot set structure parents for `{structName}`, structure not defined in current module"
   modifyEnv fun env => structureExt.addEntry env { info with parentInfo }
 
 /-- Gets the `StructureInfo` if `structName` has been declared as a structure to the elaborator. -/
@@ -143,8 +143,7 @@ Gets the constructor of an inductive type that has exactly one constructor.
 This is meant to be used with types that have had been registered as a structure by `registerStructure`,
 but this is not checked.
 
-Warning: these do *not* need to be "structure-likes". A structure-like is non-recursive,
-and structure-likes have special kernel support.
+Warning: this does not check that the type has no indices.
 -/
 def getStructureCtor (env : Environment) (constName : Name) : ConstructorVal :=
   match env.find? constName with
@@ -357,9 +356,9 @@ where
 /--
 Returns true iff `constName` is a non-recursive inductive datatype that has only one constructor and no indices.
 
-Such types have special kernel support. This must be in sync with `is_structure_like`.
+Such types have special kernel support (e.g. the eta rule). This must be in sync with `is_non_rec_structure()`.
 -/
-def isStructureLike (env : Environment) (constName : Name) : Bool :=
+def isNonRecStructure (env : Environment) (constName : Name) : Bool :=
   match env.find? constName with
   | some (.inductInfo { isRec := false, ctors := [_], numIndices := 0, .. }) => true
   | _ => false
@@ -367,7 +366,7 @@ def isStructureLike (env : Environment) (constName : Name) : Bool :=
 /--
 Returns the constructor of the structure named `constName` if it is a non-recursive single-constructor inductive type with no indices.
 -/
-def getStructureLikeCtor? (env : Environment) (constName : Name) : Option ConstructorVal :=
+def getNonRecStructureCtor? (env : Environment) (constName : Name) : Option ConstructorVal :=
   match env.find? constName with
   | some (.inductInfo { isRec := false, ctors := [ctorName], numIndices := 0, .. }) =>
     match env.find? ctorName with
@@ -375,8 +374,8 @@ def getStructureLikeCtor? (env : Environment) (constName : Name) : Option Constr
     | _ => panic! "ill-formed environment"
   | _ => none
 
-/-- Returns the number of fields for a structure-like type -/
-def getStructureLikeNumFields (env : Environment) (constName : Name) : Nat :=
+/-- Returns the number of fields for a non-recursive structure type. -/
+def getNonRecStructureNumFields (env : Environment) (constName : Name) : Nat :=
   match env.find? constName with
   | some (.inductInfo { isRec := false, ctors := [ctor], numIndices := 0, .. }) =>
     match env.find? ctor with

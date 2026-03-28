@@ -6,9 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Meta.Instances
-public import Lean.Compiler.InlineAttrs
-public import Lean.Compiler.Specialize
 public import Lean.Compiler.LCNF.CompilerM
 
 public section
@@ -25,10 +22,10 @@ let _x.2 := _f.1
 ```
 `findFunDecl? _x.2` returns `none`, but `findFunDecl'? _x.2` returns the declaration for `_f.1`.
 -/
-partial def findFunDecl'? (fvarId : FVarId) : CompilerM (Option FunDecl) := do
-  if let some decl ← findFunDecl? fvarId then
+partial def findFunDecl'? (fvarId : FVarId) : CompilerM (Option (FunDecl pu)) := do
+  if let some decl ← findFunDecl? (pu := pu) fvarId then
     return decl
-  else if let some (.fvar fvarId' #[]) ← findLetValue? fvarId then
+  else if let some (.fvar fvarId' #[]) ← findLetValue? (pu := pu) fvarId then
     findFunDecl'? fvarId'
   else
     return none

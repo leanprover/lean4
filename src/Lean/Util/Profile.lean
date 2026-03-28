@@ -15,15 +15,13 @@ namespace Lean
 
 register_builtin_option profiler : Bool := {
   defValue := false
-  group    := "profiler"
   descr    := "show exclusive execution times of various Lean components
-  
+
 See also `trace.profiler` for an alternative profiling system with structured output."
 }
 
 register_builtin_option profiler.threshold : Nat := {
   defValue := 100
-  group    := "profiler"
   descr    := "threshold in milliseconds, profiling times under threshold will not be reported individually"
 }
 
@@ -50,5 +48,9 @@ def profileitIO {ε α : Type} (category : String) (opts : Options) (act : EIO �
 -- impossible to infer `ε`
 def profileitM {m : Type → Type} (ε : Type) [MonadFunctorT (EIO ε) m] {α : Type} (category : String) (opts : Options) (act : m α) (decl := Name.anonymous) : m α :=
   monadMap (fun {β} => profileitIO (ε := ε) (α := β) (decl := decl) category opts) act
+
+/-- Print all profiling times (if any) to standard error. -/
+@[extern "lean_display_cumulative_profiling_times"]
+opaque displayCumulativeProfilingTimes : BaseIO Unit
 
 end Lean

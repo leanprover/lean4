@@ -6,22 +6,25 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Grind.Ring.Basic
-public import all Init.Grind.ToInt
+import all Init.Grind.ToInt
 public import Init.GrindInstances.ToInt
-public import all Init.Data.BitVec.Basic
-public import all Init.Data.SInt.Basic
+import all Init.Data.BitVec.Basic
+import all Init.Data.SInt.Basic
 public import Init.Data.SInt.Lemmas
+public import Init.Grind.Ring.Basic
+import Init.Data.Int.Pow
+import Init.Data.Nat.Dvd
+import Init.Grind.Ring.ToInt
 
 public section
 
 namespace Lean.Grind
 
-@[expose]
+@[expose, implicit_reducible]
 def Int8.natCast : NatCast Int8 where
   natCast x := Int8.ofNat x
 
-@[expose]
+@[expose, implicit_reducible]
 def Int8.intCast : IntCast Int8 where
   intCast x := Int8.ofInt x
 
@@ -53,7 +56,9 @@ instance : CommRing Int8 where
   pow_succ := Int8.pow_succ
   ofNat_succ x := Int8.ofNat_add x 1
   intCast_neg := Int8.ofInt_neg
-  neg_zsmul i x := by simp [Int8.intCast_neg, Int8.neg_mul]
+  neg_zsmul i x := by
+    change (-i : Int) * x = - (i * x)
+    simp [Int8.intCast_neg, Int8.neg_mul]
   zsmul_natCast_eq_nsmul n a := congrArg (· * a) (Int8.intCast_ofNat _)
 
 instance : IsCharP Int8 (2 ^ 8) := IsCharP.mk' _ _
@@ -70,11 +75,11 @@ example : ToInt.Sub Int8 (.sint 8) := inferInstance
 
 instance : ToInt.Pow Int8 (.sint 8) := ToInt.pow_of_semiring (by simp)
 
-@[expose]
+@[expose, implicit_reducible]
 def Int16.natCast : NatCast Int16 where
   natCast x := Int16.ofNat x
 
-@[expose]
+@[expose, implicit_reducible]
 def Int16.intCast : IntCast Int16 where
   intCast x := Int16.ofInt x
 
@@ -106,7 +111,9 @@ instance : CommRing Int16 where
   pow_succ := Int16.pow_succ
   ofNat_succ x := Int16.ofNat_add x 1
   intCast_neg := Int16.ofInt_neg
-  neg_zsmul i x := by simp [Int16.intCast_neg, Int16.neg_mul]
+  neg_zsmul i x := by
+    change (-i : Int) * x = - (i * x)
+    simp [Int16.intCast_neg, Int16.neg_mul]
   zsmul_natCast_eq_nsmul n a := congrArg (· * a) (Int16.intCast_ofNat _)
 
 instance : IsCharP Int16 (2 ^ 16) := IsCharP.mk' _ _
@@ -123,11 +130,11 @@ example : ToInt.Sub Int16 (.sint 16) := inferInstance
 
 instance : ToInt.Pow Int16 (.sint 16) := ToInt.pow_of_semiring (by simp)
 
-@[expose]
+@[expose, implicit_reducible]
 def Int32.natCast : NatCast Int32 where
   natCast x := Int32.ofNat x
 
-@[expose]
+@[expose, implicit_reducible]
 def Int32.intCast : IntCast Int32 where
   intCast x := Int32.ofInt x
 
@@ -159,7 +166,9 @@ instance : CommRing Int32 where
   pow_succ := Int32.pow_succ
   ofNat_succ x := Int32.ofNat_add x 1
   intCast_neg := Int32.ofInt_neg
-  neg_zsmul i x := by simp [Int32.intCast_neg, Int32.neg_mul]
+  neg_zsmul i x := by
+    change (-i : Int) * x = - (i * x)
+    simp [Int32.intCast_neg, Int32.neg_mul]
   zsmul_natCast_eq_nsmul n a := congrArg (· * a) (Int32.intCast_ofNat _)
 
 instance : IsCharP Int32 (2 ^ 32) := IsCharP.mk' _ _
@@ -176,11 +185,11 @@ example : ToInt.Sub Int32 (.sint 32) := inferInstance
 
 instance : ToInt.Pow Int32 (.sint 32) := ToInt.pow_of_semiring (by simp)
 
-@[expose]
+@[expose, implicit_reducible]
 def Int64.natCast : NatCast Int64 where
   natCast x := Int64.ofNat x
 
-@[expose]
+@[expose, implicit_reducible]
 def Int64.intCast : IntCast Int64 where
   intCast x := Int64.ofInt x
 
@@ -212,7 +221,9 @@ instance : CommRing Int64 where
   pow_succ := Int64.pow_succ
   ofNat_succ x := Int64.ofNat_add x 1
   intCast_neg := Int64.ofInt_neg
-  neg_zsmul i x := by simp [Int64.intCast_neg, Int64.neg_mul]
+  neg_zsmul i x := by
+    change (-i : Int) * x = - (i * x)
+    simp [Int64.intCast_neg, Int64.neg_mul]
   zsmul_natCast_eq_nsmul n a := congrArg (· * a) (Int64.intCast_ofNat _)
 
 instance : IsCharP Int64 (2 ^ 64) := IsCharP.mk' _ _
@@ -229,11 +240,11 @@ example : ToInt.Sub Int64 (.sint 64) := inferInstance
 
 instance : ToInt.Pow Int64 (.sint 64) := ToInt.pow_of_semiring (by simp)
 
-@[expose]
+@[expose, implicit_reducible]
 def ISize.natCast : NatCast ISize where
   natCast x := ISize.ofNat x
 
-@[expose]
+@[expose, implicit_reducible]
 def ISize.intCast : IntCast ISize where
   intCast x := ISize.ofInt x
 
@@ -265,7 +276,9 @@ instance : CommRing ISize where
   pow_succ := ISize.pow_succ
   ofNat_succ x := ISize.ofNat_add x 1
   intCast_neg := ISize.ofInt_neg
-  neg_zsmul i x := by simp [ISize.intCast_neg, ISize.neg_mul]
+  neg_zsmul i x := by
+    change (-i : Int) * x = - (i * x)
+    simp [ISize.intCast_neg, ISize.neg_mul]
   zsmul_natCast_eq_nsmul n a := congrArg (· * a) (ISize.intCast_ofNat _)
 
 open System.Platform (numBits)

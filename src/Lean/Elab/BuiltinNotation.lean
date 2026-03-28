@@ -6,15 +6,12 @@ Authors: Leonardo de Moura, Gabriel Ebner
 module
 
 prelude
-public import Lean.Compiler.BorrowedAnnotation
-public import Lean.Meta.KAbstract
-public import Lean.Meta.Closure
-public import Lean.Meta.MatchUtil
 public import Lean.Compiler.ImplementedByAttr
-public import Lean.Elab.SyntheticMVars
 public import Lean.Elab.Eval
 public import Lean.Elab.Binders
+public import Lean.IdentifierSuggestion
 meta import Lean.Parser.Do
+import Lean.Compiler.BorrowedAnnotation
 
 public section
 
@@ -47,16 +44,22 @@ open Meta
   match stx with
   | `(⟨$args,*⟩) => do
     tryPostponeIfNoneOrMVar expectedType?
+    let throwExpTypeUnknown {α} : TermElabM α :=
+      throwError "Invalid `⟨...⟩` notation: The expected type of this term could not be determined"
+    let usageNote := .note m!"\
+      This notation can only be used when the expected type is an inductive type with a single constructor"
     match expectedType? with
     | some expectedType =>
       let expectedType ← whnf expectedType
+      if expectedType.getAppFn.isMVar then throwExpTypeUnknown
       matchConstInduct expectedType.getAppFn
-        (fun _ => throwError "invalid constructor ⟨...⟩, expected type must be an inductive type {indentExpr expectedType}")
+        (fun _ => throwError m!"Invalid `⟨...⟩` notation: The expected type{inlineExpr expectedType}is not an inductive type"
+                    ++ usageNote)
         (fun ival _ => do
           match ival.ctors with
           | [ctor] =>
-            if isInaccessiblePrivateName (← getEnv) ctor then
-              throwError "invalid ⟨...⟩ notation, constructor for `{ival.name}` is marked as private"
+            if (← isInaccessiblePrivateName ctor) then
+              throwError "Invalid `⟨...⟩` notation: Constructor for `{ival.name}` is marked as private"
             let cinfo ← getConstInfoCtor ctor
             let numExplicitFields ← forallTelescopeReducing cinfo.type fun xs _ => do
               let mut n := 0
@@ -64,21 +67,38 @@ open Meta
                 if (← getFVarLocalDecl xs[i]).binderInfo.isExplicit then
                   n := n + 1
               return n
-            let args := args.getElems
+            let mut args := args.getElems
             if args.size < numExplicitFields then
-              throwError "invalid constructor ⟨...⟩, insufficient number of arguments, constructs '{ctor}' has #{numExplicitFields} explicit fields, but only #{args.size} provided"
+              let fieldsStr := if numExplicitFields == 1 then "fields" else "field"
+              let providedStr :=
+                if args.size == 0 then "none were"
+                else if args.size == 1 then "only 1 was"
+                else s!"only {args.size} were"
+              let errMsg := m!"Insufficient number of fields for `⟨...⟩` constructor: Constructor \
+                `{ctor}` has {numExplicitFields} explicit {fieldsStr}, but {providedStr} provided"
+              if (← read).errToSorry then
+                logError errMsg
+              else
+                throwError errMsg
+              for _ in args.size...numExplicitFields do
+                let s ← mkLabeledSorry (← mkFreshTypeMVar) (synthetic := true) (unique := false)
+                args := args.push <| ← exprToSyntax s
             let newStx ← if args.size == numExplicitFields then
               `($(mkCIdentFrom stx ctor (canonical := true)) $(args)*)
             else if numExplicitFields == 0 then
-              throwError "invalid constructor ⟨...⟩, insufficient number of arguments, constructs '{ctor}' does not have explicit fields, but #{args.size} provided"
+              throwError "Insufficient number of fields for `⟨...⟩` constructor: Constructor \
+                `{ctor}` does not have explicit fields, but {args.size} \
+                {if args.size == 1 then "was" else "were"} provided"
             else
               let extra := args[(numExplicitFields-1)...args.size]
               let newLast ← `(⟨$[$extra],*⟩)
               let newArgs := args[*...(numExplicitFields-1)].toArray.push newLast
               `($(mkCIdentFrom stx ctor (canonical := true)) $(newArgs)*)
             withMacroExpansion stx newStx $ elabTerm newStx expectedType?
-          | _ => throwError "invalid constructor ⟨...⟩, expected type must be an inductive type with only one constructor {indentExpr expectedType}")
-    | none => throwError "invalid constructor ⟨...⟩, expected type must be known"
+          | [] => throwError "Invalid `⟨...⟩` notation: The expected type{inlineExpr expectedType}has no constructors"
+          | _ => throwError m!"Invalid `⟨...⟩` notation: The expected type{inlineExpr expectedType}has more than one constructor"
+                  ++ usageNote)
+    | none => throwExpTypeUnknown
   | _ => throwUnsupportedSyntax
 
 @[builtin_term_elab borrowed] def elabBorrowed : TermElab := fun stx expectedType? =>
@@ -443,7 +463,10 @@ private def withLocalIdentFor (stx : Term) (e : Expr) (k : Term → TermElabM Ex
      let heqType ← inferType heq
      let heqType ← instantiateMVars heqType
      match (← Meta.matchEq? heqType) with
-     | none => throwError "invalid `▸` notation, argument{indentExpr heq}\nhas type{indentExpr heqType}\nequality expected"
+     | none => throwError "invalid `▸` notation, argument{indentExpr heq}\n\
+        has type{indentExpr heqType}\n\
+        equality expected\
+        {← Term.hintAutoImplicitFailure heq (expected := "an equality")}"
      | some (α, lhs, rhs) =>
        let mut lhs := lhs
        let mut rhs := rhs
@@ -519,8 +542,8 @@ private def withLocalIdentFor (stx : Term) (e : Expr) (k : Term → TermElabM Ex
   let mut mStx := stx[2]
   if mStx.getKind == ``Lean.Parser.Term.macroDollarArg then
     mStx := mStx[1]
-  let m ← elabTerm mStx (← mkArrow (mkSort levelOne) (mkSort levelOne))
-  let ω ← mkFreshExprMVar (mkSort levelOne)
+  let m ← elabTerm mStx (← mkArrow (mkSort Level.one) (mkSort Level.one))
+  let ω ← mkFreshExprMVar (mkSort Level.one)
   let stWorld ← mkAppM ``STWorld #[ω, m]
   discard <| mkInstMVar stWorld
   mkAppM ``StateRefT' #[ω, σ, m]
@@ -536,17 +559,20 @@ def elabUnsafe : TermElab := fun stx expectedType? =>
     let t ← elabTermAndSynthesize t expectedType?
     if (← logUnassignedUsingErrorInfos (← getMVars t)) then
       throwAbortTerm
-    let t ← mkAuxDefinitionFor (← mkAuxName `unsafe) t
+    let t ← mkAuxDefinitionFor (compile := false) (← mkAuxName `unsafe) t
     let .const unsafeFn unsafeLvls .. := t.getAppFn | unreachable!
     let .defnInfo unsafeDefn ← getConstInfo unsafeFn | unreachable!
     let implName ← mkAuxName `unsafe_impl
-    addDecl <| Declaration.defnDecl {
+    if (← read).declName?.any (isMarkedMeta (← getEnv)) then
+      modifyEnv (markMeta · unsafeFn)
+      modifyEnv (markMeta · implName)
+    compileDecls #[unsafeFn]
+    addDecl <| Declaration.opaqueDecl {
       name        := implName
       type        := unsafeDefn.type
       levelParams := unsafeDefn.levelParams
       value       := (← mkOfNonempty unsafeDefn.type)
-      hints       := .opaque
-      safety      := .safe
+      isUnsafe    := false
     }
     setImplementedBy implName unsafeFn
     return mkAppN (Lean.mkConst implName unsafeLvls) t.getAppArgs

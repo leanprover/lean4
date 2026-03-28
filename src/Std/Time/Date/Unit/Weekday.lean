@@ -6,14 +6,12 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Std.Internal.Rat
 public import Std.Time.Date.Unit.Day
 
 public section
 
 namespace Std
 namespace Time
-open Std.Internal
 open Internal
 
 set_option linter.all true

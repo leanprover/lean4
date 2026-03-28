@@ -7,5 +7,3 @@ module
 
 prelude
 public import Lean.Meta.Tactic.AC.Main
-
-public section

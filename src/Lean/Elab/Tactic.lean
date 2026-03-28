@@ -6,7 +6,6 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 module
 
 prelude
-public import Lean.Elab.Term
 public import Lean.Elab.Tactic.Basic
 public import Lean.Elab.Tactic.ElabTerm
 public import Lean.Elab.Tactic.Induction
@@ -18,6 +17,7 @@ public import Lean.Elab.Tactic.Location
 public import Lean.Elab.Tactic.SimpTrace
 public import Lean.Elab.Tactic.Simp
 public import Lean.Elab.Tactic.Simproc
+public import Lean.Elab.Tactic.CbvSimproc
 public import Lean.Elab.Tactic.BuiltinTactic
 public import Lean.Elab.Tactic.Split
 public import Lean.Elab.Tactic.Conv
@@ -55,5 +55,5 @@ public import Lean.Elab.Tactic.SimpArith
 public import Lean.Elab.Tactic.Show
 public import Lean.Elab.Tactic.Lets
 public import Lean.Elab.Tactic.Do
-
-public section
+public import Lean.Elab.Tactic.Decide
+public import Lean.Elab.Tactic.Cbv

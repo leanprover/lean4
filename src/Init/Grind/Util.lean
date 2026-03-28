@@ -4,13 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-public import Init.Core
-public import Init.Classical
-
+public import Init.Data.Cast
+public import Init.Grind.Tactics
+public meta import Init.Grind.Tactics
+import Init.Classical
 public section
-
 namespace Lean.Grind
 
 /-- A helper gadget for annotating nested proofs in goals. -/
@@ -32,6 +31,12 @@ simpMatchDiscrsOnly (match 0 with | 0 => true | _ => false) = true
 using `eq_self`.
 -/
 def simpMatchDiscrsOnly {α : Sort u} (a : α) : α := a
+
+/--
+Gadget for protecting lambda abstractions created by `abstractGroundMismatches?`
+from beta reduction during preprocessing. See `ProveEq.lean` for details.
+-/
+def abstractFn {α : Sort u} (a : α) : α := a
 
 /-- Gadget for representing offsets `t+k` in patterns. -/
 def offset (a b : Nat) : Nat := a + b
@@ -122,5 +127,16 @@ See comment at `alreadyNorm`
 -/
 theorem em (p : Prop) : alreadyNorm p ∨ alreadyNorm (¬ p) :=
   Classical.em p
+
+/--
+Marker for grind-solved subproofs in `exact? +grind` suggestions.
+When `exact?` uses grind as a discharger, it wraps the proof in this marker
+so that the unexpander can replace it with `(by grind)` in the suggestion.
+-/
+@[inline] def Marker {α : Sort u} (a : α) : α := a
+
+@[app_unexpander Marker]
+meta def markerUnexpander : PrettyPrinter.Unexpander := fun _ => do
+  `(by grind)
 
 end Lean.Grind

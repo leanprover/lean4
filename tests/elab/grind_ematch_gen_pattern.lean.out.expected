@@ -1,0 +1,28 @@
+[grind.ematch.instance] pbind_some': ∀ (h : b = some a), (b.pbind fun a h => some (a + f b ⋯)) = some (a + f b ⋯)
+[grind.ematch.instance] pbind_some': ∀ (h : b = some (2 * a)),
+      (b.pbind fun a h => some (a + f b ⋯)) = some (2 * a + f b ⋯)
+[grind.ematch.instance] pbind_some': ∀ (h_2 : b = some (a + f b ⋯)),
+      (b.pbind fun a h => some (a + f b ⋯)) = some (a + f b ⋯ + f b ⋯)
+[grind.ematch.instance] f.eq_2: f (some a) ⋯ = a
+[grind.ematch.instance] pbind_some': ∀ (h_2 : b = some (a + 2 * f b ⋯)),
+      (b.pbind fun a h => some (a + f b ⋯)) = some (a + 2 * f b ⋯ + f b ⋯)
+[grind.ematch.instance] pbind_some': ∀ (h_2 : b = some (a + 3 * f b ⋯)),
+      (b.pbind fun a h => some (a + f b ⋯)) = some (a + 3 * f b ⋯ + f b ⋯)
+[grind.ematch.instance] pbind_some': ∀ (h_2 : b = some (a + 4 * f b ⋯)),
+      (b.pbind fun a h => some (a + f b ⋯)) = some (a + 4 * f b ⋯ + f b ⋯)
+[grind.ematch.instance] pbind_some': ∀ (h_3 : b = some (a + 5 * f b ⋯)),
+      (b.pbind fun a h => some (a + f b ⋯)) = some (a + 5 * f b ⋯ + f b ⋯)
+[grind.ematch.instance] pbind_some': ∀ (h_3 : b = some (2 * a + f b ⋯)),
+      (b.pbind fun a h => some (a + f b ⋯)) = some (2 * a + f b ⋯ + f b ⋯)
+[grind.ematch.instance] pbind_some': ∀ (h_3 : b = some (a + 6 * f b ⋯)),
+      (b.pbind fun a h => some (a + f b ⋯)) = some (a + 6 * f b ⋯ + f b ⋯)
+[grind.ematch.instance] pbind_some': ∀ (h_3 : b = some (a + 7 * f b ⋯)),
+      (b.pbind fun a h => some (a + f b ⋯)) = some (a + 7 * f b ⋯ + f b ⋯)
+[grind.ematch.instance] pbind_some': ∀ (h_3 : b = some (a + 5 * f b ⋯)),
+      (b.pbind fun a h => some (a + f b ⋯)) = some (a + 5 * f b ⋯ + f b ⋯)
+[grind.ematch.instance] pbind_some': ∀ (h_3 : b = some (a + 6 * f b ⋯)),
+      (b.pbind fun a h => some (a + f b ⋯)) = some (a + 6 * f b ⋯ + f b ⋯)
+[grind.ematch.instance] pbind_some': ∀ (h_3 : b = some (a + 7 * f b ⋯)),
+      (b.pbind fun a h => some (a + f b ⋯)) = some (a + 7 * f b ⋯ + f b ⋯)
+grind_ematch_gen_pattern.lean:92:0-92:7: warning: declaration uses `sorry`
+grind_ematch_gen_pattern.lean:103:0-103:7: warning: declaration uses `sorry`

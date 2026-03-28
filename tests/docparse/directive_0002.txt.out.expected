@@ -1,0 +1,12 @@
+Success! Final stack:
+  (Lean.Doc.Syntax.directive
+   "::::"
+   `multiPara
+   []
+   "\n"
+   [(Lean.Doc.Syntax.para
+     "para{"
+     [(Lean.Doc.Syntax.text (str "\"foo\""))]
+     "}")]
+   "::::")
+All input consumed.

@@ -6,15 +6,14 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Std.Internal.Rat
-public import Std.Time.Date.Unit.Day
-public import all Std.Time.Date.Unit.Month
+public import Std.Time.Date.Unit.Month
+import all Std.Time.Date.Unit.Month
+import Init.Data.Bool
 
 public section
 
 namespace Std
 namespace Time
-open Std.Internal
 open Internal
 open Month.Ordinal
 
@@ -28,6 +27,8 @@ is valid only if `leap` is `true`.
 
 instance : Inhabited (ValidDate l) where
   default := ⟨⟨1, 1⟩, (by cases l <;> decide)⟩
+
+attribute [local instance] lexOrd
 
 instance : DecidableEq (ValidDate leap) := Subtype.instDecidableEq
 
@@ -56,6 +57,7 @@ def dayOfYear (ordinal : ValidDate leap) : Day.Ordinal.OfYear leap :=
   | true, bounded => bounded
   | false, bounded => bounded
 
+set_option backward.isDefEq.respectTransparency false in
 /--
 Transforms a `Day.Ordinal.OfYear` into a tuple of a `Month` and a `Day`.
 -/

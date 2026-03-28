@@ -7,21 +7,19 @@ module
 
 prelude
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Var
-public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Const
-public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Not
-public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.ShiftLeft
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.ShiftRight
-public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Add
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Append
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Replicate
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Extract
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.RotateLeft
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.RotateRight
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Mul
-public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Udiv
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Umod
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Reverse
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Clz
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Cpop
+import Init.Data.Nat.Linear
+import Init.Omega
 
 @[expose] public section
 
@@ -62,7 +60,7 @@ def Cache.insert (cache : Cache aig) (expr : BVExpr w) (refs : AIG.RefVec aig w)
     intro i k hk h2
     rw [Std.DHashMap.get_insert]
     split
-    · next heq =>
+    next heq =>
       rcases k with ⟨w, expr⟩
       simp only [beq_iff_eq, Key.mk.injEq] at heq
       rcases heq with ⟨heq1, heq2⟩
@@ -235,6 +233,12 @@ where
           apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := bitblast.blastClz)
           omega
         ⟨⟨res, this⟩, cache.cast (AIG.LawfulVecOperator.le_size (f := bitblast.blastClz) ..)⟩
+      | .cpop =>
+        let res := bitblast.blastCpop eaig evec
+        have := by
+          apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := bitblast.blastCpop)
+          omega
+        ⟨⟨res, this⟩, cache.cast (AIG.LawfulVecOperator.le_size (f := bitblast.blastCpop) ..)⟩
     | .append lhs rhs h =>
       let ⟨⟨⟨aig, lhs⟩, hlaig⟩, cache⟩ := goCache aig lhs cache
       let ⟨⟨⟨aig, rhs⟩, hraig⟩, cache⟩ := goCache aig rhs cache
@@ -326,74 +330,74 @@ theorem go_decl_eq (aig : AIG BVBit) (expr : BVExpr w) (cache : Cache aig) :
   split
   · rw [AIG.LawfulVecOperator.decl_eq (f := blastVar)]
   · simp
-  · next op lhsExpr rhsExpr =>
+  next op lhsExpr rhsExpr =>
     have hl := (goCache aig lhsExpr cache).result.property
     have hr := (goCache (goCache aig lhsExpr cache).1.1.aig rhsExpr (goCache aig lhsExpr cache).cache).result.property
     match op with
     | .and | .or | .xor =>
       rw [AIG.RefVec.zip_decl_eq]
       rw [goCache_decl_eq, goCache_decl_eq]
-      · omega
+      · exact Nat.lt_of_lt_of_le h1 hl
       · apply Nat.lt_of_lt_of_le
         · exact h1
         · apply Nat.le_trans <;> assumption
     | .add | .mul | .udiv | .umod =>
       rw [AIG.LawfulVecOperator.decl_eq]
       rw [goCache_decl_eq, goCache_decl_eq]
-      · omega
+      · exact Nat.lt_of_lt_of_le h1 hl
       · apply Nat.lt_of_lt_of_le
         · exact h1
         · apply Nat.le_trans <;> assumption
-  · next op expr =>
+  next op expr =>
     match op with
-    | .not | .rotateLeft .. | .rotateRight .. | .arithShiftRightConst .. | .reverse | .clz =>
+    | .not | .rotateLeft .. | .rotateRight .. | .arithShiftRightConst .. | .reverse | .clz | .cpop =>
       rw [AIG.LawfulVecOperator.decl_eq]
       rw [goCache_decl_eq]
       have := (goCache aig expr cache).result.property
-      omega
-  · next lhsExpr rhsExpr h =>
+      exact Nat.lt_of_lt_of_le h1 this
+  next lhsExpr rhsExpr h =>
     have hl := (goCache aig lhsExpr cache).result.property
     have hr := (goCache (goCache aig lhsExpr cache).1.1.aig rhsExpr (goCache aig lhsExpr cache).cache).result.property
     rw [AIG.LawfulVecOperator.decl_eq]
     rw [goCache_decl_eq, goCache_decl_eq]
-    · omega
+    · exact Nat.lt_of_lt_of_le h1 hl
     · apply Nat.lt_of_lt_of_le
       · exact h1
       · apply Nat.le_trans <;> assumption
-  · next inner _ =>
+  next inner _ =>
     rw [AIG.LawfulVecOperator.decl_eq (f := blastReplicate)]
     rw [goCache_decl_eq]
     have := (goCache aig inner cache).result.property
-    omega
-  · next hi lo inner =>
+    exact Nat.lt_of_lt_of_le h1 this
+  next hi lo inner =>
     rw [AIG.LawfulVecOperator.decl_eq (f := blastExtract)]
     rw [goCache_decl_eq]
     have := (goCache aig inner cache).result.property
-    omega
-  · next rhsExpr lhsExpr =>
+    exact Nat.lt_of_lt_of_le h1 this
+  next rhsExpr lhsExpr =>
     have hl := (goCache aig lhsExpr cache).result.property
     have hr := (goCache (goCache aig lhsExpr cache).1.1.aig rhsExpr (goCache aig lhsExpr cache).cache).result.property
     rw [AIG.LawfulVecOperator.decl_eq (f := blastShiftLeft)]
     rw [goCache_decl_eq, goCache_decl_eq]
-    · omega
+    · exact Nat.lt_of_lt_of_le h1 hl
     · apply Nat.lt_of_lt_of_le
       · exact h1
       · apply Nat.le_trans <;> assumption
-  · next rhsExpr lhsExpr =>
+  next rhsExpr lhsExpr =>
     have hl := (goCache aig lhsExpr cache).result.property
     have hr := (goCache (goCache aig lhsExpr cache).1.1.aig rhsExpr (goCache aig lhsExpr cache).cache).result.property
     rw [AIG.LawfulVecOperator.decl_eq (f := blastShiftRight)]
     rw [goCache_decl_eq, goCache_decl_eq]
-    · omega
+    · exact Nat.lt_of_lt_of_le h1 hl
     · apply Nat.lt_of_lt_of_le
       · exact h1
       · apply Nat.le_trans <;> assumption
-  · next rhsExpr lhsExpr =>
+  next rhsExpr lhsExpr =>
     have hl := (goCache aig lhsExpr cache).result.property
     have hr := (goCache (goCache aig lhsExpr cache).1.1.aig rhsExpr (goCache aig lhsExpr cache).cache).result.property
     rw [AIG.LawfulVecOperator.decl_eq (f := blastArithShiftRight)]
     rw [goCache_decl_eq, goCache_decl_eq]
-    · omega
+    · exact Nat.lt_of_lt_of_le h1 hl
     · apply Nat.lt_of_lt_of_le
       · exact h1
       · apply Nat.le_trans <;>  assumption

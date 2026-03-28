@@ -6,9 +6,8 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 module
 
 prelude
-public import Lean.Attributes
 public import Lean.Compiler.InitAttr
-public import Lean.ToExpr
+import Lean.ExtraModUses
 
 public section
 
@@ -35,6 +34,7 @@ def registerCombinatorAttribute (name : Name) (descr : String) (ref : Name := by
     add   := fun decl stx _ => do
       let env ← getEnv
       let parserDeclName ← Elab.realizeGlobalConstNoOverloadWithInfo (← Attribute.Builtin.getIdent stx)
+      recordExtraModUseFromDecl (isMeta := false) parserDeclName
       setEnv <| ext.addEntry env (parserDeclName, decl)
   }
   registerBuiltinAttribute attrImpl
@@ -51,7 +51,7 @@ def setDeclFor (attr : CombinatorAttribute) (env : Environment) (parserDecl : Na
 unsafe def runDeclFor {α} (attr : CombinatorAttribute) (parserDecl : Name) : CoreM α := do
   match attr.getDeclFor? (← getEnv) parserDecl with
   | some d => evalConst α d
-  | _      => throwError "no declaration of attribute [{attr.impl.name}] found for '{parserDecl}'"
+  | _      => throwError "no declaration of attribute [{attr.impl.name}] found for `{parserDecl}`"
 
 end CombinatorAttribute
 

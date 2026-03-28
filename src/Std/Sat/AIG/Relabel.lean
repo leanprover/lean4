@@ -6,8 +6,9 @@ Authors: Henrik Böving
 module
 
 prelude
-public import Std.Sat.AIG.Basic
 public import Std.Sat.AIG.Lemmas
+import Init.ByCases
+import Init.Omega
 
 @[expose] public section
 
@@ -44,7 +45,7 @@ theorem relabel_atom {decls : Array (Decl α)} {r : α → β} {hidx : idx < dec
   unfold relabel at h
   split at h
   · contradiction
-  · next x heq =>
+  next x heq =>
     injection h with h
     exists x
     simp [heq, h]
@@ -162,11 +163,11 @@ theorem relabel_unsat_iff_of_Nonempty [Nonempty α] {aig : AIG α} {r : α → �
     · intro a hmem
       simp only [Function.comp_apply, g]
       split
-      · next h =>
+      next h =>
         rcases Exists.choose_spec h with ⟨_, heq⟩
         specialize hinj _ _ (by assumption) (by assumption) heq
         simp [hinj]
-      · next h =>
+      next h =>
         simp only [not_exists, not_and] at h
         specialize h a hmem
         contradiction

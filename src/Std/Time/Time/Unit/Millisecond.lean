@@ -6,8 +6,6 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Std.Internal.Rat
-public import Std.Time.Internal
 public import Std.Time.Time.Unit.Nanosecond
 
 public section
@@ -15,7 +13,6 @@ public section
 namespace Std
 namespace Time
 namespace Millisecond
-open Std.Internal
 open Internal
 
 set_option linter.all true

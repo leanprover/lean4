@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Compiler.IR.Basic
+import Init.Data.Format.Macro
 
 public section
 
@@ -66,6 +67,7 @@ private partial def formatIRType : IRType → Format
   | IRType.uint64       => "u64"
   | IRType.usize        => "usize"
   | IRType.erased       => "◾"
+  | IRType.void         => "void"
   | IRType.object       => "obj"
   | IRType.tagged       => "tagged"
   | IRType.tobject      => "tobj"
@@ -76,7 +78,7 @@ private partial def formatIRType : IRType → Format
     let _ : ToFormat IRType := ⟨formatIRType⟩
     "union " ++ Format.bracket "{" (Format.joinSep  tys.toList ", ") "}"
 
-instance : ToFormat IRType := ⟨formatIRType⟩
+instance : ToFormat IRType := ⟨private_decl% formatIRType⟩
 instance : ToString IRType := ⟨toString ∘ format⟩
 
 private def formatParam : Param → Format

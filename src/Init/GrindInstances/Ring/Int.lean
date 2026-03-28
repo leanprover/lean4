@@ -8,6 +8,9 @@ module
 prelude
 public import Init.Grind.Ring.Basic
 public import Init.Data.Int.Lemmas
+public import Init.Data.Int.Pow
+import Init.Data.Int.DivMod.Lemmas
+import Init.Meta
 
 public section
 
@@ -27,8 +30,8 @@ instance : CommRing Int where
   right_distrib := Int.add_mul
   zero_mul := Int.zero_mul
   mul_zero := Int.mul_zero
-  pow_zero _ := by rfl
-  pow_succ _ _ := by rfl
+  pow_zero := Int.pow_zero
+  pow_succ := Int.pow_succ
   ofNat_succ _ := by rfl
   sub_eq_add_neg _ _ := Int.sub_eq_add_neg
   neg_zsmul := Int.neg_mul

@@ -39,9 +39,9 @@ void display_cumulative_profiling_times(std::ostream & out) {
 }
 
 /* displayCumulativeProfilingTimes : BaseIO Unit */
-extern "C" LEAN_EXPORT obj_res lean_display_cumulative_profiling_times(obj_arg) {
+extern "C" LEAN_EXPORT obj_res lean_display_cumulative_profiling_times() {
    display_cumulative_profiling_times(std::cerr);
-   return lean_io_result_mk_ok(box(0));
+   return box(0);
 }
 
 void initialize_time_task() {
@@ -57,7 +57,7 @@ void finalize_time_task() {
 time_task::time_task(std::string const & category, options const & opts, name decl) :
         m_category(category) {
     if (get_profiler(opts)) {
-        m_timeit = optional<xtimeit>(get_profiling_threshold(opts), [=](second_duration duration) mutable {
+        m_timeit = optional<xtimeit>(get_profiling_threshold(opts), [=, this](second_duration duration) mutable {
             sstream ss;
             ss << m_category;
             if (decl)

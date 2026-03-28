@@ -6,9 +6,10 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import all Init.Data.Array.Basic
-public import Init.Data.Nat.Linear
-public import Init.NotationExtra
+import all Init.Data.Array.Basic
+public import Init.Data.Array.Set
+public import Init.Util
+import Init.Data.Nat.Linear
 
 public section
 

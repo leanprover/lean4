@@ -6,10 +6,12 @@ Authors: Kim Morrison
 module
 
 prelude
-public import all Init.Data.Array.Basic
-public import Init.Data.Array.Zip
-public import all Init.Data.Vector.Basic
-public import Init.Data.Vector.Lemmas
+import all Init.Data.Array.Basic
+import all Init.Data.Vector.Basic
+public import Init.Data.Function
+public import Init.Data.Vector.Basic
+import Init.Data.Array.Zip
+import Init.Data.Vector.Lemmas
 
 public section
 
@@ -164,9 +166,6 @@ theorem zipWith_replicate {a : α} {b : β} {n : Nat} :
   ext
   simp
 
-@[deprecated zipWith_replicate (since := "2025-03-18")]
-abbrev zipWith_mkVector := @zipWith_replicate
-
 theorem map_uncurry_zip_eq_zipWith {f : α → β → γ} {as : Vector α n} {bs : Vector β n} :
     map (Function.uncurry f) (as.zip bs) = zipWith f as bs := by
   rcases as with ⟨as, rfl⟩
@@ -205,11 +204,9 @@ theorem zip_map {f : α → γ} {g : β → δ} {as : Vector α n} {bs : Vector 
   rcases bs with ⟨bs, h⟩
   simp [Array.zip_map]
 
-@[grind _=_]
 theorem zip_map_left {f : α → γ} {as : Vector α n} {bs : Vector β n} :
     zip (as.map f) bs = (zip as bs).map (Prod.map f id) := by rw [← zip_map, map_id]
 
-@[grind _=_]
 theorem zip_map_right {f : β → γ} {as : Vector α n} {bs : Vector β n} :
     zip as (bs.map f) = (zip as bs).map (Prod.map id f) := by rw [← zip_map, map_id]
 
@@ -271,9 +268,6 @@ theorem zip_replicate {a : α} {b : β} {n : Nat} :
     zip (replicate n a) (replicate n b) = replicate n (a, b) := by
   ext <;> simp
 
-@[deprecated zip_replicate (since := "2025-03-18")]
-abbrev zip_mkVector := @zip_replicate
-
 /-! ### unzip -/
 
 @[simp, grind =]
@@ -322,8 +316,5 @@ theorem zip_of_prod {as : Vector α n} {bs : Vector β n} {xs : Vector (α × β
 theorem unzip_replicate {a : α} {b : β} {n : Nat} :
     unzip (replicate n (a, b)) = (replicate n a, replicate n b) := by
   ext1 <;> simp
-
-@[deprecated unzip_replicate (since := "2025-03-18")]
-abbrev unzip_mkVector := @unzip_replicate
 
 end Vector

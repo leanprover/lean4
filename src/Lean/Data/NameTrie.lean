@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Data.PrefixTree
+import Init.Data.Ord.String
 
 public section
 
@@ -15,6 +16,7 @@ namespace Lean
 inductive NamePart
   | str (s : String)
   | num (n : Nat)
+  deriving BEq, Inhabited
 
 instance : ToString NamePart where
   toString

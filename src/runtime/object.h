@@ -194,7 +194,7 @@ inline object * mk_empty_array() { return lean_mk_empty_array(); }
 inline object * mk_empty_array(b_obj_arg capacity) { return lean_mk_empty_array_with_capacity(capacity); }
 inline object * array_uget(b_obj_arg a, usize i) { return lean_array_uget(a, i); }
 inline obj_res array_fget(b_obj_arg a, b_obj_arg i) { return lean_array_fget(a, i); }
-inline object * array_get(obj_arg def_val, b_obj_arg a, b_obj_arg i) { return lean_array_get(def_val, a, i); }
+inline object * array_get(b_obj_arg def_val, b_obj_arg a, b_obj_arg i) { return lean_array_get(def_val, a, i); }
 inline obj_res copy_array(obj_arg a, bool expand = false) { return lean_copy_expand_array(a, expand); }
 inline object * array_uset(obj_arg a, usize i, obj_arg v) { return lean_array_uset(a, i, v); }
 inline object * array_fset(obj_arg a, b_obj_arg i, obj_arg v) { return lean_array_fset(a, i, v); }
@@ -467,17 +467,17 @@ LEAN_EXPORT void io_eprintln(obj_arg s);
 
 // =======================================
 // ST ref primitives
-inline obj_res st_mk_ref(obj_arg v, obj_arg w) { return lean_st_mk_ref(v, w); }
-inline obj_res st_ref_get(b_obj_arg r, obj_arg w) { return lean_st_ref_get(r, w); }
-inline obj_res st_ref_set(b_obj_arg r, obj_arg v, obj_arg w) { return lean_st_ref_set(r, v, w); }
-inline obj_res st_ref_reset(b_obj_arg r, obj_arg w) { return lean_st_ref_reset(r, w); }
-inline obj_res st_ref_swap(b_obj_arg r, obj_arg v, obj_arg w) { return lean_st_ref_swap(r, v, w); }
+inline obj_res st_mk_ref(obj_arg v) { return lean_st_mk_ref(v); }
+inline obj_res st_ref_get(b_obj_arg r) { return lean_st_ref_get(r); }
+inline obj_res st_ref_set(b_obj_arg r, obj_arg v) { return lean_st_ref_set(r, v); }
+inline obj_res st_ref_reset(b_obj_arg r) { return lean_st_ref_reset(r); }
+inline obj_res st_ref_swap(b_obj_arg r, obj_arg v) { return lean_st_ref_swap(r, v); }
 
 obj_res lean_promise_new();
 void lean_promise_resolve(obj_arg value, b_obj_arg promise);
 
-extern "C" LEAN_EXPORT obj_res lean_io_promise_new(obj_arg);
-extern "C" LEAN_EXPORT obj_res lean_io_promise_resolve(obj_arg value, b_obj_arg promise, obj_arg);
+extern "C" LEAN_EXPORT obj_res lean_io_promise_new();
+extern "C" LEAN_EXPORT obj_res lean_io_promise_resolve(obj_arg value, b_obj_arg promise);
 extern "C" LEAN_EXPORT obj_res lean_io_promise_result_opt(obj_arg promise);
 extern "C" LEAN_EXPORT obj_res lean_get_or_block(obj_arg opt);
 

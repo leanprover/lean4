@@ -25,11 +25,11 @@ instances are provided for the same type.
 instance (priority := 500) instForInOfForIn' [ForIn' m ρ α d] : ForIn m ρ α where
   forIn x b f := forIn' x b fun a _ => f a
 
-@[simp] theorem forIn'_eq_forIn [d : Membership α ρ] [ForIn' m ρ α d] {β} [Monad m] (x : ρ) (b : β)
+@[simp] theorem forIn'_eq_forIn [d : Membership α ρ] [ForIn' m ρ α d] {β} (x : ρ) (b : β)
     (f : (a : α) → a ∈ x → β → m (ForInStep β)) (g : (a : α) → β → m (ForInStep β))
     (h : ∀ a m b, f a m b = g a b) :
     forIn' x b f = forIn x b g := by
-  simp [instForInOfForIn']
+  simp [forIn]
   congr
   apply funext
   intro a
@@ -40,13 +40,10 @@ instance (priority := 500) instForInOfForIn' [ForIn' m ρ α d] : ForIn m ρ α 
   simp [h]
   rfl
 
-@[wf_preprocess] theorem forIn_eq_forIn' [d : Membership α ρ] [ForIn' m ρ α d] {β} [Monad m]
+@[wf_preprocess] theorem forIn_eq_forIn' [d : Membership α ρ] [ForIn' m ρ α d] {β}
     (x : ρ) (b : β) (f : (a : α) → β → m (ForInStep β)) :
     forIn x b f = forIn' x b (fun x h => binderNameHint x f <| binderNameHint h () <| f x) := by
   rfl
-
-@[deprecated forIn_eq_forIn' (since := "2025-04-04")]
-abbrev forIn_eq_forin' := @forIn_eq_forIn'
 
 /--
 Extracts the value from a `ForInStep`, ignoring whether it is `ForInStep.done` or `ForInStep.yield`.
@@ -147,7 +144,7 @@ instance : ToBool Bool where
 Converts the result of the monadic action `x` to a `Bool`. If it is `true`, returns it and ignores
 `y`; otherwise, runs `y` and returns its result.
 
-This a monadic counterpart to the short-circuiting `||` operator, usually accessed via the `<||>`
+This is a monadic counterpart to the short-circuiting `||` operator, usually accessed via the `<||>`
 operator.
 -/
 @[macro_inline] def orM {m : Type u → Type v} {β : Type u} [Monad m] [ToBool β] (x y : m β) : m β := do
@@ -164,7 +161,7 @@ recommended_spelling "orM" for "<||>" in [orM, «term_<||>_»]
 Converts the result of the monadic action `x` to a `Bool`. If it is `true`, returns `y`; otherwise,
 returns the original result of `x`.
 
-This a monadic counterpart to the short-circuiting `&&` operator, usually accessed via the `<&&>`
+This is a monadic counterpart to the short-circuiting `&&` operator, usually accessed via the `<&&>`
 operator.
 -/
 @[macro_inline] def andM {m : Type u → Type v} {β : Type u} [Monad m] [ToBool β] (x y : m β) : m β := do
@@ -325,6 +322,8 @@ class MonadControl (m : semiOutParam (Type u → Type v)) (n : Type u → Type w
   -/
   restoreM : {α : Type u} → m (stM α) → n α
 
+attribute [reducible] MonadControl.stM
+
 /--
 A way to lift a computation from one monad to another while providing the lifted computation with a
 means of interpreting computations from the outer monad. This provides a means of lifting
@@ -351,6 +350,8 @@ class MonadControlT (m : Type u → Type v) (n : Type u → Type w) where
   reverse lift passed to `liftWith`'s parameter.
   -/
   restoreM {α : Type u} : stM α → n α
+
+attribute [reducible] MonadControlT.stM
 
 export MonadControlT (stM liftWith restoreM)
 
@@ -406,7 +407,7 @@ class ForM (m : Type u → Type v) (γ : Type w₁) (α : outParam (Type w₂)) 
   /--
   Runs the monadic action `f` on each element of the collection `coll`.
   -/
-  forM [Monad m] (coll : γ) (f : α → m PUnit) : m PUnit
+  forM (coll : γ) (f : α → m PUnit) : m PUnit
 
 export ForM (forM)
 

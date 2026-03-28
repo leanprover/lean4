@@ -6,72 +6,107 @@ Authors: Paul Reichert
 module
 
 prelude
-public import all Init.Data.Slice.Operations
+public import Init.Data.Slice.Operations
+import all Init.Data.Slice.Operations
 import Init.Data.Iterators.Lemmas.Consumers
+public import Init.Data.List.Control
+public import Init.Data.Iterators.Consumers.Collect
+import Init.Data.Slice.InternalLemmas
 
 public section
 
+open Std Std.Iterators
+
 namespace Std.Slice
 
-open Std.Iterators
-
-variable {γ : Type u} {β : Type v}
-
-theorem Internal.iter_eq_toIteratorIter {γ : Type u} {s : Slice γ}
-    [ToIterator s Id β] :
-    Internal.iter s = ToIterator.iter s :=
-  (rfl)
-
-theorem Internal.size_eq_size_iter {s : Slice γ} [ToIterator s Id β]
-    [Iterator (ToIterator.State s Id) Id β] [IteratorSize (ToIterator.State s Id) Id] :
-    s.size = (Internal.iter s).size :=
-  (rfl)
-
-theorem Internal.toArray_eq_toArray_iter {s : Slice γ} [ToIterator s Id β]
-    [Iterator (ToIterator.State s Id) Id β] [IteratorCollect (ToIterator.State s Id) Id Id]
-    [Finite (ToIterator.State s Id) Id] :
-    s.toArray = (Internal.iter s).toArray :=
-  (rfl)
-
-theorem Internal.toList_eq_toList_iter {s : Slice γ} [ToIterator s Id β]
-    [Iterator (ToIterator.State s Id) Id β] [IteratorCollect (ToIterator.State s Id) Id Id]
-    [Finite (ToIterator.State s Id) Id] :
-    s.toList = (Internal.iter s).toList :=
-  (rfl)
-
-theorem Internal.toListRev_eq_toListRev_iter {s : Slice γ} [ToIterator s Id β]
-    [Iterator (ToIterator.State s Id) Id β] [Finite (ToIterator.State s Id) Id] :
-    s.toListRev = (Internal.iter s).toListRev :=
-  (rfl)
+variable {γ : Type u} {α β : Type v}
 
 @[simp]
-theorem size_toArray_eq_size {s : Slice γ} [ToIterator s Id β]
-    [Iterator (ToIterator.State s Id) Id β] [IteratorSize (ToIterator.State s Id) Id]
-    [IteratorCollect (ToIterator.State s Id) Id Id] [Finite (ToIterator.State s Id) Id]
-    [LawfulIteratorSize (ToIterator.State s Id)]
-    [LawfulIteratorCollect (ToIterator.State s Id) Id Id] :
+theorem forIn_toList {γ : Type u} {β : Type v}
+    {m : Type w → Type x} [Monad m] [LawfulMonad m] {δ : Type w}
+    [ToIterator (Slice γ) Id α β]
+    [Iterator α Id β]
+    [IteratorLoop α Id m]
+    [LawfulIteratorLoop α Id m]
+    [Finite α Id] {s : Slice γ}
+    {init : δ} {f : β → δ → m (ForInStep δ)} :
+    ForIn.forIn s.toList init f = ForIn.forIn s init f := by
+  rw [← Internal.forIn_iter, ← Iter.forIn_toList, Slice.toList]
+
+@[simp]
+theorem forIn_toArray {γ : Type u} {β : Type v}
+    {m : Type w → Type x} [Monad m] [LawfulMonad m] {δ : Type w}
+    [ToIterator (Slice γ) Id α β]
+    [Iterator α Id β]
+    [IteratorLoop α Id m]
+    [LawfulIteratorLoop α Id m]
+    [Finite α Id] {s : Slice γ}
+    {init : δ} {f : β → δ → m (ForInStep δ)} :
+    ForIn.forIn s.toArray init f = ForIn.forIn s init f := by
+  rw [← Internal.forIn_iter, ← Iter.forIn_toArray, Slice.toArray]
+
+theorem Internal.foldlM_iter [Monad m] [ToIterator (Slice γ) Id α β]
+    [Iterator α Id β] [IteratorLoop α Id m]
+    {s : Slice γ} {init : δ} {f : δ → β → m δ} :
+    (Internal.iter s).foldM (init := init) f = s.foldlM (init := init) f :=
+  (rfl)
+
+theorem foldlM_toList [Monad m] [ToIterator (Slice γ) Id α β]
+    [Iterator α Id β] [IteratorLoop α Id m] [LawfulIteratorLoop α Id m]
+    [Finite α Id] [LawfulMonad m] {s : Slice γ} {init : δ} {f : δ → β → m δ} :
+    s.toList.foldlM (init := init) f = s.foldlM (init := init) f := by
+  simp [← Internal.foldlM_iter, ← Iter.foldlM_toList, Slice.toList]
+
+theorem foldlM_toArray [Monad m] [ToIterator (Slice γ) Id α β]
+    [Iterator α Id β] [IteratorLoop α Id m] [LawfulIteratorLoop α Id m]
+    [Finite α Id] [LawfulMonad m] {s : Slice γ} {init : δ} {f : δ → β → m δ} :
+    s.toArray.foldlM (init := init) f = s.foldlM (init := init) f := by
+  simp [← Internal.foldlM_iter, ← Iter.foldlM_toArray, Slice.toArray]
+
+theorem Internal.foldl_iter [ToIterator (Slice γ) Id α β]
+    [Iterator α Id β] [IteratorLoop α Id Id]
+    {s : Slice γ} {init : δ} {f : δ → β → δ} :
+    (Internal.iter s).fold (init := init) f = s.foldl (init := init) f :=
+  (rfl)
+
+theorem foldl_toList [ToIterator (Slice γ) Id α β]
+    [Iterator α Id β] [IteratorLoop α Id Id] [LawfulIteratorLoop α Id Id]
+    [Finite α Id] {s : Slice γ} {init : δ} {f : δ → β → δ} :
+    s.toList.foldl (init := init) f = s.foldl (init := init) f := by
+  simp [← Internal.foldl_iter, ← Iter.foldl_toList, Slice.toList]
+
+theorem foldl_toArray [ToIterator (Slice γ) Id α β]
+    [Iterator α Id β] [IteratorLoop α Id Id] [LawfulIteratorLoop α Id Id]
+    [Finite α Id] {s : Slice γ} {init : δ} {f : δ → β → δ} :
+    s.toArray.foldl (init := init) f = s.foldl (init := init) f := by
+  simp [← Internal.foldl_iter, ← Iter.foldl_toArray, Slice.toArray]
+
+@[simp, grind =, suggest_for ListSlice.size_toArray ListSlice.size_toArray_eq_size]
+theorem size_toArray_eq_size [ToIterator (Slice γ) Id α β]
+    [Iterator α Id β] [SliceSize γ] [LawfulSliceSize γ]
+    [Finite α Id]
+    {s : Slice γ} :
     s.toArray.size = s.size := by
-  simp [Internal.size_eq_size_iter, Internal.toArray_eq_toArray_iter,
-    Iter.size_toArray_eq_size]
+  letI : IteratorLoop α Id Id := .defaultImplementation
+  rw [Internal.size_eq_length_iter, Internal.toArray_eq_toArray_iter, Iter.size_toArray_eq_length]
 
-@[simp]
-theorem length_toList_eq_size {s : Slice γ} [ToIterator s Id β]
-    [Iterator (ToIterator.State s Id) Id β] [IteratorSize (ToIterator.State s Id) Id]
-    [IteratorCollect (ToIterator.State s Id) Id Id] [Finite (ToIterator.State s Id) Id]
-    [LawfulIteratorSize (ToIterator.State s Id)]
-    [LawfulIteratorCollect (ToIterator.State s Id) Id Id] :
+@[simp, grind =, suggest_for ListSlice.length_toList ListSlice.length_toList_eq_size]
+theorem length_toList_eq_size [ToIterator (Slice γ) Id α β]
+    [Iterator α Id β] {s : Slice γ}
+    [SliceSize γ] [LawfulSliceSize γ]
+    [Finite α Id] :
     s.toList.length = s.size := by
-  simp [Internal.size_eq_size_iter, Internal.toList_eq_toList_iter,
-    Iter.length_toList_eq_size]
+  letI : IteratorLoop α Id Id := .defaultImplementation
+  rw [Internal.size_eq_length_iter, Internal.toList_eq_toList_iter, Iter.length_toList_eq_length]
 
-@[simp]
-theorem length_toListRev_eq_size {s : Slice γ} [ToIterator s Id β]
-    [Iterator (ToIterator.State s Id) Id β] [IteratorSize (ToIterator.State s Id) Id]
-    [IteratorCollect (ToIterator.State s Id) Id Id] [Finite (ToIterator.State s Id) Id]
-    [LawfulIteratorSize (ToIterator.State s Id)]
-    [LawfulIteratorCollect (ToIterator.State s Id) Id Id] :
+@[simp, grind =]
+theorem length_toListRev_eq_size [ToIterator (Slice γ) Id α β]
+    [Iterator α Id β] {s : Slice γ}
+    [IteratorLoop α Id Id.{v}] [SliceSize γ] [LawfulSliceSize γ]
+    [Finite α Id]
+    [LawfulIteratorLoop α Id Id] :
     s.toListRev.length = s.size := by
-  simp [Internal.size_eq_size_iter, Internal.toListRev_eq_toListRev_iter,
-    Iter.length_toListRev_eq_size]
+  rw [Internal.size_eq_length_iter, Internal.toListRev_eq_toListRev_iter,
+    Iter.length_toListRev_eq_length]
 
 end Std.Slice

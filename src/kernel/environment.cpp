@@ -28,7 +28,7 @@ extern "C" object* lean_kernel_set_diag(object*, object*);
 extern "C" uint8* lean_kernel_diag_is_enabled(object*);
 
 void diagnostics::record_unfold(name const & decl_name) {
-    m_obj = lean_kernel_record_unfold(to_obj_arg(), decl_name.to_obj_arg());
+    m_obj = lean_kernel_record_unfold(m_obj, decl_name.to_obj_arg());
 }
 
 scoped_diagnostics::scoped_diagnostics(environment const & env, bool collect) {
@@ -197,9 +197,9 @@ environment environment::add_theorem(declaration const & d, bool check) const {
         sharecommon_persistent_fn share;
         expr val(share(v.get_value().raw()));
         expr type(share(v.get_type().raw()));
+        check_constant_val(*this, v.to_constant_val(), checker);
         if (!checker.is_prop(type))
             throw theorem_type_is_not_prop(*this, v.get_name(), type);
-        check_constant_val(*this, v.to_constant_val(), checker);
         check_no_metavar_no_fvar(*this, v.get_name(), val);
         expr val_type = checker.check(val, v.get_lparams());
         if (!checker.is_def_eq(val_type, type))

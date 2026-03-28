@@ -1,0 +1,25 @@
+def Nat.hasDecEq._unary : (_x : (_ : Nat) ×' Nat) → Decidable (_x.1 = _x.2) :=
+Nat.hasDecEq._unary._proof_1.fix fun _x a =>
+  PSigma.casesOn (motive := fun _x =>
+    ((y : (_ : Nat) ×' Nat) →
+        (invImage (fun x => PSigma.casesOn x fun a b => (a, b)) Prod.instWellFoundedRelation).1 y _x →
+          Decidable (y.1 = y.2)) →
+      Decidable (_x.1 = _x.2))
+    _x
+    (fun a b a_1 =>
+      (match (motive :=
+          (x x_1 : Nat) →
+            ((y : (_ : Nat) ×' Nat) →
+                (invImage (fun x => PSigma.casesOn x fun a b => (a, b)) Prod.instWellFoundedRelation).1 y ⟨x, x_1⟩ →
+                  Decidable (y.1 = y.2)) →
+              Decidable (x = x_1))
+          a, b with
+        | 0, 0 => fun x => isTrue Nat.hasDecEq._unary._proof_2
+        | n.succ, 0 => fun x => isFalse (Nat.hasDecEq._unary._proof_3 n)
+        | 0, n.succ => fun x => isFalse (Nat.hasDecEq._unary._proof_4 n)
+        | n.succ, m.succ => fun x =>
+          match h : x ⟨n, m⟩ (Nat.hasDecEq._unary._proof_5 n m) with
+          | isTrue heq => isTrue (Nat.hasDecEq._unary._proof_6 n m heq)
+          | isFalse hne => isFalse (Nat.hasDecEq._unary._proof_7 n m hne))
+        a_1)
+    a

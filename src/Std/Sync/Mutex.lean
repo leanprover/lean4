@@ -7,6 +7,7 @@ module
 
 prelude
 public import Std.Sync.Basic
+public import Init.While
 
 public section
 

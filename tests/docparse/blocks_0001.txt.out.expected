@@ -1,0 +1,12 @@
+Success! Final stack:
+  [(Lean.Doc.Syntax.para
+    "para{"
+    [(Lean.Doc.Syntax.text
+      (str
+       "\"This is just some textual content. How is it?\""))]
+    "}")
+   (Lean.Doc.Syntax.para
+    "para{"
+    [(Lean.Doc.Syntax.text (str "\"More?\""))]
+    "}")]
+All input consumed.

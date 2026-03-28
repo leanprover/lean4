@@ -9,6 +9,7 @@ prelude
 public import Lean.Meta.Constructions.CasesOn
 public import Lean.Compiler.ImplementedByAttr
 public import Lean.Elab.PreDefinition.WF.Eqns
+import Lean.Compiler.ExternAttr
 
 public section
 
@@ -131,7 +132,7 @@ def overrideCasesOn : M Unit := do
           withLetDecl `m (← inferType constMotive) constMotive fun m => do
           mkLambdaFVars (#[m] ++ indices ++ #[majorImpl]) m] ++
         indices ++ #[← mkUnsafeCastTo majorImplTy major] ++
-        (← (minors.zip ctors.toArray).mapM fun (minor, ctor) => do
+        (← minors.zipWithM (bs:=ctors.toArray) fun minor ctor => do
           forallTelescope (← inferType minor) fun args _ => do
             mkLambdaFVars ((if ← isScalarField ctor then #[] else compFieldVars) ++ args)
               (← mkUnsafeCastTo constMotive (mkAppN minor args)))
@@ -185,8 +186,9 @@ def overrideComputedFields : M Unit := do
                 ← getComputedFieldValue cfn (mkAppN (mkConst ctor lparams) (params ++ fields))
             else
               mkLambdaFVars (compFieldVars ++ fields) cf
+    let cfnOverride := cfn ++ `_override
     addDecl <| .defnDecl {
-      name := cfn ++ `_override
+      name := cfnOverride
       levelParams
       type := ← mkForallFVars (params ++ indices ++ #[val]) (← inferType cf)
       value := ← mkLambdaFVars (params ++ indices ++ #[val]) <|
@@ -196,7 +198,9 @@ def overrideComputedFields : M Unit := do
       safety := .unsafe
       hints := .opaque
     }
-    setImplementedBy cfn (cfn ++ `_override)
+    if let some inlineAttr := Compiler.getInlineAttribute? (← getEnv) cfn then
+      setInlineAttribute cfnOverride inlineAttr
+    setImplementedBy cfn cfnOverride
 
 def mkComputedFieldOverrides (declName : Name) (compFields : Array Name) : MetaM Unit := do
   let ind ← getConstInfoInduct declName

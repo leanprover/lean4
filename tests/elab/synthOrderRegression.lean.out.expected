@@ -1,0 +1,1 @@
+synthOrderRegression.lean:7:11-7:19: warning: instance `Foo.bla` must be marked with `@[reducible]` or `@[implicit_reducible]`

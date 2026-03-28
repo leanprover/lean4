@@ -6,7 +6,8 @@ Authors: Henrik Böving
 module
 
 prelude
-public import Init.Data.List.Basic
+public import Init.Prelude
+import Init.Data.List.Basic
 
 public section
 
@@ -31,6 +32,6 @@ both `List.toArray` and `Array.mk`.
 -/
 -- This function is exported to C, where it is called by `Array.mk`
 -- (the constructor) to implement this functionality.
-@[inline, match_pattern, pp_nodot, export lean_list_to_array]
+@[inline, expose, match_pattern, pp_nodot, export lean_list_to_array]
 def List.toArrayImpl (xs : List α) : Array α :=
   xs.toArrayAux (Array.mkEmpty xs.length)

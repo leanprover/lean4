@@ -6,8 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Meta.Check
-public import Lean.Meta.Tactic.Util
 public import Lean.Meta.Tactic.Apply
 
 public section

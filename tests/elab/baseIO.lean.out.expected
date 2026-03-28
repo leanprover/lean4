@@ -1,0 +1,12 @@
+[Compiler.saveBase] size: 9
+    def test a.1 : ST.Out lcAny UInt32 :=
+      let _x.2 := 42;
+      let _x.3 := @ST.Prim.mkRef _ _ _x.2 a.1;
+      cases _x.3 : ST.Out lcAny UInt32
+      | ST.Out.mk val.4 state.5 =>
+        let _x.6 := 10;
+        let _x.7 := @ST.Prim.Ref.set _ _ val.4 _x.6 state.5;
+        cases _x.7 : ST.Out lcAny UInt32
+        | ST.Out.mk val.8 state.9 =>
+          let _x.10 := @ST.Prim.Ref.get _ _ val.4 state.9;
+          return _x.10

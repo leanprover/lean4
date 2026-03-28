@@ -6,9 +6,8 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Expr
-public import Lean.Util.MonadCache
 public import Lean.Meta.Basic
+import Init.Data.Range.Polymorphic.Iterators
 
 public section
 

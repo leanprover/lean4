@@ -8,11 +8,9 @@ Extra notation that depends on Init/Meta
 module
 
 prelude
-public import Init.Data.ToString.Basic
 public import Init.Conv
-public import Init.Meta
-public import Init.While
-public meta import Init.Data.Option.Basic
+public import Init.GetElem
+import Init.Meta.Defs
 
 public section
 
@@ -25,11 +23,11 @@ syntax bracketedExplicitBinders   := "(" withoutPosition((binderIdent ppSpace)+ 
 syntax explicitBinders            := (ppSpace bracketedExplicitBinders)+ <|> unbracketedExplicitBinders
 
 open TSyntax.Compat in
-def expandExplicitBindersAux (combinator : Syntax) (idents : Array Syntax) (type? : Option Syntax) (body : Syntax) : MacroM Syntax :=
+meta def expandExplicitBindersAux (combinator : Syntax) (idents : Array Syntax) (type? : Option Syntax) (body : Syntax) : MacroM Syntax :=
   let rec loop (i : Nat) (h : i ≤ idents.size) (acc : Syntax) := do
-    match i with
-    | 0   => pure acc
-    | i + 1 =>
+    match i, h with
+    | 0, _   => pure acc
+    | i + 1, h =>
       let ident := idents[i][0]
       let acc ← match ident.isIdent, type? with
         | true,  none      => `($combinator fun $ident => $acc)
@@ -39,17 +37,17 @@ def expandExplicitBindersAux (combinator : Syntax) (idents : Array Syntax) (type
       loop i (Nat.le_of_succ_le h) acc
   loop idents.size (by simp) body
 
-def expandBracketedBindersAux (combinator : Syntax) (binders : Array Syntax) (body : Syntax) : MacroM Syntax :=
+meta def expandBracketedBindersAux (combinator : Syntax) (binders : Array Syntax) (body : Syntax) : MacroM Syntax :=
   let rec loop (i : Nat) (h : i ≤ binders.size) (acc : Syntax) := do
-    match i with
-    | 0   => pure acc
-    | i+1 =>
+    match i, h with
+    | 0, _   => pure acc
+    | i+1, h =>
       let idents := binders[i][1].getArgs
       let type   := binders[i][3]
       loop i (Nat.le_of_succ_le h) (← expandExplicitBindersAux combinator idents (some type) acc)
   loop binders.size (by simp) body
 
-def expandExplicitBinders (combinatorDeclName : Name) (explicitBinders : Syntax) (body : Syntax) : MacroM Syntax := do
+meta def expandExplicitBinders (combinatorDeclName : Name) (explicitBinders : Syntax) (body : Syntax) : MacroM Syntax := do
   let combinator := mkCIdentFrom (← getRef) combinatorDeclName
   let explicitBinders := explicitBinders[0]
   if explicitBinders.getKind == ``Lean.unbracketedExplicitBinders then
@@ -61,15 +59,15 @@ def expandExplicitBinders (combinatorDeclName : Name) (explicitBinders : Syntax)
   else
     Macro.throwError "unexpected explicit binder"
 
-def expandBracketedBinders (combinatorDeclName : Name) (bracketedExplicitBinders : Syntax) (body : Syntax) : MacroM Syntax := do
+meta def expandBracketedBinders (combinatorDeclName : Name) (bracketedExplicitBinders : Syntax) (body : Syntax) : MacroM Syntax := do
   let combinator := mkCIdentFrom (← getRef) combinatorDeclName
   expandBracketedBindersAux combinator #[bracketedExplicitBinders] body
 
-syntax unifConstraint := term patternIgnore(" =?= " <|> " ≟ ") term
+syntax unifConstraint := term unicode(" ≟ ", " =?= ") term
 syntax unifConstraintElem := colGe unifConstraint ", "?
 
 syntax (docComment)? attrKind "unif_hint" (ppSpace ident)? (ppSpace bracketedBinder)*
-  " where " withPosition(unifConstraintElem*) patternIgnore(atomic("|" noWs "-") <|> "⊢") unifConstraint : command
+  " where " withPosition(unifConstraintElem*) patternIgnore(atomic("|" noWs "-") <|> "⊢") ppSpace unifConstraint : command
 
 macro_rules
   | `($[$doc?:docComment]? $kind:attrKind unif_hint $(n)? $bs* where $[$cs₁ ≟ $cs₂]* |- $t₁ ≟ $t₂) => do
@@ -77,7 +75,11 @@ macro_rules
     for (c₁, c₂) in cs₁.zip cs₂ |>.reverse do
       body ← `($c₁ = $c₂ → $body)
     let hint : Ident ← `(hint)
-    `($[$doc?:docComment]? @[$kind unification_hint, expose] def $(n.getD hint) $bs* : Sort _ := $body)
+    match kind with
+    | `(attrKind| local) =>
+      `($[$doc?:docComment]? @[$kind unification_hint] private def $(n.getD hint) $bs* : Sort _ := $body)
+    | _ =>
+      `($[$doc?:docComment]? @[$kind unification_hint, expose] public def $(n.getD hint) $bs* : Sort _ := $body)
 end Lean
 
 open Lean
@@ -118,7 +120,7 @@ calc
   _ = z := pyz
 ```
 It is also possible to write the *first* relation as `<lhs>\n  _ = <rhs> :=
-<proof>`. This is useful for aligning relation symbols, especially on longer:
+<proof>`. This is useful for aligning relation symbols, especially on longer
 identifiers:
 ```
 calc abc
@@ -315,7 +317,7 @@ macro_rules
       attribute [instance] $ctor)
 
 namespace Lean
-syntax cdotTk := patternIgnore("· " <|> ". ")
+syntax cdotTk := unicode("· ", ". ")
 /-- `· tac` focuses on the main goal and tries to solve it using `tac`, or else fails. -/
 syntax (name := cdot) cdotTk tacticSeqIndentGt : tactic
 

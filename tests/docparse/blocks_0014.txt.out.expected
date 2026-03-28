@@ -1,0 +1,23 @@
+Success! Final stack:
+  [(Lean.Doc.Syntax.blockquote
+    ">"
+    [(Lean.Doc.Syntax.para
+      "para{"
+      [(Lean.Doc.Syntax.text
+        (str "\"I like quotes\""))]
+      "}")
+     (Lean.Doc.Syntax.ul
+      "ul{"
+      [(Lean.Doc.Syntax.li
+        "*"
+        [(Lean.Doc.Syntax.para
+          "para{"
+          [(Lean.Doc.Syntax.text
+            (str "\"Also with lists in them\""))]
+          "}")])]
+      "}")])
+   (Lean.Doc.Syntax.para
+    "para{"
+    [(Lean.Doc.Syntax.text (str "\"Abc\""))]
+    "}")]
+All input consumed.

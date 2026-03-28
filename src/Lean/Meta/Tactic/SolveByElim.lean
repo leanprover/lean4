@@ -8,7 +8,6 @@ module
 prelude
 public import Init.Data.Sum
 public import Lean.LabelAttribute
-public import Lean.Meta.Tactic.Apply
 public import Lean.Meta.Tactic.Backtrack
 public import Lean.Meta.Tactic.Constructor
 public import Lean.Meta.Tactic.Repeat
@@ -55,7 +54,7 @@ def applyTactics (cfg : ApplyConfig := {}) (transparency : TransparencyMode := .
     (lemmas : List Expr) (g : MVarId) : MetaM (Lean.Meta.Iterator (List Lean.MVarId)) := do
   pure <|
     (← Meta.Iterator.ofList lemmas).filterMapM (fun e => observing? do
-      withTraceNode `Meta.Tactic.solveByElim (return m!"{exceptEmoji ·} trying to apply: {e}") do
+      withTraceNode `Meta.Tactic.solveByElim (fun _ => return m!"trying to apply: {e}") do
         let goals ← withTransparency transparency (g.apply e cfg)
         -- When we call `apply` interactively, `Lean.Elab.Tactic.evalApplyLikeTactic`
         -- deals with closing new typeclass goals by calling
@@ -101,6 +100,12 @@ structure SolveByElimConfig extends ApplyRulesConfig where
   intro : Bool := true
   /-- Try calling `constructor` if no lemmas apply. -/
   constructor : Bool := true
+  /--
+  If `suggestions` is `true`, `solve_by_elim` will invoke the currently configured library
+  suggestion engine on the current goal, and attempt to use the resulting suggestions as
+  additional lemmas.
+  -/
+  suggestions : Bool := false
 
 namespace SolveByElimConfig
 

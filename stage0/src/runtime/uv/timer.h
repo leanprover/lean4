@@ -47,10 +47,11 @@ static inline lean_uv_timer_object* lean_to_uv_timer(lean_object * o) { return (
 
 // =======================================
 // Timer manipulation functions
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_mk(uint64_t timeout, uint8_t repeating, obj_arg /* w */);
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_next(b_obj_arg timer, obj_arg /* w */);
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_reset(b_obj_arg timer, obj_arg /* w */);
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_stop(b_obj_arg timer, obj_arg /* w */);
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_mk(uint64_t timeout, uint8_t repeating);
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_next(b_obj_arg timer);
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_reset(b_obj_arg timer);
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_stop(b_obj_arg timer);
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_cancel(b_obj_arg timer);
 
 #endif
 

@@ -6,7 +6,6 @@ Authors: Henrik Böving
 module
 
 prelude
-public import Std.Sat.CNF.Basic
 public import Std.Sat.CNF.RelabelFin
 
 public section
@@ -52,7 +51,7 @@ where
     let foldClause acc clause := do
       DimacsM.incrementClauses
       return (← clause.foldlM (init := acc) foldLit) |>.push '0' |>.push '\n'
-    cnf.foldlM (init := "") foldClause
+    cnf.clauses.foldlM (init := "") foldClause
 
 end CNF
 

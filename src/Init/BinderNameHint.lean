@@ -8,7 +8,7 @@ module
 
 prelude
 public import Init.Prelude
-public import Init.Tactics
+import Init.Tactics
 
 public section
 

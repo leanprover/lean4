@@ -1,0 +1,15 @@
+Success! Final stack:
+  (Lean.Doc.Syntax.codeblock
+   "```"
+   [`scheme
+    [(Lean.Doc.Syntax.named_no_paren
+      `dialect
+      ":="
+      (Lean.Doc.Syntax.arg_str
+       (str "\"chicken\"")))
+     (Lean.Doc.Syntax.anon
+      (Lean.Doc.Syntax.arg_num (num "43")))]]
+   "\n"
+   (str "\"(define x 4)\\nx\\n\"")
+   "```")
+All input consumed.

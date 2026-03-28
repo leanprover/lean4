@@ -4,13 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Lean.Meta.Tactic.Cases
-public import Lean.Meta.Tactic.Simp.Main
-
+public import Lean.Meta.Tactic.Simp.Rewrite
+import Lean.Meta.Tactic.Simp.Main
 public section
-
 namespace Lean.Meta
 
 inductive SplitKind where
@@ -132,7 +130,6 @@ private partial def findIfToSplit? (e : Expr) : MetaM (Option (Expr × Expr)) :=
 
 register_builtin_option backward.split : Bool := {
   defValue := true
-  group    := "backward compatibility"
   descr    := "use the old semantics for the `split` tactic where nested `if-then-else` terms could be simplified too"
 }
 

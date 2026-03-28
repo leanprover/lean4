@@ -30,5 +30,5 @@ struct expr_unsigned_eq_fn {
 
 /* mapping from (expr, unsigned) -> T */
 template<typename T>
-using expr_unsigned_map = typename std::unordered_map<expr_unsigned, T, expr_unsigned_hash_fn, expr_unsigned_eq_fn>;
+using expr_unsigned_map = typename lean::unordered_map<expr_unsigned, T, expr_unsigned_hash_fn, expr_unsigned_eq_fn>;
 }

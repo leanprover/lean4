@@ -11,5 +11,3 @@ public import Std.Sat.CNF.Literal
 public import Std.Sat.CNF.Relabel
 public import Std.Sat.CNF.RelabelFin
 public import Std.Sat.CNF.Dimacs
-
-@[expose] public section

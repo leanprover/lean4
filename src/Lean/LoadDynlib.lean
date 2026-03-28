@@ -7,6 +7,8 @@ module
 
 prelude
 public import Init.System.IO
+import Init.Data.String.TakeDrop
+import Init.Data.ToString.Macro
 
 public section
 
@@ -14,8 +16,8 @@ namespace Lean
 
 private opaque DynlibImpl : NonemptyType.{0}
 /-- A dynamic library handle. -/
-@[expose] def Dynlib := DynlibImpl.type
-instance : Nonempty Dynlib := DynlibImpl.property
+def Dynlib := DynlibImpl.type
+instance : Nonempty Dynlib := by exact DynlibImpl.property
 
 private opaque Dynlib.SymbolImpl (dynlib : Dynlib) : NonemptyType.{0}
 /-- A reference to a symbol within a dynamic library. -/
@@ -38,7 +40,7 @@ opaque Dynlib.get? (dynlib : @& Dynlib) (sym : @& String) : Option dynlib.Symbol
 /--
 Runs a module initializer function.
 The symbol should have the signature `(builtin : Bool) → IO Unit`
-(e.g., `initialize_Foo(uint8_t builtin, obj_arg)`).
+(e.g., `initialize_Foo(uint8_t builtin)`).
 
 This function is unsafe because there is no guarantee the symbol has the
 expected signature. An invalid symbol can thus produce undefined behavior.
@@ -62,7 +64,7 @@ If multiple libraries share common symbols, those symbols should be linked
 and loaded as separate libraries.
 -/
 @[export lean_load_dynlib]
-def loadDynlib (path : @& System.FilePath) : IO Unit := do
+def loadDynlib (path : System.FilePath) : IO Unit := do
   let dynlib ← Dynlib.load path
   -- Lean never unloads libraries.
   -- Safety: There are no concurrent accesses to `dynlib` at this point.
@@ -96,7 +98,7 @@ def loadPlugin (path : System.FilePath) : IO Unit := do
   let dynlib ← Dynlib.load path
   -- Lean libraries can be prefixed with `lib` or suffixed with `_shared`
   -- under some configurations. We strip these from the initializer symbol.
-  let name := name.stripPrefix "lib" |>.stripSuffix "_shared"
+  let name := name.dropPrefix "lib" |>.dropSuffix "_shared"
   let name := s!"initialize_{name}"
   let some sym := dynlib.get? name
     | throw <| IO.userError s!"error loading plugin, initializer not found '{name}'"

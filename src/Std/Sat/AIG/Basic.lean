@@ -8,6 +8,10 @@ module
 prelude
 public import Std.Data.HashSet
 public import Init.Data.Vector.Basic
+public import Init.Data.Hashable
+public import Init.Data.String.Defs
+public import Init.Data.ToString.Macro
+import Init.Omega
 
 @[expose] public section
 
@@ -198,7 +202,7 @@ theorem Cache.get?_property {decls : Array (Decl α)} {idx : Nat} (c : Cache α 
     split
     · apply ih
       simp [hfound]
-    · next hbounds =>
+    next hbounds =>
       exfalso
       apply hbounds
       specialize ih _ hfound
@@ -217,7 +221,7 @@ theorem Cache.get?_property {decls : Array (Decl α)} {idx : Nat} (c : Cache α 
       | false =>
         apply ih
         simpa [BEq.symm_false heq] using hfound
-    · next hbounds =>
+    next hbounds =>
       simp only [HashMap.getElem?_insert] at hfound
       match heq : decl == decl' with
       | true =>
@@ -484,6 +488,7 @@ where
       let lval := go lhs.gate decls assign (by omega) h2
       let rval := go rhs.gate decls assign (by omega) h2
       xor lval lhs.invert && xor rval rhs.invert
+  termination_by (x, 0) -- Don't allow reduction, we have large concrete gate entries
 
 /--
 Denotation of an `AIG` at a specific `Entrypoint`.

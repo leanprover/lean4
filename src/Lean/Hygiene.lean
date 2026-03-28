@@ -6,8 +6,6 @@ Authors: Sebastian Ullrich
 module
 
 prelude
-public import Lean.Data.Name
-public import Lean.Data.Options
 public import Lean.Data.Format
 
 public section
@@ -39,7 +37,7 @@ instance : MonadQuotation Unhygienic where
   getRef              := return (← read).ref
   withRef             := fun ref => withReader ({ · with ref := ref })
   getCurrMacroScope   := return (← read).scope
-  getMainModule       := pure `UnhygienicMain
+  getContext          := pure `UnhygienicMain
   withFreshMacroScope := fun x => do
     let fresh ← modifyGet fun n => (n, n + 1)
     withReader ({ · with scope := fresh}) x
@@ -71,7 +69,6 @@ private def mkInaccessibleUserName (unicode : Bool) : Name → Name
 
 register_builtin_option pp.sanitizeNames : Bool := {
   defValue := true
-  group    := "pp"
   descr    := "add suffix to shadowed/inaccessible variables when pretty printing"
 }
 

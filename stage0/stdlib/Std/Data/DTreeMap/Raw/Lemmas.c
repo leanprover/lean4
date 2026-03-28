@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.DTreeMap.Raw.Lemmas
-// Imports: Std.Data.DTreeMap.Internal.Lemmas Std.Data.DTreeMap.Raw.Basic Std.Data.DTreeMap.Raw.AdditionalOperations
+// Imports: import Std.Data.DTreeMap.Internal.Lemmas public import Std.Data.DTreeMap.Raw.AdditionalOperations public import Init.Data.Array.Perm import Init.Data.List.Find import Init.Data.List.Pairwise import Init.Data.Prod
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,98 +13,156 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l___private_Std_Data_DTreeMap_Raw_Lemmas_0__Std_DTreeMap_Raw_any_match__3_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Std_Data_DTreeMap_Raw_Lemmas_0__Std_DTreeMap_Raw_any_match__3_splitter(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Std_Data_DTreeMap_Raw_Lemmas_0__Std_DTreeMap_Raw_any_match__3_splitter___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_DTreeMap_Raw_Equiv_instTrans___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Std_Data_DTreeMap_Raw_Lemmas_0__Std_DTreeMap_Raw_any_match__3_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_DTreeMap_Raw_Equiv_instTrans(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Raw_instCoeTypeForall__1(lean_object*);
-LEAN_EXPORT lean_object* l_Std_DTreeMap_Raw_instCoeTypeForall__1(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Raw_Equiv_instTrans(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Raw_Equiv_instTrans___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Data_DTreeMap_Raw_Lemmas_0__Break_runK_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Data_DTreeMap_Raw_Lemmas_0__Break_runK_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Raw_instCoeTypeForall__1(lean_object* v_00_u03b1_1_){
 _start:
 {
-return lean_box(0);
+lean_object* v___x_2_; 
+v___x_2_ = lean_box(0);
+return v___x_2_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_DTreeMap_Raw_Equiv_instTrans(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Raw_Equiv_instTrans(lean_object* v_00_u03b1_3_, lean_object* v_00_u03b2_4_, lean_object* v_cmp_5_){
 _start:
 {
-return lean_box(0);
+lean_object* v___x_6_; 
+v___x_6_ = lean_box(0);
+return v___x_6_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_DTreeMap_Raw_Equiv_instTrans___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Raw_Equiv_instTrans___boxed(lean_object* v_00_u03b1_7_, lean_object* v_00_u03b2_8_, lean_object* v_cmp_9_){
 _start:
 {
-lean_object* x_4; 
-x_4 = l_Std_DTreeMap_Raw_Equiv_instTrans(x_1, x_2, x_3);
-lean_dec_ref(x_3);
-return x_4;
+lean_object* v_res_10_; 
+v_res_10_ = l_Std_DTreeMap_Raw_Equiv_instTrans(v_00_u03b1_7_, v_00_u03b2_8_, v_cmp_9_);
+lean_dec_ref(v_cmp_9_);
+return v_res_10_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Std_Data_DTreeMap_Raw_Lemmas_0__Std_DTreeMap_Raw_any_match__3_splitter___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Std_Data_DTreeMap_Raw_Lemmas_0__Break_runK_match__1_splitter___redArg(lean_object* v_x_11_, lean_object* v_h__1_12_, lean_object* v_h__2_13_){
 _start:
 {
-if (lean_obj_tag(x_1) == 0)
+if (lean_obj_tag(v_x_11_) == 0)
 {
-lean_dec_ref(x_3);
-lean_inc(x_2);
-return x_2;
+lean_object* v___x_14_; lean_object* v___x_15_; 
+lean_dec(v_h__1_12_);
+v___x_14_ = lean_box(0);
+v___x_15_ = lean_apply_1(v_h__2_13_, v___x_14_);
+return v___x_15_;
 }
 else
 {
-lean_object* x_4; lean_object* x_5; 
-x_4 = lean_ctor_get(x_1, 0);
-lean_inc(x_4);
-lean_dec_ref(x_1);
-x_5 = lean_apply_1(x_3, x_4);
-return x_5;
+lean_object* v_val_16_; lean_object* v___x_17_; 
+lean_dec(v_h__2_13_);
+v_val_16_ = lean_ctor_get(v_x_11_, 0);
+lean_inc(v_val_16_);
+lean_dec_ref(v_x_11_);
+v___x_17_ = lean_apply_1(v_h__1_12_, v_val_16_);
+return v___x_17_;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Std_Data_DTreeMap_Raw_Lemmas_0__Std_DTreeMap_Raw_any_match__3_splitter(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l___private_Std_Data_DTreeMap_Raw_Lemmas_0__Break_runK_match__1_splitter(lean_object* v_00_u03b1_18_, lean_object* v_motive_19_, lean_object* v_x_20_, lean_object* v_h__1_21_, lean_object* v_h__2_22_){
 _start:
 {
-lean_object* x_5; 
-x_5 = l___private_Std_Data_DTreeMap_Raw_Lemmas_0__Std_DTreeMap_Raw_any_match__3_splitter___redArg(x_2, x_3, x_4);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l___private_Std_Data_DTreeMap_Raw_Lemmas_0__Std_DTreeMap_Raw_any_match__3_splitter___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
+if (lean_obj_tag(v_x_20_) == 0)
 {
-lean_object* x_4; 
-x_4 = l___private_Std_Data_DTreeMap_Raw_Lemmas_0__Std_DTreeMap_Raw_any_match__3_splitter___redArg(x_1, x_2, x_3);
-lean_dec(x_2);
-return x_4;
+lean_object* v___x_23_; lean_object* v___x_24_; 
+lean_dec(v_h__1_21_);
+v___x_23_ = lean_box(0);
+v___x_24_ = lean_apply_1(v_h__2_22_, v___x_23_);
+return v___x_24_;
 }
-}
-LEAN_EXPORT lean_object* l___private_Std_Data_DTreeMap_Raw_Lemmas_0__Std_DTreeMap_Raw_any_match__3_splitter___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
+else
 {
-lean_object* x_5; 
-x_5 = l___private_Std_Data_DTreeMap_Raw_Lemmas_0__Std_DTreeMap_Raw_any_match__3_splitter(x_1, x_2, x_3, x_4);
-lean_dec(x_3);
-return x_5;
+lean_object* v_val_25_; lean_object* v___x_26_; 
+lean_dec(v_h__2_22_);
+v_val_25_ = lean_ctor_get(v_x_20_, 0);
+lean_inc(v_val_25_);
+lean_dec_ref(v_x_20_);
+v___x_26_ = lean_apply_1(v_h__1_21_, v_val_25_);
+return v___x_26_;
 }
 }
-lean_object* initialize_Std_Data_DTreeMap_Internal_Lemmas(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Data_DTreeMap_Raw_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Data_DTreeMap_Raw_AdditionalOperations(uint8_t builtin, lean_object*);
-static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Std_Data_DTreeMap_Raw_Lemmas(uint8_t builtin, lean_object* w) {
+}
+lean_object* runtime_initialize_Std_Data_DTreeMap_Internal_Lemmas(uint8_t builtin);
+lean_object* runtime_initialize_Std_Data_DTreeMap_Raw_AdditionalOperations(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Array_Perm(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_List_Find(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_List_Pairwise(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Prod(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Std_Data_DTreeMap_Raw_Lemmas(uint8_t builtin) {
 lean_object * res;
-if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
-_G_initialized = true;
-res = initialize_Std_Data_DTreeMap_Internal_Lemmas(builtin, lean_io_mk_world());
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Std_Data_DTreeMap_Internal_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_DTreeMap_Raw_Basic(builtin, lean_io_mk_world());
+res = runtime_initialize_Std_Data_DTreeMap_Raw_AdditionalOperations(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_DTreeMap_Raw_AdditionalOperations(builtin, lean_io_mk_world());
+res = runtime_initialize_Init_Data_Array_Perm(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_List_Find(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_List_Pairwise(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Prod(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Std_Data_DTreeMap_Raw_Lemmas(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
+lean_object* initialize_Std_Data_DTreeMap_Internal_Lemmas(uint8_t builtin);
+lean_object* initialize_Std_Data_DTreeMap_Raw_AdditionalOperations(uint8_t builtin);
+lean_object* initialize_Init_Data_Array_Perm(uint8_t builtin);
+lean_object* initialize_Init_Data_List_Find(uint8_t builtin);
+lean_object* initialize_Init_Data_List_Pairwise(uint8_t builtin);
+lean_object* initialize_Init_Data_Prod(uint8_t builtin);
+static bool _G_initialized = false;
+LEAN_EXPORT lean_object* initialize_Std_Data_DTreeMap_Raw_Lemmas(uint8_t builtin) {
+lean_object * res;
+if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_initialized = true;
+res = initialize_Std_Data_DTreeMap_Internal_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Data_DTreeMap_Raw_AdditionalOperations(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Array_Perm(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_Find(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_Pairwise(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Prod(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Std_Data_DTreeMap_Raw_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Std_Data_DTreeMap_Raw_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Std_Data_DTreeMap_Raw_Lemmas(builtin);
 }
 #ifdef __cplusplus
 }

@@ -9,18 +9,16 @@ prelude
 public import Lean.Util.HasConstCache
 public import Lean.Meta.Match.MatcherApp.Transform
 public import Lean.Meta.Tactic.Cleanup
-public import Lean.Meta.Tactic.Refl
 public import Lean.Meta.Tactic.TryThis
 public import Lean.Meta.ArgsPacker
-public import Lean.Elab.Quotation
-public import Lean.Elab.RecAppSyntax
-public import Lean.Elab.PreDefinition.Basic
 public import Lean.Elab.PreDefinition.Mutual
 public import Lean.Elab.PreDefinition.Structural.Basic
 public import Lean.Elab.PreDefinition.TerminationMeasure
 public import Lean.Elab.PreDefinition.FixedParams
 public import Lean.Elab.PreDefinition.WF.Basic
 public import Lean.Data.Array
+import Lean.Meta.Tactic.Refl
+import Init.Data.Prod
 
 public section
 
@@ -30,7 +28,7 @@ This module finds lexicographic termination measures for well-founded recursion.
 
 Starting with basic measures (`sizeOf xᵢ` for all parameters `xᵢ`), and complex measures
 (e.g. `e₂ - e₁` if `e₁ < e₂` is found in the context of a recursive call) it tries all combinations
-until it finds one where all proof obligations go through with the given tactic (`decerasing_by`),
+until it finds one where all proof obligations go through with the given tactic (`decreasing_by`),
 if given, or the default `decreasing_tactic`.
 
 For mutual recursion, a single measure is not just one parameter, but one from each recursive
@@ -231,7 +229,7 @@ where
         loop param f
 
   containsRecFn (e : Expr) : M recFnName α Bool := do
-    modifyGetThe (HasConstCache #[recFnName]) (·.contains e)
+    modifyGetThe (HasConstCache #[recFnName]) (HasConstCache.contains e |>.run)
 
   loop (param : Expr) (e : Expr) : M recFnName α Unit := do
     if !(← containsRecFn e) then
@@ -436,9 +434,9 @@ instance : ToFormat GuessLexRel where
 
 /-- Given a `GuessLexRel`, produce a binary `Expr` that relates two `Nat` values accordingly. -/
 def GuessLexRel.toNatRel : GuessLexRel → Expr
-  | lt => mkAppN (mkConst ``LT.lt [levelZero]) #[mkConst ``Nat, mkConst ``instLTNat]
-  | eq => mkAppN (mkConst ``Eq [levelOne]) #[mkConst ``Nat]
-  | le => mkAppN (mkConst ``LE.le [levelZero]) #[mkConst ``Nat, mkConst ``instLENat]
+  | lt => mkAppN (mkConst ``LT.lt [Level.zero]) #[mkConst ``Nat, mkConst ``instLTNat]
+  | eq => mkAppN (mkConst ``Eq [Level.one]) #[mkConst ``Nat]
+  | le => mkAppN (mkConst ``LE.le [Level.zero]) #[mkConst ``Nat, mkConst ``instLENat]
   | no_idea => unreachable!
 
 /--
@@ -553,7 +551,7 @@ try first, when the mutually recursive functions have similar argument structure
 -/
 partial def generateCombinations? (numMeasures : Array Nat) (threshold : Nat := 32) :
     Option (Array (Array Nat)) :=
-  (do goUniform 0; go 0 #[]) |>.run #[] |>.2
+  (do goUniform 0; go 0 #[]) |>.run.run #[] |>.2
 where
   -- Enumerate all permissible uniform combinations
   goUniform (idx : Nat) : OptionT (StateM (Array (Array Nat))) Unit  := do
@@ -810,10 +808,10 @@ def guessLex (preDefs : Array PreDefinition) (unaryPreDef : PreDefinition)
   let recCalls := filterSubsumed recCalls
 
   -- For every function, the measures we want to use
-  -- (One for each non-forbiddend arg)
-  let basicMeassures₁ ← simpleMeasures preDefs fixedParamPerms userVarNamess
-  let basicMeassures₂ ← complexMeasures preDefs fixedParamPerms userVarNamess recCalls
-  let basicMeasures := Array.zipWith (· ++ ·) basicMeassures₁ basicMeassures₂
+  -- (One for each non-forbidden arg)
+  let basicMeasures₁ ← simpleMeasures preDefs fixedParamPerms userVarNamess
+  let basicMeasures₂ ← complexMeasures preDefs fixedParamPerms userVarNamess recCalls
+  let basicMeasures := Array.zipWith (· ++ ·) basicMeasures₁ basicMeasures₂
 
   -- The list of measures, including the measures that order functions.
   -- The function ordering measures come last

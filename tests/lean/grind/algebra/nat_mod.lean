@@ -2,19 +2,15 @@
 -- involving `Nat` modulo and div with variable denominators.
 
 example (a b n : Nat) (ha : a < n) : (n - a) * b % n = (n - a * b % n) % n := by
-  rw [Nat.sub_mul]
-  rw [Nat.mod_eq_mod_iff]
+  rw [Nat.sub_mul, Nat.mod_eq_mod_iff]
   match b with
   | 0 => refine ⟨1, 0, by simp⟩
   | b+1 =>
-    refine ⟨a*(b+1)/n, b, ?_⟩
+    refine ⟨a * (b + 1) / n, b, ?_⟩
     rw [Nat.mod_def, Nat.mul_add_one, Nat.mul_comm _ n, Nat.mul_comm b n]
     have : n * (a * (b + 1) / n) ≤ a * (b + 1) := Nat.mul_div_le (a * (b + 1)) n
-    have := Nat.lt_mul_div_succ (a * (b + 1)) (show 0 < n by omega)
-    rw [Nat.mul_add_one n] at this
+    have := Nat.lt_mul_div_succ (a * (b + 1)) (show 0 < n by grind)
     have : a * (b + 1) ≤ n * b + n := by
-      rw [Nat.mul_add_one]
       have := Nat.mul_le_mul_right b ha
-      rw [Nat.succ_mul] at this
-      omega
-    omega
+      grind
+    grind

@@ -68,7 +68,7 @@ need to be unfolded to prove the theorem are exported and exposed.
 builtin_initialize defeqAttr : TagAttribute ←
   registerTagAttribute `defeq "mark theorem as a definitional equality, to be used by `dsimp`"
     (validate := validateDefEqAttr) (applicationTime := .afterTypeChecking)
-    (asyncMode := .async)
+    (asyncMode := .async .mainEnv)
 
 private partial def isRflProofCore (type : Expr) (proof : Expr) : CoreM Bool := do
   match type with
@@ -101,7 +101,7 @@ def inferDefEqAttr (declName : Name) : MetaM Unit := do
   withoutExporting do
     let info ← getConstInfo declName
     let isRfl ←
-      if let some value := info.value? then
+      if let some value := info.value? (allowOpaque := true) then
         isRflProofCore info.type value
       else
         pure false

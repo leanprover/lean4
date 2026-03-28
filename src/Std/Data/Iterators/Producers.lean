@@ -8,10 +8,8 @@ module
 prelude
 public import Std.Data.Iterators.Producers.Monadic
 public import Std.Data.Iterators.Producers.Array
+public import Std.Data.Iterators.Producers.Vector
 public import Std.Data.Iterators.Producers.Empty
-public import Std.Data.Iterators.Producers.List
 public import Std.Data.Iterators.Producers.Range
 public import Std.Data.Iterators.Producers.Repeat
 public import Std.Data.Iterators.Producers.Slice
-
-@[expose] public section

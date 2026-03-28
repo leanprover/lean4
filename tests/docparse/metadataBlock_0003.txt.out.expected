@@ -1,0 +1,16 @@
+Success! Final stack:
+  (Lean.Doc.Syntax.metadata_block
+   "%%%"
+   (Term.structInstFields
+    [(Term.structInstField
+      (Term.structInstLVal `foo [])
+      [[]
+       []
+       (Term.structInstFieldDef ":=" [] `bar)])
+     []
+     (Term.structInstField
+      (Term.structInstLVal `x [])
+      [])
+     []])
+   "%%%")
+All input consumed.

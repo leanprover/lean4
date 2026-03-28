@@ -7,6 +7,7 @@ module
 
 prelude
 public import Std.Data.DHashMap.Basic
+public import Init.Data.List.Impl
 
 @[expose] public section
 
@@ -29,7 +30,7 @@ See the module `Std.Data.HashMap.Raw` for a variant of this type which is safe t
 nested inductive types.
 -/
 
-universe u v w
+universe u v w w'
 
 variable {α : Type u} {β : Type v} {_ : BEq α} {_ : Hashable α}
 
@@ -66,12 +67,9 @@ structure HashMap (α : Type u) (β : Type v) [BEq α] [Hashable α] where
 
 namespace HashMap
 
-@[inline, inherit_doc DHashMap.empty] def emptyWithCapacity [BEq α] [Hashable α] (capacity := 8) :
+@[cbv_opaque, inline, inherit_doc DHashMap.emptyWithCapacity] def emptyWithCapacity [BEq α] [Hashable α] (capacity := 8) :
     HashMap α β :=
   ⟨DHashMap.emptyWithCapacity capacity⟩
-
-@[deprecated emptyWithCapacity (since := "2025-03-12"), inherit_doc emptyWithCapacity]
-abbrev empty := @emptyWithCapacity
 
 instance [BEq α] [Hashable α] : EmptyCollection (HashMap α β) where
   emptyCollection := emptyWithCapacity
@@ -86,7 +84,7 @@ structure Equiv (m₁ m₂ : HashMap α β) where
 
 @[inherit_doc] scoped infixl:50 " ~m " => Equiv
 
-@[inline, inherit_doc DHashMap.insert] def insert (m : HashMap α β) (a : α)
+@[cbv_opaque, inline, inherit_doc DHashMap.insert] def insert (m : HashMap α β) (a : α)
     (b : β) : HashMap α β :=
   ⟨m.inner.insert a b⟩
 
@@ -111,7 +109,7 @@ instance : LawfulSingleton (α × β) (HashMap α β) := ⟨fun _ => rfl⟩
   ⟨replaced, ⟨r⟩⟩
 
 /--
-Checks whether a key is present in a map, returning the associate value, and inserts a value for
+Checks whether a key is present in a map, returning the associated value, and inserts a value for
 the key if it was not found.
 
 If the returned value is `some v`, then the returned map is unaltered. If it is `none`, then the
@@ -180,7 +178,7 @@ instance [BEq α] [Hashable α] : GetElem? (HashMap α β) α β (fun m a => a �
 @[inline, inherit_doc DHashMap.getKey!] def getKey! [Inhabited α] (m : HashMap α β) (a : α) : α :=
   DHashMap.getKey! m.inner a
 
-@[inline, inherit_doc DHashMap.erase] def erase (m : HashMap α β) (a : α) :
+@[cbv_opaque, inline, inherit_doc DHashMap.erase] def erase (m : HashMap α β) (a : α) :
     HashMap α β :=
   ⟨m.inner.erase a⟩
 
@@ -201,11 +199,15 @@ instance [BEq α] [Hashable α] : GetElem? (HashMap α β) α β (fun m a => a �
     HashMap α Unit :=
   ⟨DHashMap.Const.unitOfList l⟩
 
+@[inline, inherit_doc DHashMap.Const.ofArray] def ofArray [BEq α] [Hashable α] (a : Array (α × β)) :
+    HashMap α β :=
+  ⟨DHashMap.Const.ofArray a⟩
+
 @[inline, inherit_doc DHashMap.Const.toList] def toList (m : HashMap α β) :
     List (α × β) :=
   DHashMap.Const.toList m.inner
 
-@[inline, inherit_doc DHashMap.foldM] def foldM {m : Type w → Type w}
+@[inline, inherit_doc DHashMap.foldM] def foldM {m : Type w → Type w'}
     [Monad m] {γ : Type w} (f : γ → α → β → m γ) (init : γ) (b : HashMap α β) : m γ :=
   b.inner.foldM f init
 
@@ -213,21 +215,21 @@ instance [BEq α] [Hashable α] : GetElem? (HashMap α β) α β (fun m a => a �
     (f : γ → α → β → γ) (init : γ) (b : HashMap α β) : γ :=
   b.inner.fold f init
 
-@[inline, inherit_doc DHashMap.forM] def forM {m : Type w → Type w} [Monad m]
+@[inline, inherit_doc DHashMap.forM] def forM {m : Type w → Type w'} [Monad m]
     (f : (a : α) → β → m PUnit) (b : HashMap α β) : m PUnit :=
   b.inner.forM f
 
-@[inline, inherit_doc DHashMap.forIn] def forIn {m : Type w → Type w} [Monad m]
+@[inline, inherit_doc DHashMap.forIn] def forIn {m : Type w → Type w'} [Monad m]
     {γ : Type w} (f : (a : α) → β → γ → m (ForInStep γ)) (init : γ) (b : HashMap α β) : m γ :=
   b.inner.forIn f init
 
-instance [BEq α] [Hashable α] {m : Type w → Type w} : ForM m (HashMap α β) (α × β) where
+instance [BEq α] [Hashable α] {m : Type w → Type w'} [Monad m] : ForM m (HashMap α β) (α × β) where
   forM m f := m.forM (fun a b => f (a, b))
 
-instance [BEq α] [Hashable α] {m : Type w → Type w} : ForIn m (HashMap α β) (α × β) where
+instance [BEq α] [Hashable α] {m : Type w → Type w'} [Monad m] : ForIn m (HashMap α β) (α × β) where
   forIn m init f := m.forIn (fun a b acc => f (a, b) acc) init
 
-@[inline, inherit_doc DHashMap.filter] def filter (f : α → β → Bool)
+@[cbv_opaque, inline, inherit_doc DHashMap.filter] def filter (f : α → β → Bool)
     (m : HashMap α β) : HashMap α β :=
   ⟨m.inner.filter f⟩
 
@@ -247,6 +249,45 @@ instance [BEq α] [Hashable α] {m : Type w → Type w} : ForIn m (HashMap α β
     {ρ : Type w} [ForIn Id ρ α] (m : HashMap α Unit) (l : ρ) : HashMap α Unit :=
   ⟨DHashMap.Const.insertManyIfNewUnit m.inner l⟩
 
+@[inline, inherit_doc DHashMap.Const.toArray] def toArray (m : HashMap α β) :
+    Array (α × β) :=
+  DHashMap.Const.toArray m.inner
+
+@[inline, inherit_doc DHashMap.keysArray] def keysArray (m : HashMap α β) :
+    Array α :=
+  m.inner.keysArray
+
+@[inline, inherit_doc DHashMap.all] def all (m : HashMap α β) (p : α → β → Bool) : Bool :=
+  m.inner.all p
+
+@[inline, inherit_doc DHashMap.any] def any (m : HashMap α β) (p : α → β → Bool) : Bool :=
+  m.inner.any p
+/--
+Computes the union of the given hash maps. If a key appears in both maps, the entry contained in
+the second argument will appear in the result.
+
+This function always merges the smaller map into the larger map, so the expected runtime is
+`O(min(m₁.size, m₂.size))`.
+-/
+@[inline] def union [BEq α] [Hashable α] (m₁ m₂ : HashMap α β) : HashMap α β :=
+  ⟨DHashMap.union m₁.inner m₂.inner⟩
+
+instance [BEq α] [Hashable α] : Union (HashMap α β) := ⟨union⟩
+
+@[inherit_doc DHashMap.inter, inline] def inter [BEq α] [Hashable α] (m₁ m₂ : HashMap α β) : HashMap α β :=
+  ⟨DHashMap.inter m₁.inner m₂.inner⟩
+
+instance [BEq α] [Hashable α] : Inter (HashMap α β) := ⟨inter⟩
+
+@[inherit_doc DHashMap.beq] def beq {β : Type v} [BEq α] [BEq β] (m₁ m₂ : HashMap α β) : Bool :=
+  DHashMap.Const.beq m₁.inner m₂.inner
+
+instance [BEq α] [BEq β] : BEq (HashMap α β) := ⟨beq⟩
+
+@[inherit_doc DHashMap.diff, inline] def diff [BEq α] [Hashable α] (m₁ m₂ : HashMap α β) : HashMap α β :=
+  ⟨DHashMap.diff m₁.inner m₂.inner⟩
+
+instance [BEq α] [Hashable α] : SDiff (HashMap α β) := ⟨diff⟩
 
 section Unverified
 
@@ -257,26 +298,12 @@ section Unverified
   let ⟨l, r⟩ := m.inner.partition f
   ⟨⟨l⟩, ⟨r⟩⟩
 
-@[inline, inherit_doc DHashMap.Const.toArray] def toArray (m : HashMap α β) :
-    Array (α × β) :=
-  DHashMap.Const.toArray m.inner
-
-@[inline, inherit_doc DHashMap.keysArray] def keysArray (m : HashMap α β) :
-    Array α :=
-  m.inner.keysArray
-
 @[inline, inherit_doc DHashMap.values] def values (m : HashMap α β) : List β :=
   m.inner.values
 
 @[inline, inherit_doc DHashMap.valuesArray] def valuesArray (m : HashMap α β) :
     Array β :=
   m.inner.valuesArray
-
-/-- Computes the union of the given hash maps, by traversing `m₂` and inserting its elements into `m₁`. -/
-@[inline] def union [BEq α] [Hashable α] (m₁ m₂ : HashMap α β) : HashMap α β :=
-  m₂.fold (init := m₁) fun acc x => acc.insert x
-
-instance [BEq α] [Hashable α] : Union (HashMap α β) := ⟨union⟩
 
 @[inline, inherit_doc DHashMap.Const.unitOfArray] def unitOfArray [BEq α] [Hashable α] (l : Array α) :
     HashMap α Unit :=

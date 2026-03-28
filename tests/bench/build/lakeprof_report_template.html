@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Lakeprof Report</title>
+  </head>
+  <body>
+    <h1>Lakeprof Report</h1>
+    <button type="button" id="btn_fetch">View build trace in Perfetto</button>
+    <pre><code>__LAKEPROF_REPORT__</code></pre>
+
+    <script type="text/javascript">
+      // https://perfetto.dev/docs/visualization/deep-linking-to-perfetto-ui
+      // https://gist.github.com/chromy/170c11ce30d9084957d7f3aa065e89f8
+
+      const BASE_URL = __BASE_URL__;
+      const ORIGIN = "https://ui.perfetto.dev";
+
+      const btnFetch = document.getElementById("btn_fetch");
+
+      async function fetchAndOpen(traceUrl) {
+        const resp = await fetch(traceUrl);
+        // Error checking is left as an exercise to the reader.
+        const blob = await resp.blob();
+        const arrayBuffer = await blob.arrayBuffer();
+        openTrace(arrayBuffer, traceUrl);
+      }
+
+      function openTrace(arrayBuffer, traceUrl) {
+        const win = window.open(ORIGIN);
+        if (!win) {
+          btnFetch.style.background = "#f3ca63";
+          btnFetch.onclick = () => openTrace(arrayBuffer);
+          btnFetch.innerText =
+            "Popups blocked, click here to open the trace file";
+          return;
+        }
+
+        const timer = setInterval(() => win.postMessage("PING", ORIGIN), 50);
+
+        const onMessageHandler = (evt) => {
+          if (evt.data !== "PONG") return;
+
+          // We got a PONG, the UI is ready.
+          window.clearInterval(timer);
+          window.removeEventListener("message", onMessageHandler);
+
+          const reopenUrl = new URL(location.href);
+          reopenUrl.hash = `#reopen=${traceUrl}`;
+          win.postMessage(
+            {
+              perfetto: {
+                buffer: arrayBuffer,
+                title: "Lake Build Trace",
+                url: reopenUrl.toString(),
+              },
+            },
+            ORIGIN
+          );
+        };
+
+        window.addEventListener("message", onMessageHandler);
+      }
+
+      // This is triggered when following the link from the Perfetto UI's sidebar.
+      if (location.hash.startsWith("#reopen=")) {
+        const traceUrl = location.hash.substr(8);
+        fetchAndOpen(traceUrl);
+      }
+
+      btnFetch.onclick = () => fetchAndOpen(`${BASE_URL}/lakeprof.trace_event`);
+    </script>
+  </body>
+</html>

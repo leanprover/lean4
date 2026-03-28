@@ -7,8 +7,7 @@ Authors: E.W.Ayers
 module
 
 prelude
-public import Lean.Server.FileWorker.RequestHandling
-public import Lean.Server.InfoUtils
+public import Lean.Server.Requests
 
 public section
 
@@ -91,6 +90,8 @@ builtin_initialize
       "Use to decorate methods for suggesting code actions. This is a low-level interface for making code actions."
     applicationTime := .afterCompilation
     add             := fun decl stx kind => do
+      if !builtin then
+        ensureAttrDeclIsMeta `name decl kind
       Attribute.Builtin.ensureNoArgs stx
       unless kind == AttributeKind.global do throwAttrMustBeGlobal name kind
       let declType := (← getConstInfo decl).type
@@ -133,7 +134,6 @@ def handleCodeAction (params : CodeActionParams) : RequestM (RequestTask (Array 
         RequestM.checkCancelled
         let cas ← cap params snap
         cas.mapIdxM fun i lca => do
-          if lca.lazy?.isNone then return lca.eager
           let data : CodeActionResolveData := {
             params, providerName, providerResultIndex := i
           }
@@ -164,7 +164,8 @@ def handleCodeActionResolve (param : CodeAction) : RequestM (RequestTask CodeAct
       let some ca := cas[data.providerResultIndex]?
         | throw <| RequestError.internalError s!"Failed to resolve code action index {data.providerResultIndex}."
       let some lazy := ca.lazy?
-        | throw <| RequestError.internalError s!"Can't resolve; nothing further to resolve."
+        -- Eager code action - return unchanged
+        | return param
       let r ← liftM lazy
       return r
 

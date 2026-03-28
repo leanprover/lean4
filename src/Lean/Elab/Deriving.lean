@@ -19,5 +19,5 @@ public import Lean.Elab.Deriving.SizeOf
 public import Lean.Elab.Deriving.Hashable
 public import Lean.Elab.Deriving.Ord
 public import Lean.Elab.Deriving.ToExpr
-
-public section
+public import Lean.Elab.Deriving.ReflBEq
+public import Lean.Elab.Deriving.LawfulBEq

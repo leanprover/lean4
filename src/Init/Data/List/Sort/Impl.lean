@@ -6,8 +6,10 @@ Authors: Kim Morrison
 module
 
 prelude
-public import all Init.Data.List.Sort.Basic
-public import Init.Data.List.Sort.Lemmas
+import all Init.Data.List.Sort.Basic
+public import Init.Data.List.Sort.Basic
+import Init.Data.List.Sort.Lemmas
+import Init.Data.Nat.Linear
 
 public section
 
@@ -57,7 +59,7 @@ where go : List α → List α → List α → List α
     else
       go (x :: xs) ys (y :: acc)
 
-theorem mergeTR_go_eq : mergeTR.go le l₁ l₂ acc = acc.reverse ++ merge l₁ l₂ le := by
+private theorem mergeTR_go_eq : mergeTR.go le l₁ l₂ acc = acc.reverse ++ merge l₁ l₂ le := by
   induction l₁ generalizing l₂ acc with
   | nil => simp [mergeTR.go, reverseAux_eq]
   | cons x l₁ ih₁ =>
@@ -84,7 +86,7 @@ def splitRevAt (n : Nat) (l : List α) : List α × List α := go l n [] where
   | x :: xs, n+1, acc => go xs n (x :: acc)
   | xs, _, acc => (acc, xs)
 
-theorem splitRevAt_go (xs : List α) (i : Nat) (acc : List α) :
+private theorem splitRevAt_go (xs : List α) (i : Nat) (acc : List α) :
     splitRevAt.go xs i acc = ((take i xs).reverse ++ acc, drop i xs) := by
   induction xs generalizing i acc with
   | nil => simp [splitRevAt.go]
@@ -172,7 +174,7 @@ theorem splitRevInTwo_snd (l : { l : List α // l.length = n }) :
     (splitRevInTwo l).2 = ⟨(splitInTwo l).2.1, by simp; omega⟩ := by
   simp only [splitRevInTwo, splitRevAt_eq, reverse_take, splitInTwo_snd]
 
-theorem mergeSortTR_run_eq_mergeSort : {n : Nat} → (l : { l : List α // l.length = n }) → mergeSortTR.run le l = mergeSort l.1 le
+private theorem mergeSortTR_run_eq_mergeSort : {n : Nat} → (l : { l : List α // l.length = n }) → mergeSortTR.run le l = mergeSort l.1 le
   | 0, ⟨[], _⟩
   | 1, ⟨[a], _⟩ => by simp [mergeSortTR.run]
   | n+2, ⟨a :: b :: l, h⟩ => by
@@ -186,10 +188,9 @@ theorem mergeSort_eq_mergeSortTR : @mergeSort = @mergeSortTR := by
   funext
   rw [mergeSortTR, mergeSortTR_run_eq_mergeSort]
 
--- This mutual block is unfortunately quite slow to elaborate.
-set_option maxHeartbeats 400000 in
+set_option backward.isDefEq.respectTransparency false in
 mutual
-theorem mergeSortTR₂_run_eq_mergeSort : {n : Nat} → (l : { l : List α // l.length = n }) → mergeSortTR₂.run le l = mergeSort l.1 le
+private theorem mergeSortTR₂_run_eq_mergeSort : {n : Nat} → (l : { l : List α // l.length = n }) → mergeSortTR₂.run le l = mergeSort l.1 le
   | 0, ⟨[], _⟩
   | 1, ⟨[a], _⟩ => by simp [mergeSortTR₂.run]
   | n+2, ⟨a :: b :: l, h⟩ => by
@@ -201,7 +202,7 @@ theorem mergeSortTR₂_run_eq_mergeSort : {n : Nat} → (l : { l : List α // l.
     rw [reverse_reverse]
 termination_by n => n
 
-theorem mergeSortTR₂_run'_eq_mergeSort : {n : Nat} → (l : { l : List α // l.length = n }) → (w : l' = l.1.reverse) → mergeSortTR₂.run' le l = mergeSort l' le
+private theorem mergeSortTR₂_run'_eq_mergeSort : {n : Nat} → (l : { l : List α // l.length = n }) → (w : l' = l.1.reverse) → mergeSortTR₂.run' le l = mergeSort l' le
   | 0, ⟨[], _⟩, w
   | 1, ⟨[a], _⟩, w => by simp_all [mergeSortTR₂.run']
   | n+2, ⟨a :: b :: l, h⟩, w => by

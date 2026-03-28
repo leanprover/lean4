@@ -7,10 +7,10 @@ module
 
 prelude
 public import Lean.Meta.KAbstract
-public import Lean.Meta.Tactic.Util
 public import Lean.Meta.Tactic.Intro
 public import Lean.Meta.Tactic.FVarSubst
 public import Lean.Meta.Tactic.Revert
+import Lean.Meta.AppBuilder
 
 public section
 

@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lean.EnvExtension
-public import Lean.PrivateName
 
 public section
 
@@ -25,13 +24,5 @@ def mkPrivateName (env : Environment) (n : Name) : Name :=
   -- If name is already private, remove previous suffix first. We need to ensure the resulting name
   -- is private to *this* module.
   mkPrivateNameCore env.mainModule <| privateToUserName n
-
-def isInaccessiblePrivateName (env : Environment) (n : Name) : Bool :=
-  if env.header.isModule then
-    -- Allow access through `import all`.
-    env.isExporting && isPrivateName n
-  else match privateToUserName? n with
-    | some userName => mkPrivateName env userName != n
-    | _ => false
 
 end Lean

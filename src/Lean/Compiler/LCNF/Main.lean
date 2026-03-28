@@ -4,26 +4,18 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-public import Lean.Compiler.Options
-public import Lean.Compiler.ExternAttr
-public import Lean.Compiler.IR
+import Lean.Compiler.Options
+import Lean.Compiler.IR
+import Lean.Compiler.LCNF.Passes
+import Lean.Compiler.LCNF.ToDecl
+import Lean.Compiler.LCNF.Check
+import Lean.Meta.Match.MatcherInfo
+import Lean.Compiler.LCNF.SplitSCC
 public import Lean.Compiler.IR.Basic
-public import Lean.Compiler.IR.Checker
-public import Lean.Compiler.IR.ToIR
-public import Lean.Compiler.LCNF.PassManager
-public import Lean.Compiler.LCNF.Passes
-public import Lean.Compiler.LCNF.PrettyPrinter
-public import Lean.Compiler.LCNF.ToDecl
-public import Lean.Compiler.LCNF.Check
-public import Lean.Compiler.LCNF.PullLetDecls
-public import Lean.Compiler.LCNF.PhaseExt
-public import Lean.Compiler.LCNF.CSE
-public import Lean.Compiler.LCNF.Visibility
+public import Lean.Compiler.LCNF.CompilerM
 
 public section
-
 namespace Lean.Compiler.LCNF
 /--
 We do not generate code for `declName` if
@@ -46,7 +38,8 @@ def shouldGenerateCode (declName : Name) : CoreM Bool := do
   if hasMacroInlineAttribute env declName then return false
   if (getImplementedBy? env declName).isSome then return false
   if (← Meta.isMatcher declName) then return false
-  if isCasesOnRecursor env declName then return false
+  if (← Meta.isMatcherLike declName) then return false
+  if isCasesOnLike env declName then return false
   -- TODO: check if type class instance
   return true
 where
@@ -59,17 +52,18 @@ A checkpoint in code generation to print all declarations in between
 compiler passes in order to ease debugging.
 The trace can be viewed with `set_option trace.Compiler.step true`.
 -/
-def checkpoint (stepName : Name) (decls : Array Decl) (shouldCheck : Bool) : CompilerM Unit := do
+def checkpoint (stepName : Name) (decls : Array (Decl pu)) (shouldCheck : Bool) : CompilerM Unit := do
   for decl in decls do
     trace[Compiler.stat] "{decl.name} : {decl.size}"
-    withOptions (fun opts => opts.setBool `pp.motives.pi false) do
+    withOptions (fun opts => opts.set `pp.motives.pi false) do
       let clsName := `Compiler ++ stepName
       if (← Lean.isTracingEnabledFor clsName) then
-        Lean.addTrace clsName m!"size: {decl.size}\n{← ppDecl' decl}"
+        if compiler.traceUnnormalized.get (← getOptions) then
+          Lean.addTrace clsName m!"size: {decl.size}\n{← ppDecl decl}"
+        else
+          Lean.addTrace clsName m!"size: {decl.size}\n{← ppDecl' decl (← getPhase)}"
       if shouldCheck then
         decl.check
-  if shouldCheck then
-    checkDeadLocalDecls decls
 
 def isValidMainType (type : Expr) : Bool :=
   let isValidResultName (name : Name) : Bool :=
@@ -84,9 +78,39 @@ def isValidMainType (type : Expr) : Bool :=
     isValidResultName resultName
   | _ => false
 
+structure PostponedCompileDecls where
+  declNames : Array Name
+deriving BEq, Hashable
+
+/--
+Saves postponed `compileDecls` calls.
+
+We use this state both in `lean` when doing post-hoc compilation of non-meta declarations on `#eval`
+etc. as well as in `leanir` to do separate compilation of all defs.
+-/
+builtin_initialize postponedCompileDeclsExt : SimplePersistentEnvExtension PostponedCompileDecls (NameMap PostponedCompileDecls) ←
+  registerSimplePersistentEnvExtension {
+    addImportedFn := fun _ => {}
+    addEntryFn    := fun s e => e.declNames.foldl (·.insert · e) s
+    toArrayFn     := fun es => es.toArray
+    asyncMode     := .sync
+    replay?       := some <| SimplePersistentEnvExtension.replayOfFilter
+      (fun s e => !e.declNames.any s.contains) (fun s e => e.declNames.foldl (·.insert · e) s)
+    exportEntriesFnEx? := some fun _ _ es =>
+      -- `leanir` imports the target module privately
+      { exported := #[], server := #[], «private» := es.toArray }
+  }
+
+def resumeCompilation (declName : Name) : CoreM Unit := do
+  let some decls := postponedCompileDeclsExt.getState (← getEnv) |>.find? declName | return
+  modifyEnv (postponedCompileDeclsExt.modifyState · fun s => decls.declNames.foldl (·.erase) s)
+  withOptions (compiler.postponeCompile.set · false) do
+  Core.prependError m!"Failed to compile `{declName}`" do
+    (← compileDeclsRef.get) decls.declNames
+
 namespace PassManager
 
-def run (declNames : Array Name) : CompilerM (Array IR.Decl) := withAtLeastMaxRecDepth 8192 do
+partial def run (declNames : Array Name) : CompilerM Unit := withAtLeastMaxRecDepth 8192 do
   /-
   Note: we need to increase the recursion depth because we currently do to save phase1
   declarations in .olean files. Then, we have to recursively compile all dependencies,
@@ -101,42 +125,86 @@ def run (declNames : Array Name) : CompilerM (Array IR.Decl) := withAtLeastMaxRe
           LCNF.markDeclPublicRec .base decl
           if let some decl ← getLocalDeclAt? fnName .mono then
             LCNF.markDeclPublicRec .mono decl
+            if let some decl ← getLocalDeclAt? fnName .impure then
+              LCNF.markDeclPublicRec .impure decl
   let declNames ← declNames.filterM (shouldGenerateCode ·)
-  if declNames.isEmpty then return #[]
+  if declNames.isEmpty then return
   for declName in declNames do
     if declName == `main then
       if let some info ← getDeclInfo? declName then
         if !(isValidMainType info.type) then
           throwError "`main` function must have type `(List String →)? IO (UInt32 | Unit | PUnit)`"
-  let mut decls ← declNames.mapM toDecl
-  decls := markRecDecls decls
+
+  let decls ← declNames.mapM toDecl
+  for decl in decls do
+    checkMeta decl
+
+  -- Now that we have done all input checks, check for postponement
+  if (← getEnv).header.isModule && (← compiler.postponeCompile.getM) then
+    modifyEnv (postponedCompileDeclsExt.addEntry · { declNames := decls.map (·.name) })
+    -- meta defs are compiled locally so they are available for execution/compilation without
+    -- importing `.ir` but still marked for `leanir` compilation so that we do not have to persist
+    -- module-local compilation information between the two processes
+    if !decls.any (isMarkedMeta (← getEnv) ·.name) then
+      trace[Compiler] "postponing compilation of {decls.map (·.name)}"
+      return
+
+  -- Compile any postponed dependencies first.
+  -- In leanir, we visit declarations in the original order, but this can still be necessary for
+  -- compiling non-meta defs on demand at `#eval` etc.
+  for decl in decls do
+    decl.value.forCodeM fun code => code.forM fun c => do
+      let .let { value := .const c .., .. } .. := c | return
+      -- Need to do some lookups to get the actual name passed to `compileDecls`
+      let c := Compiler.getImplementedBy? (← getEnv) c |>.getD c
+      resumeCompilation c
+
+  let decls := markRecDecls decls
   let manager ← getPassManager
   let isCheckEnabled := compiler.check.get (← getOptions)
-  for pass in manager.passes do
-    decls ← withTraceNode `Compiler (fun _ => return m!"compiler phase: {pass.phase}, pass: {pass.name}") do
-      withPhase pass.phase <| pass.run decls
-    withPhase pass.phaseOut <| checkpoint pass.name decls (isCheckEnabled || pass.shouldAlwaysRunCheck)
-  if (← Lean.isTracingEnabledFor `Compiler.result) then
-    for decl in decls do
-      let decl ← normalizeFVarIds decl
-      Lean.addTrace `Compiler.result m!"size: {decl.size}\n{← ppDecl' decl}"
-  let irDecls ← IR.toIR decls
-  IR.compile irDecls
+  let decls ← runPassManagerPart .pure .pure "compilation (LCNF base)" manager.basePasses decls isCheckEnabled
+  let decls ← runPassManagerPart .pure .pure "compilation (LCNF mono)" manager.monoPasses decls isCheckEnabled
+  let sccs ← withTraceNode `Compiler.splitSCC (fun _ => return m!"Splitting up SCC") do
+    splitScc decls
+  for decls in sccs do
+    let decls ← runPassManagerPart .pure .impure "compilation (LCNF mono)" manager.monoPassesNoLambda decls isCheckEnabled
+    withPhase .impure do
+      let decls ← runPassManagerPart .impure .impure "compilation (LCNF impure)" manager.impurePasses decls isCheckEnabled
+
+      if (← Lean.isTracingEnabledFor `Compiler.result) then
+        for decl in decls do
+          let decl ← normalizeFVarIds decl
+          Lean.addTrace `Compiler.result m!"size: {decl.size}\n{← ppDecl' decl (← getPhase)}"
+
+      -- TODO consider doing this in one go afterwards in a separate mapM and running clearPure to save memory
+      -- or consider running clear? unclear
+      profileitM Exception "compilation (IR)" (← getOptions) do
+        let irDecls ← IR.toIR decls
+        discard <| IR.compile irDecls
+where
+  runPassManagerPart (inPhase outPhase : Purity) (profilerName : String)
+      (passes : Array Pass) (decls : Array (Decl inPhase)) (isCheckEnabled : Bool) :
+      CompilerM (Array (Decl outPhase)) := do
+    profileitM Exception profilerName (← getOptions) do
+      let mut state : (pu : Purity) × Array (Decl pu) := ⟨inPhase, decls⟩
+      for pass in passes do
+        state ← withTraceNode `Compiler (fun _ => return m!"compiler phase: {pass.phase}, pass: {pass.name}") do
+          let decls ← withPhase pass.phase do
+            state.fst.withAssertPurity pass.phase.toPurity fun h => do
+              pass.run (h ▸ state.snd)
+          pure ⟨_, decls⟩
+        withPhase pass.phaseOut <| checkpoint pass.name state.snd (isCheckEnabled || pass.shouldAlwaysRunCheck)
+      let decls := state.fst.withAssertPurity outPhase fun h => h ▸ state.snd
+      return decls
 
 end PassManager
 
-def compile (declNames : Array Name) : CoreM (Array IR.Decl) :=
-  CompilerM.run <| PassManager.run declNames
-
-def showDecl (phase : Phase) (declName : Name) : CoreM Format := do
-  let some decl ← getDeclAt? declName phase | return "<not-available>"
-  ppDecl' decl
-
-@[export lean_lcnf_compile_decls]
 def main (declNames : Array Name) : CoreM Unit := do
-  profileitM Exception "compilation" (← getOptions) do
-    withTraceNode `Compiler (fun _ => return m!"compiling: {declNames}") do
-      CompilerM.run <| discard <| PassManager.run declNames
+  withTraceNode `Compiler (fun _ => return m!"compiling: {declNames}") do
+    CompilerM.run <| PassManager.run declNames
+
+builtin_initialize
+  compileDeclsRef.set main
 
 builtin_initialize
   registerTraceClass `Compiler.init (inherited := true)

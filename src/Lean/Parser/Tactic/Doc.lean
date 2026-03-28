@@ -6,11 +6,11 @@ Authors: David Thrane Christiansen
 module
 
 prelude
-public import Lean.Attributes
-public import Lean.DocString.Extension
-public import Lean.Elab.InfoTree.Main
+public import Lean.Environment
+import Lean.Elab.InfoTree.Main
 meta import Lean.Parser.Attr
-public import Lean.Parser.Extension
+import Lean.Parser.Extension
+import Lean.ExtraModUses
 
 public section
 
@@ -25,9 +25,7 @@ open Lean.Parser.Attr
 def isTactic (env : Environment) (kind : Name) : Bool := Id.run do
   let some tactics := (Lean.Parser.parserExtension.getState env).categories.find? `tactic
     | return false
-  for (tac, _) in tactics.kinds do
-    if kind == tac then return true
-  return false
+  return tactics.kinds.contains kind
 
 /--
 Stores a collection of *tactic alternatives*, to track which new syntax rules represent new forms of
@@ -81,17 +79,21 @@ builtin_initialize
         | throwError "Invalid `[{name}]` attribute syntax"
 
       let tgtName ← Lean.Elab.realizeGlobalConstNoOverloadWithInfo tgt
+      recordExtraModUseFromDecl (isMeta := false) tgtName
 
-      if !(isTactic (← getEnv) tgtName) then throwErrorAt tgt "'{tgtName}' is not a tactic"
-      -- If this condition is true, then we're in an `attribute` command and can validate here.
-      if (← getEnv).find? decl |>.isSome then
-        if !(isTactic (← getEnv) decl) then throwError "'{decl}' is not a tactic"
+      if !(isTactic (← getEnv) tgtName) then throwErrorAt tgt "`{tgtName}` is not a tactic"
+      -- If the target is a known syntax kind, ensure that it's a tactic
+      let mut cats := #[]
+      for (catName, cat) in parserExtension.getState (← getEnv) |>.categories do
+        if cat.kinds.contains decl then cats := cats.push catName
+      if !cats.isEmpty && cats.all (· ≠ `tactic) then
+        let catNames := cats.map fun c => m!"`{c}`"
+        let s := if catNames.size > 1 then m!"ies" else m!"y"
+        throwError "`{decl}` is not a tactic (it is in the categor{s} {.andList catNames.toList})"
 
       if let some tgt' := alternativeOfTactic (← getEnv) tgtName then
-        throwError "'{tgtName}' is itself an alternative for '{tgt'}'"
+        throwError "`{tgtName}` is itself an alternative for `{tgt'}`"
       modifyEnv fun env => tacticAlternativeExt.addEntry env (decl, tgtName)
-      if (← findSimpleDocString? (← getEnv) decl).isSome then
-        logWarningAt stx m!"Docstring for '{decl}' will be ignored because it is an alternative"
 
     descr :=
       "Register a tactic parser as an alternative form of an existing tactic, so they " ++
@@ -101,7 +103,7 @@ builtin_initialize
     -- when the attribute is applied after definition, using an `attribute` command (error checking
     -- for the `@[tactic_alt TAC]` syntax is performed by the parser attribute hook). If this
     -- attribute ran later, then the decl would already be present.
-    applicationTime := .beforeElaboration
+    applicationTime := .afterCompilation --.beforeElaboration
   }
 
 
@@ -189,12 +191,13 @@ builtin_initialize
       unless kind == AttributeKind.global do throwAttrMustBeGlobal name kind
       let `(«tactic_tag»|tactic_tag $tags*) := stx
         | throwError "Invalid `[{name}]` attribute syntax"
+
       if (← getEnv).find? decl |>.isSome then
         if !(isTactic (← getEnv) decl) then
-          throwErrorAt stx "`{decl}` is not a tactic"
+          throwErrorAt stx "`{.ofConstName decl}` is not a tactic"
 
       if let some tgt' := alternativeOfTactic (← getEnv) decl then
-        throwErrorAt stx "`{decl}` is an alternative form of `{tgt'}`"
+        throwErrorAt stx "`{.ofConstName decl}` is an alternative form of `{.ofConstName tgt'}`"
 
       for t in tags do
         let tagName := t.getId
@@ -258,37 +261,106 @@ def getTacticExtensions (env : Environment) (tactic : Name) : Array String := Id
 def getTacticExtensionString (env : Environment) (tactic : Name) : String := Id.run do
   let exts := getTacticExtensions env tactic
   if exts.size == 0 then ""
-  else "\n\nExtensions:\n\n" ++ String.join (exts.toList.map bullet) |>.trimRight
+  else "\n\nExtensions:\n\n" ++ String.join (exts.toList.map bullet) |>.trimAsciiEnd |>.copy
 where
-  indentLine (str: String) : String :=
-    (if str.all (·.isWhitespace) then str else "   " ++ str) ++ "\n"
+  indentLine (str : String.Slice) : String :=
+    (if str.all Char.isWhitespace then str.copy else "   " ++ str) ++ "\n"
   bullet (str : String) : String :=
-    let lines := str.splitOn "\n"
+    let lines := str.split '\n' |>.toList
     match lines with
     | [] => ""
     | [l] => " * " ++ l ++ "\n\n"
     | l::ls => " * " ++ l ++ "\n" ++ String.join (ls.map indentLine) ++ "\n\n"
 
+/--
+The mapping between tactics and their custom names.
+
+The first projection in each pair is the tactic name, and the second is the custom name.
+-/
+builtin_initialize tacticNameExt
+    : PersistentEnvExtension
+        (Name × String)
+        (Name × String)
+        (NameMap String) ←
+  registerPersistentEnvExtension {
+    mkInitial := pure {},
+    addImportedFn := fun _ => pure {},
+    addEntryFn := fun as (src, tgt) => as.insert src tgt,
+    exportEntriesFn := fun es =>
+      es.foldl (fun a src tgt => a.push (src, tgt)) #[] |>.qsort (Name.quickLt ·.1 ·.1)
+  }
+
+/--
+Finds the custom name assigned to `tac`, or returns `none` if there is no such custom name.
+-/
+def customTacticName [Monad m] [MonadEnv m] (tac : Name) : m (Option String) := do
+  let env ← getEnv
+  match env.getModuleIdxFor? tac with
+  | some modIdx =>
+    match (tacticNameExt.getModuleEntries env modIdx).binSearch (tac, default) (Name.quickLt ·.1 ·.1) with
+    | some (_, val) => return some val
+    | none => return none
+  | none => return tacticNameExt.getState env |>.find? tac
+
+builtin_initialize
+  let name := `tactic_name
+  registerBuiltinAttribute {
+    name := name,
+    ref := by exact decl_name%,
+    add := fun decl stx kind => do
+      unless kind == AttributeKind.global do throwAttrMustBeGlobal name kind
+      let name ←
+        match stx with
+        | `(«tactic_name»|tactic_name $name:str) =>
+          pure name.getString
+        | `(«tactic_name»|tactic_name $name:ident) =>
+          pure (name.getId.toString (escape := false))
+        | _ => throwError "Invalid `[{name}]` attribute syntax"
+
+      if (← getEnv).find? decl |>.isSome then
+        if !(isTactic (← getEnv) decl) then
+          throwErrorAt stx m!"`{.ofConstName decl}` is not a tactic"
+        if let some idx := (← getEnv).getModuleIdxFor? decl then
+          if let some mod := (← getEnv).allImportedModuleNames[idx]? then
+            throwErrorAt stx m!"`{.ofConstName decl}` is defined in `{mod}`, but custom names can only be added in the tactic's defining module."
+          else
+            throwErrorAt stx m!"`{.ofConstName decl}` is defined in an imported module, but custom names can only be added in the tactic's defining module."
+
+      if let some tgt' := alternativeOfTactic (← getEnv) decl then
+        throwErrorAt stx "`{.ofConstName decl}` is an alternative form of `{.ofConstName tgt'}`"
+
+      if let some n ← customTacticName decl then
+        throwError m!"The tactic `{.ofConstName decl}` already has the custom name `{n}`"
+
+      modifyEnv fun env => tacticNameExt.addEntry env (decl, name)
+
+    descr :=
+      "Registers a custom name for a tactic. This custom name should be a prefix of the " ++
+      "tactic's syntax, because it is used in completion.",
+    applicationTime := .beforeElaboration
+  }
 
 -- Note: this error handler doesn't prevent all cases of non-tactics being added to the data
 -- structure. But the module will throw errors during elaboration, and there doesn't seem to be
 -- another way to implement this, because the category parser extension attribute runs *after* the
 -- attributes specified before a `syntax` command.
 /--
-Validates that a tactic alternative is actually a tactic and that syntax tagged as tactics are
-tactics.
+Validates that a tactic alternative is actually a tactic, that syntax tagged as tactics are
+tactics, and that syntax with tactic names are tactics.
 -/
-def tacticDocsOnTactics : ParserAttributeHook where
+private def tacticDocsOnTactics : ParserAttributeHook where
   postAdd (catName declName : Name) (_builtIn : Bool) := do
     if catName == `tactic then
       return
     if alternativeOfTactic (← getEnv) declName |>.isSome then
-      throwError m!"`{declName}` is not a tactic"
+      throwError m!"`{.ofConstName declName}` is not a tactic"
     -- It's sufficient to look in the state (and not the imported entries) because this validation
     -- only needs to check tags added in the current module
     if let some tags := tacticTagExt.getState (← getEnv) |>.find? declName then
       if !tags.isEmpty then
-        throwError m!"`{declName}` is not a tactic"
+        throwError m!"`{.ofConstName declName}` is not a tactic"
+    if let some n := tacticNameExt.getState (← getEnv) |>.find? declName then
+      throwError m!"`{MessageData.ofConstName declName}` is not a tactic, but it was assigned a tactic name `{n}`"
 
 builtin_initialize
   registerParserAttributeHook tacticDocsOnTactics

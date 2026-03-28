@@ -6,11 +6,16 @@ Authors: Joe Hendrix, Wojciech Nawrocki, Leonardo de Moura, Mario Carneiro, Alex
 module
 
 prelude
-public import Init.Data.Fin.Basic
-public import Init.Data.Nat.Bitwise.Lemmas
-public import Init.Data.Nat.Power2
-public import Init.Data.Int.Bitwise
-public import Init.Data.BitVec.BasicAux
+public import Init.Data.Int.Bitwise.Basic
+public import Init.Data.Bool
+public import Init.Data.Int.DivMod.Basic
+public import Init.WF
+import Init.Data.Nat.Bitwise.Lemmas
+import Init.Data.Nat.Lemmas
+import Init.Data.Nat.Linear
+import Init.Meta.Defs
+import Init.Omega
+import Init.WFTactics
 
 @[expose] public section
 
@@ -28,10 +33,6 @@ of SMT-LIB v2.
 set_option linter.missingDocs true
 
 namespace BitVec
-
-@[inline, deprecated BitVec.ofNatLT (since := "2025-02-13"), inherit_doc BitVec.ofNatLT]
-protected def ofNatLt {n : Nat} (i : Nat) (p : i < 2 ^ n) : BitVec n :=
-  BitVec.ofNatLT i p
 
 section Nat
 
@@ -84,9 +85,6 @@ Returns the `i`th least significant bit.
 -/
 @[inline, expose] def getLsb (x : BitVec w) (i : Fin w) : Bool := x.toNat.testBit i
 
-@[deprecated getLsb (since := "2025-06-17"), inherit_doc getLsb]
-abbrev getLsb' := @getLsb
-
 /-- Returns the `i`th least significant bit, or `none` if `i ≥ w`. -/
 @[inline, expose] def getLsb? (x : BitVec w) (i : Nat) : Option Bool :=
   if h : i < w then some (getLsb x ⟨i, h⟩) else none
@@ -95,9 +93,6 @@ abbrev getLsb' := @getLsb
 Returns the `i`th most significant bit.
 -/
 @[inline] def getMsb (x : BitVec w) (i : Fin w) : Bool := x.getLsb ⟨w-1-i, by omega⟩
-
-@[deprecated getMsb (since := "2025-06-17"), inherit_doc getMsb]
-abbrev getMsb' := @getMsb
 
 /-- Returns the `i`th most significant bit or `none` if `i ≥ w`. -/
 @[inline] def getMsb? (x : BitVec w) (i : Nat) : Option Bool :=
@@ -206,13 +201,16 @@ Converts a bitvector into a fixed-width hexadecimal number with enough digits to
 
 If `n` is `0`, then one digit is returned. Otherwise, `⌊(n + 3) / 4⌋` digits are returned.
 -/
+-- If we ever want to prove something about this, we can avoid having to use the opaque
+-- `Internal` string functions by moving this definition out to a separate file that can live
+-- downstream of `Init.Data.String.Basic`.
 protected def toHex {n : Nat} (x : BitVec n) : String :=
-  let s := (Nat.toDigits 16 x.toNat).asString
-  let t := (List.replicate ((n+3) / 4 - s.length) '0').asString
-  t ++ s
+  let s := String.ofList (Nat.toDigits 16 x.toNat)
+  let t := String.ofList (List.replicate ((n+3) / 4 - String.Internal.length s) '0')
+  String.Internal.append t s
 
 /-- `BitVec` representation. -/
-protected def BitVec.repr (a : BitVec n) : Std.Format :=
+protected def repr (a : BitVec n) : Std.Format :=
   "0x" ++ (a.toHex : Std.Format) ++ "#" ++ repr n
 
 instance : Repr (BitVec n) where
@@ -271,7 +269,7 @@ Usually accessed via the `/` operator.
 -/
 @[expose]
 def udiv (x y : BitVec n) : BitVec n :=
-  (x.toNat / y.toNat)#'(Nat.lt_of_le_of_lt (Nat.div_le_self _ _) x.isLt)
+  (x.toNat / y.toNat)#'(by exact Nat.lt_of_le_of_lt (Nat.div_le_self _ _) x.isLt)
 instance : Div (BitVec n) := ⟨.udiv⟩
 
 /--
@@ -281,7 +279,7 @@ SMT-LIB name: `bvurem`.
 -/
 @[expose]
 def umod (x y : BitVec n) : BitVec n :=
-  (x.toNat % y.toNat)#'(Nat.lt_of_le_of_lt (Nat.mod_le _ _) x.isLt)
+  (x.toNat % y.toNat)#'(by exact Nat.lt_of_le_of_lt (Nat.mod_le _ _) x.isLt)
 instance : Mod (BitVec n) := ⟨.umod⟩
 
 /--
@@ -300,7 +298,7 @@ Lean convention that division by zero returns zero.
 
 Examples:
 * `(7#4).sdiv 2 = 3#4`
-* `(-9#4).sdiv 2 = -4#4`
+* `(-8#4).sdiv 2 = -4#4`
 * `(5#4).sdiv -2 = -2#4`
 * `(-7#4).sdiv (-2) = 3#4`
 -/
@@ -525,7 +523,7 @@ Example:
 -/
 @[expose]
 protected def and (x y : BitVec n) : BitVec n :=
-  (x.toNat &&& y.toNat)#'(Nat.and_lt_two_pow x.toNat y.isLt)
+  (x.toNat &&& y.toNat)#'(by exact Nat.and_lt_two_pow x.toNat y.isLt)
 instance : AndOp (BitVec w) := ⟨.and⟩
 
 /--
@@ -538,7 +536,7 @@ Example:
 -/
 @[expose]
 protected def or (x y : BitVec n) : BitVec n :=
-  (x.toNat ||| y.toNat)#'(Nat.or_lt_two_pow x.isLt y.isLt)
+  (x.toNat ||| y.toNat)#'(by exact Nat.or_lt_two_pow x.isLt y.isLt)
 instance : OrOp (BitVec w) := ⟨.or⟩
 
 /--
@@ -551,8 +549,8 @@ Example:
 -/
 @[expose]
 protected def xor (x y : BitVec n) : BitVec n :=
-  (x.toNat ^^^ y.toNat)#'(Nat.xor_lt_two_pow x.isLt y.isLt)
-instance : Xor (BitVec w) := ⟨.xor⟩
+  (x.toNat ^^^ y.toNat)#'(by exact Nat.xor_lt_two_pow x.isLt y.isLt)
+instance : XorOp (BitVec w) := ⟨.xor⟩
 
 /--
 Bitwise complement for bitvectors. Usually accessed via the `~~~` prefix operator.
@@ -870,5 +868,21 @@ def clzAuxRec {w : Nat} (x : BitVec w) (n : Nat) : BitVec w :=
 
 /-- Count the number of leading zeros. -/
 def clz (x : BitVec w) : BitVec w := clzAuxRec x (w - 1)
+
+/-- Count the number of trailing zeros. -/
+def ctz (x : BitVec w) : BitVec w := (x.reverse).clz
+
+/-- Count the number of bits with value `1` downward from the `pos`-th bit to the
+  `0`-th bit of `x`, storing the result in `acc`. -/
+def cpopNatRec (x : BitVec w) (pos acc : Nat) : Nat :=
+  match pos with
+  | 0 => acc
+  | n + 1 => x.cpopNatRec n (acc + (x.getLsbD n).toNat)
+
+/-- Population count operation, to count the number of bits with value `1` in `x`.
+  Also known as `popcount`, `popcnt`.
+-/
+@[suggest_for BitVec.popcount BitVec.popcnt]
+def cpop (x : BitVec w) : BitVec w := BitVec.ofNat w (cpopNatRec x w 0)
 
 end BitVec

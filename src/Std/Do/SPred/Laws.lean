@@ -10,6 +10,8 @@ public import Std.Do.SPred.Notation
 
 @[expose] public section
 
+set_option linter.missingDocs true
+
 namespace Std.Do.SPred
 
 /-!
@@ -27,7 +29,7 @@ variable {σs : List (Type u)}
 
 /-! # Entailment -/
 
-@[refl, simp]
+@[refl, simp, grind ←]
 theorem entails.refl (P : SPred σs) : P ⊢ₛ P := by
   induction σs with
   | nil => simp [entails]
@@ -46,7 +48,7 @@ instance : Trans (@entails σs) entails entails where
 theorem bientails.iff {P Q : SPred σs} : P ⊣⊢ₛ Q ↔ (P ⊢ₛ Q) ∧ (Q ⊢ₛ P) := by
   induction σs with
   | nil => exact Iff.intro (fun h => ⟨h.mp, h.mpr⟩) (fun h => ⟨h.1, h.2⟩)
-  | cons σ σs ih =>
+  | cons σ σs ih
   apply Iff.intro
   · exact fun h => ⟨fun s => (ih.mp (h s)).1, fun s => (ih.mp (h s)).2⟩
   · intro h s; exact ih.mpr ⟨h.1 s, h.2 s⟩
@@ -76,11 +78,14 @@ theorem bientails.to_eq {P Q : SPred σs} (h : P ⊣⊢ₛ Q) : P = Q := by
 
 /-! # Pure -/
 
+@[simp, grind =] theorem down_pure {φ : Prop} : (⌜φ⌝ : SPred []).down = φ := rfl
+@[simp, grind =] theorem apply_pure {φ : Prop} : (⌜φ⌝ : SPred (σ::σs)) s = ⌜φ⌝ := rfl
+
 theorem pure_intro {φ : Prop} {P : SPred σs} : φ → P ⊢ₛ ⌜φ⌝ := by
-  induction σs <;> simp_all [entails, SVal.curry]
+  induction σs <;> simp_all [entails]
 
 theorem pure_elim' {φ : Prop} {P : SPred σs} : (φ → ⌜True⌝ ⊢ₛ P) → ⌜φ⌝ ⊢ₛ P := by
-  induction σs <;> simp_all [entails, SVal.curry]
+  induction σs <;> simp_all [entails]
 
 -- Ideally, we'd like to prove the following theorem:
 -- theorem pure_elim' {φ : Prop} : SPred.entails (σs:=σs) ⌜True⌝ ⌜φ⌝ → φ

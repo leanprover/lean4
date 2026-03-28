@@ -6,14 +6,8 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Elab.Quotation.Precheck
-public import Lean.Elab.Term
-public import Lean.Elab.BindersUtil
-public import Lean.Elab.SyntheticMVars
-public import Lean.Elab.PreDefinition.TerminationHint
 public import Lean.Elab.Match
-public import Lean.Compiler.MetaAttr
-meta import Lean.Parser.Term
+import Lean.Linter.Basic
 
 public section
 
@@ -67,22 +61,11 @@ structure BinderView where
   type : Syntax
   bi   : BinderInfo
 
-/--
-Determines the local declaration kind depending on the variable name.
-
-The `__x` in `let __x := 42; body` gets kind `.implDetail`.
--/
-def kindOfBinderName (binderName : Name) : LocalDeclKind :=
-  if binderName.isImplementationDetail then
-    .implDetail
-  else
-    .default
-
 partial def quoteAutoTactic : Syntax → CoreM Expr
   | .ident _ _ val preresolved =>
     return mkApp4 (.const ``Syntax.ident [])
       (.const ``SourceInfo.none [])
-      (.app (.const ``String.toSubstring []) (mkStrLit (toString val)))
+      (.app (.const ``String.toRawSubstring []) (mkStrLit (toString val)))
       (toExpr val)
       (toExpr preresolved)
   | stx@(.node _ k args) => do
@@ -108,14 +91,14 @@ Returns the declaration name.
 -/
 def declareTacticSyntax (tactic : Syntax) (name? : Option Name := none) : TermElabM Name :=
   withFreshMacroScope do
-    let name ← name?.getDM do MonadQuotation.addMacroScope ((← getEnv).asyncPrefix?.getD .anonymous ++ `_auto)
+    let name ← name?.getDM (mkAuxDeclName `_auto)
     let type := Lean.mkConst `Lean.Syntax
     let value ← quoteAutoTactic tactic
     trace[Elab.autoParam] value
     let decl := Declaration.defnDecl { name, levelParams := [], type, value, hints := .opaque,
                                        safety := DefinitionSafety.safe }
     addDecl decl
-    modifyEnv (addMeta · name)
+    modifyEnv (markMeta · name)
     compileDecl decl
     return name
 
@@ -205,7 +188,7 @@ def addLocalVarInfo (stx : Syntax) (fvar : Expr) : TermElabM Unit :=
 private def ensureAtomicBinderName (binderView : BinderView) : TermElabM Unit :=
   let n := binderView.id.getId.eraseMacroScopes
   unless n.isAtomic do
-    throwErrorAt binderView.id "invalid binder name '{n}', it must be atomic"
+    throwErrorAt binderView.id "invalid binder name `{n}`, it must be atomic"
 
 register_builtin_option checkBinderAnnotations : Bool := {
   defValue := true
@@ -235,8 +218,7 @@ private partial def elabBinderViews (binderViews : Array BinderView) (fvars : Ar
           throwErrorAt binderView.type (m!"invalid binder annotation, type is not a class instance{indentExpr type}" ++ .note "Use the command `set_option checkBinderAnnotations false` to disable the check")
         withRef binderView.type <| checkLocalInstanceParameters type
       let id := binderView.id.getId
-      let kind := kindOfBinderName id
-      withLocalDecl id binderView.bi type (kind := kind) fun fvar => do
+      withLocalDecl id binderView.bi type (kind := .ofBinderName id) fun fvar => do
         addLocalVarInfo binderView.ref fvar
         loop (i+1) (fvars.push (binderView.id, fvar))
     else
@@ -314,7 +296,11 @@ open Lean.Elab.Term.Quotation in
     -- elaborate independently from each other
     let dom ← elabType dom
     let rng ← elabType rng
-    return mkForall (← MonadQuotation.addMacroScope `a) BinderInfo.default dom rng
+    -- We use a non-variable macro scope as collisions are not an issue here (we've already
+    -- elaborated the subterm). The delaborator will eventually renumber macro scopes if the
+    -- binding is shown at all.
+    let n := addMacroScope `_internal `a reservedMacroScope
+    return mkForall n BinderInfo.default dom rng
   | _                    => throwUnsupportedSyntax
 
 /--
@@ -428,7 +414,7 @@ private def propagateExpectedType (fvar : Expr) (fvarType : Expr) (s : State) : 
     let expectedType ← whnfForall expectedType
     match expectedType with
     | .forallE _ d b _ =>
-      discard <| isDefEq fvarType d
+      discard <| isDefEq fvarType d.cleanupAnnotations
       let b := b.instantiate1 fvar
       return { s with expectedType? := some b }
     | _ =>
@@ -445,7 +431,7 @@ private partial def elabFunBinderViews (binderViews : Array BinderView) (i : Nat
       let fvar  := mkFVar fvarId
       let s     := { s with fvars := s.fvars.push fvar }
       let id    := binderView.id.getId
-      let kind  := kindOfBinderName id
+      let kind  := .ofBinderName id
       /-
         We do **not** want to support default and auto arguments in lambda abstractions.
         Example: `fun (x : Nat := 10) => x+1`.
@@ -588,7 +574,7 @@ private def checkMatchAltPatternCounts (matchAlts : Syntax) (numDiscrs : Nat) (e
   let sepPats (pats : List Syntax) := MessageData.joinSep (pats.map toMessageData) ", "
   let maxDiscrs? ← forallTelescopeReducing expectedType fun xs e =>
     if e.getAppFn.isMVar then pure none else pure (some xs.size)
-  let matchAltViews := matchAlts[0].getArgs.filterMap getMatchAlt
+  let matchAltViews := matchAlts[0].getArgs.filterMap (getMatchAlt `term)
   let numPatternsStr (n : Nat) := s!"{n} {if n == 1 then "pattern" else "patterns"}"
   if h : matchAltViews.size > 0 then
     if let some maxDiscrs := maxDiscrs? then
@@ -788,27 +774,35 @@ def elabLetDeclAux (id : Syntax) (binders : Array Syntax) (typeStx : Syntax) (va
     -/
     let type ← withSynthesize (postpone := .partial) <| elabType typeStx
     let letMsg := if config.nondep then "have" else "let"
-    registerCustomErrorIfMVar type typeStx m!"failed to infer '{letMsg}' declaration type"
-    registerLevelMVarErrorExprInfo type typeStx m!"failed to infer universe levels in '{letMsg}' declaration type"
+    registerCustomErrorIfMVar type typeStx m!"failed to infer `{letMsg}` declaration type"
+    registerLevelMVarErrorExprInfo type typeStx m!"failed to infer universe levels in `{letMsg}` declaration type"
     if config.postponeValue then
       let type ← mkForallFVars fvars type
       let val  ← mkFreshExprMVar type
       pure (type, val, binders)
     else
-      let val  ← elabTermEnsuringType valStx type
+      /-
+      Elaborate the value in a context where the binders have cleaned-up annotations
+      Note: we may want `withFreshCache` in case spurious type annotations appear in terms.
+      -/
+      let lctx' := fvars.foldl (init := ← getLCtx) fun lctx fvar =>
+        lctx.modifyLocalDecl fvar.fvarId! (fun decl => decl.setType decl.type.cleanupAnnotations)
+      let val ← withLCtx' lctx' do
+        let val ← elabTermEnsuringType valStx type
+        /-
+        By default `mkLambdaFVars` and `mkLetFVars` create binders only for let-declarations that are actually used
+        in the body. This generates counterintuitive behavior in the elaborator since users will not be notified
+        about holes such as
+        ```
+        def ex : Nat :=
+          let x := _
+          42
+        ```
+        -/
+        mkLambdaFVars fvars val (usedLetOnly := false)
       let type ← mkForallFVars fvars type
-      /- By default `mkLambdaFVars` and `mkLetFVars` create binders only for let-declarations that are actually used
-         in the body. This generates counterintuitive behavior in the elaborator since users will not be notified
-         about holes such as
-         ```
-          def ex : Nat :=
-            let x := _
-            42
-         ```
-       -/
-      let val  ← mkLambdaFVars fvars val (usedLetOnly := false)
       pure (type, val, binders)
-  let kind := kindOfBinderName id.getId
+  let kind := .ofBinderName id.getId
   trace[Elab.let.decl] "{id.getId} : {type} := {val}"
   let result ←
     withLetDecl id.getId (kind := kind) type val (nondep := config.nondep) fun x => do
@@ -852,7 +846,7 @@ def elabLetDeclAux (id : Syntax) (binders : Array Syntax) (typeStx : Syntax) (va
           else
             mkLetFVars #[x, h'] body (usedLetOnly := config.usedOnly) (generalizeNondepLet := false)
   if config.postponeValue then
-    forallBoundedTelescope type binders.size fun xs type => do
+    forallBoundedTelescope type binders.size (cleanupAnnotations := true) fun xs type => do
       -- the original `fvars` from above are gone, so add back info manually
       for b in binders, x in xs do
         addLocalVarInfo b x

@@ -8,6 +8,9 @@ module
 prelude
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Basic
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Replicate
+import Init.ByCases
+import Init.Data.Nat.Mod
+import Init.Omega
 
 @[expose] public section
 
@@ -59,10 +62,9 @@ theorem go_get_aux (aig : AIG α) (n : Nat) (curr : Nat) (hcurr : curr ≤ n)
   unfold go
   split
   · dsimp only
-    rw [go_get_aux]
+    rw [go_get_aux]; case hidx => rw [Nat.mul_add]; omega
     rw [AIG.RefVec.get_append]
     simp only [hidx, ↓reduceDIte]
-    omega
   · dsimp only
     simp only [RefVec.get, Ref.mk.injEq]
     have : curr = n := by omega

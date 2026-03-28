@@ -6,8 +6,6 @@ Authors: Gabriel Ebner, Mario Carneiro, Leonardo de Moura
 module
 
 prelude
-public import Lean.Attributes
-public import Lean.ScopedEnvExtension
 public import Lean.Meta.FunInfo
 
 public section

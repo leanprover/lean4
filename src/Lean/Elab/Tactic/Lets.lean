@@ -8,6 +8,8 @@ module
 prelude
 public import Lean.Meta.Tactic.Lets
 public import Lean.Elab.Tactic.Location
+import Lean.Elab.Binders
+import Lean.Linter.Basic
 
 public section
 

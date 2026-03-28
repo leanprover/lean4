@@ -1,0 +1,6 @@
+simpIndexDiag.lean:4:16-4:19: warning: declaration uses `sorry`
+[simp] Diagnostics
+  [simp] theorems with bad keys
+    [simp] foo, key: f _ (@Prod.mk Nat Nat _ _).2
+  use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
+simpIndexDiag.lean:16:16-16:19: warning: declaration uses `sorry`

@@ -6,8 +6,11 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Data.Vector.Lemmas
-public import Init.Data.Array.Erase
+public import Init.BinderPredicates
+public import Init.Data.Vector.Basic
+import Init.Data.Array.Erase
+import Init.Data.Vector.Lemmas
+import Init.Omega
 
 public section
 
@@ -92,9 +95,6 @@ theorem eraseIdx_replicate {n : Nat} {a : α} {k : Nat} {h} :
     (replicate n a).eraseIdx k = replicate (n - 1) a := by
   rw [replicate_eq_mk_replicate, eraseIdx_mk]
   simp [Array.eraseIdx_replicate, *]
-
-@[deprecated eraseIdx_replicate (since := "2025-03-18")]
-abbrev eraseIdx_mkVector := @eraseIdx_replicate
 
 theorem mem_eraseIdx_iff_getElem {x : α} {xs : Vector α n} {k} {h} : x ∈ xs.eraseIdx k h ↔ ∃ i w, i ≠ k ∧ xs[i]'w = x := by
   rcases xs with ⟨xs⟩

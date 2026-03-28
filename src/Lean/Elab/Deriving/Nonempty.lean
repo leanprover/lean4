@@ -7,10 +7,11 @@ module
 
 prelude
 public import Lean.Elab.Deriving.Basic
+import Lean.Elab.Deriving.Util
 
 public section
 
-namespace Lean.Elab
+namespace Lean.Elab.Deriving
 open Command Meta Parser Term
 
 private def mkNonemptyInstance (declName : Name) : TermElabM Syntax.Command := do
@@ -27,20 +28,18 @@ private def mkNonemptyInstance (declName : Name) : TermElabM Syntax.Command := d
         binders := binders.push (← `(bracketedBinderF| [Nonempty $arg]))
   let ctorTacs ← indVal.ctors.toArray.mapM fun ctor =>
     `(tactic| apply @$(mkCIdent ctor) <;> exact Classical.ofNonempty)
-  let privTk? := guard (isPrivateName declName) *> some .missing
   `(command| variable $binders* in
-    $[private%$privTk?]? instance : Nonempty (@$(mkCIdent declName) $indArgs*) :=
+    instance : Nonempty (@$(mkCIdent declName) $indArgs*) :=
       by constructor; first $[| $ctorTacs:tactic]*)
 
 def mkNonemptyInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
   if (← declNames.allM isInductive) then
     for declName in declNames do
-      elabCommand (← liftTermElabM do mkNonemptyInstance declName)
+      withoutExposeFromCtors declName do
+        elabCommand (← liftTermElabM do mkNonemptyInstance declName)
     return true
   else
     return false
 
 builtin_initialize
   registerDerivingHandler `Nonempty mkNonemptyInstanceHandler
-
-end Lean.Elab

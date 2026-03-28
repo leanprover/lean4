@@ -1,0 +1,15 @@
+Success! Final stack:
+  [(Lean.Doc.Syntax.ul
+    "ul{"
+    [(Lean.Doc.Syntax.li
+      "*"
+      [(Lean.Doc.Syntax.para
+        "para{"
+        [(Lean.Doc.Syntax.text (str "\"abc\""))]
+        "}")
+       (Lean.Doc.Syntax.para
+        "para{"
+        [(Lean.Doc.Syntax.text (str "\"def\""))]
+        "}")])]
+    "}")]
+All input consumed.

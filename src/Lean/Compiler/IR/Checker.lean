@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lean.Compiler.IR.CompilerM
-public import Lean.Compiler.IR.Format
 
 public section
 
@@ -41,7 +40,7 @@ abbrev M := ReaderT CheckerContext <| StateRefT CheckerState CompilerM
 
 def throwCheckerError {α : Type} (msg : String) : M α := do
   let declName := (← read).currentDecl.name
-  throwError s!"failed to compile definition, compiler IR check failed at '{declName}'. Error: {msg}"
+  throwError "failed to compile definition, compiler IR check failed at `{.ofConstName declName}`. Error: {msg}"
 
 def markIndex (i : Index) : M Unit := do
   let s ← get
@@ -160,6 +159,11 @@ def checkExpr (ty : IRType) (e : Expr) : M Unit := do
     checkObjVar x
   | .proj i x =>
     let xType ← getType x;
+    /-
+    Projections are a valid operation on `tobject`. Thus they should also
+    be a valid operation for both `object`, `tagged` and unboxed values
+    as they are subtypes.
+    -/
     match xType with
     | .object | .tobject =>
       checkObjType ty
@@ -168,6 +172,7 @@ def checkExpr (ty : IRType) (e : Expr) : M Unit := do
         checkEqTypes (tys[i]) ty
       else
         throwCheckerError "invalid proj index"
+    | .tagged => pure ()
     | _ => throwCheckerError s!"unexpected IR type '{xType}'"
   | .uproj _ x =>
     checkObjVar x

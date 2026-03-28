@@ -1,0 +1,1 @@
+invalidFieldName.lean:3:2-3:4: error: Invalid field name `mk`: This is the name of the structure constructor

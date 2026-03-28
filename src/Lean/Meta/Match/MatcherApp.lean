@@ -8,5 +8,3 @@ module
 prelude
 public import Lean.Meta.Match.MatcherApp.Basic
 public import Lean.Meta.Match.MatcherApp.Transform
-
-public section

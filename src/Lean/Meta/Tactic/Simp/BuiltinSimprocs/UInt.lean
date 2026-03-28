@@ -6,8 +6,8 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Meta.LitValues
 public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Nat
+import Init.Data.UInt.Lemmas
 
 public section
 

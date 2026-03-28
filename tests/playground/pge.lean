@@ -52,13 +52,13 @@ theorem lt_or_eq_of_succ {i j:Nat} (lt : i < Nat.succ j) : i < j ∨ i = j :=
 theorem strong_induction_on {p : Nat → Prop} (n:Nat)
   (h:∀n, (∀ m, m < n → p m) → p n) : p n := by
     suffices ∀n m, m < n → p m from this (succ n) n (Nat.lt_succ_self _)
-    intros n
+    intro n
     induction n with
     | zero =>
-      intros m h
+      intro m h
       contradiction
     | succ i ind =>
-      intros m h1
+      intro m h1
       cases Nat.lt_or_eq_of_succ h1 with
       | inl is_lt =>
         apply ind _ is_lt
@@ -77,9 +77,9 @@ theorem Fin.strong_induction_on {P : Fin w → Prop} (i:Fin w)
    | mk i i_lt =>
      revert i_lt
      apply @Nat.strong_induction_on (λi => ∀ (i_lt : i < w), P { val := i, isLt := i_lt })
-     intros j p j_lt_w
+     intro j p j_lt_w
      apply ind ⟨j, j_lt_w⟩
-     intros z z_lt_j
+     intro z z_lt_j
      apply p _ z_lt_j
 
 namespace PEG
@@ -247,7 +247,7 @@ theorem is_deterministic
       (p i).leftnonterminal = (q j).leftnonterminal
       → (p i).position      = (q j).position
       → (p i).record_result = (q j).record_result := by
-  intros p q i0
+  intro p q i0
   induction i0 using Fin.strong_induction_on with
   | ind i ind =>
   intro j eq_nt p_pos_eq_q_pos

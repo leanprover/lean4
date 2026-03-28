@@ -10,6 +10,8 @@ public import Init.ShareCommon
 public import Lean.Util.MonadCache
 public import Lean.LocalContext
 import Init.Data.Slice
+import Init.Data.ToString.Macro
+import Init.Omega
 
 public section
 
@@ -398,14 +400,20 @@ def MetavarContext.getDelayedMVarAssignmentCore? (mctx : MetavarContext) (mvarId
 def MetavarContext.getDelayedMVarAssignmentExp (mctx : MetavarContext) (mvarId : MVarId) : Option DelayedMetavarAssignment :=
   mctx.dAssignment.find? mvarId
 
+@[export lean_delayed_mvar_assignment_fvars]
+def DelayedMetavarAssignment.fvarsExp (d : DelayedMetavarAssignment) : Array Expr := d.fvars
+
+@[export lean_delayed_mvar_assignment_mvar_id_pending]
+def DelayedMetavarAssignment.mvarIdPendingExp (d : DelayedMetavarAssignment) : MVarId := d.mvarIdPending
+
 def getDelayedMVarAssignment? [Monad m] [MonadMCtx m] (mvarId : MVarId) : m (Option DelayedMetavarAssignment) :=
   return (← getMCtx).getDelayedMVarAssignmentCore? mvarId
 
 /-- Given a sequence of delayed assignments
    ```
-   mvarId₁ := mvarId₂ ...;
+   mvarId₁ := fun ... => mvarId₂;
    ...
-   mvarIdₙ := mvarId_root ...  -- where `mvarId_root` is not delayed assigned
+   mvarIdₙ := fun ... => mvarId_root  -- where `mvarId_root` is not delayed assigned
    ```
    in `mctx`, `getDelayedRoot mctx mvarId₁` return `mvarId_root`.
    If `mvarId₁` is not delayed assigned then return `mvarId₁` -/
@@ -440,12 +448,12 @@ def isLevelMVarAssignable [Monad m] [MonadMCtx m] (mvarId : LMVarId) : m Bool :=
   let mctx ← getMCtx
   match mctx.lDepth.find? mvarId with
   | some d => return d >= mctx.levelAssignDepth
-  | _      => panic! "unknown universe metavariable"
+  | _      => panic! s!"unknown universe metavariable {mvarId.name}"
 
 def MetavarContext.getDecl (mctx : MetavarContext) (mvarId : MVarId) : MetavarDecl :=
   match mctx.decls.find? mvarId with
   | some decl => decl
-  | none      => panic! "unknown metavariable"
+  | none      => panic! s!"unknown metavariable {mvarId.name}"
 
 def _root_.Lean.MVarId.isAssignable [Monad m] [MonadMCtx m] (mvarId : MVarId) : m Bool := do
   let mctx ← getMCtx
@@ -502,7 +510,7 @@ def hasAssignableMVar [Monad m] [MonadMCtx m] : Expr → m Bool
 
 /--
   Add `mvarId := u` to the universe metavariable assignment.
-  This method does not check whether `mvarId` is already assigned, nor it checks whether
+  This method does not check whether `mvarId` is already assigned, nor does it check whether
   a cycle is being introduced.
   This is a low-level API, and it is safer to use `isLevelDefEq (mkLevelMVar mvarId) u`.
 -/
@@ -515,7 +523,7 @@ def assignLevelMVarExp (m : MetavarContext) (mvarId : LMVarId) (val : Level) : M
 
 /--
 Add `mvarId := x` to the metavariable assignment.
-This method does not check whether `mvarId` is already assigned, nor it checks whether
+This method does not check whether `mvarId` is already assigned, nor does it check whether
 a cycle is being introduced, or whether the expression has the right type.
 This is a low-level API, and it is safer to use `isDefEq (mkMVar mvarId) x`.
 -/
@@ -596,6 +604,16 @@ run_meta do
   let e' ← instantiateMVars e
   -- e' is `Nat.succ 42`, `?m.773` is assigned to `42`
 ```
+
+There are a few gotchas concerning delayed assignments.
+
+* Regular assignments take precedence over delayed ones. This happens when an error occurs, in which
+  case Lean assigns `sorry` to all unassigned metavariables, delayed assigned or not.
+* Unless a delayed assigned metavariable `?m := fun fvars => ?pending` is fully applied to its free
+  variables `fvars`, it will not be instantiated to `?pending`.
+* A delayed assigned metavariable `?m := fun fvars => ?pending` that occurs fully applied `?m fvars`
+  will not be instantiated to `?pending` unless (1) `?pending` is assigned, and (2) the
+  assignment to `?pending` is ground (i.e., does not contain unassigned metavariables).
 -/
 def instantiateMVars [Monad m] [MonadMCtx m] (e : Expr) : m Expr := do
   if !e.hasMVar then
@@ -776,9 +794,6 @@ def localDeclDependsOnPred [Monad m] [MonadMCtx m] (localDecl : LocalDecl) (pf :
 
 namespace MetavarContext
 
-@[export lean_mk_metavar_ctx]
-def mkMetavarContext : Unit → MetavarContext := fun _ => {}
-
 /-- Low level API for adding/declaring metavariable declarations.
    It is used to implement actions in the monads `MetaM`, `ElabM` and `TacticM`.
    It should not be used directly since the argument `(mvarId : MVarId)` is assumed to be "unique". -/
@@ -937,7 +952,7 @@ structure State where
   cache          : Std.HashMap ExprStructEq Expr := {}
 
 structure Context where
-  mainModule         : Name
+  quotContext        : Name
   preserveOrder      : Bool
   /-- When creating binders for abstracted metavariables, we use the following `BinderInfo`. -/
   binderInfoForMVars : BinderInfo := BinderInfo.implicit
@@ -953,7 +968,7 @@ instance : MonadMCtx M where
 
 private def mkFreshBinderName (n : Name := `x) : M Name := do
   let fresh ← modifyGet fun s => (s.nextMacroScope, { s with nextMacroScope := s.nextMacroScope + 1 })
-  return addMacroScope (← read).mainModule n fresh
+  return addMacroScope (← read).quotContext n fresh
 
 def preserveOrder : M Bool :=
   return (← read).preserveOrder
@@ -1270,6 +1285,7 @@ private def mkLambda' (x : Name) (bi : BinderInfo) (t : Expr) (b : Expr) (etaRed
 /--
 Similar to `LocalContext.mkBinding`, but handles metavariables correctly.
 This function trusts that `xs` has all forward dependencies that appear in `e` and that the variables are in order.
+It will panic when any of the `xs` is neither a free variable nor a metavariable.
 
 - If `usedOnly := true` then `forall` and `lambda` expressions are created only for used variables.
 - If `usedLetOnly := true` then `let` expressions are created only for used (let-) variables.
@@ -1325,20 +1341,20 @@ def mkBinding (isLambda : Bool) (lctx : LocalContext) (xs : Array Expr) (e : Exp
 end MkBinding
 
 structure MkBindingM.Context where
-  mainModule : Name
-  lctx       : LocalContext
+  quotContext : Name
+  lctx        : LocalContext
 
 abbrev MkBindingM := ReaderT MkBindingM.Context MkBinding.MCore
 
 def elimMVarDeps (xs : Array Expr) (e : Expr) (preserveOrder : Bool) : MkBindingM Expr := fun ctx =>
-  MkBinding.elimMVarDeps xs e { preserveOrder, mainModule := ctx.mainModule }
+  MkBinding.elimMVarDeps xs e { preserveOrder, quotContext := ctx.quotContext }
 
 def revert (xs : Array Expr) (mvarId : MVarId) (preserveOrder : Bool) : MkBindingM (Expr × Array Expr) := fun ctx =>
-  MkBinding.revert xs mvarId { preserveOrder, mainModule := ctx.mainModule }
+  MkBinding.revert xs mvarId { preserveOrder, quotContext := ctx.quotContext }
 
 def mkBinding (isLambda : Bool) (xs : Array Expr) (e : Expr) (usedOnly : Bool := false) (usedLetOnly : Bool := true) (etaReduce := false) (generalizeNondepLet := true) (binderInfoForMVars := BinderInfo.implicit) : MkBindingM Expr := fun ctx =>
   let mvarIdsToAbstract := xs.foldl (init := {}) fun s x => if x.isMVar then s.insert x.mvarId! else s
-  MkBinding.mkBinding isLambda ctx.lctx xs e usedOnly usedLetOnly etaReduce generalizeNondepLet { preserveOrder := false, binderInfoForMVars, mvarIdsToAbstract, mainModule := ctx.mainModule }
+  MkBinding.mkBinding isLambda ctx.lctx xs e usedOnly usedLetOnly etaReduce generalizeNondepLet { preserveOrder := false, binderInfoForMVars, mvarIdsToAbstract, quotContext := ctx.quotContext }
 
 @[inline] def mkLambda (xs : Array Expr) (e : Expr) (usedOnly : Bool := false) (usedLetOnly : Bool := true) (etaReduce := false) (generalizeNondepLet := true) (binderInfoForMVars := BinderInfo.implicit) : MkBindingM Expr :=
   mkBinding (isLambda := true) xs e usedOnly usedLetOnly etaReduce generalizeNondepLet binderInfoForMVars
@@ -1347,10 +1363,10 @@ def mkBinding (isLambda : Bool) (xs : Array Expr) (e : Expr) (usedOnly : Bool :=
   mkBinding (isLambda := false) xs e usedOnly usedLetOnly false generalizeNondepLet binderInfoForMVars
 
 @[inline] def abstractRange (e : Expr) (n : Nat) (xs : Array Expr) : MkBindingM Expr := fun ctx =>
-  MkBinding.abstractRange xs n e { preserveOrder := false, mainModule := ctx.mainModule }
+  MkBinding.abstractRange xs n e { preserveOrder := false, quotContext := ctx.quotContext }
 
 @[inline] def collectForwardDeps (toRevert : Array Expr) (preserveOrder : Bool) (generalizeNondepLet := true) : MkBindingM (Array Expr) := fun ctx =>
-  MkBinding.collectForwardDeps ctx.lctx toRevert generalizeNondepLet { preserveOrder, mainModule := ctx.mainModule }
+  MkBinding.collectForwardDeps ctx.lctx toRevert generalizeNondepLet { preserveOrder, quotContext := ctx.quotContext }
 
 /--
   `isWellFormed lctx e` returns true iff
@@ -1464,7 +1480,7 @@ structure UnivMVarParamResult where
 
 def levelMVarToParam (mctx : MetavarContext) (alreadyUsedPred : Name → Bool) (except : LMVarId → Bool) (e : Expr) (paramNamePrefix : Name := `u) (nextParamIdx : Nat := 1)
     : UnivMVarParamResult :=
-  let (e, s) := LevelMVarToParam.main e { except, paramNamePrefix, alreadyUsedPred } { mctx, nextParamIdx }
+  let (e, s) := LevelMVarToParam.main e { except, paramNamePrefix, alreadyUsedPred } |>.run { mctx, nextParamIdx }
   { mctx          := s.mctx
     newParamNames := s.paramNames
     nextParamIdx  := s.nextParamIdx

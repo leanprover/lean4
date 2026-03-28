@@ -9,12 +9,11 @@ module
 
 prelude
 public import Init.Data.Slice.Array
-public import Lean.Data.Position
-public import Lean.Data.OpenDecl
-public import Lean.MetavarContext
-public import Lean.Environment
 public import Lean.Util.PPExt
 public import Lean.Util.Sorry
+import Init.Data.String.Search
+import Init.Data.Format.Macro
+import Init.Data.Iterators.Consumers.Collect
 
 public section
 
@@ -67,9 +66,29 @@ structure NamingContext where
   currNamespace : Name
   openDecls : List OpenDecl
 
+/-- Structured result status of a trace node action, produced by `withTraceNode` and
+`withTraceNodeBefore` and included in the `TraceData` of trace messages. Either
+`.success` (✅️), `.failure` (❌️), or `.error` (💥️).
+
+This is used both to render emojis in trace messages and to allow more
+robust inspection of trace logs via metaprogramming.
+
+See also `Except.toTraceResult` for converting an `Except ε α` to a `TraceResult`. -/
+inductive TraceResult where
+  /-- The traced action succeeded (✅️, `checkEmoji`). -/
+  | success
+  /-- The traced action failed (❌️, `crossEmoji`). -/
+  | failure
+  /-- An exception was thrown during the traced action (💥️, `bombEmoji`). -/
+  | error
+  deriving Inhabited, BEq, Repr
+
 structure TraceData where
   /-- Trace class, e.g. `Elab.step`. -/
   cls       : Name
+  /-- Structured success/failure result set by `withTraceNode`/`withTraceNodeBefore`.
+  `none` for trace nodes not created by these functions (e.g. `addTrace`, diagnostic nodes). -/
+  result?   : Option TraceResult := none
   /-- Start time in seconds; 0 if unknown to avoid `Option` allocation. -/
   startTime : Float := 0
   /-- Stop time in seconds; 0 if unknown to avoid `Option` allocation. -/
@@ -250,7 +269,7 @@ def ofConstName (constName : Name) (fullNames : Bool := false) : MessageData :=
       let msg ← ofFormatWithInfos <$> match ctx? with
         | .none => pure (format constName)
         | .some ctx =>
-          let ctx := if fullNames then { ctx with opts := ctx.opts.insert `pp.fullNames fullNames } else ctx
+          let ctx := if fullNames then { ctx with opts := ctx.opts.set `pp.fullNames fullNames } else ctx
           ppConstNameWithInfos ctx constName
       return Dynamic.mk msg)
     (fun _ => false)
@@ -460,6 +479,23 @@ and `throwNamedError`.
 def MessageData.tagWithErrorName (msg : MessageData) (name : Name) : MessageData :=
   .tagged (kindOfErrorName name) msg
 
+/-- Strip the `` `nested`` prefix components added to tags by `throwNestedTacticEx`. -/
+def MessageData.stripNestedTags : MessageData → MessageData
+  | .withContext ctx msg => .withContext ctx msg.stripNestedTags
+  | .withNamingContext ctx msg => .withNamingContext ctx msg.stripNestedTags
+  | .tagged n msg => .tagged (stripNestedNamePrefix n) msg
+  | msg => msg
+where
+  stripNestedNamePrefix : Name → Name
+  | .anonymous => .anonymous
+  | .str p s =>
+    let p' := stripNestedNamePrefix p
+    if p'.isAnonymous && s == "nested" then
+      .anonymous
+    else
+      .str p' s
+  | .num p n => .num (stripNestedNamePrefix p) n
+
 /--
 If the provided name is labeled as a diagnostic name, removes the label and returns the
 corresponding diagnostic name.
@@ -599,6 +635,9 @@ def errorsToInfos (log : MessageLog) : MessageLog :=
 def getInfoMessages (log : MessageLog) : MessageLog :=
   { unreported := log.unreported.filter fun m => match m.severity with | MessageSeverity.information => true | _ => false }
 
+def getWarningMessages (log : MessageLog) : MessageLog :=
+  { unreported := log.unreported.filter fun m => match m.severity with | MessageSeverity.warning => true | _ => false }
+
 def forM {m : Type → Type} [Monad m] (log : MessageLog) (f : Message → m Unit) : m Unit :=
   log.unreported.forM f
 
@@ -622,18 +661,18 @@ def indentExpr (e : Expr) : MessageData :=
   indentD e
 
 /--
-Returns the character length of the message when rendered.
+Returns the string-formatted version of MessageData.
 
 Note: this is a potentially expensive operation that is only relevant to message data that are
 actually rendered. Consider using this function in lazy message data to avoid unnecessary
 computation for messages that are not displayed.
 -/
-private def MessageData.formatLength (ctx : PPContext) (msg : MessageData) : BaseIO Nat := do
+private def MessageData.formatExpensively (ctx : PPContext) (msg : MessageData) : BaseIO String := do
   let { env, mctx, lctx, opts, currNamespace, openDecls } := ctx
   -- Simulate the naming context that will be added to the actual message
   let msg := MessageData.withNamingContext { currNamespace, openDecls } msg
   let fmt ← msg.format (some { env, mctx, lctx, opts })
-  return fmt.pretty.length
+  return fmt.pretty
 
 
 /--
@@ -648,7 +687,8 @@ def inlineExpr (e : Expr) (maxInlineLength := 30) : MessageData :=
   .lazy
     (fun ctx => do
       let msg := MessageData.ofExpr e
-      if (← msg.formatLength ctx) > maxInlineLength then
+      let render ← msg.formatExpensively ctx
+      if render.length > maxInlineLength || render.any (· == '\n') then
         return indentD msg ++ "\n"
       else
         return " `" ++ msg ++ "` ")
@@ -663,7 +703,8 @@ def inlineExprTrailing (e : Expr) (maxInlineLength := 30) : MessageData :=
   .lazy
     (fun ctx => do
       let msg := MessageData.ofExpr e
-      if (← msg.formatLength ctx) > maxInlineLength then
+      let render ← msg.formatExpensively ctx
+      if render.length > maxInlineLength || render.any (· == '\n') then
         return indentD msg
       else
         return " `" ++ msg ++ "`")
@@ -707,9 +748,9 @@ class ToMessageData (α : Type) where
 export ToMessageData (toMessageData)
 
 def stringToMessageData (str : String) : MessageData :=
-  let lines := str.split (· == '\n')
+  let lines := str.split '\n'
   let lines := lines.map (MessageData.ofFormat ∘ format)
-  MessageData.joinSep lines (MessageData.ofFormat Format.line)
+  MessageData.joinSep lines.toList (MessageData.ofFormat Format.line)
 
 instance [ToFormat α] : ToMessageData α := ⟨MessageData.ofFormat ∘ format⟩
 instance : ToMessageData Expr          := ⟨MessageData.ofExpr⟩
@@ -756,7 +797,7 @@ def toMessageData (e : Kernel.Exception) (opts : Options) : MessageData :=
     | Declaration.thmDecl { name := n, type := type, .. }  => process n type
     | _ => "(kernel) declaration type mismatch" -- TODO fix type checker, type mismatch for mutual decls does not have enough information
   | declHasMVars env constName _        => mkCtx env {} opts m!"(kernel) declaration has metavariables '{.ofConstName constName true}'"
-  | declHasFVars env constName _        => mkCtx env {} opts m!"(kernel) declaration has free variables '{.ofConstName constName true}'"
+  | declHasFVars env constName e        => mkCtx env {} opts m!"(kernel) declaration has free variables '{.ofConstName constName true}', expression: {indentExpr e}"
   | funExpected env lctx e              => mkCtx env lctx opts m!"(kernel) function expected{indentExpr e}"
   | typeExpected env lctx e             => mkCtx env lctx opts m!"(kernel) type expected{indentExpr e}"
   | letTypeMismatch  env lctx n _ _     => mkCtx env lctx opts m!"(kernel) let-declaration type mismatch '{n}'"

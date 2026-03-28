@@ -6,8 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Compiler.LCNF.CompilerM
-public import Lean.Compiler.LCNF.Types
 public import Lean.Compiler.LCNF.InferType
 public import Lean.Compiler.LCNF.Simp.Basic
 
@@ -17,7 +15,7 @@ namespace Lean.Compiler.LCNF
 namespace Simp
 
 inductive CtorInfo where
-  | ctor (val : ConstructorVal) (args : Array Arg)
+  | ctor (val : ConstructorVal) (args : Array (Arg .pure))
   | /-- Natural numbers are morally constructor applications -/
     natVal (n : Nat)
 
@@ -63,19 +61,19 @@ def findCtor? (fvarId : FVarId) : DiscrM (Option CtorInfo) := do
   | some { value := .const declName _ args, .. } =>
     let some (.ctorInfo val) := (← getEnv).find? declName | return none
     return some <| .ctor val args
-  | some _ => return none
-  | none => return (← read).discrCtorMap.get? fvarId
+  | _ => return (← read).discrCtorMap.get? fvarId
 
 def findCtorName? (fvarId : FVarId) : DiscrM (Option Name) := do
   let some ctorInfo ← findCtor? fvarId | return none
   return ctorInfo.getName
 
 /--
-If `type` is an inductive datatype, return its universe levels and parameters.
+If `type` is an application of the inductive type `ind`, return its universe levels and parameters.
 -/
-def getIndInfo? (type : Expr) : CoreM (Option (List Level × Array Arg)) := do
+def getIndInfo? (type : Expr) (ind : Name) : CoreM (Option (List Level × Array (Arg .pure))) := do
   let type := type.headBeta
   let .const declName us := type.getAppFn | return none
+  unless declName == ind do return none
   let .inductInfo info ← getConstInfo declName | return none
   unless type.getAppNumArgs >= info.numParams do return none
   let args := type.getAppArgs[*...info.numParams].toArray.map fun
@@ -87,7 +85,8 @@ def getIndInfo? (type : Expr) : CoreM (Option (List Level × Array Arg)) := do
 Execute `x` with the information that `discr = ctorName ctorFields`.
 We use this information to simplify nested cases on the same discriminant.
 -/
-@[inline] def withDiscrCtorImp (discr : FVarId) (ctorName : Name) (ctorFields : Array Param) (x : DiscrM α) : DiscrM α := do
+@[inline] def withDiscrCtorImp (discr : FVarId) (ctorName : Name)
+    (ctorFields : Array (Param .pure)) (x : DiscrM α) : DiscrM α := do
   let ctx ← updateCtx
   withReader (fun _ => ctx) x
 where
@@ -95,7 +94,7 @@ where
     let ctorVal ← getConstInfoCtor ctorName
     let fieldArgs := ctorFields.map (Arg.fvar ·.fvarId)
     let ctx ← read
-    if let some (us, params) ← getIndInfo? (← getType discr) then
+    if let some (us, params) ← getIndInfo? (← getType discr) ctorVal.induct then
       let ctorArgs := params ++ fieldArgs
       let ctorInfo := .ctor ctorVal ctorArgs
       let ctor := LetValue.const ctorVal.name us ctorArgs
@@ -105,7 +104,9 @@ where
       let ctorInfo := .ctor ctorVal (.replicate ctorVal.numParams Arg.erased ++ fieldArgs)
       return { ctx with discrCtorMap := ctx.discrCtorMap.insert discr ctorInfo }
 
-@[inline, inherit_doc withDiscrCtorImp] def withDiscrCtor [MonadFunctorT DiscrM m] (discr : FVarId) (ctorName : Name) (ctorFields : Array Param) : m α → m α :=
+@[inline, inherit_doc withDiscrCtorImp]
+def withDiscrCtor [MonadFunctorT DiscrM m] (discr : FVarId) (ctorName : Name)
+    (ctorFields : Array (Param .pure)) : m α → m α :=
   monadMap (m := DiscrM) <| withDiscrCtorImp discr ctorName ctorFields
 
 def simpCtorDiscrCore? (e : Expr) : DiscrM (Option FVarId) := do

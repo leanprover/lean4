@@ -1,0 +1,47 @@
+Success! Final stack:
+  [(Lean.Doc.Syntax.ul
+    "ul{"
+    [(Lean.Doc.Syntax.li
+      "*"
+      [(Lean.Doc.Syntax.ul
+        "ul{"
+        [(Lean.Doc.Syntax.li
+          "*"
+          [(Lean.Doc.Syntax.para
+            "para{"
+            [(Lean.Doc.Syntax.text
+              (str "\"A1\""))]
+            "}")])
+         (Lean.Doc.Syntax.li
+          "*"
+          [(Lean.Doc.Syntax.para
+            "para{"
+            [(Lean.Doc.Syntax.text
+              (str "\"A2\""))]
+            "}")])]
+        "}")])
+     (Lean.Doc.Syntax.li
+      "*"
+      [(Lean.Doc.Syntax.para
+        "para{"
+        [(Lean.Doc.Syntax.text (str "\"B\""))]
+        "}")
+       (Lean.Doc.Syntax.ul
+        "ul{"
+        [(Lean.Doc.Syntax.li
+          "*"
+          [(Lean.Doc.Syntax.para
+            "para{"
+            [(Lean.Doc.Syntax.text
+              (str "\"B1\""))]
+            "}")])
+         (Lean.Doc.Syntax.li
+          "*"
+          [(Lean.Doc.Syntax.para
+            "para{"
+            [(Lean.Doc.Syntax.text
+              (str "\"B2\""))]
+            "}")])]
+        "}")])]
+    "}")]
+All input consumed.

@@ -6,9 +6,8 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Init.Control.State
-public import Init.Control.Except
 public import Init.Data.ToString.Basic
+public import Init.Control.State
 
 public section
 universe u v
@@ -19,13 +18,19 @@ variable {ε σ α : Type u}
 
 instance [ToString ε] [ToString α] : ToString (Result ε σ α) where
   toString
-    | Result.ok a _    => "ok: " ++ toString a
-    | Result.error e _ => "error: " ++ toString e
+    | Result.ok a _    => String.Internal.append "ok: " (toString a)
+    | Result.error e _ => String.Internal.append "error: " (toString e)
 
 instance [Repr ε] [Repr α] : Repr (Result ε σ α) where
   reprPrec
     | Result.error e _, prec => Repr.addAppParen ("EStateM.Result.error " ++ reprArg e) prec
     | Result.ok a _, prec    => Repr.addAppParen ("EStateM.Result.ok " ++ reprArg a) prec
+
+instance : MonadAttach (EStateM ε σ) where
+  CanReturn x a := Exists fun s => Exists fun s' => x.run s = .ok a s'
+  attach x s := match h : x s with
+    | .ok a s' => .ok ⟨a, s, s', h⟩ s'
+    | .error e s' => .error e s'
 
 end EStateM
 

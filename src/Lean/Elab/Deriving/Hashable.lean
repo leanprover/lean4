@@ -72,7 +72,7 @@ def mkAuxFunction (ctx : Context) (i : Nat) : TermElabM Command := do
     -- TODO(Dany): Get rid of this code branch altogether once we have well-founded recursion
     `(partial def $(mkIdent auxFunName):ident $binders:bracketedBinder* : UInt64 := $body:term)
   else
-    `(def $(mkIdent auxFunName):ident $binders:bracketedBinder* : UInt64 := $body:term)
+    `(@[no_expose] def $(mkIdent auxFunName):ident $binders:bracketedBinder* : UInt64 := $body:term)
 
 def mkHashFuncs (ctx : Context) : TermElabM Syntax := do
   let mut auxDefs := #[]
@@ -81,16 +81,18 @@ def mkHashFuncs (ctx : Context) : TermElabM Syntax := do
   `(mutual $auxDefs:command* end)
 
 private def mkHashableInstanceCmds (declName : Name) : TermElabM (Array Syntax) := do
-  let ctx ← mkContext "hash" declName
+  let ctx ← mkContext ``Hashable "hash" declName
   let cmds := #[← mkHashFuncs ctx] ++ (← mkInstanceCmds ctx `Hashable #[declName])
   trace[Elab.Deriving.hashable] "\n{cmds}"
   return cmds
 
 def mkHashableHandler (declNames : Array Name) : CommandElabM Bool := do
+  withoutExporting do  -- This deriving handler handles visibility of generated decls syntactically
   if (← declNames.allM isInductive)  then
     for declName in declNames do
-      let cmds ← liftTermElabM <| mkHashableInstanceCmds declName
-      cmds.forM elabCommand
+      withoutExposeFromCtors declName do
+        let cmds ← liftTermElabM <| mkHashableInstanceCmds declName
+        cmds.forM elabCommand
     return true
   else
     return false

@@ -1,0 +1,6 @@
+isDefEqOffsetBug.lean:19:2-19:7: error: Type mismatch
+  rfl
+has type
+  ?m = ?m
+but is expected to have type
+  0 + 0 = 0

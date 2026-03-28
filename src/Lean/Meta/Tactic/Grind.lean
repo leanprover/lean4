@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Lean.Meta.Tactic.Grind.Attr
 public import Lean.Meta.Tactic.Grind.RevertAll
@@ -13,7 +12,6 @@ public import Lean.Meta.Tactic.Grind.Util
 public import Lean.Meta.Tactic.Grind.Cases
 public import Lean.Meta.Tactic.Grind.Injection
 public import Lean.Meta.Tactic.Grind.Core
-public import Lean.Meta.Tactic.Grind.Canon
 public import Lean.Meta.Tactic.Grind.MarkNestedSubsingletons
 public import Lean.Meta.Tactic.Grind.Inv
 public import Lean.Meta.Tactic.Grind.Proof
@@ -36,9 +34,20 @@ public import Lean.Meta.Tactic.Grind.Lookahead
 public import Lean.Meta.Tactic.Grind.LawfulEqCmp
 public import Lean.Meta.Tactic.Grind.ReflCmp
 public import Lean.Meta.Tactic.Grind.SynthInstance
-
+public import Lean.Meta.Tactic.Grind.AC
+public import Lean.Meta.Tactic.Grind.VarRename
+public import Lean.Meta.Tactic.Grind.ProofUtil
+public import Lean.Meta.Tactic.Grind.PropagateInj
+public import Lean.Meta.Tactic.Grind.Order
+public import Lean.Meta.Tactic.Grind.Anchor
+public import Lean.Meta.Tactic.Grind.Action
+public import Lean.Meta.Tactic.Grind.EMatchTheoremParam
+public import Lean.Meta.Tactic.Grind.EMatchAction
+public import Lean.Meta.Tactic.Grind.Filter
+public import Lean.Meta.Tactic.Grind.CollectParams
+public import Lean.Meta.Tactic.Grind.Finish
+public import Lean.Meta.Tactic.Grind.RegisterCommand
 public section
-
 namespace Lean
 
 /-! Trace options for `grind` users -/
@@ -51,8 +60,8 @@ builtin_initialize registerTraceClass `grind.ematch
 builtin_initialize registerTraceClass `grind.ematch.pattern
 builtin_initialize registerTraceClass `grind.ematch.instance
 builtin_initialize registerTraceClass `grind.ematch.instance.assignment
+builtin_initialize registerTraceClass `grind.ematch.instance.delayed
 builtin_initialize registerTraceClass `grind.eqResolution
-builtin_initialize registerTraceClass `grind.issues
 builtin_initialize registerTraceClass `grind.simp
 builtin_initialize registerTraceClass `grind.split
 builtin_initialize registerTraceClass `grind.split.candidate
@@ -77,7 +86,7 @@ builtin_initialize registerTraceClass `grind.debug.final
 builtin_initialize registerTraceClass `grind.debug.forallPropagator
 builtin_initialize registerTraceClass `grind.debug.split
 builtin_initialize registerTraceClass `grind.debug.canon
-builtin_initialize registerTraceClass `grind.debug.ematch.activate
+builtin_initialize registerTraceClass `grind.debug.theorem.activate
 builtin_initialize registerTraceClass `grind.debug.ematch.pattern
 builtin_initialize registerTraceClass `grind.debug.beta
 builtin_initialize registerTraceClass `grind.debug.internalize
@@ -90,5 +99,7 @@ builtin_initialize registerTraceClass `grind.debug.proveEq
 builtin_initialize registerTraceClass `grind.debug.pushNewFact
 builtin_initialize registerTraceClass `grind.debug.appMap
 builtin_initialize registerTraceClass `grind.debug.ext
+builtin_initialize registerTraceClass `grind.debug.suggestions
+builtin_initialize registerTraceClass `grind.debug.locals
 
 end Lean

@@ -6,13 +6,13 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.CoreM
-public import Lean.Environment
-public import Lean.Compiler.IR.Basic
 public import Lean.Compiler.IR.Format
-public import Lean.Compiler.MetaAttr
 public import Lean.Compiler.ExportAttr
-public import Lean.Compiler.LCNF.PhaseExt
+public import Lean.Compiler.LCNF.PublicDeclsExt
+import Lean.Compiler.InitAttr
+import all Lean.Compiler.ModPkgExt
+import Init.Data.Format.Macro
+import Lean.Compiler.LCNF.Basic
 
 public section
 
@@ -47,7 +47,7 @@ def log (entry : LogEntry) : CompilerM Unit :=
 def tracePrefixOptionName := `trace.compiler.ir
 
 private def isLogEnabledFor (opts : Options) (optName : Name) : Bool :=
-  match opts.find optName with
+  match opts.get? optName with
   | some (DataValue.ofBool v) => v
   | _     => opts.getBool tracePrefixOptionName
 
@@ -80,62 +80,33 @@ private abbrev findAtSorted? (decls : Array Decl) (declName : Name) : Option Dec
   let tmpDecl := Decl.extern declName #[] default default
   decls.binSearch tmpDecl declLt
 
-/-- Meta status of local declarations, not persisted. -/
-private builtin_initialize declMetaExt : EnvExtension (List Name × NameSet) ←
-  registerEnvExtension
-    (mkInitial := pure ([], {}))
-    (asyncMode := .sync)
-    (replay? := some <| fun oldState newState _ s =>
-      let newEntries := newState.1.take (newState.1.length - oldState.1.length)
-      newEntries.foldl (init := s) fun s n =>
-        if s.1.contains n then
-          s
-        else
-          (n :: s.1, s.2.insert n))
-
-/-- Whether a declaration should be exported for interpretation. -/
-def isDeclMeta (env : Environment) (declName : Name) : Bool :=
-  if !env.header.isModule then
-    true
-  else
-    -- The interpreter may call the boxed variant even if the IR does not directly reference it, so
-    -- use same visibility as base decl.
-    -- Note that boxed decls are created after the `inferVisibility` pass.
-    let inferFor := match declName with
-      | .str n "_boxed" => n
-      | n               => n
-    declMetaExt.getState env |>.2.contains inferFor
-
-/-- Marks a declaration to be exported for interpretation. -/
-def setDeclMeta (env : Environment) (declName : Name) : Environment :=
-  if isDeclMeta env declName then
-    env
-  else
-    declMetaExt.modifyState env fun s =>
-      (declName :: s.1, s.2.insert declName)
-
 builtin_initialize declMapExt : SimplePersistentEnvExtension Decl DeclMap ←
   registerSimplePersistentEnvExtension {
     addImportedFn := fun _ => {}
     addEntryFn    := fun s d => s.insert d.name d
     -- Store `meta` closure only in `.olean`, turn all other decls into opaque externs.
     -- Leave storing the remainder for `meta import` and server `#eval` to `exportIREntries` below.
-    exportEntriesFnEx? := some fun env s entries _ =>
+    exportEntriesFnEx? := some fun env s entries =>
       let decls := entries.foldl (init := #[]) fun decls decl => decls.push decl
       let entries := sortDecls decls
       -- Do not save all IR even in .olean.private as it will be in .ir anyway
-      if env.header.isModule then
+      .uniform <| if env.header.isModule then
         entries.filterMap fun d => do
           if isDeclMeta env d.name then
             return d
           guard <| Compiler.LCNF.isDeclPublic env d.name
+          -- TODO: boxed `[extern]`s are created eagerly by lean but we need to see their IR in
+          -- leanir. It would be nicer to make them part of standard `compileDecls` so they can be
+          -- postponed like anyone else.
+          if Compiler.LCNF.isBoxedName d.name && isExtern env d.name.getPrefix then
+            return d
           -- Bodies of imported IR decls are not relevant for codegen, only interpretation
           match d with
           | .fdecl f xs ty b info =>
             if let some (.str _ s) := getExportNameFor? env f then
               return .extern f xs ty { entries := [.standard `all s] }
             else
-              return .extern f xs ty { entries := [.opaque f] }
+              return .extern f xs ty { entries := [.opaque] }
           | d => some d
       else entries
     -- Written to on codegen environment branch but accessed from other elaboration branches when
@@ -148,22 +119,63 @@ builtin_initialize declMapExt : SimplePersistentEnvExtension Decl DeclMap ←
 
 @[export lean_ir_export_entries]
 private def exportIREntries (env : Environment) : Array (Name × Array EnvExtensionEntry) :=
-  let decls := declMapExt.getEntries env |>.foldl (init := #[]) fun decls decl => decls.push decl
+  let irDecls := declMapExt.getEntries env |>.foldl (init := #[]) fun decls decl => decls.push decl
   -- safety: cast to erased type
-  let entries : Array EnvExtensionEntry := unsafe unsafeCast <| sortDecls decls
-  #[(``declMapExt, entries)]
+  let irEntries : Array EnvExtensionEntry := unsafe unsafeCast <| sortDecls irDecls
+
+  -- save all initializers independent of meta/private. Non-meta initializers will only be used when
+  -- .ir is actually loaded, and private ones iff visible.
+  let initDecls : Array (Name × Name) :=
+    (regularInitAttr.ext.exportEntriesFn env (regularInitAttr.ext.getState env)).private
+  -- safety: cast to erased type
+  let initDecls : Array EnvExtensionEntry := unsafe unsafeCast initDecls
+
+  -- needed during initialization via interpreter
+  let modPkg : Array (Option PkgId) := (modPkgExt.exportEntriesFn env (modPkgExt.getState env)).private
+  -- safety: cast to erased type
+  let modPkg : Array EnvExtensionEntry := unsafe unsafeCast modPkg
+
+  #[(declMapExt.name, irEntries),
+    (Lean.regularInitAttr.ext.name, initDecls),
+    (modPkgExt.name, modPkg)]
+
+def findEnvDecl (env : Environment) (declName : Name) : Option Decl :=
+  Compiler.LCNF.findExtEntry? env declMapExt declName findAtSorted? (·.2.find?)
 
 @[export lean_ir_find_env_decl]
-def findEnvDecl (env : Environment) (declName : Name) : Option Decl :=
+private def findInterpDecl (env : Environment) (declName : Name) : Option Decl :=
+  -- This function is never used in `leanir`, so no need for `findExtEntry?`
   match env.getModuleIdxFor? declName with
   | some modIdx =>
-    -- `meta import/import all` and server `#eval`
-    -- This case is important even for codegen because it needs to see IR via `import all` (beause
-    -- it can also see the LCNF)
+    -- `meta import/import all` and additional server-mode IR
     findAtSorted? (declMapExt.getModuleIREntries env modIdx) declName <|>
     -- (closure of) `meta def`; will report `.extern`s for other `def`s so needs to come second
     findAtSorted? (declMapExt.getModuleEntries env modIdx) declName
   | none => declMapExt.getState env |>.find? declName
+
+/-- Like ``findInterpDecl env (declName ++ `_boxed)`` but with optimized negative lookup. -/
+@[export lean_ir_find_env_decl_boxed]
+private def findInterpDeclBoxed (env : Environment) (declName : Name) : Option Decl :=
+  let boxed := Compiler.LCNF.mkBoxedName declName
+  -- Important: get module index of base name, not boxed version. Usually the interpreter never
+  -- does negative lookups except in the case of `call_boxed` which must check whether a boxed
+  -- version exists. If `declName` exists as an imported declaration but `declName'` doesn't, the
+  -- latter's module index would be `none` and we may do an expensive blocking wait on the
+  -- environment extension state even if in this situation we definitely know that `declName'` is
+  -- not a local declaration.
+  match env.getModuleIdxFor? declName with
+  | some modIdx =>
+    findAtSorted? (declMapExt.getModuleIREntries env modIdx) boxed <|>
+    findAtSorted? (declMapExt.getModuleEntries env modIdx) boxed
+  | none => declMapExt.getState env |>.find? boxed
+
+@[export lean_has_compile_error]
+private def hasCompileError (env : Environment) (constName : Name) : Bool :=
+  match env.getModuleIdxFor? constName with
+  | some _ => false  -- Compile errors in imports would have stopped the build before this point
+  -- TODO: do we need to store failures as a separate state? Not if we make sure to only ever
+  -- evaluate constants previously called `compileDecl` on.
+  | none => !(declMapExt.getState env |>.contains constName)
 
 def findDecl (n : Name) : CompilerM (Option Decl) :=
   return findEnvDecl (← getEnv) n
@@ -172,13 +184,13 @@ def containsDecl (n : Name) : CompilerM Bool :=
   return (← findDecl n).isSome
 
 def getDecl (n : Name) : CompilerM Decl := do
-  let (some decl) ← findDecl n | throwError s!"unknown declaration '{n}'"
+  let (some decl) ← findDecl n | throwError s!"unknown declaration `{n}`"
   return decl
 
 def findLocalDecl (n : Name) : CompilerM (Option Decl) :=
   return declMapExt.getState (← getEnv) |>.find? n
 
-/-- Returns the list of IR declarations in declaration order. -/
+/-- Returns the list of IR declarations in reverse declaration order. -/
 def getDecls (env : Environment) : List Decl :=
   declMapExt.getEntries env
 
@@ -203,7 +215,7 @@ def containsDecl' (n : Name) (decls : Array Decl) : CompilerM Bool := do
     containsDecl n
 
 def getDecl' (n : Name) (decls : Array Decl) : CompilerM Decl := do
-  let (some decl) ← findDecl' n decls | throwError s!"unknown declaration '{n}'"
+  let (some decl) ← findDecl' n decls | throwError s!"unknown declaration `{n}`"
   return decl
 
 @[export lean_decl_get_sorry_dep]
@@ -214,9 +226,9 @@ def getSorryDep (env : Environment) (declName : Name) : Option Name :=
 
 /-- Returns additional names that compiler env exts may want to call `getModuleIdxFor?` on. -/
 @[export lean_get_ir_extra_const_names]
-private def getIRExtraConstNames (env : Environment) (level : OLeanLevel) : Array Name :=
+private def getIRExtraConstNames (env : Environment) (level : OLeanLevel) (includeDecls := false) : Array Name :=
   declMapExt.getEntries env |>.toArray.map (·.name)
-    |>.filter fun n => !env.contains n &&
+    |>.filter fun n => (includeDecls || !env.contains n) &&
       (level == .private || Compiler.LCNF.isDeclPublic env n || isDeclMeta env n)
 
 end IR

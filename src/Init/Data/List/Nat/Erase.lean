@@ -6,8 +6,11 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Data.List.Nat.TakeDrop
-public import Init.Data.List.Erase
+public import Init.GetElem
+import Init.Data.List.Erase
+import Init.Data.List.Nat.TakeDrop
+import Init.Data.List.TakeDrop
+import Init.Omega
 
 public section
 

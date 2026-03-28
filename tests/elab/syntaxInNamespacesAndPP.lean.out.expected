@@ -1,0 +1,5 @@
+true : Bool
+true : Bool
+meta def Bla.bla : Lean.ParserDescr :=
+Lean.ParserDescr.node `Bla.bla 1022
+  (Lean.ParserDescr.binary `andthen (Lean.ParserDescr.symbol "bla") (Lean.ParserDescr.cat `term 0))

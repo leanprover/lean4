@@ -9,7 +9,6 @@ prelude
 public import Std.Data.HashMap
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Basic
 public import Lean.Meta.AppBuilder
-public import Lean.ToExpr
 public import Lean.Data.RArray
 
 public section
@@ -45,6 +44,7 @@ instance : ToExpr BVUnOp where
     | .arithShiftRightConst n => mkApp (mkConst ``BVUnOp.arithShiftRightConst) (toExpr n)
     | .reverse => mkConst ``BVUnOp.reverse
     | .clz => mkConst ``BVUnOp.clz
+    | .cpop => mkConst ``BVUnOp.cpop
   toTypeExpr := mkConst ``BVUnOp
 
 instance : ToExpr (BVExpr w) where

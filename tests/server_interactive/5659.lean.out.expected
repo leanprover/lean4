@@ -1,0 +1,22 @@
+{"version": 1,
+ "uri": "file:///5659.lean",
+ "diagnostics":
+ [{"source": "Lean 4",
+   "severity": 1,
+   "range":
+   {"start": {"line": 7, "character": 17}, "end": {"line": 7, "character": 18}},
+   "message":
+   "Tactic `introN` failed: There are no additional binders or `let` bindings in the goal to introduce\n\nn : Nat\nhn : n < 0\n⊢ False",
+   "fullRange":
+   {"start": {"line": 7, "character": 17},
+    "end": {"line": 7, "character": 18}}},
+  {"source": "Lean 4",
+   "severity": 1,
+   "range":
+   {"start": {"line": 11, "character": 16},
+    "end": {"line": 11, "character": 17}},
+   "message":
+   "Tactic `introN` failed: There are no additional binders or `let` bindings in the goal to introduce\n\nn : Nat\nhn : n < 0\n⊢ False",
+   "fullRange":
+   {"start": {"line": 11, "character": 16},
+    "end": {"line": 11, "character": 17}}}]}

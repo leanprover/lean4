@@ -6,18 +6,14 @@ Authors: Leonardo de Moura
 module
 
 prelude
+import Init.Data.Array.Basic
 public import Init.Data.UInt.Basic
-public import Init.Data.String.Basic
-public import Init.Data.ByteArray.Basic
 
 public section
 universe u
 
 instance : Hashable Nat where
   hash n := UInt64.ofNat n
-
-instance : Hashable String.Pos where
-  hash p := UInt64.ofNat p.byteIdx
 
 instance [Hashable α] [Hashable β] : Hashable (α × β) where
   hash | (a, b) => mixHash (hash a) (hash b)
@@ -76,22 +72,3 @@ instance (P : Prop) : Hashable P where
 /-- An opaque (low-level) hash operation used to implement hashing for pointers. -/
 @[always_inline, inline] def hash64 (u : UInt64) : UInt64 :=
   mixHash u 11
-
-/--
-The `BEq α` and `Hashable α` instances on `α` are compatible. This means that that `a == b` implies
-`hash a = hash b`.
-
-This is automatic if the `BEq` instance is lawful.
--/
-class LawfulHashable (α : Type u) [BEq α] [Hashable α] where
-  /-- If `a == b`, then `hash a = hash b`. -/
-  hash_eq (a b : α) : a == b → hash a = hash b
-
-/--
-A lawful hash function respects its Boolean equality test.
--/
-theorem hash_eq [BEq α] [Hashable α] [LawfulHashable α] {a b : α} : a == b → hash a = hash b :=
-  LawfulHashable.hash_eq a b
-
-instance (priority := low) [BEq α] [Hashable α] [LawfulBEq α] : LawfulHashable α where
-  hash_eq _ _ h := eq_of_beq h ▸ rfl

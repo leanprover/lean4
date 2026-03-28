@@ -9,7 +9,6 @@ needed for Core and SimpLemmas.
 module
 
 prelude
-public import Init.Core
 public import Init.NotationExtra
 
 public section
@@ -73,6 +72,12 @@ theorem and_and_right : (a ∧ b) ∧ c ↔ (a ∧ c) ∧ b ∧ c := by rw [and_
 theorem and_iff_left  (hb : b) : a ∧ b ↔ a := Iff.intro And.left  (And.intro · hb)
 theorem and_iff_right (ha : a) : a ∧ b ↔ b := Iff.intro And.right (And.intro ha ·)
 
+@[simp] theorem and_imp_left_iff_true {P Q : Prop} : (P ∧ Q → P) ↔ True := by
+  simpa using And.left
+
+@[simp] theorem and_imp_right_iff_true {P Q : Prop} : (P ∧ Q → Q) ↔ True := by
+  simp
+
 /-! ## or -/
 
 theorem or_self_iff : a ∨ a ↔ a := or_self _ ▸ .rfl
@@ -94,6 +99,12 @@ theorem or_rotate : a ∨ b ∨ c ↔ b ∨ c ∨ a := by simp only [or_left_com
 
 theorem or_iff_left  (hb : ¬b) : a ∨ b ↔ a := or_iff_left_iff_imp.mpr  hb.elim
 theorem or_iff_right (ha : ¬a) : a ∨ b ↔ b := or_iff_right_iff_imp.mpr ha.elim
+
+theorem imp_or_left_iff_true {P Q : Prop} : (P → P ∨ Q) ↔ True := by
+  simpa using Or.inl
+
+theorem imp_or_right_iff_true {P Q : Prop} : (Q → P ∨ Q) ↔ True := by
+  simpa using Or.inr
 
 /-! ## distributivity -/
 
@@ -311,10 +322,6 @@ theorem exists_or : (∃ x, p x ∨ q x) ↔ (∃ x, p x) ∨ ∃ x, q x :=
 
 theorem Exists.nonempty : (∃ x, p x) → Nonempty α | ⟨x, _⟩ => ⟨x⟩
 
-@[deprecated Exists.nonempty (since := "2025-05-19")]
-theorem nonempty_of_exists {α : Sort u} {p : α → Prop} : Exists (fun x => p x) → Nonempty α
-  | ⟨w, _⟩ => ⟨w⟩
-
 theorem not_forall_of_exists_not {p : α → Prop} : (∃ x, ¬p x) → ¬∀ x, p x
   | ⟨x, hn⟩, h => hn (h x)
 
@@ -349,11 +356,33 @@ theorem not_forall_of_exists_not {p : α → Prop} : (∃ x, ¬p x) → ¬∀ x,
 @[simp] theorem exists_prop_eq' {p : (a : α) → a' = a → Prop} :
     (∃ (a : α) (h : a' = a), p a h) ↔ p a' rfl := by simp [@eq_comm _ a']
 
-@[simp] theorem forall_eq_or_imp : (∀ a, a = a' ∨ q a → p a) ↔ p a' ∧ ∀ a, q a → p a := by
+@[simp] theorem forall_eq_or_imp {P Q : α → Prop} :
+    (∀ a, a = a' ∨ Q a → P a) ↔ P a' ∧ ∀ a, Q a → P a := by
   simp only [or_imp, forall_and, forall_eq]
+
+theorem forall_eq_or_imp' {P Q : α → Prop} {a' : α} :
+    (∀ (a : α), a' = a ∨ Q a → P a) ↔ P a' ∧ ∀ (a : α), Q a → P a := by
+  simp only [or_imp, forall_and, forall_eq']
+
+theorem forall_or_eq_imp {P Q : α → Prop} :
+    (∀ a, Q a ∨ a = a' → P a) ↔ (∀ a, Q a → P a) ∧ P a' := by
+  simp only [or_imp, forall_and, forall_eq]
+
+theorem forall_or_eq_imp' {P Q : α → Prop} :
+    (∀ a, Q a ∨ a' = a → P a) ↔ (∀ a, Q a → P a) ∧ P a' := by
+  simp only [or_imp, forall_and, forall_eq']
 
 @[simp] theorem exists_eq_or_imp : (∃ a, (a = a' ∨ q a) ∧ p a) ↔ p a' ∨ ∃ a, q a ∧ p a := by
   simp only [or_and_right, exists_or, exists_eq_left]
+
+@[simp] theorem exists_eq_or_imp' : (∃ a, (a' = a ∨ q a) ∧ p a) ↔ p a' ∨ ∃ a, q a ∧ p a := by
+  simp only [or_and_right, exists_or, exists_eq_left']
+
+@[simp] theorem exists_or_eq_imp : (∃ a, (q a ∨ a = a') ∧ p a) ↔ (∃ a, q a ∧ p a) ∨ p a' := by
+  simp only [or_and_right, exists_or, exists_eq_left]
+
+@[simp] theorem exists_or_eq_imp' : (∃ a, (q a ∨ a' = a) ∧ p a) ↔ (∃ a, q a ∧ p a) ∨ p a' := by
+  simp only [or_and_right, exists_or, exists_eq_left']
 
 @[simp] theorem exists_eq_right_right : (∃ (a : α), p a ∧ q a ∧ a = a') ↔ p a' ∧ q a' := by
   simp [← and_assoc]
@@ -409,6 +438,22 @@ theorem forall_prop_of_false {p : Prop} {q : p → Prop} (hn : ¬p) : (∀ h' : 
 @[simp] theorem forall_self_imp (P : Prop) (Q : P → Prop) : (∀ p : P, P → Q p) ↔ ∀ p, Q p :=
   ⟨fun h p => h p p, fun h _ p => h p⟩
 
+theorem forall_or_imp_or_self_right_right {P Q R : α → Prop} :
+    (∀ a, P a ∨ Q a → R a ∨ Q a) ↔ (∀ a, P a → R a ∨ Q a) := by
+  simp only [or_imp, imp_or_right_iff_true, and_true]
+
+theorem forall_or_imp_or_self_right_left {P Q R : α → Prop} :
+    (∀ a, P a ∨ Q a → Q a ∨ R a) ↔ (∀ a, P a → Q a ∨ R a) := by
+  simp only [or_imp, imp_or_left_iff_true, and_true]
+
+theorem forall_or_imp_or_self_left_right {P Q R : α → Prop} :
+    (∀ a, Q a ∨ P a → R a ∨ Q a) ↔ (∀ a, P a → R a ∨ Q a) := by
+  simp only [or_imp, imp_or_right_iff_true, true_and]
+
+theorem forall_or_imp_or_self_left_left {P Q R : α → Prop} :
+    (∀ a, Q a ∨ P a → Q a ∨ R a) ↔ (∀ a, P a → Q a ∨ R a) := by
+  simp only [or_imp, imp_or_left_iff_true, true_and]
+
 end quantifiers
 
 /-! ## membership -/
@@ -441,19 +486,21 @@ theorem Decidable.not_or_self (p : Prop) [h : Decidable p] : ¬p ∨ p := by
 theorem Decidable.by_contra [Decidable p] : (¬p → False) → p := of_not_not
 
 /-- Construct a non-Prop by cases on an `Or`, when the left conjunct is decidable. -/
-protected def Or.by_cases [Decidable p] {α : Sort u} (h : p ∨ q) (h₁ : p → α) (h₂ : q → α) : α :=
+@[expose] protected def Or.by_cases [Decidable p] {α : Sort u} (h : p ∨ q) (h₁ : p → α) (h₂ : q → α) : α :=
   if hp : p then h₁ hp else h₂ (h.resolve_left hp)
 
 /-- Construct a non-Prop by cases on an `Or`, when the right conjunct is decidable. -/
-protected def Or.by_cases' [Decidable q] {α : Sort u} (h : p ∨ q) (h₁ : p → α) (h₂ : q → α) : α :=
+@[expose] protected def Or.by_cases' [Decidable q] {α : Sort u} (h : p ∨ q) (h₁ : p → α) (h₂ : q → α) : α :=
   if hq : q then h₂ hq else h₁ (h.resolve_right hq)
 
+@[inline]
 instance exists_prop_decidable {p} (P : p → Prop)
   [Decidable p] [∀ h, Decidable (P h)] : Decidable (∃ h, P h) :=
 if h : p then
   decidable_of_decidable_of_iff ⟨fun h2 => ⟨h, h2⟩, fun ⟨_, h2⟩ => h2⟩
 else isFalse fun ⟨h', _⟩ => h h'
 
+@[inline]
 instance forall_prop_decidable {p} (P : p → Prop)
   [Decidable p] [∀ h, Decidable (P h)] : Decidable (∀ h, P h) :=
 if h : p then
@@ -544,30 +591,14 @@ theorem Decidable.not_and_not_right [Decidable b] : ¬(a ∧ ¬b) ↔ (a → b) 
 theorem Decidable.not_and_iff_not_or_not [Decidable a] : ¬(a ∧ b) ↔ ¬a ∨ ¬b :=
   ⟨fun h => if ha : a then .inr (h ⟨ha, ·⟩) else .inl ha, not_and_of_not_or_not⟩
 
-set_option linter.missingDocs false in
-@[deprecated Decidable.not_and_iff_not_or_not (since := "2025-03-18")]
-abbrev Decidable.not_and_iff_or_not_not := @Decidable.not_and_iff_not_or_not
-
 theorem Decidable.not_and_iff_not_or_not' [Decidable b] : ¬(a ∧ b) ↔ ¬a ∨ ¬b :=
   ⟨fun h => if hb : b then .inl (h ⟨·, hb⟩) else .inr hb, not_and_of_not_or_not⟩
-
-set_option linter.missingDocs false in
-@[deprecated Decidable.not_and_iff_not_or_not' (since := "2025-03-18")]
-abbrev Decidable.not_and_iff_or_not_not' := @Decidable.not_and_iff_not_or_not'
 
 theorem Decidable.or_iff_not_not_and_not [Decidable a] [Decidable b] : a ∨ b ↔ ¬(¬a ∧ ¬b) := by
   rw [← not_or, not_not]
 
-set_option linter.missingDocs false in
-@[deprecated Decidable.or_iff_not_not_and_not (since := "2025-03-18")]
-abbrev Decidable.or_iff_not_and_not := @Decidable.or_iff_not_not_and_not
-
 theorem Decidable.and_iff_not_not_or_not [Decidable a] [Decidable b] : a ∧ b ↔ ¬(¬a ∨ ¬b) := by
   rw [← not_and_iff_not_or_not, not_not]
-
-set_option linter.missingDocs false in
-@[deprecated Decidable.and_iff_not_not_or_not (since := "2025-03-18")]
-abbrev Decidable.and_iff_not_or_not := @Decidable.and_iff_not_not_or_not
 
 theorem Decidable.imp_iff_right_iff [Decidable a] : (a → b ↔ b) ↔ a ∨ b :=
   Iff.intro
@@ -599,7 +630,7 @@ theorem Decidable.or_congr_right' [Decidable a] (h : ¬a → (b ↔ c)) : a ∨ 
 **Important**: this function should be used instead of `rw` on `Decidable b`, because the
 kernel will get stuck reducing the usage of `propext` otherwise,
 and `decide` will not work. -/
-@[inline] def decidable_of_iff (a : Prop) (h : a ↔ b) [Decidable a] : Decidable b :=
+@[inline, expose] def decidable_of_iff (a : Prop) (h : a ↔ b) [Decidable a] : Decidable b :=
   decidable_of_decidable_of_iff h
 
 /-- Transfer decidability of `b` to decidability of `a`, if the propositions are equivalent.
@@ -615,7 +646,7 @@ instance [DecidablePred p] : DecidablePred (p ∘ f) :=
 
 /-- Prove that `a` is decidable by constructing a boolean `b` and a proof that `b ↔ a`.
 (This is sometimes taken as an alternate definition of decidability.) -/
-def decidable_of_bool : ∀ (b : Bool), (b ↔ a) → Decidable a
+@[expose] def decidable_of_bool : ∀ (b : Bool), (b ↔ a) → Decidable a
   | true, h => isTrue (h.1 rfl)
   | false, h => isFalse (mt h.2 Bool.noConfusion)
 
@@ -750,4 +781,52 @@ attribute [local simp] Decidable.imp_iff_left_iff
   split <;> simp_all
 
 @[simp] theorem dite_else_true {p : Prop} [Decidable p] {x : p → Prop} : (if h : p then x h else True) ↔ ∀ h : p, x h := by
+  split <;> simp_all
+
+@[simp] theorem Bool.ite_then_false {p : Prop} [Decidable p] {x : Bool} : (if p then false else x) = true ↔ ¬ p ∧ x := by
+  split <;> simp_all
+
+@[simp] theorem Bool.ite_then_true_eq_false {p : Prop} [Decidable p] {x : Bool} : (if p then true else x) = false ↔ ¬ p ∧ x = false := by
+  split <;> simp_all
+
+@[simp] theorem Bool.ite_else_false {p : Prop} [Decidable p] {x : Bool} : (if p then x else false) = true ↔ p ∧ x := by
+  split <;> simp_all
+
+@[simp] theorem Bool.ite_else_true_eq_false {p : Prop} [Decidable p] {x :Bool} : (if p then x else true) = false ↔ p ∧ x = false := by
+  split <;> simp_all
+
+@[simp] theorem Bool.ite_then_true {p : Prop} [Decidable p] {x : Bool} : (if p then true else x) = true ↔ p ∨ x := by
+  split <;> simp_all
+
+@[simp] theorem Bool.ite_then_false_eq_false {p : Prop} [Decidable p] {x : Bool} : (if p then false else x) = false ↔ p ∨ x = false := by
+  split <;> simp_all
+
+@[simp] theorem Bool.ite_else_true {p : Prop} [Decidable p] {x : Bool} : (if p then x else true) = true ↔ ¬ p ∨ x := by
+  split <;> simp_all
+
+@[simp] theorem Bool.ite_else_false_eq_false {p : Prop} [Decidable p] {x : Bool} : (if p then x else false) = false ↔ ¬ p ∨ x = false := by
+  split <;> simp_all
+
+@[simp] theorem Bool.dite_then_false {p : Prop} [Decidable p] {x : ¬ p → Bool} : (if h : p then false else x h) = true ↔ ∃ h : ¬ p, x h := by
+  split <;> simp_all
+
+@[simp] theorem Bool.dite_then_true_eq_false {p : Prop} [Decidable p] {x : ¬ p → Bool} : (if h : p then true else x h) = false ↔ ∃ h : ¬ p, x h = false := by
+  split <;> simp_all
+
+@[simp] theorem Bool.dite_else_false {p : Prop} [Decidable p] {x : p → Bool} : (if h : p then x h else false) = true ↔ ∃ h : p, x h := by
+  split <;> simp_all
+
+@[simp] theorem Bool.dite_else_true_eq_false {p : Prop} [Decidable p] {x : p → Bool} : (if h : p then x h else true) = false ↔ ∃ h : p, x h = false := by
+  split <;> simp_all
+
+@[simp] theorem Bool.dite_then_true {p : Prop} [Decidable p] {x : ¬ p → Bool} : (if h : p then true else x h) = true ↔ ∀ h : ¬ p, x h := by
+  split <;> simp_all
+
+@[simp] theorem Bool.dite_then_false_eq_false {p : Prop} [Decidable p] {x : ¬ p → Bool} : (if h : p then false else x h) = false ↔ ∀ h : ¬ p, x h = false := by
+  split <;> simp_all
+
+@[simp] theorem Bool.dite_else_true {p : Prop} [Decidable p] {x : p → Bool} : (if h : p then x h else true) = true ↔ ∀ h : p, x h := by
+  split <;> simp_all
+
+@[simp] theorem Bool.dite_else_false_eq_false {p : Prop} [Decidable p] {x : p → Bool} : (if h : p then x h else false) = false ↔ ∀ h : p, x h = false := by
   split <;> simp_all

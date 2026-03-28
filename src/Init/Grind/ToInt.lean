@@ -6,7 +6,12 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Data.Int.DivMod.Lemmas
+import Init.LawfulBEqTactics
+public import Init.Data.Int.DivMod.Basic
+public meta import Init.Grind.Tactics
+import Init.ByCases
+import Init.Data.Int.DivMod.Lemmas
+import Init.Omega
 
 public section
 
@@ -37,21 +42,17 @@ inductive IntInterval : Type where
     io (hi : Int)
   | /-- The infinite interval `(-∞, ∞)`. -/
     ii
-  deriving BEq, DecidableEq, Inhabited
-
-instance : LawfulBEq IntInterval where
-   rfl := by intro a; cases a <;> simp_all! [BEq.beq]
-   eq_of_beq := by intro a b; cases a <;> cases b <;> simp_all! [BEq.beq]
+  deriving BEq, ReflBEq, LawfulBEq, DecidableEq, Inhabited
 
 namespace IntInterval
 
 /-- The interval `[0, 2^n)`. -/
-abbrev uint (n : Nat) := IntInterval.co 0 (2 ^ n)
+@[expose] abbrev uint (n : Nat) := IntInterval.co 0 (2 ^ n)
 /-- The interval `[-2^(n-1), 2^(n-1))`. -/
-abbrev sint (n : Nat) := IntInterval.co (-(2 ^ (n - 1))) (2 ^ (n - 1))
+@[expose] abbrev sint (n : Nat) := IntInterval.co (-(2 ^ (n - 1))) (2 ^ (n - 1))
 
 /-- The lower bound of the interval, if finite. -/
-def lo? (i : IntInterval) : Option Int :=
+@[expose] def lo? (i : IntInterval) : Option Int :=
   match i with
   | co lo _ => some lo
   | ci lo => some lo
@@ -59,23 +60,21 @@ def lo? (i : IntInterval) : Option Int :=
   | ii => none
 
 /-- The upper bound of the interval, if finite. -/
-def hi? (i : IntInterval) : Option Int :=
+@[expose] def hi? (i : IntInterval) : Option Int :=
   match i with
   | co _ hi => some hi
   | ci _ => none
   | io hi => some hi
   | ii => none
 
-@[simp]
-def nonEmpty (i : IntInterval) : Bool :=
+@[simp, expose] def nonEmpty (i : IntInterval) : Bool :=
   match i with
   | co lo hi => lo < hi
   | ci _ => true
   | io _ => true
   | ii => true
 
-@[simp]
-def isFinite (i : IntInterval) : Bool :=
+@[simp, expose] def isFinite (i : IntInterval) : Bool :=
   match i with
   | co _ _ => true
   | ci _
@@ -100,7 +99,7 @@ instance : Membership Int IntInterval where
 theorem nonEmpty_of_mem {x : Int} {i : IntInterval} (h : x ∈ i) : i.nonEmpty := by
   cases i <;> simp_all <;> omega
 
-@[simp]
+@[simp, expose]
 def wrap (i : IntInterval) (x : Int) : Int :=
   match i with
   | co lo hi => (x - lo) % (hi - lo) + lo
@@ -351,6 +350,7 @@ theorem wrap_toInt (I : IntInterval) [ToInt α I] (x : α) :
 
 /-- Construct a `ToInt.Sub` instance from a `ToInt.Add` and `ToInt.Neg` instance and
 a `sub_eq_add_neg` assumption. -/
+@[implicit_reducible]
 def Sub.of_sub_eq_add_neg {α : Type u} [_root_.Add α] [_root_.Neg α] [_root_.Sub α]
     (sub_eq_add_neg : ∀ x y : α, x - y = x + -y)
     {I : IntInterval} (h : I.isFinite) [ToInt α I] [Add α I] [Neg α I] : ToInt.Sub α I where

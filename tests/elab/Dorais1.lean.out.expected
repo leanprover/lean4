@@ -1,0 +1,1 @@
+@Path.unmap : {α : Type u_1} → {β : Type u_2} → (f : α → β) → {t : Tree α} → Path (Tree.map f t) → Path t

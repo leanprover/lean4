@@ -7,5 +7,3 @@ module
 
 prelude
 public import Std.Time.Time.Unit.Basic
-
-public section

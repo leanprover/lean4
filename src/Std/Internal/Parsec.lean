@@ -9,5 +9,3 @@ prelude
 public import Std.Internal.Parsec.Basic
 public import Std.Internal.Parsec.String
 public import Std.Internal.Parsec.ByteArray
-
-public section

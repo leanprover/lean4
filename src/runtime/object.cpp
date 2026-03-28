@@ -31,6 +31,13 @@ Author: Leonardo de Moura
 #if LEAN_SUPPORTS_BACKTRACE
 #include <execinfo.h>
 #include <unistd.h>
+// Lean-exported demangler from Lean.Compiler.NameDemangling.
+// Declared as a weak symbol so leanrt doesn't require libLean at link time.
+// When the Lean demangler is linked in, it overrides this stub.
+extern "C" __attribute__((weak)) lean_obj_res lean_demangle_bt_line_cstr(lean_obj_arg s) {
+    lean_dec(s);
+    return lean_mk_string("");
+}
 #endif
 
 // HACK: for unknown reasons, std::isnan(x) fails on msys64 because math.h
@@ -106,6 +113,12 @@ extern "C" LEAN_EXPORT void lean_set_exit_on_panic(bool flag) {
     g_exit_on_panic = flag;
 }
 
+/* setExitOnPanic (exit : Bool) : BaseIO Unit */
+extern "C" LEAN_EXPORT obj_res lean_internal_set_exit_on_panic(uint8 exit) {
+    g_exit_on_panic = exit;
+    return box(0);
+}
+
 extern "C" LEAN_EXPORT void lean_set_panic_messages(bool flag) {
     g_panic_messages = flag;
 }
@@ -128,7 +141,19 @@ static void print_backtrace(bool force_stderr) {
     void * bt_buf[100];
     int nptrs = backtrace(bt_buf, sizeof(bt_buf) / sizeof(void *));
     if (char ** symbols = backtrace_symbols(bt_buf, nptrs)) {
+        bool raw = getenv("LEAN_BACKTRACE_RAW");
         for (int i = 0; i < nptrs; i++) {
+            if (!raw) {
+                lean_object * line_obj = lean_mk_string(symbols[i]);
+                lean_object * result = lean_demangle_bt_line_cstr(line_obj);
+                char const * result_str = lean_string_cstr(result);
+                if (result_str[0] != '\0') {
+                    panic_eprintln(result_str, force_stderr);
+                    lean_dec(result);
+                    continue;
+                }
+                lean_dec(result);
+            }
             panic_eprintln(symbols[i], force_stderr);
         }
         // According to `man backtrace`, each `symbols[i]` should NOT be freed
@@ -171,6 +196,11 @@ extern "C" LEAN_EXPORT object * lean_panic_fn(object * default_val, object * msg
     return default_val;
 }
 
+extern "C" LEAN_EXPORT object * lean_panic_fn_borrowed(b_obj_arg default_val, object * msg) {
+    lean_inc(default_val);
+    return lean_panic_fn(default_val, msg);
+}
+
 extern "C" LEAN_EXPORT object * lean_sorry(uint8) {
     lean_internal_panic("executed 'sorry'");
     lean_unreachable();
@@ -185,6 +215,7 @@ extern "C" LEAN_EXPORT size_t lean_object_byte_size(lean_object * o) {
         case LeanArray:       return lean_array_byte_size(o);
         case LeanScalarArray: return lean_sarray_byte_size(o);
         case LeanString:      return lean_string_byte_size(o);
+        case LeanClosure:     return lean_closure_byte_size(o);
         default:              return lean_small_object_size(o);
         }
     } else {
@@ -193,6 +224,7 @@ extern "C" LEAN_EXPORT size_t lean_object_byte_size(lean_object * o) {
         case LeanArray:       return lean_array_byte_size(o);
         case LeanScalarArray: return lean_sarray_byte_size(o);
         case LeanString:      return lean_string_byte_size(o);
+        case LeanClosure:     return lean_closure_byte_size(o);
         default:              return o->m_cs_sz;
         }
     }
@@ -207,6 +239,7 @@ extern "C" LEAN_EXPORT size_t lean_object_data_byte_size(lean_object * o) {
         case LeanArray:       return lean_array_data_byte_size(o);
         case LeanScalarArray: return lean_sarray_data_byte_size(o);
         case LeanString:      return lean_string_data_byte_size(o);
+        case LeanClosure:     return lean_closure_data_byte_size(o);
         default:              return lean_small_object_size(o);
         }
     } else {
@@ -215,6 +248,7 @@ extern "C" LEAN_EXPORT size_t lean_object_data_byte_size(lean_object * o) {
         case LeanArray:       return lean_array_data_byte_size(o);
         case LeanScalarArray: return lean_sarray_data_byte_size(o);
         case LeanString:      return lean_string_data_byte_size(o);
+        case LeanClosure:     return lean_closure_data_byte_size(o);
         default:              return o->m_cs_sz;
         }
     }
@@ -235,6 +269,7 @@ extern "C" LEAN_EXPORT void lean_free_object(lean_object * o) {
     case LeanArray:       return lean_dealloc(o, lean_array_byte_size(o));
     case LeanScalarArray: return lean_dealloc(o, lean_sarray_byte_size(o));
     case LeanString:      return lean_dealloc(o, lean_string_byte_size(o));
+    case LeanClosure:     return lean_dealloc(o, lean_closure_byte_size(o));
     case LeanMPZ:         to_mpz(o)->m_value.~mpz(); return lean_free_small_object(o);
     default:              return lean_free_small_object(o);
     }
@@ -335,7 +370,7 @@ static void lean_del_core(object * o, object * & todo) {
             object ** it  = lean_closure_arg_cptr(o);
             object ** end = it + lean_closure_num_fixed(o);
             for (; it != end; ++it) dec(*it, todo);
-            lean_free_small_object(o);
+            lean_dealloc(o, lean_closure_byte_size(o));
             break;
         }
         case LeanArray: {
@@ -743,14 +778,25 @@ class task_manager {
             unique_lock<mutex> lock(m_mutex);
             m_idle_std_workers++;
             while (true) {
-                if (m_queues_size == 0 && m_shutting_down) {
-                    break;
+                if (m_queues_size == 0) {
+                    if (m_shutting_down) {
+                        // We're done
+                        break;
+                    }
+                    // Wait for new tasks
+                    m_queue_cv.wait(lock);
+                    continue;
                 }
-                if (m_queues_size == 0 ||
-                        // If we have reached the maximum number of standard workers (because the
-                        // maximum was decreased by `task_get`), wait for someone else to become
-                        // idle before picking up new work.
-                        m_std_workers.size() - m_idle_std_workers >= m_max_std_workers) {
+
+                // There's work to be done.
+                // If we have reached the maximum number of standard workers (because the
+                // maximum was decreased by `task_get`), wait for someone else to become
+                // idle before picking up new work.
+                // But during shutdown, we skip this throttling:
+                // because the finalizer might have called m_queue_cv.notify_all() for the last
+                // time, we don't want to get stuck behind the wait().
+                if (!m_shutting_down &&
+                    m_std_workers.size() - m_idle_std_workers >= m_max_std_workers) {
                     m_queue_cv.wait(lock);
                     continue;
                 }
@@ -1009,6 +1055,11 @@ static unsigned get_lean_num_threads() {
     return hardware_concurrency();
 }
 
+/* getHardwareConcurrency (_ : Unit) : UInt32 */
+extern "C" LEAN_EXPORT uint32 lean_internal_get_hardware_concurrency(obj_arg) {
+    return hardware_concurrency();
+}
+
 extern "C" LEAN_EXPORT void lean_init_task_manager() {
     lean_init_task_manager_using(get_lean_num_threads());
 }
@@ -1087,7 +1138,7 @@ extern "C" LEAN_EXPORT obj_res lean_task_pure(obj_arg a) {
     return (lean_object*)alloc_task(a);
 }
 
-static obj_res task_map_fn(obj_arg f, obj_arg t, obj_arg) {
+static obj_res task_map_fn(obj_arg f, obj_arg t, obj_arg w) {
     b_obj_res v = lean_to_task(t)->m_value;
     lean_assert(v != nullptr);
     lean_inc(v);
@@ -1214,14 +1265,14 @@ void lean_promise_resolve(obj_arg value, b_obj_arg promise) {
     g_task_manager->resolve(lean_to_promise(promise)->m_result, mk_option_some(value));
 }
 
-extern "C" LEAN_EXPORT obj_res lean_io_promise_new(obj_arg) {
+extern "C" LEAN_EXPORT obj_res lean_io_promise_new() {
     lean_object * o = lean_promise_new();
-    return io_result_mk_ok(o);
+    return o;
 }
 
-extern "C" LEAN_EXPORT obj_res lean_io_promise_resolve(obj_arg value, b_obj_arg promise, obj_arg) {
+extern "C" LEAN_EXPORT obj_res lean_io_promise_resolve(obj_arg value, b_obj_arg promise) {
     lean_promise_resolve(value, promise);
-    return io_result_mk_ok(box(0));
+    return box(0);
 }
 
 extern "C" LEAN_EXPORT obj_res lean_io_promise_result_opt(b_obj_arg promise) {
@@ -1947,8 +1998,10 @@ extern "C" LEAN_EXPORT obj_res lean_decode_lossy_utf8(b_obj_arg a) {
     return lean_mk_string_from_bytes(reinterpret_cast<char *>(lean_sarray_cptr(a)), lean_sarray_size(a));
 }
 
-extern "C" LEAN_EXPORT obj_res lean_string_from_utf8_unchecked(b_obj_arg a) {
-    return lean_mk_string_from_bytes_unchecked(reinterpret_cast<char *>(lean_sarray_cptr(a)), lean_sarray_size(a));
+extern "C" LEAN_EXPORT obj_res lean_string_from_utf8_unchecked(obj_arg a) {
+    obj_res ret = lean_mk_string_from_bytes_unchecked(reinterpret_cast<char *>(lean_sarray_cptr(a)), lean_sarray_size(a));
+    lean_dec(a);
+    return ret;
 }
 
 extern "C" LEAN_EXPORT uint8 lean_string_validate_utf8(b_obj_arg a) {
@@ -2357,6 +2410,45 @@ extern "C" LEAN_EXPORT obj_res lean_string_of_usize(size_t n) {
     return mk_ascii_string_unchecked(std::to_string(n));
 }
 
+extern "C" LEAN_EXPORT uint8_t lean_string_memcmp(b_obj_arg s1, b_obj_arg s2, b_obj_arg lstart, b_obj_arg rstart, b_obj_arg len) {
+    // Thanks to the proof arguments we know that lstart, rstart and len are all scalars.
+    lean_assert(lean_is_scalar(lstart));
+    lean_assert(lean_is_scalar(rstart));
+    lean_assert(lean_is_scalar(len));
+
+    char const * lbase = lean_string_cstr(s1) + lean_unbox(lstart);
+    char const * rbase = lean_string_cstr(s2) + lean_unbox(rstart);
+    return std::memcmp(lbase, rbase, lean_unbox(len)) == 0;
+}
+
+size_t lean_slice_size(b_obj_arg slice) {
+   b_obj_res start = lean_ctor_get(slice, 1);
+   lean_assert(lean_is_scalar(start));
+   b_obj_res end = lean_ctor_get(slice, 2);
+   lean_assert(lean_is_scalar(end));
+   return lean_unbox(end) - lean_unbox(start);
+}
+
+char const * lean_slice_base(b_obj_arg slice) {
+   b_obj_res string = lean_ctor_get(slice, 0);
+   b_obj_res offset = lean_ctor_get(slice, 1);
+   lean_assert(lean_is_scalar(offset));
+   return lean_string_cstr(string) + lean_unbox(offset);
+}
+
+extern "C" LEAN_EXPORT uint64_t lean_slice_hash(b_obj_arg s) {
+    size_t sz = lean_slice_size(s);
+    char const * str = lean_slice_base(s);
+    return hash_str(sz, (unsigned char const *) str, 11);
+}
+
+extern "C" LEAN_EXPORT uint8_t lean_slice_dec_lt(object * s1, object * s2) {
+    size_t sz1 = lean_slice_size(s1);
+    size_t sz2 = lean_slice_size(s2);
+    int r = std::memcmp(lean_slice_base(s1), lean_slice_base(s2), std::min(sz1, sz2));
+    return r < 0 || (r == 0 && sz1 < sz2);
+}
+
 // =======================================
 // ByteArray & FloatArray
 
@@ -2567,6 +2659,11 @@ extern "C" LEAN_EXPORT obj_res lean_copy_expand_array(obj_arg a, bool expand) {
     return r;
 }
 
+__attribute__((noinline))
+extern "C" LEAN_EXPORT obj_res lean_copy_expand_array_nonlinear(obj_arg a, bool expand) {
+    return lean_copy_expand_array(a, expand);
+}
+
 extern "C" LEAN_EXPORT object * lean_array_push(obj_arg a, obj_arg v) {
     object * r;
     if (lean_is_exclusive(a)) {
@@ -2575,7 +2672,7 @@ extern "C" LEAN_EXPORT object * lean_array_push(obj_arg a, obj_arg v) {
         else
             r = lean_copy_expand_array(a, true);
     } else {
-        r = lean_copy_expand_array(a, lean_array_capacity(a) < 2*lean_array_size(a) + 1);
+        r = lean_copy_expand_array_nonlinear(a, lean_array_capacity(a) < 2*lean_array_size(a) + 1);
     }
     lean_assert(lean_array_capacity(r) > lean_array_size(r));
     size_t & sz  = lean_to_array(r)->m_size;
@@ -2603,7 +2700,7 @@ extern "C" LEAN_EXPORT uint8 lean_name_eq(b_lean_obj_arg n1, b_lean_obj_arg n2) 
             if (!lean_string_eq(lean_ctor_get(n1, 1), lean_ctor_get(n2, 1)))
                 return false;
         } else {
-            if (!lean_nat_eq(lean_ctor_get(n1, 1), lean_ctor_get(n1, 1)))
+            if (!lean_nat_eq(lean_ctor_get(n1, 1), lean_ctor_get(n2, 1)))
                 return false;
         }
         n1 = lean_ctor_get(n1, 0);
@@ -2634,9 +2731,9 @@ extern "C" LEAN_EXPORT object * lean_max_small_nat(object *) {
 // =======================================
 // Debugging helper functions
 
-extern "C" obj_res lean_io_eprintln(obj_arg s, obj_arg w);
+extern "C" obj_res lean_io_eprintln(obj_arg s);
 void io_eprintln(obj_arg s) {
-    object * r = lean_io_eprintln(s, lean_io_mk_world());
+    object * r = lean_io_eprintln(s);
     lean_assert(lean_io_result_is_ok(r));
     lean_dec(r);
 }
@@ -2690,4 +2787,102 @@ void finalize_object() {
     delete g_ext_classes;
     delete g_ext_classes_mutex;
 }
+
+void lock_simple_atomic(std::atomic<int>& lock) {
+    while (true) {
+        lock.wait(1);
+        int should = 0;
+        if (lock.compare_exchange_strong(should, 1)) {
+            break;
+        }
+    }
+}
+
+void unlock_simple_atomic(std::atomic<int>& lock) {
+    lock.store(0);
+    lock.notify_one();
+}
+
+extern "C" LEAN_EXPORT lean_object* lean_obj_once_cold(lean_object** loc, lean_once_cell_t* tok, lean_object* (*init)(void)) {
+    lock_simple_atomic(tok->lock);
+    if (tok->state.load() != 1) {
+        *loc = init();
+        lean_mark_persistent(*loc);
+        tok->state.store(1);
+    }
+    unlock_simple_atomic(tok->lock);
+    return *loc;
+}
+
+extern "C" LEAN_EXPORT uint8_t lean_uint8_once_cold(uint8_t* loc, lean_once_cell_t* tok, uint8_t (*init)(void)) {
+    lock_simple_atomic(tok->lock);
+    if (tok->state.load() != 1) {
+        *loc = init();
+        tok->state.store(1);
+    }
+    unlock_simple_atomic(tok->lock);
+    return *loc;
+}
+
+extern "C" LEAN_EXPORT uint16_t lean_uint16_once_cold(uint16_t* loc, lean_once_cell_t* tok, uint16_t (*init)(void)) {
+    lock_simple_atomic(tok->lock);
+    if (tok->state.load() != 1) {
+        *loc = init();
+        tok->state.store(1);
+    }
+    unlock_simple_atomic(tok->lock);
+    return *loc;
+}
+
+extern "C" LEAN_EXPORT uint32_t lean_uint32_once_cold(uint32_t* loc, lean_once_cell_t* tok, uint32_t (*init)(void)) {
+    lock_simple_atomic(tok->lock);
+    if (tok->state.load() != 1) {
+        *loc = init();
+        tok->state.store(1);
+    }
+    unlock_simple_atomic(tok->lock);
+    return *loc;
+}
+
+extern "C" LEAN_EXPORT uint64_t lean_uint64_once_cold(uint64_t* loc, lean_once_cell_t* tok, uint64_t (*init)(void)) {
+    lock_simple_atomic(tok->lock);
+    if (tok->state.load() != 1) {
+        *loc = init();
+        tok->state.store(1);
+    }
+    unlock_simple_atomic(tok->lock);
+    return *loc;
+}
+
+extern "C" LEAN_EXPORT size_t lean_usize_once_cold(size_t* loc, lean_once_cell_t* tok, size_t (*init)(void)) {
+    lock_simple_atomic(tok->lock);
+    if (tok->state.load() != 1) {
+        *loc = init();
+        tok->state.store(1);
+    }
+    unlock_simple_atomic(tok->lock);
+    return *loc;
+}
+
+extern "C" LEAN_EXPORT float lean_float32_once_cold(float* loc, lean_once_cell_t* tok, float (*init)(void)) {
+    lock_simple_atomic(tok->lock);
+    if (tok->state.load() != 1) {
+        *loc = init();
+        tok->state.store(1);
+    }
+    unlock_simple_atomic(tok->lock);
+    return *loc;
+}
+
+extern "C" LEAN_EXPORT double lean_float_once_cold(double* loc, lean_once_cell_t* tok, double (*init)(void)) {
+    lock_simple_atomic(tok->lock);
+    if (tok->state.load() != 1) {
+        *loc = init();
+        tok->state.store(1);
+    }
+    unlock_simple_atomic(tok->lock);
+    return *loc;
+}
+
+
 }

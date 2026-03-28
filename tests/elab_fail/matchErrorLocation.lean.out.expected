@@ -1,0 +1,7 @@
+matchErrorLocation.lean:5:10-5:14: error: Type mismatch
+  h he
+has type
+  False
+of sort `Prop` but is expected to have type
+  α
+of sort `Type ?u`

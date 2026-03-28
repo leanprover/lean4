@@ -9,7 +9,8 @@ module
 
 prelude
 public import Init.Core
-public import Init.Data.List.Basic
+import Init.Data.List.Basic
+import Init.Data.Nat.Bitwise.Basic
 
 public section
 

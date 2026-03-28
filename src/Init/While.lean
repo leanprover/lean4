@@ -29,7 +29,7 @@ partial def Loop.forIn {β : Type u} {m : Type u → Type v} [Monad m] (_ : Loop
       | ForInStep.yield b => loop b
   loop init
 
-instance : ForIn m Loop Unit where
+instance [Monad m] : ForIn m Loop Unit where
   forIn := Loop.forIn
 
 syntax "repeat " doSeq : doElem
@@ -40,7 +40,7 @@ macro_rules
 syntax "while " ident " : " termBeforeDo " do " doSeq : doElem
 
 macro_rules
-  | `(doElem| while $h : $cond do $seq) => `(doElem| repeat if $h : $cond then $seq else break)
+  | `(doElem| while $h : $cond do $seq) => `(doElem| repeat if $h:ident : $cond then $seq else break)
 
 syntax "while " termBeforeDo " do " doSeq : doElem
 

@@ -1,0 +1,3 @@
+grind_cutsat_le_1.lean:10:0-10:7: warning: declaration uses `sorry`
+private theorem ex₁ : ∀ (a b c : Int), a ≤ 3 → a + b > 5 → a - c > 1 → b ≤ c → c ≤ b → False :=
+fun a b c h₁ h₂ h₃ => ex₁._proof_1_1 a b c h₁ h₂ h₃

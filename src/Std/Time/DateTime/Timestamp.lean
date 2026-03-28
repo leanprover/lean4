@@ -6,10 +6,7 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Std.Time.Internal
 public import Init.System.IO
-public import Std.Time.Time
-public import Std.Time.Date
 public import Std.Time.Duration
 
 public section
@@ -80,14 +77,14 @@ Converts a `Timestamp` to minutes as `Minute.Offset`.
 -/
 @[inline]
 def toMinutes (tm : Timestamp) : Minute.Offset :=
-  tm.val.second.ediv 60
+  tm.val.second.toMinutes
 
 /--
 Converts a `Timestamp` to days as `Day.Offset`.
 -/
 @[inline]
 def toDays (tm : Timestamp) : Day.Offset :=
-  tm.val.second.ediv 86400
+  tm.val.second.toDays
 
 /--
 Creates a `Timestamp` from a `Second.Offset` since the Unix epoch.

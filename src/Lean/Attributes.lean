@@ -7,7 +7,7 @@ module
 
 prelude
 public import Lean.CoreM
-public import Lean.MonadEnv
+public import Lean.Compiler.MetaAttr
 
 public section
 
@@ -52,7 +52,13 @@ instance : ToString AttributeKind where
     | .scoped => "scoped"
 
 structure AttributeImpl extends AttributeImplCore where
-  /-- This is run when the attribute is applied to a declaration `decl`. `stx` is the syntax of the attribute including arguments. -/
+  /--
+  This is run when the attribute is applied to a declaration `decl`. `stx` is the syntax of the
+  attribute including arguments.
+
+  The handler will be run under `withExporting` iff the declaration is public, i.e. using the same
+  visibility scope as elaboration of the rest of the declaration signature.
+  -/
   add (decl : Name) (stx : Syntax) (kind : AttributeKind) : AttrM Unit
   erase (decl : Name) : AttrM Unit := throwError "Attribute `[{name}]` cannot be erased"
   deriving Inhabited
@@ -139,8 +145,23 @@ def throwAttrNotInAsyncCtx (attrName declName : Name) (asyncPrefix? : Option Nam
   throwError "Cannot add attribute `[{attrName}]` to declaration `{.ofConstName declName}` because it is not from the present async context{asyncPrefix}"
 
 def throwAttrDeclNotOfExpectedType (attrName declName : Name) (givenType expectedType : Expr) : m α :=
-  throwError m!"Cannot add attribute `[{attrName}]`: Declaration `{declName}` has type{indentExpr givenType}\n\
+  throwError m!"Cannot add attribute `[{attrName}]`: Declaration `{.ofConstName declName}` has type{indentExpr givenType}\n\
     but `[{attrName}]` can only be added to declarations of type{indentExpr expectedType}"
+
+def ensureAttrDeclIsPublic (attrName declName : Name) (attrKind : AttributeKind) : AttrM Unit := do
+  if (← getEnv).header.isModule && attrKind != .local then
+    withExporting do
+      checkPrivateInPublic declName
+      if !(← hasConst declName) then
+        throwError m!"Cannot add attribute `[{attrName}]`: Declaration `{.ofConstName declName}` must be public"
+
+def ensureAttrDeclIsMeta (attrName declName : Name) (attrKind : AttributeKind) : AttrM Unit := do
+  if (← getEnv).header.isModule && !isMarkedMeta (← getEnv) declName then
+    throwError m!"Cannot add attribute `[{attrName}]`: Declaration `{.ofConstName declName}` must be marked as `meta`"
+  -- Make sure attributed decls can't refer to private meta imports, which is already checked for
+  -- public decls.
+  ensureAttrDeclIsPublic attrName declName attrKind
+
 end
 
 /--
@@ -165,9 +186,11 @@ def registerTagAttribute (name : Name) (descr : String)
     mkInitial       := pure {}
     addImportedFn   := fun _ _ => pure {}
     addEntryFn      := fun (s : NameSet) n => s.insert n
-    exportEntriesFn := fun es =>
-      let r : Array Name := es.foldl (fun a e => a.push e) #[]
-      r.qsort Name.quickLt
+    exportEntriesFnEx := fun env es =>
+      let all : Array Name := es.foldl (fun a e => a.push e) #[] |>.qsort Name.quickLt
+      -- Do not export info for private defs at exported/server levels
+      let exported := all.filter ((env.setExporting true).contains (skipRealize := false))
+      { exported, server := exported, «private» := all }
     statsFn         := fun s => "tag attribute" ++ Format.line ++ "number of local entries: " ++ format s.size
     asyncMode       := asyncMode
     replay?         := some fun _ newState newConsts s =>
@@ -184,10 +207,10 @@ def registerTagAttribute (name : Name) (descr : String)
       let env ← getEnv
       unless (env.getModuleIdxFor? decl).isNone do
         throwAttrDeclInImportedModule name decl
-      unless env.asyncMayContain decl do
+      unless ext.toEnvExtension.asyncMayModify env decl do
         throwAttrNotInAsyncCtx name decl env.asyncPrefix?
       validate decl
-      modifyEnv fun env => ext.addEntry env decl
+      modifyEnv fun env => ext.addEntry (asyncDecl := decl) env decl
   }
   registerBuiltinAttribute attrImpl
   return { attr := attrImpl, ext := ext }
@@ -199,22 +222,14 @@ def setTag  [Monad m] [MonadError m] [MonadEnv m] (attr : TagAttribute) (decl : 
   let env ← getEnv
   unless (env.getModuleIdxFor? decl).isNone do
     throwAttrDeclInImportedModule attr.attr.name decl
-  unless env.asyncMayContain decl do
+  unless attr.ext.toEnvExtension.asyncMayModify env decl do
     throwAttrNotInAsyncCtx attr.attr.name decl env.asyncPrefix?
-  modifyEnv fun env => attr.ext.addEntry env decl
+  modifyEnv fun env => attr.ext.addEntry (asyncDecl := decl) env decl
 
 def hasTag (attr : TagAttribute) (env : Environment) (decl : Name) : Bool :=
   match env.getModuleIdxFor? decl with
   | some modIdx => (attr.ext.getModuleEntries env modIdx).binSearchContains decl Name.quickLt
-  | none        =>
-    if attr.ext.toEnvExtension.asyncMode matches .async then
-      -- It seems that the env extension API doesn't quite allow querying attributes in a way
-      -- that works for realizable constants, but without waiting on proofs to finish.
-      -- Until then, we use the following overapproximation, to be refined later:
-      (attr.ext.findStateAsync env decl).contains decl ||
-      (attr.ext.getState env (asyncMode := .local)).contains decl
-    else
-      (attr.ext.getState env).contains decl
+  | none        => (attr.ext.getState (asyncDecl := decl) env).contains decl
 
 end TagAttribute
 
@@ -226,24 +241,40 @@ end TagAttribute
   contains the attribute `pAttr` with parameter `p`. -/
 structure ParametricAttribute (α : Type) where
   attr : AttributeImpl
-  ext  : PersistentEnvExtension (Name × α) (Name × α) (NameMap α)
+  ext  : PersistentEnvExtension (Name × α) (Name × α) (List Name × NameMap α)
+  preserveOrder : Bool
   deriving Inhabited
 
 structure ParametricAttributeImpl (α : Type) extends AttributeImplCore where
   getParam : Name → Syntax → AttrM α
   afterSet : Name → α → AttrM Unit := fun _ _ _ => pure ()
-  afterImport : Array (Array (Name × α)) → ImportM Unit := fun _ => pure ()
+  /--
+  If set, entries are not resorted on export and `getParam?` will fall back to a linear instead of
+  binary search inside an imported module's entries.
+  -/
+  preserveOrder : Bool := false
+  /--
+  Predicate run on each declaration-param pair to check whether it should be exported. By default,
+  only params on public declarations are exported.
+  -/
+  filterExport : Environment → Name → α → Bool := fun env n _ =>
+    env.contains (skipRealize := false) n
 
 def registerParametricAttribute (impl : ParametricAttributeImpl α) : IO (ParametricAttribute α) := do
-  let ext : PersistentEnvExtension (Name × α) (Name × α) (NameMap α) ← registerPersistentEnvExtension {
+  let ext : PersistentEnvExtension (Name × α) (Name × α) (List Name × NameMap α) ← registerPersistentEnvExtension {
     name            := impl.ref
-    mkInitial       := pure {}
-    addImportedFn   := fun s => impl.afterImport s *> pure {}
-    addEntryFn      := fun (s : NameMap α) (p : Name × α) => s.insert p.1 p.2
-    exportEntriesFn := fun m =>
-      let r : Array (Name × α) := m.foldl (fun a n p => a.push (n, p)) #[]
-      r.qsort (fun a b => Name.quickLt a.1 b.1)
-    statsFn         := fun s => "parametric attribute" ++ Format.line ++ "number of local entries: " ++ format s.size
+    mkInitial       := pure ([], {})
+    addImportedFn   := fun _ => pure ([], {})
+    addEntryFn      := fun (decls, m) (p : Name × α) => (p.1 :: decls, m.insert p.1 p.2)
+    exportEntriesFnEx := fun env (decls, m) => Id.run do
+      let all := if impl.preserveOrder then
+        decls.toArray.reverse.filterMap (fun n => return (n, ← m.find? n))
+      else
+        let r := m.foldl (fun a n p => a.push (n, p)) #[]
+        r.qsort (fun a b => Name.quickLt a.1 b.1)
+      let exported := all.filter (fun ⟨n, a⟩ => impl.filterExport env n a)
+      { exported, server := exported, «private» := all }
+    statsFn         := fun (_, m) => "parametric attribute" ++ Format.line ++ "number of local entries: " ++ format m.size
   }
   let attrImpl : AttributeImpl := {
     impl.toAttributeImplCore with
@@ -253,26 +284,30 @@ def registerParametricAttribute (impl : ParametricAttributeImpl α) : IO (Parame
       unless (env.getModuleIdxFor? decl).isNone do
         throwAttrDeclInImportedModule impl.name decl
       let val ← impl.getParam decl stx
-      modifyEnv fun env => ext.addEntry env (decl, val)
+      modifyEnv fun env => ext.addEntry (asyncDecl := decl) env (decl, val)
       try impl.afterSet decl val catch _ => setEnv env
   }
   registerBuiltinAttribute attrImpl
-  pure { attr := attrImpl, ext := ext }
+  pure { attr := attrImpl, ext, preserveOrder := impl.preserveOrder }
 
 namespace ParametricAttribute
 
 def getParam? [Inhabited α] (attr : ParametricAttribute α) (env : Environment) (decl : Name) : Option α :=
   match env.getModuleIdxFor? decl with
   | some modIdx =>
-    match (attr.ext.getModuleEntries env modIdx).binSearch (decl, default) (fun a b => Name.quickLt a.1 b.1) with
+    let entry? := if attr.preserveOrder then
+      (attr.ext.getModuleEntries env modIdx).find? (·.1 == decl)
+    else
+      (attr.ext.getModuleEntries env modIdx).binSearch (decl, default) (fun a b => Name.quickLt a.1 b.1)
+    match entry? with
     | some (_, val) => some val
     | none          => none
-  | none        => (attr.ext.getState env).find? decl
+  | none        => (attr.ext.getState env).2.find? decl
 
 def setParam (attr : ParametricAttribute α) (env : Environment) (decl : Name) (param : α) : Except String Environment :=
   if (env.getModuleIdxFor? decl).isSome then
     Except.error (s!"Failed to add parametric attribute `[{attr.attr.name}]` to `{decl}`: Declaration is in an imported module")
-  else if ((attr.ext.getState env).find? decl).isSome then
+  else if ((attr.ext.getState env).2.find? decl).isSome then
     Except.error (s!"Failed to add parametric attribute `[{attr.attr.name}]` to `{decl}`: Attribute has already been set")
   else
     Except.ok (attr.ext.addEntry env (decl, param))
@@ -297,13 +332,15 @@ def registerEnumAttributes (attrDescrs : List (Name × String × α))
     mkInitial       := pure {}
     addImportedFn   := fun _ _ => pure {}
     addEntryFn      := fun (s : NameMap α) (p : Name × α) => s.insert p.1 p.2
-    exportEntriesFn := fun m =>
-      let r : Array (Name × α) := m.foldl (fun a n p => a.push (n, p)) #[]
-      r.qsort (fun a b => Name.quickLt a.1 b.1)
+    exportEntriesFnEx := fun env m =>
+      let all : Array (Name × α) := m.foldl (fun a n p => a.push (n, p)) #[] |>.qsort (fun a b => Name.quickLt a.1 b.1)
+      -- Do not export info for private defs at exported/server levels
+      let exported := all.filter ((env.setExporting true).contains (skipRealize := false) ·.1)
+      { exported, server := exported, «private» := all }
     statsFn         := fun s => "enumeration attribute extension" ++ Format.line ++ "number of local entries: " ++ format s.size
-    -- We assume (and check below) that, if used asynchronously, enum attributes are set only in the
-    -- same context in which the tagged declaration was created
-    asyncMode       := .async
+    -- We assume (and check in `modifyState`) that, if used asynchronously, enum attributes are set
+    -- only in the same context in which the tagged declaration was created
+    asyncMode       := .async .mainEnv
     replay?         := some fun _ newState consts st => consts.foldl (init := st) fun st c =>
       match newState.find? c with
       | some v => st.insert c v
@@ -320,7 +357,7 @@ def registerEnumAttributes (attrDescrs : List (Name × String × α))
       unless (env.getModuleIdxFor? decl).isNone do
         throwAttrDeclInImportedModule name decl
       validate decl val
-      modifyEnv fun env => ext.addEntry env (decl, val)
+      modifyEnv fun env => ext.addEntry (asyncDecl := decl) env (decl, val)
     applicationTime := applicationTime
     : AttributeImpl
   }
@@ -335,17 +372,17 @@ def getValue [Inhabited α] (attr : EnumAttributes α) (env : Environment) (decl
     match (attr.ext.getModuleEntries env modIdx).binSearch (decl, default) (fun a b => Name.quickLt a.1 b.1) with
     | some (_, val) => some val
     | none          => none
-  | none        => (attr.ext.findStateAsync env decl).find? decl
+  | none        => (attr.ext.getState (asyncDecl := decl) env).find? decl
 
 def setValue (attrs : EnumAttributes α) (env : Environment) (decl : Name) (val : α) : Except String Environment := do
   let pfx := s!"Internal error calling `{attrs.ext.name}.setValue` for `{decl}`"
   if (env.getModuleIdxFor? decl).isSome then
     throw s!"{pfx}: Declaration is in an imported module"
-  if !env.asyncMayContain decl then
+  unless attrs.ext.toEnvExtension.asyncMayModify env decl do
     throw s!"{pfx}: Declaration is not from this async context `{env.asyncPrefix?}`"
-  if ((attrs.ext.findStateAsync env decl).find? decl).isSome then
+  if ((attrs.ext.getState (asyncDecl := decl) env).find? decl).isSome then
     throw s!"{pfx}: Attribute has already been set"
-  return attrs.ext.addEntry env (decl, val)
+  return attrs.ext.addEntry (asyncDecl := decl) env (decl, val)
 
 end EnumAttributes
 
@@ -391,7 +428,7 @@ unsafe def mkAttributeImplOfConstantUnsafe (env : Environment) (opts : Options) 
   | some info =>
     match info.type with
     | Expr.const `Lean.AttributeImpl _ => env.evalConst AttributeImpl opts declName
-    | _ => throw s!"Unexpected attribute implementation type: `{declName}` is not of type `Lean.AttributeImpl`"
+    | _ => throw "Unexpected attribute implementation type: `{.ofConstName declName}` is not of type `Lean.AttributeImpl`"
 
 @[implemented_by mkAttributeImplOfConstantUnsafe]
 opaque mkAttributeImplOfConstant (env : Environment) (opts : Options) (declName : Name) : Except String AttributeImpl

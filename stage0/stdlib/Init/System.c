@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.System
-// Imports: Init.System.IO Init.System.Platform Init.System.Uri Init.System.Mutex Init.System.Promise
+// Imports: public import Init.System.IO public import Init.System.Platform public import Init.System.Uri public import Init.System.Promise
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,32 +13,64 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* initialize_Init_System_IO(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_System_Platform(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_System_Uri(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_System_Mutex(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_System_Promise(uint8_t builtin, lean_object*);
-static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_System(uint8_t builtin, lean_object* w) {
+lean_object* runtime_initialize_Init_System_IO(uint8_t builtin);
+lean_object* runtime_initialize_Init_System_Platform(uint8_t builtin);
+lean_object* runtime_initialize_Init_System_Uri(uint8_t builtin);
+lean_object* runtime_initialize_Init_System_Promise(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Init_System(uint8_t builtin) {
 lean_object * res;
-if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
-_G_initialized = true;
-res = initialize_Init_System_IO(builtin, lean_io_mk_world());
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Init_System_IO(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_System_Platform(builtin, lean_io_mk_world());
+res = runtime_initialize_Init_System_Platform(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_System_Uri(builtin, lean_io_mk_world());
+res = runtime_initialize_Init_System_Uri(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_System_Mutex(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_System_Promise(builtin, lean_io_mk_world());
+res = runtime_initialize_Init_System_Promise(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Init_System(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
+lean_object* initialize_Init_System_IO(uint8_t builtin);
+lean_object* initialize_Init_System_Platform(uint8_t builtin);
+lean_object* initialize_Init_System_Uri(uint8_t builtin);
+lean_object* initialize_Init_System_Promise(uint8_t builtin);
+static bool _G_initialized = false;
+LEAN_EXPORT lean_object* initialize_Init_System(uint8_t builtin) {
+lean_object * res;
+if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_initialized = true;
+res = initialize_Init_System_IO(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_System_Platform(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_System_Uri(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_System_Promise(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_System(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Init_System(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Init_System(builtin);
 }
 #ifdef __cplusplus
 }

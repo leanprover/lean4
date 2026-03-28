@@ -6,31 +6,31 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Meta.Tactic.Rewrite
-public import Lean.Meta.Tactic.Split
-public import Lean.Elab.PreDefinition.Basic
-public import Lean.Elab.PreDefinition.Eqns
-public import Lean.Meta.ArgsPacker.Basic
-public import Lean.Elab.PreDefinition.WF.Unfold
 public import Lean.Elab.PreDefinition.FixedParams
-public import Init.Data.Array.Basic
-
-public section
+public import Lean.Meta.ArgsPacker.Basic
 
 namespace Lean.Elab.WF
 open Meta
-open Eqns
 
-structure EqnInfo extends EqnInfoCore where
+public structure EqnInfo where
+  declName    : Name
+  levelParams : List Name
+  type        : Expr
+  value       : Expr
   declNames       : Array Name
   declNameNonRec  : Name
   argsPacker      : ArgsPacker
   fixedParamPerms : FixedParamPerms
   deriving Inhabited
 
-builtin_initialize eqnInfoExt : MapDeclarationExtension EqnInfo ← mkMapDeclarationExtension
+public builtin_initialize eqnInfoExt : MapDeclarationExtension EqnInfo ←
+  mkMapDeclarationExtension (exportEntriesFn := fun env s =>
+    let all := s.toArray
+    -- Do not export for non-exposed defs at exported/server levels
+    let exported := s.filter (fun n _ => (env.setExporting true).find? n |>.any (·.hasValue)) |>.toArray
+    { exported, server := exported, «private» := all })
 
-def registerEqnsInfo (preDefs : Array PreDefinition) (declNameNonRec : Name) (fixedParamPerms : FixedParamPerms)
+public def registerEqnsInfo (preDefs : Array PreDefinition) (declNameNonRec : Name) (fixedParamPerms : FixedParamPerms)
     (argsPacker : ArgsPacker) : MetaM Unit := do
   preDefs.forM fun preDef => ensureEqnReservedNamesAvailable preDef.declName
   /-
@@ -46,16 +46,6 @@ def registerEqnsInfo (preDefs : Array PreDefinition) (declNameNonRec : Name) (fi
           eqnInfoExt.insert env preDef.declName { preDef with
             declNames, declNameNonRec, argsPacker, fixedParamPerms }
 
-def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := do
-  if let some info := eqnInfoExt.find? (← getEnv) declName then
-    mkEqns declName info.declNames (tryRefl := false)
-  else
-    return none
-
-builtin_initialize
-  registerGetEqnsFn getEqnsFor?
-
-
 /--
 This is a hack to fix fallout from #8519, where a non-exposed wfrec definition `foo`
 in a module would cause `foo.eq_def` to be defined eagerly and privately,
@@ -65,10 +55,10 @@ So we create a unfold equation generator that aliases an existing private `eq_de
 wherever the current module expects it.
 -/
 def copyPrivateUnfoldTheorem : GetUnfoldEqnFn := fun declName => do
-  withTraceNode `ReservedNameAction (pure m!"{exceptOptionEmoji ·} copyPrivateUnfoldTheorem running for {declName}") do
+  withTraceNode `ReservedNameAction (fun _ => pure m!"copyPrivateUnfoldTheorem running for {declName}") do
   let name := mkEqLikeNameFor (← getEnv) declName unfoldThmSuffix
   if let some mod ← findModuleOf? declName then
-    let unfoldName' := mkPrivateNameCore mod (.str declName unfoldThmSuffix)
+    let unfoldName' := mkPrivateNameCore mod (.str (privateToUserName declName) unfoldThmSuffix)
     if let some (.thmInfo info) := (← getEnv).find? unfoldName' then
       realizeConst declName name do
         addDecl <| Declaration.thmDecl {

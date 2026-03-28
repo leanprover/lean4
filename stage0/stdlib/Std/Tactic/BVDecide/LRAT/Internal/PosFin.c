@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Tactic.BVDecide.LRAT.Internal.PosFin
-// Imports: Init.NotationExtra Init.Data.Hashable
+// Imports: public import Init.Data.Hashable
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,170 +13,210 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-uint64_t lean_uint64_of_nat(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instCoeOutPosFinNat___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instToStringPosFin___boxed(lean_object*);
-LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_LRAT_Internal_instDecidableEqPosFin___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instCoeOutPosFinNat___lam__0___boxed(lean_object*);
+lean_object* l_UInt64_ofNat___boxed(lean_object*);
 lean_object* l_Nat_reprFast(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instToStringPosFin___lam__0(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instHashablePosFin___lam__0___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instCoeOutPosFinNat(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instHashablePosFin___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instDecidableEqPosFin___redArg___boxed(lean_object*, lean_object*);
-LEAN_EXPORT uint64_t l_Std_Tactic_BVDecide_LRAT_Internal_instHashablePosFin___lam__0(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instCoeOutPosFinNat___lam__0(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instHashablePosFin(lean_object*);
+LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_LRAT_Internal_instDecidableEqPosFin___aux__1___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instDecidableEqPosFin___aux__1___redArg___boxed(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_LRAT_Internal_instDecidableEqPosFin___aux__1(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instDecidableEqPosFin___aux__1___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_LRAT_Internal_instDecidableEqPosFin___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instDecidableEqPosFin___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_LRAT_Internal_instDecidableEqPosFin(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instDecidableEqPosFin___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instCoeOutPosFinNat___lam__0(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instCoeOutPosFinNat___lam__0___boxed(lean_object*);
+static const lean_closure_object l_Std_Tactic_BVDecide_LRAT_Internal_instCoeOutPosFinNat___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Std_Tactic_BVDecide_LRAT_Internal_instCoeOutPosFinNat___lam__0___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instCoeOutPosFinNat___closed__0 = (const lean_object*)&l_Std_Tactic_BVDecide_LRAT_Internal_instCoeOutPosFinNat___closed__0_value;
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instCoeOutPosFinNat(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instCoeOutPosFinNat___boxed(lean_object*);
+static const lean_closure_object l_Std_Tactic_BVDecide_LRAT_Internal_instHashablePosFin___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_UInt64_ofNat___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instHashablePosFin___closed__0 = (const lean_object*)&l_Std_Tactic_BVDecide_LRAT_Internal_instHashablePosFin___closed__0_value;
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instHashablePosFin(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instHashablePosFin___boxed(lean_object*);
+static const lean_closure_object l_Std_Tactic_BVDecide_LRAT_Internal_instToStringPosFin___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Nat_reprFast, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instToStringPosFin___closed__0 = (const lean_object*)&l_Std_Tactic_BVDecide_LRAT_Internal_instToStringPosFin___closed__0_value;
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instToStringPosFin(lean_object*);
-LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_LRAT_Internal_instDecidableEqPosFin___redArg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instToStringPosFin___boxed(lean_object*);
+LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_LRAT_Internal_instDecidableEqPosFin___aux__1___redArg(lean_object* v_a_1_, lean_object* v_b_2_){
 _start:
 {
-uint8_t x_3; 
-x_3 = lean_nat_dec_eq(x_1, x_2);
-return x_3;
+uint8_t v___x_3_; 
+v___x_3_ = lean_nat_dec_eq(v_a_1_, v_b_2_);
+return v___x_3_;
 }
 }
-LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_LRAT_Internal_instDecidableEqPosFin(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instDecidableEqPosFin___aux__1___redArg___boxed(lean_object* v_a_4_, lean_object* v_b_5_){
 _start:
 {
-uint8_t x_4; 
-x_4 = lean_nat_dec_eq(x_2, x_3);
-return x_4;
+uint8_t v_res_6_; lean_object* v_r_7_; 
+v_res_6_ = l_Std_Tactic_BVDecide_LRAT_Internal_instDecidableEqPosFin___aux__1___redArg(v_a_4_, v_b_5_);
+lean_dec(v_b_5_);
+lean_dec(v_a_4_);
+v_r_7_ = lean_box(v_res_6_);
+return v_r_7_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instDecidableEqPosFin___redArg___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_LRAT_Internal_instDecidableEqPosFin___aux__1(lean_object* v_n_8_, lean_object* v_a_9_, lean_object* v_b_10_){
 _start:
 {
-uint8_t x_3; lean_object* x_4; 
-x_3 = l_Std_Tactic_BVDecide_LRAT_Internal_instDecidableEqPosFin___redArg(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
-x_4 = lean_box(x_3);
-return x_4;
+uint8_t v___x_11_; 
+v___x_11_ = lean_nat_dec_eq(v_a_9_, v_b_10_);
+return v___x_11_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instDecidableEqPosFin___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instDecidableEqPosFin___aux__1___boxed(lean_object* v_n_12_, lean_object* v_a_13_, lean_object* v_b_14_){
 _start:
 {
-uint8_t x_4; lean_object* x_5; 
-x_4 = l_Std_Tactic_BVDecide_LRAT_Internal_instDecidableEqPosFin(x_1, x_2, x_3);
-lean_dec(x_3);
-lean_dec(x_2);
-lean_dec(x_1);
-x_5 = lean_box(x_4);
-return x_5;
+uint8_t v_res_15_; lean_object* v_r_16_; 
+v_res_15_ = l_Std_Tactic_BVDecide_LRAT_Internal_instDecidableEqPosFin___aux__1(v_n_12_, v_a_13_, v_b_14_);
+lean_dec(v_b_14_);
+lean_dec(v_a_13_);
+lean_dec(v_n_12_);
+v_r_16_ = lean_box(v_res_15_);
+return v_r_16_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instCoeOutPosFinNat___lam__0(lean_object* x_1) {
+LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_LRAT_Internal_instDecidableEqPosFin___redArg(lean_object* v_a_17_, lean_object* v_b_18_){
 _start:
 {
-lean_inc(x_1);
-return x_1;
+uint8_t v___x_19_; 
+v___x_19_ = lean_nat_dec_eq(v_a_17_, v_b_18_);
+return v___x_19_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instCoeOutPosFinNat(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instDecidableEqPosFin___redArg___boxed(lean_object* v_a_20_, lean_object* v_b_21_){
 _start:
 {
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Std_Tactic_BVDecide_LRAT_Internal_instCoeOutPosFinNat___lam__0___boxed), 1, 0);
-return x_2;
+uint8_t v_res_22_; lean_object* v_r_23_; 
+v_res_22_ = l_Std_Tactic_BVDecide_LRAT_Internal_instDecidableEqPosFin___redArg(v_a_20_, v_b_21_);
+lean_dec(v_b_21_);
+lean_dec(v_a_20_);
+v_r_23_ = lean_box(v_res_22_);
+return v_r_23_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instCoeOutPosFinNat___lam__0___boxed(lean_object* x_1) {
+LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_LRAT_Internal_instDecidableEqPosFin(lean_object* v_n_24_, lean_object* v_a_25_, lean_object* v_b_26_){
 _start:
 {
-lean_object* x_2; 
-x_2 = l_Std_Tactic_BVDecide_LRAT_Internal_instCoeOutPosFinNat___lam__0(x_1);
-lean_dec(x_1);
-return x_2;
+uint8_t v___x_27_; 
+v___x_27_ = lean_nat_dec_eq(v_a_25_, v_b_26_);
+return v___x_27_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instCoeOutPosFinNat___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instDecidableEqPosFin___boxed(lean_object* v_n_28_, lean_object* v_a_29_, lean_object* v_b_30_){
 _start:
 {
-lean_object* x_2; 
-x_2 = l_Std_Tactic_BVDecide_LRAT_Internal_instCoeOutPosFinNat(x_1);
-lean_dec(x_1);
-return x_2;
+uint8_t v_res_31_; lean_object* v_r_32_; 
+v_res_31_ = l_Std_Tactic_BVDecide_LRAT_Internal_instDecidableEqPosFin(v_n_28_, v_a_29_, v_b_30_);
+lean_dec(v_b_30_);
+lean_dec(v_a_29_);
+lean_dec(v_n_28_);
+v_r_32_ = lean_box(v_res_31_);
+return v_r_32_;
 }
 }
-LEAN_EXPORT uint64_t l_Std_Tactic_BVDecide_LRAT_Internal_instHashablePosFin___lam__0(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instCoeOutPosFinNat___lam__0(lean_object* v_p_33_){
 _start:
 {
-uint64_t x_2; 
-x_2 = lean_uint64_of_nat(x_1);
-return x_2;
+lean_inc(v_p_33_);
+return v_p_33_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instHashablePosFin(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instCoeOutPosFinNat___lam__0___boxed(lean_object* v_p_34_){
 _start:
 {
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Std_Tactic_BVDecide_LRAT_Internal_instHashablePosFin___lam__0___boxed), 1, 0);
-return x_2;
+lean_object* v_res_35_; 
+v_res_35_ = l_Std_Tactic_BVDecide_LRAT_Internal_instCoeOutPosFinNat___lam__0(v_p_34_);
+lean_dec(v_p_34_);
+return v_res_35_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instHashablePosFin___lam__0___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instCoeOutPosFinNat(lean_object* v_n_37_){
 _start:
 {
-uint64_t x_2; lean_object* x_3; 
-x_2 = l_Std_Tactic_BVDecide_LRAT_Internal_instHashablePosFin___lam__0(x_1);
-lean_dec(x_1);
-x_3 = lean_box_uint64(x_2);
-return x_3;
+lean_object* v___f_38_; 
+v___f_38_ = ((lean_object*)(l_Std_Tactic_BVDecide_LRAT_Internal_instCoeOutPosFinNat___closed__0));
+return v___f_38_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instHashablePosFin___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instCoeOutPosFinNat___boxed(lean_object* v_n_39_){
 _start:
 {
-lean_object* x_2; 
-x_2 = l_Std_Tactic_BVDecide_LRAT_Internal_instHashablePosFin(x_1);
-lean_dec(x_1);
-return x_2;
+lean_object* v_res_40_; 
+v_res_40_ = l_Std_Tactic_BVDecide_LRAT_Internal_instCoeOutPosFinNat(v_n_39_);
+lean_dec(v_n_39_);
+return v_res_40_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instToStringPosFin___lam__0(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instHashablePosFin(lean_object* v_n_42_){
 _start:
 {
-lean_object* x_2; 
-x_2 = l_Nat_reprFast(x_1);
-return x_2;
+lean_object* v___f_43_; 
+v___f_43_ = ((lean_object*)(l_Std_Tactic_BVDecide_LRAT_Internal_instHashablePosFin___closed__0));
+return v___f_43_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instToStringPosFin(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instHashablePosFin___boxed(lean_object* v_n_44_){
 _start:
 {
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Std_Tactic_BVDecide_LRAT_Internal_instToStringPosFin___lam__0), 1, 0);
-return x_2;
+lean_object* v_res_45_; 
+v_res_45_ = l_Std_Tactic_BVDecide_LRAT_Internal_instHashablePosFin(v_n_44_);
+lean_dec(v_n_44_);
+return v_res_45_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instToStringPosFin___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instToStringPosFin(lean_object* v_n_47_){
 _start:
 {
-lean_object* x_2; 
-x_2 = l_Std_Tactic_BVDecide_LRAT_Internal_instToStringPosFin(x_1);
-lean_dec(x_1);
-return x_2;
+lean_object* v___f_48_; 
+v___f_48_ = ((lean_object*)(l_Std_Tactic_BVDecide_LRAT_Internal_instToStringPosFin___closed__0));
+return v___f_48_;
 }
 }
-lean_object* initialize_Init_NotationExtra(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Hashable(uint8_t builtin, lean_object*);
-static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Std_Tactic_BVDecide_LRAT_Internal_PosFin(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instToStringPosFin___boxed(lean_object* v_n_49_){
+_start:
+{
+lean_object* v_res_50_; 
+v_res_50_ = l_Std_Tactic_BVDecide_LRAT_Internal_instToStringPosFin(v_n_49_);
+lean_dec(v_n_49_);
+return v_res_50_;
+}
+}
+lean_object* runtime_initialize_Init_Data_Hashable(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Std_Tactic_BVDecide_LRAT_Internal_PosFin(uint8_t builtin) {
 lean_object * res;
-if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
-_G_initialized = true;
-res = initialize_Init_NotationExtra(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Hashable(builtin, lean_io_mk_world());
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Init_Data_Hashable(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Std_Tactic_BVDecide_LRAT_Internal_PosFin(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
+lean_object* initialize_Init_Data_Hashable(uint8_t builtin);
+static bool _G_initialized = false;
+LEAN_EXPORT lean_object* initialize_Std_Tactic_BVDecide_LRAT_Internal_PosFin(uint8_t builtin) {
+lean_object * res;
+if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_initialized = true;
+res = initialize_Init_Data_Hashable(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Std_Tactic_BVDecide_LRAT_Internal_PosFin(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Std_Tactic_BVDecide_LRAT_Internal_PosFin(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Std_Tactic_BVDecide_LRAT_Internal_PosFin(builtin);
 }
 #ifdef __cplusplus
 }

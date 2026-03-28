@@ -6,15 +6,14 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Std.Classes.Ord.Basic
-public import Std.Internal.Rat
+public import Init.Data.Order.Ord
+public import Init.Data.Rat.Basic
 
 @[expose] public section
 
 namespace Std
 namespace Time
 namespace Internal
-open Std.Internal
 open Lean
 
 set_option linter.all true
@@ -147,6 +146,9 @@ instance : Neg (UnitVal α) where neg x := ⟨-x.val⟩
 
 instance : ToString (UnitVal n) where toString n := toString n.val
 
+/-- Cast a UnitVal through an equality in the rational numbers. -/
+def cast (_ : a = b) (x : UnitVal a) : UnitVal b :=
+  .ofInt (x.val)
 
 end UnitVal
 end Internal

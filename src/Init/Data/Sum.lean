@@ -8,5 +8,3 @@ module
 prelude
 public import Init.Data.Sum.Basic
 public import Init.Data.Sum.Lemmas
-
-public section

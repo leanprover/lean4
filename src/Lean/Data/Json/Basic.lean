@@ -10,8 +10,12 @@ prelude
 public import Init.Data.Range
 public import Init.Data.OfScientific
 public import Init.Data.Hashable
-public import Init.Data.ToString.Macro
 public import Std.Data.TreeMap.Raw.Basic
+public import Init.Data.Ord.String
+import Init.Data.Range.Polymorphic.Iterators
+import Init.Data.Range.Polymorphic.Nat
+import Init.Data.String.Substring
+import Init.Data.ToString.Macro
 
 public section
 
@@ -111,7 +115,7 @@ protected def toString : JsonNumber → String
       s!"{sign}{left}"
     else
       let right := e' + m % e'
-        |>.repr.toSubstring.drop 1
+        |>.repr.toRawSubstring.drop 1
         |>.dropRightWhile (fun c => c = '0')
         |>.toString
       let exp := if exp = 0 then "" else "e" ++ exp.repr
@@ -203,7 +207,7 @@ private partial def beq' : Json → Json → Bool
   | _,      _      => false
 
 instance : BEq Json where
-  beq := beq'
+  beq := private beq'
 
 private partial def hash' : Json → UInt64
   | null   => 11
@@ -216,7 +220,7 @@ private partial def hash' : Json → UInt64
     mixHash 29 <| kvPairs.foldl (init := 7) fun r k v => mixHash r <| mixHash (hash k) (hash' v)
 
 instance : Hashable Json where
-  hash := hash'
+  hash := private hash'
 
 def mkObj (o : List (String × Json)) : Json :=
   obj <| Std.TreeMap.Raw.ofList o

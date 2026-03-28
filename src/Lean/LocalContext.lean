@@ -9,7 +9,8 @@ prelude
 public import Init.Data.Nat.Control
 public import Lean.Data.PersistentArray
 public import Lean.Expr
-public import Lean.Hygiene
+import Init.Data.ToString.Macro
+import Init.Omega
 
 public section
 
@@ -396,6 +397,11 @@ def findFromUserName? (lctx : LocalContext) (userName : Name) : Option LocalDecl
     | none      => none
     | some decl => if decl.userName == userName then some decl else none
 
+def getFromUserName! (lctx : LocalContext) (userName : Name) : LocalDecl :=
+  match lctx.findFromUserName? userName with
+  | some decl => decl
+  | none      => panic! s!"unknown local declaration `{userName}`"
+
 def usesUserName (lctx : LocalContext) (userName : Name) : Bool :=
   (lctx.findFromUserName? userName).isSome
 
@@ -431,15 +437,30 @@ def renameUserName (lctx : LocalContext) (fromName : Name) (toName : Name) : Loc
         auxDeclToFullName }
 
 /--
-  Low-level function for updating the local context.
-  Assumptions about `f`, the resulting nested expressions must be definitionally equal to their original values,
-  the `index` nor `fvarId` are modified.  -/
+Low-level function for updating the local context.
+Assumptions about `f`, the resulting nested expressions must be definitionally equal to their original values,
+and neither the `index` nor `fvarId` are modified.
+-/
 @[inline] def modifyLocalDecl (lctx : LocalContext) (fvarId : FVarId) (f : LocalDecl → LocalDecl) : LocalContext :=
   match lctx with
   | { fvarIdToDecl := map, decls := decls, auxDeclToFullName } =>
     match lctx.find? fvarId with
     | none      => lctx
     | some decl =>
+      let decl := f decl
+      { fvarIdToDecl := map.insert decl.fvarId decl
+        decls        := decls.set decl.index decl
+        auxDeclToFullName }
+
+/--
+Low-level function for updating every declaration in the local context.
+Assumptions about `f`, the resulting nested expressions must be definitionally equal to their original values,
+and neither the `index` nor `fvarId` are modified.
+-/
+def modifyLocalDecls (lctx : LocalContext) (f : LocalDecl → LocalDecl) : LocalContext :=
+  lctx.decls.foldl (init := lctx) fun
+    | lctx, none => lctx
+    | { fvarIdToDecl := map, decls := decls, auxDeclToFullName }, some decl =>
       let decl := f decl
       { fvarIdToDecl := map.insert decl.fvarId decl
         decls        := decls.set decl.index decl
@@ -472,8 +493,8 @@ def getAt? (lctx : LocalContext) (i : Nat) : Option LocalDecl :=
     | none      => pure b
     | some decl => f decl b
 
-@[specialize] def forM [Monad m] (lctx : LocalContext) (f : LocalDecl → m PUnit) : m PUnit :=
-  lctx.decls.forM fun decl => match decl with
+@[specialize] def forM [Monad m] (lctx : LocalContext) (f : LocalDecl → m PUnit) (start := 0) : m PUnit :=
+  lctx.decls.forM (start := start) fun decl => match decl with
     | none      => pure PUnit.unit
     | some decl => f decl
 
@@ -487,7 +508,7 @@ def getAt? (lctx : LocalContext) (i : Nat) : Option LocalDecl :=
     | none      => pure none
     | some decl => f decl
 
-instance : ForIn m LocalContext LocalDecl where
+instance [Monad m] : ForIn m LocalContext LocalDecl where
   forIn lctx init f := lctx.decls.forIn init fun d? b => match d? with
     | none   => return ForInStep.yield b
     | some d => f d b
@@ -616,6 +637,22 @@ def sortFVarsByContextOrder (lctx : LocalContext) (hyps : Array FVarId) : Array 
     | none => (0, fvarId)
     | some ldecl => (ldecl.index, fvarId)
   hyps.qsort (fun h i => h.fst < i.fst) |>.map (·.snd)
+
+/--
+Batched version of `Lean.LocalContext.findFromUserName?`.
+Finds the visible local declarations for each of the given `userNames` up to a certain `start`
+index exclusively, if any.
+-/
+def findFromUserNames (lctx : LocalContext) (userNames : Std.HashMap Name α) (start := 0) : Array LocalDecl :=
+  Array.reverse <| Id.run <| ExceptT.runCatch do
+    let (_, acc) ← lctx.foldrM (init := (userNames, #[])) fun decl (userNames, acc) => do
+      if userNames.isEmpty then throw acc -- stop when we found all user names
+      if decl.index < start then throw acc       -- stop when we passed over the start index
+      if userNames.contains decl.userName then
+        pure (userNames.erase decl.userName, acc.push decl)
+      else
+        pure (userNames, acc)
+    return acc.reverse
 
 end LocalContext
 

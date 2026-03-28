@@ -19,11 +19,11 @@ It contains information for inlining local and global functions.
 -/
 structure InlineCandidateInfo where
   isLocal  : Bool
-  params   : Array Param
+  params   : Array (Param .pure)
   /-- Value (lambda expression) of the function to be inlined. -/
-  value    : Code
+  value    : Code .pure
   fType    : Expr
-  args     : Array Arg
+  args     : Array (Arg .pure)
   /-- `ifReduce = true` if the declaration being inlined was tagged with `inline_if_reduce`. -/
   ifReduce : Bool
   /-- `recursive = true` if the declaration being inline is in a mutually recursive block. -/
@@ -36,26 +36,49 @@ def InlineCandidateInfo.arity : InlineCandidateInfo → Nat
 /--
 Return `some info` if `e` should be inlined.
 -/
-def inlineCandidate? (e : LetValue) : SimpM (Option InlineCandidateInfo) := do
+def inlineCandidate? (e : LetValue .pure) : SimpM (Option InlineCandidateInfo) := do
   let mut e := e
   let mut mustInline := false
   if let .const ``inline _ #[_, .fvar argFVarId] := e then
-    let some decl ← findLetDecl? argFVarId | return none
-    e := decl.value
     mustInline := true
+    if let some decl ← findFunDecl'? (pu := .pure) argFVarId then
+      e := .fvar decl.fvarId #[]
+    else if let some decl ← findLetDecl? argFVarId then
+      e := decl.value
+      if let .const declName _ _ := e then
+        if (← isCtor? declName).isSome then
+          throwError m!"`inline` applied to constructor '{declName}' is invalid"
+        else if (← getLocalDecl? declName).isNone then
+          throwError m!"`inline` applied to non-local declaration '{declName}' is invalid"
+    else
+      assert! (← findParam? (pu := .pure) argFVarId).isSome
+      throwError m!"`inline` applied to parameters is invalid"
   if let .const declName us args := e then
     unless (← read).config.inlineDefs do
       return none
-    let some decl ← getDecl? declName | return none
+    let some ⟨.pure, decl⟩ ← getDecl? declName | return none
     let .code code := decl.value | return none
     let shouldInline : SimpM Bool := do
       if !decl.inlineIfReduceAttr && decl.recursive then return false
       if mustInline then return true
       /-
-      We don't inline instances tagged with `[inline]/[always_inline]/[inline_if_reduce]` at the base phase
-      We assume that at the base phase these annotations are for the instance methods that have been lambda lifted.
+      We don't inline instances tagged with `[inline]/[always_inline]/[inline_if_reduce]` at the base phase.
+      We assume that at the base phase these annotations are for the instance methods that will be lambda lifted during the base phase.
+      Reason: we eagerly lambda lift local functions occurring at instances before saving their code at
+      the end of the base phase. The goal is to make them cheap to inline in actual code.
+      By inlining their definitions we would be just generating extra work for the lambda lifter.
       -/
       if (← inBasePhase) then
+        /-
+        We claim it is correct to use `Meta.isInstance` because
+        1. `shouldInline` is called during LCNF compilation, which runs at `addDecl` time
+        2. Any instance referenced in the code was found by type class resolution during elaboration
+        3. For TC resolution to find it, the scope was active during elaboration
+        4. LCNF compilation happens before the scope changes
+
+        We don't want to use `isImplicitReducible` because some `instanceReducible` declarations are
+        **not** instances.
+        -/
         if (← Meta.isInstance decl.name) then
           unless decl.name == ``instDecidableEqBool do
             /-
@@ -101,7 +124,7 @@ def inlineCandidate? (e : LetValue) : SimpM (Option InlineCandidateInfo) := do
     }
   else if let .fvar f args := e then
     let some decl ← findFunDecl'? f | return none
-    unless args.size > 0 do return none -- It is not worth to inline a local function that does not take any arguments
+    unless mustInline || args.size > 0 do return none -- It is not worth to inline a local function that does not take any arguments
     unless mustInline || (← shouldInlineLocal decl) do return none
     -- Remark: we inline local function declarations even if they are partial applied
     incInlineLocal

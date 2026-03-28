@@ -9,10 +9,10 @@ prelude
 public import Lean.Util.HasConstCache
 public import Lean.Meta.PProdN
 public import Lean.Meta.Match.MatcherApp.Transform
-public import Lean.Elab.RecAppSyntax
-public import Lean.Elab.PreDefinition.Basic
 public import Lean.Elab.PreDefinition.Structural.Basic
 public import Lean.Elab.PreDefinition.Structural.RecArgInfo
+import Init.Data.Nat.Order
+import Init.Data.Order.Lemmas
 
 public section
 
@@ -117,17 +117,17 @@ private def withBelowDict [Inhabited α] (below : Expr) (numIndParams : Nat)
   We search this dictionary using the auxiliary function `toBelowAux`.
   The dictionary is built using the `PProd` (`And` for inductive predicates).
   We keep searching it until we find `C recArg`, where `C` is the auxiliary fresh variable created at `withBelowDict`.  -/
-private partial def toBelow (below : Expr) (numIndParams : Nat) (positions : Positions) (fnIndex : Nat) (recArg : Expr) : MetaM Expr := do
-  withTraceNode `Elab.definition.structural (return m!"{exceptEmoji ·} searching IH for {recArg} in {←inferType below}") do
+partial def toBelow (below : Expr) (numIndParams : Nat) (positions : Positions) (fnIndex : Nat) (recArg : Expr) : MetaM Expr := do
+  withTraceNode `Elab.definition.structural (fun _ => return m!"searching IH for {recArg} in {←inferType below}") do
     withBelowDict below numIndParams positions fun Cs belowDict =>
       toBelowAux Cs[fnIndex]! belowDict recArg below
 
 private partial def replaceRecApps (recArgInfos : Array RecArgInfo) (positions : Positions)
-    (below : Expr) (e : Expr) : M Expr :=
+    (below : Expr) (e : Expr) : MetaM Expr :=
   let recFnNames := recArgInfos.map (·.fnName)
-  let containsRecFn (e : Expr) : StateRefT (HasConstCache recFnNames) M Bool :=
-    modifyGet (·.contains e)
-  let rec loop (below : Expr) (e : Expr) : StateRefT (HasConstCache recFnNames) M Expr := do
+  let containsRecFn (e : Expr) : StateRefT (HasConstCache recFnNames) MetaM Bool :=
+    modifyGet (HasConstCache.contains e |>.run ·)
+  let rec loop (below : Expr) (e : Expr) : StateRefT (HasConstCache recFnNames) MetaM Expr := do
     if !(← containsRecFn e) then
       return e
     match e with
@@ -147,7 +147,7 @@ private partial def replaceRecApps (recArgInfos : Array RecArgInfo) (positions :
         return mkMData d (← loop below b)
     | Expr.proj n i e => return mkProj n i (← loop below e)
     | Expr.app _ _ =>
-      let processApp (e : Expr) : StateRefT (HasConstCache recFnNames) M Expr :=
+      let processApp (e : Expr) : StateRefT (HasConstCache recFnNames) MetaM Expr :=
         e.withApp fun f args => do
           if let .some fnIdx := recArgInfos.findFinIdx? (f.isConstOf ·.fnName) then
             let recArgInfo := recArgInfos[fnIdx]
@@ -161,7 +161,7 @@ private partial def replaceRecApps (recArgInfos : Array RecArgInfo) (positions :
             -- We don't pass the fixed parameters, the indices and the major arg to `f`, only the rest
             let ys := recArgInfo.fixedParamPerm.pickVarying args
             let (_, fArgs) := recArgInfo.pickIndicesMajor ys
-            let fArgs ← fArgs.mapM (replaceRecApps recArgInfos positions below ·)
+            let fArgs ← fArgs.mapM (loop below)
             return mkAppN f fArgs
           else
             return mkAppN (← loop below f) (← args.mapM (loop below))
@@ -188,15 +188,16 @@ private partial def replaceRecApps (recArgInfos : Array RecArgInfo) (positions :
              this may generate weird error messages, when it doesn't work. -/
           trace[Elab.definition.structural] "below before matcherApp.addArg: {below} : {← inferType below}"
           if let some matcherApp ← matcherApp.addArg? below then
-            let altsNew ← (Array.zip matcherApp.alts matcherApp.altNumParams).mapM fun (alt, numParams) =>
-              lambdaBoundedTelescope alt numParams fun xs altBody => do
+            let altsNew ← matcherApp.alts.zipWithM (bs := matcherApp.altNumParams) fun alt numParams =>
+              lambdaBoundedTelescope alt (numParams + 1) fun xs altBody => do
                 trace[Elab.definition.structural] "altNumParams: {numParams}, xs: {xs}"
-                unless xs.size = numParams do
+                unless xs.size = numParams + 1 do
                   throwError "unexpected matcher application alternative{indentExpr alt}\nat application{indentExpr e}"
-                let belowForAlt := xs[numParams - 1]!
+                let belowForAlt := xs[numParams]!
                 mkLambdaFVars xs (← loop belowForAlt altBody)
             pure { matcherApp with alts := altsNew }.toExpr
           else
+            trace[Elab.definition.structural] "`matcherApp.addArg?` failed"
             processApp e
       | none => processApp e
     | e =>
@@ -207,10 +208,11 @@ private partial def replaceRecApps (recArgInfos : Array RecArgInfo) (positions :
 /--
 Calculates the `.brecOn` motive corresponding to one structural recursive function.
 The `value` is the function with (only) the fixed parameters moved into the context.
+The `type` is the corresponding function type with (only) the fixed parameters instantiated.
 -/
-def mkBRecOnMotive (recArgInfo : RecArgInfo) (value : Expr) : M Expr := do
-  lambdaTelescope value fun xs value => do
-    let type  := (← inferType value).headBeta
+def mkBRecOnMotive (recArgInfo : RecArgInfo) (value : Expr) (type : Expr) : MetaM Expr := do
+  lambdaTelescope value fun xs _value => do
+    let type ← instantiateForall type xs
     let (indexMajorArgs, otherArgs) := recArgInfo.pickIndicesMajor xs
     let motive ← mkForallFVars otherArgs type
     mkLambdaFVars indexMajorArgs motive
@@ -223,7 +225,7 @@ The `recArgInfos` is used to transform the body of the function to replace recur
 uses of the `below` induction hypothesis.
 -/
 def mkBRecOnF (recArgInfos : Array RecArgInfo) (positions : Positions)
-    (recArgInfo : RecArgInfo) (value : Expr) (FType : Expr) : M Expr := do
+    (recArgInfo : RecArgInfo) (value : Expr) (FType : Expr) : MetaM Expr := do
   lambdaTelescope value fun xs value => do
     let (indicesMajorArgs, otherArgs) := recArgInfo.pickIndicesMajor xs
     let FType ← instantiateForall FType indicesMajorArgs
@@ -239,11 +241,14 @@ Given the `motives`, pass the right universe levels, the parameters, and the mot
 It was already checked earlier in `checkCodomainsLevel` that the functions live in the same universe.
 -/
 def mkBRecOnConst (recArgInfos : Array RecArgInfo) (positions : Positions)
-   (motives : Array Expr) : MetaM (Nat → Expr) := do
+    (motives : Array Expr) (isIndPred : Bool) : MetaM (Nat → Expr) := do
   let indGroup := recArgInfos[0]!.indGroupInst
   let motive := motives[0]!
-  let brecOnUniv ← lambdaTelescope motive fun _ type => getLevel type
-  let brecOnCons := fun idx => indGroup.brecOn brecOnUniv idx
+  let brecOnUniv ← if isIndPred then pure 0 else lambdaTelescope motive fun _ type => getLevel type
+  let brecOnCons := fun idx =>
+    let n := indGroup.brecOnName idx
+    let us := if isIndPred then indGroup.levels else brecOnUniv :: indGroup.levels
+    mkAppN (.const n us) indGroup.params
   -- Pick one as a prototype
   let brecOnAux := brecOnCons 0
   -- Infer the type of the packed motive arguments
@@ -263,7 +268,8 @@ def inferBRecOnFTypes (recArgInfos : Array RecArgInfo) (positions : Positions)
   let numTypeFormers := positions.size
   let recArgInfo := recArgInfos[0]! -- pick an arbitrary one
   let brecOn := brecOnConst recArgInfo.indIdx
-  check brecOn
+  prependError m!"brecOn is type incorrect" do
+    check brecOn
   let brecOnType ← inferType brecOn
   -- Skip the indices and major argument
   let packedFTypes ← forallBoundedTelescope brecOnType (some (recArgInfo.indicesPos.size + 1)) fun _ brecOnType =>
@@ -280,18 +286,17 @@ def inferBRecOnFTypes (recArgInfos : Array RecArgInfo) (positions : Positions)
 Completes the `.brecOn` for the given function.
 The `value` is the function with (only) the fixed parameters moved into the context.
 -/
-def mkBrecOnApp (positions : Positions) (fnIdx : Nat) (brecOnConst : Nat → Expr)
-    (FArgs : Array Expr) (recArgInfo : RecArgInfo) (value : Expr) : MetaM Expr := do
+def mkBRecOnApp (positions : Positions) (fnIdx : Nat) (brecOnConst : Nat → Expr)
+    (packedFArgs : Array Expr) (funTypes : Array Expr) (recArgInfo : RecArgInfo)
+    (value : Expr) : MetaM Expr := do
   lambdaTelescope value fun ys _value => do
     let (indexMajorArgs, otherArgs) := recArgInfo.pickIndicesMajor ys
     let brecOn := brecOnConst recArgInfo.indIdx
     let brecOn := mkAppN brecOn indexMajorArgs
-    let packedFTypes ← inferArgumentTypesN positions.size brecOn
-    let packedFArgs ← positions.mapMwith PProdN.mkLambdas packedFTypes FArgs
     let brecOn := mkAppN brecOn packedFArgs
     let some (size, idx) := positions.findSome? fun pos => (pos.size, ·) <$> pos.finIdxOf? fnIdx
-      | throwError "mkBrecOnApp: Could not find {fnIdx} in {positions}"
+      | throwError "mkBRecOnApp: Could not find {fnIdx} in {positions}"
     let brecOn ← PProdN.projM size idx brecOn
-    mkLambdaFVars ys (mkAppN brecOn otherArgs)
+    mkLambdaFVars ys (← mkLetFVars funTypes (mkAppN brecOn otherArgs))
 
 end Lean.Elab.Structural

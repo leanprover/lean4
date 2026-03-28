@@ -6,10 +6,7 @@ Authors: Henrik Böving
 module
 
 prelude
-public import Init.Data.SInt.Basic
 public import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Basic
-public import Lean.Elab.Tactic.BVDecide.Frontend.Attr
-public import Lean.Elab.Tactic.Simp
 
 public section
 
@@ -68,6 +65,7 @@ def intToBitVecPass : Pass where
         zetaDelta := true,
         implicitDefEqProofs := false, -- leanprover/lean4/pull/7509
         maxSteps := cfg.maxSteps,
+        instances := true
       })
       (simpTheorems := #[intToBvThms])
       (congrTheorems := (← getSimpCongrTheorems))

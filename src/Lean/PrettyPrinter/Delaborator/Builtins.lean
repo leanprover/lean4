@@ -6,14 +6,13 @@ Authors: Sebastian Ullrich, Leonardo de Moura, Gabriel Ebner, Mario Carneiro
 module
 
 prelude
-public import Lean.PrettyPrinter.Delaborator.Attributes
 public import Lean.PrettyPrinter.Delaborator.Basic
-public import Lean.PrettyPrinter.Delaborator.SubExpr
-public import Lean.PrettyPrinter.Delaborator.TopDownAnalyze
-public import Lean.Parser.Term
-meta import Lean.Parser.Command
 public import Lean.Meta.CoeAttr
 public import Lean.Meta.Structure
+public import Lean.PrettyPrinter.Formatter
+public import Lean.PrettyPrinter.Parenthesizer
+meta import Lean.Parser.Command
+meta import Lean.PrettyPrinter.Delaborator.DeclWithSig
 
 public section
 
@@ -48,8 +47,12 @@ def delabFVar : Delab := do
     let l ← fvarId.getDecl
     maybeAddBlockImplicit (mkIdent l.userName)
   catch _ =>
-    -- loose free variable, use internal name
-    maybeAddBlockImplicit <| mkIdent (fvarId.name.replacePrefix `_uniq `_fvar)
+    -- loose free variable
+    if ← getPPOption getPPFVarsAnonymous then
+      -- use internal name like `_fvar.22`
+      maybeAddBlockImplicit <| mkIdent (fvarId.name.replacePrefix `_uniq `_fvar)
+    else
+      maybeAddBlockImplicit <| mkIdent `_fvar._
 
 -- loose bound variable, use pseudo syntax
 @[builtin_delab bvar]
@@ -62,13 +65,17 @@ def delabMVarAux (m : MVarId) : DelabM Term := do
   let mkMVar (n : Name) : DelabM Term := `(?$(mkIdent n))
   withTypeAscription (cond := ← getPPOption getPPMVarsWithType) do
     if ← getPPOption getPPMVars then
-      match (← m.getDecl).userName with
-      | .anonymous =>
-        if ← getPPOption getPPMVarsAnonymous then
-          mkMVar <| m.name.replacePrefix `_uniq `m
-        else
-          mkMVarPlaceholder
-      | n => mkMVar n
+      if let some decl ← m.findDecl? then
+        match decl.userName with
+        | .anonymous =>
+          if ← getPPOption getPPMVarsAnonymous then
+            mkMVar <| Name.num `m (decl.index + 1)
+          else
+            mkMVarPlaceholder
+        | n => mkMVar n
+      else
+        -- Undefined mvar, use internal name
+        mkMVar <| m.name.replacePrefix `_uniq `_mvar
     else
       mkMVarPlaceholder
 
@@ -97,17 +104,31 @@ Rather, it is called through the `app` delaborator.
 -/
 def delabConst : Delab := do
   let Expr.const c₀ ls ← getExpr | unreachable!
-  let unresolveName (n : Name) : DelabM Name := do
-    unresolveNameGlobalAvoidingLocals n (fullNames := ← getPPOption getPPFullNames)
-  let mut c := c₀
-  if isPrivateName c₀ then
-    unless (← getPPOption getPPPrivateNames) do
-      c ← unresolveName c
-      if let some n := privateToUserName? c then
-        -- The private name could not be made non-private, so make the result inaccessible
-        c ← withFreshMacroScope <| MonadQuotation.addMacroScope n
-  else
-    c ← unresolveName c
+  let env ← getEnv
+  let c ←
+    if ← pure (isPrivateName c₀) <&&> getPPOption getPPPrivateNames then
+      pure c₀
+    else if let some c ← unresolveNameGlobalAvoidingLocals? c₀ (fullNames := ← getPPOption getPPFullNames) then
+      pure c
+    else if !env.contains c₀ then
+      -- The compiler pretty prints constants that are not defined in the environment.
+      -- Use such names as-is, without additional macro scopes.
+      -- We still remove the private prefix if the name would be accessible to the current module.
+      if isPrivateName c₀ && mkPrivateName env (privateToUserName c₀.eraseMacroScopes) == c₀.eraseMacroScopes then
+        pure <| Name.modifyBase c₀ privateToUserName
+      else
+        pure c₀
+    else
+      -- The identifier cannot be referred to. To indicate this, we add a delaboration-specific macro scope.
+      -- If the name is private, we also erase the private prefix and add it as an additional macro scope, ensuring
+      -- no collisions between names with different private prefixes.
+      let c := if let some (.num priv 0) := privatePrefix? c₀.eraseMacroScopes then
+          -- The private prefix before `0` is of the form `_private.modulename`, which works as a macro scope context
+          Lean.addMacroScope priv (Name.modifyBase c₀ privateToUserName) reservedMacroScope
+        else
+          c₀
+      pure <| Lean.addMacroScope `_delabConst c reservedMacroScope
+
   let stx ←
     if !ls.isEmpty && (← getPPOption getPPUniverses) then
       let mvars ← getPPOption getPPMVarsLevels
@@ -141,7 +162,7 @@ def withMDataOptions [Inhabited α] (x : DelabM α) : DelabM α := do
     for (k, v) in m do
       if (`pp).isPrefixOf k then
         let opts := posOpts.get? pos |>.getD {}
-        posOpts := posOpts.insert pos (opts.insert k v)
+        posOpts := posOpts.insert pos (opts.set k v)
     withReader ({ · with optionsPerPos := posOpts }) $ withMDataExpr x
   | _ => x
 
@@ -293,7 +314,10 @@ def delabAppExplicitCore (fieldNotation : Bool) (numArgs : Nat) (delabHead : (in
   let insertExplicit := needsExplicit ((← getExpr).getBoundedAppFn numArgs) numArgs paramKinds
   let fieldNotation ← pure (fieldNotation && !insertExplicit) <&&> getPPOption getPPFieldNotation
     <&&> not <$> getPPOption getPPAnalysisNoDot
-    <&&> withBoundedAppFn numArgs do pure (← getExpr).consumeMData.isConst <&&> not <$> withMDatasOptions (getPPOption getPPAnalysisBlockImplicit <|> getPPOption getPPUniverses)
+    <&&> withBoundedAppFn numArgs do
+            pure (← getExpr).consumeMData.isConst
+            <&&> not <$> (pure (← getExpr).isMData <&&> getPPOption getPPMData)
+            <&&> not <$> withMDatasOptions (getPPOption getPPAnalysisBlockImplicit <|> getPPOption getPPUniverses)
   let field? ← if fieldNotation then appFieldNotationCandidate? else pure none
   let (fnStx, _, argStxs) ← withBoundedAppFnArgs numArgs
     (do return (← delabHead insertExplicit, paramKinds.toList, Array.mkEmpty numArgs))
@@ -354,7 +378,10 @@ Assumes `numArgs ≤ paramKinds.size`.
 -/
 def delabAppImplicitCore (unexpand : Bool) (numArgs : Nat) (delabHead : Delab) (paramKinds : Array ParamKind) : Delab := do
   let unexpand ← pure unexpand
-    <&&> withBoundedAppFn numArgs do pure (← getExpr).consumeMData.isConst <&&> not <$> withMDatasOptions (getPPOption getPPUniverses)
+    <&&> withBoundedAppFn numArgs do
+            pure (← getExpr).consumeMData.isConst
+            <&&> not <$> (pure (← getExpr).isMData <&&> getPPOption getPPMData)
+            <&&> not <$> withMDatasOptions (getPPOption getPPUniverses)
   let field? ←
     if ← pure unexpand <&&> getPPOption getPPFieldNotation <&&> not <$> getPPOption getPPAnalysisNoDot then
       appFieldNotationCandidate?
@@ -519,7 +546,12 @@ Default delaborator for applications.
 @[builtin_delab app]
 def delabApp : Delab := do
   let delabAppFn (insertExplicit : Bool) : Delab := do
-    let stx ← if (← getExpr).consumeMData.isConst then withMDatasOptions delabConst else delab
+    let e ← getExpr
+    let stx ←
+      if ← pure e.consumeMData.isConst <&&> not <$> (pure e.isMData <&&> getPPOption getPPMData) then
+        withMDatasOptions delabConst
+      else
+        delab
     if insertExplicit && !stx.raw.isOfKind ``Lean.Parser.Term.explicit then `(@$stx) else pure stx
   delabAppCore (← getExpr).getAppNumArgs delabAppFn (unexpand := true)
 
@@ -808,7 +840,7 @@ partial def delabAppMatch : Delab := whenNotPPOption getPPExplicit <| whenPPOpti
               usingNames st.varNames[idx]! <|
                 withAppFnArgs (pure #[]) fun pats => return pats.push (← delab)
       -- Finally, assemble
-      let discrs ← (st.hNames?.zip st.discrs).mapM fun (hName?, discr) =>
+      let discrs ← st.hNames?.zipWithM (bs := st.discrs) fun hName? discr =>
         match hName? with
         | none => `(matchDiscr| $discr:term)
         | some hName => `(matchDiscr| $(mkIdent hName) : $discr)
@@ -827,7 +859,7 @@ where
     if i < hNames?.size then
       if let some name := hNames?[i]! then
         let n' ← getUnusedName name body
-        withLocalDecl n' .default (.sort levelZero) (kind := .implDetail) fun _ =>
+        withLocalDecl n' .default (.sort Level.zero) (kind := .implDetail) fun _ =>
           withDummyBinders hNames? body m (acc.push n')
       else
         withDummyBinders hNames? body m (acc.push none)
@@ -840,26 +872,44 @@ where
     else
       x
 
+private def reflectDataValue (t : DataValue) : Term := Unhygienic.run do
+  match t with
+  | .ofBool b => return mkIdent (if b then `true else `false)
+  | .ofNat n => return quote n
+  | .ofInt n => if n ≥ 0 then return quote n.toNat else `(-$(quote n.natAbs))
+  | .ofString s => return quote s
+  | .ofName n => return mkIdent n
+  | .ofSyntax _ => `(_)
+
 @[builtin_delab mdata]
 def delabMData : Delab := do
-  if let some _ := inaccessible? (← getExpr) then
-    let s ← withMDataExpr delab
-    if (← read).inPattern then
-      `(.($s)) -- We only include the inaccessible annotation when we are delaborating patterns
-    else
-      return s
-  else if let some _ := isLHSGoal? (← getExpr) then
-    withMDataExpr <| withAppFn <| withAppArg <| delab
+  if ← getPPOption getPPMData then
+    let .mdata d _ ← getExpr | unreachable!
+    let (keys, vals?) ← d.entries.foldlM (init := (#[], #[]))
+      fun ((keys : Array Ident), (vals : Array (Option Term))) (k, v) => do
+        return (keys.push (mkIdent k), vals.push (some <| reflectDataValue v))
+    let e ← withMDataOptions delab
+    -- Annotate to prevent overwriting the terminfo for `e`, which is
+    -- already inserted at the current position.
+    annotateCurPos =<< `(mdataDiagnostic| [mdata $[$keys $[:$vals?]?]*] $e)
   else
-    withMDataOptions delab
+    if let some _ := inaccessible? (← getExpr) then
+      let s ← withMDataExpr delab
+      if (← read).inPattern then
+        `(.($s)) -- We only include the inaccessible annotation when we are delaborating patterns
+      else
+        return s
+    else if let some _ := isLHSGoal? (← getExpr) then
+      withMDataExpr <| withAppFn <| withAppArg <| delab
+    else
+      withMDataOptions delab
 
 /--
 Return `true` iff current binder should be merged with the nested
 binder, if any, into a single binder group:
 * both binders must have same binder info and domain
 * they cannot be inst-implicit (`[a b : A]` is not valid syntax)
-* `pp.binderTypes` must be the same value for both terms
-* prefer `fun a b` over `fun (a b)`
+* `pp.XXBinderTypes` must be the same value for both terms
 -/
 private def shouldGroupWithNext : DelabM Bool := do
   let e ← getExpr
@@ -869,8 +919,7 @@ private def shouldGroupWithNext : DelabM Bool := do
     pure $ e.binderInfo == e'.binderInfo &&
       e.bindingDomain! == e'.bindingDomain! &&
       e'.binderInfo != BinderInfo.instImplicit &&
-      ppEType == ppE'Type &&
-      (e'.binderInfo != BinderInfo.default || ppE'Type)
+      ppEType == ppE'Type
   match e with
   | Expr.lam _ _     e'@(Expr.lam _ _ _ _) _     => go e'
   | Expr.forallE _ _ e'@(Expr.forallE _ _ _ _) _ => go e'
@@ -879,26 +928,39 @@ where
   getPPBinderTypes (e : Expr) :=
     if e.isForall then getPPPiBinderTypes else getPPFunBinderTypes
 
-private partial def delabBinders (delabGroup : Array Syntax → Syntax → Delab) : optParam (Array Syntax) #[] → Delab
-  -- Accumulate names (`Syntax.ident`s with position information) of the current, unfinished
-  -- binder group `(d e ...)` as determined by `shouldGroupWithNext`. We cannot do grouping
-  -- inside-out, on the Syntax level, because it depends on comparing the Expr binder types.
-  | curNames => do
-    if ← shouldGroupWithNext then
-      -- group with nested binder => recurse immediately
-      withBindingBodyUnusedName fun stxN => delabBinders delabGroup (curNames.push stxN)
-    else
-      -- don't group => delab body and prepend current binder group
-      let (stx, stxN) ← withBindingBodyUnusedName fun stxN => return (← delab, stxN)
-      delabGroup (curNames.push stxN) stx
+/--
+Accumulate names (`Syntax.ident`s with position information) of the current, unfinished
+binder group `(d e ...)` as determined by `shouldGroupWithNext`. We cannot do grouping
+inside-out, on the Syntax level, because it depends on comparing the Expr binder types.
 
-@[builtin_delab lam]
-def delabLam : Delab :=
-  delabBinders fun curNames stxBody => do
+The `allNames` set is used to make sure names in the same `fun` binders are unique.
+Users have reported than `fun x x x => x` is confusing.
+-/
+private partial def delabBinders (allNames : NameSet) (curNames : Array Syntax) (dep ppTypes : Bool)
+    (delabBody : NameSet → Delab)
+    (delabGroup : NameSet → Array Syntax → (dep ppTypes : Bool) → Syntax → Delab) : Delab := do
+  let dep := dep || (← getExpr).bindingBody!.hasLooseBVars
+  let ppTypes ← pure ppTypes <||> getPPOption getPPFunBinderTypes
+  if ← shouldGroupWithNext then
+    -- group with nested binder => recurse immediately
+    withBindingBodyUnusedName (avoid := allNames) fun stxN => delabBinders (allNames.insert stxN.getId) (curNames.push stxN) dep ppTypes delabBody delabGroup
+  else
+    -- don't group => delab body and prepend current binder group
+    let (allNames', curNames', stx) ← withBindingBodyUnusedName (avoid := allNames) fun stxN =>
+      let allNames' := allNames.insert stxN.getId
+      let curNames' := curNames.push stxN
+      return (allNames', curNames', ← delabBody allNames')
+    delabGroup allNames' curNames' dep ppTypes stx
+
+private partial def delabLamAux (allNames : NameSet) : Delab := do
+  let delabBody (allNames' : NameSet) : Delab := do
+    if (← getExpr).isLambda then
+      delabLamAux allNames'
+    else
+      delab
+  delabBinders allNames #[] false false delabBody fun _ curNames dep ppTypes stxBody => do
     let e ← getExpr
-    let stxT ← withBindingDomain delab
-    let ppTypes ← getPPOption getPPFunBinderTypes
-    let usedDownstream := curNames.any (fun n => stxBody.hasIdent n.getId)
+    let mstxT := withBindingDomain delab
 
     -- leave lambda implicit if possible
     -- TODO: for now we just always block implicit lambdas when delaborating. We can revisit.
@@ -912,46 +974,50 @@ def delabLam : Delab :=
       -- but this condition may still not be perfectly in sync with the elaborator.
       e.binderInfo == BinderInfo.instImplicit ||
       Elab.Term.blockImplicitLambda stxBody ||
-      usedDownstream
+      dep
     -/
 
     if !blockImplicitLambda then
       pure stxBody
     else
-      let defaultCase (_ : Unit) : Delab := do
-        if ppTypes then
-          -- "default" binder group is the only one that expects binder names
-          -- as a term, i.e. a single `Syntax.ident` or an application thereof
-          let stxCurNames ←
-            if h : curNames.size > 1 then
-              `($(curNames[0]!) $(curNames.eraseIdx 0)*)
-            else
-              pure $ curNames[0]!;
-          `(funBinder| ($stxCurNames : $stxT))
-        else
-          pure curNames.back!  -- here `curNames.size == 1`
-      let group ← match e.binderInfo, ppTypes with
-        | BinderInfo.default,        _      => defaultCase ()
-        | BinderInfo.implicit,       true   => `(funBinder| {$curNames* : $stxT})
-        | BinderInfo.implicit,       false  => `(funBinder| {$curNames*})
-        | BinderInfo.strictImplicit, true   => `(funBinder| ⦃$curNames* : $stxT⦄)
-        | BinderInfo.strictImplicit, false  => `(funBinder| ⦃$curNames*⦄)
-        | BinderInfo.instImplicit,   _     =>
-          if usedDownstream then `(funBinder| [$curNames.back! : $stxT])  -- here `curNames.size == 1`
-          else  `(funBinder| [$stxT])
-      let (binders, stxBody) :=
+      let mut (binders, stxBody) :=
         match stxBody with
-        | `(fun $binderGroups* => $stxBody) => (#[group] ++ binderGroups, stxBody)
-        | _                                 => (#[group], stxBody)
+        | `(fun $binderGroups* => $stxBody) => (binderGroups, stxBody)
+        | _                                 => (#[], stxBody)
+      if e.binderInfo.isExplicit && !ppTypes then
+        binders := curNames ++ binders
+      else
+        let newBinder : TSyntax ``Lean.Parser.Term.funBinder ←
+          match e.binderInfo, ppTypes with
+          | BinderInfo.default, _ =>
+            -- "default" binder group is the only one that expects binder names as a term,
+            -- i.e. a single `Syntax.ident` or an application.
+            let stxCurNames := Syntax.mkApp curNames[0]! curNames[1:]
+            `(funBinder| ($stxCurNames : $(← mstxT)))
+          | BinderInfo.implicit, true  => `(funBinder| {$curNames* : $(← mstxT)})
+          | BinderInfo.implicit, false => `(funBinder| {$curNames*})
+          | BinderInfo.strictImplicit, true  => `(funBinder| ⦃$curNames* : $(← mstxT)⦄)
+          | BinderInfo.strictImplicit, false => `(funBinder| ⦃$curNames*⦄)
+          | BinderInfo.instImplicit, _ =>
+            -- here `curNames.size == 1`
+            -- Approximation: if the name does not appear in the pretty printed body
+            -- then don't use the name, even if it is dependent.
+            if dep && curNames.any (fun n => stxBody.raw.hasIdent n.getId) then
+              `(funBinder| [$curNames.back! : $(← mstxT)])
+            else
+              `(funBinder| [$(← mstxT)])
+        binders := #[newBinder] ++ binders
       if ← getPPOption getPPUnicodeFun then
         `(fun $binders* ↦ $stxBody)
       else
         `(fun $binders* => $stxBody)
 
+@[builtin_delab lam]
+def delabLam : Delab :=
+  delabLamAux {}
+
 /-- Don't do any renaming for forall binders, but do add fresh macro scopes when there is shadowing. -/
 private def ppPiPreserveNames := `pp.piPreserveNames
-/-- Causes non-dependent foralls to print with binder names. -/
-private def ppPiBinderNames := `pp.piBinderNames
 
 /--
 Similar to `delabBinders`, but tracking whether `forallE` is dependent or not.
@@ -960,7 +1026,11 @@ See issue #1571
 -/
 private partial def delabForallBinders (prop : Bool) (delabGroup : Array Syntax → Bool → Syntax → Delab) (curNames : Array Syntax := #[]) (curDep := false) : Delab := do
   -- Logic note: wanting to print with binder names is equivalent to pretending the forall is dependent.
-  let mut dep := !(← getExpr).isArrow || (← getOptionsAtCurrPos).get ppPiBinderNames false
+  let opts ← getOptionsAtCurrPos
+  let mut dep :=
+    !(← getExpr).isArrow
+    || (getPPPiBinderNames opts
+        && (!(← getExpr).bindingName!.hasMacroScopes || getPPPiBinderNamesHygienic opts))
   if !dep && prop && (← getExpr).binderInfo.isExplicit then
     -- RFC #1834: If `∀` notation is enabled, avoid using `→` for propositions if the domain is not a proposition.
     -- We can pretend the type is dependent in this case.
@@ -971,7 +1041,7 @@ private partial def delabForallBinders (prop : Bool) (delabGroup : Array Syntax 
     -- don't group
     delabGroup curNames curDep (← delab)
   else
-    let preserve := (← getOptionsAtCurrPos).get ppPiPreserveNames false
+    let preserve := opts.get ppPiPreserveNames false
     let curDep := dep
     if ← shouldGroupWithNext then
       -- group with nested binder => recurse immediately
@@ -986,25 +1056,26 @@ def delabForall : Delab := do
   let prop ← try isProp (← getExpr) catch _ => pure false
   delabForallBinders prop fun curNames dependent stxBody => do
     let e ← getExpr
-    let stxT ← withBindingDomain delab
+    let mstxT := withBindingDomain delab
     let group ← match e.binderInfo with
-    | BinderInfo.implicit       => `(bracketedBinderF|{$curNames* : $stxT})
-    | BinderInfo.strictImplicit => `(bracketedBinderF|⦃$curNames* : $stxT⦄)
+    | BinderInfo.implicit       => `(bracketedBinderF|{$curNames* : $(← mstxT)})
+    | BinderInfo.strictImplicit => `(bracketedBinderF|⦃$curNames* : $(← mstxT)⦄)
     | BinderInfo.instImplicit   =>
       -- here `curNames.size == 1`
       if dependent || !e.bindingName!.hasMacroScopes then
-        `(bracketedBinderF|[$curNames.back! : $stxT])
+        `(bracketedBinderF|[$curNames.back! : $(← mstxT)])
       else
         -- omit the binder name if it's not used and not accessible
-        `(bracketedBinderF|[$stxT])
-    | _                         =>
+        `(bracketedBinderF|[$(← mstxT)])
+    | BinderInfo.default        =>
       -- NOTE: non-dependent arrows are available only for the default binder info
       if dependent then
         if prop && !(← getPPOption getPPPiBinderTypes) && (← getPPOption getPPForalls) then
           return ← `(∀ $curNames:ident*, $stxBody)
         else
-          `(bracketedBinderF|($curNames* : $stxT))
+          `(bracketedBinderF|($curNames* : $(← mstxT)))
       else
+        let stxT ← mstxT
         return ← curNames.foldrM (fun _ stxBody => `($stxT → $stxBody)) stxBody
     if prop && (← getPPOption getPPForalls) then
       match stxBody with
@@ -1136,8 +1207,8 @@ def delabOfScientific : Delab := whenNotPPOption getPPExplicit <| whenPPOption g
   if s && e == str.length then
     return Syntax.mkScientificLit ("0." ++ str)
   else if s && e < str.length then
-    let mStr := str.extract 0 ⟨str.length - e⟩
-    let eStr := str.extract ⟨str.length - e⟩ ⟨str.length⟩
+    let mStr := String.Pos.Raw.extract str 0 ⟨str.length - e⟩
+    let eStr := String.Pos.Raw.extract str ⟨str.length - e⟩ ⟨str.length⟩
     return Syntax.mkScientificLit (mStr ++ "." ++ eStr)
   else
     return Syntax.mkScientificLit (str ++ "e" ++ (if s then "-" else "") ++ toString e)
@@ -1207,10 +1278,10 @@ where
   delabBranch (h? : Option Name) : DelabM (Syntax × Name) := do
     let e ← getExpr
     guard e.isLambda
-    let h ← match h? with
-      | some h => return (← withBindingBody h delab, h)
-      | none   => withBindingBodyUnusedName fun h => do
-        return (← delab, h.getId)
+    match h? with
+    | some h => return (← withBindingBody h delab, h)
+    | none   => withBindingBodyUnusedName fun h => do
+      return (← delab, h.getId)
 
 @[builtin_delab app.cond]
 def delabCond : Delab := whenNotPPOption getPPExplicit <| whenPPOption getPPNotation <| withOverApp 4 do
@@ -1269,6 +1340,107 @@ def delabPProdMk : Delab := delabPProdMkCore ``PProd.mk
 
 @[builtin_delab app.MProd.mk]
 def delabMProdMk : Delab := delabPProdMkCore ``MProd.mk
+
+@[builtin_delab app.Std.Legacy.Range.mk]
+def delabRange : Delab := whenPPOption getPPNotation do
+  -- Std.Legacy.Range.mk : (start : Nat) → (stop : Nat) → (step : Nat) → 0 < step → Std.Legacy.Range
+  guard <| (← getExpr).getAppNumArgs == 4
+  -- `none` if the start is `0`
+  let start? ← withNaryArg 0 do
+    if Lean.Expr.nat? (← getExpr) == some 0 then
+      return none
+    else
+      some <$> delab
+  let stop ← withNaryArg 1 delab
+  -- `none` if the step is `1`
+  let step? ← withNaryArg 2 do
+    if Lean.Expr.nat? (← getExpr) == some 1 then
+      return none
+    else
+      some <$> delab
+  match start?, step? with
+  | some start, some step => `([$start : $stop : $step])
+  | some start, none      => `([$start : $stop])
+  | none,       some step => `([: $stop : $step])
+  | none,       none      => `([: $stop])
+
+@[builtin_delab app.Std.Rcc.mk]
+def delabRcc : Delab := whenPPOption getPPNotation <| whenNotPPOption getPPExplicit <| do
+  -- Std.Rcc.mk : {α : Type u} → (lo hi : α) → Std.Rcc α
+  guard <| (← getExpr).getAppNumArgs == 3
+  -- Lower bound
+  let a ← withAppFn <| withAppArg delab
+  -- Upper bound
+  let b ← withAppArg delab
+  `($a...=$b)
+
+@[builtin_delab app.Std.Rco.mk]
+def delabRco : Delab := whenPPOption getPPNotation <| whenNotPPOption getPPExplicit <| do
+  -- Std.Rco.mk : {α : Type u} → (lo hi : α) → Std.Rco α
+  guard <| (← getExpr).getAppNumArgs == 3
+  -- Lower bound
+  let a ← withAppFn <| withAppArg delab
+  -- Upper bound
+  let b ← withAppArg delab
+  `($a...$b)
+
+@[builtin_delab app.Std.Rci.mk]
+def delabRci : Delab := whenPPOption getPPNotation <| whenNotPPOption getPPExplicit <| do
+  -- Std.Rci.mk : {α : Type u} → (lo : α) → Std.Rci α
+  guard <| (← getExpr).getAppNumArgs == 2
+  -- Lower bound
+  let b ← withAppArg delab
+  `($b...*)
+
+@[builtin_delab app.Std.Roc.mk]
+def delabRoc : Delab := whenPPOption getPPNotation <| whenNotPPOption getPPExplicit <| do
+  -- Std.Roc.mk : {α : Type u} → (lo hi : α) → Std.Roc α
+  guard <| (← getExpr).getAppNumArgs == 3
+  -- Lower bound
+  let a ← withAppFn <| withAppArg delab
+  -- Upper bound
+  let b ← withAppArg delab
+  `($a<...=$b)
+
+@[builtin_delab app.Std.Roo.mk]
+def delabRoo : Delab := whenPPOption getPPNotation <| whenNotPPOption getPPExplicit <| do
+  -- Std.Roo.mk : {α : Type u} → (lo hi : α) → Std.Roo α
+  guard <| (← getExpr).getAppNumArgs == 3
+  -- Lower bound
+  let a ← withAppFn <| withAppArg delab
+  -- Upper bound
+  let b ← withAppArg delab
+  `($a<...$b)
+
+@[builtin_delab app.Std.Roi.mk]
+def delabRoi : Delab := whenPPOption getPPNotation <| whenNotPPOption getPPExplicit <| do
+  -- Std.Roi.mk : {α : Type u} → (lo : α) → Std.Roi α
+  guard <| (← getExpr).getAppNumArgs == 2
+  -- Lower bound
+  let b ← withAppArg delab
+  `($b<...*)
+
+@[builtin_delab app.Std.Ric.mk]
+def delabRic : Delab := whenPPOption getPPNotation <| whenNotPPOption getPPExplicit <| do
+  -- Std.Ric.mk : {α : Type u} → (hi : α) → Std.Ric α
+  guard <| (← getExpr).getAppNumArgs == 2
+  -- Upper bound
+  let b ← withAppArg delab
+  `(*...=$b)
+
+@[builtin_delab app.Std.Rio.mk]
+def delabRio : Delab := whenPPOption getPPNotation <| whenNotPPOption getPPExplicit <| do
+  -- Std.Rio.mk : {α : Type u} → (lo hi : α) → Std.Rio α
+  guard <| (← getExpr).getAppNumArgs == 2
+  -- Upper bound
+  let b ← withAppArg delab
+  `(*...$b)
+
+@[builtin_delab app.Std.Rii.mk]
+def delabRii : Delab := whenPPOption getPPNotation <| whenNotPPOption getPPExplicit <| do
+  -- Std.Rii.mk : {α : Type u} → (lo hi : α) → Std.Rii α
+  guard <| (← getExpr).getAppNumArgs == 1
+  `(*...*)
 
 partial def delabDoElems : DelabM (List Syntax) := do
   let e ← getExpr
@@ -1375,11 +1547,6 @@ def delabSorry : Delab := whenPPOption getPPNotation <| whenNotPPOption getPPExp
         `(sorry)
   else
     withOverApp 2 `(sorry)
-
-open Parser Command Term in
-@[run_builtin_parser_attribute_hooks]
--- use `termParser` instead of `declId` so we can reuse `delabConst`
-meta def declSigWithId := leading_parser termParser maxPrec >> declSig
 
 private unsafe def evalSyntaxConstantUnsafe (env : Environment) (opts : Options) (constName : Name) : ExceptT String Id Syntax :=
   env.evalConstCheck Syntax opts ``Syntax constName
@@ -1491,7 +1658,7 @@ where
         if n.hasMacroScopes then
           return (opts, .forallE n t b' bi)
         else if !used then
-          let opts := opts.insertAt subExpr.pos ppPiBinderNames true
+          let opts := opts.insertAt subExpr.pos pp.piBinderNames.name true
           return (opts, .forallE n t b' bi)
         else
           let n' ← withFreshMacroScope <| MonadQuotation.addMacroScope n

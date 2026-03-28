@@ -6,14 +6,20 @@ Authors: Quang Dao, Paul Reichert
 module
 
 prelude
-public import all Init.Control.Option
-public import all Init.Control.Except
-public import all Init.Control.ExceptCps
-public import all Init.Control.StateRef
-public import all Init.Control.StateCps
-public import all Init.Control.Id
-public import Init.Control.Lawful.MonadLift.Lemmas
-public import Init.Control.Lawful.Instances
+import all Init.Control.Option
+import all Init.Control.Except
+public import Init.Control.ExceptCps
+import all Init.Control.ExceptCps
+import all Init.Control.StateRef
+public import Init.Control.StateCps
+import all Init.Control.StateCps
+import all Init.Control.Id
+public import Init.Control.Lawful.MonadLift.Basic
+public import Init.Control.Option
+public import Init.Control.State
+public import Init.Control.StateRef
+import Init.Control.Lawful.Instances
+import Init.Control.Lawful.MonadLift.Lemmas
 
 public section
 
@@ -59,13 +65,9 @@ namespace OptionT
 variable [Monad m] [LawfulMonad m]
 
 @[simp]
-theorem lift_pure {α : Type u} (a : α) : OptionT.lift (pure a : m α) = pure a := by
-  simp only [OptionT.lift, OptionT.mk, bind_pure_comp, map_pure, pure, OptionT.pure]
-
-@[simp]
 theorem lift_bind {α β : Type u} (ma : m α) (f : α → m β) :
     OptionT.lift (ma >>= f) = OptionT.lift ma >>= (fun a => OptionT.lift (f a)) := by
-  simp only [instMonad, OptionT.bind, OptionT.mk, OptionT.lift, bind_pure_comp, bind_map_left,
+  simp only [bind, OptionT.bind, OptionT.mk, OptionT.lift, bind_pure_comp, bind_map_left,
     map_bind]
 
 instance : LawfulMonadLift m (OptionT m) where
@@ -81,7 +83,7 @@ variable [Monad m] [LawfulMonad m]
 @[simp]
 theorem lift_bind {α β ε : Type u} (ma : m α) (f : α → m β) :
     ExceptT.lift (ε := ε) (ma >>= f) = ExceptT.lift ma >>= (fun a => ExceptT.lift (f a)) := by
-  simp only [instMonad, ExceptT.bind, mk, ExceptT.lift, bind_map_left, ExceptT.bindCont, map_bind]
+  simp only [bind, ExceptT.bind, mk, ExceptT.lift, bind_map_left, ExceptT.bindCont, map_bind]
 
 instance : LawfulMonadLift m (ExceptT ε m) where
   monadLift_pure := lift_pure
@@ -91,8 +93,7 @@ instance : LawfulMonadLift (Except ε) (ExceptT ε m) where
   monadLift_pure _ := by
     simp only [MonadLift.monadLift, mk, pure, Except.pure, ExceptT.pure]
   monadLift_bind ma _ := by
-    simp only [instMonad, ExceptT.bind, mk, MonadLift.monadLift, pure_bind, ExceptT.bindCont,
-      Except.instMonad, Except.bind]
+    simp only [bind, ExceptT.bind, mk, MonadLift.monadLift, pure_bind, ExceptT.bindCont, Except.bind]
     rcases ma with _ | _ <;> simp
 
 end ExceptT
@@ -102,11 +103,11 @@ namespace StateRefT'
 instance {ω σ : Type} {m : Type → Type} [Monad m] : LawfulMonadLift m (StateRefT' ω σ m) where
   monadLift_pure _ := by
     simp only [MonadLift.monadLift, pure]
-    unfold StateRefT'.lift ReaderT.pure
+    unfold StateRefT'.lift instMonad._aux_5 ReaderT.pure
     simp only
   monadLift_bind _ _ := by
     simp only [MonadLift.monadLift, bind]
-    unfold StateRefT'.lift ReaderT.bind
+    unfold StateRefT'.lift instMonad._aux_13 ReaderT.bind
     simp only
 
 end StateRefT'

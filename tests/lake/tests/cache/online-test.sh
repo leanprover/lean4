@@ -1,0 +1,223 @@
+#!/usr/bin/env bash
+source ../common.sh
+
+./clean.sh
+
+# Test the functionality of the Reservoir (or other remote) cache
+
+# Check necessary environment variables art set
+if [ -z "${LAKE_CACHE_KEY:-}" ]; then
+  echo "Must be run with LAKE_CACHE_KEY set"
+  exit 1
+fi
+if [ -z "${TEST_ENDPOINT:-}" ]; then
+  echo "Must be run with TEST_ENDPOINT set"
+  exit 1
+fi
+TEST_ARTIFACT_ENDPOINT="${TEST_ARTIFACT_ENDPOINT:-$TEST_ENDPOINT/a0}"
+TEST_REVISION_ENDPOINT="${TEST_REVISION_ENDPOINT:-$TEST_ENDPOINT/r0}"
+TEST_CDN_ENDPOINT="${TEST_CDN_ENDPOINT:-https://reservoir.lean-cache.cloud}"
+TEST_CDN_ARTIFACT_ENDPOINT="${TEST_CDN_ARTIFACT_ENDPOINT:-$TEST_CDN_ENDPOINT/a0}"
+TEST_CDN_REVISION_ENDPOINT="${TEST_CDN_REVISION_ENDPOINT:-$TEST_CDN_ENDPOINT/r0}"
+TEST_RESERVOIR_URL="${TEST_RESERVOIR_URL:-https://reservoir.lean-lang.org}"
+export RESERVOIR_API_URL="$TEST_RESERVOIR_URL/api/v0"
+
+with_upload_endpoints() {
+  LAKE_CACHE_ARTIFACT_ENDPOINT="$TEST_ARTIFACT_ENDPOINT" \
+  LAKE_CACHE_REVISION_ENDPOINT="$TEST_REVISION_ENDPOINT" \
+  "$@"
+}
+
+with_cdn_endpoints() {
+  LAKE_CACHE_ARTIFACT_ENDPOINT="$TEST_CDN_ARTIFACT_ENDPOINT" \
+  LAKE_CACHE_REVISION_ENDPOINT="$TEST_CDN_REVISION_ENDPOINT" \
+  "$@"
+}
+
+with_bogus_endpoints() {
+  LAKE_CACHE_ARTIFACT_ENDPOINT=http://example.com \
+  LAKE_CACHE_REVISION_ENDPOINT=http://example.com \
+  "$@"
+}
+
+# Since committing a Git repository to a Git repository is not well-supported,
+# We reinitialize the repository on each test.
+init_git
+
+# Store Lake cache in a local directory
+TEST_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
+export LAKE_CACHE_DIR="$TEST_DIR/.lake/cache"
+
+# Ensure that Lake is run without a toolchain name
+# (so toolchain does not end up in the cache)
+export ELAN_TOOLCHAIN=
+
+echo "# TESTS"
+
+# Test `--repo` validation
+test_err "must contain exactly one '/'" cache get --repo='invalid'
+test_err 'invalid characters in repository name' cache get --repo='!/invalid'
+
+# Test `--mappings-only` validation
+test_err '`--mappings-only` is not supported' cache get --mappings-only bogus.jsonl
+with_cdn_endpoints  test_err '`--mappings-only` requires services' cache get --mappings-only
+
+# Test `--service` validation
+test_err 'service `bogus` not found in system configuration' \
+  cache get --service='bogus'
+test_err 'service `bogus` not found in system configuration'\
+  cache put bogus.jsonl --scope='bogus' --service='bogus'
+
+# Test `cache get` command errors for bad configurations
+test_err 'the `--platform` and `--toolchain` options do nothing' \
+  cache get bogus.jsonl --scope='bogus' --platform='bogus' --wfail
+test_err 'the `--platform` and `--toolchain` options do nothing' \
+  cache get bogus.jsonl --scope='bogus' --toolchain='bogus' --wfail
+test_err 'a custom endpoint must be set (not Reservoir)' cache get --scope='bogus'
+with_cdn_endpoints test_err 'the `--scope` or `--repo` option must be set' cache get
+LAKE_CACHE_ARTIFACT_ENDPOINT=bogus test_err 'both environment variables must be set' cache get
+LAKE_CACHE_REVISION_ENDPOINT=bogus test_err 'both environment variables must be set' cache get
+
+# Test `cache put` command errors for bad configurations
+with_upload_endpoints test_err 'the `--scope` or `--repo` option must be set' cache put bogus.jsonl
+test_err 'the `--service` option must be set' \
+  cache put bogus.jsonl --scope='bogus'
+LAKE_CACHE_KEY= test_err 'the `--service` option must be set' \
+  cache put bogus.jsonl --scope='bogus'
+LAKE_CACHE_REVISION_ENDPOINT=bogus test_err 'these environment variables must be set' \
+  cache put bogus.jsonl --scope='bogus'
+LAKE_CACHE_REVISION_ENDPOINT=bogus test_err 'these environment variables must be set' \
+  cache put bogus.jsonl --scope='bogus'
+
+# Test `cache put-staged` command errors for bad configurations
+with_upload_endpoints test_err 'the `--scope` or `--repo` option must be set' \
+  cache put-staged bogus
+test_err 'the `--service` option must be set' \
+  cache put-staged bogus --scope='bogus'
+LAKE_CACHE_KEY= test_err 'the `--service` option must be set' \
+  cache put-staged bogus --scope='bogus'
+LAKE_CACHE_REVISION_ENDPOINT=bogus test_err 'these environment variables must be set' \
+  cache put-staged bogus --scope='bogus'
+LAKE_CACHE_REVISION_ENDPOINT=bogus test_err 'these environment variables must be set' \
+  cache put-staged bogus --scope='bogus'
+
+# Test `cache add` command errors for bad configurations
+test_err '`--scope` and `--repo` require `--service`' \
+  cache add bogus.jsonl --scope='bogus'
+test_err '`--scope` and `--repo` require `--service`' \
+  cache add bogus.jsonl --repo='leanprover/bogus'
+
+# Test revision failure (with Reservoir)
+REV=$(git rev-parse HEAD)
+test_err "revision not found" cache get --repo='leanprover/bogus' --rev='bogus'
+test_err "outputs not found for revision" cache get --repo='leanprover/bogus' --rev=$REV
+
+# Test `cache get` skipping non-Reservoir dependencies
+test_run -f non-reservoir.toml update
+test_out 'hello: skipping non-Reservoir dependency' -f non-reservoir.toml cache get
+
+# Build artifacts
+test_run build +Test -o .lake/outputs.jsonl
+test_exp -f .lake/outputs.jsonl
+test_cmd_eq 3 wc -l < .lake/outputs.jsonl
+test_cmd cp -r .lake/cache .lake/cache-backup
+
+# Test upload to an invalid URL
+with_bogus_endpoints test_err "failed to upload artifact" \
+  cache put .lake/outputs.jsonl --scope='!/test'
+
+# Test upload to an invalid URL via system configuration
+LAKE_CONFIG=services.toml test_err "failed to upload artifact" \
+  cache put .lake/outputs.jsonl --scope='!/test' --service='bogus'
+
+# Test cache put with a custom endpoint
+with_upload_endpoints test_run cache put .lake/outputs.jsonl --scope='!/test'
+
+# Test cache put-staged with a custom endpoint
+test_run cache stage .lake/outputs.jsonl .lake/staging
+with_upload_endpoints test_run cache put-staged .lake/staging --scope='!/test'
+
+# Remove local artifacts
+test_cmd rm -rf .lake/build "$LAKE_CACHE_DIR"
+
+# Test download failure with a bogus scope
+with_cdn_endpoints test_err 'failed to download some artifacts' \
+  cache get .lake/outputs.jsonl --scope='!/bogus'
+
+# Test on-demand fetch from a custom endpoint
+LAKE_CONFIG=services.toml test_run \
+  cache add .lake/outputs.jsonl --scope='!/test' --service=cdn
+LAKE_CONFIG=services.toml test_run build +Test --no-build -v
+
+# Test that outputs and artifacts are not re-downloaded
+with_cdn_endpoints test_not_out "downloading" \
+  cache get .lake/outputs.jsonl --scope='!/test'
+with_cdn_endpoints test_not_out "downloading artifact" \
+  cache get --scope='!/test'
+with_cdn_endpoints test_not_out "downloading" \
+  cache get --scope='!/test'
+
+# Test that the revision cache directory for the package is properly created
+test_exp -d $LAKE_CACHE_DIR/revisions/test
+
+# Test cache get with custom endpoint using `--force-download`
+with_cdn_endpoints test_out "downloading" \
+  cache get --scope='!/test' --force-download
+test_run build +Test --no-build
+
+# Test download service configuration through system configuration
+LAKE_CONFIG=services.toml test_out "downloading" \
+  cache get --scope='!/test' --force-download --service=cdn
+test_run build +Test --no-build
+
+# Test cache put/get with a set platform/toolchain
+with_upload_endpoints test_run cache put .lake/outputs.jsonl \
+  --repo='leanprover/test' --platform=foo --toolchain=bar
+# custom endpoint
+test_cmd rm -rf .lake/build "$LAKE_CACHE_DIR"
+with_cdn_endpoints test_run cache get \
+  --repo='leanprover/test' --platform=foo --toolchain=bar
+test_run build +Test --no-build
+# reservoir
+test_cmd rm -rf .lake/build "$LAKE_CACHE_DIR"
+test_run cache get \
+  --repo='leanprover/test' --platform=foo --toolchain=bar
+test_run build +Test --no-build -v # downloads arts
+
+# Test dirty work tree warnings
+test_cmd touch Ignored.lean
+test_cmd git add -f Ignored.lean
+with_upload_endpoints test_err "package has changes" --wfail \
+  cache put .lake/outputs.jsonl --repo='leanprover/bogus'
+test_err "package has changes" --wfail cache get --repo='leanprover/bogus'
+test_cmd git commit -m "v2"
+
+# Test revision search
+test_cmd rm -rf .lake/build "$LAKE_CACHE_DIR"
+with_cdn_endpoints test_err "no outputs found" \
+  --wfail cache get --scope='!/test' --max-revs=1
+with_cdn_endpoints test_run cache get --scope='!/test'
+test_run build +Test --no-build
+
+# Test Reservoir download
+test_run -f reservoir2.toml update --keep-toolchain
+test_out "the artifact cache is not enabled for this package" \
+  -d .lake/packages/Cli build -o "$TEST_DIR/.lake/cli-outputs.jsonl"
+LAKE_ARTIFACT_CACHE=true test_run -d .lake/packages/Cli \
+  build -o "$TEST_DIR/.lake/cli-outputs.jsonl" --no-build
+with_upload_endpoints test_run -d .lake/packages/Cli \
+  cache put "$TEST_DIR/.lake/cli-outputs.jsonl" --repo=leanprover/lean4-cli
+test_cmd rm -rf .lake/packages/Cli/.lake/build "$LAKE_CACHE_DIR"
+test_fails -f reservoir.toml build @Cli --no-build
+test_err "failed to download artifacts for some dependencies" \
+  -f reservoir2.toml cache get --max-revs=1
+test_run -f reservoir.toml cache get --max-revs=1 --mappings-only
+test_run -f reservoir.toml build @Cli --no-build # downloads arts
+
+# Test Reservoir with `--repo` uses GitHub scope
+test_cmd rm -rf .lake/packages/Cli/.lake/build "$LAKE_CACHE_DIR"
+test_run -d .lake/packages/Cli cache get --repo=leanprover/lean4-cli --max-revs=1
+test_run -d .lake/packages/Cli build --no-build
+
+# Cleanup
+rm -rf .git produced.out

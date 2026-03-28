@@ -3,10 +3,17 @@ Copyright (c) 2024 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+module
+
 prelude
-import Init.Data.Float
-import Lake.Toml.Data.Dict
-import Lake.Toml.Data.DateTime
+public import Init.Data.Float
+public import Lake.Toml.Data.Dict
+public import Lake.Toml.Data.DateTime
+import Lake.Util.String
+import Init.Data.String.TakeDrop
+import Init.Data.String.Search
+public import Init.Data.String.Defs
+import Init.Data.ToString.Macro
 
 /-!
 # TOML Value
@@ -17,26 +24,26 @@ open Lean
 namespace Lake.Toml
 
 /-- A TOML value with optional source info. -/
-inductive Value
+public inductive Value
 | string (ref : Syntax) (s : String)
 | integer (ref : Syntax) (n : Int)
 | float (ref : Syntax) (n : Float)
 | boolean (ref : Syntax) (b : Bool)
 | dateTime (ref : Syntax) (dt : DateTime)
 | array (ref : Syntax) (xs : Array Value)
-| private table' (ref : Syntax) (xs : RBDict Name Value Name.quickCmp)
+| table' (ref : Syntax) (xs : RBDict Name Value Name.quickCmp)
 deriving Inhabited, BEq
 
 /-- A TOML table, an ordered key-value map of TOML values (`Lake.Toml.Value`). -/
-abbrev Table := NameDict Value
+public abbrev Table := NameDict Value
 
-@[inline] def Table.empty : Table := RBDict.empty
-@[inline] def Table.mkEmpty (capacity : Nat) : Table := RBDict.mkEmpty capacity
+@[inline] public def Table.empty : Table := RBDict.empty
+@[inline] public def Table.mkEmpty (capacity : Nat) : Table := RBDict.mkEmpty capacity
 
-@[match_pattern] abbrev Value.table (ref : Syntax) (t : Table) :=
+@[match_pattern] public abbrev Value.table (ref : Syntax) (t : Table) :=
   Value.table' ref t
 
-@[inline] def Value.ref : Value → Syntax
+@[inline] public def Value.ref : Value → Syntax
 | .string (ref := ref) .. => ref
 | .integer (ref := ref) .. => ref
 | .float (ref := ref) .. => ref
@@ -49,7 +56,7 @@ abbrev Table := NameDict Value
 /-! ## Pretty Printing -/
 --------------------------------------------------------------------------------
 
-def ppString (s : String) : String :=
+public def ppString (s : String) : String :=
   let s := s.foldl (init := "\"") fun s c =>
     match c with
     | '\x08' => s ++ "\\b"
@@ -61,18 +68,18 @@ def ppString (s : String) : String :=
     | '\\' => s ++ "\\\\"
     | _ =>
       if c.val < 0x20 || c.val == 0x7F then
-        s ++ "\\u" ++ lpad (String.mk <| Nat.toDigits 16 c.val.toNat) '0' 4
+        s ++ "\\u" ++ lpad (String.ofList <| Nat.toDigits 16 c.val.toNat) '0' 4
       else
         s.push c
   s.push '\"'
 
-def ppSimpleKey (k : String) : String :=
+public def ppSimpleKey (k : String) : String :=
   if k.all (fun c => c.isAlphanum || c == '_' || c == '-') then
     k
   else
     ppString k
 
-partial def ppKey (k : Name) : String :=
+public partial def ppKey (k : Name) : String :=
   match k with
   | .str p s =>
     if p.isAnonymous then
@@ -83,15 +90,15 @@ partial def ppKey (k : Name) : String :=
 
 mutual
 
-partial def ppInlineTable (t : Table) : String :=
+public partial def ppInlineTable (t : Table) : String :=
   let xs := t.items.map fun (k,v) => s!"{ppKey k} = {Value.toString v}"
   "{" ++ ", ".intercalate xs.toList ++ "}"
 
-partial def ppInlineArray (vs : Array Value) : String :=
+public partial def ppInlineArray (vs : Array Value) : String :=
   let xs := vs.map Value.toString
   "[" ++ ", ".intercalate xs.toList ++ "]"
 
-partial def Value.toString (v : Value) : String :=
+public partial def Value.toString (v : Value) : String :=
   match v with
   | .string _ s => ppString s
   | .integer _ n => toString n
@@ -103,9 +110,9 @@ partial def Value.toString (v : Value) : String :=
 
 end
 
-instance : ToString Value := ⟨Value.toString⟩
+public instance : ToString Value := ⟨Value.toString⟩
 
-def ppTable (t : Table) : String :=
+public def ppTable (t : Table) : String :=
   let (ts, fs) := t.items.foldl (init := ("", "")) fun (ts, fs) (k,v) =>
     match v with
     | .array _ vs =>
@@ -129,7 +136,7 @@ def ppTable (t : Table) : String :=
     | _ => (appendKeyval ts k v, fs)
   -- Ensures root table keys come before subtables
   -- See https://github.com/leanprover/lean4/issues/4099
-  (ts.push '\n' ++ fs).trimRight.push '\n'
+  (ts.push '\n' ++ fs).trimAsciiEnd.copy.push '\n'
 where
   appendKeyval s k v :=
     s.append s!"{ppKey k} = {v}\n"

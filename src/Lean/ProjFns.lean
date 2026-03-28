@@ -36,13 +36,11 @@ def ProjectionFunctionInfo.fromClassEx (info : ProjectionFunctionInfo) : Bool :=
 
 builtin_initialize projectionFnInfoExt : MapDeclarationExtension ProjectionFunctionInfo ← mkMapDeclarationExtension
 
-@[export lean_add_projection_info]
 def addProjectionFnInfo (env : Environment) (projName : Name) (ctorName : Name) (numParams : Nat) (i : Nat) (fromClass : Bool) : Environment :=
   projectionFnInfoExt.insert env projName { ctorName, numParams, i, fromClass }
 
 namespace Environment
 
-@[export lean_get_projection_info]
 def getProjectionFnInfo? (env : Environment) (projName : Name) : Option ProjectionFunctionInfo :=
   projectionFnInfoExt.find? env projName
 
@@ -65,5 +63,33 @@ def isProjectionFn [MonadEnv m] [Monad m] (declName : Name) : m Bool :=
 
 def getProjectionFnInfo? [MonadEnv m] [Monad m] (declName : Name) : m (Option ProjectionFunctionInfo) :=
   return (← getEnv).getProjectionFnInfo? declName
+
+/--
+Auxiliary parent projection created when a parent structure cannot be represented as a subobject
+(e.g., due to diamond inheritance). Unlike regular projections, these construct the parent value
+from individual fields rather than extracting a single field.
+Example: `AddMonoid'.toAddZero'` when `AddZero'` cannot be a subobject of `AddMonoid'`.
+-/
+structure AuxParentProjectionInfo where
+  /-- Number of parameters in the child structure. -/
+  numParams : Nat
+  /-- `true` if the child structure is a class. -/
+  fromClass : Bool
+  deriving Inhabited, Repr
+
+builtin_initialize auxParentProjInfoExt : MapDeclarationExtension AuxParentProjectionInfo ← mkMapDeclarationExtension
+
+def addAuxParentProjectionInfo (env : Environment) (projName : Name) (numParams : Nat) (fromClass : Bool) : Environment :=
+  auxParentProjInfoExt.insert env projName { numParams, fromClass }
+
+namespace Environment
+
+def getAuxParentProjectionInfo? (env : Environment) (projName : Name) : Option AuxParentProjectionInfo :=
+  auxParentProjInfoExt.find? env projName
+
+end Environment
+
+def getAuxParentProjectionInfo? [MonadEnv m] [Monad m] (declName : Name) : m (Option AuxParentProjectionInfo) :=
+  return (← getEnv).getAuxParentProjectionInfo? declName
 
 end Lean

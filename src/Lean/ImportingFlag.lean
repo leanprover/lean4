@@ -43,7 +43,7 @@ def initializing : IO Bool :=
 
 /--
 Execute `x` with "importing" flag turned on.
-When the "importing" flag is set to true, we allow user-extensions defined with with
+When the "importing" flag is set to true, we allow user-extensions defined with
 the `initialize` command to update global references.
 IMPORTANT: There is no semaphore controlling the access to these global references.
 We assume these global references are updated by a single execution thread.

@@ -7,13 +7,10 @@ module
 
 prelude
 public import Init.Data.Array.QSort
-public import Lean.Data.PersistentHashMap
 public import Lean.Data.PersistentHashSet
 public import Lean.Hygiene
-public import Lean.Data.Name
-public import Lean.Data.Format
 public import Init.Data.Option.Coe
-public import Std.Data.TreeSet.Basic
+import Init.Data.Nat.Linear
 
 public section
 
@@ -78,13 +75,13 @@ instance : Repr LMVarId where
 @[expose] def LMVarIdSet := Std.TreeSet LMVarId (Name.quickCmp ·.name ·.name)
   deriving Inhabited, EmptyCollection
 
-instance : ForIn m LMVarIdSet LMVarId := inferInstanceAs (ForIn _ (Std.TreeSet _ _) ..)
+instance [Monad m] : ForIn m LMVarIdSet LMVarId := inferInstanceAs (ForIn _ (Std.TreeSet _ _) ..)
 
 @[expose] def LMVarIdMap (α : Type) := Std.TreeMap LMVarId α (Name.quickCmp ·.name ·.name)
 
 instance : EmptyCollection (LMVarIdMap α) := inferInstanceAs (EmptyCollection (Std.TreeMap _ _ _))
 
-instance : ForIn m (LMVarIdMap α) (LMVarId × α) := inferInstanceAs (ForIn _ (Std.TreeMap _ _ _) ..)
+instance [Monad m] : ForIn m (LMVarIdMap α) (LMVarId × α) := inferInstanceAs (ForIn _ (Std.TreeMap _ _ _) ..)
 
 instance : Inhabited (LMVarIdMap α) where
   default := {}
@@ -132,8 +129,8 @@ def hasParam (u : Level) : Bool :=
 
 end Level
 
-@[expose] def levelZero :=
-  Level.zero
+@[deprecated Level.zero (since := "2026-02-27")] -- This was previously required in order to get the computed field `data` to work, but it is no longer needed.
+abbrev levelZero := Level.zero
 
 def mkLevelMVar (mvarId : LMVarId) :=
   Level.mvar mvarId
@@ -150,9 +147,12 @@ def mkLevelMax (u v : Level) :=
 def mkLevelIMax (u v : Level) :=
   Level.imax u v
 
-def levelOne := mkLevelSucc levelZero
+abbrev Level.one := mkLevelSucc .zero
 
-@[export lean_level_mk_zero] def mkLevelZeroEx : Unit → Level := fun _ => levelZero
+@[deprecated Level.one (since := "2026-02-27")]
+abbrev levelOne := Level.one
+
+@[export lean_level_mk_zero] def mkLevelZeroEx : Unit → Level := fun _ => .zero
 @[export lean_level_mk_succ] def mkLevelSuccEx : Level → Level := mkLevelSucc
 @[export lean_level_mk_mvar] def mkLevelMVarEx : LMVarId → Level := mkLevelMVar
 @[export lean_level_mk_param] def mkLevelParamEx : Name → Level := mkLevelParam
@@ -204,8 +204,20 @@ def isNeverZero : Level → Bool
   | max l₁ l₂    => isNeverZero l₁ || isNeverZero l₂
   | imax _  l₂   => isNeverZero l₂
 
-@[expose] def ofNat : Nat → Level
-  | 0   => levelZero
+/--
+Returns true if and only if `l` evaluates to zero for all instantiations of parameters and
+meta-variables.
+-/
+def isAlwaysZero : Level → Bool
+  | zero         => true
+  | param ..     => false
+  | mvar ..      => false
+  | succ ..      => false
+  | max l₁ l₂    => isAlwaysZero l₁ && isAlwaysZero l₂
+  | imax _  l₂   => isAlwaysZero l₂
+
+@[expose, implicit_reducible] def ofNat : Nat → Level
+  | 0   => Level.zero
   | n+1 => mkLevelSucc (ofNat n)
 
 instance instOfNat (n : Nat) : OfNat Level n where
@@ -288,7 +300,7 @@ def normLtAux : Level → Nat → Level → Nat → Bool
 def normLt (l₁ l₂ : Level) : Bool :=
   normLtAux l₁ 0 l₂ 0
 
-private def isAlreadyNormalizedCheap : Level → Bool
+def isAlreadyNormalizedCheap : Level → Bool
   | zero    => true
   | param _ => true
   | mvar _  => true
@@ -379,7 +391,7 @@ partial def normalize (l : Level) : Level :=
       let lvl₁  := lvls[i]!
       let prev  := lvl₁.getLevelOffset
       let prevK := lvl₁.getOffset
-      mkMaxAux lvls k (i+1) prev prevK levelZero
+      mkMaxAux lvls k (i+1) prev prevK Level.zero
     | imax l₁ l₂ =>
       if l₂.isNeverZero then addOffset (normalize (mkLevelMax l₁ l₂)) k
       else
@@ -508,7 +520,7 @@ end Level
   else
     elseK ()
 
-/- Similar to `mkLevelMax`, but applies cheap simplifications -/
+/-- Similar to `mkLevelMax`, but applies cheap simplifications -/
 def mkLevelMax' (u v : Level) : Level :=
   mkLevelMaxCore u v fun _ => mkLevelMax u v
 
@@ -522,7 +534,7 @@ def simpLevelMax' (u v : Level) (d : Level) : Level :=
   else if u == v then u
   else elseK ()
 
-/- Similar to `mkLevelIMax`, but applies cheap simplifications -/
+/-- Similar to `mkLevelIMax`, but applies cheap simplifications -/
 def mkLevelIMax' (u v : Level) : Level :=
   mkLevelIMaxCore u v fun _ => mkLevelIMax u v
 
@@ -571,7 +583,7 @@ def updateIMax! (lvl : Level) (newLhs : Level) (newRhs : Level) : Level :=
   | _        => panic! "imax level expected"
 
 def mkNaryMax : List Level → Level
-  | []    => levelZero
+  | []    => Level.zero
   | [u]   => u
   | u::us => mkLevelMax' u (mkNaryMax us)
 

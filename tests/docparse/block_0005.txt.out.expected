@@ -1,0 +1,4 @@
+Success! Final stack:
+  (Lean.Doc.Syntax.command "{" `test [] "}")
+Remaining:
+"Here's a paragraph."

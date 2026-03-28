@@ -6,8 +6,13 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Omega.LinearCombo
-public import Init.Omega.Int
+public import Init.Omega.Coeffs
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.Data.ToString.Macro
+import Init.Omega.Int
+import Init.PropLemmas
+import Init.RCases
 
 public section
 
@@ -31,6 +36,17 @@ abbrev LowerBound.sat (b : LowerBound) (t : Int) := b.all fun x => x ≤ t
 /-- A upper bound at `y` is satisfied at `t` if `t ≤ y`. -/
 abbrev UpperBound.sat (b : UpperBound) (t : Int) := b.all fun y => t ≤ y
 
+private local instance : Append String where
+  append := String.Internal.append
+
+private local instance : ToString Int where
+  toString
+    | Int.ofNat m   => toString m
+    | Int.negSucc m => "-" ++ toString (m + 1)
+
+private local instance : Repr Int where
+  reprPrec i prec := if i < 0 then Repr.addAppParen (toString i) prec else toString i
+
 /--
 A `Constraint` consists of an optional lower and upper bound (inclusive),
 constraining a value to a set of the form `∅`, `{x}`, `[x, y]`, `[x, ∞)`, `(-∞, y]`, or `(-∞, ∞)`.
@@ -45,7 +61,7 @@ deriving BEq, DecidableEq, Repr
 namespace Constraint
 
 instance : ToString Constraint where
-  toString := fun
+  toString := private fun
   | ⟨none, none⟩ => "(-∞, ∞)"
   | ⟨none, some y⟩ => s!"(-∞, {y}]"
   | ⟨some x, none⟩ => s!"[{x}, ∞)"

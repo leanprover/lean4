@@ -6,8 +6,9 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Compiler.LCNF.BaseTypes
-public import Lean.Compiler.LCNF.MonoTypes
+public import Lean.Compiler.LCNF.CompilerM
+import Lean.Compiler.LCNF.MonoTypes
+import Lean.Compiler.LCNF.ToImpureType
 
 public section
 
@@ -20,5 +21,6 @@ def getOtherDeclType (declName : Name) (us : List Level := []) : CompilerM Expr 
   match (← getPhase) with
   | .base => getOtherDeclBaseType declName us
   | .mono => getOtherDeclMonoType declName
+  | .impure => throwError "getOtherDeclType unsupported for impure"
 
 end Lean.Compiler.LCNF

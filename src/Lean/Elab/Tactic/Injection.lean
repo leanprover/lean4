@@ -4,12 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Lean.Meta.Tactic.Injection
 public import Lean.Meta.Tactic.Assumption
 public import Lean.Elab.Tactic.ElabTerm
-
 public section
 namespace Lean.Elab.Tactic
 

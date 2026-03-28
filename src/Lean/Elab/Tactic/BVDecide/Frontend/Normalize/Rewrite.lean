@@ -6,9 +6,7 @@ Authors: Henrik Böving
 module
 
 prelude
-public import Lean.Elab.Tactic.Simp
 public import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Basic
-public import Lean.Elab.Tactic.BVDecide.Frontend.Attr
 
 public section
 
@@ -40,6 +38,7 @@ def rewriteRulesPass : Pass where
         zetaDelta := true,
         implicitDefEqProofs := false, -- leanprover/lean4/pull/7509
         maxSteps := cfg.maxSteps,
+        instances := true
       })
       (simpTheorems := #[bvThms, sevalThms])
       (congrTheorems := (← getSimpCongrTheorems))

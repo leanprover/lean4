@@ -4,10 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Lean.Meta.Tactic.Grind.Types
-
+import Lean.Meta.IntInstTesters
+import Lean.Meta.NatInstTesters
 public section
 
 namespace Lean.Meta.Grind.Arith
@@ -20,11 +20,15 @@ We considered `evalExpr` as an alternative, but it introduces considerable overh
  many `grind` calls. We may still use `evalExpr` as a fallback in the future.
 -/
 
-private def checkExp (k : Nat) : OptionT GrindM Unit := do
+def checkExp (k : Nat) : OptionT GrindM Unit := do
   if k > (← getConfig).exp then
     reportIssue! "exponent {k} exceeds threshold for exponentiation `(exp := {(← getConfig).exp})`"
     failure
 
+/-
+**Note**: It is safe to use (the more efficient) structural instances tests here because `grind` uses the canonicalizer.
+-/
+open Structural in
 mutual
 private partial def evalNatCore (e : Expr) : OptionT GrindM Nat := do
   match_expr e with

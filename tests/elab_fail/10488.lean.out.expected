@@ -1,0 +1,54 @@
+2
+31. : Float
+31.0 : Float
+31.000000
+31.000000
+10488.lean:8:10: error: missing exponent digits in scientific literal
+10488.lean:9:10: error: missing exponent digits in scientific literal
+10488.lean:11:7: error: unexpected identifier after decimal point; consider parenthesizing the number
+10488.lean:12:7: error: unexpected identifier after decimal point; consider parenthesizing the number
+10488.lean:14:11: error: missing exponent digits in scientific literal
+313e1 : Float
+10488.lean:16:11: error: missing exponent digits in scientific literal
+31.3 : Float
+10488.lean:18:11-18:12: error: unexpected identifier; expected command
+31.3 : Float
+10488.lean:19:11-19:13: error: unexpected identifier; expected command
+31.3 : Float
+10488.lean:20:11-20:14: error: unexpected identifier; expected command
+10488.lean:22:7: error: unexpected identifier after decimal point; consider parenthesizing the number
+Nat.toDigits 11 13 : List Char
+['1', '2']
+Nat.toDigits 11 : Nat → List Char
+10488.lean:25:20-25:21: error: unexpected token '('; expected command
+Nat.toDigits 11 13 : List Char
+foo.{u_1, u_2} {A : Sort u_1} {B : Sort u_2} : A → B → Unit
+10488.lean:30:11: error: unexpected identifier after decimal point; consider parenthesizing the number
+foo (Nat.succ 31) : ?m → Unit
+foo 31 : ?m → Unit
+10488.lean:32:13-32:14: error: unexpected token '('; expected command
+foo 31 : ?m → Unit
+10488.lean:33:15-33:16: error: unexpected token '('; expected command
+10488.lean:34:14-34:19: error(lean.invalidDottedIdent): Invalid dotted identifier notation: The expected type of `.succ` could not be determined
+
+Hint: Using one of these would be unambiguous:
+  [apply] `succ`
+  [apply] `Fin.succ`
+  [apply] `Nat.succ`
+  [apply] `Std.PRange.succ`
+foo 31 sorry : Unit
+foo 31. succ : Unit
+11 : Nat
+10488.lean:37:9-37:13: error: unexpected identifier; expected command
+10488.lean:38:7: error: unexpected identifier after decimal point; consider parenthesizing the number
+11.12 : Float
+10488.lean:39:12-39:16: error: unexpected identifier; expected command
+10488.lean:40:8: error: unexpected identifier after decimal point; consider parenthesizing the number
+10488.lean:41:13-41:17: error: unexpected identifier; expected ')', ',' or ':'
+bar.x.snd.snd : Nat
+{ x := (2, 4, 1) }
+10488.lean:60:4-60:12: error: Invalid pattern: Expected a constructor or constant marked with `[match_pattern]`
+
+Hint: Using one of these would be valid:
+  [apply] `Nat.succ`
+  [apply] `Nope.succ`

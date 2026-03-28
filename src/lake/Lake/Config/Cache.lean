@@ -872,13 +872,12 @@ where
         "-H", "Content-Type: application/json",
       ]
     let args := Reservoir.lakeHeaders.foldl (· ++ #["-H", ·]) args
-    let child ← IO.Process.spawn {
+    let spawnArgs := {
       cmd := "curl", args := args.push url
       stdout := .piped, stderr := .piped
     }
-    let rc ← child.wait
-    let stdout ← child.stdout.readToEnd
-    let stderr ← child.stderr.readToEnd
+    logVerbose (mkCmdLog spawnArgs)
+    let {stdout, stderr, exitCode} ← IO.Process.output spawnArgs
     match Json.parse stdout >>= fromJson? with
     | .ok (resp :  ReservoirResp (Array String)) =>
       match resp with
@@ -914,7 +913,7 @@ where
           \nInvalid curl JSON: {e}; received: {stderr.trimAscii}"
         unless stdout.isEmpty do
           logWarning s!"curl produced unexpected output:\n{stdout.trimAsciiEnd}"
-      error s!"curl exited with code {rc}"
+      error s!"curl exited with code {exitCode}"
 
 @[deprecated "Deprecated without replacement." (since := "2026-02-27")]
 public def downloadOutputArtifacts

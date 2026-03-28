@@ -801,7 +801,7 @@ private def transferArtifacts
     match cfg.kind with
     | .get =>
       cfg.infos.forM fun info => do
-        h.putStrLn s!"url = {info.url}"
+        h.putStrLn s!"url = {info.url.quote}"
         h.putStrLn s!"-o {info.path.toString.quote}"
       h.flush
       return #[
@@ -812,7 +812,7 @@ private def transferArtifacts
     | .put =>
       cfg.infos.forM fun info => do
         h.putStrLn s!"-T {info.path.toString.quote}"
-        h.putStrLn s!"url = {info.url}"
+        h.putStrLn s!"url = {info.url.quote}"
       h.flush
       return #[
         "-Z", "-X", "PUT", "-L",

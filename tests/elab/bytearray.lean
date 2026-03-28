@@ -1,4 +1,3 @@
-<<<<<<< HEAD:tests/lean/run/bytearray.lean
 macro "#test " t:term : command =>
   `(#guard $t
     example : $t := by decide)

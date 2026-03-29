@@ -20,27 +20,41 @@ import Init.Data.String.Lemmas.Order
 import Init.Data.Order.Lemmas
 import Init.Data.String.OrderInstances
 import Init.Omega
+import Init.Data.String.Lemmas.FindPos
 
 public section
 
 namespace String.Slice.Pattern.Model.Char
 
-instance {c : Char} : ForwardPatternModel c where
+instance {c : Char} : PatternModel c where
   Matches s := s = String.singleton c
   not_matches_empty := by simp
 
-instance {c : Char} : NoPrefixForwardPatternModel c :=
-  .of_length_eq (by simp +contextual [ForwardPatternModel.Matches])
+instance {c : Char} : NoPrefixPatternModel c :=
+  .of_length_eq (by simp +contextual [PatternModel.Matches])
+
+instance {c : Char} : NoSuffixPatternModel c :=
+  .of_length_eq (by simp +contextual [PatternModel.Matches])
 
 theorem isMatch_iff {c : Char} {s : Slice} {pos : s.Pos} :
     IsMatch c pos ↔
       ∃ (h : s.startPos ≠ s.endPos), pos = s.startPos.next h ∧ s.startPos.get h = c := by
-  simp only [Model.isMatch_iff, ForwardPatternModel.Matches, sliceTo_copy_eq_iff_exists_splits]
+  simp only [Model.isMatch_iff, PatternModel.Matches, copy_sliceTo_eq_iff_exists_splits]
   refine ⟨?_, ?_⟩
   · simp only [splits_singleton_iff]
     exact fun ⟨t₂, h, h₁, h₂, h₃⟩ => ⟨h, h₁, h₂⟩
   · rintro ⟨h, rfl, rfl⟩
     exact ⟨_, Slice.splits_next_startPos⟩
+
+theorem isRevMatch_iff {c : Char} {s : Slice} {pos : s.Pos} :
+    IsRevMatch c pos ↔
+      ∃ (h : s.endPos ≠ s.startPos), pos = s.endPos.prev h ∧ (s.endPos.prev h).get (by simp) = c := by
+  simp only [Model.isRevMatch_iff, PatternModel.Matches, copy_sliceFrom_eq_iff_exists_splits]
+  refine ⟨?_, ?_⟩
+  · simp only [splits_singleton_right_iff]
+    exact fun ⟨t₂, h, h₁, h₂, h₃⟩ => ⟨h, h₁, h₂⟩
+  · rintro ⟨h, rfl, rfl⟩
+    exact ⟨_, Slice.splits_prev_endPos⟩
 
 theorem isLongestMatch_iff {c : Char} {s : Slice} {pos : s.Pos} :
     IsLongestMatch c pos ↔
@@ -52,20 +66,45 @@ theorem isLongestMatchAt_iff {c : Char} {s : Slice} {pos pos' : s.Pos} :
   simp +contextual [Model.isLongestMatchAt_iff, isLongestMatch_iff, ← Pos.ofSliceFrom_inj,
     Pos.get_eq_get_ofSliceFrom, Pos.ofSliceFrom_next]
 
+theorem isLongestRevMatch_iff {c : Char} {s : Slice} {pos : s.Pos} :
+    IsLongestRevMatch c pos ↔
+      ∃ (h : s.endPos ≠ s.startPos), pos = s.endPos.prev h ∧ (s.endPos.prev h).get (by simp) = c := by
+  rw [isLongestRevMatch_iff_isRevMatch, isRevMatch_iff]
+
+theorem isLongestRevMatchAt_iff {c : Char} {s : Slice} {pos pos' : s.Pos} :
+    IsLongestRevMatchAt c pos pos' ↔ ∃ h, pos = pos'.prev h ∧ (pos'.prev h).get (by simp) = c := by
+  simp +contextual [Model.isLongestRevMatchAt_iff, isLongestRevMatch_iff, ← Pos.ofSliceTo_inj,
+    Pos.get_eq_get_ofSliceTo, Pos.ofSliceTo_prev]
+
 theorem isLongestMatchAt_of_get_eq {c : Char} {s : Slice} {pos : s.Pos} {h : pos ≠ s.endPos}
     (hc : pos.get h = c) : IsLongestMatchAt c pos (pos.next h) :=
   isLongestMatchAt_iff.2 ⟨h, by simp [hc]⟩
+
+theorem isLongestRevMatchAt_of_get_eq {c : Char} {s : Slice} {pos : s.Pos} {h : pos ≠ s.startPos}
+    (hc : (pos.prev h).get (by simp) = c) : IsLongestRevMatchAt c (pos.prev h) pos :=
+  isLongestRevMatchAt_iff.2 ⟨h, by simp [hc]⟩
 
 instance {c : Char} : LawfulForwardPatternModel c where
   skipPrefix?_eq_some_iff {s} pos := by
     simp [isLongestMatch_iff, ForwardPattern.skipPrefix?, and_comm, eq_comm (b := pos)]
 
+instance {c : Char} : LawfulBackwardPatternModel c where
+  skipSuffix?_eq_some_iff {s} pos := by
+    simp [isLongestRevMatch_iff, BackwardPattern.skipSuffix?, and_comm, eq_comm (b := pos)]
+
 theorem toSearcher_eq {c : Char} {s : Slice} :
   ToForwardSearcher.toSearcher c s = ToForwardSearcher.toSearcher (· == c) s := (rfl)
+
+theorem toBackwardSearcher_eq {c : Char} {s : Slice} :
+  ToBackwardSearcher.toSearcher c s = ToBackwardSearcher.toSearcher (· == c) s := (rfl)
 
 theorem matchesAt_iff {c : Char} {s : Slice} {pos : s.Pos} :
     MatchesAt c pos ↔ ∃ (h : pos ≠ s.endPos), pos.get h = c := by
   simp [matchesAt_iff_exists_isLongestMatchAt, isLongestMatchAt_iff, exists_comm]
+
+theorem revMatchesAt_iff {c : Char} {s : Slice} {pos : s.Pos} :
+    RevMatchesAt c pos ↔ ∃ (h : pos ≠ s.startPos), (pos.prev h).get (by simp) = c := by
+  simp [revMatchesAt_iff_exists_isLongestRevMatchAt, isLongestRevMatchAt_iff, exists_comm]
 
 theorem matchesAt_iff_splits {c : Char} {s : Slice} {pos : s.Pos} :
     MatchesAt c pos ↔ ∃ t₁ t₂, pos.Splits t₁ (singleton c ++ t₂) := by
@@ -77,36 +116,80 @@ theorem matchesAt_iff_splits {c : Char} {s : Slice} {pos : s.Pos} :
     have hne := hs.ne_endPos_of_singleton
     exact ⟨hne, (singleton_append_inj.mp (hs.eq_right (pos.splits_next_right hne))).1.symm⟩
 
+theorem revMatchesAt_iff_splits {c : Char} {s : Slice} {pos : s.Pos} :
+    RevMatchesAt c pos ↔ ∃ t₁ t₂, pos.Splits (t₁ ++ singleton c) t₂ := by
+  rw [revMatchesAt_iff]
+  refine ⟨?_, ?_⟩
+  · rintro ⟨h, rfl⟩
+    exact ⟨_, _, pos.splits_prev_right h⟩
+  · rintro ⟨t₁, t₂, hs⟩
+    have hne := hs.ne_startPos_of_singleton
+    refine ⟨hne, ?_⟩
+    have := hs.eq_left (pos.splits_prev_right hne)
+    simp only [append_singleton, push_inj] at this
+    exact this.2.symm
+
 theorem not_matchesAt_of_get_ne {c : Char} {s : Slice} {pos : s.Pos} {h : pos ≠ s.endPos}
     (hc : pos.get h ≠ c) : ¬ MatchesAt c pos := by
   simp [matchesAt_iff, hc]
+
+theorem not_revMatchesAt_of_get_ne {c : Char} {s : Slice} {pos : s.Pos} {h : pos ≠ s.startPos}
+    (hc : (pos.prev h).get (by simp) ≠ c) : ¬ RevMatchesAt c pos := by
+  simp [revMatchesAt_iff, hc]
 
 theorem matchAt?_eq {s : Slice} {pos : s.Pos} {c : Char} :
     matchAt? c pos =
       if h₀ : ∃ (h : pos ≠ s.endPos), pos.get h = c then some (pos.next h₀.1) else none := by
   split <;> simp_all [isLongestMatchAt_iff, matchesAt_iff]
 
+theorem revMatchAt?_eq {s : Slice} {pos : s.Pos} {c : Char} :
+    revMatchAt? c pos =
+      if h₀ : ∃ (h : pos ≠ s.startPos), (pos.prev h).get (by simp) = c then some (pos.prev h₀.1) else none := by
+  split <;> simp_all [isLongestRevMatchAt_iff, revMatchesAt_iff]
+
 theorem isMatch_iff_isMatch_beq {c : Char} {s : Slice} {pos : s.Pos} :
     IsMatch c pos ↔ IsMatch (· == c) pos := by
   simp [isMatch_iff, CharPred.isMatch_iff, beq_iff_eq]
 
+theorem isRevMatch_iff_isRevMatch_beq {c : Char} {s : Slice} {pos : s.Pos} :
+    IsRevMatch c pos ↔ IsRevMatch (· == c) pos := by
+  simp [isRevMatch_iff, CharPred.isRevMatch_iff, beq_iff_eq]
+
 theorem isLongestMatch_iff_isLongestMatch_beq {c : Char} {s : Slice} {pos : s.Pos} :
     IsLongestMatch c pos ↔ IsLongestMatch (· == c) pos := by
   simp [isLongestMatch_iff_isMatch, isMatch_iff_isMatch_beq]
+
+theorem isLongestRevMatch_iff_isLongestRevMatch_beq {c : Char} {s : Slice} {pos : s.Pos} :
+    IsLongestRevMatch c pos ↔ IsLongestRevMatch (· == c) pos := by
+  simp [isLongestRevMatch_iff_isRevMatch, isRevMatch_iff_isRevMatch_beq]
 
 theorem isLongestMatchAt_iff_isLongestMatchAt_beq {c : Char} {s : Slice}
     {pos pos' : s.Pos} :
     IsLongestMatchAt c pos pos' ↔ IsLongestMatchAt (· == c) pos pos' := by
   simp [Model.isLongestMatchAt_iff, isLongestMatch_iff_isLongestMatch_beq]
 
+theorem isLongestRevMatchAt_iff_isLongestRevMatchAt_beq {c : Char} {s : Slice}
+    {pos pos' : s.Pos} :
+    IsLongestRevMatchAt c pos pos' ↔ IsLongestRevMatchAt (· == c) pos pos' := by
+  simp [Model.isLongestRevMatchAt_iff, isLongestRevMatch_iff_isLongestRevMatch_beq]
+
 theorem matchesAt_iff_matchesAt_beq {c : Char} {s : Slice} {pos : s.Pos} :
     MatchesAt c pos ↔ MatchesAt (· == c) pos := by
   simp [matchesAt_iff_exists_isLongestMatchAt, isLongestMatchAt_iff_isLongestMatchAt_beq]
+
+theorem revMatchesAt_iff_revMatchesAt_beq {c : Char} {s : Slice} {pos : s.Pos} :
+    RevMatchesAt c pos ↔ RevMatchesAt (· == c) pos := by
+  simp [revMatchesAt_iff_exists_isLongestRevMatchAt, isLongestRevMatchAt_iff_isLongestRevMatchAt_beq]
 
 theorem matchAt?_eq_matchAt?_beq {c : Char} {s : Slice} {pos : s.Pos} :
     matchAt? c pos = matchAt? (· == c) pos := by
   refine Option.ext (fun pos' => ?_)
   simp [matchAt?_eq_some_iff, isLongestMatchAt_iff_isLongestMatchAt_beq]
+
+theorem revMatchAt?_eq_revMatchAt?_beq {c : Char} {s : Slice} {pos : s.Pos} :
+    revMatchAt? c pos = revMatchAt? (· == c) pos := by
+  refine Option.ext (fun pos' => ?_)
+  simp [revMatchAt?_eq_some_iff, isLongestRevMatchAt_iff_isLongestRevMatchAt_beq]
 
 theorem isValidSearchFrom_iff_isValidSearchFrom_beq {c : Char} {s : Slice} {p : s.Pos}
     {l : List (SearchStep s)} : IsValidSearchFrom c p l ↔ IsValidSearchFrom (· == c) p l := by
@@ -120,10 +203,27 @@ theorem isValidSearchFrom_iff_isValidSearchFrom_beq {c : Char} {s : Slice} {p : 
     | matched => simp_all [IsValidSearchFrom.matched, isLongestMatchAt_iff_isLongestMatchAt_beq]
     | mismatched => simp_all [IsValidSearchFrom.mismatched, matchesAt_iff_matchesAt_beq]
 
+theorem isValidRevSearchFrom_iff_isValidRevSearchFrom_beq {c : Char} {s : Slice} {p : s.Pos}
+    {l : List (SearchStep s)} : IsValidRevSearchFrom c p l ↔ IsValidRevSearchFrom (· == c) p l := by
+  refine ⟨fun h => ?_, fun h => ?_⟩
+  · induction h with
+    | startPos => simpa using IsValidRevSearchFrom.startPos
+    | matched => simp_all [IsValidRevSearchFrom.matched, isLongestRevMatchAt_iff_isLongestRevMatchAt_beq]
+    | mismatched => simp_all [IsValidRevSearchFrom.mismatched, revMatchesAt_iff_revMatchesAt_beq]
+  · induction h with
+    | startPos => simpa using IsValidRevSearchFrom.startPos
+    | matched => simp_all [IsValidRevSearchFrom.matched, isLongestRevMatchAt_iff_isLongestRevMatchAt_beq]
+    | mismatched => simp_all [IsValidRevSearchFrom.mismatched, revMatchesAt_iff_revMatchesAt_beq]
+
 instance {c : Char} : LawfulToForwardSearcherModel c where
   isValidSearchFrom_toList s := by
     simpa [toSearcher_eq, isValidSearchFrom_iff_isValidSearchFrom_beq] using
       LawfulToForwardSearcherModel.isValidSearchFrom_toList (pat := (· == c)) (s := s)
+
+instance {c : Char} : LawfulToBackwardSearcherModel c where
+  isValidRevSearchFrom_toList s := by
+    simpa [toBackwardSearcher_eq, isValidRevSearchFrom_iff_isValidRevSearchFrom_beq] using
+      LawfulToBackwardSearcherModel.isValidRevSearchFrom_toList (pat := (· == c)) (s := s)
 
 end Pattern.Model.Char
 

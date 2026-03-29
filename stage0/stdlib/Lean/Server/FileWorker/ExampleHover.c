@@ -315,10 +315,9 @@ if (lean_obj_tag(v_fst_75_) == 0)
 {
 lean_object* v_snd_76_; lean_object* v___x_77_; lean_object* v___x_78_; lean_object* v___x_79_; lean_object* v___x_80_; lean_object* v___x_81_; uint8_t v___x_82_; 
 v_snd_76_ = lean_ctor_get(v___x_74_, 1);
-lean_inc(v_snd_76_);
+lean_inc_n(v_snd_76_, 2);
 lean_dec_ref(v___x_74_);
 v___x_77_ = lean_string_utf8_byte_size(v_line_69_);
-lean_inc(v_snd_76_);
 lean_inc_ref(v_line_69_);
 v___x_78_ = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(v___x_78_, 0, v_line_69_);

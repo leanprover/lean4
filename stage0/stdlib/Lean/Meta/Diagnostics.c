@@ -586,11 +586,10 @@ _start:
 {
 lean_object* v_fst_97_; lean_object* v_snd_98_; lean_object* v___x_99_; 
 v_fst_97_ = lean_ctor_get(v_x_95_, 0);
-lean_inc(v_fst_97_);
+lean_inc_n(v_fst_97_, 2);
 v_snd_98_ = lean_ctor_get(v_x_95_, 1);
 lean_inc(v_snd_98_);
 lean_dec_ref(v_x_95_);
-lean_inc(v_fst_97_);
 lean_inc_ref(v_inst_93_);
 lean_inc_ref(v_inst_92_);
 v___x_99_ = l_Lean_PersistentHashMap_find_x3f___redArg(v_inst_92_, v_inst_93_, v_oldCounters_94_, v_fst_97_);
@@ -4370,6 +4369,7 @@ lean_ctor_set(v___x_1690_, 1, v_openDecls_1677_);
 v___x_1691_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_1691_, 0, v___x_1690_);
 lean_ctor_set(v___x_1691_, 1, v___y_1667_);
+lean_inc_ref(v___y_1671_);
 lean_inc_ref(v___y_1666_);
 v___x_1692_ = lean_alloc_ctor(0, 5, 3);
 lean_ctor_set(v___x_1692_, 0, v___y_1666_);
@@ -4438,10 +4438,9 @@ goto v_resetjp_1713_;
 v_resetjp_1713_:
 {
 lean_object* v___x_1716_; lean_object* v___x_1717_; lean_object* v___x_1718_; lean_object* v___x_1719_; 
-lean_inc_ref(v___y_1704_);
+lean_inc_ref_n(v___y_1704_, 2);
 v___x_1716_ = l_Lean_FileMap_toPosition(v___y_1704_, v___y_1703_);
 lean_dec(v___y_1703_);
-lean_inc_ref(v___y_1704_);
 v___x_1717_ = l_Lean_FileMap_toPosition(v___y_1704_, v___y_1709_);
 lean_dec(v___y_1709_);
 v___x_1718_ = lean_alloc_ctor(1, 1, 0);
@@ -4870,10 +4869,9 @@ v_diag_1883_ = lean_ctor_get(v___x_1882_, 4);
 lean_inc_ref(v_diag_1883_);
 lean_dec(v___x_1882_);
 v_unfoldCounter_1884_ = lean_ctor_get(v_diag_1883_, 0);
-lean_inc_ref(v_unfoldCounter_1884_);
+lean_inc_ref_n(v_unfoldCounter_1884_, 2);
 lean_dec_ref(v_diag_1883_);
 v___x_1885_ = 0;
-lean_inc_ref(v_unfoldCounter_1884_);
 v___x_1944_ = l_Lean_Meta_mkDiagSummaryForUnfolded(v_unfoldCounter_1884_, v___x_1885_, v_a_1867_, v_a_1868_, v_a_1869_, v_a_1870_);
 if (lean_obj_tag(v___x_1944_) == 0)
 {

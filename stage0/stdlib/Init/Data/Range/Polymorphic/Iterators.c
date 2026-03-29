@@ -288,10 +288,9 @@ v_resetjp_36_:
 {
 lean_object* v_val_39_; lean_object* v___x_40_; uint8_t v___x_41_; 
 v_val_39_ = lean_ctor_get(v_next_34_, 0);
-lean_inc(v_val_39_);
+lean_inc_n(v_val_39_, 2);
 lean_dec_ref(v_next_34_);
 lean_inc(v_upperBound_35_);
-lean_inc(v_val_39_);
 v___x_40_ = lean_apply_2(v_inst_29_, v_val_39_, v_upperBound_35_);
 v___x_41_ = lean_unbox(v___x_40_);
 if (v___x_41_ == 0)
@@ -690,9 +689,8 @@ v_toBind_182_ = lean_ctor_get(v_inst_172_, 1);
 lean_inc(v_toBind_182_);
 lean_dec_ref(v_inst_172_);
 v_toPure_183_ = lean_ctor_get(v_toApplicative_179_, 1);
-lean_inc(v_toPure_183_);
+lean_inc_n(v_toPure_183_, 2);
 lean_dec_ref(v_toApplicative_179_);
-lean_inc(v_toPure_183_);
 v___f_184_ = lean_alloc_closure((void*)(l_Std_Rcc_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfMonadOfFiniteIteratorId___redArg___lam__0), 2, 1);
 lean_closure_set(v___f_184_, 0, v_toPure_183_);
 v___f_185_ = lean_alloc_closure((void*)(l_Std_Rcc_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfMonadOfFiniteIteratorId___redArg___lam__2), 11, 7);
@@ -876,10 +874,9 @@ v_resetjp_236_:
 {
 lean_object* v_val_239_; lean_object* v___x_240_; uint8_t v___x_241_; 
 v_val_239_ = lean_ctor_get(v_next_234_, 0);
-lean_inc(v_val_239_);
+lean_inc_n(v_val_239_, 2);
 lean_dec_ref(v_next_234_);
 lean_inc(v_upperBound_235_);
-lean_inc(v_val_239_);
 v___x_240_ = lean_apply_2(v_inst_229_, v_val_239_, v_upperBound_235_);
 v___x_241_ = lean_unbox(v___x_240_);
 if (v___x_241_ == 0)
@@ -1189,9 +1186,8 @@ v_toBind_346_ = lean_ctor_get(v_inst_336_, 1);
 lean_inc(v_toBind_346_);
 lean_dec_ref(v_inst_336_);
 v_toPure_347_ = lean_ctor_get(v_toApplicative_343_, 1);
-lean_inc(v_toPure_347_);
+lean_inc_n(v_toPure_347_, 2);
 lean_dec_ref(v_toApplicative_343_);
-lean_inc(v_toPure_347_);
 v___f_348_ = lean_alloc_closure((void*)(l_Std_Rcc_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfMonadOfFiniteIteratorId___redArg___lam__0), 2, 1);
 lean_closure_set(v___f_348_, 0, v_toPure_347_);
 v___f_349_ = lean_alloc_closure((void*)(l_Std_Rcc_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfMonadOfFiniteIteratorId___redArg___lam__2), 11, 7);
@@ -1268,12 +1264,11 @@ else
 {
 lean_object* v_val_381_; lean_object* v_succ_x3f_382_; lean_object* v___x_383_; lean_object* v___x_384_; lean_object* v___x_385_; 
 v_val_381_ = lean_ctor_get(v_it_378_, 0);
-lean_inc(v_val_381_);
+lean_inc_n(v_val_381_, 2);
 lean_dec_ref(v_it_378_);
 v_succ_x3f_382_ = lean_ctor_get(v_inst_377_, 0);
 lean_inc_ref(v_succ_x3f_382_);
 lean_dec_ref(v_inst_377_);
-lean_inc(v_val_381_);
 v___x_383_ = lean_apply_1(v_succ_x3f_382_, v_val_381_);
 v___x_384_ = lean_array_push(v_acc_379_, v_val_381_);
 v___x_385_ = lean_apply_3(v_recur_380_, v___x_383_, v___x_384_, lean_box(0));
@@ -1378,9 +1373,8 @@ v_toBind_445_ = lean_ctor_get(v_inst_438_, 1);
 lean_inc(v_toBind_445_);
 lean_dec_ref(v_inst_438_);
 v_toPure_446_ = lean_ctor_get(v_toApplicative_444_, 1);
-lean_inc(v_toPure_446_);
+lean_inc_n(v_toPure_446_, 2);
 lean_dec_ref(v_toApplicative_444_);
-lean_inc(v_toPure_446_);
 v___f_447_ = lean_alloc_closure((void*)(l_Std_Rcc_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfMonadOfFiniteIteratorId___redArg___lam__0), 2, 1);
 lean_closure_set(v___f_447_, 0, v_toPure_446_);
 v___f_448_ = lean_alloc_closure((void*)(l_Std_Rci_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfMonadOfFiniteIteratorId___redArg___lam__2), 9, 5);
@@ -1555,10 +1549,9 @@ v_resetjp_496_:
 {
 lean_object* v_val_499_; lean_object* v___x_500_; uint8_t v___x_501_; 
 v_val_499_ = lean_ctor_get(v_next_494_, 0);
-lean_inc(v_val_499_);
+lean_inc_n(v_val_499_, 2);
 lean_dec_ref(v_next_494_);
 lean_inc(v_upperBound_495_);
-lean_inc(v_val_499_);
 v___x_500_ = lean_apply_2(v_inst_489_, v_val_499_, v_upperBound_495_);
 v___x_501_ = lean_unbox(v___x_500_);
 if (v___x_501_ == 0)
@@ -1985,7 +1978,7 @@ lean_object* v_toApplicative_646_; lean_object* v_succ_x3f_647_; lean_object* v_
 v_toApplicative_646_ = lean_ctor_get(v_inst_640_, 0);
 lean_inc_ref(v_toApplicative_646_);
 v_succ_x3f_647_ = lean_ctor_get(v_inst_639_, 0);
-lean_inc_ref(v_succ_x3f_647_);
+lean_inc_ref_n(v_succ_x3f_647_, 2);
 lean_dec_ref(v_inst_639_);
 v_lower_648_ = lean_ctor_get(v_r_643_, 0);
 lean_inc(v_lower_648_);
@@ -1998,7 +1991,6 @@ lean_dec_ref(v_inst_640_);
 v_toPure_651_ = lean_ctor_get(v_toApplicative_646_, 1);
 lean_inc(v_toPure_651_);
 lean_dec_ref(v_toApplicative_646_);
-lean_inc_ref(v_succ_x3f_647_);
 v___x_652_ = lean_apply_1(v_succ_x3f_647_, v_lower_648_);
 if (lean_obj_tag(v___x_652_) == 0)
 {
@@ -2197,10 +2189,9 @@ v_resetjp_708_:
 {
 lean_object* v_val_711_; lean_object* v___x_712_; uint8_t v___x_713_; 
 v_val_711_ = lean_ctor_get(v_next_706_, 0);
-lean_inc(v_val_711_);
+lean_inc_n(v_val_711_, 2);
 lean_dec_ref(v_next_706_);
 lean_inc(v_upperBound_707_);
-lean_inc(v_val_711_);
 v___x_712_ = lean_apply_2(v_inst_701_, v_val_711_, v_upperBound_707_);
 v___x_713_ = lean_unbox(v___x_712_);
 if (v___x_713_ == 0)
@@ -2549,7 +2540,7 @@ lean_object* v_toApplicative_828_; lean_object* v_succ_x3f_829_; lean_object* v_
 v_toApplicative_828_ = lean_ctor_get(v_inst_822_, 0);
 lean_inc_ref(v_toApplicative_828_);
 v_succ_x3f_829_ = lean_ctor_get(v_inst_821_, 0);
-lean_inc_ref(v_succ_x3f_829_);
+lean_inc_ref_n(v_succ_x3f_829_, 2);
 lean_dec_ref(v_inst_821_);
 v_lower_830_ = lean_ctor_get(v_r_825_, 0);
 lean_inc(v_lower_830_);
@@ -2562,7 +2553,6 @@ lean_dec_ref(v_inst_822_);
 v_toPure_833_ = lean_ctor_get(v_toApplicative_828_, 1);
 lean_inc(v_toPure_833_);
 lean_dec_ref(v_toApplicative_828_);
-lean_inc_ref(v_succ_x3f_829_);
 v___x_834_ = lean_apply_1(v_succ_x3f_829_, v_lower_830_);
 if (lean_obj_tag(v___x_834_) == 0)
 {
@@ -2654,9 +2644,8 @@ else
 {
 lean_object* v_val_867_; lean_object* v___x_868_; lean_object* v___x_869_; lean_object* v___x_870_; 
 v_val_867_ = lean_ctor_get(v_it_864_, 0);
-lean_inc(v_val_867_);
+lean_inc_n(v_val_867_, 2);
 lean_dec_ref(v_it_864_);
-lean_inc(v_val_867_);
 v___x_868_ = lean_apply_1(v_succ_x3f_863_, v_val_867_);
 v___x_869_ = lean_array_push(v_acc_865_, v_val_867_);
 v___x_870_ = lean_apply_3(v_recur_866_, v___x_868_, v___x_869_, lean_box(0));
@@ -2669,9 +2658,8 @@ _start:
 {
 lean_object* v_succ_x3f_873_; lean_object* v___f_874_; lean_object* v___x_875_; lean_object* v___x_876_; lean_object* v___x_877_; lean_object* v___x_878_; 
 v_succ_x3f_873_ = lean_ctor_get(v_inst_871_, 0);
-lean_inc_ref(v_succ_x3f_873_);
+lean_inc_ref_n(v_succ_x3f_873_, 2);
 lean_dec_ref(v_inst_871_);
-lean_inc_ref(v_succ_x3f_873_);
 v___f_874_ = lean_alloc_closure((void*)(l_Std_Roi_toList___redArg___lam__0), 4, 1);
 lean_closure_set(v___f_874_, 0, v_succ_x3f_873_);
 v___x_875_ = lean_apply_1(v_succ_x3f_873_, v_r_872_);
@@ -2686,9 +2674,8 @@ _start:
 {
 lean_object* v_succ_x3f_884_; lean_object* v___f_885_; lean_object* v___x_886_; lean_object* v___x_887_; lean_object* v___x_888_; lean_object* v___x_889_; 
 v_succ_x3f_884_ = lean_ctor_get(v_inst_880_, 0);
-lean_inc_ref(v_succ_x3f_884_);
+lean_inc_ref_n(v_succ_x3f_884_, 2);
 lean_dec_ref(v_inst_880_);
-lean_inc_ref(v_succ_x3f_884_);
 v___f_885_ = lean_alloc_closure((void*)(l_Std_Roi_toList___redArg___lam__0), 4, 1);
 lean_closure_set(v___f_885_, 0, v_succ_x3f_884_);
 v___x_886_ = lean_apply_1(v_succ_x3f_884_, v_r_883_);
@@ -2703,9 +2690,8 @@ _start:
 {
 lean_object* v_succ_x3f_892_; lean_object* v___f_893_; lean_object* v___x_894_; lean_object* v___x_895_; lean_object* v___x_896_; 
 v_succ_x3f_892_ = lean_ctor_get(v_inst_890_, 0);
-lean_inc_ref(v_succ_x3f_892_);
+lean_inc_ref_n(v_succ_x3f_892_, 2);
 lean_dec_ref(v_inst_890_);
-lean_inc_ref(v_succ_x3f_892_);
 v___f_893_ = lean_alloc_closure((void*)(l_Std_Roi_toList___redArg___lam__0), 4, 1);
 lean_closure_set(v___f_893_, 0, v_succ_x3f_892_);
 v___x_894_ = lean_apply_1(v_succ_x3f_892_, v_r_891_);
@@ -2719,9 +2705,8 @@ _start:
 {
 lean_object* v_succ_x3f_902_; lean_object* v___f_903_; lean_object* v___x_904_; lean_object* v___x_905_; lean_object* v___x_906_; 
 v_succ_x3f_902_ = lean_ctor_get(v_inst_898_, 0);
-lean_inc_ref(v_succ_x3f_902_);
+lean_inc_ref_n(v_succ_x3f_902_, 2);
 lean_dec_ref(v_inst_898_);
-lean_inc_ref(v_succ_x3f_902_);
 v___f_903_ = lean_alloc_closure((void*)(l_Std_Roi_toList___redArg___lam__0), 4, 1);
 lean_closure_set(v___f_903_, 0, v_succ_x3f_902_);
 v___x_904_ = lean_apply_1(v_succ_x3f_902_, v_r_901_);
@@ -2806,7 +2791,7 @@ lean_object* v_toApplicative_943_; lean_object* v_succ_x3f_944_; lean_object* v_
 v_toApplicative_943_ = lean_ctor_get(v_inst_938_, 0);
 lean_inc_ref(v_toApplicative_943_);
 v_succ_x3f_944_ = lean_ctor_get(v_inst_937_, 0);
-lean_inc_ref(v_succ_x3f_944_);
+lean_inc_ref_n(v_succ_x3f_944_, 2);
 lean_dec_ref(v_inst_937_);
 v_toBind_945_ = lean_ctor_get(v_inst_938_, 1);
 lean_inc(v_toBind_945_);
@@ -2814,7 +2799,6 @@ lean_dec_ref(v_inst_938_);
 v_toPure_946_ = lean_ctor_get(v_toApplicative_943_, 1);
 lean_inc(v_toPure_946_);
 lean_dec_ref(v_toApplicative_943_);
-lean_inc_ref(v_succ_x3f_944_);
 v_next_947_ = lean_apply_1(v_succ_x3f_944_, v_r_940_);
 if (lean_obj_tag(v_next_947_) == 0)
 {
@@ -3054,12 +3038,11 @@ v_toBind_1056_ = lean_ctor_get(v_inst_1045_, 1);
 lean_inc(v_toBind_1056_);
 lean_dec_ref(v_inst_1045_);
 v_toPure_1057_ = lean_ctor_get(v_toApplicative_1053_, 1);
-lean_inc(v_toPure_1057_);
+lean_inc_n(v_toPure_1057_, 2);
 lean_dec_ref(v_toApplicative_1053_);
 v_val_1058_ = lean_ctor_get(v_inst_1046_, 0);
 lean_inc(v_val_1058_);
 lean_dec_ref(v_inst_1046_);
-lean_inc(v_toPure_1057_);
 v___f_1059_ = lean_alloc_closure((void*)(l_Std_Rcc_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfMonadOfFiniteIteratorId___redArg___lam__0), 2, 1);
 lean_closure_set(v___f_1059_, 0, v_toPure_1057_);
 v___f_1060_ = lean_alloc_closure((void*)(l_Std_Ric_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfLawfulUpwardEnumerableLeast_x3fOfMonadOfFiniteIteratorId___redArg___lam__2), 11, 7);
@@ -3458,12 +3441,11 @@ v_toBind_1253_ = lean_ctor_get(v_inst_1243_, 1);
 lean_inc(v_toBind_1253_);
 lean_dec_ref(v_inst_1243_);
 v_toPure_1254_ = lean_ctor_get(v_toApplicative_1250_, 1);
-lean_inc(v_toPure_1254_);
+lean_inc_n(v_toPure_1254_, 2);
 lean_dec_ref(v_toApplicative_1250_);
 v_val_1255_ = lean_ctor_get(v_inst_1244_, 0);
 lean_inc(v_val_1255_);
 lean_dec_ref(v_inst_1244_);
-lean_inc(v_toPure_1254_);
 v___f_1256_ = lean_alloc_closure((void*)(l_Std_Rcc_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfMonadOfFiniteIteratorId___redArg___lam__0), 2, 1);
 lean_closure_set(v___f_1256_, 0, v_toPure_1254_);
 v___f_1257_ = lean_alloc_closure((void*)(l_Std_Rci_instForIn_x27InferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLEOfMonadOfFiniteIteratorId___redArg___lam__2), 9, 5);

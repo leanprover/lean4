@@ -70,8 +70,8 @@ goto v_reusejp_14_;
 v_reusejp_14_:
 {
 lean_object* v_res_16_; lean_object* v_aig_17_; lean_object* v_ref_18_; lean_object* v_res_19_; lean_object* v_aig_20_; lean_object* v_r_21_; lean_object* v___x_23_; uint8_t v_isShared_24_; uint8_t v_isSharedCheck_38_; 
-lean_inc_ref(v_inst_2_);
-lean_inc_ref(v_inst_1_);
+lean_inc_ref_n(v_inst_2_, 2);
+lean_inc_ref_n(v_inst_1_, 2);
 v_res_16_ = l_Std_Tactic_BVDecide_BVPred_mkEq___redArg(v_inst_1_, v_inst_2_, v_w_3_, v_aig_4_, v___x_15_);
 lean_dec_ref(v___x_15_);
 v_aig_17_ = lean_ctor_get(v_res_16_, 0);
@@ -81,8 +81,6 @@ lean_inc_ref(v_ref_18_);
 lean_dec_ref(v_res_16_);
 lean_inc_ref(v_zero_13_);
 lean_inc(v_w_3_);
-lean_inc_ref(v_inst_2_);
-lean_inc_ref(v_inst_1_);
 v_res_19_ = l_Std_Tactic_BVDecide_BVExpr_bitblast_blastUdiv_go___redArg(v_inst_1_, v_inst_2_, v_w_3_, v_aig_17_, v_w_3_, v_lhs_6_, v_rhs_7_, v_w_3_, v___x_11_, v_zero_13_, v_zero_13_);
 v_aig_20_ = lean_ctor_get(v_res_19_, 0);
 v_r_21_ = lean_ctor_get(v_res_19_, 2);

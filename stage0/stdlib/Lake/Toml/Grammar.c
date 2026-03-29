@@ -1861,7 +1861,6 @@ v___jp_263_:
 if (v_stringGap_246_ == 0)
 {
 lean_object* v___x_265_; lean_object* v___x_266_; 
-lean_dec_ref(v_p_264_);
 lean_dec_ref(v_c_247_);
 v___x_265_ = ((lean_object*)(l___private_Lake_Toml_Grammar_0__Lake_Toml_escapeSeqFn___closed__3));
 v___x_266_ = l_Lean_Parser_ParserState_mkUnexpectedError(v_s_248_, v___x_265_, v_expected_252_, v___x_262_);
@@ -1873,6 +1872,7 @@ lean_object* v___x_267_; lean_object* v___x_268_;
 lean_inc(v_pos_250_);
 v___x_267_ = l_Lean_Parser_ParserState_next_x27___redArg(v_s_248_, v_c_247_, v_pos_250_);
 lean_dec(v_pos_250_);
+lean_inc_ref(v_p_264_);
 v___x_268_ = lean_apply_2(v_p_264_, v_c_247_, v___x_267_);
 return v___x_268_;
 }

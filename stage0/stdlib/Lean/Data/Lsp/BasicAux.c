@@ -152,10 +152,10 @@ static const lean_object* l_Lean_Lsp_instToStringPosition___closed__0 = (const l
 LEAN_EXPORT const lean_object* l_Lean_Lsp_instToStringPosition = (const lean_object*)&l_Lean_Lsp_instToStringPosition___closed__0_value;
 LEAN_EXPORT lean_object* l_Lean_Lsp_instLTPosition;
 LEAN_EXPORT lean_object* l_Lean_Lsp_instLEPosition;
-static lean_once_cell_t l_Lean_Lsp_instInhabitedRange_default___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_Lsp_instInhabitedRange_default___closed__0;
-LEAN_EXPORT lean_object* l_Lean_Lsp_instInhabitedRange_default;
-LEAN_EXPORT lean_object* l_Lean_Lsp_instInhabitedRange;
+static const lean_ctor_object l_Lean_Lsp_instInhabitedRange_default___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 0, .m_other = 2, .m_tag = 0}, .m_objs = {((lean_object*)&l_Lean_Lsp_instInhabitedPosition_default___closed__0_value),((lean_object*)&l_Lean_Lsp_instInhabitedPosition_default___closed__0_value)}};
+static const lean_object* l_Lean_Lsp_instInhabitedRange_default___closed__0 = (const lean_object*)&l_Lean_Lsp_instInhabitedRange_default___closed__0_value;
+LEAN_EXPORT const lean_object* l_Lean_Lsp_instInhabitedRange_default = (const lean_object*)&l_Lean_Lsp_instInhabitedRange_default___closed__0_value;
+LEAN_EXPORT const lean_object* l_Lean_Lsp_instInhabitedRange = (const lean_object*)&l_Lean_Lsp_instInhabitedRange_default___closed__0_value;
 LEAN_EXPORT uint8_t l_Lean_Lsp_instBEqRange_beq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_instBEqRange_beq___boxed(lean_object*, lean_object*);
 static const lean_closure_object l_Lean_Lsp_instBEqRange___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lean_Lsp_instBEqRange_beq___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
@@ -1005,33 +1005,6 @@ v___x_284_ = lean_box(0);
 return v___x_284_;
 }
 }
-static lean_object* _init_l_Lean_Lsp_instInhabitedRange_default___closed__0(void){
-_start:
-{
-lean_object* v___x_285_; lean_object* v___x_286_; 
-v___x_285_ = ((lean_object*)(l_Lean_Lsp_instInhabitedPosition_default));
-v___x_286_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v___x_286_, 0, v___x_285_);
-lean_ctor_set(v___x_286_, 1, v___x_285_);
-return v___x_286_;
-}
-}
-static lean_object* _init_l_Lean_Lsp_instInhabitedRange_default(void){
-_start:
-{
-lean_object* v___x_287_; 
-v___x_287_ = lean_obj_once(&l_Lean_Lsp_instInhabitedRange_default___closed__0, &l_Lean_Lsp_instInhabitedRange_default___closed__0_once, _init_l_Lean_Lsp_instInhabitedRange_default___closed__0);
-return v___x_287_;
-}
-}
-static lean_object* _init_l_Lean_Lsp_instInhabitedRange(void){
-_start:
-{
-lean_object* v___x_288_; 
-v___x_288_ = l_Lean_Lsp_instInhabitedRange_default;
-return v___x_288_;
-}
-}
 LEAN_EXPORT uint8_t l_Lean_Lsp_instBEqRange_beq(lean_object* v_x_289_, lean_object* v_x_290_){
 _start:
 {
@@ -1710,10 +1683,6 @@ l_Lean_Lsp_instLTPosition = _init_l_Lean_Lsp_instLTPosition();
 lean_mark_persistent(l_Lean_Lsp_instLTPosition);
 l_Lean_Lsp_instLEPosition = _init_l_Lean_Lsp_instLEPosition();
 lean_mark_persistent(l_Lean_Lsp_instLEPosition);
-l_Lean_Lsp_instInhabitedRange_default = _init_l_Lean_Lsp_instInhabitedRange_default();
-lean_mark_persistent(l_Lean_Lsp_instInhabitedRange_default);
-l_Lean_Lsp_instInhabitedRange = _init_l_Lean_Lsp_instInhabitedRange();
-lean_mark_persistent(l_Lean_Lsp_instInhabitedRange);
 l_Lean_Lsp_instLTRange = _init_l_Lean_Lsp_instLTRange();
 lean_mark_persistent(l_Lean_Lsp_instLTRange);
 l_Lean_Lsp_instLERange = _init_l_Lean_Lsp_instLERange();

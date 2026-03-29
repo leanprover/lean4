@@ -951,7 +951,6 @@ v___x_277_ = lean_nat_sub(v___x_266_, v_a_267_);
 v___x_278_ = lean_unsigned_to_nat(1u);
 v___x_279_ = lean_nat_sub(v___x_277_, v___x_278_);
 lean_dec(v___x_277_);
-lean_inc_ref(v_b_268_);
 v___x_280_ = l_Lean_LocalContext_getAt_x3f(v_b_268_, v___x_279_);
 lean_dec(v___x_279_);
 if (lean_obj_tag(v___x_280_) == 0)
@@ -1034,13 +1033,12 @@ lean_dec_ref(v___x_300_);
 v_userName_302_ = lean_ctor_get(v_a_301_, 0);
 lean_inc(v_userName_302_);
 v_lctx_303_ = lean_ctor_get(v_a_301_, 1);
-lean_inc_ref(v_lctx_303_);
+lean_inc_ref_n(v_lctx_303_, 2);
 v_type_304_ = lean_ctor_get(v_a_301_, 2);
 lean_inc_ref(v_type_304_);
 v_localInstances_305_ = lean_ctor_get(v_a_301_, 4);
 lean_inc_ref(v_localInstances_305_);
 lean_dec(v_a_301_);
-lean_inc_ref(v_lctx_303_);
 v___x_306_ = lean_local_ctx_num_indices(v_lctx_303_);
 v___x_307_ = lean_unsigned_to_nat(0u);
 v___x_308_ = l_WellFounded_opaqueFix_u2083___at___00Lean_MVarId_markAccessible_spec__1___redArg(v___x_306_, v___x_306_, v___x_307_, v_lctx_303_);
@@ -1057,9 +1055,8 @@ if (lean_obj_tag(v___x_311_) == 0)
 {
 lean_object* v_a_312_; lean_object* v___x_313_; lean_object* v___x_315_; uint8_t v_isShared_316_; uint8_t v_isSharedCheck_321_; 
 v_a_312_ = lean_ctor_get(v___x_311_, 0);
-lean_inc(v_a_312_);
+lean_inc_n(v_a_312_, 2);
 lean_dec_ref(v___x_311_);
-lean_inc(v_a_312_);
 v___x_313_ = l_Lean_MVarId_assign___at___00Lean_MVarId_markAccessible_spec__0___redArg(v_mvarId_294_, v_a_312_, v___y_296_);
 v_isSharedCheck_321_ = !lean_is_exclusive(v___x_313_);
 if (v_isSharedCheck_321_ == 0)
@@ -1393,7 +1390,6 @@ else
 {
 lean_object* v_a_470_; lean_object* v___x_471_; 
 v_a_470_ = lean_array_uget_borrowed(v_as_460_, v_i_462_);
-lean_inc_ref(v___y_464_);
 lean_inc(v_a_470_);
 v___x_471_ = l_Lean_FVarId_getDecl___redArg(v_a_470_, v___y_464_, v___y_465_, v___y_466_);
 if (lean_obj_tag(v___x_471_) == 0)

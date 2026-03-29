@@ -25,7 +25,7 @@ lean_object* lean_task_get_own(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_instInhabitedInfoTree_default;
-lean_object* lean_panic_fn(lean_object*, lean_object*);
+lean_object* lean_panic_fn_borrowed(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_outOfBounds___redArg(lean_object*);
 lean_object* l_Lean_PersistentArray_get_x21___redArg(lean_object*, lean_object*, lean_object*);
@@ -121,7 +121,7 @@ _start:
 {
 lean_object* v___x_17_; lean_object* v___x_18_; 
 v___x_17_ = l_Lean_Elab_instInhabitedInfoTree_default;
-v___x_18_ = lean_panic_fn(v___x_17_, v_msg_16_);
+v___x_18_ = lean_panic_fn_borrowed(v___x_17_, v_msg_16_);
 return v___x_18_;
 }
 }
@@ -181,6 +181,7 @@ else
 {
 lean_object* v___x_43_; 
 v___x_43_ = l_Lean_PersistentArray_get_x21___redArg(v___x_39_, v_trees_33_, v___x_40_);
+lean_dec_ref(v_trees_33_);
 return v___x_43_;
 }
 }

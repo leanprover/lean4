@@ -1911,6 +1911,7 @@ return v___x_358_;
 v___jp_343_:
 {
 lean_object* v___x_346_; 
+lean_inc_ref(v___y_344_);
 if (v_isShared_336_ == 0)
 {
 lean_ctor_set_tag(v___x_335_, 0);
@@ -2227,6 +2228,7 @@ return v___x_440_;
 v___jp_425_:
 {
 lean_object* v___x_428_; 
+lean_inc_ref(v___y_426_);
 if (v_isShared_418_ == 0)
 {
 lean_ctor_set_tag(v___x_417_, 0);
@@ -3349,6 +3351,7 @@ return v___x_879_;
 v___jp_852_:
 {
 lean_object* v___x_854_; lean_object* v___x_856_; 
+lean_inc_ref(v___y_853_);
 v___x_854_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_854_, 0, v___y_853_);
 if (v_isShared_851_ == 0)
@@ -3637,6 +3640,7 @@ return v___x_990_;
 v___jp_973_:
 {
 lean_object* v___x_975_; lean_object* v___x_977_; 
+lean_inc_ref(v___y_974_);
 v___x_975_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_975_, 0, v___y_974_);
 if (v_isShared_972_ == 0)
@@ -3896,6 +3900,7 @@ return v___x_1102_;
 v___jp_1084_:
 {
 lean_object* v___x_1086_; lean_object* v___x_1088_; 
+lean_inc_ref(v___y_1085_);
 v___x_1086_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1086_, 0, v___y_1085_);
 if (v_isShared_1083_ == 0)
@@ -4193,6 +4198,7 @@ return v___x_1221_;
 v___jp_1196_:
 {
 lean_object* v___x_1198_; lean_object* v___x_1200_; 
+lean_inc_ref(v___y_1197_);
 v___x_1198_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1198_, 0, v___y_1197_);
 if (v_isShared_1195_ == 0)
@@ -4462,6 +4468,7 @@ return v___x_1333_;
 v___jp_1315_:
 {
 lean_object* v___x_1317_; lean_object* v___x_1319_; 
+lean_inc_ref(v___y_1316_);
 v___x_1317_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1317_, 0, v___y_1316_);
 if (v_isShared_1314_ == 0)
@@ -4788,6 +4795,7 @@ return v___x_1461_;
 v___jp_1427_:
 {
 lean_object* v___x_1429_; lean_object* v___x_1431_; 
+lean_inc_ref(v___y_1428_);
 v___x_1429_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1429_, 0, v___y_1428_);
 if (v_isShared_1426_ == 0)
@@ -7863,6 +7871,7 @@ return v___x_2608_;
 v___jp_2592_:
 {
 lean_object* v___x_2595_; 
+lean_inc_ref(v___y_2593_);
 if (v_isShared_2585_ == 0)
 {
 lean_ctor_set_tag(v___x_2584_, 0);
@@ -8273,6 +8282,7 @@ return v___x_2748_;
 v___jp_2731_:
 {
 lean_object* v___x_2734_; 
+lean_inc_ref(v___y_2732_);
 if (v_isShared_2724_ == 0)
 {
 lean_ctor_set_tag(v___x_2723_, 0);

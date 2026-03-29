@@ -16,7 +16,7 @@ extern "C" {
 lean_object* l_Lean_Json_getObjValD(lean_object*, lean_object*);
 lean_object* l_Lean_Json_getStr_x3f(lean_object*);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_panic_fn(lean_object*, lean_object*);
+lean_object* lean_panic_fn_borrowed(lean_object*, lean_object*);
 lean_object* l_Lean_Json_getArrVal_x3f(lean_object*, lean_object*);
 lean_object* l_Lean_Json_pretty(lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
@@ -539,7 +539,7 @@ _start:
 {
 lean_object* v___x_143_; lean_object* v___x_144_; 
 v___x_143_ = ((lean_object*)(l_panic___at___00Lean_Lsp_CompletionItem_getFileSource_x21_spec__0___closed__0));
-v___x_144_ = lean_panic_fn(v___x_143_, v_msg_142_);
+v___x_144_ = lean_panic_fn_borrowed(v___x_143_, v_msg_142_);
 return v___x_144_;
 }
 }

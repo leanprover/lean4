@@ -36,8 +36,10 @@ public def mkCmdLog (args : IO.Process.SpawnArgs) : String :=
 public def proc (args : IO.Process.SpawnArgs) (quiet := false) : LogIO Unit := do
   withLogErrorPos do
   let out ← rawProc args
-  logOutput out (if quiet then logVerbose else logInfo)
-  if out.exitCode ≠ 0 then
+  if out.exitCode = 0 then
+    logOutput out (if quiet then logVerbose else logInfo)
+  else
+    logOutput out logInfo
     error s!"external command '{args.cmd}' exited with code {out.exitCode}"
 
 public def captureProc' (args : IO.Process.SpawnArgs) : LogIO (IO.Process.Output) := do

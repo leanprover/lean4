@@ -240,12 +240,4 @@ where fillCache := do
       fieldInfo := fields
     }
 
-public def getOtherDeclImpureType (declName : Name) : CoreM Expr := do
-  match (← impureTypeExt.find? declName) with
-  | some type => return type
-  | none =>
-    let type ← toImpureType (← getOtherDeclMonoType declName)
-    monoTypeExt.insert declName type
-    return type
-
 end Lean.Compiler.LCNF

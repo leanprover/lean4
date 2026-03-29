@@ -1822,12 +1822,11 @@ _start:
 {
 lean_object* v_state_439_; lean_object* v_token_440_; uint64_t v_id_441_; lean_object* v___x_442_; lean_object* v___f_443_; lean_object* v___x_444_; 
 v_state_439_ = lean_ctor_get(v_root_437_, 0);
-lean_inc_ref(v_state_439_);
+lean_inc_ref_n(v_state_439_, 2);
 v_token_440_ = lean_ctor_get(v_root_437_, 1);
 lean_inc_ref(v_token_440_);
 v_id_441_ = lean_ctor_get_uint64(v_root_437_, sizeof(void*)*2);
 v___x_442_ = lean_box_uint64(v_id_441_);
-lean_inc_ref(v_state_439_);
 v___f_443_ = lean_alloc_closure((void*)(l_Std_CancellationContext_fork___lam__0___boxed), 6, 4);
 lean_closure_set(v___f_443_, 0, v_token_440_);
 lean_closure_set(v___f_443_, 1, v___x_442_);

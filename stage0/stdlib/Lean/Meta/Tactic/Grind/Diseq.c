@@ -35,7 +35,7 @@ lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_isEqFalse___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_instInhabitedGoalM(lean_object*);
-lean_object* lean_panic_fn(lean_object*, lean_object*);
+lean_object* lean_panic_fn_borrowed(lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_cleanupAnnotations(lean_object*);
@@ -473,9 +473,9 @@ v___x_108_ = lean_st_ref_get(v_a_101_);
 v_toGoalState_109_ = lean_ctor_get(v___x_108_, 0);
 lean_inc_ref(v_toGoalState_109_);
 lean_dec(v___x_108_);
-v_enodeMap_110_ = lean_ctor_get(v_toGoalState_109_, 2);
+v_enodeMap_110_ = lean_ctor_get(v_toGoalState_109_, 1);
 lean_inc_ref(v_enodeMap_110_);
-v_congrTable_111_ = lean_ctor_get(v_toGoalState_109_, 5);
+v_congrTable_111_ = lean_ctor_get(v_toGoalState_109_, 4);
 lean_inc_ref(v_congrTable_111_);
 lean_dec_ref(v_toGoalState_109_);
 v___x_112_ = l___private_Lean_Meta_Tactic_Grind_Diseq_0__Lean_Meta_Grind_dummyEq;
@@ -512,9 +512,8 @@ v_resetjp_118_:
 {
 lean_object* v_fst_121_; lean_object* v___x_122_; 
 v_fst_121_ = lean_ctor_get(v_val_117_, 0);
-lean_inc(v_fst_121_);
+lean_inc_n(v_fst_121_, 2);
 lean_dec(v_val_117_);
-lean_inc(v_fst_121_);
 v___x_122_ = l_Lean_Meta_Grind_isEqFalse___redArg(v_fst_121_, v_a_101_, v_a_102_, v_a_103_, v_a_104_, v_a_105_, v_a_106_);
 if (lean_obj_tag(v___x_122_) == 0)
 {
@@ -911,7 +910,7 @@ _start:
 {
 lean_object* v___x_304_; lean_object* v___x_12288__overap_305_; lean_object* v___x_306_; 
 v___x_304_ = lean_obj_once(&l_panic___at___00Lean_Meta_Grind_mkDiseqProofUsing_spec__0___closed__0, &l_panic___at___00Lean_Meta_Grind_mkDiseqProofUsing_spec__0___closed__0_once, _init_l_panic___at___00Lean_Meta_Grind_mkDiseqProofUsing_spec__0___closed__0);
-v___x_12288__overap_305_ = lean_panic_fn(v___x_304_, v_msg_292_);
+v___x_12288__overap_305_ = lean_panic_fn_borrowed(v___x_304_, v_msg_292_);
 lean_inc(v___y_302_);
 lean_inc_ref(v___y_301_);
 lean_inc(v___y_300_);

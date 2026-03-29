@@ -1229,13 +1229,12 @@ v___x_358_ = l_Lean_Elab_Command_instInhabitedScope_default;
 v___x_359_ = l_List_head_x21___redArg(v___x_358_, v_scopes_357_);
 lean_dec(v_scopes_357_);
 v_opts_360_ = lean_ctor_get(v___x_359_, 1);
-lean_inc_ref(v_opts_360_);
+lean_inc_ref_n(v_opts_360_, 2);
 v_currNamespace_361_ = lean_ctor_get(v___x_359_, 2);
 lean_inc(v_currNamespace_361_);
 v_openDecls_362_ = lean_ctor_get(v___x_359_, 3);
 lean_inc(v_openDecls_362_);
 lean_dec(v___x_359_);
-lean_inc_ref(v_opts_360_);
 v___x_363_ = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(v___x_363_, 0, v_env_355_);
 lean_ctor_set(v___x_363_, 1, v_opts_360_);
@@ -3486,7 +3485,6 @@ lean_closure_set(v___x_1145_, 2, v___x_1144_);
 v___x_1146_ = lean_box(0);
 v___x_1147_ = l_Lean_profileitIOUnsafe___redArg(v___y_1140_, v___y_1137_, v___x_1145_, v___x_1146_);
 lean_dec_ref(v___y_1137_);
-lean_dec_ref(v___y_1140_);
 if (lean_obj_tag(v___x_1147_) == 0)
 {
 lean_dec_ref(v___x_1147_);

@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.Data.String.Basic
+import all Init.Data.String.Basic
 import Init.Data.ByteArray.Lemmas
 import Init.Data.Nat.MinMax
 
@@ -55,6 +56,11 @@ theorem singleton_ne_empty {c : Char} : singleton c ≠ "" := by
 
 theorem empty_ne_singleton {c : Char} : "" ≠ singleton c := by
   simp
+
+@[simp]
+theorem ofList_cons {c : Char} {l : List Char} :
+    String.ofList (c :: l) = String.singleton c ++ String.ofList l := by
+  simp [← toList_inj]
 
 @[simp]
 theorem Slice.Pos.copy_inj {s : Slice} {p₁ p₂ : s.Pos} : p₁.copy = p₂.copy ↔ p₁ = p₂ := by
@@ -243,5 +249,47 @@ theorem Pos.get_ofToSlice {s : String} {p : (s.toSlice).Pos} {h} :
 
 @[simp]
 theorem push_empty {c : Char} : "".push c = singleton c := rfl
+
+namespace Slice.Pos
+
+@[simp]
+theorem nextn_zero {s : Slice} {p : s.Pos} : p.nextn 0 = p := by
+  simp [nextn]
+
+theorem nextn_add_one {s : Slice} {p : s.Pos} :
+    p.nextn (n + 1) = if h : p = s.endPos then p else (p.next h).nextn n := by
+  simp [nextn]
+
+@[simp]
+theorem nextn_endPos {s : Slice} : s.endPos.nextn n = s.endPos := by
+  cases n <;> simp [nextn_add_one]
+
+end Slice.Pos
+
+namespace Pos
+
+theorem nextn_eq_nextn_toSlice {s : String} {p : s.Pos} : p.nextn n = Pos.ofToSlice (p.toSlice.nextn n) :=
+  (rfl)
+
+@[simp]
+theorem nextn_zero {s : String} {p : s.Pos} : p.nextn 0 = p := by
+  simp [nextn_eq_nextn_toSlice]
+
+theorem nextn_add_one {s : String} {p : s.Pos} :
+    p.nextn (n + 1) = if h : p = s.endPos then p else (p.next h).nextn n := by
+  simp only [nextn_eq_nextn_toSlice, Slice.Pos.nextn_add_one, endPos_toSlice, toSlice_inj]
+  split <;> simp [Pos.next_toSlice]
+
+theorem nextn_toSlice {s : String} {p : s.Pos} : p.toSlice.nextn n = (p.nextn n).toSlice := by
+  induction n generalizing p with simp_all [nextn_add_one, Slice.Pos.nextn_add_one, apply_dite Pos.toSlice, next_toSlice]
+
+theorem toSlice_nextn {s : String} {p : s.Pos} : (p.nextn n).toSlice = p.toSlice.nextn n :=
+  nextn_toSlice.symm
+
+@[simp]
+theorem nextn_endPos {s : String} : s.endPos.nextn n = s.endPos := by
+  cases n <;> simp [nextn_add_one]
+
+end Pos
 
 end String

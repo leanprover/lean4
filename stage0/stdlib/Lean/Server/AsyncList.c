@@ -659,12 +659,11 @@ case 0:
 {
 lean_object* v_hd_187_; lean_object* v_tl_188_; lean_object* v___x_189_; uint8_t v___x_190_; 
 v_hd_187_ = lean_ctor_get(v_x_186_, 0);
-lean_inc(v_hd_187_);
+lean_inc_n(v_hd_187_, 2);
 v_tl_188_ = lean_ctor_get(v_x_186_, 1);
 lean_inc(v_tl_188_);
 lean_dec_ref(v_x_186_);
 lean_inc_ref(v_p_185_);
-lean_inc(v_hd_187_);
 v___x_189_ = lean_apply_1(v_p_185_, v_hd_187_);
 v___x_190_ = lean_unbox(v___x_189_);
 if (v___x_190_ == 0)

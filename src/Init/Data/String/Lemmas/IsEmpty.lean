@@ -204,7 +204,7 @@ theorem Slice.copy_sliceTo_startPos {s : Slice} : (s.sliceTo s.startPos).copy = 
   simp
 
 @[simp]
-theorem Slice.copy_sliceFrom_startPos {s : Slice} : (s.sliceFrom s.endPos).copy = "" := by
+theorem Slice.copy_sliceFrom_endPos {s : Slice} : (s.sliceFrom s.endPos).copy = "" := by
   simp
 
 end CopyEqEmpty

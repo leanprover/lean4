@@ -13,17 +13,16 @@ public import Lean.Meta.CtorRecognizer
 public section
 
 /-!
-# Instance Normal Form
+# Instance Wrapping
 
-Both `inferInstanceAs` and the default `deriving` handler normalize instance bodies to
-"instance normal form". This ensures that when deriving or inferring an instance for a
-semireducible type definition, the definition's RHS is not leaked when reduced at lower
-than semireducible transparency.
+Both `inferInstanceAs` and the default `deriving` handler wrap instance bodies to ensure
+that when deriving or inferring an instance for a semireducible type definition, the
+definition's RHS is not leaked when reduced at lower than semireducible transparency.
 
 ## Algorithm
 
 Given an instance `i : I` and expected type `I'` (where `I'` must be mvar-free),
-`normalizeInstance` constructs a result instance as follows, executing all steps at
+`wrapInstance` constructs a result instance as follows, executing all steps at
 `instances` transparency:
 
 1. If `I'` is not a class, return `i` unchanged.
@@ -46,7 +45,7 @@ Given an instance `i : I` and expected type `I'` (where `I'` must be mvar-free),
 
 ## Options
 
-- `backward.inferInstanceAs.wrap`: master switch for normalization in both `inferInstanceAs`
+- `backward.inferInstanceAs.wrap`: master switch for wrapping in both `inferInstanceAs`
   and the default `deriving` handler
 - `backward.inferInstanceAs.wrap.reuseSubInstances`: reuse existing instances for sub-instance
   fields to avoid non-defeq instance diamonds
@@ -59,7 +58,7 @@ namespace Lean.Meta
 
 register_builtin_option backward.inferInstanceAs.wrap : Bool := {
   defValue := true
-  descr := "normalize instance bodies to constructor-based normal form in `inferInstanceAs` and the default `deriving` handler"
+  descr := "wrap instance bodies in `inferInstanceAs` and the default `deriving` handler"
 }
 
 register_builtin_option backward.inferInstanceAs.wrap.reuseSubInstances : Bool := {
@@ -77,7 +76,7 @@ register_builtin_option backward.inferInstanceAs.wrap.data : Bool := {
   descr := "wrap data fields in auxiliary definitions to fix their types"
 }
 
-builtin_initialize registerTraceClass `Meta.instanceNormalForm
+builtin_initialize registerTraceClass `Meta.wrapInstance
 
 /--
 Rebuild a type application with fresh synthetic metavariables for instance-implicit arguments.
@@ -95,16 +94,16 @@ def abstractInstImplicitArgs (type : Expr) : MetaM Expr := do
   instantiateMVars (mkAppN fn args)
 
 /--
-Normalize an instance value to "instance normal form".
+Wrap an instance value so its type matches the expected type exactly.
 See the module docstring for the full algorithm specification.
 -/
-partial def normalizeInstance (inst expectedType : Expr) (compile : Bool := true)
+partial def wrapInstance (inst expectedType : Expr) (compile : Bool := true)
     (logCompileErrors : Bool := true) (isMeta : Bool := false) : MetaM Expr := withTransparency .instances do
-  withTraceNode `Meta.instanceNormalForm
+  withTraceNode `Meta.wrapInstance
       (fun _ => return m!"type: {expectedType}") do
   let some className ← isClass? expectedType
     | return inst
-  trace[Meta.instanceNormalForm] "class is {className}"
+  trace[Meta.wrapInstance] "class is {className}"
 
   if ← isProp expectedType then
     if backward.inferInstanceAs.wrap.instances.get (← getOptions) then
@@ -117,7 +116,7 @@ partial def normalizeInstance (inst expectedType : Expr) (compile : Bool := true
   inst.withApp fun f args => do
     let some (.ctorInfo ci) ← f.constName?.mapM getConstInfo
       | do
-        trace[Meta.instanceNormalForm] "did not reduce to constructor application, returning/wrapping as is: {inst}"
+        trace[Meta.wrapInstance] "did not reduce to constructor application, returning/wrapping as is: {inst}"
         if backward.inferInstanceAs.wrap.instances.get (← getOptions) then
           let instType ← inferType inst
           if ← isDefEq expectedType instType then
@@ -135,11 +134,11 @@ partial def normalizeInstance (inst expectedType : Expr) (compile : Bool := true
           return inst
     let (mvars, _, cls) ← forallMetaTelescope (← inferType f)
     if h₁ : args.size ≠ mvars.size then
-      throwError "instance normal form: incorrect number of arguments for \
+      throwError "wrapInstance: incorrect number of arguments for \
         constructor application `{f}`: {args}"
     else
       unless ← isDefEq expectedType cls do
-        throwError "instance normal form: `{expectedType}` does not unify with the conclusion of \
+        throwError "wrapInstance: `{expectedType}` does not unify with the conclusion of \
           `{.ofConstName ci.name}`"
       for h₂ : i in ci.numParams...args.size do
         have : i < mvars.size := by
@@ -155,7 +154,7 @@ partial def normalizeInstance (inst expectedType : Expr) (compile : Bool := true
           if ← isDefEq argExpectedType argType then
             mvarId.assign arg
           else
-            trace[Meta.instanceNormalForm] "proof field {i} does not have expected type {argExpectedType} but {argType}, wrapping in auxiliary theorem: {arg}"
+            trace[Meta.wrapInstance] "proof field {i} does not have expected type {argExpectedType} but {argType}, wrapping in auxiliary theorem: {arg}"
             mvarId.assign (← mkAuxTheorem argExpectedType arg (zetaDelta := true))
         -- Recurse into instance arguments of the constructor
         else if (← isClass? argExpectedType).isSome then
@@ -165,12 +164,12 @@ partial def normalizeInstance (inst expectedType : Expr) (compile : Bool := true
             -- semireducible transparency.
             try
               if let .some new ← trySynthInstance argExpectedType then
-                trace[Meta.instanceNormalForm] "using existing instance {new}"
+                trace[Meta.wrapInstance] "using existing instance {new}"
                 mvarId.assign new
                 continue
             catch _ => pure ()
 
-          mvarId.assign (← normalizeInstance arg argExpectedType (compile := compile)
+          mvarId.assign (← wrapInstance arg argExpectedType (compile := compile)
             (logCompileErrors := logCompileErrors) (isMeta := isMeta))
         else
           -- For data fields, assign directly or wrap in aux def to fix types.

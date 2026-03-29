@@ -711,6 +711,7 @@ else
 {
 lean_object* v___x_315_; lean_object* v___x_317_; 
 v___x_315_ = l_Lean_PersistentArray_get_x21___redArg(v___x_309_, v_nodes_307_, v_u_289_);
+lean_dec_ref(v_nodes_307_);
 if (v_isShared_306_ == 0)
 {
 lean_ctor_set(v___x_305_, 0, v___x_315_);
@@ -882,6 +883,7 @@ else
 {
 lean_object* v___x_384_; 
 v___x_384_ = l_Lean_PersistentArray_get_x21___redArg(v___x_381_, v_targets_379_, v_u_354_);
+lean_dec_ref(v_targets_379_);
 v___y_374_ = v___x_384_;
 goto v___jp_373_;
 }
@@ -1038,6 +1040,7 @@ else
 {
 lean_object* v___x_447_; 
 v___x_447_ = l_Lean_PersistentArray_get_x21___redArg(v___x_444_, v_proofs_442_, v_u_417_);
+lean_dec_ref(v_proofs_442_);
 v___y_437_ = v___x_447_;
 goto v___jp_436_;
 }

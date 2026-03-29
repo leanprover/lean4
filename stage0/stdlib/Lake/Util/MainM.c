@@ -2739,9 +2739,9 @@ _start:
 lean_object* v___x_731_; lean_object* v_toApplicative_732_; lean_object* v___x_733_; lean_object* v___x_734_; lean_object* v___x_735_; 
 v___x_731_ = ((lean_object*)(l_Lake_instMonadMainM));
 v_toApplicative_732_ = lean_ctor_get(v___x_731_, 0);
-lean_inc_ref(v_toApplicative_732_);
 v___x_733_ = ((lean_object*)(l___private_Lake_Util_MainM_0__Lake_MainM_instAlternative___closed__0));
 v___x_734_ = ((lean_object*)(l___private_Lake_Util_MainM_0__Lake_MainM_instAlternative___closed__1));
+lean_inc_ref(v_toApplicative_732_);
 v___x_735_ = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(v___x_735_, 0, v_toApplicative_732_);
 lean_ctor_set(v___x_735_, 1, v___x_733_);

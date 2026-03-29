@@ -658,8 +658,7 @@ lean_object* v_bvExpr_169_; lean_object* v_expr_170_; lean_object* v___f_171_; l
 v_bvExpr_169_ = lean_ctor_get(v_val_165_, 0);
 lean_inc_ref(v_bvExpr_169_);
 v_expr_170_ = lean_ctor_get(v_val_165_, 3);
-lean_inc_ref(v_expr_170_);
-lean_inc_ref(v_expr_170_);
+lean_inc_ref_n(v_expr_170_, 2);
 v___f_171_ = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_BVDecide_Frontend_SatAtBVLogical_of___lam__0___boxed), 11, 5);
 lean_closure_set(v___f_171_, 0, v_expr_170_);
 lean_closure_set(v___f_171_, 1, v_val_165_);

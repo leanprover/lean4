@@ -17,7 +17,7 @@ lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-lean_object* lean_panic_fn(lean_object*, lean_object*);
+lean_object* lean_panic_fn_borrowed(lean_object*, lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 lean_object* l_String_quote(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
@@ -461,6 +461,7 @@ v___jp_99_:
 {
 lean_object* v___x_101_; lean_object* v___x_102_; uint8_t v___x_103_; lean_object* v___x_104_; lean_object* v___x_105_; 
 v___x_101_ = ((lean_object*)(l_Std_Http_instReprVersion_repr___closed__1));
+lean_inc(v___y_100_);
 v___x_102_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_102_, 0, v___y_100_);
 lean_ctor_set(v___x_102_, 1, v___x_101_);
@@ -475,6 +476,7 @@ v___jp_106_:
 {
 lean_object* v___x_108_; lean_object* v___x_109_; uint8_t v___x_110_; lean_object* v___x_111_; lean_object* v___x_112_; 
 v___x_108_ = ((lean_object*)(l_Std_Http_instReprVersion_repr___closed__3));
+lean_inc(v___y_107_);
 v___x_109_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_109_, 0, v___y_107_);
 lean_ctor_set(v___x_109_, 1, v___x_108_);
@@ -489,6 +491,7 @@ v___jp_113_:
 {
 lean_object* v___x_115_; lean_object* v___x_116_; uint8_t v___x_117_; lean_object* v___x_118_; lean_object* v___x_119_; 
 v___x_115_ = ((lean_object*)(l_Std_Http_instReprVersion_repr___closed__5));
+lean_inc(v___y_114_);
 v___x_116_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_116_, 0, v___y_114_);
 lean_ctor_set(v___x_116_, 1, v___x_115_);
@@ -503,6 +506,7 @@ v___jp_120_:
 {
 lean_object* v___x_122_; lean_object* v___x_123_; uint8_t v___x_124_; lean_object* v___x_125_; lean_object* v___x_126_; 
 v___x_122_ = ((lean_object*)(l_Std_Http_instReprVersion_repr___closed__7));
+lean_inc(v___y_121_);
 v___x_123_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_123_, 0, v___y_121_);
 lean_ctor_set(v___x_123_, 1, v___x_122_);
@@ -813,7 +817,8 @@ _start:
 uint8_t v___x_248_; lean_object* v___x_249_; lean_object* v___x_250_; uint8_t v___x_251_; 
 v___x_248_ = 0;
 v___x_249_ = lean_box(v___x_248_);
-v___x_250_ = lean_panic_fn(v___x_249_, v_msg_247_);
+v___x_250_ = lean_panic_fn_borrowed(v___x_249_, v_msg_247_);
+lean_dec(v___x_249_);
 v___x_251_ = lean_unbox(v___x_250_);
 lean_dec(v___x_250_);
 return v___x_251_;

@@ -329,10 +329,10 @@ LEAN_EXPORT lean_object* l_Std_Internal_UV_System_instReprUnameInfo_repr___boxed
 static const lean_closure_object l_Std_Internal_UV_System_instReprUnameInfo___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Std_Internal_UV_System_instReprUnameInfo_repr___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_Std_Internal_UV_System_instReprUnameInfo___closed__0 = (const lean_object*)&l_Std_Internal_UV_System_instReprUnameInfo___closed__0_value;
 LEAN_EXPORT const lean_object* l_Std_Internal_UV_System_instReprUnameInfo = (const lean_object*)&l_Std_Internal_UV_System_instReprUnameInfo___closed__0_value;
-static lean_once_cell_t l_Std_Internal_UV_System_instInhabitedUnameInfo_default___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Std_Internal_UV_System_instInhabitedUnameInfo_default___closed__0;
-LEAN_EXPORT lean_object* l_Std_Internal_UV_System_instInhabitedUnameInfo_default;
-LEAN_EXPORT lean_object* l_Std_Internal_UV_System_instInhabitedUnameInfo;
+static const lean_ctor_object l_Std_Internal_UV_System_instInhabitedUnameInfo_default___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*4 + 0, .m_other = 4, .m_tag = 0}, .m_objs = {((lean_object*)&l_Std_Internal_UV_System_instInhabitedCPUInfo_default___closed__0_value),((lean_object*)&l_Std_Internal_UV_System_instInhabitedCPUInfo_default___closed__0_value),((lean_object*)&l_Std_Internal_UV_System_instInhabitedCPUInfo_default___closed__0_value),((lean_object*)&l_Std_Internal_UV_System_instInhabitedCPUInfo_default___closed__0_value)}};
+static const lean_object* l_Std_Internal_UV_System_instInhabitedUnameInfo_default___closed__0 = (const lean_object*)&l_Std_Internal_UV_System_instInhabitedUnameInfo_default___closed__0_value;
+LEAN_EXPORT const lean_object* l_Std_Internal_UV_System_instInhabitedUnameInfo_default = (const lean_object*)&l_Std_Internal_UV_System_instInhabitedUnameInfo_default___closed__0_value;
+LEAN_EXPORT const lean_object* l_Std_Internal_UV_System_instInhabitedUnameInfo = (const lean_object*)&l_Std_Internal_UV_System_instInhabitedUnameInfo_default___closed__0_value;
 lean_object* lean_uv_get_process_title();
 LEAN_EXPORT lean_object* l_Std_Internal_UV_System_getProcessTitle___boxed(lean_object*);
 lean_object* lean_uv_set_process_title(lean_object*);
@@ -2214,35 +2214,6 @@ lean_dec(v_prec_857_);
 return v_res_858_;
 }
 }
-static lean_object* _init_l_Std_Internal_UV_System_instInhabitedUnameInfo_default___closed__0(void){
-_start:
-{
-lean_object* v___x_861_; lean_object* v___x_862_; 
-v___x_861_ = ((lean_object*)(l_Std_Internal_UV_System_instInhabitedCPUInfo_default___closed__0));
-v___x_862_ = lean_alloc_ctor(0, 4, 0);
-lean_ctor_set(v___x_862_, 0, v___x_861_);
-lean_ctor_set(v___x_862_, 1, v___x_861_);
-lean_ctor_set(v___x_862_, 2, v___x_861_);
-lean_ctor_set(v___x_862_, 3, v___x_861_);
-return v___x_862_;
-}
-}
-static lean_object* _init_l_Std_Internal_UV_System_instInhabitedUnameInfo_default(void){
-_start:
-{
-lean_object* v___x_863_; 
-v___x_863_ = lean_obj_once(&l_Std_Internal_UV_System_instInhabitedUnameInfo_default___closed__0, &l_Std_Internal_UV_System_instInhabitedUnameInfo_default___closed__0_once, _init_l_Std_Internal_UV_System_instInhabitedUnameInfo_default___closed__0);
-return v___x_863_;
-}
-}
-static lean_object* _init_l_Std_Internal_UV_System_instInhabitedUnameInfo(void){
-_start:
-{
-lean_object* v___x_864_; 
-v___x_864_ = l_Std_Internal_UV_System_instInhabitedUnameInfo_default;
-return v___x_864_;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Internal_UV_System_getProcessTitle___boxed(lean_object* v_a_00___x40___internal___hyg_866_){
 _start:
 {
@@ -2512,10 +2483,6 @@ l_Std_Internal_UV_System_instInhabitedGroupInfo_default = _init_l_Std_Internal_U
 lean_mark_persistent(l_Std_Internal_UV_System_instInhabitedGroupInfo_default);
 l_Std_Internal_UV_System_instInhabitedGroupInfo = _init_l_Std_Internal_UV_System_instInhabitedGroupInfo();
 lean_mark_persistent(l_Std_Internal_UV_System_instInhabitedGroupInfo);
-l_Std_Internal_UV_System_instInhabitedUnameInfo_default = _init_l_Std_Internal_UV_System_instInhabitedUnameInfo_default();
-lean_mark_persistent(l_Std_Internal_UV_System_instInhabitedUnameInfo_default);
-l_Std_Internal_UV_System_instInhabitedUnameInfo = _init_l_Std_Internal_UV_System_instInhabitedUnameInfo();
-lean_mark_persistent(l_Std_Internal_UV_System_instInhabitedUnameInfo);
 return lean_io_result_mk_ok(lean_box(0));
 }
 static bool _G_meta_initialized = false;

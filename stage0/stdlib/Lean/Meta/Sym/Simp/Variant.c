@@ -864,16 +864,10 @@ _start:
 lean_object* v___x_256_; lean_object* v_ext_257_; lean_object* v_toEnvExtension_258_; lean_object* v_asyncMode_259_; lean_object* v___x_260_; lean_object* v___x_261_; lean_object* v___x_262_; 
 v___x_256_ = l_Lean_Meta_Sym_Simp_symSimpVariantExtension;
 v_ext_257_ = lean_ctor_get(v___x_256_, 1);
-lean_inc_ref(v_ext_257_);
 v_toEnvExtension_258_ = lean_ctor_get(v_ext_257_, 0);
-lean_inc_ref(v_toEnvExtension_258_);
-lean_dec_ref(v_ext_257_);
 v_asyncMode_259_ = lean_ctor_get(v_toEnvExtension_258_, 2);
-lean_inc(v_asyncMode_259_);
-lean_dec_ref(v_toEnvExtension_258_);
 v___x_260_ = lean_obj_once(&l_Lean_Meta_Sym_Simp_getSymSimpVariant_x3f___closed__2, &l_Lean_Meta_Sym_Simp_getSymSimpVariant_x3f___closed__2_once, _init_l_Lean_Meta_Sym_Simp_getSymSimpVariant_x3f___closed__2);
 v___x_261_ = l_Lean_ScopedEnvExtension_getState___redArg(v___x_260_, v___x_256_, v_env_254_, v_asyncMode_259_);
-lean_dec(v_asyncMode_259_);
 v___x_262_ = l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00Lean_Meta_Sym_Simp_getSymSimpVariant_x3f_spec__0___redArg(v___x_261_, v_name_255_);
 lean_dec(v___x_261_);
 return v___x_262_;

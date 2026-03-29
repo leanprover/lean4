@@ -497,13 +497,11 @@ goto v_resetjp_214_;
 v_resetjp_214_:
 {
 lean_object* v___f_217_; lean_object* v___f_218_; lean_object* v___x_219_; lean_object* v___f_220_; lean_object* v___f_221_; lean_object* v___x_223_; 
-lean_inc(v_toSeq_213_);
-lean_inc_ref(v_toFunctor_211_);
+lean_inc_n(v_toSeq_213_, 2);
+lean_inc_ref_n(v_toFunctor_211_, 2);
 v___f_217_ = lean_alloc_closure((void*)(l_Lake_EquipT_instApplicative___redArg___lam__1), 7, 2);
 lean_closure_set(v___f_217_, 0, v_toFunctor_211_);
 lean_closure_set(v___f_217_, 1, v_toSeq_213_);
-lean_inc(v_toSeq_213_);
-lean_inc_ref(v_toFunctor_211_);
 v___f_218_ = lean_alloc_closure((void*)(l_Lake_EquipT_instApplicative___redArg___lam__3), 7, 2);
 lean_closure_set(v___f_218_, 0, v_toFunctor_211_);
 lean_closure_set(v___f_218_, 1, v_toSeq_213_);

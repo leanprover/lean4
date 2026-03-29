@@ -76,10 +76,12 @@ namespace Model.ForwardSliceSearcher
 
 open Pattern.ForwardSliceSearcher
 
+public instance {pat : Slice} : LawfulForwardPattern pat where
+  skipPrefixOfNonempty?_eq _ := rfl
+  startsWith_eq _ := isSome_skipPrefix?.symm
+
 public theorem lawfulForwardPatternModel {pat : Slice} (hpat : pat.isEmpty = false) :
     LawfulForwardPatternModel pat where
-  skipPrefixOfNonempty?_eq h := rfl
-  startsWith_eq s := isSome_skipPrefix?.symm
   skipPrefix?_eq_some_iff pos := by
     simp [ForwardPattern.skipPrefix?, skipPrefix?_eq_some_iff, isLongestMatch_iff hpat]
 
@@ -89,14 +91,115 @@ namespace Model.ForwardStringSearcher
 
 open Pattern.ForwardSliceSearcher
 
+public instance {pat : String} : LawfulForwardPattern pat where
+  skipPrefixOfNonempty?_eq _ := rfl
+  startsWith_eq _ := isSome_skipPrefix?.symm
+
 public theorem lawfulForwardPatternModel {pat : String} (hpat : pat ≠ "") :
     LawfulForwardPatternModel pat where
-  skipPrefixOfNonempty?_eq h := rfl
-  startsWith_eq s := isSome_skipPrefix?.symm
   skipPrefix?_eq_some_iff pos := by
     simp [ForwardPattern.skipPrefix?, skipPrefix?_eq_some_iff, isLongestMatch_iff hpat]
 
 end Model.ForwardStringSearcher
+
+namespace BackwardSliceSearcher
+
+theorem endsWith_iff {pat s : Slice} : endsWith pat s ↔ ∃ t, s.copy = t ++ pat.copy := by
+  rw [endsWith]
+  simp [Internal.memcmpSlice_eq_true_iff, utf8ByteSize_eq_size_toByteArray_copy, -size_toByteArray]
+  generalize pat.copy = pat
+  generalize s.copy = s
+  refine ⟨fun ⟨h₁, h₂⟩ => ?_, ?_⟩
+  · rw [Nat.sub_add_cancel h₁] at h₂
+    suffices (s.rawEndPos.unoffsetBy pat.rawEndPos).IsValid s by
+      have h₃ : (s.sliceFrom (s.pos _ this)).copy = pat := by
+        rw [← toByteArray_inj, (s.pos _ this).splits.toByteArray_right_eq]
+        simpa [offset_pos, Pos.Raw.byteIdx_unoffsetBy, byteIdx_rawEndPos]
+      have := (s.pos _ this).splits
+      rw [h₃] at this
+      exact ⟨_, this.eq_append⟩
+    rw [Pos.Raw.isValid_iff_isValidUTF8_extract_utf8ByteSize]
+    refine ⟨by simp [Pos.Raw.le_iff, Pos.Raw.byteIdx_unoffsetBy], ?_⟩
+    simp only [size_toByteArray] at h₂
+    simpa [Pos.Raw.byteIdx_unoffsetBy, byteIdx_rawEndPos, h₂] using pat.isValidUTF8
+  · rintro ⟨t, rfl⟩
+    exact ⟨by simp, by rw [Nat.sub_add_cancel (by simp)]; exact
+      ByteArray.extract_append_eq_right (by simp) (by simp)⟩
+
+theorem skipSuffix?_eq_some_iff {pat s : Slice} {pos : s.Pos} :
+    skipSuffix? pat s = some pos ↔ (s.sliceFrom pos).copy = pat.copy := by
+  fun_cases skipSuffix? with
+  | case1 h =>
+    simp only [Option.some.injEq]
+    obtain ⟨t, ht⟩ := endsWith_iff.1 h
+    have hpc : pat.copy.utf8ByteSize = pat.utf8ByteSize := Slice.utf8ByteSize_copy
+    have hsz : s.utf8ByteSize = t.utf8ByteSize + pat.utf8ByteSize := by
+      have := congrArg String.utf8ByteSize ht
+      simp only [utf8ByteSize_append, Slice.utf8ByteSize_copy] at this
+      exact this
+    have hoff : (s.endPos.offset.unoffsetBy pat.rawEndPos) = t.rawEndPos := by
+      ext
+      simp only [offset_endPos, Pos.Raw.byteIdx_unoffsetBy, byteIdx_rawEndPos,
+        String.byteIdx_rawEndPos]
+      omega
+    have hval : (s.endPos.offset.unoffsetBy pat.rawEndPos).IsValidForSlice s :=
+      Pos.Raw.isValidForSlice_iff_exists_append.mpr ⟨t, pat.copy, ht, hoff⟩
+    have hsp : (s.pos _ hval).Splits t pat.copy := ⟨ht, hoff⟩
+    rw [Slice.pos!_eq_pos hval]
+    exact ⟨(· ▸ hsp.copy_sliceFrom_eq),
+      fun h => hsp.pos_eq_of_eq_right (h ▸ pos.splits)⟩
+  | case2 h =>
+    simp only [endsWith_iff, not_exists] at h
+    simp only [reduceCtorEq, false_iff]
+    intro heq
+    have := h (s.sliceTo pos).copy
+    simp [← heq, pos.splits.eq_append] at this
+
+theorem isSome_skipSuffix? {pat s : Slice} : (skipSuffix? pat s).isSome = endsWith pat s := by
+  fun_cases skipSuffix? <;> simp_all
+
+public theorem endsWith_of_isEmpty {pat s : Slice} (hpat : pat.isEmpty = true) :
+    BackwardPattern.endsWith pat s = true := by
+  suffices pat.copy = "" by simp [BackwardPattern.endsWith, endsWith_iff, this]
+  simpa
+
+public theorem skipSuffix?_of_isEmpty {pat s : Slice} (hpat : pat.isEmpty = true) :
+    BackwardPattern.skipSuffix? pat s = some s.endPos := by
+  simpa [BackwardPattern.skipSuffix?, skipSuffix?_eq_some_iff]
+
+end BackwardSliceSearcher
+
+namespace Model.BackwardSliceSearcher
+
+open Pattern.BackwardSliceSearcher
+
+public instance {pat : Slice} : LawfulBackwardPattern pat where
+  skipSuffixOfNonempty?_eq _ := rfl
+  endsWith_eq _ := isSome_skipSuffix?.symm
+
+public theorem lawfulBackwardPatternModel {pat : Slice} (hpat : pat.isEmpty = false) :
+    LawfulBackwardPatternModel pat where
+  skipSuffix?_eq_some_iff pos := by
+    simp [BackwardPattern.skipSuffix?, skipSuffix?_eq_some_iff,
+      ForwardSliceSearcher.isLongestRevMatch_iff hpat]
+
+end Model.BackwardSliceSearcher
+
+namespace Model.BackwardStringSearcher
+
+open Pattern.BackwardSliceSearcher
+
+public instance {pat : String} : LawfulBackwardPattern pat where
+  skipSuffixOfNonempty?_eq _ := rfl
+  endsWith_eq _ := isSome_skipSuffix?.symm
+
+public theorem lawfulBackwardPatternModel {pat : String} (hpat : pat ≠ "") :
+    LawfulBackwardPatternModel pat where
+  skipSuffix?_eq_some_iff pos := by
+    simp [BackwardPattern.skipSuffix?, skipSuffix?_eq_some_iff,
+      ForwardStringSearcher.isLongestRevMatch_iff hpat]
+
+end Model.BackwardStringSearcher
 
 end Pattern
 

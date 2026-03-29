@@ -719,7 +719,7 @@ else
 {
 lean_object* v_key_267_; lean_object* v_value_268_; lean_object* v_tail_269_; lean_object* v___x_270_; uint8_t v___x_271_; 
 v_key_267_ = lean_ctor_get(v_x_265_, 0);
-lean_inc(v_key_267_);
+lean_inc_n(v_key_267_, 2);
 v_value_268_ = lean_ctor_get(v_x_265_, 1);
 lean_inc(v_value_268_);
 v_tail_269_ = lean_ctor_get(v_x_265_, 2);
@@ -727,7 +727,6 @@ lean_inc(v_tail_269_);
 lean_dec_ref(v_x_265_);
 lean_inc_ref(v_inst_263_);
 lean_inc(v_a_264_);
-lean_inc(v_key_267_);
 v___x_270_ = lean_apply_2(v_inst_263_, v_key_267_, v_a_264_);
 v___x_271_ = lean_unbox(v___x_270_);
 if (v___x_271_ == 0)

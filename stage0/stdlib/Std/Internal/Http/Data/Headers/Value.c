@@ -33,7 +33,7 @@ lean_object* lean_string_data(lean_object*);
 lean_object* l_List_getLast_x3f___redArg(lean_object*);
 uint8_t l_List_all___redArg(lean_object*, lean_object*);
 lean_object* l_List_head_x3f___redArg(lean_object*);
-lean_object* lean_panic_fn(lean_object*, lean_object*);
+lean_object* lean_panic_fn_borrowed(lean_object*, lean_object*);
 lean_object* lean_string_utf8_set(lean_object*, lean_object*, uint32_t);
 lean_object* l_Char_utf8Size(uint32_t);
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -760,7 +760,7 @@ _start:
 {
 lean_object* v___x_239_; lean_object* v___x_240_; 
 v___x_239_ = ((lean_object*)(l_Std_Http_Header_instInhabitedValue___closed__0));
-v___x_240_ = lean_panic_fn(v___x_239_, v_msg_238_);
+v___x_240_ = lean_panic_fn_borrowed(v___x_239_, v_msg_238_);
 return v___x_240_;
 }
 }

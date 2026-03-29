@@ -26,7 +26,7 @@ if (lean_obj_tag(v_t_2_) == 0)
 {
 lean_object* v_k_3_; lean_object* v_v_4_; lean_object* v_l_5_; lean_object* v_r_6_; lean_object* v___x_7_; 
 v_k_3_ = lean_ctor_get(v_t_2_, 1);
-lean_inc(v_k_3_);
+lean_inc_n(v_k_3_, 2);
 v_v_4_ = lean_ctor_get(v_t_2_, 2);
 lean_inc(v_v_4_);
 v_l_5_ = lean_ctor_get(v_t_2_, 3);
@@ -35,7 +35,6 @@ v_r_6_ = lean_ctor_get(v_t_2_, 4);
 lean_inc(v_r_6_);
 lean_dec_ref(v_t_2_);
 lean_inc_ref(v_f_1_);
-lean_inc(v_k_3_);
 v___x_7_ = lean_apply_2(v_f_1_, v_k_3_, v_v_4_);
 if (lean_obj_tag(v___x_7_) == 0)
 {

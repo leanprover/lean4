@@ -336,6 +336,7 @@ v___jp_93_:
 if (v_colon_92_ == 0)
 {
 lean_object* v___x_97_; lean_object* v___x_98_; 
+lean_inc_ref(v___y_95_);
 v___x_97_ = lean_string_append(v___y_95_, v___y_94_);
 lean_dec_ref(v___y_94_);
 v___x_98_ = lean_string_append(v___x_97_, v___y_96_);
@@ -345,6 +346,7 @@ return v___x_98_;
 else
 {
 lean_object* v___x_99_; lean_object* v___x_100_; lean_object* v___x_101_; lean_object* v___x_102_; 
+lean_inc_ref(v___y_95_);
 v___x_99_ = lean_string_append(v___y_95_, v___y_94_);
 lean_dec_ref(v___y_94_);
 v___x_100_ = ((lean_object*)(l_Std_Time_TimeZone_Offset_toIsoString___closed__0));

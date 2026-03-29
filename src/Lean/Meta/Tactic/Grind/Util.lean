@@ -130,7 +130,7 @@ def foldProjs (e : Expr) : MetaM Expr := do
   let post (e : Expr) := do
     let .proj structName idx s := e | return .done e
     let some info := getStructureInfo? (← getEnv) structName |
-      trace[grind.issues] "found `Expr.proj` but `{structName}` is not marked as structure{indentExpr e}"
+      trace[sym.issues] "found `Expr.proj` but `{structName}` is not marked as structure{indentExpr e}"
       return .done e
     if h : idx < info.fieldNames.size then
       let fieldName := info.fieldNames[idx]
@@ -149,7 +149,7 @@ def foldProjs (e : Expr) : MetaM Expr := do
       -/
       return .visit (← withDefault <| mkProjection s fieldName)
     else
-      trace[grind.issues] "found `Expr.proj` with invalid field index `{idx}`{indentExpr e}"
+      trace[sym.issues] "found `Expr.proj` with invalid field index `{idx}`{indentExpr e}"
       return .done e
   Meta.transform e (post := post)
 

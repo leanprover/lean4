@@ -12,22 +12,22 @@ l : List Nat
 h :
   ¬List.Pairwise
       (fun x y =>
-        (if x ^ i ≤ n then List.map (fun m => x :: m) (f x) else []).Disjoint
-          (if y ^ i ≤ n then List.map (fun m => y :: m) (f y) else []))
+        (if x ^ i ≤ n then List.map (List.cons x) (f x) else []).Disjoint
+          (if y ^ i ≤ n then List.map (List.cons y) (f y) else []))
       l
 ⊢ False
 [grind] Goal diagnostics
   [facts] Asserted facts
     [prop] ¬List.Pairwise
             (fun x y =>
-              (if x ^ i ≤ n then List.map (fun m => x :: m) (f x) else []).Disjoint
-                (if y ^ i ≤ n then List.map (fun m => y :: m) (f y) else []))
+              (if x ^ i ≤ n then List.map (List.cons x) (f x) else []).Disjoint
+                (if y ^ i ≤ n then List.map (List.cons y) (f y) else []))
             l
   [eqc] False propositions
     [prop] List.Pairwise
           (fun x y =>
-            (if x ^ i ≤ n then List.map (fun m => x :: m) (f x) else []).Disjoint
-              (if y ^ i ≤ n then List.map (fun m => y :: m) (f y) else []))
+            (if x ^ i ≤ n then List.map (List.cons x) (f x) else []).Disjoint
+              (if y ^ i ≤ n then List.map (List.cons y) (f y) else []))
           l
 -/
 #guard_msgs in

@@ -26,7 +26,7 @@ lean_object* lean_string_utf8_next(lean_object*, lean_object*);
 lean_object* lean_string_utf8_prev(lean_object*, lean_object*);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_String_instInhabitedSlice;
-lean_object* lean_panic_fn(lean_object*, lean_object*);
+lean_object* lean_panic_fn_borrowed(lean_object*, lean_object*);
 uint8_t lean_string_is_valid_pos(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_le(uint32_t, uint32_t);
@@ -2756,7 +2756,7 @@ _start:
 {
 lean_object* v___x_738_; lean_object* v___x_739_; 
 v___x_738_ = l_String_instInhabitedSlice;
-v___x_739_ = lean_panic_fn(v___x_738_, v_msg_737_);
+v___x_739_ = lean_panic_fn_borrowed(v___x_738_, v_msg_737_);
 return v___x_739_;
 }
 }
@@ -5058,10 +5058,9 @@ lean_object* v_str_1398_; lean_object* v_startPos_1399_; lean_object* v_startPos
 v_str_1398_ = lean_ctor_get(v_s_1396_, 0);
 lean_inc_ref(v_str_1398_);
 v_startPos_1399_ = lean_ctor_get(v_s_1396_, 1);
-lean_inc(v_startPos_1399_);
+lean_inc_n(v_startPos_1399_, 2);
 v_startPos_1400_ = lean_ctor_get(v_t_1397_, 1);
 lean_inc(v_startPos_1400_);
-lean_inc(v_startPos_1399_);
 v___x_1401_ = l___private_Init_Data_String_Substring_0__Substring_Raw_commonPrefix_loop(v_s_1396_, v_t_1397_, v_startPos_1399_, v_startPos_1400_);
 lean_dec_ref(v_s_1396_);
 v_isSharedCheck_1408_ = !lean_is_exclusive(v_t_1397_);
@@ -5179,10 +5178,9 @@ lean_object* v_str_1435_; lean_object* v_stopPos_1436_; lean_object* v_stopPos_1
 v_str_1435_ = lean_ctor_get(v_s_1433_, 0);
 lean_inc_ref(v_str_1435_);
 v_stopPos_1436_ = lean_ctor_get(v_s_1433_, 2);
-lean_inc(v_stopPos_1436_);
+lean_inc_n(v_stopPos_1436_, 2);
 v_stopPos_1437_ = lean_ctor_get(v_t_1434_, 2);
 lean_inc(v_stopPos_1437_);
-lean_inc(v_stopPos_1436_);
 v___x_1438_ = l___private_Init_Data_String_Substring_0__Substring_Raw_commonSuffix_loop(v_s_1433_, v_t_1434_, v_stopPos_1436_, v_stopPos_1437_);
 lean_dec_ref(v_s_1433_);
 v_isSharedCheck_1445_ = !lean_is_exclusive(v_t_1434_);

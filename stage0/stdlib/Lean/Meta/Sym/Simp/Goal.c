@@ -1282,7 +1282,7 @@ v_a_377_ = lean_ctor_get(v___x_367_, 0);
 lean_inc(v_a_377_);
 lean_dec_ref(v___x_367_);
 v_e_x27_378_ = lean_ctor_get(v_result_358_, 0);
-lean_inc_ref(v_e_x27_378_);
+lean_inc_ref_n(v_e_x27_378_, 2);
 v_proof_379_ = lean_ctor_get(v_result_358_, 1);
 lean_inc_ref(v_proof_379_);
 lean_dec_ref(v_result_358_);
@@ -1291,7 +1291,6 @@ lean_inc(v_userName_380_);
 v_type_381_ = lean_ctor_get(v_a_377_, 2);
 lean_inc_ref(v_type_381_);
 lean_dec(v_a_377_);
-lean_inc_ref(v_e_x27_378_);
 v___x_382_ = l_Lean_Meta_mkFreshExprSyntheticOpaqueMVar(v_e_x27_378_, v_userName_380_, v_a_362_, v_a_363_, v_a_364_, v_a_365_);
 if (lean_obj_tag(v___x_382_) == 0)
 {

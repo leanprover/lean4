@@ -532,13 +532,12 @@ lean_object* v___x_205_; uint8_t v___x_206_; lean_object* v___x_207_; lean_objec
 v___x_205_ = lean_alloc_ctor(1, 0, 1);
 v___x_206_ = lean_unbox(v_defValue_200_);
 lean_ctor_set_uint8(v___x_205_, 0, v___x_206_);
-lean_inc(v_name_196_);
+lean_inc_n(v_name_196_, 2);
 v___x_207_ = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(v___x_207_, 0, v_name_196_);
 lean_ctor_set(v___x_207_, 1, v_ref_198_);
 lean_ctor_set(v___x_207_, 2, v___x_205_);
 lean_ctor_set(v___x_207_, 3, v_descr_201_);
-lean_inc(v_name_196_);
 v___x_208_ = lean_register_option(v_name_196_, v___x_207_);
 if (lean_obj_tag(v___x_208_) == 0)
 {

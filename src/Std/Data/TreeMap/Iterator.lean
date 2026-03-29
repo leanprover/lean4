@@ -26,7 +26,7 @@ The iterator yields the elements of the map in order and then terminates.
 * `Finite` instance: always
 * `Productive` instance: always
 -/
-@[inline]
+@[inline, cbv_opaque]
 public def iter {α : Type u} {β : Type v}
     {cmp : α → α → Ordering} (m : TreeMap α β cmp) :=
   (m.inner.iter.map fun e => (e.1, e.2) : Iter (α × β))
@@ -63,7 +63,7 @@ public def valuesIter {α : Type u} {β : Type u} {cmp : α → α → Ordering}
     (m : TreeMap α β cmp) :=
   m.inner.valuesIter
 
-@[simp]
+@[simp, cbv_eval]
 public theorem toList_iter {cmp : α → α → Ordering} (m : TreeMap α β cmp) :
     m.iter.toList = m.toList := by
   simp only [iter, Iter.toList_map, DTreeMap.toList_iter, DTreeMap.toList,

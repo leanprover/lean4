@@ -1466,11 +1466,10 @@ _start:
 {
 lean_object* v_fst_593_; lean_object* v_snd_594_; lean_object* v___f_595_; lean_object* v___x_596_; lean_object* v___x_597_; 
 v_fst_593_ = lean_ctor_get(v_i_590_, 0);
-lean_inc(v_fst_593_);
+lean_inc_n(v_fst_593_, 2);
 v_snd_594_ = lean_ctor_get(v_i_590_, 1);
 lean_inc(v_snd_594_);
 lean_dec_ref(v_i_590_);
-lean_inc(v_fst_593_);
 v___f_595_ = lean_alloc_closure((void*)(l_Prod_foldI___redArg___lam__0___boxed), 5, 2);
 lean_closure_set(v___f_595_, 0, v_fst_593_);
 lean_closure_set(v___f_595_, 1, v_f_591_);
@@ -1488,11 +1487,10 @@ _start:
 {
 lean_object* v_fst_602_; lean_object* v_snd_603_; lean_object* v___f_604_; lean_object* v___x_605_; lean_object* v___x_606_; 
 v_fst_602_ = lean_ctor_get(v_i_599_, 0);
-lean_inc(v_fst_602_);
+lean_inc_n(v_fst_602_, 2);
 v_snd_603_ = lean_ctor_get(v_i_599_, 1);
 lean_inc(v_snd_603_);
 lean_dec_ref(v_i_599_);
-lean_inc(v_fst_602_);
 v___f_604_ = lean_alloc_closure((void*)(l_Prod_foldI___redArg___lam__0___boxed), 5, 2);
 lean_closure_set(v___f_604_, 0, v_fst_602_);
 lean_closure_set(v___f_604_, 1, v_f_600_);
@@ -1531,11 +1529,10 @@ _start:
 {
 lean_object* v_fst_622_; lean_object* v_snd_623_; lean_object* v___f_624_; lean_object* v___x_625_; uint8_t v___x_626_; 
 v_fst_622_ = lean_ctor_get(v_i_620_, 0);
-lean_inc(v_fst_622_);
+lean_inc_n(v_fst_622_, 2);
 v_snd_623_ = lean_ctor_get(v_i_620_, 1);
 lean_inc(v_snd_623_);
 lean_dec_ref(v_i_620_);
-lean_inc(v_fst_622_);
 v___f_624_ = lean_alloc_closure((void*)(l_Prod_anyI___lam__0___boxed), 4, 2);
 lean_closure_set(v___f_624_, 0, v_fst_622_);
 lean_closure_set(v___f_624_, 1, v_f_621_);
@@ -1562,11 +1559,10 @@ _start:
 {
 lean_object* v_fst_633_; lean_object* v_snd_634_; lean_object* v___f_635_; lean_object* v___x_636_; uint8_t v___x_637_; 
 v_fst_633_ = lean_ctor_get(v_i_631_, 0);
-lean_inc(v_fst_633_);
+lean_inc_n(v_fst_633_, 2);
 v_snd_634_ = lean_ctor_get(v_i_631_, 1);
 lean_inc(v_snd_634_);
 lean_dec_ref(v_i_631_);
-lean_inc(v_fst_633_);
 v___f_635_ = lean_alloc_closure((void*)(l_Prod_anyI___lam__0___boxed), 4, 2);
 lean_closure_set(v___f_635_, 0, v_fst_633_);
 lean_closure_set(v___f_635_, 1, v_f_632_);

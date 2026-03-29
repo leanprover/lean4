@@ -120,13 +120,12 @@ lean_object* v___x_10_; uint8_t v___x_11_; lean_object* v___x_12_; lean_object* 
 v___x_10_ = lean_alloc_ctor(1, 0, 1);
 v___x_11_ = lean_unbox(v_defValue_5_);
 lean_ctor_set_uint8(v___x_10_, 0, v___x_11_);
-lean_inc(v_name_1_);
+lean_inc_n(v_name_1_, 2);
 v___x_12_ = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(v___x_12_, 0, v_name_1_);
 lean_ctor_set(v___x_12_, 1, v_ref_3_);
 lean_ctor_set(v___x_12_, 2, v___x_10_);
 lean_ctor_set(v___x_12_, 3, v_descr_6_);
-lean_inc(v_name_1_);
 v___x_13_ = lean_register_option(v_name_1_, v___x_12_);
 if (lean_obj_tag(v___x_13_) == 0)
 {
@@ -327,7 +326,7 @@ lean_object* v___x_120_; lean_object* v___x_121_; lean_object* v___x_122_; lean_
 v___x_120_ = l_Lean_SourceInfo_fromRef(v_ref_117_, v___x_119_);
 v___x_121_ = ((lean_object*)(l_Lean_Elab_WF_applyCleanWfTactic___closed__3));
 v___x_122_ = ((lean_object*)(l_Lean_Elab_WF_applyCleanWfTactic___closed__4));
-lean_inc(v___x_120_);
+lean_inc_n(v___x_120_, 6);
 v___x_123_ = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(v___x_123_, 0, v___x_120_);
 lean_ctor_set(v___x_123_, 1, v___x_122_);
@@ -336,17 +335,12 @@ v___x_125_ = ((lean_object*)(l_Lean_Elab_WF_applyCleanWfTactic___closed__8));
 v___x_126_ = ((lean_object*)(l_Lean_Elab_WF_applyCleanWfTactic___closed__10));
 v___x_127_ = ((lean_object*)(l_Lean_Elab_WF_applyCleanWfTactic___closed__12));
 v___x_128_ = ((lean_object*)(l_Lean_Elab_WF_applyCleanWfTactic___closed__13));
-lean_inc(v___x_120_);
 v___x_129_ = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(v___x_129_, 0, v___x_120_);
 lean_ctor_set(v___x_129_, 1, v___x_128_);
-lean_inc(v___x_120_);
 v___x_130_ = l_Lean_Syntax_node1(v___x_120_, v___x_127_, v___x_129_);
-lean_inc(v___x_120_);
 v___x_131_ = l_Lean_Syntax_node1(v___x_120_, v___x_126_, v___x_130_);
-lean_inc(v___x_120_);
 v___x_132_ = l_Lean_Syntax_node1(v___x_120_, v___x_125_, v___x_131_);
-lean_inc(v___x_120_);
 v___x_133_ = l_Lean_Syntax_node1(v___x_120_, v___x_124_, v___x_132_);
 v___x_134_ = l_Lean_Syntax_node2(v___x_120_, v___x_121_, v___x_123_, v___x_133_);
 v___x_135_ = l_Lean_Elab_Tactic_evalTactic(v___x_134_, v_a_107_, v_a_108_, v_a_109_, v_a_110_, v_a_111_, v_a_112_, v_a_113_, v_a_114_);

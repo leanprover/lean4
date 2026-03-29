@@ -7,7 +7,7 @@ module
 
 prelude
 public import Lean.Meta.Diagnostics
-public import Lean.Meta.InstanceNormalForm
+public import Lean.Meta.WrapInstance
 public import Lean.Elab.Open
 public import Lean.Elab.SetOption
 public import Lean.Elab.Eval
@@ -334,10 +334,10 @@ private def mkSilentAnnotationIfHole (e : Expr) : TermElabM Expr := do
   let type ← abstractInstImplicitArgs type
   let inst ← synthInstance type
   let inst ← if backward.inferInstanceAs.wrap.get (← getOptions) then
-    -- Normalize to instance normal form.
+    -- Wrap instance so its type matches the expected type exactly.
     let logCompileErrors := !(← read).isNoncomputableSection && !(← read).declName?.any (Lean.isNoncomputable (← getEnv))
     let isMeta := (← read).declName?.any (isMarkedMeta (← getEnv))
-    withNewMCtxDepth <| normalizeInstance inst expectedType (logCompileErrors := logCompileErrors) (isMeta := isMeta)
+    withNewMCtxDepth <| wrapInstance inst expectedType (logCompileErrors := logCompileErrors) (isMeta := isMeta)
   else
     pure inst
   ensureHasType expectedType? inst

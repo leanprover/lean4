@@ -768,9 +768,8 @@ if (lean_obj_tag(v___x_193_) == 0)
 {
 lean_object* v_a_194_; lean_object* v___x_195_; uint8_t v___x_196_; lean_object* v___x_197_; lean_object* v___x_198_; lean_object* v___x_199_; 
 v_a_194_ = lean_ctor_get(v___x_193_, 0);
-lean_inc(v_a_194_);
+lean_inc_n(v_a_194_, 2);
 lean_dec_ref(v___x_193_);
-lean_inc(v_a_194_);
 v___x_195_ = l_Lean_Expr_fvar___override(v_a_194_);
 v___x_196_ = 0;
 v___x_197_ = l_Lean_LocalContext_mkLocalDecl(v___y_185_, v_a_194_, v_n_179_, v_d_u2081_180_, v_bi_182_, v___x_196_);

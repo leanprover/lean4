@@ -230,7 +230,7 @@ _start:
 {
 lean_object* v___y_11_; lean_object* v___x_14_; uint8_t v_debug_15_; 
 v___x_14_ = lean_st_ref_get(v___y_4_);
-v_debug_15_ = lean_ctor_get_uint8(v___x_14_, sizeof(void*)*7);
+v_debug_15_ = lean_ctor_get_uint8(v___x_14_, sizeof(void*)*10);
 lean_dec(v___x_14_);
 if (v_debug_15_ == 0)
 {
@@ -978,11 +978,10 @@ if (lean_obj_tag(v___x_281_) == 0)
 {
 lean_object* v_a_282_; lean_object* v___x_283_; lean_object* v___x_284_; lean_object* v___x_285_; 
 v_a_282_ = lean_ctor_get(v___x_281_, 0);
-lean_inc(v_a_282_);
+lean_inc_n(v_a_282_, 2);
 lean_dec_ref(v___x_281_);
 v___x_283_ = lean_unsigned_to_nat(4u);
 v___x_284_ = l_Lean_Expr_getBoundedAppFn(v___x_283_, v_e_169_);
-lean_inc(v_a_282_);
 lean_inc_ref(v_e_x27_254_);
 v___x_285_ = l_Lean_Meta_Sym_Internal_mkAppS_u2084___at___00__private_Lean_Meta_Sym_Simp_ControlFlow_0__Lean_Meta_Sym_Simp_simpIte_spec__0(v___x_284_, v_e_x27_254_, v_a_282_, v_arg_188_, v_arg_185_, v___y_170_, v___y_171_, v___y_172_, v___y_173_, v___y_174_, v___y_175_, v___y_176_, v___y_177_, v___y_178_);
 if (lean_obj_tag(v___x_285_) == 0)
@@ -2221,14 +2220,13 @@ if (lean_obj_tag(v___x_643_) == 0)
 {
 lean_object* v_a_644_; lean_object* v___x_645_; uint8_t v___x_646_; lean_object* v___x_647_; lean_object* v___x_648_; lean_object* v___x_649_; lean_object* v___x_650_; lean_object* v___x_651_; lean_object* v___x_652_; uint8_t v___x_653_; uint8_t v___x_654_; lean_object* v___x_655_; lean_object* v___x_656_; lean_object* v___x_657_; 
 v_a_644_ = lean_ctor_get(v___x_643_, 0);
-lean_inc(v_a_644_);
+lean_inc_n(v_a_644_, 2);
 lean_dec_ref(v___x_643_);
 v___x_645_ = ((lean_object*)(l___private_Lean_Meta_Sym_Simp_ControlFlow_0__Lean_Meta_Sym_Simp_simpDIte___lam__0___closed__16));
 v___x_646_ = 0;
 v___x_647_ = lean_obj_once(&l___private_Lean_Meta_Sym_Simp_ControlFlow_0__Lean_Meta_Sym_Simp_simpDIte___lam__0___closed__20, &l___private_Lean_Meta_Sym_Simp_ControlFlow_0__Lean_Meta_Sym_Simp_simpDIte___lam__0___closed__20_once, _init_l___private_Lean_Meta_Sym_Simp_ControlFlow_0__Lean_Meta_Sym_Simp_simpDIte___lam__0___closed__20);
 v___x_648_ = lean_obj_once(&l___private_Lean_Meta_Sym_Simp_ControlFlow_0__Lean_Meta_Sym_Simp_simpDIte___lam__0___closed__21, &l___private_Lean_Meta_Sym_Simp_ControlFlow_0__Lean_Meta_Sym_Simp_simpDIte___lam__0___closed__21_once, _init_l___private_Lean_Meta_Sym_Simp_ControlFlow_0__Lean_Meta_Sym_Simp_simpDIte___lam__0___closed__21);
-lean_inc(v_a_644_);
-lean_inc_ref(v_e_x27_620_);
+lean_inc_ref_n(v_e_x27_620_, 2);
 lean_inc_ref(v_arg_529_);
 v___x_649_ = l_Lean_mkApp4(v___x_647_, v_arg_529_, v_e_x27_620_, v_a_644_, v___x_648_);
 v___x_650_ = lean_unsigned_to_nat(1u);
@@ -2239,7 +2237,6 @@ v___x_653_ = lean_unbox(v_a_630_);
 v___x_654_ = lean_unbox(v_a_630_);
 v___x_655_ = l_Lean_Expr_betaRev(v_arg_524_, v___x_652_, v___x_653_, v___x_654_);
 lean_dec_ref(v___x_652_);
-lean_inc_ref(v_e_x27_620_);
 v___x_656_ = l_Lean_mkLambda(v___x_645_, v___x_646_, v_e_x27_620_, v___x_655_);
 v___x_657_ = l_Lean_Meta_Sym_shareCommonInc___redArg(v___x_656_, v___y_510_);
 if (lean_obj_tag(v___x_657_) == 0)
@@ -2248,11 +2245,10 @@ lean_object* v_a_658_; lean_object* v___x_659_; lean_object* v___x_660_; lean_ob
 v_a_658_ = lean_ctor_get(v___x_657_, 0);
 lean_inc(v_a_658_);
 lean_dec_ref(v___x_657_);
-lean_inc_ref(v_e_x27_620_);
+lean_inc_ref_n(v_e_x27_620_, 2);
 v___x_659_ = l_Lean_mkNot(v_e_x27_620_);
 v___x_660_ = lean_obj_once(&l___private_Lean_Meta_Sym_Simp_ControlFlow_0__Lean_Meta_Sym_Simp_simpDIte___lam__0___closed__24, &l___private_Lean_Meta_Sym_Simp_ControlFlow_0__Lean_Meta_Sym_Simp_simpDIte___lam__0___closed__24_once, _init_l___private_Lean_Meta_Sym_Simp_ControlFlow_0__Lean_Meta_Sym_Simp_simpDIte___lam__0___closed__24);
 lean_inc(v_a_644_);
-lean_inc_ref(v_e_x27_620_);
 v___x_661_ = l_Lean_mkApp4(v___x_660_, v_arg_529_, v_e_x27_620_, v_a_644_, v___x_648_);
 v___x_662_ = lean_array_push(v___x_651_, v___x_661_);
 v___x_663_ = lean_unbox(v_a_630_);
@@ -4152,9 +4148,8 @@ lean_object* v_val_1169_; lean_object* v___x_1170_;
 lean_dec_ref(v_e_1156_);
 lean_dec(v_declName_1155_);
 v_val_1169_ = lean_ctor_get(v_a_1168_, 0);
-lean_inc(v_val_1169_);
+lean_inc_n(v_val_1169_, 2);
 lean_dec_ref(v_a_1168_);
-lean_inc(v_val_1169_);
 v___x_1170_ = l_Lean_Meta_Sym_mkEqRefl___redArg(v_val_1169_, v_a_1161_, v_a_1162_, v_a_1163_, v_a_1164_, v_a_1165_);
 if (lean_obj_tag(v___x_1170_) == 0)
 {

@@ -358,11 +358,10 @@ if (lean_obj_tag(v___x_66_) == 0)
 {
 lean_object* v_a_67_; lean_object* v___x_68_; lean_object* v___x_69_; lean_object* v___f_70_; lean_object* v___x_71_; lean_object* v___x_72_; 
 v_a_67_ = lean_ctor_get(v___x_66_, 0);
-lean_inc(v_a_67_);
+lean_inc_n(v_a_67_, 2);
 lean_dec_ref(v___x_66_);
 v___x_68_ = lean_box(v___x_56_);
 v___x_69_ = lean_box(v___x_57_);
-lean_inc(v_a_67_);
 v___f_70_ = lean_alloc_closure((void*)(l___private_Lean_Elab_Tactic_Grind_RegisterSymSimp_0__Lean_Elab_Command_withGrindTacticM___redArg___lam__0___boxed), 13, 3);
 lean_closure_set(v___f_70_, 0, v___x_68_);
 lean_closure_set(v___f_70_, 1, v_a_67_);
@@ -1165,13 +1164,11 @@ v_a_326_ = lean_ctor_get(v___x_325_, 0);
 lean_inc(v_a_326_);
 lean_dec_ref(v___x_325_);
 v_macroStack_327_ = lean_ctor_get(v___y_322_, 4);
-lean_inc(v_macroStack_327_);
-lean_dec_ref(v___y_322_);
 v___x_328_ = l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_throwErrorAt___at___00__private_Lean_Elab_Tactic_Grind_RegisterSymSimp_0__Lean_Elab_Command_elabRegisterSymSimp_spec__0_spec__0_spec__1___redArg(v_msg_321_, v___y_323_);
 v_a_329_ = lean_ctor_get(v___x_328_, 0);
 lean_inc(v_a_329_);
 lean_dec_ref(v___x_328_);
-lean_inc(v_macroStack_327_);
+lean_inc_n(v_macroStack_327_, 2);
 v___x_330_ = l_Lean_Elab_getBetterRef(v_a_326_, v_macroStack_327_);
 lean_dec(v_a_326_);
 v___x_331_ = l_Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_throwErrorAt___at___00__private_Lean_Elab_Tactic_Grind_RegisterSymSimp_0__Lean_Elab_Command_elabRegisterSymSimp_spec__0_spec__0_spec__2___redArg(v_a_329_, v_macroStack_327_, v___y_323_);
@@ -1221,7 +1218,6 @@ return v___x_338_;
 else
 {
 lean_object* v_a_341_; lean_object* v___x_343_; uint8_t v_isShared_344_; uint8_t v_isSharedCheck_348_; 
-lean_dec_ref(v___y_322_);
 lean_dec_ref(v_msg_321_);
 v_a_341_ = lean_ctor_get(v___x_325_, 0);
 v_isSharedCheck_348_ = !lean_is_exclusive(v___x_325_);
@@ -1269,6 +1265,7 @@ _start:
 lean_object* v_res_353_; 
 v_res_353_ = l_Lean_throwError___at___00Lean_throwErrorAt___at___00__private_Lean_Elab_Tactic_Grind_RegisterSymSimp_0__Lean_Elab_Command_elabRegisterSymSimp_spec__0_spec__0___redArg(v_msg_349_, v___y_350_, v___y_351_);
 lean_dec(v___y_351_);
+lean_dec_ref(v___y_350_);
 return v_res_353_;
 }
 }
@@ -1317,6 +1314,7 @@ lean_ctor_set(v___x_372_, 8, v_snap_x3f_368_);
 lean_ctor_set(v___x_372_, 9, v_cancelTk_x3f_369_);
 lean_ctor_set_uint8(v___x_372_, sizeof(void*)*10, v_suppressElabErrors_370_);
 v___x_373_ = l_Lean_throwError___at___00Lean_throwErrorAt___at___00__private_Lean_Elab_Tactic_Grind_RegisterSymSimp_0__Lean_Elab_Command_elabRegisterSymSimp_spec__0_spec__0___redArg(v_msg_355_, v___x_372_, v___y_357_);
+lean_dec_ref(v___x_372_);
 return v___x_373_;
 }
 else
@@ -2608,22 +2606,20 @@ v_a_710_ = lean_ctor_get(v___x_709_, 0);
 lean_inc(v_a_710_);
 lean_dec_ref(v___x_709_);
 v_fst_711_ = lean_ctor_get(v_a_710_, 0);
-lean_inc(v_fst_711_);
+lean_inc_n(v_fst_711_, 2);
 v_snd_712_ = lean_ctor_get(v_a_710_, 1);
 lean_inc(v_snd_712_);
 lean_dec(v_a_710_);
-lean_inc(v_fst_711_);
 v___x_713_ = l___private_Lean_Elab_Tactic_Grind_RegisterSymSimp_0__Lean_Elab_Command_validateOptionSimprocSyntax(v_fst_711_, v___y_701_, v___y_702_);
 if (lean_obj_tag(v___x_713_) == 0)
 {
 lean_object* v_fst_714_; lean_object* v_snd_715_; lean_object* v___x_716_; 
 lean_dec_ref(v___x_713_);
 v_fst_714_ = lean_ctor_get(v_snd_712_, 0);
-lean_inc(v_fst_714_);
+lean_inc_n(v_fst_714_, 2);
 v_snd_715_ = lean_ctor_get(v_snd_712_, 1);
 lean_inc(v_snd_715_);
 lean_dec(v_snd_712_);
-lean_inc(v_fst_714_);
 v___x_716_ = l___private_Lean_Elab_Tactic_Grind_RegisterSymSimp_0__Lean_Elab_Command_validateOptionSimprocSyntax(v_fst_714_, v___y_701_, v___y_702_);
 if (lean_obj_tag(v___x_716_) == 0)
 {
@@ -2776,7 +2772,6 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___00Lean_throwErrorAt___at___00_
 _start:
 {
 lean_object* v___x_771_; 
-lean_inc_ref(v___y_768_);
 v___x_771_ = l_Lean_throwError___at___00Lean_throwErrorAt___at___00__private_Lean_Elab_Tactic_Grind_RegisterSymSimp_0__Lean_Elab_Command_elabRegisterSymSimp_spec__0_spec__0___redArg(v_msg_767_, v___y_768_, v___y_769_);
 return v___x_771_;
 }

@@ -53,7 +53,7 @@ size_t lean_ptr_addr(lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_instInhabitedCode_default__1(uint8_t);
-lean_object* lean_panic_fn(lean_object*, lean_object*);
+lean_object* lean_panic_fn_borrowed(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_eraseLetDecl___redArg(uint8_t, lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
@@ -1642,7 +1642,8 @@ v___x_441_ = lean_box(0);
 v___x_442_ = l_instInhabitedOfMonad___redArg(v___x_440_, v___x_441_);
 v___f_443_ = lean_alloc_closure((void*)(l_instInhabitedForall___redArg___lam__0___boxed), 2, 1);
 lean_closure_set(v___f_443_, 0, v___x_442_);
-v___x_3875__overap_444_ = lean_panic_fn(v___f_443_, v_msg_409_);
+v___x_3875__overap_444_ = lean_panic_fn_borrowed(v___f_443_, v_msg_409_);
+lean_dec_ref(v___f_443_);
 lean_inc(v___y_413_);
 lean_inc_ref(v___y_412_);
 lean_inc(v___y_411_);
@@ -2204,7 +2205,6 @@ lean_object* v_a_629_; lean_object* v___x_671_; lean_object* v___x_672_; lean_ob
 v___x_671_ = lean_obj_once(&l_Lean_Compiler_LCNF_StructProjCases_mkFieldParamsForCtorType___closed__7, &l_Lean_Compiler_LCNF_StructProjCases_mkFieldParamsForCtorType___closed__7_once, _init_l_Lean_Compiler_LCNF_StructProjCases_mkFieldParamsForCtorType___closed__7);
 v___x_672_ = lean_obj_once(&l_Lean_Compiler_LCNF_StructProjCases_mkFieldParamsForCtorType___closed__11, &l_Lean_Compiler_LCNF_StructProjCases_mkFieldParamsForCtorType___closed__11_once, _init_l_Lean_Compiler_LCNF_StructProjCases_mkFieldParamsForCtorType___closed__11);
 v___x_673_ = lean_st_mk_ref(v___x_672_);
-lean_inc_ref(v_a_625_);
 v___x_674_ = l_Lean_Compiler_LCNF_toLCNFType(v_ctorType_620_, v___x_671_, v___x_673_, v_a_625_, v_a_626_);
 if (lean_obj_tag(v___x_674_) == 0)
 {
@@ -3182,7 +3182,8 @@ lean_object* v___x_971_; lean_object* v___x_972_; lean_object* v___x_973_; lean_
 v___x_971_ = l_StateRefT_x27_instMonad___redArg(v___x_970_);
 v___x_972_ = lean_obj_once(&l_panic___at___00Lean_Compiler_LCNF_StructProjCases_visitLetValue_spec__0___closed__2, &l_panic___at___00Lean_Compiler_LCNF_StructProjCases_visitLetValue_spec__0___closed__2_once, _init_l_panic___at___00Lean_Compiler_LCNF_StructProjCases_visitLetValue_spec__0___closed__2);
 v___x_973_ = l_instInhabitedOfMonad___redArg(v___x_971_, v___x_972_);
-v___x_1169__overap_974_ = lean_panic_fn(v___x_973_, v_msg_915_);
+v___x_1169__overap_974_ = lean_panic_fn_borrowed(v___x_973_, v_msg_915_);
+lean_dec(v___x_973_);
 lean_inc(v___y_920_);
 lean_inc_ref(v___y_919_);
 lean_inc(v___y_918_);
@@ -4410,7 +4411,8 @@ lean_object* v___x_1369_; lean_object* v___x_1370_; lean_object* v___x_1371_; le
 v___x_1369_ = l_StateRefT_x27_instMonad___redArg(v___x_1368_);
 v___x_1370_ = lean_obj_once(&l_panic___at___00Lean_Compiler_LCNF_StructProjCases_visitCode_spec__4___closed__0, &l_panic___at___00Lean_Compiler_LCNF_StructProjCases_visitCode_spec__4___closed__0_once, _init_l_panic___at___00Lean_Compiler_LCNF_StructProjCases_visitCode_spec__4___closed__0);
 v___x_1371_ = l_instInhabitedOfMonad___redArg(v___x_1369_, v___x_1370_);
-v___x_14855__overap_1372_ = lean_panic_fn(v___x_1371_, v_msg_1313_);
+v___x_14855__overap_1372_ = lean_panic_fn_borrowed(v___x_1371_, v_msg_1313_);
+lean_dec(v___x_1371_);
 lean_inc(v___y_1318_);
 lean_inc_ref(v___y_1317_);
 lean_inc(v___y_1316_);
@@ -4446,7 +4448,7 @@ _start:
 {
 lean_object* v___x_1395_; lean_object* v___x_1396_; 
 v___x_1395_ = lean_obj_once(&l_panic___at___00Lean_Compiler_LCNF_StructProjCases_visitCode_spec__4___closed__0, &l_panic___at___00Lean_Compiler_LCNF_StructProjCases_visitCode_spec__4___closed__0_once, _init_l_panic___at___00Lean_Compiler_LCNF_StructProjCases_visitCode_spec__4___closed__0);
-v___x_1396_ = lean_panic_fn(v___x_1395_, v_msg_1394_);
+v___x_1396_ = lean_panic_fn_borrowed(v___x_1395_, v_msg_1394_);
 return v___x_1396_;
 }
 }
@@ -4666,7 +4668,7 @@ _start:
 lean_object* v___x_1471_; lean_object* v___x_1472_; lean_object* v___x_1473_; lean_object* v___x_1474_; lean_object* v___x_1475_; lean_object* v___x_1476_; 
 v___x_1471_ = ((lean_object*)(l_WellFounded_opaqueFix_u2083___at___00Lean_Compiler_LCNF_StructProjCases_mkFieldParamsForCtorType_spec__1___redArg___closed__2));
 v___x_1472_ = lean_unsigned_to_nat(9u);
-v___x_1473_ = lean_unsigned_to_nat(635u);
+v___x_1473_ = lean_unsigned_to_nat(640u);
 v___x_1474_ = ((lean_object*)(l_Lean_Compiler_LCNF_StructProjCases_visitCode___closed__1));
 v___x_1475_ = ((lean_object*)(l_Lean_Compiler_LCNF_StructProjCases_visitCode___closed__0));
 v___x_1476_ = l_mkPanicMessageWithDecl(v___x_1475_, v___x_1474_, v___x_1473_, v___x_1472_, v___x_1471_);

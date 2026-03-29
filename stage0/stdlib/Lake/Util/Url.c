@@ -464,7 +464,7 @@ v___x_125_ = 128;
 v___x_126_ = lean_box_uint32(v_c_116_);
 v___x_127_ = lean_box(v___x_123_);
 v___x_128_ = lean_box(v___x_125_);
-lean_inc(v_f_117_);
+lean_inc_n(v_f_117_, 2);
 v___f_129_ = lean_alloc_closure((void*)(l_Lake_foldlUtf8M___redArg___lam__0___boxed), 5, 4);
 lean_closure_set(v___f_129_, 0, v___x_126_);
 lean_closure_set(v___f_129_, 1, v___x_127_);
@@ -474,7 +474,6 @@ v___x_130_ = lean_box_uint32(v_c_116_);
 v___x_131_ = lean_box(v___x_123_);
 v___x_132_ = lean_box(v___x_125_);
 lean_inc(v_toBind_118_);
-lean_inc(v_f_117_);
 v___f_133_ = lean_alloc_closure((void*)(l_Lake_foldlUtf8M___redArg___lam__1___boxed), 7, 6);
 lean_closure_set(v___f_133_, 0, v___x_130_);
 lean_closure_set(v___f_133_, 1, v___x_131_);
@@ -579,10 +578,9 @@ if (v___x_192_ == 0)
 {
 lean_object* v_toBind_193_; lean_object* v___x_194_; lean_object* v___f_195_; uint32_t v___x_196_; uint32_t v___x_197_; uint8_t v___x_198_; uint8_t v___x_199_; uint8_t v___x_200_; uint8_t v___x_201_; uint8_t v___x_202_; lean_object* v___x_203_; lean_object* v___x_204_; lean_object* v___x_205_; 
 v_toBind_193_ = lean_ctor_get(v_inst_183_, 1);
-lean_inc(v_toBind_193_);
+lean_inc_n(v_toBind_193_, 2);
 lean_dec_ref(v_inst_183_);
 v___x_194_ = lean_box_uint32(v_c_184_);
-lean_inc(v_toBind_193_);
 lean_inc(v_f_185_);
 v___f_195_ = lean_alloc_closure((void*)(l_Lake_foldlUtf8M___redArg___lam__2___boxed), 4, 3);
 lean_closure_set(v___f_195_, 0, v___x_194_);
@@ -604,10 +602,9 @@ else
 {
 lean_object* v_toBind_206_; lean_object* v___x_207_; lean_object* v___f_208_; uint32_t v___x_209_; uint32_t v___x_210_; uint8_t v___x_211_; uint8_t v___x_212_; uint8_t v___x_213_; uint8_t v___x_214_; uint8_t v___x_215_; lean_object* v___x_216_; lean_object* v___x_217_; lean_object* v___x_218_; 
 v_toBind_206_ = lean_ctor_get(v_inst_183_, 1);
-lean_inc(v_toBind_206_);
+lean_inc_n(v_toBind_206_, 2);
 lean_dec_ref(v_inst_183_);
 v___x_207_ = lean_box_uint32(v_c_184_);
-lean_inc(v_toBind_206_);
 lean_inc(v_f_185_);
 v___f_208_ = lean_alloc_closure((void*)(l_Lake_foldlUtf8M___redArg___lam__4___boxed), 4, 3);
 lean_closure_set(v___f_208_, 0, v___x_207_);

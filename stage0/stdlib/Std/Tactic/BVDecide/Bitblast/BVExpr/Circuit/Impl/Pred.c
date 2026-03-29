@@ -3058,14 +3058,12 @@ _start:
 {
 lean_object* v_lhs_832_; lean_object* v_rhs_833_; lean_object* v_cin_834_; lean_object* v___x_835_; lean_object* v_res_836_; lean_object* v_aig_837_; lean_object* v_ref_838_; lean_object* v___x_840_; uint8_t v_isShared_841_; uint8_t v_isSharedCheck_902_; 
 v_lhs_832_ = lean_ctor_get(v_input_831_, 0);
-lean_inc_ref(v_lhs_832_);
+lean_inc_ref_n(v_lhs_832_, 2);
 v_rhs_833_ = lean_ctor_get(v_input_831_, 1);
-lean_inc_ref(v_rhs_833_);
+lean_inc_ref_n(v_rhs_833_, 2);
 v_cin_834_ = lean_ctor_get(v_input_831_, 2);
 lean_inc_ref(v_cin_834_);
 lean_dec_ref(v_input_831_);
-lean_inc_ref(v_rhs_833_);
-lean_inc_ref(v_lhs_832_);
 v___x_835_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_835_, 0, v_lhs_832_);
 lean_ctor_set(v___x_835_, 1, v_rhs_833_);

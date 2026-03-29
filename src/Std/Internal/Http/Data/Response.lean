@@ -111,7 +111,7 @@ namespace Builder
 /--
 Creates a new HTTP Response builder with default head (status: 200 OK, version: HTTP/1.1).
 -/
-def empty : Builder := { }
+def new : Builder := { }
 
 /--
 Sets the HTTP status code for the response being built.
@@ -173,66 +173,66 @@ end Builder
 Creates a new HTTP Response builder with the 200 status code.
 -/
 def ok : Builder :=
-  .empty |>.status .ok
+  .new |>.status .ok
 
 /--
 Creates a new HTTP Response builder with the provided status.
 -/
 def withStatus (status : Status) : Builder :=
-  .empty |>.status status
+  .new |>.status status
 
 /--
 Creates a new HTTP Response builder with the 404 status code.
 -/
 def notFound : Builder :=
-  .empty |>.status .notFound
+  .new |>.status .notFound
 
 /--
 Creates a new HTTP Response builder with the 500 status code.
 -/
 def internalServerError : Builder :=
-  .empty |>.status .internalServerError
+  .new |>.status .internalServerError
 
 /--
 Creates a new HTTP Response builder with the 400 status code.
 -/
 def badRequest : Builder :=
-  .empty |>.status .badRequest
+  .new |>.status .badRequest
 
 /--
 Creates a new HTTP Response builder with the 201 status code.
 -/
 def created : Builder :=
-  .empty |>.status .created
+  .new |>.status .created
 
 /--
 Creates a new HTTP Response builder with the 202 status code.
 -/
 def accepted : Builder :=
-  .empty |>.status .accepted
+  .new |>.status .accepted
 
 /--
 Creates a new HTTP Response builder with the 401 status code.
 -/
 def unauthorized : Builder :=
-  .empty |>.status .unauthorized
+  .new |>.status .unauthorized
 
 /--
 Creates a new HTTP Response builder with the 403 status code.
 -/
 def forbidden : Builder :=
-  .empty |>.status .forbidden
+  .new |>.status .forbidden
 
 /--
 Creates a new HTTP Response builder with the 409 status code.
 -/
 def conflict : Builder :=
-  .empty |>.status .conflict
+  .new |>.status .conflict
 
 /--
 Creates a new HTTP Response builder with the 503 status code.
 -/
 def serviceUnavailable : Builder :=
-  .empty |>.status .serviceUnavailable
+  .new |>.status .serviceUnavailable
 
 end Response

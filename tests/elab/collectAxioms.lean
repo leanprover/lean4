@@ -9,7 +9,7 @@ class C where
 axiom A2 (_ : A1) : C
 
 /--
-info: #[`A2, `A1, `A0]
+info: #[`A0, `A1, `A2]
 -/
 #guard_msgs in
 #eval Lean.collectAxioms ``A2

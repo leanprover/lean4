@@ -66,7 +66,7 @@ lists are prepend-only, this `toListRev` is usually more efficient that `toList`
 If the iterator is not finite, this function might run forever. The variant
 `it.ensureTermination.toListRev` always terminates after finitely many steps.
 -/
-@[always_inline, inline]
+@[always_inline, inline, cbv_opaque]
 def Iter.toListRev {α : Type w} {β : Type w}
     [Iterator α Id β] (it : Iter (α := α) β) : List β :=
   it.toIterM.toListRev.run

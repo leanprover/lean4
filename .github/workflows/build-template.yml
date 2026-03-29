@@ -78,7 +78,7 @@ jobs:
       # (needs to be after "Install *" to use the right shell)
       - name: CI Merge Checkout
         run: |
-          git fetch --depth=1 origin ${{ github.sha }}
+          git fetch --depth=${{ matrix.name == 'Linux Lake (Cached)' && '10' || '1' }} origin ${{ github.sha }}
           git checkout FETCH_HEAD flake.nix flake.lock script/prepare-* tests/elab/importStructure.lean
         if: github.event_name == 'pull_request'
       # (needs to be after "Checkout" so files don't get overridden)
@@ -125,7 +125,7 @@ jobs:
           else
             echo "TARGET_STAGE=stage1" >> $GITHUB_ENV
           fi
-      - name: Build
+      - name: Configure Build
         run: |
           ulimit -c unlimited  # coredumps
           [ -d build ] || mkdir build
@@ -162,7 +162,21 @@ jobs:
           fi
           # contortion to support empty OPTIONS with old macOS bash
           cmake .. --preset ${{ matrix.CMAKE_PRESET || 'release' }} -B . ${{ matrix.CMAKE_OPTIONS }} ${OPTIONS[@]+"${OPTIONS[@]}"} -DLEAN_INSTALL_PREFIX=$PWD/..
-          time make $TARGET_STAGE -j$NPROC
+      - name: Build Stage 0 & Configure Stage 1
+        run: |
+          ulimit -c unlimited  # coredumps
+          time make -C build stage1-configure -j$NPROC
+      - name: Download Lake Cache
+        if: matrix.name == 'Linux Lake (Cached)'
+        run: |
+          cd src
+          ../build/stage0/bin/lake cache get --repo=${{ github.repository }}
+        timeout-minutes: 20 # prevent excessive hanging from network issues
+        continue-on-error: true
+      - name: Build Target Stage
+        run: |
+          ulimit -c unlimited  # coredumps
+          time make -C build $TARGET_STAGE -j$NPROC
       # Should be done as early as possible and in particular *before* "Check rebootstrap" which
       # changes the state of stage1/
       - name: Save Cache
@@ -181,6 +195,21 @@ jobs:
             build/stage1/**/*.c
             build/stage1/**/*.c.o*' || '' }}
           key: ${{ steps.restore-cache.outputs.cache-primary-key }}
+      - name: Upload Lake Cache
+        # Caching on cancellation created some mysterious issues perhaps related to improper build
+        # shutdown. Also, since this needs access to secrets, it cannot be run on forks.
+        if: matrix.name == 'Linux Lake' && !cancelled() && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
+        run: |
+          curl --version
+          cd src
+          time ../build/stage0/bin/lake build -o ../build/lake-mappings.jsonl
+          time ../build/stage0/bin/lake cache put ../build/lake-mappings.jsonl --repo=${{ github.repository }}
+        env:
+          LAKE_CACHE_KEY: ${{ secrets.LAKE_CACHE_KEY }}
+          LAKE_CACHE_ARTIFACT_ENDPOINT: ${{ vars.LAKE_CACHE_ENDPOINT }}/a1
+          LAKE_CACHE_REVISION_ENDPOINT: ${{ vars.LAKE_CACHE_ENDPOINT }}/r1
+        timeout-minutes: 20 # prevent excessive hanging from network issues
+        continue-on-error: true
       - name: Install
         run: |
           make -C build/$TARGET_STAGE install
@@ -247,10 +276,10 @@ jobs:
       - name: Check rebootstrap
         run: |
           set -e
-          # clean rebuild in case of Makefile changes/Lake does not detect uncommited stage 0
-          # changes yet
+          git config user.email "stage0@lean-fro.org"
+          git config user.name "update-stage0"
           make -C build update-stage0
-          make -C build/stage1 clean-stdlib
+          git commit --allow-empty -m "chore: update-stage0"
           time make -C build -j$NPROC
           time ctest --preset ${{ matrix.CMAKE_PRESET || 'release' }} --test-dir build/stage1 -j$NPROC
         if: matrix.check-rebootstrap

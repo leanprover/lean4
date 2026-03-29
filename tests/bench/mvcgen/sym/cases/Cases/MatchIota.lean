@@ -3,7 +3,7 @@ import VCGen
 
 open Lean Meta Elab Tactic Sym Std Do SpecAttr
 
-namespace MatchSplitState
+namespace MatchIota
 
 set_option mvcgen.warning false
 
@@ -24,18 +24,17 @@ theorem Spec.get_M :
     ⦃fun s => Q.1 s s⦄ get (m := M) ⦃Q⦄ := by
   mvcgen
 
-/-- Matches on state `s` — the discriminant IS the excess state arg. -/
-def step : M Unit := do
+def step (v : Nat) : M Unit := do
   let s ← get
-  match s with
-  | 0 => throw "s is zero"
-  | n+1 => set n
+  match v with
+  | 0 => throw "v is zero"
+  | n+1 => set (s + n + 1); let s ← get; set (s - n)
 
 def loop (n : Nat) : M Unit := do
   match n with
   | 0 => pure ()
-  | n+1 => step; loop n
+  | n+1 => step n; loop n
 
-def Goal (n : Nat) : Prop := ⦃fun s => ⌜s = n⌝⦄ loop n ⦃⇓_ s => ⌜s = 0⌝⦄
+def Goal (n : Nat) : Prop := ⦃fun s => ⌜s = 0⌝⦄ loop n ⦃⇓_ s => ⌜s = n⌝⦄
 
-end MatchSplitState
+end MatchIota

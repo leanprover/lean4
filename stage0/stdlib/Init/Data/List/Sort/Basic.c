@@ -891,9 +891,8 @@ lean_inc(v_fst_255_);
 v_snd_256_ = lean_ctor_get(v_lr_254_, 1);
 lean_inc(v_snd_256_);
 lean_dec_ref(v_lr_254_);
-lean_inc_ref(v_x_251_);
+lean_inc_ref_n(v_x_251_, 2);
 v___x_257_ = l_List_mergeSort___redArg(v_fst_255_, v_x_251_);
-lean_inc_ref(v_x_251_);
 v___x_258_ = l_List_mergeSort___redArg(v_snd_256_, v_x_251_);
 v___x_259_ = l_List_merge___redArg(v___x_257_, v___x_258_, v_x_251_);
 return v___x_259_;
@@ -1004,18 +1003,16 @@ _start:
 {
 lean_object* v_fst_295_; lean_object* v_snd_296_; lean_object* v_fst_297_; lean_object* v_snd_298_; lean_object* v___x_299_; uint8_t v___x_300_; 
 v_fst_295_ = lean_ctor_get(v_a_293_, 0);
-lean_inc(v_fst_295_);
+lean_inc_n(v_fst_295_, 2);
 v_snd_296_ = lean_ctor_get(v_a_293_, 1);
 lean_inc(v_snd_296_);
 lean_dec_ref(v_a_293_);
 v_fst_297_ = lean_ctor_get(v_b_294_, 0);
-lean_inc(v_fst_297_);
+lean_inc_n(v_fst_297_, 2);
 v_snd_298_ = lean_ctor_get(v_b_294_, 1);
 lean_inc(v_snd_298_);
 lean_dec_ref(v_b_294_);
 lean_inc_ref(v_le_292_);
-lean_inc(v_fst_297_);
-lean_inc(v_fst_295_);
 v___x_299_ = lean_apply_2(v_le_292_, v_fst_295_, v_fst_297_);
 v___x_300_ = lean_unbox(v___x_299_);
 if (v___x_300_ == 0)

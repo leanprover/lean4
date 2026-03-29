@@ -10,7 +10,7 @@ public import Lean.Compiler.NoncomputableAttr
 public import Lean.Util.NumApps
 public import Lean.Meta.Eqns
 public import Lean.Elab.RecAppSyntax
-public import Lean.Meta.InstanceNormalForm
+public import Lean.Meta.WrapInstance
 public import Lean.Elab.DefView
 public section
 

@@ -996,6 +996,7 @@ goto v___jp_255_;
 v___jp_255_:
 {
 lean_object* v___x_257_; lean_object* v___x_258_; lean_object* v___x_259_; lean_object* v___x_260_; lean_object* v___x_261_; lean_object* v___x_262_; lean_object* v___x_263_; lean_object* v___x_264_; lean_object* v___x_265_; lean_object* v___x_266_; lean_object* v___x_267_; lean_object* v___x_268_; lean_object* v___x_269_; lean_object* v___x_270_; lean_object* v___x_271_; 
+lean_inc_ref(v___y_256_);
 v___x_257_ = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(v___x_257_, 0, v___y_256_);
 v___x_258_ = lean_alloc_ctor(5, 2, 0);
@@ -1969,6 +1970,7 @@ goto v___jp_593_;
 v___jp_593_:
 {
 lean_object* v___x_595_; lean_object* v___x_596_; lean_object* v___x_597_; lean_object* v___x_598_; lean_object* v___x_599_; lean_object* v___x_600_; 
+lean_inc_ref(v___y_594_);
 v___x_595_ = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(v___x_595_, 0, v___y_594_);
 v___x_596_ = lean_alloc_ctor(5, 2, 0);
@@ -2851,10 +2853,9 @@ v___x_996_ = ((lean_object*)(l___private_Lean_Compiler_IR_Format_0__Lean_IR_form
 v___x_997_ = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(v___x_997_, 0, v___x_995_);
 lean_ctor_set(v___x_997_, 1, v___x_996_);
-lean_inc(v_indent_960_);
+lean_inc_n(v_indent_960_, 2);
 v___x_998_ = lean_nat_to_int(v_indent_960_);
 v___x_999_ = lean_box(1);
-lean_inc(v_indent_960_);
 v___x_1000_ = l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatFnBody_loop(v_indent_960_, v_v_988_);
 v___x_1001_ = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(v___x_1001_, 0, v___x_999_);
@@ -3528,11 +3529,10 @@ v___x_1263_ = lean_box(1);
 v___x_1264_ = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(v___x_1264_, 0, v_b_1260_);
 lean_ctor_set(v___x_1264_, 1, v___x_1263_);
-lean_inc(v_indent_1256_);
+lean_inc_n(v_indent_1256_, 2);
 v___x_1265_ = lean_alloc_closure((void*)(l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatFnBody_loop), 2, 1);
 lean_closure_set(v___x_1265_, 0, v_indent_1256_);
 lean_inc(v___x_1262_);
-lean_inc(v_indent_1256_);
 v___x_1266_ = l_Lean_IR_formatAlt(v___x_1265_, v_indent_1256_, v___x_1262_);
 v___x_1267_ = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(v___x_1267_, 0, v___x_1264_);

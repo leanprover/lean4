@@ -668,6 +668,7 @@ lean_ctor_set(v___x_175_, 1, v_openDecls_162_);
 v___x_176_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_176_, 0, v___x_175_);
 lean_ctor_set(v___x_176_, 1, v___y_154_);
+lean_inc_ref(v___y_155_);
 lean_inc_ref(v___y_151_);
 v___x_177_ = lean_alloc_ctor(0, 5, 3);
 lean_ctor_set(v___x_177_, 0, v___y_151_);
@@ -736,10 +737,9 @@ goto v_resetjp_198_;
 v_resetjp_198_:
 {
 lean_object* v___x_201_; lean_object* v___x_202_; lean_object* v___x_203_; lean_object* v___x_204_; 
-lean_inc_ref(v___y_190_);
+lean_inc_ref_n(v___y_190_, 2);
 v___x_201_ = l_Lean_FileMap_toPosition(v___y_190_, v___y_191_);
 lean_dec(v___y_191_);
-lean_inc_ref(v___y_190_);
 v___x_202_ = l_Lean_FileMap_toPosition(v___y_190_, v___y_194_);
 lean_dec(v___y_194_);
 v___x_203_ = lean_alloc_ctor(1, 1, 0);

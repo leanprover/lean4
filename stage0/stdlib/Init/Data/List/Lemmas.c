@@ -761,7 +761,7 @@ else
 {
 lean_object* v_head_247_; lean_object* v_tail_248_; lean_object* v___f_249_; lean_object* v___x_250_; lean_object* v___x_251_; 
 v_head_247_ = lean_ctor_get(v_x_242_, 0);
-lean_inc(v_head_247_);
+lean_inc_n(v_head_247_, 2);
 v_tail_248_ = lean_ctor_get(v_x_242_, 1);
 lean_inc(v_tail_248_);
 lean_dec_ref(v_x_242_);
@@ -769,7 +769,6 @@ lean_inc(v_x_246_);
 v___f_249_ = lean_alloc_closure((void*)(l_List_foldlRecOn___redArg___lam__0), 5, 1);
 lean_closure_set(v___f_249_, 0, v_x_246_);
 lean_inc(v_x_243_);
-lean_inc(v_head_247_);
 lean_inc(v_x_244_);
 v___x_250_ = lean_apply_2(v_x_243_, v_x_244_, v_head_247_);
 v___x_251_ = lean_apply_4(v_x_246_, v_x_244_, v_x_245_, v_head_247_, lean_box(0));
@@ -846,12 +845,11 @@ lean_object* v_head_284_; lean_object* v_tail_285_; lean_object* v___f_286_; lea
 v_head_284_ = lean_ctor_get(v_x_279_, 0);
 lean_inc(v_head_284_);
 v_tail_285_ = lean_ctor_get(v_x_279_, 1);
-lean_inc(v_tail_285_);
+lean_inc_n(v_tail_285_, 2);
 lean_dec_ref(v_x_279_);
 lean_inc(v_x_283_);
 v___f_286_ = lean_alloc_closure((void*)(l_List_foldrRecOn___redArg___lam__0), 5, 1);
 lean_closure_set(v___f_286_, 0, v_x_283_);
-lean_inc(v_tail_285_);
 lean_inc(v_x_280_);
 v___x_287_ = l_List_foldr___at___00List_foldrRecOn_spec__0___redArg(v_x_280_, v_x_281_, v_tail_285_);
 v___x_288_ = l_List_foldrRecOn___redArg(v_tail_285_, v_x_280_, v_x_281_, v_x_282_, v___f_286_);

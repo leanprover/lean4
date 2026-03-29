@@ -21,7 +21,7 @@ lean_object* lean_nat_mul(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_panic_fn(lean_object*, lean_object*);
+lean_object* lean_panic_fn_borrowed(lean_object*, lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_maxView_x21___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_minView_x21___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Option_fromJson_x3f___redArg(lean_object*, lean_object*);
@@ -222,7 +222,7 @@ _start:
 {
 lean_object* v___x_38_; lean_object* v___x_39_; 
 v___x_38_ = lean_box(1);
-v___x_39_ = lean_panic_fn(v___x_38_, v_msg_37_);
+v___x_39_ = lean_panic_fn_borrowed(v___x_38_, v_msg_37_);
 return v___x_39_;
 }
 }

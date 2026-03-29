@@ -17,4 +17,4 @@ example : Goal 10 := by
   mvcgen'
 
 #eval runBenchUsingTactic ``Goal [``loop, ``step] `(tactic| mvcgen') `(tactic| fail)
-  [100, 500, 1000]
+  [100, 400, 700]

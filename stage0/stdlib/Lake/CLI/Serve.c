@@ -22,7 +22,7 @@ lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_instMonadBaseIO;
 lean_object* l_instInhabitedOfMonad___redArg(lean_object*, lean_object*);
-lean_object* lean_panic_fn(lean_object*, lean_object*);
+lean_object* lean_panic_fn_borrowed(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget_borrowed(lean_object*, size_t);
@@ -134,7 +134,7 @@ _start:
 {
 lean_object* v___x_9_; lean_object* v___x_284__overap_10_; lean_object* v___x_11_; 
 v___x_9_ = lean_obj_once(&l_panic___at___00__private_Lake_CLI_Serve_0__Lake_setupFile_print_x21_spec__1___closed__0, &l_panic___at___00__private_Lake_CLI_Serve_0__Lake_setupFile_print_x21_spec__1___closed__0_once, _init_l_panic___at___00__private_Lake_CLI_Serve_0__Lake_setupFile_print_x21_spec__1___closed__0);
-v___x_284__overap_10_ = lean_panic_fn(v___x_9_, v_msg_7_);
+v___x_284__overap_10_ = lean_panic_fn_borrowed(v___x_9_, v_msg_7_);
 v___x_11_ = lean_apply_1(v___x_284__overap_10_, lean_box(0));
 return v___x_11_;
 }

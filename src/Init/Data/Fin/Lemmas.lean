@@ -527,6 +527,14 @@ theorem castLE_of_eq {m n : Nat} (h : m = n) {h' : m ≤ n} : castLE h' = Fin.ca
 
 @[simp, grind =] theorem val_castAdd (m : Nat) (i : Fin n) : (castAdd m i : Nat) = i := rfl
 
+/-
+**Note**
+The current pattern inference heuristic includes the implicit term `n + m` as pattern of the pattern,
+but arithmetic is problematic in patterns because it is an interpreted symbol. For example,
+we will fail to match `@val n (castNat 0 i)`. Thus, we mark the implicit subterm with `no_index`
+-/
+grind_pattern val_castAdd => @val (no_index _) (castAdd m i)
+
 @[deprecated val_castAdd (since := "2025-11-21")]
 theorem coe_castAdd (m : Nat) (i : Fin n) : (castAdd m i : Nat) = i := rfl
 
@@ -637,7 +645,15 @@ theorem exists_castSucc_eq {n : Nat} {i : Fin (n + 1)} : (∃ j, castSucc j = i)
 
 theorem succ_castSucc {n : Nat} (i : Fin n) : i.castSucc.succ = i.succ.castSucc := rfl
 
-@[simp, grind =] theorem val_addNat (m : Nat) (i : Fin n) : (addNat i m : Nat) = i + m := rfl
+@[simp] theorem val_addNat (m : Nat) (i : Fin n) : (addNat i m : Nat) = i + m := rfl
+
+/-
+**Note**
+The current pattern inference heuristic includes the implicit term `n + m` as pattern of the pattern,
+but arithmetic is problematic in patterns because it is an interpreted symbol. For example,
+we will fail to match `@val n (addNat i 0)`. Thus, we mark the implicit subterm with `no_index`
+-/
+grind_pattern val_addNat => @val (no_index _) (addNat i m)
 
 @[deprecated val_addNat (since := "2025-11-21")]
 theorem coe_addNat (m : Nat) (i : Fin n) : (addNat i m : Nat) = i + m := rfl

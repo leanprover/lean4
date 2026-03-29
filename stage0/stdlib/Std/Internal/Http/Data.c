@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Internal.Http.Data
-// Imports: public import Std.Internal.Http.Data.Method public import Std.Internal.Http.Data.Version public import Std.Internal.Http.Data.Request public import Std.Internal.Http.Data.Response public import Std.Internal.Http.Data.Status public import Std.Internal.Http.Data.Chunk public import Std.Internal.Http.Data.Headers public import Std.Internal.Http.Data.URI
+// Imports: public import Std.Internal.Http.Data.Method public import Std.Internal.Http.Data.Version public import Std.Internal.Http.Data.Request public import Std.Internal.Http.Data.Response public import Std.Internal.Http.Data.Status public import Std.Internal.Http.Data.Chunk public import Std.Internal.Http.Data.Headers public import Std.Internal.Http.Data.URI public import Std.Internal.Http.Data.Body
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -21,6 +21,7 @@ lean_object* runtime_initialize_Std_Internal_Http_Data_Status(uint8_t builtin);
 lean_object* runtime_initialize_Std_Internal_Http_Data_Chunk(uint8_t builtin);
 lean_object* runtime_initialize_Std_Internal_Http_Data_Headers(uint8_t builtin);
 lean_object* runtime_initialize_Std_Internal_Http_Data_URI(uint8_t builtin);
+lean_object* runtime_initialize_Std_Internal_Http_Data_Body(uint8_t builtin);
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Std_Internal_Http_Data(uint8_t builtin) {
 lean_object * res;
@@ -50,6 +51,9 @@ lean_dec_ref(res);
 res = runtime_initialize_Std_Internal_Http_Data_URI(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = runtime_initialize_Std_Internal_Http_Data_Body(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
 }
 static bool _G_meta_initialized = false;
@@ -67,6 +71,7 @@ lean_object* initialize_Std_Internal_Http_Data_Status(uint8_t builtin);
 lean_object* initialize_Std_Internal_Http_Data_Chunk(uint8_t builtin);
 lean_object* initialize_Std_Internal_Http_Data_Headers(uint8_t builtin);
 lean_object* initialize_Std_Internal_Http_Data_URI(uint8_t builtin);
+lean_object* initialize_Std_Internal_Http_Data_Body(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Internal_Http_Data(uint8_t builtin) {
 lean_object * res;
@@ -94,6 +99,9 @@ res = initialize_Std_Internal_Http_Data_Headers(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Internal_Http_Data_URI(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Internal_Http_Data_Body(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Std_Internal_Http_Data(builtin);

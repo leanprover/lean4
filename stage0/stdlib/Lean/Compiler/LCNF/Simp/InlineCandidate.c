@@ -29,7 +29,7 @@ lean_object* l_ReaderT_instMonad___redArg(lean_object*);
 lean_object* l_Lean_Compiler_LCNF_Simp_instMonadSimpM___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_Simp_instMonadSimpM___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_instInhabitedOfMonad___redArg(lean_object*, lean_object*);
-lean_object* lean_panic_fn(lean_object*, lean_object*);
+lean_object* lean_panic_fn_borrowed(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_Simp_incInline___redArg(lean_object*);
 lean_object* l_Lean_Compiler_LCNF_Decl_instantiateParamsLevelParams(uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_Code_instantiateValueLevelParams(lean_object*, lean_object*, lean_object*);
@@ -722,7 +722,8 @@ v___x_148_ = lean_box(0);
 v___x_149_ = l_instInhabitedOfMonad___redArg(v___x_147_, v___x_148_);
 v___f_150_ = lean_alloc_closure((void*)(l_instInhabitedForall___redArg___lam__0___boxed), 2, 1);
 lean_closure_set(v___f_150_, 0, v___x_149_);
-v___x_21331__overap_151_ = lean_panic_fn(v___f_150_, v_msg_88_);
+v___x_21331__overap_151_ = lean_panic_fn_borrowed(v___f_150_, v_msg_88_);
+lean_dec_ref(v___f_150_);
 lean_inc(v___y_95_);
 lean_inc_ref(v___y_94_);
 lean_inc(v___y_93_);
@@ -1236,7 +1237,8 @@ v_reusejp_337_:
 lean_object* v___x_339_; lean_object* v___x_340_; lean_object* v___x_21346__overap_341_; lean_object* v___x_342_; 
 v___x_339_ = lean_box(0);
 v___x_340_ = l_instInhabitedOfMonad___redArg(v___x_338_, v___x_339_);
-v___x_21346__overap_341_ = lean_panic_fn(v___x_340_, v_msg_256_);
+v___x_21346__overap_341_ = lean_panic_fn_borrowed(v___x_340_, v_msg_256_);
+lean_dec(v___x_340_);
 lean_inc(v___y_263_);
 lean_inc_ref(v___y_262_);
 lean_inc(v___y_261_);
@@ -1557,10 +1559,9 @@ lean_dec_ref(v_args_823_);
 lean_dec(v_us_822_);
 lean_dec_ref(v_declName_820_);
 v_fvarId_832_ = lean_ctor_get(v___x_831_, 0);
-lean_inc(v_fvarId_832_);
+lean_inc_n(v_fvarId_832_, 2);
 lean_dec_ref(v___x_831_);
 v___x_833_ = 0;
-lean_inc(v_fvarId_832_);
 v___x_834_ = l_Lean_Compiler_LCNF_Simp_findFunDecl_x27_x3f___redArg(v___x_833_, v_fvarId_832_, v_a_458_);
 if (lean_obj_tag(v___x_834_) == 0)
 {
@@ -1614,13 +1615,12 @@ if (lean_obj_tag(v_value_842_) == 3)
 {
 lean_object* v_declName_843_; lean_object* v_us_844_; lean_object* v_args_845_; lean_object* v___x_846_; 
 v_declName_843_ = lean_ctor_get(v_value_842_, 0);
-lean_inc(v_declName_843_);
+lean_inc_n(v_declName_843_, 2);
 v_us_844_ = lean_ctor_get(v_value_842_, 1);
 lean_inc(v_us_844_);
 v_args_845_ = lean_ctor_get(v_value_842_, 2);
 lean_inc_ref(v_args_845_);
 lean_dec_ref(v_value_842_);
-lean_inc(v_declName_843_);
 v___x_846_ = l_Lean_isCtor_x3f___at___00Lean_Compiler_LCNF_Simp_inlineCandidate_x3f_spec__0(v_declName_843_, v_a_454_, v_a_455_, v_a_456_, v_a_457_, v_a_458_, v_a_459_, v_a_460_);
 if (lean_obj_tag(v___x_846_) == 0)
 {
@@ -2237,10 +2237,9 @@ lean_object* v_levelParams_483_; lean_object* v___x_484_; lean_object* v___x_485
 v_levelParams_483_ = lean_ctor_get(v___y_471_, 1);
 lean_inc(v_levelParams_483_);
 lean_dec_ref(v___y_471_);
-lean_inc(v___y_476_);
+lean_inc_n(v___y_476_, 2);
 lean_inc_ref(v___y_472_);
 v___x_484_ = l_Lean_Compiler_LCNF_Decl_instantiateParamsLevelParams(v___y_474_, v___y_472_, v___y_476_);
-lean_inc(v___y_476_);
 v___x_485_ = l_Lean_Compiler_LCNF_Code_instantiateValueLevelParams(v___y_475_, v_levelParams_483_, v___y_476_);
 v___x_486_ = l_Lean_Compiler_LCNF_Decl_instantiateTypeLevelParams___redArg(v___y_472_, v___y_476_);
 v___x_487_ = lean_alloc_ctor(0, 4, 3);
@@ -2953,12 +2952,11 @@ v_toSignature_648_ = lean_ctor_get(v_val_644_, 0);
 lean_inc_ref(v_toSignature_648_);
 v_recursive_649_ = lean_ctor_get_uint8(v_val_644_, sizeof(void*)*3);
 v_code_650_ = lean_ctor_get(v_value_647_, 0);
-lean_inc_ref(v_code_650_);
+lean_inc_ref_n(v_code_650_, 2);
 v___x_651_ = l_Lean_Compiler_LCNF_Decl_inlineIfReduceAttr___redArg(v_val_644_);
 v___x_652_ = lean_box(v___x_651_);
 v___x_653_ = lean_box(v_mustInline_468_);
 v___x_654_ = lean_box(v_inlineDefs_632_);
-lean_inc_ref(v_code_650_);
 lean_inc(v_val_644_);
 v___f_655_ = lean_alloc_closure((void*)(l_Lean_Compiler_LCNF_Simp_inlineCandidate_x3f___lam__0___boxed), 14, 5);
 lean_closure_set(v___f_655_, 0, v_val_644_);

@@ -47,7 +47,7 @@ lean_object* lean_nat_mul(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_panic_fn(lean_object*, lean_object*);
+lean_object* lean_panic_fn_borrowed(lean_object*, lean_object*);
 lean_object* l_Lake_mkRelPathString(lean_object*);
 lean_object* l_List_appendTR___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_Json_mkObj(lean_object*);
@@ -1927,7 +1927,7 @@ _start:
 {
 lean_object* v___x_436_; lean_object* v___x_437_; 
 v___x_436_ = lean_box(1);
-v___x_437_ = lean_panic_fn(v___x_436_, v_msg_435_);
+v___x_437_ = lean_panic_fn_borrowed(v___x_436_, v_msg_435_);
 return v___x_437_;
 }
 }

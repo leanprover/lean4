@@ -659,7 +659,6 @@ if (v_modified_269_ == 0)
 {
 lean_object* v_fvarId_304_; lean_object* v___x_305_; 
 v_fvarId_304_ = lean_ctor_get(v_expr_267_, 0);
-lean_inc_ref(v_a_230_);
 lean_inc(v_fvarId_304_);
 v___x_305_ = l_Lean_FVarId_getDecl___redArg(v_fvarId_304_, v_a_230_, v_a_232_, v_a_233_);
 if (lean_obj_tag(v___x_305_) == 0)

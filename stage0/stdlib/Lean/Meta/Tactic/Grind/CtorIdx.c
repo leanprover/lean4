@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 lean_object* l_Lean_Meta_Grind_instInhabitedGoalM(lean_object*);
-lean_object* lean_panic_fn(lean_object*, lean_object*);
+lean_object* lean_panic_fn_borrowed(lean_object*, lean_object*);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_sort___override(lean_object*);
 lean_object* l_Lean_Expr_getAppNumArgs(lean_object*);
@@ -87,7 +87,7 @@ _start:
 {
 lean_object* v___x_14_; lean_object* v___x_63595__overap_15_; lean_object* v___x_16_; 
 v___x_14_ = lean_obj_once(&l_panic___at___00Lean_Meta_Grind_propagateCtorIdxUp_spec__0___closed__0, &l_panic___at___00Lean_Meta_Grind_propagateCtorIdxUp_spec__0___closed__0_once, _init_l_panic___at___00Lean_Meta_Grind_propagateCtorIdxUp_spec__0___closed__0);
-v___x_63595__overap_15_ = lean_panic_fn(v___x_14_, v_msg_2_);
+v___x_63595__overap_15_ = lean_panic_fn_borrowed(v___x_14_, v_msg_2_);
 lean_inc(v___y_12_);
 lean_inc_ref(v___y_11_);
 lean_inc(v___y_10_);
@@ -571,6 +571,7 @@ v___x_257_ = l_Lean_Expr_constLevels_x21(v___x_256_);
 lean_dec_ref(v___x_256_);
 v___x_258_ = l_Lean_Meta_mkCtorIdxHInjTheoremNameFor(v_name_245_);
 v___x_259_ = l_Lean_Environment_containsOnBranch(v_env_255_, v___x_258_);
+lean_dec_ref(v_env_255_);
 if (v___x_259_ == 0)
 {
 lean_object* v___x_260_; 
@@ -1010,7 +1011,7 @@ if (lean_obj_tag(v___x_178_) == 0)
 {
 lean_object* v_a_179_; lean_object* v___x_180_; lean_object* v___x_181_; lean_object* v___x_182_; 
 v_a_179_ = lean_ctor_get(v___x_178_, 0);
-lean_inc(v_a_179_);
+lean_inc_n(v_a_179_, 2);
 lean_dec_ref(v___x_178_);
 v___x_180_ = lean_unsigned_to_nat(0u);
 v___x_181_ = lean_box(0);
@@ -1024,7 +1025,6 @@ lean_inc(v___y_169_);
 lean_inc_ref(v___y_168_);
 lean_inc(v___y_167_);
 lean_inc(v___y_166_);
-lean_inc(v_a_179_);
 v___x_182_ = lean_grind_internalize(v_a_179_, v___x_180_, v___x_181_, v___y_166_, v___y_167_, v___y_168_, v___y_169_, v___y_170_, v___y_171_, v___y_172_, v___y_173_, v___y_174_, v___y_175_);
 if (lean_obj_tag(v___x_182_) == 0)
 {

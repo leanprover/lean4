@@ -1140,7 +1140,7 @@ if (lean_obj_tag(v_t_282_) == 0)
 {
 lean_object* v_k_285_; lean_object* v_v_286_; lean_object* v_l_287_; lean_object* v_r_288_; lean_object* v___x_289_; uint8_t v___x_290_; 
 v_k_285_ = lean_ctor_get(v_t_282_, 1);
-lean_inc(v_k_285_);
+lean_inc_n(v_k_285_, 2);
 v_v_286_ = lean_ctor_get(v_t_282_, 2);
 lean_inc(v_v_286_);
 v_l_287_ = lean_ctor_get(v_t_282_, 3);
@@ -1149,7 +1149,6 @@ v_r_288_ = lean_ctor_get(v_t_282_, 4);
 lean_inc(v_r_288_);
 lean_dec_ref(v_t_282_);
 lean_inc_ref(v_inst_281_);
-lean_inc(v_k_285_);
 lean_inc(v_lowerBound_283_);
 v___x_289_ = lean_apply_2(v_inst_281_, v_lowerBound_283_, v_k_285_);
 v___x_290_ = lean_unbox(v___x_289_);
@@ -1213,7 +1212,7 @@ if (lean_obj_tag(v_t_303_) == 0)
 {
 lean_object* v_k_306_; lean_object* v_v_307_; lean_object* v_l_308_; lean_object* v_r_309_; lean_object* v___x_310_; uint8_t v___x_311_; 
 v_k_306_ = lean_ctor_get(v_t_303_, 1);
-lean_inc(v_k_306_);
+lean_inc_n(v_k_306_, 2);
 v_v_307_ = lean_ctor_get(v_t_303_, 2);
 lean_inc(v_v_307_);
 v_l_308_ = lean_ctor_get(v_t_303_, 3);
@@ -1222,7 +1221,6 @@ v_r_309_ = lean_ctor_get(v_t_303_, 4);
 lean_inc(v_r_309_);
 lean_dec_ref(v_t_303_);
 lean_inc_ref(v_inst_302_);
-lean_inc(v_k_306_);
 lean_inc(v_lowerBound_304_);
 v___x_310_ = lean_apply_2(v_inst_302_, v_lowerBound_304_, v_k_306_);
 v___x_311_ = lean_unbox(v___x_310_);
@@ -1713,7 +1711,7 @@ v_resetjp_476_:
 {
 lean_object* v_k_479_; lean_object* v_v_480_; lean_object* v_tree_481_; lean_object* v_next_482_; lean_object* v___x_483_; uint8_t v___x_484_; 
 v_k_479_ = lean_ctor_get(v_iter_473_, 0);
-lean_inc(v_k_479_);
+lean_inc_n(v_k_479_, 2);
 v_v_480_ = lean_ctor_get(v_iter_473_, 1);
 lean_inc(v_v_480_);
 v_tree_481_ = lean_ctor_get(v_iter_473_, 2);
@@ -1722,7 +1720,6 @@ v_next_482_ = lean_ctor_get(v_iter_473_, 3);
 lean_inc(v_next_482_);
 lean_dec_ref(v_iter_473_);
 lean_inc(v_upper_475_);
-lean_inc(v_k_479_);
 v___x_483_ = lean_apply_2(v_inst_471_, v_k_479_, v_upper_475_);
 v___x_484_ = lean_unbox(v___x_483_);
 if (v___x_484_ == 2)
@@ -1947,7 +1944,7 @@ v_resetjp_557_:
 {
 lean_object* v_k_560_; lean_object* v_v_561_; lean_object* v_tree_562_; lean_object* v_next_563_; lean_object* v___x_564_; uint8_t v___x_565_; 
 v_k_560_ = lean_ctor_get(v_iter_554_, 0);
-lean_inc(v_k_560_);
+lean_inc_n(v_k_560_, 2);
 v_v_561_ = lean_ctor_get(v_iter_554_, 1);
 lean_inc(v_v_561_);
 v_tree_562_ = lean_ctor_get(v_iter_554_, 2);
@@ -1956,7 +1953,6 @@ v_next_563_ = lean_ctor_get(v_iter_554_, 3);
 lean_inc(v_next_563_);
 lean_dec_ref(v_iter_554_);
 lean_inc(v_upper_556_);
-lean_inc(v_k_560_);
 v___x_564_ = lean_apply_2(v_inst_552_, v_k_560_, v_upper_556_);
 v___x_565_ = lean_unbox(v___x_564_);
 if (v___x_565_ == 0)

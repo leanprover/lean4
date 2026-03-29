@@ -2441,11 +2441,10 @@ else
 {
 lean_object* v_head_577_; lean_object* v_tail_578_; lean_object* v___x_579_; lean_object* v_snd_580_; lean_object* v_set_581_; lean_object* v_order_582_; lean_object* v___x_584_; uint8_t v_isShared_585_; uint8_t v_isSharedCheck_605_; 
 v_head_577_ = lean_ctor_get(v_as_572_, 0);
-lean_inc(v_head_577_);
+lean_inc_n(v_head_577_, 2);
 v_tail_578_ = lean_ctor_get(v_as_572_, 1);
 lean_inc(v_tail_578_);
 lean_dec_ref(v_as_572_);
-lean_inc(v_head_577_);
 v___x_579_ = l_Lean_IR_CollectUsedDecls_collectDecl(v_head_577_, v___y_573_, v___y_574_);
 v_snd_580_ = lean_ctor_get(v___x_579_, 1);
 lean_inc(v_snd_580_);

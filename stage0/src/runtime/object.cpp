@@ -196,6 +196,11 @@ extern "C" LEAN_EXPORT object * lean_panic_fn(object * default_val, object * msg
     return default_val;
 }
 
+extern "C" LEAN_EXPORT object * lean_panic_fn_borrowed(b_obj_arg default_val, object * msg) {
+    lean_inc(default_val);
+    return lean_panic_fn(default_val, msg);
+}
+
 extern "C" LEAN_EXPORT object * lean_sorry(uint8) {
     lean_internal_panic("executed 'sorry'");
     lean_unreachable();

@@ -1930,9 +1930,8 @@ if (lean_obj_tag(v___x_685_) == 0)
 {
 lean_object* v_a_686_; lean_object* v___x_687_; lean_object* v___x_688_; lean_object* v___x_690_; uint8_t v_isShared_691_; uint8_t v_isSharedCheck_696_; 
 v_a_686_ = lean_ctor_get(v___x_685_, 0);
-lean_inc(v_a_686_);
+lean_inc_n(v_a_686_, 2);
 lean_dec_ref(v___x_685_);
-lean_inc(v_a_686_);
 v___x_687_ = l_Lean_mkAppN(v_a_686_, v_snd_682_);
 lean_dec(v_snd_682_);
 v___x_688_ = l_Lean_MVarId_assign___at___00__private_Lean_Meta_Match_CaseArraySizes_0__Lean_Meta_introArrayLit_spec__0___redArg(v_mvarId_665_, v___x_687_, v_a_671_);
@@ -2968,7 +2967,7 @@ lean_inc(v_subst_1023_);
 lean_inc(v_xNamePrefix_1007_);
 lean_inc(v___x_1053_);
 lean_inc_ref(v_a_1006_);
-lean_inc(v_mvarId_1021_);
+lean_inc_n(v_mvarId_1021_, 2);
 v___f_1057_ = lean_alloc_closure((void*)(l_Array_mapFinIdxM_map___at___00Lean_Meta_caseArraySizes_spec__3___redArg___lam__0___boxed), 14, 9);
 lean_closure_set(v___f_1057_, 0, v___x_1054_);
 lean_closure_set(v___f_1057_, 1, v_mvarId_1021_);
@@ -2979,7 +2978,6 @@ lean_closure_set(v___f_1057_, 5, v___x_1055_);
 lean_closure_set(v___f_1057_, 6, v___x_1052_);
 lean_closure_set(v___f_1057_, 7, v_subst_1023_);
 lean_closure_set(v___f_1057_, 8, v___x_1056_);
-lean_inc(v_mvarId_1021_);
 v___x_1058_ = l_Lean_MVarId_withContext___at___00Lean_Meta_caseArraySizes_spec__2___redArg(v_mvarId_1021_, v___f_1057_, v___y_1012_, v___y_1013_, v___y_1014_, v___y_1015_);
 if (lean_obj_tag(v___x_1058_) == 0)
 {

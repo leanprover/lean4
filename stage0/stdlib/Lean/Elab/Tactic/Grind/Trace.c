@@ -1397,6 +1397,7 @@ lean_dec_ref(v___y_423_);
 lean_dec(v___y_422_);
 lean_dec_ref(v___y_421_);
 lean_dec(v___y_420_);
+lean_dec_ref(v___y_419_);
 return v_res_428_;
 }
 }
@@ -1814,7 +1815,6 @@ lean_closure_set(v___f_609_, 4, v___x_582_);
 lean_closure_set(v___f_609_, 5, v_stx_569_);
 lean_closure_set(v___f_609_, 6, v___x_608_);
 lean_closure_set(v___f_609_, 7, v___y_598_);
-lean_inc_ref(v___y_604_);
 v___x_610_ = l_Lean_Elab_Tactic_Grind_withConfigItems___redArg(v_val_593_, v___f_609_, v___y_604_, v___y_601_, v___y_605_, v___y_603_, v___y_600_, v___y_602_, v___y_606_, v___y_599_);
 lean_dec(v_val_593_);
 return v___x_610_;

@@ -6,8 +6,11 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Basic
-import Lean.Meta.Tactic.Grind.SynthInstance
 import Init.Grind.FieldNormNum
+import Lean.Meta.Tactic.Grind.SynthInstance
+import Lean.Meta.AppBuilder
+import Lean.Meta.LitValues
+import Lean.Util.SafeExponentiation
 namespace Lean.Meta.Grind.Arith
 namespace FieldNormNum
 

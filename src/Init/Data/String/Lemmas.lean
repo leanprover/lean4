@@ -19,6 +19,7 @@ public import Init.Data.String.Lemmas.Iterate
 public import Init.Data.String.Lemmas.Intercalate
 public import Init.Data.String.Lemmas.Iter
 public import Init.Data.String.Lemmas.Hashable
+public import Init.Data.String.Lemmas.TakeDrop
 import Init.Data.Order.Lemmas
 public import Init.Data.String.Basic
 import Init.Data.Char.Lemmas

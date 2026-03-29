@@ -374,9 +374,8 @@ if (lean_obj_tag(v___x_140_) == 0)
 {
 lean_object* v_a_141_; lean_object* v___x_142_; lean_object* v___x_143_; uint8_t v___x_144_; lean_object* v___x_145_; lean_object* v___x_146_; 
 v_a_141_ = lean_ctor_get(v___x_140_, 0);
-lean_inc(v_a_141_);
+lean_inc_n(v_a_141_, 2);
 lean_dec_ref(v___x_140_);
-lean_inc(v_a_141_);
 v___x_142_ = l_Lean_Expr_sort___override(v_a_141_);
 v___x_143_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_143_, 0, v___x_142_);
@@ -387,9 +386,8 @@ if (lean_obj_tag(v___x_146_) == 0)
 {
 lean_object* v_a_147_; lean_object* v___x_148_; lean_object* v___x_149_; 
 v_a_147_ = lean_ctor_get(v___x_146_, 0);
-lean_inc(v_a_147_);
+lean_inc_n(v_a_147_, 2);
 lean_dec_ref(v___x_146_);
-lean_inc(v_a_147_);
 v___x_148_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_148_, 0, v_a_147_);
 v___x_149_ = l_Lean_Meta_mkFreshExprMVar(v___x_148_, v___x_144_, v___x_145_, v_a_135_, v_a_136_, v_a_137_, v_a_138_);

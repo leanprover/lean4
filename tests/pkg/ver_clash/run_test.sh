@@ -18,6 +18,16 @@
 # Setup
 # ---
 
+./clean.sh
+
+# Copy test data to a working directory to avoid initializing Git repositories
+# inside the checked-in source tree. Cleaned at the start so artifacts from a
+# failed run remain available for inspection.
+WORK_DIR="$PWD/work"
+mkdir -p "$WORK_DIR"
+cp -r DiamondExample-A DiamondExample-B DiamondExample-C DiamondExample-D lean-toolchain "$WORK_DIR/"
+cd "$WORK_DIR"
+
 # Since committing a Git repository to a Git repository is not well-supported,
 # We reinitialize the repositories on each test.
 
@@ -41,8 +51,6 @@ init_git() {
   git commit -m "initial commit"
   set +x
 }
-
-./clean.sh
 
 pushd DiamondExample-A
 sed_i s/add_left_comm/poorly_named_lemma/ DiamondExampleA/Ring/Lemmas.lean
@@ -107,7 +115,3 @@ capture_fail lake build
 check_out_contains 'could not disambiguate the module `DiamondExampleA.Ring.Lemmas`'
 
 popd
-
-# Cleanup
-rm -rf DiamondExample-*/.git
-rm -rf DiamondExample-*/.lake

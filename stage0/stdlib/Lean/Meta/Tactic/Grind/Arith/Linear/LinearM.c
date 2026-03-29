@@ -24,9 +24,9 @@ lean_object* lean_st_ref_get(lean_object*);
 lean_object* l_Lean_Meta_Grind_SolverExtension_getState___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_Arith_CommRing_RingM_modifyCommRing___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_Arith_CommRing_RingM_getCommRing(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_grind_canon(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Sym_canon(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Sym_shareCommon___redArg(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_Grind_synthInstanceMeta_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Sym_synthInstanceMeta_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Linear_get_x27___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Linear_get_x27___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Linear_get_x27(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -969,17 +969,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Linear_instMonadCanonLinearM___
 _start:
 {
 lean_object* v___x_489_; 
-lean_inc(v___y_487_);
-lean_inc_ref(v___y_486_);
-lean_inc(v___y_485_);
-lean_inc_ref(v___y_484_);
-lean_inc(v___y_483_);
-lean_inc_ref(v___y_482_);
-lean_inc(v___y_481_);
-lean_inc_ref(v___y_480_);
-lean_inc(v___y_479_);
-lean_inc(v___y_478_);
-v___x_489_ = lean_grind_canon(v_e_476_, v___y_478_, v___y_479_, v___y_480_, v___y_481_, v___y_482_, v___y_483_, v___y_484_, v___y_485_, v___y_486_, v___y_487_);
+v___x_489_ = l_Lean_Meta_Sym_canon(v_e_476_, v___y_482_, v___y_483_, v___y_484_, v___y_485_, v___y_486_, v___y_487_);
 if (lean_obj_tag(v___x_489_) == 0)
 {
 lean_object* v_a_490_; lean_object* v___x_491_; 
@@ -1018,7 +1008,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Linear_instMonadCanonLinearM___
 _start:
 {
 lean_object* v___x_519_; 
-v___x_519_ = l_Lean_Meta_Grind_synthInstanceMeta_x3f(v_e_506_, v___y_514_, v___y_515_, v___y_516_, v___y_517_);
+v___x_519_ = l_Lean_Meta_Sym_synthInstanceMeta_x3f(v_e_506_, v___y_514_, v___y_515_, v___y_516_, v___y_517_);
 return v___x_519_;
 }
 }
@@ -1282,6 +1272,7 @@ v___x_630_ = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(v___x_630_, 0, v_val_627_);
 lean_ctor_set_uint8(v___x_630_, sizeof(void*)*1, v___x_629_);
 v___x_631_ = l_Lean_Meta_Grind_Arith_CommRing_RingM_modifyCommRing___redArg(v___f_628_, v___x_630_, v___y_613_);
+lean_dec_ref(v___x_630_);
 return v___x_631_;
 }
 else

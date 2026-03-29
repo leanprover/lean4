@@ -2719,11 +2719,10 @@ lean_object* v_a_863_; lean_object* v_a_864_; lean_object* v_visited_865_; lean_
 v_a_863_ = lean_ctor_get(v___x_862_, 1);
 lean_inc(v_a_863_);
 v_a_864_ = lean_ctor_get(v___x_862_, 0);
-lean_inc(v_a_864_);
+lean_inc_n(v_a_864_, 2);
 lean_dec_ref(v___x_862_);
 v_visited_865_ = lean_ctor_get(v_a_863_, 0);
 v_fixed_866_ = lean_ctor_get(v_a_863_, 1);
-lean_inc(v_a_864_);
 lean_inc(v_declName_836_);
 v___x_867_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_867_, 0, v_declName_836_);
@@ -3156,11 +3155,10 @@ case 1:
 {
 lean_object* v_decl_970_; lean_object* v_k_971_; lean_object* v___x_972_; 
 v_decl_970_ = lean_ctor_get(v_code_961_, 0);
-lean_inc_ref(v_decl_970_);
+lean_inc_ref_n(v_decl_970_, 2);
 v_k_971_ = lean_ctor_get(v_code_961_, 1);
 lean_inc_ref(v_k_971_);
 lean_dec_ref(v_code_961_);
-lean_inc_ref(v_decl_970_);
 v___x_972_ = l_Lean_Compiler_LCNF_FixedParams_isEquivalentFunDecl_x3f(v_decl_970_, v_a_962_, v_a_963_);
 if (lean_obj_tag(v___x_972_) == 0)
 {

@@ -298,7 +298,7 @@ theorem ofDigitChars_cons {c : Char} {cs : List Char} {init : Nat} :
   simp [ofDigitChars]
 
 theorem ofDigitChars_cons_digitChar_of_lt_ten {n : Nat} (hn : n < 10) {cs : List Char} {init : Nat} :
-    ofDigitChars 10 (n.digitChar :: cs) init = ofDigitChars 10 cs (10 * init + n) := by
+    ofDigitChars b (n.digitChar :: cs) init = ofDigitChars b cs (b * init + n) := by
   simp [ofDigitChars_cons, Nat.toNat_digitChar_sub_48_of_lt_ten hn]
 
 theorem ofDigitChars_eq_ofDigitChars_zero {l : List Char} {init : Nat} :
@@ -320,15 +320,17 @@ theorem ofDigitChars_replicate_zero {n : Nat} : ofDigitChars b (List.replicate n
   | zero => simp
   | succ n ih => simp [List.replicate_succ, ofDigitChars_cons, ih, Nat.pow_succ, Nat.mul_assoc]
 
-@[simp]
-theorem ofDigitChars_toDigits {n : Nat} : ofDigitChars 10 (toDigits 10 n) 0 = n := by
-  have : 1 < 10 := by decide
-  induction n using base_induction 10 this with
+theorem ofDigitChars_toDigits {b n : Nat} (hb' : 1 < b) (hb : b ≤ 10) : ofDigitChars b (toDigits b n) 0 = n := by
+  induction n using base_induction b hb' with
   | single m hm =>
-    simp [Nat.toDigits_of_lt_base hm, ofDigitChars_cons_digitChar_of_lt_ten hm]
+    simp [Nat.toDigits_of_lt_base hm, ofDigitChars_cons_digitChar_of_lt_ten (by omega : m < 10)]
   | digit m k hk hm ih =>
-    rw [← Nat.toDigits_append_toDigits this hm hk,
+    rw [← Nat.toDigits_append_toDigits hb' hm hk,
       ofDigitChars_append, ih, Nat.toDigits_of_lt_base hk,
-      ofDigitChars_cons_digitChar_of_lt_ten hk, ofDigitChars_nil]
+      ofDigitChars_cons_digitChar_of_lt_ten (Nat.lt_of_lt_of_le hk hb), ofDigitChars_nil]
+
+@[simp]
+theorem ofDigitChars_ten_toDigits {n : Nat} : ofDigitChars 10 (toDigits 10 n) 0 = n :=
+  ofDigitChars_toDigits (by decide) (by decide)
 
 end Nat

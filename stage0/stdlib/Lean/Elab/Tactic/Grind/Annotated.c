@@ -391,15 +391,11 @@ _start:
 lean_object* v___x_90_; lean_object* v_toEnvExtension_91_; lean_object* v_asyncMode_92_; lean_object* v___x_93_; lean_object* v___x_94_; lean_object* v_state_95_; lean_object* v___x_96_; lean_object* v___x_97_; lean_object* v_moduleName_98_; uint8_t v___x_99_; 
 v___x_90_ = l___private_Lean_Elab_Tactic_Grind_Annotated_0__Lean_Elab_Tactic_Grind_grindAnnotatedExt;
 v_toEnvExtension_91_ = lean_ctor_get(v___x_90_, 0);
-lean_inc_ref(v_toEnvExtension_91_);
 v_asyncMode_92_ = lean_ctor_get(v_toEnvExtension_91_, 2);
-lean_inc(v_asyncMode_92_);
-lean_dec_ref(v_toEnvExtension_91_);
 v___x_93_ = lean_box(1);
 v___x_94_ = lean_box(0);
 lean_inc_ref(v_env_88_);
 v_state_95_ = l_Lean_SimplePersistentEnvExtension_getState___redArg(v___x_93_, v___x_90_, v_env_88_, v_asyncMode_92_, v___x_94_);
-lean_dec(v_asyncMode_92_);
 v___x_96_ = l_Lean_Environment_header(v_env_88_);
 lean_dec_ref(v_env_88_);
 v___x_97_ = l_Lean_EnvironmentHeader_moduleNames(v___x_96_);
@@ -943,13 +939,11 @@ v_a_271_ = lean_ctor_get(v___x_270_, 0);
 lean_inc(v_a_271_);
 lean_dec_ref(v___x_270_);
 v_macroStack_272_ = lean_ctor_get(v___y_267_, 4);
-lean_inc(v_macroStack_272_);
-lean_dec_ref(v___y_267_);
 v___x_273_ = l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00__private_Lean_Elab_Tactic_Grind_Annotated_0__Lean_Elab_Tactic_Grind_elabGrindAnnotated_spec__1_spec__1___redArg(v_msg_266_, v___y_268_);
 v_a_274_ = lean_ctor_get(v___x_273_, 0);
 lean_inc(v_a_274_);
 lean_dec_ref(v___x_273_);
-lean_inc(v_macroStack_272_);
+lean_inc_n(v_macroStack_272_, 2);
 v___x_275_ = l_Lean_Elab_getBetterRef(v_a_271_, v_macroStack_272_);
 lean_dec(v_a_271_);
 v___x_276_ = l_Lean_Elab_addMacroStack___at___00Lean_throwError___at___00__private_Lean_Elab_Tactic_Grind_Annotated_0__Lean_Elab_Tactic_Grind_elabGrindAnnotated_spec__1_spec__2___redArg(v_a_274_, v_macroStack_272_, v___y_268_);
@@ -999,7 +993,6 @@ return v___x_283_;
 else
 {
 lean_object* v_a_286_; lean_object* v___x_288_; uint8_t v_isShared_289_; uint8_t v_isSharedCheck_293_; 
-lean_dec_ref(v___y_267_);
 lean_dec_ref(v_msg_266_);
 v_a_286_ = lean_ctor_get(v___x_270_, 0);
 v_isSharedCheck_293_ = !lean_is_exclusive(v___x_270_);
@@ -1047,6 +1040,7 @@ _start:
 lean_object* v_res_298_; 
 v_res_298_ = l_Lean_throwError___at___00__private_Lean_Elab_Tactic_Grind_Annotated_0__Lean_Elab_Tactic_Grind_elabGrindAnnotated_spec__1___redArg(v_msg_294_, v___y_295_, v___y_296_);
 lean_dec(v___y_296_);
+lean_dec_ref(v___y_295_);
 return v_res_298_;
 }
 }
@@ -1106,7 +1100,6 @@ v___x_328_ = lean_obj_once(&l___private_Lean_Elab_Tactic_Grind_Annotated_0__Lean
 v___x_329_ = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(v___x_329_, 0, v___x_327_);
 lean_ctor_set(v___x_329_, 1, v___x_328_);
-lean_inc_ref(v_a_314_);
 v___x_330_ = l_Lean_throwError___at___00__private_Lean_Elab_Tactic_Grind_Annotated_0__Lean_Elab_Tactic_Grind_elabGrindAnnotated_spec__1___redArg(v___x_329_, v_a_314_, v_a_315_);
 return v___x_330_;
 }
@@ -1176,13 +1169,9 @@ v_resetjp_348_:
 lean_object* v___x_351_; lean_object* v_toEnvExtension_352_; lean_object* v_asyncMode_353_; lean_object* v___x_354_; lean_object* v___x_355_; lean_object* v___x_357_; 
 v___x_351_ = l___private_Lean_Elab_Tactic_Grind_Annotated_0__Lean_Elab_Tactic_Grind_grindAnnotatedExt;
 v_toEnvExtension_352_ = lean_ctor_get(v___x_351_, 0);
-lean_inc_ref(v_toEnvExtension_352_);
 v_asyncMode_353_ = lean_ctor_get(v_toEnvExtension_352_, 2);
-lean_inc(v_asyncMode_353_);
-lean_dec_ref(v_toEnvExtension_352_);
 v___x_354_ = lean_box(0);
 v___x_355_ = l_Lean_PersistentEnvExtension_addEntry___redArg(v___x_351_, v_env_337_, v_a_332_, v_asyncMode_353_, v___x_354_);
-lean_dec(v_asyncMode_353_);
 if (v_isShared_350_ == 0)
 {
 lean_ctor_set(v___x_349_, 0, v___x_355_);
@@ -1269,7 +1258,6 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___00__private_Lean_Elab_Tactic_G
 _start:
 {
 lean_object* v___x_386_; 
-lean_inc_ref(v___y_383_);
 v___x_386_ = l_Lean_throwError___at___00__private_Lean_Elab_Tactic_Grind_Annotated_0__Lean_Elab_Tactic_Grind_elabGrindAnnotated_spec__1___redArg(v_msg_382_, v___y_383_, v___y_384_);
 return v___x_386_;
 }

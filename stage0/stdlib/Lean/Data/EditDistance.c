@@ -1172,9 +1172,8 @@ lean_object* v___x_298_; lean_object* v___x_299_; lean_object* v_i_300_; lean_ob
 v___x_298_ = lean_unsigned_to_nat(1u);
 v___x_299_ = lean_nat_add(v_len2_292_, v___x_298_);
 v_i_300_ = lean_unsigned_to_nat(0u);
-lean_inc(v___x_299_);
+lean_inc_n(v___x_299_, 2);
 v_v1_301_ = lean_mk_array(v___x_299_, v_i_300_);
-lean_inc(v___x_299_);
 v___x_302_ = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(v___x_302_, 0, v_i_300_);
 lean_ctor_set(v___x_302_, 1, v___x_299_);

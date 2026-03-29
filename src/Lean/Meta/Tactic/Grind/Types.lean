@@ -5,15 +5,16 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
+public import Init.Data.Queue
+public import Init.Grind.Config
 public import Lean.Meta.Sym.SymM
 public import Lean.Meta.Tactic.Grind.Attr
 public import Lean.Meta.Tactic.Grind.CheckResult
-public import Init.Data.Queue
+public import Lean.Meta.Sym.Canon
+meta import Init.Data.String.Basic
 import Lean.Meta.AbstractNestedProofs
 import Lean.Meta.Match.MatchEqsExt
-public import Init.Grind.Config
 import Init.Data.Nat.Linear
-meta import Init.Data.String.Basic
 import Init.Omega
 import Lean.Util.ShareCommon
 public section
@@ -214,11 +215,6 @@ structure State where
   and implement the macro `trace_goal`.
   -/
   lastTag    : Name := .anonymous
-  /--
-  Issues found during the proof search. These issues are reported to
-  users when `grind` fails.
-  -/
-  issues     : List MessageData := []
   /-- Performance counters -/
   counters   : Counters := {}
   /-- Split diagnostic information. This information is only collected when `set_option diagnostics true` -/
@@ -401,35 +397,6 @@ def mkHCongrWithArity (f : Expr) (numArgs : Nat) : GrindM CongrTheorem := do
   modify fun s => { s with congrThms := s.congrThms.insert key result }
   return result
 
-def reportIssue (msg : MessageData) : GrindM Unit := do
-  let msg ← addMessageContext msg
-  modify fun s => { s with issues := .trace { cls := `issue } msg #[] :: s.issues }
-  /-
-  We also add a trace message because we may want to know when
-  an issue happened relative to other trace messages.
-  -/
-  trace[grind.issues] msg
-
-private meta def expandReportIssueMacro (s : Syntax) : MacroM (TSyntax `doElem) := do
-  let msg ← if s.getKind == interpolatedStrKind then `(m! $(⟨s⟩)) else `(($(⟨s⟩) : MessageData))
-  `(doElem| do
-    if (← getConfig).verbose then
-      reportIssue $msg)
-
-macro "reportIssue!" s:(interpolatedStr(term) <|> term) : doElem => do
-  expandReportIssueMacro s.raw
-
-/-- Similar to `expandReportIssueMacro`, but only reports issue if `grind.debug` is set to `true` -/
-meta def expandReportDbgIssueMacro (s : Syntax) : MacroM (TSyntax `doElem) := do
-  let msg ← if s.getKind == interpolatedStrKind then `(m! $(⟨s⟩)) else `(($(⟨s⟩) : MessageData))
-  `(doElem| do
-    if (← getConfig).verbose then
-      if grind.debug.get (← getOptions) then
-        reportIssue $msg)
-
-/-- Similar to `reportIssue!`, but only reports issue if `grind.debug` is set to `true` -/
-macro "reportDbgIssue!" s:(interpolatedStr(term) <|> term) : doElem => do
-  expandReportDbgIssueMacro s.raw
 
 /--
 Each E-node may have "solver terms" attached to them.
@@ -749,14 +716,6 @@ structure CanonArgKey where
   arg : Expr
   deriving BEq, Hashable
 
-/-- Canonicalizer state. See `Canon.lean` for additional details. -/
-structure Canon.State where
-  argMap     : PHashMap (Expr × Nat) (List (Expr × Expr)) := {}
-  canon      : PHashMap Expr Expr := {}
-  proofCanon : PHashMap Expr Expr := {}
-  canonArg   : PHashMap CanonArgKey Expr := {}
-  deriving Inhabited
-
 /-- Trace information for a case split. -/
 structure CaseTrace where
   expr   : Expr
@@ -956,7 +915,6 @@ accumulated facts.
 structure GoalState where
   /-- Next local declaration index to process. -/
   nextDeclIdx  : Nat := 0
-  canon        : Canon.State := {}
   enodeMap     : ENodeMap := default
   exprs        : PArray Expr := {}
   parents      : ParentMap := {}
@@ -1769,10 +1727,7 @@ def withoutModifyingState (x : GoalM α) : GoalM α := do
   finally
     set saved
 
-set_option compiler.ignoreBorrowAnnotation true in
-/-- Canonicalizes nested types, type formers, and instances in `e`. -/
-@[extern "lean_grind_canon"] -- Forward definition
-opaque canon (e : Expr) : GoalM Expr
+export Sym (canon)
 
 /-!
 `Action` is the *control interface* for `grind`’s search steps. It is defined in

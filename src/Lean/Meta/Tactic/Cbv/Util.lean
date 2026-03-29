@@ -108,4 +108,8 @@ public partial def getListLitElems (e : Expr) (acc : Array Expr := #[]) : Option
   | List.cons _ a as => getListLitElems as <| acc.push a
   | _ => none
 
+public def markAsDoneIfFailed : Result → Result
+  | .rfl _ cd => .rfl true cd
+  | .step e h d cd => .step e h d cd
+
 end Lean.Meta.Tactic.Cbv

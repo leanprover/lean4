@@ -1000,11 +1000,10 @@ if (lean_obj_tag(v___x_311_) == 0)
 {
 lean_object* v_a_312_; lean_object* v___y_314_; lean_object* v___y_315_; lean_object* v___y_316_; lean_object* v___y_317_; lean_object* v___y_318_; lean_object* v___y_319_; lean_object* v___y_320_; lean_object* v___y_321_; lean_object* v___x_348_; lean_object* v___x_349_; 
 v_a_312_ = lean_ctor_get(v___x_311_, 0);
-lean_inc(v_a_312_);
+lean_inc_n(v_a_312_, 2);
 lean_dec_ref(v___x_311_);
 v___x_348_ = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_evalTactic___boxed), 10, 1);
 lean_closure_set(v___x_348_, 0, v___x_300_);
-lean_inc(v_a_312_);
 v___x_349_ = l_Lean_Elab_Tactic_run(v_a_312_, v___x_348_, v___y_304_, v___y_305_, v___y_306_, v___y_307_, v___y_308_, v___y_309_);
 if (lean_obj_tag(v___x_349_) == 0)
 {
@@ -1080,13 +1079,12 @@ return v___x_359_;
 v___jp_313_:
 {
 lean_object* v___x_322_; lean_object* v___x_323_; lean_object* v_a_324_; lean_object* v___x_325_; 
-lean_inc(v_a_312_);
+lean_inc_n(v_a_312_, 2);
 v___x_322_ = l_Lean_mkMVar(v_a_312_);
 v___x_323_ = l_Lean_instantiateMVars___at___00elabAsAuxLemma_spec__1___redArg(v___x_322_, v___y_319_);
 v_a_324_ = lean_ctor_get(v___x_323_, 0);
 lean_inc(v_a_324_);
 lean_dec_ref(v___x_323_);
-lean_inc(v_a_312_);
 v___x_325_ = l_Lean_MVarId_getType(v_a_312_, v___y_318_, v___y_319_, v___y_320_, v___y_321_);
 if (lean_obj_tag(v___x_325_) == 0)
 {

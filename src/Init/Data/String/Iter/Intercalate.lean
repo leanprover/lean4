@@ -17,7 +17,7 @@ namespace Std
 /--
 Appends all the elements in the iterator, in order.
 -/
-public def Iter.joinString {α β : Type} [Iterator α Id β] [IteratorLoop α Id Id] [ToString β]
+public def Iter.joinString {α β : Type} [Iterator α Id β] [ToString β]
     (it : Std.Iter (α := α) β) : String :=
   (it.map toString).fold (init := "") (· ++ ·)
 
@@ -25,7 +25,7 @@ public def Iter.joinString {α β : Type} [Iterator α Id β] [IteratorLoop α I
 Appends the elements of the iterator into a string, placing the separator {name}`s` between them.
 -/
 @[inline]
-public def Iter.intercalateString {α β : Type} [Iterator α Id β] [IteratorLoop α Id Id] [ToString β]
+public def Iter.intercalateString {α β : Type} [Iterator α Id β] [ToString β]
     (s : String.Slice) (it : Std.Iter (α := α) β) : String :=
   it.map toString
     |>.fold (init := none) (fun

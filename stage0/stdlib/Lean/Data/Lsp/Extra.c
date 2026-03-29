@@ -4085,6 +4085,7 @@ goto v___jp_887_;
 v___jp_887_:
 {
 lean_object* v___x_889_; lean_object* v___x_890_; lean_object* v___x_891_; lean_object* v___x_892_; lean_object* v___x_893_; lean_object* v___x_894_; lean_object* v___x_895_; 
+lean_inc(v___y_888_);
 v___x_889_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_889_, 0, v___x_886_);
 lean_ctor_set(v___x_889_, 1, v___y_888_);

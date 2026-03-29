@@ -281,12 +281,12 @@
     def f._closed_1 : tobj :=
       let x_1 : tagged := ctor_5[Exp.a4._impl];
       let x_2 : tobj := f._closed_0;
+      inc x_2;
       let x_3 : tobj := Exp.app._override x_2 x_1;
       ret x_3
     def f._closed_2 : u64 :=
       let x_1 : tobj := f._closed_1;
       let x_2 : u64 := Exp.hash._override x_1;
-      dec x_1;
       ret x_2
     def f : u64 :=
       let x_1 : u64 := f._closed_2;

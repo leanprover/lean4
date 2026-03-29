@@ -261,11 +261,10 @@ v_resetjp_61_:
 {
 lean_object* v_head_64_; lean_object* v_tail_65_; lean_object* v___y_67_; lean_object* v___x_72_; 
 v_head_64_ = lean_ctor_get(v_x_48_, 0);
-lean_inc(v_head_64_);
+lean_inc_n(v_head_64_, 2);
 v_tail_65_ = lean_ctor_get(v_x_48_, 1);
 lean_inc(v_tail_65_);
 lean_dec_ref(v_x_48_);
-lean_inc(v_head_64_);
 lean_inc(v_a_60_);
 lean_inc_ref(v_cmp_45_);
 v___x_72_ = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___redArg(v_cmp_45_, v_a_60_, v_head_64_);

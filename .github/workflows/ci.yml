@@ -76,9 +76,20 @@ jobs:
               fi
               echo "nightly=$LEAN_VERSION_STRING" >> "$GITHUB_OUTPUT"
             else
-              # Scheduled: do nothing if commit already has a different tag
+              # Scheduled: do nothing if commit already has a different tag (e.g. a release tag)
               LEAN_VERSION_STRING="nightly-$(date -u +%F)"
-              if [[ "$(git name-rev --name-only --tags --no-undefined HEAD 2> /dev/null || echo "$LEAN_VERSION_STRING")" == "$LEAN_VERSION_STRING" ]]; then
+              HEAD_TAG="$(git name-rev --name-only --tags --no-undefined HEAD 2> /dev/null || true)"
+              if [[ -n "$HEAD_TAG" && "$HEAD_TAG" != "$LEAN_VERSION_STRING" ]]; then
+                echo "HEAD already tagged as ${HEAD_TAG}, skipping nightly"
+              elif git rev-parse "refs/tags/${LEAN_VERSION_STRING}" >/dev/null 2>&1; then
+                # Today's nightly already exists (e.g. from a manual release), create a revision
+                REV=1
+                while git rev-parse "refs/tags/${LEAN_VERSION_STRING}-rev${REV}" >/dev/null 2>&1; do
+                  REV=$((REV + 1))
+                done
+                LEAN_VERSION_STRING="${LEAN_VERSION_STRING}-rev${REV}"
+                echo "nightly=$LEAN_VERSION_STRING" >> "$GITHUB_OUTPUT"
+              else
                 echo "nightly=$LEAN_VERSION_STRING" >> "$GITHUB_OUTPUT"
               fi
             fi
@@ -244,7 +255,7 @@ jobs:
                 // portable release build: use channel with older glibc (2.26)
                 "name": "Linux release",
                 // usually not a bottleneck so make exclusive to `fast-ci`
-                "os": large && fast ? "nscloud-ubuntu-22.04-amd64-8x16-with-cache" : "ubuntu-latest",
+                "os": large && fast ? "nscloud-ubuntu-24.04-amd64-8x16-with-cache" : "ubuntu-latest",
                 "release": true,
                 // Special handling for release jobs. We want:
                 // 1. To run it in PRs so developers get PR toolchains (so secondary without tests is sufficient)
@@ -265,7 +276,7 @@ jobs:
               },
               {
                 "name": "Linux Lake",
-                "os": large ? "nscloud-ubuntu-22.04-amd64-8x16-with-cache" : "ubuntu-latest",
+                "os": large ? "nscloud-ubuntu-24.04-amd64-8x16-with-cache" : "ubuntu-latest",
                 "enabled": true,
                 "check-rebootstrap": level >= 1,
                 "check-stage3": level >= 2,
@@ -273,7 +284,19 @@ jobs:
                 // NOTE: `test-bench` currently seems to be broken on `ubuntu-latest`
                 "test-bench": large && level >= 2,
                 // We are not warning-free yet on all platforms, start here
-                "CMAKE_OPTIONS": "-DLEAN_EXTRA_CXX_FLAGS=-Werror",
+                "CMAKE_OPTIONS": "-DLEAN_EXTRA_CXX_FLAGS=-Werror -DUSE_LAKE_CACHE=ON",
+              },
+              {
+                "name": "Linux Lake (Cached)",
+                "os": large ? "nscloud-ubuntu-24.04-amd64-8x16-with-cache" : "ubuntu-latest",
+                "enabled": true,
+                "check-rebootstrap": level >= 1,
+                "check-stage3": level >= 2,
+                "test": true,
+                "secondary": true,
+                // NOTE: `test-bench` currently seems to be broken on `ubuntu-latest`
+                "test-bench": large && level >= 2,
+                "CMAKE_OPTIONS": "-DLEAN_EXTRA_CXX_FLAGS=-Werror -DUSE_LAKE_CACHE=ON",
               },
               {
                 "name": "Linux Reldebug",
@@ -287,7 +310,7 @@ jobs:
               {
                 "name": "Linux fsanitize",
                 // Always run on large if available, more reliable regarding timeouts
-                "os": large ? "nscloud-ubuntu-22.04-amd64-16x32-with-cache" : "ubuntu-latest",
+                "os": large ? "nscloud-ubuntu-24.04-amd64-16x32-with-cache" : "ubuntu-latest",
                 "enabled": level >= 2,
                 // do not fail nightlies on this for now
                 "secondary": level <= 2,

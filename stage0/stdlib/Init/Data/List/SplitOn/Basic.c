@@ -109,12 +109,11 @@ else
 {
 lean_object* v_head_41_; lean_object* v_tail_42_; lean_object* v___x_43_; uint8_t v___x_44_; 
 v_head_41_ = lean_ctor_get(v_a_27_, 0);
-lean_inc(v_head_41_);
+lean_inc_n(v_head_41_, 2);
 v_tail_42_ = lean_ctor_get(v_a_27_, 1);
 lean_inc(v_tail_42_);
 lean_dec_ref(v_a_27_);
 lean_inc_ref(v_p_26_);
-lean_inc(v_head_41_);
 v___x_43_ = lean_apply_1(v_p_26_, v_head_41_);
 v___x_44_ = lean_unbox(v___x_43_);
 if (v___x_44_ == 0)

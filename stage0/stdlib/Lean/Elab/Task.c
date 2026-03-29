@@ -399,7 +399,6 @@ lean_closure_set(v___f_89_, 0, v_t_84_);
 lean_inc(v___x_88_);
 v___x_90_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_90_, 0, v___x_88_);
-lean_inc_ref(v_a_85_);
 v___x_91_ = l_Lean_Core_wrapAsync___redArg(v___f_89_, v___x_90_, v_a_85_, v_a_86_);
 if (lean_obj_tag(v___x_91_) == 0)
 {

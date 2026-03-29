@@ -342,9 +342,8 @@ if (lean_obj_tag(v___x_122_) == 0)
 {
 lean_object* v_a_123_; lean_object* v___x_124_; 
 v_a_123_ = lean_ctor_get(v___x_122_, 0);
-lean_inc(v_a_123_);
+lean_inc_n(v_a_123_, 2);
 lean_dec_ref(v___x_122_);
-lean_inc(v_a_123_);
 v___x_124_ = l_Lean_Meta_getLevel(v_a_123_, v_a_113_, v_a_114_, v_a_115_, v_a_116_);
 if (lean_obj_tag(v___x_124_) == 0)
 {

@@ -34,7 +34,7 @@ when only reducible definitions and instances are reduced
 -/
 #guard_msgs in
 example [CommRing α] [Sub α] (a b : α) : a = OfNat.ofNat (α := α) 5 → b = 5 → a - b = 0 := by
-  set_option trace.grind.issues true in
+  set_option trace.sym.issues true in
   grind
 
 /--

@@ -590,7 +590,6 @@ lean_dec(v___x_195_);
 if (v___x_196_ == 0)
 {
 uint32_t v___x_197_; uint32_t v___x_198_; uint8_t v___x_199_; 
-lean_dec(v_b_192_);
 v___x_197_ = lean_string_utf8_get_fast(v_s_190_, v_a_191_);
 v___x_198_ = 10;
 v___x_199_ = lean_uint32_dec_eq(v___x_197_, v___x_198_);
@@ -615,6 +614,7 @@ return v___x_203_;
 else
 {
 lean_dec(v_a_191_);
+lean_inc(v_b_192_);
 return v_b_192_;
 }
 }
@@ -624,6 +624,7 @@ _start:
 {
 lean_object* v_res_208_; 
 v_res_208_ = l_WellFounded_opaqueFix_u2083___at___00__private_Init_Data_String_Extra_0__String_findLeadingSpacesSize_spec__0___redArg(v___x_204_, v_s_205_, v_a_206_, v_b_207_);
+lean_dec(v_b_207_);
 lean_dec_ref(v_s_205_);
 lean_dec_ref(v___x_204_);
 return v_res_208_;
@@ -689,6 +690,7 @@ _start:
 {
 lean_object* v_res_235_; 
 v_res_235_ = l_WellFounded_opaqueFix_u2083___at___00__private_Init_Data_String_Extra_0__String_findLeadingSpacesSize_spec__0(v___x_228_, v_s_229_, v_inst_230_, v_R_231_, v_a_232_, v_b_233_, v_c_234_);
+lean_dec(v_b_233_);
 lean_dec_ref(v_s_229_);
 lean_dec_ref(v___x_228_);
 return v_res_235_;

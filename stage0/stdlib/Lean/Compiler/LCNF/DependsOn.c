@@ -1011,7 +1011,6 @@ case 0:
 {
 lean_object* v_code_294_; 
 v_code_294_ = lean_ctor_get(v___x_293_, 2);
-lean_inc_ref(v_code_294_);
 v___y_288_ = v_code_294_;
 goto v___jp_287_;
 }
@@ -1019,7 +1018,6 @@ case 1:
 {
 lean_object* v_code_295_; 
 v_code_295_ = lean_ctor_get(v___x_293_, 1);
-lean_inc_ref(v_code_295_);
 v___y_288_ = v_code_295_;
 goto v___jp_287_;
 }
@@ -1027,7 +1025,6 @@ default:
 {
 lean_object* v_code_296_; 
 v_code_296_ = lean_ctor_get(v___x_293_, 0);
-lean_inc_ref(v_code_296_);
 v___y_288_ = v_code_296_;
 goto v___jp_287_;
 }
@@ -1036,7 +1033,6 @@ v___jp_287_:
 {
 uint8_t v___x_289_; 
 v___x_289_ = l___private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_depOn(v_pu_280_, v___y_288_, v___y_284_);
-lean_dec_ref(v___y_288_);
 if (v___x_289_ == 0)
 {
 size_t v___x_290_; size_t v___x_291_; 

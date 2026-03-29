@@ -19,12 +19,12 @@ namespace String.Slice.Pattern.Model
 
 namespace ForwardSliceSearcher
 
-instance {pat : Slice} : ForwardPatternModel pat where
+instance {pat : Slice} : PatternModel pat where
   /-
-  See the docstring of `ForwardPatternModel` for an explanation about why we disallow matching the
+  See the docstring of `PatternModel` for an explanation about why we disallow matching the
   empty string.
 
-  Requiring `s ≠ ""` is a trick that allows us to give a `ForwardPatternModel` instance
+  Requiring `s ≠ ""` is a trick that allows us to give a `PatternModel` instance
   unconditionally, without forcing `pat.copy` to be non-empty (which would make it very awkward
   to state theorems about the instance). It does not change anything about the fact that all lemmas
   about this instance require `pat.isEmpty = false`.
@@ -32,39 +32,77 @@ instance {pat : Slice} : ForwardPatternModel pat where
   Matches s := s ≠ "" ∧ s = pat.copy
   not_matches_empty := by simp
 
-instance {pat : Slice} : NoPrefixForwardPatternModel pat :=
-  .of_length_eq (by simp +contextual [ForwardPatternModel.Matches])
+instance {pat : Slice} : NoPrefixPatternModel pat :=
+  .of_length_eq (by simp +contextual [PatternModel.Matches])
+
+instance {pat : Slice} : NoSuffixPatternModel pat :=
+  .of_length_eq (by simp +contextual [PatternModel.Matches])
 
 theorem isMatch_iff {pat s : Slice} {pos : s.Pos} (h : pat.isEmpty = false) :
     IsMatch pat pos ↔ (s.sliceTo pos).copy = pat.copy := by
-  simp only [Model.isMatch_iff, ForwardPatternModel.Matches, ne_eq, copy_eq_empty_iff,
+  simp only [Model.isMatch_iff, PatternModel.Matches, ne_eq, copy_eq_empty_iff,
     Bool.not_eq_true, and_iff_right_iff_imp]
   intro h'
   rw [← isEmpty_copy (s := s.sliceTo pos), h', isEmpty_copy, h]
+
+theorem isRevMatch_iff {pat s : Slice} {pos : s.Pos} (h : pat.isEmpty = false) :
+    IsRevMatch pat pos ↔ (s.sliceFrom pos).copy = pat.copy := by
+  simp only [Model.isRevMatch_iff, PatternModel.Matches, ne_eq, copy_eq_empty_iff,
+    Bool.not_eq_true, and_iff_right_iff_imp]
+  intro h'
+  rw [← isEmpty_copy (s := s.sliceFrom pos), h', isEmpty_copy, h]
 
 theorem isLongestMatch_iff {pat s : Slice} {pos : s.Pos} (h : pat.isEmpty = false) :
     IsLongestMatch pat pos ↔ (s.sliceTo pos).copy = pat.copy := by
   rw [isLongestMatch_iff_isMatch, isMatch_iff h]
 
+theorem isLongestRevMatch_iff {pat s : Slice} {pos : s.Pos} (h : pat.isEmpty = false) :
+    IsLongestRevMatch pat pos ↔ (s.sliceFrom pos).copy = pat.copy := by
+  rw [isLongestRevMatch_iff_isRevMatch, isRevMatch_iff h]
+
 theorem isLongestMatchAt_iff {pat s : Slice} {pos₁ pos₂ : s.Pos} (h : pat.isEmpty = false) :
     IsLongestMatchAt pat pos₁ pos₂ ↔ ∃ h, (s.slice pos₁ pos₂ h).copy = pat.copy := by
   simp [Model.isLongestMatchAt_iff, isLongestMatch_iff h]
+
+theorem isLongestRevMatchAt_iff {pat s : Slice} {pos₁ pos₂ : s.Pos} (h : pat.isEmpty = false) :
+    IsLongestRevMatchAt pat pos₁ pos₂ ↔ ∃ h, (s.slice pos₁ pos₂ h).copy = pat.copy := by
+  simp [Model.isLongestRevMatchAt_iff, isLongestRevMatch_iff h]
 
 theorem isLongestMatchAt_iff_splits {pat s : Slice} {pos₁ pos₂ : s.Pos} (h : pat.isEmpty = false) :
     IsLongestMatchAt pat pos₁ pos₂ ↔ ∃ t₁ t₂, pos₁.Splits t₁ (pat.copy ++ t₂) ∧
       pos₂.Splits (t₁ ++ pat.copy) t₂ := by
   simp only [isLongestMatchAt_iff h, copy_slice_eq_iff_splits]
 
+theorem isLongestRevMatchAt_iff_splits {pat s : Slice} {pos₁ pos₂ : s.Pos}
+    (h : pat.isEmpty = false) :
+    IsLongestRevMatchAt pat pos₁ pos₂ ↔ ∃ t₁ t₂, pos₁.Splits t₁ (pat.copy ++ t₂) ∧
+      pos₂.Splits (t₁ ++ pat.copy) t₂ := by
+  simp only [isLongestRevMatchAt_iff h, copy_slice_eq_iff_splits]
+
 theorem isLongestMatch_iff_splits {pat s : Slice} {pos : s.Pos} (h : pat.isEmpty = false) :
     IsLongestMatch pat pos ↔ ∃ t, pos.Splits pat.copy t := by
-  simp only [← isLongestMatchAt_startPos_iff, isLongestMatchAt_iff_splits h, splits_startPos_iff,
-    and_assoc, exists_and_left, exists_eq_left, empty_append]
-  exact ⟨fun ⟨h, _, h'⟩ => ⟨h, h'⟩, fun ⟨h, h'⟩ => ⟨h, h'.eq_append.symm, h'⟩⟩
+  rw [isLongestMatch_iff h, copy_sliceTo_eq_iff_exists_splits]
+
+theorem isLongestRevMatch_iff_splits {pat s : Slice} {pos : s.Pos} (h : pat.isEmpty = false) :
+    IsLongestRevMatch pat pos ↔ ∃ t, pos.Splits t pat.copy := by
+  rw [isLongestRevMatch_iff h, copy_sliceFrom_eq_iff_exists_splits]
 
 theorem isLongestMatchAt_iff_extract {pat s : Slice} {pos₁ pos₂ : s.Pos} (h : pat.isEmpty = false) :
     IsLongestMatchAt pat pos₁ pos₂ ↔
       s.copy.toByteArray.extract pos₁.offset.byteIdx pos₂.offset.byteIdx = pat.copy.toByteArray := by
   rw [isLongestMatchAt_iff h]
+  refine ⟨fun ⟨h, h'⟩ => ?_, fun h' => ?_⟩
+  · simp [← h', toByteArray_copy_slice]
+  · rw [← Slice.toByteArray_copy_ne_empty_iff, ← h', ne_eq, ByteArray.extract_eq_empty_iff] at h
+    exact ⟨by simp [Pos.le_iff, Pos.Raw.le_iff]; omega,
+      by simp [← h', ← toByteArray_inj, toByteArray_copy_slice]⟩
+
+theorem isLongestRevMatchAt_iff_extract {pat s : Slice} {pos₁ pos₂ : s.Pos}
+    (h : pat.isEmpty = false) :
+    IsLongestRevMatchAt pat pos₁ pos₂ ↔
+      s.copy.toByteArray.extract pos₁.offset.byteIdx pos₂.offset.byteIdx =
+        pat.copy.toByteArray := by
+  rw [isLongestRevMatchAt_iff h]
   refine ⟨fun ⟨h, h'⟩ => ?_, fun h' => ?_⟩
   · simp [← h', toByteArray_copy_slice]
   · rw [← Slice.toByteArray_copy_ne_empty_iff, ← h', ne_eq, ByteArray.extract_eq_empty_iff] at h
@@ -81,11 +119,28 @@ theorem offset_of_isLongestMatchAt {pat s : Slice} {pos₁ pos₂ : s.Pos} (h : 
   suffices pos₂.offset.byteIdx ≤ s.utf8ByteSize by omega
   simpa [Pos.le_iff, Pos.Raw.le_iff] using pos₂.le_endPos
 
+theorem offset_of_isLongestRevMatchAt {pat s : Slice} {pos₁ pos₂ : s.Pos}
+    (h : pat.isEmpty = false) (h' : IsLongestRevMatchAt pat pos₁ pos₂) :
+    pos₂.offset = pos₁.offset.increaseBy pat.utf8ByteSize := by
+  simp only [Pos.Raw.ext_iff, Pos.Raw.byteIdx_increaseBy]
+  rw [isLongestRevMatchAt_iff_extract h] at h'
+  rw [← Slice.toByteArray_copy_ne_empty_iff, ← h', ne_eq, ByteArray.extract_eq_empty_iff] at h
+  replace h' := congrArg ByteArray.size h'
+  simp only [ByteArray.size_extract, size_toByteArray, utf8ByteSize_copy] at h'
+  suffices pos₂.offset.byteIdx ≤ s.utf8ByteSize by omega
+  simpa [Pos.le_iff, Pos.Raw.le_iff] using pos₂.le_endPos
+
 theorem matchesAt_iff_splits {pat s : Slice} {pos : s.Pos} (h : pat.isEmpty = false) :
     MatchesAt pat pos ↔ ∃ t₁ t₂, pos.Splits t₁ (pat.copy ++ t₂) := by
   simp only [matchesAt_iff_exists_isLongestMatchAt, isLongestMatchAt_iff_splits h]
   exact ⟨fun ⟨e, t₁, t₂, ht₁, ht₂⟩ => ⟨t₁, t₂, ht₁⟩,
     fun ⟨t₁, t₂, ht⟩ => ⟨ht.rotateRight, t₁, t₂, ht, ht.splits_rotateRight⟩⟩
+
+theorem revMatchesAt_iff_splits {pat s : Slice} {pos : s.Pos} (h : pat.isEmpty = false) :
+    RevMatchesAt pat pos ↔ ∃ t₁ t₂, pos.Splits (t₁ ++ pat.copy) t₂ := by
+  simp only [revMatchesAt_iff_exists_isLongestRevMatchAt, isLongestRevMatchAt_iff_splits h]
+  exact ⟨fun ⟨e, t₁, t₂, ht₁, ht₂⟩ => ⟨t₁, t₂, ht₂⟩,
+    fun ⟨t₁, t₂, ht⟩ => ⟨ht.rotateLeft, t₁, t₂, ht.splits_rotateLeft, ht⟩⟩
 
 theorem exists_matchesAt_iff_eq_append {pat s : Slice} (h : pat.isEmpty = false) :
     (∃ (pos : s.Pos), MatchesAt pat pos) ↔ ∃ t₁ t₂, s.copy = t₁ ++ pat.copy ++ t₂ := by
@@ -99,6 +154,18 @@ theorem exists_matchesAt_iff_eq_append {pat s : Slice} (h : pat.isEmpty = false)
         ⟨t₁, pat.copy ++ t₂, by rw [← append_assoc]; exact heq, rfl⟩
     exact ⟨s.pos _ hvalid, t₁, t₂, ⟨by rw [← append_assoc]; exact heq, by simp⟩⟩
 
+theorem exists_revMatchesAt_iff_eq_append {pat s : Slice} (h : pat.isEmpty = false) :
+    (∃ (pos : s.Pos), RevMatchesAt pat pos) ↔ ∃ t₁ t₂, s.copy = t₁ ++ pat.copy ++ t₂ := by
+  simp only [revMatchesAt_iff_splits h]
+  constructor
+  · rintro ⟨pos, t₁, t₂, hsplit⟩
+    exact ⟨t₁, t₂, by rw [hsplit.eq_append, append_assoc]⟩
+  · rintro ⟨t₁, t₂, heq⟩
+    have hvalid : (t₁ ++ pat.copy).rawEndPos.IsValidForSlice s :=
+      Pos.Raw.isValidForSlice_iff_exists_append.mpr
+        ⟨t₁ ++ pat.copy, t₂, heq, rfl⟩
+    exact ⟨s.pos _ hvalid, t₁, t₂, ⟨heq, by simp⟩⟩
+
 theorem matchesAt_iff_isLongestMatchAt {pat s : Slice} {pos : s.Pos} (h : pat.isEmpty = false) :
     MatchesAt pat pos ↔ ∃ (h : (pos.offset.increaseBy pat.utf8ByteSize).IsValidForSlice s),
       IsLongestMatchAt pat pos (s.pos _ h) := by
@@ -106,6 +173,25 @@ theorem matchesAt_iff_isLongestMatchAt {pat s : Slice} {pos : s.Pos} (h : pat.is
   have := offset_of_isLongestMatchAt h h' ▸ p.isValidForSlice
   refine ⟨this, ?_⟩
   obtain rfl : p = s.pos _ this := by simpa [Pos.ext_iff] using offset_of_isLongestMatchAt h h'
+  exact h'
+
+theorem revMatchesAt_iff_isLongestRevMatchAt {pat s : Slice} {pos : s.Pos}
+    (h : pat.isEmpty = false) :
+    RevMatchesAt pat pos ↔
+      ∃ (h : (pos.offset.decreaseBy pat.utf8ByteSize).IsValidForSlice s),
+        IsLongestRevMatchAt pat (s.pos _ h) pos := by
+  refine ⟨fun ⟨⟨p, h'⟩⟩ => ?_, fun ⟨_, h⟩ => ⟨⟨_, h⟩⟩⟩
+  have hoff := offset_of_isLongestRevMatchAt h h'
+  have hvalid : (pos.offset.decreaseBy pat.utf8ByteSize).IsValidForSlice s := by
+    rw [show pos.offset.decreaseBy pat.utf8ByteSize = p.offset from by
+      simp [Pos.Raw.ext_iff, Pos.Raw.byteIdx_decreaseBy, Pos.Raw.byteIdx_increaseBy] at hoff ⊢
+      omega]
+    exact p.isValidForSlice
+  refine ⟨hvalid, ?_⟩
+  obtain rfl : p = s.pos _ hvalid := by
+    simp only [Pos.ext_iff, offset_pos]
+    simp [Pos.Raw.ext_iff, Pos.Raw.byteIdx_decreaseBy, Pos.Raw.byteIdx_increaseBy] at hoff ⊢
+    omega
   exact h'
 
 theorem matchesAt_iff_getElem {pat s : Slice} {pos : s.Pos} (h : pat.isEmpty = false) :
@@ -146,30 +232,55 @@ end ForwardSliceSearcher
 
 namespace ForwardStringSearcher
 
-instance {pat : String} : ForwardPatternModel pat where
+instance {pat : String} : PatternModel pat where
   Matches s := s ≠ "" ∧ s = pat
   not_matches_empty := by simp
 
-instance {pat : String} : NoPrefixForwardPatternModel pat :=
-  .of_length_eq (by simp +contextual [ForwardPatternModel.Matches])
+instance {pat : String} : NoPrefixPatternModel pat :=
+  .of_length_eq (by simp +contextual [PatternModel.Matches])
+
+instance {pat : String} : NoSuffixPatternModel pat :=
+  .of_length_eq (by simp +contextual [PatternModel.Matches])
 
 theorem isMatch_iff_slice {pat : String} {s : Slice} {pos : s.Pos} :
     IsMatch (ρ := String) pat pos ↔ IsMatch (ρ := Slice) pat.toSlice pos := by
-  simp only [Model.isMatch_iff, ForwardPatternModel.Matches, copy_toSlice]
+  simp only [Model.isMatch_iff, PatternModel.Matches, copy_toSlice]
+
+theorem isRevMatch_iff_slice {pat : String} {s : Slice} {pos : s.Pos} :
+    IsRevMatch (ρ := String) pat pos ↔ IsRevMatch (ρ := Slice) pat.toSlice pos := by
+  simp only [Model.isRevMatch_iff, PatternModel.Matches, copy_toSlice]
 
 theorem isLongestMatch_iff_isLongestMatch_toSlice {pat : String} {s : Slice} {pos : s.Pos} :
     IsLongestMatch (ρ := String) pat pos ↔ IsLongestMatch (ρ := Slice) pat.toSlice pos where
   mp h := ⟨isMatch_iff_slice.1 h.isMatch, fun p hp hm => h.not_isMatch p hp (isMatch_iff_slice.2 hm)⟩
   mpr h := ⟨isMatch_iff_slice.2 h.isMatch, fun p hp hm => h.not_isMatch p hp (isMatch_iff_slice.1 hm)⟩
 
+theorem isLongestRevMatch_iff_isLongestRevMatch_toSlice {pat : String} {s : Slice} {pos : s.Pos} :
+    IsLongestRevMatch (ρ := String) pat pos ↔ IsLongestRevMatch (ρ := Slice) pat.toSlice pos where
+  mp h := ⟨isRevMatch_iff_slice.1 h.isRevMatch,
+    fun p hp hm => h.not_isRevMatch p hp (isRevMatch_iff_slice.2 hm)⟩
+  mpr h := ⟨isRevMatch_iff_slice.2 h.isRevMatch,
+    fun p hp hm => h.not_isRevMatch p hp (isRevMatch_iff_slice.1 hm)⟩
+
 theorem isLongestMatchAt_iff_isLongestMatchAt_toSlice {pat : String} {s : Slice} {pos₁ pos₂ : s.Pos} :
     IsLongestMatchAt (ρ := String) pat pos₁ pos₂ ↔
       IsLongestMatchAt (ρ := Slice) pat.toSlice pos₁ pos₂ := by
   simp [Model.isLongestMatchAt_iff, isLongestMatch_iff_isLongestMatch_toSlice]
 
+theorem isLongestRevMatchAt_iff_isLongestRevMatchAt_toSlice {pat : String} {s : Slice}
+    {pos₁ pos₂ : s.Pos} :
+    IsLongestRevMatchAt (ρ := String) pat pos₁ pos₂ ↔
+      IsLongestRevMatchAt (ρ := Slice) pat.toSlice pos₁ pos₂ := by
+  simp [Model.isLongestRevMatchAt_iff, isLongestRevMatch_iff_isLongestRevMatch_toSlice]
+
 theorem matchesAt_iff_toSlice {pat : String} {s : Slice} {pos : s.Pos} :
     MatchesAt (ρ := String) pat pos ↔ MatchesAt (ρ := Slice) pat.toSlice pos := by
   simp [matchesAt_iff_exists_isLongestMatchAt, isLongestMatchAt_iff_isLongestMatchAt_toSlice]
+
+theorem revMatchesAt_iff_toSlice {pat : String} {s : Slice} {pos : s.Pos} :
+    RevMatchesAt (ρ := String) pat pos ↔ RevMatchesAt (ρ := Slice) pat.toSlice pos := by
+  simp [revMatchesAt_iff_exists_isLongestRevMatchAt,
+    isLongestRevMatchAt_iff_isLongestRevMatchAt_toSlice]
 
 private theorem toSlice_isEmpty (h : pat ≠ "") : pat.toSlice.isEmpty = false := by
   rwa [isEmpty_toSlice, isEmpty_eq_false_iff]
@@ -179,14 +290,29 @@ theorem isMatch_iff {pat : String} {s : Slice} {pos : s.Pos} (h : pat ≠ "") :
   rw [isMatch_iff_slice, ForwardSliceSearcher.isMatch_iff (toSlice_isEmpty h)]
   simp
 
+theorem isRevMatch_iff {pat : String} {s : Slice} {pos : s.Pos} (h : pat ≠ "") :
+    IsRevMatch pat pos ↔ (s.sliceFrom pos).copy = pat := by
+  rw [isRevMatch_iff_slice, ForwardSliceSearcher.isRevMatch_iff (toSlice_isEmpty h)]
+  simp
+
 theorem isLongestMatch_iff {pat : String} {s : Slice} {pos : s.Pos} (h : pat ≠ "") :
     IsLongestMatch pat pos ↔ (s.sliceTo pos).copy = pat := by
   rw [isLongestMatch_iff_isMatch, isMatch_iff h]
+
+theorem isLongestRevMatch_iff {pat : String} {s : Slice} {pos : s.Pos} (h : pat ≠ "") :
+    IsLongestRevMatch pat pos ↔ (s.sliceFrom pos).copy = pat := by
+  rw [isLongestRevMatch_iff_isRevMatch, isRevMatch_iff h]
 
 theorem isLongestMatchAt_iff {pat : String} {s : Slice} {pos₁ pos₂ : s.Pos} (h : pat ≠ "") :
     IsLongestMatchAt pat pos₁ pos₂ ↔ ∃ h, (s.slice pos₁ pos₂ h).copy = pat := by
   rw [isLongestMatchAt_iff_isLongestMatchAt_toSlice,
     ForwardSliceSearcher.isLongestMatchAt_iff (toSlice_isEmpty h)]
+  simp
+
+theorem isLongestRevMatchAt_iff {pat : String} {s : Slice} {pos₁ pos₂ : s.Pos} (h : pat ≠ "") :
+    IsLongestRevMatchAt pat pos₁ pos₂ ↔ ∃ h, (s.slice pos₁ pos₂ h).copy = pat := by
+  rw [isLongestRevMatchAt_iff_isLongestRevMatchAt_toSlice,
+    ForwardSliceSearcher.isLongestRevMatchAt_iff (toSlice_isEmpty h)]
   simp
 
 theorem isLongestMatchAt_iff_splits {pat : String} {s : Slice} {pos₁ pos₂ : s.Pos}
@@ -197,12 +323,28 @@ theorem isLongestMatchAt_iff_splits {pat : String} {s : Slice} {pos₁ pos₂ : 
     ForwardSliceSearcher.isLongestMatchAt_iff_splits (toSlice_isEmpty h)]
   simp
 
+theorem isLongestRevMatchAt_iff_splits {pat : String} {s : Slice} {pos₁ pos₂ : s.Pos}
+    (h : pat ≠ "") :
+    IsLongestRevMatchAt pat pos₁ pos₂ ↔
+      ∃ t₁ t₂, pos₁.Splits t₁ (pat ++ t₂) ∧ pos₂.Splits (t₁ ++ pat) t₂ := by
+  rw [isLongestRevMatchAt_iff_isLongestRevMatchAt_toSlice,
+    ForwardSliceSearcher.isLongestRevMatchAt_iff_splits (toSlice_isEmpty h)]
+  simp
+
 theorem isLongestMatchAt_iff_extract {pat : String} {s : Slice} {pos₁ pos₂ : s.Pos}
     (h : pat ≠ "") :
     IsLongestMatchAt pat pos₁ pos₂ ↔
       s.copy.toByteArray.extract pos₁.offset.byteIdx pos₂.offset.byteIdx = pat.toByteArray := by
   rw [isLongestMatchAt_iff_isLongestMatchAt_toSlice,
     ForwardSliceSearcher.isLongestMatchAt_iff_extract (toSlice_isEmpty h)]
+  simp
+
+theorem isLongestRevMatchAt_iff_extract {pat : String} {s : Slice} {pos₁ pos₂ : s.Pos}
+    (h : pat ≠ "") :
+    IsLongestRevMatchAt pat pos₁ pos₂ ↔
+      s.copy.toByteArray.extract pos₁.offset.byteIdx pos₂.offset.byteIdx = pat.toByteArray := by
+  rw [isLongestRevMatchAt_iff_isLongestRevMatchAt_toSlice,
+    ForwardSliceSearcher.isLongestRevMatchAt_iff_extract (toSlice_isEmpty h)]
   simp
 
 theorem offset_of_isLongestMatchAt {pat : String} {s : Slice} {pos₁ pos₂ : s.Pos}
@@ -212,10 +354,23 @@ theorem offset_of_isLongestMatchAt {pat : String} {s : Slice} {pos₁ pos₂ : s
   exact ForwardSliceSearcher.offset_of_isLongestMatchAt (toSlice_isEmpty h)
     (isLongestMatchAt_iff_isLongestMatchAt_toSlice.1 h')
 
+theorem offset_of_isLongestRevMatchAt {pat : String} {s : Slice} {pos₁ pos₂ : s.Pos}
+    (h : pat ≠ "") (h' : IsLongestRevMatchAt pat pos₁ pos₂) :
+    pos₂.offset = pos₁.offset.increaseBy pat.utf8ByteSize := by
+  rw [show pat.utf8ByteSize = pat.toSlice.utf8ByteSize from utf8ByteSize_toSlice.symm]
+  exact ForwardSliceSearcher.offset_of_isLongestRevMatchAt (toSlice_isEmpty h)
+    (isLongestRevMatchAt_iff_isLongestRevMatchAt_toSlice.1 h')
+
 theorem matchesAt_iff_splits {pat : String} {s : Slice} {pos : s.Pos} (h : pat ≠ "") :
     MatchesAt pat pos ↔ ∃ t₁ t₂, pos.Splits t₁ (pat ++ t₂) := by
   rw [matchesAt_iff_toSlice,
     ForwardSliceSearcher.matchesAt_iff_splits (toSlice_isEmpty h)]
+  simp
+
+theorem revMatchesAt_iff_splits {pat : String} {s : Slice} {pos : s.Pos} (h : pat ≠ "") :
+    RevMatchesAt pat pos ↔ ∃ t₁ t₂, pos.Splits (t₁ ++ pat) t₂ := by
+  rw [revMatchesAt_iff_toSlice,
+    ForwardSliceSearcher.revMatchesAt_iff_splits (toSlice_isEmpty h)]
   simp
 
 theorem exists_matchesAt_iff_eq_append {pat : String} {s : Slice} (h : pat ≠ "") :
@@ -230,6 +385,14 @@ theorem exists_matchesAt_iff_eq_append {pat : String} {s : Slice} (h : pat ≠ "
         ⟨t₁, pat ++ t₂, by rw [← append_assoc]; exact heq, rfl⟩
     exact ⟨s.pos _ hvalid, t₁, t₂, ⟨by rw [← append_assoc]; exact heq, by simp⟩⟩
 
+theorem exists_revMatchesAt_iff_eq_append {pat : String} {s : Slice} (h : pat ≠ "") :
+    (∃ (pos : s.Pos), RevMatchesAt pat pos) ↔ ∃ t₁ t₂, s.copy = t₁ ++ pat ++ t₂ := by
+  rw [show (∃ (pos : s.Pos), RevMatchesAt (ρ := String) pat pos) ↔
+      (∃ (pos : s.Pos), RevMatchesAt (ρ := Slice) pat.toSlice pos) from by
+    simp [revMatchesAt_iff_toSlice],
+    ForwardSliceSearcher.exists_revMatchesAt_iff_eq_append (toSlice_isEmpty h)]
+  simp
+
 theorem matchesAt_iff_isLongestMatchAt {pat : String} {s : Slice} {pos : s.Pos}
     (h : pat ≠ "") :
     MatchesAt pat pos ↔ ∃ (h : (pos.offset.increaseBy pat.utf8ByteSize).IsValidForSlice s),
@@ -238,6 +401,16 @@ theorem matchesAt_iff_isLongestMatchAt {pat : String} {s : Slice} {pos : s.Pos}
     (toSlice_isEmpty h) (pos := pos)
   simp only [utf8ByteSize_toSlice, ← isLongestMatchAt_iff_isLongestMatchAt_toSlice] at key
   rwa [matchesAt_iff_toSlice]
+
+theorem revMatchesAt_iff_isLongestRevMatchAt {pat : String} {s : Slice} {pos : s.Pos}
+    (h : pat ≠ "") :
+    RevMatchesAt pat pos ↔
+      ∃ (h : (pos.offset.decreaseBy pat.utf8ByteSize).IsValidForSlice s),
+        IsLongestRevMatchAt pat (s.pos _ h) pos := by
+  have key := ForwardSliceSearcher.revMatchesAt_iff_isLongestRevMatchAt (pat := pat.toSlice)
+    (toSlice_isEmpty h) (pos := pos)
+  simp only [utf8ByteSize_toSlice, ← isLongestRevMatchAt_iff_isLongestRevMatchAt_toSlice] at key
+  rwa [revMatchesAt_iff_toSlice]
 
 theorem matchesAt_iff_getElem {pat : String} {s : Slice} {pos : s.Pos} (h : pat ≠ "") :
     MatchesAt pat pos ↔
@@ -259,6 +432,11 @@ theorem matchesAt_iff_matchesAt_toSlice {pat : String} {s : Slice}
     {pos : s.Pos} : MatchesAt pat pos ↔ MatchesAt pat.toSlice pos := by
   simp [matchesAt_iff_exists_isLongestMatchAt, isLongestMatchAt_iff_isLongestMatchAt_toSlice]
 
+theorem revMatchesAt_iff_revMatchesAt_toSlice {pat : String} {s : Slice}
+    {pos : s.Pos} : RevMatchesAt pat pos ↔ RevMatchesAt pat.toSlice pos := by
+  simp [revMatchesAt_iff_exists_isLongestRevMatchAt,
+    isLongestRevMatchAt_iff_isLongestRevMatchAt_toSlice]
+
 theorem toSearcher_eq {pat : String} {s : Slice} :
     ToForwardSearcher.toSearcher pat s = ToForwardSearcher.toSearcher pat.toSlice s := (rfl)
 
@@ -274,6 +452,21 @@ theorem isValidSearchFrom_iff_isValidSearchFrom_toSlice {pat : String}
     | endPos => simpa using IsValidSearchFrom.endPos
     | matched => simp_all [IsValidSearchFrom.matched, isLongestMatchAt_iff_isLongestMatchAt_toSlice]
     | mismatched => simp_all [IsValidSearchFrom.mismatched, matchesAt_iff_matchesAt_toSlice]
+
+theorem isValidRevSearchFrom_iff_isValidRevSearchFrom_toSlice {pat : String}
+    {s : Slice} {pos : s.Pos} {l : List (SearchStep s)} :
+    IsValidRevSearchFrom pat pos l ↔ IsValidRevSearchFrom pat.toSlice pos l := by
+  refine ⟨fun h => ?_, fun h => ?_⟩
+  · induction h with
+    | startPos => simpa using IsValidRevSearchFrom.startPos
+    | matched => simp_all [IsValidRevSearchFrom.matched,
+        isLongestRevMatchAt_iff_isLongestRevMatchAt_toSlice]
+    | mismatched => simp_all [IsValidRevSearchFrom.mismatched, revMatchesAt_iff_revMatchesAt_toSlice]
+  · induction h with
+    | startPos => simpa using IsValidRevSearchFrom.startPos
+    | matched => simp_all [IsValidRevSearchFrom.matched,
+        isLongestRevMatchAt_iff_isLongestRevMatchAt_toSlice]
+    | mismatched => simp_all [IsValidRevSearchFrom.mismatched, revMatchesAt_iff_revMatchesAt_toSlice]
 
 end ForwardStringSearcher
 

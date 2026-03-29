@@ -23,7 +23,7 @@ lean_object* lean_st_ref_take(lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkFreshExprMVar(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkApp3(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_Grind_synthInstanceMeta_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Sym_synthInstanceMeta_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_Arith_evalNat_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withNewMCtxDepthImp(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_app___override(lean_object*, lean_object*);
@@ -344,16 +344,15 @@ if (lean_obj_tag(v___x_176_) == 0)
 {
 lean_object* v_a_177_; lean_object* v___x_178_; lean_object* v___x_179_; lean_object* v___x_180_; lean_object* v_charType_181_; lean_object* v___x_182_; 
 v_a_177_ = lean_ctor_get(v___x_176_, 0);
-lean_inc(v_a_177_);
+lean_inc_n(v_a_177_, 2);
 lean_dec_ref(v___x_176_);
 v___x_178_ = ((lean_object*)(l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___lam__0___closed__3));
 v___x_179_ = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(v___x_179_, 0, v_u_161_);
 lean_ctor_set(v___x_179_, 1, v___x_162_);
 v___x_180_ = l_Lean_mkConst(v___x_178_, v___x_179_);
-lean_inc(v_a_177_);
 v_charType_181_ = l_Lean_mkApp3(v___x_180_, v_type_163_, v_semiringInst_164_, v_a_177_);
-v___x_182_ = l_Lean_Meta_Grind_synthInstanceMeta_x3f(v_charType_181_, v___y_171_, v___y_172_, v___y_173_, v___y_174_);
+v___x_182_ = l_Lean_Meta_Sym_synthInstanceMeta_x3f(v_charType_181_, v___y_171_, v___y_172_, v___y_173_, v___y_174_);
 if (lean_obj_tag(v___x_182_) == 0)
 {
 lean_object* v_a_183_; lean_object* v___x_185_; uint8_t v_isShared_186_; uint8_t v_isSharedCheck_224_; 
@@ -679,9 +678,9 @@ lean_object* v___y_257_ = _args[16];
 lean_object* v___y_258_ = _args[17];
 _start:
 {
-uint8_t v___x_8898__boxed_259_; lean_object* v_res_260_; 
-v___x_8898__boxed_259_ = lean_unbox(v___x_242_);
-v_res_260_ = l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___lam__0(v___x_241_, v___x_8898__boxed_259_, v___x_243_, v_u_244_, v___x_245_, v_type_246_, v_semiringInst_247_, v___y_248_, v___y_249_, v___y_250_, v___y_251_, v___y_252_, v___y_253_, v___y_254_, v___y_255_, v___y_256_, v___y_257_);
+uint8_t v___x_9036__boxed_259_; lean_object* v_res_260_; 
+v___x_9036__boxed_259_ = lean_unbox(v___x_242_);
+v_res_260_ = l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___lam__0(v___x_241_, v___x_9036__boxed_259_, v___x_243_, v_u_244_, v___x_245_, v_type_246_, v_semiringInst_247_, v___y_248_, v___y_249_, v___y_250_, v___y_251_, v___y_252_, v___y_253_, v___y_254_, v___y_255_, v___y_256_, v___y_257_);
 lean_dec(v___y_257_);
 lean_dec_ref(v___y_256_);
 lean_dec(v___y_255_);
@@ -768,7 +767,7 @@ lean_inc_ref(v___x_325_);
 v___x_326_ = l_Lean_mkConst(v___x_323_, v___x_325_);
 lean_inc_ref(v_type_317_);
 v_natModuleType_327_ = l_Lean_Expr_app___override(v___x_326_, v_type_317_);
-v___x_328_ = l_Lean_Meta_Grind_synthInstanceMeta_x3f(v_natModuleType_327_, v_a_318_, v_a_319_, v_a_320_, v_a_321_);
+v___x_328_ = l_Lean_Meta_Sym_synthInstanceMeta_x3f(v_natModuleType_327_, v_a_318_, v_a_319_, v_a_320_, v_a_321_);
 if (lean_obj_tag(v___x_328_) == 0)
 {
 lean_object* v_a_329_; lean_object* v___x_331_; uint8_t v_isShared_332_; uint8_t v_isSharedCheck_342_; 
@@ -800,7 +799,7 @@ lean_dec_ref(v_a_329_);
 v___x_334_ = ((lean_object*)(l_Lean_Meta_Grind_Arith_getNoZeroDivInst_x3f___redArg___closed__3));
 v___x_335_ = l_Lean_mkConst(v___x_334_, v___x_325_);
 v___x_336_ = l_Lean_mkAppB(v___x_335_, v_type_317_, v_val_333_);
-v___x_337_ = l_Lean_Meta_Grind_synthInstanceMeta_x3f(v___x_336_, v_a_318_, v_a_319_, v_a_320_, v_a_321_);
+v___x_337_ = l_Lean_Meta_Sym_synthInstanceMeta_x3f(v___x_336_, v_a_318_, v_a_319_, v_a_320_, v_a_321_);
 return v___x_337_;
 }
 else

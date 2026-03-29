@@ -982,6 +982,7 @@ v_snd_335_ = lean_ctor_get(v_a_334_, 1);
 v___x_336_ = 0;
 v___x_337_ = lean_box(v___x_336_);
 v___x_338_ = lean_array_get(v___x_337_, v_snd_335_, v_i_333_);
+lean_dec(v___x_337_);
 v___x_339_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_339_, 0, v___x_338_);
 lean_ctor_set(v___x_339_, 1, v_a_334_);

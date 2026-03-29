@@ -20,7 +20,7 @@ uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
 uint8_t l_String_instDecidableLtRaw___aux__1(lean_object*, lean_object*);
-lean_object* lean_panic_fn(lean_object*, lean_object*);
+lean_object* lean_panic_fn_borrowed(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_le(uint32_t, uint32_t);
 uint32_t lean_uint32_add(uint32_t, uint32_t);
 lean_object* lean_string_utf8_set(lean_object*, lean_object*, uint32_t);
@@ -346,7 +346,7 @@ _start:
 {
 lean_object* v___x_42_; lean_object* v___x_43_; 
 v___x_42_ = ((lean_object*)(l_panic___at___00System_Uri_UriEscape_decodeUri_spec__1___closed__0));
-v___x_43_ = lean_panic_fn(v___x_42_, v_msg_41_);
+v___x_43_ = lean_panic_fn_borrowed(v___x_42_, v_msg_41_);
 return v___x_43_;
 }
 }

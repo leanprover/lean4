@@ -2158,7 +2158,6 @@ v___jp_1168_:
 {
 lean_object* v___x_1170_; 
 v___x_1170_ = lean_string_append(v_acc_1144_, v___y_1169_);
-lean_dec_ref(v___y_1169_);
 v_acc_1144_ = v___x_1170_;
 v_q_1145_ = v_q_1167_;
 goto _start;

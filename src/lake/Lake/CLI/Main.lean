@@ -523,61 +523,82 @@ where
         error s!"{remoteScope}: no outputs found {revisions}"
     return map
 
-protected def put : CliM PUnit := do
-  processOptions lakeOption
-  let file ← takeArg "mappings"
-  let opts ← getThe LakeOptions
-  let some scope := opts.scope?
-    | error "the `--scope` or `--repo` option must be set for `cache put`"
-  noArgsRem do
-  let cfg ← mkLoadConfig opts
-  let ws ← loadWorkspace cfg
-  let pkg := ws.root
-  let platform := cachePlatform pkg (opts.platform?.getD .system)
-  let toolchain := cacheToolchain pkg (opts.toolchain?.getD ws.cacheToolchain)
-  let service : CacheService ← id do
-    if let some service := opts.service? then
-      let some service := ws.findCacheService? service
-        | error (serviceNotFound service ws.lakeConfig.config.cache.services)
-      let some key := ws.lakeEnv.cacheKey?
-        | error "uploads require an authentication key configured through `LAKE_CACHE_KEY`"
-      return service.withKey key
-    else
-      match ws.lakeEnv.cacheKey?, ws.lakeEnv.cacheArtifactEndpoint?, ws.lakeEnv.cacheRevisionEndpoint? with
-      | some key, some artifactEndpoint, some revisionEndpoint =>
-        logWarning endpointDeprecation
-        return .uploadService key artifactEndpoint revisionEndpoint
-      | key?, none, none =>
-        if let some service := ws.defaultCacheUploadService? then
-          let some key := key?
-            | error "uploads require an authentication key configured through `LAKE_CACHE_KEY`"
-          return service.withKey key
-        else
-          error "no default upload service configured; the `--service` option must be set for `cache put`"
-      | key?, artifactEndpoint?, revisionEndpoint? =>
-        logWarning endpointDeprecation
-        error (invalidEndpointConfig key? artifactEndpoint? revisionEndpoint?)
-  let repo := GitRepo.mk pkg.dir
-  if (← repo.hasDiff) then
-    logWarning s!"{pkg.prettyName}: package has changes; \
-      artifacts will be uploaded for the most recent commit"
-    if opts.failLv ≤ .warning then
-      exit 1
-  let rev ← repo.getHeadRevision
-  let map ← CacheMap.load file
-  let descrs ← map.collectOutputDescrs
-  let paths ← ws.lakeCache.getArtifactPaths descrs
-  service.uploadArtifacts ⟨descrs, rfl⟩ paths scope
-  -- Mappings are uploaded after artifacts to allow downloads to assume that
-  -- if the mappings exist, the artifacts should also exist
-  service.uploadRevisionOutputs rev file scope platform toolchain
+private def computeUploadService
+  (service? : Option String) (lakeEnv : Env) (lakeCfg : LoadedLakeConfig)
+: CliStateM CacheService := do
+  if let some service := service? then
+    let some service := lakeCfg.cacheServices.find? (.mkSimple service)
+      | error (serviceNotFound service lakeCfg.config.cache.services)
+    let some key := lakeEnv.cacheKey?
+      | error "uploads require an authentication key configured through `LAKE_CACHE_KEY`"
+    return service.withKey key
+  else
+    match lakeEnv.cacheKey?, lakeEnv.cacheArtifactEndpoint?, lakeEnv.cacheRevisionEndpoint? with
+    | some key, some artifactEndpoint, some revisionEndpoint =>
+      return .uploadService key artifactEndpoint revisionEndpoint
+    | key?, none, none =>
+      if let some service := lakeCfg.defaultCacheUploadService? then
+        let some key := key?
+          | error "uploads require an authentication key configured through `LAKE_CACHE_KEY`"
+        return service.withKey key
+      else
+        error "no default upload service configured; the `--service` option must be set"
+    | key?, artifactEndpoint?, revisionEndpoint? =>
+      error (invalidEndpointConfig key? artifactEndpoint? revisionEndpoint?)
 where
   invalidEndpointConfig key? artifactEndpoint? revisionEndpoint? :=
     s!"invalid endpoint configuration:\
     \n  LAKE_CACHE_KEY is {if key?.isNone then "unset" else "set"}\
     \n  LAKE_CACHE_ARTIFACT_ENDPOINT={artifactEndpoint?.getD ""}\
     \n  LAKE_CACHE_REVISION_ENDPOINT={revisionEndpoint?.getD ""}\n\
-    To use `cache put`, these environment variables must be set to non-empty strings."
+    To upload, these environment variables must be set to non-empty strings."
+
+private def computePackageRev (pkgDir : FilePath) : CliStateM String := do
+  let repo := GitRepo.mk pkgDir
+  if (← repo.hasDiff) then
+    logWarning s!"package has changes; \
+      artifacts will be uploaded for the most recent commit"
+    if (← getThe LakeOptions).failLv ≤ .warning then
+      exit 1
+  repo.getHeadRevision
+
+private def putCore
+  (rev : String)  (outputs : FilePath) (artDir : FilePath)
+  (service : CacheService) (scope : CacheServiceScope)
+  (platform := CachePlatform.none) (toolchain := CacheToolchain.none)
+: LoggerIO Unit := do
+  let map ← CacheMap.load outputs
+  let descrs ← map.collectOutputDescrs
+  let paths ← computeArtifactPaths descrs
+  service.uploadArtifacts ⟨descrs, rfl⟩ paths scope
+  -- Mappings are uploaded after artifacts to allow downloads to assume that
+  -- if the mappings exist, the artifacts should also exist
+  service.uploadRevisionOutputs rev outputs scope platform toolchain
+where
+  computeArtifactPaths (descrs : Array ArtifactDescr) : LogIO (Vector FilePath descrs.size) := throwIfLogs do
+    (Vector.mk descrs rfl).mapM fun out => do
+      let art := artDir / out.relPath
+      unless (← art.pathExists) do
+        logError s!"artifact not found in cache: {art}"
+      return art
+
+protected def put : CliM PUnit := do
+  processOptions lakeOption
+  let file ← takeArg "mappings"
+  let opts ← getThe LakeOptions
+  let some scope := opts.scope?
+    | error "the `--scope` or `--repo` option must be set"
+  noArgsRem do
+  let cfg ← mkLoadConfig opts
+  let lakeEnv := cfg.lakeEnv
+  let pkg ← loadPackage cfg
+  let lakeCfg ← loadLakeConfig lakeEnv
+  let lakeCache := computeLakeCache pkg lakeEnv
+  let platform := cachePlatform pkg (opts.platform?.getD .system)
+  let toolchain := cacheToolchain pkg (opts.toolchain?.getD lakeEnv.cacheToolchain)
+  let service ← computeUploadService opts.service? lakeEnv lakeCfg
+  let rev ← opts.rev?.getDM (computePackageRev pkg.dir)
+  putCore rev file lakeCache.artifactDir service scope platform toolchain
 
 protected def add : CliM PUnit := do
   processOptions lakeOption
@@ -601,6 +622,99 @@ protected def add : CliM PUnit := do
     return some (.ofString service)
   let map ← CacheMap.load file
   ws.lakeCache.writeMap localScope map service? opts.scope?
+
+private def stagingOutputsFile := "outputs.jsonl"
+
+protected def stage : CliM PUnit := do
+  processOptions lakeOption
+  let opts ← getThe LakeOptions
+  let mappingsFile ← FilePath.mk <$> takeArg "mappings"
+  let stagingDir ← FilePath.mk <$> takeArg "staging directory"
+  noArgsRem do
+  let cfg ← mkLoadConfig opts
+  let cache ← id do
+    if (← configFileExists cfg.configFile) then
+      return (← loadWorkspaceRoot cfg).lakeCache
+    else if let some cache := cfg.lakeEnv.lakeCache? then
+      return cache
+    else
+      error "no workspace configuration found and no system cache detected"
+  let map ← CacheMap.load mappingsFile
+  let descrs ← map.collectOutputDescrs
+  IO.FS.createDirAll stagingDir
+  copyFile mappingsFile (stagingDir / stagingOutputsFile)
+  let ok ← descrs.foldlM (init := true) fun ok descr => do
+    let cachePath := cache.artifactDir / descr.relPath
+    let stagingPath := stagingDir / descr.relPath
+    match (← copyFile cachePath stagingPath |>.toBaseIO) with
+    | .ok _ =>
+      return ok
+    | .error (.noFileOrDirectory ..) =>
+      logError s!"artifact not found in cache: {cachePath}"
+      return false
+    | .error e =>
+      logError s!"failed to copy artifact: {e}"
+      return false
+  unless ok do
+    logError "failed to copy all outputs to the staging directory"
+    exit 1
+
+protected def unstage : CliM PUnit := do
+  processOptions lakeOption
+  let opts ← getThe LakeOptions
+  let stagingDir ← FilePath.mk <$> takeArg "staging directory"
+  let pkg? ← takeArg?
+  noArgsRem do
+  let cfg ← mkLoadConfig opts
+  let ws ← loadWorkspace cfg
+  let pkg ← match pkg? with
+    | some pkg => parsePackageSpec ws pkg
+    | _ => pure ws.root
+  let localScope := pkg.cacheScope
+  if opts.scope?.isSome && opts.service?.isNone then
+    error "`--scope` and `--repo` require `--service`"
+  let service? ← id do
+    let some service := opts.service?
+      | return none
+    unless (ws.findCacheService? service).isSome do
+      error (serviceNotFound service ws.lakeConfig.config.cache.services)
+    return some (.ofString service)
+  let map ← CacheMap.load (stagingDir / stagingOutputsFile)
+  let descrs ← map.collectOutputDescrs
+  let artDir := ws.lakeCache.artifactDir
+  IO.FS.createDirAll artDir
+  let ok ← descrs.foldlM (init := true) fun ok descr => do
+    let cachePath := artDir/ descr.relPath
+    let stagingPath := stagingDir / descr.relPath
+    match (← copyFile stagingPath cachePath |>.toBaseIO) with
+    | .ok _ =>
+      return ok
+    | .error (.noFileOrDirectory ..) =>
+      logError s!"output artifact not found in staging directory: {stagingPath}"
+      return false
+    | .error e =>
+      logError s!"failed to copy artifact: {e}"
+      return false
+  unless ok do
+    logError "failed to copy all outputs to the staging directory"
+    exit 1
+  ws.lakeCache.writeMap localScope map service? opts.scope?
+
+protected def putStaged : CliM PUnit := do
+  processOptions lakeOption
+  let opts ← getThe LakeOptions
+  let stagingDir ← FilePath.mk <$> takeArg "staging directory"
+  let some scope := opts.scope?
+    | error "the `--scope` or `--repo` option must be set"
+  noArgsRem do
+  let cfg ← mkLoadConfig opts
+  let lakeCfg ← loadLakeConfig cfg.lakeEnv
+  let platform := opts.platform?.getD .none
+  let toolchain := opts.toolchain?.getD .none
+  let service ← computeUploadService opts.service? cfg.lakeEnv lakeCfg
+  let rev ← opts.rev?.getDM (computePackageRev cfg.wsDir)
+  let outputsFile := stagingDir / stagingOutputsFile
+  putCore rev outputsFile stagingDir service scope platform toolchain
 
 protected def services : CliM PUnit := do
   processOptions lakeOption
@@ -630,13 +744,16 @@ protected def help : CliM PUnit := do
 end cache
 
 def cacheCli : (cmd : String) → CliM PUnit
-| "add"      => cache.add
-| "get"      => cache.get
-| "put"      => cache.put
-| "clean"    => cache.clean
-| "services" => cache.services
-| "help"     => cache.help
-| cmd        => throw <| CliError.unknownCommand cmd
+| "add"         => cache.add
+| "get"         => cache.get
+| "put"         => cache.put
+| "stage"       => cache.stage
+| "unstage"     => cache.unstage
+| "put-staged"  => cache.putStaged
+| "clean"       => cache.clean
+| "services"    => cache.services
+| "help"        => cache.help
+| cmd           => throw <| CliError.unknownCommand cmd
 
 /-! ### `lake script` CLI -/
 

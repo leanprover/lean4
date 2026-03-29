@@ -178,9 +178,8 @@ _start:
 lean_object* v___x_8_; uint8_t v___y_10_; uint8_t v___y_17_; lean_object* v_env_20_; uint8_t v___x_21_; 
 v___x_8_ = lean_st_ref_get(v___y_6_);
 v_env_20_ = lean_ctor_get(v___x_8_, 0);
-lean_inc_ref(v_env_20_);
+lean_inc_ref_n(v_env_20_, 2);
 lean_dec(v___x_8_);
-lean_inc_ref(v_env_20_);
 v___x_21_ = l_Lean_Environment_hasUnsafe(v_env_20_, v_type_3_);
 if (v___x_21_ == 0)
 {
@@ -567,14 +566,13 @@ v___x_184_ = lean_nat_sub(v___x_182_, v___x_183_);
 lean_dec(v___x_182_);
 v___x_185_ = lean_unsigned_to_nat(0u);
 lean_inc(v___x_184_);
-lean_inc_ref(v_xs_169_);
+lean_inc_ref_n(v_xs_169_, 2);
 v___x_186_ = l_Array_toSubarray___redArg(v_xs_169_, v___x_185_, v___x_184_);
 v___x_187_ = lean_nat_add(v___x_184_, v_numMinors_166_);
 v___x_188_ = lean_nat_add(v___x_187_, v___x_183_);
 v___x_189_ = lean_nat_add(v___x_188_, v_numIndices_167_);
 lean_dec(v___x_188_);
 lean_inc(v___x_187_);
-lean_inc_ref(v_xs_169_);
 v___x_190_ = l_Array_toSubarray___redArg(v_xs_169_, v___x_187_, v___x_189_);
 v___x_191_ = ((lean_object*)(l_mkRecOn___lam__0___closed__0));
 v___x_192_ = l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___at___00mkRecOn_spec__2___redArg(v___x_186_, v___x_191_);
@@ -1769,9 +1767,8 @@ if (lean_obj_tag(v___x_643_) == 0)
 {
 lean_object* v_a_644_; lean_object* v___x_646_; 
 v_a_644_ = lean_ctor_get(v___x_643_, 0);
-lean_inc(v_a_644_);
+lean_inc_n(v_a_644_, 2);
 lean_dec_ref(v___x_643_);
-lean_inc(v_a_644_);
 if (v_isShared_634_ == 0)
 {
 lean_ctor_set_tag(v___x_633_, 1);
@@ -1799,9 +1796,8 @@ v_toConstantVal_648_ = lean_ctor_get(v_a_644_, 0);
 lean_inc_ref(v_toConstantVal_648_);
 lean_dec(v_a_644_);
 v_name_649_ = lean_ctor_get(v_toConstantVal_648_, 0);
-lean_inc(v_name_649_);
+lean_inc_n(v_name_649_, 2);
 lean_dec_ref(v_toConstantVal_648_);
-lean_inc(v_name_649_);
 v___x_650_ = l_Lean_setReducibleAttribute___at___00mkRecOn_spec__5(v_name_649_, v_a_623_, v_a_624_, v_a_625_, v_a_626_);
 v_isSharedCheck_726_ = !lean_is_exclusive(v___x_650_);
 if (v_isSharedCheck_726_ == 0)

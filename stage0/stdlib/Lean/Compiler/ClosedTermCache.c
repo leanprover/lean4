@@ -37,7 +37,7 @@ uint8_t lean_usize_dec_le(size_t, size_t);
 lean_object* l_Lean_PersistentHashMap_getCollisionNodeSize___redArg(lean_object*);
 lean_object* l_Lean_NameSet_insert(lean_object*, lean_object*);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_panic_fn(lean_object*, lean_object*);
+lean_object* lean_panic_fn_borrowed(lean_object*, lean_object*);
 extern lean_object* l_Lean_NameSet_empty;
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 lean_object* l_List_lengthTR___redArg(lean_object*);
@@ -172,7 +172,7 @@ _start:
 {
 lean_object* v___x_11_; lean_object* v___x_12_; 
 v___x_11_ = lean_box(0);
-v___x_12_ = lean_panic_fn(v___x_11_, v_msg_10_);
+v___x_12_ = lean_panic_fn_borrowed(v___x_11_, v_msg_10_);
 return v___x_12_;
 }
 }
@@ -1282,13 +1282,11 @@ _start:
 lean_object* v___x_410_; lean_object* v_asyncMode_411_; lean_object* v___f_412_; lean_object* v___x_413_; lean_object* v___x_414_; 
 v___x_410_ = l_Lean_closedTermCacheExt;
 v_asyncMode_411_ = lean_ctor_get(v___x_410_, 2);
-lean_inc(v_asyncMode_411_);
 v___f_412_ = lean_alloc_closure((void*)(l_Lean_cacheClosedTermName___lam__0), 3, 2);
 lean_closure_set(v___f_412_, 0, v_e_408_);
 lean_closure_set(v___f_412_, 1, v_n_409_);
 v___x_413_ = lean_box(0);
 v___x_414_ = l_Lean_EnvExtension_modifyState___redArg(v___x_410_, v_env_407_, v___f_412_, v_asyncMode_411_, v___x_413_);
-lean_dec(v_asyncMode_411_);
 return v___x_414_;
 }
 }
@@ -1298,11 +1296,9 @@ _start:
 lean_object* v___x_417_; lean_object* v_asyncMode_418_; lean_object* v___x_419_; lean_object* v___x_420_; lean_object* v___x_421_; lean_object* v_map_422_; lean_object* v___x_423_; 
 v___x_417_ = l_Lean_closedTermCacheExt;
 v_asyncMode_418_ = lean_ctor_get(v___x_417_, 2);
-lean_inc(v_asyncMode_418_);
 v___x_419_ = l_Lean_instInhabitedClosedTermCache_default;
 v___x_420_ = lean_box(0);
 v___x_421_ = l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___redArg(v___x_419_, v___x_417_, v_env_415_, v_asyncMode_418_, v___x_420_);
-lean_dec(v_asyncMode_418_);
 v_map_422_ = lean_ctor_get(v___x_421_, 0);
 lean_inc_ref(v_map_422_);
 lean_dec(v___x_421_);
@@ -1325,11 +1321,9 @@ _start:
 lean_object* v___x_429_; lean_object* v_asyncMode_430_; lean_object* v___x_431_; lean_object* v___x_432_; lean_object* v___x_433_; lean_object* v_constNames_434_; uint8_t v___x_435_; 
 v___x_429_ = l_Lean_closedTermCacheExt;
 v_asyncMode_430_ = lean_ctor_get(v___x_429_, 2);
-lean_inc(v_asyncMode_430_);
 v___x_431_ = l_Lean_instInhabitedClosedTermCache_default;
 v___x_432_ = lean_box(0);
 v___x_433_ = l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___redArg(v___x_431_, v___x_429_, v_env_427_, v_asyncMode_430_, v___x_432_);
-lean_dec(v_asyncMode_430_);
 v_constNames_434_ = lean_ctor_get(v___x_433_, 1);
 lean_inc(v_constNames_434_);
 lean_dec(v___x_433_);

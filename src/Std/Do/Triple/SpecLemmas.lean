@@ -136,6 +136,15 @@ theorem Cursor.pos_at {l : List α} {n : Nat} (h : n < l.length) :
 theorem Cursor.pos_mk {l pre suff : List α} (h : pre ++ suff = l) :
     (Cursor.mk pre suff h).pos = pre.length := rfl
 
+theorem Cursor.pos_le_length {c : Cursor l} : c.pos ≤ l.length := by
+  simp [← congrArg List.length c.property]
+
+theorem Cursor.length_prefix_le_length {c : Cursor l} : c.prefix.length ≤ l.length :=
+  pos_le_length
+
+theorem Cursor.length_suffix_le_length {c : Cursor l} : c.suffix.length ≤ l.length := by
+  simp [← congrArg List.length c.property]
+
 @[grind →]
 theorem eq_of_range'_eq_append_cons (h : range' s n step = xs ++ cur :: ys) :
     cur = s + step * xs.length := by
@@ -688,7 +697,7 @@ After leaving the loop, the cursor's prefix is `xs` and the suffix is empty.
 During the induction step, the invariant holds for a suffix with head element `x`.
 After running the loop body, the invariant then holds after shifting `x` to the prefix.
 -/
-@[mvcgen_invariant_type]
+@[spec_invariant_type]
 abbrev Invariant {α : Type u₁} (xs : List α) (β : Type u₂) (ps : PostShape.{max u₁ u₂}) :=
   PostCond (List.Cursor xs × β) ps
 
@@ -2018,7 +2027,7 @@ A loop invariant is a `PostCond` that takes as parameters
 * A state tuple of type `β`, which will be a nesting of `MProd`s representing the elaboration of
   `let mut` variables and early return.
 -/
-@[mvcgen_invariant_type]
+@[spec_invariant_type]
 abbrev StringInvariant (s : String) (β : Type u) (ps : PostShape.{u}) :=
   PostCond (s.Pos × β) ps
 
@@ -2103,7 +2112,7 @@ A loop invariant is a `PostCond` that takes as parameters
 * A state tuple of type `β`, which will be a nesting of `MProd`s representing the elaboration of
   `let mut` variables and early return.
 -/
-@[mvcgen_invariant_type]
+@[spec_invariant_type]
 abbrev StringSliceInvariant (s : String.Slice) (β : Type u) (ps : PostShape.{u}) :=
   PostCond (s.Pos × β) ps
 

@@ -17349,8 +17349,10 @@ _start:
 lean_object* v_ord_4484_; lean_object* v_le_4485_; lean_object* v_decidableLE_4486_; lean_object* v_lt_4487_; lean_object* v_decidableLT_4488_; lean_object* v_beq_4489_; lean_object* v___x_4490_; lean_object* v___x_4491_; 
 v_ord_4484_ = lean_ctor_get(v_args_4483_, 0);
 v_le_4485_ = lean_ctor_get(v_args_4483_, 1);
+lean_inc(v_le_4485_);
 v_decidableLE_4486_ = lean_ctor_get(v_args_4483_, 2);
 v_lt_4487_ = lean_ctor_get(v_args_4483_, 3);
+lean_inc(v_lt_4487_);
 v_decidableLT_4488_ = lean_ctor_get(v_args_4483_, 4);
 v_beq_4489_ = lean_ctor_get(v_args_4483_, 5);
 lean_inc_ref(v_decidableLT_4488_);
@@ -17384,8 +17386,10 @@ _start:
 lean_object* v_ord_4496_; lean_object* v_le_4497_; lean_object* v_decidableLE_4498_; lean_object* v_lt_4499_; lean_object* v_decidableLT_4500_; lean_object* v_beq_4501_; lean_object* v___x_4502_; lean_object* v___x_4503_; 
 v_ord_4496_ = lean_ctor_get(v_args_4495_, 0);
 v_le_4497_ = lean_ctor_get(v_args_4495_, 1);
+lean_inc(v_le_4497_);
 v_decidableLE_4498_ = lean_ctor_get(v_args_4495_, 2);
 v_lt_4499_ = lean_ctor_get(v_args_4495_, 3);
+lean_inc(v_lt_4499_);
 v_decidableLT_4500_ = lean_ctor_get(v_args_4495_, 4);
 v_beq_4501_ = lean_ctor_get(v_args_4495_, 5);
 lean_inc_ref(v_decidableLT_4500_);

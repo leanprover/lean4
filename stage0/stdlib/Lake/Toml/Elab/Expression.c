@@ -3308,14 +3308,13 @@ lean_object* v___x_831_; uint8_t v___x_832_; lean_object* v___x_833_; lean_objec
 v___x_831_ = lean_box(0);
 v___x_832_ = 1;
 v___x_833_ = lean_box(v___x_832_);
-lean_inc(v___y_825_);
+lean_inc_n(v___y_825_, 2);
 v___x_834_ = l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_NameMap_insert_spec__0___redArg(v___y_825_, v___x_833_, v_keyTys_826_);
 v___x_835_ = lean_obj_once(&l___private_Lake_Toml_Elab_Expression_0__Lake_Toml_elabStdTable___closed__1, &l___private_Lake_Toml_Elab_Expression_0__Lake_Toml_elabStdTable___closed__1_once, _init_l___private_Lake_Toml_Elab_Expression_0__Lake_Toml_elabStdTable___closed__1);
 lean_inc(v_x_819_);
 v___x_836_ = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(v___x_836_, 0, v_x_819_);
 lean_ctor_set(v___x_836_, 1, v___x_835_);
-lean_inc(v___y_825_);
 v___x_837_ = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(v___x_837_, 0, v_x_819_);
 lean_ctor_set(v___x_837_, 1, v___y_825_);
@@ -3683,23 +3682,21 @@ lean_inc(v_val_1053_);
 lean_dec_ref(v___x_1052_);
 v___x_1054_ = lean_box(0);
 v___x_1055_ = lean_obj_once(&l___private_Lake_Toml_Elab_Expression_0__Lake_Toml_elabStdTable___closed__1, &l___private_Lake_Toml_Elab_Expression_0__Lake_Toml_elabStdTable___closed__1_once, _init_l___private_Lake_Toml_Elab_Expression_0__Lake_Toml_elabStdTable___closed__1);
-lean_inc(v_x_970_);
+lean_inc_n(v_x_970_, 2);
 v___x_1056_ = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(v___x_1056_, 0, v_x_970_);
 lean_ctor_set(v___x_1056_, 1, v___x_1055_);
 v___x_1057_ = lean_mk_empty_array_with_capacity(v___x_1019_);
 v___x_1058_ = lean_array_push(v___x_1057_, v___x_1056_);
-lean_inc(v_x_970_);
 v___x_1059_ = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(v___x_1059_, 0, v_x_970_);
 lean_ctor_set(v___x_1059_, 1, v___x_1058_);
-lean_inc(v___x_1040_);
+lean_inc_n(v___x_1040_, 2);
 v___x_1060_ = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(v___x_1060_, 0, v_x_970_);
 lean_ctor_set(v___x_1060_, 1, v___x_1040_);
 lean_ctor_set(v___x_1060_, 2, v___x_1059_);
 v___x_1061_ = lean_array_push(v_items_1039_, v___x_1060_);
-lean_inc(v___x_1040_);
 if (v_isShared_1049_ == 0)
 {
 lean_ctor_set(v___x_1048_, 5, v___x_1061_);
@@ -3872,31 +3869,27 @@ lean_object* v___x_1097_; uint8_t v___x_1098_; lean_object* v___x_1099_; lean_ob
 v___x_1097_ = lean_box(0);
 v___x_1098_ = 2;
 v___x_1099_ = lean_box(v___x_1098_);
-lean_inc(v___x_1040_);
+lean_inc_n(v___x_1040_, 4);
 v___x_1100_ = l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_NameMap_insert_spec__0___redArg(v___x_1040_, v___x_1099_, v_keyTys_1035_);
 lean_inc(v___x_1100_);
 lean_inc(v_currArrKey_1038_);
 v___x_1101_ = l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_NameMap_insert_spec__0___redArg(v_currArrKey_1038_, v___x_1100_, v_arrKeyTys_1036_);
-lean_inc(v___x_1040_);
 v___x_1102_ = l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_NameMap_insert_spec__0___redArg(v___x_1040_, v_currArrKey_1038_, v_arrParents_1037_);
 v___x_1103_ = lean_obj_once(&l___private_Lake_Toml_Elab_Expression_0__Lake_Toml_elabStdTable___closed__1, &l___private_Lake_Toml_Elab_Expression_0__Lake_Toml_elabStdTable___closed__1_once, _init_l___private_Lake_Toml_Elab_Expression_0__Lake_Toml_elabStdTable___closed__1);
-lean_inc(v_x_970_);
+lean_inc_n(v_x_970_, 2);
 v___x_1104_ = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(v___x_1104_, 0, v_x_970_);
 lean_ctor_set(v___x_1104_, 1, v___x_1103_);
 v___x_1105_ = lean_mk_empty_array_with_capacity(v___x_1019_);
 v___x_1106_ = lean_array_push(v___x_1105_, v___x_1104_);
-lean_inc(v_x_970_);
 v___x_1107_ = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(v___x_1107_, 0, v_x_970_);
 lean_ctor_set(v___x_1107_, 1, v___x_1106_);
-lean_inc(v___x_1040_);
 v___x_1108_ = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(v___x_1108_, 0, v_x_970_);
 lean_ctor_set(v___x_1108_, 1, v___x_1040_);
 lean_ctor_set(v___x_1108_, 2, v___x_1107_);
 v___x_1109_ = lean_array_push(v_items_1039_, v___x_1108_);
-lean_inc(v___x_1040_);
 if (v_isShared_1096_ == 0)
 {
 lean_ctor_set(v___x_1095_, 5, v___x_1109_);
@@ -5787,6 +5780,7 @@ lean_ctor_set(v___x_1649_, 1, v_openDecls_1636_);
 v___x_1650_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_1650_, 0, v___x_1649_);
 lean_ctor_set(v___x_1650_, 1, v___y_1626_);
+lean_inc_ref(v___y_1631_);
 lean_inc_ref(v___y_1627_);
 v___x_1651_ = lean_alloc_ctor(0, 5, 3);
 lean_ctor_set(v___x_1651_, 0, v___y_1627_);
@@ -5854,10 +5848,9 @@ goto v_resetjp_1671_;
 v_resetjp_1671_:
 {
 lean_object* v___x_1674_; lean_object* v___x_1675_; lean_object* v___x_1677_; 
-lean_inc_ref(v___y_1665_);
+lean_inc_ref_n(v___y_1665_, 2);
 v___x_1674_ = l_Lean_FileMap_toPosition(v___y_1665_, v___y_1662_);
 lean_dec(v___y_1662_);
-lean_inc_ref(v___y_1665_);
 v___x_1675_ = l_Lean_FileMap_toPosition(v___y_1665_, v___y_1667_);
 lean_dec(v___y_1667_);
 if (v_isShared_1673_ == 0)

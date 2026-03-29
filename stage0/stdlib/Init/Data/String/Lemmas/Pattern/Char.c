@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.String.Lemmas.Pattern.Char
-// Imports: public import Init.Data.String.Pattern.Char public import Init.Data.String.Lemmas.Pattern.Basic public import Init.Data.String.Slice public import Init.Data.String.Lemmas.Pattern.Pred public import Init.Data.String.Search import all Init.Data.String.Slice import all Init.Data.String.Pattern.Char import all Init.Data.String.Search import Init.Data.Option.Lemmas import Init.Data.String.Lemmas.Basic import Init.Data.String.Lemmas.Order import Init.Data.Order.Lemmas import Init.Data.String.OrderInstances import Init.Omega
+// Imports: public import Init.Data.String.Pattern.Char public import Init.Data.String.Lemmas.Pattern.Basic public import Init.Data.String.Slice public import Init.Data.String.Lemmas.Pattern.Pred public import Init.Data.String.Search import all Init.Data.String.Slice import all Init.Data.String.Pattern.Char import all Init.Data.String.Search import Init.Data.Option.Lemmas import Init.Data.String.Lemmas.Basic import Init.Data.String.Lemmas.Order import Init.Data.Order.Lemmas import Init.Data.String.OrderInstances import Init.Omega import Init.Data.String.Lemmas.FindPos
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,15 +13,15 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_Model_Char_instForwardPatternModelChar(uint32_t);
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_Model_Char_instForwardPatternModelChar___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_Model_Char_instPatternModelChar(uint32_t);
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_Model_Char_instPatternModelChar___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Lemmas_Pattern_Char_0__String_Slice_Pos_skipWhile_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Lemmas_Pattern_Char_0__String_Slice_Pos_skipWhile_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Lemmas_Pattern_Char_0__String_Slice_Pos_skipWhile_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Lemmas_Pattern_Char_0__String_Slice_Pos_revSkipWhile_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Lemmas_Pattern_Char_0__String_Slice_Pos_revSkipWhile_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Lemmas_Pattern_Char_0__String_Slice_Pos_revSkipWhile_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_Model_Char_instForwardPatternModelChar(uint32_t v_c_1_){
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_Model_Char_instPatternModelChar(uint32_t v_c_1_){
 _start:
 {
 lean_object* v___x_2_; 
@@ -29,13 +29,13 @@ v___x_2_ = lean_box(0);
 return v___x_2_;
 }
 }
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_Model_Char_instForwardPatternModelChar___boxed(lean_object* v_c_3_){
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_Model_Char_instPatternModelChar___boxed(lean_object* v_c_3_){
 _start:
 {
 uint32_t v_c_boxed_4_; lean_object* v_res_5_; 
 v_c_boxed_4_ = lean_unbox_uint32(v_c_3_);
 lean_dec(v_c_3_);
-v_res_5_ = l_String_Slice_Pattern_Model_Char_instForwardPatternModelChar(v_c_boxed_4_);
+v_res_5_ = l_String_Slice_Pattern_Model_Char_instPatternModelChar(v_c_boxed_4_);
 return v_res_5_;
 }
 }
@@ -161,6 +161,7 @@ lean_object* runtime_initialize_Init_Data_String_Lemmas_Order(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Order_Lemmas(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_String_OrderInstances(uint8_t builtin);
 lean_object* runtime_initialize_Init_Omega(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_String_Lemmas_FindPos(uint8_t builtin);
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Data_String_Lemmas_Pattern_Char(uint8_t builtin) {
 lean_object * res;
@@ -208,6 +209,9 @@ lean_dec_ref(res);
 res = runtime_initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = runtime_initialize_Init_Data_String_Lemmas_FindPos(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
 }
 static bool _G_meta_initialized = false;
@@ -231,6 +235,7 @@ lean_object* initialize_Init_Data_String_Lemmas_Order(uint8_t builtin);
 lean_object* initialize_Init_Data_Order_Lemmas(uint8_t builtin);
 lean_object* initialize_Init_Data_String_OrderInstances(uint8_t builtin);
 lean_object* initialize_Init_Omega(uint8_t builtin);
+lean_object* initialize_Init_Data_String_Lemmas_FindPos(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_String_Lemmas_Pattern_Char(uint8_t builtin) {
 lean_object * res;
@@ -276,6 +281,9 @@ res = initialize_Init_Data_String_OrderInstances(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Omega(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_String_Lemmas_FindPos(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_String_Lemmas_Pattern_Char(builtin);

@@ -14,6 +14,9 @@ public meta import Lean.Meta.Match.Rewrite
 public meta import Lean.Elab.Tactic.Do.VCGen.Split
 meta import Lean.Meta.Sym.Pattern
 meta import Lean.Meta.Sym.Simp.DiscrTree
+public meta import Lean.Meta.Tactic.Grind.Main
+public meta import Lean.Meta.Tactic.Grind.Solve
+meta import Lean.Elab.Tactic.Grind
 
 open Lean Parser Meta Elab Tactic Sym
 open Lean.Elab.Tactic.Do.SpecAttr
@@ -155,17 +158,6 @@ meta def SpecTheoremsNew.findSpecs (database : SpecTheoremsNew) (e : Expr) :
 
 end Lean.Elab.Tactic.Do.SpecAttr
 
-
--- Normalize universe levels in an expression so that `max u v` and `max v u` have a canonical
--- representation. This is needed because backward rule pattern matching is structural and
--- level expressions from different sources (e.g., instance synthesis, type inference) may have
--- different but equivalent `max` orderings.
-meta def normalizeLevelsExpr (e : Expr) : CoreM Expr :=
-  Core.transform e (pre := fun e => do
-    match e with
-    | .sort u => return .done <| e.updateSort! u.normalize
-    | .const _ us => return .done <| e.updateConst! (us.map Level.normalize)
-    | _ => return .continue)
 
 /-- Build goal: `P ⊢ₛ wp⟦prog⟧ Q ss...`. Meant to be partially applied for convenience. -/
 private meta def mkGoal (u v : Level) (m σs ps instWP α : Expr) (ss : Array Expr) (P Q : Expr) (prog : Expr) : Expr :=
@@ -325,10 +317,7 @@ meta def mkBackwardRuleFromSpec (specThm : SpecTheoremNew) (m σs ps instWP : Ex
   -- which would cause `mkAuxLemma`'s `addDecl` to fail with a kernel error.
   let spec ← instantiateMVars spec
   let res ← abstractMVars spec
-  -- Normalize levels so structural matching in `BackwardRule.apply` succeeds even when
-  -- different code paths produce `max u v` vs `max v u` (semantically equal but structurally not).
-  let expr ← normalizeLevelsExpr res.expr
-  mkBackwardRuleFromExpr expr res.paramNames.toList
+  mkBackwardRuleFromExpr res.expr res.paramNames.toList
 
 /--
 Create a backward rule for a simp/equational spec `∀ xs, lhs = rhs`.
@@ -402,9 +391,7 @@ meta def mkBackwardRuleFromSimpSpec (specThm : SpecTheoremNew) (m σs ps instWP 
     liftMetaM <| mkLambdaFVars (#[Q] ++ ss ++ #[P, h]) prf
   let spec ← instantiateMVars spec
   let res ← abstractMVars spec
-  -- Normalize universe levels so the backward rule's pattern matches structurally.
-  let expr ← normalizeLevelsExpr res.expr
-  mkBackwardRuleFromExpr expr res.paramNames.toList
+  mkBackwardRuleFromExpr res.expr res.paramNames.toList
 
 open Lean.Elab.Tactic.Do in
 /--
@@ -458,12 +445,24 @@ meta def mkBackwardRuleForSplit (splitInfo : SplitInfo) (m σs ps instWP : Expr)
     mkLambdaFVars (#[α] ++ splitFVars ++ ss ++ #[P, Q] ++ subgoalHyps) prf
   let prf ← instantiateMVars prf
   let res ← abstractMVars prf
-  let expr ← normalizeLevelsExpr res.expr
-  mkBackwardRuleFromExpr expr res.paramNames.toList
+  mkBackwardRuleFromExpr res.expr res.paramNames.toList
 
 /-!
 VC generation
 -/
+
+/-- Pre-tactic to try on each emitted VC before returning it to the user. -/
+public inductive VCGen.PreTac where
+  /-- No pre-tactic; VCs are returned as-is. -/
+  | none
+  /-- Use grind with the given hypothesis simplification methods. -/
+  | grind
+  /-- Use a user-provided tactic syntax. -/
+  | tactic (tac : Syntax)
+
+meta def VCGen.PreTac.isGrind : VCGen.PreTac → Bool
+  | .grind => true
+  | _ => false
 
 public structure VCGen.Context where
   specThms : SpecTheoremsNew
@@ -475,6 +474,10 @@ public structure VCGen.Context where
   exceptCondsEntailsRflRule : BackwardRule
   /-- The backward rule for `Triple.of_entails_wp`. -/
   tripleOfEntailsWPRule : BackwardRule
+  /-- User-customizable simp methods used to pre-simplify hypotheses. -/
+  hypSimpMethods : Option Sym.Simp.Methods := none
+  /-- Pre-tactic to try on each emitted VC. -/
+  preTac : PreTac := .none
 
 public structure VCGen.State where
   /--
@@ -497,8 +500,14 @@ public structure VCGen.State where
   The verification conditions that have been generated so far.
   -/
   vcs : Array MVarId := #[]
+  /--
+  Persistent cache for the `Sym.Simp` simplifier used to pre-simplify hypotheses
+  before grind internalization. Threading this cache across VCGen iterations avoids
+  re-simplifying shared subexpressions (e.g., `s + 1 + 1 + ...` chains).
+  -/
+  simpState : Sym.Simp.State := {}
 
-abbrev VCGenM := ReaderT VCGen.Context (StateRefT VCGen.State SymM)
+abbrev VCGenM := ReaderT VCGen.Context (StateRefT VCGen.State Grind.GrindM)
 
 namespace VCGen
 
@@ -631,7 +640,7 @@ inductive SolveResult where
   Candidates were `thms`, but none of them matched the monad.
   -/
   | noSpecFoundForProgram (e : Expr) (monad : Expr) (thms : Array SpecTheoremNew)
-  /-- Successfully discharged the goal. These are the subgoals. -/
+  /-- Successfully decomposed the goal. These are the subgoals. -/
   | goals (subgoals : List MVarId)
 
 open Sym Sym.Internal
@@ -665,12 +674,57 @@ open Sym Sym.Internal
 meta def mkAppNS [Monad m] [Internal.MonadShareCommon m] (f : Expr) (args : Array Expr) : m Expr :=
   mkAppRangeS f 0 args.size args
 
+meta def simpTargetTelescope (mvarId : MVarId) : VCGenM MVarId := do
+  let some methods := (← read).hypSimpMethods | return mvarId
+  let target ← mvarId.getType
+  let simpState := (← get).simpState
+  let methods := { methods with pre := Sym.Simp.simpTelescope }
+  let (result, simpState') ← Sym.Simp.SimpM.run (Sym.Simp.simp target) methods {} simpState
+  modify fun s => { s with simpState := simpState' }
+  let mvarId ← match result with
+    | .rfl .. => pure mvarId
+    | .step newTarget proof .. => mvarId.replaceTargetEq newTarget proof
+
 /--
-The main VC generation function.
-Looks at a goal of the form `P ⊢ₛ T`. Then
-* If `T` is a lambda, introduce another state variable.
-* If `T` is of the form `wp⟦e⟧ Q s₁ ... sₙ`, look up a spec theorem for `e`. Produce the backward
-  rule to apply this spec theorem and then apply it ot the goal.
+Simplify the forall telescope of the target using `Sym.Simp.simpTelescope`,
+then introduce all binders via `Sym.intros`.
+-/
+meta def introsSimp (mvarId : MVarId) : VCGenM IntrosResult := do
+  let mvarId ← simpTargetTelescope mvarId
+  Sym.intros mvarId
+
+/-- Internalize pending hypotheses into the E-graph for sharing before forking to multiple subgoals.
+If `processHypotheses` discovers a contradiction (`inconsistent = true`), the E-graph state
+contains stale proof data (the contradiction proof targets the parent's mvar, not the children's).
+In that case, restore the pre-internalization state so each child can discover the contradiction
+independently and construct its own proof via `closeGoal`.
+-/
+meta def PreTac.processHypotheses (preTac : PreTac) (goal : Grind.Goal) : VCGenM Grind.Goal := do
+  if preTac.isGrind then
+    Grind.processHypotheses goal
+  else
+    return goal
+
+/--
+The main VC generation step. Operates on a plain `MVarId` with no knowledge of grind.
+Returns `.goals subgoals` when the goal was decomposed, or a classification result
+(`.noEntailment`, `.noProgramFoundInTarget`, etc.) when no further decomposition is possible.
+
+The function performs the following steps in order:
+
+1. **Forall introduction**: If the target is a `∀`, introduce binders via `Sym.intros`.
+2. **Triple unfolding**: If the target is `⦃P⦄ x ⦃Q⦄`, unfold into `P ⊢ₛ wp⟦x⟧ Q`.
+3. **PostCond.entails decomposition**: Split `PostCond.entails` into its components.
+4. **Lambda introduction**: If the RHS `T` in `H ⊢ₛ T` is a lambda, eta-expand via
+   `SPred.entails_cons_intro` (introduces an extra state variable).
+5. **Proj/beta reduction**: Reduce `Prod.fst`/`Prod.snd` projections and beta redexes in
+   both `H` and `T` (e.g., `(fun _ => T, Q.snd).fst s` → `T`).
+6. **Syntactic rfl**: If `T` is not a `PredTrans.apply`, try closing by `SPred.entails.refl`.
+7. **Let-zeta**: Zeta-reduce let-expressions in the program head.
+8. **Iota reduction**: Reduce matchers/recursors with concrete discriminants.
+9. **ite/dite/match splitting**: Apply the appropriate split backward rule.
+10. **Spec application**: Look up a registered `@[spec]` theorem (triple or simp) and apply
+    its cached backward rule.
 -/
 meta def solve (goal : MVarId) : VCGenM SolveResult := goal.withContext do
   let target ← goal.getType
@@ -681,7 +735,7 @@ meta def solve (goal : MVarId) : VCGenM SolveResult := goal.withContext do
   -- and `T` is of the form `wp⟦e⟧ Q s₁ ... sₙ`.
 
   if target.isForall then
-    let IntrosResult.goal _ goal ← Sym.intros goal | throwError "Failed to introduce binders for {target}"
+    let IntrosResult.goal _ goal ← introsSimp goal | throwError "Failed to introduce binders for {target}"
     return .goals [goal]
 
   let f := target.getAppFn
@@ -746,18 +800,24 @@ meta def solve (goal : MVarId) : VCGenM SolveResult := goal.withContext do
   let f := e.getAppFn
   withTraceNode `Elab.Tactic.Do.vcgen (msg := fun _ => return m!"Program: {e}") do
 
+  -- Replace the program in the goal with `e'` (which must be definitionally equal).
+  let replaceProgDefEq (e' : Expr) : VCGenM MVarId := do
+    let wp ← Sym.Internal.mkAppS₅ wpConst m ps instWP α e'
+    let T ← mkAppNS head (args.set! 2 wp)
+    let target ← mkAppS₃ ent σs H T
+    goal.replaceTargetDefEq target
+
   -- Zeta let-expressions
   if let .letE _x _ty val body _nonDep := f then
     let body' ← Sym.instantiateRevBetaS body #[val]
     let e' ← mkAppRevS body' e.getAppRevArgs
-    let wp ← Sym.Internal.mkAppS₅ wpConst m ps instWP α e'
-    let T ← mkAppNS head (args.set! 2 wp)
-    let target ← mkAppS₃ ent σs H T
-    let goal ← goal.replaceTargetDefEq target
-    return .goals [goal]
+    return .goals [← replaceProgDefEq e']
 
   -- Split ite/dite/match
   if let some info ← liftMetaM <| Lean.Elab.Tactic.Do.getSplitInfo? e then
+    -- Try iota reduction first (reduces matcher/recursor with concrete discriminant)
+    if let some e' ← liftMetaM <| reduceRecMatcher? e then
+      return .goals [← replaceProgDefEq (← shareCommonInc e')]
     let rule ← mkBackwardRuleFromSplitInfoCached info m σs ps instWP excessArgs
     let ApplyResult.goals goals ← rule.apply goal
       | throwError "Failed to apply split rule for {indentExpr e}"
@@ -778,31 +838,50 @@ meta def solve (goal : MVarId) : VCGenM SolveResult := goal.withContext do
   return .noStrategyForProgram e
 
 /--
+Runs the `preTac` on the VC:
+- `.grind`: tries to solve the VC using the accumulated `Grind.Goal` state via `Grind.Goal.grind`.
+- `.tactic`: runs the user-provided tactic on the VC, potentially emitting multiple subgoals.
+- `.none`: returns the VC as-is.
+-/
+meta def PreTac.run : PreTac →  Grind.Goal → VCGenM (List MVarId)
+  | .none, goal => return [goal.mvarId]
+  | .grind, goal => do
+    let savedMCtx ← getMCtx
+    match ← goal.grind with
+    | .closed => return []
+    | .failed .. =>
+      setMCtx savedMCtx
+      return [goal.mvarId]
+  | .tactic tac, goal =>
+    try
+      let (gs, _) ← Lean.Elab.runTactic goal.mvarId tac {} {}
+      pure gs
+    catch _ =>
+      pure [goal.mvarId]
+
+/--
 Called when decomposing the goal further did not succeed; in this case we emit a VC for the goal.
 -/
-meta def emitVC (goal : MVarId) : VCGenM Unit := do
-  let ty ← goal.getType
-  goal.setKind .syntheticOpaque
+meta def emitVC (goal : Grind.Goal) : VCGenM Unit := do
+  let ty ← goal.mvarId.getType
   if ty.isAppOf ``Std.Do.Invariant then
-    modify fun s => { s with invariants := s.invariants.push goal }
-  else
-    modify fun s => { s with vcs := s.vcs.push goal }
+    goal.mvarId.setKind .syntheticOpaque
+    modify fun s => { s with invariants := s.invariants.push goal.mvarId }
+    return
+  let goal ← (← read).preTac.processHypotheses goal
+  let goals ← (← read).preTac.run goal
+  for g in goals do g.setKind .syntheticOpaque
+  modify fun s => { s with vcs := s.vcs ++ goals.toArray }
 
-meta def work (goal : MVarId) : VCGenM Unit := do
-  -- Normalize universe levels (one-time, cold path) so that backward rule pattern matching
-  -- is structural. E.g., `max u v` and `max v u` get a canonical representation.
-  let goal ← do
-    let goal ← preprocessMVar goal
-    let target ← goal.getType
-    let target' ← normalizeLevelsExpr target
-    if isSameExpr target target' then pure goal
-    else liftMetaM <| goal.replaceTargetDefEq target'
+meta def work (goal : Grind.Goal) : VCGenM Unit := do
+  let mvarId ← preprocessMVar goal.mvarId
+  let goal := { goal with mvarId }
   let mut worklist := Std.Queue.empty.enqueue goal
-  -- while let some (goal, worklist') := worklist.dequeue? do
   repeat do
     let some (goal, worklist') := worklist.dequeue? | break
+    let mut goal := goal
     worklist := worklist'
-    let res ← solve goal
+    let res ← solve goal.mvarId
     match res with
     | .noEntailment .. | .noProgramFoundInTarget .. =>
       emitVC goal
@@ -813,7 +892,11 @@ meta def work (goal : MVarId) : VCGenM Unit := do
     | .noStrategyForProgram prog =>
       throwError "Did not know how to decompose weakest precondition for {prog}"
     | .goals subgoals =>
-      worklist := worklist.enqueueAll subgoals
+      -- In grind mode with multiple subgoals, preprocess pending hypotheses
+      -- to share E-graph context before forking.
+      if subgoals.length > 1 then
+        goal ← (← read).preTac.processHypotheses goal
+      worklist := worklist.enqueueAll (subgoals.map ({ goal with mvarId := · }))
 
 public structure Result where
   invariants : Array MVarId
@@ -823,9 +906,12 @@ public structure Result where
 Generate verification conditions for a goal of the form `P ⊢ₛ wp⟦e⟧ Q s₁ ... sₙ` by repeatedly
 decomposing `e` using registered `@[spec]` theorems.
 Return the VCs and invariant goals.
+When `grindMode` is true, integrates grind into the VCGen loop for incremental context
+internalization, avoiding O(n) re-internalization per VC.
 -/
-public meta partial def main (goal : MVarId) (ctx : Context) : SymM Result := do
-  let ((), state) ← StateRefT'.run (ReaderT.run (work goal) ctx) {}
+public meta partial def main (goal : MVarId) (ctx : Context) : Grind.GrindM Result := do
+  let grindGoal ← Grind.mkGoalCore goal
+  let ((), state) ← StateRefT'.run (ReaderT.run (work grindGoal) ctx) {}
   _ ← state.invariants.mapIdxM fun idx mv => do
     mv.setTag (Name.mkSimple ("inv" ++ toString (idx + 1)))
   _ ← state.vcs.mapIdxM fun idx mv => do
@@ -903,50 +989,84 @@ meta def mkSpecContext (lemmas : Syntax) (ignoreStarArg := false) : TacticM VCGe
 end VCGen
 
 syntax (name := mvcgen') "mvcgen'"
-  (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*,?) "] ")? : tactic
+  (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*,?) "] ")?
+  (&" simplifying_assumptions" (ppSpace colGt ident)? (" [" ident,* "]")?)?
+  (&" with " tactic)? : tactic
+
+/-- Parse grind configuration from the `with grind ...` clause and build `Grind.Params`.
+Overrides the internal simp step limit to accommodate large unrolled goals. -/
+private meta def elabGrindParams (grindStx : Syntax) (goal : MVarId) : TacticM Grind.Params := do
+  let `(tactic| grind $config:optConfig $[only%$only]? $[ [$grindParams:grindParam,*] ]? $[=> $_:grindSeq]?) := grindStx
+    | throwUnsupportedSyntax
+  let grindConfig ← elabGrindConfig config
+  let params ← mkGrindParams grindConfig only.isSome (grindParams.getD {}).getElems goal
+  -- FIXME: Expose grind's internal simp step limit as a user-facing option instead of hardcoding.
+  -- Grind's `simpCore` uses the default `Simp.Config.maxSteps` (100k) which is too low for large
+  -- unrolled goals (fails around n=400 for GetThrowSet).
+  return { params with norm := ← params.norm.setConfig { params.norm.config with maxSteps := 10000000 } }
+
+/--
+Build `Sym.Simp.Methods` from a variant name and extra theorems.
+Supports the anonymous (default) variant. Named variants require a public
+`elabSimpMethods` API in `Lean.Elab.Tactic.Grind.Sym` (see TODO below).
+-/
+private meta def elabSymSimpParts
+    (variantId? : Option (TSyntax `ident))
+    (extraIds? : Option (Array (TSyntax `ident)))
+    : TacticM Sym.Simp.Methods := do
+  let variantName := variantId?.map (·.getId) |>.getD .anonymous
+  if !variantName.isAnonymous then
+    -- TODO: `resolveExtraTheorems`, `elabVariant`, and `elabSymSimproc` in
+    -- `Lean.Elab.Tactic.Grind.Sym` are module-private (non-`public section`).
+    -- To support named variants here, we need a public API such as:
+    --   `public def elabSymSimp (syn : Syntax) : GrindTacticM (Sym.Simp.Methods × ...)`
+    -- exposed from that module, plus a lightweight `GrindTacticM` runner
+    -- (the simproc elaborators only use `CoreM`/`MetaM` capabilities).
+    throwError "named Sym.simp variants are not yet supported in `mvcgen'`; \
+      use `mvcgen' simplifying_assumptions [thm₁, thm₂, ...]` with the default variant instead"
+  -- Resolve extra theorems (local hypotheses first, then global constants)
+  let mut extraThms : Array Sym.Simp.Theorem := #[]
+  if let some ids := extraIds? then
+    let lctx ← getLCtx
+    for id in ids do
+      if let some decl := lctx.findFromUserName? id.getId then
+        extraThms := extraThms.push (← Sym.Simp.mkTheoremFromExpr decl.toExpr)
+      else
+        let declName ← realizeGlobalConstNoOverload id
+        extraThms := extraThms.push (← Sym.Simp.mkTheoremFromDecl declName)
+  -- Build default variant methods
+  let symThms ← Sym.Simp.getSymSimpTheorems
+  let pre := Sym.Simp.simpControl >> Sym.Simp.simpArrowTelescope
+  let mut post : Sym.Simp.Simproc := Sym.Simp.evalGround >> symThms.rewrite
+  if !extraThms.isEmpty then
+    let mut thms : Sym.Simp.Theorems := {}
+    for thm in extraThms do thms := thms.insert thm
+    post := post >> thms.rewrite
+  return { pre, post }
+
+private meta def elabSimplifyingAssumptions (simpClause : Syntax) : TacticM (Option Sym.Simp.Methods) := do
+  if simpClause.getNumArgs == 0 then return none
+  let variantId? := if simpClause[1].getNumArgs != 0 then some ⟨simpClause[1][0]⟩ else none
+  let extraIds? := if simpClause[2].getNumArgs != 0
+    then some (simpClause[2][1].getSepArgs.map (⟨·⟩)) else none
+  pure (some (← elabSymSimpParts variantId? extraIds?))
+
+private meta def elabPreTac (goal : MVarId) (withPreTac : Syntax) : TacticM (VCGen.PreTac × Grind.Params) := do
+  let mut params ← Grind.mkDefaultParams {}
+  if withPreTac.getNumArgs == 0 then return (.none, params)
+  let preTac := withPreTac[1]
+  if preTac.getKind == ``Lean.Parser.Tactic.grind then
+    params ← elabGrindParams preTac goal
+    return (.grind, params)
+  else
+    return (.tactic preTac, params)
 
 @[tactic mvcgen']
 public meta def elabMVCGen' : Tactic := fun stx => withMainContext do
-  let ctx ← VCGen.mkSpecContext stx[1]
   let goal ← getMainGoal
-  let { invariants, vcs } ← SymM.run <| VCGen.main goal ctx
-  replaceMainGoal (invariants ++ vcs).toList
-
-/-!
-Local tests for faster iteration:
--/
-
-/-
-def step (lim : Nat) : ExceptT String (StateM Nat) Unit := do
-  let s ← get
-  if s > lim then
-    throw "s is too large"
-  set (s + 1)
-
-def loop (n : Nat) : ExceptT String (StateM Nat) Unit := do
-  match n with
-  | 0 => pure ()
-  | n+1 => loop n; step n
-
-set_option maxRecDepth 10000
-set_option maxHeartbeats 10000000
-
--- set_option trace.Elab.Tactic.Do.vcgen true in
-set_option trace.profiler true in
-example : ⦃fun s => ⌜s = 0⌝⦄ loop 50 ⦃⇓_ s => ⌜s = 50⌝⦄ := by
-  simp only [loop, step]
-  mvcgen'
-  -- all_goals grind
-  all_goals sorry
-
-set_option trace.Elab.Tactic.Do.vcgen true in
-example :
-  ⦃⌜True⌝⦄
-  do
-    let s ← get (m := ExceptT String (StateM Nat))
-    if s > 20 then
-      throw "s is too large"
-    set (m := ExceptT String (StateM Nat)) (s + 1)
-  ⦃post⟨fun _r s => ⌜s ≤ 21⌝, fun _err s => ⌜s > 20⌝⟩⦄ := by
-  mvcgen' <;> grind
--/
+  let ctx ← VCGen.mkSpecContext stx[1]
+  let hypSimpMethods ← elabSimplifyingAssumptions stx[2]
+  let (preTac, params) ← elabPreTac goal stx[3]
+  let ctx := { ctx with preTac, hypSimpMethods }
+  let result ← Grind.GrindM.run (VCGen.main goal ctx) params
+  replaceMainGoal (result.invariants ++ result.vcs).toList

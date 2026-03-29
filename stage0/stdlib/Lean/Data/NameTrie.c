@@ -21,7 +21,7 @@ lean_object* l_Nat_reprFast(lean_object*);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
-lean_object* lean_panic_fn(lean_object*, lean_object*);
+lean_object* lean_panic_fn_borrowed(lean_object*, lean_object*);
 lean_object* l___private_Lean_Data_PrefixTree_0__Lean_PrefixTreeNode_findLongestPrefix_x3f_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* l_Lean_PrefixTreeNode_empty(lean_object*, lean_object*, lean_object*);
@@ -584,7 +584,7 @@ _start:
 {
 lean_object* v___x_138_; lean_object* v___x_139_; 
 v___x_138_ = lean_box(1);
-v___x_139_ = lean_panic_fn(v___x_138_, v_msg_137_);
+v___x_139_ = lean_panic_fn_borrowed(v___x_138_, v_msg_137_);
 return v___x_139_;
 }
 }

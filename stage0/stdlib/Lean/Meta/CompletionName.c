@@ -214,14 +214,10 @@ if (v___x_49_ == 0)
 lean_object* v___x_50_; lean_object* v_toEnvExtension_51_; lean_object* v_asyncMode_52_; uint8_t v___x_53_; 
 v___x_50_ = l_Lean_Meta_completionBlackListExt;
 v_toEnvExtension_51_ = lean_ctor_get(v___x_50_, 0);
-lean_inc_ref(v_toEnvExtension_51_);
 v_asyncMode_52_ = lean_ctor_get(v_toEnvExtension_51_, 2);
-lean_inc(v_asyncMode_52_);
-lean_dec_ref(v_toEnvExtension_51_);
 lean_inc(v_declName_45_);
 lean_inc_ref(v_env_44_);
 v___x_53_ = l_Lean_TagDeclarationExtension_isTagged(v___x_50_, v_env_44_, v_declName_45_, v_asyncMode_52_);
-lean_dec(v_asyncMode_52_);
 if (v___x_53_ == 0)
 {
 uint8_t v___x_54_; 

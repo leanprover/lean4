@@ -445,27 +445,33 @@ unsafe def MethodsRef.toMethodsImpl (m : MethodsRef) : Methods :=
 @[implemented_by MethodsRef.toMethodsImpl]
 opaque MethodsRef.toMethods (m : MethodsRef) : Methods
 
+@[inline]
 def getMethods : SimpM Methods :=
   return MethodsRef.toMethods (← read)
 
+@[inline]
 def pre (e : Expr) : SimpM Step := do
   (← getMethods).pre e
 
+@[inline]
 def post (e : Expr) : SimpM Step := do
   (← getMethods).post e
 
 @[inline] def getContext : SimpM Context :=
   readThe Context
 
+@[inline]
 def getConfig : SimpM Config :=
   return (← getContext).config
 
 @[inline] def withParent (parent : Expr) (f : SimpM α) : SimpM α :=
   withTheReader Context (fun ctx => { ctx with parent? := parent }) f
 
+@[inline]
 def getSimpTheorems : SimpM SimpTheoremsArray :=
   return (← readThe Context).simpTheorems
 
+@[inline]
 def getSimpCongrTheorems : SimpM SimpCongrTheorems :=
   return (← readThe Context).congrTheorems
 
@@ -473,6 +479,7 @@ def getSimpCongrTheorems : SimpM SimpCongrTheorems :=
 Returns `true` if `simp` is in `dsimp` mode.
 That is, only transformations that preserve definitional equality should be applied.
 -/
+@[inline]
 def inDSimp : SimpM Bool :=
   return (← readThe Context).inDSimp
 

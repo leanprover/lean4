@@ -541,10 +541,9 @@ lean_object* v_pre_111_; lean_object* v_str_112_; lean_object* v_env_113_; lean_
 v_pre_111_ = lean_ctor_get(v_c_104_, 0);
 v_str_112_ = lean_ctor_get(v_c_104_, 1);
 v_env_113_ = lean_ctor_get(v___x_110_, 0);
-lean_inc_ref(v_env_113_);
+lean_inc_ref_n(v_env_113_, 2);
 lean_dec(v___x_110_);
 lean_inc(v_pre_111_);
-lean_inc_ref(v_env_113_);
 v___x_114_ = l_Lean_getStructureInfo_x3f(v_env_113_, v_pre_111_);
 if (lean_obj_tag(v___x_114_) == 1)
 {
@@ -568,10 +567,9 @@ goto v_resetjp_116_;
 v_resetjp_116_:
 {
 uint8_t v___x_119_; lean_object* v___x_120_; 
-lean_inc(v_pre_111_);
+lean_inc_n(v_pre_111_, 2);
 lean_inc_ref(v_env_113_);
 v___x_119_ = lean_is_class(v_env_113_, v_pre_111_);
-lean_inc(v_pre_111_);
 v___x_120_ = l_Lean_getConstInfoInduct___at___00__private_Lean_PrettyPrinter_Delaborator_FieldNotation_0__Lean_PrettyPrinter_Delaborator_projInfo_spec__0(v_pre_111_, v_a_105_, v_a_106_, v_a_107_, v_a_108_);
 if (lean_obj_tag(v___x_120_) == 0)
 {
@@ -1200,6 +1198,7 @@ lean_ctor_set(v___x_315_, 1, v_openDecls_302_);
 v___x_316_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_316_, 0, v___x_315_);
 lean_ctor_set(v___x_316_, 1, v___y_296_);
+lean_inc_ref(v___y_293_);
 lean_inc_ref(v___y_294_);
 v___x_317_ = lean_alloc_ctor(0, 5, 3);
 lean_ctor_set(v___x_317_, 0, v___y_294_);
@@ -1268,10 +1267,9 @@ goto v_resetjp_338_;
 v_resetjp_338_:
 {
 lean_object* v___x_341_; lean_object* v___x_342_; lean_object* v___x_343_; lean_object* v___x_344_; 
-lean_inc_ref(v___y_329_);
+lean_inc_ref_n(v___y_329_, 2);
 v___x_341_ = l_Lean_FileMap_toPosition(v___y_329_, v___y_332_);
 lean_dec(v___y_332_);
-lean_inc_ref(v___y_329_);
 v___x_342_ = l_Lean_FileMap_toPosition(v___y_329_, v___y_334_);
 lean_dec(v___y_334_);
 v___x_343_ = lean_alloc_ctor(1, 1, 0);
@@ -2028,9 +2026,8 @@ if (lean_obj_tag(v___x_580_) == 1)
 {
 lean_object* v_val_581_; lean_object* v___x_582_; 
 v_val_581_ = lean_ctor_get(v___x_580_, 0);
-lean_inc(v_val_581_);
+lean_inc_n(v_val_581_, 2);
 lean_dec_ref(v___x_580_);
-lean_inc(v_val_581_);
 v___x_582_ = l_Lean_isInaccessiblePrivateName___at___00__private_Lean_PrettyPrinter_Delaborator_FieldNotation_0__Lean_PrettyPrinter_Delaborator_isAppOfBaseName_spec__0(v_val_581_, v_a_573_, v_a_574_, v_a_575_, v_a_576_);
 if (lean_obj_tag(v___x_582_) == 0)
 {
@@ -2346,9 +2343,8 @@ if (lean_obj_tag(v___x_688_) == 0)
 {
 lean_object* v_a_689_; lean_object* v___x_690_; 
 v_a_689_ = lean_ctor_get(v___x_688_, 0);
-lean_inc(v_a_689_);
+lean_inc_n(v_a_689_, 2);
 lean_dec_ref(v___x_688_);
-lean_inc(v_a_689_);
 v___x_690_ = l___private_Lean_PrettyPrinter_Delaborator_FieldNotation_0__Lean_PrettyPrinter_Delaborator_isAppOfBaseName(v_a_689_, v_baseName_632_, v___x_680_, v_a_634_, v_a_635_, v_a_636_);
 if (lean_obj_tag(v___x_690_) == 0)
 {
@@ -5027,9 +5023,8 @@ if (lean_obj_tag(v___x_1648_) == 4)
 {
 lean_object* v_declName_1649_; lean_object* v___x_1662_; 
 v_declName_1649_ = lean_ctor_get(v___x_1648_, 0);
-lean_inc(v_declName_1649_);
+lean_inc_n(v_declName_1649_, 2);
 lean_dec_ref(v___x_1648_);
-lean_inc(v_declName_1649_);
 v___x_1662_ = l_Lean_isInaccessiblePrivateName___at___00__private_Lean_PrettyPrinter_Delaborator_FieldNotation_0__Lean_PrettyPrinter_Delaborator_isAppOfBaseName_spec__0(v_declName_1649_, v_a_1631_, v_a_1632_, v_a_1633_, v_a_1634_);
 if (lean_obj_tag(v___x_1662_) == 0)
 {

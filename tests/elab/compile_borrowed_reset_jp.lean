@@ -27,8 +27,8 @@ trace: [Compiler.explicitRc] size: 17
 [Compiler.explicitRc] size: 4
     def testWithAnnotation._boxed n p q : obj :=
       let res := testWithAnnotation n p q;
-      dec q;
-      dec p;
+      dec[ref] q;
+      dec[ref] p;
       dec n;
       return res
 -/
@@ -55,11 +55,11 @@ trace: [Compiler.explicitRc] size: 20
       let isZero := Nat.decEq n zero;
       cases isZero : obj
       | Bool.true =>
-        dec q;
+        dec[ref] q;
         let _x.6 := 123;
         goto _jp.1 _x.6 p
       | Bool.false =>
-        dec p;
+        dec[ref] p;
         let one := 1;
         let n.7 := Nat.sub n one;
         let _x.8 := Nat.add n.7 one;
@@ -86,7 +86,6 @@ def testWithoutAnnotation (n : Nat) (p q : Prod Nat Nat) : Prod Nat Nat :=
 trace: [Compiler.inferBorrow] own _x.28: result of ctor call _x.28
 [Compiler.inferBorrow] own _x.30: result of ctor call _x.30
 [Compiler.inferBorrow] own n: argument to constructor call _x.30
-[Compiler.inferBorrow] own _x.29: result of function call _x.29
 [Compiler.inferBorrow] size: 2
     def testArrayWithAnnotation._closed_0 : obj :=
       let _x.1 := 0;
@@ -112,7 +111,6 @@ trace: [Compiler.inferBorrow] own _x.28: used in reset reuse _x.28
 [Compiler.inferBorrow] own n: argument to constructor call _x.28
 [Compiler.inferBorrow] own pair: used in reset reuse _x.29
 [Compiler.inferBorrow] own snd: fwd projection propagation snd
-[Compiler.inferBorrow] own _x.27: result of function call _x.27
 [Compiler.inferBorrow] size: 5
     def testArrayWithoutAnnotation n @&ps : obj :=
       let _x.1 := testArrayWithAnnotation._closed_0;
@@ -164,3 +162,48 @@ set_option trace.Compiler.inferBorrow true in
 def testArrayWithAnnotation'' (n : USize) (ps : @&Array (Nat × Nat)) : Nat × Nat :=
   let pair := ps[n]'sorry
   { pair with fst := n.toNat }
+
+
+def arrayConst : Array Nat := #[1,2,3,4]
+
+/--
+trace: [Compiler.inferBorrow] own y: result of function call y
+[Compiler.inferBorrow] own y: result of function call y
+[Compiler.inferBorrow] own y: result of function call y
+[Compiler.inferBorrow] own y: result of function call y
+[Compiler.inferBorrow] own y: result of function call y
+[Compiler.inferBorrow] own isZero: result of function call isZero
+[Compiler.inferBorrow] size: 15
+    def arrayConstReader @&x @&y @&ys : tobj :=
+      let _x.1 := 0;
+      jp _jp.2 @&_y.3 : tobj :=
+        let _x.4 := 1;
+        let y := Nat.add y _x.4;
+        let y := Nat.add y _x.4;
+        let y := Nat.add y _x.4;
+        let y := Nat.add y _x.4;
+        let y := Nat.add y _x.4;
+        let _x.5 := Array.get!Internal ◾ _x.1 _y.3 y;
+        return _x.5;
+      let isZero := Nat.decEq x _x.1;
+      cases isZero : tobj
+      | Bool.true =>
+        let _x.6 := arrayConst;
+        goto _jp.2 _x.6
+      | Bool.false =>
+        goto _jp.2 ys
+-/
+#guard_msgs in
+set_option trace.Compiler.inferBorrow true in
+def arrayConstReader (x y : Nat) (ys : @Array Nat) : Nat :=
+  let arr :=
+    match x with
+    | 0 => arrayConst
+    | _ + 1 => ys
+  let y := y + 1
+  let y := y + 1
+  let y := y + 1
+  let y := y + 1
+  let y := y + 1
+  arr[y]!
+

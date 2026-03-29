@@ -9,7 +9,7 @@ prelude
 public import Lean.Elab.App
 public import Lean.Elab.DeclNameGen
 import Lean.Compiler.NoncomputableAttr
-import Lean.Meta.InstanceNormalForm
+import Lean.Meta.WrapInstance
 
 public section
 
@@ -211,10 +211,10 @@ def processDefDeriving (view : DerivingClassView) (decl : Expr) (isNoncomputable
           -- We don't reduce because of abbreviations such as `DecidableEq`
           forallTelescope classExpr fun _ classExpr => do
             let result ← mkInst classExpr declName decl value
-            -- Save the pre-normalization value for the noncomputable check below,
-            -- since `normalizeInstance` may inline noncomputable constants.
+            -- Save the pre-wrapping value for the noncomputable check below,
+            -- since `wrapInstance` may inline noncomputable constants.
             let preNormClosure ← Closure.mkValueTypeClosure result.instType result.instVal (zetaDelta := true)
-            -- Compute instance name early so `normalizeInstance` can use it for aux def naming.
+            -- Compute instance name early so `wrapInstance` can use it for aux def naming.
             let env ← getEnv
             let mut instName := (← getCurrNamespace) ++ (← NameGen.mkBaseNameWithSuffix "inst" preNormClosure.type)
             instName ← liftMacroM <| mkUnusedBaseName instName
@@ -223,7 +223,7 @@ def processDefDeriving (view : DerivingClassView) (decl : Expr) (isNoncomputable
             let isMeta := (← read).declName?.any (isMarkedMeta (← getEnv))
             let inst ← if backward.inferInstanceAs.wrap.get (← getOptions) then
               withDeclNameForAuxNaming instName <| withNewMCtxDepth <|
-                normalizeInstance result.instVal result.instType
+                wrapInstance result.instVal result.instType
                   (logCompileErrors := false)  -- covered by noncomputable check below
                   (isMeta := isMeta)
             else

@@ -80,14 +80,26 @@ LAKE_CACHE_REVISION_ENDPOINT=bogus test_err 'both environment variables must be 
 
 # Test `cache put` command errors for bad configurations
 with_upload_endpoints test_err 'the `--scope` or `--repo` option must be set' cache put bogus.jsonl
-test_err 'the `--service` option must be set for `cache put`' \
+test_err 'the `--service` option must be set' \
   cache put bogus.jsonl --scope='bogus'
-LAKE_CACHE_KEY= test_err 'the `--service` option must be set for `cache put`' \
-  cache put bogus.jsonl --scope='bogus'
-LAKE_CACHE_REVISION_ENDPOINT=bogus test_err 'these environment variables must be set' \
+LAKE_CACHE_KEY= test_err 'the `--service` option must be set' \
   cache put bogus.jsonl --scope='bogus'
 LAKE_CACHE_REVISION_ENDPOINT=bogus test_err 'these environment variables must be set' \
   cache put bogus.jsonl --scope='bogus'
+LAKE_CACHE_REVISION_ENDPOINT=bogus test_err 'these environment variables must be set' \
+  cache put bogus.jsonl --scope='bogus'
+
+# Test `cache put-staged` command errors for bad configurations
+with_upload_endpoints test_err 'the `--scope` or `--repo` option must be set' \
+  cache put-staged bogus
+test_err 'the `--service` option must be set' \
+  cache put-staged bogus --scope='bogus'
+LAKE_CACHE_KEY= test_err 'the `--service` option must be set' \
+  cache put-staged bogus --scope='bogus'
+LAKE_CACHE_REVISION_ENDPOINT=bogus test_err 'these environment variables must be set' \
+  cache put-staged bogus --scope='bogus'
+LAKE_CACHE_REVISION_ENDPOINT=bogus test_err 'these environment variables must be set' \
+  cache put-staged bogus --scope='bogus'
 
 # Test `cache add` command errors for bad configurations
 test_err '`--scope` and `--repo` require `--service`' \
@@ -120,6 +132,12 @@ LAKE_CONFIG=services.toml test_err "failed to upload artifact" \
 
 # Test cache put with a custom endpoint
 with_upload_endpoints test_run cache put .lake/outputs.jsonl --scope='!/test'
+
+# Test cache put-staged with a custom endpoint
+test_run cache stage .lake/outputs.jsonl .lake/staging
+with_upload_endpoints test_run cache put-staged .lake/staging --scope='!/test'
+
+# Remove local artifacts
 test_cmd rm -rf .lake/build "$LAKE_CACHE_DIR"
 
 # Test download failure with a bogus scope

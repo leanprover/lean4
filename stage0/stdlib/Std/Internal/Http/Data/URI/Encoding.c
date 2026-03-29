@@ -46,7 +46,7 @@ lean_object* l_Id_instMonad___lam__0(lean_object*, lean_object*, lean_object*, l
 size_t lean_usize_of_nat(lean_object*);
 lean_object* l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_panic_fn(lean_object*, lean_object*);
+lean_object* lean_panic_fn_borrowed(lean_object*, lean_object*);
 lean_object* l_ByteArray_instDecidableEq___boxed(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
@@ -1509,7 +1509,7 @@ _start:
 {
 lean_object* v___x_404_; lean_object* v___x_405_; 
 v___x_404_ = l_ByteArray_empty;
-v___x_405_ = lean_panic_fn(v___x_404_, v_msg_403_);
+v___x_405_ = lean_panic_fn_borrowed(v___x_404_, v_msg_403_);
 return v___x_405_;
 }
 }
@@ -2094,7 +2094,7 @@ _start:
 {
 lean_object* v___x_596_; lean_object* v___x_597_; 
 v___x_596_ = l_ByteArray_empty;
-v___x_597_ = lean_panic_fn(v___x_596_, v_msg_595_);
+v___x_597_ = lean_panic_fn_borrowed(v___x_596_, v_msg_595_);
 return v___x_597_;
 }
 }

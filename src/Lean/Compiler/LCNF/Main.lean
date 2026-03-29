@@ -97,9 +97,9 @@ builtin_initialize postponedCompileDeclsExt : SimplePersistentEnvExtension Postp
     asyncMode     := .sync
     replay?       := some <| SimplePersistentEnvExtension.replayOfFilter
       (fun s e => !e.declNames.any s.contains) (fun s e => e.declNames.foldl (·.insert · e) s)
-    exportEntriesFnEx? := some fun _ _ es lvl =>
+    exportEntriesFnEx? := some fun _ _ es =>
       -- `leanir` imports the target module privately
-      if lvl == .private then es.toArray else #[]
+      { exported := #[], server := #[], «private» := es.toArray }
   }
 
 def resumeCompilation (declName : Name) (baseOpts : Options) : CoreM Unit := do

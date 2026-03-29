@@ -760,10 +760,10 @@ static const lean_object* l_Lean_Firefox_instToJsonFrameTable___closed__0 = (con
 LEAN_EXPORT const lean_object* l_Lean_Firefox_instToJsonFrameTable = (const lean_object*)&l_Lean_Firefox_instToJsonFrameTable___closed__0_value;
 static const lean_array_object l_Lean_Firefox_instInhabitedFrameTable_default___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
 static const lean_object* l_Lean_Firefox_instInhabitedFrameTable_default___closed__0 = (const lean_object*)&l_Lean_Firefox_instInhabitedFrameTable_default___closed__0_value;
-static lean_once_cell_t l_Lean_Firefox_instInhabitedFrameTable_default___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_Firefox_instInhabitedFrameTable_default___closed__1;
-LEAN_EXPORT lean_object* l_Lean_Firefox_instInhabitedFrameTable_default;
-LEAN_EXPORT lean_object* l_Lean_Firefox_instInhabitedFrameTable;
+static const lean_ctor_object l_Lean_Firefox_instInhabitedFrameTable_default___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*11 + 0, .m_other = 11, .m_tag = 0}, .m_objs = {((lean_object*)&l_Lean_Firefox_instInhabitedFrameTable_default___closed__0_value),((lean_object*)&l_Lean_Firefox_instInhabitedFrameTable_default___closed__0_value),((lean_object*)&l_Lean_Firefox_instInhabitedFrameTable_default___closed__0_value),((lean_object*)&l_Lean_Firefox_instInhabitedFrameTable_default___closed__0_value),((lean_object*)&l_Lean_Firefox_instInhabitedFrameTable_default___closed__0_value),((lean_object*)&l_Lean_Firefox_instInhabitedFrameTable_default___closed__0_value),((lean_object*)&l_Lean_Firefox_instInhabitedFrameTable_default___closed__0_value),((lean_object*)&l_Lean_Firefox_instInhabitedFrameTable_default___closed__0_value),((lean_object*)&l_Lean_Firefox_instInhabitedFrameTable_default___closed__0_value),((lean_object*)&l_Lean_Firefox_instInhabitedFrameTable_default___closed__0_value),((lean_object*)(((size_t)(0) << 1) | 1))}};
+static const lean_object* l_Lean_Firefox_instInhabitedFrameTable_default___closed__1 = (const lean_object*)&l_Lean_Firefox_instInhabitedFrameTable_default___closed__1_value;
+LEAN_EXPORT const lean_object* l_Lean_Firefox_instInhabitedFrameTable_default = (const lean_object*)&l_Lean_Firefox_instInhabitedFrameTable_default___closed__1_value;
+LEAN_EXPORT const lean_object* l_Lean_Firefox_instInhabitedFrameTable = (const lean_object*)&l_Lean_Firefox_instInhabitedFrameTable_default___closed__1_value;
 LEAN_EXPORT lean_object* l_Lean_Firefox_FrameTable_push(lean_object*, lean_object*);
 static const lean_string_object l_Lean_Firefox_instFromJsonRawMarkerTable_fromJson___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 5, .m_capacity = 5, .m_length = 4, .m_data = "data"};
 static const lean_object* l_Lean_Firefox_instFromJsonRawMarkerTable_fromJson___closed__0 = (const lean_object*)&l_Lean_Firefox_instFromJsonRawMarkerTable_fromJson___closed__0_value;
@@ -1173,16 +1173,16 @@ static const lean_string_object l_Lean_Firefox_Thread_new___closed__0_value = {.
 static const lean_object* l_Lean_Firefox_Thread_new___closed__0 = (const lean_object*)&l_Lean_Firefox_Thread_new___closed__0_value;
 static const lean_array_object l_Lean_Firefox_Thread_new___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
 static const lean_object* l_Lean_Firefox_Thread_new___closed__1 = (const lean_object*)&l_Lean_Firefox_Thread_new___closed__1_value;
-static lean_once_cell_t l_Lean_Firefox_Thread_new___closed__2_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_Firefox_Thread_new___closed__2;
-static lean_once_cell_t l_Lean_Firefox_Thread_new___closed__3_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_Firefox_Thread_new___closed__3;
-static lean_once_cell_t l_Lean_Firefox_Thread_new___closed__4_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_Firefox_Thread_new___closed__4;
+static const lean_ctor_object l_Lean_Firefox_Thread_new___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*6 + 0, .m_other = 6, .m_tag = 0}, .m_objs = {((lean_object*)&l_Lean_Firefox_Thread_new___closed__1_value),((lean_object*)&l_Lean_Firefox_Thread_new___closed__1_value),((lean_object*)&l_Lean_Firefox_Thread_new___closed__1_value),((lean_object*)&l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Lean_Util_Profiler_0__Lean_Firefox_addTrace_go_spec__0___closed__0_value),((lean_object*)&l_Lean_Firefox_Thread_new___closed__1_value),((lean_object*)(((size_t)(0) << 1) | 1))}};
+static const lean_object* l_Lean_Firefox_Thread_new___closed__2 = (const lean_object*)&l_Lean_Firefox_Thread_new___closed__2_value;
+static const lean_ctor_object l_Lean_Firefox_Thread_new___closed__3_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*3 + 0, .m_other = 3, .m_tag = 0}, .m_objs = {((lean_object*)&l_Lean_Firefox_Thread_new___closed__1_value),((lean_object*)&l_Lean_Firefox_Thread_new___closed__1_value),((lean_object*)(((size_t)(0) << 1) | 1))}};
+static const lean_object* l_Lean_Firefox_Thread_new___closed__3 = (const lean_object*)&l_Lean_Firefox_Thread_new___closed__3_value;
+static const lean_ctor_object l_Lean_Firefox_Thread_new___closed__4_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*5 + 0, .m_other = 5, .m_tag = 0}, .m_objs = {((lean_object*)&l_Lean_Firefox_Thread_new___closed__1_value),((lean_object*)&l_Lean_Firefox_Thread_new___closed__1_value),((lean_object*)&l_Lean_Firefox_Thread_new___closed__1_value),((lean_object*)&l_Lean_Firefox_Thread_new___closed__1_value),((lean_object*)(((size_t)(0) << 1) | 1))}};
+static const lean_object* l_Lean_Firefox_Thread_new___closed__4 = (const lean_object*)&l_Lean_Firefox_Thread_new___closed__4_value;
 static const lean_ctor_object l_Lean_Firefox_Thread_new___closed__5_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 0, .m_other = 2, .m_tag = 0}, .m_objs = {((lean_object*)&l_Lean_Firefox_Thread_new___closed__1_value),((lean_object*)(((size_t)(0) << 1) | 1))}};
 static const lean_object* l_Lean_Firefox_Thread_new___closed__5 = (const lean_object*)&l_Lean_Firefox_Thread_new___closed__5_value;
-static lean_once_cell_t l_Lean_Firefox_Thread_new___closed__6_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_Firefox_Thread_new___closed__6;
+static const lean_ctor_object l_Lean_Firefox_Thread_new___closed__6_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*8 + 0, .m_other = 8, .m_tag = 0}, .m_objs = {((lean_object*)&l_Lean_Firefox_Thread_new___closed__1_value),((lean_object*)&l_Lean_Firefox_Thread_new___closed__1_value),((lean_object*)&l_Lean_Firefox_Thread_new___closed__1_value),((lean_object*)&l_Lean_Firefox_Thread_new___closed__1_value),((lean_object*)&l_Lean_Firefox_Thread_new___closed__1_value),((lean_object*)&l_Lean_Firefox_Thread_new___closed__1_value),((lean_object*)&l_Lean_Firefox_Thread_new___closed__1_value),((lean_object*)(((size_t)(0) << 1) | 1))}};
+static const lean_object* l_Lean_Firefox_Thread_new___closed__6 = (const lean_object*)&l_Lean_Firefox_Thread_new___closed__6_value;
 LEAN_EXPORT lean_object* l_Lean_Firefox_Thread_new(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Option_get___at___00Lean_Firefox_Profile_export_spec__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Option_get___at___00Lean_Firefox_Profile_export_spec__2___boxed(lean_object*, lean_object*);
@@ -1267,8 +1267,8 @@ static const lean_string_object l_Lean_Firefox_Profile_export___closed__3_value 
 static const lean_object* l_Lean_Firefox_Profile_export___closed__3 = (const lean_object*)&l_Lean_Firefox_Profile_export___closed__3_value;
 static const lean_string_object l_Lean_Firefox_Profile_export___closed__4_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 4, .m_capacity = 4, .m_length = 2, .m_data = "µs"};
 static const lean_object* l_Lean_Firefox_Profile_export___closed__4 = (const lean_object*)&l_Lean_Firefox_Profile_export___closed__4_value;
-static lean_once_cell_t l_Lean_Firefox_Profile_export___closed__5_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_Firefox_Profile_export___closed__5;
+static const lean_ctor_object l_Lean_Firefox_Profile_export___closed__5_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*3 + 0, .m_other = 3, .m_tag = 0}, .m_objs = {((lean_object*)&l_Lean_Firefox_Profile_export___closed__3_value),((lean_object*)&l_Lean_Firefox_Profile_export___closed__3_value),((lean_object*)&l_Lean_Firefox_Profile_export___closed__4_value)}};
+static const lean_object* l_Lean_Firefox_Profile_export___closed__5 = (const lean_object*)&l_Lean_Firefox_Profile_export___closed__5_value;
 LEAN_EXPORT lean_object* l_Lean_Firefox_Profile_export(lean_object*, double, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Firefox_Profile_export___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_groupByKey___at___00Lean_Firefox_Profile_export_spec__0(lean_object*, lean_object*, lean_object*);
@@ -10685,43 +10685,6 @@ v___x_2669_ = l_Lean_Json_mkObj(v___x_2668_);
 return v___x_2669_;
 }
 }
-static lean_object* _init_l_Lean_Firefox_instInhabitedFrameTable_default___closed__1(void){
-_start:
-{
-lean_object* v___x_2674_; lean_object* v___x_2675_; lean_object* v___x_2676_; 
-v___x_2674_ = lean_unsigned_to_nat(0u);
-v___x_2675_ = ((lean_object*)(l_Lean_Firefox_instInhabitedFrameTable_default___closed__0));
-v___x_2676_ = lean_alloc_ctor(0, 11, 0);
-lean_ctor_set(v___x_2676_, 0, v___x_2675_);
-lean_ctor_set(v___x_2676_, 1, v___x_2675_);
-lean_ctor_set(v___x_2676_, 2, v___x_2675_);
-lean_ctor_set(v___x_2676_, 3, v___x_2675_);
-lean_ctor_set(v___x_2676_, 4, v___x_2675_);
-lean_ctor_set(v___x_2676_, 5, v___x_2675_);
-lean_ctor_set(v___x_2676_, 6, v___x_2675_);
-lean_ctor_set(v___x_2676_, 7, v___x_2675_);
-lean_ctor_set(v___x_2676_, 8, v___x_2675_);
-lean_ctor_set(v___x_2676_, 9, v___x_2675_);
-lean_ctor_set(v___x_2676_, 10, v___x_2674_);
-return v___x_2676_;
-}
-}
-static lean_object* _init_l_Lean_Firefox_instInhabitedFrameTable_default(void){
-_start:
-{
-lean_object* v___x_2677_; 
-v___x_2677_ = lean_obj_once(&l_Lean_Firefox_instInhabitedFrameTable_default___closed__1, &l_Lean_Firefox_instInhabitedFrameTable_default___closed__1_once, _init_l_Lean_Firefox_instInhabitedFrameTable_default___closed__1);
-return v___x_2677_;
-}
-}
-static lean_object* _init_l_Lean_Firefox_instInhabitedFrameTable(void){
-_start:
-{
-lean_object* v___x_2678_; 
-v___x_2678_ = l_Lean_Firefox_instInhabitedFrameTable_default;
-return v___x_2678_;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Firefox_FrameTable_push(lean_object* v_t_2679_, lean_object* v_e_2680_){
 _start:
 {
@@ -14432,12 +14395,12 @@ uint8_t v___x_3776_;
 v___x_3776_ = lean_usize_dec_lt(v_i_3774_, v_sz_3773_);
 if (v___x_3776_ == 0)
 {
+lean_inc_ref(v_b_3775_);
 return v_b_3775_;
 }
 else
 {
 lean_object* v___x_3777_; lean_object* v_a_3778_; lean_object* v___x_3779_; 
-lean_dec_ref(v_b_3775_);
 v___x_3777_ = lean_box(0);
 v_a_3778_ = lean_array_uget_borrowed(v_as_3772_, v_i_3774_);
 v___x_3779_ = l___private_Lean_Util_Profiler_0__Lean_Firefox_getFirstStart_x3f(v_a_3778_);
@@ -14474,6 +14437,7 @@ lean_dec(v_sz_3787_);
 v_i_boxed_3791_ = lean_unbox_usize(v_i_3788_);
 lean_dec(v_i_3788_);
 v_res_3792_ = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Lean_Util_Profiler_0__Lean_Firefox_getFirstStart_x3f_spec__0(v_as_3786_, v_sz_boxed_3790_, v_i_boxed_3791_, v_b_3789_);
+lean_dec_ref(v_b_3789_);
 lean_dec_ref(v_as_3786_);
 return v_res_3792_;
 }
@@ -17280,9 +17244,8 @@ v_resetjp_4703_:
 {
 lean_object* v___x_4706_; lean_object* v___x_4707_; lean_object* v___x_4708_; double v___x_4709_; double v___x_4710_; lean_object* v___x_4711_; lean_object* v___x_4712_; double v___x_4713_; double v___x_4714_; lean_object* v___x_4715_; lean_object* v___x_4716_; lean_object* v___x_4717_; double v___x_4718_; lean_object* v___x_4719_; lean_object* v___x_4720_; double v___x_4721_; double v___x_4722_; double v___x_4723_; lean_object* v___x_4724_; lean_object* v___x_4725_; lean_object* v___x_4726_; lean_object* v___x_4727_; lean_object* v___x_4728_; double v___x_4729_; double v___x_4730_; lean_object* v___x_4731_; lean_object* v___x_4732_; lean_object* v___x_4733_; lean_object* v___x_4734_; lean_object* v___x_4736_; 
 v___x_4706_ = lean_unsigned_to_nat(0u);
-lean_inc(v_fst_4651_);
+lean_inc_n(v_fst_4651_, 2);
 v___x_4707_ = lean_array_push(v_stack_4698_, v_fst_4651_);
-lean_inc(v_fst_4651_);
 v___x_4708_ = lean_array_push(v___x_4707_, v_fst_4651_);
 v___x_4709_ = lean_float_once(&l_Lean_Firefox_instCoeFloatMilliseconds___lam__0___closed__0, &l_Lean_Firefox_instCoeFloatMilliseconds___lam__0___closed__0_once, _init_l_Lean_Firefox_instCoeFloatMilliseconds___lam__0___closed__0);
 v___x_4710_ = lean_float_mul(v_lastTime_4681_, v___x_4709_);
@@ -17867,69 +17830,6 @@ v_res_4947_ = l___private_Lean_Util_Profiler_0__Lean_Firefox_addTrace(v_pp_boxed
 return v_res_4947_;
 }
 }
-static lean_object* _init_l_Lean_Firefox_Thread_new___closed__2(void){
-_start:
-{
-lean_object* v___x_4951_; lean_object* v___x_4952_; lean_object* v___x_4953_; lean_object* v___x_4954_; 
-v___x_4951_ = lean_unsigned_to_nat(0u);
-v___x_4952_ = ((lean_object*)(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Lean_Util_Profiler_0__Lean_Firefox_addTrace_go_spec__0___closed__0));
-v___x_4953_ = ((lean_object*)(l_Lean_Firefox_Thread_new___closed__1));
-v___x_4954_ = lean_alloc_ctor(0, 6, 0);
-lean_ctor_set(v___x_4954_, 0, v___x_4953_);
-lean_ctor_set(v___x_4954_, 1, v___x_4953_);
-lean_ctor_set(v___x_4954_, 2, v___x_4953_);
-lean_ctor_set(v___x_4954_, 3, v___x_4952_);
-lean_ctor_set(v___x_4954_, 4, v___x_4953_);
-lean_ctor_set(v___x_4954_, 5, v___x_4951_);
-return v___x_4954_;
-}
-}
-static lean_object* _init_l_Lean_Firefox_Thread_new___closed__3(void){
-_start:
-{
-lean_object* v___x_4955_; lean_object* v___x_4956_; lean_object* v___x_4957_; 
-v___x_4955_ = lean_unsigned_to_nat(0u);
-v___x_4956_ = ((lean_object*)(l_Lean_Firefox_Thread_new___closed__1));
-v___x_4957_ = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(v___x_4957_, 0, v___x_4956_);
-lean_ctor_set(v___x_4957_, 1, v___x_4956_);
-lean_ctor_set(v___x_4957_, 2, v___x_4955_);
-return v___x_4957_;
-}
-}
-static lean_object* _init_l_Lean_Firefox_Thread_new___closed__4(void){
-_start:
-{
-lean_object* v___x_4958_; lean_object* v___x_4959_; lean_object* v___x_4960_; 
-v___x_4958_ = lean_unsigned_to_nat(0u);
-v___x_4959_ = ((lean_object*)(l_Lean_Firefox_Thread_new___closed__1));
-v___x_4960_ = lean_alloc_ctor(0, 5, 0);
-lean_ctor_set(v___x_4960_, 0, v___x_4959_);
-lean_ctor_set(v___x_4960_, 1, v___x_4959_);
-lean_ctor_set(v___x_4960_, 2, v___x_4959_);
-lean_ctor_set(v___x_4960_, 3, v___x_4959_);
-lean_ctor_set(v___x_4960_, 4, v___x_4958_);
-return v___x_4960_;
-}
-}
-static lean_object* _init_l_Lean_Firefox_Thread_new___closed__6(void){
-_start:
-{
-lean_object* v___x_4964_; lean_object* v___x_4965_; lean_object* v___x_4966_; 
-v___x_4964_ = lean_unsigned_to_nat(0u);
-v___x_4965_ = ((lean_object*)(l_Lean_Firefox_Thread_new___closed__1));
-v___x_4966_ = lean_alloc_ctor(0, 8, 0);
-lean_ctor_set(v___x_4966_, 0, v___x_4965_);
-lean_ctor_set(v___x_4966_, 1, v___x_4965_);
-lean_ctor_set(v___x_4966_, 2, v___x_4965_);
-lean_ctor_set(v___x_4966_, 3, v___x_4965_);
-lean_ctor_set(v___x_4966_, 4, v___x_4965_);
-lean_ctor_set(v___x_4966_, 5, v___x_4965_);
-lean_ctor_set(v___x_4966_, 6, v___x_4965_);
-lean_ctor_set(v___x_4966_, 7, v___x_4964_);
-return v___x_4966_;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Firefox_Thread_new(lean_object* v_name_4967_){
 _start:
 {
@@ -17937,12 +17837,12 @@ lean_object* v___x_4968_; uint8_t v___x_4969_; lean_object* v___x_4970_; lean_ob
 v___x_4968_ = ((lean_object*)(l_Lean_Firefox_Thread_new___closed__0));
 v___x_4969_ = 1;
 v___x_4970_ = ((lean_object*)(l_Lean_Firefox_Thread_new___closed__1));
-v___x_4971_ = lean_obj_once(&l_Lean_Firefox_Thread_new___closed__2, &l_Lean_Firefox_Thread_new___closed__2_once, _init_l_Lean_Firefox_Thread_new___closed__2);
-v___x_4972_ = lean_obj_once(&l_Lean_Firefox_Thread_new___closed__3, &l_Lean_Firefox_Thread_new___closed__3_once, _init_l_Lean_Firefox_Thread_new___closed__3);
-v___x_4973_ = lean_obj_once(&l_Lean_Firefox_Thread_new___closed__4, &l_Lean_Firefox_Thread_new___closed__4_once, _init_l_Lean_Firefox_Thread_new___closed__4);
-v___x_4974_ = l_Lean_Firefox_instInhabitedFrameTable_default;
+v___x_4971_ = ((lean_object*)(l_Lean_Firefox_Thread_new___closed__2));
+v___x_4972_ = ((lean_object*)(l_Lean_Firefox_Thread_new___closed__3));
+v___x_4973_ = ((lean_object*)(l_Lean_Firefox_Thread_new___closed__4));
+v___x_4974_ = ((lean_object*)(l_Lean_Firefox_instInhabitedFrameTable_default));
 v___x_4975_ = ((lean_object*)(l_Lean_Firefox_Thread_new___closed__5));
-v___x_4976_ = lean_obj_once(&l_Lean_Firefox_Thread_new___closed__6, &l_Lean_Firefox_Thread_new___closed__6_once, _init_l_Lean_Firefox_Thread_new___closed__6);
+v___x_4976_ = ((lean_object*)(l_Lean_Firefox_Thread_new___closed__6));
 v___x_4977_ = lean_alloc_ctor(0, 10, 1);
 lean_ctor_set(v___x_4977_, 0, v_name_4967_);
 lean_ctor_set(v___x_4977_, 1, v___x_4968_);
@@ -19496,11 +19396,10 @@ else
 lean_object* v_a_5523_; lean_object* v___x_5524_; uint64_t v___x_5525_; lean_object* v___x_5526_; size_t v___x_5527_; size_t v___x_5528_; 
 v_a_5523_ = lean_array_uget_borrowed(v_as_5518_, v_i_5520_);
 lean_inc_ref(v_key_5517_);
-lean_inc(v_a_5523_);
+lean_inc_n(v_a_5523_, 2);
 v___x_5524_ = lean_apply_1(v_key_5517_, v_a_5523_);
 v___x_5525_ = lean_unbox_uint64(v___x_5524_);
 lean_dec_ref(v___x_5524_);
-lean_inc(v_a_5523_);
 v___x_5526_ = l_Std_DHashMap_Internal_Raw_u2080_Const_alter___at___00Array_groupByKey___at___00Lean_Firefox_Profile_export_spec__0_spec__0___redArg(v_a_5523_, v_b_5521_, v___x_5525_);
 v___x_5527_ = ((size_t)1ULL);
 v___x_5528_ = lean_usize_add(v_i_5520_, v___x_5527_);
@@ -19755,19 +19654,6 @@ v___x_5630_ = lean_float_of_nat(v___x_5629_);
 return v___x_5630_;
 }
 }
-static lean_object* _init_l_Lean_Firefox_Profile_export___closed__5(void){
-_start:
-{
-lean_object* v___x_5634_; lean_object* v___x_5635_; lean_object* v___x_5636_; 
-v___x_5634_ = ((lean_object*)(l_Lean_Firefox_Profile_export___closed__4));
-v___x_5635_ = ((lean_object*)(l_Lean_Firefox_Profile_export___closed__3));
-v___x_5636_ = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(v___x_5636_, 0, v___x_5635_);
-lean_ctor_set(v___x_5636_, 1, v___x_5635_);
-lean_ctor_set(v___x_5636_, 2, v___x_5634_);
-return v___x_5636_;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Firefox_Profile_export(lean_object* v_name_5637_, double v_startTime_5638_, lean_object* v_traceStates_5639_, lean_object* v_opts_5640_){
 _start:
 {
@@ -19864,7 +19750,7 @@ v___x_5665_ = ((lean_object*)(l_Lean_Firefox_categories));
 v___x_5666_ = ((lean_object*)(l_Lean_Firefox_Profile_export___closed__2));
 v___x_5667_ = lean_unsigned_to_nat(48u);
 v___x_5668_ = lean_mk_empty_array_with_capacity(v___y_5652_);
-v___x_5669_ = lean_obj_once(&l_Lean_Firefox_Profile_export___closed__5, &l_Lean_Firefox_Profile_export___closed__5_once, _init_l_Lean_Firefox_Profile_export___closed__5);
+v___x_5669_ = ((lean_object*)(l_Lean_Firefox_Profile_export___closed__5));
 lean_inc_ref(v___x_5668_);
 v___x_5670_ = lean_alloc_ctor(0, 6, 16);
 lean_ctor_set(v___x_5670_, 0, v___x_5665_);
@@ -21943,10 +21829,6 @@ if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Firefox_instInhabitedMilliseconds_default = _init_l_Lean_Firefox_instInhabitedMilliseconds_default();
 l_Lean_Firefox_instInhabitedMilliseconds = _init_l_Lean_Firefox_instInhabitedMilliseconds();
-l_Lean_Firefox_instInhabitedFrameTable_default = _init_l_Lean_Firefox_instInhabitedFrameTable_default();
-lean_mark_persistent(l_Lean_Firefox_instInhabitedFrameTable_default);
-l_Lean_Firefox_instInhabitedFrameTable = _init_l_Lean_Firefox_instInhabitedFrameTable();
-lean_mark_persistent(l_Lean_Firefox_instInhabitedFrameTable);
 l___private_Lean_Util_Profiler_0__Lean_Firefox_addTrace_go___boxed__const__1 = _init_l___private_Lean_Util_Profiler_0__Lean_Firefox_addTrace_go___boxed__const__1();
 lean_mark_persistent(l___private_Lean_Util_Profiler_0__Lean_Firefox_addTrace_go___boxed__const__1);
 l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00Lean_Firefox_Profile_export_spec__6___redArg___closed__0___boxed__const__1 = _init_l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00Lean_Firefox_Profile_export_spec__6___redArg___closed__0___boxed__const__1();

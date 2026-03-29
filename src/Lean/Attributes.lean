@@ -186,11 +186,11 @@ def registerTagAttribute (name : Name) (descr : String)
     mkInitial       := pure {}
     addImportedFn   := fun _ _ => pure {}
     addEntryFn      := fun (s : NameSet) n => s.insert n
-    exportEntriesFnEx := fun env es _ =>
-      let r : Array Name := es.foldl (fun a e => a.push e) #[]
-      -- Do not export info for private defs
-      let r := r.filter (env.contains (skipRealize := false))
-      r.qsort Name.quickLt
+    exportEntriesFnEx := fun env es =>
+      let all : Array Name := es.foldl (fun a e => a.push e) #[] |>.qsort Name.quickLt
+      -- Do not export info for private defs at exported/server levels
+      let exported := all.filter ((env.setExporting true).contains (skipRealize := false))
+      { exported, server := exported, «private» := all }
     statsFn         := fun s => "tag attribute" ++ Format.line ++ "number of local entries: " ++ format s.size
     asyncMode       := asyncMode
     replay?         := some fun _ newState newConsts s =>
@@ -266,15 +266,14 @@ def registerParametricAttribute (impl : ParametricAttributeImpl α) : IO (Parame
     mkInitial       := pure ([], {})
     addImportedFn   := fun _ => pure ([], {})
     addEntryFn      := fun (decls, m) (p : Name × α) => (p.1 :: decls, m.insert p.1 p.2)
-    exportEntriesFnEx := fun env (decls, m) lvl => Id.run do
-      let mut r := if impl.preserveOrder then
+    exportEntriesFnEx := fun env (decls, m) => Id.run do
+      let all := if impl.preserveOrder then
         decls.toArray.reverse.filterMap (fun n => return (n, ← m.find? n))
       else
         let r := m.foldl (fun a n p => a.push (n, p)) #[]
         r.qsort (fun a b => Name.quickLt a.1 b.1)
-      if lvl != .private then
-        r := r.filter (fun ⟨n, a⟩ => impl.filterExport env n a)
-      r
+      let exported := all.filter (fun ⟨n, a⟩ => impl.filterExport env n a)
+      { exported, server := exported, «private» := all }
     statsFn         := fun (_, m) => "parametric attribute" ++ Format.line ++ "number of local entries: " ++ format m.size
   }
   let attrImpl : AttributeImpl := {
@@ -333,11 +332,11 @@ def registerEnumAttributes (attrDescrs : List (Name × String × α))
     mkInitial       := pure {}
     addImportedFn   := fun _ _ => pure {}
     addEntryFn      := fun (s : NameMap α) (p : Name × α) => s.insert p.1 p.2
-    exportEntriesFnEx := fun env m _ =>
-      let r : Array (Name × α) := m.foldl (fun a n p => a.push (n, p)) #[]
-      -- Do not export info for private defs
-      let r := r.filter (env.contains (skipRealize := false) ·.1)
-      r.qsort (fun a b => Name.quickLt a.1 b.1)
+    exportEntriesFnEx := fun env m =>
+      let all : Array (Name × α) := m.foldl (fun a n p => a.push (n, p)) #[] |>.qsort (fun a b => Name.quickLt a.1 b.1)
+      -- Do not export info for private defs at exported/server levels
+      let exported := all.filter ((env.setExporting true).contains (skipRealize := false) ·.1)
+      { exported, server := exported, «private» := all }
     statsFn         := fun s => "enumeration attribute extension" ++ Format.line ++ "number of local entries: " ++ format s.size
     -- We assume (and check in `modifyState`) that, if used asynchronously, enum attributes are set
     -- only in the same context in which the tagged declaration was created

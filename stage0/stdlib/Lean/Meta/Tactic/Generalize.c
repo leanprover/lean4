@@ -358,13 +358,12 @@ if (lean_obj_tag(v___x_73_) == 0)
 {
 lean_object* v_a_74_; lean_object* v___x_75_; 
 v_a_74_ = lean_ctor_get(v___x_73_, 0);
-lean_inc(v_a_74_);
+lean_inc_n(v_a_74_, 2);
 lean_dec_ref(v___x_73_);
 lean_inc(v_a_65_);
 lean_inc_ref(v_a_64_);
 lean_inc(v_a_63_);
 lean_inc_ref(v_a_62_);
-lean_inc(v_a_74_);
 v___x_75_ = lean_infer_type(v_a_74_, v_a_62_, v_a_63_, v_a_64_, v_a_65_);
 if (lean_obj_tag(v___x_75_) == 0)
 {
@@ -723,13 +722,12 @@ if (lean_obj_tag(v___x_220_) == 0)
 {
 lean_object* v_a_221_; lean_object* v___x_222_; 
 v_a_221_ = lean_ctor_get(v___x_220_, 0);
-lean_inc(v_a_221_);
+lean_inc_n(v_a_221_, 2);
 lean_dec_ref(v___x_220_);
 lean_inc(v_a_175_);
 lean_inc_ref(v_a_174_);
 lean_inc(v_a_173_);
 lean_inc_ref(v_a_172_);
-lean_inc(v_a_221_);
 v___x_222_ = lean_infer_type(v_a_221_, v_a_172_, v_a_173_, v_a_174_, v_a_175_);
 if (lean_obj_tag(v___x_222_) == 0)
 {
@@ -2573,9 +2571,8 @@ if (lean_obj_tag(v___x_769_) == 0)
 {
 lean_object* v_a_770_; lean_object* v___y_772_; lean_object* v___y_773_; lean_object* v___y_774_; lean_object* v___y_775_; lean_object* v___y_776_; lean_object* v___y_777_; uint8_t v___y_778_; lean_object* v___y_796_; lean_object* v___y_797_; lean_object* v___y_798_; lean_object* v___y_799_; lean_object* v___x_845_; 
 v_a_770_ = lean_ctor_get(v___x_769_, 0);
-lean_inc(v_a_770_);
+lean_inc_n(v_a_770_, 2);
 lean_dec_ref(v___x_769_);
-lean_inc(v_a_770_);
 v___x_845_ = l_Lean_Meta_isTypeCorrect(v_a_770_, v___y_753_, v___y_754_, v___y_755_, v___y_756_);
 if (lean_obj_tag(v___x_845_) == 0)
 {
@@ -2719,9 +2716,8 @@ if (lean_obj_tag(v___x_779_) == 0)
 {
 lean_object* v_a_780_; lean_object* v___x_781_; lean_object* v___x_782_; uint8_t v___x_783_; lean_object* v___x_784_; lean_object* v___x_785_; lean_object* v___x_786_; 
 v_a_780_ = lean_ctor_get(v___x_779_, 0);
-lean_inc(v_a_780_);
+lean_inc_n(v_a_780_, 2);
 lean_dec_ref(v___x_779_);
-lean_inc(v_a_780_);
 v___x_781_ = l_Lean_mkAppN(v_a_780_, v___y_776_);
 lean_dec_ref(v___y_776_);
 v___x_782_ = l_Lean_MVarId_assign___at___00__private_Lean_Meta_Tactic_Generalize_0__Lean_Meta_generalizeCore_spec__1___redArg(v_mvarId_749_, v___x_781_, v___y_775_);
@@ -2879,9 +2875,8 @@ if (lean_obj_tag(v___x_817_) == 0)
 {
 lean_object* v_a_818_; lean_object* v___x_819_; lean_object* v___x_820_; lean_object* v___x_821_; lean_object* v___x_822_; lean_object* v___x_823_; lean_object* v___x_824_; lean_object* v___x_825_; lean_object* v___x_826_; lean_object* v___x_827_; 
 v_a_818_ = lean_ctor_get(v___x_817_, 0);
-lean_inc(v_a_818_);
+lean_inc_n(v_a_818_, 2);
 lean_dec_ref(v___x_817_);
-lean_inc(v_a_818_);
 v___x_819_ = l_Lean_mkAppN(v_a_818_, v___x_802_);
 lean_dec_ref(v___x_802_);
 lean_inc(v_fst_815_);

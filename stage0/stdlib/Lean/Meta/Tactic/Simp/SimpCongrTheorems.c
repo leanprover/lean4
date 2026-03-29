@@ -8191,8 +8191,6 @@ _start:
 {
 lean_object* v_currNamespace_2799_; lean_object* v___x_2800_; lean_object* v_env_2801_; lean_object* v_nextMacroScope_2802_; lean_object* v_ngen_2803_; lean_object* v_auxDeclNGen_2804_; lean_object* v_traceState_2805_; lean_object* v_messages_2806_; lean_object* v_infoState_2807_; lean_object* v_snapshotTasks_2808_; lean_object* v___x_2810_; uint8_t v_isShared_2811_; uint8_t v_isSharedCheck_2835_; 
 v_currNamespace_2799_ = lean_ctor_get(v___y_2796_, 6);
-lean_inc(v_currNamespace_2799_);
-lean_dec_ref(v___y_2796_);
 v___x_2800_ = lean_st_ref_take(v___y_2797_);
 v_env_2801_ = lean_ctor_get(v___x_2800_, 0);
 v_nextMacroScope_2802_ = lean_ctor_get(v___x_2800_, 1);
@@ -8230,6 +8228,7 @@ goto v_resetjp_2809_;
 v_resetjp_2809_:
 {
 lean_object* v___x_2812_; lean_object* v___x_2813_; lean_object* v___x_2815_; 
+lean_inc(v_currNamespace_2799_);
 v___x_2812_ = l_Lean_ScopedEnvExtension_addCore___redArg(v_env_2801_, v_ext_2792_, v_b_2793_, v_kind_2794_, v_currNamespace_2799_);
 v___x_2813_ = lean_obj_once(&l_Lean_ScopedEnvExtension_add___at___00Lean_Meta_addSimpCongrTheorem_spec__0___redArg___closed__2, &l_Lean_ScopedEnvExtension_add___at___00Lean_Meta_addSimpCongrTheorem_spec__0___redArg___closed__2_once, _init_l_Lean_ScopedEnvExtension_add___at___00Lean_Meta_addSimpCongrTheorem_spec__0___redArg___closed__2);
 if (v_isShared_2811_ == 0)
@@ -8328,6 +8327,7 @@ uint8_t v_kind_boxed_2844_; lean_object* v_res_2845_;
 v_kind_boxed_2844_ = lean_unbox(v_kind_2839_);
 v_res_2845_ = l_Lean_ScopedEnvExtension_add___at___00Lean_Meta_addSimpCongrTheorem_spec__0___redArg(v_ext_2837_, v_b_2838_, v_kind_boxed_2844_, v___y_2840_, v___y_2841_, v___y_2842_);
 lean_dec(v___y_2842_);
+lean_dec_ref(v___y_2841_);
 lean_dec(v___y_2840_);
 return v_res_2845_;
 }
@@ -8336,7 +8336,6 @@ LEAN_EXPORT lean_object* l_Lean_ScopedEnvExtension_add___at___00Lean_Meta_addSim
 _start:
 {
 lean_object* v___x_2857_; 
-lean_inc_ref(v___y_2854_);
 v___x_2857_ = l_Lean_ScopedEnvExtension_add___at___00Lean_Meta_addSimpCongrTheorem_spec__0___redArg(v_ext_2849_, v_b_2850_, v_kind_2851_, v___y_2853_, v___y_2854_, v___y_2855_);
 return v___x_2857_;
 }
@@ -8366,7 +8365,6 @@ v_a_2880_ = lean_ctor_get(v___x_2879_, 0);
 lean_inc(v_a_2880_);
 lean_dec_ref(v___x_2879_);
 v___x_2881_ = l_Lean_Meta_congrExtension;
-lean_inc_ref(v_a_2876_);
 v___x_2882_ = l_Lean_ScopedEnvExtension_add___at___00Lean_Meta_addSimpCongrTheorem_spec__0___redArg(v___x_2881_, v_a_2880_, v_attrKind_2872_, v_a_2875_, v_a_2876_, v_a_2877_);
 return v___x_2882_;
 }
@@ -8515,7 +8513,7 @@ v___x_2935_ = lean_unsigned_to_nat(32u);
 v___x_2936_ = lean_mk_empty_array_with_capacity(v___x_2935_);
 v___x_2937_ = lean_obj_once(&l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstVal___at___00Lean_mkConstWithLevelParams___at___00Lean_Meta_mkSimpCongrTheorem_spec__1_spec__1_spec__3_spec__12_spec__15_spec__16_spec__17___redArg___closed__3, &l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstVal___at___00Lean_mkConstWithLevelParams___at___00Lean_Meta_mkSimpCongrTheorem_spec__1_spec__1_spec__3_spec__12_spec__15_spec__16_spec__17___redArg___closed__3_once, _init_l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstVal___at___00Lean_mkConstWithLevelParams___at___00Lean_Meta_mkSimpCongrTheorem_spec__1_spec__1_spec__3_spec__12_spec__15_spec__16_spec__17___redArg___closed__3);
 v___x_2938_ = ((size_t)5ULL);
-lean_inc_n(v___x_2919_, 2);
+lean_inc_n(v___x_2919_, 5);
 v___x_2939_ = lean_alloc_ctor(0, 4, sizeof(size_t)*1);
 lean_ctor_set(v___x_2939_, 0, v___x_2937_);
 lean_ctor_set(v___x_2939_, 1, v___x_2936_);
@@ -8530,7 +8528,6 @@ lean_ctor_set(v___x_2941_, 1, v___x_2939_);
 lean_ctor_set(v___x_2941_, 2, v___x_2940_);
 v___x_2942_ = lean_mk_empty_array_with_capacity(v___x_2919_);
 v___x_2943_ = lean_box(0);
-lean_inc(v___x_2919_);
 lean_inc(v___x_2920_);
 v___x_2944_ = lean_alloc_ctor(0, 7, 4);
 lean_ctor_set(v___x_2944_, 0, v___x_2933_);
@@ -8544,7 +8541,6 @@ lean_ctor_set_uint8(v___x_2944_, sizeof(void*)*7, v___x_2931_);
 lean_ctor_set_uint8(v___x_2944_, sizeof(void*)*7 + 1, v___x_2931_);
 lean_ctor_set_uint8(v___x_2944_, sizeof(void*)*7 + 2, v___x_2931_);
 lean_ctor_set_uint8(v___x_2944_, sizeof(void*)*7 + 3, v___x_2932_);
-lean_inc_n(v___x_2919_, 2);
 v___x_2945_ = lean_alloc_ctor(0, 9, 0);
 lean_ctor_set(v___x_2945_, 0, v___x_2919_);
 lean_ctor_set(v___x_2945_, 1, v___x_2919_);
@@ -8955,16 +8951,10 @@ lean_inc_ref(v_env_3154_);
 lean_dec(v___x_3153_);
 v___x_3155_ = l_Lean_Meta_congrExtension;
 v_ext_3156_ = lean_ctor_get(v___x_3155_, 1);
-lean_inc_ref(v_ext_3156_);
 v_toEnvExtension_3157_ = lean_ctor_get(v_ext_3156_, 0);
-lean_inc_ref(v_toEnvExtension_3157_);
-lean_dec_ref(v_ext_3156_);
 v_asyncMode_3158_ = lean_ctor_get(v_toEnvExtension_3157_, 2);
-lean_inc(v_asyncMode_3158_);
-lean_dec_ref(v_toEnvExtension_3157_);
 v___x_3159_ = l_Lean_Meta_instInhabitedSimpCongrTheorems_default;
 v___x_3160_ = l_Lean_ScopedEnvExtension_getState___redArg(v___x_3159_, v___x_3155_, v_env_3154_, v_asyncMode_3158_);
-lean_dec(v_asyncMode_3158_);
 v___x_3161_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_3161_, 0, v___x_3160_);
 return v___x_3161_;

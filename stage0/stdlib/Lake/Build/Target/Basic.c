@@ -90,6 +90,7 @@ v___x_17_ = l_Lake_instReprBuildKey_repr(v_x_11_, v___x_16_);
 v_ctor_18_ = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(v_ctor_18_, 0, v___x_15_);
 lean_ctor_set(v_ctor_18_, 1, v___x_17_);
+lean_inc(v___y_14_);
 v___x_19_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_19_, 0, v___y_14_);
 lean_ctor_set(v___x_19_, 1, v_ctor_18_);

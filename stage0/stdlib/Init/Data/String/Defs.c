@@ -22,7 +22,7 @@ uint8_t l_String_instDecidableLtRaw___aux__1(lean_object*, lean_object*);
 lean_object* lean_string_push(lean_object*, uint32_t);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern uint8_t l_instInhabitedUInt8;
-lean_object* lean_panic_fn(lean_object*, lean_object*);
+lean_object* lean_panic_fn_borrowed(lean_object*, lean_object*);
 uint8_t lean_string_get_byte_fast(lean_object*, lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* l_String_toRawSubstring_x27(lean_object*);
@@ -864,7 +864,8 @@ _start:
 uint8_t v___x_271_; lean_object* v___x_272_; lean_object* v___x_273_; uint8_t v___x_274_; 
 v___x_271_ = l_instInhabitedUInt8;
 v___x_272_ = lean_box(v___x_271_);
-v___x_273_ = lean_panic_fn(v___x_272_, v_msg_270_);
+v___x_273_ = lean_panic_fn_borrowed(v___x_272_, v_msg_270_);
+lean_dec(v___x_272_);
 v___x_274_ = lean_unbox(v___x_273_);
 lean_dec(v___x_273_);
 return v___x_274_;
@@ -885,7 +886,7 @@ _start:
 lean_object* v___x_281_; lean_object* v___x_282_; lean_object* v___x_283_; lean_object* v___x_284_; lean_object* v___x_285_; lean_object* v___x_286_; 
 v___x_281_ = ((lean_object*)(l_String_Slice_getUTF8Byte_x21___closed__2));
 v___x_282_ = lean_unsigned_to_nat(4u);
-v___x_283_ = lean_unsigned_to_nat(509u);
+v___x_283_ = lean_unsigned_to_nat(512u);
 v___x_284_ = ((lean_object*)(l_String_Slice_getUTF8Byte_x21___closed__1));
 v___x_285_ = ((lean_object*)(l_String_Slice_getUTF8Byte_x21___closed__0));
 v___x_286_ = l_mkPanicMessageWithDecl(v___x_285_, v___x_284_, v___x_283_, v___x_282_, v___x_281_);

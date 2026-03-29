@@ -684,9 +684,8 @@ if (lean_obj_tag(v___x_172_) == 0)
 {
 lean_object* v_a_173_; lean_object* v___x_174_; 
 v_a_173_ = lean_ctor_get(v___x_172_, 0);
-lean_inc(v_a_173_);
+lean_inc_n(v_a_173_, 2);
 lean_dec_ref(v___x_172_);
-lean_inc(v_a_173_);
 lean_inc_ref(v_params_170_);
 v___x_174_ = l_Lean_Compiler_LCNF_Code_inferParamType(v_pu_120_, v_params_170_, v_a_173_, v_a_124_, v_a_125_, v_a_126_, v_a_127_);
 if (lean_obj_tag(v___x_174_) == 0)
@@ -1352,9 +1351,8 @@ if (lean_obj_tag(v___x_306_) == 0)
 {
 lean_object* v_a_307_; lean_object* v___x_308_; 
 v_a_307_ = lean_ctor_get(v___x_306_, 0);
-lean_inc(v_a_307_);
+lean_inc_n(v_a_307_, 2);
 lean_dec_ref(v___x_306_);
-lean_inc(v_a_307_);
 v___x_308_ = l_Lean_Compiler_LCNF_Code_inferType(v_pu_120_, v_a_307_, v_a_124_, v_a_125_, v_a_126_, v_a_127_);
 if (lean_obj_tag(v___x_308_) == 0)
 {

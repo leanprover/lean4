@@ -69,7 +69,7 @@ LEAN_EXPORT const lean_object* l___private_Lake_CLI_Help_0__Lake_helpClean = (co
 static const lean_string_object l___private_Lake_CLI_Help_0__Lake_helpShake___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 1473, .m_capacity = 1473, .m_length = 1472, .m_data = "Minimize imports in Lean source files\n\nUSAGE:\n  lake shake [OPTIONS] [<MODULE>...]\n\nChecks the current project for unused imports by analyzing generated `.olean`\nfiles to deduce required imports and ensuring that every import contributes\nsome constant or other elaboration dependency.\n\nARGUMENTS:\n  <MODULE>              A module path like `Mathlib`. All files transitively\n                        reachable from the provided module(s) will be checked.\n                        If not specified, uses the package's default targets.\n\nOPTIONS:\n  --force               Skip the `lake build --no-build` sanity check\n  --keep-implied        Preserve imports implied by other imports\n  --keep-prefix         Prefer parent module imports over specific submodules\n  --keep-public         Preserve all `public` imports for API stability\n  --add-public          Add new imports as `public` if they were in the\n                        original public closure\n  --explain             Show which constants require each import\n  --fix                 Apply suggested fixes directly to source files\n  --gh-style            Output in GitHub problem matcher format\n\nANNOTATIONS:\n  Source files can contain special comments to control shake behavior:\n\n  * `module -- shake: keep-downstream`\n    Preserves this module in all downstream modules\n\n  * `module -- shake: keep-all`\n    Preserves all existing imports in this module\n\n  * `import X -- shake: keep`\n    Preserves this specific import"};
 static const lean_object* l___private_Lake_CLI_Help_0__Lake_helpShake___closed__0 = (const lean_object*)&l___private_Lake_CLI_Help_0__Lake_helpShake___closed__0_value;
 LEAN_EXPORT const lean_object* l___private_Lake_CLI_Help_0__Lake_helpShake = (const lean_object*)&l___private_Lake_CLI_Help_0__Lake_helpShake___closed__0_value;
-static const lean_string_object l___private_Lake_CLI_Help_0__Lake_helpCacheCli___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 474, .m_capacity = 474, .m_length = 473, .m_data = "Manage the Lake cache\n\nUSAGE:\n  lake cache <COMMAND>\n\nCOMMANDS:\n  get [<mappings>]      download build outputs into the local Lake cache\n  put <mappings>        upload build ouptuts to a remote cache\n  add <mappings>        add input-to-output mappings to the Lake cache\n  clean                 removes ALL froms the local Lake cache\n  services              print configured remote cache services\n\nSee `lake cache help <command>` for more information on a specific command."};
+static const lean_string_object l___private_Lake_CLI_Help_0__Lake_helpCacheCli___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 705, .m_capacity = 705, .m_length = 704, .m_data = "Manage the Lake cache\n\nUSAGE:\n  lake cache <COMMAND>\n\nCOMMANDS:\n  get [<mappings>]      download build outputs into the local Lake cache\n  put <mappings>        upload build ouptuts to a remote cache\n  add <mappings>        add input-to-output mappings to the Lake cache\n  clean                 removes ALL froms the local Lake cache\n  services              print configured remote cache services\n\nSTAGING COMMANDS:\n  stage <map> <dir>     copy build outputs from the cache to a directory\n  unstage <dir>         cache build outputs from a staging directory\n  put-staged <dir>      upload build outputs from a staging directory\n\nSee `lake cache help <command>` for more information on a specific command."};
 static const lean_object* l___private_Lake_CLI_Help_0__Lake_helpCacheCli___closed__0 = (const lean_object*)&l___private_Lake_CLI_Help_0__Lake_helpCacheCli___closed__0_value;
 LEAN_EXPORT const lean_object* l___private_Lake_CLI_Help_0__Lake_helpCacheCli = (const lean_object*)&l___private_Lake_CLI_Help_0__Lake_helpCacheCli___closed__0_value;
 static const lean_string_object l___private_Lake_CLI_Help_0__Lake_helpCacheGet___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 2911, .m_capacity = 2911, .m_length = 2910, .m_data = "Download build outputs from a remote service into the Lake cache\n\nUSAGE:\n  lake cache get [<mappings>]\n\nOPTIONS:\n  --max-revs=<n>                  backtrack up to n revisions (default: 100)\n  --rev=<commit-hash>             uses this exact revision to lookup artifacts\n  --service=<name>                cache service to fetch from\n  --repo=<github-repo>            GitHub repository of the package or a fork\n  --platform=<target-triple>      with Reservoir or --repo, sets the platform\n  --toolchain=<name>              with Reservoir or --repo, sets the toolchain\n  --scope=<remote-scope>          scope for a custom endpoint\n  --mappings-only                 only download mappings, delay artifacts\n  --force-download                redownload existing files\n\nDownloads build outputs for packages in the workspace from a remote cache\nservice. The cache service used can be specifed via the `--service` option.\nOtherwise, Lake will the system default, or, if none is configured, Reservoir.\nSee `lake cache services` for more information on how to configure services.\n\nIf an input-to-outputs mappings file, `--scope`, or `--repo` is provided,\nLake will download build outputs for the root package. Otherwise, it will use\nReservoir to download outputs for each dependency in the workspace (in order).\nNon-Reservoir dependencies will be skipped.\n\nTo determine what to download, Lake searches for input-to-output mappings for\na given build of the package via the cache service. This mapping is identified\nby a Git revision and prefixed with a scope derived from the package's name,\nGitHub repository, Lean toolchain, and current platform. The exact configuration\ncan be customized using options.\n\nFor Reservoir, setting `--repo` will cause Lake to lookup outputs for the root\npackage by a repository name, rather than the package's. This can be used to\ndownload outputs for a fork of the Reservoir package (if such artifacts are\navailable). The `--platform` and `--toolchain` options can be used to download\nartifacts for a different platform/toolchain configuration than Lake detects.\nFor a custom endpoint, the full prefix Lake uses can be set via  `--scope`.\n\nIf `--rev` is not set, Lake uses the package's current revision to lookup\nartifacts. If no mappings are found, Lake will backtrack the Git history up to\n`--max-revs`, looking for a revision with mappings. If `--max-revs` is 0, Lake\nwill search the repository's entire history (or as far as Git will allow).\n\nBy default, Lake will download both the input-to-output mappings and the\noutput artifacts for a package. By using `--mappings-onlys`, Lake will only\ndownload the mappings abd delay downloading artifacts until they are needed.\n\nIf a download for an artifact fails or the download process for a whole\npackage fails, Lake will report this and continue on to the next. Once done,\nif any download failed, Lake will exit with a nonzero status code."};
@@ -78,9 +78,18 @@ LEAN_EXPORT const lean_object* l___private_Lake_CLI_Help_0__Lake_helpCacheGet = 
 static const lean_string_object l___private_Lake_CLI_Help_0__Lake_helpCachePut___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 1820, .m_capacity = 1820, .m_length = 1819, .m_data = "Upload build outputs from the Lake cache to a remote service\n\nUSAGE:\n  lake cache put <mappings> <scope-option>\n\nUploads the input-to-output mappings contained in the specified file along\nwith the corresponding output artifacts to a remote cache. The cache service\nused via be specified via `--service` option. If not specifed, Lake will used\nthe system default, or error if none is configured. See the help page of\n`lake cache services` for more information on how to configure services.\n\nFiles are uploaded using the AWS Signature Version 4 authentication protocol\nvia `curl`. Thus, the service should generally be an S3-compatible bucket. The\nauthentication key is set via the `LAKE_CACHE_KEY` environment variable.\n\nSince Lake does not currently use cryptographically secure hashes for\nartifacts and outputs, uploads to the cache are prefixed with a scope to avoid\nclashes. This scope is configured with the following options:\n\n  --scope=<remote-scope>          sets a fixed scope\n  --repo=<github-repo>            uses the repository + toolchain & platform\n  --toolchain=<name>              with --repo, sets the toolchain\n  --platform=<target-triple>      with --repo, sets the platform\n\nAt least one of `--scope` or `--repo` must be set. If `--repo` is used, Lake\nwill produce a scope by augmenting the repository with toolchain and platform\ninformation as it deems necessary. If `--scope` is set, Lake will use the\nspecified scope verbatim.\n\nArtifacts are uploaded to the artifact endpoint with a file name derived\nfrom their Lake content hash (and prefixed by the repository or scope).\nThe mappings file is uploaded to the revision endpoint with a file name\nderived from the package's current Git revision (and prefixed by the\nfull scope). As such, the command will warn if the work tree currently\nhas changes."};
 static const lean_object* l___private_Lake_CLI_Help_0__Lake_helpCachePut___closed__0 = (const lean_object*)&l___private_Lake_CLI_Help_0__Lake_helpCachePut___closed__0_value;
 LEAN_EXPORT const lean_object* l___private_Lake_CLI_Help_0__Lake_helpCachePut = (const lean_object*)&l___private_Lake_CLI_Help_0__Lake_helpCachePut___closed__0_value;
-static const lean_string_object l___private_Lake_CLI_Help_0__Lake_helpCacheAdd___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 1010, .m_capacity = 1010, .m_length = 1009, .m_data = "Addd input-to-output mappings to the Lake cache\n\nUSAGE:\n  lake cache add <mappings>\n\nOPTIONS:\n  --service=<name>                cache service to fetch from on demand\n  --scope=<remote-scope>          the prefix of artifacts within the service\n  --repo=<github-repo>            for Reservoir, a GitHub repository scope\n\nReads a list of input-to-output mapppings from the provided file and adds\nthem to the local Lake cache. If `--service` is provided, the output artifacts\ncan then be fetched lazily from that service during a Lake build. The service\nmust either be `reservoir` or  be configured through the Lake system\nconfiguration (see the help page of `lake cache services` for details).\n\nSince Lake does not currently use cryptographically secure hashes for\nartifacts and outputs, artifacts in a cache service are prefixed with a scope\nto avoid clashes. For Reservoir, this scope can either be a package (set via\n`--scope`) or a repository (set via `--repo`). For S3 services, both options\nare synonymous."};
+static const lean_string_object l___private_Lake_CLI_Help_0__Lake_helpCacheAdd___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 1009, .m_capacity = 1009, .m_length = 1008, .m_data = "Add input-to-output mappings to the Lake cache\n\nUSAGE:\n  lake cache add <mappings>\n\nOPTIONS:\n  --service=<name>                cache service to fetch from on demand\n  --scope=<remote-scope>          the prefix of artifacts within the service\n  --repo=<github-repo>            for Reservoir, a GitHub repository scope\n\nReads a list of input-to-output mapppings from the provided file and adds\nthem to the local Lake cache. If `--service` is provided, the output artifacts\ncan then be fetched lazily from that service during a Lake build. The service\nmust either be `reservoir` or  be configured through the Lake system\nconfiguration (see the help page of `lake cache services` for details).\n\nSince Lake does not currently use cryptographically secure hashes for\nartifacts and outputs, artifacts in a cache service are prefixed with a scope\nto avoid clashes. For Reservoir, this scope can either be a package (set via\n`--scope`) or a repository (set via `--repo`). For S3 services, both options\nare synonymous."};
 static const lean_object* l___private_Lake_CLI_Help_0__Lake_helpCacheAdd___closed__0 = (const lean_object*)&l___private_Lake_CLI_Help_0__Lake_helpCacheAdd___closed__0_value;
 LEAN_EXPORT const lean_object* l___private_Lake_CLI_Help_0__Lake_helpCacheAdd = (const lean_object*)&l___private_Lake_CLI_Help_0__Lake_helpCacheAdd___closed__0_value;
+static const lean_string_object l___private_Lake_CLI_Help_0__Lake_helpCacheStage___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 359, .m_capacity = 359, .m_length = 358, .m_data = "Copy build outputs from the cache to a staging directory\n\nUSAGE:\n  lake cache stage <mappings> <staging-directory>\n\nCreates the staging directory and copies the mappings file to it. Then, it\ncopies all artifacts described within the mappings file from the cache to the\nstaging directory. Errors if any of the artifacts described cannot be found in\nthe cache."};
+static const lean_object* l___private_Lake_CLI_Help_0__Lake_helpCacheStage___closed__0 = (const lean_object*)&l___private_Lake_CLI_Help_0__Lake_helpCacheStage___closed__0_value;
+LEAN_EXPORT const lean_object* l___private_Lake_CLI_Help_0__Lake_helpCacheStage = (const lean_object*)&l___private_Lake_CLI_Help_0__Lake_helpCacheStage___closed__0_value;
+static const lean_string_object l___private_Lake_CLI_Help_0__Lake_helpCacheUnstage___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 416, .m_capacity = 416, .m_length = 415, .m_data = "Cache build outputs from a staging directory\n\nUSAGE:\n  lake cache unstage <staging-directory>\n\nCopies the mappings and artifacts stored in staging directory (e.g., via\n`lake cache stage`) back into the cache.\n\nReads the mappings file located at `outputs.jsonl` within the staging\ndirectory and writes the mappings to the Lake cache. Then, it copies the\ndescribed artifacts from the staging directory into the cache."};
+static const lean_object* l___private_Lake_CLI_Help_0__Lake_helpCacheUnstage___closed__0 = (const lean_object*)&l___private_Lake_CLI_Help_0__Lake_helpCacheUnstage___closed__0_value;
+LEAN_EXPORT const lean_object* l___private_Lake_CLI_Help_0__Lake_helpCacheUnstage = (const lean_object*)&l___private_Lake_CLI_Help_0__Lake_helpCacheUnstage___closed__0_value;
+static const lean_string_object l___private_Lake_CLI_Help_0__Lake_helpCachePutStaged___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 757, .m_capacity = 757, .m_length = 756, .m_data = "Upload build outputs from a staging directory to a remote service\n\nUSAGE:\n  lake cache put-staged <staging-directory>\n\nOPTIONS:\n  --scope=<remote-scope>          verbatim scope\n  --repo=<github-repo>            scope with repository + toolchain & platform\n  --toolchain=<name>              with --repo, sets the toolchain\n  --platform=<target-triple>      with --repo, sets the platform\n\nWorks like `lake cache put` but uploads outputs from the staging directory\ninstead of the Lake cache. Does not configure the workspace and thus does not\nexecute arbitrary user code. However, because of this, the package's platform\nand toolchain settings will not be automatically detected and must be\nspecified manually via `--platform` and `--toolchain` (if desired)."};
+static const lean_object* l___private_Lake_CLI_Help_0__Lake_helpCachePutStaged___closed__0 = (const lean_object*)&l___private_Lake_CLI_Help_0__Lake_helpCachePutStaged___closed__0_value;
+LEAN_EXPORT const lean_object* l___private_Lake_CLI_Help_0__Lake_helpCachePutStaged = (const lean_object*)&l___private_Lake_CLI_Help_0__Lake_helpCachePutStaged___closed__0_value;
 static const lean_string_object l___private_Lake_CLI_Help_0__Lake_helpCacheClean___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 275, .m_capacity = 275, .m_length = 274, .m_data = "Removes ALL files from the local Lake cache\n\nUSAGE:\n  lake cache clean\n\nDeletes the configured Lake cache directory. If a workspace configuration\nexists, this will delete the cache directory it uses. Otherwise, it will\ndelete the default Lake cache directory for the system."};
 static const lean_object* l___private_Lake_CLI_Help_0__Lake_helpCacheClean___closed__0 = (const lean_object*)&l___private_Lake_CLI_Help_0__Lake_helpCacheClean___closed__0_value;
 LEAN_EXPORT const lean_object* l___private_Lake_CLI_Help_0__Lake_helpCacheClean = (const lean_object*)&l___private_Lake_CLI_Help_0__Lake_helpCacheClean___closed__0_value;
@@ -128,10 +137,16 @@ static const lean_string_object l_Lake_helpCache___closed__1_value = {.m_header 
 static const lean_object* l_Lake_helpCache___closed__1 = (const lean_object*)&l_Lake_helpCache___closed__1_value;
 static const lean_string_object l_Lake_helpCache___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 4, .m_capacity = 4, .m_length = 3, .m_data = "add"};
 static const lean_object* l_Lake_helpCache___closed__2 = (const lean_object*)&l_Lake_helpCache___closed__2_value;
-static const lean_string_object l_Lake_helpCache___closed__3_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 6, .m_capacity = 6, .m_length = 5, .m_data = "clean"};
+static const lean_string_object l_Lake_helpCache___closed__3_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 6, .m_capacity = 6, .m_length = 5, .m_data = "stage"};
 static const lean_object* l_Lake_helpCache___closed__3 = (const lean_object*)&l_Lake_helpCache___closed__3_value;
-static const lean_string_object l_Lake_helpCache___closed__4_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 9, .m_capacity = 9, .m_length = 8, .m_data = "services"};
+static const lean_string_object l_Lake_helpCache___closed__4_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 8, .m_capacity = 8, .m_length = 7, .m_data = "unstage"};
 static const lean_object* l_Lake_helpCache___closed__4 = (const lean_object*)&l_Lake_helpCache___closed__4_value;
+static const lean_string_object l_Lake_helpCache___closed__5_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 11, .m_capacity = 11, .m_length = 10, .m_data = "put-staged"};
+static const lean_object* l_Lake_helpCache___closed__5 = (const lean_object*)&l_Lake_helpCache___closed__5_value;
+static const lean_string_object l_Lake_helpCache___closed__6_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 6, .m_capacity = 6, .m_length = 5, .m_data = "clean"};
+static const lean_object* l_Lake_helpCache___closed__6 = (const lean_object*)&l_Lake_helpCache___closed__6_value;
+static const lean_string_object l_Lake_helpCache___closed__7_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 9, .m_capacity = 9, .m_length = 8, .m_data = "services"};
+static const lean_object* l_Lake_helpCache___closed__7 = (const lean_object*)&l_Lake_helpCache___closed__7_value;
 LEAN_EXPORT lean_object* l_Lake_helpCache(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_helpCache___boxed(lean_object*);
 static const lean_string_object l_Lake_help___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 4, .m_capacity = 4, .m_length = 3, .m_data = "new"};
@@ -202,463 +217,499 @@ v___x_5_ = lean_obj_once(&l_Lake_usage___closed__1, &l_Lake_usage___closed__1_on
 return v___x_5_;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_helpScript(lean_object* v_x_71_){
+LEAN_EXPORT lean_object* l_Lake_helpScript(lean_object* v_x_77_){
 _start:
 {
-lean_object* v___x_72_; uint8_t v___x_73_; 
-v___x_72_ = ((lean_object*)(l_Lake_helpScript___closed__0));
-v___x_73_ = lean_string_dec_eq(v_x_71_, v___x_72_);
-if (v___x_73_ == 0)
+lean_object* v___x_78_; uint8_t v___x_79_; 
+v___x_78_ = ((lean_object*)(l_Lake_helpScript___closed__0));
+v___x_79_ = lean_string_dec_eq(v_x_77_, v___x_78_);
+if (v___x_79_ == 0)
 {
-lean_object* v___x_74_; uint8_t v___x_75_; 
-v___x_74_ = ((lean_object*)(l_Lake_helpScript___closed__1));
-v___x_75_ = lean_string_dec_eq(v_x_71_, v___x_74_);
-if (v___x_75_ == 0)
+lean_object* v___x_80_; uint8_t v___x_81_; 
+v___x_80_ = ((lean_object*)(l_Lake_helpScript___closed__1));
+v___x_81_ = lean_string_dec_eq(v_x_77_, v___x_80_);
+if (v___x_81_ == 0)
 {
-lean_object* v___x_76_; uint8_t v___x_77_; 
-v___x_76_ = ((lean_object*)(l_Lake_helpScript___closed__2));
-v___x_77_ = lean_string_dec_eq(v_x_71_, v___x_76_);
-if (v___x_77_ == 0)
+lean_object* v___x_82_; uint8_t v___x_83_; 
+v___x_82_ = ((lean_object*)(l_Lake_helpScript___closed__2));
+v___x_83_ = lean_string_dec_eq(v_x_77_, v___x_82_);
+if (v___x_83_ == 0)
 {
-lean_object* v___x_78_; 
-v___x_78_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpScriptCli___closed__0));
-return v___x_78_;
+lean_object* v___x_84_; 
+v___x_84_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpScriptCli___closed__0));
+return v___x_84_;
 }
 else
 {
-lean_object* v___x_79_; 
-v___x_79_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpScriptDoc___closed__0));
-return v___x_79_;
-}
-}
-else
-{
-lean_object* v___x_80_; 
-v___x_80_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpScriptRun___closed__0));
-return v___x_80_;
+lean_object* v___x_85_; 
+v___x_85_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpScriptDoc___closed__0));
+return v___x_85_;
 }
 }
 else
 {
-lean_object* v___x_81_; 
-v___x_81_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpScriptList___closed__0));
-return v___x_81_;
+lean_object* v___x_86_; 
+v___x_86_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpScriptRun___closed__0));
+return v___x_86_;
+}
+}
+else
+{
+lean_object* v___x_87_; 
+v___x_87_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpScriptList___closed__0));
+return v___x_87_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lake_helpScript___boxed(lean_object* v_x_82_){
+LEAN_EXPORT lean_object* l_Lake_helpScript___boxed(lean_object* v_x_88_){
 _start:
 {
-lean_object* v_res_83_; 
-v_res_83_ = l_Lake_helpScript(v_x_82_);
-lean_dec_ref(v_x_82_);
-return v_res_83_;
+lean_object* v_res_89_; 
+v_res_89_ = l_Lake_helpScript(v_x_88_);
+lean_dec_ref(v_x_88_);
+return v_res_89_;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_helpCache(lean_object* v_x_89_){
+LEAN_EXPORT lean_object* l_Lake_helpCache(lean_object* v_x_98_){
 _start:
 {
-lean_object* v___x_90_; uint8_t v___x_91_; 
-v___x_90_ = ((lean_object*)(l_Lake_helpCache___closed__0));
-v___x_91_ = lean_string_dec_eq(v_x_89_, v___x_90_);
-if (v___x_91_ == 0)
+lean_object* v___x_99_; uint8_t v___x_100_; 
+v___x_99_ = ((lean_object*)(l_Lake_helpCache___closed__0));
+v___x_100_ = lean_string_dec_eq(v_x_98_, v___x_99_);
+if (v___x_100_ == 0)
 {
-lean_object* v___x_92_; uint8_t v___x_93_; 
-v___x_92_ = ((lean_object*)(l_Lake_helpCache___closed__1));
-v___x_93_ = lean_string_dec_eq(v_x_89_, v___x_92_);
-if (v___x_93_ == 0)
+lean_object* v___x_101_; uint8_t v___x_102_; 
+v___x_101_ = ((lean_object*)(l_Lake_helpCache___closed__1));
+v___x_102_ = lean_string_dec_eq(v_x_98_, v___x_101_);
+if (v___x_102_ == 0)
 {
-lean_object* v___x_94_; uint8_t v___x_95_; 
-v___x_94_ = ((lean_object*)(l_Lake_helpCache___closed__2));
-v___x_95_ = lean_string_dec_eq(v_x_89_, v___x_94_);
-if (v___x_95_ == 0)
+lean_object* v___x_103_; uint8_t v___x_104_; 
+v___x_103_ = ((lean_object*)(l_Lake_helpCache___closed__2));
+v___x_104_ = lean_string_dec_eq(v_x_98_, v___x_103_);
+if (v___x_104_ == 0)
 {
-lean_object* v___x_96_; uint8_t v___x_97_; 
-v___x_96_ = ((lean_object*)(l_Lake_helpCache___closed__3));
-v___x_97_ = lean_string_dec_eq(v_x_89_, v___x_96_);
-if (v___x_97_ == 0)
+lean_object* v___x_105_; uint8_t v___x_106_; 
+v___x_105_ = ((lean_object*)(l_Lake_helpCache___closed__3));
+v___x_106_ = lean_string_dec_eq(v_x_98_, v___x_105_);
+if (v___x_106_ == 0)
 {
-lean_object* v___x_98_; uint8_t v___x_99_; 
-v___x_98_ = ((lean_object*)(l_Lake_helpCache___closed__4));
-v___x_99_ = lean_string_dec_eq(v_x_89_, v___x_98_);
-if (v___x_99_ == 0)
+lean_object* v___x_107_; uint8_t v___x_108_; 
+v___x_107_ = ((lean_object*)(l_Lake_helpCache___closed__4));
+v___x_108_ = lean_string_dec_eq(v_x_98_, v___x_107_);
+if (v___x_108_ == 0)
 {
-lean_object* v___x_100_; 
-v___x_100_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpCacheCli___closed__0));
-return v___x_100_;
+lean_object* v___x_109_; uint8_t v___x_110_; 
+v___x_109_ = ((lean_object*)(l_Lake_helpCache___closed__5));
+v___x_110_ = lean_string_dec_eq(v_x_98_, v___x_109_);
+if (v___x_110_ == 0)
+{
+lean_object* v___x_111_; uint8_t v___x_112_; 
+v___x_111_ = ((lean_object*)(l_Lake_helpCache___closed__6));
+v___x_112_ = lean_string_dec_eq(v_x_98_, v___x_111_);
+if (v___x_112_ == 0)
+{
+lean_object* v___x_113_; uint8_t v___x_114_; 
+v___x_113_ = ((lean_object*)(l_Lake_helpCache___closed__7));
+v___x_114_ = lean_string_dec_eq(v_x_98_, v___x_113_);
+if (v___x_114_ == 0)
+{
+lean_object* v___x_115_; 
+v___x_115_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpCacheCli___closed__0));
+return v___x_115_;
 }
 else
 {
-lean_object* v___x_101_; 
-v___x_101_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpCacheServices___closed__0));
-return v___x_101_;
-}
-}
-else
-{
-lean_object* v___x_102_; 
-v___x_102_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpCacheClean___closed__0));
-return v___x_102_;
-}
-}
-else
-{
-lean_object* v___x_103_; 
-v___x_103_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpCacheAdd___closed__0));
-return v___x_103_;
-}
-}
-else
-{
-lean_object* v___x_104_; 
-v___x_104_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpCachePut___closed__0));
-return v___x_104_;
+lean_object* v___x_116_; 
+v___x_116_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpCacheServices___closed__0));
+return v___x_116_;
 }
 }
 else
 {
-lean_object* v___x_105_; 
-v___x_105_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpCacheGet___closed__0));
-return v___x_105_;
+lean_object* v___x_117_; 
+v___x_117_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpCacheClean___closed__0));
+return v___x_117_;
+}
+}
+else
+{
+lean_object* v___x_118_; 
+v___x_118_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpCachePutStaged___closed__0));
+return v___x_118_;
+}
+}
+else
+{
+lean_object* v___x_119_; 
+v___x_119_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpCacheUnstage___closed__0));
+return v___x_119_;
+}
+}
+else
+{
+lean_object* v___x_120_; 
+v___x_120_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpCacheStage___closed__0));
+return v___x_120_;
+}
+}
+else
+{
+lean_object* v___x_121_; 
+v___x_121_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpCacheAdd___closed__0));
+return v___x_121_;
+}
+}
+else
+{
+lean_object* v___x_122_; 
+v___x_122_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpCachePut___closed__0));
+return v___x_122_;
+}
+}
+else
+{
+lean_object* v___x_123_; 
+v___x_123_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpCacheGet___closed__0));
+return v___x_123_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lake_helpCache___boxed(lean_object* v_x_106_){
+LEAN_EXPORT lean_object* l_Lake_helpCache___boxed(lean_object* v_x_124_){
 _start:
 {
-lean_object* v_res_107_; 
-v_res_107_ = l_Lake_helpCache(v_x_106_);
-lean_dec_ref(v_x_106_);
-return v_res_107_;
+lean_object* v_res_125_; 
+v_res_125_ = l_Lake_helpCache(v_x_124_);
+lean_dec_ref(v_x_124_);
+return v_res_125_;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_help(lean_object* v_x_132_){
+LEAN_EXPORT lean_object* l_Lake_help(lean_object* v_x_150_){
 _start:
-{
-lean_object* v___x_133_; uint8_t v___x_134_; 
-v___x_133_ = ((lean_object*)(l_Lake_help___closed__0));
-v___x_134_ = lean_string_dec_eq(v_x_132_, v___x_133_);
-if (v___x_134_ == 0)
-{
-lean_object* v___x_135_; uint8_t v___x_136_; 
-v___x_135_ = ((lean_object*)(l_Lake_help___closed__1));
-v___x_136_ = lean_string_dec_eq(v_x_132_, v___x_135_);
-if (v___x_136_ == 0)
-{
-lean_object* v___x_137_; uint8_t v___x_138_; 
-v___x_137_ = ((lean_object*)(l_Lake_help___closed__2));
-v___x_138_ = lean_string_dec_eq(v_x_132_, v___x_137_);
-if (v___x_138_ == 0)
-{
-lean_object* v___x_139_; uint8_t v___x_140_; 
-v___x_139_ = ((lean_object*)(l_Lake_help___closed__3));
-v___x_140_ = lean_string_dec_eq(v_x_132_, v___x_139_);
-if (v___x_140_ == 0)
-{
-lean_object* v___x_141_; uint8_t v___x_142_; 
-v___x_141_ = ((lean_object*)(l_Lake_help___closed__4));
-v___x_142_ = lean_string_dec_eq(v_x_132_, v___x_141_);
-if (v___x_142_ == 0)
-{
-lean_object* v___x_143_; uint8_t v___x_144_; 
-v___x_143_ = ((lean_object*)(l_Lake_help___closed__5));
-v___x_144_ = lean_string_dec_eq(v_x_132_, v___x_143_);
-if (v___x_144_ == 0)
-{
-lean_object* v___x_145_; uint8_t v___x_146_; 
-v___x_145_ = ((lean_object*)(l_Lake_help___closed__6));
-v___x_146_ = lean_string_dec_eq(v_x_132_, v___x_145_);
-if (v___x_146_ == 0)
-{
-lean_object* v___x_147_; uint8_t v___x_148_; 
-v___x_147_ = ((lean_object*)(l_Lake_help___closed__7));
-v___x_148_ = lean_string_dec_eq(v_x_132_, v___x_147_);
-if (v___x_148_ == 0)
-{
-lean_object* v___x_149_; uint8_t v___x_150_; 
-v___x_149_ = ((lean_object*)(l_Lake_help___closed__8));
-v___x_150_ = lean_string_dec_eq(v_x_132_, v___x_149_);
-if (v___x_150_ == 0)
 {
 lean_object* v___x_151_; uint8_t v___x_152_; 
-v___x_151_ = ((lean_object*)(l_Lake_help___closed__9));
-v___x_152_ = lean_string_dec_eq(v_x_132_, v___x_151_);
+v___x_151_ = ((lean_object*)(l_Lake_help___closed__0));
+v___x_152_ = lean_string_dec_eq(v_x_150_, v___x_151_);
 if (v___x_152_ == 0)
 {
 lean_object* v___x_153_; uint8_t v___x_154_; 
-v___x_153_ = ((lean_object*)(l_Lake_help___closed__10));
-v___x_154_ = lean_string_dec_eq(v_x_132_, v___x_153_);
+v___x_153_ = ((lean_object*)(l_Lake_help___closed__1));
+v___x_154_ = lean_string_dec_eq(v_x_150_, v___x_153_);
 if (v___x_154_ == 0)
 {
 lean_object* v___x_155_; uint8_t v___x_156_; 
-v___x_155_ = ((lean_object*)(l_Lake_help___closed__11));
-v___x_156_ = lean_string_dec_eq(v_x_132_, v___x_155_);
+v___x_155_ = ((lean_object*)(l_Lake_help___closed__2));
+v___x_156_ = lean_string_dec_eq(v_x_150_, v___x_155_);
 if (v___x_156_ == 0)
 {
 lean_object* v___x_157_; uint8_t v___x_158_; 
-v___x_157_ = ((lean_object*)(l_Lake_help___closed__12));
-v___x_158_ = lean_string_dec_eq(v_x_132_, v___x_157_);
+v___x_157_ = ((lean_object*)(l_Lake_help___closed__3));
+v___x_158_ = lean_string_dec_eq(v_x_150_, v___x_157_);
 if (v___x_158_ == 0)
 {
 lean_object* v___x_159_; uint8_t v___x_160_; 
-v___x_159_ = ((lean_object*)(l_Lake_help___closed__13));
-v___x_160_ = lean_string_dec_eq(v_x_132_, v___x_159_);
+v___x_159_ = ((lean_object*)(l_Lake_help___closed__4));
+v___x_160_ = lean_string_dec_eq(v_x_150_, v___x_159_);
 if (v___x_160_ == 0)
 {
 lean_object* v___x_161_; uint8_t v___x_162_; 
-v___x_161_ = ((lean_object*)(l_Lake_help___closed__14));
-v___x_162_ = lean_string_dec_eq(v_x_132_, v___x_161_);
+v___x_161_ = ((lean_object*)(l_Lake_help___closed__5));
+v___x_162_ = lean_string_dec_eq(v_x_150_, v___x_161_);
 if (v___x_162_ == 0)
 {
 lean_object* v___x_163_; uint8_t v___x_164_; 
-v___x_163_ = ((lean_object*)(l_Lake_helpCache___closed__3));
-v___x_164_ = lean_string_dec_eq(v_x_132_, v___x_163_);
+v___x_163_ = ((lean_object*)(l_Lake_help___closed__6));
+v___x_164_ = lean_string_dec_eq(v_x_150_, v___x_163_);
 if (v___x_164_ == 0)
 {
 lean_object* v___x_165_; uint8_t v___x_166_; 
-v___x_165_ = ((lean_object*)(l_Lake_help___closed__15));
-v___x_166_ = lean_string_dec_eq(v_x_132_, v___x_165_);
+v___x_165_ = ((lean_object*)(l_Lake_help___closed__7));
+v___x_166_ = lean_string_dec_eq(v_x_150_, v___x_165_);
 if (v___x_166_ == 0)
 {
 lean_object* v___x_167_; uint8_t v___x_168_; 
-v___x_167_ = ((lean_object*)(l_Lake_help___closed__16));
-v___x_168_ = lean_string_dec_eq(v_x_132_, v___x_167_);
+v___x_167_ = ((lean_object*)(l_Lake_help___closed__8));
+v___x_168_ = lean_string_dec_eq(v_x_150_, v___x_167_);
 if (v___x_168_ == 0)
 {
 lean_object* v___x_169_; uint8_t v___x_170_; 
-v___x_169_ = ((lean_object*)(l_Lake_help___closed__17));
-v___x_170_ = lean_string_dec_eq(v_x_132_, v___x_169_);
+v___x_169_ = ((lean_object*)(l_Lake_help___closed__9));
+v___x_170_ = lean_string_dec_eq(v_x_150_, v___x_169_);
 if (v___x_170_ == 0)
 {
 lean_object* v___x_171_; uint8_t v___x_172_; 
-v___x_171_ = ((lean_object*)(l_Lake_helpScript___closed__1));
-v___x_172_ = lean_string_dec_eq(v_x_132_, v___x_171_);
+v___x_171_ = ((lean_object*)(l_Lake_help___closed__10));
+v___x_172_ = lean_string_dec_eq(v_x_150_, v___x_171_);
 if (v___x_172_ == 0)
 {
 lean_object* v___x_173_; uint8_t v___x_174_; 
-v___x_173_ = ((lean_object*)(l_Lake_help___closed__18));
-v___x_174_ = lean_string_dec_eq(v_x_132_, v___x_173_);
+v___x_173_ = ((lean_object*)(l_Lake_help___closed__11));
+v___x_174_ = lean_string_dec_eq(v_x_150_, v___x_173_);
 if (v___x_174_ == 0)
 {
 lean_object* v___x_175_; uint8_t v___x_176_; 
-v___x_175_ = ((lean_object*)(l_Lake_help___closed__19));
-v___x_176_ = lean_string_dec_eq(v_x_132_, v___x_175_);
+v___x_175_ = ((lean_object*)(l_Lake_help___closed__12));
+v___x_176_ = lean_string_dec_eq(v_x_150_, v___x_175_);
 if (v___x_176_ == 0)
 {
 lean_object* v___x_177_; uint8_t v___x_178_; 
-v___x_177_ = ((lean_object*)(l_Lake_help___closed__20));
-v___x_178_ = lean_string_dec_eq(v_x_132_, v___x_177_);
+v___x_177_ = ((lean_object*)(l_Lake_help___closed__13));
+v___x_178_ = lean_string_dec_eq(v_x_150_, v___x_177_);
 if (v___x_178_ == 0)
 {
 lean_object* v___x_179_; uint8_t v___x_180_; 
-v___x_179_ = ((lean_object*)(l_Lake_help___closed__21));
-v___x_180_ = lean_string_dec_eq(v_x_132_, v___x_179_);
+v___x_179_ = ((lean_object*)(l_Lake_help___closed__14));
+v___x_180_ = lean_string_dec_eq(v_x_150_, v___x_179_);
 if (v___x_180_ == 0)
 {
 lean_object* v___x_181_; uint8_t v___x_182_; 
-v___x_181_ = ((lean_object*)(l_Lake_help___closed__22));
-v___x_182_ = lean_string_dec_eq(v_x_132_, v___x_181_);
+v___x_181_ = ((lean_object*)(l_Lake_helpCache___closed__6));
+v___x_182_ = lean_string_dec_eq(v_x_150_, v___x_181_);
 if (v___x_182_ == 0)
 {
 lean_object* v___x_183_; uint8_t v___x_184_; 
-v___x_183_ = ((lean_object*)(l_Lake_help___closed__23));
-v___x_184_ = lean_string_dec_eq(v_x_132_, v___x_183_);
+v___x_183_ = ((lean_object*)(l_Lake_help___closed__15));
+v___x_184_ = lean_string_dec_eq(v_x_150_, v___x_183_);
 if (v___x_184_ == 0)
 {
-lean_object* v___x_185_; 
-v___x_185_ = l_Lake_usage;
-return v___x_185_;
-}
-else
+lean_object* v___x_185_; uint8_t v___x_186_; 
+v___x_185_ = ((lean_object*)(l_Lake_help___closed__16));
+v___x_186_ = lean_string_dec_eq(v_x_150_, v___x_185_);
+if (v___x_186_ == 0)
 {
-lean_object* v___x_186_; 
-v___x_186_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpTranslateConfig___closed__0));
-return v___x_186_;
-}
-}
-else
+lean_object* v___x_187_; uint8_t v___x_188_; 
+v___x_187_ = ((lean_object*)(l_Lake_help___closed__17));
+v___x_188_ = lean_string_dec_eq(v_x_150_, v___x_187_);
+if (v___x_188_ == 0)
 {
-lean_object* v___x_187_; 
-v___x_187_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpLean___closed__0));
-return v___x_187_;
-}
-}
-else
+lean_object* v___x_189_; uint8_t v___x_190_; 
+v___x_189_ = ((lean_object*)(l_Lake_helpScript___closed__1));
+v___x_190_ = lean_string_dec_eq(v_x_150_, v___x_189_);
+if (v___x_190_ == 0)
 {
-lean_object* v___x_188_; 
-v___x_188_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpExe___closed__0));
-return v___x_188_;
-}
-}
-else
+lean_object* v___x_191_; uint8_t v___x_192_; 
+v___x_191_ = ((lean_object*)(l_Lake_help___closed__18));
+v___x_192_ = lean_string_dec_eq(v_x_150_, v___x_191_);
+if (v___x_192_ == 0)
 {
-lean_object* v___x_189_; 
-v___x_189_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpExe___closed__0));
-return v___x_189_;
-}
-}
-else
+lean_object* v___x_193_; uint8_t v___x_194_; 
+v___x_193_ = ((lean_object*)(l_Lake_help___closed__19));
+v___x_194_ = lean_string_dec_eq(v_x_150_, v___x_193_);
+if (v___x_194_ == 0)
 {
-lean_object* v___x_190_; 
-v___x_190_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpEnv___closed__0));
-return v___x_190_;
-}
-}
-else
+lean_object* v___x_195_; uint8_t v___x_196_; 
+v___x_195_ = ((lean_object*)(l_Lake_help___closed__20));
+v___x_196_ = lean_string_dec_eq(v_x_150_, v___x_195_);
+if (v___x_196_ == 0)
 {
-lean_object* v___x_191_; 
-v___x_191_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpServe___closed__0));
-return v___x_191_;
-}
-}
-else
+lean_object* v___x_197_; uint8_t v___x_198_; 
+v___x_197_ = ((lean_object*)(l_Lake_help___closed__21));
+v___x_198_ = lean_string_dec_eq(v_x_150_, v___x_197_);
+if (v___x_198_ == 0)
 {
-lean_object* v___x_192_; 
-v___x_192_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpScriptRun___closed__0));
-return v___x_192_;
-}
-}
-else
+lean_object* v___x_199_; uint8_t v___x_200_; 
+v___x_199_ = ((lean_object*)(l_Lake_help___closed__22));
+v___x_200_ = lean_string_dec_eq(v_x_150_, v___x_199_);
+if (v___x_200_ == 0)
 {
-lean_object* v___x_193_; 
-v___x_193_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpScriptList___closed__0));
-return v___x_193_;
-}
-}
-else
-{
-lean_object* v___x_194_; 
-v___x_194_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpScriptCli___closed__0));
-return v___x_194_;
-}
-}
-else
-{
-lean_object* v___x_195_; 
-v___x_195_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpShake___closed__0));
-return v___x_195_;
-}
-}
-else
-{
-lean_object* v___x_196_; 
-v___x_196_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpClean___closed__0));
-return v___x_196_;
-}
-}
-else
-{
-lean_object* v___x_197_; 
-v___x_197_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpCheckLint___closed__0));
-return v___x_197_;
-}
-}
-else
-{
-lean_object* v___x_198_; 
-v___x_198_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpLint___closed__0));
-return v___x_198_;
-}
-}
-else
-{
-lean_object* v___x_199_; 
-v___x_199_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpCheckTest___closed__0));
-return v___x_199_;
-}
-}
-else
-{
-lean_object* v___x_200_; 
-v___x_200_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpTest___closed__0));
-return v___x_200_;
-}
-}
-else
-{
-lean_object* v___x_201_; 
-v___x_201_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpCacheCli___closed__0));
-return v___x_201_;
-}
-}
-else
-{
-lean_object* v___x_202_; 
-v___x_202_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpUpload___closed__0));
-return v___x_202_;
-}
-}
-else
+lean_object* v___x_201_; uint8_t v___x_202_; 
+v___x_201_ = ((lean_object*)(l_Lake_help___closed__23));
+v___x_202_ = lean_string_dec_eq(v_x_150_, v___x_201_);
+if (v___x_202_ == 0)
 {
 lean_object* v___x_203_; 
-v___x_203_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpUnpack___closed__0));
+v___x_203_ = l_Lake_usage;
 return v___x_203_;
-}
 }
 else
 {
 lean_object* v___x_204_; 
-v___x_204_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpPack___closed__0));
+v___x_204_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpTranslateConfig___closed__0));
 return v___x_204_;
 }
 }
 else
 {
 lean_object* v___x_205_; 
-v___x_205_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpUpdate___closed__0));
+v___x_205_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpLean___closed__0));
 return v___x_205_;
 }
 }
 else
 {
 lean_object* v___x_206_; 
-v___x_206_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpUpdate___closed__0));
+v___x_206_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpExe___closed__0));
 return v___x_206_;
 }
 }
 else
 {
 lean_object* v___x_207_; 
-v___x_207_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpQuery___closed__0));
+v___x_207_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpExe___closed__0));
 return v___x_207_;
 }
 }
 else
 {
 lean_object* v___x_208_; 
-v___x_208_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpCheckBuild___closed__0));
+v___x_208_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpEnv___closed__0));
 return v___x_208_;
 }
 }
 else
 {
 lean_object* v___x_209_; 
-v___x_209_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpBuild___closed__0));
+v___x_209_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpServe___closed__0));
 return v___x_209_;
 }
 }
 else
 {
 lean_object* v___x_210_; 
-v___x_210_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpInit___closed__0));
+v___x_210_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpScriptRun___closed__0));
 return v___x_210_;
 }
 }
 else
 {
 lean_object* v___x_211_; 
-v___x_211_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpNew___closed__0));
+v___x_211_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpScriptList___closed__0));
 return v___x_211_;
 }
 }
+else
+{
+lean_object* v___x_212_; 
+v___x_212_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpScriptCli___closed__0));
+return v___x_212_;
 }
-LEAN_EXPORT lean_object* l_Lake_help___boxed(lean_object* v_x_212_){
+}
+else
+{
+lean_object* v___x_213_; 
+v___x_213_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpShake___closed__0));
+return v___x_213_;
+}
+}
+else
+{
+lean_object* v___x_214_; 
+v___x_214_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpClean___closed__0));
+return v___x_214_;
+}
+}
+else
+{
+lean_object* v___x_215_; 
+v___x_215_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpCheckLint___closed__0));
+return v___x_215_;
+}
+}
+else
+{
+lean_object* v___x_216_; 
+v___x_216_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpLint___closed__0));
+return v___x_216_;
+}
+}
+else
+{
+lean_object* v___x_217_; 
+v___x_217_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpCheckTest___closed__0));
+return v___x_217_;
+}
+}
+else
+{
+lean_object* v___x_218_; 
+v___x_218_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpTest___closed__0));
+return v___x_218_;
+}
+}
+else
+{
+lean_object* v___x_219_; 
+v___x_219_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpCacheCli___closed__0));
+return v___x_219_;
+}
+}
+else
+{
+lean_object* v___x_220_; 
+v___x_220_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpUpload___closed__0));
+return v___x_220_;
+}
+}
+else
+{
+lean_object* v___x_221_; 
+v___x_221_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpUnpack___closed__0));
+return v___x_221_;
+}
+}
+else
+{
+lean_object* v___x_222_; 
+v___x_222_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpPack___closed__0));
+return v___x_222_;
+}
+}
+else
+{
+lean_object* v___x_223_; 
+v___x_223_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpUpdate___closed__0));
+return v___x_223_;
+}
+}
+else
+{
+lean_object* v___x_224_; 
+v___x_224_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpUpdate___closed__0));
+return v___x_224_;
+}
+}
+else
+{
+lean_object* v___x_225_; 
+v___x_225_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpQuery___closed__0));
+return v___x_225_;
+}
+}
+else
+{
+lean_object* v___x_226_; 
+v___x_226_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpCheckBuild___closed__0));
+return v___x_226_;
+}
+}
+else
+{
+lean_object* v___x_227_; 
+v___x_227_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpBuild___closed__0));
+return v___x_227_;
+}
+}
+else
+{
+lean_object* v___x_228_; 
+v___x_228_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpInit___closed__0));
+return v___x_228_;
+}
+}
+else
+{
+lean_object* v___x_229_; 
+v___x_229_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpNew___closed__0));
+return v___x_229_;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lake_help___boxed(lean_object* v_x_230_){
 _start:
 {
-lean_object* v_res_213_; 
-v_res_213_ = l_Lake_help(v_x_212_);
-lean_dec_ref(v_x_212_);
-return v_res_213_;
+lean_object* v_res_231_; 
+v_res_231_ = l_Lake_help(v_x_230_);
+lean_dec_ref(v_x_230_);
+return v_res_231_;
 }
 }
 lean_object* runtime_initialize_Init_Data_ToString(uint8_t builtin);

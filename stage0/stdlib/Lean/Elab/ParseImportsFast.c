@@ -5178,10 +5178,9 @@ _start:
 {
 lean_object* v_pos_1390_; lean_object* v___y_1392_; lean_object* v_imports_1393_; lean_object* v_pos_1394_; uint8_t v_isModule_1395_; uint8_t v_isMeta_1396_; uint8_t v_isExported_1397_; uint8_t v_importAll_1398_; lean_object* v___y_1404_; lean_object* v___y_1431_; lean_object* v___x_1460_; lean_object* v___x_1461_; lean_object* v___x_1462_; lean_object* v_error_x3f_1463_; 
 v_pos_1390_ = lean_ctor_get(v_s_1389_, 1);
-lean_inc(v_pos_1390_);
+lean_inc_n(v_pos_1390_, 2);
 v___x_1460_ = ((lean_object*)(l_Lean_ParseImports_manyImports___at___00Lean_ParseImports_main_spec__6___closed__1));
 v___x_1461_ = lean_unsigned_to_nat(0u);
-lean_inc(v_pos_1390_);
 v___x_1462_ = l___private_Lean_Elab_ParseImportsFast_0__Lean_ParseImports_keywordCore_go___at___00Lean_ParseImports_main_spec__3(v___x_1460_, v_input_1388_, v_s_1389_, v___x_1461_, v_pos_1390_);
 v_error_x3f_1463_ = lean_ctor_get(v___x_1462_, 2);
 lean_inc(v_error_x3f_1463_);

@@ -50,7 +50,7 @@ lean_object* l_ReaderT_instApplicativeOfMonad___redArg___lam__3(lean_object*, le
 lean_object* l_ReaderT_instApplicativeOfMonad___redArg___lam__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_instMonadMetaM___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_instInhabitedOfMonad___redArg(lean_object*, lean_object*);
-lean_object* lean_panic_fn(lean_object*, lean_object*);
+lean_object* lean_panic_fn_borrowed(lean_object*, lean_object*);
 lean_object* lean_array_to_list(lean_object*);
 lean_object* lean_string_length(lean_object*);
 lean_object* l_Std_Format_fill(lean_object*);
@@ -1882,7 +1882,7 @@ _start:
 {
 lean_object* v___f_608_; lean_object* v___x_988__overap_609_; lean_object* v___x_610_; 
 v___f_608_ = ((lean_object*)(l_panic___at___00Lean_Elab_Structural_IndGroupInst_nestedTypeFormers_spec__0___closed__0));
-v___x_988__overap_609_ = lean_panic_fn(v___f_608_, v_msg_602_);
+v___x_988__overap_609_ = lean_panic_fn_borrowed(v___f_608_, v_msg_602_);
 lean_inc(v___y_606_);
 lean_inc_ref(v___y_605_);
 lean_inc(v___y_604_);
@@ -2059,7 +2059,7 @@ _start:
 {
 lean_object* v___f_705_; lean_object* v___x_2050__overap_706_; lean_object* v___x_707_; 
 v___f_705_ = ((lean_object*)(l_panic___at___00Lean_Elab_Structural_IndGroupInst_nestedTypeFormers_spec__0___closed__0));
-v___x_2050__overap_706_ = lean_panic_fn(v___f_705_, v_msg_699_);
+v___x_2050__overap_706_ = lean_panic_fn_borrowed(v___f_705_, v_msg_699_);
 lean_inc(v___y_703_);
 lean_inc_ref(v___y_702_);
 lean_inc(v___y_701_);
@@ -2489,7 +2489,8 @@ v_reusejp_855_:
 lean_object* v___x_857_; lean_object* v___x_858_; lean_object* v___x_2651__overap_859_; lean_object* v___x_860_; 
 v___x_857_ = lean_box(0);
 v___x_858_ = l_instInhabitedOfMonad___redArg(v___x_856_, v___x_857_);
-v___x_2651__overap_859_ = lean_panic_fn(v___x_858_, v_msg_802_);
+v___x_2651__overap_859_ = lean_panic_fn_borrowed(v___x_858_, v_msg_802_);
+lean_dec(v___x_858_);
 lean_inc(v___y_806_);
 lean_inc_ref(v___y_805_);
 lean_inc(v___y_804_);

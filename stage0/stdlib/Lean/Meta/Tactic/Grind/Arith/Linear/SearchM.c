@@ -625,13 +625,12 @@ goto v_resetjp_197_;
 v_resetjp_197_:
 {
 lean_object* v___x_200_; lean_object* v___x_201_; lean_object* v___x_202_; lean_object* v___x_204_; 
-lean_inc(v_a_191_);
+lean_inc_n(v_a_191_, 2);
 v___x_200_ = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(v___x_200_, 0, v_c_176_);
 lean_ctor_set(v___x_200_, 1, v_a_191_);
 lean_ctor_set(v___x_200_, 2, v_a_193_);
 v___x_201_ = l_Lean_PersistentArray_push___redArg(v_cases_195_, v___x_200_);
-lean_inc(v_a_191_);
 v___x_202_ = l_Lean_FVarIdSet_insert(v_decVars_196_, v_a_191_);
 if (v_isShared_199_ == 0)
 {

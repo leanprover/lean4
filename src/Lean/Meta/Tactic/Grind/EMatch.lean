@@ -456,7 +456,7 @@ private def getUnassignedLevelMVars (e : Expr) : MetaM (Array LMVarId) := do
 -- **Note**: issues reported by the E-matching module are too distractive. We only
 -- report them if `set_option grind.debug true`
 macro "reportEMatchIssue!" s:(interpolatedStr(term) <|> term) : doElem => do
-  expandReportDbgIssueMacro s.raw
+  Sym.expandReportDbgIssueMacro s.raw
 
 /--
 Stores new theorem instance in the state.

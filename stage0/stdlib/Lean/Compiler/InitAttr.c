@@ -1526,9 +1526,8 @@ if (lean_obj_tag(v___x_379_) == 0)
 {
 lean_object* v_a_380_; lean_object* v___x_381_; 
 v_a_380_ = lean_ctor_get(v___x_379_, 0);
-lean_inc(v_a_380_);
+lean_inc_n(v_a_380_, 2);
 lean_dec_ref(v___x_379_);
-lean_inc(v_a_380_);
 v___x_381_ = l_Lean_getConstInfo___at___00Lean_registerInitAttrUnsafe_spec__0(v_a_380_, v___y_359_, v___y_360_);
 if (lean_obj_tag(v___x_381_) == 0)
 {
@@ -3240,14 +3239,13 @@ v_resetjp_1086_:
 lean_object* v___x_1089_; lean_object* v___x_1090_; lean_object* v___x_1091_; lean_object* v___x_1092_; uint8_t v___x_1093_; lean_object* v___x_1094_; lean_object* v___x_1095_; lean_object* v___x_1097_; 
 v___x_1089_ = lean_box(0);
 v___x_1090_ = lean_obj_once(&l_Lean_declareBuiltin___lam__0___closed__4, &l_Lean_declareBuiltin___lam__0___closed__4_once, _init_l_Lean_declareBuiltin___lam__0___closed__4);
-lean_inc(v_a_1085_);
+lean_inc_n(v_a_1085_, 2);
 v___x_1091_ = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(v___x_1091_, 0, v_a_1085_);
 lean_ctor_set(v___x_1091_, 1, v___x_1089_);
 lean_ctor_set(v___x_1091_, 2, v___x_1090_);
 v___x_1092_ = lean_box(0);
 v___x_1093_ = 1;
-lean_inc(v_a_1085_);
 v___x_1094_ = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(v___x_1094_, 0, v_a_1085_);
 lean_ctor_set(v___x_1094_, 1, v___x_1089_);
@@ -4031,13 +4029,11 @@ v___x_1373_ = l_Lean_NameSet_insert(v___x_1372_, v_module_1370_);
 v___x_1374_ = lean_st_ref_set(v___x_1367_, v___x_1373_);
 v___x_1375_ = l_Lean_regularInitAttr;
 v_ext_1376_ = lean_ctor_get(v___x_1375_, 1);
-lean_inc_ref(v_ext_1376_);
 v___x_1377_ = ((lean_object*)(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Lean_Compiler_InitAttr_0__Lean_runInitAttrs_spec__4___closed__0));
 v___x_1378_ = 0;
 v___x_1379_ = l_Lean_PersistentEnvExtension_getModuleEntries___redArg(v___x_1377_, v_ext_1376_, v_env_1320_, v_val_1337_, v___x_1378_);
 v___x_1380_ = l___private_Lean_Environment_0__Lean_PersistentEnvExtension_getModuleIREntries_unsafe__1(lean_box(0), lean_box(0), lean_box(0), v___x_1377_, v_ext_1376_, v_env_1320_, v_val_1337_);
 lean_dec(v_val_1337_);
-lean_dec_ref(v_ext_1376_);
 v___x_1381_ = lean_array_get_size(v___x_1380_);
 v___x_1382_ = ((lean_object*)(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Lean_Compiler_InitAttr_0__Lean_runInitAttrs_spec__4___closed__1));
 v___x_1383_ = lean_nat_dec_lt(v___x_1341_, v___x_1381_);

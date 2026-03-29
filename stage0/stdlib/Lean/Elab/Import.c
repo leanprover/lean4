@@ -25,7 +25,7 @@ lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 extern lean_object* l_Lean_instInhabitedImport_default;
-lean_object* lean_panic_fn(lean_object*, lean_object*);
+lean_object* lean_panic_fn_borrowed(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_matchesNull(lean_object*, lean_object*);
 lean_object* l_Lean_TSyntax_getId(lean_object*);
@@ -240,7 +240,7 @@ _start:
 {
 lean_object* v___x_19_; lean_object* v___x_20_; 
 v___x_19_ = lean_obj_once(&l_panic___at___00Lean_Elab_HeaderSyntax_imports_spec__0___closed__0, &l_panic___at___00Lean_Elab_HeaderSyntax_imports_spec__0___closed__0_once, _init_l_panic___at___00Lean_Elab_HeaderSyntax_imports_spec__0___closed__0);
-v___x_20_ = lean_panic_fn(v___x_19_, v_msg_18_);
+v___x_20_ = lean_panic_fn_borrowed(v___x_19_, v_msg_18_);
 return v___x_20_;
 }
 }
@@ -249,7 +249,7 @@ _start:
 {
 lean_object* v___x_22_; lean_object* v___x_23_; 
 v___x_22_ = l_Lean_instInhabitedImport_default;
-v___x_23_ = lean_panic_fn(v___x_22_, v_msg_21_);
+v___x_23_ = lean_panic_fn_borrowed(v___x_22_, v_msg_21_);
 return v___x_23_;
 }
 }

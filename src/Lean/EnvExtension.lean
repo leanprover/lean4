@@ -26,7 +26,7 @@ structure SimplePersistentEnvExtensionDescr (α σ : Type) where
   addImportedFn : Array (Array α) → σ
   toArrayFn     : List α → Array α := fun es => es.toArray
   exportEntriesFnEx? :
-    Option (Environment → σ → List α → OLeanLevel → Array α) := none
+    Option (Environment → σ → List α → OLeanEntries (Array α)) := none
   asyncMode     : EnvExtension.AsyncMode := .mainOnly
   replay?       : Option ((newEntries : List α) → (newState : σ) → σ → List α × σ) := none
 
@@ -48,9 +48,9 @@ def registerSimplePersistentEnvExtension {α σ : Type} [Inhabited σ] (descr : 
     addImportedFn   := fun as => pure ([], descr.addImportedFn as),
     addEntryFn      := fun s e => match s with
       | (entries, s) => (e::entries, descr.addEntryFn s e),
-    exportEntriesFnEx env s level := match descr.exportEntriesFnEx? with
-      | some fn => fn env s.2 s.1.reverse level
-      | none    => descr.toArrayFn s.1.reverse
+    exportEntriesFnEx env s := match descr.exportEntriesFnEx? with
+      | some fn => fn env s.2 s.1.reverse
+      | none    => .uniform (descr.toArrayFn s.1.reverse)
     statsFn := fun s => format "number of local entries: " ++ format s.1.length
     asyncMode := descr.asyncMode
     replay? := descr.replay?.map fun replay oldState newState _ (entries, s) =>
@@ -131,16 +131,18 @@ deriving Inhabited
 
 def mkMapDeclarationExtension (name : Name := by exact decl_name%)
     (asyncMode : EnvExtension.AsyncMode := .async .mainEnv)
-    (exportEntriesFn : Environment → NameMap α → OLeanLevel → Array (Name × α) :=
+    (exportEntriesFn : Environment → NameMap α → OLeanEntries (Array (Name × α)) :=
       -- Do not export info for private defs by default
-      fun env s _ => s.toArray.filter (fun (n, _) => env.contains (skipRealize := false) n)) :
+      fun env s =>
+        let all := s.toArray.filter (fun (n, _) => env.contains (skipRealize := false) n)
+        .uniform all) :
     IO (MapDeclarationExtension α) :=
   .mk <$> registerPersistentEnvExtension {
     name            := name,
     mkInitial       := pure {}
     addImportedFn   := fun _ => pure {}
     addEntryFn      := fun s (n, v) => s.insert n v
-    exportEntriesFnEx env s level := exportEntriesFn env s level
+    exportEntriesFnEx env s := exportEntriesFn env s
     asyncMode
     replay?         := some fun _ newState newConsts s =>
       newConsts.foldl (init := s) fun s c =>

@@ -66,9 +66,8 @@ builtin_initialize extraModUses : SimplePersistentEnvExtension ExtraModUse (PHas
   registerSimplePersistentEnvExtension {
     addEntryFn m k := m.insert k
     addImportedFn _ := {}
-    exportEntriesFnEx? := some fun _ _ entries => fun
-      | .private => entries.toArray
-      | _        => #[]
+    exportEntriesFnEx? := some fun _ _ entries =>
+      { exported := #[], server := #[], «private» := entries.toArray }
     asyncMode := .sync
     replay? := some <| SimplePersistentEnvExtension.replayOfFilter (·.contains ·) (·.insert ·)
   }

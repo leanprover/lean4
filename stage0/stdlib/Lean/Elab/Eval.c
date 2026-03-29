@@ -247,9 +247,8 @@ if (lean_obj_tag(v___x_91_) == 0)
 {
 lean_object* v_a_92_; lean_object* v___x_93_; 
 v_a_92_ = lean_ctor_get(v___x_91_, 0);
-lean_inc(v_a_92_);
+lean_inc_n(v_a_92_, 2);
 lean_dec_ref(v___x_91_);
-lean_inc(v_a_92_);
 v___x_93_ = l_Lean_Meta_getMVars(v_a_92_, v___y_82_, v___y_83_, v___y_84_, v___y_85_);
 if (lean_obj_tag(v___x_93_) == 0)
 {

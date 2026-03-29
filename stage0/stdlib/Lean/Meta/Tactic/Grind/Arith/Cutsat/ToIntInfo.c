@@ -917,9 +917,8 @@ lean_object* v_val_182_; lean_object* v___x_183_; lean_object* v___x_184_; lean_
 v_val_182_ = lean_ctor_get(v_hi_178_, 0);
 lean_inc_ref(v_val_182_);
 lean_dec_ref(v_hi_178_);
-lean_inc_ref(v_val_179_);
+lean_inc_ref_n(v_val_179_, 2);
 v___x_183_ = l_Lean_mkIntSub(v_x_171_, v_val_179_);
-lean_inc_ref(v_val_179_);
 v___x_184_ = l_Lean_mkIntSub(v_val_182_, v_val_179_);
 v___x_185_ = l_Lean_mkIntMod(v___x_183_, v___x_184_);
 v___x_186_ = l_Lean_mkIntAdd(v___x_185_, v_val_179_);

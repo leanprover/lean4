@@ -147,6 +147,7 @@ goto v___jp_36_;
 v___jp_29_:
 {
 lean_object* v___x_31_; lean_object* v___x_32_; lean_object* v___x_33_; lean_object* v___x_34_; lean_object* v___x_35_; 
+lean_inc_ref(v___y_30_);
 v___x_31_ = lean_string_append(v___y_30_, v_name_27_);
 v___x_32_ = ((lean_object*)(l_Lake_nameToSharedLib___closed__0));
 v___x_33_ = lean_string_append(v___x_31_, v___x_32_);

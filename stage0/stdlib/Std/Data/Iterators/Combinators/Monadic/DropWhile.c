@@ -370,10 +370,9 @@ lean_object* v_it_162_; lean_object* v_out_163_; lean_object* v___x_164_; lean_o
 v_it_162_ = lean_ctor_get(v_____do__lift_150_, 0);
 lean_inc(v_it_162_);
 v_out_163_ = lean_ctor_get(v_____do__lift_150_, 1);
-lean_inc(v_out_163_);
+lean_inc_n(v_out_163_, 2);
 lean_dec_ref(v_____do__lift_150_);
 v___x_164_ = lean_box(v_dropping_146_);
-lean_inc(v_out_163_);
 v___f_165_ = lean_alloc_closure((void*)(l_Std_Iterators_Types_DropWhile_instIterator___redArg___lam__0___boxed), 5, 4);
 lean_closure_set(v___f_165_, 0, v_it_162_);
 lean_closure_set(v___f_165_, 1, v_out_163_);
@@ -611,7 +610,7 @@ lean_object* v_toApplicative_264_; lean_object* v_toBind_265_; lean_object* v_to
 v_toApplicative_264_ = lean_ctor_get(v_inst_253_, 0);
 lean_inc_ref(v_toApplicative_264_);
 v_toBind_265_ = lean_ctor_get(v_inst_253_, 1);
-lean_inc(v_toBind_265_);
+lean_inc_n(v_toBind_265_, 2);
 lean_dec_ref(v_inst_253_);
 v_toPure_266_ = lean_ctor_get(v_toApplicative_264_, 1);
 lean_inc(v_toPure_266_);
@@ -627,7 +626,6 @@ lean_closure_set(v___f_269_, 2, v___y_255_);
 lean_closure_set(v___f_269_, 3, v_acc_261_);
 lean_closure_set(v___f_269_, 4, v_toBind_256_);
 v___x_270_ = lean_box(v_dropping_267_);
-lean_inc(v_toBind_265_);
 v___f_271_ = lean_alloc_closure((void*)(l_Std_Iterators_Types_DropWhile_instIterator___redArg___lam__1___boxed), 5, 4);
 lean_closure_set(v___f_271_, 0, v___x_270_);
 lean_closure_set(v___f_271_, 1, v_toPure_266_);

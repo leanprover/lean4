@@ -142,11 +142,10 @@ v_a_67_ = lean_ctor_get(v___x_66_, 0);
 lean_inc(v_a_67_);
 lean_dec_ref(v___x_66_);
 v_self_68_ = lean_ctor_get(v_a_67_, 0);
-lean_inc_ref(v_self_68_);
+lean_inc_ref_n(v_self_68_, 2);
 v_next_69_ = lean_ctor_get(v_a_67_, 1);
 lean_inc_ref(v_next_69_);
 lean_dec(v_a_67_);
-lean_inc_ref(v_self_68_);
 v___x_70_ = l_Lean_Meta_instantiateMVarsIfMVarApp___redArg(v_self_68_, v___y_57_);
 if (lean_obj_tag(v___x_70_) == 0)
 {
@@ -379,11 +378,10 @@ v___x_125_ = l_Lean_Expr_appFn_x21(v_e_46_);
 v___x_126_ = l_Lean_Expr_appFn_x21(v___x_125_);
 lean_dec_ref(v___x_125_);
 lean_inc_ref(v_arg_108_);
-lean_inc_ref(v_a_47_);
+lean_inc_ref_n(v_a_47_, 2);
 lean_inc_ref(v___x_126_);
 v___x_127_ = l_Lean_mkAppB(v___x_126_, v_a_47_, v_arg_108_);
 lean_inc_ref(v_arg_103_);
-lean_inc_ref(v_a_47_);
 v___x_128_ = l_Lean_mkAppB(v___x_126_, v_a_47_, v_arg_103_);
 v___x_129_ = l_Lean_Meta_mkMul(v___x_127_, v___x_128_, v___y_56_, v___y_57_, v___y_58_, v___y_59_);
 if (lean_obj_tag(v___x_129_) == 0)
@@ -417,7 +415,7 @@ v_a_134_ = lean_ctor_get(v___x_133_, 0);
 lean_inc(v_a_134_);
 lean_dec_ref(v___x_133_);
 v_expr_135_ = lean_ctor_get(v_a_132_, 0);
-lean_inc_ref(v_expr_135_);
+lean_inc_ref_n(v_expr_135_, 2);
 lean_inc(v___y_59_);
 lean_inc_ref(v___y_58_);
 lean_inc(v___y_57_);
@@ -428,7 +426,6 @@ lean_inc(v___y_53_);
 lean_inc_ref(v___y_52_);
 lean_inc(v___y_51_);
 lean_inc(v___y_50_);
-lean_inc_ref(v_expr_135_);
 v___x_136_ = lean_grind_internalize(v_expr_135_, v_a_134_, v___x_75_, v___y_50_, v___y_51_, v___y_52_, v___y_53_, v___y_54_, v___y_55_, v___y_56_, v___y_57_, v___y_58_, v___y_59_);
 if (lean_obj_tag(v___x_136_) == 0)
 {

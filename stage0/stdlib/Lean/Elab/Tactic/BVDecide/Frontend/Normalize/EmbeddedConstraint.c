@@ -252,7 +252,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_embedded
 _start:
 {
 lean_object* v___x_77_; 
-lean_inc_ref(v___y_72_);
 v___x_77_ = l_Lean_Meta_getPropHyps(v___y_72_, v___y_73_, v___y_74_, v___y_75_);
 return v___x_77_;
 }
@@ -731,7 +730,6 @@ v___x_270_ = l_Std_DHashMap_Internal_Raw_u2080_contains___at___00Lean_Elab_Tacti
 if (v___x_270_ == 0)
 {
 lean_object* v___x_271_; 
-lean_inc_ref(v___y_222_);
 lean_inc(v_a_234_);
 v___x_271_ = l_Lean_FVarId_getDecl___redArg(v_a_234_, v___y_222_, v___y_224_, v___y_225_);
 if (lean_obj_tag(v___x_271_) == 0)
@@ -1125,7 +1123,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_embedded
 _start:
 {
 lean_object* v___x_368_; 
-lean_inc_ref(v___y_363_);
 v___x_368_ = l_Lean_Meta_getPropHyps(v___y_363_, v___y_364_, v___y_365_, v___y_366_);
 if (lean_obj_tag(v___x_368_) == 0)
 {

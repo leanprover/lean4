@@ -327,13 +327,12 @@ v_resetjp_109_:
 {
 lean_object* v___x_112_; lean_object* v___x_113_; lean_object* v___x_114_; lean_object* v___x_115_; lean_object* v___f_116_; lean_object* v___x_117_; lean_object* v___x_118_; lean_object* v___x_120_; 
 v___x_112_ = lean_obj_once(&l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVExpr_mkAtom___closed__2, &l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVExpr_mkAtom___closed__2_once, _init_l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVExpr_mkAtom___closed__2);
-lean_inc(v_width_99_);
+lean_inc_n(v_width_99_, 2);
 v___x_113_ = l_Lean_mkNatLit(v_width_99_);
 lean_inc(v_a_108_);
 v___x_114_ = l_Lean_mkNatLit(v_a_108_);
 v___x_115_ = l_Lean_mkAppB(v___x_112_, v___x_113_, v___x_114_);
 v___f_116_ = ((lean_object*)(l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVExpr_mkAtom___closed__3));
-lean_inc(v_width_99_);
 v___x_117_ = l_Std_Tactic_BVDecide_BVExpr_var___override(v_width_99_, v_a_108_);
 lean_inc_ref(v___x_115_);
 v___x_118_ = lean_alloc_ctor(0, 5, 0);
@@ -1265,10 +1264,9 @@ _start:
 {
 lean_object* v_bvExpr_392_; lean_object* v___x_393_; lean_object* v___x_394_; lean_object* v___x_395_; lean_object* v___x_396_; lean_object* v___x_397_; lean_object* v_expr_398_; lean_object* v_proof_399_; lean_object* v___x_400_; lean_object* v___x_401_; 
 lean_inc(v_val_390_);
-lean_inc(v_w_389_);
+lean_inc_n(v_w_389_, 2);
 v_bvExpr_392_ = l_Std_Tactic_BVDecide_BVExpr_const___override(v_w_389_, v_val_390_);
 v___x_393_ = lean_obj_once(&l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVExpr_mkBVConst___redArg___closed__2, &l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVExpr_mkBVConst___redArg___closed__2_once, _init_l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVExpr_mkBVConst___redArg___closed__2);
-lean_inc(v_w_389_);
 v___x_394_ = l_Lean_mkNatLit(v_w_389_);
 v___x_395_ = lean_obj_once(&l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVExpr_mkBVConst___redArg___closed__5, &l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVExpr_mkBVConst___redArg___closed__5_once, _init_l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVExpr_mkBVConst___redArg___closed__5);
 v___x_396_ = l_Lean_mkNatLit(v_val_390_);

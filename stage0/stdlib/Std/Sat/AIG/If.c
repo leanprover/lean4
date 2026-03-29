@@ -41,13 +41,12 @@ _start:
 {
 lean_object* v_discr_5_; lean_object* v_lhs_6_; lean_object* v_rhs_7_; lean_object* v___x_8_; lean_object* v_res_9_; lean_object* v_aig_10_; lean_object* v_ref_11_; lean_object* v___x_13_; uint8_t v_isShared_14_; uint8_t v_isSharedCheck_64_; 
 v_discr_5_ = lean_ctor_get(v_input_4_, 0);
-lean_inc_ref(v_discr_5_);
+lean_inc_ref_n(v_discr_5_, 2);
 v_lhs_6_ = lean_ctor_get(v_input_4_, 1);
 lean_inc_ref(v_lhs_6_);
 v_rhs_7_ = lean_ctor_get(v_input_4_, 2);
 lean_inc_ref(v_rhs_7_);
 lean_dec_ref(v_input_4_);
-lean_inc_ref(v_discr_5_);
 v___x_8_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_8_, 0, v_discr_5_);
 lean_ctor_set(v___x_8_, 1, v_lhs_6_);

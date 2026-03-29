@@ -1343,14 +1343,14 @@ if (lean_obj_tag(v___x_359_) == 0)
 {
 lean_object* v_a_360_; lean_object* v___x_361_; lean_object* v___x_362_; lean_object* v___x_363_; lean_object* v___x_364_; lean_object* v___x_365_; lean_object* v___x_367_; uint8_t v_isShared_368_; uint8_t v_isSharedCheck_373_; 
 v_a_360_ = lean_ctor_get(v___x_359_, 0);
-lean_inc(v_a_360_);
+lean_inc_n(v_a_360_, 2);
 lean_dec_ref(v___x_359_);
 v___x_361_ = lean_box(0);
 v___x_362_ = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(v___x_362_, 0, v_u_339_);
 lean_ctor_set(v___x_362_, 1, v___x_361_);
+lean_inc(v_fst_354_);
 v___x_363_ = l_Lean_mkConst(v_fst_354_, v___x_362_);
-lean_inc(v_a_360_);
 v___x_364_ = l_Lean_mkApp5(v___x_363_, v_arg_347_, v_hyps_341_, v_arg_346_, v_arg_345_, v_a_360_);
 v___x_365_ = l_Lean_MVarId_assign___at___00Lean_Elab_Tactic_Do_ProofMode_mLeftRightCore_spec__2___redArg(v_mvar_312_, v___x_364_, v_a_314_);
 v_isSharedCheck_373_ = !lean_is_exclusive(v___x_365_);
@@ -1398,7 +1398,6 @@ return v___x_371_;
 else
 {
 lean_object* v_a_375_; lean_object* v___x_377_; uint8_t v_isShared_378_; uint8_t v_isSharedCheck_382_; 
-lean_dec(v_fst_354_);
 lean_dec_ref(v_arg_347_);
 lean_dec_ref(v_arg_346_);
 lean_dec_ref(v_arg_345_);
@@ -1957,11 +1956,10 @@ if (lean_obj_tag(v___x_623_) == 0)
 {
 lean_object* v_a_624_; uint8_t v___x_625_; lean_object* v___x_626_; lean_object* v___f_627_; lean_object* v___x_628_; 
 v_a_624_ = lean_ctor_get(v___x_623_, 0);
-lean_inc(v_a_624_);
+lean_inc_n(v_a_624_, 2);
 lean_dec_ref(v___x_623_);
 v___x_625_ = 0;
 v___x_626_ = lean_box(v___x_625_);
-lean_inc(v_a_624_);
 v___f_627_ = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_Do_ProofMode_elabMLeft___redArg___lam__0___boxed), 11, 2);
 lean_closure_set(v___f_627_, 0, v___x_626_);
 lean_closure_set(v___f_627_, 1, v_a_624_);
@@ -2081,11 +2079,10 @@ if (lean_obj_tag(v___x_705_) == 0)
 {
 lean_object* v_a_706_; uint8_t v___x_707_; lean_object* v___x_708_; lean_object* v___f_709_; lean_object* v___x_710_; 
 v_a_706_ = lean_ctor_get(v___x_705_, 0);
-lean_inc(v_a_706_);
+lean_inc_n(v_a_706_, 2);
 lean_dec_ref(v___x_705_);
 v___x_707_ = 1;
 v___x_708_ = lean_box(v___x_707_);
-lean_inc(v_a_706_);
 v___f_709_ = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_Do_ProofMode_elabMLeft___redArg___lam__0___boxed), 11, 2);
 lean_closure_set(v___f_709_, 0, v___x_708_);
 lean_closure_set(v___f_709_, 1, v_a_706_);

@@ -23,7 +23,7 @@ uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
-lean_object* lean_panic_fn(lean_object*, lean_object*);
+lean_object* lean_panic_fn_borrowed(lean_object*, lean_object*);
 lean_object* l_String_quote(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3014,6 +3014,7 @@ v___jp_711_:
 {
 lean_object* v___x_713_; lean_object* v___x_714_; uint8_t v___x_715_; lean_object* v___x_716_; lean_object* v___x_717_; 
 v___x_713_ = ((lean_object*)(l_Std_Http_instReprMethod_repr___closed__1));
+lean_inc(v___y_712_);
 v___x_714_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_714_, 0, v___y_712_);
 lean_ctor_set(v___x_714_, 1, v___x_713_);
@@ -3028,6 +3029,7 @@ v___jp_718_:
 {
 lean_object* v___x_720_; lean_object* v___x_721_; uint8_t v___x_722_; lean_object* v___x_723_; lean_object* v___x_724_; 
 v___x_720_ = ((lean_object*)(l_Std_Http_instReprMethod_repr___closed__3));
+lean_inc(v___y_719_);
 v___x_721_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_721_, 0, v___y_719_);
 lean_ctor_set(v___x_721_, 1, v___x_720_);
@@ -3042,6 +3044,7 @@ v___jp_725_:
 {
 lean_object* v___x_727_; lean_object* v___x_728_; uint8_t v___x_729_; lean_object* v___x_730_; lean_object* v___x_731_; 
 v___x_727_ = ((lean_object*)(l_Std_Http_instReprMethod_repr___closed__5));
+lean_inc(v___y_726_);
 v___x_728_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_728_, 0, v___y_726_);
 lean_ctor_set(v___x_728_, 1, v___x_727_);
@@ -3056,6 +3059,7 @@ v___jp_732_:
 {
 lean_object* v___x_734_; lean_object* v___x_735_; uint8_t v___x_736_; lean_object* v___x_737_; lean_object* v___x_738_; 
 v___x_734_ = ((lean_object*)(l_Std_Http_instReprMethod_repr___closed__7));
+lean_inc(v___y_733_);
 v___x_735_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_735_, 0, v___y_733_);
 lean_ctor_set(v___x_735_, 1, v___x_734_);
@@ -3070,6 +3074,7 @@ v___jp_739_:
 {
 lean_object* v___x_741_; lean_object* v___x_742_; uint8_t v___x_743_; lean_object* v___x_744_; lean_object* v___x_745_; 
 v___x_741_ = ((lean_object*)(l_Std_Http_instReprMethod_repr___closed__9));
+lean_inc(v___y_740_);
 v___x_742_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_742_, 0, v___y_740_);
 lean_ctor_set(v___x_742_, 1, v___x_741_);
@@ -3084,6 +3089,7 @@ v___jp_746_:
 {
 lean_object* v___x_748_; lean_object* v___x_749_; uint8_t v___x_750_; lean_object* v___x_751_; lean_object* v___x_752_; 
 v___x_748_ = ((lean_object*)(l_Std_Http_instReprMethod_repr___closed__11));
+lean_inc(v___y_747_);
 v___x_749_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_749_, 0, v___y_747_);
 lean_ctor_set(v___x_749_, 1, v___x_748_);
@@ -3098,6 +3104,7 @@ v___jp_753_:
 {
 lean_object* v___x_755_; lean_object* v___x_756_; uint8_t v___x_757_; lean_object* v___x_758_; lean_object* v___x_759_; 
 v___x_755_ = ((lean_object*)(l_Std_Http_instReprMethod_repr___closed__13));
+lean_inc(v___y_754_);
 v___x_756_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_756_, 0, v___y_754_);
 lean_ctor_set(v___x_756_, 1, v___x_755_);
@@ -3112,6 +3119,7 @@ v___jp_760_:
 {
 lean_object* v___x_762_; lean_object* v___x_763_; uint8_t v___x_764_; lean_object* v___x_765_; lean_object* v___x_766_; 
 v___x_762_ = ((lean_object*)(l_Std_Http_instReprMethod_repr___closed__15));
+lean_inc(v___y_761_);
 v___x_763_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_763_, 0, v___y_761_);
 lean_ctor_set(v___x_763_, 1, v___x_762_);
@@ -3126,6 +3134,7 @@ v___jp_767_:
 {
 lean_object* v___x_769_; lean_object* v___x_770_; uint8_t v___x_771_; lean_object* v___x_772_; lean_object* v___x_773_; 
 v___x_769_ = ((lean_object*)(l_Std_Http_instReprMethod_repr___closed__17));
+lean_inc(v___y_768_);
 v___x_770_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_770_, 0, v___y_768_);
 lean_ctor_set(v___x_770_, 1, v___x_769_);
@@ -3140,6 +3149,7 @@ v___jp_774_:
 {
 lean_object* v___x_776_; lean_object* v___x_777_; uint8_t v___x_778_; lean_object* v___x_779_; lean_object* v___x_780_; 
 v___x_776_ = ((lean_object*)(l_Std_Http_instReprMethod_repr___closed__19));
+lean_inc(v___y_775_);
 v___x_777_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_777_, 0, v___y_775_);
 lean_ctor_set(v___x_777_, 1, v___x_776_);
@@ -3154,6 +3164,7 @@ v___jp_781_:
 {
 lean_object* v___x_783_; lean_object* v___x_784_; uint8_t v___x_785_; lean_object* v___x_786_; lean_object* v___x_787_; 
 v___x_783_ = ((lean_object*)(l_Std_Http_instReprMethod_repr___closed__21));
+lean_inc(v___y_782_);
 v___x_784_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_784_, 0, v___y_782_);
 lean_ctor_set(v___x_784_, 1, v___x_783_);
@@ -3168,6 +3179,7 @@ v___jp_788_:
 {
 lean_object* v___x_790_; lean_object* v___x_791_; uint8_t v___x_792_; lean_object* v___x_793_; lean_object* v___x_794_; 
 v___x_790_ = ((lean_object*)(l_Std_Http_instReprMethod_repr___closed__23));
+lean_inc(v___y_789_);
 v___x_791_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_791_, 0, v___y_789_);
 lean_ctor_set(v___x_791_, 1, v___x_790_);
@@ -3182,6 +3194,7 @@ v___jp_795_:
 {
 lean_object* v___x_797_; lean_object* v___x_798_; uint8_t v___x_799_; lean_object* v___x_800_; lean_object* v___x_801_; 
 v___x_797_ = ((lean_object*)(l_Std_Http_instReprMethod_repr___closed__25));
+lean_inc(v___y_796_);
 v___x_798_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_798_, 0, v___y_796_);
 lean_ctor_set(v___x_798_, 1, v___x_797_);
@@ -3196,6 +3209,7 @@ v___jp_802_:
 {
 lean_object* v___x_804_; lean_object* v___x_805_; uint8_t v___x_806_; lean_object* v___x_807_; lean_object* v___x_808_; 
 v___x_804_ = ((lean_object*)(l_Std_Http_instReprMethod_repr___closed__27));
+lean_inc(v___y_803_);
 v___x_805_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_805_, 0, v___y_803_);
 lean_ctor_set(v___x_805_, 1, v___x_804_);
@@ -3210,6 +3224,7 @@ v___jp_809_:
 {
 lean_object* v___x_811_; lean_object* v___x_812_; uint8_t v___x_813_; lean_object* v___x_814_; lean_object* v___x_815_; 
 v___x_811_ = ((lean_object*)(l_Std_Http_instReprMethod_repr___closed__29));
+lean_inc(v___y_810_);
 v___x_812_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_812_, 0, v___y_810_);
 lean_ctor_set(v___x_812_, 1, v___x_811_);
@@ -3224,6 +3239,7 @@ v___jp_816_:
 {
 lean_object* v___x_818_; lean_object* v___x_819_; uint8_t v___x_820_; lean_object* v___x_821_; lean_object* v___x_822_; 
 v___x_818_ = ((lean_object*)(l_Std_Http_instReprMethod_repr___closed__31));
+lean_inc(v___y_817_);
 v___x_819_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_819_, 0, v___y_817_);
 lean_ctor_set(v___x_819_, 1, v___x_818_);
@@ -3238,6 +3254,7 @@ v___jp_823_:
 {
 lean_object* v___x_825_; lean_object* v___x_826_; uint8_t v___x_827_; lean_object* v___x_828_; lean_object* v___x_829_; 
 v___x_825_ = ((lean_object*)(l_Std_Http_instReprMethod_repr___closed__33));
+lean_inc(v___y_824_);
 v___x_826_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_826_, 0, v___y_824_);
 lean_ctor_set(v___x_826_, 1, v___x_825_);
@@ -3252,6 +3269,7 @@ v___jp_830_:
 {
 lean_object* v___x_832_; lean_object* v___x_833_; uint8_t v___x_834_; lean_object* v___x_835_; lean_object* v___x_836_; 
 v___x_832_ = ((lean_object*)(l_Std_Http_instReprMethod_repr___closed__35));
+lean_inc(v___y_831_);
 v___x_833_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_833_, 0, v___y_831_);
 lean_ctor_set(v___x_833_, 1, v___x_832_);
@@ -3266,6 +3284,7 @@ v___jp_837_:
 {
 lean_object* v___x_839_; lean_object* v___x_840_; uint8_t v___x_841_; lean_object* v___x_842_; lean_object* v___x_843_; 
 v___x_839_ = ((lean_object*)(l_Std_Http_instReprMethod_repr___closed__37));
+lean_inc(v___y_838_);
 v___x_840_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_840_, 0, v___y_838_);
 lean_ctor_set(v___x_840_, 1, v___x_839_);
@@ -3280,6 +3299,7 @@ v___jp_844_:
 {
 lean_object* v___x_846_; lean_object* v___x_847_; uint8_t v___x_848_; lean_object* v___x_849_; lean_object* v___x_850_; 
 v___x_846_ = ((lean_object*)(l_Std_Http_instReprMethod_repr___closed__39));
+lean_inc(v___y_845_);
 v___x_847_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_847_, 0, v___y_845_);
 lean_ctor_set(v___x_847_, 1, v___x_846_);
@@ -3294,6 +3314,7 @@ v___jp_851_:
 {
 lean_object* v___x_853_; lean_object* v___x_854_; uint8_t v___x_855_; lean_object* v___x_856_; lean_object* v___x_857_; 
 v___x_853_ = ((lean_object*)(l_Std_Http_instReprMethod_repr___closed__41));
+lean_inc(v___y_852_);
 v___x_854_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_854_, 0, v___y_852_);
 lean_ctor_set(v___x_854_, 1, v___x_853_);
@@ -3308,6 +3329,7 @@ v___jp_858_:
 {
 lean_object* v___x_860_; lean_object* v___x_861_; uint8_t v___x_862_; lean_object* v___x_863_; lean_object* v___x_864_; 
 v___x_860_ = ((lean_object*)(l_Std_Http_instReprMethod_repr___closed__43));
+lean_inc(v___y_859_);
 v___x_861_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_861_, 0, v___y_859_);
 lean_ctor_set(v___x_861_, 1, v___x_860_);
@@ -3322,6 +3344,7 @@ v___jp_865_:
 {
 lean_object* v___x_867_; lean_object* v___x_868_; uint8_t v___x_869_; lean_object* v___x_870_; lean_object* v___x_871_; 
 v___x_867_ = ((lean_object*)(l_Std_Http_instReprMethod_repr___closed__45));
+lean_inc(v___y_866_);
 v___x_868_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_868_, 0, v___y_866_);
 lean_ctor_set(v___x_868_, 1, v___x_867_);
@@ -3336,6 +3359,7 @@ v___jp_872_:
 {
 lean_object* v___x_874_; lean_object* v___x_875_; uint8_t v___x_876_; lean_object* v___x_877_; lean_object* v___x_878_; 
 v___x_874_ = ((lean_object*)(l_Std_Http_instReprMethod_repr___closed__47));
+lean_inc(v___y_873_);
 v___x_875_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_875_, 0, v___y_873_);
 lean_ctor_set(v___x_875_, 1, v___x_874_);
@@ -3350,6 +3374,7 @@ v___jp_879_:
 {
 lean_object* v___x_881_; lean_object* v___x_882_; uint8_t v___x_883_; lean_object* v___x_884_; lean_object* v___x_885_; 
 v___x_881_ = ((lean_object*)(l_Std_Http_instReprMethod_repr___closed__49));
+lean_inc(v___y_880_);
 v___x_882_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_882_, 0, v___y_880_);
 lean_ctor_set(v___x_882_, 1, v___x_881_);
@@ -3364,6 +3389,7 @@ v___jp_886_:
 {
 lean_object* v___x_888_; lean_object* v___x_889_; uint8_t v___x_890_; lean_object* v___x_891_; lean_object* v___x_892_; 
 v___x_888_ = ((lean_object*)(l_Std_Http_instReprMethod_repr___closed__51));
+lean_inc(v___y_887_);
 v___x_889_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_889_, 0, v___y_887_);
 lean_ctor_set(v___x_889_, 1, v___x_888_);
@@ -3378,6 +3404,7 @@ v___jp_893_:
 {
 lean_object* v___x_895_; lean_object* v___x_896_; uint8_t v___x_897_; lean_object* v___x_898_; lean_object* v___x_899_; 
 v___x_895_ = ((lean_object*)(l_Std_Http_instReprMethod_repr___closed__53));
+lean_inc(v___y_894_);
 v___x_896_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_896_, 0, v___y_894_);
 lean_ctor_set(v___x_896_, 1, v___x_895_);
@@ -3392,6 +3419,7 @@ v___jp_900_:
 {
 lean_object* v___x_902_; lean_object* v___x_903_; uint8_t v___x_904_; lean_object* v___x_905_; lean_object* v___x_906_; 
 v___x_902_ = ((lean_object*)(l_Std_Http_instReprMethod_repr___closed__55));
+lean_inc(v___y_901_);
 v___x_903_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_903_, 0, v___y_901_);
 lean_ctor_set(v___x_903_, 1, v___x_902_);
@@ -3406,6 +3434,7 @@ v___jp_907_:
 {
 lean_object* v___x_909_; lean_object* v___x_910_; uint8_t v___x_911_; lean_object* v___x_912_; lean_object* v___x_913_; 
 v___x_909_ = ((lean_object*)(l_Std_Http_instReprMethod_repr___closed__57));
+lean_inc(v___y_908_);
 v___x_910_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_910_, 0, v___y_908_);
 lean_ctor_set(v___x_910_, 1, v___x_909_);
@@ -3420,6 +3449,7 @@ v___jp_914_:
 {
 lean_object* v___x_916_; lean_object* v___x_917_; uint8_t v___x_918_; lean_object* v___x_919_; lean_object* v___x_920_; 
 v___x_916_ = ((lean_object*)(l_Std_Http_instReprMethod_repr___closed__59));
+lean_inc(v___y_915_);
 v___x_917_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_917_, 0, v___y_915_);
 lean_ctor_set(v___x_917_, 1, v___x_916_);
@@ -3434,6 +3464,7 @@ v___jp_921_:
 {
 lean_object* v___x_923_; lean_object* v___x_924_; uint8_t v___x_925_; lean_object* v___x_926_; lean_object* v___x_927_; 
 v___x_923_ = ((lean_object*)(l_Std_Http_instReprMethod_repr___closed__61));
+lean_inc(v___y_922_);
 v___x_924_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_924_, 0, v___y_922_);
 lean_ctor_set(v___x_924_, 1, v___x_923_);
@@ -3448,6 +3479,7 @@ v___jp_928_:
 {
 lean_object* v___x_930_; lean_object* v___x_931_; uint8_t v___x_932_; lean_object* v___x_933_; lean_object* v___x_934_; 
 v___x_930_ = ((lean_object*)(l_Std_Http_instReprMethod_repr___closed__63));
+lean_inc(v___y_929_);
 v___x_931_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_931_, 0, v___y_929_);
 lean_ctor_set(v___x_931_, 1, v___x_930_);
@@ -3462,6 +3494,7 @@ v___jp_935_:
 {
 lean_object* v___x_937_; lean_object* v___x_938_; uint8_t v___x_939_; lean_object* v___x_940_; lean_object* v___x_941_; 
 v___x_937_ = ((lean_object*)(l_Std_Http_instReprMethod_repr___closed__65));
+lean_inc(v___y_936_);
 v___x_938_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_938_, 0, v___y_936_);
 lean_ctor_set(v___x_938_, 1, v___x_937_);
@@ -3476,6 +3509,7 @@ v___jp_942_:
 {
 lean_object* v___x_944_; lean_object* v___x_945_; uint8_t v___x_946_; lean_object* v___x_947_; lean_object* v___x_948_; 
 v___x_944_ = ((lean_object*)(l_Std_Http_instReprMethod_repr___closed__67));
+lean_inc(v___y_943_);
 v___x_945_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_945_, 0, v___y_943_);
 lean_ctor_set(v___x_945_, 1, v___x_944_);
@@ -3490,6 +3524,7 @@ v___jp_949_:
 {
 lean_object* v___x_951_; lean_object* v___x_952_; uint8_t v___x_953_; lean_object* v___x_954_; lean_object* v___x_955_; 
 v___x_951_ = ((lean_object*)(l_Std_Http_instReprMethod_repr___closed__69));
+lean_inc(v___y_950_);
 v___x_952_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_952_, 0, v___y_950_);
 lean_ctor_set(v___x_952_, 1, v___x_951_);
@@ -3504,6 +3539,7 @@ v___jp_956_:
 {
 lean_object* v___x_958_; lean_object* v___x_959_; uint8_t v___x_960_; lean_object* v___x_961_; lean_object* v___x_962_; 
 v___x_958_ = ((lean_object*)(l_Std_Http_instReprMethod_repr___closed__71));
+lean_inc(v___y_957_);
 v___x_959_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_959_, 0, v___y_957_);
 lean_ctor_set(v___x_959_, 1, v___x_958_);
@@ -3518,6 +3554,7 @@ v___jp_963_:
 {
 lean_object* v___x_965_; lean_object* v___x_966_; uint8_t v___x_967_; lean_object* v___x_968_; lean_object* v___x_969_; 
 v___x_965_ = ((lean_object*)(l_Std_Http_instReprMethod_repr___closed__73));
+lean_inc(v___y_964_);
 v___x_966_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_966_, 0, v___y_964_);
 lean_ctor_set(v___x_966_, 1, v___x_965_);
@@ -3532,6 +3569,7 @@ v___jp_970_:
 {
 lean_object* v___x_972_; lean_object* v___x_973_; uint8_t v___x_974_; lean_object* v___x_975_; lean_object* v___x_976_; 
 v___x_972_ = ((lean_object*)(l_Std_Http_instReprMethod_repr___closed__75));
+lean_inc(v___y_971_);
 v___x_973_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_973_, 0, v___y_971_);
 lean_ctor_set(v___x_973_, 1, v___x_972_);
@@ -3546,6 +3584,7 @@ v___jp_977_:
 {
 lean_object* v___x_979_; lean_object* v___x_980_; uint8_t v___x_981_; lean_object* v___x_982_; lean_object* v___x_983_; 
 v___x_979_ = ((lean_object*)(l_Std_Http_instReprMethod_repr___closed__77));
+lean_inc(v___y_978_);
 v___x_980_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_980_, 0, v___y_978_);
 lean_ctor_set(v___x_980_, 1, v___x_979_);
@@ -3560,6 +3599,7 @@ v___jp_984_:
 {
 lean_object* v___x_986_; lean_object* v___x_987_; uint8_t v___x_988_; lean_object* v___x_989_; lean_object* v___x_990_; 
 v___x_986_ = ((lean_object*)(l_Std_Http_instReprMethod_repr___closed__79));
+lean_inc(v___y_985_);
 v___x_987_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_987_, 0, v___y_985_);
 lean_ctor_set(v___x_987_, 1, v___x_986_);
@@ -4633,7 +4673,8 @@ _start:
 uint8_t v___x_1590_; lean_object* v___x_1591_; lean_object* v___x_1592_; uint8_t v___x_1593_; 
 v___x_1590_ = 0;
 v___x_1591_ = lean_box(v___x_1590_);
-v___x_1592_ = lean_panic_fn(v___x_1591_, v_msg_1589_);
+v___x_1592_ = lean_panic_fn_borrowed(v___x_1591_, v_msg_1589_);
+lean_dec(v___x_1591_);
 v___x_1593_ = lean_unbox(v___x_1592_);
 lean_dec(v___x_1592_);
 return v___x_1593_;
@@ -5260,7 +5301,6 @@ v_resetjp_1668_:
 {
 lean_object* v___x_1671_; lean_object* v___x_1672_; lean_object* v___x_1673_; lean_object* v___x_1674_; lean_object* v___x_1676_; 
 v___x_1671_ = lean_string_to_utf8(v___y_1665_);
-lean_dec_ref(v___y_1665_);
 lean_inc_ref(v___x_1671_);
 v___x_1672_ = lean_array_push(v_data_1666_, v___x_1671_);
 v___x_1673_ = lean_byte_array_size(v___x_1671_);

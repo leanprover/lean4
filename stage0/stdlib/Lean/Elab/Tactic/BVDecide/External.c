@@ -1212,6 +1212,7 @@ if (v___x_195_ == 0)
 {
 lean_object* v___x_196_; 
 lean_dec_ref(v_acc_182_);
+lean_inc(v_err_194_);
 v___x_196_ = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(v___x_196_, 0, v_pos_192_);
 lean_ctor_set(v___x_196_, 1, v_err_194_);
@@ -1220,7 +1221,6 @@ return v___x_196_;
 else
 {
 lean_object* v___x_197_; 
-lean_dec(v_err_194_);
 v___x_197_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_197_, 0, v_pos_192_);
 lean_ctor_set(v___x_197_, 1, v_acc_182_);
@@ -4449,7 +4449,6 @@ v___jp_1207_:
 {
 lean_object* v___x_1209_; lean_object* v___x_1210_; lean_object* v___x_1211_; lean_object* v___x_1212_; lean_object* v___x_1213_; lean_object* v___x_1214_; lean_object* v___x_1215_; lean_object* v___x_1216_; lean_object* v___x_1217_; lean_object* v___x_1218_; lean_object* v_args_1219_; lean_object* v___x_1220_; lean_object* v_args_1221_; lean_object* v___x_1222_; lean_object* v___x_1223_; lean_object* v___x_1224_; lean_object* v___x_1225_; uint8_t v___x_1226_; uint8_t v___x_1227_; lean_object* v___x_1228_; lean_object* v___x_1229_; 
 v___x_1209_ = lean_string_append(v___x_1206_, v___y_1208_);
-lean_dec_ref(v___y_1208_);
 v___x_1210_ = ((lean_object*)(l_Lean_Elab_Tactic_BVDecide_External_satQuery___closed__7));
 v___x_1211_ = ((lean_object*)(l_Lean_Elab_Tactic_BVDecide_External_satQuery___closed__8));
 v___x_1212_ = lean_unsigned_to_nat(6u);

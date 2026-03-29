@@ -2,12 +2,13 @@ import Std.Data.ExtHashMap
 open Std
 set_option warn.sorry false
 
--- The following trace should contain only one `m[k]` and `(m.insert 1 3)[k]`
+-- Without `proofCanon`, two `m[k]` appear because they carry different proofs.
 /--
 trace: [grind.lia.model] k := 101
 [grind.lia.model] (ExtHashMap.filter (fun k x => decide (101 ≤ k)) (m.insert 1 3))[k] := 4
 [grind.lia.model] (m.insert 1 2)[k] := 4
 [grind.lia.model] (m.insert 1 3)[k] := 4
+[grind.lia.model] m[k] := 4
 [grind.lia.model] m[k] := 4
 [grind.lia.model] (m.insert 1 2).getKey k ⋯ := 101
 [grind.lia.model] m.getKey k ⋯ := 101

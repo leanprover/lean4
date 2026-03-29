@@ -1230,9 +1230,8 @@ if (lean_obj_tag(v___x_432_) == 1)
 {
 lean_object* v_val_433_; lean_object* v___x_434_; 
 v_val_433_ = lean_ctor_get(v___x_432_, 0);
-lean_inc(v_val_433_);
+lean_inc_n(v_val_433_, 2);
 lean_dec_ref(v___x_432_);
-lean_inc(v_val_433_);
 v___x_434_ = l_Lean_Elab_Tactic_Do_ProofMode_MGoal_focusHypWithInfo(v_val_433_, v_hyp_417_, v___y_423_, v___y_424_, v___y_425_, v___y_426_);
 if (lean_obj_tag(v___x_434_) == 0)
 {
@@ -1249,7 +1248,7 @@ if (lean_obj_tag(v___x_439_) == 0)
 {
 lean_object* v_a_440_; lean_object* v_u_441_; lean_object* v_00_u03c3s_442_; lean_object* v_hyps_443_; lean_object* v_target_444_; lean_object* v_focusHyp_445_; lean_object* v_restHyps_446_; lean_object* v_proof_447_; lean_object* v___x_448_; lean_object* v___x_449_; lean_object* v___x_450_; lean_object* v___x_451_; lean_object* v___x_452_; lean_object* v___x_453_; lean_object* v___x_454_; lean_object* v___x_455_; lean_object* v___x_456_; lean_object* v___x_457_; lean_object* v___x_458_; lean_object* v___x_459_; lean_object* v___x_460_; lean_object* v___x_461_; 
 v_a_440_ = lean_ctor_get(v___x_439_, 0);
-lean_inc(v_a_440_);
+lean_inc_n(v_a_440_, 2);
 lean_dec_ref(v___x_439_);
 v_u_441_ = lean_ctor_get(v_val_433_, 0);
 lean_inc(v_u_441_);
@@ -1278,7 +1277,6 @@ v___x_455_ = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(v___x_455_, 0, v_u_441_);
 lean_ctor_set(v___x_455_, 1, v___x_454_);
 v___x_456_ = l_Lean_mkConst(v___x_453_, v___x_455_);
-lean_inc(v_a_440_);
 v___x_457_ = l_Lean_mkApp7(v___x_456_, v_00_u03c3s_442_, v_hyps_443_, v_restHyps_446_, v_focusHyp_445_, v_target_444_, v_proof_447_, v_a_440_);
 v___x_458_ = l_Lean_MVarId_assign___at___00Lean_Elab_Tactic_Do_ProofMode_elabMClear_spec__2___redArg(v_a_416_, v___x_457_, v___y_424_);
 lean_dec_ref(v___x_458_);
@@ -1494,9 +1492,8 @@ if (lean_obj_tag(v___x_532_) == 0)
 {
 lean_object* v_a_533_; lean_object* v___f_534_; lean_object* v___x_535_; 
 v_a_533_ = lean_ctor_get(v___x_532_, 0);
-lean_inc(v_a_533_);
+lean_inc_n(v_a_533_, 2);
 lean_dec_ref(v___x_532_);
-lean_inc(v_a_533_);
 v___f_534_ = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_Do_ProofMode_elabMClear___lam__0___boxed), 12, 3);
 lean_closure_set(v___f_534_, 0, v_a_533_);
 lean_closure_set(v___f_534_, 1, v_hyp_528_);

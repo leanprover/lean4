@@ -2026,7 +2026,7 @@ _start:
 {
 lean_object* v_toSemiring_558_; lean_object* v_toNeg_559_; lean_object* v_toSub_560_; lean_object* v_zsmul_561_; lean_object* v___x_562_; lean_object* v_toAddCommMonoid_563_; lean_object* v_toZero_564_; lean_object* v___x_566_; uint8_t v_isShared_567_; uint8_t v_isSharedCheck_575_; 
 v_toSemiring_558_ = lean_ctor_get(v_I_557_, 0);
-lean_inc_ref(v_toSemiring_558_);
+lean_inc_ref_n(v_toSemiring_558_, 2);
 v_toNeg_559_ = lean_ctor_get(v_I_557_, 1);
 lean_inc(v_toNeg_559_);
 v_toSub_560_ = lean_ctor_get(v_I_557_, 2);
@@ -2034,7 +2034,6 @@ lean_inc(v_toSub_560_);
 v_zsmul_561_ = lean_ctor_get(v_I_557_, 4);
 lean_inc(v_zsmul_561_);
 lean_dec_ref(v_I_557_);
-lean_inc_ref(v_toSemiring_558_);
 v___x_562_ = l_Lean_Grind_Semiring_toNatModule___redArg(v_toSemiring_558_);
 v_toAddCommMonoid_563_ = lean_ctor_get(v___x_562_, 0);
 lean_inc_ref(v_toAddCommMonoid_563_);

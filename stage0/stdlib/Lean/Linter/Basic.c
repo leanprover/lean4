@@ -238,11 +238,10 @@ lean_inc(v_l_25_);
 v_r_26_ = lean_ctor_get(v_x_23_, 4);
 lean_inc(v_r_26_);
 lean_dec_ref(v_x_23_);
-lean_inc(v_setName_21_);
+lean_inc_n(v_setName_21_, 2);
 v___x_27_ = l_Std_DTreeMap_Internal_Impl_foldlM___at___00Std_DTreeMap_Internal_Impl_foldl___at___00Lean_Linter_insertLinterSetEntry_spec__1_spec__1(v_setName_21_, v_init_22_, v_l_25_);
 v___x_28_ = ((lean_object*)(l_Std_DTreeMap_Internal_Impl_foldlM___at___00Std_DTreeMap_Internal_Impl_foldl___at___00Lean_Linter_insertLinterSetEntry_spec__1_spec__1___closed__0));
 v___x_29_ = l_Std_DTreeMap_Internal_Impl_Const_getD___at___00Lean_Linter_insertLinterSetEntry_spec__0___redArg(v___x_27_, v_k_24_, v___x_28_);
-lean_inc(v_setName_21_);
 v___x_30_ = lean_array_push(v___x_29_, v_setName_21_);
 v___x_31_ = l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_NameMap_insert_spec__0___redArg(v_k_24_, v___x_30_, v___x_27_);
 v_init_22_ = v___x_31_;
@@ -626,13 +625,9 @@ _start:
 lean_object* v___x_199_; lean_object* v_toEnvExtension_200_; lean_object* v_asyncMode_201_; lean_object* v___x_202_; lean_object* v_linterSets_203_; lean_object* v___x_204_; lean_object* v___x_205_; 
 v___x_199_ = l_Lean_Linter_linterSetsExt;
 v_toEnvExtension_200_ = lean_ctor_get(v___x_199_, 0);
-lean_inc_ref(v_toEnvExtension_200_);
 v_asyncMode_201_ = lean_ctor_get(v_toEnvExtension_200_, 2);
-lean_inc(v_asyncMode_201_);
-lean_dec_ref(v_toEnvExtension_200_);
 v___x_202_ = lean_box(0);
 v_linterSets_203_ = l_Lean_SimplePersistentEnvExtension_getState___redArg(v___x_195_, v___x_199_, v_____do__lift_198_, v_asyncMode_201_, v___x_202_);
-lean_dec(v_asyncMode_201_);
 v___x_204_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_204_, 0, v_o_196_);
 lean_ctor_set(v___x_204_, 1, v_linterSets_203_);
@@ -768,13 +763,12 @@ lean_object* v___x_262_; uint8_t v___x_263_; lean_object* v___x_264_; lean_objec
 v___x_262_ = lean_alloc_ctor(1, 0, 1);
 v___x_263_ = lean_unbox(v_defValue_257_);
 lean_ctor_set_uint8(v___x_262_, 0, v___x_263_);
-lean_inc(v_name_253_);
+lean_inc_n(v_name_253_, 2);
 v___x_264_ = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(v___x_264_, 0, v_name_253_);
 lean_ctor_set(v___x_264_, 1, v_ref_255_);
 lean_ctor_set(v___x_264_, 2, v___x_262_);
 lean_ctor_set(v___x_264_, 3, v_descr_258_);
-lean_inc(v_name_253_);
 v___x_265_ = lean_register_option(v_name_253_, v___x_264_);
 if (lean_obj_tag(v___x_265_) == 0)
 {
@@ -963,9 +957,7 @@ _start:
 lean_object* v___x_329_; lean_object* v_name_330_; uint8_t v___x_331_; 
 v___x_329_ = l_Lean_Linter_linter_all;
 v_name_330_ = lean_ctor_get(v___x_329_, 0);
-lean_inc(v_name_330_);
 v___x_331_ = l_Lean_Linter_LinterOptions_get___at___00Lean_Linter_getLinterAll_spec__0(v_o_327_, v_name_330_, v_defValue_328_);
-lean_dec(v_name_330_);
 return v___x_331_;
 }
 }

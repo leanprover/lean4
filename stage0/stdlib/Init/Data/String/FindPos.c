@@ -19,7 +19,7 @@ lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_panic_fn(lean_object*, lean_object*);
+lean_object* lean_panic_fn_borrowed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_posGE___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_posGE___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_posGE(lean_object*, lean_object*, lean_object*);
@@ -500,7 +500,7 @@ _start:
 {
 lean_object* v___x_177_; lean_object* v___x_178_; 
 v___x_177_ = lean_unsigned_to_nat(0u);
-v___x_178_ = lean_panic_fn(v___x_177_, v_msg_176_);
+v___x_178_ = lean_panic_fn_borrowed(v___x_177_, v_msg_176_);
 return v___x_178_;
 }
 }

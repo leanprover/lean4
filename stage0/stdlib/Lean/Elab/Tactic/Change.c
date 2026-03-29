@@ -383,10 +383,9 @@ if (lean_obj_tag(v___x_107_) == 0)
 {
 lean_object* v_a_108_; lean_object* v___x_109_; 
 v_a_108_ = lean_ctor_get(v___x_107_, 0);
-lean_inc(v_a_108_);
+lean_inc_n(v_a_108_, 2);
 lean_dec_ref(v___x_107_);
 lean_inc_ref(v_e_89_);
-lean_inc(v_a_108_);
 v___x_109_ = l_Lean_Meta_isExprDefEq(v_a_108_, v_e_89_, v___y_93_, v___y_94_, v___y_95_, v___y_96_);
 if (lean_obj_tag(v___x_109_) == 0)
 {

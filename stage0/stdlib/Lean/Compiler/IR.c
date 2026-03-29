@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.IR
-// Imports: public import Lean.Compiler.IR.AddExtern public import Lean.Compiler.IR.Basic public import Lean.Compiler.IR.Format public import Lean.Compiler.IR.CompilerM public import Lean.Compiler.IR.NormIds public import Lean.Compiler.IR.Checker public import Lean.Compiler.IR.UnboxResult public import Lean.Compiler.IR.Sorry public import Lean.Compiler.IR.ToIR public import Lean.Compiler.IR.ToIRType public import Lean.Compiler.IR.Meta public import Lean.Compiler.IR.LLVMBindings public import Lean.Compiler.IR.EmitLLVM
+// Imports: public import Lean.Compiler.IR.Basic public import Lean.Compiler.IR.Format public import Lean.Compiler.IR.CompilerM public import Lean.Compiler.IR.NormIds public import Lean.Compiler.IR.Checker public import Lean.Compiler.IR.UnboxResult public import Lean.Compiler.IR.Sorry public import Lean.Compiler.IR.ToIR public import Lean.Compiler.IR.ToIRType public import Lean.Compiler.IR.Meta public import Lean.Compiler.IR.LLVMBindings public import Lean.Compiler.IR.EmitLLVM
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -148,11 +148,10 @@ if (lean_obj_tag(v___x_21_) == 0)
 {
 lean_object* v_a_22_; lean_object* v___x_23_; lean_object* v___x_24_; lean_object* v___x_25_; 
 v_a_22_ = lean_ctor_get(v___x_21_, 0);
-lean_inc(v_a_22_);
+lean_inc_n(v_a_22_, 2);
 lean_dec_ref(v___x_21_);
 v___x_23_ = ((lean_object*)(l_Lean_IR_compile___closed__4));
 v___x_24_ = lean_obj_once(&l_Lean_IR_compile___closed__5, &l_Lean_IR_compile___closed__5_once, _init_l_Lean_IR_compile___closed__5);
-lean_inc(v_a_22_);
 v___x_25_ = l___private_Lean_Compiler_IR_CompilerM_0__Lean_IR_logDeclsAux(v___x_24_, v___x_23_, v_a_22_, v_a_14_, v_a_15_);
 if (lean_obj_tag(v___x_25_) == 0)
 {
@@ -480,7 +479,6 @@ v_res_161_ = l___private_Lean_Compiler_IR_0__Lean_IR_initFn_00___x40_Lean_Compil
 return v_res_161_;
 }
 }
-lean_object* runtime_initialize_Lean_Compiler_IR_AddExtern(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Compiler_IR_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Compiler_IR_Format(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Compiler_IR_CompilerM(uint8_t builtin);
@@ -498,9 +496,6 @@ LEAN_EXPORT lean_object* runtime_initialize_Lean_Compiler_IR(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Lean_Compiler_IR_AddExtern(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = runtime_initialize_Lean_Compiler_IR_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -549,7 +544,6 @@ if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_meta_initialized = true;
 return lean_io_result_mk_ok(lean_box(0));
 }
-lean_object* initialize_Lean_Compiler_IR_AddExtern(uint8_t builtin);
 lean_object* initialize_Lean_Compiler_IR_Basic(uint8_t builtin);
 lean_object* initialize_Lean_Compiler_IR_Format(uint8_t builtin);
 lean_object* initialize_Lean_Compiler_IR_CompilerM(uint8_t builtin);
@@ -567,9 +561,6 @@ LEAN_EXPORT lean_object* initialize_Lean_Compiler_IR(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Compiler_IR_AddExtern(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Compiler_IR_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

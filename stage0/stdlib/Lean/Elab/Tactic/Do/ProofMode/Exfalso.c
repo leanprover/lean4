@@ -1220,12 +1220,10 @@ goto v_resetjp_420_;
 v_resetjp_420_:
 {
 lean_object* v___x_423_; lean_object* v___x_425_; 
-lean_inc_ref(v_00_u03c3s_417_);
-lean_inc(v_u_416_);
+lean_inc_ref_n(v_00_u03c3s_417_, 2);
+lean_inc_n(v_u_416_, 2);
 v___x_423_ = l___private_Lean_Elab_Tactic_Do_ProofMode_Exfalso_0__Lean_Elab_Tactic_Do_ProofMode_falseProp(v_u_416_, v_00_u03c3s_417_);
 lean_inc_ref(v_hyps_418_);
-lean_inc_ref(v_00_u03c3s_417_);
-lean_inc(v_u_416_);
 if (v_isShared_422_ == 0)
 {
 lean_ctor_set(v___x_421_, 3, v___x_423_);
@@ -1253,7 +1251,7 @@ if (lean_obj_tag(v___x_428_) == 0)
 {
 lean_object* v_a_429_; lean_object* v___x_430_; lean_object* v___x_431_; lean_object* v___x_432_; lean_object* v___x_433_; lean_object* v___x_434_; lean_object* v___x_435_; lean_object* v___x_436_; lean_object* v___x_437_; lean_object* v___x_438_; 
 v_a_429_ = lean_ctor_get(v___x_428_, 0);
-lean_inc(v_a_429_);
+lean_inc_n(v_a_429_, 2);
 lean_dec_ref(v___x_428_);
 v___x_430_ = ((lean_object*)(l_Lean_Elab_Tactic_Do_ProofMode_elabMExfalso___redArg___lam__0___closed__4));
 v___x_431_ = lean_box(0);
@@ -1261,7 +1259,6 @@ v___x_432_ = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(v___x_432_, 0, v_u_416_);
 lean_ctor_set(v___x_432_, 1, v___x_431_);
 v___x_433_ = l_Lean_mkConst(v___x_430_, v___x_432_);
-lean_inc(v_a_429_);
 v___x_434_ = l_Lean_mkApp4(v___x_433_, v_00_u03c3s_417_, v_hyps_418_, v_target_419_, v_a_429_);
 v___x_435_ = l_Lean_MVarId_assign___at___00Lean_Elab_Tactic_Do_ProofMode_elabMExfalso_spec__1___redArg(v_a_400_, v___x_434_, v___y_406_);
 lean_dec_ref(v___x_435_);
@@ -1401,9 +1398,8 @@ if (lean_obj_tag(v___x_479_) == 0)
 {
 lean_object* v_a_480_; lean_object* v___f_481_; lean_object* v___x_482_; 
 v_a_480_ = lean_ctor_get(v___x_479_, 0);
-lean_inc(v_a_480_);
+lean_inc_n(v_a_480_, 2);
 lean_dec_ref(v___x_479_);
-lean_inc(v_a_480_);
 v___f_481_ = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_Do_ProofMode_elabMExfalso___redArg___lam__0___boxed), 10, 1);
 lean_closure_set(v___f_481_, 0, v_a_480_);
 v___x_482_ = l_Lean_MVarId_withContext___at___00Lean_Elab_Tactic_Do_ProofMode_elabMExfalso_spec__3___redArg(v_a_480_, v___f_481_, v_a_470_, v_a_471_, v_a_472_, v_a_473_, v_a_474_, v_a_475_, v_a_476_, v_a_477_);

@@ -44,7 +44,7 @@ lean_object* l_ReaderT_instApplicativeOfMonad___redArg___lam__1(lean_object*, le
 lean_object* l_ReaderT_instApplicativeOfMonad___redArg___lam__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_instApplicativeOfMonad___redArg___lam__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_instInhabitedOfMonad___redArg(lean_object*, lean_object*);
-lean_object* lean_panic_fn(lean_object*, lean_object*);
+lean_object* lean_panic_fn_borrowed(lean_object*, lean_object*);
 uint8_t l_Lean_instBEqIRPhases_beq(uint8_t, uint8_t);
 uint8_t l_Lean_Name_isPrefixOf(lean_object*, lean_object*);
 extern lean_object* l_Lean_NameSet_empty;
@@ -219,7 +219,8 @@ lean_object* v___x_34_; lean_object* v___x_35_; lean_object* v___x_36_; lean_obj
 v___x_34_ = l_StateRefT_x27_instMonad___redArg(v___x_33_);
 v___x_35_ = lean_box(0);
 v___x_36_ = l_instInhabitedOfMonad___redArg(v___x_34_, v___x_35_);
-v___x_5851__overap_37_ = lean_panic_fn(v___x_36_, v_msg_4_);
+v___x_5851__overap_37_ = lean_panic_fn_borrowed(v___x_36_, v_msg_4_);
+lean_dec(v___x_36_);
 lean_inc(v___y_7_);
 lean_inc_ref(v___y_6_);
 lean_inc(v___y_5_);
@@ -467,13 +468,11 @@ lean_object* v___x_139_; lean_object* v___y_141_; lean_object* v_env_148_; lean_
 lean_dec_ref(v___x_138_);
 v___x_139_ = lean_st_ref_get(v___y_93_);
 v_env_148_ = lean_ctor_get(v___x_139_, 0);
-lean_inc_ref(v_env_148_);
+lean_inc_ref_n(v_env_148_, 2);
 lean_dec(v___x_139_);
 v_name_149_ = lean_ctor_get(v_toSignature_133_, 0);
-lean_inc(v_name_149_);
+lean_inc_n(v_name_149_, 2);
 lean_dec_ref(v_toSignature_133_);
-lean_inc(v_name_149_);
-lean_inc_ref(v_env_148_);
 v___x_150_ = l_Lean_getBuiltinInitFnNameFor_x3f(v_env_148_, v_name_149_);
 if (lean_obj_tag(v___x_150_) == 0)
 {

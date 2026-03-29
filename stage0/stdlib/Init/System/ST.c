@@ -2355,17 +2355,15 @@ LEAN_EXPORT lean_object* l_ST_Ref_toMonadStateOf___redArg(lean_object* v_inst_91
 _start:
 {
 lean_object* v___f_921_; lean_object* v___x_922_; lean_object* v___x_923_; lean_object* v___x_924_; lean_object* v___x_925_; 
-lean_inc(v_inst_919_);
-lean_inc(v_r_920_);
+lean_inc_n(v_inst_919_, 2);
+lean_inc_n(v_r_920_, 2);
 v___f_921_ = lean_alloc_closure((void*)(l_ST_Ref_toMonadStateOf___redArg___lam__0), 4, 2);
 lean_closure_set(v___f_921_, 0, v_r_920_);
 lean_closure_set(v___f_921_, 1, v_inst_919_);
-lean_inc(v_r_920_);
 v___x_922_ = lean_alloc_closure((void*)(l_ST_Prim_Ref_get___boxed), 4, 3);
 lean_closure_set(v___x_922_, 0, lean_box(0));
 lean_closure_set(v___x_922_, 1, lean_box(0));
 lean_closure_set(v___x_922_, 2, v_r_920_);
-lean_inc(v_inst_919_);
 v___x_923_ = lean_apply_2(v_inst_919_, lean_box(0), v___x_922_);
 v___x_924_ = lean_alloc_closure((void*)(l_ST_Ref_set), 6, 5);
 lean_closure_set(v___x_924_, 0, lean_box(0));

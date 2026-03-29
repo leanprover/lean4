@@ -524,9 +524,8 @@ _start:
 {
 lean_object* v_encode_76_; lean_object* v___x_77_; lean_object* v___x_78_; lean_object* v___x_79_; 
 v_encode_76_ = lean_ctor_get(v_m_72_, 0);
-lean_inc(v_encode_76_);
+lean_inc_n(v_encode_76_, 2);
 lean_dec_ref(v_m_72_);
-lean_inc(v_encode_76_);
 v___x_77_ = lean_apply_1(v_encode_76_, v_lo_74_);
 v___x_78_ = lean_apply_1(v_encode_76_, v_hi_75_);
 v___x_79_ = lean_apply_2(v_inst_73_, v___x_77_, v___x_78_);

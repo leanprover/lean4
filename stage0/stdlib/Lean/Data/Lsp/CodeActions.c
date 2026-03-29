@@ -5114,6 +5114,7 @@ goto v___jp_1163_;
 v___jp_1163_:
 {
 lean_object* v___x_1165_; lean_object* v___x_1166_; lean_object* v___x_1167_; 
+lean_inc(v___y_1164_);
 v___x_1165_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_1165_, 0, v_k_1161_);
 lean_ctor_set(v___x_1165_, 1, v___y_1164_);
@@ -5488,6 +5489,7 @@ v___jp_1271_:
 size_t v___x_1273_; size_t v___x_1274_; lean_object* v___x_1275_; 
 v___x_1273_ = ((size_t)1ULL);
 v___x_1274_ = lean_usize_add(v_i_1265_, v___x_1273_);
+lean_inc(v___y_1272_);
 v___x_1275_ = lean_array_uset(v_bs_x27_1270_, v_i_1265_, v___y_1272_);
 v_i_1265_ = v___x_1274_;
 v_bs_1266_ = v___x_1275_;
@@ -5612,6 +5614,7 @@ v___jp_1314_:
 size_t v___x_1316_; size_t v___x_1317_; lean_object* v___x_1318_; 
 v___x_1316_ = ((size_t)1ULL);
 v___x_1317_ = lean_usize_add(v_i_1308_, v___x_1316_);
+lean_inc(v___y_1315_);
 v___x_1318_ = lean_array_uset(v_bs_x27_1313_, v_i_1308_, v___y_1315_);
 v_i_1308_ = v___x_1317_;
 v_bs_1309_ = v___x_1318_;
@@ -5761,6 +5764,7 @@ goto v___jp_1352_;
 v___jp_1352_:
 {
 lean_object* v___x_1354_; lean_object* v___x_1355_; lean_object* v___x_1356_; 
+lean_inc(v___y_1353_);
 v___x_1354_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_1354_, 0, v_k_1350_);
 lean_ctor_set(v___x_1354_, 1, v___y_1353_);

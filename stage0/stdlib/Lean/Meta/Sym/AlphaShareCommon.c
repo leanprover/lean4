@@ -791,9 +791,8 @@ case 0:
 {
 lean_object* v_key_164_; uint8_t v___x_165_; 
 v_key_164_ = lean_ctor_get(v___x_163_, 0);
-lean_inc(v_key_164_);
+lean_inc_n(v_key_164_, 2);
 lean_dec_ref(v___x_163_);
-lean_inc(v_key_164_);
 v___x_165_ = l___private_Lean_Meta_Sym_AlphaShareCommon_0__Lean_Meta_Sym_alphaEq(v_x_155_, v_key_164_);
 if (v___x_165_ == 0)
 {
@@ -1797,12 +1796,10 @@ else
 {
 lean_object* v___x_472_; lean_object* v___x_473_; lean_object* v___x_474_; lean_object* v___x_475_; lean_object* v___x_477_; 
 lean_dec_ref(v___x_465_);
-lean_inc_ref(v_r_455_);
+lean_inc_ref_n(v_r_455_, 4);
 v___x_472_ = l_Std_DHashMap_Internal_Raw_u2080_insert___at___00__private_Lean_Meta_Sym_AlphaShareCommon_0__Lean_Meta_Sym_save_spec__1___redArg(v_map_457_, v_e_454_, v_r_455_);
-lean_inc_ref_n(v_r_455_, 2);
 v___x_473_ = l_Std_DHashMap_Internal_Raw_u2080_insert___at___00__private_Lean_Meta_Sym_AlphaShareCommon_0__Lean_Meta_Sym_save_spec__1___redArg(v___x_472_, v_r_455_, v_r_455_);
 v___x_474_ = lean_box(0);
-lean_inc_ref(v_r_455_);
 v___x_475_ = l_Lean_PersistentHashMap_insert___at___00__private_Lean_Meta_Sym_AlphaShareCommon_0__Lean_Meta_Sym_save_spec__2___redArg(v_set_458_, v_r_455_, v___x_474_);
 if (v_isShared_461_ == 0)
 {

@@ -412,7 +412,7 @@ lean_inc_ref(v_00_u03c3s_86_);
 v_hyps_87_ = lean_ctor_get(v_goal_66_, 2);
 lean_inc_ref(v_hyps_87_);
 v_target_88_ = lean_ctor_get(v_goal_66_, 3);
-lean_inc_ref(v_target_88_);
+lean_inc_ref_n(v_target_88_, 3);
 lean_dec_ref(v_goal_66_);
 v_focusHyp_89_ = lean_ctor_get(v_a_81_, 0);
 lean_inc_ref(v_focusHyp_89_);
@@ -427,9 +427,7 @@ v___x_94_ = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(v___x_94_, 0, v_u_85_);
 lean_ctor_set(v___x_94_, 1, v___x_93_);
 v___x_95_ = l_Lean_mkConst(v___x_92_, v___x_94_);
-lean_inc_ref(v_target_88_);
 v___x_96_ = l_Lean_mkApp5(v___x_95_, v_00_u03c3s_86_, v_hyps_87_, v_restHyps_90_, v_target_88_, v_proof_91_);
-lean_inc_ref(v_target_88_);
 v___x_104_ = l_Lean_Meta_isExprDefEq(v_focusHyp_89_, v_target_88_, v_a_68_, v_a_69_, v_a_70_, v_a_71_);
 if (lean_obj_tag(v___x_104_) == 0)
 {
@@ -848,7 +846,7 @@ lean_object* v_u_246_; lean_object* v_00_u03c3s_247_; lean_object* v_hyps_248_; 
 v_u_246_ = lean_ctor_get(v_goal_219_, 0);
 lean_inc(v_u_246_);
 v_00_u03c3s_247_ = lean_ctor_get(v_goal_219_, 1);
-lean_inc_ref(v_00_u03c3s_247_);
+lean_inc_ref_n(v_00_u03c3s_247_, 2);
 v_hyps_248_ = lean_ctor_get(v_goal_219_, 2);
 lean_inc_ref(v_hyps_248_);
 v_target_249_ = lean_ctor_get(v_goal_219_, 3);
@@ -861,7 +859,6 @@ lean_ctor_set(v___x_252_, 0, v_u_246_);
 lean_ctor_set(v___x_252_, 1, v___x_251_);
 lean_inc_ref(v___x_252_);
 v___x_253_ = l_Lean_mkConst(v___x_250_, v___x_252_);
-lean_inc_ref(v_00_u03c3s_247_);
 v___x_254_ = l_Lean_Expr_app___override(v___x_253_, v_00_u03c3s_247_);
 if (v_isShared_245_ == 0)
 {
@@ -2062,10 +2059,9 @@ if (lean_obj_tag(v___x_717_) == 1)
 {
 lean_object* v_val_718_; lean_object* v___x_719_; 
 v_val_718_ = lean_ctor_get(v___x_717_, 0);
-lean_inc(v_val_718_);
+lean_inc_n(v_val_718_, 2);
 lean_dec_ref(v___x_717_);
 lean_inc(v___x_695_);
-lean_inc(v_val_718_);
 v___x_719_ = l_Lean_Elab_Tactic_Do_ProofMode_MGoal_exact(v_val_718_, v___x_695_, v___y_700_, v___y_701_, v___y_702_, v___y_703_);
 if (lean_obj_tag(v___x_719_) == 0)
 {
@@ -2300,12 +2296,11 @@ if (lean_obj_tag(v___x_785_) == 0)
 {
 lean_object* v_a_786_; lean_object* v___x_787_; lean_object* v___x_788_; lean_object* v___f_789_; lean_object* v___x_790_; 
 v_a_786_ = lean_ctor_get(v___x_785_, 0);
-lean_inc(v_a_786_);
+lean_inc_n(v_a_786_, 2);
 lean_dec_ref(v___x_785_);
 v___x_787_ = lean_unsigned_to_nat(1u);
 v___x_788_ = l_Lean_Syntax_getArg(v_x_772_, v___x_787_);
 lean_dec(v_x_772_);
-lean_inc(v_a_786_);
 v___f_789_ = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_Do_ProofMode_elabMExact___lam__0___boxed), 11, 2);
 lean_closure_set(v___f_789_, 0, v_a_786_);
 lean_closure_set(v___f_789_, 1, v___x_788_);

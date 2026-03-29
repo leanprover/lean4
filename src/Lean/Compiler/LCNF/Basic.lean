@@ -342,6 +342,11 @@ def LetValue.toExpr (e : LetValue pu) : Expr :=
   | .unbox var _ => mkApp (.const `unbox []) (.fvar var)
   | .isShared fvarId _ => mkApp (.const `isShared []) (.fvar fvarId)
 
+def LetValue.isPersistent (val : LetValue .impure) : Bool :=
+  match val with
+  | .fap _ xs => xs.isEmpty -- all global constants are persistent
+  | _ => false
+
 structure LetDecl (pu : Purity) where
   fvarId : FVarId
   binderName : Name

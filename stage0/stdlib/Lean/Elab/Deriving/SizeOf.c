@@ -295,13 +295,12 @@ else
 {
 lean_object* v_a_107_; lean_object* v___f_108_; lean_object* v___x_109_; lean_object* v___x_110_; 
 v_a_107_ = lean_array_uget_borrowed(v_as_98_, v_i_100_);
-lean_inc(v_a_107_);
+lean_inc_n(v_a_107_, 2);
 v___f_108_ = lean_alloc_closure((void*)(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Elab_Deriving_SizeOf_mkSizeOfHandler_spec__0___lam__0___boxed), 8, 1);
 lean_closure_set(v___f_108_, 0, v_a_107_);
 v___x_109_ = lean_alloc_closure((void*)(l_Lean_Elab_Command_liftTermElabM___boxed), 5, 2);
 lean_closure_set(v___x_109_, 0, lean_box(0));
 lean_closure_set(v___x_109_, 1, v___f_108_);
-lean_inc(v_a_107_);
 v___x_110_ = l_Lean_Elab_Deriving_withoutExposeFromCtors___redArg(v_a_107_, v___x_109_, v___y_102_, v___y_103_);
 if (lean_obj_tag(v___x_110_) == 0)
 {

@@ -860,7 +860,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_injection_x3f___lam__0(lean_object* v
 _start:
 {
 lean_object* v___x_260_; 
-lean_inc_ref(v___y_255_);
 lean_inc(v_fvarId_253_);
 v___x_260_ = l_Lean_FVarId_getDecl___redArg(v_fvarId_253_, v___y_255_, v___y_257_, v___y_258_);
 if (lean_obj_tag(v___x_260_) == 0)
@@ -1124,13 +1123,12 @@ if (lean_obj_tag(v___x_296_) == 0)
 {
 lean_object* v_a_297_; lean_object* v___x_298_; 
 v_a_297_ = lean_ctor_get(v___x_296_, 0);
-lean_inc(v_a_297_);
+lean_inc_n(v_a_297_, 2);
 lean_dec_ref(v___x_296_);
 lean_inc(v___y_258_);
 lean_inc_ref(v___y_257_);
 lean_inc(v___y_256_);
 lean_inc_ref(v___y_255_);
-lean_inc(v_a_297_);
 v___x_298_ = lean_infer_type(v_a_297_, v___y_255_, v___y_256_, v___y_257_, v___y_258_);
 if (lean_obj_tag(v___x_298_) == 0)
 {
@@ -1181,9 +1179,8 @@ if (lean_obj_tag(v___x_309_) == 0)
 {
 lean_object* v_a_310_; lean_object* v___x_311_; lean_object* v___x_312_; lean_object* v___x_314_; uint8_t v_isShared_315_; uint8_t v_isSharedCheck_337_; 
 v_a_310_ = lean_ctor_get(v___x_309_, 0);
-lean_inc(v_a_310_);
+lean_inc_n(v_a_310_, 2);
 lean_dec_ref(v___x_309_);
-lean_inc(v_a_310_);
 v___x_311_ = l_Lean_Expr_app___override(v_a_297_, v_a_310_);
 v___x_312_ = l_Lean_MVarId_assign___at___00Lean_Meta_Grind_injection_x3f_spec__0___redArg(v_mvarId_254_, v___x_311_, v___y_256_);
 v_isSharedCheck_337_ = !lean_is_exclusive(v___x_312_);

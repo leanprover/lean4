@@ -592,6 +592,8 @@ See also: `#reduce e` for evaluation by term reduction.
   "#print " >> (ident <|> strLit)
 @[builtin_command_parser] def printSig       := leading_parser
   "#print " >> nonReservedSymbol "sig " >> ident
+/-- Prints the axioms used by a declaration, directly or indirectly.
+Please consult [the reference manual](lean-manual://section/validating-proofs) to understand the significance of the output. -/
 @[builtin_command_parser] def printAxioms    := leading_parser
   "#print " >> nonReservedSymbol "axioms " >> ident
 @[builtin_command_parser] def printEqns      := leading_parser

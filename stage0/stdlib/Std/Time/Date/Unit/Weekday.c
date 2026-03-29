@@ -798,6 +798,7 @@ v___jp_150_:
 {
 lean_object* v___x_152_; lean_object* v___x_153_; uint8_t v___x_154_; lean_object* v___x_155_; lean_object* v___x_156_; 
 v___x_152_ = ((lean_object*)(l_Std_Time_instReprWeekday_repr___closed__1));
+lean_inc(v___y_151_);
 v___x_153_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_153_, 0, v___y_151_);
 lean_ctor_set(v___x_153_, 1, v___x_152_);
@@ -812,6 +813,7 @@ v___jp_157_:
 {
 lean_object* v___x_159_; lean_object* v___x_160_; uint8_t v___x_161_; lean_object* v___x_162_; lean_object* v___x_163_; 
 v___x_159_ = ((lean_object*)(l_Std_Time_instReprWeekday_repr___closed__3));
+lean_inc(v___y_158_);
 v___x_160_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_160_, 0, v___y_158_);
 lean_ctor_set(v___x_160_, 1, v___x_159_);
@@ -826,6 +828,7 @@ v___jp_164_:
 {
 lean_object* v___x_166_; lean_object* v___x_167_; uint8_t v___x_168_; lean_object* v___x_169_; lean_object* v___x_170_; 
 v___x_166_ = ((lean_object*)(l_Std_Time_instReprWeekday_repr___closed__5));
+lean_inc(v___y_165_);
 v___x_167_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_167_, 0, v___y_165_);
 lean_ctor_set(v___x_167_, 1, v___x_166_);
@@ -840,6 +843,7 @@ v___jp_171_:
 {
 lean_object* v___x_173_; lean_object* v___x_174_; uint8_t v___x_175_; lean_object* v___x_176_; lean_object* v___x_177_; 
 v___x_173_ = ((lean_object*)(l_Std_Time_instReprWeekday_repr___closed__7));
+lean_inc(v___y_172_);
 v___x_174_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_174_, 0, v___y_172_);
 lean_ctor_set(v___x_174_, 1, v___x_173_);
@@ -854,6 +858,7 @@ v___jp_178_:
 {
 lean_object* v___x_180_; lean_object* v___x_181_; uint8_t v___x_182_; lean_object* v___x_183_; lean_object* v___x_184_; 
 v___x_180_ = ((lean_object*)(l_Std_Time_instReprWeekday_repr___closed__9));
+lean_inc(v___y_179_);
 v___x_181_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_181_, 0, v___y_179_);
 lean_ctor_set(v___x_181_, 1, v___x_180_);
@@ -868,6 +873,7 @@ v___jp_185_:
 {
 lean_object* v___x_187_; lean_object* v___x_188_; uint8_t v___x_189_; lean_object* v___x_190_; lean_object* v___x_191_; 
 v___x_187_ = ((lean_object*)(l_Std_Time_instReprWeekday_repr___closed__11));
+lean_inc(v___y_186_);
 v___x_188_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_188_, 0, v___y_186_);
 lean_ctor_set(v___x_188_, 1, v___x_187_);
@@ -882,6 +888,7 @@ v___jp_192_:
 {
 lean_object* v___x_194_; lean_object* v___x_195_; uint8_t v___x_196_; lean_object* v___x_197_; lean_object* v___x_198_; 
 v___x_194_ = ((lean_object*)(l_Std_Time_instReprWeekday_repr___closed__13));
+lean_inc(v___y_193_);
 v___x_195_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_195_, 0, v___y_193_);
 lean_ctor_set(v___x_195_, 1, v___x_194_);
@@ -2421,6 +2428,7 @@ v___x_706_ = 0;
 v___x_707_ = lean_obj_once(&l_Std_Time_Weekday_ofNat_x21___closed__3, &l_Std_Time_Weekday_ofNat_x21___closed__3_once, _init_l_Std_Time_Weekday_ofNat_x21___closed__3);
 v___x_708_ = lean_box(v___x_706_);
 v___x_709_ = l_panic___redArg(v___x_708_, v___x_707_);
+lean_dec(v___x_708_);
 v___x_710_ = lean_unbox(v___x_709_);
 lean_dec(v___x_709_);
 return v___x_710_;

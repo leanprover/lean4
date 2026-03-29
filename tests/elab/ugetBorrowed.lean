@@ -11,7 +11,7 @@ trace: [Compiler.explicitRc] size: 3
       let i.boxed := unbox i;
       dec i;
       let res := test._redArg xs i.boxed;
-      dec xs;
+      dec[ref] xs;
       let r := box res;
       return r
 [Compiler.explicitRc] size: 1
@@ -23,7 +23,7 @@ trace: [Compiler.explicitRc] size: 3
       let i.boxed := unbox i;
       dec i;
       let res := test xs i.boxed h;
-      dec xs;
+      dec[ref] xs;
       let r := box res;
       return r
 -/

@@ -93,16 +93,15 @@ def mkDeclExt (phase : Phase) (name : Name := by exact decl_name%) :
     mkInitial := pure {},
     addImportedFn := fun _ => pure {},
     addEntryFn := fun s decl => s.insert decl.name decl
-    exportEntriesFnEx env s level := Id.run do
-      let mut entries := sortedEntries s declLt
-      if level != .private then
-        entries := entries.filterMap fun decl => do
-          guard <| isDeclPublic env decl.name
-          if isDeclTransparent env phase decl.name then
-            some decl
-          else
-            some { decl with value := .extern { entries := [.opaque] } }
-      return entries
+    exportEntriesFnEx env s := Id.run do
+      let all := sortedEntries s declLt
+      let exported := all.filterMap fun decl => do
+        guard <| isDeclPublic env decl.name
+        if isDeclTransparent env phase decl.name then
+          some decl
+        else
+          some { decl with value := .extern { entries := [.opaque] } }
+      return { exported, server := exported, «private» := all }
     statsFn := statsFn,
     asyncMode := .sync,
     replay? := some (replayFn phase)
@@ -138,13 +137,12 @@ def mkSigDeclExt (phase : Phase) (name : Name := by exact decl_name%) :
     mkInitial := pure {},
     addImportedFn := fun _ => pure {},
     addEntryFn := fun s sig => s.insert sig.name sig
-    exportEntriesFnEx env s level := Id.run do
-      let mut entries := sortedEntries s sigLt
-      if level != .private then
-        entries := entries.filterMap fun sig => do
-          guard <| isDeclPublic env sig.name
-          some sig
-      return entries
+    exportEntriesFnEx env s := Id.run do
+      let all := sortedEntries s sigLt
+      let exported := all.filterMap fun sig => do
+        guard <| isDeclPublic env sig.name
+        some sig
+      return { exported, server := exported, «private» := all }
     statsFn := statsFn,
     asyncMode := .sync,
     replay? := some (replayFn phase)

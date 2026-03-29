@@ -60,7 +60,7 @@ lean_object* l_Lean_Meta_isExprDefEq(lean_object*, lean_object*, lean_object*, l
 lean_object* l_Lean_Elab_Tactic_Do_ProofMode_Hyp_toExpr(lean_object*);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_instInhabitedMetaM___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_panic_fn(lean_object*, lean_object*);
+lean_object* lean_panic_fn_borrowed(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isDefEq___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkApp4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -490,7 +490,7 @@ _start:
 {
 lean_object* v___f_71_; lean_object* v___x_2866__overap_72_; lean_object* v___x_73_; 
 v___f_71_ = ((lean_object*)(l_panic___at___00__private_Lean_Elab_Tactic_Do_ProofMode_Frame_0__Lean_Elab_Tactic_Do_ProofMode_transferHypNames_label_spec__2___closed__0));
-v___x_2866__overap_72_ = lean_panic_fn(v___f_71_, v_msg_65_);
+v___x_2866__overap_72_ = lean_panic_fn_borrowed(v___f_71_, v_msg_65_);
 lean_inc(v___y_69_);
 lean_inc_ref(v___y_68_);
 lean_inc(v___y_67_);
@@ -1572,7 +1572,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_ProofMode_mFrameCore___redArg___l
 _start:
 {
 lean_object* v___f_440_; lean_object* v_goal_441_; lean_object* v___x_442_; lean_object* v___x_443_; lean_object* v___f_444_; lean_object* v___f_445_; lean_object* v___f_446_; lean_object* v___x_447_; lean_object* v___x_448_; 
-lean_inc_ref(v_00_u03c6_429_);
+lean_inc_ref_n(v_00_u03c6_429_, 2);
 lean_inc_ref(v_target_428_);
 lean_inc_ref(v_P_x27_439_);
 lean_inc_ref(v_00_u03c3s_426_);
@@ -1596,7 +1596,6 @@ lean_ctor_set(v_goal_441_, 2, v_P_x27_439_);
 lean_ctor_set(v_goal_441_, 3, v_target_428_);
 v___x_442_ = lean_box(v_____do__lift_432_);
 v___x_443_ = lean_box(v___x_433_);
-lean_inc_ref(v_00_u03c6_429_);
 lean_inc(v_toBind_435_);
 lean_inc(v_inst_434_);
 v___f_444_ = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_Do_ProofMode_mFrameCore___redArg___lam__2___boxed), 9, 8);
@@ -2019,11 +2018,10 @@ lean_dec_ref(v_goal_684_);
 v_toApplicative_691_ = lean_ctor_get(v_inst_681_, 0);
 lean_inc_ref(v_toApplicative_691_);
 v_toBind_692_ = lean_ctor_get(v_inst_681_, 1);
-lean_inc(v_toBind_692_);
+lean_inc_n(v_toBind_692_, 2);
 v___x_693_ = 0;
 v___x_694_ = lean_box(0);
 v___x_695_ = lean_box(v___x_693_);
-lean_inc(v_toBind_692_);
 lean_inc(v_inst_683_);
 v___f_696_ = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_Do_ProofMode_mFrameCore___redArg___lam__9___boxed), 14, 13);
 lean_closure_set(v___f_696_, 0, v_u_687_);
@@ -3697,14 +3695,13 @@ if (lean_obj_tag(v___x_1419_) == 0)
 {
 lean_object* v_a_1420_; lean_object* v___x_1421_; lean_object* v___x_1422_; lean_object* v___x_1423_; lean_object* v___x_1424_; lean_object* v___x_1425_; lean_object* v___x_1426_; 
 v_a_1420_ = lean_ctor_get(v___x_1419_, 0);
-lean_inc(v_a_1420_);
+lean_inc_n(v_a_1420_, 2);
 lean_dec_ref(v___x_1419_);
 v___x_1421_ = ((lean_object*)(l_Lean_Elab_Tactic_Do_ProofMode_mFrameCore___redArg___lam__8___closed__0));
 v___x_1422_ = ((lean_object*)(l_Lean_Elab_Tactic_Do_ProofMode_mFrameCore___at___00Lean_Elab_Tactic_Do_ProofMode_elabMFrame_spec__2___closed__0));
 lean_inc_ref(v___x_1414_);
 v___x_1423_ = l_Lean_mkConst(v___x_1422_, v___x_1414_);
 lean_inc(v_a_1405_);
-lean_inc(v_a_1420_);
 lean_inc_ref(v_hyps_1396_);
 lean_inc_ref(v_00_u03c3s_1395_);
 v___x_1424_ = l_Lean_mkApp4(v___x_1423_, v_00_u03c3s_1395_, v_hyps_1396_, v_a_1420_, v_a_1405_);
@@ -4237,11 +4234,10 @@ if (lean_obj_tag(v___x_1553_) == 0)
 {
 lean_object* v_a_1554_; lean_object* v___f_1555_; lean_object* v___f_1556_; lean_object* v___f_1557_; lean_object* v___x_1558_; 
 v_a_1554_ = lean_ctor_get(v___x_1553_, 0);
-lean_inc(v_a_1554_);
+lean_inc_n(v_a_1554_, 2);
 lean_dec_ref(v___x_1553_);
 v___f_1555_ = ((lean_object*)(l_Lean_Elab_Tactic_Do_ProofMode_elabMFrame___redArg___closed__0));
 v___f_1556_ = ((lean_object*)(l_Lean_Elab_Tactic_Do_ProofMode_elabMFrame___redArg___closed__1));
-lean_inc(v_a_1554_);
 v___f_1557_ = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_Do_ProofMode_elabMFrame___redArg___lam__2___boxed), 12, 3);
 lean_closure_set(v___f_1557_, 0, v_a_1554_);
 lean_closure_set(v___f_1557_, 1, v___f_1555_);

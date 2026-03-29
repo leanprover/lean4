@@ -162,17 +162,15 @@ _start:
 {
 lean_object* v_fst_43_; lean_object* v_snd_44_; lean_object* v_fst_45_; lean_object* v_snd_46_; lean_object* v___x_47_; lean_object* v___x_48_; uint8_t v___x_49_; 
 v_fst_43_ = lean_ctor_get(v_x_41_, 0);
-lean_inc(v_fst_43_);
+lean_inc_n(v_fst_43_, 2);
 v_snd_44_ = lean_ctor_get(v_x_41_, 1);
 lean_inc(v_snd_44_);
 lean_dec_ref(v_x_41_);
 v_fst_45_ = lean_ctor_get(v_x_42_, 0);
-lean_inc(v_fst_45_);
+lean_inc_n(v_fst_45_, 2);
 v_snd_46_ = lean_ctor_get(v_x_42_, 1);
 lean_inc(v_snd_46_);
 lean_dec_ref(v_x_42_);
-lean_inc(v_fst_45_);
-lean_inc(v_fst_43_);
 v___x_47_ = lean_apply_2(v_00_u03b1eqDec_38_, v_fst_43_, v_fst_45_);
 v___x_48_ = lean_apply_2(v_rDec_39_, v_fst_43_, v_fst_45_);
 v___x_49_ = lean_unbox(v___x_48_);

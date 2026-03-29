@@ -783,7 +783,6 @@ uint8_t v___x_207_; lean_object* v___x_208_; lean_object* v___x_209_;
 lean_dec_ref(v_val_206_);
 v___x_207_ = 0;
 v___x_208_ = l_Lean_Compiler_LCNF_LetValue_toExpr(v___x_207_, v_e_191_);
-lean_inc_ref(v_a_192_);
 v___x_209_ = l_Lean_Compiler_LCNF_Simp_simpCtorDiscrCore_x3f(v___x_208_, v_a_192_, v_a_193_, v_a_194_, v_a_195_, v_a_196_);
 if (lean_obj_tag(v___x_209_) == 0)
 {

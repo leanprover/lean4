@@ -24,19 +24,15 @@ LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_inst
 _start:
 {
 lean_object* v___x_2_; lean_object* v___x_3_; lean_object* v___x_4_; lean_object* v___x_5_; lean_object* v___x_6_; lean_object* v___x_7_; lean_object* v___x_8_; 
-lean_inc(v_n_1_);
+lean_inc_n(v_n_1_, 5);
 v___x_2_ = lean_alloc_closure((void*)(l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_toList___boxed), 2, 1);
 lean_closure_set(v___x_2_, 0, v_n_1_);
-lean_inc(v_n_1_);
 v___x_3_ = lean_alloc_closure((void*)(l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_ofArray), 2, 1);
 lean_closure_set(v___x_3_, 0, v_n_1_);
-lean_inc(v_n_1_);
 v___x_4_ = lean_alloc_closure((void*)(l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_insert___boxed), 3, 1);
 lean_closure_set(v___x_4_, 0, v_n_1_);
-lean_inc(v_n_1_);
 v___x_5_ = lean_alloc_closure((void*)(l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_delete___boxed), 3, 1);
 lean_closure_set(v___x_5_, 0, v_n_1_);
-lean_inc(v_n_1_);
 v___x_6_ = lean_alloc_closure((void*)(l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_performRupAdd___boxed), 4, 1);
 lean_closure_set(v___x_6_, 0, v_n_1_);
 v___x_7_ = lean_alloc_closure((void*)(l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_performRatAdd___boxed), 6, 1);

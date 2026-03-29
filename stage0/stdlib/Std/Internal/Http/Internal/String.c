@@ -25,7 +25,7 @@ lean_object* lean_string_append(lean_object*, lean_object*);
 uint8_t l_List_all___redArg(lean_object*, lean_object*);
 uint8_t l_List_isEmpty___redArg(lean_object*);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_panic_fn(lean_object*, lean_object*);
+lean_object* lean_panic_fn_borrowed(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 uint8_t l_String_instDecidableLtRaw___aux__1(lean_object*, lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
@@ -698,7 +698,7 @@ _start:
 {
 lean_object* v___x_155_; lean_object* v___x_156_; 
 v___x_155_ = ((lean_object*)(l_Std_Http_Internal_quoteCore___redArg___closed__0));
-v___x_156_ = lean_panic_fn(v___x_155_, v_msg_154_);
+v___x_156_ = lean_panic_fn_borrowed(v___x_155_, v_msg_154_);
 return v___x_156_;
 }
 }

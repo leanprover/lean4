@@ -380,6 +380,7 @@ v___jp_90_:
 lean_object* v___x_94_; lean_object* v___x_95_; lean_object* v___x_96_; lean_object* v___x_97_; lean_object* v___x_98_; lean_object* v___x_99_; lean_object* v___x_100_; lean_object* v___x_101_; lean_object* v___x_102_; lean_object* v___x_103_; lean_object* v___x_104_; lean_object* v___x_105_; lean_object* v___x_106_; lean_object* v___x_107_; lean_object* v___x_108_; lean_object* v___x_109_; lean_object* v___x_110_; 
 v___x_94_ = l_Lean_MessageData_ofFormat(v___y_93_);
 v___x_95_ = l_Lean_indentD(v___x_94_);
+lean_inc_ref(v___y_92_);
 v___x_96_ = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(v___x_96_, 0, v___y_92_);
 lean_ctor_set(v___x_96_, 1, v___x_95_);
@@ -768,7 +769,7 @@ lean_object* v___x_236_; lean_object* v_toApplicative_237_; lean_object* v_toBin
 v___x_236_ = l_Lean_KVMap_instValueDataValue;
 v_toApplicative_237_ = lean_ctor_get(v_inst_230_, 0);
 v_toBind_238_ = lean_ctor_get(v_inst_230_, 1);
-lean_inc(v_toBind_238_);
+lean_inc_n(v_toBind_238_, 2);
 v_toPure_239_ = lean_ctor_get(v_toApplicative_237_, 1);
 lean_inc(v_toPure_239_);
 lean_inc_ref(v_val_235_);
@@ -779,7 +780,6 @@ lean_closure_set(v___f_241_, 0, v___x_236_);
 lean_closure_set(v___f_241_, 1, v_optionName_233_);
 lean_closure_set(v___f_241_, 2, v_val_235_);
 lean_closure_set(v___f_241_, 3, v_toPure_239_);
-lean_inc(v_toBind_238_);
 v___f_242_ = lean_alloc_closure((void*)(l___private_Lean_Elab_SetOption_0__Lean_Elab_elabSetOption_setOption___redArg___lam__1), 4, 3);
 lean_closure_set(v___f_242_, 0, v_toBind_238_);
 lean_closure_set(v___f_242_, 1, v_inst_231_);
@@ -1148,10 +1148,9 @@ _start:
 lean_object* v_toMonadRef_401_; lean_object* v_toBind_402_; lean_object* v_getRef_403_; lean_object* v___f_404_; lean_object* v___x_405_; 
 v_toMonadRef_401_ = lean_ctor_get(v_inst_396_, 1);
 v_toBind_402_ = lean_ctor_get(v_inst_394_, 1);
-lean_inc(v_toBind_402_);
+lean_inc_n(v_toBind_402_, 2);
 v_getRef_403_ = lean_ctor_get(v_toMonadRef_401_, 0);
 lean_inc(v_getRef_403_);
-lean_inc(v_toBind_402_);
 v___f_404_ = lean_alloc_closure((void*)(l_Lean_Elab_elabSetOption___redArg___lam__4), 9, 8);
 lean_closure_set(v___f_404_, 0, v_id_399_);
 lean_closure_set(v___f_404_, 1, v_val_400_);

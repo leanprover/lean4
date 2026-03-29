@@ -125,12 +125,6 @@ def new : Builder := { }
 namespace Builder
 
 /--
-Creates a new HTTP request builder with the default head
-(method: GET, version: HTTP/1.1, target: `*`).
--/
-def empty : Builder := { }
-
-/--
 Sets the HTTP method for the request being built.
 -/
 def method (builder : Builder) (method : Method) : Builder :=

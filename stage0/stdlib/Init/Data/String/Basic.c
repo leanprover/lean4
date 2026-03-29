@@ -19,7 +19,7 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_String_instInhabitedSlice;
-lean_object* lean_panic_fn(lean_object*, lean_object*);
+lean_object* lean_panic_fn_borrowed(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 uint8_t l_String_instDecidableLtRaw___aux__1(lean_object*, lean_object*);
 uint8_t lean_string_get_byte_fast(lean_object*, lean_object*);
@@ -2317,7 +2317,7 @@ _start:
 {
 lean_object* v___x_632_; lean_object* v___x_633_; 
 v___x_632_ = l_String_instInhabitedSlice;
-v___x_633_ = lean_panic_fn(v___x_632_, v_msg_631_);
+v___x_633_ = lean_panic_fn_borrowed(v___x_632_, v_msg_631_);
 return v___x_633_;
 }
 }
@@ -2540,7 +2540,7 @@ _start:
 {
 lean_object* v___x_720_; lean_object* v___x_721_; uint32_t v___x_722_; 
 v___x_720_ = l_panic___at___00String_Slice_Pos_get_x21_spec__0___boxed__const__1;
-v___x_721_ = lean_panic_fn(v___x_720_, v_msg_719_);
+v___x_721_ = lean_panic_fn_borrowed(v___x_720_, v_msg_719_);
 v___x_722_ = lean_unbox_uint32(v___x_721_);
 lean_dec(v___x_721_);
 return v___x_722_;
@@ -3303,7 +3303,7 @@ _start:
 {
 lean_object* v___x_993_; lean_object* v___x_994_; 
 v___x_993_ = lean_unsigned_to_nat(0u);
-v___x_994_ = lean_panic_fn(v___x_993_, v_msg_992_);
+v___x_994_ = lean_panic_fn_borrowed(v___x_993_, v_msg_992_);
 return v___x_994_;
 }
 }

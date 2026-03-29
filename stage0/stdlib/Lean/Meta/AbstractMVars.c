@@ -2307,10 +2307,9 @@ uint8_t v___x_686_; uint8_t v___x_687_; lean_object* v___x_688_; lean_object* v_
 v___x_686_ = 0;
 v___x_687_ = 0;
 v___x_688_ = l_Lean_LocalContext_mkLocalDecl(v_lctx_674_, v_fst_665_, v_userName_672_, v_fst_662_, v___x_686_, v___x_687_);
-lean_inc_ref(v___x_670_);
+lean_inc_ref_n(v___x_670_, 2);
 v___x_689_ = lean_array_push(v_fvars_678_, v___x_670_);
 v___x_690_ = lean_array_push(v_mvars_679_, v_e_643_);
-lean_inc_ref(v___x_670_);
 v___x_691_ = l_Std_DHashMap_Internal_Raw_u2080_insert___at___00Lean_Meta_AbstractMVars_abstractExprMVars_spec__2___redArg(v_emap_681_, v_mvarId_647_, v___x_670_);
 if (v_isShared_685_ == 0)
 {

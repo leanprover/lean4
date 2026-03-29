@@ -52,17 +52,17 @@ trace: [Compiler.saveMono] size: 25
       cases x : tobj
       | Enum.A =>
         let _x.6 := 0;
-        inc y;
+        inc[ref] y;
         let _x.7 := y _x.6 ◾;
         goto _jp.2
       | Enum.B =>
         let _x.8 := 1;
-        inc y;
+        inc[ref] y;
         let _x.9 := y _x.8 ◾;
         goto _jp.2
       | Enum.C =>
         let _x.10 := 2;
-        inc y;
+        inc[ref] y;
         let _x.11 := y _x.10 ◾;
         goto _jp.2
 [Compiler.saveImpure] size: 2

@@ -148,13 +148,12 @@ lean_object* v___x_10_; lean_object* v___x_11_; lean_object* v___x_12_;
 lean_inc(v_defValue_5_);
 v___x_10_ = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(v___x_10_, 0, v_defValue_5_);
-lean_inc(v_name_1_);
+lean_inc_n(v_name_1_, 2);
 v___x_11_ = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(v___x_11_, 0, v_name_1_);
 lean_ctor_set(v___x_11_, 1, v_ref_3_);
 lean_ctor_set(v___x_11_, 2, v___x_10_);
 lean_ctor_set(v___x_11_, 3, v_descr_6_);
-lean_inc(v_name_1_);
 v___x_12_ = lean_register_option(v_name_1_, v___x_11_);
 if (lean_obj_tag(v___x_12_) == 0)
 {
@@ -722,6 +721,7 @@ lean_ctor_set(v___x_196_, 1, v_openDecls_183_);
 v___x_197_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_197_, 0, v___x_196_);
 lean_ctor_set(v___x_197_, 1, v___y_177_);
+lean_inc_ref(v___y_173_);
 lean_inc_ref(v___y_175_);
 v___x_198_ = lean_alloc_ctor(0, 5, 3);
 lean_ctor_set(v___x_198_, 0, v___y_175_);
@@ -790,10 +790,9 @@ goto v_resetjp_219_;
 v_resetjp_219_:
 {
 lean_object* v___x_222_; lean_object* v___x_223_; lean_object* v___x_224_; lean_object* v___x_225_; 
-lean_inc_ref(v___y_210_);
+lean_inc_ref_n(v___y_210_, 2);
 v___x_222_ = l_Lean_FileMap_toPosition(v___y_210_, v___y_214_);
 lean_dec(v___y_214_);
-lean_inc_ref(v___y_210_);
 v___x_223_ = l_Lean_FileMap_toPosition(v___y_210_, v___y_215_);
 lean_dec(v___y_215_);
 v___x_224_ = lean_alloc_ctor(1, 1, 0);
@@ -1134,7 +1133,6 @@ else
 {
 lean_object* v_name_352_; lean_object* v___x_353_; lean_object* v___x_354_; lean_object* v___x_355_; lean_object* v___x_356_; lean_object* v___x_357_; lean_object* v___x_358_; lean_object* v___x_359_; lean_object* v___x_360_; lean_object* v___x_361_; uint8_t v___x_362_; lean_object* v___x_363_; lean_object* v___x_364_; lean_object* v___x_365_; lean_object* v___x_366_; lean_object* v___x_368_; 
 v_name_352_ = lean_ctor_get(v___x_339_, 0);
-lean_inc(v_name_352_);
 v___x_353_ = ((lean_object*)(l_Lean_checkExponent___closed__2));
 v___x_354_ = l_Nat_reprFast(v_n_329_);
 v___x_355_ = lean_string_append(v___x_353_, v___x_354_);
@@ -1148,6 +1146,7 @@ v___x_360_ = ((lean_object*)(l_Lean_checkExponent___closed__4));
 v___x_361_ = lean_string_append(v___x_359_, v___x_360_);
 v___x_362_ = lean_unbox(v_a_347_);
 lean_dec(v_a_347_);
+lean_inc(v_name_352_);
 v___x_363_ = l_Lean_Name_toStringWithToken___at___00Lean_Name_toString_spec__0(v_name_352_, v___x_362_);
 v___x_364_ = lean_string_append(v___x_361_, v___x_363_);
 lean_dec_ref(v___x_363_);

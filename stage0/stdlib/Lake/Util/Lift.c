@@ -371,12 +371,11 @@ lean_object* v_toApplicative_138_; lean_object* v_toBind_139_; lean_object* v_to
 v_toApplicative_138_ = lean_ctor_get(v_inst_135_, 0);
 lean_inc_ref(v_toApplicative_138_);
 v_toBind_139_ = lean_ctor_get(v_inst_135_, 1);
-lean_inc(v_toBind_139_);
+lean_inc_n(v_toBind_139_, 2);
 lean_dec_ref(v_inst_135_);
 v_toPure_140_ = lean_ctor_get(v_toApplicative_138_, 1);
 lean_inc(v_toPure_140_);
 lean_dec_ref(v_toApplicative_138_);
-lean_inc(v_toBind_139_);
 lean_inc_ref(v_inst_136_);
 v___f_141_ = lean_alloc_closure((void*)(l_Lake_instMonadLiftTStateTOfMonadOfMonadStateOf__lake___redArg___lam__1), 4, 3);
 lean_closure_set(v___f_141_, 0, v_inst_136_);

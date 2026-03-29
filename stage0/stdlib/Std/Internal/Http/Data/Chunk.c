@@ -46,7 +46,7 @@ uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 lean_object* lean_string_data(lean_object*);
 uint8_t l_List_all___redArg(lean_object*, lean_object*);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_panic_fn(lean_object*, lean_object*);
+lean_object* lean_panic_fn_borrowed(lean_object*, lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 uint8_t l_Std_DHashMap_Internal_Raw_u2080_contains___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
@@ -734,7 +734,7 @@ _start:
 {
 lean_object* v___x_183_; lean_object* v___x_184_; 
 v___x_183_ = ((lean_object*)(l_Std_Http_Chunk_instReprExtensionName_repr___redArg___closed__12));
-v___x_184_ = lean_panic_fn(v___x_183_, v_msg_182_);
+v___x_184_ = lean_panic_fn_borrowed(v___x_183_, v_msg_182_);
 return v___x_184_;
 }
 }
@@ -1091,7 +1091,7 @@ _start:
 {
 lean_object* v___x_307_; lean_object* v___x_308_; 
 v___x_307_ = ((lean_object*)(l_Std_Http_Chunk_ExtensionValue_instInhabited___closed__0));
-v___x_308_ = lean_panic_fn(v___x_307_, v_msg_306_);
+v___x_308_ = lean_panic_fn_borrowed(v___x_307_, v_msg_306_);
 return v___x_308_;
 }
 }

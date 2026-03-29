@@ -15,6 +15,50 @@ register_builtin_option sym.debug : Bool := {
   descr    := "check invariants"
 }
 
+builtin_initialize registerTraceClass `sym.issues
+
+/-!
+## Sym Extensions
+
+Extensible state mechanism for `SymM`, allowing modules to register persistent state
+that lives across `simp` invocations within a `sym =>` block. Follows the same pattern
+as `Grind.SolverExtension` in `Lean/Meta/Tactic/Grind/Types.lean`.
+-/
+
+/-- Opaque extension state type used to store type-erased extension values. -/
+opaque SymExtensionStateSpec : (α : Type) × Inhabited α := ⟨Unit, ⟨()⟩⟩
+@[expose] def SymExtensionState : Type := SymExtensionStateSpec.fst
+instance : Inhabited SymExtensionState := SymExtensionStateSpec.snd
+
+/--
+A registered extension for `SymM`. Each extension gets a unique index into the
+extensions array in `Sym.State`. Can only be created via `registerSymExtension`.
+-/
+structure SymExtension (σ : Type) where private mk ::
+  id        : Nat
+  mkInitial : IO σ
+  deriving Inhabited
+
+private builtin_initialize symExtensionsRef : IO.Ref (Array (SymExtension SymExtensionState)) ← IO.mkRef #[]
+
+/--
+Registers a new `SymM` state extension. Extensions can only be registered during initialization.
+Returns a handle for typed access to the extension's state.
+-/
+def registerSymExtension {σ : Type} (mkInitial : IO σ) : IO (SymExtension σ) := do
+  unless (← initializing) do
+    throw (IO.userError "failed to register `Sym` extension, extensions can only be registered during initialization")
+  let exts ← symExtensionsRef.get
+  let id := exts.size
+  let ext : SymExtension σ := { id, mkInitial }
+  symExtensionsRef.modify fun exts => exts.push (unsafe unsafeCast ext)
+  return ext
+
+/-- Returns initial state for all registered extensions. -/
+def SymExtensions.mkInitialStates : IO (Array SymExtensionState) := do
+  let exts ← symExtensionsRef.get
+  exts.mapM fun ext => ext.mkInitial
+
 /--
 Information about a single argument position in a function's type signature.
 
@@ -92,9 +136,24 @@ structure SharedExprs where
   ordEqExpr  : Expr
   intExpr    : Expr
 
+/-- Configuration options for the symbolic computation framework. -/
+structure Config where
+  /-- When `true`, issues are collected during proof search and reported on failure. -/
+  verbose : Bool := true
+  deriving Inhabited
+
 /-- Readonly context for the symbolic computation framework. -/
 structure Context where
   sharedExprs : SharedExprs
+  config      : Config := {}
+
+structure Canon.State where
+  /-- Cache for value-level canonicalization (no type reductions applied). -/
+  cache       : Std.HashMap Expr Expr := {}
+  /-- Cache for type-level canonicalization (reductions applied). -/
+  cacheInType : Std.HashMap Expr Expr := {}
+  /-- Cache mapping instances to their canonical synthesized instances. -/
+  cacheInsts  : Std.HashMap Expr Expr := {}
 
 /-- Mutable state for the symbolic computation framework. -/
 structure State where
@@ -133,6 +192,14 @@ structure State where
   congrInfo : PHashMap ExprPtr CongrInfo := {}
   /-- Cache for `isDefEqI` results -/
   defEqI : PHashMap (ExprPtr × ExprPtr) Bool := {}
+  /-- State for registered `SymExtension`s, indexed by extension id. -/
+  extensions : Array SymExtensionState := #[]
+  /--
+  Issues found during symbolic computation. Accumulated across operations
+  within a `sym =>` block and reported when a tactic fails.
+  -/
+  issues : List MessageData := []
+  canon : Canon.State := {}
   debug : Bool := false
 
 abbrev SymM := ReaderT Context <| StateRefT State MetaM
@@ -150,7 +217,8 @@ private def mkSharedExprs : AlphaShareCommonM SharedExprs := do
 def SymM.run (x : SymM α) : MetaM α := do
   let (sharedExprs, share) := mkSharedExprs |>.run {}
   let debug := sym.debug.get (← getOptions)
-  x { sharedExprs } |>.run' { debug, share }
+  let extensions ← SymExtensions.mkInitialStates
+  x { sharedExprs } |>.run' { debug, share, extensions }
 
 /-- Returns maximally shared commonly used terms -/
 def getSharedExprs : SymM SharedExprs :=
@@ -221,6 +289,55 @@ abbrev share (e : Expr) : SymM Expr :=
 @[inline] def isDebugEnabled : SymM Bool :=
   return (← get).debug
 
+def getConfig : SymM Config :=
+  return (← readThe Context).config
+
+/-- Adds an issue message to the issue tracker. -/
+def reportIssue (msg : MessageData) : SymM Unit := do
+  let msg ← addMessageContext msg
+  modify fun s => { s with issues := .trace { cls := `issue } msg #[] :: s.issues }
+  trace[sym.issues] msg
+
+/-- Reports an issue if `verbose` mode is enabled. Does nothing if `verbose` is `false`. -/
+@[inline] def reportIssueIfVerbose (msg : MessageData) : SymM Unit := do
+  if (← getConfig).verbose then
+    reportIssue msg
+
+private meta def expandReportIssueMacro (s : Syntax) : MacroM (TSyntax `doElem) := do
+  let msg ← if s.getKind == interpolatedStrKind then `(m! $(⟨s⟩)) else `(($(⟨s⟩) : MessageData))
+  `(doElem| Sym.reportIssueIfVerbose $msg)
+
+/-- Reports an issue if `verbose` mode is enabled. -/
+macro "reportIssue!" s:(interpolatedStr(term) <|> term) : doElem => do
+  expandReportIssueMacro s.raw
+
+/-- Reports an issue if both `verbose` and `sym.debug` are enabled. Does nothing otherwise. -/
+@[inline] def reportDbgIssue (msg : MessageData) : SymM Unit := do
+  if (← getConfig).verbose then
+    if sym.debug.get (← getOptions) then
+      reportIssue msg
+
+meta def expandReportDbgIssueMacro (s : Syntax) : MacroM (TSyntax `doElem) := do
+  let msg ← if s.getKind == interpolatedStrKind then `(m! $(⟨s⟩)) else `(($(⟨s⟩) : MessageData))
+  `(doElem| Sym.reportDbgIssue $msg)
+
+/-- Similar to `reportIssue!`, but only reports issue if `sym.debug` is set to `true`. -/
+macro "reportDbgIssue!" s:(interpolatedStr(term) <|> term) : doElem => do
+  expandReportDbgIssueMacro s.raw
+
+/-- Returns all accumulated issues without clearing them. -/
+def getIssues : SymM (List MessageData) :=
+  return (← get).issues
+
+/--
+Runs `x` with a fresh issue context. Issues reported during `x` are
+prepended to the issues that existed before the call.
+-/
+def withNewIssueContext (x : SymM α) : SymM α := do
+  let saved := (← get).issues
+  modify fun s => { s with issues := [] }
+  try x finally modify fun s => { s with issues := s.issues ++ saved }
+
 /-- Similar to `Meta.isDefEqI`, but the result is cache using pointer equality. -/
 def isDefEqI (s t : Expr) : SymM Bool := do
   let key := (⟨s⟩, ⟨t⟩)
@@ -229,5 +346,27 @@ def isDefEqI (s t : Expr) : SymM Bool := do
   let result ← Meta.isDefEqI s t
   modify fun s => { s with defEqI := s.defEqI.insert key result }
   return result
+
+instance : Inhabited (SymM α) where
+  default := throwError "<SymM default value>"
+
+/-! ### SymExtension accessors -/
+
+private unsafe def SymExtension.getStateCoreImpl (ext : SymExtension σ) (extensions : Array SymExtensionState) : IO σ :=
+  return unsafeCast extensions[ext.id]!
+
+@[implemented_by SymExtension.getStateCoreImpl]
+opaque SymExtension.getStateCore (ext : SymExtension σ) (extensions : Array SymExtensionState) : IO σ
+
+def SymExtension.getState (ext : SymExtension σ) : SymM σ := do
+  ext.getStateCore (← get).extensions
+
+private unsafe def SymExtension.modifyStateImpl (ext : SymExtension σ) (f : σ → σ) : SymM Unit := do
+  modify fun s => { s with
+    extensions := s.extensions.modify ext.id fun state => unsafeCast (f (unsafeCast state))
+  }
+
+@[implemented_by SymExtension.modifyStateImpl]
+opaque SymExtension.modifyState (ext : SymExtension σ) (f : σ → σ) : SymM Unit
 
 end Lean.Meta.Sym

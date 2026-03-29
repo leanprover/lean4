@@ -352,10 +352,10 @@ LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_instReprOSInfo_repr___bo
 static const lean_closure_object l_Std_Internal_IO_Async_System_instReprOSInfo___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Std_Internal_IO_Async_System_instReprOSInfo_repr___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_Std_Internal_IO_Async_System_instReprOSInfo___closed__0 = (const lean_object*)&l_Std_Internal_IO_Async_System_instReprOSInfo___closed__0_value;
 LEAN_EXPORT const lean_object* l_Std_Internal_IO_Async_System_instReprOSInfo = (const lean_object*)&l_Std_Internal_IO_Async_System_instReprOSInfo___closed__0_value;
-static lean_once_cell_t l_Std_Internal_IO_Async_System_instInhabitedOSInfo_default___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Std_Internal_IO_Async_System_instInhabitedOSInfo_default___closed__0;
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_instInhabitedOSInfo_default;
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_instInhabitedOSInfo;
+static const lean_ctor_object l_Std_Internal_IO_Async_System_instInhabitedOSInfo_default___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*4 + 0, .m_other = 4, .m_tag = 0}, .m_objs = {((lean_object*)&l_Std_Internal_IO_Async_System_instInhabitedSystemUser_default___closed__0_value),((lean_object*)&l_Std_Internal_IO_Async_System_instInhabitedSystemUser_default___closed__0_value),((lean_object*)&l_Std_Internal_IO_Async_System_instInhabitedSystemUser_default___closed__0_value),((lean_object*)&l_Std_Internal_IO_Async_System_instInhabitedSystemUser_default___closed__0_value)}};
+static const lean_object* l_Std_Internal_IO_Async_System_instInhabitedOSInfo_default___closed__0 = (const lean_object*)&l_Std_Internal_IO_Async_System_instInhabitedOSInfo_default___closed__0_value;
+LEAN_EXPORT const lean_object* l_Std_Internal_IO_Async_System_instInhabitedOSInfo_default = (const lean_object*)&l_Std_Internal_IO_Async_System_instInhabitedOSInfo_default___closed__0_value;
+LEAN_EXPORT const lean_object* l_Std_Internal_IO_Async_System_instInhabitedOSInfo = (const lean_object*)&l_Std_Internal_IO_Async_System_instInhabitedOSInfo_default___closed__0_value;
 static lean_once_cell_t l_Std_Internal_IO_Async_System_instInhabitedEnvironment_default___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Internal_IO_Async_System_instInhabitedEnvironment_default___closed__0;
 static lean_once_cell_t l_Std_Internal_IO_Async_System_instInhabitedEnvironment_default___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
@@ -2381,35 +2381,6 @@ lean_object* v_res_790_;
 v_res_790_ = l_Std_Internal_IO_Async_System_instReprOSInfo_repr(v_x_788_, v_prec_789_);
 lean_dec(v_prec_789_);
 return v_res_790_;
-}
-}
-static lean_object* _init_l_Std_Internal_IO_Async_System_instInhabitedOSInfo_default___closed__0(void){
-_start:
-{
-lean_object* v___x_793_; lean_object* v___x_794_; 
-v___x_793_ = ((lean_object*)(l_Std_Internal_IO_Async_System_instInhabitedSystemUser_default___closed__0));
-v___x_794_ = lean_alloc_ctor(0, 4, 0);
-lean_ctor_set(v___x_794_, 0, v___x_793_);
-lean_ctor_set(v___x_794_, 1, v___x_793_);
-lean_ctor_set(v___x_794_, 2, v___x_793_);
-lean_ctor_set(v___x_794_, 3, v___x_793_);
-return v___x_794_;
-}
-}
-static lean_object* _init_l_Std_Internal_IO_Async_System_instInhabitedOSInfo_default(void){
-_start:
-{
-lean_object* v___x_795_; 
-v___x_795_ = lean_obj_once(&l_Std_Internal_IO_Async_System_instInhabitedOSInfo_default___closed__0, &l_Std_Internal_IO_Async_System_instInhabitedOSInfo_default___closed__0_once, _init_l_Std_Internal_IO_Async_System_instInhabitedOSInfo_default___closed__0);
-return v___x_795_;
-}
-}
-static lean_object* _init_l_Std_Internal_IO_Async_System_instInhabitedOSInfo(void){
-_start:
-{
-lean_object* v___x_796_; 
-v___x_796_ = l_Std_Internal_IO_Async_System_instInhabitedOSInfo_default;
-return v___x_796_;
 }
 }
 static lean_object* _init_l_Std_Internal_IO_Async_System_instInhabitedEnvironment_default___closed__0(void){
@@ -4632,10 +4603,6 @@ l_Std_Internal_IO_Async_System_instInhabitedCPUInfo_default = _init_l_Std_Intern
 lean_mark_persistent(l_Std_Internal_IO_Async_System_instInhabitedCPUInfo_default);
 l_Std_Internal_IO_Async_System_instInhabitedCPUInfo = _init_l_Std_Internal_IO_Async_System_instInhabitedCPUInfo();
 lean_mark_persistent(l_Std_Internal_IO_Async_System_instInhabitedCPUInfo);
-l_Std_Internal_IO_Async_System_instInhabitedOSInfo_default = _init_l_Std_Internal_IO_Async_System_instInhabitedOSInfo_default();
-lean_mark_persistent(l_Std_Internal_IO_Async_System_instInhabitedOSInfo_default);
-l_Std_Internal_IO_Async_System_instInhabitedOSInfo = _init_l_Std_Internal_IO_Async_System_instInhabitedOSInfo();
-lean_mark_persistent(l_Std_Internal_IO_Async_System_instInhabitedOSInfo);
 l_Std_Internal_IO_Async_System_instInhabitedEnvironment_default = _init_l_Std_Internal_IO_Async_System_instInhabitedEnvironment_default();
 lean_mark_persistent(l_Std_Internal_IO_Async_System_instInhabitedEnvironment_default);
 l_Std_Internal_IO_Async_System_instInhabitedEnvironment = _init_l_Std_Internal_IO_Async_System_instInhabitedEnvironment();

@@ -963,14 +963,12 @@ if (lean_obj_tag(v___x_284_) == 0)
 {
 lean_object* v_a_285_; lean_object* v___x_286_; lean_object* v___x_287_; uint8_t v___x_288_; lean_object* v___x_289_; lean_object* v___x_290_; 
 v_a_285_ = lean_ctor_get(v___x_284_, 0);
-lean_inc(v_a_285_);
+lean_inc_n(v_a_285_, 3);
 lean_dec_ref(v___x_284_);
 v___x_286_ = lean_obj_once(&l___private_Lean_Meta_Match_CaseValues_0__Lean_Meta_caseValue___lam__0___closed__4, &l___private_Lean_Meta_Match_CaseValues_0__Lean_Meta_caseValue___lam__0___closed__4_once, _init_l___private_Lean_Meta_Match_CaseValues_0__Lean_Meta_caseValue___lam__0___closed__4);
-lean_inc(v_a_285_);
 v___x_287_ = l_Lean_Expr_app___override(v___x_286_, v_a_285_);
 v___x_288_ = 0;
 lean_inc(v_a_280_);
-lean_inc(v_a_285_);
 lean_inc(v_hName_269_);
 v___x_289_ = l_Lean_mkForall(v_hName_269_, v___x_288_, v_a_285_, v_a_280_);
 lean_inc(v_a_276_);
@@ -987,7 +985,7 @@ if (lean_obj_tag(v___x_293_) == 0)
 {
 lean_object* v_a_294_; lean_object* v___x_295_; lean_object* v___x_296_; lean_object* v___x_297_; lean_object* v___x_298_; lean_object* v___x_299_; lean_object* v___x_300_; lean_object* v___x_301_; lean_object* v___x_302_; lean_object* v___x_303_; lean_object* v___x_304_; lean_object* v___x_305_; 
 v_a_294_ = lean_ctor_get(v___x_293_, 0);
-lean_inc(v_a_294_);
+lean_inc_n(v_a_294_, 2);
 lean_dec_ref(v___x_293_);
 v___x_295_ = ((lean_object*)(l___private_Lean_Meta_Match_CaseValues_0__Lean_Meta_caseValue___lam__0___closed__6));
 v___x_296_ = lean_box(0);
@@ -996,7 +994,6 @@ lean_ctor_set(v___x_297_, 0, v_a_285_);
 lean_inc(v_a_291_);
 v___x_298_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_298_, 0, v_a_291_);
-lean_inc(v_a_294_);
 v___x_299_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_299_, 0, v_a_294_);
 v___x_300_ = lean_obj_once(&l___private_Lean_Meta_Match_CaseValues_0__Lean_Meta_caseValue___lam__0___closed__7, &l___private_Lean_Meta_Match_CaseValues_0__Lean_Meta_caseValue___lam__0___closed__7_once, _init_l___private_Lean_Meta_Match_CaseValues_0__Lean_Meta_caseValue___lam__0___closed__7);
@@ -1638,14 +1635,13 @@ v_a_522_ = lean_ctor_get(v___x_521_, 0);
 lean_inc(v_a_522_);
 lean_dec_ref(v___x_521_);
 v_fst_523_ = lean_ctor_get(v_a_522_, 0);
-lean_inc(v_fst_523_);
+lean_inc_n(v_fst_523_, 2);
 v_snd_524_ = lean_ctor_get(v_a_522_, 1);
 lean_inc(v_snd_524_);
 lean_dec(v_a_522_);
 v___x_525_ = ((lean_object*)(l___private_Lean_Meta_Match_CaseValues_0__Lean_Meta_caseValues_loop___closed__7));
 lean_inc(v_a_505_);
 v___x_526_ = lean_name_append_index_after(v___x_525_, v_a_505_);
-lean_inc(v_fst_523_);
 v___x_527_ = l_Lean_Meta_appendTagSuffix(v_fst_523_, v___x_526_, v_a_510_, v_a_511_, v_a_512_, v_a_513_);
 if (lean_obj_tag(v___x_527_) == 0)
 {

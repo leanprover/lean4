@@ -17,6 +17,14 @@ import Init.ByCases
 
 namespace ByteArray
 
+@[deprecated getUInt64LE! (since := "2026-03-29")]
+def ByteArray.toUInt64LE! (bs : ByteArray) : UInt64 :=
+  bs.getUInt64LE! 0
+
+@[deprecated getUInt64BE! (since := "2026-03-29")]
+def ByteArray.toUInt64BE! (bs : ByteArray) : UInt64 :=
+  bs.getUInt64BE! 0
+
 def SetSizeResult.setoid (origSz sz : Nat) : Setoid { x : ByteArray // x.size = sz } where
   r a b := ∀ (i : Nat) (hi : i < sz) (hi' : i < origSz), a.1[i] = b.1[i]
   iseqv := {

@@ -507,7 +507,7 @@ Lifts a function from an underlying type to a function on a quotient, requiring 
 quotient's relation.
 
 Given a relation `r : α → α → Prop` and a quotient `Quot r`, applying a function `f : α → β`
-requires a proof `a` that `f` respects `r`. In this case, `Quot.lift f a : Quot r → β` computes the
+requires a proof `h` that `f` respects `r`. In this case, `Quot.lift f h : Quot r → β` computes the
 same values as `f`.
 
 Lean's type theory includes a [definitional reduction](lean-manual://section/type-theory) from

@@ -1,6 +1,6 @@
 module
 
-set_option linter.all true
+set_option linter.redundantVisibility true
 
 -- `private` outside `public section` should warn
 /--

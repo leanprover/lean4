@@ -197,7 +197,7 @@ def elabModifiers (stx : TSyntax ``Parser.Command.declModifiers) : m Modifiers :
       match v with
       | `(Parser.Command.visibility| private) => do
         let env ← getEnv
-        if v.getHeadInfo matches .original .. then
+        if v.getHeadInfo matches .original .. then  -- skip macro output
           if env.header.isModule && !env.isExporting &&
               Linter.getLinterValue linter.redundantVisibility (← Linter.getLinterOptions) then
             logWarningAt v m!"`private` has no effect outside a `public section` in a `module` file; \
@@ -207,7 +207,7 @@ def elabModifiers (stx : TSyntax ``Parser.Command.declModifiers) : m Modifiers :
         pure .private
       | `(Parser.Command.visibility| public) => do
         let env ← getEnv
-        if v.getHeadInfo matches .original .. then
+        if v.getHeadInfo matches .original .. then  -- skip macro output
           if (env.isExporting || !env.header.isModule) &&
               Linter.getLinterValue linter.redundantVisibility (← Linter.getLinterOptions) then
             logWarningAt v m!"`public` is the default visibility{

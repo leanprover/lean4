@@ -62,7 +62,7 @@ def run_leanir(module: str) -> None:
         cmd=[
             "leanir",
             *sys.argv[1:],
-            *("-Dprofiler=true", "-Dprofiler.threshold=9999999"),
+            "--stat", "-Dprofiler=true", "-Dprofiler.threshold=9999999",
         ],
         output=WRAPPER_OUT,
         topics=[f"{BENCHMARK}/module/ir/{module}"],
@@ -81,6 +81,19 @@ def run_leanir(module: str) -> None:
                 seconds = seconds / 1000
             save_measurement(f"{BENCHMARK}/profile/ir/{name}//wall-clock", seconds, "s")
 
+    # Output of `leanir --stat`
+    stat = Counter[str]()
+    for line in stdout.splitlines():
+        if match := re.fullmatch(r"number of (imported .*):\s+(\d+)$", line):
+            name = match.group(1)
+            count = int(match.group(2))
+            stat[name] += count
+    for name, count in stat.items():
+        if count > 0:
+            if name.endswith("bytes"):
+                save_measurement(f"{BENCHMARK}/stat/ir/{name}//bytes", count, "B")
+            else:
+                save_measurement(f"{BENCHMARK}/stat/ir/{name}//amount", count)
 
 def main() -> None:
     parser = argparse.ArgumentParser()

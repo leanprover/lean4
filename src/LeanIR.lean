@@ -57,15 +57,19 @@ def setConfigOption (opts : Options) (arg : String) : IO Options := do
 
 public def main (args : List String) : IO UInt32 := do
   let setupFile::irFile::c::optArgs := args | do
-    IO.println s!"usage: leanir <setup.json> <output.ir> <output.c> <-Dopt=val>..."
+    IO.println s!"usage: leanir <setup.json> <output.ir> <output.c> [--stat] <-Dopt=val>..."
     return 1
 
   let setup ← ModuleSetup.load setupFile
   let modName := setup.name
 
+  let mut printStats := false
   let mut opts := setup.options.toOptions
   for optArg in optArgs do
-    opts ← setConfigOption opts optArg
+    if optArg == "--stat" then
+      printStats := true
+    else
+      opts ← setConfigOption opts optArg
   opts := Compiler.compiler.inLeanIR.set opts true
   opts := maxHeartbeats.set opts 0
 
@@ -158,4 +162,6 @@ public def main (args : List String) : IO UInt32 := do
     out.write data.toUTF8
 
   displayCumulativeProfilingTimes
+  if printStats then
+    env.displayStats
   return 0

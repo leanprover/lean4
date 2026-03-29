@@ -30,13 +30,13 @@ simpMatchDiscrsOnly (match 0 with | 0 => true | _ => false) = true
 ```
 using `eq_self`.
 -/
-def simpMatchDiscrsOnly {α : Sort u} (a : α) : α := a
+@[expose] def simpMatchDiscrsOnly {α : Sort u} (a : α) : α := a
 
 /--
 Gadget for protecting lambda abstractions created by `abstractGroundMismatches?`
 from beta reduction during preprocessing. See `ProveEq.lean` for details.
 -/
-def abstractFn {α : Sort u} (a : α) : α := a
+@[expose] def abstractFn {α : Sort u} (a : α) : α := a
 
 /-- Gadget for representing offsets `t+k` in patterns. -/
 def offset (a b : Nat) : Nat := a + b

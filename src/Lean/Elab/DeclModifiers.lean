@@ -15,7 +15,7 @@ public section
 namespace Lean
 
 register_builtin_option linter.redundantVisibility : Bool := {
-  defValue := true
+  defValue := false
   descr := "warn on redundant `private`/`public` visibility modifiers"
 }
 

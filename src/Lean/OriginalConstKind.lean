@@ -13,7 +13,7 @@ namespace Lean
 
 -- No public mutating interface as this is an implementation detail of `addDecl` and separated only
 -- to avoid an import cycle.
-builtin_initialize privateConstKindsExt : MapDeclarationExtension ConstantKind ←
+private builtin_initialize privateConstKindsExt : MapDeclarationExtension ConstantKind ←
   -- Use `sync` so we can add entries from anywhere without restrictions
   mkMapDeclarationExtension (asyncMode := .sync)
 

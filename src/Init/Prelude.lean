@@ -5573,7 +5573,7 @@ inductive ParserDescr where
   /-- Like `node` but for trailing parsers (which start with a nonterminal).
   Assumes the lhs is already on the stack, and parses using `p`, then pops the
   stack including the lhs to create a new node with kind `kind`.
-  The precedence `prec` and `lhsPrec` are used to determine whether the parser
+  The precedences `prec` and `lhsPrec` are used to determine whether the parser
   should apply. -/
   | trailingNode (kind : SyntaxNodeKind) (prec lhsPrec : Nat) (p : ParserDescr)
   /--

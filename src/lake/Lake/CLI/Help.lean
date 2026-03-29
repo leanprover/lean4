@@ -386,7 +386,7 @@ OPTIONS:
   --force-download                redownload existing files
 
 Downloads build outputs for packages in the workspace from a remote cache
-service. The cache service used can be specifed via the `--service` option.
+service. The cache service used can be specified via the `--service` option.
 Otherwise, Lake will the system default, or, if none is configured, Reservoir.
 See `lake cache services` for more information on how to configure services.
 
@@ -429,7 +429,7 @@ USAGE:
 
 Uploads the input-to-output mappings contained in the specified file along
 with the corresponding output artifacts to a remote cache. The cache service
-used via be specified via `--service` option. If not specifed, Lake will used
+used can be specified via the `--service` option. If not specified, Lake will use
 the system default, or error if none is configured. See the help page of
 `lake cache services` for more information on how to configure services.
 

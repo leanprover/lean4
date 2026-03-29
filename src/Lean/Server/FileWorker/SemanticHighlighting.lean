@@ -46,7 +46,7 @@ structure LeanSemanticToken where
   stx  : Syntax
   /-- Type of the semantic token. -/
   type : SemanticTokenType
-  /-- In case of overlap, higher-priority tokens will take precendence -/
+  /-- In case of overlap, higher-priority tokens will take precedence -/
   priority : Nat := 5
 
 /-- Semantic token information with absolute LSP positions. -/
@@ -57,7 +57,7 @@ structure AbsoluteLspSemanticToken where
   tailPos : Lsp.Position
   /-- Start position of the semantic token. -/
   type    : SemanticTokenType
-  /-- In case of overlap, higher-priority tokens will take precendence -/
+  /-- In case of overlap, higher-priority tokens will take precedence -/
   priority : Nat := 5
   deriving BEq, Hashable, FromJson, ToJson
 

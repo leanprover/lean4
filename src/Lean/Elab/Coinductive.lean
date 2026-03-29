@@ -43,7 +43,7 @@ builtin_initialize
 
   Upon such rewrite, the code for adding flat inductives does not diverge much from the usual
   way its done for inductive declarations, but we omit applying attributes/modifiers and
-  we do not set the syntax references to track those declarations (as this is auxillary piece of
+  we do not set the syntax references to track those declarations (as this is auxiliary piece of
   data hidden from the user).
 
   Then, upon adding such flat inductives for each definition in the mutual block to the environment,
@@ -345,7 +345,7 @@ private def mkCasesOnCoinductive (infos : Array InductiveVal) : MetaM Unit := do
         | throwError "expected to be quantifier"
       let motiveMVar ← mkFreshExprMVar type
       /-
-        We intro all the indices and the occurence of the coinductive predicate
+        We intro all the indices and the occurrence of the coinductive predicate
       -/
       let (fvars, subgoal) ← motiveMVar.mvarId!.introN (info.numIndices + 1)
       subgoal.withContext do
@@ -373,7 +373,7 @@ private def mkCasesOnCoinductive (infos : Array InductiveVal) : MetaM Unit := do
           -/
           let originalCasesOn := mkAppN originalCasesOn indices
           /-
-            The next argument is the occurence of the coinductive predicate.
+            The next argument is the occurrence of the coinductive predicate.
             The original `casesOn` of the flat inductive mentions it in
             unrolled form, so we need to rewrite it.
           -/
@@ -447,7 +447,7 @@ public def elabCoinductive (coinductiveElabData : Array CoinductiveElabData) : T
   let consts := namesAndTypes.map fun (name, _) => (mkConst name levelParams)
   /-
     We create values of each of PreDefinitions, by taking existential (see `Meta.SumOfProducts`)
-    form of the associated flat inductives and applying paramaters, as well as recursive calls
+    form of the associated flat inductives and applying parameters, as well as recursive calls
     (with their parameters passed).
   -/
   let preDefVals ← forallBoundedTelescope infos[0]!.type originalNumParams fun params _ => do

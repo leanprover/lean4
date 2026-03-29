@@ -9,6 +9,7 @@ prelude
 import all Init.Data.UInt.BasicAux
 public import Init.Data.Array.DecidableEq
 public import Init.Data.List.Attach
+public import Init.Data.BitVec.Basic
 import Init.Data.Array.Bootstrap
 import Init.Data.Array.Lemmas
 import Init.Omega
@@ -312,6 +313,235 @@ processed.
 @[inline]
 def foldl {β : Type v} (f : β → UInt8 → β) (init : β) (as : ByteArray) (start := 0) (stop := as.size) : β :=
   Id.run <| as.foldlM (pure <| f · ·) init start stop
+
+/--
+Extracts {name}`nbytes` bytes out of {lean}`bs` starting at index {lean}`i` as a bitvector in
+little-endian byte order.
+-/
+def getBitVecLE (bs : ByteArray) (i : Nat) (nbytes : Nat)
+    (h : i + nbytes ≤ bs.size := by get_elem_tactic) : BitVec (8 * nbytes) :=
+  go 0 (Nat.zero_le _) 0#0
+where
+  go (k : Nat) (hk : k ≤ nbytes) (acc : BitVec (8 * k)) : BitVec (8 * nbytes) :=
+    if h : k < nbytes then
+      let b := bs[i + k]
+      go (k + 1) h ((b.toBitVec ++ acc).cast (by omega))
+    else
+      acc.cast (by omega)
+
+/--
+Extracts {name}`nbytes` bytes out of {lean}`bs` starting at index {lean}`i` as a bitvector in
+big-endian byte order.
+-/
+def getBitVecBE (bs : ByteArray) (i : Nat) (nbytes : Nat)
+    (h : i + nbytes ≤ bs.size := by get_elem_tactic) : BitVec (8 * nbytes) :=
+  go 0 (Nat.zero_le _) 0#0
+where
+  go (k : Nat) (hk : k ≤ nbytes) (acc : BitVec (8 * k)) : BitVec (8 * nbytes) :=
+    if h : k < nbytes then
+      let b := bs[i + k]
+      go (k + 1) h ((acc ++ b.toBitVec).cast (by omega))
+    else
+      acc.cast (by omega)
+
+/-- Writes {name}`val` into {lean}`bs` starting at index {lean}`i` in little-endian byte order. -/
+def setBitVecLE (bs : ByteArray) (i : Nat) (nbytes : Nat) (val : BitVec (8 * nbytes))
+    (h : i + nbytes ≤ bs.size := by get_elem_tactic) : ByteArray :=
+  go 0 (Nat.zero_le _) bs h
+where
+  go (k : Nat) (hk : k ≤ nbytes) (acc : ByteArray) (h : i + nbytes ≤ acc.size) : ByteArray :=
+    if h : k < nbytes then
+      let acc := acc.set (i + k) ⟨val.extractLsb' (8 * k) 8⟩ (by clear ‹_ ≤ bs.size› bs; omega)
+      go (k + 1) h acc (by simpa [acc, set, ← size_data])
+    else
+      acc
+
+/-- Writes {name}`val` into {lean}`bs` starting at index {lean}`i` in big-endian byte order. -/
+def setBitVecBE (bs : ByteArray) (i : Nat) (nbytes : Nat) (val : BitVec (8 * nbytes))
+    (h : i + nbytes ≤ bs.size := by get_elem_tactic) : ByteArray :=
+  go 0 (Nat.zero_le _) bs h
+where
+  go (k : Nat) (hk : k ≤ nbytes) (acc : ByteArray) (h : i + nbytes ≤ acc.size) : ByteArray :=
+    if h : k < nbytes then
+      let acc := acc.set (i + k) ⟨val.extractLsb' (8 * (nbytes - k - 1)) 8⟩
+        (by clear ‹_ ≤ bs.size› bs; omega)
+      go (k + 1) h acc (by simpa [acc, set, ← size_data])
+    else
+      acc
+
+/--
+Interprets the value in the byte array {name}`bs` starting at index {name}`i`
+as a 16 bit little-endian unsigned integer.
+-/
+@[extern "lean_byte_array_fget_uint16_le", simp]
+def getUInt16LE (bs : @& ByteArray) (i : @& Nat)
+    (h : i + 2 ≤ bs.size := by get_elem_tactic) : UInt16 :=
+  UInt16.ofBitVec (getBitVecLE bs i 2 h)
+
+/--
+Interprets the value in the byte array {name}`bs` starting at index {name}`i`
+as a 16 bit big-endian unsigned integer.
+-/
+@[extern "lean_byte_array_fget_uint16_be", simp]
+def getUInt16BE (bs : @& ByteArray) (i : @& Nat)
+    (h : i + 2 ≤ bs.size := by get_elem_tactic) : UInt16 :=
+  UInt16.ofBitVec (getBitVecBE bs i 2 h)
+
+/--
+Interprets the value in the byte array {name}`bs` starting at index {name}`i`
+as a 32 bit little-endian unsigned integer.
+-/
+@[extern "lean_byte_array_fget_uint32_le", simp]
+def getUInt32LE (bs : @& ByteArray) (i : @& Nat)
+    (h : i + 4 ≤ bs.size := by get_elem_tactic) : UInt32 :=
+  UInt32.ofBitVec (getBitVecLE bs i 4 h)
+
+/--
+Interprets the value in the byte array {name}`bs` starting at index {name}`i`
+as a 32 bit big-endian unsigned integer.
+-/
+@[extern "lean_byte_array_fget_uint32_be", simp]
+def getUInt32BE (bs : @& ByteArray) (i : @& Nat)
+    (h : i + 4 ≤ bs.size := by get_elem_tactic) : UInt32 :=
+  UInt32.ofBitVec (getBitVecBE bs i 4 h)
+
+/--
+Interprets the value in the byte array {name}`bs` starting at index {name}`i`
+as a 64 bit little-endian unsigned integer.
+-/
+@[extern "lean_byte_array_fget_uint64_le", simp]
+def getUInt64LE (bs : @& ByteArray) (i : @& Nat)
+    (h : i + 8 ≤ bs.size := by get_elem_tactic) : UInt64 :=
+  UInt64.ofBitVec (getBitVecLE bs i 8 h)
+
+/--
+Interprets the value in the byte array {name}`bs` starting at index {name}`i`
+as a 64 bit big-endian unsigned integer.
+-/
+@[extern "lean_byte_array_fget_uint64_be", simp]
+def getUInt64BE (bs : @& ByteArray) (i : @& Nat)
+    (h : i + 8 ≤ bs.size := by get_elem_tactic) : UInt64 :=
+  UInt64.ofBitVec (getBitVecBE bs i 8 h)
+
+/-- Writes the value into the byte array starting at index {name}`i` in little-endian byte order. -/
+@[extern "lean_byte_array_fset_uint16_le", simp]
+def setUInt16LE (bs : ByteArray) (i : @& Nat) (val : UInt16)
+    (h : i + 2 ≤ bs.size := by get_elem_tactic) : ByteArray :=
+  bs.setBitVecLE i 2 val.toBitVec
+
+/-- Writes the value into the byte array starting at index {name}`i` in big-endian byte order. -/
+@[extern "lean_byte_array_fset_uint16_be", simp]
+def setUInt16BE (bs : ByteArray) (i : @& Nat) (val : UInt16)
+    (h : i + 2 ≤ bs.size := by get_elem_tactic) : ByteArray :=
+  bs.setBitVecBE i 2 val.toBitVec
+
+/-- Writes the value into the byte array starting at index {name}`i` in little-endian byte order. -/
+@[extern "lean_byte_array_fset_uint32_le", simp]
+def setUInt32LE (bs : ByteArray) (i : @& Nat) (val : UInt32)
+    (h : i + 4 ≤ bs.size := by get_elem_tactic) : ByteArray :=
+  bs.setBitVecLE i 4 val.toBitVec
+
+/-- Writes the value into the byte array starting at index {name}`i` in big-endian byte order. -/
+@[extern "lean_byte_array_fset_uint32_be", simp]
+def setUInt32BE (bs : ByteArray) (i : @& Nat) (val : UInt32)
+    (h : i + 4 ≤ bs.size := by get_elem_tactic) : ByteArray :=
+  bs.setBitVecBE i 4 val.toBitVec
+
+/-- Writes the value into the byte array starting at index {name}`i` in little-endian byte order. -/
+@[extern "lean_byte_array_fset_uint64_le", simp]
+def setUInt64LE (bs : ByteArray) (i : @& Nat) (val : UInt64)
+    (h : i + 8 ≤ bs.size := by get_elem_tactic) : ByteArray :=
+  bs.setBitVecLE i 8 val.toBitVec
+
+/-- Writes the value into the byte array starting at index {name}`i` in big-endian byte order. -/
+@[extern "lean_byte_array_fset_uint64_be", simp]
+def setUInt64BE (bs : ByteArray) (i : @& Nat) (val : UInt64)
+    (h : i + 8 ≤ bs.size := by get_elem_tactic) : ByteArray :=
+  bs.setBitVecBE i 8 val.toBitVec
+
+def getBitVecLE! (bs : ByteArray) (i : Nat) (nbytes : Nat) : BitVec (8 * nbytes) :=
+  if h : _ then bs.getBitVecLE i nbytes h else outOfBounds
+
+def getBitVecBE! (bs : ByteArray) (i : Nat) (nbytes : Nat) : BitVec (8 * nbytes) :=
+  if h : _ then bs.getBitVecBE i nbytes h else outOfBounds
+
+def getUInt16LE! (bs : ByteArray) (i : Nat) : UInt16 :=
+  if h : _ then bs.getUInt16LE i h else outOfBounds
+
+def getUInt16BE! (bs : ByteArray) (i : Nat) : UInt16 :=
+  if h : _ then bs.getUInt16BE i h else outOfBounds
+
+def getUInt32LE! (bs : ByteArray) (i : Nat) : UInt32 :=
+  if h : _ then bs.getUInt32LE i h else outOfBounds
+
+def getUInt32BE! (bs : ByteArray) (i : Nat) : UInt32 :=
+  if h : _ then bs.getUInt32BE i h else outOfBounds
+
+def getUInt64LE! (bs : ByteArray) (i : Nat) : UInt64 :=
+  if h : _ then bs.getUInt64LE i h else outOfBounds
+
+def getUInt64BE! (bs : ByteArray) (i : Nat) : UInt64 :=
+  if h : _ then bs.getUInt64BE i h else outOfBounds
+
+def setBitVecLE! (bs : ByteArray) (i : Nat) (nbytes : Nat) (val : BitVec (8 * nbytes)) : ByteArray :=
+  if h : _ then bs.setBitVecLE i nbytes val h else @outOfBounds _ ⟨bs⟩
+
+def setBitVecBE! (bs : ByteArray) (i : Nat) (nbytes : Nat) (val : BitVec (8 * nbytes)) : ByteArray :=
+  if h : _ then bs.setBitVecBE i nbytes val h else @outOfBounds _ ⟨bs⟩
+
+def setUInt16LE! (bs : ByteArray) (i : Nat) (val : UInt16) : ByteArray :=
+  if h : _ then bs.setUInt16LE i val h else @outOfBounds _ ⟨bs⟩
+
+def setUInt16BE! (bs : ByteArray) (i : Nat) (val : UInt16) : ByteArray :=
+  if h : _ then bs.setUInt16BE i val h else @outOfBounds _ ⟨bs⟩
+
+def setUInt32LE! (bs : ByteArray) (i : Nat) (val : UInt32) : ByteArray :=
+  if h : _ then bs.setUInt32LE i val h else @outOfBounds _ ⟨bs⟩
+
+def setUInt32BE! (bs : ByteArray) (i : Nat) (val : UInt32) : ByteArray :=
+  if h : _ then bs.setUInt32BE i val h else @outOfBounds _ ⟨bs⟩
+
+def setUInt64LE! (bs : ByteArray) (i : Nat) (val : UInt64) : ByteArray :=
+  if h : _ then bs.setUInt64LE i val h else @outOfBounds _ ⟨bs⟩
+
+def setUInt64BE! (bs : ByteArray) (i : Nat) (val : UInt64) : ByteArray :=
+  if h : _ then bs.setUInt64BE i val h else @outOfBounds _ ⟨bs⟩
+
+/--
+Replaces the bytes in the range `[start, start + size)` within {name}`bs` with {name}`val`.
+-/
+@[extern "lean_byte_array_fill"]
+def fill (bs : ByteArray) (start size : @& Nat) (val : UInt8)
+    (h : start + size ≤ bs.size := by get_elem_tactic) : ByteArray :=
+  (mk (Array.replicate size val)).copySlice 0 bs start size
+
+/--
+Returns true if and only if the bytes `[asOff, asOff + len)` in {name}`as` and
+`[bsOff, bsOff + len)` in {name}`bs` contain the same data.
+-/
+@[extern "lean_byte_array_slice_eq"]
+def sliceEq' (as : @& ByteArray) (asOff : @& Nat) (bs : @& ByteArray) (bsOff len : @& Nat)
+    (h : asOff + len ≤ as.size := by get_elem_tactic)
+    (h' : bsOff + len ≤ bs.size := by get_elem_tactic) : Bool :=
+  as.data.extract asOff (asOff + len) == bs.data.extract bsOff (bsOff + len)
+
+/--
+Returns true if and only if the slices `[asOff, asOff + len)` in {name}`as` and
+`[bsOff, bsOff + len)` in {name}`bs` exist and contain the same data.
+-/
+def sliceEq (as : ByteArray) (asOff : Nat) (bs : ByteArray) (bsOff : Nat) (len : Nat) : Bool :=
+  ∃ h h', sliceEq' as asOff bs bsOff len h h'
+
+/--
+Returns whether two byte arrays are equal.
+
+The notation `==` is preferred over using this function directly.
+-/
+protected def beq (as bs : ByteArray) : Bool :=
+  if h : as.size = bs.size then
+    sliceEq' as 0 bs 0 as.size
+  else
+    false
 
 set_option doc.verso false -- Awaiting intra-module forward reference support
 /--

@@ -2534,7 +2534,7 @@ extern "C" LEAN_EXPORT obj_res lean_byte_array_push(obj_arg a, uint8 b) {
     return r;
 }
 
-extern "C" LEAN_EXPORT obj_res lean_byte_array_set_size(obj_arg a, b_obj_arg b, uint8 exact) {
+extern "C" LEAN_EXPORT obj_res lean_byte_array_set_size(obj_arg a, b_obj_arg b, b_obj_arg n, uint8 exact) {
     if (LEAN_LIKELY(lean_is_scalar(b))) {
         size_t sz = lean_unbox(b);
         object * r = lean_sarray_ensure_capacity(a, sz, exact);

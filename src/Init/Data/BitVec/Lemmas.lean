@@ -2876,6 +2876,12 @@ theorem toNat_shiftLeft_or_toNat_lt_two_pow_add {m n : Nat} (x : BitVec m) (y : 
   ext
   simp [getElem_append]
 
+theorem cast_append (h : w = w') (x : BitVec w) (y : BitVec v) :
+    x.cast h ++ y = (x ++ y).cast (by rw [h]) := by simp
+
+theorem append_cast (h : v = v') (x : BitVec w) (y : BitVec v) :
+    x ++ y.cast h = (x ++ y).cast (by rw [h]) := by simp
+
 theorem setWidth_append {x : BitVec w} {y : BitVec v} :
     (x ++ y).setWidth k = if h : k ≤ v then y.setWidth k else (x.setWidth (k - v) ++ y).cast (by omega) := by
   ext i h

@@ -1154,7 +1154,7 @@ static inline lean_obj_res lean_byte_array_fset(lean_obj_arg a, b_lean_obj_arg i
     return lean_byte_array_uset(a, lean_unbox(i), b);
 }
 
-LEAN_EXPORT lean_obj_res lean_byte_array_set_size(lean_obj_arg a, b_lean_obj_arg sz, uint8_t exact);
+LEAN_EXPORT lean_obj_res lean_byte_array_set_size(lean_obj_arg a, b_lean_obj_arg sz, b_lean_obj_arg orig_sz, uint8_t exact);
 
 #ifndef __cplusplus
 void * memset(void * s, int c, size_t n);

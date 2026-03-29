@@ -28,7 +28,7 @@ namespace Lake
 Collect the local modules of a library.
 That is, the modules from `getModuleArray` plus their local transitive imports.
 -/
-private partial def LeanLib.recCollectLocalModules
+partial def LeanLib.recCollectLocalModules
   (self : LeanLib) : FetchM (Job (Array Module))
 := ensureJob do
   let mut mods := #[]
@@ -50,10 +50,10 @@ where
     return (mods, modSet)
 
 /-- The `LibraryFacetConfig` for the builtin `modulesFacet`. -/
-private def LeanLib.modulesFacetConfig : LibraryFacetConfig modulesFacet :=
+def LeanLib.modulesFacetConfig : LibraryFacetConfig modulesFacet :=
   mkFacetJobConfig LeanLib.recCollectLocalModules (buildable := false)
 
-private def LeanLib.recBuildLean
+def LeanLib.recBuildLean
   (self : LeanLib) : FetchM (Job Unit)
 := do
   let mods ← (← self.modules.fetch).await
@@ -64,7 +64,7 @@ private def LeanLib.recBuildLean
 public def LeanLib.leanArtsFacetConfig : LibraryFacetConfig leanArtsFacet :=
   mkFacetJobConfig LeanLib.recBuildLean
 
-@[specialize] private def LeanLib.recBuildStatic
+@[specialize] def LeanLib.recBuildStatic
   (self : LeanLib) (shouldExport : Bool) : FetchM (Job FilePath)
 := do
   let suffix :=
@@ -114,7 +114,7 @@ public def LeanLib.staticExportFacetConfig : LibraryFacetConfig staticExportFace
 
 /-! ## Build Shared Lib -/
 
-private def LeanLib.recBuildShared (self : LeanLib) : FetchM (Job Dynlib) := do
+def LeanLib.recBuildShared (self : LeanLib) : FetchM (Job Dynlib) := do
   withRegisterJob s!"{self.name}:shared" <| withCurrPackage self.pkg do
   let mods ← (← self.modules.fetch).await
   let objJobs ← mods.flatMapM fun mod =>
@@ -149,7 +149,7 @@ public def LeanLib.sharedFacetConfig : LibraryFacetConfig sharedFacet :=
 
 /--
 Build extra target dependencies of the library (e.g., `extraDepTargets`, `needs`). -/
-private def LeanLib.recBuildExtraDepTargets (self : LeanLib) : FetchM (Job Unit) := do
+def LeanLib.recBuildExtraDepTargets (self : LeanLib) : FetchM (Job Unit) := do
   let mut job := Job.nil s!"{self.pkg.baseName}/{self.name}:extraDep"
   job := job.mix (← self.pkg.extraDep.fetch)
   for target in self.extraDepTargets do
@@ -163,7 +163,7 @@ public def LeanLib.extraDepFacetConfig : LibraryFacetConfig extraDepFacet :=
   mkFacetJobConfig LeanLib.recBuildExtraDepTargets
 
 /-- Build the default facets for the library. -/
-private def LeanLib.recBuildDefaultFacets (self : LeanLib) : FetchM (Job Unit) := do
+def LeanLib.recBuildDefaultFacets (self : LeanLib) : FetchM (Job Unit) := do
   Job.mixArray <$> self.defaultFacets.mapM fun facet => do
     let job ← (self.facetCore facet).fetch
     return job.toOpaque

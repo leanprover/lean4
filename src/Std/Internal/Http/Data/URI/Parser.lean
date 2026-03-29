@@ -327,7 +327,7 @@ Parses a URI (Uniform Resource Identifier).
 URI = scheme ":" hier-part [ "?" query ] [ "#" fragment ]
 hier-part = "//" authority path-abempty / path-absolute / path-rootless / path-empty
 -/
-public def parseURI (config : URI.Config := {}) : Parser URI := do
+def parseURI (config : URI.Config := {}) : Parser URI := do
   let scheme ← parseScheme config
   skipByte ':'.toUInt8
 
@@ -346,7 +346,7 @@ public def parseURI (config : URI.Config := {}) : Parser URI := do
 /--
 Parses a request target with combined parsing and validation.
 -/
-public def parseRequestTarget (config : URI.Config := {}) : Parser RequestTarget :=
+def parseRequestTarget (config : URI.Config := {}) : Parser RequestTarget :=
   asterisk <|> origin <|> absoluteHttp <|> authority <|> absolute
 where
   -- The asterisk form
@@ -405,7 +405,7 @@ where
 /--
 Parses an HTTP `Host` header value.
 -/
-public def parseHostHeader (config : URI.Config := {}) : Parser (URI.Host × URI.Port) := do
+def parseHostHeader (config : URI.Config := {}) : Parser (URI.Host × URI.Port) := do
   let host ← parseHost config
 
   let port : URI.Port ←

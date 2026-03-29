@@ -3096,13 +3096,13 @@ theorem foldl_eq_foldlM {f : β → α → β} {b} {xs : Array α} {start stop :
 theorem foldr_eq_foldrM {f : α → β → β} {b} {xs : Array α} {start stop : Nat} :
     xs.foldr f b start stop = (xs.foldrM (m := Id) (pure <| f · ·) b start stop).run := rfl
 
-public theorem foldl_eq_foldl_extract {xs : Array α} {f : β → α → β} {init : β} :
+theorem foldl_eq_foldl_extract {xs : Array α} {f : β → α → β} {init : β} :
     xs.foldl (init := init) (start := start) (stop := stop) f =
       (xs.extract start stop).foldl (init := init) f := by
   simp only [foldl_eq_foldlM]
   rw [foldlM_start_stop]
 
-public theorem foldr_eq_foldr_extract {xs : Array α} {f : α → β → β} {init : β} :
+theorem foldr_eq_foldr_extract {xs : Array α} {f : α → β → β} {init : β} :
     xs.foldr (init := init) (start := start) (stop := stop) f =
       (xs.extract stop start).foldr (init := init) f := by
   simp only [foldr_eq_foldrM]

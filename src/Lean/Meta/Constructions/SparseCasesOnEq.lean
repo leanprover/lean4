@@ -83,7 +83,7 @@ where
           value := val
         })
 
-private def isName (env : Environment) (n : Name) : Bool :=
+def isName (env : Environment) (n : Name) : Bool :=
   if let .str p "else_eq" := n then
     (getSparseCasesOnInfoCore env p).isSome
   else

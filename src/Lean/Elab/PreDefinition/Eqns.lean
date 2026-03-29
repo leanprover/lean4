@@ -55,7 +55,7 @@ def unfoldLHS (declName : Name) (mvarId : MVarId) : MetaM MVarId := mvarId.withC
     -- Else use delta reduction
     deltaLHS mvarId
 
-private partial def mkEqnProof (declName : Name) (type : Expr) : MetaM Expr := do
+partial def mkEqnProof (declName : Name) (type : Expr) : MetaM Expr := do
   withTraceNode `Elab.definition.eqns (fun _ => return m!"proving:{indentExpr type}") do
   withNewMCtxDepth do
     let main ← mkFreshExprSyntheticOpaqueMVar type
@@ -102,7 +102,7 @@ private partial def mkEqnProof (declName : Name) (type : Expr) : MetaM Expr := d
         else
           throwError "failed to generate equational theorem for `{.ofConstName declName}`\n{MessageData.ofGoal mvarId}"
 
-private def lhsDependsOn (type : Expr) (fvarId : FVarId) : MetaM Bool :=
+def lhsDependsOn (type : Expr) (fvarId : FVarId) : MetaM Bool :=
   forallTelescope type fun _ type => do
     if let some (_, lhs, _) ← matchEq? type then
       dependsOn lhs fvarId

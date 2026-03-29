@@ -142,10 +142,10 @@ partial def Code.toExprM (code : Code pu) : ToExprM Expr := do
     return .letE `dummy (mkConst ``Unit) value body true
 end
 
-public def Code.toExpr (code : Code pu) (xs : Array FVarId := #[]) : Expr :=
+def Code.toExpr (code : Code pu) (xs : Array FVarId := #[]) : Expr :=
   run' code.toExprM xs
 
-public def FunDecl.toExpr (decl : FunDecl pu) (xs : Array FVarId := #[]) : Expr :=
+def FunDecl.toExpr (decl : FunDecl pu) (xs : Array FVarId := #[]) : Expr :=
   run' decl.toExprM xs
 
 end Lean.Compiler.LCNF

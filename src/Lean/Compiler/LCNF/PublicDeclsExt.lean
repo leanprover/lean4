@@ -29,7 +29,7 @@ public def mkOrderedDeclSetExt : IO (EnvExtension (List Name × NameSet)) :=
 /--
 Set of declarations to be exported to other modules; visibility shared by base/mono/IR phases.
 -/
-private builtin_initialize publicDeclsExt : EnvExtension (List Name × NameSet) ← mkOrderedDeclSetExt
+builtin_initialize publicDeclsExt : EnvExtension (List Name × NameSet) ← mkOrderedDeclSetExt
 
 public def isDeclPublic (env : Environment) (declName : Name) : Bool := Id.run do
   if !env.header.isModule then

@@ -50,17 +50,17 @@ def versoCommentBodyFn : ParserFn := fun c s =>
     rawFn (Doc.Parser.ignoreFn <| chFn '-' >> chFn '/') (trailingWs := true) c s
   else s
 
-public def versoCommentBody : Parser where
+def versoCommentBody : Parser where
   fn := fun c s => nodeFn `Lean.Parser.Command.versoCommentBody versoCommentBodyFn c s
 
 
 @[combinator_parenthesizer versoCommentBody, expose]
-public def versoCommentBody.parenthesizer := PrettyPrinter.Parenthesizer.visitToken
+def versoCommentBody.parenthesizer := PrettyPrinter.Parenthesizer.visitToken
 
 open PrettyPrinter Formatter in
 open Syntax.MonadTraverser in
 @[combinator_formatter versoCommentBody, expose]
-public def versoCommentBody.formatter : PrettyPrinter.Formatter := do
+def versoCommentBody.formatter : PrettyPrinter.Formatter := do
   visitArgs $ do
     visitAtom `«-/»
     goLeft

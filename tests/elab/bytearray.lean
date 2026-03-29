@@ -1,6 +1,6 @@
 macro "#test " t:term : command =>
   `(#guard $t
-    example : $t := by decide)
+    example : $t := by decide_cbv)
 
 #test ByteArray.sliceEq' ⟨#[1, 2, 3]⟩ 0 ⟨#[4, 9, 5]⟩ 1 0
 #test ByteArray.sliceEq' ⟨#[1, 2, 3]⟩ 0 ⟨#[1, 2, 3]⟩ 0 3
@@ -18,10 +18,10 @@ macro "#test " t:term : command =>
 #test (ByteArray.replicate 10 42).data == #[42, 42, 42, 42, 42, 42, 42, 42, 42, 42]
 #test (ByteArray.replicate 0 3).data == #[]
 #test (ByteArray.replicate 3 0).data == #[0, 0, 0]
-#test ((ByteArray.replicate 10 42).fill' 3 5 0).data == #[42, 42, 42, 0, 0, 0, 0, 0, 42, 42]
-#test (ByteArray.setSize ⟨#[1, 2, 3, 4, 5, 6]⟩ 3).data == #[1, 2, 3]
-#test (ByteArray.setSize ⟨#[1, 2, 3, 4, 5, 6]⟩ 10).data == #[1, 2, 3, 4, 5, 6, 0, 0, 0, 0]
-#guard (ByteArray.setSize ⟨#[1, 2, 3, 4, 5, 6]⟩ 12345).size == 12345
+#test ((ByteArray.replicate 10 42).fill 3 5 0).data == #[42, 42, 42, 0, 0, 0, 0, 0, 42, 42]
+#test (ByteArray.setSizeD ⟨#[1, 2, 3, 4, 5, 6]⟩ 3).data == #[1, 2, 3]
+#test (ByteArray.setSizeD ⟨#[1, 2, 3, 4, 5, 6]⟩ 10).data == #[1, 2, 3, 4, 5, 6, 0, 0, 0, 0]
+#guard (ByteArray.setSizeD ⟨#[1, 2, 3, 4, 5, 6]⟩ 12345).size == 12345
 
 #test ByteArray.getUInt16BE ⟨#[1, 2, 3, 4]⟩ 1 == 0x0203
 #test ByteArray.getUInt16LE ⟨#[1, 2, 3, 4]⟩ 1 == 0x0302
@@ -57,5 +57,5 @@ pure ()
 #eval "abcd".hash
 #eval [97, 98, 99, 100].toByteArray.hash
 
-#eval [0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88].toByteArray.toUInt64LE! == 0x8877665544332211
-#eval [0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88].toByteArray.toUInt64BE! == 0x1122334455667788
+#eval [0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88].toByteArray.getUInt64LE! 0 == 0x8877665544332211
+#eval [0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88].toByteArray.getUInt64BE! 0 == 0x1122334455667788

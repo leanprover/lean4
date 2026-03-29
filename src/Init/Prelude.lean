@@ -346,7 +346,7 @@ Lean by `rfl`, because both sides are the same up to definitional equality.
 @[simp] theorem id_eq (a : α) : Eq (id a) a := rfl
 
 /--
-The substitution principle for equality. If `a = b ` and `P a` holds,
+The substitution principle for equality. If `a = b` and `P a` holds,
 then `P b` also holds. We conventionally use the name `motive` for `P` here,
 so that you can specify it explicitly using e.g.
 `Eq.subst (motive := fun x => x < 5)` if it is not otherwise inferred correctly.

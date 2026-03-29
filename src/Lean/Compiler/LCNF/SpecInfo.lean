@@ -209,7 +209,7 @@ def computeSpecEntries (decls : Array (Decl .pure)) (autoSpecialize : Name → O
           If the user tagged class (e.g., `Inhabited`) with the `@[nospecialize]` attribute,
           then parameters of this type should not be considered for specialization.
           -/
-          else if isNoSpecType (← getEnv) param.type && decl.name != ``panic then
+          else if isNoSpecType (← getEnv) param.type then
             pure .other
           else if isTypeFormerType param.type then
             pure .fixedNeutral

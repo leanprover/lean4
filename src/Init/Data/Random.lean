@@ -122,7 +122,7 @@ def randBool {gen : Type u} [RandomGen gen] (g : gen) : Bool × gen :=
   (v = 1, g')
 
 initialize IO.stdGenRef : IO.Ref StdGen ←
-  let seed := UInt64.toNat (ByteArray.toUInt64LE! (← IO.getRandomBytes 8))
+  let seed := UInt64.toNat ((← IO.getRandomBytes 8).getUInt64LE! 0)
   IO.mkRef (mkStdGen seed)
 
 /--

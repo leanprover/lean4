@@ -128,7 +128,7 @@ partial def Selectable.one (selectables : Array (Selectable α)) : Async α := d
   if selectables.isEmpty then
     throw <| .userError "Selectable.one requires at least one Selectable"
 
-  let seed := UInt64.toNat (ByteArray.toUInt64LE! (← IO.getRandomBytes 8))
+  let seed := UInt64.toNat ((← IO.getRandomBytes 8).getUInt64LE! 0)
   let gen := mkStdGen seed
   let selectables := shuffleIt selectables gen
 
@@ -187,7 +187,7 @@ def Selectable.tryOne (selectables : Array (Selectable α)) : Async (Option α) 
   if selectables.isEmpty then
     return none
 
-  let seed := UInt64.toNat (ByteArray.toUInt64LE! (← IO.getRandomBytes 8))
+  let seed := UInt64.toNat ((← IO.getRandomBytes 8).getUInt64LE! 0)
   let gen := mkStdGen seed
   let selectables := shuffleIt selectables gen
 
@@ -206,7 +206,7 @@ def Selectable.combine (selectables : Array (Selectable α)) : IO (Selector α) 
   if selectables.isEmpty then
     throw <| .userError "Selectable.one requires at least one Selectable"
 
-  let seed := UInt64.toNat (ByteArray.toUInt64LE! (← IO.getRandomBytes 8))
+  let seed := UInt64.toNat ((← IO.getRandomBytes 8).getUInt64LE! 0)
   let gen := mkStdGen seed
   let selectables := shuffleIt selectables gen
 

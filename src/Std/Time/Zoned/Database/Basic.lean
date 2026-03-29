@@ -52,7 +52,7 @@ Converts a given time index into a `LocalTimeType` by using a time zone (`tz`) a
 -/
 def convertLocalTimeType (index : Nat) (tz : TZif.TZifV1) (identifier : String) : Option LocalTimeType := do
   let localType ← tz.localTimeTypes[index]?
-  let offset := Offset.ofSeconds <| .ofInt localType.gmtOffset
+  let offset := Offset.ofSeconds <| .ofInt localType.gmtOffset.toInt
   let abbreviation := tz.abbreviations.getD index (offset.toIsoString true)
   let wallflag := convertWall (tz.stdWallIndicators.getD index true)
   let utLocal := convertUt (tz.utLocalIndicators.getD index true)
@@ -71,7 +71,7 @@ Converts a transition.
 -/
 def convertTransition (times: Array LocalTimeType) (index : Nat) (tz : TZif.TZifV1) : Option Transition := do
   let time := tz.transitionTimes[index]!
-  let time := Second.Offset.ofInt time
+  let time := Second.Offset.ofInt time.toInt
   let indice := tz.transitionIndices[index]!
   return { time, localTimeType := times[indice.toNat]! }
 

@@ -8,6 +8,7 @@ module
 prelude
 public import Init.Data.Range.Polymorphic.Iterators
 public import Std.Internal.Parsec
+public import Init.Data.SInt.Basic
 import Init.Data.Int.Repr
 
 public section
@@ -21,10 +22,6 @@ namespace TZif
 open Std.Internal.Parsec Std.Internal.Parsec.ByteArray
 
 set_option linter.all true
-
-local notation "Int32" => Int
-
-local notation "Int64" => Int
 
 /--
 Represents the header of a TZif file, containing metadata about the file's structure.
@@ -101,7 +98,7 @@ structure LeapSecond where
   /--
   The correction applied during the leap second event in seconds.
   -/
-  correction : Int64
+  correction : Int32
   deriving Repr, Inhabited
 
 /--
@@ -117,7 +114,7 @@ structure TZifV1 where
   /--
   The array of transition times in seconds since the epoch.
   -/
-  transitionTimes : Array Int32
+  transitionTimes : Array Int64
 
   /--
   The array of local time type indices corresponding to each transition time.
@@ -177,25 +174,6 @@ structure TZif where
   v2 : Option TZifV2
   deriving Repr, Inhabited
 
-private def toUInt32 (bs : ByteArray) : UInt32 :=
-  assert! bs.size == 4
-  (bs.get! 0).toUInt32 <<< 0x18 |||
-  (bs.get! 1).toUInt32 <<< 0x10 |||
-  (bs.get! 2).toUInt32 <<< 0x8  |||
-  (bs.get! 3).toUInt32
-
-private def toInt32 (bs : ByteArray) : Int32 :=
-  let n := toUInt32 bs |>.toNat
-  if n < (1 <<< 31)
-    then Int.ofNat n
-    else Int.negOfNat (UInt32.size - n)
-
-private def toInt64 (bs : ByteArray) : Int64 :=
-  let n := ByteArray.toUInt64BE! bs |>.toNat
-  if n < (1 <<< 63)
-    then Int.ofNat n
-    else Int.negOfNat (UInt64.size - n)
-
 private def manyN (n : Nat) (p : Parser α) : Parser (Array α) := do
   let mut result := #[]
   for _ in *...n do
@@ -203,10 +181,14 @@ private def manyN (n : Nat) (p : Parser α) : Parser (Array α) := do
     result := result.push x
   return result
 
-private def pu64 : Parser UInt64 := ByteArray.toUInt64LE! <$> ByteSlice.toByteArray <$> take 8
-private def pi64 : Parser Int64 := toInt64 <$> ByteSlice.toByteArray <$> take 8
-private def pu32 : Parser UInt32 := toUInt32 <$> ByteSlice.toByteArray <$> take 4
-private def pi32 : Parser Int32 := toInt32 <$> ByteSlice.toByteArray <$> take 4
+private def pu64 : Parser UInt64 := do
+  let slice ← take 8
+  return slice.byteArray.getUInt64BE! slice.start
+private def pi64 : Parser Int64 := UInt64.toInt64 <$> pu64
+private def pu32 : Parser UInt32 := do
+  let slice ← take 4
+  return slice.byteArray.getUInt32BE! slice.start
+private def pi32 : Parser Int32 := UInt32.toInt32 <$> pu32
 private def pu8 : Parser UInt8 := any
 private def pbool : Parser Bool := (· != 0) <$> pu8
 
@@ -226,12 +208,12 @@ private def parseLocalTimeType : Parser LocalTimeType :=
     <*> pbool
     <*> pu8
 
-private def parseLeapSecond (p : Parser Int) : Parser LeapSecond :=
+private def parseLeapSecond (p : Parser Int64) : Parser LeapSecond :=
   LeapSecond.mk
     <$> p
     <*> pi32
 
-private def parseTransitionTimes (size : Parser Int32) (n : UInt32) : Parser (Array Int32) :=
+private def parseTransitionTimes (size : Parser Int64) (n : UInt32) : Parser (Array Int64) :=
   manyN (n.toNat) size
 
 private def parseTransitionIndices (n : UInt32) : Parser (Array UInt8) :=
@@ -257,7 +239,7 @@ private def parseAbbreviations (times : Array LocalTimeType) (n : UInt32) : Pars
 
   return strings
 
-private def parseLeapSeconds (size : Parser Int) (n : UInt32) : Parser (Array LeapSecond) :=
+private def parseLeapSeconds (size : Parser Int64) (n : UInt32) : Parser (Array LeapSecond) :=
   manyN (n.toNat) (parseLeapSecond size)
 
 private def parseIndicators (n : UInt32) : Parser (Array Bool) :=
@@ -266,11 +248,11 @@ private def parseIndicators (n : UInt32) : Parser (Array Bool) :=
 private def parseTZifV1 : Parser TZifV1 := do
   let header ← parseHeader
 
-  let transitionTimes ← parseTransitionTimes pi32 header.timecnt
+  let transitionTimes ← parseTransitionTimes (Int32.toInt64 <$> pi32) header.timecnt
   let transitionIndices ← parseTransitionIndices header.timecnt
   let localTimeTypes ← parseLocalTimeTypes header.typecnt
   let abbreviations ← parseAbbreviations localTimeTypes header.charcnt
-  let leapSeconds ← parseLeapSeconds pi32 header.leapcnt
+  let leapSeconds ← parseLeapSeconds (Int32.toInt64 <$> pi32) header.leapcnt
   let stdWallIndicators ← parseIndicators header.isstdcnt
   let utLocalIndicators ← parseIndicators header.isutcnt
 

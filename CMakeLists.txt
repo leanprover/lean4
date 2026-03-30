@@ -119,17 +119,14 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
 endif()
 
 if(USE_MIMALLOC)
-  ExternalProject_Add(
+  include(FetchContent)
+  FetchContent_Declare(
     mimalloc
-    PREFIX mimalloc
     GIT_REPOSITORY https://github.com/microsoft/mimalloc
     GIT_TAG v2.2.3
-    # just download, we compile it as part of each stage as it is small
-    CONFIGURE_COMMAND ""
-    BUILD_COMMAND ""
-    INSTALL_COMMAND ""
+    SOURCE_DIR "${CMAKE_BINARY_DIR}/mimalloc/src/mimalloc"
   )
-  list(APPEND EXTRA_DEPENDS mimalloc)
+  FetchContent_Populate(mimalloc)
 endif()
 
 if(NOT STAGE1_PREV_STAGE)

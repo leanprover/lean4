@@ -646,6 +646,12 @@ only in a single term or tactic.
 -/
 @[builtin_command_parser] def «set_option»   := leading_parser
   "set_option " >> identWithPartialTrailingDot >> ppSpace >> optionValue
+/--
+`unlock_limits` disables all built-in resource limit options (currently `maxRecDepth`,
+`maxHeartbeats`, and `synthInstance.maxHeartbeats`) in the current scope by setting them to 0.
+-/
+@[builtin_command_parser] def «unlock_limits» := leading_parser
+  "unlock_limits"
 def eraseAttr := leading_parser
   "-" >> rawIdent
 @[builtin_command_parser] def «attribute»    := leading_parser

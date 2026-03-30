@@ -512,6 +512,15 @@ def failIfSucceeds (x : CommandElabM Unit) : CommandElabM Unit := do
   modify fun s => { s with maxRecDepth := maxRecDepth.get options }
   modifyScope fun scope => { scope with opts := options }
 
+@[builtin_command_elab «unlock_limits»] def elabUnlockLimits : CommandElab := fun _ => do
+  let opts ← getOptions
+  let opts := maxHeartbeats.set opts 0
+  let opts := maxRecDepth.set opts 0
+  let opts := synthInstance.maxHeartbeats.set opts 0
+  modifyScope ({ · with opts })
+  -- update cached value as well
+  modify ({ · with maxRecDepth := 0 })
+
 open Lean.Parser.Command.InternalSyntax in
 @[builtin_macro Lean.Parser.Command.«in»] def expandInCmd : Macro
   | `($cmd₁ in%$tk $cmd₂) =>

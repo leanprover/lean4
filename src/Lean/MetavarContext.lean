@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.ShareCommon
+public import Lean.Util.CollectMVars
 public import Lean.Util.MonadCache
 public import Lean.LocalContext
 import Init.Data.Slice
@@ -470,19 +471,10 @@ def hasAssignedLevelMVar [Monad m] [MonadMCtx m] : Level → m Bool
   | .param _        => pure false
 
 /-- Return `true` iff expression contains assigned (level/expr) metavariables or delayed assigned mvars -/
-def hasAssignedMVar [Monad m] [MonadMCtx m] : Expr → m Bool
-  | .const _ lvls    => lvls.anyM hasAssignedLevelMVar
-  | .sort lvl        => hasAssignedLevelMVar lvl
-  | .app f a         => (pure f.hasMVar <&&> hasAssignedMVar f) <||> (pure a.hasMVar <&&> hasAssignedMVar a)
-  | .letE _ t v b _  => (pure t.hasMVar <&&> hasAssignedMVar t) <||> (pure v.hasMVar <&&> hasAssignedMVar v) <||> (pure b.hasMVar <&&> hasAssignedMVar b)
-  | .forallE _ d b _ => (pure d.hasMVar <&&> hasAssignedMVar d) <||> (pure b.hasMVar <&&> hasAssignedMVar b)
-  | .lam _ d b _     => (pure d.hasMVar <&&> hasAssignedMVar d) <||> (pure b.hasMVar <&&> hasAssignedMVar b)
-  | .fvar _          => return false
-  | .bvar _          => return false
-  | .lit _           => return false
-  | .mdata _ e       => pure e.hasMVar <&&> hasAssignedMVar e
-  | .proj _ _ e      => pure e.hasMVar <&&> hasAssignedMVar e
-  | .mvar mvarId     => mvarId.isAssigned <||> mvarId.isDelayedAssigned
+def hasAssignedMVar [Monad m] [MonadMCtx m] (e : Expr) : m Bool := do
+  let s := e.collectBothMVars {}
+  s.lmvars.anyM isLevelMVarAssigned <||>
+    s.mvars.anyM (fun mvarId => mvarId.isAssigned <||> mvarId.isDelayedAssigned)
 
 /-- Return true iff the given level contains a metavariable that can be assigned. -/
 def hasAssignableLevelMVar [Monad m] [MonadMCtx m] : Level → m Bool
@@ -494,19 +486,10 @@ def hasAssignableLevelMVar [Monad m] [MonadMCtx m] : Level → m Bool
   | .param _        => return false
 
 /-- Return `true` iff expression contains a metavariable that can be assigned. -/
-def hasAssignableMVar [Monad m] [MonadMCtx m] : Expr → m Bool
-  | .const _ lvls    => lvls.anyM hasAssignableLevelMVar
-  | .sort lvl        => hasAssignableLevelMVar lvl
-  | .app f a         => (pure f.hasMVar <&&> hasAssignableMVar f) <||> (pure a.hasMVar <&&> hasAssignableMVar a)
-  | .letE _ t v b _  => (pure t.hasMVar <&&> hasAssignableMVar t) <||> (pure v.hasMVar <&&> hasAssignableMVar v) <||> (pure b.hasMVar <&&> hasAssignableMVar b)
-  | .forallE _ d b _ => (pure d.hasMVar <&&> hasAssignableMVar d) <||> (pure b.hasMVar <&&> hasAssignableMVar b)
-  | .lam _ d b _     => (pure d.hasMVar <&&> hasAssignableMVar d) <||> (pure b.hasMVar <&&> hasAssignableMVar b)
-  | .fvar _          => return false
-  | .bvar _          => return false
-  | .lit _           => return false
-  | .mdata _ e       => pure e.hasMVar <&&> hasAssignableMVar e
-  | .proj _ _ e      => pure e.hasMVar <&&> hasAssignableMVar e
-  | .mvar mvarId     => mvarId.isAssignable
+def hasAssignableMVar [Monad m] [MonadMCtx m] (e : Expr) : m Bool := do
+  let s := e.collectBothMVars {}
+  s.lmvars.anyM isLevelMVarAssignable <||>
+    s.mvars.anyM fun mvarId => mvarId.isAssignable
 
 /--
   Add `mvarId := u` to the universe metavariable assignment.

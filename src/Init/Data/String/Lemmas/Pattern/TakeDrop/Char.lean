@@ -130,19 +130,19 @@ theorem skipSuffix?_char_eq_some_iff {c : Char} {s : String} {pos : s.Pos} :
 
 theorem endsWith_char_iff_get {c : Char} {s : String} :
     s.endsWith c ↔ ∃ h, (s.endPos.prev h).get (by simp) = c := by
-  simp [endsWith_eq_endsWith_toSlice, Slice.endsWith_char_iff_get, Pos.prev_toSlice]
+  simp [← endsWith_toSlice, Slice.endsWith_char_iff_get, Pos.prev_toSlice]
 
 theorem endsWith_char_eq_false_iff_get {c : Char} {s : String} :
     s.endsWith c = false ↔ ∀ h, (s.endPos.prev h).get (by simp) ≠ c := by
-  simp [endsWith_eq_endsWith_toSlice, Slice.endsWith_char_eq_false_iff_get, Pos.prev_toSlice]
+  simp [← endsWith_toSlice, Slice.endsWith_char_eq_false_iff_get, Pos.prev_toSlice]
 
 theorem endsWith_char_eq_getLast? {c : Char} {s : String} :
     s.endsWith c = (s.toList.getLast? == some c) := by
-  simp [endsWith_eq_endsWith_toSlice, Slice.endsWith_char_eq_getLast?]
+  simp [← endsWith_toSlice, Slice.endsWith_char_eq_getLast?]
 
 theorem endsWith_char_iff_exists_append {c : Char} {s : String} :
     s.endsWith c ↔ ∃ t, s = t ++ singleton c := by
-  simp [endsWith_eq_endsWith_toSlice, Slice.endsWith_char_iff_exists_append]
+  simp [← endsWith_toSlice, Slice.endsWith_char_iff_exists_append]
 
 theorem endsWith_char_eq_false_iff_forall_append {c : Char} {s : String} :
     s.endsWith c = false ↔ ∀ t, s ≠ t ++ singleton c := by

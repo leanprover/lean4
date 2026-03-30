@@ -171,15 +171,15 @@ theorem skipSuffix?_bool_eq_some_iff {p : Char → Bool} {s : String} {pos : s.P
 
 theorem endsWith_bool_iff_get {p : Char → Bool} {s : String} :
     s.endsWith p ↔ ∃ h, p ((s.endPos.prev h).get (by simp)) = true := by
-  simp [endsWith_eq_endsWith_toSlice, Slice.endsWith_bool_iff_get, Pos.prev_toSlice]
+  simp [← endsWith_toSlice, Slice.endsWith_bool_iff_get, Pos.prev_toSlice]
 
 theorem endsWith_bool_eq_false_iff_get {p : Char → Bool} {s : String} :
     s.endsWith p = false ↔ ∀ h, p ((s.endPos.prev h).get (by simp)) = false := by
-  simp [endsWith_eq_endsWith_toSlice, Slice.endsWith_bool_eq_false_iff_get, Pos.prev_toSlice]
+  simp [← endsWith_toSlice, Slice.endsWith_bool_eq_false_iff_get, Pos.prev_toSlice]
 
 theorem endsWith_bool_eq_getLast? {p : Char → Bool} {s : String} :
     s.endsWith p = s.toList.getLast?.any p := by
-  simp [endsWith_eq_endsWith_toSlice, Slice.endsWith_bool_eq_getLast?]
+  simp [← endsWith_toSlice, Slice.endsWith_bool_eq_getLast?]
 
 theorem eq_append_of_dropSuffix?_bool_eq_some {p : Char → Bool} {s : String} {res : Slice} (h : s.dropSuffix? p = some res) :
     ∃ c, s = res.copy ++ singleton c ∧ p c = true := by
@@ -193,15 +193,15 @@ theorem skipSuffix?_prop_eq_some_iff {P : Char → Prop} [DecidablePred P] {s : 
 
 theorem endsWith_prop_iff_get {P : Char → Prop} [DecidablePred P] {s : String} :
     s.endsWith P ↔ ∃ h, P ((s.endPos.prev h).get (by simp)) := by
-  simp [endsWith_eq_endsWith_toSlice, Slice.endsWith_prop_iff_get, Pos.prev_toSlice]
+  simp [← endsWith_toSlice, Slice.endsWith_prop_iff_get, Pos.prev_toSlice]
 
 theorem endsWith_prop_eq_false_iff_get {P : Char → Prop} [DecidablePred P] {s : String} :
     s.endsWith P = false ↔ ∀ h, ¬ P ((s.endPos.prev h).get (by simp)) := by
-  simp [endsWith_eq_endsWith_toSlice, Slice.endsWith_prop_eq_false_iff_get, Pos.prev_toSlice]
+  simp [← endsWith_toSlice, Slice.endsWith_prop_eq_false_iff_get, Pos.prev_toSlice]
 
 theorem endsWith_prop_eq_getLast? {P : Char → Prop} [DecidablePred P] {s : String} :
     s.endsWith P = s.toList.getLast?.any (decide <| P ·) := by
-  simp [endsWith_eq_endsWith_toSlice, Slice.endsWith_prop_eq_getLast?]
+  simp [← endsWith_toSlice, Slice.endsWith_prop_eq_getLast?]
 
 theorem eq_append_of_dropSuffix?_prop_eq_some {P : Char → Prop} [DecidablePred P] {s : String} {res : Slice}
     (h : s.dropSuffix? P = some res) : ∃ c, s = res.copy ++ singleton c ∧ P c := by

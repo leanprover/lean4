@@ -846,16 +846,14 @@ JSON file.
 
 OPTIONS:
   --rate N              sampling rate in Hz (default: 1000)
-  --output, -o FILE     output path (default: temp directory)
+  --output FILE         output path (default: current directory)
   --raw                 skip symbolication and demangling
 
 REQUIREMENTS:
   samply                cargo install samply
   curl, gzip            standard on most systems
 
-Open the output file in Firefox Profiler at https://profiler.firefox.com/from-file/
-
-See script/PROFILER_README.md for details on reading demangled names."
+Open the output file in Firefox Profiler at https://profiler.firefox.com/from-file/"
 
 def helpLean :=
 "Elaborate a Lean file in the context of the Lake workspace

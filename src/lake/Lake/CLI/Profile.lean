@@ -177,7 +177,8 @@ private def killSafe {cfg : IO.Process.StdioConfig} (proc : IO.Process.Child cfg
     Returns the path to the output file. -/
 public def run (binary : String) (args : Array String)
     (outputPath : Option String := none)
-    (rate : Nat := 1000) (port : Nat := 3756) (raw : Bool := false) : IO String := do
+    (rate : Nat := 1000) (port : Nat := 3756) (raw : Bool := false)
+    (serve : Bool := true) : IO String := do
   requireCmd "samply" "Install with: cargo install samply"
   requireCmd "gzip" "gzip is required for profile compression"
 
@@ -270,6 +271,8 @@ public def run (binary : String) (args : Array String)
       IO.eprintln s!"Demangled {funcMap.size} names, wrote {out}"
     finally
       killSafe samplyProc
+
+    unless serve do return out
 
     -- Serve the demangled profile using samply's HTTP server (which handles CORS,
     -- works with VSCode port forwarding, etc). We construct the Firefox Profiler URL

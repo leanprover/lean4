@@ -1,0 +1,6 @@
+name = "test"
+version = "0.1.0"
+
+[[lean_exe]]
+name = "hello"
+root = "Main"

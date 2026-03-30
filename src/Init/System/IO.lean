@@ -212,7 +212,7 @@ causing the side effect to occur at initialization time, even if it would otherw
 /--
 Times the execution of an `IO` action.
 
-The provided message `msg` and the time take are printed to the current standard error as a side
+The provided message `msg` and the time taken are printed to the current standard error as a side
 effect.
 -/
 @[extern "lean_io_timeit"] opaque timeit (msg : @& String) (fn : IO α) : IO α

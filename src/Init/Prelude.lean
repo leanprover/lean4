@@ -989,7 +989,7 @@ Lifts a type or proposition to a higher universe level.
 `ULift` that allows lifting values whose type may live in `Sort s`.
 It also subsumes `PLift`.
 -/
--- The universe variable `r` is written first so that `ULift.{r} α` can be used
+-- The universe variable `r` is written first so that `PULift.{r} α` can be used
 -- when `s` can be inferred from the type of `α`.
 structure PULift.{r, s} (α : Sort s) : Sort (max s r 1) where
   /-- Wraps a value to increase its type's universe level. -/

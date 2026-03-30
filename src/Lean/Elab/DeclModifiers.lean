@@ -65,8 +65,27 @@ def Visibility.isPublic : Visibility → Bool
   | .public    => true
   | _          => false
 
+/--
+Returns whether the given visibility modifier should be interpreted as `public` in the current
+environment.
+
+NOTE: `Environment.isExporting` defaults to `false` when command elaborators are invoked for
+backward compatibility. It needs to be initialized apropriately first before calling this function
+as e.g. done in `elabDeclaration`.
+-/
 def Visibility.isInferredPublic (env : Environment) (v : Visibility) : Bool :=
   if env.isExporting || !env.header.isModule then !v.isPrivate else v.isPublic
+
+/-- Converts optional visibility syntax to a `Visibility` value. -/
+def elabVisibility [Monad m] [MonadError m] (vis? : Option (TSyntax ``Parser.Command.visibility)) :
+    m Visibility :=
+  match vis? with
+  | none   => pure .regular
+  | some v =>
+    match v with
+    | `(Parser.Command.visibility| private) => pure .private
+    | `(Parser.Command.visibility| public) => pure .public
+    | _ => throwErrorAt v "unexpected visibility modifier"
 
 /-- Whether a declaration is default, partial or nonrec. -/
 inductive RecKind where
@@ -183,13 +202,7 @@ def elabModifiers (stx : TSyntax ``Parser.Command.declModifiers) : m Modifiers :
     else
       RecKind.nonrec
   let docString? := docCommentStx.getOptional?.map (TSyntax.mk ·, doc.verso.get (← getOptions))
-  let visibility ← match visibilityStx.getOptional? with
-    | none   => pure .regular
-    | some v =>
-      match v with
-      | `(Parser.Command.visibility| private) => pure .private
-      | `(Parser.Command.visibility| public) => pure .public
-      | _ => throwErrorAt v "unexpected visibility modifier"
+  let visibility ← elabVisibility (visibilityStx.getOptional?.map (⟨·⟩))
   let isProtected := !protectedStx.isNone
   let attrs ← match attrsStx.getOptional? with
     | none       => pure #[]

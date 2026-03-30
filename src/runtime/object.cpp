@@ -709,7 +709,10 @@ class task_manager {
     unsigned                                      m_queues_size{0};
     unsigned                                      m_max_prio{0};
     condition_variable                            m_queue_cv;
-    condition_variable                            m_task_finished_cv;
+    // Per-task waiters: when a thread calls task_get/wait_any, it registers
+    // its stack-local CV here. resolve_core notifies only relevant waiters
+    // instead of broadcasting to all waiters (thundering herd).
+    std::unordered_map<lean_task_object *, std::vector<condition_variable *>> m_task_waiters;
     condition_variable                            m_dedicated_finished_cv;
     bool                                          m_shutting_down{false};
 
@@ -866,17 +869,23 @@ class task_manager {
 
     void resolve_core(unique_lock<mutex> & lock, lean_task_object * t, object * v) {
         mark_mt(v);
-        t->m_value = v;
+        /* Extract everything from `t` before setting m_value.  Once m_value
+           is set, lock-free readers (lean_task_get) can observe the result,
+           drop their last ref, and free `t` — so `t` must not be accessed
+           after the store.  This is safe because handle_finished only uses
+           `imp`, never `t`. */
         lean_task_imp * imp = t->m_imp;
         t->m_imp   = nullptr;
-        handle_finished(lock, t, imp);
-        /* After the task has been finished and we propagated
-           dependencies, we can release `imp` and keep just the value */
+        std::vector<condition_variable *> waiters = extract_task_waiters(t);
+        t->m_value = v;
+        /* `t` may be freed at any point after this line. */
+        handle_finished(lock, imp);
         free_task_imp(imp);
-        m_task_finished_cv.notify_all();
+        for (auto * cv : waiters)
+            cv->notify_one();
     }
 
-    void handle_finished(unique_lock<mutex> & lock, lean_task_object * t, lean_task_imp * imp) {
+    void handle_finished(unique_lock<mutex> & lock, lean_task_imp * imp) {
         lean_task_object * it = imp->m_head_dep;
         imp->m_head_dep = nullptr;
         while (it) {
@@ -890,6 +899,39 @@ class task_manager {
                 enqueue_core(lock, it);
             }
             it = next_it;
+        }
+    }
+
+    void notify_task_waiters(lean_task_object * t) {
+        auto it = m_task_waiters.find(t);
+        if (it != m_task_waiters.end()) {
+            for (auto * cv : it->second)
+                cv->notify_one();
+            m_task_waiters.erase(it);
+        }
+    }
+
+    std::vector<condition_variable *> extract_task_waiters(lean_task_object * t) {
+        std::vector<condition_variable *> result;
+        auto it = m_task_waiters.find(t);
+        if (it != m_task_waiters.end()) {
+            result = std::move(it->second);
+            m_task_waiters.erase(it);
+        }
+        return result;
+    }
+
+    void register_waiter(lean_task_object * t, condition_variable * cv) {
+        m_task_waiters[t].push_back(cv);
+    }
+
+    void unregister_waiter(lean_task_object * t, condition_variable * cv) {
+        auto it = m_task_waiters.find(t);
+        if (it != m_task_waiters.end()) {
+            auto & v = it->second;
+            v.erase(std::remove(v.begin(), v.end(), cv), v.end());
+            if (v.empty())
+                m_task_waiters.erase(it);
         }
     }
 
@@ -980,7 +1022,12 @@ public:
             else
                 m_queue_cv.notify_one();
         }
-        m_task_finished_cv.wait(lock, [&]() { return t->m_value != nullptr; });
+        condition_variable cv;
+        register_waiter(t, &cv);
+        cv.wait(lock, [&]() { return t->m_value != nullptr; });
+        // waiter already removed by extract_task_waiters on success,
+        // but clean up in case of spurious predicate match
+        unregister_waiter(t, &cv);
         if (in_pool) {
             m_max_std_workers--;
         }
@@ -990,14 +1037,41 @@ public:
         if (object * t = wait_any_check(task_list))
             return t;
         unique_lock<mutex> lock(m_mutex);
-        while (true) {
-            if (object * t = wait_any_check(task_list))
-                return t;
-            m_task_finished_cv.wait(lock);
+        condition_variable cv;
+        // Register our CV on all pending tasks in the list
+        object * it = task_list;
+        while (!is_scalar(it)) {
+            lean_task_object * t = lean_to_task(lean_ctor_get(it, 0));
+            if (!t->m_value)
+                register_waiter(t, &cv);
+            it = cnstr_get(it, 1);
         }
+        object * result = nullptr;
+        while (true) {
+            if ((result = wait_any_check(task_list)))
+                break;
+            cv.wait(lock);
+        }
+        // Unregister from all remaining tasks
+        it = task_list;
+        while (!is_scalar(it)) {
+            lean_task_object * t = lean_to_task(lean_ctor_get(it, 0));
+            unregister_waiter(t, &cv);
+            it = cnstr_get(it, 1);
+        }
+        return result;
     }
 
     void deactivate_task(lean_task_object * t) {
+        /* Fast path for finished tasks (incl. Task.pure): m_value is set
+           atomically and m_imp is cleared before m_value is stored in
+           resolve_core, so no lock is needed. */
+        if (object * v = t->m_value) {
+            lean_assert(t->m_imp == nullptr);
+            lean_dec(v);
+            free_task(t);
+            return;
+        }
         unique_lock<mutex> lock(m_mutex);
         if (object * v = t->m_value) {
             lean_assert(t->m_imp == nullptr);
@@ -1115,13 +1189,6 @@ static lean_task_object * alloc_task(obj_arg c, unsigned prio, bool keep_alive) 
     return o;
 }
 
-static lean_task_object * alloc_task(obj_arg v) {
-    lean_task_object * o = (lean_task_object*)lean_alloc_small_object(sizeof(lean_task_object));
-    lean_set_st_header((lean_object*)o, LeanTask, 0);
-    o->m_value = v;
-    o->m_imp   = nullptr;
-    return o;
-}
 
 
 extern "C" LEAN_EXPORT obj_res lean_task_spawn_core(obj_arg c, unsigned prio, bool keep_alive) {
@@ -1134,8 +1201,13 @@ extern "C" LEAN_EXPORT obj_res lean_task_spawn_core(obj_arg c, unsigned prio, bo
     }
 }
 
+/* Emit lean_task_pure as a shared-library symbol for Lean-compiled code that references it by name. */
 extern "C" LEAN_EXPORT obj_res lean_task_pure(obj_arg a) {
-    return (lean_object*)alloc_task(a);
+    lean_task_object * o = (lean_task_object*)lean_alloc_small_object(sizeof(lean_task_object));
+    lean_set_st_header((lean_object*)o, LeanTask, 0);
+    o->m_value = a;
+    o->m_imp   = nullptr;
+    return (lean_object*)o;
 }
 
 static obj_res task_map_fn(obj_arg f, obj_arg t, obj_arg w) {

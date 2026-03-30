@@ -13,9 +13,63 @@ import Init.Data.String.Iterate
 import Lean.Data.NameTrie
 public import Lean.Compiler.NameMangling
 
-/-! Human-friendly demangling of Lean compiler symbol names, extending
+/-!
+# Name Demangling
+
+Human-friendly demangling of Lean compiler symbol names, extending
 `Name.demangle` with prefix handling, compiler suffix folding, and backtrace
-line parsing. Called from the C runtime via `@[export]` for backtrace display. -/
+line parsing. Called from the C runtime via `@[export]` for backtrace display.
+
+## Reading demangled names
+
+The demangler transforms low-level C symbol names into readable Lean names
+and annotates them with compact modifiers.
+
+### Basic names
+
+* `l_Lean_Meta_Sym_main` → `Lean.Meta.Sym.main`
+* `lp_std_List_map` → `List.map (std)`
+* `_init_l_Foo_bar` → `[init] Foo.bar`
+* `initialize_Init_Data` → `[module_init] Init.Data`
+* `_lean_main` → `[lean] main`
+
+### Modifier flags
+
+Compiler-generated suffixes are folded into a bracket annotation after the
+name, indicating *how* the function was derived from the source definition:
+
+* `[arity↓]` — reduced-arity specialization (`_redArg`)
+* `[boxed]` — boxed calling-convention wrapper (`_boxed`)
+* `[impl]` — implementation detail (`_impl`)
+* `[λ]` — lambda-lifted closure (`_lam_N`, `_lambda_N`, `_elam_N`)
+* `[jp]` — join point (`_jp_N`)
+* `[closed]` — extracted closed subterm (`_closed_N`)
+* `[private]` — private (module-scoped) definition (`_private.Module.0.` prefix)
+
+Multiple flags are comma-separated: `Lean.Meta.Simp.simpLambda [boxed, λ]`.
+
+### Specializations
+
+When the compiler specializes a function at a call site, the demangled name
+shows `spec at <context>` after the flags. The context may carry its own flags:
+
+* `Lean.Meta.foo spec at Lean.Meta.bar`
+* `Lean.Meta.foo [λ] spec at Lean.Meta.bar[λ, arity↓]`
+
+### Other annotations
+
+* `<apply/N>` — Lean runtime apply function (N arguments)
+* `.cold.N` suffix — LLVM cold-path clone
+* `(pkg)` suffix — function from package `pkg`
+
+## Standalone CLI tool
+
+`script/profiler/lean_demangle_cli.lean` is a `c++filt`-like filter:
+
+```
+echo "l_Lean_Meta_Sym_main" | lean --run script/profiler/lean_demangle_cli.lean
+```
+-/
 
 namespace Lean.Name.Demangle
 

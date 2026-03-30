@@ -4,19 +4,17 @@ Profile Lean programs with demangled names using
 [samply](https://github.com/mstange/samply) and
 [Firefox Profiler](https://profiler.firefox.com).
 
-Python 3, no external dependencies.
-
 ## Quick start
 
 ```bash
-# One command: record, symbolicate, demangle, and open in Firefox Profiler
-script/lean_profile.sh ./my_lean_binary [args...]
+# Build, record, symbolicate, demangle, and serve in one command
+lake profile myexe [args...]
 
 # See all options
-script/lean_profile.sh --help
+lake help profile
 ```
 
-Requirements: `samply` (`cargo install samply`), `python3`.
+Requirements: `samply` (`cargo install samply`), `curl`, `gzip`.
 
 ## Reading demangled names
 
@@ -94,79 +92,22 @@ flags, the brackets are omitted.
 | `.cold.N` suffix | LLVM cold-path clone (infrequently executed) |
 | `(pkg)` suffix | Function from package `pkg` |
 
-## Tools
+## Standalone demangler
 
-### `script/lean_profile.sh` -- Full profiling pipeline
-
-Records a profile, symbolicates it via samply's API, demangles Lean names,
-and opens the result in Firefox Profiler. This is the recommended workflow.
-
-```bash
-script/lean_profile.sh ./build/release/stage1/bin/lean src/Lean/Elab/Term.lean
-```
-
-Environment variables:
-
-| Variable | Default | Description |
-|---|---|---|
-| `SAMPLY_RATE` | 1000 | Sampling rate in Hz |
-| `SAMPLY_PORT` | 3756 | Port for samply symbolication server |
-| `SERVE_PORT` | 3757 | Port for serving the demangled profile |
-| `PROFILE_KEEP` | 0 | Set to 1 to keep the temp directory |
-
-### `script/profiler/lean_demangle.py` -- Name demangler
-
-Demangles individual symbol names. Works as a stdin filter (like `c++filt`)
-or with arguments.
+`script/profiler/lean_demangle_cli.lean` is a `c++filt`-like filter for Lean
+symbol names. It reads mangled names from stdin and writes demangled names to
+stdout:
 
 ```bash
-echo "l_Lean_Meta_Sym_main" | python3 script/profiler/lean_demangle.py
+echo "l_Lean_Meta_Sym_main" | lean --run script/profiler/lean_demangle_cli.lean
 # Lean.Meta.Sym.main
-
-python3 script/profiler/lean_demangle.py --raw l_foo___redArg
-# foo._redArg  (exact name, no postprocessing)
-```
-
-As a Python module:
-
-```python
-from lean_demangle import demangle_lean_name, demangle_lean_name_raw
-
-demangle_lean_name("l_foo___redArg")       # "foo [arity↓]"
-demangle_lean_name_raw("l_foo___redArg")   # "foo._redArg"
-```
-
-### `script/profiler/symbolicate_profile.py` -- Profile symbolicator
-
-Calls samply's symbolication API to resolve raw addresses into symbol names,
-then demangles them. Used internally by `lean_profile.sh`.
-
-### `script/profiler/serve_profile.py` -- Profile server
-
-Serves a profile JSON file to Firefox Profiler without re-symbolication
-(which would overwrite demangled names). Used internally by `lean_profile.sh`.
-
-### `script/profiler/lean_demangle_profile.py` -- Standalone profile rewriter
-
-Demangles names in an already-symbolicated profile file (if you have one
-from another source).
-
-```bash
-python3 script/profiler/lean_demangle_profile.py profile.json.gz -o demangled.json.gz
-```
-
-## Tests
-
-```bash
-cd script/profiler && python3 -m unittest test_demangle -v
 ```
 
 ## How it works
 
-The demangler is a faithful port of Lean 4's `Name.demangleAux` from
-`src/Lean/Compiler/NameMangling.lean`. It reverses the encoding used by
-`Name.mangle` / `Name.mangleAux` which turns hierarchical Lean names into
-valid C identifiers:
+The demangler (`src/Lean/Compiler/NameDemangling.lean`) reverses the encoding
+used by `Name.mangle` / `Name.mangleAux` which turns hierarchical Lean names
+into valid C identifiers:
 
 - `_` separates name components (`Lean.Meta` -> `Lean_Meta`)
 - `__` encodes a literal underscore in a component name

@@ -1,11 +1,11 @@
 {"textDocument": {"uri": "file:///completionOpenNamespaces.lean"},
- "position": {"line": 4, "character": 68}}
+ "position": {"line": 11, "character": 68}}
 {"items":
  [{"label": "verySpecificDefinitionNameOfCompletionOpenNamespaces",
    "kind": 21,
    "data":
    ["file:///completionOpenNamespaces.lean",
-    4,
+    11,
     68,
     0,
     "cA.B1.verySpecificDefinitionNameOfCompletionOpenNamespaces"]}],
@@ -16,7 +16,32 @@ Resolution of verySpecificDefinitionNameOfCompletionOpenNamespaces:
  "detail": "Nat",
  "data":
  ["file:///completionOpenNamespaces.lean",
-  4,
+  11,
   68,
   0,
   "cA.B1.verySpecificDefinitionNameOfCompletionOpenNamespaces"]}
+{"textDocument": {"uri": "file:///completionOpenNamespaces.lean"},
+ "position": {"line": 14, "character": 71}}
+{"items": [], "isIncomplete": false}
+{"textDocument": {"uri": "file:///completionOpenNamespaces.lean"},
+ "position": {"line": 17, "character": 74}}
+{"items":
+ [{"label": "verySpecificDefinitionNameOfCompletionOpenNamespacesPrivate",
+   "kind": 21,
+   "data":
+   ["file:///completionOpenNamespaces.lean",
+    17,
+    74,
+    0,
+    "c_private.«external:file:///completionOpenNamespaces.lean».0.A.B2.verySpecificDefinitionNameOfCompletionOpenNamespacesPrivate"]}],
+ "isIncomplete": false}
+Resolution of verySpecificDefinitionNameOfCompletionOpenNamespacesPrivate:
+{"label": "verySpecificDefinitionNameOfCompletionOpenNamespacesPrivate",
+ "kind": 21,
+ "detail": "Nat",
+ "data":
+ ["file:///completionOpenNamespaces.lean",
+  17,
+  74,
+  0,
+  "c_private.«external:file:///completionOpenNamespaces.lean».0.A.B2.verySpecificDefinitionNameOfCompletionOpenNamespacesPrivate"]}

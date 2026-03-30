@@ -802,15 +802,70 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
   list(APPEND STDLIBS Lake LeanChecker)
 endif()
 
-add_custom_target(
-  make_stdlib
-  ALL
+file(
+  GLOB_RECURSE STDLIB_SOURCE_FILES
+  CONFIGURE_DEPENDS
+  "${LEAN_SOURCE_DIR}/Init/*.lean"
+  "${LEAN_SOURCE_DIR}/Init/**/*.lean"
+  "${LEAN_SOURCE_DIR}/Std/*.lean"
+  "${LEAN_SOURCE_DIR}/Std/**/*.lean"
+  "${LEAN_SOURCE_DIR}/Lean/*.lean"
+  "${LEAN_SOURCE_DIR}/Lean/**/*.lean"
+  "${LEAN_SOURCE_DIR}/LeanChecker/*.lean"
+  "${LEAN_SOURCE_DIR}/LeanChecker/**/*.lean"
+  "${LEAN_SOURCE_DIR}/Leanc.lean"
+  "${LEAN_SOURCE_DIR}/lake/*.lean"
+  "${LEAN_SOURCE_DIR}/lake/**/*.lean"
+)
+set(STDLIB_BOOTSTRAP_SOURCE_FILES)
+if(STAGE EQUAL 0)
+  file(
+    GLOB_RECURSE STDLIB_BOOTSTRAP_SOURCE_FILES
+    CONFIGURE_DEPENDS
+    "${LEAN_SOURCE_DIR}/../stdlib/*.c"
+    "${LEAN_SOURCE_DIR}/../stdlib/**/*.c"
+  )
+endif()
+set(STDLIB_BUILD_STAMP "${CMAKE_BINARY_DIR}/lib/lean/.make_stdlib.stamp")
+set(
+  STDLIB_BUILD_DEPS
+  ${STDLIB_SOURCE_FILES}
+  ${STDLIB_BOOTSTRAP_SOURCE_FILES}
+  "${LEAN_SOURCE_DIR}/bin/leanmake"
+  "${LEAN_SOURCE_DIR}/lakefile.toml.in"
+  "${CMAKE_BINARY_DIR}/share/lean/lean.mk"
+  "${CMAKE_BINARY_DIR}/stdlib.make"
+  "${CMAKE_BINARY_DIR}/leanc.sh"
+)
+if(EXISTS "${LEAN_SOURCE_DIR}/lake-manifest.json")
+  list(APPEND STDLIB_BUILD_DEPS "${LEAN_SOURCE_DIR}/lake-manifest.json")
+endif()
+if(PREV_STAGE)
+  list(APPEND STDLIB_BUILD_DEPS "${PREV_STAGE}/bin/lean${PREV_STAGE_CMAKE_EXECUTABLE_SUFFIX}")
+endif()
+if(USE_LAKE)
+  list(APPEND STDLIB_BUILD_DEPS "${CMAKE_BINARY_DIR}/lakefile.toml")
+  if(PREV_STAGE)
+    list(APPEND STDLIB_BUILD_DEPS "${PREV_STAGE}/bin/lake${PREV_STAGE_CMAKE_EXECUTABLE_SUFFIX}")
+  endif()
+endif()
+
+add_custom_command(
+  OUTPUT ${STDLIB_BUILD_STAMP}
   WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
   # The actual rule is in a separate makefile because we want to prefix it with '+' to use the Make job server
   # for a parallelized nested build, but CMake doesn't let us do that.
   # We use `lean` from the previous stage, but `leanc`, headers, etc. from the current stage
   COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make ${STDLIBS}
+  COMMAND ${CMAKE_COMMAND} -E touch ${STDLIB_BUILD_STAMP}
+  DEPENDS ${STDLIB_BUILD_DEPS}
   VERBATIM
+)
+
+add_custom_target(
+  make_stdlib
+  ALL
+  DEPENDS ${STDLIB_BUILD_STAMP}
 )
 
 # if we have LLVM enabled, then build `lean.h.bc` which has the LLVM bitcode

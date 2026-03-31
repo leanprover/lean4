@@ -1,4 +1,6 @@
 cmake_minimum_required(VERSION 3.21)
+include(ExternalProject)
+include(FetchContent)
 
 if(NOT CMAKE_GENERATOR MATCHES "Makefiles")
   message(FATAL_ERROR "Only makefile generators are supported")
@@ -34,7 +36,6 @@ foreach(var ${vars})
   endif()
 endforeach()
 
-include(ExternalProject)
 project(LEAN CXX C)
 
 if(NOT (DEFINED STAGE0_CMAKE_EXECUTABLE_SUFFIX))
@@ -119,14 +120,16 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
 endif()
 
 if(USE_MIMALLOC)
-  include(FetchContent)
   FetchContent_Declare(
     mimalloc
     GIT_REPOSITORY https://github.com/microsoft/mimalloc
     GIT_TAG v2.2.3
+    # Unnecessarily deep directory structure, but it saves us from a complicated
+    # stage0 update for now. If we ever update the other dependencies like
+    # cadical, it might be worth reorganizing the directory structure.
     SOURCE_DIR "${CMAKE_BINARY_DIR}/mimalloc/src/mimalloc"
   )
-  FetchContent_Populate(mimalloc)
+  FetchContent_MakeAvailable(mimalloc)
 endif()
 
 if(NOT STAGE1_PREV_STAGE)

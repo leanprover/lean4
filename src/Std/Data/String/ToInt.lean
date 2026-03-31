@@ -183,7 +183,8 @@ public theorem toInt?_repr (a : Int) : a.repr.toInt? = some a := by
   rw [repr_eq_if]
   split <;> (simp; omega)
 
-public theorem isInt?_repr (a : Int) : a.repr.isInt = true := by
+@[simp]
+public theorem isInt_repr (a : Int) : a.repr.isInt = true := by
   simp [← String.isSome_toInt?]
 
 public theorem repr_injective {a b : Int} (h : Int.repr a = Int.repr b) : a = b := by

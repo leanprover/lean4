@@ -40,7 +40,7 @@ framework.
 /--
 This data-carrying typeclass is used to give semantics to a pattern type that implements
 {name}`ForwardPattern` and/or {name}`ToForwardSearcher` by providing an abstract, not necessarily
-decidable {name}`PatternModel.Matches` predicate that implementates of {name}`ForwardPattern`
+decidable {name}`PatternModel.Matches` predicate that implementations of {name}`ForwardPattern`
 and {name}`ToForwardSearcher` can be validated against.
 
 Correctness results for generic functions relying on the pattern infrastructure, for example the
@@ -151,7 +151,7 @@ theorem IsLongestMatch.le_of_isMatch {pat : ρ} [PatternModel pat] {s : Slice} {
 
 /--
 Predicate stating that the region between the start of the slice {name}`s` and the position
-{name}`pos` matches the patten {name}`pat`, and that there is no longer match starting at the
+{name}`pos` matches the pattern {name}`pat`, and that there is no longer match starting at the
 beginning of the slice. This is what a correct matcher should match.
 
 In some cases, being a match and being a longest match will coincide, see
@@ -228,7 +228,7 @@ theorem isLongestRevMatch_iff_isRevMatch {ρ : Type} (pat : ρ) [PatternModel pa
   exact ht₅ (NoSuffixPatternModel.eq_empty _ _ ht₂ (ht₅'' ▸ ht₂'))
 
 /--
-Predicate stating that the slice formed by {name}`startPos` and {name}`endPos` contains is a match
+Predicate stating that the slice formed by {name}`startPos` and {name}`endPos` contains a match
 of {name}`pat` in {name}`s` and it is longest among matches starting at {name}`startPos`.
 -/
 structure IsLongestMatchAt (pat : ρ) [PatternModel pat] {s : Slice} (startPos endPos : s.Pos) : Prop where
@@ -411,7 +411,7 @@ theorem not_revMatchesAt_startPos {pat : ρ} [PatternModel pat] {s : Slice} :
   intro h
   simpa [← Pos.ofSliceTo_inj] using h.ne_endPos
 
-theorem revMatchesAt_iff_revMatchesAt_ofSliceto {pat : ρ} [PatternModel pat] {s : Slice} {base : s.Pos}
+theorem revMatchesAt_iff_revMatchesAt_ofSliceTo {pat : ρ} [PatternModel pat] {s : Slice} {base : s.Pos}
     {pos : (s.sliceTo base).Pos} : RevMatchesAt pat pos ↔ RevMatchesAt pat (Pos.ofSliceTo pos) := by
   simp only [revMatchesAt_iff_exists_isLongestRevMatchAt]
   constructor
@@ -505,8 +505,8 @@ theorem LawfulForwardPatternModel.skipPrefix?_eq_none_iff {ρ : Type} {pat : ρ}
 /--
 Predicate stating compatibility between {name}`PatternModel` and {name}`BackwardPattern`.
 
-This extends {name}`LawfulForwardPattern`, but it is much stronger because it forces the
-{name}`ForwardPattern` to match the longest prefix of the given slice that matches the property
+This extends {name}`LawfulBackwardPattern`, but it is much stronger because it forces the
+{name}`BackwardPattern` to match the longest prefix of the given slice that matches the property
 supplied by the {name}`PatternModel` instance.
 -/
 class LawfulBackwardPatternModel {ρ : Type} (pat : ρ) [BackwardPattern pat]

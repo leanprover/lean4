@@ -40,7 +40,7 @@ where
   go (table : Array Nat) (ht₀ : 0 < table.size) (ht : table.size ≤ pat.utf8ByteSize) (h : ∀ (i : Nat) hi, table[i]'hi ≤ i) :
       Vector Nat pat.utf8ByteSize :=
     if hs : table.size < pat.utf8ByteSize then
-      let patByte := pat.getUTF8Byte ⟨table.size⟩ hs
+      let patByte := pat.getUTF8ByteRel ⟨table.size⟩ hs
       let dist := computeDistance patByte table ht h (table[table.size - 1])
         (by have := h (table.size - 1) (by omega); omega)
       go (table.push dist) (by simp) (by simp; omega) (by
@@ -59,7 +59,7 @@ where
       (ht : table.size ≤ pat.utf8ByteSize)
       (h : ∀ (i : Nat) hi, table[i]'hi ≤ i) (guess : Nat) (hg : guess < table.size) :
       { n : Nat // n ≤ table.size } :=
-    if pat.getUTF8Byte ⟨guess⟩ (by simp [Pos.Raw.lt_iff]; omega) = patByte then
+    if pat.getUTF8ByteRel ⟨guess⟩ (by simp [Pos.Raw.lt_iff]; omega) = patByte then
       ⟨guess + 1, by omega⟩
     else if h₀ : guess = 0 then
       ⟨0, by simp⟩
@@ -91,7 +91,7 @@ def iter (pat : Slice) (s : Slice) : Std.Iter (α := ForwardSliceSearcher s) (Se
   if h : pat.utf8ByteSize = 0 then
     { internalState := .emptyBefore s.startPos }
   else
-    { internalState := .proper pat (buildTable pat) rfl s.startPos.offset pat.startPos.offset
+    { internalState := .proper pat (buildTable pat) rfl s.startPos.offset 0
         (by simp [Pos.Raw.lt_iff]; omega) }
 
 instance (s : Slice) : Std.Iterator (ForwardSliceSearcher s) Id (SearchStep s) where
@@ -103,7 +103,7 @@ instance (s : Slice) : Std.Iterator (ForwardSliceSearcher s) Id (SearchStep s) w
       | .proper needle table ht stackPos needlePos hn =>
         (∃ newStackPos newNeedlePos hn,
           it'.internalState = .proper needle table ht newStackPos newNeedlePos hn ∧
-            ((s.utf8ByteSize - newStackPos.byteIdx < s.utf8ByteSize - stackPos.byteIdx) ∨
+            ((s.endPos.offset.byteIdx - newStackPos.byteIdx < s.endPos.offset.byteIdx - stackPos.byteIdx) ∨
               (newStackPos = stackPos ∧ newNeedlePos < needlePos))) ∨
         it'.internalState = .atEnd
       | .atEnd => False
@@ -130,10 +130,10 @@ instance (s : Slice) : Std.Iterator (ForwardSliceSearcher s) Id (SearchStep s) w
       -- **Invariant 2:** `stackPos - needlePos` is a valid position
       -- **Invariant 3:** the range from `stackPos - needlePos` to `stackPos` (exclusive) is a
       -- prefix of the pattern.
-      if h₁' : (stackPos.unoffsetBy needlePos).increaseBy needle.utf8ByteSize ≤ s.rawEndPos then
-        have h₁ : stackPos < s.rawEndPos := by simp [Pos.Raw.lt_iff, Pos.Raw.le_iff] at ⊢ hn h₁'; omega
+      if h₁' : (stackPos.unoffsetBy needlePos).increaseBy needle.utf8ByteSize ≤ s.endPos.offset then
+        have h₁ : stackPos < s.endPos.offset := by simp [Pos.Raw.lt_iff, Pos.Raw.le_iff] at ⊢ hn h₁'; omega
         let stackByte := s.getUTF8Byte stackPos h₁
-        let patByte := needle.getUTF8Byte needlePos hn
+        let patByte := needle.getUTF8ByteRel needlePos hn
         if stackByte = patByte then
           let nextStackPos := stackPos.inc
           let nextNeedlePos := needlePos.inc
@@ -166,8 +166,8 @@ instance (s : Slice) : Std.Iterator (ForwardSliceSearcher s) Id (SearchStep s) w
                by simpa using ⟨_, _, ⟨rfl, rfl⟩, by simp [Pos.Raw.lt_iff] at hn ⊢; omega,
                 Or.inl (by
                   have := lt_offset_posGT (h := h₁)
-                  have t₀ := (posGT _ _ h₁).isValidForSlice.le_utf8ByteSize
-                  simp [nextStackPos, Pos.Raw.lt_iff] at this ⊢; omega)⟩⟩)
+                  have t₀ := (posGT _ _ h₁).isValidForSlice.le_offset_endExclusive
+                  simp [nextStackPos, Pos.Raw.lt_iff, Pos.Raw.le_iff] at this t₀ ⊢; omega)⟩⟩)
           else
             let newNeedlePos := table[needlePos.byteIdx - 1]'(by simp [Pos.Raw.lt_iff] at hn; omega)
             if newNeedlePos = 0 then
@@ -182,8 +182,8 @@ instance (s : Slice) : Std.Iterator (ForwardSliceSearcher s) Id (SearchStep s) w
                 (by simp [Pos.Raw.lt_iff] at hn ⊢; omega)⟩ res,
                  by simpa using ⟨_, _, ⟨rfl, rfl⟩, by simp [Pos.Raw.lt_iff] at hn ⊢; omega, by
                   have h₂ := le_offset_posGE (h := Pos.Raw.le_of_lt h₁)
-                  have h₃ := (s.posGE _ (Pos.Raw.le_of_lt h₁)).isValidForSlice.le_utf8ByteSize
-                  simp [Pos.Raw.le_iff, Pos.Raw.lt_iff, Pos.Raw.ext_iff, nextStackPos] at ⊢ h₂ hnp
+                  have h₃ := (s.posGE _ (Pos.Raw.le_of_lt h₁)).isValidForSlice.le_offset_endExclusive
+                  simp [Pos.Raw.le_iff, Pos.Raw.lt_iff, Pos.Raw.ext_iff, nextStackPos] at ⊢ h₂ h₃ hnp
                   omega⟩⟩)
             else
               -- Safety: by invariant 2
@@ -208,7 +208,7 @@ instance (s : Slice) : Std.Iterator (ForwardSliceSearcher s) Id (SearchStep s) w
                     simp [newNeedlePos, Pos.Raw.lt_iff] at hn hnp ⊢
                     omega⟩)
       else
-        if stackPos.unoffsetBy needlePos < s.rawEndPos then
+        if stackPos.unoffsetBy needlePos < s.endPos.offset then
           let basePos := stackPos.unoffsetBy needlePos
           -- Safety: by invariant 2
           let res := .rejected (s.pos! basePos) s.endPos
@@ -220,7 +220,7 @@ instance (s : Slice) : Std.Iterator (ForwardSliceSearcher s) Id (SearchStep s) w
 private def toOption : ForwardSliceSearcher s → Option (Nat × Nat)
   | .emptyBefore pos => some (pos.remainingBytes, 1)
   | .emptyAt pos _ => some (pos.remainingBytes, 0)
-  | .proper _ _ _ sp np _ => some (s.utf8ByteSize - sp.byteIdx, np.byteIdx)
+  | .proper _ _ _ sp np _ => some (s.endPos.offset.byteIdx - sp.byteIdx, np.byteIdx)
   | .atEnd => none
 
 private instance : WellFoundedRelation (ForwardSliceSearcher s) where
@@ -237,11 +237,9 @@ private def finitenessRelation :
   subrelation {it it'} h := by
     simp_wf
     obtain ⟨step, h, h'⟩ := h
-    cases step
-    all_goals try
-      cases h
+    cases step <;> cases h <;> (
       revert h'
-      simp only [Std.IterM.IsPlausibleStep, Std.Iterator.IsPlausibleStep, instIteratorIdSearchStep] -- TODO
+      simp only [Std.IterM.IsPlausibleStep, Std.Iterator.IsPlausibleStep, instIteratorIdSearchStep]
       match it.internalState with
       | .emptyBefore pos =>
         rintro (⟨h, h'⟩|h') <;> simp [h', ForwardSliceSearcher.toOption, Option.lt, Prod.lex_def]
@@ -252,11 +250,11 @@ private def finitenessRelation :
           ← Pos.lt_iff_remainingBytes_lt]
       | .proper needle table ht stackPos needlePos hn =>
         rintro (⟨newStackPos, newNeedlePos, h₁, h₂, (h|⟨rfl, h⟩)⟩|h)
-        · simp [h₂, ForwardSliceSearcher.toOption, Option.lt, Prod.lex_def, h]
-        · simpa [h₂, ForwardSliceSearcher.toOption, Option.lt, Prod.lex_def, Pos.Raw.lt_iff]
+        · simp only [h₂, ForwardSliceSearcher.toOption, Option.lt, Prod.lex_def]; exact Or.inl h
+        · simp only [h₂, ForwardSliceSearcher.toOption, Option.lt, Prod.lex_def, Pos.Raw.lt_iff] at h ⊢
+          exact Or.inr ⟨trivial, h⟩
         · simp [h, ForwardSliceSearcher.toOption, Option.lt]
-      | .atEnd .. => simp
-    · cases h
+      | .atEnd .. => simp)
 
 @[no_expose]
 instance : Std.Iterators.Finite (ForwardSliceSearcher s) Id :=
@@ -272,9 +270,13 @@ instance {pat : Slice} : ToForwardSearcher pat ForwardSliceSearcher where
 def startsWith (pat : Slice) (s : Slice) : Bool :=
   if h : pat.utf8ByteSize ≤ s.utf8ByteSize then
     have hs := by
-      simp [Pos.Raw.le_iff] at h ⊢
+      have := Pos.Raw.le_iff.1 s.startInclusive_le_endExclusive
+      simp [Pos.Raw.le_iff, Slice.utf8ByteSize_eq] at h ⊢
       omega
-    have hp := by simp
+    have hp := by
+      have := Pos.Raw.le_iff.1 pat.startInclusive_le_endExclusive
+      simp [Pos.Raw.le_iff, Slice.utf8ByteSize_eq] at h ⊢
+      omega
     Internal.memcmpSlice s pat s.startPos.offset pat.startPos.offset pat.rawEndPos hs hp
   else
     false
@@ -307,10 +309,13 @@ def endsWith (pat : Slice) (s : Slice) : Bool :=
     let sStart := s.endPos.offset.unoffsetBy pat.rawEndPos
     let patStart := pat.startPos.offset
     have hs := by
-      simp [sStart, Pos.Raw.le_iff] at h ⊢
+      have := Pos.Raw.le_iff.1 s.startInclusive_le_endExclusive
+      simp [sStart, Pos.Raw.le_iff, Slice.utf8ByteSize_eq] at h ⊢
       omega
     have hp := by
-      simp [patStart] at h ⊢
+      have := Pos.Raw.le_iff.1 pat.startInclusive_le_endExclusive
+      simp [patStart, Pos.Raw.le_iff, Slice.utf8ByteSize_eq] at h ⊢
+      omega
     Internal.memcmpSlice s pat sStart patStart pat.rawEndPos hs hp
   else
     false

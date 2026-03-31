@@ -89,46 +89,58 @@ theorem isLongestRevMatch_iff_splits {pat s : Slice} {pos : s.Pos} (h : pat.isEm
 
 theorem isLongestMatchAt_iff_extract {pat s : Slice} {pos₁ pos₂ : s.Pos} (h : pat.isEmpty = false) :
     IsLongestMatchAt pat pos₁ pos₂ ↔
-      s.copy.toByteArray.extract pos₁.offset.byteIdx pos₂.offset.byteIdx = pat.copy.toByteArray := by
+      s.copy.toByteArray.extract pos₁.copy.offset.byteIdx pos₂.copy.offset.byteIdx = pat.copy.toByteArray := by
   rw [isLongestMatchAt_iff h]
   refine ⟨fun ⟨h, h'⟩ => ?_, fun h' => ?_⟩
   · simp [← h', toByteArray_copy_slice]
   · rw [← Slice.toByteArray_copy_ne_empty_iff, ← h', ne_eq, ByteArray.extract_eq_empty_iff] at h
-    exact ⟨by simp [Pos.le_iff, Pos.Raw.le_iff]; omega,
+    have hle₁ := Pos.Raw.le_iff.1 pos₁.isValidForSlice.offset_startInclusive_le
+    have hle₂ := Pos.Raw.le_iff.1 pos₂.isValidForSlice.offset_startInclusive_le
+    exact ⟨by simp only [Pos.le_iff, Pos.Raw.le_iff, Slice.Pos.offset_copy,
+              Pos.Raw.byteIdx_unoffsetBy, size_toByteArray, utf8ByteSize_copy] at h ⊢; omega,
       by simp [← h', ← toByteArray_inj, toByteArray_copy_slice]⟩
 
 theorem isLongestRevMatchAt_iff_extract {pat s : Slice} {pos₁ pos₂ : s.Pos}
     (h : pat.isEmpty = false) :
     IsLongestRevMatchAt pat pos₁ pos₂ ↔
-      s.copy.toByteArray.extract pos₁.offset.byteIdx pos₂.offset.byteIdx =
+      s.copy.toByteArray.extract pos₁.copy.offset.byteIdx pos₂.copy.offset.byteIdx =
         pat.copy.toByteArray := by
   rw [isLongestRevMatchAt_iff h]
   refine ⟨fun ⟨h, h'⟩ => ?_, fun h' => ?_⟩
   · simp [← h', toByteArray_copy_slice]
   · rw [← Slice.toByteArray_copy_ne_empty_iff, ← h', ne_eq, ByteArray.extract_eq_empty_iff] at h
-    exact ⟨by simp [Pos.le_iff, Pos.Raw.le_iff]; omega,
+    have hle₁ := Pos.Raw.le_iff.1 pos₁.isValidForSlice.offset_startInclusive_le
+    have hle₂ := Pos.Raw.le_iff.1 pos₂.isValidForSlice.offset_startInclusive_le
+    exact ⟨by simp only [Pos.le_iff, Pos.Raw.le_iff, Slice.Pos.offset_copy,
+              Pos.Raw.byteIdx_unoffsetBy, size_toByteArray, utf8ByteSize_copy] at h ⊢; omega,
       by simp [← h', ← toByteArray_inj, toByteArray_copy_slice]⟩
 
 theorem offset_of_isLongestMatchAt {pat s : Slice} {pos₁ pos₂ : s.Pos} (h : pat.isEmpty = false)
     (h' : IsLongestMatchAt pat pos₁ pos₂) : pos₂.offset = pos₁.offset.increaseBy pat.utf8ByteSize := by
-  simp only [Pos.Raw.ext_iff, Pos.Raw.byteIdx_increaseBy]
+  simp only [Pos.Raw.ext_iff, Pos.Raw.byteIdx_increaseBy, Slice.utf8ByteSize_eq (s := pat)]
   rw [isLongestMatchAt_iff_extract h] at h'
   rw [← Slice.toByteArray_copy_ne_empty_iff, ← h', ne_eq, ByteArray.extract_eq_empty_iff] at h
   replace h' := congrArg ByteArray.size h'
-  simp only [ByteArray.size_extract, size_toByteArray, utf8ByteSize_copy] at h'
-  suffices pos₂.offset.byteIdx ≤ s.utf8ByteSize by omega
-  simpa [Pos.le_iff, Pos.Raw.le_iff] using pos₂.le_endPos
+  simp only [ByteArray.size_extract, size_toByteArray, utf8ByteSize_copy,
+    Slice.Pos.offset_copy, Pos.Raw.byteIdx_unoffsetBy, Slice.utf8ByteSize_eq] at h' h
+  have := Pos.Raw.le_iff.1 pos₁.isValidForSlice.offset_startInclusive_le
+  have := Pos.Raw.le_iff.1 pos₂.isValidForSlice.offset_startInclusive_le
+  have := Pos.Raw.le_iff.1 pos₂.isValidForSlice.le_offset_endExclusive
+  omega
 
 theorem offset_of_isLongestRevMatchAt {pat s : Slice} {pos₁ pos₂ : s.Pos}
     (h : pat.isEmpty = false) (h' : IsLongestRevMatchAt pat pos₁ pos₂) :
     pos₂.offset = pos₁.offset.increaseBy pat.utf8ByteSize := by
-  simp only [Pos.Raw.ext_iff, Pos.Raw.byteIdx_increaseBy]
+  simp only [Pos.Raw.ext_iff, Pos.Raw.byteIdx_increaseBy, Slice.utf8ByteSize_eq (s := pat)]
   rw [isLongestRevMatchAt_iff_extract h] at h'
   rw [← Slice.toByteArray_copy_ne_empty_iff, ← h', ne_eq, ByteArray.extract_eq_empty_iff] at h
   replace h' := congrArg ByteArray.size h'
-  simp only [ByteArray.size_extract, size_toByteArray, utf8ByteSize_copy] at h'
-  suffices pos₂.offset.byteIdx ≤ s.utf8ByteSize by omega
-  simpa [Pos.le_iff, Pos.Raw.le_iff] using pos₂.le_endPos
+  simp only [ByteArray.size_extract, size_toByteArray, utf8ByteSize_copy,
+    Slice.Pos.offset_copy, Pos.Raw.byteIdx_unoffsetBy, Slice.utf8ByteSize_eq] at h' h
+  have := Pos.Raw.le_iff.1 pos₁.isValidForSlice.offset_startInclusive_le
+  have := Pos.Raw.le_iff.1 pos₂.isValidForSlice.offset_startInclusive_le
+  have := Pos.Raw.le_iff.1 pos₂.isValidForSlice.le_offset_endExclusive
+  omega
 
 theorem matchesAt_iff_splits {pat s : Slice} {pos : s.Pos} (h : pat.isEmpty = false) :
     MatchesAt pat pos ↔ ∃ t₁ t₂, pos.Splits t₁ (pat.copy ++ t₂) := by
@@ -149,10 +161,12 @@ theorem exists_matchesAt_iff_eq_append {pat s : Slice} (h : pat.isEmpty = false)
   · rintro ⟨pos, t₁, t₂, hsplit⟩
     exact ⟨t₁, t₂, by rw [hsplit.eq_append, append_assoc]⟩
   · rintro ⟨t₁, t₂, heq⟩
-    have hvalid : t₁.rawEndPos.IsValidForSlice s :=
+    have hvalid : (t₁.rawEndPos.offsetBy s.startInclusive.offset).IsValidForSlice s :=
       Pos.Raw.isValidForSlice_iff_exists_append.mpr
         ⟨t₁, pat.copy ++ t₂, by rw [← append_assoc]; exact heq, rfl⟩
-    exact ⟨s.pos _ hvalid, t₁, t₂, ⟨by rw [← append_assoc]; exact heq, by simp⟩⟩
+    exact ⟨s.pos _ hvalid, t₁, t₂,
+      ⟨by rw [← append_assoc]; exact heq,
+       by simp [Pos.Raw.ext_iff, Pos.Raw.unoffsetBy, Pos.Raw.offsetBy]⟩⟩
 
 theorem exists_revMatchesAt_iff_eq_append {pat s : Slice} (h : pat.isEmpty = false) :
     (∃ (pos : s.Pos), RevMatchesAt pat pos) ↔ ∃ t₁ t₂, s.copy = t₁ ++ pat.copy ++ t₂ := by
@@ -161,10 +175,11 @@ theorem exists_revMatchesAt_iff_eq_append {pat s : Slice} (h : pat.isEmpty = fal
   · rintro ⟨pos, t₁, t₂, hsplit⟩
     exact ⟨t₁, t₂, by rw [hsplit.eq_append, append_assoc]⟩
   · rintro ⟨t₁, t₂, heq⟩
-    have hvalid : (t₁ ++ pat.copy).rawEndPos.IsValidForSlice s :=
+    have hvalid : ((t₁ ++ pat.copy).rawEndPos.offsetBy s.startInclusive.offset).IsValidForSlice s :=
       Pos.Raw.isValidForSlice_iff_exists_append.mpr
         ⟨t₁ ++ pat.copy, t₂, heq, rfl⟩
-    exact ⟨s.pos _ hvalid, t₁, t₂, ⟨heq, by simp⟩⟩
+    exact ⟨s.pos _ hvalid, t₁, t₂,
+      ⟨heq, by simp [Pos.Raw.ext_iff, Pos.Raw.unoffsetBy, Pos.Raw.offsetBy]⟩⟩
 
 theorem matchesAt_iff_isLongestMatchAt {pat s : Slice} {pos : s.Pos} (h : pat.isEmpty = false) :
     MatchesAt pat pos ↔ ∃ (h : (pos.offset.increaseBy pat.utf8ByteSize).IsValidForSlice s),
@@ -184,49 +199,74 @@ theorem revMatchesAt_iff_isLongestRevMatchAt {pat s : Slice} {pos : s.Pos}
   have hoff := offset_of_isLongestRevMatchAt h h'
   have hvalid : (pos.offset.decreaseBy pat.utf8ByteSize).IsValidForSlice s := by
     rw [show pos.offset.decreaseBy pat.utf8ByteSize = p.offset from by
-      simp [Pos.Raw.ext_iff, Pos.Raw.byteIdx_decreaseBy, Pos.Raw.byteIdx_increaseBy] at hoff ⊢
+      simp [Pos.Raw.ext_iff, Pos.Raw.byteIdx_decreaseBy] at hoff ⊢
       omega]
     exact p.isValidForSlice
   refine ⟨hvalid, ?_⟩
   obtain rfl : p = s.pos _ hvalid := by
     simp only [Pos.ext_iff, offset_pos]
-    simp [Pos.Raw.ext_iff, Pos.Raw.byteIdx_decreaseBy, Pos.Raw.byteIdx_increaseBy] at hoff ⊢
+    simp [Pos.Raw.ext_iff, Pos.Raw.byteIdx_decreaseBy] at hoff ⊢
     omega
   exact h'
 
 theorem matchesAt_iff_getElem {pat s : Slice} {pos : s.Pos} (h : pat.isEmpty = false) :
     MatchesAt pat pos ↔
-      ∃ (h : pos.offset.byteIdx + pat.copy.toByteArray.size ≤ s.copy.toByteArray.size),
+      ∃ (h : pos.copy.offset.byteIdx + pat.copy.toByteArray.size ≤ s.copy.toByteArray.size),
         ∀ (j), (hj : j < pat.copy.toByteArray.size) →
-          pat.copy.toByteArray[j] = s.copy.toByteArray[pos.offset.byteIdx + j] := by
+          pat.copy.toByteArray[j] = s.copy.toByteArray[pos.copy.offset.byteIdx + j] := by
   rw [matchesAt_iff_isLongestMatchAt h]
   refine ⟨fun ⟨h₁, h₂⟩ => ?_, fun ⟨h₁, h₂⟩ => ?_⟩
-  · refine ⟨by simpa using h₁.le_utf8ByteSize, fun j hj => ?_⟩
-    rw [isLongestMatchAt_iff_extract h] at h₂
-    replace h₂ := congrArg (·[j]?) h₂
-    simp only [offset_pos, Pos.Raw.byteIdx_increaseBy] at h₂
-    rw [getElem?_pos, getElem?_pos, ByteArray.getElem_extract] at h₂
-    · simpa using h₂.symm
-    · have := h₁.le_utf8ByteSize
-      simp only [Pos.Raw.byteIdx_increaseBy, size_toByteArray, utf8ByteSize_copy,
-        ByteArray.size_extract, gt_iff_lt] at this ⊢ hj
+  · have hle_start := Pos.Raw.le_iff.1 pos.isValidForSlice.offset_startInclusive_le
+    have hle_end := Pos.Raw.le_iff.1 h₁.le_offset_endExclusive
+    refine ⟨?_, fun j hj => ?_⟩
+    · simp only [Slice.Pos.offset_copy, Pos.Raw.byteIdx_unoffsetBy, size_toByteArray,
+        utf8ByteSize_copy, Pos.Raw.byteIdx_increaseBy, Slice.utf8ByteSize_eq] at hle_end ⊢
       omega
-  · suffices s.copy.toByteArray.extract pos.offset.byteIdx
-        (pos.offset.byteIdx + pat.copy.toByteArray.size) = pat.copy.toByteArray by
-      have h₀ := (((Pos.Raw.isValidUTF8_extract_iff _ _ ?_ ?_).1
-        (this ▸ pat.copy.isValidUTF8)).resolve_left ?_).2
-      · exact ⟨by simpa using h₀, (isLongestMatchAt_iff_extract h).2 (by simpa using this)⟩
-      · simp [Pos.Raw.le_iff]
-      · simpa [Pos.Raw.le_iff] using h₁
-      · simpa [Pos.Raw.ext_iff, ← Slice.isEmpty_iff]
-    refine ByteArray.ext_getElem ?_ (fun i hi hi' => ?_)
-    · simp only [size_toByteArray, utf8ByteSize_copy, ByteArray.size_extract] at ⊢ h₁
-      omega
-    · simp [ByteArray.getElem_extract, h₂]
+    · rw [isLongestMatchAt_iff_extract h] at h₂
+      replace h₂ := congrArg (·[j]?) h₂
+      simp only [offset_pos, Pos.Raw.byteIdx_increaseBy, Slice.Pos.offset_copy,
+        Pos.Raw.byteIdx_unoffsetBy] at h₂
+      rw [getElem?_pos, getElem?_pos, ByteArray.getElem_extract] at h₂
+      · simpa using h₂.symm
+      · simp only [Pos.Raw.byteIdx_increaseBy, size_toByteArray, utf8ByteSize_copy,
+          ByteArray.size_extract, Slice.utf8ByteSize_eq] at hle_end ⊢ hj
+        omega
+  · have hle_start := Pos.Raw.le_iff.1 pos.isValidForSlice.offset_startInclusive_le
+    -- First, build the extract equality on s.copy
+    have hext : s.copy.toByteArray.extract pos.copy.offset.byteIdx
+        (pos.copy.offset.byteIdx + pat.copy.toByteArray.size) = pat.copy.toByteArray := by
+      refine ByteArray.ext_getElem ?_ (fun i hi hi' => ?_)
+      · simp only [size_toByteArray, utf8ByteSize_copy, ByteArray.size_extract] at ⊢ h₁
+        omega
+      · simp [ByteArray.getElem_extract, h₂]
+    -- Use isValidUTF8_extract_iff to get validity on s.copy
+    have h₀ := (((Pos.Raw.isValidUTF8_extract_iff (s := s.copy) _ _
+      (by simp [Pos.Raw.le_iff])
+      (by simpa [Pos.Raw.le_iff] using h₁)).1
+      (hext ▸ pat.copy.isValidUTF8)).resolve_left
+      (by simpa [Pos.Raw.ext_iff, ← Slice.isEmpty_iff])).2
+    -- Convert to IsValidForSlice on s
+    have hvalid : (pos.offset.increaseBy pat.utf8ByteSize).IsValidForSlice s := by
+      rw [show pos.offset.increaseBy pat.utf8ByteSize =
+          (⟨pos.copy.offset.byteIdx + pat.copy.toByteArray.size⟩ : Pos.Raw).offsetBy
+            s.startInclusive.offset from by
+        simp [Pos.Raw.ext_iff, Pos.Raw.offsetBy, Slice.Pos.offset_copy,
+          Pos.Raw.byteIdx_unoffsetBy, size_toByteArray, utf8ByteSize_copy]; omega]
+      exact Pos.Raw.isValid_copy_iff.1 h₀
+    refine ⟨hvalid, (isLongestMatchAt_iff_extract h).2 ?_⟩
+    -- Match the extract indices
+    simp only [Slice.Pos.offset_copy, Pos.Raw.byteIdx_unoffsetBy, Pos.Raw.byteIdx_increaseBy,
+      offset_pos, size_toByteArray, utf8ByteSize_copy] at hext ⊢
+    rw [show pos.offset.byteIdx + pat.utf8ByteSize - s.startInclusive.offset.byteIdx =
+        pos.offset.byteIdx - s.startInclusive.offset.byteIdx + pat.utf8ByteSize from by omega]
+    exact hext
 
 theorem le_of_matchesAt {pat s : Slice} {pos : s.Pos} (h : pat.isEmpty = false)
-    (h' : MatchesAt pat pos) : pos.offset.increaseBy pat.utf8ByteSize ≤ s.rawEndPos := by
-  simpa [Pos.Raw.le_iff] using ((matchesAt_iff_getElem h).1 h').1
+    (h' : MatchesAt pat pos) : pos.copy.offset.increaseBy pat.utf8ByteSize ≤ s.rawEndPos := by
+  have := ((matchesAt_iff_getElem h).1 h').1
+  simp only [Slice.Pos.offset_copy, Pos.Raw.byteIdx_unoffsetBy, size_toByteArray,
+    utf8ByteSize_copy, Pos.Raw.le_iff, Pos.Raw.byteIdx_increaseBy, Slice.byteIdx_rawEndPos] at this ⊢
+  omega
 
 end ForwardSliceSearcher
 
@@ -334,7 +374,7 @@ theorem isLongestRevMatchAt_iff_splits {pat : String} {s : Slice} {pos₁ pos₂
 theorem isLongestMatchAt_iff_extract {pat : String} {s : Slice} {pos₁ pos₂ : s.Pos}
     (h : pat ≠ "") :
     IsLongestMatchAt pat pos₁ pos₂ ↔
-      s.copy.toByteArray.extract pos₁.offset.byteIdx pos₂.offset.byteIdx = pat.toByteArray := by
+      s.copy.toByteArray.extract pos₁.copy.offset.byteIdx pos₂.copy.offset.byteIdx = pat.toByteArray := by
   rw [isLongestMatchAt_iff_isLongestMatchAt_toSlice,
     ForwardSliceSearcher.isLongestMatchAt_iff_extract (toSlice_isEmpty h)]
   simp
@@ -342,7 +382,7 @@ theorem isLongestMatchAt_iff_extract {pat : String} {s : Slice} {pos₁ pos₂ :
 theorem isLongestRevMatchAt_iff_extract {pat : String} {s : Slice} {pos₁ pos₂ : s.Pos}
     (h : pat ≠ "") :
     IsLongestRevMatchAt pat pos₁ pos₂ ↔
-      s.copy.toByteArray.extract pos₁.offset.byteIdx pos₂.offset.byteIdx = pat.toByteArray := by
+      s.copy.toByteArray.extract pos₁.copy.offset.byteIdx pos₂.copy.offset.byteIdx = pat.toByteArray := by
   rw [isLongestRevMatchAt_iff_isLongestRevMatchAt_toSlice,
     ForwardSliceSearcher.isLongestRevMatchAt_iff_extract (toSlice_isEmpty h)]
   simp
@@ -380,10 +420,12 @@ theorem exists_matchesAt_iff_eq_append {pat : String} {s : Slice} (h : pat ≠ "
   · rintro ⟨pos, t₁, t₂, hsplit⟩
     exact ⟨t₁, t₂, by rw [hsplit.eq_append, append_assoc]⟩
   · rintro ⟨t₁, t₂, heq⟩
-    have hvalid : t₁.rawEndPos.IsValidForSlice s :=
+    have hvalid : (t₁.rawEndPos.offsetBy s.startInclusive.offset).IsValidForSlice s :=
       Pos.Raw.isValidForSlice_iff_exists_append.mpr
         ⟨t₁, pat ++ t₂, by rw [← append_assoc]; exact heq, rfl⟩
-    exact ⟨s.pos _ hvalid, t₁, t₂, ⟨by rw [← append_assoc]; exact heq, by simp⟩⟩
+    exact ⟨s.pos _ hvalid, t₁, t₂,
+      ⟨by rw [← append_assoc]; exact heq,
+       by simp [Pos.Raw.ext_iff, Pos.Raw.unoffsetBy, Pos.Raw.offsetBy]⟩⟩
 
 theorem exists_revMatchesAt_iff_eq_append {pat : String} {s : Slice} (h : pat ≠ "") :
     (∃ (pos : s.Pos), RevMatchesAt pat pos) ↔ ∃ t₁ t₂, s.copy = t₁ ++ pat ++ t₂ := by
@@ -414,16 +456,16 @@ theorem revMatchesAt_iff_isLongestRevMatchAt {pat : String} {s : Slice} {pos : s
 
 theorem matchesAt_iff_getElem {pat : String} {s : Slice} {pos : s.Pos} (h : pat ≠ "") :
     MatchesAt pat pos ↔
-      ∃ (h : pos.offset.byteIdx + pat.toByteArray.size ≤ s.copy.toByteArray.size),
+      ∃ (h : pos.copy.offset.byteIdx + pat.toByteArray.size ≤ s.copy.toByteArray.size),
         ∀ (j), (hj : j < pat.toByteArray.size) →
-          pat.toByteArray[j] = s.copy.toByteArray[pos.offset.byteIdx + j] := by
+          pat.toByteArray[j] = s.copy.toByteArray[pos.copy.offset.byteIdx + j] := by
   have key := ForwardSliceSearcher.matchesAt_iff_getElem (pat := pat.toSlice)
     (toSlice_isEmpty h) (pos := pos)
   simp only [copy_toSlice] at key
   rwa [matchesAt_iff_toSlice]
 
 theorem le_of_matchesAt {pat : String} {s : Slice} {pos : s.Pos} (h : pat ≠ "")
-    (h' : MatchesAt pat pos) : pos.offset.increaseBy pat.utf8ByteSize ≤ s.rawEndPos := by
+    (h' : MatchesAt pat pos) : pos.copy.offset.increaseBy pat.utf8ByteSize ≤ s.rawEndPos := by
   rw [show pat.utf8ByteSize = pat.toSlice.utf8ByteSize from utf8ByteSize_toSlice.symm]
   exact ForwardSliceSearcher.le_of_matchesAt (toSlice_isEmpty h)
     (matchesAt_iff_toSlice.1 h')

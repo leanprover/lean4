@@ -24,26 +24,27 @@ namespace String
 /--
 Obtains the smallest valid position that is greater than or equal to the given byte position.
 -/
-def Slice.posGE (s : Slice) (offset : String.Pos.Raw) (h : offset ≤ s.rawEndPos) : s.Pos :=
+def Slice.posGE (s : Slice) (offset : String.Pos.Raw) (h : offset ≤ s.endExclusive.offset) : s.Pos :=
   if h' : offset.IsValidForSlice s then
     s.pos offset h'
   else
-    have : offset < s.rawEndPos := Std.not_le.1 (fun h₁ => h' (Std.le_antisymm h h₁ ▸ Pos.Raw.isValidForSlice_rawEndPos))
+    have : offset < s.endExclusive.offset :=
+      Std.not_le.1 (fun h₁ => h' (Std.le_antisymm h h₁ ▸ Pos.Raw.isValidForSlice_offset_endExclusive))
     s.posGE offset.inc (by simpa)
-termination_by s.utf8ByteSize - offset.byteIdx
+termination_by s.endExclusive.offset.byteIdx - offset.byteIdx
 decreasing_by
-  simp only [Pos.Raw.lt_iff, byteIdx_rawEndPos, Pos.Raw.byteIdx_inc] at this ⊢
+  simp only [Pos.Raw.lt_iff, Pos.Raw.byteIdx_inc] at this ⊢
   omega
 
 /--
 Obtains the smallest valid position that is strictly greater than the given byte position.
 -/
 @[inline]
-def Slice.posGT (s : Slice) (offset : String.Pos.Raw)  (h : offset < s.rawEndPos) : s.Pos :=
+def Slice.posGT (s : Slice) (offset : String.Pos.Raw)  (h : offset < s.endExclusive.offset) : s.Pos :=
   s.posGE offset.inc (by simpa)
 
 @[deprecated Slice.posGT (since := "2026-02-03")]
-def Slice.findNextPos (offset : String.Pos.Raw) (s : Slice) (h : offset < s.rawEndPos) : s.Pos :=
+def Slice.findNextPos (offset : String.Pos.Raw) (s : Slice) (h : offset < s.endExclusive.offset) : s.Pos :=
   s.posGT offset h
 
 /--
@@ -67,17 +68,18 @@ Obtains the largest valid position that is less than or equal to the given byte 
 def Slice.posLE (s : Slice) (offset : String.Pos.Raw) : s.Pos :=
   if h' : offset.IsValidForSlice s then
     s.pos offset h'
-  else
-    have : offset ≠ 0 := by rintro rfl; simp at h'
+  else if h : s.startInclusive.offset < offset then
     s.posLE offset.dec
-termination_by offset.byteIdx
-decreasing_by simp only [ne_eq, Pos.Raw.eq_zero_iff, Pos.Raw.byteIdx_dec] at ⊢ this; omega
+  else
+    s.startPos
+termination_by offset.byteIdx - s.startInclusive.offset.byteIdx
+decreasing_by simp only [Pos.Raw.lt_iff, Pos.Raw.byteIdx_dec] at ⊢ h; omega
 
 /--
 Obtains the largest valid position that is strictly less than the given byte position.
 -/
 @[inline, expose]
-def Slice.posLT (s : Slice) (offset : String.Pos.Raw) (_h : 0 < offset) : s.Pos :=
+def Slice.posLT (s : Slice) (offset : String.Pos.Raw) (_h : s.startInclusive.offset < offset) : s.Pos :=
   s.posLE offset.dec
 
 /--
@@ -92,7 +94,7 @@ Obtains the largest valid position that is strictly less than the given byte pos
 -/
 @[inline]
 def posLT (s : String) (offset : String.Pos.Raw) (h : 0 < offset) : s.Pos :=
-  Pos.ofToSlice (s.toSlice.posLT offset h)
+  Pos.ofToSlice (s.toSlice.posLT offset (by simpa))
 
 /--
 Returns the previous valid position before the given position, given a proof that the position
@@ -100,7 +102,10 @@ is not the start position, which guarantees that such a position exists.
 -/
 @[inline, expose]
 def Slice.Pos.prev {s : Slice} (pos : s.Pos) (h : pos ≠ s.startPos) : s.Pos :=
-  s.posLT pos.offset (by simpa [Pos.Raw.pos_iff_ne_zero, Pos.ext_iff] using h)
+  s.posLT pos.offset (by
+    have := pos.isValidForSlice.offset_startInclusive_le
+    simp [Pos.ext_iff, Pos.Raw.ext_iff, Pos.Raw.lt_iff, Pos.Raw.le_iff] at h this ⊢
+    omega)
 
 /-- Returns the previous valid position before the given position, or {lean}`none` if the position is
 the start position. -/

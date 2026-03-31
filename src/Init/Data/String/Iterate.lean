@@ -67,7 +67,7 @@ instance [Pure m] :
 private def finitenessRelation [Pure m] :
     Std.Iterators.FinitenessRelation (PosIterator s) m where
   Rel := InvImage WellFoundedRelation.rel
-      (fun it => s.utf8ByteSize - it.internalState.currPos.offset.byteIdx)
+      (fun it => s.endExclusive.offset.byteIdx - it.internalState.currPos.offset.byteIdx)
   wf := InvImage.wf _ WellFoundedRelation.wf
   subrelation {it it'} h := by
     simp_wf
@@ -76,8 +76,8 @@ private def finitenessRelation [Pure m] :
     · cases h
       obtain ⟨h1, h2, _⟩ := h'
       have h3 := Char.utf8Size_pos (it.internalState.currPos.get h1)
-      have h4 := it.internalState.currPos.isValidForSlice.le_utf8ByteSize
-      simp [Pos.ext_iff, String.Pos.Raw.ext_iff] at h1 h2 h4
+      have h4 := it.internalState.currPos.isValidForSlice.le_offset_endExclusive
+      simp [Pos.ext_iff, String.Pos.Raw.ext_iff, String.Pos.Raw.le_iff] at h1 h2 h4
       omega
     · cases h'
     · cases h
@@ -216,14 +216,14 @@ namespace ByteIterator
 instance [Pure m] : Std.Iterator ByteIterator m UInt8 where
   IsPlausibleStep it
     | .yield it' out =>
-      ∃ h1 : it.internalState.offset < it.internalState.s.rawEndPos,
+      ∃ h1 : it.internalState.offset < it.internalState.s.endExclusive.offset,
         it.internalState.s = it'.internalState.s ∧
         it'.internalState.offset = it.internalState.offset.inc ∧
         it.internalState.s.getUTF8Byte it.internalState.offset h1 = out
     | .skip _ => False
-    | .done => ¬ it.internalState.offset < it.internalState.s.rawEndPos
+    | .done => ¬ it.internalState.offset < it.internalState.s.endExclusive.offset
   step := fun ⟨s, offset⟩ =>
-    if h : offset < s.rawEndPos then
+    if h : offset < s.endExclusive.offset then
       pure (.deflate ⟨.yield ⟨s, offset.inc⟩ (s.getUTF8Byte offset h), by simp [h]⟩)
     else
       pure (.deflate ⟨.done, by simp [h]⟩)
@@ -231,7 +231,7 @@ instance [Pure m] : Std.Iterator ByteIterator m UInt8 where
 private def finitenessRelation [Pure m] :
     Std.Iterators.FinitenessRelation (ByteIterator) m where
   Rel := InvImage WellFoundedRelation.rel
-      (fun it => it.internalState.s.utf8ByteSize - it.internalState.offset.byteIdx)
+      (fun it => it.internalState.s.endExclusive.offset.byteIdx - it.internalState.offset.byteIdx)
   wf := InvImage.wf _ WellFoundedRelation.wf
   subrelation {it it'} h := by
     simp_wf
@@ -261,7 +261,7 @@ end ByteIterator
 structure RevByteIterator where
   s : Slice
   offset : String.Pos.Raw
-  hinv : offset ≤ s.rawEndPos
+  hinv : offset ≤ s.endExclusive.offset
 
 set_option doc.verso false
 /--
@@ -287,7 +287,7 @@ namespace RevByteIterator
 instance [Pure m] : Std.Iterator RevByteIterator m UInt8 where
   IsPlausibleStep it
     | .yield it' out =>
-      ∃ h1 : it.internalState.offset.dec < it.internalState.s.rawEndPos,
+      ∃ h1 : it.internalState.offset.dec < it.internalState.s.endExclusive.offset,
         it.internalState.s = it'.internalState.s ∧
         it.internalState.offset ≠ 0 ∧
         it'.internalState.offset = it.internalState.offset.dec ∧

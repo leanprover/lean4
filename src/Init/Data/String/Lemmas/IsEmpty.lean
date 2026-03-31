@@ -29,7 +29,10 @@ theorem isEmpty_iff {s : Slice} :
 theorem startPos_eq_endPos_iff {s : Slice} :
     s.startPos = s.endPos ↔ s.isEmpty := by
   rw [eq_comm]
-  simp [Slice.Pos.ext_iff, Pos.Raw.ext_iff, Slice.isEmpty_iff]
+  simp only [Slice.Pos.ext_iff, Pos.Raw.ext_iff, Slice.isEmpty_iff,
+    Slice.utf8ByteSize_eq, Slice.offset_startPos, Slice.offset_endPos]
+  have := Pos.Raw.le_iff.1 s.startInclusive_le_endExclusive
+  omega
 
 theorem startPos_ne_endPos_iff {s : Slice} :
     s.startPos ≠ s.endPos ↔ s.isEmpty = false := by

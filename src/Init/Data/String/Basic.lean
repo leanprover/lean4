@@ -856,27 +856,45 @@ theorem copy_toSlice {s : String} : s.toSlice.copy = s := by
 theorem copy_comp_toSlice : String.Slice.copy ∘ String.toSlice = id := by
   ext; simp
 
-theorem Slice.getUTF8Byte_eq_getUTF8Byte_copy {s : Slice} {p : Pos.Raw} {h : p < s.endExclusive.offset} :
-    s.getUTF8Byte p h = s.copy.getUTF8Byte (p.unoffsetBy s.startInclusive.offset) (by simpa) := by
-  simp [getUTF8Byte, String.getUTF8Byte, toByteArray_copy, ByteArray.getElem_extract]
+theorem Slice.getUTF8Byte_eq_getUTF8Byte_copy {s : Slice} {p : Pos.Raw}
+    (hs : s.startInclusive.offset ≤ p) {h : p < s.endExclusive.offset} :
+    s.getUTF8Byte p h = s.copy.getUTF8Byte (p.unoffsetBy s.startInclusive.offset) (by
+      simp only [rawEndPos_copy, Pos.Raw.lt_iff, Pos.Raw.unoffsetBy, utf8ByteSize_eq,
+        Pos.Raw.le_iff] at *
+      omega) := by
+  simp only [getUTF8Byte, String.getUTF8Byte, toByteArray_copy, ByteArray.getElem_extract]
+  congr 1
+  simp only [Pos.Raw.unoffsetBy, Pos.Raw.le_iff] at *
+  omega
 
 theorem Slice.getUTF8Byte_copy {s : Slice} {p : Pos.Raw} {h} :
-    s.copy.getUTF8Byte p h = s.getUTF8Byte p (by simpa using h) := by
-  rw [getUTF8Byte_eq_getUTF8Byte_copy]
+    s.copy.getUTF8Byte p h = s.getUTF8Byte (p.offsetBy s.startInclusive.offset) (by
+      have := s.startInclusive_le_endExclusive
+      simp only [rawEndPos_copy, Pos.Raw.lt_iff, Pos.Raw.offsetBy, utf8ByteSize_eq,
+        Pos.Raw.le_iff, Pos.Raw.unoffsetBy, Pos.le_iff] at *
+      omega) := by
+  simp only [Slice.getUTF8Byte, String.getUTF8Byte, toByteArray_copy,
+    ByteArray.getElem_extract, Pos.Raw.offsetBy]
 
-theorem Slice.isUTF8FirstByte_utf8ByteAt_zero {s : Slice} {h} :
-    (s.getUTF8Byte 0 h).IsUTF8FirstByte := by
-  simpa [getUTF8Byte_eq_getUTF8Byte_copy] using s.copy.isUTF8FirstByte_getUTF8Byte_zero
+theorem Slice.isUTF8FirstByte_getUTF8Byte_startInclusive {s : Slice} {h} :
+    (s.getUTF8Byte s.startInclusive.offset h).IsUTF8FirstByte := by
+  rw [getUTF8Byte_eq_getUTF8Byte_copy (by simp)]
+  simp only [Pos.Raw.unoffsetBy, Nat.sub_self, Pos.Raw.byteIdx_zero]
+  exact s.copy.isUTF8FirstByte_getUTF8Byte_zero
 
 @[simp]
 theorem Pos.Raw.isValid_copy_iff {s : Slice} {p : Pos.Raw} :
-    p.IsValid s.copy ↔ p.IsValidForSlice s := by
+    p.IsValid s.copy ↔ (p.offsetBy s.startInclusive.offset).IsValidForSlice s := by
   rw [isValid_iff_isValidUTF8_extract_zero]
-  refine ⟨fun ⟨h₁, h₂⟩ => ⟨?_, ?_⟩, fun ⟨h₁, h₂⟩ => ⟨?_, ?_⟩⟩
-  · simpa using h₁
+  refine ⟨fun ⟨h₁, h₂⟩ => ⟨?_, ?_, ?_⟩, fun ⟨h₁, h₂, h₃⟩ => ⟨?_, ?_⟩⟩
+  · simp [Pos.Raw.le_iff, Pos.Raw.offsetBy]
   · have := s.startInclusive_le_endExclusive
-    simp_all only [Slice.rawEndPos_copy, le_iff, Slice.byteIdx_rawEndPos, Slice.utf8ByteSize_eq,
-      Pos.le_iff]
+    simp only [Slice.rawEndPos_copy, le_iff, Slice.utf8ByteSize_eq,
+      Pos.le_iff, Pos.Raw.le_iff, Pos.Raw.offsetBy, Pos.Raw.unoffsetBy] at *
+    omega
+  · have := s.startInclusive_le_endExclusive
+    simp only [Slice.rawEndPos_copy, le_iff, Slice.utf8ByteSize_eq,
+      Pos.le_iff, Pos.Raw.unoffsetBy] at *
     rw [Slice.toByteArray_copy, ByteArray.extract_extract, Nat.add_zero, Nat.min_eq_left (by omega)] at h₂
     rw [← byteIdx_offsetBy, Pos.Raw.isValidUTF8_extract_iff] at h₂
     · rcases h₂ with (h₂|⟨-, h₂⟩)
@@ -887,43 +905,99 @@ theorem Pos.Raw.isValid_copy_iff {s : Slice} {p : Pos.Raw} :
     · have := s.endExclusive.isValid.le_rawEndPos
       simp_all [le_iff]
       omega
-  · simpa using h₁
   · have := s.startInclusive_le_endExclusive
-    simp_all only [le_iff, Slice.byteIdx_rawEndPos, Slice.utf8ByteSize_eq, Pos.le_iff]
+    simp only [Pos.Raw.le_iff, Pos.Raw.offsetBy, Pos.le_iff] at h₂ ⊢
+    simp only [Slice.rawEndPos_copy, le_iff, Slice.utf8ByteSize_eq, Pos.Raw.le_iff,
+      Pos.Raw.unoffsetBy]
+    omega
+  · have := s.startInclusive_le_endExclusive
+    simp only [le_iff, Slice.utf8ByteSize_eq, Pos.le_iff, Pos.Raw.le_iff, Pos.Raw.offsetBy] at h₁ h₂
     rw [Slice.toByteArray_copy, ByteArray.extract_extract, Nat.add_zero, Nat.min_eq_left (by omega)]
     rw [← byteIdx_offsetBy, Pos.Raw.isValidUTF8_extract_iff]
-    · exact Or.inr ⟨s.startInclusive.isValid, h₂⟩
+    · exact Or.inr ⟨s.startInclusive.isValid, h₃⟩
     · simp [le_iff]
     · have := s.endExclusive.isValid.le_rawEndPos
       simp_all [le_iff]
       omega
 
 theorem Pos.Raw.isValidForSlice_iff_isUTF8FirstByte {s : Slice} {p : Pos.Raw} :
-    p.IsValidForSlice s ↔ (p = s.rawEndPos ∨ (∃ (h : p < s.rawEndPos), (s.getUTF8Byte p h).IsUTF8FirstByte)) := by
-  simp [← isValid_copy_iff, isValid_iff_isUTF8FirstByte, Slice.getUTF8Byte_copy]
+    p.IsValidForSlice s ↔ (p = s.endExclusive.offset ∨
+      (s.startInclusive.offset ≤ p ∧ ∃ (h : p < s.endExclusive.offset), (s.getUTF8Byte p h).IsUTF8FirstByte)) := by
+  constructor
+  · intro ⟨h₁, h₂, h₃⟩
+    rcases Nat.lt_or_eq_of_le (Pos.Raw.le_iff.1 h₂) with h | h
+    · refine Or.inr ⟨h₁, Pos.Raw.lt_iff.2 h, ?_⟩
+      exact (isValid_iff_isUTF8FirstByte.1 h₃).elim
+        (fun h' => absurd (Pos.Raw.ext_iff.1 h' ▸ h) (by
+          have := s.endExclusive.isValid.le_rawEndPos
+          simp [le_iff] at *; omega))
+        (fun ⟨_, hb⟩ => hb)
+    · exact Or.inl (Pos.Raw.ext_iff.2 h)
+  · rintro (rfl | ⟨h₁, h₂, h₃⟩)
+    · exact Pos.Raw.isValidForSlice_offset_endExclusive
+    · exact ⟨h₁, Pos.Raw.le_of_lt h₂,
+        isValid_iff_isUTF8FirstByte.2 (Or.inr ⟨by
+          have h' := s.endExclusive.isValid.le_rawEndPos
+          simp only [Pos.Raw.lt_iff, Pos.Raw.le_iff] at h₂ h' ⊢; omega, h₃⟩)⟩
 
 theorem Pos.Raw.isValidForSlice_iff_exists_append {s : Slice} {p : Pos.Raw} :
-    p.IsValidForSlice s ↔ ∃ t₁ t₂, s.copy = t₁ ++ t₂ ∧ p = t₁.rawEndPos := by
-  rw [← isValid_copy_iff, isValid_iff_exists_append]
+    p.IsValidForSlice s ↔ ∃ t₁ t₂, s.copy = t₁ ++ t₂ ∧ p = t₁.rawEndPos.offsetBy s.startInclusive.offset := by
+  constructor
+  · intro h
+    have heq : (p.unoffsetBy s.startInclusive.offset).offsetBy s.startInclusive.offset = p :=
+      offsetBy_unoffsetBy_of_le h.offset_startInclusive_le
+    have hv : (p.unoffsetBy s.startInclusive.offset).IsValid s.copy := by
+      rw [isValid_copy_iff, heq]; exact h
+    obtain ⟨t₁, t₂, ht, hp⟩ := isValid_iff_exists_append.1 hv
+    exact ⟨t₁, t₂, ht, by rw [← hp, heq]⟩
+  · rintro ⟨t₁, t₂, ht, rfl⟩
+    exact isValid_copy_iff.1 (isValid_iff_exists_append.2 ⟨t₁, t₂, ht, by simp⟩)
 
 /-- Efficiently checks whether a position is at a UTF-8 character boundary of the slice `s`. -/
 @[expose]
 def Pos.Raw.isValidForSlice (s : Slice) (p : Pos.Raw) : Bool :=
-  if h : p < s.rawEndPos then
-    (s.getUTF8Byte p h).IsUTF8FirstByte
+  if s.startInclusive.offset ≤ p then
+    if h : p < s.endExclusive.offset then
+      (s.getUTF8Byte p h).IsUTF8FirstByte
+    else
+      p = s.endExclusive.offset
   else
-    p = s.rawEndPos
+    false
 
 @[simp]
 theorem Pos.Raw.isValidForSlice_eq_true_iff {s : Slice} {p : Pos.Raw} :
     p.isValidForSlice s = true ↔ p.IsValidForSlice s := by
-  rw [isValidForSlice_iff_isUTF8FirstByte]
-  fun_cases isValidForSlice with
-  | case1 h =>
-    simp_all only [decide_eq_true_eq, exists_true_left, iff_or_self]
-    rintro rfl
-    simp [lt_iff] at h
-  | case2 => simp_all
+  constructor
+  · intro h
+    simp only [isValidForSlice] at h
+    split at h
+    · rename_i h₁
+      split at h
+      · rename_i h₂
+        simp only [decide_eq_true_eq] at h
+        have h₃ := s.endExclusive.isValid.le_rawEndPos
+        refine ⟨h₁, Pos.Raw.le_of_lt h₂,
+          isValid_iff_isUTF8FirstByte.2 (Or.inr ⟨?_, ?_⟩)⟩
+        · simp only [Pos.Raw.lt_iff, Pos.Raw.le_iff] at h₂ h₃ ⊢; omega
+        · simp only [Slice.getUTF8Byte] at h; exact h
+      · simp only [decide_eq_true_eq] at h
+        subst h
+        exact isValidForSlice_offset_endExclusive
+    · simp at h
+  · intro ⟨h₁, h₂, h₃⟩
+    simp only [isValidForSlice, h₁, ↓reduceIte]
+    rcases Nat.lt_or_eq_of_le (Pos.Raw.le_iff.1 h₂) with h | h
+    · simp only [Pos.Raw.lt_iff.2 h, ↓reduceDIte, decide_eq_true_eq]
+      have hlt : p < s.str.rawEndPos := by
+        have := s.endExclusive.isValid.le_rawEndPos
+        simp only [Pos.Raw.lt_iff, Pos.Raw.le_iff] at *; omega
+      exact (isValid_iff_isUTF8FirstByte.1 h₃).elim
+        (fun h' => absurd (Pos.Raw.ext_iff.1 h') (by
+          simp only [Pos.Raw.lt_iff, byteIdx_rawEndPos] at hlt ⊢; omega))
+        (fun ⟨_, hb⟩ => by simp only [Slice.getUTF8Byte]; exact hb)
+    · have : ¬ (p < s.endExclusive.offset) := by simp [Pos.Raw.lt_iff]; omega
+      simp only [this, ↓reduceDIte, decide_eq_true_eq]
+      exact Pos.Raw.ext_iff.2 h
 
 @[simp]
 theorem Pos.Raw.isValidForSlice_eq_false_iff {s : Slice} {p : Pos.Raw} :
@@ -934,8 +1008,36 @@ instance {s : Slice} {p : Pos.Raw} : Decidable (p.IsValidForSlice s) :=
   decidable_of_iff _ Pos.Raw.isValidForSlice_eq_true_iff
 
 theorem Pos.Raw.isValidForSlice_iff_isSome_utf8DecodeChar?_copy {s : Slice} {p : Pos.Raw} :
-    p.IsValidForSlice s ↔ p = s.rawEndPos ∨ (s.copy.toByteArray.utf8DecodeChar? p.byteIdx).isSome := by
-  rw [← isValid_copy_iff, isValid_iff_isSome_utf8DecodeChar?, Slice.rawEndPos_copy]
+    p.IsValidForSlice s ↔ p = s.endExclusive.offset ∨
+      (s.startInclusive.offset ≤ p ∧ (s.copy.toByteArray.utf8DecodeChar? (p.unoffsetBy s.startInclusive.offset).byteIdx).isSome) := by
+  constructor
+  · intro ⟨h₁, h₂, h₃⟩
+    have heq : (p.unoffsetBy s.startInclusive.offset).offsetBy s.startInclusive.offset = p := by
+      simp only [Pos.Raw.ext_iff, Pos.Raw.offsetBy, Pos.Raw.unoffsetBy, Pos.Raw.le_iff] at h₁ ⊢
+      omega
+    have key : (p.unoffsetBy s.startInclusive.offset).IsValid s.copy := by
+      rw [isValid_copy_iff]
+      rw [heq]
+      exact ⟨h₁, h₂, h₃⟩
+    rw [isValid_iff_isSome_utf8DecodeChar?] at key
+    rcases key with (h | h)
+    · left
+      have := s.startInclusive_le_endExclusive
+      simp only [Pos.Raw.ext_iff, Slice.rawEndPos_copy, Pos.Raw.unoffsetBy,
+        Slice.utf8ByteSize_eq, Pos.Raw.le_iff, Pos.le_iff] at h h₁ this ⊢
+      omega
+    · exact Or.inr ⟨h₁, h⟩
+  · rintro (rfl | ⟨h₁, h₂⟩)
+    · exact isValidForSlice_offset_endExclusive
+    · have key : (p.unoffsetBy s.startInclusive.offset).IsValid s.copy := by
+        rw [isValid_iff_isSome_utf8DecodeChar?]
+        exact Or.inr h₂
+      rw [isValid_copy_iff] at key
+      have heq : (p.unoffsetBy s.startInclusive.offset).offsetBy s.startInclusive.offset = p := by
+        simp only [Pos.Raw.ext_iff, Pos.Raw.offsetBy, Pos.Raw.unoffsetBy, Pos.Raw.le_iff] at h₁ ⊢
+        omega
+      rw [heq] at key
+      exact key
 
 theorem Slice.toByteArray_str_eq {s : Slice} :
     s.str.toByteArray = s.str.toByteArray.extract 0 s.startInclusive.offset.byteIdx ++
@@ -948,73 +1050,53 @@ theorem Slice.toByteArray_str_eq {s : Slice} :
   · simpa [Pos.Raw.le_iff] using s.startInclusive_le_endExclusive
 
 theorem Pos.Raw.isValidForSlice_iff_isSome_utf8DecodeChar? {s : Slice} {p : Pos.Raw} :
-    p.IsValidForSlice s ↔ p = s.rawEndPos ∨ (p < s.rawEndPos ∧ (s.str.toByteArray.utf8DecodeChar? (s.startInclusive.offset.byteIdx + p.byteIdx)).isSome) := by
-  refine ⟨?_, ?_⟩
-  · rw [isValidForSlice_iff_isSome_utf8DecodeChar?_copy]
-    rintro (rfl|h)
-    · simp
-    · refine Or.inr ⟨?_, ?_⟩
-      · have := ByteArray.lt_size_of_isSome_utf8DecodeChar? h
-        simpa [Pos.Raw.lt_iff] using this
-      · rw [ByteArray.utf8DecodeChar?_eq_utf8DecodeChar?_extract] at h
-        rw [Slice.toByteArray_str_eq, ByteArray.append_assoc, ByteArray.utf8DecodeChar?_eq_utf8DecodeChar?_extract]
-        simp only [ByteArray.size_append, ByteArray.size_extract, Nat.sub_zero, Nat.le_refl,
-          Nat.min_eq_left]
-        have h' : s.startInclusive.offset.byteIdx ≤ s.str.toByteArray.size := by
-          simpa [le_iff] using s.startInclusive.isValid.le_rawEndPos
-        rw [Nat.min_eq_left h', ByteArray.extract_append_size_add' (by simp [size_toByteArray ▸ h']),
-          ByteArray.extract_append, Nat.add_sub_cancel_left]
-        rw [ByteArray.extract_eq_extract_append_extract s.copy.toByteArray.size]
-        · rw [ByteArray.append_assoc]
-          apply ByteArray.isSome_utf8DecodeChar?_append h
-        · have := ByteArray.lt_size_of_isSome_utf8DecodeChar? h
-          simp only [size_toByteArray, Slice.utf8ByteSize_copy, ByteArray.size_extract, Nat.le_refl,
-            Nat.min_eq_left] at this
-          simp only [size_toByteArray, Slice.utf8ByteSize_copy, ge_iff_le]
-          omega
-        · simp
-  · rw [isValidForSlice_iff_isUTF8FirstByte]
-    rintro (rfl|⟨h₁, h₂⟩)
-    · simp
-    · exact Or.inr ⟨h₁, ByteArray.isUTF8FirstByte_of_isSome_utf8DecodeChar? h₂⟩
+    p.IsValidForSlice s ↔ p = s.endExclusive.offset ∨
+      (s.startInclusive.offset ≤ p ∧ p < s.endExclusive.offset ∧ (s.str.toByteArray.utf8DecodeChar? p.byteIdx).isSome) := by
+  constructor
+  · intro ⟨h₁, h₂, h₃⟩
+    rcases Nat.lt_or_eq_of_le (le_iff.1 h₂) with h | h
+    · refine Or.inr ⟨h₁, lt_iff.2 h, ?_⟩
+      exact (isValid_iff_isSome_utf8DecodeChar?.1 h₃).elim
+        (fun h' => absurd (Pos.Raw.ext_iff.1 h' ▸ h) (by
+          have := s.endExclusive.isValid.le_rawEndPos
+          simp [le_iff] at *; omega))
+        id
+    · exact Or.inl (Pos.Raw.ext_iff.2 h)
+  · rintro (rfl | ⟨h₁, h₂, h₃⟩)
+    · exact isValidForSlice_offset_endExclusive
+    · exact ⟨h₁, le_of_lt h₂, isValid_iff_isSome_utf8DecodeChar?.2 (Or.inr h₃)⟩
 
 theorem Slice.Pos.isUTF8FirstByte_byte {s : Slice} {pos : s.Pos} {h : pos ≠ s.endPos} :
     (pos.byte h).IsUTF8FirstByte :=
-  ((Pos.Raw.isValidForSlice_iff_isUTF8FirstByte.1 pos.isValidForSlice).elim (fun h' => (h (Pos.ext h')).elim) (·.2))
+  ((Pos.Raw.isValidForSlice_iff_isUTF8FirstByte.1 pos.isValidForSlice).elim (fun h' => (h (Pos.ext h')).elim) (·.2.2))
 
 /-- Given a valid position on a slice `s`, obtains the corresponding valid position on the
 underlying string `s.str`. -/
 @[inline]
 def Slice.Pos.str {s : Slice} (pos : s.Pos) : s.str.Pos where
-  offset := pos.offset.offsetBy s.startInclusive.offset
-  isValid := pos.isValidForSlice.isValid_offsetBy
+  offset := pos.offset
+  isValid := pos.isValidForSlice.isValid
 
 @[simp]
 theorem Slice.Pos.offset_str {s : Slice} {pos : s.Pos} :
-    pos.str.offset = pos.offset.offsetBy s.startInclusive.offset := (rfl)
+    pos.str.offset = pos.offset := (rfl)
 
 @[simp]
 theorem Slice.Pos.offset_str_le_offset_endExclusive {s : Slice} {pos : s.Pos} :
     pos.str.offset ≤ s.endExclusive.offset := by
-  have := pos.isValidForSlice.le_rawEndPos
-  have := s.startInclusive_le_endExclusive
-  simp only [Pos.Raw.le_iff, byteIdx_rawEndPos, utf8ByteSize_eq, offset_str,
-    Pos.Raw.byteIdx_offsetBy, String.Pos.le_iff] at *
-  omega
-
-theorem Slice.Pos.offset_le_offset_str {s : Slice} {pos : s.Pos} :
-    pos.offset ≤ pos.str.offset := by
-  simp [String.Pos.Raw.le_iff]
+  simp only [offset_str]
+  exact pos.isValidForSlice.le_offset_endExclusive
 
 @[simp]
 theorem Slice.Pos.offset_le_offset_endExclusive {s : Slice} {pos : s.Pos} :
     pos.offset ≤ s.endExclusive.offset :=
-  Pos.Raw.le_trans offset_le_offset_str offset_str_le_offset_endExclusive
+  pos.isValidForSlice.le_offset_endExclusive
 
 @[simp]
 theorem Slice.Pos.startInclusive_le_str {s : Slice} {pos : s.Pos} :
     s.startInclusive ≤ pos.str := by
   simp [String.Pos.le_iff, Pos.Raw.le_iff]
+  exact pos.isValidForSlice.offset_startInclusive_le
 
 /--
 Given a valid position on `s.str` which is within the bounds of the slice `s`, obtains the
@@ -1023,15 +1105,13 @@ corresponding valid position on `s`.
 @[inline]
 def Slice.Pos.ofStr {s : Slice} (pos : s.str.Pos) (h₁ : s.startInclusive ≤ pos)
     (h₂ : pos ≤ s.endExclusive) : s.Pos where
-  offset := pos.offset.unoffsetBy s.startInclusive.offset
+  offset := pos.offset
   isValidForSlice := by
-    refine ⟨?_, Pos.Raw.offsetBy_unoffsetBy_of_le h₁ |>.symm ▸ pos.isValid⟩
-    simp [String.Pos.le_iff, Pos.Raw.le_iff, Slice.utf8ByteSize_eq] at *
-    omega
+    exact ⟨h₁, h₂, pos.isValid⟩
 
 @[simp]
 theorem Slice.Pos.offset_ofStr {s : Slice} {pos : s.str.Pos} {h₁ h₂} :
-    (ofStr pos h₁ h₂).offset = pos.offset.unoffsetBy s.startInclusive.offset := (rfl)
+    (ofStr pos h₁ h₂).offset = pos.offset := by rfl
 
 /-- Given a slice and a valid position within the slice, obtain a new slice on the same underlying
 string by replacing the start of the slice with the given position. -/
@@ -1065,7 +1145,9 @@ def Slice.sliceTo (s : Slice) (pos : s.Pos) : Slice where
   str := s.str
   startInclusive := s.startInclusive
   endExclusive := pos.str
-  startInclusive_le_endExclusive := by simp [String.Pos.le_iff, String.Pos.Raw.le_iff]
+  startInclusive_le_endExclusive := by
+    simp only [String.Pos.le_iff, Pos.Raw.le_iff, Pos.offset_str]
+    exact Pos.Raw.le_iff.1 pos.isValidForSlice.offset_startInclusive_le
 
 @[deprecated Slice.sliceTo (since := "2025-11-20")]
 def Slice.replaceEnd (s : Slice) (pos : s.Pos) : Slice :=
@@ -1131,53 +1213,38 @@ def Slice.replaceStartEnd! (s : Slice) (newStart newEnd : s.Pos) : Slice :=
 
 @[simp]
 theorem Slice.utf8ByteSize_sliceFrom {s : Slice} {pos : s.Pos} :
-    (s.sliceFrom pos).utf8ByteSize = s.utf8ByteSize - pos.offset.byteIdx := by
-  simp only [utf8ByteSize_eq, str_sliceFrom, endExclusive_sliceFrom,
-    startInclusive_sliceFrom, Pos.offset_str, Pos.Raw.byteIdx_offsetBy]
-  omega
-
-theorem Slice.rawEndPos_sliceFrom {s : Slice} {pos : s.Pos} :
-    (s.sliceFrom pos).rawEndPos = s.rawEndPos.unoffsetBy pos.offset := by
-  ext
-  simp
-
-@[simp]
-theorem Slice.utf8ByteSize_sliceTo {s : Slice} {pos : s.Pos} :
-    (s.sliceTo pos).utf8ByteSize = pos.offset.byteIdx := by
+    (s.sliceFrom pos).utf8ByteSize = s.endExclusive.offset.byteIdx - pos.offset.byteIdx := by
   simp [utf8ByteSize_eq]
 
 @[simp]
-theorem Slice.rawEndPos_sliceTo {s : Slice} {pos : s.Pos} :
-    (s.sliceTo pos).rawEndPos = pos.offset := by
-  ext
-  simp
+theorem Slice.utf8ByteSize_sliceTo {s : Slice} {pos : s.Pos} :
+    (s.sliceTo pos).utf8ByteSize = pos.offset.byteIdx - s.startInclusive.offset.byteIdx := by
+  simp [utf8ByteSize_eq]
 
 @[simp]
 theorem Slice.utf8ByteSize_slice {s : Slice} {newStart newEnd : s.Pos} {h} :
     (s.slice newStart newEnd h).utf8ByteSize = newStart.offset.byteDistance newEnd.offset := by
   simp [utf8ByteSize_eq, Pos.Raw.byteDistance_eq]
-  omega
 
 theorem Pos.Raw.isValidForSlice_sliceFrom {s : Slice} {p : s.Pos} {off : Pos.Raw} :
-    off.IsValidForSlice (s.sliceFrom p) ↔ (off.offsetBy p.offset).IsValidForSlice s := by
-  refine ⟨fun ⟨h₁, h₂⟩ => ⟨?_, ?_⟩, fun ⟨h₁, h₂⟩ => ⟨?_, ?_⟩⟩
-  · have := p.isValidForSlice.le_rawEndPos
-    simp_all [le_iff]
-    omega
-  · simpa [Pos.Raw.offsetBy_assoc] using h₂
-  · simp_all [Pos.Raw.le_iff]
-    omega
-  · simpa [Pos.Raw.offsetBy_assoc] using h₂
+    off.IsValidForSlice (s.sliceFrom p) ↔ p.offset ≤ off ∧ off.IsValidForSlice s := by
+  constructor
+  · intro ⟨h₁, h₂, h₃⟩
+    simp only [Slice.startInclusive_sliceFrom, Slice.endExclusive_sliceFrom,
+      Slice.str_sliceFrom, Slice.Pos.offset_str] at *
+    exact ⟨h₁, ⟨Pos.Raw.le_trans p.isValidForSlice.offset_startInclusive_le h₁, h₂, h₃⟩⟩
+  · intro ⟨h₁, ⟨_, h₃, h₄⟩⟩
+    exact ⟨h₁, h₃, h₄⟩
 
 theorem Pos.Raw.isValidForSlice_sliceTo {s : Slice} {p : s.Pos} {off : Pos.Raw} :
     off.IsValidForSlice (s.sliceTo p) ↔ off ≤ p.offset ∧ off.IsValidForSlice s := by
-  refine ⟨fun ⟨h₁, h₂⟩ => ⟨?_, ?_, ?_⟩, fun ⟨h₁, ⟨h₂, h₃⟩⟩ => ⟨?_, ?_⟩⟩
-  · simpa using h₁
-  · simp only [Slice.rawEndPos_sliceTo] at h₁
-    exact Pos.Raw.le_trans h₁ p.isValidForSlice.le_rawEndPos
-  · simpa using h₂
-  · simpa using h₁
-  · simpa using h₃
+  constructor
+  · intro ⟨h₁, h₂, h₃⟩
+    simp only [Slice.startInclusive_sliceTo, Slice.endExclusive_sliceTo,
+      Slice.str_sliceTo, Slice.Pos.offset_str] at *
+    exact ⟨h₂, ⟨h₁, Pos.Raw.le_trans h₂ p.isValidForSlice.le_offset_endExclusive, h₃⟩⟩
+  · intro ⟨h₁, ⟨h₂, _, h₄⟩⟩
+    exact ⟨h₂, h₁, h₄⟩
 
 @[extern "lean_string_utf8_get_fast", expose]
 def decodeChar (s : @& String) (byteIdx : @& Nat) (h : (s.toByteArray.utf8DecodeChar? byteIdx).isSome) : Char :=
@@ -1186,16 +1253,16 @@ def decodeChar (s : @& String) (byteIdx : @& Nat) (h : (s.toByteArray.utf8Decode
 /-- Obtains the character at the given position in the string. -/
 @[inline, expose]
 def Slice.Pos.get {s : Slice} (pos : s.Pos) (h : pos ≠ s.endPos) : Char :=
-  s.str.decodeChar (s.startInclusive.offset.byteIdx + pos.offset.byteIdx)
-    ((Pos.Raw.isValidForSlice_iff_isSome_utf8DecodeChar?.1 pos.isValidForSlice).elim (by simp_all [Pos.ext_iff]) (·.2))
+  s.str.decodeChar pos.offset.byteIdx
+    ((Pos.Raw.isValidForSlice_iff_isSome_utf8DecodeChar?.1 pos.isValidForSlice).elim (by simp_all [Pos.ext_iff]) (·.2.2))
 
 theorem Slice.Pos.get_eq_utf8DecodeChar {s : Slice} (pos : s.Pos) (h : pos ≠ s.endPos) :
-    pos.get h = s.str.toByteArray.utf8DecodeChar (s.startInclusive.offset.byteIdx + pos.offset.byteIdx)
-      ((Pos.Raw.isValidForSlice_iff_isSome_utf8DecodeChar?.1 pos.isValidForSlice).elim (by simp_all [Pos.ext_iff]) (·.2)) := (rfl)
+    pos.get h = s.str.toByteArray.utf8DecodeChar pos.offset.byteIdx
+      ((Pos.Raw.isValidForSlice_iff_isSome_utf8DecodeChar?.1 pos.isValidForSlice).elim (by simp_all [Pos.ext_iff]) (·.2.2)) := (rfl)
 
 theorem Slice.Pos.utf8Encode_get_eq_extract {s : Slice} (pos : s.Pos) (h : pos ≠ s.endPos) :
-    List.utf8Encode [pos.get h] = s.str.toByteArray.extract (s.startInclusive.offset.byteIdx + pos.offset.byteIdx)
-      (s.startInclusive.offset.byteIdx + pos.offset.byteIdx + (pos.get h).utf8Size) := by
+    List.utf8Encode [pos.get h] = s.str.toByteArray.extract pos.offset.byteIdx
+      (pos.offset.byteIdx + (pos.get h).utf8Size) := by
   rw [get_eq_utf8DecodeChar pos h, List.utf8Encode_singleton, ByteArray.utf8EncodeChar_utf8DecodeChar]
 
 /-- Returns the byte at the given position in the string, or `none` if the position is the end
@@ -1213,7 +1280,9 @@ def Slice.Pos.get! {s : Slice} (pos : s.Pos) : Char :=
 @[simp]
 theorem Pos.Raw.isValidForSlice_toSlice_iff {s : String} {p : Pos.Raw} :
     p.IsValidForSlice s.toSlice ↔ p.IsValid s := by
-  rw [← isValid_copy_iff, copy_toSlice]
+  constructor
+  · intro ⟨_, _, h⟩; exact h
+  · intro h; exact ⟨by simp [Pos.Raw.le_iff], h.le_rawEndPos, h⟩
 
 theorem Pos.Raw.IsValid.toSlice {s : String} {p : Pos.Raw} (h : p.IsValid s) :
     p.IsValidForSlice s.toSlice :=
@@ -1241,10 +1310,6 @@ def Pos.ofToSlice {s : String} (pos : s.toSlice.Pos) : s.Pos where
 
 @[simp]
 theorem Pos.offset_ofToSlice {s : String} {pos : s.toSlice.Pos} : (ofToSlice pos).offset = pos.offset := (rfl)
-
-@[simp]
-theorem rawEndPos_toSlice {s : String} : s.toSlice.rawEndPos = s.rawEndPos := by
-  rw [← Slice.rawEndPos_copy, copy_toSlice]
 
 @[simp]
 theorem endPos_toSlice {s : String} : s.toSlice.endPos = s.endPos.toSlice :=
@@ -1381,36 +1446,40 @@ theorem Slice.copy_eq_copy_sliceTo {s : Slice} {pos : s.Pos} :
     s.copy = (s.sliceTo pos).copy ++ (s.sliceFrom pos).copy := by
   rw [← String.toByteArray_inj, toByteArray_copy, toByteArray_append, toByteArray_copy, toByteArray_copy]
   simp only [str_sliceTo, startInclusive_sliceTo, endExclusive_sliceTo, Pos.offset_str,
-    Pos.Raw.byteIdx_offsetBy, str_sliceFrom, startInclusive_sliceFrom,
-    endExclusive_sliceFrom, ByteArray.extract_append_extract, Nat.le_add_right, Nat.min_eq_left]
-  rw [Nat.max_eq_right]
-  exact pos.offset_str_le_offset_endExclusive
+    str_sliceFrom, startInclusive_sliceFrom, endExclusive_sliceFrom,
+    ByteArray.extract_append_extract]
+  rw [Nat.min_eq_left (Pos.Raw.le_iff.1 pos.isValidForSlice.offset_startInclusive_le),
+      Nat.max_eq_right (Pos.Raw.le_iff.1 pos.isValidForSlice.le_offset_endExclusive)]
 
 /-- Given a slice `s` and a position on `s.copy`, obtain the corresponding position on `s`. -/
 @[inline]
 def Pos.ofCopy {s : Slice} (pos : s.copy.Pos) : s.Pos where
-  offset := pos.offset
+  offset := pos.offset.offsetBy s.startInclusive.offset
   isValidForSlice := Pos.Raw.isValid_copy_iff.1 pos.isValid
 
 @[simp]
-theorem Pos.offset_ofCopy {s : Slice} {pos : s.copy.Pos} : pos.ofCopy.offset = pos.offset := (rfl)
+theorem Pos.offset_ofCopy {s : Slice} {pos : s.copy.Pos} :
+    pos.ofCopy.offset = pos.offset.offsetBy s.startInclusive.offset := (rfl)
 
 /-- Given a slice `s` and a position on `s`, obtain the corresponding position on `s.copy.` -/
 @[inline]
 def Slice.Pos.copy {s : Slice} (pos : s.Pos) : s.copy.Pos where
-  offset := pos.offset
-  isValid := Pos.Raw.isValid_copy_iff.2 pos.isValidForSlice
+  offset := pos.offset.unoffsetBy s.startInclusive.offset
+  isValid := Pos.Raw.isValid_copy_iff.2 (by
+    rw [Pos.Raw.offsetBy_unoffsetBy_of_le pos.isValidForSlice.offset_startInclusive_le]
+    exact pos.isValidForSlice)
 
 @[deprecated Slice.Pos.copy (since := "2025-12-01")]
 def Slice.Pos.toCopy {s : Slice} (pos : s.Pos) : s.copy.Pos :=
   pos.copy
 
 @[simp]
-theorem Slice.Pos.offset_copy {s : Slice} {pos : s.Pos} : pos.copy.offset = pos.offset := (rfl)
+theorem Slice.Pos.offset_copy {s : Slice} {pos : s.Pos} :
+    pos.copy.offset = pos.offset.unoffsetBy s.startInclusive.offset := (rfl)
 
 @[simp]
 theorem Slice.Pos.ofCopy_copy {s : Slice} {pos : s.Pos} : pos.copy.ofCopy = pos :=
-  Slice.Pos.ext (by simp)
+  Slice.Pos.ext (by simp [Pos.Raw.offsetBy_unoffsetBy_of_le pos.isValidForSlice.offset_startInclusive_le])
 
 @[simp]
 theorem Pos.copy_ofCopy {s : Slice} {pos : s.copy.Pos} : pos.ofCopy.copy = pos :=
@@ -1421,20 +1490,28 @@ theorem Pos.ofCopy_inj {s : Slice} {pos pos' : s.copy.Pos} : pos.ofCopy = pos'.o
 
 @[simp]
 theorem Slice.startPos_copy {s : Slice} : s.copy.startPos = s.startPos.copy :=
-  String.Pos.ext (by simp)
+  String.Pos.ext (by simp [Pos.Raw.ext_iff])
 
 @[simp]
 theorem Slice.endPos_copy {s : Slice} : s.copy.endPos = s.endPos.copy :=
-  String.Pos.ext (by simp)
+  String.Pos.ext (by simp [rawEndPos_copy, Pos.Raw.ext_iff])
 
 theorem Slice.Pos.get_copy {s : Slice} {pos : s.Pos} (h) :
     pos.copy.get h = pos.get (by rintro rfl; simp at h) := by
-  rw [String.Pos.get, Slice.Pos.get_eq_utf8DecodeChar, Slice.Pos.get_eq_utf8DecodeChar]
-  simp only [str_toSlice, toByteArray_copy, startInclusive_toSlice, startPos_copy, offset_copy,
-    Slice.offset_startPos, Pos.Raw.byteIdx_zero, Pos.offset_toSlice, Nat.zero_add]
-  rw [ByteArray.utf8DecodeChar_eq_utf8DecodeChar_extract]
-  conv => lhs; congr; rw [ByteArray.extract_extract]
-  conv => rhs; rw [ByteArray.utf8DecodeChar_eq_utf8DecodeChar_extract]
+  have h_le := Pos.Raw.le_iff.1 pos.isValidForSlice.offset_startInclusive_le
+  have h_start_end := Pos.Raw.le_iff.1 s.startInclusive_le_endExclusive
+  have h_end_str := s.endExclusive.isValid.le_utf8ByteSize
+  simp only [String.Pos.get, Slice.Pos.get, decodeChar, str_toSlice, Pos.offset_toSlice,
+    offset_copy, toByteArray_copy]
+  rw [ByteArray.utf8DecodeChar_eq_utf8DecodeChar_extract,
+      ByteArray.utf8DecodeChar_eq_utf8DecodeChar_extract (b := s.str.toByteArray)]
+  simp only [ByteArray.extract_extract, Pos.Raw.byteIdx_unoffsetBy, ByteArray.size_extract,
+    size_toByteArray,
+    show s.startInclusive.offset.byteIdx + (pos.offset.byteIdx - s.startInclusive.offset.byteIdx) =
+      pos.offset.byteIdx from by omega,
+    show min (s.startInclusive.offset.byteIdx +
+      (min s.endExclusive.offset.byteIdx s.str.utf8ByteSize - s.startInclusive.offset.byteIdx))
+      s.endExclusive.offset.byteIdx = min s.endExclusive.offset.byteIdx s.str.utf8ByteSize from by omega]
   exact ByteArray.utf8DecodeChar_extract_congr _ _ _
 
 theorem Slice.Pos.get_eq_get_copy {s : Slice} {pos : s.Pos} {h} :
@@ -1443,8 +1520,12 @@ theorem Slice.Pos.get_eq_get_copy {s : Slice} {pos : s.Pos} {h} :
 
 theorem Slice.Pos.byte_copy {s : Slice} {pos : s.Pos} (h) :
     pos.copy.byte h = pos.byte (by rintro rfl; simp at h) := by
-  rw [String.Pos.byte, Slice.Pos.byte, Slice.Pos.byte]
-  simp [getUTF8Byte, String.getUTF8Byte, toByteArray_copy, ByteArray.getElem_extract]
+  have h_le := Pos.Raw.le_iff.1 pos.isValidForSlice.offset_startInclusive_le
+  simp only [String.Pos.byte, Slice.Pos.byte, Slice.getUTF8Byte, String.getUTF8Byte,
+    str_toSlice, Pos.offset_toSlice, offset_copy, toByteArray_copy,
+    ByteArray.getElem_extract, Pos.Raw.byteIdx_unoffsetBy]
+  congr 1
+  omega
 
 theorem Slice.Pos.byte_eq_byte_copy {s : Slice} {pos : s.Pos} {h} :
     pos.byte h = pos.copy.byte (ne_of_apply_ne Pos.ofCopy (by simp [h])) :=
@@ -1453,8 +1534,8 @@ theorem Slice.Pos.byte_eq_byte_copy {s : Slice} {pos : s.Pos} {h} :
 /-- Given a position in `s.sliceFrom p₀`, obtain the corresponding position in `s`. -/
 @[inline, expose]
 def Slice.Pos.ofSliceFrom {s : Slice} {p₀ : s.Pos} (pos : (s.sliceFrom p₀).Pos) : s.Pos where
-  offset := pos.offset.offsetBy p₀.offset
-  isValidForSlice := Pos.Raw.isValidForSlice_sliceFrom.1 pos.isValidForSlice
+  offset := pos.offset
+  isValidForSlice := (Pos.Raw.isValidForSlice_sliceFrom.1 pos.isValidForSlice).2
 
 @[deprecated Slice.Pos.ofSliceFrom (since := "2025-11-20")]
 def Slice.Pos.ofReplaceStart {s : Slice} {p₀ : s.Pos} (pos : (s.sliceFrom p₀).Pos) : s.Pos :=
@@ -1462,16 +1543,15 @@ def Slice.Pos.ofReplaceStart {s : Slice} {p₀ : s.Pos} (pos : (s.sliceFrom p₀
 
 @[simp]
 theorem Slice.Pos.offset_ofSliceFrom {s : Slice} {p₀ : s.Pos} {pos : (s.sliceFrom p₀).Pos} :
-    (ofSliceFrom pos).offset = pos.offset.offsetBy p₀.offset := (rfl)
+    (ofSliceFrom pos).offset = pos.offset := (rfl)
 
 /-- Given a position in `s` that is at least `p₀`, obtain the corresponding position in
 `s.sliceFrom p₀`. -/
 @[inline]
 def Slice.Pos.sliceFrom {s : Slice} (p₀ : s.Pos) (pos : s.Pos) (h : p₀ ≤ pos) :
     (s.sliceFrom p₀).Pos where
-  offset := pos.offset.unoffsetBy p₀.offset
-  isValidForSlice := Pos.Raw.isValidForSlice_sliceFrom.2 (by
-    simpa [Pos.Raw.offsetBy_unoffsetBy_of_le (Pos.Raw.le_iff.1 h)] using pos.isValidForSlice)
+  offset := pos.offset
+  isValidForSlice := Pos.Raw.isValidForSlice_sliceFrom.2 ⟨Slice.Pos.le_iff.1 h, pos.isValidForSlice⟩
 
 @[deprecated Slice.Pos.sliceFrom (since := "2025-11-20")]
 def Slice.Pos.toReplaceStart {s : Slice} (p₀ : s.Pos) (pos : s.Pos) (h : p₀ ≤ pos) :
@@ -1480,13 +1560,12 @@ def Slice.Pos.toReplaceStart {s : Slice} (p₀ : s.Pos) (pos : s.Pos) (h : p₀ 
 
 @[simp]
 theorem Slice.Pos.offset_sliceFrom {s : Slice} {p₀ : s.Pos} {pos : s.Pos} {h} :
-    (sliceFrom p₀ pos h).offset = pos.offset.unoffsetBy p₀.offset := (rfl)
+    (sliceFrom p₀ pos h).offset = pos.offset := (rfl)
 
 @[simp]
 theorem Slice.Pos.sliceFrom_inj {s : Slice} {p₀ : s.Pos} {pos pos' : s.Pos} {h h'} :
     p₀.sliceFrom pos h = p₀.sliceFrom pos' h' ↔ pos = pos' := by
-  simp [Pos.ext_iff, Pos.Raw.ext_iff, Pos.le_iff, Pos.Raw.le_iff] at ⊢ h h'
-  omega
+  simp [Pos.ext_iff]
 
 @[simp]
 theorem Slice.Pos.ofSliceFrom_startPos {s : Slice} {pos : s.Pos} :
@@ -1496,7 +1575,7 @@ theorem Slice.Pos.ofSliceFrom_startPos {s : Slice} {pos : s.Pos} :
 @[simp]
 theorem Slice.Pos.ofSliceFrom_endPos {s : Slice} {pos : s.Pos} :
     ofSliceFrom (s.sliceFrom pos).endPos = s.endPos := by
-  have := pos.isValidForSlice.le_rawEndPos
+  have := pos.isValidForSlice.le_offset_endExclusive
   simp_all [Pos.ext_iff, String.Pos.Raw.ext_iff, Pos.Raw.le_iff]
 
 theorem Slice.Pos.ofSliceFrom_inj {s : Slice} {p₀ : s.Pos} {pos pos' : (s.sliceFrom p₀).Pos} :
@@ -1557,7 +1636,8 @@ theorem Slice.Pos.ofSliceTo_inj {s : Slice} {p₀ : s.Pos} {pos pos' : (s.sliceT
   simp [Pos.ext_iff]
 
 theorem Slice.Pos.copy_eq_append_get {s : Slice} {pos : s.Pos} (h : pos ≠ s.endPos) :
-    ∃ t₁ t₂ : String, s.copy = t₁ ++ singleton (pos.get h) ++ t₂ ∧ t₁.utf8ByteSize = pos.offset.byteIdx := by
+    ∃ t₁ t₂ : String, s.copy = t₁ ++ singleton (pos.get h) ++ t₂ ∧
+      t₁.utf8ByteSize = pos.copy.offset.byteIdx := by
   obtain ⟨t₂, ht₂⟩ := (s.sliceFrom pos).copy.eq_singleton_append (by simpa [← Pos.ofCopy_inj, ← ofSliceFrom_inj])
   refine ⟨(s.sliceTo pos).copy, t₂, ?_, by simp⟩
   simp only [Slice.startPos_copy, get_copy, get_eq_get_ofSliceFrom, ofSliceFrom_startPos] at ht₂
@@ -1565,7 +1645,9 @@ theorem Slice.Pos.copy_eq_append_get {s : Slice} {pos : s.Pos} (h : pos ≠ s.en
 
 theorem Slice.Pos.utf8ByteSize_byte {s : Slice} {pos : s.Pos} {h : pos ≠ s.endPos} :
     (pos.byte h).utf8ByteSize pos.isUTF8FirstByte_byte = (pos.get h).utf8Size := by
-  simp [getUTF8Byte, byte, String.getUTF8Byte, get_eq_utf8DecodeChar, ByteArray.utf8Size_utf8DecodeChar]
+  simp only [getUTF8Byte, byte, String.getUTF8Byte, get_eq_utf8DecodeChar,
+    ByteArray.utf8Size_utf8DecodeChar]
+  rfl
 
 theorem Pos.utf8ByteSize_byte {s : String} {pos : s.Pos} {h : pos ≠ s.endPos} :
     (pos.byte h).utf8ByteSize pos.isUTF8FirstByte_byte = (pos.get h).utf8Size :=
@@ -1578,12 +1660,24 @@ def Slice.Pos.next {s : Slice} (pos : s.Pos) (h : pos ≠ s.endPos) : s.Pos wher
   offset := pos.offset.increaseBy ((pos.byte h).utf8ByteSize pos.isUTF8FirstByte_byte)
   isValidForSlice := by
     obtain ⟨t₁, t₂, ht, ht'⟩ := copy_eq_append_get h
-    replace ht' : pos.offset = t₁.rawEndPos := Eq.symm (String.Pos.Raw.ext ht')
-    rw [utf8ByteSize_byte, ← Pos.Raw.isValid_copy_iff, ht, ht']
-    refine Pos.Raw.IsValid.append_right ?_ t₂
-    rw [Pos.Raw.increaseBy_charUtf8Size]
-    refine Pos.Raw.IsValid.append_left ?_ t₁
-    exact Pos.Raw.isValid_singleton.2 (Or.inr rfl)
+    have h_le := Pos.Raw.le_iff.1 pos.isValidForSlice.offset_startInclusive_le
+    rw [utf8ByteSize_byte]
+    -- Work with relative offset (pos.offset - start) in copy coordinates
+    let relPos := pos.offset.unoffsetBy s.startInclusive.offset
+    have ht'r : relPos = t₁.rawEndPos := Eq.symm (String.Pos.Raw.ext ht')
+    have hv : (relPos.increaseBy (pos.get h).utf8Size).IsValid s.copy := by
+      rw [ht, ht'r]
+      refine Pos.Raw.IsValid.append_right ?_ t₂
+      rw [Pos.Raw.increaseBy_charUtf8Size]
+      refine Pos.Raw.IsValid.append_left ?_ t₁
+      exact Pos.Raw.isValid_singleton.2 (Or.inr rfl)
+    have heq : (relPos.increaseBy (pos.get h).utf8Size).offsetBy s.startInclusive.offset =
+        pos.offset.increaseBy (pos.get h).utf8Size := by
+      simp only [Pos.Raw.ext_iff, Pos.Raw.byteIdx_offsetBy, Pos.Raw.byteIdx_increaseBy,
+        relPos, Pos.Raw.byteIdx_unoffsetBy]
+      omega
+    rw [← heq]
+    exact Pos.Raw.isValid_copy_iff.1 hv
 
 /-- Advances a valid position on a slice to the next valid position, or returns `none` if the
 given position is the past-the-end position. -/
@@ -1614,51 +1708,21 @@ theorem Slice.Pos.lt_next {s : Slice} {pos : s.Pos} {h : pos ≠ s.endPos} :
 
 theorem Slice.Pos.copy_eq_copy_sliceTo_append_get {s : Slice} {pos : s.Pos} (h : pos ≠ s.endPos) :
     s.copy = (s.sliceTo pos).copy ++ singleton (pos.get h) ++ (s.sliceFrom (pos.next h)).copy := by
-  suffices (max (s.startInclusive.offset.byteIdx + (pos.offset.byteIdx + (pos.get h).utf8Size)) s.endExclusive.offset.byteIdx)
-      = s.endExclusive.offset.byteIdx by
-    simp [← toByteArray_inj, toByteArray_copy, utf8Encode_get_eq_extract, Nat.add_assoc, this]
-  rw [Nat.max_eq_right]
-  simpa [Pos.Raw.le_iff] using (pos.next h).offset_str_le_offset_endExclusive
+  have h_start_le := Pos.Raw.le_iff.1 pos.isValidForSlice.offset_startInclusive_le
+  have h_le_end := Pos.Raw.le_iff.1 pos.isValidForSlice.le_offset_endExclusive
+  have h_next_le := Pos.Raw.le_iff.1 (pos.next h).isValidForSlice.le_offset_endExclusive
+  rw [← String.toByteArray_inj, toByteArray_append, toByteArray_append,
+    toByteArray_copy, toByteArray_copy, toByteArray_copy, toByteArray_singleton]
+  simp only [str_sliceTo, startInclusive_sliceTo, endExclusive_sliceTo, Pos.offset_str,
+    str_sliceFrom, startInclusive_sliceFrom, endExclusive_sliceFrom, offset_next,
+    utf8Encode_get_eq_extract, Pos.Raw.byteIdx_add_char]
+  simp only [byteIdx_offset_next, Pos.Raw.byteIdx_add_char] at h_next_le
+  have h_cs : pos.offset.byteIdx ≤ pos.offset.byteIdx + (pos.get h).utf8Size := Nat.le_add_right ..
+  have h_start_next : s.startInclusive.offset.byteIdx ≤ pos.offset.byteIdx + (pos.get h).utf8Size :=
+    Nat.le_trans h_start_le h_cs
+  simp only [ByteArray.extract_append_extract, Nat.min_eq_left h_start_le, Nat.max_eq_right h_cs,
+    Nat.min_eq_left h_start_next, Nat.max_eq_right h_next_le]
 
-@[inline, expose]
-def Slice.Pos.prevAux {s : Slice} (pos : s.Pos) (h : pos ≠ s.startPos) : String.Pos.Raw :=
-  go (pos.offset.byteIdx - 1) (by
-    have := pos.isValidForSlice.le_rawEndPos
-    simp [Pos.Raw.le_iff, Pos.ext_iff] at ⊢ this h
-    omega)
-where
-  go (off : Nat) (h₁ : off < s.utf8ByteSize) : String.Pos.Raw :=
-    if hbyte : (s.getUTF8Byte ⟨off⟩ h₁).IsUTF8FirstByte then
-      ⟨off⟩
-    else
-      have : 0 ≠ off := by
-        intro h
-        obtain hoff : (⟨off⟩ : String.Pos.Raw) = 0 := by simpa [String.Pos.Raw.ext_iff] using h.symm
-        simp [hoff, s.isUTF8FirstByte_utf8ByteAt_zero] at hbyte
-      match off with
-      | 0 => False.elim (by contradiction)
-      | off + 1 => go off (by omega)
-  termination_by structural off
-
-theorem Pos.Raw.isValidForSlice_prevAuxGo {s : Slice} (off : Nat) (h₁ : off < s.utf8ByteSize) :
-    (Slice.Pos.prevAux.go off h₁).IsValidForSlice s := by
-  induction off with
-  | zero =>
-    rw [Slice.Pos.prevAux.go]
-    split
-    · exact Pos.Raw.isValidForSlice_iff_isUTF8FirstByte.2 (Or.inr ⟨_, ‹_›⟩)
-    · simpa using elim
-  | succ off ih =>
-    rw [Slice.Pos.prevAux.go]
-    split
-    · exact Pos.Raw.isValidForSlice_iff_isUTF8FirstByte.2 (Or.inr ⟨_, ‹_›⟩)
-    · simpa using ih _
-where
-  elim {P : Pos.Raw → Prop} {h : False} : P h.elim := h.elim
-
-theorem Pos.Raw.isValidForSlice_prevAux {s : Slice} (pos : s.Pos) (h : pos ≠ s.startPos) :
-    (pos.prevAux h).IsValidForSlice s :=
-  isValidForSlice_prevAuxGo ..
 
 /-- Constructs a valid position on `s` from a position and a proof that it is valid. -/
 @[inline, expose]
@@ -1731,29 +1795,46 @@ def pos! (s : String) (off : Pos.Raw) : s.Pos :=
 theorem offset_pos {s : String} {off : Pos.Raw} {h} : (s.pos off h).offset = off := rfl
 
 /-- Constructs a valid position on `t` from a valid position on `s` and a proof that
-`s.copy = t.copy`. -/
-@[inline]
+`s.copy = t.copy`. The offset is adjusted by the difference in start positions.
+
+Requiring `s.copy = t.copy` is much more general than requiring `s = t`, as we are merely requiring
+that the two slices represent equivalent text, not that they are literally equal. -/
+@[inline, expose]
 def Slice.Pos.cast {s t : Slice} (pos : s.Pos) (h : s.copy = t.copy) : t.Pos where
-  offset := pos.offset
-  isValidForSlice := Pos.Raw.isValid_copy_iff.mp (h ▸ Pos.Raw.isValid_copy_iff.mpr pos.isValidForSlice)
+  offset := (pos.offset.unoffsetBy s.startInclusive.offset).offsetBy t.startInclusive.offset
+  isValidForSlice := by
+    apply Pos.Raw.isValid_copy_iff.mp
+    rw [← h]
+    apply Pos.Raw.isValid_copy_iff.mpr
+    rw [Pos.Raw.offsetBy_unoffsetBy_of_le pos.isValidForSlice.offset_startInclusive_le]
+    exact pos.isValidForSlice
 
 @[simp]
 theorem Slice.Pos.offset_cast {s t : Slice} {pos : s.Pos} {h : s.copy = t.copy} :
-    (pos.cast h).offset = pos.offset := (rfl)
+    (pos.cast h).offset =
+      (pos.offset.unoffsetBy s.startInclusive.offset).offsetBy t.startInclusive.offset := rfl
 
 @[simp]
 theorem Slice.Pos.cast_rfl {s : Slice} {pos : s.Pos} : pos.cast rfl = pos :=
-  Slice.Pos.ext (by simp)
+  Slice.Pos.ext (Pos.Raw.offsetBy_unoffsetBy_of_le pos.isValidForSlice.offset_startInclusive_le)
 
 @[simp]
 theorem Slice.Pos.cast_le_cast_iff {s t : Slice} {pos pos' : s.Pos} {h : s.copy = t.copy} :
     pos.cast h ≤ pos'.cast h ↔ pos ≤ pos' := by
-  simp [Slice.Pos.le_iff]
+  have h1 := pos.isValidForSlice.offset_startInclusive_le
+  have h2 := pos'.isValidForSlice.offset_startInclusive_le
+  simp only [Slice.Pos.le_iff, Pos.Raw.le_iff, cast, Pos.Raw.offsetBy, Pos.Raw.unoffsetBy] at *
+  omega
 
 @[simp]
 theorem Slice.Pos.cast_lt_cast_iff {s t : Slice} {pos pos' : s.Pos} {h : s.copy = t.copy} :
     pos.cast h < pos'.cast h ↔ pos < pos' := by
-  simp [Slice.Pos.lt_iff]
+  have h1 : s.startInclusive.offset.byteIdx ≤ pos.offset.byteIdx :=
+    Pos.Raw.le_iff.1 pos.isValidForSlice.offset_startInclusive_le
+  have h2 : s.startInclusive.offset.byteIdx ≤ pos'.offset.byteIdx :=
+    Pos.Raw.le_iff.1 pos'.isValidForSlice.offset_startInclusive_le
+  simp only [Slice.Pos.lt_iff, Pos.Raw.lt_iff, cast, Pos.Raw.offsetBy, Pos.Raw.unoffsetBy]
+  omega
 
 /-- Constructs a valid position on `t` from a valid position on `s` and a proof that `s = t`. -/
 @[inline]
@@ -1783,30 +1864,12 @@ theorem Pos.copy_toSlice_eq_cast {s : String} (p : s.Pos) :
     p.toSlice.copy = p.cast copy_toSlice.symm :=
   Pos.ext (by simp)
 
-theorem Slice.Pos.prevAuxGo_le_self {s : Slice} {p : Nat} {h : p < s.utf8ByteSize} :
-    prevAux.go p h ≤ ⟨p⟩ := by
-  induction p with
-  | zero =>
-    rw [prevAux.go]
-    split
-    · simp
-    · simpa using elim (· ≤ { })
-  | succ p ih =>
-    rw [prevAux.go]
-    split
-    · simp
-    · simpa using Nat.le_trans ih (by simp)
-where
-  elim (P : String.Pos.Raw → Prop) {h : False} : P h.elim := h.elim
-
-theorem Slice.Pos.prevAux_lt_self {s : Slice} {p : s.Pos} {h} : p.prevAux h < p.offset := by
-  rw [prevAux]
-  refine Pos.Raw.lt_of_le_of_lt prevAuxGo_le_self ?_
-  simp [Pos.ext_iff, Pos.Raw.lt_iff] at *
-  omega
-
-theorem Slice.Pos.prevAux_lt_rawEndPos {s : Slice} {p : s.Pos} {h} : p.prevAux h < s.rawEndPos :=
-  Pos.Raw.lt_of_lt_of_le prevAux_lt_self p.isValidForSlice.le_rawEndPos
+/-- The `copy` of a cast position equals the cast of the copy (using `String.Pos.cast`). -/
+@[simp]
+theorem Slice.Pos.copy_cast {s t : Slice} {pos : s.Pos} {h : s.copy = t.copy} :
+    (pos.cast h).copy = pos.copy.cast h := by
+  ext
+  simp [Slice.Pos.copy, Slice.Pos.cast, Pos.cast, Pos.Raw.unoffsetBy_offsetBy]
 
 @[expose]
 def Pos.Raw.utf8GetAux : List Char → Pos.Raw → Pos.Raw → Char
@@ -1959,9 +2022,8 @@ theorem Pos.str_toSlice {s : String} {p : s.Pos} : p.toSlice.str = p := by
 
 theorem Slice.Pos.str_le_endExclusive {s : Slice} (p : s.Pos) :
     p.str ≤ s.endExclusive := by
-  have := p.isValidForSlice.le_utf8ByteSize
-  have := s.startInclusive_le_endExclusive
-  simp [String.Pos.le_iff, Pos.Raw.le_iff, Slice.utf8ByteSize_eq] at *
+  have := p.isValidForSlice.le_offset_endExclusive
+  simp [String.Pos.le_iff, Pos.Raw.le_iff] at *
   omega
 
 theorem Pos.lt_of_le_of_ne {s : String} {p q : s.Pos} :
@@ -1990,7 +2052,7 @@ theorem Pos.le_endPos {s : String} (p : s.Pos) : p ≤ s.endPos := by
 
 @[simp]
 theorem Slice.Pos.le_endPos {s : Slice} (p : s.Pos) : p ≤ s.endPos :=
-  p.isValidForSlice.le_rawEndPos
+  p.isValidForSlice.le_offset_endExclusive
 
 theorem Slice.Pos.str_ne_endPos {s : Slice} (p : s.Pos) (h : p ≠ s.endPos) :
     p.str ≠ s.str.endPos :=
@@ -2006,8 +2068,8 @@ theorem Slice.Pos.le_of_not_lt {s : Slice} {p q : s.Pos} : ¬q < p → p ≤ q :
   simp [Slice.Pos.le_iff, Slice.Pos.lt_iff, Pos.Raw.le_iff, Pos.Raw.lt_iff]
 
 theorem Slice.Pos.ne_endPos_of_lt {s : Slice} {p q : s.Pos} : p < q → p ≠ s.endPos := by
-  have := q.isValidForSlice.le_utf8ByteSize
-  simp [lt_iff, Pos.ext_iff, Pos.Raw.lt_iff, Pos.Raw.ext_iff]
+  have := q.isValidForSlice.le_offset_endExclusive
+  simp_all [lt_iff, Pos.ext_iff, Pos.Raw.lt_iff, Pos.Raw.ext_iff, Pos.Raw.le_iff]
   omega
 
 theorem Slice.Pos.next_le_of_lt {s : Slice} {p q : s.Pos} {h} : p < q → p.next h ≤ q := by
@@ -2016,16 +2078,15 @@ theorem Slice.Pos.next_le_of_lt {s : Slice} {p q : s.Pos} {h} : p < q → p.next
   refine fun hpq => le_of_not_lt (fun hq => ?_)
   have := q.isUTF8FirstByte_byte (h := ne_endPos_of_lt hq)
   rw [byte, getUTF8Byte, String.getUTF8Byte] at this
-  simp only [Pos.Raw.byteIdx_offsetBy] at this
   have h₁ : q.offset.byteIdx = p.offset.byteIdx + (q.offset.byteIdx - p.offset.byteIdx) := by
     simp [lt_iff, Pos.Raw.lt_iff] at hpq
     omega
   have h₂ : q.offset.byteIdx - p.offset.byteIdx < (p.get h).utf8Size := by
     simp [lt_iff, Pos.Raw.lt_iff] at hq
     omega
-  conv at this => congr; arg 2; rw [h₁, ← Nat.add_assoc]
-  rw [← ByteArray.getElem_extract (start := s.startInclusive.offset.byteIdx + p.offset.byteIdx)
-    (stop := s.startInclusive.offset.byteIdx + p.offset.byteIdx + (p.get h).utf8Size)] at this
+  conv at this => congr; arg 2; rw [h₁]
+  rw [← ByteArray.getElem_extract (start := p.offset.byteIdx)
+    (stop := p.offset.byteIdx + (p.get h).utf8Size)] at this
   · simp only [← utf8Encode_get_eq_extract, List.utf8Encode_singleton] at this
     have h₃ := List.getElem_toByteArray (l := utf8EncodeChar (p.get h))
       (i := q.offset.byteIdx - p.offset.byteIdx) (h := by simpa)
@@ -2035,8 +2096,9 @@ theorem Slice.Pos.next_le_of_lt {s : Slice} {p q : s.Pos} {h} : p < q → p.next
   · simp only [ByteArray.size_extract, size_toByteArray]
     rw [Nat.min_eq_left]
     · omega
-    · have := (p.next h).str.isValid.le_utf8ByteSize
-      simpa [Nat.add_assoc] using this
+    · have := (p.next h).isValidForSlice.isValid.le_utf8ByteSize
+      simp [Pos.Raw.le_iff] at this
+      omega
 
 theorem Pos.ofToSlice_le_iff {s : String} {p : s.toSlice.Pos} {q : s.Pos} :
     ofToSlice p ≤ q ↔ p ≤ q.toSlice := Iff.rfl
@@ -2072,7 +2134,6 @@ def Slice.Pos.nextFast {s : Slice} (pos : s.Pos) (h : pos ≠ s.endPos) : s.Pos 
 theorem Slice.Pos.next_eq_nextFast : @Slice.Pos.next = @Slice.Pos.nextFast := by
   funext s pos h
   simp [Slice.Pos.ext_iff, Slice.Pos.nextFast, Pos.Raw.ext_iff, Slice.Pos.get_eq_get_str]
-  omega
 
 /-- The slice from the beginning of `s` up to `p` (exclusive). -/
 @[inline, expose]
@@ -2097,8 +2158,8 @@ theorem endExclusive_sliceTo {s : String} {p : s.Pos} :
   simp [sliceTo]
 
 @[simp]
-theorem rawEndPos_sliceTo {s : String} {p : s.Pos} :
-    (s.sliceTo p).rawEndPos = p.offset := by
+theorem endExclusive_offset_sliceTo {s : String} {p : s.Pos} :
+    (s.sliceTo p).endExclusive.offset = p.offset := by
   simp [sliceTo]
 
 theorem Pos.Raw.isValidForSlice_stringSliceTo {s : String} {p : s.Pos} {q : Pos.Raw} :
@@ -2142,7 +2203,7 @@ theorem utf8ByteSize_sliceTo {s : String} {p : s.Pos} :
   simp [sliceTo]
 
 theorem Pos.Raw.isValidForSlice_stringSliceFrom {s : String} {p : s.Pos} {q : Pos.Raw} :
-    q.IsValidForSlice (s.sliceFrom p) ↔ (q.offsetBy p.offset).IsValid s := by
+    q.IsValidForSlice (s.sliceFrom p) ↔ p.offset ≤ q ∧ q.IsValid s := by
   rw [sliceFrom, isValidForSlice_sliceFrom, isValidForSlice_toSlice_iff,
     Pos.offset_toSlice]
 
@@ -2220,8 +2281,8 @@ theorem Pos.eq_copy_sliceTo_append_get {s : String} {pos : s.Pos} (h : pos ≠ s
 @[inline]
 def Pos.ofSliceFrom {s : String} {p₀ : s.Pos} (pos : (s.sliceFrom p₀).Pos) :
     s.Pos where
-  offset := pos.offset.offsetBy p₀.offset
-  isValid := Pos.Raw.isValidForSlice_stringSliceFrom.1 pos.isValidForSlice
+  offset := pos.offset
+  isValid := (Pos.Raw.isValidForSlice_stringSliceFrom.1 pos.isValidForSlice).2
 
 @[deprecated Pos.ofSliceFrom (since := "2025-11-20")]
 def Pos.ofReplaceStart {s : String} {p₀ : s.Pos} (pos : (s.sliceFrom p₀).Pos) :
@@ -2230,7 +2291,7 @@ def Pos.ofReplaceStart {s : String} {p₀ : s.Pos} (pos : (s.sliceFrom p₀).Pos
 
 @[simp]
 theorem Pos.offset_ofSliceFrom {s : String} {p₀ : s.Pos}
-    {pos : (s.sliceFrom p₀).Pos} : (ofSliceFrom pos).offset = pos.offset.offsetBy p₀.offset :=
+    {pos : (s.sliceFrom p₀).Pos} : (ofSliceFrom pos).offset = pos.offset :=
   (rfl)
 
 /-- Given a position in `s` that is at least `p₀`, obtain the corresponding position in
@@ -2238,9 +2299,8 @@ theorem Pos.offset_ofSliceFrom {s : String} {p₀ : s.Pos}
 @[inline]
 def Pos.sliceFrom {s : String} (p₀ : s.Pos) (pos : s.Pos) (h : p₀ ≤ pos) :
     (s.sliceFrom p₀).Pos where
-  offset := pos.offset.unoffsetBy p₀.offset
-  isValidForSlice := Pos.Raw.isValidForSlice_stringSliceFrom.2 (by
-    simpa [Pos.Raw.offsetBy_unoffsetBy_of_le (Pos.Raw.le_iff.1 h)] using pos.isValid)
+  offset := pos.offset
+  isValidForSlice := Pos.Raw.isValidForSlice_stringSliceFrom.2 ⟨Pos.Raw.le_iff.1 h, pos.isValid⟩
 
 @[deprecated Pos.sliceFrom (since := "2025-11-20")]
 def Pos.toReplaceStart {s : String} (p₀ : s.Pos) (pos : s.Pos) (h : p₀ ≤ pos) :
@@ -2249,13 +2309,12 @@ def Pos.toReplaceStart {s : String} (p₀ : s.Pos) (pos : s.Pos) (h : p₀ ≤ p
 
 @[simp]
 theorem Pos.offset_sliceFrom {s : String} {p₀ : s.Pos} {pos : s.Pos} {h} :
-    (sliceFrom p₀ pos h).offset = pos.offset.unoffsetBy p₀.offset := (rfl)
+    (sliceFrom p₀ pos h).offset = pos.offset := (rfl)
 
 @[simp]
 theorem Pos.sliceFrom_inj {s : String} {p₀ : s.Pos} {pos pos' : s.Pos} {h h'} :
     p₀.sliceFrom pos h = p₀.sliceFrom pos' h' ↔ pos = pos' := by
-  simp [Pos.ext_iff, Pos.Raw.ext_iff, Slice.Pos.ext_iff, Pos.le_iff, Pos.Raw.le_iff] at ⊢ h h'
-  omega
+  simp [Pos.ext_iff, Pos.Raw.ext_iff, Slice.Pos.ext_iff]
 
 @[simp]
 theorem Pos.ofSliceFrom_startPos {s : String} {pos : s.Pos} :
@@ -2265,8 +2324,7 @@ theorem Pos.ofSliceFrom_startPos {s : String} {pos : s.Pos} :
 @[simp]
 theorem Pos.ofSliceFrom_endPos {s : String} {pos : s.Pos} :
     ofSliceFrom (s.sliceFrom pos).endPos = s.endPos := by
-  have := pos.isValid.le_rawEndPos
-  simp_all [Pos.ext_iff, String.Pos.Raw.ext_iff, Pos.Raw.le_iff]
+  simp [Pos.ext_iff]
 
 theorem Pos.ofSliceFrom_inj {s : String} {p₀ : s.Pos}
     {pos pos' : (s.sliceFrom p₀).Pos} :
@@ -2276,12 +2334,14 @@ theorem Pos.ofSliceFrom_inj {s : String} {p₀ : s.Pos}
 @[simp]
 theorem Pos.le_ofSliceFrom {s : String} {p₀ : s.Pos} {pos : (s.sliceFrom p₀).Pos} :
     p₀ ≤ ofSliceFrom pos := by
-  simp [Pos.le_iff, Pos.Raw.le_iff]
+  have := pos.isValidForSlice.offset_startInclusive_le
+  simp_all [Pos.le_iff, Pos.Raw.le_iff]
 
 @[simp]
 theorem Slice.Pos.le_ofSliceFrom {s : Slice} {p₀ : s.Pos} {pos : (s.sliceFrom p₀).Pos} :
     p₀ ≤ ofSliceFrom pos := by
-  simp [Pos.le_iff, Pos.Raw.le_iff]
+  have := pos.isValidForSlice.offset_startInclusive_le
+  simp_all [Pos.le_iff, Pos.Raw.le_iff]
 
 @[simp]
 theorem Slice.Pos.ofSliceFrom_lt_ofSliceFrom_iff {s : Slice} {p : s.Pos}
@@ -2359,12 +2419,14 @@ theorem Pos.ofSliceTo_inj {s : String} {p₀ : s.Pos} {pos pos' : (s.sliceTo p�
 @[simp]
 theorem Pos.ofSliceTo_le {s : String} {p₀ : s.Pos} {pos : (s.sliceTo p₀).Pos} :
     ofSliceTo pos ≤ p₀ := by
-  simpa [Pos.le_iff, Pos.Raw.le_iff] using pos.isValidForSlice.le_utf8ByteSize
+  have := pos.isValidForSlice.le_offset_endExclusive
+  simp_all [Pos.le_iff, Pos.Raw.le_iff]
 
 @[simp]
 theorem Slice.Pos.ofSliceTo_le {s : Slice} {p₀ : s.Pos} {pos : (s.sliceTo p₀).Pos} :
     ofSliceTo pos ≤ p₀ := by
-  simpa [Pos.le_iff, Pos.Raw.le_iff] using pos.isValidForSlice.le_utf8ByteSize
+  have := pos.isValidForSlice.le_offset_endExclusive
+  simp_all [Pos.le_iff, Pos.Raw.le_iff]
 
 @[simp]
 theorem Pos.ofSliceTo_lt_ofSliceTo_iff {s : String} {p : s.Pos}
@@ -2419,30 +2481,32 @@ theorem Pos.sliceTo_ofSliceTo {s : String} {p₀ : s.Pos} {p : (s.sliceTo p₀).
 
 theorem Pos.Raw.isValidForSlice_slice {s : Slice} {p₀ p₁ : s.Pos} {h} (pos : Pos.Raw) :
     pos.IsValidForSlice (s.slice p₀ p₁ h) ↔
-      pos.offsetBy p₀.offset ≤ p₁.offset ∧ (pos.offsetBy p₀.offset).IsValidForSlice s := by
-  refine ⟨fun ⟨h₁, h₂⟩ => ?_, fun ⟨h₁, h₂⟩ => ⟨?_, ?_⟩⟩
-  · have : pos.offsetBy p₀.offset ≤ p₁.offset := by
-      simp [Slice.Pos.le_iff, Pos.Raw.le_iff, Slice.utf8ByteSize_eq] at h h₁ ⊢
-      omega
-    exact ⟨this, ⟨Pos.Raw.le_trans this p₁.isValidForSlice.le_rawEndPos, by simpa [offsetBy_assoc]⟩⟩
-  · simp [Slice.Pos.le_iff, Pos.Raw.le_iff, Slice.utf8ByteSize_eq] at h h₁ ⊢
-    omega
-  · simpa [offsetBy_assoc] using h₂.isValid_offsetBy
+      p₀.offset ≤ pos ∧ pos ≤ p₁.offset ∧ pos.IsValidForSlice s := by
+  constructor
+  · intro ⟨h₁, h₂, h₃⟩
+    simp only [Slice.startInclusive_slice, Slice.endExclusive_slice,
+      Slice.str_slice, Slice.Pos.offset_str] at *
+    exact ⟨h₁, h₂,
+      ⟨Pos.Raw.le_trans p₀.isValidForSlice.offset_startInclusive_le h₁,
+       Pos.Raw.le_trans h₂ p₁.isValidForSlice.le_offset_endExclusive,
+       h₃⟩⟩
+  · intro ⟨h₁, h₂, _, _, h₅⟩
+    exact ⟨h₁, h₂, h₅⟩
 
 theorem Pos.Raw.isValidForSlice_stringSlice {s : String} {p₀ p₁ : s.Pos} {h} (pos : Pos.Raw) :
     pos.IsValidForSlice (s.slice p₀ p₁ h) ↔
-      pos.offsetBy p₀.offset ≤ p₁.offset ∧ (pos.offsetBy p₀.offset).IsValid s := by
-  simp [← slice_toSlice, isValidForSlice_slice]
+      p₀.offset ≤ pos ∧ pos ≤ p₁.offset ∧ pos.IsValid s := by
+  simp [← slice_toSlice, isValidForSlice_slice, isValidForSlice_toSlice_iff]
 
 /-- Given a position in `s.slice p₀ p₁ h`, obtain the corresponding position in `s`. -/
 @[inline]
 def Slice.Pos.ofSlice {s : Slice} {p₀ p₁ : s.Pos} {h} (pos : (s.slice p₀ p₁ h).Pos) : s.Pos where
-  offset := pos.offset.offsetBy p₀.offset
-  isValidForSlice := (Pos.Raw.isValidForSlice_slice _).1 pos.isValidForSlice |>.2
+  offset := pos.offset
+  isValidForSlice := ((Pos.Raw.isValidForSlice_slice _).1 pos.isValidForSlice).2.2
 
 @[simp]
 theorem Slice.Pos.offset_ofSlice {s : Slice} {p₀ p₁ : s.Pos} {h} {pos : (s.slice p₀ p₁ h).Pos} :
-    (Pos.ofSlice pos).offset = pos.offset.offsetBy p₀.offset := (rfl)
+    (Pos.ofSlice pos).offset = pos.offset := (rfl)
 
 @[simp]
 theorem Slice.Pos.ofSlice_startPos {s : Slice} {p₀ p₁ : s.Pos} {h} :
@@ -2468,12 +2532,13 @@ theorem Slice.Pos.ofSlice_inj {s : Slice} {p₀ p₁ : s.Pos} {h} (pos₁ pos₂
 @[simp]
 theorem Slice.Pos.le_ofSlice {s : Slice} {p₀ p₁ : s.Pos} {h}
     {pos : (s.slice p₀ p₁ h).Pos} : p₀ ≤ ofSlice pos := by
-  simp [Pos.le_iff, Pos.Raw.le_iff]
+  have := pos.isValidForSlice.offset_startInclusive_le
+  simp_all [Pos.le_iff, Pos.Raw.le_iff]
 
 @[simp]
 theorem Slice.Pos.ofSlice_le {s : Slice} {p₀ p₁ : s.Pos} {h}
     {pos : (s.slice p₀ p₁ h).Pos} : ofSlice pos ≤ p₁ := by
-  have := (Pos.Raw.isValidForSlice_slice _).1 pos.isValidForSlice |>.1
+  have := ((Pos.Raw.isValidForSlice_slice _).1 pos.isValidForSlice).2.1
   simpa [Pos.le_iff, Pos.Raw.le_iff]
 
 @[simp]
@@ -2493,7 +2558,7 @@ def Pos.ofSlice {s : String} {p₀ p₁ : s.Pos} {h} (pos : (s.slice p₀ p₁ h
 
 @[simp]
 theorem Pos.offset_ofSlice {s : String} {p₀ p₁ : s.Pos} {h} {pos : (s.slice p₀ p₁ h).Pos} :
-    (Pos.ofSlice pos).offset = pos.offset.offsetBy p₀.offset := (rfl)
+    (Pos.ofSlice pos).offset = pos.offset := (rfl)
 
 @[simp]
 theorem Pos.ofSlice_startPos {s : String} {p₀ p₁ : s.Pos} {h} :
@@ -2519,12 +2584,13 @@ theorem Pos.ofSlice_inj {s : String} {p₀ p₁ : s.Pos} {h} (pos₁ pos₂ : (s
 @[simp]
 theorem Pos.le_ofSlice {s : String} {p₀ p₁ : s.Pos} {h}
     {pos : (s.slice p₀ p₁ h).Pos} : p₀ ≤ ofSlice pos := by
-  simp [Pos.le_iff, Pos.Raw.le_iff]
+  have := pos.isValidForSlice.offset_startInclusive_le
+  simp_all [Pos.le_iff, Pos.Raw.le_iff]
 
 @[simp]
 theorem Pos.ofSlice_le {s : String} {p₀ p₁ : s.Pos} {h}
     {pos : (s.slice p₀ p₁ h).Pos} : ofSlice pos ≤ p₁ := by
-  have := (Pos.Raw.isValidForSlice_slice _).1 pos.isValidForSlice |>.1
+  have := ((Pos.Raw.isValidForSlice_slice _).1 pos.isValidForSlice).2.1
   simpa [Pos.le_iff, Pos.Raw.le_iff]
 
 @[simp]
@@ -2545,9 +2611,9 @@ theorem Slice.Pos.le_trans {s : Slice} {p q r : s.Pos} : p ≤ q → q ≤ r →
 @[inline]
 def Slice.Pos.slice {s : Slice} (pos : s.Pos) (p₀ p₁ : s.Pos) (h₁ : p₀ ≤ pos) (h₂ : pos ≤ p₁) :
     (s.slice p₀ p₁ (Slice.Pos.le_trans h₁ h₂)).Pos where
-  offset := pos.offset.unoffsetBy p₀.offset
+  offset := pos.offset
   isValidForSlice := (Pos.Raw.isValidForSlice_slice _).2
-    (by simp [Pos.Raw.offsetBy_unoffsetBy_of_le h₁, Slice.Pos.le_iff.1 h₂, pos.isValidForSlice])
+    ⟨Slice.Pos.le_iff.1 h₁, Slice.Pos.le_iff.1 h₂, pos.isValidForSlice⟩
 
 /-- Given a position in `s` that is between `p₀` and `p₁`, obtain the corresponding position in
 `s.slice p₀ p₁ h`. -/
@@ -2558,17 +2624,17 @@ def Pos.slice {s : String} (pos : s.Pos) (p₀ p₁ : s.Pos) (h₁ : p₀ ≤ po
 
 @[simp]
 theorem Pos.offset_slice {s : String} {p₀ p₁ pos : s.Pos} {h₁ : p₀ ≤ pos} {h₂ : pos ≤ p₁} :
-    (pos.slice p₀ p₁ h₁ h₂).offset = pos.offset.unoffsetBy p₀.offset := (rfl)
+    (pos.slice p₀ p₁ h₁ h₂).offset = pos.offset := (rfl)
 
 @[simp]
 theorem Slice.Pos.offset_slice {s : Slice} {p₀ p₁ pos : s.Pos} {h₁ : p₀ ≤ pos} {h₂ : pos ≤ p₁} :
-    (pos.slice p₀ p₁ h₁ h₂).offset = pos.offset.unoffsetBy p₀.offset := (rfl)
+    (pos.slice p₀ p₁ h₁ h₂).offset = pos.offset := (rfl)
 
 @[simp]
 theorem Slice.Pos.ofSlice_slice {s : Slice} {p₀ p₁ pos : s.Pos}
     {h₁ : p₀ ≤ pos} {h₂ : pos ≤ p₁} :
     Slice.Pos.ofSlice (pos.slice p₀ p₁ h₁ h₂) = pos := by
-  simpa [Pos.ext_iff] using Pos.Raw.offsetBy_unoffsetBy_of_le h₁
+  simp [Pos.ext_iff]
 
 @[simp]
 theorem Slice.Pos.slice_ofSlice {s : Slice} {p₀ p₁ : s.Pos} {h}
@@ -2592,15 +2658,13 @@ theorem Pos.slice_ofSlice {s : String} {p₀ p₁ : s.Pos} {h}
 theorem Slice.Pos.slice_inj {s : Slice} {p₀ p₁ : s.Pos} {pos pos' : s.Pos}
     {h₁ h₁' h₂ h₂'} :
     pos.slice p₀ p₁ h₁ h₂ = pos'.slice p₀ p₁ h₁' h₂' ↔ pos = pos' := by
-  simp [Pos.ext_iff, Pos.Raw.ext_iff, Pos.le_iff, Pos.Raw.le_iff] at ⊢ h₁ h₁'
-  omega
+  simp [Pos.ext_iff, Pos.Raw.ext_iff]
 
 @[simp]
 theorem Pos.slice_inj {s : String} {p₀ p₁ : s.Pos} {pos pos' : s.Pos}
     {h₁ h₁' h₂ h₂'} :
     pos.slice p₀ p₁ h₁ h₂ = pos'.slice p₀ p₁ h₁' h₂' ↔ pos = pos' := by
-  simp [Pos.ext_iff, Pos.Raw.ext_iff, Slice.Pos.ext_iff, Pos.le_iff, Pos.Raw.le_iff] at ⊢ h₁ h₁'
-  omega
+  simp [Pos.ext_iff, Pos.Raw.ext_iff, Slice.Pos.ext_iff]
 
 /--
 Given a position in `s`, obtain the corresponding position in `s.slice p₀ p₁ h`, or panic if `pos`

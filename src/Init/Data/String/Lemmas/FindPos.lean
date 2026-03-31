@@ -21,14 +21,14 @@ namespace String
 namespace Slice
 
 @[simp]
-theorem le_offset_posGE {s : Slice} {p : Pos.Raw} {h : p ≤ s.rawEndPos} :
+theorem le_offset_posGE {s : Slice} {p : Pos.Raw} {h : p ≤ s.endExclusive.offset} :
     p ≤ (s.posGE p h).offset := by
   fun_induction posGE with
   | case1 => simp
   | case2 => exact Std.le_trans (Std.le_of_lt (Pos.Raw.lt_inc)) ‹_›
 
 @[simp]
-theorem posGE_le_iff {s : Slice} {p : Pos.Raw} {h : p ≤ s.rawEndPos} {q : s.Pos} :
+theorem posGE_le_iff {s : Slice} {p : Pos.Raw} {h : p ≤ s.endExclusive.offset} {q : s.Pos} :
     s.posGE p h ≤ q ↔ p ≤ q.offset := by
   fun_induction posGE with
   | case1 => simp [Pos.le_iff]
@@ -37,39 +37,39 @@ theorem posGE_le_iff {s : Slice} {p : Pos.Raw} {h : p ≤ s.rawEndPos} {q : s.Po
     exact fun h => by simp [h, q.isValidForSlice] at h₂
 
 @[simp]
-theorem lt_posGE_iff {s : Slice} {p : Pos.Raw} {h : p ≤ s.rawEndPos} {q : s.Pos} :
+theorem lt_posGE_iff {s : Slice} {p : Pos.Raw} {h : p ≤ s.endExclusive.offset} {q : s.Pos} :
     q < s.posGE p h ↔ q.offset < p := by
   rw [← Std.not_le, posGE_le_iff, Std.not_le]
 
-theorem posGE_eq_iff {s : Slice} {p : Pos.Raw} {h : p ≤ s.rawEndPos} {q : s.Pos} :
+theorem posGE_eq_iff {s : Slice} {p : Pos.Raw} {h : p ≤ s.endExclusive.offset} {q : s.Pos} :
     s.posGE p h = q ↔ p ≤ q.offset ∧ ∀ q', p ≤ q'.offset → q ≤ q' :=
   ⟨by rintro rfl; simp, fun ⟨h₁, h₂⟩ => Std.le_antisymm (by simpa) (h₂ _ (by simp))⟩
 
-theorem posGT_eq_posGE {s : Slice} {p : Pos.Raw} {h : p < s.rawEndPos} :
+theorem posGT_eq_posGE {s : Slice} {p : Pos.Raw} {h : p < s.endExclusive.offset} :
     s.posGT p h = s.posGE p.inc (by simpa) :=
   (rfl)
 
 @[simp]
-theorem posGE_inc {s : Slice} {p : Pos.Raw} {h : p.inc ≤ s.rawEndPos} :
+theorem posGE_inc {s : Slice} {p : Pos.Raw} {h : p.inc ≤ s.endExclusive.offset} :
     s.posGE p.inc h = s.posGT p (by simpa) :=
   (rfl)
 
 @[simp]
-theorem lt_offset_posGT {s : Slice} {p : Pos.Raw} {h : p < s.rawEndPos} :
+theorem lt_offset_posGT {s : Slice} {p : Pos.Raw} {h : p < s.endExclusive.offset} :
     p < (s.posGT p h).offset :=
   Std.lt_of_lt_of_le p.lt_inc (by simp [posGT_eq_posGE, -posGE_inc])
 
 @[simp]
-theorem posGT_le_iff {s : Slice} {p : Pos.Raw} {h : p < s.rawEndPos} {q : s.Pos} :
+theorem posGT_le_iff {s : Slice} {p : Pos.Raw} {h : p < s.endExclusive.offset} {q : s.Pos} :
     s.posGT p h ≤ q ↔ p < q.offset := by
   rw [posGT_eq_posGE, posGE_le_iff, Pos.Raw.inc_le]
 
 @[simp]
-theorem lt_posGT_iff {s : Slice} {p : Pos.Raw} {h : p < s.rawEndPos} {q : s.Pos} :
+theorem lt_posGT_iff {s : Slice} {p : Pos.Raw} {h : p < s.endExclusive.offset} {q : s.Pos} :
     q < s.posGT p h ↔ q.offset ≤ p := by
   rw [posGT_eq_posGE, lt_posGE_iff, Pos.Raw.lt_inc_iff]
 
-theorem posGT_eq_iff {s : Slice} {p : Pos.Raw} {h : p < s.rawEndPos} {q : s.Pos} :
+theorem posGT_eq_iff {s : Slice} {p : Pos.Raw} {h : p < s.endExclusive.offset} {q : s.Pos} :
     s.posGT p h = q ↔ p < q.offset ∧ ∀ q', p < q'.offset → q ≤ q' := by
   simp [posGT_eq_posGE, -posGE_inc, posGE_eq_iff]
 
@@ -84,11 +84,11 @@ theorem offset_posGE_eq_self_iff {s : Slice} {p : String.Pos.Raw} {h} :
    fun h' => by simpa using congrArg Pos.offset (Pos.posGE_offset (p := s.pos p h'))⟩
 
 theorem posGE_eq_pos {s : Slice} {p : String.Pos.Raw} (h : p.IsValidForSlice s) :
-    s.posGE p h.le_rawEndPos = s.pos p h := by
+    s.posGE p h.le_offset_endExclusive = s.pos p h := by
   simpa using Pos.posGE_offset (p := s.pos p h)
 
 theorem pos_eq_posGE {s : Slice} {p : String.Pos.Raw} {h} :
-    s.pos p h = s.posGE p h.le_rawEndPos := by
+    s.pos p h = s.posGE p h.le_offset_endExclusive := by
   simp [posGE_eq_pos h]
 
 @[simp]
@@ -106,57 +106,91 @@ theorem Pos.next_eq_posGT {s : Slice} {p : s.Pos} {h} :
   simp
 
 @[simp]
-theorem offset_posLE_le {s : Slice} {p : Pos.Raw} : (s.posLE p).offset ≤ p := by
+theorem offset_posLE_le {s : Slice} {p : Pos.Raw} (hp : s.startInclusive.offset ≤ p) :
+    (s.posLE p).offset ≤ p := by
   fun_induction posLE with
   | case1 => simp
-  | case2 => exact Std.le_trans ‹_› (Std.le_of_lt (Pos.Raw.dec_lt ‹_›))
+  | case2 r h₁ h₂ ih =>
+    have hr : r ≠ 0 := by intro heq; simp [heq, Pos.Raw.lt_iff] at h₂
+    have hle : s.startInclusive.offset ≤ r.dec := by
+      simp only [Pos.Raw.le_iff, Pos.Raw.lt_iff, Pos.Raw.byteIdx_dec] at h₂ hp ⊢; omega
+    exact Std.le_trans (ih hle) (Std.le_of_lt (Pos.Raw.dec_lt hr))
+  | case3 r h₁ h₂ =>
+    exfalso
+    have heq : r = s.startInclusive.offset := by
+      simp only [Pos.Raw.lt_iff, Pos.Raw.le_iff] at h₂ hp; exact Pos.Raw.ext (by omega)
+    exact h₁ (heq ▸ Pos.Raw.isValidForSlice_offset_startInclusive)
 
 @[simp]
-theorem le_posLE_iff {s : Slice} {p : s.Pos} {q : Pos.Raw} :
-    p ≤ s.posLE q ↔ p.offset ≤ q := by
+theorem le_posLE_iff {s : Slice} {p : s.Pos} {q : Pos.Raw}
+    (hq : s.startInclusive.offset ≤ q) : p ≤ s.posLE q ↔ p.offset ≤ q := by
   fun_induction posLE with
   | case1 => simp [Pos.le_iff]
   | case2 r h₁ h₂ ih =>
-    suffices p.offset ≠ r by simp [ih, Pos.Raw.le_dec h₂, Std.le_iff_lt_or_eq (b := r), this]
+    have hr : r ≠ 0 := by intro heq; simp [heq, Pos.Raw.lt_iff] at h₂
+    have hle : s.startInclusive.offset ≤ r.dec := by
+      simp only [Pos.Raw.le_iff, Pos.Raw.lt_iff, Pos.Raw.byteIdx_dec] at h₂ hq ⊢; omega
+    suffices p.offset ≠ r by
+      simp [ih hle, Pos.Raw.le_dec hr, Std.le_iff_lt_or_eq (b := r), this]
     exact fun h => by simp [← h, p.isValidForSlice] at h₁
+  | case3 r h₁ h₂ =>
+    exfalso
+    have heq : r = s.startInclusive.offset := by
+      simp only [Pos.Raw.lt_iff, Pos.Raw.le_iff] at h₂ hq; exact Pos.Raw.ext (by omega)
+    exact h₁ (heq ▸ Pos.Raw.isValidForSlice_offset_startInclusive)
 
 @[simp]
-theorem posLE_lt_iff {s : Slice} {p : s.Pos} {q : Pos.Raw} :
-    s.posLE q < p ↔ q < p.offset := by
-  rw [← Std.not_le, le_posLE_iff, Std.not_le]
+theorem posLE_lt_iff {s : Slice} {p : s.Pos} {q : Pos.Raw}
+    (hq : s.startInclusive.offset ≤ q) : s.posLE q < p ↔ q < p.offset := by
+  rw [← Std.not_le, le_posLE_iff hq, Std.not_le]
 
-theorem posLE_eq_iff {s : Slice} {p : Pos.Raw} {q : s.Pos} :
+theorem posLE_eq_iff {s : Slice} {p : Pos.Raw} {q : s.Pos}
+    (hp : s.startInclusive.offset ≤ p) :
     s.posLE p = q ↔ q.offset ≤ p ∧ ∀ q', q'.offset ≤ p → q' ≤ q :=
-  ⟨by rintro rfl; simp, fun ⟨h₁, h₂⟩ => Std.le_antisymm (h₂ _ (by simp)) (by simpa)⟩
+  ⟨by rintro rfl; exact ⟨offset_posLE_le hp, fun q' hq' => (le_posLE_iff hp).2 hq'⟩,
+   fun ⟨h₁, h₂⟩ => Std.le_antisymm (h₂ _ (offset_posLE_le hp)) ((le_posLE_iff hp).2 h₁)⟩
 
-theorem posLT_eq_posLE {s : Slice} {p : Pos.Raw} {h : 0 < p} :
+private theorem startInclusive_le_dec_of_lt {s : Slice} {p : Pos.Raw}
+    (h : s.startInclusive.offset < p) : s.startInclusive.offset ≤ p.dec := by
+  simp only [Pos.Raw.le_iff, Pos.Raw.byteIdx_dec]
+  exact Nat.le_sub_one_of_lt (Pos.Raw.lt_iff.1 h)
+
+private theorem ne_zero_of_startInclusive_lt {s : Slice} {p : Pos.Raw}
+    (h : s.startInclusive.offset < p) : p ≠ 0 := by
+  intro heq; simp [heq, Pos.Raw.lt_iff] at h
+
+theorem posLT_eq_posLE {s : Slice} {p : Pos.Raw} {h : s.startInclusive.offset < p} :
     s.posLT p h = s.posLE p.dec := (rfl)
 
-theorem posLE_dec {s : Slice} {p : Pos.Raw} (h : 0 < p) :
+theorem posLE_dec {s : Slice} {p : Pos.Raw} (h : s.startInclusive.offset < p) :
     s.posLE p.dec = s.posLT p h := (rfl)
 
 @[simp]
-theorem offset_posLT_lt {s : Slice} {p : Pos.Raw} {h : 0 < p} :
+theorem offset_posLT_lt {s : Slice} {p : Pos.Raw} {h : s.startInclusive.offset < p} :
     (s.posLT p h).offset < p :=
-  Std.lt_of_le_of_lt (by simp [posLT_eq_posLE]) (Pos.Raw.dec_lt (Pos.Raw.pos_iff_ne_zero.1 h))
+  Std.lt_of_le_of_lt (by simp [posLT_eq_posLE, offset_posLE_le (startInclusive_le_dec_of_lt h)])
+    (Pos.Raw.dec_lt (ne_zero_of_startInclusive_lt h))
 
 @[simp]
-theorem le_posLT_iff {s : Slice} {p : Pos.Raw} {h : 0 < p} {q : s.Pos} :
+theorem le_posLT_iff {s : Slice} {p : Pos.Raw} {h : s.startInclusive.offset < p} {q : s.Pos} :
     q ≤ s.posLT p h ↔ q.offset < p := by
-  rw [posLT_eq_posLE, le_posLE_iff, Pos.Raw.le_dec (Pos.Raw.pos_iff_ne_zero.1 h)]
+  rw [posLT_eq_posLE, le_posLE_iff (startInclusive_le_dec_of_lt h),
+    Pos.Raw.le_dec (ne_zero_of_startInclusive_lt h)]
 
 @[simp]
-theorem posLT_lt_iff {s : Slice} {p : Pos.Raw} {h : 0 < p} {q : s.Pos} :
+theorem posLT_lt_iff {s : Slice} {p : Pos.Raw} {h : s.startInclusive.offset < p} {q : s.Pos} :
     s.posLT p h < q ↔ p ≤ q.offset := by
-  rw [posLT_eq_posLE, posLE_lt_iff, Pos.Raw.dec_lt_iff (Pos.Raw.pos_iff_ne_zero.1 h)]
+  rw [posLT_eq_posLE, posLE_lt_iff (startInclusive_le_dec_of_lt h),
+    Pos.Raw.dec_lt_iff (ne_zero_of_startInclusive_lt h)]
 
-theorem posLT_eq_iff {s : Slice} {p : Pos.Raw} {h : 0 < p} {q : s.Pos} :
+theorem posLT_eq_iff {s : Slice} {p : Pos.Raw} {h : s.startInclusive.offset < p} {q : s.Pos} :
     s.posLT p h = q ↔ q.offset < p ∧ ∀ q', q'.offset < p → q' ≤ q := by
-  simp [posLT_eq_posLE, posLE_eq_iff, Pos.Raw.le_dec (Pos.Raw.pos_iff_ne_zero.1 h)]
+  simp [posLT_eq_posLE, posLE_eq_iff (startInclusive_le_dec_of_lt h),
+    Pos.Raw.le_dec (ne_zero_of_startInclusive_lt h)]
 
 @[simp]
 theorem Pos.posLE_offset {s : Slice} {p : s.Pos} : s.posLE p.offset = p := by
-  simp [posLE_eq_iff, Pos.le_iff]
+  simp [posLE_eq_iff p.isValidForSlice.offset_startInclusive_le, Pos.le_iff]
 
 @[simp]
 theorem offset_posLE_eq_self_iff {s : Slice} {p : String.Pos.Raw} :
@@ -174,15 +208,19 @@ theorem pos_eq_posLE {s : Slice} {p : String.Pos.Raw} {h} :
 
 @[simp]
 theorem Pos.posLT_offset {s : Slice} {p : s.Pos} {h} :
-    s.posLT p.offset h = p.prev (by simpa [Pos.Raw.pos_iff_ne_zero, Pos.ext_iff] using h) := by
-  simp [prev]
+    s.posLT p.offset h = p.prev (by intro heq; subst heq; simp [Pos.Raw.lt_iff] at h) :=
+  rfl
 
 theorem posLT_eq_prev {s : Slice} {p : String.Pos.Raw} {h} (h' : p.IsValidForSlice s) :
-    s.posLT p h = (s.pos p h').prev (by simpa [Pos.Raw.pos_iff_ne_zero, Pos.ext_iff] using h) := by
-  simpa using Pos.posLT_offset (h := h) (p := s.pos p h')
+    s.posLT p h = (s.pos p h').prev (by
+      intro heq; have := congrArg Slice.Pos.offset heq; subst this
+      simp [Pos.Raw.lt_iff] at h) :=
+  Pos.posLT_offset (h := h) (p := s.pos p h')
 
 theorem Pos.prev_eq_posLT {s : Slice} {p : s.Pos} {h} :
-    p.prev h = s.posLT p.offset (by simpa [Pos.Raw.pos_iff_ne_zero, Pos.ext_iff] using h) := by
+    p.prev h = s.posLT p.offset (by
+      have := p.isValidForSlice.offset_startInclusive_le
+      simp [Pos.ext_iff, Pos.Raw.ext_iff, Pos.Raw.lt_iff, Pos.Raw.le_iff] at h this ⊢; omega) := by
   simp
 
 @[simp]
@@ -312,7 +350,7 @@ theorem posGT_eq_iff {s : String} {p : Pos.Raw} {h : p < s.rawEndPos} {q : s.Pos
     s.posGT p h = q ↔ p < q.offset ∧ ∀ q', p < q'.offset → q ≤ q' := by
   simp [posGT_eq_posGE, -posGE_inc, posGE_eq_iff]
 
-theorem posGE_toSlice {s : String} {p : Pos.Raw} (h : p ≤ s.toSlice.rawEndPos) :
+theorem posGE_toSlice {s : String} {p : Pos.Raw} (h : p ≤ s.toSlice.endExclusive.offset) :
     s.toSlice.posGE p h = (s.posGE p (by simpa)).toSlice := by
   simp [posGE]
 
@@ -320,7 +358,7 @@ theorem posGE_eq_posGE_toSlice {s : String} {p : Pos.Raw} (h : p ≤ s.rawEndPos
     s.posGE p h = Pos.ofToSlice (s.toSlice.posGE p (by simpa)) := by
   simp [posGE]
 
-theorem posGT_toSlice {s : String} {p : Pos.Raw} (h : p < s.toSlice.rawEndPos) :
+theorem posGT_toSlice {s : String} {p : Pos.Raw} (h : p < s.toSlice.endExclusive.offset) :
     s.toSlice.posGT p h = (s.posGT p (by simpa)).toSlice := by
   simp [posGT]
 
@@ -362,12 +400,16 @@ theorem next_eq_posGT {s : String} {p : s.Pos} {h} :
 
 @[simp]
 theorem offset_posLE_le {s : String} {p : Pos.Raw} : (s.posLE p).offset ≤ p := by
-  simp [posLE]
+  change (s.toSlice.posLE p).offset ≤ p
+  exact Slice.offset_posLE_le (by simp [Pos.Raw.le_iff])
 
 @[simp]
 theorem le_posLE_iff {s : String} {p : s.Pos} {q : Pos.Raw} :
-    p ≤ s.posLE q ↔ p.offset ≤ q := by
-  simp [posLE, Pos.le_ofToSlice_iff]
+    p ≤ s.posLE q ↔ p.offset ≤ q :=
+  ⟨fun h => Std.le_trans h offset_posLE_le,
+   fun h => by
+    show p.toSlice ≤ s.toSlice.posLE q
+    exact (Slice.le_posLE_iff (s := s.toSlice) (p := p.toSlice) (hq := by simp [Pos.Raw.le_iff])).2 h⟩
 
 @[simp]
 theorem posLE_lt_iff {s : String} {p : s.Pos} {q : Pos.Raw} :

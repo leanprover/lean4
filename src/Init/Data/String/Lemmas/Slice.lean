@@ -25,10 +25,16 @@ theorem beq_eq_true_iff {s t : Slice} : s == t ↔ s.copy = t.copy := by
   simp only [BEq.beq, beq]
   split <;> rename_i h
   · rw [Pattern.Internal.memcmpSlice_eq_true_iff]
-    simp only [offset_startPos, Pos.Raw.byteIdx_zero, Pos.Raw.offsetBy_zero, byteIdx_rawEndPos]
-    rw (occs := [2]) [h]
-    rw [utf8ByteSize_eq_size_toByteArray_copy, ByteArray.extract_zero_size,
-      utf8ByteSize_eq_size_toByteArray_copy, ByteArray.extract_zero_size, String.toByteArray_inj]
+    simp only [offset_startPos]
+    have hs : s.rawEndPos.offsetBy s.startInclusive.offset = s.endExclusive.offset := by
+      simp only [Pos.Raw.ext_iff, Pos.Raw.byteIdx_offsetBy, byteIdx_rawEndPos, utf8ByteSize_eq]
+      have := Pos.Raw.le_iff.1 (String.Pos.le_iff.1 s.startInclusive_le_endExclusive); omega
+    have ht : s.rawEndPos.offsetBy t.startInclusive.offset = t.endExclusive.offset := by
+      simp only [Pos.Raw.ext_iff, Pos.Raw.byteIdx_offsetBy, byteIdx_rawEndPos]
+      rw [h]
+      simp only [utf8ByteSize_eq]
+      have := Pos.Raw.le_iff.1 (String.Pos.le_iff.1 t.startInclusive_le_endExclusive); omega
+    simp only [hs, ht, ← Slice.toByteArray_copy, String.toByteArray_inj]
   · simpa using ne_of_apply_ne String.utf8ByteSize (by simpa)
 
 @[simp]

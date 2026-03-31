@@ -160,26 +160,22 @@ theorem Pos.sliceTo_le_sliceTo_iff {s : String} {p₀ : s.Pos} {q r : s.Pos} {h�
 @[simp]
 theorem Slice.Pos.sliceFrom_lt_sliceFrom_iff {s : Slice} {p₀ : s.Pos} {q r : s.Pos} {h₁ h₂} :
     Pos.sliceFrom p₀ q h₁ < Pos.sliceFrom p₀ r h₂ ↔ q < r := by
-  simp [Slice.Pos.lt_iff, Pos.Raw.lt_iff, Slice.Pos.le_iff, Pos.Raw.le_iff] at h₁ h₂ ⊢
-  omega
+  simp [Slice.Pos.lt_iff, Pos.Raw.lt_iff]
 
 @[simp]
 theorem Slice.Pos.sliceFrom_le_sliceFrom_iff {s : Slice} {p₀ : s.Pos} {q r : s.Pos} {h₁ h₂} :
     Pos.sliceFrom p₀ q h₁ ≤ Pos.sliceFrom p₀ r h₂ ↔ q ≤ r := by
-  simp [Slice.Pos.le_iff, Pos.Raw.le_iff] at h₁ h₂ ⊢
-  omega
+  simp [Slice.Pos.le_iff, Pos.Raw.le_iff]
 
 @[simp]
 theorem Pos.sliceFrom_lt_sliceFrom_iff {s : String} {p₀ : s.Pos} {q r : s.Pos} {h₁ h₂} :
     Pos.sliceFrom p₀ q h₁ < Pos.sliceFrom p₀ r h₂ ↔ q < r := by
-  simp [Slice.Pos.lt_iff, Pos.lt_iff, Pos.Raw.lt_iff, Pos.le_iff, Pos.Raw.le_iff] at h₁ h₂ ⊢
-  omega
+  simp [Slice.Pos.lt_iff, Pos.lt_iff, Pos.Raw.lt_iff]
 
 @[simp]
 theorem Pos.sliceFrom_le_sliceFrom_iff {s : String} {p₀ : s.Pos} {q r : s.Pos} {h₁ h₂} :
     Pos.sliceFrom p₀ q h₁ ≤ Pos.sliceFrom p₀ r h₂ ↔ q ≤ r := by
-  simp [Slice.Pos.le_iff, Pos.le_iff, Pos.Raw.le_iff] at h₁ h₂ ⊢
-  omega
+  simp [Slice.Pos.le_iff, Pos.le_iff, Pos.Raw.le_iff]
 
 theorem Slice.Pos.ofSliceFrom_lt_iff {s : Slice} {p₀ : s.Pos} {p : (s.sliceFrom p₀).Pos} {q : s.Pos} :
     Pos.ofSliceFrom p < q ↔ ∃ h, p < Slice.Pos.sliceFrom p₀ q h := by
@@ -401,29 +397,25 @@ theorem Pos.ofSliceTo_next {s : String} {p₀ : s.Pos} {p : (s.sliceTo p₀).Pos
 theorem Slice.Pos.slice_lt_slice_iff {s : Slice} {p₀ p₁ : s.Pos} {q r : s.Pos}
     {h₁ h₁' h₂ h₂'} :
     q.slice p₀ p₁ h₁ h₂ < r.slice p₀ p₁ h₁' h₂' ↔ q < r := by
-  simp [Slice.Pos.lt_iff, Pos.Raw.lt_iff, Slice.Pos.le_iff, Pos.Raw.le_iff] at h₁ h₁' ⊢
-  omega
+  simp [Slice.Pos.lt_iff, Pos.Raw.lt_iff]
 
 @[simp]
 theorem Slice.Pos.slice_le_slice_iff {s : Slice} {p₀ p₁ : s.Pos} {q r : s.Pos}
     {h₁ h₁' h₂ h₂'} :
     q.slice p₀ p₁ h₁ h₂ ≤ r.slice p₀ p₁ h₁' h₂' ↔ q ≤ r := by
-  simp [Slice.Pos.le_iff, Pos.Raw.le_iff] at h₁ h₁' ⊢
-  omega
+  simp [Slice.Pos.le_iff, Pos.Raw.le_iff]
 
 @[simp]
 theorem Pos.slice_lt_slice_iff {s : String} {p₀ p₁ : s.Pos} {q r : s.Pos}
     {h₁ h₁' h₂ h₂'} :
     q.slice p₀ p₁ h₁ h₂ < r.slice p₀ p₁ h₁' h₂' ↔ q < r := by
-  simp [Slice.Pos.lt_iff, Pos.lt_iff, Pos.Raw.lt_iff, Pos.le_iff, Pos.Raw.le_iff] at h₁ h₁' ⊢
-  omega
+  simp [Slice.Pos.lt_iff, Pos.lt_iff, Pos.Raw.lt_iff]
 
 @[simp]
 theorem Pos.slice_le_slice_iff {s : String} {p₀ p₁ : s.Pos} {q r : s.Pos}
     {h₁ h₁' h₂ h₂'} :
     q.slice p₀ p₁ h₁ h₂ ≤ r.slice p₀ p₁ h₁' h₂' ↔ q ≤ r := by
-  simp [Slice.Pos.le_iff, Pos.le_iff, Pos.Raw.le_iff] at h₁ h₁' ⊢
-  omega
+  simp [Slice.Pos.le_iff, Pos.le_iff, Pos.Raw.le_iff]
 
 theorem Slice.Pos.le_ofSlice_iff {s : Slice} {p₀ p₁ : s.Pos} {h} {p : (s.slice p₀ p₁ h).Pos} {q : s.Pos} :
     q ≤ Pos.ofSlice p ↔ ∃ h₁, ∀ h₀, Slice.Pos.slice q p₀ p₁ h₀ h₁ ≤ p := by
@@ -530,9 +522,9 @@ theorem Pos.ofSlice_ne_startPos {s : String} {p₀ p₁ : s.Pos} {h} {p : (s.sli
   simpa [← Slice.Pos.startPos_lt_iff, ← ofSlice_lt_ofSlice_iff] using h
 
 @[simp]
-theorem Slice.Pos.offset_le_rawEndPos {s : Slice} {p : s.Pos} :
-    p.offset ≤ s.rawEndPos :=
-  p.isValidForSlice.le_rawEndPos
+theorem Slice.Pos.offset_le_endExclusive_offset {s : Slice} {p : s.Pos} :
+    p.offset ≤ s.endExclusive.offset :=
+  p.isValidForSlice.le_offset_endExclusive
 
 @[simp]
 theorem Pos.offset_le_rawEndPos {s : String} {p : s.Pos} :
@@ -540,9 +532,9 @@ theorem Pos.offset_le_rawEndPos {s : String} {p : s.Pos} :
   p.isValid.le_rawEndPos
 
 @[simp]
-theorem Slice.Pos.byteIdx_offset_le_utf8ByteSize {s : Slice} {p : s.Pos} :
-    p.offset.byteIdx ≤ s.utf8ByteSize := by
-  simp [← byteIdx_rawEndPos, ← Pos.Raw.le_iff]
+theorem Slice.Pos.byteIdx_offset_le_endExclusive {s : Slice} {p : s.Pos} :
+    p.offset.byteIdx ≤ s.endExclusive.offset.byteIdx := by
+  simpa [Pos.Raw.le_iff] using p.isValidForSlice.le_offset_endExclusive
 
 @[simp]
 theorem Pos.byteIdx_offset_le_utf8ByteSize {s : String} {p : s.Pos} :
@@ -550,9 +542,9 @@ theorem Pos.byteIdx_offset_le_utf8ByteSize {s : String} {p : s.Pos} :
   simp [← byteIdx_rawEndPos, ← Pos.Raw.le_iff]
 
 @[simp]
-theorem Slice.Pos.offset_lt_rawEndPos_iff {s : Slice} {p : s.Pos} :
-    p.offset < s.rawEndPos ↔ p ≠ s.endPos := by
-  simp [Std.lt_iff_le_and_ne, p.offset_le_rawEndPos, Pos.ext_iff]
+theorem Slice.Pos.offset_lt_endExclusive_offset_iff {s : Slice} {p : s.Pos} :
+    p.offset < s.endExclusive.offset ↔ p ≠ s.endPos := by
+  simp [Std.lt_iff_le_and_ne, p.offset_le_endExclusive_offset, Pos.ext_iff]
 
 @[simp]
 theorem Pos.offset_lt_rawEndPos_iff {s : String} {p : s.Pos} :
@@ -599,16 +591,13 @@ theorem Pos.get_eq_get_ofSlice {s : String} {p₀ p₁ : s.Pos} {h}
 theorem Slice.Pos.ofSlice_next {s : Slice} {p₀ p₁ : s.Pos} {h}
     {p : (s.slice p₀ p₁ h).Pos} {h'} :
     Pos.ofSlice (p.next h') = (Pos.ofSlice p).next (ofSlice_ne_endPos h') := by
-  simp only [Slice.Pos.ext_iff, Pos.Raw.ext_iff, Slice.Pos.offset_next, Slice.Pos.offset_ofSlice]
-  rw [Slice.Pos.get_eq_get_ofSlice (h' := h')]
-  simp [Pos.Raw.offsetBy, Nat.add_assoc]
+  simp [Slice.Pos.ext_iff, Pos.Raw.ext_iff, Slice.Pos.offset_next, Slice.Pos.offset_ofSlice,
+    Slice.Pos.get_eq_get_ofSlice]
 
 theorem Pos.ofSlice_next {s : String} {p₀ p₁ : s.Pos} {h}
     {p : (s.slice p₀ p₁ h).Pos} {h'} :
     Pos.ofSlice (p.next h') = (Pos.ofSlice p).next (ofSlice_ne_endPos h') := by
-  simp only [Pos.ext_iff, Pos.Raw.ext_iff, Slice.Pos.offset_next, Pos.offset_next,
-    Pos.offset_ofSlice]
-  rw [Pos.get_eq_get_ofSlice (h' := h')]
-  simp [Pos.Raw.offsetBy, Nat.add_assoc]
+  simp [Pos.ext_iff, Pos.Raw.ext_iff, Slice.Pos.offset_next, Pos.offset_next,
+    Pos.offset_ofSlice, Pos.get_eq_get_ofSlice]
 
 end String

@@ -20,35 +20,76 @@ namespace String.Slice.Pattern
 
 namespace ForwardSliceSearcher
 
+private theorem memcmpSlice_pat_eq_copy_toByteArray {pat : Slice} :
+    pat.str.toByteArray.extract pat.startInclusive.offset.byteIdx
+      (pat.startInclusive.offset.byteIdx + pat.rawEndPos.byteIdx) = pat.copy.toByteArray := by
+  have := Pos.Raw.le_iff.1 pat.startInclusive_le_endExclusive
+  rw [Slice.toByteArray_copy]
+  congr 1
+  simp [byteIdx_rawEndPos, utf8ByteSize_eq]; omega
+
+private theorem memcmpSlice_s_eq_copy_extract {s : Slice} {n : Nat} (h : n ≤ s.utf8ByteSize) :
+    s.str.toByteArray.extract s.startInclusive.offset.byteIdx
+      (s.startInclusive.offset.byteIdx + n) =
+      s.copy.toByteArray.extract 0 n := by
+  have hse := Pos.Raw.le_iff.1 s.startInclusive_le_endExclusive
+  rw [Slice.toByteArray_copy, ByteArray.extract_extract, Nat.add_zero,
+    Nat.min_eq_left (by have := utf8ByteSize_eq (s := s); omega)]
+
 theorem startsWith_iff {pat s : Slice} : startsWith pat s ↔ ∃ t, s.copy = pat.copy ++ t := by
   rw [startsWith]
-  simp [Internal.memcmpSlice_eq_true_iff, utf8ByteSize_eq_size_toByteArray_copy, -size_toByteArray]
-  generalize pat.copy = pat
-  generalize s.copy = s
-  refine ⟨fun ⟨h₁, h₂⟩ => ?_, ?_⟩
-  · suffices pat.rawEndPos.IsValid s by
-      have h₁ : (s.sliceTo (s.pos _ this)).copy = pat := by
-        simpa [← toByteArray_inj, copy_toByteArray_sliceTo]
-      have := (s.pos _ this).splits
-      rw [h₁] at this
-      refine ⟨_, this.eq_append⟩
-    rw [Pos.Raw.isValid_iff_isValidUTF8_extract_zero]
-    refine ⟨by simpa using h₁, ?_⟩
-    simp only [size_toByteArray] at h₂
-    simpa [h₂] using pat.isValidUTF8
-  · rintro ⟨t, rfl⟩
-    simp [-size_toByteArray, ByteArray.extract_append]
+  simp only [offset_startPos, -size_toByteArray]
+  constructor
+  · intro h
+    split at h
+    · rename_i h₁
+      have h₂ := Internal.memcmpSlice_eq_true_iff.1 h
+      simp only [Pos.Raw.byteIdx_offsetBy] at h₂
+      rw [memcmpSlice_pat_eq_copy_toByteArray,
+        memcmpSlice_s_eq_copy_extract (by simp [byteIdx_rawEndPos]; exact h₁)] at h₂
+      rw [show pat.rawEndPos.byteIdx = pat.copy.utf8ByteSize from
+        by simp [byteIdx_rawEndPos, Slice.utf8ByteSize_copy]] at h₂
+      rw [← Slice.utf8ByteSize_copy (s := pat), ← Slice.utf8ByteSize_copy (s := s)] at h₁
+      generalize pat.copy = pat' at *
+      generalize s.copy = s' at *
+      suffices pat'.rawEndPos.IsValid s' by
+        have h₁' : (s'.sliceTo (s'.pos _ this)).copy = pat' := by
+          simpa [← toByteArray_inj, copy_toByteArray_sliceTo]
+        have := (s'.pos _ this).splits
+        rw [h₁'] at this
+        refine ⟨_, this.eq_append⟩
+      rw [Pos.Raw.isValid_iff_isValidUTF8_extract_zero]
+      refine ⟨by simpa using h₁, ?_⟩
+      simpa [h₂] using pat'.isValidUTF8
+    · simp at h
+  · intro ⟨t, ht⟩
+    have h₁ : pat.utf8ByteSize ≤ s.utf8ByteSize := by
+      have := congrArg String.utf8ByteSize ht
+      simp only [utf8ByteSize_append, Slice.utf8ByteSize_copy] at this
+      omega
+    simp only [dif_pos h₁, Internal.memcmpSlice_eq_true_iff, Pos.Raw.byteIdx_offsetBy]
+    rw [memcmpSlice_pat_eq_copy_toByteArray,
+      memcmpSlice_s_eq_copy_extract (n := pat.rawEndPos.byteIdx) h₁, byteIdx_rawEndPos, ht]
+    simp only [-size_toByteArray, toByteArray_append]
+    exact ByteArray.extract_append_eq_left (by simp)
 
 theorem skipPrefix?_eq_some_iff {pat s : Slice} {pos : s.Pos} :
     skipPrefix? pat s = some pos ↔ (s.sliceTo pos).copy = pat.copy := by
   fun_cases skipPrefix? with
   | case1 h =>
-    simp only [offset_startPos, Pos.Raw.offsetBy_zero, Option.some.injEq]
+    simp only [Option.some.injEq]
     obtain ⟨t, ht⟩ := startsWith_iff.1 h
-    have hval : pat.rawEndPos.IsValidForSlice s := by
-      rw [← Pos.Raw.isValid_copy_iff, ht, ← Slice.rawEndPos_copy]
-      exact Pos.Raw.isValid_rawEndPos.append_right _
-    have hsp : (s.pos _ hval).Splits pat.copy t := ⟨ht, by simp⟩
+    have hval : (pat.rawEndPos.offsetBy s.startPos.offset).IsValidForSlice s :=
+      Pos.Raw.isValidForSlice_iff_exists_append.mpr ⟨pat.copy, t, ht, by
+        ext
+        simp only [Pos.Raw.byteIdx_offsetBy, offset_startPos, byteIdx_rawEndPos,
+          String.byteIdx_rawEndPos, Slice.utf8ByteSize_copy]⟩
+    have hsp : (s.pos _ hval).Splits pat.copy t := by
+      refine ⟨ht, ?_⟩
+      simp only [Pos.Raw.ext_iff, Slice.Pos.offset_copy, Pos.Raw.byteIdx_unoffsetBy,
+        offset_pos, Pos.Raw.byteIdx_offsetBy, offset_startPos,
+        byteIdx_rawEndPos, String.byteIdx_rawEndPos, Slice.utf8ByteSize_copy]
+      omega
     rw [pos!_eq_pos hval]
     exact ⟨(· ▸ hsp.copy_sliceTo_eq), fun h => hsp.pos_eq (h ▸ pos.splits)⟩
   | case2 h =>
@@ -104,27 +145,74 @@ end Model.ForwardStringSearcher
 
 namespace BackwardSliceSearcher
 
+private theorem hs_ba_lemma {s : Slice} (hn : n ≤ s.utf8ByteSize) :
+    s.str.toByteArray.extract (s.endExclusive.offset.byteIdx - n)
+      s.endExclusive.offset.byteIdx =
+      s.copy.toByteArray.extract (s.utf8ByteSize - n) s.utf8ByteSize := by
+  have hsz := utf8ByteSize_eq (s := s)
+  have hle := Pos.Raw.le_iff.1 s.startInclusive_le_endExclusive
+  rw [Slice.toByteArray_copy, ByteArray.extract_extract,
+    Nat.min_eq_left (by omega)]
+  have h1 : s.endExclusive.offset.byteIdx - n =
+      s.startInclusive.offset.byteIdx + (s.utf8ByteSize - n) := by omega
+  have h2 : s.endExclusive.offset.byteIdx =
+      s.startInclusive.offset.byteIdx + s.utf8ByteSize := by omega
+  rw [← h1, ← h2]
+
 theorem endsWith_iff {pat s : Slice} : endsWith pat s ↔ ∃ t, s.copy = t ++ pat.copy := by
   rw [endsWith]
-  simp [Internal.memcmpSlice_eq_true_iff, utf8ByteSize_eq_size_toByteArray_copy, -size_toByteArray]
-  generalize pat.copy = pat
-  generalize s.copy = s
-  refine ⟨fun ⟨h₁, h₂⟩ => ?_, ?_⟩
-  · rw [Nat.sub_add_cancel h₁] at h₂
-    suffices (s.rawEndPos.unoffsetBy pat.rawEndPos).IsValid s by
-      have h₃ : (s.sliceFrom (s.pos _ this)).copy = pat := by
-        rw [← toByteArray_inj, (s.pos _ this).splits.toByteArray_right_eq]
-        simpa [offset_pos, Pos.Raw.byteIdx_unoffsetBy, byteIdx_rawEndPos]
-      have := (s.pos _ this).splits
-      rw [h₃] at this
-      exact ⟨_, this.eq_append⟩
-    rw [Pos.Raw.isValid_iff_isValidUTF8_extract_utf8ByteSize]
-    refine ⟨by simp [Pos.Raw.le_iff, Pos.Raw.byteIdx_unoffsetBy], ?_⟩
-    simp only [size_toByteArray] at h₂
-    simpa [Pos.Raw.byteIdx_unoffsetBy, byteIdx_rawEndPos, h₂] using pat.isValidUTF8
-  · rintro ⟨t, rfl⟩
-    exact ⟨by simp, by rw [Nat.sub_add_cancel (by simp)]; exact
-      ByteArray.extract_append_eq_right (by simp) (by simp)⟩
+  simp only [offset_startPos, offset_endPos, -size_toByteArray]
+  have hse := Pos.Raw.le_iff.1 s.startInclusive_le_endExclusive
+  have hpe := Pos.Raw.le_iff.1 pat.startInclusive_le_endExclusive
+  constructor
+  · intro h
+    split at h
+    · rename_i h₁
+      have h₂ := Internal.memcmpSlice_eq_true_iff.1 h
+      simp only [Pos.Raw.byteIdx_offsetBy, Pos.Raw.byteIdx_unoffsetBy, byteIdx_rawEndPos] at h₂
+      have hpat_ba : pat.str.toByteArray.extract pat.startInclusive.offset.byteIdx
+          (pat.startInclusive.offset.byteIdx + pat.utf8ByteSize) = pat.copy.toByteArray := by
+        rw [show pat.startInclusive.offset.byteIdx + pat.utf8ByteSize =
+          pat.endExclusive.offset.byteIdx from by simp [utf8ByteSize_eq]; omega]
+        exact Slice.toByteArray_copy.symm
+      rw [hpat_ba] at h₂
+      have hle : pat.utf8ByteSize ≤ s.endExclusive.offset.byteIdx := by
+        have := utf8ByteSize_eq (s := s); omega
+      rw [Nat.sub_add_cancel hle] at h₂
+      rw [hs_ba_lemma h₁] at h₂
+      rw [← Slice.utf8ByteSize_copy (s := pat), ← Slice.utf8ByteSize_copy (s := s)] at h₁ h₂
+      generalize pat.copy = pat' at *
+      generalize s.copy = s' at *
+      suffices (s'.rawEndPos.unoffsetBy pat'.rawEndPos).IsValid s' by
+        have h₃ : (s'.sliceFrom (s'.pos _ this)).copy = pat' := by
+          rw [← toByteArray_inj, (s'.pos _ this).splits.toByteArray_right_eq]
+          simpa [offset_pos, Pos.Raw.byteIdx_unoffsetBy, byteIdx_rawEndPos]
+        have := (s'.pos _ this).splits
+        rw [h₃] at this
+        exact ⟨_, this.eq_append⟩
+      rw [Pos.Raw.isValid_iff_isValidUTF8_extract_utf8ByteSize]
+      refine ⟨by simp [Pos.Raw.le_iff, Pos.Raw.byteIdx_unoffsetBy], ?_⟩
+      simpa [Pos.Raw.byteIdx_unoffsetBy, byteIdx_rawEndPos, h₂] using pat'.isValidUTF8
+    · simp at h
+  · intro ⟨t, ht⟩
+    have hpat_ba : pat.str.toByteArray.extract pat.startInclusive.offset.byteIdx
+        (pat.startInclusive.offset.byteIdx + pat.utf8ByteSize) = pat.copy.toByteArray := by
+      rw [show pat.startInclusive.offset.byteIdx + pat.utf8ByteSize =
+        pat.endExclusive.offset.byteIdx from by simp [utf8ByteSize_eq]; omega]
+      exact Slice.toByteArray_copy.symm
+    have hsz : pat.utf8ByteSize ≤ s.utf8ByteSize := by
+      have := congrArg String.utf8ByteSize ht
+      simp only [utf8ByteSize_append, Slice.utf8ByteSize_copy] at this
+      omega
+    have hle : pat.utf8ByteSize ≤ s.endExclusive.offset.byteIdx := by
+      have := utf8ByteSize_eq (s := s); omega
+    simp only [dif_pos hsz, Internal.memcmpSlice_eq_true_iff, Pos.Raw.byteIdx_offsetBy,
+      Pos.Raw.byteIdx_unoffsetBy, byteIdx_rawEndPos]
+    rw [Nat.sub_add_cancel hle, hpat_ba, hs_ba_lemma hsz,
+      show s.utf8ByteSize = s.copy.utf8ByteSize from Slice.utf8ByteSize_copy.symm,
+      show pat.utf8ByteSize = pat.copy.utf8ByteSize from Slice.utf8ByteSize_copy.symm, ht]
+    simp only [utf8ByteSize_append, Nat.add_sub_cancel]
+    exact ByteArray.extract_append_eq_right (by simp) (by simp)
 
 theorem skipSuffix?_eq_some_iff {pat s : Slice} {pos : s.Pos} :
     skipSuffix? pat s = some pos ↔ (s.sliceFrom pos).copy = pat.copy := by
@@ -137,14 +225,24 @@ theorem skipSuffix?_eq_some_iff {pat s : Slice} {pos : s.Pos} :
       have := congrArg String.utf8ByteSize ht
       simp only [utf8ByteSize_append, Slice.utf8ByteSize_copy] at this
       exact this
-    have hoff : (s.endPos.offset.unoffsetBy pat.rawEndPos) = t.rawEndPos := by
+    have hoff : (s.endPos.offset.unoffsetBy pat.rawEndPos) =
+        t.rawEndPos.offsetBy s.startInclusive.offset := by
       ext
       simp only [offset_endPos, Pos.Raw.byteIdx_unoffsetBy, byteIdx_rawEndPos,
-        String.byteIdx_rawEndPos]
+        String.byteIdx_rawEndPos, Pos.Raw.byteIdx_offsetBy]
+      have := Slice.utf8ByteSize_eq (s := s)
+      have := Pos.Raw.le_iff.1 s.startInclusive_le_endExclusive
       omega
     have hval : (s.endPos.offset.unoffsetBy pat.rawEndPos).IsValidForSlice s :=
       Pos.Raw.isValidForSlice_iff_exists_append.mpr ⟨t, pat.copy, ht, hoff⟩
-    have hsp : (s.pos _ hval).Splits t pat.copy := ⟨ht, hoff⟩
+    have hsp : (s.pos _ hval).Splits t pat.copy := by
+      refine ⟨ht, ?_⟩
+      simp only [Pos.Raw.ext_iff, Slice.Pos.offset_copy, Pos.Raw.byteIdx_unoffsetBy,
+        offset_pos, Pos.Raw.byteIdx_offsetBy, offset_endPos,
+        byteIdx_rawEndPos, String.byteIdx_rawEndPos, Slice.utf8ByteSize_copy]
+      have := Slice.utf8ByteSize_eq (s := s)
+      have := Pos.Raw.le_iff.1 s.startInclusive_le_endExclusive
+      omega
     rw [Slice.pos!_eq_pos hval]
     exact ⟨(· ▸ hsp.copy_sliceFrom_eq),
       fun h => hsp.pos_eq_of_eq_right (h ▸ pos.splits)⟩

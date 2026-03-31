@@ -46,7 +46,7 @@ and `t₂`.
 -/
 structure Slice.Pos.Splits {s : Slice} (p : s.Pos) (t₁ t₂ : String) : Prop where
   eq_append : s.copy = t₁ ++ t₂
-  offset_eq_rawEndPos : p.offset = t₁.rawEndPos
+  offset_eq_rawEndPos : p.copy.offset = t₁.rawEndPos
 
 @[simp]
 theorem Pos.splits_cast_iff {s₁ s₂ : String} {h : s₁ = s₂} {p : s₁.Pos} {t₁ t₂ : String} :
@@ -61,9 +61,11 @@ theorem Pos.Splits.cast {s₁ s₂ : String} {p : s₁.Pos} {t₁ t₂ : String}
 theorem Slice.Pos.splits_cast_iff {s₁ s₂ : Slice} {h : s₁.copy = s₂.copy} {p : s₁.Pos}
     {t₁ t₂ : String} :
     (p.cast h).Splits t₁ t₂ ↔ p.Splits t₁ t₂ := by
+  have hoff : (p.cast h).copy.offset = p.copy.offset := by
+    simp only [Slice.Pos.offset_copy, Slice.Pos.offset_cast, Pos.Raw.unoffsetBy_offsetBy]
   constructor
-  · intro ⟨h₁, h₂⟩; exact ⟨h ▸ h₁, by simpa using h₂⟩
-  · intro ⟨h₁, h₂⟩; exact ⟨h.symm ▸ h₁, by simpa using h₂⟩
+  · intro ⟨h₁, h₂⟩; exact ⟨h ▸ h₁, hoff ▸ h₂⟩
+  · intro ⟨h₁, h₂⟩; exact ⟨h ▸ h₁, hoff ▸ h₂⟩
 
 theorem Slice.Pos.Splits.cast {s₁ s₂ : Slice} {p : s₁.Pos} {t₁ t₂ : String}
     (h : s₁.copy = s₂.copy) :
@@ -73,12 +75,12 @@ theorem Slice.Pos.Splits.cast {s₁ s₂ : Slice} {p : s₁.Pos} {t₁ t₂ : St
 theorem Slice.Pos.Splits.copy {s : Slice} {p : s.Pos} {t₁ t₂ : String}
     (h : p.Splits t₁ t₂) : p.copy.Splits t₁ t₂ where
   eq_append := h.eq_append
-  offset_eq_rawEndPos := by simpa using h.offset_eq_rawEndPos
+  offset_eq_rawEndPos := h.offset_eq_rawEndPos
 
 theorem Slice.Pos.splits_of_splits_copy {s : Slice} {p : s.Pos} {t₁ t₂ : String}
     (h : p.copy.Splits t₁ t₂) : p.Splits t₁ t₂ where
   eq_append := h.eq_append
-  offset_eq_rawEndPos := by simpa using h.offset_eq_rawEndPos
+  offset_eq_rawEndPos := h.offset_eq_rawEndPos
 
 @[simp]
 theorem Slice.Pos.splits_copy_iff {s : Slice} {p : s.Pos} {t₁ t₂ : String} :
@@ -253,7 +255,14 @@ theorem Slice.Pos.splits_next_right {s : Slice} (p : s.Pos) (hp : p ≠ s.endPos
 theorem Slice.Pos.splits_next {s : Slice} (p : s.Pos) (hp : p ≠ s.endPos) :
     (p.next hp).Splits ((s.sliceTo p).copy ++ singleton (p.get hp)) (s.sliceFrom (p.next hp)).copy where
   eq_append := p.copy_eq_copy_sliceTo_append_get hp
-  offset_eq_rawEndPos := by simp
+  offset_eq_rawEndPos := by
+    have hle := Pos.Raw.le_iff.1 p.isValidForSlice.offset_startInclusive_le
+    ext
+    simp only [offset_copy, offset_next, Pos.Raw.byteIdx_unoffsetBy, Pos.Raw.byteIdx_add_char,
+      String.byteIdx_rawEndPos, utf8ByteSize_append, utf8ByteSize_singleton,
+      Slice.utf8ByteSize_copy, Slice.utf8ByteSize_eq,
+      Slice.endExclusive_sliceTo, Slice.Pos.offset_str, Slice.startInclusive_sliceTo]
+    omega
 
 theorem Slice.Pos.splits_prev_right {s : Slice} (p : s.Pos) (hp : p ≠ s.startPos) :
     p.Splits ((s.sliceTo (p.prev hp)).copy ++ singleton ((p.prev hp).get (by simp))) (s.sliceFrom p).copy := by
@@ -396,16 +405,16 @@ theorem Pos.Splits.offset_eq_decreaseBy {s : String} {p : s.Pos} (h : p.Splits t
   simp [h.offset_eq_rawEndPos, h.eq_append, Pos.Raw.ext_iff]
 
 theorem Slice.Pos.Splits.offset_eq_decreaseBy {s : Slice} {p : s.Pos} (h : p.Splits t₁ t₂) :
-    p.offset = s.rawEndPos.decreaseBy t₂.utf8ByteSize := by
-  simp [← offset_copy, (splits_copy_iff.2 h).offset_eq_decreaseBy]
+    p.copy.offset = s.copy.rawEndPos.decreaseBy t₂.utf8ByteSize :=
+  (splits_copy_iff.2 h).offset_eq_decreaseBy
 
 theorem Slice.Pos.Splits.pos_eq {s : Slice} {p q : s.Pos} {s t t' : String} (h : p.Splits s t)
     (h' : q.Splits s t') : p = q := by
-  rw [Slice.Pos.ext_iff, h.offset_eq_rawEndPos, h'.offset_eq_rawEndPos]
+  rw [← copy_inj, String.Pos.ext_iff, h.offset_eq_rawEndPos, h'.offset_eq_rawEndPos]
 
 theorem Slice.Pos.Splits.pos_eq_of_eq_right {s : Slice} {p q : s.Pos} {s s' t : String}
     (h : p.Splits s t) (h' : q.Splits s' t) : p = q := by
-  rw [Slice.Pos.ext_iff, h.offset_eq_decreaseBy, h'.offset_eq_decreaseBy]
+  rw [← copy_inj, String.Pos.ext_iff, h.offset_eq_decreaseBy, h'.offset_eq_decreaseBy]
 
 theorem Pos.Splits.pos_eq {s : String} {p q : s.Pos} {s t t' : String} (h : p.Splits s t)
     (h' : q.Splits s t') : p = q := by
@@ -499,44 +508,58 @@ theorem splits_prev_endPos {s : String} {h : s.endPos ≠ s.startPos} :
   apply (Slice.splits_prev_endPos).of_eq <;> simp [String.Pos.prev_toSlice, h]
 
 theorem Slice.Pos.Splits.toByteArray_eq_left {s : Slice} {p : s.Pos} {t₁ t₂ : String} (h : p.Splits t₁ t₂) :
-    t₁.toByteArray = s.copy.toByteArray.extract 0 p.offset.byteIdx := by
-  rw [h.eq_left p.splits]
-  simp only [toByteArray_copy, str_sliceTo, startInclusive_sliceTo, endExclusive_sliceTo,
-    offset_str, Pos.Raw.byteIdx_offsetBy, ByteArray.extract_extract, Nat.add_zero]
-  rw [Nat.min_eq_left]
-  simpa [String.Pos.le_iff, Pos.Raw.le_iff] using p.str_le_endExclusive
+    t₁.toByteArray = s.copy.toByteArray.extract 0 p.copy.offset.byteIdx :=
+  (splits_copy_iff.2 h).toByteArray_left_eq
 
 theorem Pos.Splits.toByteArray_eq_left {s : String} {p : s.Pos} {t₁ t₂ : String} (h : p.Splits t₁ t₂) :
     t₁.toByteArray = s.toByteArray.extract 0 p.offset.byteIdx := by
-  rw [(splits_toSlice_iff.2 h).toByteArray_eq_left, copy_toSlice, Pos.offset_toSlice]
+  have := (splits_toSlice_iff.2 h).toByteArray_eq_left
+  simp [copy_toSlice, Pos.copy_toSlice_eq_cast] at this
+  exact this
 
 theorem Slice.Pos.Splits.toByteArray_eq_right {s : Slice} {p : s.Pos} {t₁ t₂ : String} (h : p.Splits t₁ t₂) :
-    t₂.toByteArray = s.copy.toByteArray.extract p.offset.byteIdx s.copy.toByteArray.size := by
-  rw [h.eq_right p.splits]
-  simp only [toByteArray_copy, str_sliceFrom, startInclusive_sliceFrom, offset_str,
-    Pos.Raw.byteIdx_offsetBy, endExclusive_sliceFrom, ByteArray.size_extract, size_toByteArray,
-    ByteArray.extract_extract]
-  rw [Nat.min_eq_right]
-  rw [Nat.min_eq_left (by simp)]
-  have := s.startInclusive_le_endExclusive
-  rw [String.Pos.le_iff, Pos.Raw.le_iff] at this
-  omega
+    t₂.toByteArray = s.copy.toByteArray.extract p.copy.offset.byteIdx s.copy.toByteArray.size :=
+  (splits_copy_iff.2 h).toByteArray_right_eq
 
 theorem Pos.Splits.toByteArray_eq_right {s : String} {p : s.Pos} {t₁ t₂ : String} (h : p.Splits t₁ t₂) :
     t₂.toByteArray = s.toByteArray.extract p.offset.byteIdx s.toByteArray.size := by
-  rw [(splits_toSlice_iff.2 h).toByteArray_eq_right, copy_toSlice, Pos.offset_toSlice]
+  have := (splits_toSlice_iff.2 h).toByteArray_eq_right
+  simp [copy_toSlice, Pos.copy_toSlice_eq_cast] at this
+  exact this
 
 theorem Slice.Pos.Splits.le_iff_exists_eq_append {s : Slice} {p₁ p₂ : s.Pos} {t₁ t₂ t₃ t₄ : String}
     (h : p₁.Splits t₁ t₂) (h' : p₂.Splits t₃ t₄) : p₁ ≤ p₂ ↔ ∃ t₅, t₃ = t₁ ++ t₅ ∧ t₂ = t₅ ++ t₄ := by
+  have hle₁ := p₁.isValidForSlice.offset_startInclusive_le
+  have hle₂ := p₂.isValidForSlice.offset_startInclusive_le
+  have hcple : p₁.copy ≤ p₂.copy ↔ p₁ ≤ p₂ := by
+    simp only [String.Pos.le_iff, Pos.Raw.le_iff, offset_copy, Pos.Raw.unoffsetBy, le_iff]
+    simp only [Pos.Raw.le_iff] at hle₁ hle₂
+    omega
   refine ⟨fun hp => ?_, ?_⟩
-  · refine ⟨(s.slice p₁ p₂ hp).copy, ?_, ?_⟩
+  · have hcp : p₁.copy ≤ p₂.copy := hcple.2 hp
+    have hcpn : p₁.copy.offset.byteIdx ≤ p₂.copy.offset.byteIdx := by
+      simp only [String.Pos.le_iff, Pos.Raw.le_iff] at hcp; exact hcp
+    refine ⟨(s.slice p₁ p₂ hp).copy, ?_, ?_⟩
     · simp only [← toByteArray_inj, toByteArray_append, h'.toByteArray_eq_left,
         h.toByteArray_eq_left, toByteArray_copy_slice]
-      rw [← ByteArray.extract_eq_extract_append_extract _ (by simp) hp]
-    · simp [← toByteArray_inj, h.toByteArray_eq_right, h'.toByteArray_eq_right,
-        toByteArray_copy_slice, ← ByteArray.extract_eq_extract_append_extract _ hp]
+      rw [← ByteArray.extract_eq_extract_append_extract _ (by simp) hcpn]
+    · have hle_size : p₂.copy.offset.byteIdx ≤ s.copy.toByteArray.size := by
+        simp only [Slice.Pos.offset_copy, size_toByteArray, Pos.Raw.unoffsetBy,
+          Slice.utf8ByteSize_copy, Slice.utf8ByteSize_eq]
+        have := p₂.isValidForSlice.le_offset_endExclusive
+        simp only [Pos.Raw.le_iff] at hle₂ this
+        omega
+      simp only [← toByteArray_inj, toByteArray_append, h.toByteArray_eq_right,
+        h'.toByteArray_eq_right, toByteArray_copy_slice,
+        ← ByteArray.extract_eq_extract_append_extract _ hcpn hle_size]
   · rintro ⟨t₅, rfl, rfl⟩
-    simp [Pos.Raw.le_iff, Slice.Pos.le_iff, h.offset_eq_rawEndPos, h'.offset_eq_rawEndPos]
+    rw [le_iff, Pos.Raw.le_iff]
+    have h1 := h.offset_eq_rawEndPos
+    have h2 := h'.offset_eq_rawEndPos
+    simp only [Pos.Raw.le_iff] at hle₁ hle₂
+    simp only [Pos.Raw.ext_iff, String.byteIdx_rawEndPos, utf8ByteSize_append,
+      Pos.Raw.byteIdx_unoffsetBy, offset_copy] at h1 h2
+    omega
 
 theorem Slice.Pos.Splits.lt_iff_exists_eq_append {s : Slice} {p₁ p₂ : s.Pos} {t₁ t₂ t₃ t₄ : String}
     (h : p₁.Splits t₁ t₂) (h' : p₂.Splits t₃ t₄) :
@@ -577,12 +600,22 @@ def Slice.Pos.Splits.rotateRight {s : Slice} {p : s.Pos} {t₁ t₂ t₃ : Strin
   s.pos (p.offset.increaseBy t₂.utf8ByteSize)
     (Pos.Raw.isValidForSlice_iff_exists_append.2
       ⟨t₁ ++ t₂, t₃, by simpa [append_assoc] using h.eq_append,
-        by simp [Pos.Raw.ext_iff, h.offset_eq_rawEndPos]⟩)
+        by
+          have := h.offset_eq_rawEndPos
+          have hle := p.isValidForSlice.offset_startInclusive_le
+          simp [Pos.Raw.ext_iff, Pos.Raw.increaseBy, Pos.Raw.offsetBy, Pos.Raw.unoffsetBy,
+            Pos.Raw.le_iff, utf8ByteSize_append] at *
+          omega⟩)
 
 theorem Slice.Pos.Splits.splits_rotateRight {s : Slice} {p : s.Pos} {t₁ t₂ t₃ : String}
     (h : p.Splits t₁ (t₂ ++ t₃)) : h.rotateRight.Splits (t₁ ++ t₂) t₃ where
   eq_append := by simpa [append_assoc] using h.eq_append
-  offset_eq_rawEndPos := by simp [rotateRight, Pos.Raw.ext_iff, h.offset_eq_rawEndPos]
+  offset_eq_rawEndPos := by
+    have := h.offset_eq_rawEndPos
+    have hle := p.isValidForSlice.offset_startInclusive_le
+    simp [rotateRight, Pos.Raw.ext_iff, Pos.Raw.increaseBy, Pos.Raw.unoffsetBy,
+      Pos.Raw.le_iff, utf8ByteSize_append, offset_copy] at *
+    omega
 
 /--
 Given a position that splits `s` into `t₁ ++ t₂` and `t₃` with witness `h`, construct a position
@@ -592,13 +625,14 @@ that `h.rotateLEft` splits `s` as required.
 @[inline]
 def Slice.Pos.Splits.rotateLeft {s : Slice} {p : s.Pos} {t₁ t₂ t₃ : String}
     (h : p.Splits (t₁ ++ t₂) t₃) : s.Pos :=
-  s.pos t₁.rawEndPos (Pos.Raw.isValidForSlice_iff_exists_append.2 ⟨t₁, t₂ ++ t₃,
+  s.pos (t₁.rawEndPos.offsetBy s.startInclusive.offset) (Pos.Raw.isValidForSlice_iff_exists_append.2 ⟨t₁, t₂ ++ t₃,
     by simpa [append_assoc] using h.eq_append, rfl⟩)
 
 theorem Slice.Pos.Splits.splits_rotateLeft {s : Slice} {p : s.Pos} {t₁ t₂ t₃ : String}
     (h : p.Splits (t₁ ++ t₂) t₃) : h.rotateLeft.Splits t₁ (t₂ ++ t₃) where
   eq_append := by simpa [append_assoc] using h.eq_append
-  offset_eq_rawEndPos := rfl
+  offset_eq_rawEndPos := by
+    simp [rotateLeft, Pos.Raw.ext_iff, Pos.Raw.unoffsetBy, Pos.Raw.offsetBy]
 
 @[inline, inherit_doc Slice.Pos.Splits.rotateRight]
 def Pos.Splits.rotateRight {s : String} {p : s.Pos} {t₁ t₂ t₃ : String}
@@ -625,7 +659,14 @@ theorem Slice.copy_slice_eq_iff_splits {s : Slice} {pos₁ pos₂ : s.Pos} :
   · rintro ⟨h, rfl⟩
     refine ⟨(s.sliceTo pos₁).copy, (s.sliceFrom pos₂).copy,
       ⟨by simpa [append_assoc] using copy_eq_copy_slice, by simp⟩, ⟨copy_eq_copy_slice, ?_⟩⟩
-    simp [Pos.Raw.ext_iff, Slice.Pos.le_iff, Pos.Raw.le_iff, Pos.Raw.byteDistance_eq] at ⊢ h
+    simp [Pos.Raw.ext_iff, Slice.Pos.le_iff, Pos.Raw.le_iff, Pos.Raw.byteDistance_eq,
+      Slice.Pos.offset_copy, Pos.Raw.unoffsetBy,
+      Slice.utf8ByteSize_copy, Slice.utf8ByteSize_eq, Slice.endExclusive_sliceTo,
+      Slice.startInclusive_sliceTo,
+      Slice.endExclusive_slice, Slice.startInclusive_slice] at ⊢ h
+    have := pos₂.isValidForSlice.offset_startInclusive_le
+    have := pos₁.isValidForSlice.offset_startInclusive_le
+    simp [Pos.Raw.le_iff] at *
     omega
   · have h : pos₁ ≤ pos₂ := (ht₁.le_iff_exists_eq_append ht₂).2 ⟨t, rfl, rfl⟩
     exact ⟨h, by simpa [ht₂.eq_append, ht₁.eq_left pos₁.splits, ht₂.eq_right pos₂.splits] using

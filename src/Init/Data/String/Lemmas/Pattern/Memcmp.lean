@@ -51,15 +51,8 @@ theorem memcmpStr_eq_true_iff {lhs rhs : String} {lstart rstart len : String.Pos
 
 theorem memcmpSlice_eq_true_iff {lhs rhs : Slice} {lstart rstart len : String.Pos.Raw} {h₁ h₂} :
     memcmpSlice lhs rhs lstart rstart len h₁ h₂ = true ↔
-      lhs.copy.toByteArray.extract lstart.byteIdx (len.offsetBy lstart).byteIdx =
-        rhs.copy.toByteArray.extract rstart.byteIdx (len.offsetBy rstart).byteIdx := by
-  rw [memcmpSlice, memcmpStr_eq_true_iff, toByteArray_copy, toByteArray_copy,
-    ByteArray.extract_extract, ByteArray.extract_extract]
-  simp only [Pos.Raw.byteIdx_offsetBy, Nat.add_assoc]
-  have h₃ := lhs.startInclusive_le_endExclusive
-  have h₄ := rhs.startInclusive_le_endExclusive
-  simp only [Pos.Raw.le_iff, Pos.Raw.byteIdx_offsetBy, byteIdx_rawEndPos, utf8ByteSize_eq,
-    String.Pos.le_iff] at h₁ h₂ h₃ h₄
-  rw [Nat.min_eq_left (by omega), Nat.min_eq_left (by omega)]
+      lhs.str.toByteArray.extract lstart.byteIdx (len.offsetBy lstart).byteIdx =
+        rhs.str.toByteArray.extract rstart.byteIdx (len.offsetBy rstart).byteIdx := by
+  rw [memcmpSlice, memcmpStr_eq_true_iff]
 
 end String.Slice.Pattern.Internal

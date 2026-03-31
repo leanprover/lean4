@@ -263,11 +263,11 @@ theorem isLongestMatchAt_iff_isLongestMatchAt_ofSliceFrom {pat : ρ} [PatternMod
   · intro h
     refine ⟨Slice.Pos.ofSliceFrom_le_ofSliceFrom_iff.mpr h.le, ?_⟩
     exact isLongestMatch_of_eq Slice.sliceFrom_sliceFrom
-      (by simp [Pos.Raw.ext_iff]; omega) h.isLongestMatch_sliceFrom
+      (by simp [Pos.Raw.ext_iff]) h.isLongestMatch_sliceFrom
   · intro h
     refine ⟨Slice.Pos.ofSliceFrom_le_ofSliceFrom_iff.mp h.le, ?_⟩
     exact isLongestMatch_of_eq Slice.sliceFrom_sliceFrom.symm
-      (by simp [Pos.Raw.ext_iff]; omega) h.isLongestMatch_sliceFrom
+      (by simp [Pos.Raw.ext_iff]) h.isLongestMatch_sliceFrom
 
 theorem IsLongestMatch.isLongestMatchAt_ofSliceFrom {pat : ρ} [PatternModel pat] {s : Slice}
     {p₀ : s.Pos} {pos : (s.sliceFrom p₀).Pos} (h : IsLongestMatch pat pos) :

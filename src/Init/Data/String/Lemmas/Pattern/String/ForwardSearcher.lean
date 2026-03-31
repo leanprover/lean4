@@ -18,6 +18,7 @@ import Init.Data.Vector.Lemmas
 import Init.Data.Iterators.Lemmas.Basic
 import Init.Data.Iterators.Lemmas.Consumers.Collect
 import Init.Data.String.Lemmas.Basic
+import Init.Data.ByteArray.Lemmas
 import Init.Data.String.OrderInstances
 
 /-!
@@ -99,21 +100,29 @@ theorem PartialMatch.partialMatch_iff {pat s : ByteArray} {stackPos needlePos : 
 
 theorem matchesAt_iff_partialMatch {pat s : Slice} (hpat : pat.isEmpty = false) {pos : s.Pos} :
     MatchesAt pat pos ↔ PartialMatch pat.copy.toByteArray s.copy.toByteArray
-      pat.copy.toByteArray.size (pos.offset.byteIdx + pat.copy.toByteArray.size) := by
+      pat.copy.toByteArray.size (pos.copy.offset.byteIdx + pat.copy.toByteArray.size) := by
   rw [matchesAt_iff_getElem hpat]
-  refine ⟨fun ⟨h, h'⟩ => ⟨h, Nat.le_refl _, by simp, fun j hj => by simp [h' j hj]⟩, fun h => ?_⟩
+  refine ⟨fun ⟨h, h'⟩ => ⟨h, Nat.le_refl _, by omega, fun j hj => by simp [h' j hj]⟩, fun h => ?_⟩
   exact ⟨h.stackPos_le_size, fun j hj => by simp [h.getElem_eq j hj]⟩
 
 theorem PartialMatch.isValidForSlice {pat s : Slice} (hpat : pat.isEmpty = false)
-    {pos : Pos.Raw}
-    (h : PartialMatch pat.copy.toByteArray s.copy.toByteArray pat.utf8ByteSize pos.byteIdx)
-    (h' : (pos.unoffsetBy pat.rawEndPos).IsValidForSlice s) : pos.IsValidForSlice s := by
-  have : pos.byteIdx = (s.pos _ h').offset.byteIdx + pat.copy.toByteArray.size := by
-    have := h.needlePos_le_stackPos
-    simp at ⊢ this
+    {stackPos : Pos.Raw}
+    (h : PartialMatch pat.copy.toByteArray s.copy.toByteArray pat.utf8ByteSize
+      (stackPos.unoffsetBy s.startInclusive.offset).byteIdx)
+    (h' : (stackPos.unoffsetBy pat.rawEndPos).IsValidForSlice s) : stackPos.IsValidForSlice s := by
+  have hle_start := Pos.Raw.le_iff.1 h'.offset_startInclusive_le
+  have hle_np := h.needlePos_le_stackPos
+  simp only [Pos.Raw.byteIdx_unoffsetBy, size_toByteArray, utf8ByteSize_copy,
+    Slice.byteIdx_rawEndPos] at hle_start hle_np
+  have : (stackPos.unoffsetBy s.startInclusive.offset).byteIdx =
+      (s.pos _ h').copy.offset.byteIdx + pat.copy.toByteArray.size := by
+    simp only [Pos.Raw.byteIdx_unoffsetBy, Slice.Pos.offset_copy, size_toByteArray,
+      utf8ByteSize_copy, offset_pos, Slice.byteIdx_rawEndPos]
     omega
-  have h₀ : pos = (pos.unoffsetBy pat.rawEndPos).increaseBy pat.utf8ByteSize := by
-    simpa [Pos.Raw.ext_iff] using this
+  have h₀ : stackPos = (stackPos.unoffsetBy pat.rawEndPos).increaseBy pat.utf8ByteSize := by
+    simp only [Pos.Raw.ext_iff, Pos.Raw.byteIdx_increaseBy, Pos.Raw.byteIdx_unoffsetBy,
+      Slice.byteIdx_rawEndPos]
+    omega
   rw [this, utf8ByteSize_eq_size_toByteArray_copy, ← matchesAt_iff_partialMatch hpat,
     matchesAt_iff_isLongestMatchAt hpat] at h
   obtain ⟨h, -⟩ := h
@@ -121,19 +130,27 @@ theorem PartialMatch.isValidForSlice {pat s : Slice} (hpat : pat.isEmpty = false
 
 theorem PartialMatch.isLongestMatchAt
     {pat s : Slice} (hpat : pat.isEmpty = false)
-    {pos : Pos.Raw}
-    (h : PartialMatch pat.copy.toByteArray s.copy.toByteArray pat.utf8ByteSize pos.byteIdx)
-    (h' : (pos.unoffsetBy pat.rawEndPos).IsValidForSlice s) :
+    {stackPos : Pos.Raw}
+    (h : PartialMatch pat.copy.toByteArray s.copy.toByteArray pat.utf8ByteSize
+      (stackPos.unoffsetBy s.startInclusive.offset).byteIdx)
+    (h' : (stackPos.unoffsetBy pat.rawEndPos).IsValidForSlice s) :
     IsLongestMatchAt pat (s.pos _ h') (s.pos _ (h.isValidForSlice hpat h')) := by
-  have : pos.byteIdx = (s.pos _ h').offset.byteIdx + pat.copy.toByteArray.size := by
-    have := h.needlePos_le_stackPos
-    simp at ⊢ this
+  have hle_start := Pos.Raw.le_iff.1 h'.offset_startInclusive_le
+  have hle_np := h.needlePos_le_stackPos
+  simp only [Pos.Raw.byteIdx_unoffsetBy, size_toByteArray, utf8ByteSize_copy,
+    Slice.byteIdx_rawEndPos] at hle_start hle_np
+  have : (stackPos.unoffsetBy s.startInclusive.offset).byteIdx =
+      (s.pos _ h').copy.offset.byteIdx + pat.copy.toByteArray.size := by
+    simp only [Pos.Raw.byteIdx_unoffsetBy, Slice.Pos.offset_copy, size_toByteArray,
+      utf8ByteSize_copy, offset_pos, Slice.byteIdx_rawEndPos]
     omega
-  have h₀ : pos = (pos.unoffsetBy pat.rawEndPos).increaseBy pat.utf8ByteSize := by
-    simpa [Pos.Raw.ext_iff] using this
+  have h₀ : stackPos = (stackPos.unoffsetBy pat.rawEndPos).increaseBy pat.utf8ByteSize := by
+    simp only [Pos.Raw.ext_iff, Pos.Raw.byteIdx_increaseBy, Pos.Raw.byteIdx_unoffsetBy,
+      Slice.byteIdx_rawEndPos]
+    omega
   rw [this, utf8ByteSize_eq_size_toByteArray_copy, ← matchesAt_iff_partialMatch hpat,
     matchesAt_iff_isLongestMatchAt hpat] at h
-  conv in s.pos pos _ => simp +singlePass [h₀]
+  conv in s.pos stackPos _ => simp +singlePass [h₀]
   exact h.2
 
 /--
@@ -298,6 +315,10 @@ theorem IsTable.push {b : ByteArray} {v : Array Nat} (h : IsTable b v) {d : Nat}
       obtain rfl : i = v.size := by omega
       exact hd
 
+private theorem getUTF8ByteRel_eq_copy_getUTF8Byte {s : Slice} {p : Pos.Raw} {h : p < s.rawEndPos} :
+    s.getUTF8ByteRel p h = s.copy.getUTF8Byte p (by rwa [rawEndPos_copy]) := by
+  simp only [getUTF8ByteRel, Slice.getUTF8Byte_copy, Slice.getUTF8Byte]
+
 set_option backward.isDefEq.respectTransparency false in
 theorem computeDistance_eq_prefixFunctionRecurrence {s : Slice} (i : Nat)
     (hi : i < s.copy.toByteArray.size) {patByte : UInt8}
@@ -309,15 +330,15 @@ theorem computeDistance_eq_prefixFunctionRecurrence {s : Slice} (i : Nat)
   fun_induction prefixFunctionRecurrence with
   | case1 =>
     rw [buildTable.computeDistance, if_pos]
-    simp [getUTF8Byte_eq_getUTF8Byte_copy, String.getUTF8Byte, *]
+    simp [getUTF8ByteRel_eq_copy_getUTF8Byte, String.getUTF8Byte, *]
   | case2 =>
     rw [buildTable.computeDistance, if_neg, dif_pos]
     · rfl
-    · simp [getUTF8Byte_eq_getUTF8Byte_copy, String.getUTF8Byte, *]
+    · simp [getUTF8ByteRel_eq_copy_getUTF8Byte, String.getUTF8Byte, *]
   | case3 g hg h₁ h₂ h₃ ih =>
     rw [buildTable.computeDistance, if_neg, dif_neg h₂]
     · simp only [ht'.eq_prefixFunction, ih]
-    · simp [getUTF8Byte_eq_getUTF8Byte_copy, String.getUTF8Byte, *]
+    · simp [getUTF8ByteRel_eq_copy_getUTF8Byte, String.getUTF8Byte, *]
 
 theorem isTable_buildTableGo {pat : Slice} {table : Array Nat} {ht₀ ht h}
     (ht' : IsTable pat.copy.toByteArray table) :
@@ -325,8 +346,8 @@ theorem isTable_buildTableGo {pat : Slice} {table : Array Nat} {ht₀ ht h}
   fun_induction buildTable.go with
   | case1 t ht₀ ht h hlt patByte dist ih =>
     refine ih (ht'.push (by simp; omega) ?_)
-    simp only [getUTF8Byte_eq_getUTF8Byte_copy, String.getUTF8Byte, ht'.eq_prefixFunction, dist,
-      patByte]
+    simp only [getUTF8ByteRel_eq_copy_getUTF8Byte, String.getUTF8Byte,
+      ht'.eq_prefixFunction, dist, patByte]
     rw [computeDistance_eq_prefixFunctionRecurrence _ _ rfl _ ht',
       prefixFunctionRecurrence_eq_prefixFunction]
     · exact prefixFunction_le_prefixFunction_sub_one_add_one ht₀
@@ -353,16 +374,29 @@ the code does not panic and returns the correct result.
 structure Invariants (pat s : Slice) (needlePos stackPos : String.Pos.Raw) : Prop where
   isEmpty_eq_false : pat.isEmpty = false
   partialMatch : PartialMatch pat.copy.toByteArray s.copy.toByteArray
-    needlePos.byteIdx stackPos.byteIdx
+    needlePos.byteIdx (stackPos.unoffsetBy s.startInclusive.offset).byteIdx
   isValidForSlice' : needlePos = 0 → stackPos.IsValidForSlice s
 
 theorem Invariants.inc {pat s : Slice} {stackPos needlePos : String.Pos.Raw}
     (h₀ : Invariants pat s needlePos stackPos) (h₁ h₂)
-    (h : pat.getUTF8Byte needlePos h₁ = s.getUTF8Byte stackPos h₂) :
+    (h : pat.getUTF8ByteRel needlePos h₁ = s.getUTF8Byte stackPos h₂) :
     Invariants pat s needlePos.inc stackPos.inc where
   isEmpty_eq_false := h₀.isEmpty_eq_false
-  partialMatch := partialMatch_add_one_add_one_iff.2 ⟨h₀.partialMatch, ⟨_, _,
-    by simpa [getUTF8Byte_eq_getUTF8Byte_copy, String.getUTF8Byte] using h⟩⟩
+  partialMatch := by
+    simp only [Pos.Raw.byteIdx_unoffsetBy, Pos.Raw.byteIdx_inc]
+    have hle : s.startInclusive.offset.byteIdx ≤ stackPos.byteIdx := by
+      by_cases hn : needlePos = 0
+      · exact Pos.Raw.le_iff.1 (h₀.isValidForSlice' hn).offset_startInclusive_le
+      · have := h₀.partialMatch.needlePos_le_stackPos
+        simp only [Pos.Raw.byteIdx_unoffsetBy, Pos.Raw.ext_iff, Pos.Raw.byteIdx_zero] at this hn
+        omega
+    rw [show stackPos.byteIdx + 1 - s.startInclusive.offset.byteIdx =
+      (stackPos.byteIdx - s.startInclusive.offset.byteIdx) + 1 from by omega]
+    simp only [getUTF8ByteRel_eq_copy_getUTF8Byte,
+      Slice.getUTF8Byte_eq_getUTF8Byte_copy (Pos.Raw.le_iff.2 hle),
+      String.getUTF8Byte, Pos.Raw.byteIdx_unoffsetBy] at h
+    exact partialMatch_add_one_add_one_iff.2 ⟨by simpa [Pos.Raw.byteIdx_unoffsetBy] using
+      h₀.partialMatch, ⟨_, _, h⟩⟩
   isValidForSlice' := by simp
 
 theorem Invariants.isValidForSlice {pat s : Slice} {needlePos stackPos : String.Pos.Raw}
@@ -374,20 +408,36 @@ theorem Invariants.isValidForSlice {pat s : Slice} {needlePos stackPos : String.
   · simp only [Pos.Raw.ext_iff, Pos.Raw.byteIdx_zero] at hn
     rw [Pos.Raw.isValidForSlice_iff_isUTF8FirstByte, Classical.or_iff_not_imp_left]
     intro hst
+    have hle_st := h.partialMatch.needlePos_le_stackPos
+    have hle_sz := h.partialMatch.stackPos_le_size
+    simp only [Pos.Raw.byteIdx_unoffsetBy, size_toByteArray, utf8ByteSize_copy,
+      utf8ByteSize_eq] at hle_st hle_sz
     refine ⟨?_, ?_⟩
-    · have := h.partialMatch.stackPos_le_size
-      simp only [Pos.Raw.ext_iff, Pos.Raw.byteIdx_unoffsetBy, byteIdx_rawEndPos, size_toByteArray,
-        utf8ByteSize_copy, Pos.Raw.lt_iff, gt_iff_lt] at ⊢ hst this
+    · simp only [Pos.Raw.ext_iff, Pos.Raw.byteIdx_unoffsetBy, size_toByteArray,
+        utf8ByteSize_copy, Pos.Raw.lt_iff, Pos.Raw.le_iff, gt_iff_lt] at ⊢ hst
       omega
-    · simp only [getUTF8Byte_eq_getUTF8Byte_copy, String.getUTF8Byte, Pos.Raw.byteIdx_unoffsetBy]
-      simp +singlePass only [← Nat.add_zero (stackPos.byteIdx - needlePos.byteIdx),
-        ← h.partialMatch.getElem_eq 0 (by omega)]
+    · have hle_start : s.startInclusive.offset ≤ stackPos.unoffsetBy needlePos := by
+        simp only [Pos.Raw.le_iff, Pos.Raw.byteIdx_unoffsetBy]; omega
+      refine ⟨by simp only [Pos.Raw.lt_iff, Pos.Raw.byteIdx_unoffsetBy]; omega, ?_⟩
+      simp only [getUTF8Byte_eq_getUTF8Byte_copy hle_start,
+        String.getUTF8Byte, Pos.Raw.byteIdx_unoffsetBy]
+      have : (stackPos.byteIdx - needlePos.byteIdx) - s.startInclusive.offset.byteIdx =
+          (stackPos.byteIdx - s.startInclusive.offset.byteIdx) - needlePos.byteIdx := by omega
+      simp only [this]
+      have hge := h.partialMatch.getElem_eq 0 (by omega)
+      simp only [Pos.Raw.byteIdx_unoffsetBy] at hge
+      simp +singlePass only [← Nat.add_zero
+        ((stackPos.byteIdx - s.startInclusive.offset.byteIdx) - needlePos.byteIdx), ← hge]
       exact pat.copy.isValidUTF8.isUTF8FirstByte_getElem_zero ..
 
 theorem Invariants.offset {pat s : Slice} {pos : s.Pos} (hpat : pat.isEmpty = false) :
     Invariants pat s 0 pos.offset where
   isEmpty_eq_false := hpat
-  partialMatch := partialMatch_zero (by simpa [Pos.Raw.le_iff, Pos.le_iff] using pos.le_endPos)
+  partialMatch := partialMatch_zero (by
+    simp only [Pos.Raw.byteIdx_unoffsetBy, size_toByteArray, utf8ByteSize_copy, utf8ByteSize_eq]
+    have := Pos.Raw.le_iff.1 pos.isValidForSlice.offset_startInclusive_le
+    have := Pos.Raw.le_iff.1 pos.isValidForSlice.le_offset_endExclusive
+    omega)
   isValidForSlice' _ := pos.isValidForSlice
 
 /-- The start of the window, as a valid position in `s.` -/
@@ -414,20 +464,47 @@ theorem Invariants.not_matchesAt_of_prefixFunction_eq {pat s : Slice}
     {k : Nat} {hki} (hk : prefixFunction pat.copy.toByteArray (needlePos.byteIdx - 1) hki = k)
     (p : s.Pos) (hp₁ : stackPos.unoffsetBy needlePos ≤ p.offset)
     (hp₂ : p.offset < stackPos.unoffsetBy ⟨k⟩)
-    {h₁ h₂} (hmism : s.getUTF8Byte stackPos h₁ ≠ pat.getUTF8Byte needlePos h₂) :
+    {h₁ h₂} (hmism : s.getUTF8Byte stackPos h₁ ≠ pat.getUTF8ByteRel needlePos h₂) :
     ¬ MatchesAt pat p := by
-  simp only [getUTF8Byte_eq_getUTF8Byte_copy, String.getUTF8Byte, ne_eq] at hmism
+  have hstart_le_st : s.startInclusive.offset ≤ stackPos := by
+    by_cases hn : needlePos = 0
+    · exact (h.isValidForSlice' hn).offset_startInclusive_le
+    · have := h.partialMatch.needlePos_le_stackPos
+      simp only [Pos.Raw.le_iff, Pos.Raw.byteIdx_unoffsetBy, Pos.Raw.ext_iff,
+        Pos.Raw.byteIdx_zero] at this hn ⊢; omega
+  simp only [getUTF8ByteRel_eq_copy_getUTF8Byte, getUTF8Byte_eq_getUTF8Byte_copy hstart_le_st,
+    String.getUTF8Byte, ne_eq] at hmism
   rw [matchesAt_iff_partialMatch h.isEmpty_eq_false]
   intro hpart
+  have hstart_le_p := Pos.Raw.le_iff.1 p.isValidForSlice.offset_startInclusive_le
+  have hstart_le_st' := Pos.Raw.le_iff.1 hstart_le_st
+  have hcsp : (stackPos.unoffsetBy s.startInclusive.offset).byteIdx =
+      stackPos.byteIdx - s.startInclusive.offset.byteIdx := by
+    simp [Pos.Raw.byteIdx_unoffsetBy]
+  have hcpp : p.copy.offset.byteIdx = p.offset.byteIdx - s.startInclusive.offset.byteIdx := by
+    simp [Slice.Pos.offset_copy, Pos.Raw.byteIdx_unoffsetBy]
   simp only [Pos.Raw.le_iff, Pos.Raw.byteIdx_unoffsetBy, Nat.sub_le_iff_le_add,
     Pos.Raw.lt_iff] at hp₁ hp₂
   by_cases hin : stackPos.byteIdx - p.offset.byteIdx ≤ needlePos.byteIdx - 1
-  · have := hpart.partialMatch_of_le stackPos.byteIdx (by omega) (by omega)
+  · have := hpart.partialMatch_of_le
+      (stackPos.unoffsetBy s.startInclusive.offset).byteIdx (by omega) (by omega)
     have := hk ▸ (h.partialMatch.partialMatch_iff.2 ⟨by omega, this⟩).le_prefixFunction
       (by omega) (by omega)
     omega
-  · obtain rfl : stackPos = needlePos.offsetBy p.offset := by simpa [Pos.Raw.ext_iff] using by omega
-    simp [hpart.getElem_eq needlePos.byteIdx (by simpa [Pos.Raw.lt_iff] using h₂)] at hmism
+  · obtain rfl : stackPos = needlePos.offsetBy p.offset := by
+      simpa [Pos.Raw.ext_iff, Pos.Raw.byteIdx_offsetBy] using by omega
+    have hlt_np : needlePos.byteIdx < pat.copy.toByteArray.size := by
+      have := Pos.Raw.lt_iff.1 h₂
+      simpa [byteIdx_rawEndPos, utf8ByteSize_copy, size_toByteArray] using this
+    have hge := hpart.getElem_eq needlePos.byteIdx hlt_np
+    simp only [Pos.Raw.byteIdx_unoffsetBy, Pos.Raw.byteIdx_offsetBy, Slice.Pos.offset_copy,
+      size_toByteArray, utf8ByteSize_copy] at hge hmism
+    simp only [Nat.add_sub_cancel] at hge
+    have heq : p.offset.byteIdx - s.startInclusive.offset.byteIdx + needlePos.byteIdx =
+        p.offset.byteIdx + needlePos.byteIdx - s.startInclusive.offset.byteIdx := by
+      clear hge hmism hpart hcsp; omega
+    simp only [heq] at hge
+    exact hmism hge.symm
 
 theorem Invariants.of_prefixFunction_eq {pat s : Slice} {stackPos needlePos : String.Pos.Raw}
     (h : Invariants pat s needlePos stackPos)
@@ -487,8 +564,11 @@ theorem Invariants.isValidSearchFrom_toList {pat s : Slice} {stackPos needlePos 
         · simp only [base, Pos.Raw.unoffsetBy_zero, Pos.le_iff, offset_pos, lt_posGT_iff]
           intro pos hp₁ hp₂
           obtain rfl : stackPos = pos.offset := Std.le_antisymm hp₁ hp₂
-          simpa [matchesAt_iff_getElem h.isEmpty_eq_false] using fun h => ⟨0, by simpa,
-            by simpa [getUTF8Byte_eq_getUTF8Byte_copy, String.getUTF8Byte] using Ne.symm h₂⟩
+          have hle := (h.isValidForSlice' rfl).offset_startInclusive_le
+          simpa [matchesAt_iff_getElem h.isEmpty_eq_false] using fun h' => ⟨0, by simpa,
+            by simpa [getUTF8ByteRel_eq_copy_getUTF8Byte,
+              Slice.getUTF8Byte_eq_getUTF8Byte_copy hle,
+              String.getUTF8Byte, Pos.Raw.byteIdx_unoffsetBy] using Ne.symm h₂⟩
 
       · cases ht
         simp only [getElem_buildTable] at hit''
@@ -504,7 +584,7 @@ theorem Invariants.isValidSearchFrom_toList {pat s : Slice} {stackPos needlePos 
           · exact ihy plausible (.offset h.isEmpty_eq_false) rfl rfl
           · have := h.partialMatch.needlePos_le_stackPos
             simp only [Pos.Raw.ext_iff, Pos.Raw.byteIdx_zero, base, lt_posGE_iff, offset_pos,
-              Pos.Raw.lt_iff, Pos.Raw.byteIdx_unoffsetBy, gt_iff_lt] at ⊢ h₃
+              Pos.Raw.lt_iff, Pos.Raw.byteIdx_unoffsetBy, gt_iff_lt] at ⊢ h₃ this
             omega
           · simp only [base, lt_posGE_iff]
             exact fun p hp₁ hp₂ => not_matchesAt_of_prefixFunction_eq h h₄ _ hp₁ hp₂ h₂
@@ -532,14 +612,24 @@ theorem Invariants.isValidSearchFrom_toList {pat s : Slice} {stackPos needlePos 
       apply IsValidSearchFrom.mismatched_of_eq _ _ _ (by simp [base])
       · rw [Std.Iter.toList_eq_match_step, Std.Iter.step_eq]
         simpa [Std.Iter.toIterM] using IsValidSearchFrom.endPos
-      · simp only [Pos.Raw.lt_iff, Pos.Raw.byteIdx_unoffsetBy, byteIdx_rawEndPos, base, Pos.lt_iff,
+      · simp only [Pos.Raw.lt_iff, Pos.Raw.byteIdx_unoffsetBy, base, Pos.lt_iff,
           offset_pos, offset_endPos] at ⊢ h₂
         omega
       · refine fun p hp₁ hp₂ hm => ?_
         have := le_of_matchesAt h.isEmpty_eq_false hm
+        have hstart_le_st : s.startInclusive.offset.byteIdx ≤ stackPos.byteIdx := by
+          by_cases hn : needlePos = 0
+          · exact Pos.Raw.le_iff.1 (h.isValidForSlice' hn).offset_startInclusive_le
+          · have := h.partialMatch.needlePos_le_stackPos
+            simp only [Pos.Raw.byteIdx_unoffsetBy, Pos.Raw.ext_iff,
+              Pos.Raw.byteIdx_zero] at this hn; omega
+        have hstart_le_p := Pos.Raw.le_iff.1 p.isValidForSlice.offset_startInclusive_le
+        have hpat_ne : 0 < pat.utf8ByteSize := by
+          have h' := h.isEmpty_eq_false; simp [isEmpty_eq] at h'; omega
         simp only [base, Pos.le_iff, offset_pos, Pos.Raw.le_iff, Pos.Raw.byteIdx_unoffsetBy,
           Nat.sub_le_iff_le_add, Pos.Raw.byteIdx_increaseBy, byteIdx_rawEndPos,
-          Nat.not_le] at hp₁ this h₁
+          Nat.not_le, Slice.Pos.offset_copy, Slice.offset_endPos,
+          utf8ByteSize_eq] at hp₁ this h₁ hpat_ne
         omega
 
     · --  Case 7: reached the end with empty partial match -> done
@@ -549,14 +639,18 @@ theorem Invariants.isValidSearchFrom_toList {pat s : Slice} {stackPos needlePos 
       simpa [Pos.Raw.le_iff, Pos.le_iff, Pos.Raw.lt_iff] using h₂
 
 theorem Invariants.start (pat s : Slice) (h : pat.isEmpty = false) :
-    Invariants pat s 0 0 where
+    Invariants pat s 0 s.startPos.offset where
   isEmpty_eq_false := h
-  partialMatch := partialMatch_zero (by simp)
-  isValidForSlice' := by simp
+  partialMatch := by
+    simp only [Slice.offset_startPos, Pos.Raw.byteIdx_unoffsetBy, Nat.sub_self,
+      Pos.Raw.byteIdx_zero]
+    exact partialMatch_zero (by simp)
+  isValidForSlice' _ := s.startPos.isValidForSlice
 
 theorem Invariants.base_start {pat s : Slice} (h : pat.isEmpty = false) :
-    (Invariants.start pat s h).base = s.startPos :=
-  rfl
+    (Invariants.start pat s h).base = s.startPos := by
+  simp only [base, Slice.Pos.ext_iff, offset_pos, Pos.Raw.ext_iff,
+    Pos.Raw.byteIdx_unoffsetBy, Pos.Raw.byteIdx_zero, Nat.sub_zero, Slice.offset_startPos]
 
 public theorem lawfulToForwardSearcherModel {pat : Slice} (hpat : pat.isEmpty = false) :
     LawfulToForwardSearcherModel pat where

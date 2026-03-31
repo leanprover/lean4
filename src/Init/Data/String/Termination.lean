@@ -31,27 +31,27 @@ theorem remainingBytes_eq_byteDistance {s : Slice} {p : s.Pos} :
     p.remainingBytes = p.offset.byteDistance s.endPos.offset := (rfl)
 
 theorem remainingBytes_eq {s : Slice} {p : s.Pos} :
-    p.remainingBytes = s.utf8ByteSize - p.offset.byteIdx := by
+    p.remainingBytes = s.endExclusive.offset.byteIdx - p.offset.byteIdx := by
   simp [remainingBytes_eq_byteDistance, Pos.Raw.byteDistance_eq]
 
 theorem remainingBytes_inj {s : Slice} {p q : s.Pos} :
     p.remainingBytes = q.remainingBytes ↔ p = q := by
-  have := p.isValidForSlice.le_utf8ByteSize
-  have := q.isValidForSlice.le_utf8ByteSize
+  have := Pos.Raw.le_iff.1 p.isValidForSlice.le_offset_endExclusive
+  have := Pos.Raw.le_iff.1 q.isValidForSlice.le_offset_endExclusive
   simp only [remainingBytes_eq, Pos.ext_iff, Pos.Raw.ext_iff]
   omega
 
 theorem le_iff_remainingBytes_le {s : Slice} (p q : s.Pos) :
     p ≤ q ↔ q.remainingBytes ≤ p.remainingBytes := by
-  have := p.isValidForSlice.le_utf8ByteSize
-  have := q.isValidForSlice.le_utf8ByteSize
+  have := Pos.Raw.le_iff.1 p.isValidForSlice.le_offset_endExclusive
+  have := Pos.Raw.le_iff.1 q.isValidForSlice.le_offset_endExclusive
   simp only [remainingBytes_eq, Slice.Pos.le_iff, Pos.Raw.le_iff]
   omega
 
 theorem lt_iff_remainingBytes_lt {s : Slice} (p q : s.Pos) :
     p < q ↔ q.remainingBytes < p.remainingBytes := by
-  have := p.isValidForSlice.le_utf8ByteSize
-  have := q.isValidForSlice.le_utf8ByteSize
+  have := Pos.Raw.le_iff.1 p.isValidForSlice.le_offset_endExclusive
+  have := Pos.Raw.le_iff.1 q.isValidForSlice.le_offset_endExclusive
   simp only [remainingBytes_eq, Slice.Pos.lt_iff, Pos.Raw.lt_iff]
   omega
 
@@ -245,7 +245,11 @@ namespace Slice.Pos
 @[simp]
 theorem remainingBytes_copy {s : Slice} {p : s.Pos} :
     p.copy.remainingBytes = p.remainingBytes := by
-  simp [remainingBytes_eq, String.Pos.remainingBytes_eq, Slice.utf8ByteSize_eq]
+  have := Pos.Raw.le_iff.1 p.isValidForSlice.offset_startInclusive_le
+  have := Pos.Raw.le_iff.1 p.isValidForSlice.le_offset_endExclusive
+  simp only [remainingBytes_eq, String.Pos.remainingBytes_eq, Slice.utf8ByteSize_copy,
+    Slice.utf8ByteSize_eq, Slice.Pos.offset_copy, Pos.Raw.byteIdx_unoffsetBy]
+  omega
 
 theorem Splits.remainingBytes_eq {s : Slice} {p : s.Pos} {t₁ t₂} (h : p.Splits t₁ t₂) :
     p.remainingBytes = t₂.utf8ByteSize := by

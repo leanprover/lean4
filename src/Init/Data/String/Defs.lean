@@ -470,6 +470,14 @@ theorem Pos.Raw.byteIdx_slice_add {s : Slice} {p : Pos.Raw} :
 theorem Pos.Raw.byteIdx_sub_slice {p : Pos.Raw} {s : Slice} :
     (p - s).byteIdx = p.byteIdx - s.utf8ByteSize := rfl
 
+/-- The end position of a slice, as a relative `Pos.Raw` (equal to `⟨s.utf8ByteSize⟩`). -/
+@[expose, inline]
+def Slice.rawEndPos (s : Slice) : Pos.Raw where
+  byteIdx := s.utf8ByteSize
+
+@[simp]
+theorem Slice.byteIdx_rawEndPos {s : Slice} : s.rawEndPos.byteIdx = s.utf8ByteSize := (rfl)
+
 /-- Criterion for validity of positions in string slices. -/
 structure Pos.Raw.IsValidForSlice (s : Slice) (p : Pos.Raw) : Prop where
   offset_startInclusive_le : s.startInclusive.offset ≤ p
@@ -486,6 +494,16 @@ def Slice.getUTF8Byte (s : Slice) (p : Pos.Raw) (h : p < s.endExclusive.offset) 
   s.str.getUTF8Byte p (by
     have := s.endExclusive.isValid.le_rawEndPos
     simp only [Pos.Raw.lt_iff, Pos.Raw.le_iff, byteIdx_rawEndPos] at *
+    omega)
+
+/-- Accesses the indicated byte in the UTF-8 encoding of a string slice using a position
+relative to the start of the slice. -/
+@[inline, expose]
+def Slice.getUTF8ByteRel (s : Slice) (p : Pos.Raw) (h : p < s.rawEndPos) : UInt8 :=
+  s.str.getUTF8Byte (p.offsetBy s.startInclusive.offset) (by
+    have := s.endExclusive.isValid.le_rawEndPos
+    simp only [Pos.Raw.lt_iff, Pos.Raw.le_iff, byteIdx_rawEndPos, Slice.byteIdx_rawEndPos,
+      Slice.utf8ByteSize_eq, Pos.Raw.byteIdx_offsetBy] at *
     omega)
 
 /--

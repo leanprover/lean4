@@ -61,8 +61,18 @@ The implementation is an efficient equivalent of {lean}`s1.copy == s2.copy`
 -/
 def beq (s1 s2 : Slice) : Bool :=
   if h : s1.utf8ByteSize = s2.utf8ByteSize then
-    have h1 := by simp
-    have h2 := by simp [h, String.Pos.Raw.le_iff]
+    have h1 : s1.rawEndPos.offsetBy s1.startPos.offset ≤ s1.endExclusive.offset := by
+      have := s1.startInclusive_le_endExclusive
+      simp only [String.Pos.Raw.le_iff, String.Pos.Raw.byteIdx_offsetBy,
+        Slice.byteIdx_rawEndPos, Slice.utf8ByteSize_eq, Slice.offset_startPos,
+        String.Pos.le_iff] at *
+      omega
+    have h2 : s1.rawEndPos.offsetBy s2.startPos.offset ≤ s2.endExclusive.offset := by
+      have := s2.startInclusive_le_endExclusive
+      simp only [String.Pos.Raw.le_iff, String.Pos.Raw.byteIdx_offsetBy,
+        Slice.byteIdx_rawEndPos, Slice.utf8ByteSize_eq, Slice.offset_startPos,
+        String.Pos.le_iff] at *
+      omega
     Internal.memcmpSlice s1 s2 s1.startPos.offset s2.startPos.offset s1.rawEndPos h1 h2
   else
     false
@@ -884,7 +894,7 @@ def eqIgnoreAsciiCase (s1 s2 : Slice) : Bool :=
   s1.utf8ByteSize == s2.utf8ByteSize && go s1 s1.startPos.offset s2 s2.startPos.offset
 where
   go (s1 : Slice) (s1Curr : String.Pos.Raw) (s2 : Slice) (s2Curr : String.Pos.Raw) : Bool :=
-    if h : s1Curr < s1.rawEndPos ∧ s2Curr < s2.rawEndPos then
+    if h : s1Curr < s1.endExclusive.offset ∧ s2Curr < s2.endExclusive.offset then
       let c1 := (s1.getUTF8Byte s1Curr h.left).toAsciiLower
       let c2 := (s2.getUTF8Byte s2Curr h.right).toAsciiLower
       if c1 == c2 then
@@ -892,8 +902,8 @@ where
       else
         false
     else
-      s1Curr == s1.rawEndPos && s2Curr == s2.rawEndPos
-  termination_by s1.endPos.offset.byteIdx - s1Curr.byteIdx
+      s1Curr == s1.endExclusive.offset && s2Curr == s2.endExclusive.offset
+  termination_by s1.endExclusive.offset.byteIdx - s1Curr.byteIdx
   decreasing_by
     simp [String.Pos.Raw.lt_iff] at h ⊢
     omega

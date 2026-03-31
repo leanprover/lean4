@@ -56,6 +56,7 @@ theorem Pos.Raw.IsValid.set_of_le {s : String} {p : s.Pos} {c : Char} {hp : p �
   rw [Pos.set_eq_append, String.append_assoc]
   apply append_right
   rw [isValid_copy_iff, isValidForSlice_stringSliceTo]
+  simp only [startInclusive_sliceTo, offset_startPos, Pos.Raw.offsetBy_zero]
   exact ⟨hpq, hq⟩
 
 /-- Given a valid position in a string, obtain the corresponding position after setting a character on

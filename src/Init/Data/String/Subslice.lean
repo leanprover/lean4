@@ -230,7 +230,7 @@ subslice of {name}`t`.
 def cast {s t : Slice} (h : s.copy = t.copy) (sl : s.Subslice) : t.Subslice where
   startInclusive := sl.startInclusive.cast h
   endExclusive := sl.endExclusive.cast h
-  startInclusive_le_endExclusive := by simpa using sl.startInclusive_le_endExclusive
+  startInclusive_le_endExclusive := Slice.Pos.cast_le_cast_iff.2 sl.startInclusive_le_endExclusive
 
 @[simp]
 theorem startInclusive_cast {s t : Slice} {h : s.copy = t.copy} {sl : s.Subslice} :

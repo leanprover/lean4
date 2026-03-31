@@ -64,7 +64,10 @@ theorem ofList_cons {c : Char} {l : List Char} :
 
 @[simp]
 theorem Slice.Pos.copy_inj {s : Slice} {p₁ p₂ : s.Pos} : p₁.copy = p₂.copy ↔ p₁ = p₂ := by
-  simp [String.Pos.ext_iff, Pos.ext_iff]
+  have h₁ := p₁.isValidForSlice.offset_startInclusive_le
+  have h₂ := p₂.isValidForSlice.offset_startInclusive_le
+  simp [String.Pos.ext_iff, Pos.ext_iff, Pos.Raw.ext_iff, Pos.Raw.unoffsetBy, Pos.Raw.le_iff] at *
+  omega
 
 @[simp]
 theorem Pos.startPos_le {s : String} (p : s.Pos) : s.startPos ≤ p := by
@@ -72,7 +75,8 @@ theorem Pos.startPos_le {s : String} (p : s.Pos) : s.startPos ≤ p := by
 
 @[simp]
 theorem Slice.Pos.startPos_le {s : Slice} (p : s.Pos) : s.startPos ≤ p := by
-  simp [Pos.le_iff, Pos.Raw.le_iff]
+  have := p.isValidForSlice.offset_startInclusive_le
+  simp_all [Pos.le_iff, Pos.Raw.le_iff]
 
 theorem getUTF8Byte_eq_getUTF8Byte_toSlice {s : String} {p : String.Pos.Raw} {h} :
     s.getUTF8Byte p h = s.toSlice.getUTF8Byte p (by simpa) := by
@@ -92,10 +96,14 @@ theorem Pos.byte_eq_byte_toSlice {s : String} {p : s.Pos} {h} :
   simp
 
 theorem Slice.toByteArray_copy_slice {s : Slice} {p₁ p₂ : s.Pos} {h} :
-    (s.slice p₁ p₂ h).copy.toByteArray = s.copy.toByteArray.extract p₁.offset.byteIdx p₂.offset.byteIdx := by
-  simp [toByteArray_copy, ByteArray.extract_extract]
-  rw [Nat.min_eq_left]
-  simpa [String.Pos.le_iff, Pos.Raw.le_iff] using p₂.str_le_endExclusive
+    (s.slice p₁ p₂ h).copy.toByteArray = s.copy.toByteArray.extract p₁.copy.offset.byteIdx p₂.copy.offset.byteIdx := by
+  simp only [toByteArray_copy, ByteArray.extract_extract, Slice.Pos.offset_str,
+    Slice.Pos.offset_copy, Pos.Raw.byteIdx_unoffsetBy,
+    Slice.startInclusive_slice, Slice.endExclusive_slice]
+  have h₁ := Pos.Raw.le_iff.1 p₁.isValidForSlice.offset_startInclusive_le
+  have h₂ := Pos.Raw.le_iff.1 p₂.isValidForSlice.le_offset_endExclusive
+  have h₃ := Pos.Raw.le_iff.1 p₂.isValidForSlice.offset_startInclusive_le
+  congr 1 <;> omega
 
 theorem toByteArray_copy_slice {s : String} {p₁ p₂ : s.Pos} {h} :
     (s.slice p₁ p₂ h).copy.toByteArray = s.toByteArray.extract p₁.offset.byteIdx p₂.offset.byteIdx := by
@@ -219,17 +227,19 @@ theorem Slice.pos!_eq_pos {s : Slice} {p : Pos.Raw} (h : p.IsValidForSlice s) :
 
 theorem pos!_eq_pos {s : String} {p : Pos.Raw} (h : p.IsValid s) :
     s.pos! p = s.pos p h := by
-  rw [String.pos!, Slice.pos!_eq_pos h.toSlice, String.pos]
+  simp [String.pos!, String.pos, Slice.pos!_eq_pos h.toSlice]
 
 @[simp]
 theorem Slice.copy_pos {s : Slice} {p : Pos.Raw} {h : Pos.Raw.IsValidForSlice s p} :
-    (s.pos p h).copy = s.copy.pos p (Pos.Raw.isValid_copy_iff.2 h) := by
+    (s.pos p h).copy = s.copy.pos (p.unoffsetBy s.startInclusive.offset)
+      (Pos.Raw.isValid_copy_iff.2 (by rw [Pos.Raw.offsetBy_unoffsetBy_of_le h.offset_startInclusive_le]; exact h)) := by
   simp [String.Pos.ext_iff]
 
 @[simp]
 theorem Slice.cast_pos {s t : Slice} {p : Pos.Raw} {h : Pos.Raw.IsValidForSlice s p}
-    {h' : s.copy = t.copy} {h'' : Pos.Raw.IsValidForSlice t p} :
-    (s.pos p h).cast h' = t.pos p h'' := by
+    {h' : s.copy = t.copy}
+    {h'' : Pos.Raw.IsValidForSlice t ((p.unoffsetBy s.startInclusive.offset).offsetBy t.startInclusive.offset)} :
+    (s.pos p h).cast h' = t.pos _ h'' := by
   simp [Slice.Pos.ext_iff]
 
 @[simp]
@@ -237,10 +247,6 @@ theorem cast_pos {s t : String} {p : Pos.Raw} {h : Pos.Raw.IsValid s p} {h' : s 
     (s.pos p h).cast h' = t.pos p (h' ▸ h) := by
   simp [String.Pos.ext_iff]
 
-@[simp]
-theorem Pos.Raw.isValidForSlice_zero {s : Slice} : (0 : Pos.Raw).IsValidForSlice s where
-  le_rawEndPos := by simp [Pos.Raw.le_iff]
-  isValid_offsetBy := by simpa using s.startInclusive.isValid
 
 @[simp]
 theorem Pos.get_ofToSlice {s : String} {p : (s.toSlice).Pos} {h} :

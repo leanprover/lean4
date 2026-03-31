@@ -192,7 +192,40 @@ theorem Slice.sliceFrom_startPos {s : Slice} : s.sliceFrom s.startPos = s := by
   ext <;> simp
 
 @[simp]
+theorem Slice.sliceFrom_eq_self_iff {s : Slice} {p : s.Pos} : s.sliceFrom p = s ↔ p = s.startPos := by
+  refine ⟨?_, by rintro rfl; simp⟩
+  rcases s with ⟨str, startInclusive, endExclusive, h⟩
+  simp [sliceFrom, Slice.startPos, String.Pos.ext_iff, Pos.Raw.ext_iff, Slice.Pos.ext_iff]
+
+@[simp]
 theorem Slice.sliceTo_endPos {s : Slice} : s.sliceTo s.endPos = s := by
+  ext <;> simp
+
+@[simp]
+theorem Slice.sliceTo_eq_self_iff {s : Slice} {p : s.Pos} : s.sliceTo p = s ↔ p = s.endPos := by
+  refine ⟨?_, by rintro rfl; simp⟩
+  rcases s with ⟨str, startInclusive, endExclusive, h⟩
+  simp [sliceTo, Slice.endPos, String.Pos.ext_iff, Pos.Raw.ext_iff, Slice.Pos.ext_iff,
+    utf8ByteSize_eq]
+  omega
+
+@[simp]
+theorem Slice.slice_startPos {s : Slice} {p : s.Pos} :
+    s.slice s.startPos p (Pos.startPos_le _) = s.sliceTo p := by
+  ext <;> simp
+
+@[simp]
+theorem Slice.slice_eq_self_iff {s : Slice} {p₁ p₂ : s.Pos} {h} :
+    s.slice p₁ p₂ h = s ↔ p₁ = s.startPos ∧ p₂ = s.endPos := by
+  refine ⟨?_, by rintro ⟨rfl, rfl⟩; simp⟩
+  rcases s with ⟨str, startInclusive, endExclusive, h⟩
+  simp [slice, Slice.endPos, String.Pos.ext_iff, Pos.Raw.ext_iff, Slice.Pos.ext_iff,
+    utf8ByteSize_eq]
+  omega
+
+@[simp]
+theorem Slice.slice_endPos {s : Slice} {p : s.Pos} :
+    s.slice p s.endPos (Pos.le_endPos _) = s.sliceFrom p := by
   ext <;> simp
 
 @[simp]
@@ -200,8 +233,31 @@ theorem sliceFrom_startPos {s : String} : s.sliceFrom s.startPos = s := by
   ext <;> simp
 
 @[simp]
+theorem sliceFrom_eq_toSlice_iff {s : String} {p : s.Pos} : s.sliceFrom p = s.toSlice ↔ p = s.startPos := by
+  simp [← sliceFrom_toSlice]
+
+@[simp]
 theorem sliceTo_endPos {s : String} : s.sliceTo s.endPos = s := by
   ext <;> simp
+
+@[simp]
+theorem sliceTo_eq_toSlice_iff {s : String} {p : s.Pos} : s.sliceTo p = s.toSlice ↔ p = s.endPos := by
+  simp [← sliceTo_toSlice]
+
+@[simp]
+theorem slice_startPos {s : String} {p : s.Pos} :
+    s.slice s.startPos p (Pos.startPos_le _) = s.sliceTo p := by
+  ext <;> simp
+
+@[simp]
+theorem slice_endPos {s : String} {p : s.Pos} :
+    s.slice p s.endPos (Pos.le_endPos _) = s.sliceFrom p := by
+  ext <;> simp
+
+@[simp]
+theorem slice_eq_toSlice_iff {s : String} {p₁ p₂ : s.Pos} {h} :
+    s.slice p₁ p₂ h = s.toSlice ↔ p₁ = s.startPos ∧ p₂ = s.endPos := by
+  simp [← slice_toSlice]
 
 end Iterate
 

@@ -56,7 +56,7 @@ theorem skipPrefix?_eq_some_iff {pat s : Slice} {pos : s.Pos} :
     simp only [reduceCtorEq, false_iff]
     intro heq
     have := h (s.sliceFrom pos).copy
-    simp [← heq, pos.splits.eq_append] at this
+    simp [← heq, -sliceTo_append_sliceFrom, pos.splits.eq_append] at this
 
 theorem isSome_skipPrefix? {pat s : Slice} : (skipPrefix? pat s).isSome = startsWith pat s := by
   fun_cases skipPrefix? <;> simp_all
@@ -147,7 +147,7 @@ theorem skipSuffix?_eq_some_iff {pat s : Slice} {pos : s.Pos} :
     simp only [reduceCtorEq, false_iff]
     intro heq
     have := h (s.sliceTo pos).copy
-    simp [← heq, pos.splits.eq_append] at this
+    simp [← heq, -sliceTo_append_sliceFrom, pos.splits.eq_append] at this
 
 theorem isSome_skipSuffix? {pat s : Slice} : (skipSuffix? pat s).isSome = endsWith pat s := by
   fun_cases skipSuffix? <;> simp_all

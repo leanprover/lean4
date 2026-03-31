@@ -12,6 +12,7 @@ import Init.Data.String.Lemmas.Pattern.TakeDrop.Basic
 import Init.Data.String.Lemmas.Pattern.Pred
 import Init.Data.Option.Lemmas
 import Init.Data.String.Lemmas.FindPos
+import Init.Data.String.Lemmas.Intercalate
 import Init.ByCases
 
 public section
@@ -48,6 +49,16 @@ theorem eq_append_of_dropPrefix?_bool_eq_some {p : Char → Bool} {s res : Slice
     ∃ c, s.copy = singleton c ++ res.copy ∧ p c = true := by
   obtain ⟨_, ⟨c, ⟨rfl, h₁⟩⟩, h₂⟩ := by simpa [PatternModel.Matches] using Pattern.Model.eq_append_of_dropPrefix?_eq_some h
   exact ⟨_, h₂, h₁⟩
+
+@[simp]
+theorem Pos.skip?_bool_eq_some_iff {p : Char → Bool} {s : Slice} {pos res : s.Pos} :
+    pos.skip? p = some res ↔ ∃ h, res = pos.next h ∧ p (pos.get h) := by
+  simp [Pattern.Model.Pos.skip?_eq_some_iff, CharPred.isLongestMatchAt_iff]
+
+@[simp]
+theorem Pos.skip?_bool_eq_none_iff {p : Char → Bool} {s : Slice} {pos : s.Pos} :
+    pos.skip? p = none ↔ ∀ h, p (pos.get h) = false := by
+  simp [Pattern.Model.Pos.skip?_eq_none_iff, CharPred.matchesAt_iff]
 
 theorem skipPrefix?_prop_eq_some_iff {P : Char → Prop} [DecidablePred P] {s : Slice} {pos : s.Pos} :
     s.skipPrefix? P = some pos ↔ ∃ h, pos = s.startPos.next h ∧ P (s.startPos.get h) := by

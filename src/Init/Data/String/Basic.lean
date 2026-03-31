@@ -1386,6 +1386,11 @@ theorem Slice.copy_eq_copy_sliceTo {s : Slice} {pos : s.Pos} :
   rw [Nat.max_eq_right]
   exact pos.offset_str_le_offset_endExclusive
 
+@[simp]
+theorem Slice.sliceTo_append_sliceFrom {s : Slice} {pos : s.Pos} :
+    (s.sliceTo pos).copy ++ (s.sliceFrom pos).copy = s.copy :=
+  copy_eq_copy_sliceTo.symm
+
 /-- Given a slice `s` and a position on `s.copy`, obtain the corresponding position on `s`. -/
 @[inline]
 def Pos.ofCopy {s : Slice} (pos : s.copy.Pos) : s.Pos where

@@ -99,6 +99,11 @@ theorem Pos.splits {s : String} (p : s.Pos) :
   eq_append := by simp [← toByteArray_inj, Slice.toByteArray_copy, ← size_toByteArray]
   offset_eq_rawEndPos := by simp
 
+@[simp]
+theorem sliceTo_append_sliceFrom {s : String} {pos : s.Pos} :
+    (s.sliceTo pos).copy ++ (s.sliceFrom pos).copy = s :=
+  pos.splits.eq_append.symm
+
 theorem Slice.Pos.splits {s : Slice} (p : s.Pos) :
     p.Splits (s.sliceTo p).copy (s.sliceFrom p).copy where
   eq_append := copy_eq_copy_sliceTo

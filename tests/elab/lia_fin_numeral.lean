@@ -12,3 +12,11 @@ module
 example (n : Nat) (i : Fin (n + 1 + 1)) (h : n + 1 + 1 ≤ ↑i + ↑i + 1) :
     ↑i + ↑i + 1 - (n + 1 + 1) < n + 1 + 1 := by
   lia
+
+-- Multiple middle numerals: `n + 1 + 1 + 1` has two non-tail `1`s
+example (n : Nat) (h : n + 1 + 1 + 1 ≤ 10) : n ≤ 7 := by
+  lia
+
+-- Negative middle numeral (via Int): `-1` in a non-tail position
+example (a b : Int) (h : a + (-1) + b ≤ 0) : a + b ≤ 1 := by
+  lia

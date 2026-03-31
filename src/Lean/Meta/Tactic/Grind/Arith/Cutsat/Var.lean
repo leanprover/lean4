@@ -121,10 +121,7 @@ def addMonomial (e : Expr) (p : Poly) : GoalM Poly := do
   if let some (k, x) ← isMul? e then
     return .add k (← mkVar x) p
   if let some k ← getIntValue? e then
-    if p.isZero then
-      return .num k
-    else
-      reportIssue! "monomial expected, found numeral{indentExpr e}\ninternalizing as variable"
+    return p.addConst k
   return .add 1 (← mkVar e) p
 
 partial def toPoly (e : Expr) : GoalM Poly := do

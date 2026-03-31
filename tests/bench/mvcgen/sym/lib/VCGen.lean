@@ -720,12 +720,22 @@ The function performs the following steps in order:
 5. **Proj/beta reduction**: Reduce `Prod.fst`/`Prod.snd` projections and beta redexes in
    both `H` and `T` (e.g., `(fun _ => T, Q.snd).fst s` → `T`).
 6. **Syntactic rfl**: If `T` is not a `PredTrans.apply`, try closing by `SPred.entails.refl`.
-7. **Let-zeta**: Zeta-reduce let-expressions in the program head.
+7. **Let-hoisting**: Hoist let-expressions from the program head to the goal target.
+7a. **Let-zeta/intro**: If the target starts with `let`, zeta immediately if duplicable, else
+    introduce into the local context via `introsSimp`.
+7b. **Fvar zeta**: Unfold local let-bound fvars on demand when they appear as the program head.
 8. **Iota reduction**: Reduce matchers/recursors with concrete discriminants.
 9. **ite/dite/match splitting**: Apply the appropriate split backward rule.
 10. **Spec application**: Look up a registered `@[spec]` theorem (triple or simp) and apply
     its cached backward rule.
 -/
+
+private meta def isDuplicable (e : Expr) : Bool := match e with
+  | .bvar .. | .mvar .. | .fvar .. | .const .. | .lit .. | .sort .. => true
+  | .mdata _ e | .proj _ _ e => isDuplicable e
+  | .lam .. | .forallE .. | .letE .. => false
+  | .app .. => e.isAppOf ``OfNat.ofNat
+
 meta def solve (goal : MVarId) : VCGenM SolveResult := goal.withContext do
   let target ← goal.getType
   trace[Elab.Tactic.Do.vcgen] "target: {target}"
@@ -737,6 +747,17 @@ meta def solve (goal : MVarId) : VCGenM SolveResult := goal.withContext do
   if target.isForall then
     let IntrosResult.goal _ goal ← introsSimp goal | throwError "Failed to introduce binders for {target}"
     return .goals [goal]
+
+  if target.isLet then
+    if isDuplicable target.letValue! then
+      -- Zeta right away: substitute value into body with sharing
+      let target' ← Sym.instantiateRevBetaS target.letBody! #[target.letValue!]
+      return .goals [← goal.replaceTargetDefEq target']
+    else
+      -- Introduce let binding into the local context with proper sharing
+      let IntrosResult.goal _ goal ← introsSimp goal
+        | throwError "Failed to introduce let binding"
+      return .goals [goal]
 
   let f := target.getAppFn
   if f.isConstOf ``Triple then
@@ -807,11 +828,14 @@ meta def solve (goal : MVarId) : VCGenM SolveResult := goal.withContext do
     let target ← mkAppS₃ ent σs H T
     goal.replaceTargetDefEq target
 
-  -- Zeta let-expressions
-  if let .letE _x _ty val body _nonDep := f then
-    let body' ← Sym.instantiateRevBetaS body #[val]
-    let e' ← mkAppRevS body' e.getAppRevArgs
-    return .goals [← replaceProgDefEq e']
+  -- Let-expressions: hoist to top of goal
+  if let .letE x ty val body _nonDep := f then
+    let e' ← mkAppRevS body e.getAppRevArgs  -- body still has #0 for the let-bound var
+    let wp' ← Sym.Internal.mkAppS₅ wpConst m ps instWP α e'
+    let T' ← mkAppNS head (args.set! 2 wp')
+    let target' ← mkAppS₃ ent σs H T'
+    let hoisted := Expr.letE x ty val target' false
+    return .goals [← goal.replaceTargetDefEq hoisted]
 
   -- Split ite/dite/match
   if let some info ← liftMetaM <| Lean.Elab.Tactic.Do.getSplitInfo? e then
@@ -822,6 +846,12 @@ meta def solve (goal : MVarId) : VCGenM SolveResult := goal.withContext do
     let ApplyResult.goals goals ← rule.apply goal
       | throwError "Failed to apply split rule for {indentExpr e}"
     return .goals goals
+
+  -- Zeta-unfold local let bindings on demand
+  if let some fvarId := f.fvarId? then
+    if let some val ← fvarId.getValue? then
+      let e' ← shareCommonInc (val.betaRev e.getAppRevArgs)
+      return .goals [← replaceProgDefEq e']
 
   -- Apply registered specifications (both triple and simp specs use cached backward rules).
   if f.isConst || f.isFVar then

@@ -8,6 +8,7 @@ module
 prelude
 public import Std.Tactic.Do.ProofMode
 public import Std.Tactic.Do.Syntax
+public import Std.Do.Triple.RepeatSpec
 
 @[expose] public section
 

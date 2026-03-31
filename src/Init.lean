@@ -40,6 +40,7 @@ public import Init.Grind
 public import Init.GrindInstances
 public import Init.Sym
 public import Init.While
+public import Init.Repeat
 public import Init.Syntax
 public import Init.Internal
 public import Init.Try

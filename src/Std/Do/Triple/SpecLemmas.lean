@@ -10,6 +10,8 @@ public import Std.Do.Triple.Basic
 public import Init.Data.Range.Polymorphic.Iterators
 import Init.Data.Range.Polymorphic
 public import Init.Data.Slice.Array
+public import Std.Do.WP.Adequacy
+public import Init.Repeat
 
 -- This public import is a workaround for #10652.
 -- Without it, adding the `spec` attribute for `instMonadLiftTOfMonadLift` will fail.
@@ -2188,3 +2190,90 @@ theorem Spec.forIn_stringSlice
       next => apply Triple.pure; simp
       next b => simp [ih _ _ hsp.next]
   | endPos => simpa using Triple.pure _ (by simp)
+
+/-!
+# Repeat loop specification infrastructure
+-/
+
+/--
+Cursor type for `Repeat` loop invariants.
+Represents either a loop iteration in progress or a completed loop.
+-/
+inductive RepeatCursor (β : Type u) where
+  /-- The loop is in progress with the current accumulator state `s`. -/
+  | «repeat» (s : β) : RepeatCursor β
+  /-- The loop has finished with the final accumulator state `s`. -/
+  | done (s : β) : RepeatCursor β
+
+/--
+An invariant for a `Repeat` loop. A postcondition over `RepeatCursor β` capturing both
+the in-progress and completed states.
+-/
+@[spec_invariant_type]
+abbrev RepeatInvariant (β : Type u) (ps : PostShape.{u}) := PostCond (RepeatCursor β) ps
+
+/--
+A variant (termination measure) for a `Repeat` loop.
+Maps the accumulator state to a natural number that decreases with each iteration.
+-/
+@[spec_invariant_type]
+abbrev RepeatVariant (β : Type u) := β → Nat
+
+section
+
+variable {α : Type u₁} {m : Type u₁ → Type v} {ps : PostShape.{u₁}}
+variable [Monad m] [MonadAttach m] [WeaklyLawfulMonadAttach m] [WPMonad m ps]
+
+/--
+Specification for `MonadAttach.attach`: the precondition is the weakest precondition of `x` with
+a postcondition that universally quantifies over the `CanReturn` proof.
+-/
+@[spec]
+theorem Spec.attach
+    {x : m α} {Q : PostCond (Subtype (MonadAttach.CanReturn x)) ps} :
+    ⦃ wp⟦x⟧ ⟨fun a => spred(∀ (h : MonadAttach.CanReturn x a), Q.1 ⟨a, h⟩), Q.2⟩ ⦄ MonadAttach.attach x ⦃Q⦄ := by
+  apply Triple.iff.mpr
+  conv in wp x => rw [← WeaklyLawfulMonadAttach.map_attach (x := x)]
+  simp only [WPMonad.wp_map]
+  -- Goal: (Subtype.val <$> wp (attach x)).apply ⟨..., Q.2⟩ ⊢ₛ (wp (attach x)).apply Q
+  -- Rewrite LHS using apply_Functor_map
+  rw [PredTrans.apply_Functor_map]
+  -- Now both sides have (wp (attach x)).apply, use mono
+  apply (wp (MonadAttach.attach x)).mono
+  constructor
+  · intro ⟨a, h⟩
+    dsimp only []
+    rw [SPred.forall_prop_of_true h]
+  · dsimp only []
+    exact ExceptConds.entails.refl _
+
+end
+
+section
+
+variable {β : Type u₁} {m : Type u₁ → Type v} {ps : PostShape.{u₁}}
+variable [Monad m] [MonadAttach m] [WPAdequacy m ps]
+
+/--
+Derives well-foundedness of `_root_.Lean.Repeat.IsPlausibleStep f` from a WP proof that every
+step decreases a measure.
+-/
+theorem _root_.Lean.Repeat.IsPlausibleStep.wf_of_wp_measure {f : Unit → β → m (ForInStep β)}
+    (measure : β → Nat)
+    (h : ∀ b, ⦃⌜True⌝⦄ f () b ⦃⇓ step => ⌜∀ b', step = .yield b' → measure b' < measure b⌝⦄)
+    : WellFounded (_root_.Lean.Repeat.IsPlausibleStep f) := by
+  apply Subrelation.wf ?_ (_root_.measure measure).wf
+  intro b' b hstep
+  simp_wf
+  simp [_root_.Lean.Repeat.IsPlausibleStep] at hstep
+  have h' : ⊢ₛ wp⟦f () b⟧ (⇓? step => ⌜∀ b', step = .yield b' → measure b' < measure b⌝) := by
+    apply SPred.entails.trans (Triple.iff.mp (h b))
+    apply (wp (f () b)).mono
+    simp [PostCond.entails]
+  exact WPAdequacy.adequate
+    (m := m) (ps := ps) (x := f () b)
+    (P := fun step => ∀ b', step = .yield b' → measure b' < measure b)
+    h' (.yield b') hstep b' rfl
+
+end
+

@@ -7,6 +7,7 @@ module
 
 prelude
 public import Std.Do.SPred.Notation
+import Init.PropLemmas
 
 @[expose] public section
 
@@ -157,3 +158,17 @@ theorem imp_curry {P Q : SVal.StateTuple σs → Prop} : (SVal.curry (fun t => �
   induction σs
   case nil => rfl
   case cons σ σs ih => intro s; simp only [imp_cons, SVal.curry_cons]; exact ih
+
+/-! # Prop-indexed quantifiers -/
+
+/-- Simplifies an existential over a true proposition. -/
+theorem exists_prop_of_true {p : Prop} (h : p) {P : p → SPred σs} : spred(∃ (h : p), P h) = P h := by
+  induction σs with
+  | nil => ext; exact _root_.exists_prop_of_true h
+  | cons σ σs ih => ext; exact ih
+
+/-- Simplifies a universal over a true proposition. -/
+theorem forall_prop_of_true {p : Prop} (h : p) {P : p → SPred σs} : spred(∀ (h : p), P h) = P h := by
+  induction σs with
+  | nil => ext; exact _root_.forall_prop_of_true h
+  | cons σ σs ih => ext; exact ih

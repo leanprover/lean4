@@ -487,6 +487,8 @@ instance : Monad BaseAsync where
   pure := BaseAsync.pure
   bind := BaseAsync.bind
 
+instance : MonadAttach BaseAsync := .trivial
+
 instance : MonadLift BaseIO BaseAsync where
   monadLift := BaseAsync.lift
 
@@ -706,6 +708,8 @@ instance : Functor (EAsync ε) where
 instance : Monad (EAsync ε) where
   pure := EAsync.pure
   bind := EAsync.bind
+
+instance : MonadAttach (EAsync ε) := .trivial
 
 instance : MonadLift (EIO ε) (EAsync ε) where
   monadLift := EAsync.lift

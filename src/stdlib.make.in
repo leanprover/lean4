@@ -164,9 +164,11 @@ endif
 endif
 ifeq "${CMAKE_BUILD_TYPE}" "Release"
 ifeq "${CMAKE_SYSTEM_NAME}" "Linux"
+ifdef CI
 # We only strip like this on Linux for now as our other platforms already seem to exclude the
 # unexported symbols by default
 	strip --strip-unneeded $@
+endif
 endif
 endif
 

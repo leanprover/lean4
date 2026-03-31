@@ -80,6 +80,7 @@ option(CCACHE "use ccache" ON)
 option(SPLIT_STACK "SPLIT_STACK" OFF)
 # When OFF we disable LLVM support
 option(LLVM "LLVM" OFF)
+option(STRIP_BINARIES "Strip produced binaries" ON)
 
 # When ON we include githash in the version string
 option(USE_GITHASH "GIT_HASH" ON)

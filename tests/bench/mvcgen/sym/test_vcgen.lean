@@ -35,6 +35,8 @@ set_option maxHeartbeats 10000000
     `(tactic| mvcgen') `(tactic| grind) [10]
   runBenchUsingTactic ``AddSubCancelSimp.Goal [``AddSubCancelSimp.loop, ``AddSubCancelSimp.step]
     `(tactic| mvcgen') `(tactic| grind) [10]
+  runBenchUsingTactic ``LetBinding.Goal [``LetBinding.loop, ``LetBinding.step]
+    `(tactic| mvcgen') `(tactic| grind) [10]
   runBenchUsingTactic ``GetThrowSet.Goal [``GetThrowSet.loop, ``GetThrowSet.step]
     `(tactic| mvcgen') `(tactic| sorry) [10]
   -- `mvcgen' with grind`: grind integrated into VCGen loop
@@ -76,3 +78,14 @@ example : Goal 10 := by
   mvcgen' simplifying_assumptions [Nat.add_assoc]
   case vc11 => trace_state; grind
   all_goals grind
+
+-- Verify that the let-binding code paths are exercised.
+-- `unfold` (unlike `simp only`) preserves letE nodes in the program, exercising:
+-- let-hoist, let-intro (non-duplicable value), and fvar-zeta (let-bound program head).
+-- Run with `set_option trace.Elab.Tactic.Do.vcgen true` to see the traces.
+open LetBinding in
+example : ∀ post, ⦃post⦄ step 5 ⦃⇓_ => post⦄ := by
+  unfold step
+  intro post
+  mvcgen'
+  grind

@@ -750,10 +750,12 @@ meta def solve (goal : MVarId) : VCGenM SolveResult := goal.withContext do
 
   if target.isLet then
     if isDuplicable target.letValue! then
+      trace[Elab.Tactic.Do.vcgen] "let-zeta-dup: {target.letName!}"
       -- Zeta right away: substitute value into body with sharing
       let target' ← Sym.instantiateRevBetaS target.letBody! #[target.letValue!]
       return .goals [← goal.replaceTargetDefEq target']
     else
+      trace[Elab.Tactic.Do.vcgen] "let-intro: {target.letName!}"
       -- Introduce let binding into the local context with proper sharing
       let IntrosResult.goal _ goal ← introsSimp goal
         | throwError "Failed to introduce let binding"
@@ -829,12 +831,13 @@ meta def solve (goal : MVarId) : VCGenM SolveResult := goal.withContext do
     goal.replaceTargetDefEq target
 
   -- Let-expressions: hoist to top of goal
-  if let .letE x ty val body _nonDep := f then
+  if let .letE x ty val body nonDep := f then
+    trace[Elab.Tactic.Do.vcgen] "let-hoist: {x}"
     let e' ← mkAppRevS body e.getAppRevArgs  -- body still has #0 for the let-bound var
     let wp' ← Sym.Internal.mkAppS₅ wpConst m ps instWP α e'
     let T' ← mkAppNS head (args.set! 2 wp')
     let target' ← mkAppS₃ ent σs H T'
-    let hoisted := Expr.letE x ty val target' false
+    let hoisted := Expr.letE x ty val target' nonDep
     return .goals [← goal.replaceTargetDefEq hoisted]
 
   -- Split ite/dite/match
@@ -850,6 +853,7 @@ meta def solve (goal : MVarId) : VCGenM SolveResult := goal.withContext do
   -- Zeta-unfold local let bindings on demand
   if let some fvarId := f.fvarId? then
     if let some val ← fvarId.getValue? then
+      trace[Elab.Tactic.Do.vcgen] "fvar-zeta: {(← fvarId.getUserName)}"
       let e' ← shareCommonInc (val.betaRev e.getAppRevArgs)
       return .goals [← replaceProgDefEq e']
 

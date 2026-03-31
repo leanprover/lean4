@@ -278,6 +278,12 @@ theorem toArray_mk {xs : Array α} (h : xs.size = n) : (Vector.mk xs h).toArray 
 @[simp, grind =] theorem sum_toArray [Add α] [Zero α] {xs : Vector α n} :
     xs.toArray.sum = xs.sum := rfl
 
+@[simp] theorem prod_mk [Mul α] [One α] {xs : Array α} (h : xs.size = n) :
+    (Vector.mk xs h).prod = xs.prod := rfl
+
+@[simp, grind =] theorem prod_toArray [Mul α] [One α] {xs : Vector α n} :
+    xs.toArray.prod = xs.prod := rfl
+
 @[simp] theorem eq_mk : xs = Vector.mk as h ↔ xs.toArray = as := by
   cases xs
   simp
@@ -550,6 +556,10 @@ theorem toArray_toList {xs : Vector α n} : xs.toList.toArray = xs.toArray := rf
 @[simp, grind =] theorem sum_toList [Add α] [Zero α] {xs : Vector α n} :
     xs.toList.sum = xs.sum := by
   rw [← toList_toArray, Array.sum_toList, sum_toArray]
+
+@[simp, grind =] theorem prod_toList [Mul α] [One α] {xs : Vector α n} :
+    xs.toList.prod = xs.prod := by
+  rw [← toList_toArray, Array.prod_toList, prod_toArray]
 
 @[simp] theorem getElem_toList {xs : Vector α n} {i : Nat} (h : i < xs.toList.length) :
     xs.toList[i] = xs[i]'(by simpa using h) := by
@@ -3134,3 +3144,39 @@ theorem sum_eq_foldl [Zero α] [Add α]
     {xs : Vector α n} :
     xs.sum = xs.foldl (b := 0) (· + ·) := by
   simp [← sum_toList, List.sum_eq_foldl]
+
+/-! ### prod -/
+
+@[simp, grind =] theorem prod_empty [Mul α] [One α] : (#v[] : Vector α 0).prod = 1 := rfl
+theorem prod_eq_foldr [Mul α] [One α] {xs : Vector α n} :
+    xs.prod = xs.foldr (b := 1) (· * ·) :=
+  rfl
+
+@[simp, grind =]
+theorem prod_append [One α] [Mul α] [Std.Associative (α := α) (· * ·)]
+    [Std.LeftIdentity (α := α) (· * ·) 1] [Std.LawfulLeftIdentity (α := α) (· * ·) 1]
+    {as₁ as₂ : Vector α n} : (as₁ ++ as₂).prod = as₁.prod * as₂.prod := by
+  simp [← prod_toList, List.prod_append]
+
+@[simp, grind =]
+theorem prod_singleton [Mul α] [One α] [Std.LawfulRightIdentity (· * ·) (1 : α)] {x : α} :
+    #v[x].prod = x := by
+  simp [← prod_toList, Std.LawfulRightIdentity.right_id x]
+
+@[simp, grind =]
+theorem prod_push [Mul α] [One α] [Std.Associative (α := α) (· * ·)]
+    [Std.LawfulIdentity (· * ·) (1 : α)] {xs : Vector α n} {x : α} :
+    (xs.push x).prod = xs.prod * x := by
+  simp [← prod_toArray]
+
+@[simp, grind =]
+theorem prod_reverse [One α] [Mul α] [Std.Associative (α := α) (· * ·)]
+    [Std.Commutative (α := α) (· * ·)]
+    [Std.LawfulLeftIdentity (α := α) (· * ·) 1] (xs : Vector α n) : xs.reverse.prod = xs.prod := by
+  simp [← prod_toList, List.prod_reverse]
+
+theorem prod_eq_foldl [One α] [Mul α]
+    [Std.Associative (α := α) (· * ·)] [Std.LawfulIdentity (· * ·) (1 : α)]
+    {xs : Vector α n} :
+    xs.prod = xs.foldl (b := 1) (· * ·) := by
+  simp [← prod_toList, List.prod_eq_foldl]

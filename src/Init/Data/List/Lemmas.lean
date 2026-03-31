@@ -1878,6 +1878,24 @@ theorem sum_reverse [Zero α] [Add α] [Std.Associative (α := α) (· + ·)]
     simp_all [sum_append, Std.Commutative.comm (α := α) _ 0,
       Std.LawfulLeftIdentity.left_id, Std.Commutative.comm]
 
+@[simp, grind =]
+theorem prod_append [Mul α] [One α] [Std.LawfulLeftIdentity (α := α) (· * ·) 1]
+    [Std.Associative (α := α) (· * ·)] {l₁ l₂ : List α} : (l₁ ++ l₂).prod = l₁.prod * l₂.prod := by
+  induction l₁ generalizing l₂ <;> simp_all [Std.Associative.assoc, Std.LawfulLeftIdentity.left_id]
+
+@[simp, grind =]
+theorem prod_singleton [Mul α] [One α] [Std.LawfulRightIdentity (· * ·) (1 : α)] {x : α} :
+    [x].prod = x := by
+  simp [List.prod_eq_foldr, Std.LawfulRightIdentity.right_id x]
+
+@[simp, grind =]
+theorem prod_reverse [One α] [Mul α] [Std.Associative (α := α) (· * ·)]
+    [Std.Commutative (α := α) (· * ·)]
+    [Std.LawfulLeftIdentity (α := α) (· * ·) 1] (xs : List α) : xs.reverse.prod = xs.prod := by
+  induction xs <;>
+    simp_all [prod_append, Std.Commutative.comm (α := α) _ 1,
+      Std.LawfulLeftIdentity.left_id, Std.Commutative.comm]
+
 /-! ### concat
 
 Note that `concat_eq_append` is a `@[simp]` lemma, so `concat` should usually not appear in goals.
@@ -2783,6 +2801,11 @@ theorem sum_eq_foldl [Zero α] [Add α] [Std.Associative (α := α) (· + ·)]
     [Std.LawfulIdentity (· + ·) (0 : α)] {xs : List α} :
     xs.sum = xs.foldl (init := 0) (· + ·) := by
   simp [sum_eq_foldr, foldl_eq_apply_foldr, Std.LawfulLeftIdentity.left_id]
+
+theorem prod_eq_foldl [One α] [Mul α] [Std.Associative (α := α) (· * ·)]
+    [Std.LawfulIdentity (· * ·) (1 : α)] {xs : List α} :
+    xs.prod = xs.foldl (init := 1) (· * ·) := by
+  simp [prod_eq_foldr, foldl_eq_apply_foldr, Std.LawfulLeftIdentity.left_id]
 
 -- The argument `f : α₁ → α₂` is intentionally explicit, as it is sometimes not found by unification.
 theorem foldl_hom (f : α₁ → α₂) {g₁ : α₁ → β → α₁} {g₂ : α₂ → β → α₂} {l : List β} {init : α₁}

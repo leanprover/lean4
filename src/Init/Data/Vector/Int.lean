@@ -30,4 +30,16 @@ theorem sum_reverse_int (xs : Vector Int n) : xs.reverse.sum = xs.sum := by
 theorem sum_eq_foldl_int {xs : Vector Int n} : xs.sum = xs.foldl (b := 0) (· + ·) := by
   simp only [foldl_eq_foldr_reverse, Int.add_comm, ← sum_eq_foldr, sum_reverse_int]
 
+@[simp] theorem prod_replicate_int {n : Nat} {a : Int} : (replicate n a).prod = a ^ n := by
+  simp [← prod_toArray, Array.prod_replicate_int]
+
+theorem prod_append_int {as₁ as₂ : Vector Int n} : (as₁ ++ as₂).prod = as₁.prod * as₂.prod := by
+  simp [← prod_toArray]
+
+theorem prod_reverse_int (xs : Vector Int n) : xs.reverse.prod = xs.prod := by
+  simp [prod_reverse]
+
+theorem prod_eq_foldl_int {xs : Vector Int n} : xs.prod = xs.foldl (b := 1) (· * ·) := by
+  simp only [foldl_eq_foldr_reverse, Int.mul_comm, ← prod_eq_foldr, prod_reverse_int]
+
 end Vector

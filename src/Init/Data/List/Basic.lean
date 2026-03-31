@@ -2056,6 +2056,20 @@ def sum {α} [Add α] [Zero α] : List α → α :=
 @[simp, grind =] theorem sum_cons [Add α] [Zero α] {a : α} {l : List α} : (a::l).sum = a + l.sum := rfl
 theorem sum_eq_foldr [Add α] [Zero α] {l : List α} : l.sum = l.foldr (· + ·) 0 := rfl
 
+/--
+Computes the product of the elements of a list.
+
+Examples:
+ * `[a, b, c].prod = a * (b * (c * 1))`
+ * `[1, 2, 5].prod = 10`
+-/
+def prod {α} [Mul α] [One α] : List α → α :=
+  foldr (· * ·) 1
+
+@[simp, grind =] theorem prod_nil [Mul α] [One α] : ([] : List α).prod = 1 := rfl
+@[simp, grind =] theorem prod_cons [Mul α] [One α] {a : α} {l : List α} : (a::l).prod = a * l.prod := rfl
+theorem prod_eq_foldr [Mul α] [One α] {l : List α} : l.prod = l.foldr (· * ·) 1 := rfl
+
 /-! ### range -/
 
 /--
